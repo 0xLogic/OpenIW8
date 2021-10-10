@@ -361,6 +361,7 @@ EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueDynamicCandidateEdges
 */
 void EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueDynamicCandidateEdges(EdgeOctreeQuery<EdgeOctreeQueryFrustum> *this, const BgHandler *handler, unsigned __int64 edgePoolMaxSize, EdgeId *outCandidiateEdgeIdPool, unsigned __int64 *outCandidateEdgeIdCount)
 {
+  const EdgeOctreeQueryFrustum *m_queryShape; 
   Physics_WorldId v11; 
   unsigned int v12; 
   unsigned int HitBodyId; 
@@ -400,15 +401,18 @@ void EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueDynamicCandidateEdges
   if ( !outCandidateEdgeIdCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 927, ASSERT_TYPE_SANITY, "( outCandidateEdgeIdCount )", (const char *)&queryFormat, "outCandidateEdgeIdCount") )
     __debugbreak();
   v31 = *((_BYTE *)EdgeOctree_BucketFlagsMask + this->m_bucket);
-  _RAX = this->m_queryShape;
+  m_queryShape = this->m_queryShape;
+  _XMM1.v = (__m128)m_queryShape->m_minExtent;
+  LODWORD(min.v[0]) = _XMM1.v.m128_i32[0];
   __asm
   {
-    vmovups xmm1, xmmword ptr [rax+1A0h]
-    vmovss  dword ptr [rbp+40h+min], xmm1
     vextractps dword ptr [rbp+40h+min+4], xmm1, 1
     vextractps dword ptr [rbp+40h+min+8], xmm1, 2
-    vmovups xmm2, xmmword ptr [rax+1B0h]
-    vmovss  dword ptr [rbp+40h+max], xmm2
+  }
+  _XMM2.v = (__m128)m_queryShape->m_maxExtent;
+  LODWORD(max.v[0]) = _XMM2.v.m128_i32[0];
+  __asm
+  {
     vextractps dword ptr [rbp+40h+max+4], xmm2, 1
     vextractps dword ptr [rbp+40h+max+8], xmm2, 2
   }
@@ -553,6 +557,9 @@ EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueDynamicCandidateEdges
 */
 void EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueDynamicCandidateEdges(EdgeOctreeQuery<EdgeOctreeQuerySphere> *this, const BgHandler *handler, unsigned __int64 edgePoolMaxSize, EdgeId *outCandidiateEdgeIdPool, unsigned __int64 *outCandidateEdgeIdCount)
 {
+  const EdgeOctreeQuerySphere *m_queryShape; 
+  __m128 v; 
+  __m128 v10; 
   Physics_WorldId v13; 
   unsigned int v14; 
   unsigned int HitBodyId; 
@@ -592,17 +599,20 @@ void EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueDynamicCandidateEdges(
   if ( !outCandidateEdgeIdCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 927, ASSERT_TYPE_SANITY, "( outCandidateEdgeIdCount )", (const char *)&queryFormat, "outCandidateEdgeIdCount") )
     __debugbreak();
   v33 = *((_BYTE *)EdgeOctree_BucketFlagsMask + this->m_bucket);
-  _RAX = this->m_queryShape;
+  m_queryShape = this->m_queryShape;
+  v = m_queryShape->m_radius.v;
+  v10 = m_queryShape->m_midpoint.v;
+  _XMM3 = _mm128_sub_ps(v10, v);
+  _XMM2 = _mm128_add_ps(v10, v);
+  min.v[0] = _XMM3.m128_f32[0];
   __asm
   {
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vsubps  xmm3, xmm0, xmm1
-    vaddps  xmm2, xmm0, xmm1
-    vmovss  dword ptr [rbp+40h+min], xmm3
     vextractps dword ptr [rbp+40h+min+4], xmm3, 1
     vextractps dword ptr [rbp+40h+min+8], xmm3, 2
-    vmovss  dword ptr [rbp+40h+max], xmm2
+  }
+  max.v[0] = _XMM2.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rbp+40h+max+4], xmm2, 1
     vextractps dword ptr [rbp+40h+max+8], xmm2, 2
   }
@@ -1110,13 +1120,12 @@ bool EdgeOctreeQueryFrustum::EnclosedByOctreeNode(EdgeOctreeQueryFrustum *this, 
   float4 r_outMaxExtent; 
   float4 r_outMinExtent; 
 
-  _RBX = this;
   EdgeOctreeQueryShape::Float4CalcNodeExtents(r_octree, r_node, &r_outMinExtent, &r_outMaxExtent);
+  _XMM0 = r_outMaxExtent.v;
+  __asm { vcmpltps xmm1, xmm0, xmmword ptr [rbx+1B0h] }
+  _XMM2.v = (__m128)this->m_minExtent;
   __asm
   {
-    vmovups xmm0, xmmword ptr [rsp+58h+r_outMaxExtent.v]
-    vcmpltps xmm1, xmm0, xmmword ptr [rbx+1B0h]
-    vmovups xmm2, xmmword ptr [rbx+1A0h]
     vcmpltps xmm0, xmm2, xmmword ptr [rsp+58h+r_outMinExtent.v]
     vmovmskps eax, xmm1
     vmovmskps ecx, xmm0
@@ -1131,34 +1140,27 @@ EdgeOctreeQuerySphere::EnclosedByOctreeNode
 */
 bool EdgeOctreeQuerySphere::EnclosedByOctreeNode(EdgeOctreeQuerySphere *this, const PMROctreeMetadata *r_octree, const PMROctreeNode *r_node)
 {
-  bool result; 
+  __m128 v4; 
+  __m128 v5; 
   float4 r_outMinExtent; 
   float4 r_outMaxExtent; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = this;
   EdgeOctreeQueryShape::Float4CalcNodeExtents(r_octree, r_node, &r_outMinExtent, &r_outMaxExtent);
+  v4 = _mm128_sub_ps(this->m_midpoint.v, r_outMinExtent.v);
+  v5 = _mm128_sub_ps(r_outMaxExtent.v, this->m_midpoint.v);
+  _XMM1 = _mm_shuffle_ps(v5, _mm_shuffle_ps(v5, g_infinity.v, 250), 132);
   __asm
   {
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vsubps  xmm6, xmm0, xmmword ptr [rsp+68h+r_outMinExtent.v]
-    vmovups xmm5, xmmword ptr [rbx+80h]
-    vmovups xmm1, xmm0
-    vmovups xmm0, xmmword ptr [rsp+68h+r_outMaxExtent.v]
-    vsubps  xmm4, xmm0, xmm1
-    vshufps xmm0, xmm4, xmmword ptr cs:?g_infinity@@3Ufloat4@@B.v, 0FAh ; 'ú'; float4 const g_infinity
-    vshufps xmm1, xmm4, xmm0, 84h ; '„'
-    vshufps xmm0, xmm6, xmmword ptr cs:?g_infinity@@3Ufloat4@@B.v, 0FAh ; 'ú'; float4 const g_infinity
-    vmovups xmm2, xmm5
     vcmpltps xmm2, xmm1, xmm2
     vmovmskps eax, xmm2
-    vshufps xmm1, xmm6, xmm0, 84h ; '„'
+  }
+  _XMM1 = _mm_shuffle_ps(v4, _mm_shuffle_ps(v4, g_infinity.v, 250), 132);
+  __asm
+  {
     vcmpltps xmm2, xmm1, xmm5
     vmovmskps ecx, xmm2
   }
-  result = (_ECX & 0xF) == 0 && (_EAX & 0xF) == 0;
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return result;
+  return (_ECX & 0xF) == 0 && (_EAX & 0xF) == 0;
 }
 
 /*
@@ -1169,90 +1171,93 @@ EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute
 void EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(EdgeOctreeQuery<EdgeOctreeQueryFrustum> *this, const BgHandler *handler, EdgeId *resultIdPool, float *resultFractionPool, float *resultDistancePool, unsigned __int64 resultPoolSize, unsigned __int64 *outResultCount, unsigned int *outHintNodeIndex)
 {
   signed __int64 v8; 
-  void *v19; 
-  unsigned __int64 *v24; 
-  unsigned int *v25; 
-  unsigned __int64 v26; 
-  unsigned __int64 v27; 
-  int v28; 
-  int v38; 
-  unsigned int v39; 
-  unsigned int v40; 
-  __int64 v41; 
+  void *v9; 
+  unsigned __int64 *v14; 
+  unsigned int *v15; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
+  int v18; 
+  const EdgeOctreeQueryFrustum *m_queryShape; 
+  float v22; 
+  __int128 v23; 
+  __int128 v24; 
+  int v26; 
+  unsigned int v27; 
+  unsigned int v28; 
+  __int64 v29; 
+  MapEdgeList *v30; 
   unsigned int staticQueryTypes; 
-  unsigned __int64 v87; 
+  float v32; 
+  __int128 v34; 
+  float v37; 
+  __int128 v39; 
+  __int128 v43; 
+  __int128 v47; 
+  int v55; 
+  __int128 v57; 
+  __int128 v59; 
+  __int128 v61; 
+  unsigned __int64 v69; 
   PMROctreeMetadata *edgeOctrees; 
   unsigned int m_hint; 
   unsigned int childNodeSetIndex; 
-  const PMROctreeNode *v91; 
-  unsigned int v92; 
-  const PMROctreeNode *v93; 
-  unsigned __int8 v94; 
-  MapEdgeList *v95; 
+  const PMROctreeNode *v73; 
+  unsigned int v74; 
+  const PMROctreeNode *v75; 
+  unsigned __int8 v76; 
+  MapEdgeList *v77; 
   unsigned int dynamicQueryTypes; 
-  char v97; 
-  const dvar_t *v98; 
-  unsigned __int64 v99; 
-  EdgeId *v103; 
-  __int64 v104; 
+  char v79; 
+  const dvar_t *v80; 
+  unsigned __int64 v81; 
+  float *v82; 
+  EdgeId *v83; 
+  __int64 v84; 
   unsigned int EdgeIndex; 
-  const float4 (*v106)[2]; 
-  unsigned __int64 v109; 
-  __int64 v111; 
-  EdgeId *v112; 
-  __int64 v113; 
-  int v114; 
+  const float4 (*v86)[2]; 
+  unsigned __int64 v87; 
+  float *v88; 
+  __int64 v89; 
+  EdgeId *v90; 
+  __int64 v91; 
+  int v92; 
   unsigned int EntityIndex; 
-  unsigned __int64 v119; 
-  _DWORD *v120; 
-  __int64 v121; 
-  __int64 v122; 
-  __int64 v123; 
-  unsigned __int64 v124; 
-  _DWORD *v125; 
-  _DWORD *v126; 
-  unsigned __int64 v127; 
-  unsigned __int64 v128; 
-  unsigned __int64 v129; 
-  _DWORD *v130; 
-  _DWORD *v131; 
-  __int64 v143; 
+  unsigned __int64 v94; 
+  _DWORD *v95; 
+  __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  unsigned __int64 v99; 
+  _DWORD *v100; 
+  _DWORD *v101; 
+  unsigned __int64 v102; 
+  unsigned __int64 v103; 
+  unsigned __int64 v104; 
+  _DWORD *v105; 
+  _DWORD *v106; 
+  __int64 v107; 
   unsigned __int64 *outLeafNodeIndexCount; 
-  __int64 v145; 
-  __int64 v146; 
-  __int64 v147; 
-  char v148[21008]; 
-  __int64 v149; 
-  char v160; 
+  __int64 v109; 
+  __int64 v110; 
+  __int64 v111; 
+  char v112[21008]; 
+  __int64 v113; 
 
-  v19 = alloca(v8);
-  v149 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+5378h+var_58], xmm6
-    vmovaps [rsp+5378h+var_68], xmm7
-    vmovaps [rsp+5378h+var_78], xmm8
-    vmovaps [rsp+5378h+var_88], xmm9
-    vmovaps [rsp+5378h+var_98], xmm10
-    vmovaps [rsp+5378h+var_A8], xmm11
-    vmovaps [rsp+5378h+var_B8], xmm12
-    vmovaps [rsp+5378h+var_C8], xmm13
-    vmovaps [rsp+5378h+var_D8], xmm14
-    vmovaps [rsp+5378h+var_E8], xmm15
-  }
-  _RBP = (unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 21000) = (unsigned __int64)&v143 ^ _security_cookie;
+  v9 = alloca(v8);
+  v113 = -2i64;
+  _RBP = (unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(_RBP + 21000) = (unsigned __int64)&v107 ^ _security_cookie;
   *(_QWORD *)(_RBP + 64) = resultFractionPool;
   *(_QWORD *)(_RBP + 56) = resultIdPool;
   *(_QWORD *)(_RBP + 40) = handler;
   *(_QWORD *)(_RBP + 48) = resultDistancePool;
-  v24 = outResultCount;
+  v14 = outResultCount;
   *(_QWORD *)(_RBP + 32) = outResultCount;
-  v25 = outHintNodeIndex;
+  v15 = outHintNodeIndex;
   *(_QWORD *)(_RBP + 24) = outHintNodeIndex;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1036, ASSERT_TYPE_SANITY, "( handler != nullptr )", (const char *)&queryFormat, "handler != nullptr") )
     __debugbreak();
-  v26 = 0i64;
+  v16 = 0i64;
   if ( !resultIdPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1037, ASSERT_TYPE_ASSERT, "( resultIdPool ) != ( nullptr )", "%s != %s\n\t%p, %p", "resultIdPool", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !resultFractionPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1038, ASSERT_TYPE_ASSERT, "( resultFractionPool ) != ( nullptr )", "%s != %s\n\t%p, %p", "resultFractionPool", "nullptr", NULL, NULL) )
@@ -1265,179 +1270,186 @@ void EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(EdgeOctreeQuery<EdgeOctree
   *outResultCount = 0i64;
   if ( outHintNodeIndex )
     *outHintNodeIndex = 16777208;
-  v27 = 0i64;
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
-  v28 = 16777208;
-  _RAX = this->m_queryShape;
+  v17 = 0i64;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
+  v18 = 16777208;
+  m_queryShape = this->m_queryShape;
+  _XMM1.v = (__m128)m_queryShape->m_minExtent;
+  *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = _XMM1.v.m128_f32[0];
   __asm
   {
-    vmovups xmm1, xmmword ptr [rax+1A0h]
-    vmovss  dword ptr [rbp+60h], xmm1
     vextractps dword ptr [rbp+64h], xmm1, 1
     vextractps dword ptr [rbp+68h], xmm1, 2
-    vmovups xmm2, xmmword ptr [rax+1B0h]
-    vmovss  dword ptr [rbp+50h], xmm2
+  }
+  _XMM2.v = (__m128)m_queryShape->m_maxExtent;
+  *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50) = _XMM2.v.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rbp+54h], xmm2, 1
     vextractps dword ptr [rbp+58h], xmm2, 2
   }
   Bounds_SetMinMax3D((Bounds *)(_RBP + 144), (const vec3_t *)(_RBP + 96), (const vec3_t *)(_RBP + 80));
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8) = 0;
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8) = 0;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) = 0i64;
   SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 256), cm.mapEnts->edgeListSpatialTree, (const Bounds *)(_RBP + 144));
   if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 256)) )
   {
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rbp+58h]
-      vmovss  xmm12, dword ptr [rbp+54h]
-      vmovss  xmm13, dword ptr [rbp+50h]
-      vmovss  xmm14, dword ptr [rbp+68h]
-      vmovss  xmm15, dword ptr [rbp+64h]
-      vxorps  xmm10, xmm10, xmm10
-    }
-    v38 = 0;
+    v22 = *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50);
+    v23 = *(unsigned int *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x68);
+    v24 = *(unsigned int *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x64);
+    _XMM10 = 0i64;
+    v26 = 0;
     do
     {
-      if ( !*(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+      if ( !*(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
         __debugbreak();
-      v39 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 20i64);
-      v40 = *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
-      if ( v40 == v39 )
+      v27 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 20i64);
+      v28 = *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
+      if ( v28 == v27 )
       {
-        if ( !*(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+        if ( !*(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
           __debugbreak();
-        if ( (**(_BYTE **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+        if ( (**(_BYTE **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
           __debugbreak();
-        if ( *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) >= **(unsigned __int8 **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+        if ( *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) >= **(unsigned __int8 **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
           __debugbreak();
-        v41 = *(unsigned int *)(*(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) + 4i64 * *(unsigned int *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) + 4);
+        v29 = *(unsigned int *)(*(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) + 4i64 * *(unsigned int *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) + 4);
       }
       else
       {
-        if ( v40 >= v39 )
+        if ( v28 >= v27 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
             __debugbreak();
-          v40 = *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
+          v28 = *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
         }
-        v41 = *(unsigned int *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 8i64) + 4i64 * v40);
+        v29 = *(unsigned int *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 8i64) + 4i64 * v28);
       }
-      _RSI = cm.mapEnts->edgeLists[v41];
-      if ( _RSI )
+      v30 = cm.mapEnts->edgeLists[v29];
+      if ( v30 )
       {
-        staticQueryTypes = _RSI->staticQueryTypes;
+        staticQueryTypes = v30->staticQueryTypes;
         if ( _bittest((const int *)&staticQueryTypes, (unsigned __int8)this->m_bucket) )
         {
+          v32 = v30->mins.v[0];
+          *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x5C) = 0;
+          v34 = *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50);
+          *(float *)&v34 = v32;
+          _XMM1 = v34;
           __asm
           {
-            vmovss  xmm4, dword ptr [rsi+8]
-            vmovss  xmm5, dword ptr [rsi+0Ch]
-            vmovss  xmm9, dword ptr [rsi+10h]
-          }
-          *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x5C) = 0;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rbp+50h]
-            vmovss  xmm1, xmm1, xmm4
             vinsertps xmm1, xmm1, xmm5, 10h
             vinsertps xmm1, xmm1, xmm9, 20h ; ' '
-            vmovups xmmword ptr [rbp+50h], xmm1
-            vmovss  xmm6, dword ptr [rsi+14h]
           }
-          *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x7C) = 0;
+          *(__m128 *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50) = _XMM1;
+          v37 = v30->maxs.v[0];
+          *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x7C) = 0;
+          v39 = *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70);
+          *(float *)&v39 = v37;
+          _XMM3 = v39;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rbp+70h]
-            vmovss  xmm3, xmm3, xmm6
             vinsertps xmm3, xmm3, dword ptr [rsi+18h], 10h
             vinsertps xmm3, xmm3, dword ptr [rsi+1Ch], 20h ; ' '
-            vmovups xmmword ptr [rbp+70h], xmm3
           }
-          *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x8C) = 0;
+          *(__m128 *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70) = _XMM3;
+          *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x8C) = 0;
+          v43 = *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x80);
+          *(float *)&v43 = *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60);
+          _XMM2 = v43;
           __asm
           {
-            vmovups xmm2, xmmword ptr [rbp+80h]
-            vmovss  xmm0, dword ptr [rbp+60h]
-            vmovss  xmm2, xmm2, xmm0
             vinsertps xmm2, xmm2, xmm15, 10h
             vinsertps xmm2, xmm2, xmm14, 20h ; ' '
-            vmovups xmmword ptr [rbp+80h], xmm2
           }
-          *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11EC) = 0;
+          *(__m128 *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x80) = _XMM2;
+          *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11EC) = 0;
+          v47 = *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0);
+          *(float *)&v47 = v22;
+          _XMM0 = v47;
           __asm
           {
-            vmovups xmm0, xmmword ptr [rbp+11E0h]
-            vmovss  xmm0, xmm0, xmm13
             vinsertps xmm0, xmm0, xmm12, 10h
             vinsertps xmm0, xmm0, xmm11, 20h ; ' '
-            vmovups xmmword ptr [rbp+11E0h], xmm0
-            vsubps  xmm1, xmm1, xmm0
-            vsubps  xmm0, xmm2, xmm3
-            vmaxps  xmm2, xmm1, xmm0
-            vxorps  xmm1, xmm1, xmm1
+          }
+          *(__m128 *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0) = _XMM0;
+          _XMM1 = _mm128_sub_ps(_XMM1, _XMM0);
+          _mm128_sub_ps(_XMM2, _XMM3);
+          __asm { vmaxps  xmm2, xmm1, xmm0 }
+          _XMM1 = 0i64;
+          __asm
+          {
             vcmpltps xmm0, xmm1, xmm2
             vmovmskps ebx, xmm0
-            vsubss  xmm3, xmm4, xmm13
-            vsubss  xmm4, xmm5, xmm12
-            vsubss  xmm5, xmm9, xmm11
-            vmovss  xmm0, dword ptr [rbp+60h]
-            vsubss  xmm0, xmm0, xmm6
-            vsubss  xmm1, xmm15, dword ptr [rsi+18h]
-            vsubss  xmm2, xmm14, dword ptr [rsi+1Ch]
+          }
+          v55 = _EBX & 0xF;
+          v57 = *(unsigned int *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60);
+          *(float *)&v57 = *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) - v37;
+          _XMM0 = v57;
+          v59 = v24;
+          *(float *)&v59 = *(float *)&v24 - v30->maxs.v[1];
+          _XMM1 = v59;
+          v61 = v23;
+          *(float *)&v61 = *(float *)&v23 - v30->maxs.v[2];
+          _XMM2 = v61;
+          __asm
+          {
             vmaxss  xmm6, xmm0, xmm3
             vmaxss  xmm3, xmm1, xmm4
             vmaxss  xmm4, xmm2, xmm5
-            vsubss  xmm0, xmm6, xmm3
             vcmpless xmm1, xmm10, xmm0
             vblendvps xmm2, xmm3, xmm6, xmm1
-            vmovss  dword ptr [rbp+8], xmm2
-            vsubss  xmm0, xmm2, xmm4
+          }
+          *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(float *)&_XMM2;
+          __asm
+          {
             vcmpless xmm1, xmm10, xmm0
             vblendvps xmm0, xmm4, xmm2, xmm1
-            vmovss  dword ptr [rbp+8], xmm0
-            vcomiss xmm0, xmm10
           }
-          if ( (_EBX & 0xF) == 0 )
+          *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(float *)&_XMM0;
+          if ( *(float *)&_XMM0 > 0.0 != (v55 != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1114, ASSERT_TYPE_ASSERT, "(traditionalBoxDistOut == boxDistOutside)", (const char *)&queryFormat, "traditionalBoxDistOut == boxDistOutside") )
+            __debugbreak();
+          if ( !v55 )
           {
-            v87 = 0i64;
-            if ( _RSI->numEdgeOctrees )
+            v69 = 0i64;
+            if ( v30->numEdgeOctrees )
             {
-              edgeOctrees = _RSI->edgeOctrees;
+              edgeOctrees = v30->edgeOctrees;
               while ( edgeOctrees->edgeBucket != this->m_bucket )
               {
-                ++v87;
+                ++v69;
                 ++edgeOctrees;
-                if ( v87 >= _RSI->numEdgeOctrees )
-                  goto LABEL_60;
+                if ( v69 >= v30->numEdgeOctrees )
+                  goto LABEL_63;
               }
               if ( edgeOctrees && (edgeOctrees->flags[0] & 1) != 0 )
               {
-                ++v38;
+                ++v26;
                 m_hint = this->m_hint;
                 *(_DWORD *)_RBP = m_hint;
-                if ( (edgeOctrees->rootNode.flags & 2) != 0 || v38 > 1 || (childNodeSetIndex = edgeOctrees->rootNode.childNodeSetIndex, m_hint >> 3 < childNodeSetIndex) || childNodeSetIndex + edgeOctrees->nodeSetCount <= m_hint >> 3 )
+                if ( (edgeOctrees->rootNode.flags & 2) != 0 || v26 > 1 || (childNodeSetIndex = edgeOctrees->rootNode.childNodeSetIndex, m_hint >> 3 < childNodeSetIndex) || childNodeSetIndex + edgeOctrees->nodeSetCount <= m_hint >> 3 )
                 {
                   m_hint = 16777208;
                   *(_DWORD *)_RBP = 16777208;
                 }
-                v91 = EdgeOctreeQuery<EdgeOctreeQueryFrustum>::NodeIndexToNode(_RSI, edgeOctrees, m_hint);
-                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::FindSmallestEnclosingNode(this, _RSI, edgeOctrees, v91, (unsigned int *)((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64));
-                v92 = *(_DWORD *)_RBP;
-                if ( v28 == 16777208 && v92 != 16777208 )
-                  v28 = *(_DWORD *)_RBP;
-                *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
-                v93 = EdgeOctreeQuery<EdgeOctreeQueryFrustum>::NodeIndexToNode(_RSI, edgeOctrees, v92);
-                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectIntersectingLeafNodes(this, _RSI, edgeOctrees, v93, (unsigned int *)(_RBP + 8704), (unsigned __int64 *)(_RBP + 16));
-                *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
-                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueStaticCandidateEdges(_RSI, edgeOctrees, (const unsigned int *)(_RBP + 8704), *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10), (EdgeId *)(_RBP + 8 * v27 + 4608), (unsigned __int64 *)(_RBP + 8));
-                v27 += *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-                if ( v27 > 0x200 )
+                v73 = EdgeOctreeQuery<EdgeOctreeQueryFrustum>::NodeIndexToNode(v30, edgeOctrees, m_hint);
+                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::FindSmallestEnclosingNode(this, v30, edgeOctrees, v73, (unsigned int *)((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64));
+                v74 = *(_DWORD *)_RBP;
+                if ( v18 == 16777208 && v74 != 16777208 )
+                  v18 = *(_DWORD *)_RBP;
+                *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
+                v75 = EdgeOctreeQuery<EdgeOctreeQueryFrustum>::NodeIndexToNode(v30, edgeOctrees, v74);
+                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectIntersectingLeafNodes(this, v30, edgeOctrees, v75, (unsigned int *)(_RBP + 8704), (unsigned __int64 *)(_RBP + 16));
+                *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
+                EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueStaticCandidateEdges(v30, edgeOctrees, (const unsigned int *)(_RBP + 8704), *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10), (EdgeId *)(_RBP + 8 * v17 + 4608), (unsigned __int64 *)(_RBP + 8));
+                v17 += *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+                if ( v17 > 0x200 )
                 {
-                  LODWORD(v147) = 512;
-                  LODWORD(v146) = v27;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1207, ASSERT_TYPE_ASSERT, "( staticEdgeCount ) <= ( (512) )", "%s <= %s\n\t%i, %i", "staticEdgeCount", "MAX_SELECTION_EDGES", v146, v147) )
+                  LODWORD(v111) = 512;
+                  LODWORD(v110) = v17;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1207, ASSERT_TYPE_ASSERT, "( staticEdgeCount ) <= ( (512) )", "%s <= %s\n\t%i, %i", "staticEdgeCount", "MAX_SELECTION_EDGES", v110, v111) )
                     __debugbreak();
                 }
               }
@@ -1445,244 +1457,205 @@ void EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(EdgeOctreeQuery<EdgeOctree
           }
         }
       }
-LABEL_60:
+LABEL_63:
       ;
     }
     while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 256)) );
-    *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v27;
-    v24 = *(unsigned __int64 **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-    v25 = *(unsigned int **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v17;
+    v14 = *(unsigned __int64 **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+    v15 = *(unsigned int **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
   }
-  if ( v25 )
-    *v25 = v28;
-  v94 = 0;
+  if ( v15 )
+    *v15 = v18;
+  v76 = 0;
   if ( cm.mapEnts->numEdgeLists )
   {
-    v95 = *cm.mapEnts->edgeLists;
-    if ( v95 )
+    v77 = *cm.mapEnts->edgeLists;
+    if ( v77 )
     {
-      dynamicQueryTypes = v95->dynamicQueryTypes;
-      v94 = _bittest((const int *)&dynamicQueryTypes, (unsigned __int8)this->m_bucket);
+      dynamicQueryTypes = v77->dynamicQueryTypes;
+      v76 = _bittest((const int *)&dynamicQueryTypes, (unsigned __int8)this->m_bucket);
     }
   }
-  v97 = this->m_flags & v94;
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = 0i64;
-  v98 = DCONST_DVARBOOL_edge_includeDynamicEdges;
+  v79 = this->m_flags & v76;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = 0i64;
+  v80 = DCONST_DVARBOOL_edge_includeDynamicEdges;
   if ( !DCONST_DVARBOOL_edge_includeDynamicEdges && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_includeDynamicEdges") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v98);
-  if ( v98->current.enabled && v97 )
-    EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueDynamicCandidateEdges(this, *(const BgHandler **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28), 512 - v27, (EdgeId *)(_RBP + 8 * v27 + 4608), (unsigned __int64 *)(_RBP + 24));
-  v99 = 0i64;
-  __asm
+  Dvar_CheckFrontendServerThread(v80);
+  if ( v80->current.enabled && v79 )
+    EdgeOctreeQuery<EdgeOctreeQueryFrustum>::CollectUniqueDynamicCandidateEdges(this, *(const BgHandler **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28), 512 - v17, (EdgeId *)(_RBP + 8 * v17 + 4608), (unsigned __int64 *)(_RBP + 24));
+  v81 = 0i64;
+  if ( v17 )
   {
-    vmovss  xmm6, cs:__real@ff7fffff
-    vmovss  xmm7, cs:__real@7f7fffff
-  }
-  if ( v27 )
-  {
-    _R14 = _RBP + 12808;
-    v103 = (EdgeId *)(_RBP + 4608);
-    v104 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+    v82 = (float *)(_RBP + 12808);
+    v83 = (EdgeId *)(_RBP + 4608);
+    v84 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
     do
     {
-      if ( EdgeId::GetIsDynamic(v103) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1256, ASSERT_TYPE_ASSERT, "(!edgeId.GetIsDynamic())", "%s\n\tDynamic edge encountered in static edge test.", "!edgeId.GetIsDynamic()") )
+      if ( EdgeId::GetIsDynamic(v83) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1256, ASSERT_TYPE_ASSERT, "(!edgeId.GetIsDynamic())", "%s\n\tDynamic edge encountered in static edge test.", "!edgeId.GetIsDynamic()") )
         __debugbreak();
-      EdgeIndex = EdgeId::GetEdgeIndex(v103);
-      v106 = MapEdgeList_LookupSegment(EdgeIndex);
-      __asm
+      EdgeIndex = EdgeId::GetEdgeIndex(v83);
+      v86 = MapEdgeList_LookupSegment(EdgeIndex);
+      *(const float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_N3_4028235e38;
+      *(const float *)_RBP = FLOAT_3_4028235e38;
+      if ( EdgeOctreeQueryFrustum::IntersectsLineSegment((EdgeOctreeQueryFrustum *)this->m_queryShape, v86, (float *)(_RBP + 8), (float *)((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64)) )
       {
-        vmovss  dword ptr [rbp+8], xmm6
-        vmovss  dword ptr [rbp+0], xmm7
-      }
-      if ( EdgeOctreeQueryFrustum::IntersectsLineSegment((EdgeOctreeQueryFrustum *)this->m_queryShape, v106, (float *)(_RBP + 8), (float *)((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64)) )
-      {
-        if ( (unsigned int)v99 >= 0x200 )
+        if ( (unsigned int)v81 >= 0x200 )
         {
-          LODWORD(v145) = 512;
-          LODWORD(outLeafNodeIndexCount) = v99;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1265, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v145) )
+          LODWORD(v109) = 512;
+          LODWORD(outLeafNodeIndexCount) = v81;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1265, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v109) )
             __debugbreak();
         }
-        *(EdgeId *)(_R14 - 8) = *v103;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0]
-          vmovss  dword ptr [r14], xmm0
-          vmovss  xmm1, dword ptr [rbp+8]
-          vmovss  dword ptr [r14+4], xmm1
-        }
-        ++v99;
-        _R14 += 16i64;
+        *((EdgeId *)v82 - 1) = *v83;
+        *v82 = *(float *)_RBP;
+        v82[1] = *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+        ++v81;
+        v82 += 4;
       }
-      ++v103;
-      --v104;
+      ++v83;
+      --v84;
     }
-    while ( v104 );
-    v26 = 0i64;
-    v24 = *(unsigned __int64 **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-    v27 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+    while ( v84 );
+    v16 = 0i64;
+    v14 = *(unsigned __int64 **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+    v17 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
   }
-  v109 = v27 + *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-  if ( v27 > v109 )
+  v87 = v17 + *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+  if ( v17 > v87 )
   {
-    LODWORD(v147) = v27 + *(_DWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-    LODWORD(v146) = v27;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1284, ASSERT_TYPE_ASSERT, "( dynamicEdgeBeginIndex ) <= ( dynamicEdgeEndIndex )", "%s <= %s\n\t%i, %i", "dynamicEdgeBeginIndex", "dynamicEdgeEndIndex", v146, v147) )
+    LODWORD(v111) = v17 + *(_DWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    LODWORD(v110) = v17;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1284, ASSERT_TYPE_ASSERT, "( dynamicEdgeBeginIndex ) <= ( dynamicEdgeEndIndex )", "%s <= %s\n\t%i, %i", "dynamicEdgeBeginIndex", "dynamicEdgeEndIndex", v110, v111) )
       __debugbreak();
   }
-  if ( v109 > 0x200 )
+  if ( v87 > 0x200 )
   {
-    LODWORD(v147) = 512;
-    LODWORD(v146) = v109;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1285, ASSERT_TYPE_ASSERT, "( dynamicEdgeEndIndex ) <= ( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "dynamicEdgeEndIndex", "ARRAY_COUNT( selectedEdges )", v146, v147) )
+    LODWORD(v111) = 512;
+    LODWORD(v110) = v87;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1285, ASSERT_TYPE_ASSERT, "( dynamicEdgeEndIndex ) <= ( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "dynamicEdgeEndIndex", "ARRAY_COUNT( selectedEdges )", v110, v111) )
       __debugbreak();
   }
-  if ( v27 < v109 )
+  if ( v17 < v87 )
   {
-    _R14 = _RBP + 16 * v99 + 12808;
-    v111 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-    v112 = (EdgeId *)(_RBP + 8 * v111 + 4608);
-    v113 = v109 - v111;
-    v114 = 502048;
+    v88 = (float *)(_RBP + 16 * v81 + 12808);
+    v89 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+    v90 = (EdgeId *)(_RBP + 8 * v89 + 4608);
+    v91 = v87 - v89;
+    v92 = 502048;
     do
     {
-      if ( !EdgeId::GetIsDynamic(v112) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1289, ASSERT_TYPE_ASSERT, "(edgeId.GetIsDynamic())", "%s\n\tStatic edge encountered in dynamic edge test.", "edgeId.GetIsDynamic()") )
+      if ( !EdgeId::GetIsDynamic(v90) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1289, ASSERT_TYPE_ASSERT, "(edgeId.GetIsDynamic())", "%s\n\tStatic edge encountered in dynamic edge test.", "edgeId.GetIsDynamic()") )
         __debugbreak();
-      EntityIndex = EdgeId::GetEntityIndex(v112);
-      if ( v114 != EntityIndex )
+      EntityIndex = EdgeId::GetEntityIndex(v90);
+      if ( v92 != EntityIndex )
       {
-        Edge_GetEntityTransform(*(const BgHandler **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28), v112, (vector4 *)(_RBP + 176));
-        v114 = EntityIndex;
+        Edge_GetEntityTransform(*(const BgHandler **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28), v90, (vector4 *)(_RBP + 176));
+        v92 = EntityIndex;
       }
-      Edge_GetDynamicLineSegment((const vector4 *)(_RBP + 176), v112, (float4 (*)[2])(_RBP + 4576), NULL);
-      __asm
+      Edge_GetDynamicLineSegment((const vector4 *)(_RBP + 176), v90, (float4 (*)[2])(_RBP + 4576), NULL);
+      *(const float *)_RBP = FLOAT_N3_4028235e38;
+      *(const float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_3_4028235e38;
+      if ( EdgeOctreeQueryFrustum::IntersectsLineSegment((EdgeOctreeQueryFrustum *)this->m_queryShape, (const float4 (*)[2])(_RBP + 4576), (float *)((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64), (float *)(_RBP + 8)) )
       {
-        vmovss  dword ptr [rbp+0], xmm6
-        vmovss  dword ptr [rbp+8], xmm7
-      }
-      if ( EdgeOctreeQueryFrustum::IntersectsLineSegment((EdgeOctreeQueryFrustum *)this->m_queryShape, (const float4 (*)[2])(_RBP + 4576), (float *)((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64), (float *)(_RBP + 8)) )
-      {
-        if ( (unsigned int)v99 >= 0x200 )
+        if ( (unsigned int)v81 >= 0x200 )
         {
-          LODWORD(v145) = 512;
-          LODWORD(outLeafNodeIndexCount) = v99;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1306, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v145) )
+          LODWORD(v109) = 512;
+          LODWORD(outLeafNodeIndexCount) = v81;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1306, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v109) )
             __debugbreak();
         }
-        *(EdgeId *)(_R14 - 8) = *v112;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+8]
-          vmovss  dword ptr [r14], xmm0
-          vmovss  xmm1, dword ptr [rbp+0]
-          vmovss  dword ptr [r14+4], xmm1
-        }
-        ++v99;
-        _R14 += 16i64;
+        *((EdgeId *)v88 - 1) = *v90;
+        *v88 = *(float *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+        v88[1] = *(float *)_RBP;
+        ++v81;
+        v88 += 4;
       }
-      ++v112;
-      --v113;
+      ++v90;
+      --v91;
     }
-    while ( v113 );
-    v26 = 0i64;
-    v24 = *(unsigned __int64 **)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+    while ( v91 );
+    v16 = 0i64;
+    v14 = *(unsigned __int64 **)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
   }
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E8) = 0i64;
-  __asm
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E8) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0) = *(_OWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0);
+  ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>((EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 12800), (EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 16 * v81 + 12800), (EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 4576), *(ntl::random_access_iterator_tag *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 4));
+  v94 = 0i64;
+  if ( *v14 < resultPoolSize )
   {
-    vmovups xmm0, xmmword ptr [rbp+11E0h]
-    vmovdqa xmmword ptr [rbp+11E0h], xmm0
-  }
-  ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>((EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 12800), (EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 16 * v99 + 12800), (EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)(_RBP + 4576), *(ntl::random_access_iterator_tag *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 4));
-  v119 = 0i64;
-  if ( *v24 < resultPoolSize )
-  {
-    v120 = (_DWORD *)(_RBP + 12812);
-    v121 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
-    v122 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+    v95 = (_DWORD *)(_RBP + 12812);
+    v96 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+    v97 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
     do
     {
-      if ( v119 >= v99 )
+      if ( v94 >= v81 )
         break;
-      *(_QWORD *)(v121 + 8 * *v24) = *(_QWORD *)(v120 - 3);
-      *(_DWORD *)(v122 + 4 * (*v24)++) = *v120;
-      ++v119;
-      v120 += 4;
+      *(_QWORD *)(v96 + 8 * *v14) = *(_QWORD *)(v95 - 3);
+      *(_DWORD *)(v97 + 4 * (*v14)++) = *v95;
+      ++v94;
+      v95 += 4;
     }
-    while ( *v24 < resultPoolSize );
+    while ( *v14 < resultPoolSize );
   }
-  v123 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
-  if ( v123 )
+  v98 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+  if ( v98 )
   {
-    v124 = 0i64;
+    v99 = 0i64;
     if ( resultPoolSize < 4 )
     {
-LABEL_118:
-      if ( v26 < resultPoolSize )
+LABEL_121:
+      if ( v16 < resultPoolSize )
       {
-        v130 = (_DWORD *)(_RBP + 16 * v124 + 12808);
-        v131 = (_DWORD *)(v123 + 4 * v26);
+        v105 = (_DWORD *)(_RBP + 16 * v99 + 12808);
+        v106 = (_DWORD *)(v98 + 4 * v16);
         do
         {
-          if ( v124 >= v99 )
+          if ( v99 >= v81 )
             break;
-          *v131 = *v130;
-          ++v124;
-          ++v131;
-          v130 += 4;
-          ++v26;
+          *v106 = *v105;
+          ++v99;
+          ++v106;
+          v105 += 4;
+          ++v16;
         }
-        while ( v26 < resultPoolSize );
+        while ( v16 < resultPoolSize );
       }
     }
     else
     {
-      v125 = (_DWORD *)(_RBP + 12808);
-      v126 = (_DWORD *)(v123 + 8);
-      while ( v124 < v99 )
+      v100 = (_DWORD *)(_RBP + 12808);
+      v101 = (_DWORD *)(v98 + 8);
+      while ( v99 < v81 )
       {
-        *(v126 - 2) = *v125;
-        v127 = v124 + 1;
-        if ( v127 >= v99 )
+        *(v101 - 2) = *v100;
+        v102 = v99 + 1;
+        if ( v102 >= v81 )
           break;
-        *(v126 - 1) = v125[4];
-        v128 = v127 + 1;
-        if ( v128 >= v99 )
+        *(v101 - 1) = v100[4];
+        v103 = v102 + 1;
+        if ( v103 >= v81 )
           break;
-        *v126 = v125[8];
-        v129 = v128 + 1;
-        if ( v129 >= v99 )
+        *v101 = v100[8];
+        v104 = v103 + 1;
+        if ( v104 >= v81 )
           break;
-        v126[1] = v125[12];
-        v124 = v129 + 1;
-        v125 += 16;
-        v26 += 4i64;
-        v126 += 4;
-        if ( v26 >= resultPoolSize - 3 )
+        v101[1] = v100[12];
+        v99 = v104 + 1;
+        v100 += 16;
+        v16 += 4i64;
+        v101 += 4;
+        if ( v16 >= resultPoolSize - 3 )
         {
-          v123 = *(_QWORD *)(((unsigned __int64)v148 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
-          goto LABEL_118;
+          v98 = *(_QWORD *)(((unsigned __int64)v112 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+          goto LABEL_121;
         }
       }
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v160;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
 }
 
 /*
@@ -1693,93 +1666,109 @@ EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute
 void EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(EdgeOctreeQuery<EdgeOctreeQuerySphere> *this, const BgHandler *handler, EdgeId *resultIdPool, float *resultFractionPool, float *resultDistancePool, unsigned __int64 resultPoolSize, unsigned __int64 *outResultCount, unsigned int *outHintNodeIndex)
 {
   signed __int64 v8; 
-  void *v19; 
-  unsigned int *v24; 
-  unsigned __int64 v25; 
-  unsigned __int64 v26; 
-  int v27; 
-  int v33; 
-  unsigned int v39; 
-  unsigned int v40; 
-  __int64 v41; 
+  void *v10; 
+  unsigned int *v15; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
+  int v18; 
+  const EdgeOctreeQuerySphere *m_queryShape; 
+  __m128 v; 
+  __m128 v21; 
+  int v24; 
+  float v25; 
+  __int128 v26; 
+  __int128 v27; 
+  unsigned int v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  MapEdgeList *v31; 
   unsigned int staticQueryTypes; 
-  unsigned __int64 v86; 
+  float v33; 
+  __int128 v35; 
+  float v38; 
+  float v39; 
+  __int128 v41; 
+  __int128 v45; 
+  __int128 v49; 
+  int v57; 
+  __int128 v59; 
+  __int128 v61; 
+  __int128 v63; 
+  unsigned __int64 v72; 
   PMROctreeMetadata *edgeOctrees; 
   unsigned int m_hint; 
   unsigned int childNodeSetIndex; 
-  const PMROctreeNode *v90; 
-  unsigned int v91; 
-  const PMROctreeNode *v92; 
-  unsigned __int8 v93; 
-  MapEdgeList *v94; 
+  const PMROctreeNode *v76; 
+  unsigned int v77; 
+  const PMROctreeNode *v78; 
+  unsigned __int8 v79; 
+  MapEdgeList *v80; 
   unsigned int dynamicQueryTypes; 
-  char v96; 
-  const dvar_t *v97; 
-  unsigned __int64 v98; 
-  EdgeId *v102; 
-  unsigned __int64 v103; 
+  char v82; 
+  const dvar_t *v83; 
+  unsigned __int64 v84; 
+  float *v85; 
+  EdgeId *v86; 
+  unsigned __int64 v87; 
   unsigned int EdgeIndex; 
-  const float4 (*v105)[2]; 
-  unsigned __int64 v108; 
-  EdgeId *v110; 
-  unsigned __int64 v111; 
-  __int64 v117; 
-  int v118; 
+  const float4 (*v89)[2]; 
+  unsigned __int64 v90; 
+  float *v91; 
+  EdgeId *v92; 
+  unsigned __int64 v93; 
+  __int64 v95; 
+  int v96; 
   unsigned int EntityIndex; 
-  char v120; 
-  char v133; 
-  char v141; 
-  unsigned __int64 v165; 
-  unsigned __int64 *v166; 
-  _DWORD *v167; 
-  __int64 v168; 
-  __int64 v169; 
-  __int64 v170; 
-  unsigned __int64 v171; 
-  _DWORD *v172; 
-  _DWORD *v173; 
-  unsigned __int64 v174; 
-  unsigned __int64 v175; 
-  unsigned __int64 v176; 
-  _DWORD *v177; 
-  _DWORD *v178; 
-  __int64 v190; 
+  float v98; 
+  float v99; 
+  __int64 v100; 
+  __m128 v101; 
+  __m128 v102; 
+  __m128 v108; 
+  bool v113; 
+  __m128 v115; 
+  __m128 v116; 
+  double v117; 
+  float v118; 
+  unsigned __int64 v119; 
+  unsigned __int64 *v120; 
+  _DWORD *v121; 
+  __int64 v122; 
+  __int64 v123; 
+  __int64 v124; 
+  unsigned __int64 v125; 
+  _DWORD *v126; 
+  _DWORD *v127; 
+  unsigned __int64 v128; 
+  unsigned __int64 v129; 
+  unsigned __int64 v130; 
+  unsigned int *v131; 
+  unsigned int *v132; 
+  __int64 v133; 
   unsigned __int64 *outLeafNodeIndexCount; 
-  __int64 v192; 
-  __int64 v193; 
-  __int64 v194; 
-  char v195[21008]; 
-  __int64 v196; 
-  char v207; 
+  __int64 v135; 
+  __int64 v136; 
+  __int64 v137; 
+  char v138[21008]; 
+  __int64 v139; 
+  __int128 v140; 
 
-  v19 = alloca(v8);
-  v196 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+5378h+var_58], xmm6
-    vmovaps [rsp+5378h+var_68], xmm7
-    vmovaps [rsp+5378h+var_78], xmm8
-    vmovaps [rsp+5378h+var_88], xmm9
-    vmovaps [rsp+5378h+var_98], xmm10
-    vmovaps [rsp+5378h+var_A8], xmm11
-    vmovaps [rsp+5378h+var_B8], xmm12
-    vmovaps [rsp+5378h+var_C8], xmm13
-    vmovaps [rsp+5378h+var_D8], xmm14
-    vmovaps [rsp+5378h+var_E8], xmm15
-  }
-  _RBP = (unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 21000) = (unsigned __int64)&v190 ^ _security_cookie;
-  *(_QWORD *)(_RBP + 64) = resultFractionPool;
-  *(_QWORD *)(_RBP + 56) = resultIdPool;
-  *(_QWORD *)(_RBP + 24) = handler;
-  *(_QWORD *)(_RBP + 40) = this;
-  *(_QWORD *)(_RBP + 32) = resultDistancePool;
-  *(_QWORD *)(_RBP + 48) = outResultCount;
-  v24 = outHintNodeIndex;
-  *(_QWORD *)(_RBP + 16) = outHintNodeIndex;
+  v10 = alloca(v8);
+  v139 = -2i64;
+  v140 = _XMM14;
+  _RBP = (unsigned int *)((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64);
+  *((_QWORD *)_RBP + 2625) = (unsigned __int64)&v133 ^ _security_cookie;
+  *((_QWORD *)_RBP + 8) = resultFractionPool;
+  *((_QWORD *)_RBP + 7) = resultIdPool;
+  *((_QWORD *)_RBP + 3) = handler;
+  *((_QWORD *)_RBP + 5) = this;
+  *((_QWORD *)_RBP + 4) = resultDistancePool;
+  *((_QWORD *)_RBP + 6) = outResultCount;
+  v15 = outHintNodeIndex;
+  *((_QWORD *)_RBP + 2) = outHintNodeIndex;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1036, ASSERT_TYPE_SANITY, "( handler != nullptr )", (const char *)&queryFormat, "handler != nullptr") )
     __debugbreak();
-  v25 = 0i64;
+  v16 = 0i64;
   if ( !resultIdPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1037, ASSERT_TYPE_ASSERT, "( resultIdPool ) != ( nullptr )", "%s != %s\n\t%p, %p", "resultIdPool", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !resultFractionPool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1038, ASSERT_TYPE_ASSERT, "( resultFractionPool ) != ( nullptr )", "%s != %s\n\t%p, %p", "resultFractionPool", "nullptr", NULL, NULL) )
@@ -1792,181 +1781,193 @@ void EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(EdgeOctreeQuery<EdgeOctreeQ
   *outResultCount = 0i64;
   if ( outHintNodeIndex )
     *outHintNodeIndex = 16777208;
-  v26 = 0i64;
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
-  v27 = 16777208;
-  _RAX = this->m_queryShape;
+  v17 = 0i64;
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
+  v18 = 16777208;
+  m_queryShape = this->m_queryShape;
+  v = m_queryShape->m_radius.v;
+  v21 = m_queryShape->m_midpoint.v;
+  _XMM3 = _mm128_sub_ps(v21, v);
+  _XMM2 = _mm128_add_ps(v21, v);
+  *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70) = _XMM3.m128_f32[0];
   __asm
   {
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vsubps  xmm3, xmm0, xmm1
-    vaddps  xmm2, xmm0, xmm1
-    vmovss  dword ptr [rbp+70h], xmm3
     vextractps dword ptr [rbp+74h], xmm3, 1
     vextractps dword ptr [rbp+78h], xmm3, 2
-    vmovss  dword ptr [rbp+48h], xmm2
+  }
+  *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = _XMM2.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rbp+4Ch], xmm2, 1
     vextractps dword ptr [rbp+50h], xmm2, 2
   }
-  Bounds_SetMinMax3D((Bounds *)(_RBP + 160), (const vec3_t *)(_RBP + 112), (const vec3_t *)(_RBP + 72));
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8) = 0;
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) = 0i64;
-  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 256), cm.mapEnts->edgeListSpatialTree, (const Bounds *)(_RBP + 160));
-  v33 = 0;
-  if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 256)) )
+  Bounds_SetMinMax3D((Bounds *)(_RBP + 40), (const vec3_t *)(_RBP + 28), (const vec3_t *)_RBP + 6);
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8) = 0;
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) = 0i64;
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 64), cm.mapEnts->edgeListSpatialTree, (const Bounds *)(_RBP + 40));
+  v24 = 0;
+  if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 64)) )
   {
-    __asm
-    {
-      vmovss  xmm10, dword ptr [rbp+50h]
-      vmovss  xmm11, dword ptr [rbp+4Ch]
-      vmovss  xmm12, dword ptr [rbp+48h]
-      vmovss  xmm13, dword ptr [rbp+78h]
-      vmovss  xmm14, dword ptr [rbp+74h]
-      vmovss  xmm15, dword ptr [rbp+70h]
-    }
+    v25 = *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+    v26 = *(unsigned int *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x78);
+    _XMM14 = *(unsigned int *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x74);
+    v27 = *(unsigned int *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70);
     do
     {
-      if ( !*(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+      if ( !*(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
         __debugbreak();
-      v39 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 20i64);
-      v40 = *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
-      if ( v40 == v39 )
+      v28 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 20i64);
+      v29 = *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
+      if ( v29 == v28 )
       {
-        if ( !*(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+        if ( !*(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
           __debugbreak();
-        if ( (**(_BYTE **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+        if ( (**(_BYTE **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
           __debugbreak();
-        if ( *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) >= **(unsigned __int8 **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+        if ( *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) >= **(unsigned __int8 **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
           __debugbreak();
-        v41 = *(unsigned int *)(*(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) + 4i64 * *(unsigned int *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) + 4);
+        v30 = *(unsigned int *)(*(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) + 4i64 * *(unsigned int *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0) + 4);
       }
       else
       {
-        if ( v40 >= v39 )
+        if ( v29 >= v28 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
             __debugbreak();
-          v40 = *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
+          v29 = *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
         }
-        v41 = *(unsigned int *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 8i64) + 4i64 * v40);
+        v30 = *(unsigned int *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) + 8i64) + 4i64 * v29);
       }
-      _RSI = cm.mapEnts->edgeLists[v41];
-      if ( _RSI )
+      v31 = cm.mapEnts->edgeLists[v30];
+      if ( v31 )
       {
-        staticQueryTypes = _RSI->staticQueryTypes;
+        staticQueryTypes = v31->staticQueryTypes;
         if ( _bittest((const int *)&staticQueryTypes, (unsigned __int8)this->m_bucket) )
         {
+          v33 = v31->mins.v[0];
+          *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x7C) = 0;
+          v35 = *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70);
+          *(float *)&v35 = v33;
+          _XMM1 = v35;
           __asm
           {
-            vmovss  xmm4, dword ptr [rsi+8]
-            vmovss  xmm5, dword ptr [rsi+0Ch]
-            vmovss  xmm9, dword ptr [rsi+10h]
-          }
-          *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x7C) = 0;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rbp+70h]
-            vmovss  xmm1, xmm1, xmm4
             vinsertps xmm1, xmm1, xmm5, 10h
             vinsertps xmm1, xmm1, xmm9, 20h ; ' '
-            vmovups xmmword ptr [rbp+70h], xmm1
-            vmovss  xmm6, dword ptr [rsi+14h]
-            vmovss  xmm8, dword ptr [rsi+1Ch]
           }
-          *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11EC) = 0;
+          *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70) = _XMM1;
+          v38 = v31->maxs.v[0];
+          v39 = v31->maxs.v[2];
+          *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11EC) = 0;
+          v41 = *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0);
+          *(float *)&v41 = v38;
+          _XMM3 = v41;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rbp+11E0h]
-            vmovss  xmm3, xmm3, xmm6
             vinsertps xmm3, xmm3, dword ptr [rsi+18h], 10h
             vinsertps xmm3, xmm3, xmm8, 20h ; ' '
-            vmovups xmmword ptr [rbp+11E0h], xmm3
           }
-          *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x9C) = 0;
+          *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0) = _XMM3;
+          *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x9C) = 0;
+          v45 = *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x90);
+          *(float *)&v45 = *(float *)&v27;
+          _XMM2 = v45;
           __asm
           {
-            vmovups xmm2, xmmword ptr [rbp+90h]
-            vmovss  xmm2, xmm2, xmm15
             vinsertps xmm2, xmm2, xmm14, 10h
             vinsertps xmm2, xmm2, xmm13, 20h ; ' '
-            vmovups xmmword ptr [rbp+90h], xmm2
           }
-          *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x6C) = 0;
+          *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x90) = _XMM2;
+          *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x6C) = 0;
+          v49 = *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60);
+          *(float *)&v49 = v25;
+          _XMM0 = v49;
           __asm
           {
-            vmovups xmm0, xmmword ptr [rbp+60h]
-            vmovss  xmm0, xmm0, xmm12
             vinsertps xmm0, xmm0, xmm11, 10h
             vinsertps xmm0, xmm0, xmm10, 20h ; ' '
-            vmovups xmmword ptr [rbp+60h], xmm0
-            vsubps  xmm1, xmm1, xmm0
-            vsubps  xmm0, xmm2, xmm3
-            vmaxps  xmm2, xmm1, xmm0
-            vxorps  xmm1, xmm1, xmm1
+          }
+          *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = _XMM0;
+          _XMM1 = _mm128_sub_ps(_XMM1, _XMM0);
+          _mm128_sub_ps(_XMM2, _XMM3);
+          __asm { vmaxps  xmm2, xmm1, xmm0 }
+          _XMM1 = 0i64;
+          __asm
+          {
             vcmpltps xmm0, xmm1, xmm2
             vmovmskps ebx, xmm0
-            vsubss  xmm3, xmm4, xmm12
-            vsubss  xmm4, xmm5, xmm11
-            vsubss  xmm5, xmm9, xmm10
-            vsubss  xmm0, xmm15, xmm6
-            vsubss  xmm1, xmm14, dword ptr [rsi+18h]
-            vsubss  xmm2, xmm13, xmm8
+          }
+          v57 = _EBX & 0xF;
+          v59 = v27;
+          *(float *)&v59 = *(float *)&v27 - v38;
+          _XMM0 = v59;
+          v61 = _XMM14;
+          *(float *)&v61 = *(float *)&_XMM14 - v31->maxs.v[1];
+          _XMM1 = v61;
+          v63 = v26;
+          *(float *)&v63 = *(float *)&v26 - v39;
+          _XMM2 = v63;
+          __asm
+          {
             vmaxss  xmm6, xmm0, xmm3
             vmaxss  xmm3, xmm1, xmm4
             vmaxss  xmm4, xmm2, xmm5
-            vsubss  xmm0, xmm6, xmm3
-            vxorps  xmm5, xmm5, xmm5
+          }
+          _XMM5 = 0i64;
+          __asm
+          {
             vcmpless xmm1, xmm5, xmm0
             vblendvps xmm2, xmm3, xmm6, xmm1
-            vmovss  dword ptr [rbp+48h], xmm2
-            vsubss  xmm0, xmm2, xmm4
+          }
+          *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = *(float *)&_XMM2;
+          __asm
+          {
             vcmpless xmm1, xmm5, xmm0
             vblendvps xmm0, xmm4, xmm2, xmm1
-            vmovss  dword ptr [rbp+48h], xmm0
-            vcomiss xmm0, xmm5
           }
-          if ( (_EBX & 0xF) == 0 )
+          *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = *(float *)&_XMM0;
+          if ( *(float *)&_XMM0 > 0.0 != (v57 != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1114, ASSERT_TYPE_ASSERT, "(traditionalBoxDistOut == boxDistOutside)", (const char *)&queryFormat, "traditionalBoxDistOut == boxDistOutside") )
+            __debugbreak();
+          if ( !v57 )
           {
-            v86 = 0i64;
-            if ( _RSI->numEdgeOctrees )
+            v72 = 0i64;
+            if ( v31->numEdgeOctrees )
             {
-              edgeOctrees = _RSI->edgeOctrees;
+              edgeOctrees = v31->edgeOctrees;
               while ( edgeOctrees->edgeBucket != this->m_bucket )
               {
-                ++v86;
+                ++v72;
                 ++edgeOctrees;
-                if ( v86 >= _RSI->numEdgeOctrees )
-                  goto LABEL_60;
+                if ( v72 >= v31->numEdgeOctrees )
+                  goto LABEL_63;
               }
               if ( edgeOctrees && (edgeOctrees->flags[0] & 1) != 0 )
               {
-                ++v33;
+                ++v24;
                 m_hint = this->m_hint;
-                *(_DWORD *)_RBP = m_hint;
-                if ( (edgeOctrees->rootNode.flags & 2) != 0 || v33 > 1 || (childNodeSetIndex = edgeOctrees->rootNode.childNodeSetIndex, m_hint >> 3 < childNodeSetIndex) || childNodeSetIndex + edgeOctrees->nodeSetCount <= m_hint >> 3 )
+                *_RBP = m_hint;
+                if ( (edgeOctrees->rootNode.flags & 2) != 0 || v24 > 1 || (childNodeSetIndex = edgeOctrees->rootNode.childNodeSetIndex, m_hint >> 3 < childNodeSetIndex) || childNodeSetIndex + edgeOctrees->nodeSetCount <= m_hint >> 3 )
                 {
                   m_hint = 16777208;
-                  *(_DWORD *)_RBP = 16777208;
+                  *_RBP = 16777208;
                 }
-                v90 = EdgeOctreeQuery<EdgeOctreeQuerySphere>::NodeIndexToNode(_RSI, edgeOctrees, m_hint);
-                EdgeOctreeQuery<EdgeOctreeQuerySphere>::FindSmallestEnclosingNode(this, _RSI, edgeOctrees, v90, (unsigned int *)((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64));
-                v91 = *(_DWORD *)_RBP;
-                if ( v27 == 16777208 && v91 != 16777208 )
-                  v27 = *(_DWORD *)_RBP;
-                *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
-                v92 = EdgeOctreeQuery<EdgeOctreeQuerySphere>::NodeIndexToNode(_RSI, edgeOctrees, v91);
-                EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(this, _RSI, edgeOctrees, v92, (unsigned int *)(_RBP + 8704), (unsigned __int64 *)(_RBP + 8));
-                *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = 0i64;
-                EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueStaticCandidateEdges(_RSI, edgeOctrees, (const unsigned int *)(_RBP + 8704), *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 8), (EdgeId *)(_RBP + 8 * v26 + 4608), (unsigned __int64 *)(_RBP + 72));
-                v26 += *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
-                if ( v26 > 0x200 )
+                v76 = EdgeOctreeQuery<EdgeOctreeQuerySphere>::NodeIndexToNode(v31, edgeOctrees, m_hint);
+                EdgeOctreeQuery<EdgeOctreeQuerySphere>::FindSmallestEnclosingNode(this, v31, edgeOctrees, v76, (unsigned int *)((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64));
+                v77 = *_RBP;
+                if ( v18 == 16777208 && v77 != 16777208 )
+                  v18 = *_RBP;
+                *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0i64;
+                v78 = EdgeOctreeQuery<EdgeOctreeQuerySphere>::NodeIndexToNode(v31, edgeOctrees, v77);
+                EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(this, v31, edgeOctrees, v78, _RBP + 2176, (unsigned __int64 *)_RBP + 1);
+                *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = 0i64;
+                EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueStaticCandidateEdges(v31, edgeOctrees, _RBP + 2176, *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 8), (EdgeId *)&_RBP[2 * v17 + 1152], (unsigned __int64 *)_RBP + 9);
+                v17 += *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+                if ( v17 > 0x200 )
                 {
-                  LODWORD(v194) = 512;
-                  LODWORD(v193) = v26;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1207, ASSERT_TYPE_ASSERT, "( staticEdgeCount ) <= ( (512) )", "%s <= %s\n\t%i, %i", "staticEdgeCount", "MAX_SELECTION_EDGES", v193, v194) )
+                  LODWORD(v137) = 512;
+                  LODWORD(v136) = v17;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1207, ASSERT_TYPE_ASSERT, "( staticEdgeCount ) <= ( (512) )", "%s <= %s\n\t%i, %i", "staticEdgeCount", "MAX_SELECTION_EDGES", v136, v137) )
                     __debugbreak();
                 }
               }
@@ -1974,355 +1975,257 @@ void EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute(EdgeOctreeQuery<EdgeOctreeQ
           }
         }
       }
-LABEL_60:
+LABEL_63:
       ;
     }
-    while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 256)) );
-    *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v26;
-    v24 = *(unsigned int **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+    while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 64)) );
+    *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v17;
+    v15 = *(unsigned int **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
   }
-  if ( v24 )
-    *v24 = v27;
-  v93 = 0;
+  if ( v15 )
+    *v15 = v18;
+  v79 = 0;
   if ( cm.mapEnts->numEdgeLists )
   {
-    v94 = *cm.mapEnts->edgeLists;
-    if ( v94 )
+    v80 = *cm.mapEnts->edgeLists;
+    if ( v80 )
     {
-      dynamicQueryTypes = v94->dynamicQueryTypes;
-      v93 = _bittest((const int *)&dynamicQueryTypes, (unsigned __int8)this->m_bucket);
+      dynamicQueryTypes = v80->dynamicQueryTypes;
+      v79 = _bittest((const int *)&dynamicQueryTypes, (unsigned __int8)this->m_bucket);
     }
   }
-  v96 = this->m_flags & v93;
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
-  v97 = DCONST_DVARBOOL_edge_includeDynamicEdges;
+  v82 = this->m_flags & v79;
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0i64;
+  v83 = DCONST_DVARBOOL_edge_includeDynamicEdges;
   if ( !DCONST_DVARBOOL_edge_includeDynamicEdges && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_includeDynamicEdges") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v97);
-  if ( v97->current.enabled && v96 )
-    EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueDynamicCandidateEdges(this, *(const BgHandler **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18), 512 - v26, (EdgeId *)(_RBP + 8 * v26 + 4608), (unsigned __int64 *)(_RBP + 16));
-  v98 = 0i64;
-  __asm
+  Dvar_CheckFrontendServerThread(v83);
+  if ( v83->current.enabled && v82 )
+    EdgeOctreeQuery<EdgeOctreeQuerySphere>::CollectUniqueDynamicCandidateEdges(this, *(const BgHandler **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18), 512 - v17, (EdgeId *)&_RBP[2 * v17 + 1152], (unsigned __int64 *)_RBP + 2);
+  v84 = 0i64;
+  if ( v17 )
   {
-    vmovss  xmm11, cs:__real@ff7fffff
-    vmovss  xmm12, cs:__real@7f7fffff
-  }
-  if ( v26 )
-  {
-    _R14 = _RBP + 12808;
-    v102 = (EdgeId *)(_RBP + 4608);
-    v103 = v26;
+    v85 = (float *)(_RBP + 3202);
+    v86 = (EdgeId *)(_RBP + 1152);
+    v87 = v17;
     do
     {
-      if ( EdgeId::GetIsDynamic(v102) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1256, ASSERT_TYPE_ASSERT, "(!edgeId.GetIsDynamic())", "%s\n\tDynamic edge encountered in static edge test.", "!edgeId.GetIsDynamic()") )
+      if ( EdgeId::GetIsDynamic(v86) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1256, ASSERT_TYPE_ASSERT, "(!edgeId.GetIsDynamic())", "%s\n\tDynamic edge encountered in static edge test.", "!edgeId.GetIsDynamic()") )
         __debugbreak();
-      EdgeIndex = EdgeId::GetEdgeIndex(v102);
-      v105 = MapEdgeList_LookupSegment(EdgeIndex);
-      __asm
+      EdgeIndex = EdgeId::GetEdgeIndex(v86);
+      v89 = MapEdgeList_LookupSegment(EdgeIndex);
+      *(const float *)_RBP = FLOAT_N3_4028235e38;
+      *(const float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = FLOAT_3_4028235e38;
+      if ( EdgeOctreeQuerySphere::IntersectsLineSegment((EdgeOctreeQuerySphere *)this->m_queryShape, v89, (float *)((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64), (float *)_RBP + 18) )
       {
-        vmovss  dword ptr [rbp+0], xmm11
-        vmovss  dword ptr [rbp+48h], xmm12
-      }
-      if ( EdgeOctreeQuerySphere::IntersectsLineSegment((EdgeOctreeQuerySphere *)this->m_queryShape, v105, (float *)((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64), (float *)(_RBP + 72)) )
-      {
-        if ( (unsigned int)v98 >= 0x200 )
+        if ( (unsigned int)v84 >= 0x200 )
         {
-          LODWORD(v192) = 512;
-          LODWORD(outLeafNodeIndexCount) = v98;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1265, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v192) )
+          LODWORD(v135) = 512;
+          LODWORD(outLeafNodeIndexCount) = v84;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1265, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v135) )
             __debugbreak();
         }
-        *(EdgeId *)(_R14 - 8) = *v102;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+48h]
-          vmovss  dword ptr [r14], xmm0
-          vmovss  xmm1, dword ptr [rbp+0]
-          vmovss  dword ptr [r14+4], xmm1
-        }
-        ++v98;
-        _R14 += 16i64;
+        *((EdgeId *)v85 - 1) = *v86;
+        *v85 = *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+        v85[1] = *(float *)_RBP;
+        ++v84;
+        v85 += 4;
       }
-      ++v102;
-      --v103;
+      ++v86;
+      --v87;
     }
-    while ( v103 );
-    v25 = 0i64;
-    v26 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+    while ( v87 );
+    v16 = 0i64;
+    v17 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
   }
-  v108 = v26 + *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-  if ( v26 > v108 )
+  v90 = v17 + *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+  if ( v17 > v90 )
   {
-    LODWORD(v194) = v26 + *(_DWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-    LODWORD(v193) = v26;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1284, ASSERT_TYPE_ASSERT, "( dynamicEdgeBeginIndex ) <= ( dynamicEdgeEndIndex )", "%s <= %s\n\t%i, %i", "dynamicEdgeBeginIndex", "dynamicEdgeEndIndex", v193, v194) )
+    LODWORD(v137) = v17 + *(_DWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+    LODWORD(v136) = v17;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1284, ASSERT_TYPE_ASSERT, "( dynamicEdgeBeginIndex ) <= ( dynamicEdgeEndIndex )", "%s <= %s\n\t%i, %i", "dynamicEdgeBeginIndex", "dynamicEdgeEndIndex", v136, v137) )
       __debugbreak();
   }
-  if ( v108 > 0x200 )
+  if ( v90 > 0x200 )
   {
-    LODWORD(v194) = 512;
-    LODWORD(v193) = v108;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1285, ASSERT_TYPE_ASSERT, "( dynamicEdgeEndIndex ) <= ( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "dynamicEdgeEndIndex", "ARRAY_COUNT( selectedEdges )", v193, v194) )
+    LODWORD(v137) = 512;
+    LODWORD(v136) = v90;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1285, ASSERT_TYPE_ASSERT, "( dynamicEdgeEndIndex ) <= ( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "%s <= %s\n\t%i, %i", "dynamicEdgeEndIndex", "ARRAY_COUNT( selectedEdges )", v136, v137) )
       __debugbreak();
   }
-  if ( v26 < v108 )
+  if ( v17 < v90 )
   {
-    _R15 = _RBP + 16 * v98 + 12808;
-    v110 = (EdgeId *)(_RBP + 8 * v26 + 4608);
-    v111 = v108 - v26;
-    __asm
-    {
-      vmovsd  xmm15, cs:__real@3eb0c6f7a0b5ed8d
-      vmovss  xmm10, cs:__real@3f800000
-      vmovsd  xmm13, cs:__real@3ff0000000000000
-      vxorpd  xmm14, xmm14, xmm14
-      vxorps  xmm9, xmm9, xmm9
-    }
-    v117 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
-    v118 = 502048;
+    v91 = (float *)&_RBP[4 * v84 + 3202];
+    v92 = (EdgeId *)&_RBP[2 * v17 + 1152];
+    v93 = v90 - v17;
+    __asm { vxorpd  xmm14, xmm14, xmm14 }
+    v95 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
+    v96 = 502048;
     while ( 1 )
     {
-      if ( !EdgeId::GetIsDynamic(v110) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1289, ASSERT_TYPE_ASSERT, "(edgeId.GetIsDynamic())", "%s\n\tStatic edge encountered in dynamic edge test.", "edgeId.GetIsDynamic()") )
+      if ( !EdgeId::GetIsDynamic(v92) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1289, ASSERT_TYPE_ASSERT, "(edgeId.GetIsDynamic())", "%s\n\tStatic edge encountered in dynamic edge test.", "edgeId.GetIsDynamic()") )
         __debugbreak();
-      EntityIndex = EdgeId::GetEntityIndex(v110);
-      if ( v118 != EntityIndex )
+      EntityIndex = EdgeId::GetEntityIndex(v92);
+      if ( v96 != EntityIndex )
       {
-        Edge_GetEntityTransform(*(const BgHandler **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18), v110, (vector4 *)(_RBP + 192));
-        v118 = EntityIndex;
+        Edge_GetEntityTransform(*(const BgHandler **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18), v92, (vector4 *)_RBP + 3);
+        v96 = EntityIndex;
       }
-      Edge_GetDynamicLineSegment((const vector4 *)(_RBP + 192), v110, (float4 (*)[2])(_RBP + 4576), NULL);
+      Edge_GetDynamicLineSegment((const vector4 *)_RBP + 3, v92, (float4 (*)[2])((float4 *)_RBP + 143), NULL);
+      v98 = FLOAT_N3_4028235e38;
+      v99 = FLOAT_3_4028235e38;
+      v100 = *(_QWORD *)(v95 + 8);
+      v101 = *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0);
+      v102 = _mm128_sub_ps(*(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11F0), v101);
+      _XMM1 = _mm128_mul_ps(v102, v102);
       __asm
       {
-        vmovaps xmm6, xmm11
-        vmovaps xmm8, xmm12
-      }
-      _R14 = *(EdgeOctreeQueryCustomClip **)(v117 + 8);
-      __asm
-      {
-        vmovups xmm4, xmmword ptr [rbp+11E0h]
-        vmovups xmm0, xmmword ptr [rbp+11F0h]
-        vsubps  xmm3, xmm0, xmm4
-        vmulps  xmm1, xmm3, xmm3
         vinsertps xmm0, xmm1, xmm1, 8
         vhaddps xmm2, xmm0, xmm0
         vhaddps xmm1, xmm2, xmm2
-        vsqrtps xmm7, xmm1
-        vmovss  dword ptr [rbp+48h], xmm7
-        vcvtss2sd xmm0, xmm7, xmm7
-        vcomisd xmm0, xmm15
       }
-      if ( v120 | v133 )
+      _XMM7 = _mm_sqrt_ps(_XMM1);
+      *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = _XMM7.m128_f32[0];
+      if ( _XMM7.m128_f32[0] <= 0.000001 )
         break;
-      __asm
+      __asm { vrcpps  xmm0, xmm7 }
+      *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = _mm128_mul_ps(v102, _mm128_sub_ps(_mm128_add_ps(_XMM0, _XMM0), _mm128_mul_ps(_XMM7, _mm128_mul_ps(_XMM0, _XMM0))));
+      *(float *)_RBP = 0;
+      EdgeOctreeQueryCustomClip::TrimLineSegment((EdgeOctreeQueryCustomClip *)v100, (const float4 *)_RBP + 286, (const float4 *)_RBP + 6, (float *)((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64), (float *)_RBP + 18);
+      v115 = (__m128)*(unsigned int *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+      v116 = (__m128)*_RBP;
+      if ( v115.m128_f32[0] >= v116.m128_f32[0] )
       {
-        vrcpps  xmm0, xmm7
-        vaddps  xmm2, xmm0, xmm0
-        vmulps  xmm0, xmm0, xmm0
-        vmulps  xmm1, xmm7, xmm0
-        vsubps  xmm2, xmm2, xmm1
-        vmulps  xmm0, xmm3, xmm2
-        vmovups xmmword ptr [rbp+60h], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rbp+0], xmm0
-      }
-      EdgeOctreeQueryCustomClip::TrimLineSegment(_R14, (const float4 *)(_RBP + 4576), (const float4 *)(_RBP + 96), (float *)((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64), (float *)(_RBP + 72));
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+48h]
-        vmovss  xmm0, dword ptr [rbp+0]
-        vcomiss xmm1, xmm0
-      }
-      if ( !v120 )
-      {
-        __asm
+        *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x70) = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v116, v116, 0), *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60)), *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0));
+        *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x80) = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v115, v115, 0), *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60)), *(__m128 *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x11E0));
+        v117 = Float4PointLineSegmentDistSq((const float4 *)_RBP + 7, (const float4 *)_RBP + 8, (const float4 *)(v100 + 112), (float4 *)_RBP + 9);
+        v113 = *(float *)&v117 <= *(float *)(v100 + 144);
+        if ( v113 )
         {
-          vshufps xmm0, xmm0, xmm0, 0
-          vmulps  xmm0, xmm0, xmmword ptr [rbp+60h]
-          vaddps  xmm0, xmm0, xmmword ptr [rbp+11E0h]
-          vmovups xmmword ptr [rbp+70h], xmm0
-          vshufps xmm1, xmm1, xmm1, 0
-          vmulps  xmm0, xmm1, xmmword ptr [rbp+60h]
-          vaddps  xmm0, xmm0, xmmword ptr [rbp+11E0h]
-          vmovups xmmword ptr [rbp+80h], xmm0
+          v118 = (float)((float)((float)(1.0 - COERCE_FLOAT(*(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x90))) * *(float *)_RBP) + (float)(COERCE_FLOAT(*(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x90)) * *(float *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48))) / _XMM7.m128_f32[0];
+          v98 = v118;
+          if ( (v118 < 0.0 || v118 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 381, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v118, *(double *)&_XMM14, DOUBLE_1_0) )
+            __debugbreak();
+          v99 = fsqrt(*(float *)&v117);
         }
-        *(double *)&_XMM0 = Float4PointLineSegmentDistSq((const float4 *)(_RBP + 112), (const float4 *)(_RBP + 128), _R14[1].m_userClipPlanes, (float4 *)(_RBP + 144));
-        __asm
-        {
-          vmovaps xmm9, xmm0
-          vcomiss xmm0, dword ptr [r14+90h]
-        }
-        v141 = v120 | v133;
-        if ( v120 | v133 )
-        {
-          __asm
-          {
-            vmovaps xmm2, xmmword ptr [rbp+90h]
-            vsubss  xmm1, xmm10, xmm2
-            vmulss  xmm3, xmm1, dword ptr [rbp+0]
-            vmulss  xmm2, xmm2, dword ptr [rbp+48h]
-            vaddss  xmm3, xmm3, xmm2
-            vdivss  xmm6, xmm3, xmm7
-            vcomiss xmm6, cs:__real@00000000
-            vcomiss xmm6, xmm10
-          }
-          if ( v141 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm6, xmm6
-              vmovsd  [rsp+5378h+var_5340], xmm13
-              vmovsd  [rsp+5378h+var_5348], xmm14
-              vmovsd  [rsp+5378h+outLeafNodeIndexCount], xmm0
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 381, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&outLeafNodeIndexCount, *(double *)&v192, *(double *)&v193) )
-              __debugbreak();
-          }
-          __asm { vsqrtss xmm8, xmm9, xmm9 }
-        }
-        __asm { vxorps  xmm9, xmm9, xmm9 }
-        goto LABEL_107;
+        goto LABEL_110;
       }
-      __asm { vxorps  xmm9, xmm9, xmm9 }
-LABEL_113:
-      ++v110;
-      if ( !--v111 )
+LABEL_115:
+      ++v92;
+      if ( !--v93 )
       {
-        v25 = 0i64;
-        goto LABEL_115;
+        v16 = 0i64;
+        goto LABEL_117;
       }
     }
+    v108 = _mm128_sub_ps(*(__m128 *)(v100 + 112), v101);
+    _XMM2 = _mm128_mul_ps(v108, v108);
     __asm
     {
-      vmovups xmm0, xmmword ptr [r14+70h]
-      vsubps  xmm1, xmm0, xmm4
-      vmulps  xmm2, xmm1, xmm1
       vinsertps xmm0, xmm2, xmm2, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm2, xmm1, xmm1
-      vsqrtps xmm8, xmm2
-      vmovaps xmm6, xmm9
-      vmovups xmm0, xmmword ptr [r14+80h]
-      vcomiss xmm0, xmm8
     }
-    v141 = !v120;
-LABEL_107:
-    if ( v141 )
+    v99 = _mm_sqrt_ps(_XMM2).m128_f32[0];
+    v98 = 0.0;
+    v113 = COERCE_FLOAT(*(_OWORD *)(v100 + 128)) >= v99;
+LABEL_110:
+    if ( v113 )
     {
-      if ( (unsigned int)v98 >= 0x200 )
+      if ( (unsigned int)v84 >= 0x200 )
       {
-        LODWORD(v192) = 512;
-        LODWORD(outLeafNodeIndexCount) = v98;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1306, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v192) )
+        LODWORD(v135) = 512;
+        LODWORD(outLeafNodeIndexCount) = v84;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 1306, ASSERT_TYPE_ASSERT, "(unsigned)( selectedEdgeCount ) < (unsigned)( ( sizeof( *array_counter( selectedEdges ) ) + 0 ) )", "selectedEdgeCount doesn't index ARRAY_COUNT( selectedEdges )\n\t%i not in [0, %i)", outLeafNodeIndexCount, v135) )
           __debugbreak();
       }
-      *(EdgeId *)(_R15 - 8) = *v110;
-      __asm
-      {
-        vmovss  dword ptr [r15], xmm8
-        vmovss  dword ptr [r15+4], xmm6
-      }
-      ++v98;
-      _R15 += 16i64;
+      *((EdgeId *)v91 - 1) = *v92;
+      *v91 = v99;
+      v91[1] = v98;
+      ++v84;
+      v91 += 4;
     }
-    goto LABEL_113;
+    goto LABEL_115;
   }
-LABEL_115:
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x68) = 0i64;
-  __asm
+LABEL_117:
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x68) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = *(_OWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60);
+  ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>((EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)_RBP + 800, (EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)&_RBP[4 * v84 + 3200], (EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)_RBP + 6, *(ntl::random_access_iterator_tag *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 4));
+  v119 = 0i64;
+  v120 = *(unsigned __int64 **)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
+  if ( *v120 < resultPoolSize )
   {
-    vmovups xmm0, xmmword ptr [rbp+60h]
-    vmovdqa xmmword ptr [rbp+60h], xmm0
-  }
-  ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>((EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)(_RBP + 12800), (EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)(_RBP + 16 * v98 + 12800), (EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)(_RBP + 96), *(ntl::random_access_iterator_tag *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 4));
-  v165 = 0i64;
-  v166 = *(unsigned __int64 **)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30);
-  if ( *v166 < resultPoolSize )
-  {
-    v167 = (_DWORD *)(_RBP + 12812);
-    v168 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
-    v169 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+    v121 = _RBP + 3203;
+    v122 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+    v123 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
     do
     {
-      if ( v165 >= v98 )
+      if ( v119 >= v84 )
         break;
-      *(_QWORD *)(v168 + 8 * *v166) = *(_QWORD *)(v167 - 3);
-      *(_DWORD *)(v169 + 4 * (*v166)++) = *v167;
-      ++v165;
-      v167 += 4;
+      *(_QWORD *)(v122 + 8 * *v120) = *(_QWORD *)(v121 - 3);
+      *(_DWORD *)(v123 + 4 * (*v120)++) = *v121;
+      ++v119;
+      v121 += 4;
     }
-    while ( *v166 < resultPoolSize );
+    while ( *v120 < resultPoolSize );
   }
-  v170 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-  if ( v170 )
+  v124 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+  if ( v124 )
   {
-    v171 = 0i64;
+    v125 = 0i64;
     if ( resultPoolSize < 4 )
     {
-LABEL_128:
-      if ( v25 < resultPoolSize )
+LABEL_130:
+      if ( v16 < resultPoolSize )
       {
-        v177 = (_DWORD *)(_RBP + 16 * v171 + 12808);
-        v178 = (_DWORD *)(v170 + 4 * v25);
+        v131 = &_RBP[4 * v125 + 3202];
+        v132 = (unsigned int *)(v124 + 4 * v16);
         do
         {
-          if ( v171 >= v98 )
+          if ( v125 >= v84 )
             break;
-          *v178 = *v177;
-          ++v171;
-          ++v178;
-          v177 += 4;
-          ++v25;
+          *v132 = *v131;
+          ++v125;
+          ++v132;
+          v131 += 4;
+          ++v16;
         }
-        while ( v25 < resultPoolSize );
+        while ( v16 < resultPoolSize );
       }
     }
     else
     {
-      v172 = (_DWORD *)(_RBP + 12808);
-      v173 = (_DWORD *)(v170 + 8);
-      while ( v171 < v98 )
+      v126 = _RBP + 3202;
+      v127 = (_DWORD *)(v124 + 8);
+      while ( v125 < v84 )
       {
-        *(v173 - 2) = *v172;
-        v174 = v171 + 1;
-        if ( v174 >= v98 )
+        *(v127 - 2) = *v126;
+        v128 = v125 + 1;
+        if ( v128 >= v84 )
           break;
-        *(v173 - 1) = v172[4];
-        v175 = v174 + 1;
-        if ( v175 >= v98 )
+        *(v127 - 1) = v126[4];
+        v129 = v128 + 1;
+        if ( v129 >= v84 )
           break;
-        *v173 = v172[8];
-        v176 = v175 + 1;
-        if ( v176 >= v98 )
+        *v127 = v126[8];
+        v130 = v129 + 1;
+        if ( v130 >= v84 )
           break;
-        v173[1] = v172[12];
-        v171 = v176 + 1;
-        v172 += 16;
-        v25 += 4i64;
-        v173 += 4;
-        if ( v25 >= resultPoolSize - 3 )
+        v127[1] = v126[12];
+        v125 = v130 + 1;
+        v126 += 16;
+        v16 += 4i64;
+        v127 += 4;
+        if ( v16 >= resultPoolSize - 3 )
         {
-          v170 = *(_QWORD *)(((unsigned __int64)v195 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-          goto LABEL_128;
+          v124 = *(_QWORD *)(((unsigned __int64)v138 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+          goto LABEL_130;
         }
       }
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v207;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
 }
 
 /*
@@ -2540,193 +2443,106 @@ char EdgeOctreeQuery<EdgeOctreeQuerySphere>::FindSmallestEnclosingNode_ToLeaf(Ed
 EdgeOctreeQueryFrustum::IntersectsLineSegment
 ==============
 */
-bool EdgeOctreeQueryFrustum::IntersectsLineSegment(EdgeOctreeQueryFrustum *this, const float4 (*r_lineSegment)[2], float *outClosestFraction, float *outDist)
+char EdgeOctreeQueryFrustum::IntersectsLineSegment(EdgeOctreeQueryFrustum *this, const float4 (*r_lineSegment)[2], float *outClosestFraction, float *outDist)
 {
-  bool result; 
-  const float4 *v50; 
-  const float4 *v51; 
-  const float4 *v52; 
-  const float4 *v79; 
-  const float4 *v80; 
-  const float4 *v81; 
-  char v82; 
-  char v83; 
-  float *r_inOutTMax; 
-  float *r_inOutTMaxa; 
-  double v95; 
-  double v96; 
-  double v97; 
-  double v98; 
+  __int128 v4; 
+  __m128 v10; 
+  __m128 v17; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  float v26; 
+  const float4 *v28; 
+  const float4 *v29; 
+  const float4 *v30; 
+  double v31; 
+  float v32; 
+  float v39; 
+  __m128 v41; 
+  const float4 *v42; 
+  const float4 *v43; 
+  const float4 *v44; 
+  float v45; 
+  bool v46; 
   float r_inOutTMin; 
-  float v100; 
+  float r_inOutTMax; 
   float4 point_8; 
   float4 outSegClosestFraction_8; 
   float4 r_lineSegmentDir_8; 
   float4 r_outS; 
   float4 r_outT; 
   float4 r_linePointA; 
-  char v111; 
-  void *retaddr; 
+  __m128 v55; 
+  __int128 v56; 
+  _QWORD v57[3]; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  _RSI = outDist;
-  _R14 = outClosestFraction;
-  _RBX = r_lineSegment;
-  _RDI = this;
   if ( !outClosestFraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 442, ASSERT_TYPE_ASSERT, "(outClosestFraction)", (const char *)&queryFormat, "outClosestFraction") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 443, ASSERT_TYPE_ASSERT, "(outDist)", (const char *)&queryFormat, "outDist") )
+  if ( !outDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 443, ASSERT_TYPE_ASSERT, "(outDist)", (const char *)&queryFormat, "outDist") )
     __debugbreak();
+  v10 = _mm128_sub_ps((*r_lineSegment)[1].v, (*r_lineSegment)[0].v);
+  _XMM1 = _mm128_mul_ps(v10, v10);
   __asm
   {
-    vmovups xmm0, xmmword ptr [rbx+10h]
-    vsubps  xmm4, xmm0, xmmword ptr [rbx]
-    vmulps  xmm1, xmm4, xmm4
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm3, xmm0
-    vrcpps  xmm1, xmm3
-    vmulps  xmm0, xmm1, xmm1
-    vmulps  xmm2, xmm0, xmm3
-    vaddps  xmm1, xmm1, xmm1
-    vsubps  xmm10, xmm1, xmm2
-    vmulps  xmm0, xmm4, xmm10
-    vxorps  xmm9, xmm9, xmm9
-    vmovups xmmword ptr [rsp+150h+r_lineSegmentDir+8], xmm0
-    vmovss  [rsp+150h+r_inOutTMin], xmm9
-    vmovss  [rsp+150h+var_10C], xmm3
   }
-  EdgeOctreeQueryShape::TrimLineSegmentByPlanes((const float4 *)_RBX, &r_lineSegmentDir_8, _RDI->m_shape.m_planes, 6ui64, &r_inOutTMin, &v100);
-  EdgeOctreeQueryCustomClip::TrimLineSegment(&_RDI->m_customClip, (const float4 *)_RBX, &r_lineSegmentDir_8, &r_inOutTMin, &v100);
+  _XMM3 = _mm_sqrt_ps(_XMM0);
+  __asm { vrcpps  xmm1, xmm3 }
+  v17 = _mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM3));
+  r_lineSegmentDir_8.v = _mm128_mul_ps(v10, v17);
+  r_inOutTMin = 0.0;
+  r_inOutTMax = _XMM3.m128_f32[0];
+  EdgeOctreeQueryShape::TrimLineSegmentByPlanes((const float4 *)r_lineSegment, &r_lineSegmentDir_8, this->m_shape.m_planes, 6ui64, &r_inOutTMin, &r_inOutTMax);
+  EdgeOctreeQueryCustomClip::TrimLineSegment(&this->m_customClip, (const float4 *)r_lineSegment, &r_lineSegmentDir_8, &r_inOutTMin, &r_inOutTMax);
+  if ( r_inOutTMin >= r_inOutTMax )
+    return 0;
+  v19 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)LODWORD(r_inOutTMin), (__m128)LODWORD(r_inOutTMin), 0), r_lineSegmentDir_8.v), (*r_lineSegment)[0].v);
+  *(_OWORD *)&v57[1] = v4;
+  v20 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)LODWORD(r_inOutTMax), (__m128)LODWORD(r_inOutTMax), 0), r_lineSegmentDir_8.v), (*r_lineSegment)[0].v);
+  v21 = _mm128_sub_ps(v20, v19);
+  v55 = v20;
+  _XMM1 = _mm128_mul_ps(v21, v21);
   __asm
   {
-    vmovss  xmm0, [rsp+150h+r_inOutTMin]
-    vmovss  xmm4, [rsp+150h+var_10C]
-    vcomiss xmm0, xmm4
+    vinsertps xmm2, xmm1, xmm1, 8
+    vhaddps xmm0, xmm2, xmm2
+    vhaddps xmm0, xmm0, xmm0
   }
-  if ( v82 )
-  {
-    __asm
-    {
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm0, xmm0, xmmword ptr [rsp+150h+r_lineSegmentDir+8]
-      vaddps  xmm3, xmm0, xmmword ptr [rbx]
-      vmovaps xmmword ptr [rsp+150h+var_48+8], xmm6
-      vmovaps [rsp+150h+var_58+8], xmm7
-      vmovaps xmm0, xmm4
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm0, xmm0, xmmword ptr [rsp+150h+r_lineSegmentDir+8]
-      vaddps  xmm1, xmm0, xmmword ptr [rbx]
-      vsubps  xmm0, xmm1, xmm3
-      vmovdqa [rbp+50h+var_A0], xmm1
-      vmulps  xmm1, xmm0, xmm0
-      vinsertps xmm2, xmm1, xmm1, 8
-      vhaddps xmm0, xmm2, xmm2
-      vhaddps xmm0, xmm0, xmm0
-      vsqrtps xmm7, xmm0
-      vcomiss xmm7, xmm9
-      vmovaps [rsp+150h+var_68+8], xmm8
-      vmovdqa xmmword ptr [rbp+50h+r_linePointA.v], xmm3
-      vxorpd  xmm8, xmm8, xmm8
-      vmovsd  xmm0, cs:__real@47efffffe0000000
-      vmovsd  [rsp+150h+var_118], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+150h+var_120], xmm8
-      vmovsd  [rsp+150h+r_inOutTMax], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 479, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( Float4ExtractX( lineSegmentTrimmedLength ) ) && ( Float4ExtractX( lineSegmentTrimmedLength ) ) <= ( 3.402823466e+38F )", "Float4ExtractX( lineSegmentTrimmedLength ) not in [0.0f, FLT_MAX]\n\t%g not in [%g, %g]", *(double *)&r_inOutTMax, v95, v97) )
-      __debugbreak();
-    EdgeOctreeQueryShape::Float4ClosestApproachOfTwoLines(&r_linePointA, &r_lineSegmentDir_8, &_RDI->m_shape.m_nearOrigin, &_RDI->m_shape.m_forward, &r_outS, &r_outT);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+50h+r_outS.v]
-      vmovups xmm2, xmm7
-      vxorps  xmm1, xmm1, xmm1
-    }
-    Float4Clamp(v51, v50, v52, &r_outS);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+50h+r_outS.v]
-      vmulps  xmm1, xmm0, xmmword ptr [rsp+150h+r_lineSegmentDir+8]
-      vaddps  xmm2, xmm1, xmmword ptr [rbp+50h+r_linePointA.v]
-      vmovups xmmword ptr [rsp+150h+point.v+8], xmm2
-    }
-    *(double *)&_XMM0 = Float4PointLineSegmentDistSq(&_RDI->m_shape.m_nearOrigin, &_RDI->m_shape.m_farOrigin, &point_8, &outSegClosestFraction_8);
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rdi+170h]
-      vmulps  xmm2, xmm2, xmmword ptr [rsp+150h+outSegClosestFraction.v+8]
-      vmulss  xmm3, xmm2, dword ptr [rdi+1F4h]
-      vmovss  xmm7, cs:__real@3f800000
-      vsqrtss xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm0, dword ptr [rdi+1F0h]
-      vaddss  xmm4, xmm3, xmm1
-      vmovss  dword ptr [rsi], xmm4
-      vmovups xmm1, xmmword ptr [rdi+190h]
-      vmulps  xmm1, xmm1, xmmword ptr [rsp+150h+r_lineSegmentDir+8]
-      vinsertps xmm2, xmm1, xmm1, 8
-      vhaddps xmm0, xmm2, xmm2
-      vhaddps xmm1, xmm0, xmm0
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vandnps xmm2, xmm0, xmm1
-      vmulss  xmm1, xmm2, dword ptr [rdi+1F8h]
-      vsubss  xmm0, xmm7, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm3, xmm2, xmm4
-      vbroadcastss xmm4, [rsp+150h+r_inOutTMin]
-      vaddps  xmm2, xmm4, xmmword ptr [rbp+50h+r_outS.v]
-      vmulps  xmm0, xmm10, xmm2
-      vmovss  dword ptr [rsi], xmm3
-      vmovups xmm2, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vxorps  xmm1, xmm1, xmm1
-      vmovups xmmword ptr [rsp+150h+point.v+8], xmm0
-    }
-    Float4Clamp(v80, v79, v81, &point_8);
-    __asm
-    {
-      vmovaps xmm0, xmmword ptr [rsp+150h+point.v+8]
-      vcomiss xmm0, xmm9
-      vmovaps xmm6, xmmword ptr [rsp+150h+var_48+8]
-      vmovss  dword ptr [r14], xmm0
-    }
-    if ( v82 )
-      goto LABEL_13;
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !(v82 | v83) )
-    {
-LABEL_13:
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vmovsd  [rsp+150h+var_118], xmm0
-        vmovsd  [rsp+150h+var_120], xmm8
-        vmovsd  [rsp+150h+r_inOutTMax], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 516, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&r_inOutTMaxa, v96, v98) )
-        __debugbreak();
-    }
-    __asm { vmovaps xmm8, [rsp+150h+var_68+8] }
-    result = 1;
-    __asm { vmovaps xmm7, [rsp+150h+var_58+8] }
-  }
-  else
-  {
-    result = 0;
-  }
-  _R11 = &v111;
+  v26 = _mm_sqrt_ps(_XMM0).m128_f32[0];
+  v56 = _XMM8;
+  r_linePointA.v = v19;
+  __asm { vxorpd  xmm8, xmm8, xmm8 }
+  if ( (v26 < 0.0 || v26 > 3.4028235e38) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 479, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( Float4ExtractX( lineSegmentTrimmedLength ) ) && ( Float4ExtractX( lineSegmentTrimmedLength ) ) <= ( 3.402823466e+38F )", "Float4ExtractX( lineSegmentTrimmedLength ) not in [0.0f, FLT_MAX]\n\t%g not in [%g, %g]", v26, *(double *)&_XMM8, DOUBLE_3_402823466385289e38) )
+    __debugbreak();
+  EdgeOctreeQueryShape::Float4ClosestApproachOfTwoLines(&r_linePointA, &r_lineSegmentDir_8, &this->m_shape.m_nearOrigin, &this->m_shape.m_forward, &r_outS, &r_outT);
+  Float4Clamp(v29, v28, v30, &r_outS);
+  point_8.v = _mm128_add_ps(_mm128_mul_ps(r_outS.v, r_lineSegmentDir_8.v), r_linePointA.v);
+  v31 = Float4PointLineSegmentDistSq(&this->m_shape.m_nearOrigin, &this->m_shape.m_farOrigin, &point_8, &outSegClosestFraction_8);
+  v32 = (float)(_mm128_mul_ps(this->m_shape.m_nearToFarDist.v, outSegClosestFraction_8.v).m128_f32[0] * this->m_invCenterBias) + (float)(fsqrt(*(float *)&v31) * this->m_centerBias);
+  *outDist = v32;
+  _XMM1 = _mm128_mul_ps(this->m_userAxis.v, r_lineSegmentDir_8.v);
   __asm
   {
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
+    vinsertps xmm2, xmm1, xmm1, 8
+    vhaddps xmm0, xmm2, xmm2
+    vhaddps xmm1, xmm0, xmm0
   }
-  return result;
+  _XMM0 = g_negativeZero.v;
+  __asm { vandnps xmm2, xmm0, xmm1 }
+  v39 = (float)((float)(*(float *)&_XMM2 * this->m_invAxisBias) + (float)(1.0 - *(float *)&_XMM2)) * v32;
+  __asm { vbroadcastss xmm4, [rsp+150h+r_inOutTMin] }
+  v41 = _mm128_mul_ps(v17, _mm128_add_ps(_XMM4, r_outS.v));
+  *outDist = v39;
+  point_8.v = v41;
+  Float4Clamp(v43, v42, v44, &point_8);
+  v45 = point_8.v.m128_f32[0];
+  v46 = point_8.v.m128_f32[0] < 0.0;
+  *outClosestFraction = point_8.v.m128_f32[0];
+  if ( (v46 || v45 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 516, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v45, *(double *)&_XMM8, DOUBLE_1_0) )
+    __debugbreak();
+  return 1;
 }
 
 /*
@@ -2736,162 +2552,80 @@ EdgeOctreeQuerySphere::IntersectsLineSegment
 */
 bool EdgeOctreeQuerySphere::IntersectsLineSegment(EdgeOctreeQuerySphere *this, const float4 (*r_lineSegment)[2], float *outClosestFraction, float *outDist)
 {
-  bool v12; 
-  bool v13; 
-  bool result; 
-  char v40; 
-  bool v49; 
-  double v64; 
-  double v65; 
-  double v66; 
+  __m128 v8; 
+  __m128 v14; 
+  double v21; 
+  bool v22; 
+  __int128 v24; 
   float r_inOutTMin; 
-  float r_inOutTMax[3]; 
+  unsigned int r_inOutTMax[3]; 
   float4 outSegClosestFraction; 
   float4 lineSegPointA; 
   float4 lineSegPointB; 
   float4 r_lineSegmentDir; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-  _RBX = outDist;
-  _RSI = outClosestFraction;
-  _RDI = r_lineSegment;
-  _RBP = this;
   if ( !outClosestFraction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 335, ASSERT_TYPE_ASSERT, "(outClosestFraction)", (const char *)&queryFormat, "outClosestFraction") )
     __debugbreak();
-  v12 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 336, ASSERT_TYPE_ASSERT, "(outDist)", (const char *)&queryFormat, "outDist");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
+  if ( !outDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 336, ASSERT_TYPE_ASSERT, "(outDist)", (const char *)&queryFormat, "outDist") )
+    __debugbreak();
+  v8 = _mm128_sub_ps((*r_lineSegment)[1].v, (*r_lineSegment)[0].v);
+  _XMM1 = _mm128_mul_ps(v8, v8);
   __asm
   {
-    vmovups xmm0, xmmword ptr [rdi+10h]
-    vsubps  xmm3, xmm0, xmmword ptr [rdi]
-    vmulps  xmm1, xmm3, xmm3
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm6, xmm0
-    vcvtss2sd xmm0, xmm6, xmm6
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    vmovss  [rsp+0F8h+r_inOutTMax], xmm6
   }
-  if ( v12 )
+  _XMM6 = _mm_sqrt_ps(_XMM0);
+  r_inOutTMax[0] = _XMM6.m128_u32[0];
+  if ( _XMM6.m128_f32[0] > 0.000001 )
   {
-    __asm
+    __asm { vrcpps  xmm1, xmm6 }
+    r_lineSegmentDir.v = _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM6)), v8);
+    r_inOutTMin = 0.0;
+    EdgeOctreeQueryCustomClip::TrimLineSegment(&this->m_customClip, (const float4 *)r_lineSegment, &r_lineSegmentDir, &r_inOutTMin, (float *)r_inOutTMax);
+    if ( *(float *)r_inOutTMax >= r_inOutTMin )
     {
-      vmovups xmm0, xmmword ptr [rbp+70h]
-      vsubps  xmm1, xmm0, xmmword ptr [rdi]
-      vmulps  xmm2, xmm1, xmm1
-      vinsertps xmm0, xmm2, xmm2, 8
-      vhaddps xmm1, xmm0, xmm0
-      vhaddps xmm0, xmm1, xmm1
-      vsqrtps xmm2, xmm0
-    }
-    *_RSI = 0.0;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm2
-      vmovups xmm0, xmmword ptr [rbp+80h]
-      vcomiss xmm0, xmm2
-    }
-    result = 1;
-  }
-  else
-  {
-    __asm
-    {
-      vrcpps  xmm1, xmm6
-      vmulps  xmm0, xmm1, xmm1
-      vmulps  xmm2, xmm0, xmm6
-      vaddps  xmm1, xmm1, xmm1
-      vsubps  xmm2, xmm1, xmm2
-      vmulps  xmm0, xmm2, xmm3
-      vmovaps [rsp+0F8h+var_48], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vmovups xmmword ptr [rsp+0F8h+r_lineSegmentDir.v], xmm0
-      vmovss  [rsp+0F8h+r_inOutTMin], xmm7
-    }
-    EdgeOctreeQueryCustomClip::TrimLineSegment(&_RBP->m_customClip, (const float4 *)_RDI, &r_lineSegmentDir, &r_inOutTMin, r_inOutTMax);
-    __asm
-    {
-      vmovss  xmm4, [rsp+0F8h+r_inOutTMax]
-      vmovss  xmm0, [rsp+0F8h+r_inOutTMin]
-      vcomiss xmm4, xmm0
-    }
-    if ( v40 )
-    {
-      result = 0;
+      lineSegPointA.v = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)LODWORD(r_inOutTMin), (__m128)LODWORD(r_inOutTMin), 0), r_lineSegmentDir.v), (*r_lineSegment)[0].v);
+      lineSegPointB.v = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)r_inOutTMax[0], (__m128)r_inOutTMax[0], 0), r_lineSegmentDir.v), (*r_lineSegment)[0].v);
+      v21 = Float4PointLineSegmentDistSq(&lineSegPointA, &lineSegPointB, &this->m_midpoint, &outSegClosestFraction);
+      v22 = *(float *)&v21 <= this->m_radiusSq;
+      if ( *(float *)&v21 <= this->m_radiusSq )
+      {
+        v24 = LODWORD(FLOAT_1_0);
+        *(float *)&v24 = (float)((float)((float)(1.0 - outSegClosestFraction.v.m128_f32[0]) * r_inOutTMin) + (float)(outSegClosestFraction.v.m128_f32[0] * *(float *)r_inOutTMax)) / _XMM6.m128_f32[0];
+        _XMM1 = v24;
+        *outClosestFraction = *(float *)&v24;
+        if ( *(float *)&v24 < 0.0 || *(float *)&v24 > 1.0 )
+        {
+          __asm { vxorpd  xmm1, xmm1, xmm1 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 381, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v24, *(double *)&_XMM1, DOUBLE_1_0) )
+            __debugbreak();
+        }
+        *outDist = fsqrt(*(float *)&v21);
+      }
+      return v22;
     }
     else
     {
-      __asm
-      {
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm0, xmm0, xmmword ptr [rsp+0F8h+r_lineSegmentDir.v]
-        vaddps  xmm1, xmm0, xmmword ptr [rdi]
-        vmovaps xmm0, xmm4
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm0, xmm0, xmmword ptr [rsp+0F8h+r_lineSegmentDir.v]
-        vmovups xmmword ptr [rsp+0F8h+lineSegPointA.v], xmm1
-        vaddps  xmm1, xmm0, xmmword ptr [rdi]
-        vmovaps [rsp+0F8h+var_58], xmm8
-        vmovups xmmword ptr [rsp+0F8h+lineSegPointB.v], xmm1
-      }
-      *(double *)&_XMM0 = Float4PointLineSegmentDistSq(&lineSegPointA, &lineSegPointB, &_RBP->m_midpoint, &outSegClosestFraction);
-      __asm
-      {
-        vcomiss xmm0, dword ptr [rbp+90h]
-        vmovaps xmm8, xmm0
-      }
-      v49 = v40 | v12;
-      if ( v40 | v12 )
-      {
-        __asm
-        {
-          vmovaps xmm2, xmmword ptr [rsp+0F8h+outSegClosestFraction.v]
-          vmovss  xmm4, cs:__real@3f800000
-          vsubss  xmm1, xmm4, xmm2
-          vmulss  xmm3, xmm1, [rsp+0F8h+r_inOutTMin]
-          vmulss  xmm2, xmm2, [rsp+0F8h+r_inOutTMax]
-          vaddss  xmm3, xmm3, xmm2
-          vdivss  xmm1, xmm3, xmm6
-          vcomiss xmm1, xmm7
-          vmovss  dword ptr [rsi], xmm1
-          vcomiss xmm1, xmm4
-        }
-        if ( v49 )
-        {
-          __asm
-          {
-            vmovsd  xmm0, cs:__real@3ff0000000000000
-            vmovsd  [rsp+0F8h+var_C0], xmm0
-            vcvtss2sd xmm2, xmm1, xmm1
-            vxorpd  xmm1, xmm1, xmm1
-            vmovsd  [rsp+0F8h+var_C8], xmm1
-            vmovsd  [rsp+0F8h+var_D0], xmm2
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\edge_octree.h", 381, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( *outClosestFraction ) && ( *outClosestFraction ) <= ( 1.0f )", "*outClosestFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v64, v65, v66) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vsqrtss xmm0, xmm8, xmm8
-          vmovss  dword ptr [rbx], xmm0
-        }
-      }
-      __asm { vmovaps xmm8, [rsp+0F8h+var_58] }
-      result = v49;
+      return 0;
     }
-    __asm { vmovaps xmm7, [rsp+0F8h+var_48] }
   }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
-  return result;
+  else
+  {
+    v14 = _mm128_sub_ps(this->m_midpoint.v, (*r_lineSegment)[0].v);
+    _XMM2 = _mm128_mul_ps(v14, v14);
+    __asm
+    {
+      vinsertps xmm0, xmm2, xmm2, 8
+      vhaddps xmm1, xmm0, xmm0
+      vhaddps xmm0, xmm1, xmm1
+    }
+    _XMM2.m128_f32[0] = _mm_sqrt_ps(_XMM0).m128_f32[0];
+    *outClosestFraction = 0.0;
+    *outDist = _XMM2.m128_f32[0];
+    return COERCE_FLOAT(*(_OWORD *)&this->m_radius) >= _XMM2.m128_f32[0];
+  }
 }
 
 /*
@@ -3008,15 +2742,15 @@ char EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectIntersectingLeafNodes(EdgeOc
   const EdgeOctreeQueryFrustum *m_queryShape; 
   __int64 v15; 
   __int64 v16; 
+  __m128 *p_m_shape; 
   unsigned __int64 v18; 
-  void (__fastcall **m_nodeBlendFunc)(__int64, __int64, __int128 *); 
-  char v27; 
-  char v28; 
+  void (__fastcall **m_nodeBlendFunc)(__int64, __int64, __m128 *); 
+  char v24; 
   const PMROctreeNode *j; 
   PMROctreeNode *r_nodea; 
   float4 r_outMaxExtent; 
   float4 r_outMinExtent; 
-  __int128 v36; 
+  __m128 v32; 
 
   v6 = this;
   if ( (r_node->flags & 2) == 0 )
@@ -3031,41 +2765,34 @@ char EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectIntersectingLeafNodes(EdgeOc
       {
         m_queryShape = v6->m_queryShape;
         EdgeOctreeQueryShape::Float4CalcNodeExtents(r_octree, v9->node, &r_outMinExtent, &r_outMaxExtent);
-        _RSI = &m_queryShape->m_shape;
+        p_m_shape = (__m128 *)&m_queryShape->m_shape;
         v18 = 0i64;
-        m_nodeBlendFunc = (void (__fastcall **)(__int64, __int64, __int128 *))m_queryShape->m_nodeBlendFunc;
+        m_nodeBlendFunc = (void (__fastcall **)(__int64, __int64, __m128 *))m_queryShape->m_nodeBlendFunc;
         while ( 1 )
         {
+          (*m_nodeBlendFunc)(v16, v15, &v32);
+          _XMM1 = _mm128_mul_ps(*p_m_shape, v32);
           __asm
           {
-            vmovups xmm1, xmmword ptr [rsp+108h+r_outMaxExtent.v]
-            vmovups xmm0, xmmword ptr [rsp+108h+r_outMinExtent.v]
-          }
-          (*m_nodeBlendFunc)(v16, v15, &v36);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rsi]
-            vmulps  xmm1, xmm1, [rsp+108h+var_68]
             vinsertps xmm2, xmm1, xmm1, 8
             vhaddps xmm3, xmm2, xmm2
             vhaddps xmm1, xmm3, xmm3
-            vcomiss xmm1, dword ptr [rsi+0Ch]
           }
-          if ( v27 )
+          if ( *(float *)&_XMM1 < p_m_shape->m128_f32[3] )
             break;
           ++v18;
           ++m_nodeBlendFunc;
-          _RSI = (EdgeFrustumQueryShape *)((char *)_RSI + 16);
+          ++p_m_shape;
           if ( v18 >= 6 )
           {
-            v28 = 1;
+            v24 = 1;
             goto LABEL_14;
           }
         }
-        v28 = 0;
+        v24 = 0;
 LABEL_14:
         v6 = this;
-        v10 |= v28 << i;
+        v10 |= v24 << i;
       }
       v9 = (PMROctreeNodeSet *)((char *)v9 + 16);
     }
@@ -3100,10 +2827,10 @@ char EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(EdgeOct
   unsigned __int64 v12; 
   unsigned __int64 v13; 
   PMROctreeNodeSet *v14; 
-  char v25; 
-  char v26; 
-  int v27; 
-  unsigned __int8 v28; 
+  const EdgeOctreeQuerySphere *m_queryShape; 
+  __m128 v20; 
+  int v25; 
+  unsigned __int8 v26; 
   float4 r_outMaxExtent; 
   float4 r_outMinExtent; 
 
@@ -3112,37 +2839,36 @@ char EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(EdgeOct
     v10 = 0;
     v11 = &mapEdgeList->edgeOctreeNodeSets[(unsigned __int64)r_node->childNodeSetIndex];
     v12 = 0i64;
-    v28 = 0;
+    v26 = 0;
     v13 = 0i64;
     v14 = v11;
     do
     {
       if ( (v14->node[0].flags & 1) == 0 )
       {
-        _RBX = this->m_queryShape;
+        m_queryShape = this->m_queryShape;
         EdgeOctreeQueryShape::Float4CalcNodeExtents(r_octree, v14->node, &r_outMinExtent, &r_outMaxExtent);
+        _XMM0 = r_outMaxExtent.v;
+        __asm { vminps  xmm2, xmm0, xmmword ptr [rbx+70h] }
+        _XMM1 = r_outMinExtent.v;
+        __asm { vmaxps  xmm3, xmm1, xmm2 }
+        v20 = _mm128_sub_ps(_XMM3, m_queryShape->m_midpoint.v);
+        _XMM2 = _mm128_mul_ps(v20, v20);
         __asm
         {
-          vmovups xmm0, xmmword ptr [rsp+0E8h+r_outMaxExtent.v]
-          vminps  xmm2, xmm0, xmmword ptr [rbx+70h]
-          vmovups xmm1, xmmword ptr [rsp+0E8h+r_outMinExtent.v]
-          vmaxps  xmm3, xmm1, xmm2
-          vsubps  xmm1, xmm3, xmmword ptr [rbx+70h]
-          vmulps  xmm2, xmm1, xmm1
           vinsertps xmm0, xmm2, xmm2, 8
           vhaddps xmm1, xmm0, xmm0
           vhaddps xmm2, xmm1, xmm1
-          vcomiss xmm2, dword ptr [rbx+90h]
         }
-        v10 = ((v25 | v26) << v13) | v28;
-        v28 = v10;
+        v10 = ((*(float *)&_XMM2 <= m_queryShape->m_radiusSq) << v13) | v26;
+        v26 = v10;
       }
       ++v13;
       v14 = (PMROctreeNodeSet *)((char *)v14 + 16);
     }
     while ( v13 < 8 );
-    v27 = v10;
-    while ( ((1 << v12) & v27) == 0 || !EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(this, mapEdgeList, r_octree, v11->node, leafNodeIndexPool, outLeafNodeIndexCount) )
+    v25 = v10;
+    while ( ((1 << v12) & v25) == 0 || !EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectIntersectingLeafNodes(this, mapEdgeList, r_octree, v11->node, leafNodeIndexPool, outLeafNodeIndexCount) )
     {
       ++v12;
       v11 = (PMROctreeNodeSet *)((char *)v11 + 16);

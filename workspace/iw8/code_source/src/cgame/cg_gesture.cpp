@@ -559,200 +559,96 @@ CG_Gesture_DirectionalBlendNode_Update
 */
 void CG_Gesture_DirectionalBlendNode_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime, const bool isInstantInit, XModelNameMap *modelNameMap)
 {
-  bool v22; 
-  char v60; 
-  unsigned int v68; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const GestureDirectionalSettings *v13; 
+  float limitRight; 
+  float limitDown; 
+  double v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  double v23; 
+  int v24; 
+  __int64 v25; 
+  double v26; 
+  float *v27; 
+  __int64 v28; 
+  unsigned int v29; 
   unsigned int ChildAt; 
-  bool IsValidNode; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  int forceBlendTime; 
-  float objID; 
   vec3_t result; 
-  __int128 v87; 
-  char v98; 
+  __int128 v32; 
 
-  __asm
-  {
-    vmovaps [rsp+168h+var_88], xmm10
-    vmovaps [rsp+168h+var_98], xmm11
-    vmovaps [rsp+168h+var_A8], xmm12
-    vmovaps [rsp+168h+var_B8], xmm13
-  }
-  _R12 = animInfo;
-  _RSI = (CG_Gesture_DirectionalBlendNode *)nodeData;
   if ( !*((_QWORD *)nodeData + 5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3064, ASSERT_TYPE_ASSERT, "(node->directionalSettings != 0)", (const char *)&queryFormat, "node->directionalSettings != NULL") )
     __debugbreak();
-  CG_Gesture_DirectionalBlendNode_CalculateRelativeTargetVector(_RSI, &result);
-  v22 = !_RSI->initialized;
-  __asm
+  CG_Gesture_DirectionalBlendNode_CalculateRelativeTargetVector((CG_Gesture_DirectionalBlendNode *)nodeData, &result);
+  v10 = result.v[2];
+  v11 = result.v[1];
+  v12 = result.v[0];
+  if ( !*((_BYTE *)nodeData + 64) )
   {
-    vmovss  xmm12, dword ptr [rsp+168h+result+8]
-    vmovss  xmm13, dword ptr [rsp+168h+result+4]
-    vmovss  xmm11, dword ptr [rsp+168h+result]
+    *((_BYTE *)nodeData + 64) = 1;
+    *((float *)nodeData + 13) = v12;
+    *((float *)nodeData + 14) = v11;
+    *((float *)nodeData + 15) = v10;
   }
-  if ( !_RSI->initialized )
+  if ( animInfo->state.weight == 0.0 )
   {
-    _RSI->initialized = 1;
-    __asm
-    {
-      vmovss  dword ptr [rsi+34h], xmm11
-      vmovss  dword ptr [rsi+38h], xmm13
-      vmovss  dword ptr [rsi+3Ch], xmm12
-    }
-  }
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vucomiss xmm10, dword ptr [r12+3Ch]
-  }
-  if ( v22 )
-  {
-    __asm { vmovss  dword ptr [rsp+168h+fmt], xmm10 }
-    XAnimClearTreeGoalWeights(obj->tree, 0, XANIM_SUBTREE_DEFAULT, _R12->animIndex, fmt, 1, NULL, LINEAR);
+    XAnimClearTreeGoalWeights(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animInfo->animIndex, 0.0, 1, NULL, LINEAR);
   }
   else
   {
-    __asm { vcomiss xmm13, xmm10 }
-    _RBX = _RSI->directionalSettings;
-    __asm
-    {
-      vmovaps [rsp+168h+var_48], xmm6
-      vmovaps [rsp+168h+var_58], xmm7
-      vmovaps [rsp+168h+var_68], xmm8
-      vmovaps [rsp+168h+var_78], xmm9
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps [rsp+168h+var_C8], xmm14
-      vmovaps [rsp+168h+var_D8], xmm15
-      vmovups [rsp+168h+var_F8], xmm0
-    }
-    if ( v22 )
-      __asm { vmovss  xmm15, dword ptr [rbx+18h] }
+    v13 = (const GestureDirectionalSettings *)*((_QWORD *)nodeData + 5);
+    v32 = 0i64;
+    if ( v11 <= 0.0 )
+      limitRight = v13->limitRight;
     else
-      __asm { vmovss  xmm15, dword ptr [rbx+14h] }
-    __asm { vcomiss xmm12, xmm10 }
-    if ( v22 )
-      __asm { vmovss  xmm14, dword ptr [rbx+20h] }
+      limitRight = v13->limitLeft;
+    if ( v10 <= 0.0 )
+      limitDown = v13->limitDown;
     else
-      __asm { vmovss  xmm14, dword ptr [rbx+1Ch] }
-    __asm
-    {
-      vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm13, xmm9; value
-      vmovaps xmm2, xmm15; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm8, xmm0
-      vandps  xmm0, xmm12, xmm9; value
-      vmovaps xmm2, xmm14; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, [rsp+168h+dtime]; dTime
-      vmovaps xmm1, xmm8; angle
-      vmovaps xmm7, xmm0
-    }
-    *(float *)&_XMM0 = CG_Gesture_CalcLerpRate(_RBX, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, [rsp+168h+dtime]; dTime
-      vmovaps xmm1, xmm7; angle
-      vmovaps xmm8, xmm0
-    }
-    CG_Gesture_CalcLerpRate(_RBX, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm3, xmm13, xmm8
-      vmovss  dword ptr [rsi+34h], xmm11
-      vmovss  xmm11, cs:__real@3f800000
-      vsubss  xmm1, xmm11, xmm8
-      vmulss  xmm4, xmm1, dword ptr [rsi+38h]
-      vsubss  xmm1, xmm11, xmm0
-      vaddss  xmm6, xmm4, xmm3
-      vmulss  xmm3, xmm1, dword ptr [rsi+3Ch]
-      vmulss  xmm0, xmm12, xmm0
-      vaddss  xmm7, xmm3, xmm0
-      vandps  xmm0, xmm6, xmm9; value
-      vmovaps xmm2, xmm15; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovss  dword ptr [rsi+3Ch], xmm7
-      vmovss  dword ptr [rsi+38h], xmm6
-    }
-    *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  xmm3, dword ptr [rsi+3Ch] }
-    _RAX = 4i64;
-    __asm
-    {
-      vcomiss xmm6, xmm10
-      vmovaps xmm2, xmm14; max
-    }
-    if ( v60 | v22 )
-      _RAX = 8i64;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovss  dword ptr [rsp+rax+168h+var_F8], xmm0
-      vandps  xmm0, xmm3, xmm9; value
-    }
-    *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm15, [rsp+168h+var_D8] }
-    _R15 = &v87;
-    __asm
-    {
-      vmovaps xmm14, [rsp+168h+var_C8]
-      vmovaps xmm9, [rsp+168h+var_78]
-      vmovaps xmm8, [rsp+168h+var_68]
-    }
-    v68 = 0;
-    __asm
-    {
-      vmovaps xmm6, [rsp+168h+var_48]
-      vcomiss xmm7, xmm10
-      vmovaps xmm7, [rsp+168h+var_58]
-    }
-    _RAX = 0i64;
-    __asm { vmovss  dword ptr [rsp+rax+168h+var_F8], xmm0 }
+      limitDown = v13->limitUp;
+    v16 = CG_Gesture_Normalize(COERCE_FLOAT(LODWORD(v11) & _xmm), 0.0, limitRight);
+    v17 = *(float *)&v16;
+    v18 = CG_Gesture_Normalize(COERCE_FLOAT(LODWORD(v10) & _xmm), 0.0, limitDown);
+    v19 = *(float *)&v18;
+    v20 = CG_Gesture_CalcLerpRate(v13, v17, dtime);
+    *(float *)&v18 = CG_Gesture_CalcLerpRate(v13, v19, dtime);
+    *((float *)nodeData + 13) = v12;
+    v21 = (float)((float)(1.0 - v20) * *((float *)nodeData + 14)) + (float)(v11 * v20);
+    v22 = (float)((float)(1.0 - *(float *)&v18) * *((float *)nodeData + 15)) + (float)(v10 * *(float *)&v18);
+    *((float *)nodeData + 15) = v22;
+    *((float *)nodeData + 14) = v21;
+    v23 = CG_Gesture_Normalize(COERCE_FLOAT(LODWORD(v21) & _xmm), 0.0, limitRight);
+    v24 = *((_DWORD *)nodeData + 15);
+    v25 = 4i64;
+    if ( v21 <= 0.0 )
+      v25 = 8i64;
+    *(float *)((char *)&v32 + v25) = *(float *)&v23;
+    v26 = CG_Gesture_Normalize(COERCE_FLOAT(v24 & _xmm), 0.0, limitDown);
+    v27 = (float *)&v32;
+    v28 = 12i64;
+    v29 = 0;
+    if ( v22 <= 0.0 )
+      v28 = 0i64;
+    *(float *)((char *)&v32 + v28) = *(float *)&v26;
     *(_QWORD *)result.v = obj->tree->anims;
     do
     {
-      ChildAt = XAnimGetChildAt(obj->tree->anims, _R12->animIndex, v68);
-      IsValidNode = XAnimIsValidNode(*(const XAnim_s **)result.v, ChildAt);
-      if ( IsValidNode )
+      ChildAt = XAnimGetChildAt(obj->tree->anims, animInfo->animIndex, v29);
+      if ( XAnimIsValidNode(*(const XAnim_s **)result.v, ChildAt) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vcomiss xmm0, xmm10
-          vmovss  dword ptr [rsp+168h+objID], xmm11
-          vmovss  [rsp+168h+forceBlendTime], xmm10
-          vmovss  dword ptr [rsp+168h+fmt], xmm0
-        }
-        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, fmta, *(float *)&forceBlendTime, objID, (scr_string_t)0, IsValidNode, 0, LINEAR, modelNameMap);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+30h]
-          vmovss  dword ptr [rsp+168h+fmt], xmm0
-        }
-        XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, fmtb);
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *v27, 0.0, 1.0, (scr_string_t)0, *v27 > 0.0, 0, LINEAR, modelNameMap);
+        XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, ChildAt, *((float *)nodeData + 12));
       }
-      ++v68;
-      _R15 = (__int128 *)((char *)_R15 + 4);
+      ++v29;
+      ++v27;
     }
-    while ( v68 < 4 );
-  }
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm10, xmmword ptr [r11-68h]
-    vmovaps xmm11, xmmword ptr [r11-78h]
-    vmovaps xmm12, xmmword ptr [r11-88h]
-    vmovaps xmm13, xmmword ptr [r11-98h]
+    while ( v29 < 4 );
   }
 }
 
@@ -778,257 +674,154 @@ CG_Gesture_LookAroundBlendNode_Update
 */
 void CG_Gesture_LookAroundBlendNode_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime, const bool isInstantInit, XModelNameMap *modelNameMap)
 {
-  unsigned int v20; 
-  XAnim_s *v23; 
+  unsigned int v10; 
+  float v11; 
+  float v12; 
+  XAnim_s *v13; 
   unsigned int ChildAt; 
-  unsigned int v25; 
-  XModelNameMap *cachedModelNameMap; 
-  bool v31; 
-  bool IsValidNode; 
-  char v44; 
-  const GestureLookAroundSettings *lookAroundSettings; 
-  XAnim_s *v55; 
-  unsigned int v56; 
-  unsigned int v59; 
+  unsigned int v15; 
+  double Time; 
+  XModelNameMap *v17; 
+  float v18; 
+  double NotetrackTimeFromCharString; 
+  const dvar_t *v20; 
+  float value; 
+  const dvar_t *v22; 
+  float v25; 
+  float v26; 
+  double v27; 
+  float v28; 
+  double v29; 
+  double v30; 
+  const GestureLookAroundSettings *v31; 
+  double v32; 
+  XAnim_s *v33; 
+  unsigned int v34; 
+  float *v35; 
+  unsigned int v36; 
+  double v37; 
+  float v38; 
   bool HasFinished; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float objID; 
-  float objIDa; 
-  float objIDb; 
-  float objIDc; 
-  char v90; 
-  void *retaddr; 
+  float v40; 
+  int bRestart; 
+  XModelNameMap *cachedModelNameMap; 
   unsigned int animIndex; 
-  int v93; 
+  int v44; 
+  int v45; 
   XAnim_s *anims; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _R15 = animInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _R14 = (CG_Gesture_LookAroundBlendNode *)nodeData;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps [rsp+108h+var_98], xmm11
-    vmovaps [rsp+108h+var_A8], xmm12
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3241, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3242, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
+  if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3242, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3243, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
+  if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3243, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
-  if ( !_R14->lookAroundSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3247, ASSERT_TYPE_ASSERT, "(node->lookAroundSettings != 0)", (const char *)&queryFormat, "node->lookAroundSettings != NULL") )
+  if ( !*((_QWORD *)nodeData + 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3247, ASSERT_TYPE_ASSERT, "(node->lookAroundSettings != 0)", (const char *)&queryFormat, "node->lookAroundSettings != NULL") )
     __debugbreak();
-  v20 = _R15->animIndex;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [r14]
-    vmovss  xmm10, dword ptr [r14+4]
-  }
-  v23 = obj->tree->anims;
-  anims = v23;
-  ChildAt = XAnimGetChildAt(v23, v20, 2u);
+  v10 = animInfo->animIndex;
+  v11 = *(float *)nodeData;
+  v12 = *((float *)nodeData + 1);
+  v13 = obj->tree->anims;
+  anims = v13;
+  ChildAt = XAnimGetChildAt(v13, v10, 2u);
   animIndex = ChildAt;
-  v25 = XAnimGetChildAt(obj->tree->anims, _R15->animIndex, 1u);
-  *(double *)&_XMM0 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v25);
-  cachedModelNameMap = modelNameMap;
-  __asm
+  v15 = XAnimGetChildAt(obj->tree->anims, animInfo->animIndex, 1u);
+  Time = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v15);
+  v17 = modelNameMap;
+  v18 = *(float *)&Time;
+  if ( !*((_BYTE *)nodeData + 41) )
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3f000000
-    vmovaps xmm11, xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v31 = !_R14->initialized;
-  if ( !_R14->initialized )
-  {
-    _R14->initialized = 1;
-    _R14->weaponCheckInterruptible = -1.0;
-    __asm
+    *((_BYTE *)nodeData + 41) = 1;
+    *((_DWORD *)nodeData + 11) = -1082130432;
+    *((float *)nodeData + 8) = v12;
+    v18 = FLOAT_0_5;
+    if ( XAnimIsValidNode(v13, ChildAt) )
     {
-      vmovss  dword ptr [r14+20h], xmm10
-      vmovaps xmm11, xmm8
-    }
-    IsValidNode = XAnimIsValidNode(v23, ChildAt);
-    v31 = !IsValidNode;
-    if ( IsValidNode )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+108h+objID], xmm7
-        vmovss  [rsp+108h+goalTime], xmm6
-        vmovss  dword ptr [rsp+108h+fmt], xmm6
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, fmt, goalTime, objID, (scr_string_t)0, 0, 0, LINEAR, cachedModelNameMap);
-      *(double *)&_XMM0 = XAnimGetNotetrackTimeFromCharString(v23, ChildAt, "interruptible");
-      __asm { vmovss  dword ptr [r14+2Ch], xmm0 }
+      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, ChildAt, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, v17);
+      NotetrackTimeFromCharString = XAnimGetNotetrackTimeFromCharString(v13, ChildAt, "interruptible");
+      *((float *)nodeData + 11) = *(float *)&NotetrackTimeFromCharString;
     }
   }
-  __asm { vucomiss xmm6, dword ptr [r15+3Ch] }
-  if ( v31 )
+  if ( animInfo->state.weight == 0.0 )
   {
-    __asm { vmovss  dword ptr [rsp+108h+fmt], xmm6 }
-    XAnimClearTreeGoalWeights(obj->tree, 0, XANIM_SUBTREE_DEFAULT, _R15->animIndex, fmta, 1, NULL, LINEAR);
+    XAnimClearTreeGoalWeights(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animInfo->animIndex, 0.0, 1, NULL, LINEAR);
+    return;
+  }
+  v20 = DCONST_DVARMPFLT_player_view_pitch_up;
+  if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v20);
+  value = v20->current.value;
+  v22 = DCONST_DVARMPFLT_player_view_pitch_down;
+  if ( !DCONST_DVARMPFLT_player_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_down") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v22);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  v25 = (float)((float)(v11 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  LODWORD(v26) = LODWORD(v25) & _xmm;
+  if ( v25 >= 0.0 )
+  {
+    v29 = CG_Gesture_Normalize(v26, 0.0, v22->current.value);
+    v28 = 0.5 - (float)(*(float *)&v29 * 0.5);
   }
   else
   {
-    _RBX = DCONST_DVARMPFLT_player_view_pitch_up;
-    __asm { vmovaps [rsp+108h+var_78], xmm9 }
-    if ( !DCONST_DVARMPFLT_player_view_pitch_up && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_up") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARMPFLT_player_view_pitch_down;
-    if ( !DCONST_DVARMPFLT_player_view_pitch_down && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_view_pitch_down") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmulss  xmm4, xmm12, cs:__real@3b360b61
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm4, xmm8
-      vroundss xmm3, xmm1, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, cs:__real@43b40000
-      vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; value
-      vcomiss xmm1, xmm6
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    if ( v44 )
-    {
-      __asm { vmovaps xmm2, xmm9; max }
-      *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm1, xmm8
-      }
-    }
-    else
-    {
-      __asm { vmovss  xmm2, dword ptr [rbx+28h]; max }
-      *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm8
-        vsubss  xmm0, xmm8, xmm1; val
-      }
-    }
-    __asm
-    {
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  xmm3, [rsp+108h+dtime]; time }
-    lookAroundSettings = _R14->lookAroundSettings;
-    __asm
-    {
-      vmovaps xmm2, xmm10; yaw
-      vmovaps xmm1, xmm11; oldTime
-      vmovss  [rsp+108h+arg_8], xmm0
-    }
-    *(double *)&_XMM0 = CG_Gesture_CalcYawRange(lookAroundSettings, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, _R14);
-    v55 = anims;
-    v56 = 0;
-    __asm { vmovaps xmm9, [rsp+108h+var_78] }
-    _RSI = &v93;
-    __asm { vmovss  [rsp+108h+arg_C], xmm0 }
-    do
-    {
-      v59 = XAnimGetChildAt(obj->tree->anims, _R15->animIndex, v56);
-      if ( XAnimIsValidNode(v55, v59) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+108h+objID], xmm7
-          vmovss  [rsp+108h+goalTime], xmm6
-          vmovss  dword ptr [rsp+108h+fmt], xmm7
-        }
-        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v59, fmtb, goalTimea, objIDa, (scr_string_t)0, 0, 0, LINEAR, cachedModelNameMap);
-        __asm { vmovss  dword ptr [rsp+108h+fmt], xmm6 }
-        XAnimSetAnimRate(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v59, fmtc);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vmovss  dword ptr [rsp+108h+fmt], xmm0
-        }
-        XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v59, fmtd);
-      }
-      ++v56;
-      ++_RSI;
-    }
-    while ( v56 < 2 );
-    if ( animIndex )
-    {
-      *(double *)&_XMM0 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-      __asm { vmovaps xmm8, xmm0 }
-      HasFinished = XAnimHasFinished(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-      if ( _R14->playWeaponCheck )
-      {
-        __asm { vcomiss xmm8, xmm6 }
-        if ( !_R14->playWeaponCheck )
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3e4ccccd
-            vmovss  dword ptr [rsp+108h+objID], xmm7
-            vmovss  [rsp+108h+goalTime], xmm0
-            vmovss  dword ptr [rsp+108h+fmt], xmm7
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, fmte, goalTimeb, objIDb, (scr_string_t)0, 1u, 0, LINEAR, cachedModelNameMap);
-          goto LABEL_39;
-        }
-        if ( !HasFinished )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14+2Ch]
-            vcomiss xmm0, xmm6
-          }
-          goto LABEL_39;
-        }
-      }
-      else if ( !HasFinished )
-      {
-        goto LABEL_39;
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e4ccccc
-        vmovss  dword ptr [rsp+108h+objID], xmm7
-        vmovss  [rsp+108h+goalTime], xmm0
-        vmovss  dword ptr [rsp+108h+fmt], xmm6
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, fmtf, goalTimec, objIDc, (scr_string_t)0, 0, 0, LINEAR, cachedModelNameMap);
-    }
+    v27 = CG_Gesture_Normalize(v26, 0.0, value);
+    v28 = (float)(*(float *)&v27 + 1.0) * 0.5;
   }
-LABEL_39:
-  _R11 = &v90;
-  __asm
+  v30 = I_fclamp(v28, 0.0, 1.0);
+  v31 = (const GestureLookAroundSettings *)*((_QWORD *)nodeData + 2);
+  v44 = SLODWORD(v30);
+  v32 = CG_Gesture_CalcYawRange(v31, v18, v12, dtime, (CG_Gesture_LookAroundBlendNode *)nodeData);
+  v33 = anims;
+  v34 = 0;
+  v35 = (float *)&v44;
+  v45 = SLODWORD(v32);
+  do
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    v36 = XAnimGetChildAt(obj->tree->anims, animInfo->animIndex, v34);
+    if ( XAnimIsValidNode(v33, v36) )
+    {
+      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v36, 1.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, v17);
+      XAnimSetAnimRate(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v36, 0.0);
+      XAnimSetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, v36, *v35);
+    }
+    ++v34;
+    ++v35;
+  }
+  while ( v34 < 2 );
+  if ( !animIndex )
+    return;
+  v37 = XAnimGetTime(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  v38 = *(float *)&v37;
+  HasFinished = XAnimHasFinished(obj->tree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  if ( !*((_BYTE *)nodeData + 28) )
+  {
+    if ( !HasFinished )
+      return;
+    goto LABEL_41;
+  }
+  if ( *(float *)&v37 <= 0.0 )
+  {
+    cachedModelNameMap = v17;
+    bRestart = 0;
+LABEL_35:
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, 1.0, 0.2, 1.0, (scr_string_t)0, 1u, bRestart, LINEAR, cachedModelNameMap);
+    return;
+  }
+  if ( HasFinished )
+  {
+LABEL_41:
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, 0.0, 0.19999999, 1.0, (scr_string_t)0, 0, 0, LINEAR, v17);
+    return;
+  }
+  v40 = *((float *)nodeData + 11);
+  if ( v40 > 0.0 && v38 >= v40 )
+  {
+    cachedModelNameMap = v17;
+    bRestart = 1;
+    goto LABEL_35;
   }
 }
 
@@ -1075,50 +868,28 @@ CG_Gesture_IKTarget_Calc
 void CG_Gesture_IKTarget_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
   XAnimIKDObjData *dObjData; 
-  const float4 *v29; 
-  const float4 *v30; 
-  float v31; 
-  __int128 v32; 
+  float v11; 
+  __int128 v13; 
+  const float4 *v16; 
+  const float4 *v17; 
+  __int128 v18; 
   vec4_t quat; 
 
-  _RSI = (const vec3_t *)nodeData;
   dObjData = animCalcInfo->ikCalcInfo->dObjData;
   if ( (dObjData->boneInfo[0].allBonesFound || dObjData->boneInfo[0].targetBoneIndex != 255) && !bitarray_base<bitarray<256>>::testBit(&animCalcInfo->ignorePartBits, dObjData->boneInfo[0].targetBoneIndex) )
   {
+    v11 = *(float *)nodeData - *((float *)nodeData + 6);
+    AnglesToQuat((const vec3_t *)nodeData + 1, &quat);
+    HIDWORD(v18) = 0;
+    v13 = v18;
+    *(float *)&v13 = v11;
+    _XMM1 = v13;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vsubss  xmm6, xmm0, dword ptr [rsi+18h]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vsubss  xmm7, xmm1, dword ptr [rsi+1Ch]
-      vmovaps [rsp+0C8h+var_58], xmm8
-      vsubss  xmm8, xmm0, dword ptr [rsi+20h]
-    }
-    AnglesToQuat(_RSI + 1, &quat);
-    __asm
-    {
-      vmovss  xmm2, [rsp+0C8h+weightScale]
-      vmovups xmm0, xmmword ptr [rsp+0C8h+quat]
-    }
-    HIDWORD(v32) = 0;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rsp+40h]
-      vmovss  xmm1, xmm1, xmm6
       vinsertps xmm1, xmm1, xmm7, 10h
       vinsertps xmm1, xmm1, xmm8, 20h ; ' '
-      vmovss  [rsp+0C8h+var_98], xmm2
     }
-    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, dObjData->boneInfo[0].targetBoneIndex, v29, v30, v31);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_58]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
+    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, dObjData->boneInfo[0].targetBoneIndex, v16, v17, weightScale);
   }
 }
 
@@ -1264,26 +1035,18 @@ CG_Gesture_CalcEaseTime
 
 float __fastcall CG_Gesture_CalcEaseTime(double newTimeLinear)
 {
+  __int128 v2; 
+
+  v2 = *(_OWORD *)&newTimeLinear;
+  *(float *)&v2 = *(float *)&newTimeLinear - 0.5;
+  _XMM3 = v2;
   __asm
   {
-    vmovss  xmm2, cs:__real@3f000000
-    vsubss  xmm1, xmm2, xmm0
-    vsubss  xmm3, xmm0, xmm2
     vcmpltss xmm0, xmm0, xmm2
     vblendvps xmm1, xmm3, xmm1, xmm0
-    vmulss  xmm0, xmm1, cs:__real@40000000; val
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm6; max
   }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm0
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM1 * 2.0, 0.0, 1.0);
+  return 1.0 - *(float *)&_XMM0;
 }
 
 /*
@@ -1291,53 +1054,54 @@ float __fastcall CG_Gesture_CalcEaseTime(double newTimeLinear)
 CG_Gesture_CalcLerpRate
 ==============
 */
-
-double __fastcall CG_Gesture_CalcLerpRate(const GestureDirectionalSettings *settings, double angle, double dTime)
+double CG_Gesture_CalcLerpRate(const GestureDirectionalSettings *settings, float angle, float dTime)
 {
-  char v31; 
-  void *retaddr; 
+  float maxAngle; 
+  float v6; 
+  float v7; 
+  float v8; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( settings->maxAngle <= settings->widthCushionAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 391, ASSERT_TYPE_ASSERT, "(settings->widthCushionAngle < settings->maxAngle)", (const char *)&queryFormat, "settings->widthCushionAngle < settings->maxAngle") )
+    __debugbreak();
+  maxAngle = settings->maxAngle;
+  v6 = settings->maxAngle - settings->widthCushionAngle;
+  v7 = settings->maxAngle + settings->widthCushionAngle;
+  if ( angle >= 0.001 )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vcomiss xmm0, dword ptr [rcx+8]
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
+    if ( angle >= v6 )
+    {
+      if ( angle >= maxAngle )
+      {
+        if ( angle >= v7 )
+        {
+          v8 = FLOAT_0_0099999998;
+        }
+        else
+        {
+          if ( (float)((float)(settings->maxAngle + settings->widthCushionAngle) - maxAngle) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 418, ASSERT_TYPE_ASSERT, "(factor > 0.0f)", (const char *)&queryFormat, "factor > 0.0f") )
+            __debugbreak();
+          v8 = (float)((float)(1.0 - (float)((float)(angle - settings->maxAngle) / (float)(v7 - maxAngle))) * settings->lerpAtMaxAngle) + (float)((float)((float)(angle - settings->maxAngle) / (float)(v7 - maxAngle)) * settings->lerpAtMaxCushionAngle);
+        }
+      }
+      else
+      {
+        if ( (float)(maxAngle - v6) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 410, ASSERT_TYPE_ASSERT, "(factor > 0.0f)", (const char *)&queryFormat, "factor > 0.0f") )
+          __debugbreak();
+        v8 = (float)((float)(1.0 - (float)((float)(angle - v6) / (float)(maxAngle - v6))) * settings->lerpAtMinCushionAngle) + (float)((float)((float)(angle - v6) / (float)(maxAngle - v6)) * settings->lerpAtMaxAngle);
+      }
+    }
+    else
+    {
+      if ( v6 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 402, ASSERT_TYPE_ASSERT, "(minCushionAngle > 0.0f)", (const char *)&queryFormat, "minCushionAngle > 0.0f") )
+        __debugbreak();
+      v8 = (float)((float)(angle / v6) * settings->lerpAtMinCushionAngle) + (float)(1.0 - (float)(angle / v6));
+    }
   }
-  _RBX = settings;
-  __asm
+  else
   {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm11, xmm2
-    vmovaps xmm6, xmm1
-    vcomiss xmm6, cs:__real@3a83126f
-    vmovss  xmm1, dword ptr [rbx]
-    vsubss  xmm7, xmm1, dword ptr [rbx+8]
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm6, xmm7
-    vcomiss xmm6, xmm1
-    vcomiss xmm6, xmm2
-    vmovss  xmm0, cs:__real@3c23d70a
-    vmulss  xmm0, xmm0, xmm11
-    vmulss  xmm0, xmm0, cs:__real@42700000; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm7, [rsp+98h+var_28]
+    v8 = FLOAT_1_0;
   }
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  return I_fclamp((float)(v8 * dTime) * 60.0, 0.0, 1.0);
 }
 
 /*
@@ -1345,25 +1109,22 @@ double __fastcall CG_Gesture_CalcLerpRate(const GestureDirectionalSettings *sett
 CG_Gesture_CalcYawLerpInRate
 ==============
 */
-
-float __fastcall CG_Gesture_CalcYawLerpInRate(const GestureLookAroundSettings *lookAroundSettings, double velocity)
+float CG_Gesture_CalcYawLerpInRate(const GestureLookAroundSettings *lookAroundSettings, const float velocity)
 {
-  __asm
-  {
-    vandps  xmm3, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm3, cs:__real@3dcccccd
-    vmovss  xmm0, dword ptr [rcx]
-    vmovaps [rsp+38h+var_18], xmm6
-    vmulss  xmm6, xmm0, cs:__real@41200000
-    vmovaps xmm2, xmm1
-    vmovss  xmm1, cs:__real@3e99999a; min
-    vcomiss xmm3, xmm1
-    vmovss  xmm2, cs:__real@3f4ccccd; max
-    vcomiss xmm3, xmm2
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  float v2; 
+  float v3; 
+  double v5; 
+
+  LODWORD(v2) = LODWORD(velocity) & _xmm;
+  v3 = lookAroundSettings->yawLerpIn * 10.0;
+  if ( COERCE_FLOAT(LODWORD(velocity) & _xmm) < 0.1 )
+    return 0.0;
+  if ( v2 < 0.30000001 )
+    return v3 * velocity;
+  if ( v2 >= 0.80000001 )
+    return lookAroundSettings->yawLerpIn * 10.0;
+  v5 = CG_Gesture_Normalize(v2, 0.30000001, 0.80000001);
+  return v3 * *(float *)&v5;
 }
 
 /*
@@ -1371,178 +1132,82 @@ float __fastcall CG_Gesture_CalcYawLerpInRate(const GestureLookAroundSettings *l
 CG_Gesture_CalcYawRange
 ==============
 */
-
-double __fastcall CG_Gesture_CalcYawRange(const GestureLookAroundSettings *lookAroundSettings, double oldTime, double yaw, double time, CG_Gesture_LookAroundBlendNode *outNode)
+double CG_Gesture_CalcYawRange(const GestureLookAroundSettings *lookAroundSettings, const float oldTime, const float yaw, const float time, CG_Gesture_LookAroundBlendNode *outNode)
 {
-  bool v22; 
-  bool v23; 
-  char v39; 
-  char v90; 
-  void *retaddr; 
+  float v9; 
+  float v10; 
+  double v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  __int128 v22; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RDI = lookAroundSettings;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0C8h+var_88], xmm14
-    vmovaps [rsp+0C8h+var_98], xmm15
-    vmovaps xmm14, xmm2
-    vmovaps xmm12, xmm3
-    vmovaps xmm11, xmm1
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v9 = 0.0;
   if ( !lookAroundSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3161, ASSERT_TYPE_ASSERT, "(lookAroundSettings)", (const char *)&queryFormat, "lookAroundSettings") )
     __debugbreak();
-  _RBX = outNode;
-  v22 = outNode == NULL;
-  if ( !outNode )
-  {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3162, ASSERT_TYPE_ASSERT, "(outNode)", (const char *)&queryFormat, "outNode");
-    v22 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vucomiss xmm12, xmm7
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmulss  xmm15, xmm0, cs:__real@41200000
-    vsubss  xmm0, xmm14, dword ptr [rbx+20h]
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vmovss  xmm10, cs:__real@3f000000
-    vaddss  xmm1, xmm3, xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-  }
-  if ( !v22 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm3, xmm4
-      vmulss  xmm1, xmm0, cs:__real@43b40000
-      vdivss  xmm6, xmm1, xmm12
-    }
-  }
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm0, xmm6, cs:__real@3b800000; val
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm2, xmm9; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm1, xmm11, xmm10
-    vandps  xmm1, xmm1, xmm2
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v39 )
+  if ( !outNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3162, ASSERT_TYPE_ASSERT, "(outNode)", (const char *)&queryFormat, "outNode") )
+    __debugbreak();
+  v10 = lookAroundSettings->yawLerpOut * 10.0;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  if ( time != 0.0 )
+    v9 = (float)((float)((float)((float)(yaw - outNode->oldYaw) * 0.0027777778) - *(float *)&_XMM4) * 360.0) / time;
+  v13 = I_fclamp(v9 * 0.00390625, -1.0, 1.0);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(oldTime - 0.5) & _xmm) < 0.000001 )
     outNode->isReturning = 0;
-  __asm
+  v14 = (float)(*(float *)&v13 + outNode->oldVelocity) * 0.5;
+  LODWORD(v15) = LODWORD(v14) & _xmm;
+  outNode->oldVelocity = v14;
+  if ( COERCE_FLOAT(LODWORD(v14) & _xmm) < 0.001 || outNode->isReturning && v15 <= 0.050000001 )
   {
-    vaddss  xmm0, xmm0, dword ptr [rbx+24h]
-    vmulss  xmm8, xmm0, xmm10
-    vandps  xmm3, xmm8, xmm2
-    vcomiss xmm3, cs:__real@3a83126f
-    vmovss  dword ptr [rbx+24h], xmm8
-  }
-  if ( v39 )
-    goto LABEL_15;
-  if ( !outNode->isReturning )
-    goto LABEL_14;
-  __asm { vcomiss xmm3, cs:__real@3d4ccccd }
-  if ( !outNode->isReturning )
-  {
-LABEL_15:
+    v22 = LODWORD(FLOAT_1_0);
+    *(float *)&v22 = (float)((float)(1.0 - (float)(v10 * time)) * oldTime) + (float)((float)(v10 * time) * 0.5);
+    _XMM3 = v22;
+    *(float *)&v22 = *(float *)&v22 - 0.5;
+    _XMM2 = v22;
     __asm
     {
-      vmulss  xmm1, xmm15, xmm12
-      vsubss  xmm0, xmm9, xmm1
-      vmulss  xmm2, xmm0, xmm11
-      vmulss  xmm1, xmm1, xmm10
-      vaddss  xmm3, xmm2, xmm1
-      vsubss  xmm2, xmm3, xmm10
-      vsubss  xmm1, xmm10, xmm3
       vcmpltss xmm0, xmm3, xmm10
       vblendvps xmm1, xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm1, cs:__real@40000000; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm9; max
-      vsubss  xmm6, xmm11, xmm3
     }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm0, xmm9, xmm0
-      vmulss  xmm0, xmm0, cs:__real@3fc90fdb; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm { vmulss  xmm3, xmm0, xmm6 }
+    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM1 * 2.0, 0.0, 1.0);
+    v21 = sinf_0((float)(1.0 - *(float *)&_XMM0) * 1.5707964) * (float)(oldTime - *(float *)&_XMM3);
     outNode->isReturning = 1;
   }
   else
   {
-LABEL_14:
-    __asm
+    v17 = lookAroundSettings->yawLerpIn * 10.0;
+    v16 = v17;
+    if ( v15 >= 0.1 )
     {
-      vcomiss xmm3, cs:__real@3dcccccd
-      vmovss  xmm0, dword ptr [rdi]
-      vmulss  xmm6, xmm0, cs:__real@41200000
-      vmovss  xmm1, cs:__real@3e99999a; min
-      vcomiss xmm3, xmm1
-      vmovss  xmm2, cs:__real@3f4ccccd; max
-      vcomiss xmm3, xmm2
-      vmulss  xmm0, xmm8, xmm12
-      vmulss  xmm6, xmm0, xmm6
-      vsubss  xmm0, xmm11, xmm6; newTimeLinear
+      if ( v15 >= 0.30000001 )
+      {
+        if ( v15 < 0.80000001 )
+        {
+          v18 = CG_Gesture_Normalize(v15, 0.30000001, 0.80000001);
+          v16 = v17 * *(float *)&v18;
+        }
+      }
+      else
+      {
+        v16 = v17 * v14;
+      }
     }
-    *(double *)&_XMM0 = CG_Gesture_CalcEaseTime(*(float *)&_XMM0);
-    __asm { vmulss  xmm0, xmm0, cs:__real@40490fdb; X }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
+    else
     {
-      vsubss  xmm1, xmm0, xmm9
-      vmulss  xmm2, xmm1, xmm6
-      vmulss  xmm3, xmm2, cs:__real@bf000000
+      v16 = 0.0;
     }
+    v19 = (float)(v14 * time) * v16;
+    v20 = CG_Gesture_CalcEaseTime(oldTime - v19);
+    v21 = (float)((float)(cosf_0(*(float *)&v20 * 3.1415927) - 1.0) * v19) * -0.5;
   }
-  __asm
-  {
-    vsubss  xmm0, xmm11, xmm3; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovss  dword ptr [rbx+20h], xmm14
-    vmovaps xmm15, [rsp+0C8h+var_98]
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  outNode->oldYaw = yaw;
+  return I_fclamp(oldTime - v21, 0.0, 1.0);
 }
 
 /*
@@ -1552,44 +1217,31 @@ CG_Gesture_CalculateSlotBlendOverride
 */
 void CG_Gesture_CalculateSlotBlendOverride(const playerState_s *ps, const unsigned int slot, const int gameTime, const GestureAnimationState animState, float *outOutDuration, float *outBlendInEndTime)
 {
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
+  float v10; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2000, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX = outOutDuration;
   if ( !outOutDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2001, ASSERT_TYPE_ASSERT, "(outOutDuration)", (const char *)&queryFormat, "outOutDuration") )
     __debugbreak();
-  _RDI = outBlendInEndTime;
   if ( !outBlendInEndTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2002, ASSERT_TYPE_ASSERT, "(outBlendInEndTime)", (const char *)&queryFormat, "outBlendInEndTime") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbp+460h]
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-  }
+  v10 = (float)ps->gestureState.slotBlendDuration * 0.001;
   if ( BG_Gesture_IsJumpTimeBlendActive(ps, slot, gameTime) )
   {
-    __asm { vmovss  dword ptr [rbx], xmm6 }
+    *outOutDuration = v10;
   }
   else if ( animState == GESTURE_ANIM_STATE_OUT )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vminss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm1
-    }
+    _XMM0 = *(unsigned int *)outOutDuration;
+    __asm { vminss  xmm1, xmm0, xmm6 }
+    *outOutDuration = *(float *)&_XMM1;
   }
   else if ( animState == GESTURE_ANIM_STATE_IN )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vminss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm1
-    }
+    _XMM0 = *(unsigned int *)outBlendInEndTime;
+    __asm { vminss  xmm1, xmm0, xmm6 }
+    *outBlendInEndTime = *(float *)&_XMM1;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -1647,21 +1299,22 @@ CG_Gesture_CleanSlot
 */
 bool CG_Gesture_CleanSlot(LocalClientNum_t localClientNum, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand)
 {
-  __int64 v5; 
+  __int64 v4; 
+  GestureSlotInfo *Info; 
   bool result; 
   cg_t *LocalClientGlobals; 
   WeaponHand *ViewModelHand; 
   DObj *viewModelDObj; 
   bool rebuildTree; 
-  char v16; 
+  bool v14; 
   unsigned int lastGesture; 
+  bool v16; 
+  char v17; 
   bool v18; 
-  char v19; 
-  bool v20; 
   __int64 blendOutToZero; 
-  DObj *v23; 
+  DObj *v20; 
 
-  v5 = slot;
+  v4 = slot;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2744, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
@@ -1670,66 +1323,54 @@ bool CG_Gesture_CleanSlot(LocalClientNum_t localClientNum, const playerState_s *
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2745, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", blendOutToZero, 2) )
       __debugbreak();
   }
-  _RBX = CG_Gesture_GetInfo(localClientNum, v5, hand);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2748, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  Info = CG_Gesture_GetInfo(localClientNum, v4, hand);
+  if ( !Info && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2748, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  if ( _RBX->restoreAnims )
+  if ( Info->restoreAnims )
     return 0;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   ViewModelHand = cg_t::GetViewModelHand(LocalClientGlobals, hand);
   if ( !ViewModelHand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2758, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
     __debugbreak();
   viewModelDObj = ViewModelHand->viewModelDObj;
-  v23 = ViewModelHand->viewModelDObj;
-  if ( (const playerState_s *)((char *)ps + 32 * v5) == (const playerState_s *)-1052i64 )
+  v20 = ViewModelHand->viewModelDObj;
+  if ( (const playerState_s *)((char *)ps + 32 * v4) == (const playerState_s *)-1052i64 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2762, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
       __debugbreak();
-    viewModelDObj = v23;
+    viewModelDObj = v20;
   }
-  rebuildTree = _RBX->rebuildTree;
-  if ( _RBX->isInitialized )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bf800000
-    vucomiss xmm0, dword ptr [rbx+2Ch]
-  }
-  if ( !_RBX->isInitialized )
-LABEL_22:
-    v16 = 0;
-  else
-    v16 = 1;
-  lastGesture = _RBX->lastGesture;
-  v18 = ps->gestureState.gestures[v5].index == lastGesture || !lastGesture;
-  v19 = 0;
-  v20 = 0;
-  if ( !v16 )
+  rebuildTree = Info->rebuildTree;
+  v14 = !Info->isInitialized && -1.0 != Info->animTime;
+  lastGesture = Info->lastGesture;
+  v16 = ps->gestureState.gestures[v4].index == lastGesture || !lastGesture;
+  v17 = 0;
+  v18 = 0;
+  if ( !v14 )
     goto LABEL_31;
-  if ( v18 )
+  if ( v16 )
   {
-    if ( _RBX->animState == GESTURE_ANIM_STATE_OUT )
+    if ( Info->animState == GESTURE_ANIM_STATE_OUT )
     {
-      v19 = 1;
+      v17 = 1;
 LABEL_34:
-      __asm { vxorps  xmm3, xmm3, xmm3; blendOut }
-      CG_Gesture_StopAnims(ps, v5, viewModelDObj, *(const float *)&_XMM3, 1, 1);
-      CG_Gesture_Shutdown(localClientNum, v5, hand);
+      CG_Gesture_StopAnims(ps, v4, viewModelDObj, 0.0, 1, 1);
+      CG_Gesture_Shutdown(localClientNum, v4, hand);
       goto LABEL_35;
     }
 LABEL_31:
-    if ( v18 )
+    if ( v16 )
       goto LABEL_35;
   }
-  if ( _RBX->animState )
+  if ( Info->animState )
   {
-    v20 = 1;
+    v18 = 1;
     goto LABEL_34;
   }
 LABEL_35:
-  _RBX->isRestarting = v19;
-  result = v20;
-  _RBX->rebuildTree = rebuildTree;
+  Info->isRestarting = v17;
+  result = v18;
+  Info->rebuildTree = rebuildTree;
   return result;
 }
 
@@ -2366,163 +2007,123 @@ CG_Gesture_DirectionalBlendNode_CalculateRelativeTargetVector
 void CG_Gesture_DirectionalBlendNode_CalculateRelativeTargetVector(CG_Gesture_DirectionalBlendNode *node, vec3_t *result)
 {
   const GestureDirectionalSettings *directionalSettings; 
-  unsigned __int8 *v10; 
+  const GestureDirectionalSettings *v5; 
+  float v6; 
+  float v7; 
+  const GestureDirectionalSettings *v18; 
+  float v19; 
+  float targetOffsetYaw; 
+  float targetOffsetX; 
+  float targetOffsetY; 
+  float targetOffsetZ; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
   vec3_t angles; 
-  vec3_t v80; 
-  tmat33_t<vec3_t> v81; 
+  vec3_t v44; 
+  tmat33_t<vec3_t> v45; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v83; 
+  tmat43_t<vec3_t> v47; 
   tmat43_t<vec3_t> out; 
-  char v85; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   directionalSettings = node->directionalSettings;
-  _RDI = result;
-  _RBX = node;
   if ( !directionalSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 378, ASSERT_TYPE_ASSERT, "(directionalSettings)", (const char *)&queryFormat, "directionalSettings") )
     __debugbreak();
   if ( directionalSettings->useTargetOffset )
   {
-    v10 = (unsigned __int8 *)_RBX->directionalSettings;
-    _EDX = 0;
+    v5 = node->directionalSettings;
+    v6 = node->viewAngles.v[1];
+    v7 = node->viewAngles.v[2];
+    angles.v[0] = node->viewAngles.v[0];
+    angles.v[1] = v6;
+    angles.v[2] = v7;
+    _XMM0 = v5->ignoreViewPitchForTargetOffset;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM4 = 0i64;
+    __asm { vblendvps xmm0, xmm4, xmm3, xmm2 }
+    angles.v[0] = *(float *)&_XMM0;
+    _XMM0 = v5->ignoreViewYawForTargetOffset;
     __asm
     {
-      vmovss  xmm3, dword ptr [rbx+0Ch]
-      vmovss  xmm5, dword ptr [rbx+10h]
-      vmovss  xmm6, dword ptr [rbx+14h]
-      vmovss  dword ptr [rsp+160h+angles], xmm3
-      vmovss  dword ptr [rsp+160h+angles+4], xmm5
-      vmovss  dword ptr [rsp+160h+angles+8], xmm6
-    }
-    _EAX = v10[64];
-    __asm
-    {
-      vmovd   xmm0, eax
-      vmovd   xmm1, edx
-      vpcmpeqd xmm2, xmm0, xmm1
-      vxorps  xmm4, xmm4, xmm4
-      vblendvps xmm0, xmm4, xmm3, xmm2
-      vmovss  dword ptr [rsp+160h+angles], xmm0
-    }
-    _EAX = v10[65];
-    __asm
-    {
-      vmovd   xmm0, eax
-      vmovd   xmm1, edx
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm0, xmm4, xmm5, xmm2
-      vmovss  dword ptr [rsp+160h+angles+4], xmm0
     }
-    _EAX = v10[66];
+    angles.v[1] = *(float *)&_XMM0;
+    _XMM0 = v5->ignoreViewRollForTargetOffset;
     __asm
     {
-      vmovd   xmm0, eax
-      vmovd   xmm1, edx
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm0, xmm4, xmm6, xmm2
-      vmovss  dword ptr [rsp+160h+angles+8], xmm0
     }
+    angles.v[2] = *(float *)&_XMM0;
     AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-    _RAX = _RBX->directionalSettings;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  [rbp+60h+var_C4], xmm0
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  [rbp+60h+var_BC], xmm0
-      vmovss  [rbp+60h+var_C0], xmm1
-      vmovss  xmm2, dword ptr [rax+3Ch]
-      vmovss  xmm1, dword ptr [rax+34h]
-      vmovss  xmm0, dword ptr [rax+38h]
-      vmovss  xmm6, dword ptr [rax+28h]
-      vmovss  xmm7, dword ptr [rax+2Ch]
-      vmovss  xmm8, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+160h+var_120], xmm0
-      vmovss  dword ptr [rsp+160h+var_120+4], xmm1
-      vmovss  dword ptr [rsp+160h+var_120+8], xmm2
-    }
-    AnglesToAxis(&v80, (tmat33_t<vec3_t> *)&v83);
-    __asm
-    {
-      vmovss  [rbp+60h+var_94], xmm6
-      vmovss  [rbp+60h+var_90], xmm7
-      vmovss  [rbp+60h+var_8C], xmm8
-    }
-    MatrixMultiply43(&v83, &axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+60h+out+24h]
-      vmovss  xmm1, dword ptr [rbp+60h+out+28h]
-      vmovss  xmm2, dword ptr [rbp+60h+out+2Ch]
-    }
+    v18 = node->directionalSettings;
+    v19 = node->viewOrigin.v[1];
+    axis.m[3].v[0] = node->viewOrigin.v[0];
+    axis.m[3].v[2] = node->viewOrigin.v[2];
+    axis.m[3].v[1] = v19;
+    *(float *)&_XMM2 = v18->targetOffsetRoll;
+    targetOffsetYaw = v18->targetOffsetYaw;
+    targetOffsetX = v18->targetOffsetX;
+    targetOffsetY = v18->targetOffsetY;
+    targetOffsetZ = v18->targetOffsetZ;
+    v44.v[0] = v18->targetOffsetPitch;
+    v44.v[1] = targetOffsetYaw;
+    v44.v[2] = *(float *)&_XMM2;
+    AnglesToAxis(&v44, (tmat33_t<vec3_t> *)&v47);
+    v47.m[3].v[0] = targetOffsetX;
+    v47.m[3].v[1] = targetOffsetY;
+    v47.m[3].v[2] = targetOffsetZ;
+    MatrixMultiply43(&v47, &axis, &out);
+    v24 = out.m[3].v[0];
+    v25 = LODWORD(out.m[3].v[1]);
+    v26 = out.m[3].v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vmovss  xmm2, dword ptr [rbx+20h]
-    }
+    v24 = node->targetPos.v[0];
+    v25 = LODWORD(node->targetPos.v[1]);
+    v26 = node->targetPos.v[2];
   }
+  v28 = v25;
+  v27 = *(float *)&v25 - node->viewOrigin.v[1];
+  v29 = v24 - node->viewOrigin.v[0];
+  v30 = v26 - node->viewOrigin.v[2];
+  *(float *)&v28 = fsqrt((float)((float)(v27 * v27) + (float)(v29 * v29)) + (float)(v30 * v30));
+  _XMM3 = v28;
   __asm
   {
-    vsubss  xmm5, xmm1, dword ptr [rbx+4]
-    vsubss  xmm4, xmm0, dword ptr [rbx]
-    vsubss  xmm6, xmm2, dword ptr [rbx+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm4, xmm1
-    vmulss  xmm8, xmm5, xmm1
-    vmulss  xmm6, xmm6, xmm1
   }
-  AnglesToAxis(&_RBX->viewAngles, &v81);
-  if ( &v80 == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+  v34 = v29 * (float)(1.0 / *(float *)&_XMM0);
+  v35 = v27 * (float)(1.0 / *(float *)&_XMM0);
+  v36 = v30 * (float)(1.0 / *(float *)&_XMM0);
+  AnglesToAxis(&node->viewAngles, &v45);
+  if ( &v44 == result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm3, xmm8, dword ptr [rsp+160h+var_110+4]
-    vmulss  xmm2, xmm7, dword ptr [rsp+160h+var_110]
-    vmulss  xmm1, xmm6, dword ptr [rsp+160h+var_110+8]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm8, dword ptr [rsp+160h+var_110+10h]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+160h+var_110+14h]
-    vmovss  dword ptr [rdi], xmm2
-    vmulss  xmm2, xmm7, dword ptr [rsp+160h+var_110+0Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm8, dword ptr [rsp+160h+var_110+1Ch]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+160h+var_110+20h]
-    vmovss  dword ptr [rdi+4], xmm2
-    vmulss  xmm2, xmm7, dword ptr [rsp+160h+var_110+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi+8], xmm2
-  }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v37 = v35 * v45.m[1].v[1];
+  v38 = v36 * v45.m[1].v[2];
+  result->v[0] = (float)((float)(v35 * v45.m[0].v[1]) + (float)(v34 * v45.m[0].v[0])) + (float)(v36 * v45.m[0].v[2]);
+  v39 = v37 + (float)(v34 * v45.m[1].v[0]);
+  v40 = v35 * v45.m[2].v[1];
+  v41 = v39 + v38;
+  v42 = v36 * v45.m[2].v[2];
+  result->v[1] = v41;
+  result->v[2] = (float)(v40 + (float)(v34 * v45.m[2].v[0])) + v42;
 }
 
 /*
@@ -2643,107 +2244,66 @@ CG_Gesture_GetAnimTimeArchived
 */
 double CG_Gesture_GetAnimTimeArchived(LocalClientNum_t localClientNum, const unsigned int slot, const PlayerHandIndex hand, const Gesture *gesture)
 {
+  GestureSlotInfo *Info; 
   GestureAnimationState animState; 
   GestureAnimationSettings *AnimationSettings; 
-  __int64 v33; 
-  __int64 v34; 
+  float v11; 
+  double v12; 
+  float inAnimLength; 
+  float mainAnimLength; 
+  float outAnimLength; 
+  float animationLength; 
+  float v17; 
+  __int64 v19; 
+  __int64 v20; 
 
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 923, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
   if ( slot >= 2 )
   {
-    LODWORD(v33) = slot;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 924, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v33, 2) )
+    LODWORD(v19) = slot;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 924, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v19, 2) )
       __debugbreak();
   }
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
   {
-    LODWORD(v34) = 2;
-    LODWORD(v33) = hand;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 925, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v33, v34) )
+    LODWORD(v20) = 2;
+    LODWORD(v19) = hand;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 925, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = CG_Gesture_GetInfo(localClientNum, slot, hand);
-  animState = _RBX->animState;
+  Info = CG_Gesture_GetInfo(localClientNum, slot, hand);
+  animState = Info->animState;
   AnimationSettings = BG_Gesture_GetAnimationSettings(gesture);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmulss  xmm3, xmm0, cs:__real@447a0000
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1; min
-  }
+  v11 = Info->animTime * 1000.0;
+  LODWORD(v12) = 0;
   if ( !AnimationSettings->hasTransitions )
   {
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [rax+0Ch]; max
-    }
+    animationLength = (float)AnimationSettings->animationLength;
     goto LABEL_18;
   }
-  __asm
-  {
-    vcvtsi2ss xmm1, xmm1, dword ptr [rax+4]
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, dword ptr [rax]
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, dword ptr [rax+8]
-  }
+  inAnimLength = (float)AnimationSettings->inAnimLength;
+  mainAnimLength = (float)AnimationSettings->mainAnimLength;
+  outAnimLength = (float)AnimationSettings->outAnimLength;
   switch ( animState )
   {
     case GESTURE_ANIM_STATE_IN:
-      __asm
-      {
-        vmovaps xmm2, xmm1
-        vxorps  xmm1, xmm1, xmm1
-      }
+      animationLength = (float)AnimationSettings->inAnimLength;
 LABEL_18:
-      __asm { vmovaps xmm0, xmm3; value }
+      v17 = Info->animTime * 1000.0;
       goto LABEL_19;
     case GESTURE_ANIM_STATE_PLAYING:
-      __asm
-      {
-        vsubss  xmm0, xmm3, xmm1; X
-        vmovaps xmm1, xmm6; Y
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm2, xmm6
-        vxorps  xmm1, xmm1, xmm1
-      }
+      v17 = fmodf_0(v11 - inAnimLength, mainAnimLength);
+      animationLength = mainAnimLength;
 LABEL_19:
-      *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      break;
+      v12 = CG_Gesture_Normalize(v17, 0.0, animationLength);
+      return I_fclamp(*(float *)&v12, 0.0, 1.0);
     case GESTURE_ANIM_STATE_OUT:
-      __asm
-      {
-        vsubss  xmm0, xmm3, xmm1
-        vsubss  xmm0, xmm0, xmm6; X
-        vmovaps xmm1, xmm7; Y
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm2, xmm7
-        vxorps  xmm1, xmm1, xmm1
-      }
+      v17 = fmodf_0((float)(v11 - inAnimLength) - mainAnimLength, outAnimLength);
+      animationLength = outAnimLength;
       goto LABEL_19;
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  return I_fclamp(*(float *)&v12, 0.0, 1.0);
 }
 
 /*
@@ -2753,170 +2313,96 @@ CG_Gesture_GetAnimTimeFromTree
 */
 void CG_Gesture_GetAnimTimeFromTree(LocalClientNum_t localClientNum, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand, const Gesture *gesture, const XAnimTree *animTree, float *outTimeInSeconds, float *outNormalizedTime)
 {
-  unsigned int animState; 
+  GestureSlotInfo *Info; 
+  GestureAnimationState animState; 
   GestureAnimationSettings *AnimationSettings; 
   unsigned int mainAnim; 
-  char v22; 
+  bool v15; 
   bool IsLooped; 
-  char v25; 
-  bool v28; 
-  __int64 v49; 
-  __int64 v50; 
+  float v17; 
+  double Weight; 
+  double Time; 
+  float animationLength; 
+  float v21; 
+  double v22; 
+  __int64 v23; 
+  __int64 v24; 
 
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 978, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
   if ( !animTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 979, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
     __debugbreak();
-  _R13 = outTimeInSeconds;
   if ( !outTimeInSeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 980, ASSERT_TYPE_ASSERT, "(outTimeInSeconds)", (const char *)&queryFormat, "outTimeInSeconds") )
     __debugbreak();
-  _R12 = outNormalizedTime;
   if ( !outNormalizedTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 981, ASSERT_TYPE_ASSERT, "(outNormalizedTime)", (const char *)&queryFormat, "outNormalizedTime") )
     __debugbreak();
   if ( slot >= 2 )
   {
-    LODWORD(v49) = slot;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 982, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v49, 2) )
+    LODWORD(v23) = slot;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 982, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v23, 2) )
       __debugbreak();
   }
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
   {
-    LODWORD(v50) = 2;
-    LODWORD(v49) = hand;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 983, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v49, v50) )
+    LODWORD(v24) = 2;
+    LODWORD(v23) = hand;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 983, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v23, v24) )
       __debugbreak();
   }
-  _RSI = CG_Gesture_GetInfo(localClientNum, slot, hand);
-  animState = _RSI->animState;
+  Info = CG_Gesture_GetInfo(localClientNum, slot, hand);
+  animState = Info->animState;
   AnimationSettings = BG_Gesture_GetAnimationSettings(gesture);
   if ( !AnimationSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 988, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
     __debugbreak();
   *outTimeInSeconds = -1.0;
   *outNormalizedTime = -1.0;
-  mainAnim = _RSI->mainAnim;
+  mainAnim = Info->mainAnim;
   if ( mainAnim && gesture->type <= (unsigned int)GESTURE_TYPE_IK_TARGET )
   {
-    if ( _RSI->isMainAnimAdditive )
+    if ( Info->isMainAnimAdditive )
       mainAnim = XAnimGetChildAt(animTree->anims, mainAnim, 0);
-    __asm { vmovaps [rsp+88h+var_38], xmm6 }
     if ( XAnimHasFinished(animTree, 0, XANIM_SUBTREE_DEFAULT, mainAnim) )
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( !_RSI->cancelTransitions )
-        goto LABEL_30;
-      __asm { vcomiss xmm6, dword ptr [rsi+30h] }
-      if ( _RSI->cancelTransitions )
-LABEL_30:
-        v22 = 0;
-      else
-        v22 = 1;
+      v15 = Info->cancelTransitions && Info->animTimeNormalized >= 0.0;
       IsLooped = XAnimIsLooped(animTree->anims, mainAnim);
-      if ( v22 || !IsLooped )
-        __asm { vmovss  xmm1, cs:__real@3f800000 }
+      if ( v15 || !IsLooped )
+        v17 = FLOAT_1_0;
       else
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        v17 = 0.0;
     }
     else
     {
-      *(double *)&_XMM0 = XAnimGetWeight(animTree, 0, XANIM_SUBTREE_DEFAULT, mainAnim);
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vucomiss xmm0, xmm6
-      }
-      if ( v25 )
-      {
-LABEL_50:
-        __asm { vmovaps xmm6, [rsp+88h+var_38] }
+      Weight = XAnimGetWeight(animTree, 0, XANIM_SUBTREE_DEFAULT, mainAnim);
+      if ( *(float *)&Weight == 0.0 )
         return;
-      }
-      *(double *)&_XMM0 = XAnimGetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, mainAnim);
-      __asm { vmovaps xmm1, xmm0 }
+      Time = XAnimGetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, mainAnim);
+      v17 = *(float *)&Time;
     }
-    __asm
+    animationLength = (float)AnimationSettings->animationLength;
+    if ( animState == GESTURE_ANIM_STATE_IN )
     {
-      vmovaps [rsp+88h+var_48], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, dword ptr [rbx+0Ch]
+      if ( !AnimationSettings->hasTransitions )
+        goto LABEL_47;
+      v21 = (float)AnimationSettings->inAnimLength * v17;
     }
-    if ( animState == 2 )
+    else if ( animState == GESTURE_ANIM_STATE_PLAYING )
     {
-      v28 = 0;
-      if ( AnimationSettings->hasTransitions )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+4]
-          vmulss  xmm0, xmm0, xmm1
-        }
-LABEL_46:
-        __asm
-        {
-          vmovaps xmm2, xmm7; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm1, xmm0 }
-      }
-    }
-    else if ( animState == 1 )
-    {
-      v28 = 0;
-      if ( AnimationSettings->hasTransitions )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-          vmulss  xmm2, xmm0, xmm1
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbx+4]
-          vaddss  xmm0, xmm2, xmm1
-        }
-        goto LABEL_46;
-      }
+      if ( !AnimationSettings->hasTransitions )
+        goto LABEL_47;
+      v21 = (float)((float)AnimationSettings->mainAnimLength * v17) + (float)AnimationSettings->inAnimLength;
     }
     else
     {
-      v28 = animState < 3;
-      if ( animState == 3 )
-      {
-        v28 = 0;
-        if ( AnimationSettings->hasTransitions )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-            vmulss  xmm2, xmm0, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rbx+4]
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, dword ptr [rbx]
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm0, xmm3, xmm0; value
-          }
-          goto LABEL_46;
-        }
-      }
+      if ( animState != GESTURE_ANIM_STATE_OUT || !AnimationSettings->hasTransitions )
+        goto LABEL_47;
+      v21 = (float)((float)((float)AnimationSettings->outAnimLength * v17) + (float)AnimationSettings->mainAnimLength) + (float)AnimationSettings->inAnimLength;
     }
-    __asm
-    {
-      vcomiss xmm1, xmm6
-      vmovss  dword ptr [r12], xmm1
-    }
-    if ( !v28 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm1
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vmovss  dword ptr [r13+0], xmm1
-      }
-    }
-    __asm { vmovaps xmm7, [rsp+88h+var_48] }
-    goto LABEL_50;
+    v22 = CG_Gesture_Normalize(v21, 0.0, animationLength);
+    v17 = *(float *)&v22;
+LABEL_47:
+    *outNormalizedTime = v17;
+    if ( v17 >= 0.0 )
+      *outTimeInSeconds = (float)(animationLength * v17) * 0.001;
   }
 }
 
@@ -3792,48 +3278,18 @@ void CG_Gesture_LoadXAnimFromAsset(const Gesture *gesture, WeaponXAnim *pAnims, 
 CG_Gesture_Normalize
 ==============
 */
-
-float __fastcall CG_Gesture_Normalize(double value, double min, double max)
+float CG_Gesture_Normalize(float value, float min, float max)
 {
-  bool v9; 
-
-  __asm
-  {
-    vcomiss xmm1, xmm2
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm0
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 210, ASSERT_TYPE_ASSERT, "(min <= max)", (const char *)&queryFormat, "min <= max");
-  if ( v9 )
+  if ( min > max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 210, ASSERT_TYPE_ASSERT, "(min <= max)", (const char *)&queryFormat, "min <= max") )
     __debugbreak();
-  __asm
-  {
-    vcomiss xmm8, xmm6
-    vcomiss xmm8, xmm7
-  }
-  if ( v9 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+  if ( value < min )
+    return 0.0;
+  if ( value > max )
+    return FLOAT_1_0;
+  if ( min == max )
+    return 0.0;
   else
-  {
-    __asm
-    {
-      vucomiss xmm6, xmm7
-      vxorps  xmm0, xmm0, xmm0
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  return *(float *)&_XMM0;
+    return (float)(value - min) / (float)(max - min);
 }
 
 /*
@@ -3843,215 +3299,155 @@ CG_Gesture_ProcessViewmodel
 */
 void CG_Gesture_ProcessViewmodel(LocalClientNum_t localClientNum, const playerState_s *ps, const PlayerHandIndex hand, const Weapon *weapon)
 {
-  char v8; 
-  __int64 v9; 
-  __int64 v11; 
+  char v4; 
+  __int64 v5; 
+  __int64 v7; 
   cg_t *LocalClientGlobals; 
-  XAnimTree ***v14; 
-  DObj *v15; 
-  CgWeaponMap *v16; 
+  XAnimTree ***v10; 
+  DObj *v11; 
+  CgWeaponMap *v12; 
   PlayerHandIndex WeaponHandForWeapon; 
-  unsigned int v18; 
-  unsigned int v19; 
+  unsigned int v14; 
+  unsigned int v15; 
   GestureSlotInfo *Info; 
-  char v23; 
-  bool v26; 
+  GestureSlotInfo *v17; 
+  char useIdleLeft; 
+  bool v19; 
   const Gesture *CurrentAsset; 
+  float v21; 
   GestureAnimationState animState; 
   __int64 outState; 
-  float outStatea; 
   float *outMainTreeWeight; 
-  float outMainTreeWeighta; 
-  float outMainTreeWeightb; 
-  float outMainTreeWeightc; 
-  float outBlendTime; 
-  float outBlendTimea; 
-  float outBlendTimeb; 
-  float outBlendTimec; 
-  float useIdleLeft; 
-  float outCrossfadeOutStartTime; 
-  char v46; 
-  bool v47; 
+  char v25; 
+  bool v26; 
   bool outShouldCrossfadeInOut; 
   bool outShouldBlendOut; 
   float blendTime; 
   float crossfadeOutStartTime; 
   XAnimTree *animTree; 
-  void *retaddr; 
-  float v56; 
+  float v32; 
   bool outShouldBlendOutToZero; 
   bool IsJumpTimeBlendActive; 
 
-  _RAX = &retaddr;
-  v8 = 0;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  v9 = hand;
-  v11 = localClientNum;
+  v4 = 0;
+  v5 = hand;
+  v7 = localClientNum;
   IsJumpTimeBlendActive = 0;
-  v46 = 0;
-  LOBYTE(v56) = 0;
+  v25 = 0;
+  LOBYTE(v32) = 0;
   outShouldBlendOutToZero = 0;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2817, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (unsigned int)v9 >= 2 )
+  if ( (unsigned int)v5 >= 2 )
   {
-    LODWORD(outState) = v9;
+    LODWORD(outState) = v5;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2818, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", outState, 2) )
       __debugbreak();
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
-  if ( (unsigned int)v9 >= 2 )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  if ( (unsigned int)v5 >= 2 )
   {
     LODWORD(outMainTreeWeight) = 2;
-    LODWORD(outState) = v9;
+    LODWORD(outState) = v5;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1200, ASSERT_TYPE_ASSERT, "(unsigned)( handIndex ) < (unsigned)( NUM_WEAPON_HANDS )", "handIndex doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", outState, outMainTreeWeight) )
       __debugbreak();
   }
-  v14 = (XAnimTree ***)&LocalClientGlobals->m_weaponHand[v9];
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2823, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
+  v10 = (XAnimTree ***)&LocalClientGlobals->m_weaponHand[v5];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2823, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
     __debugbreak();
-  v15 = (DObj *)*v14;
-  animTree = **v14;
+  v11 = (DObj *)*v10;
+  animTree = **v10;
   if ( !animTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2827, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v16 = CgWeaponMap::ms_instance[v11];
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2830, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  v12 = CgWeaponMap::ms_instance[v7];
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2830, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  WeaponHandForWeapon = BG_PlayerLastWeaponHandForWeapon(v16, ps, weapon);
-  v18 = 0;
-  v19 = 0;
-  v47 = WeaponHandForWeapon == WEAPON_HAND_LEFT;
+  WeaponHandForWeapon = BG_PlayerLastWeaponHandForWeapon(v12, ps, weapon);
+  v14 = 0;
+  v15 = 0;
+  v26 = WeaponHandForWeapon == WEAPON_HAND_LEFT;
   do
   {
-    Info = CG_Gesture_GetInfo((LocalClientNum_t)v11, v19++, (PlayerHandIndex)v9);
+    Info = CG_Gesture_GetInfo((LocalClientNum_t)v7, v15++, (PlayerHandIndex)v5);
     Info->mainTreeWeight = -1.0;
     Info->additiveAdsWeight = -1.0;
     Info->fingerPoseWeight = -1.0;
   }
-  while ( v19 < 2 );
-  __asm
-  {
-    vmovss  xmm7, cs:__real@bf800000
-    vmovaps [rsp+0D8h+var_48], xmm6
-  }
+  while ( v15 < 2 );
   do
   {
-    _R15 = CG_Gesture_GetInfo((LocalClientNum_t)v11, v18, (PlayerHandIndex)v9);
-    if ( !CG_Gesture_IsEnabled((LocalClientNum_t)v11, ps, v18, (const PlayerHandIndex)v9) )
+    v17 = CG_Gesture_GetInfo((LocalClientNum_t)v7, v14, (PlayerHandIndex)v5);
+    if ( !CG_Gesture_IsEnabled((LocalClientNum_t)v7, ps, v14, (const PlayerHandIndex)v5) )
     {
-      CG_Gesture_Shutdown((LocalClientNum_t)v11, v18, (const PlayerHandIndex)v9);
-LABEL_27:
-      v23 = LOBYTE(v56);
-      goto LABEL_28;
+      CG_Gesture_Shutdown((LocalClientNum_t)v7, v14, (const PlayerHandIndex)v5);
+LABEL_26:
+      useIdleLeft = LOBYTE(v32);
+      goto LABEL_27;
     }
-    if ( (unsigned int)v9 >= 2 )
+    if ( (unsigned int)v5 >= 2 )
     {
       LODWORD(outMainTreeWeight) = 2;
-      LODWORD(outState) = v9;
+      LODWORD(outState) = v5;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 914, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", outState, outMainTreeWeight) )
         __debugbreak();
     }
-    if ( CG_Gesture_GetInfo((LocalClientNum_t)v11, v18, (PlayerHandIndex)v9)->rebuildTree || CG_Gesture_CleanSlot((LocalClientNum_t)v11, ps, v18, (const PlayerHandIndex)v9) )
-      goto LABEL_27;
-    CurrentAsset = BG_Gesture_GetCurrentAsset(ps, v18);
+    if ( CG_Gesture_GetInfo((LocalClientNum_t)v7, v14, (PlayerHandIndex)v5)->rebuildTree || CG_Gesture_CleanSlot((LocalClientNum_t)v7, ps, v14, (const PlayerHandIndex)v5) )
+      goto LABEL_26;
+    CurrentAsset = BG_Gesture_GetCurrentAsset(ps, v14);
     if ( !CurrentAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2857, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
       __debugbreak();
-    CG_Gesture_UpdateAnimationState((LocalClientNum_t)v11, ps, v18, (const PlayerHandIndex)v9, v47, CurrentAsset, animTree);
-    CG_Gesture_UpdateBlendingParameters((LocalClientNum_t)v11, ps, v18, (const PlayerHandIndex)v9, v47, CurrentAsset, animTree, &blendTime, &outShouldCrossfadeInOut, &outShouldBlendOut, &crossfadeOutStartTime, &outShouldBlendOutToZero);
-    __asm { vmovss  xmm6, [rsp+0D8h+blendTime] }
-    if ( !_R15->isInitialized )
-      goto LABEL_45;
-    if ( !_R15->restoreAnims )
+    CG_Gesture_UpdateAnimationState((LocalClientNum_t)v7, ps, v14, (const PlayerHandIndex)v5, v26, CurrentAsset, animTree);
+    CG_Gesture_UpdateBlendingParameters((LocalClientNum_t)v7, ps, v14, (const PlayerHandIndex)v5, v26, CurrentAsset, animTree, &blendTime, &outShouldCrossfadeInOut, &outShouldBlendOut, &crossfadeOutStartTime, &outShouldBlendOutToZero);
+    v21 = blendTime;
+    if ( !v17->isInitialized )
+      goto LABEL_44;
+    if ( !v17->restoreAnims )
     {
-      if ( !CurrentAsset->looping )
-        goto LABEL_48;
-      __asm { vucomiss xmm7, dword ptr [r15+30h] }
-      if ( CurrentAsset->looping || _R15->animState == GESTURE_ANIM_STATE_OFF )
-        goto LABEL_48;
-LABEL_45:
-      if ( !_R15->restoreAnims )
-        CG_Gesture_Initialize((LocalClientNum_t)v11, ps, v18, (const PlayerHandIndex)v9);
+      if ( !CurrentAsset->looping || -1.0 != v17->animTimeNormalized || v17->animState == GESTURE_ANIM_STATE_OFF )
+        goto LABEL_47;
+LABEL_44:
+      if ( !v17->restoreAnims )
+        CG_Gesture_Initialize((LocalClientNum_t)v7, ps, v14, (const PlayerHandIndex)v5);
     }
-    __asm { vmovss  dword ptr [rsp+0D8h+outBlendTime], xmm6 }
-    CG_Gesture_StartAnims((LocalClientNum_t)v11, CurrentAsset, ps, v18, v15, (const PlayerHandIndex)v9, v47, outBlendTime);
-LABEL_48:
-    __asm
-    {
-      vmovss  xmm0, [rsp+0D8h+crossfadeOutStartTime]
-      vmovss  dword ptr [rsp+0D8h+outCrossfadeOutStartTime], xmm0
-      vmovss  dword ptr [rsp+0D8h+useIdleLeft], xmm6
-    }
-    CG_Gesture_SwitchMainAnimations((LocalClientNum_t)v11, v15, animTree, CurrentAsset, ps, v18, (const PlayerHandIndex)v9, v47, useIdleLeft, outShouldCrossfadeInOut, outCrossfadeOutStartTime);
-    animState = _R15->animState;
+    CG_Gesture_StartAnims((LocalClientNum_t)v7, CurrentAsset, ps, v14, v11, (const PlayerHandIndex)v5, v26, v21);
+LABEL_47:
+    CG_Gesture_SwitchMainAnimations((LocalClientNum_t)v7, v11, animTree, CurrentAsset, ps, v14, (const PlayerHandIndex)v5, v26, v21, outShouldCrossfadeInOut, crossfadeOutStartTime);
+    animState = v17->animState;
     switch ( animState )
     {
       case GESTURE_ANIM_STATE_IN:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+30h]
-          vmovss  dword ptr [rsp+0D8h+outBlendTime], xmm6
-          vmovss  dword ptr [rsp+0D8h+outMainTreeWeight], xmm0
-        }
-        CG_Gesture_UpdateAnims((LocalClientNum_t)v11, CurrentAsset, ps, v18, (const PlayerHandIndex)v9, v15, outMainTreeWeighta, outBlendTimea);
+        CG_Gesture_UpdateAnims((LocalClientNum_t)v7, CurrentAsset, ps, v14, (const PlayerHandIndex)v5, v11, v17->animTimeNormalized, v21);
         IsJumpTimeBlendActive = 1;
         break;
       case GESTURE_ANIM_STATE_PLAYING:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+30h]
-          vmovss  dword ptr [rsp+0D8h+outBlendTime], xmm6
-          vmovss  dword ptr [rsp+0D8h+outMainTreeWeight], xmm0
-        }
-        CG_Gesture_UpdateAnims((LocalClientNum_t)v11, CurrentAsset, ps, v18, (const PlayerHandIndex)v9, v15, outMainTreeWeightb, outBlendTimeb);
-        IsJumpTimeBlendActive = BG_Gesture_IsJumpTimeBlendActive(ps, v18, ps->serverTime);
+        CG_Gesture_UpdateAnims((LocalClientNum_t)v7, CurrentAsset, ps, v14, (const PlayerHandIndex)v5, v11, v17->animTimeNormalized, v21);
+        IsJumpTimeBlendActive = BG_Gesture_IsJumpTimeBlendActive(ps, v14, ps->serverTime);
         break;
       case GESTURE_ANIM_STATE_OUT:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+30h]
-          vmovss  dword ptr [rsp+0D8h+outBlendTime], xmm6
-          vmovss  dword ptr [rsp+0D8h+outMainTreeWeight], xmm0
-        }
-        CG_Gesture_UpdateAnims((LocalClientNum_t)v11, CurrentAsset, ps, v18, (const PlayerHandIndex)v9, v15, outMainTreeWeightc, outBlendTimec);
-        __asm { vmovaps xmm3, xmm6; blendOut }
-        CG_Gesture_StopAnims(ps, v18, v15, *(const float *)&_XMM3, outShouldBlendOut, outShouldBlendOutToZero);
-        v46 = 1;
+        CG_Gesture_UpdateAnims((LocalClientNum_t)v7, CurrentAsset, ps, v14, (const PlayerHandIndex)v5, v11, v17->animTimeNormalized, v21);
+        CG_Gesture_StopAnims(ps, v14, v11, v21, outShouldBlendOut, outShouldBlendOutToZero);
+        v25 = 1;
         break;
       case GESTURE_ANIM_STATE_OFF:
-        __asm { vmovaps xmm3, xmm6; blendOut }
-        CG_Gesture_StopAnims(ps, v18, v15, *(const float *)&_XMM3, 1, 1);
-        CG_Gesture_Shutdown((LocalClientNum_t)v11, v18, (const PlayerHandIndex)v9);
+        CG_Gesture_StopAnims(ps, v14, v11, v21, 1, 1);
+        CG_Gesture_Shutdown((LocalClientNum_t)v7, v14, (const PlayerHandIndex)v5);
         break;
     }
-    v8 = 1;
-    v23 = CurrentAsset->weaponSettings.useLeftIdleAkimbo | LOBYTE(v56);
-    LOBYTE(v56) = v23;
-LABEL_28:
-    ++v18;
+    v4 = 1;
+    useIdleLeft = CurrentAsset->weaponSettings.useLeftIdleAkimbo | LOBYTE(v32);
+    LOBYTE(v32) = useIdleLeft;
+LABEL_27:
+    ++v14;
   }
-  while ( v18 < 2 );
-  __asm
+  while ( v14 < 2 );
+  if ( v4 )
   {
-    vmovaps xmm7, [rsp+0D8h+var_58]
-    vmovaps xmm6, [rsp+0D8h+var_48]
-  }
-  if ( v8 )
-  {
-    v26 = IsJumpTimeBlendActive;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0D8h+arg_0], xmm0
-    }
-    CG_Gesture_UpdateMainTree((LocalClientNum_t)v11, v15, ps, (const PlayerHandIndex)v9, IsJumpTimeBlendActive, v46, &v56);
-    __asm
-    {
-      vmovss  xmm0, [rsp+0D8h+arg_0]
-      vmovss  dword ptr [rsp+0D8h+outState], xmm0
-    }
-    CG_Gesture_UpdateAkimboAnims((LocalClientNum_t)v11, ps, v15, (const PlayerHandIndex)v9, v47, outStatea, v26, v46, v23);
+    v19 = IsJumpTimeBlendActive;
+    v32 = 0.0;
+    CG_Gesture_UpdateMainTree((LocalClientNum_t)v7, v11, ps, (const PlayerHandIndex)v5, IsJumpTimeBlendActive, v25, &v32);
+    CG_Gesture_UpdateAkimboAnims((LocalClientNum_t)v7, ps, v11, (const PlayerHandIndex)v5, v26, v32, v19, v25, useIdleLeft);
   }
 }
 
@@ -4115,32 +3511,26 @@ __int64 CG_Gesture_SetRebuildTree(LocalClientNum_t localClientNum, const playerS
 CG_Gesture_SetWeightMainTree
 ==============
 */
-
-void __fastcall CG_Gesture_SetWeightMainTree(DObj *obj, const playerState_s *ps, double mainTreeWeight, double additiveAdsWeight, float fingerPoseWeight, float blend, bool blendOut)
+void CG_Gesture_SetWeightMainTree(DObj *obj, const playerState_s *ps, float mainTreeWeight, float additiveAdsWeight, float fingerPoseWeight, float blend, bool blendOut)
 {
+  __int128 v7; 
+  float v10; 
   XAnimTree *Tree; 
   XAnimInfo *AnimInfo; 
-  unsigned __int16 children; 
-  XAnimInfo *v30; 
-  bool v31; 
+  unsigned __int16 i; 
+  XAnimInfo *v14; 
+  bool v15; 
   unsigned __int16 animIndex; 
-  char v33; 
-  char v34; 
-  unsigned __int16 v35; 
-  char v36; 
-  int v38; 
-  float fmt; 
-  float goalTime; 
-  float v56; 
+  char v17; 
+  char v18; 
+  unsigned __int16 v19; 
+  char v20; 
+  int v22; 
+  double v25; 
+  __int128 goalTime; 
+  double Rate; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_10], xmm2
-    vmovaps [rsp+138h+var_48], xmm6
-    vmovaps [rsp+138h+var_D8], xmm15
-    vmovaps xmm15, xmm3
-    vmovaps xmm6, xmm2
-  }
+  v10 = mainTreeWeight;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 502, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   Tree = DObjGetTree(obj);
@@ -4149,159 +3539,116 @@ void __fastcall CG_Gesture_SetWeightMainTree(DObj *obj, const playerState_s *ps,
   if ( !Tree->children && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 505, ASSERT_TYPE_ASSERT, "(tree->children)", (const char *)&queryFormat, "tree->children") )
     __debugbreak();
   AnimInfo = GetAnimInfo(Tree->children);
-  children = GetAnimInfo(AnimInfo->children)->children;
-  if ( children )
+  for ( i = GetAnimInfo(AnimInfo->children)->children; i; i = v14->next )
   {
-    __asm
+    v14 = GetAnimInfo(i);
+    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 581, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+      __debugbreak();
+    v15 = v14->animToModel || (v14->animParent.flags & 0x210) == 0;
+    animIndex = v14->animIndex;
+    if ( v15 || (unsigned __int16)(animIndex - 117) > 2u && animIndex != 120 )
     {
-      vmovaps [rsp+138h+var_88], xmm10
-      vmovaps [rsp+138h+var_98], xmm11
-      vmovss  xmm11, cs:__real@3a83126f
-      vmovaps [rsp+138h+var_A8], xmm12
-      vmovss  xmm12, cs:__real@3d4ccccd
-      vmovaps [rsp+138h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-      vmovaps [rsp+138h+var_C8], xmm14
-      vmovss  xmm14, [rsp+138h+arg_20]
-      vmovaps [rsp+138h+var_58], xmm7
-      vmovaps [rsp+138h+var_68], xmm8
-      vmovaps [rsp+138h+var_78], xmm9
-      vxorps  xmm10, xmm10, xmm10
+      v17 = 0;
+      if ( v15 )
+        goto LABEL_26;
     }
-    while ( 1 )
+    else
     {
-      v30 = GetAnimInfo(children);
-      if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 581, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
-        __debugbreak();
-      v31 = v30->animToModel || (v30->animParent.flags & 0x210) == 0;
-      animIndex = v30->animIndex;
-      if ( v31 || (unsigned __int16)(animIndex - 117) > 2u && animIndex != 120 )
-      {
-        v33 = 0;
-        if ( v31 )
-          goto LABEL_27;
-      }
-      else
-      {
-        v33 = 1;
-      }
-      if ( (unsigned __int16)(animIndex - 93) <= 6u && BG_Demeanor_GetTargetState(ps) == DEMEANOR_STATE_NORMAL )
-      {
-        v34 = 1;
-        goto LABEL_28;
-      }
+      v17 = 1;
+    }
+    if ( (unsigned __int16)(animIndex - 93) <= 6u && BG_Demeanor_GetTargetState(ps) == DEMEANOR_STATE_NORMAL )
+    {
+      v18 = 1;
+      goto LABEL_27;
+    }
+LABEL_26:
+    v18 = 0;
+    if ( v15 )
+    {
+      v19 = v14->animIndex;
+      goto LABEL_30;
+    }
 LABEL_27:
-      v34 = 0;
-      if ( v31 )
-      {
-        v35 = v30->animIndex;
-        goto LABEL_31;
-      }
-LABEL_28:
-      v35 = v30->animIndex;
-      if ( (unsigned __int16)(v35 - 30) <= 2u )
-      {
-        v36 = 1;
-        __asm { vmovaps xmm7, xmm15 }
-        goto LABEL_33;
-      }
-LABEL_31:
-      v36 = 0;
-      __asm { vmovaps xmm7, xmm6 }
-      if ( v33 )
-        __asm { vmovaps xmm7, xmm14 }
-LABEL_33:
-      if ( v35 <= 0x1Bu )
-      {
-        v38 = 268402748;
-        if ( _bittest(&v38, v35) )
-          goto LABEL_56;
-      }
-      if ( (unsigned __int16)(v35 - 123) <= 0x27u || !v31 && !v33 && !v34 && !v36 && v30->animParent.flags )
-        goto LABEL_56;
-      *(double *)&_XMM0 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v35);
-      __asm { vmovaps xmm9, xmm0 }
-      *(double *)&_XMM0 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v30->animIndex);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v30->animIndex);
-      __asm { vmovss  xmm8, [rsp+138h+arg_28] }
-      if ( blendOut )
-      {
-        __asm
-        {
-          vcmpltss xmm1, xmm9, xmm6
-          vblendvps xmm1, xmm8, xmm0, xmm1
-          vmovss  [rsp+138h+arg_0], xmm1
-          vminss  xmm7, xmm6, xmm7
-        }
-        if ( !v34 )
-        {
-          __asm
-          {
-            vucomiss xmm6, xmm10
-            vcomiss xmm9, xmm11
-            vmovss  xmm8, [rsp+138h+arg_0]
-          }
-          goto LABEL_55;
-        }
-      }
-      else
-      {
-        __asm { vcomiss xmm6, xmm9 }
-        if ( (v30->state.flags & 1) != 0 )
-        {
-          if ( XAnimInfoIsInstantWeightChange(v30) )
-            __asm { vucomiss xmm6, xmm10 }
-          goto LABEL_55;
-        }
-        __asm { vucomiss xmm6, xmm10 }
-        if ( (v30->state.flags & 1) == 0 )
-        {
-          __asm { vmovaps xmm7, xmm6 }
-          goto LABEL_55;
-        }
-        __asm { vucomiss xmm6, xmm13 }
-        if ( (v30->state.flags & 1) != 0 )
-        {
-          __asm { vmaxss  xmm7, xmm6, xmm7 }
-          goto LABEL_55;
-        }
-      }
-      __asm { vmovaps xmm8, xmm0 }
-LABEL_55:
-      *(double *)&_XMM0 = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v30->animIndex);
+    v19 = v14->animIndex;
+    if ( (unsigned __int16)(v19 - 30) <= 2u )
+    {
+      v20 = 1;
+      *(float *)&_XMM7 = additiveAdsWeight;
+      goto LABEL_32;
+    }
+LABEL_30:
+    v20 = 0;
+    *(float *)&_XMM7 = v10;
+    if ( v17 )
+      *(float *)&_XMM7 = fingerPoseWeight;
+LABEL_32:
+    if ( v19 <= 0x1Bu )
+    {
+      v22 = 268402748;
+      if ( _bittest(&v22, v19) )
+        continue;
+    }
+    if ( (unsigned __int16)(v19 - 123) <= 0x27u || !v15 && !v17 && !v18 && !v20 && v14->animParent.flags )
+      continue;
+    *(double *)&v7 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v19);
+    _XMM9 = v7;
+    *(double *)&v7 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v14->animIndex);
+    _XMM6 = v7;
+    v25 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v14->animIndex);
+    goalTime = LODWORD(blend);
+    if ( blendOut )
+    {
       __asm
       {
-        vcomiss xmm7, xmm10
-        vmovss  [rsp+138h+var_108], xmm0
-        vmovss  [rsp+138h+goalTime], xmm8
-        vmovss  dword ptr [rsp+138h+fmt], xmm7
+        vcmpltss xmm1, xmm9, xmm6
+        vblendvps xmm1, xmm8, xmm0, xmm1
+        vminss  xmm7, xmm6, xmm7
       }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v30->animIndex, fmt, goalTime, v56, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      __asm { vmovss  xmm6, [rsp+138h+arg_10] }
-LABEL_56:
-      children = v30->next;
-      if ( !children )
+      if ( !v18 )
       {
-        __asm
-        {
-          vmovaps xmm14, [rsp+138h+var_C8]
-          vmovaps xmm13, [rsp+138h+var_B8]
-          vmovaps xmm12, [rsp+138h+var_A8]
-          vmovaps xmm11, [rsp+138h+var_98]
-          vmovaps xmm10, [rsp+138h+var_88]
-          vmovaps xmm9, [rsp+138h+var_78]
-          vmovaps xmm8, [rsp+138h+var_68]
-          vmovaps xmm7, [rsp+138h+var_58]
-        }
-        break;
+        if ( *(float *)&_XMM6 == 0.0 && *(float *)&_XMM9 > 0.001 )
+          *(float *)&goalTime = FLOAT_0_050000001;
+        else
+          LODWORD(goalTime) = _XMM1;
+        goto LABEL_58;
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+138h+var_48]
-    vmovaps xmm15, [rsp+138h+var_D8]
+    else
+    {
+      if ( (v14->state.flags & 1) != 0 )
+      {
+        if ( !XAnimInfoIsInstantWeightChange(v14) || *(float *)&_XMM6 != 0.0 )
+          goto LABEL_58;
+LABEL_57:
+        LODWORD(_XMM7) = _XMM6;
+        goto LABEL_58;
+      }
+      if ( *(float *)&_XMM6 == 0.0 )
+        goto LABEL_57;
+      if ( *(float *)&_XMM6 != 1.0 )
+      {
+        if ( *(float *)&_XMM6 <= *(float *)&_XMM9 )
+        {
+          __asm { vmaxss  xmm7, xmm6, xmm7 }
+          goto LABEL_58;
+        }
+LABEL_53:
+        if ( v17 )
+        {
+          LODWORD(goalTime) = 0;
+          goto LABEL_58;
+        }
+        goto LABEL_42;
+      }
+      if ( *(float *)&_XMM6 > *(float *)&_XMM9 )
+        goto LABEL_53;
+    }
+LABEL_42:
+    LODWORD(goalTime) = LODWORD(v25);
+LABEL_58:
+    Rate = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v14->animIndex);
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v14->animIndex, *(float *)&_XMM7, *(float *)&goalTime, *(float *)&Rate, (scr_string_t)0, *(float *)&_XMM7 > 0.0, 0, LINEAR, NULL);
+    v10 = mainTreeWeight;
   }
 }
 
@@ -4310,34 +3657,30 @@ LABEL_56:
 CG_Gesture_ShouldBlendOutOfAnim
 ==============
 */
-bool CG_Gesture_ShouldBlendOutOfAnim(const LocalClientNum_t localClientNum, const playerState_s *ps, const PlayerHandIndex hand, const GestureWeaponAnimBlendOutInfo **outBlendOutInfo)
+char CG_Gesture_ShouldBlendOutOfAnim(const LocalClientNum_t localClientNum, const playerState_s *ps, const PlayerHandIndex hand, const GestureWeaponAnimBlendOutInfo **outBlendOutInfo)
 {
-  __int64 v8; 
+  __int64 v5; 
   cg_t *LocalClientGlobals; 
   const XAnimTree **p_tree; 
-  const XAnimTree *v13; 
-  unsigned int v14; 
-  unsigned int v16; 
+  const XAnimTree *v10; 
+  unsigned int v11; 
+  unsigned int v12; 
   unsigned int *p_animIndexToBlendOut; 
-  char v18; 
-  char v19; 
-  bool result; 
-  __int64 v22; 
-  __int64 v23; 
-  void *retaddr; 
+  double Weight; 
+  double GoalWeight; 
+  __int64 v17; 
+  __int64 v18; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v8 = hand;
+  v5 = hand;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3385, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3386, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (unsigned int)v8 >= 2 )
+  if ( (unsigned int)v5 >= 2 )
   {
-    LODWORD(v23) = 2;
-    LODWORD(v22) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3387, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v22, v23) )
+    LODWORD(v18) = 2;
+    LODWORD(v17) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3387, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v17, v18) )
       __debugbreak();
   }
   if ( !outBlendOutInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3388, ASSERT_TYPE_ASSERT, "(outBlendOutInfo)", (const char *)&queryFormat, "outBlendOutInfo") )
@@ -4346,55 +3689,46 @@ bool CG_Gesture_ShouldBlendOutOfAnim(const LocalClientNum_t localClientNum, cons
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3393, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( (unsigned int)v8 >= 2 )
+  if ( (unsigned int)v5 >= 2 )
   {
-    LODWORD(v23) = 2;
-    LODWORD(v22) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1207, ASSERT_TYPE_ASSERT, "(unsigned)( handIndex ) < (unsigned)( NUM_WEAPON_HANDS )", "handIndex doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v22, v23) )
+    LODWORD(v18) = 2;
+    LODWORD(v17) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1207, ASSERT_TYPE_ASSERT, "(unsigned)( handIndex ) < (unsigned)( NUM_WEAPON_HANDS )", "handIndex doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v17, v18) )
       __debugbreak();
   }
-  if ( (cg_t *)((char *)LocalClientGlobals + 40 * v8) == (cg_t *)-807496i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3397, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
+  if ( (cg_t *)((char *)LocalClientGlobals + 40 * v5) == (cg_t *)-807496i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3397, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
     __debugbreak();
-  p_tree = (const XAnimTree **)&LocalClientGlobals->m_weaponHand[v8].viewModelDObj->tree;
+  p_tree = (const XAnimTree **)&LocalClientGlobals->m_weaponHand[v5].viewModelDObj->tree;
   if ( !p_tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3399, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  v13 = *p_tree;
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3402, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
+  v10 = *p_tree;
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 3402, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
     __debugbreak();
-  v14 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  while ( !CG_Gesture_IsEnabled(localClientNum, ps, v14, (const PlayerHandIndex)v8) || !BG_Gesture_GetCurrentAsset(ps, v14)->weaponSettings.blendOutRaise )
+  v11 = 0;
+  while ( !CG_Gesture_IsEnabled(localClientNum, ps, v11, (const PlayerHandIndex)v5) || !BG_Gesture_GetCurrentAsset(ps, v11)->weaponSettings.blendOutRaise )
   {
 LABEL_35:
-    if ( ++v14 >= 2 )
-    {
-      result = 0;
-      goto LABEL_37;
-    }
+    if ( ++v11 >= 2 )
+      return 0;
   }
-  v16 = 0;
+  v12 = 0;
   p_animIndexToBlendOut = (unsigned int *)&s_raiseBlendOutTable[0].animIndexToBlendOut;
   while ( 1 )
   {
-    *(double *)&_XMM0 = XAnimGetWeight(v13, 0, XANIM_SUBTREE_DEFAULT, *p_animIndexToBlendOut);
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !(v18 | v19) )
+    Weight = XAnimGetWeight(v10, 0, XANIM_SUBTREE_DEFAULT, *p_animIndexToBlendOut);
+    if ( *(float *)&Weight > 0.0 )
     {
-      *(double *)&_XMM0 = XAnimGetGoalWeight(v13, 0, XANIM_SUBTREE_DEFAULT, *p_animIndexToBlendOut);
-      __asm { vucomiss xmm0, xmm6 }
-      if ( !v19 )
+      GoalWeight = XAnimGetGoalWeight(v10, 0, XANIM_SUBTREE_DEFAULT, *p_animIndexToBlendOut);
+      if ( *(float *)&GoalWeight != 0.0 )
         break;
     }
-    ++v16;
+    ++v12;
     p_animIndexToBlendOut += 5;
-    if ( v16 >= 5 )
+    if ( v12 >= 5 )
       goto LABEL_35;
   }
   *outBlendOutInfo = (const GestureWeaponAnimBlendOutInfo *)(p_animIndexToBlendOut - 1);
-  result = 1;
-LABEL_37:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  return 1;
 }
 
 /*
@@ -4510,47 +3844,34 @@ CG_Gesture_StartAnims
 */
 void CG_Gesture_StartAnims(LocalClientNum_t localClientNum, const Gesture *gesture, const playerState_s *ps, const unsigned int slot, DObj *obj, const PlayerHandIndex hand, const bool isDualWield, const float blendTime)
 {
-  __int64 v16; 
-  DObj *v17; 
-  char v23; 
-  bool v24; 
-  PlayerHandIndex v25; 
+  __int64 v11; 
+  DObj *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float value; 
+  bool v16; 
+  PlayerHandIndex v17; 
   bool AnimationSlot; 
-  unsigned int v29; 
-  GestureDirectionalAssetIndex *p_assetIndex; 
-  int v31; 
-  bool v37; 
-  __int64 v38; 
-  int v39; 
-  const GestureAnimSlotInfo *v40; 
+  unsigned int v20; 
+  GestureDirectionalAssetIndex *i; 
+  int v22; 
+  bool v26; 
+  __int64 v27; 
+  int v28; 
+  const GestureAnimSlotInfo *v29; 
   unsigned int childIndex; 
   unsigned int *AnimMappingInfo; 
-  float fmt; 
-  float fmta; 
   __int64 returnOverlay; 
   __int64 returnOverlaya; 
-  float returnOverlayb; 
-  float returnOverlayc; 
   weapAnimFiles_t *outIndex; 
-  float outIndexa; 
-  float outIndexb; 
-  char v59; 
-  void *retaddr; 
-  weapAnimFiles_t v61; 
+  weapAnimFiles_t v35; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v16 = localClientNum;
+  v11 = localClientNum;
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1823, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1824, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v17 = obj;
+  v12 = obj;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1825, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( slot >= 2 )
@@ -4559,137 +3880,94 @@ void CG_Gesture_StartAnims(LocalClientNum_t localClientNum, const Gesture *gestu
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1826, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", returnOverlay, 2) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm6, xmm7
-  }
-  if ( !CgWeaponMap::ms_instance[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v13 = FLOAT_1_0;
+  if ( !CgWeaponMap::ms_instance[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  if ( BG_UseFastOffhand(ps, CgWeaponMap::ms_instance[v16]) )
+  if ( BG_UseFastOffhand(ps, CgWeaponMap::ms_instance[v11]) )
   {
-    _RBX = DCONST_DVARFLT_perk_fastOffhandMultiplier;
+    v14 = DCONST_DVARFLT_perk_fastOffhandMultiplier;
     if ( !DCONST_DVARFLT_perk_fastOffhandMultiplier && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_fastOffhandMultiplier") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vcomiss xmm6, xmm9
-    }
-    if ( v23 | v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1832, ASSERT_TYPE_ASSERT, "(offhandMultiplier > 0.0f)", (const char *)&queryFormat, "offhandMultiplier > 0.0f") )
+    Dvar_CheckFrontendServerThread(v14);
+    value = v14->current.value;
+    if ( value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1832, ASSERT_TYPE_ASSERT, "(offhandMultiplier > 0.0f)", (const char *)&queryFormat, "offhandMultiplier > 0.0f") )
       __debugbreak();
-    __asm { vdivss  xmm6, xmm7, xmm6 }
+    v13 = 1.0 / value;
   }
   if ( gesture->type <= (unsigned int)GESTURE_TYPE_IK_TARGET )
   {
-    v24 = isDualWield;
-    v25 = hand;
-    __asm { vmovaps [rsp+0C8h+var_58], xmm8 }
-    AnimationSlot = CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, GESTURE_ASSET_RIGHT_CENTER, 1, &v61);
-    __asm { vmovss  xmm8, [rsp+0C8h+blendTime] }
-    _EBX = 0;
+    v16 = isDualWield;
+    v17 = hand;
+    AnimationSlot = CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, GESTURE_ASSET_RIGHT_CENTER, 1, &v35);
+    _XMM8 = LODWORD(blendTime);
     if ( AnimationSlot )
+      XAnimSetGoalWeight(v12, 0, XANIM_SUBTREE_DEFAULT, v35, 1.0, blendTime, v13, (scr_string_t)0, 1u, 0, LINEAR, NULL);
+    v20 = 0;
+    for ( i = &s_blendTreeMappings[0].assetIndex; ; i += 6 )
     {
+      v22 = *((_DWORD *)i + 1);
+      _XMM0 = v22 & 0xFFFFFFFD;
       __asm
       {
-        vmovss  dword ptr [rsp+0C8h+outIndex], xmm6
-        vmovss  dword ptr [rsp+0C8h+returnOverlay], xmm8
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-      }
-      XAnimSetGoalWeight(v17, 0, XANIM_SUBTREE_DEFAULT, v61, fmt, returnOverlayb, outIndexa, (scr_string_t)0, 1u, 0, LINEAR, NULL);
-    }
-    v29 = 0;
-    p_assetIndex = &s_blendTreeMappings[0].assetIndex;
-    while ( 1 )
-    {
-      v31 = *((_DWORD *)p_assetIndex + 1);
-      _EAX = v31 & 0xFFFFFFFD;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vmovd   xmm1, ebx
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm8, xmm9, xmm2
-        vmovss  [rsp+0C8h+arg_0], xmm0
       }
-      if ( v31 == 3 )
+      v35 = _XMM0;
+      if ( v22 == 3 )
       {
-        v37 = gesture->type == GESTURE_TYPE_DIRECTIONAL;
+        v26 = gesture->type == GESTURE_TYPE_DIRECTIONAL;
         goto LABEL_30;
       }
-      if ( v31 == 5 )
+      if ( v22 == 5 )
         break;
-      if ( v31 == 6 )
+      if ( v22 == 6 )
       {
-        v37 = gesture->type == GESTURE_TYPE_IK_TARGET;
+        v26 = gesture->type == GESTURE_TYPE_IK_TARGET;
 LABEL_30:
-        if ( v37 )
-          goto LABEL_53;
+        if ( v26 )
+          goto LABEL_52;
         goto LABEL_31;
       }
-      if ( v31 == 1 )
+      if ( v22 == 1 )
       {
-LABEL_53:
-        AnimMappingInfo = (unsigned int *)CG_Gesture_GetAnimMappingInfo(slot, v29);
+LABEL_52:
+        AnimMappingInfo = (unsigned int *)CG_Gesture_GetAnimMappingInfo(slot, v20);
         if ( !AnimMappingInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 340, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping") )
           __debugbreak();
         childIndex = *AnimMappingInfo;
         goto LABEL_44;
       }
 LABEL_31:
-      v38 = *(int *)p_assetIndex;
-      if ( (_DWORD)v38 == 23 )
+      v27 = *(int *)i;
+      if ( (_DWORD)v27 == 23 )
         goto LABEL_45;
-      if ( (unsigned int)v38 >= 0x16 )
+      if ( (unsigned int)v27 >= 0x16 )
       {
         LODWORD(outIndex) = 22;
-        SLODWORD(returnOverlaya) = *p_assetIndex;
+        SLODWORD(returnOverlaya) = *i;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 620, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( GESTURE_ASSET_NUM )", "assetIndex doesn't index GESTURE_ASSET_NUM\n\t%i not in [0, %i)", returnOverlaya, outIndex) )
           __debugbreak();
       }
-      if ( v24 )
+      if ( v16 )
       {
-        v39 = *((_DWORD *)p_assetIndex + 2);
-        if ( v25 != v39 && v39 != 2 && gesture->weaponSettings.splitAnimsAkimbo )
+        v28 = *((_DWORD *)i + 2);
+        if ( v17 != v28 && v28 != 2 && gesture->weaponSettings.splitAnimsAkimbo )
           goto LABEL_45;
       }
-      if ( !gesture->anims[v38] )
+      if ( !gesture->anims[v27] )
         goto LABEL_45;
-      v40 = CG_Gesture_GetAnimMappingInfo(slot, v29);
-      if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 348, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping") )
+      v29 = CG_Gesture_GetAnimMappingInfo(slot, v20);
+      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 348, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping") )
         __debugbreak();
-      childIndex = v40->childIndex;
+      childIndex = v29->childIndex;
 LABEL_44:
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+arg_0]
-        vmovss  dword ptr [rsp+0C8h+outIndex], xmm6
-        vmovss  dword ptr [rsp+0C8h+returnOverlay], xmm0
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-      }
-      XAnimSetGoalWeight(v17, 0, XANIM_SUBTREE_DEFAULT, childIndex, fmta, returnOverlayc, outIndexb, (scr_string_t)0, 1u, 1, LINEAR, NULL);
+      XAnimSetGoalWeight(v12, 0, XANIM_SUBTREE_DEFAULT, childIndex, 1.0, *(float *)&v35, v13, (scr_string_t)0, 1u, 1, LINEAR, NULL);
 LABEL_45:
-      ++v29;
-      p_assetIndex += 6;
-      _EBX = 0;
-      if ( v29 >= 0x16 )
-      {
-        __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
-        goto LABEL_47;
-      }
+      if ( ++v20 >= 0x16 )
+        return;
     }
-    v37 = gesture->type == GESTURE_TYPE_LOOK_AROUND;
+    v26 = gesture->type == GESTURE_TYPE_LOOK_AROUND;
     goto LABEL_30;
-  }
-LABEL_47:
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -4700,19 +3978,13 @@ CG_Gesture_StartCenterAnimations
 */
 void CG_Gesture_StartCenterAnimations(DObj *obj, XAnimTree *animTree, const Gesture *gesture, const unsigned int slot, const PlayerHandIndex hand, const bool isDualWield, GestureDirectionalAssetIndex anim, GestureDirectionalAssetIndex animAdditive, float startTime, float blendTime)
 {
+  unsigned int v14; 
+  float v15; 
+  float v16; 
   unsigned int v17; 
-  unsigned int v21; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
   __int64 returnOverlay; 
-  float returnOverlaya; 
-  float returnOverlayb; 
-  float outIndex; 
-  float outIndexa; 
-  weapAnimFiles_t v37; 
-  weapAnimFiles_t v38; 
+  weapAnimFiles_t v19; 
+  weapAnimFiles_t outIndex; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2474, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -4728,51 +4000,21 @@ void CG_Gesture_StartCenterAnimations(DObj *obj, XAnimTree *animTree, const Gest
   }
   if ( gesture->type <= (unsigned int)GESTURE_TYPE_IK_TARGET )
   {
-    __asm
+    CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, anim, 0, &outIndex);
+    CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, animAdditive, 1, &v19);
+    v14 = outIndex;
+    v15 = blendTime;
+    v16 = startTime;
+    if ( outIndex )
     {
-      vmovaps [rsp+0B8h+var_38], xmm6
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovaps [rsp+0B8h+var_58], xmm8
+      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, outIndex, 1.0, blendTime, 1.0, (scr_string_t)0, 1u, 1, LINEAR, NULL);
+      XAnimSetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, v14, v16);
     }
-    CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, anim, 0, &v38);
-    CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, animAdditive, 1, &v37);
-    v17 = v38;
-    __asm
+    v17 = v19;
+    if ( v19 )
     {
-      vmovss  xmm7, [rsp+0B8h+blendTime]
-      vmovss  xmm8, [rsp+0B8h+startTime]
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    if ( v38 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+outIndex], xmm6
-        vmovss  dword ptr [rsp+0B8h+returnOverlay], xmm7
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v38, fmt, returnOverlaya, outIndex, (scr_string_t)0, 1u, 1, LINEAR, NULL);
-      __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm8 }
-      XAnimSetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, v17, fmta);
-    }
-    v21 = v37;
-    if ( v37 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+outIndex], xmm6
-        vmovss  dword ptr [rsp+0B8h+returnOverlay], xmm7
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-      }
-      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v37, fmtb, returnOverlayb, outIndexa, (scr_string_t)0, 1u, 1, LINEAR, NULL);
-      __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm8 }
-      XAnimSetChildTimes(animTree, 0, XANIM_SUBTREE_DEFAULT, v21, fmtc);
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_48]
-      vmovaps xmm6, [rsp+0B8h+var_38]
-      vmovaps xmm8, [rsp+0B8h+var_58]
+      XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v19, 1.0, v15, 1.0, (scr_string_t)0, 1u, 1, LINEAR, NULL);
+      XAnimSetChildTimes(animTree, 0, XANIM_SUBTREE_DEFAULT, v17, v16);
     }
   }
 }
@@ -4782,59 +4024,16 @@ void CG_Gesture_StartCenterAnimations(DObj *obj, XAnimTree *animTree, const Gest
 CG_Gesture_StopAnim
 ==============
 */
-
-void __fastcall CG_Gesture_StopAnim(DObj *obj, XAnimTree *animTree, weapAnimFiles_t animIndex, double weight, const float blendOut)
+void CG_Gesture_StopAnim(DObj *obj, XAnimTree *animTree, weapAnimFiles_t animIndex, const float weight, const float blendOut)
 {
-  char v17; 
-  char v18; 
-  float fmt; 
-  float goalTime; 
-  float v25; 
-  char v27; 
-  void *retaddr; 
+  double v8; 
+  double GoalTime; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm3, xmm0
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm6, xmm3
-    vcomiss xmm3, xmm7
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
+  if ( (weight < 0.0 || weight > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
     __debugbreak();
-  *(double *)&_XMM0 = XAnimGetWeight(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovss  xmm8, [rsp+98h+blendOut]
-  }
-  if ( !(v17 | v18) )
-    goto LABEL_5;
-  *(double *)&_XMM0 = XAnimGetGoalTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm { vcomiss xmm8, xmm0 }
-  if ( v17 )
-  {
-LABEL_5:
-    __asm
-    {
-      vmovss  [rsp+98h+var_68], xmm7
-      vmovss  [rsp+98h+goalTime], xmm8
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, fmt, goalTime, v25, (scr_string_t)0, 0, 0, LINEAR, NULL);
-  }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v8 = XAnimGetWeight(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  if ( *(float *)&v8 > weight || (GoalTime = XAnimGetGoalTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex), blendOut < *(float *)&GoalTime) )
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, weight, blendOut, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
 }
 
 /*
@@ -4842,37 +4041,26 @@ LABEL_5:
 CG_Gesture_StopAnims
 ==============
 */
-
-void __fastcall CG_Gesture_StopAnims(const playerState_s *ps, const unsigned int slot, DObj *obj, double blendOut, const bool blendOutGestureAnims, const bool blendOutToZero)
+void CG_Gesture_StopAnims(const playerState_s *ps, const unsigned int slot, DObj *obj, const float blendOut, const bool blendOutGestureAnims, const bool blendOutToZero)
 {
   const XAnimTree *Tree; 
   GestureNodeType *p_nodeType; 
+  signed int v11; 
+  float v16; 
   unsigned int IndexBySlot; 
-  unsigned int v27; 
-  bool v28; 
+  unsigned int v18; 
+  bool v19; 
   unsigned int *AnimMappingInfo; 
-  bool v30; 
-  bool v31; 
-  unsigned int v32; 
-  char v33; 
-  const GestureAnimSlotInfo *v34; 
-  bool v35; 
-  bool v36; 
+  unsigned int v21; 
+  double Weight; 
+  double v23; 
+  const GestureAnimSlotInfo *v24; 
   unsigned int childIndex; 
-  float fmt; 
-  float fmta; 
+  double v26; 
+  double v27; 
   __int64 goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
   __int64 rate; 
-  float ratea; 
-  float rateb; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_58], xmm8
-    vmovaps xmm8, xmm3
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1783, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1784, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
@@ -4889,27 +4077,16 @@ void __fastcall CG_Gesture_StopAnims(const playerState_s *ps, const unsigned int
   if ( blendOutGestureAnims )
   {
     p_nodeType = &s_blendTreeMappings[0].nodeType;
-    _EDI = 0;
-    _ER13 = blendOutToZero;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovd   xmm0, r13d
-      vmovd   xmm1, eax
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3a83126f
-      vmovaps [rsp+0C8h+var_68], xmm9
-      vxorps  xmm9, xmm9, xmm9
-      vblendvps xmm0, xmm9, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+blendOutGestureAnims], xmm0
-      vmovss  xmm6, dword ptr [rsp+0C8h+blendOutGestureAnims]
-    }
+    v11 = 0;
+    _XMM0 = blendOutToZero;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM9 = 0i64;
+    __asm { vblendvps xmm0, xmm9, xmm1, xmm2 }
+    v16 = *(float *)&_XMM0;
     do
     {
       IndexBySlot = BG_Gesture_GetIndexBySlot(ps, slot);
-      v27 = IndexBySlot;
+      v18 = IndexBySlot;
       if ( IndexBySlot >= 0x100 )
       {
         LODWORD(rate) = 256;
@@ -4917,84 +4094,33 @@ void __fastcall CG_Gesture_StopAnims(const playerState_s *ps, const unsigned int
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1799, ASSERT_TYPE_ASSERT, "(unsigned)( gestureIndex ) < (unsigned)( (1<<8) )", "gestureIndex doesn't index MAX_GESTURE_DEFS\n\t%i not in [0, %i)", goalTime, rate) )
           __debugbreak();
       }
-      v28 = *p_nodeType == GESTURE_NODE_TYPE_ADDITIVE_LOOK_AROUND && (!BG_Demeanor_IsPlaying(ps) || !BG_Demeanor_ShouldEnableBlendToLoop(ps, v27));
-      if ( *p_nodeType == GESTURE_NODE_TYPE_RELATIVE_ROOT || v28 || *p_nodeType == GESTURE_NODE_TYPE_ADDITIVE_DIRECTIONAL_BLEND || blendOutToZero )
+      v19 = *p_nodeType == GESTURE_NODE_TYPE_ADDITIVE_LOOK_AROUND && (!BG_Demeanor_IsPlaying(ps) || !BG_Demeanor_ShouldEnableBlendToLoop(ps, v18));
+      if ( *p_nodeType == GESTURE_NODE_TYPE_RELATIVE_ROOT || v19 || *p_nodeType == GESTURE_NODE_TYPE_ADDITIVE_DIRECTIONAL_BLEND || blendOutToZero )
       {
-        AnimMappingInfo = (unsigned int *)CG_Gesture_GetAnimMappingInfo(slot, _EDI);
-        v30 = AnimMappingInfo == NULL;
-        if ( !AnimMappingInfo )
-        {
-          v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 340, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping");
-          v30 = !v31;
-          if ( v31 )
-            __debugbreak();
-        }
-        __asm { vcomiss xmm6, xmm9 }
-        v32 = *AnimMappingInfo;
-        __asm { vcomiss xmm6, xmm7 }
-        if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
+        AnimMappingInfo = (unsigned int *)CG_Gesture_GetAnimMappingInfo(slot, v11);
+        if ( !AnimMappingInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 340, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping") )
           __debugbreak();
-        *(double *)&_XMM0 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v32);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !(v33 | v30) )
-          goto LABEL_35;
-        *(double *)&_XMM0 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v32);
-        __asm { vcomiss xmm8, xmm0 }
-        if ( v33 )
-        {
-LABEL_35:
-          __asm
-          {
-            vmovss  [rsp+0C8h+rate], xmm7
-            vmovss  [rsp+0C8h+goalTime], xmm8
-            vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v32, fmt, goalTimea, ratea, (scr_string_t)0, 0, 0, LINEAR, NULL);
-        }
-        v34 = CG_Gesture_GetAnimMappingInfo(slot, _EDI);
-        v35 = v34 == NULL;
-        if ( !v34 )
-        {
-          v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 348, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping");
-          v35 = !v36;
-          if ( v36 )
-            __debugbreak();
-        }
-        __asm { vcomiss xmm6, xmm9 }
-        childIndex = v34->childIndex;
-        __asm { vcomiss xmm6, xmm7 }
-        if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
+        v21 = *AnimMappingInfo;
+        if ( (v16 < 0.0 || v16 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
           __debugbreak();
-        *(double *)&_XMM0 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, childIndex);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !(v33 | v30) )
-          goto LABEL_44;
-        *(double *)&_XMM0 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, childIndex);
-        __asm { vcomiss xmm8, xmm0 }
-        if ( v33 )
-        {
-LABEL_44:
-          __asm
-          {
-            vmovss  [rsp+0C8h+rate], xmm7
-            vmovss  [rsp+0C8h+goalTime], xmm8
-            vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, childIndex, fmta, goalTimeb, rateb, (scr_string_t)0, 0, 0, LINEAR, NULL);
-        }
+        Weight = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v21);
+        if ( *(float *)&Weight > v16 || (v23 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v21), blendOut < *(float *)&v23) )
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v21, v16, blendOut, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        v24 = CG_Gesture_GetAnimMappingInfo(slot, v11);
+        if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 348, ASSERT_TYPE_ASSERT, "(mapping)", (const char *)&queryFormat, "mapping") )
+          __debugbreak();
+        childIndex = v24->childIndex;
+        if ( (v16 < 0.0 || v16 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1108, ASSERT_TYPE_ASSERT, "(weight >= 0.0f && weight <= 1.0f)", (const char *)&queryFormat, "weight >= 0.0f && weight <= 1.0f") )
+          __debugbreak();
+        v26 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, childIndex);
+        if ( *(float *)&v26 > v16 || (v27 = XAnimGetGoalTime(Tree, 0, XANIM_SUBTREE_DEFAULT, childIndex), blendOut < *(float *)&v27) )
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, childIndex, v16, blendOut, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
       }
-      ++_EDI;
+      ++v11;
       p_nodeType += 6;
     }
-    while ( _EDI < 22 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0C8h+var_68]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
+    while ( v11 < 22 );
   }
-  __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
 }
 
 /*
@@ -5004,20 +4130,15 @@ CG_Gesture_StopMainAnimations
 */
 void CG_Gesture_StopMainAnimations(DObj *obj, XAnimTree *animTree, const Gesture *gesture, const unsigned int slot, const PlayerHandIndex hand, const bool isDualWield, float blendTime)
 {
-  PlayerHandIndex v13; 
-  bool v14; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
+  PlayerHandIndex v11; 
+  bool v12; 
+  float v13; 
   __int64 returnOverlay; 
-  weapAnimFiles_t v30; 
-  weapAnimFiles_t v31[3]; 
+  weapAnimFiles_t v15; 
+  weapAnimFiles_t v16[3]; 
   weapAnimFiles_t outIndex; 
-  weapAnimFiles_t v34; 
-  weapAnimFiles_t v35; 
+  weapAnimFiles_t v18; 
+  weapAnimFiles_t v19; 
   weapAnimFiles_t animIndex; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2439, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
@@ -5034,53 +4155,21 @@ void CG_Gesture_StopMainAnimations(DObj *obj, XAnimTree *animTree, const Gesture
   }
   if ( gesture->type <= (unsigned int)GESTURE_TYPE_IK_TARGET )
   {
-    v13 = hand;
-    v14 = isDualWield;
-    __asm { vmovaps [rsp+98h+var_48], xmm6 }
+    v11 = hand;
+    v12 = isDualWield;
     CG_Gesture_GetAnimationSlot(gesture, slot, hand, isDualWield, GESTURE_ASSET_LEFT_CENTER, 0, &animIndex);
-    CG_Gesture_GetAnimationSlot(gesture, slot, v13, v14, GESTURE_ASSET_RIGHT_CENTER, 1, &outIndex);
-    CG_Gesture_GetAnimationSlot(gesture, slot, v13, v14, GESTURE_ASSET_IN, 0, &v34);
-    CG_Gesture_GetAnimationSlot(gesture, slot, v13, v14, GESTURE_ASSET_IN_ADDITIVE, 1, &v35);
-    CG_Gesture_GetAnimationSlot(gesture, slot, v13, v14, GESTURE_ASSET_OUT, 0, &v30);
-    CG_Gesture_GetAnimationSlot(gesture, slot, v13, v14, GESTURE_ASSET_OUT_ADDITIVE, 1, v31);
-    __asm
-    {
-      vmovss  xmm6, [rsp+98h+blendTime]
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, animIndex, *(const float *)&_XMM3, fmt);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, outIndex, *(const float *)&_XMM3, fmta);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, v34, *(const float *)&_XMM3, fmtb);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, v35, *(const float *)&_XMM3, fmtc);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, v30, *(const float *)&_XMM3, fmtd);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; weight
-      vmovss  dword ptr [rsp+98h+fmt], xmm6
-    }
-    CG_Gesture_StopAnim(obj, animTree, v31[0], *(const float *)&_XMM3, fmte);
-    __asm { vmovaps xmm6, [rsp+98h+var_48] }
+    CG_Gesture_GetAnimationSlot(gesture, slot, v11, v12, GESTURE_ASSET_RIGHT_CENTER, 1, &outIndex);
+    CG_Gesture_GetAnimationSlot(gesture, slot, v11, v12, GESTURE_ASSET_IN, 0, &v18);
+    CG_Gesture_GetAnimationSlot(gesture, slot, v11, v12, GESTURE_ASSET_IN_ADDITIVE, 1, &v19);
+    CG_Gesture_GetAnimationSlot(gesture, slot, v11, v12, GESTURE_ASSET_OUT, 0, &v15);
+    CG_Gesture_GetAnimationSlot(gesture, slot, v11, v12, GESTURE_ASSET_OUT_ADDITIVE, 1, v16);
+    v13 = blendTime;
+    CG_Gesture_StopAnim(obj, animTree, animIndex, 0.0, blendTime);
+    CG_Gesture_StopAnim(obj, animTree, outIndex, 0.0, v13);
+    CG_Gesture_StopAnim(obj, animTree, v18, 0.0, v13);
+    CG_Gesture_StopAnim(obj, animTree, v19, 0.0, v13);
+    CG_Gesture_StopAnim(obj, animTree, v15, 0.0, v13);
+    CG_Gesture_StopAnim(obj, animTree, v16[0], 0.0, v13);
   }
 }
 
@@ -5091,40 +4180,43 @@ CG_Gesture_SwitchMainAnimations
 */
 void CG_Gesture_SwitchMainAnimations(LocalClientNum_t localClientNum, DObj *obj, XAnimTree *animTree, const Gesture *gesture, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand, const bool isDualWield, const float blendTime, const bool crossfadeInOut, const float crossfadeOutStartTime)
 {
-  __int64 v21; 
-  PlayerHandIndex v22; 
+  __int128 v11; 
+  __int64 v16; 
+  PlayerHandIndex v17; 
   GestureSlotInfo *Info; 
   GestureAnimationSettings *AnimationSettings; 
   GestureType type; 
-  GestureMappingInfo *v26; 
-  GestureMappingInfo *v27; 
-  GestureMappingInfo *v28; 
-  GestureDirectionalAssetIndex v29; 
-  bool v30; 
-  GestureDirectionalAssetIndex v31; 
+  GestureMappingInfo *v21; 
+  GestureMappingInfo *v22; 
+  GestureMappingInfo *v23; 
+  GestureDirectionalAssetIndex v24; 
+  bool v25; 
+  GestureDirectionalAssetIndex v26; 
+  bool v27; 
+  GestureDirectionalAssetIndex v28; 
+  bool v29; 
+  __int32 v30; 
+  float v31; 
   bool v32; 
-  GestureDirectionalAssetIndex v33; 
-  bool v34; 
-  __int32 v35; 
-  bool v38; 
-  char v39; 
-  unsigned __int8 v40; 
+  char v33; 
+  unsigned __int8 v34; 
+  float v35; 
   int jumpTime; 
   int StateFromAnimTime; 
-  GestureAnimationState v47; 
-  PlayerHandIndex v48; 
-  bool v70; 
+  GestureAnimationState v39; 
+  PlayerHandIndex v40; 
+  BOOL v45; 
+  double AnimTimeArchived; 
+  float v54; 
+  bool v55; 
   GestureMappingInfo **outOut; 
   weapAnimFiles_t *outIndex; 
-  float outIndexa; 
-  float v77; 
-  float v78; 
-  weapAnimFiles_t v79; 
-  weapAnimFiles_t v80; 
+  weapAnimFiles_t v58; 
+  weapAnimFiles_t v59; 
   GestureMappingInfo *outMain; 
   GestureMappingInfo *outIn; 
   GestureMappingInfo *mappingInfo; 
-  GestureAnimationSettings *v84; 
+  GestureAnimationSettings *v63; 
   GestureDirectionalAssetIndex animAdditive; 
   GestureAnimationState psa; 
   bool slota; 
@@ -5135,17 +4227,16 @@ void CG_Gesture_SwitchMainAnimations(LocalClientNum_t localClientNum, DObj *obj,
     __debugbreak();
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2514, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
-  _R15 = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2515, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v21 = slot;
+  v16 = slot;
   if ( slot >= 2 )
   {
     LODWORD(outOut) = slot;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2516, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", outOut, 2) )
       __debugbreak();
   }
-  v22 = hand;
+  v17 = hand;
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
   {
     LODWORD(outIndex) = 2;
@@ -5153,213 +4244,162 @@ void CG_Gesture_SwitchMainAnimations(LocalClientNum_t localClientNum, DObj *obj,
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2517, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", outOut, outIndex) )
       __debugbreak();
   }
-  Info = CG_Gesture_GetInfo(localClientNum, slot, v22);
+  Info = CG_Gesture_GetInfo(localClientNum, slot, v17);
   AnimationSettings = BG_Gesture_GetAnimationSettings(gesture);
   psa = Info->animState;
   type = gesture->type;
-  v84 = AnimationSettings;
+  v63 = AnimationSettings;
   if ( (unsigned int)type <= GESTURE_TYPE_IK_TARGET )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_58], xmm6
-      vmovaps [rsp+118h+var_68], xmm7
-      vmovaps [rsp+118h+var_78], xmm8
-      vmovaps [rsp+118h+var_88], xmm9
-      vmovaps [rsp+118h+var_98], xmm10
-    }
     hand = WEAPON_HAND_DEFAULT;
-    v79 = WEAP_ANIM_ROOT;
-    v80 = WEAP_ANIM_ROOT;
+    v58 = WEAP_ANIM_ROOT;
+    v59 = WEAP_ANIM_ROOT;
     animAdditive = GESTURE_ASSET_RIGHT_CENTER;
     CG_Gesture_GetMainAnimMappings(GESTURE_ASSET_LEFT_CENTER, GESTURE_ASSET_IN, GESTURE_ASSET_OUT, (const GestureMappingInfo **)&outMain, (const GestureMappingInfo **)&outIn, (const GestureMappingInfo **)&mappingInfo);
-    v26 = outMain;
+    v21 = outMain;
     if ( !outMain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2401, ASSERT_TYPE_ASSERT, "(mainMapping)", (const char *)&queryFormat, "mainMapping") )
       __debugbreak();
-    v27 = outIn;
+    v22 = outIn;
     if ( !outIn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2402, ASSERT_TYPE_ASSERT, "(inMapping)", (const char *)&queryFormat, "inMapping") )
       __debugbreak();
-    v28 = mappingInfo;
+    v23 = mappingInfo;
     if ( !mappingInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2403, ASSERT_TYPE_ASSERT, "(outMapping)", (const char *)&queryFormat, "outMapping") )
       __debugbreak();
-    if ( CG_Gesture_XAnimExists(gesture, v26, v22, isDualWield) )
+    if ( CG_Gesture_XAnimExists(gesture, v21, v17, isDualWield) )
     {
       slota = 0;
-      v29 = GESTURE_ASSET_LEFT_CENTER;
+      v24 = GESTURE_ASSET_LEFT_CENTER;
     }
     else
     {
       slota = 1;
-      v29 = GESTURE_ASSET_RIGHT_CENTER;
+      v24 = GESTURE_ASSET_RIGHT_CENTER;
     }
-    v30 = CG_Gesture_XAnimExists(gesture, v27, v22, isDualWield);
-    v31 = GESTURE_ASSET_IN_ADDITIVE;
-    if ( v30 )
-      v31 = GESTURE_ASSET_IN;
-    v32 = CG_Gesture_XAnimExists(gesture, v28, v22, isDualWield);
-    v33 = GESTURE_ASSET_OUT_ADDITIVE;
-    if ( v32 )
-      v33 = GESTURE_ASSET_OUT;
-    CG_Gesture_GetAnimationSlot(gesture, v21, v22, isDualWield, v29, slota, (weapAnimFiles_t *)&hand);
-    v34 = slota;
-    CG_Gesture_GetAnimationSlot(gesture, v21, v22, isDualWield, v31, slota, &v79);
-    CG_Gesture_GetAnimationSlot(gesture, v21, v22, isDualWield, v33, slota, &v80);
-    v35 = hand;
-    _ER9 = 0;
-    __asm { vmovss  xmm6, [rsp+118h+blendTime] }
-    v38 = crossfadeInOut;
-    v39 = 0;
-    v40 = 0;
+    v25 = CG_Gesture_XAnimExists(gesture, v22, v17, isDualWield);
+    v26 = GESTURE_ASSET_IN_ADDITIVE;
+    if ( v25 )
+      v26 = GESTURE_ASSET_IN;
+    v27 = CG_Gesture_XAnimExists(gesture, v23, v17, isDualWield);
+    v28 = GESTURE_ASSET_OUT_ADDITIVE;
+    if ( v27 )
+      v28 = GESTURE_ASSET_OUT;
+    CG_Gesture_GetAnimationSlot(gesture, v16, v17, isDualWield, v24, slota, (weapAnimFiles_t *)&hand);
+    v29 = slota;
+    CG_Gesture_GetAnimationSlot(gesture, v16, v17, isDualWield, v26, slota, &v58);
+    CG_Gesture_GetAnimationSlot(gesture, v16, v17, isDualWield, v28, slota, &v59);
+    v30 = hand;
+    v31 = blendTime;
+    v32 = crossfadeInOut;
+    v33 = 0;
+    v34 = 0;
     hand = WEAPON_HAND_DEFAULT;
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm10, xmm10, xmm10
-    }
+    v35 = 0.0;
+    _XMM10 = 0i64;
     if ( Info->hasJumpTime )
     {
-      *(double *)&_XMM0 = BG_Gesture_GetJumpTimeNormalized(_R15, gesture, v21);
-      __asm { vmovaps xmm10, xmm0 }
-      jumpTime = _R15->gestureState.gestures[v21].jumpTime;
+      *(double *)&v11 = BG_Gesture_GetJumpTimeNormalized(ps, gesture, v16);
+      _XMM10 = v11;
+      jumpTime = ps->gestureState.gestures[v16].jumpTime;
       if ( jumpTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2560, ASSERT_TYPE_ASSERT, "(animJumpTime > 0)", (const char *)&queryFormat, "animJumpTime > 0") )
         __debugbreak();
-      StateFromAnimTime = CG_Gesture_GetStateFromAnimTime(localClientNum, _R15, v21, gesture, jumpTime);
-      v47 = psa;
-      if ( psa != StateFromAnimTime || v38 )
+      StateFromAnimTime = CG_Gesture_GetStateFromAnimTime(localClientNum, ps, v16, gesture, jumpTime);
+      v39 = psa;
+      if ( psa != StateFromAnimTime || v32 )
       {
-        v34 = slota;
-        v40 = 0;
-        v39 = 0;
-        _ER9 = 0;
+        v29 = slota;
+        v34 = 0;
+        v33 = 0;
       }
       else
       {
-        v34 = slota;
-        v39 = 0;
-        _ER9 = 0;
-        v40 = 1;
+        v29 = slota;
+        v33 = 0;
+        v34 = 1;
       }
     }
     else
     {
-      v47 = psa;
+      v39 = psa;
     }
-    if ( v47 == GESTURE_ANIM_STATE_IN )
+    if ( v39 == GESTURE_ANIM_STATE_IN )
     {
-      if ( v79 )
+      if ( v58 )
       {
-        v35 = v79;
+        v30 = v58;
         animAdditive = GESTURE_ASSET_IN_ADDITIVE;
-        v48 = 10;
+        v40 = 10;
       }
       else
       {
-        v48 = hand;
+        v40 = hand;
       }
-      if ( v84->hasTransitions && Info->isRestarting )
-        __asm { vmovaps xmm8, xmm6 }
+      if ( v63->hasTransitions && Info->isRestarting )
+        v35 = v31;
     }
-    else if ( v47 == GESTURE_ANIM_STATE_OUT && v80 )
+    else if ( v39 == GESTURE_ANIM_STATE_OUT && v59 )
     {
       hand = NUM_WEAPON_HANDS|WEAPON_HAND_LEFT|0x8;
-      v35 = v80;
+      v30 = v59;
       animAdditive = GESTURE_ASSET_OUT_ADDITIVE;
-      __asm { vmovss  xmm3, cs:__real@3dcccccd }
-      if ( !v40 )
+      if ( !v34 )
       {
-        __asm
-        {
-          vmovd   xmm0, dword ptr [r15+45Ch]
-          vmovd   xmm1, r9d
-          vpcmpeqd xmm2, xmm0, xmm1
-          vmovss  xmm1, cs:__real@3d4ccccd
-          vblendvps xmm0, xmm1, xmm3, xmm2
-          vmovaps xmm6, xmm0
-          vmovss  [rsp+118h+slot], xmm0
-          vmovaps xmm8, xmm0
-        }
+        _XMM0 = (unsigned int)ps->gestureState.slotBlend;
+        __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+        _XMM1 = LODWORD(FLOAT_0_050000001);
+        __asm { vblendvps xmm0, xmm1, xmm3, xmm2 }
+        v31 = *(float *)&_XMM0;
+        v35 = *(float *)&_XMM0;
       }
-      if ( v38 )
+      if ( v32 )
       {
-        __asm
-        {
-          vmovaps xmm6, xmm3
-          vmovaps xmm8, xmm3
-        }
+        v31 = FLOAT_0_1;
+        v35 = FLOAT_0_1;
       }
-      _EAX = v38;
-      v48 = hand;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vmovd   xmm1, r9d
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, [rsp+118h+crossfadeOutStartTime]
-        vblendvps xmm0, xmm1, xmm9, xmm2
-        vmovaps xmm7, xmm0
-        vmovss  [rsp+118h+slot], xmm0
-      }
+      v45 = v32;
+      v40 = hand;
+      _XMM0 = v45;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM1 = LODWORD(crossfadeOutStartTime);
+      __asm { vblendvps xmm0, xmm1, xmm9, xmm2 }
       if ( Info->cancelTransitions )
-        v39 = 1;
+        v33 = 1;
     }
     else
     {
-      v48 = hand;
+      v40 = hand;
     }
-    _EAX = v40;
+    _XMM0 = v34;
     __asm
     {
-      vmovd   xmm0, eax
-      vmovd   xmm1, r9d
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm0, xmm10, xmm7, xmm2
-      vmovaps xmm10, [rsp+118h+var_98]
-      vmovss  [rsp+118h+slot], xmm0
     }
     if ( Info->restoreAnims )
     {
-      *(double *)&_XMM0 = CG_Gesture_GetAnimTimeArchived(localClientNum, v21, v22, gesture);
-      v47 = psa;
-      v39 = 0;
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vxorps  xmm6, xmm6, xmm6
-      }
+      AnimTimeArchived = CG_Gesture_GetAnimTimeArchived(localClientNum, v16, v17, gesture);
+      v39 = psa;
+      v33 = 0;
+      v54 = *(float *)&AnimTimeArchived;
+      v31 = 0.0;
     }
     else
     {
-      __asm { vmovss  xmm7, [rsp+118h+slot] }
+      v54 = *(float *)&_XMM0;
     }
-    __asm { vmovaps xmm9, [rsp+118h+var_88] }
-    if ( Info->mainAnim != v35 || Info->restoreAnims )
+    if ( Info->mainAnim != v30 || Info->restoreAnims )
     {
-      if ( v47 )
+      if ( v39 )
       {
-        if ( !v39 )
+        if ( !v33 )
         {
-          v70 = isDualWield;
-          __asm { vmovss  dword ptr [rsp+118h+outIndex], xmm8 }
-          CG_Gesture_StopMainAnimations(obj, animTree, gesture, v21, v22, isDualWield, outIndexa);
-          __asm
-          {
-            vmovss  [rsp+118h+var_D0], xmm6
-            vmovss  [rsp+118h+var_D8], xmm7
-          }
-          CG_Gesture_StartCenterAnimations(obj, animTree, gesture, v21, v22, v70, (GestureDirectionalAssetIndex)v48, animAdditive, v77, v78);
-          Info->mainAnim = v35;
-          Info->isMainAnimAdditive = v34;
+          v55 = isDualWield;
+          CG_Gesture_StopMainAnimations(obj, animTree, gesture, v16, v17, isDualWield, v35);
+          CG_Gesture_StartCenterAnimations(obj, animTree, gesture, v16, v17, v55, (GestureDirectionalAssetIndex)v40, animAdditive, v54, v31);
+          Info->mainAnim = v30;
+          Info->isMainAnimAdditive = v29;
           Info->restoreAnims = 0;
         }
       }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+118h+var_68]
-      vmovaps xmm6, [rsp+118h+var_58]
-      vmovaps xmm8, [rsp+118h+var_78]
     }
   }
 }
@@ -5371,216 +4411,126 @@ CG_Gesture_TransitionKillcamGestures
 */
 void CG_Gesture_TransitionKillcamGestures(LocalClientNum_t localClientNum, const playerState_s *const ps)
 {
-  const playerState_s *v9; 
-  const dvar_t *v11; 
+  __int128 v2; 
+  const playerState_s *v3; 
+  const dvar_t *v5; 
   CgWeaponMap *Instance; 
-  unsigned int *p_gestureState; 
-  unsigned int v17; 
-  PlayerHandIndex v18; 
+  GestureState *p_gestureState; 
+  unsigned int i; 
+  PlayerHandIndex v9; 
   GestureSlotInfo *Info; 
+  GestureSlotInfo *v11; 
   const Gesture *CurrentAsset; 
   GestureAnimationSettings *AnimationSettings; 
   unsigned int IndexFromGesture; 
-  bool v24; 
-  bool v25; 
-  unsigned int v29; 
-  unsigned int serverTime; 
-  __int64 v50; 
+  __int128 v15; 
+  __int128 v16; 
+  int SectionStartTime; 
+  int v18; 
+  __int128 v19; 
+  __int64 v20; 
   PlayerHandIndex WeaponHandForViewWeapon; 
 
-  v9 = ps;
+  v3 = ps;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1310, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1311, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1311, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( v9->deltaTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1312, ASSERT_TYPE_ASSERT, "(0 < ps->deltaTime)", "%s\n\tCG_Gesture_TransitionKillcamGestures() invoked while not in killcam", "0 < ps->deltaTime") )
+  if ( v3->deltaTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1312, ASSERT_TYPE_ASSERT, "(0 < ps->deltaTime)", "%s\n\tCG_Gesture_TransitionKillcamGestures() invoked while not in killcam", "0 < ps->deltaTime") )
     __debugbreak();
-  v11 = DVARBOOL_viewmodelGesturesResetForKillcam;
+  v5 = DVARBOOL_viewmodelGesturesResetForKillcam;
   if ( !DVARBOOL_viewmodelGesturesResetForKillcam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "viewmodelGesturesResetForKillcam") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+0D8h+var_48], xmm6
-      vmovaps [rsp+0D8h+var_58], xmm7
-      vmovaps [rsp+0D8h+var_68], xmm8
-      vmovaps [rsp+0D8h+var_78], xmm9
-      vmovaps [rsp+0D8h+var_88], xmm10
-    }
     Instance = CgWeaponMap::GetInstance(localClientNum);
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1320, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    __asm
+    WeaponHandForViewWeapon = BG_PlayerLastWeaponHandForViewWeapon(Instance, v3);
+    p_gestureState = &v3->gestureState;
+    for ( i = 0; i < 2; ++i )
     {
-      vmovss  xmm8, cs:__real@447a0000
-      vmovss  xmm9, cs:__real@3a83126f
-      vmovss  xmm10, cs:__real@3f800000
-    }
-    WeaponHandForViewWeapon = BG_PlayerLastWeaponHandForViewWeapon(Instance, v9);
-    p_gestureState = (unsigned int *)&v9->gestureState;
-    v17 = 0;
-    while ( 1 )
-    {
-      v18 = WEAPON_HAND_DEFAULT;
+      v9 = WEAPON_HAND_DEFAULT;
       do
       {
-        Info = CG_Gesture_GetInfo(localClientNum, v17, v18);
-        _R15 = Info;
-        if ( !*p_gestureState )
+        Info = CG_Gesture_GetInfo(localClientNum, i, v9);
+        v11 = Info;
+        if ( p_gestureState->gestures[0].state == GESTURE_STATE_OFF )
         {
           Info->restoreAnims = 0;
-          CG_Gesture_Shutdown(localClientNum, v17, v18);
+          CG_Gesture_Shutdown(localClientNum, i, v9);
           goto LABEL_42;
         }
-        CurrentAsset = BG_Gesture_GetCurrentAsset(v9, v17);
+        CurrentAsset = BG_Gesture_GetCurrentAsset(v3, i);
         if ( !CurrentAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1341, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
           __debugbreak();
         AnimationSettings = BG_Gesture_GetAnimationSettings(CurrentAsset);
         if ( !AnimationSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1343, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
           __debugbreak();
         IndexFromGesture = BG_Gesture_GetIndexFromGesture(CurrentAsset);
-        *(double *)&_XMM0 = BG_Gesture_GetElapsedTime(ps, v17, ps->serverTime);
-        v24 = 0;
-        v25 = !CurrentAsset->looping;
-        __asm { vmulss  xmm6, xmm0, xmm8 }
+        *(double *)&v2 = BG_Gesture_GetElapsedTime(ps, i, ps->serverTime);
+        v16 = v2;
+        *(float *)&v16 = *(float *)&v2 * 1000.0;
+        v15 = v16;
         if ( CurrentAsset->looping )
         {
           if ( AnimationSettings->hasTransitions )
           {
-            v29 = *p_gestureState;
-            v24 = *p_gestureState == 0;
-            v25 = *p_gestureState == 1;
-            if ( *p_gestureState == 1 )
+            if ( p_gestureState->gestures[0].state == GESTURE_STATE_PLAYING )
             {
-              __asm
+              if ( (float)AnimationSettings->inEndTime < *(float *)&v16 )
               {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, dword ptr [rbx+1Ch]
-                vcomiss xmm0, xmm6
-              }
-              if ( !*p_gestureState )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-                  vsubss  xmm7, xmm6, xmm0
-                }
-                BG_Gesture_GetSectionStartTime(IndexFromGesture, GESTURE_SECTION_LOOP);
-                __asm
-                {
-                  vxorps  xmm1, xmm1, xmm1
-                  vcvtsi2ss xmm1, xmm1, dword ptr [rbx]; Y
-                  vxorps  xmm6, xmm6, xmm6
-                  vmovaps xmm0, xmm7; X
-                  vcvtsi2ss xmm6, xmm6, eax
-                }
-                *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-                __asm { vaddss  xmm6, xmm0, xmm6 }
+                *(float *)&v16 = *(float *)&v16 - (float)AnimationSettings->inDuration;
+                SectionStartTime = BG_Gesture_GetSectionStartTime(IndexFromGesture, GESTURE_SECTION_LOOP);
+                *(float *)&v16 = fmodf_0(*(float *)&v16, (float)AnimationSettings->mainAnimLength) + (float)SectionStartTime;
+                v15 = v16;
               }
             }
-            else
+            else if ( p_gestureState->gestures[0].state == GESTURE_STATE_STOPPING )
             {
-              v24 = v29 < 2;
-              v25 = v29 == 2;
-              if ( v29 == 2 )
+              if ( p_gestureState->gestures[0].stopTime <= 0 )
               {
-                if ( (int)p_gestureState[5] <= 0 )
-                {
-                  LODWORD(v50) = p_gestureState[5];
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1360, ASSERT_TYPE_ASSERT, "( 0 ) < ( gestureState->stopTime )", "%s < %s\n\t%i, %i", "0", "gestureState->stopTime", 0i64, v50) )
-                    __debugbreak();
-                }
-                BG_Gesture_GetSectionStartTime(IndexFromGesture, GESTURE_SECTION_OUT);
-                v9 = ps;
-                __asm
-                {
-                  vxorps  xmm1, xmm1, xmm1
-                  vcvtsi2ss xmm1, xmm1, eax
-                  vxorps  xmm0, xmm0, xmm0
-                }
-                serverTime = ps->serverTime;
-                v24 = serverTime < p_gestureState[5];
-                v25 = serverTime == p_gestureState[5];
-                __asm
-                {
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vaddss  xmm6, xmm0, xmm1
-                }
-                goto LABEL_31;
+                LODWORD(v20) = p_gestureState->gestures[0].stopTime;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1360, ASSERT_TYPE_ASSERT, "( 0 ) < ( gestureState->stopTime )", "%s < %s\n\t%i, %i", "0", "gestureState->stopTime", 0i64, v20) )
+                  __debugbreak();
               }
+              v18 = BG_Gesture_GetSectionStartTime(IndexFromGesture, GESTURE_SECTION_OUT);
+              v3 = ps;
+              v19 = 0i64;
+              *(float *)&v19 = (float)(ps->serverTime - p_gestureState->gestures[0].stopTime) + (float)v18;
+              v15 = v19;
+              goto LABEL_31;
             }
           }
           else
           {
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0Ch]; Y
-              vmovaps xmm0, xmm6; X
-            }
-            *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm { vmovaps xmm6, xmm0 }
+            fmodf_0(*(float *)&v16, (float)AnimationSettings->animationLength);
           }
         }
-        v9 = ps;
+        v3 = ps;
 LABEL_31:
-        __asm
+        *((_QWORD *)&v2 + 1) = 0i64;
+        if ( (float)AnimationSettings->animationLength > *(float *)&v15 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-          vcomiss xmm0, xmm6
-        }
-        if ( v24 || v25 )
-        {
-          _R15->restoreAnims = 0;
-          CG_Gesture_Shutdown(localClientNum, v17, v18);
+          CG_Gesture_Initialize(localClientNum, v3, i, v9);
+          v11->animTime = *(float *)&v15 * 0.001;
+          v11->restoreAnims = 1;
+          *((_QWORD *)&v2 + 1) = *((_QWORD *)&v15 + 1);
+          *(double *)&v2 = I_fclamp(*(float *)&v15 / (float)AnimationSettings->animationLength, 0.0, 1.0);
+          v11->animTimeNormalized = *(float *)&v2;
+          v11->animState = CG_Gesture_GetStateFromAnimTime(localClientNum, v3, i, CurrentAsset, (int)*(float *)&v15);
         }
         else
         {
-          CG_Gesture_Initialize(localClientNum, v9, v17, v18);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vmulss  xmm0, xmm6, xmm9
-            vmovss  dword ptr [r15+2Ch], xmm0
-          }
-          _R15->restoreAnims = 1;
-          __asm
-          {
-            vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0Ch]
-            vdivss  xmm0, xmm6, xmm1; val
-            vxorps  xmm1, xmm1, xmm1; min
-            vmovaps xmm2, xmm10; max
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vcvttss2si eax, xmm6
-            vmovss  dword ptr [r15+30h], xmm0
-          }
-          _R15->animState = CG_Gesture_GetStateFromAnimTime(localClientNum, v9, v17, CurrentAsset, _EAX);
+          v11->restoreAnims = 0;
+          CG_Gesture_Shutdown(localClientNum, i, v9);
         }
 LABEL_42:
-        ++v18;
+        ++v9;
       }
-      while ( v18 <= (unsigned int)WeaponHandForViewWeapon );
-      ++v17;
-      p_gestureState += 8;
-      if ( v17 >= 2 )
-      {
-        __asm
-        {
-          vmovaps xmm10, [rsp+0D8h+var_88]
-          vmovaps xmm9, [rsp+0D8h+var_78]
-          vmovaps xmm8, [rsp+0D8h+var_68]
-          vmovaps xmm7, [rsp+0D8h+var_58]
-          vmovaps xmm6, [rsp+0D8h+var_48]
-        }
-        return;
-      }
+      while ( v9 <= (unsigned int)WeaponHandForViewWeapon );
+      p_gestureState = (GestureState *)((char *)p_gestureState + 32);
     }
   }
 }
@@ -5593,50 +4543,24 @@ CG_Gesture_UpdateAkimboAnims
 void CG_Gesture_UpdateAkimboAnims(LocalClientNum_t localClientNum, const playerState_s *ps, DObj *obj, const PlayerHandIndex hand, const bool isDualWield, const float mainTreeWeight, const bool inState, const bool outState, const bool useIdleLeft)
 {
   CgWeaponMap *Instance; 
-  int v19; 
-  const BgWeaponMap *v20; 
+  int v14; 
+  const BgWeaponMap *v15; 
   const Weapon *ViewmodelWeapon; 
-  __int64 p_weapFlags; 
-  bool v24; 
+  GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
+  bool v18; 
   CgHandler *pmoveHandler; 
-  unsigned int v26; 
+  unsigned int v20; 
   const XAnimTree *Tree; 
   CgHandler *Handler; 
-  char v29; 
-  bool v30; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmt; 
+  double Float_Internal_DebugName; 
+  double GoalWeight; 
+  double Weight; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
   __int64 bIsAlternate; 
-  float bIsAlternateb; 
-  float bIsAlternatec; 
-  float bIsAlternated; 
-  float bIsAlternatee; 
-  float bIsAlternatef; 
-  float bIsAlternateg; 
-  float bIsAlternateh; 
-  float bIsAlternatei; 
-  float bIsAlternatej; 
-  float bIsAlternatea; 
-  float handIndexa; 
-  float handIndexb; 
-  float handIndexc; 
-  float handIndexd; 
-  float handIndexe; 
-  float handIndexf; 
-  float handIndexg; 
-  float handIndexh; 
-  float handIndexi; 
-  float handIndex; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1607, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1608, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
@@ -5650,198 +4574,90 @@ void CG_Gesture_UpdateAkimboAnims(LocalClientNum_t localClientNum, const playerS
   if ( hand == WEAPON_HAND_LEFT && isDualWield )
   {
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    v19 = _RBX->weapState[1].weapAnim & 0xFFFFFF7F;
-    v20 = Instance;
-    ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, _RBX);
-    _ER13 = 1;
-    if ( _RBX )
+    v14 = ps->weapState[1].weapAnim & 0xFFFFFF7F;
+    v15 = Instance;
+    ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, ps);
+    if ( ps )
     {
-      p_weapFlags = (__int64)&_RBX->weapCommon.weapFlags;
-      if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBX->weapCommon.weapFlags, ACTIVE, 0x22u) )
+      p_weapFlags = &ps->weapCommon.weapFlags;
+      if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) )
         goto LABEL_14;
     }
     else
     {
-      p_weapFlags = 1832i64;
+      p_weapFlags = (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)1832;
     }
-    if ( _RBX && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)p_weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)p_weapFlags, ACTIVE, 0x1Bu)) )
+    if ( ps && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x1Bu)) )
     {
-      v24 = 1;
+      v18 = 1;
+      goto LABEL_15;
+    }
+LABEL_14:
+    v18 = 0;
 LABEL_15:
-      __asm
+    pmoveHandler = CgHandler::getHandler(localClientNum);
+    v20 = BG_MapWeaponAnimStateToAnimIndex(v15, ps, v14, 0, ViewmodelWeapon, v18, WEAPON_HAND_LEFT, pmoveHandler);
+    Tree = DObjGetTree(obj);
+    Handler = CgHandler::getHandler(localClientNum);
+    if ( BG_ViewModelAnimExists(ps, WEAP_ANIM_GESTURE_LEFT_IDLE, WEAPON_HAND_LEFT, Handler) && useIdleLeft )
+    {
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_gesture_idle_akimbo_threshold, "gesture_idle_akimbo_threshold");
+      if ( mainTreeWeight != 1.0 || inState )
       {
-        vmovaps [rsp+0B8h+var_38], xmm6
-        vmovaps [rsp+0B8h+var_48], xmm7
-        vmovaps [rsp+0B8h+var_58], xmm8
-      }
-      pmoveHandler = CgHandler::getHandler(localClientNum);
-      v26 = BG_MapWeaponAnimStateToAnimIndex(v20, _RBX, v19, 0, ViewmodelWeapon, v24, WEAPON_HAND_LEFT, pmoveHandler);
-      Tree = DObjGetTree(obj);
-      Handler = CgHandler::getHandler(localClientNum);
-      if ( BG_ViewModelAnimExists(_RBX, WEAP_ANIM_GESTURE_LEFT_IDLE, WEAPON_HAND_LEFT, Handler) && useIdleLeft )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_gesture_idle_akimbo_threshold, "gesture_idle_akimbo_threshold");
-        __asm
+        if ( mainTreeWeight > *(float *)&Float_Internal_DebugName && outState )
         {
-          vmovss  xmm6, cs:__real@3f800000
-          vmovaps xmm2, xmm0; max
-          vmovss  xmm0, [rsp+0B8h+mainTreeWeight]; value
-          vucomiss xmm0, xmm6
+          Weight = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0x14Du);
+          if ( *(float *)&Weight <= 0.0 )
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x14Du, 1.0, 0.0, 1.0, (scr_string_t)0, 1u, 0, LINEAR, NULL);
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
         }
-        if ( !v30 || (v29 = 0, v30 = !inState, inState) )
+        else if ( mainTreeWeight >= 0.001 )
         {
-          __asm { vcomiss xmm0, xmm2 }
-          if ( v29 | v30 || (v29 = 0, !outState) )
+          v30 = CG_Gesture_Normalize(mainTreeWeight, 0.0, *(float *)&Float_Internal_DebugName);
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, *(float *)&v30, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+          if ( v20 - 236 <= 1 )
           {
-            __asm { vcomiss xmm0, cs:__real@3a83126f }
-            if ( !v29 )
-            {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1; min
-                vxorps  xmm7, xmm7, xmm7
-              }
-              *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  [rsp+0B8h+handIndex], xmm6
-                vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-                vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-              }
-              XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, fmtf, bIsAlternateg, handIndexf, (scr_string_t)0, 0, 0, LINEAR, NULL);
-              if ( v26 - 236 <= 1 )
-              {
-                __asm
-                {
-                  vmovss  [rsp+0B8h+handIndex], xmm6
-                  vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-                  vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-                }
-                XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xECu, fmtg, bIsAlternateh, handIndexg, (scr_string_t)0, 0, 0, LINEAR, NULL);
-                __asm
-                {
-                  vmovss  [rsp+0B8h+handIndex], xmm6
-                  vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-                  vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-                }
-                XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xEDu, fmth, bIsAlternatei, handIndexh, (scr_string_t)0, 0, 0, LINEAR, NULL);
-                __asm
-                {
-                  vmovss  [rsp+0B8h+handIndex], xmm6
-                  vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-                  vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-                }
-                XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x175u, fmti, bIsAlternatej, handIndexi, (scr_string_t)0, 0, 0, LINEAR, NULL);
-              }
-            }
-          }
-          else
-          {
-            *(double *)&_XMM0 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0x14Du);
-            __asm
-            {
-              vxorps  xmm7, xmm7, xmm7
-              vcomiss xmm0, xmm7
-              vmovss  [rsp+0B8h+handIndex], xmm6
-              vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-              vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-            }
-            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x14Du, fmtd, bIsAlternatee, handIndexd, (scr_string_t)0, 1u, 0, LINEAR, NULL);
-            __asm
-            {
-              vmovss  [rsp+0B8h+handIndex], xmm6
-              vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-              vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-            }
-            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, fmte, bIsAlternatef, handIndexe, (scr_string_t)0, 0, 0, LINEAR, NULL);
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovd   xmm0, dword ptr [rbx+59Ch]
-            vmovss  xmm2, cs:__real@3a83126f
-            vmovss  xmm8, cs:__real@3d4ccccd
-            vmovd   xmm1, r13d
-            vpcmpeqd xmm3, xmm0, xmm1
-            vmovss  [rsp+0B8h+handIndex], xmm6
-            vxorps  xmm7, xmm7, xmm7
-            vblendvps xmm0, xmm7, xmm2, xmm3
-            vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm8
-            vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x14Du, fmta, bIsAlternateb, handIndexa, (scr_string_t)0, 0, 0, LINEAR, NULL);
-          __asm
-          {
-            vmovss  [rsp+0B8h+handIndex], xmm6
-            vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm7
-            vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-          }
-          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, fmtb, bIsAlternatec, handIndexb, (scr_string_t)0, 0, 0, LINEAR, NULL);
-          if ( v26 - 236 <= 1 )
-          {
-            *(double *)&_XMM0 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v26);
-            __asm { vcomiss xmm0, xmm7 }
-            if ( v29 | v30 )
-            {
-              __asm
-              {
-                vmovss  [rsp+0B8h+handIndex], xmm6
-                vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm8
-                vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-              }
-              XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v26, fmtc, bIsAlternated, handIndexc, (scr_string_t)0, 1u, 0, LINEAR, NULL);
-            }
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xECu, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xEDu, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x175u, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
           }
         }
       }
       else
       {
-        *(double *)&_XMM0 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0xFu);
-        __asm
+        _XMM0 = (unsigned int)ps->weapState[1].weaponState;
+        __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+        _XMM7 = 0i64;
+        __asm { vblendvps xmm0, xmm7, xmm2, xmm3 }
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0x14Du, *(float *)&_XMM0, 0.050000001, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, 0.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        if ( v20 - 236 <= 1 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vcomiss xmm0, xmm6
-        }
-        if ( !(v29 | v30) )
-        {
-          *(double *)&_XMM0 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0xFu);
-          __asm
-          {
-            vmovss  xmm7, cs:__real@3f800000
-            vmovss  xmm8, cs:__real@3e800000
-            vucomiss xmm0, xmm6
-          }
-          if ( v26 - 236 <= 1 )
-          {
-            *(double *)&_XMM0 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v26);
-            __asm { vcomiss xmm0, xmm6 }
-            if ( v29 | v30 )
-            {
-              __asm
-              {
-                vmovss  xmm0, [rsp+0B8h+mainTreeWeight]
-                vmovss  [rsp+0B8h+handIndex], xmm7
-                vmovss  dword ptr [rsp+0B8h+bIsAlternate], xmm8
-                vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-              }
-              XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v26, fmt, bIsAlternatea, handIndex, (scr_string_t)0, 1u, 0, LINEAR, NULL);
-            }
-          }
+          GoalWeight = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v20);
+          if ( *(float *)&GoalWeight <= 0.0 )
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v20, 1.0, 0.050000001, 1.0, (scr_string_t)0, 1u, 0, LINEAR, NULL);
         }
       }
-      __asm
-      {
-        vmovaps xmm7, [rsp+0B8h+var_48]
-        vmovaps xmm6, [rsp+0B8h+var_38]
-        vmovaps xmm8, [rsp+0B8h+var_58]
-      }
-      return;
     }
-LABEL_14:
-    v24 = 0;
-    goto LABEL_15;
+    else
+    {
+      v31 = XAnimGetWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0xFu);
+      if ( *(float *)&v31 > 0.0 )
+      {
+        v32 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, 0xFu);
+        if ( *(float *)&v32 != 0.0 )
+        {
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, 0.001, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+          XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 0xFu, 0.0, 0.25, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        }
+        if ( v20 - 236 <= 1 )
+        {
+          v33 = XAnimGetGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v20);
+          if ( *(float *)&v33 <= 0.0 )
+            XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, v20, mainTreeWeight, 0.25, 1.0, (scr_string_t)0, 1u, 0, LINEAR, NULL);
+        }
+      }
+    }
   }
 }
 
@@ -5852,59 +4668,58 @@ CG_Gesture_UpdateAnimationState
 */
 void CG_Gesture_UpdateAnimationState(LocalClientNum_t localClientNum, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand, const bool isDualWield, const Gesture *gesture, const XAnimTree *animTree)
 {
-  __int64 v18; 
-  const Gesture *v19; 
-  const XAnimTree *v20; 
-  __int64 v22; 
+  __int64 v10; 
+  const Gesture *v11; 
+  const XAnimTree *v12; 
+  GestureSlotInfo *Info; 
+  __int64 v14; 
+  GestureSlotInfo *v15; 
+  float animTime; 
+  float animTimeNormalized; 
+  GestureAnimationSettings *AnimationSettings; 
+  float v19; 
+  float v20; 
+  double AnimLengthInSeconds; 
+  float v22; 
+  float v23; 
   GestureStateType state; 
-  bool v38; 
-  bool v39; 
-  const GestureMappingInfo *v40; 
-  bool v41; 
-  PlayerHandIndex v42; 
-  const Gesture *v43; 
+  bool v25; 
+  bool v26; 
+  const GestureMappingInfo *v27; 
+  bool v28; 
+  PlayerHandIndex v29; 
+  const Gesture *v30; 
   GestureAnimationState animState; 
-  bool v46; 
-  int v47; 
+  bool v32; 
+  int v33; 
   GestureAnimationState StateFromAnimTime; 
   CgHandler *Handler; 
   CgWeaponMap *Instance; 
-  GestureAnimationState v51; 
+  GestureAnimationState v37; 
+  int v38; 
   __int64 handa; 
   float *outTimeInSeconds; 
-  char v65; 
-  void *retaddr; 
   float outNormalizedTime; 
-  float v68; 
+  float v42; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0D8h+var_88], xmm11
-    vmovaps [rsp+0D8h+var_98], xmm12
-  }
-  v18 = slot;
+  v10 = slot;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1909, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v19 = gesture;
+  v11 = gesture;
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1910, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
-  v20 = animTree;
+  v12 = animTree;
   if ( !animTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1911, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
     __debugbreak();
-  if ( (unsigned int)v18 >= 2 )
+  if ( (unsigned int)v10 >= 2 )
   {
-    LODWORD(handa) = v18;
+    LODWORD(handa) = v10;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1912, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", handa, 2) )
       __debugbreak();
   }
-  _RDI = CG_Gesture_GetInfo(localClientNum, v18, hand);
-  v22 = v18;
-  gesture = (const Gesture *)(32 * v18);
+  Info = CG_Gesture_GetInfo(localClientNum, v10, hand);
+  v14 = v10;
+  gesture = (const Gesture *)(32 * v10);
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
   {
     LODWORD(outTimeInSeconds) = 2;
@@ -5912,170 +4727,133 @@ void CG_Gesture_UpdateAnimationState(LocalClientNum_t localClientNum, const play
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1062, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", handa, outTimeInSeconds) )
       __debugbreak();
   }
-  _RAX = CG_Gesture_GetInfo(localClientNum, v18, hand);
-  if ( _RAX->restoreAnims )
+  v15 = CG_Gesture_GetInfo(localClientNum, v10, hand);
+  if ( v15->restoreAnims )
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+2Ch]
-      vmovss  xmm7, dword ptr [rax+30h]
-    }
+    animTime = v15->animTime;
+    animTimeNormalized = v15->animTimeNormalized;
   }
   else
   {
-    CG_Gesture_GetAnimTimeFromTree(localClientNum, ps, v18, hand, v19, v20, &v68, &outNormalizedTime);
-    __asm
+    CG_Gesture_GetAnimTimeFromTree(localClientNum, ps, v10, hand, v11, v12, &v42, &outNormalizedTime);
+    animTimeNormalized = outNormalizedTime;
+    animTime = v42;
+  }
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1080, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
+    __debugbreak();
+  AnimationSettings = BG_Gesture_GetAnimationSettings(v11);
+  if ( !AnimationSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1085, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
+    __debugbreak();
+  v19 = (float)AnimationSettings->inEndTime * 0.001;
+  v20 = (float)AnimationSettings->outStartTime * 0.001;
+  Info->animTime = animTime;
+  Info->animTimeNormalized = animTimeNormalized;
+  AnimLengthInSeconds = BG_Gesture_GetAnimLengthInSeconds(v11);
+  v22 = 1.0 - animTimeNormalized;
+  v23 = animTime + 0.00000011920929;
+  Info->hasJumpTime = ps->gestureState.gestures[v14].jumpTime > 0;
+  Info->isJumpTimeBlendActive = BG_Gesture_IsJumpTimeBlendActive(ps, v10, ps->serverTime);
+  Info->cancelTransitions |= BG_Gesture_IsCancelTransitions(ps, v10);
+  state = ps->gestureState.gestures[v14].state;
+  if ( state == GESTURE_STATE_PLAYING )
+  {
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 688, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
+      __debugbreak();
+    if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
     {
-      vmovss  xmm7, [rsp+0D8h+arg_10]
-      vmovss  xmm6, [rsp+0D8h+arg_18]
-    }
-  }
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1080, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
-    __debugbreak();
-  if ( !BG_Gesture_GetAnimationSettings(v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1085, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
-    __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+1Ch]
-    vmulss  xmm11, xmm0, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+20h]
-    vmulss  xmm12, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rdi+2Ch], xmm6
-    vmovss  dword ptr [rdi+30h], xmm7
-  }
-  *(double *)&_XMM0 = BG_Gesture_GetAnimLengthInSeconds(v19);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm2, xmm1, xmm7
-    vaddss  xmm7, xmm6, cs:__real@34000000
-  }
-  _RDI->hasJumpTime = ps->gestureState.gestures[v22].jumpTime > 0;
-  __asm
-  {
-    vmovaps xmm10, xmm0
-    vmulss  xmm9, xmm2, xmm0
-  }
-  _RDI->isJumpTimeBlendActive = BG_Gesture_IsJumpTimeBlendActive(ps, v18, ps->serverTime);
-  _RDI->cancelTransitions |= BG_Gesture_IsCancelTransitions(ps, v18);
-  state = ps->gestureState.gestures[v22].state;
-  switch ( state )
-  {
-    case GESTURE_STATE_PLAYING:
-      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 688, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
+      LODWORD(outTimeInSeconds) = 2;
+      LODWORD(handa) = hand;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 689, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", handa, outTimeInSeconds) )
         __debugbreak();
-      if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
+    }
+    v25 = isDualWield;
+    v26 = 1;
+    if ( isDualWield )
+    {
+      v27 = &s_blendTreeMappings[1];
+      v28 = isDualWield;
+      v29 = hand;
+      v30 = v11;
+      if ( v11->weaponSettings.splitAnimsAkimbo )
       {
-        LODWORD(outTimeInSeconds) = 2;
-        LODWORD(handa) = hand;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 689, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", handa, outTimeInSeconds) )
-          __debugbreak();
+        if ( hand != WEAPON_HAND_LEFT )
+          v27 = &s_blendTreeMappings[4];
       }
-      v38 = isDualWield;
-      v39 = 1;
-      if ( isDualWield )
+      else
       {
-        v40 = &s_blendTreeMappings[1];
-        v41 = isDualWield;
-        v42 = hand;
-        v43 = v19;
-        if ( v19->weaponSettings.splitAnimsAkimbo )
+        if ( CG_Gesture_XAnimExists(v11, &s_blendTreeMappings[1], hand, isDualWield) )
         {
-          if ( hand != WEAPON_HAND_LEFT )
-            v40 = &s_blendTreeMappings[4];
-        }
-        else
-        {
-          if ( CG_Gesture_XAnimExists(v19, &s_blendTreeMappings[1], hand, isDualWield) )
-          {
 LABEL_41:
-            animState = _RDI->animState;
-            if ( animState == GESTURE_ANIM_STATE_OFF )
-            {
-              v46 = !_RDI->hasJumpTime;
-              _RDI->animState = GESTURE_ANIM_STATE_IN;
-              if ( v46 )
-                break;
-              v47 = *(int *)((char *)&ps->gestureState.gestures[0].jumpTime + (_QWORD)gesture);
-              if ( v47 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1946, ASSERT_TYPE_ASSERT, "(jumpTime > 0)", (const char *)&queryFormat, "jumpTime > 0") )
-                __debugbreak();
-              StateFromAnimTime = (unsigned int)CG_Gesture_GetStateFromAnimTime(localClientNum, ps, v18, v19, v47);
-LABEL_64:
-              _RDI->animState = StateFromAnimTime;
-              break;
-            }
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcomiss xmm6, xmm0
-            }
-            if ( animState == GESTURE_ANIM_STATE_OUT || (Handler = CgHandler::getHandler(localClientNum), Instance = CgWeaponMap::GetInstance(localClientNum), !BG_GesturePriority_ShouldCancelRightHand(Instance, ps, Handler, v18, v19, hand, v38)) )
-            {
-              v51 = _RDI->animState;
-              if ( v51 == GESTURE_ANIM_STATE_IN )
-              {
-                __asm { vcomiss xmm7, xmm11 }
-                _RDI->animState = GESTURE_ANIM_STATE_PLAYING;
-                break;
-              }
-              if ( v51 == GESTURE_ANIM_STATE_PLAYING )
-              {
-                if ( !v19->looping )
-                {
-                  __asm { vcomiss xmm7, xmm12 }
-                  _RDI->animState = GESTURE_ANIM_STATE_OUT;
-                }
-                break;
-              }
-              if ( v51 != GESTURE_ANIM_STATE_OUT )
-                break;
-              __asm { vcomiss xmm7, xmm10 }
-            }
-LABEL_63:
-            StateFromAnimTime = GESTURE_ANIM_STATE_OFF;
-            goto LABEL_64;
+          animState = Info->animState;
+          if ( animState == GESTURE_ANIM_STATE_OFF )
+          {
+LABEL_44:
+            v32 = !Info->hasJumpTime;
+            Info->animState = GESTURE_ANIM_STATE_IN;
+            if ( v32 )
+              return;
+            v33 = *(int *)((char *)&ps->gestureState.gestures[0].jumpTime + (_QWORD)gesture);
+            if ( v33 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1946, ASSERT_TYPE_ASSERT, "(jumpTime > 0)", (const char *)&queryFormat, "jumpTime > 0") )
+              __debugbreak();
+            StateFromAnimTime = (unsigned int)CG_Gesture_GetStateFromAnimTime(localClientNum, ps, v10, v11, v33);
+            goto LABEL_70;
           }
-          v41 = v38;
-          v40 = &s_blendTreeMappings[4];
-          v42 = hand;
-          v43 = v19;
+          if ( animTime >= 0.0 )
+          {
+            if ( animState != GESTURE_ANIM_STATE_OUT )
+            {
+              Handler = CgHandler::getHandler(localClientNum);
+              Instance = CgWeaponMap::GetInstance(localClientNum);
+              if ( BG_GesturePriority_ShouldCancelRightHand(Instance, ps, Handler, v10, v11, hand, v25) )
+                goto LABEL_69;
+            }
+          }
+          else if ( animState != GESTURE_ANIM_STATE_OUT )
+          {
+            goto LABEL_44;
+          }
+          v37 = Info->animState;
+          if ( v37 == GESTURE_ANIM_STATE_IN )
+          {
+            if ( v23 >= v19 )
+              Info->animState = GESTURE_ANIM_STATE_PLAYING;
+            return;
+          }
+          if ( v37 == GESTURE_ANIM_STATE_PLAYING )
+          {
+            if ( !v11->looping && v23 >= v20 )
+              Info->animState = GESTURE_ANIM_STATE_OUT;
+            return;
+          }
+          if ( v37 != GESTURE_ANIM_STATE_OUT || v23 < *(float *)&AnimLengthInSeconds )
+            return;
+LABEL_69:
+          StateFromAnimTime = GESTURE_ANIM_STATE_OFF;
+LABEL_70:
+          Info->animState = StateFromAnimTime;
+          return;
         }
-        v39 = CG_Gesture_XAnimExists(v43, v40, v42, v41);
+        v28 = v25;
+        v27 = &s_blendTreeMappings[4];
+        v29 = hand;
+        v30 = v11;
       }
-      if ( !v39 )
-        goto LABEL_63;
-      goto LABEL_41;
-    case GESTURE_STATE_STOPPING:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-      }
-      _RDI->animState = GESTURE_ANIM_STATE_OUT;
-      break;
-    case GESTURE_STATE_OFF:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-        vcomiss xmm9, cs:__real@34000000
-      }
-      if ( _RDI->animState != GESTURE_ANIM_STATE_OUT )
-        goto LABEL_63;
-      break;
+      v26 = CG_Gesture_XAnimExists(v30, v27, v29, v28);
+    }
+    if ( !v26 )
+      goto LABEL_69;
+    goto LABEL_41;
   }
-  _R11 = &v65;
-  __asm
+  if ( state != GESTURE_STATE_STOPPING )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
+    if ( state || animTime >= 0.0 && (float)(v22 * *(float *)&AnimLengthInSeconds) >= 0.00000011920929 && Info->animState == GESTURE_ANIM_STATE_OUT )
+      return;
+    goto LABEL_69;
   }
+  v38 = 3;
+  if ( animTime < 0.0 )
+    v38 = 0;
+  Info->animState = v38;
 }
 
 /*
@@ -6085,63 +4863,60 @@ CG_Gesture_UpdateAnims
 */
 void CG_Gesture_UpdateAnims(LocalClientNum_t localClientNum, const Gesture *gesture, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand, DObj *obj, float animTime)
 {
-  bool v13; 
   bool useTargetOffset; 
+  float v12; 
   CgHandler *Handler; 
   int TargetEntity; 
   centity_t *Entity; 
+  double v16; 
   GestureType type; 
-  bool v30; 
+  float v18; 
+  bool v19; 
+  double v20; 
   cg_t *LocalClientGlobals; 
-  int v37; 
+  int v22; 
   CgEntitySystem *EntitySystem; 
-  DObj *v39; 
-  const DObj *v40; 
+  DObj *v24; 
+  const DObj *v25; 
+  centity_t *v26; 
   scr_string_t targetEntityBoneName; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v62; 
-  __int64 v63; 
+  __int128 v33; 
+  __int64 v42; 
+  __int64 v43; 
   unsigned __int8 inOutIndex[4]; 
   int modelIndex; 
   vec3_t angles; 
   vec3_t outOrigin; 
-  WorldUpReferenceFrame v68; 
+  WorldUpReferenceFrame v48; 
 
-  _RDI = ps;
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1697, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1698, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1698, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1699, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( slot >= 2 )
   {
-    LODWORD(v62) = slot;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1700, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v62, 2) )
+    LODWORD(v42) = slot;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1700, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v42, 2) )
       __debugbreak();
   }
   if ( gesture == (const Gesture *)-52i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 378, ASSERT_TYPE_ASSERT, "(directionalSettings)", (const char *)&queryFormat, "directionalSettings") )
     __debugbreak();
-  v13 = gesture->type == GESTURE_TYPE_DIRECTIONAL;
-  __asm { vmovaps [rsp+0F0h+var_50], xmm6 }
-  if ( v13 && ((useTargetOffset = gesture->directionalSettings.useTargetOffset) || CG_Gesture_ValidateTargetEntity(localClientNum, _RDI, slot)) )
+  if ( gesture->type == GESTURE_TYPE_DIRECTIONAL && ((useTargetOffset = gesture->directionalSettings.useTargetOffset) || CG_Gesture_ValidateTargetEntity(localClientNum, ps, slot)) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+1D8h]
-      vmovss  xmm1, dword ptr [rdi+1DCh]
-      vmovss  dword ptr [rbp+3Fh+angles], xmm0
-      vmovss  xmm0, dword ptr [rdi+1E0h]
-      vmovss  dword ptr [rbp+3Fh+angles+8], xmm0
-      vmovss  dword ptr [rbp+3Fh+angles+4], xmm1
-    }
+    v12 = ps->viewangles.v[1];
+    angles.v[0] = ps->viewangles.v[0];
+    angles.v[2] = ps->viewangles.v[2];
+    angles.v[1] = v12;
     Handler = CgHandler::getHandler(localClientNum);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v68, _RDI, Handler);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v68, &angles);
-    CG_GetPlayerViewOrigin(localClientNum, _RDI, &outOrigin);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v48, ps, Handler);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v48, &angles);
+    CG_GetPlayerViewOrigin(localClientNum, ps, &outOrigin);
     if ( !useTargetOffset )
     {
-      TargetEntity = BG_Gesture_GetTargetEntity(_RDI, slot);
+      TargetEntity = BG_Gesture_GetTargetEntity(ps, slot);
       Entity = CG_GetEntity(localClientNum, TargetEntity);
       if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1720, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
         __debugbreak();
@@ -6149,141 +4924,115 @@ void CG_Gesture_UpdateAnims(LocalClientNum_t localClientNum, const Gesture *gest
     }
     XAnimSetVec3GameParameterByIndex(obj, 1u, &angles);
     XAnimSetVec3GameParameterByIndex(obj, 0, &outOrigin);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovss  xmm0, [rbp+3Fh+animTime]; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    v16 = I_fclamp(animTime, 0.0, 1.0);
     if ( slot >= 2 )
     {
-      LODWORD(v63) = 2;
-      LODWORD(v62) = slot;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1170, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( WEAP_ANIM_PARAM_ANIM_TIME_COUNT )", "slot doesn't index WEAP_ANIM_PARAM_ANIM_TIME_COUNT\n\t%i not in [0, %i)", v62, v63) )
+      LODWORD(v43) = 2;
+      LODWORD(v42) = slot;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1170, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( WEAP_ANIM_PARAM_ANIM_TIME_COUNT )", "slot doesn't index WEAP_ANIM_PARAM_ANIM_TIME_COUNT\n\t%i not in [0, %i)", v42, v43) )
         __debugbreak();
     }
-    __asm { vmovaps xmm2, xmm6; value }
-    XAnimSetFloatGameParameterByIndex(obj, slot + 3, *(float *)&_XMM2);
+    XAnimSetFloatGameParameterByIndex(obj, slot + 3, *(float *)&v16);
   }
   else
   {
     type = gesture->type;
     if ( type == GESTURE_TYPE_LOOK_AROUND )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1D8h]
-        vmovss  xmm1, dword ptr [rdi+1DCh]
-        vmovss  dword ptr [rbp+3Fh+angles], xmm0
-        vmovss  xmm0, dword ptr [rdi+1E0h]
-        vmovss  dword ptr [rbp+3Fh+angles+8], xmm0
-        vmovss  dword ptr [rbp+3Fh+angles+4], xmm1
-      }
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1588, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      v18 = ps->viewangles.v[1];
+      angles.v[0] = ps->viewangles.v[0];
+      angles.v[2] = ps->viewangles.v[2];
+      angles.v[1] = v18;
+      if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1588, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
       if ( slot >= 2 )
       {
-        LODWORD(v63) = 2;
-        LODWORD(v62) = slot;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1589, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v62, v63) )
+        LODWORD(v43) = 2;
+        LODWORD(v42) = slot;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1589, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v42, v43) )
           __debugbreak();
       }
-      v30 = 0;
+      v19 = 0;
       if ( CG_Gesture_GetInfo(localClientNum, slot, hand)->animState == GESTURE_ANIM_STATE_PLAYING )
-        v30 = BG_Demeanor_ShouldPlayWeaponCheck(_RDI);
+        v19 = BG_Demeanor_ShouldPlayWeaponCheck(ps);
       XAnimSetVec3GameParameterByIndex(obj, 1u, &angles);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vmovss  xmm0, [rbp+3Fh+animTime]; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
+      v20 = I_fclamp(animTime, 0.0, 1.0);
       if ( slot >= 2 )
       {
-        LODWORD(v63) = 2;
-        LODWORD(v62) = slot;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1170, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( WEAP_ANIM_PARAM_ANIM_TIME_COUNT )", "slot doesn't index WEAP_ANIM_PARAM_ANIM_TIME_COUNT\n\t%i not in [0, %i)", v62, v63) )
+        LODWORD(v43) = 2;
+        LODWORD(v42) = slot;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1170, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( WEAP_ANIM_PARAM_ANIM_TIME_COUNT )", "slot doesn't index WEAP_ANIM_PARAM_ANIM_TIME_COUNT\n\t%i not in [0, %i)", v42, v43) )
           __debugbreak();
       }
-      __asm { vmovaps xmm2, xmm6; value }
-      XAnimSetFloatGameParameterByIndex(obj, slot + 3, *(float *)&_XMM2);
-      XAnimSetBoolGameParameterByIndex(obj, 5u, v30);
+      XAnimSetFloatGameParameterByIndex(obj, slot + 3, *(float *)&v20);
+      XAnimSetBoolGameParameterByIndex(obj, 5u, v19);
     }
-    else if ( type == GESTURE_TYPE_IK_TARGET && CG_Gesture_ValidateTargetEntity(localClientNum, _RDI, slot) )
+    else if ( type == GESTURE_TYPE_IK_TARGET && CG_Gesture_ValidateTargetEntity(localClientNum, ps, slot) )
     {
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      v37 = BG_Gesture_GetTargetEntity(_RDI, slot);
+      v22 = BG_Gesture_GetTargetEntity(ps, slot);
       EntitySystem = CgEntitySystem::GetEntitySystem(localClientNum);
-      v39 = EntitySystem->IsMP(EntitySystem) ? CgEntitySystemMP::GetDObj_General((CgEntitySystemMP *)EntitySystem, v37, NULL) : Com_GetClientDObj(v37, EntitySystem->m_localClientNum);
-      v40 = v39;
+      v24 = EntitySystem->IsMP(EntitySystem) ? CgEntitySystemMP::GetDObj_General((CgEntitySystemMP *)EntitySystem, v22, NULL) : Com_GetClientDObj(v22, EntitySystem->m_localClientNum);
+      v25 = v24;
       inOutIndex[0] = -2;
-      _RBX = CG_GetEntity(localClientNum, v37);
+      v26 = CG_GetEntity(localClientNum, v22);
       if ( !LocalClientGlobals->firstSnapshot )
       {
         targetEntityBoneName = gesture->ikTargetSettings.targetEntityBoneName;
-        __asm
+        outOrigin.v[0] = 0.0;
+        outOrigin.v[1] = 0.0;
+        outOrigin.v[2] = 0.0;
+        angles.v[0] = 0.0;
+        angles.v[1] = 0.0;
+        angles.v[2] = 0.0;
+        if ( targetEntityBoneName && v25 && DObjGetBoneIndexInternal_51(v25, targetEntityBoneName, inOutIndex, &modelIndex) )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+3Fh+outOrigin], xmm0
-          vmovss  dword ptr [rbp+3Fh+outOrigin+4], xmm0
-          vmovss  dword ptr [rbp+3Fh+outOrigin+8], xmm0
-          vmovss  dword ptr [rbp+3Fh+angles], xmm0
-          vmovss  dword ptr [rbp+3Fh+angles+4], xmm0
-          vmovss  dword ptr [rbp+3Fh+angles+8], xmm0
+          CG_DObjGetWorldBoneMatrix(&v26->pose, v25, inOutIndex[0], (tmat33_t<vec3_t> *)&v48, &outOrigin);
+          AxisToAngles((const tmat33_t<vec3_t> *)&v48, &angles);
         }
-        if ( targetEntityBoneName && v40 && DObjGetBoneIndexInternal_51(v40, targetEntityBoneName, inOutIndex, &modelIndex) )
+        else if ( v26 )
         {
-          CG_DObjGetWorldBoneMatrix(&_RBX->pose, v40, inOutIndex[0], (tmat33_t<vec3_t> *)&v68, &outOrigin);
-          AxisToAngles((const tmat33_t<vec3_t> *)&v68, &angles);
-        }
-        else if ( _RBX )
-        {
-          if ( !_RBX->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+          if ( !v26->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
             __debugbreak();
-          FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RBX->pose.origin.Get_origin, &_RBX->pose);
-          FunctionPointer_origin(&_RBX->pose.origin.origin.origin, &outOrigin);
-          if ( _RBX->pose.isPosePrecise )
+          FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v26->pose.origin.Get_origin, &v26->pose);
+          FunctionPointer_origin(&v26->pose.origin.origin.origin, &outOrigin);
+          if ( v26->pose.isPosePrecise )
           {
+            _XMM0 = LODWORD(outOrigin.v[0]);
+            _XMM2 = LODWORD(outOrigin.v[1]);
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v33 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM0 = v33;
             __asm
             {
-              vmovsd  xmm3, cs:__real@3f30000000000000
-              vmovd   xmm0, dword ptr [rbp+3Fh+outOrigin]
-              vmovd   xmm2, dword ptr [rbp+3Fh+outOrigin+4]
-              vcvtdq2pd xmm0, xmm0
-              vmulsd  xmm0, xmm0, xmm3
               vcvtsd2ss xmm1, xmm0, xmm0
               vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vmovd   xmm2, dword ptr [rbp+3Fh+outOrigin+8]
-              vmovss  dword ptr [rbp+3Fh+outOrigin], xmm1
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vmovss  dword ptr [rbp+3Fh+outOrigin+4], xmm1
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rbp+3Fh+outOrigin+8], xmm1
             }
+            *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v33 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v33;
+            _XMM2 = LODWORD(outOrigin.v[2]);
+            outOrigin.v[0] = *(float *)&_XMM1;
+            __asm
+            {
+              vcvtsd2ss xmm1, xmm0, xmm0
+              vcvtdq2pd xmm2, xmm2
+            }
+            *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v33 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v33;
+            outOrigin.v[1] = *(float *)&_XMM1;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            outOrigin.v[2] = *(float *)&_XMM1;
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+48h]
-            vmovss  dword ptr [rbp+3Fh+angles], xmm0
-            vmovss  xmm1, dword ptr [rbx+4Ch]
-            vmovss  dword ptr [rbp+3Fh+angles+4], xmm1
-            vmovss  xmm0, dword ptr [rbx+50h]
-            vmovss  dword ptr [rbp+3Fh+angles+8], xmm0
-          }
+          angles = v26->pose.angles;
         }
         XAnimSetVec3GameParameterByIndex(obj, 0xAu, &outOrigin);
         XAnimSetVec3GameParameterByIndex(obj, 0xBu, &angles);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+0F0h+var_50] }
 }
 
 /*
@@ -6293,46 +5042,83 @@ CG_Gesture_UpdateBlendingParameters
 */
 void CG_Gesture_UpdateBlendingParameters(LocalClientNum_t localClientNum, const playerState_s *ps, const unsigned int slot, const PlayerHandIndex hand, const bool isDualWield, const Gesture *gesture, const XAnimTree *animTree, float *outBlendTime, bool *outShouldCrossfadeInOut, bool *outShouldBlendOut, float *outCrossfadeOutStartTime, bool *outShouldBlendOutToZero)
 {
-  __int64 v28; 
+  __int64 v15; 
   GestureAnimationSettings *AnimationSettings; 
-  __int64 v31; 
+  GestureSlotInfo *Info; 
+  __int64 v18; 
+  GestureAnimationSettings *v19; 
   int serverTime; 
-  GestureAnimationState animState; 
-  GestureAnimationState v72; 
-  const Gesture *v76; 
-  bool v77; 
-  bool v78; 
-  bool v86; 
-  bool v105; 
-  char v119; 
-  bool v120; 
-  bool v126; 
+  __int128 v21; 
+  __int128 v22; 
+  float v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  GestureAnimationSettings *v29; 
+  __int128 v30; 
+  double AnimLengthInSeconds; 
   unsigned int endTime; 
-  char v149; 
+  float v34; 
+  __int128 v35; 
+  GestureAnimationState animState; 
+  __int128 v41; 
+  GestureAnimationState v43; 
+  float v44; 
+  const Gesture *v47; 
+  bool v48; 
+  bool v49; 
+  float v50; 
+  __int128 v51; 
+  __int128 v53; 
+  float v54; 
+  __int128 v56; 
+  float jumpTimeEndTime; 
+  float v59; 
+  double v60; 
+  __int128 v61; 
+  float outStartTime; 
+  float v63; 
+  float v64; 
+  __int128 v65; 
+  double v66; 
+  bool v67; 
+  bool v68; 
+  bool v69; 
+  __int128 v70; 
+  int v73; 
+  float outBlendOutStartTime; 
+  __int128 v75; 
+  bool v77; 
+  float v78; 
+  double v79; 
+  char v84; 
+  float v85; 
+  __int128 v87; 
+  double v89; 
+  __int128 v90; 
   unsigned int SlotUsingBlendToLoop; 
-  bool v179; 
-  bool v180; 
-  char v181; 
-  __int64 v201; 
-  __int64 v202; 
-  char v211; 
-  void *retaddr; 
+  bool v98; 
+  float v99; 
+  double v100; 
+  __int128 v101; 
+  float outBlendOutEndTime; 
+  float v106; 
+  double v107; 
+  __int128 v108; 
+  double v109; 
+  __int64 v110; 
+  __int64 v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  float v115; 
+  float v116; 
   bool blendOutAdditiveADS; 
+  bool v119; 
+  float animTreea; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps [rsp+138h+var_C8], xmm14
-  }
-  v28 = slot;
+  v15 = slot;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2066, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2067, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
@@ -6347,117 +5133,84 @@ void CG_Gesture_UpdateBlendingParameters(LocalClientNum_t localClientNum, const 
     __debugbreak();
   if ( !outShouldBlendOutToZero && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2072, ASSERT_TYPE_ASSERT, "(outShouldBlendOutToZero)", (const char *)&queryFormat, "outShouldBlendOutToZero") )
     __debugbreak();
-  if ( (unsigned int)v28 >= 2 )
+  if ( (unsigned int)v15 >= 2 )
   {
-    LODWORD(v201) = v28;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2073, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v201, 2) )
+    LODWORD(v110) = v15;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2073, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( 2 )", "slot doesn't index GESTURE_NUM_SLOTS\n\t%i not in [0, %i)", v110, 2) )
       __debugbreak();
   }
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
   {
-    LODWORD(v202) = 2;
-    LODWORD(v201) = hand;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2074, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v201, v202) )
+    LODWORD(v111) = 2;
+    LODWORD(v110) = hand;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2074, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", v110, v111) )
       __debugbreak();
   }
   AnimationSettings = BG_Gesture_GetAnimationSettings(gesture);
   if ( !AnimationSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2077, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
     __debugbreak();
-  _RBX = CG_Gesture_GetInfo(localClientNum, v28, hand);
-  v31 = v28;
+  Info = CG_Gesture_GetInfo(localClientNum, v15, hand);
+  v18 = v15;
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1080, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
-  if ( !BG_Gesture_GetAnimationSettings(gesture) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1085, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
+  v19 = BG_Gesture_GetAnimationSettings(gesture);
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1085, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
     __debugbreak();
-  __asm { vmovss  xmm12, cs:__real@3a83126f }
   serverTime = ps->serverTime;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1Ch]
-    vmulss  xmm1, xmm0, xmm12
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+20h]
-    vmulss  xmm8, xmm0, xmm12
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-    vmulss  xmm11, xmm0, xmm12
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+r13+42Ch]
-    vmulss  xmm14, xmm0, xmm12
-    vmovss  [rsp+138h+var_EC], xmm1
-    vmovss  [rsp+138h+var_F0], xmm8
-    vmovss  [rsp+138h+var_F4], xmm8
-    vmovaps xmm9, xmm1
-  }
+  v21 = 0i64;
+  *(float *)&v21 = (float)v19->inEndTime * 0.001;
+  v22 = v21;
+  v23 = (float)v19->outStartTime * 0.001;
+  v24 = 0i64;
+  *(float *)&v24 = (float)serverTime * 0.001;
+  v25 = v24;
+  v26 = 0i64;
+  *(float *)&v26 = (float)ps->gestureState.gestures[v18].jumpTime * 0.001;
+  v27 = v26;
+  v115 = *(float *)&v22;
+  v114 = v23;
+  v113 = v23;
+  _XMM9 = v22;
   blendOutAdditiveADS = gesture->weaponSettings.blendOutAdditiveADS;
   if ( AnimationSettings->hasTransitions )
   {
-    if ( !BG_Gesture_GetAnimationSettings(gesture) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1099, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
+    v29 = BG_Gesture_GetAnimationSettings(gesture);
+    if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 1099, ASSERT_TYPE_ASSERT, "(animSettings)", (const char *)&queryFormat, "animSettings") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+10h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+14h]
-      vmulss  xmm9, xmm0, xmm12
-      vmulss  xmm0, xmm1, xmm12
-      vmovss  [rsp+138h+var_F4], xmm0
-    }
+    v30 = 0i64;
+    *(float *)&v30 = (float)v29->blendInEndTime * 0.001;
+    _XMM9 = v30;
+    v113 = (float)v29->blendOutStartTime * 0.001;
   }
-  __asm
+  _XMM10 = LODWORD(Info->animTime);
+  AnimLengthInSeconds = BG_Gesture_GetAnimLengthInSeconds(gesture);
+  endTime = ps->gestureState.gestures[v18].endTime;
+  v112 = *(float *)&AnimLengthInSeconds;
+  v116 = *(float *)&AnimLengthInSeconds - v23;
+  v34 = 0.0;
+  if ( endTime )
   {
-    vmovss  xmm10, dword ptr [rbx+2Ch]
-    vmovss  xmm6, dword ptr [rbx+30h]
-  }
-  *(double *)&_XMM0 = BG_Gesture_GetAnimLengthInSeconds(gesture);
-  __asm { vmovss  xmm13, cs:__real@3f800000 }
-  _ER15 = ps->gestureState.gestures[v31].endTime;
-  __asm
-  {
-    vmovaps xmm1, xmm0
-    vmovss  [rsp+138h+var_F8], xmm0
-    vsubss  xmm4, xmm1, xmm8
-    vsubss  xmm0, xmm13, xmm6
-    vmulss  xmm0, xmm0, xmm1
-    vmovss  [rsp+138h+var_E4], xmm0
-    vmovss  [rsp+138h+var_E8], xmm4
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( _ER15 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm3, xmm0, xmm12
-    }
+    v35 = 0i64;
+    *(float *)&v35 = (float)(int)(endTime - ps->gestureState.gestures[v18].stopTime) * 0.001;
+    _XMM3 = v35;
   }
   else
   {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    _XMM3 = 0i64;
   }
-  _EAX = 0;
+  _XMM0 = endTime;
   __asm
   {
-    vmovaps [rsp+138h+var_D8], xmm15
-    vmovd   xmm0, r15d
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm4, xmm2
-    vmovss  dword ptr [rsp+138h+animTree], xmm0
   }
   if ( ps->gestureState.slotBlend )
   {
-    animState = _RBX->animState;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r13+460h]
-      vmulss  xmm15, xmm0, xmm12
-    }
-    if ( BG_Gesture_IsJumpTimeBlendActive(ps, v28, serverTime) )
+    animState = Info->animState;
+    v41 = 0i64;
+    *(float *)&v41 = (float)ps->gestureState.slotBlendDuration * 0.001;
+    _XMM15 = v41;
+    if ( BG_Gesture_IsJumpTimeBlendActive(ps, v15, serverTime) )
       goto LABEL_52;
     if ( animState == GESTURE_ANIM_STATE_OUT )
     {
@@ -6467,529 +5220,318 @@ void CG_Gesture_UpdateBlendingParameters(LocalClientNum_t localClientNum, const 
     if ( animState == GESTURE_ANIM_STATE_IN )
       __asm { vminss  xmm9, xmm15, xmm9 }
   }
-  __asm { vmovss  xmm15, dword ptr [rsp+138h+animTree] }
+  _XMM15 = (unsigned int)_XMM0;
 LABEL_52:
-  __asm { vmovss  xmm2, cs:__real@34000000 }
-  v72 = _RBX->animState;
-  __asm
-  {
-    vaddss  xmm4, xmm10, xmm2
-    vmovss  dword ptr [rsp+138h+animTree], xmm4
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
-  switch ( v72 )
+  v43 = Info->animState;
+  v119 = 0;
+  v44 = *(float *)&_XMM10 + 0.00000011920929;
+  animTreea = *(float *)&_XMM10 + 0.00000011920929;
+  LODWORD(_XMM7) = 0;
+  _XMM6 = 0i64;
+  switch ( v43 )
   {
     case GESTURE_ANIM_STATE_OFF:
-      v76 = gesture;
-      v77 = 0;
-      v78 = 0;
-      _ER15 = 0;
-      __asm { vmovaps xmm6, xmm13 }
-      goto LABEL_125;
+      v47 = gesture;
+      v48 = 0;
+      v49 = 0;
+      _XMM6 = LODWORD(FLOAT_1_0);
+      goto LABEL_137;
     case GESTURE_ANIM_STATE_IN:
-      __asm
+      v50 = 0.0;
+      if ( *(float *)&_XMM10 <= 0.0 )
       {
-        vcomiss xmm10, xmm8
-        vxorps  xmm11, xmm11, xmm11
-      }
-      if ( _RBX->hasJumpTime )
-      {
-        __asm
+        if ( Info->hasJumpTime )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbp+28h]
-          vmulss  xmm2, xmm0, xmm12; max
-          vaddss  xmm0, xmm14, xmm9; val
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm11, xmm14
+          v51 = v27;
+          *(float *)&v51 = *(float *)&v27 + *(float *)&_XMM9;
+          v50 = *(float *)&v27;
+          I_fclamp(*(float *)&v27 + *(float *)&_XMM9, 0.0, (float)AnimationSettings->inDuration * 0.001);
+          _XMM9 = v51;
         }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm9, xmm0 }
-      }
-      v86 = !AnimationSettings->hasTransitions;
-      if ( AnimationSettings->hasTransitions && (v86 = !_RBX->isRestarting, _RBX->isRestarting) )
-      {
-        __asm { vmovss  xmm7, cs:__real@3dcccccd }
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm0, xmm9, xmm11
-          vmaxss  xmm7, xmm0, xmm8
-        }
+        v50 = *(float *)&_XMM10;
       }
-      __asm
+      if ( AnimationSettings->hasTransitions && Info->isRestarting )
       {
-        vcomiss xmm9, xmm8
-        vmovaps xmm6, xmm12
+        *(float *)&_XMM7 = FLOAT_0_1;
       }
-      if ( !v86 )
+      else
       {
-        if ( _RBX->hasJumpTime )
+        v53 = _XMM9;
+        *(float *)&v53 = *(float *)&_XMM9 - v50;
+        _XMM0 = v53;
+        __asm { vmaxss  xmm7, xmm0, xmm8 }
+      }
+      _XMM6 = LODWORD(FLOAT_0_001);
+      if ( *(float *)&_XMM9 > 0.0 )
+      {
+        if ( Info->hasJumpTime )
         {
-          __asm
-          {
-            vsubss  xmm1, xmm9, xmm14
-            vcomiss xmm1, xmm8
-          }
-          if ( _RBX->hasJumpTime )
-          {
-            __asm
-            {
-              vsubss  xmm0, xmm11, xmm14
-              vdivss  xmm1, xmm0, xmm1
-            }
-          }
+          if ( (float)(*(float *)&_XMM9 - *(float *)&v27) <= 0.0 )
+            v54 = FLOAT_1_0;
           else
-          {
-            __asm { vmovaps xmm1, xmm13 }
-          }
+            v54 = (float)(v50 - *(float *)&v27) / (float)(*(float *)&_XMM9 - *(float *)&v27);
         }
         else
         {
-          __asm { vdivss  xmm1, xmm11, xmm9 }
+          v54 = v50 / *(float *)&_XMM9;
         }
-        v76 = gesture;
-        v77 = 0;
-        __asm
-        {
-          vsubss  xmm0, xmm13, xmm1
-          vmaxss  xmm1, xmm0, xmm12
-        }
-        v78 = 0;
+        v47 = gesture;
+        v48 = 0;
+        v56 = LODWORD(FLOAT_1_0);
+        *(float *)&v56 = 1.0 - v54;
+        _XMM0 = v56;
+        __asm { vmaxss  xmm1, xmm0, xmm12 }
+        v49 = 0;
         __asm { vminss  xmm6, xmm1, xmm13 }
-        _ER15 = 0;
-        goto LABEL_125;
+        goto LABEL_137;
       }
-      goto LABEL_73;
+      goto LABEL_78;
     case GESTURE_ANIM_STATE_PLAYING:
-      __asm { vmovaps xmm6, xmm12 }
-      if ( _RBX->hasJumpTime )
+      _XMM6 = LODWORD(FLOAT_0_001);
+      if ( Info->hasJumpTime && *(float *)&v27 > *(float *)&v22 && Info->isJumpTimeBlendActive )
       {
-        __asm { vcomiss xmm14, [rsp+138h+var_EC] }
-        if ( _RBX->hasJumpTime && _RBX->isJumpTimeBlendActive )
+        if ( Info->jumpTimeStartTime > 0.0 )
         {
-          __asm
-          {
-            vcomiss xmm8, dword ptr [rbx+14h]
-            vaddss  xmm0, xmm15, xmm11
-            vmovss  dword ptr [rbx+18h], xmm0
-            vmovss  dword ptr [rbx+14h], xmm11
-            vsubss  xmm0, xmm0, xmm11; val
-            vmovaps xmm2, xmm13; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx+18h]; max
-            vmovss  xmm1, dword ptr [rbx+14h]; min
-            vmovaps xmm7, xmm0
-            vmovaps xmm0, xmm11; value
-          }
-          CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vsubss  xmm0, xmm13, xmm0; val
-            vmovaps xmm2, xmm13; max
-            vmovaps xmm1, xmm12; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovaps xmm6, xmm0 }
-        }
-      }
-      goto LABEL_73;
-  }
-  if ( v72 != GESTURE_ANIM_STATE_OUT )
-  {
-LABEL_73:
-    v76 = gesture;
-    v77 = 0;
-    v78 = 0;
-    _ER15 = 0;
-    goto LABEL_125;
-  }
-  v105 = !_RBX->cancelTransitions;
-  if ( _RBX->cancelTransitions )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+1Ch]
-      vucomiss xmm2, cs:__real@bf800000
-      vmovaps xmm6, xmm13
-    }
-    if ( _RBX->cancelTransitions )
-    {
-      v105 = _ER15 == 0;
-      if ( !_ER15 )
-        goto LABEL_82;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si eax, xmm1
-      }
-      v105 = (unsigned int)_EAX <= ps->gestureState.gestures[v31].endTime;
-      if ( _EAX <= ps->gestureState.gestures[v31].endTime )
-        goto LABEL_82;
-      __asm { vaddss  xmm0, xmm2, xmm15 }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  dword ptr [rbx+1Ch], xmm11
-        vaddss  xmm0, xmm15, xmm11
-      }
-    }
-    __asm { vmovss  dword ptr [rbx+20h], xmm0 }
-LABEL_82:
-    __asm { vcomiss xmm10, xmm8 }
-    if ( !v105 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vsubss  xmm0, xmm0, xmm11; val
-        vmovaps xmm2, xmm13; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+20h]; max
-        vmovss  xmm1, dword ptr [rbx+1Ch]; min
-        vmovaps xmm7, xmm0
-        vmovaps xmm0, xmm11; value
-      }
-      *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm2, xmm13; max
-        vmovaps xmm1, xmm12; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-    }
-    v77 = 1;
-    _ER15 = 0;
-    v76 = gesture;
-    v78 = 1;
-    goto LABEL_125;
-  }
-  v119 = 0;
-  if ( AnimationSettings->hasTransitions )
-    __asm { vcomiss xmm4, xmm9 }
-  v120 = ps->gestureState.slotBlend && !_RBX->isJumpTimeBlendActive;
-  __asm
-  {
-    vmovss  xmm3, cs:__real@bf800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm12
-    vmaxss  xmm6, xmm1, xmm8
-  }
-  v126 = _ER15 == 0;
-  if ( _ER15 )
-  {
-    endTime = ps->gestureState.gestures[v31].endTime;
-    v126 = endTime == _RBX->lastEndTime;
-    if ( endTime != _RBX->lastEndTime )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+24h]
-        vucomiss xmm1, xmm3
-        vaddss  xmm2, xmm15, xmm2
-      }
-      if ( endTime == _RBX->lastEndTime )
-      {
-        __asm { vcomiss xmm2, [rsp+138h+var_E8] }
-        if ( endTime < _RBX->lastEndTime )
-          goto LABEL_98;
-      }
-      __asm { vcomiss xmm1, xmm10 }
-      if ( endTime > _RBX->lastEndTime )
-        goto LABEL_98;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vsubss  xmm1, xmm0, xmm1
-        vcomiss xmm1, xmm2
-      }
-      if ( endTime > _RBX->lastEndTime )
-      {
-LABEL_98:
-        v119 = 1;
-      }
-      else
-      {
-        v119 = 0;
-        v126 = 1;
-      }
-      _RBX->lastEndTime = endTime;
-    }
-  }
-  __asm
-  {
-    vucomiss xmm3, dword ptr [rbx+1Ch]
-    vmovss  xmm11, cs:__real@3dcccccd
-  }
-  if ( v126 || v119 )
-  {
-    if ( AnimationSettings->hasTransitions )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbp+20h]
-        vmulss  xmm1, xmm0, xmm12
-        vmaxss  xmm10, xmm1, xmm10
-      }
-    }
-    v86 = !_RBX->isJumpTimeBlendActive;
-    __asm
-    {
-      vmovss  xmm9, [rsp+138h+var_F8]
-      vmovss  dword ptr [rbx+1Ch], xmm10
-    }
-    if ( v86 )
-    {
-      __asm
-      {
-        vminss  xmm0, xmm15, [rsp+138h+var_E4]
-        vaddss  xmm0, xmm0, xmm10; val
-        vmovaps xmm2, xmm9; max
-        vmovaps xmm1, xmm10; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    }
-    else
-    {
-      __asm { vmovaps xmm0, xmm9 }
-    }
-    __asm { vmovss  dword ptr [rbx+20h], xmm0 }
-    if ( AnimationSettings->hasTransitions )
-    {
-      if ( v120 || v119 )
-      {
-        __asm { vmovss  dword ptr [rbx+24h], xmm10 }
-        v149 = 1;
-LABEL_115:
-        _ER15 = 0;
-        goto LABEL_116;
-      }
-      __asm
-      {
-        vmovss  xmm3, [rsp+138h+var_F4]
-        vmovss  dword ptr [rbx+24h], xmm3
-      }
-      if ( AnimationSettings->blendOutStartTime == AnimationSettings->outStartTime )
-      {
-        _EAX = _RBX->isJumpTimeBlendActive;
-        _ER15 = 0;
-        __asm
-        {
-          vmovd   xmm1, r15d
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vblendvps xmm0, xmm15, xmm11, xmm2
-          vaddss  xmm0, xmm0, xmm3; val
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm1, xmm10; min
-          vmovss  dword ptr [rbx+24h], xmm0
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovss  dword ptr [rbx+24h], xmm0 }
-        v149 = 0;
-LABEL_116:
-        __asm
-        {
-          vaddss  xmm0, xmm10, cs:__real@34000000
-          vmovss  xmm14, [rsp+138h+var_F0]
-          vcomiss xmm0, xmm14
-        }
-        v76 = gesture;
-        if ( v119 || v120 || isDualWield && gesture->weaponSettings.useLeftIdleAkimbo )
-        {
-          __asm { vmovss  xmm4, dword ptr [rsp+138h+animTree] }
-          _RBX->outBlendOutEndTime = _RBX->outEndTime;
+          jumpTimeEndTime = Info->jumpTimeEndTime;
         }
         else
         {
-          __asm
-          {
-            vaddss  xmm0, xmm6, dword ptr [rbx+24h]
-            vmovss  xmm4, dword ptr [rsp+138h+animTree]
-            vminss  xmm1, xmm0, xmm9
-            vmovss  dword ptr [rbx+28h], xmm1
-          }
+          jumpTimeEndTime = *(float *)&_XMM15 + *(float *)&v25;
+          Info->jumpTimeEndTime = *(float *)&_XMM15 + *(float *)&v25;
+          Info->jumpTimeStartTime = *(float *)&v25;
         }
-        goto LABEL_123;
+        v59 = jumpTimeEndTime - *(float *)&v25;
+        I_fclamp(jumpTimeEndTime - *(float *)&v25, 0.0, 1.0);
+        *(float *)&_XMM7 = v59;
+        v60 = CG_Gesture_Normalize(*(float *)&v25, Info->jumpTimeStartTime, Info->jumpTimeEndTime);
+        v61 = LODWORD(FLOAT_1_0);
+        *(float *)&v61 = 1.0 - *(float *)&v60;
+        I_fclamp(1.0 - *(float *)&v60, 0.001, 1.0);
+        _XMM6 = v61;
       }
+      goto LABEL_78;
+  }
+  if ( v43 != GESTURE_ANIM_STATE_OUT )
+  {
+LABEL_78:
+    v47 = gesture;
+    v48 = 0;
+    v49 = 0;
+    goto LABEL_137;
+  }
+  if ( Info->cancelTransitions )
+  {
+    outStartTime = Info->outStartTime;
+    _XMM6 = LODWORD(FLOAT_1_0);
+    v119 = 0;
+    if ( outStartTime == -1.0 )
+    {
+      Info->outStartTime = *(float *)&v25;
+      v63 = *(float *)&_XMM15 + *(float *)&v25;
     }
     else
     {
-      __asm { vmovss  dword ptr [rbx+24h], xmm10 }
+      if ( !endTime || (int)(float)(Info->outEndTime * 1000.0) <= ps->gestureState.gestures[v18].endTime )
+        goto LABEL_87;
+      v63 = outStartTime + *(float *)&_XMM15;
     }
-    v149 = 0;
-    goto LABEL_115;
+    Info->outEndTime = v63;
+LABEL_87:
+    if ( *(float *)&_XMM10 > 0.0 )
+    {
+      v64 = Info->outEndTime - *(float *)&v25;
+      I_fclamp(v64, 0.0, 1.0);
+      *(float *)&_XMM7 = v64;
+      *((_QWORD *)&v65 + 1) = *((_QWORD *)&v25 + 1);
+      v66 = CG_Gesture_Normalize(*(float *)&v25, Info->outStartTime, Info->outEndTime);
+      *(double *)&v65 = I_fclamp(*(float *)&v66, 0.001, 1.0);
+      _XMM6 = v65;
+    }
+    v48 = 1;
+    v47 = gesture;
+    v49 = 1;
+    goto LABEL_137;
   }
-  __asm
+  v67 = 0;
+  v68 = AnimationSettings->hasTransitions && (float)(*(float *)&_XMM10 + 0.00000011920929) < *(float *)&_XMM9 && !Info->isJumpTimeBlendActive;
+  v69 = ps->gestureState.slotBlend && !Info->isJumpTimeBlendActive;
+  v70 = 0i64;
+  *(float *)&v70 = (float)(AnimationSettings->blendOutEndTime - AnimationSettings->blendOutStartTime) * 0.001;
+  _XMM1 = v70;
+  __asm { vmaxss  xmm6, xmm1, xmm8 }
+  if ( endTime )
   {
-    vmovss  xmm9, [rsp+138h+var_F8]
-    vmovss  xmm14, [rsp+138h+var_F0]
+    v73 = ps->gestureState.gestures[v18].endTime;
+    if ( v73 != Info->lastEndTime )
+    {
+      outBlendOutStartTime = Info->outBlendOutStartTime;
+      v67 = outBlendOutStartTime == -1.0 && (float)(*(float *)&_XMM15 + 0.00000011920929) < v116 || outBlendOutStartTime > *(float *)&_XMM10 || (float)(Info->outEndTime - outBlendOutStartTime) > (float)(*(float *)&_XMM15 + 0.00000011920929);
+      Info->lastEndTime = v73;
+    }
   }
-  v76 = gesture;
-  v149 = 0;
-  _ER15 = 0;
+  if ( -1.0 != Info->outStartTime && !v67 )
+  {
+    v78 = v112;
+    v85 = v114;
+    v47 = gesture;
+    v84 = 0;
+    goto LABEL_132;
+  }
+  if ( AnimationSettings->hasTransitions && !v68 )
+  {
+    v75 = 0i64;
+    *(float *)&v75 = (float)AnimationSettings->outStartTime * 0.001;
+    _XMM1 = v75;
+    __asm { vmaxss  xmm10, xmm1, xmm10 }
+  }
+  v77 = !Info->isJumpTimeBlendActive;
+  v78 = v112;
+  Info->outStartTime = *(float *)&_XMM10;
+  if ( v77 )
+  {
+    __asm { vminss  xmm0, xmm15, [rsp+138h+var_E4] }
+    v79 = I_fclamp(*(float *)&_XMM0 + *(float *)&_XMM10, *(float *)&_XMM10, v112);
+  }
+  else
+  {
+    *(float *)&v79 = v112;
+  }
+  Info->outEndTime = *(float *)&v79;
+  if ( !AnimationSettings->hasTransitions )
+  {
+    Info->outBlendOutStartTime = *(float *)&_XMM10;
+    goto LABEL_123;
+  }
+  if ( v69 || v67 )
+  {
+    Info->outBlendOutStartTime = *(float *)&_XMM10;
+    v84 = 1;
+    goto LABEL_124;
+  }
+  Info->outBlendOutStartTime = v113;
+  if ( AnimationSettings->blendOutStartTime != AnimationSettings->outStartTime )
+  {
 LABEL_123:
-  __asm { vmovaps xmm6, xmm13 }
+    v84 = 0;
+    goto LABEL_124;
+  }
+  _XMM0 = Info->isJumpTimeBlendActive;
+  __asm
+  {
+    vpcmpeqd xmm2, xmm0, xmm1
+    vblendvps xmm0, xmm15, xmm11, xmm2
+  }
+  Info->outBlendOutStartTime = *(float *)&_XMM0 + v113;
+  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0 + v113, *(float *)&_XMM10, v112);
+  Info->outBlendOutStartTime = *(float *)&_XMM0;
+  v84 = 0;
+LABEL_124:
+  v85 = v114;
+  v47 = gesture;
+  if ( (float)(*(float *)&_XMM10 + 0.00000011920929) < v114 || v67 || v69 || isDualWield && gesture->weaponSettings.useLeftIdleAkimbo )
+  {
+    v44 = animTreea;
+    Info->outBlendOutEndTime = Info->outEndTime;
+  }
+  else
+  {
+    v87 = _XMM6;
+    *(float *)&v87 = *(float *)&_XMM6 + Info->outBlendOutStartTime;
+    _XMM0 = v87;
+    v44 = animTreea;
+    __asm { vminss  xmm1, xmm0, xmm9 }
+    Info->outBlendOutEndTime = *(float *)&_XMM1;
+  }
+LABEL_132:
+  _XMM6 = LODWORD(FLOAT_1_0);
+  if ( v68 )
+  {
+    v89 = BG_Gesture_CalculateCrossfadeOutStart(v44, v115);
+    *(float *)&_XMM7 = (float)(1.0 - *(float *)&v89) * *(float *)&_XMM15;
+    v34 = *(float *)&v89;
+    v90 = LODWORD(FLOAT_1_0);
+    *(float *)&v90 = 1.0 - *(float *)&_XMM10;
+    I_fclamp(1.0 - *(float *)&_XMM10, 0.001, 1.0);
+    v119 = 1;
+    _XMM6 = v90;
+    if ( v67 )
+    {
+      I_fclamp((float)((float)((float)(v34 * (float)(v78 - v85)) + 0.1) + v85) + *(float *)&_XMM15, v85, v78);
+      v78 = (float)((float)((float)(v34 * (float)(v78 - v85)) + 0.1) + v85) + *(float *)&_XMM15;
+    }
+    Info->outEndTime = v78;
+    Info->outBlendOutEndTime = v78;
+    v48 = 0;
+LABEL_136:
+    v49 = 0;
+    goto LABEL_137;
+  }
   SlotUsingBlendToLoop = BG_Gesture_FindSlotUsingBlendToLoop(ps);
-  if ( v120 && BG_Demeanor_IsPlaying(ps) && SlotUsingBlendToLoop != 2 && (v179 = SlotUsingBlendToLoop < slot, v180 = SlotUsingBlendToLoop == slot) )
+  v98 = v69 && BG_Demeanor_IsPlaying(ps) && SlotUsingBlendToLoop != 2 && SlotUsingBlendToLoop == slot;
+  v99 = Info->outBlendOutStartTime;
+  if ( *(float *)&_XMM10 < v99 && !v98 )
   {
-    v181 = 1;
+    v48 = 0;
+    _XMM6 = LODWORD(FLOAT_0_001);
+    if ( Info->isJumpTimeBlendActive )
+    {
+      LODWORD(_XMM7) = _XMM15;
+      v100 = CG_Gesture_Normalize(*(float *)&_XMM10, Info->outStartTime, v99);
+      v101 = LODWORD(FLOAT_1_0);
+      *(float *)&v101 = 1.0 - *(float *)&v100;
+      I_fclamp(1.0 - *(float *)&v100, 0.001, 1.0);
+      _XMM6 = v101;
+    }
+    goto LABEL_136;
   }
-  else
-  {
-    v181 = 0;
-    v179 = 0;
-    v180 = 1;
-  }
+  outBlendOutEndTime = Info->outBlendOutEndTime;
+  _XMM1 = LODWORD(Info->outEndTime);
   __asm
   {
-    vmovss  xmm2, dword ptr [rbx+24h]; max
-    vcomiss xmm10, xmm2
+    vcmpltss xmm0, xmm10, xmm2
+    vblendvps xmm0, xmm1, xmm2, xmm0
   }
-  if ( !v179 || (v179 = 0, v180 = v181 == 0, v181) )
+  v49 = outBlendOutEndTime == *(float *)&_XMM1 || *(float *)&_XMM10 >= outBlendOutEndTime || v98;
+  v106 = *(float *)&_XMM0 - *(float *)&_XMM10;
+  v48 = v84 == 0;
+  if ( v98 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]
-      vmovss  xmm1, dword ptr [rbx+20h]
-      vucomiss xmm2, xmm1
-      vcmpltss xmm0, xmm10, xmm2
-      vblendvps xmm0, xmm1, xmm2, xmm0
-      vmovss  [rsp+138h+arg_10], xmm0
-    }
-    if ( v180 )
-      goto LABEL_140;
-    __asm { vcomiss xmm10, xmm2 }
-    if ( !v179 || v181 )
-LABEL_140:
-      v78 = 1;
-    else
-      v78 = 0;
-    __asm
-    {
-      vmovss  xmm0, [rsp+138h+arg_10]
-      vsubss  xmm0, xmm0, xmm10
-    }
-    v77 = v149 == 0;
-    if ( v181 )
-    {
-      v77 = 1;
-      __asm { vmovaps xmm0, xmm15; val }
-    }
-    __asm
-    {
-      vmovaps xmm2, xmm9; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vcomiss xmm0, xmm8
-      vmovaps xmm7, xmm0
-    }
-    if ( !v179 && !v86 )
-    {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+28h]; max
-        vmovss  xmm1, dword ptr [rbx+24h]; min
-        vmovaps xmm0, xmm10; value
-      }
-      *(double *)&_XMM0 = CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm2, xmm13; max
-        vmovaps xmm1, xmm12; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-    }
+    v48 = 1;
+    v106 = *(float *)&_XMM15;
   }
-  else
+  v107 = I_fclamp(v106, 0.0, v78);
+  LODWORD(_XMM7) = LODWORD(v107);
+  if ( *(float *)&v107 > 0.0 )
   {
-    v77 = 0;
-    __asm { vmovaps xmm6, xmm12 }
-    if ( _RBX->isJumpTimeBlendActive )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+1Ch]; min
-        vmovaps xmm0, xmm10; value
-        vmovaps xmm7, xmm15
-      }
-      CG_Gesture_Normalize(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm0, xmm13, xmm0; val
-        vmovaps xmm2, xmm13; max
-        vmovaps xmm1, xmm12; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-    }
-    v78 = 0;
+    *((_QWORD *)&v108 + 1) = *((_QWORD *)&_XMM10 + 1);
+    v109 = CG_Gesture_Normalize(*(float *)&_XMM10, Info->outBlendOutStartTime, Info->outBlendOutEndTime);
+    *(double *)&v108 = I_fclamp(*(float *)&v109, 0.001, 1.0);
+    _XMM6 = v108;
   }
-LABEL_125:
-  _RAX = outBlendTime;
-  _R11 = &v211;
+LABEL_137:
+  *outBlendTime = *(float *)&_XMM7;
+  *outShouldCrossfadeInOut = v119;
+  *outShouldBlendOut = v48;
+  *outCrossfadeOutStartTime = v34;
+  *outShouldBlendOutToZero = v49;
+  _XMM0 = blendOutAdditiveADS;
   __asm
   {
-    vmovaps xmm15, [rsp+138h+var_D8]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, [rsp+138h+var_C8]
-    vmovss  dword ptr [rax], xmm7
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  *outShouldCrossfadeInOut = 0;
-  __asm { vmovd   xmm1, r15d }
-  *outShouldBlendOut = v77;
-  _RAX = outCrossfadeOutStartTime;
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  *outShouldBlendOutToZero = v78;
-  LODWORD(_RAX) = blendOutAdditiveADS;
-  __asm
-  {
-    vmovd   xmm0, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm6, xmm13, xmm2
-    vmovss  dword ptr [rbx+38h], xmm0
-    vmovss  dword ptr [rbx+34h], xmm6
   }
-  LODWORD(_RAX) = v76->weaponSettings.blendOutFingerPose;
+  Info->additiveAdsWeight = *(float *)&_XMM0;
+  Info->mainTreeWeight = *(float *)&_XMM6;
+  _XMM0 = v47->weaponSettings.blendOutFingerPose;
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, r15d
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm6, xmm13, xmm2
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rbx+3Ch], xmm0
   }
+  Info->fingerPoseWeight = *(float *)&_XMM0;
 }
 
 /*
@@ -6999,51 +5541,32 @@ CG_Gesture_UpdateMainTree
 */
 void CG_Gesture_UpdateMainTree(LocalClientNum_t localClientNum, DObj *obj, const playerState_s *ps, const PlayerHandIndex hand, bool inState, bool outState, float *outMainTreeWeight)
 {
-  unsigned __int8 v19; 
-  unsigned __int8 v20; 
-  bool v25; 
+  unsigned __int8 v10; 
+  unsigned __int8 v11; 
+  bool v15; 
   cg_t *LocalClientGlobals; 
   unsigned int i; 
+  GestureSlotInfo *Info; 
   GestureAnimationState animState; 
-  char v33; 
+  char v23; 
   const Gesture *AssetFromIndex; 
-  bool v35; 
-  bool v36; 
-  bool v37; 
-  char v38; 
+  bool v25; 
+  bool v26; 
+  char v27; 
   bool blendOut; 
-  float fmt; 
   __int64 blend; 
-  float blenda; 
-  char v69; 
-  void *retaddr; 
-  bool v73; 
+  bool v42; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0F8h+var_88], xmm10
-    vmovaps [rsp+0F8h+var_98], xmm11
-    vmovaps [rsp+0F8h+var_A8], xmm12
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2641, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !outMainTreeWeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2642, ASSERT_TYPE_ASSERT, "(outMainTreeWeight)", (const char *)&queryFormat, "outMainTreeWeight") )
     __debugbreak();
-  v73 = 0;
-  v19 = 1;
-  v20 = 1;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@bf800000
-    vmovaps xmm12, xmm6
-    vmovaps xmm11, xmm6
-    vmovaps xmm10, xmm6
-  }
+  v42 = 0;
+  v10 = 1;
+  v11 = 1;
+  _XMM12 = LODWORD(FLOAT_N1_0);
+  _XMM11 = LODWORD(FLOAT_N1_0);
+  _XMM10 = LODWORD(FLOAT_N1_0);
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2652, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( (unsigned int)hand >= NUM_WEAPON_HANDS )
@@ -7052,56 +5575,49 @@ void CG_Gesture_UpdateMainTree(LocalClientNum_t localClientNum, DObj *obj, const
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_gesture.cpp", 2653, ASSERT_TYPE_ASSERT, "(unsigned)( hand ) < (unsigned)( NUM_WEAPON_HANDS )", "hand doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", blend, 2) )
       __debugbreak();
   }
-  v25 = inState && outState;
+  v15 = inState && outState;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   for ( i = 0; i < 2; ++i )
   {
-    _RCX = CG_Gesture_GetInfo(localClientNum, i, hand);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rax+34h]
-      vmovss  xmm7, dword ptr [rax+38h]
-      vmovss  xmm8, dword ptr [rax+3Ch]
-    }
-    animState = _RCX->animState;
+    Info = CG_Gesture_GetInfo(localClientNum, i, hand);
+    _XMM9 = LODWORD(Info->mainTreeWeight);
+    _XMM7 = LODWORD(Info->additiveAdsWeight);
+    _XMM8 = LODWORD(Info->fingerPoseWeight);
+    animState = Info->animState;
     if ( animState == GESTURE_ANIM_STATE_OUT )
     {
-      if ( !_RCX->isJumpTimeBlendActive )
+      if ( !Info->isJumpTimeBlendActive )
         goto LABEL_25;
     }
     else if ( (unsigned int)(animState - 1) > 1 )
     {
 LABEL_25:
-      v33 = 0;
+      v23 = 0;
       goto LABEL_21;
     }
-    v33 = 1;
+    v23 = 1;
 LABEL_21:
-    AssetFromIndex = BG_Gesture_GetAssetFromIndex(_RCX->lastGesture);
-    v35 = AssetFromIndex && AssetFromIndex->weaponSettings.blendOutAdditiveADS;
-    v19 &= v35;
-    v36 = AssetFromIndex && AssetFromIndex->weaponSettings.blendOutFingerPose;
-    v20 &= v36;
-    v37 = v20 == 0;
-    __asm { vucomiss xmm9, xmm6 }
-    if ( v20 )
+    AssetFromIndex = BG_Gesture_GetAssetFromIndex(Info->lastGesture);
+    v25 = AssetFromIndex && AssetFromIndex->weaponSettings.blendOutAdditiveADS;
+    v10 &= v25;
+    v26 = AssetFromIndex && AssetFromIndex->weaponSettings.blendOutFingerPose;
+    v11 &= v26;
+    if ( *(float *)&_XMM9 == -1.0 )
     {
-      v37 = v33 == 0;
-      v38 = v33;
-      __asm { vcmpeqss xmm0, xmm12, xmm6 }
-      if ( !v33 )
-        v38 = v73;
-      __asm { vblendvps xmm1, xmm12, xmm9, xmm0 }
-      blendOut = v38;
-      v73 = v38;
-      __asm { vminss  xmm12, xmm9, xmm1 }
+      blendOut = v42;
     }
     else
     {
-      blendOut = v73;
+      v27 = v23;
+      __asm { vcmpeqss xmm0, xmm12, xmm6 }
+      if ( !v23 )
+        v27 = v42;
+      __asm { vblendvps xmm1, xmm12, xmm9, xmm0 }
+      blendOut = v27;
+      v42 = v27;
+      __asm { vminss  xmm12, xmm9, xmm1 }
     }
-    __asm { vucomiss xmm7, xmm6 }
-    if ( !v37 )
+    if ( *(float *)&_XMM7 != -1.0 )
     {
       __asm
       {
@@ -7110,8 +5626,7 @@ LABEL_21:
         vminss  xmm11, xmm7, xmm1
       }
     }
-    __asm { vucomiss xmm8, xmm6 }
-    if ( !v37 )
+    if ( *(float *)&_XMM8 != -1.0 )
     {
       __asm
       {
@@ -7121,7 +5636,7 @@ LABEL_21:
       }
     }
   }
-  if ( v25 )
+  if ( v15 )
   {
     LocalClientGlobals->gestureInfo.isBlendingSlots = 1;
     goto LABEL_46;
@@ -7131,20 +5646,12 @@ LABEL_21:
     if ( inState )
     {
 LABEL_46:
-      __asm { vmovss  xmm12, cs:__real@3a83126f }
-      _ECX = 0;
-      _EAX = v19;
+      _XMM12 = LODWORD(FLOAT_0_001);
+      _XMM0 = v10;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM0 = v11;
       __asm
       {
-        vmovd   xmm0, eax
-        vmovd   xmm1, ecx
-        vpcmpeqd xmm2, xmm0, xmm1
-      }
-      _EAX = v20;
-      __asm
-      {
-        vmovd   xmm1, ecx
-        vmovd   xmm0, eax
         vblendvps xmm11, xmm12, xmm11, xmm2
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm10, xmm12, xmm10, xmm2
@@ -7155,28 +5662,8 @@ LABEL_46:
       LocalClientGlobals->gestureInfo.isBlendingSlots = 0;
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0F8h+blend], xmm0
-    vmovaps xmm3, xmm11; additiveAdsWeight
-    vmovaps xmm2, xmm12; mainTreeWeight
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm10
-  }
-  CG_Gesture_SetWeightMainTree(obj, ps, *(double *)&_XMM2, *(double *)&_XMM3, fmt, blenda, blendOut);
-  _RAX = outMainTreeWeight;
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovss  dword ptr [rax], xmm12
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  CG_Gesture_SetWeightMainTree(obj, ps, *(float *)&_XMM12, *(float *)&_XMM11, *(float *)&_XMM10, 0.0, blendOut);
+  *outMainTreeWeight = *(float *)&_XMM12;
 }
 
 /*

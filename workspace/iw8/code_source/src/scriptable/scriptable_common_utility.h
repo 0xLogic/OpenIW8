@@ -257,70 +257,37 @@ ScriptableReplicatedOrigin::Set
 */
 void ScriptableReplicatedOrigin::Set(ScriptableReplicatedOrigin *this, const vec3_t *vecOrigin)
 {
-  __int64 v19; 
-  int v20; 
-  __int64 v21; 
-  int v22; 
-  __int64 v23; 
-  int v24; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vmovaps [rsp+58h+var_18], xmm6
-  }
-  _RSI = vecOrigin;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm2, xmm6, xmm1, 1
-    vcvttss2si edi, xmm2
-  }
-  if ( (unsigned int)(_EDI + 0x200000) > 0x3FFFFF )
-  {
-    v24 = 0x1FFFFF;
-    v22 = -2097152;
-    v20 = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 264, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_XY_MIN ) <= ( xRound ) && ( xRound ) <= ( SCRIPTABLE_ORIGIN_XY_MAX )", "xRound not in [SCRIPTABLE_ORIGIN_XY_MIN, SCRIPTABLE_ORIGIN_XY_MAX]\n\t%i not in [%i, %i]", v20, v22, v24) )
-      __debugbreak();
-  }
+  _XMM6 = 0i64;
+  __asm { vroundss xmm2, xmm6, xmm1, 1 }
+  if ( (unsigned int)((int)*(float *)&_XMM2 + 0x200000) > 0x3FFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 264, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_XY_MIN ) <= ( xRound ) && ( xRound ) <= ( SCRIPTABLE_ORIGIN_XY_MAX )", "xRound not in [SCRIPTABLE_ORIGIN_XY_MIN, SCRIPTABLE_ORIGIN_XY_MAX]\n\t%i not in [%i, %i]", (int)*(float *)&_XMM2, -2097152, 0x1FFFFF) )
+    __debugbreak();
   this->m_data &= 0xFFFFFFFFFFC00000ui64;
-  this->m_data |= _EDI & 0x3FFFFF;
-  __asm
+  this->m_data |= (int)*(float *)&_XMM2 & 0x3FFFFF;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  if ( (unsigned int)((int)*(float *)&_XMM0 + 0x200000) > 0x3FFFFF )
   {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si edi, xmm0
-  }
-  if ( (unsigned int)(_EDI + 0x200000) > 0x3FFFFF )
-  {
-    LODWORD(v23) = 0x1FFFFF;
-    LODWORD(v21) = -2097152;
-    LODWORD(v19) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 268, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_XY_MIN ) <= ( yRound ) && ( yRound ) <= ( SCRIPTABLE_ORIGIN_XY_MAX )", "yRound not in [SCRIPTABLE_ORIGIN_XY_MIN, SCRIPTABLE_ORIGIN_XY_MAX]\n\t%i not in [%i, %i]", v19, v21, v23) )
+    LODWORD(v9) = 0x1FFFFF;
+    LODWORD(v8) = -2097152;
+    LODWORD(v7) = (int)*(float *)&_XMM0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 268, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_XY_MIN ) <= ( yRound ) && ( yRound ) <= ( SCRIPTABLE_ORIGIN_XY_MAX )", "yRound not in [SCRIPTABLE_ORIGIN_XY_MIN, SCRIPTABLE_ORIGIN_XY_MAX]\n\t%i not in [%i, %i]", v7, v8, v9) )
       __debugbreak();
   }
   this->m_data &= 0xFFFFF000003FFFFFui64;
-  this->m_data |= (unsigned __int64)(_EDI & 0x3FFFFF) << 22;
-  __asm
+  this->m_data |= (unsigned __int64)((int)*(float *)&_XMM0 & 0x3FFFFF) << 22;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  if ( (unsigned int)((int)*(float *)&_XMM0 + 0x80000) > 0xFFFFF )
   {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si edi, xmm0
-  }
-  if ( (unsigned int)(_EDI + 0x80000) > 0xFFFFF )
-  {
-    LODWORD(v23) = 0x7FFFF;
-    LODWORD(v21) = -524288;
-    LODWORD(v19) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 272, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_Z_MIN ) <= ( zRound ) && ( zRound ) <= ( SCRIPTABLE_ORIGIN_Z_MAX )", "zRound not in [SCRIPTABLE_ORIGIN_Z_MIN, SCRIPTABLE_ORIGIN_Z_MAX]\n\t%i not in [%i, %i]", v19, v21, v23) )
+    LODWORD(v9) = 0x7FFFF;
+    LODWORD(v8) = -524288;
+    LODWORD(v7) = (int)*(float *)&_XMM0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 272, ASSERT_TYPE_ASSERT, "( SCRIPTABLE_ORIGIN_Z_MIN ) <= ( zRound ) && ( zRound ) <= ( SCRIPTABLE_ORIGIN_Z_MAX )", "zRound not in [SCRIPTABLE_ORIGIN_Z_MIN, SCRIPTABLE_ORIGIN_Z_MAX]\n\t%i not in [%i, %i]", v7, v8, v9) )
       __debugbreak();
   }
   this->m_data &= 0xFFFFFFFFFFFui64;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  this->m_data |= (__int64)_EDI << 44;
+  this->m_data |= (__int64)(int)*(float *)&_XMM0 << 44;
 }
 

@@ -349,13 +349,13 @@ SD_DecoderCreateREV
 void SD_DecoderCreateREV(sd_decoder *decoder, const SndAssetBankEntry *entry)
 {
   sd_source *source; 
-  sd_decoder_instance v7; 
-  sd_vehicle *v8; 
+  sd_decoder_instance v5; 
+  sd_vehicle *v6; 
   unsigned __int8 *data; 
   int MemoryFootprint; 
-  CrankcaseAudio::IREVPlayer *v11; 
-  int v20[6]; 
-  char v21; 
+  CrankcaseAudio::IREVPlayer *v9; 
+  int v12[6]; 
+  char v13; 
   CrankcaseAudio::VehiclePhysicsControlData result; 
 
   Sys_ProfBeginNamedEvent(0xFFFF00u, "SD_DecoderCreateREV");
@@ -370,48 +370,36 @@ void SD_DecoderCreateREV(sd_decoder *decoder, const SndAssetBankEntry *entry)
   source = decoder->source;
   if ( ((__int64)source->loaded.data & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_rev.cpp", 164, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( decoder->source->loaded.data ) ) & 15 ) == 0 ) )", "( ( ( uintptr_t )decoder->source->loaded.data ) ) = 0x%llx", source->loaded.data) )
     __debugbreak();
-  v7.x360_xma = (struct sd_decoder_360_xma *)decoder->instance;
-  v8 = (sd_vehicle *)*((_QWORD *)v7.x360_xma + 514);
+  v5.x360_xma = (struct sd_decoder_360_xma *)decoder->instance;
+  v6 = (sd_vehicle *)*((_QWORD *)v5.x360_xma + 514);
   data = (unsigned __int8 *)decoder->source->loaded.data;
   MemoryFootprint = CrankcaseAudio::IREVPlayer::getMemoryFootprint();
-  v11 = CrankcaseAudio::IREVPlayer::construct(v8->player, MemoryFootprint);
-  v8->player = v11;
-  v11->LoadData(v11, data);
-  if ( entry->channelCount != v8->player->getNumberChannels(v8->player) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_rev.cpp", 183, ASSERT_TYPE_ASSERT, "(entry->channelCount == vehicle->player->getNumberChannels())", (const char *)&queryFormat, "entry->channelCount == vehicle->player->getNumberChannels()") )
+  v9 = CrankcaseAudio::IREVPlayer::construct(v6->player, MemoryFootprint);
+  v6->player = v9;
+  v9->LoadData(v9, data);
+  if ( entry->channelCount != v6->player->getNumberChannels(v6->player) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_rev.cpp", 183, ASSERT_TYPE_ASSERT, "(entry->channelCount == vehicle->player->getNumberChannels())", (const char *)&queryFormat, "entry->channelCount == vehicle->player->getNumberChannels()") )
     __debugbreak();
-  *(double *)&_XMM0 = ((double (__fastcall *)(CrankcaseAudio::IREVPlayer *))v8->player->getSampleRate)(v8->player);
-  __asm
-  {
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si eax, xmm4
-  }
-  if ( entry->frameRate != _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_rev.cpp", 184, ASSERT_TYPE_ASSERT, "(entry->frameRate == FastRound( vehicle->player->getSampleRate() ))", (const char *)&queryFormat, "entry->frameRate == FastRound( vehicle->player->getSampleRate() )") )
+  v6->player->getSampleRate(v6->player);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  if ( entry->frameRate != (int)*(float *)&_XMM4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_decode_rev.cpp", 184, ASSERT_TYPE_ASSERT, "(entry->frameRate == FastRound( vehicle->player->getSampleRate() ))", (const char *)&queryFormat, "entry->frameRate == FastRound( vehicle->player->getSampleRate() )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  [rsp+98h+var_68], xmm0
-    vmovss  [rsp+98h+var_64], xmm2
-    vmovss  [rsp+98h+var_60], xmm2
-    vmovss  [rsp+98h+var_58], xmm2
-    vmovss  [rsp+98h+var_54], xmm0
-  }
-  v20[3] = 1;
-  v21 = 1;
-  ((void (__fastcall *)(CrankcaseAudio::IREVPlayer *, int *))v8->player->Update)(v8->player, v20);
+  *(float *)v12 = FLOAT_1_0;
+  *(float *)&v12[1] = 0.0;
+  *(float *)&v12[2] = 0.0;
+  *(float *)&v12[4] = 0.0;
+  *(float *)&v12[5] = FLOAT_1_0;
+  v12[3] = 1;
+  v13 = 1;
+  ((void (__fastcall *)(CrankcaseAudio::IREVPlayer *, int *))v6->player->Update)(v6->player, v12);
   CrankcaseAudio::GetREVPhysicsControlData(&result, data);
-  CrankcaseAudio::PhysicsSimulator::Initialize(v8->physicsSim, &result);
-  CrankcaseAudio::PhysicsSimulator::Reset(v8->physicsSim);
-  memset_0(v7.x360_xma, 0, 0x1000ui64);
-  *((_QWORD *)v7.x360_xma + 512) = 0i64;
-  *((_DWORD *)v7.x360_xma + 1026) = 0;
-  *((_DWORD *)v7.x360_xma + 1027) = entry->channelCount;
-  SD_VehicleInit(v8);
+  CrankcaseAudio::PhysicsSimulator::Initialize(v6->physicsSim, &result);
+  CrankcaseAudio::PhysicsSimulator::Reset(v6->physicsSim);
+  memset_0(v5.x360_xma, 0, 0x1000ui64);
+  *((_QWORD *)v5.x360_xma + 512) = 0i64;
+  *((_DWORD *)v5.x360_xma + 1026) = 0;
+  *((_DWORD *)v5.x360_xma + 1027) = entry->channelCount;
+  SD_VehicleInit(v6);
   Sys_ProfEndNamedEvent();
 }
 

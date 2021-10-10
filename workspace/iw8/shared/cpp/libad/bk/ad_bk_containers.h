@@ -196,121 +196,99 @@ AD_InterleavedFrameInterpolator<16>::GetFramesForDest
 */
 __int64 AD_InterleavedFrameInterpolator<16>::GetFramesForDest(AD_InterleavedFrameInterpolator<16> *this, const unsigned int srcFrameRate, const unsigned int destFrameRate, const unsigned int numDestFrames)
 {
-  unsigned int v9; 
-  __int64 v10; 
-  __int64 result; 
-  bool v21; 
-  __int64 v22; 
-  bool v23; 
-  bool v24; 
-  __int64 v25; 
-  unsigned int v27; 
+  unsigned int v4; 
+  __int64 v5; 
+  __int128 interpT_low; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int64 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int64 v17; 
+  __int128 v19; 
+  unsigned int v20; 
 
-  v9 = 0;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v10 = numDestFrames;
-  __asm { vmovss  xmm6, dword ptr [rcx] }
+  v4 = 0;
+  v5 = numDestFrames;
+  interpT_low = LODWORD(this->interpT);
   if ( srcFrameRate == destFrameRate )
+    return numDestFrames;
+  _XMM7 = LODWORD(FLOAT_1_0);
+  v10 = 0i64;
+  v9 = (float)srcFrameRate;
+  v11 = (float)destFrameRate;
+  *(float *)&v10 = v9 / v11;
+  v12 = v10;
+  if ( (float)(v9 / v11) < 1.0 )
   {
-    result = numDestFrames;
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
+    if ( *(float *)&interpT_low > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 385, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+      __debugbreak();
+    if ( (_DWORD)v5 )
+    {
+      v17 = v5;
+      do
+      {
+        v19 = v12;
+        *(float *)&v19 = *(float *)&v12 + *(float *)&interpT_low;
+        _XMM2 = v19;
+        v20 = v4 + 1;
+        if ( (float)(*(float *)&v12 + *(float *)&interpT_low) < 1.0 )
+          v20 = v4;
+        v4 = v20;
+        __asm
+        {
+          vcmpless xmm0, xmm7, xmm2
+          vblendvps xmm1, xmm2, xmm1, xmm0
+        }
+        LODWORD(interpT_low) = _XMM1;
+        --v17;
+      }
+      while ( v17 );
+    }
+    if ( *(float *)&interpT_low > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 398, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+      __debugbreak();
   }
   else
   {
-    __asm
+    if ( *(float *)&interpT_low >= 1.0 )
     {
-      vmovaps [rsp+68h+var_28], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovaps [rsp+68h+var_38], xmm8
-      vdivss  xmm8, xmm1, xmm0
-      vcomiss xmm8, xmm7
-    }
-    if ( srcFrameRate < destFrameRate )
-    {
-      __asm { vcomiss xmm6, xmm7 }
-      if ( srcFrameRate > destFrameRate && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 385, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
-        __debugbreak();
-      v23 = 0;
-      v24 = (_DWORD)v10 == 0;
-      if ( (_DWORD)v10 )
+      do
       {
-        v25 = v10;
-        do
+        v13 = interpT_low;
+        *(float *)&v13 = *(float *)&interpT_low + -1.0;
+        interpT_low = v13;
+        ++v4;
+      }
+      while ( *(float *)&v13 >= 1.0 );
+    }
+    if ( numDestFrames )
+    {
+      v14 = numDestFrames;
+      do
+      {
+        v15 = interpT_low;
+        *(float *)&v15 = *(float *)&interpT_low + *(float *)&v12;
+        interpT_low = v15;
+        if ( *(float *)&v15 >= 1.0 )
         {
-          __asm
+          do
           {
-            vaddss  xmm2, xmm8, xmm6
-            vcomiss xmm2, xmm7
+            v16 = interpT_low;
+            *(float *)&v16 = *(float *)&interpT_low + -1.0;
+            interpT_low = v16;
+            ++v4;
           }
-          v27 = v9 + 1;
-          if ( v23 )
-            v27 = v9;
-          v9 = v27;
-          __asm
-          {
-            vsubss  xmm1, xmm2, xmm7
-            vcmpless xmm0, xmm7, xmm2
-            vblendvps xmm1, xmm2, xmm1, xmm0
-            vmovaps xmm6, xmm1
-            vmovss  [rsp+68h+arg_8], xmm1
-          }
-          v23 = v25-- == 0;
-          v24 = v23 || v25 == 0;
+          while ( *(float *)&v16 >= 1.0 );
         }
-        while ( v25 );
+        --v14;
       }
-      __asm { vcomiss xmm6, xmm7 }
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 398, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
-        __debugbreak();
-    }
-    else
-    {
-      __asm
-      {
-        vcomiss xmm6, xmm7
-        vmovss  xmm0, cs:__real@bf800000
-      }
-      while ( srcFrameRate >= destFrameRate )
-      {
-        __asm { vaddss  xmm6, xmm6, xmm0 }
-        ++v9;
-        __asm { vcomiss xmm6, xmm7 }
-      }
-      v21 = 0;
-      if ( numDestFrames )
-      {
-        v22 = numDestFrames;
-        do
-        {
-          __asm
-          {
-            vaddss  xmm6, xmm6, xmm8
-            vcomiss xmm6, xmm7
-          }
-          while ( !v21 )
-          {
-            __asm { vaddss  xmm6, xmm6, xmm0 }
-            ++v9;
-            __asm { vcomiss xmm6, xmm7 }
-          }
-          v21 = v22-- == 0;
-        }
-        while ( v22 );
-      }
-    }
-    __asm { vmovaps xmm8, [rsp+68h+var_38] }
-    result = v9;
-    __asm
-    {
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovaps xmm6, [rsp+68h+var_18]
+      while ( v14 );
     }
   }
-  return result;
+  return v4;
 }
 
 /*
@@ -320,116 +298,86 @@ AD_InterleavedFrameInterpolator<16>::GetFramesForSrc
 */
 __int64 AD_InterleavedFrameInterpolator<16>::GetFramesForSrc(AD_InterleavedFrameInterpolator<16> *this, const unsigned int numSrcFrames, const unsigned int srcFrameRate, const unsigned int destFrameRate)
 {
-  unsigned int v10; 
-  unsigned int v12; 
-  __int64 result; 
-  bool v22; 
-  bool i; 
-  bool v24; 
-  bool v25; 
+  unsigned int v4; 
+  unsigned int v6; 
+  __int128 interpT_low; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
 
-  v10 = 0;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  v12 = 0;
-  __asm { vmovss  xmm6, dword ptr [rcx] }
+  v4 = 0;
+  v6 = 0;
+  interpT_low = LODWORD(this->interpT);
   if ( srcFrameRate == destFrameRate )
+    return numSrcFrames;
+  v9 = (float)srcFrameRate;
+  v10 = (float)destFrameRate;
+  v11 = v9 / v10;
+  if ( (float)(v9 / v10) < 1.0 )
   {
-    result = numSrcFrames;
+    if ( *(float *)&interpT_low > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 328, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+      __debugbreak();
+    if ( numSrcFrames )
+    {
+      do
+      {
+        v15 = interpT_low;
+        *(float *)&v15 = *(float *)&interpT_low + v11;
+        interpT_low = v15;
+        ++v4;
+        if ( *(float *)&v15 >= 1.0 )
+        {
+          if ( v6 >= numSrcFrames && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 337, ASSERT_TYPE_ASSERT, "incomingFramesConsumed < numSrcFrames", "incomingFramesConsumed < numSrcFrames") )
+            __debugbreak();
+          *(float *)&v15 = *(float *)&v15 + -1.0;
+          interpT_low = v15;
+          ++v6;
+        }
+      }
+      while ( v6 < numSrcFrames );
+    }
+    if ( *(float *)&interpT_low > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 343, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+      __debugbreak();
+  }
+  else if ( *(float *)&interpT_low < 1.0 )
+  {
+LABEL_7:
+    while ( v6 < numSrcFrames )
+    {
+      v13 = interpT_low;
+      *(float *)&v13 = *(float *)&interpT_low + v11;
+      interpT_low = v13;
+      ++v4;
+      if ( *(float *)&v13 >= 1.0 )
+      {
+        do
+        {
+          v14 = interpT_low;
+          *(float *)&v14 = *(float *)&interpT_low + -1.0;
+          interpT_low = v14;
+          ++v6;
+        }
+        while ( *(float *)&v14 >= 1.0 );
+      }
+    }
   }
   else
   {
-    __asm
+    while ( v6 < numSrcFrames )
     {
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovaps [rsp+78h+var_38], xmm8
-      vdivss  xmm8, xmm1, xmm0
-      vcomiss xmm8, xmm7
+      v12 = interpT_low;
+      *(float *)&v12 = *(float *)&interpT_low + -1.0;
+      interpT_low = v12;
+      ++v6;
+      if ( *(float *)&v12 < 1.0 )
+        goto LABEL_7;
     }
-    if ( srcFrameRate < destFrameRate )
-    {
-      __asm { vcomiss xmm6, xmm7 }
-      if ( srcFrameRate > destFrameRate && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 328, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
-        __debugbreak();
-      v24 = 0;
-      v25 = numSrcFrames == 0;
-      if ( numSrcFrames )
-      {
-        __asm
-        {
-          vmovaps [rsp+78h+var_48], xmm9
-          vmovss  xmm9, cs:__real@bf800000
-        }
-        do
-        {
-          __asm { vaddss  xmm6, xmm6, xmm8 }
-          ++v10;
-          __asm { vcomiss xmm6, xmm7 }
-          if ( !v24 )
-          {
-            if ( v12 >= numSrcFrames && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 337, ASSERT_TYPE_ASSERT, "incomingFramesConsumed < numSrcFrames", "incomingFramesConsumed < numSrcFrames") )
-              __debugbreak();
-            __asm { vaddss  xmm6, xmm6, xmm9 }
-            ++v12;
-          }
-          v24 = v12 < numSrcFrames;
-          v25 = v12 <= numSrcFrames;
-        }
-        while ( v12 < numSrcFrames );
-        __asm { vmovaps xmm9, [rsp+78h+var_48] }
-      }
-      __asm { vcomiss xmm6, xmm7 }
-      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 343, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
-        __debugbreak();
-    }
-    else
-    {
-      __asm
-      {
-        vcomiss xmm6, xmm7
-        vmovss  xmm0, cs:__real@bf800000
-      }
-      if ( srcFrameRate < destFrameRate )
-      {
-LABEL_7:
-        for ( i = v12 < numSrcFrames; v12 < numSrcFrames; i = v12 < numSrcFrames )
-        {
-          __asm { vaddss  xmm6, xmm6, xmm8 }
-          ++v10;
-          __asm { vcomiss xmm6, xmm7 }
-          while ( !i )
-          {
-            __asm { vaddss  xmm6, xmm6, xmm0 }
-            ++v12;
-            __asm { vcomiss xmm6, xmm7 }
-          }
-        }
-      }
-      else
-      {
-        while ( 1 )
-        {
-          v22 = v12 < numSrcFrames;
-          if ( v12 >= numSrcFrames )
-            break;
-          __asm { vaddss  xmm6, xmm6, xmm0 }
-          ++v12;
-          __asm { vcomiss xmm6, xmm7 }
-          if ( v22 )
-            goto LABEL_7;
-        }
-      }
-    }
-    __asm { vmovaps xmm8, [rsp+78h+var_38] }
-    result = v10;
-    __asm { vmovaps xmm7, [rsp+78h+var_28] }
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  return result;
+  return v4;
 }
 
 /*
@@ -479,550 +427,475 @@ AD_InterleavedFrameInterpolator<16>::ResampleFrames
 */
 __int64 AD_InterleavedFrameInterpolator<16>::ResampleFrames(AD_InterleavedFrameInterpolator<16> *this, const unsigned int numChannels, const float *src, const unsigned int numSrcFrames, float *dest, const unsigned int numDestFrames, const unsigned int srcFrameRate, const unsigned int destFrameRate)
 {
-  float *v20; 
-  unsigned int v21; 
-  __int64 v23; 
-  unsigned int v25; 
-  __int64 result; 
-  __int64 v38; 
-  __int64 v39; 
-  unsigned int v44; 
-  unsigned int v45; 
-  unsigned __int64 v47; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  float *v17; 
+  unsigned int v18; 
+  __int64 v20; 
+  AD_InterleavedFrameInterpolator<16> *v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  __int128 interpT_low; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int64 v31; 
+  __int64 v32; 
+  float a0; 
+  float a1; 
+  float a2; 
+  unsigned int v36; 
+  unsigned int v37; 
+  unsigned __int64 v38; 
   float *p_x2; 
+  unsigned int v40; 
+  __int64 v41; 
+  int v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  int v46; 
+  float v47; 
+  __int128 v48; 
   unsigned int v49; 
   __int64 v50; 
-  int v51; 
-  bool v52; 
-  bool v53; 
+  __int64 v51; 
+  __int64 v52; 
+  unsigned __int64 v53; 
   __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  int v57; 
-  unsigned int v59; 
-  __int64 v60; 
-  __int64 v61; 
+  float v55; 
+  float v56; 
+  float *v57; 
+  float v58; 
+  double v59; 
+  __int128 v60; 
+  __int128 v61; 
   __int64 v62; 
-  __int64 v68; 
-  bool v84; 
-  __int64 v85; 
-  bool v86; 
-  __int64 v88; 
-  __int64 v89; 
-  __int64 v95; 
-  unsigned int v112; 
-  char *v113; 
-  unsigned int v114; 
+  float v63; 
+  __int64 v64; 
+  __int64 v65; 
+  unsigned __int64 v66; 
+  __int64 v67; 
+  float v68; 
+  float v69; 
+  float *v70; 
+  float v71; 
+  double v72; 
+  __int128 v73; 
+  unsigned int v74; 
+  char *v75; 
+  unsigned int v76; 
   _DWORD *histB; 
-  __int64 v116; 
-  __int64 v117; 
-  _DWORD *v118; 
-  unsigned __int64 v128; 
-  float *v129; 
-  unsigned int v130; 
-  __int64 v131; 
-  int v132; 
-  __int64 v133; 
-  __int64 v134; 
-  __int64 v135; 
-  int v136; 
-  float fmt; 
-  float *v139; 
-  __int64 v140; 
-  __int64 v141; 
-  __int64 v146; 
-  __int64 v147; 
-  __int64 v149; 
-  __int64 v150; 
-  __int64 v151[9]; 
-  char v152[192]; 
+  __int64 v78; 
+  __int64 v79; 
+  _DWORD *v80; 
+  unsigned __int64 v81; 
+  float *v82; 
+  unsigned int v83; 
+  __int64 v84; 
+  int v85; 
+  __int64 v86; 
+  __int64 v87; 
+  __int64 v88; 
+  int v89; 
+  float *v90; 
+  __int64 v91; 
+  __int64 v92; 
+  float a3; 
+  float a4; 
+  __int64 v97; 
+  __int64 v98; 
+  float v99; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102[9]; 
+  char v103[192]; 
+  __int128 v104; 
+  __int128 v105; 
+  __int128 v106; 
+  __int128 v107; 
+  __int128 v108; 
+  __int128 v109; 
+  __int128 v110; 
+  __int128 v111; 
+  __int128 v112; 
 
-  __asm { vmovaps [rsp+260h+var_80], xmm9 }
-  v20 = dest;
-  v21 = numSrcFrames;
-  v23 = numChannels;
-  _R13 = this;
-  v139 = dest;
-  v151[0] = (__int64)this;
+  v17 = dest;
+  v18 = numSrcFrames;
+  v20 = numChannels;
+  v21 = this;
+  v90 = dest;
+  v102[0] = (__int64)this;
   if ( numChannels > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 406, ASSERT_TYPE_ASSERT, "numChannels <= T_MAX_CHANNELS", "numChannels <= T_MAX_CHANNELS") )
     __debugbreak();
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 407, ASSERT_TYPE_ASSERT, "src != nullptr", "src != nullptr") )
     __debugbreak();
   if ( !dest && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 408, ASSERT_TYPE_ASSERT, "dest != nullptr", "dest != nullptr") )
     __debugbreak();
-  LODWORD(v150) = 0;
-  v25 = 0;
-  __asm { vmovss  xmm9, dword ptr [r13+0] }
+  v22 = srcFrameRate;
+  LODWORD(v101) = 0;
+  v23 = 0;
+  interpT_low = LODWORD(v21->interpT);
   if ( srcFrameRate == destFrameRate )
   {
-    if ( numDestFrames != v21 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 416, ASSERT_TYPE_ASSERT, "numDestFrames == numSrcFrames", "numDestFrames == numSrcFrames") )
+    if ( numDestFrames != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 416, ASSERT_TYPE_ASSERT, "numDestFrames == numSrcFrames", "numDestFrames == numSrcFrames") )
       __debugbreak();
-    memcpy_0(dest, src, 4 * (unsigned int)v23 * v21);
-    result = v21;
-    goto LABEL_84;
+    memcpy_0(dest, src, 4 * (unsigned int)v20 * v18);
+    return v18;
   }
-  __asm
+  v109 = v11;
+  v26 = FLOAT_1_0;
+  v107 = v13;
+  v106 = v14;
+  v27 = (float)srcFrameRate;
+  v28 = (float)destFrameRate;
+  v29 = v27 / v28;
+  v105 = v15;
+  v99 = v27 / v28;
+  v104 = v16;
+  if ( __PAIR64__(destFrameRate, srcFrameRate) != *(_QWORD *)&v21->resampleFilterSrcFreq )
   {
-    vmovaps [rsp+260h+var_90], xmm10
-    vmovss  xmm10, cs:__real@3f800000
-    vmovaps [rsp+260h+var_B0], xmm12
-    vmovaps [rsp+260h+var_C0], xmm13
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, rdx
-    vcvtsi2ss xmm0, xmm0, rbx
-    vdivss  xmm12, xmm1, xmm0
-    vmovaps [rsp+260h+var_D0], xmm14
-    vmovss  dword ptr [rsp+260h+var_208], xmm12
-    vmovaps [rsp+260h+var_E0], xmm15
-  }
-  if ( destFrameRate != _R13->resampleFilterDestFreq || srcFrameRate != _R13->resampleFilterSrcFreq )
-  {
-    _R13->resampleFilterSrcFreq = srcFrameRate;
-    __asm
+    v21->resampleFilterSrcFreq = srcFrameRate;
+    if ( (float)(v27 / v28) >= 1.0 )
+      v22 = destFrameRate;
+    v21->resampleFilterDestFreq = destFrameRate;
+    v30 = (float)v22;
+    AD_CalcBiquadCoefficientsAtRate(&v21->resampleFilterCoeffs, (const AD_EQType)0, v30 * 0.5, 1.0, 1.0, destFrameRate);
+    if ( (_DWORD)v20 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm12, xmm10
-    }
-    _R13->resampleFilterDestFreq = destFrameRate;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm2, xmm0, cs:__real@3f000000; freqIn
-      vmovaps xmm3, xmm10; qIn
-      vmovss  dword ptr [rsp+260h+fmt], xmm10
-    }
-    AD_CalcBiquadCoefficientsAtRate(&_R13->resampleFilterCoeffs, (const AD_EQType)0, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, destFrameRate);
-    if ( (_DWORD)v23 )
-    {
-      v38 = 0i64;
-      v39 = v23;
+      v31 = 0i64;
+      v32 = v20;
       do
       {
-        AD_ResetBiquadState(&_R13->resampleFilterState[v38++]);
-        --v39;
+        AD_ResetBiquadState(&v21->resampleFilterState[v31++]);
+        --v32;
       }
-      while ( v39 );
-      v20 = dest;
+      while ( v32 );
+      v17 = dest;
     }
   }
-  __asm
+  a0 = v21->resampleFilterCoeffs.a0;
+  a1 = v21->resampleFilterCoeffs.a1;
+  a2 = v21->resampleFilterCoeffs.a2;
+  v36 = 0;
+  v37 = 0;
+  a3 = v21->resampleFilterCoeffs.a3;
+  a4 = v21->resampleFilterCoeffs.a4;
+  if ( (unsigned int)v20 >= 4 )
   {
-    vmovss  xmm0, dword ptr [r13+98h]
-    vmovss  xmm13, dword ptr [r13+8Ch]
-    vmovss  xmm14, dword ptr [r13+90h]
-    vmovss  xmm15, dword ptr [r13+94h]
-  }
-  v44 = 0;
-  v45 = 0;
-  __asm
-  {
-    vmovss  [rsp+260h+var_220], xmm0
-    vmovss  xmm0, dword ptr [r13+9Ch]
-    vmovss  [rsp+260h+var_21C], xmm0
-  }
-  if ( (unsigned int)v23 >= 4 )
-  {
-    v47 = 0i64;
-    p_x2 = &_R13->resampleFilterState[0].x2;
-    v49 = ((unsigned int)(v23 - 4) >> 2) + 1;
-    v50 = v49;
-    v45 = 4 * v49;
+    v38 = 0i64;
+    p_x2 = &v21->resampleFilterState[0].x2;
+    v40 = ((unsigned int)(v20 - 4) >> 2) + 1;
+    v41 = v40;
+    v37 = 4 * v40;
     do
     {
-      v51 = *((_DWORD *)p_x2 - 1);
+      v42 = *((_DWORD *)p_x2 - 1);
       p_x2 += 16;
-      LODWORD(v151[v47 / 8 + 1]) = v51;
-      v47 += 16i64;
-      *(float *)&v151[v47 / 8 + 7] = *(p_x2 - 16);
-      *(float *)&v152[v47 + 48] = *(p_x2 - 15);
-      *(float *)&v152[v47 + 112] = *(p_x2 - 14);
-      *(float *)((char *)&v150 + v47 + 4) = *(p_x2 - 13);
-      *((float *)&v151[v47 / 8 + 7] + 1) = *(p_x2 - 12);
-      *(float *)&v152[v47 + 52] = *(p_x2 - 11);
-      *(float *)&v152[v47 + 116] = *(p_x2 - 10);
-      *(float *)&v151[v47 / 8] = *(p_x2 - 9);
-      *(float *)&v151[v47 / 8 + 8] = *(p_x2 - 8);
-      *(float *)&v152[v47 + 56] = *(p_x2 - 7);
-      *(float *)&v152[v47 + 120] = *(p_x2 - 6);
-      *((float *)&v151[v47 / 8] + 1) = *(p_x2 - 5);
-      *((float *)&v151[v47 / 8 + 8] + 1) = *(p_x2 - 4);
-      *(float *)&v152[v47 + 60] = *(p_x2 - 3);
-      *(float *)&v152[v47 + 124] = *(p_x2 - 2);
-      --v50;
+      LODWORD(v102[v38 / 8 + 1]) = v42;
+      v38 += 16i64;
+      *(float *)&v102[v38 / 8 + 7] = *(p_x2 - 16);
+      *(float *)&v103[v38 + 48] = *(p_x2 - 15);
+      *(float *)&v103[v38 + 112] = *(p_x2 - 14);
+      *(float *)((char *)&v101 + v38 + 4) = *(p_x2 - 13);
+      *((float *)&v102[v38 / 8 + 7] + 1) = *(p_x2 - 12);
+      *(float *)&v103[v38 + 52] = *(p_x2 - 11);
+      *(float *)&v103[v38 + 116] = *(p_x2 - 10);
+      *(float *)&v102[v38 / 8] = *(p_x2 - 9);
+      *(float *)&v102[v38 / 8 + 8] = *(p_x2 - 8);
+      *(float *)&v103[v38 + 56] = *(p_x2 - 7);
+      *(float *)&v103[v38 + 120] = *(p_x2 - 6);
+      *((float *)&v102[v38 / 8] + 1) = *(p_x2 - 5);
+      *((float *)&v102[v38 / 8 + 8] + 1) = *(p_x2 - 4);
+      *(float *)&v103[v38 + 60] = *(p_x2 - 3);
+      *(float *)&v103[v38 + 124] = *(p_x2 - 2);
+      --v41;
     }
-    while ( v50 );
+    while ( v41 );
   }
-  v52 = v45 < (unsigned int)v23;
-  v53 = v45 <= (unsigned int)v23;
-  if ( v45 < (unsigned int)v23 )
+  if ( v37 < (unsigned int)v20 )
   {
-    v54 = (unsigned int)v23 - v45;
-    v55 = (__int64)&_R13->resampleFilterState[v45].x2;
-    v56 = 4i64 * v45;
+    v43 = (unsigned int)v20 - v37;
+    v44 = (__int64)&v21->resampleFilterState[v37].x2;
+    v45 = 4i64 * v37;
     do
     {
-      v57 = *(_DWORD *)(v55 - 4);
-      v55 += 16i64;
-      *(_DWORD *)((char *)&v151[1] + v56) = v57;
-      v56 += 4i64;
-      *(_DWORD *)((char *)&v151[8] + v56 + 4) = *(_DWORD *)(v55 - 16);
-      *(_DWORD *)&v152[v56 + 60] = *(_DWORD *)(v55 - 12);
-      *(_DWORD *)&v152[v56 + 124] = *(_DWORD *)(v55 - 8);
-      v52 = v54-- == 0;
-      v53 = v52 || v54 == 0;
+      v46 = *(_DWORD *)(v44 - 4);
+      v44 += 16i64;
+      *(_DWORD *)((char *)&v102[1] + v45) = v46;
+      v45 += 4i64;
+      *(_DWORD *)((char *)&v102[8] + v45 + 4) = *(_DWORD *)(v44 - 16);
+      *(_DWORD *)&v103[v45 + 60] = *(_DWORD *)(v44 - 12);
+      *(_DWORD *)&v103[v45 + 124] = *(_DWORD *)(v44 - 8);
+      --v43;
     }
-    while ( v54 );
+    while ( v43 );
   }
-  __asm
+  v112 = v8;
+  v111 = v9;
+  v110 = v10;
+  v108 = v12;
+  if ( v29 < 1.0 )
   {
-    vcomiss xmm12, xmm10
-    vmovaps [rsp+260h+var_50], xmm6
-    vmovaps [rsp+260h+var_60], xmm7
-    vmovaps [rsp+260h+var_70], xmm8
-    vmovaps [rsp+260h+var_A0], xmm11
-  }
-  if ( v52 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm12, xmm0
-    }
-    if ( v53 )
-    {
-      v84 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 498, ASSERT_TYPE_ASSERT, "ratio > 0.0f", "ratio > 0.0f");
-      v53 = !v84;
-      if ( v84 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm9, xmm10 }
-    if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 499, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+    if ( v29 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 498, ASSERT_TYPE_ASSERT, "ratio > 0.0f", "ratio > 0.0f") )
       __debugbreak();
-    v85 = numDestFrames;
-    v86 = numDestFrames == 0;
+    if ( *(float *)&interpT_low > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 499, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+      __debugbreak();
+    v62 = numDestFrames;
     if ( numDestFrames )
     {
-      __asm { vmovss  xmm12, cs:__real@bf800000 }
-      v88 = 4 * v23;
-      v141 = numDestFrames;
-      v147 = 4 * v23;
-      v89 = v23;
-      LODWORD(v150) = numDestFrames;
+      v63 = FLOAT_N1_0;
+      v64 = 4 * v20;
+      v92 = numDestFrames;
+      v98 = 4 * v20;
+      v65 = v20;
+      LODWORD(v101) = numDestFrames;
       do
       {
-        if ( (_DWORD)v23 )
+        if ( (_DWORD)v20 )
         {
-          __asm { vmovss  xmm12, [rsp+260h+var_220] }
-          _R13 = v139;
-          __asm
-          {
-            vsubss  xmm11, xmm10, xmm9
-            vmovss  xmm10, [rsp+260h+var_21C]
-          }
-          _RDI = 0i64;
-          v95 = v89;
+          v66 = 0i64;
+          v67 = v65;
           do
           {
-            __asm
-            {
-              vmovss  xmm6, [rsp+rdi+260h+var_1F0]
-              vmovss  xmm7, [rbp+rdi+160h+var_170]
-            }
-            _RBX = &v152[_RDI];
-            __asm
-            {
-              vmulss  xmm1, xmm11, dword ptr [r12+rbx+4]
-              vmulss  xmm0, xmm9, dword ptr [r12+rbx+44h]
-              vaddss  xmm8, xmm1, xmm0
-              vmulss  xmm1, xmm6, xmm14
-              vmulss  xmm0, xmm8, xmm13
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm15, dword ptr [rbx]
-              vaddss  xmm2, xmm2, xmm1
-              vmulss  xmm1, xmm10, [rbp+rdi+160h+var_130]
-              vmulss  xmm0, xmm7, xmm12
-              vsubss  xmm3, xmm2, xmm0
-              vsubss  xmm0, xmm3, xmm1; in
-            }
-            *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-            __asm
-            {
-              vmovss  [rbp+rdi+160h+var_170], xmm0
-              vmovss  dword ptr [rdi+r13], xmm0
-              vmovss  [rsp+rdi+260h+var_1F0], xmm8
-              vmovss  [rbp+rdi+160h+var_130], xmm7
-            }
-            _RDI += 4i64;
-            __asm { vmovss  dword ptr [rbx], xmm6 }
-            --v95;
+            v68 = *(float *)((char *)&v102[1] + v66);
+            v69 = *(float *)&v103[v66 + 64];
+            v70 = (float *)&v103[v66];
+            v71 = (float)((float)(v26 - *(float *)&interpT_low) * *(float *)((char *)v70 + (char *)v21 - v103 + 4)) + (float)(*(float *)&interpT_low * *(float *)((char *)v70 + (char *)v21 - v103 + 68));
+            v72 = AD_ScrutinizeSample((float)((float)((float)((float)(v68 * a1) + (float)(v71 * a0)) + (float)(a2 * *(float *)&v103[v66])) - (float)(v69 * a3)) - (float)(a4 * *(float *)&v103[v66 + 128]));
+            *(float *)&v103[v66 + 64] = *(float *)&v72;
+            v90[v66 / 4] = *(float *)&v72;
+            *(float *)((char *)&v102[1] + v66) = v71;
+            *(float *)&v103[v66 + 128] = v69;
+            v66 += 4i64;
+            *v70 = v68;
+            --v67;
           }
-          while ( v95 );
-          __asm
-          {
-            vmovss  xmm10, cs:__real@3f800000
-            vmovss  xmm12, cs:__real@bf800000
-          }
-          LODWORD(v23) = numChannels;
-          _R13 = (AD_InterleavedFrameInterpolator<16> *)v151[0];
-          v44 = 0;
-          v20 = v139;
-          v21 = numSrcFrames;
-          v85 = v141;
-          v88 = v147;
+          while ( v67 );
+          v26 = FLOAT_1_0;
+          v63 = FLOAT_N1_0;
+          LODWORD(v20) = numChannels;
+          v21 = (AD_InterleavedFrameInterpolator<16> *)v102[0];
+          v36 = 0;
+          v17 = v90;
+          v18 = numSrcFrames;
+          v62 = v92;
+          v64 = v98;
         }
-        __asm { vaddss  xmm9, xmm9, dword ptr [rsp+260h+var_208] }
-        v52 = __CFADD__(v88, v20);
-        v20 = (float *)((char *)v20 + v88);
-        __asm { vcomiss xmm9, xmm10 }
-        v139 = v20;
-        if ( !v52 )
+        v73 = interpT_low;
+        *(float *)&v73 = *(float *)&interpT_low + v99;
+        interpT_low = v73;
+        v17 = (float *)((char *)v17 + v64);
+        v90 = v17;
+        if ( *(float *)&v73 >= v26 )
         {
-          if ( v25 >= v21 )
+          if ( v23 >= v18 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 521, ASSERT_TYPE_ASSERT, "incomingFramesConsumed < numSrcFrames", "incomingFramesConsumed < numSrcFrames") )
               __debugbreak();
-            v88 = v147;
+            v64 = v98;
           }
-          ++v25;
-          v112 = 0;
-          __asm { vaddss  xmm9, xmm9, xmm12 }
-          if ( (unsigned int)v23 >= 4 )
+          ++v23;
+          v74 = 0;
+          *(float *)&v73 = *(float *)&v73 + v63;
+          interpT_low = v73;
+          if ( (unsigned int)v20 >= 4 )
           {
-            v113 = (char *)((char *)src - (char *)_R13);
-            v114 = ((unsigned int)(v23 - 4) >> 2) + 1;
-            histB = (_DWORD *)_R13->histB;
-            v116 = v114;
-            v112 = 4 * v114;
+            v75 = (char *)((char *)src - (char *)v21);
+            v76 = ((unsigned int)(v20 - 4) >> 2) + 1;
+            histB = (_DWORD *)v21->histB;
+            v78 = v76;
+            v74 = 4 * v76;
             do
             {
               *(histB - 16) = *histB;
-              *histB = *(_DWORD *)((char *)histB + (_QWORD)v113 - 68);
+              *histB = *(_DWORD *)((char *)histB + (_QWORD)v75 - 68);
               *(histB - 15) = histB[1];
-              histB[1] = *(_DWORD *)((char *)histB + (_QWORD)v113 - 64);
+              histB[1] = *(_DWORD *)((char *)histB + (_QWORD)v75 - 64);
               *(histB - 14) = histB[2];
-              histB[2] = *(_DWORD *)((char *)histB + (_QWORD)v113 - 60);
+              histB[2] = *(_DWORD *)((char *)histB + (_QWORD)v75 - 60);
               *(histB - 13) = histB[3];
-              histB[3] = *(_DWORD *)((char *)histB + (_QWORD)v113 - 56);
+              histB[3] = *(_DWORD *)((char *)histB + (_QWORD)v75 - 56);
               histB += 4;
-              --v116;
+              --v78;
             }
-            while ( v116 );
+            while ( v78 );
           }
-          if ( v112 < (unsigned int)v23 )
+          if ( v74 < (unsigned int)v20 )
           {
-            v117 = (unsigned int)v23 - v112;
-            v118 = (_DWORD *)&_R13->histB[v112];
+            v79 = (unsigned int)v20 - v74;
+            v80 = (_DWORD *)&v21->histB[v74];
             do
             {
-              *(v118 - 16) = *v118;
-              *v118 = *(_DWORD *)((char *)v118 + (char *)src - (char *)_R13 - 68);
-              ++v118;
-              --v117;
+              *(v80 - 16) = *v80;
+              *v80 = *(_DWORD *)((char *)v80 + (char *)src - (char *)v21 - 68);
+              ++v80;
+              --v79;
             }
-            while ( v117 );
+            while ( v79 );
           }
-          v85 = v141;
-          src = (const float *)((char *)src + v88);
+          v62 = v92;
+          src = (const float *)((char *)src + v64);
         }
-        v52 = v85-- == 0;
-        v86 = v52 || v85 == 0;
-        v89 = (unsigned int)v23;
-        v141 = v85;
+        --v62;
+        v65 = (unsigned int)v20;
+        v92 = v62;
       }
-      while ( v85 );
+      while ( v62 );
     }
-    __asm { vcomiss xmm9, xmm10 }
-    if ( !v86 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 534, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
+    if ( *(float *)&interpT_low > v26 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 534, ASSERT_TYPE_ASSERT, "t <= 1.0f", "t <= 1.0f") )
       __debugbreak();
   }
   else
   {
-    __asm
+    v47 = FLOAT_N1_0;
+    if ( *(float *)&interpT_low >= 1.0 )
     {
-      vcomiss xmm9, xmm10
-      vmovss  xmm11, cs:__real@bf800000
-    }
-    do
-    {
-      if ( v25 >= v21 )
-        break;
-      ++v25;
-      v52 = __CFADD__(4 * v23, src);
-      src += v23;
-      __asm
+      do
       {
-        vaddss  xmm9, xmm9, xmm11
-        vcomiss xmm9, xmm10
+        if ( v23 >= v18 )
+          break;
+        ++v23;
+        src += v20;
+        v48 = interpT_low;
+        *(float *)&v48 = *(float *)&interpT_low + -1.0;
+        interpT_low = v48;
       }
+      while ( *(float *)&v48 >= 1.0 );
     }
-    while ( !v52 );
-    v59 = numDestFrames;
+    v49 = numDestFrames;
     if ( !numDestFrames )
-      goto LABEL_71;
-    v60 = numDestFrames;
-    v61 = 4 * v23;
-    v62 = v23;
-    v146 = 4 * v23;
-    v149 = v23;
-    v150 = numDestFrames;
-    v140 = numDestFrames;
+      goto LABEL_72;
+    v50 = numDestFrames;
+    v51 = 4 * v20;
+    v52 = v20;
+    v97 = 4 * v20;
+    v100 = v20;
+    v101 = numDestFrames;
+    v91 = numDestFrames;
     do
     {
-      if ( (_DWORD)v23 )
+      if ( (_DWORD)v20 )
       {
-        __asm
-        {
-          vmovss  xmm11, [rsp+260h+var_220]
-          vmovss  xmm10, [rsp+260h+var_21C]
-        }
-        _R15 = v139;
-        _RDI = 0i64;
-        _R12 = (char *)src - v152;
-        v68 = v62;
+        v53 = 0i64;
+        v54 = v52;
         do
         {
-          __asm
-          {
-            vmovss  xmm6, [rsp+rdi+260h+var_1F0]
-            vmovss  xmm7, [rbp+rdi+160h+var_170]
-            vmulss  xmm1, xmm6, xmm14
-          }
-          _RBX = &v152[_RDI];
-          __asm
-          {
-            vmovss  xmm8, dword ptr [r12+rbx]
-            vmulss  xmm0, xmm13, xmm8
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm15, dword ptr [rbx]
-            vaddss  xmm2, xmm2, xmm1
-            vmulss  xmm1, xmm10, [rbp+rdi+160h+var_130]
-            vmulss  xmm0, xmm7, xmm11
-            vsubss  xmm3, xmm2, xmm0
-            vsubss  xmm0, xmm3, xmm1; in
-          }
-          *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-          __asm
-          {
-            vmovss  [rbp+rdi+160h+var_170], xmm0
-            vmovss  dword ptr [rdi+r15], xmm0
-            vmovss  [rsp+rdi+260h+var_1F0], xmm8
-            vmovss  [rbp+rdi+160h+var_130], xmm7
-          }
-          _RDI += 4i64;
-          __asm { vmovss  dword ptr [rbx], xmm6 }
-          --v68;
+          v55 = *(float *)((char *)&v102[1] + v53);
+          v56 = *(float *)&v103[v53 + 64];
+          v57 = (float *)&v103[v53];
+          v58 = *(float *)&v103[v53 + (char *)src - v103];
+          v59 = AD_ScrutinizeSample((float)((float)((float)((float)(v55 * a1) + (float)(a0 * v58)) + (float)(a2 * *(float *)&v103[v53])) - (float)(v56 * a3)) - (float)(a4 * *(float *)&v103[v53 + 128]));
+          *(float *)&v103[v53 + 64] = *(float *)&v59;
+          v90[v53 / 4] = *(float *)&v59;
+          *(float *)((char *)&v102[1] + v53) = v58;
+          *(float *)&v103[v53 + 128] = v56;
+          v53 += 4i64;
+          *v57 = v55;
+          --v54;
         }
-        while ( v68 );
-        __asm
+        while ( v54 );
+        v26 = FLOAT_1_0;
+        v47 = FLOAT_N1_0;
+        LODWORD(v20) = numChannels;
+        v36 = 0;
+        v51 = v97;
+        v17 = v90;
+        v18 = numSrcFrames;
+        v50 = v91;
+        v52 = v100;
+      }
+      v17 = (float *)((char *)v17 + v51);
+      v60 = interpT_low;
+      *(float *)&v60 = *(float *)&interpT_low + v29;
+      interpT_low = v60;
+      v90 = v17;
+      if ( *(float *)&v60 >= v26 )
+      {
+        do
         {
-          vmovss  xmm10, cs:__real@3f800000
-          vmovss  xmm11, cs:__real@bf800000
+          if ( v23 >= v18 )
+            break;
+          v61 = interpT_low;
+          *(float *)&v61 = *(float *)&interpT_low + v47;
+          interpT_low = v61;
+          ++v23;
+          src = (const float *)((char *)src + v51);
         }
-        LODWORD(v23) = numChannels;
-        v44 = 0;
-        v61 = v146;
-        v20 = v139;
-        v21 = numSrcFrames;
-        v60 = v140;
-        v62 = v149;
+        while ( *(float *)&v61 >= v26 );
       }
-      v52 = __CFADD__(v61, v20);
-      v20 = (float *)((char *)v20 + v61);
-      __asm
-      {
-        vaddss  xmm9, xmm9, xmm12
-        vcomiss xmm9, xmm10
-      }
-      v139 = v20;
-      while ( !v52 )
-      {
-        if ( v25 >= v21 )
-          break;
-        __asm { vaddss  xmm9, xmm9, xmm11 }
-        ++v25;
-        v52 = __CFADD__(v61, src);
-        src = (const float *)((char *)src + v61);
-        __asm { vcomiss xmm9, xmm10 }
-      }
-      v140 = --v60;
+      v91 = --v50;
     }
-    while ( v60 );
-    _R13 = (AD_InterleavedFrameInterpolator<16> *)v151[0];
+    while ( v50 );
+    v21 = (AD_InterleavedFrameInterpolator<16> *)v102[0];
   }
-  v59 = numDestFrames;
-LABEL_71:
-  __asm
+  v49 = numDestFrames;
+LABEL_72:
+  v21->interpT = *(float *)&interpT_low;
+  if ( (unsigned int)v20 >= 4 )
   {
-    vmovaps xmm15, [rsp+260h+var_E0]
-    vmovaps xmm14, [rsp+260h+var_D0]
-    vmovaps xmm13, [rsp+260h+var_C0]
-    vmovaps xmm12, [rsp+260h+var_B0]
-    vmovaps xmm11, [rsp+260h+var_A0]
-    vmovaps xmm10, [rsp+260h+var_90]
-    vmovaps xmm8, [rsp+260h+var_70]
-    vmovaps xmm7, [rsp+260h+var_60]
-    vmovaps xmm6, [rsp+260h+var_50]
-    vmovss  dword ptr [r13+0], xmm9
-  }
-  if ( (unsigned int)v23 >= 4 )
-  {
-    v128 = 0i64;
-    v129 = &_R13->resampleFilterState[0].x2;
-    v130 = ((unsigned int)(v23 - 4) >> 2) + 1;
-    v131 = v130;
-    v44 = 4 * v130;
+    v81 = 0i64;
+    v82 = &v21->resampleFilterState[0].x2;
+    v83 = ((unsigned int)(v20 - 4) >> 2) + 1;
+    v84 = v83;
+    v36 = 4 * v83;
     do
     {
-      v132 = v151[v128 / 8 + 1];
-      v128 += 16i64;
-      *((_DWORD *)v129 - 1) = v132;
-      v129 += 16;
-      *(v129 - 16) = *(float *)&v151[v128 / 8 + 7];
-      *(v129 - 15) = *(float *)&v152[v128 + 48];
-      *(v129 - 14) = *(float *)&v152[v128 + 112];
-      *(v129 - 13) = *(float *)((char *)&v150 + v128 + 4);
-      *(v129 - 12) = *((float *)&v151[v128 / 8 + 7] + 1);
-      *(v129 - 11) = *(float *)&v152[v128 + 52];
-      *(v129 - 10) = *(float *)&v152[v128 + 116];
-      *(v129 - 9) = *(float *)&v151[v128 / 8];
-      *(v129 - 8) = *(float *)&v151[v128 / 8 + 8];
-      *(v129 - 7) = *(float *)&v152[v128 + 56];
-      *(v129 - 6) = *(float *)&v152[v128 + 120];
-      *(v129 - 5) = *((float *)&v151[v128 / 8] + 1);
-      *(v129 - 4) = *((float *)&v151[v128 / 8 + 8] + 1);
-      *(v129 - 3) = *(float *)&v152[v128 + 60];
-      *(v129 - 2) = *(float *)&v152[v128 + 124];
-      --v131;
+      v85 = v102[v81 / 8 + 1];
+      v81 += 16i64;
+      *((_DWORD *)v82 - 1) = v85;
+      v82 += 16;
+      *(v82 - 16) = *(float *)&v102[v81 / 8 + 7];
+      *(v82 - 15) = *(float *)&v103[v81 + 48];
+      *(v82 - 14) = *(float *)&v103[v81 + 112];
+      *(v82 - 13) = *(float *)((char *)&v101 + v81 + 4);
+      *(v82 - 12) = *((float *)&v102[v81 / 8 + 7] + 1);
+      *(v82 - 11) = *(float *)&v103[v81 + 52];
+      *(v82 - 10) = *(float *)&v103[v81 + 116];
+      *(v82 - 9) = *(float *)&v102[v81 / 8];
+      *(v82 - 8) = *(float *)&v102[v81 / 8 + 8];
+      *(v82 - 7) = *(float *)&v103[v81 + 56];
+      *(v82 - 6) = *(float *)&v103[v81 + 120];
+      *(v82 - 5) = *((float *)&v102[v81 / 8] + 1);
+      *(v82 - 4) = *((float *)&v102[v81 / 8 + 8] + 1);
+      *(v82 - 3) = *(float *)&v103[v81 + 60];
+      *(v82 - 2) = *(float *)&v103[v81 + 124];
+      --v84;
     }
-    while ( v131 );
+    while ( v84 );
   }
-  if ( v44 < (unsigned int)v23 )
+  if ( v36 < (unsigned int)v20 )
   {
-    v133 = (unsigned int)v23 - v44;
-    v134 = (__int64)&_R13->resampleFilterState[v44].x2;
-    v135 = 4i64 * v44;
+    v86 = (unsigned int)v20 - v36;
+    v87 = (__int64)&v21->resampleFilterState[v36].x2;
+    v88 = 4i64 * v36;
     do
     {
-      v136 = *(_DWORD *)((char *)&v151[1] + v135);
-      v135 += 4i64;
-      *(_DWORD *)(v134 - 4) = v136;
-      v134 += 16i64;
-      *(_DWORD *)(v134 - 16) = *(_DWORD *)((char *)&v151[8] + v135 + 4);
-      *(_DWORD *)(v134 - 12) = *(_DWORD *)&v152[v135 + 60];
-      *(_DWORD *)(v134 - 8) = *(_DWORD *)&v152[v135 + 124];
-      --v133;
+      v89 = *(_DWORD *)((char *)&v102[1] + v88);
+      v88 += 4i64;
+      *(_DWORD *)(v87 - 4) = v89;
+      v87 += 16i64;
+      *(_DWORD *)(v87 - 16) = *(_DWORD *)((char *)&v102[8] + v88 + 4);
+      *(_DWORD *)(v87 - 12) = *(_DWORD *)&v103[v88 + 60];
+      *(_DWORD *)(v87 - 8) = *(_DWORD *)&v103[v88 + 124];
+      --v86;
     }
-    while ( v133 );
+    while ( v86 );
   }
-  if ( (_DWORD)v150 != v59 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 547, ASSERT_TYPE_ASSERT, "framesGenerated == numDestFrames", "framesGenerated == numDestFrames") )
+  if ( (_DWORD)v101 != v49 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 547, ASSERT_TYPE_ASSERT, "framesGenerated == numDestFrames", "framesGenerated == numDestFrames") )
     __debugbreak();
-  if ( v25 != v21 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 548, ASSERT_TYPE_ASSERT, "incomingFramesConsumed == numSrcFrames", "incomingFramesConsumed == numSrcFrames") )
+  if ( v23 != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_containers.h", 548, ASSERT_TYPE_ASSERT, "incomingFramesConsumed == numSrcFrames", "incomingFramesConsumed == numSrcFrames") )
     __debugbreak();
-  result = (unsigned int)v150;
-LABEL_84:
-  __asm { vmovaps xmm9, [rsp+260h+var_80] }
-  return result;
+  return (unsigned int)v101;
 }
 
 /*

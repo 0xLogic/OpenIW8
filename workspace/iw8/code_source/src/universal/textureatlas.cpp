@@ -38,45 +38,34 @@ TextureAtlas_GetCoords_ByIndex
 */
 void TextureAtlas_GetCoords_ByIndex(unsigned int tileIndex, unsigned int tilesWide, unsigned int tilesHigh, float *s0, float *ds, float *t0, float *dt)
 {
-  __int64 v29; 
+  __int64 v7; 
+  __int64 v9; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
 
-  _RBP = s0;
+  v7 = tilesHigh;
+  v9 = tilesWide;
   if ( !tilesWide && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 40, ASSERT_TYPE_ASSERT, "(tilesWide > 0)", (const char *)&queryFormat, "tilesWide > 0") )
     __debugbreak();
-  if ( !tilesHigh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 41, ASSERT_TYPE_ASSERT, "(tilesHigh > 0)", (const char *)&queryFormat, "tilesHigh > 0") )
+  if ( !(_DWORD)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 41, ASSERT_TYPE_ASSERT, "(tilesHigh > 0)", (const char *)&queryFormat, "tilesHigh > 0") )
     __debugbreak();
-  if ( tileIndex >= tilesHigh * tilesWide )
+  if ( tileIndex >= (int)v7 * (int)v9 )
   {
-    LODWORD(v29) = tileIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 42, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( tilesWide * tilesHigh )", "tileIndex doesn't index tilesWide * tilesHigh\n\t%i not in [0, %i)", v29, tilesHigh * tilesWide) )
+    LODWORD(v15) = tileIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 42, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( tilesWide * tilesHigh )", "tileIndex doesn't index tilesWide * tilesHigh\n\t%i not in [0, %i)", v15, v7 * v9) )
       __debugbreak();
   }
-  _R9 = ds;
-  __asm { vmovss  xmm2, cs:__real@3f800000 }
-  _R8 = dt;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdi
-    vdivss  xmm0, xmm2, xmm0
-    vmovss  dword ptr [r9], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rbx
-    vdivss  xmm0, xmm2, xmm1
-    vmovss  dword ptr [r8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, dword ptr [r9]
-    vmovss  dword ptr [rbp+0], xmm1
-  }
-  _RAX = t0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, dword ptr [r8]
-    vmovss  dword ptr [rax], xmm1
-  }
+  v11 = (float)v9;
+  *ds = 1.0 / v11;
+  v12 = (float)v7;
+  *dt = 1.0 / v12;
+  v13 = (float)(tileIndex % (unsigned int)v9);
+  *s0 = v13 * *ds;
+  v14 = (float)(tileIndex / (unsigned int)v9);
+  *t0 = v14 * *dt;
 }
 
 /*
@@ -86,9 +75,13 @@ TextureAtlas_GetCoords_ByIndex_Pow2
 */
 void TextureAtlas_GetCoords_ByIndex_Pow2(unsigned int tileIndex, unsigned int tilesWidePow2, unsigned int tilesHighPow2, float *s0, float *ds, float *t0, float *dt)
 {
-  __int64 v29; 
+  unsigned int v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
 
-  _R12 = s0;
   if ( !tilesWidePow2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 23, ASSERT_TYPE_ASSERT, "(tilesWidePow2 > 0)", (const char *)&queryFormat, "tilesWidePow2 > 0") )
     __debugbreak();
   if ( !tilesHighPow2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 24, ASSERT_TYPE_ASSERT, "(tilesHighPow2 > 0)", (const char *)&queryFormat, "tilesHighPow2 > 0") )
@@ -97,38 +90,21 @@ void TextureAtlas_GetCoords_ByIndex_Pow2(unsigned int tileIndex, unsigned int ti
     __debugbreak();
   if ( ((tilesHighPow2 - 1) & tilesHighPow2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 26, ASSERT_TYPE_ASSERT, "(IsPowerOf2( tilesHighPow2 ))", (const char *)&queryFormat, "IsPowerOf2( tilesHighPow2 )") )
     __debugbreak();
+  v11 = 1 << tilesWidePow2;
   if ( tileIndex >= (1 << tilesWidePow2) * (1 << tilesHighPow2) )
   {
-    LODWORD(v29) = tileIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 27, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( ( 1 << tilesWidePow2 ) * ( 1 << tilesHighPow2 ) )", "tileIndex doesn't index ( 1 << tilesWidePow2 ) * ( 1 << tilesHighPow2 )\n\t%i not in [0, %i)", v29, (1 << tilesWidePow2) * (1 << tilesHighPow2)) )
+    LODWORD(v16) = tileIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 27, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( ( 1 << tilesWidePow2 ) * ( 1 << tilesHighPow2 ) )", "tileIndex doesn't index ( 1 << tilesWidePow2 ) * ( 1 << tilesHighPow2 )\n\t%i not in [0, %i)", v16, v11 * (1 << tilesHighPow2)) )
       __debugbreak();
   }
-  _RCX = ds;
-  __asm { vmovss  xmm2, cs:__real@3f800000 }
-  _R8 = dt;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm0, xmm2, xmm0
-    vmovss  dword ptr [rcx], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm0, xmm2, xmm1
-    vmovss  dword ptr [r8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, dword ptr [rcx]
-  }
-  _RAX = t0;
-  __asm
-  {
-    vmovss  dword ptr [r12], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, dword ptr [r8]
-    vmovss  dword ptr [rax], xmm1
-  }
+  v12 = (float)v11;
+  *ds = 1.0 / v12;
+  v13 = (float)(unsigned int)(1 << tilesHighPow2);
+  *dt = 1.0 / v13;
+  v14 = (float)(tileIndex & (tilesWidePow2 - 1));
+  *s0 = v14 * *ds;
+  v15 = (float)(tileIndex / tilesWidePow2);
+  *t0 = v15 * *dt;
 }
 
 /*
@@ -136,63 +112,48 @@ void TextureAtlas_GetCoords_ByIndex_Pow2(unsigned int tileIndex, unsigned int ti
 TextureAtlas_GetCoords_ByPercent
 ==============
 */
-
-void __fastcall TextureAtlas_GetCoords_ByPercent(double percent, unsigned int tileCount, unsigned int tilesWide, unsigned int tilesHigh, float *s0, float *ds, float *t0, float *dt)
+void TextureAtlas_GetCoords_ByPercent(float percent, unsigned int tileCount, unsigned int tilesWide, unsigned int tilesHigh, float *s0, float *ds, float *t0, float *dt)
 {
-  unsigned int v16; 
-  __int64 v35; 
+  __int64 v8; 
+  __int64 v9; 
+  unsigned int v11; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
 
-  __asm
+  v8 = tilesHigh;
+  v9 = tilesWide;
+  if ( percent < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 54, ASSERT_TYPE_ASSERT, "(percent >= 0.0f)", (const char *)&queryFormat, "percent >= 0.0f") )
+    __debugbreak();
+  if ( percent < 1.0 )
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm0
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm6, xmm7
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm2, 1 }
+    v11 = (int)*(float *)&_XMM4;
   }
-  v16 = tileCount - 1;
-  if ( !tilesWide && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 40, ASSERT_TYPE_ASSERT, "(tilesWide > 0)", (const char *)&queryFormat, "tilesWide > 0") )
-    __debugbreak();
-  if ( !tilesHigh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 41, ASSERT_TYPE_ASSERT, "(tilesHigh > 0)", (const char *)&queryFormat, "tilesHigh > 0") )
-    __debugbreak();
-  if ( v16 >= tilesHigh * tilesWide )
+  else
   {
-    LODWORD(v35) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 42, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( tilesWide * tilesHigh )", "tileIndex doesn't index tilesWide * tilesHigh\n\t%i not in [0, %i)", v35, tilesHigh * tilesWide) )
+    v11 = tileCount - 1;
+  }
+  if ( !(_DWORD)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 40, ASSERT_TYPE_ASSERT, "(tilesWide > 0)", (const char *)&queryFormat, "tilesWide > 0") )
+    __debugbreak();
+  if ( !(_DWORD)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 41, ASSERT_TYPE_ASSERT, "(tilesHigh > 0)", (const char *)&queryFormat, "tilesHigh > 0") )
+    __debugbreak();
+  if ( v11 >= (int)v8 * (int)v9 )
+  {
+    LODWORD(v18) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.cpp", 42, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( tilesWide * tilesHigh )", "tileIndex doesn't index tilesWide * tilesHigh\n\t%i not in [0, %i)", v18, v8 * v9) )
       __debugbreak();
   }
-  _R9 = ds;
-  _R8 = dt;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdi
-    vdivss  xmm1, xmm7, xmm0
-    vmovss  dword ptr [r9], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rsi
-    vdivss  xmm1, xmm7, xmm0
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [r8], xmm1
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _RAX = s0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, dword ptr [r9]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-  }
-  _RAX = t0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, dword ptr [r8]
-    vmovss  dword ptr [rax], xmm1
-  }
+  v14 = (float)v9;
+  *ds = 1.0 / v14;
+  v15 = (float)v8;
+  *dt = 1.0 / v15;
+  v16 = (float)(v11 % (unsigned int)v9);
+  *s0 = v16 * *ds;
+  v17 = (float)(v11 / (unsigned int)v9);
+  *t0 = v17 * *dt;
 }
 

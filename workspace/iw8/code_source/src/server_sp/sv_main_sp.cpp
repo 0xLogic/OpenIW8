@@ -553,54 +553,54 @@ void SvGameModeAppSP::AllowNetPackets(SvGameModeAppSP *this, bool allow)
 SvGameModeAppSP::ClientFrameRateFix
 ==============
 */
-
-__int64 __fastcall SvGameModeAppSP::ClientFrameRateFix(SvGameModeAppSP *this, int msec_base, double _XMM2_8)
+__int64 SvGameModeAppSP::ClientFrameRateFix(SvGameModeAppSP *this, int msec_base)
 {
-  int v6; 
+  int v2; 
   SvGameGlobalsSP *SvGameGlobalsSP; 
-  char v11; 
-  int v12; 
+  int v5; 
+  int v6; 
+  double TimescaleForSv; 
+  int FrameDuration; 
+  int v9; 
+  float v10; 
+  int v11; 
+  float v12; 
   __int64 result; 
 
-  v6 = msec_base;
+  v2 = msec_base;
   if ( !msec_base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2341, ASSERT_TYPE_ASSERT, "(msec_base)", (const char *)&queryFormat, "msec_base") )
     __debugbreak();
   SvGameGlobalsSP = SvGameGlobalsSP::GetSvGameGlobalsSP();
   SvGameGlobalsSP->ignoreClientMessageTimeout = 0;
-  if ( !Com_GameIsPaused() && HIDWORD(qword_14E91B0F0) && v6 - SvGameGlobalsSP->waitSnapshotTime > 0 )
+  if ( !Com_GameIsPaused() )
   {
-    __asm { vmovaps [rsp+58h+var_28], xmm6 }
-    *(double *)&_XMM0 = Com_GetTimescaleForSv();
-    __asm
+    v5 = HIDWORD(qword_14E91B0F0);
+    if ( HIDWORD(qword_14E91B0F0) )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2357, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
-      __debugbreak();
-    SvGameModeApplication::GetFrameDuration(this);
-    v12 = 1;
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm2, xmm2, eax
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_28]
-      vdivss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
-    if ( _EAX > 1 )
-      v12 = _EAX;
-    if ( v12 < v6 )
-    {
-      v6 = v12;
-      SvGameGlobalsSP->ignoreClientMessageTimeout = 1;
+      v6 = v2 - SvGameGlobalsSP->waitSnapshotTime;
+      if ( v6 > 0 )
+      {
+        TimescaleForSv = Com_GetTimescaleForSv();
+        if ( *(float *)&TimescaleForSv == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2357, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
+          __debugbreak();
+        FrameDuration = SvGameModeApplication::GetFrameDuration(this);
+        v9 = 1;
+        v10 = (float)(v6 * FrameDuration);
+        v11 = 200;
+        if ( v5 < 200 )
+          v11 = v5;
+        v12 = (float)v11;
+        if ( (int)(float)(v10 / (float)(v12 * *(float *)&TimescaleForSv)) > 1 )
+          v9 = (int)(float)(v10 / (float)(v12 * *(float *)&TimescaleForSv));
+        if ( v9 < v2 )
+        {
+          v2 = v9;
+          SvGameGlobalsSP->ignoreClientMessageTimeout = 1;
+        }
+      }
     }
   }
-  result = (unsigned int)v6;
+  result = (unsigned int)v2;
   SvGameGlobalsSP->waitSnapshotTime = 0;
   return result;
 }
@@ -624,38 +624,38 @@ char SvGameModeAppSP::ForwardFrame(SvGameModeAppSP *this)
 {
   SvGameGlobalsSP *SvGameGlobalsSP; 
   int forwardTime; 
-  SvGameGlobalsSP *v6; 
-  int v7; 
+  SvGameGlobalsSP *v4; 
+  int v5; 
   int Time; 
-  SvGameGlobalsSP *v9; 
-  SvGameGlobalsSP *v10; 
+  SvGameGlobalsSP *v7; 
+  SvGameGlobalsSP *v8; 
   CLPauseReason PauseReason; 
-  scrContext_t *v13; 
-  SvGameGlobalsSP *v14; 
+  scrContext_t *v11; 
+  SvGameGlobalsSP *v12; 
+  int v13; 
+  int v14; 
   int v15; 
-  int v20; 
-  int v23; 
-  unsigned int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  __int64 v29; 
+  unsigned int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  __int64 v20; 
 
   SvGameGlobalsSP = SvGameGlobalsSP::GetSvGameGlobalsSP();
   forwardTime = 0;
-  v6 = SvGameGlobalsSP;
+  v4 = SvGameGlobalsSP;
   if ( sv_demo.forwardTime )
     forwardTime = sv_demo.forwardTime;
   SvGameGlobalsSP->forwardTime = forwardTime;
   if ( !forwardTime )
     return 0;
-  v7 = Sys_Milliseconds();
+  v5 = Sys_Milliseconds();
   if ( !this->m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
     __debugbreak();
-  if ( v6->forwardTime % (signed int)this->m_frameDuration )
+  if ( v4->forwardTime % (signed int)this->m_frameDuration )
   {
-    LODWORD(v29) = v6->forwardTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2239, ASSERT_TYPE_ASSERT, "( ( !(sv->forwardTime % this->GetFrameDuration()) ) )", "( sv->forwardTime ) = %i", v29) )
+    LODWORD(v20) = v4->forwardTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2239, ASSERT_TYPE_ASSERT, "( ( !(sv->forwardTime % this->GetFrameDuration()) ) )", "( sv->forwardTime ) = %i", v20) )
       __debugbreak();
   }
   if ( SND_ExistsPendingRestore() )
@@ -666,22 +666,21 @@ char SvGameModeAppSP::ForwardFrame(SvGameModeAppSP *this)
     __debugbreak();
   if ( _InterlockedCompareExchange(&g_serverThreadOwnership, 0, 1) )
   {
-    LODWORD(v29) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2250, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v29) )
+    LODWORD(v20) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2250, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v20) )
       __debugbreak();
   }
   Time = G_Main_GetTime();
-  v9 = SvGameGlobalsSP::GetSvGameGlobalsSP();
-  v10 = v9;
-  if ( v9->forwardTime - Time > 0 )
+  v7 = SvGameGlobalsSP::GetSvGameGlobalsSP();
+  v8 = v7;
+  if ( v7->forwardTime - Time > 0 )
   {
-    __asm { vmovaps [rsp+68h+var_38], xmm6 }
     PauseReason = CL_Pause_GetPauseReason();
     if ( PauseReason )
       CL_Pause_UnpauseGame();
-    v13 = ScriptContext_Server();
-    if ( v10->forwardTime - Time > SvGameModeApplication::GetFrameDuration(this) )
-      Scr_EnableBreakpoints(v13, 0);
+    v11 = ScriptContext_Server();
+    if ( v8->forwardTime - Time > SvGameModeApplication::GetFrameDuration(this) )
+      Scr_EnableBreakpoints(v11, 0);
     SV_WakeServer();
     SV_WaitServer();
     Com_CheckError();
@@ -689,43 +688,30 @@ char SvGameModeAppSP::ForwardFrame(SvGameModeAppSP *this)
       __debugbreak();
     if ( _InterlockedCompareExchange(&g_serverThreadOwnership, 0, 1) )
     {
-      LODWORD(v29) = g_serverThreadOwnership;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2285, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v29) )
+      LODWORD(v20) = g_serverThreadOwnership;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2285, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v20) )
         __debugbreak();
     }
-    v14 = SvGameGlobalsSP::GetSvGameGlobalsSP();
-    v15 = v14->forwardTime - G_Main_GetTime();
-    if ( v15 > 0 )
-      SvGameModeAppSP::UpdateServerTime(this, v15);
-    __asm
+    v12 = SvGameGlobalsSP::GetSvGameGlobalsSP();
+    v13 = v12->forwardTime - G_Main_GetTime();
+    if ( v13 > 0 )
+      SvGameModeAppSP::UpdateServerTime(this, v13);
+    v14 = G_Main_GetTime();
+    Com_Printf(15, "\n=== Replay moved forward %d msec from time %g. ===\n\n", (unsigned int)(v14 - Time), (float)((float)Time * 0.001));
+    v15 = G_Main_GetTime() - Time;
+    if ( Sys_Milliseconds() - v5 > v15 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r14d
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm6, xmm1, xmm1
+      v16 = Sys_Milliseconds() - v5;
+      v17 = G_Main_GetTime();
+      Com_Printf(15, "Moving forward %ims took %ims of wall time\n", (unsigned int)(v17 - Time), v16);
     }
-    v20 = G_Main_GetTime();
-    __asm
-    {
-      vmovaps xmm3, xmm6
-      vmovq   r9, xmm3
-    }
-    Com_Printf(15, "\n=== Replay moved forward %d msec from time %g. ===\n\n", (unsigned int)(v20 - Time), *(double *)&_XMM3);
-    v23 = G_Main_GetTime() - Time;
-    __asm { vmovaps xmm6, [rsp+68h+var_38] }
-    if ( Sys_Milliseconds() - v7 > v23 )
-    {
-      v25 = Sys_Milliseconds() - v7;
-      v26 = G_Main_GetTime();
-      Com_Printf(15, "Moving forward %ims took %ims of wall time\n", (unsigned int)(v26 - Time), v25);
-    }
-    v27 = G_Main_GetTime();
-    v28 = sv_demo.forwardTime;
-    if ( sv_demo.forwardTime - v27 <= 0 )
-      v28 = 0;
-    sv_demo.forwardTime = v28;
+    v18 = G_Main_GetTime();
+    v19 = sv_demo.forwardTime;
+    if ( sv_demo.forwardTime - v18 <= 0 )
+      v19 = 0;
+    sv_demo.forwardTime = v19;
     this->m_svPartialTime = 0;
-    Scr_EnableBreakpoints(v13, 1);
+    Scr_EnableBreakpoints(v11, 1);
     if ( !CL_Pause_IsGamePaused() )
     {
       if ( PauseReason )
@@ -740,7 +726,7 @@ char SvGameModeAppSP::ForwardFrame(SvGameModeAppSP *this)
   else
   {
     sv_demo.forwardTime = 0;
-    v9->forwardTime = 0;
+    v7->forwardTime = 0;
     return 0;
   }
 }
@@ -1191,60 +1177,29 @@ void SV_MainSP_InitSnapshot(void)
 SV_MainSP_IsServerTimeout
 ==============
 */
-
-__int64 __fastcall SV_MainSP_IsServerTimeout(double _XMM0_8, double _XMM1_8)
+__int64 SV_MainSP_IsServerTimeout()
 {
-  char v5; 
-  signed __int32 v6; 
-  __int64 result; 
-  int v9; 
+  double TimescaleForSv; 
+  signed __int32 v1; 
+  int v3; 
   SvGameModeApplication *ActiveServerApplication; 
-  signed __int32 v15; 
+  signed __int32 v5; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _XMM0_8 = Com_GetTimescaleForSv();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 915, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
+  TimescaleForSv = Com_GetTimescaleForSv();
+  if ( *(float *)&TimescaleForSv == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 915, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
     __debugbreak();
-  v6 = s_svSpTimeOut;
-  if ( s_svSpTimeOut )
-  {
-    v9 = Sys_Milliseconds();
-    if ( v9 - v6 < 0 )
-    {
-      result = 0i64;
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    }
-    else
-    {
-      ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-      SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm0, xmm6
-        vcvttss2si esi, xmm1
-      }
-      v15 = v9 + _ESI;
-      if ( ((unsigned __int8)&s_svSpTimeOut & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)&s_svSpTimeOut) )
-        __debugbreak();
-      _InterlockedCompareExchange(&s_svSpTimeOut, v15, v6);
-      result = 1i64;
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    }
-  }
-  else
-  {
-    result = (unsigned int)(s_svSpTimeOut + 1);
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  }
-  return result;
+  v1 = s_svSpTimeOut;
+  if ( !s_svSpTimeOut )
+    return (unsigned int)(s_svSpTimeOut + 1);
+  v3 = Sys_Milliseconds();
+  if ( v3 - v1 < 0 )
+    return 0i64;
+  ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
+  v5 = v3 + (int)(float)((float)SvGameModeApplication::GetFrameDuration(ActiveServerApplication) / *(float *)&TimescaleForSv);
+  if ( ((unsigned __int8)&s_svSpTimeOut & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)&s_svSpTimeOut) )
+    __debugbreak();
+  _InterlockedCompareExchange(&s_svSpTimeOut, v5, v1);
+  return 1i64;
 }
 
 /*
@@ -1447,52 +1402,38 @@ void SV_MainSP_SetServerTime(int serverTime)
 SV_MainSP_SetServerTimeout
 ==============
 */
-
-void __fastcall SV_MainSP_SetServerTimeout(int timeout, double _XMM1_8)
+void SV_MainSP_SetServerTimeout(int timeout)
 {
-  const char *v5; 
-  char v8; 
-  int v13; 
+  const char *v2; 
+  double TimescaleForSv; 
+  unsigned int v4; 
+  int v5; 
 
   if ( timeout < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 877, ASSERT_TYPE_ASSERT, "(timeout >= 0)", (const char *)&queryFormat, "timeout >= 0") )
     __debugbreak();
   if ( timeout )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    *(double *)&_XMM0 = Com_GetTimescaleForSv();
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 888, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
+    TimescaleForSv = Com_GetTimescaleForSv();
+    if ( *(float *)&TimescaleForSv == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 888, ASSERT_TYPE_ASSERT, "(timescale != 0.0f)", (const char *)&queryFormat, "timescale != 0.0f") )
       __debugbreak();
-    __asm
+    v4 = (int)(float)((float)timeout / *(float *)&TimescaleForSv);
+    v5 = Sys_Milliseconds();
+    if ( s_svSpTimeOut && v5 - s_svSpTimeOut < 0 && (int)(s_svSpTimeOut - (v5 + v4)) <= 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vdivss  xmm1, xmm0, xmm6
-      vcvttss2si ebx, xmm1
-    }
-    v13 = Sys_Milliseconds();
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    if ( s_svSpTimeOut && v13 - s_svSpTimeOut < 0 && (int)(s_svSpTimeOut - (v13 + _EBX)) <= 0 )
-    {
-      v5 = j_va("ignore server timeout: %d", _EBX);
+      v2 = j_va("ignore server timeout: %d", v4);
     }
     else
     {
-      s_svSpTimeOut = v13 + _EBX;
-      v5 = j_va("server timeout: %d", _EBX);
+      s_svSpTimeOut = v5 + v4;
+      v2 = j_va("server timeout: %d", v4);
     }
   }
   else
   {
     s_svSpTimeOut = 0;
-    v5 = "server no timeout";
+    v2 = "server no timeout";
   }
-  Sys_ProfBeginNamedEvent(0xFF0000FF, v5);
+  Sys_ProfBeginNamedEvent(0xFF0000FF, v2);
   Sys_ProfEndNamedEvent();
 }
 
@@ -1831,10 +1772,11 @@ void SV_SaveSP_SaveServerCommands(MemoryFile *memFile)
 {
   unsigned int SpClientNum; 
   SvClient *CommonClient; 
+  ServerCommandsSP *v4; 
   ServerCommandsSP *ServerCommands; 
   LocalClientNum_t OnlyLocalClientNum; 
+  LocalClientNum_t v7; 
   LocalClientNum_t v8; 
-  LocalClientNum_t v9; 
   int i; 
   int j; 
   __int64 p; 
@@ -1846,33 +1788,29 @@ void SV_SaveSP_SaveServerCommands(MemoryFile *memFile)
   if ( (_BYTE)SvClient::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_client_sp.h", 83, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
   CommonClient = SvClient::GetCommonClient(SpClientNum);
-  ServerCommands = NULL;
-  _RBX = (ServerCommandsSP *)&CommonClient[1];
+  v4 = NULL;
+  ServerCommands = (ServerCommandsSP *)&CommonClient[1];
   if ( *(_DWORD *)&CommonClient[1].state == HIDWORD(CommonClient[1].__vftable) )
   {
-    if ( _RBX->header.rover && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 428, ASSERT_TYPE_ASSERT, "(!client->reliableCommands.header.rover)", "%s\n\t%s", "!client->reliableCommands.header.rover", (const char *)&CommonClient[1].state + 4) )
+    if ( ServerCommands->header.rover && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 428, ASSERT_TYPE_ASSERT, "(!client->reliableCommands.header.rover)", "%s\n\t%s", "!client->reliableCommands.header.rover", (const char *)&CommonClient[1].state + 4) )
       __debugbreak();
     OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-    _RBX = CL_CGameSP_GetServerCommands(OnlyLocalClientNum);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  [rsp+68h+p], xmm0
-    }
-    sent = _RBX->header.sent;
+    ServerCommands = CL_CGameSP_GetServerCommands(OnlyLocalClientNum);
+    p = *(_QWORD *)&ServerCommands->header.rover;
+    sent = ServerCommands->header.sent;
   }
   else
   {
-    v8 = CL_GetOnlyLocalClientNum();
-    if ( CL_CGameSP_GetServerCommands(v8)->header.rover )
+    v7 = CL_GetOnlyLocalClientNum();
+    if ( CL_CGameSP_GetServerCommands(v7)->header.rover )
     {
-      v9 = CL_GetOnlyLocalClientNum();
-      ServerCommands = CL_CGameSP_GetServerCommands(v9);
-      sent = ServerCommands->header.sent;
-      if ( ServerCommands->header.sequence != _RBX->header.sent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 444, ASSERT_TYPE_ASSERT, "(clientCommands->header.sequence == serverCommands->header.sent)", (const char *)&queryFormat, "clientCommands->header.sequence == serverCommands->header.sent") )
+      v8 = CL_GetOnlyLocalClientNum();
+      v4 = CL_CGameSP_GetServerCommands(v8);
+      sent = v4->header.sent;
+      if ( v4->header.sequence != ServerCommands->header.sent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 444, ASSERT_TYPE_ASSERT, "(clientCommands->header.sequence == serverCommands->header.sent)", (const char *)&queryFormat, "clientCommands->header.sequence == serverCommands->header.sent") )
         __debugbreak();
-      HIDWORD(p) = _RBX->header.sequence;
-      LODWORD(p) = ServerCommands->header.rover + _RBX->header.rover;
+      HIDWORD(p) = ServerCommands->header.sequence;
+      LODWORD(p) = v4->header.rover + ServerCommands->header.rover;
       if ( HIDWORD(p) - sent > 128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 449, ASSERT_TYPE_ASSERT, "(header.sequence - header.sent <= 128)", (const char *)&queryFormat, "header.sequence - header.sent <= MAX_RELIABLE_COMMANDS_SERVER_TO_CLIENT_SP") )
         __debugbreak();
       if ( (int)p > 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 450, ASSERT_TYPE_ASSERT, "(header.rover <= static_cast< int >( sizeof( clientCommands->buf ) ))", (const char *)&queryFormat, "header.rover <= static_cast< int >( sizeof( clientCommands->buf ) )") )
@@ -1880,25 +1818,21 @@ void SV_SaveSP_SaveServerCommands(MemoryFile *memFile)
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx]
-        vmovsd  [rsp+68h+p], xmm0
-      }
-      sent = _RBX->header.sent;
+      p = *(_QWORD *)&ServerCommands->header.rover;
+      sent = ServerCommands->header.sent;
     }
   }
   MemFile_WriteData(memFile, 0xCui64, &p);
-  if ( ServerCommands )
+  if ( v4 )
   {
-    for ( i = ServerCommands->header.sent + 1; i <= ServerCommands->header.sequence; ++i )
-      MemFile_WriteData(memFile, 4ui64, &ServerCommands->commands[i & 0x7F]);
+    for ( i = v4->header.sent + 1; i <= v4->header.sequence; ++i )
+      MemFile_WriteData(memFile, 4ui64, &v4->commands[i & 0x7F]);
   }
-  for ( j = _RBX->header.sent + 1; j <= _RBX->header.sequence; ++j )
-    MemFile_WriteData(memFile, 4ui64, &_RBX->commands[j & 0x7F]);
-  if ( ServerCommands )
-    MemFile_WriteData(memFile, ServerCommands->header.rover, ServerCommands->buf);
-  MemFile_WriteData(memFile, _RBX->header.rover, _RBX->buf);
+  for ( j = ServerCommands->header.sent + 1; j <= ServerCommands->header.sequence; ++j )
+    MemFile_WriteData(memFile, 4ui64, &ServerCommands->commands[j & 0x7F]);
+  if ( v4 )
+    MemFile_WriteData(memFile, v4->header.rover, v4->buf);
+  MemFile_WriteData(memFile, ServerCommands->header.rover, ServerCommands->buf);
 }
 
 /*
@@ -2018,259 +1952,140 @@ __int64 SV_ServerSnapshotPending()
 SV_UpdatePerformanceFrameSP
 ==============
 */
-
-void __fastcall SV_UpdatePerformanceFrameSP(double time, double vmTime, double vmBuiltinTime, double entFieldTime)
+void SV_UpdatePerformanceFrameSP(float time, float vmTime, float vmBuiltinTime, float entFieldTime)
 {
-  int v26; 
+  SvGameGlobalsSP *SvGameGlobalsSP; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  unsigned int v11; 
+  float v12; 
+  ServerProfileTimes *v13; 
+  float v14; 
+  bool v15; 
+  SvGameModeApplication *ActiveServerApplication; 
+  float *p_waitStartTime; 
+  __int64 v18; 
+  SvGameModeApplication *v19; 
   int v27; 
   int v28; 
-  int v30; 
-  unsigned int v31; 
-  bool v42; 
-  SvGameModeApplication *ActiveServerApplication; 
-  __int64 v45; 
-  SvGameModeApplication *v46; 
-  int v72; 
-  int v73; 
-  int v88; 
-  char v138; 
-  void *retaddr; 
+  int v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+10h], xmm1
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps [rsp+0D8h+var_A8], xmm15
-    vmovaps xmm15, xmm2
-    vmovaps xmm14, xmm3
-    vmovaps xmm6, xmm1
-    vmovaps xmm9, xmm0
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  xmm8, cs:__real@ff7fffff
-    vmovaps xmm10, xmm7
-    vmovaps xmm11, xmm8
-    vmovaps xmm12, xmm7
-    vmovaps xmm13, xmm8
-  }
-  _RBX = SvGameGlobalsSP::GetSvGameGlobalsSP();
-  v26 = 0x7FFFFFFF;
-  v27 = 0;
-  v28 = Sys_Milliseconds();
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v30 = s_serverDebugFrame_0;
-  v31 = (int)((unsigned __int64)(1717986919i64 * s_serverDebugFrame_0++) >> 32) >> 4;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:s_waitStartServerTime
-  }
-  _RCX = &s_serverProfileTimes_0[(__int64)(int)(v30 - 40 * ((v31 >> 31) + v31))];
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rcx+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:s_waitClientMessageTime
-    vmovss  dword ptr [rcx+68h], xmm0
-    vmovss  dword ptr [rcx+64h], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:s_waitSendMessagesTime
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:s_waitServerTimeoutTime
-    vmovss  dword ptr [rcx+70h], xmm0
-    vmovss  dword ptr [rcx], xmm9
-    vmovss  dword ptr [rcx+2Ch], xmm6
-    vmovss  dword ptr [rcx+44h], xmm15
-    vmovss  dword ptr [rcx+5Ch], xmm14
-    vmovss  dword ptr [rcx+6Ch], xmm1
-  }
-  v42 = s_serverDebugFrame_0 < 40;
-  _RCX->animCalls = _RBX->profile.animCalls;
-  _RCX->serverTime = level.time;
-  s_lastWallClockEndTime_0 = v28;
+  SvGameGlobalsSP = SvGameGlobalsSP::GetSvGameGlobalsSP();
+  v7 = 0x7FFFFFFF;
+  v8 = 0;
+  v9 = Sys_Milliseconds();
+  v10 = s_serverDebugFrame_0;
+  v11 = (int)((unsigned __int64)(1717986919i64 * s_serverDebugFrame_0++) >> 32) >> 4;
+  v12 = (float)s_waitStartServerTime;
+  v13 = &s_serverProfileTimes_0[(__int64)(int)(v10 - 40 * ((v11 >> 31) + v11))];
+  v13->wallClockTime = (float)(v9 - s_lastWallClockEndTime_0);
+  v13->waitClientTime = (float)s_waitClientMessageTime;
+  v13->waitStartTime = v12;
+  v14 = (float)s_waitServerTimeoutTime;
+  v13->waitSendTime = (float)s_waitSendMessagesTime;
+  v13->frameTime = time;
+  v13->vmFrameTime = vmTime;
+  v13->vmBuiltinTime = vmBuiltinTime;
+  v13->vmEntFieldTime = entFieldTime;
+  v13->waitTimeoutTime = v14;
+  v15 = s_serverDebugFrame_0 < 40;
+  v13->animCalls = SvGameGlobalsSP->profile.animCalls;
+  v13->serverTime = level.time;
+  s_lastWallClockEndTime_0 = v9;
   s_waitStartServerTime = 0;
   s_waitClientMessageTime = 0;
   s_waitServerTimeoutTime = 0;
   s_waitSendMessagesTime = 0;
-  if ( !v42 )
+  if ( !v15 )
   {
     ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-    _RBX->profile.frameTime = 0.0;
-    _RDX = &s_serverProfileTimes_0[0].waitStartTime;
-    _RBX->profile.wallClockTime = 0.0;
-    v45 = 40i64;
-    _RBX->profile.waitStartTime = 0.0;
-    v46 = ActiveServerApplication;
-    _RBX->profile.waitClientTime = 0.0;
-    _RBX->profile.waitTimeoutTime = 0.0;
-    _RBX->profile.waitSendTime = 0.0;
+    SvGameGlobalsSP->profile.frameTime = 0.0;
+    p_waitStartTime = &s_serverProfileTimes_0[0].waitStartTime;
+    SvGameGlobalsSP->profile.wallClockTime = 0.0;
+    v18 = 40i64;
+    SvGameGlobalsSP->profile.waitStartTime = 0.0;
+    v19 = ActiveServerApplication;
+    SvGameGlobalsSP->profile.waitClientTime = 0.0;
+    SvGameGlobalsSP->profile.waitTimeoutTime = 0.0;
+    SvGameGlobalsSP->profile.waitSendTime = 0.0;
     do
     {
+      SvGameGlobalsSP->profile.frameTime = SvGameGlobalsSP->profile.frameTime + *(p_waitStartTime - 25);
+      SvGameGlobalsSP->profile.wallClockTime = SvGameGlobalsSP->profile.wallClockTime + *(p_waitStartTime - 24);
+      SvGameGlobalsSP->profile.waitStartTime = SvGameGlobalsSP->profile.waitStartTime + *p_waitStartTime;
+      SvGameGlobalsSP->profile.waitClientTime = SvGameGlobalsSP->profile.waitClientTime + p_waitStartTime[1];
+      SvGameGlobalsSP->profile.waitTimeoutTime = SvGameGlobalsSP->profile.waitTimeoutTime + p_waitStartTime[2];
+      SvGameGlobalsSP->profile.waitSendTime = SvGameGlobalsSP->profile.waitSendTime + p_waitStartTime[3];
+      _XMM1 = *((unsigned int *)p_waitStartTime - 25);
       __asm
       {
-        vmovss  xmm0, dword ptr [rbx+0B4h]
-        vaddss  xmm1, xmm0, dword ptr [rdx-64h]
-        vmovss  dword ptr [rbx+0B4h], xmm1
-        vmovss  xmm2, dword ptr [rbx+0B8h]
-        vaddss  xmm0, xmm2, dword ptr [rdx-60h]
-        vmovss  dword ptr [rbx+0B8h], xmm0
-        vmovss  xmm1, dword ptr [rbx+118h]
-        vaddss  xmm2, xmm1, dword ptr [rdx]
-        vmovss  dword ptr [rbx+118h], xmm2
-        vmovss  xmm0, dword ptr [rbx+11Ch]
-        vaddss  xmm0, xmm0, dword ptr [rdx+4]
-        vmovss  dword ptr [rbx+11Ch], xmm0
-        vmovss  xmm1, dword ptr [rbx+120h]
-        vaddss  xmm0, xmm1, dword ptr [rdx+8]
-        vmovss  dword ptr [rbx+120h], xmm0
-        vmovss  xmm2, dword ptr [rbx+124h]
-        vaddss  xmm0, xmm2, dword ptr [rdx+0Ch]
-        vmovss  dword ptr [rbx+124h], xmm0
-        vmovss  xmm0, dword ptr [rbx+0E0h]
-        vmovss  xmm1, dword ptr [rdx-64h]
         vminss  xmm7, xmm1, xmm7
         vmaxss  xmm8, xmm1, xmm8
-        vaddss  xmm1, xmm0, dword ptr [rdx-38h]
-        vmovss  dword ptr [rbx+0E0h], xmm1
-        vmovss  xmm0, dword ptr [rbx+0F8h]
-        vmovss  xmm2, dword ptr [rdx-38h]
-        vaddss  xmm1, xmm0, dword ptr [rdx-20h]
-        vmovss  dword ptr [rbx+0F8h], xmm1
-        vmovss  xmm0, dword ptr [rbx+110h]
-        vaddss  xmm0, xmm0, dword ptr [rdx-8]
+      }
+      SvGameGlobalsSP->profile.vmFrameTime = SvGameGlobalsSP->profile.vmFrameTime + *(p_waitStartTime - 14);
+      _XMM2 = *((unsigned int *)p_waitStartTime - 14);
+      SvGameGlobalsSP->profile.vmBuiltinTime = SvGameGlobalsSP->profile.vmBuiltinTime + *(p_waitStartTime - 8);
+      __asm
+      {
         vminss  xmm10, xmm2, xmm10
         vmaxss  xmm11, xmm2, xmm11
-        vmovss  xmm2, dword ptr [rdx-20h]
-        vmovss  dword ptr [rbx+110h], xmm0
       }
-      v72 = *((_DWORD *)_RDX + 4);
-      _RDX += 32;
-      v73 = v72;
+      _XMM2 = *((unsigned int *)p_waitStartTime - 8);
+      SvGameGlobalsSP->profile.vmEntFieldTime = SvGameGlobalsSP->profile.vmEntFieldTime + *(p_waitStartTime - 2);
+      v27 = *((_DWORD *)p_waitStartTime + 4);
+      p_waitStartTime += 32;
+      v28 = v27;
       __asm { vminss  xmm12, xmm2, xmm12 }
-      if ( v26 <= v72 )
-        v73 = v26;
+      if ( v7 <= v27 )
+        v28 = v7;
       __asm { vmaxss  xmm13, xmm2, xmm13 }
-      if ( v27 >= v72 )
-        v72 = v27;
-      v26 = v73;
-      v27 = v72;
-      --v45;
+      if ( v8 >= v27 )
+        v27 = v8;
+      v7 = v28;
+      v8 = v27;
+      --v18;
     }
-    while ( v45 );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0B4h]
-      vmovss  xmm6, cs:__real@3ccccccd
-      vmulss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx+0B4h], xmm0
-      vmovss  xmm1, dword ptr [rbx+0B8h]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbx+0B8h], xmm2
-      vmovss  xmm0, dword ptr [rbx+118h]
-      vmulss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx+118h], xmm1
-      vmovss  xmm2, dword ptr [rbx+11Ch]
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rbx+11Ch], xmm0
-      vmovss  xmm1, dword ptr [rbx+120h]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbx+120h], xmm2
-      vmovss  xmm0, dword ptr [rbx+124h]
-    }
-    v88 = s_serverDebugFrame_0;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx+124h], xmm1
-      vmovss  dword ptr [rbx+0C8h], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-    }
-    _RBX->profile.debugFrameNumber = v88;
-    __asm
-    {
-      vmaxss  xmm0, xmm7, xmm9
-      vmovss  dword ptr [rbx+0BCh], xmm0
-      vmaxss  xmm1, xmm8, xmm9
-      vmovss  dword ptr [rbx+0C0h], xmm1
-    }
-    if ( v46->m_frameDuration <= (unsigned __int8)v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
+    while ( v18 );
+    SvGameGlobalsSP->profile.frameTime = SvGameGlobalsSP->profile.frameTime * 0.025;
+    SvGameGlobalsSP->profile.wallClockTime = SvGameGlobalsSP->profile.wallClockTime * 0.025;
+    SvGameGlobalsSP->profile.waitStartTime = SvGameGlobalsSP->profile.waitStartTime * 0.025;
+    SvGameGlobalsSP->profile.waitClientTime = SvGameGlobalsSP->profile.waitClientTime * 0.025;
+    SvGameGlobalsSP->profile.waitTimeoutTime = SvGameGlobalsSP->profile.waitTimeoutTime * 0.025;
+    v31 = s_serverDebugFrame_0;
+    SvGameGlobalsSP->profile.waitSendTime = SvGameGlobalsSP->profile.waitSendTime * 0.025;
+    SvGameGlobalsSP->profile.mostRecentFrameTimeMsec = time;
+    SvGameGlobalsSP->profile.debugFrameNumber = v31;
+    __asm { vmaxss  xmm0, xmm7, xmm9 }
+    SvGameGlobalsSP->profile.serverFrameTimeMin = *(float *)&_XMM0;
+    __asm { vmaxss  xmm1, xmm8, xmm9 }
+    SvGameGlobalsSP->profile.serverFrameTimeMax = *(float *)&_XMM1;
+    if ( !v19->m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbp+10h]
-      vmovss  dword ptr [rbx+0C4h], xmm0
-      vmovss  xmm1, dword ptr [rbx+0E0h]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbx+0E0h], xmm2
-      vxorps  xmm3, xmm3, xmm3
-      vmaxss  xmm0, xmm10, xmm3
-      vmovss  dword ptr [rbx+0E4h], xmm0
-      vmaxss  xmm0, xmm11, xmm3
-      vmovss  dword ptr [rbx+0E8h], xmm0
-      vmovss  xmm0, [rsp+0D8h+arg_8]
-      vaddss  xmm0, xmm0, dword ptr [rbx+0ECh]
-      vmovss  dword ptr [rbx+0ECh], xmm0
-      vmovss  xmm1, dword ptr [rbx+0F0h]
-      vmovss  xmm0, dword ptr [rbx+0E4h]
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+0F0h], xmm1
-      vmovss  xmm2, dword ptr [rbx+0F4h]
-      vmovss  xmm0, dword ptr [rbx+0E8h]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+0F4h], xmm1
-      vmovss  xmm0, dword ptr [rbx+0DCh]
-      vaddss  xmm1, xmm0, xmm9
-      vmovss  dword ptr [rbx+0DCh], xmm1
-      vmovss  xmm2, dword ptr [rbx+0F8h]
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rbx+0F8h], xmm0
-      vmaxss  xmm0, xmm12, xmm3
-      vmovss  dword ptr [rbx+100h], xmm0
-      vmaxss  xmm0, xmm13, xmm3
-      vmovss  dword ptr [rbx+104h], xmm0
-      vaddss  xmm0, xmm15, dword ptr [rbx+0FCh]
-      vmovss  dword ptr [rbx+0FCh], xmm0
-      vmovss  xmm1, dword ptr [rbx+108h]
-      vmovss  xmm0, dword ptr [rbx+100h]
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+108h], xmm1
-      vmovss  xmm2, dword ptr [rbx+10Ch]
-      vmovss  xmm0, dword ptr [rbx+104h]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+10Ch], xmm1
-      vmovss  xmm2, dword ptr [rbx+110h]
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rbx+110h], xmm0
-      vaddss  xmm0, xmm14, dword ptr [rbx+114h]
-      vmovss  dword ptr [rbx+114h], xmm0
-    }
-    _RBX->profile.animCallsMin = v26;
-    _RBX->profile.animCallsMax = v27;
-    _RBX->profile.serverTime = level.time;
-  }
-  __asm { vmovaps xmm14, [rsp+0D8h+var_98] }
-  _R11 = &v138;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0D8h+var_A8]
+    SvGameGlobalsSP->profile.serverFrameTimeTarget = (float)(int)v19->m_frameDuration;
+    SvGameGlobalsSP->profile.vmFrameTime = SvGameGlobalsSP->profile.vmFrameTime * 0.025;
+    __asm { vmaxss  xmm0, xmm10, xmm3 }
+    SvGameGlobalsSP->profile.vmFrameTimeMin = *(float *)&_XMM0;
+    __asm { vmaxss  xmm0, xmm11, xmm3 }
+    SvGameGlobalsSP->profile.vmFrameTimeMax = *(float *)&_XMM0;
+    SvGameGlobalsSP->profile.vmFrameTimeAccum = vmTime + SvGameGlobalsSP->profile.vmFrameTimeAccum;
+    SvGameGlobalsSP->profile.vmFrameTimeMinAccum = SvGameGlobalsSP->profile.vmFrameTimeMinAccum + SvGameGlobalsSP->profile.vmFrameTimeMin;
+    SvGameGlobalsSP->profile.vmFrameTimeMaxAccum = SvGameGlobalsSP->profile.vmFrameTimeMaxAccum + SvGameGlobalsSP->profile.vmFrameTimeMax;
+    SvGameGlobalsSP->profile.vmFrameTimeFrames = SvGameGlobalsSP->profile.vmFrameTimeFrames + 1.0;
+    SvGameGlobalsSP->profile.vmBuiltinTime = SvGameGlobalsSP->profile.vmBuiltinTime * 0.025;
+    __asm { vmaxss  xmm0, xmm12, xmm3 }
+    SvGameGlobalsSP->profile.vmBuiltinTimeMin = *(float *)&_XMM0;
+    __asm { vmaxss  xmm0, xmm13, xmm3 }
+    SvGameGlobalsSP->profile.vmBuiltinTimeMax = *(float *)&_XMM0;
+    SvGameGlobalsSP->profile.vmBuiltinTimeAccum = vmBuiltinTime + SvGameGlobalsSP->profile.vmBuiltinTimeAccum;
+    SvGameGlobalsSP->profile.vmBuiltinTimeMinAccum = SvGameGlobalsSP->profile.vmBuiltinTimeMinAccum + SvGameGlobalsSP->profile.vmBuiltinTimeMin;
+    SvGameGlobalsSP->profile.vmBuiltinTimeMaxAccum = SvGameGlobalsSP->profile.vmBuiltinTimeMaxAccum + SvGameGlobalsSP->profile.vmBuiltinTimeMax;
+    SvGameGlobalsSP->profile.vmEntFieldTime = SvGameGlobalsSP->profile.vmEntFieldTime * 0.025;
+    SvGameGlobalsSP->profile.vmEntFieldTimeAccum = entFieldTime + SvGameGlobalsSP->profile.vmEntFieldTimeAccum;
+    SvGameGlobalsSP->profile.animCallsMin = v7;
+    SvGameGlobalsSP->profile.animCallsMax = v8;
+    SvGameGlobalsSP->profile.serverTime = level.time;
   }
 }
 
@@ -2279,14 +2094,14 @@ void __fastcall SV_UpdatePerformanceFrameSP(double time, double vmTime, double v
 SV_WaitServerSnapshot
 ==============
 */
-
-void __fastcall SV_WaitServerSnapshot(double _XMM0_8)
+void SV_WaitServerSnapshot(void)
 {
   SvGameGlobalsSP *SvGameGlobalsSP; 
-  SvGameGlobalsSP *v2; 
+  SvGameGlobalsSP *v1; 
+  __int128 v5; 
   SvGameModeApplication *ActiveServerApplication; 
   int m_frameDuration; 
-  int v10; 
+  int v9; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1744, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -2323,11 +2138,11 @@ void __fastcall SV_WaitServerSnapshot(double _XMM0_8)
     {
       if ( Sys_ThreadsSP_WaitServerSnapshot() )
         break;
-      v2 = SvGameGlobalsSP::GetSvGameGlobalsSP();
-      if ( v2->requestSaveGame )
+      v1 = SvGameGlobalsSP::GetSvGameGlobalsSP();
+      if ( v1->requestSaveGame )
       {
-        v2->requestSaveGame = 0;
-        v2->savingGame = 1;
+        v1->requestSaveGame = 0;
+        v1->savingGame = 1;
         Sys_ProcessWorkerCmdsWithTimeout(SV_MainSP_WaitSavingGame, NULL);
       }
     }
@@ -2346,15 +2161,13 @@ void __fastcall SV_WaitServerSnapshot(double _XMM0_8)
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8040);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvttss2si eax, xmm2
-  }
-  SvGameGlobalsSP->waitSnapshotTime = _EAX;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v5 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v5;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  SvGameGlobalsSP->waitSnapshotTime = (int)*(float *)&_XMM2;
   Sys_ThreadsSP_DisallowSendClientMessages();
   Sys_EnterCriticalSection(CRITSECT_CLIENT_MESSAGE);
   LODWORD(qword_14E91B0F0) = 0;
@@ -2365,10 +2178,10 @@ void __fastcall SV_WaitServerSnapshot(double _XMM0_8)
   if ( SvGameModeApplication::GetActiveServerApplication()->m_svResidualTime >= m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1807, ASSERT_TYPE_ASSERT, "(SvGameModeApplication::GetResidualTime() < frameMsec)", (const char *)&queryFormat, "SvGameModeApplication::GetResidualTime() < frameMsec") )
     __debugbreak();
   if ( SvGameGlobalsSP->ignoreClientMessageTimeout )
-    v10 = 0;
+    v9 = 0;
   else
-    v10 = m_frameDuration - SvGameModeApplication::GetActiveServerApplication()->m_svResidualTime;
-  SV_MainSP_SetServerTimeout(v10, *(double *)&_XMM1);
+    v9 = m_frameDuration - SvGameModeApplication::GetActiveServerApplication()->m_svResidualTime;
+  SV_MainSP_SetServerTimeout(v9);
   Sys_LeaveCriticalSection(CRITSECT_CLIENT_MESSAGE);
   Sys_ThreadsSP_ClientMessageReceived();
 }
@@ -2390,11 +2203,9 @@ bool SV_WaitServerSnapshotTimeout(void *__formal)
 SV_WaitServerTimeout
 ==============
 */
-bool SV_WaitServerTimeout(void *__formal, double a2)
+bool SV_WaitServerTimeout(void *__formal)
 {
-  double v2; 
-
-  return (unsigned int)SV_MainSP_IsServerTimeout(v2, a2) || SvGameModeApplication::GetActiveServerApplication()->m_restartServerThread;
+  return (unsigned int)SV_MainSP_IsServerTimeout() || SvGameModeApplication::GetActiveServerApplication()->m_restartServerThread;
 }
 
 /*
@@ -2433,12 +2244,17 @@ void SvGameModeAppSP::ServerThreadErrorCleanup(SvGameModeAppSP *this)
 SvGameModeAppSP::ServerThreadFrame
 ==============
 */
-void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this, double a2)
+void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this)
 {
   unsigned int m_frameDuration; 
-  BOOL v8; 
-  scrContext_t *v23; 
-  __int64 v28; 
+  BOOL v3; 
+  __int128 v6; 
+  __int128 v8; 
+  int FrameDuration; 
+  float v11; 
+  float v12; 
+  scrContext_t *v13; 
+  __int64 v14; 
   ServerTimingState outTimingState; 
 
   SvStaticGlobals::ms_svStaticGlobals.inFrame = 0;
@@ -2459,16 +2275,16 @@ void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this, double a2)
   {
     if ( !m_frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_gamemode_app.h", 162, ASSERT_TYPE_ASSERT, "(m_frameDuration > 0)", "%s\n\tFrame duration has not been initialized", "m_frameDuration > 0") )
       __debugbreak();
-    LODWORD(v28) = this->m_frameDuration;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1084, ASSERT_TYPE_ASSERT, "( GetFrameDuration() ) == ( DEFAULT_SERVER_FRAME_DURATION )", "GetFrameDuration() == DEFAULT_SERVER_FRAME_DURATION\n\t%i, %i", v28, 50) )
+    LODWORD(v14) = this->m_frameDuration;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1084, ASSERT_TYPE_ASSERT, "( GetFrameDuration() ) == ( DEFAULT_SERVER_FRAME_DURATION )", "GetFrameDuration() == DEFAULT_SERVER_FRAME_DURATION\n\t%i, %i", v14, 50) )
       __debugbreak();
   }
   if ( ((unsigned __int8)&g_serverThreadOwnership & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
     __debugbreak();
   if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
   {
-    LODWORD(v28) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1087, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v28) )
+    LODWORD(v14) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1087, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v14) )
       __debugbreak();
   }
   Profile2_UpdateEntry(103);
@@ -2487,8 +2303,8 @@ void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this, double a2)
     __debugbreak();
   if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
   {
-    LODWORD(v28) = g_serverThreadOwnership;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1108, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v28) )
+    LODWORD(v14) = g_serverThreadOwnership;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1108, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v14) )
       __debugbreak();
   }
   Sys_ServerCompleted();
@@ -2502,7 +2318,7 @@ void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this, double a2)
   if ( ((unsigned __int8)&dword_14FDE8170 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8170) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8170);
-  v8 = SV_DemoSP_CheckAutoSaveHistory() != 0;
+  v3 = SV_DemoSP_CheckAutoSaveHistory() != 0;
   s_waitClientMessageTime -= Sys_Milliseconds();
   Sys_ProfBeginNamedEvent(0xFFC0C0C0, "wait receive msg");
   Sys_ProcessWorkerCmdsWithTimeout(SV_MainSP_WaitClientRecvMessages, NULL);
@@ -2517,11 +2333,11 @@ void SvGameModeAppSP::ServerThreadFrame(SvGameModeAppSP *this, double a2)
     goto LABEL_38;
   }
   Sys_EnterCriticalSection(CRITSECT_CLIENT_MESSAGE);
-  if ( !v8 && !(unsigned int)SV_MainSP_IsServerTimeout(*(double *)&_XMM0, a2) )
+  if ( !v3 && !(unsigned int)SV_MainSP_IsServerTimeout() )
   {
     Sys_LeaveCriticalSection(CRITSECT_CLIENT_MESSAGE);
     Sys_ProfBeginNamedEvent(0xFF808080, "server timeout");
-    Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))SV_WaitServerTimeout, NULL);
+    Sys_ProcessWorkerCmdsWithTimeout(SV_WaitServerTimeout, NULL);
     Sys_ProfEndNamedEvent();
     Sys_EnterCriticalSection(CRITSECT_CLIENT_MESSAGE);
   }
@@ -2540,12 +2356,6 @@ LABEL_38:
   Profile2_End(104);
   if ( this->m_restartServerThread || !SvGameModeAppSP::WaitStartServer(this) )
     goto LABEL_38;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vmovaps [rsp+0B8h+var_58], xmm8
-  }
   Profile2_Begin(105);
   Sys_ProfBeginNamedEvent(0xFFF5DEB3, "post frame");
   Profile_BeginCSV(11);
@@ -2559,54 +2369,33 @@ LABEL_38:
   Profile_EndCSV(11);
   Sys_ProfEndNamedEvent();
   SV_Timing_End(&outTimingState);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (outTimingState.totalTicks & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
   {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm8, xmm0, xmm0
-    vaddss  xmm1, xmm8, cs:__real@3f000000
-    vcvttss2si eax, xmm1
+    *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v6 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v6;
   }
-  HIDWORD(qword_14E91B0F0) = _EAX;
-  SvGameModeApplication::GetFrameDuration(this);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax; frameDurationMs
-  }
-  SV_Timing_UpdateFrame(&outTimingState, *(const float *)&_XMM1);
+  *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM0 = v8;
+  __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
+  HIDWORD(qword_14E91B0F0) = (int)(float)(*(float *)&_XMM8 + 0.5);
+  FrameDuration = SvGameModeApplication::GetFrameDuration(this);
+  SV_Timing_UpdateFrame(&outTimingState, (float)FrameDuration);
   *(double *)&_XMM0 = Scr_GetRunThreadsTime(SCRIPTINSTANCE_SERVER);
-  __asm { vmovaps xmm7, xmm0 }
+  v11 = *(float *)&_XMM0;
   *(double *)&_XMM0 = Scr_GetEntFieldTime(SCRIPTINSTANCE_SERVER);
-  __asm { vmovaps xmm6, xmm0 }
+  v12 = *(float *)&_XMM0;
   *(double *)&_XMM0 = Scr_GetBuiltinTime(SCRIPTINSTANCE_SERVER);
-  __asm
-  {
-    vmovaps xmm2, xmm0; vmBuiltinTime
-    vmovaps xmm0, xmm8; time
-    vmovaps xmm3, xmm6; entFieldTime
-    vmovaps xmm1, xmm7; vmTime
-  }
-  SV_UpdatePerformanceFrameSP(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-  v23 = ScriptContext_Server();
-  __asm { vmovaps xmm1, xmm8; framtTime }
-  Profile_TrackUsageAnalysis(v23, *(float *)&_XMM1, 0);
+  SV_UpdatePerformanceFrameSP(*(float *)&_XMM8, v11, *(float *)&_XMM0, v12);
+  v13 = ScriptContext_Server();
+  Profile_TrackUsageAnalysis(v13, *(float *)&_XMM8, 0);
   Profile2_End(105);
   Profile_EndCSV(10);
   SvStaticGlobals::ms_svStaticGlobals.inFrame = 0;
   Sys_ServerCompleted();
-  __asm
-  {
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-  }
 }
 
 /*
@@ -2631,32 +2420,31 @@ SvGameModeAppSP::UpdateServerTime
 */
 void SvGameModeAppSP::UpdateServerTime(SvGameModeAppSP *this, int msec)
 {
-  double v2; 
   SvGameGlobalsSP *SvGameGlobalsSP; 
   int FrameDuration; 
   int m_svResidualTime; 
   int m_svLevelTime; 
+  int v8; 
   int v9; 
   int v10; 
-  int v11; 
   LocalClientNum_t OnlyLocalClientNum; 
-  int v13; 
-  __int64 v14; 
+  int v12; 
+  __int64 v13; 
   unsigned int SpClientNum; 
   SvClient *CommonClient; 
-  unsigned __int64 v17; 
-  bool v18; 
-  __int64 v19; 
+  unsigned __int64 v16; 
+  bool v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
-  int v21; 
-  LocalClientNum_t v22; 
+  LocalClientNum_t v21; 
+  const dvar_t *v22; 
   const dvar_t *v23; 
-  const dvar_t *v24; 
   int integer; 
   SvGameModeApplication *ActiveServerApplication; 
+  __int64 v26; 
   __int64 v27; 
-  __int64 v28; 
-  int v29; 
+  int v28; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 1913, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -2687,19 +2475,19 @@ void SvGameModeAppSP::UpdateServerTime(SvGameModeAppSP *this, int msec)
     if ( !(_DWORD)qword_14E91B0F0 )
     {
       m_svLevelTime = this->m_svLevelTime;
-      v9 = FrameDuration - m_svResidualTime;
+      v8 = FrameDuration - m_svResidualTime;
       if ( m_svLevelTime >= FrameDuration - m_svResidualTime + com_time )
       {
-        v10 = m_svLevelTime - v9;
+        v9 = m_svLevelTime - v8;
         Sys_ThreadsSP_DisallowSendClientMessages();
-        v11 = 0;
+        v10 = 0;
         if ( !SvGameGlobalsSP->ignoreClientMessageTimeout )
-          v11 = v9;
-        SV_MainSP_SetServerTimeout(v11, v2);
+          v10 = v8;
+        SV_MainSP_SetServerTimeout(v10);
         Sys_LeaveCriticalSection(CRITSECT_CLIENT_MESSAGE);
-        com_time = v10;
+        com_time = v9;
         OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-        Con_SetServerTime(OnlyLocalClientNum, v10);
+        Con_SetServerTime(OnlyLocalClientNum, v9);
         CL_MainSP_SetAnimFrametime(msec);
         return;
       }
@@ -2712,21 +2500,21 @@ void SvGameModeAppSP::UpdateServerTime(SvGameModeAppSP *this, int msec)
   this->m_svLevelTime += FrameDuration;
   if ( this->m_svResidualTime < FrameDuration )
   {
-    v29 = FrameDuration;
-    LODWORD(v27) = this->m_svResidualTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2021, ASSERT_TYPE_ASSERT, "( m_svResidualTime ) >= ( frameDuration )", "m_svResidualTime >= frameDuration\n\t%i, %i", v27, v29) )
+    v28 = FrameDuration;
+    LODWORD(v26) = this->m_svResidualTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2021, ASSERT_TYPE_ASSERT, "( m_svResidualTime ) >= ( frameDuration )", "m_svResidualTime >= frameDuration\n\t%i, %i", v26, v28) )
       __debugbreak();
   }
   this->m_svResidualTime -= FrameDuration;
-  v13 = 0;
+  v12 = 0;
   if ( SvGameGlobalsSP->demoResetTimeResidual )
   {
 LABEL_72:
     if ( SvGameGlobalsSP->demoResetTimeResidualValue >= FrameDuration )
     {
-      LODWORD(v28) = FrameDuration;
-      LODWORD(v27) = SvGameGlobalsSP->demoResetTimeResidualValue;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2029, ASSERT_TYPE_ASSERT, "( sv->demoResetTimeResidualValue ) < ( frameDuration )", "sv->demoResetTimeResidualValue < frameDuration\n\t%i, %i", v27, v28) )
+      LODWORD(v27) = FrameDuration;
+      LODWORD(v26) = SvGameGlobalsSP->demoResetTimeResidualValue;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2029, ASSERT_TYPE_ASSERT, "( sv->demoResetTimeResidualValue ) < ( frameDuration )", "sv->demoResetTimeResidualValue < frameDuration\n\t%i, %i", v26, v27) )
         __debugbreak();
     }
     this->m_svResidualTime = SvGameGlobalsSP->demoResetTimeResidualValue;
@@ -2734,7 +2522,7 @@ LABEL_72:
   }
   else
   {
-    v14 = tls_index;
+    v13 = tls_index;
     while ( !Com_GameIsPaused() )
     {
       SpClientNum = SvClientSP::GetSpClientNum();
@@ -2749,33 +2537,33 @@ LABEL_72:
         break;
       SV_WaitServer();
       Com_CheckError();
-      v17 = (unsigned __int64)&g_serverThreadOwnership & 3;
+      v16 = (unsigned __int64)&g_serverThreadOwnership & 3;
       if ( ((unsigned __int8)&g_serverThreadOwnership & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_serverThreadOwnership) )
         __debugbreak();
       if ( _InterlockedCompareExchange(&g_serverThreadOwnership, 0, 1) )
       {
-        LODWORD(v27) = g_serverThreadOwnership;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2064, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v27) )
+        LODWORD(v26) = g_serverThreadOwnership;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2064, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v26) )
           __debugbreak();
       }
       SvGameGlobalsSP = SvGameGlobalsSP::GetSvGameGlobalsSP();
       if ( pendingSaveGlob.count || !SvStaticGlobals::ms_svStaticGlobals.inFrame )
         break;
-      if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+      if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
         __debugbreak();
       if ( _InterlockedIncrement(&g_serverThreadOwnership) != 1 )
       {
-        LODWORD(v27) = g_serverThreadOwnership;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2077, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v27) )
+        LODWORD(v26) = g_serverThreadOwnership;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2077, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedIncrement( (volatile_int32 *)&g_serverThreadOwnership ) == 1 ) )", "( g_serverThreadOwnership ) = %i", v26) )
           __debugbreak();
       }
       if ( SvGameGlobalsSP->forwardTime - G_Main_GetTime() <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2078, ASSERT_TYPE_ASSERT, "(sv->forwardTime - G_Main_GetTime() > 0)", (const char *)&queryFormat, "sv->forwardTime - G_Main_GetTime() > 0") )
         __debugbreak();
-      v18 = com_inServerFrame == 0;
-      v19 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14);
-      v20 = *(_DWORD *)(v19 + 1052);
-      *(_DWORD *)(v19 + 1052) = -4609;
-      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2084, ASSERT_TYPE_ASSERT, "(!com_inServerFrame)", (const char *)&queryFormat, "!com_inServerFrame") )
+      v17 = com_inServerFrame == 0;
+      v18 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v13);
+      v19 = *(_DWORD *)(v18 + 1052);
+      *(_DWORD *)(v18 + 1052) = -4609;
+      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2084, ASSERT_TYPE_ASSERT, "(!com_inServerFrame)", (const char *)&queryFormat, "!com_inServerFrame") )
         __debugbreak();
       G_MainSP_RunPreFrameForDemo();
       SV_MainSP_PreFrame();
@@ -2783,17 +2571,17 @@ LABEL_72:
       if ( com_inServerFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2096, ASSERT_TYPE_ASSERT, "(!com_inServerFrame)", (const char *)&queryFormat, "!com_inServerFrame") )
         __debugbreak();
       LODWORD(qword_14E91B0F0) = 0;
-      if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
+      if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_serverThreadOwnership) )
         __debugbreak();
       if ( _InterlockedExchangeAdd(&g_serverThreadOwnership, 0xFFFFFFFF) != 1 )
       {
-        LODWORD(v27) = g_serverThreadOwnership;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2101, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v27) )
+        LODWORD(v26) = g_serverThreadOwnership;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2101, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedDecrement( (volatile_int32 *)&g_serverThreadOwnership ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v26) )
           __debugbreak();
       }
       if ( !pendingSaveGlob.count )
         SV_ProcessPostFrame();
-      *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14) + 1052i64) = v20;
+      *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v13) + 1052i64) = v19;
       this->m_svLevelTime += FrameDuration;
       if ( this->m_svResidualTime < FrameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_main_sp.cpp", 2143, ASSERT_TYPE_ASSERT, "(m_svResidualTime >= frameDuration)", (const char *)&queryFormat, "m_svResidualTime >= frameDuration") )
         __debugbreak();
@@ -2816,8 +2604,8 @@ LABEL_76:
   {
     LODWORD(qword_14E91B0F0) = 0;
     if ( !SvGameGlobalsSP->ignoreClientMessageTimeout )
-      v13 = FrameDuration - this->m_svResidualTime;
-    SV_MainSP_SetServerTimeout(v13, v2);
+      v12 = FrameDuration - this->m_svResidualTime;
+    SV_MainSP_SetServerTimeout(v12);
   }
   else
   {
@@ -2827,21 +2615,21 @@ LABEL_76:
   }
   Sys_LeaveCriticalSection(CRITSECT_CLIENT_MESSAGE);
   com_time = this->m_svResidualTime + this->m_svLevelTime - FrameDuration;
-  v21 = com_time;
-  v22 = CL_GetOnlyLocalClientNum();
-  Con_SetServerTime(v22, v21);
+  v20 = com_time;
+  v21 = CL_GetOnlyLocalClientNum();
+  Con_SetServerTime(v21, v20);
   CL_MainSP_SetAnimFrametime(this->m_svResidualTime);
-  v23 = DVARINT_RunForTime;
+  v22 = DVARINT_RunForTime;
   if ( !DVARINT_RunForTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "RunForTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.integer )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.integer )
   {
-    v24 = DVARINT_RunForTime;
+    v23 = DVARINT_RunForTime;
     if ( !DVARINT_RunForTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "RunForTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    integer = v24->current.integer;
+    Dvar_CheckFrontendServerThread(v23);
+    integer = v23->current.integer;
     if ( 1000 * integer < SvGameModeApplication::GetActiveServerApplication()->m_svLevelTime )
     {
       ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
@@ -2856,16 +2644,15 @@ LABEL_76:
 SvGameModeAppSP::WaitClientMessages
 ==============
 */
-bool SvGameModeAppSP::WaitClientMessages(SvGameModeAppSP *this, double a2)
+bool SvGameModeAppSP::WaitClientMessages(SvGameModeAppSP *this)
 {
-  double v2; 
-  BOOL v4; 
+  BOOL v2; 
 
   Profile2_UpdateEntry(104);
   if ( ((unsigned __int8)&dword_14FDE8170 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8170) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8170);
-  v4 = SV_DemoSP_CheckAutoSaveHistory() != 0;
+  v2 = SV_DemoSP_CheckAutoSaveHistory() != 0;
   s_waitClientMessageTime -= Sys_Milliseconds();
   Sys_ProfBeginNamedEvent(0xFFC0C0C0, "wait receive msg");
   Sys_ProcessWorkerCmdsWithTimeout(SV_MainSP_WaitClientRecvMessages, NULL);
@@ -2882,11 +2669,11 @@ bool SvGameModeAppSP::WaitClientMessages(SvGameModeAppSP *this, double a2)
   else
   {
     Sys_EnterCriticalSection(CRITSECT_CLIENT_MESSAGE);
-    if ( !v4 && !(unsigned int)SV_MainSP_IsServerTimeout(v2, a2) )
+    if ( !v2 && !(unsigned int)SV_MainSP_IsServerTimeout() )
     {
       Sys_LeaveCriticalSection(CRITSECT_CLIENT_MESSAGE);
       Sys_ProfBeginNamedEvent(0xFF808080, "server timeout");
-      Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))SV_WaitServerTimeout, NULL);
+      Sys_ProcessWorkerCmdsWithTimeout(SV_WaitServerTimeout, NULL);
       Sys_ProfEndNamedEvent();
       Sys_EnterCriticalSection(CRITSECT_CLIENT_MESSAGE);
     }

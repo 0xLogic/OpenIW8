@@ -84,34 +84,19 @@ bdRegisterDedicatedServerRequest::init
 */
 void bdRegisterDedicatedServerRequest::init(bdRegisterDedicatedServerRequest *this, const char *const buildName, const char *const dataCenter, const unsigned __int8 *addr, bdSecurityID secID, bdSecurityKey *secKey, const unsigned int registrationTimeout, const char *const serverJsonData, const char *const context, const unsigned int priority)
 {
-  _RDI = addr;
-  _RBP = this;
-  _R14 = secID;
-  _R15 = secKey;
   bdStrlcpy((char *const)&this->__vftable + 16, buildName, 0x40ui64);
-  bdStrlcpy(_RBP->m_datacenter, dataCenter, 0x40ui64);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbp+90h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbp+0B0h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbp+0D0h], xmm0
-  }
-  *(_DWORD *)&_RBP->m_addr[80] = *((_DWORD *)_RDI + 20);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r14]
-    vmovsd  qword ptr [rbp+0E4h], xmm0
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rbp+0ECh], xmm0
-  }
-  _RBP->m_registrationTimeout = registrationTimeout;
-  bdStrlcpy(_RBP->m_serverJsonData, serverJsonData, 0x400ui64);
+  bdStrlcpy(this->m_datacenter, dataCenter, 0x40ui64);
+  *(__m256i *)this->m_addr = *(__m256i *)addr;
+  *(__m256i *)&this->m_addr[32] = *((__m256i *)addr + 1);
+  *(_OWORD *)&this->m_addr[64] = *((_OWORD *)addr + 4);
+  *(_DWORD *)&this->m_addr[80] = *((_DWORD *)addr + 20);
+  *(double *)this->m_secID = **(double **)&secID;
+  *(bdSecurityKey *)this->m_secKey = *secKey;
+  this->m_registrationTimeout = registrationTimeout;
+  bdStrlcpy(this->m_serverJsonData, serverJsonData, 0x400ui64);
   if ( context )
-    bdStrlcpy(_RBP->m_context, context, 0x40ui64);
-  _RBP->m_priority = priority;
+    bdStrlcpy(this->m_context, context, 0x40ui64);
+  this->m_priority = priority;
   bdSecurityID::~bdSecurityID(*(bdSecurityID **)&secID);
   bdSecurityKey::~bdSecurityKey(secKey);
 }

@@ -351,14 +351,10 @@ RBT_DrawOpaqueSSS
 */
 void RBT_DrawOpaqueSSS(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RBT_DrawOpaqueSSS_Common(&v5, taskInfo, viewInfo, data);
+  v4 = *gfxContext;
+  RBT_DrawOpaqueSSS_Common(&v4, taskInfo, viewInfo, data);
 }
 
 /*
@@ -389,14 +385,10 @@ RBT_DrawOpaqueSSS_VRS
 */
 void RBT_DrawOpaqueSSS_VRS(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RBT_DrawOpaqueSSS_Common(&v5, taskInfo, viewInfo, data);
+  v4 = *gfxContext;
+  RBT_DrawOpaqueSSS_Common(&v4, taskInfo, viewInfo, data);
 }
 
 /*
@@ -406,32 +398,29 @@ RBT_SSS_AsyncClear
 */
 void RBT_SSS_AsyncClear(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  R_RT_Handle v7; 
   unsigned int width; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v13; 
+  const R_RT_Surface *v12; 
   const GfxTexture *Resident; 
+  R_RT_Handle v14; 
   R_RT_Handle v15; 
 
-  _RAX = taskInfo->attachments;
-  __asm
+  v7 = *taskInfo->attachments;
+  v15 = v7;
+  v14 = v7;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups [rsp+88h+var_28], ymm0
-    vmovups ymmword ptr [rsp+88h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v15);
-    if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v14);
+    if ( (R_RT_Handle::GetSurface(&v14)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+88h+var_48.m_surfaceID] }
+      v7 = v14;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+88h+var_48.m_surfaceID] }
+      v7 = v14;
     }
   }
   else
@@ -439,29 +428,29 @@ void RBT_SSS_AsyncClear(ComputeCmdBufState *computeState, const GfxTaskInfo *tas
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      __asm { vmovups ymm0, [rsp+88h+var_28] }
+      v7 = v15;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rsp+88h+var_48.m_surfaceID], ymm0 }
+  v14 = v7;
   if ( R_SSS_Enabled(viewInfo) )
   {
-    width = R_RT_Handle::GetSurface(&v15)->m_image.m_base.width;
-    height = R_RT_Handle::GetSurface(&v15)->m_image.m_base.height;
+    width = R_RT_Handle::GetSurface(&v14)->m_image.m_base.width;
+    height = R_RT_Handle::GetSurface(&v14)->m_image.m_base.height;
   }
   else
   {
     width = 8;
     height = 8;
   }
-  if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlags & 9) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_sss.h", 216, ASSERT_TYPE_ASSERT, "((colorRt.GetFlags() & (R_RT_Flag_FastClear | R_RT_Flag_Dcc)) == 0)", "%s\n\tclear not possible for rts with meta data", "(colorRt.GetFlags() & (R_RT_Flag_FastClear | R_RT_Flag_Dcc)) == 0") )
+  if ( (R_RT_Handle::GetSurface(&v14)->m_rtFlags & 9) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_sss.h", 216, ASSERT_TYPE_ASSERT, "((colorRt.GetFlags() & (R_RT_Flag_FastClear | R_RT_Flag_Dcc)) == 0)", "%s\n\tclear not possible for rts with meta data", "(colorRt.GetFlags() & (R_RT_Flag_FastClear | R_RT_Flag_Dcc)) == 0") )
     __debugbreak();
-  Surface = R_RT_Handle::GetSurface(&v15);
+  Surface = R_RT_Handle::GetSurface(&v14);
   if ( (Surface->m_rtFlagsInternal & 0x10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 324, ASSERT_TYPE_ASSERT, "(!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth ))", (const char *)&queryFormat, "!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth )") )
     __debugbreak();
-  v13 = R_RT_Handle::GetSurface(&v15);
-  Resident = R_Texture_GetResident(v13->m_image.m_base.textureId);
+  v12 = R_RT_Handle::GetSurface(&v14);
+  Resident = R_Texture_GetResident(v12->m_image.m_base.textureId);
   R_SetTextureRect(computeState, Resident, &Surface->m_color.m_clearColor, 0, 0, width, height);
 }
 
@@ -472,14 +461,10 @@ RBT_SSS_BlurX
 */
 void RBT_SSS_BlurX(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  RBT_SSS_BlurX_Common(&v5, taskInfo, viewInfo, data, 0);
+  v4 = *gfxContext;
+  RBT_SSS_BlurX_Common(&v4, taskInfo, viewInfo, data, 0);
 }
 
 /*
@@ -489,36 +474,33 @@ RBT_SSS_BlurX_Common
 */
 void RBT_SSS_BlurX_Common(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data, bool isVRS)
 {
+  R_RT_Handle v9; 
   const R_RT_Surface *Surface; 
-  bool v16; 
-  const R_RT_Surface *v17; 
-  bool v21; 
+  R_RT_Handle v12; 
+  bool v14; 
+  const R_RT_Surface *v15; 
+  R_RT_Handle v16; 
+  bool v18; 
   R_RT_Image *p_m_image; 
-  R_RT_Handle v24; 
-  R_RT_Handle v25; 
+  R_RT_Handle v20; 
+  R_RT_Handle v21; 
 
-  _R14 = gfxContext;
   if ( R_SSS_Enabled(viewInfo) )
   {
-    _RAX = taskInfo->attachments;
-    __asm
+    v9 = *taskInfo->attachments;
+    v21 = v9;
+    v20 = v9;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+98h+var_68.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v24);
-      if ( (R_RT_Handle::GetSurface(&v24)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v20);
+      if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+        v9 = v20;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+        v9 = v20;
       }
     }
     else
@@ -526,32 +508,27 @@ void RBT_SSS_BlurX_Common(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskI
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_48.m_surfaceID] }
+        v9 = v21;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0 }
-    Surface = R_RT_Handle::GetSurface(&v25);
-    _RAX = taskInfo->attachments;
-    __asm
+    v21 = v9;
+    Surface = R_RT_Handle::GetSurface(&v21);
+    v12 = taskInfo->attachments[1];
+    v21 = v12;
+    v20 = v12;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+98h+var_68.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v24);
-      if ( (R_RT_Handle::GetSurface(&v24)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v20);
+      if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+        v12 = v20;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+        v12 = v20;
       }
     }
     else
@@ -559,35 +536,30 @@ void RBT_SSS_BlurX_Common(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskI
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_48.m_surfaceID] }
-        if ( v16 )
+        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v12 = v21;
+        if ( v14 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0 }
-    v17 = R_RT_Handle::GetSurface(&v25);
+    v21 = v12;
+    v15 = R_RT_Handle::GetSurface(&v21);
     if ( isVRS )
     {
-      _RAX = taskInfo->attachments;
-      __asm
+      v16 = taskInfo->attachments[2];
+      v21 = v16;
+      v20 = v16;
+      if ( (_WORD)_XMM0 )
       {
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovd   eax, xmm0
-        vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-        vmovups ymmword ptr [rsp+98h+var_68.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v24);
-        if ( (R_RT_Handle::GetSurface(&v24)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v20);
+        if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+          v16 = v20;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_68.m_surfaceID] }
+          v16 = v20;
         }
       }
       else
@@ -595,26 +567,22 @@ void RBT_SSS_BlurX_Common(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskI
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_48.m_surfaceID] }
-          if ( v21 )
+          v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v16 = v21;
+          if ( v18 )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0 }
-      p_m_image = &R_RT_Handle::GetSurface(&v25)->m_image;
+      v21 = v16;
+      p_m_image = &R_RT_Handle::GetSurface(&v21)->m_image;
     }
     else
     {
       p_m_image = (R_RT_Image *)rgp.blackImage;
     }
-    R_SSS_Bind(_R14->source, viewInfo);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rsp+98h+var_68.m_surfaceID], xmm0
-    }
-    R_SSS_BlurX((GfxCmdBufContext *)&v24, viewInfo, &Surface->m_image.m_base, &v17->m_image.m_base, &p_m_image->m_base);
+    R_SSS_Bind(gfxContext->source, viewInfo);
+    *(GfxCmdBufContext *)&v20.m_surfaceID = *gfxContext;
+    R_SSS_BlurX((GfxCmdBufContext *)&v20, viewInfo, &Surface->m_image.m_base, &v15->m_image.m_base, &p_m_image->m_base);
   }
 }
 
@@ -625,14 +593,10 @@ RBT_SSS_BlurX_VRS
 */
 void RBT_SSS_BlurX_VRS(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  RBT_SSS_BlurX_Common(&v5, taskInfo, viewInfo, data, 1);
+  v4 = *gfxContext;
+  RBT_SSS_BlurX_Common(&v4, taskInfo, viewInfo, data, 1);
 }
 
 /*
@@ -642,41 +606,39 @@ RBT_SSS_BlurY
 */
 void RBT_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  R_RT_Handle v8; 
   const R_RT_Surface *Surface; 
-  bool v15; 
-  const R_RT_Surface *v16; 
-  bool v20; 
-  const R_RT_Surface *v21; 
-  const GfxImage *p_m_base; 
-  bool v27; 
-  const R_RT_Surface *v28; 
+  R_RT_Handle v11; 
+  bool v13; 
+  const R_RT_Surface *v14; 
+  R_RT_Handle v15; 
+  bool v17; 
+  R_RT_Image *p_m_image; 
+  R_RT_Handle v19; 
+  bool v21; 
+  const R_RT_Surface *v22; 
+  R_RT_Handle *attachments; 
   R_RT_Image *blackImage; 
-  const GfxImage *v31; 
-  R_RT_Handle v35; 
-  R_RT_Handle v36; 
+  const GfxImage *p_m_base; 
+  R_RT_Handle v26; 
+  R_RT_Handle v27; 
 
-  _R12 = gfxContext;
   if ( R_SSS_Enabled(viewInfo) )
   {
-    _RAX = taskInfo->attachments;
-    __asm
+    v8 = *taskInfo->attachments;
+    v27 = v8;
+    v26 = v8;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v26);
+      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v8 = v26;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v8 = v26;
       }
     }
     else
@@ -684,32 +646,27 @@ void RBT_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, co
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_40.m_surfaceID] }
+        v8 = v27;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0 }
-    Surface = R_RT_Handle::GetSurface(&v36);
-    _RAX = taskInfo->attachments;
-    __asm
+    v27 = v8;
+    Surface = R_RT_Handle::GetSurface(&v27);
+    v11 = taskInfo->attachments[1];
+    v27 = v11;
+    v26 = v11;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v26);
+      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v11 = v26;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v11 = v26;
       }
     }
     else
@@ -717,33 +674,28 @@ void RBT_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, co
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_40.m_surfaceID] }
-        if ( v15 )
+        v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v11 = v27;
+        if ( v13 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0 }
-    v16 = R_RT_Handle::GetSurface(&v36);
-    _RAX = taskInfo->attachments;
-    __asm
+    v27 = v11;
+    v14 = R_RT_Handle::GetSurface(&v27);
+    v15 = taskInfo->attachments[2];
+    v27 = v15;
+    v26 = v15;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v26);
+      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v15 = v26;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v15 = v26;
       }
     }
     else
@@ -751,34 +703,28 @@ void RBT_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, co
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_40.m_surfaceID] }
-        if ( v20 )
+        v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v15 = v27;
+        if ( v17 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0 }
-    v21 = R_RT_Handle::GetSurface(&v36);
-    _RCX = taskInfo->attachments;
-    p_m_base = &v21->m_image.m_base;
-    __asm
+    v27 = v15;
+    p_m_image = &R_RT_Handle::GetSurface(&v27)->m_image;
+    v19 = taskInfo->attachments[3];
+    v27 = v19;
+    v26 = v19;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rcx+60h]
-      vmovd   ecx, xmm0
-      vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_ECX )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v26);
+      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v19 = v26;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID] }
+        v19 = v26;
       }
     }
     else
@@ -786,40 +732,31 @@ void RBT_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxTaskInfo *taskInfo, co
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_ECX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_40.m_surfaceID] }
-        if ( v27 )
+        v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_XMM0 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v19 = v27;
+        if ( v21 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_40.m_surfaceID], ymm0 }
-    v28 = R_RT_Handle::GetSurface(&v36);
-    _RCX = taskInfo->attachments;
+    v27 = v19;
+    v22 = R_RT_Handle::GetSurface(&v27);
+    attachments = taskInfo->attachments;
     blackImage = (R_RT_Image *)rgp.blackImage;
-    v31 = &v28->m_image.m_base;
-    __asm
+    p_m_base = &v22->m_image.m_base;
+    v26 = attachments[4];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rcx+80h]
-      vmovd   r8d, xmm0
-      vmovups ymmword ptr [rbp+57h+var_60.m_surfaceID], ymm0
+      R_RT_Handle::GetSurface(&v26);
+      blackImage = &R_RT_Handle::GetSurface(&v26)->m_image;
     }
-    if ( (_WORD)_ER8 )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      blackImage = &R_RT_Handle::GetSurface(&v35)->m_image;
-    }
-    else if ( v35.m_tracking.m_allocCounter )
+    else if ( v26.m_tracking.m_allocCounter )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    R_SSS_Bind(_R12->source, viewInfo);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups xmmword ptr [rbp+57h+var_60.m_surfaceID], xmm0
-    }
-    R_SSS_BlurY((GfxCmdBufContext *)&v35, viewInfo, &Surface->m_image.m_base, &v16->m_image.m_base, p_m_base, v31, &blackImage->m_base);
+    R_SSS_Bind(gfxContext->source, viewInfo);
+    *(GfxCmdBufContext *)&v26.m_surfaceID = *gfxContext;
+    R_SSS_BlurY((GfxCmdBufContext *)&v26, viewInfo, &Surface->m_image.m_base, &v14->m_image.m_base, &p_m_image->m_base, p_m_base, &blackImage->m_base);
   }
 }
 
@@ -830,34 +767,31 @@ RBT_SSS_TileMaskClear
 */
 void RBT_SSS_TileMaskClear(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  R_RT_Handle v8; 
   const R_RT_Surface *Surface; 
-  unsigned int v12; 
-  const R_RT_Surface *v13; 
+  unsigned int v11; 
+  const R_RT_Surface *v12; 
+  R_RT_Handle v13; 
   R_RT_Handle v14; 
   ID3D12Resource *buffers; 
 
   R_SetComputeShader(computeState, rgp.csSSSTileClear);
   buffers = data->globalSceneConstantBuffer->buffer;
   R_SetComputeConstantBuffers(computeState, 7, 1, &buffers);
-  _RAX = taskInfo->attachments;
-  __asm
+  v8 = *taskInfo->attachments;
+  v14 = v8;
+  v13 = v8;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups [rsp+78h+var_28], ymm0
-    vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v14);
-    if ( (R_RT_Handle::GetSurface(&v14)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v13);
+    if ( (R_RT_Handle::GetSurface(&v13)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_surfaceID] }
+      v8 = v13;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_surfaceID] }
+      v8 = v13;
     }
   }
   else
@@ -865,22 +799,22 @@ void RBT_SSS_TileMaskClear(ComputeCmdBufState *computeState, const GfxTaskInfo *
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      __asm { vmovups ymm0, [rsp+78h+var_28] }
+      v8 = v14;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0 }
-  Surface = R_RT_Handle::GetSurface(&v14);
+  v13 = v8;
+  Surface = R_RT_Handle::GetSurface(&v13);
   buffers = (ID3D12Resource *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_SetComputeRWTextures(computeState, 0, 1, (const GfxTexture *const *)&buffers);
   buffers = (ID3D12Resource *)&R_RT_Handle::GetWrappedBuffer(taskInfo->attachments + 1)->view;
   R_SetComputeViews(computeState, 0, 1, (const GfxShaderBufferView *const *)&buffers);
-  if ( (R_RT_Handle::GetSurface(&v14)->m_rtFlags & 9) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_sss.h", 238, ASSERT_TYPE_ASSERT, "(( colorRt.GetFlags() & ( R_RT_Flag_FastClear | R_RT_Flag_Dcc ) ) == 0)", "%s\n\tclear not possible for rts with meta data", "( colorRt.GetFlags() & ( R_RT_Flag_FastClear | R_RT_Flag_Dcc ) ) == 0") )
+  if ( (R_RT_Handle::GetSurface(&v13)->m_rtFlags & 9) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_sss.h", 238, ASSERT_TYPE_ASSERT, "(( colorRt.GetFlags() & ( R_RT_Flag_FastClear | R_RT_Flag_Dcc ) ) == 0)", "%s\n\tclear not possible for rts with meta data", "( colorRt.GetFlags() & ( R_RT_Flag_FastClear | R_RT_Flag_Dcc ) ) == 0") )
     __debugbreak();
-  v12 = ((((unsigned int)R_RT_Handle::GetSurface(&v14)->m_image.m_base.height + 7) >> 3) + 7) >> 3;
-  v13 = R_RT_Handle::GetSurface(&v14);
-  R_Dispatch(computeState, ((((unsigned int)v13->m_image.m_base.width + 7) >> 3) + 7) >> 3, v12, 1u);
+  v11 = ((((unsigned int)R_RT_Handle::GetSurface(&v13)->m_image.m_base.height + 7) >> 3) + 7) >> 3;
+  v12 = R_RT_Handle::GetSurface(&v13);
+  R_Dispatch(computeState, ((((unsigned int)v12->m_image.m_base.width + 7) >> 3) + 7) >> 3, v11, 1u);
 }
 
 /*
@@ -917,44 +851,33 @@ RT_DrawOpaqueSSSSetup_VRS
 */
 void RT_DrawOpaqueSSSSetup_VRS(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo)
 {
+  __int16 v2; 
   R_RT_Image *blackUintImage; 
   R_RT_Image *p_m_image; 
-  R_RT_Handle v11; 
+  R_RT_Handle v7; 
 
-  _RAX = taskInfo->attachments;
   blackUintImage = (R_RT_Image *)rgp.blackUintImage;
-  __asm
+  v7 = taskInfo->attachments[16];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+200h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v7);
+    blackUintImage = &R_RT_Handle::GetSurface(&v7)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v11);
-    blackUintImage = &R_RT_Handle::GetSurface(&v11)->m_image;
-  }
-  else if ( v11.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v11.m_surfaceID) )
+  else if ( v7.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v7.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   viewInfo->input.codeImages[84] = &blackUintImage->m_base;
-  _RAX = taskInfo->attachments;
   p_m_image = (R_RT_Image *)rgp.blackUintImage;
-  __asm
+  v7 = taskInfo->attachments[17];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+220h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v7);
+    p_m_image = &R_RT_Handle::GetSurface(&v7)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v11);
-    p_m_image = &R_RT_Handle::GetSurface(&v11)->m_image;
-  }
-  else if ( v11.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v11.m_surfaceID) )
+  else if ( v7.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v7.m_surfaceID) )
   {
     __debugbreak();
   }

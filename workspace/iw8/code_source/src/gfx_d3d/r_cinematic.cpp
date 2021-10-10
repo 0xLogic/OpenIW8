@@ -798,57 +798,48 @@ char CinematicFileHandle::PerformPartialReadAtSeekPos(CinematicFileHandle *this)
 RB_Cinematic_Advance
 ==============
 */
-
-__int64 __fastcall RB_Cinematic_Advance(int isBlocking, double _XMM1_8)
+__int64 RB_Cinematic_Advance(int isBlocking)
 {
   int targetPaused; 
-  int v14; 
+  unsigned int v3; 
+  int v8; 
   unsigned int FrameNum; 
-  __int64 v18; 
+  __int64 v10; 
   __int64 playbackFlags; 
   BINK *bink; 
   unsigned int KeyFrame; 
   char *Error; 
-  __int64 v34; 
-  BINK *v35; 
-  unsigned __int8 v36; 
-  unsigned __int64 v37; 
+  __int64 v17; 
+  BINK *v18; 
+  unsigned __int8 v19; 
+  unsigned __int64 v20; 
   unsigned __int64 ReadBufferSize; 
-  unsigned __int64 v39; 
-  unsigned __int64 v40; 
-  char v41; 
-  __int64 result; 
-  __int64 v46; 
-  __int64 v47; 
+  unsigned __int64 v22; 
+  unsigned __int64 v23; 
+  char v24; 
+  __int64 v26; 
+  __int64 v27; 
   unsigned int output_planeindex; 
   __int64 graphics_context[2]; 
-  const _GUID *v50; 
-  void **v51; 
-  __int64 v52; 
+  const _GUID *v30; 
+  void **v31; 
+  __int64 v32; 
   BINKREALTIME run; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v52 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
+  v32 = -2i64;
   Profile_Begin(144);
   targetPaused = cinematicGlob.targetPaused;
   if ( cinematicGlob.targetPaused > (unsigned int)CINEMATIC_INGAME_PAUSED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2570, ASSERT_TYPE_ASSERT, "( ( targetPaused == CINEMATIC_INGAME_PAUSED || targetPaused == CINEMATIC_PAUSED || targetPaused == CINEMATIC_NOT_PAUSED ) )", "( targetPaused ) = %i", cinematicGlob.targetPaused) )
     __debugbreak();
   if ( cinematicGlob.currentPaused > (unsigned int)CINEMATIC_INGAME_PAUSED )
   {
-    LODWORD(v46) = cinematicGlob.currentPaused;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2571, ASSERT_TYPE_ASSERT, "( ( cinematicGlob.currentPaused == CINEMATIC_INGAME_PAUSED || cinematicGlob.currentPaused == CINEMATIC_PAUSED || cinematicGlob.currentPaused == CINEMATIC_NOT_PAUSED ) )", "( cinematicGlob.currentPaused ) = %i", v46) )
+    LODWORD(v26) = cinematicGlob.currentPaused;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2571, ASSERT_TYPE_ASSERT, "( ( cinematicGlob.currentPaused == CINEMATIC_INGAME_PAUSED || cinematicGlob.currentPaused == CINEMATIC_PAUSED || cinematicGlob.currentPaused == CINEMATIC_NOT_PAUSED ) )", "( cinematicGlob.currentPaused ) = %i", v26) )
       __debugbreak();
   }
   if ( !cinematicGlob.bink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2573, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink)", (const char *)&queryFormat, "cinematicGlob.bink") )
     __debugbreak();
-  _EBX = 0;
+  v3 = 0;
   if ( targetPaused != cinematicGlob.currentPaused && cinematicGlob.activeImageFrame != -1 )
   {
     if ( targetPaused < 1 || cinematicGlob.currentPaused < CINEMATIC_PAUSED )
@@ -860,30 +851,19 @@ __int64 __fastcall RB_Cinematic_Advance(int isBlocking, double _XMM1_8)
   }
   if ( cinematicGlob.currentMuted != cinematicGlob.targetMuted )
   {
-    __asm { vmovd   xmm1, ebx }
-    _EAX = cinematicGlob.targetMuted;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm2, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vblendvps xmm2, xmm1, xmm2, xmm3; volumeScale
-    }
+    _XMM0 = cinematicGlob.targetMuted;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = 0i64;
+    __asm { vblendvps xmm2, xmm1, xmm2, xmm3; volumeScale }
     R_Cinematic_InitBinkVolumes(cinematicGlob.bink, cinematicGlob.trackIDsToPlay, *(const float *)&_XMM2);
     cinematicGlob.currentMuted = cinematicGlob.targetMuted;
   }
   Profile_Begin(151);
-  if ( targetPaused && cinematicGlob.activeImageFrame != -1 || (v14 = 1, j_BinkWait(cinematicGlob.bink)) )
-    v14 = 0;
+  if ( targetPaused && cinematicGlob.activeImageFrame != -1 || (v8 = 1, j_BinkWait(cinematicGlob.bink)) )
+    v8 = 0;
   Profile_EndInternal(NULL);
-  if ( v14 || isBlocking )
+  if ( v8 || isBlocking )
   {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3a83126f
-      vmovss  xmm7, cs:__real@3f000000
-    }
     while ( 1 )
     {
       ++cinematicGlob.playbackStatsFramesDecoded;
@@ -892,20 +872,20 @@ __int64 __fastcall RB_Cinematic_Advance(int isBlocking, double _XMM1_8)
       if ( cinematicGlob.gpuDecoding )
       {
         R_LockGfxImmediateContext();
-        v50 = NULL;
-        v51 = NULL;
+        v30 = NULL;
+        v31 = NULL;
         graphics_context[0] = 0i64;
         graphics_context[1] = 0i64;
         j_Before_Draw_Bink_textures(cinematicGlob.binkTextures, cinematicGlob.binkShaders, graphics_context, &output_planeindex);
-        if ( v50 )
-          g_dx.immediateCommandQueue.commandQueue->m_pFunction[5].QueryInterface(g_dx.immediateCommandQueue.commandQueue, v50, v51);
+        if ( v30 )
+          g_dx.immediateCommandQueue.commandQueue->m_pFunction[5].QueryInterface(g_dx.immediateCommandQueue.commandQueue, v30, v31);
         R_UnlockGfxImmediateContext();
         FrameNum = output_planeindex;
         if ( output_planeindex >= 3 )
         {
-          LODWORD(v47) = 3;
-          LODWORD(v46) = output_planeindex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2352, ASSERT_TYPE_ASSERT, "(unsigned)( currentPlaneIndex ) < (unsigned)( ( sizeof( *array_counter( cinematicGlob.images ) ) + 0 ) )", "currentPlaneIndex doesn't index ARRAY_COUNT( cinematicGlob.images )\n\t%i not in [0, %i)", v46, v47) )
+          LODWORD(v27) = 3;
+          LODWORD(v26) = output_planeindex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2352, ASSERT_TYPE_ASSERT, "(unsigned)( currentPlaneIndex ) < (unsigned)( ( sizeof( *array_counter( cinematicGlob.images ) ) + 0 ) )", "currentPlaneIndex doesn't index ARRAY_COUNT( cinematicGlob.images )\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
           FrameNum = output_planeindex;
         }
@@ -924,7 +904,7 @@ __int64 __fastcall RB_Cinematic_Advance(int isBlocking, double _XMM1_8)
         if ( (cinematicGlob.target[2].playbackFlags & 2) == 0 && cinematicGlob.bink->FrameNum == cinematicGlob.bink->Frames )
         {
           Profile_EndInternal(NULL);
-          goto LABEL_57;
+          goto LABEL_56;
         }
         LOBYTE(playbackFlags) = cinematicGlob.target[2].playbackFlags & 6;
         if ( (cinematicGlob.target[2].playbackFlags & 6) == 2 && cinematicGlob.bink->FrameNum == cinematicGlob.bink->Frames )
@@ -937,134 +917,113 @@ __int64 __fastcall RB_Cinematic_Advance(int isBlocking, double _XMM1_8)
         {
           RB_Cinematic_BinkNextFrame(playbackFlags, cinematicGlob.bink);
         }
-        goto LABEL_52;
+        goto LABEL_51;
       }
       if ( cinematicGlob.bink->FrameNum >= cinematicGlob.bink->Frames - 1 )
       {
         cinematicGlob.cinematicHeld = 1;
         Profile_EndInternal(NULL);
-        goto LABEL_57;
+        goto LABEL_56;
       }
-      RB_Cinematic_BinkNextFrame(cinematicGlob.bink, v18);
+      RB_Cinematic_BinkNextFrame(cinematicGlob.bink, v10);
       Profile_EndInternal(NULL);
-LABEL_53:
+LABEL_52:
       RB_Cinematic_StartDecode();
       if ( !j_BinkShouldSkip(cinematicGlob.bink) )
-        goto LABEL_57;
+        goto LABEL_56;
     }
     bink = cinematicGlob.bink;
     if ( cinematicGlob.bink->FrameNum == cinematicGlob.bink->Frames )
     {
       if ( !cinematicGlob.hasFileIO )
       {
-        R_Cinematic_SeizeIO(cinematicGlob.bink, v18);
+        R_Cinematic_SeizeIO(cinematicGlob.bink, v10);
         bink = cinematicGlob.bink;
       }
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm2, xmm0
-        vaddss  xmm3, xmm1, xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm3, 1
-        vcvttss2si edx, xmm1; frame
-      }
-      KeyFrame = j_BinkGetKeyFrame(bink, _EDX, 2);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm3, 1 }
+      KeyFrame = j_BinkGetKeyFrame(bink, (int)*(float *)&_XMM1, 2);
       RB_Cinematic_BinkGoto(KeyFrame);
     }
     else
     {
-      RB_Cinematic_BinkNextFrame(cinematicGlob.bink, v18);
+      RB_Cinematic_BinkNextFrame(cinematicGlob.bink, v10);
     }
-LABEL_52:
+LABEL_51:
     Profile_EndInternal(NULL);
-    goto LABEL_53;
+    goto LABEL_52;
   }
-LABEL_57:
+LABEL_56:
   Error = j_BinkGetError();
   if ( Error && *Error && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", Error) )
     __debugbreak();
-  v35 = cinematicGlob.bink;
+  v18 = cinematicGlob.bink;
   if ( (cinematicGlob.target[2].playbackFlags & 0x42) != 0 || cinematicGlob.bink->FrameNum != cinematicGlob.bink->Frames )
   {
     if ( !cinematicGlob.bink )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2647, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink)", (const char *)&queryFormat, "cinematicGlob.bink") )
         __debugbreak();
-      v35 = cinematicGlob.bink;
+      v18 = cinematicGlob.bink;
     }
-    j_BinkGetRealtime(v35, &run, 0);
+    j_BinkGetRealtime(v18, &run, 0);
     if ( run.FrameNum >= 0x80000000ui64 || cinematicGlob.status.frameNum <= cinematicGlob.status.startFrame )
     {
       cinematicGlob.status.timeInMsec = 0;
     }
     else
     {
-      v40 = 1000 * run.FrameNum * (unsigned __int64)run.FrameRateDiv;
-      v39 = v40 / run.FrameRate;
-      v37 = v40 % run.FrameRate;
-      cinematicGlob.status.timeInMsec = v39;
-      if ( (unsigned int)v39 != v39 )
+      v23 = 1000 * run.FrameNum * (unsigned __int64)run.FrameRateDiv;
+      v22 = v23 / run.FrameRate;
+      v20 = v23 % run.FrameRate;
+      cinematicGlob.status.timeInMsec = v22;
+      if ( (unsigned int)v22 != v22 )
       {
-        LODWORD(v47) = HIDWORD(v39);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2216, ASSERT_TYPE_ASSERT, "(cinematicGlob.status.timeInMsec == timeInMsec)", "%s\n\t%08x:%08x, %08x:%08x, %08x:%08x, %08x:%08x", "cinematicGlob.status.timeInMsec == timeInMsec", v47, v39, 0, run.FrameNum, 0, run.FrameRate, 0, run.FrameRateDiv) )
+        LODWORD(v27) = HIDWORD(v22);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2216, ASSERT_TYPE_ASSERT, "(cinematicGlob.status.timeInMsec == timeInMsec)", "%s\n\t%08x:%08x, %08x:%08x, %08x:%08x, %08x:%08x", "cinematicGlob.status.timeInMsec == timeInMsec", v27, v22, 0, run.FrameNum, 0, run.FrameRate, 0, run.FrameRateDiv) )
           __debugbreak();
       }
     }
-    v41 = cinematicGlob.target[2].playbackFlags;
+    v24 = cinematicGlob.target[2].playbackFlags;
     if ( (cinematicGlob.target[2].playbackFlags & 4) != 0 )
     {
-      _EBX = 100;
+      v3 = 100;
     }
     else
     {
       ReadBufferSize = run.ReadBufferSize;
       if ( run.ReadBufferSize )
       {
-        _EBX = truncate_cast<unsigned int,unsigned __int64>(100 * run.ReadBufferUsed / run.ReadBufferSize);
-        v41 = cinematicGlob.target[2].playbackFlags;
+        v3 = truncate_cast<unsigned int,unsigned __int64>(100 * run.ReadBufferUsed / run.ReadBufferSize);
+        v24 = cinematicGlob.target[2].playbackFlags;
       }
       else
       {
-        _EBX = 100;
+        v3 = 100;
       }
     }
     if ( cinematicGlob.hasFileIO )
     {
-      if ( _EBX > 0x5F )
-        R_Cinematic_RelinquishIO(ReadBufferSize, v37);
+      if ( v3 > 0x5F )
+        R_Cinematic_RelinquishIO(ReadBufferSize, v20);
     }
-    else if ( _EBX < 0x32 )
+    else if ( v3 < 0x32 )
     {
-      if ( (v41 & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2663, ASSERT_TYPE_ASSERT, "(!(cinematicGlob.target[CIN_TARGET_UPDATE].playbackFlags & CINEMATIC_PLAYBACKFLAGS_MEMORY_RESIDENT))", (const char *)&queryFormat, "!(cinematicGlob.target[CIN_TARGET_UPDATE].playbackFlags & CINEMATIC_PLAYBACKFLAGS_MEMORY_RESIDENT)") )
+      if ( (v24 & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2663, ASSERT_TYPE_ASSERT, "(!(cinematicGlob.target[CIN_TARGET_UPDATE].playbackFlags & CINEMATIC_PLAYBACKFLAGS_MEMORY_RESIDENT))", (const char *)&queryFormat, "!(cinematicGlob.target[CIN_TARGET_UPDATE].playbackFlags & CINEMATIC_PLAYBACKFLAGS_MEMORY_RESIDENT)") )
         __debugbreak();
-      R_Cinematic_SeizeIO(ReadBufferSize, v37);
+      R_Cinematic_SeizeIO(ReadBufferSize, v20);
     }
-    v36 = 1;
+    v19 = 1;
   }
   else
   {
     if ( cinematicGlob.hasFileIO )
-      R_Cinematic_RelinquishIO(cinematicGlob.bink, v34);
-    v36 = 0;
+      R_Cinematic_RelinquishIO(cinematicGlob.bink, v17);
+    v19 = 0;
   }
-  cinematicGlob.playbackStatsIOPercent = _EBX;
+  cinematicGlob.playbackStatsIOPercent = v3;
   Profile_EndInternal(NULL);
-  result = v36;
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return v19;
 }
 
 /*
@@ -1122,231 +1081,149 @@ RB_Cinematic_DebugDrawFrames
 void RB_Cinematic_DebugDrawFrames(GfxCmdBufContext *gfxContext)
 {
   GfxCmdBufSourceState *source; 
-  unsigned int v12; 
-  __int64 v13; 
-  unsigned int v14; 
+  unsigned int v3; 
+  __int64 v4; 
+  unsigned int v5; 
   GfxImage **p_imageY; 
-  GfxImage *v23; 
+  GfxImage *v7; 
+  float v8; 
+  float v9; 
   materialCommands_t *Tess; 
-  materialCommands_t *v30; 
-  GfxCmdBufSourceState *v32; 
+  materialCommands_t *v11; 
+  GfxCmdBufSourceState *v12; 
   GfxCmdBufInput *p_input; 
-  char v43; 
-  char v48; 
-  char v53; 
-  char v57; 
-  GfxCmdBufSourceState *v59; 
-  GfxCmdBufInput *v60; 
-  float fmt; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  unsigned int v76; 
-  _QWORD v77[3]; 
+  GfxCmdBufContext v14; 
+  int v17; 
+  char v18; 
+  int v20; 
+  char v21; 
+  int v23; 
+  char v24; 
+  int v26; 
+  char v27; 
+  GfxCmdBufSourceState *v28; 
+  GfxCmdBufInput *v29; 
+  unsigned int v30; 
+  _QWORD v31[3]; 
   GfxImage *imageY; 
   GfxImage *imageCbCr; 
   GfxImage *imageCb; 
 
-  _RDI = gfxContext;
   if ( cinematicGlob.bink )
   {
     Sys_ProfBeginNamedEvent(0xFF00FFFF, "RB_Cinematic_DebugDrawFrames");
-    R_LockIfGfxImmediateContext(_RDI->state->device);
-    source = _RDI->source;
-    if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 4423, ASSERT_TYPE_ASSERT, "(gfxContext.source)", (const char *)&queryFormat, "gfxContext.source") )
+    R_LockIfGfxImmediateContext(gfxContext->state->device);
+    source = gfxContext->source;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 4423, ASSERT_TYPE_ASSERT, "(gfxContext.source)", (const char *)&queryFormat, "gfxContext.source") )
       __debugbreak();
     R_Set2D(source);
     imageY = cinematicGlob.curCinematicImage.imageY;
     if ( cinematicGlob.gpuDecoding )
     {
-      v12 = 2;
+      v3 = 2;
       imageCbCr = cinematicGlob.curCinematicImage.imageCbCr;
     }
     else
     {
-      v12 = 3;
+      v3 = 3;
       imageCbCr = cinematicGlob.curCinematicImage.imageCr;
       imageCb = cinematicGlob.curCinematicImage.imageCb;
     }
     if ( cinematicGlob.curCinematicImage.hasAlpha )
     {
-      v13 = v12++;
-      *(&imageY + v13) = cinematicGlob.curCinematicImage.imageA;
+      v4 = v3++;
+      *(&imageY + v4) = cinematicGlob.curCinematicImage.imageA;
     }
-    if ( v12 > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 4451, ASSERT_TYPE_ASSERT, "(numImages <= MAX_IMAGES)", (const char *)&queryFormat, "numImages <= MAX_IMAGES") )
+    if ( v3 > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 4451, ASSERT_TYPE_ASSERT, "(numImages <= MAX_IMAGES)", (const char *)&queryFormat, "numImages <= MAX_IMAGES") )
       __debugbreak();
-    v14 = 0;
-    if ( v12 )
+    v5 = 0;
+    if ( v3 )
     {
       p_imageY = &imageY;
-      __asm
-      {
-        vmovaps [rsp+150h+var_38+8], xmm6
-        vmovaps [rsp+150h+var_48+8], xmm7
-        vmovss  xmm7, cs:__real@41200000
-        vmovaps [rsp+150h+var_58+8], xmm8
-        vmovss  xmm8, cs:__real@434d0000
-        vmovaps [rsp+150h+var_68+8], xmm9
-        vmovss  xmm9, cs:__real@437f0000
-        vmovaps [rsp+150h+var_78+8], xmm10
-        vmovss  xmm10, cs:__real@3f000000
-        vmovaps [rsp+150h+var_88+8], xmm11
-        vmovss  xmm11, cs:__real@3f800000
-        vmovaps [rsp+150h+var_98+8], xmm12
-        vmovaps [rsp+150h+var_A8+8], xmm13
-        vmovss  xmm13, cs:__real@43480000
-        vxorps  xmm12, xmm12, xmm12
-      }
       do
       {
-        v23 = *p_imageY;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm6, xmm1, xmm7
-        }
+        v7 = *p_imageY;
+        v8 = (float)v5;
+        v9 = (float)(v8 * 205.0) + 10.0;
         if ( *p_imageY )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-          }
-          Tess = R_GetTess((GfxCmdBufContext *)&v77[1]);
-          v30 = Tess;
+          *(GfxCmdBufContext *)&v31[1] = *gfxContext;
+          Tess = R_GetTess((GfxCmdBufContext *)&v31[1]);
+          v11 = Tess;
           if ( Tess->vertexCount )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdi]
-              vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-            }
-            RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v77[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+            *(GfxCmdBufContext *)&v31[1] = *gfxContext;
+            RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v31[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
           }
           else
           {
             if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
               __debugbreak();
-            v30->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-            v30->primStatsTarget = GFX_PRIM_STATS_INVALID;
+            v11->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+            v11->primStatsTarget = GFX_PRIM_STATS_INVALID;
           }
-          v32 = _RDI->source;
-          __asm
-          {
-            vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-            vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-          }
-          if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+          v12 = gfxContext->source;
+          *(_OWORD *)&v31[1] = _xmm;
+          if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
             __debugbreak();
-          p_input = &v32->input;
+          p_input = &v12->input;
           if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
             __debugbreak();
-          __asm
-          {
-            vmulss  xmm1, xmm9, dword ptr [rsp+150h+var_E8+8]
-            vmovups xmm0, xmmword ptr [rdi]
-            vaddss  xmm3, xmm1, xmm10
-            vxorps  xmm4, xmm4, xmm4
-            vroundss xmm1, xmm4, xmm3, 1
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm9, dword ptr [rsp+150h+var_E8+0Ch]
-          }
-          p_input->codeImages[4] = v23;
-          __asm { vaddss  xmm3, xmm1, xmm10 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v43 = _ECX;
+          v14 = *gfxContext;
+          _XMM4 = 0i64;
           __asm { vroundss xmm1, xmm4, xmm3, 1 }
-          if ( _ECX < 0 )
-            v43 = 0;
-          __asm
-          {
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm9, dword ptr [rsp+150h+var_E8+10h]
-          }
-          LOBYTE(v76) = v43;
-          __asm { vaddss  xmm3, xmm1, xmm10 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v48 = _ECX;
+          v17 = (int)*(float *)&_XMM1;
+          p_input->codeImages[4] = v7;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v17 = 255;
+          v18 = v17;
           __asm { vroundss xmm1, xmm4, xmm3, 1 }
-          if ( _ECX < 0 )
-            v48 = 0;
-          __asm
-          {
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm9, dword ptr [rsp+150h+var_E8+14h]
-          }
-          BYTE1(v76) = v48;
-          __asm { vaddss  xmm3, xmm1, xmm10 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v53 = _ECX;
+          if ( v17 < 0 )
+            v18 = 0;
+          v20 = (int)*(float *)&_XMM1;
+          LOBYTE(v30) = v18;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v20 = 255;
+          v21 = v20;
           __asm { vroundss xmm1, xmm4, xmm3, 1 }
-          if ( _ECX < 0 )
-            v53 = 0;
-          __asm { vcvttss2si ecx, xmm1 }
-          BYTE2(v76) = v53;
-          __asm { vmovaps xmm3, xmm6 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v57 = _ECX;
-          __asm { vmovaps xmm2, xmm7 }
-          if ( _ECX < 0 )
-            v57 = 0;
-          HIBYTE(v76) = v57;
-          __asm
-          {
-            vmovss  [rsp+150h+var_108], xmm11
-            vmovss  [rsp+150h+var_110], xmm11
-            vmovss  [rsp+150h+var_118], xmm12
-            vmovss  [rsp+150h+var_120], xmm12
-            vmovss  [rsp+150h+var_128], xmm13
-            vmovss  dword ptr [rsp+150h+fmt], xmm13
-            vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-          }
-          RB_DrawStretchPic((GfxCmdBufContext *)&v77[1], rgp.feedbackReplaceBackbufferMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v71, v72, v73, v74, v75, v76, GFX_PRIM_STATS_CODE);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-          }
-          RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v77[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp(4477)");
-          v59 = _RDI->source;
-          if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+          if ( v20 < 0 )
+            v21 = 0;
+          v23 = (int)*(float *)&_XMM1;
+          BYTE1(v30) = v21;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v23 = 255;
+          v24 = v23;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          if ( v23 < 0 )
+            v24 = 0;
+          v26 = (int)*(float *)&_XMM1;
+          BYTE2(v30) = v24;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v26 = 255;
+          v27 = v26;
+          if ( v26 < 0 )
+            v27 = 0;
+          HIBYTE(v30) = v27;
+          *(GfxCmdBufContext *)&v31[1] = v14;
+          RB_DrawStretchPic((GfxCmdBufContext *)&v31[1], rgp.feedbackReplaceBackbufferMaterial, 10.0, v9, 200.0, 200.0, 0.0, 0.0, 1.0, 1.0, v30, GFX_PRIM_STATS_CODE);
+          *(GfxCmdBufContext *)&v31[1] = *gfxContext;
+          RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v31[1], "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp(4477)");
+          v28 = gfxContext->source;
+          if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
             __debugbreak();
-          v60 = &v59->input;
-          if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+          v29 = &v28->input;
+          if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
             __debugbreak();
-          v60->codeImages[4] = NULL;
+          v29->codeImages[4] = NULL;
         }
-        ++v14;
+        ++v5;
         ++p_imageY;
       }
-      while ( v14 < v12 );
-      __asm
-      {
-        vmovaps xmm13, [rsp+150h+var_A8+8]
-        vmovaps xmm12, [rsp+150h+var_98+8]
-        vmovaps xmm11, [rsp+150h+var_88+8]
-        vmovaps xmm10, [rsp+150h+var_78+8]
-        vmovaps xmm9, [rsp+150h+var_68+8]
-        vmovaps xmm8, [rsp+150h+var_58+8]
-        vmovaps xmm7, [rsp+150h+var_48+8]
-        vmovaps xmm6, [rsp+150h+var_38+8]
-      }
+      while ( v5 < v3 );
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rsp+150h+var_E8+8], xmm0
-    }
-    RB_EndSurfaceIfNeeded((GfxCmdBufContext *)&v77[1]);
-    R_UnlockIfGfxImmediateContext(_RDI->state->device);
+    *(GfxCmdBufContext *)&v31[1] = *gfxContext;
+    RB_EndSurfaceIfNeeded((GfxCmdBufContext *)&v31[1]);
+    R_UnlockIfGfxImmediateContext(gfxContext->state->device);
     Sys_ProfEndNamedEvent();
   }
 }
@@ -1536,83 +1413,96 @@ void RB_Cinematic_StartPlayback_Internal(const char *name, unsigned int playback
 RB_Cinematic_StartPlayback_Now
 ==============
 */
-bool RB_Cinematic_StartPlayback_Now(const char *filename, unsigned int playbackFlags, unsigned int startOffsetMsec, int *pStartFrame, bool filler)
+char RB_Cinematic_StartPlayback_Now(const char *filename, unsigned int playbackFlags, unsigned int startOffsetMsec, int *pStartFrame, bool filler)
 {
-  unsigned int *v8; 
-  unsigned int v11; 
-  unsigned int *v12; 
-  unsigned int v13; 
-  int v14; 
-  __int64 v15; 
-  const char *v16; 
+  unsigned int *v5; 
+  unsigned int v6; 
+  unsigned int v8; 
+  unsigned int *v9; 
+  unsigned int v10; 
+  int v11; 
+  __int64 v12; 
+  const char *v13; 
   const char *ColumnValueForRow; 
-  signed __int64 v18; 
+  signed __int64 v15; 
+  int v16; 
+  __int64 v17; 
+  int v18; 
   int v19; 
-  __int64 v20; 
-  int v21; 
-  int v22; 
-  int v23; 
+  int v20; 
   binklanguage_t CurrentBinkLanguage; 
-  unsigned int v25; 
-  int v26; 
+  unsigned int v22; 
+  int v23; 
   char *Error; 
-  char *v28; 
-  char *v29; 
-  char *v30; 
-  unsigned int v31; 
+  char *v25; 
+  char *v26; 
+  char *v27; 
+  unsigned int v28; 
+  const char *v29; 
+  const char *v30; 
+  const char *v31; 
   const char *v32; 
   const char *v33; 
-  const char *v34; 
-  const char *v35; 
-  const char *v36; 
-  bool result; 
-  char *v38; 
+  char result; 
+  char *v35; 
   BINK *bink; 
-  int *v47; 
+  int *v41; 
   unsigned int unsignedInt; 
   bool enabled; 
-  bool v50; 
-  bool v51; 
-  char *v53; 
-  char *v54; 
-  int v55; 
-  BINK *v56; 
+  bool v44; 
+  bool v45; 
+  char *v46; 
+  char *v47; 
+  int v48; 
+  BINK *v49; 
+  float FrameRate; 
+  float FrameRateDiv; 
+  float v52; 
+  float v53; 
   unsigned int Frames; 
   BINKSHADERS *Bink_shaders; 
-  const char *v70; 
-  const char *v71; 
-  int v72; 
-  __int64 v88; 
-  int v89; 
-  char *v90; 
+  const char *v56; 
+  const char *v57; 
+  BINK *v58; 
+  int v59; 
+  float *v60; 
+  int Height; 
+  float Width; 
+  float YABufferWidth; 
+  float YABufferHeight; 
+  float cRcBBufferWidth; 
+  float cRcBBufferHeight; 
+  __int64 v67; 
+  int v68; 
+  char *v69; 
   char *fmt; 
-  __int64 v94; 
+  __int64 v71; 
   int RowCount; 
   StringTable *tablePtr; 
   void *outPtr; 
   char *name; 
-  int *v101; 
+  int *v78; 
   __int64 pcreate[3]; 
-  char v103[680]; 
+  char v80[680]; 
   char errText[128]; 
 
-  v8 = &cinematicGlob.trackIDsToPlay[1];
-  _ER14 = 0;
-  v11 = 0;
-  v101 = pStartFrame;
-  v12 = &cinematicGlob.trackIDsToPlay[1];
+  v5 = &cinematicGlob.trackIDsToPlay[1];
+  v6 = 0;
+  v8 = 0;
+  v78 = pStartFrame;
+  v9 = &cinematicGlob.trackIDsToPlay[1];
   do
   {
-    *(v12 - 1) = v11;
-    *v12 = v11 + 1;
-    v12 += 5;
-    *(v12 - 4) = v11 + 2;
-    *(v12 - 3) = v11 + 3;
-    v13 = v11 + 4;
-    v11 += 5;
-    *(v12 - 2) = v13;
+    *(v9 - 1) = v8;
+    *v9 = v8 + 1;
+    v9 += 5;
+    *(v9 - 4) = v8 + 2;
+    *(v9 - 3) = v8 + 3;
+    v10 = v8 + 4;
+    v8 += 5;
+    *(v9 - 2) = v10;
   }
-  while ( v11 < 5 );
+  while ( v8 < 5 );
   if ( cinematicGlob.bink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3113, ASSERT_TYPE_ASSERT, "(!cinematicGlob.bink)", (const char *)&queryFormat, "!cinematicGlob.bink") )
     __debugbreak();
   if ( cinematicGlob.hasFileIO && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3114, ASSERT_TYPE_ASSERT, "(!cinematicGlob.hasFileIO)", (const char *)&queryFormat, "!cinematicGlob.hasFileIO") )
@@ -1624,64 +1514,64 @@ bool RB_Cinematic_StartPlayback_Now(const char *filename, unsigned int playbackF
   cinematicGlob.codeImageSwapFrame[2] = g_gpuSwapFrame - 1;
   StringTable_GetAsset("video/bink_nonlocalized_audio.csv", (const StringTable **)&tablePtr);
   RowCount = StringTable_GetRowCount(tablePtr);
-  v14 = 0;
+  v11 = 0;
   if ( RowCount <= 0 )
   {
 LABEL_30:
     CurrentBinkLanguage = SEH_GetCurrentBinkLanguage();
-    v25 = 0;
+    v22 = 0;
     if ( (unsigned int)CurrentBinkLanguage > BINK_LANGUAGE_SAFE_CHINESE )
       CurrentBinkLanguage = BINK_LANGUAGE_ENGLISH;
-    v26 = 5 * CurrentBinkLanguage;
+    v23 = 5 * CurrentBinkLanguage;
     do
     {
-      *(v8 - 1) += v26;
-      v25 += 5;
-      *v8 += v26;
-      v8[1] += v26;
-      v8[2] += v26;
-      v8[3] += v26;
-      v8 += 5;
+      *(v5 - 1) += v23;
+      v22 += 5;
+      *v5 += v23;
+      v5[1] += v23;
+      v5[2] += v23;
+      v5[3] += v23;
+      v5 += 5;
     }
-    while ( v25 < 5 );
+    while ( v22 < 5 );
   }
   else
   {
 LABEL_13:
-    v15 = 0x7FFFFFFFi64;
-    v16 = filename;
-    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v14, 0);
+    v12 = 0x7FFFFFFFi64;
+    v13 = filename;
+    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v11, 0);
     if ( !ColumnValueForRow && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     if ( !filename && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
       __debugbreak();
-    v18 = ColumnValueForRow - filename;
+    v15 = ColumnValueForRow - filename;
     do
     {
-      v19 = (unsigned __int8)v16[v18];
-      v20 = v15;
-      v21 = *(unsigned __int8 *)v16++;
-      --v15;
-      if ( !v20 )
+      v16 = (unsigned __int8)v13[v15];
+      v17 = v12;
+      v18 = *(unsigned __int8 *)v13++;
+      --v12;
+      if ( !v17 )
         break;
-      if ( v19 != v21 )
+      if ( v16 != v18 )
       {
-        v22 = v19 + 32;
-        if ( (unsigned int)(v19 - 65) > 0x19 )
-          v22 = v19;
-        v19 = v22;
-        v23 = v21 + 32;
-        if ( (unsigned int)(v21 - 65) > 0x19 )
-          v23 = v21;
-        if ( v19 != v23 )
+        v19 = v16 + 32;
+        if ( (unsigned int)(v16 - 65) > 0x19 )
+          v19 = v16;
+        v16 = v19;
+        v20 = v18 + 32;
+        if ( (unsigned int)(v18 - 65) > 0x19 )
+          v20 = v18;
+        if ( v16 != v20 )
         {
-          if ( ++v14 < RowCount )
+          if ( ++v11 < RowCount )
             goto LABEL_13;
           goto LABEL_30;
         }
       }
     }
-    while ( v19 );
+    while ( v16 );
   }
   if ( !cinematicGlob.masterHunk.m_userHunk && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 356, ASSERT_TYPE_ASSERT, "(m_userHunk)", (const char *)&queryFormat, "m_userHunk") )
     __debugbreak();
@@ -1691,33 +1581,20 @@ LABEL_13:
   if ( Error && *Error && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", Error) )
     __debugbreak();
   j_BinkSetMemory(R_Cinematic_Bink_Alloc, R_Cinematic_Bink_Free);
-  v28 = j_BinkGetError();
-  if ( v28 && *v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v28) )
+  v25 = j_BinkGetError();
+  if ( v25 && *v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v25) )
     __debugbreak();
   j_BinkSetSoundSystem(BinkOpenSDSoundSystem, 0i64);
-  v29 = j_BinkGetError();
-  if ( v29 && *v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v29) )
+  v26 = j_BinkGetError();
+  if ( v26 && *v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v26) )
     __debugbreak();
   j_BinkSetSoundTrack(5u, cinematicGlob.trackIDsToPlay);
-  v30 = j_BinkGetError();
-  if ( v30 && *v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v30) )
+  v27 = j_BinkGetError();
+  if ( v27 && *v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v27) )
     __debugbreak();
   errText[0] = 0;
-  v31 = playbackFlags >> 15;
-  if ( (playbackFlags & 4) != 0 )
-  {
-    if ( !R_Cinematic_BinkOpenPath_MemoryResident(filename, playbackFlags, (const void **)&outPtr, errText, 128) )
-      goto LABEL_63;
-    cinematicGlob.decryptFile.encrypted = (playbackFlags & 0x8000) != 0;
-    cinematicGlob.bink = j_BinkOpen((const char *)outPtr, 0x4104408u);
-    if ( !cinematicGlob.bink )
-    {
-      v32 = j_BinkGetError();
-      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v32);
-      v31 = playbackFlags >> 15;
-    }
-  }
-  else
+  v28 = playbackFlags >> 15;
+  if ( (playbackFlags & 4) == 0 )
   {
     cinematicGlob.hasFileIO = 1;
     j_BinkSetIOSize(0x1000000ui64);
@@ -1726,307 +1603,278 @@ LABEL_13:
     cinematicGlob.bink = j_BinkOpen(filename, 0x1104408u);
     if ( !cinematicGlob.bink )
     {
+      v30 = j_BinkGetError();
+      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v30);
+      cinematicGlob.hasFileIO = 0;
+    }
+LABEL_62:
+    j_BinkSetError((const char *)&queryFormat.fmt + 3);
+    if ( cinematicGlob.bink )
+      goto LABEL_76;
+    goto LABEL_63;
+  }
+  if ( R_Cinematic_BinkOpenPath_MemoryResident(filename, playbackFlags, (const void **)&outPtr, errText, 128) )
+  {
+    cinematicGlob.decryptFile.encrypted = (playbackFlags & 0x8000) != 0;
+    cinematicGlob.bink = j_BinkOpen((const char *)outPtr, 0x4104408u);
+    if ( !cinematicGlob.bink )
+    {
+      v29 = j_BinkGetError();
+      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v29);
+      v28 = playbackFlags >> 15;
+    }
+    goto LABEL_62;
+  }
+LABEL_63:
+  Com_PrintWarning(8, "R_Cinematic_BinkOpen '%s' failed: %s; trying default.\n", filename, errText);
+  v31 = "default";
+  errText[0] = 0;
+  if ( filler )
+    v31 = "filler_load";
+  if ( (playbackFlags & 4) != 0 )
+  {
+    if ( !R_Cinematic_BinkOpenPath_MemoryResident(v31, playbackFlags, (const void **)&name, errText, 128) )
+    {
+LABEL_72:
+      Com_PrintWarning(8, "R_Cinematic_BinkOpen '%s' failed: %s; not playing movie.\n", "default", errText);
+      if ( cinematicGlob.activeImageFrame != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3162, ASSERT_TYPE_ASSERT, "(cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME)", (const char *)&queryFormat, "cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME") )
+        __debugbreak();
+      RB_Cinematic_HunksClose();
+      cinematicGlob.finishedId = cinematicGlob.stopId;
+      result = 0;
+      cinematicGlob.cinematicFinished = 1;
+      cinematicGlob.cinematicHeld = 0;
+      return result;
+    }
+    cinematicGlob.decryptFile.encrypted = (playbackFlags & 0x8000) != 0;
+    cinematicGlob.bink = j_BinkOpen(name, 0x4104408u);
+    if ( !cinematicGlob.bink )
+    {
+      v32 = j_BinkGetError();
+      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v32);
+    }
+  }
+  else
+  {
+    cinematicGlob.hasFileIO = 1;
+    j_BinkSetIOSize(0x1000000ui64);
+    Com_Printf(8, "BinkOpen: '%s'\n", v31);
+    cinematicGlob.decryptFile.encrypted = v28 & 1;
+    cinematicGlob.bink = j_BinkOpen(v31, 0x1104408u);
+    if ( !cinematicGlob.bink )
+    {
       v33 = j_BinkGetError();
       Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v33);
       cinematicGlob.hasFileIO = 0;
     }
   }
   j_BinkSetError((const char *)&queryFormat.fmt + 3);
-  if ( cinematicGlob.bink )
-    goto LABEL_76;
-LABEL_63:
-  Com_PrintWarning(8, "R_Cinematic_BinkOpen '%s' failed: %s; trying default.\n", filename, errText);
-  v34 = "default";
-  errText[0] = 0;
-  if ( filler )
-    v34 = "filler_load";
-  if ( (playbackFlags & 4) == 0 )
-  {
-    cinematicGlob.hasFileIO = 1;
-    j_BinkSetIOSize(0x1000000ui64);
-    Com_Printf(8, "BinkOpen: '%s'\n", v34);
-    cinematicGlob.decryptFile.encrypted = v31 & 1;
-    cinematicGlob.bink = j_BinkOpen(v34, 0x1104408u);
-    if ( !cinematicGlob.bink )
-    {
-      v36 = j_BinkGetError();
-      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v36);
-      cinematicGlob.hasFileIO = 0;
-    }
-LABEL_71:
-    j_BinkSetError((const char *)&queryFormat.fmt + 3);
-    if ( !cinematicGlob.bink )
-      goto LABEL_72;
+  if ( !cinematicGlob.bink )
+    goto LABEL_72;
 LABEL_76:
-    __asm
-    {
-      vmovaps [rsp+418h+var_48], xmm6
-      vmovaps [rsp+418h+var_58], xmm7
-    }
-    v38 = j_BinkGetError();
-    if ( v38 && *v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v38) )
+  v35 = j_BinkGetError();
+  if ( v35 && *v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v35) )
+    __debugbreak();
+  bink = cinematicGlob.bink;
+  if ( !cinematicGlob.bink )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3175, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink)", (const char *)&queryFormat, "cinematicGlob.bink") )
       __debugbreak();
     bink = cinematicGlob.bink;
-    if ( !cinematicGlob.bink )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3175, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink)", (const char *)&queryFormat, "cinematicGlob.bink") )
-        __debugbreak();
-      bink = cinematicGlob.bink;
-    }
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    cinematicGlob.status.frameNum = bink->FrameNum;
-    cinematicGlob.status.width = bink->Width;
-    cinematicGlob.status.height = bink->Height;
-    _EAX = playbackFlags & 0x1000;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vmovd   xmm1, r14d
-      vpcmpeqd xmm2, xmm0, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vblendvps xmm2, xmm0, xmm6, xmm2; volumeScale
-    }
-    R_Cinematic_InitBinkVolumes(bink, cinematicGlob.trackIDsToPlay, *(const float *)&_XMM2);
-    v47 = v101;
-    unsignedInt = startOffsetMsec;
-    enabled = com_cinematicGPUDecoding->current.enabled;
-    v50 = (cinematicGlob.bink->OpenFlags & 0x10) != 0;
-    v51 = !*v101 && !startOffsetMsec || (playbackFlags & 0x100) != 0;
-    cinematicGlob.gpuDecoding = 0;
-    __asm { vmovss  xmm7, cs:__real@3f000000 }
-    if ( !enabled )
-      goto LABEL_95;
-    if ( v50 )
-    {
-      if ( v51 )
-      {
-        Com_Printf(8, "R_Cinematic_BinkOpen '%s': Using BinkGPU decoding\n", filename);
-        cinematicGlob.gpuDecoding = 1;
-        goto LABEL_117;
-      }
-      LODWORD(fmt) = *v101;
-      Com_Printf(8, "R_Cinematic_BinkOpen '%s': Not using BinkGPU decoding due to initial start offset seek of %u, frame %u\n", filename, startOffsetMsec, fmt);
-    }
-    else
-    {
-      Com_Printf(8, "R_Cinematic_BinkOpen '%s': Not using BinkGPU decoding due to Bink1 format\n", filename);
-    }
-    if ( !cinematicGlob.gpuDecoding )
-    {
-LABEL_95:
-      memset_0(&cinematicGlob.binkBuffers, 0, sizeof(cinematicGlob.binkBuffers));
-      j_BinkGetFrameBuffersInfo(cinematicGlob.bink, &cinematicGlob.binkBuffers);
-      v53 = j_BinkGetError();
-      if ( v53 && *v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v53) )
-        __debugbreak();
-      R_Cinematic_InitBinkTextures(cinematicGlob.bink->Width, cinematicGlob.bink->Height);
-      j_BinkRegisterFrameBuffers(cinematicGlob.bink, &cinematicGlob.binkBuffers);
-      v54 = j_BinkGetError();
-      if ( v54 && *v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v54) )
-        __debugbreak();
-LABEL_103:
-      cinematicGlob.currentPaused = CINEMATIC_NOT_PAUSED;
-      v55 = *v47;
-      *v47 = 0;
-      if ( com_cinematicForceStartOffsetMSec->current.integer != -1 )
-        unsignedInt = com_cinematicForceStartOffsetMSec->current.unsignedInt;
-      if ( unsignedInt )
-      {
-        v56 = cinematicGlob.bink;
-        if ( !cinematicGlob.bink->FrameRateDiv )
-        {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3285, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink->FrameRateDiv)", (const char *)&queryFormat, "cinematicGlob.bink->FrameRateDiv") )
-            __debugbreak();
-          v56 = cinematicGlob.bink;
-        }
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, cs:__real@3a83126f
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm2, xmm0
-          vaddss  xmm2, xmm1, xmm7
-          vcvttss2si rbx, xmm2
-        }
-        Frames = _RBX + 1;
-        if ( (playbackFlags & 2) != 0 )
-        {
-          if ( !v56->Frames )
-          {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3289, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink->Frames)", (const char *)&queryFormat, "cinematicGlob.bink->Frames") )
-              __debugbreak();
-            v56 = cinematicGlob.bink;
-          }
-          Frames %= v56->Frames;
-        }
-        else if ( Frames > v56->Frames )
-        {
-          Frames = v56->Frames;
-        }
-        if ( (playbackFlags & 0x100) != 0 )
-        {
-          Frames = j_BinkGetKeyFrame(v56, Frames, 0);
-          LODWORD(v94) = cinematicGlob.bink->Frames;
-          LODWORD(fmt) = Frames;
-          Com_Printf(8, "R_Cinematic_BinkOpen '%s': Fast seeking to start offset %u ( keyframe %u / %u )\n", filename, unsignedInt, fmt, v94);
-          v89 = 1;
-        }
-        else
-        {
-          if ( cinematicGlob.gpuDecoding )
-          {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3313, ASSERT_TYPE_ASSERT, "(!cinematicGlob.gpuDecoding)", (const char *)&queryFormat, "!cinematicGlob.gpuDecoding") )
-              __debugbreak();
-            v56 = cinematicGlob.bink;
-          }
-          LODWORD(v94) = v56->Frames;
-          LODWORD(fmt) = Frames;
-          Com_Printf(8, "R_Cinematic_BinkOpen '%s': Seeking to start offset %u ( keyframe %u / %u )\n", filename, unsignedInt, fmt, v94);
-          v89 = 0;
-        }
-        j_BinkGoto(cinematicGlob.bink, Frames, v89);
-        v90 = j_BinkGetError();
-        if ( v90 && *v90 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v90) )
-          __debugbreak();
-        cinematicGlob.status.frameNum = cinematicGlob.bink->FrameNum;
-      }
-      else if ( v55 )
-      {
-        if ( cinematicGlob.gpuDecoding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3328, ASSERT_TYPE_ASSERT, "(!cinematicGlob.gpuDecoding)", (const char *)&queryFormat, "!cinematicGlob.gpuDecoding") )
-          __debugbreak();
-        *v47 = R_Cinematic_GotoFrame(v55);
-      }
-      cinematicGlob.videoStartTime = __rdtsc();
-      RB_Cinematic_StartDecode();
-      result = 1;
-      goto LABEL_150;
-    }
-LABEL_117:
-    R_Cinematic_ReleaseImages();
-    memset_0(&cinematicGlob.binkBuffers, 0, sizeof(cinematicGlob.binkBuffers));
-    PMem_BeginAlloc("Cinematic", PMEM_STACK_CINEMATIC);
-    memset_0(v103, 0, 0x2A0ui64);
-    pcreate[0] = (__int64)g_dx.d3d12device;
-    pcreate[1] = (__int64)g_dx.immediateCommandQueue.commandQueue;
-    pcreate[2] = 0i64;
-    Bink_shaders = j_Create_Bink_shaders(pcreate);
-    cinematicGlob.binkShaders = Bink_shaders;
-    if ( Bink_shaders )
-    {
-      cinematicGlob.binkTextures = Bink_shaders->Create_textures(Bink_shaders, cinematicGlob.bink, NULL);
-      if ( cinematicGlob.binkTextures )
-      {
-        if ( (cinematicGlob.bink->OpenFlags & 4) != 0 )
-        {
-          __asm { vmovaps xmm2, xmm6 }
-          ((void (__fastcall *)(BINKTEXTURES *, __int64, BINKTEXTURES *, __int64))cinematicGlob.binkTextures->Set_hdr_settings)(cinematicGlob.binkTextures, 1i64, cinematicGlob.binkTextures, 10000i64);
-        }
-        v72 = 0;
-        if ( cinematicGlob.binkBuffers.TotalFrames )
-        {
-          _R11 = (float *)&cinematicGlob.images[0].imageUVScaleY + 1;
-          do
-          {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vxorps  xmm2, xmm2, xmm2
-              vcvtsi2ss xmm2, xmm2, dword ptr [rax]
-              vcvtsi2ss xmm0, xmm0, rax
-              vdivss  xmm1, xmm2, xmm0
-              vmovss  dword ptr [r11-4], xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rax
-              vxorps  xmm3, xmm3, xmm3
-              vcvtsi2ss xmm3, xmm3, ecx
-              vdivss  xmm1, xmm3, xmm0
-              vmovss  dword ptr [r11], xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rax
-              vdivss  xmm0, xmm7, xmm0
-              vmulss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [r11+4], xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rax
-              vdivss  xmm0, xmm7, xmm0
-              vmulss  xmm1, xmm0, xmm3
-              vmovss  dword ptr [r11+8], xmm1
-            }
-            R_Cinematic_SetImageColorSpace((CinematicImage *)(_R11 - 14), cinematicGlob.bink);
-            ++v72;
-            _R11 = (float *)(v88 + 136);
-          }
-          while ( v72 != cinematicGlob.binkBuffers.TotalFrames );
-        }
-        PMem_EndAlloc("Cinematic", PMEM_STACK_CINEMATIC);
-        goto LABEL_103;
-      }
-      v71 = j_BinkGetError();
-      Com_PrintError(16, "Couldn't create binkgpu textures: %s\n", v71);
-      cinematicGlob.binkShaders->Free_shaders(cinematicGlob.binkShaders);
-      cinematicGlob.binkShaders = NULL;
-      j_BinkClose(cinematicGlob.bink);
-      cinematicGlob.bink = NULL;
-      FreeBinkResourceBuffers();
-    }
-    else
-    {
-      v70 = j_BinkGetError();
-      Com_PrintError(16, "Couldn't create binkgpu shaders: %s\n", v70);
-      j_BinkClose(cinematicGlob.bink);
-      cinematicGlob.bink = NULL;
-      if ( cinematicGlob.numBinkGfxBuffers )
-      {
-        do
-          R_DestroyBuffer(&cinematicGlob.binkGfxBuffers[_ER14++]);
-        while ( _ER14 < cinematicGlob.numBinkGfxBuffers );
-      }
-      cinematicGlob.binkGfxBuffers[0] = NULL;
-      cinematicGlob.binkGfxBuffers[1] = NULL;
-      cinematicGlob.binkGfxBuffers[2] = NULL;
-      cinematicGlob.binkGfxBuffers[3] = NULL;
-      cinematicGlob.binkGfxBuffers[4] = NULL;
-      cinematicGlob.binkGfxBuffers[5] = NULL;
-      cinematicGlob.binkGfxBuffers[6] = NULL;
-      cinematicGlob.binkGfxBuffers[7] = NULL;
-      cinematicGlob.numBinkGfxBuffers = 0;
-    }
-    PMem_EndAlloc("Cinematic", PMEM_STACK_CINEMATIC);
-    result = 0;
-LABEL_150:
-    __asm
-    {
-      vmovaps xmm6, [rsp+418h+var_48]
-      vmovaps xmm7, [rsp+418h+var_58]
-    }
-    return result;
   }
-  if ( R_Cinematic_BinkOpenPath_MemoryResident(v34, playbackFlags, (const void **)&name, errText, 128) )
+  cinematicGlob.status.frameNum = bink->FrameNum;
+  cinematicGlob.status.width = bink->Width;
+  cinematicGlob.status.height = bink->Height;
+  _XMM0 = playbackFlags & 0x1000;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = 0i64;
+  __asm { vblendvps xmm2, xmm0, xmm6, xmm2; volumeScale }
+  R_Cinematic_InitBinkVolumes(bink, cinematicGlob.trackIDsToPlay, *(const float *)&_XMM2);
+  v41 = v78;
+  unsignedInt = startOffsetMsec;
+  enabled = com_cinematicGPUDecoding->current.enabled;
+  v44 = (cinematicGlob.bink->OpenFlags & 0x10) != 0;
+  v45 = !*v78 && !startOffsetMsec || (playbackFlags & 0x100) != 0;
+  cinematicGlob.gpuDecoding = 0;
+  if ( !enabled )
+    goto LABEL_95;
+  if ( v44 )
   {
-    cinematicGlob.decryptFile.encrypted = (playbackFlags & 0x8000) != 0;
-    cinematicGlob.bink = j_BinkOpen(name, 0x4104408u);
-    if ( !cinematicGlob.bink )
+    if ( v45 )
     {
-      v35 = j_BinkGetError();
-      Com_sprintf(errText, 0x80ui64, "BinkOpen: %s", v35);
+      Com_Printf(8, "R_Cinematic_BinkOpen '%s': Using BinkGPU decoding\n", filename);
+      cinematicGlob.gpuDecoding = 1;
+LABEL_117:
+      R_Cinematic_ReleaseImages();
+      memset_0(&cinematicGlob.binkBuffers, 0, sizeof(cinematicGlob.binkBuffers));
+      PMem_BeginAlloc("Cinematic", PMEM_STACK_CINEMATIC);
+      memset_0(v80, 0, 0x2A0ui64);
+      pcreate[0] = (__int64)g_dx.d3d12device;
+      pcreate[1] = (__int64)g_dx.immediateCommandQueue.commandQueue;
+      pcreate[2] = 0i64;
+      Bink_shaders = j_Create_Bink_shaders(pcreate);
+      cinematicGlob.binkShaders = Bink_shaders;
+      if ( Bink_shaders )
+      {
+        cinematicGlob.binkTextures = Bink_shaders->Create_textures(Bink_shaders, cinematicGlob.bink, NULL);
+        if ( cinematicGlob.binkTextures )
+        {
+          v58 = cinematicGlob.bink;
+          if ( (cinematicGlob.bink->OpenFlags & 4) != 0 )
+          {
+            ((void (__fastcall *)(BINKTEXTURES *, __int64, BINKTEXTURES *, __int64))cinematicGlob.binkTextures->Set_hdr_settings)(cinematicGlob.binkTextures, 1i64, cinematicGlob.binkTextures, 10000i64);
+            v58 = cinematicGlob.bink;
+          }
+          v59 = 0;
+          if ( cinematicGlob.binkBuffers.TotalFrames )
+          {
+            v60 = (float *)&cinematicGlob.images[0].imageUVScaleY + 1;
+            while ( 1 )
+            {
+              Height = v58->Height;
+              Width = (float)(int)v58->Width;
+              YABufferWidth = (float)cinematicGlob.binkBuffers.YABufferWidth;
+              *(v60 - 1) = Width / YABufferWidth;
+              YABufferHeight = (float)cinematicGlob.binkBuffers.YABufferHeight;
+              *v60 = (float)Height / YABufferHeight;
+              cRcBBufferWidth = (float)cinematicGlob.binkBuffers.cRcBBufferWidth;
+              v60[1] = (float)(0.5 / cRcBBufferWidth) * Width;
+              cRcBBufferHeight = (float)cinematicGlob.binkBuffers.cRcBBufferHeight;
+              v60[2] = (float)(0.5 / cRcBBufferHeight) * (float)Height;
+              R_Cinematic_SetImageColorSpace((CinematicImage *)(v60 - 14), cinematicGlob.bink);
+              ++v59;
+              v60 = (float *)(v67 + 136);
+              if ( v59 == cinematicGlob.binkBuffers.TotalFrames )
+                break;
+              v58 = cinematicGlob.bink;
+            }
+          }
+          PMem_EndAlloc("Cinematic", PMEM_STACK_CINEMATIC);
+          goto LABEL_103;
+        }
+        v57 = j_BinkGetError();
+        Com_PrintError(16, "Couldn't create binkgpu textures: %s\n", v57);
+        cinematicGlob.binkShaders->Free_shaders(cinematicGlob.binkShaders);
+        cinematicGlob.binkShaders = NULL;
+        j_BinkClose(cinematicGlob.bink);
+        cinematicGlob.bink = NULL;
+        FreeBinkResourceBuffers();
+      }
+      else
+      {
+        v56 = j_BinkGetError();
+        Com_PrintError(16, "Couldn't create binkgpu shaders: %s\n", v56);
+        j_BinkClose(cinematicGlob.bink);
+        cinematicGlob.bink = NULL;
+        if ( cinematicGlob.numBinkGfxBuffers )
+        {
+          do
+            R_DestroyBuffer(&cinematicGlob.binkGfxBuffers[v6++]);
+          while ( v6 < cinematicGlob.numBinkGfxBuffers );
+        }
+        cinematicGlob.binkGfxBuffers[0] = NULL;
+        cinematicGlob.binkGfxBuffers[1] = NULL;
+        cinematicGlob.binkGfxBuffers[2] = NULL;
+        cinematicGlob.binkGfxBuffers[3] = NULL;
+        cinematicGlob.binkGfxBuffers[4] = NULL;
+        cinematicGlob.binkGfxBuffers[5] = NULL;
+        cinematicGlob.binkGfxBuffers[6] = NULL;
+        cinematicGlob.binkGfxBuffers[7] = NULL;
+        cinematicGlob.numBinkGfxBuffers = 0;
+      }
+      PMem_EndAlloc("Cinematic", PMEM_STACK_CINEMATIC);
+      return 0;
     }
-    goto LABEL_71;
+    LODWORD(fmt) = *v78;
+    Com_Printf(8, "R_Cinematic_BinkOpen '%s': Not using BinkGPU decoding due to initial start offset seek of %u, frame %u\n", filename, startOffsetMsec, fmt);
   }
-LABEL_72:
-  Com_PrintWarning(8, "R_Cinematic_BinkOpen '%s' failed: %s; not playing movie.\n", "default", errText);
-  if ( cinematicGlob.activeImageFrame != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3162, ASSERT_TYPE_ASSERT, "(cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME)", (const char *)&queryFormat, "cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME") )
+  else
+  {
+    Com_Printf(8, "R_Cinematic_BinkOpen '%s': Not using BinkGPU decoding due to Bink1 format\n", filename);
+  }
+  if ( cinematicGlob.gpuDecoding )
+    goto LABEL_117;
+LABEL_95:
+  memset_0(&cinematicGlob.binkBuffers, 0, sizeof(cinematicGlob.binkBuffers));
+  j_BinkGetFrameBuffersInfo(cinematicGlob.bink, &cinematicGlob.binkBuffers);
+  v46 = j_BinkGetError();
+  if ( v46 && *v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v46) )
     __debugbreak();
-  RB_Cinematic_HunksClose();
-  cinematicGlob.finishedId = cinematicGlob.stopId;
-  result = 0;
-  cinematicGlob.cinematicFinished = 1;
-  cinematicGlob.cinematicHeld = 0;
-  return result;
+  R_Cinematic_InitBinkTextures(cinematicGlob.bink->Width, cinematicGlob.bink->Height);
+  j_BinkRegisterFrameBuffers(cinematicGlob.bink, &cinematicGlob.binkBuffers);
+  v47 = j_BinkGetError();
+  if ( v47 && *v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v47) )
+    __debugbreak();
+LABEL_103:
+  cinematicGlob.currentPaused = CINEMATIC_NOT_PAUSED;
+  v48 = *v41;
+  *v41 = 0;
+  if ( com_cinematicForceStartOffsetMSec->current.integer != -1 )
+    unsignedInt = com_cinematicForceStartOffsetMSec->current.unsignedInt;
+  if ( unsignedInt )
+  {
+    v49 = cinematicGlob.bink;
+    if ( !cinematicGlob.bink->FrameRateDiv )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3285, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink->FrameRateDiv)", (const char *)&queryFormat, "cinematicGlob.bink->FrameRateDiv") )
+        __debugbreak();
+      v49 = cinematicGlob.bink;
+    }
+    FrameRate = (float)v49->FrameRate;
+    FrameRateDiv = (float)v49->FrameRateDiv;
+    v52 = (float)(FrameRate / FrameRateDiv) * 0.001;
+    v53 = (float)unsignedInt;
+    Frames = (int)(float)((float)(v52 * v53) + 0.5) + 1;
+    if ( (playbackFlags & 2) != 0 )
+    {
+      if ( !v49->Frames )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3289, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink->Frames)", (const char *)&queryFormat, "cinematicGlob.bink->Frames") )
+          __debugbreak();
+        v49 = cinematicGlob.bink;
+      }
+      Frames %= v49->Frames;
+    }
+    else if ( Frames > v49->Frames )
+    {
+      Frames = v49->Frames;
+    }
+    if ( (playbackFlags & 0x100) != 0 )
+    {
+      Frames = j_BinkGetKeyFrame(v49, Frames, 0);
+      LODWORD(v71) = cinematicGlob.bink->Frames;
+      LODWORD(fmt) = Frames;
+      Com_Printf(8, "R_Cinematic_BinkOpen '%s': Fast seeking to start offset %u ( keyframe %u / %u )\n", filename, unsignedInt, fmt, v71);
+      v68 = 1;
+    }
+    else
+    {
+      if ( cinematicGlob.gpuDecoding )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3313, ASSERT_TYPE_ASSERT, "(!cinematicGlob.gpuDecoding)", (const char *)&queryFormat, "!cinematicGlob.gpuDecoding") )
+          __debugbreak();
+        v49 = cinematicGlob.bink;
+      }
+      LODWORD(v71) = v49->Frames;
+      LODWORD(fmt) = Frames;
+      Com_Printf(8, "R_Cinematic_BinkOpen '%s': Seeking to start offset %u ( keyframe %u / %u )\n", filename, unsignedInt, fmt, v71);
+      v68 = 0;
+    }
+    j_BinkGoto(cinematicGlob.bink, Frames, v68);
+    v69 = j_BinkGetError();
+    if ( v69 && *v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v69) )
+      __debugbreak();
+    cinematicGlob.status.frameNum = cinematicGlob.bink->FrameNum;
+  }
+  else if ( v48 )
+  {
+    if ( cinematicGlob.gpuDecoding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3328, ASSERT_TYPE_ASSERT, "(!cinematicGlob.gpuDecoding)", (const char *)&queryFormat, "!cinematicGlob.gpuDecoding") )
+      __debugbreak();
+    *v41 = R_Cinematic_GotoFrame(v48);
+  }
+  cinematicGlob.videoStartTime = __rdtsc();
+  RB_Cinematic_StartDecode();
+  return 1;
 }
 
 /*
@@ -2038,6 +1886,7 @@ void RB_Cinematic_UpdateFrame(const GfxBackEndData *data)
 {
   volatile int activeImageFrame; 
   GfxImage *grayImage; 
+  CinematicImage *v4; 
   GfxImage *imageCr; 
   GfxImage *imageCb; 
   GfxImage *imageA; 
@@ -2080,57 +1929,37 @@ void RB_Cinematic_UpdateFrame(const GfxBackEndData *data)
   {
     cinematicGlob.codeImageSwapFrame[activeImageFrame] = data->endSwapFrame;
     grayImage = rgp.grayImage;
-    _R8 = &cinematicGlob.images[activeImageFrame];
+    v4 = &cinematicGlob.images[activeImageFrame];
     imageCr = rgp.grayImage;
-    cinematicGlob.curCinematicImage.hasAlpha = _R8->hasAlpha;
-    cinematicGlob.curCinematicImage.imageY = _R8->imageY;
-    if ( _R8->imageCr )
-      imageCr = _R8->imageCr;
+    cinematicGlob.curCinematicImage.hasAlpha = v4->hasAlpha;
+    cinematicGlob.curCinematicImage.imageY = v4->imageY;
+    if ( v4->imageCr )
+      imageCr = v4->imageCr;
     cinematicGlob.curCinematicImage.imageCr = imageCr;
     imageCb = rgp.grayImage;
-    if ( _R8->imageCb )
-      imageCb = _R8->imageCb;
+    if ( v4->imageCb )
+      imageCb = v4->imageCb;
     cinematicGlob.curCinematicImage.imageCb = imageCb;
-    if ( _R8->imageCbCr )
-      grayImage = _R8->imageCbCr;
+    if ( v4->imageCbCr )
+      grayImage = v4->imageCbCr;
     cinematicGlob.curCinematicImage.imageCbCr = grayImage;
-    if ( _R8->hasAlpha )
-      imageA = _R8->imageA;
+    if ( v4->hasAlpha )
+      imageA = v4->imageA;
     else
       imageA = rgp.whiteImage;
     cinematicGlob.curCinematicImage.imageA = imageA;
-    if ( _R8->hasHDR )
-      imageH = _R8->imageH;
+    if ( v4->hasHDR )
+      imageH = v4->imageH;
     else
       imageH = rgp.blackImage;
     cinematicGlob.curCinematicImage.imageH = imageH;
-    __asm
+    cinematicGlob.curCinematicImage.imageUVScaleY = v4->imageUVScaleY;
+    cinematicGlob.curCinematicImage.imageUVScaleC = v4->imageUVScaleC;
+    cinematicGlob.curCinematicImage.colorSpace = v4->colorSpace;
+    cinematicGlob.curCinematicImage.cinematicOptions = v4->cinematicOptions;
+    if ( v4->hasHDR )
     {
-      vmovss  xmm0, dword ptr [r8+34h]
-      vmovss  dword ptr cs:cinematicGlob.curCinematicImage.imageUVScaleY, xmm0
-      vmovss  xmm1, dword ptr [r8+38h]
-      vmovss  dword ptr cs:cinematicGlob.curCinematicImage.imageUVScaleY+4, xmm1
-      vmovss  xmm0, dword ptr [r8+3Ch]
-      vmovss  dword ptr cs:cinematicGlob.curCinematicImage.imageUVScaleC, xmm0
-      vmovss  xmm1, dword ptr [r8+40h]
-      vmovss  dword ptr cs:cinematicGlob.curCinematicImage.imageUVScaleC+4, xmm1
-      vmovups xmm0, xmmword ptr [r8+44h]
-      vmovups xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffR, xmm0
-      vmovups xmm1, xmmword ptr [r8+54h]
-      vmovups xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffG, xmm1
-      vmovups xmm0, xmmword ptr [r8+64h]
-      vmovups xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffB, xmm0
-      vmovups xmm1, xmmword ptr [r8+74h]
-      vmovups xmmword ptr cs:cinematicGlob.curCinematicImage.cinematicOptions, xmm1
-    }
-    if ( _R8->hasHDR )
-    {
-      _RAX = com_cinematicHDRIntensityScale;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+28h]
-        vmovss  dword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffR+4, xmm0
-      }
+      LODWORD(cinematicGlob.curCinematicImage.colorSpace.coeffR.v[1]) = com_cinematicHDRIntensityScale->current.integer;
       Profile_EndInternal(NULL);
       return;
     }
@@ -2143,31 +1972,35 @@ void RB_Cinematic_UpdateFrame(const GfxBackEndData *data)
 RB_Cinematic_UpdateFrame_Internal_NoLock
 ==============
 */
-
-void __fastcall RB_Cinematic_UpdateFrame_Internal_NoLock(double _XMM0_8, double a2)
+void RB_Cinematic_UpdateFrame_Internal_NoLock()
 {
-  unsigned __int64 v2; 
-  int v4; 
-  char *v5; 
+  unsigned __int64 v0; 
+  int v1; 
+  char *v2; 
+  __int64 v3; 
+  __int64 v4; 
+  int v5; 
   __int64 v6; 
-  __int64 v7; 
+  int v7; 
   int v8; 
-  __int64 v9; 
-  int v10; 
-  int v11; 
-  int v12; 
+  int v9; 
   unsigned int playbackFlags; 
   unsigned int startOffsetMsec; 
-  char v15; 
-  bool v16; 
-  unsigned __int64 v17; 
-  __int64 v20; 
+  char v12; 
+  bool v13; 
+  unsigned __int64 v14; 
+  __int64 v16; 
+  __int128 v18; 
+  double v19; 
+  __int128 v21; 
+  __int128 v25; 
+  __int128 v27; 
   int pStartFrame[4]; 
   char dest[256]; 
   char src[256]; 
 
   cinematicGlob.playbackStatsFramesDecoded = 0;
-  v2 = __rdtsc();
+  v0 = __rdtsc();
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3391, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
   if ( cinematicGlob.target[1].changed )
@@ -2179,52 +2012,51 @@ void __fastcall RB_Cinematic_UpdateFrame_Internal_NoLock(double _XMM0_8, double 
     cinematicGlob.activeImageFrame = -1;
     Sys_LeaveCriticalSection(CRITSECT_CINEMATIC_TARGET_CHANGE_BACKEND);
   }
-  _R15 = &cinematicGlob;
   if ( !cinematicGlob.target[2].changed )
     goto LABEL_37;
   if ( cinematicGlob.activeImageFrame != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3403, ASSERT_TYPE_ASSERT, "(cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME)", (const char *)&queryFormat, "cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME") )
     __debugbreak();
-  v4 = 0;
+  v1 = 0;
   cinematicGlob.target[2].changed = 0;
   pStartFrame[0] = 0;
   Core_strcpy(dest, 0x100ui64, cinematicGlob.target[2].name);
   if ( dest[0] )
   {
-    v5 = strchr_0(dest, 58);
-    if ( v5 )
+    v2 = strchr_0(dest, 58);
+    if ( v2 )
     {
-      *v5 = 0;
-      v4 = atoi(v5 + 1);
-      pStartFrame[0] = v4;
+      *v2 = 0;
+      v1 = atoi(v2 + 1);
+      pStartFrame[0] = v1;
     }
   }
-  if ( cinematicGlob.bink && v4 )
+  if ( cinematicGlob.bink && v1 )
   {
-    v6 = 0x7FFFFFFFi64;
-    v7 = 0i64;
+    v3 = 0x7FFFFFFFi64;
+    v4 = 0i64;
     do
     {
-      v8 = (unsigned __int8)dest[v7];
-      v9 = v6;
-      v10 = (unsigned __int8)cinematicGlob.status.name[v7++];
-      --v6;
-      if ( !v9 )
+      v5 = (unsigned __int8)dest[v4];
+      v6 = v3;
+      v7 = (unsigned __int8)cinematicGlob.status.name[v4++];
+      --v3;
+      if ( !v6 )
         break;
-      if ( v8 != v10 )
+      if ( v5 != v7 )
       {
-        v11 = v8 + 32;
-        if ( (unsigned int)(v8 - 65) > 0x19 )
-          v11 = v8;
-        v8 = v11;
-        v12 = v10 + 32;
-        if ( (unsigned int)(v10 - 65) > 0x19 )
-          v12 = v10;
-        if ( v8 != v12 )
+        v8 = v5 + 32;
+        if ( (unsigned int)(v5 - 65) > 0x19 )
+          v8 = v5;
+        v5 = v8;
+        v9 = v7 + 32;
+        if ( (unsigned int)(v7 - 65) > 0x19 )
+          v9 = v7;
+        if ( v5 != v9 )
           goto LABEL_27;
       }
     }
-    while ( v8 );
-    pStartFrame[0] = R_Cinematic_GotoFrame(v4);
+    while ( v5 );
+    pStartFrame[0] = R_Cinematic_GotoFrame(v1);
     if ( pStartFrame[0] )
     {
       Sys_EnterCriticalSection(CRITSECT_CINEMATIC_STATUS);
@@ -2242,7 +2074,7 @@ LABEL_27:
     RB_Cinematic_HunksClose();
   playbackFlags = cinematicGlob.target[2].playbackFlags;
   startOffsetMsec = cinematicGlob.target[2].startOffsetMsec;
-  v15 = dest[0];
+  v12 = dest[0];
   if ( (cinematicGlob.target[2].playbackFlags & 0x40) != 0 )
     startOffsetMsec = 0;
   if ( !dest[0] )
@@ -2255,9 +2087,9 @@ LABEL_27:
       cinematicGlob.target[2].changed = 1;
       goto LABEL_35;
     }
-    v15 = dest[0];
+    v12 = dest[0];
   }
-  if ( v15 && RB_Cinematic_StartPlayback_Now(dest, playbackFlags, startOffsetMsec, pStartFrame, cinematicGlob.target[2].fillerBink) )
+  if ( v12 && RB_Cinematic_StartPlayback_Now(dest, playbackFlags, startOffsetMsec, pStartFrame, cinematicGlob.target[2].fillerBink) )
   {
     Sys_EnterCriticalSection(CRITSECT_CINEMATIC_STATUS);
     Core_strcpy(cinematicGlob.status.name, 0x100ui64, dest);
@@ -2272,14 +2104,14 @@ LABEL_35:
 LABEL_36:
   Sys_LeaveCriticalSection(CRITSECT_CINEMATIC_STATUS);
 LABEL_37:
-  v16 = cinematicGlob.status.name[0] != 0;
+  v13 = cinematicGlob.status.name[0] != 0;
   if ( !cinematicGlob.status.name[0] && cinematicGlob.activeImageFrame != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3499, ASSERT_TYPE_ASSERT, "(cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME)", (const char *)&queryFormat, "cinematicGlob.activeImageFrame == CINEMATIC_INVALID_IMAGE_FRAME") )
     __debugbreak();
-  if ( v16 )
+  if ( v13 )
   {
     if ( !cinematicGlob.bink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 3505, ASSERT_TYPE_ASSERT, "(cinematicGlob.bink)", (const char *)&queryFormat, "cinematicGlob.bink") )
       __debugbreak();
-    if ( !(unsigned __int8)RB_Cinematic_Advance(cinematicGlob.status.timeInMsec == 0, a2) && cinematicGlob.finishedId != cinematicGlob.stopId )
+    if ( !(unsigned __int8)RB_Cinematic_Advance(cinematicGlob.status.timeInMsec == 0) && cinematicGlob.finishedId != cinematicGlob.stopId )
     {
       cinematicGlob.finishedId = cinematicGlob.stopId;
       cinematicGlob.cinematicFinished = 1;
@@ -2302,44 +2134,45 @@ LABEL_37:
       }
     }
   }
-  v17 = __rdtsc();
+  v14 = __rdtsc();
   if ( cinematicGlob.status.name[0] )
   {
-    __asm
-    {
-      vmovsd  xmm2, cs:__real@43f0000000000000
-      vxorps  xmm0, xmm0, xmm0
-    }
-    v20 = cinematicGlob.playbackStats.frameCount % 0x3C;
+    _XMM0 = 0i64;
+    v16 = cinematicGlob.playbackStats.frameCount % 0x3C;
     __asm { vcvtsi2sd xmm0, xmm0, rax }
-    _RDX = 5 * v20;
-    if ( (__int64)(v17 - v2) < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm2 }
-    __asm
+    if ( (__int64)(v14 - v0) < 0 )
     {
-      vmovsd  xmm3, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [r15+rdx*4+0AA90h], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v18 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v18;
     }
-    if ( (__int64)(v17 - cinematicGlob.playbackStatsLastEndTime) < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm2 }
-    __asm
+    v19 = msecPerRawTimerTick;
+    *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v21 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v21;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    cinematicGlob.playbackStats.frames[v16].renderSelfTime = *(float *)&_XMM1;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(v14 - cinematicGlob.playbackStatsLastEndTime) < 0 )
     {
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [r15+rdx*4+0AA8Ch], xmm1
+      *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v25 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v25;
     }
-    cinematicGlob.playbackStats.frames[v20].framesDecoded = cinematicGlob.playbackStatsFramesDecoded;
-    cinematicGlob.playbackStats.frames[v20].ioFullPercent = cinematicGlob.playbackStatsIOPercent;
-    cinematicGlob.playbackStats.frames[v20].ioActive = cinematicGlob.hasFileIO;
+    *((_QWORD *)&v27 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v27 = *(double *)&_XMM0 * v19;
+    _XMM0 = v27;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    cinematicGlob.playbackStats.frames[v16].renderOverallTime = *(float *)&_XMM1;
+    cinematicGlob.playbackStats.frames[v16].framesDecoded = cinematicGlob.playbackStatsFramesDecoded;
+    cinematicGlob.playbackStats.frames[v16].ioFullPercent = cinematicGlob.playbackStatsIOPercent;
+    cinematicGlob.playbackStats.frames[v16].ioActive = cinematicGlob.hasFileIO;
     if ( cinematicGlob.playbackStatsFramesDecoded > 1 )
       ++cinematicGlob.playbackStats.totalFrameSkips;
     ++cinematicGlob.playbackStats.frameCount;
   }
-  cinematicGlob.playbackStatsLastEndTime = v17;
+  cinematicGlob.playbackStatsLastEndTime = v14;
 }
 
 /*
@@ -2366,7 +2199,11 @@ void RB_Cinematic_UpdateSaveData(void)
   int v14; 
   unsigned __int64 v15; 
   int v16; 
+  CinematicGlobSave *v17; 
+  char *v18; 
   __int64 v19; 
+  __m256i v20; 
+  __int128 v21; 
   char dest[256]; 
   unsigned int playbackFlags; 
   unsigned int startOffsetMsec; 
@@ -2468,38 +2305,25 @@ LABEL_17:
   }
   dest[0] = 0;
 LABEL_36:
-  _RAX = &cinematicSaveUpdate;
-  _RDX = dest;
+  v17 = &cinematicSaveUpdate;
+  v18 = dest;
   v19 = 2i64;
   do
   {
-    _RAX = (CinematicGlobSave *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups xmm1, xmmword ptr [rdx+70h]
-    }
-    _RDX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v17 = (CinematicGlobSave *)((char *)v17 + 128);
+    v20 = *(__m256i *)v18;
+    v21 = *((_OWORD *)v18 + 7);
+    v18 += 128;
+    *(__m256i *)&v17[-1].name[144] = v20;
+    *(__m256i *)&v17[-1].name[176] = *((__m256i *)v18 - 3);
+    *(__m256i *)&v17[-1].name[208] = *((__m256i *)v18 - 2);
+    *(_OWORD *)&v17[-1].name[240] = *((_OWORD *)v18 - 2);
+    *(_OWORD *)&v17[-1].playbackFlags = v21;
     --v19;
   }
   while ( v19 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rax], xmm0
-  }
-  Sys_LeaveCriticalSection((CriticalSection)((unsigned __int8)v19 + 38));
+  *(_OWORD *)v17->name = *(_OWORD *)v18;
+  Sys_LeaveCriticalSection(CRITSECT_CINEMATIC_SAVE);
 }
 
 /*
@@ -2692,26 +2516,20 @@ void R_Cinematic_ClearServerFlags(const int flags)
 R_Cinematic_DrawFullscreen_Letterboxed
 ==============
 */
-
-void __fastcall R_Cinematic_DrawFullscreen_Letterboxed(double _XMM0_8, double _XMM1_8)
+void R_Cinematic_DrawFullscreen_Letterboxed(void)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  float v0; 
+  float width; 
+  float height; 
+
+  v0 = 0.0;
   if ( cinematicGlob.bink )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm0, xmm1, xmm0; cinematicAspectRatio
-    }
+    width = (float)cinematicGlob.status.width;
+    height = (float)cinematicGlob.status.height;
+    v0 = width / height;
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; letterboxAlpha
-    vmovaps xmm3, xmm2; letterboxLerp
-  }
-  R_Cinematic_DrawLetterbox_OptionalCinematic(*(float *)&_XMM0, 1, *(float *)&_XMM2, *(float *)&_XMM3);
+  R_Cinematic_DrawLetterbox_OptionalCinematic(v0, 1, 1.0, 1.0);
 }
 
 /*
@@ -2719,15 +2537,9 @@ void __fastcall R_Cinematic_DrawFullscreen_Letterboxed(double _XMM0_8, double _X
 R_Cinematic_DrawLetterbox_Only
 ==============
 */
-
-void __fastcall R_Cinematic_DrawLetterbox_Only(float aspectRatio, double alpha, double lerp)
+void R_Cinematic_DrawLetterbox_Only(float aspectRatio, float alpha, float lerp)
 {
-  __asm
-  {
-    vmovaps xmm3, xmm2; letterboxLerp
-    vmovaps xmm2, xmm1; letterboxAlpha
-  }
-  R_Cinematic_DrawLetterbox_OptionalCinematic(aspectRatio, 0, *(float *)&_XMM2, *(float *)&_XMM3);
+  R_Cinematic_DrawLetterbox_OptionalCinematic(aspectRatio, 0, alpha, lerp);
 }
 
 /*
@@ -2735,162 +2547,46 @@ void __fastcall R_Cinematic_DrawLetterbox_Only(float aspectRatio, double alpha, 
 R_Cinematic_DrawLetterbox_OptionalCinematic
 ==============
 */
-
-void __fastcall R_Cinematic_DrawLetterbox_OptionalCinematic(double cinematicAspectRatio, bool drawCinematic, double letterboxAlpha, double letterboxLerp)
+void R_Cinematic_DrawLetterbox_OptionalCinematic(float cinematicAspectRatio, bool drawCinematic, float letterboxAlpha, float letterboxLerp)
 {
-  bool v15; 
-  _BYTE v70[32]; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  vec4_t *color; 
-  Material *material; 
-  vec4_t v78; 
-  char v85; 
-  void *retaddr; 
+  float displayWidth; 
+  float displayHeight; 
+  __int128 aspectRatioDisplayPixel_low; 
+  __int128 v9; 
+  float v13; 
+  float v14; 
+  vec4_t color; 
 
-  _R11 = &retaddr;
-  __asm
+  displayWidth = (float)vidConfig.displayWidth;
+  displayHeight = (float)vidConfig.displayHeight;
+  if ( cinematicAspectRatio > 0.0 )
   {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm10
-  }
-  v15 = (unsigned __int64)v70 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm5, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioDisplayPixel; vidConfig_t vidConfig
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, rax
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm0, xmm8
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, rax
-    vmovss  [rsp+118h+var_C8], xmm2
-    vmovaps xmm6, xmm2
-    vmovaps xmm4, xmm0
-  }
-  if ( (unsigned __int64)v70 != _security_cookie )
-  {
+    aspectRatioDisplayPixel_low = LODWORD(vidConfig.aspectRatioDisplayPixel);
+    *(float *)&aspectRatioDisplayPixel_low = (float)(vidConfig.aspectRatioDisplayPixel * displayWidth) / cinematicAspectRatio;
+    _XMM1 = aspectRatioDisplayPixel_low;
+    v9 = LODWORD(vidConfig.aspectRatioDisplayPixel);
+    *(float *)&v9 = (float)(vidConfig.aspectRatioDisplayPixel * displayHeight) * cinematicAspectRatio;
+    _XMM0 = v9;
     __asm
     {
-      vucomiss xmm6, xmm8
-      vmovaps xmmword ptr [r11-68h], xmm11
-      vmovss  xmm11, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-78h], xmm12
-      vmovaps xmmword ptr [r11-88h], xmm13
-      vmulss  xmm0, xmm5, xmm9
-      vdivss  xmm1, xmm0, xmm4
-      vmovaps xmmword ptr [r11-98h], xmm14
-      vmulss  xmm2, xmm5, xmm10
-      vmulss  xmm0, xmm2, xmm4
       vminss  xmm13, xmm0, xmm9
       vminss  xmm12, xmm1, xmm10
-      vsubss  xmm0, xmm9, xmm13
-      vmulss  xmm14, xmm0, cs:__real@3f000000
-      vsubss  xmm1, xmm10, xmm12
-      vmovaps [rsp+118h+var_A8], xmm15
-      vmulss  xmm15, xmm1, cs:__real@3f000000
     }
-    if ( !v15 )
+    v13 = (float)(displayWidth - *(float *)&_XMM13) * 0.5;
+    v14 = (float)(displayHeight - *(float *)&_XMM12) * 0.5;
+    if ( letterboxAlpha != 0.0 && letterboxLerp != 0.0 )
     {
-      __asm
-      {
-        vucomiss xmm3, xmm8
-        vmovss  xmm0, [rsp+118h+var_C8]
-      }
-      material = rgp.whiteMaterial;
-      color = &v78;
-      __asm
-      {
-        vmovss  [rsp+118h+var_E0], xmm11
-        vmovaps xmmword ptr [r11-28h], xmm7
-        vmulss  xmm6, xmm15, xmm3
-        vmovss  [rsp+118h+var_E8], xmm11
-        vmovss  dword ptr [rsp+118h+var_C0+0Ch], xmm0
-        vmulss  xmm7, xmm14, xmm3
-        vmovss  [rsp+118h+var_F0], xmm8
-        vmovaps xmm3, xmm6; h
-        vmovaps xmm2, xmm9; w
-        vxorps  xmm1, xmm1, xmm1; y
-        vxorps  xmm0, xmm0, xmm0; x
-        vmovss  [rsp+118h+var_F8], xmm8
-        vmovss  dword ptr [rsp+118h+var_C0], xmm8
-        vmovss  dword ptr [rsp+118h+var_C0+4], xmm8
-        vmovss  dword ptr [rsp+118h+var_C0+8], xmm8
-      }
-      R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, v72, v73, v74, color, material);
-      __asm
-      {
-        vmovss  [rsp+118h+var_E0], xmm11
-        vmovss  [rsp+118h+var_E8], xmm11
-        vmovss  [rsp+118h+var_F0], xmm8
-        vsubss  xmm1, xmm10, xmm6; y
-        vmovaps xmm3, xmm6; h
-        vmovaps xmm2, xmm9; w
-        vxorps  xmm0, xmm0, xmm0; x
-        vmovss  [rsp+118h+var_F8], xmm8
-      }
-      R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, v72, v73, v74, &v78, rgp.whiteMaterial);
-      __asm
-      {
-        vmovss  [rsp+118h+var_E0], xmm11
-        vmovss  [rsp+118h+var_E8], xmm11
-        vmovss  [rsp+118h+var_F0], xmm8
-        vmovaps xmm3, xmm10; h
-        vmovaps xmm2, xmm7; w
-        vxorps  xmm1, xmm1, xmm1; y
-        vxorps  xmm0, xmm0, xmm0; x
-        vmovss  [rsp+118h+var_F8], xmm8
-      }
-      R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, v72, v73, v74, &v78, rgp.whiteMaterial);
-      __asm
-      {
-        vmovss  [rsp+118h+var_E0], xmm11
-        vmovss  [rsp+118h+var_E8], xmm11
-        vmovss  [rsp+118h+var_F0], xmm8
-        vsubss  xmm0, xmm9, xmm7; x
-        vmovaps xmm3, xmm10; h
-        vmovaps xmm2, xmm7; w
-        vxorps  xmm1, xmm1, xmm1; y
-        vmovss  [rsp+118h+var_F8], xmm8
-      }
-      R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, v72, v73, v74, &v78, rgp.whiteMaterial);
-      __asm { vmovaps xmm7, [rsp+118h+var_28] }
+      color.v[3] = letterboxAlpha;
+      color.v[0] = 0.0;
+      color.v[1] = 0.0;
+      color.v[2] = 0.0;
+      R_AddCmdDrawStretchPic(0.0, 0.0, displayWidth, v14 * letterboxLerp, 0.0, 0.0, 1.0, 1.0, &color, rgp.whiteMaterial);
+      R_AddCmdDrawStretchPic(0.0, displayHeight - (float)(v14 * letterboxLerp), displayWidth, v14 * letterboxLerp, 0.0, 0.0, 1.0, 1.0, &color, rgp.whiteMaterial);
+      R_AddCmdDrawStretchPic(0.0, 0.0, v13 * letterboxLerp, displayHeight, 0.0, 0.0, 1.0, 1.0, &color, rgp.whiteMaterial);
+      R_AddCmdDrawStretchPic(displayWidth - (float)(v13 * letterboxLerp), 0.0, v13 * letterboxLerp, displayHeight, 0.0, 0.0, 1.0, 1.0, &color, rgp.whiteMaterial);
     }
     if ( drawCinematic )
-    {
-      __asm
-      {
-        vmovss  [rsp+118h+var_E0], xmm11
-        vmovss  [rsp+118h+var_E8], xmm11
-        vmovss  [rsp+118h+var_F0], xmm8
-        vmovaps xmm3, xmm12; h
-        vmovaps xmm2, xmm13; w
-        vmovaps xmm1, xmm15; y
-        vmovaps xmm0, xmm14; x
-        vmovss  [rsp+118h+var_F8], xmm8
-      }
-      R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, v72, v73, v74, &colorWhite, rgp.cinematicMaterial);
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+118h+var_98]
-      vmovaps xmm13, [rsp+118h+var_88]
-      vmovaps xmm12, [rsp+118h+var_78]
-      vmovaps xmm11, [rsp+118h+var_68]
-      vmovaps xmm15, [rsp+118h+var_A8]
-    }
-  }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+      R_AddCmdDrawStretchPic(v13, (float)(displayHeight - *(float *)&_XMM12) * 0.5, *(float *)&_XMM13, *(float *)&_XMM12, 0.0, 0.0, 1.0, 1.0, &colorWhite, rgp.cinematicMaterial);
   }
 }
 
@@ -2899,16 +2595,9 @@ void __fastcall R_Cinematic_DrawLetterbox_OptionalCinematic(double cinematicAspe
 R_Cinematic_DrawStretchPic_Letterboxed
 ==============
 */
-
-void __fastcall R_Cinematic_DrawStretchPic_Letterboxed(bool drawFilledToScreen, double aspectRatio)
+void R_Cinematic_DrawStretchPic_Letterboxed(bool drawFilledToScreen, float aspectRatio)
 {
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000
-    vmovaps xmm3, xmm2
-    vmovaps xmm0, xmm1
-  }
-  R_Cinematic_DrawLetterbox_OptionalCinematic(*(double *)&_XMM0, 1, *(double *)&_XMM2, *(double *)&_XMM3);
+  R_Cinematic_DrawLetterbox_OptionalCinematic(aspectRatio, 1, 1.0, 1.0);
 }
 
 /*
@@ -3334,52 +3023,37 @@ void R_Cinematic_GetPlaybackStats(CinematicPlaybackStats *stats)
   __int64 v2; 
   __int64 v3; 
   __int64 v4; 
+  CinematicPlaybackStats *p_playbackStats; 
   __int64 v6; 
+  __int128 v7; 
 
-  _RBX = stats;
   Sys_EnterCriticalSection(CRITSECT_CINEMATIC_UPDATE);
   if ( !s_cinematicUpdateLockThread )
     s_cinematicUpdateLockThread = Sys_GetCurrentThreadId();
   ++s_cinematicUpdateLockCount;
-  _RAX = &cinematicGlob.playbackStats;
+  p_playbackStats = &cinematicGlob.playbackStats;
   v6 = 9i64;
   do
   {
-    _RBX = (CinematicPlaybackStats *)((char *)_RBX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (CinematicPlaybackStats *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rbx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rbx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rbx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rbx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rbx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rbx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rbx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
+    stats = (CinematicPlaybackStats *)((char *)stats + 128);
+    v7 = *(_OWORD *)&p_playbackStats->frames[0].renderOverallTime;
+    p_playbackStats = (CinematicPlaybackStats *)((char *)p_playbackStats + 128);
+    *(_OWORD *)&stats[-1].frames[54].renderOverallTime = v7;
+    *(_OWORD *)&stats[-1].frames[54].ioActive = *(_OWORD *)&p_playbackStats[-1].frames[54].ioActive;
+    *(_OWORD *)&stats[-1].frames[55].ioFullPercent = *(_OWORD *)&p_playbackStats[-1].frames[55].ioFullPercent;
+    *(_OWORD *)&stats[-1].frames[56].framesDecoded = *(_OWORD *)&p_playbackStats[-1].frames[56].framesDecoded;
+    *(_OWORD *)&stats[-1].frames[57].renderSelfTime = *(_OWORD *)&p_playbackStats[-1].frames[57].renderSelfTime;
+    *(_OWORD *)&stats[-1].frames[58].renderOverallTime = *(_OWORD *)&p_playbackStats[-1].frames[58].renderOverallTime;
+    *(_OWORD *)&stats[-1].frames[58].ioActive = *(_OWORD *)&p_playbackStats[-1].frames[58].ioActive;
+    *(_OWORD *)&stats[-1].frames[59].ioFullPercent = *(_OWORD *)&p_playbackStats[-1].frames[59].ioFullPercent;
     --v6;
   }
   while ( v6 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-  }
-  *(_QWORD *)&_RBX->frames[2].framesDecoded = *(_QWORD *)&_RAX->frames[2].framesDecoded;
-  R_Cinematic_UnlockUpdate((unsigned __int8)v6, v2, v3, v4);
+  *(_OWORD *)&stats->frames[0].renderOverallTime = *(_OWORD *)&p_playbackStats->frames[0].renderOverallTime;
+  *(_OWORD *)&stats->frames[0].ioActive = *(_OWORD *)&p_playbackStats->frames[0].ioActive;
+  *(_OWORD *)&stats->frames[1].ioFullPercent = *(_OWORD *)&p_playbackStats->frames[1].ioFullPercent;
+  *(_QWORD *)&stats->frames[2].framesDecoded = *(_QWORD *)&p_playbackStats->frames[2].framesDecoded;
+  R_Cinematic_UnlockUpdate(0i64, v2, v3, v4);
 }
 
 /*
@@ -3429,12 +3103,13 @@ R_Cinematic_GetVideoInfo
 */
 char R_Cinematic_GetVideoInfo(unsigned int *width, unsigned int *height, float *framerate, bool *hdr)
 {
+  __int64 v8; 
+  __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
   BINK *bink; 
+  float v13; 
+  float FrameRateDiv; 
 
-  _R14 = framerate;
   if ( cinematicGlob.cinematicFinished && cinematicGlob.lastFinishedId != cinematicGlob.finishedId || !cinematicGlob.status.name[0] )
     return 0;
   Sys_EnterCriticalSection(CRITSECT_CINEMATIC_UPDATE);
@@ -3444,7 +3119,7 @@ char R_Cinematic_GetVideoInfo(unsigned int *width, unsigned int *height, float *
   bink = cinematicGlob.bink;
   if ( !cinematicGlob.bink )
   {
-    R_Cinematic_UnlockUpdate(cinematicGlob.bink, v10, v11, v12);
+    R_Cinematic_UnlockUpdate(cinematicGlob.bink, v8, v9, v10);
     return 0;
   }
   if ( width )
@@ -3462,19 +3137,13 @@ char R_Cinematic_GetVideoInfo(unsigned int *width, unsigned int *height, float *
     *hdr = (bink->OpenFlags & 4) != 0;
     bink = cinematicGlob.bink;
   }
-  if ( _R14 )
+  if ( framerate )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [r14], xmm1
-    }
+    v13 = (float)bink->FrameRate;
+    FrameRateDiv = (float)bink->FrameRateDiv;
+    *framerate = v13 / FrameRateDiv;
   }
-  R_Cinematic_UnlockUpdate(bink, v10, v11, v12);
+  R_Cinematic_UnlockUpdate(bink, v8, v9, v10);
   return 1;
 }
 
@@ -3649,115 +3318,90 @@ R_Cinematic_InitBinkTextures
 */
 void R_Cinematic_InitBinkTextures(int origSrcWidth, int origSrcHeight)
 {
-  unsigned int v14; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  unsigned int v8; 
+  bool *p_hasAlpha; 
   BINKPLANE *outPlane; 
   unsigned int YABufferHeight; 
   unsigned int YABufferWidth; 
   unsigned int cRcBBufferHeight; 
   unsigned int cRcBBufferWidth; 
-  char v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  char v45; 
-  void *retaddr; 
+  char v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   if ( cinematicGlob.binkBuffers.TotalFrames != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1681, ASSERT_TYPE_ASSERT, "( cinematicGlob.binkBuffers.TotalFrames ) == ( CINEMATIC_IMAGES_REQUIRED )", "%s == %s\n\t%i, %i", "cinematicGlob.binkBuffers.TotalFrames", "CINEMATIC_IMAGES_REQUIRED", cinematicGlob.binkBuffers.TotalFrames, 3) )
     __debugbreak();
   R_Cinematic_ReleaseImages();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, esi
-    vmulss  xmm8, xmm6, cs:__real@3f000000
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, ebx
-    vmulss  xmm9, xmm7, cs:__real@3f000000
-  }
-  v14 = 0;
-  _RBX = &cinematicGlob.images[0].hasAlpha;
+  v4 = (float)origSrcWidth;
+  v5 = (float)origSrcWidth * 0.5;
+  v6 = (float)origSrcHeight;
+  v7 = (float)origSrcHeight * 0.5;
+  v8 = 0;
+  p_hasAlpha = &cinematicGlob.images[0].hasAlpha;
   outPlane = &cinematicGlob.binkBuffers.Frames[0].cBPlane;
   do
   {
-    *(_WORD *)_RBX = 0;
+    *(_WORD *)p_hasAlpha = 0;
     YABufferHeight = cinematicGlob.binkBuffers.YABufferHeight;
     YABufferWidth = cinematicGlob.binkBuffers.YABufferWidth;
-    if ( v14 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
+    if ( v8 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
       __debugbreak();
-    R_Cinematic_MakeBinkTexture((R_ImageProgID)(5 * (v14 + 8)), YABufferWidth, YABufferHeight, GFX_PF_R8, (GfxImage **)_RBX - 6, outPlane - 2);
+    R_Cinematic_MakeBinkTexture((R_ImageProgID)(5 * (v8 + 8)), YABufferWidth, YABufferHeight, GFX_PF_R8, (GfxImage **)p_hasAlpha - 6, outPlane - 2);
     cRcBBufferHeight = cinematicGlob.binkBuffers.cRcBBufferHeight;
     cRcBBufferWidth = cinematicGlob.binkBuffers.cRcBBufferWidth;
-    if ( v14 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
+    if ( v8 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
       __debugbreak();
-    v21 = 5 * v14;
-    R_Cinematic_MakeBinkTexture((R_ImageProgID)(5 * v14 + 41), cRcBBufferWidth, cRcBBufferHeight, GFX_PF_R8, (GfxImage **)_RBX - 5, outPlane - 1);
-    v22 = cinematicGlob.binkBuffers.cRcBBufferHeight;
-    v23 = cinematicGlob.binkBuffers.cRcBBufferWidth;
-    if ( v14 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
+    v15 = 5 * v8;
+    R_Cinematic_MakeBinkTexture((R_ImageProgID)(5 * v8 + 41), cRcBBufferWidth, cRcBBufferHeight, GFX_PF_R8, (GfxImage **)p_hasAlpha - 5, outPlane - 1);
+    v16 = cinematicGlob.binkBuffers.cRcBBufferHeight;
+    v17 = cinematicGlob.binkBuffers.cRcBBufferWidth;
+    if ( v8 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
       __debugbreak();
-    R_Cinematic_MakeBinkTexture((R_ImageProgID)(v21 + 42), v23, v22, GFX_PF_R8, (GfxImage **)_RBX - 4, outPlane);
+    R_Cinematic_MakeBinkTexture((R_ImageProgID)(v15 + 42), v17, v16, GFX_PF_R8, (GfxImage **)p_hasAlpha - 4, outPlane);
     if ( outPlane[1].Allocate )
     {
-      *_RBX = 1;
-      v24 = cinematicGlob.binkBuffers.YABufferHeight;
-      v25 = cinematicGlob.binkBuffers.YABufferWidth;
-      if ( v14 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
+      *p_hasAlpha = 1;
+      v18 = cinematicGlob.binkBuffers.YABufferHeight;
+      v19 = cinematicGlob.binkBuffers.YABufferWidth;
+      if ( v8 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
         __debugbreak();
-      R_Cinematic_MakeBinkTexture((R_ImageProgID)(v21 + 43), v25, v24, GFX_PF_R8, (GfxImage **)_RBX - 2, outPlane + 1);
+      R_Cinematic_MakeBinkTexture((R_ImageProgID)(v15 + 43), v19, v18, GFX_PF_R8, (GfxImage **)p_hasAlpha - 2, outPlane + 1);
     }
     if ( outPlane[2].Allocate )
     {
-      _RBX[1] = 1;
-      v26 = cinematicGlob.binkBuffers.YABufferHeight;
-      v27 = cinematicGlob.binkBuffers.YABufferWidth;
-      if ( v14 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
+      p_hasAlpha[1] = 1;
+      v20 = cinematicGlob.binkBuffers.YABufferHeight;
+      v21 = cinematicGlob.binkBuffers.YABufferWidth;
+      if ( v8 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1203, ASSERT_TYPE_ASSERT, "(frameSet < 3)", (const char *)&queryFormat, "frameSet < 3") )
         __debugbreak();
-      R_Cinematic_MakeBinkTexture((R_ImageProgID)(v21 + 44), v27, v26, GFX_PF_R8, (GfxImage **)_RBX - 1, outPlane + 2);
+      R_Cinematic_MakeBinkTexture((R_ImageProgID)(v15 + 44), v21, v20, GFX_PF_R8, (GfxImage **)p_hasAlpha - 1, outPlane + 2);
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm6, xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm7, xmm0
-      vmovss  dword ptr [rbx+8], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm8, xmm0
-      vmovss  dword ptr [rbx+0Ch], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm9, xmm0
-      vmovss  dword ptr [rbx+10h], xmm1
-    }
-    R_Cinematic_SetImageColorSpace((CinematicImage *)(_RBX - 48), cinematicGlob.bink);
-    ++v14;
-    _RBX += 136;
+    v22 = (float)cinematicGlob.binkBuffers.YABufferWidth;
+    *((float *)p_hasAlpha + 1) = v4 / v22;
+    v23 = (float)cinematicGlob.binkBuffers.YABufferHeight;
+    *((float *)p_hasAlpha + 2) = v6 / v23;
+    v24 = (float)cinematicGlob.binkBuffers.cRcBBufferWidth;
+    *((float *)p_hasAlpha + 3) = v5 / v24;
+    v25 = (float)cinematicGlob.binkBuffers.cRcBBufferHeight;
+    *((float *)p_hasAlpha + 4) = v7 / v25;
+    R_Cinematic_SetImageColorSpace((CinematicImage *)(p_hasAlpha - 48), cinematicGlob.bink);
+    ++v8;
+    p_hasAlpha += 136;
     outPlane += 5;
   }
-  while ( v14 != 3 );
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  while ( v8 != 3 );
 }
 
 /*
@@ -3765,73 +3409,66 @@ void R_Cinematic_InitBinkTextures(int origSrcWidth, int origSrcHeight)
 R_Cinematic_InitBinkVolumes
 ==============
 */
-
-void __fastcall R_Cinematic_InitBinkVolumes(BINK *bink, const unsigned int *TrackIDsToPlay, double volumeScale)
+void R_Cinematic_InitBinkVolumes(BINK *bink, const unsigned int *TrackIDsToPlay, const float volumeScale)
 {
-  unsigned int v8; 
+  unsigned int v5; 
+  int v6; 
   char *Error; 
-  unsigned int v11; 
-  char *v12; 
-  unsigned int v13; 
-  char *v14; 
-  unsigned int v15; 
-  char *v16; 
-  unsigned int v17; 
-  char *v18; 
+  unsigned int v8; 
+  char *v9; 
+  unsigned int v10; 
+  char *v11; 
+  unsigned int v12; 
+  char *v13; 
+  unsigned int v14; 
+  char *v15; 
   unsigned int spks; 
-  int v22; 
+  int v17; 
   int volumes; 
-  int v24; 
+  int v19; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !TrackIDsToPlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2525, ASSERT_TYPE_ASSERT, "(TrackIDsToPlay != 0)", (const char *)&queryFormat, "TrackIDsToPlay != NULL") )
     __debugbreak();
-  __asm { vmulss  xmm0, xmm6, cs:__real@47000000 }
-  v8 = *TrackIDsToPlay;
-  v22 = 1;
-  __asm { vcvttss2si rax, xmm0 }
-  if ( (int)_RAX > 0x8000 )
-    LODWORD(_RAX) = 0x8000;
+  v5 = *TrackIDsToPlay;
+  v17 = 1;
+  v6 = (int)(float)(volumeScale * 32768.0);
+  if ( v6 > 0x8000 )
+    v6 = 0x8000;
   spks = 0;
-  if ( (int)_RAX < 0 )
-    LODWORD(_RAX) = 0;
-  volumes = _RAX;
-  v24 = _RAX;
-  j_BinkSetSpeakerVolumes(bink, v8, &spks, &volumes, 2u);
+  if ( v6 < 0 )
+    v6 = 0;
+  volumes = v6;
+  v19 = v6;
+  j_BinkSetSpeakerVolumes(bink, v5, &spks, &volumes, 2u);
   Error = j_BinkGetError();
   if ( Error && *Error && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", Error) )
     __debugbreak();
-  v11 = TrackIDsToPlay[1];
+  v8 = TrackIDsToPlay[1];
   spks = 2;
-  j_BinkSetSpeakerVolumes(bink, v11, &spks, &volumes, 1u);
-  v12 = j_BinkGetError();
-  if ( v12 && *v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v12) )
+  j_BinkSetSpeakerVolumes(bink, v8, &spks, &volumes, 1u);
+  v9 = j_BinkGetError();
+  if ( v9 && *v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v9) )
     __debugbreak();
-  v13 = TrackIDsToPlay[2];
+  v10 = TrackIDsToPlay[2];
   spks = 3;
-  j_BinkSetSpeakerVolumes(bink, v13, &spks, &volumes, 1u);
-  v14 = j_BinkGetError();
-  if ( v14 && *v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v14) )
+  j_BinkSetSpeakerVolumes(bink, v10, &spks, &volumes, 1u);
+  v11 = j_BinkGetError();
+  if ( v11 && *v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v11) )
     __debugbreak();
-  v15 = TrackIDsToPlay[3];
+  v12 = TrackIDsToPlay[3];
   spks = 4;
-  v22 = 5;
-  j_BinkSetSpeakerVolumes(bink, v15, &spks, &volumes, 2u);
-  v16 = j_BinkGetError();
-  if ( v16 && *v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v16) )
+  v17 = 5;
+  j_BinkSetSpeakerVolumes(bink, v12, &spks, &volumes, 2u);
+  v13 = j_BinkGetError();
+  if ( v13 && *v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v13) )
     __debugbreak();
-  v17 = TrackIDsToPlay[4];
+  v14 = TrackIDsToPlay[4];
   spks = 6;
-  v22 = 7;
-  j_BinkSetSpeakerVolumes(bink, v17, &spks, &volumes, 2u);
-  v18 = j_BinkGetError();
-  if ( v18 && *v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v18) )
+  v17 = 7;
+  j_BinkSetSpeakerVolumes(bink, v14, &spks, &volumes, 2u);
+  v15 = j_BinkGetError();
+  if ( v15 && *v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1051, ASSERT_TYPE_ASSERT, "(!binkError || binkError[0] == '\\0')", "%s\n\tBinkGetError(): \"%s\"", "!binkError || binkError[0] == '\\0'", v15) )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -4059,46 +3696,38 @@ R_Cinematic_MakeBinkTexture
 */
 void R_Cinematic_MakeBinkTexture(R_ImageProgID imageProgId, unsigned int width, unsigned int height, GfxPixelFormat format, GfxImage **outImage, BINKPLANE *outPlane)
 {
-  GfxImage *v11; 
+  GfxImage *v9; 
   unsigned int PitchBytes; 
-  __m256i v13; 
-  __m256i v14; 
+  __m256i v11; 
+  __m256i v12; 
   Image_SetupParams params; 
   XG_RESOURCE_LAYOUT layout; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+1808h+var_17B8+8], xmm0
-  }
-  v13.m256i_i64[0] = __PAIR64__(height, width);
-  v14.m256i_i64[0] = 0i64;
-  v13.m256i_i32[6] = format;
-  v13.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v13.m256i_i64[1] + 4) = 1i64;
-  v14.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rsp+1808h+var_17B8] }
-  v13.m256i_i32[5] = 1027;
-  __asm
-  {
-    vmovups ymm0, [rsp+1808h+var_17D8]
-    vmovups ymmword ptr [rsp+1808h+params.width], ymm0
-    vmovups ymmword ptr [rsp+1808h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v12.m256i_u64[1] = _XMM0;
+  v11.m256i_i64[0] = __PAIR64__(height, width);
+  v12.m256i_i64[0] = 0i64;
+  v11.m256i_i32[6] = format;
+  v11.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v11.m256i_i64[1] + 4) = 1i64;
+  v12.m256i_i32[6] = -1;
+  v11.m256i_i32[5] = 1027;
+  *(__m256i *)&params.width = v11;
+  *(__m256i *)&params.customAllocFunc = v12;
   R_Cinematic_GetBinkTextureLayout(&params, CACHED_RESOURCE_LAYOUT_NORMAL, &layout);
   if ( layout.Plane[0].MipLayout[0].TileMode != XG_TILE_MODE_LINEAR && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1287, ASSERT_TYPE_ASSERT, "(layout.Plane[0].MipLayout[0].TileMode == XG_TILE_MODE_LINEAR)", (const char *)&queryFormat, "layout.Plane[0].MipLayout[0].TileMode == XG_TILE_MODE_LINEAR") )
     __debugbreak();
-  v11 = Image_AllocProg(imageProgId, IMG_CATEGORY_TEMP, TS_COLOR_MAP);
+  v9 = Image_AllocProg(imageProgId, IMG_CATEGORY_TEMP, TS_COLOR_MAP);
   params.customAllocFunc = lambda_4847be146dca84e0303f37f25b15e766_::_lambda_invoker_cdecl_;
   params.customLayout = &layout;
-  Image_Setup(v11, &params);
-  *outImage = v11;
+  Image_Setup(v9, &params);
+  *outImage = v9;
   PitchBytes = layout.Plane[0].MipLayout[0].PitchBytes;
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_db.h", 534, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_db.h", 534, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
     __debugbreak();
-  if ( (v11->flags & 0x40) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_db.h", 536, ASSERT_TYPE_ASSERT, "(!R_IsStreamedImage( image ))", (const char *)&queryFormat, "!R_IsStreamedImage( image )") )
+  if ( (v9->flags & 0x40) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_db.h", 536, ASSERT_TYPE_ASSERT, "(!R_IsStreamedImage( image ))", (const char *)&queryFormat, "!R_IsStreamedImage( image )") )
     __debugbreak();
-  outPlane->Buffer = v11->pixels.residentData;
+  outPlane->Buffer = v9->pixels.residentData;
   outPlane->BufferPitch = PitchBytes;
 }
 
@@ -4591,101 +4220,76 @@ char R_Cinematic_SeizeIO()
 R_Cinematic_SetImageColorSpace
 ==============
 */
-
-void __fastcall R_Cinematic_SetImageColorSpace(CinematicImage *bufferImage, BINK *bink, __int64 a3, double _XMM3_8)
+void R_Cinematic_SetImageColorSpace(CinematicImage *bufferImage, BINK *bink)
 {
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   float v10; 
-  float v18; 
-  float v22; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  _ER10 = 0;
-  __asm { vxorps  xmm5, xmm5, xmm5 }
   if ( bufferImage->hasHDR )
   {
     bufferImage->colorSpace.coeffR.v[0] = bink->ColorSpace[0];
     *(_QWORD *)&bufferImage->colorSpace.coeffR.xyz.y = 1065353216i64;
     bufferImage->colorSpace.coeffR.v[3] = 0.0;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdx+70h]
-      vmovss  xmm1, dword ptr [rdx+6Ch]
-      vmovss  xmm0, dword ptr [rdx+68h]
-    }
-    v10 = bink->ColorSpace[1];
-    __asm
-    {
-      vmovss  dword ptr [rcx+58h], xmm0
-      vmovss  dword ptr [rcx+5Ch], xmm1
-      vmovss  dword ptr [rcx+60h], xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm2, xmm2, xmm2
-    }
-    bufferImage->colorSpace.coeffG.v[0] = v10;
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v2 = bink->ColorSpace[4];
+    v3 = bink->ColorSpace[3];
+    v4 = bink->ColorSpace[1];
+    bufferImage->colorSpace.coeffG.v[1] = bink->ColorSpace[2];
+    bufferImage->colorSpace.coeffG.v[2] = v3;
+    bufferImage->colorSpace.coeffG.v[3] = v2;
+    v5 = 0.0;
+    v6 = 0.0;
+    v7 = 0.0;
+    bufferImage->colorSpace.coeffG.v[0] = v4;
+    v8 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdx+80h]
-      vmovss  xmm1, dword ptr [rdx+70h]
-      vmovss  xmm0, dword ptr [rdx+60h]
-    }
-    v18 = bink->ColorSpace[12];
-    __asm
-    {
-      vmovss  dword ptr [rcx+48h], xmm0
-      vmovss  dword ptr [rcx+4Ch], xmm1
-      vmovss  dword ptr [rcx+50h], xmm2
-    }
-    bufferImage->colorSpace.coeffR.v[0] = v18;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdx+84h]
-      vmovss  xmm1, dword ptr [rdx+74h]
-      vmovss  xmm0, dword ptr [rdx+64h]
-    }
-    v22 = bink->ColorSpace[13];
-    __asm
-    {
-      vmovss  dword ptr [rcx+58h], xmm0
-      vmovss  dword ptr [rcx+5Ch], xmm1
-      vmovss  dword ptr [rcx+60h], xmm3
-    }
-    bufferImage->colorSpace.coeffG.v[0] = v22;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+88h]
-      vmovss  xmm1, dword ptr [rdx+78h]
-      vmovss  xmm2, dword ptr [rdx+68h]
-      vmovss  xmm3, dword ptr [rdx+98h]
-    }
+    v9 = bink->ColorSpace[8];
+    v10 = bink->ColorSpace[4];
+    v11 = bink->ColorSpace[12];
+    bufferImage->colorSpace.coeffR.v[1] = bink->ColorSpace[0];
+    bufferImage->colorSpace.coeffR.v[2] = v10;
+    bufferImage->colorSpace.coeffR.v[3] = v9;
+    bufferImage->colorSpace.coeffR.v[0] = v11;
+    v12 = bink->ColorSpace[9];
+    v13 = bink->ColorSpace[5];
+    v14 = bink->ColorSpace[13];
+    bufferImage->colorSpace.coeffG.v[1] = bink->ColorSpace[1];
+    bufferImage->colorSpace.coeffG.v[2] = v13;
+    bufferImage->colorSpace.coeffG.v[3] = v12;
+    bufferImage->colorSpace.coeffG.v[0] = v14;
+    v5 = bink->ColorSpace[10];
+    v6 = bink->ColorSpace[6];
+    v7 = bink->ColorSpace[2];
+    v8 = bink->ColorSpace[14];
   }
-  _RAX = &bufferImage->colorSpace.coeffB;
+  bufferImage->colorSpace.coeffB.v[0] = v8;
+  bufferImage->colorSpace.coeffB.v[1] = v7;
+  bufferImage->colorSpace.coeffB.v[2] = v6;
+  bufferImage->colorSpace.coeffB.v[3] = v5;
+  _XMM3 = LODWORD(FLOAT_1_0);
+  _XMM0 = bufferImage->hasHDR;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = cinematicGlob.gpuDecoding;
   __asm
   {
-    vmovss  dword ptr [rax], xmm3
-    vmovss  dword ptr [rax+4], xmm2
-    vmovss  dword ptr [rax+8], xmm1
-    vmovss  dword ptr [rax+0Ch], xmm0
-    vmovss  xmm3, cs:__real@3f800000
-  }
-  LODWORD(_RAX) = bufferImage->hasHDR;
-  __asm { vmovd   xmm0, eax }
-  LODWORD(_RAX) = cinematicGlob.gpuDecoding;
-  __asm
-  {
-    vmovd   xmm1, r10d
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovd   xmm0, eax
     vblendvps xmm4, xmm3, xmm5, xmm2
-    vmovd   xmm1, r10d
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm5, xmm2
-    vmovss  dword ptr [rcx+74h], xmm0
-    vmovss  dword ptr [rcx+78h], xmm4
   }
+  bufferImage->cinematicOptions.v[0] = *(float *)&_XMM0;
+  bufferImage->cinematicOptions.v[1] = *(float *)&_XMM4;
   *(_QWORD *)&bufferImage->cinematicOptions.xyz.z = 0i64;
 }
 
@@ -4741,7 +4345,6 @@ void R_Cinematic_SetRendererImagesToFrame(GfxCmdBufInput *cmdBufInput)
 {
   GfxImage *imageY; 
 
-  _RBX = cmdBufInput;
   if ( !cmdBufInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2035, ASSERT_TYPE_ASSERT, "(cmdBufInput)", (const char *)&queryFormat, "cmdBufInput") )
     __debugbreak();
   if ( !cinematicGlob.curCinematicImage.imageY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2058, ASSERT_TYPE_ASSERT, "(frameImage->imageY)", (const char *)&queryFormat, "frameImage->imageY") )
@@ -4755,27 +4358,17 @@ void R_Cinematic_SetRendererImagesToFrame(GfxCmdBufInput *cmdBufInput)
   if ( !cinematicGlob.curCinematicImage.imageA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 2062, ASSERT_TYPE_ASSERT, "(frameImage->imageA)", (const char *)&queryFormat, "frameImage->imageA") )
     __debugbreak();
   imageY = cinematicGlob.curCinematicImage.imageY;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( !cmdBufInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _RBX->codeImages[13] = imageY;
-  _RBX->codeImages[14] = cinematicGlob.curCinematicImage.imageCr;
-  _RBX->codeImages[15] = cinematicGlob.curCinematicImage.imageCb;
-  _RBX->codeImages[18] = cinematicGlob.curCinematicImage.imageCbCr;
-  _RBX->codeImages[16] = cinematicGlob.curCinematicImage.imageA;
-  _RBX->codeImages[17] = cinematicGlob.curCinematicImage.imageH;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:cinematicGlob.curCinematicImage.imageUVScaleY
-    vmovups xmmword ptr [rbx+4D0h], xmm0
-    vmovups xmm0, xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffR
-    vmovups xmmword ptr [rbx+4E0h], xmm0
-    vmovups xmm1, xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffG
-    vmovups xmmword ptr [rbx+4F0h], xmm1
-    vmovups xmm0, xmmword ptr cs:cinematicGlob.curCinematicImage.colorSpace.coeffB
-    vmovups xmmword ptr [rbx+500h], xmm0
-    vmovups xmm1, xmmword ptr cs:cinematicGlob.curCinematicImage.cinematicOptions
-    vmovups xmmword ptr [rbx+510h], xmm1
-  }
+  cmdBufInput->codeImages[13] = imageY;
+  cmdBufInput->codeImages[14] = cinematicGlob.curCinematicImage.imageCr;
+  cmdBufInput->codeImages[15] = cinematicGlob.curCinematicImage.imageCb;
+  cmdBufInput->codeImages[18] = cinematicGlob.curCinematicImage.imageCbCr;
+  cmdBufInput->codeImages[16] = cinematicGlob.curCinematicImage.imageA;
+  cmdBufInput->codeImages[17] = cinematicGlob.curCinematicImage.imageH;
+  cmdBufInput->consts[77] = *(vec4_t *)cinematicGlob.curCinematicImage.imageUVScaleY.v;
+  *(CinematicImageColorSpace *)cmdBufInput->consts[78].v = cinematicGlob.curCinematicImage.colorSpace;
+  cmdBufInput->consts[81] = cinematicGlob.curCinematicImage.cinematicOptions;
 }
 
 /*
@@ -5152,8 +4745,8 @@ ID3D12Resource *BinkGPU_CreateBuffer(D3D12_RESOURCE_DESC *desc, D3D12_HEAP_TYPE 
   unsigned __int64 v9; 
   ID3D12Resource **v10; 
   const void *v11; 
-  ID3D12Resource *v13; 
-  GfxBufferCreationContext v15; 
+  ID3D12Resource *v12; 
+  GfxBufferCreationContext v14; 
 
   AllocSizeFromDesc = R_DX12_GetAllocSizeFromDesc(desc);
   v7 = truncate_cast<unsigned int,unsigned __int64>(AllocSizeFromDesc);
@@ -5172,20 +4765,15 @@ ID3D12Resource *BinkGPU_CreateBuffer(D3D12_RESOURCE_DESC *desc, D3D12_HEAP_TYPE 
     __debugbreak();
   if ( ((unsigned __int8)v11 & 0x3F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1401, ASSERT_TYPE_ASSERT, "(IsAligned( bufferData, 64 ))", (const char *)&queryFormat, "IsAligned( bufferData, 64 )") )
     __debugbreak();
-  v15.objectName = "BinkGPU buffer";
-  v15.zoneName = (char *)&queryFormat.fmt + 3;
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_38]
-    vmovdqa [rsp+78h+var_38], xmm0
-  }
-  R_DX12_CreateBuffer(desc, heap, resourceState, NULL, v11, v9, v10, &v15);
+  v14.objectName = "BinkGPU buffer";
+  v14.zoneName = (char *)&queryFormat.fmt + 3;
+  R_DX12_CreateBuffer(desc, heap, resourceState, NULL, v11, v9, v10, &v14);
   ++cinematicGlob.numBinkGfxBuffers;
-  v13 = *v10;
+  v12 = *v10;
   if ( !*v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1414, ASSERT_TYPE_ASSERT, "(d3dbuffer)", (const char *)&queryFormat, "d3dbuffer") )
     __debugbreak();
-  v13->m_pFunction->AddRef(v13);
-  return v13;
+  v12->m_pFunction->AddRef(v12);
+  return v12;
 }
 
 /*
@@ -5198,12 +4786,12 @@ ID3D12Resource *BinkGPU_CreateTexture(ID3D12Device *dev, D3D12_HEAP_TYPE heap, u
   int v13; 
   CinematicImage *v14; 
   R_ImageProgID ImageProgID; 
-  R_ImageProgID v18; 
-  GfxImage *v20; 
+  R_ImageProgID v17; 
+  GfxImage *v18; 
   const GfxTexture *Resident; 
-  __int64 v23; 
-  __m256i v24; 
-  __m256i v25; 
+  __int64 v21; 
+  __m256i v22; 
+  __m256i v23; 
   Image_SetupParams params; 
   XG_RESOURCE_LAYOUT layout; 
 
@@ -5216,8 +4804,8 @@ ID3D12Resource *BinkGPU_CreateTexture(ID3D12Device *dev, D3D12_HEAP_TYPE heap, u
     cinematicGlob.binkBuffers.TotalFrames = frameSet + 1;
   if ( frameSet >= 3 )
   {
-    LODWORD(v23) = frameSet;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1429, ASSERT_TYPE_ASSERT, "(unsigned)( frameSet ) < (unsigned)( CINEMATIC_IMAGES_REQUIRED )", "frameSet doesn't index CINEMATIC_IMAGES_REQUIRED\n\t%i not in [0, %i)", v23, 3) )
+    LODWORD(v21) = frameSet;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1429, ASSERT_TYPE_ASSERT, "(unsigned)( frameSet ) < (unsigned)( CINEMATIC_IMAGES_REQUIRED )", "frameSet doesn't index CINEMATIC_IMAGES_REQUIRED\n\t%i not in [0, %i)", v21, 3) )
       __debugbreak();
   }
   v14 = &cinematicGlob.images[frameSet];
@@ -5249,34 +4837,26 @@ ID3D12Resource *BinkGPU_CreateTexture(ID3D12Device *dev, D3D12_HEAP_TYPE heap, u
     cinematicGlob.binkBuffers.YABufferWidth = width;
     cinematicGlob.binkBuffers.YABufferHeight = height;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+1838h+var_17D8+8], xmm0
-  }
-  v24.m256i_i32[2] = 1;
-  v25.m256i_i64[0] = 0i64;
-  *(__int64 *)((char *)&v24.m256i_i64[1] + 4) = 1i64;
-  v25.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rsp+1838h+var_17D8] }
-  v24.m256i_i64[0] = __PAIR64__(height, width);
-  v18 = ImageProgID;
-  v24.m256i_i32[5] = -2139094013;
-  v24.m256i_i32[6] = v13;
-  __asm
-  {
-    vmovups ymm0, [rsp+1838h+var_17F8]
-    vmovups ymmword ptr [rsp+1838h+params.width], ymm0
-    vmovups ymmword ptr [rsp+1838h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v23.m256i_u64[1] = _XMM0;
+  v22.m256i_i32[2] = 1;
+  v23.m256i_i64[0] = 0i64;
+  *(__int64 *)((char *)&v22.m256i_i64[1] + 4) = 1i64;
+  v23.m256i_i32[6] = -1;
+  v22.m256i_i64[0] = __PAIR64__(height, width);
+  v17 = ImageProgID;
+  v22.m256i_i32[5] = -2139094013;
+  v22.m256i_i32[6] = v13;
+  *(__m256i *)&params.width = v22;
+  *(__m256i *)&params.customAllocFunc = v23;
   R_Cinematic_GetBinkTextureLayout(&params, CACHED_RESOURCE_LAYOUT_GPU, &layout);
   params.textureLayoutOverride = D3D12_TEXTURE_LAYOUT_UNKNOWN;
   params.customAllocFunc = lambda_b28c30cbff69041ce6b060b88601c770_::_lambda_invoker_cdecl_;
   params.customLayout = &layout;
-  v20 = Image_AllocProg(v18, IMG_CATEGORY_TEMP, TS_COLOR_MAP);
-  Image_Setup(v20, &params);
-  v14->imageY = v20;
-  Resident = R_Texture_GetResident(v20->textureId);
+  v18 = Image_AllocProg(v17, IMG_CATEGORY_TEMP, TS_COLOR_MAP);
+  Image_Setup(v18, &params);
+  v14->imageY = v18;
+  Resident = R_Texture_GetResident(v18->textureId);
   if ( !Resident && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cinematic.cpp", 1479, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
   Resident->basemap->m_pFunction->AddRef(Resident->basemap);

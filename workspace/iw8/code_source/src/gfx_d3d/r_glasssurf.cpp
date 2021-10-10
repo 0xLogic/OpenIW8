@@ -267,17 +267,21 @@ R_EmitGlassSurfs
 */
 void R_EmitGlassSurfs(GfxGlassSurfList *glassSurfOpaqueList, GfxGlassSurfList *glassSurfTransList, int glassSurfLimit)
 {
+  __int64 v6; 
+  __int64 v7; 
   const char *v8; 
-  __int64 v10; 
   GfxGlassSurf *glassSurfs; 
+  __int64 v10; 
+  GfxGlassSurf *v11; 
   __int64 materialSortedIndex; 
   Material *MaterialAtIndex; 
-  __int64 v17; 
-  __int64 v18; 
-  int v20; 
+  double v14; 
+  __int64 v15; 
+  __int64 v16; 
+  int v18; 
 
-  _R14 = 0i64;
-  _R15 = 0i64;
+  v6 = 0i64;
+  v7 = 0i64;
   if ( glassSurfOpaqueList->count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 209, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueList->count == 0)", (const char *)&queryFormat, "glassSurfOpaqueList->count == 0") )
     __debugbreak();
   if ( !glassSurfOpaqueList->surfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 210, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueList->surfs != 0)", (const char *)&queryFormat, "glassSurfOpaqueList->surfs != NULL") )
@@ -288,50 +292,48 @@ void R_EmitGlassSurfs(GfxGlassSurfList *glassSurfOpaqueList, GfxGlassSurfList *g
     __debugbreak();
   if ( (int)scene.glassSurfCount < glassSurfLimit )
     glassSurfLimit = scene.glassSurfCount;
-  v20 = glassSurfLimit;
+  v18 = glassSurfLimit;
   v8 = j_va("glass surfs: %d", (unsigned int)glassSurfLimit);
   Sys_ProfBeginNamedEvent(0xFF708090, v8);
-  _RBX = scene.glassSurfs;
+  glassSurfs = scene.glassSurfs;
   if ( glassSurfLimit )
   {
     v10 = (unsigned int)glassSurfLimit;
-    glassSurfs = scene.glassSurfs;
+    v11 = scene.glassSurfs;
     do
     {
-      materialSortedIndex = glassSurfs->materialSortedIndex;
+      materialSortedIndex = v11->materialSortedIndex;
       if ( (unsigned int)materialSortedIndex >= rgp.materialCount )
       {
-        LODWORD(v18) = rgp.materialCount;
-        LODWORD(v17) = glassSurfs->materialSortedIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v16) = rgp.materialCount;
+        LODWORD(v15) = v11->materialSortedIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
       MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[materialSortedIndex]);
-      __asm { vmovsd  xmm0, qword ptr [rbx] }
+      v14 = *(double *)glassSurfs;
       if ( MaterialAtIndex->cameraRegion )
       {
-        _RAX = glassSurfTransList->surfs;
-        __asm { vmovsd  qword ptr [rax+r15*8], xmm0 }
-        _R15 = (unsigned int)(_R15 + 1);
+        *(double *)&glassSurfTransList->surfs[v7] = v14;
+        v7 = (unsigned int)(v7 + 1);
       }
       else
       {
-        _RAX = glassSurfOpaqueList->surfs;
-        __asm { vmovsd  qword ptr [rax+r14*8], xmm0 }
-        _R14 = (unsigned int)(_R14 + 1);
+        *(double *)&glassSurfOpaqueList->surfs[v6] = v14;
+        v6 = (unsigned int)(v6 + 1);
       }
-      ++_RBX;
       ++glassSurfs;
+      ++v11;
       --v10;
     }
     while ( v10 );
-    glassSurfLimit = v20;
+    glassSurfLimit = v18;
   }
-  glassSurfOpaqueList->count = _R14;
-  glassSurfTransList->count = _R15;
-  if ( (_DWORD)_R14 + (_DWORD)_R15 != glassSurfLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 244, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueCount + glassSurfTransCount == glassSurfCount)", (const char *)&queryFormat, "glassSurfOpaqueCount + glassSurfTransCount == glassSurfCount") )
+  glassSurfOpaqueList->count = v6;
+  glassSurfTransList->count = v7;
+  if ( (_DWORD)v6 + (_DWORD)v7 != glassSurfLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 244, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueCount + glassSurfTransCount == glassSurfCount)", (const char *)&queryFormat, "glassSurfOpaqueCount + glassSurfTransCount == glassSurfCount") )
     __debugbreak();
-  if ( (unsigned int)_R14 > scene.glassOpaqueSurfCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 245, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueCount <= scene.glassOpaqueSurfCount)", (const char *)&queryFormat, "glassSurfOpaqueCount <= scene.glassOpaqueSurfCount") )
+  if ( (unsigned int)v6 > scene.glassOpaqueSurfCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurf.cpp", 245, ASSERT_TYPE_ASSERT, "(glassSurfOpaqueCount <= scene.glassOpaqueSurfCount)", (const char *)&queryFormat, "glassSurfOpaqueCount <= scene.glassOpaqueSurfCount") )
     __debugbreak();
   Sys_ProfEndNamedEvent();
   *(_QWORD *)&scene.glassSurfCount = 0i64;

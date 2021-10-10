@@ -448,114 +448,115 @@ DObjProceduralBones *__fastcall DObjProceduralBones_Create(const DObj *dobj, __i
   __int64 v14; 
   const XModel *Model; 
   const char *Name; 
-  DObjProceduralBones *result; 
-  unsigned int v20; 
+  unsigned int v18; 
+  unsigned int v19; 
+  int v20; 
   unsigned int v21; 
-  int v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  const XModel *v25; 
+  __int64 v22; 
+  const XModel *v23; 
   const XAnimProceduralBones *proceduralBones; 
   const XAnimDynamicBones *dynamicBones; 
-  unsigned int v28; 
-  __int64 v29; 
-  unsigned __int8 v30; 
+  unsigned int v26; 
+  __int64 v27; 
+  unsigned __int8 v28; 
   unsigned int numTargetBones; 
-  unsigned int v32; 
-  __int64 v33; 
-  scr_string_t v34; 
+  unsigned int v30; 
+  __int64 v31; 
+  scr_string_t v32; 
+  unsigned int v33; 
+  unsigned int v34; 
   unsigned int v35; 
-  unsigned int v36; 
-  unsigned int v37; 
   DObjClientPartBits *p_outChildPartBits; 
   __int64 k; 
-  unsigned int v40; 
-  __int64 v41; 
-  __int64 v42; 
-  __int16 v43; 
-  unsigned int v44; 
-  const DObj *v45; 
-  __int64 v50; 
-  size_t v63; 
+  unsigned int v38; 
+  __int64 v39; 
+  __int64 v40; 
+  __int16 v41; 
+  unsigned int v42; 
+  const DObj *v43; 
+  __int64 v47; 
+  __int64 v48; 
+  size_t v60; 
   DObjClientPartBits *p_outLayout; 
   __int64 m; 
-  __int64 v66; 
-  __int64 v67; 
-  __int64 v68; 
-  unsigned int v69; 
-  const XAnimConstraintTargetBone *v70; 
-  unsigned int v71; 
+  __int64 v63; 
+  __int64 v64; 
+  __int64 v65; 
+  unsigned int v66; 
+  const XAnimConstraintTargetBone *v67; 
+  unsigned int v68; 
+  __int64 v69; 
+  int v70; 
+  __int64 v71; 
   __int64 v72; 
-  int v73; 
-  __int64 v74; 
-  __int64 v75; 
   unsigned __int16 boneIndex; 
-  unsigned int v77; 
-  __int64 v78; 
+  unsigned int v74; 
+  __int64 v75; 
+  __int64 v76; 
+  __int64 v77; 
+  int v78; 
   __int64 v79; 
-  __int64 v80; 
-  int v81; 
-  __int64 v82; 
-  unsigned int v83; 
+  unsigned int v80; 
+  __int64 v81; 
+  int v82; 
+  __int64 v83; 
   __int64 v84; 
-  int v85; 
-  __int64 v86; 
-  __int64 v87; 
-  __int64 v88; 
-  const char *v89; 
+  __int64 v85; 
+  const char *v86; 
   const char *BoneName; 
-  __int64 v93; 
+  __int64 v88; 
+  __int64 v89; 
+  const char *v101; 
+  unsigned int v102; 
+  unsigned int v103; 
+  unsigned __int64 v104; 
+  int v105; 
   const char *v106; 
-  unsigned int v107; 
-  unsigned int v108; 
-  unsigned __int64 v109; 
+  __int64 v107; 
+  __int64 v108; 
+  __int64 v109; 
   int v110; 
-  const char *v111; 
-  __int64 v112; 
+  __int64 v111; 
+  unsigned int v112; 
   __int64 v113; 
-  __int64 v114; 
-  int v115; 
+  int v114; 
+  __int64 v115; 
   __int64 v116; 
-  unsigned int v117; 
-  __int64 v118; 
-  int v119; 
-  __int64 v120; 
-  __int64 v121; 
-  __int64 v122; 
-  const char *v123; 
-  const char *v124; 
+  __int64 v117; 
+  const char *v118; 
+  const char *v119; 
   char *fmt; 
   __int64 modelBoneOffset; 
   __int64 dynamicBoneOffset; 
   __int64 collidableBoneOffset; 
   __int64 boneIndexOffset; 
   bool HasClientFlag; 
-  unsigned int v131; 
-  unsigned int v133; 
-  unsigned int v134; 
+  unsigned int v126; 
+  unsigned int v128; 
+  unsigned int v129; 
   int NumModels; 
+  __int64 v131; 
+  __int64 v132; 
+  unsigned int v133; 
+  unsigned int val; 
+  unsigned int v135; 
   __int64 v136; 
   __int64 v137; 
   unsigned int v138; 
-  unsigned int val; 
-  unsigned int v140; 
-  __int64 v141; 
-  __int64 v142; 
-  unsigned int v143; 
-  int v144; 
+  int v139; 
   unsigned int inoutCollisionShapesOffset; 
-  DObjProceduralBones *v146; 
-  __int64 v147; 
+  DObjProceduralBones *v141; 
+  __int64 v142; 
   DObjClientPartBits outLayout; 
   DObjClientPartBits outChildPartBits; 
   DObjClientPartBits ignoreBits; 
   DObjClientPartBits inoutInputBits; 
   DObjBoneParentMap outParentMap; 
-  char v154; 
+  __int128 v148; 
 
   v6 = alloca(v4);
-  v147 = -2i64;
-  __asm { vmovaps [rsp+2490h+var_30], xmm6 }
+  v142 = -2i64;
+  v148 = _XMM6;
   v7 = dobj;
   Sys_ProfBeginNamedEvent(0xFF4588FF, "DObjProceduralBones_Create");
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 782, ASSERT_TYPE_ASSERT, "(dobj != 0)", (const char *)&queryFormat, "dobj != NULL") )
@@ -583,7 +584,7 @@ DObjProceduralBones *__fastcall DObjProceduralBones_Create(const DObj *dobj, __i
   DObjBuildBoneParentMap(v7, &outParentMap);
   Instance = XAnimProceduralBonesAllocator_AllocateInstance(v7->proceduralBonesHandle, ProceduralBonesMemoryLayout);
   v14 = (__int64)Instance;
-  v146 = Instance;
+  v141 = Instance;
   if ( !Instance )
   {
     if ( !DObjHasClientFlag(v7) )
@@ -607,107 +608,107 @@ LABEL_20:
   Instance->postPhysicsConstraintBits = (unsigned int *)((char *)&Instance->allocationSize + outLayout.array[20]);
   Instance->allocationSize = outLayout.array[21];
   Instance->numConstraints = outLayout.array[2];
-  v20 = outLayout.array[0];
+  v18 = outLayout.array[0];
   Instance->numModels = truncate_cast<unsigned char,unsigned int>(outLayout.array[0]);
   *(_DWORD *)(v14 + 40) = outLayout.array[1];
-  v21 = outLayout.array[4];
+  v19 = outLayout.array[4];
   *(_DWORD *)(v14 + 48) = outLayout.array[4];
   *(_DWORD *)(v14 + 52) = outLayout.array[3];
   *(_DWORD *)(v14 + 76) = outLayout.array[5];
   *(_DWORD *)(v14 + 88) = outLayout.array[6];
-  v22 = 0;
-  v23 = 0;
+  v20 = 0;
+  v21 = 0;
   val = 0;
-  v131 = 0;
+  v126 = 0;
   inoutCollisionShapesOffset = 0;
+  v128 = 0;
   v133 = 0;
+  v129 = 0;
+  v135 = 0;
   v138 = 0;
-  v134 = 0;
-  v140 = 0;
-  v143 = 0;
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits((bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)(v14 + 384));
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits((bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)(v14 + 416));
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits((bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)(v14 + 320));
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits((bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)(v14 + 352));
-  if ( v21 )
+  if ( v19 )
   {
-    v24 = *(_QWORD *)(v14 + 56);
-    if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 483, ASSERT_TYPE_ASSERT, "(worldBone != 0)", (const char *)&queryFormat, "worldBone != NULL") )
+    v22 = *(_QWORD *)(v14 + 56);
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 483, ASSERT_TYPE_ASSERT, "(worldBone != 0)", (const char *)&queryFormat, "worldBone != NULL") )
       __debugbreak();
-    *(_QWORD *)(v24 + 44) = 0i64;
-    *(_DWORD *)(v24 + 52) = 0;
-    *(_QWORD *)(v24 + 28) = 0i64;
-    *(_DWORD *)(v24 + 36) = 0;
-    *(_DWORD *)(v24 + 40) = 1065353216;
-    *(_QWORD *)(v24 + 84) = 0i64;
-    *(_QWORD *)(v24 + 92) = 0i64;
-    *(_QWORD *)(v24 + 100) = 0i64;
-    *(_QWORD *)(v24 + 20) = 0i64;
-    *(_QWORD *)(v24 + 184) = 0i64;
-    *(_DWORD *)(v24 + 192) = 0;
-    *(_DWORD *)v24 = 16711935;
-    *(_WORD *)(v24 + 17) = 255;
-    v133 = 1;
+    *(_QWORD *)(v22 + 44) = 0i64;
+    *(_DWORD *)(v22 + 52) = 0;
+    *(_QWORD *)(v22 + 28) = 0i64;
+    *(_DWORD *)(v22 + 36) = 0;
+    *(_DWORD *)(v22 + 40) = 1065353216;
+    *(_QWORD *)(v22 + 84) = 0i64;
+    *(_QWORD *)(v22 + 92) = 0i64;
+    *(_QWORD *)(v22 + 100) = 0i64;
+    *(_QWORD *)(v22 + 20) = 0i64;
+    *(_QWORD *)(v22 + 184) = 0i64;
+    *(_DWORD *)(v22 + 192) = 0;
+    *(_DWORD *)v22 = 16711935;
+    *(_WORD *)(v22 + 17) = 255;
+    v128 = 1;
   }
   *(_WORD *)(v14 + 5) = 256;
   NumModels = DObjGetNumModels(v7);
-  v144 = 0;
+  v139 = 0;
   if ( NumModels > 0 )
   {
-    v141 = 0i64;
+    v136 = 0i64;
     do
     {
-      v25 = DObjGetModel(v7, v22);
-      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 854, ASSERT_TYPE_ASSERT, "(model != 0)", (const char *)&queryFormat, "model != NULL") )
+      v23 = DObjGetModel(v7, v20);
+      if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 854, ASSERT_TYPE_ASSERT, "(model != 0)", (const char *)&queryFormat, "model != NULL") )
         __debugbreak();
-      proceduralBones = v25->proceduralBones;
-      dynamicBones = v25->dynamicBones;
-      v28 = v143;
-      v143 += v25->numBones;
+      proceduralBones = v23->proceduralBones;
+      dynamicBones = v23->dynamicBones;
+      v26 = v138;
+      v138 += v23->numBones;
       if ( proceduralBones || dynamicBones )
       {
-        v29 = *(_QWORD *)(v14 + 8) + 32i64 * v131;
-        *(_QWORD *)v29 = proceduralBones;
-        *(_QWORD *)(v29 + 8) = dynamicBones;
-        if ( (v22 < 0 || (unsigned int)v22 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v22, "signed", v141) )
+        v27 = *(_QWORD *)(v14 + 8) + 32i64 * v126;
+        *(_QWORD *)v27 = proceduralBones;
+        *(_QWORD *)(v27 + 8) = dynamicBones;
+        if ( (v20 < 0 || (unsigned int)v20 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v20, "signed", v136) )
           __debugbreak();
-        *(_BYTE *)(v29 + 16) = v22;
-        *(_BYTE *)(v29 + 19) = truncate_cast<unsigned char,unsigned int>(val);
-        *(_BYTE *)(v29 + 18) = truncate_cast<unsigned char,unsigned int>(v23);
+        *(_BYTE *)(v27 + 16) = v20;
+        *(_BYTE *)(v27 + 19) = truncate_cast<unsigned char,unsigned int>(val);
+        *(_BYTE *)(v27 + 18) = truncate_cast<unsigned char,unsigned int>(v21);
         if ( proceduralBones )
-          v30 = truncate_cast<unsigned char,unsigned int>(proceduralBones->numConstraints);
+          v28 = truncate_cast<unsigned char,unsigned int>(proceduralBones->numConstraints);
         else
-          v30 = 0;
-        *(_BYTE *)(v29 + 17) = v30;
-        *(_DWORD *)(v29 + 20) = 0;
-        *(_WORD *)(v29 + 25) = 0;
-        *(_BYTE *)(v29 + 24) = 0;
+          v28 = 0;
+        *(_BYTE *)(v27 + 17) = v28;
+        *(_DWORD *)(v27 + 20) = 0;
+        *(_WORD *)(v27 + 25) = 0;
+        *(_BYTE *)(v27 + 24) = 0;
         if ( dynamicBones )
         {
           if ( outLayout.array[4] && HasClientFlag )
           {
-            *(_BYTE *)(v29 + 21) = truncate_cast<unsigned char,unsigned int>(dynamicBones->numDynamicBones);
-            *(_BYTE *)(v29 + 20) = truncate_cast<unsigned char,unsigned int>(v133);
-            *(_BYTE *)(v29 + 22) = truncate_cast<unsigned char,unsigned int>(v138);
+            *(_BYTE *)(v27 + 21) = truncate_cast<unsigned char,unsigned int>(dynamicBones->numDynamicBones);
+            *(_BYTE *)(v27 + 20) = truncate_cast<unsigned char,unsigned int>(v128);
+            *(_BYTE *)(v27 + 22) = truncate_cast<unsigned char,unsigned int>(v133);
             if ( outLayout.array[6] )
             {
-              *(_BYTE *)(v29 + 23) = truncate_cast<unsigned char,unsigned int>(v134);
-              *(_BYTE *)(v29 + 24) = truncate_cast<unsigned char,unsigned int>(dynamicBones->numCustomPinConstraints);
-              *(_BYTE *)(v29 + 25) = truncate_cast<unsigned char,unsigned int>(v140);
+              *(_BYTE *)(v27 + 23) = truncate_cast<unsigned char,unsigned int>(v129);
+              *(_BYTE *)(v27 + 24) = truncate_cast<unsigned char,unsigned int>(dynamicBones->numCustomPinConstraints);
+              *(_BYTE *)(v27 + 25) = truncate_cast<unsigned char,unsigned int>(v135);
             }
-            *(_BYTE *)(v29 + 26) = 1;
+            *(_BYTE *)(v27 + 26) = 1;
           }
-          DObjProceduralBones_InitializePhysicsBones(dobj, (DObjProceduralBones *)v14, dynamicBones, &outParentMap, v22, v28, v133, v138, v134, &inoutCollisionShapesOffset, &ignoreBits);
+          DObjProceduralBones_InitializePhysicsBones(dobj, (DObjProceduralBones *)v14, dynamicBones, &outParentMap, v20, v26, v128, v133, v129, &inoutCollisionShapesOffset, &ignoreBits);
           if ( outLayout.array[4] )
           {
             if ( HasClientFlag )
             {
-              v133 += dynamicBones->numDynamicBones;
-              v138 += dynamicBones->numCollidableBones;
+              v128 += dynamicBones->numDynamicBones;
+              v133 += dynamicBones->numCollidableBones;
               if ( outLayout.array[6] )
               {
-                v134 += dynamicBones->numPinConstraintBoneNames;
-                v140 += dynamicBones->numCustomPinConstraints;
+                v129 += dynamicBones->numPinConstraintBoneNames;
+                v135 += dynamicBones->numCustomPinConstraints;
               }
             }
           }
@@ -715,83 +716,83 @@ LABEL_20:
         if ( proceduralBones )
         {
           numTargetBones = proceduralBones->numTargetBones;
-          v32 = 0;
+          v30 = 0;
           if ( numTargetBones )
           {
-            v33 = 0i64;
+            v31 = 0i64;
             do
             {
-              v34 = proceduralBones->targetBoneNames[v33];
-              if ( v34 )
-                DObjProceduralBones_InitializeTargetBone(dobj, (DObjProceduralBones *)v14, v32 + v23, v34, &outParentMap, &inoutInputBits);
-              ++v32;
-              ++v33;
+              v32 = proceduralBones->targetBoneNames[v31];
+              if ( v32 )
+                DObjProceduralBones_InitializeTargetBone(dobj, (DObjProceduralBones *)v14, v30 + v21, v32, &outParentMap, &inoutInputBits);
+              ++v30;
+              ++v31;
             }
-            while ( v32 < numTargetBones );
-            v22 = v144;
+            while ( v30 < numTargetBones );
+            v20 = v139;
           }
-          DObjProceduralBones_InitializeConstraintBoneIndices(dobj, (DObjProceduralBones *)v14, proceduralBones, v23, val, &outParentMap, &inoutInputBits);
-          v23 += numTargetBones;
-          v35 = proceduralBones->numConstraints + val;
-          val = v35;
+          DObjProceduralBones_InitializeConstraintBoneIndices(dobj, (DObjProceduralBones *)v14, proceduralBones, v21, val, &outParentMap, &inoutInputBits);
+          v21 += numTargetBones;
+          v33 = proceduralBones->numConstraints + val;
+          val = v33;
         }
         else
         {
-          v35 = val;
+          v33 = val;
         }
-        v36 = ++v131;
-        if ( v23 > outLayout.array[1] )
+        v34 = ++v126;
+        if ( v21 > outLayout.array[1] )
         {
           LODWORD(dynamicBoneOffset) = outLayout.array[1];
-          LODWORD(modelBoneOffset) = v23;
+          LODWORD(modelBoneOffset) = v21;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 939, ASSERT_TYPE_ASSERT, "( targetBonesOffset ) <= ( layout.totalTargetBones )", "targetBonesOffset not in [0, layout.totalTargetBones]\n\t%u not in [0, %u]", modelBoneOffset, dynamicBoneOffset) )
             __debugbreak();
         }
-        if ( v35 > outLayout.array[2] )
+        if ( v33 > outLayout.array[2] )
         {
           LODWORD(dynamicBoneOffset) = outLayout.array[2];
-          LODWORD(modelBoneOffset) = v35;
+          LODWORD(modelBoneOffset) = v33;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 940, ASSERT_TYPE_ASSERT, "( sourceBoneIndicesOffset ) <= ( layout.totalConstraints )", "sourceBoneIndicesOffset not in [0, layout.totalConstraints]\n\t%u not in [0, %u]", modelBoneOffset, dynamicBoneOffset) )
             __debugbreak();
         }
-        v20 = outLayout.array[0];
-        if ( v36 > outLayout.array[0] )
+        v18 = outLayout.array[0];
+        if ( v34 > outLayout.array[0] )
         {
           LODWORD(dynamicBoneOffset) = outLayout.array[0];
-          LODWORD(modelBoneOffset) = v36;
+          LODWORD(modelBoneOffset) = v34;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 941, ASSERT_TYPE_ASSERT, "( numActiveModels ) <= ( layout.numActiveModels )", "numActiveModels not in [0, layout.numActiveModels]\n\t%u not in [0, %u]", modelBoneOffset, dynamicBoneOffset) )
             __debugbreak();
         }
-        if ( v133 > outLayout.array[4] )
+        if ( v128 > outLayout.array[4] )
         {
           LODWORD(dynamicBoneOffset) = outLayout.array[4];
-          LODWORD(modelBoneOffset) = v133;
+          LODWORD(modelBoneOffset) = v128;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 942, ASSERT_TYPE_ASSERT, "( dynamicBoneOffset ) <= ( layout.totalDynamicBones )", "dynamicBoneOffset not in [0, layout.totalDynamicBones]\n\t%u not in [0, %u]", modelBoneOffset, dynamicBoneOffset) )
             __debugbreak();
         }
-        if ( v134 > outLayout.array[5] )
+        if ( v129 > outLayout.array[5] )
         {
           LODWORD(dynamicBoneOffset) = outLayout.array[5];
-          LODWORD(modelBoneOffset) = v134;
+          LODWORD(modelBoneOffset) = v129;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 943, ASSERT_TYPE_ASSERT, "( boneIndexOffset ) <= ( layout.totalBoneIndices )", "boneIndexOffset not in [0, layout.totalBoneIndices]\n\t%u not in [0, %u]", modelBoneOffset, dynamicBoneOffset) )
             __debugbreak();
         }
       }
       else
       {
-        v20 = outLayout.array[0];
+        v18 = outLayout.array[0];
       }
-      v144 = ++v22;
-      ++v141;
+      v139 = ++v20;
+      ++v136;
       v7 = dobj;
     }
-    while ( v22 < NumModels );
+    while ( v20 < NumModels );
   }
-  v37 = v131;
-  if ( v131 != v20 )
+  v35 = v126;
+  if ( v126 != v18 )
   {
-    LODWORD(boneIndexOffset) = v20;
-    LODWORD(collidableBoneOffset) = v131;
+    LODWORD(boneIndexOffset) = v18;
+    LODWORD(collidableBoneOffset) = v126;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 946, ASSERT_TYPE_ASSERT, "( numActiveModels ) == ( layout.numActiveModels )", "%s == %s\n\t%i, %i", "numActiveModels", "layout.numActiveModels", collidableBoneOffset, boneIndexOffset) )
       __debugbreak();
   }
@@ -801,33 +802,33 @@ LABEL_20:
     p_outChildPartBits->array[0] = 0;
     p_outChildPartBits = (DObjClientPartBits *)((char *)p_outChildPartBits + 4);
   }
-  v40 = *(_DWORD *)(v14 + 48);
-  if ( v40 )
+  v38 = *(_DWORD *)(v14 + 48);
+  if ( v38 )
   {
-    v41 = 0i64;
-    v42 = v40;
+    v39 = 0i64;
+    v40 = v38;
     do
     {
-      v43 = *(_WORD *)(v41 + *(_QWORD *)(v14 + 56));
-      if ( v43 != 255 )
+      v41 = *(_WORD *)(v39 + *(_QWORD *)(v14 + 56));
+      if ( v41 != 255 )
       {
-        v44 = v43 & 0x7FFF;
-        if ( v44 >= 0x300 )
+        v42 = v41 & 0x7FFF;
+        if ( v42 >= 0x300 )
         {
           LODWORD(boneIndexOffset) = 768;
-          LODWORD(collidableBoneOffset) = v44;
+          LODWORD(collidableBoneOffset) = v42;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", collidableBoneOffset, boneIndexOffset) )
             __debugbreak();
         }
-        outChildPartBits.array[(unsigned __int64)v44 >> 5] |= 0x80000000 >> (v44 & 0x1F);
+        outChildPartBits.array[(unsigned __int64)v42 >> 5] |= 0x80000000 >> (v42 & 0x1F);
       }
-      v41 += 264i64;
-      --v42;
+      v39 += 264i64;
+      --v40;
     }
-    while ( v42 );
-    v37 = v131;
+    while ( v40 );
+    v35 = v126;
   }
-  v45 = dobj;
+  v43 = dobj;
   XAnimProceduralBone_CompleteChildBits(dobj, &outParentMap, &ignoreBits, &outChildPartBits);
   *(_BYTE *)(v14 + 5) = 0;
   __asm
@@ -836,23 +837,26 @@ LABEL_20:
     vpxor   xmm2, xmm2, xmm2
     vpxor   xmm3, xmm3, xmm3
   }
-  _RAX = 0i64;
-  v50 = 3i64;
+  v47 = 0i64;
+  v48 = 3i64;
   do
   {
+    _XMM1 = *(_OWORD *)&outChildPartBits.array[v47];
     __asm
     {
-      vmovdqu xmm1, xmmword ptr [rbp+rax+2390h+outChildPartBits.baseclass_0.array]
       vpand   xmm1, xmm1, xmmword ptr [rbp+rax+2390h+inoutInputBits.baseclass_0.array]
       vpor    xmm2, xmm1, xmm2
-      vmovdqu xmm1, xmmword ptr [rbp+rax+2390h+outChildPartBits.baseclass_0.array+10h]
+    }
+    _XMM1 = *(_OWORD *)&outChildPartBits.array[v47 + 4];
+    __asm
+    {
       vpand   xmm1, xmm1, xmmword ptr [rbp+rax+2390h+inoutInputBits.baseclass_0.array+10h]
       vpor    xmm3, xmm1, xmm3
     }
-    _RAX += 32i64;
-    --v50;
+    v47 += 8i64;
+    --v48;
   }
-  while ( v50 );
+  while ( v48 );
   __asm
   {
     vpor    xmm1, xmm3, xmm2
@@ -860,169 +864,170 @@ LABEL_20:
     vpor    xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpor    xmm0, xmm2, xmm0
-    vmovd   eax, xmm0
   }
-  if ( _EAX )
+  if ( (_DWORD)_XMM0 )
   {
     *(_BYTE *)(v14 + 5) = 1;
     if ( !*(_DWORD *)(v14 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 961, ASSERT_TYPE_ASSERT, "(dobjProceduralBones->numPhysicsBones > 0)", (const char *)&queryFormat, "dobjProceduralBones->numPhysicsBones > 0") )
       __debugbreak();
-    v63 = outLayout.array[13];
+    v60 = outLayout.array[13];
     if ( !outLayout.array[13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 962, ASSERT_TYPE_ASSERT, "(layout.postPhysicsConstraintBitsAllocSize > 0)", (const char *)&queryFormat, "layout.postPhysicsConstraintBitsAllocSize > 0") )
       __debugbreak();
-    memset_0(*(void **)(v14 + 32), 0, v63);
+    memset_0(*(void **)(v14 + 32), 0, v60);
     p_outLayout = &outLayout;
     for ( m = 24i64; m; --m )
     {
       p_outLayout->array[0] = 0;
       p_outLayout = (DObjClientPartBits *)((char *)p_outLayout + 4);
     }
-    if ( v37 )
+    if ( v35 )
     {
-      v66 = 0i64;
-      v67 = v37;
-      v142 = v37;
+      v63 = 0i64;
+      v64 = v35;
+      v137 = v35;
       do
       {
-        v68 = *(_QWORD *)(v14 + 8);
-        if ( *(_BYTE *)(v66 + v68 + 17) )
+        v65 = *(_QWORD *)(v14 + 8);
+        if ( *(_BYTE *)(v63 + v65 + 17) )
         {
-          if ( !*(_QWORD *)(v66 + v68) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 976, ASSERT_TYPE_ASSERT, "(modelInfo->asset != nullptr)", (const char *)&queryFormat, "modelInfo->asset != nullptr") )
+          if ( !*(_QWORD *)(v63 + v65) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 976, ASSERT_TYPE_ASSERT, "(modelInfo->asset != nullptr)", (const char *)&queryFormat, "modelInfo->asset != nullptr") )
             __debugbreak();
-          v69 = *(unsigned __int8 *)(v66 + v68 + 19);
-          v70 = (const XAnimConstraintTargetBone *)(*(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v66 + v68 + 18));
-          DObjProceduralBones_InitializePostPhysicsConstraintBits(*(const XAnimProceduralBones **)(v66 + v68), v69, &outChildPartBits, v70, (const unsigned __int16 *)(*(_QWORD *)(v14 + 16) + 4i64 * v69), *(unsigned int **)(v14 + 32));
-          v71 = 0;
-          if ( *(_BYTE *)(v66 + v68 + 17) )
+          v66 = *(unsigned __int8 *)(v63 + v65 + 19);
+          v67 = (const XAnimConstraintTargetBone *)(*(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v63 + v65 + 18));
+          DObjProceduralBones_InitializePostPhysicsConstraintBits(*(const XAnimProceduralBones **)(v63 + v65), v66, &outChildPartBits, v67, (const unsigned __int16 *)(*(_QWORD *)(v14 + 16) + 4i64 * v66), *(unsigned int **)(v14 + 32));
+          v68 = 0;
+          if ( *(_BYTE *)(v63 + v65 + 17) )
           {
             do
             {
-              v72 = *(_QWORD *)(v14 + 32);
-              if ( !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+              v69 = *(_QWORD *)(v14 + 32);
+              if ( !v69 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                 __debugbreak();
-              v73 = *(_DWORD *)(v72 + 4 * ((__int64)(int)(v71 + v69) >> 5));
-              if ( _bittest(&v73, ((_BYTE)v71 + (_BYTE)v69) & 0x1F) )
+              v70 = *(_DWORD *)(v69 + 4 * ((__int64)(int)(v68 + v66) >> 5));
+              if ( _bittest(&v70, ((_BYTE)v68 + (_BYTE)v66) & 0x1F) )
               {
-                v74 = *(_QWORD *)(v66 + v68);
-                v75 = *(_QWORD *)(v74 + 8) + 88i64 * v71;
-                if ( (unsigned int)*(unsigned __int8 *)(v75 + 1) >= *(_DWORD *)(v74 + 20) )
+                v71 = *(_QWORD *)(v63 + v65);
+                v72 = *(_QWORD *)(v71 + 8) + 88i64 * v68;
+                if ( (unsigned int)*(unsigned __int8 *)(v72 + 1) >= *(_DWORD *)(v71 + 20) )
                 {
-                  LODWORD(dynamicBoneOffset) = *(_DWORD *)(v74 + 20);
-                  LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v75 + 1);
+                  LODWORD(dynamicBoneOffset) = *(_DWORD *)(v71 + 20);
+                  LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v72 + 1);
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 992, ASSERT_TYPE_ASSERT, "(unsigned)( constraint->localTargetBoneIndex ) < (unsigned)( modelInfo->asset->numTargetBones )", "constraint->localTargetBoneIndex doesn't index modelInfo->asset->numTargetBones\n\t%i not in [0, %i)", modelBoneOffset, dynamicBoneOffset) )
                     __debugbreak();
                 }
-                boneIndex = v70[*(unsigned __int8 *)(v75 + 1)].boneIndex;
+                boneIndex = v67[*(unsigned __int8 *)(v72 + 1)].boneIndex;
                 if ( boneIndex != 255 )
                 {
-                  v77 = boneIndex & 0x7FFF;
-                  if ( v77 >= 0x300 )
+                  v74 = boneIndex & 0x7FFF;
+                  if ( v74 >= 0x300 )
                   {
                     LODWORD(boneIndexOffset) = 768;
-                    LODWORD(collidableBoneOffset) = v77;
+                    LODWORD(collidableBoneOffset) = v74;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", collidableBoneOffset, boneIndexOffset) )
                       __debugbreak();
                   }
-                  outLayout.array[(unsigned __int64)v77 >> 5] |= 0x80000000 >> (v77 & 0x1F);
+                  outLayout.array[(unsigned __int64)v74 >> 5] |= 0x80000000 >> (v74 & 0x1F);
                 }
               }
-              ++v71;
+              ++v68;
             }
-            while ( v71 < *(unsigned __int8 *)(v66 + v68 + 17) );
-            v67 = v142;
+            while ( v68 < *(unsigned __int8 *)(v63 + v65 + 17) );
+            v64 = v137;
           }
         }
-        v66 += 32i64;
-        v142 = --v67;
+        v63 += 32i64;
+        v137 = --v64;
       }
-      while ( v67 );
-      v45 = dobj;
-      v37 = v131;
+      while ( v64 );
+      v43 = dobj;
+      v35 = v126;
     }
-    XAnimProceduralBone_CompleteChildBits(v45, &outParentMap, NULL, &outLayout);
+    XAnimProceduralBone_CompleteChildBits(v43, &outParentMap, NULL, &outLayout);
     if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_xanim_dumpPostPhysicsConstraints, "xanim_dumpPostPhysicsConstraints") )
     {
       Com_Printf(19, "Post-physics constraints:\n");
-      if ( v37 )
+      if ( v35 )
       {
-        v78 = 0i64;
-        v79 = v37;
-        v136 = v37;
+        v75 = 0i64;
+        v76 = v35;
+        v131 = v35;
         do
         {
-          v80 = *(_QWORD *)(v14 + 8);
-          if ( *(_BYTE *)(v78 + v80 + 17) )
+          v77 = *(_QWORD *)(v14 + 8);
+          if ( *(_BYTE *)(v75 + v77 + 17) )
           {
-            if ( !*(_QWORD *)(v78 + v80) )
+            if ( !*(_QWORD *)(v75 + v77) )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 1016, ASSERT_TYPE_ASSERT, "(modelInfo->asset != nullptr)", (const char *)&queryFormat, "modelInfo->asset != nullptr") )
                 __debugbreak();
-              v79 = v136;
+              v76 = v131;
             }
-            v81 = *(unsigned __int8 *)(v78 + v80 + 19);
-            v82 = *(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v78 + v80 + 18);
-            v83 = 0;
-            if ( *(_BYTE *)(v78 + v80 + 17) )
+            v78 = *(unsigned __int8 *)(v75 + v77 + 19);
+            v79 = *(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v75 + v77 + 18);
+            v80 = 0;
+            if ( *(_BYTE *)(v75 + v77 + 17) )
             {
               do
               {
-                v84 = *(_QWORD *)(v14 + 32);
-                if ( !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+                v81 = *(_QWORD *)(v14 + 32);
+                if ( !v81 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                   __debugbreak();
-                v85 = *(_DWORD *)(v84 + 4 * ((__int64)(int)(v83 + v81) >> 5));
-                if ( _bittest(&v85, ((_BYTE)v83 + (_BYTE)v81) & 0x1F) )
+                v82 = *(_DWORD *)(v81 + 4 * ((__int64)(int)(v80 + v78) >> 5));
+                if ( _bittest(&v82, ((_BYTE)v80 + (_BYTE)v78) & 0x1F) )
                 {
-                  v86 = *(_QWORD *)(v78 + v80);
-                  v87 = *(_QWORD *)(v86 + 8) + 88i64 * v83;
-                  if ( (unsigned int)*(unsigned __int8 *)(v87 + 1) >= *(_DWORD *)(v86 + 20) )
+                  v83 = *(_QWORD *)(v75 + v77);
+                  v84 = *(_QWORD *)(v83 + 8) + 88i64 * v80;
+                  if ( (unsigned int)*(unsigned __int8 *)(v84 + 1) >= *(_DWORD *)(v83 + 20) )
                   {
-                    LODWORD(dynamicBoneOffset) = *(_DWORD *)(v86 + 20);
-                    LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v87 + 1);
+                    LODWORD(dynamicBoneOffset) = *(_DWORD *)(v83 + 20);
+                    LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v84 + 1);
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 1028, ASSERT_TYPE_ASSERT, "(unsigned)( constraint->localTargetBoneIndex ) < (unsigned)( modelInfo->asset->numTargetBones )", "constraint->localTargetBoneIndex doesn't index modelInfo->asset->numTargetBones\n\t%i not in [0, %i)", modelBoneOffset, dynamicBoneOffset) )
                       __debugbreak();
                   }
-                  v88 = *(unsigned __int8 *)(v87 + 1);
-                  if ( *(_WORD *)(v82 + 4 * v88) != 255 )
+                  v85 = *(unsigned __int8 *)(v84 + 1);
+                  if ( *(_WORD *)(v79 + 4 * v85) != 255 )
                   {
-                    v89 = DObjGetModel(dobj, *(unsigned __int8 *)(v78 + v80 + 16))->name;
-                    BoneName = DObjGetBoneName(dobj, *(unsigned __int16 *)(v82 + 4 * v88));
-                    Com_Printf(19, "\t%s (%s)\n", BoneName, v89);
+                    v86 = DObjGetModel(dobj, *(unsigned __int8 *)(v75 + v77 + 16))->name;
+                    BoneName = DObjGetBoneName(dobj, *(unsigned __int16 *)(v79 + 4 * v85));
+                    Com_Printf(19, "\t%s (%s)\n", BoneName, v86);
                   }
-                  v14 = (__int64)v146;
+                  v14 = (__int64)v141;
                 }
-                ++v83;
+                ++v80;
               }
-              while ( v83 < *(unsigned __int8 *)(v78 + v80 + 17) );
-              v79 = v136;
+              while ( v80 < *(unsigned __int8 *)(v75 + v77 + 17) );
+              v76 = v131;
             }
           }
-          v78 += 32i64;
-          v136 = --v79;
+          v75 += 32i64;
+          v131 = --v76;
         }
-        while ( v79 );
-        v45 = dobj;
-        v37 = v131;
+        while ( v76 );
+        v43 = dobj;
+        v35 = v126;
       }
       Com_Printf(19, "======\n");
     }
-    __asm { vmovdqu xmm2, xmm6 }
-    _RAX = 0i64;
-    v93 = 3i64;
+    v88 = 0i64;
+    v89 = 3i64;
     do
     {
+      _XMM1 = *(_OWORD *)&outLayout.array[v88];
       __asm
       {
-        vmovdqu xmm1, xmmword ptr [rbp+rax+2390h+outLayout]
         vpand   xmm1, xmm1, xmmword ptr [rbp+rax+2390h+ignoreBits.baseclass_0.array]
         vpor    xmm6, xmm1, xmm6
-        vmovdqu xmm1, xmmword ptr [rbp+rax+2390h+outLayout+10h]
+      }
+      _XMM1 = *(_OWORD *)&outLayout.array[v88 + 4];
+      __asm
+      {
         vpand   xmm1, xmm1, xmmword ptr [rbp+rax+2390h+ignoreBits.baseclass_0.array+10h]
         vpor    xmm2, xmm1, xmm2
       }
-      _RAX += 32i64;
-      --v93;
+      v88 += 8i64;
+      --v89;
     }
-    while ( v93 );
+    while ( v89 );
     __asm
     {
       vpor    xmm1, xmm6, xmm2
@@ -1030,112 +1035,111 @@ LABEL_20:
       vpor    xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpor    xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
     }
-    if ( _EAX )
+    if ( (_DWORD)_XMM0 )
     {
-      v106 = DObjGetName(v45);
-      Com_PrintWarning(19, "WARNING: inconsistent procedural/dynamic bone calculation order on DObj '%s'\n", v106);
+      v101 = DObjGetName(v43);
+      Com_PrintWarning(19, "WARNING: inconsistent procedural/dynamic bone calculation order on DObj '%s'\n", v101);
       Com_PrintWarning(19, "Dynamic bones dependent on post-physics constraints:\n");
-      v107 = 0;
-      if ( DObjTotalNumBones(v45) > 0 )
+      v102 = 0;
+      if ( DObjTotalNumBones(v43) > 0 )
       {
         do
         {
-          if ( v107 >= 0x300 )
+          if ( v102 >= 0x300 )
           {
             LODWORD(dynamicBoneOffset) = 768;
-            LODWORD(modelBoneOffset) = v107;
+            LODWORD(modelBoneOffset) = v102;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", modelBoneOffset, dynamicBoneOffset) )
               __debugbreak();
           }
-          v108 = 0x80000000 >> (v107 & 0x1F);
-          v109 = (unsigned __int64)v107 >> 5;
-          if ( (v108 & ignoreBits.array[v109]) != 0 )
+          v103 = 0x80000000 >> (v102 & 0x1F);
+          v104 = (unsigned __int64)v102 >> 5;
+          if ( (v103 & ignoreBits.array[v104]) != 0 )
           {
-            if ( v107 >= 0x300 )
+            if ( v102 >= 0x300 )
             {
               LODWORD(dynamicBoneOffset) = 768;
-              LODWORD(modelBoneOffset) = v107;
+              LODWORD(modelBoneOffset) = v102;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", modelBoneOffset, dynamicBoneOffset) )
                 __debugbreak();
             }
-            if ( (v108 & outLayout.array[v109]) != 0 )
+            if ( (v103 & outLayout.array[v104]) != 0 )
             {
-              v110 = v107 | 0x8000;
-              if ( (int)v107 < DObjNumBones(v45) )
-                v110 = v107;
-              if ( (v110 < 0 || (unsigned int)v110 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v110, "signed", v110) )
+              v105 = v102 | 0x8000;
+              if ( (int)v102 < DObjNumBones(v43) )
+                v105 = v102;
+              if ( (v105 < 0 || (unsigned int)v105 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v105, "signed", v105) )
                 __debugbreak();
-              v111 = DObjGetBoneName(v45, (unsigned __int16)v110);
-              Com_PrintWarning(19, "\t%s\n", v111);
+              v106 = DObjGetBoneName(v43, (unsigned __int16)v105);
+              Com_PrintWarning(19, "\t%s\n", v106);
             }
           }
-          ++v107;
+          ++v102;
         }
-        while ( (int)v107 < DObjTotalNumBones(v45) );
-        v14 = (__int64)v146;
-        v37 = v131;
+        while ( (int)v102 < DObjTotalNumBones(v43) );
+        v14 = (__int64)v141;
+        v35 = v126;
       }
       Com_PrintWarning(19, "Post-physics constraints:\n");
-      if ( v37 )
+      if ( v35 )
       {
-        v112 = 0i64;
-        v113 = v37;
-        v137 = v37;
+        v107 = 0i64;
+        v108 = v35;
+        v132 = v35;
         do
         {
-          v114 = *(_QWORD *)(v14 + 8);
-          if ( *(_BYTE *)(v112 + v114 + 17) )
+          v109 = *(_QWORD *)(v14 + 8);
+          if ( *(_BYTE *)(v107 + v109 + 17) )
           {
-            if ( !*(_QWORD *)(v112 + v114) )
+            if ( !*(_QWORD *)(v107 + v109) )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 1065, ASSERT_TYPE_ASSERT, "(modelInfo->asset != nullptr)", (const char *)&queryFormat, "modelInfo->asset != nullptr") )
                 __debugbreak();
-              v113 = v137;
+              v108 = v132;
             }
-            v115 = *(unsigned __int8 *)(v112 + v114 + 19);
-            v116 = *(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v112 + v114 + 18);
-            v117 = 0;
-            if ( *(_BYTE *)(v112 + v114 + 17) )
+            v110 = *(unsigned __int8 *)(v107 + v109 + 19);
+            v111 = *(_QWORD *)(v14 + 24) + 4i64 * *(unsigned __int8 *)(v107 + v109 + 18);
+            v112 = 0;
+            if ( *(_BYTE *)(v107 + v109 + 17) )
             {
               do
               {
-                v118 = *(_QWORD *)(v14 + 32);
-                if ( !v118 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+                v113 = *(_QWORD *)(v14 + 32);
+                if ( !v113 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                   __debugbreak();
-                v119 = *(_DWORD *)(v118 + 4 * ((__int64)(int)(v117 + v115) >> 5));
-                if ( _bittest(&v119, ((_BYTE)v117 + (_BYTE)v115) & 0x1F) )
+                v114 = *(_DWORD *)(v113 + 4 * ((__int64)(int)(v112 + v110) >> 5));
+                if ( _bittest(&v114, ((_BYTE)v112 + (_BYTE)v110) & 0x1F) )
                 {
-                  v120 = *(_QWORD *)(v112 + v114);
-                  v121 = *(_QWORD *)(v120 + 8) + 88i64 * v117;
-                  if ( (unsigned int)*(unsigned __int8 *)(v121 + 1) >= *(_DWORD *)(v120 + 20) )
+                  v115 = *(_QWORD *)(v107 + v109);
+                  v116 = *(_QWORD *)(v115 + 8) + 88i64 * v112;
+                  if ( (unsigned int)*(unsigned __int8 *)(v116 + 1) >= *(_DWORD *)(v115 + 20) )
                   {
-                    LODWORD(dynamicBoneOffset) = *(_DWORD *)(v120 + 20);
-                    LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v121 + 1);
+                    LODWORD(dynamicBoneOffset) = *(_DWORD *)(v115 + 20);
+                    LODWORD(modelBoneOffset) = *(unsigned __int8 *)(v116 + 1);
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 1077, ASSERT_TYPE_ASSERT, "(unsigned)( constraint->localTargetBoneIndex ) < (unsigned)( modelInfo->asset->numTargetBones )", "constraint->localTargetBoneIndex doesn't index modelInfo->asset->numTargetBones\n\t%i not in [0, %i)", modelBoneOffset, dynamicBoneOffset) )
                       __debugbreak();
                   }
-                  v122 = *(unsigned __int8 *)(v121 + 1);
-                  if ( *(_WORD *)(v116 + 4 * v122) != 255 )
+                  v117 = *(unsigned __int8 *)(v116 + 1);
+                  if ( *(_WORD *)(v111 + 4 * v117) != 255 )
                   {
-                    v123 = DObjGetModel(dobj, *(unsigned __int8 *)(v112 + v114 + 16))->name;
-                    v124 = DObjGetBoneName(dobj, *(unsigned __int16 *)(v116 + 4 * v122));
-                    Com_PrintWarning(19, "\t%s (%s)\n", v124, v123);
+                    v118 = DObjGetModel(dobj, *(unsigned __int8 *)(v107 + v109 + 16))->name;
+                    v119 = DObjGetBoneName(dobj, *(unsigned __int16 *)(v111 + 4 * v117));
+                    Com_PrintWarning(19, "\t%s (%s)\n", v119, v118);
                   }
-                  v14 = (__int64)v146;
+                  v14 = (__int64)v141;
                 }
-                ++v117;
+                ++v112;
               }
-              while ( v117 < *(unsigned __int8 *)(v112 + v114 + 17) );
-              v113 = v137;
+              while ( v112 < *(unsigned __int8 *)(v107 + v109 + 17) );
+              v108 = v132;
             }
           }
-          v112 += 32i64;
-          v137 = --v113;
+          v107 += 32i64;
+          v132 = --v108;
         }
-        while ( v113 );
-        v45 = dobj;
+        while ( v108 );
+        v43 = dobj;
       }
     }
   }
@@ -1146,18 +1150,15 @@ LABEL_20:
   *(_BYTE *)(v14 + 304) = 0;
   *(_QWORD *)(v14 + 308) = 0i64;
   *(_DWORD *)(v14 + 316) = 0;
-  DObjCompleteHierarchyBits(v45, (DObjPartBits *)(v14 + 416));
+  DObjCompleteHierarchyBits(v43, (DObjPartBits *)(v14 + 416));
   if ( *(_DWORD *)(v14 + 48) )
   {
-    DObjCompleteHierarchyBits(v45, (DObjPartBits *)(v14 + 352));
+    DObjCompleteHierarchyBits(v43, (DObjPartBits *)(v14 + 352));
     XAnimBonePhysicsResetInternal((DObjProceduralBones *)v14);
   }
 LABEL_21:
   Sys_ProfEndNamedEvent();
-  result = (DObjProceduralBones *)v14;
-  _R11 = &v154;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return (DObjProceduralBones *)v14;
 }
 
 /*
@@ -1819,270 +1820,152 @@ XAnimBonePhysicsInitializePhysicsBone
 */
 char XAnimBonePhysicsInitializePhysicsBone(const DObj *dobj, XAnimPhysicsBone *physicsBone, const XAnimDynamicBoneProperties *properties, int dobjModelIndex, int modelBoneOffset, unsigned int dynamicBoneOffset, const DObjBoneParentMap *dobjBoneParents)
 {
-  char v21; 
+  unsigned __int8 v12; 
+  vec3_t *p_twistU; 
+  vec3_t *p_twistV; 
   int boneIndex; 
   unsigned __int16 OriginalNonDuplicate; 
   int parentDynamicBoneIndex; 
-  bool v43; 
-  bool v44; 
-  unsigned __int8 v45; 
+  unsigned __int8 v18; 
+  const XAnimDynamicBoneProperties *v19; 
+  float start; 
+  float v21; 
   XAnimCurve *curve; 
-  XAnimCurve *v50; 
-  XAnimCurve *v56; 
-  XAnimCurve *v57; 
-  XAnimCurve *v63; 
-  XAnimCurve *v64; 
+  XAnimCurve *v23; 
+  const XAnimDynamicBoneProperties *v24; 
+  float v25; 
+  float v26; 
+  XAnimCurve *v27; 
+  XAnimCurve *v28; 
+  const XAnimDynamicBoneProperties *v29; 
+  float v30; 
+  float v31; 
+  XAnimCurve *v32; 
+  XAnimCurve *v33; 
 
-  _RSI = properties;
-  _RDI = physicsBone;
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 533, ASSERT_TYPE_ASSERT, "(dobj != 0)", (const char *)&queryFormat, "dobj != NULL") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 534, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
+  if ( !physicsBone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 534, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 535, ASSERT_TYPE_ASSERT, "(properties != 0)", (const char *)&queryFormat, "properties != NULL") )
+  if ( !properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 535, ASSERT_TYPE_ASSERT, "(properties != 0)", (const char *)&queryFormat, "properties != NULL") )
     __debugbreak();
-  _RDI->XAnimProceduralBone = (XAnimProceduralBone)16711934;
-  _RDI->properties = _RSI;
-  if ( DObjGetBoneIndexFromStartModelClient(dobj, _RSI->boneName, dobjModelIndex, &_RDI->boneIndex) )
+  physicsBone->XAnimProceduralBone = (XAnimProceduralBone)16711934;
+  physicsBone->properties = properties;
+  if ( DObjGetBoneIndexFromStartModelClient(dobj, properties->boneName, dobjModelIndex, &physicsBone->boneIndex) )
   {
-    __asm { vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000 }
-    _RDI->invMass = _RSI->invMass;
-    _RDI->invInertiaTensor = _RSI->invInertiaTensor;
-    __asm
+    physicsBone->invMass = properties->invMass;
+    physicsBone->invInertiaTensor = properties->invInertiaTensor;
+    physicsBone->jointOffset.v[0] = COERCE_FLOAT(LODWORD(properties->centerOfMass.v[0]) ^ _xmm);
+    physicsBone->jointOffset.v[1] = COERCE_FLOAT(LODWORD(properties->centerOfMass.v[1]) ^ _xmm);
+    physicsBone->jointOffset.v[2] = COERCE_FLOAT(LODWORD(properties->centerOfMass.v[2]) ^ _xmm);
+    physicsBone->flags = 8;
+    if ( properties->enableSwingLimit || (v12 = 8, properties->rotationalSpring.swingStrength != 0.0) )
     {
-      vmovss  xmm0, dword ptr [rsi+14h]
-      vxorps  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rdi+0B8h], xmm0
-      vmovss  xmm1, dword ptr [rsi+18h]
-      vxorps  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rdi+0BCh], xmm2
-      vmovss  xmm0, dword ptr [rsi+1Ch]
-      vxorps  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rdi+0C0h], xmm1
+      physicsBone->flags = 9;
+      v12 = 9;
     }
-    _RDI->flags = 8;
-    __asm
+    if ( properties->enableTwistLimit || properties->rotationalSpring.twistStrength != 0.0 )
     {
-      vmovaps [rsp+58h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
+      v12 |= 2u;
+      physicsBone->flags = v12;
     }
-    if ( _RSI->enableSwingLimit )
-      goto LABEL_17;
-    __asm { vucomiss xmm6, dword ptr [rsi+84h] }
-    v21 = 8;
-    if ( _RSI->enableSwingLimit )
+    if ( (v12 & 3) != 0 )
     {
-LABEL_17:
-      _RDI->flags = 9;
-      v21 = 9;
-    }
-    if ( _RSI->enableTwistLimit )
-      goto LABEL_20;
-    __asm { vucomiss xmm6, dword ptr [rsi+88h] }
-    if ( _RSI->enableTwistLimit )
-    {
-LABEL_20:
-      v21 |= 2u;
-      _RDI->flags = v21;
-    }
-    if ( (v21 & 3) != 0 )
-    {
-      _RBX = &_RDI->twistU;
-      _RBP = &_RSI->twistAxis;
-      PerpendicularVector(&_RSI->twistAxis, &_RDI->twistU);
-      _R14 = &_RDI->twistV;
-      if ( &_RSI->twistAxis == &_RDI->twistV && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+      p_twistU = &physicsBone->twistU;
+      PerpendicularVector(&properties->twistAxis, &physicsBone->twistU);
+      p_twistV = &physicsBone->twistV;
+      if ( &properties->twistAxis == &physicsBone->twistV && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
         __debugbreak();
-      if ( _RBX == _R14 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+      if ( p_twistU == p_twistV && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmulss  xmm3, xmm0, dword ptr [rbp+4]
-        vmovss  xmm1, dword ptr [rbp+8]
-        vmulss  xmm2, xmm1, dword ptr [rbx+4]
-        vsubss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [r14], xmm0
-        vmovss  xmm1, dword ptr [rbp+8]
-        vmulss  xmm3, xmm1, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmulss  xmm2, xmm0, dword ptr [rbx+8]
-        vsubss  xmm1, xmm3, xmm2
-        vmovss  dword ptr [r14+4], xmm1
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  xmm1, dword ptr [rbx]
-        vmulss  xmm3, xmm0, dword ptr [rbx+4]
-        vmulss  xmm2, xmm1, dword ptr [rbp+4]
-        vsubss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [r14+8], xmm0
-      }
+      p_twistV->v[0] = (float)(physicsBone->twistU.v[2] * properties->twistAxis.v[1]) - (float)(properties->twistAxis.v[2] * physicsBone->twistU.v[1]);
+      physicsBone->twistV.v[1] = (float)(properties->twistAxis.v[2] * physicsBone->twistU.v[0]) - (float)(properties->twistAxis.v[0] * physicsBone->twistU.v[2]);
+      physicsBone->twistV.v[2] = (float)(properties->twistAxis.v[0] * physicsBone->twistU.v[1]) - (float)(p_twistU->v[0] * properties->twistAxis.v[1]);
     }
-    if ( _RSI->enableTranslationalSpring )
-      _RDI->flags |= 0x20u;
-    if ( !_RSI->numCollisionShapes )
-      _RDI->flags |= 4u;
-    if ( _RSI->heavyHitSound.name || _RSI->lightHitSound.name )
-      _RDI->flags |= 0x10u;
-    _RDI->localBasePoseTrans.v[0] = _RSI->localBasePoseTrans.v[0];
-    _RDI->localBasePoseTrans.v[1] = _RSI->localBasePoseTrans.v[1];
-    _RDI->localBasePoseTrans.v[2] = _RSI->localBasePoseTrans.v[2];
-    *(_QWORD *)_RDI->state.rotationQuat.v = 0i64;
-    _RDI->state.rotationQuat.v[2] = 0.0;
-    *(_QWORD *)(&_RDI->state.rotationQuat.xyz + 1) = 1065353216i64;
-    *(_QWORD *)&_RDI->state.position.y = 0i64;
-    _RDI->state.prevRotationQuat.v[0] = _RDI->state.rotationQuat.v[0];
-    _RDI->state.prevRotationQuat.v[1] = _RDI->state.rotationQuat.v[1];
-    _RDI->state.prevRotationQuat.v[2] = _RDI->state.rotationQuat.v[2];
-    _RDI->state.prevRotationQuat.v[3] = _RDI->state.rotationQuat.v[3];
-    _RDI->state.prevPosition.v[0] = _RDI->state.position.v[0];
-    _RDI->state.prevPosition.v[1] = _RDI->state.position.v[1];
-    _RDI->state.prevPosition.v[2] = _RDI->state.position.v[2];
-    *(_QWORD *)_RDI->state.velocity.v = 0i64;
-    *(_QWORD *)&_RDI->state.velocity.z = 0i64;
-    *(_QWORD *)&_RDI->state.angularVelocity.y = 0i64;
-    boneIndex = _RDI->boneIndex;
-    _RDI->state.audioEventTimer = 0;
+    if ( properties->enableTranslationalSpring )
+      physicsBone->flags |= 0x20u;
+    if ( !properties->numCollisionShapes )
+      physicsBone->flags |= 4u;
+    if ( properties->heavyHitSound.name || properties->lightHitSound.name )
+      physicsBone->flags |= 0x10u;
+    physicsBone->localBasePoseTrans.v[0] = properties->localBasePoseTrans.v[0];
+    physicsBone->localBasePoseTrans.v[1] = properties->localBasePoseTrans.v[1];
+    physicsBone->localBasePoseTrans.v[2] = properties->localBasePoseTrans.v[2];
+    *(_QWORD *)physicsBone->state.rotationQuat.v = 0i64;
+    physicsBone->state.rotationQuat.v[2] = 0.0;
+    *(_QWORD *)(&physicsBone->state.rotationQuat.xyz + 1) = 1065353216i64;
+    *(_QWORD *)&physicsBone->state.position.y = 0i64;
+    physicsBone->state.prevRotationQuat.v[0] = physicsBone->state.rotationQuat.v[0];
+    physicsBone->state.prevRotationQuat.v[1] = physicsBone->state.rotationQuat.v[1];
+    physicsBone->state.prevRotationQuat.v[2] = physicsBone->state.rotationQuat.v[2];
+    physicsBone->state.prevRotationQuat.v[3] = physicsBone->state.rotationQuat.v[3];
+    physicsBone->state.prevPosition.v[0] = physicsBone->state.position.v[0];
+    physicsBone->state.prevPosition.v[1] = physicsBone->state.position.v[1];
+    physicsBone->state.prevPosition.v[2] = physicsBone->state.position.v[2];
+    *(_QWORD *)physicsBone->state.velocity.v = 0i64;
+    *(_QWORD *)&physicsBone->state.velocity.z = 0i64;
+    *(_QWORD *)&physicsBone->state.angularVelocity.y = 0i64;
+    boneIndex = physicsBone->boneIndex;
+    physicsBone->state.audioEventTimer = 0;
     OriginalNonDuplicate = DObjBoneParentMap_GetOriginalNonDuplicate(dobjBoneParents, boneIndex);
-    _RDI->parentBoneIndex = DObjBoneParentMap_GetParentOrDuplicate(dobjBoneParents, OriginalNonDuplicate);
-    _RDI->rootPhysicsBoneIndex = truncate_cast<unsigned char,unsigned int>(dynamicBoneOffset + _RSI->dynamicBoneChainRootIndex);
-    parentDynamicBoneIndex = _RSI->parentDynamicBoneIndex;
-    v43 = parentDynamicBoneIndex != -1;
-    v44 = parentDynamicBoneIndex == -1;
+    physicsBone->parentBoneIndex = DObjBoneParentMap_GetParentOrDuplicate(dobjBoneParents, OriginalNonDuplicate);
+    physicsBone->rootPhysicsBoneIndex = truncate_cast<unsigned char,unsigned int>(dynamicBoneOffset + properties->dynamicBoneChainRootIndex);
+    parentDynamicBoneIndex = properties->parentDynamicBoneIndex;
     if ( parentDynamicBoneIndex == -1 )
-      v45 = -1;
+      v18 = -1;
     else
-      v45 = truncate_cast<unsigned char,unsigned int>(parentDynamicBoneIndex + dynamicBoneOffset);
-    _RDI->parentPhysicsBoneIndex = v45;
-    _RAX = _RDI->properties;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+0E0h]
-      vcomiss xmm0, xmm6
-      vmovss  xmm1, dword ptr [rax+130h]
-    }
-    curve = _RAX->noise.translation.axis[0].curve;
-    v50 = _RAX->noise.rotation.axis[0].curve;
-    _RDI->state.noise.translation[0].rateMul = 1.0;
-    _RDI->state.noise.translation[0].strengthMul = 1.0;
-    _RDI->state.noise.translation[0].timer = 0.0;
-    if ( !v43 && !v44 )
-    {
-      v43 = 0;
-      v44 = curve == NULL;
-      if ( curve )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, dword ptr [rcx+18h]
-          vmovss  dword ptr [rdi+78h], xmm0
-        }
-      }
-    }
-    __asm { vcomiss xmm1, xmm6 }
-    _RDI->state.noise.rotation[0].rateMul = 1.0;
-    _RDI->state.noise.rotation[0].strengthMul = 1.0;
-    _RDI->state.noise.rotation[0].timer = 0.0;
-    if ( !v43 && !v44 )
-    {
-      v43 = 0;
-      v44 = v50 == NULL;
-      if ( v50 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm1, dword ptr [rdx+18h]
-          vmovss  dword ptr [rdi+9Ch], xmm0
-        }
-      }
-    }
-    _RAX = _RDI->properties;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+0F8h]
-      vcomiss xmm0, xmm6
-      vmovss  xmm1, dword ptr [rax+148h]
-    }
-    v56 = _RAX->noise.translation.axis[1].curve;
-    v57 = _RAX->noise.rotation.axis[1].curve;
-    _RDI->state.noise.translation[1].rateMul = 1.0;
-    _RDI->state.noise.translation[1].strengthMul = 1.0;
-    _RDI->state.noise.translation[1].timer = 0.0;
-    if ( !v43 && !v44 )
-    {
-      v43 = 0;
-      v44 = v56 == NULL;
-      if ( v56 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, dword ptr [rdx+18h]
-          vmovss  dword ptr [rdi+84h], xmm0
-        }
-      }
-    }
-    __asm { vcomiss xmm1, xmm6 }
-    _RDI->state.noise.rotation[1].rateMul = 1.0;
-    _RDI->state.noise.rotation[1].strengthMul = 1.0;
-    _RDI->state.noise.rotation[1].timer = 0.0;
-    if ( !v43 && !v44 )
-    {
-      v43 = 0;
-      v44 = v57 == NULL;
-      if ( v57 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm1, dword ptr [rcx+18h]
-          vmovss  dword ptr [rdi+0A8h], xmm0
-        }
-      }
-    }
-    _RAX = _RDI->properties;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+110h]
-      vcomiss xmm0, xmm6
-      vmovss  xmm1, dword ptr [rax+160h]
-    }
-    v63 = _RAX->noise.translation.axis[2].curve;
-    v64 = _RAX->noise.rotation.axis[2].curve;
-    _RDI->state.noise.translation[2].rateMul = 1.0;
-    _RDI->state.noise.translation[2].strengthMul = 1.0;
-    _RDI->state.noise.translation[2].timer = 0.0;
-    if ( !v43 && !v44 )
-    {
-      v43 = 0;
-      v44 = v63 == NULL;
-      if ( v63 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, dword ptr [rdx+18h]
-          vmovss  dword ptr [rdi+90h], xmm0
-        }
-      }
-    }
-    _RDI->state.noise.rotation[2].rateMul = 1.0;
-    _RDI->state.noise.rotation[2].strengthMul = 1.0;
-    __asm
-    {
-      vcomiss xmm1, xmm6
-      vmovaps xmm6, [rsp+58h+var_28]
-    }
-    _RDI->state.noise.rotation[2].timer = 0.0;
-    if ( !v43 && !v44 && v64 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm1, dword ptr [rcx+18h]
-        vmovss  dword ptr [rdi+0B4h], xmm0
-      }
-    }
+      v18 = truncate_cast<unsigned char,unsigned int>(parentDynamicBoneIndex + dynamicBoneOffset);
+    physicsBone->parentPhysicsBoneIndex = v18;
+    v19 = physicsBone->properties;
+    start = v19->noise.translation.axis[0].start;
+    v21 = v19->noise.rotation.axis[0].start;
+    curve = v19->noise.translation.axis[0].curve;
+    v23 = v19->noise.rotation.axis[0].curve;
+    physicsBone->state.noise.translation[0].rateMul = 1.0;
+    physicsBone->state.noise.translation[0].strengthMul = 1.0;
+    physicsBone->state.noise.translation[0].timer = 0.0;
+    if ( start > 0.0 && curve )
+      physicsBone->state.noise.translation[0].timer = start * curve->duration;
+    physicsBone->state.noise.rotation[0].rateMul = 1.0;
+    physicsBone->state.noise.rotation[0].strengthMul = 1.0;
+    physicsBone->state.noise.rotation[0].timer = 0.0;
+    if ( v21 > 0.0 && v23 )
+      physicsBone->state.noise.rotation[0].timer = v21 * v23->duration;
+    v24 = physicsBone->properties;
+    v25 = v24->noise.translation.axis[1].start;
+    v26 = v24->noise.rotation.axis[1].start;
+    v27 = v24->noise.translation.axis[1].curve;
+    v28 = v24->noise.rotation.axis[1].curve;
+    physicsBone->state.noise.translation[1].rateMul = 1.0;
+    physicsBone->state.noise.translation[1].strengthMul = 1.0;
+    physicsBone->state.noise.translation[1].timer = 0.0;
+    if ( v25 > 0.0 && v27 )
+      physicsBone->state.noise.translation[1].timer = v25 * v27->duration;
+    physicsBone->state.noise.rotation[1].rateMul = 1.0;
+    physicsBone->state.noise.rotation[1].strengthMul = 1.0;
+    physicsBone->state.noise.rotation[1].timer = 0.0;
+    if ( v26 > 0.0 && v28 )
+      physicsBone->state.noise.rotation[1].timer = v26 * v28->duration;
+    v29 = physicsBone->properties;
+    v30 = v29->noise.translation.axis[2].start;
+    v31 = v29->noise.rotation.axis[2].start;
+    v32 = v29->noise.translation.axis[2].curve;
+    v33 = v29->noise.rotation.axis[2].curve;
+    physicsBone->state.noise.translation[2].rateMul = 1.0;
+    physicsBone->state.noise.translation[2].strengthMul = 1.0;
+    physicsBone->state.noise.translation[2].timer = 0.0;
+    if ( v30 > 0.0 && v32 )
+      physicsBone->state.noise.translation[2].timer = v30 * v32->duration;
+    physicsBone->state.noise.rotation[2].rateMul = 1.0;
+    physicsBone->state.noise.rotation[2].strengthMul = 1.0;
+    physicsBone->state.noise.rotation[2].timer = 0.0;
+    if ( v31 > 0.0 && v33 )
+      physicsBone->state.noise.rotation[2].timer = v31 * v33->duration;
     return 1;
   }
   else
   {
-    if ( _RDI->boneIndex != 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 543, ASSERT_TYPE_ASSERT, "(physicsBone->boneIndex == 255)", (const char *)&queryFormat, "physicsBone->boneIndex == NO_BONEINDEX") )
+    if ( physicsBone->boneIndex != 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_dobj.cpp", 543, ASSERT_TYPE_ASSERT, "(physicsBone->boneIndex == 255)", (const char *)&queryFormat, "physicsBone->boneIndex == NO_BONEINDEX") )
       __debugbreak();
     return 0;
   }

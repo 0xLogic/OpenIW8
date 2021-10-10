@@ -187,26 +187,25 @@ void CG_FireAnimStabilizer_OnNewSnapshot(const LocalClientNum_t localClientNum, 
   bool v11; 
   const BgWeaponMap **v12; 
   weapFireType_t WeaponFireType; 
-  const BgWeaponMap *v18; 
+  const BgWeaponMap *v14; 
   int *p_lastFireAnimExtraTimeSpent; 
   FireAnimStabilizerHandState *handStates; 
   int *p_weaponState; 
-  int v22; 
-  signed __int64 v23; 
-  bool v24; 
-  int v25; 
-  const dvar_t *v26; 
+  int v18; 
+  signed __int64 v19; 
+  bool v20; 
+  int v21; 
+  const dvar_t *v22; 
   char *fmt; 
   __int64 shotCount; 
   BgWeaponMap *weaponMap; 
   CgGlobalsMP *LocalClientGlobals; 
   Weapon *r_weapon; 
-  bool v32; 
-  bool v33; 
+  bool v28; 
+  bool v29; 
   int fireTime; 
   int fireDelay; 
 
-  _RDI = fireAnimStabilizerState;
   v6 = localClientNum;
   if ( (unsigned int)localClientNum >= LODWORD(cl_maxLocalClients) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_fireanimstabilizer_mp.cpp", 14, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, cl_maxLocalClients) )
     __debugbreak();
@@ -214,7 +213,7 @@ void CG_FireAnimStabilizer_OnNewSnapshot(const LocalClientNum_t localClientNum, 
     __debugbreak();
   if ( !nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_fireanimstabilizer_mp.cpp", 16, ASSERT_TYPE_ASSERT, "(nextSnap)", (const char *)&queryFormat, "nextSnap") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_fireanimstabilizer_mp.cpp", 17, ASSERT_TYPE_ASSERT, "(fireAnimStabilizerState)", (const char *)&queryFormat, "fireAnimStabilizerState") )
+  if ( !fireAnimStabilizerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_fireanimstabilizer_mp.cpp", 17, ASSERT_TYPE_ASSERT, "(fireAnimStabilizerState)", (const char *)&queryFormat, "fireAnimStabilizerState") )
     __debugbreak();
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v6);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_fireanimstabilizer_mp.cpp", 20, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
@@ -231,67 +230,57 @@ void CG_FireAnimStabilizer_OnNewSnapshot(const LocalClientNum_t localClientNum, 
     __debugbreak();
   weaponMap = (BgWeaponMap *)*v12;
   r_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(*v12, v10);
-  _RBP = r_weapon;
-  v33 = BG_UsingAlternate(v10);
-  v32 = BG_PlayerDualWieldingWeapon(weaponMap, v10, r_weapon) == 1;
-  WeaponFireType = BG_GetWeaponFireType(r_weapon, v33);
-  _RDI->lastPrevSnapTime = prevSnap->serverTime;
-  _RDI->lastNextSnapTime = nextSnap->serverTime;
-  _RDI->lastClientNum = v10->clientNum;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rdi+34h], ymm0
-    vmovups xmm1, xmmword ptr [rbp+20h]
-    vmovups xmmword ptr [rdi+54h], xmm1
-    vmovsd  xmm0, qword ptr [rbp+30h]
-    vmovsd  qword ptr [rdi+64h], xmm0
-  }
-  *(_DWORD *)&_RDI->lastWeapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
-  _RDI->lastWasAlternate = v33;
+  v29 = BG_UsingAlternate(v10);
+  v28 = BG_PlayerDualWieldingWeapon(weaponMap, v10, r_weapon) == 1;
+  WeaponFireType = BG_GetWeaponFireType(r_weapon, v29);
+  fireAnimStabilizerState->lastPrevSnapTime = prevSnap->serverTime;
+  fireAnimStabilizerState->lastNextSnapTime = nextSnap->serverTime;
+  fireAnimStabilizerState->lastClientNum = v10->clientNum;
+  fireAnimStabilizerState->lastWeapon = *r_weapon;
+  fireAnimStabilizerState->lastWasAlternate = v29;
   if ( (WeaponFireType & 0xFFFFFFFD) != 0 )
   {
-    *(_QWORD *)&_RDI->handStates[0].lastFireAnimTime = 0i64;
-    *(_QWORD *)&_RDI->handStates[0].lastWeaponAnim = 0i64;
-    *(_QWORD *)&_RDI->handStates[0].wasFiring = 0i64;
-    *(_QWORD *)&_RDI->handStates[1].lastFireAnimExtraTimeSpent = 0i64;
-    *(_QWORD *)&_RDI->handStates[1].numFireAnimsPlayed = 0i64;
+    *(_QWORD *)&fireAnimStabilizerState->handStates[0].lastFireAnimTime = 0i64;
+    *(_QWORD *)&fireAnimStabilizerState->handStates[0].lastWeaponAnim = 0i64;
+    *(_QWORD *)&fireAnimStabilizerState->handStates[0].wasFiring = 0i64;
+    *(_QWORD *)&fireAnimStabilizerState->handStates[1].lastFireAnimExtraTimeSpent = 0i64;
+    *(_QWORD *)&fireAnimStabilizerState->handStates[1].numFireAnimsPlayed = 0i64;
   }
   else
   {
-    v18 = weaponMap;
-    p_lastFireAnimExtraTimeSpent = &_RDI->handStates[0].lastFireAnimExtraTimeSpent;
-    handStates = _RDI->handStates;
+    v14 = weaponMap;
+    p_lastFireAnimExtraTimeSpent = &fireAnimStabilizerState->handStates[0].lastFireAnimExtraTimeSpent;
+    handStates = fireAnimStabilizerState->handStates;
     p_weaponState = &v9->weapState[0].weaponState;
-    v22 = 0;
-    v23 = (char *)v10 - (char *)v9;
-    v24 = ignorePrevState;
+    v18 = 0;
+    v19 = (char *)v10 - (char *)v9;
+    v20 = ignorePrevState;
     do
     {
-      if ( v22 <= BG_PlayerLastWeaponHand(v18, v10) && *(int *)((char *)p_weaponState + v23) == 16 )
+      if ( v18 <= BG_PlayerLastWeaponHand(v14, v10) && *(int *)((char *)p_weaponState + v19) == 16 )
       {
         *((_BYTE *)p_lastFireAnimExtraTimeSpent + 13) = 1;
-        if ( *p_weaponState != 16 || v24 )
+        if ( *p_weaponState != 16 || v20 )
         {
           *(p_lastFireAnimExtraTimeSpent - 1) = LocalClientGlobals->time;
-          p_lastFireAnimExtraTimeSpent[1] = *(int *)((char *)p_weaponState + v23 - 32);
+          p_lastFireAnimExtraTimeSpent[1] = *(int *)((char *)p_weaponState + v19 - 32);
           p_lastFireAnimExtraTimeSpent[2] = 1;
-          BG_GetFireTime(v18, v10, r_weapon, v33, v32, *(int *)((char *)p_weaponState + v23 + 16), &fireTime, &fireDelay);
-          v25 = 0;
-          if ( fireDelay + fireTime - *(int *)((char *)p_weaponState + v23 - 16) > 0 )
-            v25 = fireDelay + fireTime - *(int *)((char *)p_weaponState + v23 - 16);
-          *p_lastFireAnimExtraTimeSpent = v25;
-          v26 = DCONST_DVARBOOL_cg_debugFireAnimStabilizer;
+          BG_GetFireTime(v14, v10, r_weapon, v29, v28, *(int *)((char *)p_weaponState + v19 + 16), &fireTime, &fireDelay);
+          v21 = 0;
+          if ( fireDelay + fireTime - *(int *)((char *)p_weaponState + v19 - 16) > 0 )
+            v21 = fireDelay + fireTime - *(int *)((char *)p_weaponState + v19 - 16);
+          *p_lastFireAnimExtraTimeSpent = v21;
+          v22 = DCONST_DVARBOOL_cg_debugFireAnimStabilizer;
           if ( !DCONST_DVARBOOL_cg_debugFireAnimStabilizer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugFireAnimStabilizer") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v26);
-          if ( v26->current.enabled )
+          Dvar_CheckFrontendServerThread(v22);
+          if ( v22->current.enabled )
           {
             LODWORD(shotCount) = *p_lastFireAnimExtraTimeSpent;
             LODWORD(fmt) = p_lastFireAnimExtraTimeSpent[1];
-            Com_Printf(17, "Started firing weapon Time: %d Shot count: %d Anim: %d Time wasted: %d\n", (unsigned int)*(p_lastFireAnimExtraTimeSpent - 1), *(unsigned int *)((char *)p_weaponState + v23 + 16), fmt, shotCount);
+            Com_Printf(17, "Started firing weapon Time: %d Shot count: %d Anim: %d Time wasted: %d\n", (unsigned int)*(p_lastFireAnimExtraTimeSpent - 1), *(unsigned int *)((char *)p_weaponState + v19 + 16), fmt, shotCount);
           }
-          v18 = weaponMap;
+          v14 = weaponMap;
         }
       }
       else
@@ -300,12 +289,12 @@ void CG_FireAnimStabilizer_OnNewSnapshot(const LocalClientNum_t localClientNum, 
         *(_QWORD *)&handStates->lastWeaponAnim = 0i64;
         *(_DWORD *)&handStates->wasFiring = 0;
       }
-      ++v22;
+      ++v18;
       ++handStates;
       p_weaponState += 20;
       p_lastFireAnimExtraTimeSpent += 5;
     }
-    while ( v22 < 2 );
+    while ( v18 < 2 );
   }
 }
 

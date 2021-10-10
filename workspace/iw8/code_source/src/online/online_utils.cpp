@@ -160,14 +160,13 @@ __int64 Online_Backoff::GetTimeRemaining(Online_Backoff *this, const int ms)
 Online_Backoff::Init
 ==============
 */
-
-void __fastcall Online_Backoff::Init(Online_Backoff *this, int failureDelay, int maxAttempts, double factor, bool stopAtMax, int successDelay)
+void Online_Backoff::Init(Online_Backoff *this, int failureDelay, int maxAttempts, float factor, bool stopAtMax, int successDelay)
 {
   this->m_stopAtMax = stopAtMax;
   this->m_successDelay = successDelay;
   *(_QWORD *)&this->m_lastAttempt = 0i64;
   this->m_currDelay = 0;
-  __asm { vmovss  dword ptr [rcx+0Ch], xmm3 }
+  this->m_factor = factor;
   this->m_failureDelay = failureDelay;
   this->m_maxRetries = maxAttempts;
 }
@@ -195,16 +194,7 @@ void Online_Backoff::ReportFailure(Online_Backoff *this, const int ms)
   if ( m_currRetry )
   {
     if ( m_currRetry < this->m_maxRetries )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rcx+1Ch]
-        vmulss  xmm0, xmm0, dword ptr [rcx+0Ch]
-        vcvttss2si eax, xmm0
-      }
-      this->m_currDelay = _EAX;
-    }
+      this->m_currDelay = (int)(float)((float)this->m_currDelay * this->m_factor);
     this->m_lastAttempt = ms;
     this->m_currRetry = m_currRetry + 1;
   }

@@ -58,28 +58,28 @@ char CL_ScreenMP_DrawGameScene(bool *outFrameToggled)
   bool *isActive; 
   _BYTE *frontEndSceneState; 
   int v10; 
-  LocalClientNum_t v12; 
+  LocalClientNum_t v11; 
   clientMigState_t *p_migrationState; 
-  clientMigState_t *v14; 
-  float v15; 
-  LocalClientNum_t v16; 
+  clientMigState_t *v13; 
+  float v14; 
+  LocalClientNum_t v15; 
+  bool v16; 
   bool v17; 
-  bool v18; 
   ClActiveClientMP *ClientMP; 
   bool IsPlayingServer; 
-  char v22; 
+  char v21; 
   __int64 renderScreen; 
   __int64 drawType; 
+  __int64 v24; 
   __int64 v25; 
-  __int64 v26; 
-  char v28; 
+  char v27; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_scrn_mp.cpp", 379, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( !outFrameToggled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_scrn_mp.cpp", 380, ASSERT_TYPE_ASSERT, "(outFrameToggled)", (const char *)&queryFormat, "outFrameToggled") )
     __debugbreak();
   v2 = 0;
-  v28 = 0;
+  v27 = 0;
   v3 = 3;
   CgSoundSystemMP::ClearSoundPlaybackTracking();
   v4 = 0;
@@ -91,57 +91,57 @@ char CL_ScreenMP_DrawGameScene(bool *outFrameToggled)
   {
 LABEL_51:
     R_SetupGlobalRenderingFeatures(v6, v4 > 0);
-    v12 = LOCAL_CLIENT_0;
+    v11 = LOCAL_CLIENT_0;
     p_migrationState = &clientUIActives[0].migrationState;
     if ( SLODWORD(cl_maxLocalClients) > 0 )
     {
-      v14 = &clientUIActives[0].migrationState;
+      v13 = &clientUIActives[0].migrationState;
       do
       {
-        if ( CL_IsLocalClientConnectionActiveForAnyServer(v12) )
+        if ( CL_IsLocalClientConnectionActiveForAnyServer(v11) )
         {
-          if ( (unsigned int)v12 >= LOCAL_CLIENT_COUNT )
+          if ( (unsigned int)v11 >= LOCAL_CLIENT_COUNT )
           {
             LODWORD(drawType) = 2;
-            LODWORD(renderScreen) = v12;
+            LODWORD(renderScreen) = v11;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", renderScreen, drawType) )
               __debugbreak();
           }
-          if ( *v14 != CMSTATE_LIMBO )
+          if ( *v13 != CMSTATE_LIMBO )
           {
-            CG_PlayerState_RestorePredictedPlayerState(v12);
-            CG_PredictMP_SavePlayerState(v12);
+            CG_PlayerState_RestorePredictedPlayerState(v11);
+            CG_PredictMP_SavePlayerState(v11);
           }
         }
-        ++v12;
-        v14 += 110;
+        ++v11;
+        v13 += 110;
       }
-      while ( v12 < SLODWORD(cl_maxLocalClients) );
+      while ( v11 < SLODWORD(cl_maxLocalClients) );
       v2 = 0;
     }
     Physics_WaitForAllCommandsToFinish();
-    v15 = cl_maxLocalClients;
-    v16 = LOCAL_CLIENT_0;
+    v14 = cl_maxLocalClients;
+    v15 = LOCAL_CLIENT_0;
     if ( SLODWORD(cl_maxLocalClients) <= 0 )
       return v2;
-    v17 = LODWORD(cl_maxLocalClients) != 0;
+    v16 = LODWORD(cl_maxLocalClients) != 0;
     while ( 1 )
     {
-      if ( !v17 )
+      if ( !v16 )
       {
-        *(float *)&drawType = v15;
-        LODWORD(renderScreen) = v16;
+        *(float *)&drawType = v14;
+        LODWORD(renderScreen) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 352, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", renderScreen, drawType) )
           __debugbreak();
-        v15 = cl_maxLocalClients;
+        v14 = cl_maxLocalClients;
       }
-      if ( v15 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 336, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
+      if ( v14 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 336, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
         __debugbreak();
       if ( cls.m_localClientsActive.activeCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 353, ASSERT_TYPE_ASSERT, "(GetGameLocalClientActiveCount() > 0)", "%s\n\tClient active data has not been setup", "GetGameLocalClientActiveCount() > 0") )
         __debugbreak();
       if ( cls.m_localClientsActive.firstActiveIndex == LOCAL_CLIENT_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 354, ASSERT_TYPE_ASSERT, "(m_localClientsActive.firstActiveIndex != LOCAL_CLIENT_INVALID)", "%s\n\tClient active data has not been setup", "m_localClientsActive.firstActiveIndex != LOCAL_CLIENT_INVALID") )
         __debugbreak();
-      v18 = v16 == cls.m_localClientsActive.firstActiveIndex;
+      v17 = v15 == cls.m_localClientsActive.firstActiveIndex;
       if ( ++v7 == v6 )
       {
         if ( v3 != 3 )
@@ -151,57 +151,57 @@ LABEL_51:
       {
         v3 = v7 == 1;
       }
-      CG_UpdateSSR(v16);
-      CG_BlurScene_EnableCheck(v16);
-      if ( !CL_IsLocalClientConnectionActiveForAnyServer(v16) )
+      CG_UpdateSSR(v15);
+      CG_BlurScene_EnableCheck(v15);
+      if ( !CL_IsLocalClientConnectionActiveForAnyServer(v15) )
         goto LABEL_93;
-      if ( (unsigned int)v16 >= LOCAL_CLIENT_COUNT )
+      if ( (unsigned int)v15 >= LOCAL_CLIENT_COUNT )
       {
         LODWORD(drawType) = 2;
-        LODWORD(renderScreen) = v16;
+        LODWORD(renderScreen) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", renderScreen, drawType) )
           __debugbreak();
       }
       if ( *p_migrationState == CMSTATE_LIMBO )
         goto LABEL_93;
-      ClientMP = ClActiveClientMP::GetClientMP(v16);
-      IsPlayingServer = CL_Demo_IsPlayingServer(v16);
-      if ( !CG_ViewMP_DrawActiveFrame(v16, ClientMP->serverTime, IsPlayingServer ? HALF_HALF : NONE, CUBEMAPSHOT_NONE, 0, 1, v3) )
+      ClientMP = ClActiveClientMP::GetClientMP(v15);
+      IsPlayingServer = CL_Demo_IsPlayingServer(v15);
+      if ( !CG_ViewMP_DrawActiveFrame(v15, ClientMP->serverTime, IsPlayingServer ? HALF_HALF : NONE, CUBEMAPSHOT_NONE, 0, 1, v3) )
         break;
-      UI_UpdateTime(v16, cls.realtime);
+      UI_UpdateTime(v15, cls.realtime);
       R_AddCmdEndOfList();
       v2 = 1;
-      if ( v18 )
+      if ( v17 )
       {
-        v22 = 1;
-        v28 = 1;
+        v21 = 1;
+        v27 = 1;
         goto LABEL_95;
       }
 LABEL_94:
-      v22 = v28;
+      v21 = v27;
 LABEL_95:
       if ( v7 != v6 )
         R_IssueRenderCommandsEnd();
-      ++v16;
+      ++v15;
       p_migrationState += 110;
       *outFrameToggled = 1;
-      v15 = cl_maxLocalClients;
-      v17 = (unsigned int)v16 < LODWORD(cl_maxLocalClients);
-      if ( v16 >= SLODWORD(cl_maxLocalClients) )
+      v14 = cl_maxLocalClients;
+      v16 = (unsigned int)v15 < LODWORD(cl_maxLocalClients);
+      if ( v15 >= SLODWORD(cl_maxLocalClients) )
       {
-        if ( v2 && !v22 && !SND_ExistsPendingRestore() )
+        if ( v2 && !v21 && !SND_ExistsPendingRestore() )
           CL_Main_UpdateSound(0);
         return v2;
       }
     }
-    if ( CL_IsLocalClientConnectionActiveForAnyServer(v16) )
-      CL_InputMP_CreateNewCommands_0(v16);
-    CL_InputMP_SavePredictedData(v16);
-    if ( CL_InputMP_ReadyToSendPacket(v16) && (!Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_ON|WEAPON_FIRING|0x80) || !Com_MP_GetIsLocalServerPaused()) )
-      CL_InputMP_WritePacket(v16);
+    if ( CL_IsLocalClientConnectionActiveForAnyServer(v15) )
+      CL_InputMP_CreateNewCommands_0(v15);
+    CL_InputMP_SavePredictedData(v15);
+    if ( CL_InputMP_ReadyToSendPacket(v15) && (!Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_ON|WEAPON_FIRING|0x80) || !Com_MP_GetIsLocalServerPaused()) )
+      CL_InputMP_WritePacket(v15);
 LABEL_93:
     R_ResetGlobalViews();
-    R_ToggleSmpFrame(v16);
+    R_ToggleSmpFrame(v15);
     R_IssueRenderCommandsBegin(v3);
     goto LABEL_94;
   }
@@ -270,17 +270,14 @@ LABEL_93:
         }
         if ( v4 != v6 )
         {
-          LODWORD(v26) = v6;
-          LODWORD(v25) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_scrn_mp.cpp", 426, ASSERT_TYPE_ASSERT, "( frontendActiveCount ) == ( connectionActiveCount )", "%s == %s\n\t%i, %i", "frontendActiveCount", "connectionActiveCount", v25, v26) )
+          LODWORD(v25) = v6;
+          LODWORD(v24) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_scrn_mp.cpp", 426, ASSERT_TYPE_ASSERT, "( frontendActiveCount ) == ( connectionActiveCount )", "%s == %s\n\t%i, %i", "frontendActiveCount", "connectionActiveCount", v24, v25) )
             __debugbreak();
         }
       }
       if ( v6 > 1 )
-      {
-        __asm { vmovss  xmm0, cs:__real@40000000; invViewScale }
-        R_SetInvViewScale(*(float *)&_XMM0);
-      }
+        R_SetInvViewScale(2.0);
       goto LABEL_51;
     }
   }

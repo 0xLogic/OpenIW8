@@ -564,44 +564,26 @@ AIActorInterface::GetMotionAngles
 void AIActorInterface::GetMotionAngles(AIActorInterface *this, vec3_t *angles)
 {
   actor_s *m_pAI; 
+  double v5; 
+  float v6; 
+  double v7; 
+  actor_s *v8; 
+  float v9; 
 
-  _RDI = angles;
   m_pAI = this->m_pAI;
   if ( m_pAI->Physics.bHasGroundPlane )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    *(double *)&_XMM0 = vectoyaw((const vec2_t *)&m_pAI->Physics.vWishDelta);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = vectopitch(&this->m_pAI->Physics.vWishDelta);
-    __asm
-    {
-      vsubss  xmm0, xmm0, dword ptr [rax+134h]
-      vsubss  xmm1, xmm6, dword ptr [rax+138h]
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vmulss  xmm7, xmm1, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm2, xmm6, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vaddss  xmm2, xmm7, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm6, xmm0, 1
-      vmovaps xmm6, [rsp+48h+var_18]
-      vsubss  xmm1, xmm7, xmm3
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovss  dword ptr [rdi+4], xmm0
-    }
-    _RDI->v[2] = 0.0;
+    v5 = vectoyaw((const vec2_t *)&m_pAI->Physics.vWishDelta);
+    v6 = *(float *)&v5;
+    v7 = vectopitch(&this->m_pAI->Physics.vWishDelta);
+    v8 = this->m_pAI;
+    v9 = v6 - v8->orientation.vDesiredAngles.v[1];
+    _XMM6 = 0i64;
+    __asm { vroundss xmm2, xmm6, xmm1, 1 }
+    angles->v[0] = (float)((float)((float)(*(float *)&v7 - v8->orientation.vDesiredAngles.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    __asm { vroundss xmm3, xmm6, xmm0, 1 }
+    angles->v[1] = (float)((float)(v9 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    angles->v[2] = 0.0;
   }
   else
   {
@@ -748,12 +730,11 @@ void AIActorInterface::SetAnim(AIActorInterface *this, const Animset *pAnimset, 
   const char *v9; 
   DObj *ServerDObjForEnt; 
   XAnimTree *EntAnimTree; 
-  float fmt; 
   XAnimSubTreeID *pOutAnimSubtreeID; 
   unsigned int pOutAnimIndex; 
   unsigned int pOutGraftNode; 
   XAnimCurveID pOutAnimCurveID; 
-  XAnimSubTreeID v18; 
+  XAnimSubTreeID v16; 
 
   v6 = stateIndex;
   Sys_ProfBeginNamedEvent(0xFF808080, "AISetAnim");
@@ -778,13 +759,8 @@ void AIActorInterface::SetAnim(AIActorInterface *this, const Animset *pAnimset, 
   ServerDObjForEnt = Com_GetServerDObjForEnt(this->m_pAI->ent);
   EntAnimTree = G_Utils_GetEntAnimTree(this->m_pAI->ent);
   BG_AnimationState_Update((const entityState_t *)this->m_pAI->ent, &this->m_pAI->charAnimState, ServerDObjForEnt->tree, NULL, 0);
-  BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, v6, entryIndex, &pOutAnimIndex, &pOutGraftNode, &v18, &pOutAnimCurveID);
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+rate]
-    vmovss  dword ptr [rsp+88h+fmt], xmm0
-  }
-  XAnimSetAnimRate(EntAnimTree, pOutGraftNode, v18, pOutAnimIndex, fmt);
+  BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, v6, entryIndex, &pOutAnimIndex, &pOutGraftNode, &v16, &pOutAnimCurveID);
+  XAnimSetAnimRate(EntAnimTree, pOutGraftNode, v16, pOutAnimIndex, rate);
   G_FlagAnimForUpdate(this->m_pAI->ent);
   AIScriptedInterface::UpdateLookAtForNewAnim(this, pAnimset, v6, entryIndex);
   Sys_ProfEndNamedEvent();
@@ -961,26 +937,15 @@ void AIActorInterface::UpdateClientOnlyAnimGameParams(AIActorInterface *this)
 {
   DObj *ServerDObjForEnt; 
   DObj *v3; 
+  actor_s *m_pAI; 
   GWeaponMap *Instance; 
 
   ServerDObjForEnt = Com_GetServerDObjForEnt(this->m_pAI->ent);
   v3 = ServerDObjForEnt;
   if ( ServerDObjForEnt )
   {
-    _RDX = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+838h]
-      vmovss  xmm2, dword ptr [rdx+83Ch]
-      vmovss  xmm3, dword ptr [rdx+840h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm2, xmm2, xmm2; value
-    }
-    XAnimSetFloatGameParameterByIndex(ServerDObjForEnt, 0x1Eu, *(float *)&_XMM2);
+    m_pAI = this->m_pAI;
+    XAnimSetFloatGameParameterByIndex(ServerDObjForEnt, 0x1Eu, fsqrt((float)((float)(m_pAI->Physics.vVelocity.v[0] * m_pAI->Physics.vVelocity.v[0]) + (float)(m_pAI->Physics.vVelocity.v[1] * m_pAI->Physics.vVelocity.v[1])) + (float)(m_pAI->Physics.vVelocity.v[2] * m_pAI->Physics.vVelocity.v[2])));
     XAnimSetByteGameParameterByName(v3, scr_const.facialindex, this->m_pAI->animData.facialIndex);
     Instance = GWeaponMap::GetInstance();
     BG_AIAnim_UpdateFingerPoses(Instance, v3, (const entityState_t *const)this->m_pAI->ent);

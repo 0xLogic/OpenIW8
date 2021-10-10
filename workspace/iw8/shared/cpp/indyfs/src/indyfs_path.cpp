@@ -119,187 +119,183 @@ indyfs_path_clean
 */
 char *indyfs_path_clean(const char *path, char *resolved)
 {
-  unsigned __int64 v6; 
-  const char *v7; 
-  char v8; 
-  char *v9; 
-  const char *v10; 
-  __int64 v11; 
-  char v12; 
-  unsigned __int64 v14; 
-  bool v16; 
-  unsigned __int64 v17; 
-  char v18; 
-  size_t v19; 
-  size_t v20; 
-  unsigned __int64 v21; 
+  unsigned __int64 v4; 
+  const char *v5; 
+  char v6; 
+  char *v7; 
+  const char *v8; 
+  __int64 v9; 
+  char v10; 
+  unsigned __int64 v12; 
+  bool v14; 
+  unsigned __int64 v15; 
+  char v16; 
+  size_t v17; 
+  size_t v18; 
+  unsigned __int64 v19; 
+  char v20; 
+  char v21; 
   char v22; 
   char v23; 
   char v24; 
-  char v25; 
-  char v26; 
-  unsigned __int64 v27; 
-  char v40; 
+  unsigned __int64 v25; 
+  char *v28; 
+  char v36; 
   char dest[2]; 
 
-  v6 = indyfs_path_volumename_len(path);
-  v7 = &path[v6];
-  v8 = path[v6];
-  if ( !v8 )
+  v4 = indyfs_path_volumename_len(path);
+  v5 = &path[v4];
+  v6 = path[v4];
+  if ( !v6 )
   {
-    v9 = resolved;
-    v10 = path;
-    v11 = 259i64;
+    v7 = resolved;
+    v8 = path;
+    v9 = 259i64;
     while ( 1 )
     {
-      v12 = *v10;
-      if ( *v10 == 92 )
-        v12 = 47;
-      *v9 = v12;
-      if ( !*v10 )
+      v10 = *v8;
+      if ( *v8 == 92 )
+        v10 = 47;
+      *v7 = v10;
+      if ( !*v8 )
         break;
-      ++v10;
-      ++v9;
-      if ( !--v11 )
+      ++v8;
+      ++v7;
+      if ( !--v9 )
       {
-        *v9 = 0;
-        while ( *v10++ )
+        *v7 = 0;
+        while ( *v8++ )
           ;
         break;
       }
     }
-    v14 = v10 - path;
-    if ( v14 < 0x104 )
+    v12 = v8 - path;
+    if ( v12 < 0x104 )
     {
-      if ( v6 > 1 && path[1] != 58 )
+      if ( v4 > 1 && path[1] != 58 )
         return resolved;
-      if ( v14 + 1 < 0x104 )
+      if ( v12 + 1 < 0x104 )
       {
-        *(_WORD *)&resolved[v14] = 46;
+        *(_WORD *)&resolved[v12] = 46;
         return resolved;
       }
     }
-    goto LABEL_75;
+    goto LABEL_74;
   }
-  v16 = v8 == 47 || v8 == 92;
-  v17 = -1i64;
+  v14 = v6 == 47 || v6 == 92;
+  v15 = -1i64;
   do
-    ++v17;
-  while ( v7[v17] );
-  if ( indyfs_strlcpy(dest, v7, 0x104ui64) >= 0x104 )
-    goto LABEL_75;
-  v18 = dest[0];
-  v19 = v16;
-  if ( v16 )
-    v18 = 47;
-  v20 = v16;
-  dest[0] = v18;
-  if ( v16 < v17 )
+    ++v15;
+  while ( v5[v15] );
+  if ( indyfs_strlcpy(dest, v5, 0x104ui64) >= 0x104 )
+    goto LABEL_74;
+  v16 = dest[0];
+  v17 = v14;
+  if ( v14 )
+    v16 = 47;
+  v18 = v14;
+  dest[0] = v16;
+  if ( v14 < v15 )
   {
-    v21 = v16;
+    v19 = v14;
     do
     {
-      v22 = v7[v21];
-      if ( v22 == 47 || v22 == 92 )
+      v20 = v5[v19];
+      if ( v20 == 47 || v20 == 92 )
       {
-        ++v21;
+        ++v19;
       }
       else
       {
-        if ( v22 != 46 )
+        if ( v20 != 46 )
           goto LABEL_48;
-        if ( v21 + 1 == v17 || (v23 = v7[v21 + 1], v23 == 47) || v23 == 92 )
+        if ( v19 + 1 == v15 || (v21 = v5[v19 + 1], v21 == 47) || v21 == 92 )
         {
-          ++v21;
+          ++v19;
         }
         else
         {
-          if ( v23 != 46 || v21 + 2 != v17 && (v24 = v7[v21 + 2], v24 != 47) && v24 != 92 )
+          if ( v21 != 46 || v19 + 2 != v15 && (v22 = v5[v19 + 2], v22 != 47) && v22 != 92 )
           {
 LABEL_48:
-            if ( v16 )
+            if ( v14 )
             {
-              if ( v20 == 1 )
+              if ( v18 == 1 )
                 goto LABEL_53;
 LABEL_52:
-              dest[v20++] = 47;
+              dest[v18++] = 47;
             }
-            else if ( v20 )
+            else if ( v18 )
             {
               goto LABEL_52;
             }
 LABEL_53:
-            if ( v21 >= v17 )
+            if ( v19 >= v15 )
               break;
             while ( 1 )
             {
-              v26 = v7[v21];
-              if ( v26 == 47 || v26 == 92 )
+              v24 = v5[v19];
+              if ( v24 == 47 || v24 == 92 )
                 goto LABEL_59;
-              dest[v20] = v26;
-              ++v21;
-              ++v20;
-              if ( v21 >= v17 )
+              dest[v18] = v24;
+              ++v19;
+              ++v18;
+              if ( v19 >= v15 )
                 goto LABEL_60;
             }
           }
-          v21 += 2i64;
-          if ( v20 <= v19 )
+          v19 += 2i64;
+          if ( v18 <= v17 )
           {
-            if ( !v16 )
+            if ( !v14 )
             {
-              if ( v20 )
-                dest[v20++] = 47;
-              *(_WORD *)&dest[v20] = 11822;
-              v20 += 2i64;
-              v19 = v20;
+              if ( v18 )
+                dest[v18++] = 47;
+              *(_WORD *)&dest[v18] = 11822;
+              v18 += 2i64;
+              v17 = v18;
             }
           }
-          else if ( --v20 > v19 )
+          else if ( --v18 > v17 )
           {
             do
             {
-              v25 = dest[v20];
-              if ( v25 == 47 )
+              v23 = dest[v18];
+              if ( v23 == 47 )
                 break;
-              if ( v25 == 92 )
+              if ( v23 == 92 )
                 break;
-              --v20;
+              --v18;
             }
-            while ( v20 > v19 );
+            while ( v18 > v17 );
           }
         }
       }
 LABEL_59:
       ;
     }
-    while ( v21 < v17 );
+    while ( v19 < v15 );
   }
 LABEL_60:
-  if ( !v20 )
+  if ( !v18 )
   {
     dest[0] = 46;
-    v20 = 1i64;
+    v18 = 1i64;
   }
-  if ( v20 + v6 >= 0x104 )
+  if ( v18 + v4 >= 0x104 )
   {
-LABEL_75:
+LABEL_74:
     indyfs_log_message(Error, "indyfs_path_clean - Input path is too long - %s", path);
     return 0i64;
   }
-  v27 = 0i64;
-  if ( v6 )
+  v25 = 0i64;
+  if ( v4 )
   {
-    if ( v6 >= 0x10 && (resolved > &path[v6 - 1] || &resolved[v6 - 1] < path) )
+    if ( v4 >= 0x10 && (resolved > &path[v4 - 1] || &resolved[v4 - 1] < path) )
     {
-      __asm
-      {
-        vmovaps [rsp+188h+var_38], xmm6
-        vmovaps [rsp+188h+var_48], xmm7
-        vmovdqu xmm6, cs:__xmm@5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c
-        vmovdqu xmm7, cs:__xmm@2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f
-      }
-      _RAX = resolved;
+      _XMM6 = _xmm;
+      _XMM7 = _xmm;
+      v28 = resolved;
       do
       {
         __asm
@@ -312,27 +308,22 @@ LABEL_75:
           vpand   xmm3, xmm2, xmm4
           vpor    xmm1, xmm3, xmm0
         }
-        v27 += 16i64;
-        __asm { vmovdqu xmmword ptr [rax], xmm1 }
-        _RAX += 16;
+        v25 += 16i64;
+        *(_OWORD *)v28 = _XMM1;
+        v28 += 16;
       }
-      while ( v27 < (v6 & 0xFFFFFFFFFFFFFFF0ui64) );
-      __asm
-      {
-        vmovaps xmm7, [rsp+188h+var_48]
-        vmovaps xmm6, [rsp+188h+var_38]
-      }
+      while ( v25 < (v4 & 0xFFFFFFFFFFFFFFF0ui64) );
     }
-    for ( ; v27 < v6; ++v27 )
+    for ( ; v25 < v4; ++v25 )
     {
-      v40 = path[v27];
-      if ( v40 == 92 )
-        v40 = 47;
-      resolved[v27] = v40;
+      v36 = path[v25];
+      if ( v36 == 92 )
+        v36 = 47;
+      resolved[v25] = v36;
     }
   }
-  memcpy_0(&resolved[v6], dest, v20);
-  resolved[v20 + v6] = 0;
+  memcpy_0(&resolved[v4], dest, v18);
+  resolved[v18 + v4] = 0;
   return resolved;
 }
 
@@ -384,64 +375,56 @@ indyfs_path_parent
 */
 char *indyfs_path_parent(const char *path, char *parent)
 {
-  __int64 v6; 
-  __int64 v7; 
+  __int64 v4; 
+  __int64 v5; 
   __int64 i; 
-  char v9; 
-  size_t v10; 
+  char v7; 
+  size_t v8; 
+  __int64 v9; 
   __int64 v11; 
-  char *result; 
-  __int64 v13; 
-  char v24; 
-  __int64 v27; 
-  char v38; 
+  char *v13; 
+  char v21; 
+  __int64 v22; 
+  char *v24; 
+  char v32; 
   char resolved[272]; 
   char patha[272]; 
 
-  v6 = indyfs_path_volumename_len(path);
-  v7 = -1i64;
+  v4 = indyfs_path_volumename_len(path);
+  v5 = -1i64;
   do
-    ++v7;
-  while ( path[v7] );
-  for ( i = v7 - 1; i >= v6; --i )
+    ++v5;
+  while ( path[v5] );
+  for ( i = v5 - 1; i >= v4; --i )
   {
-    v9 = path[i];
-    if ( v9 == 47 )
+    v7 = path[i];
+    if ( v7 == 47 )
       break;
-    if ( v9 == 92 )
+    if ( v7 == 92 )
       break;
   }
-  v10 = i - v6 + 1;
-  memcpy_0(patha, &path[v6], v10);
-  if ( v10 >= 0x104 )
+  v8 = i - v4 + 1;
+  memcpy_0(patha, &path[v4], v8);
+  if ( v8 >= 0x104 )
   {
-    j___report_rangecheckfailure(v11);
+    j___report_rangecheckfailure(v9);
     JUMPOUT(0x143886378i64);
   }
-  patha[v10] = 0;
+  patha[v8] = 0;
   if ( !indyfs_path_clean(patha, resolved) )
   {
     indyfs_log_message(Error, "indyfs_path_parent - Failed to clean parent of path - %s", path);
     return 0i64;
   }
-  __asm
+  if ( resolved[0] != 46 || resolved[1] || v4 <= 2 )
   {
-    vmovaps [rsp+288h+var_28], xmm6
-    vmovaps [rsp+288h+var_38], xmm7
-  }
-  if ( resolved[0] != 46 || resolved[1] || v6 <= 2 )
-  {
-    v27 = 0i64;
-    if ( v6 > 0 )
+    v22 = 0i64;
+    if ( v4 > 0 )
     {
-      if ( (unsigned __int64)v6 >= 0x10 && (parent > &path[v6 - 1] || &parent[v6 - 1] < path) )
+      if ( (unsigned __int64)v4 >= 0x10 && (parent > &path[v4 - 1] || &parent[v4 - 1] < path) )
       {
-        __asm
-        {
-          vmovdqu xmm6, cs:__xmm@5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c
-          vmovdqu xmm7, cs:__xmm@2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f
-        }
-        _RAX = parent;
+        _XMM6 = _xmm;
+        v24 = parent;
         do
         {
           __asm
@@ -454,38 +437,33 @@ char *indyfs_path_parent(const char *path, char *parent)
             vpand   xmm3, xmm2, xmm4
             vpor    xmm1, xmm3, xmm0
           }
-          v27 += 16i64;
-          __asm { vmovdqu xmmword ptr [rax], xmm1 }
-          _RAX += 16;
+          v22 += 16i64;
+          *(_OWORD *)v24 = _XMM1;
+          v24 += 16;
         }
-        while ( v27 < v6 - v6 % 16 );
+        while ( v22 < v4 - v4 % 16 );
       }
-      for ( ; v27 < v6; ++v27 )
+      for ( ; v22 < v4; ++v22 )
       {
-        v38 = path[v27];
-        if ( v38 == 92 )
-          v38 = 47;
-        parent[v27] = v38;
+        v32 = path[v22];
+        if ( v32 == 92 )
+          v32 = 47;
+        parent[v22] = v32;
       }
     }
-    if ( indyfs_strlcpy(&parent[v6], resolved, 0x104ui64) >= 0x104 )
+    if ( indyfs_strlcpy(&parent[v4], resolved, 0x104ui64) >= 0x104 )
     {
       indyfs_log_message(Error, "indyfs_path_parent - Input path is too long - %s", path);
-      result = NULL;
-      goto LABEL_24;
+      return 0i64;
     }
   }
   else
   {
-    v13 = 0i64;
-    if ( (unsigned __int64)v6 >= 0x10 && (parent > &path[v6 - 1] || &parent[v6 - 1] < path) )
+    v11 = 0i64;
+    if ( (unsigned __int64)v4 >= 0x10 && (parent > &path[v4 - 1] || &parent[v4 - 1] < path) )
     {
-      __asm
-      {
-        vmovdqu xmm6, cs:__xmm@5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c
-        vmovdqu xmm7, cs:__xmm@2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f
-      }
-      _RAX = parent;
+      _XMM6 = _xmm;
+      v13 = parent;
       do
       {
         __asm
@@ -498,29 +476,22 @@ char *indyfs_path_parent(const char *path, char *parent)
           vpand   xmm3, xmm2, xmm4
           vpor    xmm1, xmm3, xmm0
         }
-        v13 += 16i64;
-        __asm { vmovdqu xmmword ptr [rax], xmm1 }
-        _RAX += 16;
+        v11 += 16i64;
+        *(_OWORD *)v13 = _XMM1;
+        v13 += 16;
       }
-      while ( v13 < v6 - v6 % 16 );
+      while ( v11 < v4 - v4 % 16 );
     }
-    for ( ; v13 < v6; ++v13 )
+    for ( ; v11 < v4; ++v11 )
     {
-      v24 = path[v13];
-      if ( v24 == 92 )
-        v24 = 47;
-      parent[v13] = v24;
+      v21 = path[v11];
+      if ( v21 == 92 )
+        v21 = 47;
+      parent[v11] = v21;
     }
-    parent[v6] = 0;
+    parent[v4] = 0;
   }
-  result = parent;
-LABEL_24:
-  __asm
-  {
-    vmovaps xmm6, [rsp+288h+var_28]
-    vmovaps xmm7, [rsp+288h+var_38]
-  }
-  return result;
+  return parent;
 }
 
 /*

@@ -102,17 +102,9 @@ bool __fastcall Online_Skill_RetrySubmit()
 Online_Skill_ConvertPerformanceToInt
 ==============
 */
-
-int __fastcall Online_Skill_ConvertPerformanceToInt(double performanceValue)
+__int64 Online_Skill_ConvertPerformanceToInt(const float performanceValue)
 {
-  int result; 
-
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)(performanceValue * 1000.0);
 }
 
 /*
@@ -120,21 +112,9 @@ int __fastcall Online_Skill_ConvertPerformanceToInt(double performanceValue)
 Online_Skill_GenerateRandomSkill
 ==============
 */
-
-int __fastcall Online_Skill_GenerateRandomSkill(double _XMM0_8)
+__int64 Online_Skill_GenerateRandomSkill()
 {
-  int result; 
-
-  rand();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3d7a01f4
-    vsubss  xmm2, xmm1, cs:__real@447a0000
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)((float)rand() * 0.061037019) - 1000.0);
 }
 
 /*
@@ -273,51 +253,41 @@ __int64 Online_Skill_RetrySubmit()
 Online_Skill_SetRankForXuid
 ==============
 */
-
-void __fastcall Online_Skill_SetRankForXuid(const XUID *xuid, double rank)
+void Online_Skill_SetRankForXuid(const XUID *xuid, const float rank)
 {
-  unsigned __int64 v5; 
-  signed int v6; 
+  unsigned __int64 v3; 
+  signed int v4; 
   _BYTE *bytes_20; 
-  __int64 v9; 
-  const char *v12; 
+  __int64 v6; 
+  const char *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = XUID::ToUint64((XUID *)xuid);
-  v6 = 0;
+  v3 = XUID::ToUint64((XUID *)xuid);
+  v4 = 0;
   if ( (int)s_performanceCount > 0 )
   {
     bytes_20 = s_performanceValues[0]._bytes_20;
     do
     {
-      if ( *(_QWORD *)bytes_20 == v5 )
+      if ( *(_QWORD *)bytes_20 == v3 )
         break;
-      ++v6;
+      ++v4;
       bytes_20 += 64;
     }
-    while ( v6 < (int)s_performanceCount );
+    while ( v4 < (int)s_performanceCount );
   }
-  if ( v6 != s_performanceCount )
+  if ( v4 != s_performanceCount )
     goto LABEL_8;
   if ( (int)s_performanceCount < 72 )
   {
     ++s_performanceCount;
 LABEL_8:
-    __asm { vmulss  xmm0, xmm6, cs:__real@447a0000 }
-    v9 = (__int64)v6 << 6;
-    *(_QWORD *)&s_performanceValues[0]._bytes_20[v9] = v5;
-    __asm { vcvttss2si eax, xmm0 }
-    *(_QWORD *)&s_performanceValues[0]._bytes_20[v9 + 8] = _EAX;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    v6 = (__int64)v4 << 6;
+    *(_QWORD *)&s_performanceValues[0]._bytes_20[v6] = v3;
+    *(_QWORD *)&s_performanceValues[0]._bytes_20[v6 + 8] = (int)(float)(rank * 1000.0);
     return;
   }
-  v12 = XUID::ToDevString((XUID *)xuid);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  Com_PrintError(25, "%s failed for %s because the cache is full\n", "Online_Skill_SetRankForXuid", v12);
+  v7 = XUID::ToDevString((XUID *)xuid);
+  Com_PrintError(25, "%s failed for %s because the cache is full\n", "Online_Skill_SetRankForXuid", v7);
 }
 
 /*

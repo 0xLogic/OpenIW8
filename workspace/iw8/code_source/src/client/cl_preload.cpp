@@ -521,17 +521,20 @@ void CL_PreloadSP_Process(void)
 CL_PreloadSP_ProcessYields
 ==============
 */
-
-void __fastcall CL_PreloadSP_ProcessYields(double _XMM0_8)
+void CL_PreloadSP_ProcessYields()
 {
-  unsigned int v2; 
-  int v3; 
-  const dvar_t *v4; 
-  int v5; 
+  __int128 v0; 
+  unsigned int v1; 
+  int v2; 
+  const dvar_t *v3; 
+  int v4; 
+  const dvar_t *v5; 
   const dvar_t *v6; 
-  const dvar_t *v7; 
-  char v10; 
+  double Quality_Image; 
+  float v8; 
+  double Float_Internal_DebugName; 
   DB_FastfileInfo zoneInfo; 
+  __int128 v11; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 308, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -545,11 +548,11 @@ void __fastcall CL_PreloadSP_ProcessYields(double _XMM0_8)
   {
     if ( !Sys_IsDatabaseReady() && !DB_AreFastfileLoadsCompleted() )
     {
-      v2 = Sys_Milliseconds();
-      if ( CL_PreloadSP_ShouldYieldToStreamer(v2) )
+      v1 = Sys_Milliseconds();
+      if ( CL_PreloadSP_ShouldYieldToStreamer(v1) )
       {
-        dword_150B02078 = v2;
-        Com_Printf(16, "CL_PRELOADSP: Yield for streamer starting at %d milliseconds\n", v2);
+        dword_150B02078 = v1;
+        Com_Printf(16, "CL_PRELOADSP: Yield for streamer starting at %d milliseconds\n", v1);
         if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 260, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
           __debugbreak();
         if ( !LOBYTE(s_callbackData_0[7][1][3].modifiedFlags) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 262, ASSERT_TYPE_ASSERT, "(CL_PreloadSP_HasActiveLoads())", (const char *)&queryFormat, "CL_PreloadSP_HasActiveLoads()") )
@@ -575,44 +578,39 @@ void __fastcall CL_PreloadSP_ProcessYields(double _XMM0_8)
   }
   if ( Sys_IsDatabaseReady() && DB_AreFastfileLoadsCompleted() )
   {
-    v3 = Sys_Milliseconds();
-    v4 = DVARBOOL_cl_preload_sp_yield_for_streamer;
-    v5 = v3;
+    v2 = Sys_Milliseconds();
+    v3 = DVARBOOL_cl_preload_sp_yield_for_streamer;
+    v4 = v2;
     if ( !DVARBOOL_cl_preload_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_preload_sp_yield_for_streamer") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v4);
-    if ( v4->current.enabled )
+    Dvar_CheckFrontendServerThread(v3);
+    if ( v3->current.enabled )
     {
-      v6 = DVARINT_cl_preload_sp_yield_timeout;
+      v5 = DVARINT_cl_preload_sp_yield_timeout;
       if ( !DVARINT_cl_preload_sp_yield_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_preload_sp_yield_timeout") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v6);
-      if ( v5 > dword_150B02078 + v6->current.integer )
+      Dvar_CheckFrontendServerThread(v5);
+      if ( v4 > dword_150B02078 + v5->current.integer )
       {
-        Com_Printf(16, "CL_PRELOADSP:  Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v5 - dword_150B02078));
+        Com_Printf(16, "CL_PRELOADSP:  Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v4 - dword_150B02078));
 LABEL_50:
-        dword_150B02074 = v5;
+        dword_150B02074 = v4;
         CL_PreloadSP_UnpauseForStreamer();
         return;
       }
       if ( !Stream_CanStreamMore() )
         goto LABEL_50;
-      v7 = DVARINT_cl_preload_sp_yield_minimum_time;
+      v6 = DVARINT_cl_preload_sp_yield_minimum_time;
       if ( !DVARINT_cl_preload_sp_yield_minimum_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_preload_sp_yield_minimum_time") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      if ( v5 > dword_150B02078 + v7->current.integer )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( v4 > dword_150B02078 + v6->current.integer )
       {
-        __asm { vmovaps [rsp+88h+var_28], xmm6 }
-        _XMM0_8 = Stream_LoadQuality_Image();
-        __asm { vmovaps xmm6, xmm0 }
-        _XMM0_8 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_preload_sp_yield_end_priority, "cl_preload_sp_yield_end_priority");
-        __asm
-        {
-          vcomiss xmm6, xmm0
-          vmovaps xmm6, [rsp+88h+var_28]
-        }
-        if ( !v10 )
+        v11 = v0;
+        Quality_Image = Stream_LoadQuality_Image();
+        v8 = *(float *)&Quality_Image;
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_preload_sp_yield_end_priority, "cl_preload_sp_yield_end_priority");
+        if ( v8 >= *(float *)&Float_Internal_DebugName )
           goto LABEL_50;
       }
     }
@@ -626,38 +624,31 @@ CL_PreloadSP_SavegameLoad
 */
 void CL_PreloadSP_SavegameLoad(const char (*r_fileList)[8][64])
 {
+  DDLAccessCallbackData *v2; 
+  const char (*v3)[8][64]; 
   __int64 v4; 
+  DDLAccessCallbackData v5; 
   bool Fastfiles; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 472, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   CL_PreloadSP_CheckIsCleared();
-  _RAX = &s_callbackData_0[7][1][3];
-  _RCX = r_fileList;
+  v2 = &s_callbackData_0[7][1][3];
+  v3 = r_fileList;
   v4 = 4i64;
   do
   {
-    _RAX += 8;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX = (const char (*)[8][64])((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v2 += 8;
+    v5 = *(DDLAccessCallbackData *)v3;
+    v3 = (const char (*)[8][64])((char *)v3 + 128);
+    v2[-8] = v5;
+    v2[-7] = *(DDLAccessCallbackData *)&(*v3)[-1][-48];
+    v2[-6] = *(DDLAccessCallbackData *)&(*v3)[-1][-32];
+    v2[-5] = *(DDLAccessCallbackData *)&(*v3)[-1][-16];
+    v2[-4] = *(DDLAccessCallbackData *)&(*v3)[-1][0];
+    v2[-3] = *(DDLAccessCallbackData *)&(*v3)[0][-48];
+    v2[-2] = *(DDLAccessCallbackData *)&(*v3)[0][-32];
+    v2[-1] = *(DDLAccessCallbackData *)&(*v3)[0][-16];
     --v4;
   }
   while ( v4 );
@@ -704,39 +695,30 @@ CL_PreloadSP_ServerAskedForLoad
 */
 void CL_PreloadSP_ServerAskedForLoad(const char (*r_fileList)[8][64])
 {
+  DDLAccessCallbackData *v2; 
   __int64 v3; 
+  DDLAccessCallbackData v4; 
 
-  _RBX = r_fileList;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 457, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   CL_PreloadSP_CheckIsCleared();
-  if ( !*(_BYTE *)_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 461, ASSERT_TYPE_ASSERT, "(r_fileList[0][0] != '\\0')", "%s\n\tPreload list is empty!", "r_fileList[0][0] != '\\0'") )
+  if ( !(*r_fileList)[0][0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_preload.cpp", 461, ASSERT_TYPE_ASSERT, "(r_fileList[0][0] != '\\0')", "%s\n\tPreload list is empty!", "r_fileList[0][0] != '\\0'") )
     __debugbreak();
-  _RAX = &s_callbackData_0[7][1][3];
+  v2 = &s_callbackData_0[7][1][3];
   v3 = 4i64;
   do
   {
-    _RAX += 8;
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const char (*)[8][64])((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v2 += 8;
+    v4 = *(DDLAccessCallbackData *)r_fileList;
+    r_fileList = (const char (*)[8][64])((char *)r_fileList + 128);
+    v2[-8] = v4;
+    v2[-7] = *(DDLAccessCallbackData *)&(*r_fileList)[-2][16];
+    v2[-6] = *(DDLAccessCallbackData *)&(*r_fileList)[-2][32];
+    v2[-5] = *(DDLAccessCallbackData *)&(*r_fileList)[-2][48];
+    v2[-4] = *(DDLAccessCallbackData *)&(*r_fileList)[-1][0];
+    v2[-3] = *(DDLAccessCallbackData *)&(*r_fileList)[-1][16];
+    v2[-2] = *(DDLAccessCallbackData *)&(*r_fileList)[-1][32];
+    v2[-1] = *(DDLAccessCallbackData *)&(*r_fileList)[-1][48];
     --v3;
   }
   while ( v3 );
@@ -750,55 +732,51 @@ CL_PreloadSP_ShouldYieldToStreamer
 */
 bool CL_PreloadSP_ShouldYieldToStreamer(int now)
 {
+  const dvar_t *v1; 
   const dvar_t *v3; 
+  const dvar_t *v4; 
   const dvar_t *v5; 
   const dvar_t *v6; 
-  const dvar_t *v7; 
-  const dvar_t *v8; 
-  char v11; 
+  double Quality_Image; 
+  float v8; 
+  double Float_Internal_DebugName; 
 
-  v3 = DVARBOOL_cl_preload_sp_yield_for_streamer;
+  v1 = DVARBOOL_cl_preload_sp_yield_for_streamer;
   if ( !DVARBOOL_cl_preload_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_preload_sp_yield_for_streamer") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( !v3->current.enabled || !Stream_CanStreamMore() )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled || !Stream_CanStreamMore() )
     return 0;
-  v5 = DVARBOOL_bg_cinematicAboveUI;
+  v3 = DVARBOOL_bg_cinematicAboveUI;
   if ( !DVARBOOL_bg_cinematicAboveUI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicAboveUI") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( !v3->current.enabled )
   {
-    v6 = DVARBOOL_bg_cinematicCanPause;
+    v4 = DVARBOOL_bg_cinematicCanPause;
     if ( !DVARBOOL_bg_cinematicCanPause && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicCanPause") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v6);
-    if ( v6->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
     {
-      v7 = DVARBOOL_bg_cinematicFullscreen;
+      v5 = DVARBOOL_bg_cinematicFullscreen;
       if ( !DVARBOOL_bg_cinematicFullscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicFullscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      if ( v7->current.enabled && (R_Cinematic_IsStarted() || R_Cinematic_IsPending()) && dword_150B0207C + Dvar_GetInt_Internal_DebugName(DVARINT_cl_preload_sp_yield_delay_time, "cl_preload_sp_yield_delay_time") > now )
+      Dvar_CheckFrontendServerThread(v5);
+      if ( v5->current.enabled && (R_Cinematic_IsStarted() || R_Cinematic_IsPending()) && dword_150B0207C + Dvar_GetInt_Internal_DebugName(DVARINT_cl_preload_sp_yield_delay_time, "cl_preload_sp_yield_delay_time") > now )
         return 0;
     }
   }
-  v8 = DVARINT_cl_preload_sp_stream_minimum_time;
+  v6 = DVARINT_cl_preload_sp_stream_minimum_time;
   if ( !DVARINT_cl_preload_sp_stream_minimum_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_preload_sp_stream_minimum_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( now < dword_150B02074 + v8->current.integer )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( now < dword_150B02074 + v6->current.integer )
     return 0;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  *(double *)&_XMM0 = Stream_LoadQuality_Image();
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_preload_sp_yield_start_priority, "cl_preload_sp_yield_start_priority");
-  __asm
-  {
-    vcomiss xmm6, xmm0
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return v11 != 0;
+  Quality_Image = Stream_LoadQuality_Image();
+  v8 = *(float *)&Quality_Image;
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_preload_sp_yield_start_priority, "cl_preload_sp_yield_start_priority");
+  return v8 < *(float *)&Float_Internal_DebugName;
 }
 
 /*

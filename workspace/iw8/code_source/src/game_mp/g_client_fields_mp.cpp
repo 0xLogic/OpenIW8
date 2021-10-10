@@ -599,51 +599,31 @@ G_ClientFieldsMP_SetArchiveTime
 */
 void G_ClientFieldsMP_SetArchiveTime(scrContext_t *scrContext, gclient_s *pSelf, const GClientField *pField)
 {
-  char v10; 
-  const char *v12; 
-  __int64 v22; 
+  double Float; 
+  const char *v6; 
+  int v9; 
+  __int64 v10; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 339, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 340, ASSERT_TYPE_ASSERT, "( level.frameDuration )", (const char *)&queryFormat, "level.frameDuration") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( (float)(*(float *)&Float * 1000.0) < 0.0 )
   {
-    vmulss  xmm6, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm6, xmm1
+    v6 = j_va("archiveTime must be a positive number. requested %f ms", (float)(*(float *)&Float * 1000.0));
+    Scr_Error(COM_ERR_3926, scrContext, v6);
   }
-  if ( v10 )
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  v9 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 < 0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("archiveTime must be a positive number. requested %f ms", _RDX);
-    Scr_Error(COM_ERR_3926, scrContext, v12);
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vdivss  xmm2, xmm6, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si ebx, xmm4
-  }
-  if ( _EBX < 0 )
-  {
-    LODWORD(v22) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 354, ASSERT_TYPE_ASSERT, "( serverFrameCount ) >= ( 0 )", "serverFrameCount >= 0\n\t%i, %i", v22, 0i64) )
+    LODWORD(v10) = (int)*(float *)&_XMM4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 354, ASSERT_TYPE_ASSERT, "( serverFrameCount ) >= ( 0 )", "serverFrameCount >= 0\n\t%i, %i", v10, 0i64) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  pSelf->sess.archiveTime = _EBX * level.frameDuration;
+  pSelf->sess.archiveTime = v9 * level.frameDuration;
 }
 
 /*
@@ -655,13 +635,7 @@ void G_ClientFieldsMP_GetArchiveTime(scrContext_t *scrContext, gclient_s *pSelf,
 {
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 363, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+55DCh]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)pSelf->sess.archiveTime * 0.001);
 }
 
 /*
@@ -695,51 +669,29 @@ G_ClientFieldsMP_SetPSOffsetTime
 */
 void G_ClientFieldsMP_SetPSOffsetTime(scrContext_t *scrContext, gclient_s *pSelf, const GClientField *pField)
 {
-  char v10; 
-  const char *v13; 
-  __int64 v22; 
+  float Int; 
+  const char *v6; 
+  __int64 v9; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 386, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 387, ASSERT_TYPE_ASSERT, "( level.frameDuration )", (const char *)&queryFormat, "level.frameDuration") )
     __debugbreak();
-  Scr_GetInt(scrContext, 0);
-  __asm
+  Int = (float)Scr_GetInt(scrContext, 0);
+  if ( Int < 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
+    v6 = j_va("psOffsetTime must be a positive number. requested %f ms", Int);
+    Scr_Error(COM_ERR_3927, scrContext, v6);
   }
-  if ( v10 )
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  if ( (int)*(float *)&_XMM1 < 0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v13 = j_va("psOffsetTime must be a positive number. requested %f ms", _RDX);
-    Scr_Error(COM_ERR_3927, scrContext, v13);
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vdivss  xmm1, xmm6, xmm0
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si ebx, xmm1
-  }
-  if ( _EBX < 0 )
-  {
-    LODWORD(v22) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 400, ASSERT_TYPE_ASSERT, "( serverFrameCount ) >= ( 0 )", "serverFrameCount >= 0\n\t%i, %i", v22, 0i64) )
+    LODWORD(v9) = (int)*(float *)&_XMM1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_client_fields_mp.cpp", 400, ASSERT_TYPE_ASSERT, "( serverFrameCount ) >= ( 0 )", "serverFrameCount >= 0\n\t%i, %i", v9, 0i64) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  pSelf->sess.psOffsetTime = _EBX * level.frameDuration;
+  pSelf->sess.psOffsetTime = (int)*(float *)&_XMM1 * level.frameDuration;
 }
 
 /*

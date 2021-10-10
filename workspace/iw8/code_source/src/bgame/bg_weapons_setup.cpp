@@ -561,55 +561,45 @@ BG_FillInAllWeaponItems
 void BG_FillInAllWeaponItems(void)
 {
   WeaponDef *weapDef; 
-  unsigned int v4; 
-  unsigned __int16 v5; 
-  WeaponCompleteDef *v6; 
-  __int64 v7; 
+  unsigned int v1; 
+  unsigned __int16 v2; 
+  WeaponCompleteDef *v3; 
+  __int64 v4; 
   Weapon r_weapon; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 829, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   BG_RefreshTransientWeaponFlagsForMyChanges();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   weapDef = (WeaponDef *)bg_weaponCompleteDefs[0];
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0A8h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+0A8h+r_weapon.attachmentVariationIndices+5], xmm1
-  }
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( bg_weaponCompleteDefs[0] )
     weapDef = bg_weaponCompleteDefs[0]->weapDef;
-  v4 = bg_lastParsedWeaponIndex + 1;
+  v1 = bg_lastParsedWeaponIndex + 1;
   bg_weaponDefs[0] = weapDef;
   if ( bg_lastParsedWeaponIndex + 1 > 0x226 )
   {
-    LODWORD(v7) = bg_lastParsedWeaponIndex + 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 837, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( 550 )", "weaponCount not in [0, MAX_WEAPONS]\n\t%u not in [0, %u]", v7, 550) )
+    LODWORD(v4) = bg_lastParsedWeaponIndex + 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 837, ASSERT_TYPE_ASSERT, "( weaponCount ) <= ( 550 )", "weaponCount not in [0, MAX_WEAPONS]\n\t%u not in [0, %u]", v4, 550) )
       __debugbreak();
   }
-  v5 = 1;
+  v2 = 1;
   r_weapon.weaponIdx = 1;
-  if ( v4 > 1 )
+  if ( v1 > 1 )
   {
     do
     {
-      v6 = bg_weaponCompleteDefs[v5];
-      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 843, ASSERT_TYPE_ASSERT, "(weapCompleteDef)", (const char *)&queryFormat, "weapCompleteDef") )
+      v3 = bg_weaponCompleteDefs[v2];
+      if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 843, ASSERT_TYPE_ASSERT, "(weapCompleteDef)", (const char *)&queryFormat, "weapCompleteDef") )
         __debugbreak();
-      if ( !v6->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 846, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+      if ( !v3->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 846, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
         __debugbreak();
       BG_SetupWeaponIndex(&r_weapon);
       BG_SetupWeaponLoot(&r_weapon);
-      v5 = ++r_weapon.weaponIdx;
+      v2 = ++r_weapon.weaponIdx;
     }
-    while ( r_weapon.weaponIdx < v4 );
+    while ( r_weapon.weaponIdx < v1 );
   }
 }
 
@@ -785,6 +775,9 @@ BG_FindBaseWeaponForName
 Weapon *BG_FindBaseWeaponForName(Weapon *result, const char *name)
 {
   int v2; 
+  __m256i v5; 
+  __int128 v6; 
+  double v7; 
   const char *WeaponNameComplete; 
   __int64 v9; 
   char *v10; 
@@ -795,21 +788,18 @@ Weapon *BG_FindBaseWeaponForName(Weapon *result, const char *name)
   int v15; 
   int v16; 
   unsigned int weaponIdx; 
+  __int128 v18; 
+  double v19; 
   Weapon r_weapon; 
   char output[1024]; 
 
   v2 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  _RSI = result;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsp+4A8h+r_weapon.weaponIdx], ymm0
-    vmovups xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h], xmm2
-  }
+  v5 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  v6 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+  v7 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( !name )
     goto LABEL_6;
   if ( bg_lastFoundWeaponIndex )
@@ -821,19 +811,13 @@ Weapon *BG_FindBaseWeaponForName(Weapon *result, const char *name)
       if ( !I_stricmp(name, WeaponNameComplete) )
       {
         v2 = *(_DWORD *)&r_weapon.weaponCamo;
-        __asm
-        {
-          vmovsd  xmm2, qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h]
-          vmovups xmm1, xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5]
-          vmovups ymm0, ymmword ptr [rsp+4A8h+r_weapon.weaponIdx]
-        }
+        v7 = *(double *)&r_weapon.attachmentVariationIndices[21];
+        v6 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+        v5 = *(__m256i *)&r_weapon.weaponIdx;
 LABEL_6:
-        __asm
-        {
-          vmovups ymmword ptr [rsi], ymm0
-          vmovups xmmword ptr [rsi+20h], xmm1
-          vmovsd  qword ptr [rsi+30h], xmm2
-        }
+        *(__m256i *)&result->weaponIdx = v5;
+        *(_OWORD *)&result->attachmentVariationIndices[5] = v6;
+        *(double *)&result->attachmentVariationIndices[21] = v7;
         goto LABEL_21;
       }
     }
@@ -857,21 +841,14 @@ LABEL_6:
         if ( !v13 )
         {
 LABEL_20:
-          __asm { vmovups ymm0, ymmword ptr [rsp+4A8h+r_weapon.weaponIdx] }
           weaponIdx = r_weapon.weaponIdx;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+5]
-            vmovups ymmword ptr [rsi], ymm0
-            vmovsd  xmm0, qword ptr [rsp+4A8h+r_weapon.attachmentVariationIndices+15h]
-          }
+          v18 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+          *(__m256i *)&result->weaponIdx = *(__m256i *)&r_weapon.weaponIdx;
+          v19 = *(double *)&r_weapon.attachmentVariationIndices[21];
           bg_lastFoundWeaponIndex = weaponIdx;
           v2 = *(_DWORD *)&r_weapon.weaponCamo;
-          __asm
-          {
-            vmovups xmmword ptr [rsi+20h], xmm1
-            vmovsd  qword ptr [rsi+30h], xmm0
-          }
+          *(_OWORD *)&result->attachmentVariationIndices[5] = v18;
+          *(double *)&result->attachmentVariationIndices[21] = v19;
           goto LABEL_21;
         }
         if ( v12 != v14 )
@@ -893,22 +870,13 @@ LABEL_20:
     }
     while ( r_weapon.weaponIdx < bg_lastParsedWeaponIndex + 1 );
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
   v2 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rsi], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rsi+20h], xmm1
-    vmovsd  qword ptr [rsi+30h], xmm0
-  }
+  *(__m256i *)&result->weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+  *(double *)&result->attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
 LABEL_21:
-  *(_DWORD *)&_RSI->weaponCamo = v2;
-  return _RSI;
+  *(_DWORD *)&result->weaponCamo = v2;
+  return result;
 }
 
 /*
@@ -1038,36 +1006,28 @@ BG_GetSurfacePenetrationDepth
 */
 float BG_GetSurfacePenetrationDepth(const Weapon *r_weapon, bool isAlternate, int surfaceType)
 {
+  __int64 v3; 
   PenetrateType PenetrateType; 
+  __int64 v7; 
+  double PenetrateMultiplier; 
 
+  v3 = surfaceType;
   if ( (unsigned int)surfaceType >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 166, ASSERT_TYPE_ASSERT, "(unsigned)( surfaceType ) < (unsigned)( 64 )", "surfaceType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", surfaceType, 64) )
     __debugbreak();
-  if ( !surfaceType )
-    goto LABEL_16;
+  if ( !(_DWORD)v3 )
+    return 0.0;
   if ( !r_weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 172, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( r_weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( r_weapon )") )
     __debugbreak();
   PenetrateType = BG_GetPenetrateType(r_weapon, isAlternate);
-  if ( (unsigned int)(PenetrateType - 1) <= 3 )
-  {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    *(double *)&_XMM0 = BG_GetPenetrateMultiplier(r_weapon, isAlternate);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( PenetrateType == PENETRATE_TYPE_MAXIMUM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 181, ASSERT_TYPE_ASSERT, "((penetrateType != PENETRATE_TYPE_NONE) && (penetrateType != PENETRATE_TYPE_MAXIMUM))", (const char *)&queryFormat, "(penetrateType != PENETRATE_TYPE_NONE) && (penetrateType != PENETRATE_TYPE_MAXIMUM)") )
-      __debugbreak();
-    if ( !s_bulletPenetration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 182, ASSERT_TYPE_ASSERT, "(s_bulletPenetration)", (const char *)&queryFormat, "s_bulletPenetration") )
-      __debugbreak();
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rax+rcx*4+8]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  else
-  {
-LABEL_16:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  v7 = PenetrateType;
+  if ( (unsigned int)(PenetrateType - 1) > 3 )
+    return 0.0;
+  PenetrateMultiplier = BG_GetPenetrateMultiplier(r_weapon, isAlternate);
+  if ( (_DWORD)v7 == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 181, ASSERT_TYPE_ASSERT, "((penetrateType != PENETRATE_TYPE_NONE) && (penetrateType != PENETRATE_TYPE_MAXIMUM))", (const char *)&queryFormat, "(penetrateType != PENETRATE_TYPE_NONE) && (penetrateType != PENETRATE_TYPE_MAXIMUM)") )
+    __debugbreak();
+  if ( !s_bulletPenetration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 182, ASSERT_TYPE_ASSERT, "(s_bulletPenetration)", (const char *)&queryFormat, "s_bulletPenetration") )
+    __debugbreak();
+  return *(float *)&PenetrateMultiplier * s_bulletPenetration->depthTable[v7][v3];
 }
 
 /*
@@ -1764,109 +1724,99 @@ void BG_SetupAmmoCapacityIndexes(const Weapon *r_weapon)
   unsigned int weaponIdx; 
   WeaponDef *PointerToWeaponDef; 
   const char *szSharedAmmoCapName; 
-  unsigned __int16 v8; 
-  unsigned __int16 v9; 
-  WeaponDef *v10; 
+  unsigned __int16 v5; 
+  unsigned __int16 v6; 
+  WeaponDef *v7; 
+  const char *v8; 
+  WeaponDef *v9; 
+  __int64 v10; 
   const char *v11; 
-  WeaponDef *v12; 
-  __int64 v13; 
-  const char *v14; 
-  signed __int64 v15; 
+  signed __int64 v12; 
+  int v13; 
+  __int64 v14; 
+  int v15; 
   int v16; 
-  __int64 v17; 
-  int v18; 
-  int v19; 
-  int v20; 
+  int v17; 
   int iSharedAmmoCap; 
   char *WeaponNameComplete; 
-  int v23; 
-  char *v24; 
-  char *v25; 
-  __int64 v26; 
+  int v20; 
+  char *v21; 
+  char *v22; 
+  __int64 v23; 
   char r_weapona[64]; 
   char output[1024]; 
-  char v29[1024]; 
+  char v26[1024]; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
   weaponIdx = r_weapon->weaponIdx;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+8B8h+r_weapon], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+8B8h+r_weapon+30h], xmm0
-    vmovups xmmword ptr [rsp+8B8h+r_weapon+20h], xmm1
-  }
+  memset(r_weapona, 0, 48);
+  *(double *)&r_weapona[48] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&r_weapona[56] = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   PointerToWeaponDef = BG_GetPointerToWeaponDef(weaponIdx);
   szSharedAmmoCapName = PointerToWeaponDef->szSharedAmmoCapName;
   PointerToWeaponDef->iSharedAmmoCapIndex = -1;
   if ( *szSharedAmmoCapName )
   {
-    v8 = r_weapon->weaponIdx;
-    v9 = 1;
+    v5 = r_weapon->weaponIdx;
+    v6 = 1;
     if ( r_weapon->weaponIdx > 1u )
     {
       while ( 2 )
       {
-        *(_WORD *)r_weapona = v9;
-        v10 = BG_GetPointerToWeaponDef(v9);
-        v11 = PointerToWeaponDef->szSharedAmmoCapName;
-        v12 = v10;
-        v13 = 0x7FFFFFFFi64;
-        v14 = v10->szSharedAmmoCapName;
-        if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        *(_WORD *)r_weapona = v6;
+        v7 = BG_GetPointerToWeaponDef(v6);
+        v8 = PointerToWeaponDef->szSharedAmmoCapName;
+        v9 = v7;
+        v10 = 0x7FFFFFFFi64;
+        v11 = v7->szSharedAmmoCapName;
+        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+        if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v15 = v14 - v11;
+        v12 = v11 - v8;
         while ( 1 )
         {
-          v16 = (unsigned __int8)v11[v15];
-          v17 = v13;
-          v18 = *(unsigned __int8 *)v11++;
-          --v13;
-          if ( !v17 )
+          v13 = (unsigned __int8)v8[v12];
+          v14 = v10;
+          v15 = *(unsigned __int8 *)v8++;
+          --v10;
+          if ( !v14 )
           {
 LABEL_18:
-            PointerToWeaponDef->iSharedAmmoCapIndex = v9;
-            iSharedAmmoCap = v12->iSharedAmmoCap;
+            PointerToWeaponDef->iSharedAmmoCapIndex = v6;
+            iSharedAmmoCap = v9->iSharedAmmoCap;
             if ( iSharedAmmoCap != PointerToWeaponDef->iSharedAmmoCap )
             {
               WeaponNameComplete = BG_GetWeaponNameComplete((const Weapon *)r_weapona, 0, output, 0x400u);
-              v23 = PointerToWeaponDef->iSharedAmmoCap;
-              v24 = WeaponNameComplete;
-              v25 = BG_GetWeaponNameComplete(r_weapon, 0, v29, 0x400u);
-              LODWORD(v26) = v23;
-              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143F54760, 247i64, PointerToWeaponDef->szSharedAmmoCapName, v25, v26, v24, iSharedAmmoCap, *(_OWORD *)r_weapona, *(_OWORD *)&r_weapona[16], *(_OWORD *)&r_weapona[32], *(_QWORD *)&r_weapona[48], *(_QWORD *)&r_weapona[56]);
+              v20 = PointerToWeaponDef->iSharedAmmoCap;
+              v21 = WeaponNameComplete;
+              v22 = BG_GetWeaponNameComplete(r_weapon, 0, v26, 0x400u);
+              LODWORD(v23) = v20;
+              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143F54760, 247i64, PointerToWeaponDef->szSharedAmmoCapName, v22, v23, v21, iSharedAmmoCap, *(_OWORD *)r_weapona, *(_OWORD *)&r_weapona[16], *(_OWORD *)&r_weapona[32], *(_QWORD *)&r_weapona[48], *(_QWORD *)&r_weapona[56]);
             }
             return;
           }
-          if ( v16 != v18 )
+          if ( v13 != v15 )
           {
-            v19 = v16 + 32;
-            if ( (unsigned int)(v16 - 65) > 0x19 )
-              v19 = v16;
-            v16 = v19;
-            v20 = v18 + 32;
-            if ( (unsigned int)(v18 - 65) > 0x19 )
-              v20 = v18;
-            if ( v16 != v20 )
+            v16 = v13 + 32;
+            if ( (unsigned int)(v13 - 65) > 0x19 )
+              v16 = v13;
+            v13 = v16;
+            v17 = v15 + 32;
+            if ( (unsigned int)(v15 - 65) > 0x19 )
+              v17 = v15;
+            if ( v13 != v17 )
               break;
           }
-          if ( !v16 )
+          if ( !v13 )
             goto LABEL_18;
         }
-        v8 = r_weapon->weaponIdx;
-        if ( ++v9 < r_weapon->weaponIdx )
+        v5 = r_weapon->weaponIdx;
+        if ( ++v6 < r_weapon->weaponIdx )
           continue;
         break;
       }
     }
-    PointerToWeaponDef->iSharedAmmoCapIndex = v8;
+    PointerToWeaponDef->iSharedAmmoCapIndex = v5;
   }
 }
 
@@ -2284,128 +2234,132 @@ char BG_Weapons_GetFullWeaponForName(const char *name, Weapon *outWeapon, Weapon
   char v11; 
   char *v12; 
   char *i; 
-  int v19; 
-  const WeaponCompleteDef *v21; 
-  char v22; 
-  unsigned int v23; 
-  char *v24; 
-  char v25; 
+  Weapon *v14; 
+  Weapon *v15; 
+  __int128 v16; 
+  double v17; 
+  int v18; 
+  const WeaponCompleteDef *v20; 
+  char v21; 
+  unsigned int v22; 
+  char *v23; 
+  char v24; 
   char *j; 
-  __int64 v27; 
-  const char *v28; 
-  char v29; 
-  __int64 v30; 
-  char v31; 
-  const dvar_t *v32; 
-  const char *v33; 
-  __int64 v34; 
-  char v35; 
-  __int64 v36; 
-  char v37; 
-  unsigned int v38; 
-  __int64 v39; 
-  const dvar_t *v40; 
-  _BYTE *v41; 
-  unsigned __int8 v42; 
+  __int64 v26; 
+  const char *v27; 
+  char v28; 
+  __int64 v29; 
+  char v30; 
+  const dvar_t *v31; 
+  const char *v32; 
+  __int64 v33; 
+  char v34; 
+  __int64 v35; 
+  char v36; 
+  unsigned int v37; 
+  __int64 v38; 
+  const dvar_t *v39; 
+  _BYTE *v40; 
+  unsigned __int8 v41; 
+  char *v42; 
   char *v43; 
-  char *v44; 
-  __int64 v45; 
-  const char *v46; 
-  char *v47; 
-  int v48; 
-  const char *v49; 
-  __int64 v50; 
-  char v51; 
-  __int64 v52; 
-  char v53; 
-  const char *v54; 
-  __int64 v55; 
-  char v56; 
-  __int64 v57; 
-  char v58; 
-  const char *v59; 
-  __int64 v60; 
-  char v61; 
-  __int64 v62; 
-  char v63; 
-  const dvar_t *v64; 
-  unsigned int v65; 
-  unsigned __int8 v66; 
-  const dvar_t *v67; 
-  unsigned int v68; 
-  unsigned __int8 v69; 
-  const dvar_t *v70; 
-  char *v71; 
-  unsigned int v72; 
-  unsigned __int16 v73; 
-  __int64 v74; 
-  const dvar_t *v75; 
+  __int64 v44; 
+  const char *v45; 
+  char *v46; 
+  int v47; 
+  const char *v48; 
+  __int64 v49; 
+  char v50; 
+  __int64 v51; 
+  char v52; 
+  const char *v53; 
+  __int64 v54; 
+  char v55; 
+  __int64 v56; 
+  char v57; 
+  const char *v58; 
+  __int64 v59; 
+  char v60; 
+  __int64 v61; 
+  char v62; 
+  const dvar_t *v63; 
+  unsigned int v64; 
+  unsigned __int8 v65; 
+  const dvar_t *v66; 
+  unsigned int v67; 
+  unsigned __int8 v68; 
+  const dvar_t *v69; 
+  char *v70; 
+  unsigned int v71; 
+  unsigned __int16 v72; 
+  __int64 v73; 
+  const dvar_t *v74; 
   scr_string_t String; 
   unsigned int IndexFromScrString; 
-  const dvar_t *v78; 
-  unsigned __int8 v79; 
-  const dvar_t *v80; 
-  AttachmentList *v81; 
-  AttachmentSlot v82; 
+  const dvar_t *v77; 
+  unsigned __int8 v78; 
+  const dvar_t *v79; 
+  AttachmentList *v80; 
+  AttachmentSlot v81; 
   __int64 attachmentCount; 
-  WeaponAttachment **v84; 
+  WeaponAttachment **v83; 
   unsigned __int16 k; 
   const char **p_szInternalName; 
-  const dvar_t *v87; 
-  bool v88; 
+  const dvar_t *v86; 
+  bool v87; 
   unsigned int AllWeaponAttachments; 
-  WeaponAttachment **v90; 
-  __int64 v91; 
-  const char **v92; 
+  WeaponAttachment **v89; 
+  __int64 v90; 
+  const char **v91; 
+  unsigned int v92; 
   unsigned int v93; 
-  unsigned int v94; 
-  __int64 v95; 
+  __int64 v94; 
   unsigned int scopeVariation; 
+  const dvar_t *v96; 
   const dvar_t *v97; 
-  const dvar_t *v98; 
-  const char *v99; 
-  const dvar_t *v100; 
-  unsigned int v101; 
+  const char *v98; 
+  const dvar_t *v99; 
+  unsigned int v100; 
   unsigned __int16 weaponOthers; 
-  const dvar_t *v103; 
+  const dvar_t *v102; 
   unsigned __int16 PrimaryAttachmentIndex; 
-  int v105; 
+  int v104; 
   int weaponLootId; 
+  int v106; 
   int v107; 
   int v108; 
   int v109; 
-  int v110; 
   char *fmt; 
+  __int64 v111; 
   __int64 v112; 
   __int64 v113; 
   __int64 v114; 
   __int64 v115; 
-  __int64 v116; 
-  char v117; 
-  AttachmentSlot v119[2]; 
+  char v116; 
+  AttachmentSlot v118[2]; 
   AttachmentSlot slot; 
+  char *v120; 
   char *v121; 
-  char *v122; 
+  AttachmentSlot v122; 
   AttachmentSlot v123; 
   AttachmentSlot v124; 
-  AttachmentSlot v125; 
-  __int64 v126; 
-  AttachmentList *v127; 
-  Weapon v128; 
+  __int64 v125; 
+  AttachmentList *v126; 
+  Weapon v127; 
   WeaponAttachment *attachments[30]; 
   char dest[512]; 
-  char v131[512]; 
-  char v132[8192]; 
+  char v130[512]; 
+  char v131[8192]; 
   char Str[15360]; 
 
-  *(_QWORD *)v119 = name;
+  *(_QWORD *)v118 = name;
   v4 = (char *)name;
-  v121 = (char *)name;
+  v120 = (char *)name;
   if ( !getWeaponFunc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1404, ASSERT_TYPE_ASSERT, "(getWeaponFunc)", (const char *)&queryFormat, "getWeaponFunc") )
     __debugbreak();
   if ( !bg_weaponCompleteDefs[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1405, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[0])", "%s\n\tWeapons have not yet been initialized, trying to fetch a weapon by name now would break the weapon array. Make sure BG_ClearWeaponDef() got called.", "bg_weaponCompleteDefs[0]") )
     __debugbreak();
-  v117 = 1;
+  v116 = 1;
   if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1138, ASSERT_TYPE_ASSERT, "(weaponName)", (const char *)&queryFormat, "weaponName") )
     __debugbreak();
   v5 = "none";
@@ -2429,15 +2383,15 @@ char BG_Weapons_GetFullWeaponForName(const char *name, Weapon *outWeapon, Weapon
       if ( v10 > 4 && *v4 == 97 && v4[1] == 108 && v4[2] == 116 && v4[3] == 95 )
       {
         v4 += 4;
-        *(_QWORD *)v119 = v4;
-        v121 = v4;
+        *(_QWORD *)v118 = v4;
+        v120 = v4;
       }
       break;
     }
   }
   while ( v7 );
   v11 = *v4;
-  v12 = v132;
+  v12 = v131;
   for ( i = v4; *i; v11 = *i )
   {
     if ( v11 == 43 )
@@ -2446,278 +2400,271 @@ char BG_Weapons_GetFullWeaponForName(const char *name, Weapon *outWeapon, Weapon
     *v12++ = v11;
   }
   *v12 = 0;
-  _RAX = getWeaponFunc(&v128, v132);
-  _RDI = outWeapon;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups xmm2, xmmword ptr [rax+20h]
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
-  v19 = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rdi], ymm1
-    vmovups xmmword ptr [rdi+20h], xmm2
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  *(_DWORD *)&outWeapon->weaponCamo = v19;
+  v14 = getWeaponFunc(&v127, v131);
+  v15 = outWeapon;
+  v16 = *(_OWORD *)&v14->attachmentVariationIndices[5];
+  v17 = *(double *)&v14->attachmentVariationIndices[21];
+  v18 = *(_DWORD *)&v14->weaponCamo;
+  *(__m256i *)&outWeapon->weaponIdx = *(__m256i *)&v14->weaponIdx;
+  *(_OWORD *)&outWeapon->attachmentVariationIndices[5] = v16;
+  *(double *)&outWeapon->attachmentVariationIndices[21] = v17;
+  *(_DWORD *)&outWeapon->weaponCamo = v18;
   if ( !outWeapon->weaponIdx )
     return 1;
-  v21 = BG_WeaponCompleteDef(outWeapon, 0);
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1425, ASSERT_TYPE_ASSERT, "(weapCompleteDef)", (const char *)&queryFormat, "weapCompleteDef") )
+  v20 = BG_WeaponCompleteDef(outWeapon, 0);
+  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1425, ASSERT_TYPE_ASSERT, "(weapCompleteDef)", (const char *)&queryFormat, "weapCompleteDef") )
     __debugbreak();
-  if ( !v21->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1426, ASSERT_TYPE_ASSERT, "(weapCompleteDef->weapDef)", (const char *)&queryFormat, "weapCompleteDef->weapDef") )
+  if ( !v20->weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1426, ASSERT_TYPE_ASSERT, "(weapCompleteDef->weapDef)", (const char *)&queryFormat, "weapCompleteDef->weapDef") )
     __debugbreak();
-  v22 = *i;
-  v126 = 0i64;
-  v23 = 0;
-  if ( v22 )
+  v21 = *i;
+  v125 = 0i64;
+  v22 = 0;
+  if ( v21 )
   {
     do
     {
-      if ( v22 != 43 )
+      if ( v21 != 43 )
         break;
       ++i;
-      v24 = &Str[512 * (unsigned __int64)v23];
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1326, ASSERT_TYPE_ASSERT, "(out)", (const char *)&queryFormat, "out") )
+      v23 = &Str[512 * (unsigned __int64)v22];
+      if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1326, ASSERT_TYPE_ASSERT, "(out)", (const char *)&queryFormat, "out") )
         __debugbreak();
-      v25 = *i;
-      for ( j = &Str[512 * (unsigned __int64)v23]; *i; v25 = *i )
+      v24 = *i;
+      for ( j = &Str[512 * (unsigned __int64)v22]; *i; v24 = *i )
       {
-        if ( v25 == 43 )
+        if ( v24 == 43 )
           break;
         ++i;
-        *j++ = v25;
+        *j++ = v24;
       }
       *j = 0;
-      v27 = 5i64;
-      v122 = i;
-      v28 = "camo|";
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v26 = 5i64;
+      v121 = i;
+      v27 = "camo|";
+      if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       while ( 1 )
       {
-        v29 = v28[v24 - "camo|"];
-        v30 = v27;
-        v31 = *v28++;
-        --v27;
-        if ( !v30 )
+        v28 = v27[v23 - "camo|"];
+        v29 = v26;
+        v30 = *v27++;
+        --v26;
+        if ( !v29 )
         {
 LABEL_50:
-          _RDI = outWeapon;
+          v15 = outWeapon;
           if ( outWeapon->weaponCamo )
           {
-            v32 = DCONST_DVARBOOL_bg_weapons_pedantic;
+            v31 = DCONST_DVARBOOL_bg_weapons_pedantic;
             if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v32);
-            if ( v32->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second camo on weapon named '%s'\n", v4) )
+            Dvar_CheckFrontendServerThread(v31);
+            if ( v31->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second camo on weapon named '%s'\n", v4) )
               __debugbreak();
             Com_PrintWarning(17, "WARNING: Tried to set a second camo on weapon named '%s'\n", v4);
-            v117 = 0;
+            v116 = 0;
           }
           else
           {
-            String = SL_FindString(v24 + 5);
+            String = SL_FindString(v23 + 5);
             IndexFromScrString = BG_Camo_GetIndexFromScrString(String);
             if ( IndexFromScrString < BG_Camo_GetCamoCount() )
             {
-              v79 = truncate_cast<unsigned char,unsigned int>(IndexFromScrString);
+              v78 = truncate_cast<unsigned char,unsigned int>(IndexFromScrString);
             }
             else
             {
-              v78 = DCONST_DVARBOOL_bg_weapons_pedantic;
+              v77 = DCONST_DVARBOOL_bg_weapons_pedantic;
               if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v78);
-              if ( v78->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Could not find camo: '%s'\n", v24 + 5) )
+              Dvar_CheckFrontendServerThread(v77);
+              if ( v77->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Could not find camo: '%s'\n", v23 + 5) )
                 __debugbreak();
-              Com_PrintWarning(17, "WARNING: Could not find camo: '%s'\n", v24 + 5);
-              v79 = 0;
-              v117 = 0;
+              Com_PrintWarning(17, "WARNING: Could not find camo: '%s'\n", v23 + 5);
+              v78 = 0;
+              v116 = 0;
             }
-            _RDI = outWeapon;
-            outWeapon->weaponCamo = v79;
+            v15 = outWeapon;
+            outWeapon->weaponCamo = v78;
             if ( BG_WeaponCanAcceptCamo(outWeapon) || !BG_WeaponIsUsingCamo(outWeapon) )
             {
-              i = v122;
-              v4 = v121;
+              i = v121;
+              v4 = v120;
             }
             else
             {
-              v80 = DCONST_DVARBOOL_bg_weapons_pedantic;
+              v79 = DCONST_DVARBOOL_bg_weapons_pedantic;
               if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v80);
-              v4 = v121;
-              if ( v80->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set camo on a weapon '%s' that doesn't support camo.", v121) )
+              Dvar_CheckFrontendServerThread(v79);
+              v4 = v120;
+              if ( v79->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set camo on a weapon '%s' that doesn't support camo.", v120) )
                 __debugbreak();
               Com_PrintWarning(17, "WARNING: Tried to set camo on a weapon '%s' that doesn't support camo.", v4);
-              i = v122;
+              i = v121;
               outWeapon->weaponCamo = 0;
-              v117 = 0;
+              v116 = 0;
             }
           }
           goto LABEL_77;
         }
-        if ( v29 != v31 )
+        if ( v28 != v30 )
           break;
-        if ( !v29 )
+        if ( !v28 )
           goto LABEL_50;
       }
-      v33 = "sticker";
-      v34 = 7i64;
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v32 = "sticker";
+      v33 = 7i64;
+      if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       do
       {
-        v35 = v33[v24 - "sticker"];
-        v36 = v34;
-        v37 = *v33++;
-        --v34;
-        if ( !v36 )
+        v34 = v32[v23 - "sticker"];
+        v35 = v33;
+        v36 = *v32++;
+        --v33;
+        if ( !v35 )
           break;
-        if ( v35 != v37 )
+        if ( v34 != v36 )
         {
-          v49 = "scope";
-          v50 = 5i64;
-          if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+          v48 = "scope";
+          v49 = 5i64;
+          if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
           while ( 1 )
           {
-            v51 = v49[v24 - "scope"];
-            v52 = v50;
-            v53 = *v49++;
-            --v50;
-            if ( !v52 )
+            v50 = v48[v23 - "scope"];
+            v51 = v49;
+            v52 = *v48++;
+            --v49;
+            if ( !v51 )
             {
 LABEL_104:
-              _RDI = outWeapon;
+              v15 = outWeapon;
               if ( outWeapon->scopeVariation )
               {
-                BG_WeaponsSetup_Warn_char_const_____61__char_const_____((const char (*)[61])"WARNING: Tried to set a second reticle on weapon named '%s'\n", (const char **)&v121);
-                v4 = v121;
-                v117 = 0;
+                BG_WeaponsSetup_Warn_char_const_____61__char_const_____((const char (*)[61])"WARNING: Tried to set a second reticle on weapon named '%s'\n", (const char **)&v120);
+                v4 = v120;
+                v116 = 0;
               }
               else
               {
-                v68 = BG_Weapons_ParseID(v24 + 5);
-                v69 = truncate_cast<unsigned char,unsigned int>(v68);
-                outWeapon->scopeVariation = v69;
-                if ( v69 == 0xFF )
+                v67 = BG_Weapons_ParseID(v23 + 5);
+                v68 = truncate_cast<unsigned char,unsigned int>(v67);
+                outWeapon->scopeVariation = v68;
+                if ( v68 == 0xFF )
                 {
-                  v70 = DCONST_DVARBOOL_bg_weapons_pedantic;
+                  v69 = DCONST_DVARBOOL_bg_weapons_pedantic;
                   if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(v70);
-                  if ( v70->current.enabled )
+                  Dvar_CheckFrontendServerThread(v69);
+                  if ( v69->current.enabled )
                   {
-                    LODWORD(v114) = 255;
-                    LODWORD(v112) = outWeapon->scopeVariation;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but max number of reticles is %d\n", v112, v4, v114) )
+                    LODWORD(v113) = 255;
+                    LODWORD(v111) = outWeapon->scopeVariation;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but max number of reticles is %d\n", v111, v4, v113) )
                       __debugbreak();
                   }
                   LODWORD(fmt) = 255;
                   Com_PrintWarning(17, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but max number of reticles is %d\n", outWeapon->scopeVariation, v4, fmt);
                   outWeapon->scopeVariation = 0;
-                  v117 = 0;
+                  v116 = 0;
                 }
               }
               goto LABEL_77;
             }
-            if ( v51 != v53 )
+            if ( v50 != v52 )
               break;
-            if ( !v51 )
+            if ( !v50 )
               goto LABEL_104;
           }
-          v54 = "loot";
-          v55 = 4i64;
-          if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+          v53 = "loot";
+          v54 = 4i64;
+          if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
           while ( 1 )
           {
-            v56 = v54[v24 - "loot"];
-            v57 = v55;
-            v58 = *v54++;
-            --v55;
-            if ( !v57 )
+            v55 = v53[v23 - "loot"];
+            v56 = v54;
+            v57 = *v53++;
+            --v54;
+            if ( !v56 )
             {
 LABEL_112:
-              _RDI = outWeapon;
+              v15 = outWeapon;
               if ( outWeapon->weaponLootId )
               {
-                BG_WeaponsSetup_Warn_char_const_____61__char_const_____((const char (*)[61])"WARNING: Tried to set a second loot id on weapon named '%s'\n", (const char **)&v121);
-                v4 = v121;
-                v117 = 0;
+                BG_WeaponsSetup_Warn_char_const_____61__char_const_____((const char (*)[61])"WARNING: Tried to set a second loot id on weapon named '%s'\n", (const char **)&v120);
+                v4 = v120;
+                v116 = 0;
               }
               else
               {
-                v65 = BG_Weapons_ParseID(v24 + 4);
-                v66 = truncate_cast<unsigned char,unsigned int>(v65 + 1);
-                outWeapon->weaponLootId = v66;
-                if ( v66 > v21->numLootVariants )
+                v64 = BG_Weapons_ParseID(v23 + 4);
+                v65 = truncate_cast<unsigned char,unsigned int>(v64 + 1);
+                outWeapon->weaponLootId = v65;
+                if ( v65 > v20->numLootVariants )
                 {
-                  v67 = DCONST_DVARBOOL_bg_weapons_pedantic;
+                  v66 = DCONST_DVARBOOL_bg_weapons_pedantic;
                   if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(v67);
-                  if ( v67->current.enabled )
+                  Dvar_CheckFrontendServerThread(v66);
+                  if ( v66->current.enabled )
                   {
-                    LODWORD(v114) = v21->numLootVariants;
-                    LODWORD(v112) = outWeapon->weaponLootId;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set loot id %d on weapon named '%s', but max number of loot ids is %d\n", v112, v4, v114) )
+                    LODWORD(v113) = v20->numLootVariants;
+                    LODWORD(v111) = outWeapon->weaponLootId;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set loot id %d on weapon named '%s', but max number of loot ids is %d\n", v111, v4, v113) )
                       __debugbreak();
                   }
-                  LODWORD(fmt) = v21->numLootVariants;
+                  LODWORD(fmt) = v20->numLootVariants;
                   Com_PrintWarning(17, "WARNING: Tried to set loot id %d on weapon named '%s', but max number of loot ids is %d\n", outWeapon->weaponLootId, v4, fmt);
                   outWeapon->weaponLootId = 0;
-                  v117 = 0;
+                  v116 = 0;
                 }
               }
               goto LABEL_77;
             }
-            if ( v56 != v58 )
+            if ( v55 != v57 )
               break;
-            if ( !v56 )
+            if ( !v55 )
               goto LABEL_112;
           }
-          v59 = "paint";
-          v60 = 5i64;
-          if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+          v58 = "paint";
+          v59 = 5i64;
+          if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
           while ( 1 )
           {
-            v61 = v59[v24 - "paint"];
-            v62 = v60;
-            v63 = *v59++;
-            --v60;
-            if ( !v62 )
+            v60 = v58[v23 - "paint"];
+            v61 = v59;
+            v62 = *v58++;
+            --v59;
+            if ( !v61 )
             {
 LABEL_120:
-              v64 = DCONST_DVARBOOL_bg_weapons_pedantic;
+              v63 = DCONST_DVARBOOL_bg_weapons_pedantic;
               if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v64);
-              if ( v64->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a paint on weapon named '%s', but gun-painter is disabled.\n", v4) )
+              Dvar_CheckFrontendServerThread(v63);
+              if ( v63->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a paint on weapon named '%s', but gun-painter is disabled.\n", v4) )
                 __debugbreak();
               Com_PrintWarning(17, "WARNING: Tried to set a paint on weapon named '%s', but gun-painter is disabled.\n", v4);
               goto LABEL_75;
             }
-            if ( v61 != v63 )
+            if ( v60 != v62 )
               break;
-            if ( !v61 )
+            if ( !v60 )
               goto LABEL_120;
           }
-          if ( *v24 )
+          if ( *v23 )
           {
-            if ( v23 < 0x1D )
+            if ( v22 < 0x1D )
             {
-              ++v23;
+              ++v22;
             }
             else
             {
-              if ( v23 != 29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1572, ASSERT_TYPE_ASSERT, "(parsedAttachmentCount == (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 16 + 1 + 1 + 1 + 1))", (const char *)&queryFormat, "parsedAttachmentCount == MAX_NUM_WEAPON_ATTACHMENTS") )
+              if ( v22 != 29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1572, ASSERT_TYPE_ASSERT, "(parsedAttachmentCount == (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 16 + 1 + 1 + 1 + 1))", (const char *)&queryFormat, "parsedAttachmentCount == MAX_NUM_WEAPON_ATTACHMENTS") )
                 __debugbreak();
               Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143F55B88, 248i64, v4);
             }
@@ -2725,122 +2672,122 @@ LABEL_120:
           goto LABEL_76;
         }
       }
-      while ( v35 );
-      v38 = BG_Weapons_ParseID(v24 + 7);
-      v39 = v38;
-      if ( v38 >= 4 )
+      while ( v34 );
+      v37 = BG_Weapons_ParseID(v23 + 7);
+      v38 = v37;
+      if ( v37 >= 4 )
       {
-        LODWORD(v113) = 4;
-        LODWORD(v112) = v38;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1479, ASSERT_TYPE_ASSERT, "(unsigned)( weaponStickerSlotIndex ) < (unsigned)( WEAPON_STICKER_SLOT_COUNT )", "weaponStickerSlotIndex doesn't index WEAPON_STICKER_SLOT_COUNT\n\t%i not in [0, %i)", v112, v113) )
+        LODWORD(v112) = 4;
+        LODWORD(v111) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1479, ASSERT_TYPE_ASSERT, "(unsigned)( weaponStickerSlotIndex ) < (unsigned)( WEAPON_STICKER_SLOT_COUNT )", "weaponStickerSlotIndex doesn't index WEAPON_STICKER_SLOT_COUNT\n\t%i not in [0, %i)", v111, v112) )
           __debugbreak();
       }
-      if ( outWeapon->stickerIndices[v39] )
+      if ( outWeapon->stickerIndices[v38] )
       {
-        v40 = DCONST_DVARBOOL_bg_weapons_pedantic;
+        v39 = DCONST_DVARBOOL_bg_weapons_pedantic;
         if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v40);
-        if ( v40->current.enabled )
+        Dvar_CheckFrontendServerThread(v39);
+        if ( v39->current.enabled )
         {
-          LODWORD(v112) = v39;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second sticker material on sticker slot %u on weapon named '%s'\n", v112, v4) )
+          LODWORD(v111) = v38;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second sticker material on sticker slot %u on weapon named '%s'\n", v111, v4) )
             __debugbreak();
         }
-        Com_PrintWarning(17, "WARNING: Tried to set a second sticker material on sticker slot %u on weapon named '%s'\n", (unsigned int)v39, v4);
+        Com_PrintWarning(17, "WARNING: Tried to set a second sticker material on sticker slot %u on weapon named '%s'\n", (unsigned int)v38, v4);
 LABEL_75:
-        v117 = 0;
+        v116 = 0;
 LABEL_76:
-        _RDI = outWeapon;
+        v15 = outWeapon;
         goto LABEL_77;
       }
-      v71 = strchr_0(v24 + 7, 124);
-      if ( !v71 )
+      v70 = strchr_0(v23 + 7, 124);
+      if ( !v70 )
       {
-        v75 = DCONST_DVARBOOL_bg_weapons_pedantic;
+        v74 = DCONST_DVARBOOL_bg_weapons_pedantic;
         if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v75);
-        if ( v75->current.enabled )
+        Dvar_CheckFrontendServerThread(v74);
+        if ( v74->current.enabled )
         {
-          LODWORD(v112) = v39;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Missing '|' character after the sticker slot %u to define the material index on weapon named '%s'\n", v112, v4) )
+          LODWORD(v111) = v38;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Missing '|' character after the sticker slot %u to define the material index on weapon named '%s'\n", v111, v4) )
             __debugbreak();
         }
-        Com_PrintWarning(17, "WARNING: Missing '|' character after the sticker slot %u to define the material index on weapon named '%s'\n", (unsigned int)v39, v4);
+        Com_PrintWarning(17, "WARNING: Missing '|' character after the sticker slot %u to define the material index on weapon named '%s'\n", (unsigned int)v38, v4);
         goto LABEL_75;
       }
-      v72 = BG_Weapons_ParseID(v71 + 1);
-      v73 = truncate_cast<unsigned short,unsigned int>(v72);
-      if ( !v73 )
+      v71 = BG_Weapons_ParseID(v70 + 1);
+      v72 = truncate_cast<unsigned short,unsigned int>(v71);
+      if ( !v72 )
       {
-        LODWORD(v114) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1493, ASSERT_TYPE_ASSERT, "( materialIndex ) > ( 0 )", "%s > %s\n\t%i, %i", "materialIndex", "0", v114, 0i64) )
+        LODWORD(v113) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1493, ASSERT_TYPE_ASSERT, "( materialIndex ) > ( 0 )", "%s > %s\n\t%i, %i", "materialIndex", "0", v113, 0i64) )
           __debugbreak();
       }
-      v74 = v39;
-      _RDI = outWeapon;
-      outWeapon->stickerIndices[v74] = v73;
+      v73 = v38;
+      v15 = outWeapon;
+      outWeapon->stickerIndices[v73] = v72;
 LABEL_77:
-      v22 = *i;
+      v21 = *i;
     }
     while ( *i );
-    *(_QWORD *)v119 = v4;
+    *(_QWORD *)v118 = v4;
   }
-  if ( !_RDI->weaponIdx )
+  if ( !v15->weaponIdx )
     goto LABEL_208;
-  if ( v23 > 0x1D )
+  if ( v22 > 0x1D )
   {
-    LODWORD(v113) = 29;
-    LODWORD(v112) = v23;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1588, ASSERT_TYPE_ASSERT, "( parsedAttachmentCount ) <= ( (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 16 + 1 + 1 + 1 + 1) )", "parsedAttachmentCount not in [0, MAX_NUM_WEAPON_ATTACHMENTS]\n\t%u not in [0, %u]", v112, v113) )
+    LODWORD(v112) = 29;
+    LODWORD(v111) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1588, ASSERT_TYPE_ASSERT, "( parsedAttachmentCount ) <= ( (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 16 + 1 + 1 + 1 + 1) )", "parsedAttachmentCount not in [0, MAX_NUM_WEAPON_ATTACHMENTS]\n\t%u not in [0, %u]", v111, v112) )
       __debugbreak();
   }
-  if ( !v23 )
+  if ( !v22 )
     goto LABEL_208;
-  v122 = NULL;
-  v127 = v21->attachments;
-  v41 = NULL;
-  v121 = (char *)v23;
+  v121 = NULL;
+  v126 = v20->attachments;
+  v40 = NULL;
+  v120 = (char *)v22;
   do
   {
-    v42 = 0;
-    v43 = strchr_0(&Str[(_QWORD)v41], 124);
-    v44 = v43;
-    if ( v43 )
+    v41 = 0;
+    v42 = strchr_0(&Str[(_QWORD)v40], 124);
+    v43 = v42;
+    if ( v42 )
     {
-      v45 = -1i64;
+      v44 = -1i64;
       do
-        ++v45;
-      while ( Str[(_QWORD)v41 + v45] );
-      v46 = v43 + 1;
-      v47 = &Str[(_QWORD)&v41[v45]];
-      if ( v47 <= v43 + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1603, ASSERT_TYPE_ASSERT, "(nullTerminatorPos > variationIndexStartPos)", (const char *)&queryFormat, "nullTerminatorPos > variationIndexStartPos") )
+        ++v44;
+      while ( Str[(_QWORD)v40 + v44] );
+      v45 = v42 + 1;
+      v46 = &Str[(_QWORD)&v40[v44]];
+      if ( v46 <= v42 + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1603, ASSERT_TYPE_ASSERT, "(nullTerminatorPos > variationIndexStartPos)", (const char *)&queryFormat, "nullTerminatorPos > variationIndexStartPos") )
         __debugbreak();
-      Core_strncpy(dest, 0x200ui64, &Str[(_QWORD)v41], v44 - v41 - (_QWORD)Str);
-      Core_strncpy(v131, 0x200ui64, v46, v47 - v46);
-      v48 = atoi(v131);
-      v42 = v48;
-      if ( (v48 < 0 || (unsigned int)v48 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v48, "signed", v48) )
+      Core_strncpy(dest, 0x200ui64, &Str[(_QWORD)v40], v43 - v40 - (_QWORD)Str);
+      Core_strncpy(v130, 0x200ui64, v45, v46 - v45);
+      v47 = atoi(v130);
+      v41 = v47;
+      if ( (v47 < 0 || (unsigned int)v47 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v47, "signed", v47) )
         __debugbreak();
-      if ( v42 >= 0x10u )
+      if ( v41 >= 0x10u )
       {
-        LODWORD(v113) = 16;
-        LODWORD(v112) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1609, ASSERT_TYPE_ASSERT, "(unsigned)( attachmentVariationIndex ) < (unsigned)( 16 )", "attachmentVariationIndex doesn't index MAX_ATT_XMODEL_VARIATION\n\t%i not in [0, %i)", v112, v113) )
+        LODWORD(v112) = 16;
+        LODWORD(v111) = v41;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1609, ASSERT_TYPE_ASSERT, "(unsigned)( attachmentVariationIndex ) < (unsigned)( 16 )", "attachmentVariationIndex doesn't index MAX_ATT_XMODEL_VARIATION\n\t%i not in [0, %i)", v111, v112) )
           __debugbreak();
       }
     }
     else
     {
-      Core_strcpy(dest, 0x200ui64, &Str[(_QWORD)v41]);
+      Core_strcpy(dest, 0x200ui64, &Str[(_QWORD)v40]);
     }
-    v81 = v127;
-    v82 = ATT_SLOT_RECEIVER;
+    v80 = v126;
+    v81 = ATT_SLOT_RECEIVER;
 LABEL_183:
-    attachmentCount = v81->attachmentCount;
-    v84 = v81->attachments;
-    if ( (_DWORD)attachmentCount && !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1279, ASSERT_TYPE_ASSERT, "((numAttachments == 0) || (attachments != 0))", (const char *)&queryFormat, "(numAttachments == 0) || (attachments != NULL)") )
+    attachmentCount = v80->attachmentCount;
+    v83 = v80->attachments;
+    if ( (_DWORD)attachmentCount && !v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1279, ASSERT_TYPE_ASSERT, "((numAttachments == 0) || (attachments != 0))", (const char *)&queryFormat, "(numAttachments == 0) || (attachments != NULL)") )
       __debugbreak();
     for ( k = 0; ; ++k )
     {
@@ -2848,176 +2795,176 @@ LABEL_183:
         __debugbreak();
       if ( k >= (unsigned __int16)attachmentCount )
       {
-        ++v82;
         ++v81;
-        if ( (unsigned int)v82 < ATT_SLOT_COUNT )
+        ++v80;
+        if ( (unsigned int)v81 < ATT_SLOT_COUNT )
           goto LABEL_183;
-        v87 = DCONST_DVARBOOL_bg_weapons_pedantic;
+        v86 = DCONST_DVARBOOL_bg_weapons_pedantic;
         slot = ATT_SLOT_COUNT;
         if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v87);
-        if ( v87->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Unknown attachment '%s' on weapon named '%s'\n", dest, *(const char **)v119) )
+        Dvar_CheckFrontendServerThread(v86);
+        if ( v86->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Unknown attachment '%s' on weapon named '%s'\n", dest, *(const char **)v118) )
           __debugbreak();
-        Com_PrintWarning(17, "WARNING: Unknown attachment '%s' on weapon named '%s'\n", dest, *(const char **)v119);
+        Com_PrintWarning(17, "WARNING: Unknown attachment '%s' on weapon named '%s'\n", dest, *(const char **)v118);
 LABEL_205:
-        _RDI = outWeapon;
+        v15 = outWeapon;
         goto LABEL_206;
       }
-      p_szInternalName = &v84[k]->szInternalName;
+      p_szInternalName = &v83[k]->szInternalName;
       if ( !p_szInternalName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1285, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
         __debugbreak();
       if ( !I_strncmp(dest, *p_szInternalName, 0x7FFFFFFFui64) )
         break;
     }
-    if ( k >= v81->attachmentCount )
+    if ( k >= v80->attachmentCount )
     {
-      LODWORD(v113) = v81->attachmentCount;
-      LODWORD(v112) = k;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1309, ASSERT_TYPE_ASSERT, "(unsigned)( *outAttachmentIndex ) < (unsigned)( attList->attachmentCount )", "*outAttachmentIndex doesn't index attList->attachmentCount\n\t%i not in [0, %i)", v112, v113) )
+      LODWORD(v112) = v80->attachmentCount;
+      LODWORD(v111) = k;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1309, ASSERT_TYPE_ASSERT, "(unsigned)( *outAttachmentIndex ) < (unsigned)( attList->attachmentCount )", "*outAttachmentIndex doesn't index attList->attachmentCount\n\t%i not in [0, %i)", v111, v112) )
         __debugbreak();
     }
-    slot = v82;
-    if ( v82 >= ATT_SLOT_OTHER )
+    slot = v81;
+    if ( v81 >= ATT_SLOT_OTHER )
     {
       if ( k >= 0x10u )
       {
-        LODWORD(v115) = 16;
-        LODWORD(v114) = k;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1636, ASSERT_TYPE_ASSERT, "( weaponAttachmentIndex ) < ( sizeof( outWeapon->weaponOthers ) * 8 )", "%s < %s\n\t%i, %i", "weaponAttachmentIndex", "sizeof( outWeapon->weaponOthers ) * 8", v114, v115) )
+        LODWORD(v114) = 16;
+        LODWORD(v113) = k;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1636, ASSERT_TYPE_ASSERT, "( weaponAttachmentIndex ) < ( sizeof( outWeapon->weaponOthers ) * 8 )", "%s < %s\n\t%i, %i", "weaponAttachmentIndex", "sizeof( outWeapon->weaponOthers ) * 8", v113, v114) )
           __debugbreak();
       }
-      v101 = k;
-      _RDI = outWeapon;
+      v100 = k;
+      v15 = outWeapon;
       weaponOthers = outWeapon->weaponOthers;
-      if ( (weaponOthers & (unsigned __int16)(1 << v101)) == 0 )
+      if ( (weaponOthers & (unsigned __int16)(1 << v100)) == 0 )
       {
-        outWeapon->weaponOthers = (1 << v101) | weaponOthers;
-        outWeapon->attachmentVariationIndices[Com_GetOtherAttachmentId(v101)] = v42;
+        outWeapon->weaponOthers = (1 << v100) | weaponOthers;
+        outWeapon->attachmentVariationIndices[Com_GetOtherAttachmentId(v100)] = v41;
         goto LABEL_207;
       }
-      v103 = DCONST_DVARBOOL_bg_weapons_pedantic;
+      v102 = DCONST_DVARBOOL_bg_weapons_pedantic;
       if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v103);
-      if ( v103->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second other attachment '%s' on weapon named '%s'\n", dest, *(const char **)v119) )
+      Dvar_CheckFrontendServerThread(v102);
+      if ( v102->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second other attachment '%s' on weapon named '%s'\n", dest, *(const char **)v118) )
         __debugbreak();
-      Com_PrintWarning(17, "WARNING: Tried to set a second other attachment '%s' on weapon named '%s'\n", dest, *(const char **)v119);
+      Com_PrintWarning(17, "WARNING: Tried to set a second other attachment '%s' on weapon named '%s'\n", dest, *(const char **)v118);
 LABEL_206:
-      v117 = 0;
+      v116 = 0;
       goto LABEL_207;
     }
     if ( BG_Weapon_GetPrimaryAttachmentIndex(outWeapon, &slot) )
     {
-      v100 = DCONST_DVARBOOL_bg_weapons_pedantic;
+      v99 = DCONST_DVARBOOL_bg_weapons_pedantic;
       if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v100);
-      if ( v100->current.enabled )
+      Dvar_CheckFrontendServerThread(v99);
+      if ( v99->current.enabled )
       {
-        LODWORD(v112) = slot;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second attachment in slot %d on weapon named '%s'\n", v112, *(const char **)v119) )
+        LODWORD(v111) = slot;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set a second attachment in slot %d on weapon named '%s'\n", v111, *(const char **)v118) )
           __debugbreak();
       }
-      Com_PrintWarning(17, "WARNING: Tried to set a second attachment in slot %d on weapon named '%s'\n", (unsigned int)slot, *(const char **)v119);
+      Com_PrintWarning(17, "WARNING: Tried to set a second attachment in slot %d on weapon named '%s'\n", (unsigned int)slot, *(const char **)v118);
       goto LABEL_205;
     }
     BG_Weapon_SetPrimaryAttachmentIndex(&slot, k + 1, outWeapon);
-    _RDI = outWeapon;
-    outWeapon->attachmentVariationIndices[slot] = v42;
+    v15 = outWeapon;
+    outWeapon->attachmentVariationIndices[slot] = v41;
 LABEL_207:
-    v41 = v122 + 512;
-    v88 = v121-- == (char *)1;
-    v122 += 512;
+    v40 = v121 + 512;
+    v87 = v120-- == (char *)1;
+    v121 += 512;
   }
-  while ( !v88 );
+  while ( !v87 );
 LABEL_208:
-  AllWeaponAttachments = BG_GetAllWeaponAttachments(_RDI, (const WeaponAttachment **)attachments);
+  AllWeaponAttachments = BG_GetAllWeaponAttachments(v15, (const WeaponAttachment **)attachments);
   if ( AllWeaponAttachments )
   {
-    v90 = attachments;
-    v91 = AllWeaponAttachments;
+    v89 = attachments;
+    v90 = AllWeaponAttachments;
     do
     {
-      v92 = (const char **)*v90;
-      if ( !*v90 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1663, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
+      v91 = (const char **)*v89;
+      if ( !*v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1663, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
         __debugbreak();
-      v93 = *((_DWORD *)v92 + 11);
-      if ( v93 )
+      v92 = *((_DWORD *)v91 + 11);
+      if ( v92 )
       {
-        v94 = *((_DWORD *)v92 + 11);
-        if ( (unsigned int)v126 > v93 )
-          v94 = v126;
-        v95 = v94;
-        scopeVariation = _RDI->scopeVariation;
-        v126 = v95;
-        if ( scopeVariation >= v93 )
+        v93 = *((_DWORD *)v91 + 11);
+        if ( (unsigned int)v125 > v92 )
+          v93 = v125;
+        v94 = v93;
+        scopeVariation = v15->scopeVariation;
+        v125 = v94;
+        if ( scopeVariation >= v92 )
         {
-          v97 = DCONST_DVARBOOL_bg_weapons_pedantic;
+          v96 = DCONST_DVARBOOL_bg_weapons_pedantic;
           if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v97);
-          v88 = !v97->current.enabled;
-          _RDI = outWeapon;
-          if ( !v88 )
+          Dvar_CheckFrontendServerThread(v96);
+          v87 = !v96->current.enabled;
+          v15 = outWeapon;
+          if ( !v87 )
           {
-            LODWORD(v115) = *((_DWORD *)v92 + 11);
-            LODWORD(v112) = outWeapon->scopeVariation;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but the attachment definition %s only specifies %d reticles\n", v112, *(const char **)v119, *v92, v115) )
+            LODWORD(v114) = *((_DWORD *)v91 + 11);
+            LODWORD(v111) = outWeapon->scopeVariation;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but the attachment definition %s only specifies %d reticles\n", v111, *(const char **)v118, *v91, v114) )
               __debugbreak();
           }
-          LODWORD(v112) = *((_DWORD *)v92 + 11);
-          Com_PrintWarning(17, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but the attachment definition %s only specifies %d reticles\n", outWeapon->scopeVariation, *(const char **)v119, *v92, v112);
+          LODWORD(v111) = *((_DWORD *)v91 + 11);
+          Com_PrintWarning(17, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but the attachment definition %s only specifies %d reticles\n", outWeapon->scopeVariation, *(const char **)v118, *v91, v111);
           outWeapon->scopeVariation = 0;
-          v117 = 0;
+          v116 = 0;
         }
       }
-      ++v90;
-      --v91;
+      ++v89;
+      --v90;
     }
-    while ( v91 );
+    while ( v90 );
   }
-  if ( !_RDI->scopeVariation || (_DWORD)v126 )
+  if ( !v15->scopeVariation || (_DWORD)v125 )
   {
-    v99 = *(const char **)v119;
+    v98 = *(const char **)v118;
   }
   else
   {
-    v98 = DCONST_DVARBOOL_bg_weapons_pedantic;
+    v97 = DCONST_DVARBOOL_bg_weapons_pedantic;
     if ( !DCONST_DVARBOOL_bg_weapons_pedantic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_weapons_pedantic") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v98);
-    v99 = *(const char **)v119;
-    if ( v98->current.enabled )
+    Dvar_CheckFrontendServerThread(v97);
+    v98 = *(const char **)v118;
+    if ( v97->current.enabled )
     {
-      LODWORD(v112) = _RDI->scopeVariation;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but there are no attachments that specify any reticles\n", v112, *(const char **)v119) )
+      LODWORD(v111) = v15->scopeVariation;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 97, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but there are no attachments that specify any reticles\n", v111, *(const char **)v118) )
         __debugbreak();
     }
-    Com_PrintWarning(17, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but there are no attachments that specify any reticles\n", _RDI->scopeVariation, *(const char **)v119);
-    _RDI->scopeVariation = 0;
-    v117 = 0;
+    Com_PrintWarning(17, "WARNING: Tried to set custom scope reticle %d on weapon named '%s', but there are no attachments that specify any reticles\n", v15->scopeVariation, *(const char **)v118);
+    v15->scopeVariation = 0;
+    v116 = 0;
   }
-  if ( !BG_IsValidWeapon(_RDI, 0) )
+  if ( !BG_IsValidWeapon(v15, 0) )
   {
-    v119[0] = ATT_SLOT_VISUAL;
-    PrimaryAttachmentIndex = BG_Weapon_GetPrimaryAttachmentIndex(_RDI, v119);
-    v105 = _RDI->scopeVariation;
-    weaponLootId = _RDI->weaponLootId;
-    v107 = _RDI->weaponOthers;
-    v108 = PrimaryAttachmentIndex;
-    v123 = ATT_SLOT_MODIFIER;
-    v109 = BG_Weapon_GetPrimaryAttachmentIndex(_RDI, &v123);
-    v124 = ATT_SLOT_UNDERBARREL;
-    v110 = BG_Weapon_GetPrimaryAttachmentIndex(outWeapon, &v124);
-    v125 = ATT_SLOT_SCOPE;
-    LODWORD(v116) = BG_Weapon_GetPrimaryAttachmentIndex(outWeapon, &v125);
-    LODWORD(v115) = outWeapon->weaponCamo;
-    LODWORD(v114) = outWeapon->weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1695, ASSERT_TYPE_ASSERT, "(BG_IsValidWeapon( *outWeapon, false ))", "%s\n\tInvalid weapon parsed from string '%s': WeaponIdx=%d WeaponCamo:%d WeaponScope:%d WeaponUnderBarrel:%d WeaponModifier:%d WeaponOthers:%04X WeaponLootId:%d WeaponReticle:%d WeaponVisual:%d", "BG_IsValidWeapon( *outWeapon, false )", v99, v114, v115, v116, v110, v109, v107, weaponLootId, v105, v108) )
+    v118[0] = ATT_SLOT_VISUAL;
+    PrimaryAttachmentIndex = BG_Weapon_GetPrimaryAttachmentIndex(v15, v118);
+    v104 = v15->scopeVariation;
+    weaponLootId = v15->weaponLootId;
+    v106 = v15->weaponOthers;
+    v107 = PrimaryAttachmentIndex;
+    v122 = ATT_SLOT_MODIFIER;
+    v108 = BG_Weapon_GetPrimaryAttachmentIndex(v15, &v122);
+    v123 = ATT_SLOT_UNDERBARREL;
+    v109 = BG_Weapon_GetPrimaryAttachmentIndex(outWeapon, &v123);
+    v124 = ATT_SLOT_SCOPE;
+    LODWORD(v115) = BG_Weapon_GetPrimaryAttachmentIndex(outWeapon, &v124);
+    LODWORD(v114) = outWeapon->weaponCamo;
+    LODWORD(v113) = outWeapon->weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 1695, ASSERT_TYPE_ASSERT, "(BG_IsValidWeapon( *outWeapon, false ))", "%s\n\tInvalid weapon parsed from string '%s': WeaponIdx=%d WeaponCamo:%d WeaponScope:%d WeaponUnderBarrel:%d WeaponModifier:%d WeaponOthers:%04X WeaponLootId:%d WeaponReticle:%d WeaponVisual:%d", "BG_IsValidWeapon( *outWeapon, false )", v98, v113, v114, v115, v109, v108, v106, weaponLootId, v104, v107) )
       __debugbreak();
   }
-  return v117;
+  return v116;
 }
 
 /*
@@ -3079,165 +3026,132 @@ BG_Weapons_RegisterWeaponForName
 Weapon *BG_Weapons_RegisterWeaponForName(Weapon *result, const char *name, void (*regWeap)(unsigned int), const GameTypeQuick_t gameType, BgHandler *bgHandle)
 {
   unsigned __int8 v5; 
-  const char *v12; 
-  int v16; 
-  __int64 v17; 
+  const char *v9; 
+  __m256i v10; 
+  __int128 v11; 
+  double v12; 
+  int v13; 
+  __int64 v14; 
   char *WeaponNameComplete; 
-  const char *v19; 
+  const char *v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
-  __int64 v21; 
-  int v22; 
-  int v23; 
-  int v24; 
+  int v21; 
   const WeaponCompleteDef *weapon; 
-  unsigned int v29; 
-  unsigned __int16 v31; 
-  const BG_SpawnGroup_Loot_Table *v32; 
-  int v35; 
-  __int64 v39; 
+  unsigned int v23; 
+  unsigned __int16 v24; 
+  const BG_SpawnGroup_Loot_Table *v25; 
+  __int128 v26; 
+  int v27; 
+  double v28; 
+  __int64 v30; 
   Weapon r_weapon; 
   char output[1024]; 
 
   v5 = gameType;
-  _RSI = result;
   if ( !*name || !I_stricmp(name, "none") )
     goto LABEL_39;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+4C0h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+5], xmm1
-  }
-  if ( !bg_lastFoundWeaponIndex || bg_lastFoundWeaponIndex >= bg_lastParsedWeaponIndex + 1 || (r_weapon.weaponIdx = truncate_cast<unsigned short,unsigned int>(bg_lastFoundWeaponIndex), v12 = BG_GetWeaponNameComplete(&r_weapon, 0, output, 0x400u), I_stricmp(name, v12)) )
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+  if ( !bg_lastFoundWeaponIndex || bg_lastFoundWeaponIndex >= bg_lastParsedWeaponIndex + 1 || (r_weapon.weaponIdx = truncate_cast<unsigned short,unsigned int>(bg_lastFoundWeaponIndex), v9 = BG_GetWeaponNameComplete(&r_weapon, 0, output, 0x400u), I_stricmp(name, v9)) )
   {
     r_weapon.weaponIdx = 1;
     if ( bg_lastParsedWeaponIndex + 1 > 1 )
     {
       do
       {
-        v17 = 0x7FFFFFFFi64;
+        v14 = 0x7FFFFFFFi64;
         WeaponNameComplete = BG_GetWeaponNameComplete(&r_weapon, 0, output, 0x400u);
         if ( !WeaponNameComplete && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v19 = (const char *)(name - WeaponNameComplete);
+        v16 = (const char *)(name - WeaponNameComplete);
         while ( 1 )
         {
-          v20 = (unsigned __int8)WeaponNameComplete[(_QWORD)v19];
-          v21 = v17;
-          v22 = (unsigned __int8)*WeaponNameComplete++;
-          --v17;
-          if ( !v21 )
+          v17 = (unsigned __int8)WeaponNameComplete[(_QWORD)v16];
+          v18 = v14;
+          v19 = (unsigned __int8)*WeaponNameComplete++;
+          --v14;
+          if ( !v18 )
           {
 LABEL_20:
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsp+4C0h+r_weapon.weaponIdx]
-              vmovups xmm1, xmmword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+5]
-              vmovsd  xmm2, qword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+15h]
-            }
-            v16 = *(_DWORD *)&r_weapon.weaponCamo;
+            v10 = *(__m256i *)&r_weapon.weaponIdx;
+            v11 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+            v12 = *(double *)&r_weapon.attachmentVariationIndices[21];
+            v13 = *(_DWORD *)&r_weapon.weaponCamo;
             bg_lastFoundWeaponIndex = r_weapon.weaponIdx;
             goto LABEL_23;
           }
-          if ( v20 != v22 )
+          if ( v17 != v19 )
           {
-            v23 = v20 + 32;
-            if ( (unsigned int)(v20 - 65) > 0x19 )
-              v23 = v20;
-            v20 = v23;
-            v24 = v22 + 32;
-            if ( (unsigned int)(v22 - 65) > 0x19 )
-              v24 = v22;
-            if ( v20 != v24 )
+            v20 = v17 + 32;
+            if ( (unsigned int)(v17 - 65) > 0x19 )
+              v20 = v17;
+            v17 = v20;
+            v21 = v19 + 32;
+            if ( (unsigned int)(v19 - 65) > 0x19 )
+              v21 = v19;
+            if ( v17 != v21 )
               break;
           }
-          if ( !v20 )
+          if ( !v17 )
             goto LABEL_20;
         }
         ++r_weapon.weaponIdx;
       }
       while ( r_weapon.weaponIdx < bg_lastParsedWeaponIndex + 1 );
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
-    v16 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    v10 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v11 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v12 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+    v13 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+4C0h+r_weapon.weaponIdx]
-      vmovups xmm1, xmmword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+5]
-      vmovsd  xmm2, qword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+15h]
-    }
-    v16 = *(_DWORD *)&r_weapon.weaponCamo;
+    v10 = *(__m256i *)&r_weapon.weaponIdx;
+    v11 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+    v12 = *(double *)&r_weapon.attachmentVariationIndices[21];
+    v13 = *(_DWORD *)&r_weapon.weaponCamo;
   }
 LABEL_23:
-  __asm { vmovd   eax, xmm0 }
-  if ( !(_WORD)_EAX )
+  if ( !*(_WORD *)&NULL_WEAPON.attachmentVariationIndices[21] )
   {
     if ( *name && (weapon = DB_FindXAssetHeader(ASSET_TYPE_WEAPON, name, 1).weapon) != NULL )
     {
       DB_FindXAssetHeader(ASSET_TYPE_WEAPON, name, 1);
       if ( !DB_IsXAssetDefault(ASSET_TYPE_WEAPON, name) )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-          vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-        }
-        v29 = bg_lastParsedWeaponIndex + 1;
+        v23 = bg_lastParsedWeaponIndex + 1;
         *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-        bg_lastParsedWeaponIndex = v29;
-        __asm
+        bg_lastParsedWeaponIndex = v23;
+        memset(&r_weapon, 0, 48);
+        *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+        if ( v23 >= 0x226 )
         {
-          vmovups ymmword ptr [rsp+4C0h+r_weapon.weaponIdx], ymm0
-          vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-          vmovsd  qword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+15h], xmm0
-          vmovups xmmword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+5], xmm1
-        }
-        if ( v29 >= 0x226 )
-        {
-          LODWORD(v39) = v29;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 761, ASSERT_TYPE_ASSERT, "(unsigned)( bg_lastParsedWeaponIndex ) < (unsigned)( ( sizeof( *array_counter( bg_weaponCompleteDefs ) ) + 0 ) )", "bg_lastParsedWeaponIndex doesn't index ARRAY_COUNT( bg_weaponCompleteDefs )\n\t%i not in [0, %i)", v39, 550) )
+          LODWORD(v30) = v23;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 761, ASSERT_TYPE_ASSERT, "(unsigned)( bg_lastParsedWeaponIndex ) < (unsigned)( ( sizeof( *array_counter( bg_weaponCompleteDefs ) ) + 0 ) )", "bg_lastParsedWeaponIndex doesn't index ARRAY_COUNT( bg_weaponCompleteDefs )\n\t%i not in [0, %i)", v30, 550) )
             __debugbreak();
-          v29 = bg_lastParsedWeaponIndex;
+          v23 = bg_lastParsedWeaponIndex;
         }
-        v31 = truncate_cast<unsigned short,unsigned int>(v29);
-        r_weapon.weaponIdx = v31;
-        bg_weaponCompleteDefs[v31] = (WeaponCompleteDef *)weapon;
-        BG_WeaponSetup_InitWeaponDefOverrides(v31);
+        v24 = truncate_cast<unsigned short,unsigned int>(v23);
+        r_weapon.weaponIdx = v24;
+        bg_weaponCompleteDefs[v24] = (WeaponCompleteDef *)weapon;
+        BG_WeaponSetup_InitWeaponDefOverrides(v24);
         if ( !bgHandle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_setup.cpp", 771, ASSERT_TYPE_ASSERT, "(bgHandler)", (const char *)&queryFormat, "bgHandler") )
           __debugbreak();
-        v32 = bgHandle->GetLootTable(bgHandle);
-        BG_BrAmmoOverride(&r_weapon, (const GameTypeQuick_t)v5, v32);
+        v25 = bgHandle->GetLootTable(bgHandle);
+        BG_BrAmmoOverride(&r_weapon, (const GameTypeQuick_t)v5, v25);
         BG_SetupWeaponIndex(&r_weapon);
         BG_SetupWeaponLoot(&r_weapon);
         BG_SetupDynamicWeaponAttachmentIcons(weapon);
         if ( regWeap )
           regWeap(r_weapon.weaponIdx);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+4C0h+r_weapon.weaponIdx]
-          vmovups xmm1, xmmword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+5]
-        }
-        v35 = *(_DWORD *)&r_weapon.weaponCamo;
-        __asm
-        {
-          vmovups ymmword ptr [rsi], ymm0
-          vmovsd  xmm0, qword ptr [rsp+4C0h+r_weapon.attachmentVariationIndices+15h]
-        }
+        v26 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+        v27 = *(_DWORD *)&r_weapon.weaponCamo;
+        *(__m256i *)&result->weaponIdx = *(__m256i *)&r_weapon.weaponIdx;
+        v28 = *(double *)&r_weapon.attachmentVariationIndices[21];
         goto LABEL_40;
       }
     }
@@ -3246,30 +3160,20 @@ LABEL_23:
       Com_DPrintf(17, "Couldn't find weapon \"%s\"\n", name);
     }
 LABEL_39:
-    __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-    v35 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rsi], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    v27 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    v26 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v28 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
 LABEL_40:
-    __asm
-    {
-      vmovups xmmword ptr [rsi+20h], xmm1
-      vmovsd  qword ptr [rsi+30h], xmm0
-    }
-    *(_DWORD *)&_RSI->weaponCamo = v35;
-    return _RSI;
+    *(_OWORD *)&result->attachmentVariationIndices[5] = v26;
+    *(double *)&result->attachmentVariationIndices[21] = v28;
+    *(_DWORD *)&result->weaponCamo = v27;
+    return result;
   }
-  __asm
-  {
-    vmovups ymmword ptr [rsi], ymm0
-    vmovups xmmword ptr [rsi+20h], xmm1
-    vmovsd  qword ptr [rsi+30h], xmm2
-  }
-  *(_DWORD *)&_RSI->weaponCamo = v16;
-  return _RSI;
+  *(__m256i *)&result->weaponIdx = v10;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = v11;
+  *(double *)&result->attachmentVariationIndices[21] = v12;
+  *(_DWORD *)&result->weaponCamo = v13;
+  return result;
 }
 

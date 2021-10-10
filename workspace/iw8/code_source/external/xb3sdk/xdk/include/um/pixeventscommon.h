@@ -28,6 +28,7 @@ PIXCopyEventArgument<char const *>
 void PIXCopyEventArgument<char const *>(unsigned __int64 **destination, const unsigned __int64 *limit, const char *argument)
 {
   unsigned __int64 *v4; 
+  unsigned __int64 *v6; 
 
   v4 = *destination;
   if ( *destination < limit )
@@ -41,7 +42,7 @@ void PIXCopyEventArgument<char const *>(unsigned __int64 **destination, const un
       else
       {
         *v4 = 0x840000000000000i64;
-        _RCX = ++*destination;
+        v6 = ++*destination;
         __asm { vpxor   xmm1, xmm1, xmm1 }
         if ( *destination < limit )
         {
@@ -49,45 +50,39 @@ void PIXCopyEventArgument<char const *>(unsigned __int64 **destination, const un
           {
             do
             {
-              __asm
-              {
-                vmovdqu xmm0, xmmword ptr [r8]
-                vmovdqu xmmword ptr [rcx], xmm0
-              }
-              _RCX = *destination + 2;
+              _XMM0 = *(_OWORD *)argument;
+              *(_OWORD *)v6 = *(_OWORD *)argument;
+              v6 = *destination + 2;
               __asm
               {
                 vpcmpeqb xmm0, xmm0, xmm1
                 vpmovmskb eax, xmm0
               }
-              *destination = _RCX;
+              *destination = v6;
               if ( _EAX )
                 break;
               argument += 16;
             }
-            while ( _RCX < limit );
+            while ( v6 < limit );
           }
           else
           {
             do
             {
-              __asm
-              {
-                vmovdqu xmm0, xmmword ptr [r8]
-                vmovdqu xmmword ptr [rcx], xmm0
-              }
-              _RCX = *destination + 2;
+              _XMM0 = *(_OWORD *)argument;
+              *(_OWORD *)v6 = *(_OWORD *)argument;
+              v6 = *destination + 2;
               __asm
               {
                 vpcmpeqb xmm0, xmm0, xmm1
                 vpmovmskb eax, xmm0
               }
-              *destination = _RCX;
+              *destination = v6;
               if ( _EAX )
                 break;
               argument += 16;
             }
-            while ( _RCX < limit );
+            while ( v6 < limit );
           }
         }
       }

@@ -60,58 +60,53 @@ ScriptableCL_InitClientModelData
 */
 void ScriptableCL_InitClientModelData(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v2; 
+  unsigned int v3; 
+  unsigned int *v4; 
 
-  __asm
-  {
-    vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000
-    vmovdqu xmm3, cs:__xmm@000000ff000000ff000000ff000000ff
-  }
-  v3 = localClientNum;
-  _EAX = 8;
-  _RDX = &s_availableIds[v3].m_ids[8];
+  _XMM3 = _xmm;
+  v2 = localClientNum;
+  v3 = 8;
+  v4 = &s_availableIds[v2].m_ids[8];
   do
   {
-    _ECX = _EAX - 8;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm0, xmm0, xmm2
-      vpsubd  xmm1, xmm3, xmm0
-      vmovdqu xmmword ptr [rdx-20h], xmm1
-    }
-    _ECX = _EAX - 4;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm0, xmm0, xmm2
-      vpsubd  xmm1, xmm3, xmm0
-      vmovdqu xmmword ptr [rdx-10h], xmm1
-    }
-    _ECX = _EAX + 4;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm0, xmm0, xmm2
-      vpsubd  xmm1, xmm3, xmm0
-      vmovdqu xmmword ptr [rdx], xmm1
-      vmovd   xmm0, ecx
-    }
-    _EAX += 16;
-    _RDX += 16;
+    _XMM0 = v3 - 8;
     __asm
     {
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm0, xmm0, xmm2
       vpsubd  xmm1, xmm3, xmm0
-      vmovdqu xmmword ptr [rdx-30h], xmm1
     }
+    *((_OWORD *)v4 - 2) = _XMM1;
+    _XMM0 = v3 - 4;
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm0, xmm0, xmm2
+      vpsubd  xmm1, xmm3, xmm0
+    }
+    *((_OWORD *)v4 - 1) = _XMM1;
+    _XMM0 = v3;
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm0, xmm0, xmm2
+      vpsubd  xmm1, xmm3, xmm0
+    }
+    *(_OWORD *)v4 = _XMM1;
+    _XMM0 = v3 + 4;
+    v3 += 16;
+    v4 += 16;
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm0, xmm0, xmm2
+      vpsubd  xmm1, xmm3, xmm0
+    }
+    *((_OWORD *)v4 - 3) = _XMM1;
   }
-  while ( (unsigned int)(_EAX - 8) < 0x100 );
-  s_availableIds[v3].m_count = 256;
+  while ( v3 - 8 < 0x100 );
+  s_availableIds[v2].m_count = 256;
 }
 
 /*

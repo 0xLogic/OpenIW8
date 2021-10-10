@@ -322,21 +322,15 @@ Com_GameStart_CheckFirstSnapshotMinDelay
 */
 bool Com_GameStart_CheckFirstSnapshotMinDelay(const bool forceCompletion)
 {
+  float loadTime; 
   char ActiveGameMode; 
 
   if ( forceCompletion || s_gameStartupData.state == IDLE || s_gameStartupData.state == ERRORING )
     return 1;
   if ( s_gameStartupData.state != 8 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Com_GameStart_CheckFirstSnapshotMinDelay: [%0.2fs] Transitioning to Waiting (from %i)\n", *(double *)&_XMM2, (unsigned int)s_gameStartupData.state);
+    loadTime = (float)s_gameStartupData.loadTime;
+    Com_Printf(14, "Com_GameStart_CheckFirstSnapshotMinDelay: [%0.2fs] Transitioning to Waiting (from %i)\n", (float)(loadTime * 0.001), (unsigned int)s_gameStartupData.state);
     s_gameStartupData.state = 8;
   }
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
@@ -385,20 +379,14 @@ void Com_GameStart_ClearState(void)
 Com_GameStart_FirstSnapshotStreaming
 ==============
 */
-
-void __fastcall Com_GameStart_FirstSnapshotStreaming(double _XMM0_8)
+void Com_GameStart_FirstSnapshotStreaming(void)
 {
+  float loadTime; 
+
   if ( s_gameStartupData.state != (ERRORING|SEARCHING) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Com_GameStart_FirstSnapshotStreaming: [%0.2fs] Transitioning to Streaming (from %i)\n", *(double *)&_XMM2, (unsigned int)s_gameStartupData.state);
+    loadTime = (float)s_gameStartupData.loadTime;
+    Com_Printf(14, "Com_GameStart_FirstSnapshotStreaming: [%0.2fs] Transitioning to Streaming (from %i)\n", (float)(loadTime * 0.001), (unsigned int)s_gameStartupData.state);
     s_gameStartupData.state = ERRORING|SEARCHING;
   }
 }
@@ -410,62 +398,56 @@ Com_GameStart_GetLoadInfoString
 */
 bool Com_GameStart_GetLoadInfoString(char *outString, unsigned int outStringSize)
 {
-  unsigned __int64 v3; 
+  unsigned __int64 v2; 
   const char *DebugText; 
-  const char *v6; 
+  const char *v5; 
+  float loadTime; 
   bool result; 
 
-  v3 = outStringSize;
+  v2 = outStringSize;
   DebugText = (char *)&queryFormat.fmt + 3;
   if ( !outString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 397, ASSERT_TYPE_ASSERT, "(outString)", (const char *)&queryFormat, "outString") )
     __debugbreak();
-  if ( !(_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 398, ASSERT_TYPE_ASSERT, "(outStringSize)", (const char *)&queryFormat, "outStringSize") )
+  if ( !(_DWORD)v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 398, ASSERT_TYPE_ASSERT, "(outStringSize)", (const char *)&queryFormat, "outStringSize") )
     __debugbreak();
   switch ( s_gameStartupData.state )
   {
     case 1:
-      v6 = "Unloading Front-End";
+      v5 = "Unloading Front-End";
       goto LABEL_20;
     case 2:
-      v6 = "Completing Preload";
+      v5 = "Completing Preload";
       goto LABEL_20;
     case 3:
-      v6 = "Loading Level";
+      v5 = "Loading Level";
       goto LABEL_20;
     case 4:
-      v6 = "Loading Transients";
+      v5 = "Loading Transients";
       goto LABEL_20;
     case 5:
-      v6 = "Restarting";
+      v5 = "Restarting";
       goto LABEL_20;
     case 6:
       if ( s_gameStartupData.isServer )
       {
-        v6 = "Starting Server";
+        v5 = "Starting Server";
         if ( Dvar_GetBoolSafe("PPQLQTKTP") && !Com_IsAnyLocalServerRunning() )
-          v6 = "Loaded Server Data, Connecting to Game";
+          v5 = "Loaded Server Data, Connecting to Game";
       }
       else
       {
-        v6 = "Connecting to Game";
+        v5 = "Connecting to Game";
       }
       goto LABEL_20;
     case 7:
-      v6 = "Streaming : ";
+      v5 = "Streaming : ";
       DebugText = Stream_LoadSync_GetDebugText();
       goto LABEL_20;
     case 8:
-      v6 = "Waiting Minimum Delay";
+      v5 = "Waiting Minimum Delay";
 LABEL_20:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(outString, v3, "[Dev] [%0.2fs]  %s%s", *(double *)&_XMM3, v6, DebugText);
+      loadTime = (float)s_gameStartupData.loadTime;
+      Com_sprintf(outString, v2, "[Dev] [%0.2fs]  %s%s", (float)(loadTime * 0.001), v5, DebugText);
       result = 1;
       break;
     default:
@@ -483,30 +465,24 @@ Com_GameStart_GetShortLoadInfoString
 */
 char Com_GameStart_GetShortLoadInfoString(char *outString, unsigned int outStringSize)
 {
-  unsigned __int64 v3; 
-  const char *v7; 
+  unsigned __int64 v2; 
+  const char *v5; 
+  float loadTime; 
   char *fmt; 
 
-  v3 = outStringSize;
+  v2 = outStringSize;
   if ( !outString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 465, ASSERT_TYPE_ASSERT, "(outString)", (const char *)&queryFormat, "outString") )
     __debugbreak();
-  if ( !(_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 466, ASSERT_TYPE_ASSERT, "(outStringSize)", (const char *)&queryFormat, "outStringSize") )
+  if ( !(_DWORD)v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamestart.cpp", 466, ASSERT_TYPE_ASSERT, "(outStringSize)", (const char *)&queryFormat, "outStringSize") )
     __debugbreak();
   if ( s_gameStartupData.state == IDLE )
     return 0;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v7 = "cl";
+  v5 = "cl";
   if ( s_gameStartupData.isServer )
-    v7 = "sv";
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcvtss2sd xmm3, xmm1, xmm1
-  }
+    v5 = "sv";
+  loadTime = (float)s_gameStartupData.loadTime;
   LODWORD(fmt) = s_gameStartupData.state;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf(outString, v3, "[%0.2fs] %d (%s)", *(double *)&_XMM3, fmt, v7);
+  Com_sprintf(outString, v2, "[%0.2fs] %d (%s)", (float)(loadTime * 0.001), fmt, v5);
   return 1;
 }
 
@@ -537,6 +513,10 @@ Com_GameStart_LoadFrame
 */
 void Com_GameStart_LoadFrame(const int msec)
 {
+  float loadTime; 
+  float v2; 
+  float v3; 
+  float v4; 
   ComStartupLevelLoadState state; 
 
   s_gameStartupData.loadTime += msec;
@@ -551,15 +531,8 @@ void Com_GameStart_LoadFrame(const int msec)
     case 1:
       if ( Com_FastFile_IsUnloadUiComplete() )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(14, "Com_GameStart Transitioning to LOADING_COMMON [%0.2fs]\n", *(double *)&_XMM2);
+        loadTime = (float)s_gameStartupData.loadTime;
+        Com_Printf(14, "Com_GameStart Transitioning to LOADING_COMMON [%0.2fs]\n", (float)(loadTime * 0.001));
         s_gameStartupData.state = SEARCHING;
       }
       break;
@@ -567,15 +540,8 @@ void Com_GameStart_LoadFrame(const int msec)
       if ( Com_FastFile_GameStart_ReadyForLevel(s_gameStartupData.mapname) )
       {
         DB_LoadLevelXAssetsNonBlockingStart(s_gameStartupData.mapname, s_gameStartupData.isServer);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(14, "Com_GameStart Transitioning to LOADING_LEVEL [%0.2fs]\n", *(double *)&_XMM2);
+        v2 = (float)s_gameStartupData.loadTime;
+        Com_Printf(14, "Com_GameStart Transitioning to LOADING_LEVEL [%0.2fs]\n", (float)(v2 * 0.001));
         s_gameStartupData.state = QOSING;
       }
       break;
@@ -583,15 +549,8 @@ void Com_GameStart_LoadFrame(const int msec)
       if ( Com_FastFile_GameStart_ReadyForTransients(s_gameStartupData.mapname) )
       {
         DB_LoadLevelXAssetsNonBlockingTransients();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(14, "Com_GameStart Transitioning to LOADING_TRANSIENTS [%0.2fs]\n", *(double *)&_XMM2);
+        v3 = (float)s_gameStartupData.loadTime;
+        Com_Printf(14, "Com_GameStart Transitioning to LOADING_TRANSIENTS [%0.2fs]\n", (float)(v3 * 0.001));
         s_gameStartupData.state = JOINED_LOBBY;
       }
       break;
@@ -599,15 +558,8 @@ void Com_GameStart_LoadFrame(const int msec)
       if ( Com_FastFile_GameStart_ReadyToStart(s_gameStartupData.mapname) )
       {
         DB_LoadLevelXAssetsNonBlockingFinalize(s_gameStartupData.mapname);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(14, "Com_GameStart Transitioning to STARTING [%0.2fs]\n", *(double *)&_XMM2);
+        v4 = (float)s_gameStartupData.loadTime;
+        Com_Printf(14, "Com_GameStart Transitioning to STARTING [%0.2fs]\n", (float)(v4 * 0.001));
         s_gameStartupData.state = JOINED_LOBBY|SEARCHING;
       }
       break;

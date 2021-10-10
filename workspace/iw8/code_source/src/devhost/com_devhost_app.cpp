@@ -427,17 +427,19 @@ void Com_DevhostGetDVarInfo(const char *dvarName, char *buf, int maxLen, int *ou
   unsigned __int64 v6; 
   const dvar_t *VarByName; 
   __int64 v9; 
+  const dvar_t *v10; 
   int v11; 
   int v12; 
   __int64 v13; 
-  __int64 v15; 
-  int v16; 
-  __int64 v17; 
+  __int64 v14; 
+  int v15; 
+  __int64 v16; 
+  int v17; 
   int v18; 
   int v19; 
   int v20; 
-  int v21; 
-  __int64 v22; 
+  __int64 v21; 
+  int v22; 
   int v23; 
   int v24; 
   int v25; 
@@ -448,14 +450,12 @@ void Com_DevhostGetDVarInfo(const char *dvarName, char *buf, int maxLen, int *ou
   int v30; 
   int v31; 
   int v32; 
-  int v33; 
   __int64 stringCount; 
+  int v34; 
   int v35; 
   int v36; 
-  int v37; 
-  int v40; 
-  int v42; 
-  int v43; 
+  int v38; 
+  double max; 
   char *fmt; 
   char *fmtd; 
   char *fmte; 
@@ -477,12 +477,12 @@ void Com_DevhostGetDVarInfo(const char *dvarName, char *buf, int maxLen, int *ou
   char *fmts; 
   char *fmtc; 
   char *fmtt; 
-  DvarValue v70; 
+  DvarValue current; 
 
   v6 = maxLen;
   VarByName = Dvar_FindVarByName(dvarName);
   v9 = 0i64;
-  _R14 = VarByName;
+  v10 = VarByName;
   v11 = 0;
   if ( VarByName )
   {
@@ -490,141 +490,120 @@ void Com_DevhostGetDVarInfo(const char *dvarName, char *buf, int maxLen, int *ou
     v13 = v12;
     if ( v12 > (int)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devhost\\com_devhost_app.cpp", 264, ASSERT_TYPE_ASSERT, "( p ) <= ( maxLen )", "%s <= %s\n\t%i, %i", "p", "maxLen", v12, v6) )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14+28h]
-      vmovups [rsp+78h+var_28], xmm0
-    }
-    Dvar_ValueToStringBuffer(_R14, &v70, &buf[v13], (int)v6 - (int)v13);
-    v15 = -1i64;
+    current = v10->current;
+    Dvar_ValueToStringBuffer(v10, &current, &buf[v13], (int)v6 - (int)v13);
+    v14 = -1i64;
     do
-      ++v15;
-    while ( buf[v13 + v15] );
-    v16 = v15 + v13;
-    v17 = v16;
-    v11 = v16 + 1;
-    buf[v17] = 12;
-    switch ( _R14->type )
+      ++v14;
+    while ( buf[v13 + v14] );
+    v15 = v14 + v13;
+    v16 = v15;
+    v11 = v15 + 1;
+    buf[v16] = 12;
+    switch ( v10->type )
     {
       case 0u:
         LODWORD(fmt) = 12;
-        v18 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 101i64, fmt) + v11;
+        v17 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 101i64, fmt) + v11;
         LODWORD(fmtd) = 12;
-        v19 = Com_sprintf(&buf[v18], (int)v6 - v18, "%d%c", 1i64, fmtd) + v18;
+        v18 = Com_sprintf(&buf[v17], (int)v6 - v17, "%d%c", 1i64, fmtd) + v17;
         LODWORD(fmte) = 12;
-        v20 = Com_sprintf(&buf[v19], (int)v6 - v19, "%s%c", "0", fmte) + v19;
+        v19 = Com_sprintf(&buf[v18], (int)v6 - v18, "%s%c", "0", fmte) + v18;
         LODWORD(fmtf) = 12;
-        v11 = Com_sprintf(&buf[v20], (int)v6 - v20, "%s%c", "1", fmtf) + v20;
+        v11 = Com_sprintf(&buf[v19], (int)v6 - v19, "%s%c", "1", fmtf) + v19;
         break;
       case 1u:
         LODWORD(fmt) = 12;
-        v21 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
-        v22 = 1i64;
+        v20 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
+        v21 = 1i64;
         goto LABEL_21;
       case 2u:
         LODWORD(fmt) = 12;
-        v21 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
-        v22 = 2i64;
+        v20 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
+        v21 = 2i64;
         goto LABEL_21;
       case 3u:
       case 0xBu:
         LODWORD(fmt) = 12;
-        v21 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
-        v22 = 3i64;
+        v20 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
+        v21 = 3i64;
         goto LABEL_21;
       case 4u:
         LODWORD(fmt) = 12;
-        v21 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
-        v22 = 4i64;
+        v20 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt);
+        v21 = 4i64;
 LABEL_21:
-        v42 = v21 + v11;
         LODWORD(fmta) = 12;
-        v43 = Com_sprintf(&buf[v42], (int)v6 - v42, "%d%c", v22, fmta);
-        __asm { vmovss  xmm3, dword ptr [r14+58h] }
-        v37 = v43 + v42;
+        v36 = Com_sprintf(&buf[v20 + v11], (int)v6 - (v20 + v11), "%d%c", v21, fmta) + v20 + v11;
         LODWORD(fmtt) = 12;
-        __asm
-        {
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        v40 = Com_sprintf(&buf[v37], (int)v6 - v37, "%f%c", *(double *)&_XMM3, fmtt);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [r14+5Ch]
-          vcvtss2sd xmm3, xmm3, xmm3
-        }
+        v38 = Com_sprintf(&buf[v36], (int)v6 - v36, "%f%c", v10->domain.value.min, fmtt);
+        max = v10->domain.value.max;
         goto LABEL_22;
       case 5u:
         LODWORD(fmt) = 12;
-        v23 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
+        v22 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
         LODWORD(fmtg) = 12;
-        v24 = Com_sprintf(&buf[v23], (int)v6 - v23, "%d%c", 1i64, fmtg) + v23;
+        v23 = Com_sprintf(&buf[v22], (int)v6 - v22, "%d%c", 1i64, fmtg) + v22;
         LODWORD(fmth) = 12;
-        v25 = Com_sprintf(&buf[v24], (int)v6 - v24, "%d%c", (unsigned int)_R14->domain.enumeration.stringCount, fmth) + v24;
+        v24 = Com_sprintf(&buf[v23], (int)v6 - v23, "%d%c", (unsigned int)v10->domain.enumeration.stringCount, fmth) + v23;
         LODWORD(fmti) = 12;
-        v11 = Com_sprintf(&buf[v25], (int)v6 - v25, "%d%c", (unsigned int)_R14->domain.integer.max, fmti) + v25;
+        v11 = Com_sprintf(&buf[v24], (int)v6 - v24, "%d%c", (unsigned int)v10->domain.integer.max, fmti) + v24;
         break;
       case 6u:
         LODWORD(fmt) = 12;
-        v26 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
+        v25 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
         LODWORD(fmtj) = 12;
-        v27 = Com_sprintf(&buf[v26], (int)v6 - v26, "%d%c", 1i64, fmtj) + v26;
+        v26 = Com_sprintf(&buf[v25], (int)v6 - v25, "%d%c", 1i64, fmtj) + v25;
         LODWORD(fmtk) = 12;
-        v28 = Com_sprintf(&buf[v27], (int)v6 - v27, "%lli%c", _R14->domain.integer64.min, fmtk) + v27;
+        v27 = Com_sprintf(&buf[v26], (int)v6 - v26, "%lli%c", v10->domain.integer64.min, fmtk) + v26;
         LODWORD(fmtl) = 12;
-        v11 = Com_sprintf(&buf[v28], (int)v6 - v28, "%lli%c", _R14->domain.integer64.max, fmtl) + v28;
+        v11 = Com_sprintf(&buf[v27], (int)v6 - v27, "%lli%c", v10->domain.integer64.max, fmtl) + v27;
         break;
       case 7u:
         LODWORD(fmt) = 12;
-        v29 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
+        v28 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 105i64, fmt) + v11;
         LODWORD(fmtm) = 12;
-        v30 = Com_sprintf(&buf[v29], (int)v6 - v29, "%d%c", 1i64, fmtm) + v29;
+        v29 = Com_sprintf(&buf[v28], (int)v6 - v28, "%d%c", 1i64, fmtm) + v28;
         LODWORD(fmtn) = 12;
-        v31 = Com_sprintf(&buf[v30], (int)v6 - v30, "%llu%c", _R14->domain.integer64.min, fmtn) + v30;
+        v30 = Com_sprintf(&buf[v29], (int)v6 - v29, "%llu%c", v10->domain.integer64.min, fmtn) + v29;
         LODWORD(fmto) = 12;
-        v11 = Com_sprintf(&buf[v31], (int)v6 - v31, "%llu%c", _R14->domain.integer64.max, fmto) + v31;
+        v11 = Com_sprintf(&buf[v30], (int)v6 - v30, "%llu%c", v10->domain.integer64.max, fmto) + v30;
         break;
       case 8u:
         LODWORD(fmt) = 12;
-        v32 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 101i64, fmt) + v11;
+        v31 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 101i64, fmt) + v11;
         LODWORD(fmtp) = 12;
-        v33 = Com_sprintf(&buf[v32], (int)v6 - v32, "%d%c", 1i64, fmtp);
-        stringCount = _R14->domain.enumeration.stringCount;
-        v11 = v33 + v32;
+        v32 = Com_sprintf(&buf[v31], (int)v6 - v31, "%d%c", 1i64, fmtp);
+        stringCount = v10->domain.enumeration.stringCount;
+        v11 = v32 + v31;
         if ( stringCount > 0 )
         {
           do
           {
             LODWORD(fmtb) = 12;
-            v11 += Com_sprintf(&buf[v11], (int)v6 - v11, "%s%c", *(const char **)(_R14->domain.integer64.max + 8 * v9++), fmtb);
+            v11 += Com_sprintf(&buf[v11], (int)v6 - v11, "%s%c", *(const char **)(v10->domain.integer64.max + 8 * v9++), fmtb);
           }
           while ( v9 < stringCount );
         }
         break;
       case 9u:
         LODWORD(fmt) = 12;
-        v35 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 115i64, fmt) + v11;
+        v34 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 115i64, fmt) + v11;
         LODWORD(fmtq) = 12;
-        v11 = Com_sprintf(&buf[v35], (int)v6 - v35, "%d%c", 1i64, fmtq) + v35;
+        v11 = Com_sprintf(&buf[v34], (int)v6 - v34, "%d%c", 1i64, fmtq) + v34;
         break;
       case 0xAu:
         LODWORD(fmt) = 12;
-        v36 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt) + v11;
+        v35 = Com_sprintf(&buf[v11], (int)v6 - v11, "%c%c", 102i64, fmt) + v11;
         LODWORD(fmtr) = 12;
-        v37 = Com_sprintf(&buf[v36], (int)v6 - v36, "%d%c", 4i64, fmtr) + v36;
+        v36 = Com_sprintf(&buf[v35], (int)v6 - v35, "%d%c", 4i64, fmtr) + v35;
         LODWORD(fmts) = 12;
-        __asm
-        {
-          vxorpd  xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        v40 = Com_sprintf(&buf[v37], (int)v6 - v37, "%f%c", *(double *)&_XMM3, fmts);
-        __asm { vmovsd  xmm3, cs:__real@3ff0000000000000 }
+        __asm { vxorpd  xmm3, xmm3, xmm3 }
+        v38 = Com_sprintf(&buf[v36], (int)v6 - v36, "%f%c", *(double *)&_XMM3, fmts);
+        max = DOUBLE_1_0;
 LABEL_22:
         LODWORD(fmtc) = 12;
-        __asm { vmovq   r9, xmm3 }
-        v11 = Com_sprintf(&buf[v40 + v37], (int)v6 - (v40 + v37), "%f%c", *(double *)&_XMM3, fmtc) + v40 + v37;
+        v11 = Com_sprintf(&buf[v38 + v36], (int)v6 - (v38 + v36), "%f%c", max, fmtc) + v38 + v36;
         break;
       default:
         break;
@@ -728,16 +707,11 @@ char Com_DevhostQueryCallback(ComDevhostReadHandle *handle)
   __int64 v7; 
   char v8; 
   __int64 FirstActiveLocalClient; 
+  cg_t *v10; 
   unsigned int refdefViewOrg_aab; 
-  __int64 v24; 
-  char *fmt; 
-  __int64 v27; 
-  double v28; 
-  __int64 v29; 
-  double v30; 
-  int v31; 
-  int v32; 
-  int v33; 
+  __int64 v12; 
+  __int64 v14; 
+  __int64 v15; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devhost\\com_devhost_app.cpp", 507, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -770,71 +744,41 @@ char Com_DevhostQueryCallback(ComDevhostReadHandle *handle)
     FirstActiveLocalClient = CL_GetFirstActiveLocalClient();
     if ( (unsigned int)FirstActiveLocalClient >= cg_t::ms_allocatedCount )
     {
-      LODWORD(v27) = FirstActiveLocalClient;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v27, cg_t::ms_allocatedCount) )
+      LODWORD(v14) = FirstActiveLocalClient;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v14, cg_t::ms_allocatedCount) )
         __debugbreak();
     }
     if ( !cg_t::ms_cgArray[FirstActiveLocalClient] )
     {
-      LODWORD(v29) = FirstActiveLocalClient;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v29) )
+      LODWORD(v15) = FirstActiveLocalClient;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v15) )
         __debugbreak();
     }
     if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
     {
-      LODWORD(v29) = FirstActiveLocalClient;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v29) )
+      LODWORD(v15) = FirstActiveLocalClient;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v15) )
         __debugbreak();
     }
-    _RDI = cg_t::ms_cgArray[FirstActiveLocalClient];
-    if ( _RDI->nextSnap )
+    v10 = cg_t::ms_cgArray[FirstActiveLocalClient];
+    if ( v10->nextSnap )
     {
-      if ( _RDI == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+      if ( v10 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
         __debugbreak();
-      refdefViewOrg_aab = _RDI->refdef.view.refdefViewOrg_aab;
-      if ( _RDI == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+      refdefViewOrg_aab = v10->refdef.view.refdefViewOrg_aab;
+      if ( v10 == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+178C0h]
-        vmovss  xmm1, dword ptr [rdi+178C4h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+78h+var_48], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+78h+var_50], xmm1
-      }
-      v31 = LODWORD(_RDI->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26936)) + 2));
-      __asm
-      {
-        vmovss  xmm2, [rsp+78h+var_38]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      v32 = LODWORD(_RDI->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26940)) + 2));
-      __asm
-      {
-        vmovss  xmm3, [rsp+78h+var_34]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      v33 = LODWORD(_RDI->refdef.view.org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)_RDI + 26944)) + 2));
-      __asm
-      {
-        vmovss  xmm4, [rsp+78h+var_30]
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+78h+fmt], xmm4
-      }
-      Com_sprintf<16384>((char (*)[16384])bytes_1, "%.0f;%.0f;%.0f;%.0f;%.0f", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v28, v30);
+      Com_sprintf<16384>((char (*)[16384])bytes_1, "%.0f;%.0f;%.0f;%.0f;%.0f", COERCE_FLOAT(LODWORD(v10->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26936)) + 2))), COERCE_FLOAT(LODWORD(v10->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26940)) + 2))), COERCE_FLOAT(LODWORD(v10->refdef.view.org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)v10 + 26944)) + 2))), v10->refdefViewAngles.v[1], v10->refdefViewAngles.v[0]);
     }
     else
     {
       Com_sprintf<16384>((char (*)[16384])bytes_1, "NOT AVAIL");
     }
-    v24 = -1i64;
+    v12 = -1i64;
     do
-      ++v24;
-    while ( bytes_1[v24] );
-    Com_DevhostSendMessage(6, 1u, v24, bytes_1);
+      ++v12;
+    while ( bytes_1[v12] );
+    Com_DevhostSendMessage(6, 1u, v12, bytes_1);
   }
   return 1;
 }

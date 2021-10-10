@@ -574,29 +574,26 @@ float CL_UIWeapon_GetCollisionPlaneHeightOffset(const LocalClientNum_t localClie
 {
   __int64 v2; 
   __int64 v3; 
-  __int64 v8; 
-  __int64 v10; 
-  int v11; 
+  __int64 v5; 
+  __int64 v7; 
+  int v8; 
 
   v2 = localClientNum;
   v3 = weaponIndex;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v11 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v11) )
+    v8 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v8) )
       __debugbreak();
   }
   if ( (unsigned int)v3 >= 0x32 )
   {
-    LODWORD(v10) = 50;
-    LODWORD(v8) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 345, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v8, v10) )
+    LODWORD(v7) = 50;
+    LODWORD(v5) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 345, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v5, v7) )
       __debugbreak();
   }
-  _RAX = 584 * (v3 + 50 * v2);
-  _RCX = &s_weaponData[0][0].weaponCollisionPlaneHeightOffset;
-  __asm { vmovss  xmm0, dword ptr [rax+rcx] }
-  return *(float *)&_XMM0;
+  return s_weaponData[v2][v3].weaponCollisionPlaneHeightOffset;
 }
 
 /*
@@ -702,8 +699,8 @@ bool CL_UIWeapon_GetLoaded(const LocalClientNum_t localClientNum, const unsigned
   __int64 v2; 
   __int64 v3; 
   __int64 v4; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v6; 
+  __int64 v7; 
   Weapon result; 
   Weapon weapon; 
 
@@ -713,53 +710,43 @@ bool CL_UIWeapon_GetLoaded(const LocalClientNum_t localClientNum, const unsigned
     __debugbreak();
   if ( (unsigned int)v3 >= 0x32 )
   {
-    LODWORD(v11) = 50;
-    LODWORD(v10) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 267, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v7) = 50;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 267, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   v4 = v3 + 50 * v2;
   if ( !s_weaponData[0][v4].weaponName[0] )
     return 1;
-  _RAX = CG_Weapons_GetWeaponForName(&result, s_weaponData[0][v4].weaponName);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0F8h+weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0F8h+weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0F8h+weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  weapon = *CG_Weapons_GetWeaponForName(&result, s_weaponData[0][v4].weaponName);
   if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v11) = 2;
-    LODWORD(v10) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 284, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v7) = 2;
+    LODWORD(v6) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 284, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( (unsigned int)v3 >= 0x32 )
   {
-    LODWORD(v11) = 50;
-    LODWORD(v10) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 285, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v7) = 50;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 285, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( !weapon.weaponIdx )
     return 0;
   if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v11) = 2;
-    LODWORD(v10) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 203, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v7) = 2;
+    LODWORD(v6) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 203, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( (unsigned int)v3 >= 0x32 )
   {
-    LODWORD(v11) = 50;
-    LODWORD(v10) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 204, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v7) = 50;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 204, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( s_weaponData[0][v4].weaponIsWorldModel )
@@ -1211,39 +1198,30 @@ void CL_UIWeapon_SetCollisionPlaneEnabled(const LocalClientNum_t localClientNum,
 CL_UIWeapon_SetCollisionPlaneHeightOffset
 ==============
 */
-
-void __fastcall CL_UIWeapon_SetCollisionPlaneHeightOffset(const LocalClientNum_t localClientNum, const unsigned int weaponIndex, double offset)
+void CL_UIWeapon_SetCollisionPlaneHeightOffset(const LocalClientNum_t localClientNum, const unsigned int weaponIndex, float offset)
 {
+  __int64 v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v10; 
-  __int64 v12; 
-  int v13; 
+  __int64 v7; 
+  int v8; 
 
-  v4 = localClientNum;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v5 = weaponIndex;
-  __asm { vmovaps xmm6, xmm2 }
+  v3 = localClientNum;
+  v4 = weaponIndex;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v13 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 335, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v13) )
+    v8 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 335, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v8) )
       __debugbreak();
   }
-  if ( (unsigned int)v5 >= 0x32 )
+  if ( (unsigned int)v4 >= 0x32 )
   {
-    LODWORD(v12) = 50;
-    LODWORD(v10) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 336, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v10, v12) )
+    LODWORD(v7) = 50;
+    LODWORD(v5) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_weapon.cpp", 336, ASSERT_TYPE_ASSERT, "(unsigned)( weaponIndex ) < (unsigned)( 50 )", "weaponIndex doesn't index MAX_CLIENT_UI_WEAPONS\n\t%i not in [0, %i)", v5, v7) )
       __debugbreak();
   }
-  _RAX = 584 * (v5 + 50 * v4);
-  _RCX = &s_weaponData[0][0].weaponCollisionPlaneHeightOffset;
-  __asm
-  {
-    vmovss  dword ptr [rax+rcx], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_weaponData[v3][v4].weaponCollisionPlaneHeightOffset = offset;
 }
 
 /*

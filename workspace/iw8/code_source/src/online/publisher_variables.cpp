@@ -594,12 +594,7 @@ PublisherVariableManager::OutputCurrentState
 */
 void PublisherVariableManager::OutputCurrentState(PublisherVariableManager *this, const int controllerIndex)
 {
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@3fb0000000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "[PubVar] %s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "[PubVar] %s is %.2fkb in size.\n", this->m_name, DOUBLE_0_0625);
 }
 
 /*

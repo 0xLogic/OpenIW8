@@ -894,22 +894,25 @@ std_huff_tables
 
 void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double _XMM2_8, double _XMM3_8)
 {
-  _RAX = cinfo->dc_huff_tbl_ptrs[0];
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  if ( !_RAX )
+  JHUFF_TBL *v5; 
+  __int64 v7; 
+  __int64 v8; 
+  JHUFF_TBL *v23; 
+  __int64 v24; 
+  JHUFF_TBL *v36; 
+  __int64 v37; 
+  JHUFF_TBL *v49; 
+
+  v5 = cinfo->dc_huff_tbl_ptrs[0];
+  if ( !v5 )
   {
-    _RAX = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
-    cinfo->dc_huff_tbl_ptrs[0] = _RAX;
+    v5 = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
+    cinfo->dc_huff_tbl_ptrs[0] = v5;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:bits_dc_luminance
-    vmovups xmmword ptr [rax], xmm0
-  }
-  _RBP = 0x140000000ui64;
-  _RDI = 1i64;
-  _RAX->bits[16] = bits_dc_luminance[16];
-  _RAX = 1i64;
+  *(_OWORD *)v5->bits = *(_OWORD *)bits_dc_luminance;
+  v7 = 1i64;
+  v5->bits[16] = bits_dc_luminance[16];
+  v8 = 1i64;
   __asm
   {
     vpxor   xmm6, xmm6, xmm6
@@ -918,21 +921,18 @@ void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double 
   }
   do
   {
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rax+rbp+47503A0h]
-      vpmovzxbd xmm1, xmm0
-      vmovd   xmm0, dword ptr [rax+rbp+47503A4h]
-      vpaddd  xmm2, xmm1, xmm2
-    }
-    _RAX += 8i64;
+    _XMM0 = *(unsigned int *)&bits_dc_luminance[v8];
+    __asm { vpmovzxbd xmm1, xmm0 }
+    _XMM0 = *(unsigned int *)&bits_dc_luminance[v8 + 4];
+    __asm { vpaddd  xmm2, xmm1, xmm2 }
+    v8 += 8i64;
     __asm
     {
       vpmovzxbd xmm1, xmm0
       vpaddd  xmm3, xmm1, xmm3
     }
   }
-  while ( _RAX <= 16 );
+  while ( v8 <= 16 );
   __asm
   {
     vpaddd  xmm1, xmm3, xmm2
@@ -940,50 +940,37 @@ void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double 
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   esi, xmm0
   }
-  if ( (unsigned int)(_ESI - 1) > 0xFF )
+  if ( (unsigned int)(_XMM0 - 1) > 0xFF )
   {
     cinfo->err->msg_code = 8;
     cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  memcpy_0(cinfo->dc_huff_tbl_ptrs[0]->huffval, val_dc_luminance, _ESI);
+  memcpy_0(cinfo->dc_huff_tbl_ptrs[0]->huffval, val_dc_luminance, (int)_XMM0);
   cinfo->dc_huff_tbl_ptrs[0]->sent_table = 0;
-  _RAX = cinfo->ac_huff_tbl_ptrs[0];
-  if ( !_RAX )
+  v23 = cinfo->ac_huff_tbl_ptrs[0];
+  if ( !v23 )
   {
-    _RAX = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
-    cinfo->ac_huff_tbl_ptrs[0] = _RAX;
+    v23 = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
+    cinfo->ac_huff_tbl_ptrs[0] = v23;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:bits_ac_luminance
-    vmovups xmmword ptr [rax], xmm0
-  }
-  _RAX->bits[16] = bits_ac_luminance[16];
-  _RAX = 1i64;
-  __asm
-  {
-    vmovdqu xmm2, xmm6
-    vmovdqu xmm3, xmm6
-  }
+  *(_OWORD *)v23->bits = *(_OWORD *)bits_ac_luminance;
+  v23->bits[16] = bits_ac_luminance[16];
+  v24 = 1i64;
   do
   {
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rax+rbp+47503F0h]
-      vpmovzxbd xmm1, xmm0
-      vmovd   xmm0, dword ptr [rax+rbp+47503F4h]
-      vpaddd  xmm2, xmm1, xmm2
-    }
-    _RAX += 8i64;
+    _XMM0 = *(unsigned int *)&bits_ac_luminance[v24];
+    __asm { vpmovzxbd xmm1, xmm0 }
+    _XMM0 = *(unsigned int *)&bits_ac_luminance[v24 + 4];
+    __asm { vpaddd  xmm2, xmm1, xmm2 }
+    v24 += 8i64;
     __asm
     {
       vpmovzxbd xmm1, xmm0
       vpaddd  xmm3, xmm1, xmm3
     }
   }
-  while ( _RAX <= 16 );
+  while ( v24 <= 16 );
   __asm
   {
     vpaddd  xmm1, xmm3, xmm2
@@ -991,50 +978,37 @@ void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double 
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   esi, xmm0
   }
-  if ( (unsigned int)(_ESI - 1) > 0xFF )
+  if ( (unsigned int)(_XMM0 - 1) > 0xFF )
   {
     cinfo->err->msg_code = 8;
     cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  memcpy_0(cinfo->ac_huff_tbl_ptrs[0]->huffval, val_ac_luminance, _ESI);
+  memcpy_0(cinfo->ac_huff_tbl_ptrs[0]->huffval, val_ac_luminance, (int)_XMM0);
   cinfo->ac_huff_tbl_ptrs[0]->sent_table = 0;
-  _RAX = cinfo->dc_huff_tbl_ptrs[1];
-  if ( !_RAX )
+  v36 = cinfo->dc_huff_tbl_ptrs[1];
+  if ( !v36 )
   {
-    _RAX = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
-    cinfo->dc_huff_tbl_ptrs[1] = _RAX;
+    v36 = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
+    cinfo->dc_huff_tbl_ptrs[1] = v36;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:bits_dc_chrominance
-    vmovups xmmword ptr [rax], xmm0
-  }
-  _RAX->bits[16] = bits_dc_chrominance[16];
-  _RAX = 1i64;
-  __asm
-  {
-    vmovdqu xmm2, xmm6
-    vmovdqu xmm3, xmm6
-  }
+  *(_OWORD *)v36->bits = *(_OWORD *)bits_dc_chrominance;
+  v36->bits[16] = bits_dc_chrominance[16];
+  v37 = 1i64;
   do
   {
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rax+rbp+47503C8h]
-      vpmovzxbd xmm1, xmm0
-      vmovd   xmm0, dword ptr [rax+rbp+47503CCh]
-      vpaddd  xmm2, xmm1, xmm2
-    }
-    _RAX += 8i64;
+    _XMM0 = *(unsigned int *)&bits_dc_chrominance[v37];
+    __asm { vpmovzxbd xmm1, xmm0 }
+    _XMM0 = *(unsigned int *)&bits_dc_chrominance[v37 + 4];
+    __asm { vpaddd  xmm2, xmm1, xmm2 }
+    v37 += 8i64;
     __asm
     {
       vpmovzxbd xmm1, xmm0
       vpaddd  xmm3, xmm1, xmm3
     }
   }
-  while ( _RAX <= 16 );
+  while ( v37 <= 16 );
   __asm
   {
     vpaddd  xmm1, xmm3, xmm2
@@ -1042,45 +1016,36 @@ void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double 
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   esi, xmm0
   }
-  if ( (unsigned int)(_ESI - 1) > 0xFF )
+  if ( (unsigned int)(_XMM0 - 1) > 0xFF )
   {
     cinfo->err->msg_code = 8;
     cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  memcpy_0(cinfo->dc_huff_tbl_ptrs[1]->huffval, val_dc_chrominance, _ESI);
+  memcpy_0(cinfo->dc_huff_tbl_ptrs[1]->huffval, val_dc_chrominance, (int)_XMM0);
   cinfo->dc_huff_tbl_ptrs[1]->sent_table = 0;
-  _RAX = cinfo->ac_huff_tbl_ptrs[1];
-  if ( !_RAX )
+  v49 = cinfo->ac_huff_tbl_ptrs[1];
+  if ( !v49 )
   {
-    _RAX = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
-    cinfo->ac_huff_tbl_ptrs[1] = _RAX;
+    v49 = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
+    cinfo->ac_huff_tbl_ptrs[1] = v49;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:bits_ac_chrominance
-    vmovups xmmword ptr [rax], xmm0
-  }
-  _RAX->bits[16] = bits_ac_chrominance[16];
-  __asm { vmovdqu xmm2, xmm6 }
+  *(_OWORD *)v49->bits = *(_OWORD *)bits_ac_chrominance;
+  v49->bits[16] = bits_ac_chrominance[16];
   do
   {
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rdi+rbp+4750408h]
-      vpmovzxbd xmm1, xmm0
-      vmovd   xmm0, dword ptr [rdi+rbp+475040Ch]
-      vpaddd  xmm6, xmm1, xmm6
-    }
-    _RDI += 8i64;
+    _XMM0 = *(unsigned int *)&bits_ac_chrominance[v7];
+    __asm { vpmovzxbd xmm1, xmm0 }
+    _XMM0 = *(unsigned int *)&bits_ac_chrominance[v7 + 4];
+    __asm { vpaddd  xmm6, xmm1, xmm6 }
+    v7 += 8i64;
     __asm
     {
       vpmovzxbd xmm1, xmm0
       vpaddd  xmm2, xmm1, xmm2
     }
   }
-  while ( _RDI <= 16 );
+  while ( v7 <= 16 );
   __asm
   {
     vpaddd  xmm1, xmm2, xmm6
@@ -1088,15 +1053,13 @@ void __fastcall std_huff_tables(jpeg_compress_struct *cinfo, __int64 a2, double 
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   edi, xmm0
   }
-  if ( (unsigned int)(_EDI - 1) > 0xFF )
+  if ( (unsigned int)(_XMM0 - 1) > 0xFF )
   {
     cinfo->err->msg_code = 8;
     cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  memcpy_0(cinfo->ac_huff_tbl_ptrs[1]->huffval, val_ac_chrominance, _EDI);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  memcpy_0(cinfo->ac_huff_tbl_ptrs[1]->huffval, val_ac_chrominance, (int)_XMM0);
   cinfo->ac_huff_tbl_ptrs[1]->sent_table = 0;
 }
 

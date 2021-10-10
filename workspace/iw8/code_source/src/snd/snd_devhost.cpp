@@ -282,209 +282,203 @@ SND_DevhostEntState
 */
 void SND_DevhostEntState()
 {
-  int v6; 
+  int v3; 
+  unsigned int v4; 
+  __int64 v5; 
+  __int64 v6; 
   unsigned int v7; 
-  __int64 v8; 
-  __int64 v10; 
-  unsigned int v11; 
-  unsigned int v44; 
+  unsigned int *p_hasPosition; 
+  unsigned int v38; 
   unsigned __int64 *p_handle; 
-  unsigned int v53; 
-  __int64 v58; 
+  __int64 v40; 
+  __int64 i; 
+  unsigned int v42; 
+  __int64 v43; 
   const char *stateName; 
-  const char *v60; 
+  const char *v45; 
   char msg[8]; 
-  __int64 v67; 
+  _DWORD *v47; 
   float outLerp; 
-  float v69; 
-  ScopedDevHostMessage v70[2]; 
+  float v49; 
+  ScopedDevHostMessage v50[2]; 
   ZoneDef *outZoneA; 
   ZoneDef *outZoneB; 
   unsigned int outValueB; 
   unsigned int outValueA[3]; 
-  __int64 v75; 
+  __int64 v55; 
   unsigned int contextType[2]; 
-  int v77; 
-  __int64 v78; 
-  int v79; 
-  int v81; 
-  int v82[3]; 
-  unsigned __int64 v83; 
+  int v57; 
+  __int64 v58; 
+  int v59; 
+  __int64 v60; 
+  int v61; 
+  float v62[3]; 
+  unsigned __int64 v63; 
   tmat33_t<vec3_t> out; 
   vec3_t point; 
-  int v86; 
+  int v66; 
+  float v67; 
   char dest[64]; 
-  char v89[64]; 
-  char v90[64]; 
-  char v91[64]; 
-  char v92; 
-  void *retaddr; 
+  char v69[64]; 
+  char v70[64]; 
+  char v71[64]; 
 
-  _RAX = &retaddr;
-  v75 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
+  v55 = -2i64;
   if ( Com_DevhostSystemActive(3) )
   {
-    v6 = 0;
+    v3 = 0;
     *(_DWORD *)msg = 0;
-    v7 = 0;
-    v8 = 0i64;
-    _R12 = &g_snd;
+    v4 = 0;
+    v5 = 0i64;
     do
     {
-      v10 = v8 << 7;
-      if ( g_snd.entState[v8].hasPosition )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[1].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[2].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[3].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[4].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[5].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[6].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[7].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[8].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[9].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[10].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[11].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[12].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[13].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[14].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[15].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[16].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[17].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[18].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[19].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[20].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[21].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[22].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[23].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[24].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[25].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[26].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[27].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[28].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[29].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[30].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[31].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[32].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[33].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[34].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[35].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[36].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[37].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[38].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[39].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[40].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[41].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[42].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[43].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[44].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[45].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[46].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[47].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[48].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[49].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[50].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[51].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[52].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[53].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[54].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[55].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[56].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[57].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[58].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[59].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[60].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[61].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[62].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      if ( *(unsigned int *)((char *)&g_snd.entState[63].hasPosition + v10) )
-        *(_DWORD *)msg = ++v6;
-      v7 += 64;
-      v8 += 64i64;
+      v6 = v5 << 7;
+      if ( g_snd.entState[v5].hasPosition )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[1].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[2].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[3].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[4].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[5].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[6].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[7].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[8].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[9].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[10].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[11].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[12].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[13].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[14].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[15].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[16].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[17].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[18].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[19].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[20].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[21].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[22].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[23].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[24].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[25].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[26].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[27].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[28].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[29].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[30].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[31].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[32].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[33].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[34].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[35].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[36].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[37].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[38].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[39].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[40].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[41].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[42].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[43].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[44].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[45].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[46].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[47].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[48].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[49].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[50].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[51].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[52].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[53].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[54].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[55].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[56].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[57].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[58].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[59].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[60].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[61].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[62].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      if ( *(unsigned int *)((char *)&g_snd.entState[63].hasPosition + v6) )
+        *(_DWORD *)msg = ++v3;
+      v4 += 64;
+      v5 += 64i64;
     }
-    while ( v7 < 0x80 );
-    v11 = 0;
+    while ( v4 < 0x80 );
+    v7 = 0;
     __asm
     {
       vpxor   xmm6, xmm6, xmm6
       vpxor   xmm4, xmm4, xmm4
       vpxor   xmm5, xmm5, xmm5
-      vmovdqu xmm7, cs:__xmm@00000170000001700000017000000170
     }
-    _RAX = &g_snd.entState[2].hasPosition;
-    __asm { vmovdqu xmm8, cs:__xmm@ffffffffffffffffffffffffffffffff }
+    _XMM7 = _xmm;
+    p_hasPosition = &g_snd.entState[2].hasPosition;
     do
     {
+      _XMM0 = *(p_hasPosition - 64);
       __asm
       {
-        vmovd   xmm0, dword ptr [rax-100h]
         vpinsrd xmm0, xmm0, dword ptr [rax-80h], 1
         vpinsrd xmm0, xmm0, dword ptr [rax], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+80h], 3
@@ -494,7 +488,10 @@ void SND_DevhostEntState()
         vpand   xmm2, xmm1, xmm3
         vpandn  xmm0, xmm3, xmm4
         vpor    xmm4, xmm2, xmm0
-        vmovd   xmm0, dword ptr [rax+100h]
+      }
+      _XMM0 = p_hasPosition[64];
+      __asm
+      {
         vpinsrd xmm0, xmm0, dword ptr [rax+180h], 1
         vpinsrd xmm0, xmm0, dword ptr [rax+200h], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+280h], 3
@@ -505,10 +502,10 @@ void SND_DevhostEntState()
         vpandn  xmm0, xmm3, xmm5
         vpor    xmm5, xmm2, xmm0
       }
-      v11 += 8;
-      _RAX += 256;
+      v7 += 8;
+      p_hasPosition += 256;
     }
-    while ( v11 < 0x80 );
+    while ( v7 < 0x80 );
     __asm
     {
       vpaddd  xmm1, xmm4, xmm5
@@ -516,130 +513,81 @@ void SND_DevhostEntState()
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r9d, xmm0
     }
-    ScopedDevHostMessage::ScopedDevHostMessage(v70, 3, 0x13u, _ER9 + 4);
+    ScopedDevHostMessage::ScopedDevHostMessage(v50, 3, 0x13u, _XMM0 + 4);
     Com_DevhostSendBody(3, 4u, msg);
-    v44 = 0;
+    v38 = 0;
     p_handle = &g_snd.entState[0].handle;
-    __asm { vmovss  xmm6, cs:__real@42c80000 }
     do
     {
       if ( *((_DWORD *)p_handle + 15) )
       {
-        memset_0(&v78, 0, 0x164ui64);
-        _R14 = (__int64)(int)v44 << 7;
-        _RBX = (char *)g_snd.entState + _R14;
-        __asm
+        memset_0(&v58, 0, 0x164ui64);
+        v40 = (__int64)(int)v38 << 7;
+        *(_QWORD *)contextType = *(_QWORD *)((char *)g_snd.entState[0].contextTypes + v40);
+        v57 = *(unsigned int *)((char *)&g_snd.entState[0].contextTypes[2] + v40);
+        v58 = *(_QWORD *)((char *)g_snd.entState[0].contextValuesFrom + v40);
+        v59 = *(unsigned int *)((char *)&g_snd.entState[0].contextValuesFrom[2] + v40);
+        v60 = *(_QWORD *)((char *)g_snd.entState[0].contextValuesTo + v40);
+        v61 = *(unsigned int *)((char *)&g_snd.entState[0].contextValuesTo[2] + v40);
+        for ( i = 0i64; i < 3; ++i )
         {
-          vmovsd  xmm0, qword ptr [rbx]
-          vmovsd  qword ptr [rbp+150h+contextType], xmm0
-        }
-        v77 = *(unsigned int *)((char *)&g_snd.entState[0].contextTypes[2] + _R14);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [r14+r12+145494h]
-          vmovsd  [rbp+150h+var_1C4], xmm0
-        }
-        v79 = *(unsigned int *)((char *)&g_snd.entState[0].contextValuesFrom[2] + _R14);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [r14+r12+1454A0h]
-          vmovsd  [rbp+150h+var_1B8], xmm0
-        }
-        v81 = *(unsigned int *)((char *)&g_snd.entState[0].contextValuesTo[2] + _R14);
-        for ( _RDI = 0i64; _RDI < 3; ++_RDI )
-        {
-          v53 = contextType[_RDI];
-          if ( v53 )
+          v42 = contextType[i];
+          if ( v42 )
           {
-            SND_EntityFindContextValue((const SndEntState *)((char *)g_snd.entState + _R14), v53, outValueA, &outValueB, &outLerp);
-            __asm
-            {
-              vmulss  xmm1, xmm6, [rsp+250h+var_210]
-              vmovss  [rbp+rdi*4+150h+var_1AC], xmm1
-            }
+            SND_EntityFindContextValue((const SndEntState *)((char *)g_snd.entState + v40), v42, outValueA, &outValueB, &outLerp);
+            v62[i] = 100.0 * outLerp;
           }
           else
           {
-            v82[_RDI] = 0;
+            v62[i] = 0.0;
           }
         }
-        v83 = *p_handle;
-        v86 = *((_DWORD *)p_handle + 14);
-        AxisCopy((const tmat33_t<vec3_t> *)((char *)&g_snd.entState[0].orientation + _R14), &out);
-        if ( (snd_local_t *)((char *)&g_snd + _R14) == (snd_local_t *)-1332360i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 875, ASSERT_TYPE_ASSERT, "(sndEntState)", (const char *)&queryFormat, "sndEntState", *(_QWORD *)msg) )
+        v63 = *p_handle;
+        v66 = *((_DWORD *)p_handle + 14);
+        AxisCopy((const tmat33_t<vec3_t> *)((char *)&g_snd.entState[0].orientation + v40), &out);
+        if ( (snd_local_t *)((char *)&g_snd + v40) == (snd_local_t *)-1332360i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 875, ASSERT_TYPE_ASSERT, "(sndEntState)", (const char *)&queryFormat, "sndEntState", *(_QWORD *)msg) )
           __debugbreak();
-        v67 = (__int64)&g_snd.entState[0].origin + _R14;
-        msg[4] = ((unsigned int)_R14 + (unsigned int)&g_snd + 1332468) >> 24;
-        *(_WORD *)&msg[5] = _R14 + (unsigned __int16)&g_snd + 21748;
-        msg[7] = ((unsigned int)_R14 + (unsigned int)&g_snd + 1332468) >> 16;
-        LODWORD(point.v[2]) = s_soundorg_aab_Z ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[2] + _R14) ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[1] + _R14) ^ *(_DWORD *)&msg[4];
-        LODWORD(point.v[0]) = s_soundorg_aab_X ^ *(_DWORD *)v67 ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[2] + _R14) ^ *(_DWORD *)&msg[4];
-        LODWORD(point.v[1]) = *(_DWORD *)v67 ^ *(_DWORD *)&msg[4] ^ ~s_soundorg_aab_Y;
+        v47 = (_DWORD *)((char *)g_snd.entState[0].origin.origin.v + v40);
+        msg[4] = ((unsigned int)v40 + (unsigned int)&g_snd + 1332468) >> 24;
+        *(_WORD *)&msg[5] = v40 + (unsigned __int16)&g_snd + 21748;
+        msg[7] = ((unsigned int)v40 + (unsigned int)&g_snd + 1332468) >> 16;
+        LODWORD(point.v[2]) = s_soundorg_aab_Z ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[2] + v40) ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[1] + v40) ^ *(_DWORD *)&msg[4];
+        LODWORD(point.v[0]) = s_soundorg_aab_X ^ *v47 ^ *(_DWORD *)((char *)&g_snd.entState[0].origin.origin.v[2] + v40) ^ *(_DWORD *)&msg[4];
+        LODWORD(point.v[1]) = *v47 ^ *(_DWORD *)&msg[4] ^ ~s_soundorg_aab_Y;
         memset(&outValueA[1], 0, 8ui64);
-        __asm
+        *(float *)&v47 = point.v[0];
+        if ( (LODWORD(point.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v47 = point.v[1], (LODWORD(point.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&v47 = point.v[2], (LODWORD(point.v[2]) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rbp+150h+point]
-          vmovss  dword ptr [rsp+250h+var_218], xmm0
-        }
-        if ( (v67 & 0x7F800000) == 2139095040 )
-          goto LABEL_164;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+150h+point+4]
-          vmovss  dword ptr [rsp+250h+var_218], xmm0
-        }
-        if ( (v67 & 0x7F800000) == 2139095040 )
-          goto LABEL_164;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+150h+point+8]
-          vmovss  dword ptr [rsp+250h+var_218], xmm0
-        }
-        if ( (v67 & 0x7F800000) == 2139095040 )
-        {
-LABEL_164:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 868, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
             __debugbreak();
         }
-        v58 = (*p_handle >> 33) & 3;
-        if ( SND_IsListenerActive((const LocalClientNum_t)((*p_handle >> 33) & 3)) && CG_FindAudioZoneAtPoint((LocalClientNum_t)v58, &point, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, &v69) )
+        v43 = (*p_handle >> 33) & 3;
+        if ( SND_IsListenerActive((const LocalClientNum_t)((*p_handle >> 33) & 3)) && CG_FindAudioZoneAtPoint((LocalClientNum_t)v43, &point, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, &v49) )
         {
           if ( outZoneA )
           {
             Core_strcpy(dest, 0x40ui64, outZoneA->zoneName);
             stateName = outZoneA->stateName;
             if ( stateName )
-              Core_strcpy(v89, 0x40ui64, stateName);
+              Core_strcpy(v69, 0x40ui64, stateName);
           }
           if ( outZoneB )
           {
-            Core_strcpy(v90, 0x40ui64, outZoneB->zoneName);
-            v60 = outZoneB->stateName;
-            if ( v60 )
-              Core_strcpy(v91, 0x40ui64, v60);
+            Core_strcpy(v70, 0x40ui64, outZoneB->zoneName);
+            v45 = outZoneB->stateName;
+            if ( v45 )
+              Core_strcpy(v71, 0x40ui64, v45);
           }
-          __asm
-          {
-            vmovss  xmm0, [rsp+250h+var_20C]
-            vmovss  [rbp+150h+var_164], xmm0
-          }
+          v67 = v49;
         }
         Com_DevhostSendBody(3, 0x170u, (const char *)contextType);
       }
-      ++v44;
+      ++v38;
       p_handle += 16;
     }
-    while ( v44 < 0x80 );
-    ScopedDevHostMessage::~ScopedDevHostMessage(v70);
-  }
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    while ( v38 < 0x80 );
+    ScopedDevHostMessage::~ScopedDevHostMessage(v50);
   }
 }
 
@@ -675,181 +623,116 @@ void SND_DevhostFrameBegin(int time, int frame, int paused)
 SND_DevhostFrameEnd
 ==============
 */
-void SND_DevhostFrameEnd()
+void SND_DevhostFrameEnd(void)
 {
-  int v2; 
+  int v0; 
   const SndMaster *MasterCurrent; 
-  const SndGlobals *globals; 
+  __int64 v2; 
+  const SndGlobals *i; 
   int ContextIndex; 
-  unsigned int v39; 
-  unsigned int v40; 
+  float current; 
+  unsigned int v6; 
+  unsigned int v7; 
   unsigned int typeId; 
   const SndMusicState *CurrentMusicState; 
-  const char *v43; 
-  unsigned __int64 v44; 
-  unsigned int v45; 
-  ScopedDevHostMessage v48[2]; 
+  const char *v10; 
+  unsigned __int64 v11; 
+  unsigned int v12; 
+  ScopedDevHostMessage v13[2]; 
   __int64 msg; 
-  _BYTE msg_8[960]; 
+  SndDspDynamicsMeter msg_8[3]; 
+  SD_DSP::AtmosFrame masterPeak; 
+  SD_DSP::AtmosFrame masterVu; 
+  SD_DSP::AtmosFrame masterITU; 
   __int128 listeners; 
-  __int64 v52; 
-  char v53; 
-  void *retaddr; 
+  __int64 v20; 
 
-  _RAX = &retaddr;
   msg = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v2 = Sys_Microseconds();
+  v0 = Sys_Microseconds();
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_DevhostFrameEnd");
   SND_DevhostVoices();
   if ( Com_DevhostSystemActive(3) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsThreshold.val.lo; sd_globals g_sd
-      vmovups ymmword ptr [rsp+440h+msg+8], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsThreshold.val.hi; sd_globals g_sd
-      vmovups [rsp+440h+var_3F8+8], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsInput.val.lo; sd_globals g_sd
-      vmovups [rsp+440h+var_3D8+8], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsInput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_3B0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsOutput.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_390], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsOutput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_370], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsGain.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_350], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.main.dynamicsGain.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_330], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsThreshold.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_310], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsThreshold.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_2F0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsInput.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_2D0], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsInput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_2B0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsOutput.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_290], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsOutput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_270], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsGain.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_250], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.sfx.dynamicsGain.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_230], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsThreshold.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_210], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsThreshold.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_1F0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsInput.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_1D0], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsInput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_1B0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsOutput.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_190], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsOutput.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_170], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsGain.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_150], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.dialogue.dynamicsGain.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_130], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterVu.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_D0], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterVu.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_B0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterPeak.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_110], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterPeak.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_F0], ymm1
-      vmovups ymm0, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterITU.val.lo; sd_globals g_sd
-      vmovups [rbp+340h+var_90], ymm0
-      vmovups ymm1, ymmword ptr cs:?g_sd@@3Usd_globals@@A.mixMasterState.meters.masterITU.val.hi; sd_globals g_sd
-      vmovups [rbp+340h+var_70], ymm1
-    }
-    Com_DevhostSendMessage(3, 5u, 0x3C0u, msg_8);
+    msg_8[0] = g_sd.mixMasterState.meters.main;
+    msg_8[1] = g_sd.mixMasterState.meters.sfx;
+    msg_8[2] = g_sd.mixMasterState.meters.dialogue;
+    masterVu = g_sd.mixMasterState.meters.masterVu;
+    masterPeak = g_sd.mixMasterState.meters.masterPeak;
+    masterITU = g_sd.mixMasterState.meters.masterITU;
+    Com_DevhostSendMessage(3, 5u, 0x3C0u, (const char *)msg_8);
   }
   if ( Com_DevhostSystemActive(3) )
   {
     MasterCurrent = SND_GetMasterCurrent();
     Com_DevhostSendMessage(3, 0x10u, 4u, (const char *)&MasterCurrent->id);
   }
-  v48[0].m_system = SND_GetCurrentReverb();
-  Com_DevhostSendMessage(3, 8u, 4u, (const char *)v48);
+  v13[0].m_system = SND_GetCurrentReverb();
+  Com_DevhostSendMessage(3, 8u, 4u, (const char *)v13);
   SND_DevhostSubmixes();
   if ( Com_DevhostSystemActive(3) )
   {
-    _RBX = 0i64;
-    globals = g_snd.globals;
-    if ( g_snd.globals->contextCount )
+    v2 = 0i64;
+    for ( i = g_snd.globals; (unsigned int)v2 < g_snd.globals->contextCount; i = g_snd.globals )
     {
-      _R13 = &g_snd;
-      do
+      ContextIndex = SND_FindContextIndex(i->contexts[v2].typeId);
+      if ( ContextIndex >= 0 )
       {
-        ContextIndex = SND_FindContextIndex(globals->contexts[_RBX].typeId);
-        if ( ContextIndex >= 0 )
+        current = g_snd.globalContextLerp[v2].current;
+        v6 = g_snd.globalContextsTo[ContextIndex];
+        v7 = g_snd.globalContextsFrom[ContextIndex];
+        typeId = g_snd.globals->contexts[v2].typeId;
+        if ( Com_DevhostSystemActive(3) )
         {
-          __asm { vmovss  xmm6, dword ptr [r13+rbx*8+145284h] }
-          v39 = g_snd.globalContextsTo[ContextIndex];
-          v40 = g_snd.globalContextsFrom[ContextIndex];
-          typeId = g_snd.globals->contexts[_RBX].typeId;
-          if ( Com_DevhostSystemActive(3) )
+          if ( typeId )
           {
-            if ( typeId )
-            {
-              *(_QWORD *)&listeners = __PAIR64__(v40, typeId);
-              DWORD2(listeners) = v39;
-              __asm { vmovss  dword ptr [rbp+340h+listeners+0Ch], xmm6 }
-              Com_DevhostSendMessage(3, 0xFu, 0x10u, (const char *)&listeners);
-            }
+            *(_QWORD *)&listeners = __PAIR64__(v7, typeId);
+            DWORD2(listeners) = v6;
+            *((float *)&listeners + 3) = current;
+            Com_DevhostSendMessage(3, 0xFu, 0x10u, (const char *)&listeners);
           }
         }
-        _RBX = (unsigned int)(_RBX + 1);
-        globals = g_snd.globals;
       }
-      while ( (unsigned int)_RBX < g_snd.globals->contextCount );
+      v2 = (unsigned int)(v2 + 1);
     }
   }
   SND_DevhostStats();
   if ( Com_DevhostSystemActive(3) )
   {
     CurrentMusicState = SND_GetCurrentMusicState();
-    v43 = (const char *)CurrentMusicState;
+    v10 = (const char *)CurrentMusicState;
     if ( CurrentMusicState )
     {
-      v44 = -1i64;
+      v11 = -1i64;
       do
-        ++v44;
-      while ( CurrentMusicState->name[v44] );
+        ++v11;
+      while ( CurrentMusicState->name[v11] );
     }
     else
     {
-      v43 = NULL;
-      v44 = 0i64;
+      v10 = NULL;
+      v11 = 0i64;
     }
-    v45 = truncate_cast<unsigned int,unsigned __int64>(v44);
-    Com_DevhostSendMessage(3, 0x1Fu, v45, v43);
+    v12 = truncate_cast<unsigned int,unsigned __int64>(v11);
+    Com_DevhostSendMessage(3, 0x1Fu, v12, v10);
   }
   if ( cg_t::ms_allocatedCount > 0 )
   {
     SND_DevhostEntState();
-    v48[0].m_system = 0;
+    v13[0].m_system = 0;
     listeners = 0ui64;
-    v52 = 0i64;
-    SNDL_GetActiveListeners((unsigned int *)v48, (vec3_t *)&listeners);
-    ScopedDevHostMessage::ScopedDevHostMessage(&v48[1], 3, 0x18u, 12 * v48[0].m_system + 4);
-    Com_DevhostSendBody(3, 4u, (const char *)v48);
-    if ( v48[0].m_system )
-      Com_DevhostSendBody(3, 12 * v48[0].m_system, (const char *)&listeners);
-    ScopedDevHostMessage::~ScopedDevHostMessage(&v48[1]);
+    v20 = 0i64;
+    SNDL_GetActiveListeners((unsigned int *)v13, (vec3_t *)&listeners);
+    ScopedDevHostMessage::ScopedDevHostMessage(&v13[1], 3, 0x18u, 12 * v13[0].m_system + 4);
+    Com_DevhostSendBody(3, 4u, (const char *)v13);
+    if ( v13[0].m_system )
+      Com_DevhostSendBody(3, 12 * v13[0].m_system, (const char *)&listeners);
+    ScopedDevHostMessage::~ScopedDevHostMessage(&v13[1]);
     SND_DevhostMultiReverb();
   }
   Com_DevhostSendMessage(3, 2u, 0, NULL);
   SD_AllocDevhost();
-  g_snd.devhostEndUsec = Sys_Microseconds() - v2;
+  g_snd.devhostEndUsec = Sys_Microseconds() - v0;
   Sys_ProfEndNamedEvent();
-  _R11 = &v53;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -882,319 +765,185 @@ SND_DevhostMultiReverb
 */
 void SND_DevhostMultiReverb()
 {
-  char v34; 
-  char v35; 
-  char v57; 
-  char v58; 
-  char v77; 
-  char v78; 
-  char v97; 
-  char v98; 
+  float v0; 
+  float v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   unsigned int PlayerAudioTriggerIndex; 
   unsigned int PlayerAudioBlendTriggerIndex; 
-  bool BlendedAudioTriggers; 
-  unsigned int v113; 
-  unsigned int v114; 
-  unsigned int v115; 
-  _DWORD *v116; 
-  int v117; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  _DWORD *v19; 
+  int v20; 
   const SndAlias **p_alias; 
-  __int64 *v119; 
-  int v120; 
-  unsigned int v121; 
+  __int64 *v22; 
+  int v23; 
+  unsigned int v24; 
   unsigned int outTriggerB; 
   unsigned int outTriggerA; 
   unsigned int PlayerAudioPropagationTriggerIndex; 
   char msg[4]; 
   ReverbDescriptor activeMainReverb; 
-  unsigned int v135; 
-  unsigned int v136; 
-  unsigned int v137; 
-  unsigned int v138; 
-  int v139[8]; 
+  unsigned int v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  unsigned int v33; 
+  int v34[8]; 
   float outMinVolume; 
-  float v141; 
-  float v142; 
-  float v143; 
+  float v36; 
+  float v37; 
+  float v38; 
   float outWallDistance; 
-  float v145; 
+  float v40; 
   float outDistance[8]; 
-  __int64 v147[6]; 
+  __int64 v42[6]; 
   snd_listener outListener; 
 
-  memset_0(v139, 0, 0x80ui64);
-  __asm { vmovss  xmm0, cs:?g_snd@@3Usnd_local_t@@A.mainReverbLerp.current; snd_local_t g_snd }
-  v135 = sdGlob.currentReverbId[0];
-  v136 = sdGlob.currentReverbId[1];
-  v137 = sdGlob.currentReverbId[2];
-  v138 = sdGlob.currentReverbId[3];
+  memset_0(v34, 0, 0x80ui64);
+  v30 = sdGlob.currentReverbId[0];
+  v31 = sdGlob.currentReverbId[1];
+  v32 = sdGlob.currentReverbId[2];
+  v33 = sdGlob.currentReverbId[3];
   activeMainReverb = g_snd.activeMainReverb;
-  __asm { vmovss  dword ptr [rsp+220h+msg], xmm0 }
+  *(float *)msg = g_snd.mainReverbLerp.current;
   SND_GetListener(LOCAL_CLIENT_0, &outListener);
   if ( outListener.active )
   {
-    __asm
+    v0 = outListener.orient.origin.v[0];
+    v1 = outListener.orient.origin.v[1];
+    v2 = outListener.orient.origin.v[2];
+    v3 = outListener.orient.axis.m[1].v[1];
+    v4 = outListener.orient.axis.m[1].v[0];
+    v5 = outListener.orient.axis.m[1].v[2];
+    v7 = atan2f_0(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(g_snd.reverbPosition[0].v[1] - outListener.orient.origin.v[1]) * outListener.orient.axis.m[1].v[1]) + (float)((float)(g_snd.reverbPosition[0].v[0] - outListener.orient.origin.v[0]) * outListener.orient.axis.m[1].v[0])) + (float)((float)(g_snd.reverbPosition[0].v[2] - outListener.orient.origin.v[2]) * outListener.orient.axis.m[1].v[2])) ^ _xmm), (float)((float)((float)(g_snd.reverbPosition[0].v[1] - outListener.orient.origin.v[1]) * outListener.orient.axis.m[0].v[1]) + (float)((float)(g_snd.reverbPosition[0].v[0] - outListener.orient.origin.v[0]) * outListener.orient.axis.m[0].v[0])) + (float)((float)(g_snd.reverbPosition[0].v[2] - outListener.orient.origin.v[2]) * outListener.orient.axis.m[0].v[2])) * 57.295776;
+    v6 = v7;
+    if ( v7 >= -180.0 )
     {
-      vmovss  xmm1, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+4; snd_local_t g_snd
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition; snd_local_t g_snd
-      vmovaps [rsp+220h+var_30], xmm6
-      vmovaps [rsp+220h+var_40], xmm7
-      vmovaps [rsp+220h+var_50], xmm8
-      vmovaps [rsp+220h+var_60], xmm9
-      vmovaps [rsp+220h+var_70], xmm10
-      vmovss  xmm10, dword ptr [rbp+120h+outListener.orient.origin]
-      vsubss  xmm5, xmm0, xmm10
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+8; snd_local_t g_snd
-      vmovaps [rsp+220h+var_80], xmm11
-      vmovss  xmm11, dword ptr [rbp+120h+outListener.orient.origin+4]
-      vsubss  xmm3, xmm1, xmm11
-      vmovaps [rsp+220h+var_90], xmm12
-      vmovss  xmm12, dword ptr [rbp+120h+outListener.orient.origin+8]
-      vsubss  xmm4, xmm0, xmm12
-      vmovaps [rsp+220h+var_A0], xmm13
-      vmovss  xmm13, dword ptr [rbp+120h+outListener.orient.axis+10h]
-      vmulss  xmm1, xmm3, xmm13
-      vmovaps [rsp+220h+var_B0], xmm14
-      vmovss  xmm14, dword ptr [rbp+120h+outListener.orient.axis+0Ch]
-      vmulss  xmm0, xmm5, xmm14
-      vaddss  xmm2, xmm1, xmm0
-      vmovaps [rsp+220h+var_C0], xmm15
-      vmovss  xmm15, dword ptr [rbp+120h+outListener.orient.axis+14h]
-      vmulss  xmm1, xmm4, xmm15
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm2, xmm3, dword ptr [rbp+120h+outListener.orient.axis+4]
-      vmulss  xmm1, xmm5, dword ptr [rbp+120h+outListener.orient.axis]
-      vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000; Y
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm4, dword ptr [rbp+120h+outListener.orient.axis+8]
-      vaddss  xmm1, xmm3, xmm2; X
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vcomiss xmm1, cs:__real@c3340000
-      vmovss  xmm7, cs:__real@43b40000
-      vmovss  xmm8, cs:__real@c3b40000
-      vmovss  xmm9, cs:__real@43340000
-    }
-    if ( v34 )
-    {
-      __asm { vaddss  xmm1, xmm1, xmm7 }
+      if ( v7 > 180.0 )
+        v6 = v7 + -360.0;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm9 }
-      if ( !(v34 | v35) )
-        __asm { vaddss  xmm1, xmm1, xmm8 }
+      v6 = v7 + 360.0;
     }
-    __asm
+    outDistance[4] = v6;
+    v9 = atan2f_0(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(g_snd.reverbPosition[1].v[1] - v1) * v3) + (float)((float)(g_snd.reverbPosition[1].v[0] - v0) * v4)) + (float)((float)(g_snd.reverbPosition[1].v[2] - v2) * v5)) ^ _xmm), (float)((float)((float)(g_snd.reverbPosition[1].v[1] - v1) * outListener.orient.axis.m[0].v[1]) + (float)((float)(g_snd.reverbPosition[1].v[0] - v0) * outListener.orient.axis.m[0].v[0])) + (float)((float)(g_snd.reverbPosition[1].v[2] - v2) * outListener.orient.axis.m[0].v[2])) * 57.295776;
+    v8 = v9;
+    if ( v9 >= -180.0 )
     {
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+0Ch; snd_local_t g_snd
-      vsubss  xmm6, xmm0, xmm10
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+14h; snd_local_t g_snd
-      vmovss  [rbp+120h+var_190], xmm1
-      vmovss  xmm1, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+10h; snd_local_t g_snd
-      vsubss  xmm4, xmm1, xmm11
-      vsubss  xmm5, xmm0, xmm12
-      vmulss  xmm2, xmm4, xmm13
-      vmulss  xmm4, xmm4, dword ptr [rbp+120h+outListener.orient.axis+4]
-      vmulss  xmm1, xmm6, xmm14
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rbp+120h+outListener.orient.axis]
-      vmulss  xmm0, xmm5, xmm15
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000; Y
-      vmulss  xmm2, xmm5, dword ptr [rbp+120h+outListener.orient.axis+8]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm1, xmm3, xmm2; X
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vcomiss xmm1, cs:__real@c3340000
-    }
-    if ( v57 )
-    {
-      __asm { vaddss  xmm1, xmm1, xmm7 }
+      if ( v9 > 180.0 )
+        v8 = v9 + -360.0;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm9 }
-      if ( !(v57 | v58) )
-        __asm { vaddss  xmm1, xmm1, xmm8 }
+      v8 = v9 + 360.0;
     }
-    __asm
+    outDistance[5] = v8;
+    v11 = atan2f_0(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(g_snd.reverbPosition[2].v[1] - v1) * v3) + (float)((float)(g_snd.reverbPosition[2].v[0] - v0) * v4)) + (float)((float)(g_snd.reverbPosition[2].v[2] - v2) * v5)) ^ _xmm), (float)((float)((float)(g_snd.reverbPosition[2].v[1] - v1) * outListener.orient.axis.m[0].v[1]) + (float)((float)(g_snd.reverbPosition[2].v[0] - v0) * outListener.orient.axis.m[0].v[0])) + (float)((float)(g_snd.reverbPosition[2].v[2] - v2) * outListener.orient.axis.m[0].v[2])) * 57.295776;
+    v10 = v11;
+    if ( v11 >= -180.0 )
     {
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+18h; snd_local_t g_snd
-      vsubss  xmm6, xmm0, xmm10
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+20h; snd_local_t g_snd
-      vmovss  [rbp+120h+var_18C], xmm1
-      vmovss  xmm1, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+1Ch; snd_local_t g_snd
-      vsubss  xmm4, xmm1, xmm11
-      vsubss  xmm5, xmm0, xmm12
-      vmulss  xmm2, xmm4, xmm13
-      vmulss  xmm4, xmm4, dword ptr [rbp+120h+outListener.orient.axis+4]
-      vmulss  xmm1, xmm6, xmm14
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rbp+120h+outListener.orient.axis]
-      vmulss  xmm0, xmm5, xmm15
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000; Y
-      vmulss  xmm2, xmm5, dword ptr [rbp+120h+outListener.orient.axis+8]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm1, xmm3, xmm2; X
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vcomiss xmm1, cs:__real@c3340000
-    }
-    if ( v77 )
-    {
-      __asm { vaddss  xmm1, xmm1, xmm7 }
+      if ( v11 > 180.0 )
+        v10 = v11 + -360.0;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm9 }
-      if ( !(v77 | v78) )
-        __asm { vaddss  xmm1, xmm1, xmm8 }
+      v10 = v11 + 360.0;
     }
-    __asm
+    outDistance[6] = v10;
+    v13 = atan2f_0(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(g_snd.reverbPosition[3].v[1] - v1) * v3) + (float)((float)(g_snd.reverbPosition[3].v[0] - v0) * v4)) + (float)((float)(g_snd.reverbPosition[3].v[2] - v2) * v5)) ^ _xmm), (float)((float)((float)(g_snd.reverbPosition[3].v[1] - v1) * outListener.orient.axis.m[0].v[1]) + (float)((float)(g_snd.reverbPosition[3].v[0] - v0) * outListener.orient.axis.m[0].v[0])) + (float)((float)(g_snd.reverbPosition[3].v[2] - v2) * outListener.orient.axis.m[0].v[2])) * 57.295776;
+    v12 = v13;
+    if ( v13 >= -180.0 )
     {
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+24h; snd_local_t g_snd
-      vsubss  xmm6, xmm0, xmm10
-      vmovss  xmm0, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+2Ch; snd_local_t g_snd
-      vmovss  [rbp+120h+var_188], xmm1
-      vmovss  xmm1, dword ptr cs:?g_snd@@3Usnd_local_t@@A.reverbPosition+28h; snd_local_t g_snd
-      vsubss  xmm4, xmm1, xmm11
-      vsubss  xmm5, xmm0, xmm12
-      vmulss  xmm2, xmm4, xmm13
-      vmulss  xmm4, xmm4, dword ptr [rbp+120h+outListener.orient.axis+4]
-      vmulss  xmm1, xmm6, xmm14
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rbp+120h+outListener.orient.axis]
-      vmulss  xmm0, xmm5, xmm15
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000; Y
-      vmulss  xmm2, xmm5, dword ptr [rbp+120h+outListener.orient.axis+8]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm1, xmm3, xmm2; X
-    }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42652ee0
-      vcomiss xmm1, cs:__real@c3340000
-      vmovaps xmm15, [rsp+220h+var_C0]
-      vmovaps xmm14, [rsp+220h+var_B0]
-      vmovaps xmm13, [rsp+220h+var_A0]
-      vmovaps xmm12, [rsp+220h+var_90]
-      vmovaps xmm11, [rsp+220h+var_80]
-      vmovaps xmm10, [rsp+220h+var_70]
-      vmovaps xmm6, [rsp+220h+var_30]
-    }
-    if ( v97 )
-    {
-      __asm { vaddss  xmm1, xmm1, xmm7 }
+      if ( v13 > 180.0 )
+        v12 = v13 + -360.0;
     }
     else
     {
-      __asm { vcomiss xmm1, xmm9 }
-      if ( !(v97 | v98) )
-        __asm { vaddss  xmm1, xmm1, xmm8 }
+      v12 = v13 + 360.0;
     }
-    __asm { vmovss  [rbp+120h+var_184], xmm1 }
+    outDistance[7] = v12;
     PlayerAudioTriggerIndex = CG_GetPlayerAudioTriggerIndex((const LocalClientNum_t)outListener.localClientNum);
     PlayerAudioBlendTriggerIndex = CG_GetPlayerAudioBlendTriggerIndex((const LocalClientNum_t)outListener.localClientNum);
-    BlendedAudioTriggers = CG_GetBlendedAudioTriggers(PlayerAudioBlendTriggerIndex, &outTriggerA, &outTriggerB);
-    __asm
+    if ( CG_GetBlendedAudioTriggers(PlayerAudioBlendTriggerIndex, &outTriggerA, &outTriggerB) )
     {
-      vmovaps xmm9, [rsp+220h+var_60]
-      vmovaps xmm8, [rsp+220h+var_50]
-      vmovaps xmm7, [rsp+220h+var_40]
-    }
-    if ( BlendedAudioTriggers )
-    {
-      v113 = outTriggerB;
+      v16 = outTriggerB;
       PlayerAudioTriggerIndex = outTriggerA;
     }
     else
     {
       outTriggerA = PlayerAudioTriggerIndex;
-      v113 = PlayerAudioTriggerIndex;
+      v16 = PlayerAudioTriggerIndex;
       outTriggerB = PlayerAudioTriggerIndex;
     }
     LODWORD(outDistance[2]) = PlayerAudioTriggerIndex;
-    LODWORD(outDistance[3]) = v113;
+    LODWORD(outDistance[3]) = v16;
     CG_GetTriggerMinReverbVolumeAndMaxWallDistance(g_snd.reverbTrigger[0], &outMinVolume, &outWallDistance);
     CG_GetDistanceFromTriggerWall(outListener.localClientNum, g_snd.reverbTrigger[0], &outListener.orient.origin, outDistance);
-    CG_GetWallProximityVolume(outListener.localClientNum, g_snd.reverbTrigger[0], &outListener.orient.origin, &v142);
+    CG_GetWallProximityVolume(outListener.localClientNum, g_snd.reverbTrigger[0], &outListener.orient.origin, &v37);
     if ( outTriggerA != outTriggerB )
     {
-      CG_GetTriggerMinReverbVolumeAndMaxWallDistance(g_snd.reverbTrigger[1], &v141, &v145);
+      CG_GetTriggerMinReverbVolumeAndMaxWallDistance(g_snd.reverbTrigger[1], &v36, &v40);
       CG_GetDistanceFromTriggerWall(outListener.localClientNum, g_snd.reverbTrigger[1], &outListener.orient.origin, outDistance);
-      CG_GetWallProximityVolume(outListener.localClientNum, g_snd.reverbTrigger[1], &outListener.orient.origin, &v143);
+      CG_GetWallProximityVolume(outListener.localClientNum, g_snd.reverbTrigger[1], &outListener.orient.origin, &v38);
     }
-    memset(v147, 0, 40);
-    v114 = 0;
+    memset(v42, 0, 40);
+    v17 = 0;
     PlayerAudioPropagationTriggerIndex = CG_GetPlayerAudioPropagationTriggerIndex((const LocalClientNum_t)outListener.localClientNum);
-    v115 = 0;
-    v116 = (_DWORD *)&v147[2] + 1;
-    v117 = 0;
+    v18 = 0;
+    v19 = (_DWORD *)&v42[2] + 1;
+    v20 = 0;
     p_alias = &g_snd.voices[0].alias;
-    v119 = v147;
+    v22 = v42;
     do
     {
-      if ( !SND_IsVoiceFree(v117) )
+      if ( !SND_IsVoiceFree(v20) )
       {
-        v120 = *((_DWORD *)p_alias + 26);
-        if ( v120 != 1024 )
+        v23 = *((_DWORD *)p_alias + 26);
+        if ( v23 != 1024 )
         {
-          v121 = PlayerAudioPropagationTriggerIndex;
-          if ( v120 != PlayerAudioPropagationTriggerIndex )
+          v24 = PlayerAudioPropagationTriggerIndex;
+          if ( v23 != PlayerAudioPropagationTriggerIndex )
           {
-            if ( v120 == g_snd.reverbTrigger[2] && v114 < 5 )
+            if ( v23 == g_snd.reverbTrigger[2] && v17 < 5 )
             {
-              *(_DWORD *)v119 = SND_HashName((*p_alias)->aliasName);
-              ++v114;
-              v121 = PlayerAudioPropagationTriggerIndex;
-              v119 = (__int64 *)((char *)v119 + 4);
+              *(_DWORD *)v22 = SND_HashName((*p_alias)->aliasName);
+              ++v17;
+              v24 = PlayerAudioPropagationTriggerIndex;
+              v22 = (__int64 *)((char *)v22 + 4);
             }
-            if ( v120 != v121 && v120 == g_snd.reverbTrigger[3] && v115 < 5 )
+            if ( v23 != v24 && v23 == g_snd.reverbTrigger[3] && v18 < 5 )
             {
-              ++v115;
-              *v116++ = SND_HashName((*p_alias)->aliasName);
+              ++v18;
+              *v19++ = SND_HashName((*p_alias)->aliasName);
             }
           }
         }
       }
-      ++v117;
+      ++v20;
       p_alias += 246;
     }
-    while ( v117 < 99 );
+    while ( v20 < 99 );
   }
-  __asm
-  {
-    vmovss  xmm0, cs:?sdGlob@@3USDLocal@@A.reverbPan; SDLocal sdGlob
-    vmovss  xmm1, cs:?sdGlob@@3USDLocal@@A.reverbPan+44h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1D8], xmm0
-    vmovss  xmm0, cs:?sdGlob@@3USDLocal@@A.reverbPan+90h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1D4], xmm1
-    vmovss  xmm1, cs:?sdGlob@@3USDLocal@@A.reverbPan+0D4h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1D0], xmm0
-    vmovss  xmm0, cs:?sdGlob@@3USDLocal@@A.reverbPan+100h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1CC], xmm1
-    vmovss  xmm1, cs:?sdGlob@@3USDLocal@@A.reverbPan+144h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1C8], xmm0
-    vmovss  xmm0, cs:?sdGlob@@3USDLocal@@A.reverbPan+190h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1C4], xmm1
-    vmovss  xmm1, cs:?sdGlob@@3USDLocal@@A.reverbPan+1D4h; SDLocal sdGlob
-    vmovss  [rsp+220h+var_1C0], xmm0
-    vmovss  [rsp+220h+var_1BC], xmm1
-  }
+  v34[0] = SLODWORD(sdGlob.reverbPan[0][0]);
+  v34[1] = SLODWORD(sdGlob.reverbPan[0][17]);
+  v34[2] = SLODWORD(sdGlob.reverbPan[0][36]);
+  v34[3] = SLODWORD(sdGlob.reverbPan[0][53]);
+  v34[4] = SLODWORD(sdGlob.reverbPan[1][0]);
+  v34[5] = SLODWORD(sdGlob.reverbPan[1][17]);
+  v34[6] = SLODWORD(sdGlob.reverbPan[1][36]);
+  v34[7] = SLODWORD(sdGlob.reverbPan[1][53]);
   Com_DevhostSendMessage(3, 9u, 0x98u, msg);
 }
 
@@ -1442,51 +1191,45 @@ LABEL_56:
 SND_DevhostStatFloat
 ==============
 */
-
-void __fastcall SND_DevhostStatFloat(const char *name, double value)
+void SND_DevhostStatFloat(const char *name, float value)
 {
-  unsigned __int64 v5; 
-  unsigned int v6; 
+  unsigned __int64 v3; 
+  unsigned int v4; 
+  char v5; 
+  int v6; 
   char v7; 
-  int v8; 
-  char v9; 
   int msg; 
+  float v9; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = -1i64;
+  v3 = -1i64;
   do
-    ++v5;
-  while ( name[v5] );
-  v6 = truncate_cast<unsigned int,unsigned __int64>(v5);
-  Com_DevhostSendMessage(3, 6u, v6, name);
-  if ( name && (v7 = *name) != 0 )
+    ++v3;
+  while ( name[v3] );
+  v4 = truncate_cast<unsigned int,unsigned __int64>(v3);
+  Com_DevhostSendMessage(3, 6u, v4, name);
+  if ( name && (v5 = *name) != 0 )
   {
-    v8 = 5381;
+    v6 = 5381;
     do
     {
       ++name;
-      v9 = v7 | 0x20;
-      if ( (unsigned int)(v7 - 65) >= 0x1A )
-        v9 = v7;
-      v8 = 65599 * v8 + v9;
-      v7 = *name;
+      v7 = v5 | 0x20;
+      if ( (unsigned int)(v5 - 65) >= 0x1A )
+        v7 = v5;
+      v6 = 65599 * v6 + v7;
+      v5 = *name;
     }
     while ( *name );
-    if ( !v8 )
-      v8 = 1;
+    if ( !v6 )
+      v6 = 1;
   }
   else
   {
-    v8 = 0;
+    v6 = 0;
   }
-  msg = v8;
-  __asm { vmovss  [rsp+38h+arg_4], xmm6 }
+  msg = v6;
+  v9 = value;
   Com_DevhostSendMessage(3, 0xDu, 8u, (const char *)&msg);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -2282,172 +2025,104 @@ SND_DevhostSubmixes
 ==============
 */
 
-void __fastcall SND_DevhostSubmixes(double _XMM0_8)
+void __fastcall SND_DevhostSubmixes(double HpFilterValue)
 {
-  const dvar_t *v10; 
-  const dvar_t *v11; 
+  const dvar_t *v1; 
+  const dvar_t *v2; 
   int Units; 
-  unsigned int v19; 
+  char *v4; 
+  unsigned int v5; 
   const snd_volmod_info_t *VolModByIndex; 
-  char v31; 
-  char v32; 
-  int v36; 
+  float v7; 
+  __int128 v8; 
+  double VolmodFocusAmount; 
+  float v11; 
+  double CutoffAsHz; 
+  int i; 
   int type; 
   unsigned int id; 
   float effect; 
   char msg[512]; 
-  char v49; 
+  char v19; 
 
   if ( Com_DevhostSystemActive(3) )
   {
-    v10 = DCONST_DVARBOOL_snd_submix_dev_cutout;
+    v1 = DCONST_DVARBOOL_snd_submix_dev_cutout;
     if ( !DCONST_DVARBOOL_snd_submix_dev_cutout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_dev_cutout") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    if ( !v10->current.enabled )
+    Dvar_CheckFrontendServerThread(v1);
+    if ( !v1->current.enabled )
     {
-      v11 = DCONST_DVARBOOL_snd_submix_disable;
+      v2 = DCONST_DVARBOOL_snd_submix_disable;
       if ( !DCONST_DVARBOOL_snd_submix_disable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_submix_disable") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( !v11->current.enabled )
+      Dvar_CheckFrontendServerThread(v2);
+      if ( !v2->current.enabled )
       {
         Units = SND_SubmixDebugGetUnits();
         if ( Units != 3 )
         {
-          __asm
-          {
-            vmovaps [rsp+0CF8h+var_58], xmm10
-            vmovaps [rsp+0CF8h+var_68], xmm11
-            vmovaps [rsp+0CF8h+var_78], xmm12
-            vmovaps [rsp+0CF8h+var_88], xmm13
-            vmovaps [rsp+0CF8h+var_98], xmm14
-          }
           memset_0(msg, 0, 0xC00ui64);
-          __asm
-          {
-            vmovss  xmm10, cs:__real@42c80000
-            vmovss  xmm13, cs:__real@37803e84
-            vmovss  xmm14, cs:__real@41a00000
-            vmovss  xmm12, cs:__real@447a0000
-            vmovss  xmm11, cs:__real@3a83126f
-            vmovaps [rsp+0CF8h+var_18], xmm6
-          }
-          _RBX = &v49;
-          __asm
-          {
-            vmovaps [rsp+0CF8h+var_28], xmm7
-            vmovaps [rsp+0CF8h+var_38], xmm8
-          }
-          v19 = 0;
-          __asm { vmovaps [rsp+0CF8h+var_48], xmm9 }
+          v4 = &v19;
+          v5 = 0;
           while ( 1 )
           {
-            VolModByIndex = SND_GetVolModByIndex(v19);
+            VolModByIndex = SND_GetVolModByIndex(v5);
             if ( VolModByIndex )
             {
-              *((_DWORD *)_RBX - 128) = VolModByIndex->id;
-              _XMM0_8 = SND_SubmixGetHpFilterValue(v19);
-              __asm { vmovaps xmm7, xmm0 }
-              _XMM0_8 = SND_SubmixGetLpFilterValue(v19);
-              __asm { vmovaps xmm9, xmm0 }
-              _XMM0_8 = SND_SubmixGetVolmodAttenuation(v19);
-              __asm { vmovaps xmm8, xmm0 }
-              _XMM0_8 = SND_SubmixGetVolmodFocusAmount(v19);
-              __asm { vmovaps xmm6, xmm0 }
-              *((_DWORD *)_RBX + 512) = SND_SubmixGetVolmodFocusConeId(v19);
+              *((_DWORD *)v4 - 128) = VolModByIndex->id;
+              HpFilterValue = SND_SubmixGetHpFilterValue(v5);
+              v7 = *(float *)&HpFilterValue;
+              HpFilterValue = SND_SubmixGetLpFilterValue(v5);
+              v8 = *(_OWORD *)&HpFilterValue;
+              HpFilterValue = SND_SubmixGetVolmodAttenuation(v5);
+              _XMM8 = *(_OWORD *)&HpFilterValue;
+              VolmodFocusAmount = SND_SubmixGetVolmodFocusAmount(v5);
+              v11 = *(float *)&VolmodFocusAmount;
+              *((_DWORD *)v4 + 512) = SND_SubmixGetVolmodFocusConeId(v5);
               if ( Units == 1 )
               {
-                __asm
-                {
-                  vmovss  dword ptr [rbx], xmm8
-                  vmovss  dword ptr [rbx+200h], xmm7
-                  vmovss  dword ptr [rbx+400h], xmm9
-                }
+                *(float *)v4 = *(float *)&_XMM8;
+                *((float *)v4 + 128) = v7;
+                *((float *)v4 + 256) = *(float *)&v8;
 LABEL_21:
-                __asm { vmovss  dword ptr [rbx+600h], xmm6 }
+                *((float *)v4 + 384) = v11;
                 goto LABEL_22;
               }
               if ( Units == 2 )
               {
                 __asm { vmaxss  xmm0, xmm8, xmm13; X }
-                *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-                __asm
+                *(float *)v4 = log10f_0(*(float *)&_XMM0) * 20.0;
+                CutoffAsHz = SND_SubmixDebugGetCutoffAsHz(v7);
+                *((float *)v4 + 128) = *(float *)&CutoffAsHz;
+                if ( *(float *)&CutoffAsHz > 1000.0 )
+                  *((float *)v4 + 128) = *(float *)&CutoffAsHz * 0.001;
+                *(&HpFilterValue + 1) = *((double *)&v8 + 1);
+                HpFilterValue = SND_SubmixDebugGetCutoffAsHzFaded(*(float *)&v8);
+                *((float *)v4 + 256) = *(float *)&HpFilterValue * 0.001;
+                if ( (float)(*(float *)&HpFilterValue * 0.001) > 1000.0 )
                 {
-                  vmulss  xmm1, xmm0, xmm14
-                  vmovaps xmm0, xmm7; linearValue
-                  vmovss  dword ptr [rbx], xmm1
-                }
-                *(double *)&_XMM0 = SND_SubmixDebugGetCutoffAsHz(*(float *)&_XMM0);
-                __asm
-                {
-                  vcomiss xmm0, xmm12
-                  vmovss  dword ptr [rbx+200h], xmm0
-                }
-                if ( !(v31 | v32) )
-                {
-                  __asm
-                  {
-                    vmulss  xmm0, xmm0, xmm11
-                    vmovss  dword ptr [rbx+200h], xmm0
-                  }
-                }
-                __asm { vmovaps xmm0, xmm9; linearValue }
-                _XMM0_8 = SND_SubmixDebugGetCutoffAsHzFaded(*(float *)&_XMM0_8);
-                __asm
-                {
-                  vmulss  xmm1, xmm0, xmm11
-                  vcomiss xmm1, xmm12
-                  vmovss  dword ptr [rbx+400h], xmm1
-                }
-                if ( !(v31 | v32) )
-                {
-                  __asm
-                  {
-                    vmulss  xmm0, xmm1, xmm11
-                    vmovss  dword ptr [rbx+400h], xmm0
-                  }
+                  *(&HpFilterValue + 1) = *((double *)&v8 + 1);
+                  *((float *)v4 + 256) = (float)(*(float *)&HpFilterValue * 0.001) * 0.001;
                 }
                 goto LABEL_21;
               }
-              __asm
-              {
-                vmulss  xmm1, xmm8, xmm10
-                vmovss  dword ptr [rbx], xmm1
-                vmulss  xmm0, xmm7, xmm10
-                vmovss  dword ptr [rbx+200h], xmm0
-                vmulss  xmm1, xmm9, xmm10
-                vmulss  xmm0, xmm6, xmm10
-                vmovss  dword ptr [rbx+400h], xmm1
-                vmovss  dword ptr [rbx+600h], xmm0
-              }
+              *(float *)v4 = *(float *)&_XMM8 * 100.0;
+              *((float *)v4 + 128) = v7 * 100.0;
+              *((float *)v4 + 256) = *(float *)&v8 * 100.0;
+              *((float *)v4 + 384) = *(float *)&VolmodFocusAmount * 100.0;
             }
 LABEL_22:
-            ++v19;
-            _RBX += 4;
-            if ( v19 >= 0x80 )
+            ++v5;
+            v4 += 4;
+            if ( v5 >= 0x80 )
             {
               Com_DevhostSendMessage(3, 0xBu, 0xC00u, msg);
-              __asm { vmovaps xmm14, [rsp+0CF8h+var_98] }
-              v36 = 0;
-              __asm
+              for ( i = 0; i < 141; ++i )
               {
-                vmovaps xmm13, [rsp+0CF8h+var_88]
-                vmovaps xmm12, [rsp+0CF8h+var_78]
-                vmovaps xmm11, [rsp+0CF8h+var_68]
-                vmovaps xmm10, [rsp+0CF8h+var_58]
-                vmovaps xmm9, [rsp+0CF8h+var_48]
-                vmovaps xmm8, [rsp+0CF8h+var_38]
-                vmovaps xmm7, [rsp+0CF8h+var_28]
-                vmovaps xmm6, [rsp+0CF8h+var_18]
-              }
-              do
-              {
-                if ( SND_SubmixDebugGetData(v36, &type, &id, &effect, NULL, NULL, NULL) )
+                if ( SND_SubmixDebugGetData(i, &type, &id, &effect, NULL, NULL, NULL) )
                   Com_DevhostSendMessage(3, 0xAu, 0xCu, (const char *)&type);
-                ++v36;
               }
-              while ( v36 < 141 );
               return;
             }
           }

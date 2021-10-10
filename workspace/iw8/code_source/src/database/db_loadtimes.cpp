@@ -186,123 +186,97 @@ void DB_LoadTimes_BeginSPLevelLoad(const char *const mapName)
 DB_LoadTimes_EndTimingAndPrint
 ==============
 */
-
-void __fastcall DB_LoadTimes_EndTimingAndPrint(const char *const profileName, double _XMM1_8)
+void DB_LoadTimes_EndTimingAndPrint(const char *const profileName)
 {
-  const dvar_t *v5; 
+  const dvar_t *v1; 
   unsigned int flags; 
-  unsigned __int64 v8; 
+  __int128 v6; 
+  __int128 v8; 
+  float readSize; 
+  float v11; 
+  float v12; 
   bool UsingPCHostHDDFolders; 
-  const char *v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  unsigned __int64 v26; 
-  bool v27; 
-  char *fmt; 
-  char *fmta; 
+  const char *v14; 
+  int v15; 
+  int v16; 
+  int v17; 
+  unsigned __int64 v18; 
+  bool v19; 
   DLogContext context; 
   char buffer[4096]; 
 
-  v5 = DVARBOOL_db_logLoadTimes;
+  v1 = DVARBOOL_db_logLoadTimes;
   if ( !DVARBOOL_db_logLoadTimes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_logLoadTimes") )
     __debugbreak();
   if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
   {
-    flags = v5->flags;
-    if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v5->name) )
+    flags = v1->flags;
+    if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v1->name) )
       __debugbreak();
   }
-  if ( v5->current.enabled && s_loadTimes.readSize >= 0x100000 )
+  if ( v1->current.enabled && s_loadTimes.readSize >= 0x100000 )
   {
-    __asm { vmovaps [rsp+11D8h+var_18], xmm6 }
-    v8 = __rdtsc();
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - s_loadTimes.beforeTicks) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v6 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v6;
     }
-    if ( (__int64)(v8 - s_loadTimes.beforeTicks) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
+    *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v8;
+    __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
+    if ( *(float *)&_XMM6 >= 0.1 )
     {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm6, xmm0, xmm0
-      vcomiss xmm6, cs:__real@3dcccccd
-    }
-    if ( v8 >= s_loadTimes.beforeTicks )
-    {
-      __asm
-      {
-        vmovaps [rsp+11D8h+var_28], xmm7
-        vmovss  xmm0, cs:__real@3a7a0000
-        vxorps  xmm1, xmm1, xmm1
-        vdivss  xmm2, xmm0, xmm6
-        vcvtsi2ss xmm1, xmm1, rcx
-      }
+      readSize = (float)(__int64)s_loadTimes.readSize;
       if ( (s_loadTimes.readSize & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-      __asm { vmulss  xmm7, xmm2, xmm1 }
-      UsingPCHostHDDFolders = Sys_GetUsingPCHostHDDFolders();
-      v20 = "Unknown";
-      v21 = GetConsoleType_0() - 1;
-      if ( v21 )
       {
-        v22 = v21 - 1;
-        if ( v22 )
+        v11 = (float)(__int64)s_loadTimes.readSize;
+        readSize = v11 + 1.8446744e19;
+      }
+      v12 = (float)(0.00095367432 / *(float *)&_XMM6) * readSize;
+      UsingPCHostHDDFolders = Sys_GetUsingPCHostHDDFolders();
+      v14 = "Unknown";
+      v15 = GetConsoleType_0() - 1;
+      if ( v15 )
+      {
+        v16 = v15 - 1;
+        if ( v16 )
         {
-          v23 = v22 - 1;
-          if ( v23 )
+          v17 = v16 - 1;
+          if ( v17 )
           {
-            if ( v23 == 1 )
-              v20 = "XB1-X-Dev";
+            if ( v17 == 1 )
+              v14 = "XB1-X-Dev";
           }
           else
           {
-            v20 = "XB1-X";
+            v14 = "XB1-X";
           }
         }
         else
         {
-          v20 = "XB1-S";
+          v14 = "XB1-S";
         }
       }
       else
       {
-        v20 = "XB1";
+        v14 = "XB1";
       }
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+11D8h+fmt], xmm0
-      }
-      Com_Printf(0, "DB_LoadTimes: %s %s time: %.2f ms\n", profileName, s_loadTimes.mapName, *(double *)&fmt);
+      Com_Printf(0, "DB_LoadTimes: %s %s time: %.2f ms\n", profileName, s_loadTimes.mapName, *(float *)&_XMM6);
       Com_Printf(0, "DB_LoadTimes: %s %s size: %zu kb\n", profileName, s_loadTimes.mapName, s_loadTimes.readSize >> 10);
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+11D8h+fmt], xmm0
-      }
-      Com_Printf(0, "DB_LoadTimes: %s %s size: %.2f mb/s\n", profileName, s_loadTimes.mapName, *(double *)&fmta);
-      v26 = s_loadTimes.readSize >> 10;
+      Com_Printf(0, "DB_LoadTimes: %s %s size: %.2f mb/s\n", profileName, s_loadTimes.mapName, v12);
+      v18 = s_loadTimes.readSize >> 10;
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
       {
-        v27 = DLog_BeginEvent(&context, "loadtimes");
+        v19 = DLog_BeginEvent(&context, "loadtimes");
         context.autoEndEvent = 1;
-        if ( v27 && DLog_String(&context, "step", profileName, 0) && DLog_String(&context, "map", s_loadTimes.mapName, 0) )
-        {
-          __asm { vmovaps xmm2, xmm6; value }
-          if ( DLog_Float32(&context, "timems", *(float *)&_XMM2) && DLog_UInt64(&context, "size", v26) )
-          {
-            __asm { vmovaps xmm2, xmm7; value }
-            if ( DLog_Float32(&context, "speed", *(float *)&_XMM2) && DLog_String(&context, "platform", "xb3", 0) && DLog_String(&context, "plattype", v20, 0) && DLog_Int32(&context, "pchost", UsingPCHostHDDFolders) )
-              DLog_RecordContext(&context);
-          }
-        }
+        if ( v19 && DLog_String(&context, "step", profileName, 0) && DLog_String(&context, "map", s_loadTimes.mapName, 0) && DLog_Float32(&context, "timems", *(float *)&_XMM6) && DLog_UInt64(&context, "size", v18) && DLog_Float32(&context, "speed", v12) && DLog_String(&context, "platform", "xb3", 0) && DLog_String(&context, "plattype", v14, 0) && DLog_Int32(&context, "pchost", UsingPCHostHDDFolders) )
+          DLog_RecordContext(&context);
       }
-      __asm { vmovaps xmm7, [rsp+11D8h+var_28] }
     }
-    __asm { vmovaps xmm6, [rsp+11D8h+var_18] }
   }
 }
 
@@ -311,13 +285,13 @@ void __fastcall DB_LoadTimes_EndTimingAndPrint(const char *const profileName, do
 DB_LoadTimes_FastfileLoadFinished
 ==============
 */
-void DB_LoadTimes_FastfileLoadFinished(const bool success, double a2)
+void DB_LoadTimes_FastfileLoadFinished(const bool success)
 {
   if ( s_loadTimes.state == 4 )
   {
     if ( success )
     {
-      DB_LoadTimes_EndTimingAndPrint("fastfilesp", a2);
+      DB_LoadTimes_EndTimingAndPrint("fastfilesp");
       s_loadTimes.state = 5;
     }
     else
@@ -378,12 +352,12 @@ void DB_LoadTimes_OnPauseOrCancel(void)
 DB_LoadTimes_StreamSyncMPFinished
 ==============
 */
-void DB_LoadTimes_StreamSyncMPFinished(const bool success, double a2)
+void DB_LoadTimes_StreamSyncMPFinished(const bool success)
 {
   if ( s_loadTimes.state == 10 )
   {
     if ( success )
-      DB_LoadTimes_EndTimingAndPrint("streamsyncmp", a2);
+      DB_LoadTimes_EndTimingAndPrint("streamsyncmp");
     s_loadTimes.state = Started;
   }
 }
@@ -393,12 +367,12 @@ void DB_LoadTimes_StreamSyncMPFinished(const bool success, double a2)
 DB_LoadTimes_StreamSyncSPFinished
 ==============
 */
-void DB_LoadTimes_StreamSyncSPFinished(const bool success, double a2)
+void DB_LoadTimes_StreamSyncSPFinished(const bool success)
 {
   if ( s_loadTimes.state == 8 )
   {
     if ( success )
-      DB_LoadTimes_EndTimingAndPrint("streamsyncsp", a2);
+      DB_LoadTimes_EndTimingAndPrint("streamsyncsp");
     s_loadTimes.state = Started;
   }
 }

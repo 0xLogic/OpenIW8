@@ -1579,34 +1579,35 @@ char Com_LoadDvarsFromBuffer(const char **dvarnames, unsigned int numDvars, cons
   size_t v10; 
   const char *v11; 
   unsigned int Checksum; 
+  dvar_t *MalleableVar; 
+  const char *v14; 
   const char *v15; 
-  const char *v16; 
-  __int64 v17; 
-  const char **v18; 
-  const char *v19; 
-  unsigned int v21; 
-  const dvar_t *MalleableVar; 
-  const char *v23; 
-  char *v24; 
+  __int64 v16; 
+  const char **v17; 
+  const char *v18; 
+  unsigned int v20; 
+  const dvar_t *v21; 
+  const char *v22; 
+  char *v23; 
   char *data_p; 
-  int v26; 
-  const char *v27; 
-  const char **v28; 
-  DvarValue v29; 
-  char v30[16384]; 
+  int v25; 
+  const char *v26; 
+  const char **v27; 
+  DvarValue reset; 
+  char v29[16384]; 
 
   v4 = filename;
-  v28 = dvarnames;
+  v27 = dvarnames;
   v5 = dvarnames;
-  v27 = filename;
+  v26 = filename;
   v6 = numDvars;
   data_p = (char *)buffer;
   if ( numDvars >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5019, ASSERT_TYPE_ASSERT, "(numDvars < ( sizeof( *array_counter( wasRead ) ) + 0 ))", (const char *)&queryFormat, "numDvars < ARRAY_COUNT( wasRead )") )
     __debugbreak();
   v7 = v6;
-  memset_0(v30, 0, v6);
+  memset_0(v29, 0, v6);
   v8 = 0;
-  v26 = 0;
+  v25 = 0;
   if ( (_DWORD)v6 )
   {
     v9 = v5;
@@ -1615,71 +1616,67 @@ char Com_LoadDvarsFromBuffer(const char **dvarnames, unsigned int numDvars, cons
     {
       v11 = *v9;
       Checksum = Dvar_GenerateChecksum(*v9);
-      _RBX = Dvar_FindMalleableVar(Checksum);
-      if ( !_RBX )
+      MalleableVar = Dvar_FindMalleableVar(Checksum);
+      if ( !MalleableVar )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5027, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tUnable to find dvar '%s'", "dvar", v11) )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4707, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+48h]
-        vmovups [rsp+40C8h+var_4068], xmm0
-      }
-      Dvar_SetVariant(_RBX, &v29, DVAR_SOURCE_INTERNAL);
+      reset = MalleableVar->reset;
+      Dvar_SetVariant(MalleableVar, &reset, DVAR_SOURCE_INTERNAL);
       ++v9;
       --v10;
     }
     while ( v10 );
-    v5 = v28;
-    v8 = v26;
-    v4 = v27;
+    v5 = v27;
+    v8 = v25;
+    v4 = v26;
   }
   Com_BeginParseSession(v4);
-  v15 = Com_Parse((const char **)&data_p);
-  if ( *v15 )
+  v14 = Com_Parse((const char **)&data_p);
+  if ( *v14 )
   {
-    v16 = v27;
+    v15 = v26;
     do
     {
-      v17 = 0i64;
+      v16 = 0i64;
       if ( (_DWORD)v6 )
       {
-        v18 = v5;
+        v17 = v5;
         while ( 1 )
         {
-          v19 = *v18;
-          if ( !I_strnicmp(v15, *v18, 0x7FFFFFFFui64) )
+          v18 = *v17;
+          if ( !I_strnicmp(v14, *v17, 0x7FFFFFFFui64) )
             break;
-          v17 = (unsigned int)(v17 + 1);
-          ++v18;
-          if ( (unsigned int)v17 >= (unsigned int)v6 )
+          v16 = (unsigned int)(v16 + 1);
+          ++v17;
+          if ( (unsigned int)v16 >= (unsigned int)v6 )
             goto LABEL_19;
         }
-        v21 = Dvar_GenerateChecksum(v19);
-        MalleableVar = Dvar_FindMalleableVar(v21);
-        if ( !MalleableVar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5044, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+        v20 = Dvar_GenerateChecksum(v18);
+        v21 = Dvar_FindMalleableVar(v20);
+        if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5044, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
           __debugbreak();
-        v23 = Com_ParseOnLine((const char **)&data_p);
-        Dvar_SetFromStringFromSource(MalleableVar, v23, DVAR_SOURCE_INTERNAL);
-        if ( !v30[v17] )
+        v22 = Com_ParseOnLine((const char **)&data_p);
+        Dvar_SetFromStringFromSource(v21, v22, DVAR_SOURCE_INTERNAL);
+        if ( !v29[v16] )
         {
-          v30[v17] = 1;
+          v29[v16] = 1;
           ++v8;
         }
       }
       else
       {
 LABEL_19:
-        Com_PrintWarning(16, "WARNING: unknown dvar '%s' in file '%s'\n", v15, v16);
+        Com_PrintWarning(16, "WARNING: unknown dvar '%s' in file '%s'\n", v14, v15);
       }
       Com_SkipRestOfLine((const char **)&data_p);
-      v15 = Com_Parse((const char **)&data_p);
+      v14 = Com_Parse((const char **)&data_p);
     }
-    while ( *v15 );
-    v4 = v27;
+    while ( *v14 );
+    v4 = v26;
     v7 = (unsigned int)v6;
   }
   Com_EndParseSession();
@@ -1688,12 +1685,12 @@ LABEL_19:
   Com_PrintError(16, "ERROR: the following dvars were not specified in file '%s'\n", v4);
   if ( (_DWORD)v6 )
   {
-    v24 = v30;
+    v23 = v29;
     do
     {
-      if ( !*v24 )
+      if ( !*v23 )
         Com_PrintError(16, "  %s\n", *v5);
-      ++v24;
+      ++v23;
       ++v5;
       --v7;
     }
@@ -1711,9 +1708,10 @@ char Com_SaveDvarsToBuffer(const char **dvarnames, unsigned int numDvars, char *
 {
   unsigned int v4; 
   unsigned int Checksum; 
-  const char *v12; 
-  int v13; 
-  DvarValue v15[3]; 
+  dvar_t *MalleableVar; 
+  const char *v11; 
+  int v12; 
+  DvarValue v14[3]; 
 
   v4 = 0;
   if ( !numDvars )
@@ -1721,26 +1719,22 @@ char Com_SaveDvarsToBuffer(const char **dvarnames, unsigned int numDvars, char *
   while ( 1 )
   {
     Checksum = Dvar_GenerateChecksum(*dvarnames);
-    _R14 = Dvar_FindMalleableVar(Checksum);
-    if ( !_R14 )
+    MalleableVar = Dvar_FindMalleableVar(Checksum);
+    if ( !MalleableVar )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4964, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1549, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14+28h]
-      vmovups xmmword ptr [rsp+68h+var_38], xmm0
-    }
-    v12 = Dvar_ValueToString(_R14, v15);
-    v13 = Com_sprintf_truncate(buffer, bufsize, "%d \"%s\"\n", _R14->checksum, v12);
-    if ( v13 < 0 )
+    v14[0] = MalleableVar->current;
+    v11 = Dvar_ValueToString(MalleableVar, v14);
+    v12 = Com_sprintf_truncate(buffer, bufsize, "%d \"%s\"\n", MalleableVar->checksum, v11);
+    if ( v12 < 0 )
       break;
     ++v4;
-    buffer += v13;
-    bufsize -= v13;
+    buffer += v12;
+    bufsize -= v12;
     ++dvarnames;
     if ( v4 >= numDvars )
       return 1;
@@ -1783,11 +1777,12 @@ char Dvar_AnyLatchedValues()
   unsigned __int64 v0; 
   int v1; 
   dvar_t **v2; 
+  DvarValue current; 
   unsigned __int8 type; 
   volatile int readCount; 
-  volatile int v9; 
-  DvarValue v10; 
-  DvarValue v11; 
+  volatile int v7; 
+  DvarValue latched; 
+  DvarValue v9; 
 
   if ( g_dvarCritSect.writeThreadId == Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 62, ASSERT_TYPE_ASSERT, "( critSect->writeThreadId != Sys_GetCurrentThreadId() )", "This is a non-recursive lock! Don't attempt to take a read lock if the calling thread already has the write lock or this will loop infinitely.") )
     __debugbreak();
@@ -1820,19 +1815,11 @@ LABEL_13:
     v2 = sortedDvars;
     while ( 1 )
     {
-      _RAX = *v2;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax+38h]
-        vmovups xmm1, xmmword ptr [rax+28h]
-      }
+      current = (*v2)->current;
       type = (*v2)->type;
-      __asm
-      {
-        vmovups [rsp+78h+var_28], xmm0
-        vmovups [rsp+78h+var_18], xmm1
-      }
-      if ( !Dvar_ValuesEqual(type, &v11, &v10) )
+      latched = (*v2)->latched;
+      v9 = current;
+      if ( !Dvar_ValuesEqual(type, &v9, &latched) )
         break;
       ++v1;
       ++v2;
@@ -1841,8 +1828,8 @@ LABEL_13:
     }
     if ( g_dvarCritSect.readCount <= 0 )
     {
-      v9 = g_dvarCritSect.readCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 90, ASSERT_TYPE_ASSERT, "( critSect->readCount ) > ( 0 )", "%s > %s\n\t%i, %i", "critSect->readCount", "0", v9, 0i64) )
+      v7 = g_dvarCritSect.readCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 90, ASSERT_TYPE_ASSERT, "( critSect->readCount ) > ( 0 )", "%s > %s\n\t%i, %i", "critSect->readCount", "0", v7, 0i64) )
         __debugbreak();
     }
     if ( v0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dvarCritSect) )
@@ -1910,21 +1897,16 @@ Dvar_ChangeResetValue
 */
 void Dvar_ChangeResetValue(const dvar_t *dvar, DvarValue *value)
 {
-  DvarValue v5; 
+  DvarValue v4; 
 
-  _RDI = value;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2881, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2883, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
     __debugbreak();
   if ( (dvar->flags & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2885, ASSERT_TYPE_ASSERT, "( ( dvar->flags & (1 << 14) ) )", "( dvar->name ) = %s", dvar->name) )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  Dvar_UpdateResetValue((dvar_t *)dvar, &v5);
+  v4 = *value;
+  Dvar_UpdateResetValue((dvar_t *)dvar, &v4);
 }
 
 /*
@@ -1934,187 +1916,249 @@ Dvar_ClampValueToDomain
 */
 DvarValue *Dvar_ClampValueToDomain(DvarValue *result, unsigned __int8 type, DvarValue *value, const DvarValue *resetValue, const DvarLimits *domain)
 {
-  int max; 
+  int v7; 
   int stringCount; 
   int integer; 
   const char *const *strings; 
-  __int64 min; 
+  __int64 v11; 
   __int64 integer64; 
-  const char *const *v15; 
-  unsigned __int64 v16; 
-  unsigned __int64 v17; 
-  int v41; 
-  bool v42; 
-  bool v43; 
-  DvarValue *v45; 
-  int v46; 
-  int v47; 
+  const char *const *v13; 
+  unsigned __int64 v14; 
+  unsigned __int64 v15; 
+  double v16; 
+  float min; 
+  float max; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  int v31; 
+  bool v32; 
+  bool v33; 
+  DvarValue *v34; 
+  int v35; 
+  int v36; 
 
-  _RDI = domain;
-  _RBX = value;
-  _R15 = result;
   switch ( type )
   {
     case 0u:
       value->enabled = value->enabled;
       goto $LN17_71;
     case 1u:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+4]; jumptable 00000001418674FE case 1
-        vmovss  xmm1, dword ptr [rdi]; min
-        vmovss  xmm0, dword ptr [rbx]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rbx], xmm0 }
+      v16 = I_fclamp(value->value, domain->value.min, domain->value.max);
+      value->value = *(float *)&v16;
       goto $LN17_71;
     case 2u:
-      __asm
+      min = domain->value.min;
+      max = domain->value.max;
+      if ( value->value >= domain->value.min )
       {
-        vmovss  xmm1, dword ptr [rdi]; jumptable 00000001418674FE case 2
-        vmovss  xmm2, dword ptr [rbx]
-        vcomiss xmm2, xmm1
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm2, dword ptr [rbx+4]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+4], xmm0
+        if ( value->value > max )
+          value->value = max;
+      }
+      else
+      {
+        value->value = min;
+      }
+      v19 = value->vector.v[1];
+      if ( v19 >= min )
+      {
+        if ( v19 > max )
+          value->vector.v[1] = max;
+      }
+      else
+      {
+        value->vector.v[1] = min;
       }
       goto $LN17_71;
     case 3u:
-      __asm
+      v20 = domain->value.min;
+      v21 = domain->value.max;
+      if ( value->value >= domain->value.min )
       {
-        vmovss  xmm1, dword ptr [rdi]; jumptable 00000001418674FE case 3
-        vmovss  xmm2, dword ptr [rbx]
-        vcomiss xmm2, xmm1
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm2, dword ptr [rbx+4]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  xmm2, dword ptr [rbx+8]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+8], xmm0
+        if ( value->value > v21 )
+          value->value = v21;
+      }
+      else
+      {
+        value->value = v20;
+      }
+      v22 = value->vector.v[1];
+      if ( v22 >= v20 )
+      {
+        if ( v22 > v21 )
+          value->vector.v[1] = v21;
+      }
+      else
+      {
+        value->vector.v[1] = v20;
+      }
+      v23 = value->vector.v[2];
+      if ( v23 >= v20 )
+      {
+        if ( v23 > v21 )
+          value->vector.v[2] = v21;
+      }
+      else
+      {
+        value->vector.v[2] = v20;
       }
       goto $LN17_71;
     case 4u:
-      __asm
+      v26 = domain->value.min;
+      v27 = domain->value.max;
+      if ( value->value >= domain->value.min )
       {
-        vmovss  xmm1, dword ptr [rdi]; jumptable 00000001418674FE case 4
-        vmovss  xmm2, dword ptr [rbx]
-        vcomiss xmm2, xmm1
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm2, dword ptr [rbx+4]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  xmm2, dword ptr [rbx+8]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  xmm2, dword ptr [rbx+0Ch]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  dword ptr [rbx+0Ch], xmm0
+        if ( value->value > v27 )
+          value->value = v27;
+      }
+      else
+      {
+        value->value = v26;
+      }
+      v28 = value->vector.v[1];
+      if ( v28 >= v26 )
+      {
+        if ( v28 > v27 )
+          value->vector.v[1] = v27;
+      }
+      else
+      {
+        value->vector.v[1] = v26;
+      }
+      v29 = value->vector.v[2];
+      if ( v29 >= v26 )
+      {
+        if ( v29 > v27 )
+          value->vector.v[2] = v27;
+      }
+      else
+      {
+        value->vector.v[2] = v26;
+      }
+      v30 = value->vector.v[3];
+      if ( v30 >= v26 )
+      {
+        if ( v30 > v27 )
+          value->vector.v[3] = v27;
+      }
+      else
+      {
+        value->vector.v[3] = v26;
       }
       goto $LN17_71;
     case 5u:
-      max = domain->integer.max;
+      v7 = domain->integer.max;
       stringCount = domain->enumeration.stringCount;
-      if ( domain->enumeration.stringCount > max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1609, ASSERT_TYPE_ASSERT, "(domain.integer.min <= domain.integer.max)", (const char *)&queryFormat, "domain.integer.min <= domain.integer.max") )
+      if ( domain->enumeration.stringCount > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1609, ASSERT_TYPE_ASSERT, "(domain.integer.min <= domain.integer.max)", (const char *)&queryFormat, "domain.integer.min <= domain.integer.max") )
         __debugbreak();
-      integer = _RBX->integer;
-      if ( stringCount > max && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+      integer = value->integer;
+      if ( stringCount > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
         __debugbreak();
-      if ( max < integer )
-        integer = max;
+      if ( v7 < integer )
+        integer = v7;
       if ( stringCount > integer )
         integer = stringCount;
-      _RBX->integer = integer;
+      value->integer = integer;
       goto $LN17_71;
     case 6u:
       strings = domain->enumeration.strings;
-      min = domain->integer64.min;
+      v11 = domain->integer64.min;
       if ( domain->integer64.min > (__int64)strings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1614, ASSERT_TYPE_ASSERT, "(domain.integer64.min <= domain.integer64.max)", (const char *)&queryFormat, "domain.integer64.min <= domain.integer64.max") )
         __debugbreak();
-      integer64 = _RBX->integer64;
-      if ( min > (__int64)strings && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+      integer64 = value->integer64;
+      if ( v11 > (__int64)strings && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
         __debugbreak();
       if ( (__int64)strings < integer64 )
         integer64 = (__int64)strings;
-      if ( min > integer64 )
-        integer64 = min;
-      _RBX->integer64 = integer64;
+      if ( v11 > integer64 )
+        integer64 = v11;
+      value->integer64 = integer64;
       goto $LN17_71;
     case 7u:
-      v15 = domain->enumeration.strings;
-      v16 = domain->integer64.min;
-      if ( domain->integer64.min > (unsigned __int64)v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1619, ASSERT_TYPE_ASSERT, "(domain.unsignedInt64.min <= domain.unsignedInt64.max)", (const char *)&queryFormat, "domain.unsignedInt64.min <= domain.unsignedInt64.max") )
+      v13 = domain->enumeration.strings;
+      v14 = domain->integer64.min;
+      if ( domain->integer64.min > (unsigned __int64)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1619, ASSERT_TYPE_ASSERT, "(domain.unsignedInt64.min <= domain.unsignedInt64.max)", (const char *)&queryFormat, "domain.unsignedInt64.min <= domain.unsignedInt64.max") )
         __debugbreak();
-      v17 = _RBX->integer64;
-      if ( v16 > (unsigned __int64)v15 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+      v15 = value->integer64;
+      if ( v14 > (unsigned __int64)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
         __debugbreak();
-      if ( (unsigned __int64)v15 < v17 )
-        v17 = (unsigned __int64)v15;
-      if ( v16 > v17 )
-        v17 = v16;
-      _RBX->integer64 = v17;
+      if ( (unsigned __int64)v13 < v15 )
+        v15 = (unsigned __int64)v13;
+      if ( v14 > v15 )
+        v15 = v14;
+      value->integer64 = v15;
       goto $LN17_71;
     case 8u:
       if ( value->integer >= 0 && value->integer < domain->enumeration.stringCount )
         goto $LN17_71;
-      v41 = resetValue->integer;
+      v31 = resetValue->integer;
       value->integer = resetValue->integer;
-      v42 = v41 == 0;
-      if ( v41 < 0 )
-        goto LABEL_46;
-      if ( v41 >= domain->enumeration.stringCount )
+      v32 = v31 == 0;
+      if ( v31 < 0 )
+        goto LABEL_90;
+      if ( v31 >= domain->enumeration.stringCount )
       {
-        v42 = v41 == 0;
-LABEL_46:
-        if ( !v42 )
+        v32 = v31 == 0;
+LABEL_90:
+        if ( !v32 )
         {
-          v46 = v41;
-          v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1651, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", v46);
-          goto LABEL_49;
+          v35 = v31;
+          v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1651, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", v35);
+          goto LABEL_93;
         }
       }
 $LN17_71:
-      __asm { vmovups xmm0, xmmword ptr [rbx]; jumptable 00000001418674FE cases 9,10 }
-      v45 = _R15;
-      __asm { vmovups xmmword ptr [r15], xmm0 }
-      return v45;
+      v34 = result;
+      *result = *value;
+      return v34;
     case 9u:
     case 0xAu:
       goto $LN17_71;
     case 0xBu:
-      __asm
+      if ( value->value >= 0.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; jumptable 00000001418674FE case 11
-        vmovss  xmm0, cs:__real@3f800000
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  xmm2, dword ptr [rbx+4]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-        vmovss  xmm2, dword ptr [rbx+8]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
+        if ( value->value > 1.0 )
+          value->integer = 1065353216;
+      }
+      else
+      {
+        value->integer = 0;
+      }
+      v24 = value->vector.v[1];
+      if ( v24 >= 0.0 )
+      {
+        if ( v24 > 1.0 )
+          value->vector.v[1] = 1.0;
+      }
+      else
+      {
+        value->vector.v[1] = 0.0;
+      }
+      v25 = value->vector.v[2];
+      if ( v25 >= 0.0 )
+      {
+        if ( v25 > 1.0 )
+          value->vector.v[2] = 1.0;
+      }
+      else
+      {
+        value->vector.v[2] = 0.0;
       }
       goto $LN17_71;
     default:
-      v47 = type;
-      v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1661, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v47);
-LABEL_49:
-      if ( v43 )
+      v36 = type;
+      v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1661, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v36);
+LABEL_93:
+      if ( v33 )
         __debugbreak();
       goto $LN17_71;
   }
@@ -2127,27 +2171,19 @@ Dvar_ClearLatchedValue
 */
 void Dvar_ClearLatchedValue(const dvar_t *dvar)
 {
+  DvarValue current; 
   unsigned __int8 type; 
-  DvarValue v6; 
-  DvarValue v7; 
+  DvarValue latched; 
+  DvarValue v5; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+38h]
-    vmovups [rsp+48h+var_28], xmm0
-    vmovups xmm0, xmmword ptr [rcx+28h]
-  }
-  _RBX = (dvar_t *)dvar;
+  latched = dvar->latched;
+  current = dvar->current;
   type = dvar->type;
-  __asm { vmovups xmmword ptr [rsp+48h+var_18], xmm0 }
-  if ( !Dvar_ValuesEqual(type, &v7, &v6) )
+  v5 = current;
+  if ( !Dvar_ValuesEqual(type, &v5, &latched) )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+28h]
-      vmovups xmmword ptr [rsp+48h+var_18], xmm0
-    }
-    Dvar_SetLatchedValue(_RBX, &v7);
+    v5 = dvar->current;
+    Dvar_SetLatchedValue((dvar_t *)dvar, &v5);
   }
 }
 
@@ -2396,17 +2432,12 @@ Dvar_DisplayableLatchedValue
 */
 const char *Dvar_DisplayableLatchedValue(const dvar_t *dvar)
 {
-  DvarValue v4; 
+  DvarValue latched; 
 
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1565, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+38h]
-    vmovups xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  return Dvar_ValueToString(_RBX, &v4);
+  latched = dvar->latched;
+  return Dvar_ValueToString(dvar, &latched);
 }
 
 /*
@@ -2416,17 +2447,12 @@ Dvar_DisplayableResetValue
 */
 const char *Dvar_DisplayableResetValue(const dvar_t *dvar)
 {
-  DvarValue v4; 
+  DvarValue reset; 
 
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1557, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+48h]
-    vmovups xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  return Dvar_ValueToString(_RBX, &v4);
+  reset = dvar->reset;
+  return Dvar_ValueToString(dvar, &reset);
 }
 
 /*
@@ -2436,17 +2462,12 @@ Dvar_DisplayableValue
 */
 const char *Dvar_DisplayableValue(const dvar_t *dvar)
 {
-  DvarValue v4; 
+  DvarValue current; 
 
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1549, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+28h]
-    vmovups xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  return Dvar_ValueToString(_RBX, &v4);
+  current = dvar->current;
+  return Dvar_ValueToString(dvar, &current);
 }
 
 /*
@@ -2478,211 +2499,189 @@ Dvar_DomainToString_Internal
 */
 char *Dvar_DomainToString_Internal(const dvar_t *dvar, char *outBuffer, unsigned __int64 outBufferLen, int *outLineCount)
 {
-  const dvar_t *v8; 
-  unsigned int v10; 
-  char *v11; 
-  unsigned __int64 v13; 
-  char *v14; 
+  DvarLimits domain; 
+  int v9; 
+  char *v10; 
+  unsigned __int64 v11; 
+  char *v12; 
   unsigned int checksum; 
   const char *UnobfuscatedName; 
-  __int64 v24; 
-  int v25; 
+  __int64 v15; 
+  int v16; 
   int stringCount; 
-  char *v27; 
+  char *v18; 
   const char *const *strings; 
-  int v29; 
+  int v20; 
   char *result; 
   char *fmt; 
-  char *fmta; 
-  __int64 v34; 
-  DvarLimits v35; 
+  __int64 v23; 
+  DvarLimits v24; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  v8 = dvar;
-  __asm
-  {
-    vmovups xmm6, xmmword ptr [rcx+58h]
-    vmovups [rsp+88h+var_48], xmm6
-  }
+  domain = dvar->domain;
+  v24 = domain;
   if ( !outBufferLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1829, ASSERT_TYPE_ASSERT, "(outBufferLen > 0)", (const char *)&queryFormat, "outBufferLen > 0") )
     __debugbreak();
-  v10 = 0;
-  v11 = &outBuffer[outBufferLen];
+  v9 = 0;
+  v10 = &outBuffer[outBufferLen];
   if ( outLineCount )
     *outLineCount = 0;
-  _RBP = 0x140000000ui64;
-  switch ( v8->type )
+  switch ( dvar->type )
   {
     case 0u:
       Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is 0 or 1");
-      goto LABEL_59;
+      goto LABEL_63;
     case 1u:
-      __asm
+      if ( v24.value.min == -3.4028235e38 )
       {
-        vmovss  xmm1, dword ptr [rsp+88h+var_48]; jumptable 0000000141868503 case 1
-        vucomiss xmm1, cs:__real@ff7fffff
-        vmovss  xmm0, dword ptr [rsp+88h+var_48+4]
+        if ( v24.value.max == 3.4028235e38 )
+          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number");
+        else
+          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number %g or smaller", v24.value.max);
       }
-      if ( outLineCount )
+      else if ( v24.value.max == 3.4028235e38 )
       {
-        __asm
-        {
-          vucomiss xmm0, cs:__real@7f7fffff
-          vcvtss2sd xmm3, xmm1, xmm1
-          vmovq   r9, xmm3
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+88h+fmt], xmm0
-        }
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number from %g to %g", *(double *)&_XMM3, *(double *)&fmta);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number %g or bigger", v24.value.min);
       }
       else
       {
-        __asm { vucomiss xmm0, cs:__real@7f7fffff }
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number");
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any number from %g to %g", v24.value.min, v24.value.max);
       }
-      goto LABEL_59;
+      goto LABEL_63;
     case 2u:
-      __asm { vmovdqa [rsp+88h+var_48], xmm6 }
-      Dvar_VectorDomainToString(2, &v35, outBuffer, outBufferLen);
-      goto LABEL_59;
+      v24 = domain;
+      Dvar_VectorDomainToString(2, &v24, outBuffer, outBufferLen);
+      goto LABEL_63;
     case 3u:
     case 0xBu:
-      __asm { vmovdqa [rsp+88h+var_48], xmm6 }
-      Dvar_VectorDomainToString(3, &v35, outBuffer, outBufferLen);
-      goto LABEL_59;
+      v24 = domain;
+      Dvar_VectorDomainToString(3, &v24, outBuffer, outBufferLen);
+      goto LABEL_63;
     case 4u:
-      __asm { vmovdqa [rsp+88h+var_48], xmm6 }
-      Dvar_VectorDomainToString(4, &v35, outBuffer, outBufferLen);
-      goto LABEL_59;
+      v24 = domain;
+      Dvar_VectorDomainToString(4, &v24, outBuffer, outBufferLen);
+      goto LABEL_63;
     case 5u:
-      v13 = outBufferLen;
-      if ( v35.enumeration.stringCount == 0x80000000 )
+      v11 = outBufferLen;
+      if ( v24.enumeration.stringCount == 0x80000000 )
       {
-        v14 = outBuffer;
-        if ( v35.integer.max == 0x7FFFFFFF )
+        v12 = outBuffer;
+        if ( v24.integer.max == 0x7FFFFFFF )
           goto LABEL_14;
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %i or smaller", (unsigned int)v35.integer.max);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %i or smaller", (unsigned int)v24.integer.max);
       }
-      else if ( v35.integer.max == 0x7FFFFFFF )
+      else if ( v24.integer.max == 0x7FFFFFFF )
       {
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %i or bigger", (unsigned int)v35.enumeration.stringCount);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %i or bigger", (unsigned int)v24.enumeration.stringCount);
       }
       else
       {
-        LODWORD(fmt) = v35.integer.max;
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer from %i to %i", (unsigned int)v35.enumeration.stringCount, fmt);
+        LODWORD(fmt) = v24.integer.max;
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer from %i to %i", (unsigned int)v24.enumeration.stringCount, fmt);
       }
-      goto LABEL_59;
+      goto LABEL_63;
     case 6u:
-      v13 = outBufferLen;
-      v14 = outBuffer;
-      if ( v35.integer64.min == 0xFFFFFFFF80000000ui64 )
+      v11 = outBufferLen;
+      v12 = outBuffer;
+      if ( v24.integer64.min == 0xFFFFFFFF80000000ui64 )
       {
-        if ( v35.integer64.max == 0x7FFFFFFFFFFFFFFFi64 )
+        if ( v24.integer64.max == 0x7FFFFFFFFFFFFFFFi64 )
 LABEL_14:
-          Com_sprintf_truncate(v14, v13, "Domain is any integer");
+          Com_sprintf_truncate(v12, v11, "Domain is any integer");
         else
-          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %lli or smaller", v35.integer64.max);
+          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %lli or smaller", v24.integer64.max);
       }
-      else if ( v35.integer64.max == 0x7FFFFFFF )
+      else if ( v24.integer64.max == 0x7FFFFFFF )
       {
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %lli or bigger", v35.integer64.min);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer %lli or bigger", v24.integer64.min);
       }
       else
       {
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer from %lli to %lli", v35.integer64.min, v35.integer64.max);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any integer from %lli to %lli", v24.integer64.min, v24.integer64.max);
       }
-      goto LABEL_59;
+      goto LABEL_63;
     case 7u:
-      if ( v35.integer64.min == 0xFFFFFFFF80000000ui64 )
+      if ( v24.integer64.min == 0xFFFFFFFF80000000ui64 )
       {
-        if ( v35.integer64.max == -1 )
+        if ( v24.integer64.max == -1 )
           Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer");
         else
-          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer %llu or smaller", v35.integer64.max);
+          Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer %llu or smaller", v24.integer64.max);
       }
-      else if ( v35.integer64.max == 0x7FFFFFFF )
+      else if ( v24.integer64.max == 0x7FFFFFFF )
       {
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer %llu or bigger", v35.integer64.min);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer %llu or bigger", v24.integer64.min);
       }
       else
       {
-        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer from %llu to %llu", v35.integer64.min, v35.integer64.max);
+        Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any unsigned integer from %llu to %llu", v24.integer64.min, v24.integer64.max);
       }
-      goto LABEL_59;
+      goto LABEL_63;
     case 8u:
-      v25 = Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is one of the following:");
-      if ( v25 >= 0 )
+      v16 = Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is one of the following:");
+      if ( v16 >= 0 )
       {
-        stringCount = v35.enumeration.stringCount;
-        v27 = &outBuffer[v25];
-        if ( v35.enumeration.stringCount > 0 )
+        stringCount = v24.enumeration.stringCount;
+        v18 = &outBuffer[v16];
+        if ( v24.enumeration.stringCount > 0 )
         {
-          strings = v35.enumeration.strings;
+          strings = v24.enumeration.strings;
           do
           {
-            v29 = Com_sprintf_truncate(v27, v11 - v27, "\n  %2i: %s", v10, *strings);
-            if ( v29 < 0 )
+            v20 = Com_sprintf_truncate(v18, v10 - v18, "\n  %2i: %s", (unsigned int)v9, *strings);
+            if ( v20 < 0 )
               break;
             if ( outLineCount )
               ++*outLineCount;
-            v27 += v29;
-            if ( v27 >= v11 )
+            v18 += v20;
+            if ( v18 >= v10 )
               break;
-            ++v10;
+            ++v9;
             ++strings;
           }
-          while ( (int)v10 < stringCount );
+          while ( v9 < stringCount );
         }
       }
-      goto LABEL_59;
+      goto LABEL_63;
     case 9u:
-      if ( v8->type != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1787, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_STRING)", (const char *)&queryFormat, "dvar->type == DVAR_TYPE_STRING") )
+      if ( dvar->type != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1787, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_STRING)", (const char *)&queryFormat, "dvar->type == DVAR_TYPE_STRING") )
         __debugbreak();
       if ( !s_customDvarDomainCallbackTable.m_entryCount )
-        goto LABEL_41;
-      checksum = v8->checksum;
+        goto LABEL_45;
+      checksum = dvar->checksum;
       while ( 1 )
       {
-        _RAX = 2i64 * v10;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr ss:rva s_customDvarDomainCallbackTable.m_table.dvarChecksum[rbp+rax*8]
-          vmovd   eax, xmm0
-          vmovups [rsp+88h+var_48], xmm0
-        }
-        if ( (_DWORD)_RAX == checksum )
+        v24 = (DvarLimits)s_customDvarDomainCallbackTable.m_table[v9];
+        if ( v24.enumeration.stringCount == checksum )
           break;
-        if ( ++v10 >= s_customDvarDomainCallbackTable.m_entryCount )
-          goto LABEL_41;
+        if ( ++v9 >= s_customDvarDomainCallbackTable.m_entryCount )
+          goto LABEL_45;
       }
-      if ( v35.integer64.max )
+      if ( v24.integer64.max )
       {
-        v24 = ((__int64 (__fastcall *)(int *))v35.enumeration.strings)(outLineCount);
-        Com_sprintf_truncate(outBuffer, outBufferLen, (const char *)&queryFormat, v24);
+        v15 = ((__int64 (__fastcall *)(int *))v24.enumeration.strings)(outLineCount);
+        Com_sprintf_truncate(outBuffer, outBufferLen, (const char *)&queryFormat, v15);
       }
       else
       {
-        UnobfuscatedName = Dvar_DevGetUnobfuscatedName(v8->name);
+        UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1793, ASSERT_TYPE_ASSERT, "(entry.callback)", "%s\n\tDvar %s had an entry in the dvar custom domain callback table, but callback was NULL.", "entry.callback", UnobfuscatedName) )
           __debugbreak();
-LABEL_41:
+LABEL_45:
         Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any text");
       }
-LABEL_59:
+LABEL_63:
       result = outBuffer;
-      __asm { vmovaps xmm6, [rsp+88h+var_38] }
-      *(v11 - 1) = 0;
+      *(v10 - 1) = 0;
       return result;
     case 0xAu:
       Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any 4-component color, in RGBA format");
-      goto LABEL_59;
+      goto LABEL_63;
     default:
-      LODWORD(v34) = v8->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1962, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v34) )
+      LODWORD(v23) = dvar->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1962, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v23) )
         __debugbreak();
       *outBuffer = 0;
-      goto LABEL_59;
+      goto LABEL_63;
   }
 }
 
@@ -3297,13 +3296,14 @@ dvar_t *Dvar_GetCurrentValueAsInt64(const char *dvarname_in)
 {
   unsigned int Checksum; 
   dvar_t *result; 
+  dvar_t *v3; 
   unsigned __int8 type; 
   int v5; 
   unsigned __int8 v6; 
 
   Checksum = Dvar_GenerateChecksum(dvarname_in);
   result = Dvar_FindMalleableVar(Checksum);
-  _RBX = result;
+  v3 = result;
   if ( result )
   {
     type = result->type;
@@ -3312,26 +3312,21 @@ dvar_t *Dvar_GetCurrentValueAsInt64(const char *dvarname_in)
       if ( (type != 9 || (result->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1190, ASSERT_TYPE_ASSERT, "( ( ( dvar->type == DVAR_TYPE_BOOL ) || ( dvar->type == DVAR_TYPE_INT ) || ( dvar->type == DVAR_TYPE_FLOAT ) || ( dvar->type == DVAR_TYPE_ENUM ) || ( ( dvar->type == DVAR_TYPE_STRING ) && ( dvar->flags & (1 << 8) ) ) ) )", "( dvar->type ) = %i", type) )
         __debugbreak();
     }
-    v6 = _RBX->type;
+    v6 = v3->type;
     if ( v6 == 5 || v6 == 8 )
     {
-      return (dvar_t *)_RBX->current.integer;
+      return (dvar_t *)v3->current.integer;
     }
     else if ( v6 )
     {
       if ( v6 == 1 )
-      {
-        __asm { vcvttss2si eax, dword ptr [rbx+28h] }
-        return (dvar_t *)(int)result;
-      }
+        return (dvar_t *)(int)v3->current.value;
       else
-      {
-        return (dvar_t *)I_atoi64(_RBX->current.string);
-      }
+        return (dvar_t *)I_atoi64(v3->current.string);
     }
     else
     {
-      return (dvar_t *)_RBX->current.enabled;
+      return (dvar_t *)v3->current.enabled;
     }
   }
   return result;
@@ -3346,26 +3341,23 @@ double Dvar_GetFloatSafe(const char *dvarName)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
+  dvar_t *v3; 
+  double result; 
   unsigned __int8 type; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  _RBX = MalleableVar;
-  if ( MalleableVar )
-  {
-    type = MalleableVar->type;
-    if ( type != 1 && (type != 9 || (_RBX->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2610, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->type ) = %i", type) )
-      __debugbreak();
-    if ( _RBX->type == 1 )
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    else
-      *(float *)&_XMM0 = Dvar_StringToFloat(_RBX->current.string);
-  }
+  v3 = MalleableVar;
+  if ( !MalleableVar )
+    return 0.0;
+  type = MalleableVar->type;
+  if ( type != 1 && (type != 9 || (v3->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2610, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->type ) = %i", type) )
+    __debugbreak();
+  if ( v3->type == 1 )
+    *(_QWORD *)&result = v3->current.unsignedInt;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+    *(float *)&result = Dvar_StringToFloat(v3->current.string);
+  return result;
 }
 
 /*
@@ -3566,36 +3558,31 @@ Dvar_GetUnpackedColor
 void Dvar_GetUnpackedColor(const dvar_t *dvar, vec4_t *expandedColor)
 {
   unsigned __int8 type; 
-  __int64 v10; 
-  int color; 
+  unsigned int unsignedInt; 
+  __int64 v8; 
+  unsigned int color; 
 
-  _RDI = expandedColor;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2714, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   type = dvar->type;
   if ( type != 10 && (type != 9 || (dvar->flags & 0x100) == 0) )
   {
-    LODWORD(v10) = type;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2715, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_COLOR || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->type ) = %i", v10) )
+    LODWORD(v8) = type;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2715, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_COLOR || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->type ) = %i", v8) )
       __debugbreak();
   }
   if ( dvar->type == 10 )
   {
-    _EAX = dvar->current.integer;
+    unsignedInt = dvar->current.unsignedInt;
   }
   else
   {
     Dvar_StringToColor(dvar->current.string, (unsigned __int8 *)&color);
-    _EAX = color;
+    unsignedInt = color;
   }
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpmovzxbd xmm1, xmm0
-    vcvtdq2ps xmm3, xmm1
-    vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  _XMM0 = unsignedInt;
+  __asm { vpmovzxbd xmm1, xmm0 }
+  *(__m128 *)expandedColor = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
 }
 
 /*
@@ -3609,9 +3596,9 @@ void Dvar_GetUnpackedColorByName(const char *dvarName, vec4_t *expandedColor)
   dvar_t *MalleableVar; 
   dvar_t *v5; 
   unsigned __int8 type; 
-  int color; 
+  unsigned int unsignedInt; 
+  unsigned int color; 
 
-  _RDI = expandedColor;
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
   v5 = MalleableVar;
@@ -3622,35 +3609,20 @@ void Dvar_GetUnpackedColorByName(const char *dvarName, vec4_t *expandedColor)
       __debugbreak();
     if ( v5->type == 10 )
     {
-      _EAX = v5->current.integer;
+      unsignedInt = v5->current.unsignedInt;
     }
     else
     {
       Dvar_StringToColor(v5->current.string, (unsigned __int8 *)&color);
-      _EAX = color;
+      unsignedInt = color;
     }
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpmovzxbd xmm1, xmm0
-      vcvtdq2ps xmm3, xmm1
-      vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-      vmovups xmmword ptr [rdi], xmm0
-    }
+    _XMM0 = unsignedInt;
+    __asm { vpmovzxbd xmm1, xmm0 }
+    *(__m128 *)expandedColor = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-      vmovss  dword ptr [rdi+0Ch], xmm1
-    }
+    *expandedColor = colorWhite;
   }
 }
 
@@ -3662,18 +3634,15 @@ Dvar_GetVariantString
 const char *Dvar_GetVariantString(const char *dvarName)
 {
   unsigned int Checksum; 
-  DvarValue v5; 
+  dvar_t *MalleableVar; 
+  DvarValue current; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
-  _RAX = Dvar_FindMalleableVar(Checksum);
-  if ( !_RAX )
+  MalleableVar = Dvar_FindMalleableVar(Checksum);
+  if ( !MalleableVar )
     return (char *)&queryFormat.fmt + 3;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+28h]
-    vmovups xmmword ptr [rsp+38h+var_18], xmm0
-  }
-  return Dvar_ValueToString(_RAX, &v5);
+  current = MalleableVar->current;
+  return Dvar_ValueToString(MalleableVar, &current);
 }
 
 /*
@@ -3684,22 +3653,19 @@ Dvar_GetVariantStringToBuffer
 void Dvar_GetVariantStringToBuffer(const char *dvarName, char *outBuffer, unsigned __int64 outBufferLen)
 {
   unsigned int Checksum; 
-  DvarValue v9; 
+  dvar_t *MalleableVar; 
+  DvarValue current; 
 
   if ( !outBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2665, ASSERT_TYPE_ASSERT, "(outBuffer)", (const char *)&queryFormat, "outBuffer") )
     __debugbreak();
   if ( !outBufferLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2666, ASSERT_TYPE_ASSERT, "(outBufferLen)", (const char *)&queryFormat, "outBufferLen") )
     __debugbreak();
   Checksum = Dvar_GenerateChecksum(dvarName);
-  _RAX = Dvar_FindMalleableVar(Checksum);
-  if ( _RAX )
+  MalleableVar = Dvar_FindMalleableVar(Checksum);
+  if ( MalleableVar )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+28h]
-      vmovups xmmword ptr [rsp+48h+var_18], xmm0
-    }
-    Dvar_ValueToStringBuffer(_RAX, &v9, outBuffer, outBufferLen);
+    current = MalleableVar->current;
+    Dvar_ValueToStringBuffer(MalleableVar, &current, outBuffer, outBufferLen);
   }
   else
   {
@@ -3715,18 +3681,15 @@ Dvar_GetVariantStringWithDefault
 const char *Dvar_GetVariantStringWithDefault(const char *dvarName, const char *defaultValue)
 {
   unsigned int Checksum; 
-  DvarValue v7; 
+  dvar_t *MalleableVar; 
+  DvarValue current; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
-  _RAX = Dvar_FindMalleableVar(Checksum);
-  if ( !_RAX )
+  MalleableVar = Dvar_FindMalleableVar(Checksum);
+  if ( !MalleableVar )
     return defaultValue;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+28h]
-    vmovups xmmword ptr [rsp+38h+var_18], xmm0
-  }
-  return Dvar_ValueToString(_RAX, &v7);
+  current = MalleableVar->current;
+  return Dvar_ValueToString(MalleableVar, &current);
 }
 
 /*
@@ -3738,31 +3701,22 @@ void Dvar_GetVec3Safe(const char *dvarName, vec3_t *result)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
-  dvar_t *v5; 
+  float *v5; 
 
-  _RBX = result;
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  v5 = MalleableVar;
+  v5 = (float *)MalleableVar;
   if ( MalleableVar )
   {
     if ( ((MalleableVar->type - 3) & 0xF7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2629, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_FLOAT_3 || dvar->type == DVAR_TYPE_FLOAT_3_COLOR)", (const char *)&queryFormat, "dvar->type == DVAR_TYPE_FLOAT_3 || dvar->type == DVAR_TYPE_FLOAT_3_COLOR") )
       __debugbreak();
-    LODWORD(_RBX->v[0]) = v5->current.integer;
-    _RBX->v[1] = v5->current.vector.v[1];
-    _RBX->v[2] = v5->current.vector.v[2];
+    result->v[0] = v5[10];
+    result->v[1] = v5[11];
+    result->v[2] = v5[12];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    *result = vec3_origin;
   }
 }
 
@@ -3773,21 +3727,17 @@ Dvar_HasLatchedValue
 */
 bool Dvar_HasLatchedValue(const dvar_t *dvar)
 {
+  DvarValue latched; 
+  DvarValue current; 
   unsigned __int8 type; 
   DvarValue v5; 
   DvarValue v6; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+38h]
-    vmovups xmm1, xmmword ptr [rcx+28h]
-  }
+  latched = dvar->latched;
+  current = dvar->current;
   type = dvar->type;
-  __asm
-  {
-    vmovups [rsp+48h+var_28], xmm0
-    vmovups xmmword ptr [rsp+48h+var_18], xmm1
-  }
+  v5 = latched;
+  v6 = current;
   return Dvar_ValuesEqual(type, &v6, &v5) == 0;
 }
 
@@ -3963,11 +3913,12 @@ void Dvar_Init(void)
   dvar_t **v3; 
   __int64 v4; 
   __int64 v5; 
+  DvarValue v6; 
   __int64 v7; 
   unsigned int Checksum; 
-  __int64 v10; 
-  DvarLimits v11; 
-  DvarValue v12; 
+  __int64 v9; 
+  DvarLimits v10; 
+  DvarValue v11; 
 
   Dvar_DevGetUnobfuscatedName((const char *)&queryFormat.fmt + 3);
   Dvar_DevGetObfuscatedName((const char *)&queryFormat.fmt + 3);
@@ -3997,23 +3948,19 @@ void Dvar_Init(void)
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5124, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", "%s\n\tCannot register permanent dvars from other threads", "Sys_IsMainThread()") )
     __debugbreak();
   v5 = 8i64 * tls_index;
-  v12.integer = 1;
-  __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
+  v11.integer = 1;
+  v6 = v11;
   v7 = *(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v5);
-  v11 = 0ui64;
-  __asm { vmovups xmm0, [rsp+68h+var_28] }
+  v10 = 0ui64;
   ++*(_DWORD *)(v7 + 1056);
-  __asm
-  {
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v10 = 0ui64;
+  v11 = v6;
   Checksum = Dvar_GenerateChecksum("MTOQLKRRSN");
-  s_writeChangeToLog = Dvar_RegisterVariant("MTOQLKRRSN", Checksum, 0, 0, &v12, &v11, "Dev-only flag to enable/disable writing every dvar change to the log");
+  s_writeChangeToLog = Dvar_RegisterVariant("MTOQLKRRSN", Checksum, 0, 0, &v11, &v10, "Dev-only flag to enable/disable writing every dvar change to the log");
   if ( !*(_DWORD *)(*(_QWORD *)((char *)NtCurrentTeb()->Reserved1[11] + v5) + 1056i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 5131, ASSERT_TYPE_ASSERT, "(s_allowPermanentDvars)", "%s\n\tEnd() call with missing Begin()", "s_allowPermanentDvars") )
     __debugbreak();
-  v10 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-  --*(_DWORD *)(v10 + 1056);
+  v9 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+  --*(_DWORD *)(v9 + 1056);
 }
 
 /*
@@ -4023,13 +3970,23 @@ Dvar_InitNew
 */
 void Dvar_InitNew(dvar_t *dvar, const char *dvarName, unsigned int checksum, unsigned __int8 type, unsigned int flags, DvarValue *value, DvarLimits *domain, DvarLevel level, const char *description)
 {
-  _RSI = value;
-  _RDI = dvar;
+  DvarValue v13; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  DvarLimits v25; 
+
   memset_0(dvar, 0, sizeof(dvar_t));
-  _RDI->level[0] = level;
-  _RDI->checksum = checksum;
-  _RDI->type = type;
-  _RDI->flags = flags;
+  dvar->level[0] = level;
+  dvar->checksum = checksum;
+  dvar->type = type;
+  dvar->flags = flags;
   if ( (flags & 0x100) != 0 )
   {
     if ( *dvarName )
@@ -4037,82 +3994,70 @@ void Dvar_InitNew(dvar_t *dvar, const char *dvarName, unsigned int checksum, uns
     else
       dvarName = (char *)&queryFormat.fmt + 3;
   }
-  _RDI->name = dvarName;
+  dvar->name = dvarName;
   switch ( type )
   {
     case 2u:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rdi+28h], xmm1
-        vmovss  dword ptr [rdi+2Ch], xmm0
-        vmovss  dword ptr [rdi+38h], xmm1
-        vmovss  dword ptr [rdi+3Ch], xmm0
-        vmovss  dword ptr [rdi+48h], xmm1
-        vmovss  dword ptr [rdi+4Ch], xmm0
-      }
+      v23 = value->value;
+      v24 = value->vector.v[1];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v24;
+      dvar->latched.value = v23;
+      dvar->latched.vector.v[1] = v24;
+      dvar->reset.value = v23;
+      dvar->reset.vector.v[1] = v24;
       goto LABEL_15;
     case 3u:
       goto LABEL_13;
     case 4u:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi]
-        vmovss  xmm2, dword ptr [rsi+4]
-        vmovss  xmm1, dword ptr [rsi+8]
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmovss  dword ptr [rdi+28h], xmm3
-        vmovss  dword ptr [rdi+2Ch], xmm2
-        vmovss  dword ptr [rdi+30h], xmm1
-        vmovss  dword ptr [rdi+34h], xmm0
-        vmovss  dword ptr [rdi+38h], xmm3
-        vmovss  dword ptr [rdi+3Ch], xmm2
-        vmovss  dword ptr [rdi+40h], xmm1
-        vmovss  dword ptr [rdi+44h], xmm0
-        vmovss  dword ptr [rdi+48h], xmm3
-        vmovss  dword ptr [rdi+4Ch], xmm2
-        vmovss  dword ptr [rdi+50h], xmm1
-        vmovss  dword ptr [rdi+54h], xmm0
-      }
+      v16 = value->value;
+      v17 = value->vector.v[1];
+      v18 = value->vector.v[2];
+      v19 = value->vector.v[3];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v17;
+      dvar->current.vector.v[2] = v18;
+      dvar->current.vector.v[3] = v19;
+      dvar->latched.value = v16;
+      dvar->latched.vector.v[1] = v17;
+      dvar->latched.vector.v[2] = v18;
+      dvar->latched.vector.v[3] = v19;
+      dvar->reset.value = v16;
+      dvar->reset.vector.v[1] = v17;
+      dvar->reset.vector.v[2] = v18;
+      dvar->reset.vector.v[3] = v19;
       goto LABEL_15;
     case 9u:
-      Dvar_CopyString(value->string, &_RDI->current);
-      Dvar_WeakCopyString(_RDI->current.string, &_RDI->latched);
-      Dvar_WeakCopyString(_RDI->current.string, &_RDI->reset);
+      Dvar_CopyString(value->string, &dvar->current);
+      Dvar_WeakCopyString(dvar->current.string, &dvar->latched);
+      Dvar_WeakCopyString(dvar->current.string, &dvar->reset);
       goto LABEL_15;
     case 0xBu:
 LABEL_13:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rdi+28h], xmm2
-        vmovss  dword ptr [rdi+2Ch], xmm1
-        vmovss  dword ptr [rdi+30h], xmm0
-        vmovss  dword ptr [rdi+38h], xmm2
-        vmovss  dword ptr [rdi+3Ch], xmm1
-        vmovss  dword ptr [rdi+40h], xmm0
-        vmovss  dword ptr [rdi+48h], xmm2
-        vmovss  dword ptr [rdi+4Ch], xmm1
-        vmovss  dword ptr [rdi+50h], xmm0
-      }
+      v20 = value->value;
+      v21 = value->vector.v[1];
+      v22 = value->vector.v[2];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v21;
+      dvar->current.vector.v[2] = v22;
+      dvar->latched.value = v20;
+      dvar->latched.vector.v[1] = v21;
+      dvar->latched.vector.v[2] = v22;
+      dvar->reset.value = v20;
+      dvar->reset.vector.v[1] = v21;
+      dvar->reset.vector.v[2] = v22;
       goto LABEL_15;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vinsertf128 ymm0, ymm0, xmm0, 1
-    vmovups ymmword ptr [rdi+28h], ymm0
-    vmovups xmmword ptr [rdi+48h], xmm0
-  }
+  v13 = *value;
+  _YMM0 = (__m256i)*(_OWORD *)value;
+  __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+  *(__m256i *)&dvar->current.enabled = _YMM0;
+  dvar->reset = v13;
 LABEL_15:
-  _RAX = domain;
-  _RDI->modified = 0;
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  _RDI->description = description;
-  __asm { vmovups xmmword ptr [rdi+58h], xmm0 }
+  dvar->modified = 0;
+  v25 = *domain;
+  dvar->description = description;
+  dvar->domain = v25;
 }
 
 /*
@@ -4158,162 +4103,127 @@ Dvar_LoadDvars
 */
 void Dvar_LoadDvars(MemoryFile *memFile)
 {
-  int v3; 
-  __int64 v5; 
-  unsigned __int64 v6; 
-  dvar_t *v8; 
+  int i; 
+  __int64 v3; 
+  unsigned __int64 v4; 
+  dvar_t *MalleableVar; 
+  dvar_t *v6; 
   int type; 
-  const char *v11; 
+  const char *v8; 
   const char *ObfuscatedName; 
-  unsigned int v17; 
-  __int64 v19; 
+  unsigned int v10; 
+  __int64 v11; 
   unsigned __int8 color[16]; 
   int p; 
-  int v22; 
+  int v14; 
   unsigned int checksum; 
   DvarLimits domain; 
-  __int128 v25; 
-  __int128 v26; 
-  DvarValue v27; 
+  __int128 v17; 
+  DvarValue v18; 
+  DvarValue v19; 
   char string[1024]; 
   char inputName[1024]; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4877, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   MemFile_ReadData(memFile, 4ui64, &p);
-  v3 = p;
-  if ( p >= 0 )
+  for ( i = p; p >= 0; i = p )
   {
-    __asm
+    if ( i >= 1024 )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144175130, 1204i64);
+    MemFile_ReadData(memFile, i, inputName);
+    if ( (unsigned __int64)i >= 0x400 )
+      goto LABEL_37;
+    inputName[i] = 0;
+    MemFile_ReadData(memFile, 4ui64, &v14);
+    v4 = v14;
+    if ( v14 < 0 )
+      return;
+    if ( v14 >= 1024 )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144175180, 1205i64);
+    MemFile_ReadData(memFile, v4, string);
+    if ( v4 >= 0x400 )
     {
-      vmovaps [rsp+8E0h+var_30], xmm6
-      vxorps  xmm6, xmm6, xmm6
+LABEL_37:
+      j___report_rangecheckfailure(v3);
+      __debugbreak();
     }
-    do
+    string[v4] = 0;
+    MemFile_ReadData(memFile, 4ui64, &checksum);
+    MalleableVar = Dvar_FindMalleableVar(checksum);
+    v6 = MalleableVar;
+    if ( MalleableVar )
     {
-      if ( v3 >= 1024 )
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144175130, 1204i64);
-      MemFile_ReadData(memFile, v3, inputName);
-      if ( (unsigned __int64)v3 >= 0x400 )
-        goto LABEL_39;
-      inputName[v3] = 0;
-      MemFile_ReadData(memFile, 4ui64, &v22);
-      v6 = v22;
-      if ( v22 < 0 )
-        break;
-      if ( v22 >= 1024 )
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144175180, 1205i64);
-      MemFile_ReadData(memFile, v6, string);
-      if ( v6 >= 0x400 )
+      type = MalleableVar->type;
+      domain = MalleableVar->domain;
+      switch ( type )
       {
-LABEL_39:
-        j___report_rangecheckfailure(v5);
+        case 0:
+          color[0] = Dvar_StringToBool(string);
+          break;
+        case 1:
+          *(float *)color = Dvar_StringToFloat(string);
+          break;
+        case 2:
+          *(float *)color = 0.0;
+          *(float *)&color[4] = 0.0;
+          j_sscanf(string, "%g %g", color, &color[4]);
+          break;
+        case 3:
+        case 11:
+          v8 = "%g %g %g";
+          if ( string[0] == 40 )
+            v8 = "( %g, %g, %g )";
+          *(float *)color = 0.0;
+          *(float *)&color[4] = 0.0;
+          *(float *)&color[8] = 0.0;
+          j_sscanf(string, v8, color, &color[4], &color[8]);
+          break;
+        case 4:
+          *(_OWORD *)color = 0i64;
+          j_sscanf(string, "%g %g %g %g", color, &color[4], &color[8], &color[12]);
+          break;
+        case 5:
+          *(_DWORD *)color = Dvar_StringToInt(string);
+          break;
+        case 6:
+          *(_QWORD *)color = Dvar_StringToInt64(string);
+          break;
+        case 7:
+          *(_QWORD *)color = I_atoui64(string);
+          break;
+        case 8:
+          *(_DWORD *)color = Dvar_StringToEnum(&domain, string);
+          break;
+        case 9:
+          *(_QWORD *)color = string;
+          break;
+        case 10:
+          Dvar_StringToColor(string, color);
+          break;
+        default:
+          LODWORD(v11) = type;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v11) )
+            __debugbreak();
+          *(_DWORD *)color = 0;
+          break;
+      }
+      domain = *(DvarLimits *)color;
+      Dvar_SetVariant(v6, (DvarValue *)&domain, DVAR_SOURCE_INTERNAL);
+    }
+    else
+    {
+      ObfuscatedName = Dvar_DevGetObfuscatedName(inputName);
+      if ( !ObfuscatedName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
         __debugbreak();
-      }
-      string[v6] = 0;
-      MemFile_ReadData(memFile, 4ui64, &checksum);
-      _RAX = Dvar_FindMalleableVar(checksum);
-      v8 = _RAX;
-      if ( _RAX )
-      {
-        type = _RAX->type;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax+58h]
-          vmovups xmmword ptr [rsp+8E0h+domain], xmm0
-        }
-        switch ( type )
-        {
-          case 0:
-            color[0] = Dvar_StringToBool(string);
-            break;
-          case 1:
-            *(float *)&_XMM0 = Dvar_StringToFloat(string);
-            __asm { vmovss  dword ptr [rsp+8E0h+color], xmm0 }
-            break;
-          case 2:
-            __asm
-            {
-              vmovss  dword ptr [rsp+8E0h+color], xmm6
-              vmovss  dword ptr [rsp+8E0h+color+4], xmm6
-            }
-            j_sscanf(string, "%g %g", color, &color[4]);
-            break;
-          case 3:
-          case 11:
-            v11 = "%g %g %g";
-            if ( string[0] == 40 )
-              v11 = "( %g, %g, %g )";
-            __asm
-            {
-              vmovss  dword ptr [rsp+8E0h+color], xmm6
-              vmovss  dword ptr [rsp+8E0h+color+4], xmm6
-              vmovss  dword ptr [rsp+8E0h+color+8], xmm6
-            }
-            j_sscanf(string, v11, color, &color[4], &color[8]);
-            break;
-          case 4:
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vmovups xmmword ptr [rsp+8E0h+color], xmm0
-            }
-            j_sscanf(string, "%g %g %g %g", color, &color[4], &color[8], &color[12]);
-            break;
-          case 5:
-            *(_DWORD *)color = Dvar_StringToInt(string);
-            break;
-          case 6:
-            *(_QWORD *)color = Dvar_StringToInt64(string);
-            break;
-          case 7:
-            *(_QWORD *)color = I_atoui64(string);
-            break;
-          case 8:
-            *(_DWORD *)color = Dvar_StringToEnum(&domain, string);
-            break;
-          case 9:
-            *(_QWORD *)color = string;
-            break;
-          case 10:
-            Dvar_StringToColor(string, color);
-            break;
-          default:
-            LODWORD(v19) = type;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v19) )
-              __debugbreak();
-            *(_DWORD *)color = 0;
-            break;
-        }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+8E0h+color]
-          vmovdqa xmmword ptr [rsp+8E0h+domain], xmm0
-        }
-        Dvar_SetVariant(v8, (DvarValue *)&domain, DVAR_SOURCE_INTERNAL);
-      }
-      else
-      {
-        ObfuscatedName = Dvar_DevGetObfuscatedName(inputName);
-        if ( !ObfuscatedName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
-          __debugbreak();
-        *(_QWORD *)&v26 = string;
-        __asm { vmovups xmm1, [rbp+7E0h+var_860] }
-        v25 = 0ui64;
-        __asm
-        {
-          vmovups xmm0, [rsp+8E0h+var_870]
-          vmovdqa xmmword ptr [rsp+8E0h+domain], xmm0
-          vmovdqa [rbp+7E0h+var_850], xmm1
-        }
-        v17 = Dvar_GenerateChecksum(ObfuscatedName);
-        Dvar_RegisterVariant(ObfuscatedName, v17, 9u, 0x100u, &v27, &domain, "External Dvar");
-      }
-      MemFile_ReadData(memFile, 4ui64, &p);
-      v3 = p;
+      v18.integer64 = (__int64)string;
+      v17 = 0ui64;
+      domain = 0ui64;
+      v19 = v18;
+      v10 = Dvar_GenerateChecksum(ObfuscatedName);
+      Dvar_RegisterVariant(ObfuscatedName, v10, 9u, 0x100u, &v19, &domain, "External Dvar");
     }
-    while ( p >= 0 );
-    __asm { vmovaps xmm6, [rsp+8E0h+var_30] }
+    MemFile_ReadData(memFile, 4ui64, &p);
   }
 }
 
@@ -4324,43 +4234,43 @@ Dvar_MakeExplicitType
 */
 void Dvar_MakeExplicitType(dvar_t *dvar, const char *dvarName, unsigned __int8 type, unsigned int flags, DvarValue *resetValue, DvarLimits *domain)
 {
-  unsigned __int8 v11; 
+  unsigned __int8 v9; 
+  DvarLimits v10; 
+  DvarValue v11; 
   const char *string; 
-  const char *v17; 
-  const char *v23; 
-  char v24; 
-  const char *v25; 
-  const char *v26; 
-  const char *v27; 
-  const char *v28; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
+  const char *v13; 
+  DvarValue v14; 
+  DvarValue v15; 
+  DvarValue *v16; 
+  const char *integer64; 
+  char v18; 
+  const char *v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  DvarValue v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
   unsigned __int8 color[16]; 
-  DvarValue v35; 
+  DvarValue v28; 
   DvarLimits domaina; 
-  DvarValue v37; 
+  DvarValue v30; 
 
-  _RDI = dvar;
-  _R12 = resetValue;
-  _R14 = domain;
-  v11 = dvar->type;
-  if ( v11 != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3118, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_STRING ) )", "( dvar->type ) = %i", v11) )
+  v9 = dvar->type;
+  if ( v9 != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3118, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_STRING ) )", "( dvar->type ) = %i", v9) )
     __debugbreak();
-  _RDI->type = type;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rdi+58h], xmm0
-  }
+  dvar->type = type;
+  v10 = *domain;
+  dvar->domain = *domain;
   if ( (flags & 0x2000) != 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r12] }
+    v11 = *resetValue;
   }
   else
   {
-    string = _RDI->current.string;
-    __asm { vmovups xmmword ptr [rbp+47h+domain], xmm0 }
+    string = dvar->current.string;
+    domaina = v10;
     if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1487, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
       __debugbreak();
     switch ( type )
@@ -4369,44 +4279,31 @@ void Dvar_MakeExplicitType(dvar_t *dvar, const char *dvarName, unsigned __int8 t
         color[0] = Dvar_StringToBool(string);
         break;
       case 1u:
-        *(float *)&_XMM0 = Dvar_StringToFloat(string);
-        __asm { vmovss  dword ptr [rbp+47h+color], xmm0 }
+        *(float *)color = Dvar_StringToFloat(string);
         break;
       case 2u:
         if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1408, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+47h+color], xmm0
-          vmovss  dword ptr [rbp+47h+color+4], xmm0
-        }
+        *(float *)color = 0.0;
+        *(float *)&color[4] = 0.0;
         j_sscanf(string, "%g %g", color, &color[4]);
         break;
       case 3u:
       case 0xBu:
         if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1417, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+47h+color], xmm0
-          vmovss  dword ptr [rbp+47h+color+4], xmm0
-          vmovss  dword ptr [rbp+47h+color+8], xmm0
-        }
-        v17 = "%g %g %g";
+        *(float *)color = 0.0;
+        *(float *)&color[4] = 0.0;
+        *(float *)&color[8] = 0.0;
+        v13 = "%g %g %g";
         if ( *string == 40 )
-          v17 = "( %g, %g, %g )";
-        j_sscanf(string, v17, color, &color[4], &color[8]);
+          v13 = "( %g, %g, %g )";
+        j_sscanf(string, v13, color, &color[4], &color[8]);
         break;
       case 4u:
         if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1429, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [rbp+47h+color], xmm0
-        }
+        *(_OWORD *)color = 0i64;
         j_sscanf(string, "%g %g %g %g", color, &color[4], &color[8], &color[12]);
         break;
       case 5u:
@@ -4430,82 +4327,74 @@ void Dvar_MakeExplicitType(dvar_t *dvar, const char *dvarName, unsigned __int8 t
         Dvar_StringToColor(string, color);
         break;
       default:
-        LODWORD(v33) = type;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v33) )
+        LODWORD(v26) = type;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v26) )
           __debugbreak();
         *(_DWORD *)color = 0;
         break;
     }
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rbp+47h+color]
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmm1, xmmword ptr [r12]
-      vmovups xmmword ptr [rbp+47h+domain], xmm0
-      vmovups xmmword ptr [rbp+47h+color], xmm1
-      vmovdqa [rbp+47h+var_60], xmm2
-    }
-    _RAX = Dvar_ClampValueToDomain(&v37, type, &v35, (const DvarValue *)color, &domaina);
-    type = _RDI->type;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
+    v14 = *(DvarValue *)color;
+    v15 = *resetValue;
+    domaina = *domain;
+    *(DvarValue *)color = v15;
+    v28 = v14;
+    v16 = Dvar_ClampValueToDomain(&v30, type, &v28, (const DvarValue *)color, &domaina);
+    type = dvar->type;
+    v11 = *v16;
   }
-  __asm { vmovups xmmword ptr [rbp+47h+color], xmm0 }
-  v23 = *(const char **)color;
-  if ( type == 9 && *(_QWORD *)color )
+  *(DvarValue *)color = v11;
+  integer64 = (const char *)v11.integer64;
+  if ( type == 9 && v11.integer64 )
   {
-    v24 = 1;
-    if ( !**(_BYTE **)color )
+    v18 = 1;
+    if ( !*(_BYTE *)v11.integer64 )
     {
-      v23 = (char *)&queryFormat.fmt + 3;
+      integer64 = (char *)&queryFormat.fmt + 3;
       *(_QWORD *)color = (char *)&queryFormat.fmt + 3;
       goto LABEL_51;
     }
-    v25 = SL_AllocString_Copy(*(const char **)color);
-    type = _RDI->type;
-    v23 = v25;
-    *(_QWORD *)color = v25;
+    v19 = SL_AllocString_Copy(v11.string);
+    type = dvar->type;
+    integer64 = v19;
+    *(_QWORD *)color = v19;
   }
   else
   {
-    v24 = 0;
+    v18 = 0;
   }
   if ( type != 9 )
   {
-    v26 = _RDI->current.string;
-    if ( v26 )
+    v20 = dvar->current.string;
+    if ( v20 )
     {
-      if ( v26 != _RDI->latched.string && v26 != _RDI->reset.string && *v26 )
-        SL_AllocString_Free(v26);
+      if ( v20 != dvar->latched.string && v20 != dvar->reset.string && *v20 )
+        SL_AllocString_Free(v20);
     }
   }
 LABEL_51:
-  v27 = _RDI->latched.string;
-  _RDI->current.integer64 = 0i64;
-  if ( v27 && v27 != _RDI->reset.string && *v27 )
-    SL_AllocString_Free(v27);
-  v28 = _RDI->reset.string;
-  _RDI->latched.integer64 = 0i64;
-  if ( v28 && v28 != _RDI->current.string && *v28 )
-    SL_AllocString_Free(v28);
-  __asm { vmovups xmm0, xmmword ptr [r12] }
-  _RDI->reset.integer64 = 0i64;
-  __asm { vmovups [rbp+47h+var_60], xmm0 }
-  Dvar_UpdateResetValue(_RDI, &v35);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+47h+color]
-    vmovdqa [rbp+47h+var_60], xmm0
-  }
-  Dvar_UpdateValue(_RDI, &v35);
-  v31 = tls_index;
+  v21 = dvar->latched.string;
+  dvar->current.integer64 = 0i64;
+  if ( v21 && v21 != dvar->reset.string && *v21 )
+    SL_AllocString_Free(v21);
+  v22 = dvar->reset.string;
+  dvar->latched.integer64 = 0i64;
+  if ( v22 && v22 != dvar->current.string && *v22 )
+    SL_AllocString_Free(v22);
+  v23 = *resetValue;
+  dvar->reset.integer64 = 0i64;
+  v28 = v23;
+  Dvar_UpdateResetValue(dvar, &v28);
+  v28 = *(DvarValue *)color;
+  Dvar_UpdateValue(dvar, &v28);
+  v24 = tls_index;
   if ( (~*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) & flags) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3153, ASSERT_TYPE_ASSERT, "(!(flags & ~dvar_allowedModifiedFlags))", (const char *)&queryFormat, "!(flags & ~dvar_allowedModifiedFlags)") )
     __debugbreak();
-  v32 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v31);
-  *(_DWORD *)(v32 + 1048) |= flags;
-  if ( v24 )
+  v25 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v24);
+  *(_DWORD *)(v25 + 1048) |= flags;
+  if ( v18 )
   {
-    if ( *v23 )
-      SL_AllocString_Free(v23);
+    if ( *integer64 )
+      SL_AllocString_Free(integer64);
   }
 }
 
@@ -4516,14 +4405,10 @@ Dvar_MakeLatchedValueCurrent
 */
 void Dvar_MakeLatchedValueCurrent(const dvar_t *dvar)
 {
-  DvarValue v2; 
+  DvarValue latched; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+38h]
-    vmovups xmmword ptr [rsp+38h+var_18], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v2, DVAR_SOURCE_INTERNAL);
+  latched = dvar->latched;
+  Dvar_SetVariant((dvar_t *)dvar, &latched, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -4535,24 +4420,24 @@ void Dvar_OverrideAutoexecSetting(const dvar_t *dvar)
 {
   __int64 v2; 
   __int64 v3; 
+  DvarValue current; 
   DvarValue v5; 
 
-  _RBX = (dvar_t *)dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4527, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( s_isLoadingAutoExecGlobalFlag )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4679, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+    if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4679, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
       __debugbreak();
     v2 = tls_index;
-    if ( (~*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) & 0x8000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4689, ASSERT_TYPE_ASSERT, "( ( !(flags & ~dvar_allowedModifiedFlags) ) )", "( dvar->name ) = %s", _RBX->name) )
+    if ( (~*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) & 0x8000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4689, ASSERT_TYPE_ASSERT, "( ( !(flags & ~dvar_allowedModifiedFlags) ) )", "( dvar->name ) = %s", dvar->name) )
       __debugbreak();
     v3 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v2);
     *(_DWORD *)(v3 + 1048) |= 0x8000u;
-    __asm { vmovups xmm0, xmmword ptr [rbx+28h] }
-    _RBX->flags |= 0x8000u;
-    __asm { vmovups xmmword ptr [rsp+48h+var_18], xmm0 }
-    Dvar_UpdateResetValue(_RBX, &v5);
+    current = dvar->current;
+    dvar->flags |= 0x8000u;
+    v5 = current;
+    Dvar_UpdateResetValue((dvar_t *)dvar, &v5);
   }
 }
 
@@ -4627,20 +4512,13 @@ Dvar_RegisterBool
 const dvar_t *Dvar_RegisterBool(const char *dvarName, bool value, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  DvarLimits v11; 
-  DvarValue v12; 
+  DvarLimits v9; 
+  DvarValue v10; 
 
-  v11 = 0ui64;
-  __asm { vmovups xmm0, [rsp+68h+var_28] }
-  v12.integer = value;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rsp+68h+var_18]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v9 = 0ui64;
+  v10.integer = value;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 0, flags, &v12, &v11, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 0, flags, &v10, &v9, description);
 }
 
 /*
@@ -4651,92 +4529,44 @@ Dvar_RegisterColor
 
 const dvar_t *__fastcall Dvar_RegisterColor(const char *dvarName, double r, double g, double b, float a, unsigned int flags, const char *description)
 {
+  int v21; 
   unsigned int Checksum; 
-  const dvar_t *result; 
-  DvarValue v57; 
-  DvarLimits v58[6]; 
-  char v59; 
-  void *retaddr; 
+  DvarValue v27; 
+  DvarLimits v28[6]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, cs:__real@3f004189
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@437f0000
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vminss  xmm0, xmm1, xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm5, xmm3
-    vxorps  xmm9, xmm9, xmm9
-    vmaxss  xmm0, xmm0, xmm9
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm3, xmm1, xmm6
-    vmovss  xmm1, xmm0, xmm3
-    vmovaps xmm4, xmm2
-    vxorps  xmm10, xmm10, xmm10
-    vroundss xmm2, xmm10, xmm1, 1
-    vcvttss2si eax, xmm2
-  }
-  v57.enabled = (char)_RAX;
+  __asm { vminss  xmm0, xmm1, xmm8 }
+  _XMM5 = *(_OWORD *)&b;
+  __asm { vmaxss  xmm0, xmm0, xmm9 }
+  _XMM4 = *(_OWORD *)&g;
+  _XMM10 = 0i64;
+  __asm { vroundss xmm2, xmm10, xmm1, 1 }
+  v27.enabled = (int)*(float *)&_XMM2;
   __asm
   {
     vminss  xmm0, xmm4, xmm8
     vmaxss  xmm0, xmm0, xmm9
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm3, xmm1, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, xmm2, xmm3
     vroundss xmm1, xmm10, xmm0, 1
-    vcvttss2si eax, xmm1
   }
-  v57.color[1] = (unsigned __int8)_RAX;
+  v27.color[1] = (int)*(float *)&_XMM1;
   __asm
   {
     vminss  xmm0, xmm5, xmm8
     vmaxss  xmm0, xmm0, xmm9
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm3, xmm1, xmm6
-    vmovss  xmm0, xmm2, xmm3
     vroundss xmm1, xmm10, xmm0, 1
-    vmovss  xmm0, [rsp+0B8h+a]
-    vcvttss2si eax, xmm1
-    vminss  xmm1, xmm0, xmm8
   }
-  v57.color[2] = (unsigned __int8)_RAX;
+  _XMM0 = LODWORD(a);
+  v21 = (int)*(float *)&_XMM1;
+  __asm { vminss  xmm1, xmm0, xmm8 }
+  v27.color[2] = v21;
   __asm
   {
     vmaxss  xmm1, xmm1, xmm9
-    vmulss  xmm0, xmm1, xmm7
-    vaddss  xmm3, xmm0, xmm6
     vroundss xmm0, xmm10, xmm3, 1
-    vcvttss2si eax, xmm0
   }
-  v57.color[3] = (unsigned __int8)_RAX;
-  __asm { vmovups xmm1, [rsp+0B8h+var_78] }
-  v58[0] = 0ui64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0B8h+var_68]
-    vmovdqa xmmword ptr [rsp+0B8h+var_68], xmm0
-    vmovdqa [rsp+0B8h+var_78], xmm1
-  }
+  v27.color[3] = (int)*(float *)&_XMM0;
+  v28[0] = 0ui64;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 0xAu, flags, &v57, v58, description);
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 0xAu, flags, &v27, v28, description);
 }
 
 /*
@@ -4747,9 +4577,9 @@ Dvar_RegisterCustomDomainCallback
 void Dvar_RegisterCustomDomainCallback(const dvar_t *dvar, char *(*callback)(int *))
 {
   unsigned int m_entryCount; 
-  int v6; 
-  __int64 v9; 
-  __int128 v10; 
+  int v5; 
+  __int64 v6; 
+  CustomDvarDomainCallbackTable::TableEntry v7; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1816, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
@@ -4758,35 +4588,29 @@ void Dvar_RegisterCustomDomainCallback(const dvar_t *dvar, char *(*callback)(int
   if ( dvar->type != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1766, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_STRING)", (const char *)&queryFormat, "dvar->type == DVAR_TYPE_STRING") )
     __debugbreak();
   m_entryCount = s_customDvarDomainCallbackTable.m_entryCount;
-  _RSI = s_customDvarDomainCallbackTable.m_table;
-  v6 = 0;
+  v5 = 0;
   if ( s_customDvarDomainCallbackTable.m_entryCount )
   {
-    while ( s_customDvarDomainCallbackTable.m_table[v6].dvarChecksum != dvar->checksum )
+    while ( s_customDvarDomainCallbackTable.m_table[v5].dvarChecksum != dvar->checksum )
     {
-      if ( ++v6 >= s_customDvarDomainCallbackTable.m_entryCount )
+      if ( ++v5 >= s_customDvarDomainCallbackTable.m_entryCount )
         goto LABEL_13;
     }
-    s_customDvarDomainCallbackTable.m_table[v6].callback = callback;
+    s_customDvarDomainCallbackTable.m_table[v5].callback = callback;
   }
   else
   {
 LABEL_13:
     if ( s_customDvarDomainCallbackTable.m_entryCount >= 0x20 )
     {
-      LODWORD(v9) = s_customDvarDomainCallbackTable.m_entryCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1779, ASSERT_TYPE_ASSERT, "(unsigned)( m_entryCount ) < (unsigned)( MAX_CUSTOM_DVAR_DOMAIN_CALLBACKS )", "m_entryCount doesn't index MAX_CUSTOM_DVAR_DOMAIN_CALLBACKS\n\t%i not in [0, %i)", v9, 32) )
+      LODWORD(v6) = s_customDvarDomainCallbackTable.m_entryCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1779, ASSERT_TYPE_ASSERT, "(unsigned)( m_entryCount ) < (unsigned)( MAX_CUSTOM_DVAR_DOMAIN_CALLBACKS )", "m_entryCount doesn't index MAX_CUSTOM_DVAR_DOMAIN_CALLBACKS\n\t%i not in [0, %i)", v6, 32) )
         __debugbreak();
       m_entryCount = s_customDvarDomainCallbackTable.m_entryCount;
     }
-    LODWORD(v10) = dvar->checksum;
-    _RAX = 2i64 * m_entryCount;
-    *((_QWORD *)&v10 + 1) = callback;
-    __asm
-    {
-      vmovups xmm0, [rsp+58h+var_18]
-      vmovups xmmword ptr [rsi+rax*8], xmm0
-    }
+    v7.dvarChecksum = dvar->checksum;
+    v7.callback = callback;
+    s_customDvarDomainCallbackTable.m_table[m_entryCount] = v7;
     ++s_customDvarDomainCallbackTable.m_entryCount;
   }
 }
@@ -4804,17 +4628,17 @@ const dvar_t *Dvar_RegisterEnum(const char *dvarName, const char *const *valueLi
   __int64 v12; 
   bool v13; 
   unsigned int Checksum; 
-  DvarLimits v18; 
-  DvarValue v19; 
+  DvarLimits v16; 
+  DvarValue v17; 
 
   if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3954, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
     __debugbreak();
   if ( !valueList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3955, ASSERT_TYPE_ASSERT, "(valueList)", (const char *)&queryFormat, "valueList") )
     __debugbreak();
   v9 = 0;
-  v19.integer = defaultIndex;
-  v18.integer64.max = (__int64)valueList;
-  v18.enumeration.stringCount = 0;
+  v17.integer = defaultIndex;
+  v16.integer64.max = (__int64)valueList;
+  v16.enumeration.stringCount = 0;
   if ( *valueList )
   {
     v10 = doNotOptimize;
@@ -4829,7 +4653,7 @@ const dvar_t *Dvar_RegisterEnum(const char *dvarName, const char *const *valueLi
       v10 += (unsigned int)v12;
     }
     while ( valueList[v11 + 1] );
-    v18.enumeration.stringCount = v9;
+    v16.enumeration.stringCount = v9;
     doNotOptimize = v10;
   }
   v13 = defaultIndex == 0;
@@ -4842,15 +4666,8 @@ const dvar_t *Dvar_RegisterEnum(const char *dvarName, const char *const *valueLi
   if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3969, ASSERT_TYPE_ASSERT, "( ( defaultIndex >= 0 && defaultIndex < dvarDomain.enumeration.stringCount || defaultIndex == 0 ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
 LABEL_19:
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovups xmm1, [rsp+68h+var_18]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa [rsp+68h+var_18], xmm1
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 8u, flags, &v19, &v18, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 8u, flags, &v17, &v16, description);
 }
 
 /*
@@ -4858,60 +4675,21 @@ LABEL_19:
 Dvar_RegisterFloat
 ==============
 */
-
-const dvar_t *__fastcall Dvar_RegisterFloat(const char *dvarName, double value, double min, double max, unsigned int flags, const char *description)
+const dvar_t *Dvar_RegisterFloat(const char *dvarName, float value, float min, float max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  const dvar_t *result; 
-  double v26; 
-  double v27; 
-  double v28; 
-  DvarLimits v29; 
-  DvarValue v30; 
+  DvarLimits v9; 
+  DvarValue v10; 
 
-  __asm
-  {
-    vcomiss xmm2, xmm1
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm1
-    vcvtss2sd xmm0, xmm7, xmm7
-    vmovsd  [rsp+98h+var_60], xmm0
-    vcvtss2sd xmm4, xmm8, xmm8
-    vmovsd  [rsp+98h+var_68], xmm4
-    vcvtss2sd xmm5, xmm6, xmm6
-    vmovsd  [rsp+98h+var_70], xmm5
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3683, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%g not in [%g, %g]", v26, v27, v28) )
+  if ( (min > value || value > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3683, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%g not in [%g, %g]", value, min, max) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rsp+98h+var_3C]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, [rsp+98h+var_44]
-    vmovss  [rsp+98h+var_44], xmm0
-    vmovss  xmm0, [rsp+98h+var_3C]
-    vmovss  [rsp+98h+var_4C], xmm1
-    vmovss  xmm1, [rsp+98h+var_40]
-    vmovss  [rsp+98h+var_3C], xmm0
-    vmovss  [rsp+98h+var_58], xmm8
-    vmovss  [rsp+98h+var_54], xmm7
-    vmovss  [rsp+98h+var_48], xmm6
-    vmovss  [rsp+98h+var_40], xmm1
-  }
+  v9.value.devguiStep = 0.0;
+  *((float *)&v9.vector + 3) = v10.vector.v[3];
+  v9.value.min = min;
+  v9.value.max = max;
+  v10.value = value;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v30, &v29, description);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v10, &v9, description);
 }
 
 /*
@@ -4919,60 +4697,30 @@ const dvar_t *__fastcall Dvar_RegisterFloat(const char *dvarName, double value, 
 Dvar_RegisterFloat
 ==============
 */
-
-const dvar_t *__fastcall Dvar_RegisterFloat(const char *dvarName, double value, double min, double max, float devguistep, unsigned int flags, const char *description)
+const dvar_t *Dvar_RegisterFloat(const char *dvarName, float value, float min, float max, float devguistep, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  const dvar_t *result; 
-  int v27; 
-  int v28; 
-  int v29; 
-  DvarLimits v30; 
-  DvarValue v31; 
+  int v10; 
+  int v11; 
+  int v12; 
+  DvarLimits v13; 
+  DvarValue v14; 
 
-  __asm
+  if ( min > value || value > max )
   {
-    vcomiss xmm2, xmm1
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm1
-    vcvttss2si edx, xmm8
-    vcvttss2si eax, xmm7
+    v12 = (int)max;
+    v11 = (int)min;
+    v10 = (int)value;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3832, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v10, v11, v12) )
+      __debugbreak();
   }
-  v29 = _EAX;
-  v28 = _EDX;
-  __asm { vcvttss2si r8d, xmm6 }
-  v27 = _ER8;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3832, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v27, v28, v29) )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rsp+98h+var_3C]
-    vmovss  xmm0, [rsp+98h+devguistep]
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, [rsp+98h+var_44]
-    vmovss  [rsp+98h+var_44], xmm0
-    vmovss  xmm0, [rsp+98h+var_3C]
-    vmovss  [rsp+98h+var_4C], xmm1
-    vmovss  xmm1, [rsp+98h+var_40]
-    vmovss  [rsp+98h+var_3C], xmm0
-    vmovss  [rsp+98h+var_58], xmm8
-    vmovss  [rsp+98h+var_54], xmm7
-    vmovss  [rsp+98h+var_48], xmm6
-    vmovss  [rsp+98h+var_40], xmm1
-  }
+  v13.value.devguiStep = devguistep;
+  *((float *)&v13.vector + 3) = v14.vector.v[3];
+  v13.value.min = min;
+  v13.value.max = max;
+  v14.value = value;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v31, &v30, description);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v14, &v13, description);
 }
 
 /*
@@ -4983,32 +4731,25 @@ Dvar_RegisterInt64
 const dvar_t *Dvar_RegisterInt64(const char *dvarName, __int64 value, __int64 min, __int64 max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
+  int v12; 
+  int v13; 
   int v14; 
-  int v15; 
-  int v16; 
-  DvarLimits v17; 
-  DvarValue v18; 
+  DvarLimits v15; 
+  DvarValue v16; 
 
   if ( min > value || value > max )
   {
-    v16 = max;
-    v15 = min;
-    v14 = value;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3657, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v14, v15, v16) )
+    v14 = max;
+    v13 = min;
+    v12 = value;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3657, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v12, v13, v14) )
       __debugbreak();
   }
-  v18.integer64 = value;
-  __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
-  v17.integer64.min = min;
-  v17.integer64.max = max;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v16.integer64 = value;
+  v15.integer64.min = min;
+  v15.integer64.max = max;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 6u, flags, &v18, &v17, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 6u, flags, &v16, &v15, description);
 }
 
 /*
@@ -5019,22 +4760,15 @@ Dvar_RegisterInt
 const dvar_t *Dvar_RegisterInt(const char *dvarName, int value, int min, int max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  DvarLimits v14; 
-  DvarValue v15; 
+  DvarLimits v12; 
+  DvarValue v13; 
 
   if ( (min > value || value > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3632, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", value, min, max) )
     __debugbreak();
-  v15.integer = value;
-  __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
-  v14.integer64.min = __PAIR64__(max, min);
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v13.integer = value;
+  v12.integer64.min = __PAIR64__(max, min);
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 5u, flags, &v15, &v14, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 5u, flags, &v13, &v12, description);
 }
 
 /*
@@ -5044,99 +4778,84 @@ Dvar_RegisterNew
 */
 dvar_t *Dvar_RegisterNew(const char *dvarName, unsigned int checksum, unsigned __int8 type, unsigned int flags, DvarValue *value, DvarLimits *domain, DvarLevel level, const char *description)
 {
-  unsigned __int64 v10; 
-  int v16; 
-  unsigned __int16 v17; 
-  unsigned __int16 *v23; 
-  __int64 v24; 
-  unsigned int v25; 
+  unsigned __int64 v9; 
+  DvarValue v12; 
+  int v13; 
+  unsigned __int16 v14; 
+  __m256i v15; 
+  dvar_t *v16; 
+  __m256i v17; 
+  __m256i v18; 
+  unsigned __int16 *v19; 
+  __int64 v20; 
+  unsigned int v21; 
   char *fmt; 
-  __int64 v29; 
-  __int64 v30; 
-  DvarLevel v31; 
-  DvarLimits v32; 
-  DvarValue v33; 
-  dvar_t v34; 
+  __int64 v24; 
+  __int64 v25; 
+  DvarLevel v26; 
+  DvarLimits v27; 
+  DvarValue v28; 
+  dvar_t v29; 
 
-  _RSI = value;
-  v10 = checksum;
+  v9 = checksum;
   if ( (flags & 0x40) != 0 && !g_canRegisterSavedDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3475, ASSERT_TYPE_ASSERT, "( ( !(flags & (1 << 6)) || g_canRegisterSavedDvars ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
-  _RAX = domain;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups xmm0, xmmword ptr [rax]
-  }
-  LOBYTE(v31) = level;
-  __asm
-  {
-    vmovups [rsp+138h+var_E8], xmm0
-    vmovups [rsp+138h+var_D8], xmm1
-  }
-  Dvar_InitNew(&v34, dvarName, v10, type, flags, &v33, &v32, v31, description);
+  v12 = *value;
+  LOBYTE(v26) = level;
+  v27 = *domain;
+  v28 = v12;
+  Dvar_InitNew(&v29, dvarName, v9, type, flags, &v28, &v27, v26, description);
   Sys_LockWrite(&g_dvarCritSect);
-  v16 = dvarCount;
+  v13 = dvarCount;
   if ( dvarCount >= 12000 )
   {
     Sys_UnlockWrite(&g_dvarCritSect);
     LODWORD(fmt) = 12000;
     Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144174150, 1203i64, dvarName, fmt);
-    v16 = dvarCount;
+    v13 = dvarCount;
   }
-  v17 = v16;
-  if ( v16 < 0 || (unsigned int)v16 > 0xFFFF )
+  v14 = v13;
+  if ( v13 < 0 || (unsigned int)v13 > 0xFFFF )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v16, "signed", v16) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v13, "signed", v13) )
       __debugbreak();
-    v16 = dvarCount;
+    v13 = dvarCount;
   }
-  __asm
-  {
-    vmovups ymm0, [rsp+138h+var_C8]
-    vmovups ymm1, [rsp+138h+var_A8]
-  }
+  v15 = *(__m256i *)&v29.hashNext;
   areDvarsSortedName = 0;
-  dvarCount = v16 + 1;
+  dvarCount = v13 + 1;
   areDvarsSortedChecksum = 0;
-  _RBX = sortedDvars[v17];
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm0, [rsp+138h+var_88]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm1, [rsp+138h+var_68]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymmword ptr [rbx+60h], ymm1
-  }
-  v23 = &dvarHashTable[v10 % 0x1979];
-  _RBX->hashNext = *v23;
-  v24 = _RBX - dvarPool;
-  if ( (v24 < 0 || (unsigned __int64)v24 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,__int64>(__int64)", "unsigned", (unsigned __int16)v24, "signed", _RBX - dvarPool) )
+  v16 = sortedDvars[v14];
+  *(__m256i *)&v16->name = *(__m256i *)&v29.name;
+  v17 = *(__m256i *)(&v29.latched.string + 1);
+  *(__m256i *)&v16->hashNext = v15;
+  v18 = *(__m256i *)&v29.domain.vector.devguiStep;
+  *(__m256i *)(&v16->latched.string + 1) = v17;
+  *(__m256i *)&v16->domain.vector.devguiStep = v18;
+  v19 = &dvarHashTable[v9 % 0x1979];
+  v16->hashNext = *v19;
+  v20 = v16 - dvarPool;
+  if ( (v20 < 0 || (unsigned __int64)v20 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,__int64>(__int64)", "unsigned", (unsigned __int16)v20, "signed", v16 - dvarPool) )
     __debugbreak();
-  if ( (unsigned __int16)v24 >= 0x2EE0u )
+  if ( (unsigned __int16)v20 >= 0x2EE0u )
   {
-    LODWORD(v30) = 12000;
-    LODWORD(v29) = (unsigned __int16)v24;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3512, ASSERT_TYPE_ASSERT, "(unsigned)( dvarPoolIndex ) < (unsigned)( (6500 + 0 + 5500) )", "dvarPoolIndex doesn't index DVAR_CAP\n\t%i not in [0, %i)", v29, v30) )
+    LODWORD(v25) = 12000;
+    LODWORD(v24) = (unsigned __int16)v20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3512, ASSERT_TYPE_ASSERT, "(unsigned)( dvarPoolIndex ) < (unsigned)( (6500 + 0 + 5500) )", "dvarPoolIndex doesn't index DVAR_CAP\n\t%i not in [0, %i)", v24, v25) )
       __debugbreak();
   }
-  *v23 = v24;
-  if ( !_RBX->BbConstUsageFlags.initialized )
+  *v19 = v20;
+  if ( !v16->BbConstUsageFlags.initialized )
   {
-    v25 = _RBX->flags;
-    if ( (v25 & 0x100) == 0 && (v25 & 0x40000) != 0 )
+    v21 = v16->flags;
+    if ( (v21 & 0x100) == 0 && (v21 & 0x40000) != 0 )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rbx+70h], xmm0
-      }
-      _RBX->BbConstUsageFlags.initialized = 1;
+      v16->BbConstUsageFlags.codeValue = *value;
+      v16->BbConstUsageFlags.initialized = 1;
     }
   }
   Sys_UnlockWrite(&g_dvarCritSect);
-  return _RBX;
+  return v16;
 }
 
 /*
@@ -5147,8 +4866,8 @@ Dvar_RegisterString
 const dvar_t *Dvar_RegisterString(const char *dvarName, const char *value, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  DvarLimits v12; 
-  DvarValue v13; 
+  DvarLimits v10; 
+  DvarValue v11; 
 
   if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
     __debugbreak();
@@ -5161,17 +4880,10 @@ const dvar_t *Dvar_RegisterString(const char *dvarName, const char *value, unsig
   }
   if ( (flags & 0x100) == 0 && !CanKeepStringPointer(value) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3922, ASSERT_TYPE_ASSERT, "( ( (flags & (1 << 8)) || CanKeepStringPointer( value ) ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
-  v13.integer64 = (__int64)value;
-  __asm { vmovups xmm1, [rsp+68h+var_18] }
-  v12 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa [rsp+68h+var_18], xmm1
-  }
+  v11.integer64 = (__int64)value;
+  v10 = 0ui64;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 9u, flags, &v13, &v12, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 9u, flags, &v11, &v10, description);
 }
 
 /*
@@ -5181,9 +4893,9 @@ Dvar_RegisterStringChecksum
 */
 const dvar_t *Dvar_RegisterStringChecksum(const char *dvarName, const char *value, unsigned int flags, const char *description)
 {
-  int v10; 
-  DvarLimits v12; 
-  DvarValue v13; 
+  int v8; 
+  DvarLimits v10; 
+  DvarValue v11; 
 
   if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3935, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
     __debugbreak();
@@ -5196,17 +4908,10 @@ const dvar_t *Dvar_RegisterStringChecksum(const char *dvarName, const char *valu
   }
   if ( (flags & 0x100) == 0 && !CanKeepStringPointer(value) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3941, ASSERT_TYPE_ASSERT, "( ( (flags & (1 << 8)) || CanKeepStringPointer( value ) ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
-  v13.integer64 = (__int64)value;
-  __asm { vmovups xmm1, [rsp+68h+var_18] }
-  v12 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa [rsp+68h+var_18], xmm1
-  }
-  v10 = atoi(dvarName);
-  return Dvar_RegisterVariant(dvarName, v10, 9u, flags, &v13, &v12, description);
+  v11.integer64 = (__int64)value;
+  v10 = 0ui64;
+  v8 = atoi(dvarName);
+  return Dvar_RegisterVariant(dvarName, v8, 9u, flags, &v11, &v10, description);
 }
 
 /*
@@ -5228,63 +4933,24 @@ const dvar_t *Dvar_RegisterSuperUserBool(const char *dvarName, bool value, unsig
 Dvar_RegisterSuperUserFloat
 ==============
 */
-
-const dvar_t *__fastcall Dvar_RegisterSuperUserFloat(const char *dvarName, double value, double min, double max, unsigned int flags, const char *description)
+const dvar_t *Dvar_RegisterSuperUserFloat(const char *dvarName, float value, float min, float max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  const dvar_t *v22; 
-  const dvar_t *result; 
-  double v27; 
-  double v28; 
-  double v29; 
-  DvarLimits v30; 
-  DvarValue v31; 
+  const dvar_t *v8; 
+  DvarLimits v10; 
+  DvarValue v11; 
 
-  __asm
-  {
-    vcomiss xmm2, xmm1
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm1
-    vcvtss2sd xmm0, xmm7, xmm7
-    vmovsd  [rsp+98h+var_60], xmm0
-    vcvtss2sd xmm4, xmm8, xmm8
-    vmovsd  [rsp+98h+var_68], xmm4
-    vcvtss2sd xmm5, xmm6, xmm6
-    vmovsd  [rsp+98h+var_70], xmm5
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3683, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%g not in [%g, %g]", v27, v28, v29) )
+  if ( (min > value || value > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3683, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%g not in [%g, %g]", value, min, max) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rsp+98h+var_3C]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, [rsp+98h+var_44]
-    vmovss  [rsp+98h+var_44], xmm0
-    vmovss  xmm0, [rsp+98h+var_3C]
-    vmovss  [rsp+98h+var_4C], xmm1
-    vmovss  xmm1, [rsp+98h+var_40]
-    vmovss  [rsp+98h+var_3C], xmm0
-    vmovss  [rsp+98h+var_58], xmm8
-    vmovss  [rsp+98h+var_54], xmm7
-    vmovss  [rsp+98h+var_48], xmm6
-    vmovss  [rsp+98h+var_40], xmm1
-  }
+  v10.value.devguiStep = 0.0;
+  *((float *)&v10.vector + 3) = v11.vector.v[3];
+  v10.value.min = min;
+  v10.value.max = max;
+  v11.value = value;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  v22 = Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v31, &v30, description);
-  Dvar_DevOverrideRegistrationLevel(v22);
-  __asm { vmovaps xmm6, [rsp+98h+var_18] }
-  result = v22;
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-  }
-  return result;
+  v8 = Dvar_RegisterVariant(dvarName, Checksum, 1u, flags, &v11, &v10, description);
+  Dvar_DevOverrideRegistrationLevel(v8);
+  return v8;
 }
 
 /*
@@ -5295,25 +4961,18 @@ Dvar_RegisterSuperUserInt
 const dvar_t *Dvar_RegisterSuperUserInt(const char *dvarName, int value, int min, int max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
-  const dvar_t *v13; 
-  DvarLimits v15; 
-  DvarValue v16; 
+  const dvar_t *v11; 
+  DvarLimits v13; 
+  DvarValue v14; 
 
   if ( (min > value || value > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3632, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", value, min, max) )
     __debugbreak();
-  v16.integer = value;
-  __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
-  v15.integer64.min = __PAIR64__(max, min);
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v14.integer = value;
+  v13.integer64.min = __PAIR64__(max, min);
   Checksum = Dvar_GenerateChecksum(dvarName);
-  v13 = Dvar_RegisterVariant(dvarName, Checksum, 5u, flags, &v16, &v15, description);
-  Dvar_DevOverrideRegistrationLevel(v13);
-  return v13;
+  v11 = Dvar_RegisterVariant(dvarName, Checksum, 5u, flags, &v14, &v13, description);
+  Dvar_DevOverrideRegistrationLevel(v11);
+  return v11;
 }
 
 /*
@@ -5323,20 +4982,11 @@ Dvar_RegisterSuperUserVec3
 */
 const dvar_t *Dvar_RegisterSuperUserVec3(const char *dvarName, float x, float y, float z, float min, float max, unsigned int flags, const char *description)
 {
-  const dvar_t *v10; 
-  float v12; 
-  float v13; 
+  const dvar_t *v8; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+max]
-    vmovss  xmm4, [rsp+48h+min]
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  [rsp+48h+var_28], xmm4
-  }
-  v10 = Dvar_RegisterVec3(dvarName, x, y, z, v12, v13, flags, description);
-  Dvar_DevOverrideRegistrationLevel(v10);
-  return v10;
+  v8 = Dvar_RegisterVec3(dvarName, x, y, z, min, max, flags, description);
+  Dvar_DevOverrideRegistrationLevel(v8);
+  return v8;
 }
 
 /*
@@ -5344,140 +4994,42 @@ const dvar_t *Dvar_RegisterSuperUserVec3(const char *dvarName, float x, float y,
 Dvar_RegisterSuperUserVec3Color
 ==============
 */
-
-const dvar_t *__fastcall Dvar_RegisterSuperUserVec3Color(const char *dvarName, double x, double y, double z, float max, unsigned int flags, const char *description)
+const dvar_t *Dvar_RegisterSuperUserVec3Color(const char *dvarName, float x, float y, float z, float max, unsigned int flags, const char *description)
 {
-  bool v14; 
-  bool v21; 
-  bool v25; 
-  bool v28; 
+  float v10; 
+  DvarValue v12; 
   unsigned int Checksum; 
-  const dvar_t *v38; 
-  const dvar_t *result; 
-  _BYTE v47[32]; 
-  double v48; 
-  double v49; 
-  double v50; 
-  DvarLimits v51; 
-  DvarValue v52; 
-  char v53; 
-  void *retaddr; 
+  const dvar_t *v16; 
+  DvarLimits v18; 
+  DvarValue v19; 
 
-  _RAX = &retaddr;
+  if ( max <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3772, ASSERT_TYPE_ASSERT, "(max > 0.0f)", (const char *)&queryFormat, "max > 0.0f") )
+    __debugbreak();
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( (x < 0.0 || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3773, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( x ) && ( x ) <= ( max )", "x not in [0.0f, max]\n\t%g not in [%g, %g]", x, *(double *)&_XMM11, max) )
+    __debugbreak();
+  if ( (y < 0.0 || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3774, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( y ) && ( y ) <= ( max )", "y not in [0.0f, max]\n\t%g not in [%g, %g]", y, *(double *)&_XMM11, max) )
+    __debugbreak();
+  if ( (z < 0.0 || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3775, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( z ) && ( z ) <= ( max )", "z not in [0.0f, max]\n\t%g not in [%g, %g]", z, *(double *)&_XMM11, max) )
+    __debugbreak();
+  v10 = v19.vector.v[3];
+  v12 = v19;
+  v12.value = x;
+  _XMM1 = v12;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v14 = (unsigned __int64)v47 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm6, [rsp+0E8h+max]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vmovaps xmm10, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm1
-  }
-  if ( (unsigned __int64)v47 == _security_cookie )
-  {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3772, ASSERT_TYPE_ASSERT, "(max > 0.0f)", (const char *)&queryFormat, "max > 0.0f");
-    v14 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm8, xmm7
-    vxorpd  xmm11, xmm11, xmm11
-    vcomiss xmm8, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3773, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( x ) && ( x ) <= ( max )", "x not in [0.0f, max]\n\t%g not in [%g, %g]", v48, v49, v50);
-    v14 = !v25;
-    if ( v25 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm9, xmm7
-    vcomiss xmm9, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm9, xmm9
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3774, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( y ) && ( y ) <= ( max )", "y not in [0.0f, max]\n\t%g not in [%g, %g]", v48, v49, v50);
-    v14 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm10, xmm7
-    vcomiss xmm10, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3775, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( z ) && ( z ) <= ( max )", "z not in [0.0f, max]\n\t%g not in [%g, %g]", v48, v49, v50) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovups xmm1, [rsp+0E8h+var_98]
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98+0Ch]
-    vmovss  xmm1, xmm1, xmm8
     vinsertps xmm1, xmm1, xmm9, 10h
     vinsertps xmm1, xmm1, xmm10, 20h ; ' '
-    vmovups [rsp+0E8h+var_98], xmm1
-    vmovdqa [rsp+0E8h+var_98], xmm1
-    vmovss  [rsp+0E8h+var_A8], xmm7
-    vmovss  [rsp+0E8h+var_A4], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm7
-    vmovss  [rsp+0E8h+var_9C], xmm0
   }
+  v19 = _XMM1;
+  v18.value.min = 0.0;
+  v18.value.max = max;
+  v18.value.devguiStep = 0.0;
+  *((float *)&v18.vector + 3) = v10;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  v38 = Dvar_RegisterVariant(dvarName, Checksum, 0xBu, flags, &v52, &v51, description);
-  Dvar_DevOverrideRegistrationLevel(v38);
-  result = v38;
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  v16 = Dvar_RegisterVariant(dvarName, Checksum, 0xBu, flags, &v19, &v18, description);
+  Dvar_DevOverrideRegistrationLevel(v16);
+  return v16;
 }
 
 /*
@@ -5488,32 +5040,25 @@ Dvar_RegisterUInt64
 const dvar_t *Dvar_RegisterUInt64(const char *dvarName, unsigned __int64 value, unsigned __int64 min, unsigned __int64 max, unsigned int flags, const char *description)
 {
   unsigned int Checksum; 
+  int v12; 
+  int v13; 
   int v14; 
-  int v15; 
-  int v16; 
-  DvarLimits v17; 
-  DvarValue v18; 
+  DvarLimits v15; 
+  DvarValue v16; 
 
   if ( min > value || value > max )
   {
-    v16 = max;
-    v15 = min;
-    v14 = value;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3670, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v14, v15, v16) )
+    v14 = max;
+    v13 = min;
+    v12 = value;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3670, ASSERT_TYPE_ASSERT, "( min ) <= ( value ) && ( value ) <= ( max )", "value not in [min, max]\n\t%i not in [%i, %i]", v12, v13, v14) )
       __debugbreak();
   }
-  v18.integer64 = value;
-  __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
-  v17.integer64.min = min;
-  v17.integer64.max = max;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_28]
-    vmovdqa [rsp+68h+var_28], xmm0
-    vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-  }
+  v16.integer64 = value;
+  v15.integer64.min = min;
+  v15.integer64.max = max;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  return Dvar_RegisterVariant(dvarName, Checksum, 7u, flags, &v18, &v17, description);
+  return Dvar_RegisterVariant(dvarName, Checksum, 7u, flags, &v16, &v15, description);
 }
 
 /*
@@ -5528,19 +5073,18 @@ dvar_t *Dvar_RegisterVariant(const char *dvarName, unsigned int checksum, unsign
   dvar_t *MalleableVar; 
   __int64 v14; 
   const char *ObfuscatedName; 
-  const char *v16; 
   const char *name; 
-  __int64 v27; 
-  const char *v28; 
-  signed __int64 v29; 
-  char v30; 
-  __int64 v31; 
-  char v32; 
+  __int64 v18; 
+  const char *v19; 
+  signed __int64 v20; 
+  char v21; 
+  __int64 v22; 
+  char v23; 
   const char *UnobfuscatedName; 
-  const char *v34; 
-  DvarLevel v35; 
-  DvarValue v36; 
-  DvarValue v37; 
+  const char *v25; 
+  DvarLevel v26; 
+  DvarValue v27; 
+  DvarValue v28; 
 
   if ( (flags & 0x100) == 0 && !CanKeepStringPointer(dvarName) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3539, ASSERT_TYPE_ASSERT, "( ( (flags & (1 << 8)) || CanKeepStringPointer( dvarName ) ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
@@ -5556,39 +5100,31 @@ dvar_t *Dvar_RegisterVariant(const char *dvarName, unsigned int checksum, unsign
   v14 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v11);
   *(_DWORD *)(v14 + 1048) |= flags;
   ObfuscatedName = Dvar_DevGetObfuscatedName(dvarName);
-  v16 = ObfuscatedName;
   if ( MalleableVar )
   {
-    _RAX = domain;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = value;
-    __asm
-    {
-      vmovups [rsp+88h+var_38], xmm0
-      vmovups xmm1, xmmword ptr [rax]
-    }
-    LOBYTE(v35) = v12;
-    __asm { vmovups [rsp+88h+var_48], xmm1 }
-    Dvar_Reregister(MalleableVar, v16, type, flags, &v36, (DvarLimits *)&v37, v35, description);
+    v28 = *(DvarValue *)domain;
+    LOBYTE(v26) = v12;
+    v27 = *value;
+    Dvar_Reregister(MalleableVar, ObfuscatedName, type, flags, &v27, (DvarLimits *)&v28, v26, description);
     if ( (unsigned __int8)(*dvarName - 97) <= 0x19u || (unsigned __int8)(*dvarName - 65) <= 0x19u )
     {
       name = MalleableVar->name;
-      v27 = 0x7FFFFFFFi64;
-      v28 = Dvar_DevGetObfuscatedName(dvarName);
-      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v18 = 0x7FFFFFFFi64;
+      v19 = Dvar_DevGetObfuscatedName(dvarName);
+      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v29 = v28 - name;
+      v20 = v19 - name;
       do
       {
-        v30 = name[v29];
-        v31 = v27;
-        v32 = *name++;
-        --v27;
-        if ( !v31 )
+        v21 = name[v20];
+        v22 = v18;
+        v23 = *name++;
+        --v18;
+        if ( !v22 )
           break;
-        if ( v30 != v32 )
+        if ( v21 != v23 )
         {
           UnobfuscatedName = Dvar_DevGetUnobfuscatedName(MalleableVar->name);
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3587, ASSERT_TYPE_ASSERT, "(!I_isalpha(dvarName[0]) || !I_strcmp( Dvar_DevGetObfuscatedName( dvarName ), dvar->name ))", "%s\n\tDvar %s appears to have a checksum collision with dvar %s", "!I_isalpha(dvarName[0]) || !I_strcmp( Dvar_DevGetObfuscatedName( dvarName ), dvar->name )", dvarName, UnobfuscatedName) )
@@ -5596,25 +5132,18 @@ dvar_t *Dvar_RegisterVariant(const char *dvarName, unsigned int checksum, unsign
           break;
         }
       }
-      while ( v30 );
+      while ( v21 );
     }
-    v34 = Dvar_DevGetObfuscatedName(dvarName);
-    Dvar_SetName(MalleableVar, v34);
+    v25 = Dvar_DevGetObfuscatedName(dvarName);
+    Dvar_SetName(MalleableVar, v25);
     return MalleableVar;
   }
   else
   {
-    _RCX = domain;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX = value;
-    __asm
-    {
-      vmovups [rsp+88h+var_48], xmm0
-      vmovups xmm1, xmmword ptr [rcx]
-    }
-    LOBYTE(v35) = v12;
-    __asm { vmovups [rsp+88h+var_38], xmm1 }
-    return Dvar_RegisterNew(ObfuscatedName, checksum, type, flags, &v37, (DvarLimits *)&v36, v35, description);
+    v27 = *(DvarValue *)domain;
+    LOBYTE(v26) = v12;
+    v28 = *value;
+    return Dvar_RegisterNew(ObfuscatedName, checksum, type, flags, &v28, (DvarLimits *)&v27, v26, description);
   }
 }
 
@@ -5623,103 +5152,34 @@ dvar_t *Dvar_RegisterVariant(const char *dvarName, unsigned int checksum, unsign
 Dvar_RegisterVec2
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec2(const char *dvarName, const vec2_t *value, double min, double max, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec2(const char *dvarName, const vec2_t *value, float min, float max, unsigned int flags, const char *description)
 {
-  bool v12; 
-  bool v20; 
+  float v6; 
+  float v8; 
+  float v9; 
+  DvarValue v11; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v36[32]; 
-  double v37; 
-  double v38; 
-  double v39; 
-  DvarLimits v40; 
-  DvarValue v41; 
-  char v42; 
-  void *retaddr; 
+  DvarLimits v15; 
+  DvarValue v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  v12 = (unsigned __int64)v36 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rdx]
-    vcomiss xmm2, xmm9
-    vmovss  xmm8, dword ptr [rdx+4]
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  if ( (unsigned __int64)v36 != _security_cookie )
-    goto LABEL_12;
-  __asm { vcomiss xmm9, xmm3 }
-  if ( (unsigned __int64)v36 != _security_cookie )
-  {
-LABEL_12:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3711, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v37, v38, v39);
-    v12 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v12 )
-    goto LABEL_7;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v12 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3712, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v37, v38, v39) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0C8h+var_78+0Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0C8h+var_80], xmm0
-    vmovups xmm0, [rsp+0C8h+var_78]
-    vmovss  xmm0, xmm0, xmm9
-    vinsertps xmm0, xmm0, xmm8, 10h
-    vmovups [rsp+0C8h+var_78], xmm0
-    vmovdqa [rsp+0C8h+var_78], xmm0
-    vmovss  [rsp+0C8h+var_88], xmm7
-    vmovss  [rsp+0C8h+var_84], xmm6
-    vmovss  [rsp+0C8h+var_7C], xmm1
-  }
+  v6 = value->v[0];
+  v8 = value->v[1];
+  if ( (min > value->v[0] || v6 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3711, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v6, min, max) )
+    __debugbreak();
+  if ( (min > v8 || v8 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3712, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v8, min, max) )
+    __debugbreak();
+  v9 = v16.vector.v[3];
+  v15.value.devguiStep = 0.0;
+  v11 = v16;
+  v11.value = v6;
+  _XMM0 = v11;
+  __asm { vinsertps xmm0, xmm0, xmm8, 10h }
+  v16 = _XMM0;
+  v15.value.min = min;
+  v15.value.max = max;
+  *((float *)&v15.vector + 3) = v9;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v41, &v40, description);
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v16, &v15, description);
 }
 
 /*
@@ -5727,105 +5187,34 @@ LABEL_7:
 Dvar_RegisterVec2
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec2(const char *dvarName, const vec2_t *value, double min, double max, float devguistep, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec2(const char *dvarName, const vec2_t *value, float min, float max, float devguistep, unsigned int flags, const char *description)
 {
-  bool v13; 
-  bool v23; 
+  float v7; 
+  float v9; 
+  float v10; 
+  DvarValue v12; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v40[32]; 
-  double v41; 
-  double v42; 
-  double v43; 
-  DvarLimits v44; 
-  DvarValue v45; 
-  char v46; 
-  void *retaddr; 
+  DvarLimits v16; 
+  DvarValue v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v13 = (unsigned __int64)v40 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rdx]
-    vcomiss xmm2, xmm9
-    vmovss  xmm10, [rsp+0D8h+devguistep]
-    vmovss  xmm8, dword ptr [rdx+4]
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  if ( (unsigned __int64)v40 != _security_cookie )
-    goto LABEL_12;
-  __asm { vcomiss xmm9, xmm3 }
-  if ( (unsigned __int64)v40 != _security_cookie )
-  {
-LABEL_12:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3846, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v41, v42, v43);
-    v13 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v13 )
-    goto LABEL_7;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v13 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3847, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v41, v42, v43) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovups xmm1, [rsp+0D8h+var_88]
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_88+0Ch]
-    vmovss  xmm1, xmm1, xmm9
-    vinsertps xmm1, xmm1, xmm8, 10h
-    vmovups [rsp+0D8h+var_88], xmm1
-    vmovdqa [rsp+0D8h+var_88], xmm1
-    vmovss  [rsp+0D8h+var_98], xmm7
-    vmovss  [rsp+0D8h+var_94], xmm6
-    vmovss  [rsp+0D8h+var_90], xmm10
-    vmovss  [rsp+0D8h+var_8C], xmm0
-  }
+  v7 = value->v[0];
+  v9 = value->v[1];
+  if ( (min > value->v[0] || v7 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3846, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v7, min, max) )
+    __debugbreak();
+  if ( (min > v9 || v9 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3847, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v9, min, max) )
+    __debugbreak();
+  v10 = v17.vector.v[3];
+  v12 = v17;
+  v12.value = v7;
+  _XMM1 = v12;
+  __asm { vinsertps xmm1, xmm1, xmm8, 10h }
+  v17 = _XMM1;
+  v16.value.min = min;
+  v16.value.max = max;
+  v16.value.devguiStep = devguistep;
+  *((float *)&v16.vector + 3) = v10;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v45, &v44, description);
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v17, &v16, description);
 }
 
 /*
@@ -5833,103 +5222,30 @@ LABEL_7:
 Dvar_RegisterVec2
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec2(const char *dvarName, double x, double y, double min, float max, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec2(const char *dvarName, float x, float y, float min, float max, unsigned int flags, const char *description)
 {
-  bool v13; 
-  bool v21; 
+  float v9; 
+  DvarValue v11; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v37[32]; 
-  double v38; 
-  double v39; 
-  double v40; 
-  DvarLimits v41; 
-  DvarValue v42; 
-  char v43; 
-  void *retaddr; 
+  DvarLimits v15; 
+  DvarValue v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  v13 = (unsigned __int64)v37 == _security_cookie;
-  __asm
-  {
-    vcomiss xmm3, xmm1
-    vmovss  xmm6, [rsp+0C8h+max]
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm9, xmm1
-  }
-  if ( (unsigned __int64)v37 != _security_cookie )
-    goto LABEL_12;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v37 != _security_cookie )
-  {
-LABEL_12:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3711, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v38, v39, v40);
-    v13 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v13 )
-    goto LABEL_7;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v13 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3712, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v38, v39, v40) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0C8h+var_78+0Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0C8h+var_80], xmm0
-    vmovups xmm0, [rsp+0C8h+var_78]
-    vmovss  xmm0, xmm0, xmm9
-    vinsertps xmm0, xmm0, xmm8, 10h
-    vmovups [rsp+0C8h+var_78], xmm0
-    vmovdqa [rsp+0C8h+var_78], xmm0
-    vmovss  [rsp+0C8h+var_88], xmm7
-    vmovss  [rsp+0C8h+var_84], xmm6
-    vmovss  [rsp+0C8h+var_7C], xmm1
-  }
+  if ( (min > x || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3711, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3712, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  v9 = v16.vector.v[3];
+  v15.value.devguiStep = 0.0;
+  v11 = v16;
+  v11.value = x;
+  _XMM0 = v11;
+  __asm { vinsertps xmm0, xmm0, xmm8, 10h }
+  v16 = _XMM0;
+  v15.value.min = min;
+  v15.value.max = max;
+  *((float *)&v15.vector + 3) = v9;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v42, &v41, description);
-  _R11 = &v43;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v16, &v15, description);
 }
 
 /*
@@ -5937,125 +5253,30 @@ LABEL_7:
 Dvar_RegisterVec2
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec2(const char *dvarName, double x, double y, double min, float max, float devguistep, unsigned int flags, const char *description)
-{
-  bool v13; 
-  bool v22; 
-  unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v39[32]; 
-  double v40; 
-  double v41; 
-  double v42; 
-  DvarLimits v43; 
-  DvarValue v44; 
-  char v45; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  v13 = (unsigned __int64)v39 == _security_cookie;
-  __asm
-  {
-    vcomiss xmm3, xmm1
-    vmovss  xmm6, [rsp+0C8h+max]
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm9, xmm1
-  }
-  if ( (unsigned __int64)v39 != _security_cookie )
-    goto LABEL_12;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v39 != _security_cookie )
-  {
-LABEL_12:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3846, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v40, v41, v42);
-    v13 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v13 )
-    goto LABEL_7;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v13 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_90], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0C8h+var_A0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3847, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v40, v41, v42) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0C8h+var_78+0Ch]
-    vmovss  xmm0, [rsp+0C8h+devguistep]
-    vmovss  [rsp+0C8h+var_80], xmm0
-    vmovups xmm0, [rsp+0C8h+var_78]
-    vmovss  xmm0, xmm0, xmm9
-    vinsertps xmm0, xmm0, xmm8, 10h
-    vmovups [rsp+0C8h+var_78], xmm0
-    vmovdqa [rsp+0C8h+var_78], xmm0
-    vmovss  [rsp+0C8h+var_88], xmm7
-    vmovss  [rsp+0C8h+var_84], xmm6
-    vmovss  [rsp+0C8h+var_7C], xmm1
-  }
-  Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v44, &v43, description);
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
-}
-
-/*
-==============
-Dvar_RegisterVec3
-==============
-*/
-
-const dvar_t *__fastcall Dvar_RegisterVec3(const char *dvarName, const vec3_t *value, double min, double max, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec2(const char *dvarName, float x, float y, float min, float max, float devguistep, unsigned int flags, const char *description)
 {
   float v10; 
-  float v11; 
+  DvarValue v12; 
+  unsigned int Checksum; 
+  DvarLimits v16; 
+  DvarValue v17; 
 
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx]; x
-    vmovss  [rsp+48h+var_20], xmm3
-    vmovss  xmm3, dword ptr [rdx+8]; z
-    vmovss  [rsp+48h+var_28], xmm2
-    vmovss  xmm2, dword ptr [rdx+4]; y
-  }
-  return Dvar_RegisterVec3(dvarName, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v10, v11, flags, description);
+  if ( (min > x || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3846, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3847, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  v10 = v17.vector.v[3];
+  v16.value.devguiStep = devguistep;
+  v12 = v17;
+  v12.value = x;
+  _XMM0 = v12;
+  __asm { vinsertps xmm0, xmm0, xmm8, 10h }
+  v17 = _XMM0;
+  v16.value.min = min;
+  v16.value.max = max;
+  *((float *)&v16.vector + 3) = v10;
+  Checksum = Dvar_GenerateChecksum(dvarName);
+  return Dvar_RegisterVariant(dvarName, Checksum, 2u, flags, &v17, &v16, description);
 }
 
 /*
@@ -6063,131 +5284,52 @@ const dvar_t *__fastcall Dvar_RegisterVec3(const char *dvarName, const vec3_t *v
 Dvar_RegisterVec3
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec3(const char *dvarName, const vec3_t *value, double min, double max, float devguistep, unsigned int flags, const char *description)
+const dvar_t *Dvar_RegisterVec3(const char *dvarName, const vec3_t *value, float min, float max, unsigned int flags, const char *description)
 {
-  bool v14; 
-  bool v25; 
-  bool v29; 
-  unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v48[32]; 
-  double v49; 
-  double v50; 
-  double v51; 
-  DvarLimits v52; 
-  DvarValue v53; 
-  char v54; 
-  void *retaddr; 
+  return Dvar_RegisterVec3(dvarName, value->v[0], value->v[1], value->v[2], min, max, flags, description);
+}
 
-  _RAX = &retaddr;
+/*
+==============
+Dvar_RegisterVec3
+==============
+*/
+dvar_t *Dvar_RegisterVec3(const char *dvarName, const vec3_t *value, float min, float max, float devguistep, unsigned int flags, const char *description)
+{
+  float v7; 
+  float v9; 
+  float v10; 
+  float v11; 
+  DvarValue v13; 
+  unsigned int Checksum; 
+  DvarLimits v18; 
+  DvarValue v19; 
+
+  v7 = value->v[0];
+  v9 = value->v[2];
+  v10 = value->v[1];
+  if ( (min > value->v[0] || v7 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3868, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v7, min, max) )
+    __debugbreak();
+  if ( (min > v10 || v10 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3869, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v10, min, max) )
+    __debugbreak();
+  if ( (min > v9 || v9 > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3870, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v9, min, max) )
+    __debugbreak();
+  v11 = v19.vector.v[3];
+  v13 = v19;
+  v13.value = v7;
+  _XMM1 = v13;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v14 = (unsigned __int64)v48 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rdx]
-    vcomiss xmm2, xmm10
-    vmovss  xmm11, [rsp+0E8h+devguistep]
-    vmovss  xmm8, dword ptr [rdx+8]
-    vmovss  xmm9, dword ptr [rdx+4]
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  if ( (unsigned __int64)v48 != _security_cookie )
-    goto LABEL_16;
-  __asm { vcomiss xmm10, xmm3 }
-  if ( (unsigned __int64)v48 != _security_cookie )
-  {
-LABEL_16:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3868, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51);
-    v14 = !v25;
-    if ( v25 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm9 }
-  if ( !v14 )
-    goto LABEL_17;
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v14 )
-  {
-LABEL_17:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3869, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51);
-    v14 = !v29;
-    if ( v29 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v14 )
-    goto LABEL_11;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v14 )
-  {
-LABEL_11:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3870, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovups xmm1, [rsp+0E8h+var_98]
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98+0Ch]
-    vmovss  xmm1, xmm1, xmm10
     vinsertps xmm1, xmm1, xmm9, 10h
     vinsertps xmm1, xmm1, xmm8, 20h ; ' '
-    vmovups [rsp+0E8h+var_98], xmm1
-    vmovdqa [rsp+0E8h+var_98], xmm1
-    vmovss  [rsp+0E8h+var_A8], xmm7
-    vmovss  [rsp+0E8h+var_A4], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm11
-    vmovss  [rsp+0E8h+var_9C], xmm0
   }
+  v19 = _XMM1;
+  v18.value.min = min;
+  v18.value.max = max;
+  v18.value.devguiStep = devguistep;
+  *((float *)&v18.vector + 3) = v11;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v53, &v52, description);
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v19, &v18, description);
 }
 
 /*
@@ -6195,129 +5337,36 @@ LABEL_11:
 Dvar_RegisterVec3
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec3(const char *dvarName, double x, double y, double z, float min, float max, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec3(const char *dvarName, float x, float y, float z, float min, float max, unsigned int flags, const char *description)
 {
-  bool v15; 
-  bool v24; 
-  bool v27; 
+  float v10; 
+  DvarValue v12; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v45[32]; 
-  double v46; 
-  double v47; 
-  double v48; 
-  DvarLimits v49; 
-  DvarValue v50; 
-  char v51; 
-  void *retaddr; 
+  DvarLimits v17; 
+  DvarValue v18; 
 
-  _RAX = &retaddr;
+  if ( (min > x || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3735, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3736, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  if ( (min > z || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3737, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", z, min, max) )
+    __debugbreak();
+  v10 = v18.vector.v[3];
+  v17.value.devguiStep = 0.0;
+  v12 = v18;
+  v12.value = x;
+  _XMM0 = v12;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v15 = (unsigned __int64)v45 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0D8h+min]
-    vcomiss xmm7, xmm1
-    vmovss  xmm6, [rsp+0D8h+max]
-    vmovaps xmm9, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm10, xmm1
-  }
-  if ( (unsigned __int64)v45 != _security_cookie )
-    goto LABEL_16;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v45 != _security_cookie )
-  {
-LABEL_16:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3735, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v46, v47, v48);
-    v15 = !v24;
-    if ( v24 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v15 )
-    goto LABEL_17;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v15 )
-  {
-LABEL_17:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3736, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v46, v47, v48);
-    v15 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm9 }
-  if ( !v15 )
-    goto LABEL_11;
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v15 )
-  {
-LABEL_11:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3737, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v46, v47, v48) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0D8h+var_88+0Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0D8h+var_90], xmm0
-    vmovups xmm0, [rsp+0D8h+var_88]
-    vmovss  xmm0, xmm0, xmm10
     vinsertps xmm0, xmm0, xmm8, 10h
     vinsertps xmm0, xmm0, xmm9, 20h ; ' '
-    vmovups [rsp+0D8h+var_88], xmm0
-    vmovdqa [rsp+0D8h+var_88], xmm0
-    vmovss  [rsp+0D8h+var_98], xmm7
-    vmovss  [rsp+0D8h+var_94], xmm6
-    vmovss  [rsp+0D8h+var_8C], xmm1
   }
+  v18 = _XMM0;
+  v17.value.min = min;
+  v17.value.max = max;
+  *((float *)&v17.vector + 3) = v10;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v50, &v49, description);
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v18, &v17, description);
 }
 
 /*
@@ -6325,129 +5374,36 @@ LABEL_11:
 Dvar_RegisterVec3
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec3(const char *dvarName, double x, double y, double z, float min, float max, float devguistep, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec3(const char *dvarName, float x, float y, float z, float min, float max, float devguistep, unsigned int flags, const char *description)
 {
-  bool v15; 
-  bool v25; 
-  bool v29; 
+  float v11; 
+  DvarValue v13; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v48[32]; 
-  double v49; 
-  double v50; 
-  double v51; 
-  DvarLimits v52; 
-  DvarValue v53; 
-  char v54; 
-  void *retaddr; 
+  DvarLimits v18; 
+  DvarValue v19; 
 
-  _RAX = &retaddr;
+  if ( (min > x || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3868, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3869, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  if ( (min > z || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3870, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", z, min, max) )
+    __debugbreak();
+  v11 = v19.vector.v[3];
+  v18.value.devguiStep = devguistep;
+  v13 = v19;
+  v13.value = x;
+  _XMM0 = v13;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v15 = (unsigned __int64)v48 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0D8h+min]
-    vcomiss xmm7, xmm1
-    vmovss  xmm6, [rsp+0D8h+max]
-    vmovaps xmm9, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm10, xmm1
-  }
-  if ( (unsigned __int64)v48 != _security_cookie )
-    goto LABEL_16;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v48 != _security_cookie )
-  {
-LABEL_16:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3868, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51);
-    v15 = !v25;
-    if ( v25 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v15 )
-    goto LABEL_17;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !v15 )
-  {
-LABEL_17:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3869, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51);
-    v15 = !v29;
-    if ( v29 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm9 }
-  if ( !v15 )
-    goto LABEL_11;
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v15 )
-  {
-LABEL_11:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3870, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v49, v50, v51) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0D8h+var_88+0Ch]
-    vmovss  xmm0, [rsp+0D8h+devguistep]
-    vmovss  [rsp+0D8h+var_90], xmm0
-    vmovups xmm0, [rsp+0D8h+var_88]
-    vmovss  xmm0, xmm0, xmm10
     vinsertps xmm0, xmm0, xmm8, 10h
     vinsertps xmm0, xmm0, xmm9, 20h ; ' '
-    vmovups [rsp+0D8h+var_88], xmm0
-    vmovdqa [rsp+0D8h+var_88], xmm0
-    vmovss  [rsp+0D8h+var_98], xmm7
-    vmovss  [rsp+0D8h+var_94], xmm6
-    vmovss  [rsp+0D8h+var_8C], xmm1
   }
+  v19 = _XMM0;
+  v18.value.min = min;
+  v18.value.max = max;
+  *((float *)&v18.vector + 3) = v11;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v53, &v52, description);
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 3u, flags, &v19, &v18, description);
 }
 
 /*
@@ -6455,137 +5411,59 @@ LABEL_11:
 Dvar_RegisterVec3Color
 ==============
 */
-
-dvar_t *__fastcall Dvar_RegisterVec3Color(const char *dvarName, double x, double y, double z, float max, unsigned int flags, const char *description)
+dvar_t *Dvar_RegisterVec3Color(const char *dvarName, float x, float y, float z, float max, unsigned int flags, const char *description)
 {
-  bool v14; 
-  bool v21; 
-  bool v25; 
-  bool v28; 
+  float v10; 
+  DvarValue v12; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v46[32]; 
-  double v47; 
-  double v48; 
-  double v49; 
-  DvarLimits v50; 
-  DvarValue v51; 
-  char v52; 
-  void *retaddr; 
+  DvarLimits v17; 
+  DvarValue v18; 
 
-  _RAX = &retaddr;
+  if ( max <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3772, ASSERT_TYPE_ASSERT, "(max > 0.0f)", (const char *)&queryFormat, "max > 0.0f") )
+    __debugbreak();
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( (x < 0.0 || x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3773, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( x ) && ( x ) <= ( max )", "x not in [0.0f, max]\n\t%g not in [%g, %g]", x, *(double *)&_XMM11, max) )
+    __debugbreak();
+  if ( (y < 0.0 || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3774, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( y ) && ( y ) <= ( max )", "y not in [0.0f, max]\n\t%g not in [%g, %g]", y, *(double *)&_XMM11, max) )
+    __debugbreak();
+  if ( (z < 0.0 || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3775, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( z ) && ( z ) <= ( max )", "z not in [0.0f, max]\n\t%g not in [%g, %g]", z, *(double *)&_XMM11, max) )
+    __debugbreak();
+  v10 = v18.vector.v[3];
+  v12 = v18;
+  v12.value = x;
+  _XMM1 = v12;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v14 = (unsigned __int64)v46 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm6, [rsp+0E8h+max]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vmovaps xmm10, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm1
-  }
-  if ( (unsigned __int64)v46 == _security_cookie )
-  {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3772, ASSERT_TYPE_ASSERT, "(max > 0.0f)", (const char *)&queryFormat, "max > 0.0f");
-    v14 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm8, xmm7
-    vxorpd  xmm11, xmm11, xmm11
-    vcomiss xmm8, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3773, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( x ) && ( x ) <= ( max )", "x not in [0.0f, max]\n\t%g not in [%g, %g]", v47, v48, v49);
-    v14 = !v25;
-    if ( v25 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm9, xmm7
-    vcomiss xmm9, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm9, xmm9
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3774, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( y ) && ( y ) <= ( max )", "y not in [0.0f, max]\n\t%g not in [%g, %g]", v47, v48, v49);
-    v14 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm10, xmm7
-    vcomiss xmm10, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+0E8h+var_B8], xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3775, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( z ) && ( z ) <= ( max )", "z not in [0.0f, max]\n\t%g not in [%g, %g]", v47, v48, v49) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovups xmm1, [rsp+0E8h+var_98]
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_98+0Ch]
-    vmovss  xmm1, xmm1, xmm8
     vinsertps xmm1, xmm1, xmm9, 10h
     vinsertps xmm1, xmm1, xmm10, 20h ; ' '
-    vmovups [rsp+0E8h+var_98], xmm1
-    vmovdqa [rsp+0E8h+var_98], xmm1
-    vmovss  [rsp+0E8h+var_A8], xmm7
-    vmovss  [rsp+0E8h+var_A4], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm7
-    vmovss  [rsp+0E8h+var_9C], xmm0
   }
+  v18 = _XMM1;
+  v17.value.min = 0.0;
+  v17.value.max = max;
+  v17.value.devguiStep = 0.0;
+  *((float *)&v17.vector + 3) = v10;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 0xBu, flags, &v51, &v50, description);
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 0xBu, flags, &v18, &v17, description);
+}
+
+/*
+==============
+Dvar_RegisterVec4
+==============
+*/
+const dvar_t *Dvar_RegisterVec4(const char *dvarName, const vec4_t *value, float min, float max, unsigned int flags, const char *description)
+{
+  return Dvar_RegisterVec4(dvarName, value->v[0], value->v[1], value->v[2], value->v[3], min, max, flags, description);
+}
+
+/*
+==============
+Dvar_RegisterVec4
+==============
+*/
+const dvar_t *Dvar_RegisterVec4(const char *dvarName, const vec4_t *value, float min, float max, float devguistep, unsigned int flags, const char *description)
+{
+  return Dvar_RegisterVec4(dvarName, value->v[0], value->v[1], value->v[2], value->v[3], min, max, devguistep, flags, description);
 }
 
 /*
@@ -6594,365 +5472,74 @@ Dvar_RegisterVec4
 ==============
 */
 
-const dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, const vec4_t *value, double min, double max, unsigned int flags, const char *description)
+dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, double x, float y, float z, float w, float min, float max, unsigned int flags, const char *description)
 {
   float v11; 
+  unsigned int Checksum; 
+  DvarLimits v17; 
+  DvarValue v18; 
+
+  _XMM8 = *(_OWORD *)&x;
+  if ( (min > *(float *)&x || *(float *)&x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3804, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", *(float *)&x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3805, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  if ( (min > z || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3806, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", z, min, max) )
+    __debugbreak();
+  if ( (min > w || w > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3807, ASSERT_TYPE_ASSERT, "( min ) <= ( w ) && ( w ) <= ( max )", "w not in [min, max]\n\t%g not in [%g, %g]", w, min, max) )
+    __debugbreak();
+  v11 = v18.vector.v[3];
+  __asm
+  {
+    vinsertps xmm8, xmm8, xmm10, 10h
+    vinsertps xmm8, xmm8, xmm11, 20h ; ' '
+    vinsertps xmm8, xmm8, xmm9, 30h ; '0'
+  }
+  v18 = _XMM8;
+  v17.value.min = min;
+  v17.value.max = max;
+  v17.value.devguiStep = 0.0;
+  *((float *)&v17.vector + 3) = v11;
+  Checksum = Dvar_GenerateChecksum(dvarName);
+  return Dvar_RegisterVariant(dvarName, Checksum, 4u, flags, &v18, &v17, description);
+}
+
+/*
+==============
+Dvar_RegisterVec4
+==============
+*/
+
+dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, double x, float y, float z, float w, float min, float max, float devguistep, unsigned int flags, const char *description)
+{
   float v12; 
-  float v13; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+0Ch]
-    vmovss  xmm1, dword ptr [rdx]; x
-    vmovss  [rsp+58h+var_28], xmm3
-    vmovss  xmm3, dword ptr [rdx+8]; z
-    vmovss  [rsp+58h+var_30], xmm2
-    vmovss  xmm2, dword ptr [rdx+4]; y
-    vmovss  [rsp+58h+var_38], xmm0
-  }
-  return Dvar_RegisterVec4(dvarName, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v11, v12, v13, flags, description);
-}
-
-/*
-==============
-Dvar_RegisterVec4
-==============
-*/
-
-const dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, const vec4_t *value, double min, double max, float devguistep, unsigned int flags, const char *description)
-{
-  float v13; 
-  float v14; 
-  float v15; 
-  float v16; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+devguistep]
-    vmovss  xmm4, dword ptr [rdx+0Ch]
-    vmovss  xmm1, dword ptr [rdx]; x
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovss  [rsp+58h+var_28], xmm3
-    vmovss  xmm3, dword ptr [rdx+8]; z
-    vmovss  [rsp+58h+var_30], xmm2
-    vmovss  xmm2, dword ptr [rdx+4]; y
-    vmovss  [rsp+58h+var_38], xmm4
-  }
-  return Dvar_RegisterVec4(dvarName, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v13, v14, v15, v16, flags, description);
-}
-
-/*
-==============
-Dvar_RegisterVec4
-==============
-*/
-
-dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, double x, double y, double z, float w, float min, float max, unsigned int flags, const char *description)
-{
-  bool v17; 
-  bool v26; 
-  bool v29; 
-  bool v32; 
   unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v51[32]; 
-  double v52; 
-  double v53; 
-  double v54; 
-  DvarLimits v55; 
-  DvarValue v56; 
-  char v57; 
-  void *retaddr; 
+  DvarLimits v18; 
+  DvarValue v19; 
 
-  _RAX = &retaddr;
+  _XMM8 = *(_OWORD *)&x;
+  if ( (min > *(float *)&x || *(float *)&x > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3891, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", *(float *)&x, min, max) )
+    __debugbreak();
+  if ( (min > y || y > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3892, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", y, min, max) )
+    __debugbreak();
+  if ( (min > z || z > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3893, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", z, min, max) )
+    __debugbreak();
+  if ( (min > w || w > max) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3894, ASSERT_TYPE_ASSERT, "( min ) <= ( w ) && ( w ) <= ( max )", "w not in [min, max]\n\t%g not in [%g, %g]", w, min, max) )
+    __debugbreak();
+  v12 = v19.vector.v[3];
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v17 = (unsigned __int64)v51 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0E8h+min]
-    vcomiss xmm7, xmm1
-    vmovss  xmm6, [rsp+0E8h+max]
-    vmovaps xmm11, xmm3
-    vmovaps xmm10, xmm2
-    vmovaps xmm8, xmm1
-  }
-  if ( (unsigned __int64)v51 != _security_cookie )
-    goto LABEL_20;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v51 != _security_cookie )
-  {
-LABEL_20:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3804, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v52, v53, v54);
-    v17 = !v26;
-    if ( v26 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm10 }
-  if ( !v17 )
-    goto LABEL_21;
-  __asm { vcomiss xmm10, xmm6 }
-  if ( !v17 )
-  {
-LABEL_21:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3805, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v52, v53, v54);
-    v17 = !v29;
-    if ( v29 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm11 }
-  if ( !v17 )
-    goto LABEL_22;
-  __asm { vcomiss xmm11, xmm6 }
-  if ( !v17 )
-  {
-LABEL_22:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm11, xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3806, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v52, v53, v54);
-    v17 = !v32;
-    if ( v32 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm9, [rsp+0E8h+w]
-    vcomiss xmm7, xmm9
-  }
-  if ( !v17 )
-    goto LABEL_15;
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v17 )
-  {
-LABEL_15:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3807, ASSERT_TYPE_ASSERT, "( min ) <= ( w ) && ( w ) <= ( max )", "w not in [min, max]\n\t%g not in [%g, %g]", v52, v53, v54) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0E8h+var_98+0Ch]
-    vinsertps xmm8, xmm8, xmm10, 10h
-    vxorps  xmm0, xmm0, xmm0
-    vinsertps xmm8, xmm8, xmm11, 20h ; ' '
-    vinsertps xmm8, xmm8, xmm9, 30h ; '0'
-    vmovups [rsp+0E8h+var_98], xmm8
-    vmovdqa [rsp+0E8h+var_98], xmm8
-    vmovss  [rsp+0E8h+var_A8], xmm7
-    vmovss  [rsp+0E8h+var_A4], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm0
-    vmovss  [rsp+0E8h+var_9C], xmm1
-  }
-  Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 4u, flags, &v56, &v55, description);
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
-}
-
-/*
-==============
-Dvar_RegisterVec4
-==============
-*/
-
-dvar_t *__fastcall Dvar_RegisterVec4(const char *dvarName, double x, double y, double z, float w, float min, float max, float devguistep, unsigned int flags, const char *description)
-{
-  bool v17; 
-  bool v27; 
-  bool v31; 
-  bool v35; 
-  unsigned int Checksum; 
-  dvar_t *result; 
-  _BYTE v55[32]; 
-  double v56; 
-  double v57; 
-  double v58; 
-  DvarLimits v59; 
-  DvarValue v60; 
-  char v61; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v17 = (unsigned __int64)v55 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0E8h+min]
-    vcomiss xmm7, xmm1
-    vmovss  xmm6, [rsp+0E8h+max]
-    vmovaps xmm11, xmm3
-    vmovaps xmm10, xmm2
-    vmovaps xmm8, xmm1
-  }
-  if ( (unsigned __int64)v55 != _security_cookie )
-    goto LABEL_20;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (unsigned __int64)v55 != _security_cookie )
-  {
-LABEL_20:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3891, ASSERT_TYPE_ASSERT, "( min ) <= ( x ) && ( x ) <= ( max )", "x not in [min, max]\n\t%g not in [%g, %g]", v56, v57, v58);
-    v17 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm10 }
-  if ( !v17 )
-    goto LABEL_21;
-  __asm { vcomiss xmm10, xmm6 }
-  if ( !v17 )
-  {
-LABEL_21:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v31 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3892, ASSERT_TYPE_ASSERT, "( min ) <= ( y ) && ( y ) <= ( max )", "y not in [min, max]\n\t%g not in [%g, %g]", v56, v57, v58);
-    v17 = !v31;
-    if ( v31 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm11 }
-  if ( !v17 )
-    goto LABEL_22;
-  __asm { vcomiss xmm11, xmm6 }
-  if ( !v17 )
-  {
-LABEL_22:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm11, xmm11
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3893, ASSERT_TYPE_ASSERT, "( min ) <= ( z ) && ( z ) <= ( max )", "z not in [min, max]\n\t%g not in [%g, %g]", v56, v57, v58);
-    v17 = !v35;
-    if ( v35 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm9, [rsp+0E8h+w]
-    vcomiss xmm7, xmm9
-  }
-  if ( !v17 )
-    goto LABEL_15;
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v17 )
-  {
-LABEL_15:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0E8h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0E8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0E8h+var_C0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3894, ASSERT_TYPE_ASSERT, "( min ) <= ( w ) && ( w ) <= ( max )", "w not in [min, max]\n\t%g not in [%g, %g]", v56, v57, v58) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0E8h+var_98+0Ch]
-    vmovss  xmm0, [rsp+0E8h+devguistep]
     vinsertps xmm8, xmm8, xmm10, 10h
     vinsertps xmm8, xmm8, xmm11, 20h ; ' '
     vinsertps xmm8, xmm8, xmm9, 30h ; '0'
-    vmovups [rsp+0E8h+var_98], xmm8
-    vmovdqa [rsp+0E8h+var_98], xmm8
-    vmovss  [rsp+0E8h+var_A8], xmm7
-    vmovss  [rsp+0E8h+var_A4], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm0
-    vmovss  [rsp+0E8h+var_9C], xmm1
   }
+  v19 = _XMM8;
+  v18.value.min = min;
+  v18.value.max = max;
+  v18.value.devguiStep = devguistep;
+  *((float *)&v18.vector + 3) = v12;
   Checksum = Dvar_GenerateChecksum(dvarName);
-  result = Dvar_RegisterVariant(dvarName, Checksum, 4u, flags, &v60, &v59, description);
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return Dvar_RegisterVariant(dvarName, Checksum, 4u, flags, &v19, &v18, description);
 }
 
 /*
@@ -6962,86 +5549,71 @@ Dvar_ReinterpretDvar
 */
 void Dvar_ReinterpretDvar(dvar_t *dvar, const char *dvarName, unsigned __int8 type, unsigned int flags, DvarValue *value, DvarLimits *domain)
 {
-  unsigned int v9; 
-  unsigned int v15; 
+  unsigned int v8; 
+  DvarValue v11; 
+  unsigned int v12; 
   const char *string; 
   const char *name; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
   const char *v20; 
-  const char *v22; 
-  const char *v23; 
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
+  DvarValue v21; 
   DvarValue dest; 
-  DvarValue v30; 
+  DvarValue v23; 
 
-  _RBX = dvar;
-  v9 = dvar->flags;
-  if ( (v9 & 0x100) != 0 && (flags & 0x100) == 0 )
+  v8 = dvar->flags;
+  if ( (v8 & 0x100) != 0 && (flags & 0x100) == 0 )
   {
-    _RAX = value;
-    _R14 = domain;
-    __asm
+    v11 = *value;
+    v12 = v8;
+    if ( (v8 & 0x8000) != 0 && (flags & 0x40) != 0 && (v8 & 0x2804) == 0 )
     {
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovups xmm6, xmmword ptr [rax]
+      string = dvar->reset.string;
+      dest = *(DvarValue *)domain;
+      v11 = *Dvar_StringToValue(&v23, type, (const DvarLimits *)&dest, string);
+      v12 = dvar->flags;
     }
-    v15 = v9;
-    if ( (v9 & 0x8000) != 0 && (flags & 0x40) != 0 && (v9 & 0x2804) == 0 )
+    if ( (v12 & 0x100) == 0 )
     {
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      string = _RBX->reset.string;
-      __asm { vmovups xmmword ptr [rsp+78h+dest], xmm0 }
-      _RAX = Dvar_StringToValue(&v30, type, (const DvarLimits *)&dest, string);
-      __asm { vmovups xmm6, xmmword ptr [rax] }
-      v15 = _RBX->flags;
-    }
-    if ( (v15 & 0x100) == 0 )
-    {
-      name = _RBX->name;
-      _RBX->flags = v15 | 0x100;
+      name = dvar->name;
+      dvar->flags = v12 | 0x100;
       if ( *name )
-        v20 = SL_AllocString_Copy(name);
+        v15 = SL_AllocString_Copy(name);
       else
-        v20 = (char *)&queryFormat.fmt + 3;
-      _RBX->name = v20;
+        v15 = (char *)&queryFormat.fmt + 3;
+      dvar->name = v15;
     }
-    if ( _RBX->type != 9 )
+    if ( dvar->type != 9 )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+38h]
-        vmovups xmmword ptr [rsp+78h+dest], xmm0
-      }
-      v22 = Dvar_ValueToString(_RBX, &dest);
-      Dvar_CopyString(v22, &_RBX->current);
-      v23 = _RBX->latched.string;
-      if ( v23 && v23 != _RBX->current.string && v23 != _RBX->reset.string && *v23 )
-        SL_AllocString_Free(v23);
-      v24 = _RBX->current.string;
-      _RBX->latched.integer64 = 0i64;
-      Dvar_WeakCopyString(v24, &_RBX->latched);
-      v25 = _RBX->reset.string;
-      if ( v25 && v25 != _RBX->current.string && v25 != _RBX->latched.string && *v25 )
-        SL_AllocString_Free(v25);
-      _RBX->reset.integer64 = 0i64;
-      v26 = Dvar_DisplayableResetValue(_RBX);
-      Dvar_AssignResetStringValue(_RBX, &dest, v26);
-      _RBX->reset.integer64 = dest.integer64;
-      _RBX->type = 9;
+      dest = dvar->latched;
+      v16 = Dvar_ValueToString(dvar, &dest);
+      Dvar_CopyString(v16, &dvar->current);
+      v17 = dvar->latched.string;
+      if ( v17 && v17 != dvar->current.string && v17 != dvar->reset.string && *v17 )
+        SL_AllocString_Free(v17);
+      v18 = dvar->current.string;
+      dvar->latched.integer64 = 0i64;
+      Dvar_WeakCopyString(v18, &dvar->latched);
+      v19 = dvar->reset.string;
+      if ( v19 && v19 != dvar->current.string && v19 != dvar->latched.string && *v19 )
+        SL_AllocString_Free(v19);
+      dvar->reset.integer64 = 0i64;
+      v20 = Dvar_DisplayableResetValue(dvar);
+      Dvar_AssignResetStringValue(dvar, &dest, v20);
+      dvar->reset.integer64 = dest.integer64;
+      dvar->type = 9;
     }
-    if ( *_RBX->name )
-      SL_AllocString_Free(_RBX->name);
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    _RBX->flags &= 0xFFF7FEFF;
-    _RBX->name = dvarName;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+78h+dest], xmm0
-      vmovdqa [rsp+78h+var_38], xmm6
-    }
-    Dvar_MakeExplicitType(_RBX, dvarName, type, flags, &v30, (DvarLimits *)&dest);
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
+    if ( *dvar->name )
+      SL_AllocString_Free(dvar->name);
+    v21 = *(DvarValue *)domain;
+    dvar->flags &= 0xFFF7FEFF;
+    dvar->name = dvarName;
+    dest = v21;
+    v23 = v11;
+    Dvar_MakeExplicitType(dvar, dvarName, type, flags, &v23, (DvarLimits *)&dest);
   }
 }
 
@@ -7054,16 +5626,17 @@ void Dvar_ReportDvarConstUsage_Frame(void)
 {
   unsigned __int64 v0; 
   int v1; 
-  unsigned __int8 v4; 
+  BbConstUsageFlags *p_BbConstUsageFlags; 
+  unsigned __int8 v3; 
+  const char *v4; 
+  const char *v5; 
+  const char *v6; 
   const char *v7; 
-  const char *v8; 
-  const char *v10; 
-  const char *v11; 
-  bool v12; 
-  DvarValue v13; 
-  DvarValue v14; 
-  DvarValue v15; 
-  DvarValue v16; 
+  bool v8; 
+  DvarValue codeValue; 
+  DvarValue v10; 
+  DvarValue v11; 
+  DvarValue v12; 
   DLogContext context; 
   char buffer[4096]; 
 
@@ -7083,50 +5656,40 @@ void Dvar_ReportDvarConstUsage_Frame(void)
   v1 = 0;
   if ( dvarCount > 0 )
   {
-    _RBX = &dvarPool[0].BbConstUsageFlags;
+    p_BbConstUsageFlags = &dvarPool[0].BbConstUsageFlags;
     do
     {
-      if ( _RBX->initialized )
+      if ( p_BbConstUsageFlags->initialized )
       {
-        __asm { vmovups xmm0, xmmword ptr [rbx-40h] }
-        v4 = _RBX[-4].codeValue.color[13];
-        __asm
+        v3 = p_BbConstUsageFlags[-4].codeValue.color[13];
+        codeValue = p_BbConstUsageFlags[-3].codeValue;
+        v10 = p_BbConstUsageFlags->codeValue;
+        if ( !Dvar_ValuesEqual(v3, &v10, &codeValue) )
         {
-          vmovups [rsp+1238h+var_11D8], xmm0
-          vmovups xmm0, xmmword ptr [rbx+8]
-          vmovups [rsp+1238h+var_11C8], xmm0
-        }
-        if ( !Dvar_ValuesEqual(v4, &v14, &v13) )
-        {
-          __asm { vmovups xmm0, xmmword ptr [rbx+8] }
-          v7 = (const char *)*((_QWORD *)&_RBX[-5].codeValue.string + 1);
-          __asm { vmovups [rsp+1238h+var_11B8], xmm0 }
-          v8 = Dvar_ValueToString(&dvarPool[(__int64)v1], &v15);
-          if ( _RBX == (BbConstUsageFlags *)104 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1549, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+          v4 = (const char *)*((_QWORD *)&p_BbConstUsageFlags[-5].codeValue.string + 1);
+          v11 = p_BbConstUsageFlags->codeValue;
+          v5 = Dvar_ValueToString(&dvarPool[(__int64)v1], &v11);
+          if ( p_BbConstUsageFlags == (BbConstUsageFlags *)104 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1549, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
             __debugbreak();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx-40h]
-            vmovups [rsp+1238h+var_11A8], xmm0
-          }
-          v10 = Dvar_ValueToString((const dvar_t *)(&_RBX[-5].codeValue.string + 1), &v16);
+          v12 = p_BbConstUsageFlags[-3].codeValue;
+          v6 = Dvar_ValueToString((const dvar_t *)(&p_BbConstUsageFlags[-5].codeValue.string + 1), &v12);
           if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
           {
-            v11 = "SP";
+            v7 = "SP";
           }
           else
           {
-            v11 = "MP";
+            v7 = "MP";
             if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG )
-              v11 = "CP";
+              v7 = "CP";
           }
           if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) )
           {
             if ( DLog_IsActive() )
             {
-              v12 = DLog_BeginEvent(&context, "const_dvar_tracking");
+              v8 = DLog_BeginEvent(&context, "const_dvar_tracking");
               context.autoEndEvent = 1;
-              if ( v12 && DLog_String(&context, "dvar", v7, 0) && DLog_String(&context, "code_value", v8, 0) && DLog_String(&context, "override_value", v10, 0) && DLog_String(&context, "game_mode", v11, 0) )
+              if ( v8 && DLog_String(&context, "dvar", v4, 0) && DLog_String(&context, "code_value", v5, 0) && DLog_String(&context, "override_value", v6, 0) && DLog_String(&context, "game_mode", v7, 0) )
                 DLog_RecordContext(&context);
             }
             else
@@ -7134,11 +5697,11 @@ void Dvar_ReportDvarConstUsage_Frame(void)
               context.error = DLOG_ERROR_NOT_ACTIVE;
             }
           }
-          Com_Printf(16, " %s -- %s, %s -- %s\n", v7, v8, v10, v11);
+          Com_Printf(16, " %s -- %s, %s -- %s\n", v4, v5, v6, v7);
         }
       }
       ++v1;
-      _RBX = (BbConstUsageFlags *)((char *)_RBX + 128);
+      p_BbConstUsageFlags = (BbConstUsageFlags *)((char *)p_BbConstUsageFlags + 128);
     }
     while ( v1 < dvarCount );
     v0 = (unsigned __int64)&g_dvarCritSect & 3;
@@ -7162,137 +5725,101 @@ void Dvar_Reregister(dvar_t *dvar, const char *dvarName, unsigned __int8 type, u
 {
   unsigned __int8 v12; 
   unsigned int v13; 
+  DvarValue v14; 
   const char *UnobfuscatedName; 
-  unsigned __int8 v19; 
+  unsigned __int8 v16; 
+  const char *v17; 
+  DvarValue v18; 
+  const char *v19; 
   const char *v20; 
-  const char *v26; 
-  const char *v28; 
-  const char *v29; 
-  unsigned __int8 v30; 
-  unsigned __int8 v33; 
-  __int64 v36; 
-  DvarValue v37; 
-  DvarValue v38; 
+  const char *v21; 
+  unsigned __int8 v22; 
+  DvarValue v23; 
+  unsigned __int8 v24; 
+  __int64 v25; 
+  DvarValue reset; 
+  DvarValue current; 
 
-  _RDI = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3226, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3227, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
     __debugbreak();
-  v12 = _RDI->type;
-  if ( v12 != type && (_RDI->flags & 0x100) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3228, ASSERT_TYPE_ASSERT, "(dvar->type == type || (dvar->flags & (1 << 8)))", "%s\n\t%s: %i != %i", "dvar->type == type || (dvar->flags & DVAR_EXTERNAL)", dvarName, v12, type) )
+  v12 = dvar->type;
+  if ( v12 != type && (dvar->flags & 0x100) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3228, ASSERT_TYPE_ASSERT, "(dvar->type == type || (dvar->flags & (1 << 8)))", "%s\n\t%s: %i != %i", "dvar->type == type || (dvar->flags & DVAR_EXTERNAL)", dvarName, v12, type) )
     __debugbreak();
-  v13 = _RDI->flags;
-  _R12 = domain;
-  _RSI = resetValue;
+  v13 = dvar->flags;
   if ( ((flags ^ v13) & 0x100) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups xmm1, xmmword ptr [rsi]
-      vmovups [rsp+88h+var_38], xmm0
-      vmovups [rsp+88h+var_28], xmm1
-    }
-    Dvar_ReinterpretDvar(_RDI, dvarName, type, flags, &v38, (DvarLimits *)&v37);
-    v13 = _RDI->flags;
+    v14 = *resetValue;
+    reset = *(DvarValue *)domain;
+    current = v14;
+    Dvar_ReinterpretDvar(dvar, dvarName, type, flags, &current, (DvarLimits *)&reset);
+    v13 = dvar->flags;
   }
   if ( (((unsigned __int8)flags ^ (unsigned __int8)v13) & 0x10) != 0 )
   {
-    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_RDI->name);
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
     Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144173EC0, 1201i64, UnobfuscatedName);
-    v13 = _RDI->flags;
+    v13 = dvar->flags;
   }
   if ( (v13 & 0x100) != 0 )
   {
-    v19 = _RDI->type;
-    if ( v19 != type )
+    v16 = dvar->type;
+    if ( v16 != type )
     {
-      if ( v19 != 9 )
+      if ( v16 != 9 )
       {
-        v20 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        LODWORD(v36) = v19;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3285, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_STRING)", "%s\n\tdvar %s, type %i", "dvar->type == DVAR_TYPE_STRING", v20, v36) )
+        v17 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        LODWORD(v25) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3285, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_STRING)", "%s\n\tdvar %s, type %i", "dvar->type == DVAR_TYPE_STRING", v17, v25) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups xmm1, xmmword ptr [rsi]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovups [rsp+88h+var_38], xmm1
-      }
-      Dvar_MakeExplicitType(_RDI, dvarName, type, flags, &v37, (DvarLimits *)&v38);
+      v18 = *resetValue;
+      current = *(DvarValue *)domain;
+      reset = v18;
+      Dvar_MakeExplicitType(dvar, dvarName, type, flags, &reset, (DvarLimits *)&current);
     }
   }
-  if ( _RDI->type != type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3289, ASSERT_TYPE_ASSERT, "( ( dvar->type == type ) )", "( dvarName ) = %s", dvarName) )
+  if ( dvar->type != type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3289, ASSERT_TYPE_ASSERT, "( ( dvar->type == type ) )", "( dvarName ) = %s", dvarName) )
     __debugbreak();
-  if ( (_RDI->flags & 0xC040) == 0 )
+  if ( (dvar->flags & 0xC040) == 0 )
   {
-    __asm
+    current = *resetValue;
+    reset = dvar->reset;
+    if ( !Dvar_ValuesEqual(type, &reset, &current) )
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovups xmm0, xmmword ptr [rdi+48h]
-      vmovups [rsp+88h+var_38], xmm0
-    }
-    if ( !Dvar_ValuesEqual(type, &v37, &v38) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+88h+var_28], xmm0
-      }
-      v26 = Dvar_ValueToString(_RDI, &v38);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi+48h]
-        vmovups [rsp+88h+var_28], xmm0
-      }
-      v28 = v26;
-      v29 = Dvar_ValueToString(_RDI, &v38);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3290, ASSERT_TYPE_ASSERT, "((dvar->flags & ((1 << 14)|(1 << 6)|(1 << 15))) || Dvar_ValuesEqual( type, dvar->reset, resetValue ))", "%s\n\tdvar %s, %s != %s", "(dvar->flags & (DVAR_CHANGEABLE_RESET|DVAR_SAVED|DVAR_AUTOEXEC)) || Dvar_ValuesEqual( type, dvar->reset, resetValue )", dvarName, v29, v28) )
+      current = *resetValue;
+      v19 = Dvar_ValueToString(dvar, &current);
+      current = dvar->reset;
+      v20 = v19;
+      v21 = Dvar_ValueToString(dvar, &current);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3290, ASSERT_TYPE_ASSERT, "((dvar->flags & ((1 << 14)|(1 << 6)|(1 << 15))) || Dvar_ValuesEqual( type, dvar->reset, resetValue ))", "%s\n\tdvar %s, %s != %s", "(dvar->flags & (DVAR_CHANGEABLE_RESET|DVAR_SAVED|DVAR_AUTOEXEC)) || Dvar_ValuesEqual( type, dvar->reset, resetValue )", dvarName, v21, v20) )
         __debugbreak();
     }
   }
-  _RDI->flags |= flags;
-  v30 = _RDI->level[0];
-  if ( v30 > (unsigned __int8)level )
-    v30 = level;
-  _RDI->level[0] = v30;
+  dvar->flags |= flags;
+  v22 = dvar->level[0];
+  if ( v22 > (unsigned __int8)level )
+    v22 = level;
+  dvar->level[0] = v22;
   if ( description )
-    _RDI->description = description;
-  if ( !_RDI->BbConstUsageFlags.initialized )
+    dvar->description = description;
+  if ( !dvar->BbConstUsageFlags.initialized )
   {
-    __asm
+    v23 = *resetValue;
+    v24 = dvar->type;
+    current = dvar->current;
+    reset = v23;
+    if ( !Dvar_ValuesEqual(v24, &reset, &current) && (dvar->flags & 0x40000) != 0 )
     {
-      vmovups xmm0, xmmword ptr [rdi+28h]
-      vmovups xmm1, xmmword ptr [rsi]
-    }
-    v33 = _RDI->type;
-    __asm
-    {
-      vmovups [rsp+88h+var_28], xmm0
-      vmovups [rsp+88h+var_38], xmm1
-    }
-    if ( !Dvar_ValuesEqual(v33, &v37, &v38) && (_RDI->flags & 0x40000) != 0 )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rdi+70h], xmm0
-      }
-      _RDI->BbConstUsageFlags.initialized = 1;
+      dvar->BbConstUsageFlags.codeValue = *resetValue;
+      dvar->BbConstUsageFlags.initialized = 1;
     }
   }
-  if ( (_RDI->flags & 2) != 0 )
+  if ( (dvar->flags & 2) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+38h]
-      vmovups [rsp+88h+var_28], xmm0
-    }
-    Dvar_SetVariant(_RDI, &v38, DVAR_SOURCE_INTERNAL);
+    current = dvar->latched;
+    Dvar_SetVariant(dvar, &current, DVAR_SOURCE_INTERNAL);
   }
 }
 
@@ -7303,17 +5830,12 @@ Dvar_Reset
 */
 void Dvar_Reset(const dvar_t *dvar, DvarSetSource setSource)
 {
-  DvarValue v5; 
+  DvarValue reset; 
 
-  _RBX = (dvar_t *)dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4707, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+48h]
-    vmovups xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  Dvar_SetVariant(_RBX, &v5, setSource);
+  reset = dvar->reset;
+  Dvar_SetVariant((dvar_t *)dvar, &reset, setSource);
 }
 
 /*
@@ -7326,8 +5848,9 @@ void Dvar_ResetDvars(unsigned int filter, DvarSetSource setSource)
   int v4; 
   int v5; 
   dvar_t **v6; 
+  dvar_t *v7; 
   volatile int readCount; 
-  DvarValue v10; 
+  DvarValue reset; 
 
   if ( g_dvarCritSect.writeThreadId == Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 62, ASSERT_TYPE_ASSERT, "( critSect->writeThreadId != Sys_GetCurrentThreadId() )", "This is a non-recursive lock! Don't attempt to take a read lock if the calling thread already has the write lock or this will loop infinitely.") )
     __debugbreak();
@@ -7343,15 +5866,11 @@ void Dvar_ResetDvars(unsigned int filter, DvarSetSource setSource)
     v6 = sortedDvars;
     do
     {
-      _RCX = *v6;
+      v7 = *v6;
       if ( (filter & (*v6)->flags) != 0 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+48h]
-          vmovups [rsp+78h+var_28], xmm0
-        }
-        Dvar_SetVariant(_RCX, &v10, setSource);
+        reset = v7->reset;
+        Dvar_SetVariant(v7, &reset, setSource);
         v4 = dvarCount;
       }
       ++v5;
@@ -7412,21 +5931,22 @@ void Dvar_SaveDvars(MemoryFile *memFile, unsigned int filter)
   unsigned __int16 *v4; 
   __int64 v5; 
   unsigned __int16 hashNext; 
+  dvar_t *v7; 
   const char *name; 
   __int64 v9; 
-  const char *v11; 
-  __int64 v12; 
+  const char *v10; 
+  __int64 v11; 
   unsigned int checksum; 
-  unsigned __int16 *v14; 
-  __int64 v15; 
-  unsigned __int64 v16; 
-  DvarValue v17[4]; 
+  unsigned __int16 *v13; 
+  __int64 v14; 
+  unsigned __int64 v15; 
+  DvarValue v16[4]; 
   int p; 
-  int v19; 
+  int v18; 
 
   if ( g_dvarCritSect.writeThreadId == Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 62, ASSERT_TYPE_ASSERT, "( critSect->writeThreadId != Sys_GetCurrentThreadId() )", "This is a non-recursive lock! Don't attempt to take a read lock if the calling thread already has the write lock or this will loop infinitely.") )
     __debugbreak();
-  v16 = (unsigned __int64)&g_dvarCritSect & 3;
+  v15 = (unsigned __int64)&g_dvarCritSect & 3;
   if ( ((unsigned __int8)&g_dvarCritSect & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dvarCritSect) )
     __debugbreak();
   _InterlockedIncrement((volatile signed __int32 *)&g_dvarCritSect);
@@ -7434,8 +5954,8 @@ void Dvar_SaveDvars(MemoryFile *memFile, unsigned int filter)
     Sys_Sleep(0);
   v4 = dvarHashTable;
   v5 = 6521i64;
-  v14 = dvarHashTable;
-  v15 = 6521i64;
+  v13 = dvarHashTable;
+  v14 = 6521i64;
   do
   {
     hashNext = *v4;
@@ -7443,13 +5963,13 @@ void Dvar_SaveDvars(MemoryFile *memFile, unsigned int filter)
     {
       do
       {
-        _RDI = &dvarPool[(unsigned __int64)hashNext];
-        hashNext = _RDI->hashNext;
-        if ( (filter & _RDI->flags) != 0 )
+        v7 = &dvarPool[(unsigned __int64)hashNext];
+        hashNext = v7->hashNext;
+        if ( (filter & v7->flags) != 0 )
         {
-          if ( !_RDI->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4834, ASSERT_TYPE_ASSERT, "(var->name)", (const char *)&queryFormat, "var->name") )
+          if ( !v7->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4834, ASSERT_TYPE_ASSERT, "(var->name)", (const char *)&queryFormat, "var->name") )
             __debugbreak();
-          name = _RDI->name;
+          name = v7->name;
           v9 = -1i64;
           do
             ++v9;
@@ -7461,46 +5981,42 @@ void Dvar_SaveDvars(MemoryFile *memFile, unsigned int filter)
           }
           p = v9;
           MemFile_WriteData(memFile, 4ui64, &p);
-          MemFile_WriteData(memFile, (int)v9, _RDI->name);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+28h]
-            vmovups xmmword ptr [rsp+0B8h+var_48], xmm0
-          }
-          v11 = Dvar_ValueToString(_RDI, v17);
-          if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4845, ASSERT_TYPE_ASSERT, "( ( stringValue ) )", "( var->name ) = %s", _RDI->name) )
+          MemFile_WriteData(memFile, (int)v9, v7->name);
+          v16[0] = v7->current;
+          v10 = Dvar_ValueToString(v7, v16);
+          if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4845, ASSERT_TYPE_ASSERT, "( ( stringValue ) )", "( var->name ) = %s", v7->name) )
             __debugbreak();
-          v12 = -1i64;
+          v11 = -1i64;
           do
-            ++v12;
-          while ( v11[v12] );
-          if ( (int)v12 >= 1024 )
+            ++v11;
+          while ( v10[v11] );
+          if ( (int)v11 >= 1024 )
           {
-            Com_PrintError(16, "ERROR: Truncating dvar value '%s' for dvar '%s' in save game\n", v11, _RDI->name);
-            LODWORD(v12) = 1023;
+            Com_PrintError(16, "ERROR: Truncating dvar value '%s' for dvar '%s' in save game\n", v10, v7->name);
+            LODWORD(v11) = 1023;
           }
-          v19 = v12;
-          MemFile_WriteData(memFile, 4ui64, &v19);
-          MemFile_WriteData(memFile, (int)v12, v11);
-          checksum = _RDI->checksum;
+          v18 = v11;
+          MemFile_WriteData(memFile, 4ui64, &v18);
+          MemFile_WriteData(memFile, (int)v11, v10);
+          checksum = v7->checksum;
           MemFile_WriteData(memFile, 4ui64, &checksum);
         }
       }
       while ( hashNext != 0xFFFF );
-      v4 = v14;
-      v5 = v15;
+      v4 = v13;
+      v5 = v14;
     }
     ++v4;
     --v5;
-    v14 = v4;
-    v15 = v5;
+    v13 = v4;
+    v14 = v5;
   }
   while ( v5 );
-  LODWORD(v14) = -1;
-  MemFile_WriteData(memFile, 4ui64, &v14);
+  LODWORD(v13) = -1;
+  MemFile_WriteData(memFile, 4ui64, &v13);
   if ( g_dvarCritSect.readCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 90, ASSERT_TYPE_ASSERT, "( critSect->readCount ) > ( 0 )", "%s > %s\n\t%i, %i", "critSect->readCount", "0", g_dvarCritSect.readCount, 0i64) )
     __debugbreak();
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dvarCritSect) )
+  if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dvarCritSect) )
     __debugbreak();
   _InterlockedDecrement((volatile signed __int32 *)&g_dvarCritSect);
 }
@@ -7517,8 +6033,8 @@ void Dvar_SetBoolByName(const char *dvarName, bool value)
   dvar_t *v6; 
   unsigned __int8 type; 
   const char *v8; 
-  const char *v10; 
-  DvarValue v11; 
+  const char *v9; 
+  DvarValue v10; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
@@ -7535,25 +6051,20 @@ void Dvar_SetBoolByName(const char *dvarName, bool value)
       v8 = "0";
       if ( value )
         v8 = "1";
-      v11.integer64 = (__int64)v8;
+      v10.integer64 = (__int64)v8;
     }
     else
     {
-      v11.enabled = value;
+      v10.enabled = value;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+var_18]
-      vmovdqa xmmword ptr [rsp+48h+var_18], xmm0
-    }
-    Dvar_SetVariant(v6, &v11, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v6, &v10, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    v10 = "0";
+    v9 = "0";
     if ( value )
-      v10 = "1";
-    Dvar_RegisterString(dvarName, v10, 0x100u, "External Dvar");
+      v9 = "1";
+    Dvar_RegisterString(dvarName, v9, 0x100u, "External Dvar");
   }
 }
 
@@ -7566,7 +6077,7 @@ void Dvar_SetBoolFromSource(const dvar_t *dvar, bool value, DvarSetSource source
 {
   unsigned __int8 type; 
   const char *v7; 
-  DvarValue v9; 
+  DvarValue v8; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3994, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
@@ -7580,18 +6091,13 @@ void Dvar_SetBoolFromSource(const dvar_t *dvar, bool value, DvarSetSource source
     v7 = "0";
     if ( value )
       v7 = "1";
-    v9.integer64 = (__int64)v7;
+    v8.integer64 = (__int64)v7;
   }
   else
   {
-    v9.enabled = value;
+    v8.enabled = value;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+48h+var_18]
-    vmovdqa xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v9, source);
+  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
 }
 
 /*
@@ -7603,7 +6109,7 @@ void Dvar_SetBool_Internal(const dvar_t *dvar, bool value)
 {
   unsigned __int8 type; 
   const char *v5; 
-  DvarValue v7; 
+  DvarValue v6; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3994, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
@@ -7617,18 +6123,13 @@ void Dvar_SetBool_Internal(const dvar_t *dvar, bool value)
     v5 = "0";
     if ( value )
       v5 = "1";
-    v7.integer64 = (__int64)v5;
+    v6.integer64 = (__int64)v5;
   }
   else
   {
-    v7.enabled = value;
+    v6.enabled = value;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+48h+var_18]
-    vmovdqa xmmword ptr [rsp+48h+var_18], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v7, DVAR_SOURCE_INTERNAL);
+  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -7636,59 +6137,22 @@ void Dvar_SetBool_Internal(const dvar_t *dvar, bool value)
 Dvar_SetColorByName
 ==============
 */
-
-void __fastcall Dvar_SetColorByName(const char *dvarName, double r, double g, double b, float a)
+void Dvar_SetColorByName(const char *dvarName, float r, float g, float b, float a)
 {
   unsigned int Checksum; 
   const dvar_t *MalleableVar; 
-  const char *v25; 
-  float v29; 
-  __int64 v30; 
+  const char *v8; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  __asm { vmovss  xmm0, [rsp+68h+a] }
   if ( MalleableVar )
   {
-    __asm
-    {
-      vmovaps xmm3, xmm6; b
-      vmovaps xmm2, xmm7; g
-      vmovaps xmm1, xmm8; r
-      vmovss  dword ptr [rsp+68h+var_48], xmm0
-    }
-    Dvar_SetColorFromSource(MalleableVar, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v29, DVAR_SOURCE_INTERNAL);
+    Dvar_SetColorFromSource(MalleableVar, r, g, b, a, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm1, xmm8, xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-      vmovsd  [rsp+68h+var_48], xmm0
-    }
-    v25 = j_va("%g %g %g %g", _RDX, _R8, _R9, v30);
-    Dvar_RegisterString(dvarName, v25, 0x100u, "External Dvar");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
+    v8 = j_va("%g %g %g %g", r, g, b, a);
+    Dvar_RegisterString(dvarName, v8, 0x100u, "External Dvar");
   }
 }
 
@@ -7700,25 +6164,17 @@ Dvar_SetColorFromSource
 
 void __fastcall Dvar_SetColorFromSource(const dvar_t *dvar, double r, double g, double b, float a, DvarSetSource source)
 {
+  __int128 v6; 
   unsigned __int8 type; 
-  char *fmt; 
-  double v66; 
-  double v67; 
-  DvarValue v68; 
+  int v19; 
+  int v24; 
+  DvarValue v28; 
   char dest[128]; 
-  char v72; 
-  void *retaddr; 
+  __int128 v30; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmm10, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm7, xmm1
-  }
+  _XMM10 = *(_OWORD *)&b;
+  _XMM9 = *(_OWORD *)&g;
+  _XMM7 = *(_OWORD *)&r;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4218, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4220, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -7728,89 +6184,43 @@ void __fastcall Dvar_SetColorFromSource(const dvar_t *dvar, double r, double g, 
     __debugbreak();
   if ( dvar->type == 10 )
   {
+    v30 = v6;
     __asm
     {
-      vmovss  xmm5, cs:__real@437f0000
-      vmovss  xmm4, cs:__real@3f000000
-      vmovaps [rsp+148h+var_28], xmm6
-      vmovss  xmm6, cs:__real@3f800000
       vminss  xmm0, xmm7, xmm6
-      vxorps  xmm7, xmm7, xmm7
       vmaxss  xmm0, xmm0, xmm7
-      vmulss  xmm1, xmm0, xmm5
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm1, xmm4
-      vmovss  xmm1, xmm0, xmm2
       vminss  xmm0, xmm9, xmm6
       vmaxss  xmm0, xmm0, xmm7
-      vmovaps [rsp+148h+var_48], xmm8
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm3, xmm8, xmm1, 1
-      vmulss  xmm1, xmm0, xmm5
-      vcvttss2si eax, xmm3
-      vaddss  xmm3, xmm1, xmm4
     }
-    v68.enabled = _EAX;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm3, xmm8, xmm1, 1 }
+    v28.enabled = (int)*(float *)&_XMM3;
+    __asm { vroundss xmm1, xmm8, xmm0, 1 }
+    v19 = (int)*(float *)&_XMM1;
     __asm
     {
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm0, xmm2, xmm3
-      vroundss xmm1, xmm8, xmm0, 1
-      vcvttss2si eax, xmm1
       vminss  xmm0, xmm10, xmm6
       vmaxss  xmm0, xmm0, xmm7
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm3, xmm1, xmm4
-      vmovss  xmm0, xmm2, xmm3
       vroundss xmm1, xmm8, xmm0, 1
-      vmovss  xmm0, [rsp+148h+a]
     }
-    v68.color[1] = _EAX;
+    _XMM0 = LODWORD(a);
+    v28.color[1] = v19;
+    v24 = (int)*(float *)&_XMM1;
     __asm
     {
-      vcvttss2si eax, xmm1
       vminss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+148h+var_28]
       vmaxss  xmm1, xmm1, xmm7
-      vmulss  xmm0, xmm1, xmm5
-      vaddss  xmm3, xmm0, xmm4
       vroundss xmm0, xmm8, xmm3, 1
-      vmovaps xmm8, [rsp+148h+var_48]
     }
-    v68.color[2] = _EAX;
-    __asm { vcvttss2si eax, xmm0 }
-    v68.color[3] = _EAX;
+    v28.color[2] = v24;
+    v28.color[3] = (int)*(float *)&_XMM0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+148h+a]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+148h+var_118], xmm0
-      vcvtss2sd xmm1, xmm10, xmm10
-      vcvtss2sd xmm3, xmm7, xmm7
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+148h+var_120], xmm1
-      vmovq   r9, xmm3
-      vmovsd  [rsp+148h+fmt], xmm2
-    }
-    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", *(double *)&_XMM3, *(double *)&fmt, v66, v67);
-    v68.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", *(float *)&r, *(float *)&g, *(float *)&b, a);
+    v28.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+148h+var_108]
-    vmovdqa [rsp+148h+var_108], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v68, source);
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v28, source);
 }
 
 /*
@@ -7820,14 +6230,7 @@ Dvar_SetColor_Internal
 */
 void Dvar_SetColor_Internal(const dvar_t *dvar, float r, float g, float b, float a)
 {
-  float v6; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+a]
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  Dvar_SetColorFromSource(dvar, r, g, b, v6, DVAR_SOURCE_INTERNAL);
+  Dvar_SetColorFromSource(dvar, r, g, b, a, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -7840,9 +6243,9 @@ void Dvar_SetCommandByChecksum(unsigned int checksum, const char *string, bool i
   const dvar_t *MalleableVar; 
   dvar_t *v7; 
   const char *v8; 
-  int v11; 
-  DvarLimits v12; 
-  DvarValue v13; 
+  int v9; 
+  DvarLimits v10; 
+  DvarValue v11; 
 
   MalleableVar = Dvar_FindMalleableVar(checksum);
   v7 = (dvar_t *)MalleableVar;
@@ -7862,17 +6265,10 @@ void Dvar_SetCommandByChecksum(unsigned int checksum, const char *string, bool i
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3940, ASSERT_TYPE_ASSERT, (const char *)&stru_143CE7590.m_end, (const char *)&queryFormat, &stru_143CE7590) )
         __debugbreak();
     }
-    v13.integer64 = (__int64)string;
-    __asm { vmovups xmm1, xmmword ptr [rsp+68h+var_18] }
-    v12 = 0ui64;
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_28]
-      vmovdqa [rsp+68h+var_28], xmm0
-      vmovdqa xmmword ptr [rsp+68h+var_18], xmm1
-    }
-    v11 = atoi(v8);
-    v7 = Dvar_RegisterVariant(v8, v11, 9u, 0x100u, &v13, &v12, "External Dvar (setChk)");
+    v11.integer64 = (__int64)string;
+    v10 = 0ui64;
+    v9 = atoi(v8);
+    v7 = Dvar_RegisterVariant(v8, v9, 9u, 0x100u, &v11, &v10, "External Dvar (setChk)");
   }
   if ( v7 )
   {
@@ -7928,64 +6324,42 @@ void Dvar_SetFlags(const dvar_t *dvar, unsigned int flags)
 Dvar_SetFloatByName
 ==============
 */
-
-void __fastcall Dvar_SetFloatByName(const char *dvarName, double value)
+void Dvar_SetFloatByName(const char *dvarName, float value)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
-  dvar_t *v7; 
+  dvar_t *v5; 
   unsigned __int8 type; 
-  const char *v14; 
-  DvarValue v16; 
+  const char *v7; 
+  DvarValue v8; 
   char dest[32]; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  v7 = MalleableVar;
+  v5 = MalleableVar;
   if ( MalleableVar )
   {
     if ( !MalleableVar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4091, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
       __debugbreak();
-    type = v7->type;
-    if ( type != 1 && (type != 9 || (v7->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4093, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v7->name) )
+    type = v5->type;
+    if ( type != 1 && (type != 9 || (v5->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4093, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v5->name) )
       __debugbreak();
-    if ( v7->type == 1 )
+    if ( v5->type == 1 )
     {
-      __asm { vmovss  dword ptr [rsp+88h+var_58], xmm6 }
+      v8.value = value;
     }
     else
     {
-      __asm
-      {
-        vcvtss2sd xmm3, xmm6, xmm6
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x20ui64, "%g", *(double *)&_XMM3);
-      v16.integer64 = (__int64)dest;
+      Com_sprintf(dest, 0x20ui64, "%g", value);
+      v8.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+88h+var_58]
-      vmovdqa [rsp+88h+var_58], xmm0
-    }
-    Dvar_SetVariant(v7, &v16, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v5, &v8, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v14 = j_va("%g", _RDX);
-    Dvar_RegisterString(dvarName, v14, 0x100u, "External Dvar");
+    v7 = j_va("%g", value);
+    Dvar_RegisterString(dvarName, v7, 0x100u, "External Dvar");
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -7993,18 +6367,12 @@ void __fastcall Dvar_SetFloatByName(const char *dvarName, double value)
 Dvar_SetFloatFromSource
 ==============
 */
-
-void __fastcall Dvar_SetFloatFromSource(const dvar_t *dvar, double value, DvarSetSource source)
+void Dvar_SetFloatFromSource(const dvar_t *dvar, float value, DvarSetSource source)
 {
   unsigned __int8 type; 
-  DvarValue v12; 
+  DvarValue v6; 
   char dest[32]; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4089, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4091, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -8014,25 +6382,14 @@ void __fastcall Dvar_SetFloatFromSource(const dvar_t *dvar, double value, DvarSe
     __debugbreak();
   if ( dvar->type == 1 )
   {
-    __asm { vmovss  dword ptr [rsp+88h+var_58], xmm6 }
+    v6.value = value;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x20ui64, "%g", *(double *)&_XMM3);
-    v12.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x20ui64, "%g", value);
+    v6.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_58]
-    vmovdqa [rsp+88h+var_58], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v12, source);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
+  Dvar_SetVariant((dvar_t *)dvar, &v6, source);
 }
 
 /*
@@ -8040,18 +6397,12 @@ void __fastcall Dvar_SetFloatFromSource(const dvar_t *dvar, double value, DvarSe
 Dvar_SetFloat_Internal
 ==============
 */
-
-void __fastcall Dvar_SetFloat_Internal(const dvar_t *dvar, double value)
+void Dvar_SetFloat_Internal(const dvar_t *dvar, float value)
 {
   unsigned __int8 type; 
-  DvarValue v10; 
+  DvarValue v4; 
   char dest[32]; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4089, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4091, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -8061,25 +6412,14 @@ void __fastcall Dvar_SetFloat_Internal(const dvar_t *dvar, double value)
     __debugbreak();
   if ( dvar->type == 1 )
   {
-    __asm { vmovss  dword ptr [rsp+88h+var_58], xmm6 }
+    v4.value = value;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x20ui64, "%g", *(double *)&_XMM3);
-    v10.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x20ui64, "%g", value);
+    v4.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_58]
-    vmovdqa [rsp+88h+var_58], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v10, DVAR_SOURCE_INTERNAL);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
+  Dvar_SetVariant((dvar_t *)dvar, &v4, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -8169,61 +6509,44 @@ Dvar_SetFromStringFromSource
 void Dvar_SetFromStringFromSource(const dvar_t *dvar, const char *string, DvarSetSource source)
 {
   int type; 
-  const char *v10; 
+  const char *v7; 
+  DvarValue reset; 
   const char *UnobfuscatedName; 
-  __int64 v15; 
+  __int64 v10; 
   unsigned __int8 color[16]; 
   DvarLimits domain; 
   char dest[1024]; 
 
-  _RBX = (dvar_t *)dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4307, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   Core_strcpy(dest, 0x400ui64, string);
-  type = _RBX->type;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+58h]
-    vmovups xmmword ptr [rsp+470h+domain], xmm0
-  }
+  type = dvar->type;
+  domain = dvar->domain;
   switch ( type )
   {
     case 0:
       color[0] = Dvar_StringToBool(dest);
       break;
     case 1:
-      *(float *)&_XMM0 = Dvar_StringToFloat(dest);
-      __asm { vmovss  dword ptr [rsp+470h+color], xmm0 }
+      *(float *)color = Dvar_StringToFloat(dest);
       break;
     case 2:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 0000000141872D4A case 2
-        vmovss  dword ptr [rsp+470h+color], xmm0
-        vmovss  dword ptr [rsp+470h+color+4], xmm0
-      }
+      *(float *)color = 0.0;
+      *(float *)&color[4] = 0.0;
       j_sscanf(dest, "%g %g", color, &color[4]);
       break;
     case 3:
     case 11:
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v10 = "%g %g %g";
+      v7 = "%g %g %g";
       if ( dest[0] == 40 )
-        v10 = "( %g, %g, %g )";
-      __asm
-      {
-        vmovss  dword ptr [rsp+470h+color], xmm0
-        vmovss  dword ptr [rsp+470h+color+4], xmm0
-        vmovss  dword ptr [rsp+470h+color+8], xmm0
-      }
-      j_sscanf(dest, v10, color, &color[4], &color[8]);
+        v7 = "( %g, %g, %g )";
+      *(float *)color = 0.0;
+      *(float *)&color[4] = 0.0;
+      *(float *)&color[8] = 0.0;
+      j_sscanf(dest, v7, color, &color[4], &color[8]);
       break;
     case 4:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rsp+470h+color], xmm0
-      }
+      *(_OWORD *)color = 0i64;
       j_sscanf(dest, "%g %g %g %g", color, &color[4], &color[8], &color[12]);
       break;
     case 5:
@@ -8245,26 +6568,22 @@ void Dvar_SetFromStringFromSource(const dvar_t *dvar, const char *string, DvarSe
       Dvar_StringToColor(dest, color);
       break;
     default:
-      LODWORD(v15) = type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v15) )
+      LODWORD(v10) = type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v10) )
         __debugbreak();
       *(_DWORD *)color = 0;
       break;
   }
-  __asm { vmovups xmm0, xmmword ptr [rsp+470h+color] }
-  if ( _RBX->type == 8 )
+  reset = *(DvarValue *)color;
+  if ( dvar->type == 8 && *(_DWORD *)color == -1337 )
   {
-    __asm { vmovd   eax, xmm0 }
-    if ( _EAX == -1337 )
-    {
-      UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_RBX->name);
-      if ( Dvar_Printf(_RBX, 16, "'%s' is not a valid value for dvar '%s'\n", dest, UnobfuscatedName) )
-        Dvar_PrintDomain(_RBX);
-      __asm { vmovups xmm0, xmmword ptr [rbx+48h] }
-    }
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
+    if ( Dvar_Printf(dvar, 16, "'%s' is not a valid value for dvar '%s'\n", dest, UnobfuscatedName) )
+      Dvar_PrintDomain(dvar);
+    reset = dvar->reset;
   }
-  __asm { vmovdqa xmmword ptr [rsp+470h+domain], xmm0 }
-  Dvar_SetVariant(_RBX, (DvarValue *)&domain, source);
+  domain = (DvarLimits)reset;
+  Dvar_SetVariant((dvar_t *)dvar, (DvarValue *)&domain, source);
 }
 
 /*
@@ -8288,10 +6607,10 @@ void Dvar_SetInt64ByName(const char *dvarName, __int64 value)
   dvar_t *MalleableVar; 
   dvar_t *v6; 
   unsigned __int8 type; 
-  unsigned int v11; 
-  DvarValue v12; 
+  unsigned int v8; 
+  DvarValue v9; 
   DvarValue dest[2]; 
-  char v14[32]; 
+  char v11[32]; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
@@ -8305,36 +6624,24 @@ void Dvar_SetInt64ByName(const char *dvarName, __int64 value)
       __debugbreak();
     if ( v6->type == 6 )
     {
-      v12.integer64 = value;
+      v9.integer64 = value;
     }
     else
     {
       Com_sprintf((char *)&dest[0].enabled, 0x20ui64, "%lli", value);
-      v12.integer64 = (__int64)dest;
+      v9.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-    }
-    Dvar_SetVariant(v6, &v12, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v6, &v9, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    Com_sprintf(v14, 0x20ui64, "%lli", value);
+    Com_sprintf(v11, 0x20ui64, "%lli", value);
     if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
       __debugbreak();
-    dest[0].integer64 = (__int64)v14;
-    __asm { vmovups xmm1, xmmword ptr [rsp+0A8h+dest] }
-    v12 = 0ui64;
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-      vmovdqa xmmword ptr [rsp+0A8h+dest], xmm1
-    }
-    v11 = Dvar_GenerateChecksum(dvarName);
-    Dvar_RegisterVariant(dvarName, v11, 9u, 0x100u, dest, (DvarLimits *)&v12, "External Dvar");
+    dest[0].integer64 = (__int64)v11;
+    v9 = 0ui64;
+    v8 = Dvar_GenerateChecksum(dvarName);
+    Dvar_RegisterVariant(dvarName, v8, 9u, 0x100u, dest, (DvarLimits *)&v9, "External Dvar");
   }
 }
 
@@ -8346,7 +6653,7 @@ Dvar_SetInt64FromSource
 void Dvar_SetInt64FromSource(const dvar_t *dvar, __int64 value, DvarSetSource source)
 {
   unsigned __int8 type; 
-  DvarValue v8; 
+  DvarValue v7; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4039, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8358,19 +6665,14 @@ void Dvar_SetInt64FromSource(const dvar_t *dvar, __int64 value, DvarSetSource so
     __debugbreak();
   if ( dvar->type == 6 )
   {
-    v8.integer64 = value;
+    v7.integer64 = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%lli", value);
-    v8.integer64 = (__int64)dest;
+    v7.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_58]
-    vmovdqa [rsp+88h+var_58], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
+  Dvar_SetVariant((dvar_t *)dvar, &v7, source);
 }
 
 /*
@@ -8381,7 +6683,7 @@ Dvar_SetInt64_Internal
 void Dvar_SetInt64_Internal(const dvar_t *dvar, __int64 value)
 {
   unsigned __int8 type; 
-  DvarValue v6; 
+  DvarValue v5; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4039, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8393,19 +6695,14 @@ void Dvar_SetInt64_Internal(const dvar_t *dvar, __int64 value)
     __debugbreak();
   if ( dvar->type == 6 )
   {
-    v6.integer64 = value;
+    v5.integer64 = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%lli", value);
-    v6.integer64 = (__int64)dest;
+    v5.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_48]
-    vmovdqa [rsp+78h+var_48], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
+  Dvar_SetVariant((dvar_t *)dvar, &v5, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -8420,10 +6717,10 @@ void Dvar_SetIntByName(const char *dvarName, int value)
   dvar_t *v6; 
   unsigned __int8 type; 
   unsigned __int8 v8; 
-  unsigned int v12; 
-  DvarValue v13; 
+  unsigned int v9; 
+  DvarValue v10; 
   DvarValue dest[2]; 
-  char v15[32]; 
+  char v12[32]; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
@@ -8438,36 +6735,24 @@ void Dvar_SetIntByName(const char *dvarName, int value)
     v8 = v6->type;
     if ( v8 == 5 || v8 == 8 )
     {
-      v13.integer = value;
+      v10.integer = value;
     }
     else
     {
       Com_sprintf((char *)&dest[0].enabled, 0x20ui64, "%i", (unsigned int)value);
-      v13.integer64 = (__int64)dest;
+      v10.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-    }
-    Dvar_SetVariant(v6, &v13, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v6, &v10, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    Com_sprintf(v15, 0x20ui64, "%i", (unsigned int)value);
+    Com_sprintf(v12, 0x20ui64, "%i", (unsigned int)value);
     if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
       __debugbreak();
-    dest[0].integer64 = (__int64)v15;
-    __asm { vmovups xmm1, xmmword ptr [rsp+0A8h+dest] }
-    v13 = 0ui64;
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-      vmovdqa xmmword ptr [rsp+0A8h+dest], xmm1
-    }
-    v12 = Dvar_GenerateChecksum(dvarName);
-    Dvar_RegisterVariant(dvarName, v12, 9u, 0x100u, dest, (DvarLimits *)&v13, "External Dvar");
+    dest[0].integer64 = (__int64)v12;
+    v10 = 0ui64;
+    v9 = Dvar_GenerateChecksum(dvarName);
+    Dvar_RegisterVariant(dvarName, v9, 9u, 0x100u, dest, (DvarLimits *)&v10, "External Dvar");
   }
 }
 
@@ -8480,7 +6765,7 @@ void Dvar_SetIntFromSource(const dvar_t *dvar, int value, DvarSetSource source)
 {
   unsigned __int8 type; 
   unsigned __int8 v7; 
-  DvarValue v9; 
+  DvarValue v8; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4014, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8493,19 +6778,14 @@ void Dvar_SetIntFromSource(const dvar_t *dvar, int value, DvarSetSource source)
   v7 = dvar->type;
   if ( v7 == 5 || v7 == 8 )
   {
-    v9.integer = value;
+    v8.integer = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%i", (unsigned int)value);
-    v9.integer64 = (__int64)dest;
+    v8.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_58]
-    vmovdqa [rsp+88h+var_58], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v9, source);
+  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
 }
 
 /*
@@ -8517,7 +6797,7 @@ void Dvar_SetInt_Internal(const dvar_t *dvar, int value)
 {
   unsigned __int8 type; 
   unsigned __int8 v5; 
-  DvarValue v7; 
+  DvarValue v6; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4014, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8530,19 +6810,14 @@ void Dvar_SetInt_Internal(const dvar_t *dvar, int value)
   v5 = dvar->type;
   if ( v5 == 5 || v5 == 8 )
   {
-    v7.integer = value;
+    v6.integer = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%i", (unsigned int)value);
-    v7.integer64 = (__int64)dest;
+    v6.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_48]
-    vmovdqa [rsp+78h+var_48], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v7, DVAR_SOURCE_INTERNAL);
+  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -8558,10 +6833,9 @@ void Dvar_SetLatchedValue(dvar_t *dvar, DvarValue *value)
   int v6; 
   const char *string; 
   const char *integer64; 
-  bool v10; 
-  const char *v11; 
+  bool v9; 
+  const char *v10; 
 
-  _RBX = dvar;
   v3 = dvar->type - 2;
   if ( v3 )
   {
@@ -8569,14 +6843,14 @@ void Dvar_SetLatchedValue(dvar_t *dvar, DvarValue *value)
     if ( !v4 )
     {
 LABEL_33:
-      _RBX->latched.integer64 = value->integer64;
-      _RBX->latched.vector.v[2] = value->vector.v[2];
+      dvar->latched.integer64 = value->integer64;
+      dvar->latched.vector.v[2] = value->vector.v[2];
       return;
     }
     v5 = v4 - 1;
     if ( !v5 )
     {
-      _RBX->latched = *value;
+      dvar->latched = *value;
       return;
     }
     v6 = v5 - 5;
@@ -8584,38 +6858,34 @@ LABEL_33:
     {
       if ( v6 != 2 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdx]
-          vmovups xmmword ptr [rbx+38h], xmm0
-        }
+        dvar->latched = *value;
         return;
       }
       goto LABEL_33;
     }
-    string = _RBX->latched.string;
+    string = dvar->latched.string;
     integer64 = (const char *)value->integer64;
     if ( string != value->string )
     {
-      v10 = string && string != _RBX->current.string && string != _RBX->reset.string;
+      v9 = string && string != dvar->current.string && string != dvar->reset.string;
       if ( !integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1085, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
         __debugbreak();
-      v11 = _RBX->current.string;
-      if ( !v11 || integer64 != v11 && strcmp(integer64, v11) )
+      v10 = dvar->current.string;
+      if ( !v10 || integer64 != v10 && strcmp(integer64, v10) )
       {
-        v11 = _RBX->reset.string;
-        if ( !v11 || integer64 != v11 && strcmp(integer64, v11) )
+        v10 = dvar->reset.string;
+        if ( !v10 || integer64 != v10 && strcmp(integer64, v10) )
         {
           if ( !integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1034, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
             __debugbreak();
           if ( *integer64 )
-            v11 = SL_AllocString_Copy(integer64);
+            v10 = SL_AllocString_Copy(integer64);
           else
-            v11 = (char *)&queryFormat.fmt + 3;
+            v10 = (char *)&queryFormat.fmt + 3;
         }
       }
-      _RBX->latched.integer64 = (__int64)v11;
-      if ( v10 )
+      dvar->latched.integer64 = (__int64)v10;
+      if ( v9 )
       {
         if ( *string )
           SL_AllocString_Free(string);
@@ -8624,7 +6894,7 @@ LABEL_33:
   }
   else
   {
-    _RBX->latched.integer64 = value->integer64;
+    dvar->latched.integer64 = value->integer64;
   }
 }
 
@@ -8698,7 +6968,7 @@ void Dvar_SetStringByName(const char *dvarName, const char *value)
   dvar_t *MalleableVar; 
   dvar_t *v6; 
   const char *UnobfuscatedName; 
-  DvarValue v10; 
+  DvarValue v8; 
   char dest[2032]; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
@@ -8715,29 +6985,19 @@ void Dvar_SetStringByName(const char *dvarName, const char *value)
     if ( v6->type == 9 )
     {
       Core_strcpy(dest, 0x7E8ui64, value);
-      v10.integer64 = (__int64)dest;
-      __asm
-      {
-        vmovups xmm0, [rsp+858h+var_818]
-        vmovdqa [rsp+858h+var_818], xmm0
-      }
-      Dvar_SetVariant(v6, &v10, DVAR_SOURCE_INTERNAL);
+      v8.integer64 = (__int64)dest;
+      Dvar_SetVariant(v6, &v8, DVAR_SOURCE_INTERNAL);
     }
     else
     {
-      v10.integer = Dvar_StringToEnum(&v6->domain, value);
-      if ( v10.integer == -1337 )
+      v8.integer = Dvar_StringToEnum(&v6->domain, value);
+      if ( v8.integer == -1337 )
       {
         UnobfuscatedName = Dvar_DevGetUnobfuscatedName(v6->name);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4206, ASSERT_TYPE_ASSERT, "(newValue.integer != (-1337))", "%s\n\t%s doesn't include %s", "newValue.integer != DVAR_INVALID_ENUM_INDEX", UnobfuscatedName, value) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, [rsp+858h+var_818]
-        vmovdqa [rsp+858h+var_818], xmm0
-      }
-      Dvar_SetVariant(v6, &v10, DVAR_SOURCE_INTERNAL);
+      Dvar_SetVariant(v6, &v8, DVAR_SOURCE_INTERNAL);
     }
   }
   else
@@ -8754,7 +7014,7 @@ Dvar_SetStringFromSource
 void Dvar_SetStringFromSource(const dvar_t *dvar, const char *string, DvarSetSource source)
 {
   const char *UnobfuscatedName; 
-  DvarValue v8; 
+  DvarValue v7; 
   char dest[2032]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4188, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8768,24 +7028,19 @@ void Dvar_SetStringFromSource(const dvar_t *dvar, const char *string, DvarSetSou
   if ( dvar->type == 9 )
   {
     Core_strcpy(dest, 0x7E8ui64, string);
-    v8.integer64 = (__int64)dest;
+    v7.integer64 = (__int64)dest;
   }
   else
   {
-    v8.integer = Dvar_StringToEnum(&dvar->domain, string);
-    if ( v8.integer == -1337 )
+    v7.integer = Dvar_StringToEnum(&dvar->domain, string);
+    if ( v7.integer == -1337 )
     {
       UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4206, ASSERT_TYPE_ASSERT, "(newValue.integer != (-1337))", "%s\n\t%s doesn't include %s", "newValue.integer != DVAR_INVALID_ENUM_INDEX", UnobfuscatedName, string) )
         __debugbreak();
     }
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+868h+var_828]
-    vmovdqa [rsp+868h+var_828], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
+  Dvar_SetVariant((dvar_t *)dvar, &v7, source);
 }
 
 /*
@@ -8796,7 +7051,7 @@ Dvar_SetString_Internal
 void Dvar_SetString_Internal(const dvar_t *dvar, const char *value)
 {
   const char *UnobfuscatedName; 
-  DvarValue v6; 
+  DvarValue v5; 
   char dest[2032]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4188, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8810,24 +7065,19 @@ void Dvar_SetString_Internal(const dvar_t *dvar, const char *value)
   if ( dvar->type == 9 )
   {
     Core_strcpy(dest, 0x7E8ui64, value);
-    v6.integer64 = (__int64)dest;
+    v5.integer64 = (__int64)dest;
   }
   else
   {
-    v6.integer = Dvar_StringToEnum(&dvar->domain, value);
-    if ( v6.integer == -1337 )
+    v5.integer = Dvar_StringToEnum(&dvar->domain, value);
+    if ( v5.integer == -1337 )
     {
       UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4206, ASSERT_TYPE_ASSERT, "(newValue.integer != (-1337))", "%s\n\t%s doesn't include %s", "newValue.integer != DVAR_INVALID_ENUM_INDEX", UnobfuscatedName, value) )
         __debugbreak();
     }
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+858h+var_818]
-    vmovdqa [rsp+858h+var_818], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
+  Dvar_SetVariant((dvar_t *)dvar, &v5, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -8841,10 +7091,10 @@ void Dvar_SetUInt64ByName(const char *dvarName, unsigned __int64 value)
   dvar_t *MalleableVar; 
   dvar_t *v6; 
   unsigned __int8 type; 
-  unsigned int v11; 
-  DvarValue v12; 
+  unsigned int v8; 
+  DvarValue v9; 
   DvarValue dest[2]; 
-  char v14[32]; 
+  char v11[32]; 
 
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
@@ -8858,36 +7108,24 @@ void Dvar_SetUInt64ByName(const char *dvarName, unsigned __int64 value)
       __debugbreak();
     if ( v6->type == 7 )
     {
-      v12.integer64 = value;
+      v9.integer64 = value;
     }
     else
     {
       Com_sprintf((char *)&dest[0].enabled, 0x20ui64, "%llu", value);
-      v12.integer64 = (__int64)dest;
+      v9.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-    }
-    Dvar_SetVariant(v6, &v12, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v6, &v9, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    Com_sprintf(v14, 0x20ui64, "%llu", value);
+    Com_sprintf(v11, 0x20ui64, "%llu", value);
     if ( !dvarName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3916, ASSERT_TYPE_ASSERT, "(dvarName)", (const char *)&queryFormat, "dvarName") )
       __debugbreak();
-    dest[0].integer64 = (__int64)v14;
-    __asm { vmovups xmm1, xmmword ptr [rsp+0A8h+dest] }
-    v12 = 0ui64;
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_68]
-      vmovdqa [rsp+0A8h+var_68], xmm0
-      vmovdqa xmmword ptr [rsp+0A8h+dest], xmm1
-    }
-    v11 = Dvar_GenerateChecksum(dvarName);
-    Dvar_RegisterVariant(dvarName, v11, 9u, 0x100u, dest, (DvarLimits *)&v12, "External Dvar");
+    dest[0].integer64 = (__int64)v11;
+    v9 = 0ui64;
+    v8 = Dvar_GenerateChecksum(dvarName);
+    Dvar_RegisterVariant(dvarName, v8, 9u, 0x100u, dest, (DvarLimits *)&v9, "External Dvar");
   }
 }
 
@@ -8899,7 +7137,7 @@ Dvar_SetUInt64FromSource
 void Dvar_SetUInt64FromSource(const dvar_t *dvar, unsigned __int64 value, DvarSetSource source)
 {
   unsigned __int8 type; 
-  DvarValue v8; 
+  DvarValue v7; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4064, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8911,19 +7149,14 @@ void Dvar_SetUInt64FromSource(const dvar_t *dvar, unsigned __int64 value, DvarSe
     __debugbreak();
   if ( dvar->type == 7 )
   {
-    v8.integer64 = value;
+    v7.integer64 = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%llu", value);
-    v8.integer64 = (__int64)dest;
+    v7.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_58]
-    vmovdqa [rsp+88h+var_58], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
+  Dvar_SetVariant((dvar_t *)dvar, &v7, source);
 }
 
 /*
@@ -8934,7 +7167,7 @@ Dvar_SetUInt64_Internal
 void Dvar_SetUInt64_Internal(const dvar_t *dvar, unsigned __int64 value)
 {
   unsigned __int8 type; 
-  DvarValue v6; 
+  DvarValue v5; 
   char dest[32]; 
 
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4064, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
@@ -8946,19 +7179,14 @@ void Dvar_SetUInt64_Internal(const dvar_t *dvar, unsigned __int64 value)
     __debugbreak();
   if ( dvar->type == 7 )
   {
-    v6.integer64 = value;
+    v5.integer64 = value;
   }
   else
   {
     Com_sprintf(dest, 0x20ui64, "%llu", value);
-    v6.integer64 = (__int64)dest;
+    v5.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_48]
-    vmovdqa [rsp+78h+var_48], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
+  Dvar_SetVariant((dvar_t *)dvar, &v5, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -8968,199 +7196,173 @@ Dvar_SetVariant
 */
 void Dvar_SetVariant(dvar_t *dvar, DvarValue *value, DvarSetSource source)
 {
-  const char *v8; 
+  const char *v6; 
   const char *UnobfuscatedName; 
+  DvarValue v8; 
   unsigned __int8 type; 
+  const char *v10; 
+  const char *v11; 
+  const char *v12; 
   const char *v13; 
-  const char *v15; 
-  const char *v16; 
-  const char *v19; 
-  const char *v21; 
+  const char *v14; 
   unsigned int flags; 
-  unsigned __int8 v25; 
+  unsigned __int8 v16; 
+  const char *v17; 
+  unsigned __int8 v18; 
+  const char *v19; 
+  unsigned __int8 v20; 
+  const char *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  const char *v25; 
+  const char *v26; 
   const char *v27; 
-  unsigned __int8 v29; 
-  const char *v31; 
-  unsigned __int8 v34; 
-  const char *v36; 
-  __int64 v37; 
-  __int64 v38; 
-  unsigned int v39; 
-  const char *v40; 
-  const char *v41; 
-  const char *v43; 
-  const char *v44; 
-  __int64 v45; 
+  const char *v28; 
+  __int64 v29; 
   bool IsMainThread; 
   const char *name; 
-  unsigned int v48; 
-  const char *v49; 
-  const char *v50; 
-  unsigned __int8 v52; 
+  unsigned int v32; 
+  const char *v33; 
+  const char *v34; 
+  unsigned __int8 v35; 
   __int64 integer64; 
-  const char *v58; 
+  const char *v39; 
   const char *string; 
-  bool v60; 
-  const char *v61; 
-  __int64 v62; 
-  const char *v63; 
+  bool v41; 
+  const char *v42; 
+  __int64 v43; 
+  const char *v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
   char *fmt; 
-  __int64 v74; 
-  DvarValue v75; 
-  DvarLimits v76; 
-  DvarValue v77; 
-  DvarValue v78; 
-  DvarLimits v79; 
-  DvarValue v80; 
-  DvarValue v81; 
-  DvarValue v82; 
-  DvarValue v83; 
-  DvarValue v84; 
-  DvarValue v85; 
-  DvarValue v86; 
-  DvarValue v87; 
-  DvarValue v88; 
-  DvarValue v89; 
-  DvarValue v90; 
-  DvarValue v91; 
-  DvarValue v92; 
+  __int64 v55; 
+  DvarValue v56; 
+  DvarLimits domain; 
+  DvarValue v58; 
+  DvarValue v59; 
+  DvarLimits v60; 
+  DvarValue reset; 
+  DvarValue v62; 
+  DvarValue v63; 
+  DvarValue current; 
+  DvarValue v65; 
+  DvarValue v66; 
+  DvarValue v67; 
+  DvarValue v68; 
+  DvarValue latched; 
+  DvarValue v70; 
+  DvarValue v71; 
+  DvarValue v72; 
+  DvarValue v73; 
   DvarValue dest; 
 
-  _RSI = value;
-  _RDI = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2138, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  if ( !_RDI->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2140, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
+  if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2140, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
     __debugbreak();
-  if ( Com_LogFileOpen() && s_writeChangeToLog->current.enabled && (_RDI->flags & 1) == 0 )
+  if ( Com_LogFileOpen() && s_writeChangeToLog->current.enabled && (dvar->flags & 1) == 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+1A0h+var_160], xmm0
-    }
-    v8 = Dvar_ValueToString(_RDI, &v75);
-    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_RDI->name);
-    Dvar_Printf(_RDI, 6, "      dvar set %s %s\n", UnobfuscatedName, v8);
+    v56 = *value;
+    v6 = Dvar_ValueToString(dvar, &v56);
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
+    Dvar_Printf(dvar, 6, "      dvar set %s %s\n", UnobfuscatedName, v6);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+58h]
-    vmovups xmm1, xmmword ptr [rsi]
-  }
-  type = _RDI->type;
-  __asm
-  {
-    vmovups [rsp+1A0h+var_150], xmm0
-    vmovups [rsp+1A0h+var_140], xmm1
-  }
-  if ( Dvar_ValueInDomain(type, &v77, &v76) )
+  v8 = *value;
+  type = dvar->type;
+  domain = dvar->domain;
+  v58 = v8;
+  if ( Dvar_ValueInDomain(type, &v58, &domain) )
   {
 LABEL_19:
     switch ( source )
     {
       case DVAR_SOURCE_SERVERCMD:
-        if ( (_RDI->flags & 0x18) == 0 )
+        if ( (dvar->flags & 0x18) == 0 )
         {
-          v21 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-          Dvar_Printf(_RDI, 16, "%s is not allowed to be set from server command source.\n", v21);
+          v14 = Dvar_DevGetUnobfuscatedName(dvar->name);
+          Dvar_Printf(dvar, 16, "%s is not allowed to be set from server command source.\n", v14);
           return;
         }
         break;
       case DVAR_SOURCE_DEVGUI:
-        if ( (_RDI->flags & 0x20) != 0 )
+        if ( (dvar->flags & 0x20) != 0 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rbp+0A0h+var_100], xmm0
-          }
-          Dvar_SetLatchedValue(_RDI, &v81);
+          v62 = *value;
+          Dvar_SetLatchedValue(dvar, &v62);
           return;
         }
         goto LABEL_36;
       case DVAR_SOURCE_INTERNAL:
         goto LABEL_36;
     }
-    flags = _RDI->flags;
+    flags = dvar->flags;
     if ( (flags & 0x2000) != 0 )
     {
-      __asm { vmovups xmm0, xmmword ptr [rsi] }
-      v25 = _RDI->type;
-      __asm
+      v16 = dvar->type;
+      v63 = *value;
+      current = dvar->current;
+      if ( !Dvar_ValuesEqual(v16, &current, &v63) )
       {
-        vmovups [rbp+0A0h+var_F0], xmm0
-        vmovups xmm0, xmmword ptr [rdi+28h]
-        vmovups [rbp+0A0h+var_E0], xmm0
-      }
-      if ( !Dvar_ValuesEqual(v25, &v83, &v82) )
-      {
-        v27 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        Dvar_Printf(_RDI, 16, "%s is read only.\n", v27);
+        v17 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        Dvar_Printf(dvar, 16, "%s is read only.\n", v17);
       }
       return;
     }
     if ( (flags & 0x800) != 0 )
     {
-      __asm { vmovups xmm0, xmmword ptr [rsi] }
-      v29 = _RDI->type;
-      __asm
+      v18 = dvar->type;
+      v65 = *value;
+      v66 = dvar->current;
+      if ( !Dvar_ValuesEqual(v18, &v66, &v65) )
       {
-        vmovups [rbp+0A0h+var_D0], xmm0
-        vmovups xmm0, xmmword ptr [rdi+28h]
-        vmovups [rbp+0A0h+var_C0], xmm0
-      }
-      if ( !Dvar_ValuesEqual(v29, &v85, &v84) )
-      {
-        v31 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        Dvar_Printf(_RDI, 16, "%s is write protected.\n", v31);
+        v19 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        Dvar_Printf(dvar, 16, "%s is write protected.\n", v19);
       }
       return;
     }
     if ( source != DVAR_SOURCE_UISCRIPT && (flags & 2) != 0 )
     {
-      __asm
+      v67 = *value;
+      Dvar_SetLatchedValue(dvar, &v67);
+      v20 = dvar->type;
+      v68 = dvar->current;
+      latched = dvar->latched;
+      if ( !Dvar_ValuesEqual(v20, &latched, &v68) )
       {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rbp+0A0h+var_B0], xmm0
-      }
-      Dvar_SetLatchedValue(_RDI, &v86);
-      __asm { vmovups xmm0, xmmword ptr [rdi+28h] }
-      v34 = _RDI->type;
-      __asm
-      {
-        vmovups [rbp+0A0h+var_A0], xmm0
-        vmovups xmm0, xmmword ptr [rdi+38h]
-        vmovups [rbp+0A0h+var_90], xmm0
-      }
-      if ( !Dvar_ValuesEqual(v34, &v88, &v87) )
-      {
-        v36 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        Dvar_Printf(_RDI, 16, "%s will be changed upon restarting.\n", v36);
+        v21 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        Dvar_Printf(dvar, 16, "%s will be changed upon restarting.\n", v21);
       }
       return;
     }
 LABEL_36:
-    v37 = tls_index;
-    v38 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-    v39 = _RDI->flags;
-    if ( (~*(_DWORD *)(v38 + 1052) & v39) != 0 )
+    v22 = tls_index;
+    v23 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+    v24 = dvar->flags;
+    if ( (~*(_DWORD *)(v23 + 1052) & v24) != 0 )
     {
-      if ( !Sys_IsMainThread() || (_RDI->flags & 0x1200) != 0 )
+      if ( !Sys_IsMainThread() || (dvar->flags & 0x1200) != 0 )
       {
         IsMainThread = Sys_IsMainThread();
-        name = _RDI->name;
+        name = dvar->name;
         if ( IsMainThread )
         {
-          v48 = _RDI->flags;
-          v49 = Dvar_DevGetUnobfuscatedName(name);
-          LODWORD(fmt) = v48;
-          Dvar_Printf(_RDI, 16, "Dvar Error: '%s' cannot be changed from the main thread due to its flags (%i).\n", v49, fmt);
+          v32 = dvar->flags;
+          v33 = Dvar_DevGetUnobfuscatedName(name);
+          LODWORD(fmt) = v32;
+          Dvar_Printf(dvar, 16, "Dvar Error: '%s' cannot be changed from the main thread due to its flags (%i).\n", v33, fmt);
         }
         else
         {
-          v50 = Dvar_DevGetUnobfuscatedName(name);
-          Dvar_Printf(_RDI, 16, "Dvar Error: '%s' cannot be changed from the server.\n", v50);
+          v34 = Dvar_DevGetUnobfuscatedName(name);
+          Dvar_Printf(dvar, 16, "Dvar Error: '%s' cannot be changed from the server.\n", v34);
         }
         return;
       }
@@ -9170,169 +7372,131 @@ LABEL_36:
         __debugbreak();
       if ( _InterlockedCompareExchange(&g_serverThreadOwnership, 0, 1) )
       {
-        LODWORD(v74) = g_serverThreadOwnership;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2241, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v74) )
+        LODWORD(v55) = g_serverThreadOwnership;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2241, ASSERT_TYPE_ASSERT, "( ( Sys_InterlockedCompareExchange( (volatile_int32 *)&g_serverThreadOwnership, 0, 1 ) == 0 ) )", "( g_serverThreadOwnership ) = %i", v55) )
           __debugbreak();
       }
       if ( source == DVAR_SOURCE_SCRIPT )
       {
-        v40 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2245, ASSERT_TYPE_ASSERT, "((source != DVAR_SOURCE_SCRIPT))", "%s\n\tdvar %s source %i", "(source != DVAR_SOURCE_SCRIPT)", v40, 2) )
+        v25 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2245, ASSERT_TYPE_ASSERT, "((source != DVAR_SOURCE_SCRIPT))", "%s\n\tdvar %s source %i", "(source != DVAR_SOURCE_SCRIPT)", v25, 2) )
           __debugbreak();
       }
-      v41 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-      Com_PrintWarning(0, "Server dvar '%s' set from main thread.  This causes a hitch and should only be done for development.\n", v41);
-      __asm
+      v26 = Dvar_DevGetUnobfuscatedName(dvar->name);
+      Com_PrintWarning(0, "Server dvar '%s' set from main thread.  This causes a hitch and should only be done for development.\n", v26);
+      v70 = *value;
+      v27 = Dvar_ValueToString(dvar, &v70);
+      if ( !SV_Demo_SetDvar(dvar->checksum, v27) )
       {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rbp+0A0h+var_80], xmm0
-      }
-      v43 = Dvar_ValueToString(_RDI, &v89);
-      if ( !SV_Demo_SetDvar(_RDI->checksum, v43) )
-      {
-        v44 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-        Com_Printf(16, "\"%s\" is read only during demo playback.\n", v44);
+        v28 = Dvar_DevGetUnobfuscatedName(dvar->name);
+        Com_Printf(16, "\"%s\" is read only during demo playback.\n", v28);
         return;
       }
-      v45 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v37);
-      *(_DWORD *)(v45 + 1048) |= _RDI->flags;
+      v29 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v22);
+      *(_DWORD *)(v29 + 1048) |= dvar->flags;
     }
     else
     {
-      *(_DWORD *)(v38 + 1048) |= v39;
+      *(_DWORD *)(v23 + 1048) |= v24;
     }
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v52 = _RDI->type;
-    __asm
+    v35 = dvar->type;
+    v71 = *value;
+    v72 = dvar->current;
+    if ( Dvar_ValuesEqual(v35, &v72, &v71) )
     {
-      vmovups [rbp+0A0h+var_70], xmm0
-      vmovups xmm0, xmmword ptr [rdi+28h]
-      vmovups [rbp+0A0h+var_60], xmm0
-    }
-    if ( Dvar_ValuesEqual(v52, &v91, &v90) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi+28h]
-        vmovups [rbp+0A0h+var_50], xmm0
-      }
-      Dvar_SetLatchedValue(_RDI, &v92);
+      v73 = dvar->current;
+      Dvar_SetLatchedValue(dvar, &v73);
       return;
     }
-    if ( _RDI->type == 2 )
+    if ( dvar->type == 2 )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rdi+28h], xmm1
-        vmovss  dword ptr [rdi+2Ch], xmm0
-        vmovss  dword ptr [rdi+38h], xmm1
-        vmovss  dword ptr [rdi+3Ch], xmm0
-      }
+      v52 = value->value;
+      v53 = value->vector.v[1];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v53;
+      dvar->latched.value = v52;
+      dvar->latched.vector.v[1] = v53;
       goto LABEL_87;
     }
-    if ( _RDI->type != 3 )
+    if ( dvar->type != 3 )
     {
-      if ( _RDI->type == 4 )
+      if ( dvar->type == 4 )
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi]
-          vmovss  xmm2, dword ptr [rsi+4]
-          vmovss  xmm1, dword ptr [rsi+8]
-          vmovss  xmm0, dword ptr [rsi+0Ch]
-          vmovss  dword ptr [rdi+28h], xmm3
-          vmovss  dword ptr [rdi+2Ch], xmm2
-          vmovss  dword ptr [rdi+30h], xmm1
-          vmovss  dword ptr [rdi+34h], xmm0
-          vmovss  dword ptr [rdi+38h], xmm3
-          vmovss  dword ptr [rdi+3Ch], xmm2
-          vmovss  dword ptr [rdi+40h], xmm1
-          vmovss  dword ptr [rdi+44h], xmm0
-        }
+        v45 = value->value;
+        v46 = value->vector.v[1];
+        v47 = value->vector.v[2];
+        v48 = value->vector.v[3];
+        dvar->current.value = value->value;
+        dvar->current.vector.v[1] = v46;
+        dvar->current.vector.v[2] = v47;
+        dvar->current.vector.v[3] = v48;
+        dvar->latched.value = v45;
+        dvar->latched.vector.v[1] = v46;
+        dvar->latched.vector.v[2] = v47;
+        dvar->latched.vector.v[3] = v48;
         goto LABEL_87;
       }
-      if ( _RDI->type == 9 )
+      if ( dvar->type == 9 )
       {
-        if ( !_RDI->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2298, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
+        if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2298, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
           __debugbreak();
-        integer64 = _RSI->integer64;
-        v58 = (const char *)_RSI->integer64;
-        if ( _RSI->integer64 == _RDI->current.integer64 && integer64 != _RDI->latched.integer64 && integer64 != _RDI->reset.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2300, ASSERT_TYPE_ASSERT, "( ( value.string != dvar->current.string || value.string == dvar->latched.string || value.string == dvar->reset.string ) )", "( dvar->name ) = %s", _RDI->name) )
+        integer64 = value->integer64;
+        v39 = (const char *)value->integer64;
+        if ( value->integer64 == dvar->current.integer64 && integer64 != dvar->latched.integer64 && integer64 != dvar->reset.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2300, ASSERT_TYPE_ASSERT, "( ( value.string != dvar->current.string || value.string == dvar->latched.string || value.string == dvar->reset.string ) )", "( dvar->name ) = %s", dvar->name) )
           __debugbreak();
-        string = _RDI->current.string;
-        v60 = string && string != _RDI->latched.string && string != _RDI->reset.string;
-        Dvar_AssignCurrentStringValue(_RDI, &dest, v58);
-        v61 = _RDI->latched.string;
-        v62 = dest.integer64;
-        _RDI->current.integer64 = dest.integer64;
-        if ( v61 && v61 != (const char *)v62 && v61 != _RDI->reset.string && *v61 )
-          SL_AllocString_Free(v61);
-        v63 = _RDI->current.string;
-        _RDI->latched.integer64 = 0i64;
-        Dvar_WeakCopyString(v63, &_RDI->latched);
-        if ( v60 && *string )
+        string = dvar->current.string;
+        v41 = string && string != dvar->latched.string && string != dvar->reset.string;
+        Dvar_AssignCurrentStringValue(dvar, &dest, v39);
+        v42 = dvar->latched.string;
+        v43 = dest.integer64;
+        dvar->current.integer64 = dest.integer64;
+        if ( v42 && v42 != (const char *)v43 && v42 != dvar->reset.string && *v42 )
+          SL_AllocString_Free(v42);
+        v44 = dvar->current.string;
+        dvar->latched.integer64 = 0i64;
+        Dvar_WeakCopyString(v44, &dvar->latched);
+        if ( v41 && *string )
           SL_AllocString_Free(string);
         goto LABEL_87;
       }
-      if ( _RDI->type != 11 )
+      if ( dvar->type != 11 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vinsertf128 ymm0, ymm0, xmm0, 1
-          vmovups ymmword ptr [rdi+28h], ymm0
-        }
+        _YMM0 = (__m256i)*(_OWORD *)value;
+        __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+        *(__m256i *)&dvar->current.enabled = _YMM0;
 LABEL_87:
-        _RDI->modified = 1;
+        dvar->modified = 1;
         return;
       }
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rdi+28h], xmm2
-      vmovss  dword ptr [rdi+2Ch], xmm1
-      vmovss  dword ptr [rdi+30h], xmm0
-      vmovss  dword ptr [rdi+38h], xmm2
-      vmovss  dword ptr [rdi+3Ch], xmm1
-      vmovss  dword ptr [rdi+40h], xmm0
-    }
+    v49 = value->value;
+    v50 = value->vector.v[1];
+    v51 = value->vector.v[2];
+    dvar->current.value = value->value;
+    dvar->current.vector.v[1] = v50;
+    dvar->current.vector.v[2] = v51;
+    dvar->latched.value = v49;
+    dvar->latched.vector.v[1] = v50;
+    dvar->latched.vector.v[2] = v51;
     goto LABEL_87;
   }
-  v13 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-  __asm
+  v10 = Dvar_DevGetUnobfuscatedName(dvar->name);
+  v59 = *value;
+  v11 = v10;
+  v12 = Dvar_ValueToString(dvar, &v59);
+  if ( Dvar_Printf(dvar, 16, "'%s' is not a valid value for dvar '%s'\n", v12, v11) )
+    Dvar_PrintDomain(dvar);
+  if ( dvar->type == 8 )
   {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+1A0h+var_130], xmm0
-  }
-  v15 = v13;
-  v16 = Dvar_ValueToString(_RDI, &v78);
-  if ( Dvar_Printf(_RDI, 16, "'%s' is not a valid value for dvar '%s'\n", v16, v15) )
-    Dvar_PrintDomain(_RDI);
-  if ( _RDI->type == 8 )
-  {
-    __asm
+    v60 = dvar->domain;
+    reset = dvar->reset;
+    if ( !Dvar_ValueInDomain(8u, &reset, &v60) )
     {
-      vmovups xmm0, xmmword ptr [rdi+58h]
-      vmovups [rbp+0A0h+var_120], xmm0
-      vmovups xmm0, xmmword ptr [rdi+48h]
-      vmovups [rbp+0A0h+var_110], xmm0
-    }
-    if ( !Dvar_ValueInDomain(8u, &v80, &v79) )
-    {
-      v19 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2163, ASSERT_TYPE_ASSERT, "( ( Dvar_ValueInDomain( dvar->type, dvar->reset, dvar->domain ) ) )", "( Dvar_DevGetUnobfuscatedName( dvar->name ) ) = %s", v19) )
+      v13 = Dvar_DevGetUnobfuscatedName(dvar->name);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2163, ASSERT_TYPE_ASSERT, "( ( Dvar_ValueInDomain( dvar->type, dvar->reset, dvar->domain ) ) )", "( Dvar_DevGetUnobfuscatedName( dvar->name ) ) = %s", v13) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+48h]
-      vmovups xmmword ptr [rsi], xmm0
-    }
+    *value = dvar->reset;
     goto LABEL_19;
   }
 }
@@ -9342,82 +7506,42 @@ LABEL_87:
 Dvar_SetVec2ByName
 ==============
 */
-
-void __fastcall Dvar_SetVec2ByName(const char *dvarName, double x, double y)
+void Dvar_SetVec2ByName(const char *dvarName, float x, float y)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
-  dvar_t *v11; 
+  dvar_t *v6; 
   unsigned __int8 type; 
-  const char *v21; 
-  char *fmt; 
-  DvarValue v26; 
+  const char *v8; 
+  DvarValue v9; 
   char dest[64]; 
-  char v28; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  v11 = MalleableVar;
+  v6 = MalleableVar;
   if ( MalleableVar )
   {
     if ( !MalleableVar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4116, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
       __debugbreak();
-    type = v11->type;
-    if ( type != 2 && (type != 9 || (v11->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4118, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_2 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v11->name) )
+    type = v6->type;
+    if ( type != 2 && (type != 9 || (v6->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4118, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_2 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v6->name) )
       __debugbreak();
-    if ( v11->type == 2 )
+    if ( v6->type == 2 )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+var_88], xmm6
-        vmovss  dword ptr [rsp+0B8h+var_88+4], xmm7
-      }
+      v9.value = x;
+      v9.vector.v[1] = y;
     }
     else
     {
-      __asm
-      {
-        vcvtss2sd xmm3, xmm6, xmm6
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0B8h+fmt], xmm0
-      }
-      Com_sprintf(dest, 0x40ui64, "%g %g", *(double *)&_XMM3, *(double *)&fmt);
-      v26.integer64 = (__int64)dest;
+      Com_sprintf(dest, 0x40ui64, "%g %g", x, y);
+      v9.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+0B8h+var_88]
-      vmovdqa [rsp+0B8h+var_88], xmm0
-    }
-    Dvar_SetVariant(v11, &v26, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v6, &v9, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    v21 = j_va("%g %g", _RDX, _R8);
-    Dvar_RegisterString(dvarName, v21, 0x100u, "External Dvar");
-  }
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v8 = j_va("%g %g", x, y);
+    Dvar_RegisterString(dvarName, v8, 0x100u, "External Dvar");
   }
 }
 
@@ -9426,23 +7550,12 @@ void __fastcall Dvar_SetVec2ByName(const char *dvarName, double x, double y)
 Dvar_SetVec2FromSource
 ==============
 */
-
-void __fastcall Dvar_SetVec2FromSource(const dvar_t *dvar, double x, double y, DvarSetSource source)
+void Dvar_SetVec2FromSource(const dvar_t *dvar, float x, float y, DvarSetSource source)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  DvarValue v19; 
+  DvarValue v7; 
   char dest[64]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4114, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4116, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9452,35 +7565,15 @@ void __fastcall Dvar_SetVec2FromSource(const dvar_t *dvar, double x, double y, D
     __debugbreak();
   if ( dvar->type == 2 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C8h+var_98], xmm6
-      vmovss  dword ptr [rsp+0C8h+var_98+4], xmm7
-    }
+    v7.value = x;
+    v7.vector.v[1] = y;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0C8h+fmt], xmm0
-    }
-    Com_sprintf(dest, 0x40ui64, "%g %g", *(double *)&_XMM3, *(double *)&fmt);
-    v19.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x40ui64, "%g %g", x, y);
+    v7.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+0C8h+var_98]
-    vmovdqa [rsp+0C8h+var_98], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v19, source);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_28]
-    vmovaps xmm7, [rsp+0C8h+var_38]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v7, source);
 }
 
 /*
@@ -9488,24 +7581,12 @@ void __fastcall Dvar_SetVec2FromSource(const dvar_t *dvar, double x, double y, D
 Dvar_SetVec2_Internal
 ==============
 */
-
-void __fastcall Dvar_SetVec2_Internal(const dvar_t *dvar, double x, double y)
+void Dvar_SetVec2_Internal(const dvar_t *dvar, float x, float y)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  DvarValue v18; 
+  DvarValue v5; 
   char dest[64]; 
-  char v20; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4114, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4116, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9515,36 +7596,15 @@ void __fastcall Dvar_SetVec2_Internal(const dvar_t *dvar, double x, double y)
     __debugbreak();
   if ( dvar->type == 2 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+0B8h+var_88], xmm6
-      vmovss  dword ptr [rsp+0B8h+var_88+4], xmm7
-    }
+    v5.value = x;
+    v5.vector.v[1] = y;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0B8h+fmt], xmm0
-    }
-    Com_sprintf(dest, 0x40ui64, "%g %g", *(double *)&_XMM3, *(double *)&fmt);
-    v18.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x40ui64, "%g %g", x, y);
+    v5.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+0B8h+var_88]
-    vmovdqa [rsp+0B8h+var_88], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v18, DVAR_SOURCE_INTERNAL);
-  _R11 = &v20;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v5, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -9552,91 +7612,43 @@ void __fastcall Dvar_SetVec2_Internal(const dvar_t *dvar, double x, double y)
 Dvar_SetVec3ByName
 ==============
 */
-
-void __fastcall Dvar_SetVec3ByName(const char *dvarName, double x, double y, double z)
+void Dvar_SetVec3ByName(const char *dvarName, float x, float y, float z)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
-  dvar_t *v14; 
+  dvar_t *v7; 
   unsigned __int8 type; 
-  const char *v27; 
-  char *fmt; 
-  double v33; 
-  DvarValue v34; 
+  const char *v9; 
+  DvarValue v10; 
   char dest[96]; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  v14 = MalleableVar;
+  v7 = MalleableVar;
   if ( MalleableVar )
   {
     if ( !MalleableVar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4141, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
       __debugbreak();
-    type = v14->type;
-    if ( ((type - 3) & 0xF7) != 0 && (type != 9 || (v14->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4143, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_3 || dvar->type == DVAR_TYPE_FLOAT_3_COLOR || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v14->name) )
+    type = v7->type;
+    if ( ((type - 3) & 0xF7) != 0 && (type != 9 || (v7->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4143, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_3 || dvar->type == DVAR_TYPE_FLOAT_3_COLOR || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v7->name) )
       __debugbreak();
-    if ( ((v14->type - 3) & 0xF7) != 0 )
+    if ( ((v7->type - 3) & 0xF7) != 0 )
     {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm8, xmm8
-        vcvtss2sd xmm3, xmm6, xmm6
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+0F8h+var_D0], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0F8h+fmt], xmm1
-      }
-      Com_sprintf(dest, 0x60ui64, "%g %g %g", *(double *)&_XMM3, *(double *)&fmt, v33);
-      v34.integer64 = (__int64)dest;
+      Com_sprintf(dest, 0x60ui64, "%g %g %g", x, y, z);
+      v10.integer64 = (__int64)dest;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0F8h+var_C8], xmm6
-        vmovss  dword ptr [rsp+0F8h+var_C8+4], xmm7
-        vmovss  dword ptr [rsp+0F8h+var_C8+8], xmm8
-      }
+      v10.value = x;
+      v10.vector.v[1] = y;
+      v10.vector.v[2] = z;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+0F8h+var_C8]
-      vmovdqa [rsp+0F8h+var_C8], xmm0
-    }
-    Dvar_SetVariant(v14, &v34, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v7, &v10, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm8, xmm8
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    v27 = j_va("%g %g %g", _RDX, _R8, _R9);
-    Dvar_RegisterString(dvarName, v27, 0x100u, "External Dvar");
-  }
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
+    v9 = j_va("%g %g %g", x, y, z);
+    Dvar_RegisterString(dvarName, v9, 0x100u, "External Dvar");
   }
 }
 
@@ -9645,27 +7657,12 @@ void __fastcall Dvar_SetVec3ByName(const char *dvarName, double x, double y, dou
 Dvar_SetVec3FromSource
 ==============
 */
-
-void __fastcall Dvar_SetVec3FromSource(const dvar_t *dvar, double x, double y, double z, DvarSetSource source)
+void Dvar_SetVec3FromSource(const dvar_t *dvar, float x, float y, float z, DvarSetSource source)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  double v24; 
-  DvarValue v25; 
+  DvarValue v7; 
   char dest[96]; 
-  char v27; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4139, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4141, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9675,40 +7672,16 @@ void __fastcall Dvar_SetVec3FromSource(const dvar_t *dvar, double x, double y, d
     __debugbreak();
   if ( ((dvar->type - 3) & 0xF7) != 0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0F8h+var_D0], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0F8h+fmt], xmm1
-    }
-    Com_sprintf(dest, 0x60ui64, "%g %g %g", *(double *)&_XMM3, *(double *)&fmt, v24);
-    v25.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x60ui64, "%g %g %g", x, y, z);
+    v7.integer64 = (__int64)dest;
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+0F8h+var_C8], xmm6
-      vmovss  dword ptr [rsp+0F8h+var_C8+4], xmm7
-      vmovss  dword ptr [rsp+0F8h+var_C8+8], xmm8
-    }
+    v7.value = x;
+    v7.vector.v[1] = y;
+    v7.vector.v[2] = z;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+0F8h+var_C8]
-    vmovdqa [rsp+0F8h+var_C8], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v25, source);
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v7, source);
 }
 
 /*
@@ -9716,27 +7689,12 @@ void __fastcall Dvar_SetVec3FromSource(const dvar_t *dvar, double x, double y, d
 Dvar_SetVec3_Internal
 ==============
 */
-
-void __fastcall Dvar_SetVec3_Internal(const dvar_t *dvar, double x, double y, double z)
+void Dvar_SetVec3_Internal(const dvar_t *dvar, float x, float y, float z)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  double v23; 
-  DvarValue v24; 
+  DvarValue v6; 
   char dest[96]; 
-  char v26; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4139, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4141, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9746,40 +7704,16 @@ void __fastcall Dvar_SetVec3_Internal(const dvar_t *dvar, double x, double y, do
     __debugbreak();
   if ( ((dvar->type - 3) & 0xF7) != 0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0F8h+var_D0], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0F8h+fmt], xmm1
-    }
-    Com_sprintf(dest, 0x60ui64, "%g %g %g", *(double *)&_XMM3, *(double *)&fmt, v23);
-    v24.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x60ui64, "%g %g %g", x, y, z);
+    v6.integer64 = (__int64)dest;
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+0F8h+var_C8], xmm6
-      vmovss  dword ptr [rsp+0F8h+var_C8+4], xmm7
-      vmovss  dword ptr [rsp+0F8h+var_C8+8], xmm8
-    }
+    v6.value = x;
+    v6.vector.v[1] = y;
+    v6.vector.v[2] = z;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+0F8h+var_C8]
-    vmovdqa [rsp+0F8h+var_C8], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v24, DVAR_SOURCE_INTERNAL);
-  _R11 = &v26;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v6, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -9787,101 +7721,44 @@ void __fastcall Dvar_SetVec3_Internal(const dvar_t *dvar, double x, double y, do
 Dvar_SetVec4ByName
 ==============
 */
-
-void __fastcall Dvar_SetVec4ByName(const char *dvarName, double x, double y, double z, float w)
+void Dvar_SetVec4ByName(const char *dvarName, float x, float y, float z, float w)
 {
   unsigned int Checksum; 
   dvar_t *MalleableVar; 
-  dvar_t *v17; 
+  dvar_t *v8; 
   unsigned __int8 type; 
-  const char *v32; 
-  char *fmt; 
-  char *fmta; 
-  double v40; 
-  double v41; 
-  DvarValue v42; 
+  const char *v10; 
+  DvarValue v11; 
   char dest[128]; 
-  char v44; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovss  xmm9, [rsp+138h+w]
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   Checksum = Dvar_GenerateChecksum(dvarName);
   MalleableVar = Dvar_FindMalleableVar(Checksum);
-  v17 = MalleableVar;
+  v8 = MalleableVar;
   if ( MalleableVar )
   {
     if ( !MalleableVar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4166, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
       __debugbreak();
-    type = v17->type;
-    if ( type != 4 && (type != 9 || (v17->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4168, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_4 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v17->name) )
+    type = v8->type;
+    if ( type != 4 && (type != 9 || (v8->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4168, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_4 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", v8->name) )
       __debugbreak();
-    if ( v17->type == 4 )
+    if ( v8->type == 4 )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+138h+var_F8], xmm6
-        vmovss  dword ptr [rsp+138h+var_F8+4], xmm7
-        vmovss  dword ptr [rsp+138h+var_F8+8], xmm8
-        vmovss  dword ptr [rsp+138h+var_F8+0Ch], xmm9
-      }
+      v11.value = x;
+      v11.vector.v[1] = y;
+      v11.vector.v[2] = z;
+      v11.vector.v[3] = w;
     }
     else
     {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm9, xmm9
-        vmovsd  [rsp+138h+var_108], xmm0
-        vcvtss2sd xmm1, xmm8, xmm8
-        vcvtss2sd xmm3, xmm6, xmm6
-        vcvtss2sd xmm2, xmm7, xmm7
-        vmovsd  [rsp+138h+var_110], xmm1
-        vmovq   r9, xmm3
-        vmovsd  [rsp+138h+fmt], xmm2
-      }
-      Com_sprintf(dest, 0x80ui64, "%g %g %g %g", *(double *)&_XMM3, *(double *)&fmt, v40, v41);
-      v42.integer64 = (__int64)dest;
+      Com_sprintf(dest, 0x80ui64, "%g %g %g %g", x, y, z, w);
+      v11.integer64 = (__int64)dest;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+138h+var_F8]
-      vmovdqa [rsp+138h+var_F8], xmm0
-    }
-    Dvar_SetVariant(v17, &v42, DVAR_SOURCE_INTERNAL);
+    Dvar_SetVariant(v8, &v11, DVAR_SOURCE_INTERNAL);
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm8, xmm8
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm1, xmm6, xmm6
-      vcvtss2sd xmm0, xmm9, xmm9
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-      vmovsd  [rsp+138h+fmt], xmm0
-    }
-    v32 = j_va("%g %g %g %g", _RDX, _R8, _R9, fmta);
-    Dvar_RegisterString(dvarName, v32, 0x100u, "External Dvar");
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
+    v10 = j_va("%g %g %g %g", x, y, z, w);
+    Dvar_RegisterString(dvarName, v10, 0x100u, "External Dvar");
   }
 }
 
@@ -9890,28 +7767,12 @@ void __fastcall Dvar_SetVec4ByName(const char *dvarName, double x, double y, dou
 Dvar_SetVec4FromSource
 ==============
 */
-
-void __fastcall Dvar_SetVec4FromSource(const dvar_t *dvar, double x, double y, double z, float w, DvarSetSource source)
+void Dvar_SetVec4FromSource(const dvar_t *dvar, float x, float y, float z, float w, DvarSetSource source)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  double v27; 
-  double v28; 
-  DvarValue v29; 
+  DvarValue v8; 
   char dest[128]; 
-  char v31; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4164, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4166, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9919,46 +7780,19 @@ void __fastcall Dvar_SetVec4FromSource(const dvar_t *dvar, double x, double y, d
   type = dvar->type;
   if ( type != 4 && (type != 9 || (dvar->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4168, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_4 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", dvar->name) )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+128h+w] }
   if ( dvar->type == 4 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+128h+var_E8], xmm6
-      vmovss  dword ptr [rsp+128h+var_E8+4], xmm7
-      vmovss  dword ptr [rsp+128h+var_E8+8], xmm8
-      vmovss  dword ptr [rsp+128h+var_E8+0Ch], xmm0
-    }
+    v8.value = x;
+    v8.vector.v[1] = y;
+    v8.vector.v[2] = z;
+    v8.vector.v[3] = w;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+128h+var_F8], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm2, xmm7, xmm7
-      vmovsd  [rsp+128h+var_100], xmm1
-      vmovq   r9, xmm3
-      vmovsd  [rsp+128h+fmt], xmm2
-    }
-    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", *(double *)&_XMM3, *(double *)&fmt, v27, v28);
-    v29.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", x, y, z, w);
+    v8.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+128h+var_E8]
-    vmovdqa [rsp+128h+var_E8], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v29, source);
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v8, source);
 }
 
 /*
@@ -9966,28 +7800,12 @@ void __fastcall Dvar_SetVec4FromSource(const dvar_t *dvar, double x, double y, d
 Dvar_SetVec4_Internal
 ==============
 */
-
-void __fastcall Dvar_SetVec4_Internal(const dvar_t *dvar, double x, double y, double z, float w)
+void Dvar_SetVec4_Internal(const dvar_t *dvar, float x, float y, float z, float w)
 {
   unsigned __int8 type; 
-  char *fmt; 
-  double v26; 
-  double v27; 
-  DvarValue v28; 
+  DvarValue v7; 
   char dest[128]; 
-  char v30; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4164, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
   if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4166, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
@@ -9995,46 +7813,19 @@ void __fastcall Dvar_SetVec4_Internal(const dvar_t *dvar, double x, double y, do
   type = dvar->type;
   if ( type != 4 && (type != 9 || (dvar->flags & 0x100) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 4168, ASSERT_TYPE_ASSERT, "( ( dvar->type == DVAR_TYPE_FLOAT_4 || (dvar->type == DVAR_TYPE_STRING && (dvar->flags & (1 << 8))) ) )", "( dvar->name ) = %s", dvar->name) )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+128h+w] }
   if ( dvar->type == 4 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+128h+var_E8], xmm6
-      vmovss  dword ptr [rsp+128h+var_E8+4], xmm7
-      vmovss  dword ptr [rsp+128h+var_E8+8], xmm8
-      vmovss  dword ptr [rsp+128h+var_E8+0Ch], xmm0
-    }
+    v7.value = x;
+    v7.vector.v[1] = y;
+    v7.vector.v[2] = z;
+    v7.vector.v[3] = w;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+128h+var_F8], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vcvtss2sd xmm3, xmm6, xmm6
-      vcvtss2sd xmm2, xmm7, xmm7
-      vmovsd  [rsp+128h+var_100], xmm1
-      vmovq   r9, xmm3
-      vmovsd  [rsp+128h+fmt], xmm2
-    }
-    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", *(double *)&_XMM3, *(double *)&fmt, v26, v27);
-    v28.integer64 = (__int64)dest;
+    Com_sprintf(dest, 0x80ui64, "%g %g %g %g", x, y, z, w);
+    v7.integer64 = (__int64)dest;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+128h+var_E8]
-    vmovdqa [rsp+128h+var_E8], xmm0
-  }
-  Dvar_SetVariant((dvar_t *)dvar, &v28, DVAR_SOURCE_INTERNAL);
-  _R11 = &v30;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  Dvar_SetVariant((dvar_t *)dvar, &v7, DVAR_SOURCE_INTERNAL);
 }
 
 /*
@@ -10160,71 +7951,50 @@ Dvar_StringToColor
 */
 void Dvar_StringToColor(const char *string, unsigned __int8 *color)
 {
-  __int128 v45; 
-  void *retaddr; 
+  int v12; 
+  int v17; 
+  __int128 v22; 
 
-  _R11 = &retaddr;
+  v22 = 0i64;
+  j_sscanf(string, "%g %g %g %g", &v22, (char *)&v22 + 4, (char *)&v22 + 8, (char *)&v22 + 12);
+  _XMM0 = (unsigned int)v22;
   __asm
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vmovups [rsp+88h+var_58], xmm0
-  }
-  j_sscanf(string, "%g %g %g %g", &v45, (char *)&v45 + 4, (char *)&v45 + 8, (char *)&v45 + 12);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm5, cs:__real@437f0000
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rsp+88h+var_58]
     vminss  xmm1, xmm0, xmm7
-    vxorps  xmm6, xmm6, xmm6
     vmaxss  xmm0, xmm1, xmm6
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rsp+88h+var_58+4]
-    vaddss  xmm2, xmm1, xmm4
+  }
+  _XMM0 = DWORD1(v22);
+  __asm
+  {
     vminss  xmm1, xmm0, xmm7
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
-    vxorps  xmm8, xmm8, xmm8
+  }
+  _XMM8 = 0i64;
+  __asm
+  {
     vroundss xmm3, xmm8, xmm2, 1
-    vcvttss2si eax, xmm3
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  *color = _EAX;
+  *color = (int)*(float *)&_XMM3;
+  v12 = (int)*(float *)&_XMM0;
+  _XMM0 = DWORD2(v22);
   __asm
   {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, dword ptr [rsp+88h+var_58+8]
     vminss  xmm1, xmm0, xmm7
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  color[1] = _EAX;
+  color[1] = v12;
+  v17 = (int)*(float *)&_XMM0;
+  _XMM0 = HIDWORD(v22);
   __asm
   {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, dword ptr [rsp+88h+var_58+0Ch]
     vminss  xmm1, xmm0, xmm7
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  color[2] = _EAX;
-  __asm { vcvttss2si eax, xmm0 }
-  color[3] = _EAX;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-  }
+  color[2] = v17;
+  color[3] = (int)*(float *)&_XMM0;
 }
 
 /*
@@ -10390,77 +8160,75 @@ Dvar_StringToValue
 */
 DvarValue *Dvar_StringToValue(DvarValue *result, const unsigned __int8 type, const DvarLimits *domain, const char *string)
 {
-  const char *v9; 
-  __int64 v11; 
+  const char *v8; 
+  __int64 v10; 
 
-  _RBX = result;
   if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1487, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
     __debugbreak();
   switch ( type )
   {
     case 0u:
-      _RBX->enabled = Dvar_StringToBool(string);
+      result->enabled = Dvar_StringToBool(string);
       break;
     case 1u:
-      *(float *)&_XMM0 = Dvar_StringToFloat(string);
-      __asm { vmovss  dword ptr [rbx], xmm0 }
+      result->value = Dvar_StringToFloat(string);
       break;
     case 2u:
       if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1408, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
         __debugbreak();
-      _RBX->integer = 0;
-      _RBX->vector.v[1] = 0.0;
-      j_sscanf(string, "%g %g", _RBX, (char *)&_RBX->integer64 + 4);
+      result->integer = 0;
+      result->vector.v[1] = 0.0;
+      j_sscanf(string, "%g %g", result, (char *)&result->integer64 + 4);
       break;
     case 3u:
     case 0xBu:
       if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1417, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
         __debugbreak();
-      _RBX->integer = 0;
-      _RBX->vector.v[1] = 0.0;
-      _RBX->vector.v[2] = 0.0;
-      v9 = "%g %g %g";
+      result->integer = 0;
+      result->vector.v[1] = 0.0;
+      result->vector.v[2] = 0.0;
+      v8 = "%g %g %g";
       if ( *string == 40 )
-        v9 = "( %g, %g, %g )";
-      j_sscanf(string, v9, _RBX);
+        v8 = "( %g, %g, %g )";
+      j_sscanf(string, v8, result);
       break;
     case 4u:
       if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1429, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
         __debugbreak();
-      _RBX->integer = 0;
-      _RBX->vector.v[1] = 0.0;
-      _RBX->vector.v[2] = 0.0;
-      _RBX->vector.v[3] = 0.0;
-      j_sscanf(string, "%g %g %g %g", _RBX, (char *)&_RBX->integer64 + 4, &_RBX->string + 1, &_RBX->color[12]);
+      result->integer = 0;
+      result->vector.v[1] = 0.0;
+      result->vector.v[2] = 0.0;
+      result->vector.v[3] = 0.0;
+      j_sscanf(string, "%g %g %g %g", result, (char *)&result->integer64 + 4, &result->string + 1, &result->color[12]);
       break;
     case 5u:
-      _RBX->integer = Dvar_StringToInt(string);
+      result->integer = Dvar_StringToInt(string);
       break;
     case 6u:
-      _RBX->integer64 = Dvar_StringToInt64(string);
+      result->integer64 = Dvar_StringToInt64(string);
       break;
     case 7u:
       if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1394, ASSERT_TYPE_ASSERT, "(string)", (const char *)&queryFormat, "string") )
         __debugbreak();
-      _RBX->integer64 = I_atoui64(string);
+      result->integer64 = I_atoui64(string);
       break;
     case 8u:
-      _RBX->integer = Dvar_StringToEnum(domain, string);
+      result->integer = Dvar_StringToEnum(domain, string);
       break;
     case 9u:
-      _RBX->integer64 = (__int64)string;
+      result->integer64 = (__int64)string;
       break;
     case 0xAu:
-      Dvar_StringToColor(string, (unsigned __int8 *)_RBX);
+      Dvar_StringToColor(string, (unsigned __int8 *)result);
       break;
     default:
-      LODWORD(v11) = type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v11) )
+      LODWORD(v10) = type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1538, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v10) )
         __debugbreak();
-      _RBX->integer = 0;
+      result->integer = 0;
       break;
   }
-  return _RBX;
+  return result;
 }
 
 /*
@@ -10468,29 +8236,17 @@ DvarValue *Dvar_StringToValue(DvarValue *result, const unsigned __int8 type, con
 Dvar_UpdateDevGuiStep
 ==============
 */
-
-void __fastcall Dvar_UpdateDevGuiStep(const dvar_t *dvar, double step)
+void Dvar_UpdateDevGuiStep(const dvar_t *dvar, float step)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = dvar;
-  __asm { vmovaps xmm6, xmm1 }
   if ( dvar )
   {
-    __asm
-    {
-      vmovss  dword ptr [rcx+60h], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    dvar->domain.value.devguiStep = step;
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2508, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
       __debugbreak();
-    __asm
-    {
-      vmovss  dword ptr [rbx+60h], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    MEMORY[0x60] = step;
   }
 }
 
@@ -10503,69 +8259,60 @@ void Dvar_UpdateEnumDomain(const dvar_t *dvar, const char **stringTable)
 {
   unsigned __int8 type; 
   const char *UnobfuscatedName; 
-  int v7; 
-  const char **v8; 
+  int v6; 
+  const char **v7; 
   int integer; 
-  const char *v10; 
-  unsigned __int8 v12; 
-  __int64 v18; 
-  DvarLimits v19; 
-  DvarValue v20; 
-  DvarValue v21; 
-  DvarValue v22; 
+  const char *v9; 
+  DvarValue reset; 
+  unsigned __int8 v11; 
+  __int64 v14; 
+  DvarLimits domain; 
+  DvarValue v16; 
+  DvarValue current; 
+  DvarValue v18; 
 
-  _RDI = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2472, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  if ( !_RDI->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2474, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
+  if ( !dvar->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2474, ASSERT_TYPE_ASSERT, "(dvar->name)", (const char *)&queryFormat, "dvar->name") )
     __debugbreak();
-  if ( !stringTable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2476, ASSERT_TYPE_ASSERT, "( ( stringTable ) )", "( dvar->name ) = %s", _RDI->name) )
+  if ( !stringTable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2476, ASSERT_TYPE_ASSERT, "( ( stringTable ) )", "( dvar->name ) = %s", dvar->name) )
     __debugbreak();
-  type = _RDI->type;
+  type = dvar->type;
   if ( type != 8 )
   {
-    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_RDI->name);
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2477, ASSERT_TYPE_ASSERT, "(dvar->type == DVAR_TYPE_ENUM)", "%s\n\tdvar %s type %i", "dvar->type == DVAR_TYPE_ENUM", UnobfuscatedName, type) )
       __debugbreak();
   }
-  v7 = 0;
+  v6 = 0;
   if ( *stringTable )
   {
-    v8 = stringTable;
+    v7 = stringTable;
     do
     {
+      ++v6;
       ++v7;
-      ++v8;
     }
-    while ( *v8 );
+    while ( *v7 );
   }
-  integer = _RDI->reset.integer;
-  if ( integer < 0 || integer >= v7 && integer )
+  integer = dvar->reset.integer;
+  if ( integer < 0 || integer >= v6 && integer )
   {
-    v10 = Dvar_DevGetUnobfuscatedName(_RDI->name);
-    LODWORD(v18) = integer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2487, ASSERT_TYPE_ASSERT, "(dvar->reset.integer >= 0 && (dvar->reset.integer < stringCount || dvar->reset.integer == 0))", "%s\n\tname %s reset %i count %i", "dvar->reset.integer >= 0 && (dvar->reset.integer < stringCount || dvar->reset.integer == 0)", v10, v18, v7) )
+    v9 = Dvar_DevGetUnobfuscatedName(dvar->name);
+    LODWORD(v14) = integer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2487, ASSERT_TYPE_ASSERT, "(dvar->reset.integer >= 0 && (dvar->reset.integer < stringCount || dvar->reset.integer == 0))", "%s\n\tname %s reset %i count %i", "dvar->reset.integer >= 0 && (dvar->reset.integer < stringCount || dvar->reset.integer == 0)", v9, v14, v6) )
       __debugbreak();
   }
-  __asm { vmovups xmm1, xmmword ptr [rdi+48h] }
-  v12 = _RDI->type;
-  _RDI->domain.enumeration.stringCount = v7;
-  _RDI->domain.integer64.max = (__int64)stringTable;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+58h]
-    vmovups [rsp+98h+var_48], xmm0
-    vmovups xmm0, xmmword ptr [rdi+28h]
-    vmovups [rsp+98h+var_28], xmm0
-    vmovups [rsp+98h+var_38], xmm1
-  }
-  _RAX = Dvar_ClampValueToDomain(&v22, v12, &v21, &v20, &v19);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vinsertf128 ymm0, ymm0, xmm0, 1
-    vmovups ymmword ptr [rdi+28h], ymm0
-  }
+  reset = dvar->reset;
+  v11 = dvar->type;
+  dvar->domain.enumeration.stringCount = v6;
+  dvar->domain.integer64.max = (__int64)stringTable;
+  domain = dvar->domain;
+  current = dvar->current;
+  v16 = reset;
+  _YMM0 = (__m256i)*(_OWORD *)Dvar_ClampValueToDomain(&v18, v11, &current, &v16, &domain);
+  __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+  *(__m256i *)&dvar->current.enabled = _YMM0;
 }
 
 /*
@@ -10577,40 +8324,38 @@ void Dvar_UpdateResetValue(dvar_t *dvar, DvarValue *value)
 {
   const char *integer64; 
   const char *string; 
-  bool v7; 
+  bool v6; 
   DvarValue dest; 
 
-  _RDI = value;
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2840, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( dvar->type )
   {
     case 2u:
-      _RBX->reset.integer = _RDI->integer;
-      _RBX->reset.vector.v[1] = _RDI->vector.v[1];
+      dvar->reset.integer = value->integer;
+      dvar->reset.vector.v[1] = value->vector.v[1];
       break;
     case 3u:
 LABEL_21:
-      _RBX->reset.integer = _RDI->integer;
-      _RBX->reset.vector.v[1] = _RDI->vector.v[1];
-      _RBX->reset.vector.v[2] = _RDI->vector.v[2];
+      dvar->reset.integer = value->integer;
+      dvar->reset.vector.v[1] = value->vector.v[1];
+      dvar->reset.vector.v[2] = value->vector.v[2];
       return;
     case 4u:
-      _RBX->reset.integer = _RDI->integer;
-      _RBX->reset.vector.v[1] = _RDI->vector.v[1];
-      _RBX->reset.vector.v[2] = _RDI->vector.v[2];
-      _RBX->reset.vector.v[3] = _RDI->vector.v[3];
+      dvar->reset.integer = value->integer;
+      dvar->reset.vector.v[1] = value->vector.v[1];
+      dvar->reset.vector.v[2] = value->vector.v[2];
+      dvar->reset.vector.v[3] = value->vector.v[3];
       return;
     case 9u:
-      integer64 = (const char *)_RDI->integer64;
-      string = _RBX->reset.string;
-      if ( string != _RDI->string )
+      integer64 = (const char *)value->integer64;
+      string = dvar->reset.string;
+      if ( string != value->string )
       {
-        v7 = string && string != _RBX->current.string && string != _RBX->latched.string;
-        Dvar_AssignResetStringValue(_RBX, &dest, integer64);
-        _RBX->reset.integer64 = dest.integer64;
-        if ( v7 )
+        v6 = string && string != dvar->current.string && string != dvar->latched.string;
+        Dvar_AssignResetStringValue(dvar, &dest, integer64);
+        dvar->reset.integer64 = dest.integer64;
+        if ( v6 )
         {
           if ( *string )
             SL_AllocString_Free(string);
@@ -10620,11 +8365,7 @@ LABEL_21:
     case 0xBu:
       goto LABEL_21;
     default:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rbx+48h], xmm0
-      }
+      dvar->reset = *value;
       return;
   }
 }
@@ -10638,77 +8379,75 @@ void Dvar_UpdateValue(dvar_t *dvar, DvarValue *value)
 {
   const char *integer64; 
   const char *string; 
-  bool v9; 
-  const char *v10; 
-  __int64 v11; 
-  const char *v12; 
+  bool v8; 
+  const char *v9; 
+  __int64 v10; 
+  const char *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   DvarValue dest; 
 
-  _RDI = value;
-  _RBX = dvar;
   if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 3064, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( dvar->type )
   {
     case 2u:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi]
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmovss  dword ptr [rbx+28h], xmm1
-        vmovss  dword ptr [rbx+2Ch], xmm0
-        vmovss  dword ptr [rbx+38h], xmm1
-        vmovss  dword ptr [rbx+3Ch], xmm0
-      }
+      v19 = value->value;
+      v20 = value->vector.v[1];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v20;
+      dvar->latched.value = v19;
+      dvar->latched.vector.v[1] = v20;
       break;
     case 3u:
 LABEL_25:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]
-        vmovss  xmm1, dword ptr [rdi+4]
-        vmovss  xmm0, dword ptr [rdi+8]
-        vmovss  dword ptr [rbx+28h], xmm2
-        vmovss  dword ptr [rbx+2Ch], xmm1
-        vmovss  dword ptr [rbx+30h], xmm0
-        vmovss  dword ptr [rbx+38h], xmm2
-        vmovss  dword ptr [rbx+3Ch], xmm1
-        vmovss  dword ptr [rbx+40h], xmm0
-      }
+      v16 = value->value;
+      v17 = value->vector.v[1];
+      v18 = value->vector.v[2];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v17;
+      dvar->current.vector.v[2] = v18;
+      dvar->latched.value = v16;
+      dvar->latched.vector.v[1] = v17;
+      dvar->latched.vector.v[2] = v18;
       return;
     case 4u:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi]
-        vmovss  xmm2, dword ptr [rdi+4]
-        vmovss  xmm1, dword ptr [rdi+8]
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rbx+28h], xmm3
-        vmovss  dword ptr [rbx+2Ch], xmm2
-        vmovss  dword ptr [rbx+30h], xmm1
-        vmovss  dword ptr [rbx+34h], xmm0
-        vmovss  dword ptr [rbx+38h], xmm3
-        vmovss  dword ptr [rbx+3Ch], xmm2
-        vmovss  dword ptr [rbx+40h], xmm1
-        vmovss  dword ptr [rbx+44h], xmm0
-      }
+      v12 = value->value;
+      v13 = value->vector.v[1];
+      v14 = value->vector.v[2];
+      v15 = value->vector.v[3];
+      dvar->current.value = value->value;
+      dvar->current.vector.v[1] = v13;
+      dvar->current.vector.v[2] = v14;
+      dvar->current.vector.v[3] = v15;
+      dvar->latched.value = v12;
+      dvar->latched.vector.v[1] = v13;
+      dvar->latched.vector.v[2] = v14;
+      dvar->latched.vector.v[3] = v15;
       return;
     case 9u:
-      integer64 = (const char *)_RDI->integer64;
-      string = _RBX->current.string;
+      integer64 = (const char *)value->integer64;
+      string = dvar->current.string;
       if ( integer64 != string )
       {
-        v9 = string && string != _RBX->latched.string && string != _RBX->reset.string;
-        Dvar_AssignCurrentStringValue(_RBX, &dest, integer64);
-        v10 = _RBX->latched.string;
-        v11 = dest.integer64;
-        _RBX->current.integer64 = dest.integer64;
-        if ( v10 && v10 != (const char *)v11 && v10 != _RBX->reset.string && *v10 )
-          SL_AllocString_Free(v10);
-        v12 = _RBX->current.string;
-        _RBX->latched.integer64 = 0i64;
-        Dvar_WeakCopyString(v12, &_RBX->latched);
-        if ( v9 )
+        v8 = string && string != dvar->latched.string && string != dvar->reset.string;
+        Dvar_AssignCurrentStringValue(dvar, &dest, integer64);
+        v9 = dvar->latched.string;
+        v10 = dest.integer64;
+        dvar->current.integer64 = dest.integer64;
+        if ( v9 && v9 != (const char *)v10 && v9 != dvar->reset.string && *v9 )
+          SL_AllocString_Free(v9);
+        v11 = dvar->current.string;
+        dvar->latched.integer64 = 0i64;
+        Dvar_WeakCopyString(v11, &dvar->latched);
+        if ( v8 )
         {
           if ( *string )
             SL_AllocString_Free(string);
@@ -10718,12 +8457,9 @@ LABEL_25:
     case 0xBu:
       goto LABEL_25;
     default:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vinsertf128 ymm0, ymm0, xmm0, 1
-        vmovups ymmword ptr [rbx+28h], ymm0
-      }
+      _YMM0 = (__m256i)*(_OWORD *)value;
+      __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+      *(__m256i *)&dvar->current.enabled = _YMM0;
       return;
   }
 }
@@ -10785,30 +8521,20 @@ Dvar_ValueInDomain
 */
 bool Dvar_ValueInDomain(unsigned __int8 type, DvarValue *value, DvarLimits *domain)
 {
+  DvarValue *v3; 
   int stringCount; 
   __int64 min; 
-  unsigned __int64 v9; 
+  unsigned __int64 v8; 
   int integer; 
-  bool v12; 
-  bool v14; 
-  bool v15; 
+  bool v10; 
+  int v11; 
+  int v12; 
+  float max; 
+  int v14; 
+  int v15; 
   int v16; 
-  bool v19; 
-  bool v20; 
-  int v21; 
-  bool v26; 
-  bool v29; 
-  bool v30; 
-  int v31; 
-  bool v36; 
-  bool v37; 
-  int v38; 
-  double v40; 
-  double v41; 
-  int v42; 
 
-  _RBX = value;
-  _RDI = domain;
+  v3 = value;
   switch ( type )
   {
     case 0u:
@@ -10817,85 +8543,36 @@ bool Dvar_ValueInDomain(unsigned __int8 type, DvarValue *value, DvarLimits *doma
       __debugbreak();
       return 1;
     case 1u:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]; jumptable 0000000141877EB5 case 1
-        vcomiss xmm0, dword ptr [rdi]
-        vcomiss xmm0, dword ptr [rdi+4]
-      }
-      return 0;
+      if ( value->value < domain->value.min )
+        return 0;
+      return value->value <= domain->value.max;
     case 2u:
-      __asm { vmovss  xmm1, dword ptr [rdi]; jumptable 0000000141877EB5 case 2 }
-      v14 = 0;
-      v15 = 1;
-      v16 = 0;
-      while ( 1 )
+      v11 = 0;
+      while ( v3->value >= domain->value.min && v3->value <= domain->value.max )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vcomiss xmm0, xmm1
-        }
-        if ( v14 )
-          break;
-        __asm { vcomiss xmm0, dword ptr [rdi+4] }
-        if ( !v15 )
-          break;
-        ++v16;
-        _RBX = (DvarValue *)((char *)_RBX + 4);
-        v14 = (unsigned int)v16 < 2;
-        v15 = (unsigned int)v16 <= 2;
-        if ( v16 >= 2 )
+        ++v11;
+        v3 = (DvarValue *)((char *)v3 + 4);
+        if ( v11 >= 2 )
           return 1;
       }
       return 0;
     case 3u:
-      __asm { vmovss  xmm1, dword ptr [rdi]; jumptable 0000000141877EB5 case 3 }
-      v19 = 0;
-      v20 = 1;
-      v21 = 0;
-      while ( 1 )
+      v12 = 0;
+      while ( v3->value >= domain->value.min && v3->value <= domain->value.max )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vcomiss xmm0, xmm1
-        }
-        if ( v19 )
-          break;
-        __asm { vcomiss xmm0, dword ptr [rdi+4] }
-        if ( !v20 )
-          break;
-        ++v21;
-        _RBX = (DvarValue *)((char *)_RBX + 4);
-        v19 = (unsigned int)v21 < 3;
-        v20 = (unsigned int)v21 <= 3;
-        if ( v21 >= 3 )
+        ++v12;
+        v3 = (DvarValue *)((char *)v3 + 4);
+        if ( v12 >= 3 )
           return 1;
       }
       return 0;
     case 4u:
-      __asm { vmovss  xmm1, dword ptr [rdi]; jumptable 0000000141877EB5 case 4 }
-      v36 = 0;
-      v37 = 1;
-      v38 = 0;
-      while ( 1 )
+      v15 = 0;
+      while ( v3->value >= domain->value.min && v3->value <= domain->value.max )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vcomiss xmm0, xmm1
-        }
-        if ( v36 )
-          break;
-        __asm { vcomiss xmm0, dword ptr [rdi+4] }
-        if ( !v37 )
-          break;
-        ++v38;
-        _RBX = (DvarValue *)((char *)_RBX + 4);
-        v36 = (unsigned int)v38 < 4;
-        v37 = (unsigned int)v38 <= 4;
-        if ( v38 >= 4 )
+        ++v15;
+        v3 = (DvarValue *)((char *)v3 + 4);
+        if ( v15 >= 4 )
           return 1;
       }
       return 0;
@@ -10903,28 +8580,28 @@ bool Dvar_ValueInDomain(unsigned __int8 type, DvarValue *value, DvarLimits *doma
       stringCount = domain->enumeration.stringCount;
       if ( domain->enumeration.stringCount > domain->integer.max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1678, ASSERT_TYPE_ASSERT, "(domain.integer.min <= domain.integer.max)", (const char *)&queryFormat, "domain.integer.min <= domain.integer.max") )
         __debugbreak();
-      if ( _RBX->integer < stringCount )
+      if ( v3->integer < stringCount )
         return 0;
-      return _RBX->integer <= _RDI->integer.max;
+      return v3->integer <= domain->integer.max;
     case 6u:
       min = domain->integer64.min;
       if ( domain->integer64.min > domain->integer64.max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1686, ASSERT_TYPE_ASSERT, "(domain.integer64.min <= domain.integer64.max)", (const char *)&queryFormat, "domain.integer64.min <= domain.integer64.max") )
         __debugbreak();
-      if ( _RBX->integer64 < min )
+      if ( v3->integer64 < min )
         return 0;
-      return _RBX->integer64 <= _RDI->integer64.max;
+      return v3->integer64 <= domain->integer64.max;
     case 7u:
-      v9 = domain->integer64.min;
+      v8 = domain->integer64.min;
       if ( domain->integer64.min > (unsigned __int64)domain->integer64.max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1694, ASSERT_TYPE_ASSERT, "(domain.unsignedInt64.min <= domain.unsignedInt64.max)", (const char *)&queryFormat, "domain.unsignedInt64.min <= domain.unsignedInt64.max") )
         __debugbreak();
-      if ( _RBX->integer64 < v9 )
+      if ( v3->integer64 < v8 )
         return 0;
-      return _RBX->integer64 <= (unsigned __int64)_RDI->integer64.max;
+      return v3->integer64 <= (unsigned __int64)domain->integer64.max;
     case 8u:
       integer = value->integer;
-      v12 = value->integer == 0;
+      v10 = value->integer == 0;
       if ( value->integer < 0 )
-        return v12;
+        return v10;
       if ( integer < domain->enumeration.stringCount )
         return 1;
       return integer == 0;
@@ -10932,66 +8609,26 @@ bool Dvar_ValueInDomain(unsigned __int8 type, DvarValue *value, DvarLimits *doma
     case 0xAu:
       return 1;
     case 0xBu:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]; jumptable 0000000141877EB5 case 11
-        vmovaps [rsp+48h+var_18], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vucomiss xmm0, xmm6
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+48h+var_20], xmm0
-      }
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1718, ASSERT_TYPE_ASSERT, "( ( domain.vector.min == 0.0f ) )", "( domain.vector.min ) = %g", v40);
-      if ( v26 )
+      if ( domain->value.min != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1718, ASSERT_TYPE_ASSERT, "( ( domain.vector.min == 0.0f ) )", "( domain.vector.min ) = %g", domain->value.min) )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vcomiss xmm0, xmm6
-      }
-      if ( !v26 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+48h+var_20], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1719, ASSERT_TYPE_ASSERT, "( ( domain.vector.max > 0.0f ) )", "( domain.vector.max ) = %g", v41) )
-          __debugbreak();
-      }
-      v29 = 0;
-      v30 = 1;
-      v31 = 0;
+      max = domain->value.max;
+      if ( max <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1719, ASSERT_TYPE_ASSERT, "( ( domain.vector.max > 0.0f ) )", "( domain.vector.max ) = %g", max) )
+        __debugbreak();
+      v14 = 0;
       break;
     default:
-      v42 = type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1735, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v42) )
+      v16 = type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1735, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v16) )
         __debugbreak();
       return 0;
   }
-  while ( 1 )
+  while ( v3->value >= 0.0 && v3->value <= domain->value.max )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vcomiss xmm0, xmm6
-    }
-    if ( v29 )
-      break;
-    __asm { vcomiss xmm0, dword ptr [rdi+4] }
-    if ( !v30 )
-      break;
-    ++v31;
-    _RBX = (DvarValue *)((char *)_RBX + 4);
-    v29 = (unsigned int)v31 < 3;
-    v30 = (unsigned int)v31 <= 3;
-    if ( v31 >= 3 )
-    {
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    ++v14;
+    v3 = (DvarValue *)((char *)v3 + 4);
+    if ( v14 >= 3 )
       return 1;
-    }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   return 0;
 }
 
@@ -11005,11 +8642,9 @@ const char *Dvar_ValueToString(const dvar_t *dvar, DvarValue *value, __int64 a3,
   int type; 
   const char *result; 
   int integer; 
-  bool v58; 
+  bool v13; 
   __int64 integer64; 
-  char *fmt; 
 
-  _RBX = value;
   type = dvar->type;
   switch ( type )
   {
@@ -11019,53 +8654,14 @@ const char *Dvar_ValueToString(const dvar_t *dvar, DvarValue *value, __int64 a3,
         return "1";
       return result;
     case 1:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx]; jumptable 00000001418783BF case 1
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      return j_va("%g", _RDX);
+      return j_va("%g", value->value);
     case 2:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+4]; jumptable 00000001418783BF case 2
-        vmovss  xmm1, dword ptr [rbx]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      return j_va("%g %g", _RDX, _R8);
+      return j_va("%g %g", value->value, value->vector.v[1]);
     case 3:
     case 11:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+8]; jumptable 00000001418783BF cases 3,11
-        vmovss  xmm2, dword ptr [rbx+4]
-        vmovss  xmm1, dword ptr [rbx]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      return j_va("%g %g %g", _RDX, _R8, _R9, a5, a6, a7, a8);
+      return j_va("%g %g %g", value->value, value->vector.v[1], value->vector.v[2], a5, a6, a7, a8);
     case 4:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]; jumptable 00000001418783BF case 4
-        vmovss  xmm3, dword ptr [rbx+8]
-        vmovss  xmm2, dword ptr [rbx+4]
-        vmovss  xmm1, dword ptr [rbx]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+38h+fmt], xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-      }
-      goto LABEL_12;
+      return j_va("%g %g %g %g", value->value, value->vector.v[1], value->vector.v[2], value->vector.v[3]);
     case 5:
       return j_va("%i", value->unsignedInt);
     case 6:
@@ -11074,55 +8670,26 @@ const char *Dvar_ValueToString(const dvar_t *dvar, DvarValue *value, __int64 a3,
       return j_va("%llu", value->integer64);
     case 8:
       integer = value->integer;
-      v58 = value->integer == 0;
+      v13 = value->integer == 0;
       if ( value->integer < 0 )
         goto LABEL_17;
       if ( integer >= dvar->domain.enumeration.stringCount )
       {
-        v58 = integer == 0;
+        v13 = integer == 0;
 LABEL_17:
-        if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1244, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < dvar->domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", value->integer) )
+        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1244, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < dvar->domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", value->integer) )
           __debugbreak();
       }
-      if ( dvar->domain.enumeration.stringCount )
-        return *(const char **)(dvar->domain.integer64.max + 8i64 * _RBX->integer);
-      else
+      if ( !dvar->domain.enumeration.stringCount )
         return (char *)&queryFormat.fmt + 3;
+      return *(const char **)(dvar->domain.integer64.max + 8i64 * value->integer);
     case 9:
       integer64 = value->integer64;
       if ( !value->integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1250, ASSERT_TYPE_ASSERT, "( ( value.string ) )", "( dvar->name ) = %s", dvar->name) )
         __debugbreak();
       return j_va((const char *)&queryFormat, integer64);
     case 10:
-      __asm
-      {
-        vmovss  xmm4, cs:__real@3b808081; jumptable 00000001418783BF case 10
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm0, xmm4
-        vcvtss2sd xmm5, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm4
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm4
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm4
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+38h+fmt], xmm5
-      }
-LABEL_12:
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      return j_va("%g %g %g %g", *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt);
+      return j_va("%g %g %g %g", (float)((float)value->color[0] * 0.0039215689), (float)((float)value->color[1] * 0.0039215689), (float)((float)value->color[2] * 0.0039215689), (float)((float)value->color[3] * 0.0039215689));
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1255, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", type) )
         __debugbreak();
@@ -11139,17 +8706,10 @@ void Dvar_ValueToStringBuffer(const dvar_t *dvar, DvarValue *value, char *outBuf
 {
   __int64 unsignedInt; 
   int integer; 
-  bool v51; 
+  bool v10; 
   const char *integer64; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  __int64 v56; 
-  double v57; 
-  double v58; 
-  double v59; 
+  __int64 v12; 
 
-  _RBX = value;
   if ( !outBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1307, ASSERT_TYPE_ASSERT, "(outBuffer)", (const char *)&queryFormat, "outBuffer") )
     __debugbreak();
   if ( !outBufferLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1308, ASSERT_TYPE_ASSERT, "(outBufferLen)", (const char *)&queryFormat, "outBufferLen") )
@@ -11157,135 +8717,68 @@ void Dvar_ValueToStringBuffer(const dvar_t *dvar, DvarValue *value, char *outBuf
   switch ( dvar->type )
   {
     case 0u:
-      unsignedInt = _RBX->color[0];
+      unsignedInt = value->color[0];
       goto LABEL_9;
     case 1u:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx]; jumptable 0000000141878817 case 1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(outBuffer, outBufferLen, "%g", *(double *)&_XMM3);
+      Com_sprintf(outBuffer, outBufferLen, "%g", value->value);
       return;
     case 2u:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx]; jumptable 0000000141878817 case 2
-        vmovss  xmm0, dword ptr [rbx+4]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+68h+fmt], xmm0
-      }
-      Com_sprintf(outBuffer, outBufferLen, "%g %g", *(double *)&_XMM3, *(double *)&fmt);
+      Com_sprintf(outBuffer, outBufferLen, "%g %g", value->value, value->vector.v[1]);
       return;
     case 3u:
     case 0xBu:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]; jumptable 0000000141878817 cases 3,11
-        vmovss  xmm3, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rbx+4]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+68h+var_40], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+68h+fmt], xmm1
-      }
-      Com_sprintf(outBuffer, outBufferLen, "%g %g %g", *(double *)&_XMM3, *(double *)&fmta, v57);
+      Com_sprintf(outBuffer, outBufferLen, "%g %g %g", value->value, value->vector.v[1], value->vector.v[2]);
       return;
     case 4u:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]; jumptable 0000000141878817 case 4
-        vmovss  xmm1, dword ptr [rbx+8]
-        vmovss  xmm2, dword ptr [rbx+4]
-        vmovss  xmm3, dword ptr [rbx]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+68h+var_38], xmm0
-        vmovsd  [rsp+68h+var_40], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-      }
-      goto LABEL_17;
+      Com_sprintf(outBuffer, outBufferLen, "%g %g %g %g", value->value, value->vector.v[1], value->vector.v[2], value->vector.v[3]);
+      return;
     case 5u:
-      unsignedInt = _RBX->unsignedInt;
+      unsignedInt = value->unsignedInt;
 LABEL_9:
       Com_sprintf(outBuffer, outBufferLen, "%i", unsignedInt);
       return;
     case 6u:
-      Com_sprintf(outBuffer, outBufferLen, "%lli", _RBX->integer64);
+      Com_sprintf(outBuffer, outBufferLen, "%lli", value->integer64);
       return;
     case 7u:
-      Com_sprintf(outBuffer, outBufferLen, "%llu", _RBX->integer64);
+      Com_sprintf(outBuffer, outBufferLen, "%llu", value->integer64);
       return;
     case 8u:
-      integer = _RBX->integer;
-      v51 = _RBX->integer == 0;
-      if ( _RBX->integer < 0 )
+      integer = value->integer;
+      v10 = value->integer == 0;
+      if ( value->integer < 0 )
         goto LABEL_22;
       if ( integer >= dvar->domain.enumeration.stringCount )
       {
-        v51 = integer == 0;
+        v10 = integer == 0;
 LABEL_22:
-        if ( !v51 )
+        if ( !v10 )
         {
-          LODWORD(v56) = _RBX->integer;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1350, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < dvar->domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", v56) )
+          LODWORD(v12) = value->integer;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1350, ASSERT_TYPE_ASSERT, "( ( value.integer >= 0 && value.integer < dvar->domain.enumeration.stringCount || value.integer == 0 ) )", "( value.integer ) = %i", v12) )
             __debugbreak();
         }
       }
-      if ( !dvar->domain.enumeration.stringCount )
-        goto LABEL_33;
-      Core_strcpy_truncate(outBuffer, outBufferLen, *(const char **)(dvar->domain.integer64.max + 8i64 * _RBX->integer));
-      break;
+      if ( dvar->domain.enumeration.stringCount )
+        Core_strcpy_truncate(outBuffer, outBufferLen, *(const char **)(dvar->domain.integer64.max + 8i64 * value->integer));
+      else
+LABEL_33:
+        *outBuffer = 0;
+      return;
     case 9u:
-      integer64 = (const char *)_RBX->integer64;
-      if ( !_RBX->integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1358, ASSERT_TYPE_ASSERT, "( ( value.string ) )", "( dvar->name ) = %s", dvar->name) )
+      integer64 = (const char *)value->integer64;
+      if ( !value->integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1358, ASSERT_TYPE_ASSERT, "( ( value.string ) )", "( dvar->name ) = %s", dvar->name) )
         __debugbreak();
       Core_strcpy_truncate(outBuffer, outBufferLen, integer64);
       return;
     case 0xAu:
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3b808081; jumptable 0000000141878817 case 10
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm0, xmm3
-        vcvtss2sd xmm5, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm3
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtss2sd xmm4, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm3
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmulss  xmm0, xmm1, xmm3
-        vmovsd  [rsp+68h+var_38], xmm5
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovsd  [rsp+68h+var_40], xmm4
-      }
-LABEL_17:
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovsd  [rsp+68h+fmt], xmm2
-      }
-      Com_sprintf(outBuffer, outBufferLen, "%g %g %g %g", *(double *)&_XMM3, *(double *)&fmtb, v58, v59);
+      Com_sprintf(outBuffer, outBufferLen, "%g %g %g %g", (float)((float)value->color[0] * 0.0039215689), (float)((float)value->color[1] * 0.0039215689), (float)((float)value->color[2] * 0.0039215689), (float)((float)value->color[3] * 0.0039215689));
       return;
     default:
-      LODWORD(v56) = dvar->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1364, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v56) )
+      LODWORD(v12) = dvar->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 1364, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", v12) )
         __debugbreak();
-LABEL_33:
-      *outBuffer = 0;
-      break;
+      goto LABEL_33;
   }
 }
 
@@ -11298,48 +8791,39 @@ __int64 Dvar_ValuesEqual(unsigned __int8 type, DvarValue *val0, DvarValue *val1)
 {
   __int64 result; 
   __int64 integer64; 
-  unsigned int v11; 
-  unsigned __int8 *v12; 
-  __int64 v13; 
-  int v14; 
-  int v15; 
+  unsigned int v7; 
+  unsigned __int8 *v8; 
+  __int64 v9; 
+  int v10; 
+  int v11; 
 
-  _RDI = val0;
-  _RSI = val1;
   switch ( type )
   {
     case 0u:
-      return val0->enabled == val1->enabled;
+      result = val0->enabled == val1->enabled;
+      break;
     case 1u:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]; jumptable 0000000141878C4C case 1
-        vucomiss xmm0, dword ptr [rdi]
-      }
-      goto LABEL_5;
+      if ( val1->value != val0->value )
+        goto LABEL_6;
+      result = 1i64;
+      break;
     case 2u:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]; jumptable 0000000141878C4C case 2
-        vucomiss xmm0, dword ptr [rdi]
-      }
-      goto LABEL_5;
+      if ( val1->value != val0->value || val1->vector.v[1] != val0->vector.v[1] )
+        goto LABEL_6;
+      result = 1i64;
+      break;
     case 3u:
     case 0xBu:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]; jumptable 0000000141878C4C cases 3,11
-        vucomiss xmm0, dword ptr [rdi]
-      }
-      goto LABEL_5;
+      if ( val1->value != val0->value || val1->vector.v[1] != val0->vector.v[1] || val1->vector.v[2] != val0->vector.v[2] )
+        goto LABEL_6;
+      result = 1i64;
+      break;
     case 4u:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]; jumptable 0000000141878C4C case 4
-        vucomiss xmm0, dword ptr [rdi]
-      }
-LABEL_5:
-      result = 0i64;
+      if ( val1->value == val0->value && val1->vector.v[1] == val0->vector.v[1] && val1->vector.v[2] == val0->vector.v[2] && val1->vector.v[3] == val0->vector.v[3] )
+        result = 1i64;
+      else
+LABEL_6:
+        result = 0i64;
       break;
     case 5u:
     case 8u:
@@ -11353,30 +8837,30 @@ LABEL_5:
     case 9u:
       if ( !val0->integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2055, ASSERT_TYPE_ASSERT, "(val0.string)", (const char *)&queryFormat, "val0.string") )
         __debugbreak();
-      integer64 = _RSI->integer64;
-      v11 = 0;
-      if ( !_RSI->integer64 )
+      integer64 = val1->integer64;
+      v7 = 0;
+      if ( !val1->integer64 )
       {
         integer64 = 0i64;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2056, ASSERT_TYPE_ASSERT, "(val1.string)", (const char *)&queryFormat, "val1.string") )
         {
           __debugbreak();
-          integer64 = _RSI->integer64;
+          integer64 = val1->integer64;
         }
       }
-      v12 = (unsigned __int8 *)_RDI->integer64;
-      v13 = integer64 - _RDI->integer64;
+      v8 = (unsigned __int8 *)val0->integer64;
+      v9 = integer64 - val0->integer64;
       do
       {
-        v14 = v12[v13];
-        v15 = *v12 - v14;
-        if ( v15 )
+        v10 = v8[v9];
+        v11 = *v8 - v10;
+        if ( v11 )
           break;
-        ++v12;
+        ++v8;
       }
-      while ( v14 );
-      LOBYTE(v11) = v15 == 0;
-      result = v11;
+      while ( v10 );
+      LOBYTE(v7) = v11 == 0;
+      result = v7;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.cpp", 2061, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled dvar type '%i'", type) )
@@ -11394,21 +8878,29 @@ Dvar_VectorDomainToString
 */
 void Dvar_VectorDomainToString(int components, DvarLimits *domain, char *outBuffer, unsigned __int64 outBufferLen)
 {
-  double v8; 
-  double v9; 
+  float min; 
+  float max; 
+  double v6; 
+  double v7; 
 
-  __asm
+  min = domain->value.min;
+  max = domain->value.max;
+  if ( domain->value.min == -3.4028235e38 )
   {
-    vmovss  xmm1, dword ptr [rdx]
-    vucomiss xmm1, cs:__real@ff7fffff
-    vmovss  xmm0, dword ptr [rdx+4]
-    vucomiss xmm0, cs:__real@7f7fffff
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+38h+var_10], xmm0
-    vmovsd  [rsp+38h+var_18], xmm1
+    if ( max == 3.4028235e38 )
+      Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any %iD vector", (unsigned int)components);
+    else
+      Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any %iD vector with components %g or smaller", (unsigned int)components, max);
   }
-  Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any %iD vector with components from %g to %g", (unsigned int)components, v8, v9);
+  else
+  {
+    v7 = min;
+    v6 = min;
+    if ( max == 3.4028235e38 )
+      Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any %iD vector with components %g or bigger", (unsigned int)components, v7);
+    else
+      Com_sprintf_truncate(outBuffer, outBufferLen, "Domain is any %iD vector with components from %g to %g", (unsigned int)components, v6, max);
+  }
 }
 
 /*

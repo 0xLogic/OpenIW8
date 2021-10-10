@@ -271,192 +271,151 @@ void __fastcall Live_TrackMigrateableQuitBeginGame(const int controllerIndex)
 ComputeStandardDeviation
 ==============
 */
-
-float __fastcall ComputeStandardDeviation(float *data, int count, float *avg_out, double _XMM3_8)
+float ComputeStandardDeviation(float *data, int count, float *avg_out)
 {
-  __int64 v9; 
-  int v12; 
+  __int64 v4; 
+  __int64 v6; 
+  int v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __int64 v12; 
+  __m128 v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  unsigned __int64 v24; 
-  int v37; 
-  unsigned __int64 v51; 
+  float *v18; 
+  unsigned __int64 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  float v22; 
+  float v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __int64 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  int v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v34; 
+  float *v35; 
+  unsigned __int64 v36; 
+  float v37; 
+  __m128 v38; 
+  float v39; 
+  float v40; 
+  __m128 v41; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RSI = avg_out;
-  v9 = count;
-  _RBX = data;
+  v4 = count;
   if ( count <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_connection_history.cpp", 792, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
     __debugbreak();
-  _R9 = 0i64;
-  v12 = 0;
-  __asm
+  v6 = 0i64;
+  v7 = 0;
+  v8 = 0i64;
+  v9 = 0i64;
+  if ( (int)v4 > 0 && (unsigned int)v4 >= 8 )
   {
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm2, xmm2, xmm2
-  }
-  if ( (int)v9 > 0 && (unsigned int)v9 >= 8 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-    }
-    v17 = 0i64;
+    v10 = 0i64;
+    v11 = 0i64;
+    v12 = 0i64;
     do
     {
-      __asm
-      {
-        vaddps  xmm0, xmm0, xmmword ptr [rbx+rax*4]
-        vaddps  xmm1, xmm1, xmmword ptr [rbx+rax*4+10h]
-      }
-      v17 += 8i64;
-      v12 += 8;
+      v10 = _mm128_add_ps(v10, *(__m128 *)&data[v12]);
+      v11 = _mm128_add_ps(v11, *(__m128 *)&data[v12 + 4]);
+      v12 += 8i64;
+      v7 += 8;
     }
-    while ( v17 < (int)v9 - (int)v9 % 8 );
-    __asm
-    {
-      vaddps  xmm1, xmm1, xmm0
-      vmovhlps xmm0, xmm1, xmm1
-      vaddps  xmm2, xmm0, xmm1
-      vshufps xmm0, xmm2, xmm2, 0F5h ; 'õ'
-      vaddss  xmm2, xmm2, xmm0
-    }
+    while ( v12 < (int)v4 - (int)v4 % 8 );
+    _XMM1 = _mm128_add_ps(v11, v10);
+    __asm { vmovhlps xmm0, xmm1, xmm1 }
+    v15 = _mm128_add_ps(_XMM0, _XMM1);
+    v15.m128_f32[0] = v15.m128_f32[0] + _mm_shuffle_ps(v15, v15, 245).m128_f32[0];
+    v9 = v15;
   }
-  v21 = v12;
-  v22 = v9;
-  if ( v21 < v9 )
+  v16 = v7;
+  v17 = v4;
+  if ( v16 < v4 )
   {
-    if ( v9 - v21 >= 4 )
+    if ( v4 - v16 >= 4 )
     {
-      v23 = (__int64)&_RBX[v21 + 2];
-      v24 = ((unsigned __int64)(v9 - v21 - 4) >> 2) + 1;
-      v21 += 4 * v24;
+      v18 = &data[v16 + 2];
+      v19 = ((unsigned __int64)(v4 - v16 - 4) >> 2) + 1;
+      v16 += 4 * v19;
       do
       {
-        __asm
-        {
-          vaddss  xmm0, xmm2, dword ptr [rax-8]
-          vaddss  xmm1, xmm0, dword ptr [rax-4]
-          vaddss  xmm2, xmm1, dword ptr [rax]
-          vaddss  xmm2, xmm2, dword ptr [rax+4]
-        }
-        v23 += 16i64;
-        --v24;
+        v20 = v9;
+        v20.m128_f32[0] = (float)((float)((float)(v9.m128_f32[0] + *(v18 - 2)) + *(v18 - 1)) + *v18) + v18[1];
+        v9 = v20;
+        v18 += 4;
+        --v19;
       }
-      while ( v24 );
+      while ( v19 );
     }
-    for ( ; v21 < v9; ++v21 )
-      __asm { vaddss  xmm2, xmm2, dword ptr [rbx+rcx*4] }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vdivss  xmm6, xmm0, xmm1
-    vmulss  xmm5, xmm6, xmm2
-    vmovaps xmm4, xmm5
-    vshufps xmm4, xmm4, xmm4, 0
-  }
-  if ( _RSI )
-    __asm { vmovss  dword ptr [rsi], xmm5 }
-  LODWORD(_RCX) = 0;
-  if ( (int)v9 > 0 && (unsigned int)v9 >= 8 )
-  {
-    __asm
+    for ( ; v16 < v4; ++v16 )
     {
-      vxorps  xmm2, xmm2, xmm2
-      vxorps  xmm3, xmm3, xmm3
+      v21 = v9;
+      v21.m128_f32[0] = v9.m128_f32[0] + data[v16];
+      v9 = v21;
     }
-    v37 = v9 - (int)v9 % 8;
+  }
+  v24 = (__m128)LODWORD(FLOAT_1_0);
+  v22 = 1.0 / (float)(int)v4;
+  v24.m128_f32[0] = v22 * v9.m128_f32[0];
+  v23 = v22 * v9.m128_f32[0];
+  v25 = _mm_shuffle_ps(v24, v24, 0);
+  if ( avg_out )
+    *avg_out = v24.m128_f32[0];
+  LODWORD(v26) = 0;
+  if ( (int)v4 > 0 && (unsigned int)v4 >= 8 )
+  {
+    v27 = 0i64;
+    v28 = 0i64;
+    v29 = v4 - (int)v4 % 8;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+r9*4]
-        vsubps  xmm1, xmm0, xmm4
-        vmovups xmm0, xmmword ptr [rbx+r9*4+10h]
-        vmulps  xmm1, xmm1, xmm1
-        vaddps  xmm2, xmm1, xmm2
-        vsubps  xmm1, xmm0, xmm4
-      }
-      LODWORD(_RCX) = _RCX + 8;
-      _R9 += 8i64;
-      __asm
-      {
-        vmulps  xmm1, xmm1, xmm1
-        vaddps  xmm3, xmm1, xmm3
-      }
+      v30 = _mm128_sub_ps(*(__m128 *)&data[v6], v25);
+      v27 = _mm128_add_ps(_mm128_mul_ps(v30, v30), v27);
+      v31 = _mm128_sub_ps(*(__m128 *)&data[v6 + 4], v25);
+      LODWORD(v26) = v26 + 8;
+      v6 += 8i64;
+      v28 = _mm128_add_ps(_mm128_mul_ps(v31, v31), v28);
     }
-    while ( _R9 < v37 );
-    __asm
-    {
-      vaddps  xmm1, xmm3, xmm2
-      vmovhlps xmm0, xmm1, xmm1
-      vaddps  xmm3, xmm0, xmm1
-      vshufps xmm0, xmm3, xmm3, 0F5h ; 'õ'
-      vaddss  xmm3, xmm3, xmm0
-    }
+    while ( v6 < v29 );
+    _XMM1 = _mm128_add_ps(v28, v27);
+    __asm { vmovhlps xmm0, xmm1, xmm1 }
+    v34 = _mm128_add_ps(_XMM0, _XMM1);
+    v34.m128_f32[0] = v34.m128_f32[0] + _mm_shuffle_ps(v34, v34, 245).m128_f32[0];
+    v8 = v34;
   }
-  _RCX = (int)_RCX;
-  if ( (int)_RCX < v22 )
+  v26 = (int)v26;
+  if ( (int)v26 < v17 )
   {
-    if ( v22 - (int)_RCX >= 4 )
+    if ( v17 - (int)v26 >= 4 )
     {
-      _R8 = (__int64)&_RBX[(int)_RCX + 2];
-      v51 = ((unsigned __int64)(v22 - (int)_RCX - 4) >> 2) + 1;
-      _RCX = (int)_RCX + 4 * v51;
+      v35 = &data[(int)v26 + 2];
+      v36 = ((unsigned __int64)(v17 - (int)v26 - 4) >> 2) + 1;
+      v26 = (int)v26 + 4 * v36;
       do
       {
-        __asm { vmovss  xmm0, dword ptr [r8-8] }
-        _R8 += 16i64;
-        __asm
-        {
-          vsubss  xmm1, xmm0, xmm5
-          vmovss  xmm0, dword ptr [r8-14h]
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm3, xmm3, xmm2
-          vsubss  xmm1, xmm0, xmm5
-          vmovss  xmm0, dword ptr [r8-10h]
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm4, xmm3, xmm2
-          vsubss  xmm1, xmm0, xmm5
-          vmovss  xmm0, dword ptr [r8-0Ch]
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm3, xmm4, xmm2
-          vsubss  xmm1, xmm0, xmm5
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm3, xmm3, xmm2
-        }
-        --v51;
+        v37 = *(v35 - 2);
+        v35 += 4;
+        v38 = v8;
+        v38.m128_f32[0] = (float)((float)((float)(v8.m128_f32[0] + (float)((float)(v37 - v23) * (float)(v37 - v23))) + (float)((float)(*(v35 - 5) - v23) * (float)(*(v35 - 5) - v23))) + (float)((float)(*(v35 - 4) - v23) * (float)(*(v35 - 4) - v23))) + (float)((float)(*(v35 - 3) - v23) * (float)(*(v35 - 3) - v23));
+        v8 = v38;
+        --v36;
       }
-      while ( v51 );
+      while ( v36 );
     }
-    while ( _RCX < v22 )
+    for ( ; v26 < v17; v8 = v41 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rcx*4]
-        vsubss  xmm1, xmm0, xmm5
-      }
-      ++_RCX;
-      __asm
-      {
-        vmulss  xmm2, xmm1, xmm1
-        vaddss  xmm3, xmm3, xmm2
-      }
+      v39 = data[v26++] - v23;
+      v40 = v39 * v39;
+      v41 = v8;
+      v41.m128_f32[0] = v8.m128_f32[0] + v40;
     }
   }
-  __asm
-  {
-    vmulss  xmm0, xmm6, xmm3
-    vmovaps xmm6, [rsp+48h+var_18]
-    vsqrtss xmm0, xmm0, xmm0
-  }
-  return *(float *)&_XMM0;
+  return fsqrt(v22 * v8.m128_f32[0]);
 }
 
 /*
@@ -487,7 +446,7 @@ char Live_AddBandwidthSample(int downloadRate, int uploadRate)
   state.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   if ( !CL_Mgr_IsClientActive(LOCAL_CLIENT_0) )
     return 0;
@@ -528,7 +487,7 @@ char Live_AddBandwidthSample(int downloadRate, int uploadRate)
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v22.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+var_A0.member], xmm0 }
+  *(_OWORD *)&v22.member = _XMM0;
   v22.offset = 0;
   v22.arrayIndex = -1;
   v15 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
@@ -567,7 +526,7 @@ char Live_ClearDeviceConnectionHistory(unsigned __int8 deviceIndex)
   state.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
@@ -599,11 +558,8 @@ void Live_ClearNonMigrateableQuit(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -629,165 +585,115 @@ Live_ComputeMinUploadBandwidthProbability
 ==============
 */
 
-float __fastcall Live_ComputeMinUploadBandwidthProbability(double uploadRate, double _XMM1_8, __int64 a3, double a4)
+float __fastcall Live_ComputeMinUploadBandwidthProbability(double uploadRate, double _XMM1_8)
 {
-  int v8; 
+  int v3; 
   int ControllerFromClient; 
   StatsSource ActiveStatsSource; 
   const DDLDef *def; 
   int CurrentDeviceIndex; 
-  int Int; 
+  int v10; 
   unsigned __int16 Short; 
-  int v20; 
-  char v24; 
-  char v26; 
+  __int64 v13; 
+  int v14; 
+  int Int; 
+  __int128 v16; 
+  float v17; 
+  unsigned int v18; 
+  float v19; 
+  float v21; 
+  float v22; 
   float avg_out; 
   DDLState state; 
   DDLState toState; 
   DDLContext context; 
   float data[16]; 
 
-  __asm { vmovaps [rsp+140h+var_50], xmm8 }
   state.isValid = 0;
   __asm { vpxor   xmm1, xmm1, xmm1 }
-  v8 = 0;
+  v3 = 0;
   state.arrayIndex = -1;
   state.offset = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+140h+state.member], xmm1
-    vmovaps xmm8, xmm0
-  }
+  *(_OWORD *)&state.member = _XMM1;
+  _XMM8 = *(_OWORD *)&uploadRate;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
   if ( CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_NONGAME) )
   {
     def = context.def;
     CurrentDeviceIndex = Live_GetCurrentDeviceIndex();
-    if ( Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.bandwidthTestCount, &state) && (Int = DDL_GetInt(&state, &context), Int > 0) )
+    if ( Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.bandwidthTestCount, &state) && (v10 = DDL_GetInt(&state, &context), v10 > 0) )
     {
       Short = 0;
-      if ( Int > 16 )
-        Int = 16;
+      if ( v10 > 16 )
+        v10 = 16;
       if ( Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.suckedAsHost, &state) )
         Short = DDL_GetShort(&state, &context);
       if ( Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.bandwidthUp, &state) )
       {
-        __asm
-        {
-          vmovaps [rsp+140h+var_30], xmm6
-          vmovaps [rsp+140h+var_40], xmm7
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  xmm7, cs:__real@46800000
-        }
-        _RDI = 0i64;
-        v20 = 1;
+        _XMM6 = 0i64;
+        v13 = 0i64;
+        v14 = 1;
         do
         {
           __asm { vpxor   xmm0, xmm0, xmm0 }
           toState.isValid = 0;
           toState.offset = 0;
           toState.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rsp+140h+toState.member], xmm0 }
-          DDL_MoveToIndex(&state, &toState, v8);
-          DDL_GetInt(&toState, &context);
-          if ( (Short & (unsigned __int16)v20) != 0 )
+          *(_OWORD *)&toState.member = *(_OWORD *)&uploadRate;
+          DDL_MoveToIndex(&state, &toState, v3);
+          Int = DDL_GetInt(&toState, &context);
+          if ( (Short & (unsigned __int16)v14) != 0 )
           {
-            __asm { vmovaps xmm1, xmm6 }
+            v17 = 0.0;
           }
           else
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm1, xmm0, xmm7
-            }
+            v16 = 0i64;
+            *(float *)&v16 = (float)Int;
+            *(_OWORD *)&uploadRate = v16;
+            v17 = *(float *)&v16 * 16384.0;
           }
-          __asm { vmovss  [rbp+rdi*4+40h+data], xmm1 }
-          ++_RDI;
-          v20 = __ROL4__(v20, 1);
-          ++v8;
+          data[v13++] = v17;
+          v14 = __ROL4__(v14, 1);
+          ++v3;
         }
-        while ( _RDI < Int );
-        _ER14 = 1;
-        *(float *)&uploadRate = ComputeStandardDeviation(data, Int, &avg_out, a4);
-        __asm
+        while ( v13 < v10 );
+        v18 = 1;
+        v19 = ComputeStandardDeviation(data, v10, &avg_out);
+        if ( v19 > 0.0 )
         {
-          vcomiss xmm0, xmm6
-          vmovaps xmm1, xmm0
-        }
-        if ( v24 | v26 )
-        {
-          __asm
-          {
-            vcmpless xmm1, xmm8, [rsp+140h+avg_out]
-            vmovss  xmm0, cs:__real@3f800000
-            vblendvps xmm0, xmm6, xmm0, xmm1
-          }
+          v21 = (float)(*(float *)&_XMM8 - avg_out) / v19;
+          if ( v21 < 0.0 )
+            v18 = -1;
+          v22 = (float)(COERCE_FLOAT(LODWORD(v21) & _xmm) * 0.23164189) + 1.0;
+          *(float *)&_XMM0 = 0.5 - (float)((float)((float)(1.0 - (float)(expf_0((float)(COERCE_FLOAT(LODWORD(v21) & _xmm) * COERCE_FLOAT(LODWORD(v21) & _xmm)) * -0.5) * (float)((float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 / v22) * 1.0614054) - 1.4531521) * (float)(1.0 / v22)) + 1.4214138) * (float)(1.0 / v22)) - 0.28449672) * (float)(1.0 / v22)) + 0.25482959) * (float)(1.0 / v22)))) * _mm_cvtepi32_ps((__m128i)v18).m128_f32[0]) * 0.5);
         }
         else
         {
           __asm
           {
-            vsubss  xmm0, xmm8, [rsp+140h+avg_out]
-            vmovss  xmm7, cs:__real@3f800000
-            vdivss  xmm2, xmm0, xmm1
-            vcomiss xmm2, xmm6
-            vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vmulss  xmm0, xmm2, cs:__real@3e6d3388
-            vaddss  xmm1, xmm0, xmm7
-            vmulss  xmm0, xmm2, xmm2
-            vmulss  xmm0, xmm0, cs:__real@bf000000; X
+            vcmpless xmm1, xmm8, [rsp+140h+avg_out]
+            vblendvps xmm0, xmm6, xmm0, xmm1
           }
-          if ( v24 )
-            _ER14 = -1;
-          __asm { vdivss  xmm6, xmm7, xmm1 }
-          *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-          __asm
-          {
-            vmulss  xmm1, xmm6, cs:__real@3f87dc22
-            vsubss  xmm2, xmm1, cs:__real@3fba00e3
-            vmulss  xmm3, xmm2, xmm6
-            vaddss  xmm4, xmm3, cs:__real@3fb5f0e3
-            vmulss  xmm1, xmm4, xmm6
-            vsubss  xmm2, xmm1, cs:__real@3e91a98e
-            vmulss  xmm3, xmm2, xmm6
-            vaddss  xmm4, xmm3, cs:__real@3e827906
-            vmulss  xmm1, xmm4, xmm6
-            vmovss  xmm4, cs:__real@3f000000
-            vmulss  xmm0, xmm0, xmm1
-            vsubss  xmm2, xmm7, xmm0
-            vmovd   xmm0, r14d
-            vcvtdq2ps xmm0, xmm0
-            vmulss  xmm1, xmm2, xmm0
-            vmulss  xmm3, xmm1, xmm4
-            vsubss  xmm0, xmm4, xmm3
-          }
-        }
-        __asm
-        {
-          vmovaps xmm7, [rsp+140h+var_40]
-          vmovaps xmm6, [rsp+140h+var_30]
         }
       }
       else
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        LODWORD(_XMM0) = 0;
       }
     }
     else
     {
       Com_Printf(1, "Could not compute bandwidth probability.  No data.\n");
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      LODWORD(_XMM0) = 0;
     }
   }
   else
   {
     Com_Printf(1, "Could not get player data buffer\n");
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
-  __asm { vmovaps xmm8, [rsp+140h+var_50] }
   return *(float *)&_XMM0;
 }
 
@@ -823,7 +729,7 @@ void __fastcall Live_DebugSuckedAsHost(double _XMM0_8)
   Int = 0;
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   CurrentDeviceIndex = Live_GetCurrentDeviceIndex();
@@ -998,11 +904,8 @@ unsigned __int8 __fastcall Live_GetCurrentDeviceIndex(double _XMM0_8)
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+130h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
   if ( !CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_NONGAME) )
@@ -1118,11 +1021,8 @@ LABEL_38:
     v36.isValid = 0;
     v36.offset = 0;
     v36.arrayIndex = -1;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+57h+var_C8.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v36.member = _XMM0;
     v26 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
     v27 = LiveStorage_GetActiveStatsSource(v26);
     if ( CL_PlayerData_GetDDLBuffer(&ddlContext, v26, v27, STATSGROUP_NONGAME) )
@@ -1165,11 +1065,8 @@ int Live_GetGameCount(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1195,35 +1092,20 @@ float Live_GetMigrateableQuitRate(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
-  if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
-  {
-    if ( Live_FindPlayerConnectionHistoryField(context.def, (const scr_string_t)scr_const.migrateableQuits, &state) )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      __popcnt(DDL_GetInt(&state, &context));
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm0, xmm0, cs:__real@3d000000
-      }
-      return *(float *)&_XMM0;
-    }
-  }
-  else
+  if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
   {
     Com_Printf(1, "Could not get player data buffer\n");
+    return FLOAT_1_0;
   }
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  if ( !Live_FindPlayerConnectionHistoryField(context.def, (const scr_string_t)scr_const.migrateableQuits, &state) )
+    return FLOAT_1_0;
+  return (float)(int)__popcnt(DDL_GetInt(&state, &context)) * 0.03125;
 }
 
 /*
@@ -1237,35 +1119,20 @@ float Live_GetNonMigrateableQuitRate(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
-  if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
-  {
-    if ( Live_FindPlayerConnectionHistoryField(context.def, (const scr_string_t)scr_const.nonMigrateableQuits, &state) )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      __popcnt(DDL_GetInt(&state, &context));
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm0, xmm0, cs:__real@3d000000
-      }
-      return *(float *)&_XMM0;
-    }
-  }
-  else
+  if ( !CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
   {
     Com_Printf(1, "Could not get player data buffer\n");
+    return FLOAT_1_0;
   }
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  if ( !Live_FindPlayerConnectionHistoryField(context.def, (const scr_string_t)scr_const.nonMigrateableQuits, &state) )
+    return FLOAT_1_0;
+  return (float)(int)__popcnt(DDL_GetInt(&state, &context)) * 0.03125;
 }
 
 /*
@@ -1287,7 +1154,7 @@ float Live_GetOverallQuitRate(const int controllerIndex)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   v4 = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_NONGAME) )
@@ -1297,20 +1164,13 @@ float Live_GetOverallQuitRate(const int controllerIndex)
       Int = DDL_GetInt(&state, &context);
     if ( Live_FindPlayerConnectionHistoryField(def, (const scr_string_t)scr_const.nonMigrateableQuits, &state) )
       v4 = DDL_GetInt(&state, &context);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    __popcnt(Int | v4);
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, cs:__real@3d000000
-    }
+    return (float)(int)__popcnt(Int | v4) * 0.03125;
   }
   else
   {
     Com_Printf(1, "Could not get player data buffer\n");
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    return FLOAT_1_0;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -1330,33 +1190,21 @@ float __fastcall Live_GetSuckedAsHostRate(double _XMM0_8)
 
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
-  if ( CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_NONGAME) )
-  {
-    def = context.def;
-    CurrentDeviceIndex = Live_GetCurrentDeviceIndex();
-    if ( Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.suckedAsHost, &state) )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      __popcnt(DDL_GetShort(&state, &context));
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm0, xmm0, cs:__real@3d800000
-      }
-      return *(float *)&_XMM0;
-    }
-  }
-  else
+  if ( !CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_NONGAME) )
   {
     Com_Printf(1, "Could not get player data buffer\n");
+    return FLOAT_1_0;
   }
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  def = context.def;
+  CurrentDeviceIndex = Live_GetCurrentDeviceIndex();
+  if ( !Live_FindDeviceConnectionHistoryField(def, CurrentDeviceIndex, (const scr_string_t)scr_const.suckedAsHost, &state) )
+    return FLOAT_1_0;
+  return (float)(int)__popcnt(DDL_GetShort(&state, &context)) * 0.0625;
 }
 
 /*
@@ -1385,11 +1233,8 @@ void Live_IncrementGameCount(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1464,11 +1309,8 @@ void Live_TrackMigrateableQuit(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1500,11 +1342,8 @@ void Live_TrackMigrateableQuitBeginGame(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1536,11 +1375,8 @@ void Live_TrackNonMigrateableQuitBeginGame(const int controllerIndex)
   DDLState state; 
   DDLContext context; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1582,7 +1418,7 @@ void __fastcall Live_TrackSuckedAsHost(double _XMM0_8)
   Int = 0;
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   CurrentDeviceIndex = Live_GetCurrentDeviceIndex();
@@ -1625,7 +1461,7 @@ void Live_TrackSuckedAsHostAddedBandwidthTest(int historyIndex)
   state.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);

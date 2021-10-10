@@ -640,44 +640,50 @@ G_Spawner_Read
 */
 void G_Spawner_Read(SaveGame *save)
 {
-  unsigned int v2; 
+  unsigned int v1; 
   MemoryFile *p_memFile; 
-  team_t v6[4]; 
+  __int64 v3; 
+  double Float; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  team_t v10[4]; 
   int p; 
-  int v8; 
-  int v9; 
+  int v12; 
+  int v13; 
 
-  v2 = 0;
+  v1 = 0;
   if ( cm.mapEnts->spawners.spawnerCount )
   {
-    _RBP = s_spawnerData;
     p_memFile = &save->memFile;
     do
     {
       MemFile_ReadData(p_memFile, 4ui64, &p);
-      _RBX = v2;
-      s_spawnerData[_RBX].count = p;
-      MemFile_ReadData(p_memFile, 4ui64, &v8);
-      s_spawnerData[_RBX].timestamp = v8;
-      MemFile_ReadData(p_memFile, 4ui64, &v9);
-      s_spawnerData[_RBX].added = v9;
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+0Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+10h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+14h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(p_memFile);
-      __asm { vmovss  dword ptr [rbx+rbp+18h], xmm0 }
-      MemFile_ReadData(p_memFile, 4ui64, v6);
-      ++v2;
-      s_spawnerData[_RBX].team = v6[0];
+      v3 = v1;
+      s_spawnerData[v3].count = p;
+      MemFile_ReadData(p_memFile, 4ui64, &v12);
+      s_spawnerData[v3].timestamp = v12;
+      MemFile_ReadData(p_memFile, 4ui64, &v13);
+      s_spawnerData[v3].added = v13;
+      Float = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].origin.v[0] = *(float *)&Float;
+      v5 = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].origin.v[1] = *(float *)&v5;
+      v6 = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].origin.v[2] = *(float *)&v6;
+      v7 = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].angles.v[0] = *(float *)&v7;
+      v8 = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].angles.v[1] = *(float *)&v8;
+      v9 = MemFile_ReadFloat(p_memFile);
+      s_spawnerData[v3].angles.v[2] = *(float *)&v9;
+      MemFile_ReadData(p_memFile, 4ui64, v10);
+      ++v1;
+      s_spawnerData[v3].team = v10[0];
     }
-    while ( v2 < cm.mapEnts->spawners.spawnerCount );
+    while ( v1 < cm.mapEnts->spawners.spawnerCount );
   }
 }
 
@@ -724,15 +730,15 @@ G_Spawner_SetSpawnerScriptVariable
 */
 void G_Spawner_SetSpawnerScriptVariable(const unsigned int key, const char *value, const VariableType type, const unsigned int number)
 {
-  scrContext_t *v10; 
+  scrContext_t *v9; 
   int String; 
-  scrContext_t *v12; 
+  scrContext_t *v11; 
   unsigned int EntityId; 
   unsigned int Variable; 
   VariableValue valuea; 
   float v; 
-  int v17; 
-  int v18; 
+  float v16; 
+  float v17; 
 
   if ( type )
   {
@@ -748,25 +754,18 @@ void G_Spawner_SetSpawnerScriptVariable(const unsigned int key, const char *valu
         valuea.u.intValue = String;
         break;
       case VAR_VECTOR:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rsp+78h+v], xmm0
-          vmovss  [rsp+78h+var_34], xmm0
-          vmovss  [rsp+78h+var_30], xmm0
-        }
-        if ( j_sscanf(value, "%f %f %f", &v, &v17, &v18) != 3 )
+        v = 0.0;
+        v16 = 0.0;
+        v17 = 0.0;
+        if ( j_sscanf(value, "%f %f %f", &v, &v16, &v17) != 3 )
           Com_Error_impl(ERR_SCRIPT_DROP, (const ObfuscateErrorText)&stru_143E59200, 72i64, value);
-        v10 = ScriptContext_Server();
-        valuea.u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(v10, &v);
+        v9 = ScriptContext_Server();
+        valuea.u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(v9, &v);
         break;
       case VAR_FLOAT:
         *(double *)&_XMM0 = atof(value);
-        __asm
-        {
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rsp+78h+value.u], xmm1
-        }
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        valuea.u.floatValue = *(float *)&_XMM1;
         break;
       case VAR_INTEGER:
         valuea.u.intValue = atoi(value);
@@ -776,17 +775,17 @@ void G_Spawner_SetSpawnerScriptVariable(const unsigned int key, const char *valu
           __debugbreak();
         break;
     }
-    v12 = ScriptContext_Server();
-    EntityId = Scr_GetEntityId(v12, number, ENTITY_CLASS_SPAWNER, LOCAL_CLIENT_0);
-    if ( GetObjectType(v12, EntityId) != VAR_ENTITY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawner.cpp", 359, ASSERT_TYPE_ASSERT, "( GetObjectType( scrContext, entId ) == VAR_ENTITY )", (const char *)&queryFormat, "GetObjectType( scrContext, entId ) == VAR_ENTITY") )
+    v11 = ScriptContext_Server();
+    EntityId = Scr_GetEntityId(v11, number, ENTITY_CLASS_SPAWNER, LOCAL_CLIENT_0);
+    if ( GetObjectType(v11, EntityId) != VAR_ENTITY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawner.cpp", 359, ASSERT_TYPE_ASSERT, "( GetObjectType( scrContext, entId ) == VAR_ENTITY )", (const char *)&queryFormat, "GetObjectType( scrContext, entId ) == VAR_ENTITY") )
       __debugbreak();
-    Variable = FindVariable(v12, EntityId, key);
+    Variable = FindVariable(v11, EntityId, key);
     if ( Variable )
-      SetVariableValue(v12, Variable, &valuea);
+      SetVariableValue(v11, Variable, &valuea);
     else
-      SetVariableEntityFieldValueByValue(v12, EntityId, key, &valuea);
+      SetVariableEntityFieldValueByValue(v11, EntityId, key, &valuea);
     if ( valuea.type == VAR_VECTOR )
-      RemoveRefToVector(v12, valuea.u.vectorValue);
+      RemoveRefToVector(v11, valuea.u.vectorValue);
   }
 }
 

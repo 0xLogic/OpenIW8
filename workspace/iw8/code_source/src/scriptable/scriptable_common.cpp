@@ -1075,85 +1075,73 @@ ScriptableCommon_UpdatePartsChangeBits
 */
 void ScriptableCommon_UpdatePartsChangeBits(ScriptableChangePartBits *changedPartBits, const unsigned int changedPartBitsArraySize, const ScriptablePartData *fromParts, const ScriptablePartData *toParts, const unsigned int partCount)
 {
-  unsigned int v11; 
-  __int64 v12; 
-  unsigned __int64 v13; 
-  unsigned int *v18; 
-  __int64 v31; 
+  const ScriptablePartData *v6; 
+  unsigned int v9; 
+  __int64 v10; 
+  unsigned __int64 v11; 
+  unsigned int *v14; 
+  __int64 v25; 
 
-  _RBX = toParts;
-  _RSI = fromParts;
+  v6 = fromParts;
   if ( !fromParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 348, ASSERT_TYPE_ASSERT, "(fromParts != nullptr)", (const char *)&queryFormat, "fromParts != nullptr") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 349, ASSERT_TYPE_ASSERT, "(toParts != nullptr)", (const char *)&queryFormat, "toParts != nullptr") )
+  if ( !toParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 349, ASSERT_TYPE_ASSERT, "(toParts != nullptr)", (const char *)&queryFormat, "toParts != nullptr") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "ScriptableCommon_UpdatePartsChangeBits");
-  if ( ((unsigned __int8)_RSI & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 356, ASSERT_TYPE_ASSERT, "(IsAligned( fromData, SCRIPTABLE_PART_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( fromData, SCRIPTABLE_PART_ALIGNMENT )") )
+  if ( ((unsigned __int8)v6 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 356, ASSERT_TYPE_ASSERT, "(IsAligned( fromData, SCRIPTABLE_PART_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( fromData, SCRIPTABLE_PART_ALIGNMENT )") )
     __debugbreak();
-  if ( ((unsigned __int8)_RBX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 357, ASSERT_TYPE_ASSERT, "(IsAligned( toData, SCRIPTABLE_PART_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( toData, SCRIPTABLE_PART_ALIGNMENT )") )
+  if ( ((unsigned __int8)toParts & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 357, ASSERT_TYPE_ASSERT, "(IsAligned( toData, SCRIPTABLE_PART_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( toData, SCRIPTABLE_PART_ALIGNMENT )") )
     __debugbreak();
-  v11 = partCount;
-  v12 = 0i64;
+  v9 = partCount;
+  v10 = 0i64;
   if ( partCount >= 0x20 )
   {
-    v13 = (unsigned __int64)partCount >> 5;
+    v11 = (unsigned __int64)partCount >> 5;
     do
     {
-      __asm { vmovdqu xmm1, xmmword ptr [rbx+10h] }
-      v11 -= 32;
-      __asm
-      {
-        vmovdqu xmm0, xmmword ptr [rsi+10h]
-        vmovdqu xmm3, xmmword ptr [rbx]
-        vmovdqu xmm2, xmmword ptr [rsi]
-      }
-      v18 = &changedPartBits->partBitsArray[v12];
-      _RBX += 32;
+      v9 -= 32;
+      _XMM0 = *(_OWORD *)&v6[16].0;
+      _XMM2 = *(_OWORD *)&v6->0;
+      v14 = &changedPartBits->partBitsArray[v10];
+      toParts += 32;
       __asm
       {
         vpcmpeqb xmm0, xmm0, xmm1
         vpmovmskb ecx, xmm0
       }
-      _RSI += 32;
+      v6 += 32;
       __asm
       {
         vpcmpeqb xmm1, xmm2, xmm3
         vpmovmskb eax, xmm1
       }
-      v12 = (unsigned int)(v12 + 1);
-      *v18 |= ~(_EAX | (_ECX << 16));
-      --v13;
+      v10 = (unsigned int)(v10 + 1);
+      *v14 |= ~(_EAX | (_ECX << 16));
+      --v11;
     }
-    while ( v13 );
+    while ( v11 );
   }
-  if ( v11 )
+  if ( v9 )
   {
-    __asm
+    _XMM0 = *(_OWORD *)&toParts->0;
+    __asm { vpcmpeqb xmm6, xmm0, xmmword ptr [rsi] }
+    _XMM0 = *(_OWORD *)&toParts[16].0;
+    __asm { vpcmpeqb xmm7, xmm0, xmmword ptr [rsi+10h] }
+    if ( v9 > 0x1F )
     {
-      vmovaps [rsp+88h+var_28], xmm6
-      vmovaps [rsp+88h+var_38], xmm7
-      vmovdqu xmm0, xmmword ptr [rbx]
-      vpcmpeqb xmm6, xmm0, xmmword ptr [rsi]
-      vmovdqu xmm0, xmmword ptr [rbx+10h]
-      vpcmpeqb xmm7, xmm0, xmmword ptr [rsi+10h]
-    }
-    if ( v11 > 0x1F )
-    {
-      LODWORD(v31) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 387, ASSERT_TYPE_ASSERT, "( bytesRemaining ) <= ( 31 )", "bytesRemaining not in [0, 31]\n\t%u not in [0, %u]", v31, 31) )
+      LODWORD(v25) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 387, ASSERT_TYPE_ASSERT, "( bytesRemaining ) <= ( 31 )", "bytesRemaining not in [0, 31]\n\t%u not in [0, %u]", v25, 31) )
         __debugbreak();
     }
     __asm
     {
       vpmovmskb edx, xmm7
-      vmovaps xmm7, [rsp+88h+var_38]
       vpmovmskb eax, xmm6
-      vmovaps xmm6, [rsp+88h+var_28]
     }
-    changedPartBits->partBitsArray[v12] |= ((1 << v11) - 1) & ~(_EAX | (_EDX << 16));
-    LODWORD(v12) = v12 + 1;
+    changedPartBits->partBitsArray[v10] |= ((1 << v9) - 1) & ~(_EAX | (_EDX << 16));
+    LODWORD(v10) = v10 + 1;
   }
-  if ( (unsigned int)v12 > changedPartBitsArraySize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 395, ASSERT_TYPE_ASSERT, "( partBitsIndex ) <= ( changedPartBitsArraySize )", "%s <= %s\n\t%i, %i", "partBitsIndex", "changedPartBitsArraySize", v12, changedPartBitsArraySize) )
+  if ( (unsigned int)v10 > changedPartBitsArraySize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common.cpp", 395, ASSERT_TYPE_ASSERT, "( partBitsIndex ) <= ( changedPartBitsArraySize )", "%s <= %s\n\t%i, %i", "partBitsIndex", "changedPartBitsArraySize", v10, changedPartBitsArraySize) )
     __debugbreak();
   Sys_ProfEndNamedEvent();
 }

@@ -478,12 +478,9 @@ SerializeIn<DB_BackendCallbackDataRingBufferAlloc>
 */
 void SerializeIn<DB_BackendCallbackDataRingBufferAlloc>(const DB_BackendCallbackDataRingBufferAlloc *data, unsigned __int8 **buffer, int *bufferSize)
 {
-  _RSI = data;
   if ( (unsigned int)*bufferSize < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 841, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  _RAX = *buffer;
-  __asm { vmovups xmmword ptr [rax], xmm0 }
+  *(DB_BackendCallbackDataRingBufferAlloc *)*buffer = *data;
   *buffer += 16;
   *bufferSize -= 16;
 }
@@ -495,15 +492,9 @@ SerializeOut<DB_BackendCallbackDataRingBufferAlloc>
 */
 void SerializeOut<DB_BackendCallbackDataRingBufferAlloc>(DB_BackendCallbackDataRingBufferAlloc *data, unsigned __int8 **buffer, int *bufferSize)
 {
-  _RSI = data;
   if ( (unsigned int)*bufferSize < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
-  _RAX = *buffer;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsi], xmm0
-  }
+  *data = *(DB_BackendCallbackDataRingBufferAlloc *)*buffer;
   *buffer += 16;
   *bufferSize -= 16;
 }
@@ -733,20 +724,13 @@ DB_BackendCallbackDataRingBuffer_PushBack
 */
 void DB_BackendCallbackDataRingBuffer_PushBack(const DB_BackendCallbackDataRingBufferAlloc *alloc)
 {
-  signed __int32 v5[8]; 
+  signed __int32 v2[8]; 
 
-  _RBX = alloc;
   if ( g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr - g_dbBackendCallbackDataRingBuffer.m_allocsReadPtr == g_dbBackendCallbackDataRingBuffer.m_allocsSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 968, ASSERT_TYPE_ASSERT, "(!DB_BackendCallbackDataRingBuffer_AllocsFull())", (const char *)&queryFormat, "!DB_BackendCallbackDataRingBuffer_AllocsFull()") )
     __debugbreak();
-  _InterlockedOr(v5, 0);
-  _RAX = g_dbBackendCallbackDataRingBuffer.m_allocs;
-  _RCX = 2i64 * (g_dbBackendCallbackDataRingBuffer.m_allocsMask & g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rax+rcx*8], xmm0
-  }
-  _InterlockedOr(v5, 0);
+  _InterlockedOr(v2, 0);
+  g_dbBackendCallbackDataRingBuffer.m_allocs[g_dbBackendCallbackDataRingBuffer.m_allocsMask & g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr] = *alloc;
+  _InterlockedOr(v2, 0);
   if ( ((unsigned __int8)&g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr) )
     __debugbreak();
   _InterlockedIncrement(&g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr);
@@ -759,14 +743,9 @@ DB_BackendCallbackDataRingBuffer_Queue
 */
 void DB_BackendCallbackDataRingBuffer_Queue(const DB_BackendCallbackDataRingBufferAlloc *alloc)
 {
-  _RBX = alloc;
   if ( g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 810, ASSERT_TYPE_ASSERT, "(g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs < DB_BackendCallbackDataRingBuffer::MAX_QUEUED_ALLOCS)", (const char *)&queryFormat, "g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs < DB_BackendCallbackDataRingBuffer::MAX_QUEUED_ALLOCS") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RAX = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
-  _RCX = 2i64 * g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs;
-  __asm { vmovups xmmword ptr [rax+rcx*8], xmm0 }
-  ++g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs;
+  g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs++] = *alloc;
 }
 
 /*
@@ -778,14 +757,16 @@ void DB_BackendCallbackDataRingBuffer_ReleaseSerializedSubmitQueue(unsigned __in
 {
   __int64 v4; 
   unsigned int v5; 
+  unsigned __int8 *v6; 
   unsigned int v7; 
   unsigned __int8 *v8; 
   __int64 v9; 
-  unsigned __int8 (__fastcall *v12)(unsigned __int8 *, __int64 *); 
-  int v13; 
-  __int64 v14[2]; 
+  __int64 v10; 
+  unsigned __int8 (__fastcall *v11)(unsigned __int8 *, __int64 *); 
+  int v12; 
+  __int64 v13[2]; 
+  int v14; 
   int v15; 
-  int v16; 
 
   if ( (unsigned int)bufferSize < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
@@ -793,9 +774,9 @@ void DB_BackendCallbackDataRingBuffer_ReleaseSerializedSubmitQueue(unsigned __in
   v5 = bufferSize - 4;
   if ( v5 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
-  _RSI = buffer + 8;
+  v6 = buffer + 8;
   v7 = v5 - 4;
-  v8 = &_RSI[16 * v4];
+  v8 = &v6[16 * v4];
   v9 = v4;
   if ( (int)v4 > 0 )
   {
@@ -803,22 +784,18 @@ void DB_BackendCallbackDataRingBuffer_ReleaseSerializedSubmitQueue(unsigned __in
     {
       if ( v7 < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovq   rdi, xmm0
-      }
-      _RSI += 16;
+      v10 = *(_QWORD *)v6;
+      v6 += 16;
       v7 -= 16;
-      v12 = *(unsigned __int8 (__fastcall **)(unsigned __int8 *, __int64 *))&v8[_RDI + 16];
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 934, ASSERT_TYPE_ASSERT, "(trampolineFunc)", (const char *)&queryFormat, "trampolineFunc") )
+      v11 = *(unsigned __int8 (__fastcall **)(unsigned __int8 *, __int64 *))&v8[v10 + 16];
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 934, ASSERT_TYPE_ASSERT, "(trampolineFunc)", (const char *)&queryFormat, "trampolineFunc") )
         __debugbreak();
-      v14[0] = 0i64;
-      v13 = *(_DWORD *)&v8[_RDI + 4];
-      v14[1] = 0i64;
-      v15 = v13;
-      v16 = 1;
-      if ( !v12(&v8[_RDI + 32], v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 948, ASSERT_TYPE_ASSERT, "(retVal)", (const char *)&queryFormat, "retVal") )
+      v13[0] = 0i64;
+      v12 = *(_DWORD *)&v8[v10 + 4];
+      v13[1] = 0i64;
+      v14 = v12;
+      v15 = 1;
+      if ( !v11(&v8[v10 + 32], v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 948, ASSERT_TYPE_ASSERT, "(retVal)", (const char *)&queryFormat, "retVal") )
         __debugbreak();
       --v9;
     }
@@ -836,15 +813,21 @@ __int64 DB_BackendCallbackDataRingBuffer_SerializeSubmitQueue(unsigned __int8 *b
   int v5; 
   unsigned int v6; 
   int v7; 
+  unsigned __int8 *v8; 
   int v9; 
+  __int64 v10; 
+  DB_BackendCallbackDataRingBufferAlloc *m_queuedAllocs; 
+  unsigned int v12; 
   unsigned int v13; 
   unsigned int v14; 
-  unsigned int v15; 
-  int v16; 
-  int v18; 
-  int v23; 
+  int v15; 
+  unsigned __int8 *v16; 
+  int v17; 
+  __int64 v18; 
+  DB_BackendCallbackDataRingBufferAlloc *v19; 
+  int v21; 
 
-  v23 = (int)buffer;
+  v21 = (int)buffer;
   v5 = (int)buffer;
   if ( save )
   {
@@ -856,34 +839,30 @@ __int64 DB_BackendCallbackDataRingBuffer_SerializeSubmitQueue(unsigned __int8 *b
       __debugbreak();
     *((_DWORD *)buffer + 1) = g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr;
     v7 = v6 - 4;
-    _RBX = buffer + 8;
+    v8 = buffer + 8;
     v9 = 0;
     if ( (int)g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs > 0 )
     {
-      _RSI = 0i64;
+      v10 = 0i64;
       do
       {
-        g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[_RSI].m_data -= (__int64)g_dbBackendCallbackDataRingBuffer.m_preallocData;
-        _R12 = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
+        g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[v10].m_data -= (__int64)g_dbBackendCallbackDataRingBuffer.m_preallocData;
+        m_queuedAllocs = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
         if ( (unsigned int)v7 < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 841, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
           __debugbreak();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r12+rsi]
-          vmovups xmmword ptr [rbx], xmm0
-        }
-        _RBX += 16;
+        *(DB_BackendCallbackDataRingBufferAlloc *)v8 = m_queuedAllocs[v10];
+        v8 += 16;
         v7 -= 16;
         ++v9;
-        ++_RSI;
+        ++v10;
       }
       while ( v9 < (int)g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs );
-      v5 = v23;
+      v5 = v21;
     }
     if ( v7 < (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 877, ASSERT_TYPE_ASSERT, "(bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr)", (const char *)&queryFormat, "bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr") )
       __debugbreak();
-    memcpy_0(_RBX, g_dbBackendCallbackDataRingBuffer.m_preallocData, g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr);
-    v13 = g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr + (_DWORD)_RBX;
+    memcpy_0(v8, g_dbBackendCallbackDataRingBuffer.m_preallocData, g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr);
+    v12 = g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr + (_DWORD)v8;
     *(_QWORD *)&g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr = 0i64;
   }
   else
@@ -892,46 +871,42 @@ __int64 DB_BackendCallbackDataRingBuffer_SerializeSubmitQueue(unsigned __int8 *b
       __debugbreak();
     if ( (unsigned int)bufferSize < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
       __debugbreak();
-    v14 = bufferSize - 4;
+    v13 = bufferSize - 4;
     g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs = *(_DWORD *)buffer;
-    if ( v14 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
+    if ( v13 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
       __debugbreak();
-    v15 = *((_DWORD *)buffer + 1);
-    v16 = v14 - 4;
-    _RBX = buffer + 8;
-    g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr = v15;
-    v18 = 0;
+    v14 = *((_DWORD *)buffer + 1);
+    v15 = v13 - 4;
+    v16 = buffer + 8;
+    g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr = v14;
+    v17 = 0;
     if ( (int)g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs > 0 )
     {
-      _RSI = 0i64;
+      v18 = 0i64;
       do
       {
-        _R14 = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
-        if ( (unsigned int)v16 < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
+        v19 = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
+        if ( (unsigned int)v15 < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
           __debugbreak();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx]
-          vmovups xmmword ptr [r14+rsi], xmm0
-        }
-        _RBX += 16;
-        v16 -= 16;
-        ++v18;
-        g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[_RSI++].m_data += (unsigned __int64)g_dbBackendCallbackDataRingBuffer.m_preallocData;
+        v19[v18] = *(DB_BackendCallbackDataRingBufferAlloc *)v16;
+        v16 += 16;
+        v15 -= 16;
+        ++v17;
+        g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[v18++].m_data += (unsigned __int64)g_dbBackendCallbackDataRingBuffer.m_preallocData;
       }
-      while ( v18 < (int)g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs );
-      v5 = v23;
+      while ( v17 < (int)g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs );
+      v5 = v21;
     }
-    if ( v16 < (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 901, ASSERT_TYPE_ASSERT, "(bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr)", (const char *)&queryFormat, "bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr") )
+    if ( v15 < (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 901, ASSERT_TYPE_ASSERT, "(bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr)", (const char *)&queryFormat, "bufferSize >= (int)g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr") )
       __debugbreak();
     if ( g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr > g_dbBackendCallbackDataRingBuffer.m_preallocDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 902, ASSERT_TYPE_ASSERT, "(g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr <= g_dbBackendCallbackDataRingBuffer.m_preallocDataSize)", (const char *)&queryFormat, "g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr <= g_dbBackendCallbackDataRingBuffer.m_preallocDataSize") )
       __debugbreak();
-    memcpy_0(g_dbBackendCallbackDataRingBuffer.m_preallocData, _RBX, g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr);
-    v13 = g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr + (_DWORD)_RBX;
-    if ( v16 != g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 908, ASSERT_TYPE_ASSERT, "(bufferSize == 0)", (const char *)&queryFormat, "bufferSize == 0") )
+    memcpy_0(g_dbBackendCallbackDataRingBuffer.m_preallocData, v16, g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr);
+    v12 = g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr + (_DWORD)v16;
+    if ( v15 != g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 908, ASSERT_TYPE_ASSERT, "(bufferSize == 0)", (const char *)&queryFormat, "bufferSize == 0") )
       __debugbreak();
   }
-  return v13 - v5;
+  return v12 - v5;
 }
 
 /*
@@ -975,61 +950,58 @@ bool DB_BackendCallbackDataRingBuffer_SubmitQueueEmpty()
 DB_BackendCallbackDataRingBuffer_SubmitQueued
 ==============
 */
-void DB_BackendCallbackDataRingBuffer_SubmitQueued()
+void DB_BackendCallbackDataRingBuffer_SubmitQueued(void)
 {
   __int64 m_numQueuedAllocs; 
-  __int64 v2; 
+  __int64 v1; 
   DB_BackendCallbackDataRingBufferAlloc *m_queuedAllocs; 
   XZoneHandleUnique *m_data; 
   unsigned int m_packed; 
   volatile unsigned int m_dataWritePtr; 
-  unsigned int v7; 
-  unsigned __int8 *v8; 
-  signed __int32 v13[8]; 
-  __int128 v14; 
+  unsigned int v6; 
+  unsigned __int8 *v7; 
+  DB_BackendCallbackDataRingBufferAlloc v8; 
+  signed __int32 v9[8]; 
+  DB_BackendCallbackDataRingBufferAlloc v10; 
 
   if ( g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs )
   {
     m_numQueuedAllocs = g_dbBackendCallbackDataRingBuffer.m_numQueuedAllocs;
-    v2 = 0i64;
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
+    v1 = 0i64;
     do
     {
       m_queuedAllocs = g_dbBackendCallbackDataRingBuffer.m_queuedAllocs;
-      m_data = (XZoneHandleUnique *)g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[v2].m_data;
+      m_data = (XZoneHandleUnique *)g_dbBackendCallbackDataRingBuffer.m_queuedAllocs[v1].m_data;
       m_packed = m_data->m_packed;
       if ( g_dbBackendCallbackDataRingBuffer.m_dataWritePtr - g_dbBackendCallbackDataRingBuffer.m_dataReadPtr == g_dbBackendCallbackDataRingBuffer.m_dataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 766, ASSERT_TYPE_ASSERT, "(!DB_BackendCallbackDataRingBuffer_DataFull())", (const char *)&queryFormat, "!DB_BackendCallbackDataRingBuffer_DataFull()") )
         __debugbreak();
       m_dataWritePtr = g_dbBackendCallbackDataRingBuffer.m_dataWritePtr;
       if ( m_packed + g_dbBackendCallbackDataRingBuffer.m_dataWritePtr - g_dbBackendCallbackDataRingBuffer.m_dataReadPtr > g_dbBackendCallbackDataRingBuffer.m_dataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 771, ASSERT_TYPE_ASSERT, "(writePtr - readPtr + size <= g_dbBackendCallbackDataRingBuffer.m_dataSize)", (const char *)&queryFormat, "writePtr - readPtr + size <= g_dbBackendCallbackDataRingBuffer.m_dataSize") )
         __debugbreak();
-      _InterlockedOr(v13, 0);
-      v7 = g_dbBackendCallbackDataRingBuffer.m_dataSize - (m_dataWritePtr & g_dbBackendCallbackDataRingBuffer.m_dataMask);
-      if ( m_packed > v7 )
-        m_dataWritePtr += v7;
-      v8 = &g_dbBackendCallbackDataRingBuffer.m_data[m_dataWritePtr & g_dbBackendCallbackDataRingBuffer.m_dataMask];
-      *(_QWORD *)&v14 = v8;
-      DWORD2(v14) = m_dataWritePtr + m_packed;
+      _InterlockedOr(v9, 0);
+      v6 = g_dbBackendCallbackDataRingBuffer.m_dataSize - (m_dataWritePtr & g_dbBackendCallbackDataRingBuffer.m_dataMask);
+      if ( m_packed > v6 )
+        m_dataWritePtr += v6;
+      v7 = &g_dbBackendCallbackDataRingBuffer.m_data[m_dataWritePtr & g_dbBackendCallbackDataRingBuffer.m_dataMask];
+      v10.m_data = v7;
+      v10.m_dataEndPtr = m_dataWritePtr + m_packed;
       g_dbBackendCallbackDataRingBuffer.m_dataWritePtr = m_dataWritePtr + m_packed;
-      _InterlockedOr(v13, 0);
-      __asm { vmovups xmm6, [rsp+78h+var_48] }
-      memcpy_0(v8, m_queuedAllocs[v2].m_data, m_data->m_packed);
+      _InterlockedOr(v9, 0);
+      v8 = v10;
+      memcpy_0(v7, m_queuedAllocs[v1].m_data, m_data->m_packed);
       DB_BackendCallbacks_AddZoneCallbackToProcess(m_data[1]);
       if ( g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr - g_dbBackendCallbackDataRingBuffer.m_allocsReadPtr == g_dbBackendCallbackDataRingBuffer.m_allocsSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 968, ASSERT_TYPE_ASSERT, "(!DB_BackendCallbackDataRingBuffer_AllocsFull())", (const char *)&queryFormat, "!DB_BackendCallbackDataRingBuffer_AllocsFull()") )
         __debugbreak();
-      _InterlockedOr(v13, 0);
-      _RAX = g_dbBackendCallbackDataRingBuffer.m_allocs;
-      _RCX = 2i64 * (g_dbBackendCallbackDataRingBuffer.m_allocsMask & g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr);
-      __asm { vmovups xmmword ptr [rax+rcx*8], xmm6 }
-      _InterlockedOr(v13, 0);
+      _InterlockedOr(v9, 0);
+      g_dbBackendCallbackDataRingBuffer.m_allocs[g_dbBackendCallbackDataRingBuffer.m_allocsMask & g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr] = v8;
+      _InterlockedOr(v9, 0);
       if ( ((unsigned __int64)&g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr) )
         __debugbreak();
       _InterlockedIncrement(&g_dbBackendCallbackDataRingBuffer.m_allocsWritePtr);
-      ++v2;
+      ++v1;
       --m_numQueuedAllocs;
     }
     while ( m_numQueuedAllocs );
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
   }
   *(_QWORD *)&g_dbBackendCallbackDataRingBuffer.m_preallocWritePtr = 0i64;
 }
@@ -1380,14 +1352,16 @@ void DB_BackendCallbacks_ReleaseSavedSubmitQueue(unsigned __int8 *buffer, unsign
 {
   __int64 v4; 
   unsigned int v5; 
+  unsigned __int8 *v6; 
   unsigned int v7; 
   unsigned __int8 *v8; 
   __int64 v9; 
-  unsigned __int8 (__fastcall *v12)(unsigned __int8 *, __int64 *); 
-  int v13; 
-  __int64 v14[2]; 
+  __int64 v10; 
+  unsigned __int8 (__fastcall *v11)(unsigned __int8 *, __int64 *); 
+  int v12; 
+  __int64 v13[2]; 
+  int v14; 
   int v15; 
-  int v16; 
 
   if ( bufferSize < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
@@ -1395,7 +1369,7 @@ void DB_BackendCallbacks_ReleaseSavedSubmitQueue(unsigned __int8 *buffer, unsign
   v5 = bufferSize - 4;
   if ( v5 < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
     __debugbreak();
-  _R15 = buffer + 8;
+  v6 = buffer + 8;
   v7 = v5 - 4;
   v8 = &buffer[16 * v4 + 8];
   v9 = v4;
@@ -1405,22 +1379,18 @@ void DB_BackendCallbacks_ReleaseSavedSubmitQueue(unsigned __int8 *buffer, unsign
     {
       if ( v7 < 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 852, ASSERT_TYPE_ASSERT, "(bufferSize >= sizeof( _Type ))", (const char *)&queryFormat, "bufferSize >= sizeof( _Type )") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovq   rdi, xmm0
-      }
-      _R15 += 16;
+      v10 = *(_QWORD *)v6;
+      v6 += 16;
       v7 -= 16;
-      v12 = *(unsigned __int8 (__fastcall **)(unsigned __int8 *, __int64 *))&v8[_RDI + 16];
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 934, ASSERT_TYPE_ASSERT, "(trampolineFunc)", (const char *)&queryFormat, "trampolineFunc") )
+      v11 = *(unsigned __int8 (__fastcall **)(unsigned __int8 *, __int64 *))&v8[v10 + 16];
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 934, ASSERT_TYPE_ASSERT, "(trampolineFunc)", (const char *)&queryFormat, "trampolineFunc") )
         __debugbreak();
-      v14[0] = 0i64;
-      v13 = *(_DWORD *)&v8[_RDI + 4];
-      v14[1] = 0i64;
-      v15 = v13;
-      v16 = 1;
-      if ( !v12(&v8[_RDI + 32], v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 948, ASSERT_TYPE_ASSERT, "(retVal)", (const char *)&queryFormat, "retVal") )
+      v13[0] = 0i64;
+      v12 = *(_DWORD *)&v8[v10 + 4];
+      v13[1] = 0i64;
+      v14 = v12;
+      v15 = 1;
+      if ( !v11(&v8[v10 + 32], v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 948, ASSERT_TYPE_ASSERT, "(retVal)", (const char *)&queryFormat, "retVal") )
         __debugbreak();
       --v9;
     }
@@ -1497,6 +1467,9 @@ DB_GpuTempMemCallbacksTransferGpuTempMemOwnership
 void DB_GpuTempMemCallbacksTransferGpuTempMemOwnership(XZoneHandleUnique zoneId)
 {
   __int64 v2; 
+  DB_GpuTempMemCallbacks::ZoneToProcess *i; 
+  XZoneMemoryAllocation *v4; 
+  double v5; 
   unsigned __int64 size; 
   XZoneMemoryAllocation result; 
   unsigned __int16 m_zoneIndex; 
@@ -1507,23 +1480,19 @@ void DB_GpuTempMemCallbacksTransferGpuTempMemOwnership(XZoneHandleUnique zoneId)
   v2 = g_dbGpuTempMemCallbacks.numZonesToProcess - 1;
   if ( (signed int)(g_dbGpuTempMemCallbacks.numZonesToProcess - 1) >= 0 )
   {
-    for ( _RDI = &g_dbGpuTempMemCallbacks.zonesToProcess[v2]; _RDI->zoneId.m_packed != zoneId; --_RDI )
+    for ( i = &g_dbGpuTempMemCallbacks.zonesToProcess[v2]; i->zoneId.m_packed != zoneId; --i )
     {
       if ( --v2 < 0 )
         return;
     }
-    if ( _RDI->ownsGpuTempMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 139, ASSERT_TYPE_ASSERT, "(!currZone->ownsGpuTempMemory)", (const char *)&queryFormat, "!currZone->ownsGpuTempMemory") )
+    if ( i->ownsGpuTempMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 139, ASSERT_TYPE_ASSERT, "(!currZone->ownsGpuTempMemory)", (const char *)&queryFormat, "!currZone->ownsGpuTempMemory") )
       __debugbreak();
-    _RAX = DB_Zones_GpuTempMemoryAllocTransferOwnership(&result, m_zoneIndex);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovups xmmword ptr [rdi+10h], xmm1
-      vmovsd  qword ptr [rdi+20h], xmm0
-    }
-    size = _RDI->gpuTempMemAlloc.size;
-    _RDI->ownsGpuTempMemory = 1;
+    v4 = DB_Zones_GpuTempMemoryAllocTransferOwnership(&result, m_zoneIndex);
+    v5 = *(double *)&v4->size;
+    *(_OWORD *)&i->gpuTempMemAlloc.pageRange.firstPageID = *(_OWORD *)&v4->pageRange.firstPageID;
+    *(double *)&i->gpuTempMemAlloc.size = v5;
+    size = i->gpuTempMemAlloc.size;
+    i->ownsGpuTempMemory = 1;
     g_dbGpuTempMemCallbacks.totalMem += size;
   }
 }
@@ -1566,65 +1535,50 @@ DB_ProcessFinishedGpuTempMemCallbacks
 void DB_ProcessFinishedGpuTempMemCallbacks(void)
 {
   unsigned int numZonesToProcess; 
-  __int64 v1; 
+  __int64 i; 
   unsigned int callbacksDoneFrame; 
   unsigned __int64 size; 
   unsigned __int64 totalMem; 
-  __int64 v7; 
+  __int64 v5; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 153, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
   numZonesToProcess = g_dbGpuTempMemCallbacks.numZonesToProcess;
-  v1 = 0i64;
-  if ( g_dbGpuTempMemCallbacks.numZonesToProcess )
+  for ( i = 0i64; (unsigned int)i < numZonesToProcess; i = (unsigned int)(i + 1) )
   {
-    _RBP = &g_dbGpuTempMemCallbacks;
-    do
+    if ( DB_BackendCallbacks_AllZoneCallbackProcessed(g_dbGpuTempMemCallbacks.zonesToProcess[i].zoneId) )
     {
-      _RBX = 6 * v1;
-      if ( DB_BackendCallbacks_AllZoneCallbackProcessed(g_dbGpuTempMemCallbacks.zonesToProcess[v1].zoneId) )
+      callbacksDoneFrame = g_dbGpuTempMemCallbacks.zonesToProcess[i].callbacksDoneFrame;
+      if ( callbacksDoneFrame == -1 )
       {
-        callbacksDoneFrame = g_dbGpuTempMemCallbacks.zonesToProcess[v1].callbacksDoneFrame;
-        if ( callbacksDoneFrame == -1 )
-        {
-          g_dbGpuTempMemCallbacks.zonesToProcess[v1].callbacksDoneFrame = g_gpuSwapFrame;
-        }
-        else if ( g_gpuSwapFrame - callbacksDoneFrame > 3 )
-        {
-          size = g_dbGpuTempMemCallbacks.zonesToProcess[v1].gpuTempMemAlloc.size;
-          totalMem = g_dbGpuTempMemCallbacks.totalMem;
-          if ( size > g_dbGpuTempMemCallbacks.totalMem )
-          {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 178, ASSERT_TYPE_ASSERT, "( currZone->gpuTempMemAlloc.size ) <= ( g_dbGpuTempMemCallbacks.totalMem )", "%s <= %s\n\t%llu, %llu", "currZone->gpuTempMemAlloc.size", "g_dbGpuTempMemCallbacks.totalMem", size, g_dbGpuTempMemCallbacks.totalMem) )
-              __debugbreak();
-            totalMem = g_dbGpuTempMemCallbacks.totalMem;
-          }
-          g_dbGpuTempMemCallbacks.totalMem = totalMem - g_dbGpuTempMemCallbacks.zonesToProcess[v1].gpuTempMemAlloc.size;
-          if ( !g_dbGpuTempMemCallbacks.zonesToProcess[v1].ownsGpuTempMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 182, ASSERT_TYPE_ASSERT, "(currZone->ownsGpuTempMemory)", (const char *)&queryFormat, "currZone->ownsGpuTempMemory") )
-            __debugbreak();
-          DB_Zones_FreeGpuTempMemory(&g_dbGpuTempMemCallbacks.zonesToProcess[v1].gpuTempMemAlloc);
-          v7 = numZonesToProcess - 1;
-          if ( (_DWORD)v1 != (_DWORD)v7 )
-          {
-            _RCX = 6 * v7;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+rcx*8+0]
-              vmovups ymmword ptr [rbp+rbx*8+0], ymm0
-              vmovups xmm1, xmmword ptr [rbp+rcx*8+20h]
-              vmovups xmmword ptr [rbp+rbx*8+20h], xmm1
-            }
-          }
-          numZonesToProcess = --g_dbGpuTempMemCallbacks.numZonesToProcess;
-          LODWORD(v1) = v1 - 1;
-          goto LABEL_10;
-        }
-        Sys_WakeDatabaseThread();
+        g_dbGpuTempMemCallbacks.zonesToProcess[i].callbacksDoneFrame = g_gpuSwapFrame;
       }
-LABEL_10:
-      v1 = (unsigned int)(v1 + 1);
+      else if ( g_gpuSwapFrame - callbacksDoneFrame > 3 )
+      {
+        size = g_dbGpuTempMemCallbacks.zonesToProcess[i].gpuTempMemAlloc.size;
+        totalMem = g_dbGpuTempMemCallbacks.totalMem;
+        if ( size > g_dbGpuTempMemCallbacks.totalMem )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 178, ASSERT_TYPE_ASSERT, "( currZone->gpuTempMemAlloc.size ) <= ( g_dbGpuTempMemCallbacks.totalMem )", "%s <= %s\n\t%llu, %llu", "currZone->gpuTempMemAlloc.size", "g_dbGpuTempMemCallbacks.totalMem", size, g_dbGpuTempMemCallbacks.totalMem) )
+            __debugbreak();
+          totalMem = g_dbGpuTempMemCallbacks.totalMem;
+        }
+        g_dbGpuTempMemCallbacks.totalMem = totalMem - g_dbGpuTempMemCallbacks.zonesToProcess[i].gpuTempMemAlloc.size;
+        if ( !g_dbGpuTempMemCallbacks.zonesToProcess[i].ownsGpuTempMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_backend_callback.cpp", 182, ASSERT_TYPE_ASSERT, "(currZone->ownsGpuTempMemory)", (const char *)&queryFormat, "currZone->ownsGpuTempMemory") )
+          __debugbreak();
+        DB_Zones_FreeGpuTempMemory(&g_dbGpuTempMemCallbacks.zonesToProcess[i].gpuTempMemAlloc);
+        v5 = numZonesToProcess - 1;
+        if ( (_DWORD)i != (_DWORD)v5 )
+        {
+          *(__m256i *)&g_dbGpuTempMemCallbacks.zonesToProcess[i].zoneId.m_generation = *(__m256i *)&g_dbGpuTempMemCallbacks.zonesToProcess[v5].zoneId.m_generation;
+          *(_OWORD *)&g_dbGpuTempMemCallbacks.zonesToProcess[i].gpuTempMemAlloc.size = *(_OWORD *)&g_dbGpuTempMemCallbacks.zonesToProcess[v5].gpuTempMemAlloc.size;
+        }
+        numZonesToProcess = --g_dbGpuTempMemCallbacks.numZonesToProcess;
+        LODWORD(i) = i - 1;
+        continue;
+      }
+      Sys_WakeDatabaseThread();
     }
-    while ( (unsigned int)v1 < numZonesToProcess );
   }
 }
 

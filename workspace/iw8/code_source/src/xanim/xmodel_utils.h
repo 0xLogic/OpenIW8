@@ -358,32 +358,27 @@ XSurface *XModelGetSurface(const XModel *model, unsigned int lod, int surfIndex)
 XModelGetIntegerMaterialLod
 ==============
 */
-
-__int64 __fastcall XModelGetIntegerMaterialLod(double lod, double _XMM1_8)
+__int64 XModelGetIntegerMaterialLod(float lod)
 {
-  double v6; 
-  __int64 v7; 
+  unsigned int v1; 
+  bool v2; 
+  bool v3; 
+  __int64 v5; 
+  int v6; 
 
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vcvttss2si rbx, xmm0
-    vcomiss xmm0, cs:__real@4b800000
-    vcomiss xmm0, xmm1
-    vcomiss xmm0, cs:__real@4f800000
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+58h+var_20], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", (unsigned int)_RBX, v6) )
+  v1 = (int)lod;
+  v2 = lod >= 0.0 && lod <= 16777216.0;
+  v3 = lod >= 0.0 && lod <= 4294967300.0;
+  if ( (!v2 || !v3) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", v1, lod) )
     __debugbreak();
-  if ( (unsigned int)_RBX > 1 )
+  if ( v1 > 1 )
   {
-    LODWORD(v7) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v7, 1) )
+    v6 = 1;
+    LODWORD(v5) = (int)lod;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v5, v6) )
       __debugbreak();
   }
-  return (unsigned int)_RBX;
+  return v1;
 }
 
 /*
@@ -523,22 +518,12 @@ XModelGetBaseLODDistance<0>
 */
 float XModelGetBaseLODDistance<0>(const XModel *model, const GfxPlacement *placement, const vec3_t *lodOrigin)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm3, xmm0, dword ptr [rdx+10h]
-    vmovss  xmm1, dword ptr [r8+4]
-    vsubss  xmm2, xmm1, dword ptr [rdx+14h]
-    vmovss  xmm0, dword ptr [r8+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+18h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  return *(float *)&_XMM0;
+  float v3; 
+  float v4; 
+
+  v3 = lodOrigin->v[1] - placement->origin.v[1];
+  v4 = lodOrigin->v[2] - placement->origin.v[2];
+  return fsqrt((float)((float)(v3 * v3) + (float)((float)(lodOrigin->v[0] - placement->origin.v[0]) * (float)(lodOrigin->v[0] - placement->origin.v[0]))) + (float)(v4 * v4));
 }
 
 /*
@@ -546,33 +531,18 @@ float XModelGetBaseLODDistance<0>(const XModel *model, const GfxPlacement *place
 XModelGetBaseLODDistanceScaled<0>
 ==============
 */
-
-float __fastcall XModelGetBaseLODDistanceScaled<0>(const XModel *model, const GfxPlacement *placement, double scale, const vec3_t *lodOrigin)
+float XModelGetBaseLODDistanceScaled<0>(const XModel *model, const GfxPlacement *placement, float scale, const vec3_t *lodOrigin)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm5, xmm0, dword ptr [rdx+10h]
-    vmovss  xmm1, dword ptr [r9+4]
-    vsubss  xmm3, xmm1, dword ptr [rdx+14h]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+18h]
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm3, xmm3, xmm3
-    vaddss  xmm2, xmm3, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm6, xmm1
-    vaddss  xmm2, xmm2, xmm0
-    vmovaps [rsp+58h+var_28], xmm7
-    vsqrtss xmm7, xmm2, xmm2
-    vdivss  xmm0, xmm7, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+  float v5; 
+  float v6; 
+
+  v4 = lodOrigin->v[1] - placement->origin.v[1];
+  v5 = lodOrigin->v[2] - placement->origin.v[2];
+  v6 = fsqrt((float)((float)(v4 * v4) + (float)((float)(lodOrigin->v[0] - placement->origin.v[0]) * (float)(lodOrigin->v[0] - placement->origin.v[0]))) + (float)(v5 * v5));
+  if ( scale == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f") )
+    __debugbreak();
+  return v6 / scale;
 }
 
 /*
@@ -580,41 +550,21 @@ float __fastcall XModelGetBaseLODDistanceScaled<0>(const XModel *model, const Gf
 XModelGetBaseLODDistanceScaled<1>
 ==============
 */
-
-float __fastcall XModelGetBaseLODDistanceScaled<1>(const XModel *model, const GfxPlacement *placement, double scale, const vec3_t *lodOrigin)
+float XModelGetBaseLODDistanceScaled<1>(const XModel *model, const GfxPlacement *placement, float scale, const vec3_t *lodOrigin)
 {
+  float v7; 
+  __int128 v8; 
+  float v9; 
   vec3_t out; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = lodOrigin;
-  __asm { vmovaps xmm6, xmm2 }
   QuatTransform(&placement->quat, &model->bounds.halfSize, &out);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbx+10h]
-    vaddss  xmm3, xmm0, dword ptr [rsp+58h+out]
-    vmovss  xmm1, dword ptr [rdi]
-    vmulss  xmm0, xmm6, dword ptr [rbx+14h]
-    vaddss  xmm2, xmm0, dword ptr [rsp+58h+out+4]
-    vmulss  xmm0, xmm6, dword ptr [rbx+18h]
-    vsubss  xmm5, xmm1, xmm3
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm3, xmm1, xmm2
-    vaddss  xmm2, xmm0, dword ptr [rsp+58h+out+8]
-    vmovss  xmm1, dword ptr [rdi+8]
-    vsubss  xmm4, xmm1, xmm2
-    vmulss  xmm3, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vsubss  xmm2, xmm3, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm0, xmm2, xmm1
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  v7 = lodOrigin->v[0] - (float)((float)(scale * placement->origin.v[0]) + out.v[0]);
+  v8 = LODWORD(lodOrigin->v[1]);
+  *(float *)&v8 = lodOrigin->v[1] - (float)((float)(scale * placement->origin.v[1]) + out.v[1]);
+  v9 = lodOrigin->v[2] - (float)((float)(scale * placement->origin.v[2]) + out.v[2]);
+  *(float *)&v8 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(v7 * v7)) + (float)(v9 * v9)) - (float)(scale * model->radius);
+  _XMM2 = v8;
+  __asm { vmaxss  xmm0, xmm2, xmm1 }
   return *(float *)&_XMM0;
 }
 

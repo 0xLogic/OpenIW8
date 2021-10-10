@@ -485,9 +485,10 @@ void dwAddrHandleToNetadr(const bdReference<bdAddrHandle> *addrHandle, netadr_t 
   bdAddrHandle *m_ptr; 
   bdCommonAddr *v5; 
   netadrtype_t v6; 
+  bdAddr *LocalAddrByIndex; 
   bool isResolved; 
   bdAddrHandle *v9; 
-  bdAddr v16; 
+  bdAddr v10; 
   bdAddr result; 
 
   if ( !addrHandle->m_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwnet.cpp", 954, ASSERT_TYPE_ASSERT, "(addrHandle.notNull())", (const char *)&queryFormat, "addrHandle.notNull()") )
@@ -495,12 +496,12 @@ void dwAddrHandleToNetadr(const bdReference<bdAddrHandle> *addrHandle, netadr_t 
   m_ptr = addrHandle->m_ptr;
   if ( addrHandle->m_ptr )
   {
-    bdAddr::bdAddr(&v16);
+    bdAddr::bdAddr(&v10);
     v5 = m_ptr->m_endpoint.m_ca.m_ptr;
     if ( v5->m_isLoopback )
     {
       v6 = NA_LOOPBACK;
-      _RAX = bdCommonAddr::getLocalAddrByIndex(v5, 0);
+      LocalAddrByIndex = (bdAddr *)bdCommonAddr::getLocalAddrByIndex(v5, 0);
     }
     else
     {
@@ -508,27 +509,13 @@ void dwAddrHandleToNetadr(const bdReference<bdAddrHandle> *addrHandle, netadr_t 
       isResolved = bdAddrHandle::isResolved(addrHandle->m_ptr);
       v9 = addrHandle->m_ptr;
       if ( isResolved )
-        _RAX = bdAddrHandle::getRealAddr(v9, &result);
+        LocalAddrByIndex = (bdAddr *)bdAddrHandle::getRealAddr(v9, &result);
       else
-        _RAX = bdCommonAddr::getPublicAddr(v9->m_endpoint.m_ca.m_ptr);
+        LocalAddrByIndex = (bdAddr *)bdCommonAddr::getPublicAddr(v9->m_endpoint.m_ca.m_ptr);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+188h+var_158.m_address.inUn], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+188h+var_158.m_address.inUn+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rsp+188h+var_158.m_address.inUn+40h], ymm0
-      vmovups ymm1, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rsp+188h+var_158.m_address.inUn+60h], ymm1
-      vmovups xmm0, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rsp+188h+var_158.m_relayRoute.m_relayID], xmm0
-      vmovsd  xmm1, qword ptr [rax+90h]
-      vmovsd  qword ptr [rsp+188h+var_158.m_type], xmm1
-    }
-    *(in_addr *)outAddr->ip = *bdSockAddr::getIn4Addr(&v16.m_address);
-    outAddr->port = bdSockAddr::getPort(&v16.m_address);
+    v10 = *LocalAddrByIndex;
+    *(in_addr *)outAddr->ip = *bdSockAddr::getIn4Addr(&v10.m_address);
+    outAddr->port = bdSockAddr::getPort(&v10.m_address);
     outAddr->flags = 0;
     outAddr->type = v6;
   }
@@ -1499,7 +1486,7 @@ __int64 dwPrepareSendTo(const unsigned int length, const void *data, NetPacket *
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v17 = 0i64;
   v18 = 0;
-  __asm { vmovdqu [rsp+598h+var_550], xmm0 }
+  v16 = _XMM0;
   memcpy_0(v20, data, v5);
   SocketRouter = dwGetSocketRouter();
   m_ptr = packet->addr.m_ptr;

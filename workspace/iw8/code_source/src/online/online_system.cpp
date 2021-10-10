@@ -293,22 +293,11 @@ void XSESSION_INFO::XSESSION_INFO(XSESSION_INFO *this, const XSECURITY_INFO *sec
 {
   XSECURITY_INFO *p_m_security; 
 
-  _RSI = addr;
-  _RBP = this;
   p_m_security = &this->m_security;
   bdSecurityID::bdSecurityID(&this->m_security.m_id);
   bdSecurityKey::bdSecurityKey(&p_m_security->m_key);
   XSECURITY_INFO::operator=(p_m_security, security);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [rbp+40h], xmm0
-  }
-  *(_DWORD *)&_RBP->m_address.addrBuff[80] = *(_DWORD *)&_RSI->addrBuff[80];
+  this->m_address = *addr;
 }
 
 /*
@@ -320,27 +309,16 @@ void XSESSION_INFO::XSESSION_INFO(XSESSION_INFO *this, const bdSecurityID *id, c
 {
   XSECURITY_INFO *p_m_security; 
   const XSECURITY_INFO *v9; 
-  XSECURITY_INFO v13; 
+  XSECURITY_INFO v10; 
 
-  _RBP = addr;
-  _R14 = this;
   p_m_security = &this->m_security;
   bdSecurityID::bdSecurityID(&this->m_security.m_id);
   bdSecurityKey::bdSecurityKey(&p_m_security->m_key);
-  XSECURITY_INFO::XSECURITY_INFO(&v13, id, key);
+  XSECURITY_INFO::XSECURITY_INFO(&v10, id, key);
   XSECURITY_INFO::operator=(p_m_security, v9);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [r14], ymm0
-    vmovups ymm1, ymmword ptr [rbp+20h]
-    vmovups ymmword ptr [r14+20h], ymm1
-    vmovups xmm0, xmmword ptr [rbp+40h]
-    vmovups xmmword ptr [r14+40h], xmm0
-  }
-  *(_DWORD *)&_R14->m_address.addrBuff[80] = *(_DWORD *)&_RBP->addrBuff[80];
-  bdSecurityKey::~bdSecurityKey(&v13.m_key);
-  bdSecurityID::~bdSecurityID(&v13.m_id);
+  this->m_address = *addr;
+  bdSecurityKey::~bdSecurityKey(&v10.m_key);
+  bdSecurityID::~bdSecurityID(&v10.m_id);
 }
 
 /*
@@ -350,20 +328,12 @@ XSESSION_INFO::operator=
 */
 XSESSION_INFO *XSESSION_INFO::operator=(XSESSION_INFO *this, const XSESSION_INFO *other)
 {
-  _RBX = other;
-  _RDI = this;
   XSECURITY_INFO::operator=(&this->m_security, &other->m_security);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rdi+40h], xmm0
-  }
-  *(_DWORD *)&_RDI->m_address.addrBuff[80] = *(_DWORD *)&_RBX->m_address.addrBuff[80];
-  return _RDI;
+  *(__m256i *)this->m_address.addrBuff = *(__m256i *)other->m_address.addrBuff;
+  *(__m256i *)&this->m_address.addrBuff[32] = *(__m256i *)&other->m_address.addrBuff[32];
+  *(_OWORD *)&this->m_address.addrBuff[64] = *(_OWORD *)&other->m_address.addrBuff[64];
+  *(_DWORD *)&this->m_address.addrBuff[80] = *(_DWORD *)&other->m_address.addrBuff[80];
+  return this;
 }
 
 /*
@@ -420,39 +390,26 @@ OnlineJoinInfo::Deserialize
 */
 void OnlineJoinInfo::Deserialize(OnlineJoinInfo *this, const unsigned __int8 *buffer, const unsigned int sizeOfBuffer)
 {
-  int v8; 
+  int v6; 
 
-  _RBX = buffer;
-  _RDI = this;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 250, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
-  _RDI->gameMode[0] = *_RBX;
-  _RDI->isInMatchmakingArea = _RBX[1] != 0;
-  _RDI->clientPlatform[0] = _RBX[2];
-  __asm
+  this->gameMode[0] = *buffer;
+  this->isInMatchmakingArea = buffer[1] != 0;
+  this->clientPlatform[0] = buffer[2];
+  this->matchmakingLobbyId = *(unsigned __int64 *)(buffer + 3);
+  this->tournamentId = *(unsigned __int64 *)(buffer + 11);
+  this->isJoinerInInvitersBlocklist = buffer[19] != 0;
+  if ( buffer[20] )
   {
-    vmovsd  xmm0, qword ptr [rbx+3]
-    vmovsd  qword ptr [rdi+70h], xmm0
-    vmovsd  xmm0, qword ptr [rbx+0Bh]
-    vmovsd  qword ptr [rdi+78h], xmm0
-  }
-  _RDI->isJoinerInInvitersBlocklist = _RBX[19] != 0;
-  if ( _RBX[20] )
-  {
-    v8 = sizeOfBuffer - 21;
-    if ( v8 < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 166, ASSERT_TYPE_ASSERT, "(length >= Size())", (const char *)&queryFormat, "length >= Size()") )
+    v6 = sizeOfBuffer - 21;
+    if ( v6 < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 166, ASSERT_TYPE_ASSERT, "(length >= Size())", (const char *)&queryFormat, "length >= Size()") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+15h]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+35h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+55h]
-      vmovups xmmword ptr [rdi+40h], xmm0
-    }
-    *(_DWORD *)&_RDI->communicationInfo.session.m_address.addrBuff[80] = *(_DWORD *)(_RBX + 101);
-    XSECURITY_INFO::Deserialize(&_RDI->communicationInfo.session.m_security, _RBX + 105, v8);
+    *(__m256i *)this->communicationInfo.session.m_address.addrBuff = *(__m256i *)(buffer + 21);
+    *(__m256i *)&this->communicationInfo.session.m_address.addrBuff[32] = *(__m256i *)(buffer + 53);
+    *(_OWORD *)&this->communicationInfo.session.m_address.addrBuff[64] = *(_OWORD *)(buffer + 85);
+    *(_DWORD *)&this->communicationInfo.session.m_address.addrBuff[80] = *(_DWORD *)(buffer + 101);
+    XSECURITY_INFO::Deserialize(&this->communicationInfo.session.m_security, buffer + 105, v6);
   }
 }
 
@@ -463,21 +420,13 @@ XSESSION_INFO::Deserialize
 */
 __int64 XSESSION_INFO::Deserialize(XSESSION_INFO *this, const unsigned __int8 *data, const int length)
 {
-  _RBX = data;
-  _RDI = this;
   if ( length < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 166, ASSERT_TYPE_ASSERT, "(length >= Size())", (const char *)&queryFormat, "length >= Size()") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rdi+40h], xmm0
-  }
-  *(_DWORD *)&_RDI->m_address.addrBuff[80] = *((_DWORD *)_RBX + 20);
-  return (unsigned int)(XSECURITY_INFO::Deserialize(&_RDI->m_security, _RBX + 84, length) + 84);
+  *(__m256i *)this->m_address.addrBuff = *(__m256i *)data;
+  *(__m256i *)&this->m_address.addrBuff[32] = *((__m256i *)data + 1);
+  *(_OWORD *)&this->m_address.addrBuff[64] = *((_OWORD *)data + 4);
+  *(_DWORD *)&this->m_address.addrBuff[80] = *((_DWORD *)data + 20);
+  return (unsigned int)(XSECURITY_INFO::Deserialize(&this->m_security, data + 84, length) + 84);
 }
 
 /*
@@ -687,45 +636,32 @@ OnlineJoinInfo::Serialize
 __int64 OnlineJoinInfo::Serialize(OnlineJoinInfo *this, unsigned __int8 *buffer, unsigned int sizeOfBuffer)
 {
   bdSecurityID *Id; 
-  signed int v9; 
+  signed int v7; 
 
-  _RBX = buffer;
-  _RDI = this;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 208, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
-  *_RBX = _RDI->gameMode[0];
-  _RBX[1] = _RDI->isInMatchmakingArea;
-  _RBX[2] = _RDI->clientPlatform[0];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+70h]
-    vmovsd  qword ptr [rbx+3], xmm0
-    vmovsd  xmm0, qword ptr [rdi+78h]
-    vmovsd  qword ptr [rbx+0Bh], xmm0
-  }
-  _RBX[19] = _RDI->isJoinerInInvitersBlocklist;
-  Id = (bdSecurityID *)XSECURITY_INFO::GetId(&_RDI->communicationInfo.session.m_security);
+  *buffer = this->gameMode[0];
+  buffer[1] = this->isInMatchmakingArea;
+  buffer[2] = this->clientPlatform[0];
+  *(double *)(buffer + 3) = *(double *)&this->matchmakingLobbyId;
+  *(double *)(buffer + 11) = *(double *)&this->tournamentId;
+  buffer[19] = this->isJoinerInInvitersBlocklist;
+  Id = (bdSecurityID *)XSECURITY_INFO::GetId(&this->communicationInfo.session.m_security);
   if ( bdSecurityID::IsValid(Id) )
   {
-    v9 = sizeOfBuffer - 21;
-    _RBX[20] = 1;
-    if ( v9 < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 144, ASSERT_TYPE_ASSERT, "(size >= Size())", (const char *)&queryFormat, "size >= Size()") )
+    v7 = sizeOfBuffer - 21;
+    buffer[20] = 1;
+    if ( v7 < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 144, ASSERT_TYPE_ASSERT, "(size >= Size())", (const char *)&queryFormat, "size >= Size()") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx+15h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+35h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [rbx+55h], xmm0
-    }
-    *(_DWORD *)(_RBX + 101) = *(_DWORD *)&_RDI->communicationInfo.session.m_address.addrBuff[80];
-    return (unsigned int)(XSECURITY_INFO::Serialize(&_RDI->communicationInfo.session.m_security, _RBX + 105, v9 - 84) + 105);
+    *(__m256i *)(buffer + 21) = *(__m256i *)this->communicationInfo.session.m_address.addrBuff;
+    *(__m256i *)(buffer + 53) = *(__m256i *)&this->communicationInfo.session.m_address.addrBuff[32];
+    *(_OWORD *)(buffer + 85) = *(_OWORD *)&this->communicationInfo.session.m_address.addrBuff[64];
+    *(_DWORD *)(buffer + 101) = *(_DWORD *)&this->communicationInfo.session.m_address.addrBuff[80];
+    return (unsigned int)(XSECURITY_INFO::Serialize(&this->communicationInfo.session.m_security, buffer + 105, v7 - 84) + 105);
   }
   else
   {
-    _RBX[20] = 0;
+    buffer[20] = 0;
     return 21i64;
   }
 }
@@ -737,21 +673,13 @@ XSESSION_INFO::Serialize
 */
 __int64 XSESSION_INFO::Serialize(XSESSION_INFO *this, unsigned __int8 *buffer, const int size)
 {
-  _RBX = buffer;
-  _RDI = this;
   if ( size < 108 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_system.cpp", 144, ASSERT_TYPE_ASSERT, "(size >= Size())", (const char *)&queryFormat, "size >= Size()") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
-  *((_DWORD *)_RBX + 20) = *(_DWORD *)&_RDI->m_address.addrBuff[80];
-  return (unsigned int)(XSECURITY_INFO::Serialize(&_RDI->m_security, _RBX + 84, size - 84) + 84);
+  *(__m256i *)buffer = *(__m256i *)this->m_address.addrBuff;
+  *((__m256i *)buffer + 1) = *(__m256i *)&this->m_address.addrBuff[32];
+  *((_OWORD *)buffer + 4) = *(_OWORD *)&this->m_address.addrBuff[64];
+  *((_DWORD *)buffer + 20) = *(_DWORD *)&this->m_address.addrBuff[80];
+  return (unsigned int)(XSECURITY_INFO::Serialize(&this->m_security, buffer + 84, size - 84) + 84);
 }
 
 /*
@@ -772,18 +700,7 @@ XSESSION_INFO::Set
 */
 void XSESSION_INFO::Set(XSESSION_INFO *this, const XSECURITY_INFO *security, const XNADDR *addr)
 {
-  _RBX = this;
-  _RDI = addr;
   XSECURITY_INFO::operator=(&this->m_security, security);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
-  *(_DWORD *)&_RBX->m_address.addrBuff[80] = *(_DWORD *)&_RDI->addrBuff[80];
+  this->m_address = *addr;
 }
 

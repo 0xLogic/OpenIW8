@@ -5,378 +5,358 @@ lj_bcread_proto
 */
 GCproto *lj_bcread_proto(LexState *ls)
 {
-  unsigned int v2; 
-  unsigned int v4; 
+  unsigned int v1; 
+  unsigned int v3; 
   const char *p; 
-  unsigned __int8 v6; 
-  const char *v7; 
-  unsigned __int8 v8; 
-  const char *v9; 
-  unsigned __int8 v10; 
-  const char *v11; 
+  unsigned __int8 v5; 
+  const char *v6; 
+  unsigned __int8 v7; 
+  const char *v8; 
+  unsigned __int8 v9; 
+  const char *v10; 
+  unsigned int v11; 
   unsigned int v12; 
   unsigned int v13; 
   unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  __int64 v17; 
+  __int64 v16; 
+  unsigned int v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  int v21; 
+  GCproto *v19; 
+  int v20; 
+  unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
+  __int64 v23; 
+  __int64 v26; 
+  __int64 v31; 
+  __int64 v34; 
   __int64 v35; 
-  __int64 v36; 
-  unsigned int *v37; 
-  unsigned int v38; 
+  unsigned int *v36; 
+  unsigned int v37; 
   __int16 *ptr64; 
-  __int64 v40; 
-  __int16 v41; 
-  __int64 v43; 
+  __int64 v39; 
+  __int16 v40; 
+  unsigned int *v41; 
+  __int64 v42; 
+  const char *v43; 
   const char *v44; 
-  const char *v45; 
-  int v46; 
-  unsigned int v47; 
-  int v48; 
+  int v45; 
+  unsigned int v46; 
+  int v47; 
+  char v48; 
   char v49; 
-  char v50; 
-  unsigned int v51; 
+  unsigned int v50; 
   char v53; 
+  __int16 *v54; 
   int numline; 
   unsigned int v56; 
   __int64 v57; 
   __int16 v58; 
   unsigned int v59; 
-  __int64 v72; 
-  unsigned int *v73; 
-  unsigned int v74; 
+  __int64 v60; 
+  __int64 v63; 
+  __int64 v68; 
+  __int64 v71; 
+  unsigned int *v72; 
+  unsigned int v73; 
   int sizeuv; 
-  _BYTE *v76; 
-  unsigned int v79; 
-  int v80; 
+  _BYTE *v75; 
+  unsigned int v78; 
+  int v79; 
   unsigned int len; 
+  unsigned int v81; 
   unsigned int v82; 
-  unsigned int v83; 
   unsigned int sizekgc; 
-  unsigned int v85; 
+  unsigned int v84; 
+  unsigned __int8 v85; 
   unsigned __int8 v86; 
   unsigned __int8 v87; 
-  unsigned __int8 v88; 
-  unsigned int v89; 
+  unsigned int v88; 
 
-  v2 = 0;
-  v4 = 0;
+  v1 = 0;
+  v3 = 0;
   len = 0;
+  v78 = 0;
   v79 = 0;
-  v80 = 0;
   if ( ls->p >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
     __debugbreak();
   p = ls->p;
-  v6 = *p++;
-  v88 = v6;
+  v5 = *p++;
+  v87 = v5;
   ls->p = p;
   if ( p >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
     __debugbreak();
-  v7 = ls->p;
-  v8 = *v7++;
-  v86 = v8;
-  ls->p = v7;
-  if ( v7 >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
+  v6 = ls->p;
+  v7 = *v6++;
+  v85 = v7;
+  ls->p = v6;
+  if ( v6 >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
     __debugbreak();
-  v9 = ls->p;
-  v10 = *v9++;
-  v87 = v10;
-  ls->p = v9;
-  if ( v9 >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
+  v8 = ls->p;
+  v9 = *v8++;
+  v86 = v9;
+  ls->p = v8;
+  if ( v8 >= ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 122, "ls->p < ls->pe") )
     __debugbreak();
-  v11 = ls->p;
-  v12 = *(unsigned __int8 *)v11;
-  ls->p = v11 + 1;
-  v83 = v12;
+  v10 = ls->p;
+  v11 = *(unsigned __int8 *)v10;
+  ls->p = v10 + 1;
+  v82 = v11;
+  v12 = j_lj_buf_ruleb128(&ls->p);
+  sizekgc = v12;
+  if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
+    __debugbreak();
   v13 = j_lj_buf_ruleb128(&ls->p);
-  sizekgc = v13;
+  v88 = v13;
   if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
     __debugbreak();
   v14 = j_lj_buf_ruleb128(&ls->p);
-  v89 = v14;
+  v81 = v14;
   if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
     __debugbreak();
-  v15 = j_lj_buf_ruleb128(&ls->p);
-  v82 = v15;
-  if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
-    __debugbreak();
-  v16 = v15 + 1;
+  v15 = v14 + 1;
   if ( (ls->level & 2) == 0 )
   {
-    v4 = j_lj_buf_ruleb128(&ls->p);
-    len = v4;
+    v3 = j_lj_buf_ruleb128(&ls->p);
+    len = v3;
     if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
       __debugbreak();
-    if ( v4 )
+    if ( v3 )
     {
+      v78 = j_lj_buf_ruleb128(&ls->p);
+      if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
+        __debugbreak();
       v79 = j_lj_buf_ruleb128(&ls->p);
       if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
         __debugbreak();
-      v80 = j_lj_buf_ruleb128(&ls->p);
-      if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
-        __debugbreak();
     }
   }
-  v17 = (4 * (v16 + 2 * v13) + 111) & 0xFFFFFFF8;
-  v18 = v17 + 8 * v14;
-  v85 = v18 + 2 * ((v12 + 1) & 0xFFFFFFFE);
-  v19 = v4 + v85;
-  _RBP = (GCproto *)j_lj_mem_newgco(ls->L, v4 + v85);
-  _RBP->gct = 7;
-  _RBP->numparams = v86;
-  _RBP->framesize = v87;
-  _RBP->k.ptr64 = (unsigned __int64)_RBP + v17;
-  _RBP->sizept = v19;
-  _RBP->sizebc = v16;
-  _RBP->sizekgc = 0;
-  _RBP->trace = 0;
-  _RBP->uv.ptr64 = (unsigned __int64)_RBP + v18;
-  _RBP->sizekn = v89;
-  _RBP->flags = v88;
-  _RBP->sizeuv = v83;
-  v21 = 89;
-  _RBP->chunkname.gcptr64 = (unsigned __int64)ls->chunkname;
-  *(_DWORD *)((char *)&_RBP->nextgc.gcptr64 + (unsigned int)v17 - 8i64 * (sizekgc + 1)) = 0;
-  if ( (_RBP->flags & 2) != 0 )
-    v21 = 92;
-  LODWORD(_RBP[1].nextgc.gcptr64) = (_RBP->framesize << 8) | v21;
-  bcread_block(ls, (char *)&_RBP[1].nextgc.gcptr64 + 4, 4 * v82);
+  v16 = (4 * (v15 + 2 * v12) + 111) & 0xFFFFFFF8;
+  v17 = v16 + 8 * v13;
+  v84 = v17 + 2 * ((v11 + 1) & 0xFFFFFFFE);
+  v18 = v3 + v84;
+  v19 = (GCproto *)j_lj_mem_newgco(ls->L, v3 + v84);
+  v19->gct = 7;
+  v19->numparams = v85;
+  v19->framesize = v86;
+  v19->k.ptr64 = (unsigned __int64)v19 + v16;
+  v19->sizept = v18;
+  v19->sizebc = v15;
+  v19->sizekgc = 0;
+  v19->trace = 0;
+  v19->uv.ptr64 = (unsigned __int64)v19 + v17;
+  v19->sizekn = v88;
+  v19->flags = v87;
+  v19->sizeuv = v82;
+  v20 = 89;
+  v19->chunkname.gcptr64 = (unsigned __int64)ls->chunkname;
+  *(_DWORD *)((char *)&v19->nextgc.gcptr64 + (unsigned int)v16 - 8i64 * (sizekgc + 1)) = 0;
+  if ( (v19->flags & 2) != 0 )
+    v20 = 92;
+  LODWORD(v19[1].nextgc.gcptr64) = (v19->framesize << 8) | v20;
+  bcread_block(ls, (char *)&v19[1].nextgc.gcptr64 + 4, 4 * v81);
   if ( (ls->level & 1) != 0 )
   {
-    v22 = 1;
-    if ( v16 > 1 )
+    v21 = 1;
+    if ( v15 > 1 )
     {
-      if ( v82 >= 0x10 )
+      if ( v81 >= 0x10 )
       {
-        v23 = 9;
+        v22 = 9;
         do
         {
-          _RAX = v22;
+          v23 = v21;
+          v21 += 16;
+          _XMM0 = *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v23);
+          __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+          *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v23) = _XMM1;
+          v26 = v22 - 4;
+          _XMM0 = *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v26);
+          __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+          *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v26) = _XMM1;
+          _XMM0 = *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v22);
+          __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+          *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v22) = _XMM1;
+          v31 = v22 + 4;
           v22 += 16;
-          __asm
-          {
-            vmovdqu xmm0, xmmword ptr [rbp+rax*4+68h]
-            vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-            vmovdqu xmmword ptr [rbp+rax*4+68h], xmm1
-          }
-          _RAX = v23 - 4;
-          __asm
-          {
-            vmovdqu xmm0, xmmword ptr [rbp+rax*4+68h]
-            vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-            vmovdqu xmmword ptr [rbp+rax*4+68h], xmm1
-          }
-          _RAX = v23;
-          __asm
-          {
-            vmovdqu xmm0, xmmword ptr [rbp+rax*4+68h]
-            vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-            vmovdqu xmmword ptr [rbp+rax*4+68h], xmm1
-          }
-          _RAX = v23 + 4;
-          v23 += 16;
-          __asm
-          {
-            vmovdqu xmm0, xmmword ptr [rbp+rax*4+68h]
-            vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-            vmovdqu xmmword ptr [rbp+rax*4+68h], xmm1
-          }
+          _XMM0 = *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v31);
+          __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+          *(_OWORD *)((char *)&v19[1].nextgc.gcptr64 + 4 * v31) = _XMM1;
         }
-        while ( v22 < v16 - (v82 & 0xF) );
+        while ( v21 < v15 - (v81 & 0xF) );
       }
-      if ( v22 < v16 )
+      if ( v21 < v15 )
       {
-        v35 = v22;
-        v36 = v16 - v22;
-        v37 = (unsigned int *)((char *)&_RBP[1] + 4 * v35);
+        v34 = v21;
+        v35 = v15 - v21;
+        v36 = (unsigned int *)((char *)&v19[1] + 4 * v34);
         do
         {
-          v38 = *v37++;
-          *(v37 - 1) = _byteswap_ulong(v38);
-          --v36;
+          v37 = *v36++;
+          *(v36 - 1) = _byteswap_ulong(v37);
+          --v35;
         }
-        while ( v36 );
+        while ( v35 );
       }
     }
   }
-  if ( v83 )
+  if ( v82 )
   {
-    ptr64 = (__int16 *)_RBP->uv.ptr64;
-    bcread_block(ls, ptr64, 2 * v83);
+    ptr64 = (__int16 *)v19->uv.ptr64;
+    bcread_block(ls, ptr64, 2 * v82);
     if ( (ls->level & 1) != 0 )
     {
-      v40 = v83;
+      v39 = v82;
       do
       {
-        v41 = *ptr64++;
-        *(ptr64 - 1) = __ROL2__(v41, 8);
-        --v40;
+        v40 = *ptr64++;
+        *(ptr64 - 1) = __ROL2__(v40, 8);
+        --v39;
       }
-      while ( v40 );
+      while ( v39 );
     }
   }
-  bcread_kgc(ls, _RBP, sizekgc);
-  _RDI = (unsigned int *)_RBP->k.ptr64;
-  _RBP->sizekgc = sizekgc;
-  if ( v89 )
+  bcread_kgc(ls, v19, sizekgc);
+  v41 = (unsigned int *)v19->k.ptr64;
+  v19->sizekgc = sizekgc;
+  if ( v88 )
   {
-    v43 = v89;
+    v42 = v88;
     do
     {
-      v44 = ls->p;
-      v45 = v44 + 1;
-      v46 = *v44 & 1;
-      v47 = *(unsigned __int8 *)v44 >> 1;
-      if ( v47 >= 0x40 )
+      v43 = ls->p;
+      v44 = v43 + 1;
+      v45 = *v43 & 1;
+      v46 = *(unsigned __int8 *)v43 >> 1;
+      if ( v46 >= 0x40 )
       {
-        v48 = -1;
-        v47 &= 0x3Fu;
+        v47 = -1;
+        v46 &= 0x3Fu;
         do
         {
-          v49 = *v45;
-          v48 += 7;
-          v50 = *v45++;
-          v47 |= (v50 & 0x7F) << v48;
+          v48 = *v44;
+          v47 += 7;
+          v49 = *v44++;
+          v46 |= (v49 & 0x7F) << v47;
         }
-        while ( (unsigned __int8)v49 >= 0x80u );
+        while ( (unsigned __int8)v48 >= 0x80u );
       }
-      ls->p = v45;
-      if ( v45 > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 147, "ls->p <= ls->pe") )
+      ls->p = v44;
+      if ( v44 > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 147, "ls->p <= ls->pe") )
         __debugbreak();
-      if ( v46 )
+      if ( v45 )
       {
-        *_RDI = v47;
-        v51 = j_lj_buf_ruleb128(&ls->p);
+        *v41 = v46;
+        v50 = j_lj_buf_ruleb128(&ls->p);
         if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
           __debugbreak();
-        _RDI[1] = v51;
+        v41[1] = v50;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, ebx
-          vmovsd  qword ptr [rdi], xmm0
-        }
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, ebx }
+        *(double *)v41 = *(double *)&_XMM0;
       }
-      _RDI += 2;
-      --v43;
+      v41 += 2;
+      --v42;
     }
-    while ( v43 );
+    while ( v42 );
   }
-  _RBP->firstline = v79;
-  _RBP->numline = v80;
+  v19->firstline = v78;
+  v19->numline = v79;
   if ( len )
   {
     v53 = 0;
-    if ( v80 >= 256 )
-      v53 = (v80 >= 0x10000) + 1;
-    _RBX = (__int16 *)((char *)_RBP + v85);
-    _RBP->uvinfo.ptr64 = (unsigned __int64)_RBP + v85 + (unsigned __int64)(v82 << v53);
-    _RBP->lineinfo.ptr64 = (unsigned __int64)_RBX;
-    bcread_block(ls, _RBX, len);
+    if ( v79 >= 256 )
+      v53 = (v79 >= 0x10000) + 1;
+    v54 = (__int16 *)((char *)v19 + v84);
+    v19->uvinfo.ptr64 = (unsigned __int64)v19 + v84 + (unsigned __int64)(v81 << v53);
+    v19->lineinfo.ptr64 = (unsigned __int64)v54;
+    bcread_block(ls, v54, len);
     if ( (ls->level & 1) != 0 )
     {
-      numline = _RBP->numline;
+      numline = v19->numline;
       if ( numline >= 256 )
       {
-        v56 = _RBP->sizebc - 1;
+        v56 = v19->sizebc - 1;
         if ( numline >= 0x10000 )
         {
-          if ( _RBP->sizebc != 1 )
+          if ( v19->sizebc != 1 )
           {
             if ( v56 >= 0x10 )
             {
               v59 = 8;
               do
               {
-                _RAX = v2;
-                v2 += 16;
-                __asm
-                {
-                  vmovdqu xmm0, xmmword ptr [rbx+rax*4]
-                  vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-                  vmovdqu xmmword ptr [rbx+rax*4], xmm1
-                }
-                _RAX = v59 - 4;
-                __asm
-                {
-                  vmovdqu xmm0, xmmword ptr [rbx+rax*4]
-                  vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-                  vmovdqu xmmword ptr [rbx+rax*4], xmm1
-                }
-                _RAX = v59;
-                __asm
-                {
-                  vmovdqu xmm0, xmmword ptr [rbx+rax*4]
-                  vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-                  vmovdqu xmmword ptr [rbx+rax*4], xmm1
-                }
-                _RAX = v59 + 4;
+                v60 = v1;
+                v1 += 16;
+                _XMM0 = *(_OWORD *)&v54[2 * v60];
+                __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+                *(_OWORD *)&v54[2 * v60] = _XMM1;
+                v63 = v59 - 4;
+                _XMM0 = *(_OWORD *)&v54[2 * v63];
+                __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+                *(_OWORD *)&v54[2 * v63] = _XMM1;
+                _XMM0 = *(_OWORD *)&v54[2 * v59];
+                __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+                *(_OWORD *)&v54[2 * v59] = _XMM1;
+                v68 = v59 + 4;
                 v59 += 16;
-                __asm
-                {
-                  vmovdqu xmm0, xmmword ptr [rbx+rax*4]
-                  vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203
-                  vmovdqu xmmword ptr [rbx+rax*4], xmm1
-                }
+                _XMM0 = *(_OWORD *)&v54[2 * v68];
+                __asm { vpshufb xmm1, xmm0, cs:__xmm@0c0d0e0f08090a0b0405060700010203 }
+                *(_OWORD *)&v54[2 * v68] = _XMM1;
               }
-              while ( v2 < (v56 & 0xFFFFFFF0) );
+              while ( v1 < (v56 & 0xFFFFFFF0) );
             }
-            if ( v2 < v56 )
+            if ( v1 < v56 )
             {
-              v72 = v56 - v2;
-              v73 = (unsigned int *)&_RBX[2 * v2];
+              v71 = v56 - v1;
+              v72 = (unsigned int *)&v54[2 * v1];
               do
               {
-                v74 = *v73++;
-                *(v73 - 1) = _byteswap_ulong(v74);
-                --v72;
+                v73 = *v72++;
+                *(v72 - 1) = _byteswap_ulong(v73);
+                --v71;
               }
-              while ( v72 );
+              while ( v71 );
             }
           }
         }
-        else if ( _RBP->sizebc != 1 )
+        else if ( v19->sizebc != 1 )
         {
           v57 = v56;
           do
           {
-            v58 = *_RBX++;
-            *(_RBX - 1) = __ROL2__(v58, 8);
+            v58 = *v54++;
+            *(v54 - 1) = __ROL2__(v58, 8);
             --v57;
           }
           while ( v57 );
         }
       }
     }
-    sizeuv = _RBP->sizeuv;
-    v76 = (_BYTE *)_RBP->uvinfo.ptr64;
-    if ( _RBP->sizeuv )
+    sizeuv = v19->sizeuv;
+    v75 = (_BYTE *)v19->uvinfo.ptr64;
+    if ( v19->sizeuv )
     {
       do
       {
-        while ( *v76++ )
+        while ( *v75++ )
           ;
         --sizeuv;
       }
       while ( sizeuv );
     }
-    _RBP->varinfo.ptr64 = (unsigned __int64)v76;
+    v19->varinfo.ptr64 = (unsigned __int64)v75;
   }
   else
   {
-    _RBP->lineinfo.ptr64 = 0i64;
-    _RBP->uvinfo.ptr64 = 0i64;
-    _RBP->varinfo.ptr64 = 0i64;
+    v19->lineinfo.ptr64 = 0i64;
+    v19->uvinfo.ptr64 = 0i64;
+    v19->varinfo.ptr64 = 0i64;
   }
-  return _RBP;
+  return v19;
 }
 
 /*
@@ -829,65 +809,61 @@ bcread_ktabk
 */
 void bcread_ktabk(LexState *ls, TValue *o)
 {
+  __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
   const char *p; 
-  unsigned __int64 v8; 
-  const char *v9; 
-  unsigned __int64 v10; 
+  unsigned __int64 v7; 
+  const char *v8; 
+  unsigned __int64 v9; 
   lua_State *L; 
-  __int64 v12; 
+  __int64 v11; 
+  int v14; 
   unsigned int v15; 
-  unsigned int v16; 
 
-  _R14 = o;
-  v5 = j_lj_buf_ruleb128(&ls->p);
+  v4 = j_lj_buf_ruleb128(&ls->p);
   if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
     __debugbreak();
-  if ( (unsigned int)v5 < 5 )
+  if ( (unsigned int)v4 < 5 )
   {
-    if ( (_DWORD)v5 == 3 )
+    if ( (_DWORD)v4 == 3 )
     {
       j_lj_buf_ruleb128(&ls->p);
       if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, edi
-        vmovsd  qword ptr [r14], xmm0
-      }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, edi }
+      o->u64 = *(unsigned __int64 *)&_XMM0;
     }
-    else if ( (_DWORD)v5 == 4 )
+    else if ( (_DWORD)v4 == 4 )
     {
+      v14 = j_lj_buf_ruleb128(&ls->p);
+      if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
+        __debugbreak();
+      o->i = v14;
       v15 = j_lj_buf_ruleb128(&ls->p);
       if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
         __debugbreak();
-      _R14->i = v15;
-      v16 = j_lj_buf_ruleb128(&ls->p);
-      if ( ls->p > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 130, "ls->p <= ls->pe") )
-        __debugbreak();
-      _R14->it = v16;
+      o->it = v15;
     }
     else
     {
-      _R14->u64 = ~(v5 << 47);
+      o->u64 = ~(v4 << 47);
     }
   }
   else
   {
-    v6 = (unsigned int)(v5 - 5);
+    v5 = (unsigned int)(v4 - 5);
     p = ls->p;
-    v8 = (unsigned int)v6;
-    v9 = &p[v6];
-    ls->p = v9;
-    if ( v9 > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 109, "ls->p <= ls->pe") )
+    v7 = (unsigned int)v5;
+    v8 = &p[v5];
+    ls->p = v8;
+    if ( v8 > ls->pe && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcread.c", 109, "ls->p <= ls->pe") )
       __debugbreak();
-    v10 = (unsigned __int64)j_lj_str_new(ls->L, p, v8);
+    v9 = (unsigned __int64)j_lj_str_new(ls->L, p, v7);
     L = ls->L;
-    _R14->u64 = v10 | 0xFFFD800000000000ui64;
-    v12 = (__int64)(v10 | 0xFFFD800000000000ui64) >> 47;
-    if ( (unsigned int)(v12 + 4) > 0xFFFFFFF6 && (~(_DWORD)v12 != *(unsigned __int8 *)((v10 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)((v10 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0) )
+    o->u64 = v9 | 0xFFFD800000000000ui64;
+    v11 = (__int64)(v9 | 0xFFFD800000000000ui64) >> 47;
+    if ( (unsigned int)(v11 + 4) > 0xFFFFFFF6 && (~(_DWORD)v11 != *(unsigned __int8 *)((v9 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)((v9 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0) )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();

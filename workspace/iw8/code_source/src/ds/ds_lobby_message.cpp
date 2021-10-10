@@ -104,26 +104,16 @@ DsLobbyMessage::DsLobbyMessage
 */
 void DsLobbyMessage::DsLobbyMessage(DsLobbyMessage *this, msg_t *stream)
 {
-  _RBX = stream;
   this->m_id = DS_LOBBY_MESSAGE_INVALID;
-  _RDI = this;
   memset_0(this->m_buffer, 0, sizeof(this->m_buffer));
-  *(_QWORD *)&_RDI->m_stream.overflowed = 0i64;
-  _RDI->m_stream.data = NULL;
-  _RDI->m_stream.splitData = NULL;
-  *(_QWORD *)&_RDI->m_stream.maxsize = 0i64;
-  *(_QWORD *)&_RDI->m_stream.splitSize = 0i64;
-  *(_QWORD *)&_RDI->m_stream.bit = 0i64;
-  *(_QWORD *)&_RDI->m_stream.targetLocalNetID = 0i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+4C8h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rdi+4E8h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+30h]
-    vmovsd  qword ptr [rdi+4F8h], xmm0
-  }
+  *(_QWORD *)&this->m_stream.overflowed = 0i64;
+  this->m_stream.data = NULL;
+  this->m_stream.splitData = NULL;
+  *(_QWORD *)&this->m_stream.maxsize = 0i64;
+  *(_QWORD *)&this->m_stream.splitSize = 0i64;
+  *(_QWORD *)&this->m_stream.bit = 0i64;
+  *(_QWORD *)&this->m_stream.targetLocalNetID = 0i64;
+  this->m_stream = *stream;
 }
 
 /*
@@ -228,14 +218,14 @@ char DsLobbyMessage::Handle(const char *cmd, const netadr_t *from, msg_t *stream
   char v8; 
   __int64 v9; 
   char v10; 
-  __int64 v14; 
-  DsLobbyMessageHandler *v15; 
-  int v17; 
-  char v18[1220]; 
+  __int128 v11; 
+  __int64 v12; 
+  DsLobbyMessageHandler *v13; 
+  int v15; 
+  char v16[1220]; 
   msg_t msg; 
 
   v3 = "dslobby";
-  _RBP = stream;
   v6 = 0x7FFFFFFFi64;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
@@ -252,28 +242,23 @@ char DsLobbyMessage::Handle(const char *cmd, const netadr_t *from, msg_t *stream
       return 0;
   }
   while ( v8 );
-  v17 = -1;
-  memset_0(v18, 0, 0x4C0ui64);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups xmm1, xmmword ptr [rbp+20h]
-    vmovups ymmword ptr [rsp+568h+msg.overflowed], ymm0
-    vmovsd  xmm0, qword ptr [rbp+30h]
-    vmovsd  qword ptr [rsp+568h+msg.targetLocalNetID], xmm0
-    vmovups xmmword ptr [rsp+568h+msg.splitSize], xmm1
-  }
+  v15 = -1;
+  memset_0(v16, 0, 0x4C0ui64);
+  v11 = *(_OWORD *)&stream->splitSize;
+  *(__m256i *)&msg.overflowed = *(__m256i *)&stream->overflowed;
+  *(_QWORD *)&msg.targetLocalNetID = *(_QWORD *)&stream->targetLocalNetID;
+  *(_OWORD *)&msg.splitSize = v11;
   if ( Lobby_GetPartyData()->inParty )
   {
-    v14 = MSG_ReadBits(&msg, 1u);
-    if ( (unsigned __int64)(v14 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v14, "signed", v14) )
+    v12 = MSG_ReadBits(&msg, 1u);
+    if ( (unsigned __int64)(v12 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v12, "signed", v12) )
       __debugbreak();
-    if ( (unsigned int)v14 <= 1 )
+    if ( (unsigned int)v12 <= 1 )
     {
-      v15 = &s_handlers[(int)v14];
-      v17 = v14;
-      if ( v15->func )
-        v15->func((DsLobbyMessage *)&v17, v15->userData);
+      v13 = &s_handlers[(int)v12];
+      v15 = v12;
+      if ( v13->func )
+        v13->func((DsLobbyMessage *)&v15, v13->userData);
     }
   }
   return 1;

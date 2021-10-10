@@ -373,27 +373,21 @@ R_DecalVolumeGrid_DecalVolumeDistanceToCameraApprox
 */
 float R_DecalVolumeGrid_DecalVolumeDistanceToCameraApprox(const AddToGridContext *context, const vec3_t *worldOrigin, const vec3_t *halfSize)
 {
+  __int128 v3; 
+  float v4; 
+
+  v3 = LODWORD(worldOrigin->v[1]);
+  *(float *)&v3 = worldOrigin->v[1] - context->cameraOrigin.v[1];
+  v4 = worldOrigin->v[2] - context->cameraOrigin.v[2];
+  _XMM1 = LODWORD(halfSize->v[1]);
   __asm
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm3, xmm0, dword ptr [rcx+64h]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm2, xmm1, dword ptr [rcx+68h]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+6Ch]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, dword ptr [r8+4]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
     vmaxss  xmm0, xmm1, dword ptr [r8]
-    vsqrtss xmm5, xmm2, xmm2
     vmaxss  xmm2, xmm0, dword ptr [r8+8]
-    vsubss  xmm3, xmm5, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm0, xmm3, xmm1
   }
+  *(float *)&v3 = fsqrt((float)((float)(*(float *)&v3 * *(float *)&v3) + (float)((float)(worldOrigin->v[0] - context->cameraOrigin.v[0]) * (float)(worldOrigin->v[0] - context->cameraOrigin.v[0]))) + (float)(v4 * v4)) - *(float *)&_XMM2;
+  _XMM3 = v3;
+  __asm { vmaxss  xmm0, xmm3, xmm1 }
   return *(float *)&_XMM0;
 }
 
@@ -427,280 +421,215 @@ R_DecalVolumesGrid_AddDobjModel
 */
 void R_DecalVolumesGrid_AddDobjModel(unsigned int dobjIndex, unsigned int modelIndex, unsigned int frame, AddToGridContext *context, const DecalVolumesGridVolumeInfo *volume)
 {
-  __int64 v8; 
-  __int64 v9; 
+  __int64 v5; 
+  __int64 v6; 
   const DObj *obj; 
   int SkelTimeStamp; 
-  __int64 v12; 
+  __int64 v9; 
   int ModelRootBoneIndex; 
   const XModel *Model; 
   __int64 decalVolumesInfo; 
+  unsigned int v13; 
+  __int64 v14; 
+  __int64 v15; 
   unsigned int v16; 
-  __int64 v19; 
-  unsigned int v22; 
   unsigned int numDrawData; 
   XModelMaterialOverride *modelMaterialOverrides; 
   Material *overrideMaterial; 
-  unsigned int v26; 
-  __int64 v27; 
-  MaterialOverride *v28; 
+  unsigned int v20; 
+  __int64 v21; 
+  MaterialOverride *v22; 
   GfxDecalVolumeMaterial *decalVolumeMaterial; 
-  unsigned __int16 v30; 
-  const DObjAnimMat *v31; 
-  AddToGridContext *v59; 
-  unsigned int v60; 
-  char v62; 
+  unsigned __int16 v24; 
+  const DObjAnimMat *v25; 
+  float v26; 
+  float v27; 
+  AddToGridContext *v28; 
+  unsigned int v29; 
+  float v33; 
   tmat33_t<vec3_t> *axis; 
   Material *dvMaterial; 
   int dvMateriala; 
   GfxDecalVolumeMask *blendMapOverride; 
   DecalVolumesNormalBlendMode normalBlendModeOverride; 
-  float v77; 
   unsigned __int8 color[4]; 
-  int v79; 
+  int v40; 
   float outDecalScale; 
-  int v81; 
+  int v42; 
   unsigned int framea; 
   DecalVolumeStreamingInfo outStreamingInfo; 
-  __int64 v84; 
+  __int64 v45; 
   AddToGridContext *contexta; 
-  DecalVolumesGridVolumeInfo *v86; 
+  DecalVolumesGridVolumeInfo *v47; 
   DObjAnimMat *baseMat; 
-  __int64 v88; 
+  __int64 v49; 
   tmat43_t<vec3_t> in2; 
   vec2_t blendMapAdjust; 
   vec3_t worldOrigin; 
   tmat43_t<vec3_t> in1; 
   DObjSkelMat skelMat; 
-  DObjSkelMat v94; 
-  tmat33_t<vec3_t> v95; 
+  DObjSkelMat v55; 
+  tmat33_t<vec3_t> v56; 
   tmat43_t<vec3_t> out; 
   DObjPartBits partBits; 
   DecalVolumeIntermediate dstDecalVolume; 
 
-  v86 = (DecalVolumesGridVolumeInfo *)volume;
-  v8 = frame;
+  v47 = (DecalVolumesGridVolumeInfo *)volume;
+  v5 = frame;
   contexta = context;
   framea = frame;
-  v9 = modelIndex;
+  v6 = modelIndex;
   obj = scene.sceneDObj[dobjIndex].obj;
   SkelTimeStamp = CL_Pose_GetSkelTimeStamp();
   if ( DObjSkelExists(obj, SkelTimeStamp) )
   {
-    v12 = v8;
+    v9 = v5;
     *(_DWORD *)color = -1;
     DObjLock(obj);
     DObjGetHidePartBits(obj, &partBits);
-    if ( (unsigned int)v9 >= DObjGetNumModels(obj) )
+    if ( (unsigned int)v6 >= DObjGetNumModels(obj) )
     {
       dvMateriala = DObjGetNumModels(obj);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2117, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( DObjGetNumModels( dobj ) )", "modelIndex doesn't index DObjGetNumModels( dobj )\n\t%i not in [0, %i)", v9, dvMateriala) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2117, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( DObjGetNumModels( dobj ) )", "modelIndex doesn't index DObjGetNumModels( dobj )\n\t%i not in [0, %i)", v6, dvMateriala) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovaps [rsp+350h+var_50], xmm6
-      vmovaps [rsp+350h+var_60], xmm7
-      vmovaps [rsp+350h+var_70], xmm8
-    }
-    ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v9);
-    v79 = ModelRootBoneIndex;
-    Model = DObjGetModel(obj, v9);
+    ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v6);
+    v40 = ModelRootBoneIndex;
+    Model = DObjGetModel(obj, v6);
     decalVolumesInfo = (__int64)Model->decalVolumesInfo;
-    v88 = decalVolumesInfo;
+    v49 = decalVolumesInfo;
     if ( decalVolumesInfo )
     {
-      v16 = 0;
+      v13 = 0;
       baseMat = Model->baseMat;
       if ( *(_DWORD *)(decalVolumesInfo + 8) )
       {
-        __asm
-        {
-          vmovss  xmm6, cs:__real@3f800000
-          vmovss  xmm8, cs:__real@c7c35000
-        }
-        v19 = 16 * v9;
-        v84 = 16 * v9;
-        __asm { vxorps  xmm7, xmm7, xmm7 }
+        v14 = 16 * v6;
+        v45 = 16 * v6;
         do
         {
-          _RDI = *(_QWORD *)decalVolumesInfo + 112i64 * v16;
-          v22 = ModelRootBoneIndex + *(_DWORD *)(_RDI + 80);
-          if ( v22 >= 0x100 )
+          v15 = *(_QWORD *)decalVolumesInfo + 112i64 * v13;
+          v16 = ModelRootBoneIndex + *(_DWORD *)(v15 + 80);
+          if ( v16 >= 0x100 )
           {
             LODWORD(dvMaterial) = 256;
-            LODWORD(axis) = ModelRootBoneIndex + *(_DWORD *)(_RDI + 80);
+            LODWORD(axis) = ModelRootBoneIndex + *(_DWORD *)(v15 + 80);
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", axis, dvMaterial) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (v22 & 0x1F)) & partBits.array[(unsigned __int64)v22 >> 5]) == 0 && DObjSkelIsBoneUpToDate(obj, v22) )
+          if ( ((0x80000000 >> (v16 & 0x1F)) & partBits.array[(unsigned __int64)v16 >> 5]) == 0 && DObjSkelIsBoneUpToDate(obj, v16) )
           {
-            numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v12].numDrawData;
+            numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v9].numDrawData;
             if ( numDrawData >= 0x800 )
               break;
             modelMaterialOverrides = obj->modelMaterialOverrides;
-            overrideMaterial = *(Material **)(_RDI + 64);
+            overrideMaterial = *(Material **)(v15 + 64);
             if ( modelMaterialOverrides )
             {
-              v26 = *(unsigned int *)((char *)&modelMaterialOverrides->materialOverrideCount + v19);
-              v27 = 0i64;
-              if ( v26 )
+              v20 = *(unsigned int *)((char *)&modelMaterialOverrides->materialOverrideCount + v14);
+              v21 = 0i64;
+              if ( v20 )
               {
                 while ( 1 )
                 {
-                  v28 = (*(MaterialOverride ***)((char *)&modelMaterialOverrides->materialOverride + v19))[v27];
-                  if ( v28 )
+                  v22 = (*(MaterialOverride ***)((char *)&modelMaterialOverrides->materialOverride + v14))[v21];
+                  if ( v22 )
                   {
-                    if ( v28->overrideType == MATERIAL_OVERRIDETYPE_STICKER_REPLACE && v28->originalMaterial == overrideMaterial )
+                    if ( v22->overrideType == MATERIAL_OVERRIDETYPE_STICKER_REPLACE && v22->originalMaterial == overrideMaterial )
                       break;
                   }
-                  v27 = (unsigned int)(v27 + 1);
-                  if ( (unsigned int)v27 >= v26 )
+                  v21 = (unsigned int)(v21 + 1);
+                  if ( (unsigned int)v21 >= v20 )
                     goto LABEL_22;
                 }
-                overrideMaterial = v28->overrideMaterial;
+                overrideMaterial = v22->overrideMaterial;
               }
             }
 LABEL_22:
             decalVolumeMaterial = overrideMaterial->decalVolumeMaterial;
             if ( !decalVolumeMaterial || (decalVolumeMaterial->flags & 0x4000) == 0 )
             {
-              v30 = truncate_cast<unsigned short,unsigned int>(numDrawData);
-              ++s_decalVolumesGrid.decalVolumeGridFrameData[v12].numDrawData;
-              v81 = *(_DWORD *)(_RDI + 80);
-              v31 = &obj->skel.mat[v22];
-              if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 50, ASSERT_TYPE_ASSERT, "(boneMtx)", (const char *)&queryFormat, "boneMtx") )
+              v24 = truncate_cast<unsigned short,unsigned int>(numDrawData);
+              ++s_decalVolumesGrid.decalVolumeGridFrameData[v9].numDrawData;
+              v42 = *(_DWORD *)(v15 + 80);
+              v25 = &obj->skel.mat[v16];
+              if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 50, ASSERT_TYPE_ASSERT, "(boneMtx)", (const char *)&queryFormat, "boneMtx") )
                 __debugbreak();
-              LocalConvertQuatToSkelMat(v31, &skelMat);
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rbp+240h+skelMat.axis+4]
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.axis]
-                vmovss  dword ptr [rbp+240h+in2], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.axis+8]
-                vmovss  dword ptr [rbp+240h+in2+4], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+skelMat.axis+10h]
-                vmovss  dword ptr [rbp+240h+in2+8], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.axis+14h]
-                vmovss  dword ptr [rbp+240h+in2+0Ch], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+skelMat.axis+18h]
-                vmovss  dword ptr [rbp+240h+in2+10h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.axis+20h]
-                vmovss  dword ptr [rbp+240h+in2+14h], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+skelMat.axis+24h]
-                vmovss  dword ptr [rbp+240h+in2+18h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.axis+28h]
-                vmovss  dword ptr [rbp+240h+in2+1Ch], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+skelMat.origin]
-                vaddss  xmm2, xmm1, dword ptr [rax+70h]
-                vmovss  dword ptr [rbp+240h+in2+20h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+skelMat.origin+4]
-                vaddss  xmm1, xmm0, dword ptr [rax+74h]
-                vmovss  dword ptr [rbp+240h+in2+24h], xmm2
-                vmovss  xmm2, dword ptr [rbp+240h+skelMat.origin+8]
-                vaddss  xmm0, xmm2, dword ptr [rax+78h]
-                vmovss  dword ptr [rbp+240h+in2+2Ch], xmm0
-                vmovss  dword ptr [rbp+240h+in2+28h], xmm1
-              }
-              LocalConvertQuatToInverseSkelMat(&baseMat[v81], &v94);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.axis]
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.axis+4]
-                vmovss  dword ptr [rbp+240h+in1], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.axis+8]
-                vmovss  dword ptr [rbp+240h+in1+4], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.axis+10h]
-                vmovss  dword ptr [rbp+240h+in1+8], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.axis+14h]
-                vmovss  dword ptr [rbp+240h+in1+0Ch], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.axis+18h]
-                vmovss  dword ptr [rbp+240h+in1+10h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.axis+20h]
-                vmovss  dword ptr [rbp+240h+in1+14h], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.axis+24h]
-                vmovss  dword ptr [rbp+240h+in1+18h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.axis+28h]
-                vmovss  dword ptr [rbp+240h+in1+1Ch], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.origin]
-                vmovss  dword ptr [rbp+240h+in1+20h], xmm0
-                vmovss  xmm0, dword ptr [rbp+240h+var_1C0.origin+4]
-                vmovss  dword ptr [rbp+240h+in1+24h], xmm1
-                vmovss  xmm1, dword ptr [rbp+240h+var_1C0.origin+8]
-                vmovss  dword ptr [rbp+240h+in1+28h], xmm0
-                vmovss  dword ptr [rbp+240h+in1+2Ch], xmm1
-              }
+              LocalConvertQuatToSkelMat(v25, &skelMat);
+              in2.m[0].v[0] = skelMat.axis.m[0].v[0];
+              in2.m[0].v[1] = skelMat.axis.m[0].v[1];
+              in2.m[0].v[2] = skelMat.axis.m[0].v[2];
+              in2.m[1] = skelMat.axis.m[1].xyz;
+              in2.m[2].v[0] = skelMat.axis.m[2].v[0];
+              in2.m[2].v[1] = skelMat.axis.m[2].v[1];
+              v26 = skelMat.origin.v[0] + contexta->viewOffset.v[0];
+              in2.m[2].v[2] = skelMat.axis.m[2].v[2];
+              v27 = skelMat.origin.v[1] + contexta->viewOffset.v[1];
+              in2.m[3].v[0] = v26;
+              in2.m[3].v[2] = skelMat.origin.v[2] + contexta->viewOffset.v[2];
+              in2.m[3].v[1] = v27;
+              LocalConvertQuatToInverseSkelMat(&baseMat[v42], &v55);
+              in1.m[0].v[0] = v55.axis.m[0].v[0];
+              in1.m[0].v[1] = v55.axis.m[0].v[1];
+              in1.m[0].v[2] = v55.axis.m[0].v[2];
+              in1.m[1] = v55.axis.m[1].xyz;
+              in1.m[2] = v55.axis.m[2].xyz;
+              in1.m[3] = v55.origin.xyz;
               MatrixMultiply43(&in1, &in2, &out);
-              MatrixTransformVector43((const vec3_t *)_RDI, &out, &worldOrigin);
-              MatrixTransformVector((const vec3_t *)(_RDI + 12), (const tmat33_t<vec3_t> *)&out, v95.m);
-              MatrixTransformVector((const vec3_t *)(_RDI + 24), (const tmat33_t<vec3_t> *)&out, &v95.m[1]);
-              MatrixTransformVector((const vec3_t *)(_RDI + 36), (const tmat33_t<vec3_t> *)&out, &v95.m[2]);
-              __asm { vmovss  [rsp+350h+var_2E0], xmm8 }
+              MatrixTransformVector43((const vec3_t *)v15, &out, &worldOrigin);
+              MatrixTransformVector((const vec3_t *)(v15 + 12), (const tmat33_t<vec3_t> *)&out, v56.m);
+              MatrixTransformVector((const vec3_t *)(v15 + 24), (const tmat33_t<vec3_t> *)&out, &v56.m[1]);
+              MatrixTransformVector((const vec3_t *)(v15 + 36), (const tmat33_t<vec3_t> *)&out, &v56.m[2]);
               LOBYTE(normalBlendModeOverride) = 2;
-              __asm { vmovss  [rbp+240h+outDecalScale], xmm6 }
-              blendMapOverride = *(GfxDecalVolumeMask **)(_RDI + 72);
-              v59 = contexta;
-              __asm
+              outDecalScale = FLOAT_1_0;
+              blendMapOverride = *(GfxDecalVolumeMask **)(v15 + 72);
+              v28 = contexta;
+              blendMapAdjust.v[0] = FLOAT_1_0;
+              blendMapAdjust.v[1] = 0.0;
+              R_FillDecalVolumeGeneric(&dstDecalVolume, contexta, &worldOrigin, (const vec3_t *)v15, (const vec3_t *)(v15 + 48), (const tmat33_t<vec3_t> *)(v15 + 12), overrideMaterial, blendMapOverride, &blendMapAdjust, normalBlendModeOverride, (const vec2_t *)(v15 + 84), (const vec4_t *)(v15 + 92), color, -1, -100000.0, MODEL_DECAL_VOLUME, 0, 0);
+              v29 = framea;
+              R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(framea, v24, v28, &dstDecalVolume, &worldOrigin, &v56, &outDecalScale, &outStreamingInfo);
+              if ( outDecalScale >= 1.0 )
               {
-                vmovss  dword ptr [rbp+240h+var_250], xmm6
-                vmovss  dword ptr [rbp+240h+var_250+4], xmm7
-              }
-              R_FillDecalVolumeGeneric(&dstDecalVolume, contexta, &worldOrigin, (const vec3_t *)_RDI, (const vec3_t *)(_RDI + 48), (const tmat33_t<vec3_t> *)(_RDI + 12), overrideMaterial, blendMapOverride, &blendMapAdjust, normalBlendModeOverride, (const vec2_t *)(_RDI + 84), (const vec4_t *)(_RDI + 92), color, -1, v77, MODEL_DECAL_VOLUME, 0, 0);
-              v60 = framea;
-              R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(framea, v30, v59, &dstDecalVolume, &worldOrigin, &v95, &outDecalScale, &outStreamingInfo);
-              __asm
-              {
-                vmovss  xmm0, [rbp+240h+outDecalScale]
-                vcomiss xmm0, xmm6
-              }
-              if ( v62 )
-              {
-                --s_decalVolumesGrid.decalVolumeGridFrameData[v12].numDrawData;
-              }
-              else
-              {
-                R_DecalVolumesGrid_SetDrawDataDebug(v60, v59, v30, &dstDecalVolume, &worldOrigin, &v95, &outStreamingInfo, NULL);
-                if ( v59->numTotalCells == 1 )
+                R_DecalVolumesGrid_SetDrawDataDebug(v29, v28, v24, &dstDecalVolume, &worldOrigin, &v56, &outStreamingInfo, NULL);
+                if ( v28->numTotalCells == 1 )
                 {
-                  R_DecalVolumesGrid_AddTo1x1Grid(v60, v86, v30);
+                  R_DecalVolumesGrid_AddTo1x1Grid(v29, v47, v24);
                 }
                 else
                 {
+                  _XMM0 = LODWORD(dstDecalVolume.halfSize.v[0]);
                   __asm
                   {
-                    vmovss  xmm0, dword ptr [rbp+240h+dstDecalVolume.halfSize]
                     vmaxss  xmm1, xmm0, dword ptr [rbp+240h+dstDecalVolume.halfSize+4]
                     vmaxss  xmm3, xmm1, dword ptr [rbp+240h+dstDecalVolume.halfSize+8]
-                    vmovss  xmm1, dword ptr [rdi+8]
-                    vmovss  xmm2, dword ptr [rdi]
-                    vmovss  xmm0, dword ptr [rdi+4]
-                    vmovss  dword ptr [rbp+240h+in2+8], xmm1
-                    vmovss  dword ptr [rbp+240h+in2], xmm2
-                    vmovss  dword ptr [rbp+240h+in2+4], xmm0
-                    vmovss  dword ptr [rbp+240h+in2+0Ch], xmm3
-                    vmovss  dword ptr [rbp+240h+in2+10h], xmm3
-                    vmovss  dword ptr [rbp+240h+in2+14h], xmm3
                   }
-                  R_DecalVolumesGrid_AddToGridBruteForce(v59, v60, v86, v30, (const Bounds *)&in2);
+                  v33 = *(float *)v15;
+                  LODWORD(_XMM0) = *(_DWORD *)(v15 + 4);
+                  in2.m[0].v[2] = *(float *)(v15 + 8);
+                  in2.m[0].v[0] = v33;
+                  in2.m[0].v[1] = *(float *)&_XMM0;
+                  in2.m[1].v[0] = *(float *)&_XMM3;
+                  in2.m[1].v[1] = *(float *)&_XMM3;
+                  in2.m[1].v[2] = *(float *)&_XMM3;
+                  R_DecalVolumesGrid_AddToGridBruteForce(v28, v29, v47, v24, (const Bounds *)&in2);
                 }
               }
-              v19 = v84;
+              else
+              {
+                --s_decalVolumesGrid.decalVolumeGridFrameData[v9].numDrawData;
+              }
+              v14 = v45;
             }
-            ModelRootBoneIndex = v79;
+            ModelRootBoneIndex = v40;
           }
-          decalVolumesInfo = v88;
-          ++v16;
+          decalVolumesInfo = v49;
+          ++v13;
         }
-        while ( v16 < *(_DWORD *)(v88 + 8) );
+        while ( v13 < *(_DWORD *)(v49 + 8) );
       }
     }
     DObjUnlock(obj);
-    __asm
-    {
-      vmovaps xmm7, [rsp+350h+var_60]
-      vmovaps xmm6, [rsp+350h+var_50]
-      vmovaps xmm8, [rsp+350h+var_70]
-    }
   }
 }
 
@@ -711,328 +640,178 @@ R_DecalVolumesGrid_AddModelObjectSpace
 */
 void R_DecalVolumesGrid_AddModelObjectSpace(unsigned int modelIndex, unsigned int frame, AddToGridContext *context, const DecalVolumesGridVolumeInfo *volume)
 {
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
   const DObj *obj; 
-  __int64 v13; 
-  char v16; 
-  unsigned int v38; 
-  __int64 v41; 
-  unsigned __int64 v42; 
+  __int64 v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned __int64 v15; 
   unsigned int numDrawData; 
-  Material *v44; 
-  __int64 v45; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
+  Material *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
   GfxDecalVolumeMaterial *decalVolumeMaterial; 
-  AddToGridContext *v122; 
-  unsigned int v123; 
-  char v125; 
+  float *v23; 
+  AddToGridContext *v24; 
+  unsigned int v25; 
   tmat33_t<vec3_t> *axis; 
-  tmat33_t<vec3_t> *axisa; 
   Material *dvMaterial; 
   GfxDecalVolumeMask *blendMapOverride; 
   DecalVolumesNormalBlendMode normalBlendModeOverride; 
-  float v134; 
   unsigned __int8 color[4]; 
   float outDecalScale; 
   unsigned int framea; 
   DecalVolumeStreamingInfo outStreamingInfo; 
-  __int64 v139; 
+  __int64 v34; 
   DecalVolumesGridVolumeInfo *volumea; 
   AddToGridContext *contexta; 
-  __int64 v142; 
+  __int64 v37; 
   tmat43_t<vec3_t> in2; 
   tmat33_t<vec3_t> mat; 
   vec2_t blendMapAdjust; 
   vec3_t out; 
   DecalVolumeIntermediate skelMat; 
   DObjPartBits partBits; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _R14 = 0x140000000ui64;
-  _RDI = 152i64 * modelIndex;
+  v4 = 152i64 * modelIndex;
   volumea = (DecalVolumesGridVolumeInfo *)volume;
   contexta = context;
   framea = frame;
-  v10 = *(__int64 *)((char *)&scene.sceneModel[0].model + _RDI);
-  v139 = _RDI;
-  v11 = *(_QWORD *)(v10 + 672);
-  v142 = v11;
-  if ( v11 )
+  v5 = *(__int64 *)((char *)&scene.sceneModel[0].model + v4);
+  v34 = v4;
+  v6 = *(_QWORD *)(v5 + 672);
+  v37 = v6;
+  if ( v6 )
   {
     obj = scene.sceneModel[modelIndex].obj;
-    __asm { vmovaps xmmword ptr [r11-58h], xmm6 }
     *(_DWORD *)color = -1;
-    v13 = frame;
+    v8 = frame;
     DObjGetHidePartBits(obj, &partBits);
-    __asm
-    {
-      vmovss  xmm0, rva ?scene@@3UGfxScene@@A.sceneModel.placement.scale[r14+rdi]; GfxScene scene
-      vmovss  xmm6, cs:__real@3f800000
-      vucomiss xmm0, xmm6
-    }
-    if ( !v16 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+260h+axis], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 217, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", *(double *)&axisa) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.sceneModel.placement.base.quat[r14+rdi]; GfxScene scene
-      vmovss  xmm1, dword ptr rva ?scene@@3UGfxScene@@A.sceneModel.placement.base.origin[r14+rdi]; GfxScene scene
-      vmovaps xmmword ptr [rbp+150h+mat.quat], xmm0
-      vmovss  xmm0, cs:__real@40000000
-      vmovss  [rbp+150h+mat.transWeight], xmm0
-      vmovss  xmm0, dword ptr (rva ?scene@@3UGfxScene@@A.sceneModel.placement.base.origin+4)[r14+rdi]; GfxScene scene
-      vmovss  dword ptr [rbp+150h+mat.trans], xmm1
-      vmovss  xmm1, dword ptr (rva ?scene@@3UGfxScene@@A.sceneModel.placement.base.origin+8)[r14+rdi]; GfxScene scene
-      vmovss  dword ptr [rbp+150h+mat.trans+4], xmm0
-      vmovss  dword ptr [rbp+150h+mat.trans+8], xmm1
-    }
+    v9 = *(float *)((char *)&scene.sceneModel[0].placement.scale + v4);
+    if ( v9 != 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 217, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", v9) )
+      __debugbreak();
+    v10 = *(float *)((char *)scene.sceneModel[0].placement.base.origin.v + v4);
+    *(vec4_t *)mat.m[0].v = *(vec4_t *)((char *)&scene.sceneModel[0].placement.base.quat + v4);
+    mat.m[2].v[1] = FLOAT_2_0;
+    v11 = *(float *)((char *)&scene.sceneModel[0].placement.base.origin.v[1] + v4);
+    mat.m[1].v[1] = v10;
+    v12 = *(float *)((char *)&scene.sceneModel[0].placement.base.origin.v[2] + v4);
+    mat.m[1].v[2] = v11;
+    mat.m[2].v[0] = v12;
     LocalConvertQuatToSkelMat((const DObjAnimMat *)&mat, (DObjSkelMat *)&skelMat);
-    __asm
+    in2.m[0].v[0] = skelMat.origin.v[0];
+    in2.m[0].v[1] = skelMat.origin.v[1];
+    in2.m[0].v[2] = skelMat.origin.v[2];
+    in2.m[1] = *(vec3_t *)((char *)skelMat.axis.m + 4);
+    in2.m[2] = *(vec3_t *)((char *)&skelMat.axis.m[1] + 8);
+    in2.m[3].v[0] = skelMat.halfSize.v[0] + 0.0;
+    v13 = 0;
+    in2.m[3].v[2] = skelMat.halfSize.v[2] + 0.0;
+    in2.m[3].v[1] = skelMat.halfSize.v[1] + 0.0;
+    if ( *(_DWORD *)(v6 + 8) )
     {
-      vmovss  xmm1, dword ptr [rbp+150h+skelMat+4]
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat]
-      vmovss  dword ptr [rbp+150h+in2], xmm0
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat+8]
-      vmovss  dword ptr [rbp+150h+in2+4], xmm1
-      vmovss  xmm1, dword ptr [rbp+150h+skelMat+10h]
-      vmovss  dword ptr [rbp+150h+in2+8], xmm0
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat+14h]
-      vmovss  dword ptr [rbp+150h+in2+0Ch], xmm1
-      vmovss  xmm1, dword ptr [rbp+150h+skelMat+18h]
-      vmovss  dword ptr [rbp+150h+in2+10h], xmm0
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat+20h]
-      vmovss  dword ptr [rbp+150h+in2+14h], xmm1
-      vmovss  xmm1, dword ptr [rbp+150h+skelMat+24h]
-      vmovss  dword ptr [rbp+150h+in2+18h], xmm0
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat+28h]
-      vmovss  dword ptr [rbp+150h+in2+1Ch], xmm1
-      vmovss  xmm1, dword ptr [rbp+150h+skelMat+30h]
-      vaddss  xmm2, xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [rbp+150h+in2+20h], xmm0
-      vmovss  xmm0, dword ptr [rbp+150h+skelMat+34h]
-      vaddss  xmm1, xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  dword ptr [rbp+150h+in2+24h], xmm2
-      vmovss  xmm2, dword ptr [rbp+150h+skelMat+38h]
-      vaddss  xmm0, xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    }
-    v38 = 0;
-    __asm
-    {
-      vmovss  dword ptr [rbp+150h+in2+2Ch], xmm0
-      vmovss  dword ptr [rbp+150h+in2+28h], xmm1
-    }
-    if ( *(_DWORD *)(v11 + 8) )
-    {
-      __asm
-      {
-        vmovaps [rsp+260h+var_68+8], xmm7
-        vmovaps [rsp+260h+var_78+8], xmm8
-        vmovss  xmm8, cs:__real@c7c35000
-        vxorps  xmm7, xmm7, xmm7
-      }
       do
       {
-        v41 = *(_QWORD *)v11 + 112i64 * v38;
-        v42 = *(unsigned int *)(v41 + 80);
-        if ( (unsigned int)v42 >= 0x100 )
+        v14 = *(_QWORD *)v6 + 112i64 * v13;
+        v15 = *(unsigned int *)(v14 + 80);
+        if ( (unsigned int)v15 >= 0x100 )
         {
           LODWORD(dvMaterial) = 256;
-          LODWORD(axis) = *(_DWORD *)(v41 + 80);
+          LODWORD(axis) = *(_DWORD *)(v14 + 80);
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", axis, dvMaterial) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v42 & 0x1F)) & partBits.array[v42 >> 5]) == 0 )
+        if ( ((0x80000000 >> (v15 & 0x1F)) & partBits.array[v15 >> 5]) == 0 )
         {
-          numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v13].numDrawData;
+          numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v8].numDrawData;
           if ( numDrawData >= 0x800 )
-            break;
-          v44 = *(Material **)(v41 + 64);
-          v45 = *(__int64 *)((char *)&scene.sceneModel[0].obj + _RDI);
-          if ( v45 )
+            return;
+          v17 = *(Material **)(v14 + 64);
+          v18 = *(__int64 *)((char *)&scene.sceneModel[0].obj + v4);
+          if ( v18 )
           {
-            v46 = *(_QWORD *)(v45 + 272);
-            if ( v46 )
+            v19 = *(_QWORD *)(v18 + 272);
+            if ( v19 )
             {
-              v47 = 0i64;
-              if ( *(_DWORD *)v46 )
+              v20 = 0i64;
+              if ( *(_DWORD *)v19 )
               {
                 while ( 1 )
                 {
-                  v48 = *(_QWORD *)(*(_QWORD *)(v46 + 8) + 8 * v47);
-                  if ( v48 )
+                  v21 = *(_QWORD *)(*(_QWORD *)(v19 + 8) + 8 * v20);
+                  if ( v21 )
                   {
-                    if ( *(_DWORD *)(v48 + 24) == 3 && *(Material **)v48 == v44 )
+                    if ( *(_DWORD *)(v21 + 24) == 3 && *(Material **)v21 == v17 )
                       break;
                   }
-                  v47 = (unsigned int)(v47 + 1);
-                  if ( (unsigned int)v47 >= *(_DWORD *)v46 )
-                    goto LABEL_21;
+                  v20 = (unsigned int)(v20 + 1);
+                  if ( (unsigned int)v20 >= *(_DWORD *)v19 )
+                    goto LABEL_20;
                 }
-                v44 = *(Material **)(v48 + 8);
+                v17 = *(Material **)(v21 + 8);
               }
             }
           }
-LABEL_21:
-          decalVolumeMaterial = v44->decalVolumeMaterial;
+LABEL_20:
+          decalVolumeMaterial = v17->decalVolumeMaterial;
           if ( !decalVolumeMaterial || (decalVolumeMaterial->flags & 0x4000) == 0 )
           {
-            ++s_decalVolumesGrid.decalVolumeGridFrameData[v13].numDrawData;
-            MatrixTransformVector43((const vec3_t *)v41, &in2, &out);
-            if ( (tmat33_t<vec3_t> *)(v41 + 12) == &mat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+            ++s_decalVolumesGrid.decalVolumeGridFrameData[v8].numDrawData;
+            MatrixTransformVector43((const vec3_t *)v14, &in2, &out);
+            if ( (tmat33_t<vec3_t> *)(v14 + 12) == &mat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+150h+in2]
-              vmulss  xmm3, xmm0, dword ptr [rbx]
-              vmovss  xmm1, dword ptr [rbp+150h+in2+0Ch]
-              vmulss  xmm2, xmm1, dword ptr [rbx+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+18h]
-              vmulss  xmm1, xmm0, dword ptr [rbx+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+4]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+10h]
-              vmovss  dword ptr [rbp+150h+mat.quat], xmm2
-              vmulss  xmm3, xmm0, dword ptr [rbx]
-              vmulss  xmm2, xmm1, dword ptr [rbx+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+1Ch]
-              vmulss  xmm1, xmm0, dword ptr [rbx+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+14h]
-              vmovss  dword ptr [rbp+150h+mat.quat+4], xmm2
-              vmulss  xmm2, xmm1, dword ptr [rbx+4]
-              vmulss  xmm3, xmm0, dword ptr [rbx]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+20h]
-              vmulss  xmm1, xmm0, dword ptr [rbx+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  dword ptr [rbp+150h+mat.quat+8], xmm2
-            }
-            if ( (vec3_t *)(v41 + 24) == &mat.row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+            mat.m[0].v[0] = (float)((float)(in2.m[0].v[0] * *(float *)(v14 + 12)) + (float)(in2.m[1].v[0] * *(float *)(v14 + 16))) + (float)(in2.m[2].v[0] * *(float *)(v14 + 20));
+            mat.m[0].v[1] = (float)((float)(in2.m[0].v[1] * *(float *)(v14 + 12)) + (float)(in2.m[1].v[1] * *(float *)(v14 + 16))) + (float)(in2.m[2].v[1] * *(float *)(v14 + 20));
+            mat.m[0].v[2] = (float)((float)(in2.m[0].v[2] * *(float *)(v14 + 12)) + (float)(in2.m[1].v[2] * *(float *)(v14 + 16))) + (float)(in2.m[2].v[2] * *(float *)(v14 + 20));
+            if ( (vec3_t *)(v14 + 24) == &mat.row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+150h+in2]
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmovss  xmm1, dword ptr [rbp+150h+in2+0Ch]
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+18h]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+4]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+10h]
-              vmovss  dword ptr [rbp+150h+mat.quat+0Ch], xmm2
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+1Ch]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+14h]
-              vmovss  dword ptr [rbp+150h+mat.trans], xmm2
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+20h]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  dword ptr [rbp+150h+mat.trans+4], xmm2
-            }
-            if ( (vec3_t *)(v41 + 36) == &mat.row2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+            mat.m[1].v[0] = (float)((float)(in2.m[0].v[0] * *(float *)(v14 + 24)) + (float)(in2.m[1].v[0] * *(float *)(v14 + 28))) + (float)(in2.m[2].v[0] * *(float *)(v14 + 32));
+            mat.m[1].v[1] = (float)((float)(in2.m[0].v[1] * *(float *)(v14 + 24)) + (float)(in2.m[1].v[1] * *(float *)(v14 + 28))) + (float)(in2.m[2].v[1] * *(float *)(v14 + 32));
+            v23 = (float *)(v14 + 36);
+            mat.m[1].v[2] = (float)((float)(in2.m[0].v[2] * *(float *)(v14 + 24)) + (float)(in2.m[1].v[2] * *(float *)(v14 + 28))) + (float)(in2.m[2].v[2] * *(float *)(v14 + 32));
+            if ( (vec3_t *)(v14 + 36) == &mat.row2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+150h+in2]
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmovss  xmm1, dword ptr [rbp+150h+in2+0Ch]
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+18h]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+4]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+10h]
-              vmovss  dword ptr [rbp+150h+mat.trans+8], xmm2
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+1Ch]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  xmm1, dword ptr [rbp+150h+in2+14h]
-              vmovss  [rbp+150h+mat.transWeight], xmm2
-              vmulss  xmm2, xmm1, dword ptr [rdi+4]
-              vmulss  xmm3, xmm0, dword ptr [rdi]
-              vmovss  xmm0, dword ptr [rbp+150h+in2+20h]
-              vmulss  xmm1, xmm0, dword ptr [rdi+8]
-              vmovss  dword ptr [rsp+260h+var_1F0], xmm8
-            }
+            mat.m[2].v[0] = (float)((float)(in2.m[0].v[0] * *v23) + (float)(in2.m[1].v[0] * *(float *)(v14 + 40))) + (float)(in2.m[2].v[0] * *(float *)(v14 + 44));
+            mat.m[2].v[1] = (float)((float)(in2.m[0].v[1] * *(float *)(v14 + 36)) + (float)(in2.m[1].v[1] * *(float *)(v14 + 40))) + (float)(in2.m[2].v[1] * *(float *)(v14 + 44));
             LOBYTE(normalBlendModeOverride) = 2;
-            __asm
+            mat.m[2].v[2] = (float)((float)(in2.m[0].v[2] * *v23) + (float)(in2.m[1].v[2] * *(float *)(v14 + 40))) + (float)(in2.m[2].v[2] * *(float *)(v14 + 44));
+            outDecalScale = FLOAT_1_0;
+            blendMapOverride = *(GfxDecalVolumeMask **)(v14 + 72);
+            v24 = contexta;
+            blendMapAdjust.v[0] = FLOAT_1_0;
+            blendMapAdjust.v[1] = 0.0;
+            R_FillDecalVolumeGeneric(&skelMat, contexta, &out, (const vec3_t *)v14, (const vec3_t *)(v14 + 48), (const tmat33_t<vec3_t> *)(v14 + 12), v17, blendMapOverride, &blendMapAdjust, normalBlendModeOverride, (const vec2_t *)(v14 + 84), (const vec4_t *)(v14 + 92), color, -1, -100000.0, MODEL_DECAL_VOLUME, 0, 0);
+            v25 = framea;
+            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(framea, numDrawData, v24, &skelMat, &out, &mat, &outDecalScale, &outStreamingInfo);
+            if ( outDecalScale >= 1.0 )
             {
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vmovss  [rbp+150h+var_150], xmm2
-              vmovss  [rbp+150h+outDecalScale], xmm6
-            }
-            blendMapOverride = *(GfxDecalVolumeMask **)(v41 + 72);
-            v122 = contexta;
-            __asm
-            {
-              vmovss  dword ptr [rbp+150h+var_140], xmm6
-              vmovss  dword ptr [rbp+150h+var_140+4], xmm7
-            }
-            R_FillDecalVolumeGeneric(&skelMat, contexta, &out, (const vec3_t *)v41, (const vec3_t *)(v41 + 48), (const tmat33_t<vec3_t> *)(v41 + 12), v44, blendMapOverride, &blendMapAdjust, normalBlendModeOverride, (const vec2_t *)(v41 + 84), (const vec4_t *)(v41 + 92), color, -1, v134, MODEL_DECAL_VOLUME, 0, 0);
-            v123 = framea;
-            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(framea, numDrawData, v122, &skelMat, &out, &mat, &outDecalScale, &outStreamingInfo);
-            __asm
-            {
-              vmovss  xmm0, [rbp+150h+outDecalScale]
-              vcomiss xmm0, xmm6
-            }
-            if ( v125 )
-            {
-              _RDI = v139;
-              --s_decalVolumesGrid.decalVolumeGridFrameData[v13].numDrawData;
+              R_DecalVolumesGrid_SetDrawDataDebug(v25, v24, numDrawData, &skelMat, &out, &mat, &outStreamingInfo, NULL);
+              if ( v24->numTotalCells == 1 )
+                R_DecalVolumesGrid_AddTo1x1Grid(v25, volumea, numDrawData);
+              else
+                R_DecalVolumesGrid_AddToGridObject(v24, v25, volumea, (const vec3_t *)v14, &skelMat.halfSize, numDrawData);
+              v4 = v34;
             }
             else
             {
-              R_DecalVolumesGrid_SetDrawDataDebug(v123, v122, numDrawData, &skelMat, &out, &mat, &outStreamingInfo, NULL);
-              if ( v122->numTotalCells == 1 )
-                R_DecalVolumesGrid_AddTo1x1Grid(v123, volumea, numDrawData);
-              else
-                R_DecalVolumesGrid_AddToGridObject(v122, v123, volumea, (const vec3_t *)v41, &skelMat.halfSize, numDrawData);
-              _RDI = v139;
+              v4 = v34;
+              --s_decalVolumesGrid.decalVolumeGridFrameData[v8].numDrawData;
             }
           }
         }
-        v11 = v142;
-        ++v38;
+        v6 = v37;
+        ++v13;
       }
-      while ( v38 < *(_DWORD *)(v142 + 8) );
-      __asm
-      {
-        vmovaps xmm7, [rsp+260h+var_68+8]
-        vmovaps xmm8, [rsp+260h+var_78+8]
-      }
+      while ( v13 < *(_DWORD *)(v37 + 8) );
     }
-    __asm { vmovaps xmm6, xmmword ptr [rsp+260h+var_58+8] }
   }
 }
 
@@ -1084,237 +863,181 @@ R_DecalVolumesGrid_AddToGridBruteForce
 */
 void R_DecalVolumesGrid_AddToGridBruteForce(const AddToGridContext *context, unsigned int frame, const DecalVolumesGridVolumeInfo *volume, unsigned __int16 intDecalVolumeIndex, const Bounds *localIntDecalVolumeBounds)
 {
-  unsigned int v19; 
-  unsigned int v104; 
-  int v105; 
-  int v106; 
-  int v107; 
-  __int64 v108; 
+  float v5; 
+  float v6; 
+  float v7; 
+  unsigned int v9; 
+  const AddToGridContext *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  double v22; 
+  unsigned int v27; 
+  unsigned int v29; 
+  __int128 v31; 
+  unsigned int v34; 
+  __int128 v35; 
+  unsigned int v38; 
+  __int128 v39; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v44; 
+  __int128 v45; 
+  unsigned int v46; 
+  __int128 v48; 
+  unsigned int v49; 
+  __int128 v51; 
+  __int128 v52; 
+  unsigned int v53; 
+  int v54; 
+  unsigned int v55; 
+  int v56; 
+  __int64 v57; 
   int numDecalIndices; 
-  unsigned int v110; 
-  unsigned int v116; 
-  int v118; 
-  int v119; 
-  int v120; 
-  int v121; 
-  int v122; 
-  int v123; 
-  int v125; 
-  char v132; 
-  void *retaddr; 
+  unsigned int v59; 
+  __int128 v60; 
+  __int128 v61; 
+  unsigned int v63; 
+  int v65; 
+  int v66; 
+  unsigned int v68; 
+  int v69; 
+  unsigned int v70; 
+  double v71; 
 
-  _RAX = &retaddr;
+  v5 = context->volumeMinCorner.v[2];
+  v6 = context->volumeMinCorner.v[0];
+  v7 = context->volumeMinCorner.v[1];
+  v9 = frame;
+  v10 = context;
+  v11 = localIntDecalVolumeBounds->midPoint.v[1];
+  v12 = localIntDecalVolumeBounds->midPoint.v[2];
+  v13 = (float)(v11 - localIntDecalVolumeBounds->halfSize.v[1]) - v7;
+  v14 = (float)(v12 - localIntDecalVolumeBounds->halfSize.v[2]) - v5;
+  v15 = (float)(localIntDecalVolumeBounds->midPoint.v[0] + localIntDecalVolumeBounds->halfSize.v[0]) - v6;
+  v16 = (float)(v12 + localIntDecalVolumeBounds->halfSize.v[2]) - v5;
+  v17 = (float)(v11 + localIntDecalVolumeBounds->halfSize.v[1]) - v7;
+  I_fclamp((float)((float)(localIntDecalVolumeBounds->midPoint.v[0] - localIntDecalVolumeBounds->halfSize.v[0]) - v6) * context->volumeSizeRcp.v[0], 0.0, 1.0);
+  I_fclamp(v13 * v10->volumeSizeRcp.v[1], 0.0, 1.0);
+  I_fclamp(v14 * v10->volumeSizeRcp.v[2], 0.0, 1.0);
+  v18 = I_fclamp(v15 * v10->volumeSizeRcp.v[0], 0.0, 1.0);
+  v19 = *(float *)&v18;
+  v20 = I_fclamp(v17 * v10->volumeSizeRcp.v[1], 0.0, 1.0);
+  v21 = *(float *)&v20;
+  v22 = I_fclamp(v16 * v10->volumeSizeRcp.v[2], 0.0, 1.0);
+  _XMM6 = 0i64;
+  _XMM8 = 0i64;
   __asm
   {
-    vmovss  xmm2, dword ptr [rcx+0D4h]
-    vmovss  xmm4, dword ptr [rcx+0CCh]
-    vmovss  xmm3, dword ptr [rcx+0D0h]
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v19 = frame;
-  __asm { vmovaps xmmword ptr [rax-68h], xmm8 }
-  _RBX = context;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  _RAX = localIntDecalVolumeBounds;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3f800000
-    vmovss  xmm9, dword ptr [rax]
-    vmovss  xmm10, dword ptr [rax+4]
-    vsubss  xmm0, xmm9, dword ptr [rax+0Ch]
-    vsubss  xmm1, xmm10, dword ptr [rax+10h]
-    vmovss  xmm11, dword ptr [rax+8]
-    vsubss  xmm5, xmm0, xmm4
-    vsubss  xmm0, xmm11, dword ptr [rax+14h]
-    vsubss  xmm12, xmm1, xmm3
-    vaddss  xmm1, xmm9, dword ptr [rax+0Ch]
-    vsubss  xmm13, xmm0, xmm2
-    vaddss  xmm0, xmm10, dword ptr [rax+10h]
-    vsubss  xmm9, xmm1, xmm4
-    vaddss  xmm1, xmm11, dword ptr [rax+14h]
-    vsubss  xmm11, xmm1, xmm2
-    vsubss  xmm10, xmm0, xmm3
-    vmulss  xmm0, xmm5, dword ptr [rcx+0A8h]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm8, xmm0
-    vmulss  xmm0, xmm12, dword ptr [rbx+0ACh]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vmulss  xmm0, xmm13, dword ptr [rbx+0B0h]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmulss  xmm0, xmm9, dword ptr [rbx+0A8h]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm12, xmm0
-    vmulss  xmm0, xmm10, dword ptr [rbx+0ACh]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm10, xmm0
-    vmulss  xmm0, xmm11, dword ptr [rbx+0B0h]; val
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx+94h]
-    vmovss  xmm4, dword ptr [rbx+90h]
-    vmulss  xmm2, xmm5, xmm7
-    vmovss  xmm7, dword ptr [rbx+98h]
-    vmulss  xmm1, xmm4, xmm8
-    vmovaps xmm9, xmm0
-    vmulss  xmm0, xmm6, xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm8, xmm8, xmm8
     vroundss xmm6, xmm6, xmm2, 1
     vroundss xmm8, xmm8, xmm1, 1
-    vcvttss2si r9, xmm6
-    vxorps  xmm3, xmm3, xmm3
-    vcvttss2si rcx, xmm8
   }
-  v122 = _R9;
+  v27 = (int)*(float *)&_XMM6;
+  _XMM3 = 0i64;
+  v29 = (int)*(float *)&_XMM8;
+  v69 = (int)*(float *)&_XMM6;
   __asm { vroundss xmm3, xmm3, xmm0, 1 }
-  v120 = _RCX;
-  __asm
+  v66 = (int)*(float *)&_XMM8;
+  v31 = LODWORD(v10->volumeGridSize.v[0]);
+  *(float *)&v31 = (float)(v10->volumeGridSize.v[0] * v19) + 1.0;
+  _XMM1 = v31;
+  __asm { vminss  xmm2, xmm1, xmm4 }
+  v34 = (int)*(float *)&_XMM2;
+  v35 = LODWORD(v10->volumeGridSize.v[1]);
+  *(float *)&v35 = (float)(v10->volumeGridSize.v[1] * v21) + 1.0;
+  _XMM1 = v35;
+  __asm { vminss  xmm2, xmm1, xmm5 }
+  v38 = (int)*(float *)&_XMM2;
+  v39 = LODWORD(v10->volumeGridSize.v[2]);
+  *(float *)&v39 = (float)(*(float *)&v39 * *(float *)&v22) + 1.0;
+  _XMM1 = v39;
+  v42 = _XMM8;
+  *(float *)&v42 = *(float *)&_XMM8 * v10->step.v[0];
+  v41 = v42;
+  __asm { vminss  xmm2, xmm1, xmm7 }
+  v44 = _XMM6;
+  *(float *)&v44 = (float)(*(float *)&_XMM6 * v10->step.v[1]) + v10->cellMinCorner.v[1];
+  v45 = v44;
+  v46 = (int)*(float *)&_XMM2;
+  v48 = v41;
+  *(float *)&v48 = *(float *)&v41 + v10->cellMinCorner.v[0];
+  _XMM2 = v48;
+  v49 = (int)*(float *)&_XMM3;
+  v68 = v38;
+  v70 = v46;
+  v65 = (int)*(float *)&_XMM3;
+  __asm { vunpcklps xmm2, xmm2, xmm8 }
+  v71 = *(double *)&_XMM2;
+  if ( (int)*(float *)&_XMM3 < v46 )
   {
-    vmovaps xmm13, [rsp+158h+var_B8]
-    vmovaps xmm11, [rsp+158h+var_98]
-    vmulss  xmm0, xmm4, xmm12
-    vmovaps xmm12, [rsp+158h+var_A8]
-    vaddss  xmm1, xmm0, xmm14
-    vminss  xmm2, xmm1, xmm4
-    vcvttss2si r13, xmm2
-    vmulss  xmm0, xmm5, xmm10
-    vmovaps xmm10, [rsp+158h+var_88]
-    vaddss  xmm1, xmm0, xmm14
-    vminss  xmm2, xmm1, xmm5
-    vcvttss2si rdx, xmm2
-    vmulss  xmm0, xmm7, xmm9
-    vmovaps xmm9, [rsp+158h+var_78]
-    vaddss  xmm1, xmm0, xmm14
-    vmulss  xmm0, xmm8, dword ptr [rbx+0B4h]
-    vmovaps xmm14, [rsp+158h+var_C8]
-    vminss  xmm2, xmm1, xmm7
-    vmulss  xmm1, xmm6, dword ptr [rbx+0B8h]
-    vaddss  xmm8, xmm1, dword ptr [rbx+0E8h]
-    vcvttss2si r10, xmm2
-    vaddss  xmm2, xmm0, dword ptr [rbx+0E4h]
-    vmulss  xmm0, xmm3, dword ptr [rbx+0BCh]
-    vaddss  xmm1, xmm0, dword ptr [rbx+0ECh]
-    vcvttss2si r8, xmm3
-  }
-  v121 = _RDX;
-  v123 = _R10;
-  v118 = _R8;
-  __asm { vmovss  [rsp+158h+var_110], xmm1 }
-  v125 = v119;
-  __asm
-  {
-    vunpcklps xmm2, xmm2, xmm8
-    vmovsd  [rsp+158h+var_E0], xmm2
-  }
-  if ( (unsigned int)_R8 < (unsigned int)_R10 )
-  {
-    __asm
-    {
-      vmovss  xmm7, [rsp+158h+var_D8]
-      vmovss  xmm6, dword ptr [rsp+158h+var_E0+4]
-    }
+    v51 = COERCE_UNSIGNED_INT((float)(*(float *)&_XMM3 * v10->step.v[2]) + v10->cellMinCorner.v[2]);
+    v52 = HIDWORD(v71);
     while ( 1 )
     {
-      v104 = _R9;
-      v116 = _R9;
-      v105 = _R8 * volume->m_volumeSize[0] * volume->m_volumeSize[1];
-      if ( (unsigned int)_R9 < (unsigned int)_RDX )
+      v53 = v27;
+      v63 = v27;
+      v54 = v49 * volume->m_volumeSize[0] * volume->m_volumeSize[1];
+      if ( v27 < v38 )
         break;
 LABEL_15:
-      __asm { vaddss  xmm7, xmm7, dword ptr [rbx+0BCh] }
-      LODWORD(_R8) = _R8 + 1;
-      v118 = _R8;
-      __asm { vmovaps xmm6, xmm8 }
-      if ( (unsigned int)_R8 >= (unsigned int)_R10 )
-        goto LABEL_16;
+      v61 = v51;
+      *(float *)&v61 = *(float *)&v51 + v10->step.v[2];
+      v51 = v61;
+      v65 = ++v49;
+      v52 = v45;
+      if ( v49 >= v46 )
+        return;
     }
     while ( 1 )
     {
-      v106 = _RCX;
-      v107 = v104 * volume->m_volumeSize[0];
-      if ( (unsigned int)_RCX < (unsigned int)_R13 )
+      v55 = v29;
+      v56 = v53 * volume->m_volumeSize[0];
+      if ( v29 < v34 )
         break;
 LABEL_13:
-      __asm { vaddss  xmm6, xmm6, dword ptr [rbx+0B8h] }
-      v116 = ++v104;
-      if ( v104 >= (unsigned int)_RDX )
+      v60 = v52;
+      *(float *)&v60 = *(float *)&v52 + v10->step.v[1];
+      v52 = v60;
+      v63 = ++v53;
+      if ( v53 >= v38 )
       {
-        LODWORD(_R8) = v118;
-        LODWORD(_R9) = v122;
-        LODWORD(_R10) = v123;
+        v49 = v65;
+        v27 = v69;
+        v46 = v70;
         goto LABEL_15;
       }
     }
-    v108 = v19;
+    v57 = v9;
     while ( 1 )
     {
-      numDecalIndices = s_decalVolumesGrid.decalVolumeGridFrameData[v108].numDecalIndices;
-      s_decalVolumesGrid.decalVolumeGridFrameData[v108].numDecalIndices = numDecalIndices + 1;
+      numDecalIndices = s_decalVolumesGrid.decalVolumeGridFrameData[v57].numDecalIndices;
+      s_decalVolumesGrid.decalVolumeGridFrameData[v57].numDecalIndices = numDecalIndices + 1;
       if ( (unsigned int)(numDecalIndices + 1) > 0x4000 )
         R_WarnOncePerFrame(R_WARN_TOO_MANY_DECAL_VOLUMES_GRID_INDICES);
-      v110 = 0;
+      v59 = 0;
       if ( (unsigned int)(numDecalIndices + 1) <= 0x4000 )
-        v110 = numDecalIndices;
-      if ( !v110 )
+        v59 = numDecalIndices;
+      if ( !v59 )
         break;
-      R_DecalVolumesGrid_LinkDecalVolume(s_decalVolumesGrid.decalVolumeGridFrameData[v108].volumeCells, v105 + v107 + v106 + volume->m_firstCellIndex, s_decalVolumesGrid.decalVolumeGridFrameData[v108].drawDataIndices, v110, intDecalVolumeIndex);
-      if ( ++v106 >= (unsigned int)_R13 )
+      R_DecalVolumesGrid_LinkDecalVolume(s_decalVolumesGrid.decalVolumeGridFrameData[v57].volumeCells, v54 + v56 + v55 + volume->m_firstCellIndex, s_decalVolumesGrid.decalVolumeGridFrameData[v57].drawDataIndices, v59, intDecalVolumeIndex);
+      if ( ++v55 >= v34 )
       {
-        v104 = v116;
-        LODWORD(_RCX) = v120;
-        LODWORD(_RDX) = v121;
-        v19 = frame;
+        v53 = v63;
+        v29 = v66;
+        v10 = context;
+        v38 = v68;
+        v9 = frame;
         goto LABEL_13;
       }
     }
-  }
-LABEL_16:
-  _R11 = &v132;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
   }
 }
 
@@ -1325,24 +1048,21 @@ R_DecalVolumesGrid_AddToGridObject
 */
 void R_DecalVolumesGrid_AddToGridObject(const AddToGridContext *context, unsigned int frame, const DecalVolumesGridVolumeInfo *volume, const vec3_t *decalOrigin, const vec3_t *decalHalfSize, unsigned __int16 intDecalVolumeIndex)
 {
+  __int64 v9; 
   Bounds localIntDecalVolumeBounds; 
 
-  _RAX = decalHalfSize;
+  localIntDecalVolumeBounds.midPoint.v[0] = decalOrigin->v[0];
+  _XMM0 = LODWORD(decalHalfSize->v[1]);
   __asm
   {
-    vmovss  xmm2, dword ptr [r9]
-    vmovss  dword ptr [rsp+58h+var_28.midPoint], xmm2
-    vmovss  xmm0, dword ptr [rax+4]
     vmaxss  xmm1, xmm0, dword ptr [rax]
     vmaxss  xmm3, xmm1, dword ptr [rax+8]
-    vmovss  xmm1, dword ptr [r9+8]
-    vmovss  xmm0, dword ptr [r9+4]
-    vmovss  dword ptr [rsp+58h+var_28.midPoint+8], xmm1
-    vmovss  dword ptr [rsp+58h+var_28.midPoint+4], xmm0
-    vmovss  dword ptr [rsp+58h+var_28.halfSize], xmm3
-    vmovss  dword ptr [rsp+58h+var_28.halfSize+4], xmm3
-    vmovss  dword ptr [rsp+58h+var_28.halfSize+8], xmm3
   }
+  v9 = *(_QWORD *)&decalOrigin->y;
+  *(_QWORD *)&localIntDecalVolumeBounds.midPoint.y = v9;
+  localIntDecalVolumeBounds.halfSize.v[0] = *(float *)&_XMM3;
+  localIntDecalVolumeBounds.halfSize.v[1] = *(float *)&_XMM3;
+  localIntDecalVolumeBounds.halfSize.v[2] = *(float *)&_XMM3;
   R_DecalVolumesGrid_AddToGridBruteForce(context, frame, volume, intDecalVolumeIndex, &localIntDecalVolumeBounds);
 }
 
@@ -1353,230 +1073,144 @@ R_DecalVolumesGrid_AddToGridRecurse
 */
 void R_DecalVolumesGrid_AddToGridRecurse(const AddToGridContext *context, const unsigned int frame, const DecalVolumesGridVolumeInfo *volume, unsigned __int16 intDecalVolumeIndex, unsigned int w, unsigned int h, unsigned int d, const unsigned int xOffs, const unsigned int yOffs, const unsigned int zOffs, const Bounds *parentCellBounds, const Bounds *localIntDecalVolumeBounds)
 {
-  __int64 v25; 
-  bool v27; 
-  bool v28; 
-  unsigned int v45; 
+  __int64 v14; 
+  unsigned int v16; 
   unsigned int CellListIndex; 
-  unsigned int v47; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  unsigned int v27; 
+  unsigned int v28; 
+  unsigned int v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  unsigned int v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  unsigned int v46; 
   unsigned int v48; 
-  unsigned int v49; 
-  unsigned int v50; 
-  unsigned int v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  unsigned int v54; 
-  unsigned int v56; 
-  unsigned int v57; 
-  unsigned int v58; 
-  unsigned int v59; 
-  unsigned int v60; 
-  unsigned int v61; 
-  unsigned int v62; 
-  unsigned int v67; 
-  unsigned int v104; 
-  Bounds v108; 
+  Bounds v51; 
 
-  _RBX = parentCellBounds;
-  _R12 = context;
-  _RDI = localIntDecalVolumeBounds;
-  v25 = frame;
+  v14 = frame;
   if ( !parentCellBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 607, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
     __debugbreak();
-  v27 = localIntDecalVolumeBounds == NULL;
-  if ( !localIntDecalVolumeBounds )
+  if ( !localIntDecalVolumeBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 608, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1") )
+    __debugbreak();
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(parentCellBounds->midPoint.v[0] - localIntDecalVolumeBounds->midPoint.v[0]) & _xmm) <= (float)(localIntDecalVolumeBounds->halfSize.v[0] + parentCellBounds->halfSize.v[0]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(parentCellBounds->midPoint.v[1] - localIntDecalVolumeBounds->midPoint.v[1]) & _xmm) <= (float)(localIntDecalVolumeBounds->halfSize.v[1] + parentCellBounds->halfSize.v[1]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(parentCellBounds->midPoint.v[2] - localIntDecalVolumeBounds->midPoint.v[2]) & _xmm) <= (float)(localIntDecalVolumeBounds->halfSize.v[2] + parentCellBounds->halfSize.v[2]) )
   {
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 608, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1");
-    v27 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm2, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm1, xmm0, dword ptr [rbx+0Ch]
-    vandps  xmm2, xmm2, xmm3
-    vcomiss xmm2, xmm1
-  }
-  if ( v27 )
-  {
-    __asm
+    if ( w > 1 || h > 1 || d > 1 )
     {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vsubss  xmm2, xmm0, dword ptr [rdi+4]
-      vmovss  xmm1, dword ptr [rdi+10h]
-      vaddss  xmm0, xmm1, dword ptr [rbx+10h]
-      vandps  xmm2, xmm2, xmm3
-      vcomiss xmm2, xmm0
-    }
-    if ( v27 )
-    {
-      __asm
+      v18 = yOffs;
+      v19 = 1;
+      v20 = 1;
+      v21 = zOffs;
+      v22 = h + yOffs;
+      v23 = 1;
+      if ( w >> 1 > 1 )
+        v20 = w >> 1;
+      if ( h >> 1 > 1 )
+        v23 = h >> 1;
+      if ( d >> 1 > 1 )
+        v19 = d >> 1;
+      v24 = d + zOffs;
+      v25 = w + xOffs;
+      v46 = v19;
+      if ( zOffs < d + zOffs )
       {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vsubss  xmm2, xmm0, dword ptr [rdi+8]
-        vmovss  xmm1, dword ptr [rdi+14h]
-        vaddss  xmm0, xmm1, dword ptr [rbx+14h]
-        vandps  xmm2, xmm2, xmm3
-        vcomiss xmm2, xmm0
-      }
-      if ( v27 )
-      {
-        if ( w > 1 || h > 1 || d > 1 )
+        do
         {
-          v47 = yOffs;
-          v48 = 1;
-          v49 = 1;
-          v50 = zOffs;
-          v51 = h + yOffs;
-          v52 = 1;
-          if ( w >> 1 > 1 )
-            v49 = w >> 1;
-          if ( h >> 1 > 1 )
-            v52 = h >> 1;
-          if ( d >> 1 > 1 )
-            v48 = d >> 1;
-          v53 = d + zOffs;
-          v54 = w + xOffs;
-          v104 = v48;
-          if ( zOffs < d + zOffs )
+          v26 = v24 - v21;
+          v27 = v19;
+          if ( v19 > v26 )
+            v27 = v26;
+          v48 = v27;
+          if ( !v27 )
           {
-            __asm
-            {
-              vmovaps [rsp+188h+var_58], xmm6
-              vmovaps [rsp+188h+var_68], xmm7
-              vmovaps [rsp+188h+var_78], xmm8
-              vmovaps [rsp+188h+var_88], xmm9
-              vmovaps [rsp+188h+var_98], xmm10
-              vmovaps [rsp+188h+var_A8], xmm11
-              vmovaps [rsp+188h+var_B8], xmm12
-              vmovaps [rsp+188h+var_C8], xmm13
-              vmovaps [rsp+188h+var_D8], xmm14
-              vmovss  xmm14, cs:__real@3f000000
-            }
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1432, ASSERT_TYPE_ASSERT, "(clampedD > 0)", (const char *)&queryFormat, "clampedD > 0") )
+              __debugbreak();
+            v19 = v46;
+          }
+          v28 = v18;
+          if ( v18 < v22 )
+          {
             do
             {
-              v56 = v53 - v50;
-              v57 = v48;
-              if ( v48 > v56 )
-                v57 = v56;
-              if ( !v57 )
+              v29 = v22;
+              v30 = v23;
+              v31 = v29 - v28;
+              if ( v23 > v31 )
+                v30 = v31;
+              if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1437, ASSERT_TYPE_ASSERT, "(clampedH > 0)", (const char *)&queryFormat, "clampedH > 0") )
+                __debugbreak();
+              v32 = xOffs;
+              if ( xOffs < v25 )
               {
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1432, ASSERT_TYPE_ASSERT, "(clampedD > 0)", (const char *)&queryFormat, "clampedD > 0") )
-                  __debugbreak();
-                v48 = v104;
-              }
-              v58 = v47;
-              if ( v47 < v51 )
-              {
+                v35 = (float)v30;
+                v36 = (float)v48;
                 do
                 {
-                  v59 = v51;
-                  v60 = v52;
-                  v61 = v59 - v58;
-                  if ( v52 > v61 )
-                    v60 = v61;
-                  if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1437, ASSERT_TYPE_ASSERT, "(clampedH > 0)", (const char *)&queryFormat, "clampedH > 0") )
+                  v37 = v20;
+                  if ( v20 > v25 - v32 )
+                    v37 = v25 - v32;
+                  if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1442, ASSERT_TYPE_ASSERT, "(clampedW > 0)", (const char *)&queryFormat, "clampedW > 0") )
                     __debugbreak();
-                  v62 = xOffs;
-                  if ( xOffs < v54 )
-                  {
-                    __asm
-                    {
-                      vxorps  xmm10, xmm10, xmm10
-                      vcvtsi2ss xmm10, xmm10, rax
-                      vxorps  xmm11, xmm11, xmm11
-                      vcvtsi2ss xmm11, xmm11, rax
-                      vxorps  xmm12, xmm12, xmm12
-                      vcvtsi2ss xmm12, xmm12, rax
-                      vxorps  xmm13, xmm13, xmm13
-                      vcvtsi2ss xmm13, xmm13, rax
-                    }
-                    do
-                    {
-                      v67 = v49;
-                      if ( v49 > v54 - v62 )
-                        v67 = v54 - v62;
-                      if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1442, ASSERT_TYPE_ASSERT, "(clampedW > 0)", (const char *)&queryFormat, "clampedW > 0") )
-                        __debugbreak();
-                      __asm
-                      {
-                        vmovss  xmm2, dword ptr [r12+0B4h]
-                        vmovss  xmm4, dword ptr [r12+0B8h]
-                        vmovss  xmm6, dword ptr [r12+0BCh]
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm0, xmm0, rax
-                        vmulss  xmm1, xmm0, xmm2
-                        vaddss  xmm9, xmm1, dword ptr [r12+0CCh]
-                        vmulss  xmm0, xmm4, xmm10
-                        vaddss  xmm8, xmm0, dword ptr [r12+0D0h]
-                        vxorps  xmm0, xmm0, xmm0
-                        vmulss  xmm1, xmm6, xmm11
-                        vaddss  xmm7, xmm1, dword ptr [r12+0D4h]
-                        vcvtsi2ss xmm0, xmm0, rax
-                        vmulss  xmm1, xmm0, xmm2
-                        vaddss  xmm2, xmm1, xmm9
-                        vaddss  xmm3, xmm2, xmm9
-                        vmulss  xmm0, xmm12, xmm4
-                        vaddss  xmm1, xmm0, xmm8
-                        vaddss  xmm2, xmm1, xmm8
-                        vmulss  xmm4, xmm2, xmm14
-                        vmulss  xmm5, xmm3, xmm14
-                        vmulss  xmm0, xmm13, xmm6
-                        vaddss  xmm1, xmm0, xmm7
-                        vaddss  xmm2, xmm1, xmm7
-                        vsubss  xmm0, xmm5, xmm9
-                        vmulss  xmm3, xmm2, xmm14
-                        vmovss  dword ptr [rsp+188h+var_100.halfSize], xmm0
-                        vsubss  xmm0, xmm3, xmm7
-                        vsubss  xmm1, xmm4, xmm8
-                        vmovss  dword ptr [rsp+188h+var_100.halfSize+8], xmm0
-                        vmovss  dword ptr [rsp+188h+var_100.midPoint], xmm5
-                        vmovss  dword ptr [rsp+188h+var_100.midPoint+4], xmm4
-                        vmovss  dword ptr [rsp+188h+var_100.midPoint+8], xmm3
-                        vmovss  dword ptr [rsp+188h+var_100.halfSize+4], xmm1
-                      }
-                      R_DecalVolumesGrid_AddToGridRecurse(_R12, frame, volume, intDecalVolumeIndex, v49, v52, v104, v62, v58, v50, &v108, localIntDecalVolumeBounds);
-                      v62 += v49;
-                    }
-                    while ( v62 < v54 );
-                  }
-                  v51 = h + yOffs;
-                  v58 += v52;
+                  v38 = context->step.v[0];
+                  v39 = context->step.v[1];
+                  v40 = context->step.v[2];
+                  v41 = (float)v32;
+                  v42 = (float)(v41 * v38) + context->volumeMinCorner.v[0];
+                  v33 = (float)v28;
+                  v43 = (float)(v39 * v33) + context->volumeMinCorner.v[1];
+                  v34 = (float)v21;
+                  v44 = (float)(v40 * v34) + context->volumeMinCorner.v[2];
+                  v45 = (float)v37;
+                  v51.halfSize.v[0] = (float)((float)((float)((float)(v45 * v38) + v42) + v42) * 0.5) - v42;
+                  v51.halfSize.v[2] = (float)((float)((float)((float)(v36 * v40) + v44) + v44) * 0.5) - v44;
+                  v51.midPoint.v[0] = (float)((float)((float)(v45 * v38) + v42) + v42) * 0.5;
+                  v51.midPoint.v[1] = (float)((float)((float)(v35 * v39) + v43) + v43) * 0.5;
+                  v51.midPoint.v[2] = (float)((float)((float)(v36 * v40) + v44) + v44) * 0.5;
+                  v51.halfSize.v[1] = v51.midPoint.v[1] - v43;
+                  R_DecalVolumesGrid_AddToGridRecurse(context, frame, volume, intDecalVolumeIndex, v20, v23, v46, v32, v28, v21, &v51, localIntDecalVolumeBounds);
+                  v32 += v20;
                 }
-                while ( v58 < h + yOffs );
-                v48 = v104;
-                v47 = yOffs;
+                while ( v32 < v25 );
               }
-              v53 = d + zOffs;
-              v50 += v48;
+              v22 = h + yOffs;
+              v28 += v23;
             }
-            while ( v50 < d + zOffs );
-            __asm
-            {
-              vmovaps xmm14, [rsp+188h+var_D8]
-              vmovaps xmm13, [rsp+188h+var_C8]
-              vmovaps xmm12, [rsp+188h+var_B8]
-              vmovaps xmm11, [rsp+188h+var_A8]
-              vmovaps xmm10, [rsp+188h+var_98]
-              vmovaps xmm9, [rsp+188h+var_88]
-              vmovaps xmm8, [rsp+188h+var_78]
-              vmovaps xmm7, [rsp+188h+var_68]
-              vmovaps xmm6, [rsp+188h+var_58]
-            }
+            while ( v28 < h + yOffs );
+            v19 = v46;
+            v18 = yOffs;
           }
+          v24 = d + zOffs;
+          v21 += v19;
         }
-        else
-        {
-          v45 = xOffs + volume->m_firstCellIndex + volume->m_volumeSize[0] * (yOffs + zOffs * volume->m_volumeSize[1]);
-          CellListIndex = R_AllocateCellListIndex(v25, 1u);
-          if ( CellListIndex )
-            R_DecalVolumesGrid_LinkDecalVolume(s_decalVolumesGrid.decalVolumeGridFrameData[v25].volumeCells, v45, s_decalVolumesGrid.decalVolumeGridFrameData[v25].drawDataIndices, CellListIndex, intDecalVolumeIndex);
-        }
+        while ( v21 < d + zOffs );
       }
+    }
+    else
+    {
+      v16 = xOffs + volume->m_firstCellIndex + volume->m_volumeSize[0] * (yOffs + zOffs * volume->m_volumeSize[1]);
+      CellListIndex = R_AllocateCellListIndex(v14, 1u);
+      if ( CellListIndex )
+        R_DecalVolumesGrid_LinkDecalVolume(s_decalVolumesGrid.decalVolumeGridFrameData[v14].volumeCells, v16, s_decalVolumesGrid.decalVolumeGridFrameData[v14].drawDataIndices, CellListIndex, intDecalVolumeIndex);
     }
   }
 }
@@ -1636,96 +1270,55 @@ R_DecalVolumesGrid_CalcVolumeTransform
 */
 void R_DecalVolumesGrid_CalcVolumeTransform(const Bounds *bounds, const vec3_t *pos, const tmat33_t<vec3_t> *axes, vec4_t *transform)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm3, xmm1, dword ptr [rcx+10h]
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx+0Ch]
-    vsubss  xmm4, xmm0, xmm6
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm5, xmm0, dword ptr [rcx+14h]
-    vmulss  xmm0, xmm3, dword ptr [r8+0Ch]
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovss  xmm7, dword ptr [r8]
-    vmulss  xmm1, xmm7, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [r8+18h]
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [r8+4]
-    vmovaps [rsp+58h+var_38], xmm8
-    vaddss  xmm8, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm3, dword ptr [r8+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [r8+1Ch]
-    vmulss  xmm0, xmm3, dword ptr [r8+14h]
-    vmovss  xmm3, cs:__real@3f800000
-    vmovaps [rsp+58h+var_48], xmm9
-    vmovaps [rsp+58h+var_58], xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [r8+8]
-    vaddss  xmm9, xmm2, dword ptr [rdx+4]
-    vmovss  xmm4, cs:__real@3f000000
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [r8+20h]
-    vmovss  xmm5, cs:__real@3a83126f
-    vcomiss xmm6, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm10, xmm0, dword ptr [rdx+8]
-    vdivss  xmm2, xmm4, xmm6
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [r9], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r8+4]
-    vmovss  dword ptr [r9+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r8+8]
-    vmovss  dword ptr [r9+8], xmm0
-    vmovss  xmm1, dword ptr [rcx+10h]
-    vcomiss xmm1, xmm5
-    vdivss  xmm2, xmm4, xmm1
-    vmulss  xmm0, xmm2, dword ptr [r8+0Ch]
-    vmovss  dword ptr [r9+10h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r8+10h]
-    vmovss  dword ptr [r9+14h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r8+14h]
-    vmovss  dword ptr [r9+18h], xmm0
-    vmovss  xmm1, dword ptr [rcx+14h]
-    vcomiss xmm1, xmm5
-    vdivss  xmm3, xmm4, xmm1
-    vmulss  xmm0, xmm3, dword ptr [r8+18h]
-    vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [r9+20h], xmm0
-    vmulss  xmm1, xmm3, dword ptr [r8+1Ch]
-    vmovss  dword ptr [r9+24h], xmm1
-    vmulss  xmm0, xmm3, dword ptr [r8+20h]
-    vmovss  dword ptr [r9+28h], xmm0
-    vmulss  xmm1, xmm8, dword ptr [r9]
-    vmulss  xmm2, xmm9, dword ptr [r9+4]
-    vmulss  xmm0, xmm10, dword ptr [r9+8]
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm4, xmm3, xmm0
-    vxorps  xmm1, xmm4, xmm5
-    vmovss  dword ptr [r9+0Ch], xmm1
-    vmulss  xmm1, xmm9, dword ptr [r9+14h]
-    vmulss  xmm0, xmm8, dword ptr [r9+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, dword ptr [r9+18h]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm2, xmm0, xmm5
-    vmovss  dword ptr [r9+1Ch], xmm2
-    vmulss  xmm1, xmm9, dword ptr [r9+24h]
-    vmulss  xmm0, xmm8, dword ptr [r9+20h]
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm9, [rsp+58h+var_48]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, dword ptr [r9+28h]
-    vmovaps xmm10, [rsp+58h+var_58]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm2, xmm0, xmm5
-    vmovss  dword ptr [r9+2Ch], xmm2
-  }
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+
+  v4 = bounds->midPoint.v[1] - bounds->halfSize.v[1];
+  v5 = bounds->halfSize.v[0];
+  v6 = bounds->midPoint.v[0] - v5;
+  v7 = bounds->midPoint.v[2] - bounds->halfSize.v[2];
+  v8 = (float)((float)((float)(axes->m[0].v[0] * v6) + (float)(v4 * axes->m[1].v[0])) + (float)(v7 * axes->m[2].v[0])) + pos->v[0];
+  v9 = (float)(v6 * axes->m[0].v[1]) + (float)(v4 * axes->m[1].v[1]);
+  v10 = v4 * axes->m[1].v[2];
+  v11 = FLOAT_1_0;
+  v12 = (float)(v9 + (float)(v7 * axes->m[2].v[1])) + pos->v[1];
+  v13 = (float)((float)((float)(v6 * axes->m[0].v[2]) + v10) + (float)(v7 * axes->m[2].v[2])) + pos->v[2];
+  if ( v5 >= 0.001 )
+    v14 = 0.5 / v5;
+  else
+    v14 = FLOAT_1_0;
+  transform->v[0] = axes->m[0].v[0] * v14;
+  transform->v[1] = v14 * axes->m[0].v[1];
+  transform->v[2] = v14 * axes->m[0].v[2];
+  v15 = bounds->halfSize.v[1];
+  if ( v15 >= 0.001 )
+    v16 = 0.5 / v15;
+  else
+    v16 = FLOAT_1_0;
+  transform[1].v[0] = v16 * axes->m[1].v[0];
+  transform[1].v[1] = v16 * axes->m[1].v[1];
+  transform[1].v[2] = v16 * axes->m[1].v[2];
+  v17 = bounds->halfSize.v[2];
+  if ( v17 >= 0.001 )
+    v11 = 0.5 / v17;
+  transform[2].v[0] = v11 * axes->m[2].v[0];
+  transform[2].v[1] = v11 * axes->m[2].v[1];
+  transform[2].v[2] = v11 * axes->m[2].v[2];
+  transform->v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v12 * transform->v[1]) + (float)(v8 * transform->v[0])) + (float)(v13 * transform->v[2])) ^ _xmm);
+  transform[1].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v12 * transform[1].v[1]) + (float)(v8 * transform[1].v[0])) + (float)(v13 * transform[1].v[2])) ^ _xmm);
+  transform[2].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v12 * transform[2].v[1]) + (float)(v8 * transform[2].v[0])) + (float)(v13 * transform[2].v[2])) ^ _xmm);
 }
 
 /*
@@ -1733,26 +1326,12 @@ void R_DecalVolumesGrid_CalcVolumeTransform(const Bounds *bounds, const vec3_t *
 R_DecalVolumesGrid_CalculateVolumeDensity
 ==============
 */
-
-float __fastcall R_DecalVolumesGrid_CalculateVolumeDensity(double distanceToCamera, const vec3_t *cameraOrigin, __int64 a3, double _XMM3_8)
+float R_DecalVolumesGrid_CalculateVolumeDensity(float distanceToCamera, const vec3_t *cameraOrigin)
 {
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@42c80000
-    vmulss  xmm0, xmm1, cs:__real@3a09f874; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@40800000
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 2
-    vmulss  xmm0, xmm3, cs:__real@41800000
-  }
-  return *(float *)&_XMM0;
+  I_fclamp((float)(distanceToCamera - 100.0) * 0.00052631577, 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 2 }
+  return *(float *)&_XMM3 * 16.0;
 }
 
 /*
@@ -1762,74 +1341,69 @@ R_DecalVolumesGrid_DebugDraw3D
 */
 void R_DecalVolumesGrid_DebugDraw3D(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, unsigned int frame)
 {
-  unsigned int v9; 
-  __int64 v10; 
-  __int64 v11; 
+  GfxCmdBufContext v5; 
+  unsigned int v7; 
+  __int64 v8; 
+  __int64 v9; 
   unsigned int *p_hitCount; 
-  unsigned int v13; 
-  __int64 v16; 
+  unsigned int v11; 
+  DecalVolumeDrawHits *p_drawHits; 
+  char *v13; 
+  __int64 v14; 
   unsigned __int8 flags; 
+  __m256i v16; 
+  __int128 v17; 
   GfxWrappedBuffer *p_decalVolumeMaterialInfoBuffer; 
   __int64 integer; 
-  GfxCmdBufContext v23; 
+  GfxCmdBufContext v20; 
   char dataa[52]; 
-  char v25; 
-  void *retaddr; 
+  char v22; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovups xmm6, xmmword ptr [rcx]
-  }
+  v5 = *gfxContext;
   if ( r_decalVolumesShowMaterialName->current.enabled )
   {
-    v9 = 0;
-    v10 = frame;
-    v11 = frame;
-    p_hitCount = &s_decalVolumesGrid.decalVolumeGridFrameData[v10].drawHits.hitCount;
-    v13 = *p_hitCount;
-    _RDX = &s_decalVolumesGrid.decalVolumeGridFrameData[v10].drawHits;
+    v7 = 0;
+    v8 = frame;
+    v9 = frame;
+    p_hitCount = &s_decalVolumesGrid.decalVolumeGridFrameData[v8].drawHits.hitCount;
+    v11 = *p_hitCount;
+    p_drawHits = &s_decalVolumesGrid.decalVolumeGridFrameData[v8].drawHits;
     if ( *p_hitCount )
     {
-      _RCX = &v25;
-      v16 = v13;
+      v13 = &v22;
+      v14 = v11;
       do
       {
-        flags = _RDX->hits[0].flags;
-        *((_DWORD *)_RCX - 1) = 0;
-        _RCX += 56;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdx]
-          vmovups xmm1, xmmword ptr [rdx+20h]
-        }
-        _RDX = (DecalVolumeDrawHits *)((char *)_RDX + 88);
-        __asm { vmovups ymmword ptr [rcx-6Ch], ymm0 }
-        *((_DWORD *)_RCX - 14) = 2 - ((flags & 2) != 0);
-        __asm { vmovups xmmword ptr [rcx-4Ch], xmm1 }
-        --v16;
+        flags = p_drawHits->hits[0].flags;
+        *((_DWORD *)v13 - 1) = 0;
+        v13 += 56;
+        v16 = *(__m256i *)p_drawHits->hits[0].dv.center.v;
+        v17 = *(_OWORD *)&p_drawHits->hits[0].dv.y.z;
+        p_drawHits = (DecalVolumeDrawHits *)((char *)p_drawHits + 88);
+        *(__m256i *)(v13 - 108) = v16;
+        *((_DWORD *)v13 - 14) = 2 - ((flags & 2) != 0);
+        *(_OWORD *)(v13 - 76) = v17;
+        --v14;
       }
-      while ( v16 );
+      while ( v14 );
     }
-    p_decalVolumeMaterialInfoBuffer = &s_decalVolumesGrid.decalVolumeGridBuffers[v11].decalVolumeMaterialInfoBuffer;
-    R_UpdateGfxWrappedBuffer(p_decalVolumeMaterialInfoBuffer, dataa, 56 * v13);
+    p_decalVolumeMaterialInfoBuffer = &s_decalVolumesGrid.decalVolumeGridBuffers[v9].decalVolumeMaterialInfoBuffer;
+    R_UpdateGfxWrappedBuffer(p_decalVolumeMaterialInfoBuffer, dataa, 56 * v11);
     integer = r_decalVolumesShowMaterialSelect->current.integer;
     if ( *p_hitCount )
     {
       do
       {
-        if ( integer == -1 || (_DWORD)integer == v9 )
+        if ( integer == -1 || (_DWORD)integer == v7 )
         {
-          __asm { vmovdqa [rsp+258h+var_228], xmm6 }
-          RB_DecalVolumes_DrawOBB(&v23, viewInfo, data, p_decalVolumeMaterialInfoBuffer, v9, v9);
+          v20 = v5;
+          RB_DecalVolumes_DrawOBB(&v20, viewInfo, data, p_decalVolumeMaterialInfoBuffer, v7, v7);
         }
-        ++v9;
+        ++v7;
       }
-      while ( v9 < *p_hitCount );
+      while ( v7 < *p_hitCount );
     }
   }
-  __asm { vmovaps xmm6, [rsp+258h+var_48] }
 }
 
 /*
@@ -1839,9 +1413,11 @@ R_DecalVolumesGrid_DebugDraw
 */
 void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClientNum, const GfxViewParms *viewParms)
 {
+  GfxCamera *p_camera; 
   DecalVolumesGridFrameData *v4; 
   tmat33_t<vec3_t> *p_axis; 
   int volumeIndex; 
+  __int64 v7; 
   int v8; 
   int *entityDebugVolumeIndices; 
   const GfxSceneEntity *debugSceneEnt; 
@@ -1857,37 +1433,47 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
   __int64 numVolumes; 
   __int64 v21; 
   int v22; 
+  const dvar_t *v23; 
   unsigned int numDrawData; 
-  __int64 v28; 
-  __int64 v29; 
-  unsigned __int8 v30; 
+  __int64 v25; 
+  __int64 v26; 
+  unsigned __int8 v27; 
   GfxDecalVolumeDrawDataDebug *drawDataDebug; 
+  DecalVolumeInstanceDebug *decalVolumeDebug; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   float v34; 
-  float v42; 
-  float v44; 
+  float v35; 
+  float v36; 
   unsigned __int8 flags; 
-  const vec4_t *v46; 
-  float v48; 
-  float v55; 
-  float v58; 
+  const vec4_t *v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
   LocalClientNum_t localClientNuma; 
   LocalClientNum_t localClientNumb; 
   int frameb; 
   tmat33_t<vec3_t> *cameraAxis; 
   vec3_t halfSize; 
-  vec3_t v65; 
+  vec3_t v52; 
   vec3_t origin; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v69; 
+  tmat33_t<vec3_t> v56; 
   Bounds bounds; 
   tmat33_t<vec3_t> outTagMat; 
 
-  _R13 = &viewParms->camera;
+  p_camera = &viewParms->camera;
   localClientNuma = localClientNum;
   v4 = &s_decalVolumesGrid.decalVolumeGridFrameData[frame];
   p_axis = &viewParms->camera.axis;
-  *(_QWORD *)halfSize.v = _R13;
+  *(_QWORD *)halfSize.v = p_camera;
   cameraAxis = p_axis;
   *(_QWORD *)origin.v = v4;
   if ( r_decalVolumesGridDebugDrawVolumeSmodelId->current.integer > 0 )
@@ -1895,12 +1481,12 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
     volumeIndex = v4->smodelDebugVolumeIndex;
     if ( volumeIndex != -1 )
     {
-      R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNum, &_R13->origin, p_axis, volumeIndex, 1, 1);
+      R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNum, &p_camera->origin, p_axis, volumeIndex, 1, 1);
       localClientNum = localClientNuma;
       p_axis = cameraAxis;
     }
   }
-  _RDI = 0i64;
+  v7 = 0i64;
   if ( r_decalVolumesGridDebugDrawVolumeEnt->current.integer != -1 )
   {
     v8 = 0;
@@ -1909,17 +1495,17 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
       entityDebugVolumeIndices = v4->entityDebugVolumeIndices;
       do
       {
-        R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNum, &_R13->origin, p_axis, *entityDebugVolumeIndices, 1, 1);
+        R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNum, &p_camera->origin, p_axis, *entityDebugVolumeIndices, 1, 1);
         localClientNum = localClientNuma;
         ++entityDebugVolumeIndices;
         p_axis = cameraAxis;
         ++v8;
       }
       while ( v8 < v4->entityDebugVolumeIndexCount );
-      _RDI = 0i64;
+      v7 = 0i64;
     }
     debugSceneEnt = v4->debugSceneEnt;
-    *(_QWORD *)v65.v = debugSceneEnt;
+    *(_QWORD *)v52.v = debugSceneEnt;
     if ( debugSceneEnt )
     {
       obj = debugSceneEnt->obj;
@@ -1931,7 +1517,7 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
         {
           Model = DObjGetModel(obj, v13);
           ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v13);
-          CG_DObjGetWorldBoneMatrix(*(const cpose_t **)(*(_QWORD *)v65.v + 1400i64), obj, ModelRootBoneIndex, &outTagMat, &outOrigin);
+          CG_DObjGetWorldBoneMatrix(*(const cpose_t **)(*(_QWORD *)v52.v + 1400i64), obj, ModelRootBoneIndex, &outTagMat, &outOrigin);
           XModelGetBounds(Model, &bounds);
           p_debugGlobals = &frontEndDataOut->debugGlobals;
           if ( r_decalVolumesGridDebugDrawVolumesDepthTest->current.enabled )
@@ -1942,7 +1528,7 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
         }
         while ( v13 < NumModels );
         v4 = *(DecalVolumesGridFrameData **)origin.v;
-        _R13 = *(GfxCamera **)halfSize.v;
+        p_camera = *(GfxCamera **)halfSize.v;
       }
     }
   }
@@ -1977,13 +1563,13 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
       do
       {
         if ( ((unsigned __int8)v18 & v4->volumeInfos[v21].m_volumeType) != 0 )
-          R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNuma, &_R13->origin, cameraAxis, v19, r_decalVolumesGridDebugDrawVolumesInfo->current.enabled, r_decalVolumesGridDebugDrawCells->current.enabled);
+          R_DecalVolumesGrid_DrawDebugVolume(frame, localClientNuma, &p_camera->origin, cameraAxis, v19, r_decalVolumesGridDebugDrawVolumesInfo->current.enabled, r_decalVolumesGridDebugDrawCells->current.enabled);
         ++v19;
         ++v21;
         --numVolumes;
       }
       while ( numVolumes );
-      _RDI = 0i64;
+      v7 = 0i64;
     }
   }
   if ( r_decalVolumes->current.enabled && r_decalVolumesObjSpaceModel->current.enabled )
@@ -1996,111 +1582,78 @@ void R_DecalVolumesGrid_DebugDraw(unsigned int frame, LocalClientNum_t localClie
         localClientNumb = 1 << (v22 - 1);
       else
         LOBYTE(localClientNumb) = -1;
-      _RBX = DVARVEC3_r_decalVolumesScale;
+      v23 = DVARVEC3_r_decalVolumesScale;
       if ( !DVARVEC3_r_decalVolumesScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_decalVolumesScale") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v23);
       numDrawData = v4->numDrawData;
-      __asm
-      {
-        vmovss  dword ptr [rsp+160h+halfSize], xmm0
-        vmovss  xmm1, dword ptr [rbx+2Ch]
-        vmovss  dword ptr [rsp+160h+halfSize+4], xmm1
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vmovss  dword ptr [rsp+160h+halfSize+8], xmm0
-      }
+      halfSize = *(vec3_t *)&v23->current.string;
       if ( numDrawData )
       {
-        v28 = numDrawData;
-        v29 = 0i64;
-        v30 = localClientNumb;
+        v25 = numDrawData;
+        v26 = 0i64;
+        v27 = localClientNumb;
         do
         {
           drawDataDebug = v4->drawDataDebug;
-          _R14 = v4->decalVolumeDebug;
-          if ( (v30 & drawDataDebug[v29].flags) != 0 )
+          decalVolumeDebug = v4->decalVolumeDebug;
+          if ( (v27 & drawDataDebug[v26].flags) != 0 )
           {
-            __asm { vmovsd  xmm0, qword ptr [rdi+r14+0Ch] }
-            v34 = _R14[_RDI].dv.x.v[2];
-            __asm
-            {
-              vmovsd  qword ptr [rbp+60h+axis], xmm0
-              vmovsd  xmm0, qword ptr [rdi+r14+18h]
-              vmovsd  qword ptr [rbp+60h+axis+0Ch], xmm0
-              vmovsd  xmm0, qword ptr [rdi+r14+24h]
-              vmovsd  qword ptr [rbp+60h+axis+18h], xmm0
-              vmovss  xmm0, dword ptr [r13+0]
-              vaddss  xmm1, xmm0, dword ptr [rdi+r14]
-              vmovss  xmm0, dword ptr [rdi+r14+4]
-              vmovss  dword ptr [rsp+160h+origin], xmm1
-              vaddss  xmm1, xmm0, dword ptr [r13+4]
-              vmovss  xmm0, dword ptr [r13+8]
-            }
-            axis.m[0].v[2] = v34;
-            v42 = _R14[_RDI].dv.y.v[2];
-            __asm
-            {
-              vmovss  dword ptr [rsp+160h+origin+4], xmm1
-              vaddss  xmm1, xmm0, dword ptr [rdi+r14+8]
-            }
-            axis.m[1].v[2] = v42;
-            v44 = _R14[_RDI].dv.z.v[2];
-            __asm { vmovss  dword ptr [rsp+160h+origin+8], xmm1 }
-            axis.m[2].v[2] = v44;
+            v30 = decalVolumeDebug[v7].dv.x.v[2];
+            *(_QWORD *)axis.m[0].v = *(_QWORD *)decalVolumeDebug[v7].dv.x.v;
+            *(_QWORD *)axis.row1.v = *(_QWORD *)decalVolumeDebug[v7].dv.y.v;
+            *(_QWORD *)axis.row2.v = *(_QWORD *)decalVolumeDebug[v7].dv.z.v;
+            v31 = decalVolumeDebug[v7].dv.center.v[1];
+            origin.v[0] = p_camera->origin.v[0] + decalVolumeDebug[v7].dv.center.v[0];
+            v32 = v31 + p_camera->origin.v[1];
+            v33 = p_camera->origin.v[2];
+            axis.m[0].v[2] = v30;
+            v34 = decalVolumeDebug[v7].dv.y.v[2];
+            origin.v[1] = v32;
+            v35 = v33 + decalVolumeDebug[v7].dv.center.v[2];
+            axis.m[1].v[2] = v34;
+            v36 = decalVolumeDebug[v7].dv.z.v[2];
+            origin.v[2] = v35;
+            axis.m[2].v[2] = v36;
             R_DecalVolumes_DrawDebugAxis(&origin, &axis, &halfSize);
             if ( frameb > 2 )
             {
-              flags = drawDataDebug[v29].flags;
+              flags = drawDataDebug[v26].flags;
               if ( (flags & 1) != 0 )
               {
-                v46 = &colorGreen;
+                v38 = &colorGreen;
               }
               else
               {
-                v46 = &colorCyan;
+                v38 = &colorCyan;
                 if ( (flags & 2) != 0 )
-                  v46 = &colorMagenta;
+                  v38 = &colorMagenta;
               }
-              __asm { vmovsd  xmm0, qword ptr [rdi+r14+0Ch] }
-              v48 = _R14[_RDI].dv.x.v[2];
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rdi+r14+4]
-                vmovsd  qword ptr [rbp+60h+var_A8], xmm0
-                vmovsd  xmm0, qword ptr [rdi+r14+18h]
-                vmovsd  qword ptr [rbp+60h+var_A8+0Ch], xmm0
-                vmovsd  xmm0, qword ptr [rdi+r14+24h]
-                vmovsd  qword ptr [rbp+60h+var_A8+18h], xmm0
-                vmovss  xmm0, dword ptr [r13+0]
-                vaddss  xmm1, xmm0, dword ptr [rdi+r14]
-                vaddss  xmm0, xmm2, dword ptr [r13+4]
-              }
-              v69.m[0].v[2] = v48;
-              v55 = _R14[_RDI].dv.y.v[2];
-              __asm
-              {
-                vmovss  dword ptr [rsp+160h+var_100], xmm1
-                vmovss  xmm1, dword ptr [r13+8]
-                vaddss  xmm2, xmm1, dword ptr [rdi+r14+8]
-              }
-              v69.m[1].v[2] = v55;
-              v58 = _R14[_RDI].dv.z.v[2];
-              __asm
-              {
-                vmovss  dword ptr [rsp+160h+var_100+8], xmm2
-                vmovss  dword ptr [rsp+160h+var_100+4], xmm0
-              }
-              v69.m[2].v[2] = v58;
-              R_DecalVolumes_DrawDebugOBB(&v65, &v69, &halfSize, v46);
+              v39 = decalVolumeDebug[v7].dv.x.v[2];
+              v40 = decalVolumeDebug[v7].dv.center.v[1];
+              *(_QWORD *)v56.m[0].v = *(_QWORD *)decalVolumeDebug[v7].dv.x.v;
+              *(_QWORD *)v56.row1.v = *(_QWORD *)decalVolumeDebug[v7].dv.y.v;
+              *(_QWORD *)v56.row2.v = *(_QWORD *)decalVolumeDebug[v7].dv.z.v;
+              v41 = p_camera->origin.v[0] + decalVolumeDebug[v7].dv.center.v[0];
+              v42 = v40 + p_camera->origin.v[1];
+              v56.m[0].v[2] = v39;
+              v43 = decalVolumeDebug[v7].dv.y.v[2];
+              v52.v[0] = v41;
+              v44 = p_camera->origin.v[2] + decalVolumeDebug[v7].dv.center.v[2];
+              v56.m[1].v[2] = v43;
+              v45 = decalVolumeDebug[v7].dv.z.v[2];
+              v52.v[2] = v44;
+              v52.v[1] = v42;
+              v56.m[2].v[2] = v45;
+              R_DecalVolumes_DrawDebugOBB(&v52, &v56, &halfSize, v38);
             }
-            v30 = localClientNumb;
+            v27 = localClientNumb;
           }
-          ++v29;
-          ++_RDI;
-          --v28;
+          ++v26;
+          ++v7;
+          --v25;
         }
-        while ( v28 );
+        while ( v25 );
       }
     }
   }
@@ -2121,169 +1674,106 @@ bool R_DecalVolumesGrid_DebugDrawEnabled()
 R_DecalVolumesGrid_DebugDrawOverlay
 ==============
 */
-
-void __fastcall R_DecalVolumesGrid_DebugDrawOverlay(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double yOffsetText, unsigned int frame)
+void R_DecalVolumesGrid_DebugDrawOverlay(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float yOffsetText, unsigned int frame)
 {
-  __int64 v8; 
-  const char *v15; 
-  const char *v19; 
-  const char *v23; 
-  const char *v27; 
-  unsigned int v33; 
+  __int64 v4; 
+  const char *v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
+  unsigned int v11; 
   DecalVolumeDrawHits *p_drawHits; 
-  DecalVolumeDrawHit *v35; 
-  bool v36; 
+  DecalVolumeDrawHit *v13; 
+  bool v14; 
   const char *markVfxName; 
-  const GfxDecalVolumeMask *v40; 
-  const GfxImage *blendMap; 
-  float blendMapOverride; 
-  float blendMapOverridea; 
-  float blendMapOverrideb; 
-  float blendMapOverridec; 
-  float blendMapOverrided; 
+  float distanceMetric; 
+  vec4_t v17; 
+  const GfxDecalVolumeMask *v18; 
+  const GfxImage *blendMapOverride; 
   float yOffsetTexta[4]; 
   vec4_t materialColor; 
   MaterialDebugInfo debugInfo; 
 
-  __asm { vmovss  [rsp+190h+yOffsetText], xmm2 }
-  v8 = frame;
+  yOffsetTexta[0] = yOffsetText;
+  v4 = frame;
   if ( r_decalVolumes->current.enabled && r_decalVolumesObjSpaceModel->current.enabled && r_decalVolumesGridDebug->current.integer > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+190h+var_50], xmm6
-      vmovaps [rsp+190h+var_60], xmm7
-      vmovss  xmm7, cs:__real@41400000
-      vmovss  dword ptr [rsp+190h+blendMapOverride], xmm7
-      vxorps  xmm1, xmm1, xmm1; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&yOffsetText, "Object space decals", &colorWhite, 0, 1, blendMapOverride, 1);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@41600000
-      vaddss  xmm1, xmm6, [rsp+190h+yOffsetText]
-      vmovss  [rsp+190h+yOffsetText], xmm1
-    }
-    v15 = j_va("Volumes %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameVolumes, 2048i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.volumesHighWatermark);
-    __asm
-    {
-      vmovss  xmm2, [rsp+190h+yOffsetText]; y
-      vmovss  dword ptr [rsp+190h+blendMapOverride], xmm7
-      vmovaps xmm1, xmm7; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite, 0, 1, blendMapOverridea, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+190h+yOffsetText]
-      vmovss  [rsp+190h+yOffsetText], xmm1
-    }
-    v19 = j_va("Cells   %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameCells, 20480i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.cellsHighWatermark);
-    __asm
-    {
-      vmovss  xmm2, [rsp+190h+yOffsetText]; y
-      vmovss  dword ptr [rsp+190h+blendMapOverride], xmm7
-      vmovaps xmm1, xmm7; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v19, &colorWhite, 0, 1, blendMapOverrideb, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+190h+yOffsetText]
-      vmovss  [rsp+190h+yOffsetText], xmm1
-    }
-    v23 = j_va("Indices %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameIndices, 0x4000i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.indicesHighWatermark);
-    __asm
-    {
-      vmovss  xmm2, [rsp+190h+yOffsetText]; y
-      vmovss  dword ptr [rsp+190h+blendMapOverride], xmm7
-      vmovaps xmm1, xmm7; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite, 0, 1, blendMapOverridec, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+190h+yOffsetText]
-      vmovss  [rsp+190h+yOffsetText], xmm1
-    }
-    v27 = j_va("Decals  %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameDecals, 2048i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.decalsHighWatermark);
-    __asm
-    {
-      vmovss  xmm2, [rsp+190h+yOffsetText]; y
-      vmovss  dword ptr [rsp+190h+blendMapOverride], xmm7
-      vmovaps xmm1, xmm7; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v27, &colorWhite, 0, 1, blendMapOverrided, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+190h+yOffsetText]
-      vmovaps xmm7, [rsp+190h+var_60]
-      vmovaps xmm6, [rsp+190h+var_50]
-      vmovss  [rsp+190h+yOffsetText], xmm1
-    }
+    CG_DrawStringExt(scrPlace, 0.0, yOffsetText, "Object space decals", &colorWhite, 0, 1, 12.0, 1);
+    yOffsetTexta[0] = yOffsetTexta[0] + 14.0;
+    v7 = j_va("Volumes %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameVolumes, 2048i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.volumesHighWatermark);
+    CG_DrawStringExt(scrPlace, 12.0, yOffsetTexta[0], v7, &colorWhite, 0, 1, 12.0, 1);
+    yOffsetTexta[0] = yOffsetTexta[0] + 14.0;
+    v8 = j_va("Cells   %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameCells, 20480i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.cellsHighWatermark);
+    CG_DrawStringExt(scrPlace, 12.0, yOffsetTexta[0], v8, &colorWhite, 0, 1, 12.0, 1);
+    yOffsetTexta[0] = yOffsetTexta[0] + 14.0;
+    v9 = j_va("Indices %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameIndices, 0x4000i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.indicesHighWatermark);
+    CG_DrawStringExt(scrPlace, 12.0, yOffsetTexta[0], v9, &colorWhite, 0, 1, 12.0, 1);
+    yOffsetTexta[0] = yOffsetTexta[0] + 14.0;
+    v10 = j_va("Decals  %5u/%5u HWM %5u", s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.numFrameDecals, 2048i64, s_decalVolumesGrid.decalVolumeGridVolumeMaxUsageStats.decalsHighWatermark);
+    CG_DrawStringExt(scrPlace, 12.0, yOffsetTexta[0], v10, &colorWhite, 0, 1, 12.0, 1);
+    yOffsetTexta[0] = yOffsetTexta[0] + 14.0;
   }
   if ( r_decalVolumesShowMaterialName->current.enabled )
   {
-    v33 = 0;
-    p_drawHits = &s_decalVolumesGrid.decalVolumeGridFrameData[v8].drawHits;
+    v11 = 0;
+    p_drawHits = &s_decalVolumesGrid.decalVolumeGridFrameData[v4].drawHits;
     if ( p_drawHits->hitCount )
     {
       do
       {
-        v35 = &p_drawHits->hits[v33];
+        v13 = &p_drawHits->hits[v11];
         memset_0(&debugInfo, 0, sizeof(debugInfo));
-        v36 = (v35->flags & 2) == 0;
+        v14 = (v13->flags & 2) == 0;
         markVfxName = NULL;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-        }
-        debugInfo.streamingData.material.distanceMetricQuantized = v35->streamingInfo.distanceMetric;
-        debugInfo.streamingData.material.neededSize = v35->streamingInfo.neededSize;
-        __asm { vmovss  [rbp+90h+debugInfo.streamingData.material.distanceMetric], xmm0 }
-        if ( v36 )
+        distanceMetric = (float)v13->streamingInfo.distanceMetric;
+        debugInfo.streamingData.material.distanceMetricQuantized = v13->streamingInfo.distanceMetric;
+        debugInfo.streamingData.material.neededSize = v13->streamingInfo.neededSize;
+        debugInfo.streamingData.material.distanceMetric = distanceMetric;
+        if ( v14 )
         {
           debugInfo.decalType = 2;
         }
         else
         {
-          markVfxName = v35->markVfxName;
+          markVfxName = v13->markVfxName;
           debugInfo.decalType = 1;
         }
-        switch ( v33 & 7 )
+        switch ( v11 & 7 )
         {
           case 0u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 0 }
+            v17 = colorRed;
             break;
           case 1u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 1 }
+            v17 = colorGreen;
             break;
           case 2u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 2 }
+            v17 = colorBlue;
             break;
           case 3u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 3 }
+            v17 = colorYellow;
             break;
           case 4u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 4 }
+            v17 = colorMagenta;
             break;
           case 5u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 5 }
+            v17 = colorCyan;
             break;
           case 6u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 6 }
+            v17 = colorOrange;
             break;
           case 7u:
-            __asm { vmovups xmm0, xmmword ptr cs:?colorTeal@@3Tvec4_t@@B; jumptable 00000001420BEF1F case 7 }
+            v17 = colorTeal;
             break;
         }
-        v40 = v35->blendMapOverride;
-        __asm { vmovdqa xmmword ptr [rsp+190h+materialColor], xmm0 }
-        if ( v40 )
-          blendMap = v40->blendMap;
+        v18 = v13->blendMapOverride;
+        materialColor = v17;
+        if ( v18 )
+          blendMapOverride = v18->blendMap;
         else
-          blendMap = NULL;
-        R_DecalVolumes_DrawDebugMaterial(localClientNum, scrPlace, yOffsetTexta, v33++, &debugInfo, &materialColor, v35->material, blendMap, markVfxName);
+          blendMapOverride = NULL;
+        R_DecalVolumes_DrawDebugMaterial(localClientNum, scrPlace, yOffsetTexta, v11++, &debugInfo, &materialColor, v13->material, blendMapOverride, markVfxName);
       }
-      while ( v33 < p_drawHits->hitCount );
+      while ( v11 < p_drawHits->hitCount );
     }
   }
 }
@@ -2296,454 +1786,345 @@ R_DecalVolumesGrid_DrawDebugVolume
 void R_DecalVolumesGrid_DrawDebugVolume(unsigned int frame, LocalClientNum_t localClientNum, const vec3_t *cameraOrigin, const tmat33_t<vec3_t> *cameraAxis, int volumeIndex, bool drawInfo, bool drawCells)
 {
   signed __int64 v7; 
-  void *v19; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  void *v17; 
+  unsigned int v18; 
+  const vec3_t *v19; 
   DecalVolumesGridFrameData *v21; 
-  char v23; 
+  DecalVolumesGridVolumeInfo *v22; 
+  DecalVolumesGridVolumeType m_volumeType; 
   vec4_t *v24; 
-  float v33; 
-  __int64 v34; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  float v28; 
+  GfxScaledPlacement *p_placement; 
+  float v30; 
+  __int64 m_objectIndex; 
   const DObj *obj; 
   unsigned __int8 ModelRootBoneIndex; 
-  unsigned __int16 v37; 
-  unsigned int v43; 
-  unsigned int v45; 
+  unsigned __int16 v34; 
+  DynEntityPose *PoseFromClientId; 
+  int v36; 
+  int v37; 
+  int v38; 
+  unsigned int m_firstCellIndex; 
+  float v40; 
+  float v41; 
+  float v42; 
+  unsigned int v44; 
   unsigned int v46; 
-  int v47; 
-  unsigned int v69; 
+  unsigned int v47; 
+  unsigned int v48; 
+  __int64 v49; 
+  int v50; 
+  unsigned int *volumeCells; 
+  unsigned int v52; 
+  unsigned int v53; 
+  __int64 v54; 
+  unsigned int *drawDataIndices; 
+  unsigned int v56; 
+  __int64 v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  DebugGlobals *p_debugGlobals; 
+  DecalVolumesGridVolumeType v68; 
+  const char *v69; 
+  float v70; 
+  float v71; 
+  __int64 duration; 
   unsigned int v73; 
   unsigned int v74; 
-  int v75; 
-  __int64 v77; 
-  int v78; 
-  unsigned int *volumeCells; 
-  unsigned int v80; 
+  vec4_t *v75; 
+  unsigned int v76; 
+  int v77; 
+  unsigned int v78; 
+  float v79; 
+  float v80; 
   unsigned int v81; 
-  __int64 v82; 
-  unsigned int *drawDataIndices; 
-  unsigned int v84; 
-  __int64 v85; 
-  char v120; 
-  DebugGlobals *p_debugGlobals; 
-  int v200; 
-  unsigned int v201; 
-  vec4_t *v204; 
-  int v205; 
-  unsigned int v206; 
-  int v207; 
-  unsigned int v211; 
-  __int64 v213; 
+  float v82; 
+  DecalVolumesGridVolumeInfo *v84; 
   vec3_t origin; 
   vec3_t pos; 
   Bounds bounds; 
   tmat33_t<vec3_t> axis; 
   vec3_t xyz; 
   vec3_t end; 
-  vec3_t v220; 
-  vec3_t v221; 
+  vec3_t v91; 
+  vec3_t v92; 
   vec4_t color; 
   char dest[2048]; 
+  char text[2048]; 
+  __int128 v96; 
+  __int128 v97; 
+  __int128 v98; 
+  __int128 v99; 
+  __int128 v100; 
+  __int128 v101; 
+  __int128 v102; 
+  __int128 v103; 
+  __int128 v104; 
 
-  v19 = alloca(v7);
-  __asm
-  {
-    vmovaps [rsp+1230h+var_D0], xmm15
-    vmovaps [rsp+1230h+var_40], xmm6
-    vmovaps [rsp+1230h+var_50], xmm7
-    vmovaps [rsp+1230h+var_60], xmm8
-    vmovaps [rsp+1230h+var_70], xmm9
-    vmovaps [rsp+1230h+var_80], xmm10
-    vmovaps [rsp+1230h+var_90], xmm11
-    vmovaps [rsp+1230h+var_A0], xmm12
-    vmovaps [rsp+1230h+var_B0], xmm13
-    vmovaps [rsp+1230h+var_C0], xmm14
-  }
+  v17 = alloca(v7);
+  v18 = volumeIndex;
+  v19 = cameraOrigin;
+  v104 = v8;
+  v103 = v9;
+  v102 = v10;
+  v101 = v11;
+  v100 = v12;
+  v99 = v13;
+  v98 = v14;
+  v97 = v15;
+  v96 = v16;
   v21 = &s_decalVolumesGrid.decalVolumeGridFrameData[frame];
-  _R14 = (__int64)&v21->volumeInfos[volumeIndex];
-  v23 = *(_BYTE *)(_R14 + 27);
-  v213 = _R14;
-  if ( v23 == 1 )
+  v22 = &v21->volumeInfos[volumeIndex];
+  m_volumeType = v22->m_volumeType;
+  v84 = v22;
+  if ( m_volumeType == DECAL_VOLUMES_GRID_VOLUME_TYPE_SMODEL )
   {
     v24 = &colorWhite;
   }
-  else if ( v23 == 2 )
+  else if ( m_volumeType == DECAL_VOLUMES_GRID_VOLUME_TYPE_MODEL )
   {
     v24 = &colorTeal;
   }
   else
   {
     v24 = &colorRed;
-    if ( v23 == 4 )
+    if ( m_volumeType == DECAL_VOLUMES_GRID_VOLUME_TYPE_DOBJ_MODEL )
       v24 = &colorMagenta;
   }
-  v204 = v24;
-  __asm
+  v75 = v24;
+  v26 = LODWORD(v22->m_volumeBounds.midPoint.v[0]);
+  *(float *)&v26 = v22->m_volumeBounds.midPoint.v[0] - v22->m_volumeBounds.halfSize.v[0];
+  v25 = *(float *)&v26;
+  v27 = v22->m_volumeBounds.midPoint.v[1] - v22->m_volumeBounds.halfSize.v[1];
+  v28 = v22->m_volumeBounds.midPoint.v[2] - v22->m_volumeBounds.halfSize.v[2];
+  v82 = v27;
+  switch ( m_volumeType )
   {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm6, xmm0, dword ptr [r14+0Ch]
-    vmovss  xmm0, dword ptr [r14+4]
-    vsubss  xmm7, xmm0, dword ptr [r14+10h]
-    vmovss  xmm0, dword ptr [r14+8]
-    vsubss  xmm8, xmm0, dword ptr [r14+14h]
-    vmovss  [rsp+1230h+var_11D4], xmm8
-    vmovss  [rsp+1230h+var_11D8], xmm6
-    vmovss  [rbp+1130h+var_11A8], xmm7
-  }
-  switch ( v23 )
-  {
-    case 2:
-      _RBX = &scene.sceneModel[*(unsigned int *)(_R14 + 32)].placement;
-      UnitQuatToAxis(&_RBX->base.quat, &axis);
-      __asm { vmovsd  xmm0, qword ptr [rbx+10h] }
-      v33 = _RBX->base.origin.v[2];
-      __asm { vmovsd  qword ptr [rbp+1130h+origin], xmm0 }
-      origin.v[2] = v33;
+    case DECAL_VOLUMES_GRID_VOLUME_TYPE_MODEL:
+      p_placement = &scene.sceneModel[v22->m_objectIndex].placement;
+      UnitQuatToAxis(&p_placement->base.quat, &axis);
+      v30 = p_placement->base.origin.v[2];
+      *(_QWORD *)origin.v = *(_QWORD *)p_placement->base.origin.v;
+      origin.v[2] = v30;
       break;
-    case 4:
-      v34 = *(unsigned int *)(_R14 + 32);
-      obj = scene.sceneDObj[v34].obj;
-      ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, *(_DWORD *)(_R14 + 36));
-      CG_DObjGetWorldBoneMatrix(scene.sceneDObj[v34].info.pose, obj, ModelRootBoneIndex, &axis, &origin);
+    case DECAL_VOLUMES_GRID_VOLUME_TYPE_DOBJ_MODEL:
+      m_objectIndex = v22->m_objectIndex;
+      obj = scene.sceneDObj[m_objectIndex].obj;
+      ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, v22->m_modelIndex);
+      CG_DObjGetWorldBoneMatrix(scene.sceneDObj[m_objectIndex].info.pose, obj, ModelRootBoneIndex, &axis, &origin);
       break;
-    case 8:
-      v37 = truncate_cast<unsigned short,unsigned int>(*(_DWORD *)(_R14 + 36));
-      _RBX = DynEnt_GetPoseFromClientId(localClientNum, v37, DYNENT_BASIS_MODEL);
-      UnitQuatToAxis(&_RBX->pose.quat, &axis);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx+4Ch]
-        vmovsd  qword ptr [rbp+1130h+origin], xmm0
-      }
-      origin.v[2] = _RBX->pose.origin.v[2];
+    case DECAL_VOLUMES_GRID_VOLUME_TYPE_DYNMODEL:
+      v34 = truncate_cast<unsigned short,unsigned int>(v22->m_modelIndex);
+      PoseFromClientId = DynEnt_GetPoseFromClientId(localClientNum, v34, DYNENT_BASIS_MODEL);
+      UnitQuatToAxis(&PoseFromClientId->pose.quat, &axis);
+      origin = PoseFromClientId->pose.origin;
       break;
     default:
       MatrixIdentity33(&axis);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rbp+1130h+origin], xmm0
-        vmovss  dword ptr [rbp+1130h+origin+4], xmm0
-        vmovss  dword ptr [rbp+1130h+origin+8], xmm0
-      }
+      origin.v[0] = 0.0;
+      origin.v[1] = 0.0;
+      origin.v[2] = 0.0;
       break;
   }
-  __asm { vmovss  xmm15, cs:__real@41200000 }
   if ( drawCells )
   {
-    __asm { vmovss  xmm13, cs:__real@40000000 }
-    v43 = *(unsigned __int8 *)(_R14 + 26);
-    __asm { vmovss  xmm0, dword ptr [r14+0Ch] }
-    v45 = *(unsigned __int8 *)(_R14 + 25);
-    v46 = *(unsigned __int8 *)(_R14 + 24);
-    v47 = *(_DWORD *)(_R14 + 28);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r13d
-      vdivss  xmm2, xmm0, xmm1
-      vmovss  xmm0, dword ptr [r14+10h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edx
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  xmm0, dword ptr [r14+14h]
-      vmulss  xmm14, xmm1, xmm13
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  xmm0, cs:__real@3f000000
-      vmulss  xmm3, xmm1, xmm13
-      vmulss  xmm1, xmm14, xmm0
-      vmulss  xmm12, xmm2, xmm13
-      vmulss  xmm2, xmm12, xmm0
-      vmulss  xmm0, xmm3, xmm0
-      vmovss  dword ptr [rbp+1130h+bounds.halfSize+4], xmm1
-      vaddss  xmm1, xmm7, xmm1
-      vmovss  dword ptr [rbp+1130h+bounds.halfSize+8], xmm0
-      vaddss  xmm0, xmm8, xmm0
-      vmovss  dword ptr [rbp+1130h+xyz+8], xmm0
-      vmovss  dword ptr [rbp+1130h+bounds.halfSize], xmm2
-      vaddss  xmm2, xmm6, xmm2
-    }
+    v36 = v22->m_volumeSize[2];
+    v37 = v22->m_volumeSize[1];
+    v38 = v22->m_volumeSize[0];
+    m_firstCellIndex = v22->m_firstCellIndex;
+    v40 = (float)(v22->m_volumeBounds.halfSize.v[1] / (float)v37) * 2.0;
+    v41 = (float)(v22->m_volumeBounds.halfSize.v[2] / (float)v36) * 2.0;
+    v42 = (float)(v22->m_volumeBounds.halfSize.v[0] / (float)v38) * 2.0;
+    bounds.halfSize.v[1] = v40 * 0.5;
+    bounds.halfSize.v[2] = v41 * 0.5;
+    xyz.v[2] = v28 + (float)(v41 * 0.5);
+    bounds.halfSize.v[0] = v42 * 0.5;
+    *(float *)&v26 = *(float *)&v26 + (float)(v42 * 0.5);
+    _XMM2 = v26;
     bounds.midPoint.v[2] = xyz.v[2];
-    v69 = 0;
-    v206 = v45;
-    v211 = v43;
-    v207 = v47;
-    v201 = 0;
-    __asm
+    v44 = 0;
+    v77 = v37;
+    v81 = v36;
+    v78 = m_firstCellIndex;
+    v74 = 0;
+    v80 = v27 + (float)(v40 * 0.5);
+    __asm { vunpcklps xmm1, xmm2, xmm1 }
+    v79 = v41;
+    *(double *)bounds.midPoint.v = *(double *)&_XMM1;
+    if ( v36 )
     {
-      vmovss  [rsp+1230h+var_11B4], xmm1
-      vunpcklps xmm1, xmm2, xmm1
-      vmovss  [rsp+1230h+var_11B8], xmm3
-      vmovss  [rsp+1230h+var_11BC], xmm2
-      vmovsd  qword ptr [rbp+1130h+bounds.midPoint], xmm1
-    }
-    if ( v43 )
-    {
-      __asm
-      {
-        vmovss  xmm10, cs:__real@3ccccccd
-        vmovss  xmm11, cs:__real@3a449ba6
-      }
       do
       {
+        v46 = 0;
         v73 = 0;
-        v200 = 0;
-        if ( v45 )
+        if ( v37 )
         {
           do
           {
-            v74 = 0;
-            if ( v46 )
+            v47 = 0;
+            if ( v38 )
             {
-              v75 = v47 + v46 * (v73 + v45 * v69);
-              v205 = v75;
+              v48 = m_firstCellIndex + v38 * (v46 + v37 * v44);
+              v76 = v48;
               do
               {
-                __asm { vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite }
-                v77 = v74 + v75;
-                v78 = 0;
+                v49 = v47 + v48;
+                v50 = 0;
                 volumeCells = v21->volumeCells;
-                __asm { vmovups xmmword ptr [rbp+1130h+color], xmm0 }
-                v80 = volumeCells[v77];
-                v81 = HIWORD(v80);
-                v82 = HIWORD(v80);
-                if ( HIWORD(v80) )
+                color = colorWhite;
+                v52 = volumeCells[v49];
+                v53 = HIWORD(v52);
+                v54 = HIWORD(v52);
+                if ( HIWORD(v52) )
                 {
                   do
                   {
-                    LODWORD(v82) = HIWORD(v21->drawDataIndices[v82]);
-                    ++v78;
+                    LODWORD(v54) = HIWORD(v21->drawDataIndices[v54]);
+                    ++v50;
                   }
-                  while ( (_DWORD)v82 );
+                  while ( (_DWORD)v54 );
                 }
-                if ( v80 )
+                if ( v52 )
                 {
                   drawDataIndices = v21->drawDataIndices;
-                  v84 = 1;
-                  if ( !v81 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2821, ASSERT_TYPE_ASSERT, "(decalIndex)", (const char *)&queryFormat, "decalIndex") )
+                  v56 = 1;
+                  if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2821, ASSERT_TYPE_ASSERT, "(decalIndex)", (const char *)&queryFormat, "decalIndex") )
                     __debugbreak();
-                  v85 = HIWORD(drawDataIndices[v81]);
-                  if ( HIWORD(drawDataIndices[v81]) )
+                  v57 = HIWORD(drawDataIndices[v53]);
+                  if ( HIWORD(drawDataIndices[v53]) )
                   {
                     do
                     {
-                      LODWORD(v85) = HIWORD(drawDataIndices[v85]);
-                      ++v84;
+                      LODWORD(v57) = HIWORD(drawDataIndices[v57]);
+                      ++v56;
                     }
-                    while ( (_DWORD)v85 );
+                    while ( (_DWORD)v57 );
                   }
-                  if ( v84 != v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2830, ASSERT_TYPE_ASSERT, "(numDecalsInCell == numDecalsInCell0)", (const char *)&queryFormat, "numDecalsInCell == numDecalsInCell0") )
+                  if ( v56 != v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 2830, ASSERT_TYPE_ASSERT, "(numDecalsInCell == numDecalsInCell0)", (const char *)&queryFormat, "numDecalsInCell == numDecalsInCell0") )
                     __debugbreak();
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr cs:?colorPink@@3Tvec4_t@@B; vec4_t const colorPink
-                    vmovups xmmword ptr [rbp+1130h+color], xmm0
-                  }
-                  Com_sprintf(dest, 0x800ui64, "Num cell decals: %u", v84);
-                  __asm
-                  {
-                    vmovss  xmm9, dword ptr [rbp+1130h+bounds.midPoint+4]
-                    vmovss  xmm8, dword ptr [rbp+1130h+bounds.midPoint]
-                    vmovss  xmm6, dword ptr [rbp+1130h+bounds.midPoint+8]
-                    vmulss  xmm2, xmm9, dword ptr [rbp+1130h+axis+0Ch]
-                    vmulss  xmm0, xmm8, dword ptr [rbp+1130h+axis]
-                    vmulss  xmm1, xmm6, dword ptr [rbp+1130h+axis+1Ch]
-                    vaddss  xmm3, xmm2, xmm0
-                    vmulss  xmm0, xmm6, dword ptr [rbp+1130h+axis+18h]
-                    vaddss  xmm2, xmm3, xmm0
-                    vaddss  xmm7, xmm2, dword ptr [rbp+1130h+origin]
-                    vmulss  xmm2, xmm8, dword ptr [rbp+1130h+axis+4]
-                    vmulss  xmm3, xmm9, dword ptr [rbp+1130h+axis+10h]
-                    vaddss  xmm4, xmm3, xmm2
-                    vmulss  xmm3, xmm9, dword ptr [rbp+1130h+axis+14h]
-                    vaddss  xmm2, xmm4, xmm1
-                    vaddss  xmm5, xmm2, dword ptr [rbp+1130h+origin+4]
-                    vsubss  xmm0, xmm5, dword ptr [rsi+4]
-                    vmulss  xmm2, xmm8, dword ptr [rbp+1130h+axis+8]
-                    vmulss  xmm1, xmm6, dword ptr [rbp+1130h+axis+20h]
-                    vaddss  xmm4, xmm3, xmm2
-                    vaddss  xmm2, xmm4, xmm1
-                    vaddss  xmm3, xmm2, dword ptr [rbp+1130h+origin+8]
-                    vsubss  xmm4, xmm7, dword ptr [rsi]
-                    vmulss  xmm1, xmm0, xmm0
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  dword ptr [rbp+1130h+xyz+4], xmm5
-                    vsubss  xmm5, xmm3, dword ptr [rsi+8]
-                    vmulss  xmm1, xmm5, xmm5
-                    vaddss  xmm2, xmm2, xmm1
-                    vsqrtss xmm0, xmm2, xmm2
-                    vcvttss2si rcx, xmm0
-                    vxorps  xmm1, xmm1, xmm1
-                    vcvtsi2ss xmm1, xmm1, rcx
-                    vcomiss xmm1, xmm15
-                    vmovss  dword ptr [rbp+1130h+xyz], xmm7
-                    vmovss  dword ptr [rbp+1130h+xyz+8], xmm3
-                  }
-                  if ( v120 )
-                    __asm { vmovaps xmm2, xmm10 }
+                  color = colorPink;
+                  Com_sprintf(dest, 0x800ui64, "Num cell decals: %u", v56);
+                  v19 = cameraOrigin;
+                  v58 = (float)((float)((float)(bounds.midPoint.v[1] * axis.m[1].v[0]) + (float)(bounds.midPoint.v[0] * axis.m[0].v[0])) + (float)(bounds.midPoint.v[2] * axis.m[2].v[0])) + origin.v[0];
+                  v59 = (float)((float)((float)(bounds.midPoint.v[1] * axis.m[1].v[1]) + (float)(bounds.midPoint.v[0] * axis.m[0].v[1])) + (float)(bounds.midPoint.v[2] * axis.m[2].v[1])) + origin.v[1];
+                  v60 = (float)((float)((float)(bounds.midPoint.v[1] * axis.m[1].v[2]) + (float)(bounds.midPoint.v[0] * axis.m[0].v[2])) + (float)(bounds.midPoint.v[2] * axis.m[2].v[2])) + origin.v[2];
+                  v61 = (float)((float)(v59 - cameraOrigin->v[1]) * (float)(v59 - cameraOrigin->v[1])) + (float)((float)(v58 - cameraOrigin->v[0]) * (float)(v58 - cameraOrigin->v[0]));
+                  xyz.v[1] = v59;
+                  v62 = (float)(unsigned int)(int)fsqrt(v61 + (float)((float)(v60 - cameraOrigin->v[2]) * (float)(v60 - cameraOrigin->v[2])));
+                  xyz.v[0] = v58;
+                  xyz.v[2] = v60;
+                  if ( v62 >= 10.0 )
+                    v63 = v62 * 0.00075000001;
                   else
-                    __asm { vmulss  xmm2, xmm1, xmm11; scale }
-                  CL_AddDebugString(&xyz, &colorBlueHeat, *(float *)&_XMM2, dest, 0, 1);
-                  __asm { vmovaps xmm2, xmm13; size }
-                  R_AddDebugStar(&frontEndDataOut->debugGlobals, &xyz, *(const float *)&_XMM2, &color);
+                    v63 = FLOAT_0_025;
+                  CL_AddDebugString(&xyz, &colorBlueHeat, v63, dest, 0, 1);
+                  R_AddDebugStar(&frontEndDataOut->debugGlobals, &xyz, 2.0, &color);
                 }
                 R_AddDebugBoxOrientedDepthTest(&frontEndDataOut->debugGlobals, &origin, &bounds, &axis, &color);
-                __asm { vaddss  xmm1, xmm12, dword ptr [rbp+1130h+bounds.midPoint] }
-                v75 = v205;
-                ++v74;
-                __asm { vmovss  dword ptr [rbp+1130h+bounds.midPoint], xmm1 }
+                v48 = v76;
+                ++v47;
+                bounds.midPoint.v[0] = v42 + bounds.midPoint.v[0];
               }
-              while ( v74 < v46 );
-              v73 = v200;
-              v45 = v206;
-              v69 = v201;
-              v47 = v207;
+              while ( v47 < v38 );
+              v46 = v73;
+              v37 = v77;
+              v44 = v74;
+              m_firstCellIndex = v78;
             }
-            __asm
-            {
-              vmovss  xmm0, [rsp+1230h+var_11BC]
-              vaddss  xmm1, xmm14, dword ptr [rbp+1130h+bounds.midPoint+4]
-            }
-            v200 = ++v73;
-            __asm
-            {
-              vmovss  dword ptr [rbp+1130h+bounds.midPoint], xmm0
-              vmovss  dword ptr [rbp+1130h+bounds.midPoint+4], xmm1
-            }
+            v73 = ++v46;
+            bounds.midPoint.v[0] = v25 + (float)(v42 * 0.5);
+            bounds.midPoint.v[1] = v40 + bounds.midPoint.v[1];
           }
-          while ( v73 < v45 );
-          __asm { vmovss  xmm3, [rsp+1230h+var_11B8] }
+          while ( v46 < v37 );
+          v41 = v79;
         }
-        __asm
-        {
-          vmovss  xmm0, [rsp+1230h+var_11B4]
-          vaddss  xmm1, xmm3, dword ptr [rbp+1130h+bounds.midPoint+8]
-        }
-        ++v69;
-        __asm
-        {
-          vmovss  dword ptr [rbp+1130h+bounds.midPoint+4], xmm0
-          vmovss  dword ptr [rbp+1130h+bounds.midPoint+8], xmm1
-        }
-        v201 = v69;
+        ++v44;
+        bounds.midPoint.v[1] = v80;
+        bounds.midPoint.v[2] = v41 + bounds.midPoint.v[2];
+        v74 = v44;
       }
-      while ( v69 < v211 );
-      _R14 = v213;
+      while ( v44 < v81 );
+      v22 = v84;
+      v18 = volumeIndex;
     }
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14+0Ch]
-    vmovss  xmm11, dword ptr [rbp+1130h+origin]
-    vmovss  xmm13, dword ptr [rbp+1130h+origin+4]
-    vmovss  xmm14, dword ptr [rbp+1130h+origin+8]
-    vmovss  xmm9, dword ptr [rbp+1130h+axis]
-    vmovss  xmm10, dword ptr [rbp+1130h+axis+4]
-    vmovss  xmm12, dword ptr [rbp+1130h+axis+8]
-    vmovss  xmm4, dword ptr [rbp+1130h+axis+18h]
-    vmovss  xmm5, dword ptr [rbp+1130h+axis+1Ch]
-    vmovss  xmm6, dword ptr [rbp+1130h+axis+20h]
-    vmulss  xmm0, xmm2, xmm9
-    vaddss  xmm0, xmm0, xmm11
-    vmovss  dword ptr [rbp+1130h+end], xmm0
-    vmulss  xmm1, xmm2, xmm10
-    vaddss  xmm0, xmm1, xmm13
-    vmovss  dword ptr [rbp+1130h+end+4], xmm0
-    vmulss  xmm1, xmm2, xmm12
-    vaddss  xmm0, xmm1, xmm14
-    vmovss  dword ptr [rbp+1130h+end+8], xmm0
-    vmovss  xmm2, dword ptr [r14+10h]
-    vmulss  xmm0, xmm2, dword ptr [rbp+1130h+axis+0Ch]
-    vaddss  xmm1, xmm0, xmm11
-    vmulss  xmm0, xmm2, dword ptr [rbp+1130h+axis+10h]
-    vmovss  dword ptr [rbp+1130h+var_1110], xmm1
-    vaddss  xmm1, xmm0, xmm13
-    vmulss  xmm0, xmm2, dword ptr [rbp+1130h+axis+14h]
-    vmovss  dword ptr [rbp+1130h+var_1110+4], xmm1
-    vaddss  xmm1, xmm0, xmm14
-    vmovss  dword ptr [rbp+1130h+var_1110+8], xmm1
-    vmovss  xmm2, dword ptr [r14+14h]
-    vmulss  xmm0, xmm2, xmm4
-    vaddss  xmm1, xmm0, xmm11
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rbp+1130h+var_1100], xmm1
-    vaddss  xmm1, xmm0, xmm13
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm2, xmm9, [rsp+1230h+var_11D8]
-    vmovss  xmm9, [rbp+1130h+var_11A8]
-    vmovss  dword ptr [rbp+1130h+var_1100+4], xmm1
-    vaddss  xmm1, xmm0, xmm14
-    vmulss  xmm0, xmm9, dword ptr [rbp+1130h+axis+0Ch]
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  dword ptr [rbp+1130h+var_1100+8], xmm1
-    vmulss  xmm1, xmm4, [rsp+1230h+var_11D4]
-    vaddss  xmm2, xmm3, xmm1
-    vmulss  xmm3, xmm10, [rsp+1230h+var_11D8]
-    vmulss  xmm1, xmm9, dword ptr [rbp+1130h+axis+10h]
-    vaddss  xmm0, xmm2, xmm11
-    vaddss  xmm2, xmm3, xmm1
-    vmulss  xmm3, xmm12, [rsp+1230h+var_11D8]
-    vmovss  dword ptr [rbp+1130h+pos], xmm0
-    vmulss  xmm0, xmm5, [rsp+1230h+var_11D4]
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm0, xmm9, dword ptr [rbp+1130h+axis+14h]
-    vaddss  xmm1, xmm2, xmm13
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  dword ptr [rbp+1130h+pos+4], xmm1
-    vmulss  xmm1, xmm6, [rsp+1230h+var_11D4]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, xmm14
-    vmovss  xmm2, cs:__real@3f800000; size
-    vmovss  dword ptr [rbp+1130h+pos+8], xmm0
-  }
-  R_AddDebugStar(&frontEndDataOut->debugGlobals, &pos, *(const float *)&_XMM2, &colorYellow);
-  __asm
-  {
-    vmovaps xmm14, [rsp+1230h+var_C0]
-    vmovaps xmm13, [rsp+1230h+var_B0]
-    vmovaps xmm12, [rsp+1230h+var_A0]
-    vmovaps xmm11, [rsp+1230h+var_90]
-    vmovaps xmm10, [rsp+1230h+var_80]
-    vmovaps xmm9, [rsp+1230h+var_70]
-    vmovaps xmm8, [rsp+1230h+var_60]
-    vmovaps xmm7, [rsp+1230h+var_50]
-    vmovaps xmm6, [rsp+1230h+var_40]
-  }
+  v64 = v22->m_volumeBounds.halfSize.v[0];
+  end.v[0] = (float)(v64 * axis.m[0].v[0]) + origin.v[0];
+  end.v[1] = (float)(v64 * axis.m[0].v[1]) + origin.v[1];
+  end.v[2] = (float)(v64 * axis.m[0].v[2]) + origin.v[2];
+  v65 = v22->m_volumeBounds.halfSize.v[1];
+  v91.v[0] = (float)(v65 * axis.m[1].v[0]) + origin.v[0];
+  v91.v[1] = (float)(v65 * axis.m[1].v[1]) + origin.v[1];
+  v91.v[2] = (float)(v65 * axis.m[1].v[2]) + origin.v[2];
+  v66 = v22->m_volumeBounds.halfSize.v[2];
+  v92.v[0] = (float)(v66 * axis.m[2].v[0]) + origin.v[0];
+  v92.v[1] = (float)(v66 * axis.m[2].v[1]) + origin.v[1];
+  v92.v[2] = (float)(v66 * axis.m[2].v[2]) + origin.v[2];
+  pos.v[0] = (float)((float)((float)(axis.m[0].v[0] * v25) + (float)(v82 * axis.m[1].v[0])) + (float)(axis.m[2].v[0] * v28)) + origin.v[0];
+  pos.v[1] = (float)((float)((float)(axis.m[0].v[1] * v25) + (float)(v82 * axis.m[1].v[1])) + (float)(axis.m[2].v[1] * v28)) + origin.v[1];
+  pos.v[2] = (float)((float)((float)(axis.m[0].v[2] * v25) + (float)(v82 * axis.m[1].v[2])) + (float)(axis.m[2].v[2] * v28)) + origin.v[2];
+  R_AddDebugStar(&frontEndDataOut->debugGlobals, &pos, 1.0, &colorYellow);
   p_debugGlobals = &frontEndDataOut->debugGlobals;
   if ( r_decalVolumesGridDebugDrawVolumesDepthTest->current.enabled )
   {
-    R_AddDebugBoxOrientedDepthTest(p_debugGlobals, &origin, (const Bounds *)_R14, &axis, v204);
+    R_AddDebugBoxOrientedDepthTest(p_debugGlobals, &origin, &v22->m_volumeBounds, &axis, v75);
     R_AddDebugLineDepthTest(&frontEndDataOut->debugGlobals, &origin, &end, &colorRed);
-    R_AddDebugLineDepthTest(&frontEndDataOut->debugGlobals, &origin, &v220, &colorGreen);
-    R_AddDebugLineDepthTest(&frontEndDataOut->debugGlobals, &origin, &v221, &colorBlue);
+    R_AddDebugLineDepthTest(&frontEndDataOut->debugGlobals, &origin, &v91, &colorGreen);
+    R_AddDebugLineDepthTest(&frontEndDataOut->debugGlobals, &origin, &v92, &colorBlue);
   }
   else
   {
-    R_AddDebugBoxOriented(p_debugGlobals, &origin, (const Bounds *)_R14, &axis, v204);
+    R_AddDebugBoxOriented(p_debugGlobals, &origin, &v22->m_volumeBounds, &axis, v75);
     R_AddDebugLine(&frontEndDataOut->debugGlobals, &origin, &end, &colorRed);
-    R_AddDebugLine(&frontEndDataOut->debugGlobals, &origin, &v220, &colorGreen);
-    R_AddDebugLine(&frontEndDataOut->debugGlobals, &origin, &v221, &colorBlue);
+    R_AddDebugLine(&frontEndDataOut->debugGlobals, &origin, &v91, &colorGreen);
+    R_AddDebugLine(&frontEndDataOut->debugGlobals, &origin, &v92, &colorBlue);
   }
-  if ( drawInfo )
+  if ( drawInfo && (float)((float)((float)((float)(pos.v[1] - v19->v[1]) * (float)(pos.v[1] - v19->v[1])) + (float)((float)(pos.v[0] - v19->v[0]) * (float)(pos.v[0] - v19->v[0]))) + (float)((float)(pos.v[2] - v19->v[2]) * (float)(pos.v[2] - v19->v[2]))) < 250000.0 )
   {
-    __asm
+    v68 = v22->m_volumeType;
+    dest[0] = 0;
+    if ( v68 == DECAL_VOLUMES_GRID_VOLUME_TYPE_SMODEL )
     {
-      vmovss  xmm0, dword ptr [rbp+1130h+pos]
-      vsubss  xmm3, xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rbp+1130h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rbp+1130h+pos+8]
-      vsubss  xmm4, xmm0, dword ptr [rsi+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@48742400
+      v69 = "S MODEL";
     }
+    else if ( v68 == DECAL_VOLUMES_GRID_VOLUME_TYPE_MODEL )
+    {
+      v69 = "MODEL";
+    }
+    else
+    {
+      v69 = "INVALID";
+      if ( v68 == DECAL_VOLUMES_GRID_VOLUME_TYPE_DOBJ_MODEL )
+        v69 = "DOBJ";
+    }
+    LODWORD(duration) = v22->m_volumeSize[0];
+    Com_sprintf(text, 0x800ui64, "Vol%i: %s size:(%ux%ux%u) %s", v18, v69, duration, v22->m_volumeSize[1], v22->m_volumeSize[2], dest);
+    v70 = (float)(unsigned int)(int)fsqrt((float)((float)((float)(pos.v[1] - v19->v[1]) * (float)(pos.v[1] - v19->v[1])) + (float)((float)(pos.v[0] - v19->v[0]) * (float)(pos.v[0] - v19->v[0]))) + (float)((float)(pos.v[2] - v19->v[2]) * (float)(pos.v[2] - v19->v[2])));
+    if ( v70 >= 10.0 )
+      v71 = v70 * 0.00125;
+    else
+      v71 = FLOAT_0_050000001;
+    CL_AddDebugString(&pos, v75, v71, text, 0, 1);
   }
-  __asm { vmovaps xmm15, [rsp+1230h+var_D0] }
 }
 
 /*
@@ -2753,589 +2134,461 @@ R_DecalVolumesGrid_FillObjectSpaceBuffers
 */
 void R_DecalVolumesGrid_FillObjectSpaceBuffers(const GfxViewInfo *viewInfo, unsigned int frame, ImageAtlasDrawingContext *drawingContext)
 {
-  __int64 v15; 
-  char *v16; 
+  const GfxViewInfo *v3; 
+  __int64 v5; 
+  char *v6; 
   __int64 numVolumes; 
   DecalVolumeGridVolumeTransform *volumeTransforms; 
   DecalVolumesGridVolumeInfo *volumeInfos; 
-  float v22; 
-  float v24; 
-  char v33; 
-  char v36; 
-  __int64 v47; 
-  __int64 v73; 
-  char v139; 
-  unsigned int v140; 
+  __m256i v10; 
+  __m256i v11; 
+  float v12; 
+  __m256i v13; 
+  float v14; 
+  double v15; 
+  __int64 width; 
+  __int128 v17; 
+  __int128 v18; 
+  const dvar_t *v19; 
+  __int128 v20; 
+  float value; 
+  __int128 v23; 
+  __int128 v26; 
+  float v28; 
+  const DecalVolumeStreamViewInfo *StreamViewInfo; 
+  StreamUpdateMultiView *p_multiView; 
+  __int64 v31; 
+  float4 v32; 
+  float v33; 
+  __m128 v35; 
+  float v38; 
+  __m128 v40; 
+  float *v43; 
+  __int64 v44; 
+  float *v45; 
+  float v46; 
+  __int128 v47; 
+  __m128 v49; 
+  __m128 v54; 
+  __int128 v56; 
+  float v59; 
+  int v60; 
+  float v61; 
+  int v62; 
+  char v63; 
+  unsigned int v64; 
   unsigned int numDrawData; 
-  unsigned __int16 v142; 
-  unsigned __int16 v144; 
-  const char *v147; 
-  unsigned int v154; 
-  unsigned int v155; 
-  unsigned __int16 v156; 
-  unsigned __int16 v158; 
-  const char *v161; 
-  unsigned __int16 v168; 
-  unsigned int v169; 
-  unsigned __int16 v170; 
-  unsigned __int16 v172; 
-  const char *v175; 
-  __int64 v186; 
-  __int64 v190; 
-  float v192; 
-  float v193; 
-  float v194; 
-  R_DecalVolumesGrid_FillObjectSpaceBuffers::__l38::DecalVolumeDrawHitComparer v195; 
-  __int64 v196; 
+  unsigned __int16 v66; 
+  float v67; 
+  unsigned __int16 v68; 
+  double v69; 
+  const char *v70; 
+  unsigned int v74; 
+  unsigned int v75; 
+  unsigned __int16 v76; 
+  float v77; 
+  unsigned __int16 v78; 
+  double v79; 
+  const char *v80; 
+  unsigned __int16 v84; 
+  unsigned int v85; 
+  unsigned __int16 v86; 
+  float v87; 
+  unsigned __int16 v88; 
+  double v89; 
+  const char *v90; 
+  __int64 v94; 
+  __int64 v95; 
+  R_DecalVolumesGrid_FillObjectSpaceBuffers::__l38::DecalVolumeDrawHitComparer v96; 
+  __int64 v97; 
   float outDecalScale; 
-  float v198; 
-  float v199; 
+  float v99; 
+  float v100; 
   DecalVolumeStreamingInfo outStreamingInfo; 
   DecalVolumeStreamingInfo streamingInfo; 
-  DecalVolumeStreamingInfo v202; 
-  const GfxViewInfo *v203; 
-  char *v204; 
+  DecalVolumeStreamingInfo v103; 
+  const GfxViewInfo *v104; 
+  char *v105; 
   AddToGridContext context; 
   FxMarkResult markResult; 
-  __int128 v207; 
-  __int128 v208; 
-  __int128 v209; 
+  __m128 v; 
+  __m128 v109; 
+  __m128 v110; 
   Bounds localIntDecalVolumeBounds; 
-  Bounds v211; 
-  Bounds v212; 
-  FxDynEntModelMarkIterator v214; 
-  FxDobjMarkIterator v215; 
+  Bounds v112; 
+  Bounds v113; 
+  __int128 v114; 
+  FxDynEntModelMarkIterator v115; 
+  FxDobjMarkIterator v116; 
   DecalVolumeIntermediate dstDecalVolume; 
   DecalVolumeIntermediate m; 
-  DecalVolumeIntermediate v218; 
+  DecalVolumeIntermediate v119; 
   FxModelMarkIterator markIterator; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _R13 = viewInfo;
-  v203 = viewInfo;
-  v15 = frame;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
-  v16 = (char *)&s_decalVolumesGrid + v15 * 1408;
-  v204 = v16;
-  numVolumes = (unsigned int)s_decalVolumesGrid.decalVolumeGridFrameData[v15].numVolumes;
-  volumeTransforms = s_decalVolumesGrid.decalVolumeGridFrameData[v15].volumeTransforms;
-  volumeInfos = s_decalVolumesGrid.decalVolumeGridFrameData[v15].volumeInfos;
-  v16[1388] = 1;
-  *((_DWORD *)v16 + 10) = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+80h]
-    vmovups ymm1, ymmword ptr [r13+0A0h]
-  }
-  context.cameraAxis.m[2].v[2] = _R13->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[2];
-  v22 = _R13->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0A28h+context.cameraViewProjectionMatrix], ymm0
-    vmovups ymm0, ymmword ptr [r13+10Ch]
-  }
-  context.cameraOrigin.v[2] = v22;
-  v24 = _R13->sceneDef.viewOffset.v[2];
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0A28h+context.cameraAxis], ymm0
-    vmovsd  xmm0, qword ptr [r13+100h]
-  }
-  context.viewOffset.v[2] = v24;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+0A28h+context.cameraOrigin], xmm0
-    vmovsd  xmm0, qword ptr [r13+5B8h]
-    vmovsd  qword ptr [rsp+0A28h+context.viewOffset], xmm0
-    vmovups ymmword ptr [rsp+0A28h+context.cameraViewProjectionMatrix+20h], ymm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  dword ptr [rsp+0A28h+context.sceneViewport+4], xmm1
-    vmovss  dword ptr [rsp+0A28h+context.sceneViewport], xmm0
-  }
+  v3 = viewInfo;
+  v104 = viewInfo;
+  v5 = frame;
+  v6 = (char *)&s_decalVolumesGrid + v5 * 1408;
+  v105 = v6;
+  numVolumes = (unsigned int)s_decalVolumesGrid.decalVolumeGridFrameData[v5].numVolumes;
+  volumeTransforms = s_decalVolumesGrid.decalVolumeGridFrameData[v5].volumeTransforms;
+  volumeInfos = s_decalVolumesGrid.decalVolumeGridFrameData[v5].volumeInfos;
+  v6[1388] = 1;
+  *((_DWORD *)v6 + 10) = 0;
+  v10 = *(__m256i *)v3->viewParms.viewProjectionMatrix.m.m[0].v;
+  v11 = *(__m256i *)v3->viewParms.viewProjectionMatrix.m.row2.v;
+  context.cameraAxis.m[2].v[2] = v3->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[2];
+  v12 = v3->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  *(__m256i *)context.cameraViewProjectionMatrix.m[0].v = v10;
+  v13 = *(__m256i *)v3->viewParms.camera.axis.m[0].v;
+  context.cameraOrigin.v[2] = v12;
+  v14 = v3->sceneDef.viewOffset.v[2];
+  *(__m256i *)context.cameraAxis.m[0].v = v13;
+  v15 = *(double *)v3->viewParms.camera.origin.v;
+  context.viewOffset.v[2] = v14;
+  width = v3->sceneViewport.width;
+  *(double *)context.cameraOrigin.v = v15;
+  *(_QWORD *)context.viewOffset.v = *(_QWORD *)v3->sceneDef.viewOffset.v;
+  *(__m256i *)context.cameraViewProjectionMatrix.row2.v = v11;
+  v18 = 0i64;
+  *(float *)&v18 = (float)width;
+  v17 = v18;
+  *(float *)&v18 = (float)v3->sceneViewport.height;
+  context.sceneViewport.v[1] = *(float *)&v18;
+  context.sceneViewport.v[0] = *(float *)&v17;
   context.drawingContext = drawingContext;
   context.curMarkHandle = -1;
-  context.localClientNum = _R13->clientIndex;
-  *(double *)&_XMM0 = R_DecalVolume_GetFarPlane(_R13);
-  _RBX = DCONST_DVARFLT_r_decalVolumesFadeOutRange;
-  __asm { vmovaps xmm8, xmm0 }
+  context.localClientNum = v3->clientIndex;
+  *(double *)&v17 = R_DecalVolume_GetFarPlane(v3);
+  v19 = DCONST_DVARFLT_r_decalVolumesFadeOutRange;
+  v20 = v17;
   if ( !DCONST_DVARFLT_r_decalVolumesFadeOutRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_decalVolumesFadeOutRange") )
     __debugbreak();
-  __asm
+  Dvar_CheckFrontendServerThread(v19);
+  value = v19->current.value;
+  if ( value <= 0.0 )
   {
-    vmovaps [rsp+0A28h+var_58], xmm7
-    vmovaps [rsp+0A28h+var_78], xmm9
-  }
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v36 | v33 )
-  {
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  [rsp+0A28h+context.fadeOutBias], xmm9
-      vmovss  [rsp+0A28h+context.fadeOutScale], xmm6
-    }
+    v28 = FLOAT_1_0;
+    context.fadeOutBias = FLOAT_1_0;
+    context.fadeOutScale = 0.0;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm8, xmm0
-      vmaxss  xmm7, xmm0, xmm6
-      vsubss  xmm0, xmm8, xmm7
-      vmaxss  xmm8, xmm0, cs:__real@00800000
-      vucomiss xmm8, xmm6
-    }
-    if ( v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f") )
+    v23 = v20;
+    *(float *)&v23 = *(float *)&v20 - value;
+    _XMM0 = v23;
+    __asm { vmaxss  xmm7, xmm0, xmm6 }
+    v26 = v20;
+    *(float *)&v26 = *(float *)&v20 - *(float *)&_XMM7;
+    _XMM0 = v26;
+    __asm { vmaxss  xmm8, xmm0, cs:__real@00800000 }
+    if ( *(float *)&_XMM8 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vdivss  xmm2, xmm9, xmm8
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000
-      vaddss  xmm1, xmm7, xmm9
-      vmulss  xmm2, xmm1, xmm2
-      vmovss  [rsp+0A28h+context.fadeOutBias], xmm2
-      vmovss  [rsp+0A28h+context.fadeOutScale], xmm0
-    }
+    v28 = FLOAT_1_0;
+    context.fadeOutBias = (float)(*(float *)&_XMM7 + 1.0) * (float)(1.0 / *(float *)&_XMM8);
+    LODWORD(context.fadeOutScale) = COERCE_UNSIGNED_INT(1.0 / *(float *)&_XMM8) ^ _xmm;
   }
-  _RAX = R_DecalVolumes_GetStreamViewInfo(frame);
-  if ( _RAX->multiView.viewCount )
+  StreamViewInfo = R_DecalVolumes_GetStreamViewInfo(frame);
+  if ( StreamViewInfo->multiView.viewCount )
   {
-    _RCX = &context.multiView;
-    v47 = 8i64;
+    p_multiView = &context.multiView;
+    v31 = 8i64;
     do
     {
-      _RCX = (StreamUpdateMultiView *)((char *)_RCX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (const DecalVolumeStreamViewInfo *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v47;
+      p_multiView = (StreamUpdateMultiView *)((char *)p_multiView + 128);
+      v32.v = (__m128)StreamViewInfo->multiView.viewPos[0];
+      StreamViewInfo = (const DecalVolumeStreamViewInfo *)((char *)StreamViewInfo + 128);
+      *(float4 *)&p_multiView[-1].viewDistanceScaleSq[4] = (float4)v32.v;
+      *(_OWORD *)&p_multiView[-1].viewDistanceScaleSq[8] = *(_OWORD *)&StreamViewInfo[-1].multiView.viewDistanceScaleSq[8];
+      *(_OWORD *)&p_multiView[-1].viewDistanceScaleSq[12] = *(_OWORD *)&StreamViewInfo[-1].multiView.viewDistanceScaleSq[12];
+      *(_OWORD *)p_multiView[-1].localClientIndex = *(_OWORD *)StreamViewInfo[-1].multiView.localClientIndex;
+      *(_OWORD *)&p_multiView[-1].localClientIndex[4] = *(_OWORD *)&StreamViewInfo[-1].multiView.localClientIndex[4];
+      *(_OWORD *)&p_multiView[-1].localClientIndex[8] = *(_OWORD *)&StreamViewInfo[-1].multiView.localClientIndex[8];
+      *(_OWORD *)&p_multiView[-1].localClientIndex[12] = *(_OWORD *)&StreamViewInfo[-1].multiView.localClientIndex[12];
+      *(_OWORD *)&p_multiView[-1].viewCount = *(_OWORD *)&StreamViewInfo[-1].multiView.viewCount;
+      --v31;
     }
-    while ( v47 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-    }
+    while ( v31 );
+    p_multiView->viewPos[0] = StreamViewInfo->multiView.viewPos[0];
+    p_multiView->viewPos[1] = StreamViewInfo->multiView.viewPos[1];
+    p_multiView->viewPos[2] = StreamViewInfo->multiView.viewPos[2];
+    p_multiView->viewPos[3] = StreamViewInfo->multiView.viewPos[3];
+    p_multiView->viewPos[4] = StreamViewInfo->multiView.viewPos[4];
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [r13+100h] }
+    v33 = v3->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
     context.multiView.viewCount = 1;
-    HIDWORD(v207) = 0;
+    v.m128_i32[3] = 0;
+    v35 = v;
+    v35.m128_f32[0] = v33;
+    _XMM3 = v35;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+680h]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [r13+104h], 10h
       vinsertps xmm3, xmm3, dword ptr [r13+108h], 20h ; ' '
-      vmovss  xmm0, dword ptr [r13+10Ch]
-      vmovups xmmword ptr [rsp+680h], xmm3
-      vmovups xmmword ptr [rsp+0A28h+context.multiView.viewPos.v], xmm3
     }
-    HIDWORD(v208) = 0;
+    v38 = v3->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0];
+    v = _XMM3.v;
+    context.multiView.viewPos[0] = (float4)_XMM3.v;
+    v109.m128_i32[3] = 0;
+    v40 = v109;
+    v40.m128_f32[0] = v38;
+    _XMM3 = v40;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+690h]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [r13+110h], 10h
       vinsertps xmm3, xmm3, dword ptr [r13+114h], 20h ; ' '
-      vmovups xmmword ptr [rsp+690h], xmm3
-      vmovups xmmword ptr [rsp+0A28h+context.multiView.viewDir.v], xmm3
-      vmovss  [rsp+0A28h+context.multiView.viewZoomFactors], xmm9
-      vmovss  [rsp+0A28h+context.multiView.viewCosFovLimit], xmm6
-      vmovss  [rsp+0A28h+context.multiView.viewDistanceScaleSq], xmm9
     }
+    v109 = _XMM3.v;
+    context.multiView.viewDir[0] = (float4)_XMM3.v;
+    context.multiView.viewZoomFactors[0] = v28;
+    context.multiView.viewCosFovLimit[0] = 0.0;
+    context.multiView.viewDistanceScaleSq[0] = v28;
   }
   if ( (_DWORD)numVolumes )
   {
-    __asm { vmovaps [rsp+0A28h+var_88], xmm10 }
-    _R15 = &volumeInfos->m_volumeBounds.halfSize.v[2];
-    __asm
+    v43 = &volumeInfos->m_volumeBounds.halfSize.v[2];
+    v44 = numVolumes;
+    v45 = &volumeTransforms->m_scale_firstCellIndex.v[2];
+    v97 = numVolumes;
+    do
     {
-      vmovss  xmm10, cs:__real@3d4ccccd
-      vmovaps [rsp+0A28h+var_98], xmm11
-    }
-    v73 = numVolumes;
-    __asm
-    {
-      vmovss  xmm11, cs:__real@40000000
-      vmovaps [rsp+0A28h+var_A8], xmm12
-    }
-    _R12 = &volumeTransforms->m_scale_firstCellIndex.v[2];
-    __asm
-    {
-      vmovss  xmm12, cs:__real@3f000000
-      vmovaps [rsp+0A28h+var_B8], xmm13
-      vmovups xmm13, cs:__xmm@40000000400000004000000040000000
-    }
-    v196 = numVolumes;
-    while ( 1 )
-    {
+      v46 = *(v43 - 2);
+      v47 = v114;
+      v110.m128_i32[3] = 0;
+      v49 = v110;
+      v49.m128_f32[0] = v46;
+      _XMM2 = v49;
       __asm
       {
-        vmovss  xmm0, dword ptr [r15-8]
-        vmovups xmm4, [rsp+0A28h+var_328]
-      }
-      _R14 = _R15 - 5;
-      HIDWORD(v209) = 0;
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rsp+6A0h]
-        vmovss  xmm2, xmm2, xmm0
         vinsertps xmm2, xmm2, dword ptr [r15-4], 10h
         vinsertps xmm2, xmm2, dword ptr [r15], 20h ; ' '
-        vmovups xmmword ptr [rsp+6A0h], xmm2
-        vmulps  xmm2, xmm13, xmm2
-        vrcpps  xmm1, xmm2
-        vmulps  xmm0, xmm1, xmm1
-        vmulps  xmm2, xmm0, xmm2
-        vaddps  xmm1, xmm1, xmm1
-        vsubps  xmm5, xmm1, xmm2
-        vmovups xmmword ptr [r12-28h], xmm5
-        vmovss  xmm0, dword ptr [r14]
-        vsubss  xmm2, xmm0, dword ptr [r15-8]
-        vmovss  xmm1, dword ptr [r15-10h]
-        vsubss  xmm3, xmm1, dword ptr [r15-4]
-        vmovss  xmm0, dword ptr [r15-0Ch]
-        vsubss  xmm1, xmm0, dword ptr [r15]
-        vmovss  xmm4, xmm4, xmm2
+      }
+      v110 = _XMM2;
+      _XMM2 = _mm128_mul_ps((__m128)_xmm, _XMM2);
+      __asm { vrcpps  xmm1, xmm2 }
+      v54 = _mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2));
+      *(__m128 *)(v45 - 10) = v54;
+      v56 = v47;
+      *(float *)&v56 = *(v43 - 5) - *(v43 - 2);
+      _XMM4 = v56;
+      __asm
+      {
         vinsertps xmm4, xmm4, xmm3, 10h
         vinsertps xmm4, xmm4, xmm1, 20h ; ' '
-        vmulps  xmm0, xmm4, xmm5
-        vmovups xmmword ptr [r12-18h], xmm0
-        vmovss  xmm3, dword ptr [r15+8]
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [r12-4], xmm1
-        vmovss  dword ptr [r12], xmm2
-        vmovss  dword ptr [r12+4], xmm3
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [r12-8], xmm0
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm7, xmm7, eax
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, eax
-        vmovss  dword ptr [rsp+0A28h+context.volumeGridSize+4], xmm6
-        vmovss  dword ptr [rsp+0A28h+context.volumeGridSize+8], xmm7
-        vxorps  xmm5, xmm5, xmm5
-        vcvtsi2ss xmm5, xmm5, eax
-        vmovss  dword ptr [rsp+0A28h+context.volumeGridSize], xmm5
-        vmovups [rsp+0A28h+var_328], xmm4
-        vmulss  xmm4, xmm11, dword ptr [r15-8]
-        vmovss  dword ptr [rsp+0A28h+context.volumeSize], xmm4
-        vmulss  xmm3, xmm11, dword ptr [r15-4]
-        vmovss  dword ptr [rsp+0A28h+context.volumeSize+4], xmm3
-        vmulss  xmm2, xmm11, dword ptr [r15]
-        vmovss  dword ptr [rsp+0A28h+context.volumeSize+8], xmm2
-        vdivss  xmm0, xmm9, xmm4
-        vmovss  dword ptr [rsp+0A28h+context.volumeSizeRcp], xmm0
-        vdivss  xmm0, xmm9, xmm2
-        vmovss  dword ptr [rsp+0A28h+context.volumeSizeRcp+8], xmm0
-        vdivss  xmm0, xmm3, xmm6
-        vdivss  xmm2, xmm2, xmm7
-        vdivss  xmm1, xmm9, xmm3
-        vmovss  dword ptr [rsp+0A28h+context.volumeSizeRcp+4], xmm1
-        vdivss  xmm1, xmm4, xmm5
-        vmulss  xmm7, xmm0, xmm12
-        vmovss  dword ptr [rsp+0A28h+context.stepHalf+4], xmm7
-        vmovss  dword ptr [rsp+0A28h+context.step], xmm1
-        vmovss  dword ptr [rsp+0A28h+context.step+4], xmm0
-        vmovss  dword ptr [rsp+0A28h+context.step+8], xmm2
-        vmulss  xmm6, xmm1, xmm12
-        vmovss  dword ptr [rsp+0A28h+context.stepHalf], xmm6
-        vmulss  xmm8, xmm2, xmm12
-        vmovss  dword ptr [rsp+0A28h+context.stepHalf+8], xmm8
-        vmovss  xmm0, dword ptr [r14]
-        vsubss  xmm5, xmm0, dword ptr [r15-8]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMinCorner], xmm5
-        vmovss  xmm1, dword ptr [r15-10h]
-        vsubss  xmm4, xmm1, dword ptr [r15-4]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMinCorner+4], xmm4
-        vmovss  xmm0, dword ptr [r15-0Ch]
-        vsubss  xmm3, xmm0, dword ptr [r15]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMinCorner+8], xmm3
-        vmovss  xmm1, dword ptr [r15-8]
-        vaddss  xmm0, xmm1, dword ptr [r14]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMaxCorner], xmm0
-        vmovss  xmm2, dword ptr [r15-10h]
-        vaddss  xmm1, xmm2, dword ptr [r15-4]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMaxCorner+4], xmm1
-        vmovss  xmm0, dword ptr [r15]
-        vaddss  xmm2, xmm0, dword ptr [r15-0Ch]
-        vmovss  dword ptr [rsp+0A28h+context.volumeMaxCorner+8], xmm2
-        vaddss  xmm1, xmm6, xmm5
-        vmovss  dword ptr [rsp+0A28h+context.cellMinCorner], xmm1
-        vaddss  xmm1, xmm8, xmm3
-        vmovss  dword ptr [rsp+0A28h+context.cellMinCorner+8], xmm1
-        vaddss  xmm0, xmm7, xmm4
-        vmovss  dword ptr [rsp+0A28h+context.cellMinCorner+4], xmm0
       }
-      context.numTotalCells = *((unsigned __int8 *)_R15 + 4) * *((unsigned __int8 *)_R15 + 5) * *((unsigned __int8 *)_R15 + 6);
-      v139 = *((_BYTE *)_R15 + 7);
-      switch ( v139 )
+      *(__m128 *)(v45 - 6) = _mm128_mul_ps(_XMM4, v54);
+      v59 = v43[2];
+      _XMM2.m128_f32[0] = (float)*((unsigned __int8 *)v43 + 6);
+      v60 = *((unsigned __int8 *)v43 + 4);
+      *(v45 - 1) = (float)*((unsigned __int8 *)v43 + 5);
+      *v45 = _XMM2.m128_f32[0];
+      v45[1] = v59;
+      *(v45 - 2) = (float)v60;
+      v61 = (float)*((unsigned __int8 *)v43 + 6);
+      v62 = *((unsigned __int8 *)v43 + 4);
+      context.volumeGridSize.v[1] = (float)*((unsigned __int8 *)v43 + 5);
+      context.volumeGridSize.v[2] = v61;
+      context.volumeGridSize.v[0] = (float)v62;
+      v114 = (__int128)_XMM4;
+      context.volumeSize.v[0] = 2.0 * *(v43 - 2);
+      context.volumeSize.v[1] = 2.0 * *(v43 - 1);
+      context.volumeSize.v[2] = 2.0 * *v43;
+      context.volumeSizeRcp.v[0] = v28 / context.volumeSize.v[0];
+      context.volumeSizeRcp.v[2] = v28 / context.volumeSize.v[2];
+      context.volumeSizeRcp.v[1] = v28 / context.volumeSize.v[1];
+      context.stepHalf.v[1] = (float)(context.volumeSize.v[1] / context.volumeGridSize.v[1]) * 0.5;
+      context.step.v[0] = context.volumeSize.v[0] / (float)v62;
+      context.step.v[1] = context.volumeSize.v[1] / context.volumeGridSize.v[1];
+      context.step.v[2] = context.volumeSize.v[2] / v61;
+      context.stepHalf.v[0] = context.step.v[0] * 0.5;
+      context.stepHalf.v[2] = (float)(context.volumeSize.v[2] / v61) * 0.5;
+      context.volumeMinCorner.v[0] = *(v43 - 5) - *(v43 - 2);
+      context.volumeMinCorner.v[1] = *(v43 - 4) - *(v43 - 1);
+      context.volumeMinCorner.v[2] = *(v43 - 3) - *v43;
+      context.volumeMaxCorner.v[0] = *(v43 - 2) + *(v43 - 5);
+      context.volumeMaxCorner.v[1] = *(v43 - 4) + *(v43 - 1);
+      context.volumeMaxCorner.v[2] = *v43 + *(v43 - 3);
+      context.cellMinCorner.v[0] = (float)(context.step.v[0] * 0.5) + context.volumeMinCorner.v[0];
+      context.cellMinCorner.v[2] = context.stepHalf.v[2] + context.volumeMinCorner.v[2];
+      context.cellMinCorner.v[1] = context.stepHalf.v[1] + context.volumeMinCorner.v[1];
+      context.numTotalCells = *((unsigned __int8 *)v43 + 4) * *((unsigned __int8 *)v43 + 5) * *((unsigned __int8 *)v43 + 6);
+      v63 = *((_BYTE *)v43 + 7);
+      switch ( v63 )
       {
         case 2:
-          v140 = *((_DWORD *)_R15 + 3);
-          R_DecalVolumesGrid_AddModelObjectSpace(v140, frame, &context, (const DecalVolumesGridVolumeInfo *)(_R15 - 5));
-          FX_BeginModelMarkIterator(&markIterator, _R13->clientIndex, v140);
+          v64 = *((_DWORD *)v43 + 3);
+          R_DecalVolumesGrid_AddModelObjectSpace(v64, frame, &context, (const DecalVolumesGridVolumeInfo *)(v43 - 5));
+          FX_BeginModelMarkIterator(&markIterator, v3->clientIndex, v64);
           while ( FX_GetModelMarkFromIterator(&markIterator, &markResult) )
           {
             context.curMarkHandle = markResult.markHandle;
-            numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
+            numDrawData = s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
             if ( numDrawData >= 0x800 )
               break;
-            v142 = truncate_cast<unsigned short,unsigned int>(numDrawData);
-            __asm { vmovss  xmm1, dword ptr [rsp+0A28h+markResult.halfSize]; decalHalfDepth }
-            v144 = v142;
-            ++s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-            __asm { vmulss  xmm0, xmm10, xmm1; zFeatherIn }
-            *(double *)&_XMM0 = R_DecalVolumes_CalculateZFeatherRcp(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm { vmovss  [rsp+0A28h+var_9E0], xmm0 }
-            R_FillMarkDecalVolumeInternal(&dstDecalVolume, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, v192, markResult.skinned);
-            __asm { vmovss  [rsp+0A28h+outDecalScale], xmm9 }
-            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v144, &context, &dstDecalVolume, &markResult.worldCenter, &markResult.worldAxis, &outDecalScale, &outStreamingInfo);
-            __asm
+            v66 = truncate_cast<unsigned short,unsigned int>(numDrawData);
+            v67 = markResult.halfSize.v[0];
+            v68 = v66;
+            ++s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
+            v69 = R_DecalVolumes_CalculateZFeatherRcp(0.050000001 * v67, v67);
+            R_FillMarkDecalVolumeInternal(&dstDecalVolume, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, *(float *)&v69, markResult.skinned);
+            outDecalScale = v28;
+            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v68, &context, &dstDecalVolume, &markResult.worldCenter, &markResult.worldAxis, &outDecalScale, &outStreamingInfo);
+            if ( outDecalScale >= v28 )
             {
-              vmovss  xmm0, [rsp+0A28h+outDecalScale]
-              vcomiss xmm0, xmm9
-            }
-            if ( v36 )
-            {
-              --s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-            }
-            else
-            {
-              v147 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
-              R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v144, &dstDecalVolume, &markResult.worldCenter, &markResult.worldAxis, &outStreamingInfo, v147);
+              v70 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
+              R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v68, &dstDecalVolume, &markResult.worldCenter, &markResult.worldAxis, &outStreamingInfo, v70);
               if ( context.numTotalCells == 1 )
               {
-                R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v144);
+                R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v68);
               }
               else
               {
+                _XMM0 = LODWORD(dstDecalVolume.halfSize.v[0]);
                 __asm
                 {
-                  vmovss  xmm0, dword ptr [rsp+0A28h+dstDecalVolume.halfSize]
                   vmaxss  xmm1, xmm0, dword ptr [rsp+0A28h+dstDecalVolume.halfSize+4]
                   vmaxss  xmm3, xmm1, dword ptr [rsp+0A28h+dstDecalVolume.halfSize+8]
-                  vmovss  xmm1, dword ptr [rsp+0A28h+markResult.center+8]
-                  vmovss  xmm2, dword ptr [rsp+0A28h+markResult.center]
-                  vmovss  xmm0, dword ptr [rsp+0A28h+markResult.center+4]
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.midPoint+8], xmm1
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.midPoint], xmm2
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.midPoint+4], xmm0
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.halfSize], xmm3
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.halfSize+4], xmm3
-                  vmovss  dword ptr [rsp+0A28h+localIntDecalVolumeBounds.halfSize+8], xmm3
                 }
-                R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v144, &localIntDecalVolumeBounds);
+                localIntDecalVolumeBounds.midPoint.v[2] = markResult.center.v[2];
+                localIntDecalVolumeBounds.midPoint.v[0] = markResult.center.v[0];
+                localIntDecalVolumeBounds.midPoint.v[1] = markResult.center.v[1];
+                localIntDecalVolumeBounds.halfSize.v[0] = *(float *)&_XMM3;
+                localIntDecalVolumeBounds.halfSize.v[1] = *(float *)&_XMM3;
+                localIntDecalVolumeBounds.halfSize.v[2] = *(float *)&_XMM3;
+                R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v68, &localIntDecalVolumeBounds);
               }
+            }
+            else
+            {
+              --s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
             }
           }
           break;
         case 4:
-          v154 = *((_DWORD *)_R15 + 3);
-          R_DecalVolumesGrid_AddDobjModel(v154, *((_DWORD *)_R15 + 4), frame, &context, (const DecalVolumesGridVolumeInfo *)(_R15 - 5));
-          FX_BeginDobjMarkIterator(&v215, _R13->clientIndex, v154, *((_DWORD *)_R15 + 4), &context.viewOffset);
-          if ( FX_GetDobjMarkFromIterator(&v215, &markResult) )
+          v74 = *((_DWORD *)v43 + 3);
+          R_DecalVolumesGrid_AddDobjModel(v74, *((_DWORD *)v43 + 4), frame, &context, (const DecalVolumesGridVolumeInfo *)(v43 - 5));
+          FX_BeginDobjMarkIterator(&v116, v3->clientIndex, v74, *((_DWORD *)v43 + 4), &context.viewOffset);
+          if ( FX_GetDobjMarkFromIterator(&v116, &markResult) )
           {
             do
             {
-              v155 = s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
+              v75 = s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
               context.curMarkHandle = markResult.markHandle;
-              if ( v155 >= 0x800 )
+              if ( v75 >= 0x800 )
                 break;
-              v156 = truncate_cast<unsigned short,unsigned int>(v155);
-              __asm { vmovss  xmm1, dword ptr [rsp+0A28h+markResult.halfSize]; decalHalfDepth }
-              ++s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-              v158 = v156;
-              __asm { vmulss  xmm0, xmm10, xmm1; zFeatherIn }
-              *(double *)&_XMM0 = R_DecalVolumes_CalculateZFeatherRcp(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm { vmovss  [rsp+0A28h+var_9E0], xmm0 }
-              R_FillMarkDecalVolumeInternal(&m, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, v193, markResult.skinned);
-              __asm { vmovss  [rsp+0A28h+var_9B4], xmm9 }
-              R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v158, &context, &m, &markResult.worldCenter, &markResult.worldAxis, &v198, &streamingInfo);
-              __asm
+              v76 = truncate_cast<unsigned short,unsigned int>(v75);
+              v77 = markResult.halfSize.v[0];
+              ++s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
+              v78 = v76;
+              v79 = R_DecalVolumes_CalculateZFeatherRcp(0.050000001 * v77, v77);
+              R_FillMarkDecalVolumeInternal(&m, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, *(float *)&v79, markResult.skinned);
+              v99 = v28;
+              R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v78, &context, &m, &markResult.worldCenter, &markResult.worldAxis, &v99, &streamingInfo);
+              if ( v99 >= v28 )
               {
-                vmovss  xmm0, [rsp+0A28h+var_9B4]
-                vcomiss xmm0, xmm9
-              }
-              if ( v36 )
-              {
-                --s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-              }
-              else
-              {
-                v161 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
-                R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v158, &m, &markResult.worldCenter, &markResult.worldAxis, &streamingInfo, v161);
+                v80 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
+                R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v78, &m, &markResult.worldCenter, &markResult.worldAxis, &streamingInfo, v80);
                 if ( context.numTotalCells == 1 )
                 {
-                  R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v158);
+                  R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v78);
                 }
                 else
                 {
+                  _XMM0 = LODWORD(m.halfSize.v[0]);
                   __asm
                   {
-                    vmovss  xmm0, dword ptr [rsp+0A28h+m.halfSize]
                     vmaxss  xmm1, xmm0, dword ptr [rsp+0A28h+m.halfSize+4]
                     vmaxss  xmm3, xmm1, dword ptr [rsp+0A28h+m.halfSize+8]
-                    vmovss  xmm1, dword ptr [rsp+0A28h+markResult.center+8]
-                    vmovss  xmm2, dword ptr [rsp+0A28h+markResult.center]
-                    vmovss  xmm0, dword ptr [rsp+0A28h+markResult.center+4]
-                    vmovss  dword ptr [rsp+0A28h+var_360.midPoint+8], xmm1
-                    vmovss  dword ptr [rsp+0A28h+var_360.midPoint], xmm2
-                    vmovss  dword ptr [rsp+0A28h+var_360.midPoint+4], xmm0
-                    vmovss  dword ptr [rsp+0A28h+var_360.halfSize], xmm3
-                    vmovss  dword ptr [rsp+0A28h+var_360.halfSize+4], xmm3
-                    vmovss  dword ptr [rsp+0A28h+var_360.halfSize+8], xmm3
                   }
-                  R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v158, &v211);
+                  v112.midPoint.v[2] = markResult.center.v[2];
+                  v112.midPoint.v[0] = markResult.center.v[0];
+                  v112.midPoint.v[1] = markResult.center.v[1];
+                  v112.halfSize.v[0] = *(float *)&_XMM3;
+                  v112.halfSize.v[1] = *(float *)&_XMM3;
+                  v112.halfSize.v[2] = *(float *)&_XMM3;
+                  R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v78, &v112);
                 }
-              }
-            }
-            while ( FX_GetDobjMarkFromIterator(&v215, &markResult) );
-            _R13 = v203;
-          }
-          FX_EndDobjMarkIterator(&v215);
-          break;
-        case 8:
-          v168 = truncate_cast<unsigned short,unsigned int>(*((_DWORD *)_R15 + 4));
-          FX_BeginDynEntModelMarkIterator(&v214, _R13->clientIndex, *((_DWORD *)_R15 + 3), v168, &context.viewOffset);
-          if ( !FX_GetDynEntModelMarkFromIterator(&v214, &markResult) )
-            goto LABEL_49;
-          do
-          {
-            v169 = s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-            context.curMarkHandle = markResult.markHandle;
-            if ( v169 >= 0x800 )
-              break;
-            v170 = truncate_cast<unsigned short,unsigned int>(v169);
-            __asm { vmovss  xmm1, dword ptr [rsp+0A28h+markResult.halfSize]; decalHalfDepth }
-            ++s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-            v172 = v170;
-            __asm { vmulss  xmm0, xmm10, xmm1; zFeatherIn }
-            *(double *)&_XMM0 = R_DecalVolumes_CalculateZFeatherRcp(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm { vmovss  [rsp+0A28h+var_9E0], xmm0 }
-            R_FillMarkDecalVolumeInternal(&v218, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, v194, markResult.skinned);
-            __asm { vmovss  [rsp+0A28h+var_9B0], xmm9 }
-            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v172, &context, &v218, &markResult.worldCenter, &markResult.worldAxis, &v199, &v202);
-            __asm
-            {
-              vmovss  xmm0, [rsp+0A28h+var_9B0]
-              vcomiss xmm0, xmm9
-            }
-            if ( v36 )
-            {
-              --s_decalVolumesGrid.decalVolumeGridFrameData[v15].numDrawData;
-            }
-            else
-            {
-              v175 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
-              R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v172, &v218, &markResult.worldCenter, &markResult.worldAxis, &v202, v175);
-              if ( context.numTotalCells == 1 )
-              {
-                R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v172);
               }
               else
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rsp+0A28h+var_1A8.halfSize]
-                  vmaxss  xmm1, xmm0, dword ptr [rsp+0A28h+var_1A8.halfSize+4]
-                  vmaxss  xmm3, xmm1, dword ptr [rsp+0A28h+var_1A8.halfSize+8]
-                  vmovss  xmm1, dword ptr [rsp+0A28h+markResult.center+8]
-                  vmovss  xmm2, dword ptr [rsp+0A28h+markResult.center]
-                  vmovss  xmm0, dword ptr [rsp+0A28h+markResult.center+4]
-                  vmovss  dword ptr [rsp+0A28h+var_348.midPoint+8], xmm1
-                  vmovss  dword ptr [rsp+0A28h+var_348.midPoint], xmm2
-                  vmovss  dword ptr [rsp+0A28h+var_348.midPoint+4], xmm0
-                  vmovss  dword ptr [rsp+0A28h+var_348.halfSize], xmm3
-                  vmovss  dword ptr [rsp+0A28h+var_348.halfSize+4], xmm3
-                  vmovss  dword ptr [rsp+0A28h+var_348.halfSize+8], xmm3
-                }
-                R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(_R15 - 5), v172, &v212);
+                --s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
               }
             }
+            while ( FX_GetDobjMarkFromIterator(&v116, &markResult) );
+            v3 = v104;
           }
-          while ( FX_GetDynEntModelMarkFromIterator(&v214, &markResult) );
-          _R13 = v203;
+          FX_EndDobjMarkIterator(&v116);
+          break;
+        case 8:
+          v84 = truncate_cast<unsigned short,unsigned int>(*((_DWORD *)v43 + 4));
+          FX_BeginDynEntModelMarkIterator(&v115, v3->clientIndex, *((_DWORD *)v43 + 3), v84, &context.viewOffset);
+          if ( !FX_GetDynEntModelMarkFromIterator(&v115, &markResult) )
+            goto LABEL_49;
+          do
+          {
+            v85 = s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
+            context.curMarkHandle = markResult.markHandle;
+            if ( v85 >= 0x800 )
+              break;
+            v86 = truncate_cast<unsigned short,unsigned int>(v85);
+            v87 = markResult.halfSize.v[0];
+            ++s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
+            v88 = v86;
+            v89 = R_DecalVolumes_CalculateZFeatherRcp(0.050000001 * v87, v87);
+            R_FillMarkDecalVolumeInternal(&v119, &context, &markResult.worldCenter, &markResult.center, &markResult.halfSize, &markResult.axis, markResult.color, markResult.material, markResult.atlasIndex, *(float *)&v89, markResult.skinned);
+            v100 = v28;
+            R_DecalVolumesGrid_ProcessIntDecalVolumeObjectSpace(frame, v88, &context, &v119, &markResult.worldCenter, &markResult.worldAxis, &v100, &v103);
+            if ( v100 >= v28 )
+            {
+              v90 = FX_MarkVfxName(context.localClientNum, markResult.markHandle);
+              R_DecalVolumesGrid_SetDrawDataDebug(frame, &context, v88, &v119, &markResult.worldCenter, &markResult.worldAxis, &v103, v90);
+              if ( context.numTotalCells == 1 )
+              {
+                R_DecalVolumesGrid_AddTo1x1Grid(frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v88);
+              }
+              else
+              {
+                _XMM0 = LODWORD(v119.halfSize.v[0]);
+                __asm
+                {
+                  vmaxss  xmm1, xmm0, dword ptr [rsp+0A28h+var_1A8.halfSize+4]
+                  vmaxss  xmm3, xmm1, dword ptr [rsp+0A28h+var_1A8.halfSize+8]
+                }
+                v113.midPoint.v[2] = markResult.center.v[2];
+                v113.midPoint.v[0] = markResult.center.v[0];
+                v113.midPoint.v[1] = markResult.center.v[1];
+                v113.halfSize.v[0] = *(float *)&_XMM3;
+                v113.halfSize.v[1] = *(float *)&_XMM3;
+                v113.halfSize.v[2] = *(float *)&_XMM3;
+                R_DecalVolumesGrid_AddToGridBruteForce(&context, frame, (const DecalVolumesGridVolumeInfo *)(v43 - 5), v88, &v113);
+              }
+            }
+            else
+            {
+              --s_decalVolumesGrid.decalVolumeGridFrameData[v5].numDrawData;
+            }
+          }
+          while ( FX_GetDynEntModelMarkFromIterator(&v115, &markResult) );
+          v3 = v104;
           break;
         default:
           goto LABEL_49;
       }
-      v73 = v196;
+      v44 = v97;
 LABEL_49:
-      _R15 += 10;
-      _R12 += 12;
-      v196 = --v73;
-      if ( !v73 )
-      {
-        __asm
-        {
-          vmovaps xmm13, [rsp+0A28h+var_B8]
-          vmovaps xmm12, [rsp+0A28h+var_A8]
-          vmovaps xmm11, [rsp+0A28h+var_98]
-          vmovaps xmm10, [rsp+0A28h+var_88]
-        }
-        break;
-      }
+      v43 += 10;
+      v45 += 12;
+      v97 = --v44;
     }
+    while ( v44 );
   }
-  v186 = (__int64)v204;
-  __asm
-  {
-    vmovaps xmm9, [rsp+0A28h+var_78]
-    vmovaps xmm8, [rsp+0A28h+var_68]
-    vmovaps xmm7, [rsp+0A28h+var_58]
-  }
-  v190 = *((unsigned int *)v204 + 344);
-  __asm { vmovaps xmm6, [rsp+0A28h+var_48] }
-  if ( (unsigned int)v190 > 1 )
-    std::_Sort_unchecked_DecalVolumeDrawHit____R_DecalVolumesGrid_FillObjectSpaceBuffers_::_38_::DecalVolumeDrawHitComparer_((DecalVolumeDrawHit *)(v204 + 672), (DecalVolumeDrawHit *)&v204[88 * v190 + 672], 88 * v190 / 88, v195);
-  *(_BYTE *)(v186 + 1389) = 1;
+  v94 = (__int64)v105;
+  v95 = *((unsigned int *)v105 + 344);
+  if ( (unsigned int)v95 > 1 )
+    std::_Sort_unchecked_DecalVolumeDrawHit____R_DecalVolumesGrid_FillObjectSpaceBuffers_::_38_::DecalVolumeDrawHitComparer_((DecalVolumeDrawHit *)(v105 + 672), (DecalVolumeDrawHit *)&v105[88 * v95 + 672], 88 * v95 / 88, v96);
+  *(_BYTE *)(v94 + 1389) = 1;
 }
 
 /*
@@ -3470,165 +2723,123 @@ void R_DecalVolumesGrid_PrepareVolumeInfo_SceneDynEnt(const GfxViewInfo *viewInf
 {
   const GfxBackEndData *data; 
   __int64 decalVolumeIndex; 
-  __int64 v9; 
+  __int64 v8; 
   unsigned __int16 dynEntClientId; 
   __int64 localClientNum; 
-  unsigned __int16 v12; 
-  DynEntityClient *v13; 
-  unsigned __int16 v14; 
+  unsigned __int16 v11; 
+  DynEntityClient *v12; 
   DynEntityPose *PoseFromClientId; 
-  __int64 v28; 
-  char v29; 
-  char v30; 
-  int v33; 
-  int v36; 
-  int v37; 
+  float v14; 
+  double FarPlane; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v23; 
   int VolumeCells; 
-  __int64 v50; 
-  int v53; 
-  unsigned __int8 v55; 
-  int v56; 
-  __int64 v58; 
-  __int64 v59; 
+  __int64 v27; 
+  DecalVolumesGridVolumeInfo *v28; 
+  int v29; 
+  unsigned __int8 v30; 
+  int v31; 
+  __int64 v32; 
+  __int64 v33; 
   int allocatedVolumeInfoSlot; 
-  int v61; 
+  int v35; 
   int val; 
-  int v63; 
+  int v37; 
   Bounds bounds; 
   Bounds rotatedBounds; 
   tmat33_t<vec3_t> axis; 
 
   data = viewInfo->input.data;
   decalVolumeGridInfo->allocatedVolumeInfoSlot = 0xFFFF;
-  _RBP = viewInfo;
   decalVolumeIndex = data->decalVolumeIndex;
-  v9 = decalVolumeIndex;
+  v8 = decalVolumeIndex;
   if ( s_decalVolumesGrid.decalVolumeGridFrameData[decalVolumeIndex].R_DecalVolumesGrid_FillObjectSpaceBuffers_started._My_val && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1240, ASSERT_TYPE_ASSERT, "( ( !frameData->R_DecalVolumesGrid_FillObjectSpaceBuffers_started ) )", "( frame ) = %u", decalVolumeIndex) )
     __debugbreak();
-  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v9].objectSpaceDecalsDynEntEnabled )
+  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v8].objectSpaceDecalsDynEntEnabled )
   {
     dynEntClientId = sceneDynEnt->dynEntClientId;
-    localClientNum = _RBP->input.data->localClientNum;
+    localClientNum = viewInfo->input.data->localClientNum;
     if ( (unsigned int)localClientNum >= 2 )
     {
-      LODWORD(v58) = _RBP->input.data->localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v58, 2) )
+      LODWORD(v32) = viewInfo->input.data->localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v32, 2) )
         __debugbreak();
     }
-    v12 = g_dynEntClientEntsAllocCount[localClientNum][0];
-    if ( dynEntClientId >= v12 )
+    v11 = g_dynEntClientEntsAllocCount[localClientNum][0];
+    if ( dynEntClientId >= v11 )
     {
-      LODWORD(v59) = v12;
-      LODWORD(v58) = dynEntClientId;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v58, v59) )
+      LODWORD(v33) = v11;
+      LODWORD(v32) = dynEntClientId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
     }
     if ( !g_dynEntClientLists[localClientNum][0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 325, ASSERT_TYPE_ASSERT, "(g_dynEntClientLists[localClientNum][basis])", (const char *)&queryFormat, "g_dynEntClientLists[localClientNum][basis]") )
       __debugbreak();
-    v13 = &g_dynEntClientLists[localClientNum][0][dynEntClientId];
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1250, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
+    v12 = &g_dynEntClientLists[localClientNum][0][dynEntClientId];
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1250, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
       __debugbreak();
-    if ( FX_DynEntModelHasMarks(v13) )
+    if ( FX_DynEntModelHasMarks(v12) )
     {
-      v14 = sceneDynEnt->dynEntClientId;
-      __asm { vmovaps [rsp+0F8h+var_48], xmm6 }
-      PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)localClientNum, v14, DYNENT_BASIS_MODEL);
-      XModelGetBounds(v13->activeModel, &bounds);
+      PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)localClientNum, sceneDynEnt->dynEntClientId, DYNENT_BASIS_MODEL);
+      XModelGetBounds(v12->activeModel, &bounds);
       UnitQuatToAxis(&PoseFromClientId->pose.quat, &axis);
       Bounds_Transform(&bounds, &PoseFromClientId->pose.origin, &axis, &rotatedBounds);
-      __asm
+      v14 = fsqrt((float)((float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - rotatedBounds.midPoint.v[1]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - rotatedBounds.midPoint.v[1])) + (float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - rotatedBounds.midPoint.v[0]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - rotatedBounds.midPoint.v[0]))) + (float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - rotatedBounds.midPoint.v[2]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - rotatedBounds.midPoint.v[2])));
+      FarPlane = R_DecalVolume_GetFarPlane(viewInfo);
+      if ( v14 <= *(float *)&FarPlane )
       {
-        vmovss  xmm0, dword ptr [rbp+100h]
-        vsubss  xmm3, xmm0, dword ptr [rsp+0F8h+rotatedBounds.midPoint]
-        vmovss  xmm1, dword ptr [rbp+104h]
-        vsubss  xmm2, xmm1, dword ptr [rsp+0F8h+rotatedBounds.midPoint+4]
-        vmovss  xmm0, dword ptr [rbp+108h]
-        vsubss  xmm4, xmm0, dword ptr [rsp+0F8h+rotatedBounds.midPoint+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm6, xmm2, xmm2
-      }
-      *(double *)&_XMM0 = R_DecalVolume_GetFarPlane(_RBP);
-      __asm { vcomiss xmm6, xmm0 }
-      if ( v29 | v30 )
-      {
-        __asm { vmovaps xmm0, xmm6; distanceToCamera }
-        R_DecalVolumesGrid_CalculateVolumeDensity(*(double *)&_XMM0, &_RBP->viewParmsSet.frames[0].viewParms.camera.origin, v28, *(double *)&_XMM3);
-        __asm { vmovss  xmm1, cs:__real@40000000 }
-        v33 = 1;
-        __asm
-        {
-          vdivss  xmm3, xmm1, xmm0
-          vmulss  xmm2, xmm3, dword ptr [rsp+0F8h+bounds.halfSize]
-        }
-        v36 = 1;
-        v37 = 1;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm1, xmm1, xmm2, 1
-          vcvttss2si eax, xmm1
-          vmulss  xmm1, xmm3, dword ptr [rsp+0F8h+bounds.halfSize+4]
-          vxorps  xmm2, xmm2, xmm2
-        }
-        if ( _EAX > 1 )
-          v36 = _EAX;
-        __asm
-        {
-          vroundss xmm2, xmm2, xmm1, 1
-          vmulss  xmm1, xmm3, dword ptr [rsp+0F8h+bounds.halfSize+8]
-        }
-        if ( v36 > 16 )
-          v36 = 16;
-        __asm { vcvttss2si eax, xmm2 }
-        val = v36;
-        __asm { vxorps  xmm2, xmm2, xmm2 }
-        if ( _EAX > 1 )
-          v37 = _EAX;
+        R_DecalVolumesGrid_CalculateVolumeDensity(v14, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin);
+        v16 = 1;
+        v17 = 1;
+        v18 = 1;
+        _XMM1 = 0i64;
+        __asm { vroundss xmm1, xmm1, xmm2, 1 }
+        _XMM2 = 0i64;
+        if ( (int)*(float *)&_XMM1 > 1 )
+          v17 = (int)*(float *)&_XMM1;
         __asm { vroundss xmm2, xmm2, xmm1, 1 }
-        if ( v37 > 16 )
-          v37 = 16;
-        __asm { vcvttss2si eax, xmm2 }
-        v63 = v37;
-        if ( _EAX > 1 )
-          v33 = _EAX;
-        if ( v33 > 16 )
-          v33 = 16;
-        v61 = v36 * v37 * v33;
-        VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v61);
-        v50 = VolumeCells;
+        if ( v17 > 16 )
+          v17 = 16;
+        v23 = (int)*(float *)&_XMM2;
+        val = v17;
+        _XMM2 = 0i64;
+        if ( v23 > 1 )
+          v18 = v23;
+        __asm { vroundss xmm2, xmm2, xmm1, 1 }
+        if ( v18 > 16 )
+          v18 = 16;
+        v37 = v18;
+        if ( (int)*(float *)&_XMM2 > 1 )
+          v16 = (int)*(float *)&_XMM2;
+        if ( v16 > 16 )
+          v16 = 16;
+        v35 = v17 * v18 * v16;
+        VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v35);
+        v27 = VolumeCells;
         if ( VolumeCells >= 0 )
         {
           allocatedVolumeInfoSlot = 0;
-          _RBX = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
-          if ( _RBX )
+          v28 = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
+          if ( v28 )
           {
             R_DecalVolumesGrid_SetModelInfoIndex(decalVolumeGridInfo, allocatedVolumeInfoSlot);
-            memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v9].volumeCells[v50], 0, 4i64 * v61);
-            __asm { vmovups xmm0, xmmword ptr [rsp+0F8h+bounds.midPoint] }
-            v53 = val;
-            __asm
-            {
-              vmovups xmmword ptr [rbx], xmm0
-              vmovsd  xmm1, qword ptr [rsp+0F8h+bounds.halfSize+4]
-              vmovsd  qword ptr [rbx+10h], xmm1
-            }
-            v55 = truncate_cast<unsigned char,int>(v53);
-            v56 = v63;
-            _RBX->m_volumeSize[0] = v55;
-            _RBX->m_volumeSize[1] = truncate_cast<unsigned char,int>(v56);
-            _RBX->m_volumeSize[2] = truncate_cast<unsigned char,int>(v33);
-            _RBX->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_DYNMODEL;
-            _RBX->m_firstCellIndex = v50;
-            _RBX->m_objectIndex = v13->dynEntDefId;
-            _RBX->m_modelIndex = sceneDynEnt->dynEntClientId;
+            memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v8].volumeCells[v27], 0, 4i64 * v35);
+            v29 = val;
+            v28->m_volumeBounds = bounds;
+            v30 = truncate_cast<unsigned char,int>(v29);
+            v31 = v37;
+            v28->m_volumeSize[0] = v30;
+            v28->m_volumeSize[1] = truncate_cast<unsigned char,int>(v31);
+            v28->m_volumeSize[2] = truncate_cast<unsigned char,int>(v16);
+            v28->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_DYNMODEL;
+            v28->m_firstCellIndex = v27;
+            v28->m_objectIndex = v12->dynEntDefId;
+            v28->m_modelIndex = sceneDynEnt->dynEntClientId;
           }
         }
       }
-      __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
     }
   }
 }
@@ -3641,29 +2852,30 @@ R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt
 void R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt(const GfxViewInfo *viewInfo, unsigned int dobjIndex, const GfxSceneEntity *sceneEnt, unsigned int modelIndex, GfxModelDecalVolumeGridInfo *decalVolumeGridInfo)
 {
   __int64 decalVolumeIndex; 
-  __int64 v10; 
-  int v11; 
+  __int64 v9; 
+  int v10; 
   const DObj *obj; 
   unsigned int HasMarks; 
   const XModel *Model; 
   XModelDecalVolumesInfo *decalVolumesInfo; 
   unsigned __int8 ModelRootBoneIndex; 
-  __int64 v29; 
-  char v30; 
-  char v31; 
-  int v34; 
-  int v37; 
-  int v38; 
+  float v16; 
+  double FarPlane; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v25; 
   int VolumeCells; 
-  __int64 v51; 
-  unsigned __int8 v55; 
-  int v56; 
-  __int64 v58; 
+  __int64 v29; 
+  DecalVolumesGridVolumeInfo *v30; 
+  unsigned __int8 v31; 
+  int v32; 
+  __int64 v33; 
   int NumModels; 
   int allocatedVolumeInfoSlot; 
-  int v61; 
+  int v36; 
   int val; 
-  unsigned int v63; 
+  unsigned int v38; 
   GfxModelDecalVolumeGridInfo *outDecalVolumeGridInfo; 
   Bounds bounds; 
   vec3_t outOrigin; 
@@ -3671,25 +2883,24 @@ void R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt(const GfxViewInfo *viewInfo, 
   tmat33_t<vec3_t> outTagMat; 
 
   outDecalVolumeGridInfo = decalVolumeGridInfo;
-  v63 = dobjIndex;
-  _R14 = viewInfo;
+  v38 = dobjIndex;
   decalVolumeGridInfo->allocatedVolumeInfoSlot = 0xFFFF;
   decalVolumeIndex = viewInfo->input.data->decalVolumeIndex;
-  v10 = decalVolumeIndex;
+  v9 = decalVolumeIndex;
   if ( s_decalVolumesGrid.decalVolumeGridFrameData[decalVolumeIndex].R_DecalVolumesGrid_FillObjectSpaceBuffers_started._My_val && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1143, ASSERT_TYPE_ASSERT, "( ( !frameData->R_DecalVolumesGrid_FillObjectSpaceBuffers_started ) )", "( frame ) = %u", viewInfo->input.data->decalVolumeIndex) )
     __debugbreak();
-  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v10].objectSpaceDecalsDobjEnabled )
+  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v9].objectSpaceDecalsDobjEnabled )
   {
-    v11 = (*((_DWORD *)sceneEnt + 346) >> 10) & 0xFFF;
-    if ( (unsigned int)(v11 - 2050) > 0x3F )
+    v10 = (*((_DWORD *)sceneEnt + 346) >> 10) & 0xFFF;
+    if ( (unsigned int)(v10 - 2050) > 0x3F )
     {
       obj = sceneEnt->obj;
-      HasMarks = FX_EntHasMarks((LocalClientNum_t)_R14->input.data->localClientNum, v11, modelIndex);
+      HasMarks = FX_EntHasMarks((LocalClientNum_t)viewInfo->input.data->localClientNum, v10, modelIndex);
       if ( modelIndex >= DObjGetNumModels(obj) )
       {
         NumModels = DObjGetNumModels(obj);
-        LODWORD(v58) = modelIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( DObjGetNumModels( obj ) )", "modelIndex doesn't index DObjGetNumModels( obj )\n\t%i not in [0, %i)", v58, NumModels) )
+        LODWORD(v33) = modelIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( DObjGetNumModels( obj ) )", "modelIndex doesn't index DObjGetNumModels( obj )\n\t%i not in [0, %i)", v33, NumModels) )
           __debugbreak();
       }
       Model = DObjGetModel(obj, modelIndex);
@@ -3698,106 +2909,63 @@ void R_DecalVolumesGrid_PrepareVolumeInfo_SceneEnt(const GfxViewInfo *viewInfo, 
         LODWORD(decalVolumesInfo) = decalVolumesInfo->numDecalVolumes;
       if ( (_DWORD)decalVolumesInfo + HasMarks )
       {
-        __asm { vmovaps [rsp+128h+var_58], xmm6 }
         ModelRootBoneIndex = DObjGetModelRootBoneIndex(obj, modelIndex);
         CG_DObjGetWorldBoneMatrix(sceneEnt->info.pose, obj, ModelRootBoneIndex, &outTagMat, &outOrigin);
         XModelGetBounds(Model, &bounds);
         Bounds_Transform(&bounds, &outOrigin, &outTagMat, &rotatedBounds);
-        __asm
+        v16 = fsqrt((float)((float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - rotatedBounds.midPoint.v[1]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - rotatedBounds.midPoint.v[1])) + (float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - rotatedBounds.midPoint.v[0]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - rotatedBounds.midPoint.v[0]))) + (float)((float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - rotatedBounds.midPoint.v[2]) * (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - rotatedBounds.midPoint.v[2])));
+        FarPlane = R_DecalVolume_GetFarPlane(viewInfo);
+        if ( v16 <= *(float *)&FarPlane )
         {
-          vmovss  xmm0, dword ptr [r14+100h]
-          vsubss  xmm3, xmm0, dword ptr [rsp+128h+rotatedBounds.midPoint]
-          vmovss  xmm1, dword ptr [r14+104h]
-          vsubss  xmm2, xmm1, dword ptr [rsp+128h+rotatedBounds.midPoint+4]
-          vmovss  xmm0, dword ptr [r14+108h]
-          vsubss  xmm4, xmm0, dword ptr [rsp+128h+rotatedBounds.midPoint+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm6, xmm2, xmm2
-        }
-        *(double *)&_XMM0 = R_DecalVolume_GetFarPlane(_R14);
-        __asm { vcomiss xmm6, xmm0 }
-        if ( v30 | v31 )
-        {
-          __asm { vmovaps xmm0, xmm6; distanceToCamera }
-          R_DecalVolumesGrid_CalculateVolumeDensity(*(double *)&_XMM0, &_R14->viewParmsSet.frames[0].viewParms.camera.origin, v29, *(double *)&_XMM3);
-          __asm { vmovss  xmm1, cs:__real@40000000 }
-          v34 = 1;
-          __asm
-          {
-            vdivss  xmm3, xmm1, xmm0
-            vmulss  xmm2, xmm3, dword ptr [rsp+128h+bounds.halfSize]
-          }
-          v37 = 1;
-          v38 = 1;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vroundss xmm1, xmm1, xmm2, 1
-            vcvttss2si eax, xmm1
-            vmulss  xmm1, xmm3, dword ptr [rsp+128h+bounds.halfSize+4]
-            vxorps  xmm2, xmm2, xmm2
-          }
-          if ( _EAX > 1 )
-            v38 = _EAX;
-          __asm
-          {
-            vroundss xmm2, xmm2, xmm1, 1
-            vmulss  xmm1, xmm3, dword ptr [rsp+128h+bounds.halfSize+8]
-          }
-          if ( v38 > 16 )
-            v38 = 16;
-          __asm
-          {
-            vcvttss2si eax, xmm2
-            vxorps  xmm2, xmm2, xmm2
-          }
-          if ( _EAX > 1 )
-            v37 = _EAX;
+          R_DecalVolumesGrid_CalculateVolumeDensity(v16, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin);
+          v18 = 1;
+          v19 = 1;
+          v20 = 1;
+          _XMM1 = 0i64;
+          __asm { vroundss xmm1, xmm1, xmm2, 1 }
+          _XMM2 = 0i64;
+          if ( (int)*(float *)&_XMM1 > 1 )
+            v20 = (int)*(float *)&_XMM1;
           __asm { vroundss xmm2, xmm2, xmm1, 1 }
-          if ( v37 > 16 )
-            v37 = 16;
-          __asm { vcvttss2si eax, xmm2 }
-          val = v37;
-          if ( _EAX > 1 )
-            v34 = _EAX;
-          if ( v34 > 16 )
-            v34 = 16;
-          v61 = v38 * v37 * v34;
-          VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v61);
-          v51 = VolumeCells;
+          if ( v20 > 16 )
+            v20 = 16;
+          v25 = (int)*(float *)&_XMM2;
+          _XMM2 = 0i64;
+          if ( v25 > 1 )
+            v19 = v25;
+          __asm { vroundss xmm2, xmm2, xmm1, 1 }
+          if ( v19 > 16 )
+            v19 = 16;
+          val = v19;
+          if ( (int)*(float *)&_XMM2 > 1 )
+            v18 = (int)*(float *)&_XMM2;
+          if ( v18 > 16 )
+            v18 = 16;
+          v36 = v20 * v19 * v18;
+          VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v36);
+          v29 = VolumeCells;
           if ( VolumeCells >= 0 )
           {
             allocatedVolumeInfoSlot = 0;
-            _RBX = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
-            if ( _RBX )
+            v30 = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
+            if ( v30 )
             {
               R_DecalVolumesGrid_SetModelInfoIndex(outDecalVolumeGridInfo, allocatedVolumeInfoSlot);
-              memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v10].volumeCells[v51], 0, 4i64 * v61);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rsp+128h+bounds.midPoint]
-                vmovups xmmword ptr [rbx], xmm0
-                vmovsd  xmm1, qword ptr [rsp+128h+bounds.halfSize+4]
-                vmovsd  qword ptr [rbx+10h], xmm1
-              }
-              v55 = truncate_cast<unsigned char,int>(v38);
-              v56 = val;
-              _RBX->m_volumeSize[0] = v55;
-              _RBX->m_volumeSize[1] = truncate_cast<unsigned char,int>(v56);
-              _RBX->m_volumeSize[2] = truncate_cast<unsigned char,int>(v34);
-              _RBX->m_objectIndex = v63;
-              _RBX->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_DOBJ_MODEL;
-              _RBX->m_firstCellIndex = v51;
-              _RBX->m_modelIndex = modelIndex;
-              R_DecalVolumesGrid_AddToEntityDebugVolume(decalVolumeIndex, (*((_DWORD *)sceneEnt + 346) >> 10) & 0xFFF, _RBX);
+              memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v9].volumeCells[v29], 0, 4i64 * v36);
+              v30->m_volumeBounds = bounds;
+              v31 = truncate_cast<unsigned char,int>(v20);
+              v32 = val;
+              v30->m_volumeSize[0] = v31;
+              v30->m_volumeSize[1] = truncate_cast<unsigned char,int>(v32);
+              v30->m_volumeSize[2] = truncate_cast<unsigned char,int>(v18);
+              v30->m_objectIndex = v38;
+              v30->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_DOBJ_MODEL;
+              v30->m_firstCellIndex = v29;
+              v30->m_modelIndex = modelIndex;
+              R_DecalVolumesGrid_AddToEntityDebugVolume(decalVolumeIndex, (*((_DWORD *)sceneEnt + 346) >> 10) & 0xFFF, v30);
             }
           }
         }
-        __asm { vmovaps xmm6, [rsp+128h+var_58] }
       }
     }
   }
@@ -3812,151 +2980,110 @@ void R_DecalVolumesGrid_PrepareVolumeInfo_SceneModel(const GfxViewInfo *viewInfo
 {
   const GfxBackEndData *data; 
   __int64 decalVolumeIndex; 
-  __int64 v10; 
+  __int64 v9; 
   XModelDecalVolumesInfo *decalVolumesInfo; 
-  unsigned int v12; 
-  const XModel *model; 
-  __int64 v33; 
-  char v34; 
-  char v35; 
-  int v38; 
-  int v41; 
-  int v42; 
+  unsigned int v11; 
+  float scale; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  double FarPlane; 
+  int v20; 
+  int v21; 
+  int v22; 
+  int v27; 
   int VolumeCells; 
-  __int64 v55; 
-  unsigned __int8 v59; 
-  int v60; 
+  __int64 v31; 
+  DecalVolumesGridVolumeInfo *v32; 
+  unsigned __int8 v33; 
+  int v34; 
   int allocatedVolumeInfoSlot; 
-  int v63; 
+  int v36; 
   int val; 
-  unsigned int v65; 
+  unsigned int v38; 
   Bounds bounds; 
 
   data = viewInfo->input.data;
   decalVolumeGridInfo->allocatedVolumeInfoSlot = 0xFFFF;
-  _RDI = sceneModel;
-  v65 = modelIndex;
-  _RBX = viewInfo;
+  v38 = modelIndex;
   decalVolumeIndex = data->decalVolumeIndex;
-  v10 = decalVolumeIndex;
+  v9 = decalVolumeIndex;
   if ( s_decalVolumesGrid.decalVolumeGridFrameData[decalVolumeIndex].R_DecalVolumesGrid_FillObjectSpaceBuffers_started._My_val && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1057, ASSERT_TYPE_ASSERT, "( ( !frameData->R_DecalVolumesGrid_FillObjectSpaceBuffers_started ) )", "( frame ) = %u", decalVolumeIndex) )
     __debugbreak();
-  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v10].objectSpaceDecalsModelsEnabled )
+  if ( s_decalVolumesGrid.decalVolumeGridFrameData[v9].objectSpaceDecalsModelsEnabled )
   {
-    decalVolumesInfo = _RDI->model->decalVolumesInfo;
-    v12 = decalVolumesInfo ? decalVolumesInfo->numDecalVolumes : 0;
-    if ( v12 + FX_EntHasMarks((LocalClientNum_t)_RBX->input.data->localClientNum, (*((_DWORD *)_RDI + 30) >> 10) & 0xFFF) )
+    decalVolumesInfo = sceneModel->model->decalVolumesInfo;
+    v11 = decalVolumesInfo ? decalVolumesInfo->numDecalVolumes : 0;
+    if ( v11 + FX_EntHasMarks((LocalClientNum_t)viewInfo->input.data->localClientNum, (*((_DWORD *)sceneModel + 30) >> 10) & 0xFFF) )
     {
-      model = _RDI->model;
-      __asm { vmovaps [rsp+0B8h+var_58], xmm6 }
-      XModelGetBounds(model, &bounds);
-      __asm
+      XModelGetBounds(sceneModel->model, &bounds);
+      scale = sceneModel->placement.scale;
+      bounds.halfSize.v[1] = scale * bounds.halfSize.v[1];
+      bounds.halfSize.v[2] = scale * bounds.halfSize.v[2];
+      v13 = scale * bounds.midPoint.v[2];
+      bounds.halfSize.v[0] = scale * bounds.halfSize.v[0];
+      v14 = scale * bounds.midPoint.v[0];
+      bounds.midPoint.v[1] = scale * bounds.midPoint.v[1];
+      v15 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - sceneModel->placement.base.origin.v[0];
+      v16 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - sceneModel->placement.base.origin.v[2];
+      bounds.midPoint.v[2] = v13;
+      bounds.midPoint.v[0] = v14;
+      v17 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - sceneModel->placement.base.origin.v[1];
+      v18 = fsqrt((float)((float)(v17 * v17) + (float)(v15 * v15)) + (float)(v16 * v16));
+      FarPlane = R_DecalVolume_GetFarPlane(viewInfo);
+      if ( v18 <= *(float *)&FarPlane )
       {
-        vmovss  xmm3, dword ptr [rdi+54h]
-        vmulss  xmm0, xmm3, dword ptr [rsp+0B8h+bounds.halfSize+4]
-        vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+bounds.halfSize]
-        vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+bounds.halfSize+8]
-        vmovss  dword ptr [rsp+0B8h+bounds.halfSize+4], xmm0
-        vmulss  xmm0, xmm3, dword ptr [rsp+0B8h+bounds.midPoint+4]
-        vmovss  dword ptr [rsp+0B8h+bounds.halfSize+8], xmm2
-        vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+bounds.midPoint+8]
-        vmovss  dword ptr [rsp+0B8h+bounds.halfSize], xmm1
-        vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+bounds.midPoint]
-        vmovss  dword ptr [rsp+0B8h+bounds.midPoint+4], xmm0
-        vmovss  xmm0, dword ptr [rbx+100h]
-        vsubss  xmm3, xmm0, dword ptr [rdi+48h]
-        vmovss  xmm0, dword ptr [rbx+108h]
-        vsubss  xmm4, xmm0, dword ptr [rdi+50h]
-        vmovss  dword ptr [rsp+0B8h+bounds.midPoint+8], xmm2
-        vmovss  dword ptr [rsp+0B8h+bounds.midPoint], xmm1
-        vmovss  xmm1, dword ptr [rbx+104h]
-        vsubss  xmm2, xmm1, dword ptr [rdi+4Ch]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm6, xmm2, xmm2
-      }
-      *(double *)&_XMM0 = R_DecalVolume_GetFarPlane(_RBX);
-      __asm { vcomiss xmm6, xmm0 }
-      if ( v34 | v35 )
-      {
-        __asm { vmovaps xmm0, xmm6; distanceToCamera }
-        R_DecalVolumesGrid_CalculateVolumeDensity(*(double *)&_XMM0, &_RBX->viewParmsSet.frames[0].viewParms.camera.origin, v33, *(double *)&_XMM3);
-        __asm { vmovss  xmm1, cs:__real@40000000 }
-        v38 = 1;
-        __asm
-        {
-          vdivss  xmm3, xmm1, xmm0
-          vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+bounds.halfSize]
-        }
-        v41 = 1;
-        v42 = 1;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm1, xmm1, xmm2, 1
-          vcvttss2si eax, xmm1
-          vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+bounds.halfSize+4]
-          vxorps  xmm2, xmm2, xmm2
-        }
-        if ( _EAX > 1 )
-          v42 = _EAX;
-        __asm
-        {
-          vroundss xmm2, xmm2, xmm1, 1
-          vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+bounds.halfSize+8]
-        }
-        if ( v42 > 16 )
-          v42 = 16;
-        __asm
-        {
-          vcvttss2si eax, xmm2
-          vxorps  xmm2, xmm2, xmm2
-        }
-        if ( _EAX > 1 )
-          v41 = _EAX;
+        R_DecalVolumesGrid_CalculateVolumeDensity(v18, &viewInfo->viewParmsSet.frames[0].viewParms.camera.origin);
+        v20 = 1;
+        v21 = 1;
+        v22 = 1;
+        _XMM1 = 0i64;
+        __asm { vroundss xmm1, xmm1, xmm2, 1 }
+        _XMM2 = 0i64;
+        if ( (int)*(float *)&_XMM1 > 1 )
+          v22 = (int)*(float *)&_XMM1;
         __asm { vroundss xmm2, xmm2, xmm1, 1 }
-        if ( v41 > 16 )
-          v41 = 16;
-        __asm { vcvttss2si eax, xmm2 }
-        val = v41;
-        if ( _EAX > 1 )
-          v38 = _EAX;
-        if ( v38 > 16 )
-          v38 = 16;
-        v63 = v42 * v41 * v38;
-        VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v63);
-        v55 = VolumeCells;
+        if ( v22 > 16 )
+          v22 = 16;
+        v27 = (int)*(float *)&_XMM2;
+        _XMM2 = 0i64;
+        if ( v27 > 1 )
+          v21 = v27;
+        __asm { vroundss xmm2, xmm2, xmm1, 1 }
+        if ( v21 > 16 )
+          v21 = 16;
+        val = v21;
+        if ( (int)*(float *)&_XMM2 > 1 )
+          v20 = (int)*(float *)&_XMM2;
+        if ( v20 > 16 )
+          v20 = 16;
+        v36 = v22 * v21 * v20;
+        VolumeCells = R_DecalVolumesGrid_AllocateVolumeCells(decalVolumeIndex, v36);
+        v31 = VolumeCells;
         if ( VolumeCells >= 0 )
         {
           allocatedVolumeInfoSlot = 0;
-          _RBX = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
-          if ( _RBX )
+          v32 = R_DecalVolumesGrid_AllocateVolumeInfo(decalVolumeIndex, &allocatedVolumeInfoSlot);
+          if ( v32 )
           {
             R_DecalVolumesGrid_SetModelInfoIndex(decalVolumeGridInfo, allocatedVolumeInfoSlot);
-            memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v10].volumeCells[v55], 0, 4i64 * v63);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+0B8h+bounds.midPoint]
-              vmovups xmmword ptr [rbx], xmm0
-              vmovsd  xmm1, qword ptr [rsp+0B8h+bounds.halfSize+4]
-              vmovsd  qword ptr [rbx+10h], xmm1
-            }
-            v59 = truncate_cast<unsigned char,int>(v42);
-            v60 = val;
-            _RBX->m_volumeSize[0] = v59;
-            _RBX->m_volumeSize[1] = truncate_cast<unsigned char,int>(v60);
-            _RBX->m_volumeSize[2] = truncate_cast<unsigned char,int>(v38);
-            _RBX->m_objectIndex = v65;
-            _RBX->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_MODEL;
-            _RBX->m_firstCellIndex = v55;
-            R_DecalVolumesGrid_AddToEntityDebugVolume(decalVolumeIndex, (*((_DWORD *)_RDI + 30) >> 10) & 0xFFF, _RBX);
+            memset_0(&s_decalVolumesGrid.decalVolumeGridFrameData[v9].volumeCells[v31], 0, 4i64 * v36);
+            v32->m_volumeBounds = bounds;
+            v33 = truncate_cast<unsigned char,int>(v22);
+            v34 = val;
+            v32->m_volumeSize[0] = v33;
+            v32->m_volumeSize[1] = truncate_cast<unsigned char,int>(v34);
+            v32->m_volumeSize[2] = truncate_cast<unsigned char,int>(v20);
+            v32->m_objectIndex = v38;
+            v32->m_volumeType = DECAL_VOLUMES_GRID_VOLUME_TYPE_MODEL;
+            v32->m_firstCellIndex = v31;
+            R_DecalVolumesGrid_AddToEntityDebugVolume(decalVolumeIndex, (*((_DWORD *)sceneModel + 30) >> 10) & 0xFFF, v32);
           }
         }
       }
-      __asm { vmovaps xmm6, [rsp+0B8h+var_58] }
     }
   }
 }
@@ -3990,98 +3117,61 @@ R_DecalVolumesGrid_SetDrawDataDebug
 */
 void R_DecalVolumesGrid_SetDrawDataDebug(unsigned int frame, AddToGridContext *context, unsigned __int16 drawDataIndex, const DecalVolumeIntermediate *m, const vec3_t *worldPos, const tmat33_t<vec3_t> *worldAxis, const DecalVolumeStreamingInfo *streamingInfo, const char *markVfxName)
 {
-  __int64 v11; 
-  __int64 v12; 
+  __int64 v10; 
   GfxDecalVolumeDrawDataDebug *drawDataDebug; 
-  __int64 v16; 
+  __int64 v13; 
+  DecalVolumeInstanceDebug *v14; 
   DecalVolumeDrawHits *p_drawHits; 
-  char v39; 
-  char v40; 
+  float v16; 
+  float v17; 
+  float v18; 
+  double v19; 
+  DecalVolumeDrawHit *v20; 
   vec4_t result; 
 
-  _RDI = m;
-  v11 = frame;
-  v12 = drawDataIndex;
-  _RBP = &_RDI->halfSize;
-  _R8 = worldPos;
-  drawDataDebug = s_decalVolumesGrid.decalVolumeGridFrameData[v11].drawDataDebug;
-  v16 = v12;
-  _RSI = &s_decalVolumesGrid.decalVolumeGridFrameData[v11].decalVolumeDebug[v12];
-  p_drawHits = &s_decalVolumesGrid.decalVolumeGridFrameData[v11].drawHits;
-  __asm
+  v10 = frame;
+  drawDataDebug = s_decalVolumesGrid.decalVolumeGridFrameData[v10].drawDataDebug;
+  v13 = drawDataIndex;
+  v14 = &s_decalVolumesGrid.decalVolumeGridFrameData[v10].decalVolumeDebug[drawDataIndex];
+  p_drawHits = &s_decalVolumesGrid.decalVolumeGridFrameData[v10].drawHits;
+  v14->dv.center.v[0] = worldPos->v[0] - context->cameraOrigin.v[0];
+  v14->dv.center.v[1] = worldPos->v[1] - context->cameraOrigin.v[1];
+  v14->dv.center.v[2] = worldPos->v[2] - context->cameraOrigin.v[2];
+  v16 = m->halfSize.v[0];
+  v14->dv.x.v[0] = v16 * worldAxis->m[0].v[0];
+  v14->dv.x.v[1] = v16 * worldAxis->m[0].v[1];
+  v14->dv.x.v[2] = v16 * worldAxis->m[0].v[2];
+  v17 = m->halfSize.v[1];
+  v14->dv.y.v[0] = v17 * worldAxis->m[1].v[0];
+  v14->dv.y.v[1] = v17 * worldAxis->m[1].v[1];
+  v14->dv.y.v[2] = v17 * worldAxis->m[1].v[2];
+  v18 = m->halfSize.v[2];
+  v14->dv.z.v[0] = v18 * worldAxis->m[2].v[0];
+  v14->dv.z.v[1] = v18 * worldAxis->m[2].v[1];
+  v14->dv.z.v[2] = v18 * worldAxis->m[2].v[2];
+  drawDataDebug[v13].flags = m->flags;
+  drawDataDebug[v13].streamingInfo = *streamingInfo;
+  drawDataDebug[v13].material = m->material;
+  drawDataDebug[v13].blendMapOverride = m->blendMapOverride;
+  if ( r_decalVolumesShowMaterialName->current.enabled && !r_decalVolumesShowMaterialLock->current.enabled && s_decalVolumesGrid.decalVolumeGridFrameData[v10].drawHits.hitCount < 8 )
   {
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm1, xmm0, dword ptr [r14+64h]
-    vmovss  dword ptr [rsi], xmm1
-    vmovss  xmm2, dword ptr [r8+4]
-    vsubss  xmm0, xmm2, dword ptr [r14+68h]
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovss  xmm1, dword ptr [r8+8]
-    vsubss  xmm2, xmm1, dword ptr [r14+6Ch]
-    vmovss  dword ptr [rsi+8], xmm2
-    vmovss  xmm3, dword ptr [rbp+0]
-    vmulss  xmm0, xmm3, dword ptr [r10]
-    vmovss  dword ptr [rsi+0Ch], xmm0
-    vmulss  xmm1, xmm3, dword ptr [r10+4]
-    vmovss  dword ptr [rsi+10h], xmm1
-    vmulss  xmm0, xmm3, dword ptr [r10+8]
-    vmovss  dword ptr [rsi+14h], xmm0
-    vmovss  xmm2, dword ptr [rdi+34h]
-    vmulss  xmm0, xmm2, dword ptr [r10+0Ch]
-    vmovss  dword ptr [rsi+18h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r10+10h]
-    vmovss  dword ptr [rsi+1Ch], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r10+14h]
-    vmovss  dword ptr [rsi+20h], xmm0
-    vmovss  xmm2, dword ptr [rdi+38h]
-    vmulss  xmm0, xmm2, dword ptr [r10+18h]
-    vmovss  dword ptr [rsi+24h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r10+1Ch]
-    vmovss  dword ptr [rsi+28h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r10+20h]
-    vmovss  dword ptr [rsi+2Ch], xmm0
-  }
-  drawDataDebug[v16].flags = _RDI->flags;
-  drawDataDebug[v16].streamingInfo = *streamingInfo;
-  drawDataDebug[v16].material = _RDI->material;
-  drawDataDebug[v16].blendMapOverride = _RDI->blendMapOverride;
-  if ( r_decalVolumesShowMaterialName->current.enabled && !r_decalVolumesShowMaterialLock->current.enabled && s_decalVolumesGrid.decalVolumeGridFrameData[v11].drawHits.hitCount < 8 )
-  {
-    __asm { vmovaps [rsp+98h+var_48], xmm6 }
-    *(double *)&_XMM0 = RayObbIntersect(&context->cameraOrigin, context->cameraAxis.m, worldPos, worldAxis, &_RDI->halfSize);
-    __asm
+    v19 = RayObbIntersect(&context->cameraOrigin, context->cameraAxis.m, worldPos, worldAxis, &m->halfSize);
+    if ( *(float *)&v19 > 0.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( !(v39 | v40) )
-    {
-      _RAX = R_DecalVolume_GetHighlightColor(&result, p_drawHits->hitCount);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+98h+result], xmm1
-      }
-      R_DecalVolumes_DrawDebugOBB(&_RDI->origin, &_RDI->axis, &_RDI->halfSize, &result);
-      __asm { vmovups ymm0, ymmword ptr [rsi] }
-      _RCX = (DecalVolumeStreamingInfo *)&p_drawHits->hits[p_drawHits->hitCount];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [rsi+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-      }
-      _RCX[12] = *streamingInfo;
-      __asm { vmovss  dword ptr [rcx+38h], xmm6 }
-      _RCX[13] = (DecalVolumeStreamingInfo)(unsigned __int16)v12;
-      _RCX[15].neededSize = _RDI->flags;
-      *(_QWORD *)&_RCX[16].neededSize = _RDI->material;
-      *(_QWORD *)&_RCX[18].neededSize = _RDI->blendMapOverride;
-      *(_QWORD *)&_RCX[20].neededSize = markVfxName;
+      result = *R_DecalVolume_GetHighlightColor(&result, p_drawHits->hitCount);
+      R_DecalVolumes_DrawDebugOBB(&m->origin, &m->axis, &m->halfSize, &result);
+      v20 = &p_drawHits->hits[p_drawHits->hitCount];
+      *(__m256i *)v20->dv.center.v = *(__m256i *)v14->dv.center.v;
+      *(_OWORD *)&v20->dv.y.z = *(_OWORD *)&v14->dv.y.z;
+      v20->streamingInfo = *streamingInfo;
+      v20->distFromCamera = *(float *)&v19;
+      v20->decalIndex = drawDataIndex;
+      v20->flags = m->flags;
+      v20->material = m->material;
+      v20->blendMapOverride = m->blendMapOverride;
+      v20->markVfxName = markVfxName;
       ++p_drawHits->hitCount;
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_48] }
   }
 }
 
@@ -4267,178 +3357,73 @@ R_FillDecalVolumeGeneric
 void R_FillDecalVolumeGeneric(DecalVolumeIntermediate *dstDecalVolume, const AddToGridContext *context, const vec3_t *worldOrigin, const vec3_t *origin, const vec3_t *halfSize, const tmat33_t<vec3_t> *axis, Material *dvMaterial, const GfxDecalVolumeMask *blendMapOverride, const vec2_t *blendMapAdjust, DecalVolumesNormalBlendMode normalBlendModeOverride, const vec2_t *uvOffset, const vec4_t *uvMatrix, const unsigned __int8 *color, int atlasIndex, float zFeather, DecalVolumeIntermediateFlags type, unsigned int uid, bool skinned)
 {
   GfxDecalVolumeMaterial *decalVolumeMaterial; 
-  unsigned __int8 v77; 
-  double v102; 
-  double v103; 
-  double v104; 
-  double v105; 
-  double v106; 
-  double v107; 
-  double v108; 
-  double v109; 
-  double v110; 
-  double v111; 
-  double v112; 
-  double v113; 
-  double v114; 
-  double v115; 
-  vec2_t v116; 
-  void *retaddr; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  unsigned __int8 v31; 
+  __int128 v32; 
+  float v33; 
+  vec2_t v39; 
 
-  _R11 = &retaddr;
-  _RBP = worldOrigin;
-  _RBX = dstDecalVolume;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm7 }
   decalVolumeMaterial = dvMaterial->decalVolumeMaterial;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm8 }
   if ( !decalVolumeMaterial )
     decalVolumeMaterial = rgp.defaultDecalVolumeMaterial->decalVolumeMaterial;
-  _R14 = halfSize;
   dstDecalVolume->origin = *origin;
   dstDecalVolume->halfSize = *halfSize;
-  __asm { vmovaps [rsp+0B8h+var_28], xmm6 }
   dstDecalVolume->axis = *axis;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmulss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmovss  xmm7, dword ptr [rbx+0Ch]
-    vmovss  xmm8, dword ptr [rbx+18h]
-    vmulss  xmm2, xmm8, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbx+14h]
-    vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-    vaddss  xmm2, xmm3, xmm0
-    vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovss  xmm3, dword ptr [rbx+20h]
-    vmovss  xmm4, dword ptr [rbx+1Ch]
-    vmovss  xmm5, dword ptr [rbx+14h]
-    vmovss  xmm6, dword ptr [rbx+10h]
-    vcvtss2sd xmm0, xmm2, xmm2
-    vmovsd  [rsp+0B8h+var_60], xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+0B8h+var_68], xmm3
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+0B8h+var_70], xmm4
-    vcvtss2sd xmm1, xmm8, xmm8
-    vmovsd  [rsp+0B8h+var_78], xmm1
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+0B8h+var_80], xmm5
-    vcvtss2sd xmm2, xmm7, xmm7
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovsd  [rsp+0B8h+var_88], xmm6
-    vmovsd  [rsp+0B8h+var_90], xmm2
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1668, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v102, v104, v106, v108, v110, v112, v114) )
+  v22 = dstDecalVolume->axis.m[0].v[0];
+  v23 = dstDecalVolume->axis.m[1].v[0];
+  v24 = (float)((float)(v23 * v22) + (float)(dstDecalVolume->axis.m[1].v[1] * dstDecalVolume->axis.m[0].v[1])) + (float)(dstDecalVolume->axis.m[0].v[2] * dstDecalVolume->axis.m[1].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v24) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1668, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v22, dstDecalVolume->axis.m[0].v[1], dstDecalVolume->axis.m[0].v[2], v23, dstDecalVolume->axis.m[1].v[1], dstDecalVolume->axis.m[1].v[2], v24) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmovss  xmm7, dword ptr [rbx+24h]
-    vmovss  xmm8, dword ptr [rbx+0Ch]
-    vmulss  xmm2, xmm7, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbx+2Ch]
-    vmulss  xmm0, xmm2, dword ptr [rbx+14h]
-    vaddss  xmm2, xmm3, xmm0
-    vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovss  xmm3, dword ptr [rbx+2Ch]
-    vmovss  xmm4, dword ptr [rbx+28h]
-    vmovss  xmm5, dword ptr [rbx+14h]
-    vmovss  xmm6, dword ptr [rbx+10h]
-    vcvtss2sd xmm0, xmm2, xmm2
-    vmovsd  [rsp+0B8h+var_60], xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+0B8h+var_68], xmm3
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+0B8h+var_70], xmm4
-    vcvtss2sd xmm1, xmm7, xmm7
-    vmovsd  [rsp+0B8h+var_78], xmm1
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+0B8h+var_80], xmm5
-    vcvtss2sd xmm2, xmm8, xmm8
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovsd  [rsp+0B8h+var_88], xmm6
-    vmovsd  [rsp+0B8h+var_90], xmm2
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1669, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v103, v105, v107, v109, v111, v113, v115) )
+  v25 = dstDecalVolume->axis.m[2].v[0];
+  v26 = dstDecalVolume->axis.m[0].v[0];
+  v27 = (float)((float)(v25 * v26) + (float)(dstDecalVolume->axis.m[2].v[1] * dstDecalVolume->axis.m[0].v[1])) + (float)(dstDecalVolume->axis.m[2].v[2] * dstDecalVolume->axis.m[0].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v27) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1669, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v26, dstDecalVolume->axis.m[0].v[1], dstDecalVolume->axis.m[0].v[2], v25, dstDecalVolume->axis.m[2].v[1], dstDecalVolume->axis.m[2].v[2], v27) )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm8, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_38]
-    vmovaps xmm6, [rsp+0B8h+var_28]
-  }
-  _RBX->uvOffset = *uvOffset;
-  _RAX = uvMatrix;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+4]
-    vmovss  xmm4, dword ptr [rax+0Ch]
-    vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rax+8]
-    vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-  }
-  _RBX->uvMatrix.v[0] = uvMatrix->v[0];
-  __asm
-  {
-    vmovss  dword ptr [rbx+48h], xmm2
-    vmovss  dword ptr [rbx+4Ch], xmm3
-    vmovss  dword ptr [rbx+50h], xmm4
-  }
-  v77 = type | (4 * skinned);
-  *(_DWORD *)_RBX->color = *(_DWORD *)color;
-  _RBX->material = decalVolumeMaterial;
-  _RBX->flags = v77;
+  dstDecalVolume->uvOffset = *uvOffset;
+  v28 = uvMatrix->v[3];
+  LODWORD(v29) = LODWORD(uvMatrix->v[1]) ^ _xmm;
+  v30 = uvMatrix->v[2];
+  dstDecalVolume->uvMatrix.v[0] = uvMatrix->v[0];
+  dstDecalVolume->uvMatrix.v[1] = COERCE_FLOAT(LODWORD(v30) ^ _xmm);
+  dstDecalVolume->uvMatrix.v[2] = v29;
+  dstDecalVolume->uvMatrix.v[3] = v28;
+  v31 = type | (4 * skinned);
+  *(_DWORD *)dstDecalVolume->color = *(_DWORD *)color;
+  dstDecalVolume->material = decalVolumeMaterial;
+  dstDecalVolume->flags = v31;
   if ( atlasIndex >= 0 )
   {
-    _RBX->flags = v77 | 1;
-    _RBX->atlasFrame = truncate_cast<unsigned short,int>(atlasIndex);
+    dstDecalVolume->flags = v31 | 1;
+    dstDecalVolume->atlasFrame = truncate_cast<unsigned short,int>(atlasIndex);
   }
+  dstDecalVolume->zFeatherRcp = zFeather;
+  dstDecalVolume->uid = uid;
+  dstDecalVolume->normalBlendModeOverride[0] = normalBlendModeOverride;
+  v32 = LODWORD(worldOrigin->v[1]);
+  *(float *)&v32 = worldOrigin->v[1] - context->cameraOrigin.v[1];
+  v33 = worldOrigin->v[2] - context->cameraOrigin.v[2];
+  _XMM0 = LODWORD(halfSize->v[0]);
   __asm
   {
-    vmovss  xmm0, [rsp+0B8h+zFeather]
-    vmovss  dword ptr [rbx+64h], xmm0
-  }
-  _RBX->uid = uid;
-  _RBX->normalBlendModeOverride[0] = normalBlendModeOverride;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0]
-    vsubss  xmm3, xmm1, dword ptr [rsi+64h]
-    vmovss  xmm0, dword ptr [rbp+4]
-    vsubss  xmm2, xmm0, dword ptr [rsi+68h]
-    vmovss  xmm1, dword ptr [rbp+8]
-    vsubss  xmm4, xmm1, dword ptr [rsi+6Ch]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  xmm0, dword ptr [r14]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm1
     vmaxss  xmm1, xmm0, dword ptr [r14+4]
-    vsqrtss xmm5, xmm2, xmm2
     vmaxss  xmm2, xmm1, dword ptr [r14+8]
-    vsubss  xmm3, xmm5, xmm2
-    vxorps  xmm1, xmm1, xmm1; min
-    vmaxss  xmm0, xmm3, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rsi+0F4h]
-    vaddss  xmm0, xmm2, dword ptr [rsi+0F8h]; val
-    vmovss  xmm2, cs:__real@3f800000; max
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rax]
-    vmulss  xmm0, xmm0, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+0B8h+var_58+4], xmm0
-    vmovss  dword ptr [rsp+0B8h+var_58], xmm1
-  }
-  _RBX->blendMapAdjust = v116;
-  _RBX->blendMapOverride = blendMapOverride;
+  *(float *)&v32 = fsqrt((float)((float)(*(float *)&v32 * *(float *)&v32) + (float)((float)(worldOrigin->v[0] - context->cameraOrigin.v[0]) * (float)(worldOrigin->v[0] - context->cameraOrigin.v[0]))) + (float)(v33 * v33)) - *(float *)&_XMM2;
+  _XMM3 = v32;
+  __asm { vmaxss  xmm0, xmm3, xmm1 }
+  *(double *)&_XMM0 = I_fclamp((float)(*(float *)&_XMM0 * context->fadeOutScale) + context->fadeOutBias, 0.0, 1.0);
+  v39.v[1] = *(float *)&_XMM0 * blendMapAdjust->v[1];
+  v39.v[0] = *(float *)&_XMM0 * blendMapAdjust->v[0];
+  dstDecalVolume->blendMapAdjust = v39;
+  dstDecalVolume->blendMapOverride = blendMapOverride;
 }
 
 /*
@@ -4449,178 +3434,64 @@ R_FillMarkDecalVolumeInternal
 void R_FillMarkDecalVolumeInternal(DecalVolumeIntermediate *dstDecalVolume, const AddToGridContext *context, const vec3_t *worldOrigin, const vec3_t *origin, const vec3_t *halfSize, const tmat33_t<vec3_t> *axis, const unsigned __int8 *color, Material *dvMaterial, int atlasIndex, float zFeatherRcp, bool skinned)
 {
   GfxDecalVolumeMaterial *decalVolumeMaterial; 
-  double v96; 
-  double v97; 
-  double v98; 
-  double v99; 
-  double v100; 
-  double v101; 
-  double v102; 
-  double v103; 
-  double v104; 
-  double v105; 
-  double v106; 
-  double v107; 
-  double v108; 
-  double v109; 
-  vec2_t v110; 
-  char v111; 
-  void *retaddr; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBP = worldOrigin;
-  _RBX = dstDecalVolume;
   decalVolumeMaterial = dvMaterial->decalVolumeMaterial;
   if ( !decalVolumeMaterial )
     decalVolumeMaterial = rgp.defaultDecalVolumeMaterial->decalVolumeMaterial;
-  __asm { vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  _R14 = halfSize;
   dstDecalVolume->origin = *origin;
   dstDecalVolume->halfSize = *halfSize;
-  _RCX = axis;
-  *(_OWORD *)_RBX->axis.m[0].v = *(_OWORD *)axis->m[0].v;
-  *(_QWORD *)&_RBX->axis.row1.y = *(_QWORD *)&axis->row1.y;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vxorps  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rbx+24h], xmm0
-    vmovss  xmm1, dword ptr [rcx+1Ch]
-    vxorps  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rbx+28h], xmm0
-    vmovss  xmm1, dword ptr [rcx+20h]
-    vxorps  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmulss  xmm2, xmm0, dword ptr [rbx+10h]
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  xmm7, dword ptr [rbx+0Ch]
-    vmovss  xmm8, dword ptr [rbx+18h]
-    vmulss  xmm1, xmm8, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rbx+20h]
-    vaddss  xmm0, xmm3, xmm2
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovss  xmm3, dword ptr [rbx+20h]
-    vmovss  xmm4, dword ptr [rbx+1Ch]
-    vmovss  xmm5, dword ptr [rbx+14h]
-    vmovss  xmm6, dword ptr [rbx+10h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+0B8h+var_60], xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+0B8h+var_68], xmm3
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+0B8h+var_70], xmm4
-    vcvtss2sd xmm1, xmm8, xmm8
-    vmovsd  [rsp+0B8h+var_78], xmm1
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+0B8h+var_80], xmm5
-    vcvtss2sd xmm2, xmm7, xmm7
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovsd  [rsp+0B8h+var_88], xmm6
-    vmovsd  [rsp+0B8h+var_90], xmm2
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1620, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v96, v98, v100, v102, v104, v106, v108) )
+  *(_OWORD *)dstDecalVolume->axis.m[0].v = *(_OWORD *)axis->m[0].v;
+  *(_QWORD *)&dstDecalVolume->axis.row1.y = *(_QWORD *)&axis->row1.y;
+  dstDecalVolume->axis.m[2].v[0] = COERCE_FLOAT(LODWORD(axis->m[2].v[0]) ^ _xmm);
+  dstDecalVolume->axis.m[2].v[1] = COERCE_FLOAT(LODWORD(axis->m[2].v[1]) ^ _xmm);
+  dstDecalVolume->axis.m[2].v[2] = COERCE_FLOAT(LODWORD(axis->m[2].v[2]) ^ _xmm);
+  v15 = dstDecalVolume->axis.m[0].v[0];
+  v16 = dstDecalVolume->axis.m[1].v[0];
+  v17 = (float)((float)(dstDecalVolume->axis.m[1].v[1] * dstDecalVolume->axis.m[0].v[1]) + (float)(v16 * v15)) + (float)(dstDecalVolume->axis.m[0].v[2] * dstDecalVolume->axis.m[1].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v17) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1620, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v15, dstDecalVolume->axis.m[0].v[1], dstDecalVolume->axis.m[0].v[2], v16, dstDecalVolume->axis.m[1].v[1], dstDecalVolume->axis.m[1].v[2], v17) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmovss  xmm7, dword ptr [rbx+24h]
-    vmovss  xmm8, dword ptr [rbx+0Ch]
-    vmulss  xmm2, xmm7, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbx+14h]
-    vmulss  xmm0, xmm2, dword ptr [rbx+2Ch]
-    vaddss  xmm2, xmm3, xmm0
-    vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovss  xmm3, dword ptr [rbx+2Ch]
-    vmovss  xmm4, dword ptr [rbx+28h]
-    vmovss  xmm5, dword ptr [rbx+14h]
-    vmovss  xmm6, dword ptr [rbx+10h]
-    vcvtss2sd xmm0, xmm2, xmm2
-    vmovsd  [rsp+0B8h+var_60], xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+0B8h+var_68], xmm3
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+0B8h+var_70], xmm4
-    vcvtss2sd xmm1, xmm7, xmm7
-    vmovsd  [rsp+0B8h+var_78], xmm1
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+0B8h+var_80], xmm5
-    vcvtss2sd xmm2, xmm8, xmm8
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovsd  [rsp+0B8h+var_88], xmm6
-    vmovsd  [rsp+0B8h+var_90], xmm2
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1621, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v97, v99, v101, v103, v105, v107, v109) )
+  v18 = dstDecalVolume->axis.m[2].v[0];
+  v19 = dstDecalVolume->axis.m[0].v[0];
+  v20 = (float)((float)(v18 * v19) + (float)(dstDecalVolume->axis.m[2].v[1] * dstDecalVolume->axis.m[0].v[1])) + (float)(dstDecalVolume->axis.m[0].v[2] * dstDecalVolume->axis.m[2].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v20) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_decal_volume_model.cpp", 1621, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( dstDecalVolume.axis[0], dstDecalVolume.axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v19, dstDecalVolume->axis.m[0].v[1], dstDecalVolume->axis.m[0].v[2], v18, dstDecalVolume->axis.m[2].v[1], dstDecalVolume->axis.m[2].v[2], v20) )
     __debugbreak();
-  _RBX->uvOffset = 0i64;
-  *(_QWORD *)_RBX->uvMatrix.v = 1065353216i64;
-  _RBX->uvMatrix.v[2] = 0.0;
-  _RBX->uvMatrix.v[3] = 1.0;
-  *(_DWORD *)_RBX->color = *(_DWORD *)color;
-  _RBX->material = decalVolumeMaterial;
-  _RBX->flags = (4 * skinned) | 2;
+  dstDecalVolume->uvOffset = 0i64;
+  *(_QWORD *)dstDecalVolume->uvMatrix.v = 1065353216i64;
+  dstDecalVolume->uvMatrix.v[2] = 0.0;
+  dstDecalVolume->uvMatrix.v[3] = 1.0;
+  *(_DWORD *)dstDecalVolume->color = *(_DWORD *)color;
+  dstDecalVolume->material = decalVolumeMaterial;
+  dstDecalVolume->flags = (4 * skinned) | 2;
   if ( atlasIndex >= 0 )
   {
-    _RBX->flags = (4 * skinned) | 3;
-    _RBX->atlasFrame = truncate_cast<unsigned short,int>(atlasIndex);
+    dstDecalVolume->flags = (4 * skinned) | 3;
+    dstDecalVolume->atlasFrame = truncate_cast<unsigned short,int>(atlasIndex);
   }
+  dstDecalVolume->zFeatherRcp = zFeatherRcp;
+  dstDecalVolume->uid = 0;
+  dstDecalVolume->normalBlendModeOverride[0] = 2;
+  v21 = LODWORD(worldOrigin->v[1]);
+  *(float *)&v21 = worldOrigin->v[1] - context->cameraOrigin.v[1];
+  v22 = worldOrigin->v[2] - context->cameraOrigin.v[2];
+  _XMM0 = LODWORD(halfSize->v[1]);
   __asm
   {
-    vmovss  xmm0, [rsp+0B8h+zFeatherRcp]
-    vmovss  dword ptr [rbx+64h], xmm0
-  }
-  _RBX->uid = 0;
-  _RBX->normalBlendModeOverride[0] = 2;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0]
-    vsubss  xmm3, xmm1, dword ptr [rsi+64h]
-    vmovss  xmm0, dword ptr [rbp+4]
-    vsubss  xmm2, xmm0, dword ptr [rsi+68h]
-    vmovss  xmm1, dword ptr [rbp+8]
-    vsubss  xmm4, xmm1, dword ptr [rsi+6Ch]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  xmm0, dword ptr [r14+4]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm1
     vmaxss  xmm1, xmm0, dword ptr [r14]
-    vsqrtss xmm5, xmm2, xmm2
     vmaxss  xmm2, xmm1, dword ptr [r14+8]
-    vsubss  xmm3, xmm5, xmm2
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm6, xmm6, xmm6
-    vmaxss  xmm0, xmm3, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rsi+0F4h]
-    vaddss  xmm0, xmm1, dword ptr [rsi+0F8h]; val
-    vxorps  xmm1, xmm1, xmm1; min
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+var_58], xmm0
-    vmovss  dword ptr [rsp+0B8h+var_58+4], xmm6
-  }
-  _RBX->blendMapAdjust = v110;
-  _RBX->blendMapOverride = NULL;
-  _R11 = &v111;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  *(float *)&v21 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)((float)(worldOrigin->v[0] - context->cameraOrigin.v[0]) * (float)(worldOrigin->v[0] - context->cameraOrigin.v[0]))) + (float)(v22 * v22)) - *(float *)&_XMM2;
+  _XMM3 = v21;
+  __asm { vmaxss  xmm0, xmm3, xmm6 }
+  *(double *)&_XMM0 = I_fclamp((float)(*(float *)&_XMM0 * context->fadeOutScale) + context->fadeOutBias, 0.0, 1.0);
+  dstDecalVolume->blendMapAdjust = (vec2_t)(unsigned int)_XMM0;
+  dstDecalVolume->blendMapOverride = NULL;
 }
 

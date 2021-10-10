@@ -165,23 +165,25 @@ void R_RT_Heap_ActivatePassBlocks(unsigned __int16 activePass)
   int v15; 
   __int64 v16; 
   __int64 v17; 
+  char *v18; 
+  R_RT_Heap_Block *v19; 
   unsigned __int8 m_flags; 
   int v21; 
   __int16 v22; 
   int v23; 
   char v24; 
+  __int64 v25; 
   __int64 v26; 
   __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
+  int v30; 
   int v31; 
-  int v32; 
-  unsigned int v33; 
-  unsigned int *v34; 
-  R_RT_Heap_Block **v35; 
+  unsigned int v32; 
+  unsigned int *v33; 
+  R_RT_Heap_Block **v34; 
+  R_RT_Heap_Block *v35; 
   R_RT_Heap_Block *v36; 
-  R_RT_Heap_Block *v37; 
-  char v38[656]; 
+  char v37[656]; 
 
   v1 = activePass;
   if ( !Sys_IsMainThread() && !Sys_IsRenderThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common_impl.h", 69, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsRenderThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsRenderThread()") )
@@ -193,22 +195,22 @@ void R_RT_Heap_ActivatePassBlocks(unsigned __int16 activePass)
   v2 = 0;
   s_R_RT_Heap.m_activePass = v1;
   p_m_blockCountMax = &g_R_RT_Heap_poolConfigs[0].m_blockCountMax;
-  v32 = 0;
+  v31 = 0;
   p_m_blocks = &s_R_RT_Heap.m_pools[0].m_blocks;
-  v34 = &g_R_RT_Heap_poolConfigs[0].m_blockCountMax;
-  v35 = &s_R_RT_Heap.m_pools[0].m_blocks;
+  v33 = &g_R_RT_Heap_poolConfigs[0].m_blockCountMax;
+  v34 = &s_R_RT_Heap.m_pools[0].m_blocks;
   do
   {
     v5 = *((unsigned __int16 *)p_m_blocks + 13);
-    v33 = v5;
+    v32 = v5;
     if ( *((_WORD *)p_m_blocks + 13) )
     {
       v6 = *p_m_blocks;
       v7 = 0i64;
       v8 = p_m_blocks[2];
       v9 = *p_m_blockCountMax;
-      v36 = *p_m_blocks;
-      v37 = v8;
+      v35 = *p_m_blocks;
+      v36 = v8;
       if ( *p_m_blockCountMax )
       {
         do
@@ -226,88 +228,84 @@ void R_RT_Heap_ActivatePassBlocks(unsigned __int16 activePass)
             v14 = *((_WORD *)v13 + 1);
             if ( (v14 & 0xFFF) != 4095 )
             {
-              LODWORD(v29) = v14;
-              LODWORD(v28) = activePass;
-              LODWORD(v27) = v7;
-              LODWORD(v26) = v2;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1020, ASSERT_TYPE_ASSERT, "(entireFrame)", "%s\n\tpoolID=%d, blockIndex=%d, activePass=0x%04x, pass=0x%04x, name=%s, location=%s", "entireFrame", v26, v27, v28, v29, v10->m_record.m_name, v10->m_record.m_location) )
+              LODWORD(v28) = v14;
+              LODWORD(v27) = activePass;
+              LODWORD(v26) = v7;
+              LODWORD(v25) = v2;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1020, ASSERT_TYPE_ASSERT, "(entireFrame)", "%s\n\tpoolID=%d, blockIndex=%d, activePass=0x%04x, pass=0x%04x, name=%s, location=%s", "entireFrame", v25, v26, v27, v28, v10->m_record.m_name, v10->m_record.m_location) )
                 __debugbreak();
             }
-            v5 = v33;
+            v5 = v32;
           }
           v7 = (unsigned int)(v7 + 1);
         }
         while ( (_DWORD)v7 != v9 );
         v1 = activePass;
-        v9 = *v34;
+        v9 = *v33;
       }
-      memset_0(v38, 0, v9);
+      memset_0(v37, 0, v9);
       v15 = v1;
       v16 = 0i64;
-      v31 = v1;
+      v30 = v1;
       do
       {
         v17 = *(&v8->nextFreeBlockIndex + 20 * v16);
-        _R15 = (char *)v8 + 40 * v16;
-        _RBX = &v6[v17];
-        m_flags = _RBX->m_state.m_flags;
+        v18 = (char *)v8 + 40 * v16;
+        v19 = &v6[v17];
+        m_flags = v19->m_state.m_flags;
         if ( (m_flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1034, ASSERT_TYPE_ASSERT, "(stateFlags & R_RT_Heap_State::s_Flag_Pass)", (const char *)&queryFormat, "stateFlags & R_RT_Heap_State::s_Flag_Pass") )
           __debugbreak();
-        v21 = *((unsigned __int16 *)_R15 + 1);
+        v21 = *((unsigned __int16 *)v18 + 1);
         v22 = v21 & 0xFFF;
         v23 = 0xFFFF;
         if ( (v21 & 0xFFF) == 4095 )
           v23 = 61440;
         if ( (v23 & v21) == (v23 & v15) )
         {
-          v24 = v38[v17];
+          v24 = v37[v17];
           if ( v24 )
           {
-            LODWORD(v29) = *((unsigned __int16 *)_R15 + 1);
-            LODWORD(v28) = v31;
-            LODWORD(v27) = (unsigned __int16)v17;
-            LODWORD(v26) = v32;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1044, ASSERT_TYPE_ASSERT, "(blockLiveRefCounts[blockIndex] == 0)", "%s\n\tpoolID=%d, blockIndex=%d, activePass=0x%04x, pass=0x%04x, name=%s, location=%s", "blockLiveRefCounts[blockIndex] == 0", v26, v27, v28, v29, _RBX->m_record.m_name, _RBX->m_record.m_location) )
+            LODWORD(v28) = *((unsigned __int16 *)v18 + 1);
+            LODWORD(v27) = v30;
+            LODWORD(v26) = (unsigned __int16)v17;
+            LODWORD(v25) = v31;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1044, ASSERT_TYPE_ASSERT, "(blockLiveRefCounts[blockIndex] == 0)", "%s\n\tpoolID=%d, blockIndex=%d, activePass=0x%04x, pass=0x%04x, name=%s, location=%s", "blockLiveRefCounts[blockIndex] == 0", v25, v26, v27, v28, v19->m_record.m_name, v19->m_record.m_location) )
               __debugbreak();
           }
-          v38[v17] = v24 + 1;
+          v37[v17] = v24 + 1;
           if ( (m_flags & 4) != 0 )
           {
             if ( v22 != 4095 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1053, ASSERT_TYPE_ASSERT, "(entireFrame)", (const char *)&queryFormat, "entireFrame") )
               __debugbreak();
-            if ( _RBX->m_state.m_pass.m_livePassRefIndex != (_DWORD)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1055, ASSERT_TYPE_ASSERT, "(block->m_state.m_pass.m_livePassRefIndex == passRefIndex)", (const char *)&queryFormat, "block->m_state.m_pass.m_livePassRefIndex == passRefIndex") )
+            if ( v19->m_state.m_pass.m_livePassRefIndex != (_DWORD)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1055, ASSERT_TYPE_ASSERT, "(block->m_state.m_pass.m_livePassRefIndex == passRefIndex)", (const char *)&queryFormat, "block->m_state.m_pass.m_livePassRefIndex == passRefIndex") )
               __debugbreak();
-            if ( _RBX->m_record.m_surfaceID != *((_WORD *)_R15 + 18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1056, ASSERT_TYPE_ASSERT, "(block->m_record.m_surfaceID == passRef->m_record.m_surfaceID)", (const char *)&queryFormat, "block->m_record.m_surfaceID == passRef->m_record.m_surfaceID") )
+            if ( v19->m_record.m_surfaceID != *((_WORD *)v18 + 18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1056, ASSERT_TYPE_ASSERT, "(block->m_record.m_surfaceID == passRef->m_record.m_surfaceID)", (const char *)&queryFormat, "block->m_record.m_surfaceID == passRef->m_record.m_surfaceID") )
               __debugbreak();
           }
           else
           {
-            _RBX->m_state.m_flags = 13;
-            _RBX->m_state.m_pass.m_livePassRefIndex = v16;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r15+8]
-              vmovups ymmword ptr [rbx+18h], ymm0
-            }
+            v19->m_state.m_flags = 13;
+            v19->m_state.m_pass.m_livePassRefIndex = v16;
+            v19->m_record = *(R_RT_Tracking_AllocRecord *)(v18 + 8);
           }
-          v15 = v31;
+          v15 = v30;
         }
-        v6 = v36;
+        v6 = v35;
         v16 = (unsigned int)(v16 + 1);
-        v8 = v37;
+        v8 = v36;
       }
-      while ( (_DWORD)v16 != v33 );
-      v2 = v32;
-      p_m_blocks = v35;
-      p_m_blockCountMax = v34;
+      while ( (_DWORD)v16 != v32 );
+      v2 = v31;
+      p_m_blocks = v34;
+      p_m_blockCountMax = v33;
       v1 = activePass;
     }
     ++v2;
     p_m_blocks += 6;
     p_m_blockCountMax += 2;
-    v32 = v2;
-    v35 = p_m_blocks;
-    v34 = p_m_blockCountMax;
+    v31 = v2;
+    v34 = p_m_blocks;
+    v33 = p_m_blockCountMax;
   }
   while ( v2 != 4 );
 }
@@ -374,39 +372,41 @@ unsigned __int8 *R_RT_Heap_AllocInternal(unsigned int size, unsigned __int16 til
   unsigned int m_blockCountMax; 
   unsigned int v15; 
   unsigned __int16 m_activePass; 
+  const R_RT_Heap_PassRef *m_passRefs; 
   signed int AvailableBlockForPass; 
   __int64 v19; 
   unsigned __int16 v20; 
+  R_RT_Heap_Block *v21; 
   __int64 m_abandonedRefCount; 
-  unsigned __int16 *v26; 
-  unsigned __int16 *v27; 
-  unsigned int v28; 
-  __int64 v29; 
-  R_RT_Heap_Block *v30; 
+  unsigned __int16 *v24; 
+  unsigned __int16 *v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  R_RT_Heap_Block *v28; 
   unsigned __int64 headFreeBlockIndex; 
-  unsigned __int8 *v32; 
-  unsigned __int64 v33; 
-  __int64 v34; 
-  R_RT_Heap_Block *v35; 
+  unsigned __int8 *v30; 
+  unsigned __int64 v31; 
+  __int64 v32; 
+  R_RT_Heap_Block *v33; 
   unsigned __int16 m_surfaceID; 
   const char *m_location; 
-  R_RT_Tracking_CommitRecord *v38; 
-  char v39; 
-  unsigned __int16 v40; 
+  R_RT_Tracking_CommitRecord *v36; 
+  char v37; 
+  unsigned __int16 v38; 
   char *fmt; 
   Mem_PageRange *inoutPageRange; 
-  unsigned __int16 v43; 
+  unsigned __int16 v41; 
+  unsigned int v42; 
+  unsigned int v43; 
   unsigned int v44; 
-  unsigned int v45; 
-  unsigned int v46; 
-  Mem_PageRange v47; 
-  int v48; 
+  Mem_PageRange v45; 
+  int v46; 
   unsigned __int8 *m_base; 
-  R_RT_Heap_Block *v50; 
+  R_RT_Heap_Block *v48; 
   unsigned __int16 *m_abandonedRefs; 
-  __int64 v52; 
+  __int64 v50; 
 
-  v52 = -2i64;
+  v50 = -2i64;
   if ( !s_R_RT_Heap.m_startuped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 710, ASSERT_TYPE_ASSERT, "(s_R_RT_Heap.m_startuped)", (const char *)&queryFormat, "s_R_RT_Heap.m_startuped") )
     __debugbreak();
   if ( !Sys_IsMainThread() && !Sys_IsRenderThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common_impl.h", 69, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsRenderThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsRenderThread()") )
@@ -431,62 +431,57 @@ unsigned __int8 *R_RT_Heap_AllocInternal(unsigned int size, unsigned __int16 til
   v11 = (R_RT_Heap_Pool *)((char *)&s_R_RT_Heap.m_blocks[-2] + 48 * (unsigned __int8)v10);
   m_base = v11->m_base;
   m_blocks = v11->m_blocks;
-  v50 = m_blocks;
+  v48 = m_blocks;
   m_blockSize = g_R_RT_Heap_poolConfigs[(unsigned __int8)v10].m_blockSize;
-  v45 = m_blockSize;
+  v43 = m_blockSize;
   m_blockCountMax = g_R_RT_Heap_poolConfigs[(unsigned __int8)v10].m_blockCountMax;
-  v46 = m_blockCountMax;
+  v44 = m_blockCountMax;
   v15 = (size + 0xFFFF) >> 16;
-  v44 = v15;
+  v42 = v15;
   m_activePass = frontendPass;
-  v43 = frontendPass;
+  v41 = frontendPass;
   if ( tiledPlacementIndex != 0xFFFF || heapIndex )
     goto LABEL_54;
   if ( !frontendPass && lifetime == R_RT_Lifetime_Pass )
   {
     m_activePass = s_R_RT_Heap.m_activePass;
-    v43 = s_R_RT_Heap.m_activePass;
+    v41 = s_R_RT_Heap.m_activePass;
     if ( !s_R_RT_Heap.m_activePass )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 735, ASSERT_TYPE_ASSERT, "(pass)", (const char *)&queryFormat, "pass") )
         __debugbreak();
-      v15 = v44;
+      v15 = v42;
     }
   }
   if ( m_activePass )
   {
     if ( v11->m_passRefCount )
     {
-      _RBP = v11->m_passRefs;
-      AvailableBlockForPass = R_RT_Heap_FindAvailableBlockForPass(v15, m_activePass, m_blocks, _RBP, v11->m_passRefCount);
+      m_passRefs = v11->m_passRefs;
+      AvailableBlockForPass = R_RT_Heap_FindAvailableBlockForPass(v15, m_activePass, m_blocks, m_passRefs, v11->m_passRefCount);
       v19 = AvailableBlockForPass;
       if ( AvailableBlockForPass >= 0 )
       {
         v20 = R_RT_Heap_AddPassRef((R_RT_Heap_Pool *)&s_R_RT_Heap.m_blocks[-2] + (unsigned __int8)v10, AvailableBlockForPass, m_activePass, allocContext);
         if ( !frontendPass )
         {
-          _RBX = &m_blocks[v19];
-          if ( _RBX->m_state.m_flags != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 750, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Pass))", (const char *)&queryFormat, "block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Pass)") )
+          v21 = &m_blocks[v19];
+          if ( v21->m_state.m_flags != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 750, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Pass))", (const char *)&queryFormat, "block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Pass)") )
             __debugbreak();
-          _RBX->m_state.m_flags = 13;
-          _RBX->m_state.m_pass.m_livePassRefIndex = v20;
-          _RCX = 5i64 * v20;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+rcx*8+8]
-            vmovups ymmword ptr [rbx+18h], ymm0
-          }
+          v21->m_state.m_flags = 13;
+          v21->m_state.m_pass.m_livePassRefIndex = v20;
+          v21->m_record = m_passRefs[v20].m_record;
         }
-        return &m_base[v45 * v19];
+        return &m_base[v43 * v19];
       }
     }
   }
   m_abandonedRefCount = v11->m_abandonedRefCount;
-  v48 = m_abandonedRefCount;
+  v46 = m_abandonedRefCount;
   if ( !(_DWORD)m_abandonedRefCount )
   {
 LABEL_53:
-    m_blockSize = v45;
+    m_blockSize = v43;
 LABEL_54:
     if ( v11->m_allocBlockCount >= m_blockCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 807, ASSERT_TYPE_ASSERT, "(pool->m_allocBlockCount < blockCountMax)", "%s\n\tSurface heap pool%d (%dMB) exceeded (limit=%d).", "pool->m_allocBlockCount < blockCountMax", (unsigned __int8)v10, m_blockSize >> 20, m_blockCountMax) )
       __debugbreak();
@@ -501,25 +496,25 @@ LABEL_54:
     if ( v11->m_blockAllocator.headFreeBlockIndex == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 98, ASSERT_TYPE_ASSERT, "(!this->Full())", (const char *)&queryFormat, "!this->Full()") )
       __debugbreak();
     headFreeBlockIndex = v11->m_blockAllocator.headFreeBlockIndex;
-    if ( headFreeBlockIndex >= v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 51, ASSERT_TYPE_ASSERT, "(index < blockCount)", (const char *)&queryFormat, "index < blockCount") )
+    if ( headFreeBlockIndex >= v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 51, ASSERT_TYPE_ASSERT, "(index < blockCount)", (const char *)&queryFormat, "index < blockCount") )
       __debugbreak();
     v11->m_blockAllocator.headFreeBlockIndex = m_blocks[headFreeBlockIndex].nextFreeBlockIndex;
-    v32 = &m_base[headFreeBlockIndex * v45];
-    v33 = v44 << 16;
-    v47 = MEM_PAGE_RANGE_INVALID_7;
+    v30 = &m_base[headFreeBlockIndex * v43];
+    v31 = v42 << 16;
+    v45 = MEM_PAGE_RANGE_INVALID_7;
     if ( tiledPlacementIndex == 0xFFFF )
     {
-      if ( !PMem_CommitMemoryPartial(PMEM_STACK_RENDER_TARGETS, &m_base[headFreeBlockIndex * v45], &v32[v33], &m_base[headFreeBlockIndex * v45], NULL, &v47, allocContext->m_name) )
+      if ( !PMem_CommitMemoryPartial(PMEM_STACK_RENDER_TARGETS, &m_base[headFreeBlockIndex * v43], &v30[v31], &m_base[headFreeBlockIndex * v43], NULL, &v45, allocContext->m_name) )
       {
-        LODWORD(inoutPageRange) = v33;
+        LODWORD(inoutPageRange) = v31;
         Mem_Error_CannotAlloc_Dev(DODGE, "R_RT_Heap_AllocInternal", "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 820, "size=%d", inoutPageRange);
       }
       if ( outPageRange )
-        *outPageRange = (R_RT_Heap_PageRange)v47;
-      IWMem_Alloc(s_iwMemRTHeapCommit, v32, v33);
+        *outPageRange = (R_RT_Heap_PageRange)v45;
+      IWMem_Alloc(s_iwMemRTHeapCommit, v30, v31);
       if ( ((unsigned __int8)&g_R_RT_Manager.m_commitSize & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 86, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int64 ) ) ) )", "( addend ) = %p", &g_R_RT_Manager.m_commitSize) )
         __debugbreak();
-      _InterlockedExchangeAdd64(&g_R_RT_Manager.m_commitSize, v33);
+      _InterlockedExchangeAdd64(&g_R_RT_Manager.m_commitSize, v31);
       if ( dword_153B7E254 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
       {
         j__Init_thread_header(&dword_153B7E254);
@@ -535,97 +530,97 @@ LABEL_54:
     {
       if ( (outPageRange || heapIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 840, ASSERT_TYPE_ASSERT, "(!outPageRange && heapIndex == g_R_RT_heapInvalid)", (const char *)&queryFormat, "!outPageRange && heapIndex == g_R_RT_heapInvalid") )
         __debugbreak();
-      R_RT_Heap_MapUnmapMemory(v32, &v32[v33], &g_R_RT_Manager.m_tiledPlacementAllocator.blocks[tiledPlacementIndex].placement, 1);
+      R_RT_Heap_MapUnmapMemory(v30, &v30[v31], &g_R_RT_Manager.m_tiledPlacementAllocator.blocks[tiledPlacementIndex].placement, 1);
     }
-    v35 = &v50[headFreeBlockIndex];
-    if ( !v35->m_useCount )
+    v33 = &v48[headFreeBlockIndex];
+    if ( !v33->m_useCount )
     {
-      LODWORD(inoutPageRange) = v45 >> 10;
-      LODWORD(fmt) = (v44 << 6) & 0x3FFFFF;
-      Com_Printf(8, "R_RT_Heap: First use of Pool %d Block %d: %dKB used out of %dKB, 0x%p - 0x%p, \"%s\" created at %s\n", (unsigned __int8)v10, (unsigned int)headFreeBlockIndex, fmt, inoutPageRange, v32, &v32[v33], allocContext->m_name, allocContext->m_location);
+      LODWORD(inoutPageRange) = v43 >> 10;
+      LODWORD(fmt) = (v42 << 6) & 0x3FFFFF;
+      Com_Printf(8, "R_RT_Heap: First use of Pool %d Block %d: %dKB used out of %dKB, 0x%p - 0x%p, \"%s\" created at %s\n", (unsigned __int8)v10, (unsigned int)headFreeBlockIndex, fmt, inoutPageRange, v30, &v30[v31], allocContext->m_name, allocContext->m_location);
     }
-    if ( v35->m_commitSizeOverAlign && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 851, ASSERT_TYPE_ASSERT, "(block->m_commitSizeOverAlign == 0)", (const char *)&queryFormat, "block->m_commitSizeOverAlign == 0") )
+    if ( v33->m_commitSizeOverAlign && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 851, ASSERT_TYPE_ASSERT, "(block->m_commitSizeOverAlign == 0)", (const char *)&queryFormat, "block->m_commitSizeOverAlign == 0") )
       __debugbreak();
-    if ( v35->m_state.m_flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 853, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == 0)", (const char *)&queryFormat, "block->m_state.m_flags == 0") )
+    if ( v33->m_state.m_flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 853, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == 0)", (const char *)&queryFormat, "block->m_state.m_flags == 0") )
       __debugbreak();
-    v35->m_commitSizeOverAlign = v44;
-    v35->m_tiledPlacement = tiledPlacementIndex;
-    v35->m_heapIndex = heapIndex;
-    v35->m_pageRange = v47;
+    v33->m_commitSizeOverAlign = v42;
+    v33->m_tiledPlacement = tiledPlacementIndex;
+    v33->m_heapIndex = heapIndex;
+    v33->m_pageRange = v45;
     m_surfaceID = allocContext->m_surfaceID;
     m_location = allocContext->m_location;
-    v35->m_record.m_name = allocContext->m_name;
-    v35->m_record.m_location = m_location;
-    v35->m_record.m_address = v32;
-    v35->m_record.m_size = v33;
-    v35->m_record.m_surfaceID = m_surfaceID;
-    ++v35->m_useCount;
+    v33->m_record.m_name = allocContext->m_name;
+    v33->m_record.m_location = m_location;
+    v33->m_record.m_address = v30;
+    v33->m_record.m_size = v31;
+    v33->m_record.m_surfaceID = m_surfaceID;
+    ++v33->m_useCount;
     if ( !s_R_RT_Tracking.m_commitRecordQueue.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 39, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
       __debugbreak();
     if ( s_R_RT_Tracking.m_commitRecordQueue.size == 1024 )
       IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::PopFront(&s_R_RT_Tracking.m_commitRecordQueue);
     IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::PushBack(&s_R_RT_Tracking.m_commitRecordQueue);
-    v38 = IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::Back(&s_R_RT_Tracking.m_commitRecordQueue);
-    v38->m_address = v35->m_record.m_address;
-    v38->m_size = v35->m_record.m_size;
-    v38->m_name = v35->m_record.m_name;
-    v38->m_surfaceID = v35->m_record.m_surfaceID;
-    v38->m_location = v35->m_record.m_location;
-    v39 = 5;
+    v36 = IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::Back(&s_R_RT_Tracking.m_commitRecordQueue);
+    v36->m_address = v33->m_record.m_address;
+    v36->m_size = v33->m_record.m_size;
+    v36->m_name = v33->m_record.m_name;
+    v36->m_surfaceID = v33->m_record.m_surfaceID;
+    v36->m_location = v33->m_record.m_location;
+    v37 = 5;
     if ( frontendPass )
-      v39 = 1;
-    if ( v43 )
+      v37 = 1;
+    if ( v41 )
     {
-      v39 |= 8u;
-      v35->m_state.m_abandoned.m_abandonedFrameCount = 0;
-      v40 = R_RT_Heap_AddPassRef(v11, headFreeBlockIndex, v43, allocContext);
+      v37 |= 8u;
+      v33->m_state.m_abandoned.m_abandonedFrameCount = 0;
+      v38 = R_RT_Heap_AddPassRef(v11, headFreeBlockIndex, v41, allocContext);
       if ( !frontendPass )
-        v35->m_state.m_pass.m_livePassRefIndex = v40;
+        v33->m_state.m_pass.m_livePassRefIndex = v38;
     }
-    v35->m_state.m_flags = v39;
-    IWMem_Alloc(s_iwMemRTHeapAlloc, v32, size);
-    return v32;
+    v33->m_state.m_flags = v37;
+    IWMem_Alloc(s_iwMemRTHeapAlloc, v30, size);
+    return v30;
   }
   Profile_Begin(113);
   m_abandonedRefs = v11->m_abandonedRefs;
-  v26 = m_abandonedRefs;
-  v27 = &m_abandonedRefs[m_abandonedRefCount];
-  if ( m_abandonedRefs == v27 )
+  v24 = m_abandonedRefs;
+  v25 = &m_abandonedRefs[m_abandonedRefCount];
+  if ( m_abandonedRefs == v25 )
   {
 LABEL_52:
     Profile_EndInternal(NULL);
-    m_blocks = v50;
+    m_blocks = v48;
     goto LABEL_53;
   }
-  v28 = v44;
+  v26 = v42;
   while ( 1 )
   {
-    v29 = *v26;
-    v30 = &v50[v29];
-    if ( v30->m_state.m_flags != 3 )
+    v27 = *v24;
+    v28 = &v48[v27];
+    if ( v28->m_state.m_flags != 3 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 776, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Abandoned))", (const char *)&queryFormat, "block->m_state.m_flags == (R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Abandoned)") )
         __debugbreak();
-      v28 = v44;
+      v26 = v42;
     }
-    if ( v30->m_commitSizeOverAlign == v28 && v30->m_tiledPlacement == 0xFFFF && !v30->m_heapIndex )
+    if ( v28->m_commitSizeOverAlign == v26 && v28->m_tiledPlacement == 0xFFFF && !v28->m_heapIndex )
       break;
-    if ( ++v26 == v27 )
+    if ( ++v24 == v25 )
       goto LABEL_52;
   }
-  v34 = (unsigned int)(v48 - 1);
-  *v26 = m_abandonedRefs[v34];
-  v11->m_abandonedRefCount = v34;
-  R_RT_Heap_SetBlockOwnership((R_RT_Heap_Pool *)&s_R_RT_Heap.m_blocks[-2] + (unsigned __int8)v10, v29, v30, frontendPass == 0, v43, allocContext);
+  v32 = (unsigned int)(v46 - 1);
+  *v24 = m_abandonedRefs[v32];
+  v11->m_abandonedRefCount = v32;
+  R_RT_Heap_SetBlockOwnership((R_RT_Heap_Pool *)&s_R_RT_Heap.m_blocks[-2] + (unsigned __int8)v10, v27, v28, frontendPass == 0, v41, allocContext);
   if ( !frontendPass )
   {
-    v30->m_record.m_name = allocContext->m_name;
-    v30->m_record.m_location = allocContext->m_location;
-    v30->m_record.m_surfaceID = allocContext->m_surfaceID;
+    v28->m_record.m_name = allocContext->m_name;
+    v28->m_record.m_location = allocContext->m_location;
+    v28->m_record.m_surfaceID = allocContext->m_surfaceID;
   }
-  IWMem_Alloc(s_iwMemRTHeapAlloc, &m_base[v29 * v45], size);
+  IWMem_Alloc(s_iwMemRTHeapAlloc, &m_base[v27 * v43], size);
   Profile_EndInternal(NULL);
-  return &m_base[v29 * v45];
+  return &m_base[v27 * v43];
 }
 
 /*
@@ -814,33 +809,36 @@ R_RT_Heap_FindAvailableBlockForPass
 */
 __int64 R_RT_Heap_FindAvailableBlockForPass(unsigned int commitSizeOverAlign, unsigned __int16 pass, R_RT_Heap_Block *blocks, const R_RT_Heap_PassRef *passRefs, unsigned int passRefCount)
 {
+  const R_RT_Heap_PassRef *v5; 
   const R_RT_Heap_PassRef *v9; 
   int v10; 
   R_RT_Heap_Block *v11; 
   __int64 v12; 
-  int v14; 
+  int v13; 
+  char *v14; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v18; 
-  char v19; 
-  R_RT_Heap_Block *v20; 
-  __int16 v21; 
-  int v23; 
-  int v24; 
+  char v17; 
+  R_RT_Heap_Block *v18; 
+  __int16 v19; 
+  int v20; 
+  int v21; 
+  __int64 v22; 
+  char *v23; 
+  char v24; 
   __int64 v25; 
-  char v28; 
-  __int64 v29; 
-  __int64 v30; 
+  __int64 v26; 
   char *i; 
-  __int64 v32; 
-  char *v33; 
-  char *v35; 
-  char *v36; 
-  char v37[51360]; 
-  char v38[51360]; 
+  __int64 v28; 
+  char *v29; 
+  char *v31; 
+  char *v32; 
+  char v33[51360]; 
+  char v34[51360]; 
 
-  _RBX = passRefs;
-  v35 = v37;
-  v36 = v38;
+  v5 = passRefs;
+  v31 = v33;
+  v32 = v34;
   v9 = &passRefs[passRefCount];
   if ( (pass & 0xFFF) == 4095 )
   {
@@ -849,38 +847,33 @@ __int64 R_RT_Heap_FindAvailableBlockForPass(unsigned int commitSizeOverAlign, un
     {
       do
       {
-        v11 = &blocks[_RBX->m_blockIndex];
+        v11 = &blocks[v5->m_blockIndex];
         if ( (v11->m_state.m_flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 550, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass)", (const char *)&queryFormat, "block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass") )
           __debugbreak();
         if ( v11->m_commitSizeOverAlign == commitSizeOverAlign && v11->m_tiledPlacement == 0xFFFF && !v11->m_heapIndex )
         {
           v12 = 0i64;
-          __asm { vmovups ymm0, ymmword ptr [rbx] }
-          v14 = _RBX->m_pass & 0xF000;
-          if ( v10 == v14 )
+          v13 = v5->m_pass & 0xF000;
+          if ( v10 == v13 )
             v12 = 1i64;
-          _RCX = (&v35)[v12];
-          v16 = 0i64;
-          __asm
-          {
-            vmovups ymmword ptr [rcx], ymm0
-            vmovsd  xmm1, qword ptr [rbx+20h]
-            vmovsd  qword ptr [rcx+20h], xmm1
-          }
-          v18 = (__int64)(_RCX + 40);
-          if ( v10 == v14 )
-            v16 = 1i64;
-          (&v35)[v16] = (char *)v18;
-          v19 = 1;
+          v14 = (&v31)[v12];
+          v15 = 0i64;
+          *(__m256i *)v14 = *(__m256i *)&v5->m_blockIndex;
+          *((double *)v14 + 4) = *(double *)&v5->m_record.m_size;
+          v16 = (__int64)(v14 + 40);
+          if ( v10 == v13 )
+            v15 = 1i64;
+          (&v31)[v15] = (char *)v16;
+          v17 = 1;
         }
         else
         {
-          v19 = 0;
+          v17 = 0;
         }
-        ++_RBX;
-        v11->m_passScanState = v19;
+        ++v5;
+        v11->m_passScanState = v17;
       }
-      while ( _RBX != v9 );
+      while ( v5 != v9 );
       goto LABEL_31;
     }
     return 0xFFFFFFFFi64;
@@ -889,56 +882,51 @@ __int64 R_RT_Heap_FindAvailableBlockForPass(unsigned int commitSizeOverAlign, un
     return 0xFFFFFFFFi64;
   do
   {
-    v20 = &blocks[_RBX->m_blockIndex];
-    if ( (v20->m_state.m_flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 572, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass)", (const char *)&queryFormat, "block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass") )
+    v18 = &blocks[v5->m_blockIndex];
+    if ( (v18->m_state.m_flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 572, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass)", (const char *)&queryFormat, "block->m_state.m_flags & R_RT_Heap_State::s_Flag_Pass") )
       __debugbreak();
-    if ( v20->m_commitSizeOverAlign == commitSizeOverAlign && v20->m_tiledPlacement == 0xFFFF && !v20->m_heapIndex )
+    if ( v18->m_commitSizeOverAlign == commitSizeOverAlign && v18->m_tiledPlacement == 0xFFFF && !v18->m_heapIndex )
     {
-      v21 = -1;
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      if ( (_RBX->m_pass & 0xFFF) == 4095 )
-        v21 = -4096;
-      v23 = (unsigned __int16)(v21 & _RBX->m_pass);
-      v24 = (unsigned __int16)(v21 & pass);
-      v25 = 0i64;
-      if ( v24 == v23 )
-        v25 = 1i64;
-      _RAX = (&v35)[v25];
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovsd  xmm1, qword ptr [rbx+20h]
-        vmovsd  qword ptr [rax+20h], xmm1
-      }
-      (&v35)[v25] = _RAX + 40;
-      v28 = 1;
+      v19 = -1;
+      if ( (v5->m_pass & 0xFFF) == 4095 )
+        v19 = -4096;
+      v20 = (unsigned __int16)(v19 & v5->m_pass);
+      v21 = (unsigned __int16)(v19 & pass);
+      v22 = 0i64;
+      if ( v21 == v20 )
+        v22 = 1i64;
+      v23 = (&v31)[v22];
+      *(__m256i *)v23 = *(__m256i *)&v5->m_blockIndex;
+      *((double *)v23 + 4) = *(double *)&v5->m_record.m_size;
+      (&v31)[v22] = v23 + 40;
+      v24 = 1;
     }
     else
     {
-      v28 = 0;
+      v24 = 0;
     }
-    ++_RBX;
-    v20->m_passScanState = v28;
+    ++v5;
+    v18->m_passScanState = v24;
   }
-  while ( _RBX != v9 );
+  while ( v5 != v9 );
 LABEL_31:
-  v29 = (__int64)v35;
-  if ( v37 == v35 )
+  v25 = (__int64)v31;
+  if ( v33 == v31 )
     return 0xFFFFFFFFi64;
-  v30 = (__int64)v36;
-  for ( i = v38; i != (char *)v30; blocks[v32].m_passScanState = R_RT_Heap_PassScanState_CompatibleMatch )
+  v26 = (__int64)v32;
+  for ( i = v34; i != (char *)v26; blocks[v28].m_passScanState = R_RT_Heap_PassScanState_CompatibleMatch )
   {
-    v32 = *(unsigned __int16 *)i;
+    v28 = *(unsigned __int16 *)i;
     i += 40;
   }
-  v33 = v37;
-  while ( blocks[*(unsigned __int16 *)v33].m_passScanState != R_RT_Heap_PassScanState_Compatible )
+  v29 = v33;
+  while ( blocks[*(unsigned __int16 *)v29].m_passScanState != R_RT_Heap_PassScanState_Compatible )
   {
-    v33 += 40;
-    if ( v33 == (char *)v29 )
+    v29 += 40;
+    if ( v29 == (char *)v25 )
       return 0xFFFFFFFFi64;
   }
-  return *(unsigned __int16 *)v33;
+  return *(unsigned __int16 *)v29;
 }
 
 /*
@@ -1026,9 +1014,11 @@ __int64 R_RT_Heap_GetAllocRecords(R_RT_Tracking_AllocRecord *outAllocRecords, R_
 {
   __int64 v4; 
   __int64 v5; 
+  R_RT_Tracking_AllocRecord *v6; 
   R_RT_Heap_Block *m_blocks; 
   R_RT_Heap_Block *v8; 
-  __int64 v11; 
+  __m256i *p_m_record; 
+  __int64 v10; 
 
   Profile_Begin(121);
   if ( !Sys_IsMainThread() && !Sys_IsRenderThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common_impl.h", 69, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsRenderThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsRenderThread()", -2i64) )
@@ -1037,33 +1027,26 @@ __int64 R_RT_Heap_GetAllocRecords(R_RT_Tracking_AllocRecord *outAllocRecords, R_
     __debugbreak();
   v4 = (unsigned __int8)heapPoolID;
   v5 = (unsigned __int8)heapPoolID;
-  _RBX = outAllocRecords;
+  v6 = outAllocRecords;
   m_blocks = s_R_RT_Heap.m_pools[v5].m_blocks;
   v8 = &m_blocks[g_R_RT_Heap_poolConfigs[v4].m_blockCountMax];
   if ( m_blocks != v8 )
   {
-    _RAX = &m_blocks->m_record;
+    p_m_record = (__m256i *)&m_blocks->m_record;
     do
     {
-      if ( WORD1(_RAX[-1].m_location) )
-      {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbx], ymm0
-        }
-        ++_RBX;
-      }
+      if ( p_m_record[-1].m256i_i16[5] )
+        *v6++ = *(R_RT_Tracking_AllocRecord *)p_m_record;
       ++m_blocks;
-      _RAX += 3;
+      p_m_record += 3;
     }
     while ( m_blocks != v8 );
   }
-  v11 = _RBX - outAllocRecords;
-  if ( (_DWORD)v11 != s_R_RT_Heap.m_pools[v5].m_allocBlockCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1177, ASSERT_TYPE_ASSERT, "(allocRecordCount == pool->m_allocBlockCount)", (const char *)&queryFormat, "allocRecordCount == pool->m_allocBlockCount") )
+  v10 = v6 - outAllocRecords;
+  if ( (_DWORD)v10 != s_R_RT_Heap.m_pools[v5].m_allocBlockCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 1177, ASSERT_TYPE_ASSERT, "(allocRecordCount == pool->m_allocBlockCount)", (const char *)&queryFormat, "allocRecordCount == pool->m_allocBlockCount") )
     __debugbreak();
   Profile_EndInternal(NULL);
-  return (unsigned int)v11;
+  return (unsigned int)v10;
 }
 
 /*
@@ -1276,22 +1259,24 @@ void R_RT_Heap_Startup(void)
   __int64 m_blockSize; 
   __int64 m_blockCountMax; 
   R_RT_Heap_Block *v11; 
+  __m256i *p_m_record; 
   R_RT_Heap_PoolConfig *v13; 
-  int m_name; 
-  int v17; 
+  int v14; 
+  int v15; 
   R_RT_Heap_Block **p_m_blocks; 
-  unsigned int v19; 
-  unsigned int v20; 
+  unsigned int v17; 
+  unsigned int v18; 
+  __int64 v19; 
+  R_RT_Heap_Block *v20; 
   __int64 v21; 
   R_RT_Heap_Block *v22; 
   __int64 v23; 
   R_RT_Heap_Block *v24; 
-  __int64 v25; 
-  R_RT_Heap_Block *v26; 
   char *fmt; 
-  __int64 v28; 
-  __int64 v29; 
-  R_RT_Heap_Block *v31; 
+  __int64 v26; 
+  __int64 v27; 
+  __m256i v28; 
+  R_RT_Heap_Block *v29; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 360, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -1347,78 +1332,73 @@ void R_RT_Heap_Startup(void)
   PMem_BeginAlloc("$r_rt_heap", PMEM_STACK_RENDER_TARGETS);
   v11 = (R_RT_Heap_Block *)PMem_Alloc(v7, 0x10000ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_RENDER_TARGETS, "R_RT_Heap");
   PMem_EndAlloc("$r_rt_heap", PMEM_STACK_RENDER_TARGETS);
-  v31 = (R_RT_Heap_Block *)((char *)v11 + v7);
+  v29 = (R_RT_Heap_Block *)((char *)v11 + v7);
   Com_Printf(8, "R_RT_Heap: Reserved %dMB, 0x%p - 0x%p\n", v7 >> 20, v11, (char *)v11 + v7);
   IWMem_Allocator_CreateFixed(&s_iwMemRTHeapCommit, "R_RT_Heap Commit", (IWMemAllocatorType)4, v11, v7);
   IWMem_Allocator_SetFlag(s_iwMemRTHeapCommit, FreeUnknownSize);
   IWMem_Allocator_CreateFixed(&s_iwMemRTHeapAlloc, "R_RT_Heap Alloc", (IWMemAllocatorType)6, v11, v7);
   IWMem_Allocator_SetFlag(s_iwMemRTHeapAlloc, FreeUnknownSize);
-  _RDI = &s_R_RT_Heap.m_blocks[0].m_record;
+  p_m_record = (__m256i *)&s_R_RT_Heap.m_blocks[0].m_record;
   v13 = g_R_RT_Heap_poolConfigs;
   do
   {
-    LODWORD(_RDI[2].m_name) = 0;
-    DebugWipe(_RDI, 0x20ui64);
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
-    m_name = (int)_RDI[2].m_name;
-    __asm { vmovups [rsp+0A8h+var_58], ymm0 }
-    DebugWipe(&_RDI[-1].m_location, 0x60ui64);
-    __asm
-    {
-      vmovups ymm0, [rsp+0A8h+var_58]
-      vmovups ymmword ptr [rdi+20h], ymm0
-    }
-    LOBYTE(_RDI[-1].m_size) = 0;
-    *(_DWORD *)((char *)&_RDI[-1].m_location + 2) = -65536;
-    HIWORD(_RDI[-1].m_location) = 0;
-    _RDI->m_surfaceID = 0;
-    LODWORD(_RDI[2].m_name) = m_name;
-    _RDI += 3;
+    p_m_record[2].m256i_i32[0] = 0;
+    DebugWipe(p_m_record, 0x20ui64);
+    v14 = p_m_record[2].m256i_i32[0];
+    v28 = *p_m_record;
+    DebugWipe(&p_m_record[-1].m256i_u64[1], 0x60ui64);
+    p_m_record[1] = v28;
+    p_m_record[-1].m256i_i8[24] = 0;
+    *(int *)((char *)&p_m_record[-1].m256i_i32[2] + 2) = -65536;
+    p_m_record[-1].m256i_i16[7] = 0;
+    p_m_record->m256i_i16[14] = 0;
+    p_m_record[2].m256i_i32[0] = v14;
+    p_m_record += 3;
   }
-  while ( &_RDI[-1].m_location != (const char **)s_R_RT_Heap.m_abandonedRefs );
-  v17 = 0;
+  while ( &p_m_record[-1].m256i_u64[1] != (unsigned __int64 *)s_R_RT_Heap.m_abandonedRefs );
+  v15 = 0;
   p_m_blocks = &s_R_RT_Heap.m_pools[0].m_blocks;
-  v19 = 0;
+  v17 = 0;
   do
   {
-    v20 = v13->m_blockCountMax;
-    v21 = v13->m_blockSize;
-    v22 = (R_RT_Heap_Block *)((char *)v11 + v21 * v20);
-    LODWORD(v29) = v20 + v17;
-    LODWORD(v28) = v17;
-    LODWORD(fmt) = (unsigned int)v21 >> 10;
-    Com_Printf(8, "R_RT_Heap: Pool %d: %d*%dKB, block %d - %d, 0x%p - 0x%p\n", v19, v20, fmt, v28, v29, v11, v22);
-    v23 = v20 - 1;
+    v18 = v13->m_blockCountMax;
+    v19 = v13->m_blockSize;
+    v20 = (R_RT_Heap_Block *)((char *)v11 + v19 * v18);
+    LODWORD(v27) = v18 + v15;
+    LODWORD(v26) = v15;
+    LODWORD(fmt) = (unsigned int)v19 >> 10;
+    Com_Printf(8, "R_RT_Heap: Pool %d: %d*%dKB, block %d - %d, 0x%p - 0x%p\n", v17, v18, fmt, v26, v27, v11, v20);
+    v21 = v18 - 1;
     *(p_m_blocks - 1) = v11;
     *((_DWORD *)p_m_blocks + 6) = 0;
-    v24 = &s_R_RT_Heap.m_blocks[v17];
-    *p_m_blocks = v24;
-    p_m_blocks[1] = (R_RT_Heap_Block *)&s_R_RT_Heap.m_abandonedRefs[v17];
-    p_m_blocks[2] = (R_RT_Heap_Block *)&s_R_RT_Heap.m_passRefs[2 * v17 * v19];
-    v25 = 0i64;
+    v22 = &s_R_RT_Heap.m_blocks[v15];
+    *p_m_blocks = v22;
+    p_m_blocks[1] = (R_RT_Heap_Block *)&s_R_RT_Heap.m_abandonedRefs[v15];
+    p_m_blocks[2] = (R_RT_Heap_Block *)&s_R_RT_Heap.m_passRefs[2 * v15 * v17];
+    v23 = 0i64;
     *((_BYTE *)p_m_blocks + 30) = 1;
-    if ( v20 != 1 )
+    if ( v18 != 1 )
     {
-      v26 = &s_R_RT_Heap.m_blocks[v17];
+      v24 = &s_R_RT_Heap.m_blocks[v15];
       do
       {
-        v26->nextFreeBlockIndex = ++v25;
-        ++v26;
+        v24->nextFreeBlockIndex = ++v23;
+        ++v24;
       }
-      while ( v25 != v23 );
+      while ( v23 != v21 );
     }
-    v17 += v20;
-    ++v19;
+    v15 += v18;
+    ++v17;
     ++v13;
-    v11 = v22;
-    v24[v23].nextFreeBlockIndex = -1;
+    v11 = v20;
+    v22[v21].nextFreeBlockIndex = -1;
     *((_WORD *)p_m_blocks + 14) = 0;
     p_m_blocks += 6;
   }
-  while ( v19 != 4 );
-  if ( v22 != v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 460, ASSERT_TYPE_ASSERT, "(poolBase == base + size)", (const char *)&queryFormat, "poolBase == base + size") )
+  while ( v17 != 4 );
+  if ( v20 != v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 460, ASSERT_TYPE_ASSERT, "(poolBase == base + size)", (const char *)&queryFormat, "poolBase == base + size") )
     __debugbreak();
-  if ( v17 != 642 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 461, ASSERT_TYPE_ASSERT, "(poolBlockStart == ( sizeof( *array_counter( s_R_RT_Heap.m_blocks ) ) + 0 ))", (const char *)&queryFormat, "poolBlockStart == ARRAY_COUNT( s_R_RT_Heap.m_blocks )") )
+  if ( v15 != 642 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 461, ASSERT_TYPE_ASSERT, "(poolBlockStart == ( sizeof( *array_counter( s_R_RT_Heap.m_blocks ) ) + 0 ))", (const char *)&queryFormat, "poolBlockStart == ARRAY_COUNT( s_R_RT_Heap.m_blocks )") )
     __debugbreak();
   s_R_RT_Heap.m_activePass = 0;
 }
@@ -1449,82 +1429,83 @@ void R_RT_Heap_UpdateAbandonedBlocks(unsigned int __formal)
   __int64 v17; 
   __int16 v18; 
   __int64 v19; 
+  __int64 v20; 
   int v21; 
-  unsigned __int16 v24; 
-  unsigned int v25; 
-  __int16 *v26; 
-  __int64 v27; 
-  char *v28; 
-  unsigned __int64 v29; 
+  unsigned __int16 v22; 
+  unsigned int v23; 
+  __int16 *v24; 
+  __int64 v25; 
+  char *v26; 
+  unsigned __int64 v27; 
   Mem_PageRange *inoutPageRange; 
-  __int64 v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  int v34; 
+  __int64 v29; 
+  __int64 v30; 
+  unsigned int v31; 
+  int v32; 
   unsigned int m_blockSize; 
-  unsigned int v36; 
+  unsigned int v34; 
+  __int64 v35; 
+  R_RT_Heap_PoolConfig *v36; 
   __int64 v37; 
-  R_RT_Heap_PoolConfig *v38; 
-  __int64 v39; 
-  Mem_PageRange v40; 
-  unsigned __int16 *v41; 
-  unsigned __int16 *v42; 
-  __int64 v43; 
-  __m256i v44; 
-  __int16 v45[20]; 
+  Mem_PageRange v38; 
+  unsigned __int16 *v39; 
+  unsigned __int16 *v40; 
+  __int64 v41; 
+  __m256i v42; 
+  __int16 v43[20]; 
 
-  v43 = -2i64;
+  v41 = -2i64;
   Profile_Begin(118);
   if ( !Sys_IsMainThread() && !Sys_IsRenderThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common_impl.h", 69, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsRenderThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsRenderThread()") )
     __debugbreak();
   if ( s_R_RT_common.m_allocationLockMode != Sys_IsRenderThread() + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 277, ASSERT_TYPE_ASSERT, "(R_RT_HaveAllocationLock())", (const char *)&queryFormat, "R_RT_HaveAllocationLock()") )
     __debugbreak();
   v1 = 0;
-  v33 = 0;
+  v31 = 0;
   v2 = 0;
-  v34 = 0;
+  v32 = 0;
   v3 = g_R_RT_Heap_poolConfigs;
-  v38 = g_R_RT_Heap_poolConfigs;
+  v36 = g_R_RT_Heap_poolConfigs;
   p_m_allocBlockCount = &s_R_RT_Heap.m_pools[0].m_allocBlockCount;
   do
   {
     v5 = *((_WORD *)p_m_allocBlockCount - 4);
     if ( v5 )
     {
-      v39 = *((_QWORD *)p_m_allocBlockCount - 5);
-      v32 = *((_QWORD *)p_m_allocBlockCount - 4);
-      v42 = (unsigned __int16 *)*((_QWORD *)p_m_allocBlockCount - 3);
+      v37 = *((_QWORD *)p_m_allocBlockCount - 5);
+      v30 = *((_QWORD *)p_m_allocBlockCount - 4);
+      v40 = (unsigned __int16 *)*((_QWORD *)p_m_allocBlockCount - 3);
       m_blockSize = v3->m_blockSize;
       m_blockCountMax = v3->m_blockCountMax;
-      v36 = m_blockCountMax;
-      v7 = v42;
-      v41 = &v42[v5];
-      v8 = v42;
-      v37 = (__int64)v42;
+      v34 = m_blockCountMax;
+      v7 = v40;
+      v39 = &v40[v5];
+      v8 = v40;
+      v35 = (__int64)v40;
       do
       {
         v9 = *v7;
         if ( (unsigned int)v9 >= m_blockCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 301, ASSERT_TYPE_ASSERT, "(blockIndex < blockCountMax)", (const char *)&queryFormat, "blockIndex < blockCountMax") )
           __debugbreak();
         v10 = 96 * v9;
-        v11 = v32;
-        if ( !*(_WORD *)(96 * v9 + v32 + 2) )
+        v11 = v30;
+        if ( !*(_WORD *)(96 * v9 + v30 + 2) )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 303, ASSERT_TYPE_ASSERT, "(block->m_commitSizeOverAlign != 0)", (const char *)&queryFormat, "block->m_commitSizeOverAlign != 0") )
             __debugbreak();
-          v11 = v32;
+          v11 = v30;
         }
         if ( *(_WORD *)(v10 + v11 + 52) )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 304, ASSERT_TYPE_ASSERT, "(!block->m_record.m_surfaceID)", (const char *)&queryFormat, "!block->m_record.m_surfaceID") )
             __debugbreak();
-          v11 = v32;
+          v11 = v30;
         }
         if ( *(_BYTE *)(v10 + v11 + 16) != 3 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 305, ASSERT_TYPE_ASSERT, "(block->m_state.m_flags == ( R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Abandoned ))", (const char *)&queryFormat, "block->m_state.m_flags == ( R_RT_Heap_State::s_Flag_Allocated | R_RT_Heap_State::s_Flag_Abandoned )") )
             __debugbreak();
-          v11 = v32;
+          v11 = v30;
         }
         v12 = *(unsigned __int8 *)(v10 + v11 + 17) + 1;
         if ( v12 > 4 )
@@ -1535,19 +1516,19 @@ void R_RT_Heap_UpdateAbandonedBlocks(unsigned int __formal)
             IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::PopFront(&s_R_RT_Tracking.m_decommitRecordQueue);
           IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::PushBack(&s_R_RT_Tracking.m_decommitRecordQueue);
           v13 = IWStaticCircularQueue<R_RT_Tracking_CommitRecord,1024,unsigned short>::Back(&s_R_RT_Tracking.m_decommitRecordQueue);
-          v13->m_address = *(const void **)(v10 + v32 + 40);
-          v13->m_size = *(_DWORD *)(v10 + v32 + 48);
-          v13->m_name = *(const char **)(v10 + v32 + 24);
-          v13->m_surfaceID = *(_WORD *)(v10 + v32 + 52);
-          v13->m_location = *(const char **)(v10 + v32 + 32);
-          v14 = (unsigned __int8 *)(v39 + v9 * m_blockSize);
-          v15 = *(unsigned __int16 *)(v10 + v32 + 2) << 16;
-          v16 = *(_WORD *)(v10 + v32 + 4);
+          v13->m_address = *(const void **)(v10 + v30 + 40);
+          v13->m_size = *(_DWORD *)(v10 + v30 + 48);
+          v13->m_name = *(const char **)(v10 + v30 + 24);
+          v13->m_surfaceID = *(_WORD *)(v10 + v30 + 52);
+          v13->m_location = *(const char **)(v10 + v30 + 32);
+          v14 = (unsigned __int8 *)(v37 + v9 * m_blockSize);
+          v15 = *(unsigned __int16 *)(v10 + v30 + 2) << 16;
+          v16 = *(_WORD *)(v10 + v30 + 4);
           if ( v16 == 0xFFFF )
           {
-            v40 = *(Mem_PageRange *)(v10 + v32 + 8);
-            PMem_DecommitMemoryPartial((StreamerMemLoan *)&v44, PMEM_STACK_RENDER_TARGETS, v14, &v14[v15], v14, &v40);
-            StreamerMemLoan::~StreamerMemLoan((StreamerMemLoan *)&v44);
+            v38 = *(Mem_PageRange *)(v10 + v30 + 8);
+            PMem_DecommitMemoryPartial((StreamerMemLoan *)&v42, PMEM_STACK_RENDER_TARGETS, v14, &v14[v15], v14, &v38);
+            StreamerMemLoan::~StreamerMemLoan((StreamerMemLoan *)&v42);
             IWMem_Free(s_iwMemRTHeapCommit, v14, (unsigned int)v15);
             if ( (__int64)g_R_RT_Manager.m_commitSize <= (unsigned int)v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 332, ASSERT_TYPE_ASSERT, "(g_R_RT_Manager.m_commitSize > static_cast<int64_t>( commitSize ))", (const char *)&queryFormat, "g_R_RT_Manager.m_commitSize > static_cast<int64_t>( commitSize )") )
               __debugbreak();
@@ -1562,9 +1543,9 @@ void R_RT_Heap_UpdateAbandonedBlocks(unsigned int __formal)
               __debugbreak();
             if ( v16 >= 0x140u )
             {
-              LODWORD(v31) = 320;
+              LODWORD(v29) = 320;
               LODWORD(inoutPageRange) = v16;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( blockCount )", "index doesn't index blockCount\n\t%i not in [0, %i)", inoutPageRange, v31) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( blockCount )", "index doesn't index blockCount\n\t%i not in [0, %i)", inoutPageRange, v29) )
                 __debugbreak();
             }
             if ( v16 == g_R_RT_Manager.m_tiledPlacementAllocator.headFreeBlockIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 114, ASSERT_TYPE_ASSERT, "(index != this->headFreeBlockIndex)", (const char *)&queryFormat, "index != this->headFreeBlockIndex") )
@@ -1572,95 +1553,87 @@ void R_RT_Heap_UpdateAbandonedBlocks(unsigned int __formal)
             g_R_RT_Manager.m_tiledPlacementAllocator.blocks[v17].nextFreeBlockIndex = g_R_RT_Manager.m_tiledPlacementAllocator.headFreeBlockIndex;
             g_R_RT_Manager.m_tiledPlacementAllocator.headFreeBlockIndex = v16;
             R_RT_Heap_MapUnmapMemory(v14, &v14[(unsigned int)v15], &g_R_RT_Manager.m_tiledPlacementAllocator.blocks[v17].placement, 0);
-            v1 = v33;
+            v1 = v31;
           }
-          v18 = *(_WORD *)(v10 + v32 + 6);
+          v18 = *(_WORD *)(v10 + v30 + 6);
           if ( v18 )
           {
-            v45[v1] = v18;
-            v33 = v1 + 1;
+            v43[v1] = v18;
+            v31 = v1 + 1;
           }
           if ( !*p_m_allocBlockCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 264, ASSERT_TYPE_ASSERT, "(pool->m_allocBlockCount > 0)", (const char *)&queryFormat, "pool->m_allocBlockCount > 0") )
             __debugbreak();
           --*p_m_allocBlockCount;
           v19 = *((_QWORD *)p_m_allocBlockCount - 4);
-          _RDI = v19 + v10;
+          v20 = v19 + v10;
           v21 = *(_DWORD *)(v19 + v10 + 88);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi+18h]
-            vmovups [rsp+108h+var_78], ymm0
-          }
+          v42 = *(__m256i *)(v19 + v10 + 24);
           DebugWipe((void *)(v19 + v10), 0x60ui64);
-          *(_BYTE *)(_RDI + 16) = 0;
-          *(_DWORD *)(_RDI + 2) = -65536;
-          *(_WORD *)(_RDI + 6) = 0;
-          *(_WORD *)(_RDI + 52) = 0;
-          __asm
-          {
-            vmovups ymm0, [rsp+108h+var_78]
-            vmovups ymmword ptr [rdi+38h], ymm0
-          }
-          *(_DWORD *)(_RDI + 88) = v21;
-          v24 = truncate_cast<unsigned short,unsigned int>(v9);
-          v2 = v34;
-          v25 = g_R_RT_Heap_poolConfigs[(unsigned __int8)v34].m_blockCountMax;
+          *(_BYTE *)(v20 + 16) = 0;
+          *(_DWORD *)(v20 + 2) = -65536;
+          *(_WORD *)(v20 + 6) = 0;
+          *(_WORD *)(v20 + 52) = 0;
+          *(__m256i *)(v20 + 56) = v42;
+          *(_DWORD *)(v20 + 88) = v21;
+          v22 = truncate_cast<unsigned short,unsigned int>(v9);
+          v2 = v32;
+          v23 = g_R_RT_Heap_poolConfigs[(unsigned __int8)v32].m_blockCountMax;
           if ( !*((_BYTE *)p_m_allocBlockCount - 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 108, ASSERT_TYPE_ASSERT, "(this->reset)", (const char *)&queryFormat, "this->reset") )
             __debugbreak();
-          if ( v24 >= v25 )
+          if ( v22 >= v23 )
           {
-            LODWORD(v31) = v25;
-            LODWORD(inoutPageRange) = v24;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( blockCount )", "index doesn't index blockCount\n\t%i not in [0, %i)", inoutPageRange, v31) )
+            LODWORD(v29) = v23;
+            LODWORD(inoutPageRange) = v22;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( blockCount )", "index doesn't index blockCount\n\t%i not in [0, %i)", inoutPageRange, v29) )
               __debugbreak();
           }
-          if ( v24 == *((_WORD *)p_m_allocBlockCount - 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 114, ASSERT_TYPE_ASSERT, "(index != this->headFreeBlockIndex)", (const char *)&queryFormat, "index != this->headFreeBlockIndex") )
+          if ( v22 == *((_WORD *)p_m_allocBlockCount - 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 114, ASSERT_TYPE_ASSERT, "(index != this->headFreeBlockIndex)", (const char *)&queryFormat, "index != this->headFreeBlockIndex") )
             __debugbreak();
-          *(_WORD *)(96i64 * v24 + v19) = *((_WORD *)p_m_allocBlockCount - 2);
-          *((_WORD *)p_m_allocBlockCount - 2) = v24;
-          v8 = (_WORD *)v37;
-          v1 = v33;
+          *(_WORD *)(96i64 * v22 + v19) = *((_WORD *)p_m_allocBlockCount - 2);
+          *((_WORD *)p_m_allocBlockCount - 2) = v22;
+          v8 = (_WORD *)v35;
+          v1 = v31;
         }
         else
         {
-          *(_BYTE *)(v10 + v32 + 17) = v12;
+          *(_BYTE *)(v10 + v30 + 17) = v12;
           *v8++ = v9;
-          v37 = (__int64)v8;
+          v35 = (__int64)v8;
         }
         ++v7;
-        m_blockCountMax = v36;
+        m_blockCountMax = v34;
       }
-      while ( v7 != v41 );
-      *((_WORD *)p_m_allocBlockCount - 4) = v8 - v42;
-      v3 = v38;
+      while ( v7 != v39 );
+      *((_WORD *)p_m_allocBlockCount - 4) = v8 - v40;
+      v3 = v36;
     }
-    v34 = ++v2;
+    v32 = ++v2;
     p_m_allocBlockCount += 12;
-    v38 = ++v3;
+    v36 = ++v3;
   }
   while ( v2 != 4 );
   if ( v1 )
   {
-    v26 = v45;
-    v27 = v33;
+    v24 = v43;
+    v25 = v31;
     do
     {
-      v28 = &g_R_RT_Manager.m_surfaceAllocator.blocks[4095].m_tracking.m_refRecords[2].m_colorRtIndex + 40 * (unsigned __int16)*v26;
-      if ( *((_DWORD *)&g_R_RT_Manager.m_surfaceAllocator.blocks[4095].m_tracking.m_refRecords[2].m_location + 10 * (unsigned __int16)*v26) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 351, ASSERT_TYPE_ASSERT, "(heap->placementCount == 0)", (const char *)&queryFormat, "heap->placementCount == 0") )
+      v26 = &g_R_RT_Manager.m_surfaceAllocator.blocks[4095].m_tracking.m_refRecords[2].m_colorRtIndex + 40 * (unsigned __int16)*v24;
+      if ( *((_DWORD *)&g_R_RT_Manager.m_surfaceAllocator.blocks[4095].m_tracking.m_refRecords[2].m_location + 10 * (unsigned __int16)*v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 351, ASSERT_TYPE_ASSERT, "(heap->placementCount == 0)", (const char *)&queryFormat, "heap->placementCount == 0") )
         __debugbreak();
       if ( !g_R_RT_Manager.m_heapAllocator.reset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 82, ASSERT_TYPE_ASSERT, "(this->reset)", (const char *)&queryFormat, "this->reset") )
         __debugbreak();
-      v29 = (v28 - (char *)&g_R_RT_Manager.m_heapAllocator - 8) / 40;
-      if ( v29 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 85, ASSERT_TYPE_ASSERT, "(index < blockCount)", (const char *)&queryFormat, "index < blockCount") )
+      v27 = (v26 - (char *)&g_R_RT_Manager.m_heapAllocator - 8) / 40;
+      if ( v27 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 85, ASSERT_TYPE_ASSERT, "(index < blockCount)", (const char *)&queryFormat, "index < blockCount") )
         __debugbreak();
-      if ( v29 == g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 86, ASSERT_TYPE_ASSERT, "(index != this->headFreeBlockIndex)", (const char *)&queryFormat, "index != this->headFreeBlockIndex") )
+      if ( v27 == g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\block_allocator.h", 86, ASSERT_TYPE_ASSERT, "(index != this->headFreeBlockIndex)", (const char *)&queryFormat, "index != this->headFreeBlockIndex") )
         __debugbreak();
-      *(_WORD *)v28 = g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex;
-      g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex = (v28 - (char *)&g_R_RT_Manager.m_heapAllocator - 8) / 40;
-      ++v26;
-      --v27;
+      *(_WORD *)v26 = g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex;
+      g_R_RT_Manager.m_heapAllocator.headFreeBlockIndex = (v26 - (char *)&g_R_RT_Manager.m_heapAllocator - 8) / 40;
+      ++v24;
+      --v25;
     }
-    while ( v27 );
+    while ( v25 );
   }
   Profile_EndInternal(NULL);
 }
@@ -1689,10 +1662,12 @@ __int64 R_RT_RemoveLivePassRef(R_RT_Heap_Pool *pool, unsigned int blockIndex)
   R_RT_Heap_PassRef *m_passRefs; 
   __int64 v9; 
   __int64 m_livePassRefIndex; 
+  R_RT_Heap_PassRef *v11; 
   unsigned __int16 m_pass; 
   const char *v13; 
   int v14; 
   const char *v15; 
+  R_RT_Heap_PassRef *v16; 
   __int64 m_blockIndex; 
   unsigned __int8 m_flags; 
 
@@ -1711,10 +1686,10 @@ __int64 R_RT_RemoveLivePassRef(R_RT_Heap_Pool *pool, unsigned int blockIndex)
   m_livePassRefIndex = v5->m_state.m_pass.m_livePassRefIndex;
   if ( (unsigned int)m_livePassRefIndex >= m_passRefCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 651, ASSERT_TYPE_ASSERT, "(passRefIndex < oldPassRefCount)", (const char *)&queryFormat, "passRefIndex < oldPassRefCount") )
     __debugbreak();
-  _RSI = &m_passRefs[m_livePassRefIndex];
-  if ( _RSI->m_blockIndex != blockIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 653, ASSERT_TYPE_ASSERT, "(passRef->m_blockIndex == blockIndex)", (const char *)&queryFormat, "passRef->m_blockIndex == blockIndex") )
+  v11 = &m_passRefs[m_livePassRefIndex];
+  if ( v11->m_blockIndex != blockIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 653, ASSERT_TYPE_ASSERT, "(passRef->m_blockIndex == blockIndex)", (const char *)&queryFormat, "passRef->m_blockIndex == blockIndex") )
     __debugbreak();
-  m_pass = _RSI->m_pass;
+  m_pass = v11->m_pass;
   if ( (m_pass & 0xFFF) == 4095 )
   {
     if ( !s_R_RT_Heap.m_activePass || R_RT_MatchPasses(m_pass, s_R_RT_Heap.m_activePass) )
@@ -1734,24 +1709,19 @@ __int64 R_RT_RemoveLivePassRef(R_RT_Heap_Pool *pool, unsigned int blockIndex)
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", v14, ASSERT_TYPE_ASSERT, v15, (const char *)&queryFormat, v13) )
     __debugbreak();
 LABEL_21:
-  _RDI = &m_passRefs[v9];
+  v16 = &m_passRefs[v9];
   if ( (_DWORD)m_livePassRefIndex != (_DWORD)v9 )
   {
-    m_blockIndex = _RDI->m_blockIndex;
+    m_blockIndex = v16->m_blockIndex;
     m_flags = m_blocks[m_blockIndex].m_state.m_flags;
     if ( (m_flags & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_heap_impl.h", 674, ASSERT_TYPE_ASSERT, "(tailStateFlags & R_RT_Heap_State::s_Flag_Pass)", (const char *)&queryFormat, "tailStateFlags & R_RT_Heap_State::s_Flag_Pass") )
       __debugbreak();
     if ( (m_flags & 4) != 0 && m_blocks[m_blockIndex].m_state.m_pass.m_livePassRefIndex == (_DWORD)v9 )
       m_blocks[m_blockIndex].m_state.m_pass.m_livePassRefIndex = m_livePassRefIndex;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsi], ymm0
-      vmovsd  xmm1, qword ptr [rdi+20h]
-      vmovsd  qword ptr [rsi+20h], xmm1
-    }
+    *(__m256i *)&v11->m_blockIndex = *(__m256i *)&v16->m_blockIndex;
+    *(double *)&v11->m_record.m_size = *(double *)&v16->m_record.m_size;
   }
-  DebugWipe(_RDI, 0x28ui64);
+  DebugWipe(v16, 0x28ui64);
   return (unsigned int)(m_abandonedFrameCount - 1);
 }
 

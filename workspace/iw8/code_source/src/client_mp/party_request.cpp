@@ -126,35 +126,31 @@ void PartyRequestBuffer::AddRequest(PartyRequestBuffer *this, const PartyRequest
 {
   size_t v5; 
   int v8; 
-  int v11; 
+  int v9; 
   volatile unsigned int m_writeOffset; 
-  int v13; 
-  int v14; 
+  int v11; 
+  int v12; 
+  __int64 v13; 
+  __int128 v14; 
   __int64 v15; 
-  __int128 v16; 
-  __int64 v17; 
   __int128 Src; 
-  char v20[2024]; 
+  __int64 v17; 
+  char v18[2024]; 
 
   v5 = dataSize;
-  LODWORD(v16) = type;
-  *((_QWORD *)&v16 + 1) = handle;
-  LODWORD(v17) = dataSize;
+  LODWORD(v14) = type;
+  *((_QWORD *)&v14 + 1) = handle;
+  LODWORD(v15) = dataSize;
   v8 = dataSize + 25;
   if ( (unsigned int)(dataSize + 25) > 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_request.cpp", 32, ASSERT_TYPE_ASSERT, "(sizeof( requestBuffer ) >= requestSize)", (const char *)&queryFormat, "sizeof( requestBuffer ) >= requestSize") )
     __debugbreak();
   if ( handle && handle->m_complete && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_request.cpp", 33, ASSERT_TYPE_ASSERT, "(handle == 0 || !handle->IsComplete())", (const char *)&queryFormat, "handle == NULL || !handle->IsComplete()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+8A8h+var_870]
-    vmovsd  xmm1, [rsp+8A8h+var_860]
-    vmovups [rsp+8A8h+Src], xmm0
-    vmovsd  [rsp+8A8h+var_848], xmm1
-  }
-  memcpy_0(v20, data, v5);
-  v20[v5] = -1;
-  v11 = Sys_Milliseconds();
+  Src = v14;
+  v17 = v15;
+  memcpy_0(v18, data, v5);
+  v18[v5] = -1;
+  v9 = Sys_Milliseconds();
   while ( 1 )
   {
     if ( (signed int)(2048 - this->m_requests.m_writeOffset + this->m_requests.m_readOffset) >= v8 )
@@ -162,12 +158,12 @@ void PartyRequestBuffer::AddRequest(PartyRequestBuffer *this, const PartyRequest
       m_writeOffset = this->m_requests.m_writeOffset;
       if ( v8 > 2048 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\circular_buffer.h", 78, ASSERT_TYPE_ASSERT, "(length <= circCapacity)", (const char *)&queryFormat, "length <= circCapacity") )
         __debugbreak();
-      v13 = m_writeOffset & 0x7FF;
-      v14 = 2048 - v13;
-      if ( v8 < 2048 - v13 )
-        v14 = v8;
-      memcpy_0(&this->m_requests.m_buffer.m_data[v13], &Src, v14);
-      memcpy_0(&this->m_requests.m_buffer, (char *)&Src + v14, v8 - v14);
+      v11 = m_writeOffset & 0x7FF;
+      v12 = 2048 - v11;
+      if ( v8 < 2048 - v11 )
+        v12 = v8;
+      memcpy_0(&this->m_requests.m_buffer.m_data[v11], &Src, v12);
+      memcpy_0(&this->m_requests.m_buffer, (char *)&Src + v12, v8 - v12);
       if ( (signed int)(2048 - this->m_requests.m_writeOffset + this->m_requests.m_readOffset) < v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\spsc_stream.h", 74, ASSERT_TYPE_ASSERT, "(Space( length ))", (const char *)&queryFormat, "Space( length )") )
         __debugbreak();
       this->m_requests.m_writeOffset += v8;
@@ -175,9 +171,9 @@ void PartyRequestBuffer::AddRequest(PartyRequestBuffer *this, const PartyRequest
         break;
     }
     Sys_Sleep(1);
-    v15 = (unsigned int)(Sys_Milliseconds() - v11);
-    if ( (int)v15 > 1000 )
-      Com_PrintWarning(25, "Waited %dms for space in party request buffer, currently queued %uB\n", v15, this->m_requests.m_writeOffset - this->m_requests.m_readOffset);
+    v13 = (unsigned int)(Sys_Milliseconds() - v9);
+    if ( (int)v13 > 1000 )
+      Com_PrintWarning(25, "Waited %dms for space in party request buffer, currently queued %uB\n", v13, this->m_requests.m_writeOffset - this->m_requests.m_readOffset);
   }
 }
 

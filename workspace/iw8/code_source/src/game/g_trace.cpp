@@ -141,19 +141,10 @@ G_MoverSortCompare
 */
 __int64 G_MoverSortCompare(const void *f1, const void *f2)
 {
-  char v2; 
   __int64 result; 
 
-  _R8 = *(int *)f1;
   result = 1i64;
-  _RCX = g_antilagSortDistanceBuffer;
-  _R9 = *(int *)f2;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+r8*4]
-    vcomiss xmm0, dword ptr [rcx+r9*4]
-  }
-  if ( v2 )
+  if ( g_antilagSortDistanceBuffer[*(int *)f1] < g_antilagSortDistanceBuffer[*(int *)f2] )
     return 0xFFFFFFFFi64;
   return result;
 }

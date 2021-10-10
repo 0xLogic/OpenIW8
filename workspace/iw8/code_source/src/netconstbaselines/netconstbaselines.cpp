@@ -315,26 +315,27 @@ NetConstBaselines_WriteBaselineDataToFile
 */
 void NetConstBaselines_WriteBaselineDataToFile(unsigned int entityCount, entityState_t *noDeltaEntityStates, const char *mapName, const char *gameType)
 {
+  int v8; 
   Online_ErrorReporting *InstancePtr; 
   const char *v10; 
   fileHandle_t *v11; 
   unsigned int i; 
+  float v13; 
   char *fmt; 
   char *fmta; 
-  char *fmtb; 
-  __int64 v20; 
+  __int64 v16; 
   __int64 buffer; 
   __int64 m_staticEntityCount; 
   char dest[8]; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
   __int64 v24; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
 
-  Sys_Milliseconds();
+  v8 = Sys_Milliseconds();
   if ( !noDeltaEntityStates && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\netconstbaselines\\netconstbaselines.cpp", 323, ASSERT_TYPE_ASSERT, "(noDeltaEntityStates)", (const char *)&queryFormat, "noDeltaEntityStates") )
     __debugbreak();
   if ( entityCount > 0x1F4 )
@@ -345,13 +346,13 @@ void NetConstBaselines_WriteBaselineDataToFile(unsigned int entityCount, entityS
     Online_ErrorReporting::ReportError(InstancePtr, COUNT, NULL);
   }
   *(_QWORD *)dest = 0i64;
+  v20 = 0i64;
+  v21 = 0i64;
+  v22 = 0i64;
+  v23 = 0i64;
   v24 = 0i64;
   v25 = 0i64;
   v26 = 0i64;
-  v27 = 0i64;
-  v28 = 0i64;
-  v29 = 0i64;
-  v30 = 0i64;
   Com_sprintf(dest, 0x40ui64, "/main/bl_%s_%s_%s.%s", "LITTLE_END", mapName, gameType, "bin");
   v11 = FS_FOpenFileWrite((fileHandle_t *)dest, v10);
   if ( v11 == (fileHandle_t *)-1i64 )
@@ -362,9 +363,9 @@ void NetConstBaselines_WriteBaselineDataToFile(unsigned int entityCount, entityS
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 144, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v20) = ComCharacterLimits::ms_gameData.m_staticEntityCount;
+    LODWORD(v16) = ComCharacterLimits::ms_gameData.m_staticEntityCount;
     LODWORD(fmt) = 519;
-    Com_Printf(16, "Generating constbaseline data file %s due to sv_generateConstBaselines being set, map has %d entities, CONST_BASELINE_VERSION: %d, characterLimit: %d.\n", dest, entityCount, fmt, v20);
+    Com_Printf(16, "Generating constbaseline data file %s due to sv_generateConstBaselines being set, map has %d entities, CONST_BASELINE_VERSION: %d, characterLimit: %d.\n", dest, entityCount, fmt, v16);
     buffer = 519i64;
     FS_Write(&buffer, 8ui64, (fileHandle_t)v11);
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 144, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -380,16 +381,8 @@ void NetConstBaselines_WriteBaselineDataToFile(unsigned int entityCount, entityS
     }
     FS_Flush((fileHandle_t)v11);
     FS_FCloseFile((fileHandle_t)v11);
-    Sys_Milliseconds();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+0D8h+fmt], xmm2
-    }
-    Com_Printf(16, "Generating constbaseline data file %s done finished %d entities in %f seconds.\n", dest, entityCount, *(double *)&fmtb);
+    v13 = (float)(unsigned int)(Sys_Milliseconds() - v8);
+    Com_Printf(16, "Generating constbaseline data file %s done finished %d entities in %f seconds.\n", dest, entityCount, (float)(v13 * 0.001));
   }
 }
 

@@ -231,6 +231,7 @@ bdUserPresenceV3::bdUserPresenceV3
 void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserAccountID *user, const char *context, const bdUserPresenceInfoV3 *presences, unsigned int numPresences)
 {
   unsigned int v8; 
+  unsigned int *p_m_value; 
   __int64 m_size; 
   bdUserPresenceInfoV3 *v11; 
   char *p_m_hasValue; 
@@ -243,7 +244,7 @@ void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserAcco
   bdHandleAssert(numPresences <= 3, "numPresences <= BD_CROSS_PLATFORM_PRESENCE_MAX_ONLINE_TITLES", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcrossplatformpresence\\presence\\bduserpresencev3.cpp", "bdUserPresenceV3::bdUserPresenceV3", 0x38u, "bdUserPresenceV3::bdUserPresenceV3 too many presences provided", -2i64, &this->m_presences);
   if ( numPresences )
   {
-    _RBX = &presences->m_titleID.m_value;
+    p_m_value = &presences->m_titleID.m_value;
     do
     {
       if ( this->m_presences.m_size >= 3 )
@@ -254,39 +255,34 @@ void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserAcco
       {
         v11 = &this->m_presences.m_elements[m_size];
         this->m_presences.m_size = m_size + 1;
-        v11->m_online = *((_BYTE *)_RBX - 620);
-        _RCX = &v11->m_platform;
-        if ( &v11->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)_RBX - 619) )
+        v11->m_online = *((_BYTE *)p_m_value - 620);
+        if ( &v11->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)p_m_value - 619) )
         {
-          _RCX->m_hasValue = *((_BYTE *)_RBX - 619);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx-26Ah]
-            vmovups xmmword ptr [rcx+1], xmm0
-          }
-          v11->m_platform.m_value.m_buffer[16] = *((_BYTE *)_RBX - 602);
+          v11->m_platform.m_hasValue = *((_BYTE *)p_m_value - 619);
+          *(_OWORD *)v11->m_platform.m_value.m_buffer = *(_OWORD *)((char *)p_m_value - 618);
+          v11->m_platform.m_value.m_buffer[16] = *((_BYTE *)p_m_value - 602);
         }
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 149));
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 75));
-        if ( &v11->m_titleID != (bdStructOptionalObject<unsigned int> *)(_RBX - 1) )
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 149));
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 75));
+        if ( &v11->m_titleID != (bdStructOptionalObject<unsigned int> *)(p_m_value - 1) )
         {
-          v11->m_titleID.m_hasValue = *((_BYTE *)_RBX - 4);
-          v11->m_titleID.m_value = *_RBX;
+          v11->m_titleID.m_hasValue = *((_BYTE *)p_m_value - 4);
+          v11->m_titleID.m_value = *p_m_value;
         }
-        if ( &v11->m_data != (bdStructOptionalObject<bdPresenceData> *)(_RBX + 1) )
+        if ( &v11->m_data != (bdStructOptionalObject<bdPresenceData> *)(p_m_value + 1) )
         {
-          v11->m_data.m_hasValue = *((_BYTE *)_RBX + 4);
-          bdCrossPlatformUserMetadata::operator=(&v11->m_data.m_value, (const bdCrossPlatformUserMetadata *)(_RBX + 3));
+          v11->m_data.m_hasValue = *((_BYTE *)p_m_value + 4);
+          bdCrossPlatformUserMetadata::operator=(&v11->m_data.m_value, (const bdCrossPlatformUserMetadata *)(p_m_value + 3));
         }
         p_m_hasValue = (char *)&v11->m_updateTime.m_hasValue;
-        if ( p_m_hasValue != (char *)(_RBX + 9) )
+        if ( p_m_hasValue != (char *)(p_m_value + 9) )
         {
-          *p_m_hasValue = *((_BYTE *)_RBX + 36);
-          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(_RBX + 11);
+          *p_m_hasValue = *((_BYTE *)p_m_value + 36);
+          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(p_m_value + 11);
         }
       }
       ++v8;
-      _RBX += 168;
+      p_m_value += 168;
     }
     while ( v8 < numPresences );
   }
@@ -327,6 +323,7 @@ bdUserPresenceV3::bdUserPresenceV3
 void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserDetails *userDetails, const char *context, const bdUserPresenceInfoV3 *presences, unsigned int numPresences)
 {
   unsigned int v8; 
+  unsigned int *p_m_value; 
   __int64 m_size; 
   bdUserPresenceInfoV3 *v11; 
   char *p_m_hasValue; 
@@ -339,7 +336,7 @@ void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserDeta
   bdHandleAssert(numPresences <= 3, "numPresences <= BD_CROSS_PLATFORM_PRESENCE_MAX_ONLINE_TITLES", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcrossplatformpresence\\presence\\bduserpresencev3.cpp", "bdUserPresenceV3::bdUserPresenceV3", 0x4Cu, "bdUserPresenceV3::bdUserPresenceV3 too many presences provided", -2i64, &this->m_presences);
   if ( numPresences )
   {
-    _RBX = &presences->m_titleID.m_value;
+    p_m_value = &presences->m_titleID.m_value;
     do
     {
       if ( this->m_presences.m_size >= 3 )
@@ -350,39 +347,34 @@ void bdUserPresenceV3::bdUserPresenceV3(bdUserPresenceV3 *this, const bdUserDeta
       {
         v11 = &this->m_presences.m_elements[m_size];
         this->m_presences.m_size = m_size + 1;
-        v11->m_online = *((_BYTE *)_RBX - 620);
-        _RCX = &v11->m_platform;
-        if ( &v11->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)_RBX - 619) )
+        v11->m_online = *((_BYTE *)p_m_value - 620);
+        if ( &v11->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)p_m_value - 619) )
         {
-          _RCX->m_hasValue = *((_BYTE *)_RBX - 619);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx-26Ah]
-            vmovups xmmword ptr [rcx+1], xmm0
-          }
-          v11->m_platform.m_value.m_buffer[16] = *((_BYTE *)_RBX - 602);
+          v11->m_platform.m_hasValue = *((_BYTE *)p_m_value - 619);
+          *(_OWORD *)v11->m_platform.m_value.m_buffer = *(_OWORD *)((char *)p_m_value - 618);
+          v11->m_platform.m_value.m_buffer[16] = *((_BYTE *)p_m_value - 602);
         }
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 149));
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 75));
-        if ( &v11->m_titleID != (bdStructOptionalObject<unsigned int> *)(_RBX - 1) )
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 149));
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v11->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 75));
+        if ( &v11->m_titleID != (bdStructOptionalObject<unsigned int> *)(p_m_value - 1) )
         {
-          v11->m_titleID.m_hasValue = *((_BYTE *)_RBX - 4);
-          v11->m_titleID.m_value = *_RBX;
+          v11->m_titleID.m_hasValue = *((_BYTE *)p_m_value - 4);
+          v11->m_titleID.m_value = *p_m_value;
         }
-        if ( &v11->m_data != (bdStructOptionalObject<bdPresenceData> *)(_RBX + 1) )
+        if ( &v11->m_data != (bdStructOptionalObject<bdPresenceData> *)(p_m_value + 1) )
         {
-          v11->m_data.m_hasValue = *((_BYTE *)_RBX + 4);
-          bdCrossPlatformUserMetadata::operator=(&v11->m_data.m_value, (const bdCrossPlatformUserMetadata *)(_RBX + 3));
+          v11->m_data.m_hasValue = *((_BYTE *)p_m_value + 4);
+          bdCrossPlatformUserMetadata::operator=(&v11->m_data.m_value, (const bdCrossPlatformUserMetadata *)(p_m_value + 3));
         }
         p_m_hasValue = (char *)&v11->m_updateTime.m_hasValue;
-        if ( p_m_hasValue != (char *)(_RBX + 9) )
+        if ( p_m_hasValue != (char *)(p_m_value + 9) )
         {
-          *p_m_hasValue = *((_BYTE *)_RBX + 36);
-          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(_RBX + 11);
+          *p_m_hasValue = *((_BYTE *)p_m_value + 36);
+          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(p_m_value + 11);
         }
       }
       ++v8;
-      _RBX += 168;
+      p_m_value += 168;
     }
     while ( v8 < numPresences );
   }
@@ -527,6 +519,7 @@ bdUserPresenceV3::setPresences
 void bdUserPresenceV3::setPresences(bdUserPresenceV3 *this, const bdUserPresenceInfoV3 *presences, const unsigned int numPresences)
 {
   unsigned int v6; 
+  unsigned int *p_m_value; 
   __int64 m_size; 
   bdUserPresenceInfoV3 *v9; 
   char *p_m_hasValue; 
@@ -536,7 +529,7 @@ void bdUserPresenceV3::setPresences(bdUserPresenceV3 *this, const bdUserPresence
   this->m_presences.m_size = 0;
   if ( numPresences )
   {
-    _RBX = &presences->m_titleID.m_value;
+    p_m_value = &presences->m_titleID.m_value;
     do
     {
       if ( this->m_presences.m_size >= 3 )
@@ -547,39 +540,34 @@ void bdUserPresenceV3::setPresences(bdUserPresenceV3 *this, const bdUserPresence
       {
         this->m_presences.m_size = m_size + 1;
         v9 = &this->m_presences.m_elements[m_size];
-        v9->m_online = *((_BYTE *)_RBX - 620);
-        _RCX = &v9->m_platform;
-        if ( &v9->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)_RBX - 619) )
+        v9->m_online = *((_BYTE *)p_m_value - 620);
+        if ( &v9->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)((char *)p_m_value - 619) )
         {
-          _RCX->m_hasValue = *((_BYTE *)_RBX - 619);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx-26Ah]
-            vmovups xmmword ptr [rcx+1], xmm0
-          }
-          v9->m_platform.m_value.m_buffer[16] = *((_BYTE *)_RBX - 602);
+          v9->m_platform.m_hasValue = *((_BYTE *)p_m_value - 619);
+          *(_OWORD *)v9->m_platform.m_value.m_buffer = *(_OWORD *)((char *)p_m_value - 618);
+          v9->m_platform.m_value.m_buffer[16] = *((_BYTE *)p_m_value - 602);
         }
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v9->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 149));
-        bdStructOptionalObject<bdLocalizationToken>::operator=(&v9->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(_RBX - 75));
-        if ( &v9->m_titleID != (bdStructOptionalObject<unsigned int> *)(_RBX - 1) )
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v9->m_titleToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 149));
+        bdStructOptionalObject<bdLocalizationToken>::operator=(&v9->m_presenceToken, (const bdStructOptionalObject<bdLocalizationToken> *)(p_m_value - 75));
+        if ( &v9->m_titleID != (bdStructOptionalObject<unsigned int> *)(p_m_value - 1) )
         {
-          v9->m_titleID.m_hasValue = *((_BYTE *)_RBX - 4);
-          v9->m_titleID.m_value = *_RBX;
+          v9->m_titleID.m_hasValue = *((_BYTE *)p_m_value - 4);
+          v9->m_titleID.m_value = *p_m_value;
         }
-        if ( &v9->m_data != (bdStructOptionalObject<bdPresenceData> *)(_RBX + 1) )
+        if ( &v9->m_data != (bdStructOptionalObject<bdPresenceData> *)(p_m_value + 1) )
         {
-          v9->m_data.m_hasValue = *((_BYTE *)_RBX + 4);
-          bdCrossPlatformUserMetadata::operator=(&v9->m_data.m_value, (const bdCrossPlatformUserMetadata *)(_RBX + 3));
+          v9->m_data.m_hasValue = *((_BYTE *)p_m_value + 4);
+          bdCrossPlatformUserMetadata::operator=(&v9->m_data.m_value, (const bdCrossPlatformUserMetadata *)(p_m_value + 3));
         }
         p_m_hasValue = (char *)&v9->m_updateTime.m_hasValue;
-        if ( p_m_hasValue != (char *)(_RBX + 9) )
+        if ( p_m_hasValue != (char *)(p_m_value + 9) )
         {
-          *p_m_hasValue = *((_BYTE *)_RBX + 36);
-          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(_RBX + 11);
+          *p_m_hasValue = *((_BYTE *)p_m_value + 36);
+          *((_QWORD *)p_m_hasValue + 1) = *(_QWORD *)(p_m_value + 11);
         }
       }
       ++v6;
-      _RBX += 168;
+      p_m_value += 168;
     }
     while ( v6 < numPresences );
   }

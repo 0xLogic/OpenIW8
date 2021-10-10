@@ -167,38 +167,28 @@ BG_CarryObject_SetCharacterIKInfo
 */
 bool BG_CarryObject_SetCharacterIKInfo(const vec3_t *playerPos, const vec3_t *playerAngles, const tmat43_t<vec3_t> *ikTagWorldTransform, characterInfo_t *ci)
 {
+  float v8; 
+  float v9; 
   vec3_t out; 
   tmat43_t<vec3_t> axis; 
   tmat33_t<vec3_t> in2; 
-  tmat33_t<vec3_t> v18; 
+  tmat33_t<vec3_t> v14; 
 
-  _RBX = ci;
-  _RDI = playerPos;
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_carryobject.cpp", 184, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   AnglesToAxis(playerAngles, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  [rsp+0E8h+var_84], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0E8h+var_7C], xmm0
-    vmovss  [rsp+0E8h+var_80], xmm1
-  }
+  v8 = playerPos->v[1];
+  axis.m[3].v[0] = playerPos->v[0];
+  axis.m[3].v[2] = playerPos->v[2];
+  axis.m[3].v[1] = v8;
   MatrixTransposeTransformVector43(&ikTagWorldTransform->m[3], &axis, &out);
   MatrixTranspose((const tmat33_t<vec3_t> *)&axis, &in2);
-  MatrixMultiply((const tmat33_t<vec3_t> *)ikTagWorldTransform, &in2, &v18);
-  AxisToAngles(&v18, _RBX->IKHandAng);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+out]
-    vmovss  xmm1, dword ptr [rsp+0E8h+out+4]
-    vmovss  dword ptr [rbx+38A4h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0E8h+out+8]
-    vmovss  dword ptr [rbx+38ACh], xmm0
-    vmovss  dword ptr [rbx+38A8h], xmm1
-  }
+  MatrixMultiply((const tmat33_t<vec3_t> *)ikTagWorldTransform, &in2, &v14);
+  AxisToAngles(&v14, ci->IKHandAng);
+  v9 = out.v[1];
+  ci->IKHandPos[0].v[0] = out.v[0];
+  ci->IKHandPos[0].v[2] = out.v[2];
+  ci->IKHandPos[0].v[1] = v9;
   return 0;
 }
 
@@ -405,16 +395,7 @@ void PM_CarryObject_UpdateGestureState(pmove_t *pm, pml_t *pml)
             restarted = BG_Gesture_CalcRestartTimeOutToIn(ps, IndexFromGesture, pm->cmd.serverTime);
             BG_Gesture_StopByIndex(ps, IndexFromGesture, pm->cmd.serverTime, 1, 0, 0);
           }
-          _RAX = BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, IndexFromGesture, pm->cmd.serverTime);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rsp+0C8h+request.weaponMap], ymm0
-            vmovups xmm1, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rsp+0C8h+request.startTime], xmm1
-            vmovsd  xmm0, qword ptr [rax+30h]
-            vmovsd  qword ptr [rsp+0C8h+request.cancelTransitions], xmm0
-          }
+          request = *BG_GesturePriority_SetupRequest(&result, pm->weaponMap, ps, pm->m_bgHandler, IndexFromGesture, pm->cmd.serverTime);
           request.startTime = restarted;
           request.ignoreGamePlayState = 1;
           BG_GesturePriority_TryPlay(&request, NULL, NULL);

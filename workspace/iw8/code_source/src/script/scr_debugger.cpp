@@ -1920,17 +1920,17 @@ void Scr_ScriptWatch::AddElement(Scr_ScriptWatch *this, Scr_WatchElement_s *elem
 {
   scrContext_t *m_pScrContext; 
   scrContext_t *v7; 
-  char v10; 
+  debugger_sval_s *exprHead; 
+  char v9; 
+  scrContext_t *v10; 
   scrContext_t *v11; 
-  scrContext_t *v12; 
   ScriptExpression_t scriptExpr; 
   _DebugMessage message; 
-  _ScrAddTextReply v15; 
+  _ScrAddTextReply v14; 
 
-  _RDI = element;
   if ( !element && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 7371, ASSERT_TYPE_ASSERT, "( element )", (const char *)&queryFormat, "element") )
     __debugbreak();
-  if ( !_RDI->breakpoint )
+  if ( !element->breakpoint )
   {
     m_pScrContext = this->m_pScrContext;
     scriptExpr.exprHead = NULL;
@@ -1956,7 +1956,7 @@ LABEL_9:
         Scr_FreeDebugExpr(this->m_pScrContext, &scriptExpr);
         return;
       }
-      if ( _RDI->parent )
+      if ( element->parent )
       {
         Com_Printf(23, "Cannot change child element\n");
         goto LABEL_9;
@@ -1964,43 +1964,36 @@ LABEL_9:
       if ( Sys_IsRemoteDebugServer(this->m_pScrContext) )
       {
         _DebugMessage::_DebugMessage(&message);
-        _ScrAddTextReply::_ScrAddTextReply(&v15);
+        _ScrAddTextReply::_ScrAddTextReply(&v14);
         v7 = this->m_pScrContext;
-        message.scrreadfile = (const _ScrReadFile *)&v15;
-        v15.element = _RDI->id;
+        message.scrreadfile = (const _ScrReadFile *)&v14;
+        v14.element = element->id;
         message.debug_message_case = DEBUG_MESSAGE__DEBUG_MESSAGE_SCR_ADD_TEXT_REPLY;
-        v15.has_element = 1;
-        v15.text = text;
+        v14.has_element = 1;
+        v14.text = text;
         Sys_WriteDebugSocketMessage(v7, &message);
       }
-      Scr_FreeDebugExpr(this->m_pScrContext, &_RDI->expr);
-      SL_AllocString_Replace(&_RDI->refText, text);
-      __asm
+      Scr_FreeDebugExpr(this->m_pScrContext, &element->expr);
+      SL_AllocString_Replace(&element->refText, text);
+      exprHead = scriptExpr.exprHead;
+      v9 = *((_BYTE *)element + 135);
+      *(_OWORD *)&element->expr.parseData.type = *(_OWORD *)&scriptExpr.parseData.type;
+      element->expr.exprHead = exprHead;
+      v10 = this->m_pScrContext;
+      if ( (v9 & 0x10) != 0 )
       {
-        vmovups xmm0, xmmword ptr [rbp+57h+scriptExpr.parseData]
-        vmovsd  xmm1, [rbp+57h+scriptExpr.exprHead]
+        *((_BYTE *)element + 135) = v9 & 0xEF;
+        RemoveRefToValue(v10, (unsigned __int8)element->value.type, element->value.u);
       }
-      v10 = *((_BYTE *)_RDI + 135);
-      __asm
-      {
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
-      v11 = this->m_pScrContext;
-      if ( (v10 & 0x10) != 0 )
-      {
-        *((_BYTE *)_RDI + 135) = v10 & 0xEF;
-        RemoveRefToValue(v11, (unsigned __int8)_RDI->value.type, _RDI->value.u);
-      }
-      Scr_ScriptWatch::EvaluateWatchElement(this, _RDI);
+      Scr_ScriptWatch::EvaluateWatchElement(this, element);
       if ( Sys_IsRemoteDebugServer(this->m_pScrContext) )
       {
         _DebugMessage::_DebugMessage(&message);
-        _ScrUpdateWatchHeight::_ScrUpdateWatchHeight((_ScrUpdateWatchHeight *)&v15);
-        v12 = this->m_pScrContext;
-        message.scrreadfile = (const _ScrReadFile *)&v15;
+        _ScrUpdateWatchHeight::_ScrUpdateWatchHeight((_ScrUpdateWatchHeight *)&v14);
+        v11 = this->m_pScrContext;
+        message.scrreadfile = (const _ScrReadFile *)&v14;
         message.debug_message_case = DEBUG_MESSAGE__DEBUG_MESSAGE_SCR_UPDATE_WATCH_HEIGHT;
-        Sys_WriteDebugSocketMessage(v12, &message);
+        Sys_WriteDebugSocketMessage(v11, &message);
       }
     }
   }
@@ -5080,34 +5073,35 @@ Scr_EndThreadExecutionTime
 */
 void Scr_EndThreadExecutionTime(scrContext_t *scrContext, unsigned int threadId)
 {
-  int v12; 
+  __int64 StartLocalId; 
+  __int128 v7; 
+  __int128 v9; 
+  int v11; 
   unsigned int m_variableListParentSize; 
 
   if ( scrContext->m_varPub.developer && !IsObjectFree(scrContext, threadId) && GetObjectType(scrContext, threadId) != VAR_DEAD_THREAD )
   {
-    _RDI = GetStartLocalId(scrContext, threadId);
-    if ( (unsigned int)_RDI >= scrContext->m_variableListParentSize )
+    StartLocalId = GetStartLocalId(scrContext, threadId);
+    if ( (unsigned int)StartLocalId >= scrContext->m_variableListParentSize )
     {
       m_variableListParentSize = scrContext->m_variableListParentSize;
-      v12 = _RDI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11351, ASSERT_TYPE_ASSERT, "(unsigned)( parentThreadId ) < (unsigned)( scrContext.m_variableListParentSize )", "parentThreadId doesn't index scrContext.m_variableListParentSize\n\t%i not in [0, %i)", v12, m_variableListParentSize) )
+      v11 = StartLocalId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11351, ASSERT_TYPE_ASSERT, "(unsigned)( parentThreadId ) < (unsigned)( scrContext.m_variableListParentSize )", "parentThreadId doesn't index scrContext.m_variableListParentSize\n\t%i not in [0, %i)", v11, m_variableListParentSize) )
         __debugbreak();
     }
-    _RDX = scrContext->m_debuggerGlob.m_debugThreadTimes;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__int64)(__rdtsc() - scrContext->m_debuggerGlob.currentThreadExecutionTimeStartTime) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
     {
-      vmulsd  xmm0, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vaddss  xmm2, xmm1, dword ptr [rdx+rdi*8+4]
-      vmovss  dword ptr [rdx+rdi*8+4], xmm2
+      *((_QWORD *)&v7 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v7 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v7;
     }
+    *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v9 = *(double *)&_XMM0 * usecPerRawTimerTick;
+    _XMM0 = v9;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    scrContext->m_debuggerGlob.m_debugThreadTimes[StartLocalId].executionTime = *(float *)&_XMM1 + scrContext->m_debuggerGlob.m_debugThreadTimes[StartLocalId].executionTime;
   }
 }
 
@@ -5224,149 +5218,128 @@ Scr_ExportActiveThreadInfoInternal
 */
 void Scr_ExportActiveThreadInfoInternal(scrContext_t *scrContext, const char *a2)
 {
-  bool v4; 
-  fileHandle_t *v11; 
-  __int64 v16; 
-  __int64 m_variableListChildSize; 
-  __int64 v18; 
-  __int64 v19; 
+  bool v2; 
+  fileHandle_t *v4; 
+  __int128 v7; 
+  __int128 v9; 
+  __int64 v11; 
+  unsigned int m_variableListChildSize; 
+  __int64 v13; 
+  __int64 v14; 
   ChildVariableValue *childVariableValue; 
   unsigned int StartLocalId; 
-  __int64 v24; 
+  __int64 v17; 
+  __int64 v18; 
   unsigned int codeOffset; 
-  unsigned __int64 v26; 
-  unsigned int v27; 
-  const char *v28; 
+  unsigned __int64 v20; 
+  unsigned int v21; 
+  const char *v22; 
   unsigned int SourceBuffer; 
   unsigned int PrevSourcePos; 
-  const char *v31; 
-  const char *v32; 
-  unsigned int v33; 
-  unsigned int v34; 
+  const char *v25; 
+  const char *v26; 
+  unsigned int v27; 
+  unsigned int v28; 
   unsigned int ClosestSourcePosOfType; 
   unsigned int Self; 
-  unsigned int v37; 
-  const char *v38; 
+  unsigned int v31; 
+  const char *v32; 
   unsigned int EntNum; 
   __int64 EntClassId; 
   __int64 ObjectType; 
-  __int64 v49; 
+  __int64 v36; 
   char *fmt; 
-  char *fmta; 
-  __int64 v54; 
+  __int64 v38; 
   unsigned int localId; 
-  __int64 v56; 
-  fileHandle_t result[2]; 
-  char v58[8]; 
-  _BYTE buffer[64]; 
-  char v62[8]; 
+  __int64 v40; 
+  fileHandle_t result[4]; 
+  __int128 buffer[5]; 
+  __int64 v43; 
+  char v44[8]; 
   char dest[128]; 
   char outBuf[512]; 
-  char v65[512]; 
-  char v66[2048]; 
+  char v47[512]; 
+  char v48[2048]; 
 
-  v4 = !scrContext->m_varPub.developer;
-  __asm
+  v2 = !scrContext->m_varPub.developer;
+  strcpy((char *)result, "script_threads.csv");
+  qmemcpy(buffer, "Time Since Started (s), Execution Time (us), Self, ThreadId, Function Name, Star", sizeof(buffer));
+  v43 = *(__int64 *)"t Location\n";
+  strcpy(v44, "on\n");
+  if ( !v2 )
   {
-    vmovups xmm0, xmmword ptr cs:aScriptThreadsC; "script_threads.csv"
-    vmovups ymm1, ymmword ptr cs:aTimeSinceStart+20h; "n Time (us), Self, ThreadId, Function N"...
-    vmovups xmmword ptr [rsp+0DB0h+result.handle.handle], xmm0
-    vmovups ymm0, ymmword ptr cs:aTimeSinceStart; "Time Since Started (s), Execution Time "...
-  }
-  strcpy(v58, "sv");
-  __asm
-  {
-    vmovups [rbp+0CB0h+buffer], ymm0
-    vmovups xmm0, xmmword ptr cs:aTimeSinceStart+40h; "ction Name, Start Location\n"
-    vmovups [rbp+0CB0h+var_D10], ymm1
-    vmovsd  xmm1, qword ptr cs:aTimeSinceStart+50h; "t Location\n"
-    vmovups [rbp+0CB0h+var_CF0], xmm0
-    vmovsd  [rbp+0CB0h+var_CE0], xmm1
-  }
-  strcpy(v62, "on\n");
-  if ( !v4 )
-  {
-    v11 = FS_FOpenTextFileWrite(result, a2);
-    if ( v11 == (fileHandle_t *)-1i64 )
+    v4 = FS_FOpenTextFileWrite(result, a2);
+    if ( v4 == (fileHandle_t *)-1i64 )
     {
       Com_PrintError(23, "Couldn't open file \"%s\" for writing.\n", (const char *)result);
       return;
     }
-    __asm
-    {
-      vmovaps [rsp+0DB0h+var_30], xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__rdtsc() & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
     {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm6, xmm0, xmm0
+      *((_QWORD *)&v7 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v7 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v7;
     }
-    v16 = -1i64;
+    *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v9 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v9;
+    __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
+    v11 = -1i64;
     do
-      ++v16;
-    while ( buffer[v16] );
-    FS_Write(buffer, (unsigned int)v16, (fileHandle_t)v11);
+      ++v11;
+    while ( *((_BYTE *)buffer + v11) );
+    FS_Write(buffer, (unsigned int)v11, (fileHandle_t)v4);
     m_variableListChildSize = scrContext->m_variableListChildSize;
-    if ( (_DWORD)m_variableListChildSize )
+    if ( m_variableListChildSize )
     {
-      v18 = (unsigned int)m_variableListChildSize;
-      v19 = 0i64;
-      __asm
-      {
-        vmovaps [rsp+0DB0h+var_40], xmm7
-        vmovss  xmm7, cs:__real@3a83126f
-      }
-      v56 = m_variableListChildSize;
+      v13 = m_variableListChildSize;
+      v14 = 0i64;
+      v40 = scrContext->m_variableListChildSize;
       while ( 1 )
       {
         childVariableValue = scrContext->m_varGlob.childVariableValue;
-        if ( (*(_BYTE *)&childVariableValue[v19].tn & 0x3F) == 12 )
+        if ( (*(_BYTE *)&childVariableValue[v14].tn & 0x3F) == 12 )
           break;
-LABEL_42:
-        ++v19;
-        v56 = --v18;
-        if ( !v18 )
-        {
-          __asm { vmovaps xmm7, [rsp+0DB0h+var_40] }
-          goto LABEL_44;
-        }
+LABEL_41:
+        ++v14;
+        v40 = --v13;
+        if ( !v13 )
+          goto LABEL_42;
       }
-      StartLocalId = GetStartLocalId(scrContext, *(_DWORD *)(childVariableValue[v19].u.u.scriptCodePosValue + 12));
-      _R13 = StartLocalId;
+      StartLocalId = GetStartLocalId(scrContext, *(_DWORD *)(childVariableValue[v14].u.u.scriptCodePosValue + 12));
+      v17 = StartLocalId;
       localId = StartLocalId;
-      v24 = scrContext->m_debuggerGlob.m_debugCallStack[StartLocalId];
-      if ( (unsigned int)v24 >= 2 )
+      v18 = scrContext->m_debuggerGlob.m_debugCallStack[StartLocalId];
+      if ( (unsigned int)v18 >= 2 )
       {
-        codeOffset = scrContext->m_debuggerGlob.m_debugCallStackEntry[v24].codeOffset;
+        codeOffset = scrContext->m_debuggerGlob.m_debugCallStackEntry[v18].codeOffset;
         if ( codeOffset == -1 )
           goto LABEL_21;
-        v26 = (unsigned __int64)codeOffset >> 1;
-        v27 = scrContext->m_debuggerGlob.m_debugCallStackEntry[v24].codeOffset & 1;
-        v28 = &scrContext->m_varPub.programBuffer[v26];
-        if ( !Scr_IsInOpcodeMemory(scrContext, v28) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11444, ASSERT_TYPE_ASSERT, "( Scr_IsInOpcodeMemory( scrContext, codePosition ) )", (const char *)&queryFormat, "Scr_IsInOpcodeMemory( scrContext, codePosition )") )
+        v20 = (unsigned __int64)codeOffset >> 1;
+        v21 = scrContext->m_debuggerGlob.m_debugCallStackEntry[v18].codeOffset & 1;
+        v22 = &scrContext->m_varPub.programBuffer[v20];
+        if ( !Scr_IsInOpcodeMemory(scrContext, v22) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11444, ASSERT_TYPE_ASSERT, "( Scr_IsInOpcodeMemory( scrContext, codePosition ) )", (const char *)&queryFormat, "Scr_IsInOpcodeMemory( scrContext, codePosition )") )
           __debugbreak();
-        SourceBuffer = Scr_GetSourceBuffer(scrContext, v28 - 1);
-        PrevSourcePos = Scr_GetPrevSourcePos(scrContext, v28 - 1, v27);
+        SourceBuffer = Scr_GetSourceBuffer(scrContext, v22 - 1);
+        PrevSourcePos = Scr_GetPrevSourcePos(scrContext, v22 - 1, v21);
         if ( SourceBuffer == -1 )
         {
-          v31 = "<DEBUG_CALLSTACK_ENTRY_COUNT exceeded - internal error>";
+          v25 = "<DEBUG_CALLSTACK_ENTRY_COUNT exceeded - internal error>";
 LABEL_23:
-          Core_strcpy(outBuf, 0x200ui64, v31);
+          Core_strcpy(outBuf, 0x200ui64, v25);
 LABEL_24:
-          v32 = Scr_GetThreadPos(scrContext, localId) - 1;
-          v33 = Scr_GetSourceBuffer(scrContext, v32);
-          v34 = Scr_GetPrevSourcePos(scrContext, v32, 0);
-          ClosestSourcePosOfType = Scr_GetClosestSourcePosOfType(scrContext, v33, v34, SOURCE_TYPE_THREAD_START);
-          Scr_GetSourcePos(scrContext, v33, ClosestSourcePosOfType, v65, 512);
+          v26 = Scr_GetThreadPos(scrContext, localId) - 1;
+          v27 = Scr_GetSourceBuffer(scrContext, v26);
+          v28 = Scr_GetPrevSourcePos(scrContext, v26, 0);
+          ClosestSourcePosOfType = Scr_GetClosestSourcePosOfType(scrContext, v27, v28, SOURCE_TYPE_THREAD_START);
+          Scr_GetSourcePos(scrContext, v27, ClosestSourcePosOfType, v47, 512);
           Self = Scr_GetSelf(scrContext, localId);
-          v37 = Self;
+          v31 = Self;
           if ( Self == scrContext->m_varPub.levelId )
           {
-            v38 = "level";
+            v32 = "level";
           }
           else
           {
@@ -5374,63 +5347,49 @@ LABEL_24:
             {
               if ( GetObjectType(scrContext, Self) == VAR_ENTITY )
               {
-                EntNum = Scr_GetEntNum(scrContext, v37);
-                EntClassId = (unsigned int)Scr_GetEntClassId(scrContext, v37);
+                EntNum = Scr_GetEntNum(scrContext, v31);
+                EntClassId = (unsigned int)Scr_GetEntClassId(scrContext, v31);
                 LODWORD(fmt) = EntNum;
                 Com_sprintf(dest, 0x80ui64, "$%c%i", EntClassId, fmt);
               }
-              else if ( GetObjectType(scrContext, v37) == VAR_DEAD_ENTITY )
+              else if ( GetObjectType(scrContext, v31) == VAR_DEAD_ENTITY )
               {
                 Com_sprintf(dest, 0x80ui64, "removed entity");
               }
-              else if ( GetObjectType(scrContext, v37) == VAR_OBJECT )
+              else if ( GetObjectType(scrContext, v31) == VAR_OBJECT )
               {
-                Com_sprintf(dest, 0x80ui64, "$s%i", v37);
+                Com_sprintf(dest, 0x80ui64, "$s%i", v31);
               }
-              else if ( GetObjectType(scrContext, v37) == VAR_ARRAY )
+              else if ( GetObjectType(scrContext, v31) == VAR_ARRAY )
               {
-                Com_sprintf(dest, 0x80ui64, "$a%i", v37);
+                Com_sprintf(dest, 0x80ui64, "$a%i", v31);
               }
               else
               {
-                ObjectType = (unsigned __int8)GetObjectType(scrContext, v37);
-                LODWORD(fmt) = v37;
+                ObjectType = (unsigned __int8)GetObjectType(scrContext, v31);
+                LODWORD(fmt) = v31;
                 Com_sprintf(dest, 0x80ui64, "%d:%i", ObjectType, fmt);
               }
-              goto LABEL_39;
+              goto LABEL_38;
             }
-            v38 = "anim";
+            v32 = "anim";
           }
-          Core_strcpy(dest, 0x80ui64, v38);
-LABEL_39:
-          _RAX = scrContext->m_debuggerGlob.m_debugThreadTimes;
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rax+r13*8+4]
-            vsubss  xmm0, xmm6, dword ptr [rax+r13*8]
-            vmulss  xmm1, xmm0, xmm7
-            vcvtss2sd xmm3, xmm1, xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-          }
-          LODWORD(v54) = localId;
-          __asm
-          {
-            vmovq   r9, xmm3
-            vmovsd  [rsp+0DB0h+fmt], xmm2
-          }
-          Com_sprintf(v66, 0x800ui64, "%.1f,%.1f,%s,$%d,\"%s\",\"%s\"\n", *(double *)&_XMM3, *(double *)&fmta, dest, v54, v65, outBuf);
-          v49 = -1i64;
+          Core_strcpy(dest, 0x80ui64, v32);
+LABEL_38:
+          LODWORD(v38) = localId;
+          Com_sprintf(v48, 0x800ui64, "%.1f,%.1f,%s,$%d,\"%s\",\"%s\"\n", (float)((float)(*(float *)&_XMM6 - scrContext->m_debuggerGlob.m_debugThreadTimes[v17].lifeTime) * 0.001), scrContext->m_debuggerGlob.m_debugThreadTimes[v17].executionTime, dest, v38, v47, outBuf);
+          v36 = -1i64;
           do
-            ++v49;
-          while ( v66[v49] );
-          FS_Write(v66, (unsigned int)v49, (fileHandle_t)v11);
-          v18 = v56;
-          goto LABEL_42;
+            ++v36;
+          while ( v48[v36] );
+          FS_Write(v48, (unsigned int)v36, (fileHandle_t)v4);
+          v13 = v40;
+          goto LABEL_41;
         }
         if ( SourceBuffer == -2 )
         {
 LABEL_21:
-          v31 = "<removed thread>";
+          v25 = "<removed thread>";
           goto LABEL_23;
         }
         if ( SourceBuffer != 65534 )
@@ -5439,12 +5398,11 @@ LABEL_21:
           goto LABEL_24;
         }
       }
-      v31 = (char *)&queryFormat.fmt + 3;
+      v25 = (char *)&queryFormat.fmt + 3;
       goto LABEL_23;
     }
-LABEL_44:
-    FS_FCloseFile((fileHandle_t)v11);
-    __asm { vmovaps xmm6, [rsp+0DB0h+var_30] }
+LABEL_42:
+    FS_FCloseFile((fileHandle_t)v4);
   }
 }
 
@@ -6137,12 +6095,11 @@ void Scr_InitDebuggerMain(scrContext_t *scrContext)
   unsigned __int64 v4; 
   Scr_WatchElementDoubleNode_t **v5; 
   bool v6; 
-  void *v7; 
-  unsigned int v11; 
-  __int64 v12; 
-  __int128 v13; 
-  __int128 v14; 
-  __int128 v15; 
+  char *v7; 
+  unsigned int v9; 
+  __int64 v10; 
+  ntl::solitary_buffer_allocator v11; 
+  ntl::internal::buffer_memory_block<char> v12; 
 
   if ( scrContext->m_varPub.developer )
   {
@@ -6160,23 +6117,19 @@ void Scr_InitDebuggerMain(scrContext_t *scrContext)
     if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 9019, ASSERT_TYPE_ASSERT, "(!s_debuggerHeapMem)", (const char *)&queryFormat, "!s_debuggerHeapMem") )
       __debugbreak();
     s_debuggerHeapMem = Mem_HunkDebug_AllocAligned(0xA0000ui64, 0x10ui64, "s_debuggerHeapMem");
-    v7 = s_debuggerHeapMem;
+    v7 = (char *)s_debuggerHeapMem;
     if ( !s_debuggerHeapMem )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 9022, ASSERT_TYPE_ASSERT, "(s_debuggerHeapMem)", (const char *)&queryFormat, "s_debuggerHeapMem") )
         __debugbreak();
-      v7 = s_debuggerHeapMem;
+      v7 = (char *)s_debuggerHeapMem;
     }
     s_debuggerHeapMemInstance = scrContext->m_Instance;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+58h+var_28], xmm0
-    }
-    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v13) )
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
       __debugbreak();
-    *(_QWORD *)&v14 = v7;
-    *((_QWORD *)&v14 + 1) = 655360i64;
+    v11.m_data.m_buffer = v7;
+    v11.m_data.m_size = 655360i64;
     ntl::nxheap::shutdown(&s_debuggerHeap.m_heap);
     ntl::nxheap_region::shutdown(&s_debuggerHeap.m_region);
     if ( s_debuggerHeap.m_data.m_buffer )
@@ -6186,11 +6139,7 @@ void Scr_InitDebuggerMain(scrContext_t *scrContext)
       s_debuggerHeap.m_data.m_buffer = NULL;
       s_debuggerHeap.m_data.m_size = 0i64;
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+58h+var_28]
-      vmovups xmmword ptr cs:s_debuggerHeap.m_allocator.m_data.m_buffer, xmm0
-    }
+    s_debuggerHeap.m_allocator = v11;
     ntl::nxheap::shutdown(&s_debuggerHeap.m_heap);
     ntl::nxheap_region::shutdown(&s_debuggerHeap.m_region);
     if ( s_debuggerHeap.m_data.m_buffer )
@@ -6202,13 +6151,9 @@ void Scr_InitDebuggerMain(scrContext_t *scrContext)
     }
     if ( s_debuggerHeap.m_allocator.m_data.m_size < 0xA0000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
       __debugbreak();
-    *(_QWORD *)&v15 = s_debuggerHeap.m_allocator.m_data.m_buffer;
-    *((_QWORD *)&v15 + 1) = 655360i64;
-    __asm
-    {
-      vmovups xmm0, [rsp+58h+var_28]
-      vmovups xmmword ptr cs:s_debuggerHeap.baseclass_0.m_data.m_buffer, xmm0
-    }
+    v12.m_buffer = s_debuggerHeap.m_allocator.m_data.m_buffer;
+    v12.m_size = 655360i64;
+    s_debuggerHeap.m_data = v12;
     if ( s_debuggerHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
       __debugbreak();
     ntl::nxheap_region::init(&s_debuggerHeap.m_region, s_debuggerHeap.m_data.m_buffer, s_debuggerHeap.m_data.m_size);
@@ -6216,15 +6161,15 @@ void Scr_InitDebuggerMain(scrContext_t *scrContext)
       __debugbreak();
     ntl::nxheap::init(&s_debuggerHeap.m_heap, &s_debuggerHeap.m_region, DIR_BOTTOM_UP);
     memset_0(scrContext->m_debuggerGlob.m_debugCallStack, 0, 4i64 * scrContext->m_variableListParentSize);
-    v11 = 2;
-    v12 = scrContext->m_variableListParentSize - 1;
-    if ( (unsigned int)v12 > 2 )
+    v9 = 2;
+    v10 = scrContext->m_variableListParentSize - 1;
+    if ( (unsigned int)v10 > 2 )
     {
       do
-        scrContext->m_debuggerGlob.m_debugCallStackEntry2[v3++].next = ++v11;
-      while ( v11 < (unsigned int)v12 );
+        scrContext->m_debuggerGlob.m_debugCallStackEntry2[v3++].next = ++v9;
+      while ( v9 < (unsigned int)v10 );
     }
-    scrContext->m_debuggerGlob.m_debugCallStackEntry2[v12].next = 0;
+    scrContext->m_debuggerGlob.m_debugCallStackEntry2[v10].next = 0;
     *(_QWORD *)&scrContext->m_debuggerGlob.m_freeDebugCallStack = 2i64;
     scrContext->m_debuggerGlob.debugger_inited_main = 1;
   }
@@ -7523,17 +7468,11 @@ void Scr_ShutdownDebuggerMain(scrContext_t *scrContext)
     {
       if ( s_debuggerHeap.m_data.m_buffer != s_debuggerHeap.m_allocator.m_data.m_buffer && s_debuggerHeap.m_allocator.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 64, ASSERT_TYPE_ASSERT, "( ( p_ptr == m_data.begin() ) || ( p_ptr == 0 ) || ( m_data.begin() == 0 ) )", (const char *)&queryFormat, "( p_ptr == m_data.begin() ) || ( p_ptr == NULL ) || ( m_data.begin() == NULL )") )
         __debugbreak();
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr cs:s_debuggerHeap.baseclass_0.m_data.m_buffer, xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      s_debuggerHeap.m_data = _XMM0;
     }
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovups xmmword ptr cs:s_debuggerHeap.m_allocator.m_data.m_buffer, xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    s_debuggerHeap.m_allocator = _XMM0;
     Mem_HunkDebug_Free(s_debuggerHeapMem);
     variableBreakpoints = scrContext->m_debuggerGlob.variableBreakpoints;
     s_debuggerHeapMem = NULL;
@@ -7764,26 +7703,29 @@ Scr_ThreadCreated
 */
 void Scr_ThreadCreated(const scrContext_t *scrContext, unsigned int threadId)
 {
-  _RDI = threadId;
+  __int64 v3; 
+  __int128 v6; 
+  __int128 v8; 
+
+  v3 = threadId;
   if ( scrContext->m_varPub.developer )
   {
     if ( threadId >= scrContext->m_variableListParentSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11318, ASSERT_TYPE_ASSERT, "(unsigned)( threadId ) < (unsigned)( scrContext.m_variableListParentSize )", "threadId doesn't index scrContext.m_variableListParentSize\n\t%i not in [0, %i)", threadId, scrContext->m_variableListParentSize) )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__rdtsc() & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    _RAX = scrContext->m_debuggerGlob.m_debugThreadTimes;
-    __asm
     {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rax+rdi*8], xmm1
+      *((_QWORD *)&v6 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v6 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v6;
     }
-    scrContext->m_debuggerGlob.m_debugThreadTimes[_RDI].executionTime = 0.0;
+    *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v8;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    scrContext->m_debuggerGlob.m_debugThreadTimes[v3].lifeTime = *(float *)&_XMM1;
+    scrContext->m_debuggerGlob.m_debugThreadTimes[v3].executionTime = 0.0;
   }
 }
 
@@ -8153,12 +8095,17 @@ Scr_UpdateDebugger
 */
 void Scr_UpdateDebugger(scrContext_t *scrContext)
 {
+  __int128 v1; 
+  __int128 v2; 
   const char *m_scriptPos; 
-  unsigned __int64 v6; 
-  int v13; 
-  char v14; 
+  unsigned __int64 v5; 
+  double v8; 
+  int v9; 
+  char v10; 
   Scr_WatchElement_s *i; 
   VariableValue value; 
+  __int128 v13; 
+  __int128 v14; 
 
   if ( !scrContext->m_varPub.developer || !scrContext->m_debuggerGlob.debugger_inited_system || !scrContext->m_varPub.allowDebugger )
     return;
@@ -8171,11 +8118,8 @@ void Scr_UpdateDebugger(scrContext_t *scrContext)
   if ( scrContext->m_debuggerGlob.disableBreakpoints )
     return;
   m_scriptPos = scrContext->m_varPub.varUsagePos.m_scriptPos;
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-  }
+  v14 = v1;
+  v13 = v2;
   ScriptCodePos::SetVarUsagePos(&scrContext->m_varPub.varUsagePos, "<script debugger variable>");
   if ( g_connected_once )
   {
@@ -8184,36 +8128,29 @@ void Scr_UpdateDebugger(scrContext_t *scrContext)
   else
   {
     g_connected_once = 1;
-    v6 = __rdtsc();
+    v5 = __rdtsc();
     if ( !Sys_IsRemoteDebugServer(scrContext) )
     {
-      __asm { vmovsd  xmm7, cs:__real@43f0000000000000 }
-      Sys_UpdateRemoteDebugListenServer(scrContext);
-      __asm
+      do
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
+        Sys_UpdateRemoteDebugListenServer(scrContext);
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        if ( (__int64)(__rdtsc() - v5) < 0 )
+          *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+        v8 = *(double *)&_XMM0 * msecPerRawTimerTick;
       }
-      if ( (__int64)(__rdtsc() - v6) < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm7 }
-      __asm { vmulsd  xmm6, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
-      if ( Dvar_GetBoolSafe("scr_waitfordebugger") )
-        __asm { vcomisd xmm6, cs:g_timeout_ms }
+      while ( Dvar_GetBoolSafe("scr_waitfordebugger") && v8 <= g_timeout_ms && !Sys_IsRemoteDebugServer(scrContext) );
     }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_48]
-    vmovaps xmm6, [rsp+88h+var_38]
   }
   if ( scrContext->m_varPub.evaluate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 10968, ASSERT_TYPE_ASSERT, "( !pScrVarPub->evaluate )", (const char *)&queryFormat, "!pScrVarPub->evaluate") )
     __debugbreak();
   scrContext->m_varPub.evaluate = 1;
-  v13 = 0;
-  v14 = 0;
+  v9 = 0;
+  v10 = 0;
   scrContext->m_debuggerGlob.m_pDynamic->scriptWatch.localId = 0;
   scrContext->m_vmPub.breakpointOutparamcount = 0;
-LABEL_25:
+LABEL_27:
   for ( i = scrContext->m_debuggerGlob.m_pDynamic->scriptWatch.elementHead; i; i = i->next )
   {
     if ( i->breakpointType == 1 && ((i->objectType - 17) & 0xF7) != 0 )
@@ -8222,14 +8159,14 @@ LABEL_25:
         __debugbreak();
       if ( !i->expr.exprHead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 10986, ASSERT_TYPE_ASSERT, "( expr->exprHead )", (const char *)&queryFormat, "expr->exprHead") )
         __debugbreak();
-      if ( Scr_EvalScriptExpression(scrContext, &i->expr, 0, &value, 1, 1) && !v14 )
+      if ( Scr_EvalScriptExpression(scrContext, &i->expr, 0, &value, 1, 1) && !v10 )
       {
         Scr_ClearErrorMessage(scrContext);
         RemoveRefToValue(scrContext, (unsigned __int8)value.type, value.u);
 $retry2_2:
-        v14 = 1;
+        v10 = 1;
         Scr_ScriptWatch::UpdateBreakpoints(&scrContext->m_debuggerGlob.m_pDynamic->scriptWatch, 0);
-        goto LABEL_25;
+        goto LABEL_27;
       }
       if ( scrContext->m_varPub.error_message )
       {
@@ -8237,7 +8174,7 @@ $retry2_2:
         RemoveRefToValue(scrContext, (unsigned __int8)value.type, value.u);
         if ( (*((_BYTE *)i + 135) & 0x10) == 0 )
           continue;
-        if ( !v14 )
+        if ( !v10 )
           goto $retry2_2;
       }
       else if ( Scr_WatchElementHasSameValue(scrContext, i, &value) )
@@ -8245,14 +8182,14 @@ $retry2_2:
         continue;
       }
       if ( Scr_ConditionalExpression(scrContext, i, 0) )
-        v13 = 1;
+        v9 = 1;
     }
   }
   if ( Sys_IsRemoteDebugServer(scrContext) )
   {
-    if ( !v14 )
+    if ( !v10 )
     {
-      v14 = 1;
+      v10 = 1;
       Scr_ScriptWatch::UpdateBreakpoints(&scrContext->m_debuggerGlob.m_pDynamic->scriptWatch, 0);
     }
     if ( !scrContext->m_debuggerGlob.m_pDynamic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 7683, ASSERT_TYPE_ASSERT, "( scrContext.m_debuggerGlob.m_pDynamic )", (const char *)&queryFormat, "scrContext.m_debuggerGlob.m_pDynamic") )
@@ -8261,14 +8198,14 @@ $retry2_2:
     if ( Sys_IsRemoteDebugServer(scrContext) )
       Scr_ProcessDebugMessages(scrContext);
   }
-  if ( v14 )
+  if ( v10 )
     Scr_ScriptWatch::UpdateBreakpoints(&scrContext->m_debuggerGlob.m_pDynamic->scriptWatch, 1);
   if ( !scrContext->m_varPub.evaluate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_debugger.cpp", 11040, ASSERT_TYPE_ASSERT, "( pScrVarPub->evaluate )", (const char *)&queryFormat, "pScrVarPub->evaluate") )
     __debugbreak();
   scrContext->m_varPub.evaluate = 0;
-  if ( v13 )
+  if ( v9 )
   {
-LABEL_63:
+LABEL_65:
     Scr_StackClear(scrContext);
     Scr_ScriptWatch::SortHitBreakpointsTop(&scrContext->m_debuggerGlob.m_pDynamic->scriptWatch);
     Scr_RunDebugger(scrContext);
@@ -8276,7 +8213,7 @@ LABEL_63:
   else if ( scrContext->m_debuggerGlob.run_debugger )
   {
     scrContext->m_debuggerGlob.run_debugger = 0;
-    goto LABEL_63;
+    goto LABEL_65;
   }
   scrContext->m_varPub.varUsagePos.m_genericPos = (unsigned __int64)m_scriptPos;
 }

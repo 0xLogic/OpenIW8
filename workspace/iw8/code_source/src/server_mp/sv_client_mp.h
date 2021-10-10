@@ -268,57 +268,53 @@ void SvClientMP::ClearClientMemoryMP(SvClientMP *client)
   const netadr_t *Netadr; 
   unsigned int i; 
   int *m_cmdRecvSequence; 
-  CmdPredict *v16; 
+  CmdPredict *v10; 
   GSnapshotWeaponMap weaponMapCopy; 
-  __int64 v18; 
+  __int64 v12; 
+  __m256i v13; 
+  __m256i v14; 
+  __m256i v15; 
   netadr_t result; 
 
-  v18 = -2i64;
-  _RBX = client;
+  v12 = -2i64;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 896, ASSERT_TYPE_ASSERT, "( client )", (const char *)&queryFormat, "client") )
     __debugbreak();
-  if ( !_RBX->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 897, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvBuffer )", (const char *)&queryFormat, "client->m_cmdRecvBuffer") )
+  if ( !client->m_cmdRecvBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 897, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvBuffer )", (const char *)&queryFormat, "client->m_cmdRecvBuffer") )
     __debugbreak();
-  if ( !_RBX->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 898, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvPredict )", (const char *)&queryFormat, "client->m_cmdRecvPredict") )
+  if ( !client->m_cmdRecvPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 898, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvPredict )", (const char *)&queryFormat, "client->m_cmdRecvPredict") )
     __debugbreak();
-  if ( !_RBX->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 899, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvSequence )", (const char *)&queryFormat, "client->m_cmdRecvSequence") )
+  if ( !client->m_cmdRecvSequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 899, ASSERT_TYPE_ASSERT, "( client->m_cmdRecvSequence )", (const char *)&queryFormat, "client->m_cmdRecvSequence") )
     __debugbreak();
-  if ( !_RBX->m_fullSnapshotFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 900, ASSERT_TYPE_ASSERT, "( client->m_fullSnapshotFrames )", (const char *)&queryFormat, "client->m_fullSnapshotFrames") )
+  if ( !client->m_fullSnapshotFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 900, ASSERT_TYPE_ASSERT, "( client->m_fullSnapshotFrames )", (const char *)&queryFormat, "client->m_fullSnapshotFrames") )
     __debugbreak();
   if ( !SvClientMP::ms_fullSnapFrameCountPerClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 901, ASSERT_TYPE_ASSERT, "( ms_fullSnapFrameCountPerClient )", (const char *)&queryFormat, "ms_fullSnapFrameCountPerClient") )
     __debugbreak();
   if ( !SvClientMP::ms_cmdCountPerClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 902, ASSERT_TYPE_ASSERT, "( ms_cmdCountPerClient )", (const char *)&queryFormat, "ms_cmdCountPerClient") )
     __debugbreak();
-  if ( !_RBX->m_fullSnapshotEncodingOutputs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 903, ASSERT_TYPE_ASSERT, "( client->m_fullSnapshotEncodingOutputs )", (const char *)&queryFormat, "client->m_fullSnapshotEncodingOutputs") )
+  if ( !client->m_fullSnapshotEncodingOutputs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 903, ASSERT_TYPE_ASSERT, "( client->m_fullSnapshotEncodingOutputs )", (const char *)&queryFormat, "client->m_fullSnapshotEncodingOutputs") )
     __debugbreak();
-  burstState = _RBX->burstState;
-  m_fullSnapshotFrames = _RBX->m_fullSnapshotFrames;
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &_RBX->m_blindSnapshotFrame.weaponMap);
-  __asm
+  burstState = client->burstState;
+  m_fullSnapshotFrames = client->m_fullSnapshotFrames;
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &client->m_blindSnapshotFrame.weaponMap);
+  v13 = *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[0].itemCount;
+  v14 = *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[2].itemCount;
+  v15 = *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[4].itemCount;
+  m_cmdRecvBuffer = client->m_cmdRecvBuffer;
+  m_cmdRecvPredict = client->m_cmdRecvPredict;
+  v10 = m_cmdRecvPredict;
+  m_cmdRecvSequence = client->m_cmdRecvSequence;
+  m_fullSnapshotEncodingOutputs = client->m_fullSnapshotEncodingOutputs;
+  if ( client->scriptId )
+    SvClientMP::FreeScriptId(client);
+  if ( NetConnection::IsOpened(&client->clientConnection) )
   {
-    vmovups ymm0, ymmword ptr [rbx+5AEC8h]
-    vmovups [rsp+108h+var_B0], ymm0
-    vmovups ymm0, ymmword ptr [rbx+5AEE8h]
-    vmovups [rsp+108h+var_90], ymm0
-    vmovups ymm0, ymmword ptr [rbx+5AF08h]
-    vmovups [rsp+108h+var_70], ymm0
-  }
-  m_cmdRecvBuffer = _RBX->m_cmdRecvBuffer;
-  m_cmdRecvPredict = _RBX->m_cmdRecvPredict;
-  v16 = m_cmdRecvPredict;
-  m_cmdRecvSequence = _RBX->m_cmdRecvSequence;
-  m_fullSnapshotEncodingOutputs = _RBX->m_fullSnapshotEncodingOutputs;
-  if ( _RBX->scriptId )
-    SvClientMP::FreeScriptId(_RBX);
-  if ( NetConnection::IsOpened(&_RBX->clientConnection) )
-  {
-    Netadr = NetConnection::GetNetadr(&_RBX->clientConnection, &result);
+    Netadr = NetConnection::GetNetadr(&client->clientConnection, &result);
     SvClientMP::RemoveClientAtAddress(Netadr);
   }
-  NetConnection::Close(&_RBX->clientConnection, NET_CLOSE_SOFT);
-  ((void (__fastcall *)(SvClientMP *, _QWORD))_RBX->~SvClient)(_RBX, 0i64);
-  memset_0(_RBX, 0, sizeof(SvClientMP));
-  SvClientMP::SvClientMP(_RBX);
+  NetConnection::Close(&client->clientConnection, NET_CLOSE_SOFT);
+  ((void (__fastcall *)(SvClientMP *, _QWORD))client->~SvClient)(client, 0i64);
+  memset_0(client, 0, sizeof(SvClientMP));
+  SvClientMP::SvClientMP(client);
   memset_0(m_cmdRecvBuffer, 0, 264i64 * SvClientMP::ms_cmdCountPerClient);
   memset_0(m_cmdRecvPredict, 0, 60i64 * SvClientMP::ms_cmdCountPerClient);
   memset_0(m_cmdRecvSequence, 0, 4i64 * SvClientMP::ms_cmdCountPerClient);
@@ -327,24 +323,18 @@ void SvClientMP::ClearClientMemoryMP(SvClientMP *client)
     SvClientMP::ClearClientSnapshot(&m_fullSnapshotFrames[i]);
     memset_0(&m_fullSnapshotEncodingOutputs[i], 0, sizeof(clientSnapshotEncodingOutput_t));
   }
-  _RBX->m_fullSnapshotFrames = m_fullSnapshotFrames;
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&_RBX->m_blindSnapshotFrame.weaponMap, &weaponMapCopy);
-  __asm
-  {
-    vmovups ymm0, [rsp+108h+var_B0]
-    vmovups ymmword ptr [rbx+5AEC8h], ymm0
-    vmovups ymm1, [rsp+108h+var_90]
-    vmovups ymmword ptr [rbx+5AEE8h], ymm1
-    vmovups ymm0, [rsp+108h+var_70]
-    vmovups ymmword ptr [rbx+5AF08h], ymm0
-  }
-  SvClientMP::ClearClientSnapshot(&_RBX->m_blindSnapshotFrame);
+  client->m_fullSnapshotFrames = m_fullSnapshotFrames;
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&client->m_blindSnapshotFrame.weaponMap, &weaponMapCopy);
+  *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[0].itemCount = v13;
+  *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[2].itemCount = v14;
+  *(__m256i *)&client->m_blindSnapshotFrame.streamSync.streamSyncLists[4].itemCount = v15;
+  SvClientMP::ClearClientSnapshot(&client->m_blindSnapshotFrame);
   burstState->Reset(burstState);
-  _RBX->burstState = burstState;
-  _RBX->m_cmdRecvBuffer = m_cmdRecvBuffer;
-  _RBX->m_cmdRecvPredict = v16;
-  _RBX->m_cmdRecvSequence = m_cmdRecvSequence;
-  _RBX->m_fullSnapshotEncodingOutputs = m_fullSnapshotEncodingOutputs;
+  client->burstState = burstState;
+  client->m_cmdRecvBuffer = m_cmdRecvBuffer;
+  client->m_cmdRecvPredict = v10;
+  client->m_cmdRecvSequence = m_cmdRecvSequence;
+  client->m_fullSnapshotEncodingOutputs = m_fullSnapshotEncodingOutputs;
   GSnapshotWeaponMap::~GSnapshotWeaponMap(&weaponMapCopy);
 }
 
@@ -355,53 +345,41 @@ SvClientMP::ClearClientSnapshot
 */
 void SvClientMP::ClearClientSnapshot(clientSnapshot_t *snapshot)
 {
-  size_t v3; 
+  size_t v2; 
   void **p_items; 
-  __int64 v11; 
+  __int64 v4; 
   GSnapshotWeaponMap weaponMapCopy; 
-  void *retaddr; 
+  __m256i v6; 
+  __m256i v7; 
+  __m256i v8; 
 
-  _R11 = &retaddr;
-  _RDI = snapshot;
-  v3 = 62i64 * SvClientMP::ms_streamSyncItemCount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+6BF8h]
-    vmovups [rsp+0C8h+var_80], ymm0
-    vmovups ymm0, ymmword ptr [rcx+6C18h]
-    vmovups [rsp+0C8h+var_60], ymm0
-    vmovups ymm0, ymmword ptr [rcx+6C38h]
-    vmovups ymmword ptr [r11-40h], ymm0
-  }
+  v2 = 62i64 * SvClientMP::ms_streamSyncItemCount;
+  v6 = *(__m256i *)&snapshot->streamSync.streamSyncLists[0].itemCount;
+  v7 = *(__m256i *)&snapshot->streamSync.streamSyncLists[2].itemCount;
+  v8 = *(__m256i *)&snapshot->streamSync.streamSyncLists[4].itemCount;
   GSnapshotWeaponMap::GSnapshotWeaponMap(&weaponMapCopy, &snapshot->weaponMap);
-  memset_0(_RDI, 0, sizeof(clientSnapshot_t));
-  GSnapshotWeaponMap::GSnapshotWeaponMap(&_RDI->weaponMap, &weaponMapCopy);
-  if ( !_RDI->weaponMap.m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 220, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr", -2i64) )
+  memset_0(snapshot, 0, sizeof(clientSnapshot_t));
+  GSnapshotWeaponMap::GSnapshotWeaponMap(&snapshot->weaponMap, &weaponMapCopy);
+  if ( !snapshot->weaponMap.m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 220, ASSERT_TYPE_ASSERT, "(m_entries != nullptr)", (const char *)&queryFormat, "m_entries != nullptr", -2i64) )
     __debugbreak();
   if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
     __debugbreak();
-  memset_0(_RDI->weaponMap.m_entries, 0, 62i64 * BgWeaponMap::ms_runtimeSize);
-  __asm
-  {
-    vmovups ymm0, [rsp+0C8h+var_80]
-    vmovups ymmword ptr [rdi+6BF8h], ymm0
-    vmovups ymm1, [rsp+0C8h+var_60]
-    vmovups ymmword ptr [rdi+6C18h], ymm1
-    vmovups ymm0, [rsp+0C8h+var_40]
-    vmovups ymmword ptr [rdi+6C38h], ymm0
-  }
-  p_items = (void **)&_RDI->streamSync.streamSyncLists[0].items;
-  v11 = 6i64;
+  memset_0(snapshot->weaponMap.m_entries, 0, 62i64 * BgWeaponMap::ms_runtimeSize);
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[0].itemCount = v6;
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[2].itemCount = v7;
+  *(__m256i *)&snapshot->streamSync.streamSyncLists[4].itemCount = v8;
+  p_items = (void **)&snapshot->streamSync.streamSyncLists[0].items;
+  v4 = 6i64;
   do
   {
     if ( !*p_items && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 886, ASSERT_TYPE_ASSERT, "( curList.items != nullptr )", (const char *)&queryFormat, "curList.items != nullptr") )
       __debugbreak();
     *((_DWORD *)p_items - 2) = 0;
-    memset_0(*p_items, 0, v3);
+    memset_0(*p_items, 0, v2);
     p_items += 2;
-    --v11;
+    --v4;
   }
-  while ( v11 );
+  while ( v4 );
   GSnapshotWeaponMap::~GSnapshotWeaponMap(&weaponMapCopy);
 }
 

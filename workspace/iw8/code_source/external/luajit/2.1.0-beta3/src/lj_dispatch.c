@@ -226,13 +226,18 @@ void lj_dispatch_update(global_State *g)
   unsigned __int64 v6; 
   unsigned __int64 v7; 
   char v8; 
+  __m256i *v9; 
+  GCRef *v10; 
   __int64 v11; 
-  unsigned __int64 v19; 
-  __int64 (__fastcall *v20)(); 
-  GCRef *v21; 
-  __int64 v22; 
-  global_State *v23; 
-  __int64 (__fastcall *v24)(int, int, int, int, int, int, int, int, int, int, int, __int64); 
+  __m256i v12; 
+  __int128 v13; 
+  __m256i v14; 
+  __int64 v15; 
+  __int64 (__fastcall *v16)(); 
+  GCRef *v17; 
+  __int64 v18; 
+  global_State *v19; 
+  __int64 (__fastcall *v20)(int, int, int, int, int, int, int, int, int, int, int, __int64); 
 
   dispatchmode = g->dispatchmode;
   v2 = g->hookmask & 3 | ((char)g->hookmask >> 7) & 0x44 | ((g->hookmask & 0xC) != 0 ? 4 : 0);
@@ -252,63 +257,50 @@ void lj_dispatch_update(global_State *g)
   {
     if ( v8 )
     {
-      v21 = (GCRef *)&j_lj_vm_profhook;
-      v22 = 11i64;
+      v17 = (GCRef *)&j_lj_vm_profhook;
+      v18 = 11i64;
       if ( (v2 & 0x40) == 0 )
-        v21 = (GCRef *)&j_lj_vm_inshook;
-      v23 = v3;
+        v17 = (GCRef *)&j_lj_vm_inshook;
+      v19 = v3;
       do
       {
-        v23->strhash = v21;
-        *(_QWORD *)&v23->strmask = v21;
-        v23->allocf = (void *(__fastcall *)(void *, void *, unsigned __int64, unsigned __int64))v21;
-        v23 = (global_State *)((char *)v23 + 64);
-        v23[-1].gcroot[31].gcptr64 = (unsigned __int64)v21;
-        v23[-1].gcroot[32].gcptr64 = (unsigned __int64)v21;
-        v23[-1].gcroot[33].gcptr64 = (unsigned __int64)v21;
-        v23[-1].gcroot[34].gcptr64 = (unsigned __int64)v21;
-        v23[-1].gcroot[35].gcptr64 = (unsigned __int64)v21;
-        --v22;
+        v19->strhash = v17;
+        *(_QWORD *)&v19->strmask = v17;
+        v19->allocf = (void *(__fastcall *)(void *, void *, unsigned __int64, unsigned __int64))v17;
+        v19 = (global_State *)((char *)v19 + 64);
+        v19[-1].gcroot[31].gcptr64 = (unsigned __int64)v17;
+        v19[-1].gcroot[32].gcptr64 = (unsigned __int64)v17;
+        v19[-1].gcroot[33].gcptr64 = (unsigned __int64)v17;
+        v19[-1].gcroot[34].gcptr64 = (unsigned __int64)v17;
+        v19[-1].gcroot[35].gcptr64 = (unsigned __int64)v17;
+        --v18;
       }
-      while ( v22 );
-      v23->strhash = v21;
+      while ( v18 );
+      v19->strhash = v17;
       goto LABEL_17;
     }
-    _RDX = v3;
-    _RCX = &v3[1].gcroot[22];
+    v9 = (__m256i *)v3;
+    v10 = &v3[1].gcroot[22];
     v11 = 5i64;
     do
     {
-      _RDX = (global_State *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups xmm1, xmmword ptr [rcx+70h]
-      }
-      _RCX += 16;
-      __asm
-      {
-        vmovups ymmword ptr [rdx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rcx-60h]
-        vmovups ymmword ptr [rdx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rcx-40h]
-        vmovups ymmword ptr [rdx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rcx-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v9 += 4;
+      v12 = *(__m256i *)&v10->gcptr64;
+      v13 = *(_OWORD *)&v10[14].gcptr64;
+      v10 += 16;
+      v9[-4] = v12;
+      v9[-3] = *(__m256i *)&v10[-12].gcptr64;
+      v9[-2] = *(__m256i *)&v10[-8].gcptr64;
+      *(_OWORD *)v9[-1].m256i_i8 = *(_OWORD *)&v10[-4].gcptr64;
+      *(_OWORD *)&v9[-1].m256i_u64[2] = v13;
       --v11;
     }
     while ( v11 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-    }
-    v19 = _RCX[8].gcptr64;
-    __asm { vmovups ymmword ptr [rdx+20h], ymm0 }
-    *(_QWORD *)&_RDX->gc.currentwhite = v19;
+    *v9 = *(__m256i *)&v10->gcptr64;
+    v14 = *(__m256i *)&v10[4].gcptr64;
+    v15 = v10[8].gcptr64;
+    v9[1] = v14;
+    v9[2].m256i_i64[0] = v15;
     if ( (v2 & 2) != 0 )
       goto LABEL_7;
   }
@@ -322,23 +314,23 @@ void lj_dispatch_update(global_State *g)
       v3->gcroot[25].gcptr64 = v3[2].gcroot[11].gcptr64;
       v3->gcroot[26].gcptr64 = v3[2].gcroot[12].gcptr64;
       v3->gcroot[27].gcptr64 = v3[2].gcroot[13].gcptr64;
-      v20 = (__int64 (__fastcall *)())v3[2].gcroot[14].gcptr64;
+      v16 = (__int64 (__fastcall *)())v3[2].gcroot[14].gcptr64;
       goto LABEL_16;
     }
 LABEL_7:
-    v20 = j_lj_vm_rethook;
+    v16 = j_lj_vm_rethook;
     v3->gcroot[25].gcptr64 = (unsigned __int64)j_lj_vm_rethook;
     v3->gcroot[26].gcptr64 = (unsigned __int64)j_lj_vm_rethook;
     v3->gcroot[27].gcptr64 = (unsigned __int64)j_lj_vm_rethook;
 LABEL_16:
-    v3->gcroot[28].gcptr64 = (unsigned __int64)v20;
+    v3->gcroot[28].gcptr64 = (unsigned __int64)v16;
   }
 LABEL_17:
   if ( (v5 & 1) != 0 )
   {
     if ( (v2 & 1) != 0 )
     {
-      v24 = j_lj_vm_callhook;
+      v20 = j_lj_vm_callhook;
       v3[1].loadfiled = j_lj_vm_callhook;
       v3[1].gc.total = (unsigned __int64)j_lj_vm_callhook;
       v3[1].gc.threshold = (unsigned __int64)j_lj_vm_callhook;
@@ -470,9 +462,9 @@ LABEL_17:
       v3[1].gcroot[18].gcptr64 = (unsigned __int64)lj_vm_asm_begin + lj_bc_ofs[150];
       v3[1].gcroot[19].gcptr64 = (unsigned __int64)lj_vm_asm_begin + lj_bc_ofs[151];
       v3[1].gcroot[20].gcptr64 = (unsigned __int64)lj_vm_asm_begin + lj_bc_ofs[152];
-      v24 = (__int64 (__fastcall *)(int, int, int, int, int, int, int, int, int, int, int, __int64))((char *)lj_vm_asm_begin + lj_bc_ofs[153]);
+      v20 = (__int64 (__fastcall *)(int, int, int, int, int, int, int, int, int, int, int, __int64))((char *)lj_vm_asm_begin + lj_bc_ofs[153]);
     }
-    v3[1].gcroot[21].gcptr64 = (unsigned __int64)v24;
+    v3[1].gcroot[21].gcptr64 = (unsigned __int64)v20;
   }
   if ( (v2 & 1) == 0 )
   {

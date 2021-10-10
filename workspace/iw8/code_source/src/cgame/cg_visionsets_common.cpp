@@ -325,503 +325,322 @@ CG_VisionSetApplyToRefdef_Internal
 */
 void CG_VisionSetApplyToRefdef_Internal(refdef_t *refDef, const visionSetVarsBase_t *set, int full)
 {
-  const GfxImage *v7; 
-  bool v11; 
-  bool v24; 
-  const GfxGradingClut *v25; 
-  char v28; 
-  char v29; 
+  const GfxImage *v3; 
+  float r_ssaoStrength; 
+  GfxColorGradingAnalytical *v7; 
+  __m256i v8; 
+  __m256i v9; 
+  double v10; 
+  __m256i v11; 
+  const GfxGradingClut *v12; 
+  bool v13; 
   unsigned __int8 m_assetIndex; 
-  bool v31; 
-  __int64 v32; 
-  char v35; 
-  char v39; 
-  char v43; 
-  char v44; 
-  char v45; 
-  char v46; 
-  char v47; 
-  const dvar_t *v52; 
-  const dvar_t *v53; 
-  char v54; 
-  const dvar_t *v56; 
-  const dvar_t *v57; 
-  const dvar_t *v58; 
-  char v64; 
-  char v65; 
-  unsigned __int8 v78; 
-  __int64 v79; 
+  __int64 v15; 
+  float r_volumeLightScatter; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  bool v19; 
+  float volumetricAbsorption; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  __int128 cloudShadowScrollHeading_low; 
+  double v25; 
+  double v26; 
+  float cloudShadowScrollRate; 
+  __int128 cloudShadowLowThreshold_low; 
+  unsigned __int8 v35; 
+  __int64 v36; 
   GfxColorGradingAnalytical result; 
-  GfxColorGradingClutSet outColorGradingClutSet; 
-  float v90; 
-  char v91; 
-  void *retaddr; 
+  _BYTE outColorGradingClutSet[64]; 
+  _BYTE outColorGradingClutSet_64[128]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v7 = NULL;
-  _RDI = set;
-  _RBX = refDef;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v11 = 0;
+  v3 = NULL;
+  r_ssaoStrength = 0.0;
   if ( full )
   {
     refDef->chromaticAberration = *(GfxChromaticAberration *)&set->chromaRadius;
     if ( !s_CG_VisionSet.m_wasReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 642, ASSERT_TYPE_ASSERT, "(s_CG_VisionSet.m_wasReset)", (const char *)&queryFormat, "s_CG_VisionSet.m_wasReset") )
       __debugbreak();
-    if ( _RDI->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 643, ASSERT_TYPE_ASSERT, "(set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
+    if ( set->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 643, ASSERT_TYPE_ASSERT, "(set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
       __debugbreak();
-    CG_VisionSet_GetColorGradingClutSet(&outColorGradingClutSet, &_RDI->clutSet);
-    _RAX = GfxColorGradingAnalytical_Construct(&result, (const GfxColorGradingAnalytical_Config *)&_RDI->hdrColorizeKeyA_Pos);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rsp+1E8h+var_E8], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups [rsp+1E8h+var_C8], ymm1
-      vmovsd  xmm1, qword ptr [rax+60h]
-    }
-    v90 = _RAX->gain.v[2];
-    _RAX = &outColorGradingClutSet;
-    __asm
-    {
-      vmovups [rsp+1E8h+var_A8], ymm0
-      vmovsd  [rsp+1E8h+var_88], xmm1
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rbx+10CC8h], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+10CE8h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rbx+10D08h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rbx+10D28h], ymm0
-      vmovups ymmword ptr [rbx+10D48h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-      vmovups ymmword ptr [rbx+10D68h], ymm1
-    }
+    CG_VisionSet_GetColorGradingClutSet((GfxColorGradingClutSet *)outColorGradingClutSet, &set->clutSet);
+    v7 = GfxColorGradingAnalytical_Construct(&result, (const GfxColorGradingAnalytical_Config *)&set->hdrColorizeKeyA_Pos);
+    v8 = *(__m256i *)&v7->key[0].saturation;
+    *(__m256i *)&outColorGradingClutSet_64[16] = *(__m256i *)v7->keyPositions;
+    v9 = *(__m256i *)&v7->key[2].saturation;
+    *(__m256i *)&outColorGradingClutSet_64[48] = v8;
+    v10 = *(double *)v7->gain.v;
+    *(float *)&outColorGradingClutSet_64[120] = v7->gain.v[2];
+    *(__m256i *)&outColorGradingClutSet_64[80] = v9;
+    *(double *)&outColorGradingClutSet_64[112] = v10;
+    v11 = *(__m256i *)&outColorGradingClutSet_64[64];
+    *(__m256i *)&refDef->colorGrading.clutSet.m_clutCount = *(__m256i *)outColorGradingClutSet;
+    *(__m256i *)&refDef->colorGrading.clutSet.m_clutArray[2] = *(__m256i *)&outColorGradingClutSet[32];
+    *(__m256i *)&refDef->colorGrading.clutSet.m_clutArray[6] = *(__m256i *)outColorGradingClutSet_64;
+    *(__m256i *)&refDef->colorGrading.colorGradingAnalytical.keyMidpoints[1] = *(__m256i *)&outColorGradingClutSet_64[32];
+    *(__m256i *)&refDef->colorGrading.colorGradingAnalytical.key[1].saturation = v11;
+    *(__m256i *)&refDef->colorGrading.colorGradingAnalytical.lift.z = *(__m256i *)&outColorGradingClutSet_64[96];
     if ( !s_CG_VisionSet.m_wasReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 657, ASSERT_TYPE_ASSERT, "(s_CG_VisionSet.m_wasReset)", (const char *)&queryFormat, "s_CG_VisionSet.m_wasReset") )
       __debugbreak();
-    if ( _RDI->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 658, ASSERT_TYPE_ASSERT, "(set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
+    if ( set->assetTableResetCounter != s_CG_VisionSet.m_resetCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 658, ASSERT_TYPE_ASSERT, "(set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter)", (const char *)&queryFormat, "set->assetTableResetCounter == s_CG_VisionSet.m_resetCounter") )
       __debugbreak();
-    CG_VisionSet_GetColorGradingClutSet(&outColorGradingClutSet, &_RDI->nvgCLutSet);
-    GfxColorGradingAnalytical_Construct(&result, (const GfxColorGradingAnalytical_Config *)&_RDI->hdrColorizeKeyA_Pos);
-    v24 = outColorGradingClutSet.m_clutCount == 0;
-    v25 = NULL;
-    __asm { vmovss  xmm0, cs:__real@3f000000 }
-    if ( outColorGradingClutSet.m_clutCount )
-      v25 = outColorGradingClutSet.m_clutArray[0];
-    _RBX->nvgColorGrading = v25;
-    _RBX->lightTweakUVIntensityScale = _RDI->r_lightTweakUVIntensityScale;
-    _RBX->rimLighting.rimLightScale = _RDI->r_rimLightScale;
-    _RBX->rimLighting.rimLightStartDistance = _RDI->r_rimLightStartDistance;
-    _RBX->rimLighting.rimLightDistance = _RDI->r_rimLightDistance;
-    _RBX->rimLighting.rimLightFill = _RDI->r_rimLightFill;
-    _RBX->rimLighting.EVCompBounds = _RDI->r_EVCompBounds;
-    _RBX->rimLighting.EVCompGrayReference = _RDI->r_EVCompGrayReference;
-    _RBX->skyBlendAmount = _RDI->r_skyBlendAmount;
-    _RBX->skyBlendFeather = _RDI->r_skyBlendFeather;
-    _RBX->tonemap.enabled = 1;
-    __asm { vcomiss xmm0, dword ptr [rdi+1D8h] }
-    _RBX->tonemap.blendExposure = 1;
-    _RBX->tonemap.autoExposure = 0;
-    __asm
-    {
-      vcomiss xmm0, dword ptr [rdi+1DCh]
-      vmovss  xmm0, cs:__real@3f800000
-    }
-    _RBX->tonemap.lockAutoExposureAdjust = !v24;
-    _RBX->tonemap.userMaxExposure = _RDI->tonemapMaxExposure;
-    _RBX->tonemap.userExposure = _RDI->tonemapExposure;
-    _RBX->tonemap.userExposureAdjust = _RDI->tonemapExposureAdjust;
-    _RBX->tonemap.userAutoExposureAdjust = _RDI->tonemapAutoExposureAdjust;
-    _RBX->tonemap.adaptSpeed = _RDI->tonemapAdaptSpeed;
-    _RBX->tonemap.darkEv = _RDI->tonemapDarkEv;
-    _RBX->tonemap.midEv = _RDI->tonemapMidEv;
-    _RBX->tonemap.lightEv = _RDI->tonemapLightEv;
-    _RBX->tonemap.darkExposureAdjust = _RDI->tonemapDarkExposureAdjust;
-    _RBX->tonemap.midExposureAdjust = _RDI->tonemapMidExposureAdjust;
-    _RBX->tonemap.lightExposureAdjust = _RDI->tonemapLightExposureAdjust;
-    _RBX->tonemap.maxExposureAdjust = _RDI->tonemapMaxExposureAdjust;
-    _RBX->tonemap.minExposureAdjust = _RDI->tonemapMinExposureAdjust;
-    _RBX->tonemap.grainStrength = _RDI->tonemapGrainStrength;
-    _RBX->tonemap.localStrength = _RDI->tonemapLocalStrength;
-    _RBX->tonemap.localEvBounds = _RDI->tonemapLocalEvBounds;
-    _RBX->perceptual.veilStrength = _RDI->veilStrength;
-    _RBX->tonemap.whitePoint.v[0] = _RDI->toneWhitePoint.v[0];
-    _RBX->tonemap.whitePoint.v[1] = _RDI->toneWhitePoint.v[1];
-    _RBX->tonemap.whitePoint.v[2] = _RDI->toneWhitePoint.v[2];
-    __asm { vucomiss xmm0, dword ptr [rdi+2FCh] }
-    if ( v24 )
-    {
-      v28 = 1;
-    }
-    else
-    {
-      v28 = 0;
-      v24 = 1;
-    }
-    _RBX->thermalParams.useNightAndThermalVisionCombo = v28;
-    __asm { vucomiss xmm0, dword ptr [rdi+49Ch] }
-    v29 = v24;
-    _RBX->thermalParams.useScopedNVG = v29;
-    _RBX->thermalParams.nightVisionExposureAdjustment = _RDI->nightVisionExposureAdjustment;
-    _RBX->thermalParams.nightVisionMinExposureBias = _RDI->nightVisionMinExposureBias;
-    _RBX->thermalParams.thermalAmbientTemperature = _RDI->thermalAmbientTemperature;
-    _RBX->thermalParams.thermalAmbientReflection = _RDI->thermalAmbientReflection;
-    _RBX->thermalParams.thermalColdColor.v[0] = _RDI->thermalColdColor.v[0];
-    _RBX->thermalParams.thermalColdColor.v[1] = _RDI->thermalColdColor.v[1];
-    _RBX->thermalParams.thermalColdColor.v[2] = _RDI->thermalColdColor.v[2];
-    _RBX->thermalParams.thermalHotColor.v[0] = _RDI->thermalHotColor.v[0];
-    _RBX->thermalParams.thermalHotColor.v[1] = _RDI->thermalHotColor.v[1];
-    _RBX->thermalParams.thermalHotColor.v[2] = _RDI->thermalHotColor.v[2];
-    _RBX->thermalParams.thermalColorScale = _RDI->thermalColorScale;
-    _RBX->thermalParams.thermalRadiationMin = _RDI->thermalRadiationMin;
-    _RBX->thermalParams.thermalRadiationMax = _RDI->thermalRadiationMax;
-    _RBX->thermalParams.lightIntensityScreen = _RDI->lightIntensityScopeScreen;
-    _RBX->thermalParams.thermalFogExtinctionWeight = _RDI->thermalFogExtinctionWeight;
-    _RBX->thermalParams.thermalSurfaceNormalStrength = _RDI->thermalSurfaceNormalStrength;
-    _RBX->thermalParams.thermalAOStrength = _RDI->thermalAOStrength;
-    _RBX->thermalParams.thermalCutoff = _RDI->thermalCutoff;
-    _RBX->thermalParams.thermalFog = _RDI->thermalFog;
-    _RBX->thermalParams.thermalRadiationLut = NULL;
-    m_assetIndex = _RDI->thermalRadiationLut.m_assets[0].m_assetIndex;
-    v11 = 0;
-    v31 = m_assetIndex == 0;
+    CG_VisionSet_GetColorGradingClutSet((GfxColorGradingClutSet *)outColorGradingClutSet, &set->nvgCLutSet);
+    GfxColorGradingAnalytical_Construct(&result, (const GfxColorGradingAnalytical_Config *)&set->hdrColorizeKeyA_Pos);
+    v12 = NULL;
+    if ( outColorGradingClutSet[0] )
+      v12 = *(const GfxGradingClut **)&outColorGradingClutSet[16];
+    refDef->nvgColorGrading = v12;
+    refDef->lightTweakUVIntensityScale = set->r_lightTweakUVIntensityScale;
+    refDef->rimLighting.rimLightScale = set->r_rimLightScale;
+    refDef->rimLighting.rimLightStartDistance = set->r_rimLightStartDistance;
+    refDef->rimLighting.rimLightDistance = set->r_rimLightDistance;
+    refDef->rimLighting.rimLightFill = set->r_rimLightFill;
+    refDef->rimLighting.EVCompBounds = set->r_EVCompBounds;
+    refDef->rimLighting.EVCompGrayReference = set->r_EVCompGrayReference;
+    refDef->skyBlendAmount = set->r_skyBlendAmount;
+    refDef->skyBlendFeather = set->r_skyBlendFeather;
+    refDef->tonemap.enabled = 1;
+    v13 = set->tonemapAuto > 0.5;
+    refDef->tonemap.blendExposure = 1;
+    refDef->tonemap.autoExposure = v13;
+    refDef->tonemap.lockAutoExposureAdjust = set->tonemapAutoExposureAdjustCurve < 0.5;
+    refDef->tonemap.userMaxExposure = set->tonemapMaxExposure;
+    refDef->tonemap.userExposure = set->tonemapExposure;
+    refDef->tonemap.userExposureAdjust = set->tonemapExposureAdjust;
+    refDef->tonemap.userAutoExposureAdjust = set->tonemapAutoExposureAdjust;
+    refDef->tonemap.adaptSpeed = set->tonemapAdaptSpeed;
+    refDef->tonemap.darkEv = set->tonemapDarkEv;
+    refDef->tonemap.midEv = set->tonemapMidEv;
+    refDef->tonemap.lightEv = set->tonemapLightEv;
+    refDef->tonemap.darkExposureAdjust = set->tonemapDarkExposureAdjust;
+    refDef->tonemap.midExposureAdjust = set->tonemapMidExposureAdjust;
+    refDef->tonemap.lightExposureAdjust = set->tonemapLightExposureAdjust;
+    refDef->tonemap.maxExposureAdjust = set->tonemapMaxExposureAdjust;
+    refDef->tonemap.minExposureAdjust = set->tonemapMinExposureAdjust;
+    refDef->tonemap.grainStrength = set->tonemapGrainStrength;
+    refDef->tonemap.localStrength = set->tonemapLocalStrength;
+    refDef->tonemap.localEvBounds = set->tonemapLocalEvBounds;
+    refDef->perceptual.veilStrength = set->veilStrength;
+    refDef->tonemap.whitePoint.v[0] = set->toneWhitePoint.v[0];
+    refDef->tonemap.whitePoint.v[1] = set->toneWhitePoint.v[1];
+    refDef->tonemap.whitePoint.v[2] = set->toneWhitePoint.v[2];
+    refDef->thermalParams.useNightAndThermalVisionCombo = 1.0 == set->nightAndThermalVisionCombo;
+    refDef->thermalParams.useScopedNVG = 1.0 == set->scopedNVG;
+    refDef->thermalParams.nightVisionExposureAdjustment = set->nightVisionExposureAdjustment;
+    refDef->thermalParams.nightVisionMinExposureBias = set->nightVisionMinExposureBias;
+    refDef->thermalParams.thermalAmbientTemperature = set->thermalAmbientTemperature;
+    refDef->thermalParams.thermalAmbientReflection = set->thermalAmbientReflection;
+    refDef->thermalParams.thermalColdColor.v[0] = set->thermalColdColor.v[0];
+    refDef->thermalParams.thermalColdColor.v[1] = set->thermalColdColor.v[1];
+    refDef->thermalParams.thermalColdColor.v[2] = set->thermalColdColor.v[2];
+    refDef->thermalParams.thermalHotColor.v[0] = set->thermalHotColor.v[0];
+    refDef->thermalParams.thermalHotColor.v[1] = set->thermalHotColor.v[1];
+    refDef->thermalParams.thermalHotColor.v[2] = set->thermalHotColor.v[2];
+    refDef->thermalParams.thermalColorScale = set->thermalColorScale;
+    refDef->thermalParams.thermalRadiationMin = set->thermalRadiationMin;
+    refDef->thermalParams.thermalRadiationMax = set->thermalRadiationMax;
+    refDef->thermalParams.lightIntensityScreen = set->lightIntensityScopeScreen;
+    refDef->thermalParams.thermalFogExtinctionWeight = set->thermalFogExtinctionWeight;
+    refDef->thermalParams.thermalSurfaceNormalStrength = set->thermalSurfaceNormalStrength;
+    refDef->thermalParams.thermalAOStrength = set->thermalAOStrength;
+    refDef->thermalParams.thermalCutoff = set->thermalCutoff;
+    refDef->thermalParams.thermalFog = set->thermalFog;
+    refDef->thermalParams.thermalRadiationLut = NULL;
+    m_assetIndex = set->thermalRadiationLut.m_assets[0].m_assetIndex;
     if ( m_assetIndex )
     {
-      v32 = 2i64 * m_assetIndex;
-      v11 = s_CG_VisionSet.m_assetNodes[8 * v32 - 4080].m_nextAssetIndex == 0;
-      v31 = s_CG_VisionSet.m_assetNodes[8 * v32 - 4080].m_nextAssetIndex == 1;
-      if ( s_CG_VisionSet.m_assetNodes[8 * v32 - 4080].m_nextAssetIndex == 1 )
-        _RBX->thermalParams.thermalRadiationLut = *(const GfxImage **)&s_CG_VisionSet.m_assetNodes[8 * v32 - 4072].m_nextAssetIndex;
+      v15 = 2i64 * m_assetIndex;
+      if ( s_CG_VisionSet.m_assetNodes[8 * v15 - 4080].m_nextAssetIndex == 1 )
+        refDef->thermalParams.thermalRadiationLut = *(const GfxImage **)&s_CG_VisionSet.m_assetNodes[8 * v15 - 4072].m_nextAssetIndex;
     }
-    __asm { vcvttss2si eax, dword ptr [rdi+220h] }
-    _RBX->whiteBalance.method = _EAX;
-    __asm { vcvttss2si eax, dword ptr [rdi+224h] }
-    _RBX->whiteBalance.illuminant = _EAX;
-    _RBX->whiteBalance.colorTempK = _RDI->whiteBalanceColorTempK;
-    _RBX->whiteBalance.colorGreenMagentaShift = _RDI->whiteBalanceGreenMagentaShift;
-    __asm { vucomiss xmm6, dword ptr [rdi+24Ch] }
-    if ( v31 )
-    {
-      v35 = 0;
-      v11 = 0;
-      v31 = 1;
-    }
-    else
-    {
-      v35 = 1;
-    }
-    _RBX->droneCameraEffects.enabled = v35;
-    __asm { vcvttss2si eax, dword ptr [rdi+250h] }
-    _RBX->droneCameraEffects.downsampleScale = _EAX;
-    _RBX->droneCameraEffects.pixelSize = _RDI->droneCameraPixelSize;
-    __asm { vcvttss2si eax, dword ptr [rdi+258h] }
-    _RBX->droneCameraEffects.filterMultiplier = _EAX;
-    __asm { vcvttss2si eax, dword ptr [rdi+25Ch] }
-    _RBX->droneCameraEffects.filterType = _EAX;
-    _RBX->droneCameraEffects.filterShakeStrength = _RDI->droneCameraFilterShakeStrength;
-    __asm { vucomiss xmm6, dword ptr [rdi+264h] }
-    if ( v31 )
-    {
-      v11 = 0;
-      v31 = 1;
-      v39 = 0;
-    }
-    else
-    {
-      v39 = 1;
-    }
-    __asm { vmovss  xmm2, cs:__real@3b808081 }
-    _RBX->droneCameraEffects.levelsOnOff = v39;
-    __asm
-    {
-      vmulss  xmm0, xmm2, dword ptr [rdi+268h]
-      vmovss  dword ptr [rbx+10C20h], xmm0
-      vmulss  xmm2, xmm2, dword ptr [rdi+26Ch]
-      vmovss  dword ptr [rbx+10C24h], xmm2
-    }
-    _RBX->droneCameraEffects.levelsGamma = _RDI->droneCameraLevelsGamma;
-    __asm { vucomiss xmm6, dword ptr [rdi+274h] }
-    if ( v31 )
-    {
-      v43 = 0;
-      v11 = 0;
-      v31 = 1;
-    }
-    else
-    {
-      v43 = 1;
-    }
-    _RBX->droneCameraEffects.posterizationOnOff = v43;
-    _RBX->droneCameraEffects.posterizationGamma = _RDI->droneCameraPosterizationGamma;
-    _RBX->droneCameraEffects.posterizationPower = _RDI->droneCameraPosterizationPower;
-    _RBX->droneCameraEffects.saturation = _RDI->droneCameraSaturation;
-    __asm { vucomiss xmm6, dword ptr [rdi+284h] }
-    if ( v31 )
-    {
-      v44 = 0;
-      v11 = 0;
-      v31 = 1;
-    }
-    else
-    {
-      v44 = 1;
-    }
-    _RBX->droneCameraEffects.deformScreenOnOff = v44;
-    _RBX->droneCameraEffects.deformScreenThreshold = _RDI->droneCameraDeformScreenThreshold;
-    _RBX->droneCameraEffects.deformScreenScale = _RDI->droneCameraDeformScreenScale;
-    _RBX->droneCameraEffects.deformScreenSeed = _RDI->droneCameraDeformScreenSeed;
-    _RBX->droneCameraEffects.deformScreenProbability = _RDI->droneCameraDeformScreenProbability;
-    __asm { vucomiss xmm6, dword ptr [rdi+298h] }
-    if ( v31 )
-    {
-      v45 = 0;
-      v11 = 0;
-      v31 = 1;
-    }
-    else
-    {
-      v45 = 1;
-    }
-    _RBX->droneCameraEffects.shakeCameraOnOff = v45;
-    _RBX->droneCameraEffects.shakeCameraVal1 = _RDI->droneCameraShakeCameraVal1;
-    _RBX->droneCameraEffects.shakeCameraVal2 = _RDI->droneCameraShakeCameraVal2;
-    _RBX->droneCameraEffects.shakeCameraVal3 = _RDI->droneCameraShakeCameraVal3;
-    __asm { vucomiss xmm6, dword ptr [rdi+2A8h] }
-    if ( v31 )
-    {
-      v46 = 0;
-      v11 = 0;
-      v31 = 1;
-    }
-    else
-    {
-      v46 = 1;
-    }
-    _RBX->droneCameraEffects.scanlinesOnOff = v46;
-    _RBX->droneCameraEffects.scanline1_InterpolationPower = _RDI->droneCameraScanline1_InterpolationPower;
-    _RBX->droneCameraEffects.scanline2_InterpolationPower = _RDI->droneCameraScanline2_InterpolationPower;
-    _RBX->droneCameraEffects.scanline1_Size = _RDI->droneCameraScanline1_Size;
-    _RBX->droneCameraEffects.scanline1_Speed = _RDI->droneCameraScanline1_Speed;
-    _RBX->droneCameraEffects.scanline2_Size = _RDI->droneCameraScanline2_Size;
-    _RBX->droneCameraEffects.scanline2_Speed = _RDI->droneCameraScanline2_Speed;
-    __asm { vucomiss xmm6, dword ptr [rdi+2C4h] }
-    if ( v31 )
-    {
-      v47 = 0;
-      v11 = 0;
-    }
-    else
-    {
-      v47 = 1;
-    }
-    _RBX->droneCameraEffects.vignetteOnOff = v47;
-    _RBX->droneCameraEffects.vignetteSize = _RDI->droneCameraVignetteSize;
-    _RBX->droneCameraEffects.vignetteSmoothness = _RDI->droneCameraVignetteSmoothness;
-    _RBX->droneCameraEffects.vignetteEdges = _RDI->droneCameraVignetteEdges;
-    _RBX->droneCameraEffects.zoomUV = _RDI->droneCameraZoomUV;
-    _RBX->analogEffects.analogCrtEffectAmount = _RDI->analogCrtEffectAmount;
-    _RBX->analogEffects.analogInterferenceAmount = _RDI->analogInterferenceAmount;
-    _RBX->analogEffects.analogRewindAmount = _RDI->analogRewindAmount;
-    _RBX->analogEffects.analogRollEffectAmount = _RDI->analogRollEffectAmount;
-    _RBX->analogEffects.analogChromaSeparationEffectAmount = _RDI->analogChromaSeparationEffectAmount;
+    refDef->whiteBalance.method = (int)set->whiteBalanceMethod;
+    refDef->whiteBalance.illuminant = (int)set->whiteBalanceIlluminant;
+    refDef->whiteBalance.colorTempK = set->whiteBalanceColorTempK;
+    refDef->whiteBalance.colorGreenMagentaShift = set->whiteBalanceGreenMagentaShift;
+    refDef->droneCameraEffects.enabled = set->droneCameraEnabled != 0.0;
+    refDef->droneCameraEffects.downsampleScale = (int)set->droneCameraDownsampleScale;
+    refDef->droneCameraEffects.pixelSize = set->droneCameraPixelSize;
+    refDef->droneCameraEffects.filterMultiplier = (int)set->droneCameraFilterMultiplier;
+    refDef->droneCameraEffects.filterType = (int)set->droneCameraFilterType;
+    refDef->droneCameraEffects.filterShakeStrength = set->droneCameraFilterShakeStrength;
+    refDef->droneCameraEffects.levelsOnOff = set->droneCameraLevelsOnOff != 0.0;
+    refDef->droneCameraEffects.levelsMin = 0.0039215689 * set->droneCameraLevelsMin;
+    refDef->droneCameraEffects.levelsMax = 0.0039215689 * set->droneCameraLevelsMax;
+    refDef->droneCameraEffects.levelsGamma = set->droneCameraLevelsGamma;
+    refDef->droneCameraEffects.posterizationOnOff = set->droneCameraPosterizationOnOff != 0.0;
+    refDef->droneCameraEffects.posterizationGamma = set->droneCameraPosterizationGamma;
+    refDef->droneCameraEffects.posterizationPower = set->droneCameraPosterizationPower;
+    refDef->droneCameraEffects.saturation = set->droneCameraSaturation;
+    refDef->droneCameraEffects.deformScreenOnOff = set->droneCameraDeformScreenOnOff != 0.0;
+    refDef->droneCameraEffects.deformScreenThreshold = set->droneCameraDeformScreenThreshold;
+    refDef->droneCameraEffects.deformScreenScale = set->droneCameraDeformScreenScale;
+    refDef->droneCameraEffects.deformScreenSeed = set->droneCameraDeformScreenSeed;
+    refDef->droneCameraEffects.deformScreenProbability = set->droneCameraDeformScreenProbability;
+    refDef->droneCameraEffects.shakeCameraOnOff = set->droneCameraShakeCameraOnOff != 0.0;
+    refDef->droneCameraEffects.shakeCameraVal1 = set->droneCameraShakeCameraVal1;
+    refDef->droneCameraEffects.shakeCameraVal2 = set->droneCameraShakeCameraVal2;
+    refDef->droneCameraEffects.shakeCameraVal3 = set->droneCameraShakeCameraVal3;
+    refDef->droneCameraEffects.scanlinesOnOff = set->droneCameraScanlinesOnOff != 0.0;
+    refDef->droneCameraEffects.scanline1_InterpolationPower = set->droneCameraScanline1_InterpolationPower;
+    refDef->droneCameraEffects.scanline2_InterpolationPower = set->droneCameraScanline2_InterpolationPower;
+    refDef->droneCameraEffects.scanline1_Size = set->droneCameraScanline1_Size;
+    refDef->droneCameraEffects.scanline1_Speed = set->droneCameraScanline1_Speed;
+    refDef->droneCameraEffects.scanline2_Size = set->droneCameraScanline2_Size;
+    refDef->droneCameraEffects.scanline2_Speed = set->droneCameraScanline2_Speed;
+    refDef->droneCameraEffects.vignetteOnOff = set->droneCameraVignetteOnOff != 0.0;
+    refDef->droneCameraEffects.vignetteSize = set->droneCameraVignetteSize;
+    refDef->droneCameraEffects.vignetteSmoothness = set->droneCameraVignetteSmoothness;
+    refDef->droneCameraEffects.vignetteEdges = set->droneCameraVignetteEdges;
+    refDef->droneCameraEffects.zoomUV = set->droneCameraZoomUV;
+    refDef->analogEffects.analogCrtEffectAmount = set->analogCrtEffectAmount;
+    refDef->analogEffects.analogInterferenceAmount = set->analogInterferenceAmount;
+    refDef->analogEffects.analogRewindAmount = set->analogRewindAmount;
+    refDef->analogEffects.analogRollEffectAmount = set->analogRollEffectAmount;
+    refDef->analogEffects.analogChromaSeparationEffectAmount = set->analogChromaSeparationEffectAmount;
   }
-  _RBX->dust.dustHeading = _RDI->r_dustHeading;
-  _RBX->dust.dustPitch = _RDI->r_dustPitch;
-  _RBX->dust.dustTiling = _RDI->r_dustTiling;
-  _RBX->dust.dustIntensity = _RDI->r_dustIntensity;
-  _RBX->dust.dustPowerCurve = _RDI->r_dustPowerCurv;
-  _RBX->dust.dustSmoothMin = _RDI->r_dustSmoothMin;
-  _RBX->dust.dustSmoothMax = _RDI->r_dustSmoothMax;
-  __asm { vcomiss xmm6, dword ptr [rdi+2Ch] }
-  _RBX->volumeLightScatter.enabled = v11;
-  _RBX->volumeLightScatter.attenuation.v[0] = _RDI->r_volumeLightScatterLinearAtten;
-  _RBX->volumeLightScatter.attenuation.v[1] = _RDI->r_volumeLightScatterQuadraticAtten;
-  _RBX->volumeLightScatter.attenuation.v[2] = _RDI->r_volumeLightScatterAngularAtten;
-  _RBX->volumeLightScatter.depthAttenuation.v[0] = _RDI->r_volumeLightScatterDepthAttenNear;
-  _RBX->volumeLightScatter.depthAttenuation.v[1] = _RDI->r_volumeLightScatterDepthAttenFar;
-  _RBX->volumeLightScatter.backgroundDistance = _RDI->r_volumeLightScatterBackgroundDistance;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+2Ch]
-    vmulss  xmm0, xmm2, dword ptr [rdi+48h]
-    vmovss  dword ptr [rbx+10E40h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rdi+4Ch]
-    vmovss  dword ptr [rbx+10E44h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+50h]
-    vmovss  dword ptr [rbx+10E48h], xmm0
-  }
-  v52 = DVARBOOL_r_volumetrics;
+  refDef->dust.dustHeading = set->r_dustHeading;
+  refDef->dust.dustPitch = set->r_dustPitch;
+  refDef->dust.dustTiling = set->r_dustTiling;
+  refDef->dust.dustIntensity = set->r_dustIntensity;
+  refDef->dust.dustPowerCurve = set->r_dustPowerCurv;
+  refDef->dust.dustSmoothMin = set->r_dustSmoothMin;
+  refDef->dust.dustSmoothMax = set->r_dustSmoothMax;
+  refDef->volumeLightScatter.enabled = set->r_volumeLightScatter > 0.0;
+  refDef->volumeLightScatter.attenuation.v[0] = set->r_volumeLightScatterLinearAtten;
+  refDef->volumeLightScatter.attenuation.v[1] = set->r_volumeLightScatterQuadraticAtten;
+  refDef->volumeLightScatter.attenuation.v[2] = set->r_volumeLightScatterAngularAtten;
+  refDef->volumeLightScatter.depthAttenuation.v[0] = set->r_volumeLightScatterDepthAttenNear;
+  refDef->volumeLightScatter.depthAttenuation.v[1] = set->r_volumeLightScatterDepthAttenFar;
+  refDef->volumeLightScatter.backgroundDistance = set->r_volumeLightScatterBackgroundDistance;
+  r_volumeLightScatter = set->r_volumeLightScatter;
+  refDef->volumeLightScatter.lightColor.v[0] = r_volumeLightScatter * set->r_volumeLightScatterColor.v[0];
+  refDef->volumeLightScatter.lightColor.v[1] = r_volumeLightScatter * set->r_volumeLightScatterColor.v[1];
+  refDef->volumeLightScatter.lightColor.v[2] = r_volumeLightScatter * set->r_volumeLightScatterColor.v[2];
+  v17 = DVARBOOL_r_volumetrics;
   if ( !DVARBOOL_r_volumetrics )
-    goto LABEL_55;
+    goto LABEL_28;
   Dvar_CheckFrontendServerThread(DVARBOOL_r_volumetrics);
-  if ( !v52->current.enabled )
-    goto LABEL_55;
-  v53 = DCONST_DVARBOOL_r_volumetricsA;
+  if ( !v17->current.enabled )
+    goto LABEL_28;
+  v18 = DCONST_DVARBOOL_r_volumetricsA;
   if ( !DCONST_DVARBOOL_r_volumetricsA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_volumetricsA") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v53);
-  if ( v53->current.enabled && r_volumetricsDisableHack->current.enabled )
-    v54 = 1;
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.enabled && r_volumetricsDisableHack->current.enabled )
+    v19 = 1;
   else
-LABEL_55:
-    v54 = 0;
-  _RBX->volumetrics.enabled = v54;
-  _RBX->volumetrics.airDensity = _RDI->volumetricAirDensity;
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rdi+54h]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbx+10E6Ch], xmm0
-  }
-  _RBX->volumetrics.albedo.v[0] = _RDI->volumetricAlbedo.v[0];
-  _RBX->volumetrics.albedo.v[1] = _RDI->volumetricAlbedo.v[1];
-  _RBX->volumetrics.albedo.v[2] = _RDI->volumetricAlbedo.v[2];
-  _RBX->volumetrics.sunBrightness = _RDI->volumetricSunBrightness;
-  _RBX->volumetrics.spotBrightness = _RDI->volumetricSpotBrightness;
-  _RBX->volumetrics.omniBrightness = _RDI->volumetricOmniBrightness;
-  _RBX->volumetrics.ambientBrightness = _RDI->volumetricAmbientBrightness;
-  _RBX->volumetrics.sunAnisotropy = _RDI->volumetricSunAnisotropy;
-  LODWORD(_RBX->volumetrics.attenuationClamp) = r_volumetricsAttenuationClamp->current.integer;
-  LODWORD(_RBX->volumetrics.bulbAttenClamp) = r_volumetricsBulbAttenClamp->current.integer;
-  _RBX->volumetrics.heightFogBaseHeight = _RDI->volumetricHeightFogBaseHeight;
-  _RBX->volumetrics.heightFogHalfPlaneDistance = _RDI->volumetricHeightFogHalfPlaneDistance;
-  v56 = r_volumetricsDensityTemporalFactor;
+LABEL_28:
+    v19 = 0;
+  refDef->volumetrics.enabled = v19;
+  refDef->volumetrics.airDensity = set->volumetricAirDensity;
+  if ( set->volumetricAirDensity <= 0.0 )
+    volumetricAbsorption = 0.0;
+  else
+    volumetricAbsorption = set->volumetricAbsorption;
+  refDef->volumetrics.absorption = volumetricAbsorption;
+  refDef->volumetrics.albedo.v[0] = set->volumetricAlbedo.v[0];
+  refDef->volumetrics.albedo.v[1] = set->volumetricAlbedo.v[1];
+  refDef->volumetrics.albedo.v[2] = set->volumetricAlbedo.v[2];
+  refDef->volumetrics.sunBrightness = set->volumetricSunBrightness;
+  refDef->volumetrics.spotBrightness = set->volumetricSpotBrightness;
+  refDef->volumetrics.omniBrightness = set->volumetricOmniBrightness;
+  refDef->volumetrics.ambientBrightness = set->volumetricAmbientBrightness;
+  refDef->volumetrics.sunAnisotropy = set->volumetricSunAnisotropy;
+  LODWORD(refDef->volumetrics.attenuationClamp) = r_volumetricsAttenuationClamp->current.integer;
+  LODWORD(refDef->volumetrics.bulbAttenClamp) = r_volumetricsBulbAttenClamp->current.integer;
+  refDef->volumetrics.heightFogBaseHeight = set->volumetricHeightFogBaseHeight;
+  refDef->volumetrics.heightFogHalfPlaneDistance = set->volumetricHeightFogHalfPlaneDistance;
+  v21 = r_volumetricsDensityTemporalFactor;
   if ( !r_volumetricsDensityTemporalFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v56);
-  LODWORD(_RBX->volumetrics.densityTemporalFactor) = v56->current.integer;
-  v57 = r_volumetricsScatterTemporalFactor;
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(refDef->volumetrics.densityTemporalFactor) = v21->current.integer;
+  v22 = r_volumetricsScatterTemporalFactor;
   if ( !r_volumetricsScatterTemporalFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v57);
-  LODWORD(_RBX->volumetrics.scatterTemporalFactor) = v57->current.integer;
-  v58 = r_volumetricsAmbientTemporalFactor;
+  Dvar_CheckFrontendServerThread(v22);
+  LODWORD(refDef->volumetrics.scatterTemporalFactor) = v22->current.integer;
+  v23 = r_volumetricsAmbientTemporalFactor;
   if ( !r_volumetricsAmbientTemporalFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v58);
+  Dvar_CheckFrontendServerThread(v23);
+  LODWORD(refDef->volumetrics.ambientTemporalFactor) = v23->current.integer;
+  refDef->sunshadowSoftness = set->sunshadowSoftness;
+  refDef->sunshadowSampleSizeNear = set->sunshadowSampleSizeNear;
+  cloudShadowScrollHeading_low = LODWORD(set->cloudShadowScrollHeading);
+  *(float *)&cloudShadowScrollHeading_low = set->cloudShadowScrollHeading * 0.017453292;
+  v25 = I_fclamp(*(float *)&cloudShadowScrollHeading_low, -3.1415925, 3.1415925);
+  refDef->cloudShadow.scale = set->cloudShadowScale;
+  v26 = FastSinBetweenMinusPiAndPi(*(float *)&v25);
+  _XMM8 = LODWORD(FLOAT_3_1415927);
+  refDef->cloudShadow.scroll.v[1] = *(float *)&v26;
+  if ( (*(float *)&cloudShadowScrollHeading_low < -3.1415927 || *(float *)&cloudShadowScrollHeading_low > 3.1415927) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 810, ASSERT_TYPE_ASSERT, "(radians >= -M_PI_F && radians <= M_PI_F)", (const char *)&queryFormat, "radians >= -M_PI_F && radians <= M_PI_F") )
+    __debugbreak();
+  *(float *)&cloudShadowScrollHeading_low = *(float *)&cloudShadowScrollHeading_low + 1.5707964;
+  _XMM2 = cloudShadowScrollHeading_low;
   __asm
   {
-    vmovss  xmm2, cs:__real@40490fda; max
-    vmovss  xmm1, cs:__real@c0490fda; min
-  }
-  LODWORD(_RBX->volumetrics.ambientTemporalFactor) = v58->current.integer;
-  _RBX->sunshadowSoftness = _RDI->sunshadowSoftness;
-  _RBX->sunshadowSampleSizeNear = _RDI->sunshadowSampleSizeNear;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+94h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RBX->cloudShadow.scale = _RDI->cloudShadowScale;
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = FastSinBetweenMinusPiAndPi(*(float *)&_XMM0);
-  __asm
-  {
-    vcomiss xmm7, cs:__real@c0490fdb
-    vmovss  xmm8, cs:__real@40490fdb
-    vmovss  dword ptr [rbx+10EE4h], xmm0
-  }
-  if ( v64 )
-    goto LABEL_77;
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !(v64 | v65) )
-  {
-LABEL_77:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 810, ASSERT_TYPE_ASSERT, "(radians >= -M_PI_F && radians <= M_PI_F)", (const char *)&queryFormat, "radians >= -M_PI_F && radians <= M_PI_F") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vaddss  xmm2, xmm7, cs:__real@3fc90fdb
-    vsubss  xmm1, xmm2, cs:__real@40c90fdb
     vcmpless xmm0, xmm8, xmm2
     vblendvps xmm0, xmm2, xmm1, xmm0; radians
   }
   *(double *)&_XMM0 = FastSinBetweenMinusPiAndPi(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+10EE0h], xmm0
-    vmovss  xmm1, dword ptr [rdi+90h]
-    vmulss  xmm0, xmm1, xmm0
-    vmovss  dword ptr [rbx+10EE0h], xmm0
-    vmulss  xmm1, xmm1, dword ptr [rbx+10EE4h]
-    vmovss  dword ptr [rbx+10EE4h], xmm1
-  }
-  _RBX->cloudShadow.opacity = _RDI->cloudShadowOpacity;
-  _RBX->cloudShadow.min = _RDI->cloudShadowLowThreshold;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+9Ch]
-    vaddss  xmm1, xmm0, cs:__real@34000000
-    vmaxss  xmm2, xmm1, dword ptr [rdi+0A0h]
-    vmovss  dword ptr [rbx+10EF0h], xmm2
-  }
+  refDef->cloudShadow.scroll.v[0] = *(float *)&_XMM0;
+  cloudShadowScrollRate = set->cloudShadowScrollRate;
+  refDef->cloudShadow.scroll.v[0] = cloudShadowScrollRate * *(float *)&_XMM0;
+  refDef->cloudShadow.scroll.v[1] = cloudShadowScrollRate * refDef->cloudShadow.scroll.v[1];
+  refDef->cloudShadow.opacity = set->cloudShadowOpacity;
+  refDef->cloudShadow.min = set->cloudShadowLowThreshold;
+  cloudShadowLowThreshold_low = LODWORD(set->cloudShadowLowThreshold);
+  *(float *)&cloudShadowLowThreshold_low = set->cloudShadowLowThreshold + 0.00000011920929;
+  _XMM1 = cloudShadowLowThreshold_low;
+  __asm { vmaxss  xmm2, xmm1, dword ptr [rdi+0A0h] }
+  refDef->cloudShadow.max = *(float *)&_XMM2;
   if ( !CL_IsRenderingSplitScreen() )
-    __asm { vmovss  xmm6, dword ptr [rdi+0A4h] }
-  __asm { vmovss  dword ptr [rbx+10D90h], xmm6 }
-  _RBX->mdaoCullDistance = _RDI->r_mdaoCullDistance;
-  _RBX->mdaoFadeoutDistance = _RDI->r_mdaoFadeoutDistance;
-  _RBX->mdaoBoneSizeThreshold = _RDI->r_mdaoBoneSizeThreshold;
-  CG_VisionSetApplyToRefdef_InternalFog(_RBX, _RDI);
-  _RBX->screenSpaceShadows.spotOmniScreenSpaceShadowsSamplesPerLight = _RDI->screenSpaceShadowsSamplesPerLight;
-  _RBX->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal = _RDI->screenSpaceShadowsSamplesTotal;
-  _RBX->screenSpaceShadows.spotOmniScreenSpaceShadowsTraceDistance = _RDI->screenSpaceShadowsTraceDistance;
-  _RBX->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDistance = _RDI->sunSceneScreenSpaceShadowTraceDistance;
-  _RBX->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta = _RDI->sunSceneScreenSpaceShadowTraceDelta;
-  _RBX->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDistance = _RDI->sunViewmodelScreenSpaceshadowTraceDistance;
-  _RBX->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = _RDI->sunViewmodelScreenSpaceshadowTraceDelta;
-  _RBX->skyIlluminationRadialDistanceBias = _RDI->skyIlluminationRadialDistanceBias;
-  _RBX->eyeVirtualHighlight.eyeHighlightBulbRadius = _RDI->eyeHighlightBulbRadius;
-  __asm
+    r_ssaoStrength = set->r_ssaoStrength;
+  refDef->ssao.strength = r_ssaoStrength;
+  refDef->mdaoCullDistance = set->r_mdaoCullDistance;
+  refDef->mdaoFadeoutDistance = set->r_mdaoFadeoutDistance;
+  refDef->mdaoBoneSizeThreshold = set->r_mdaoBoneSizeThreshold;
+  CG_VisionSetApplyToRefdef_InternalFog(refDef, set);
+  refDef->screenSpaceShadows.spotOmniScreenSpaceShadowsSamplesPerLight = set->screenSpaceShadowsSamplesPerLight;
+  refDef->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal = set->screenSpaceShadowsSamplesTotal;
+  refDef->screenSpaceShadows.spotOmniScreenSpaceShadowsTraceDistance = set->screenSpaceShadowsTraceDistance;
+  refDef->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDistance = set->sunSceneScreenSpaceShadowTraceDistance;
+  refDef->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta = set->sunSceneScreenSpaceShadowTraceDelta;
+  refDef->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDistance = set->sunViewmodelScreenSpaceshadowTraceDistance;
+  refDef->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = set->sunViewmodelScreenSpaceshadowTraceDelta;
+  refDef->skyIlluminationRadialDistanceBias = set->skyIlluminationRadialDistanceBias;
+  refDef->eyeVirtualHighlight.eyeHighlightBulbRadius = set->eyeHighlightBulbRadius;
+  *(double *)refDef->eyeVirtualHighlight.eyeHighlightColor.v = *(double *)set->eyeHighlightColor.v;
+  refDef->eyeVirtualHighlight.eyeHighlightColor.v[2] = set->eyeHighlightColor.v[2];
+  refDef->eyeVirtualHighlight.eyeHighlightHeading = set->eyeHighlightHeading;
+  refDef->eyeVirtualHighlight.eyeHighlightIntensity = set->eyeHighlightIntensity;
+  refDef->eyeVirtualHighlight.eyeHighlightPitch = set->eyeHighlightPitch;
+  refDef->vignetteFromVisionSet.intensity = set->vignetteIntensity;
+  refDef->vignetteFromVisionSet.squareAspectRatioWeight = set->vignetteSquareAspectRatioWeight;
+  refDef->vignetteFromVisionSet.size.v[0] = set->vignetteSizeX;
+  refDef->vignetteFromVisionSet.size.v[1] = set->vignetteSizeY;
+  refDef->vignetteFromVisionSet.falloff = set->vignetteFalloff;
+  refDef->vignetteFromVisionSet.falloffStart = set->vignetteFalloffStart;
+  refDef->vignetteFromVisionSet.boxSize.v[0] = set->vignetteBoxSizeX;
+  refDef->vignetteFromVisionSet.boxSize.v[1] = set->vignetteBoxSizeY;
+  refDef->vignetteFromVisionSet.offset.v[0] = set->vignetteOffsetX;
+  refDef->vignetteFromVisionSet.offset.v[1] = set->vignetteOffsetY;
+  refDef->vignetteFromVisionSet.vignetteImage = NULL;
+  v35 = set->vignetteImage.m_assets[0].m_assetIndex;
+  if ( v35 )
   {
-    vmovsd  xmm0, qword ptr [rdi+380h]
-    vmovsd  qword ptr [rbx+10C00h], xmm0
-  }
-  _RBX->eyeVirtualHighlight.eyeHighlightColor.v[2] = _RDI->eyeHighlightColor.v[2];
-  _RBX->eyeVirtualHighlight.eyeHighlightHeading = _RDI->eyeHighlightHeading;
-  _RBX->eyeVirtualHighlight.eyeHighlightIntensity = _RDI->eyeHighlightIntensity;
-  _RBX->eyeVirtualHighlight.eyeHighlightPitch = _RDI->eyeHighlightPitch;
-  _RBX->vignetteFromVisionSet.intensity = _RDI->vignetteIntensity;
-  _RBX->vignetteFromVisionSet.squareAspectRatioWeight = _RDI->vignetteSquareAspectRatioWeight;
-  _RBX->vignetteFromVisionSet.size.v[0] = _RDI->vignetteSizeX;
-  _RBX->vignetteFromVisionSet.size.v[1] = _RDI->vignetteSizeY;
-  _RBX->vignetteFromVisionSet.falloff = _RDI->vignetteFalloff;
-  _RBX->vignetteFromVisionSet.falloffStart = _RDI->vignetteFalloffStart;
-  _RBX->vignetteFromVisionSet.boxSize.v[0] = _RDI->vignetteBoxSizeX;
-  _RBX->vignetteFromVisionSet.boxSize.v[1] = _RDI->vignetteBoxSizeY;
-  _RBX->vignetteFromVisionSet.offset.v[0] = _RDI->vignetteOffsetX;
-  _RBX->vignetteFromVisionSet.offset.v[1] = _RDI->vignetteOffsetY;
-  _RBX->vignetteFromVisionSet.vignetteImage = NULL;
-  v78 = _RDI->vignetteImage.m_assets[0].m_assetIndex;
-  if ( v78 )
-  {
-    v79 = 2i64 * v78;
-    if ( s_CG_VisionSet.m_assetNodes[8 * v79 - 4080].m_nextAssetIndex == 1 )
+    v36 = 2i64 * v35;
+    if ( s_CG_VisionSet.m_assetNodes[8 * v36 - 4080].m_nextAssetIndex == 1 )
     {
-      v7 = *(const GfxImage **)&s_CG_VisionSet.m_assetNodes[8 * v79 - 4072].m_nextAssetIndex;
-      _RBX->vignetteFromVisionSet.vignetteImage = v7;
+      v3 = *(const GfxImage **)&s_CG_VisionSet.m_assetNodes[8 * v36 - 4072].m_nextAssetIndex;
+      refDef->vignetteFromVisionSet.vignetteImage = v3;
     }
   }
-  _RBX->vignette.vignetteImage = v7;
-  _RBX->decalVolumes.drawDistance = _RDI->decalVolumeDrawDistance;
-  _RBX->lightingFraction.bias = _RDI->lightingFractionBias;
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  refDef->vignette.vignetteImage = v3;
+  refDef->decalVolumes.drawDistance = set->decalVolumeDrawDistance;
+  refDef->lightingFraction.bias = set->lightingFractionBias;
 }
 
 /*
@@ -831,298 +650,220 @@ CG_VisionSetApplyToRefdef_InternalFog
 */
 void CG_VisionSetApplyToRefdef_InternalFog(refdef_t *refDef, const visionSetVarsBase_t *set)
 {
-  bool v30; 
-  char v97; 
-  float density[4]; 
-  char v136; 
-  void *retaddr; 
+  float v4; 
+  float fogHalfPlaneDistance; 
+  float v6; 
+  __int128 v8; 
+  __int128 v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v43; 
+  float fogHeightFogHalfPlaneDistance; 
+  float v47; 
+  bool v48; 
+  float fogColorIntensity; 
+  float fogSunColorIntensity; 
+  float fogDensity; 
+  __int128 v52; 
+  float v55; 
+  float fogSunDensity; 
+  __int128 v57; 
+  float v60; 
+  float v61; 
+  float v62; 
+  unsigned int density[4]; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = powf_0(2.0, set->fogInscatteringEv - 2.8399999) * 0.001;
+  fogHalfPlaneDistance = set->fogHalfPlaneDistance;
+  v6 = 0.0;
+  if ( fogHalfPlaneDistance == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdx+150h]
-    vsubss  xmm1, xmm0, cs:__real@4035c28f; Y
-    vmovss  xmm0, cs:__real@40000000; X
-    vmovaps xmmword ptr [rax-28h], xmm6
-  }
-  _RBX = set;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm7 }
-  _RDI = refDef;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0D8h+var_88], xmm12
-    vmovaps [rsp+0D8h+var_98], xmm13
-    vmovaps [rsp+0D8h+var_A8], xmm14
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm14, xmm0, cs:__real@3a83126f
-    vmovss  xmm0, dword ptr [rbx+140h]
-    vmovss  xmm12, cs:__real@3f317218
-    vxorps  xmm11, xmm11, xmm11
-    vucomiss xmm0, xmm11
-  }
-  if ( v97 )
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+    LODWORD(_XMM1) = 0;
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm12, xmm0
-      vmaxss  xmm1, xmm0, xmm11
-    }
+    v8 = LODWORD(FLOAT_0_69314718);
+    *(float *)&v8 = 0.69314718 / fogHalfPlaneDistance;
+    _XMM0 = v8;
+    __asm { vmaxss  xmm1, xmm0, xmm11 }
   }
-  _RDI->fog.startDist = _RBX->fogStartDist;
-  _RDI->fog.skyDistance = _RBX->fogSkyDistance;
-  _RDI->fog.maxDistance = _RBX->fogMaxDistance;
-  __asm { vmovss  [rsp+0D8h+density], xmm1 }
-  CG_VisionSetApplyToRefdef_InternalFogSpline(_RDI, _RBX, density);
-  _RDI->fog.rayleighCoeffs.v[0] = _RBX->fogRayleighAlbedo.v[0];
-  _RDI->fog.rayleighCoeffs.v[1] = _RBX->fogRayleighAlbedo.v[1];
-  _RDI->fog.rayleighCoeffs.v[2] = _RBX->fogRayleighAlbedo.v[2];
-  GammaToLinearColor_Srgb(&_RDI->fog.rayleighCoeffs);
+  refDef->fog.startDist = set->fogStartDist;
+  refDef->fog.skyDistance = set->fogSkyDistance;
+  refDef->fog.maxDistance = set->fogMaxDistance;
+  density[0] = _XMM1;
+  CG_VisionSetApplyToRefdef_InternalFogSpline(refDef, set, (float *)density);
+  refDef->fog.rayleighCoeffs.v[0] = set->fogRayleighAlbedo.v[0];
+  refDef->fog.rayleighCoeffs.v[1] = set->fogRayleighAlbedo.v[1];
+  refDef->fog.rayleighCoeffs.v[2] = set->fogRayleighAlbedo.v[2];
+  GammaToLinearColor_Srgb(&refDef->fog.rayleighCoeffs);
+  v10 = density[0];
+  v11 = (float)(1.0 - set->fogMieBlendStrength) * *(float *)density;
+  refDef->fog.rayleighCoeffs.v[0] = v11 * refDef->fog.rayleighCoeffs.v[0];
+  refDef->fog.rayleighCoeffs.v[1] = v11 * refDef->fog.rayleighCoeffs.v[1];
+  refDef->fog.rayleighCoeffs.v[2] = v11 * refDef->fog.rayleighCoeffs.v[2];
+  refDef->fog.mieCoeffs.v[0] = set->fogMieAlbedo.v[0];
+  refDef->fog.mieCoeffs.v[1] = set->fogMieAlbedo.v[1];
+  refDef->fog.mieCoeffs.v[2] = set->fogMieAlbedo.v[2];
+  GammaToLinearColor_Srgb(&refDef->fog.mieCoeffs);
+  v13 = v10;
+  *(float *)&v13 = *(float *)&v10 * set->fogMieBlendStrength;
+  v12 = v13;
+  *(float *)&v13 = *(float *)&v13 * refDef->fog.mieCoeffs.v[0];
+  v14 = v13;
+  refDef->fog.mieCoeffs.v[0] = *(float *)&v13;
+  v16 = v12;
+  *(float *)&v16 = *(float *)&v12 * refDef->fog.mieCoeffs.v[1];
+  v15 = v16;
+  refDef->fog.mieCoeffs.v[1] = *(float *)&v16;
+  v18 = v12;
+  *(float *)&v18 = *(float *)&v12 * refDef->fog.mieCoeffs.v[2];
+  v17 = v18;
+  refDef->fog.mieCoeffs.v[2] = *(float *)&v18;
+  *(float *)&v12 = set->fogExtinctionDesaturation;
+  v19 = *(float *)&v12 * *(float *)&v10;
+  v20 = 1.0 - *(float *)&v12;
+  v21 = v14;
+  *(float *)&v21 = (float)(*(float *)&v14 + refDef->fog.rayleighCoeffs.v[0]) * (float)(1.0 - *(float *)&v12);
+  v22 = v21;
+  v24 = v15;
+  *(float *)&v24 = *(float *)&v15 + refDef->fog.rayleighCoeffs.v[1];
+  v23 = v24;
+  v26 = v22;
+  *(float *)&v26 = *(float *)&v22 + v19;
+  _XMM2 = v26;
+  v28 = v23;
+  *(float *)&v28 = *(float *)&v23 * v20;
+  v27 = v28;
+  v30 = v17;
+  *(float *)&v30 = *(float *)&v17 + refDef->fog.rayleighCoeffs.v[2];
+  v29 = v30;
+  __asm { vmaxss  xmm9, xmm2, xmm10 }
+  v33 = v27;
+  *(float *)&v33 = *(float *)&v27 + v19;
+  _XMM2 = v33;
+  v34 = v29;
+  __asm { vmaxss  xmm8, xmm2, xmm10 }
+  *(float *)&v34 = (float)(*(float *)&v29 * v20) + v19;
+  _XMM2 = v34;
+  refDef->fog.rayleighCoeffs.v[0] = (float)(v4 / *(float *)&_XMM9) * refDef->fog.rayleighCoeffs.v[0];
+  refDef->fog.rayleighCoeffs.v[1] = (float)(v4 / *(float *)&_XMM8) * refDef->fog.rayleighCoeffs.v[1];
+  __asm { vmaxss  xmm5, xmm2, xmm10 }
+  refDef->fog.rayleighCoeffs.v[2] = (float)(v4 / *(float *)&_XMM5) * refDef->fog.rayleighCoeffs.v[2];
+  refDef->fog.mieCoeffs.v[0] = (float)(v4 / *(float *)&_XMM9) * refDef->fog.mieCoeffs.v[0];
+  refDef->fog.mieCoeffs.v[1] = (float)(v4 / *(float *)&_XMM8) * refDef->fog.mieCoeffs.v[1];
+  refDef->fog.mieCoeffs.v[2] = (float)(v4 / *(float *)&_XMM5) * refDef->fog.mieCoeffs.v[2];
+  *(float *)&_XMM2 = 1.442695 * refDef->fog.maxDistance;
+  refDef->fog.maxOpticalDepth.v[0] = *(float *)&_XMM2 * *(float *)&_XMM9;
+  refDef->fog.maxOpticalDepth.v[1] = *(float *)&_XMM8 * *(float *)&_XMM2;
+  refDef->fog.maxOpticalDepth.v[2] = *(float *)&_XMM5 * *(float *)&_XMM2;
+  refDef->fog.mieAnisotropy = set->fogMieAnisotropy;
+  v38 = LODWORD(set->fogSunDir.v[0]);
+  v39 = v38;
+  *(float *)&v39 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(set->fogSunDir.v[1] * set->fogSunDir.v[1])) + (float)(set->fogSunDir.v[2] * set->fogSunDir.v[2]));
+  _XMM4 = v39;
   __asm
   {
-    vmovss  xmm13, cs:__real@3f800000
-    vsubss  xmm0, xmm13, dword ptr [rbx+170h]
-    vmovss  xmm8, [rsp+0D8h+density]
-    vmulss  xmm2, xmm0, xmm8
-    vmulss  xmm0, xmm2, dword ptr [rdi+0C8h]
-    vmovss  dword ptr [rdi+0C8h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rdi+0CCh]
-    vmovss  dword ptr [rdi+0CCh], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+0D0h]
-    vmovss  dword ptr [rdi+0D0h], xmm0
-  }
-  _RDI->fog.mieCoeffs.v[0] = _RBX->fogMieAlbedo.v[0];
-  _RDI->fog.mieCoeffs.v[1] = _RBX->fogMieAlbedo.v[1];
-  _RDI->fog.mieCoeffs.v[2] = _RBX->fogMieAlbedo.v[2];
-  GammaToLinearColor_Srgb(&_RDI->fog.mieCoeffs);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rbx+170h]
-    vmulss  xmm1, xmm0, dword ptr [rdi+0D8h]
-    vmovss  xmm10, cs:__real@34000000
-    vmovss  dword ptr [rdi+0D8h], xmm1
-    vmulss  xmm5, xmm0, dword ptr [rdi+0DCh]
-    vmovss  dword ptr [rdi+0DCh], xmm5
-    vmulss  xmm6, xmm0, dword ptr [rdi+0E0h]
-    vmovss  dword ptr [rdi+0E0h], xmm6
-    vmovss  xmm0, dword ptr [rbx+14Ch]
-    vmulss  xmm4, xmm0, xmm8
-    vsubss  xmm3, xmm13, xmm0
-    vaddss  xmm0, xmm1, dword ptr [rdi+0C8h]
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm0, xmm5, dword ptr [rdi+0CCh]
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm0, xmm6, dword ptr [rdi+0D0h]
-    vmovss  xmm6, cs:__real@3fb8aa3b
-    vmaxss  xmm9, xmm2, xmm10
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm0, xmm3
-    vmaxss  xmm8, xmm2, xmm10
-    vaddss  xmm2, xmm1, xmm4
-    vdivss  xmm3, xmm14, xmm9
-    vmulss  xmm0, xmm3, dword ptr [rdi+0C8h]
-    vmovss  dword ptr [rdi+0C8h], xmm0
-    vdivss  xmm4, xmm14, xmm8
-    vmulss  xmm1, xmm4, dword ptr [rdi+0CCh]
-    vmovss  dword ptr [rdi+0CCh], xmm1
-    vmaxss  xmm5, xmm2, xmm10
-    vdivss  xmm2, xmm14, xmm5
-    vmulss  xmm0, xmm2, dword ptr [rdi+0D0h]
-    vmovss  dword ptr [rdi+0D0h], xmm0
-    vmulss  xmm0, xmm3, dword ptr [rdi+0D8h]
-    vmovss  dword ptr [rdi+0D8h], xmm0
-    vmulss  xmm1, xmm4, dword ptr [rdi+0DCh]
-    vmovss  dword ptr [rdi+0DCh], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+0E0h]
-    vmovss  dword ptr [rdi+0E0h], xmm0
-    vmulss  xmm2, xmm6, dword ptr [rdi+0D4h]
-    vmulss  xmm0, xmm2, xmm9
-    vmulss  xmm1, xmm8, xmm2
-    vmovss  dword ptr [rdi+0B8h], xmm0
-    vmovss  dword ptr [rdi+0BCh], xmm1
-    vmovss  xmm7, cs:__real@3c8efa35
-    vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rdi+0C0h], xmm0
-  }
-  _RDI->fog.mieAnisotropy = _RBX->fogMieAnisotropy;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+134h]
-    vmovss  xmm5, dword ptr [rbx+130h]
-    vmovss  xmm3, dword ptr [rbx+138h]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm13, xmm0
-    vdivss  xmm2, xmm13, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rdi+0E8h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+134h]
-    vmovss  dword ptr [rdi+0ECh], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+138h]
-    vmovss  dword ptr [rdi+0F0h], xmm0
-    vmulss  xmm4, xmm7, dword ptr [rbx+128h]
-    vmulss  xmm1, xmm7, dword ptr [rbx+12Ch]
-    vsubss  xmm2, xmm1, xmm4
-    vmaxss  xmm3, xmm2, xmm10
-    vdivss  xmm0, xmm13, xmm3
-    vmulss  xmm1, xmm0, cs:__real@bfc90fdb
-    vmovss  dword ptr [rdi+0F8h], xmm1
-    vmulss  xmm0, xmm0, xmm4
-    vaddss  xmm1, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm8
-    vmovss  dword ptr [rdi+0FCh], xmm1
   }
-  _RDI->fog.heightFogBaseHeight = _RBX->fogHeightFogBaseHeight;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+178h]
-    vcomiss xmm0, xmm11
-  }
-  if ( v30 | v97 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+  refDef->fog.sunDir.v[0] = *(float *)&v38 * (float)(1.0 / *(float *)&_XMM0);
+  refDef->fog.sunDir.v[1] = (float)(1.0 / *(float *)&_XMM0) * set->fogSunDir.v[1];
+  refDef->fog.sunDir.v[2] = (float)(1.0 / *(float *)&_XMM0) * set->fogSunDir.v[2];
+  *(float *)&_XMM4 = 0.017453292 * set->fogSkyMinAngle;
+  v43 = LODWORD(FLOAT_0_017453292);
+  *(float *)&v43 = (float)(0.017453292 * set->fogSkyMaxAngle) - *(float *)&_XMM4;
+  _XMM2 = v43;
+  __asm { vmaxss  xmm3, xmm2, xmm10 }
+  *(float *)&v27 = (float)(1.0 / *(float *)&_XMM3) * -1.5707964;
+  refDef->fog.skyFalloffScale = *(float *)&v27;
+  refDef->fog.skyFalloffBias = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(1.0 / *(float *)&_XMM3) * *(float *)&_XMM4) + *(float *)&v27) ^ _xmm);
+  refDef->fog.heightFogBaseHeight = set->fogHeightFogBaseHeight;
+  fogHeightFogHalfPlaneDistance = set->fogHeightFogHalfPlaneDistance;
+  if ( fogHeightFogHalfPlaneDistance <= 0.0 )
+    v47 = 0.0;
   else
-    __asm { vdivss  xmm0, xmm12, xmm0 }
-  __asm { vmovss  dword ptr [rdi+104h], xmm0 }
-  _RDI->fog.heightFogMaximumOffset = _RBX->fogHeightFogMaximumOffset;
-  _RDI->fog.heightFogAdditionalFog = _RBX->fogHeightFogAdditionalFog;
-  __asm { vcomiss xmm11, dword ptr [rbx+198h] }
-  _RDI->fog.useAtmosphericScattering = v30;
-  if ( !v30 )
+    v47 = 0.69314718 / fogHeightFogHalfPlaneDistance;
+  refDef->fog.heightFogDenstiy = v47;
+  refDef->fog.heightFogMaximumOffset = set->fogHeightFogMaximumOffset;
+  refDef->fog.heightFogAdditionalFog = set->fogHeightFogAdditionalFog;
+  v48 = set->fogAtmosphericScattering > 0.0;
+  refDef->fog.useAtmosphericScattering = v48;
+  if ( !v48 )
   {
-    _RDI->fog.rayleighCoeffs.v[0] = _RBX->fogColor.v[0];
-    _RDI->fog.rayleighCoeffs.v[1] = _RBX->fogColor.v[1];
-    _RDI->fog.rayleighCoeffs.v[2] = _RBX->fogColor.v[2];
-    GammaToLinearColor_Srgb(&_RDI->fog.rayleighCoeffs);
-    __asm
+    refDef->fog.rayleighCoeffs.v[0] = set->fogColor.v[0];
+    refDef->fog.rayleighCoeffs.v[1] = set->fogColor.v[1];
+    refDef->fog.rayleighCoeffs.v[2] = set->fogColor.v[2];
+    GammaToLinearColor_Srgb(&refDef->fog.rayleighCoeffs);
+    fogColorIntensity = set->fogColorIntensity;
+    refDef->fog.rayleighCoeffs.v[0] = fogColorIntensity * refDef->fog.rayleighCoeffs.v[0];
+    refDef->fog.rayleighCoeffs.v[1] = fogColorIntensity * refDef->fog.rayleighCoeffs.v[1];
+    refDef->fog.rayleighCoeffs.v[2] = fogColorIntensity * refDef->fog.rayleighCoeffs.v[2];
+    refDef->fog.mieCoeffs.v[0] = set->fogSunColor.v[0];
+    refDef->fog.mieCoeffs.v[1] = set->fogSunColor.v[1];
+    refDef->fog.mieCoeffs.v[2] = set->fogSunColor.v[2];
+    GammaToLinearColor_Srgb(&refDef->fog.mieCoeffs);
+    fogSunColorIntensity = set->fogSunColorIntensity;
+    refDef->fog.mieCoeffs.v[0] = fogSunColorIntensity * refDef->fog.mieCoeffs.v[0];
+    refDef->fog.mieCoeffs.v[1] = fogSunColorIntensity * refDef->fog.mieCoeffs.v[1];
+    refDef->fog.mieCoeffs.v[2] = fogSunColorIntensity * refDef->fog.mieCoeffs.v[2];
+    refDef->fog.maxDistance = set->fogMaxOpacity;
+    refDef->fog.skyDistance = set->fogSkyIntensity * set->fogMaxOpacity;
+    fogDensity = set->fogDensity;
+    if ( fogDensity == 0.0 )
     {
-      vmovss  xmm2, dword ptr [rbx+1BCh]
-      vmulss  xmm0, xmm2, dword ptr [rdi+0C8h]
-      vmovss  dword ptr [rdi+0C8h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rdi+0CCh]
-      vmovss  dword ptr [rdi+0CCh], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdi+0D0h]
-      vmovss  dword ptr [rdi+0D0h], xmm0
-    }
-    _RDI->fog.mieCoeffs.v[0] = _RBX->fogSunColor.v[0];
-    _RDI->fog.mieCoeffs.v[1] = _RBX->fogSunColor.v[1];
-    _RDI->fog.mieCoeffs.v[2] = _RBX->fogSunColor.v[2];
-    GammaToLinearColor_Srgb(&_RDI->fog.mieCoeffs);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+1A8h]
-      vmulss  xmm0, xmm2, dword ptr [rdi+0D8h]
-      vmovss  dword ptr [rdi+0D8h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rdi+0DCh]
-      vmovss  dword ptr [rdi+0DCh], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdi+0E0h]
-      vmovss  xmm2, cs:__real@3727c5ac
-      vmovss  dword ptr [rdi+0E0h], xmm0
-    }
-    _RDI->fog.maxDistance = _RBX->fogMaxOpacity;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1CCh]
-      vmulss  xmm1, xmm0, dword ptr [rbx+19Ch]
-      vmovss  dword ptr [rdi+0F4h], xmm1
-      vmovss  xmm3, dword ptr [rbx+1D0h]
-      vucomiss xmm3, xmm11
-    }
-    if ( v97 )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      v55 = 0.0;
     }
     else
     {
-      __asm
-      {
-        vdivss  xmm0, xmm12, xmm3
-        vsubss  xmm1, xmm0, xmm2
-        vmaxss  xmm1, xmm1, xmm11
-        vmulss  xmm0, xmm1, xmm6
-      }
+      v52 = LODWORD(FLOAT_0_69314718);
+      *(float *)&v52 = (float)(0.69314718 / fogDensity) - 0.0000099999997;
+      _XMM1 = v52;
+      __asm { vmaxss  xmm1, xmm1, xmm11 }
+      v55 = *(float *)&_XMM1 * 1.442695;
     }
-    __asm
+    refDef->fog.maxOpticalDepth.v[0] = v55;
+    fogSunDensity = set->fogSunDensity;
+    if ( fogSunDensity != 0.0 )
     {
-      vmovss  dword ptr [rdi+0B8h], xmm0
-      vmovss  xmm1, dword ptr [rbx+1B8h]
-      vucomiss xmm1, xmm11
+      v57 = LODWORD(FLOAT_0_69314718);
+      *(float *)&v57 = (float)(0.69314718 / fogSunDensity) - 0.0000099999997;
+      _XMM1 = v57;
+      __asm { vmaxss  xmm1, xmm1, xmm11 }
+      v6 = *(float *)&_XMM1 * 1.442695;
     }
-    if ( !v97 )
-    {
-      __asm
-      {
-        vdivss  xmm0, xmm12, xmm1
-        vsubss  xmm1, xmm0, xmm2
-        vmaxss  xmm1, xmm1, xmm11
-        vmulss  xmm11, xmm1, xmm6
-      }
-    }
-    __asm { vmovss  dword ptr [rdi+0BCh], xmm11 }
-    _RDI->fog.maxOpticalDepth.v[2] = 0.0;
-    _RDI->fog.heightFogDenstiy = 0.0;
-    __asm
-    {
-      vsubss  xmm0, xmm13, dword ptr [rbx+19Ch]
-      vmovss  dword ptr [rdi+0E4h], xmm0
-      vmulss  xmm0, xmm7, dword ptr [rbx+1A0h]; X
-    }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rbx+1A4h]; X
-    }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm { vcomiss xmm6, xmm0 }
-    if ( v30 | v97 )
-    {
-      __asm { vmovss  xmm2, cs:__real@42c80000 }
-    }
+    refDef->fog.maxOpticalDepth.v[1] = v6;
+    refDef->fog.maxOpticalDepth.v[2] = 0.0;
+    refDef->fog.heightFogDenstiy = 0.0;
+    refDef->fog.mieAnisotropy = 1.0 - set->fogMaxOpacity;
+    v60 = cosf_0(0.017453292 * set->fogSunBeginFadeAngle);
+    v61 = cosf_0(0.017453292 * set->fogSunEndFadeAngle);
+    if ( v60 <= v61 )
+      v62 = FLOAT_100_0;
     else
-    {
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm0
-        vdivss  xmm2, xmm13, xmm1
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm0
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rdi+1D8h], xmm1
-      vmovss  dword ptr [rdi+1D4h], xmm2
-    }
-  }
-  __asm { vmovaps xmm14, [rsp+0D8h+var_A8] }
-  _R11 = &v136;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
+      v62 = 1.0 / (float)(v60 - v61);
+    refDef->fog.sunFalloffBias = COERCE_FLOAT(COERCE_UNSIGNED_INT(v62 * v61) ^ _xmm);
+    refDef->fog.sunFalloffScale = v62;
   }
 }
 
@@ -1134,127 +875,94 @@ CG_VisionSetApplyToRefdef_InternalFogSpline
 void CG_VisionSetApplyToRefdef_InternalFogSpline(refdef_t *refDef, const visionSetVarsBase_t *set, float *density)
 {
   cg_t *LocalClientGlobals; 
-  __int64 v17; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int64 v10; 
   unsigned __int8 m_weight; 
-  bool v19; 
-  __int64 v20; 
+  __int64 v12; 
+  __int64 v13; 
+  float fogStartDist; 
+  float fogHalfPlaneDistance; 
+  float fogMaxDistance; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v22; 
 
-  _RBX = refDef;
-  _RSI = set;
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)refDef->localClientNum);
   if ( LocalClientGlobals && LocalClientGlobals->cvsData.archived.visionBlends[0].lerpInfo.type == VISIONSETBLENDTYPE_OFF )
   {
-    _RBX->fog.fogSplineBlendEntry[0].weight = -1;
-    _RBX->fog.fogSplineBlendEntry[0].data.fogStartDist = _RSI->fogStartDist;
-    _RBX->fog.fogSplineBlendEntry[0].data.fogHalfPlaneDistance = _RSI->fogHalfPlaneDistance;
-    _RBX->fog.fogSplineBlendEntry[0].data.fogMaxDistance = _RSI->fogMaxDistance;
-    _RBX->fog.fogSplineBlendEntry[0].image = R_FogSplineLive_GetImage();
-    _RBX->fog.fogSplineBlendCount = 1;
+    refDef->fog.fogSplineBlendEntry[0].weight = -1;
+    refDef->fog.fogSplineBlendEntry[0].data.fogStartDist = set->fogStartDist;
+    refDef->fog.fogSplineBlendEntry[0].data.fogHalfPlaneDistance = set->fogHalfPlaneDistance;
+    refDef->fog.fogSplineBlendEntry[0].data.fogMaxDistance = set->fogMaxDistance;
+    refDef->fog.fogSplineBlendEntry[0].image = R_FogSplineLive_GetImage();
+    refDef->fog.fogSplineBlendCount = 1;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vmovaps [rsp+0A8h+var_58], xmm8
-      vmovaps [rsp+0A8h+var_68], xmm9
-      vmovaps [rsp+0A8h+var_78], xmm10
-    }
     if ( !s_CG_VisionSet.m_wasReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 692, ASSERT_TYPE_ASSERT, "(s_CG_VisionSet.m_wasReset)", (const char *)&queryFormat, "s_CG_VisionSet.m_wasReset") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3b808081
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm9, xmm9, xmm9
-    }
-    v17 = 0i64;
+    LODWORD(_XMM6) = 0;
+    v7 = 0i64;
+    v8 = 0i64;
+    v9 = 0i64;
+    v10 = 0i64;
     do
     {
-      m_weight = _RSI->fogSpline.m_assets[v17].m_weight;
-      v19 = m_weight == 0;
+      m_weight = set->fogSpline.m_assets[v10].m_weight;
       if ( !m_weight )
         break;
-      v20 = 2i64 * _RSI->fogSpline.m_assets[v17].m_assetIndex;
-      if ( (unsigned int)v17 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 707, ASSERT_TYPE_ASSERT, "(fogSplineBlendCount < ( sizeof( *array_counter( refDef->fog.fogSplineBlendEntry ) ) + 0 ))", (const char *)&queryFormat, "fogSplineBlendCount < ARRAY_COUNT( refDef->fog.fogSplineBlendEntry )") )
+      v12 = 2i64 * set->fogSpline.m_assets[v10].m_assetIndex;
+      if ( (unsigned int)v10 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 707, ASSERT_TYPE_ASSERT, "(fogSplineBlendCount < ( sizeof( *array_counter( refDef->fog.fogSplineBlendEntry ) ) + 0 ))", (const char *)&queryFormat, "fogSplineBlendCount < ARRAY_COUNT( refDef->fog.fogSplineBlendEntry )") )
         __debugbreak();
-      _RDX = 3 * v17;
-      _RBX->fog.fogSplineBlendEntry[v17].weight = m_weight;
-      if ( s_CG_VisionSet.m_assetNodes[8 * v20 - 4080].m_nextAssetIndex == 3 )
+      refDef->fog.fogSplineBlendEntry[v10].weight = m_weight;
+      if ( s_CG_VisionSet.m_assetNodes[8 * v12 - 4080].m_nextAssetIndex == 3 )
       {
-        _RAX = *(_QWORD *)&s_CG_VisionSet.m_assetNodes[8 * v20 - 4072].m_nextAssetIndex;
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rax+10h]
-          vmovsd  qword ptr [rbx+rdx*8+118h], xmm0
-        }
-        _RBX->fog.fogSplineBlendEntry[v17].data.fogMaxDistance = *(float *)(_RAX + 24);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+rdx*8+118h]
-          vmovss  xmm3, dword ptr [rbx+rdx*8+11Ch]
-          vmovss  xmm4, dword ptr [rbx+rdx*8+120h]
-        }
-        _RBX->fog.fogSplineBlendEntry[v17].image = *(const GfxImage **)(*(_QWORD *)&s_CG_VisionSet.m_assetNodes[8 * v20 - 4072].m_nextAssetIndex + 8i64);
+        v13 = *(_QWORD *)&s_CG_VisionSet.m_assetNodes[8 * v12 - 4072].m_nextAssetIndex;
+        *(double *)&refDef->fog.fogSplineBlendEntry[v10].data.fogStartDist = *(double *)(v13 + 16);
+        refDef->fog.fogSplineBlendEntry[v10].data.fogMaxDistance = *(float *)(v13 + 24);
+        fogStartDist = refDef->fog.fogSplineBlendEntry[v10].data.fogStartDist;
+        fogHalfPlaneDistance = refDef->fog.fogSplineBlendEntry[v10].data.fogHalfPlaneDistance;
+        fogMaxDistance = refDef->fog.fogSplineBlendEntry[v10].data.fogMaxDistance;
+        refDef->fog.fogSplineBlendEntry[v10].image = *(const GfxImage **)(*(_QWORD *)&s_CG_VisionSet.m_assetNodes[8 * v12 - 4072].m_nextAssetIndex + 8i64);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+13Ch]
-          vmovss  dword ptr [rbx+rdx*8+118h], xmm1
-          vmovss  xmm3, dword ptr [rsi+140h]
-          vmovss  dword ptr [rbx+rdx*8+11Ch], xmm3
-          vmovss  xmm4, dword ptr [rsi+144h]
-          vmovss  dword ptr [rbx+rdx*8+120h], xmm4
-        }
-        _RBX->fog.fogSplineBlendEntry[v17].image = rgp.zero1DImage;
+        fogStartDist = set->fogStartDist;
+        refDef->fog.fogSplineBlendEntry[v10].data.fogStartDist = fogStartDist;
+        fogHalfPlaneDistance = set->fogHalfPlaneDistance;
+        refDef->fog.fogSplineBlendEntry[v10].data.fogHalfPlaneDistance = fogHalfPlaneDistance;
+        fogMaxDistance = set->fogMaxDistance;
+        refDef->fog.fogSplineBlendEntry[v10].data.fogMaxDistance = fogMaxDistance;
+        refDef->fog.fogSplineBlendEntry[v10].image = rgp.zero1DImage;
       }
-      v17 = (unsigned int)(v17 + 1);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm2, xmm0, xmm10
-        vmulss  xmm1, xmm1, xmm2
-        vaddss  xmm8, xmm8, xmm1
-        vmulss  xmm1, xmm4, xmm2
-        vmulss  xmm0, xmm3, xmm2
-        vaddss  xmm9, xmm9, xmm1
-        vaddss  xmm7, xmm7, xmm0
-      }
-      v19 = (_DWORD)v17 == 9;
+      v10 = (unsigned int)(v10 + 1);
+      v17 = (float)m_weight * 0.0039215689;
+      v18 = v7;
+      *(float *)&v18 = *(float *)&v7 + (float)(fogStartDist * v17);
+      v7 = v18;
+      v19 = v9;
+      *(float *)&v19 = *(float *)&v9 + (float)(fogMaxDistance * v17);
+      v9 = v19;
+      v20 = v8;
+      *(float *)&v20 = *(float *)&v8 + (float)(fogHalfPlaneDistance * v17);
+      v8 = v20;
     }
-    while ( (_DWORD)v17 != 9 );
-    __asm
+    while ( (_DWORD)v10 != 9 );
+    refDef->fog.startDist = *(float *)&v7;
+    refDef->fog.maxDistance = *(float *)&v9;
+    if ( *(float *)&v8 != 0.0 )
     {
-      vucomiss xmm7, xmm6
-      vmovaps xmm10, [rsp+0A8h+var_78]
-      vmovss  dword ptr [rbx+0C4h], xmm8
-      vmovaps xmm8, [rsp+0A8h+var_58]
-      vmovss  dword ptr [rbx+0D4h], xmm9
-      vmovaps xmm9, [rsp+0A8h+var_68]
+      v22 = LODWORD(FLOAT_0_69314718);
+      *(float *)&v22 = 0.69314718 / *(float *)&v8;
+      _XMM1 = v22;
+      __asm { vmaxss  xmm6, xmm1, xmm6 }
     }
-    if ( !v19 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f317218
-        vdivss  xmm1, xmm0, xmm7
-        vmaxss  xmm6, xmm1, xmm6
-      }
-    }
-    _R12 = density;
-    __asm
-    {
-      vmovss  dword ptr [r12], xmm6
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
-    truncate_store<unsigned char,unsigned int>(&_RBX->fog.fogSplineBlendCount, v17);
+    *density = *(float *)&_XMM6;
+    truncate_store<unsigned char,unsigned int>(&refDef->fog.fogSplineBlendCount, v10);
   }
 }
 
@@ -1265,137 +973,139 @@ CG_VisionSetApplyTokenToField
 */
 bool CG_VisionSetApplyTokenToField(unsigned int fieldNum, const char *token, visionSetVars_t *settings)
 {
-  __int64 v7; 
-  __int64 offset; 
-  unsigned int v14; 
+  __int64 v3; 
+  float *v6; 
+  unsigned int v7; 
   bool enabled; 
-  int v16; 
+  int v9; 
   const char *UnobfuscatedName; 
+  float value; 
+  float v12; 
+  double v13; 
+  const char *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  double v20; 
+  const char *v21; 
+  float v22; 
+  float v23; 
   cg_t *LocalClientGlobals; 
-  VisionSetAssetType v29; 
-  const char *v30; 
+  VisionSetAssetType v25; 
+  const char *v26; 
   char *name; 
   bool result; 
   char *fmt; 
-  __int64 v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
+  __int64 v30; 
+  int v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
 
-  v7 = fieldNum;
+  v3 = fieldNum;
   if ( fieldNum > 0xDA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 318, ASSERT_TYPE_ASSERT, "( fieldNum ) <= ( ( sizeof( *array_counter( visionDefFields ) ) + 0 ) )", "fieldNum not in [0, ARRAY_COUNT( visionDefFields )]\n\t%u not in [0, %u]", fieldNum, 218) )
     __debugbreak();
   if ( !token && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 319, ASSERT_TYPE_ASSERT, "(token)", (const char *)&queryFormat, "token") )
     __debugbreak();
   if ( !settings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 320, ASSERT_TYPE_ASSERT, "(settings)", (const char *)&queryFormat, "settings") )
     __debugbreak();
-  __asm { vmovaps [rsp+0F8h+var_48], xmm6 }
-  _RDI = 5 * v7;
-  _R12 = 0x140000000ui64;
-  __asm { vmovaps [rsp+0F8h+var_58], xmm7 }
-  offset = visionDefFields[v7].offset;
-  __asm { vmovaps [rsp+0F8h+var_68], xmm8 }
-  _RSI = (CG_VisionSet_AssetBlendSet *)((char *)settings + offset);
-  bitarray_base<bitarray<224>>::resetBit(&settings->inUse, v7);
-  switch ( visionDefFields[v7].fieldType )
+  v6 = (float *)((char *)&settings->r_primaryLightTweakDiffuseStrength + visionDefFields[v3].offset);
+  bitarray_base<bitarray<224>>::resetBit(&settings->inUse, v3);
+  switch ( visionDefFields[v3].fieldType )
   {
     case FTYPE_BOOL:
-      v14 = j_sscanf(token, "%i", &v38);
-      enabled = v14 == 1;
-      if ( v14 > 1 )
+      v7 = j_sscanf(token, "%i", &v31);
+      enabled = v7 == 1;
+      if ( v7 > 1 )
       {
-        v16 = v38;
-        UnobfuscatedName = Dvar_DevGetUnobfuscatedName(visionDefFields[v7].name);
-        LODWORD(v37) = 1;
-        LODWORD(fmt) = v16;
-        Com_PrintError(1, "Vision file %s has value for %s of %d outside of the range [%d, %d]\n", settings->name, UnobfuscatedName, fmt, 0i64, v37);
-        enabled = visionDefFields[v7].def.enabled;
+        v9 = v31;
+        UnobfuscatedName = Dvar_DevGetUnobfuscatedName(visionDefFields[v3].name);
+        LODWORD(v30) = 1;
+        LODWORD(fmt) = v9;
+        Com_PrintError(1, "Vision file %s has value for %s of %d outside of the range [%d, %d]\n", settings->name, UnobfuscatedName, fmt, 0i64, v30);
+        enabled = visionDefFields[v3].def.enabled;
       }
       if ( !enabled )
-        goto LABEL_28;
-      _RSI->m_assets[0].m_assetIndex = v38 != 0;
-      goto LABEL_31;
+        goto LABEL_38;
+      *(_BYTE *)v6 = v31 != 0;
+      goto LABEL_41;
     case FTYPE_FLOAT:
-      if ( j_sscanf(token, "%f", &v39) != 1 )
-        goto LABEL_28;
-      __asm
+      if ( j_sscanf(token, "%f", &v32) != 1 )
+        goto LABEL_38;
+      value = visionDefFields[v3].min.value;
+      v12 = v32;
+      if ( v32 < value || v32 > visionDefFields[v3].max.value )
       {
-        vmovss  xmm8, dword ptr rva ?visionDefFields@@3PAUvisField_t@@A.min[r12+rdi*8]; visField_t near * visionDefFields
-        vmovss  xmm0, [rsp+0F8h+var_A4]
-        vcomiss xmm0, xmm8
-        vcomiss xmm0, dword ptr rva ?visionDefFields@@3PAUvisField_t@@A.max[r12+rdi*8]; visField_t near * visionDefFields
-        vmovss  dword ptr [rsi], xmm0
+        v13 = visionDefFields[v3].max.value;
+        v14 = Dvar_DevGetUnobfuscatedName(visionDefFields[v3].name);
+        Com_PrintError(1, "Vision file %s has value for %s of %f outside of the range [%f, %f]\n", settings->name, v14, v12, value, v13);
+        v12 = visionDefFields[v3].def.value;
+        v32 = v12;
       }
-      goto LABEL_31;
+      *v6 = v12;
+      goto LABEL_41;
     case FTYPE_VEC3:
-      if ( j_sscanf(token, "%f %f %f", &v40, &v41, &v42) != 3 )
-        goto LABEL_28;
-      __asm
+      if ( j_sscanf(token, "%f %f %f", &v33, &v34, &v35) != 3 )
+        goto LABEL_38;
+      v15 = v33;
+      v16 = v35;
+      v17 = v34;
+      v18 = visionDefFields[v3].min.value;
+      if ( v33 < v18 || (v19 = visionDefFields[v3].max.value, v33 > v19) || v34 < v18 || v34 > v19 || v35 < v18 || v35 > v19 )
       {
-        vmovss  xmm2, [rsp+0F8h+var_A0]
-        vmovss  xmm1, [rsp+0F8h+var_98]
-        vmovss  xmm3, [rsp+0F8h+var_9C]
-        vmovaps [rsp+0F8h+var_88], xmm10
-        vmovss  xmm10, dword ptr rva ?visionDefFields@@3PAUvisField_t@@A.min[r12+rdi*8]; visField_t near * visionDefFields
-        vcomiss xmm2, xmm10
-        vmovss  xmm0, dword ptr rva ?visionDefFields@@3PAUvisField_t@@A.max[r12+rdi*8]; visField_t near * visionDefFields
-        vcomiss xmm2, xmm0
-        vcomiss xmm3, xmm10
-        vcomiss xmm3, xmm0
-        vcomiss xmm1, xmm10
-        vcomiss xmm1, xmm0
-        vmovaps xmm10, [rsp+0F8h+var_88]
-        vmovss  dword ptr [rsi], xmm2
-        vmovss  xmm0, [rsp+0F8h+var_9C]
-        vmovss  dword ptr [rsi+4], xmm0
-        vmovss  xmm1, [rsp+0F8h+var_98]
-        vmovss  dword ptr [rsi+8], xmm1
+        v20 = visionDefFields[v3].max.value;
+        v21 = Dvar_DevGetUnobfuscatedName(visionDefFields[v3].name);
+        Com_PrintError(1, "Vision file %s has value for %s of { %f, %f, %f } outside of the range [%f, %f]\n", settings->name, v21, v15, v17, v16, v18, v20);
+        v15 = visionDefFields[v3].def.value;
+        v22 = visionDefFields[v3].def.vector.v[1];
+        v23 = visionDefFields[v3].def.vector.v[2];
+        v33 = v15;
+        v34 = v22;
+        v35 = v23;
       }
-      goto LABEL_31;
+      *v6 = v15;
+      v6[1] = v34;
+      v6[2] = v35;
+      goto LABEL_41;
     case FTYPE_IMAGESET:
-      v29 = VISION_SET_ASSET_TYPE_IMAGE;
-      goto LABEL_26;
+      v25 = VISION_SET_ASSET_TYPE_IMAGE;
+      goto LABEL_36;
     case FTYPE_CLUTSET:
-      v29 = VISION_SET_ASSET_TYPE_GRADING_CLUT;
-LABEL_26:
-      v30 = token;
+      v25 = VISION_SET_ASSET_TYPE_GRADING_CLUT;
+LABEL_36:
+      v26 = token;
       name = settings->name;
-      goto LABEL_27;
+      goto LABEL_37;
     case FTYPE_FOGSPLINESET:
       LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
       if ( LocalClientGlobals && settings == &LocalClientGlobals->cvsData.archived.visionLeaves[1] && R_FogSplineLive_ProcessToken(token) )
       {
-        v29 = VISION_SET_ASSET_TYPE_FOG_SPLINE;
-        v30 = (char *)&queryFormat.fmt + 3;
+        v25 = VISION_SET_ASSET_TYPE_FOG_SPLINE;
+        v26 = (char *)&queryFormat.fmt + 3;
         name = settings->name;
       }
       else
       {
-        v29 = VISION_SET_ASSET_TYPE_FOG_SPLINE;
+        v25 = VISION_SET_ASSET_TYPE_FOG_SPLINE;
         name = settings->name;
-        v30 = settings->name;
+        v26 = settings->name;
       }
-LABEL_27:
-      if ( CG_VisionSet_AssetBlendSet_Load(_RSI, v29, v30, name, visionDefFields[v7].name) )
-        goto LABEL_31;
-LABEL_28:
+LABEL_37:
+      if ( CG_VisionSet_AssetBlendSet_Load((CG_VisionSet_AssetBlendSet *)v6, v25, v26, name, visionDefFields[v3].name) )
+        goto LABEL_41;
+LABEL_38:
       result = 0;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 416, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported token type") )
         __debugbreak();
-LABEL_31:
-      bitarray_base<bitarray<224>>::setBit(&settings->inUse, v7);
+LABEL_41:
+      bitarray_base<bitarray<224>>::setBit(&settings->inUse, v3);
       result = 1;
       break;
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0F8h+var_68]
-    vmovaps xmm7, [rsp+0F8h+var_58]
-    vmovaps xmm6, [rsp+0F8h+var_48]
   }
   return result;
 }
@@ -1914,11 +1624,12 @@ unsigned __int8 CG_VisionSet_LoadAssetIndex(VisionSetAssetType assetType, const 
   int v9; 
   XAssetType v10; 
   unsigned __int8 m_assetCount; 
-  __int64 v14; 
+  __int128 v12; 
+  __int64 v13; 
   unsigned __int8 headNodeIndex; 
-  __int64 v17; 
-  const char *v18; 
-  __int128 v19; 
+  __int64 v15; 
+  const char *v16; 
+  __int128 v17; 
   VisionSetAssetKey *key; 
 
   LOBYTE(v2) = *assetName;
@@ -1928,8 +1639,8 @@ unsigned __int8 CG_VisionSet_LoadAssetIndex(VisionSetAssetType assetType, const 
   v2 = (char)v2;
   v5 = (unsigned __int8)assetType;
   v6 = (unsigned __int8)assetType;
-  LOBYTE(v17) = assetType;
-  v18 = assetName;
+  LOBYTE(v15) = assetType;
+  v16 = assetName;
   if ( (_BYTE)v2 )
   {
     do
@@ -1940,11 +1651,11 @@ unsigned __int8 CG_VisionSet_LoadAssetIndex(VisionSetAssetType assetType, const 
     }
     while ( *assetName );
   }
-  key = (VisionSetAssetKey *)&v17;
+  key = (VisionSetAssetKey *)&v15;
   result = IWHashTable_Base<CG_VisionSet_AssetHashNode,CG_VisionSet_AssetHashNode::Hasher>::BaseFind<VisionSetAssetKey *>(&s_CG_VisionSet.m_assetMap, &key, v6, s_CG_VisionSet.m_assetMap.buckets, 0x3FFu, s_CG_VisionSet.m_assetNodes);
   if ( result == 0xFF )
   {
-    LOBYTE(v19) = assetType;
+    LOBYTE(v17) = assetType;
     v8 = v5 - 1;
     if ( v8 )
     {
@@ -1971,24 +1682,22 @@ unsigned __int8 CG_VisionSet_LoadAssetIndex(VisionSetAssetType assetType, const 
     {
       v10 = ASSET_TYPE_IMAGE;
     }
-    *((XAssetHeader *)&v19 + 1) = DB_FindXAssetHeader(v10, v3, 0);
-    if ( *((_QWORD *)&v19 + 1) )
+    *((XAssetHeader *)&v17 + 1) = DB_FindXAssetHeader(v10, v3, 0);
+    if ( *((_QWORD *)&v17 + 1) )
     {
       m_assetCount = s_CG_VisionSet.m_assetCount;
-      if ( s_CG_VisionSet.m_assetCount == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 260, ASSERT_TYPE_ASSERT, "(assetIndex < ( sizeof( *array_counter( s_CG_VisionSet.m_assetNodes ) ) + 0 ))", (const char *)&queryFormat, "assetIndex < ARRAY_COUNT( s_CG_VisionSet.m_assetNodes )", v17, v18) )
+      if ( s_CG_VisionSet.m_assetCount == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_visionsets_common.cpp", 260, ASSERT_TYPE_ASSERT, "(assetIndex < ( sizeof( *array_counter( s_CG_VisionSet.m_assetNodes ) ) + 0 ))", (const char *)&queryFormat, "assetIndex < ARRAY_COUNT( s_CG_VisionSet.m_assetNodes )", v15, v16) )
         __debugbreak();
       s_CG_VisionSet.m_assetCount = m_assetCount + 1;
-      key = (VisionSetAssetKey *)&v17;
+      key = (VisionSetAssetKey *)&v15;
       if ( IWHashTable_Base<CG_VisionSet_AssetHashNode,CG_VisionSet_AssetHashNode::Hasher>::BaseFind<VisionSetAssetKey *>(&s_CG_VisionSet.m_assetMap, &key, v6, s_CG_VisionSet.m_assetMap.buckets, 0x3FFu, s_CG_VisionSet.m_assetNodes) != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\hash_table.h", 372, ASSERT_TYPE_ASSERT, "(this->Find( key, hash, nodes ) == Base::s_nullNodeIndex)", (const char *)&queryFormat, "this->Find( key, hash, nodes ) == Base::s_nullNodeIndex") )
         __debugbreak();
-      __asm { vmovups xmm0, [rsp+68h+var_28] }
-      _RAX = &s_CG_VisionSet;
-      v14 = v6 & 0x3FF;
-      headNodeIndex = s_CG_VisionSet.m_assetMap.buckets[v14].headNodeIndex;
-      s_CG_VisionSet.m_assetMap.buckets[v14].headNodeIndex = m_assetCount;
+      v12 = v17;
+      v13 = v6 & 0x3FF;
+      headNodeIndex = s_CG_VisionSet.m_assetMap.buckets[v13].headNodeIndex;
+      s_CG_VisionSet.m_assetMap.buckets[v13].headNodeIndex = m_assetCount;
       s_CG_VisionSet.m_assetNodes[m_assetCount].m_nextAssetIndex = headNodeIndex;
-      _RDX = 2i64 * m_assetCount;
-      __asm { vmovups xmmword ptr [rax+rdx*8+408h], xmm0 }
+      *(_OWORD *)&s_CG_VisionSet.m_assetNodes[16 * m_assetCount - 4080].m_nextAssetIndex = v12;
       return m_assetCount;
     }
     else

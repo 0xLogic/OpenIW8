@@ -127,40 +127,39 @@ void __fastcall CG_FrontEndScene_SetActiveSection(const char *sectionName, unsig
 CG_FrontEndScene_FrameUpdate
 ==============
 */
-
-void __fastcall CG_FrontEndScene_FrameUpdate(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_FrontEndScene_FrameUpdate(LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  cg_t *v5; 
+  __int64 v1; 
+  cg_t *v2; 
   int time; 
-  int v16; 
-  unsigned int v37; 
-  __int64 v38; 
+  double v4; 
+  int v5; 
+  double v6; 
+  unsigned int v7; 
+  __int64 v8; 
 
-  v4 = localClientNum;
+  v1 = localClientNum;
   if ( localClientNum >= (unsigned int)cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", localClientNum, cg_t::ms_allocatedCount) )
     __debugbreak();
-  if ( !cg_t::ms_cgArray[v4] )
+  if ( !cg_t::ms_cgArray[v1] )
   {
-    LODWORD(v38) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v38) )
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v8) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v38) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v38) )
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v8) )
       __debugbreak();
   }
-  v5 = cg_t::ms_cgArray[v4];
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_frontend_scene.cpp", 320, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v2 = cg_t::ms_cgArray[v1];
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_frontend_scene.cpp", 320, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( v5->m_frontEndScene )
+  if ( v2->m_frontEndScene )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    CG_FrontEndScene_UpdateRequiredTransients((LocalClientNum_t)v4, v5->time, &s_cgFrontEndSceneState.m_activeScriptedCameraState);
-    time = v5->time;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    CG_FrontEndScene_UpdateRequiredTransients((LocalClientNum_t)v1, v2->time, &s_cgFrontEndSceneState.m_activeScriptedCameraState);
+    time = v2->time;
     if ( s_cgFrontEndSceneState.m_requiredTransientsLoaded && s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeTarget == VISIBLE )
     {
       if ( s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeStartTime <= time )
@@ -172,74 +171,25 @@ void __fastcall CG_FrontEndScene_FrameUpdate(LocalClientNum_t localClientNum, do
     else
     {
       if ( s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeStartTime == s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeEndTime || s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeEndTime <= time )
-      {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-      }
+        LODWORD(v4) = 0;
       else
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, ecx
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm1, xmm1, xmm0
-          vsubss  xmm0, xmm6, xmm1; val
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm2, xmm6; max
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      }
-      __asm
-      {
-        vmovaps xmm1, xmm0; renderOpacity
-        vxorps  xmm0, xmm0, xmm0; targetOpacity
-      }
-      Com_FrontEndScene_SetOpacityTargetOverride(*(const float *)&_XMM0, *(const float *)&_XMM1_8);
+        v4 = I_fclamp(1.0 - (float)((float)(time - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeStartTime) / (float)(s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeEndTime - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeStartTime)), 0.0, 1.0);
+      Com_FrontEndScene_SetOpacityTargetOverride(0.0, *(const float *)&v4);
     }
-    if ( s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime == s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime || (v16 = v5->time, s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime <= v16) )
+    if ( s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime == s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime || (v5 = v2->time, s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime <= v5) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovTarget
-        vmovss  cs:s_cgFrontEndSceneState.m_currentFov, xmm0
-      }
+      s_cgFrontEndSceneState.m_currentFov = (float)s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovTarget;
     }
     else
     {
-      _ECX = v16 - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime;
-      _EAX = s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime;
-      __asm
-      {
-        vmovd   xmm2, ecx
-        vcvtdq2ps xmm2, xmm2
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vdivss  xmm0, xmm2, xmm0; val
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovd   xmm1, cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovSource
-        vsubss  xmm2, xmm6, xmm0
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm3, xmm2, xmm1
-        vmovd   xmm2, cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovTarget
-        vcvtdq2ps xmm2, xmm2
-        vmulss  xmm0, xmm2, xmm0
-        vaddss  xmm1, xmm3, xmm0
-        vmovss  cs:s_cgFrontEndSceneState.m_currentFov, xmm1
-      }
+      v6 = I_fclamp(_mm_cvtepi32_ps((__m128i)(unsigned int)(v5 - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)(s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovEndTime - s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovStartTime)).m128_f32[0], 0.0, 1.0);
+      s_cgFrontEndSceneState.m_currentFov = (float)((float)(1.0 - *(float *)&v6) * _mm_cvtepi32_ps((__m128i)(unsigned int)s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovSource).m128_f32[0]) + (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fovTarget).m128_f32[0] * *(float *)&v6);
     }
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-    if ( v5->time >= s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackTime )
+    if ( v2->time >= s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackTime )
     {
-      v37 = s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackLooping ? 2 : 0;
+      v7 = s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackLooping ? 2 : 0;
       Core_strcpy(s_cgFrontEndSceneState.m_activeCinematic, 0x40ui64, s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackName);
-      s_cgFrontEndSceneState.m_activeCinematicFlags = v37;
+      s_cgFrontEndSceneState.m_activeCinematicFlags = v7;
     }
   }
 }
@@ -280,8 +230,7 @@ CG_FrontEndScene_GetCameraFOV
 */
 float CG_FrontEndScene_GetCameraFOV()
 {
-  __asm { vmovss  xmm0, cs:s_cgFrontEndSceneState.m_currentFov }
-  return *(float *)&_XMM0;
+  return s_cgFrontEndSceneState.m_currentFov;
 }
 
 /*
@@ -316,11 +265,7 @@ CG_FrontEndScene_Init
 void CG_FrontEndScene_Init(void)
 {
   memset_0(&s_cgFrontEndSceneState, 0, 0x80ui64);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42820000
-    vmovss  cs:s_cgFrontEndSceneState.m_currentFov, xmm0
-  }
+  s_cgFrontEndSceneState.m_currentFov = FLOAT_65_0;
   *(_QWORD *)s_cgFrontEndSceneState.m_activeCinematic = 0i64;
   *(_QWORD *)&s_cgFrontEndSceneState.m_activeCinematic[8] = 0i64;
   *(_QWORD *)&s_cgFrontEndSceneState.m_activeCinematic[16] = 0i64;
@@ -342,7 +287,7 @@ CG_FrontEndScene_SetActiveSection
 void CG_FrontEndScene_SetActiveSection(const char *sectionName, unsigned int sectionParam)
 {
   volatile int writeCount; 
-  int v6; 
+  int v5; 
   TempThreadPriority tempPriority; 
 
   Sys_LockWrite(&s_cgFrontEndSceneActiveSectionLock);
@@ -352,16 +297,15 @@ void CG_FrontEndScene_SetActiveSection(const char *sectionName, unsigned int sec
   s_cgFrontEndSceneState.m_activeSectionParam = sectionParam;
   if ( s_cgFrontEndSceneActiveSectionLock.writeCount != 1 )
   {
-    v6 = 1;
+    v5 = 1;
     writeCount = s_cgFrontEndSceneActiveSectionLock.writeCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v6) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v5) )
       __debugbreak();
   }
   if ( s_cgFrontEndSceneActiveSectionLock.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr cs:s_cgFrontEndSceneActiveSectionLock.tempPriority.threadHandle }
   s_cgFrontEndSceneActiveSectionLock.writeThreadId = 0;
-  __asm { vmovups xmmword ptr [rsp+68h+tempPriority.threadHandle], xmm0 }
+  tempPriority = s_cgFrontEndSceneActiveSectionLock.tempPriority;
   if ( ((unsigned __int8)&s_cgFrontEndSceneActiveSectionLock.writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_cgFrontEndSceneActiveSectionLock.writeCount) )
     __debugbreak();
   if ( _InterlockedCompareExchange(&s_cgFrontEndSceneActiveSectionLock.writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )
@@ -376,17 +320,7 @@ CG_FrontEndScene_SetScriptedCameraState
 */
 void CG_FrontEndScene_SetScriptedCameraState(const BgScriptedCameraState *r_scriptedCameraState)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_fadeTarget, ymm0
-    vmovups ymm1, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_requiredCharacters+4, ymm1
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackName+8, ymm0
-    vmovups ymm1, ymmword ptr [rcx+60h]
-    vmovups ymmword ptr cs:s_cgFrontEndSceneState.m_activeScriptedCameraState.m_cinematicPlaybackName+28h, ymm1
-  }
+  s_cgFrontEndSceneState.m_activeScriptedCameraState = *r_scriptedCameraState;
 }
 
 /*

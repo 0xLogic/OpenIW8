@@ -190,40 +190,34 @@ void __fastcall CL_AddOrientedDebugStar(const vec3_t *lineStart, const tmat33_t<
 AddDebugStringInternal
 ==============
 */
-
-void __fastcall AddDebugStringInternal(const vec3_t *xyz, const vec4_t *color, double scale, const char *text, int duration, int is2D, ClDebugStringInfo *info, int isCentered)
+void AddDebugStringInternal(const vec3_t *xyz, const vec4_t *color, float scale, const char *text, int duration, int is2D, ClDebugStringInfo *info, int isCentered)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps xmm7, xmm2
-  }
+  const dvar_t *v11; 
+  float value; 
+  trDebugString_t *v13; 
+
   if ( is2D && isCentered && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_debugdata.cpp", 87, ASSERT_TYPE_ASSERT, "(!( is2D && isCentered ))", (const char *)&queryFormat, "!( is2D && isCentered )") )
     __debugbreak();
   if ( info->num < info->max )
   {
-    _RBX = DVARFLT_cl_debugTextSize;
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
+    v11 = DVARFLT_cl_debugTextSize;
     if ( !DVARFLT_cl_debugTextSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_debugTextSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    _RBX = &info->strings[info->num];
-    _RBX->xyz.v[0] = xyz->v[0];
-    _RBX->xyz.v[1] = xyz->v[1];
-    _RBX->xyz.v[2] = xyz->v[2];
-    Byte4PackVertexColor(color, _RBX->color.array);
-    __asm { vmulss  xmm0, xmm7, xmm6 }
-    _RBX->font = cls.bigDevFont;
-    _RBX->is2D = is2D;
-    __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-    _RBX->isCentered = isCentered;
-    strncpy(_RBX->text, text, 0x4Bui64);
-    __asm { vmovaps xmm6, [rsp+78h+var_28] }
-    _RBX->text[75] = 0;
+    Dvar_CheckFrontendServerThread(v11);
+    value = v11->current.value;
+    v13 = &info->strings[info->num];
+    v13->xyz.v[0] = xyz->v[0];
+    v13->xyz.v[1] = xyz->v[1];
+    v13->xyz.v[2] = xyz->v[2];
+    Byte4PackVertexColor(color, v13->color.array);
+    v13->font = cls.bigDevFont;
+    v13->is2D = is2D;
+    v13->size = scale * value;
+    v13->isCentered = isCentered;
+    strncpy(v13->text, text, 0x4Bui64);
+    v13->text[75] = 0;
     info->durations[info->num++] = duration;
   }
-  __asm { vmovaps xmm7, [rsp+78h+var_38] }
 }
 
 /*
@@ -233,89 +227,62 @@ CL_AddDebugBox
 */
 void CL_AddDebugBox(const tmat33_t<vec3_t> *axis, const vec3_t *origin, const vec3_t *mins, const vec3_t *maxs, const vec4_t *color, int depthTest, int duration, int fromServer)
 {
-  unsigned int v14; 
-  unsigned int v16; 
-  int v17; 
-  const int (*v41)[2]; 
-  __int64 v42; 
+  unsigned int v8; 
+  float *v9; 
+  unsigned int v10; 
+  int v11; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const int (*v20)[2]; 
+  __int64 v21; 
   vec3_t start[8]; 
-  char v48; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _R15 = maxs;
-  _R12 = mins;
-  v14 = 0;
-  _RBP = &start[0].v[2];
+  v8 = 0;
+  v9 = &start[0].v[2];
   do
   {
-    v16 = 0;
-    v17 = 1;
+    v10 = 0;
+    v11 = 1;
     do
     {
-      _RDI = 4i64 * (int)v16;
-      if ( (v17 & v14) != 0 )
-        __asm { vmovss  xmm6, dword ptr [rdi+r15] }
+      v12 = (int)v10;
+      if ( (v11 & v8) != 0 )
+        v13 = maxs->v[v12];
       else
-        __asm { vmovss  xmm6, dword ptr [rdi+r12] }
-      ++v16;
-      v17 = __ROL4__(v17, 1);
-      __asm { vmovss  dword ptr [rdi+rbp-8], xmm6 }
+        v13 = mins->v[v12];
+      ++v10;
+      v11 = __ROL4__(v11, 1);
+      v9[v12 - 2] = v13;
     }
-    while ( v16 < 3 );
-    ++v14;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp-8]
-      vmovss  xmm7, dword ptr [rbp-4]
-      vmovss  xmm8, dword ptr [rbp+0]
-      vmulss  xmm0, xmm6, dword ptr [r13+0]
-      vmulss  xmm1, xmm7, dword ptr [r13+0Ch]
-      vaddss  xmm2, xmm0, dword ptr [rax]
-      vmulss  xmm0, xmm8, dword ptr [r13+18h]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [r13+4]
-      vaddss  xmm2, xmm1, dword ptr [rax+4]
-      vmulss  xmm1, xmm8, dword ptr [r13+1Ch]
-      vaddss  xmm5, xmm3, xmm0
-      vmulss  xmm0, xmm7, dword ptr [r13+10h]
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm6, dword ptr [r13+8]
-      vaddss  xmm2, xmm0, dword ptr [rax+8]
-      vmulss  xmm0, xmm8, dword ptr [r13+20h]
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm1, xmm7, dword ptr [r13+14h]
-      vmovss  dword ptr [rbp-8], xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm3, xmm2, xmm0
-      vmovss  dword ptr [rbp+0], xmm3
-      vmovss  dword ptr [rbp-4], xmm4
-    }
-    _RBP += 3;
+    while ( v10 < 3 );
+    ++v8;
+    v14 = *(v9 - 2);
+    v15 = *(v9 - 1);
+    v16 = (float)(v14 * axis->m[0].v[2]) + origin->v[2];
+    v17 = *v9 * axis->m[2].v[2];
+    v18 = (float)((float)((float)(v14 * axis->m[0].v[1]) + origin->v[1]) + (float)(v15 * axis->m[1].v[1])) + (float)(*v9 * axis->m[2].v[1]);
+    v19 = v15 * axis->m[1].v[2];
+    *(v9 - 2) = (float)((float)((float)(v14 * axis->m[0].v[0]) + origin->v[0]) + (float)(v15 * axis->m[1].v[0])) + (float)(*v9 * axis->m[2].v[0]);
+    *v9 = (float)(v16 + v19) + v17;
+    *(v9 - 1) = v18;
+    v9 += 3;
   }
-  while ( v14 < 8 );
-  v41 = iEdgePairs_1;
-  v42 = 12i64;
+  while ( v8 < 8 );
+  v20 = iEdgePairs_1;
+  v21 = 12i64;
   do
   {
-    CL_AddDebugLine(&start[*(_DWORD *)v41], &start[(*v41)[1]], color, depthTest, duration, fromServer);
-    ++v41;
-    --v42;
+    CL_AddDebugLine(&start[*(_DWORD *)v20], &start[(*v20)[1]], color, depthTest, duration, fromServer);
+    ++v20;
+    --v21;
   }
-  while ( v42 );
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( v21 );
 }
 
 /*
@@ -467,14 +434,7 @@ CL_AddDebugStar
 */
 void CL_AddDebugStar(const vec3_t *point, const vec4_t *color, int depthTest, int duration, int fromServer)
 {
-  float v6; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  CL_AddDebugStarWithText(point, color, &MYNULLTEXTCOLOR, NULL, v6, depthTest, duration, fromServer);
+  CL_AddDebugStarWithText(point, color, &MYNULLTEXTCOLOR, NULL, 1.0, depthTest, duration, fromServer);
 }
 
 /*
@@ -484,14 +444,7 @@ CL_AddDebugStarWithSize
 */
 void CL_AddDebugStarWithSize(const vec3_t *point, const vec4_t *color, int duration, int fromServer, float size)
 {
-  float v6; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+size]
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  CL_AddDebugStarWithText(point, color, &MYNULLTEXTCOLOR_0, NULL, v6, 0, duration, fromServer);
+  CL_AddDebugStarWithText(point, color, &MYNULLTEXTCOLOR_0, NULL, size, 0, duration, fromServer);
 }
 
 /*
@@ -501,76 +454,40 @@ CL_AddDebugStarWithText
 */
 void CL_AddDebugStarWithText(const vec3_t *point, const vec4_t *starColor, const vec4_t *textColor, const char *string, float fontsize, int depthTest, int duration, int fromServer)
 {
-  const vec3_t *v24; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v14; 
+  float v16; 
   vec3_t end; 
   vec3_t start; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovss  xmm7, dword ptr [rcx]
-    vmovss  xmm8, dword ptr [rcx+4]
-    vmovss  xmm9, dword ptr [rcx+8]
-    vmovss  xmm11, [rsp+0D8h+fontsize]
-    vmulss  xmm10, xmm11, cs:__real@40a00000
-    vsubss  xmm0, xmm7, xmm10
-  }
-  v24 = point;
-  __asm
-  {
-    vaddss  xmm6, xmm7, xmm10
-    vmovss  dword ptr [rsp+0D8h+start], xmm6
-    vmovss  dword ptr [rsp+0D8h+end], xmm0
-    vmovss  dword ptr [rsp+0D8h+start+4], xmm8
-    vmovss  dword ptr [rsp+0D8h+start+8], xmm9
-    vmovss  dword ptr [rsp+0D8h+end+4], xmm8
-    vmovss  dword ptr [rsp+0D8h+end+8], xmm9
-  }
+  v8 = point->v[0];
+  v9 = point->v[1];
+  v10 = point->v[2];
+  v14 = point->v[0] - (float)(fontsize * 5.0);
+  start.v[0] = point->v[0] + (float)(fontsize * 5.0);
+  v16 = start.v[0];
+  end.v[0] = v14;
+  start.v[1] = v9;
+  start.v[2] = v10;
+  end.v[1] = v9;
+  end.v[2] = v10;
   CL_AddDebugLine(&start, &end, starColor, depthTest, duration, fromServer);
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm10
-    vmovss  dword ptr [rsp+0D8h+start], xmm0
-    vsubss  xmm0, xmm8, xmm10
-    vaddss  xmm6, xmm8, xmm10
-    vmovss  dword ptr [rsp+0D8h+end+4], xmm0
-    vmovss  dword ptr [rsp+0D8h+end], xmm7
-    vmovss  dword ptr [rsp+0D8h+start+4], xmm6
-  }
+  start.v[0] = v16 - (float)(fontsize * 5.0);
+  end.v[1] = v9 - (float)(fontsize * 5.0);
+  end.v[0] = v8;
+  start.v[1] = v9 + (float)(fontsize * 5.0);
   CL_AddDebugLine(&start, &end, starColor, depthTest, duration, fromServer);
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm10
-    vmovss  dword ptr [rsp+0D8h+start+4], xmm0
-    vsubss  xmm0, xmm9, xmm10
-    vaddss  xmm1, xmm9, xmm10
-    vmovss  dword ptr [rsp+0D8h+end+8], xmm0
-    vmovss  dword ptr [rsp+0D8h+end+4], xmm8
-    vmovss  dword ptr [rsp+0D8h+start+8], xmm1
-  }
+  start.v[1] = (float)(v9 + (float)(fontsize * 5.0)) - (float)(fontsize * 5.0);
+  end.v[2] = v10 - (float)(fontsize * 5.0);
+  end.v[1] = v9;
+  start.v[2] = v10 + (float)(fontsize * 5.0);
   CL_AddDebugLine(&start, &end, starColor, depthTest, duration, fromServer);
-  if ( string && *string )
+  if ( string )
   {
-    __asm { vmovaps xmm2, xmm11; scale }
-    CL_AddDebugString(v24, textColor, *(float *)&_XMM2, string, fromServer, duration);
-  }
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    if ( *string )
+      CL_AddDebugString(point, textColor, fontsize, string, fromServer, duration);
   }
 }
 
@@ -579,45 +496,20 @@ void CL_AddDebugStarWithText(const vec3_t *point, const vec4_t *starColor, const
 CL_AddDebugString2D
 ==============
 */
-
-void __fastcall CL_AddDebugString2D(double x, double y, const vec4_t *color, double scale, const char *text, int fromServer, int duration)
+void CL_AddDebugString2D(float x, float y, const vec4_t *color, float scale, const char *text, int fromServer, int duration)
 {
   ClDebugInfo *info; 
   vec3_t xyz; 
-  char v24; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm1
-    vmovaps xmm8, xmm0
-  }
   if ( cls.rendererStarted && CL_CreateDebugStringsIfNeeded() )
   {
     info = (ClDebugInfo *)&cls.debug.svStrings;
     if ( !fromServer )
       info = &cls.debug;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm2, xmm6; scale
-      vmovss  dword ptr [rsp+98h+xyz], xmm8
-      vmovss  dword ptr [rsp+98h+xyz+4], xmm7
-      vmovss  dword ptr [rsp+98h+xyz+8], xmm0
-    }
-    AddDebugStringInternal(&xyz, color, *(double *)&_XMM2, text, duration, 1, &info->clStrings, 0);
-  }
-  _R11 = &v24;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    xyz.v[0] = x;
+    xyz.v[1] = y;
+    xyz.v[2] = 0.0;
+    AddDebugStringInternal(&xyz, color, scale, text, duration, 1, &info->clStrings, 0);
   }
 }
 
@@ -626,25 +518,17 @@ void __fastcall CL_AddDebugString2D(double x, double y, const vec4_t *color, dou
 CL_AddDebugString
 ==============
 */
-
-void __fastcall CL_AddDebugString(const vec3_t *xyz, const vec4_t *color, double scale, const char *text, int fromServer, int duration)
+void CL_AddDebugString(const vec3_t *xyz, const vec4_t *color, float scale, const char *text, int fromServer, int duration)
 {
   ClDebugInfo *info; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( cls.rendererStarted && CL_CreateDebugStringsIfNeeded() )
   {
     info = (ClDebugInfo *)&cls.debug.svStrings;
     if ( !fromServer )
       info = &cls.debug;
-    __asm { vmovaps xmm2, xmm6; scale }
-    AddDebugStringInternal(xyz, color, *(double *)&_XMM2, text, duration, 0, &info->clStrings, 0);
+    AddDebugStringInternal(xyz, color, scale, text, duration, 0, &info->clStrings, 0);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -652,25 +536,17 @@ void __fastcall CL_AddDebugString(const vec3_t *xyz, const vec4_t *color, double
 CL_AddDebugStringCentered
 ==============
 */
-
-void __fastcall CL_AddDebugStringCentered(const vec3_t *xyz, const vec4_t *color, double scale, const char *text, int fromServer, int duration)
+void CL_AddDebugStringCentered(const vec3_t *xyz, const vec4_t *color, float scale, const char *text, int fromServer, int duration)
 {
   ClDebugInfo *info; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( cls.rendererStarted && CL_CreateDebugStringsIfNeeded() )
   {
     info = (ClDebugInfo *)&cls.debug.svStrings;
     if ( !fromServer )
       info = &cls.debug;
-    __asm { vmovaps xmm2, xmm6; scale }
-    AddDebugStringInternal(xyz, color, *(double *)&_XMM2, text, duration, 0, &info->clStrings, 1);
+    AddDebugStringInternal(xyz, color, scale, text, duration, 0, &info->clStrings, 1);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -678,73 +554,40 @@ void __fastcall CL_AddDebugStringCentered(const vec3_t *xyz, const vec4_t *color
 CL_AddOrientedDebugStar
 ==============
 */
-
-void __fastcall CL_AddOrientedDebugStar(const vec3_t *lineStart, const tmat33_t<vec3_t> *axis, const vec4_t *color, double size, int duration, int fromServer)
+void CL_AddOrientedDebugStar(const vec3_t *lineStart, const tmat33_t<vec3_t> *axis, const vec4_t *color, float size, int duration, int fromServer)
 {
+  float v6; 
+  float v8; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t end; 
   vec4_t colora; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmulss  xmm8, xmm3, cs:__real@41c80000
-    vmulss  xmm0, xmm8, dword ptr [rdx]
-    vaddss  xmm1, xmm0, dword ptr [rcx]
-    vmulss  xmm0, xmm8, dword ptr [rdx+4]
-    vmovups xmm2, cs:__xmm@3f80000000000000000000003f800000
-    vmovss  dword ptr [rsp+98h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+4]
-    vmulss  xmm0, xmm8, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+98h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+98h+end+8], xmm1
-    vmovups xmmword ptr [rsp+98h+color], xmm2
-  }
+  v6 = (float)(size * 25.0) * axis->m[0].v[1];
+  end.v[0] = (float)((float)(size * 25.0) * axis->m[0].v[0]) + lineStart->v[0];
+  v8 = (float)(size * 25.0) * axis->m[0].v[2];
+  end.v[1] = v6 + lineStart->v[1];
+  end.v[2] = v8 + lineStart->v[2];
+  colora = (vec4_t)_xmm;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rsi+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm8, dword ptr [rsi+10h]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr [rsp+98h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm8, dword ptr [rsi+14h]
-    vmovss  dword ptr [rsp+98h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rsp+98h+end+8], xmm1
-    vmovss  dword ptr [rsp+98h+color], xmm7
-    vmovss  dword ptr [rsp+98h+color+4], xmm6
-  }
+  v10 = (float)(size * 25.0) * axis->m[1].v[1];
+  end.v[0] = (float)((float)(size * 25.0) * axis->m[1].v[0]) + lineStart->v[0];
+  v11 = (float)(size * 25.0) * axis->m[1].v[2];
+  end.v[1] = v10 + lineStart->v[1];
+  end.v[2] = v11 + lineStart->v[2];
+  colora.v[0] = 0.0;
+  colora.v[1] = FLOAT_1_0;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rsi+18h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm8, dword ptr [rsi+1Ch]
-    vmovss  dword ptr [rsp+98h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm8, dword ptr [rsi+20h]
-    vmovss  dword ptr [rsp+98h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+98h+end+8], xmm1
-    vmovss  dword ptr [rsp+98h+color+4], xmm7
-    vmovss  dword ptr [rsp+98h+color+8], xmm6
-  }
+  v12 = (float)(size * 25.0) * axis->m[2].v[1];
+  end.v[0] = (float)((float)(size * 25.0) * axis->m[2].v[0]) + lineStart->v[0];
+  v13 = (float)(size * 25.0) * axis->m[2].v[2];
+  end.v[1] = v12 + lineStart->v[1];
+  end.v[2] = v13 + lineStart->v[2];
+  colora.v[1] = 0.0;
+  colora.v[2] = FLOAT_1_0;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -752,80 +595,44 @@ void __fastcall CL_AddOrientedDebugStar(const vec3_t *lineStart, const tmat33_t<
 CL_AddOrientedDebugStarWithText
 ==============
 */
-
-void __fastcall CL_AddOrientedDebugStarWithText(const vec3_t *lineStart, const tmat33_t<vec3_t> *axis, const vec4_t *color, double fontsize, const char *text, int duration, int fromServer)
+void CL_AddOrientedDebugStarWithText(const vec3_t *lineStart, const tmat33_t<vec3_t> *axis, const vec4_t *color, float fontsize, const char *text, int duration, int fromServer)
 {
+  float v7; 
+  float v10; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   vec3_t end; 
   vec4_t colora; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmulss  xmm8, xmm3, cs:__real@41c80000
-    vmulss  xmm0, xmm8, dword ptr [rdx]
-    vaddss  xmm1, xmm0, dword ptr [rcx]
-    vmulss  xmm0, xmm8, dword ptr [rdx+4]
-    vmovups xmm2, cs:__xmm@3f80000000000000000000003f800000
-    vmovss  dword ptr [rsp+0B8h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+4]
-    vmulss  xmm0, xmm8, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm1
-    vmovaps xmm9, xmm3
-    vmovups xmmword ptr [rsp+0B8h+color], xmm2
-  }
+  v7 = (float)(fontsize * 25.0) * axis->m[0].v[1];
+  end.v[0] = (float)((float)(fontsize * 25.0) * axis->m[0].v[0]) + lineStart->v[0];
+  v10 = (float)(fontsize * 25.0) * axis->m[0].v[2];
+  end.v[1] = v7 + lineStart->v[1];
+  end.v[2] = v10 + lineStart->v[2];
+  colora = (vec4_t)_xmm;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rbx+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmulss  xmm0, xmm8, dword ptr [rbx+10h]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr [rsp+0B8h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm0, xmm8, dword ptr [rbx+14h]
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm1
-    vmovss  dword ptr [rsp+0B8h+color], xmm7
-    vmovss  dword ptr [rsp+0B8h+color+4], xmm6
-  }
+  v12 = (float)(fontsize * 25.0) * axis->m[1].v[1];
+  end.v[0] = (float)((float)(fontsize * 25.0) * axis->m[1].v[0]) + lineStart->v[0];
+  v13 = (float)(fontsize * 25.0) * axis->m[1].v[2];
+  end.v[1] = v12 + lineStart->v[1];
+  end.v[2] = v13 + lineStart->v[2];
+  colora.v[0] = 0.0;
+  colora.v[1] = FLOAT_1_0;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rbx+18h]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmulss  xmm0, xmm8, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rsp+0B8h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm0, xmm8, dword ptr [rbx+20h]
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm1
-    vmovss  dword ptr [rsp+0B8h+color+4], xmm7
-    vmovss  dword ptr [rsp+0B8h+color+8], xmm6
-  }
+  v14 = (float)(fontsize * 25.0) * axis->m[2].v[1];
+  end.v[0] = (float)((float)(fontsize * 25.0) * axis->m[2].v[0]) + lineStart->v[0];
+  v15 = (float)(fontsize * 25.0) * axis->m[2].v[2];
+  end.v[1] = v14 + lineStart->v[1];
+  end.v[2] = v15 + lineStart->v[2];
+  colora.v[1] = 0.0;
+  colora.v[2] = FLOAT_1_0;
   CL_AddDebugLine(lineStart, &end, &colora, 0, duration, fromServer);
-  if ( text && *text )
+  if ( text )
   {
-    __asm { vmovaps xmm2, xmm9; scale }
-    CL_AddDebugString(lineStart, color, *(float *)&_XMM2, text, fromServer, duration);
-  }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    if ( *text )
+      CL_AddDebugString(lineStart, color, fontsize, text, fromServer, duration);
   }
 }
 
@@ -1046,6 +853,8 @@ void CL_DebugData_FlushDebugLines(ClDebugLineInfo *info, int fromServer)
   volatile int v3; 
   volatile int *p_num; 
   __int64 v5; 
+  __int64 v6; 
+  __int64 v7; 
 
   if ( info->lines )
   {
@@ -1054,28 +863,22 @@ void CL_DebugData_FlushDebugLines(ClDebugLineInfo *info, int fromServer)
     if ( info->num > 0 )
     {
       v5 = 0i64;
-      _R14 = 0i64;
+      v6 = 0i64;
       do
       {
         if ( --info->durations[v5] > 0 )
         {
           ++v3;
           ++v5;
-          _R14 += 32i64;
+          ++v6;
         }
         else
         {
           if ( ((unsigned __int8)p_num & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)p_num) )
             __debugbreak();
-          _RDX = _InterlockedDecrement(p_num);
-          info->durations[v5] = info->durations[_RDX];
-          _RAX = info->lines;
-          _RDX *= 32i64;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdx+rax]
-            vmovups ymmword ptr [r14+rax], ymm0
-          }
+          v7 = _InterlockedDecrement(p_num);
+          info->durations[v5] = info->durations[v7];
+          info->lines[v6] = info->lines[v7];
         }
       }
       while ( v3 < *p_num );
@@ -1105,6 +908,8 @@ void CL_DebugData_FlushDebugPolys(ClDebugPolyInfo *info, int fromServer)
   unsigned int v15; 
   __int64 v16; 
   __int64 v17; 
+  unsigned __int64 v18; 
+  trDebugPoly_t *v19; 
   unsigned int num; 
 
   if ( info->polys && info->num )
@@ -1150,20 +955,14 @@ void CL_DebugData_FlushDebugPolys(ClDebugPolyInfo *info, int fromServer)
           do
           {
             v17 = v14++;
-            _R9 = (unsigned int)v16;
+            v18 = (unsigned int)v16;
             info->durations[v16] = info->durations[v17];
             v16 = (unsigned int)(v16 + 1);
-            _RCX = info->polys;
-            _RAX = 28 * v17;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax+rcx]
-              vmovups xmmword ptr [r9+rcx], xmm0
-              vmovsd  xmm1, qword ptr [rax+rcx+10h]
-              vmovsd  qword ptr [r9+rcx+10h], xmm1
-            }
-            *(_DWORD *)&_RCX[_R9].outline = *(_DWORD *)&_RCX[v17].outline;
-            info->polys[_R9].firstVert -= vertCount;
+            v19 = info->polys;
+            v19[v18].color = v19[v17].color;
+            *(double *)&v19[v18].firstVert = *(double *)&v19[v17].firstVert;
+            *(_DWORD *)&v19[v18].outline = *(_DWORD *)&v19[v17].outline;
+            info->polys[v18].firstVert -= vertCount;
             v15 = info->num;
           }
           while ( v14 < v15 );
@@ -1184,16 +983,19 @@ CL_DebugData_FlushDebugStrings
 void CL_DebugData_FlushDebugStrings(ClDebugStringInfo *info, int fromServer)
 {
   int v2; 
+  __int64 v3; 
   __int64 v4; 
   int *durations; 
   __int64 num; 
+  trDebugString_t *strings; 
+  __int64 v8; 
 
   if ( info->strings )
   {
     v2 = 0;
     if ( info->num > 0 )
     {
-      _R11 = 0i64;
+      v3 = 0i64;
       v4 = 0i64;
       do
       {
@@ -1203,26 +1005,19 @@ void CL_DebugData_FlushDebugStrings(ClDebugStringInfo *info, int fromServer)
         {
           ++v2;
           ++v4;
-          _R11 += 112i64;
+          ++v3;
         }
         else
         {
           num = info->num;
           info->num = num - 1;
           durations[v4] = durations[num - 1];
-          _R8 = info->strings;
-          _RDX = 112i64 * info->num;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdx+r8]
-            vmovups ymmword ptr [r11+r8], ymm0
-            vmovups ymm1, ymmword ptr [rdx+r8+20h]
-            vmovups ymmword ptr [r11+r8+20h], ymm1
-            vmovups ymm0, ymmword ptr [rdx+r8+40h]
-            vmovups ymmword ptr [r11+r8+40h], ymm0
-            vmovups xmm1, xmmword ptr [rdx+r8+60h]
-            vmovups xmmword ptr [r11+r8+60h], xmm1
-          }
+          strings = info->strings;
+          v8 = info->num;
+          *(__m256i *)&strings[v3].font = *(__m256i *)&strings[v8].font;
+          *(__m256i *)&strings[v3].text[4] = *(__m256i *)&strings[v8].text[4];
+          *(__m256i *)&strings[v3].text[36] = *(__m256i *)&strings[v8].text[36];
+          *(_OWORD *)&strings[v3].text[68] = *(_OWORD *)&strings[v8].text[68];
         }
       }
       while ( v2 < info->num );
@@ -1336,9 +1131,9 @@ void __fastcall CL_ShutdownDebugData(double _XMM0_8, double _XMM1_8)
   {
     vpxor   xmm0, xmm0, xmm0
     vpxor   xmm1, xmm1, xmm1
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svLines.lines, xmm0; ClStatic cls
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svLinesBuffer.lines, xmm1; ClStatic cls
   }
+  *(_OWORD *)&cls.debug.svLines.lines = _XMM0;
+  *(_OWORD *)&cls.debug.svLinesBuffer.lines = _XMM1;
   cls.debug.clLines.durations = NULL;
   R_DebugFree((void **)&cls.debug.clStrings.strings);
   __asm
@@ -1347,11 +1142,8 @@ void __fastcall CL_ShutdownDebugData(double _XMM0_8, double _XMM1_8)
     vpxor   xmm1, xmm1, xmm1
   }
   cls.debug.clStrings.durations = NULL;
-  __asm
-  {
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svStrings.strings, xmm0; ClStatic cls
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svStringsBuffer.strings, xmm1; ClStatic cls
-  }
+  *(_OWORD *)&cls.debug.svStrings.strings = _XMM0;
+  *(_OWORD *)&cls.debug.svStringsBuffer.strings = _XMM1;
   R_DebugFree((void **)&cls.debug.clPolys.polys);
   __asm
   {
@@ -1361,11 +1153,8 @@ void __fastcall CL_ShutdownDebugData(double _XMM0_8, double _XMM1_8)
   cls.debug.clPolys.durations = NULL;
   cls.debug.clPolys.verts = NULL;
   cls.debug.svPolys.verts = NULL;
-  __asm
-  {
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svPolys.polys, xmm0; ClStatic cls
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.debug.svPolysBuffer.polys, xmm1; ClStatic cls
-  }
+  *(_OWORD *)&cls.debug.svPolys.polys = _XMM0;
+  *(_OWORD *)&cls.debug.svPolysBuffer.polys = _XMM1;
   cls.debug.svPolysBuffer.verts = NULL;
   memset_0(&cls.debug, 0, sizeof(cls.debug));
   R_ShutdownDebug();

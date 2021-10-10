@@ -346,107 +346,100 @@ PlayerUseDataMap_InitPlayerData_Scriptable::InitPlayerUseData
 */
 void PlayerUseDataMap_InitPlayerData_Scriptable::InitPlayerUseData(PlayerUseDataMap_InitPlayerData_Scriptable *this, PlayerUseData *const outPlayerUseData)
 {
-  __int64 v5; 
+  __int64 v4; 
   const ScriptableStateUsableDef *PartStateUsableDef; 
   vec3_t *p_m_usePos; 
   unsigned int useData; 
-  char v10; 
   const ScriptableDef *def; 
-  bool v12; 
-  ntl::vector_map<unsigned int,ClientBits,NtlHunkUserAllocator<ntl::pair<unsigned int,ClientBits> >,ntl::less<unsigned int,unsigned int> > *v13; 
+  bool v9; 
+  ntl::vector_map<unsigned int,ClientBits,NtlHunkUserAllocator<ntl::pair<unsigned int,ClientBits> >,ntl::less<unsigned int,unsigned int> > *v10; 
   __int64 m_size; 
   ntl::pair<unsigned int,ClientBits> *m_buffer; 
   const unsigned int *key; 
+  ntl::pair<unsigned int,ClientBits> *v14; 
+  __int64 v15; 
+  __int64 v16; 
   ntl::pair<unsigned int,ClientBits> *v17; 
-  __int64 v18; 
-  __int64 v19; 
-  ntl::pair<unsigned int,ClientBits> *v20; 
   const ClientBits *p_second; 
   float *outDisplayFOV; 
   bool *outUse2DFOV; 
   vec3_t out_useAnglesOptional; 
 
-  _RSI = outPlayerUseData;
   if ( !this->ref && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 550, ASSERT_TYPE_ASSERT, "( ref != nullptr )", (const char *)&queryFormat, "ref != nullptr") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 551, ASSERT_TYPE_ASSERT, "( outPlayerUseData != nullptr )", (const char *)&queryFormat, "outPlayerUseData != nullptr") )
+  if ( !outPlayerUseData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 551, ASSERT_TYPE_ASSERT, "( outPlayerUseData != nullptr )", (const char *)&queryFormat, "outPlayerUseData != nullptr") )
     __debugbreak();
-  v5 = *(_DWORD *)this->ref;
+  v4 = *(_DWORD *)this->ref;
   if ( ScriptableSv_GetPartStateType(this->ref->useIndex, this->ref->useData) != Scriptable_StateType_Usable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 555, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetPartStateType( scriptableIndex, ref->useData ) == Scriptable_StateType_Usable )", (const char *)&queryFormat, "ScriptableSv_GetPartStateType( scriptableIndex, ref->useData ) == Scriptable_StateType_Usable") )
     __debugbreak();
-  PartStateUsableDef = ScriptableSv_GetPartStateUsableDef(v5, this->ref->useData);
-  UsableScriptableStatePartDef_GetRadiusFov(PartStateUsableDef, &_RSI->m_useRadius, &_RSI->m_useFOV, &_RSI->m_faceFOV, &_RSI->m_displayRadius, &_RSI->m_displayFOV, &_RSI->m_use2DFOV);
-  p_m_usePos = &_RSI->m_usePos;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rsi+8]
-  }
+  PartStateUsableDef = ScriptableSv_GetPartStateUsableDef(v4, this->ref->useData);
+  UsableScriptableStatePartDef_GetRadiusFov(PartStateUsableDef, &outPlayerUseData->m_useRadius, &outPlayerUseData->m_useFOV, &outPlayerUseData->m_faceFOV, &outPlayerUseData->m_displayRadius, &outPlayerUseData->m_displayFOV, &outPlayerUseData->m_use2DFOV);
+  p_m_usePos = &outPlayerUseData->m_usePos;
   useData = this->ref->useData;
-  if ( v10 )
+  if ( outPlayerUseData->m_faceFOV <= 0.0 )
   {
-    ScriptableSv_GetPartUsePositionAndAngles(v5, useData, p_m_usePos, &out_useAnglesOptional);
-    AngleVectors(&out_useAnglesOptional, &_RSI->m_useForward, NULL, NULL);
+    ScriptableSv_GetPartUsePositionAndAngles(v4, useData, p_m_usePos, NULL);
   }
   else
   {
-    ScriptableSv_GetPartUsePositionAndAngles(v5, useData, p_m_usePos, NULL);
+    ScriptableSv_GetPartUsePositionAndAngles(v4, useData, p_m_usePos, &out_useAnglesOptional);
+    AngleVectors(&out_useAnglesOptional, &outPlayerUseData->m_useForward, NULL, NULL);
   }
   if ( s_usableWorldLootHidden )
   {
     if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 81, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
       __debugbreak();
     ScriptableCommon_AssertCountsInitialized();
-    if ( (unsigned int)v5 >= g_scriptableWorldCounts.serverInstanceCount )
+    if ( (unsigned int)v4 >= g_scriptableWorldCounts.serverInstanceCount )
     {
       ScriptableCommon_AssertCountsInitialized();
       LODWORD(outUse2DFOV) = g_scriptableWorldCounts.serverInstanceCount;
-      LODWORD(outDisplayFOV) = v5;
+      LODWORD(outDisplayFOV) = v4;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", outDisplayFOV, outUse2DFOV) )
         __debugbreak();
     }
-    def = g_scriptableSv_instanceContexts[v5].commonContext.def;
+    def = g_scriptableSv_instanceContexts[v4].commonContext.def;
     if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 576, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
       __debugbreak();
-    v12 = (def->flags & 0x20000) != 0;
+    v9 = (def->flags & 0x20000) != 0;
   }
   else
   {
-    v12 = 0;
+    v9 = 0;
   }
-  _RSI->m_disabled = v12;
-  v13 = s_usableClientMasks;
+  outPlayerUseData->m_disabled = v9;
+  v10 = s_usableClientMasks;
   if ( !s_usableClientMasks )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use_collection.cpp", 318, ASSERT_TYPE_ASSERT, "( ( s_usableClientMasks != nullptr ) )", "%s\n\t( s_usableClientMasks ) = %p", "( s_usableClientMasks != nullptr )", NULL) )
       __debugbreak();
-    v13 = s_usableClientMasks;
+    v10 = s_usableClientMasks;
   }
-  m_size = v13->m_size;
-  m_buffer = v13->m_data.m_buffer;
+  m_size = v10->m_size;
+  m_buffer = v10->m_data.m_buffer;
   key = this->key;
-  v17 = v13->m_data.m_buffer;
-  v18 = m_size;
-  while ( v18 > 0 )
+  v14 = v10->m_data.m_buffer;
+  v15 = m_size;
+  while ( v15 > 0 )
   {
-    v19 = v18 >> 1;
-    if ( v17[v19].first >= *key )
+    v16 = v15 >> 1;
+    if ( v14[v16].first >= *key )
     {
-      v18 >>= 1;
+      v15 >>= 1;
     }
     else
     {
-      v17 = (ntl::pair<unsigned int,ClientBits> *)((char *)v17 + v19 * 32 + 32);
-      v18 += -1 - (v18 >> 1);
+      v14 = (ntl::pair<unsigned int,ClientBits> *)((char *)v14 + v16 * 32 + 32);
+      v15 += -1 - (v15 >> 1);
     }
   }
-  v20 = &m_buffer[m_size];
-  if ( v17 != v20 && *key < v17->first )
-    v17 = &m_buffer[m_size];
-  p_second = &v17->second;
-  if ( v17 == v20 )
+  v17 = &m_buffer[m_size];
+  if ( v14 != v17 && *key < v14->first )
+    v14 = &m_buffer[m_size];
+  p_second = &v14->second;
+  if ( v14 == v17 )
     p_second = NULL;
-  _RSI->m_clientMask = p_second;
+  outPlayerUseData->m_clientMask = p_second;
 }
 
 /*
@@ -907,17 +900,13 @@ UsableEntityDenseGrid_Allocate
 void UsableEntityDenseGrid_Allocate(HunkUser *hunkUser)
 {
   char ActiveGameMode; 
-  __int128 v4; 
+  __int128 v3; 
   DenseGridConfig config; 
 
-  *(_QWORD *)((char *)&v4 + 4) = *(_QWORD *)cm.broadphaseMin.v;
-  HIDWORD(v4) = LODWORD(cm.broadphaseMax.v[0]);
-  LODWORD(v4) = 2048;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_48]
-    vmovups xmmword ptr [rsp+68h+config.populationMax], xmm0
-  }
+  *(_QWORD *)((char *)&v3 + 4) = *(_QWORD *)cm.broadphaseMin.v;
+  HIDWORD(v3) = LODWORD(cm.broadphaseMax.v[0]);
+  LODWORD(v3) = 2048;
+  *(_OWORD *)&config.populationMax = v3;
   config.worldMax.v[1] = cm.broadphaseMax.v[1];
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
   DenseGrid::Init(&s_playerUseEntityDenseGrid, &config, ActiveGameMode == 1, hunkUser);
@@ -951,17 +940,13 @@ UsableEntityDenseGrid_GetAllocationSize
 unsigned int UsableEntityDenseGrid_GetAllocationSize()
 {
   char ActiveGameMode; 
-  __int128 v3; 
+  __int128 v2; 
   DenseGridConfig config; 
 
-  *(_QWORD *)((char *)&v3 + 4) = *(_QWORD *)cm.broadphaseMin.v;
-  HIDWORD(v3) = LODWORD(cm.broadphaseMax.v[0]);
-  LODWORD(v3) = 2048;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_48]
-    vmovups xmmword ptr [rsp+68h+config.populationMax], xmm0
-  }
+  *(_QWORD *)((char *)&v2 + 4) = *(_QWORD *)cm.broadphaseMin.v;
+  HIDWORD(v2) = LODWORD(cm.broadphaseMax.v[0]);
+  LODWORD(v2) = 2048;
+  *(_OWORD *)&config.populationMax = v2;
   config.worldMax.v[1] = cm.broadphaseMax.v[1];
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
   return DenseGrid::GetAllocationSize(&config, ActiveGameMode == 1);
@@ -995,18 +980,13 @@ UsableScriptableDenseGrid_Allocate
 void UsableScriptableDenseGrid_Allocate(HunkUser *hunkUser)
 {
   char ActiveGameMode; 
-  _BYTE v4[20]; 
+  DenseGridConfig v3; 
   DenseGridConfig config; 
 
-  *(_QWORD *)&v4[4] = *(_QWORD *)cm.broadphaseMin.v;
-  *(_QWORD *)&v4[12] = *(_QWORD *)cm.broadphaseMax.v;
-  *(_DWORD *)v4 = ScriptableSv_GetTotalReplicatedPartsLimit();
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_48]
-    vmovups xmmword ptr [rsp+68h+config.populationMax], xmm0
-  }
-  config.worldMax.v[1] = *(float *)&v4[16];
+  v3.worldMin = *(vec2_t *)cm.broadphaseMin.v;
+  v3.worldMax = *(vec2_t *)cm.broadphaseMax.v;
+  v3.populationMax = ScriptableSv_GetTotalReplicatedPartsLimit();
+  config = v3;
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
   DenseGrid::Init(&s_playerUseScriptableDenseGrid, &config, ActiveGameMode == 1, hunkUser);
 }
@@ -1039,18 +1019,13 @@ UsableScriptableDenseGrid_GetAllocationSize
 unsigned int UsableScriptableDenseGrid_GetAllocationSize()
 {
   char ActiveGameMode; 
-  _BYTE v3[20]; 
+  DenseGridConfig v2; 
   DenseGridConfig config; 
 
-  *(_QWORD *)&v3[4] = *(_QWORD *)cm.broadphaseMin.v;
-  *(_QWORD *)&v3[12] = *(_QWORD *)cm.broadphaseMax.v;
-  *(_DWORD *)v3 = ScriptableSv_GetTotalReplicatedPartsLimit();
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_48]
-    vmovups xmmword ptr [rsp+68h+config.populationMax], xmm0
-  }
-  config.worldMax.v[1] = *(float *)&v3[16];
+  v2.worldMin = *(vec2_t *)cm.broadphaseMin.v;
+  v2.worldMax = *(vec2_t *)cm.broadphaseMax.v;
+  v2.populationMax = ScriptableSv_GetTotalReplicatedPartsLimit();
+  config = v2;
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
   return DenseGrid::GetAllocationSize(&config, ActiveGameMode == 1);
 }

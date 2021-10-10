@@ -645,101 +645,71 @@ GBulletMP::SetVictimShieldHitEventParameters
 */
 void GBulletMP::SetVictimShieldHitEventParameters(GBulletMP *this, gentity_s *tempEnt, int attackerEntNum, int victimEntNum, const vec3_t *startPos, const vec3_t *hitPos)
 {
-  __int64 v10; 
-  __int64 v11; 
-  unsigned __int8 v12; 
-  char v46; 
-  char v47; 
-  int v49; 
-  int v50; 
+  __int128 v6; 
+  __int64 v8; 
+  __int64 v9; 
+  unsigned __int8 v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  int v17; 
   unsigned __int64 clientNum; 
-  __int64 v52; 
-  __int64 v53; 
+  __int64 v19; 
+  __int64 v20; 
   tmat33_t<vec3_t> out; 
-  vec3_t v55; 
+  vec3_t v22; 
   tmat43_t<vec3_t> resultMatrix; 
+  __int128 v24; 
 
-  _R14 = startPos;
-  _R15 = hitPos;
-  v10 = victimEntNum;
+  v8 = victimEntNum;
   if ( !tempEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 211, ASSERT_TYPE_ASSERT, "( tempEnt )", (const char *)&queryFormat, "tempEnt") )
     __debugbreak();
-  if ( (unsigned int)v10 >= 0x800 )
+  if ( (unsigned int)v8 >= 0x800 )
   {
-    LODWORD(v52) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 212, ASSERT_TYPE_ASSERT, "(unsigned)( victimEntNum ) < (unsigned)( ( 2048 ) )", "victimEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v52, 2048) )
+    LODWORD(v19) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 212, ASSERT_TYPE_ASSERT, "(unsigned)( victimEntNum ) < (unsigned)( ( 2048 ) )", "victimEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, 2048) )
       __debugbreak();
   }
-  v11 = v10;
-  if ( !g_entities[v10].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 213, ASSERT_TYPE_ASSERT, "( g_entities[victimEntNum].client )", (const char *)&queryFormat, "g_entities[victimEntNum].client") )
+  v9 = v8;
+  if ( !g_entities[v8].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 213, ASSERT_TYPE_ASSERT, "( g_entities[victimEntNum].client )", (const char *)&queryFormat, "g_entities[victimEntNum].client") )
     __debugbreak();
-  if ( (unsigned int)v10 >= 0x800 )
+  if ( (unsigned int)v8 >= 0x800 )
   {
-    LODWORD(v53) = 2048;
-    LODWORD(v52) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v52, v53) )
+    LODWORD(v20) = 2048;
+    LODWORD(v19) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
-  if ( !g_entities[v11].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 189, ASSERT_TYPE_ASSERT, "( g_entities[entNum].client )", (const char *)&queryFormat, "g_entities[entNum].client") )
+  if ( !g_entities[v9].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 189, ASSERT_TYPE_ASSERT, "( g_entities[entNum].client )", (const char *)&queryFormat, "g_entities[entNum].client") )
     __debugbreak();
-  if ( G_Weapon_GetShieldTagMatrix(&g_entities[v11], &resultMatrix) )
+  if ( G_Weapon_GetShieldTagMatrix(&g_entities[v9], &resultMatrix) )
   {
-    __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
+    v24 = v6;
     MatrixInverse((const tmat33_t<vec3_t> *)&resultMatrix, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15]
-      vsubss  xmm6, xmm0, dword ptr [rsp+0F8h+resultMatrix+24h]
-      vmovss  xmm1, dword ptr [r15+4]
-      vsubss  xmm4, xmm1, dword ptr [rsp+0F8h+resultMatrix+28h]
-      vmovss  xmm0, dword ptr [r15+8]
-      vsubss  xmm5, xmm0, dword ptr [rsp+0F8h+resultMatrix+2Ch]
-      vmulss  xmm0, xmm4, dword ptr [rsp+0F8h+out+0Ch]
-      vmulss  xmm1, xmm6, dword ptr [rsp+0F8h+out]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rsp+0F8h+out+18h]
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm4, dword ptr [rsp+0F8h+out+10h]
-      vmulss  xmm4, xmm4, dword ptr [rsp+0F8h+out+14h]
-      vmulss  xmm2, xmm6, dword ptr [rsp+0F8h+out+4]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rsp+0F8h+out+8]
-      vmovss  dword ptr [rsp+0F8h+var_80], xmm0
-      vmulss  xmm0, xmm5, dword ptr [rsp+0F8h+out+1Ch]
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm0, xmm5, dword ptr [rsp+0F8h+out+20h]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm1, xmm3, xmm0
-      vmovss  xmm0, dword ptr [r14+4]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0F8h+resultMatrix+28h]
-      vmulss  xmm0, xmm3, dword ptr [rsp+0F8h+out+0Ch]
-      vmovss  dword ptr [rsp+0F8h+var_80+4], xmm2
-      vmovss  xmm2, dword ptr [r14]
-      vsubss  xmm5, xmm2, dword ptr [rsp+0F8h+resultMatrix+24h]
-      vmulss  xmm2, xmm5, dword ptr [rsp+0F8h+out]
-      vmovss  dword ptr [rsp+0F8h+var_80+8], xmm1
-      vmovss  xmm1, dword ptr [r14+8]
-      vsubss  xmm4, xmm1, dword ptr [rsp+0F8h+resultMatrix+2Ch]
-      vmulss  xmm1, xmm4, dword ptr [rsp+0F8h+out+18h]
-      vaddss  xmm3, xmm2, xmm0
-      vaddss  xmm4, xmm3, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm4, xmm0
-    }
-    v12 = BG_ShieldHitEncode(&v55, !(v46 | v47));
-    __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
+    v11 = hitPos->v[0] - resultMatrix.m[3].v[0];
+    v12 = hitPos->v[1] - resultMatrix.m[3].v[1];
+    v13 = hitPos->v[2] - resultMatrix.m[3].v[2];
+    v22.v[0] = (float)((float)(v11 * out.m[0].v[0]) + (float)(v12 * out.m[1].v[0])) + (float)(v13 * out.m[2].v[0]);
+    v14 = (float)(startPos->v[1] - resultMatrix.m[3].v[1]) * out.m[1].v[0];
+    v22.v[1] = (float)((float)(v11 * out.m[0].v[1]) + (float)(v12 * out.m[1].v[1])) + (float)(v13 * out.m[2].v[1]);
+    v15 = (float)(startPos->v[0] - resultMatrix.m[3].v[0]) * out.m[0].v[0];
+    v22.v[2] = (float)((float)(v12 * out.m[1].v[2]) + (float)(v11 * out.m[0].v[2])) + (float)(v13 * out.m[2].v[2]);
+    v10 = BG_ShieldHitEncode(&v22, (float)((float)(v15 + v14) + (float)((float)(startPos->v[2] - resultMatrix.m[3].v[2]) * out.m[2].v[0])) > 0.0);
   }
   else
   {
-    Com_PrintWarning(15, "Couldn't get tag matrix for entity #%i's shield.\n", (unsigned int)v10);
-    v12 = 0;
+    Com_PrintWarning(15, "Couldn't get tag matrix for entity #%i's shield.\n", (unsigned int)v8);
+    v10 = 0;
   }
-  v49 = v12;
-  v50 = BG_ShieldHitEncodeHitMarker(startPos, hitPos);
-  if ( (v50 & 0xFF0000FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 220, ASSERT_TYPE_ASSERT, "(( hitMarkerData & 0xFF0000FF ) == 0)", (const char *)&queryFormat, "( hitMarkerData & 0xFF0000FF ) == 0") )
+  v16 = v10;
+  v17 = BG_ShieldHitEncodeHitMarker(startPos, hitPos);
+  if ( (v17 & 0xFF0000FF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_bullet_mp.cpp", 220, ASSERT_TYPE_ASSERT, "(( hitMarkerData & 0xFF0000FF ) == 0)", (const char *)&queryFormat, "( hitMarkerData & 0xFF0000FF ) == 0") )
     __debugbreak();
-  tempEnt->s.eventParm = v49 | v50;
-  clientNum = (unsigned int)g_entities[v11].client->ps.clientNum;
+  tempEnt->s.eventParm = v16 | v17;
+  clientNum = (unsigned int)g_entities[v9].client->ps.clientNum;
   tempEnt->s.clientNum = clientNum;
   *(_QWORD *)tempEnt->clientMask.array = -1i64;
   *(_QWORD *)&tempEnt->clientMask.array[2] = -1i64;

@@ -375,25 +375,10 @@ char DynEnt_ScriptableUpdatePosition(LocalClientNum_t localClientNum, const unsi
       if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_scriptable.cpp", 200, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
         __debugbreak();
       AnglesToQuat(outAngles, &quat);
-      __asm { vmovss  xmm2, cs:__real@3f800000; epsilon }
-      if ( !VecNCompareCustomEpsilon(Pose->posePart0.origin.v, outOrigin->v, *(float *)&_XMM2, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_scriptable.cpp", 204, ASSERT_TYPE_ASSERT, "(Vec3CompareCustomEpsilon( dynEntPose->posePart0.origin, outOrigin, 1.0f ))", (const char *)&queryFormat, "Vec3CompareCustomEpsilon( dynEntPose->posePart0.origin, outOrigin, 1.0f )") )
+      if ( !VecNCompareCustomEpsilon(Pose->posePart0.origin.v, outOrigin->v, 1.0, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_scriptable.cpp", 204, ASSERT_TYPE_ASSERT, "(Vec3CompareCustomEpsilon( dynEntPose->posePart0.origin, outOrigin, 1.0f ))", (const char *)&queryFormat, "Vec3CompareCustomEpsilon( dynEntPose->posePart0.origin, outOrigin, 1.0f )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0A8h+quat+4]
-        vmulss  xmm3, xmm0, dword ptr [rbx+4]
-        vmovss  xmm1, dword ptr [rsp+0A8h+quat]
-        vmulss  xmm2, xmm1, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rsp+0A8h+quat+8]
-        vmulss  xmm1, xmm0, dword ptr [rbx+8]
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  xmm2, dword ptr [rsp+0A8h+quat+0Ch]
-        vmulss  xmm0, xmm2, dword ptr [rbx+0Ch]
-        vaddss  xmm3, xmm4, xmm1
-        vaddss  xmm1, xmm3, xmm0
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm1, cs:__real@3f666666
-      }
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(quat.v[1] * Pose->posePart0.quat.v[1]) + (float)(quat.v[0] * Pose->posePart0.quat.v[0])) + (float)(quat.v[2] * Pose->posePart0.quat.v[2])) + (float)(quat.v[3] * Pose->posePart0.quat.v[3])) & _xmm) < 0.89999998 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_scriptable.cpp", 205, ASSERT_TYPE_ASSERT, "(Vec4CompareQuatEpsilon( dynEntPose->posePart0.quat, currentAnglesQuat, 0.1f ))", (const char *)&queryFormat, "Vec4CompareQuatEpsilon( dynEntPose->posePart0.quat, currentAnglesQuat, 0.1f )") )
+        __debugbreak();
     }
     return 0;
   }

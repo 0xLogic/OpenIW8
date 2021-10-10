@@ -164,10 +164,9 @@ __int64 bdDemonataPushMessage::getBodyAsJSON(bdDemonataPushMessage *this, bdJSON
 {
   unsigned __int8 v4; 
   bool v5; 
-  bdJSONDeserializer v8; 
+  bdJSONDeserializer v7; 
 
-  _RBP = deserializer;
-  bdJSONDeserializer::bdJSONDeserializer(&v8);
+  bdJSONDeserializer::bdJSONDeserializer(&v7);
   v4 = 1;
   if ( _strcmpi(this->m_mimeType, "application/json") )
   {
@@ -181,16 +180,12 @@ __int64 bdDemonataPushMessage::getBodyAsJSON(bdDemonataPushMessage *this, bdJSON
   }
   v4 = 0;
 LABEL_6:
-  v5 = bdJSONDeserializer::parse(&v8, (const char *)this->m_body);
+  v5 = bdJSONDeserializer::parse(&v7, (const char *)this->m_body);
   if ( v4 )
   {
     if ( v5 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+var_30.m_type]
-        vmovups ymmword ptr [rbp+0], ymm0
-      }
+      *deserializer = v7;
     }
     else
     {
@@ -198,7 +193,7 @@ LABEL_6:
       v4 = 0;
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v8);
+  bdJSONDeserializer::~bdJSONDeserializer(&v7);
   return v4;
 }
 

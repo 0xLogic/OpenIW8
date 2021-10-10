@@ -155,12 +155,14 @@ void HavokPhysics_GlobalTypeCompendium_PopulateSave(hkSerialize::Save *save)
 {
   hkIo::Detail::WriteBufferImpl *v3; 
   __int64 *v4; 
+  hkIo::Detail::WriteBufferImpl **v6; 
   __int64 Impl; 
   hkMemoryAllocator *v10; 
   hkArrayBase<char> arr; 
   hkArray<hkReflect::Type const *,hkContainerHeapAllocator> types; 
   hkReflect::Detail::AddrAndType result; 
   hkIo::Detail::WriteBufferAdapter wba; 
+  __int128 v15; 
   __int64 v16; 
   hkReflect::Var v; 
 
@@ -179,20 +181,14 @@ void HavokPhysics_GlobalTypeCompendium_PopulateSave(hkSerialize::Save *save)
   if ( wba.m_dataUsedSizeOut )
     hkReferencedObject::removeReference((hkReferencedObject *)wba.m_dataUsedSizeOut);
   wba.m_dataUsedSizeOut = v4;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rbp+57h+var_28], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v15 = _XMM0;
   v16 = 0i64;
-  __asm { vmovdqu xmmword ptr [rbp+57h+wba.m_data], xmm0 }
-  _RAX = hkReflect::exactObj(&result, &types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   [rbp+57h+wba.m_impl.m_ptr], xmm0
-    vpextrq rcx, xmm0, 1; this
-  }
+  *(_OWORD *)&wba.m_data = _XMM0;
+  v6 = (hkIo::Detail::WriteBufferImpl **)hkReflect::exactObj(&result, &types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
+  _XMM0 = *(_OWORD *)v6;
+  wba.m_impl.m_ptr = *v6;
+  __asm { vpextrq rcx, xmm0, 1; this }
   wba.m_data = _RCX;
   if ( _RCX )
     Impl = (__int64)hkReflect::Type::getImpl(_RCX);
@@ -232,10 +228,12 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   hkIo::Detail::WriteBufferImpl *v9; 
   hkIo::Detail::WriteBufferImpl *v11; 
   hkReferencedObject *v12; 
+  hkReflect::Detail::AddrAndType *p_result; 
   __int64 Impl; 
   hkArrayBase<char> arr; 
   hkIo::Detail::WriteBufferAdapter sink; 
   hkReferencedObject *v20; 
+  hkReflect::Detail::AddrAndType v21; 
   __int64 v22; 
   hkReflect::Detail::AddrAndType result; 
   hkSerialize::Save v24; 
@@ -252,11 +250,8 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   if ( v8 )
     hkReferencedObject::addReference(v8);
   sink.m_impl.m_ptr = v9;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+sink.m_data], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&sink.m_data = _XMM0;
   sink.m_dataUsedSizeOut = NULL;
   hkSerialize::Save::beginTypeCompendium(&v24, &sink);
   if ( sink.m_impl.m_ptr )
@@ -272,28 +267,22 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   if ( v20 )
     hkReferencedObject::removeReference(v20);
   v20 = v12;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rbp+57h+var_68], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v21 = _XMM0;
   v22 = 0i64;
-  __asm { vmovdqu xmmword ptr [rbp+57h+sink.m_data], xmm0 }
+  *(hkReflect::Detail::AddrAndType *)&sink.m_data = _XMM0;
   if ( types )
   {
-    _RAX = hkReflect::exactObj(&result, types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
+    p_result = hkReflect::exactObj(&result, types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
   }
   else
   {
-    __asm { vmovdqu xmmword ptr [rbp+57h+result.m_addr], xmm0 }
-    _RAX = &result;
+    result = _XMM0;
+    p_result = &result;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   [rbp+57h+sink.m_impl.m_ptr], xmm0
-    vpextrq rcx, xmm0, 1; this
-  }
+  _XMM0 = *p_result;
+  sink.m_impl.m_ptr = (hkIo::Detail::WriteBufferImpl *)p_result->m_addr;
+  __asm { vpextrq rcx, xmm0, 1; this }
   sink.m_data = _RCX;
   if ( _RCX )
     Impl = (__int64)hkReflect::Type::getImpl(_RCX);
@@ -331,12 +320,14 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   hkIo::Detail::WriteBufferImpl *v7; 
   hkIo::Detail::WriteBufferImpl *v9; 
   hkReferencedObject *v10; 
+  hkIo::Detail::WriteBufferImpl **v12; 
   __int64 Impl; 
   hkMemoryAllocator *v16; 
   hkArray<hkReflect::Type const *,hkContainerHeapAllocator> types; 
   hkArrayBase<char> arr; 
   hkIo::Detail::WriteBufferAdapter sink; 
   hkReferencedObject *v20; 
+  __int128 v21; 
   __int64 v22; 
   hkSerialize::Save v23; 
   __int64 v24; 
@@ -353,11 +344,8 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   if ( v6 )
     hkReferencedObject::addReference(v6);
   sink.m_impl.m_ptr = v7;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+sink.m_data], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&sink.m_data = _XMM0;
   sink.m_dataUsedSizeOut = NULL;
   hkSerialize::Save::beginTypeCompendium(&v23, &sink);
   if ( sink.m_impl.m_ptr )
@@ -377,20 +365,14 @@ void HavokPhysics_GlobalTypeCompendium_PrepareData(hkArray<char,hkContainerHeapA
   if ( v20 )
     hkReferencedObject::removeReference(v20);
   v20 = v10;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rbp+57h+var_68], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v21 = _XMM0;
   v22 = 0i64;
-  __asm { vmovdqu xmmword ptr [rbp+57h+sink.m_data], xmm0 }
-  _RAX = hkReflect::exactObj(&result, &types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   [rbp+57h+sink.m_impl.m_ptr], xmm0
-    vpextrq rcx, xmm0, 1; this
-  }
+  *(_OWORD *)&sink.m_data = _XMM0;
+  v12 = (hkIo::Detail::WriteBufferImpl **)hkReflect::exactObj(&result, &types, &hkReflect::ReflectionOf<hkArray<hkReflect::Type const *,hkContainerHeapAllocator>>::typeData);
+  _XMM0 = *(_OWORD *)v12;
+  sink.m_impl.m_ptr = *v12;
+  __asm { vpextrq rcx, xmm0, 1; this }
   sink.m_data = _RCX;
   if ( _RCX )
     Impl = (__int64)hkReflect::Type::getImpl(_RCX);

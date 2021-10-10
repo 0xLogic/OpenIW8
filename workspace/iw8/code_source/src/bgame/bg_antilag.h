@@ -410,48 +410,26 @@ void BgAntiLagEntity_GetOrigin(const BgAntiLagEntity *antiLagentity, vec3_t *out
 {
   float v4; 
   float v5; 
-  int v9; 
-  int v10; 
-  int v11; 
-  int v12; 
-  int v13; 
-  __int64 v14; 
+  float v6; 
+  int v7; 
+  int v8; 
+  __int64 v9; 
 
-  v9 = (int)antiLagentity;
-  _RBX = outOrigin;
+  v7 = (int)antiLagentity;
   if ( !antiLagentity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 810, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
     __debugbreak();
   v4 = antiLagentity->origin.origin.v[1];
   v5 = antiLagentity->origin.origin.v[2];
-  LOWORD(v13) = *(_WORD *)((char *)&v9 + 1);
-  BYTE2(v13) = HIBYTE(v9);
-  HIBYTE(v13) = (_BYTE)antiLagentity;
-  LODWORD(_RBX->v[1]) = LODWORD(v5) ^ v13 ^ s_antilag_aab_Y ^ LODWORD(antiLagentity->origin.origin.v[0]);
-  LODWORD(_RBX->v[2]) = LODWORD(v4) ^ LODWORD(v5) ^ v13 ^ s_antilag_aab_Z;
-  LODWORD(_RBX->v[0]) = LODWORD(v4) ^ v13 ^ ~s_antilag_aab_X;
-  __asm { vmovss  xmm0, dword ptr [rbx] }
-  memset(&v14, 0, sizeof(v14));
-  __asm { vmovss  dword ptr [rsp+48h+arg_0], xmm0 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+48h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+48h+arg_0], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-  {
-LABEL_11:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-      __debugbreak();
-  }
+  LOWORD(v8) = *(_WORD *)((char *)&v7 + 1);
+  BYTE2(v8) = HIBYTE(v7);
+  HIBYTE(v8) = (_BYTE)antiLagentity;
+  LODWORD(outOrigin->v[1]) = LODWORD(v5) ^ v8 ^ s_antilag_aab_Y ^ LODWORD(antiLagentity->origin.origin.v[0]);
+  LODWORD(outOrigin->v[2]) = LODWORD(v4) ^ LODWORD(v5) ^ v8 ^ s_antilag_aab_Z;
+  LODWORD(outOrigin->v[0]) = LODWORD(v4) ^ v8 ^ ~s_antilag_aab_X;
+  v6 = outOrigin->v[0];
+  memset(&v9, 0, sizeof(v9));
+  if ( ((LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -480,57 +458,37 @@ BgAntiLagEntity_SetOrigin
 */
 void BgAntiLagEntity_SetOrigin(BgAntiLagEntity *antiLagentity, const vec3_t *origin)
 {
-  unsigned int v7; 
-  unsigned int v8; 
-  unsigned int v9; 
-  int v10; 
-  int v11; 
-  int v12; 
-  BgAntiLagEntity *v13; 
-  int v14; 
+  unsigned int v4; 
+  unsigned int v5; 
+  unsigned int v6; 
+  float v7; 
+  int v8; 
+  int v9; 
+  BgAntiLagEntity *v10; 
+  float v11; 
 
-  v13 = antiLagentity;
-  _RBX = origin;
+  v10 = antiLagentity;
   if ( !antiLagentity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 830, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
     __debugbreak();
-  __asm
+  v11 = origin->v[0];
+  if ( (LODWORD(v11) & 0x7F800000) == 2139095040 || (v11 = origin->v[1], (LODWORD(v11) & 0x7F800000) == 2139095040) || (v11 = origin->v[2], (LODWORD(v11) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 753, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v7 = LODWORD(_RBX->v[0]) ^ ~s_antilag_aab_X;
-  v8 = s_antilag_aab_Z ^ LODWORD(_RBX->v[2]);
-  LOWORD(v14) = *(_WORD *)((char *)&v13 + 1);
-  BYTE2(v14) = BYTE3(v13);
-  v9 = s_antilag_aab_Y ^ LODWORD(_RBX->v[1]);
-  HIBYTE(v14) = (_BYTE)antiLagentity;
-  v10 = v14;
-  v11 = v14 ^ v7;
-  LODWORD(antiLagentity->origin.origin.v[1]) = v11;
-  v12 = v10 ^ v11 ^ v8;
-  LODWORD(antiLagentity->origin.origin.v[2]) = v12;
-  LODWORD(antiLagentity->origin.origin.v[0]) = v10 ^ v12 ^ v9;
-  memset(&v13, 0, sizeof(v13));
+  v4 = LODWORD(origin->v[0]) ^ ~s_antilag_aab_X;
+  v5 = s_antilag_aab_Z ^ LODWORD(origin->v[2]);
+  LOWORD(v11) = *(_WORD *)((char *)&v10 + 1);
+  BYTE2(v11) = BYTE3(v10);
+  v6 = s_antilag_aab_Y ^ LODWORD(origin->v[1]);
+  HIBYTE(v11) = (_BYTE)antiLagentity;
+  v7 = v11;
+  v8 = LODWORD(v11) ^ v4;
+  LODWORD(antiLagentity->origin.origin.v[1]) = v8;
+  v9 = LODWORD(v7) ^ v8 ^ v5;
+  LODWORD(antiLagentity->origin.origin.v[2]) = v9;
+  LODWORD(antiLagentity->origin.origin.v[0]) = LODWORD(v7) ^ v9 ^ v6;
+  memset(&v10, 0, sizeof(v10));
 }
 
 /*
@@ -583,14 +541,13 @@ BgAntiLagBone *AntiLagVector<BgAntiLagBone,3>::push_back(AntiLagVector<BgAntiLag
   int v7; 
   unsigned int v8; 
   BgAntiLagBone *result; 
-  __int64 v11; 
+  __int64 v10; 
   volatile int m_usedSize; 
-  __int64 v13; 
-  int v14; 
+  __int64 v12; 
+  int v13; 
 
   v2 = 3;
   m_maxSize = 3;
-  _RSI = item;
   if ( this->m_maxSize )
     m_maxSize = this->m_maxSize;
   if ( this->m_usedSize >= m_maxSize )
@@ -599,9 +556,9 @@ BgAntiLagBone *AntiLagVector<BgAntiLagBone,3>::push_back(AntiLagVector<BgAntiLag
     v7 = 3;
     if ( v6 )
       v7 = v6;
-    v14 = v7;
+    v13 = v7;
     m_usedSize = this->m_usedSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 700, ASSERT_TYPE_ASSERT, "(unsigned)( m_usedSize ) < (unsigned)( max_size() )", "m_usedSize doesn't index max_size()\n\t%i not in [0, %i)", m_usedSize, v14) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 700, ASSERT_TYPE_ASSERT, "(unsigned)( m_usedSize ) < (unsigned)( max_size() )", "m_usedSize doesn't index max_size()\n\t%i not in [0, %i)", m_usedSize, v13) )
       __debugbreak();
   }
   v8 = 3;
@@ -611,16 +568,14 @@ BgAntiLagBone *AntiLagVector<BgAntiLagBone,3>::push_back(AntiLagVector<BgAntiLag
   {
     if ( this->m_maxSize )
       v2 = this->m_maxSize;
-    LODWORD(v13) = v2;
-    LODWORD(v11) = this->m_usedSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 691, ASSERT_TYPE_ASSERT, "(unsigned)( m_usedSize ) < (unsigned)( max_size() )", "m_usedSize doesn't index max_size()\n\t%i not in [0, %i)", v11, v13) )
+    LODWORD(v12) = v2;
+    LODWORD(v10) = this->m_usedSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 691, ASSERT_TYPE_ASSERT, "(unsigned)( m_usedSize ) < (unsigned)( max_size() )", "m_usedSize doesn't index max_size()\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  ++this->m_usedSize;
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  result = &this->m_data[this->m_usedSize - 1];
-  __asm { vmovups xmmword ptr [rax], xmm0 }
-  *(_DWORD *)&result->dataValid = *(_DWORD *)&_RSI->dataValid;
+  result = &this->m_data[this->m_usedSize++];
+  *(_OWORD *)result->origin.v = *(_OWORD *)item->origin.v;
+  *(_DWORD *)&result->dataValid = *(_DWORD *)&item->dataValid;
   return result;
 }
 

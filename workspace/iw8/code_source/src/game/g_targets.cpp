@@ -526,206 +526,175 @@ G_Targets_Load
 ==============
 */
 
-void __fastcall G_Targets_Load(double _XMM0_8, __int64 a2, double _XMM2_8, double _XMM3_8)
+void __fastcall G_Targets_Load(double _XMM0_8)
 {
-  unsigned int v11; 
-  const char *v13; 
-  const gentity_s *v14; 
+  vec3_t *p_offset; 
+  unsigned int v2; 
+  const char *v3; 
+  const gentity_s *v4; 
+  int v5; 
+  __int64 v6; 
+  const char *v7; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
+  int v11; 
+  const char *v12; 
+  const char *v14; 
   int v15; 
-  __int64 v16; 
-  const char *v17; 
+  const char *v16; 
+  int v17; 
   const char *v18; 
-  int v19; 
-  const char *v20; 
-  int v21; 
-  const char *v22; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  const char *v23; 
   const char *v24; 
   int v25; 
-  const char *v26; 
-  int v27; 
-  const char *v28; 
-  const char *v36; 
-  const char *v37; 
-  int v38; 
-  __int64 v43; 
-  __int64 v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  char v49; 
-  char v50; 
-  char v51; 
-  char v52; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  int v31; 
+  char v32; 
+  char v33; 
+  char v34; 
+  char v35; 
   char buffer[1024]; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_HARD_LAND) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 67, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TARGET_SYSTEM ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TARGET_SYSTEM )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@bf800000
-    vmovss  xmm8, cs:__real@3a83126f
-  }
-  _RBX = &s_targGlob.targets[0].offset;
+  p_offset = &s_targGlob.targets[0].offset;
   s_targGlob.targetCount = 0;
-  v11 = 4014;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = 4014;
   do
   {
     if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 126, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
       __debugbreak();
     if ( BgDynamicLimits::ms_data.m_maxConfigStrings <= 0xFAE )
     {
-      LODWORD(v44) = 4014;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 68, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset of invalid base ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v44) )
+      LODWORD(v27) = 4014;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 68, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset of invalid base ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v27) )
         __debugbreak();
     }
     if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 126, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
       __debugbreak();
-    if ( v11 >= BgDynamicLimits::ms_data.m_maxConfigStrings )
+    if ( v2 >= BgDynamicLimits::ms_data.m_maxConfigStrings )
     {
-      LODWORD(v44) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 72, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset gets invalid ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v44) )
+      LODWORD(v27) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 72, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset gets invalid ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v27) )
         __debugbreak();
     }
-    SV_GetConfigstring(v11, buffer, 1024);
+    SV_GetConfigstring(v2, buffer, 1024);
     if ( buffer[0] )
     {
       ++s_targGlob.targetCount;
-      v13 = Info_ValueForKey(buffer, "ent");
-      if ( *v13 )
+      v3 = Info_ValueForKey(buffer, "ent");
+      if ( *v3 )
       {
-        v15 = atoi(v13);
-        v16 = v15;
-        if ( (unsigned int)v15 >= 0x800 )
+        v5 = atoi(v3);
+        v6 = v5;
+        if ( (unsigned int)v5 >= 0x800 )
         {
-          LODWORD(v44) = 2048;
-          LODWORD(v43) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 92, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v43, v44) )
+          LODWORD(v27) = 2048;
+          LODWORD(v26) = v5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 92, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        v14 = &level.gentities[v16];
+        v4 = &level.gentities[v6];
       }
       else
       {
-        v14 = NULL;
+        v4 = NULL;
       }
-      EntHandle::setEnt((EntHandle *)&_RBX[-1].y, v14);
-      v17 = Info_ValueForKey(buffer, "offs");
-      _RBX->v[0] = 0.0;
-      *(_QWORD *)&_RBX->y = 0i64;
-      if ( *v17 )
-        j_sscanf(v17, "%f %f %f", _RBX, &_RBX->y, &_RBX->z);
-      v18 = Info_ValueForKey(buffer, "mat");
-      if ( *v18 )
-        v19 = atoi(v18);
+      EntHandle::setEnt((EntHandle *)&p_offset[-1].y, v4);
+      v7 = Info_ValueForKey(buffer, "offs");
+      p_offset->v[0] = 0.0;
+      *(_QWORD *)&p_offset->y = 0i64;
+      if ( *v7 )
+        j_sscanf(v7, "%f %f %f", p_offset, &p_offset->y, &p_offset->z);
+      v8 = Info_ValueForKey(buffer, "mat");
+      if ( *v8 )
+        v9 = atoi(v8);
       else
-        v19 = -1;
-      LODWORD(_RBX[1].v[0]) = v19;
-      v20 = Info_ValueForKey(buffer, "offmat");
-      if ( *v20 )
-        v21 = atoi(v20);
+        v9 = -1;
+      LODWORD(p_offset[1].v[0]) = v9;
+      v10 = Info_ValueForKey(buffer, "offmat");
+      if ( *v10 )
+        v11 = atoi(v10);
       else
-        v21 = -1;
-      LODWORD(_RBX[1].v[1]) = v21;
-      v22 = Info_ValueForKey(buffer, "entradius");
-      if ( *v22 )
+        v11 = -1;
+      LODWORD(p_offset[1].v[1]) = v11;
+      v12 = Info_ValueForKey(buffer, "entradius");
+      if ( *v12 )
       {
-        _XMM0_8 = atof(v22);
+        _XMM0_8 = atof(v12);
         __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
       }
       else
       {
-        __asm { vmovaps xmm1, xmm7 }
+        *(float *)&_XMM1 = FLOAT_N1_0;
       }
-      __asm { vmovss  dword ptr [rbx+14h], xmm1 }
-      v24 = Info_ValueForKey(buffer, "minsize");
+      p_offset[1].v[2] = *(float *)&_XMM1;
+      v14 = Info_ValueForKey(buffer, "minsize");
+      if ( *v14 )
+        v15 = atoi(v14);
+      else
+        v15 = -1;
+      LODWORD(p_offset[2].v[0]) = v15;
+      v16 = Info_ValueForKey(buffer, "maxsize");
+      if ( *v16 )
+        v17 = atoi(v16);
+      else
+        v17 = -1;
+      LODWORD(p_offset[2].v[1]) = v17;
+      v18 = Info_ValueForKey(buffer, "delay");
+      if ( *v18 )
+      {
+        j_sscanf(v18, "%i %i %i %i", &v31, &v30, &v29, &v28);
+        v19 = (float)v28 * 0.001;
+        *(&_XMM0_8 + 1) = 0.0;
+        v20 = (float)v29;
+        v21 = (float)v30;
+        v22 = (float)v31 * 0.001;
+      }
+      else
+      {
+        v19 = 0.0;
+        v20 = 0.0;
+        v21 = 0.0;
+        v22 = FLOAT_N1_0;
+      }
+      p_offset[2].v[2] = v22;
+      p_offset[3].v[1] = v21;
+      p_offset[3].v[2] = v20;
+      p_offset[3].v[0] = v19;
+      v23 = Info_ValueForKey(buffer, "color");
+      if ( *v23 )
+      {
+        j_sscanf(v23, "%d %d %d %d", &v32, &v33, &v34, &v35);
+        LOBYTE(p_offset[4].v[0]) = v32;
+        BYTE1(p_offset[4].v[0]) = v33;
+        BYTE2(p_offset[4].x) = v34;
+        HIBYTE(p_offset[4].x) = v35;
+      }
+      v24 = Info_ValueForKey(buffer, "flags");
       if ( *v24 )
         v25 = atoi(v24);
       else
-        v25 = -1;
-      LODWORD(_RBX[2].v[0]) = v25;
-      v26 = Info_ValueForKey(buffer, "maxsize");
-      if ( *v26 )
-        v27 = atoi(v26);
-      else
-        v27 = -1;
-      LODWORD(_RBX[2].v[1]) = v27;
-      v28 = Info_ValueForKey(buffer, "delay");
-      if ( *v28 )
-      {
-        j_sscanf(v28, "%i %i %i %i", &v48, &v47, &v46, &v45);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, [rsp+4C0h+var_480]
-          vmulss  xmm1, xmm0, xmm8
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, [rsp+4C0h+var_474]
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, [rsp+4C0h+var_47C]
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, [rsp+4C0h+var_478]
-          vmulss  xmm4, xmm0, xmm8
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovaps xmm1, xmm6
-          vmovaps xmm2, xmm6
-          vmovaps xmm3, xmm6
-          vmovaps xmm4, xmm7
-        }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rbx+20h], xmm4
-        vmovss  dword ptr [rbx+28h], xmm3
-        vmovss  dword ptr [rbx+2Ch], xmm2
-        vmovss  dword ptr [rbx+24h], xmm1
-      }
-      v36 = Info_ValueForKey(buffer, "color");
-      if ( *v36 )
-      {
-        j_sscanf(v36, "%d %d %d %d", &v49, &v50, &v51, &v52);
-        LOBYTE(_RBX[4].v[0]) = v49;
-        BYTE1(_RBX[4].v[0]) = v50;
-        BYTE2(_RBX[4].x) = v51;
-        HIBYTE(_RBX[4].x) = v52;
-      }
-      v37 = Info_ValueForKey(buffer, "flags");
-      if ( *v37 )
-        v38 = atoi(v37);
-      else
-        v38 = 0;
-      LODWORD(_RBX[4].v[1]) = v38;
+        v25 = 0;
+      LODWORD(p_offset[4].v[1]) = v25;
     }
     else
     {
-      EntHandle::setEnt((EntHandle *)&_RBX[-1].y, NULL);
+      EntHandle::setEnt((EntHandle *)&p_offset[-1].y, NULL);
     }
-    ++v11;
-    _RBX = (vec3_t *)((char *)_RBX + 64);
+    ++v2;
+    p_offset = (vec3_t *)((char *)p_offset + 64);
   }
-  while ( (__int64)_RBX < (__int64)&unk_14A6BC9B8 );
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( (__int64)p_offset < (__int64)&unk_14A6BC9B8 );
 }
 
 /*
@@ -870,173 +839,96 @@ __int64 GetTargetIdx(const gentity_s *ent)
 ScrGetTargetScreenPos
 ==============
 */
-bool ScrGetTargetScreenPos(scrContext_t *scrContext, vec2_t *screenPos)
+char ScrGetTargetScreenPos(scrContext_t *scrContext, vec2_t *screenPos)
 {
   const gentity_s *Entity; 
-  gentity_s *v13; 
-  gentity_s *v14; 
-  const char *v15; 
+  gentity_s *v5; 
+  gentity_s *v6; 
+  const char *v7; 
+  double Float; 
   unsigned int TargetIdx; 
-  __int64 v19; 
-  const char *v20; 
-  __int64 v21; 
-  gentity_s *v23; 
-  bool result; 
-  char v53; 
-  bool v54; 
-  bool v57; 
+  __int64 v10; 
+  const char *v11; 
+  __int64 v12; 
+  bool v13; 
+  vec3_t *p_offset; 
+  gentity_s *v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  gentity_s *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v27; 
+  float v28; 
+  float v29; 
   vec3_t out; 
   tmat33_t<vec3_t> axis; 
-  char v71; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  _R14 = screenPos;
   if ( Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_1637, scrContext, "Too few arguments\n");
   Entity = GScr_GetEntity(0);
-  v13 = GScr_GetEntity(1u);
-  v14 = v13;
-  if ( !v13->client )
+  v5 = GScr_GetEntity(1u);
+  v6 = v5;
+  if ( !v5->client )
   {
-    v15 = j_va("entity %i is not a player", (unsigned int)v13->s.number);
-    Scr_ObjectError(COM_ERR_1638, scrContext, v15);
+    v7 = j_va("entity %i is not a player", (unsigned int)v5->s.number);
+    Scr_ObjectError(COM_ERR_1638, scrContext, v7);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( v53 | v54 )
+  Float = Scr_GetFloat(scrContext, 2u);
+  if ( *(float *)&Float <= 0.0 )
     Scr_ParamError(COM_ERR_1639, scrContext, 2u, "FOV must be positive");
   TargetIdx = GetTargetIdx(Entity);
-  v19 = TargetIdx;
+  v10 = TargetIdx;
   if ( TargetIdx == 64 )
   {
-    v20 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1640, scrContext, v20);
+    v11 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1640, scrContext, v11);
   }
-  v21 = v19 << 6;
-  v54 = (s_targGlob.targets[v19].flags & 0x4000) == 0;
-  _RDI = &s_targGlob.targets[v19].offset;
-  if ( v54 )
+  v12 = v10 << 6;
+  v13 = (s_targGlob.targets[v10].flags & 0x4000) == 0;
+  p_offset = &s_targGlob.targets[v10].offset;
+  if ( v13 )
   {
-    __asm
-    {
-      vmovss  xmm10, dword ptr [rdi]
-      vmovss  xmm9, dword ptr [rdi+4]
-      vmovss  xmm8, dword ptr [rdi+8]
-    }
+    v18 = p_offset->v[0];
+    v17 = p_offset->v[1];
+    v16 = p_offset->v[2];
   }
   else
   {
-    v23 = EntHandle::ent((EntHandle *)((char *)&s_targGlob + v21));
-    AnglesToAxis(&v23->r.currentAngles, &axis);
-    MatrixTransformVector(_RDI, &axis, &out);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rsp+0E8h+out+8]
-      vmovss  xmm9, dword ptr [rsp+0E8h+out+4]
-      vmovss  xmm10, dword ptr [rsp+0E8h+out]
-    }
+    v15 = EntHandle::ent((EntHandle *)((char *)&s_targGlob + v12));
+    AnglesToAxis(&v15->r.currentAngles, &axis);
+    MatrixTransformVector(p_offset, &axis, &out);
+    v16 = out.v[2];
+    v17 = out.v[1];
+    v18 = out.v[0];
   }
-  EntHandle::ent((EntHandle *)((char *)&s_targGlob + v21));
-  __asm
-  {
-    vcomiss xmm7, xmm6
-    vaddss  xmm0, xmm10, dword ptr [rax+130h]
-    vaddss  xmm1, xmm9, dword ptr [rax+134h]
-    vsubss  xmm10, xmm0, dword ptr [rsi+130h]
-    vaddss  xmm0, xmm8, dword ptr [rax+138h]
-    vsubss  xmm9, xmm1, dword ptr [rsi+134h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+138h]
-    vsubss  xmm11, xmm1, dword ptr [rax+1E8h]
-  }
-  if ( v53 | v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 576, ASSERT_TYPE_ASSERT, "(fov_x > 0)", (const char *)&queryFormat, "fov_x > 0") )
+  v19 = EntHandle::ent((EntHandle *)((char *)&s_targGlob + v12));
+  v20 = (float)(v18 + v19->r.currentOrigin.v[0]) - v6->r.currentOrigin.v[0];
+  v22 = (float)(v17 + v19->r.currentOrigin.v[1]) - v6->r.currentOrigin.v[1];
+  v21 = v22;
+  v23 = (float)((float)(v16 + v19->r.currentOrigin.v[2]) - v6->r.currentOrigin.v[2]) - v6->client->ps.viewHeightCurrent;
+  if ( *(float *)&Float <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 576, ASSERT_TYPE_ASSERT, "(fov_x > 0)", (const char *)&queryFormat, "fov_x > 0") )
     __debugbreak();
-  AnglesToAxis(&v14->s.lerp.apos.trBase, &axis);
-  __asm
-  {
-    vmulss  xmm3, xmm9, dword ptr [rsp+0E8h+axis+4]
-    vmulss  xmm2, xmm10, dword ptr [rsp+0E8h+axis]
-    vmulss  xmm1, xmm11, dword ptr [rsp+0E8h+axis+8]
-    vmulss  xmm0, xmm11, dword ptr [rsp+0E8h+axis+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm9, dword ptr [rsp+0E8h+axis+10h]
-    vmulss  xmm2, xmm10, dword ptr [rsp+0E8h+axis+18h]
-    vaddss  xmm5, xmm4, xmm1
-    vcomiss xmm5, xmm6
-    vmulss  xmm1, xmm10, dword ptr [rsp+0E8h+axis+0Ch]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm3, xmm9, dword ptr [rsp+0E8h+axis+1Ch]
-    vaddss  xmm8, xmm4, xmm0
-    vmulss  xmm0, xmm11, dword ptr [rsp+0E8h+axis+20h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-  }
-  if ( v53 | v54 )
-  {
-    result = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm7, cs:__real@3c0efa35; X
-      vdivss  xmm9, xmm8, xmm5
-      vdivss  xmm10, xmm2, xmm5
-    }
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmulss  xmm8, xmm0, cs:__real@3f400000
-      vmovaps xmm7, xmm0
-    }
-    if ( v53 | v54 )
-    {
-      v57 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 589, ASSERT_TYPE_SANITY, "( tanHalfFovX > 0 )", (const char *)&queryFormat, "tanHalfFovX > 0");
-      v53 = 0;
-      v54 = !v57;
-      if ( v57 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm8, xmm6 }
-    if ( v53 | v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 590, ASSERT_TYPE_SANITY, "( tanHalfFovY > 0 )", (const char *)&queryFormat, "tanHalfFovY > 0") )
-      __debugbreak();
-    __asm
-    {
-      vmulss  xmm0, xmm9, cs:__real@c3a00000
-      vmulss  xmm2, xmm10, cs:__real@c3700000
-      vdivss  xmm1, xmm0, xmm7
-      vdivss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [r14+4], xmm0
-      vmovss  dword ptr [r14], xmm1
-    }
-    result = 1;
-  }
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  AnglesToAxis(&v6->s.lerp.apos.trBase, &axis);
+  v24 = (float)((float)(v22 * axis.m[0].v[1]) + (float)(v20 * axis.m[0].v[0])) + (float)(v23 * axis.m[0].v[2]);
+  v25 = (float)((float)(v22 * axis.m[2].v[1]) + (float)(v20 * axis.m[2].v[0])) + (float)(v23 * axis.m[2].v[2]);
+  if ( v24 <= 0.0 )
+    return 0;
+  v27 = (float)((float)((float)(v21 * axis.m[1].v[1]) + (float)(v20 * axis.m[1].v[0])) + (float)(v23 * axis.m[1].v[2])) / v24;
+  v28 = v25 / v24;
+  v29 = tanf_0(*(float *)&Float * 0.0087266462);
+  if ( v29 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 589, ASSERT_TYPE_SANITY, "( tanHalfFovX > 0 )", (const char *)&queryFormat, "tanHalfFovX > 0") )
+    __debugbreak();
+  if ( (float)(v29 * 0.75) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 590, ASSERT_TYPE_SANITY, "( tanHalfFovY > 0 )", (const char *)&queryFormat, "tanHalfFovY > 0") )
+    __debugbreak();
+  screenPos->v[1] = (float)(v28 * -240.0) / (float)(v29 * 0.75);
+  screenPos->v[0] = (float)(v27 * -320.0) / v29;
+  return 1;
 }
 
 /*
@@ -1253,50 +1145,45 @@ void Scr_Target_DrawSquare(scrContext_t *scrContext)
 {
   const gentity_s *Entity; 
   unsigned int TargetIdx; 
-  __int64 v5; 
-  const char *v6; 
-  bool v9; 
-  unsigned int v10; 
+  __int64 v4; 
+  const char *v5; 
+  __int64 v6; 
+  double Float; 
+  bool v8; 
+  unsigned int v9; 
+  const char *v10; 
   const char *v11; 
-  const char *v15; 
-  unsigned int v16; 
+  unsigned int v12; 
   char buffer[1024]; 
 
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_1653, scrContext, "Too few arguments\n");
   Entity = GScr_GetEntity(0);
   TargetIdx = GetTargetIdx(Entity);
-  v5 = TargetIdx;
+  v4 = TargetIdx;
   if ( TargetIdx == 64 )
   {
-    v6 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1654, scrContext, v6);
+    v5 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1654, scrContext, v5);
   }
-  _RBP = &s_targGlob;
-  _RDI = v5 << 6;
-  s_targGlob.targets[v5].flags = s_targGlob.targets[v5].flags & 0xFFFFFBBF | 0x400;
+  v6 = v4 << 6;
+  s_targGlob.targets[v4].flags = s_targGlob.targets[v4].flags & 0xFFFFFBBF | 0x400;
   if ( Scr_GetNumParam(scrContext) <= 1 )
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
+    *(float *)&Float = FLOAT_N1_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  v9 = !*(&s_targGlob.targets[0].delayFlush + _RDI);
-  __asm { vmovss  dword ptr [rdi+rbp+1Ch], xmm0 }
-  if ( v9 )
+    Float = Scr_GetFloat(scrContext, 1u);
+  v8 = !*(&s_targGlob.targets[0].delayFlush + v6);
+  *(float *)((char *)&s_targGlob.targets[0].entRadius + v6) = *(float *)&Float;
+  if ( v8 )
   {
-    v10 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v5);
-    SV_GetConfigstring(v10, buffer, 1024);
-    v11 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[_RDI + 4]);
-    Info_SetValueForKey(buffer, "flags", v11);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+rbp+1Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v15 = j_va("%.2f", _RDX);
-    Info_SetValueForKey(buffer, "entradius", v15);
-    v16 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v5);
-    SV_SetConfigstring(v16, buffer);
+    v9 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_GetConfigstring(v9, buffer, 1024);
+    v10 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[v6 + 4]);
+    Info_SetValueForKey(buffer, "flags", v10);
+    v11 = j_va("%.2f", *(float *)((char *)&s_targGlob.targets[0].entRadius + v6));
+    Info_SetValueForKey(buffer, "entradius", v11);
+    v12 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_SetConfigstring(v12, buffer);
   }
 }
 
@@ -1484,31 +1371,17 @@ Scr_Target_IsInCircle
 */
 void Scr_Target_IsInCircle(scrContext_t *scrContext)
 {
-  bool TargetScreenPos; 
-  int v6; 
+  double Float; 
+  char TargetScreenPos; 
+  int v4; 
   vec2_t screenPos; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 3u);
   TargetScreenPos = ScrGetTargetScreenPos(scrContext, &screenPos);
-  v6 = 0;
+  v4 = 0;
   if ( TargetScreenPos )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+48h+screenPos]
-      vmovss  xmm1, dword ptr [rsp+48h+screenPos+4]
-      vmulss  xmm3, xmm0, xmm0
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm0, xmm6, xmm6
-      vcomiss xmm0, xmm4
-    }
-    LOBYTE(v6) = TargetScreenPos;
-  }
-  Scr_AddBool(scrContext, v6);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    LOBYTE(v4) = (float)(*(float *)&Float * *(float *)&Float) > (float)((float)(screenPos.v[0] * screenPos.v[0]) + (float)(screenPos.v[1] * screenPos.v[1]));
+  Scr_AddBool(scrContext, v4);
 }
 
 /*
@@ -1518,33 +1391,17 @@ Scr_Target_IsInRect
 */
 void Scr_Target_IsInRect(scrContext_t *scrContext)
 {
+  double Float; 
+  float v3; 
+  double v4; 
+  int v5; 
   vec2_t screenPos; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( ScrGetTargetScreenPos(scrContext, &screenPos) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+screenPos]
-      vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm0, xmm1
-      vcomiss xmm0, xmm7
-    }
-  }
-  Scr_AddBool(scrContext, 0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
+  Float = Scr_GetFloat(scrContext, 3u);
+  v3 = *(float *)&Float;
+  v4 = Scr_GetFloat(scrContext, 4u);
+  v5 = ScrGetTargetScreenPos(scrContext, &screenPos) && COERCE_FLOAT(LODWORD(screenPos.v[0]) & _xmm) < v3 && COERCE_FLOAT(LODWORD(screenPos.v[1]) & _xmm) < *(float *)&v4;
+  Scr_AddBool(scrContext, v5);
 }
 
 /*
@@ -1727,136 +1584,92 @@ void Scr_Target_SetColor(scrContext_t *scrContext)
 {
   const gentity_s *Entity; 
   unsigned int TargetIdx; 
-  __int64 v7; 
-  const char *v8; 
-  __int64 v23; 
-  bool v24; 
-  unsigned __int8 v25; 
-  unsigned __int8 v28; 
-  unsigned __int8 v33; 
-  unsigned __int8 v37; 
-  unsigned int v38; 
-  const char *v39; 
-  const char *v40; 
-  unsigned int v41; 
-  int v45; 
+  __int64 v4; 
+  const char *v5; 
+  double Float; 
+  int v9; 
+  __int64 v11; 
+  bool v12; 
+  unsigned __int8 v13; 
+  int v14; 
+  unsigned __int8 v15; 
+  int v17; 
+  unsigned __int8 v18; 
+  int v20; 
+  unsigned __int8 v21; 
+  unsigned int v22; 
+  const char *v23; 
+  const char *v24; 
+  unsigned int v25; 
+  int v26; 
   vec3_t vectorValue; 
+  float v28; 
   char buffer[1024]; 
-  char v49; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   if ( Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_1661, scrContext, "Too few arguments\n");
   Entity = GScr_GetEntity(0);
   TargetIdx = GetTargetIdx(Entity);
-  v7 = TargetIdx;
+  v4 = TargetIdx;
   if ( TargetIdx == 64 )
   {
-    v8 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1662, scrContext, v8);
+    v5 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1662, scrContext, v5);
   }
   Scr_GetVector(scrContext, 1u, &vectorValue);
-  __asm
+  v28 = FLOAT_1_0;
+  if ( Scr_GetNumParam(scrContext) >= 2 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+478h+var_43C], xmm0
+    Float = Scr_GetFloat(scrContext, 2u);
+    v28 = *(float *)&Float;
   }
-  if ( Scr_GetNumParam(scrContext) < 2 )
+  _XMM6 = 0i64;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  v9 = (int)*(float *)&_XMM3;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v11 = v4 << 6;
+  if ( (int)*(float *)&_XMM3 > 255 )
+    v9 = 255;
+  v12 = v9 < 0;
+  v13 = v9;
+  v14 = (int)*(float *)&_XMM1;
+  if ( v12 )
+    v13 = 0;
+  s_targGlob.targets[0].color[v11] = v13;
+  if ( v14 > 255 )
+    v14 = 255;
+  v15 = v14;
+  if ( v14 < 0 )
+    v15 = 0;
+  s_targGlob.targets[0].color[v11 + 1] = v15;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v17 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v17 = 255;
+  v18 = v17;
+  if ( v17 < 0 )
+    v18 = 0;
+  s_targGlob.targets[0].color[v11 + 2] = v18;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  v20 = (int)*(float *)&_XMM0;
+  if ( (int)*(float *)&_XMM0 > 255 )
+    v20 = 255;
+  v21 = v20;
+  if ( v20 < 0 )
+    v21 = 0;
+  s_targGlob.targets[0].color[v11 + 3] = v21;
+  *(_DWORD *)&s_targGlob.targets[0].color[v11 + 4] |= 0x200u;
+  if ( !*(&s_targGlob.targets[0].delayFlush + v11) )
   {
-    __asm { vmovss  xmm7, [rsp+478h+var_43C] }
-  }
-  else
-  {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vmovss  [rsp+478h+var_43C], xmm0
-      vmovaps xmm7, xmm0
-    }
-  }
-  __asm
-  {
-    vmovss  xmm5, cs:__real@437f0000
-    vmovss  xmm4, cs:__real@3f000000
-    vmulss  xmm1, xmm5, dword ptr [rsp+478h+vectorValue]
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm5, dword ptr [rsp+478h+vectorValue+4]
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si ecx, xmm3
-    vaddss  xmm3, xmm1, xmm4
-    vroundss xmm1, xmm6, xmm3, 1
-    vmulss  xmm0, xmm7, xmm5
-    vaddss  xmm2, xmm0, xmm4
-  }
-  v23 = v7 << 6;
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v24 = _ECX < 0;
-  v25 = _ECX;
-  __asm
-  {
-    vcvttss2si ecx, xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+478h+vectorValue+8]
-  }
-  if ( v24 )
-    v25 = 0;
-  s_targGlob.targets[0].color[v23] = v25;
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v28 = _ECX;
-  __asm { vaddss  xmm3, xmm1, xmm4 }
-  if ( _ECX < 0 )
-    v28 = 0;
-  s_targGlob.targets[0].color[v23 + 1] = v28;
-  __asm
-  {
-    vroundss xmm1, xmm6, xmm3, 1
-    vcvttss2si ecx, xmm1
-    vxorps  xmm1, xmm1, xmm1
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v33 = _ECX;
-  __asm { vmovss  xmm2, xmm1, xmm2 }
-  if ( _ECX < 0 )
-    v33 = 0;
-  s_targGlob.targets[0].color[v23 + 2] = v33;
-  __asm
-  {
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si ecx, xmm0
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v37 = _ECX;
-  if ( _ECX < 0 )
-    v37 = 0;
-  s_targGlob.targets[0].color[v23 + 3] = v37;
-  *(_DWORD *)&s_targGlob.targets[0].color[v23 + 4] |= 0x200u;
-  if ( !*(&s_targGlob.targets[0].delayFlush + v23) )
-  {
-    v38 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v7);
-    SV_GetConfigstring(v38, buffer, 1024);
-    v45 = s_targGlob.targets[0].color[v23 + 3];
-    v39 = j_va("%i %i %i %i", s_targGlob.targets[0].color[v23], s_targGlob.targets[0].color[v23 + 1], s_targGlob.targets[0].color[v23 + 2], v45);
-    Info_SetValueForKey(buffer, "color", v39);
-    v40 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[v23 + 4]);
-    Info_SetValueForKey(buffer, "flags", v40);
-    v41 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v7);
-    SV_SetConfigstring(v41, buffer);
-  }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v22 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_GetConfigstring(v22, buffer, 1024);
+    v26 = s_targGlob.targets[0].color[v11 + 3];
+    v23 = j_va("%i %i %i %i", s_targGlob.targets[0].color[v11], s_targGlob.targets[0].color[v11 + 1], s_targGlob.targets[0].color[v11 + 2], v26);
+    Info_SetValueForKey(buffer, "color", v23);
+    v24 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[v11 + 4]);
+    Info_SetValueForKey(buffer, "flags", v24);
+    v25 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_SetConfigstring(v25, buffer);
   }
 }
 
@@ -1869,190 +1682,89 @@ void Scr_Target_SetDelay(scrContext_t *scrContext)
 {
   const gentity_s *Entity; 
   unsigned int TargetIdx; 
-  __int64 v8; 
-  const char *v9; 
-  const char *v15; 
-  unsigned int NumParam; 
-  bool v17; 
-  bool v18; 
-  const char *v22; 
-  unsigned int v23; 
-  bool v24; 
-  bool v25; 
-  const char *v28; 
-  const char *v34; 
-  unsigned int v35; 
-  bool v36; 
-  bool v37; 
-  const char *v40; 
-  unsigned int v41; 
-  const char *v48; 
-  unsigned int v49; 
-  int v53; 
+  __int64 v4; 
+  const char *v5; 
+  double Float; 
+  __int64 v7; 
+  const char *v8; 
+  double v9; 
+  const char *v10; 
+  double v11; 
+  const char *v12; 
+  float v13; 
+  const char *v14; 
+  double v15; 
+  const char *v16; 
+  unsigned int v17; 
+  const char *v18; 
+  unsigned int v19; 
+  int v20; 
   char buffer[1024]; 
-  char v55; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   if ( Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_1663, scrContext, "Too few arguments\n");
   Entity = GScr_GetEntity(0);
   TargetIdx = GetTargetIdx(Entity);
-  v8 = TargetIdx;
+  v4 = TargetIdx;
   if ( TargetIdx == 64 )
   {
-    v9 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1664, scrContext, v9);
+    v5 = j_va("Entity %i is not a target", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1664, scrContext, v5);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  _RBP = &s_targGlob;
-  _RDI = v8 << 6;
-  __asm
+  Float = Scr_GetFloat(scrContext, 1u);
+  v7 = v4 << 6;
+  s_targGlob.targets[v4].delay = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rdi+rbp+28h], xmm0
+    v8 = j_va("Delay value out of range (0 .. 1) %f", *(float *)&Float);
+    Scr_Error(COM_ERR_1665, scrContext, v8);
   }
-  if ( __CFSHL__(v8, 6) )
-    goto LABEL_7;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !__CFSHL__(v8, 6) && v8 << 6 != 0 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v15 = j_va("Delay value out of range (0 .. 1) %f", _RDX);
-    Scr_Error(COM_ERR_1665, scrContext, v15);
-  }
-  NumParam = Scr_GetNumParam(scrContext);
-  v17 = NumParam < 2;
-  v18 = NumParam == 2;
-  if ( NumParam <= 2 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+  if ( Scr_GetNumParam(scrContext) <= 2 )
+    LODWORD(v9) = 0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
+    v9 = Scr_GetFloat(scrContext, 2u);
+  *(float *)((char *)&s_targGlob.targets[0].popRadiusInner + v7) = *(float *)&v9;
+  if ( *(float *)&v9 < 0.0 || *(float *)&v9 > 1000.0 )
   {
-    vcomiss xmm0, xmm6
-    vmovss  xmm7, cs:__real@447a0000
-    vmovss  dword ptr [rdi+rbp+30h], xmm0
+    v10 = j_va("Pause inner radius out of range (0 .. 1000) %f", *(float *)&v9);
+    Scr_Error(COM_ERR_1666, scrContext, v10);
   }
-  if ( v17 )
-    goto LABEL_13;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !v17 && !v18 )
-  {
-LABEL_13:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v22 = j_va("Pause inner radius out of range (0 .. 1000) %f", _RDX);
-    Scr_Error(COM_ERR_1666, scrContext, v22);
-  }
-  v23 = Scr_GetNumParam(scrContext);
-  v24 = v23 < 3;
-  v25 = v23 == 3;
-  if ( v23 <= 3 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+  if ( Scr_GetNumParam(scrContext) <= 3 )
+    LODWORD(v11) = 0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
+    v11 = Scr_GetFloat(scrContext, 3u);
+  *(float *)((char *)&s_targGlob.targets[0].popRadiusOuter + v7) = *(float *)&v11;
+  if ( *(float *)&v11 < 0.0 || *(float *)&v11 > 1000.0 )
   {
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rdi+rbp+34h], xmm0
+    v12 = j_va("Pause outer radius out of range (0 .. 1000) %f", *(float *)&v11);
+    Scr_Error(COM_ERR_1667, scrContext, v12);
+    *(float *)&v11 = *(float *)((char *)&s_targGlob.targets[0].popRadiusOuter + v7);
   }
-  if ( v24 )
-    goto LABEL_19;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !v24 && !v25 )
+  v13 = *(float *)((char *)&s_targGlob.targets[0].popRadiusInner + v7);
+  if ( *(float *)&v11 < v13 )
   {
-LABEL_19:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v28 = j_va("Pause outer radius out of range (0 .. 1000) %f", _RDX);
-    Scr_Error(COM_ERR_1667, scrContext, v28);
-    __asm { vmovss  xmm0, dword ptr [rdi+rbp+34h] }
+    v14 = j_va("Pause outer radius must be >= the inner radius (%f < %f)", *(float *)&v11, v13);
+    Scr_Error(COM_ERR_1668, scrContext, v14);
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+rbp+30h]
-    vcomiss xmm0, xmm1
-  }
-  if ( v24 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm1, xmm1
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-      vmovq   r8, xmm2
-    }
-    v34 = j_va("Pause outer radius must be >= the inner radius (%f < %f)", _RDX, _R8);
-    Scr_Error(COM_ERR_1668, scrContext, v34);
-  }
-  v35 = Scr_GetNumParam(scrContext);
-  v36 = v35 < 4;
-  v37 = v35 == 4;
-  if ( v35 <= 4 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+  if ( Scr_GetNumParam(scrContext) <= 4 )
+    LODWORD(v15) = 0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
+    v15 = Scr_GetFloat(scrContext, 4u);
+  *(float *)((char *)&s_targGlob.targets[0].popRadiusInnerWaitTime + v7) = *(float *)&v15;
+  if ( *(float *)&v15 < 0.0 || *(float *)&v15 > 1000.0 )
   {
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rdi+rbp+2Ch], xmm0
+    v16 = j_va("Pause inner radius wait time out of range (0 .. 1000) %f", *(float *)&v15);
+    Scr_Error(COM_ERR_1669, scrContext, v16);
   }
-  if ( v36 )
-    goto LABEL_27;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !v36 && !v37 )
+  if ( !*(&s_targGlob.targets[0].delayFlush + v7) )
   {
-LABEL_27:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v40 = j_va("Pause inner radius wait time out of range (0 .. 1000) %f", _RDX);
-    Scr_Error(COM_ERR_1669, scrContext, v40);
-  }
-  if ( !*(&s_targGlob.targets[0].delayFlush + _RDI) )
-  {
-    v41 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v8);
-    SV_GetConfigstring(v41, buffer, 1024);
-    __asm
-    {
-      vmulss  xmm1, xmm7, dword ptr [rdi+rbp+2Ch]
-      vcvttss2si r9d, dword ptr [rdi+rbp+34h]
-      vcvttss2si r8d, dword ptr [rdi+rbp+30h]
-      vcvttss2si eax, xmm1
-      vmulss  xmm1, xmm7, dword ptr [rdi+rbp+28h]
-      vcvttss2si edx, xmm1
-    }
-    v53 = _EAX;
-    v48 = j_va("%i %i %i %i", _RDX, _R8, _R9, v53);
-    Info_SetValueForKey(buffer, "delay", v48);
-    v49 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v8);
-    SV_SetConfigstring(v49, buffer);
-  }
-  _R11 = &v55;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v17 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_GetConfigstring(v17, buffer, 1024);
+    v20 = (int)(float)(1000.0 * *(float *)((char *)&s_targGlob.targets[0].popRadiusInnerWaitTime + v7));
+    v18 = j_va("%i %i %i %i", (unsigned int)(int)(float)(1000.0 * *(float *)((char *)&s_targGlob.targets[0].delay + v7)), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].popRadiusInner + v7), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].popRadiusOuter + v7), v20);
+    Info_SetValueForKey(buffer, "delay", v18);
+    v19 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v4);
+    SV_SetConfigstring(v19, buffer);
   }
 }
 
@@ -2561,17 +2273,13 @@ Scr_Target_StartLockOn
 void Scr_Target_StartLockOn(scrContext_t *scrContext)
 {
   gentity_s *Entity; 
-  const char *v6; 
+  double Float; 
+  const char *v4; 
 
   Entity = GScr_GetEntity(0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si r8d, xmm1
-  }
-  v6 = j_va("ret_lock_on %i %i", (unsigned int)Entity->s.number, _R8);
-  SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v6);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v4 = j_va("ret_lock_on %i %i", (unsigned int)Entity->s.number, (unsigned int)(int)(float)(*(float *)&Float * 1000.0));
+  SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
 }
 
 /*
@@ -2679,143 +2387,121 @@ Target_Flush
 void Target_Flush(unsigned int targetIndex)
 {
   __int64 v1; 
+  __int64 v2; 
   unsigned __int16 number; 
-  __int64 v5; 
-  unsigned int v6; 
-  __int64 v7; 
-  int v8; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  int v7; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
+  const char *v10; 
   const char *v11; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
   const char *v15; 
   const char *v16; 
   const char *v17; 
-  const char *v21; 
-  const char *v22; 
-  const char *v23; 
-  const char *v31; 
-  const char *v32; 
-  const char *v33; 
-  unsigned int v34; 
+  const char *v18; 
+  const char *v19; 
+  unsigned int v20; 
   char *fmt; 
   char *fmta; 
-  __int64 v37; 
-  __int64 v39; 
-  int v40; 
+  __int64 v23; 
+  __int64 v25; 
+  int v26; 
   char s[1024]; 
 
   v1 = targetIndex;
   if ( targetIndex >= 0x40 )
   {
-    v40 = 64;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 420, ASSERT_TYPE_ASSERT, "(unsigned)( targetIndex ) < (unsigned)( 64 )", "targetIndex doesn't index IW_MAX_TARGETS\n\t%i not in [0, %i)", targetIndex, v40) )
+    v26 = 64;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 420, ASSERT_TYPE_ASSERT, "(unsigned)( targetIndex ) < (unsigned)( 64 )", "targetIndex doesn't index IW_MAX_TARGETS\n\t%i not in [0, %i)", targetIndex, v26) )
       __debugbreak();
   }
-  _RBP = &s_targGlob;
-  _RBX = v1 << 6;
+  v2 = v1 << 6;
   number = s_targGlob.targets[v1].ent.number;
   if ( !number )
     goto LABEL_38;
-  v5 = number;
-  v6 = number - 1;
-  if ( v6 >= 0x800 )
+  v4 = number;
+  v5 = number - 1;
+  if ( v5 >= 0x800 )
   {
-    LODWORD(v39) = 2048;
-    LODWORD(v37) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v37, v39) )
+    LODWORD(v25) = 2048;
+    LODWORD(v23) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v23, v25) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v7 = v5 - 1;
-  if ( g_entities[v7].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v6 = v4 - 1;
+  if ( g_entities[v6].r.isInUse != g_entityIsInUse[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v7] )
+  if ( !g_entityIsInUse[v6] )
   {
-    LODWORD(v39) = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX) - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v39) )
+    LODWORD(v25) = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2) - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v25) )
       __debugbreak();
   }
-  if ( !*(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX) )
+  if ( !*(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2) )
   {
 LABEL_38:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targets.cpp", 421, ASSERT_TYPE_ASSERT, "(s_targGlob.targets[targetIndex].ent.isDefined())", "%s\n\tTarget entity is not defined", "s_targGlob.targets[targetIndex].ent.isDefined()") )
       __debugbreak();
   }
-  v8 = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX);
+  v7 = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2);
   s[0] = 0;
-  if ( (unsigned int)(v8 - 1) >= 0x7FF )
+  if ( (unsigned int)(v7 - 1) >= 0x7FF )
   {
-    LODWORD(v39) = 2047;
-    LODWORD(v37) = v8 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v37, v39) )
+    LODWORD(v25) = 2047;
+    LODWORD(v23) = v7 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v23, v25) )
       __debugbreak();
   }
-  v9 = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX);
-  if ( (unsigned int)(v9 - 1) >= 0x800 )
+  v8 = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2);
+  if ( (unsigned int)(v8 - 1) >= 0x800 )
   {
-    LODWORD(v39) = 2048;
-    LODWORD(v37) = v9 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v37, v39) )
+    LODWORD(v25) = 2048;
+    LODWORD(v23) = v8 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v23, v25) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v10 = v9 - 1;
-  if ( g_entities[v10].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v9 = v8 - 1;
+  if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v10] )
+  if ( !g_entityIsInUse[v9] )
   {
-    LODWORD(v39) = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX) - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v39) )
+    LODWORD(v25) = *(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2) - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v25) )
       __debugbreak();
   }
-  v11 = j_va("%i", (unsigned int)(__int16)(*(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + _RBX) - 1));
-  Info_SetValueForKey(s, "ent", v11);
-  __asm
-  {
-    vcvttss2si r9d, dword ptr [rbx+rbp+10h]
-    vcvttss2si r8d, dword ptr [rbx+rbp+0Ch]
-    vcvttss2si edx, dword ptr [rbx+rbp+8]
-  }
-  v15 = j_va("%i %i %i", _RDX, _R8, _R9);
-  Info_SetValueForKey(s, "offs", v15);
-  v16 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].materialIndex + _RBX));
-  Info_SetValueForKey(s, "mat", v16);
-  v17 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].offscreenMaterialIndex + _RBX));
-  Info_SetValueForKey(s, "offmat", v17);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+rbp+1Ch]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v21 = j_va("%.2f", _RDX);
-  Info_SetValueForKey(s, "entradius", v21);
-  v22 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].minSize + _RBX));
-  Info_SetValueForKey(s, "minsize", v22);
-  v23 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].maxSize + _RBX));
-  Info_SetValueForKey(s, "maxsize", v23);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@447a0000
-    vmulss  xmm0, xmm1, dword ptr [rbx+rbp+2Ch]
-    vmulss  xmm1, xmm1, dword ptr [rbx+rbp+28h]
-    vcvttss2si r9d, dword ptr [rbx+rbp+34h]
-    vcvttss2si r8d, dword ptr [rbx+rbp+30h]
-    vcvttss2si eax, xmm0
-    vcvttss2si edx, xmm1
-  }
-  LODWORD(fmt) = _EAX;
-  v31 = j_va("%i %i %i %i", _RDX, _R8, _R9, fmt);
-  Info_SetValueForKey(s, "delay", v31);
-  LODWORD(fmta) = s_targGlob.targets[0].color[_RBX + 3];
-  v32 = j_va("%i %i %i %i", s_targGlob.targets[0].color[_RBX], s_targGlob.targets[0].color[_RBX + 1], s_targGlob.targets[0].color[_RBX + 2], fmta);
-  Info_SetValueForKey(s, "color", v32);
-  v33 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[_RBX + 4]);
-  Info_SetValueForKey(s, "flags", v33);
-  v34 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v1);
-  SV_SetConfigstring(v34, s);
-  *(&s_targGlob.targets[0].delayFlush + _RBX) = 0;
+  v10 = j_va("%i", (unsigned int)(__int16)(*(unsigned __int16 *)((char *)&s_targGlob.targets[0].ent.number + v2) - 1));
+  Info_SetValueForKey(s, "ent", v10);
+  v11 = j_va("%i %i %i", (unsigned int)(int)*(float *)((char *)s_targGlob.targets[0].offset.v + v2), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].offset.v[1] + v2), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].offset.v[2] + v2));
+  Info_SetValueForKey(s, "offs", v11);
+  v12 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].materialIndex + v2));
+  Info_SetValueForKey(s, "mat", v12);
+  v13 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].offscreenMaterialIndex + v2));
+  Info_SetValueForKey(s, "offmat", v13);
+  v14 = j_va("%.2f", *(float *)((char *)&s_targGlob.targets[0].entRadius + v2));
+  Info_SetValueForKey(s, "entradius", v14);
+  v15 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].minSize + v2));
+  Info_SetValueForKey(s, "minsize", v15);
+  v16 = j_va("%i", *(unsigned int *)((char *)&s_targGlob.targets[0].maxSize + v2));
+  Info_SetValueForKey(s, "maxsize", v16);
+  LODWORD(fmt) = (int)(float)(1000.0 * *(float *)((char *)&s_targGlob.targets[0].popRadiusInnerWaitTime + v2));
+  v17 = j_va("%i %i %i %i", (unsigned int)(int)(float)(1000.0 * *(float *)((char *)&s_targGlob.targets[0].delay + v2)), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].popRadiusInner + v2), (unsigned int)(int)*(float *)((char *)&s_targGlob.targets[0].popRadiusOuter + v2), fmt);
+  Info_SetValueForKey(s, "delay", v17);
+  LODWORD(fmta) = s_targGlob.targets[0].color[v2 + 3];
+  v18 = j_va("%i %i %i %i", s_targGlob.targets[0].color[v2], s_targGlob.targets[0].color[v2 + 1], s_targGlob.targets[0].color[v2 + 2], fmta);
+  Info_SetValueForKey(s, "color", v18);
+  v19 = j_va("%i", *(unsigned int *)&s_targGlob.targets[0].color[v2 + 4]);
+  Info_SetValueForKey(s, "flags", v19);
+  v20 = BG_ConfigStrings_ConfigStringOffset(0xFAEu, v1);
+  SV_SetConfigstring(v20, s);
+  *(&s_targGlob.targets[0].delayFlush + v2) = 0;
 }
 

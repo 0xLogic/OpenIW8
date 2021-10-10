@@ -324,7 +324,7 @@ s_LUI_DataBinding_Get_CompassRotation
 */
 float s_LUI_DataBinding_Get_CompassRotation(LocalClientNum_t localClientNum)
 {
-  const cg_t *LocalClientGlobals; 
+  cg_t *LocalClientGlobals; 
   CgCompassSystem *CompassSystem; 
   float outAngle; 
   vec2_t outVector; 
@@ -332,12 +332,7 @@ float s_LUI_DataBinding_Get_CompassRotation(LocalClientNum_t localClientNum)
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   CompassSystem = CgCompassSystem::GetCompassSystem(localClientNum);
   CgCompassSystem::GetCompassYaw(CompassSystem, COMPASS_TYPE_NAVBAR, 0, LocalClientGlobals, &outAngle, &outVector);
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+var_28]
-    vsubss  xmm0, xmm0, dword ptr [rdi+49FFCh]
-  }
-  return *(float *)&_XMM0;
+  return outAngle - LocalClientGlobals->compassNorthYaw;
 }
 
 /*
@@ -488,31 +483,29 @@ s_LUI_DataBinding_Get_GrenadeCookPercent
 */
 double s_LUI_DataBinding_Get_GrenadeCookPercent(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   playerState_s *p_predictedPlayerState; 
   const Weapon *OffHandWeaponForPlayer; 
   bool IsUsingOffhandGestureWeapon; 
-  const WeaponDef *v6; 
+  const WeaponDef *v5; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
-  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  OffHandWeaponForPlayer = BG_GetOffHandWeaponForPlayer(CgWeaponMap::ms_instance[v2], p_predictedPlayerState);
+  OffHandWeaponForPlayer = BG_GetOffHandWeaponForPlayer(CgWeaponMap::ms_instance[v1], p_predictedPlayerState);
   if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 1u) || (IsUsingOffhandGestureWeapon = BG_IsUsingOffhandGestureWeapon(p_predictedPlayerState)) )
     IsUsingOffhandGestureWeapon = 1;
-  if ( OffHandWeaponForPlayer->weaponIdx && IsUsingOffhandGestureWeapon && (v6 = BG_WeaponDef(OffHandWeaponForPlayer, 0), BG_GetWeaponType(OffHandWeaponForPlayer, 0) == WEAPTYPE_GRENADE) && v6->bCookOffHold && p_predictedPlayerState->grenadeTimeLeft && !BG_OFfhandGestureWeaponIsBeingPutAway(p_predictedPlayerState) )
-  {
-    if ( BG_GetOffhandMaxHoldTime(OffHandWeaponForPlayer, 0) )
-      *(double *)&_XMM0 = BG_GetCookingGrenadeMaxHoldPercentage(OffHandWeaponForPlayer, 0, p_predictedPlayerState);
-    else
-      *(double *)&_XMM0 = BG_GetCookingGrenadeCookPercentage(OffHandWeaponForPlayer, 0, p_predictedPlayerState);
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+  if ( !OffHandWeaponForPlayer->weaponIdx )
+    return 0.0;
+  if ( !IsUsingOffhandGestureWeapon )
+    return 0.0;
+  v5 = BG_WeaponDef(OffHandWeaponForPlayer, 0);
+  if ( BG_GetWeaponType(OffHandWeaponForPlayer, 0) != WEAPTYPE_GRENADE || !v5->bCookOffHold || !p_predictedPlayerState->grenadeTimeLeft || BG_OFfhandGestureWeaponIsBeingPutAway(p_predictedPlayerState) )
+    return 0.0;
+  if ( BG_GetOffhandMaxHoldTime(OffHandWeaponForPlayer, 0) )
+    return BG_GetCookingGrenadeMaxHoldPercentage(OffHandWeaponForPlayer, 0, p_predictedPlayerState);
+  return BG_GetCookingGrenadeCookPercentage(OffHandWeaponForPlayer, 0, p_predictedPlayerState);
 }
 
 /*

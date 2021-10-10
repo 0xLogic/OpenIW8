@@ -117,18 +117,11 @@ bool SV_Init_IsMemoryAllocated()
 SV_Init_RegisterDvarsCommon
 ==============
 */
-
-void __fastcall SV_Init_RegisterDvarsCommon(__int64 a1, __int64 a2, double _XMM2_8)
+void SV_Init_RegisterDvarsCommon(void)
 {
   DVARINT_replay_autosave = Dvar_RegisterInt("NMOONRNPPP", 30, 0, 0x7FFFFFFF, 0x40u, "Use autosaves as part of demos - will make demo access faster but will cause hitches");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
   DVARBOOL_replay_autosaveOnError = Dvar_RegisterBool("NSLRNLQNQM", 1, 0, "Auto save replay on error");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_replay_speed = Dvar_RegisterFloat("LTSKMMROTK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Replay playback time scale");
+  DVARFLT_replay_speed = Dvar_RegisterFloat("LTSKMMROTK", 1.0, 0.0, 10.0, 0, "Replay playback time scale");
   DVARBOOL_replay_autosave_mp = Dvar_RegisterBool("OLRSTKMRML", 0, 0, "MP-Specific toggle to enable or disable autosave replays completely");
   DVARBOOL_sv_debugTrackServerTime = Dvar_RegisterBool("SSOKSNOTR", 0, 0, "Enable server time track debugging.");
   DVARBOOL_lmc = Dvar_RegisterBool("LMPONSMKNL", 0, 0, "Load my changes fast file on devmap.");
@@ -141,28 +134,16 @@ void __fastcall SV_Init_RegisterDvarsCommon(__int64 a1, __int64 a2, double _XMM2
   DVARINT_sv_ballisticsMaxSimStepsPerServerFrame = Dvar_RegisterInt("NSLOMMLNLO", 0, 0, 10, 0, "Ballistics system uses fixed timestep updates. This value defines the number of maximum simulation steps which can occur for a ballistic instance. If the value is set to 0, the ballistic instance will be simulated until it catches up to the server time.");
   DVARINT_sv_ballisticsMaxLatencyMs = Dvar_RegisterInt("NQRKPRKRKP", 400, 0, 400, 0, "Maximum amount of latency for which the bullet accuracy will be guaranteed.");
   DCONST_DVARBOOL_sv_memory_print = Dvar_RegisterBool("sv_memory_print", 0, 0x40004u, "When enabled, prints out memory estimates during server allocation. ");
-  __asm { vmovss  xmm3, cs:__real@447a0000; max }
   DCONST_DVARBOOL_sv_client_task_limit_assert = Dvar_RegisterBool("sv_client_task_limit_assert", 1, 0x40004u, "[Dev-only] Turn this dvar off to work around client task limits triggering fatal errors. This might result in gameplay bugs.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_script_usage_trigger_time = Dvar_RegisterFloat("NLPSPSNSMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Trigger a script_usage_report when any frame exceeds this time (ms) (clears after trigger)");
+  DVARFLT_script_usage_trigger_time = Dvar_RegisterFloat("NLPSPSNSMP", 0.0, 0.0, 1000.0, 0, "Trigger a script_usage_report when any frame exceeds this time (ms) (clears after trigger)");
   DVARBOOL_dev_verifyLOSDataFile = Dvar_RegisterBool("TQSRMKOK", 0, 0, "Dev only - if enabled instructs the game to throw a com error if the LOS file doesn't exist, is the wrong version, or the wrong node count for the current map.");
   DVARBOOL_sv_usePrecomputedLOSData = Dvar_RegisterBool("LSQOPROPRS", 1, 0x80u, "Whether or not to use LOS data files for sight traces.");
   DCONST_DVARBOOL_scriptable_sv_validate_update = Dvar_RegisterBool("scriptable_sv_validate_update", 1, 0x40004u, "Enable to turn on update list validation (slow)");
   DCONST_DVARBOOL_scriptable_sv_debug_updates = Dvar_RegisterBool("scriptable_sv_debug_updates", 0, 0x40004u, "Enable to turn on update list debuging prints");
   DVARBOOL_scriptable_sv_debug_reuse_instances = Dvar_RegisterBool("PMMPQOLTK", 0, 0x80u, "Set this to disable the FIFO intance queue, which will favor instance re-use");
   DVARSTR_loot_table_name = Dvar_RegisterString("RKMMNSQKO", (const char *)&queryFormat.fmt + 3, 0x80u, "Loot Table filename. e.g. mp/brloot_test.csv. Leave blank to avoid generating loot.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43b40000; max
-    vmovss  xmm1, cs:__real@42040000; value
-  }
   DVARINT_loot_seed = Dvar_RegisterInt("MSMMNLPPKT", 0, 0, 0x7FFFFFFF, 0x80u, "Loot generation Seed");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DCONST_DVARFLT_doorNavObstacleAngle = Dvar_RegisterFloat("doorNavObstacleAngle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The door 'open' angle at which a nav obstacle gets created.");
+  DCONST_DVARFLT_doorNavObstacleAngle = Dvar_RegisterFloat("doorNavObstacleAngle", 33.0, 0.0, 360.0, 0x40004u, "The door 'open' angle at which a nav obstacle gets created.");
   DVARSTR_loot_table_filter = Dvar_RegisterString("MSLKNNLLMN", (const char *)&queryFormat.fmt + 3, 0x80u, "A space seperated list of items or types to disable in the loot table");
   DVARSTR_loot_table_zones = Dvar_RegisterString("PRRSROQPO", (const char *)&queryFormat.fmt + 3, 0x80u, "Zone map file name.  e.g. mp/brloot_zones.csv, if left blank will use the main table");
   DVARBOOL_scriptable_sv_accurate_vehicle = Dvar_RegisterBool("MNTLRLOPSS", 1, 0, "True to enable vehicle vs server-scriptable accurate shape overlap");

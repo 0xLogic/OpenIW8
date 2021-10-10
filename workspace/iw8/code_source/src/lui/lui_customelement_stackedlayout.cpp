@@ -3,149 +3,107 @@
 LUIElement_StackedLayout
 ==============
 */
-
-void __fastcall LUIElement_StackedLayout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_StackedLayout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  bool v15; 
   const LUIStackedLayout *customElementData; 
+  LUIElement *firstChild; 
+  float userData; 
+  __int128 i; 
+  float v13; 
+  LUIElement *p_y; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  LUIElement *v18; 
+  LUIElement *parent; 
   LUIStackedLayoutAlignment Alignment; 
-  LUIStackedLayoutAlignment v63; 
-  char v76; 
-  LUIElementAxisPosition v85; 
-  char v93; 
-  void *retaddr; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  double v28; 
+  float v29; 
+  LUIStackedLayoutAlignment v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  LUIElement *v34; 
+  LUIElement *v35; 
+  float v36; 
+  LUIElement *v37; 
+  __int128 v38; 
+  double v39; 
+  float v40; 
+  bool v41; 
+  __int128 v42; 
+  __int128 v43; 
+  LUIElementAxisPosition v44; 
 
-  _RAX = &retaddr;
-  v15 = element->customElementData == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps [rsp+0F8h+var_88], xmm11
-  }
-  _RSI = element;
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_98], xmm12
-    vmovaps [rsp+0F8h+var_A8], xmm14
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmm12, xmm2
-  }
-  if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  customElementData = (const LUIStackedLayout *)_RSI->customElementData;
-  __asm { vmovaps xmm1, xmm12; unitScale }
-  LUIElement_UpdateLayout(_RSI, *(float *)&_XMM1, deltaTime, luaVM);
-  _RBX = _RSI->firstChild;
-  __asm
+  customElementData = (const LUIStackedLayout *)element->customElementData;
+  LUIElement_UpdateLayout(element, unitScale, deltaTime, luaVM);
+  firstChild = element->firstChild;
+  userData = element->currentAnimationState.userData;
+  for ( i = 0i64; firstChild; firstChild = firstChild->nextSibling )
   {
-    vmovss  xmm14, dword ptr [rsi+48h]
-    vmovss  xmm11, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm10, xmm10, xmm10
-  }
-  for ( ; _RBX; _RBX = _RBX->nextSibling )
-  {
-    __asm { vmovaps xmm2, xmm12; unitScale }
-    LUIElement_Layout(localClientNum, _RBX, *(float *)&_XMM2, deltaTime, luaVM);
-    __asm { vmovaps xmm1, xmm12; unitScale }
-    *(float *)&_XMM0 = LUIElement_StackedLayout_MeasureChildSize(luaVM, *(float *)&_XMM1, _RBX, customElementData);
+    LUIElement_Layout(localClientNum, firstChild, unitScale, deltaTime, luaVM);
+    v13 = LUIElement_StackedLayout_MeasureChildSize(luaVM, unitScale, firstChild, customElementData);
     if ( customElementData->ignoreStretchingChildren )
     {
-      _RAX = (LUIElement *)&_RBX->currentAnimationState.position.y;
+      p_y = (LUIElement *)&firstChild->currentAnimationState.position.y;
       if ( customElementData->direction != VERTICAL )
-        _RAX = _RBX;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rax+10h]
-        vucomiss xmm2, xmm9
-        vmovss  xmm1, dword ptr [rax+14h]
-      }
-      if ( customElementData->direction != VERTICAL )
-        goto LABEL_64;
-      __asm { vucomiss xmm1, xmm11 }
-      if ( customElementData->direction != VERTICAL )
-      {
-LABEL_64:
-        __asm { vucomiss xmm2, xmm11 }
-        if ( customElementData->direction != VERTICAL )
-          continue;
-        __asm { vucomiss xmm1, xmm9 }
-        if ( customElementData->direction != VERTICAL )
-          continue;
-      }
+        p_y = firstChild;
+      v15 = p_y->currentAnimationState.position.x.anchors[0];
+      v16 = p_y->currentAnimationState.position.x.anchors[1];
+      if ( (v15 != 0.0 || v16 != 1.0) && (v15 != 1.0 || v16 != 0.0) )
+        continue;
     }
-    if ( customElementData->ignoreInvisibleChildren )
+    if ( !customElementData->ignoreInvisibleChildren || firstChild->currentAnimationState.alpha > 0.0 )
     {
-      __asm { vcomiss xmm9, dword ptr [rbx+44h] }
-    }
-    else
-    {
-      __asm { vaddss  xmm10, xmm10, xmm0 }
-      if ( _RBX->nextSibling )
+      v17 = i;
+      *(float *)&v17 = *(float *)&i + v13;
+      i = v17;
+      if ( firstChild->nextSibling )
       {
-        __asm { vucomiss xmm0, xmm9 }
-        if ( _RBX->nextSibling )
-          __asm { vaddss  xmm10, xmm10, xmm14 }
+        if ( v13 != 0.0 )
+        {
+          *(float *)&v17 = *(float *)&v17 + userData;
+          i = v17;
+        }
       }
     }
   }
-  v15 = !customElementData->adjustSizeToContent;
-  __asm
+  if ( customElementData->adjustSizeToContent )
   {
-    vmovaps [rsp+0F8h+var_38], xmm6
-    vmovaps [rsp+0F8h+var_48], xmm7
-  }
-  if ( !v15 )
-  {
-    if ( !_RSI->parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_stackedlayout.cpp", 187, ASSERT_TYPE_ASSERT, "(element->parent)", (const char *)&queryFormat, "element->parent") )
+    if ( !element->parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_stackedlayout.cpp", 187, ASSERT_TYPE_ASSERT, "(element->parent)", (const char *)&queryFormat, "element->parent") )
       __debugbreak();
-    _RBX = (LUIElement *)&_RSI->currentAnimationState.position.y;
+    v18 = (LUIElement *)&element->currentAnimationState.position.y;
     if ( customElementData->direction != VERTICAL )
-      _RBX = _RSI;
-    _RBP = (__int64)&_RSI->parent->currentAnimationState.position.y;
+      v18 = element;
+    parent = (LUIElement *)&element->parent->currentAnimationState.position.y;
     if ( customElementData->direction != VERTICAL )
-      _RBP = (__int64)_RSI->parent;
-    Alignment = LUIElement_StackedLayout_GetAlignment(customElementData, _RSI);
+      parent = element->parent;
+    Alignment = LUIElement_StackedLayout_GetAlignment(customElementData, element);
     if ( Alignment )
     {
       if ( Alignment == CENTER )
       {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rbp+0Ch]
-          vmovss  xmm0, dword ptr [rbx+0Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbx+8]
-          vmulss  xmm5, xmm1, cs:__real@3f000000
-          vsubss  xmm0, xmm11, dword ptr [rbx+10h]
-          vmulss  xmm1, xmm7, dword ptr [rbx+10h]
-          vmulss  xmm4, xmm10, cs:__real@3f000000
-          vmovaps [rsp+0F8h+var_58], xmm8
-          vmovss  xmm8, dword ptr [rbp+8]
-          vmulss  xmm2, xmm0, xmm8
-          vaddss  xmm2, xmm2, xmm1
-          vmulss  xmm1, xmm8, dword ptr [rbx+14h]
-          vmovaps xmm8, [rsp+0F8h+var_58]
-          vsubss  xmm3, xmm5, xmm4
-          vsubss  xmm0, xmm3, xmm2
-          vmovss  dword ptr [rbx], xmm0
-          vsubss  xmm0, xmm11, dword ptr [rbx+14h]
-          vmulss  xmm2, xmm0, xmm7
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm4, xmm4, xmm5
-          vsubss  xmm0, xmm4, xmm2
-          vmovss  dword ptr [rbx+4], xmm0
-        }
+        v22 = parent->currentAnimationState.position.x.global[1];
+        v23 = (float)(v18->currentAnimationState.position.x.global[1] + v18->currentAnimationState.position.x.global[0]) * 0.5;
+        v24 = parent->currentAnimationState.position.x.global[0];
+        v25 = v24 * v18->currentAnimationState.position.x.anchors[1];
+        v18->currentAnimationState.position.x.offsets[0] = (float)(v23 - (float)(*(float *)&i * 0.5)) - (float)((float)((float)(1.0 - v18->currentAnimationState.position.x.anchors[0]) * v24) + (float)(v22 * v18->currentAnimationState.position.x.anchors[0]));
+        v18->currentAnimationState.position.x.offsets[1] = (float)((float)(*(float *)&i * 0.5) + v23) - (float)((float)((float)(1.0 - v18->currentAnimationState.position.x.anchors[1]) * v22) + v25);
       }
       else if ( Alignment == BOTTOM )
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+4]
-          vsubss  xmm0, xmm11, dword ptr [rbx+14h]
-          vsubss  xmm2, xmm1, xmm10
-          vmovss  dword ptr [rbx], xmm2
-          vmovss  dword ptr [rbx+10h], xmm0
-        }
+        v21 = 1.0 - v18->currentAnimationState.position.x.anchors[1];
+        v18->currentAnimationState.position.x.offsets[0] = v18->currentAnimationState.position.x.offsets[1] - *(float *)&i;
+        v18->currentAnimationState.position.x.anchors[0] = v21;
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_stackedlayout.cpp", 233, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
       {
@@ -154,155 +112,103 @@ LABEL_64:
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm0, xmm11, dword ptr [rbx+10h]
-        vaddss  xmm1, xmm10, dword ptr [rbx]
-        vmovss  dword ptr [rbx+14h], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v26 = *(float *)&i + v18->currentAnimationState.position.x.offsets[0];
+      v18->currentAnimationState.position.x.anchors[1] = 1.0 - v18->currentAnimationState.position.x.anchors[0];
+      v18->currentAnimationState.position.x.offsets[1] = v26;
     }
-    LUIElement_CalculateGlobalRectangle(_RSI, &_RSI->currentAnimationState);
-    __asm { vmovaps xmm1, xmm12; unitScale }
-    LUIElement_SetDimensions(_RSI, *(float *)&_XMM1);
+    LUIElement_CalculateGlobalRectangle(element, &element->currentAnimationState);
+    LUIElement_SetDimensions(element, unitScale);
   }
   if ( customElementData->direction == VERTICAL )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+18h]
-      vmovsd  xmm1, qword ptr [rsi+28h]
-    }
+    v27 = *(_OWORD *)element->currentAnimationState.position.y.offsets;
+    v28 = *(double *)element->currentAnimationState.position.y.anchors;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovsd  xmm1, qword ptr [rsi+10h]
-    }
+    v27 = *(_OWORD *)element->currentAnimationState.position.x.offsets;
+    v28 = *(double *)element->currentAnimationState.position.x.anchors;
   }
-  __asm
+  *(_OWORD *)v44.offsets = v27;
+  *(double *)v44.anchors = v28;
+  *(float *)&v27 = LUI_Measure(&v44);
+  v29 = *(float *)&v27;
+  v30 = LUIElement_StackedLayout_GetAlignment(customElementData, element);
+  if ( v30 == CENTER )
   {
-    vmovups [rsp+0F8h+var_C8], xmm0
-    vmovsd  [rsp+0F8h+var_B8], xmm1
+    v31 = v27;
+    *(float *)&v31 = *(float *)&v27 - *(float *)&i;
+    v27 = v31;
+    *(float *)&v31 = (float)(v29 - *(float *)&i) * 0.5;
+    v32 = v31;
   }
-  *(float *)&_XMM0 = LUI_Measure(&v85);
-  __asm { vmovaps xmm6, xmm0 }
-  v63 = LUIElement_StackedLayout_GetAlignment(customElementData, _RSI);
-  if ( v63 == CENTER )
+  else if ( v30 == BOTTOM )
   {
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm10
-      vmulss  xmm6, xmm0, cs:__real@3f000000
-    }
-  }
-  else if ( v63 == BOTTOM )
-  {
-    __asm { vsubss  xmm6, xmm6, xmm10 }
+    v33 = v27;
+    *(float *)&v33 = *(float *)&v27 - *(float *)&i;
+    v32 = v33;
   }
   else
   {
-    __asm { vmovaps xmm6, xmm9 }
+    v32 = 0i64;
   }
-  _RBX = _RSI->firstChild;
-  __asm { vmovaps xmm10, [rsp+0F8h+var_78] }
-  for ( _RSI->layoutDeeplyCached = _RSI->canCacheLayout; _RBX; _RBX = _RBX->nextSibling )
+  v34 = element->firstChild;
+  for ( element->layoutDeeplyCached = element->canCacheLayout; v34; v34 = v34->nextSibling )
   {
-    if ( !customElementData->ignoreStretchingChildren )
-      goto LABEL_51;
-    _RAX = (LUIElement *)&_RBX->currentAnimationState.position.y;
-    if ( customElementData->direction != VERTICAL )
-      _RAX = _RBX;
-    __asm
+    if ( customElementData->ignoreStretchingChildren )
     {
-      vmovss  xmm1, dword ptr [rax+10h]
-      vucomiss xmm1, xmm9
-      vmovss  xmm0, dword ptr [rax+14h]
+      v35 = (LUIElement *)&v34->currentAnimationState.position.y;
+      if ( customElementData->direction != VERTICAL )
+        v35 = v34;
+      v36 = v35->currentAnimationState.position.x.anchors[0];
+      v27 = LODWORD(v35->currentAnimationState.position.x.anchors[1]);
+      if ( (v36 != 0.0 || *(float *)&v27 != 1.0) && (v36 != 1.0 || *(float *)&v27 != 0.0) )
+        goto LABEL_53;
     }
-    if ( customElementData->direction == VERTICAL )
+    if ( !customElementData->ignoreInvisibleChildren || v34->currentAnimationState.alpha > 0.0 )
     {
-      __asm { vucomiss xmm0, xmm11 }
-      if ( customElementData->direction == VERTICAL )
-        goto LABEL_51;
-    }
-    __asm { vucomiss xmm1, xmm11 }
-    if ( customElementData->direction == VERTICAL )
-    {
-      __asm { vucomiss xmm0, xmm9 }
-      if ( customElementData->direction == VERTICAL )
+      *(float *)&v27 = LUIElement_StackedLayout_MeasureChildSize(luaVM, unitScale, v34, customElementData);
+      v37 = (LUIElement *)&v34->currentAnimationState.position.y;
+      if ( customElementData->direction != VERTICAL )
+        v37 = v34;
+      v38 = v27;
+      v39 = *(double *)v37->currentAnimationState.position.x.anchors;
+      *(_OWORD *)v44.offsets = *(_OWORD *)v37->currentAnimationState.position.x.offsets;
+      *(double *)v44.anchors = v39;
+      v40 = LUI_Measure(&v44) + *(float *)&v32;
+      v27 = LODWORD(v37->currentAnimationState.position.x.global[0]);
+      v41 = *(float *)&v27 <= v37->currentAnimationState.position.x.global[1];
+      v37->currentAnimationState.position.x.offsets[0] = *(float *)&v32;
+      v37->currentAnimationState.position.x.offsets[1] = v40;
+      v37->currentAnimationState.position.x.anchors[0] = 0.0;
+      v37->currentAnimationState.position.x.anchors[1] = 1.0;
+      if ( !v41 )
       {
-LABEL_51:
-        if ( !customElementData->ignoreInvisibleChildren )
-        {
-          __asm { vmovaps xmm1, xmm12; unitScale }
-          *(float *)&_XMM0 = LUIElement_StackedLayout_MeasureChildSize(luaVM, *(float *)&_XMM1, _RBX, customElementData);
-          _RBP = (LUIElement *)&_RBX->currentAnimationState.position.y;
-          if ( customElementData->direction != VERTICAL )
-            _RBP = _RBX;
-          __asm
-          {
-            vmovaps xmm7, xmm0
-            vmovups xmm1, xmmword ptr [rbp+0]
-            vmovsd  xmm2, qword ptr [rbp+10h]
-            vmovups [rsp+0F8h+var_C8], xmm1
-            vmovsd  [rsp+0F8h+var_B8], xmm2
-          }
-          *(float *)&_XMM0 = LUI_Measure(&v85);
-          __asm
-          {
-            vaddss  xmm1, xmm0, xmm6
-            vmovss  xmm0, dword ptr [rbp+8]
-            vcomiss xmm0, dword ptr [rbp+0Ch]
-            vmovss  dword ptr [rbp+0], xmm6
-            vmovss  dword ptr [rbp+4], xmm1
-          }
-          _RBP->currentAnimationState.position.x.anchors[0] = 0.0;
-          _RBP->currentAnimationState.position.x.anchors[1] = 1.0;
-          if ( !(v76 | v15) )
-          {
-            __asm
-            {
-              vmovss  dword ptr [rbp+0], xmm1
-              vmovss  dword ptr [rbp+4], xmm6
-            }
-          }
-          _RBX->layoutCached = 0;
-          __asm { vmovaps xmm2, xmm12; unitScale }
-          LUIElement_Layout(localClientNum, _RBX, *(float *)&_XMM2, deltaTime, luaVM);
-          __asm { vcomiss xmm7, xmm9 }
-          if ( !(v76 | v15) )
-          {
-            __asm
-            {
-              vaddss  xmm0, xmm7, xmm14
-              vaddss  xmm6, xmm6, xmm0
-            }
-          }
-          goto LABEL_60;
-        }
-        __asm { vcomiss xmm9, dword ptr [rbx+44h] }
+        v37->currentAnimationState.position.x.offsets[0] = v40;
+        v37->currentAnimationState.position.x.offsets[1] = *(float *)&v32;
+      }
+      v34->layoutCached = 0;
+      LUIElement_Layout(localClientNum, v34, unitScale, deltaTime, luaVM);
+      if ( *(float *)&v38 > 0.0 )
+      {
+        v42 = v38;
+        *(float *)&v42 = *(float *)&v38 + userData;
+        v27 = v42;
+        v43 = v32;
+        *(float *)&v43 = *(float *)&v32 + *(float *)&v27;
+        v32 = v43;
       }
     }
-    _RBX->layoutCached = 0;
-    __asm { vmovaps xmm2, xmm12; unitScale }
-    LUIElement_Layout(localClientNum, _RBX, *(float *)&_XMM2, deltaTime, luaVM);
-LABEL_60:
-    _RSI->layoutDeeplyCached &= _RBX->layoutDeeplyCached;
+    else
+    {
+LABEL_53:
+      v34->layoutCached = 0;
+      LUIElement_Layout(localClientNum, v34, unitScale, deltaTime, luaVM);
+    }
+    element->layoutDeeplyCached &= v34->layoutDeeplyCached;
   }
-  LUI_QuadCache_Element_Invalidate(_RSI);
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-    vmovaps xmm7, [rsp+0F8h+var_48]
-    vmovaps xmm6, [rsp+0F8h+var_38]
-  }
-  _RSI->layoutCached = _RSI->canCacheLayout;
+  LUI_QuadCache_Element_Invalidate(element);
+  element->layoutCached = element->canCacheLayout;
 }
 
 /*
@@ -340,58 +246,41 @@ char LUIElement_StackedLayout_GetAlignment(const LUIStackedLayout *stackedLayout
 LUIElement_StackedLayout_MeasureChildSize
 ==============
 */
-
-float __fastcall LUIElement_StackedLayout_MeasureChildSize(lua_State *luaVM, double unitScale, LUIElement *child, const LUIStackedLayout *stackedLayout)
+float LUIElement_StackedLayout_MeasureChildSize(lua_State *luaVM, float unitScale, LUIElement *child, const LUIStackedLayout *stackedLayout)
 {
   LUIStackedLayoutDirection direction; 
   bool IsTextLike; 
+  __int128 v9; 
+  double v10; 
   float outWidth[4]; 
-  LUIElementAxisPosition v17; 
+  LUIElementAxisPosition v12; 
   float outHeight; 
 
   direction = stackedLayout->direction;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RDI = child;
-  __asm { vmovaps xmm6, xmm1 }
   IsTextLike = LUIElement_IsTextLike(child);
-  if ( direction != VERTICAL )
+  if ( direction == VERTICAL )
   {
     if ( IsTextLike )
     {
-      __asm { vmovaps xmm0, xmm6; unitScale }
-      LUI_MeasureTextElement(*(float *)&_XMM0, _RDI, luaVM, outWidth, &outHeight);
-      __asm { vmovss  xmm0, [rsp+78h+outWidth] }
-      goto LABEL_9;
+      LUI_MeasureTextElement(unitScale, child, luaVM, outWidth, &outHeight);
+      return outHeight;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovsd  xmm1, qword ptr [rdi+10h]
-    }
-LABEL_8:
-    __asm
-    {
-      vmovups [rsp+78h+var_38], xmm0
-      vmovsd  [rsp+78h+var_28], xmm1
-    }
-    *(float *)&_XMM0 = LUI_Measure(&v17);
-    goto LABEL_9;
+    v9 = *(_OWORD *)child->currentAnimationState.position.y.offsets;
+    v10 = *(double *)child->currentAnimationState.position.y.anchors;
   }
-  if ( !IsTextLike )
+  else
   {
-    __asm
+    if ( IsTextLike )
     {
-      vmovups xmm0, xmmword ptr [rdi+18h]
-      vmovsd  xmm1, qword ptr [rdi+28h]
+      LUI_MeasureTextElement(unitScale, child, luaVM, outWidth, &outHeight);
+      return outWidth[0];
     }
-    goto LABEL_8;
+    v9 = *(_OWORD *)child->currentAnimationState.position.x.offsets;
+    v10 = *(double *)child->currentAnimationState.position.x.anchors;
   }
-  __asm { vmovaps xmm0, xmm6; unitScale }
-  LUI_MeasureTextElement(*(float *)&_XMM0, _RDI, luaVM, outWidth, &outHeight);
-  __asm { vmovss  xmm0, [rsp+78h+arg_18] }
-LABEL_9:
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  return *(float *)&_XMM0;
+  *(_OWORD *)v12.offsets = v9;
+  *(double *)v12.anchors = v10;
+  return LUI_Measure(&v12);
 }
 
 /*
@@ -554,7 +443,7 @@ __int64 LUI_LuaCall_LUIElement_SetupStackedLayout_impl(lua_State *const luaVM)
   if ( j_lua_type(luaVM, 2) != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_stackedlayout.cpp", 371, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (2)) == 5))", (const char *)&queryFormat, "lua_istable( luaVM, 2 )") )
     __debugbreak();
   v2 = LUI_ToElement(luaVM, 1);
-  v2->layoutFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, float, int, lua_State *))LUIElement_StackedLayout;
+  v2->layoutFunction = LUIElement_StackedLayout;
   if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
   LUI_PutElementOnTopOfStack(v2, luaVM);

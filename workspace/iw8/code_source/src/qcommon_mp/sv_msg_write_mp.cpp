@@ -781,6 +781,7 @@ __int64 MSG_GetLastChangedField(const SnapshotInfo *snapInfo, const unsigned __i
   __int16 *p_size; 
   __int64 v13; 
   const unsigned __int8 *v14; 
+  const unsigned __int8 *v15; 
   unsigned int v16; 
   int v19; 
 
@@ -795,21 +796,18 @@ __int64 MSG_GetLastChangedField(const SnapshotInfo *snapInfo, const unsigned __i
     {
       v13 = (unsigned __int16)p_size[1];
       v14 = &from[v13];
-      _R11 = &to[v13];
+      v15 = &to[v13];
       v16 = abs16(*p_size);
       if ( v16 > 0x10 )
         goto LABEL_22;
-      __asm
-      {
-        vmovdqu xmm1, xmmword ptr [r11]
-        vpcmpeqb xmm1, xmm1, xmmword ptr [r10]
-      }
+      _XMM1 = *(_OWORD *)v15;
+      __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [r10] }
       v19 = (1 << v16) - 1;
       __asm { vpmovmskb eax, xmm1 }
       if ( (v19 & _EAX) != v19 )
       {
 LABEL_22:
-        if ( !MSG_ValuesAreEqualPost(v14, _R11, p_size[2], *p_size) )
+        if ( !MSG_ValuesAreEqualPost(v14, v15, p_size[2], *p_size) )
         {
           if ( !snapInfo->archived && !snapInfo->fromBaseline )
             SV_TrackFieldChange(snapInfo->clientNum, (const PacketEntityType_e)snapInfo->packetEntityType, v11, entityIndex);
@@ -1178,6 +1176,7 @@ bool MSG_ShouldSendEntityField(const SnapshotInfo *const snapInfo, const entityS
   __int64 offset; 
   int size; 
   char *v9; 
+  __int128 *v10; 
   unsigned int v11; 
   int v14; 
 
@@ -1245,22 +1244,19 @@ $LN3_2:
       offset = field->offset;
       size = field->size;
       v9 = (char *)from + offset;
-      _R11 = (char *)to + offset;
+      v10 = (__int128 *)((char *)&to->number + offset);
       v11 = abs32(size);
       if ( v11 > 0x10 )
         goto LABEL_13;
-      __asm
-      {
-        vmovdqu xmm1, xmmword ptr [r11]
-        vpcmpeqb xmm1, xmm1, xmmword ptr [r10]
-      }
+      _XMM1 = *v10;
+      __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [r10] }
       v14 = (1 << v11) - 1;
       __asm { vpmovmskb eax, xmm1 }
       if ( (v14 & _EAX) == v14 )
         result = 0;
       else
 LABEL_13:
-        result = !MSG_ValuesAreEqualPost(v9, _R11, bits, size);
+        result = !MSG_ValuesAreEqualPost(v9, v10, bits, size);
       break;
   }
   return result;
@@ -1279,6 +1275,7 @@ bool MSG_ShouldSendPSField(const SnapshotInfo *snapInfo, bool sendOriginAndVel, 
   __int16 viewlocked_entNum; 
   __int64 offset; 
   char *v14; 
+  __int128 *v15; 
   unsigned int v16; 
   int v19; 
   int pm_type; 
@@ -1358,18 +1355,15 @@ LABEL_10:
 $if_changed:
   offset = field->offset;
   v14 = (char *)oldPs + offset;
-  _R11 = (char *)ps + offset;
+  v15 = (__int128 *)((char *)&ps->commandTime + offset);
   v16 = abs16(field->size);
   if ( v16 > 0x10 )
-    return !MSG_ValuesAreEqualPost(v14, _R11, field->bits, field->size);
-  __asm
-  {
-    vmovdqu xmm1, xmmword ptr [r11]
-    vpcmpeqb xmm1, xmm1, xmmword ptr [r10]
-  }
+    return !MSG_ValuesAreEqualPost(v14, v15, field->bits, field->size);
+  _XMM1 = *v15;
+  __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [r10] }
   v19 = 1 << v16;
   __asm { vpmovmskb eax, xmm1 }
-  return ((v19 - 1) & _EAX) != v19 - 1 && !MSG_ValuesAreEqualPost(v14, _R11, field->bits, field->size);
+  return ((v19 - 1) & _EAX) != v19 - 1 && !MSG_ValuesAreEqualPost(v14, v15, field->bits, field->size);
 }
 
 /*
@@ -1739,135 +1733,134 @@ MSG_WriteDeltaField
 */
 char MSG_WriteDeltaField(SnapshotInfo *snapInfo, msg_t *msg, const int time, const unsigned __int8 *from, const unsigned __int8 *to, const NetField *field, const int fieldNum, const bool forceSend, const bool xorValue, const int lastChangedField, const int skippedFieldBits, const bool sendSkippedFields, ServerEntityHeader *const outHeader)
 {
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
   bool archived; 
   __int64 offset; 
-  unsigned int v27; 
-  int v29; 
+  const unsigned __int8 *v23; 
+  const unsigned __int8 *v24; 
+  float *v25; 
+  unsigned int v26; 
+  int v28; 
   PacketEntityType_e packetEntityType; 
   bool fromBaseline; 
   const char *EntityTypeString; 
-  int v35; 
-  __int64 v36; 
+  int v34; 
+  __int64 v35; 
+  int v36; 
   int v37; 
-  int v38; 
   int bits; 
-  msg_t *v40; 
-  unsigned int OriginExtraPrecisionBitsForField; 
-  int v57; 
-  bool v59; 
-  bool v60; 
-  signed int v63; 
-  __int64 v64; 
-  __int16 v65; 
-  int v68; 
-  bool v70; 
-  bool v71; 
-  signed int v75; 
-  int v89; 
-  int v92; 
-  int v93; 
-  __int16 *v94; 
-  int v95; 
-  unsigned int v97; 
-  __int64 v104; 
-  int v108; 
-  int v109; 
-  char v110; 
-  __int16 v111; 
-  __int64 v112; 
-  int v113; 
-  __int64 v114; 
-  int v115; 
+  msg_t *v39; 
+  char OriginExtraPrecisionBitsForField; 
+  bool v41; 
+  float v42; 
+  int v45; 
+  float v46; 
+  unsigned int v47; 
+  int v48; 
+  int v49; 
+  int v50; 
+  signed int v51; 
+  __int64 v52; 
+  __int16 v53; 
+  int v54; 
+  int v55; 
+  int v56; 
+  signed int v57; 
+  float v58; 
+  float v59; 
+  int v63; 
+  int v64; 
+  __int16 *v65; 
+  int v66; 
+  unsigned int v67; 
+  __int64 v70; 
+  __int64 v71; 
+  int v72; 
+  float v73; 
+  char v74; 
+  __int16 v75; 
+  __int64 v76; 
+  int v77; 
+  __int64 v78; 
+  int v79; 
   unsigned int MinBitCountForNum; 
   __int16 size; 
-  __int64 v118; 
-  int v119; 
-  int v120; 
-  int v121; 
-  int v122; 
-  unsigned int v123; 
-  signed int v124; 
-  __int16 v125; 
-  __int64 v126; 
-  __int64 v127; 
-  const unsigned __int8 *v128; 
-  const unsigned __int8 *v129; 
-  int v130; 
+  __int64 v82; 
+  int v83; 
+  float v84; 
+  float v85; 
+  int v86; 
+  unsigned int v87; 
+  signed int v88; 
+  __int16 v89; 
+  __int64 v90; 
+  __int64 v91; 
+  const unsigned __int8 *v92; 
+  const unsigned __int8 *v93; 
+  float v94; 
   int RuntimeMapIndexBits; 
-  __int64 v132; 
-  __int16 v133; 
-  unsigned int v138; 
-  unsigned int v150; 
-  int v159; 
-  bool v160; 
-  int v163; 
-  int v164; 
-  unsigned int v165; 
-  bool v166; 
-  bool v167; 
-  bool v168; 
-  bool v169; 
-  bool v174; 
-  bool v180; 
-  unsigned __int8 v182; 
-  __int64 v184; 
-  unsigned __int8 v185; 
+  __int64 v96; 
+  __int16 v97; 
+  float v98; 
+  float v99; 
+  unsigned int v100; 
+  float v101; 
+  int v104; 
+  int v106; 
+  bool v107; 
+  float v108; 
+  int v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  __int64 v114; 
+  unsigned __int8 v115; 
   unsigned int BitsNeededForType; 
-  __int64 v192; 
+  __int64 v117; 
   unsigned int BitCount; 
-  int v194; 
-  __int64 v195; 
+  int v119; 
+  __int64 v120; 
   unsigned int ClientAttachTagBits; 
-  __int64 v197; 
+  __int64 v122; 
   int EntityStateIndexBits; 
-  int v199; 
-  unsigned int v200; 
+  float v124; 
+  unsigned int v125; 
   unsigned int i; 
-  unsigned int v202; 
-  bool v203; 
-  bool v204; 
-  __int64 v236; 
-  int v237; 
-  __int64 v238; 
-  int v243; 
-  int v244; 
-  int v245; 
-  int v246; 
-  const unsigned __int8 *v247; 
-  int v248; 
+  __int64 v127; 
+  int v128; 
+  __int64 v129; 
+  int v130; 
+  int v131; 
+  int v132; 
+  int v133; 
+  const unsigned __int8 *v134; 
+  int v135; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
   __int64 oldValue; 
-  float oldValuea; 
-  float oldValueb; 
-  float oldValuec; 
-  float oldValued; 
-  float oldValuee; 
-  double oldValuef; 
   __int64 dataBits; 
-  double dataBitsa; 
-  double v264; 
-  double v265; 
   int fromF; 
-  int v268; 
-  int v269; 
+  int v141; 
+  int v142; 
   int UsedBitCount; 
-  __int64 v271; 
-  ServerEntityHeader *v272; 
-  const unsigned __int8 *v273; 
+  __int64 v144; 
+  ServerEntityHeader *v145; 
+  const unsigned __int8 *v146; 
   vec3_t outQuatPacked; 
-  char v275[32]; 
+  char v148[32]; 
   char string[32]; 
+  __int128 v150; 
+  __int128 v151; 
+  __int128 v152; 
+  __int128 v153; 
 
-  v268 = fieldNum;
-  v272 = outHeader;
+  v141 = fieldNum;
+  v145 = outHeader;
   fromF = time;
   UsedBitCount = 0;
-  v269 = 0;
+  v142 = 0;
   if ( !snapInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2381, ASSERT_TYPE_ASSERT, "( snapInfo )", (const char *)&queryFormat, "snapInfo") )
     __debugbreak();
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2382, ASSERT_TYPE_ASSERT, "( msg )", (const char *)&queryFormat, "msg") )
@@ -1884,34 +1877,31 @@ char MSG_WriteDeltaField(SnapshotInfo *snapInfo, msg_t *msg, const int time, con
   if ( !archived )
     UsedBitCount = MSG_GetUsedBitCount(msg);
   offset = field->offset;
-  _RBP = &from[offset];
-  v271 = 0i64;
-  _RSI = &to[offset];
-  _RBX = &v271;
-  v273 = &to[offset];
+  v23 = &from[offset];
+  v144 = 0i64;
+  v24 = &to[offset];
+  v25 = (float *)&v144;
+  v146 = &to[offset];
   if ( xorValue )
-    _RBX = (__int64 *)_RBP;
-  *(_QWORD *)outQuatPacked.v = _RBX;
+    v25 = (float *)v23;
+  *(_QWORD *)outQuatPacked.v = v25;
   if ( sendSkippedFields )
   {
     if ( skippedFieldBits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2413, ASSERT_TYPE_ASSERT, "( skippedFieldBits > 0 )", (const char *)&queryFormat, "skippedFieldBits > 0") )
       __debugbreak();
     if ( !forceSend )
     {
-      v27 = abs16(field->size);
-      if ( v27 <= 0x10 )
+      v26 = abs16(field->size);
+      if ( v26 <= 0x10 )
       {
-        __asm
-        {
-          vmovdqu xmm1, xmmword ptr [rbp+0]
-          vpcmpeqb xmm1, xmm1, xmmword ptr [rsi]
-        }
-        v29 = (1 << v27) - 1;
+        _XMM1 = *(_OWORD *)v23;
+        __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [rsi] }
+        v28 = (1 << v26) - 1;
         __asm { vpmovmskb eax, xmm1 }
-        if ( (v29 & _EAX) == v29 )
+        if ( (v28 & _EAX) == v28 )
           return 0;
       }
-      if ( MSG_ValuesAreEqualPost(_RBP, _RSI, field->bits, field->size) )
+      if ( MSG_ValuesAreEqualPost(v23, v24, field->bits, field->size) )
         return 0;
     }
     if ( field->changeHints == 1 )
@@ -1920,20 +1910,20 @@ char MSG_WriteDeltaField(SnapshotInfo *snapInfo, msg_t *msg, const int time, con
       if ( packetEntityType > ANALYZE_DATATYPE_ENTITYTYPE_TEMPENTITY || *((_WORD *)from + 4) == *((_WORD *)to + 4) )
       {
         fromBaseline = snapInfo->fromBaseline;
-        if ( !fromBaseline || v268 )
+        if ( !fromBaseline || v141 )
         {
-          MSG_PrintNetFieldValue(_RBX, field, string, 0x20ui64);
-          MSG_PrintNetFieldValue(_RSI, field, v275, 0x20ui64);
+          MSG_PrintNetFieldValue(v25, field, string, 0x20ui64);
+          MSG_PrintNetFieldValue(v24, field, v148, 0x20ui64);
           EntityTypeString = SV_GetEntityTypeString(packetEntityType);
           LODWORD(fmt) = fromBaseline;
-          Com_PrintError(15, "Field %s changed for eType %s when we thought it never would (baseline = %d): from %s to %s\n", field->name, EntityTypeString, fmt, string, v275);
+          Com_PrintError(15, "Field %s changed for eType %s when we thought it never would (baseline = %d): from %s to %s\n", field->name, EntityTypeString, fmt, string, v148);
         }
       }
     }
-    v35 = v268 - lastChangedField;
-    if ( v268 - lastChangedField <= 0 )
+    v34 = v141 - lastChangedField;
+    if ( v141 - lastChangedField <= 0 )
     {
-      LODWORD(oldValue) = v268 - lastChangedField;
+      LODWORD(oldValue) = v141 - lastChangedField;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1538, ASSERT_TYPE_ASSERT, "( ( numFieldsSkipped > 0 ) )", "( numFieldsSkipped ) = %i", oldValue) )
         __debugbreak();
     }
@@ -1941,118 +1931,88 @@ char MSG_WriteDeltaField(SnapshotInfo *snapInfo, msg_t *msg, const int time, con
       __debugbreak();
     archived = snapInfo->archived;
     if ( !*(_WORD *)&snapInfo->fromBaseline )
-      SV_TrackNumFieldsSkipped((const PacketEntityType_e)snapInfo->packetEntityType, v35, v272, field);
+      SV_TrackNumFieldsSkipped((const PacketEntityType_e)snapInfo->packetEntityType, v34, v145, field);
     if ( skippedFieldBits == 1 )
     {
-      if ( v35 > 1 )
+      if ( v34 > 1 )
       {
-        v36 = (unsigned int)(v35 - 1);
+        v35 = (unsigned int)(v34 - 1);
         do
         {
           MSG_WriteBit0(msg);
-          --v36;
+          --v35;
         }
-        while ( v36 );
+        while ( v35 );
       }
     }
-    else if ( v35 != 1 )
+    else if ( v34 != 1 )
     {
       MSG_WriteBit0(msg);
-      v37 = v35 - 1;
-      v38 = 1 << skippedFieldBits;
-      if ( v37 >= (1 << skippedFieldBits) - 1 )
+      v36 = v34 - 1;
+      v37 = 1 << skippedFieldBits;
+      if ( v36 >= (1 << skippedFieldBits) - 1 )
       {
         do
         {
           MSG_WriteBits(msg, -1i64, skippedFieldBits);
-          v37 += 1 - v38;
+          v36 += 1 - v37;
         }
-        while ( v37 >= v38 - 1 );
-        _RSI = v273;
-        _RBX = *(__int64 **)outQuatPacked.v;
+        while ( v36 >= v37 - 1 );
+        v24 = v146;
+        v25 = *(float **)outQuatPacked.v;
       }
-      MSG_WriteBits(msg, v37, skippedFieldBits);
+      MSG_WriteBits(msg, v36, skippedFieldBits);
       goto LABEL_57;
     }
     MSG_WriteBit1(msg);
 LABEL_57:
     if ( !archived )
-      v269 = MSG_GetUsedBitCount(msg);
+      v142 = MSG_GetUsedBitCount(msg);
   }
   if ( !archived && !snapInfo->fromBaseline )
   {
-    if ( (unsigned int)v268 >= snapInfo->fieldChangesCount )
+    if ( (unsigned int)v141 >= snapInfo->fieldChangesCount )
       CrashReport_TriggerNow();
-    Sys_InterlockedIncrement(&snapInfo->fieldChanges[v268]);
+    Sys_InterlockedIncrement(&snapInfo->fieldChanges[v141]);
     archived = snapInfo->archived;
   }
   bits = field->bits;
-  __asm
-  {
-    vmovaps [rsp+178h+var_58], xmm6
-    vmovaps [rsp+178h+var_68], xmm7
-    vmovaps [rsp+178h+var_78], xmm8
-    vmovaps [rsp+178h+var_88], xmm9
-  }
+  v153 = v14;
+  v152 = v15;
+  v151 = v16;
+  v150 = v17;
   switch ( bits )
   {
     case -115:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2803, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi]
-        vmovss  xmm8, dword ptr [rbx]
-      }
+      v101 = *(float *)v24;
       if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 659, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
         __debugbreak();
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm8
-        vmulss  xmm1, xmm0, cs:__real@41200000
-        vmovss  xmm8, cs:__real@3f000000
-        vaddss  xmm2, xmm1, xmm8
-        vxorps  xmm7, xmm7, xmm7
-        vroundss xmm3, xmm7, xmm2, 1
-        vcvttss2si ebx, xmm3
-      }
-      v150 = _EBX + 128;
-      if ( v150 > 0xFF )
+      _XMM7 = 0i64;
+      __asm { vroundss xmm3, xmm7, xmm2, 1 }
+      v104 = (int)*(float *)&_XMM3 + 128;
+      if ( (unsigned int)v104 > 0xFF )
       {
         MSG_WriteBit0(msg);
-        __asm
+        __asm { vroundss xmm0, xmm7, xmm2, 1 }
+        v106 = 1048570 - (int)(float)((float)(v101 - (float)(int)*(float *)&_XMM0) * -10.0);
+        v107 = v106 <= 2097140;
+        if ( (unsigned int)v106 > 0x1FFFF4 )
         {
-          vaddss  xmm2, xmm8, dword ptr [r13+14h]
-          vroundss xmm0, xmm7, xmm2, 1
-          vcvttss2si eax, xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vsubss  xmm1, xmm6, xmm0
-          vmulss  xmm2, xmm1, cs:__real@c1200000
-          vcvttss2si eax, xmm2
+          Com_PrintError(1, "MSG_WriteOriginPhysicsZ: Not enough range available for physics origin '%f''\n", v101);
+          v107 = v106 <= 2097140;
         }
-        v159 = 1048570 - _EAX;
-        v160 = 1048570 - _EAX <= 2097140;
-        if ( (unsigned int)(1048570 - _EAX) > 0x1FFFF4 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm2, xmm6, xmm6
-            vmovq   r8, xmm2
-          }
-          Com_PrintError(1, "MSG_WriteOriginPhysicsZ: Not enough range available for physics origin '%f''\n", _R8);
-          v160 = v159 <= 2097140;
-        }
-        if ( !v160 )
-          v159 = 2097140;
-        if ( v159 < 0 )
-          v159 = 0;
-        MSG_WriteBits(msg, v159, 0x15u);
+        if ( !v107 )
+          v106 = 2097140;
+        if ( v106 < 0 )
+          v106 = 0;
+        MSG_WriteBits(msg, v106, 0x15u);
       }
       else
       {
         MSG_WriteBit1(msg);
-        MSG_WriteBits(msg, (int)v150, 8u);
+        MSG_WriteBits(msg, v104, 8u);
       }
       goto LABEL_386;
     case -114:
@@ -2062,54 +2022,47 @@ LABEL_57:
         __debugbreak();
         LOWORD(bits) = field->bits;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  [rsp+178h+oldValue], xmm0
-        vmovss  dword ptr [rsp+178h+fmt], xmm1
-      }
-      MSG_WriteOriginPhysics(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, fmte, oldValuee);
+      MSG_WriteOriginPhysics(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, *(float *)v24, *v25);
       goto LABEL_386;
     case -112:
-      v40 = msg;
-      if ( ((*_RSI ^ *(_BYTE *)_RBX) & 0x3F) == 0 )
+      v39 = msg;
+      if ( ((*v24 ^ *(_BYTE *)v25) & 0x3F) == 0 )
         goto LABEL_384;
       MSG_WriteBit1(msg);
-      MSG_WriteBits(msg, *(_DWORD *)_RSI & 0x3F, 6u);
+      MSG_WriteBits(msg, *(_DWORD *)v24 & 0x3F, 6u);
       goto LABEL_386;
     case -111:
       RuntimeMapIndexBits = BgWeaponMap::GetRuntimeMapIndexBits();
-      MSG_WriteValue(msg, _RBX, _RSI, RuntimeMapIndexBits, field->size, field->name);
+      MSG_WriteValue(msg, v25, v24, RuntimeMapIndexBits, field->size, field->name);
       goto LABEL_386;
     case -110:
-      if ( ((*_RSI ^ *(_BYTE *)_RBX) & 0x3F) != 0 )
+      if ( ((*v24 ^ *(_BYTE *)v25) & 0x3F) != 0 )
       {
         MSG_WriteBit1(msg);
-        MSG_WriteBits(msg, *(_DWORD *)_RSI & 0x3F, 6u);
+        MSG_WriteBits(msg, *(_DWORD *)v24 & 0x3F, 6u);
       }
       else
       {
         MSG_WriteBit0(msg);
       }
-      MSG_WriteBits(msg, (*(_DWORD *)_RSI >> 6) & 1, 1u);
-      MSG_WriteBits(msg, (*(_DWORD *)_RSI >> 7) & 3, 2u);
+      MSG_WriteBits(msg, (*(_DWORD *)v24 >> 6) & 1, 1u);
+      MSG_WriteBits(msg, (*(_DWORD *)v24 >> 7) & 3, 2u);
       goto LABEL_386;
     case -109:
       if ( field->size != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2846, ASSERT_TYPE_ASSERT, "(field->size == 4)", (const char *)&queryFormat, "field->size == 4") )
         __debugbreak();
-      v40 = msg;
-      if ( !*(_DWORD *)_RSI )
+      v39 = msg;
+      if ( !*(_DWORD *)v24 )
         goto LABEL_384;
       goto LABEL_94;
     case -108:
     case 0:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2500, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      MSG_WriteFloatCase(msg, (const int *)_RBX, (const int *)_RSI);
+      MSG_WriteFloatCase(msg, (const int *)v25, (const int *)v24);
       goto LABEL_386;
     case -107:
-      MSG_WriteAnimData(msg, (const int *)_RBX, (const int *)_RSI);
+      MSG_WriteAnimData(msg, (const int *)v25, (const int *)v24);
       goto LABEL_386;
     case -106:
     case -105:
@@ -2122,180 +2075,115 @@ LABEL_57:
         __debugbreak();
         LOWORD(bits) = field->bits;
       }
-      __asm { vmovss  xmm6, dword ptr [rbx] }
-      MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
-      v59 = !snapInfo->highPrecisionOrigin;
-      __asm
-      {
-        vxorps  xmm5, xmm5, xmm5
-        vcvtsi2ss xmm5, xmm5, rax
-        vmulss  xmm0, xmm5, xmm6
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si eax, xmm4
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm7, xmm0, xmm5
-        vmovss  [rsp+178h+fromF], xmm7
-      }
-      if ( v59 && Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT) )
+      OriginExtraPrecisionBitsForField = MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
+      v41 = !snapInfo->highPrecisionOrigin;
+      v42 = (float)(unsigned int)(1 << OriginExtraPrecisionBitsForField);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      *(float *)&v45 = (float)(int)*(float *)&_XMM4 / v42;
+      fromF = v45;
+      if ( v41 && Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT) )
       {
         MSG_WriteBit0(msg);
-        __asm { vmovss  xmm6, dword ptr [rsi] }
+        v46 = *(float *)v24;
         if ( (__int16)bits == -104 || (__int16)bits == -37 )
         {
-          OriginExtraPrecisionBitsForField = MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
-          __asm
-          {
-            vmovss  [rsp+178h+oldValue], xmm7
-            vmovss  dword ptr [rsp+178h+fmt], xmm6
-          }
-          MSG_WriteOriginExpGolomb(snapInfo, msg, 2, OriginExtraPrecisionBitsForField, fmtb, oldValueb);
+          v47 = MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
+          MSG_WriteOriginExpGolomb(snapInfo, msg, 2, v47, v46, *(float *)&v45);
         }
         else
         {
-          __asm
-          {
-            vmovss  [rsp+178h+oldValue], xmm7
-            vmovss  dword ptr [rsp+178h+fmt], xmm6
-          }
-          MSG_WriteOriginFloat(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, fmta, oldValuea);
+          MSG_WriteOriginFloat(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, v46, *(float *)&v45);
         }
       }
       else
       {
         MSG_WriteBit1(msg);
-        MSG_WriteFloatCase(msg, &fromF, (const int *)_RSI);
+        MSG_WriteFloatCase(msg, &fromF, (const int *)v24);
       }
       goto LABEL_386;
     case -103:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2659, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      v109 = *(_DWORD *)_RSI;
-      v108 = v109 / 50;
-      if ( v109 < 800 && v109 == 50 * v108 )
+      v73 = *(float *)v24;
+      v72 = SLODWORD(v73) / 50;
+      if ( SLODWORD(v73) < 800 && LODWORD(v73) == 50 * v72 )
         goto LABEL_160;
       MSG_WriteBit1(msg);
-      MSG_WriteBits(msg, v109, 0x10u);
+      MSG_WriteBits(msg, SLODWORD(v73), 0x10u);
       goto LABEL_386;
     case -102:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2641, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      v108 = *(_DWORD *)_RSI / 250;
-      if ( *(int *)_RSI < 4000 && *(_DWORD *)_RSI == 250 * v108 )
+      v72 = *(_DWORD *)v24 / 250;
+      if ( *(int *)v24 < 4000 && *(_DWORD *)v24 == 250 * v72 )
       {
 LABEL_160:
         MSG_WriteBit0(msg);
-        MSG_WriteBits(msg, v108, 4u);
+        MSG_WriteBits(msg, v72, 4u);
       }
       else
       {
         MSG_WriteBit1(msg);
-        MSG_WriteBits(msg, *(int *)_RSI, 0x10u);
+        MSG_WriteBits(msg, *(int *)v24, 0x10u);
       }
       goto LABEL_386;
     case -101:
-      v64 = MSG_GetField(_RSI, field->size);
-      v65 = truncate_cast<short,__int64>(v64);
-      v40 = msg;
-      if ( !v65 )
+      v52 = MSG_GetField(v24, field->size);
+      v53 = truncate_cast<short,__int64>(v52);
+      v39 = msg;
+      if ( !v53 )
         goto LABEL_384;
       MSG_WriteBit1(msg);
-      MSG_WriteShort(msg, v65);
+      MSG_WriteShort(msg, v53);
       goto LABEL_386;
     case -100:
     case -79:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2608, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
+      v59 = *(float *)v24;
+      _XMM6 = 0i64;
       __asm
       {
-        vmovss  xmm7, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rbx]
-        vmulss  xmm1, xmm0, cs:__real@43360b61
-        vaddss  xmm2, xmm1, cs:__real@3f000000
-        vmulss  xmm0, xmm7, cs:__real@43360b61
-        vxorps  xmm6, xmm6, xmm6
         vroundss xmm3, xmm6, xmm2, 1
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vcvttss2si eax, xmm3
-      }
-      v89 = (__int16)_EAX;
-      __asm
-      {
         vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si eax, xmm0
       }
-      v92 = (__int16)_EAX - v89;
-      v93 = abs32(v92);
-      v94 = g_commonAngleDeltas;
-      v95 = 0;
+      v63 = (__int16)(int)*(float *)&_XMM0 - (__int16)(int)*(float *)&_XMM3;
+      v64 = abs32(v63);
+      v65 = g_commonAngleDeltas;
+      v66 = 0;
       break;
     case -99:
-      __asm
+      v54 = *(int *)v24;
+      v55 = (int)*v25;
+      v56 = (int)*(float *)v24;
+      if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2574, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
+        __debugbreak();
+      if ( *(float *)&v54 != 0.0 || (fromF = v54, v54 == 0x80000000) )
       {
-        vmovss  xmm6, dword ptr [rsi]
-        vcvttss2si r15d, dword ptr [rbx]
-      }
-      v68 = abs16(field->size);
-      __asm { vcvttss2si ebp, xmm6 }
-      v70 = v68 == 4;
-      if ( v68 != 4 )
-      {
-        v71 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2574, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4");
-        v70 = !v71;
-        if ( v71 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm6, xmm0
-      }
-      if ( !v70 )
-        goto LABEL_112;
-      __asm { vmovss  [rsp+178h+fromF], xmm6 }
-      if ( fromF == 0x80000000 )
-      {
-LABEL_112:
         MSG_WriteBit1(msg);
-        __asm { vmovss  [rsp+178h+fromF], xmm6 }
-        if ( fromF == 0x80000000 )
-          goto LABEL_116;
-        __asm
+        fromF = v54;
+        if ( v54 == 0x80000000 || (float)v56 != *(float *)&v54 || (v57 = v56 + 2048, (unsigned int)v57 > 0xFFF) )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebp
-          vucomiss xmm0, xmm6
-        }
-        if ( fromF != 0x80000000 || (v75 = _EBP + 2048, (unsigned int)v75 > 0xFFF) )
-        {
-LABEL_116:
           MSG_WriteBit1(msg);
-          MSG_WriteLong(msg, *(_DWORD *)_RSI ^ *(_DWORD *)_RBX);
+          MSG_WriteLong(msg, *(_DWORD *)v24 ^ *(_DWORD *)v25);
         }
         else
         {
           MSG_WriteBit0(msg);
-          MSG_WriteBits(msg, v75 ^ (unsigned __int64)(_ER15 + 2048), 4u);
-          MSG_WriteByte(msg, (__int64)(v75 ^ (unsigned __int64)(_ER15 + 2048)) >> 4);
+          MSG_WriteBits(msg, v57 ^ (unsigned __int64)(v55 + 2048), 4u);
+          MSG_WriteByte(msg, (__int64)(v57 ^ (unsigned __int64)(v55 + 2048)) >> 4);
         }
       }
       else
       {
         MSG_WriteBit0(msg);
       }
-      __asm
+      v58 = *(float *)v24 + 2048.0;
+      if ( (unsigned int)(int)v58 >= 0x1000 )
       {
-        vmovss  xmm0, dword ptr [rsi]
-        vaddss  xmm1, xmm0, cs:__real@45000000
-        vcvttss2si rax, xmm1
-      }
-      if ( (unsigned int)_RAX >= 0x1000 )
-      {
-        __asm { vcvttss2si eax, xmm1 }
         LODWORD(dataBits) = 4096;
-        LODWORD(oldValue) = _EAX;
+        LODWORD(oldValue) = (int)v58;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2601, ASSERT_TYPE_ASSERT, "(unsigned)( *(float *)toF + (1<<(12-1)) ) < (unsigned)( 1 << 12 )", "*(float *)toF + HUDELEM_COORD_BIAS doesn't index 1 << HUDELEM_COORD_BITS\n\t%i not in [0, %i)", oldValue, dataBits) )
           __debugbreak();
       }
@@ -2303,30 +2191,30 @@ LABEL_116:
     case -98:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2732, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      v120 = *(_DWORD *)_RSI;
-      v121 = *(_DWORD *)_RBX;
+      v84 = *(float *)v24;
+      v85 = *v25;
       if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 985, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
         __debugbreak();
-      v122 = (v120 ^ v121) & 0x3FFFFFFF;
-      if ( !v122 || ((v122 - 1) & v122) != 0 )
+      v86 = (LODWORD(v84) ^ LODWORD(v85)) & 0x3FFFFFFF;
+      if ( !v86 || ((v86 - 1) & v86) != 0 )
       {
         MSG_WriteBit1(msg);
-        MSG_WriteBits(msg, v120, 0x1Eu);
+        MSG_WriteBits(msg, SLODWORD(v84), 0x1Eu);
       }
       else
       {
-        v123 = __lzcnt(v122);
-        v124 = 31 - v123;
-        if ( 31 - v123 > 0x1D )
+        v87 = __lzcnt(v86);
+        v88 = 31 - v87;
+        if ( 31 - v87 > 0x1D )
         {
-          LODWORD(dataBits) = 31 - v123;
+          LODWORD(dataBits) = 31 - v87;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1001, ASSERT_TYPE_ASSERT, "( ( changedBitIndex >= 0 && changedBitIndex < 30 ) )", "%s\n\t( changedBitIndex ) = %i", "( changedBitIndex >= 0 && changedBitIndex < 30 )", dataBits) )
             __debugbreak();
         }
-        if ( v122 != 1 << v124 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1002, ASSERT_TYPE_ASSERT, "( ( ((oldFlags ^ newFlags) & ((1 << 30) - 1)) ^ (1 << changedBitIndex)) == 0 )", (const char *)&queryFormat, "( ((oldFlags ^ newFlags) & MASK_EFLAGS) ^ (1 << changedBitIndex)) == 0") )
+        if ( v86 != 1 << v88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1002, ASSERT_TYPE_ASSERT, "( ( ((oldFlags ^ newFlags) & ((1 << 30) - 1)) ^ (1 << changedBitIndex)) == 0 )", (const char *)&queryFormat, "( ((oldFlags ^ newFlags) & MASK_EFLAGS) ^ (1 << changedBitIndex)) == 0") )
           __debugbreak();
         MSG_WriteBit0(msg);
-        MSG_WriteBits(msg, v124, 5u);
+        MSG_WriteBits(msg, v88, 5u);
       }
       goto LABEL_386;
     case -97:
@@ -2338,29 +2226,29 @@ LABEL_116:
         __debugbreak();
         size = field->size;
       }
-      v118 = MSG_GetField(_RSI, size);
-      v119 = truncate_cast<int,__int64>(v118);
-      MSG_WriteDeltaTime(msg, fromF, v119);
+      v82 = MSG_GetField(v24, size);
+      v83 = truncate_cast<int,__int64>(v82);
+      MSG_WriteDeltaTime(msg, fromF, v83);
       goto LABEL_386;
     case -96:
-      v125 = field->size;
-      if ( abs16(v125) > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2739, ASSERT_TYPE_ASSERT, "(abs( field->size ) <= 4)", (const char *)&queryFormat, "abs( field->size ) <= 4") )
+      v89 = field->size;
+      if ( abs16(v89) > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2739, ASSERT_TYPE_ASSERT, "(abs( field->size ) <= 4)", (const char *)&queryFormat, "abs( field->size ) <= 4") )
       {
         __debugbreak();
-        v125 = field->size;
+        v89 = field->size;
       }
-      v126 = MSG_GetField(_RSI, v125);
-      v127 = truncate_cast<int,__int64>(v126);
+      v90 = MSG_GetField(v24, v89);
+      v91 = truncate_cast<int,__int64>(v90);
       if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1018, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
         __debugbreak();
-      if ( (_DWORD)v127 == 2046 )
-        goto LABEL_301;
+      if ( (_DWORD)v91 == 2046 )
+        goto LABEL_181;
       MSG_WriteBit0(msg);
-      if ( !(_DWORD)v127 )
-        goto LABEL_301;
+      if ( !(_DWORD)v91 )
+        goto LABEL_181;
       MSG_WriteBit0(msg);
-      MSG_WriteBits(msg, v127, 3u);
-      MSG_WriteByte(msg, (int)v127 >> 3);
+      MSG_WriteBits(msg, v91, 3u);
+      MSG_WriteByte(msg, (int)v91 >> 3);
       goto LABEL_386;
     case -95:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2813, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
@@ -2368,23 +2256,23 @@ LABEL_116:
         __debugbreak();
         archived = snapInfo->archived;
       }
-      v163 = *(_DWORD *)_RSI;
+      v108 = *(float *)v24;
       if ( !archived )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending %i as playerstate timer value (%ims granularity)\n", (unsigned int)v163, 100i64);
-      MSG_WriteBits(msg, v163 / 100, 7u);
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending %i as playerstate timer value (%ims granularity)\n", v108, 100i64);
+      MSG_WriteBits(msg, SLODWORD(v108) / 100, 7u);
       goto LABEL_386;
     case -94:
-      v128 = from;
-      v129 = to;
+      v92 = from;
+      v93 = to;
       MSG_WriteEvent(snapInfo, msg, from, to, field);
       goto LABEL_387;
     case -93:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2750, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      v130 = *(_DWORD *)_RSI;
+      v94 = *(float *)v24;
       if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1057, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
         __debugbreak();
-      MSG_WriteLong(msg, v130);
+      MSG_WriteLong(msg, SLODWORD(v94));
       goto LABEL_386;
     case -92:
     case -91:
@@ -2395,14 +2283,7 @@ LABEL_116:
         __debugbreak();
         LOWORD(bits) = field->bits;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  [rsp+178h+oldValue], xmm0
-        vmovss  dword ptr [rsp+178h+fmt], xmm1
-      }
-      MSG_WriteOriginFloat(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, fmtc, oldValuec);
+      MSG_WriteOriginFloat(snapInfo, &snapInfo->mapCenter, msg, (__int16)bits, *(float *)v24, *v25);
       goto LABEL_386;
     case -90:
     case -81:
@@ -2411,144 +2292,105 @@ LABEL_116:
         __debugbreak();
         LOWORD(bits) = field->bits;
       }
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rsi]
-        vmovss  xmm6, dword ptr [rbx]
-      }
-      v138 = MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
-      __asm
-      {
-        vmovss  [rsp+178h+oldValue], xmm6
-        vmovss  dword ptr [rsp+178h+fmt], xmm7
-      }
-      MSG_WriteOriginExpGolomb(snapInfo, msg, 2, v138, fmtd, oldValued);
+      v98 = *(float *)v24;
+      v99 = *v25;
+      v100 = MSG_GetOriginExtraPrecisionBitsForField((__int16)bits);
+      MSG_WriteOriginExpGolomb(snapInfo, msg, 2, v100, v98, v99);
       goto LABEL_386;
     case -89:
-      __asm
+      v48 = *(int *)v24;
+      v49 = (int)*v25;
+      v50 = (int)*(float *)v24;
+      if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2514, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
+        __debugbreak();
+      if ( (float)v50 != *(float *)&v48 || (fromF = v48, v48 == 0x80000000) || (v51 = v50 + 4096, (unsigned int)v51 > 0x1FFF) )
       {
-        vmovss  xmm6, dword ptr [rsi]
-        vcvttss2si r15d, dword ptr [rbx]
-      }
-      v57 = abs16(field->size);
-      __asm { vcvttss2si ebp, xmm6 }
-      v59 = v57 == 4;
-      if ( v57 != 4 )
-      {
-        v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2514, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4");
-        v59 = !v60;
-        if ( v60 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vucomiss xmm0, xmm6
-      }
-      if ( !v59 )
-        goto LABEL_93;
-      __asm { vmovss  [rsp+178h+fromF], xmm6 }
-      if ( fromF == 0x80000000 || (v63 = _EBP + 4096, (unsigned int)v63 > 0x1FFF) )
-      {
-LABEL_93:
-        v40 = msg;
+        v39 = msg;
 LABEL_94:
-        MSG_WriteBit1(v40);
-        MSG_WriteLong(msg, *(_DWORD *)_RSI ^ *(_DWORD *)_RBX);
+        MSG_WriteBit1(v39);
+        MSG_WriteLong(msg, *(_DWORD *)v24 ^ *(_DWORD *)v25);
       }
       else
       {
         MSG_WriteBit0(msg);
-        MSG_WriteBits(msg, v63 ^ (unsigned __int64)(_ER15 + 4096), 5u);
-        MSG_WriteByte(msg, (__int64)(v63 ^ (unsigned __int64)(_ER15 + 4096)) >> 5);
+        MSG_WriteBits(msg, v51 ^ (unsigned __int64)(v49 + 4096), 5u);
+        MSG_WriteByte(msg, (__int64)(v51 ^ (unsigned __int64)(v49 + 4096)) >> 5);
       }
       goto LABEL_386;
     case -88:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2560, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      MSG_WriteLong(msg, *(_DWORD *)_RSI ^ *(_DWORD *)_RBX);
+      MSG_WriteLong(msg, *(_DWORD *)v24 ^ *(_DWORD *)v25);
       goto LABEL_386;
     case -87:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2618, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm1, dword ptr [rsi]; f }
-      MSG_WriteAngle16(msg, *(float *)&_XMM1);
+      MSG_WriteAngle16(msg, *(float *)v24);
       goto LABEL_386;
     case -86:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2626, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rsi]
-        vmulss  xmm0, xmm5, cs:__real@41200000
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si eax, xmm4
-      }
-      v104 = (int)_RAX;
-      _RAX = (int)_RAX;
-      if ( (int)_RAX < 0i64 )
-        _RAX = ~(__int64)(int)_RAX;
-      if ( 64 - (unsigned int)__lzcnt(_RAX) > (unsigned int)(v104 >= 0) + 5 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm2, xmm5, xmm5
-          vmovq   r8, xmm2
-        }
-        Com_PrintError(15, "MSG_WriteDeltaField: Not enough bits written for fontScale %f\n", _R8);
-      }
-      MSG_WriteBits(msg, v104, 6u);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      v70 = (int)*(float *)&_XMM4;
+      v71 = v70;
+      if ( v70 < 0 )
+        v71 = ~(__int64)(int)*(float *)&_XMM4;
+      if ( 64 - (unsigned int)__lzcnt(v71) > (unsigned int)(v70 >= 0) + 5 )
+        Com_PrintError(15, "MSG_WriteDeltaField: Not enough bits written for fontScale %f\n", *(float *)v24);
+      MSG_WriteBits(msg, v70, 6u);
       goto LABEL_386;
     case -85:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2680, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( *toColor ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( *toColor )") )
         __debugbreak();
-      v110 = *((_BYTE *)_RBX + 3);
-      if ( v110 == -1 )
+      v74 = *((_BYTE *)v25 + 3);
+      if ( v74 == -1 )
       {
-        if ( _RSI[3] )
+        if ( v24[3] )
           goto LABEL_173;
       }
-      else if ( v110 || _RSI[3] != 0xFF )
+      else if ( v74 || v24[3] != 0xFF )
       {
         goto LABEL_173;
       }
-      if ( *(_WORD *)_RBX == *(_WORD *)_RSI && *((_BYTE *)_RBX + 2) == _RSI[2] )
-        goto LABEL_301;
+      if ( *(_WORD *)v25 == *(_WORD *)v24 && *((_BYTE *)v25 + 2) == v24[2] )
+      {
+LABEL_181:
+        MSG_WriteBit1(msg);
+        goto LABEL_386;
+      }
 LABEL_173:
       MSG_WriteBit0(msg);
-      if ( *(_BYTE *)_RBX == *_RSI && *((_BYTE *)_RBX + 1) == _RSI[1] && *((_BYTE *)_RBX + 2) == _RSI[2] )
+      if ( *(_BYTE *)v25 == *v24 && *((_BYTE *)v25 + 1) == v24[1] && *((_BYTE *)v25 + 2) == v24[2] )
       {
         MSG_WriteBit1(msg);
       }
       else
       {
         MSG_WriteBit0(msg);
-        MSG_WriteByte(msg, *_RSI);
-        MSG_WriteByte(msg, _RSI[1]);
-        MSG_WriteByte(msg, _RSI[2]);
+        MSG_WriteByte(msg, *v24);
+        MSG_WriteByte(msg, v24[1]);
+        MSG_WriteByte(msg, v24[2]);
       }
-      MSG_WriteBits(msg, _RSI[3], 8u);
+      MSG_WriteBits(msg, v24[3], 8u);
       goto LABEL_386;
     case -84:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2716, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      MSG_WriteBits(msg, *(int *)_RSI, 0x1Du);
+      MSG_WriteBits(msg, *(int *)v24, 0x1Du);
       goto LABEL_386;
     case -80:
     case -78:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2538, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      MSG_WriteLong(msg, *(_DWORD *)_RSI);
+      MSG_WriteLong(msg, *(_DWORD *)v24);
       goto LABEL_386;
     case -77:
-      v132 = MSG_GetField(_RSI, field->size);
-      v133 = v132;
-      if ( (unsigned __int64)(v132 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,__int64>(__int64)", "signed", (__int16)v132, "signed", v132) )
+      v96 = MSG_GetField(v24, field->size);
+      v97 = v96;
+      if ( (unsigned __int64)(v96 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,__int64>(__int64)", "signed", (__int16)v96, "signed", v96) )
         __debugbreak();
-      MSG_WriteValueNoXor(msg, v133, 8, field->name);
+      MSG_WriteValueNoXor(msg, v97, 8, field->name);
       goto LABEL_386;
     case -76:
       if ( abs16(field->size) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2824, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 2)", (const char *)&queryFormat, "abs( field->size ) == 2") )
@@ -2556,337 +2398,222 @@ LABEL_173:
         __debugbreak();
         archived = snapInfo->archived;
       }
-      v164 = *(__int16 *)_RSI - *(__int16 *)_RBX;
+      v109 = *(__int16 *)v24 - *(__int16 *)v25;
       if ( !archived && !snapInfo->fromBaseline )
-        SV_TrackMovementDirDelta(v164);
-      if ( (int)abs32(v164) >= 8 )
+        SV_TrackMovementDirDelta(v109);
+      if ( (int)abs32(v109) >= 8 )
       {
         MSG_WriteBit0(msg);
-        MSG_WriteValue(msg, _RBX, _RSI, 8, field->size, field->name);
+        MSG_WriteValue(msg, v25, v24, 8, field->size, field->name);
       }
       else
       {
         MSG_WriteBit1(msg);
-        MSG_WriteBits(msg, v164 + 8, 4u);
+        MSG_WriteBits(msg, v109 + 8, 4u);
       }
       goto LABEL_386;
     case -75:
-      v111 = field->size;
-      if ( abs16(v111) > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2709, ASSERT_TYPE_ASSERT, "(abs( field->size ) <= 4)", (const char *)&queryFormat, "abs( field->size ) <= 4") )
+      v75 = field->size;
+      if ( abs16(v75) > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2709, ASSERT_TYPE_ASSERT, "(abs( field->size ) <= 4)", (const char *)&queryFormat, "abs( field->size ) <= 4") )
       {
         __debugbreak();
-        v111 = field->size;
+        v75 = field->size;
         archived = snapInfo->archived;
       }
-      v112 = MSG_GetField(_RSI, v111);
-      v113 = truncate_cast<int,__int64>(v112);
-      v114 = MSG_GetField(_RBX, v111);
-      v115 = v113 - truncate_cast<int,__int64>(v114);
-      if ( (unsigned int)(v115 - 1) > 0xF )
+      v76 = MSG_GetField(v24, v75);
+      v77 = truncate_cast<int,__int64>(v76);
+      v78 = MSG_GetField(v25, v75);
+      v79 = v77 - truncate_cast<int,__int64>(v78);
+      if ( (unsigned int)(v79 - 1) > 0xF )
       {
         if ( !archived && !snapInfo->fromBaseline )
-          SV_TrackEventSeqFullSend(v115);
+          SV_TrackEventSeqFullSend(v79);
         MSG_WriteBit0(msg);
-        MSG_WriteValue(msg, _RBX, _RSI, 8, v111, field->name);
+        MSG_WriteValue(msg, v25, v24, 8, v75, field->name);
       }
       else
       {
         if ( !archived && !snapInfo->fromBaseline )
-          SV_TrackEventSeqDeltaSend(v115);
+          SV_TrackEventSeqDeltaSend(v79);
         MSG_WriteBit1(msg);
         MinBitCountForNum = GetMinBitCountForNum(0x10u);
-        MSG_WriteBits(msg, v115 - 1, MinBitCountForNum);
+        MSG_WriteBits(msg, v79 - 1, MinBitCountForNum);
       }
       goto LABEL_386;
     case -73:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_HINTSTRING);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_HINTSTRING);
       goto LABEL_386;
     case -72:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_LOCSTRING);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_LOCSTRING);
       goto LABEL_386;
     case -71:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_XMODEL);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_XMODEL);
       goto LABEL_386;
     case -69:
-      v165 = abs16(field->size);
-      v166 = v165 < 4;
-      v167 = v165 == 4;
-      v168 = v165 <= 4;
-      if ( v165 != 4 )
+      if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2860, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
+        __debugbreak();
+      v110 = *(float *)v24;
+      if ( (*(float *)v24 < 0.0 || v110 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2863, ASSERT_TYPE_ASSERT, "(0.f <= *newValue && *newValue <= 1.f)", "%s\n\tnetfield %s can't be serialized with bits %d, value %f is not within range\n", "0.f <= *newValue && *newValue <= 1.f", field->name, field->bits, v110) )
+        __debugbreak();
+      v111 = *(float *)v24;
+      v112 = *v25;
+      if ( *(float *)v24 < 0.0 || v111 > 1.0 )
       {
-        v169 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2860, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4");
-        v166 = 0;
-        v167 = !v169;
-        v168 = !v169;
-        if ( v169 )
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2006, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( newValue ) && ( newValue ) <= ( 1.f )", "newValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", v111, *(double *)&_XMM1, DOUBLE_1_0) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vmovss  xmm8, cs:__real@3f800000
-        vxorps  xmm7, xmm7, xmm7
-        vcomiss xmm0, xmm7
-      }
-      if ( v166 )
-        goto LABEL_404;
-      __asm { vcomiss xmm0, xmm8 }
-      if ( !v168 )
-      {
-LABEL_404:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+178h+var_138], xmm0
-        }
-        v174 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2863, ASSERT_TYPE_ASSERT, "(0.f <= *newValue && *newValue <= 1.f)", "%s\n\tnetfield %s can't be serialized with bits %d, value %f is not within range\n", "0.f <= *newValue && *newValue <= 1.f", field->name, field->bits, v265);
-        v167 = !v174;
-        v168 = !v174;
-        if ( v174 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi]
-        vcomiss xmm6, xmm7
-        vmovss  xmm9, dword ptr [rbx]
-        vcomiss xmm6, xmm8
-      }
-      if ( !v168 )
-      {
-        __asm
-        {
-          vmovsd  xmm0, cs:__real@3ff0000000000000
-          vmovsd  [rsp+178h+var_140], xmm0
-          vxorpd  xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+178h+dataBits], xmm1
-          vcvtss2sd xmm2, xmm6, xmm6
-          vmovsd  qword ptr [rsp+178h+oldValue], xmm2
-        }
-        v180 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2006, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( newValue ) && ( newValue ) <= ( 1.f )", "newValue not in [0.f, 1.f]\n\t%g not in [%g, %g]", oldValuef, dataBitsa, v264);
-        v167 = !v180;
-        if ( v180 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm6, xmm7 }
-      if ( v167 )
+      if ( v111 == 0.0 )
       {
         MSG_WriteBit0(msg);
-        __asm { vmovss  [rsp+178h+fromF], xmm6 }
-        v40 = msg;
-        if ( fromF == 0x80000000 )
-LABEL_301:
-          MSG_WriteBit1(msg);
-        else
+        *(float *)&fromF = 0.0;
+        v39 = msg;
 LABEL_384:
-          MSG_WriteBit0(v40);
+        MSG_WriteBit0(v39);
       }
       else
       {
         MSG_WriteBit1(msg);
-        __asm { vmovaps xmm0, xmm6; value }
-        v182 = QuantizeRange01ToByte(*(const float *)&_XMM0);
-        __asm { vmovaps xmm0, xmm9; value }
-        v184 = v182;
-        v185 = QuantizeRange01ToByte(*(const float *)&_XMM0);
-        MSG_WriteByte(msg, v184 ^ v185);
+        v114 = QuantizeRange01ToByte(v111);
+        v115 = QuantizeRange01ToByte(v112);
+        MSG_WriteByte(msg, v114 ^ v115);
       }
       goto LABEL_386;
     case -68:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2870, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm3, cs:__real@461c4000; maxValue }
-      MSG_WriteFloatByRangeAndBits(msg, (const float *)_RBX, (const float *)_RSI, *(float *)&_XMM3, 0xEu);
+      MSG_WriteFloatByRangeAndBits(msg, v25, (const float *)v24, 10000.0, 0xEu);
       goto LABEL_386;
     case -67:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2877, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm3, cs:__real@40a00000; maxValue }
-      MSG_WriteFloatByRangeAndBits(msg, (const float *)_RBX, (const float *)_RSI, *(float *)&_XMM3, 0xCu);
+      MSG_WriteFloatByRangeAndBits(msg, v25, (const float *)v24, 5.0, 0xCu);
       goto LABEL_386;
     case -66:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2884, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm3, cs:__real@41300000; maxValue }
-      MSG_WriteFloatByRangeAndBits(msg, (const float *)_RBX, (const float *)_RSI, *(float *)&_XMM3, 0xEu);
+      MSG_WriteFloatByRangeAndBits(msg, v25, (const float *)v24, 11.0, 0xEu);
       goto LABEL_386;
     case -65:
-      v202 = abs16(field->size);
-      v203 = v202 <= 0x24;
-      if ( v202 != 36 )
+      if ( abs16(field->size) != 36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3024, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( toBasis ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( toBasis )") )
+        __debugbreak();
+      if ( (float)((float)((float)(*(float *)v24 * *(float *)v24) + (float)(*((float *)v24 + 1) * *((float *)v24 + 1))) + (float)(*((float *)v24 + 2) * *((float *)v24 + 2))) > 1.0e-12 || (float)((float)((float)(*((float *)v24 + 3) * *((float *)v24 + 3)) + (float)(*((float *)v24 + 4) * *((float *)v24 + 4))) + (float)(*((float *)v24 + 5) * *((float *)v24 + 5))) > 1.0e-12 || (float)((float)((float)(*((float *)v24 + 6) * *((float *)v24 + 6)) + (float)(*((float *)v24 + 7) * *((float *)v24 + 7))) + (float)(*((float *)v24 + 8) * *((float *)v24 + 8))) > 1.0e-12 )
       {
-        v204 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3024, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( toBasis ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( toBasis )");
-        v203 = !v204;
-        if ( v204 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vmovss  xmm2, dword ptr [rsi+4]
-        vmovss  xmm3, dword ptr [rsi+8]
-        vmovsd  xmm4, cs:__real@3d719799812dea11
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcvtss2sd xmm0, xmm2, xmm2
-        vcomisd xmm0, xmm4
-      }
-      if ( !v203 )
-        goto LABEL_371;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmovss  xmm2, dword ptr [rsi+10h]
-        vmovss  xmm3, dword ptr [rsi+14h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcvtss2sd xmm0, xmm2, xmm2
-        vcomisd xmm0, xmm4
-      }
-      if ( !v203 )
-        goto LABEL_371;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+18h]
-        vmovss  xmm2, dword ptr [rsi+1Ch]
-        vmovss  xmm3, dword ptr [rsi+20h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcvtss2sd xmm0, xmm2, xmm2
-        vcomisd xmm0, xmm4
-      }
-      if ( v203 )
-      {
-        MSG_WriteBit0(msg);
+        MSG_WriteBit1(msg);
+        AxisToPackedQuat((const tmat33_t<vec3_t> *)v24, &outQuatPacked);
+        MSG_WriteFloat(msg, outQuatPacked.v[0]);
+        MSG_WriteFloat(msg, outQuatPacked.v[1]);
+        MSG_WriteFloat(msg, outQuatPacked.v[2]);
       }
       else
       {
-LABEL_371:
-        MSG_WriteBit1(msg);
-        AxisToPackedQuat((const tmat33_t<vec3_t> *)_RSI, &outQuatPacked);
-        __asm { vmovss  xmm1, dword ptr [rsp+178h+outQuatPacked]; f }
-        MSG_WriteFloat(msg, *(float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rsp+178h+outQuatPacked+4]; f }
-        MSG_WriteFloat(msg, *(float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rsp+178h+outQuatPacked+8]; f }
-        MSG_WriteFloat(msg, *(float *)&_XMM1);
+        MSG_WriteBit0(msg);
       }
       goto LABEL_386;
     case -64:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2898, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm3, cs:__real@42b40000; maxValue }
-      MSG_WriteFloatByRangeAndBits(msg, (const float *)_RBX, (const float *)_RSI, *(float *)&_XMM3, 0xBu);
+      MSG_WriteFloatByRangeAndBits(msg, v25, (const float *)v24, 90.0, 0xBu);
       goto LABEL_386;
     case -63:
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1696, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1696, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
         __debugbreak();
       BitsNeededForType = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_VEHICLES);
-      v192 = MSG_GetField(_RSI, field->size);
-      MSG_WriteValueNoXor(msg, v192, BitsNeededForType + 7, field->name);
+      v117 = MSG_GetField(v24, field->size);
+      MSG_WriteValueNoXor(msg, v117, BitsNeededForType + 7, field->name);
       goto LABEL_386;
     case -62:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_HEADICON);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_HEADICON);
       goto LABEL_386;
     case -61:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_SHOCK);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_SHOCK);
       goto LABEL_386;
     case -60:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_CLIENT_TAGS);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_CLIENT_TAGS);
       goto LABEL_386;
     case -59:
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
         __debugbreak();
       ClientAttachTagBits = BgDynamicLimits::GetClientAttachTagBits();
-      v197 = MSG_GetField(_RSI, field->size);
-      MSG_WriteValueNoXor(msg, v197, ClientAttachTagBits + 11, field->name);
+      v122 = MSG_GetField(v24, field->size);
+      MSG_WriteValueNoXor(msg, v122, ClientAttachTagBits + 11, field->name);
       goto LABEL_386;
     case -58:
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
         __debugbreak();
       BitCount = LerpEntityStateBeamScript::GetBitCount();
       goto LABEL_347;
     case -57:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_SUIT);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_SUIT);
       goto LABEL_386;
     case -56:
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1716, ASSERT_TYPE_ASSERT, "( toF )", (const char *)&queryFormat, "toF") )
         __debugbreak();
       BitCount = AgentAttachModelData::GetBitCount();
 LABEL_347:
-      v194 = BitCount;
-      v195 = MSG_GetField(_RSI, field->size);
-      MSG_WriteValueNoXor(msg, v195, v194, field->name);
+      v119 = BitCount;
+      v120 = MSG_GetField(v24, field->size);
+      MSG_WriteValueNoXor(msg, v120, v119, field->name);
       goto LABEL_386;
     case -55:
       EntityStateIndexBits = BgDynamicLimits::GetEntityStateIndexBits();
       goto LABEL_357;
     case -54:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_MATERIAL);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_MATERIAL);
       goto LABEL_386;
     case -53:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_ANIM);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_ANIM);
       goto LABEL_386;
     case -52:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_VISIONSET);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_VISIONSET);
       goto LABEL_386;
     case -51:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_VFX);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_VFX);
       goto LABEL_386;
     case -50:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_MINIMAPICON);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_MINIMAPICON);
       goto LABEL_386;
     case -49:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_OBJECTIVEICON);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_OBJECTIVEICON);
       goto LABEL_386;
     case -48:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_LUI);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_LUI);
       goto LABEL_386;
     case -47:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_IMAGE);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_IMAGE);
       goto LABEL_386;
     case -46:
       EntityStateIndexBits = ComCharacterLimits::GetClientBits();
       goto LABEL_357;
     case -45:
-      fromF = 0;
-      MSG_WriteDeltaClientBitsKey(msg, &fromF, _RBX, _RSI);
+      *(float *)&fromF = 0.0;
+      MSG_WriteDeltaClientBitsKey(msg, &fromF, v25, v24);
       goto LABEL_386;
     case -44:
       EntityStateIndexBits = ComCharacterLimits::GetCharacterBits();
 LABEL_357:
-      MSG_WriteDynamicIndexField(msg, field, _RSI, EntityStateIndexBits);
+      MSG_WriteDynamicIndexField(msg, field, v24, EntityStateIndexBits);
       goto LABEL_386;
     case -43:
-      v199 = *(_DWORD *)_RSI;
-      v200 = *(_DWORD *)_RSI >> 29;
-      MSG_WriteBits(msg, v200, 3u);
-      for ( i = 0; i < v200; ++i )
-        MSG_WriteBits(msg, (unsigned __int64)(v199 & (unsigned int)(15 << (4 * i))) >> (4 * (unsigned __int8)i), 4u);
+      v124 = *(float *)v24;
+      v125 = *(_DWORD *)v24 >> 29;
+      MSG_WriteBits(msg, v125, 3u);
+      for ( i = 0; i < v125; ++i )
+        MSG_WriteBits(msg, (unsigned __int64)(LODWORD(v124) & (unsigned int)(15 << (4 * i))) >> (4 * (unsigned __int8)i), 4u);
       goto LABEL_386;
     case -42:
-      MSG_WriteNetConstString(msg, field, _RSI, NETCONSTSTRINGTYPE_CARRYOBJECT);
+      MSG_WriteNetConstString(msg, field, v24, NETCONSTSTRINGTYPE_CARRYOBJECT);
       goto LABEL_386;
     case -41:
-      v236 = MSG_GetField(_RSI, field->size);
-      if ( (v236 < 0 || (unsigned __int64)v236 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v236, "signed", v236) )
+      v127 = MSG_GetField(v24, field->size);
+      if ( (v127 < 0 || (unsigned __int64)v127 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v127, "signed", v127) )
         __debugbreak();
-      MSG_WriteBits(msg, (unsigned int)(v236 + 1), 0x12u);
+      MSG_WriteBits(msg, (unsigned int)(v127 + 1), 0x12u);
       goto LABEL_386;
     case -40:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 2891, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm3, cs:__real@41a00000; maxValue }
-      MSG_WriteFloatByRangeAndBits(msg, (const float *)_RBX, (const float *)_RSI, *(float *)&_XMM3, 0xAu);
+      MSG_WriteFloatByRangeAndBits(msg, v25, (const float *)v24, 20.0, 0xAu);
       goto LABEL_386;
     default:
       if ( (__int16)bits > 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3058, ASSERT_TYPE_ASSERT, "(field->bits <= 32)", "%s\n\tFields must be less or equal to 32 bits. Enforced via MSG_CheckFields", "field->bits <= 32") )
@@ -2900,89 +2627,81 @@ LABEL_357:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3063, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Missed a MSG_ case in MSG_WriteDeltaField - value is %i", oldValue) )
           __debugbreak();
       }
-      v237 = field->size;
-      v238 = MSG_GetField(_RSI, v237);
-      v40 = msg;
-      if ( !v238 )
+      v128 = field->size;
+      v129 = MSG_GetField(v24, v128);
+      v39 = msg;
+      if ( !v129 )
         goto LABEL_384;
       MSG_WriteBit1(msg);
-      MSG_WriteValue(msg, _RBX, _RSI, field->bits, v237, field->name);
+      MSG_WriteValue(msg, v25, v24, field->bits, v128, field->name);
       goto LABEL_386;
   }
   do
   {
-    if ( *v94 == v93 )
+    if ( *v65 == v64 )
     {
       MSG_WriteBit1(msg);
-      if ( v92 >= 0 )
+      if ( v63 >= 0 )
         MSG_WriteBit0(msg);
       else
         MSG_WriteBit1(msg);
-      v97 = GetMinBitCountForNum(7u);
-      MSG_WriteBits(msg, v95, v97);
+      v67 = GetMinBitCountForNum(7u);
+      MSG_WriteBits(msg, v66, v67);
       goto LABEL_386;
     }
-    ++v95;
-    ++v94;
+    ++v66;
+    ++v65;
   }
-  while ( (__int64)v94 < (__int64)&unk_147EF2566 );
+  while ( (__int64)v65 < (__int64)&unk_147EF2566 );
   MSG_WriteBit0(msg);
-  if ( v93 && v93 < 4096 )
+  if ( v64 && v64 < 4096 )
   {
     if ( !snapInfo->archived && !snapInfo->fromBaseline )
-      SV_TrackAngleDeltaBits(v92);
+      SV_TrackAngleDeltaBits(v63);
     MSG_WriteBit1(msg);
-    if ( v92 >= 0 )
+    if ( v63 >= 0 )
       MSG_WriteBit0(msg);
     else
       MSG_WriteBit1(msg);
-    MSG_WriteBits(msg, v93, 0xCu);
+    MSG_WriteBits(msg, v64, 0xCu);
   }
   else
   {
     if ( !snapInfo->archived && !snapInfo->fromBaseline )
       SV_TrackAngleFullSend();
     MSG_WriteBit0(msg);
-    __asm { vmovaps xmm1, xmm7; f }
-    MSG_WriteAngle16(msg, *(float *)&_XMM1);
+    MSG_WriteAngle16(msg, v59);
   }
 LABEL_386:
-  v128 = from;
-  v129 = to;
+  v92 = from;
+  v93 = to;
 LABEL_387:
-  __asm
-  {
-    vmovaps xmm9, [rsp+178h+var_88]
-    vmovaps xmm8, [rsp+178h+var_78]
-    vmovaps xmm7, [rsp+178h+var_68]
-    vmovaps xmm6, [rsp+178h+var_58]
-  }
   if ( !snapInfo->archived )
   {
-    v243 = MSG_GetUsedBitCount(msg);
-    v244 = v269;
+    v130 = MSG_GetUsedBitCount(msg);
+    v131 = v142;
     if ( !sendSkippedFields )
-      v244 = UsedBitCount;
-    v245 = v269 - UsedBitCount;
-    v246 = v243 - v244;
+      v131 = UsedBitCount;
+    v132 = v142 - UsedBitCount;
+    v133 = v130 - v131;
     if ( !sendSkippedFields )
-      v245 = 0;
+      v132 = 0;
     if ( snapInfo->fromBaseline )
     {
-      v248 = v268;
+      v135 = v141;
     }
     else
     {
-      v247 = v128;
-      v248 = v268;
-      SV_TrackFieldWritten(snapInfo->clientNum, (const PacketEntityType_e)snapInfo->packetEntityType, v268, v247, v129, v245, v246);
+      v134 = v92;
+      v135 = v141;
+      SV_TrackFieldWritten(snapInfo->clientNum, (const PacketEntityType_e)snapInfo->packetEntityType, v141, v134, v93, v132, v133);
     }
-    if ( v246 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3126, ASSERT_TYPE_ASSERT, "( dataBits > 0 )", (const char *)&queryFormat, "dataBits > 0") )
+    if ( v133 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 3126, ASSERT_TYPE_ASSERT, "( dataBits > 0 )", (const char *)&queryFormat, "dataBits > 0") )
       __debugbreak();
     if ( snapInfo->clientNum == -1 )
-      SV_BandwidthProfile_AddNetFieldToServerMsg(snapInfo, *(_WORD *)v129, v248, v245, v246);
+      SV_BandwidthProfile_AddNetFieldToServerMsg(snapInfo, *(_WORD *)v93, v135, v132, v133);
     else
-      SV_BandwidthProfile_AddNetFieldToSnapshot(snapInfo, v248, v245, v246);
+      SV_BandwidthProfile_AddNetFieldToSnapshot(snapInfo, v135, v132, v133);
   }
   return 1;
 }
@@ -3109,6 +2828,7 @@ void MSG_WriteDeltaHudElems(SnapshotInfo *snapInfo, msg_t *msg, const int time, 
   __int64 offset; 
   const unsigned __int8 *v24; 
   const unsigned __int8 *v25; 
+  __int128 *v26; 
   unsigned int v27; 
   int v30; 
   int BitCount; 
@@ -3230,21 +2950,18 @@ void MSG_WriteDeltaHudElems(SnapshotInfo *snapInfo, msg_t *msg, const int time, 
           offset = v22->offset;
           v24 = &v16[offset - 56];
           v25 = &v16[(_QWORD)toa - 56];
-          _R14 = &v25[offset];
+          v26 = (__int128 *)&v25[offset];
           v27 = abs16(v22->size);
           if ( v27 > 0x10 )
             goto LABEL_70;
-          __asm
-          {
-            vmovdqu xmm1, xmmword ptr [r14]
-            vpcmpeqb xmm1, xmm1, xmmword ptr [rsi]
-          }
+          _XMM1 = *v26;
+          __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [rsi] }
           v30 = (1 << v27) - 1;
           __asm { vpmovmskb eax, xmm1 }
           if ( (v30 & _EAX) != v30 )
           {
 LABEL_70:
-            if ( !MSG_ValuesAreEqualPost(v24, _R14, v22->bits, array[v20].size) )
+            if ( !MSG_ValuesAreEqualPost(v24, v26, v22->bits, array[v20].size) )
             {
               if ( !snapInfo->archived && msg_hudelemspew->current.enabled )
               {
@@ -3253,7 +2970,7 @@ LABEL_70:
                 if ( (_BYTE)count )
                   v33 = "(est)";
                 LODWORD(sendSkippedFields) = BitCount;
-                LODWORD(lastChangedField) = *(_DWORD *)_R14;
+                LODWORD(lastChangedField) = *(_DWORD *)v26;
                 LODWORD(xorValue) = *(_DWORD *)v24;
                 LODWORD(fieldNum) = v20;
                 LODWORD(field) = snapInfo->clientNum;
@@ -3337,6 +3054,7 @@ char MSG_WriteDeltaMLGSpectatorInfo(SnapshotInfo *snapInfo, msg_t *msg, const in
   __int16 *p_size; 
   __int64 v13; 
   const unsigned __int8 *v14; 
+  __int128 *v15; 
   unsigned int v16; 
   int v19; 
   bool v21; 
@@ -3364,22 +3082,19 @@ char MSG_WriteDeltaMLGSpectatorInfo(SnapshotInfo *snapInfo, msg_t *msg, const in
   {
     v13 = (unsigned __int16)p_size[1];
     v14 = &v5[v13];
-    _R11 = (char *)to + v13;
+    v15 = (__int128 *)((char *)&to->mlgMessageSent + v13);
     v16 = abs16(*p_size);
     if ( v16 > 0x10 )
       goto LABEL_8;
-    __asm
-    {
-      vmovdqu xmm1, xmmword ptr [r11]
-      vpcmpeqb xmm1, xmm1, xmmword ptr [r10]
-    }
+    _XMM1 = *v15;
+    __asm { vpcmpeqb xmm1, xmm1, xmmword ptr [r10] }
     v19 = (1 << v16) - 1;
     __asm { vpmovmskb eax, xmm1 }
     if ( (v19 & _EAX) == v19 )
       v21 = 1;
     else
 LABEL_8:
-      v21 = MSG_ValuesAreEqualPost(v14, _R11, p_size[2], *p_size);
+      v21 = MSG_ValuesAreEqualPost(v14, v15, p_size[2], *p_size);
     v22 = v10;
     if ( v21 )
       v22 = v7;
@@ -3424,11 +3139,9 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
 {
   char *fmt; 
   char *fieldName; 
-  char v20[32]; 
+  char v12[32]; 
   char dest[32]; 
 
-  _R14 = from;
-  _RSI = to;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5631, ASSERT_TYPE_ASSERT, "( def )", (const char *)&queryFormat, "def") )
     __debugbreak();
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5632, ASSERT_TYPE_ASSERT, "( to )", (const char *)&queryFormat, "to") )
@@ -3443,27 +3156,15 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
       if ( !snapInfo->archived )
       {
         Com_sprintf(dest, 0x20ui64, "%d", from->current.enabled);
-        Com_sprintf(v20, 0x20ui64, "%d", to->current.enabled);
+        Com_sprintf(v12, 0x20ui64, "%d", to->current.enabled);
       }
       MSG_WriteBool(msg, to->current.enabled);
       break;
     case OMNVAR_TYPE_FLOAT:
       if ( !snapInfo->archived )
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [r14+4]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(dest, 0x20ui64, "%f", *(double *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi+4]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(v20, 0x20ui64, "%f", *(double *)&_XMM3);
+        Com_sprintf(dest, 0x20ui64, "%f", from->current.value);
+        Com_sprintf(v12, 0x20ui64, "%f", to->current.value);
       }
       MSG_WriteFloatCase(msg, &from->current.integer, &to->current.integer);
       break;
@@ -3474,7 +3175,7 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
       if ( !snapInfo->archived )
       {
         Com_sprintf(dest, 0x20ui64, "%d", from->current.unsignedInteger);
-        Com_sprintf(v20, 0x20ui64, "%d", to->current.unsignedInteger);
+        Com_sprintf(v12, 0x20ui64, "%d", to->current.unsignedInteger);
       }
       MSG_WriteValue(msg, &from->current, &to->current, def->numbits, -4, def->name);
       break;
@@ -3482,7 +3183,7 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
       if ( !snapInfo->archived )
       {
         Com_sprintf(dest, 0x20ui64, "%d", from->current.unsignedInteger);
-        Com_sprintf(v20, 0x20ui64, "%d", to->current.unsignedInteger);
+        Com_sprintf(v12, 0x20ui64, "%d", to->current.unsignedInteger);
       }
       MSG_WriteDeltaTime(msg, timeBase, to->current.integer);
       break;
@@ -3490,7 +3191,7 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
       if ( !snapInfo->archived )
       {
         Com_sprintf(dest, 0x20ui64, "%u", from->current.unsignedInteger);
-        Com_sprintf(v20, 0x20ui64, "%u", to->current.unsignedInteger);
+        Com_sprintf(v12, 0x20ui64, "%u", to->current.unsignedInteger);
       }
       if ( !def->numbits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5694, ASSERT_TYPE_ASSERT, "(def->numbits)", "%s\n\tomnvar for lui ncs was not initialized", "def->numbits") )
         __debugbreak();
@@ -3503,7 +3204,7 @@ void MSG_WriteDeltaOmnvar(SnapshotInfo *snapInfo, msg_t *msg, const unsigned int
   {
     LODWORD(fieldName) = def->type;
     LODWORD(fmt) = def->flags;
-    SV_LogSnapshotContent(snapInfo->clientNum, "Omnvar - (%s, %d bits, flags: %d, type %d) from %s to %s\n", def->name, def->numbits, fmt, fieldName, dest, v20);
+    SV_LogSnapshotContent(snapInfo->clientNum, "Omnvar - (%s, %d bits, flags: %d, type %d) from %s to %s\n", def->name, def->numbits, fmt, fieldName, dest, v12);
   }
 }
 
@@ -3600,1045 +3301,1004 @@ MSG_WriteDeltaPlayerstate
 */
 void MSG_WriteDeltaPlayerstate(SnapshotInfo *snapInfo, msg_t *msg, const int time, const playerState_s *from, const playerState_s *to)
 {
-  const playerState_s *v11; 
-  msg_t *v12; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  const playerState_s *v9; 
+  const playerState_s *v10; 
+  msg_t *v11; 
   int UsedBitCount; 
   bool archived; 
   int clientNum; 
-  __int16 v23; 
+  __int16 v19; 
   const SvClientPredictedOrigin *predictedResult; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   const SvClientMP *client; 
-  bool v39; 
-  bool v40; 
-  unsigned int vehicleTargetEntity; 
-  bool v58; 
-  int v60; 
-  int v61; 
-  NetField *field; 
+  float v26; 
+  float value; 
+  double v28; 
+  char *name; 
+  float v30; 
+  float v31; 
+  float v32; 
+  bool v33; 
+  int v34; 
+  int v35; 
+  NetField *array; 
   signed int count; 
-  unsigned int v64; 
-  __int64 v65; 
-  const dvar_t *v66; 
-  bool v67; 
-  const char *name; 
-  const char *v69; 
-  __int64 v70; 
-  signed __int64 v71; 
-  char v72; 
-  __int64 v73; 
-  char v74; 
+  unsigned int v38; 
+  __int64 v39; 
+  const dvar_t *v40; 
+  bool v41; 
+  const char *v42; 
+  const char *v43; 
+  __int64 v44; 
+  signed __int64 v45; 
+  char v46; 
+  __int64 v47; 
+  char v48; 
   int BitCount; 
-  const char *v76; 
-  int v77; 
-  NetField *v78; 
-  int v79; 
+  const char *v50; 
+  bool v51; 
+  int v52; 
+  NetField *v53; 
+  int v54; 
   int lastChangedField; 
-  int v81; 
-  NetField *v82; 
+  int v56; 
+  NetField *v57; 
   int fieldNum; 
-  int v84; 
-  __int64 v85; 
+  int v59; 
+  __int64 v60; 
   unsigned __int8 changeHints; 
   bool xorValue; 
   int i; 
-  int v89; 
-  playerState_s *v90; 
-  unsigned __int8 *v91; 
-  int v92; 
-  bool v93; 
-  const Weapon *v94; 
-  NetField *v95; 
-  __int64 v96; 
-  int *v97; 
-  __int64 v98; 
-  playerState_s *v99; 
-  __int64 v100; 
-  signed __int64 v101; 
-  bool v102; 
-  int v103; 
-  int v104; 
-  int v105; 
-  _DWORD *v106; 
+  int v64; 
+  playerState_s *v65; 
+  unsigned __int8 *v66; 
+  int v67; 
+  bool v68; 
+  const Weapon *v69; 
+  NetField *v70; 
+  __int64 v71; 
+  int *v72; 
+  __int64 v73; 
+  playerState_s *v74; 
+  __int64 v75; 
+  signed __int64 v76; 
+  bool v77; 
+  int v78; 
+  int v79; 
+  int v80; 
+  _DWORD *v81; 
   PlayerEquippedWeaponState *weapEquippedData; 
-  char v108; 
-  unsigned __int8 *v109; 
-  SnapshotInfo *v110; 
-  PlayerEquippedWeaponState *v111; 
-  PlayerEquippedWeaponState *v112; 
-  unsigned __int8 *v113; 
-  unsigned __int8 *v114; 
-  signed __int64 v115; 
+  char v83; 
+  unsigned __int8 *v84; 
+  SnapshotInfo *v85; 
+  PlayerEquippedWeaponState *v86; 
+  PlayerEquippedWeaponState *v87; 
+  unsigned __int8 *v88; 
+  unsigned __int8 *v89; 
+  signed __int64 v90; 
   __int64 j; 
-  const Weapon *v117; 
-  int v118; 
-  SnapshotInfo *v119; 
-  int *v120; 
-  signed __int64 v121; 
-  bool v122; 
-  int v123; 
-  int v124; 
-  unsigned __int8 *v125; 
+  const Weapon *v92; 
+  int v93; 
+  SnapshotInfo *v94; 
+  int *v95; 
+  signed __int64 v96; 
+  bool v97; 
+  int v98; 
+  int v99; 
+  unsigned __int8 *v100; 
   ObjectiveView *objectives; 
-  unsigned __int8 *v127; 
-  const NetFieldList *v128; 
+  unsigned __int8 *v102; 
+  const NetFieldList *v103; 
+  int v104; 
+  const NetField *v105; 
+  __int64 v106; 
+  int v107; 
+  const unsigned __int8 *v108; 
+  int v109; 
+  int v110; 
+  int v111; 
+  playerState_s *v112; 
+  bool v113; 
+  int v114; 
+  int v115; 
+  const OmnvarDef *PlayerStateDefs; 
+  unsigned int v117; 
+  unsigned int v118; 
+  int v119; 
+  unsigned int v120; 
+  int v121; 
+  unsigned __int8 *v122; 
+  HeadIconView *headIcons; 
+  unsigned int v124; 
+  const NetField *v125; 
+  __int64 v126; 
+  int v127; 
+  const unsigned __int8 *v128; 
   int v129; 
-  const NetField *array; 
-  __int64 v131; 
-  int v132; 
-  const unsigned __int8 *v133; 
-  int v134; 
-  int v135; 
-  int v136; 
-  playerState_s *v137; 
-  bool v138; 
+  int v130; 
+  int v131; 
+  unsigned __int8 *v132; 
+  HeadIconExtendedView *headIconsExtendedData; 
+  unsigned int v134; 
+  const NetField *v135; 
+  __int64 v136; 
+  int v137; 
+  const unsigned __int8 *v138; 
   int v139; 
   int v140; 
-  const OmnvarDef *PlayerStateDefs; 
-  unsigned int v142; 
-  unsigned int v143; 
-  int v144; 
-  unsigned int v145; 
-  int v146; 
-  unsigned __int8 *v147; 
-  HeadIconView *headIcons; 
-  unsigned int v149; 
-  const NetField *v150; 
-  __int64 v151; 
-  int v152; 
-  const unsigned __int8 *v153; 
-  int v154; 
-  int v155; 
-  int v156; 
-  unsigned __int8 *v157; 
-  HeadIconExtendedView *headIconsExtendedData; 
-  unsigned int v159; 
-  const NetField *v160; 
-  __int64 v161; 
-  int v162; 
-  const unsigned __int8 *v163; 
-  int v164; 
-  int v165; 
-  int v166; 
-  unsigned __int8 *v167; 
+  int v141; 
+  unsigned __int8 *v142; 
   TargetMarkerGroupView *targetMarkerGroups; 
-  unsigned int v169; 
-  const NetField *v170; 
-  __int64 v171; 
-  int v172; 
-  const unsigned __int8 *v173; 
-  int v174; 
-  int v175; 
-  int v176; 
-  unsigned __int8 *v177; 
+  unsigned int v144; 
+  const NetField *v145; 
+  __int64 v146; 
+  int v147; 
+  const unsigned __int8 *v148; 
+  int v149; 
+  int v150; 
+  int v151; 
+  unsigned __int8 *v152; 
   CalloutMarkerPingView *calloutMarkerPings; 
-  unsigned int v179; 
-  const NetField *v180; 
-  __int64 v181; 
-  int v182; 
-  const unsigned __int8 *v183; 
-  int v184; 
-  int v185; 
-  int v186; 
-  int v187; 
+  unsigned int v154; 
+  const NetField *v155; 
+  __int64 v156; 
+  int v157; 
+  const unsigned __int8 *v158; 
+  int v159; 
+  int v160; 
+  int v161; 
+  int v162; 
   char *fmt; 
-  char v189; 
+  NetField *field; 
+  char v165; 
   int skippedFieldBits; 
-  int v192; 
+  int v167; 
   int skippedNetfieldBits; 
-  int v194; 
-  int v195; 
-  int v196; 
-  int v197; 
+  int v169; 
+  int v170; 
+  int v171; 
+  int v172; 
+  bool v173; 
   bool estimate; 
   int timea; 
   int lc; 
   playerState_s *oldPs; 
-  const Weapon *v202; 
+  const Weapon *v178; 
   unsigned __int8 *toData; 
-  NetField *v204; 
-  int v205; 
+  NetField *v180; 
+  int v181; 
   SnapshotInfo *snapInfoa; 
-  __int64 v207; 
-  unsigned __int8 *v208; 
-  playerState_s v209; 
-  __int64 v210[10]; 
-  char *v211; 
-  int v212; 
-  __int16 v213; 
-  char v214; 
+  __int64 v183; 
+  unsigned __int8 *v184; 
+  playerState_s v185; 
+  __int64 v186[10]; 
+  char *v187; 
+  int v188; 
+  __int16 v189; 
+  char v190; 
+  __int128 v191; 
+  __int128 v192; 
+  __int128 v193; 
 
-  _EBX = 0;
-  _RSI = to;
-  v11 = from;
-  v12 = msg;
+  v9 = to;
+  v10 = from;
+  v11 = msg;
   oldPs = (playerState_s *)from;
   timea = time;
-  v207 = (__int64)msg;
+  v183 = (__int64)msg;
   snapInfoa = snapInfo;
   toData = (unsigned __int8 *)to;
-  v209.meleeReaction.m_packed = 0;
+  v185.meleeReaction.m_packed = 0;
   if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4742, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
     __debugbreak();
-  memset(v210, 0, 72);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@38d1b717
-    vmovd   xmm1, ebx
-  }
-  _EAX = BG_IsPlayerPositionQuantized(to);
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3c23d70a
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  [rsp+5550h+var_54DC], xmm0
-  }
+  memset(v186, 0, 72);
+  _XMM0 = BG_IsPlayerPositionQuantized(to);
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_0_0099999998);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   Profile_Begin(376);
-  UsedBitCount = MSG_GetUsedBitCount(v12);
+  UsedBitCount = MSG_GetUsedBitCount(v11);
   archived = snapInfo->archived;
-  v205 = UsedBitCount;
+  v181 = UsedBitCount;
   if ( !archived )
     SV_LogSnapshotContent(snapInfo->clientNum, "Writing playerstate for client #%i to->clientNum %d\n", (unsigned int)snapInfo->clientNum, (unsigned int)to->clientNum);
   snapInfo->packetEntityType = ANALYZE_DATATYPE_ENTITYTYPE_PLAYERSTATE;
-  if ( !v11 )
+  if ( !v10 )
   {
-    v11 = &v209;
-    oldPs = &v209;
-    memset_0(&v209, 0, sizeof(v209));
-    BG_InitPlayerState_PrepareForUseAsDelta(&v209, 0, 1);
+    v10 = &v185;
+    oldPs = &v185;
+    memset_0(&v185, 0, sizeof(v185));
+    BG_InitPlayerState_PrepareForUseAsDelta(&v185, 0, 1);
   }
-  __asm { vmovaps [rsp+5550h+var_60], xmm7 }
+  v192 = v6;
   if ( archived || snapInfo->demoSnapshot )
   {
-    v58 = 1;
-    v189 = 1;
-    MSG_WriteBit1(v12);
-    MSG_WriteBit1(v12);
+    v33 = 1;
+    v173 = 1;
+    v165 = 1;
+    MSG_WriteBit1(v11);
+    MSG_WriteBit1(v11);
+    goto LABEL_46;
+  }
+  clientNum = to->clientNum;
+  v193 = v5;
+  v191 = v7;
+  v19 = truncate_cast<short,int>(clientNum);
+  SV_BandwidthProfile_AddSerializedEntityToSnapshot(snapInfo, v19, 0);
+  predictedResult = snapInfo->predictedResult;
+  v21 = *(float *)&_XMM0;
+  if ( predictedResult )
+  {
+    v22 = to->origin.v[0] - predictedResult->origin.v[0];
+    v23 = to->origin.v[1] - predictedResult->origin.v[1];
+    v24 = to->origin.v[2] - predictedResult->origin.v[2];
+    client = snapInfo->client;
+    v26 = (float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24);
+    if ( !snapInfo->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4788, ASSERT_TYPE_ASSERT, "( client )", (const char *)&queryFormat, "client") )
+      __debugbreak();
+    if ( client->isForceMispredict )
+    {
+      v26 = *(float *)&_XMM0 + 1.0;
+      client->isForceMispredict = 0;
+    }
   }
   else
   {
-    clientNum = to->clientNum;
-    __asm
+    v26 = 0.0;
+  }
+  if ( !v10 || !predictedResult || v26 > *(float *)&_XMM0 )
+  {
+    value = msg_logPredictionPositionErrors->current.value;
+    if ( value > 0.0 && v26 < (float)(value * value) )
     {
-      vmovaps [rsp+5550h+var_50], xmm6
-      vmovaps [rsp+5550h+var_70], xmm8
-    }
-    v23 = truncate_cast<short,int>(clientNum);
-    SV_BandwidthProfile_AddSerializedEntityToSnapshot(snapInfo, v23, 0);
-    predictedResult = snapInfo->predictedResult;
-    __asm
-    {
-      vmovss  xmm7, [rsp+5550h+var_54DC]
-      vxorps  xmm8, xmm8, xmm8
-    }
-    if ( predictedResult )
-    {
-      __asm
+      if ( v26 <= v21 )
+        goto LABEL_34;
+      if ( !snapInfo->archived )
       {
-        vmovss  xmm0, dword ptr [rsi+30h]
-        vsubss  xmm3, xmm0, dword ptr [rbx+8]
-        vmovss  xmm1, dword ptr [rsi+34h]
-        vmovss  xmm0, dword ptr [rsi+38h]
-        vsubss  xmm2, xmm1, dword ptr [rbx+0Ch]
-        vsubss  xmm4, xmm0, dword ptr [rbx+10h]
-      }
-      client = snapInfo->client;
-      __asm
-      {
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm6, xmm3, xmm0
-      }
-      if ( !snapInfo->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4788, ASSERT_TYPE_ASSERT, "( client )", (const char *)&queryFormat, "client") )
-        __debugbreak();
-      if ( client->isForceMispredict )
-      {
-        __asm { vaddss  xmm6, xmm7, cs:__real@3f800000 }
-        client->isForceMispredict = 0;
+        if ( to->clientNum >= SvClient::ms_clientCount )
+        {
+          LODWORD(field) = to->clientNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4815, ASSERT_TYPE_ASSERT, "(unsigned)( to->clientNum ) < (unsigned)( SvClient::GetClientCount() )", "to->clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", field, SvClient::ms_clientCount) )
+            __debugbreak();
+        }
+        v28 = fsqrt(v26);
+        if ( snapInfo->client )
+          name = snapInfo->client->name;
+        else
+          name = "<unknown>";
+        LODWORD(fmt) = to->serverTime;
+        Com_Printf(16, "%s (%i): Prediction mismatch. Time ( %i ). Setting origin from ( %.2f, %.2f, %.2f ) to ( %.2f, %.2f, %.2f ) (%.2f away)\n", name, (unsigned int)to->clientNum, fmt, predictedResult->origin.v[0], predictedResult->origin.v[1], predictedResult->origin.v[2], to->origin.v[0], to->origin.v[1], to->origin.v[2], v28);
       }
     }
-    else
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-    }
-    v39 = v11 == NULL;
-    v40 = v11 == NULL;
-    if ( v11 )
-    {
-      v39 = predictedResult == NULL;
-      v40 = predictedResult == NULL;
-      if ( predictedResult )
-        __asm { vcomiss xmm6, xmm7 }
-    }
-    _RAX = msg_logPredictionPositionErrors;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vcomiss xmm0, xmm8
-    }
-    if ( !v39 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-      }
-    }
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v40 )
-    {
-      if ( !predictedResult )
-        SV_TrackPSOriginServerTimeSend();
-    }
-    else
+    if ( v26 > v21 )
     {
       SV_TrackPSOriginPredictionSend();
+LABEL_36:
+      v173 = 1;
+      MSG_WriteBit1(v11);
+      goto LABEL_37;
     }
-    MSG_WriteBit1(v12);
-    __asm
-    {
-      vmovaps xmm8, [rsp+5550h+var_70]
-      vmovaps xmm6, [rsp+5550h+var_50]
-    }
-    if ( to->vehicleState.entity == 2047 )
-      goto LABEL_33;
-    if ( !v11 )
-      goto LABEL_32;
+LABEL_34:
     if ( !predictedResult )
-      goto LABEL_32;
-    if ( !predictedResult->hasVehicleData )
-      goto LABEL_32;
-    vehicleTargetEntity = predictedResult->vehicleTargetEntity;
-    if ( vehicleTargetEntity != to->vehicleState.targetEntity )
-      goto LABEL_32;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+12Ch]
-      vsubss  xmm3, xmm0, dword ptr [rbx+14h]
-      vmovss  xmm1, dword ptr [rsi+130h]
-      vsubss  xmm2, xmm1, dword ptr [rbx+18h]
-      vmovss  xmm0, dword ptr [rsi+134h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+1Ch]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm7
-    }
-    if ( vehicleTargetEntity <= to->vehicleState.targetEntity )
-    {
-LABEL_33:
-      MSG_WriteBit0(v12);
-      v58 = 0;
-      v189 = 0;
-    }
-    else
-    {
-LABEL_32:
-      MSG_WriteBit1(v12);
-      v58 = 1;
-      v189 = 1;
-    }
+      SV_TrackPSOriginServerTimeSend();
+    goto LABEL_36;
   }
-  __asm { vmovaps xmm7, [rsp+5550h+var_60] }
-  v60 = -1;
-  v61 = 0;
-  field = (NetField *)g_newNetFieldList[2]->array;
+  v173 = 0;
+  MSG_WriteBit0(v11);
+LABEL_37:
+  if ( to->vehicleState.entity == 2047 || v10 && predictedResult && predictedResult->hasVehicleData && predictedResult->vehicleTargetEntity == to->vehicleState.targetEntity && (v30 = to->vehicleState.origin.v[0] - predictedResult->vehicleOrigin.v[0], v31 = to->vehicleState.origin.v[1] - predictedResult->vehicleOrigin.v[1], v32 = to->vehicleState.origin.v[2] - predictedResult->vehicleOrigin.v[2], (float)((float)((float)(v31 * v31) + (float)(v30 * v30)) + (float)(v32 * v32)) <= v21) )
+  {
+    MSG_WriteBit0(v11);
+    v33 = 0;
+    v165 = 0;
+  }
+  else
+  {
+    MSG_WriteBit1(v11);
+    v33 = 1;
+    v165 = 1;
+  }
+LABEL_46:
+  v34 = -1;
+  v35 = 0;
+  array = (NetField *)g_newNetFieldList[2]->array;
   skippedFieldBits = g_newNetFieldList[2]->skippedNetfieldBits;
   count = g_newNetFieldList[2]->count;
-  v64 = -1;
+  v38 = -1;
   lc = -1;
-  LODWORD(v202) = count;
-  v204 = field;
+  LODWORD(v178) = count;
+  v180 = array;
   if ( count > 0 )
   {
-    v65 = 0i64;
+    v39 = 0i64;
     do
     {
-      if ( MSG_ShouldSendPSField(snapInfo, 1, v58, _RSI, oldPs, field) )
+      if ( MSG_ShouldSendPSField(snapInfo, v173, v33, v9, oldPs, array) )
       {
         if ( !snapInfo->archived && !snapInfo->fromBaseline )
         {
-          SV_TrackFieldChange(snapInfo->clientNum, ANALYZE_DATATYPE_ENTITYTYPE_PLAYERSTATE, v61, _RSI->clientNum);
-          v66 = DVARBOOL_sv_debugPlayerstate;
-          v67 = 0;
+          SV_TrackFieldChange(snapInfo->clientNum, ANALYZE_DATATYPE_ENTITYTYPE_PLAYERSTATE, v35, v9->clientNum);
+          v40 = DVARBOOL_sv_debugPlayerstate;
+          v41 = 0;
           if ( !DVARBOOL_sv_debugPlayerstate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugPlayerstate") )
           {
             __debugbreak();
-            v67 = snapInfo->archived;
+            v41 = snapInfo->archived;
           }
-          Dvar_CheckFrontendServerThread(v66);
-          if ( v66->current.enabled && !v67 )
+          Dvar_CheckFrontendServerThread(v40);
+          if ( v40->current.enabled && !v41 )
           {
-            name = field->name;
-            v69 = "commandTime";
-            v70 = 0x7FFFFFFFi64;
-            if ( !field->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            v42 = array->name;
+            v43 = "commandTime";
+            v44 = 0x7FFFFFFFi64;
+            if ( !array->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v71 = name - "commandTime";
+            v45 = v42 - "commandTime";
             while ( 1 )
             {
-              v72 = v69[v71];
-              v73 = v70;
-              v74 = *v69;
-              --v70;
-              ++v69;
-              if ( !v73 )
+              v46 = v43[v45];
+              v47 = v44;
+              v48 = *v43;
+              --v44;
+              ++v43;
+              if ( !v47 )
               {
-LABEL_52:
-                _RSI = (const playerState_s *)toData;
-                goto LABEL_53;
+LABEL_63:
+                v9 = (const playerState_s *)toData;
+                goto LABEL_64;
               }
-              if ( v72 != v74 )
+              if ( v46 != v48 )
                 break;
-              if ( !v72 )
-                goto LABEL_52;
+              if ( !v46 )
+                goto LABEL_63;
             }
-            _RSI = (const playerState_s *)toData;
-            BitCount = MSG_GetBitCount(&estimate, (const unsigned __int8 *)oldPs, toData, field);
-            v76 = (char *)&queryFormat.fmt + 3;
+            v9 = (const playerState_s *)toData;
+            BitCount = MSG_GetBitCount(&estimate, (const unsigned __int8 *)oldPs, toData, array);
+            v50 = (char *)&queryFormat.fmt + 3;
             if ( estimate )
-              v76 = "(est)";
+              v50 = "(est)";
             LODWORD(fmt) = BitCount;
-            Com_Printf(16, "PS field %d %s changed, %d bits%s\n", (unsigned int)v61, field->name, fmt, v76);
+            Com_Printf(16, "PS field %d %s changed, %d bits%s\n", (unsigned int)v35, array->name, fmt, v50);
           }
-LABEL_53:
-          v58 = v189;
+LABEL_64:
+          v33 = v165;
         }
-        *((_DWORD *)v210 + (v65 >> 5)) |= 1 << (v61 & 0x1F);
-        v64 = v61;
-        lc = v61;
+        *((_DWORD *)v186 + (v39 >> 5)) |= 1 << (v35 & 0x1F);
+        v38 = v35;
+        lc = v35;
       }
       else
       {
-        v64 = lc;
+        v38 = lc;
       }
-      ++v61;
-      ++v65;
-      ++field;
+      ++v35;
+      ++v39;
+      ++array;
     }
-    while ( v61 < (int)v202 );
-    v12 = (msg_t *)v207;
-    v60 = -1;
+    while ( v35 < (int)v178 );
+    v11 = (msg_t *)v183;
+    v34 = -1;
   }
-  v39 = !snapInfo->archived;
+  v51 = !snapInfo->archived;
   snapInfo->fieldChanges = orderInfo.playerState;
   snapInfo->fieldChangesCount = 575;
-  if ( v39 )
-    SV_LogSnapshotContent(snapInfo->clientNum, "Writing byte for number of fields changed (%i)\n", v64);
-  v77 = lc;
+  if ( v51 )
+    SV_LogSnapshotContent(snapInfo->clientNum, "Writing byte for number of fields changed (%i)\n", v38);
+  v52 = lc;
   if ( lc < -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4905, ASSERT_TYPE_ASSERT, "(lc >= -1)", (const char *)&queryFormat, "lc >= -1") )
     __debugbreak();
-  MSG_WriteLastChangedField(snapInfo, v12, v77 + 1, (_DWORD)v202 + 1);
-  v78 = v204;
-  v79 = lc;
+  MSG_WriteLastChangedField(snapInfo, v11, v52 + 1, (_DWORD)v178 + 1);
+  v53 = v180;
+  v54 = lc;
   lastChangedField = -1;
-  v81 = -1;
-  v82 = v204;
+  v56 = -1;
+  v57 = v180;
   fieldNum = 0;
   if ( lc >= 0 )
   {
-    v84 = 1;
-    v85 = 0i64;
+    v59 = 1;
+    v60 = 0i64;
     do
     {
-      changeHints = v82->changeHints;
-      if ( changeHints != 2 || fieldNum == v79 )
+      changeHints = v57->changeHints;
+      if ( changeHints != 2 || fieldNum == v54 )
       {
-        if ( (v84 & *((_DWORD *)v210 + (v85 >> 5))) != 0 )
+        if ( (v59 & *((_DWORD *)v186 + (v60 >> 5))) != 0 )
         {
           xorValue = snapInfo->archived || ((changeHints - 3) & 0xFA) != 0 || changeHints == 8;
-          if ( !MSG_WriteDeltaField(snapInfo, v12, timea, (const unsigned __int8 *)oldPs, toData, v82, fieldNum, 1, xorValue, lastChangedField, skippedFieldBits, 1, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4933, ASSERT_TYPE_ASSERT, "(sent)", "%s\n\tfield %s changed but wasn't sent to the client\n", "sent", v82->name) )
+          if ( !MSG_WriteDeltaField(snapInfo, v11, timea, (const unsigned __int8 *)oldPs, toData, v57, fieldNum, 1, xorValue, lastChangedField, skippedFieldBits, 1, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4933, ASSERT_TYPE_ASSERT, "(sent)", "%s\n\tfield %s changed but wasn't sent to the client\n", "sent", v57->name) )
             __debugbreak();
-          v79 = lc;
+          v54 = lc;
           lastChangedField = fieldNum;
         }
       }
       else
       {
-        v81 = fieldNum;
+        v56 = fieldNum;
       }
       ++fieldNum;
-      v84 = __ROL4__(v84, 1);
-      ++v85;
-      ++v82;
+      v59 = __ROL4__(v59, 1);
+      ++v60;
+      ++v57;
     }
-    while ( fieldNum <= v79 );
-    if ( v79 >= 0 && lastChangedField != v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4939, ASSERT_TYPE_ASSERT, "(lastChanged == lc)", (const char *)&queryFormat, "lastChanged == lc") )
+    while ( fieldNum <= v54 );
+    if ( v54 >= 0 && lastChangedField != v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4939, ASSERT_TYPE_ASSERT, "(lastChanged == lc)", (const char *)&queryFormat, "lastChanged == lc") )
       __debugbreak();
-    v78 = v204;
-    v60 = -1;
+    v53 = v180;
+    v34 = -1;
   }
-  for ( i = 0; i <= v81; ++v78 )
+  for ( i = 0; i <= v56; ++v53 )
   {
-    if ( v78->changeHints == 2 && MSG_WriteDeltaField(snapInfo, v12, timea, (const unsigned __int8 *)oldPs, toData, v78, i, 1, 1, v60, skippedFieldBits, 0, NULL) )
-      v60 = i;
+    if ( v53->changeHints == 2 && MSG_WriteDeltaField(snapInfo, v11, timea, (const unsigned __int8 *)oldPs, toData, v53, i, 1, 1, v34, skippedFieldBits, 0, NULL) )
+      v34 = i;
     ++i;
   }
-  if ( v60 > lc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4957, ASSERT_TYPE_ASSERT, "(lastChanged <= lc)", (const char *)&queryFormat, "lastChanged <= lc") )
+  if ( v34 > lc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4957, ASSERT_TYPE_ASSERT, "(lastChanged <= lc)", (const char *)&queryFormat, "lastChanged <= lc") )
     __debugbreak();
-  v89 = MSG_GetUsedBitCount(v12);
-  SV_TrackPSBitsForSegment(snapInfo, v89 - v205, PLAYERSTATE_SEGMENT_FIRST);
-  v90 = oldPs;
-  v91 = toData;
-  v92 = *((_DWORD *)toData + 150) != oldPs->stats[0];
+  v64 = MSG_GetUsedBitCount(v11);
+  SV_TrackPSBitsForSegment(snapInfo, v64 - v181, PLAYERSTATE_SEGMENT_FIRST);
+  v65 = oldPs;
+  v66 = toData;
+  v67 = *((_DWORD *)toData + 150) != oldPs->stats[0];
   if ( *((_DWORD *)toData + 151) != oldPs->stats[1] )
-    v92 |= 2u;
+    v67 |= 2u;
   if ( *((_DWORD *)toData + 152) != oldPs->stats[2] )
-    v92 |= 4u;
+    v67 |= 4u;
   if ( *((_DWORD *)toData + 153) != oldPs->stats[3] )
-    v92 |= 8u;
+    v67 |= 8u;
   if ( *((_DWORD *)toData + 154) != oldPs->stats[4] )
-    v92 |= 0x10u;
-  v93 = snapInfo->archived;
-  if ( v92 )
+    v67 |= 0x10u;
+  v68 = snapInfo->archived;
+  if ( v67 )
   {
-    if ( !v93 )
+    if ( !v68 )
       SV_LogSnapshotContent(snapInfo->clientNum, "Sending player stats changes - bit 1 to say it changed, %i bits for which changed\n", 5i64);
-    MSG_WriteBit1(v12);
-    MSG_WriteBits(v12, v92, 5u);
-    if ( (v92 & 1) != 0 )
+    MSG_WriteBit1(v11);
+    MSG_WriteBits(v11, v67, 5u);
+    if ( (v67 & 1) != 0 )
     {
-      if ( !v93 )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player health stat (value is %i)\n", *((unsigned int *)v91 + 150));
-      MSG_WriteShort(v12, *((_DWORD *)v91 + 150));
+      if ( !v68 )
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player health stat (value is %i)\n", *((unsigned int *)v66 + 150));
+      MSG_WriteShort(v11, *((_DWORD *)v66 + 150));
     }
-    if ( (v92 & 2) != 0 )
+    if ( (v67 & 2) != 0 )
     {
-      if ( !v93 )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player dead yaw stat (value is %i)\n", *((unsigned int *)v91 + 151));
-      MSG_WriteShort(v12, *((_DWORD *)v91 + 151));
+      if ( !v68 )
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player dead yaw stat (value is %i)\n", *((unsigned int *)v66 + 151));
+      MSG_WriteShort(v11, *((_DWORD *)v66 + 151));
     }
-    if ( (v92 & 4) != 0 )
+    if ( (v67 & 4) != 0 )
     {
-      if ( !v93 )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player maximum health stat (value is %i)\n", *((unsigned int *)v91 + 152));
-      MSG_WriteShort(v12, *((_DWORD *)v91 + 152));
+      if ( !v68 )
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player maximum health stat (value is %i)\n", *((unsigned int *)v66 + 152));
+      MSG_WriteShort(v11, *((_DWORD *)v66 + 152));
     }
-    if ( (v92 & 8) != 0 )
+    if ( (v67 & 8) != 0 )
     {
-      if ( !v93 )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player spawn count stat (value is %i)\n", *((unsigned int *)v91 + 153));
-      MSG_WriteByte(v12, *((int *)v91 + 153));
+      if ( !v68 )
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player spawn count stat (value is %i)\n", *((unsigned int *)v66 + 153));
+      MSG_WriteByte(v11, *((int *)v66 + 153));
     }
-    if ( (v92 & 0x10) != 0 )
+    if ( (v67 & 0x10) != 0 )
     {
-      if ( !v93 )
-        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player killer vehicle (value is %i)\n", *((unsigned int *)v91 + 154));
-      MSG_WriteShort(v12, *((_DWORD *)v91 + 154));
+      if ( !v68 )
+        SV_LogSnapshotContent(snapInfo->clientNum, "Sending player killer vehicle (value is %i)\n", *((unsigned int *)v66 + 154));
+      MSG_WriteShort(v11, *((_DWORD *)v66 + 154));
     }
   }
   else
   {
-    if ( !v93 )
+    if ( !v68 )
       SV_LogSnapshotContent(snapInfo->clientNum, "Writing 0 to say no player stats changed\n");
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
-  v192 = MSG_GetUsedBitCount(v12);
-  SV_TrackPSBitsForSegment(snapInfo, v192 - v89, PLAYERSTATE_SEGMENT_STATS);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(snapInfo, v192 - v89, 1);
+  v167 = MSG_GetUsedBitCount(v11);
+  SV_TrackPSBitsForSegment(snapInfo, v167 - v64, PLAYERSTATE_SEGMENT_STATS);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(snapInfo, v167 - v64, 1);
   estimate = snapInfo->archived;
   if ( !estimate )
     SV_LogSnapshotContent(snapInfo->clientNum, "sending ammo and weapons\n");
-  v94 = (const Weapon *)(v91 + 2932);
-  v95 = NULL;
-  v202 = (const Weapon *)(v91 + 2932);
-  v96 = (char *)v90 - (char *)(v91 + 2932);
-  v204 = NULL;
-  v97 = (int *)(v91 + 2996);
-  v211 = (char *)v96;
-  v98 = 15i64;
-  v208 = v91 + 2996;
-  v207 = 15i64;
+  v69 = (const Weapon *)(v66 + 2932);
+  v70 = NULL;
+  v178 = (const Weapon *)(v66 + 2932);
+  v71 = (char *)v65 - (char *)(v66 + 2932);
+  v180 = NULL;
+  v72 = (int *)(v66 + 2996);
+  v187 = (char *)v71;
+  v73 = 15i64;
+  v184 = v66 + 2996;
+  v183 = 15i64;
   do
   {
-    if ( memcmp_0(v94, &v94[48].attachmentVariationIndices[v96 + 25], 0x58ui64) )
+    if ( memcmp_0(v69, &v69[48].attachmentVariationIndices[v71 + 25], 0x58ui64) )
     {
-      MSG_WriteBit1(v12);
-      MSG_WriteBits(v12, (const __int64)v95, 4u);
-      MSG_WriteBits(v12, *(v97 - 1), 1u);
-      MSG_WriteWeapon(v12, v94);
-      v99 = v90;
-      v100 = 2i64;
-      v101 = (char *)v99 - (char *)v91;
-      v102 = estimate;
+      MSG_WriteBit1(v11);
+      MSG_WriteBits(v11, (const __int64)v70, 4u);
+      MSG_WriteBits(v11, *(v72 - 1), 1u);
+      MSG_WriteWeapon(v11, v69);
+      v74 = v65;
+      v75 = 2i64;
+      v76 = (char *)v74 - (char *)v66;
+      v77 = estimate;
       do
       {
-        if ( *v97 == *(int *)((char *)v97 + v101) )
+        if ( *v72 == *(int *)((char *)v72 + v76) )
         {
-          MSG_WriteBit0(v12);
+          MSG_WriteBit0(v11);
         }
         else
         {
-          MSG_WriteBit1(v12);
-          v103 = *v97;
-          if ( *v97 > 31 )
-            v103 = 31;
-          if ( v103 < 0 )
-            v103 = 0;
-          MSG_WriteBits(v12, v103, 5u);
+          MSG_WriteBit1(v11);
+          v78 = *v72;
+          if ( *v72 > 31 )
+            v78 = 31;
+          if ( v78 < 0 )
+            v78 = 0;
+          MSG_WriteBits(v11, v78, 5u);
         }
-        if ( v97[2] == *(int *)((char *)v97 + v101 + 8) )
+        if ( v72[2] == *(int *)((char *)v72 + v76 + 8) )
         {
-          MSG_WriteBit0(v12);
-        }
-        else
-        {
-          MSG_WriteBit1(v12);
-          v104 = v97[2];
-          if ( v104 > 31 )
-            v104 = 31;
-          if ( v104 < 0 )
-            v104 = 0;
-          MSG_WriteBits(v12, v104, 5u);
-        }
-        if ( v97[4] == *(int *)((char *)v97 + v101 + 16) )
-        {
-          MSG_WriteBit0(v12);
+          MSG_WriteBit0(v11);
         }
         else
         {
-          MSG_WriteBit1(v12);
-          v105 = v97[4];
-          if ( v105 >= 512 )
+          MSG_WriteBit1(v11);
+          v79 = v72[2];
+          if ( v79 > 31 )
+            v79 = 31;
+          if ( v79 < 0 )
+            v79 = 0;
+          MSG_WriteBits(v11, v79, 5u);
+        }
+        if ( v72[4] == *(int *)((char *)v72 + v76 + 16) )
+        {
+          MSG_WriteBit0(v11);
+        }
+        else
+        {
+          MSG_WriteBit1(v11);
+          v80 = v72[4];
+          if ( v80 >= 512 )
           {
-            v105 = 511;
-            if ( !v102 )
+            v80 = 511;
+            if ( !v77 )
               Com_Printf(15, "Clip ammo clamped to %i when packed into message.\n", 511i64);
           }
-          MSG_WriteBits(v12, v105, 9u);
+          MSG_WriteBits(v11, v80, 9u);
         }
-        ++v97;
-        --v100;
+        ++v72;
+        --v75;
       }
-      while ( v100 );
-      v91 = toData;
-      v94 = v202;
-      v97 = (int *)v208;
-      v95 = v204;
-      v98 = v207;
-      v90 = oldPs;
+      while ( v75 );
+      v66 = toData;
+      v69 = v178;
+      v72 = (int *)v184;
+      v70 = v180;
+      v73 = v183;
+      v65 = oldPs;
     }
-    v96 = (__int64)v211;
-    v95 = (NetField *)((char *)v95 + 1);
-    v94 = (const Weapon *)((char *)v94 + 88);
-    v204 = v95;
-    v97 += 22;
-    v202 = v94;
-    --v98;
-    v208 = (unsigned __int8 *)v97;
-    v207 = v98;
+    v71 = (__int64)v187;
+    v70 = (NetField *)((char *)v70 + 1);
+    v69 = (const Weapon *)((char *)v69 + 88);
+    v180 = v70;
+    v72 += 22;
+    v178 = v69;
+    --v73;
+    v184 = (unsigned __int8 *)v72;
+    v183 = v73;
   }
-  while ( v98 );
-  MSG_WriteBit0(v12);
-  v106 = v91 + 1480;
-  v211 = NULL;
-  weapEquippedData = v90->weapEquippedData;
-  v212 = 0;
-  v108 = 0;
-  v213 = 0;
-  v214 = 0;
-  if ( *((_DWORD *)v91 + 370) != v90->weaponsEquipped[0].m_mapEntryId || (v109 = v91 + 1540, *(_QWORD *)(v91 + 1540) != *(_QWORD *)&weapEquippedData->usedBefore) || *(_QWORD *)(v91 + 1548) != *(_QWORD *)&v90->weapEquippedData[0].thermalEnabled )
+  while ( v73 );
+  MSG_WriteBit0(v11);
+  v81 = v66 + 1480;
+  v187 = NULL;
+  weapEquippedData = v65->weapEquippedData;
+  v188 = 0;
+  v83 = 0;
+  v189 = 0;
+  v190 = 0;
+  if ( *((_DWORD *)v66 + 370) != v65->weaponsEquipped[0].m_mapEntryId || (v84 = v66 + 1540, *(_QWORD *)(v66 + 1540) != *(_QWORD *)&weapEquippedData->usedBefore) || *(_QWORD *)(v66 + 1548) != *(_QWORD *)&v65->weapEquippedData[0].thermalEnabled )
   {
-    LOBYTE(v211) = 1;
-    v109 = v91 + 1540;
-    v108 = 1;
+    LOBYTE(v187) = 1;
+    v84 = v66 + 1540;
+    v83 = 1;
   }
-  v110 = snapInfoa;
-  if ( *((_DWORD *)v91 + 371) != v90->weaponsEquipped[1].m_mapEntryId || *((_QWORD *)v109 + 2) != *(_QWORD *)&v90->weapEquippedData[1].usedBefore || *((_QWORD *)v109 + 3) != *(_QWORD *)&v90->weapEquippedData[1].thermalEnabled )
+  v85 = snapInfoa;
+  if ( *((_DWORD *)v66 + 371) != v65->weaponsEquipped[1].m_mapEntryId || *((_QWORD *)v84 + 2) != *(_QWORD *)&v65->weapEquippedData[1].usedBefore || *((_QWORD *)v84 + 3) != *(_QWORD *)&v65->weapEquippedData[1].thermalEnabled )
   {
-    BYTE1(v211) = 1;
-    v108 = 1;
+    BYTE1(v187) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 372) != v90->weaponsEquipped[2].m_mapEntryId || *((_QWORD *)v109 + 4) != *(_QWORD *)&v90->weapEquippedData[2].usedBefore || *((_QWORD *)v109 + 5) != *(_QWORD *)&v90->weapEquippedData[2].thermalEnabled )
+  if ( *((_DWORD *)v66 + 372) != v65->weaponsEquipped[2].m_mapEntryId || *((_QWORD *)v84 + 4) != *(_QWORD *)&v65->weapEquippedData[2].usedBefore || *((_QWORD *)v84 + 5) != *(_QWORD *)&v65->weapEquippedData[2].thermalEnabled )
   {
-    BYTE2(v211) = 1;
-    v108 = 1;
+    BYTE2(v187) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 373) != v90->weaponsEquipped[3].m_mapEntryId || *((_QWORD *)v109 + 6) != *(_QWORD *)&v90->weapEquippedData[3].usedBefore || *((_QWORD *)v109 + 7) != *(_QWORD *)&v90->weapEquippedData[3].thermalEnabled )
+  if ( *((_DWORD *)v66 + 373) != v65->weaponsEquipped[3].m_mapEntryId || *((_QWORD *)v84 + 6) != *(_QWORD *)&v65->weapEquippedData[3].usedBefore || *((_QWORD *)v84 + 7) != *(_QWORD *)&v65->weapEquippedData[3].thermalEnabled )
   {
-    BYTE3(v211) = 1;
-    v108 = 1;
+    BYTE3(v187) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 374) != v90->weaponsEquipped[4].m_mapEntryId || *((_QWORD *)v109 + 8) != *(_QWORD *)&v90->weapEquippedData[4].usedBefore || *((_QWORD *)v109 + 9) != *(_QWORD *)&v90->weapEquippedData[4].thermalEnabled )
+  if ( *((_DWORD *)v66 + 374) != v65->weaponsEquipped[4].m_mapEntryId || *((_QWORD *)v84 + 8) != *(_QWORD *)&v65->weapEquippedData[4].usedBefore || *((_QWORD *)v84 + 9) != *(_QWORD *)&v65->weapEquippedData[4].thermalEnabled )
   {
-    BYTE4(v211) = 1;
-    v108 = 1;
+    BYTE4(v187) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 375) != v90->weaponsEquipped[5].m_mapEntryId || *((_QWORD *)v109 + 10) != *(_QWORD *)&v90->weapEquippedData[5].usedBefore || *((_QWORD *)v109 + 11) != *(_QWORD *)&v90->weapEquippedData[5].thermalEnabled )
+  if ( *((_DWORD *)v66 + 375) != v65->weaponsEquipped[5].m_mapEntryId || *((_QWORD *)v84 + 10) != *(_QWORD *)&v65->weapEquippedData[5].usedBefore || *((_QWORD *)v84 + 11) != *(_QWORD *)&v65->weapEquippedData[5].thermalEnabled )
   {
-    BYTE5(v211) = 1;
-    v108 = 1;
+    BYTE5(v187) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 376) != v90->weaponsEquipped[6].m_mapEntryId )
+  if ( *((_DWORD *)v66 + 376) != v65->weaponsEquipped[6].m_mapEntryId )
   {
-    v111 = v90->weapEquippedData;
-LABEL_186:
-    BYTE6(v211) = 1;
-    v113 = v91 + 1540;
-    v108 = 1;
-    v112 = v111;
-    goto LABEL_187;
+    v86 = v65->weapEquippedData;
+LABEL_197:
+    BYTE6(v187) = 1;
+    v88 = v66 + 1540;
+    v83 = 1;
+    v87 = v86;
+    goto LABEL_198;
   }
-  v111 = v90->weapEquippedData;
-  v112 = v90->weapEquippedData;
-  v113 = v109;
-  if ( *((_QWORD *)v109 + 12) != *(_QWORD *)&v90->weapEquippedData[6].usedBefore || *((_QWORD *)v109 + 13) != *(_QWORD *)&v90->weapEquippedData[6].thermalEnabled )
-    goto LABEL_186;
-LABEL_187:
-  if ( *((_DWORD *)v91 + 377) != v90->weaponsEquipped[7].m_mapEntryId || (v112 = v90->weapEquippedData, v113 = v109, *((_QWORD *)v109 + 14) != *(_QWORD *)&v90->weapEquippedData[7].usedBefore) || *((_QWORD *)v109 + 15) != *(_QWORD *)&v90->weapEquippedData[7].thermalEnabled )
+  v86 = v65->weapEquippedData;
+  v87 = v65->weapEquippedData;
+  v88 = v84;
+  if ( *((_QWORD *)v84 + 12) != *(_QWORD *)&v65->weapEquippedData[6].usedBefore || *((_QWORD *)v84 + 13) != *(_QWORD *)&v65->weapEquippedData[6].thermalEnabled )
+    goto LABEL_197;
+LABEL_198:
+  if ( *((_DWORD *)v66 + 377) != v65->weaponsEquipped[7].m_mapEntryId || (v87 = v65->weapEquippedData, v88 = v84, *((_QWORD *)v84 + 14) != *(_QWORD *)&v65->weapEquippedData[7].usedBefore) || *((_QWORD *)v84 + 15) != *(_QWORD *)&v65->weapEquippedData[7].thermalEnabled )
   {
-    HIBYTE(v211) = 1;
-    v108 = 1;
-    weapEquippedData = v112;
-    v109 = v113;
+    HIBYTE(v187) = 1;
+    v83 = 1;
+    weapEquippedData = v87;
+    v84 = v88;
   }
-  if ( *((_DWORD *)v91 + 378) != v90->weaponsEquipped[8].m_mapEntryId || *((_QWORD *)v109 + 16) != *(_QWORD *)&weapEquippedData[8].usedBefore || *((_QWORD *)v109 + 17) != *(_QWORD *)&weapEquippedData[8].thermalEnabled )
+  if ( *((_DWORD *)v66 + 378) != v65->weaponsEquipped[8].m_mapEntryId || *((_QWORD *)v84 + 16) != *(_QWORD *)&weapEquippedData[8].usedBefore || *((_QWORD *)v84 + 17) != *(_QWORD *)&weapEquippedData[8].thermalEnabled )
   {
-    LOBYTE(v212) = 1;
-    v108 = 1;
+    LOBYTE(v188) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 379) != v90->weaponsEquipped[9].m_mapEntryId || *((_QWORD *)v109 + 18) != *(_QWORD *)&weapEquippedData[9].usedBefore || *((_QWORD *)v109 + 19) != *(_QWORD *)&weapEquippedData[9].thermalEnabled )
+  if ( *((_DWORD *)v66 + 379) != v65->weaponsEquipped[9].m_mapEntryId || *((_QWORD *)v84 + 18) != *(_QWORD *)&weapEquippedData[9].usedBefore || *((_QWORD *)v84 + 19) != *(_QWORD *)&weapEquippedData[9].thermalEnabled )
   {
-    BYTE1(v212) = 1;
-    v108 = 1;
+    BYTE1(v188) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 380) != v90->weaponsEquipped[10].m_mapEntryId || *((_QWORD *)v109 + 20) != *(_QWORD *)&weapEquippedData[10].usedBefore || *((_QWORD *)v109 + 21) != *(_QWORD *)&weapEquippedData[10].thermalEnabled )
+  if ( *((_DWORD *)v66 + 380) != v65->weaponsEquipped[10].m_mapEntryId || *((_QWORD *)v84 + 20) != *(_QWORD *)&weapEquippedData[10].usedBefore || *((_QWORD *)v84 + 21) != *(_QWORD *)&weapEquippedData[10].thermalEnabled )
   {
-    BYTE2(v212) = 1;
-    v108 = 1;
+    BYTE2(v188) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 381) != v90->weaponsEquipped[11].m_mapEntryId || *((_QWORD *)v109 + 22) != *(_QWORD *)&weapEquippedData[11].usedBefore || *((_QWORD *)v109 + 23) != *(_QWORD *)&weapEquippedData[11].thermalEnabled )
+  if ( *((_DWORD *)v66 + 381) != v65->weaponsEquipped[11].m_mapEntryId || *((_QWORD *)v84 + 22) != *(_QWORD *)&weapEquippedData[11].usedBefore || *((_QWORD *)v84 + 23) != *(_QWORD *)&weapEquippedData[11].thermalEnabled )
   {
-    HIBYTE(v212) = 1;
-    v108 = 1;
+    HIBYTE(v188) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 382) != v90->weaponsEquipped[12].m_mapEntryId || *((_QWORD *)v109 + 24) != *(_QWORD *)&weapEquippedData[12].usedBefore || *((_QWORD *)v109 + 25) != *(_QWORD *)&weapEquippedData[12].thermalEnabled )
+  if ( *((_DWORD *)v66 + 382) != v65->weaponsEquipped[12].m_mapEntryId || *((_QWORD *)v84 + 24) != *(_QWORD *)&weapEquippedData[12].usedBefore || *((_QWORD *)v84 + 25) != *(_QWORD *)&weapEquippedData[12].thermalEnabled )
   {
-    LOBYTE(v213) = 1;
-    v108 = 1;
+    LOBYTE(v189) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 383) != v90->weaponsEquipped[13].m_mapEntryId || *((_QWORD *)v109 + 26) != *(_QWORD *)&weapEquippedData[13].usedBefore || *((_QWORD *)v109 + 27) != *(_QWORD *)&weapEquippedData[13].thermalEnabled )
+  if ( *((_DWORD *)v66 + 383) != v65->weaponsEquipped[13].m_mapEntryId || *((_QWORD *)v84 + 26) != *(_QWORD *)&weapEquippedData[13].usedBefore || *((_QWORD *)v84 + 27) != *(_QWORD *)&weapEquippedData[13].thermalEnabled )
   {
-    HIBYTE(v213) = 1;
-    v108 = 1;
+    HIBYTE(v189) = 1;
+    v83 = 1;
   }
-  if ( *((_DWORD *)v91 + 384) == v90->weaponsEquipped[14].m_mapEntryId && *((_QWORD *)v109 + 28) == *(_QWORD *)&weapEquippedData[14].usedBefore && *((_QWORD *)v109 + 29) == *(_QWORD *)&weapEquippedData[14].thermalEnabled )
+  if ( *((_DWORD *)v66 + 384) == v65->weaponsEquipped[14].m_mapEntryId && *((_QWORD *)v84 + 28) == *(_QWORD *)&weapEquippedData[14].usedBefore && *((_QWORD *)v84 + 29) == *(_QWORD *)&weapEquippedData[14].thermalEnabled )
   {
-    if ( !v108 )
+    if ( !v83 )
     {
-      MSG_WriteBit0(v12);
-      goto LABEL_246;
+      MSG_WriteBit0(v11);
+      goto LABEL_257;
     }
   }
   else
   {
-    v214 = 1;
+    v190 = 1;
   }
-  MSG_WriteBit1(v12);
-  v114 = v91 + 1541;
-  v115 = (char *)v90 - (char *)v91;
+  MSG_WriteBit1(v11);
+  v89 = v66 + 1541;
+  v90 = (char *)v65 - (char *)v66;
   for ( j = 0i64; j < 15; ++j )
   {
-    if ( !*((_BYTE *)&v211 + j) )
-      goto LABEL_243;
-    MSG_WriteBit1(v12);
-    if ( *v106 == *(_DWORD *)((char *)v106 + v115) )
+    if ( !*((_BYTE *)&v187 + j) )
+      goto LABEL_254;
+    MSG_WriteBit1(v11);
+    if ( *v81 == *(_DWORD *)((char *)v81 + v90) )
     {
-      MSG_WriteBit0(v12);
+      MSG_WriteBit0(v11);
     }
     else
     {
-      MSG_WriteBit1(v12);
+      MSG_WriteBit1(v11);
       if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 235, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
         __debugbreak();
-      MSG_WriteBits(v12, (unsigned int)*v106, BgWeaponMap::ms_runtimeIndexBits);
+      MSG_WriteBits(v11, (unsigned int)*v81, BgWeaponMap::ms_runtimeIndexBits);
     }
-    if ( *(v114 - 1) )
-      MSG_WriteBit1(v12);
+    if ( *(v89 - 1) )
+      MSG_WriteBit1(v11);
     else
-      MSG_WriteBit0(v12);
-    if ( *v114 )
-      MSG_WriteBit1(v12);
+      MSG_WriteBit0(v11);
+    if ( *v89 )
+      MSG_WriteBit1(v11);
     else
-      MSG_WriteBit0(v12);
-    if ( v114[1] )
-      MSG_WriteBit1(v12);
+      MSG_WriteBit0(v11);
+    if ( v89[1] )
+      MSG_WriteBit1(v11);
     else
-      MSG_WriteBit0(v12);
-    MSG_WriteBits(v12, *(int *)(v114 + 3), 2u);
-    MSG_WriteBits(v12, v114[9], 3u);
-    MSG_WriteBits(v12, *(int *)(v114 + 11), 3u);
-    if ( v114[7] )
-      MSG_WriteBit1(v12);
+      MSG_WriteBit0(v11);
+    MSG_WriteBits(v11, *(int *)(v89 + 3), 2u);
+    MSG_WriteBits(v11, v89[9], 3u);
+    MSG_WriteBits(v11, *(int *)(v89 + 11), 3u);
+    if ( v89[7] )
+      MSG_WriteBit1(v11);
     else
-      MSG_WriteBit0(v12);
-    if ( v114[8] )
-      MSG_WriteBit1(v12);
+      MSG_WriteBit0(v11);
+    if ( v89[8] )
+      MSG_WriteBit1(v11);
     else
-LABEL_243:
-      MSG_WriteBit0(v12);
-    ++v106;
-    v114 += 16;
+LABEL_254:
+      MSG_WriteBit0(v11);
+    ++v81;
+    v89 += 16;
   }
-  v110 = snapInfoa;
-  v91 = toData;
-LABEL_246:
-  v117 = (const Weapon *)(v91 + 1912);
-  v118 = 0;
+  v85 = snapInfoa;
+  v66 = toData;
+LABEL_257:
+  v92 = (const Weapon *)(v66 + 1912);
+  v93 = 0;
   snapInfoa = NULL;
-  v119 = NULL;
-  v120 = (int *)(v91 + 1976);
-  v121 = (char *)oldPs - (char *)(v91 + 1912);
-  v211 = (char *)v121;
+  v94 = NULL;
+  v95 = (int *)(v66 + 1976);
+  v96 = (char *)oldPs - (char *)(v66 + 1912);
+  v187 = (char *)v96;
   do
   {
-    if ( memcmp_0(v117, &v117[31].attachmentVariationIndices[v121 + 25], 0x44ui64) )
+    if ( memcmp_0(v92, &v92[31].attachmentVariationIndices[v96 + 25], 0x44ui64) )
     {
-      v122 = v110->archived;
-      if ( !v122 )
+      v97 = v85->archived;
+      if ( !v97 )
       {
-        LODWORD(fmt) = *v120;
-        SV_LogSnapshotContent(v110->clientNum, "ammo changed, sending %d bits as flag bit, %i bit index (value is %i) followed by the ammo value as short\n", 10i64, (unsigned int)v118, fmt);
+        LODWORD(fmt) = *v95;
+        SV_LogSnapshotContent(v85->clientNum, "ammo changed, sending %d bits as flag bit, %i bit index (value is %i) followed by the ammo value as short\n", 10i64, (unsigned int)v93, fmt);
       }
-      MSG_WriteBit1(v12);
-      MSG_WriteBits(v12, (const __int64)v119, 4u);
-      MSG_WriteBits(v12, *(v120 - 1), 1u);
-      MSG_WriteWeapon(v12, v117);
-      v123 = *v120;
-      if ( *v120 >= 1024 )
+      MSG_WriteBit1(v11);
+      MSG_WriteBits(v11, (const __int64)v94, 4u);
+      MSG_WriteBits(v11, *(v95 - 1), 1u);
+      MSG_WriteWeapon(v11, v92);
+      v98 = *v95;
+      if ( *v95 >= 1024 )
       {
-        v123 = 1023;
-        if ( !v122 )
+        v98 = 1023;
+        if ( !v97 )
           Com_Printf(15, "Stored ammo clamped to %i when packed into message.\n", 1023i64);
       }
-      MSG_WriteBits(v12, v123, 0xAu);
-      v119 = snapInfoa;
+      MSG_WriteBits(v11, v98, 0xAu);
+      v94 = snapInfoa;
     }
-    v121 = (signed __int64)v211;
-    v119 = (SnapshotInfo *)((char *)v119 + 1);
-    ++v118;
-    snapInfoa = v119;
-    v117 = (const Weapon *)((char *)v117 + 68);
-    v120 += 17;
+    v96 = (signed __int64)v187;
+    v94 = (SnapshotInfo *)((char *)v94 + 1);
+    ++v93;
+    snapInfoa = v94;
+    v92 = (const Weapon *)((char *)v92 + 68);
+    v95 += 17;
   }
-  while ( v118 < 15 );
-  MSG_WriteBit0(v12);
-  LODWORD(v202) = MSG_GetUsedBitCount(v12);
-  v124 = (_DWORD)v202 - v192;
-  SV_TrackPSBitsForSegment(v110, (_DWORD)v202 - v192, PLAYERSTATE_SEGMENT_AMMO);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v124, 2);
-  v125 = toData;
+  while ( v93 < 15 );
+  MSG_WriteBit0(v11);
+  LODWORD(v178) = MSG_GetUsedBitCount(v11);
+  v99 = (_DWORD)v178 - v167;
+  SV_TrackPSBitsForSegment(v85, (_DWORD)v178 - v167, PLAYERSTATE_SEGMENT_AMMO);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v99, 2);
+  v100 = toData;
   objectives = oldPs->objectives;
-  v127 = toData + 4720;
+  v102 = toData + 4720;
   if ( !memcmp_0(oldPs->objectives, toData + 4720, 0x1580ui64) )
   {
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
   else
   {
-    v128 = g_newNetFieldList[3];
-    v110->fieldChangesCount = 47;
-    v129 = v128->count;
-    array = v128->array;
-    skippedNetfieldBits = v128->skippedNetfieldBits;
-    v110->fieldChanges = orderInfo.objective;
-    MSG_WriteBit1(v12);
-    v131 = v127 - (unsigned __int8 *)objectives;
-    v132 = 0;
-    v211 = (char *)v131;
+    v103 = g_newNetFieldList[3];
+    v85->fieldChangesCount = 47;
+    v104 = v103->count;
+    v105 = v103->array;
+    skippedNetfieldBits = v103->skippedNetfieldBits;
+    v85->fieldChanges = orderInfo.objective;
+    MSG_WriteBit1(v11);
+    v106 = v102 - (unsigned __int8 *)objectives;
+    v107 = 0;
+    v187 = (char *)v106;
     do
     {
-      if ( !v110->archived )
-        SV_LogSnapshotContent(v110->clientNum, "sending objective %i\n", (unsigned int)v132);
-      v133 = (const unsigned __int8 *)objectives + v131;
-      lc = MSG_GetLastChangedField(v110, (const unsigned __int8 *)objectives, v133, v129, array, v132);
-      MSG_WriteDeltaFields(v110, v12, timea, (const unsigned __int8 *)objectives, v133, 0, lc - 1, v129, array, skippedNetfieldBits, NULL);
-      v131 = (__int64)v211;
-      ++v132;
+      if ( !v85->archived )
+        SV_LogSnapshotContent(v85->clientNum, "sending objective %i\n", (unsigned int)v107);
+      v108 = (const unsigned __int8 *)objectives + v106;
+      lc = MSG_GetLastChangedField(v85, (const unsigned __int8 *)objectives, v108, v104, v105, v107);
+      MSG_WriteDeltaFields(v85, v11, timea, (const unsigned __int8 *)objectives, v108, 0, lc - 1, v104, v105, skippedNetfieldBits, NULL);
+      v106 = (__int64)v187;
+      ++v107;
       ++objectives;
     }
-    while ( v132 < 32 );
-    v125 = toData;
+    while ( v107 < 32 );
+    v100 = toData;
   }
-  v134 = MSG_GetUsedBitCount(v12);
-  v135 = v134 - (_DWORD)v202;
-  v136 = v134;
-  SV_TrackPSBitsForSegment(v110, v134 - (_DWORD)v202, PLAYERSTATE_SEGMENT_OBJECTIVES);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v135, 3);
-  v137 = oldPs;
-  v138 = v110->archived;
-  if ( !memcmp_0(&oldPs->hud, v125 + 12152, 0x2058ui64) )
+  v109 = MSG_GetUsedBitCount(v11);
+  v110 = v109 - (_DWORD)v178;
+  v111 = v109;
+  SV_TrackPSBitsForSegment(v85, v109 - (_DWORD)v178, PLAYERSTATE_SEGMENT_OBJECTIVES);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v110, 3);
+  v112 = oldPs;
+  v113 = v85->archived;
+  if ( !memcmp_0(&oldPs->hud, v100 + 12152, 0x2058ui64) )
   {
-    if ( !v138 )
-      SV_LogSnapshotContent(v110->clientNum, "no hudelems changed\n");
-    MSG_WriteBit0(v12);
+    if ( !v113 )
+      SV_LogSnapshotContent(v85->clientNum, "no hudelems changed\n");
+    MSG_WriteBit0(v11);
   }
   else
   {
-    if ( !v138 )
-      SV_LogSnapshotContent(v110->clientNum, "hudelems changed\n");
-    MSG_WriteBit1(v12);
-    if ( !v138 )
-      SV_LogSnapshotContent(v110->clientNum, "sending archived hudelems\n");
-    v139 = timea;
-    MSG_WriteDeltaHudElems(v110, v12, timea, v137->hud.archival, (const hudelem_t *)(v125 + 17672), 15, 4);
-    if ( !v110->archived )
-      SV_LogSnapshotContent(v110->clientNum, "sending current hudelems\n");
-    MSG_WriteDeltaHudElems(v110, v12, v139, v137->hud.current, (const hudelem_t *)(v125 + 12152), 30, 5);
+    if ( !v113 )
+      SV_LogSnapshotContent(v85->clientNum, "hudelems changed\n");
+    MSG_WriteBit1(v11);
+    if ( !v113 )
+      SV_LogSnapshotContent(v85->clientNum, "sending archived hudelems\n");
+    v114 = timea;
+    MSG_WriteDeltaHudElems(v85, v11, timea, v112->hud.archival, (const hudelem_t *)(v100 + 17672), 15, 4);
+    if ( !v85->archived )
+      SV_LogSnapshotContent(v85->clientNum, "sending current hudelems\n");
+    MSG_WriteDeltaHudElems(v85, v11, v114, v112->hud.current, (const hudelem_t *)(v100 + 12152), 30, 5);
   }
-  v140 = MSG_GetUsedBitCount(v12) - v136;
-  SV_TrackPSBitsForSegment(v110, v140, PLAYERSTATE_SEGMENT_HUDELEMS);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v140, 4);
+  v115 = MSG_GetUsedBitCount(v11) - v111;
+  SV_TrackPSBitsForSegment(v85, v115, PLAYERSTATE_SEGMENT_HUDELEMS);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v115, 4);
   PlayerStateDefs = BG_Omnvar_GetPlayerStateDefs();
-  v142 = BG_Omnvar_PerPlayerstateCount();
-  v143 = BG_Omnvar_PerPlayerstateMinBitsForIndex();
-  v144 = MSG_GetUsedBitCount(v12);
-  v145 = MSG_WriteDeltaOmnvars_Internal(v110, v12, timea, v142, v143, oldPs->rxvOmnvars, (const OmnvarData *)v125 + 2554, PlayerStateDefs);
-  v146 = MSG_GetUsedBitCount(v12);
-  SV_BandwidthProfile_AddPlayerStateOmnvarsToSnapshot(v110, v146 - v144, v145);
-  v147 = v125 + 10224;
+  v117 = BG_Omnvar_PerPlayerstateCount();
+  v118 = BG_Omnvar_PerPlayerstateMinBitsForIndex();
+  v119 = MSG_GetUsedBitCount(v11);
+  v120 = MSG_WriteDeltaOmnvars_Internal(v85, v11, timea, v117, v118, oldPs->rxvOmnvars, (const OmnvarData *)v100 + 2554, PlayerStateDefs);
+  v121 = MSG_GetUsedBitCount(v11);
+  SV_BandwidthProfile_AddPlayerStateOmnvarsToSnapshot(v85, v121 - v119, v120);
+  v122 = v100 + 10224;
   headIcons = oldPs->headIcons;
-  LODWORD(v202) = MSG_GetUsedBitCount(v12);
-  v110->fieldChangesCount = 6;
-  v110->fieldChanges = orderInfo.headIcon;
-  if ( !memcmp_0(headIcons, v125 + 10224, 0x300ui64) )
+  LODWORD(v178) = MSG_GetUsedBitCount(v11);
+  v85->fieldChangesCount = 6;
+  v85->fieldChanges = orderInfo.headIcon;
+  if ( !memcmp_0(headIcons, v100 + 10224, 0x300ui64) )
   {
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
   else
   {
-    v149 = g_newNetFieldList[4]->count;
-    v150 = g_newNetFieldList[4]->array;
-    v194 = g_newNetFieldList[4]->skippedNetfieldBits;
-    MSG_WriteBit1(v12);
-    v151 = v147 - (unsigned __int8 *)headIcons;
-    v152 = 0;
-    v211 = (char *)v151;
+    v124 = g_newNetFieldList[4]->count;
+    v125 = g_newNetFieldList[4]->array;
+    v169 = g_newNetFieldList[4]->skippedNetfieldBits;
+    MSG_WriteBit1(v11);
+    v126 = v122 - (unsigned __int8 *)headIcons;
+    v127 = 0;
+    v187 = (char *)v126;
     do
     {
-      v153 = (const unsigned __int8 *)headIcons + v151;
-      v154 = MSG_GetLastChangedField(v110, (const unsigned __int8 *)headIcons, v153, v149, v150, v152);
-      MSG_WriteDeltaFields(v110, v12, timea, (const unsigned __int8 *)headIcons, v153, 0, v154 - 1, v149, v150, v194, NULL);
-      v151 = (__int64)v211;
-      ++v152;
+      v128 = (const unsigned __int8 *)headIcons + v126;
+      v129 = MSG_GetLastChangedField(v85, (const unsigned __int8 *)headIcons, v128, v124, v125, v127);
+      MSG_WriteDeltaFields(v85, v11, timea, (const unsigned __int8 *)headIcons, v128, 0, v129 - 1, v124, v125, v169, NULL);
+      v126 = (__int64)v187;
+      ++v127;
       ++headIcons;
     }
-    while ( v152 < 32 );
-    v125 = toData;
+    while ( v127 < 32 );
+    v100 = toData;
   }
-  v155 = MSG_GetUsedBitCount(v12);
-  v156 = v155 - (_DWORD)v202;
-  SV_TrackPSBitsForSegment(v110, v155 - (_DWORD)v202, PLAYERSTATE_SEGMENT_HEADICONS);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v156, 5);
-  v157 = v125 + 10992;
+  v130 = MSG_GetUsedBitCount(v11);
+  v131 = v130 - (_DWORD)v178;
+  SV_TrackPSBitsForSegment(v85, v130 - (_DWORD)v178, PLAYERSTATE_SEGMENT_HEADICONS);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v131, 5);
+  v132 = v100 + 10992;
   headIconsExtendedData = oldPs->headIconsExtendedData;
-  LODWORD(v202) = MSG_GetUsedBitCount(v12);
-  v110->fieldChangesCount = 5;
-  v110->fieldChanges = orderInfo.headIconExtendedData;
-  if ( !memcmp_0(headIconsExtendedData, v125 + 10992, 0x200ui64) )
+  LODWORD(v178) = MSG_GetUsedBitCount(v11);
+  v85->fieldChangesCount = 5;
+  v85->fieldChanges = orderInfo.headIconExtendedData;
+  if ( !memcmp_0(headIconsExtendedData, v100 + 10992, 0x200ui64) )
   {
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
   else
   {
-    v159 = g_newNetFieldList[5]->count;
-    v160 = g_newNetFieldList[5]->array;
-    v195 = g_newNetFieldList[5]->skippedNetfieldBits;
-    MSG_WriteBit1(v12);
-    v161 = v157 - (unsigned __int8 *)headIconsExtendedData;
-    v162 = 0;
-    v211 = (char *)v161;
+    v134 = g_newNetFieldList[5]->count;
+    v135 = g_newNetFieldList[5]->array;
+    v170 = g_newNetFieldList[5]->skippedNetfieldBits;
+    MSG_WriteBit1(v11);
+    v136 = v132 - (unsigned __int8 *)headIconsExtendedData;
+    v137 = 0;
+    v187 = (char *)v136;
     do
     {
-      v163 = (const unsigned __int8 *)headIconsExtendedData + v161;
-      v164 = MSG_GetLastChangedField(v110, (const unsigned __int8 *)headIconsExtendedData, v163, v159, v160, v162);
-      MSG_WriteDeltaFields(v110, v12, timea, (const unsigned __int8 *)headIconsExtendedData, v163, 0, v164 - 1, v159, v160, v195, NULL);
-      v161 = (__int64)v211;
-      ++v162;
+      v138 = (const unsigned __int8 *)headIconsExtendedData + v136;
+      v139 = MSG_GetLastChangedField(v85, (const unsigned __int8 *)headIconsExtendedData, v138, v134, v135, v137);
+      MSG_WriteDeltaFields(v85, v11, timea, (const unsigned __int8 *)headIconsExtendedData, v138, 0, v139 - 1, v134, v135, v170, NULL);
+      v136 = (__int64)v187;
+      ++v137;
       ++headIconsExtendedData;
     }
-    while ( v162 < 32 );
-    v125 = toData;
+    while ( v137 < 32 );
+    v100 = toData;
   }
-  v165 = MSG_GetUsedBitCount(v12);
-  v166 = v165 - (_DWORD)v202;
-  SV_TrackPSBitsForSegment(v110, v165 - (_DWORD)v202, PLAYERSTATE_SEGMENT_HEADICONS_EXTENDED);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v166, 6);
-  v167 = v125 + 11504;
+  v140 = MSG_GetUsedBitCount(v11);
+  v141 = v140 - (_DWORD)v178;
+  SV_TrackPSBitsForSegment(v85, v140 - (_DWORD)v178, PLAYERSTATE_SEGMENT_HEADICONS_EXTENDED);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v141, 6);
+  v142 = v100 + 11504;
   targetMarkerGroups = oldPs->targetMarkerGroups;
-  LODWORD(v202) = MSG_GetUsedBitCount(v12);
-  v110->fieldChangesCount = 62;
-  v110->fieldChanges = orderInfo.targetMarkers;
-  if ( !memcmp_0(targetMarkerGroups, v125 + 11504, 0xB0ui64) )
+  LODWORD(v178) = MSG_GetUsedBitCount(v11);
+  v85->fieldChangesCount = 62;
+  v85->fieldChanges = orderInfo.targetMarkers;
+  if ( !memcmp_0(targetMarkerGroups, v100 + 11504, 0xB0ui64) )
   {
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
   else
   {
-    v169 = g_newNetFieldList[6]->count;
-    v170 = g_newNetFieldList[6]->array;
-    v196 = g_newNetFieldList[6]->skippedNetfieldBits;
-    MSG_WriteBit1(v12);
-    v171 = v167 - (unsigned __int8 *)targetMarkerGroups;
-    v172 = 0;
-    v211 = (char *)v171;
+    v144 = g_newNetFieldList[6]->count;
+    v145 = g_newNetFieldList[6]->array;
+    v171 = g_newNetFieldList[6]->skippedNetfieldBits;
+    MSG_WriteBit1(v11);
+    v146 = v142 - (unsigned __int8 *)targetMarkerGroups;
+    v147 = 0;
+    v187 = (char *)v146;
     do
     {
-      v173 = (const unsigned __int8 *)targetMarkerGroups + v171;
-      v174 = MSG_GetLastChangedField(v110, (const unsigned __int8 *)targetMarkerGroups, v173, v169, v170, v172);
-      MSG_WriteDeltaFields(v110, v12, timea, (const unsigned __int8 *)targetMarkerGroups, v173, 0, v174 - 1, v169, v170, v196, NULL);
-      v171 = (__int64)v211;
-      ++v172;
+      v148 = (const unsigned __int8 *)targetMarkerGroups + v146;
+      v149 = MSG_GetLastChangedField(v85, (const unsigned __int8 *)targetMarkerGroups, v148, v144, v145, v147);
+      MSG_WriteDeltaFields(v85, v11, timea, (const unsigned __int8 *)targetMarkerGroups, v148, 0, v149 - 1, v144, v145, v171, NULL);
+      v146 = (__int64)v187;
+      ++v147;
       ++targetMarkerGroups;
     }
-    while ( v172 < 2 );
-    v125 = toData;
+    while ( v147 < 2 );
+    v100 = toData;
   }
-  v175 = MSG_GetUsedBitCount(v12);
-  v176 = v175 - (_DWORD)v202;
-  SV_TrackPSBitsForSegment(v110, v175 - (_DWORD)v202, PLAYERSTATE_SEGMENT_TARGETMARKERS);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v176, 7);
-  v177 = v125 + 11680;
+  v150 = MSG_GetUsedBitCount(v11);
+  v151 = v150 - (_DWORD)v178;
+  SV_TrackPSBitsForSegment(v85, v150 - (_DWORD)v178, PLAYERSTATE_SEGMENT_TARGETMARKERS);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v151, 7);
+  v152 = v100 + 11680;
   calloutMarkerPings = oldPs->calloutMarkerPings;
-  LODWORD(v202) = MSG_GetUsedBitCount(v12);
-  v110->fieldChangesCount = 8;
-  v110->fieldChanges = orderInfo.calloutMarkers;
-  if ( !memcmp_0(calloutMarkerPings, v125 + 11680, 0x1A0ui64) )
+  LODWORD(v178) = MSG_GetUsedBitCount(v11);
+  v85->fieldChangesCount = 8;
+  v85->fieldChanges = orderInfo.calloutMarkers;
+  if ( !memcmp_0(calloutMarkerPings, v100 + 11680, 0x1A0ui64) )
   {
-    MSG_WriteBit0(v12);
+    MSG_WriteBit0(v11);
   }
   else
   {
-    v179 = g_newNetFieldList[10]->count;
-    v180 = g_newNetFieldList[10]->array;
-    v197 = g_newNetFieldList[10]->skippedNetfieldBits;
-    MSG_WriteBit1(v12);
-    v181 = v177 - (unsigned __int8 *)calloutMarkerPings;
-    v182 = 0;
-    v211 = (char *)v181;
+    v154 = g_newNetFieldList[10]->count;
+    v155 = g_newNetFieldList[10]->array;
+    v172 = g_newNetFieldList[10]->skippedNetfieldBits;
+    MSG_WriteBit1(v11);
+    v156 = v152 - (unsigned __int8 *)calloutMarkerPings;
+    v157 = 0;
+    v187 = (char *)v156;
     do
     {
-      v183 = (const unsigned __int8 *)calloutMarkerPings + v181;
-      v184 = MSG_GetLastChangedField(v110, (const unsigned __int8 *)calloutMarkerPings, v183, v179, v180, v182);
-      MSG_WriteDeltaFields(v110, v12, timea, (const unsigned __int8 *)calloutMarkerPings, v183, 0, v184 - 1, v179, v180, v197, NULL);
-      v181 = (__int64)v211;
-      ++v182;
+      v158 = (const unsigned __int8 *)calloutMarkerPings + v156;
+      v159 = MSG_GetLastChangedField(v85, (const unsigned __int8 *)calloutMarkerPings, v158, v154, v155, v157);
+      MSG_WriteDeltaFields(v85, v11, timea, (const unsigned __int8 *)calloutMarkerPings, v158, 0, v159 - 1, v154, v155, v172, NULL);
+      v156 = (__int64)v187;
+      ++v157;
       ++calloutMarkerPings;
     }
-    while ( v182 < 52 );
+    while ( v157 < 52 );
   }
-  v185 = MSG_GetUsedBitCount(v12);
-  v186 = v185 - (_DWORD)v202;
-  SV_TrackPSBitsForSegment(v110, v185 - (_DWORD)v202, PLAYERSTATE_SEGMENT_CALLOUTMARKERS);
-  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v110, v186, 8);
-  v187 = MSG_GetUsedBitCount(v12);
-  SV_TrackPSBitsForSegment(v110, v187 - v205, PLAYERSTATE_SEGMENT_LAST);
-  if ( !v110->archived && !v110->fromBaseline )
+  v160 = MSG_GetUsedBitCount(v11);
+  v161 = v160 - (_DWORD)v178;
+  SV_TrackPSBitsForSegment(v85, v160 - (_DWORD)v178, PLAYERSTATE_SEGMENT_CALLOUTMARKERS);
+  SV_BandwidthProfile_AddPlayerStateSegmentToSnapshot(v85, v161, 8);
+  v162 = MSG_GetUsedBitCount(v11);
+  SV_TrackPSBitsForSegment(v85, v162 - v181, PLAYERSTATE_SEGMENT_LAST);
+  if ( !v85->archived && !v85->fromBaseline )
     SV_TrackFieldsChanged(lc);
   Profile_EndInternal(NULL);
 }
@@ -5832,6 +5492,8 @@ MSG_WriteEntity
 char MSG_WriteEntity(SnapshotInfo *snapInfo, msg_t *msg, const int timeDeltaFrom, const int timeDeltaTo, const int time, const entityState_t *from, const entityState_t *to, ServerEntityHeader *const outHeader, bool force)
 {
   unsigned __int64 v9; 
+  const entityState_t *v10; 
+  const entityState_t *v12; 
   const char *EntityTypeName; 
   PacketEntityType_e PacketEntityTypeForEType; 
   msg_t *v19; 
@@ -5839,33 +5501,35 @@ char MSG_WriteEntity(SnapshotInfo *snapInfo, msg_t *msg, const int timeDeltaFrom
   NetFieldLoD NewEntityLoD; 
   NetFieldLoD OldEntityLoD; 
   bool v23; 
-  __int64 v26; 
-  int v35; 
+  __m256i v24; 
+  __int64 v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  __int16 v29; 
+  int v30; 
+  int v31; 
+  int v32; 
+  int v33; 
+  __m256i v34; 
+  __int64 v35; 
   int v36; 
   int v37; 
-  __int16 v38; 
-  int v39; 
+  int v38; 
+  __int16 v39; 
   int v40; 
   int v41; 
   int v42; 
-  __int64 v45; 
-  int v54; 
-  int v55; 
-  int v56; 
-  __int16 v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  bool v62; 
-  unsigned __int8 v63; 
+  int v43; 
+  bool v44; 
+  unsigned __int8 v45; 
   __int64 changeBit; 
-  char v65[2]; 
+  char v47[2]; 
 
-  v9 = (unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64;
-  _RDI = from;
-  _RSI = to;
-  *(_QWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 8) = msg;
+  v9 = (unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64;
+  v10 = from;
+  v12 = to;
+  *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 8) = msg;
   Profile_Begin(381);
   if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 4087, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
     __debugbreak();
@@ -5893,7 +5557,7 @@ char MSG_WriteEntity(SnapshotInfo *snapInfo, msg_t *msg, const int timeDeltaFrom
   {
     SV_MsgMP_ValidateEntityState(to);
     eType = to->eType;
-    *(_WORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 2) = eType;
+    *(_WORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 2) = eType;
     snapInfo->packetEntityType = MSG_GetPacketEntityTypeForEType(eType);
     if ( outHeader || (NewEntityLoD = SV_SnapshotMP_GetNewEntityLoD(snapInfo, to->number), OldEntityLoD = SV_SnapshotMP_GetOldEntityLoD(snapInfo, to->number), NewEntityLoD == OldEntityLoD) )
     {
@@ -5912,74 +5576,56 @@ char MSG_WriteEntity(SnapshotInfo *snapInfo, msg_t *msg, const int timeDeltaFrom
 LABEL_64:
       if ( timeDeltaTo )
       {
-        __asm
+        v34 = *(__m256i *)((char *)&to->lerp.u.infoVolumeGrapple + 24);
+        v35 = *(_QWORD *)&to->partBits.array[6];
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x140) = *(__m256i *)&to->number;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x160) = *(__m256i *)&to->lerp.pos.trBase.y;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x180) = *(__m256i *)to->lerp.apos.trBase.v;
+        *(_OWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A0) = *(_OWORD *)&to->lerp.u.vehicle.bodyPitch;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1B0) = v34;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1D0) = *(__m256i *)&to->clientNum;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1F0) = *(__m256i *)&to->events[2].eventType;
+        *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x210) = *(__m256i *)&to->animInfo.selectAnim;
+        *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x230) = v35;
+        v36 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x154);
+        if ( v36 )
+          *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x154) = timeDeltaTo + v36;
+        v37 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x178);
+        if ( v37 )
+          *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x178) = timeDeltaTo + v37;
+        v38 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1C8);
+        if ( v38 )
+          *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1C8) = timeDeltaTo + v38;
+        v39 = *(_WORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x148);
+        if ( v39 == 4 && (v40 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A0)) != 0 )
         {
-          vmovups ymm0, ymmword ptr [rsi]
-          vmovups ymm1, ymmword ptr [rsi+70h]
-        }
-        v45 = *(_QWORD *)&to->partBits.array[6];
-        _RCX = v9 + 320;
-        __asm
-        {
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rsi+20h]
-          vmovups ymmword ptr [rcx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rsi+40h]
-          vmovups ymmword ptr [rcx+40h], ymm0
-          vmovups xmm0, xmmword ptr [rsi+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-          vmovups ymmword ptr [rcx+70h], ymm1
-          vmovups ymm1, ymmword ptr [rsi+90h]
-        }
-        _RCX = v9 + 448;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+10h], ymm1
-          vmovups ymm1, ymmword ptr [rsi+0B0h]
-          vmovups ymmword ptr [rcx+30h], ymm1
-          vmovups ymm1, ymmword ptr [rsi+0D0h]
-          vmovups ymmword ptr [rcx+50h], ymm1
-        }
-        *(_QWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x230) = v45;
-        v54 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x154);
-        if ( v54 )
-          *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x154) = timeDeltaTo + v54;
-        v55 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x178);
-        if ( v55 )
-          *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x178) = timeDeltaTo + v55;
-        v56 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1C8);
-        if ( v56 )
-          *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1C8) = timeDeltaTo + v56;
-        v57 = *(_WORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x148);
-        if ( v57 == 4 && (v58 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A0)) != 0 )
-        {
-          *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A0) = timeDeltaTo + v58;
+          *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A0) = timeDeltaTo + v40;
         }
         else
         {
-          v59 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x198);
-          if ( v59 && (!v57 || v57 == 145) )
+          v41 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x198);
+          if ( v41 && (!v39 || v39 == 145) )
           {
-            *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x198) = timeDeltaTo + v59;
+            *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x198) = timeDeltaTo + v41;
           }
-          else if ( v57 == 6 )
+          else if ( v39 == 6 )
           {
-            v60 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A8);
-            if ( v60 )
-              *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A8) = timeDeltaTo + v60;
-            v61 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1AC);
-            if ( v61 )
-              *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1AC) = timeDeltaTo + v61;
+            v42 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A8);
+            if ( v42 )
+              *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1A8) = timeDeltaTo + v42;
+            v43 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1AC);
+            if ( v43 )
+              *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x1AC) = timeDeltaTo + v43;
           }
         }
-        _RSI = (const entityState_t *)(v9 + 320);
+        v12 = (const entityState_t *)(v9 + 320);
       }
-      v62 = (*(_DWORD *)&_RSI->clientLinkInfo & 0x7FF) == 0 && (*(_DWORD *)&_RDI->clientLinkInfo & 0x7FF) != 0;
-      v63 = *(_BYTE *)v9;
-      snapInfo->entJustUnlinked = v62;
-      if ( force || v63 || v62 || !_RDI || memcmp_0(_RDI, _RSI, 0xF8ui64) )
+      v44 = (*(_DWORD *)&v12->clientLinkInfo & 0x7FF) == 0 && (*(_DWORD *)&v10->clientLinkInfo & 0x7FF) != 0;
+      v45 = *(_BYTE *)v9;
+      snapInfo->entJustUnlinked = v44;
+      if ( force || v45 || v44 || !v10 || memcmp_0(v10, v12, 0xF8ui64) )
       {
-        MSG_WriteEntityDeltaForEType(snapInfo, *(msg_t **)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 8), time, *(entityType_s *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 2), _RDI, _RSI, outHeader, force | v63);
+        MSG_WriteEntityDeltaForEType(snapInfo, *(msg_t **)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 8), time, *(entityType_s *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 2), v10, v12, outHeader, force | v45);
       }
       else if ( outHeader )
       {
@@ -5988,72 +5634,54 @@ LABEL_64:
       goto LABEL_96;
     }
 LABEL_42:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymm1, ymmword ptr [rdi+70h]
-    }
-    v26 = *(_QWORD *)&from->partBits.array[6];
-    _RCX = v9 + 64;
-    __asm
-    {
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rdi+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups ymmword ptr [rcx+70h], ymm1
-      vmovups ymm1, ymmword ptr [rdi+90h]
-    }
-    _RCX = v9 + 192;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+10h], ymm1
-      vmovups ymm1, ymmword ptr [rdi+0B0h]
-      vmovups ymmword ptr [rcx+30h], ymm1
-      vmovups ymm1, ymmword ptr [rdi+0D0h]
-      vmovups ymmword ptr [rcx+50h], ymm1
-    }
-    *(_QWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x130) = v26;
+    v24 = *(__m256i *)((char *)&from->lerp.u.infoVolumeGrapple + 24);
+    v25 = *(_QWORD *)&from->partBits.array[6];
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40) = *(__m256i *)&from->number;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x60) = *(__m256i *)&from->lerp.pos.trBase.y;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x80) = *(__m256i *)from->lerp.apos.trBase.v;
+    *(_OWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA0) = *(_OWORD *)&from->lerp.u.vehicle.bodyPitch;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xB0) = v24;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xD0) = *(__m256i *)&from->clientNum;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xF0) = *(__m256i *)&from->events[2].eventType;
+    *(__m256i *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x110) = *(__m256i *)&from->animInfo.selectAnim;
+    *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x130) = v25;
     if ( timeDeltaFrom )
     {
-      v35 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x54);
-      if ( v35 )
-        *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x54) = timeDeltaFrom + v35;
-      v36 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x78);
-      if ( v36 )
-        *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x78) = timeDeltaFrom + v36;
-      v37 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC8);
-      if ( v37 )
-        *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC8) = timeDeltaFrom + v37;
-      v38 = *(_WORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x48);
-      if ( v38 == 4 && (v39 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA0)) != 0 )
+      v26 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x54);
+      if ( v26 )
+        *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x54) = timeDeltaFrom + v26;
+      v27 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x78);
+      if ( v27 )
+        *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x78) = timeDeltaFrom + v27;
+      v28 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC8);
+      if ( v28 )
+        *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC8) = timeDeltaFrom + v28;
+      v29 = *(_WORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x48);
+      if ( v29 == 4 && (v30 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA0)) != 0 )
       {
-        *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA0) = timeDeltaFrom + v39;
+        *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA0) = timeDeltaFrom + v30;
       }
       else
       {
-        v40 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x98);
-        if ( v40 && (!v38 || v38 == 145) )
+        v31 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x98);
+        if ( v31 && (!v29 || v29 == 145) )
         {
-          *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0x98) = timeDeltaFrom + v40;
+          *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0x98) = timeDeltaFrom + v31;
         }
-        else if ( v38 == 6 )
+        else if ( v29 == 6 )
         {
-          v41 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA8);
-          if ( v41 )
-            *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA8) = timeDeltaFrom + v41;
-          v42 = *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xAC);
-          if ( v42 )
-            *(_DWORD *)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 0xAC) = timeDeltaFrom + v42;
+          v32 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA8);
+          if ( v32 )
+            *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xA8) = timeDeltaFrom + v32;
+          v33 = *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xAC);
+          if ( v33 )
+            *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 0xAC) = timeDeltaFrom + v33;
         }
       }
     }
     if ( v23 )
       MSG_ResetEntityToLowLoD((entityState_t *const)(v9 + 64));
-    _RDI = (const entityState_t *)(v9 + 64);
+    v10 = (const entityState_t *)(v9 + 64);
     goto LABEL_64;
   }
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
@@ -6070,7 +5698,7 @@ LABEL_42:
     SV_LogSnapshotContent(snapInfo->clientNum, "Removing entity %i - object is type %i (%s)\n", (unsigned int)from->number, (unsigned int)from->eType, EntityTypeName);
   }
   PacketEntityTypeForEType = MSG_GetPacketEntityTypeForEType((const entityType_s)from->eType);
-  v19 = *(msg_t **)(((unsigned __int64)v65 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
+  v19 = *(msg_t **)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
   snapInfo->packetEntityType = PacketEntityTypeForEType;
   MSG_WriteEntityRemoval(snapInfo, v19, (const unsigned __int8 *)from, 11, 2, outHeader, 0);
 LABEL_96:
@@ -6816,44 +6444,29 @@ void MSG_WriteEvent(SnapshotInfo *snapInfo, msg_t *msg, const unsigned __int8 *f
 MSG_WriteFloatByRangeAndBits
 ==============
 */
-
-void __fastcall MSG_WriteFloatByRangeAndBits(msg_t *msg, const float *fromF, const float *toF, double maxValue, unsigned int bitCount)
+void MSG_WriteFloatByRangeAndBits(msg_t *msg, const float *fromF, const float *toF, float maxValue, unsigned int bitCount)
 {
-  int v16; 
-  __int64 v19; 
-  int v20; 
+  float v6; 
+  float v7; 
+  __int64 v8; 
+  int v9; 
 
-  __asm
+  v6 = *toF;
+  v7 = *fromF;
+  if ( *toF == 0.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr [r8]
-    vmovaps [rsp+58h+var_28], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovss  xmm8, dword ptr [rdx]
-    vmovaps xmm7, xmm3
+    MSG_WriteBit0(msg);
+    if ( LODWORD(v6) == 0x80000000 )
+      MSG_WriteBit1(msg);
+    else
+      MSG_WriteBit0(msg);
   }
-  MSG_WriteBit1(msg);
-  __asm
+  else
   {
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  v16 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, bitCount);
-  __asm
-  {
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vmovaps xmm0, xmm8; value
-  }
-  v19 = v16;
-  v20 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, bitCount);
-  MSG_WriteBits(msg, v19 ^ v20, bitCount);
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
+    MSG_WriteBit1(msg);
+    v8 = MSG_PackSignedFloat(v6, maxValue, bitCount);
+    v9 = MSG_PackSignedFloat(v7, maxValue, bitCount);
+    MSG_WriteBits(msg, v8 ^ v9, bitCount);
   }
 }
 
@@ -6864,60 +6477,49 @@ MSG_WriteFloatCase
 */
 void MSG_WriteFloatCase(msg_t *msg, const int *fromF, const int *toF)
 {
-  const int *v6; 
-  const int *v9; 
-  unsigned int v14; 
-  unsigned int v15; 
-  int v16; 
-  int v18; 
-  int v19; 
-  int v21; 
+  int v3; 
+  float v5; 
+  int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
 
-  __asm
+  v3 = (int)*(float *)fromF;
+  v5 = *(float *)toF;
+  v8 = (int)*(float *)toF;
+  if ( *(float *)toF == 0.0 )
   {
-    vcvttss2si ebx, dword ptr [rdx]
-    vmovaps [rsp+68h+var_28], xmm6
-  }
-  v6 = toF;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r8]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  v9 = fromF;
-  __asm { vcvttss2si esi, xmm6 }
-  MSG_WriteBit1(msg);
-  __asm { vmovss  [rsp+68h+arg_8], xmm6 }
-  if ( v21 == 0x80000000 )
-    goto LABEL_9;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vucomiss xmm0, xmm6
-  }
-  if ( v21 != 0x80000000 || (v14 = _ESI + 4096, v14 > 0x1FFF) || (v15 = _EBX + 4096, v15 > 0x1FFF) )
-  {
-LABEL_9:
-    MSG_WriteBit1(msg);
-    MSG_WriteLong(msg, *v6 ^ *v9);
+    MSG_WriteBit0(msg);
+    if ( LODWORD(v5) == 0x80000000 )
+      MSG_WriteBit1(msg);
+    else
+      MSG_WriteBit0(msg);
   }
   else
   {
-    MSG_WriteBit0(msg);
-    v16 = v14 ^ v15;
-    if ( (unsigned int)v16 > 0x1FFF )
+    MSG_WriteBit1(msg);
+    if ( LODWORD(v5) == 0x80000000 || (float)v8 != v5 || (v9 = v8 + 4096, v9 > 0x1FFF) || (v10 = v3 + 4096, v10 > 0x1FFF) )
     {
-      v19 = 0x1FFF;
-      v18 = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1986, ASSERT_TYPE_ASSERT, "( 0 ) <= ( trunc ) && ( trunc ) <= ( (1 << 13) - 1 )", "trunc not in [0, (1 << FLOAT_INT_BITS) - 1]\n\t%i not in [%i, %i]", v18, 0i64, v19) )
-        __debugbreak();
+      MSG_WriteBit1(msg);
+      MSG_WriteLong(msg, *toF ^ *fromF);
     }
-    MSG_WriteBits(msg, v16, 5u);
-    MSG_WriteByte(msg, (__int64)v16 >> 5);
+    else
+    {
+      MSG_WriteBit0(msg);
+      v11 = v9 ^ v10;
+      if ( (unsigned int)v11 > 0x1FFF )
+      {
+        v13 = 0x1FFF;
+        v12 = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 1986, ASSERT_TYPE_ASSERT, "( 0 ) <= ( trunc ) && ( trunc ) <= ( (1 << 13) - 1 )", "trunc not in [0, (1 << FLOAT_INT_BITS) - 1]\n\t%i not in [%i, %i]", v12, 0i64, v13) )
+          __debugbreak();
+      }
+      MSG_WriteBits(msg, v11, 5u);
+      MSG_WriteByte(msg, (__int64)v11 >> 5);
+    }
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -7040,43 +6642,22 @@ MSG_WriteOriginExpGolomb
 void MSG_WriteOriginExpGolomb(const SnapshotInfo *snapInfo, msg_t *msg, const int kBits, const unsigned int precisionBits)
 {
   int UsedBitCount; 
-  int v21; 
+  int v11; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 401, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
     __debugbreak();
+  _XMM7 = 0i64;
   __asm
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-    vxorps  xmm7, xmm7, xmm7
-    vmulss  xmm0, xmm6, [rsp+58h+value]
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vmulss  xmm0, xmm6, [rsp+58h+oldValue]
-    vaddss  xmm3, xmm0, cs:__real@3f000000
     vroundss xmm0, xmm7, xmm3, 1
     vroundss xmm2, xmm7, xmm1, 1
   }
   UsedBitCount = MSG_GetUsedBitCount(msg);
-  __asm
-  {
-    vcvttss2si eax, xmm0
-    vcvttss2si edx, xmm2
-  }
-  MSG_WriteSignedExpGolomb(msg, _EDX - _EAX, kBits);
+  MSG_WriteSignedExpGolomb(msg, (int)*(float *)&_XMM2 - (int)*(float *)&_XMM0, kBits);
   if ( !snapInfo->fromBaseline && !snapInfo->archived )
   {
-    v21 = MSG_GetUsedBitCount(msg);
-    SV_TrackOriginExpGolombBits(v21 - UsedBitCount);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
+    v11 = MSG_GetUsedBitCount(msg);
+    SV_TrackOriginExpGolombBits(v11 - UsedBitCount);
   }
 }
 
@@ -7108,85 +6689,49 @@ MSG_WriteOriginPhysics
 */
 void MSG_WriteOriginPhysics(const SnapshotInfo *snapInfo, const vec3_t *mapCenter, msg_t *msg, int bits, float value, float oldValue)
 {
-  int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  bool v29; 
+  int v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  bool v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps [rsp+68h+var_38], xmm7
-  }
-  _RBP = mapCenter;
   if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 608, ASSERT_TYPE_ASSERT, "( !msg->readOnly )", (const char *)&queryFormat, "!msg->readOnly") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+68h+value]
-    vsubss  xmm0, xmm6, [rsp+68h+oldValue]
-    vmulss  xmm1, xmm0, cs:__real@41200000
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vxorps  xmm7, xmm7, xmm7
-    vroundss xmm3, xmm7, xmm2, 1
-    vcvttss2si ebx, xmm3
-  }
-  v18 = _EBX + 128;
-  if ( (unsigned int)v18 > 0xFF )
+  _XMM7 = 0i64;
+  __asm { vroundss xmm3, xmm7, xmm2, 1 }
+  v10 = (int)*(float *)&_XMM3 + 128;
+  if ( (unsigned int)v10 > 0xFF )
   {
     MSG_WriteBit0(msg);
     if ( bits == -113 )
     {
-      v20 = 0;
+      v12 = 0i64;
     }
     else
     {
       if ( bits != -114 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 633, ASSERT_TYPE_ASSERT, "(bits == (-114))", (const char *)&queryFormat, "bits == MSG_FIELD_ORIGIN_PHYSICSY") )
         __debugbreak();
-      v20 = 1;
+      v12 = 1i64;
     }
-    _RAX = v20;
-    __asm
+    __asm { vroundss xmm0, xmm7, xmm2, 1 }
+    v10 = 1048570 - (int)(float)((float)(value - (float)(int)*(float *)&_XMM0) * -10.0);
+    v14 = v10 <= 2097140;
+    if ( (unsigned int)v10 > 0x1FFFF4 )
     {
-      vmovss  xmm0, dword ptr [rbp+rax*4+0]
-      vaddss  xmm2, xmm0, cs:__real@3f000000
-      vroundss xmm0, xmm7, xmm2, 1
-      vcvttss2si eax, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vsubss  xmm1, xmm6, xmm0
-      vmulss  xmm2, xmm1, cs:__real@c1200000
-      vcvttss2si eax, xmm2
+      Com_PrintError(1, "MSG_WriteOriginPhysics: Not enough range available for physics origin '%f' [%i]\n", value, v12);
+      v14 = v10 <= 2097140;
     }
-    v18 = 1048570 - _RAX;
-    v29 = 1048570 - (int)_RAX <= 2097140;
-    if ( (unsigned int)(1048570 - _RAX) > 0x1FFFF4 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovq   r8, xmm2
-      }
-      Com_PrintError(1, "MSG_WriteOriginPhysics: Not enough range available for physics origin '%f' [%i]\n", _R8);
-      v29 = v18 <= 2097140;
-    }
-    if ( !v29 )
-      v18 = 2097140;
-    v19 = 21;
-    if ( v18 < 0 )
-      v18 = 0;
+    if ( !v14 )
+      v10 = 2097140;
+    v11 = 21;
+    if ( v10 < 0 )
+      v10 = 0;
   }
   else
   {
     MSG_WriteBit1(msg);
-    v19 = 8;
+    v11 = 8;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
-  MSG_WriteBits(msg, v18, v19);
+  MSG_WriteBits(msg, v10, v11);
 }
 
 /*
@@ -7445,43 +6990,30 @@ Omnvar_HasChanged
 */
 bool Omnvar_HasChanged(const OmnvarDef *def, const OmnvarData *from, const OmnvarData *to)
 {
-  bool v6; 
   bool result; 
 
-  _RBX = to;
-  _RDI = from;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5599, ASSERT_TYPE_ASSERT, "( def )", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5600, ASSERT_TYPE_ASSERT, "( from )", (const char *)&queryFormat, "from") )
+  if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5600, ASSERT_TYPE_ASSERT, "( from )", (const char *)&queryFormat, "from") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5601, ASSERT_TYPE_ASSERT, "( to )", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5601, ASSERT_TYPE_ASSERT, "( to )", (const char *)&queryFormat, "to") )
     __debugbreak();
-  v6 = _RDI->timeModified == _RBX->timeModified;
-  if ( _RDI->timeModified != _RBX->timeModified )
-  {
-    v6 = (def->flags & 0x40) == 0;
-    if ( (def->flags & 0x40) != 0 )
-      return 1;
-  }
+  if ( from->timeModified != to->timeModified && (def->flags & 0x40) != 0 )
+    return 1;
   switch ( def->type )
   {
     case OMNVAR_TYPE_BOOL:
-      result = _RDI->current.enabled != _RBX->current.enabled;
+      result = from->current.enabled != to->current.enabled;
       break;
     case OMNVAR_TYPE_FLOAT:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]; jumptable 000000014144712D case 1
-        vucomiss xmm0, dword ptr [rdi+4]
-      }
-      if ( !v6 )
+      if ( to->current.value != from->current.value )
         return 1;
       goto LABEL_19;
     case OMNVAR_TYPE_INT:
     case OMNVAR_TYPE_UINT:
     case OMNVAR_TYPE_TIME:
     case OMNVAR_TYPE_NCS_LUI:
-      result = _RDI->current.integer != _RBX->current.integer;
+      result = from->current.integer != to->current.integer;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\sv_msg_write_mp.cpp", 5623, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unrecognized Omnvar type") )

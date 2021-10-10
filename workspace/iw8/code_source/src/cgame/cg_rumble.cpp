@@ -380,448 +380,311 @@ CG_Rumble_CalcActiveRumbles
 void CG_Rumble_CalcActiveRumbles(LocalClientNum_t localClientNum, ActiveRumble *activeRumbleArray, const vec3_t *rumbleReceiverPos, const vec4_t *rumbleReceiverOrient)
 {
   cg_t *LocalClientGlobals; 
-  int v21; 
-  __int64 v26; 
-  unsigned int v31; 
-  char v40; 
+  int v8; 
+  float *v12; 
+  __int64 v13; 
+  float v14; 
+  __int64 v15; 
+  int v16; 
+  __int128 v17; 
+  char v22; 
   centity_t *Entity; 
-  bool v42; 
-  bool v43; 
-  bool v47; 
-  bool v62; 
-  bool v63; 
-  unsigned int clientNum; 
-  __int64 v75; 
-  __int64 v79; 
-  __int64 v119; 
-  __int64 v120; 
-  const dvar_t *v128; 
-  const dvar_t *v130; 
-  const dvar_t *v132; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int64 v33; 
+  float v34; 
+  __int128 v36; 
+  __int64 v37; 
+  __int128 v39; 
+  float v40; 
+  float v41; 
+  __int128 v42; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int64 v57; 
+  __int64 v58; 
+  __int128 v59; 
+  __int128 v62; 
+  const dvar_t *v63; 
+  float v64; 
+  const dvar_t *v65; 
+  float v66; 
+  const dvar_t *v67; 
+  float v68; 
+  const dvar_t *v69; 
+  float value; 
   int ControllerFromClient; 
-  int v137; 
-  double v168; 
-  double v169; 
-  double v170; 
+  int v72; 
+  float v73; 
   vec3_t outOrigin; 
+  float v75; 
   LocalClientNum_t localClientNuma; 
+  float v77; 
+  int v78; 
+  int v79; 
   vec4_t *quat; 
-  __int64 v178; 
+  __int64 v81; 
   tmat33_t<vec3_t> axis; 
-  char v180; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v178 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
+  v81 = -2i64;
   quat = (vec4_t *)rumbleReceiverOrient;
-  _R14 = rumbleReceiverPos;
   localClientNuma = localClientNum;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 178, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v21 = 0;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@bf800000
-    vmovaps xmm10, xmm8
-    vmovss  [rsp+180h+var_128], xmm8
-    vmovaps xmm12, xmm8
-    vmovss  [rsp+180h+var_130], xmm8
-  }
-  _RBX = &activeRumbleArray->source.pos.v[2];
-  v26 = 32i64;
-  __asm
-  {
-    vxorps  xmm13, xmm13, xmm13
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm9, cs:__real@3b808081
-  }
+  v8 = 0;
+  *(float *)&_XMM8 = FLOAT_N1_0;
+  *(float *)&_XMM10 = FLOAT_N1_0;
+  v77 = FLOAT_N1_0;
+  *(float *)&_XMM12 = FLOAT_N1_0;
+  v75 = FLOAT_N1_0;
+  v12 = &activeRumbleArray->source.pos.v[2];
+  v13 = 32i64;
+  v14 = FLOAT_0_0039215689;
   do
   {
-    _RDI = *((_QWORD *)_RBX - 4);
-    if ( !_RDI )
+    v15 = *((_QWORD *)v12 - 4);
+    if ( !v15 )
       goto LABEL_50;
-    v31 = *((_DWORD *)_RBX - 4);
-    if ( !v31 )
+    v16 = *((_DWORD *)v12 - 4);
+    if ( !v16 )
       goto LABEL_50;
+    v17 = 0i64;
+    *(float *)&v17 = (float)(LocalClientGlobals->time - *((_DWORD *)v12 - 6)) / (float)*(int *)(v15 + 8);
+    _XMM2 = v17;
     __asm
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+8]
-      vdivss  xmm2, xmm1, xmm0
       vmaxss  xmm1, xmm2, xmm13
       vminss  xmm15, xmm1, xmm11
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  dword ptr [rsp+180h+outOrigin], xmm0
-      vmovss  xmm1, dword ptr [r14+4]
-      vmovss  dword ptr [rsp+180h+outOrigin+4], xmm1
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  dword ptr [rsp+180h+outOrigin+8], xmm0
     }
-    v40 = 0;
-    if ( !*(_BYTE *)(_RDI + 51) )
+    *(_QWORD *)outOrigin.v = *(_QWORD *)rumbleReceiverPos->v;
+    _XMM0 = LODWORD(rumbleReceiverPos->v[2]);
+    outOrigin.v[2] = rumbleReceiverPos->v[2];
+    v22 = 0;
+    if ( !*(_BYTE *)(v15 + 51) )
     {
-      if ( v31 == 1 )
+      if ( v16 == 1 )
       {
-        clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-        v62 = *((_DWORD *)_RBX - 2) < clientNum;
-        v63 = *((_DWORD *)_RBX - 2) == clientNum;
-        if ( *((_DWORD *)_RBX - 2) != clientNum )
+        if ( *((_DWORD *)v12 - 2) != LocalClientGlobals->predictedPlayerState.clientNum )
           goto LABEL_50;
       }
-      else
+      else if ( v16 == 2 )
       {
-        v62 = v31 < 2;
-        v63 = v31 == 2;
-        if ( v31 == 2 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-8]
-            vmovss  dword ptr [rsp+180h+outOrigin], xmm0
-            vmovss  xmm1, dword ptr [rbx-4]
-            vmovss  dword ptr [rsp+180h+outOrigin+4], xmm1
-            vmovss  xmm0, dword ptr [rbx]
-            vmovss  dword ptr [rsp+180h+outOrigin+8], xmm0
-          }
-          v40 = 1;
-        }
+        *(_QWORD *)outOrigin.v = *((_QWORD *)v12 - 1);
+        _XMM0 = *(unsigned int *)v12;
+        outOrigin.v[2] = *v12;
+        v22 = 1;
       }
       goto LABEL_26;
     }
-    if ( v31 == 1 )
+    if ( v16 == 1 )
     {
-      Entity = CG_GetEntity(localClientNuma, *((_DWORD *)_RBX - 2));
+      Entity = CG_GetEntity(localClientNuma, *((_DWORD *)v12 - 2));
       CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+180h+outOrigin+8]
-        vmovss  xmm2, dword ptr [rsp+180h+outOrigin+4]
-        vmovss  xmm1, dword ptr [rsp+180h+outOrigin]
-      }
+      v24 = outOrigin.v[2];
+      v25 = outOrigin.v[1];
+      v26 = outOrigin.v[0];
     }
     else
     {
-      v42 = v31 < 2;
-      v43 = v31 == 2;
-      if ( v31 != 2 )
-      {
-        v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 238, ASSERT_TYPE_ASSERT, "(ar->sourceType == RUMBLESOURCE_POS)", (const char *)&queryFormat, "ar->sourceType == RUMBLESOURCE_POS");
-        v42 = 0;
-        v43 = !v47;
-        if ( v47 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx-8]
-        vmovss  dword ptr [rsp+180h+outOrigin], xmm1
-        vmovss  xmm2, dword ptr [rbx-4]
-        vmovss  dword ptr [rsp+180h+outOrigin+4], xmm2
-        vmovss  xmm4, dword ptr [rbx]
-        vmovss  dword ptr [rsp+180h+outOrigin+8], xmm4
-      }
+      if ( v16 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 238, ASSERT_TYPE_ASSERT, "(ar->sourceType == RUMBLESOURCE_POS)", (const char *)&queryFormat, "ar->sourceType == RUMBLESOURCE_POS") )
+        __debugbreak();
+      v26 = *(v12 - 2);
+      outOrigin.v[0] = v26;
+      v25 = *(v12 - 1);
+      outOrigin.v[1] = v25;
+      v24 = *v12;
+      outOrigin.v[2] = *v12;
     }
-    v40 = 1;
-    __asm
+    v22 = 1;
+    v27 = LODWORD(rumbleReceiverPos->v[1]);
+    *(float *)&v27 = fsqrt((float)((float)((float)(rumbleReceiverPos->v[1] - v25) * (float)(rumbleReceiverPos->v[1] - v25)) + (float)((float)(rumbleReceiverPos->v[0] - v26) * (float)(rumbleReceiverPos->v[0] - v26))) + (float)((float)(rumbleReceiverPos->v[2] - v24) * (float)(rumbleReceiverPos->v[2] - v24)));
+    _XMM0 = *(unsigned int *)(v15 + 12);
+    if ( *(float *)&v27 <= *(float *)&_XMM0 )
     {
-      vmovss  xmm0, dword ptr [r14]
-      vsubss  xmm3, xmm0, xmm1
-      vmovss  xmm1, dword ptr [r14+4]
-      vsubss  xmm2, xmm1, xmm2
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm4, xmm0, xmm4
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm6, xmm2, xmm2
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-      vcomiss xmm6, xmm0
-    }
-    if ( v42 || v43 )
-    {
-      v62 = 0;
-      v63 = *(_BYTE *)(_RDI + 50) == 0;
-      if ( *(_BYTE *)(_RDI + 50) )
+      if ( *(_BYTE *)(v15 + 50) )
       {
-        __asm { vucomiss xmm0, xmm13 }
-        if ( !*(_BYTE *)(_RDI + 50) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 253, ASSERT_TYPE_ASSERT, "(info->range)", (const char *)&queryFormat, "info->range") )
+        if ( *(float *)&_XMM0 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 253, ASSERT_TYPE_ASSERT, "(info->range)", (const char *)&queryFormat, "info->range") )
           __debugbreak();
-        __asm
-        {
-          vdivss  xmm0, xmm6, dword ptr [rdi+0Ch]; val
-          vmovaps xmm2, xmm11; max
-          vmovaps xmm1, xmm13; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vsubss  xmm12, xmm11, xmm0 }
+        *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v27 + 1);
+        *(double *)&_XMM0 = I_fclamp(*(float *)&v27 / *(float *)(v15 + 12), 0.0, 1.0);
+        v28 = 1.0 - *(float *)&_XMM0;
         goto LABEL_27;
       }
 LABEL_26:
-      __asm { vmovaps xmm12, xmm11 }
+      v28 = FLOAT_1_0;
 LABEL_27:
-      __asm
+      v29 = (float)*((unsigned __int8 *)v12 - 12);
+      v30 = v29 * v14;
+      if ( (float)(v29 * v14) < 0.0 || (float)(v29 * v14) > 1.0 )
       {
-        vxorps  xmm14, xmm14, xmm14
-        vcvtsi2ss xmm14, xmm14, eax
-        vmulss  xmm6, xmm14, xmm9
-        vcomiss xmm6, xmm13
-      }
-      if ( v62 )
-        goto LABEL_69;
-      __asm { vcomiss xmm6, xmm11 }
-      if ( !v62 && !v63 )
-      {
-LABEL_69:
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  xmm1, cs:__real@3ff0000000000000
-          vmovsd  [rsp+180h+var_148], xmm1
-          vxorpd  xmm1, xmm1, xmm1
-          vmovsd  [rsp+180h+var_150], xmm1
-          vmovsd  [rsp+180h+var_158], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 280, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v168, v169, v170) )
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        _XMM1 = *(unsigned __int64 *)&DOUBLE_1_0;
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 280, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( scale ) && ( scale ) <= ( 1.0f )", "scale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v30, *(double *)&_XMM1, DOUBLE_1_0) )
           __debugbreak();
       }
-      v75 = *(_QWORD *)(_RDI + 24);
-      __asm { vmulss  xmm6, xmm6, xmm12 }
-      if ( v75 )
+      v33 = *(_QWORD *)(v15 + 24);
+      v34 = v30 * v28;
+      if ( v33 )
       {
-        __asm { vmovaps xmm2, xmm15; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v75 + 136), (const vec2_t *)(v75 + 8), *(const float *)&_XMM2);
-        __asm { vmulss  xmm7, xmm0, xmm6 }
+        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v33 + 136), (const vec2_t *)(v33 + 8), *(const float *)&_XMM15);
+        v36 = _XMM0;
+        *(float *)&v36 = *(float *)&_XMM0 * v34;
+        _XMM7 = v36;
       }
       else
       {
-        __asm { vmovaps xmm7, xmm13 }
+        _XMM7 = 0i64;
       }
-      v79 = *(_QWORD *)(_RDI + 16);
-      if ( v79 )
+      v37 = *(_QWORD *)(v15 + 16);
+      if ( v37 )
       {
-        __asm { vmovaps xmm2, xmm15; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v79 + 136), (const vec2_t *)(v79 + 8), *(const float *)&_XMM2);
-        __asm { vmulss  xmm1, xmm0, xmm6 }
+        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v37 + 136), (const vec2_t *)(v37 + 8), *(const float *)&_XMM15);
+        v39 = _XMM0;
+        *(float *)&v39 = *(float *)&_XMM0 * v34;
+        _XMM1 = v39;
       }
       else
       {
-        __asm { vmovaps xmm1, xmm13 }
+        _XMM1 = 0i64;
       }
-      __asm
-      {
-        vmaxss  xmm8, xmm7, xmm8
-        vmovss  [rsp+180h+var_124], xmm8
-        vmaxss  xmm10, xmm1, xmm10
-        vmovss  [rsp+180h+var_120], xmm10
-        vmovaps xmm6, xmm11
-        vmovaps xmm7, xmm11
-      }
-      if ( v40 && *(_BYTE *)(_RDI + 49) )
+      __asm { vmaxss  xmm8, xmm7, xmm8 }
+      v78 = _XMM8;
+      __asm { vmaxss  xmm10, xmm1, xmm10 }
+      v79 = _XMM10;
+      v40 = FLOAT_1_0;
+      v41 = FLOAT_1_0;
+      if ( v22 && *(_BYTE *)(v15 + 49) )
       {
         QuatToAxis(quat, &axis);
+        v42 = LODWORD(axis.m[1].v[0]);
+        *(float *)&v42 = fsqrt((float)((float)(*(float *)&v42 * *(float *)&v42) + (float)(axis.m[1].v[1] * axis.m[1].v[1])) + (float)(axis.m[1].v[2] * axis.m[1].v[2]));
+        _XMM3 = v42;
         __asm
         {
-          vmovss  xmm6, dword ptr [rbp+80h+axis+0Ch]
-          vmulss  xmm1, xmm6, xmm6
-          vmovss  xmm5, dword ptr [rbp+80h+axis+10h]
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm1, xmm0
-          vmovss  xmm4, dword ptr [rbp+80h+axis+14h]
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm0, xmm2, xmm1
-          vsqrtss xmm3, xmm0, xmm0
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm1, xmm3, xmm11, xmm0
-          vdivss  xmm0, xmm11, xmm1
-          vmulss  xmm9, xmm6, xmm0
-          vmulss  xmm8, xmm5, xmm0
-          vmulss  xmm10, xmm4, xmm0
-          vmovss  xmm0, dword ptr [rsp+180h+outOrigin]
-          vsubss  xmm7, xmm0, dword ptr [r14]
-          vmovss  xmm1, dword ptr [rsp+180h+outOrigin+4]
-          vsubss  xmm4, xmm1, dword ptr [r14+4]
-          vmovss  xmm0, dword ptr [rsp+180h+outOrigin+8]
-          vsubss  xmm6, xmm0, dword ptr [r14+8]
-          vmulss  xmm2, xmm4, xmm4
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
+        }
+        v46 = axis.m[1].v[0] * (float)(1.0 / *(float *)&_XMM1);
+        v47 = axis.m[1].v[1] * (float)(1.0 / *(float *)&_XMM1);
+        v48 = axis.m[1].v[2] * (float)(1.0 / *(float *)&_XMM1);
+        v49 = outOrigin.v[0] - rumbleReceiverPos->v[0];
+        v51 = LODWORD(outOrigin.v[1]);
+        *(float *)&v51 = outOrigin.v[1] - rumbleReceiverPos->v[1];
+        v50 = v51;
+        v53 = LODWORD(outOrigin.v[2]);
+        *(float *)&v53 = outOrigin.v[2] - rumbleReceiverPos->v[2];
+        v52 = v53;
+        v54 = v50;
+        *(float *)&v54 = fsqrt((float)((float)(*(float *)&v50 * *(float *)&v50) + (float)(v49 * v49)) + (float)(*(float *)&v52 * *(float *)&v52));
+        _XMM1 = v54;
+        __asm
+        {
           vcmpless xmm0, xmm1, cs:__real@80000000
           vblendvps xmm1, xmm1, xmm11, xmm0
-          vdivss  xmm5, xmm11, xmm1
-          vmulss  xmm0, xmm4, xmm5
-          vmulss  xmm3, xmm0, xmm8
-          vmulss  xmm1, xmm7, xmm5
-          vmulss  xmm2, xmm1, xmm9
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm0, xmm6, xmm5
-          vmulss  xmm1, xmm0, xmm10
-          vaddss  xmm6, xmm4, xmm1
-          vxorps  xmm7, xmm6, cs:__xmm@80000000800000008000000080000000
-          vmovss  xmm8, [rsp+180h+var_124]
-          vmovss  xmm9, cs:__real@3b808081
-          vmovss  xmm10, [rsp+180h+var_120]
         }
+        *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v52 + 1);
+        v40 = (float)((float)((float)(*(float *)&v50 * (float)(1.0 / *(float *)&_XMM1)) * v47) + (float)((float)(v49 * (float)(1.0 / *(float *)&_XMM1)) * v46)) + (float)((float)(*(float *)&v52 * (float)(1.0 / *(float *)&_XMM1)) * v48);
+        LODWORD(v41) = LODWORD(v40) ^ _xmm;
+        LODWORD(_XMM8) = v78;
+        v14 = FLOAT_0_0039215689;
+        LODWORD(_XMM10) = v79;
       }
-      if ( Dvar_GetBoolSafe("LMTKLROPNM") && *(_BYTE *)(_RDI + 48) )
+      if ( Dvar_GetBoolSafe("LMTKLROPNM") && *(_BYTE *)(v15 + 48) )
       {
-        v119 = *(_QWORD *)(_RDI + 40);
-        v120 = *(_QWORD *)(_RDI + 32);
+        v57 = *(_QWORD *)(v15 + 40);
+        v58 = *(_QWORD *)(v15 + 32);
       }
       else
       {
-        v119 = *(_QWORD *)(_RDI + 32);
-        v120 = *(_QWORD *)(_RDI + 40);
+        v57 = *(_QWORD *)(v15 + 32);
+        v58 = *(_QWORD *)(v15 + 40);
       }
-      if ( v119 )
+      if ( v57 )
       {
-        __asm { vmovaps xmm2, xmm15; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v119 + 136), (const vec2_t *)(v119 + 8), *(const float *)&_XMM2);
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm12
-          vmulss  xmm2, xmm1, xmm14
-          vmulss  xmm3, xmm2, xmm9
-          vmulss  xmm0, xmm0, xmm3
-          vmaxss  xmm6, xmm0, [rsp+180h+var_128]
-          vmovss  [rsp+180h+var_128], xmm6
-        }
+        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v57 + 136), (const vec2_t *)(v57 + 8), *(const float *)&_XMM15);
+        v59 = _XMM0;
+        *(float *)&v59 = *(float *)&_XMM0 * (float)((float)((float)(v40 * v28) * v29) * v14);
+        _XMM0 = v59;
+        __asm { vmaxss  xmm6, xmm0, [rsp+180h+var_128] }
+        v77 = *(float *)&_XMM6;
       }
-      if ( v120 )
+      if ( v58 )
       {
-        __asm { vmovaps xmm2, xmm15; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v120 + 136), (const vec2_t *)(v120 + 8), *(const float *)&_XMM2);
-        __asm
-        {
-          vmulss  xmm1, xmm7, xmm12
-          vmulss  xmm2, xmm1, xmm14
-          vmulss  xmm3, xmm2, xmm9
-          vmulss  xmm0, xmm0, xmm3
-          vmaxss  xmm12, xmm0, [rsp+180h+var_130]
-          vmovss  [rsp+180h+var_130], xmm12
-        }
+        *(double *)&_XMM0 = GraphGetValueFromFraction(*(unsigned __int16 *)(v58 + 136), (const vec2_t *)(v58 + 8), *(const float *)&_XMM15);
+        v62 = _XMM0;
+        *(float *)&v62 = *(float *)&_XMM0 * (float)((float)((float)(v41 * v28) * v29) * v14);
+        _XMM0 = v62;
+        __asm { vmaxss  xmm12, xmm0, [rsp+180h+var_130] }
+        v75 = *(float *)&_XMM12;
       }
       else
       {
-        __asm { vmovss  xmm12, [rsp+180h+var_130] }
+        *(float *)&_XMM12 = v75;
       }
-      ++v21;
+      ++v8;
     }
 LABEL_50:
     memset(&outOrigin, 0, sizeof(outOrigin));
-    _RBX += 14;
-    --v26;
+    v12 += 14;
+    --v13;
   }
-  while ( v26 );
-  v128 = DCONST_DVARFLT_cg_rumble_xb3_lf_mult;
+  while ( v13 );
+  v63 = DCONST_DVARFLT_cg_rumble_xb3_lf_mult;
   if ( !DCONST_DVARFLT_cg_rumble_xb3_lf_mult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_rumble_xb3_lf_mult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v128);
-  __asm { vmulss  xmm7, xmm8, dword ptr [rdi+28h] }
-  v130 = DCONST_DVARFLT_cg_rumble_xb3_hf_mult;
+  Dvar_CheckFrontendServerThread(v63);
+  v64 = *(float *)&_XMM8 * v63->current.value;
+  v65 = DCONST_DVARFLT_cg_rumble_xb3_hf_mult;
   if ( !DCONST_DVARFLT_cg_rumble_xb3_hf_mult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_rumble_xb3_hf_mult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v130);
-  __asm { vmulss  xmm6, xmm10, dword ptr [rdi+28h] }
-  v132 = DCONST_DVARFLT_cg_rumble_xb3_tr_mult;
+  Dvar_CheckFrontendServerThread(v65);
+  v66 = *(float *)&_XMM10 * v65->current.value;
+  v67 = DCONST_DVARFLT_cg_rumble_xb3_tr_mult;
   if ( !DCONST_DVARFLT_cg_rumble_xb3_tr_mult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_rumble_xb3_tr_mult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v132);
-  __asm { vmulss  xmm9, xmm12, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_cg_rumble_xb3_tr_mult;
+  Dvar_CheckFrontendServerThread(v67);
+  v68 = *(float *)&_XMM12 * v67->current.value;
+  v69 = DCONST_DVARFLT_cg_rumble_xb3_tr_mult;
   if ( !DCONST_DVARFLT_cg_rumble_xb3_tr_mult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_rumble_xb3_tr_mult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm8, dword ptr [rdi+28h] }
+  Dvar_CheckFrontendServerThread(v69);
+  value = v69->current.value;
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNuma);
-  v137 = ControllerFromClient;
-  __asm { vmovaps xmm1, xmm13; min }
-  if ( v21 )
+  v72 = ControllerFromClient;
+  if ( v8 )
   {
-    __asm
-    {
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm0, xmm7; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; rumble }
-    GPad_SetLowRumble(v137, *(float *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm13; min
-      vmovaps xmm0, xmm6; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; rumble }
-    GPad_SetHighRumble(v137, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm0, xmm8, [rsp+180h+var_128]; val
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm13; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; rumble }
-    GPad_SetLeftTriggerRumble(v137, *(float *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm13; min
-      vmovaps xmm0, xmm9; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; rumble }
-    GPad_SetRightTriggerRumble(v137, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  cs:lowRumbleDebugGlobal, xmm7
-      vmovss  cs:highRumbleDebugGlobal, xmm6
-    }
+    I_fclamp(v64, 0.0, 1.0);
+    GPad_SetLowRumble(v72, v64);
+    I_fclamp(v66, 0.0, 1.0);
+    GPad_SetHighRumble(v72, v66);
+    v73 = value * v77;
+    I_fclamp(value * v77, 0.0, 1.0);
+    GPad_SetLeftTriggerRumble(v72, v73);
+    I_fclamp(v68, 0.0, 1.0);
+    GPad_SetRightTriggerRumble(v72, v68);
+    lowRumbleDebugGlobal = v64;
+    highRumbleDebugGlobal = v66;
   }
   else
   {
-    GPad_SetLowRumble(ControllerFromClient, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm13; rumble }
-    GPad_SetHighRumble(v137, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm13; rumble }
-    GPad_SetLeftTriggerRumble(v137, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm13; rumble }
-    GPad_SetRightTriggerRumble(v137, *(float *)&_XMM1);
-  }
-  _R11 = &v180;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    GPad_SetLowRumble(ControllerFromClient, 0.0);
+    GPad_SetHighRumble(v72, 0.0);
+    GPad_SetLeftTriggerRumble(v72, 0.0);
+    GPad_SetRightTriggerRumble(v72, 0.0);
   }
 }
 
@@ -848,41 +711,21 @@ CG_Rumble_DrawActiveRumble
 */
 void CG_Rumble_DrawActiveRumble(const LocalClientNum_t localClientNum, const ActiveRumble *ar, vec3_t *outDebugStrPos)
 {
-  bool v17; 
-  bool v18; 
+  const RumbleInfo *rumbleInfo; 
+  float v7; 
   centity_t *Entity; 
+  float range; 
   __int128 dir; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps [rsp+98h+var_48], xmm8
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+98h+dir], xmm6
-    vmovss  dword ptr [rsp+98h+dir+4], xmm6
-    vmovss  dword ptr [rsp+98h+dir+8], xmm7
-  }
+  *(float *)&dir = 0.0;
+  *((float *)&dir + 1) = 0.0;
+  *((float *)&dir + 2) = FLOAT_1_0;
   if ( !ar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 59, ASSERT_TYPE_ASSERT, "(ar)", (const char *)&queryFormat, "ar", dir) )
     __debugbreak();
   if ( !ar->rumbleInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 60, ASSERT_TYPE_ASSERT, "(ar->rumbleInfo)", (const char *)&queryFormat, "ar->rumbleInfo") )
     __debugbreak();
-  _RSI = ar->rumbleInfo;
-  CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+8]
-  }
-  v17 = ar->sourceType == RUMBLESOURCE_INVALID;
-  v18 = ar->sourceType == RUMBLESOURCE_ENTITY;
-  __asm
-  {
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm8, xmm1, xmm0
-  }
+  rumbleInfo = ar->rumbleInfo;
+  v7 = (float)(CG_GetLocalClientGlobals(localClientNum)->time - ar->startTime) / (float)rumbleInfo->duration;
   if ( ar->sourceType == RUMBLESOURCE_ENTITY )
   {
     Entity = CG_GetEntity(localClientNum, ar->source.entityNum);
@@ -894,26 +737,11 @@ void CG_Rumble_DrawActiveRumble(const LocalClientNum_t localClientNum, const Act
     outDebugStrPos->v[1] = ar->source.pos.v[1];
     outDebugStrPos->v[2] = ar->source.pos.v[2];
   }
-  __asm
+  range = rumbleInfo->range;
+  if ( range > 0.0 )
   {
-    vmovss  xmm1, dword ptr [rsi+0Ch]; radius
-    vcomiss xmm1, xmm6
-  }
-  if ( !v17 && !v18 )
-  {
-    CG_DebugCircle(outDebugStrPos, *(float *)&_XMM1, (const vec3_t *)&dir, &colorRed, 0, 3);
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm8
-      vmulss  xmm1, xmm0, dword ptr [rsi+0Ch]; radius
-    }
-    CG_DebugCircle(outDebugStrPos, *(float *)&_XMM1, (const vec3_t *)&dir, &colorYellow, 0, 3);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-    vmovaps xmm8, [rsp+98h+var_48]
+    CG_DebugCircle(outDebugStrPos, range, (const vec3_t *)&dir, &colorRed, 0, 3);
+    CG_DebugCircle(outDebugStrPos, (float)(1.0 - v7) * rumbleInfo->range, (const vec3_t *)&dir, &colorYellow, 0, 3);
   }
 }
 
@@ -924,47 +752,30 @@ CG_Rumble_DrawDebug
 */
 void CG_Rumble_DrawDebug(LocalClientNum_t localClientNum)
 {
-  __int64 v5; 
-  const char *v8; 
-  bool v9; 
-  const ScreenPlacement *v10; 
+  __int64 v1; 
+  const char *v2; 
+  bool v3; 
+  const ScreenPlacement *v4; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:highRumbleDebugGlobal
-    vmovss  xmm1, cs:lowRumbleDebugGlobal
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm1, xmm1, xmm1
-  }
-  v5 = localClientNum;
-  __asm
-  {
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v8 = j_va("Rumble: Low %.3f, High %.3f\n", _RDX, _R8);
+  v1 = localClientNum;
+  v2 = j_va("Rumble: Low %.3f, High %.3f\n", lowRumbleDebugGlobal, highRumbleDebugGlobal);
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      v10 = &scrPlaceViewDisplay[v5];
+      v4 = &scrPlaceViewDisplay[v1];
       goto LABEL_8;
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v9 )
+      v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v3 )
       __debugbreak();
   }
-  v10 = &scrPlaceFull;
+  v4 = &scrPlaceFull;
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43960000; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  CG_DrawSmallDevStringColor(v10, *(float *)&_XMM1, *(float *)&_XMM2, v8, &colorRed, 6);
+  CG_DrawSmallDevStringColor(v4, 0.0, 300.0, v2, &colorRed, 6);
 }
 
 /*
@@ -1105,88 +916,72 @@ CG_Rumble_NextAvailableRumble
 */
 ActiveRumble *CG_Rumble_NextAvailableRumble(const cg_t *cgameGlob, ActiveRumble *arArray)
 {
-  int v7; 
+  int v4; 
   int *p_startTime; 
   __int64 i; 
-  int *v10; 
+  int *v7; 
   RumbleSourceType *p_sourceType; 
-  int v12; 
-  int v13; 
+  int v9; 
+  int v10; 
+  float v11; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 525, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v7 = 0;
+  v4 = 0;
   p_startTime = &arArray[2].startTime;
   for ( i = 0i64; i < 32; i += 4i64 )
   {
-    v10 = p_startTime - 30;
+    v7 = p_startTime - 30;
     if ( *(p_startTime - 28) <= 0 )
       break;
-    v10 = p_startTime - 16;
+    v7 = p_startTime - 16;
     if ( *(p_startTime - 14) <= 0 )
     {
-      ++v7;
+      ++v4;
       break;
     }
-    v10 = p_startTime - 2;
+    v7 = p_startTime - 2;
     if ( *p_startTime <= 0 )
     {
-      v7 += 2;
+      v4 += 2;
       break;
     }
-    v10 = p_startTime + 12;
+    v7 = p_startTime + 12;
     if ( p_startTime[14] <= 0 )
     {
-      v7 += 3;
+      v4 += 3;
       break;
     }
     p_startTime += 56;
-    v7 += 4;
+    v4 += 4;
   }
-  if ( v7 != 32 )
-    return (ActiveRumble *)v10;
+  if ( v4 != 32 )
+    return (ActiveRumble *)v7;
   p_sourceType = &arArray->sourceType;
-  v12 = 32;
-  v13 = 0;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v9 = 32;
+  v10 = 0;
+  v11 = 0.0;
   do
   {
     if ( !*((_QWORD *)p_sourceType - 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 487, ASSERT_TYPE_ASSERT, "(ar->rumbleInfo)", (const char *)&queryFormat, "ar->rumbleInfo") )
       __debugbreak();
     if ( *p_sourceType == RUMBLESOURCE_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 488, ASSERT_TYPE_ASSERT, "(ar->sourceType != RUMBLESOURCE_INVALID)", (const char *)&queryFormat, "ar->sourceType != RUMBLESOURCE_INVALID") )
       __debugbreak();
-    if ( !*((_DWORD *)p_sourceType - 1) && (*p_sourceType != RUMBLESOURCE_ENTITY || *((_DWORD *)p_sourceType + 2) != cgameGlob->predictedPlayerState.clientNum) )
+    if ( !*((_DWORD *)p_sourceType - 1) && (*p_sourceType != RUMBLESOURCE_ENTITY || *((_DWORD *)p_sourceType + 2) != cgameGlob->predictedPlayerState.clientNum) && (float)((float)(cgameGlob->time - *((_DWORD *)p_sourceType - 2)) / (float)*(int *)(*((_QWORD *)p_sourceType - 2) + 8i64)) > v11 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-        vdivss  xmm2, xmm1, xmm0
-        vcomiss xmm2, xmm6
-      }
-      if ( cgameGlob->time > *((_DWORD *)p_sourceType - 2) )
-      {
-        v12 = v13;
-        __asm { vmovaps xmm6, xmm2 }
-      }
+      v9 = v10;
+      v11 = (float)(cgameGlob->time - *((_DWORD *)p_sourceType - 2)) / (float)*(int *)(*((_QWORD *)p_sourceType - 2) + 8i64);
     }
-    ++v13;
+    ++v10;
     p_sourceType += 14;
   }
-  while ( v13 < 32 );
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
-  if ( v12 == 32 )
+  while ( v10 < 32 );
+  if ( v9 == 32 )
   {
     Com_PrintWarning(16, "FindClosestToDyingActiveRumble(): Couldn't find a suitable rumble to stop, defaulting to index zero.\n", i);
-    v12 = 0;
+    v9 = 0;
   }
-  return &arArray[v12];
+  return &arArray[v9];
 }
 
 /*
@@ -1196,40 +991,38 @@ CG_Rumble_PlayDeferred
 */
 void CG_Rumble_PlayDeferred(LocalClientNum_t localClientNum, const RumbleInfo *rumble, RumbleLoopType loopType, RumbleSourceType type, int entityNum, const vec3_t *pos, float scale, bool updateDuplicates)
 {
+  cg_t *LocalClientGlobals; 
   int deferredRumbleCount; 
-  int v17; 
-  int v18; 
+  const vec3_t *v13; 
+  __int64 v14; 
+  int v15; 
+  int v16; 
 
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   Sys_EnterCriticalSection(CRITSECT_CG_RUMBLE);
-  deferredRumbleCount = _RBX->deferredRumbleCount;
+  deferredRumbleCount = LocalClientGlobals->deferredRumbleCount;
   if ( deferredRumbleCount < 4 )
   {
     if ( (unsigned int)deferredRumbleCount >= 4 )
     {
-      v18 = 4;
-      v17 = _RBX->deferredRumbleCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 383, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->deferredRumbleCount ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->deferredRumbles ) ) + 0 ) )", "cgameGlob->deferredRumbleCount doesn't index ARRAY_COUNT( cgameGlob->deferredRumbles )\n\t%i not in [0, %i)", v17, v18) )
+      v16 = 4;
+      v15 = LocalClientGlobals->deferredRumbleCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 383, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->deferredRumbleCount ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->deferredRumbles ) ) + 0 ) )", "cgameGlob->deferredRumbleCount doesn't index ARRAY_COUNT( cgameGlob->deferredRumbles )\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
-    _RDX = &vec3_origin;
-    _R8 = 5i64 * _RBX->deferredRumbleCount + 52790;
-    *(&_RBX->predictedPlayerState.inputTime + 2 * _R8) = entityNum;
-    *((_QWORD *)&_RBX->__vftable + _R8) = rumble;
-    *(&_RBX->predictedPlayerState.commandTime + 2 * _R8) = loopType;
+    v13 = &vec3_origin;
+    v14 = 5i64 * LocalClientGlobals->deferredRumbleCount + 52790;
+    *(&LocalClientGlobals->predictedPlayerState.inputTime + 2 * v14) = entityNum;
+    *((_QWORD *)&LocalClientGlobals->__vftable + v14) = rumble;
+    *(&LocalClientGlobals->predictedPlayerState.commandTime + 2 * v14) = loopType;
     if ( pos )
-      _RDX = pos;
-    *(&_RBX->predictedPlayerState.serverTime + 2 * _R8) = type;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rdx]
-      vmovsd  qword ptr [rbx+r8*8+14h], xmm0
-      vmovss  xmm0, [rsp+48h+scale]
-    }
-    _RBX->predictedPlayerState.pm_flags.m_flags[2 * _R8] = LODWORD(_RDX->v[2]);
-    LOBYTE(_RBX->predictedPlayerState.otherFlags.m_flags[2 * _R8]) = updateDuplicates;
-    __asm { vmovss  dword ptr [rbx+r8*8+20h], xmm0 }
-    ++_RBX->deferredRumbleCount;
+      v13 = pos;
+    *(&LocalClientGlobals->predictedPlayerState.serverTime + 2 * v14) = type;
+    *((double *)&LocalClientGlobals->predictedPlayerState.pm_type + v14) = *(double *)v13->v;
+    LocalClientGlobals->predictedPlayerState.pm_flags.m_flags[2 * v14] = LODWORD(v13->v[2]);
+    LOBYTE(LocalClientGlobals->predictedPlayerState.otherFlags.m_flags[2 * v14]) = updateDuplicates;
+    *(float *)&LocalClientGlobals->predictedPlayerState.pm_flags.m_flags[2 * v14 + 1] = scale;
+    ++LocalClientGlobals->deferredRumbleCount;
   }
   Sys_LeaveCriticalSection(CRITSECT_CG_RUMBLE);
 }
@@ -1242,17 +1035,11 @@ CG_Rumble_PlayLoopOnClient
 void CG_Rumble_PlayLoopOnClient(LocalClientNum_t localClientNum, const RumbleInfo *rumble)
 {
   cg_t *LocalClientGlobals; 
-  float v6; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 857, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v6, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
 }
 
 /*
@@ -1264,7 +1051,6 @@ void CG_Rumble_PlayLoopOnClientByName(LocalClientNum_t localClientNum, const cha
 {
   const RumbleInfo *RumbleByName; 
   cg_t *LocalClientGlobals; 
-  float v7; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
@@ -1272,12 +1058,7 @@ void CG_Rumble_PlayLoopOnClientByName(LocalClientNum_t localClientNum, const cha
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 847, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v7, 0);
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
   }
   else
   {
@@ -1293,17 +1074,11 @@ CG_Rumble_PlayLoopOnClientSafeNoEntFlag
 void CG_Rumble_PlayLoopOnClientSafeNoEntFlag(LocalClientNum_t localClientNum, const RumbleInfo *rumble)
 {
   cg_t *LocalClientGlobals; 
-  float v6; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 884, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP_NOENTFLAG, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v6, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP_NOENTFLAG, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
 }
 
 /*
@@ -1315,7 +1090,6 @@ void CG_Rumble_PlayLoopOnClientSafeNoEntFlagByName(LocalClientNum_t localClientN
 {
   const RumbleInfo *RumbleByName; 
   cg_t *LocalClientGlobals; 
-  float v7; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
@@ -1323,12 +1097,7 @@ void CG_Rumble_PlayLoopOnClientSafeNoEntFlagByName(LocalClientNum_t localClientN
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 874, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP_NOENTFLAG, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v7, 0);
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP_NOENTFLAG, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
   }
   else
   {
@@ -1343,14 +1112,7 @@ CG_Rumble_PlayLoopOnEntity
 */
 void CG_Rumble_PlayLoopOnEntity(LocalClientNum_t localClientNum, const RumbleInfo *rumble, int entityNum)
 {
-  float v4; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, entityNum, NULL, v4, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, entityNum, NULL, 1.0, 0);
 }
 
 /*
@@ -1361,22 +1123,12 @@ CG_Rumble_PlayLoopOnEntityByName
 void CG_Rumble_PlayLoopOnEntityByName(LocalClientNum_t localClientNum, const char *rumbleName, int entityNum)
 {
   const RumbleInfo *RumbleByName; 
-  float v8; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, entityNum, NULL, v8, 0);
-  }
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_ENTITY, entityNum, NULL, 1.0, 0);
   else
-  {
     Com_PrintWarning(14, "Can't play rumble asset '%s' because it is not registered.\n", rumbleName);
-  }
 }
 
 /*
@@ -1386,14 +1138,7 @@ CG_Rumble_PlayLoopOnPosition
 */
 void CG_Rumble_PlayLoopOnPosition(LocalClientNum_t localClientNum, const RumbleInfo *rumble, const vec3_t *pos)
 {
-  float v4; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_POS, 0, pos, v4, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_LOOP, RUMBLESOURCE_POS, 0, pos, 1.0, 0);
 }
 
 /*
@@ -1404,22 +1149,12 @@ CG_Rumble_PlayLoopOnPositionByName
 void CG_Rumble_PlayLoopOnPositionByName(LocalClientNum_t localClientNum, const char *rumbleName, const vec3_t *pos)
 {
   const RumbleInfo *RumbleByName; 
-  float v8; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_POS, 0, pos, v8, 0);
-  }
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_LOOP, RUMBLESOURCE_POS, 0, pos, 1.0, 0);
   else
-  {
     Com_PrintWarning(14, "Can't play rumble asset '%s' because it is not registered.\n", rumbleName);
-  }
 }
 
 /*
@@ -1430,17 +1165,11 @@ CG_Rumble_PlayOnClient
 void CG_Rumble_PlayOnClient(LocalClientNum_t localClientNum, const RumbleInfo *rumble)
 {
   cg_t *LocalClientGlobals; 
-  float v6; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 787, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v6, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
 }
 
 /*
@@ -1452,7 +1181,6 @@ void CG_Rumble_PlayOnClientByName(LocalClientNum_t localClientNum, const char *r
 {
   const RumbleInfo *RumbleByName; 
   cg_t *LocalClientGlobals; 
-  float v7; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
@@ -1460,12 +1188,7 @@ void CG_Rumble_PlayOnClientByName(LocalClientNum_t localClientNum, const char *r
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 777, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v7, 0);
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
   }
   else
   {
@@ -1482,7 +1205,6 @@ void CG_Rumble_PlayOnClientSafeByName(LocalClientNum_t localClientNum, const cha
 {
   const RumbleInfo *RumbleByName; 
   cg_t *LocalClientGlobals; 
-  float v7; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
@@ -1490,12 +1212,7 @@ void CG_Rumble_PlayOnClientSafeByName(LocalClientNum_t localClientNum, const cha
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 804, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v7, 0);
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
   }
   else
   {
@@ -1508,23 +1225,14 @@ void CG_Rumble_PlayOnClientSafeByName(LocalClientNum_t localClientNum, const cha
 CG_Rumble_PlayOnClientScaledWithUpdate
 ==============
 */
-
-void __fastcall CG_Rumble_PlayOnClientScaledWithUpdate(LocalClientNum_t localClientNum, const RumbleInfo *rumble, double scale)
+void CG_Rumble_PlayOnClientScaledWithUpdate(LocalClientNum_t localClientNum, const RumbleInfo *rumble, float scale)
 {
   cg_t *LocalClientGlobals; 
-  float v9; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 830, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  __asm { vmovss  [rsp+58h+var_28], xmm6 }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v9, 1);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, scale, 1);
 }
 
 /*
@@ -1532,32 +1240,23 @@ void __fastcall CG_Rumble_PlayOnClientScaledWithUpdate(LocalClientNum_t localCli
 CG_Rumble_PlayOnClientScaledWithUpdateByName
 ==============
 */
-
-void __fastcall CG_Rumble_PlayOnClientScaledWithUpdateByName(LocalClientNum_t localClientNum, const char *rumbleName, double scale)
+void CG_Rumble_PlayOnClientScaledWithUpdateByName(LocalClientNum_t localClientNum, const char *rumbleName, float scale)
 {
   const RumbleInfo *RumbleByName; 
   cg_t *LocalClientGlobals; 
-  float v10; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 821, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
       __debugbreak();
-    __asm { vmovss  [rsp+58h+var_28], xmm6 }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, v10, 1);
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, scale, 1);
   }
   else
   {
     Com_PrintWarning(14, "Can't play rumble asset '%s' because it is not registered.\n", rumbleName);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -1567,14 +1266,7 @@ CG_Rumble_PlayOnEntity
 */
 void CG_Rumble_PlayOnEntity(LocalClientNum_t localClientNum, const RumbleInfo *rumble, int entityNum)
 {
-  float v4; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, entityNum, NULL, v4, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, entityNum, NULL, 1.0, 0);
 }
 
 /*
@@ -1585,22 +1277,12 @@ CG_Rumble_PlayOnEntityByName
 void CG_Rumble_PlayOnEntityByName(LocalClientNum_t localClientNum, const char *rumbleName, int entityNum)
 {
   const RumbleInfo *RumbleByName; 
-  float v8; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, entityNum, NULL, v8, 0);
-  }
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, entityNum, NULL, 1.0, 0);
   else
-  {
     Com_PrintWarning(14, "Can't play rumble asset '%s' because it is not registered.\n", rumbleName);
-  }
 }
 
 /*
@@ -1610,14 +1292,7 @@ CG_Rumble_PlayOnPosition
 */
 void CG_Rumble_PlayOnPosition(LocalClientNum_t localClientNum, const RumbleInfo *rumble, const vec3_t *pos)
 {
-  float v4; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, pos, v4, 0);
+  PlayRumbleInternal(localClientNum, rumble, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, pos, 1.0, 0);
 }
 
 /*
@@ -1628,22 +1303,12 @@ CG_Rumble_PlayOnPositionByName
 void CG_Rumble_PlayOnPositionByName(LocalClientNum_t localClientNum, const char *rumbleName, const vec3_t *pos)
 {
   const RumbleInfo *RumbleByName; 
-  float v8; 
 
   RumbleByName = Rumble_GetRumbleByName(rumbleName);
   if ( RumbleByName )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+48h+var_18], xmm0
-    }
-    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, pos, v8, 0);
-  }
+    PlayRumbleInternal(localClientNum, RumbleByName, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, pos, 1.0, 0);
   else
-  {
     Com_PrintWarning(14, "Can't play rumble asset '%s' because it is not registered.\n", rumbleName);
-  }
 }
 
 /*
@@ -1656,17 +1321,17 @@ void CG_Rumble_ProcessDeferred(LocalClientNum_t localClientNum)
   LocalClientNum_t v1; 
   cg_t *v2; 
   unsigned int v3; 
-  unsigned int v6; 
+  float *p_scale; 
+  unsigned int v5; 
   DeferredRumbleStop *deferredRumbleStops; 
   const RumbleInfo *rumble; 
   int entityNum; 
-  int v10; 
+  int v9; 
   int *p_startTime; 
-  __int64 v12; 
+  __int64 v11; 
   vec3_t *pos; 
   __int64 scale; 
-  float scalea; 
-  unsigned int v17; 
+  unsigned int v15; 
   cg_t *LocalClientGlobals; 
 
   v1 = localClientNum;
@@ -1678,7 +1343,7 @@ void CG_Rumble_ProcessDeferred(LocalClientNum_t localClientNum)
   v3 = 0;
   if ( LocalClientGlobals->deferredRumbleCount > 0 )
   {
-    _RBX = &LocalClientGlobals->deferredRumbles[0].scale;
+    p_scale = &LocalClientGlobals->deferredRumbles[0].scale;
     do
     {
       if ( v3 >= 4 )
@@ -1688,28 +1353,23 @@ void CG_Rumble_ProcessDeferred(LocalClientNum_t localClientNum)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 429, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->deferredRumbles ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( cgameGlob->deferredRumbles )\n\t%i not in [0, %i)", pos, scale) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rsp+78h+scale], xmm0
-      }
-      PlayRumbleInternal(v1, *((const RumbleInfo **)_RBX - 4), *((RumbleLoopType *)_RBX - 6), *((RumbleSourceType *)_RBX - 5), *((_DWORD *)_RBX - 4), (const vec3_t *)_RBX - 1, scalea, *((_BYTE *)_RBX + 4));
+      PlayRumbleInternal(v1, *((const RumbleInfo **)p_scale - 4), *((RumbleLoopType *)p_scale - 6), *((RumbleSourceType *)p_scale - 5), *((_DWORD *)p_scale - 4), (const vec3_t *)p_scale - 1, *p_scale, *((_BYTE *)p_scale + 4));
       ++v3;
-      _RBX += 10;
+      p_scale += 10;
     }
     while ( (signed int)v3 < LocalClientGlobals->deferredRumbleCount );
   }
-  v6 = 0;
-  v17 = 0;
+  v5 = 0;
+  v15 = 0;
   if ( LocalClientGlobals->deferredRumbleStopCount > 0 )
   {
     deferredRumbleStops = LocalClientGlobals->deferredRumbleStops;
     do
     {
-      if ( v6 >= 4 )
+      if ( v5 >= 4 )
       {
         LODWORD(scale) = 4;
-        LODWORD(pos) = v6;
+        LODWORD(pos) = v5;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 444, ASSERT_TYPE_ASSERT, "(unsigned)( stopIndex ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->deferredRumbleStops ) ) + 0 ) )", "stopIndex doesn't index ARRAY_COUNT( cgameGlob->deferredRumbleStops )\n\t%i not in [0, %i)", pos, scale) )
           __debugbreak();
       }
@@ -1717,9 +1377,9 @@ void CG_Rumble_ProcessDeferred(LocalClientNum_t localClientNum)
       entityNum = deferredRumbleStops->entityNum;
       if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 934, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
         __debugbreak();
-      v10 = 0;
+      v9 = 0;
       p_startTime = &CG_GetLocalClientGlobals(v1)->crData.activeRumbles[0].startTime;
-      v12 = 32i64;
+      v11 = 32i64;
       do
       {
         if ( *p_startTime > 0 && p_startTime[2] == 1 )
@@ -1728,26 +1388,26 @@ void CG_Rumble_ProcessDeferred(LocalClientNum_t localClientNum)
             __debugbreak();
           if ( p_startTime[4] == entityNum && *((const RumbleInfo **)p_startTime - 1) == rumble )
           {
-            if ( (unsigned int)(p_startTime[1] - 1) <= 1 || !v10 )
+            if ( (unsigned int)(p_startTime[1] - 1) <= 1 || !v9 )
             {
               *p_startTime = -1;
               *((_QWORD *)p_startTime - 1) = 0i64;
               p_startTime[2] = 0;
             }
-            ++v10;
+            ++v9;
           }
         }
         p_startTime += 14;
-        --v12;
+        --v11;
       }
-      while ( v12 );
+      while ( v11 );
       v2 = LocalClientGlobals;
       v1 = localClientNum;
-      v6 = v17 + 1;
+      v5 = v15 + 1;
       ++deferredRumbleStops;
-      v17 = v6;
+      v15 = v5;
     }
-    while ( (signed int)v6 < LocalClientGlobals->deferredRumbleStopCount );
+    while ( (signed int)v5 < LocalClientGlobals->deferredRumbleStopCount );
   }
   v2->deferredRumbleCount = 0;
   v2->deferredRumbleStopCount = 0;
@@ -1846,10 +1506,10 @@ CG_Rumble_StopAll
 void CG_Rumble_StopAll(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
-  int v3; 
+  int v2; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v3 = 0;
+  v2 = 0;
   LocalClientGlobals->crData.activeRumbles[0].startTime = -1;
   LocalClientGlobals->crData.activeRumbles[0].rumbleInfo = NULL;
   LocalClientGlobals->crData.activeRumbles[0].sourceType = RUMBLESOURCE_INVALID;
@@ -1947,14 +1607,10 @@ void CG_Rumble_StopAll(LocalClientNum_t localClientNum)
   LocalClientGlobals->crData.activeRumbles[31].rumbleInfo = NULL;
   LocalClientGlobals->crData.activeRumbles[31].sourceType = RUMBLESOURCE_INVALID;
   do
-    GPad_StopRumbles(v3++, 1);
-  while ( v3 < 8 );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:lowRumbleDebugGlobal, xmm0
-    vmovss  cs:highRumbleDebugGlobal, xmm0
-  }
+    GPad_StopRumbles(v2++, 1);
+  while ( v2 < 8 );
+  lowRumbleDebugGlobal = 0.0;
+  highRumbleDebugGlobal = 0.0;
 }
 
 /*
@@ -2079,28 +1735,26 @@ void PlayRumbleInternal(LocalClientNum_t localClientNum, const RumbleInfo *rumbl
 {
   cg_t *LocalClientGlobals; 
   ClientRumbleGlobals *p_crData; 
-  bool v14; 
-  unsigned int v16; 
-  __int64 v17; 
+  bool v13; 
+  const vec3_t *v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  float *v17; 
   ActiveRumble *AvailableRumble; 
-  bool v20; 
+  bool v19; 
   centity_t *Entity; 
-  centity_t *v24; 
+  centity_t *v21; 
   entityState_t *p_nextState; 
-  bool v30; 
   int nextUseCount; 
-  bool v41; 
-  cg_t *v48; 
+  float v24; 
+  cg_t *v25; 
   int clientNum; 
-  char *fmt; 
-  double v51; 
-  double v52; 
-  int v53[3]; 
-  cg_t *v55; 
-  int v56; 
+  int v27[3]; 
+  cg_t *v29; 
+  int v30; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v55 = LocalClientGlobals;
+  v29 = LocalClientGlobals;
   if ( type == RUMBLESOURCE_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 596, ASSERT_TYPE_ASSERT, "(type != RUMBLESOURCE_INVALID)", (const char *)&queryFormat, "type != RUMBLESOURCE_INVALID") )
     __debugbreak();
   if ( !rumble && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 597, ASSERT_TYPE_ASSERT, "(rumble)", (const char *)&queryFormat, "rumble") )
@@ -2116,196 +1770,126 @@ void PlayRumbleInternal(LocalClientNum_t localClientNum, const RumbleInfo *rumbl
     __debugbreak();
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 555, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v14 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE);
-  _RBX = pos;
-  v16 = entityNum;
-  if ( v14 )
+  v13 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE);
+  v14 = pos;
+  v15 = entityNum;
+  if ( !v13 )
   {
-    v17 = 0i64;
-    _RAX = &LocalClientGlobals->crData.activeRumbles[0].source.pos.v[2];
-    while ( 1 )
-    {
-      AvailableRumble = (ActiveRumble *)(_RAX - 8);
-      if ( *((const RumbleInfo **)_RAX - 4) == rumble && *((_DWORD *)_RAX - 5) == loopType && *((_DWORD *)_RAX - 4) == type )
-      {
-        if ( type == RUMBLESOURCE_ENTITY )
-        {
-          v20 = *((_DWORD *)_RAX - 2) == entityNum;
-        }
-        else
-        {
-          v20 = type == RUMBLESOURCE_POS;
-          if ( type != RUMBLESOURCE_POS )
-            break;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx]
-            vucomiss xmm0, dword ptr [rax-8]
-            vmovss  xmm0, dword ptr [rbx+4]
-            vucomiss xmm0, dword ptr [rax-4]
-            vmovss  xmm0, dword ptr [rbx+8]
-            vucomiss xmm0, dword ptr [rax]
-          }
-        }
-        if ( v20 )
-          break;
-      }
-      ++v17;
-      _RAX += 14;
-      if ( v17 >= 32 )
-        goto LABEL_34;
-    }
-    v30 = !updateDuplicates;
-    if ( updateDuplicates )
-      goto LABEL_75;
-  }
-  else
-  {
-LABEL_34:
+LABEL_35:
     AvailableRumble = CG_Rumble_NextAvailableRumble(LocalClientGlobals, LocalClientGlobals->crData.activeRumbles);
+    goto LABEL_36;
   }
-  if ( type == RUMBLESOURCE_ENTITY )
+  v16 = 0i64;
+  v17 = &LocalClientGlobals->crData.activeRumbles[0].source.pos.v[2];
+  while ( 1 )
   {
-    Entity = CG_GetEntity(localClientNum, v16);
-    v24 = Entity;
-    if ( !rumble->broadcast )
+    AvailableRumble = (ActiveRumble *)(v17 - 8);
+    if ( *((const RumbleInfo **)v17 - 4) != rumble || *((_DWORD *)v17 - 5) != loopType || *((_DWORD *)v17 - 4) != type )
+      goto LABEL_34;
+    if ( type == RUMBLESOURCE_ENTITY )
     {
-      if ( (Entity->flags & 1) == 0 )
-        return;
-      p_nextState = &Entity->nextState;
-      if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
-        __debugbreak();
-      if ( ((p_nextState->eType - 1) & 0xFFEF) != 0 )
+      v19 = *((_DWORD *)v17 - 2) == entityNum;
+      goto LABEL_33;
+    }
+    if ( type != RUMBLESOURCE_POS )
+      goto LABEL_56;
+    if ( pos->v[0] == *(v17 - 2) && pos->v[1] == *(v17 - 1) )
+      break;
+LABEL_34:
+    ++v16;
+    v17 += 14;
+    if ( v16 >= 32 )
+      goto LABEL_35;
+  }
+  v19 = pos->v[2] == *v17;
+LABEL_33:
+  if ( !v19 )
+    goto LABEL_34;
+LABEL_56:
+  if ( !updateDuplicates )
+  {
+LABEL_36:
+    if ( type == RUMBLESOURCE_ENTITY )
+    {
+      Entity = CG_GetEntity(localClientNum, v15);
+      v21 = Entity;
+      if ( !rumble->broadcast )
       {
-        if ( !p_nextState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1990, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
-          __debugbreak();
-        if ( ((p_nextState->eType - 2) & 0xFFEF) != 0 )
-        {
-          _RDI = &v24->prevState.pos;
-          if ( v24 == (centity_t *)-292i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)v24 + 399, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
-            __debugbreak();
-          if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
-          {
-            v53[2] = LODWORD(v24->prevState.pos.trBase.v[1]) ^ LODWORD(v24->prevState.pos.trBase.v[2]) ^ s_trbase_aab_Z;
-            v53[1] = LODWORD(v24->prevState.pos.trBase.v[0]) ^ LODWORD(v24->prevState.pos.trBase.v[1]) ^ s_trbase_aab_Y;
-            v53[0] = LODWORD(v24->prevState.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
-            memset(&v55, 0, sizeof(v55));
-            __asm
-            {
-              vmovss  xmm0, [rsp+98h+var_50]
-              vmovss  [rsp+98h+arg_18], xmm0
-            }
-            if ( (v56 & 0x7F800000) == 2139095040 )
-              goto LABEL_86;
-            __asm
-            {
-              vmovss  xmm0, [rsp+98h+var_4C]
-              vmovss  [rsp+98h+arg_18], xmm0
-            }
-            if ( (v56 & 0x7F800000) == 2139095040 )
-              goto LABEL_86;
-            __asm
-            {
-              vmovss  xmm0, [rsp+98h+var_48]
-              vmovss  [rsp+98h+arg_18], xmm0
-            }
-            if ( (v56 & 0x7F800000) == 2139095040 )
-            {
-LABEL_86:
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-                __debugbreak();
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+0Ch]
-              vmovss  [rsp+98h+var_50], xmm0
-              vmovss  xmm1, dword ptr [rdi+10h]
-              vmovss  [rsp+98h+var_4C], xmm1
-              vmovss  xmm0, dword ptr [rdi+14h]
-              vmovss  [rsp+98h+var_48], xmm0
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, [rsp+98h+var_48]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovss  xmm1, [rsp+98h+var_4C]
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovss  xmm2, [rsp+98h+var_50]
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  [rsp+98h+var_68], xmm0
-            vmovsd  [rsp+98h+var_70], xmm1
-            vmovsd  [rsp+98h+fmt], xmm2
-          }
-          Com_PrintError(16, "Non-player, non-agent entity #%i of type %i at (%.0f, %.0f, %.0f) is trying to play non-broadcasting rumble \"%s\" on themselves.\n", v16, (unsigned int)v24->nextState.eType, *(double *)&fmt, v51, v52, rumble->name);
-          memset(v53, 0, sizeof(v53));
+        if ( (Entity->flags & 1) == 0 )
           return;
+        p_nextState = &Entity->nextState;
+        if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+          __debugbreak();
+        if ( ((p_nextState->eType - 1) & 0xFFEF) != 0 )
+        {
+          if ( !p_nextState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1990, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+            __debugbreak();
+          if ( ((p_nextState->eType - 2) & 0xFFEF) != 0 )
+          {
+            if ( v21 == (centity_t *)-292i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+              __debugbreak();
+            if ( v21->prevState.pos.trType == TR_LINEAR_STOP_SECURE )
+            {
+              v27[2] = LODWORD(v21->prevState.pos.trBase.v[1]) ^ LODWORD(v21->prevState.pos.trBase.v[2]) ^ s_trbase_aab_Z;
+              v27[1] = LODWORD(v21->prevState.pos.trBase.v[0]) ^ LODWORD(v21->prevState.pos.trBase.v[1]) ^ s_trbase_aab_Y;
+              v27[0] = LODWORD(v21->prevState.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
+              memset(&v29, 0, sizeof(v29));
+              v30 = v27[0];
+              if ( (v27[0] & 0x7F800000) == 2139095040 || (v30 = v27[1], (v27[1] & 0x7F800000) == 2139095040) || (v30 = v27[2], (v27[2] & 0x7F800000) == 2139095040) )
+              {
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+                  __debugbreak();
+              }
+            }
+            else
+            {
+              v27[0] = LODWORD(v21->prevState.pos.trBase.v[0]);
+              v27[1] = LODWORD(v21->prevState.pos.trBase.v[1]);
+              v27[2] = LODWORD(v21->prevState.pos.trBase.v[2]);
+            }
+            Com_PrintError(16, "Non-player, non-agent entity #%i of type %i at (%.0f, %.0f, %.0f) is trying to play non-broadcasting rumble \"%s\" on themselves.\n", v15, (unsigned int)v21->nextState.eType, *(float *)v27, *(float *)&v27[1], *(float *)&v27[2], rumble->name);
+            memset(v27, 0, sizeof(v27));
+            return;
+          }
         }
+        LocalClientGlobals = v29;
       }
-      LocalClientGlobals = v55;
-    }
-    AvailableRumble->source.entityNum = v16;
-    if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 101, ASSERT_TYPE_ASSERT, "(cent != 0)", (const char *)&queryFormat, "cent != NULL") )
-      __debugbreak();
-    v30 = (v24->flags & 1) == 0;
-    if ( (v24->flags & 1) != 0 )
-      nextUseCount = v24->nextUseCount;
-    else
-      nextUseCount = -1;
-    AvailableRumble->useCountBuffer[0] = nextUseCount;
-    AvailableRumble->useCountBuffer[1] = nextUseCount;
-    AvailableRumble->useCountBuffer[2] = nextUseCount;
-    AvailableRumble->useCountBuffer[3] = nextUseCount;
-    AvailableRumble->useCountPointer = 0;
-  }
-  else
-  {
-    if ( type != RUMBLESOURCE_POS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 638, ASSERT_TYPE_ASSERT, "(type == RUMBLESOURCE_POS)", (const char *)&queryFormat, "type == RUMBLESOURCE_POS") )
-      __debugbreak();
-    v30 = _RBX == NULL;
-    if ( !_RBX )
-    {
-      v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 639, ASSERT_TYPE_ASSERT, "(pos)", (const char *)&queryFormat, "pos");
-      v30 = !v41;
-      if ( v41 )
+      AvailableRumble->source.entityNum = v15;
+      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 101, ASSERT_TYPE_ASSERT, "(cent != 0)", (const char *)&queryFormat, "cent != NULL") )
         __debugbreak();
+      if ( (v21->flags & 1) != 0 )
+        nextUseCount = v21->nextUseCount;
+      else
+        nextUseCount = -1;
+      AvailableRumble->useCountBuffer[0] = nextUseCount;
+      AvailableRumble->useCountBuffer[1] = nextUseCount;
+      AvailableRumble->useCountBuffer[2] = nextUseCount;
+      AvailableRumble->useCountBuffer[3] = nextUseCount;
+      AvailableRumble->useCountPointer = 0;
     }
-    AvailableRumble->source.entityNum = LODWORD(_RBX->v[0]);
-    AvailableRumble->source.pos.v[1] = _RBX->v[1];
-    AvailableRumble->source.pos.v[2] = _RBX->v[2];
-  }
-  AvailableRumble->sourceType = type;
-  AvailableRumble->startTime = LocalClientGlobals->time;
-  AvailableRumble->rumbleInfo = rumble;
-  AvailableRumble->loopType = loopType;
-LABEL_75:
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, [rsp+98h+scale]
-    vcomiss xmm1, xmm0
-    vcomiss xmm1, cs:__real@3f800000
-  }
-  if ( !v30 )
-  {
-    __asm
+    else
     {
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
+      if ( type != RUMBLESOURCE_POS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 638, ASSERT_TYPE_ASSERT, "(type == RUMBLESOURCE_POS)", (const char *)&queryFormat, "type == RUMBLESOURCE_POS") )
+        __debugbreak();
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 639, ASSERT_TYPE_ASSERT, "(pos)", (const char *)&queryFormat, "pos") )
+        __debugbreak();
+      AvailableRumble->source.entityNum = LODWORD(v14->v[0]);
+      AvailableRumble->source.pos.v[1] = v14->v[1];
+      AvailableRumble->source.pos.v[2] = v14->v[2];
     }
-    Com_PrintWarning(16, "Rumble \"%s\" has invalid scale value of %f.\n", rumble->name, _R9);
-    __asm { vmovss  xmm1, cs:__real@3f800000 }
+    AvailableRumble->sourceType = type;
+    AvailableRumble->startTime = LocalClientGlobals->time;
+    AvailableRumble->rumbleInfo = rumble;
+    AvailableRumble->loopType = loopType;
   }
-  __asm
+  v24 = scale;
+  if ( scale < 0.0 || scale > 1.0 )
   {
-    vmulss  xmm0, xmm1, cs:__real@437f0000
-    vcvttss2si eax, xmm0
+    Com_PrintWarning(16, "Rumble \"%s\" has invalid scale value of %f.\n", rumble->name, scale);
+    v24 = FLOAT_1_0;
   }
-  AvailableRumble->scale = _EAX;
-  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING) || (v48 = CG_GetLocalClientGlobals(localClientNum), !v48->transitionSettleIsActive) && (!v48->nextSnap || v48->predictedPlayerState.pm_type != 5 && (clientNum = v48->predictedPlayerState.clientNum, clientNum < cls.maxClients) && clientNum == v48->clientNum) )
+  AvailableRumble->scale = (int)(float)(v24 * 255.0);
+  if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING) || (v25 = CG_GetLocalClientGlobals(localClientNum), !v25->transitionSettleIsActive) && (!v25->nextSnap || v25->predictedPlayerState.pm_type != 5 && (clientNum = v25->predictedPlayerState.clientNum, clientNum < cls.maxClients) && clientNum == v25->clientNum) )
     CG_Rumble_CalcActiveRumbles(localClientNum, p_crData->activeRumbles, &p_crData->receiverPos, &p_crData->receiverOrientation);
 }
 
@@ -2317,24 +1901,23 @@ RumbleGraphEventCallback
 void RumbleGraphEventCallback(const DevGraph *graph, DevEventType event, LocalClientNum_t localClientNum)
 {
   const RumbleInfo **data; 
+  __int32 v7; 
   __int32 v8; 
-  __int32 v9; 
-  const char *v10; 
-  fileHandle_t *v11; 
-  __int64 v12; 
-  unsigned __int64 v13; 
+  const char *v9; 
+  fileHandle_t *v10; 
+  __int64 v11; 
+  unsigned __int64 v12; 
+  __int64 v13; 
   __int64 v14; 
-  unsigned __int64 v22; 
-  const dvar_t *v23; 
-  const RumbleInfo *v24; 
-  const dvar_t *v28; 
+  unsigned __int64 v15; 
+  const dvar_t *v16; 
+  const RumbleInfo *v17; 
+  const dvar_t *v18; 
   bool enabled; 
-  const RumbleInfo *v30; 
+  const RumbleInfo *v20; 
   cg_t *LocalClientGlobals; 
   const snapshot_t *nextSnap; 
-  RumbleLoopType v33; 
-  char *fmt; 
-  float scale; 
+  RumbleLoopType v23; 
   char dest[256]; 
   char buffer[1024]; 
 
@@ -2347,117 +1930,89 @@ void RumbleGraphEventCallback(const DevGraph *graph, DevEventType event, LocalCl
     __debugbreak();
   if ( event )
   {
-    v8 = event - 2;
-    if ( v8 )
+    v7 = event - 2;
+    if ( v7 )
     {
-      v9 = v8 - 2;
-      if ( v9 )
+      v8 = v7 - 2;
+      if ( v8 )
       {
-        if ( v9 == 1 )
+        if ( v8 == 1 )
         {
           Com_sprintf<256>((char (*)[256])dest, "rumble\\%s", data[1]->name);
-          v11 = FS_FOpenTextFileWrite((fileHandle_t *)dest, v10);
-          if ( v11 != (fileHandle_t *)-1i64 )
+          v10 = FS_FOpenTextFileWrite((fileHandle_t *)dest, v9);
+          if ( v10 != (fileHandle_t *)-1i64 )
           {
-            v12 = *graph->knotCount;
-            Com_sprintf(buffer, 0x400ui64, "RUMBLEGRAPHFILE\n\n%d\n", v12);
-            v13 = -1i64;
+            v11 = *graph->knotCount;
+            Com_sprintf(buffer, 0x400ui64, "RUMBLEGRAPHFILE\n\n%d\n", v11);
+            v12 = -1i64;
             do
-              ++v13;
-            while ( buffer[v13] );
-            FS_Write(buffer, v13, (fileHandle_t)v11);
-            if ( (unsigned int)v12 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1063, ASSERT_TYPE_ASSERT, "( knotCount ) <= ( 16 )", "%s <= %s\n\t%i, %i", "knotCount", "MAX_RUMBLE_GRAPH_KNOTS", v12, 16) )
+              ++v12;
+            while ( buffer[v12] );
+            FS_Write(buffer, v12, (fileHandle_t)v10);
+            if ( (unsigned int)v11 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1063, ASSERT_TYPE_ASSERT, "( knotCount ) <= ( 16 )", "%s <= %s\n\t%i, %i", "knotCount", "MAX_RUMBLE_GRAPH_KNOTS", v11, 16) )
               __debugbreak();
-            v14 = v12;
-            if ( (_DWORD)v12 )
+            v13 = v11;
+            if ( (_DWORD)v11 )
             {
-              _RDI = 0i64;
+              v14 = 0i64;
               do
               {
-                _RAX = graph->knots;
-                __asm
-                {
-                  vmovss  xmm3, dword ptr [rax+rdi*8]
-                  vmovss  xmm0, dword ptr [rax+rdi*8+4]
-                  vcvtss2sd xmm3, xmm3, xmm3
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmovq   r9, xmm3
-                  vmovsd  [rsp+588h+fmt], xmm0
-                }
-                Com_sprintf(buffer, 0x400ui64, "%.4f %.4f\n", *(double *)&_XMM3, *(double *)&fmt);
-                v22 = -1i64;
+                Com_sprintf(buffer, 0x400ui64, "%.4f %.4f\n", graph->knots[v14].v[0], graph->knots[v14].v[1]);
+                v15 = -1i64;
                 do
-                  ++v22;
-                while ( buffer[v22] );
-                FS_Write(buffer, v22, (fileHandle_t)v11);
-                ++_RDI;
+                  ++v15;
+                while ( buffer[v15] );
+                FS_Write(buffer, v15, (fileHandle_t)v10);
+                ++v14;
               }
-              while ( _RDI < v14 );
+              while ( v14 < v13 );
             }
-            FS_FCloseFile((fileHandle_t)v11);
+            FS_FCloseFile((fileHandle_t)v10);
           }
         }
       }
       else
       {
-        v23 = DVARFLT_cg_rumble_devgui_duration;
+        v16 = DVARFLT_cg_rumble_devgui_duration;
         if ( !DVARFLT_cg_rumble_devgui_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
           __debugbreak();
-        if ( v23->modified )
+        if ( v16->modified )
         {
-          v24 = *data;
-          _RAX = Dvar_ValidatePtr(DVARFLT_cg_rumble_devgui_duration);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+28h]
-            vmulss  xmm1, xmm0, cs:__real@447a0000
-            vcvttss2si eax, xmm1
-          }
-          v24->duration = (int)_RAX;
+          v17 = *data;
+          v17->duration = (int)(float)(Dvar_ValidatePtr(DVARFLT_cg_rumble_devgui_duration)->current.value * 1000.0);
         }
       }
     }
     else
     {
       CG_Rumble_StopAll(localClientNum);
-      v28 = DVARBOOL_cg_rumble_devgui_loop;
+      v18 = DVARBOOL_cg_rumble_devgui_loop;
       if ( !DVARBOOL_cg_rumble_devgui_loop && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_rumble_devgui_loop") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v28);
-      enabled = v28->current.enabled;
-      v30 = *data;
+      Dvar_CheckFrontendServerThread(v18);
+      enabled = v18->current.enabled;
+      v20 = *data;
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       nextSnap = LocalClientGlobals->nextSnap;
       if ( enabled )
       {
         if ( !nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 857, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
           __debugbreak();
-        v33 = RUMBLELOOP_LOOP;
+        v23 = RUMBLELOOP_LOOP;
       }
       else
       {
         if ( !nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 787, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
           __debugbreak();
-        v33 = RUMBLELOOP_ONESHOT;
+        v23 = RUMBLELOOP_ONESHOT;
       }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  [rsp+588h+scale], xmm0
-      }
-      PlayRumbleInternal(localClientNum, v30, v33, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, scale, 0);
+      PlayRumbleInternal(localClientNum, v20, v23, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
     }
   }
   else
   {
     Dvar_SetBool_Internal(DVARBOOL_cg_rumble_devgui_loop, 0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-      vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-    }
-    Dvar_SetFloat_Internal(DVARFLT_cg_rumble_devgui_duration, *(float *)&_XMM1);
+    Dvar_SetFloat_Internal(DVARFLT_cg_rumble_devgui_duration, (float)(*data)->duration * 0.001);
   }
 }
 
@@ -2466,39 +2021,17 @@ void RumbleGraphEventCallback(const DevGraph *graph, DevEventType event, LocalCl
 RumbleGraphTextCallback
 ==============
 */
-
-void __fastcall RumbleGraphTextCallback(const DevGraph *graph, double inputX, double inputY, char *text, const int textLength)
+void RumbleGraphTextCallback(const DevGraph *graph, const float inputX, const float inputY, char *text, const int textLength)
 {
-  unsigned __int64 v12; 
-  double textLengtha; 
+  _QWORD *data; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm2
-  }
   if ( !graph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1122, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph") )
     __debugbreak();
   if ( !graph->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1123, ASSERT_TYPE_ASSERT, "(graph->data)", (const char *)&queryFormat, "graph->data") )
     __debugbreak();
-  if ( !*((_QWORD *)graph->data + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1126, ASSERT_TYPE_ASSERT, "(graphInfo->rumbleGraph)", (const char *)&queryFormat, "graphInfo->rumbleGraph") )
+  data = graph->data;
+  if ( !data[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_rumble.cpp", 1126, ASSERT_TYPE_ASSERT, "(graphInfo->rumbleGraph)", (const char *)&queryFormat, "graphInfo->rumbleGraph") )
     __debugbreak();
-  v12 = textLength;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtss2sd xmm4, xmm6, xmm6
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmulss  xmm2, xmm1, xmm7
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovq   r9, xmm3
-    vmovsd  [rsp+58h+textLength], xmm4
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  Com_sprintf_truncate(text, v12, "Time: %.3f sec, Rumble Value: %.3f", *(double *)&_XMM3, textLengtha);
+  Com_sprintf_truncate(text, textLength, "Time: %.3f sec, Rumble Value: %.3f", (float)((float)((float)*(int *)(*data + 8i64) * 0.001) * inputX), inputY);
 }
 

@@ -330,16 +330,17 @@ BG_Mantle_GetMantleType
 */
 __int64 BG_Mantle_GetMantleType(const playerState_s *ps)
 {
-  bool v5; 
-  unsigned int v6; 
-  int v9; 
+  bool v2; 
+  unsigned int v3; 
+  double LedgeHeight; 
+  const dvar_t *v5; 
+  int v6; 
+  int v7; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   int flags; 
   int v11; 
-  __int64 result; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1236, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -347,16 +348,38 @@ __int64 BG_Mantle_GetMantleType(const playerState_s *ps)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1172, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  v5 = (ps->mantleState.flags & 0x800) != 0;
-  v6 = (unsigned int)ps->mantleState.compressedAnimData.flags >> 1;
-  *(double *)&_XMM0 = Mantle_GetLedgeHeight(ps);
-  _RBP = DCONST_DVARFLT_mantle_gesture_extreme_min_height;
-  __asm { vmovaps xmm6, xmm0 }
+  v2 = (ps->mantleState.flags & 0x800) != 0;
+  v3 = (unsigned int)ps->mantleState.compressedAnimData.flags >> 1;
+  LedgeHeight = Mantle_GetLedgeHeight(ps);
+  v5 = DCONST_DVARFLT_mantle_gesture_extreme_min_height;
   if ( !DCONST_DVARFLT_mantle_gesture_extreme_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_extreme_min_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  v9 = 0;
-  __asm { vcomiss xmm6, dword ptr [rbp+28h] }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = 0;
+  if ( *(float *)&LedgeHeight < v5->current.value )
+  {
+    v8 = DCONST_DVARFLT_mantle_gesture_high_min_height;
+    if ( !DCONST_DVARFLT_mantle_gesture_high_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_high_min_height") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v8);
+    if ( *(float *)&LedgeHeight < v8->current.value )
+    {
+      v9 = DCONST_DVARFLT_mantle_gesture_middle_min_height;
+      if ( !DCONST_DVARFLT_mantle_gesture_middle_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_middle_min_height") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v9);
+      v7 = 0;
+      LOBYTE(v7) = *(float *)&LedgeHeight >= v9->current.value;
+    }
+    else
+    {
+      v7 = 2;
+    }
+  }
+  else
+  {
+    v7 = 3;
+  }
   flags = ps->mantleState.compressedAnimData.flags;
   if ( (flags & 8) != 0 )
   {
@@ -370,17 +393,12 @@ __int64 BG_Mantle_GetMantleType(const playerState_s *ps)
   {
     v11 = ((unsigned __int8)flags >> 3) & 4;
   }
-  if ( v5 )
-  {
-    LOBYTE(v9) = 1;
-    result = (unsigned int)(v9 + 36);
-  }
-  else
-  {
-    result = (unsigned int)GESTURE_TYPE_MAP[16 * (v6 & 1) + 3 + v11];
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  if ( !v2 )
+    return (unsigned int)GESTURE_TYPE_MAP[16 * (v3 & 1) + v7 + v11];
+  if ( !v7 )
+    return 35i64;
+  LOBYTE(v6) = v7 != 1;
+  return (unsigned int)(v6 + 36);
 }
 
 /*
@@ -390,30 +408,20 @@ MantleDebugDrawData_DrawCapsule
 */
 void MantleDebugDrawData_DrawCapsule(const BgHandler *handler, const vec3_t *origin, const Bounds *capsuleBounds, const vec4_t *color)
 {
-  BgHandler_vtbl *v9; 
-  int v14[4]; 
+  float v7; 
+  BgHandler_vtbl *v8; 
+  float v9; 
+  int v10[4]; 
 
-  _RSI = capsuleBounds;
-  _RBX = origin;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 153, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  v9 = handler->__vftable;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+0Ch]
-    vmovss  [rsp+88h+var_48], xmm0
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vmovss  [rsp+88h+var_44], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbx+8]
-    vmovss  [rsp+88h+var_40], xmm1
-  }
-  ((void (__fastcall *)(const BgHandler *, const vec3_t *, int *))v9->DebugCylinder)(handler, _RBX, v14);
+  v7 = origin->v[1];
+  v8 = handler->__vftable;
+  v10[0] = LODWORD(origin->v[0]);
+  v9 = capsuleBounds->halfSize.v[2];
+  *(float *)&v10[1] = v7;
+  *(float *)&v10[2] = (float)(v9 * 2.0) + origin->v[2];
+  ((void (__fastcall *)(const BgHandler *, const vec3_t *, int *))v8->DebugCylinder)(handler, origin, v10);
 }
 
 /*
@@ -429,12 +437,13 @@ char Mantle_Activate(pmove_t *pm, pml_t *pml, MantleResults *mresults, const boo
   const dvar_t *v13; 
   bool v14; 
   bool v15; 
-  char v18; 
+  __m256i v16; 
+  char v17; 
   const Bounds *bounds; 
   int contentMask; 
-  const dvar_t *v22; 
+  const dvar_t *v21; 
   bool outClearMantleHint; 
-  SprintState v24; 
+  SprintState v23; 
   trace_t results; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3451, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -485,11 +494,10 @@ LABEL_24:
   *(_QWORD *)&ps->mantleState.compressedAnimData.flags = 0i64;
   *(_QWORD *)&ps->mantleState.compressedAnimData.distanceZ = 0i64;
   ps->mantleState.compressedAnimData.endScriptAnimTableIndex = 0;
-  _RAX = lastSprintState;
-  __asm { vmovups ymm0, ymmword ptr [rax] }
-  v24.sprintStartMaxLength = lastSprintState->sprintStartMaxLength;
-  __asm { vmovups [rsp+128h+var_D8], ymm0 }
-  Mantle_UpdateSprintState(pm, pml, mresults, lastSprinting, &v24);
+  v16 = *(__m256i *)&lastSprintState->sprintButtonUpRequired;
+  v23.sprintStartMaxLength = lastSprintState->sprintStartMaxLength;
+  *(__m256i *)&v23.sprintButtonUpRequired = v16;
+  Mantle_UpdateSprintState(pm, pml, mresults, lastSprinting, &v23);
   if ( !mresults->endPosCalculated )
   {
     Mantle_SetOverFlagBasedOnSprintState(pm, pml, mresults);
@@ -497,7 +505,7 @@ LABEL_24:
   }
   if ( (mresults->edgeFlags[0] & 0xA) == 8 )
   {
-    v18 = 1;
+    v17 = 1;
     if ( !mresults->overPosFound )
     {
       pm->SetMantleHint(pm, 0);
@@ -507,7 +515,7 @@ LABEL_24:
   }
   else
   {
-    v18 = 0;
+    v17 = 0;
   }
   bounds = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
   if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 3u) )
@@ -542,11 +550,11 @@ LABEL_43:
         Mantle_ForceCrouch(pm, mresults);
     }
   }
-  v22 = DCONST_DVARMPBOOL_mantle_force_over_always_use_crouch_view_height;
+  v21 = DCONST_DVARMPBOOL_mantle_force_over_always_use_crouch_view_height;
   if ( !DCONST_DVARMPBOOL_mantle_force_over_always_use_crouch_view_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_force_over_always_use_crouch_view_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  if ( v22->current.enabled && v18 )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( v21->current.enabled && v17 )
     Mantle_ForceCrouch(pm, mresults);
   Mantle_Start(pm, mresults);
   if ( (ps->mantleState.flags & 0x20) != 0 )
@@ -564,38 +572,33 @@ Mantle_BuildMotionPath
 */
 void Mantle_BuildMotionPath(pmove_t *pm, BSplineRelaxedCBezier *outMantleSpline)
 {
+  playerState_s *ps; 
+  float v6; 
   int flags; 
   MantleMotionPathParams params; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 952, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 952, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 952, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, dword ptr [rbx+394h] }
+  v6 = ps->mantleState.startPosition.v[1];
   *(_QWORD *)&params.endPosOffset.y = 0i64;
   *((_DWORD *)&params.endPosOffset + 3) = 0;
   *(_DWORD *)(&params.drawDebug + 1) = 0;
   *(&params.drawDebug + 5) = 0;
   params.bgHandler = pm->m_bgHandler;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  params.isOver = _RBX->mantleState.flags & 1;
-  flags = _RBX->mantleState.flags;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+88h+params.ledgeOffset], xmm0
-    vmovss  xmm0, dword ptr [rbx+390h]
-    vmovss  dword ptr [rsp+88h+params.startPos], xmm0
-    vmovss  xmm0, dword ptr [rbx+398h]
-  }
+  params.isOver = ps->mantleState.flags & 1;
+  flags = ps->mantleState.flags;
+  *(_OWORD *)params.ledgeOffset.v = _XMM0;
+  params.startPos.v[0] = ps->mantleState.startPosition.v[0];
+  *(float *)&_XMM0 = ps->mantleState.startPosition.v[2];
   params.isLadder = (flags & 0x800) != 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+88h+params.startPos+4], xmm1
-    vmovss  dword ptr [rsp+88h+params.startPos+8], xmm0
-  }
-  BG_GetMantleLedgePosOffset(_RBX, &params.ledgeOffset);
-  BG_GetMantleEndPosOffset(_RBX, &params.endPosOffset);
+  params.startPos.v[1] = v6;
+  params.startPos.v[2] = *(float *)&_XMM0;
+  BG_GetMantleLedgePosOffset(ps, &params.ledgeOffset);
+  BG_GetMantleEndPosOffset(ps, &params.endPosOffset);
   params.drawDebug = !pm->isExtrapolation;
   Mantle_BuildMotionPathWithParams(&params, outMantleSpline);
 }
@@ -607,204 +610,171 @@ Mantle_BuildMotionPathWithParams
 */
 void Mantle_BuildMotionPathWithParams(const MantleMotionPathParams *params, BSplineRelaxedCBezier *outMantleSpline)
 {
-  bool v22; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  bool v19; 
+  float v20; 
+  const dvar_t *v21; 
+  float v22; 
+  const dvar_t *v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
   const dvar_t *v30; 
+  float v31; 
   const dvar_t *v32; 
-  const dvar_t *v37; 
-  unsigned int v41; 
-  const dvar_t *v42; 
-  const dvar_t *v44; 
-  const dvar_t *v49; 
-  const dvar_t *v53; 
+  float v33; 
+  float v34; 
+  const dvar_t *v35; 
   vec3_t *p_points; 
-  __int64 v61; 
-  const dvar_t *v62; 
+  __int64 v37; 
+  const dvar_t *v38; 
   float outStartToLedgePointBias; 
   float outStartToLedgePointHeight; 
   vec3_t points; 
-  void *retaddr; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
-  _R14 = params;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-  }
+  v59 = v2;
+  v58 = v3;
+  v57 = v4;
+  v56 = v5;
+  v55 = v6;
+  v54 = v7;
   if ( !outMantleSpline && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 845, ASSERT_TYPE_ASSERT, "(outMantleSpline)", (const char *)&queryFormat, "outMantleSpline") )
     __debugbreak();
-  __asm
+  v10 = params->startPos.v[1];
+  v11 = params->startPos.v[2];
+  v12 = params->startPos.v[0];
+  v13 = v10 + params->ledgeOffset.v[1];
+  v14 = v11 + params->ledgeOffset.v[2];
+  v15 = v10 + params->endPosOffset.v[1];
+  v16 = v11 + params->endPosOffset.v[2];
+  v17 = params->startPos.v[0] + params->ledgeOffset.v[0];
+  v18 = params->startPos.v[0] + params->endPosOffset.v[0];
+  points.v[1] = v10;
+  points.v[2] = v11;
+  outStartToLedgePointBias = FLOAT_0_5;
+  outStartToLedgePointHeight = FLOAT_5_0;
+  points.v[0] = v12;
+  Mantle_BuildMotionPathWithParams_GetSplineParams(params, &outStartToLedgePointBias, &outStartToLedgePointHeight);
+  v19 = !params->isLadder;
+  v20 = (float)((float)(v17 - params->startPos.v[0]) * outStartToLedgePointBias) + params->startPos.v[0];
+  v43 = (float)((float)(v13 - params->startPos.v[1]) * outStartToLedgePointBias) + params->startPos.v[1];
+  v42 = v20;
+  v44 = v14 + outStartToLedgePointHeight;
+  if ( v19 )
   {
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  xmm2, dword ptr [r14]
-    vaddss  xmm7, xmm1, dword ptr [r14+10h]
-    vaddss  xmm8, xmm0, dword ptr [r14+14h]
-    vaddss  xmm10, xmm1, dword ptr [r14+1Ch]
-    vaddss  xmm11, xmm0, dword ptr [r14+20h]
-    vaddss  xmm6, xmm2, dword ptr [r14+0Ch]
-    vaddss  xmm9, xmm2, dword ptr [r14+18h]
-    vmovss  dword ptr [rbp+57h+points+4], xmm1
-    vmovss  xmm1, cs:__real@40a00000
-    vmovss  dword ptr [rbp+57h+points+8], xmm0
-    vmovss  xmm0, cs:__real@3f000000
-    vmovss  [rsp+120h+outStartToLedgePointBias], xmm0
-    vmovss  [rsp+120h+outStartToLedgePointHeight], xmm1
-    vmovss  dword ptr [rsp+120h+points], xmm2
-  }
-  Mantle_BuildMotionPathWithParams_GetSplineParams(_R14, &outStartToLedgePointBias, &outStartToLedgePointHeight);
-  v22 = !_R14->isLadder;
-  __asm
-  {
-    vsubss  xmm0, xmm6, dword ptr [r14]
-    vmulss  xmm0, xmm0, [rsp+120h+outStartToLedgePointBias]
-    vaddss  xmm5, xmm0, dword ptr [r14]
-    vsubss  xmm1, xmm7, dword ptr [r14+4]
-    vmulss  xmm0, xmm1, [rsp+120h+outStartToLedgePointBias]
-    vaddss  xmm3, xmm0, dword ptr [r14+4]
-    vaddss  xmm4, xmm8, [rsp+120h+outStartToLedgePointHeight]
-    vmovss  [rbp+57h+var_C8], xmm3
-    vmovss  [rbp+57h+var_CC], xmm5
-    vmovss  [rbp+57h+var_C4], xmm4
-  }
-  if ( v22 )
-  {
-    if ( _R14->isOver )
+    if ( !params->isOver )
     {
-      v42 = DCONST_DVARFLT_mantle_spline_ledge_point_height;
-      if ( !DCONST_DVARFLT_mantle_spline_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_point_height") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v42);
-      __asm { vaddss  xmm0, xmm8, dword ptr [rbx+28h] }
-      v44 = DCONST_DVARFLT_mantle_spline_ledge_to_end_point_bias;
-      __asm
-      {
-        vmovss  [rbp+57h+var_C0], xmm6
-        vmovss  [rbp+57h+var_BC], xmm7
-        vmovss  [rbp+57h+var_B8], xmm0
-      }
-      if ( !DCONST_DVARFLT_mantle_spline_ledge_to_end_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_to_end_point_bias") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v44);
-      __asm
-      {
-        vsubss  xmm0, xmm9, xmm6
-        vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-        vsubss  xmm2, xmm10, xmm7
-        vmulss  xmm0, xmm2, dword ptr [rbx+28h]
-      }
-      v49 = DCONST_DVARFLT_mantle_spline_ledge_to_end_point_height;
-      __asm
-      {
-        vaddss  xmm6, xmm1, xmm6
-        vaddss  xmm7, xmm0, xmm7
-      }
-      if ( !DCONST_DVARFLT_mantle_spline_ledge_to_end_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_to_end_point_height") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v49);
-      __asm
-      {
-        vaddss  xmm0, xmm8, dword ptr [rbx+28h]
-        vmovss  [rbp+57h+var_AC], xmm0
-        vmovss  [rbp+57h+var_B4], xmm6
-        vmovss  [rbp+57h+var_B0], xmm7
-        vmovss  [rbp+57h+var_A8], xmm9
-        vmovss  [rbp+57h+var_A4], xmm10
-        vmovss  [rbp+57h+var_A0], xmm11
-      }
-      v41 = 5;
+      v45 = v17;
+      v46 = v13;
+      v47 = v14;
+      v29 = 3;
+      goto LABEL_27;
     }
-    else
-    {
-      __asm
-      {
-        vmovss  [rbp+57h+var_C0], xmm6
-        vmovss  [rbp+57h+var_BC], xmm7
-        vmovss  [rbp+57h+var_B8], xmm8
-      }
-      v41 = 3;
-    }
+    v30 = DCONST_DVARFLT_mantle_spline_ledge_point_height;
+    if ( !DCONST_DVARFLT_mantle_spline_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_point_height") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v30);
+    v31 = v14 + v30->current.value;
+    v32 = DCONST_DVARFLT_mantle_spline_ledge_to_end_point_bias;
+    v45 = v17;
+    v46 = v13;
+    v47 = v31;
+    if ( !DCONST_DVARFLT_mantle_spline_ledge_to_end_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_to_end_point_bias") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v32);
+    v33 = (float)(v18 - v17) * v32->current.value;
+    v34 = (float)(v15 - v13) * v32->current.value;
+    v26 = DCONST_DVARFLT_mantle_spline_ledge_to_end_point_height;
+    v27 = v33 + v17;
+    v28 = v34 + v13;
+    if ( !DCONST_DVARFLT_mantle_spline_ledge_to_end_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ledge_to_end_point_height") )
+      __debugbreak();
   }
   else
   {
-    v30 = DCONST_DVARFLT_mantle_spline_ladder_point_height;
+    v21 = DCONST_DVARFLT_mantle_spline_ladder_point_height;
     if ( !DCONST_DVARFLT_mantle_spline_ladder_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ladder_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    __asm { vaddss  xmm0, xmm8, dword ptr [rbx+28h] }
-    v32 = DCONST_DVARFLT_mantle_spline_ladder_to_end_point_bias;
-    __asm
-    {
-      vmovss  [rbp+57h+var_C0], xmm6
-      vmovss  [rbp+57h+var_BC], xmm7
-      vmovss  [rbp+57h+var_B8], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v21);
+    v22 = v14 + v21->current.value;
+    v23 = DCONST_DVARFLT_mantle_spline_ladder_to_end_point_bias;
+    v45 = v17;
+    v46 = v13;
+    v47 = v22;
     if ( !DCONST_DVARFLT_mantle_spline_ladder_to_end_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ladder_to_end_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    __asm
-    {
-      vsubss  xmm0, xmm9, xmm6
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vsubss  xmm2, xmm10, xmm7
-      vmulss  xmm0, xmm2, dword ptr [rbx+28h]
-    }
-    v37 = DCONST_DVARFLT_mantle_spline_ladder_to_end_point_height;
-    __asm
-    {
-      vaddss  xmm6, xmm1, xmm6
-      vaddss  xmm7, xmm0, xmm7
-    }
+    Dvar_CheckFrontendServerThread(v23);
+    v24 = (float)(v18 - v17) * v23->current.value;
+    v25 = (float)(v15 - v13) * v23->current.value;
+    v26 = DCONST_DVARFLT_mantle_spline_ladder_to_end_point_height;
+    v27 = v24 + v17;
+    v28 = v25 + v13;
     if ( !DCONST_DVARFLT_mantle_spline_ladder_to_end_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_spline_ladder_to_end_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    __asm
-    {
-      vaddss  xmm0, xmm8, dword ptr [rbx+28h]
-      vmovss  [rbp+57h+var_AC], xmm0
-      vmovss  [rbp+57h+var_B4], xmm6
-      vmovss  [rbp+57h+var_B0], xmm7
-      vmovss  [rbp+57h+var_A8], xmm9
-      vmovss  [rbp+57h+var_A4], xmm10
-      vmovss  [rbp+57h+var_A0], xmm11
-    }
-    v41 = 5;
   }
-  BG_BSpline_RelaxedCBezier_Build(&points, v41, 0, 0, outMantleSpline);
-  v53 = DCONST_DVARINT_mantle_debug;
-  __asm
-  {
-    vmovaps xmm11, [rsp+120h+var_98+8]
-    vmovaps xmm10, [rsp+120h+var_88+8]
-    vmovaps xmm9, [rsp+120h+var_78+8]
-    vmovaps xmm8, [rsp+120h+var_68+8]
-    vmovaps xmm7, [rsp+120h+var_58+8]
-    vmovaps xmm6, [rsp+120h+var_48+8]
-  }
+  Dvar_CheckFrontendServerThread(v26);
+  v50 = v14 + v26->current.value;
+  v48 = v27;
+  v49 = v28;
+  v51 = v18;
+  v52 = v15;
+  v53 = v16;
+  v29 = 5;
+LABEL_27:
+  BG_BSpline_RelaxedCBezier_Build(&points, v29, 0, 0, outMantleSpline);
+  v35 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v53);
-  if ( (v53->current.enabled & 4) != 0 && _R14->drawDebug )
+  Dvar_CheckFrontendServerThread(v35);
+  if ( (v35->current.enabled & 4) != 0 && params->drawDebug )
   {
     p_points = &points;
-    v61 = v41;
+    v37 = v29;
     do
     {
-      v62 = DVARINT_mantle_debugLineTime;
+      v38 = DVARINT_mantle_debugLineTime;
       if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v62);
-      Mantle_DebugStar(_R14->bgHandler, p_points++, &colorCyan, v62->current.integer);
-      --v61;
+      Dvar_CheckFrontendServerThread(v38);
+      Mantle_DebugStar(params->bgHandler, p_points++, &colorCyan, v38->current.integer);
+      --v37;
     }
-    while ( v61 );
+    while ( v37 );
   }
 }
 
@@ -815,289 +785,214 @@ Mantle_BuildMotionPathWithParams_GetSplineParams
 */
 void Mantle_BuildMotionPathWithParams_GetSplineParams(const MantleMotionPathParams *params, float *outStartToLedgePointBias, float *outStartToLedgePointHeight)
 {
-  const char *v76; 
-  void *retaddr; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  const char *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  const dvar_t *v39; 
+  const dvar_t *v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
+  const dvar_t *v43; 
+  const dvar_t *v44; 
+  const dvar_t *v45; 
 
-  _R11 = &retaddr;
+  _XMM7 = LODWORD(FLOAT_32_0);
+  _XMM0 = params->isLadder;
   __asm
   {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
-  _EAX = params->isLadder;
-  _RBX = params;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42900000
-    vmovss  xmm7, cs:__real@42000000
-  }
-  _ECX = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
     vpcmpeqd xmm2, xmm0, xmm1
-    vmovd   xmm0, eax
     vblendvps xmm4, xmm7, xmm6, xmm2
-    vmovss  xmm2, cs:__real@41c00000
-    vmovd   xmm1, ecx
     vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  [rsp+120h+var_E0], xmm4
-    vxorps  xmm9, xmm9, xmm9
-    vblendvps xmm0, xmm9, xmm2, xmm3
-    vmovaps xmm1, xmm0; min
-    vmovss  [rsp+120h+var_E0], xmm0
-    vmovss  xmm0, dword ptr [rbx+14h]; val
-    vmovaps xmm2, xmm4; max
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
+  _XMM9 = 0i64;
+  __asm { vblendvps xmm0, xmm9, xmm2, xmm3 }
+  I_fclamp(params->ledgeOffset.v[2], *(float *)&_XMM0, *(float *)&_XMM4);
+  if ( params->isLadder )
   {
-    vmovups xmm1, cs:__xmm@42400000422000004200000041c00000
-    vmovss  xmm2, cs:__real@42600000
-    vmovups [rbp+57h+var_A8], xmm1
-    vmovups xmm1, cs:__xmm@41c00000418000004100000000000000
-    vmovups [rbp+57h+var_90], xmm1
-    vmovss  [rbp+57h+var_98], xmm2
-    vmovss  [rbp+57h+var_94], xmm6
-    vmovss  [rbp+57h+var_80], xmm7
-    vmovss  [rbp+57h+var_7C], xmm7
-    vmovaps xmm8, xmm0
-  }
-  if ( _RBX->isLadder )
-  {
-    _RSI = DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_bias;
+    v11 = DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_0_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rsp+120h+var_D8], xmm0 }
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_8_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D4], xmm0 }
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_16_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D0], xmm0 }
+    Dvar_CheckFrontendServerThread(v13);
+    v14 = DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_24_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_CC], xmm0 }
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_32_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_C8], xmm0 }
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_32_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C4], xmm0 }
+    Dvar_CheckFrontendServerThread(v16);
+    v17 = DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_0_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_0_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C0], xmm0 }
+    Dvar_CheckFrontendServerThread(v17);
+    v18 = DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_8_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_8_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_BC], xmm0 }
+    Dvar_CheckFrontendServerThread(v18);
+    v19 = DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_16_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_16_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B8], xmm0 }
+    Dvar_CheckFrontendServerThread(v19);
+    v20 = DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_24_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_24_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B4], xmm0 }
+    Dvar_CheckFrontendServerThread(v20);
+    v21 = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_32_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B0], xmm0 }
+    Dvar_CheckFrontendServerThread(v21);
+    v22 = DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_ladder_32_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_32_spline_start_to_ledge_point_height") )
       __debugbreak();
     goto LABEL_112;
   }
-  if ( _RBX->isOver )
+  if ( params->isOver )
   {
-    _RSI = DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_bias;
+    v23 = DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_24_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rsp+120h+var_D8], xmm0 }
+    Dvar_CheckFrontendServerThread(v23);
+    v24 = DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_32_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D4], xmm0 }
+    Dvar_CheckFrontendServerThread(v24);
+    v25 = DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_40_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D0], xmm0 }
+    Dvar_CheckFrontendServerThread(v25);
+    v26 = DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_48_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_CC], xmm0 }
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_56_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_C8], xmm0 }
+    Dvar_CheckFrontendServerThread(v27);
+    v28 = DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_72_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C4], xmm0 }
+    Dvar_CheckFrontendServerThread(v28);
+    v29 = DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_24_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_24_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C0], xmm0 }
+    Dvar_CheckFrontendServerThread(v29);
+    v30 = DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_32_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_32_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_BC], xmm0 }
+    Dvar_CheckFrontendServerThread(v30);
+    v31 = DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_40_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_40_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B8], xmm0 }
+    Dvar_CheckFrontendServerThread(v31);
+    v32 = DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_48_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_48_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B4], xmm0 }
+    Dvar_CheckFrontendServerThread(v32);
+    v33 = DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_56_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_56_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B0], xmm0 }
+    Dvar_CheckFrontendServerThread(v33);
+    v22 = DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_over_72_spline_start_to_ledge_point_height )
     {
-      v76 = "mantle_over_72_spline_start_to_ledge_point_height";
+      v34 = "mantle_over_72_spline_start_to_ledge_point_height";
       goto LABEL_110;
     }
   }
   else
   {
-    _RSI = DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_bias;
+    v35 = DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_24_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rsp+120h+var_D8], xmm0 }
+    Dvar_CheckFrontendServerThread(v35);
+    v36 = DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_32_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D4], xmm0 }
+    Dvar_CheckFrontendServerThread(v36);
+    v37 = DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_40_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_D0], xmm0 }
+    Dvar_CheckFrontendServerThread(v37);
+    v38 = DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_48_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_CC], xmm0 }
+    Dvar_CheckFrontendServerThread(v38);
+    v39 = DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_56_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_bias;
-    __asm { vmovss  [rbp+57h+var_C8], xmm0 }
+    Dvar_CheckFrontendServerThread(v39);
+    v40 = DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_bias;
     if ( !DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_bias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_72_spline_start_to_ledge_point_bias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C4], xmm0 }
+    Dvar_CheckFrontendServerThread(v40);
+    v41 = DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_24_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_24_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_C0], xmm0 }
+    Dvar_CheckFrontendServerThread(v41);
+    v42 = DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_32_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_32_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_BC], xmm0 }
+    Dvar_CheckFrontendServerThread(v42);
+    v43 = DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_40_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_40_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B8], xmm0 }
+    Dvar_CheckFrontendServerThread(v43);
+    v44 = DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_48_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_48_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B4], xmm0 }
+    Dvar_CheckFrontendServerThread(v44);
+    v45 = DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_56_spline_start_to_ledge_point_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_56_spline_start_to_ledge_point_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_height;
-    __asm { vmovss  [rbp+57h+var_B0], xmm0 }
+    Dvar_CheckFrontendServerThread(v45);
+    v22 = DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_height;
     if ( !DCONST_DVARFLT_mantle_on_72_spline_start_to_ledge_point_height )
     {
-      v76 = "mantle_on_72_spline_start_to_ledge_point_height";
+      v34 = "mantle_on_72_spline_start_to_ledge_point_height";
 LABEL_110:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v76) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v34) )
         __debugbreak();
     }
   }
 LABEL_112:
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmovss  [rbp+57h+var_AC], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v22);
   JUMPOUT(0x140FF5CD0i64);
 }
 
@@ -1106,363 +1001,332 @@ LABEL_112:
 Mantle_CalcEndPos
 ==============
 */
-bool Mantle_CalcEndPos(pmove_t *pm, MantleResults *mresults)
+char Mantle_CalcEndPos(pmove_t *pm, MantleResults *mresults)
 {
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v6; 
+  float v7; 
   playerState_s *ps; 
-  char v14; 
-  bool result; 
-  int suitIndex; 
-  char v23; 
-  bool v24; 
+  char v9; 
+  Bounds *v11; 
+  const dvar_t *v12; 
+  float v13; 
+  float v14; 
+  double v15; 
+  double v16; 
+  const dvar_t *v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  bool v21; 
+  float v24; 
+  float v25; 
+  float v26; 
   int contentMask; 
+  double v28; 
   bool startsolid; 
-  int v63; 
-  bool v64; 
-  bool v73; 
-  bool v81; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float fraction; 
+  int v34; 
+  bool v35; 
+  float v36; 
+  double VerticalDelta; 
+  float v38; 
+  int v39; 
+  double Float_Internal_DebugName; 
+  double v41; 
+  bool v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  bool v47; 
+  float v48; 
+  double v49; 
+  double UpContribution; 
+  double v51; 
+  float v52; 
+  double v53; 
+  float v54; 
+  double v55; 
   vec3_t vec; 
   vec3_t start; 
+  vec3_t vecB; 
   Bounds bounds; 
   trace_t results; 
-  Bounds v101; 
-  char v107; 
+  Bounds v61; 
 
-  __asm
-  {
-    vmovaps [rsp+190h+var_70], xmm10
-    vmovaps [rsp+190h+var_80], xmm11
-  }
-  _RBX = DCONST_DVARFLT_mantle_over_height_offset;
-  _RDI = mresults;
+  v2 = DCONST_DVARFLT_mantle_over_height_offset;
   if ( !DCONST_DVARFLT_mantle_over_height_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_height_offset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm10, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_mantle_end_height_tolerance;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v6 = DCONST_DVARFLT_mantle_end_height_tolerance;
   if ( !DCONST_DVARFLT_mantle_end_height_tolerance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_end_height_tolerance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm11, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.value;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 495, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 495, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 451, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 451, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  v14 = _RDI->edgeFlags[0] & 0xA;
-  if ( (v14 == 8 || (_RDI->flags & 0x801) != 0) && v14 != 2 )
+  v9 = mresults->edgeFlags[0] & 0xA;
+  if ( v9 != 8 && (mresults->flags & 0x801) == 0 || v9 == 2 )
   {
-    _RDI->debugDraw.overFlags |= 1u;
-    suitIndex = ps->suitIndex;
-    __asm
-    {
-      vmovaps [rsp+190h+var_40], xmm6
-      vmovaps [rsp+190h+var_50], xmm7
-      vmovaps [rsp+190h+var_60], xmm8
-    }
-    _RAX = BG_Suit_GetBounds(suitIndex, PM_EFF_STANCE_DUCKED);
-    _RBX = DCONST_DVARMPFLT_mantle_over_forward_trace_capsule_height;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+90h+var_A0.midPoint], xmm1
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+90h+var_A0.halfSize+4], xmm0
-      vmovsd  qword ptr [rbp+90h+var_120.halfSize+4], xmm0
-      vmovups xmmword ptr [rsp+190h+var_120.midPoint], xmm1
-    }
-    if ( !DCONST_DVARMPFLT_mantle_over_forward_trace_capsule_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_forward_trace_capsule_height") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm0, xmm6
-    }
-    if ( !(v23 | v24) )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3f000000
-        vmovss  dword ptr [rbp+90h+var_120.halfSize+8], xmm0
-        vmovss  dword ptr [rsp+190h+var_120.midPoint+8], xmm0
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vmovss  xmm2, dword ptr [rdi+1Ch]
-      vmovss  dword ptr [rsp+190h+start], xmm0
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmovss  dword ptr [rsp+190h+start+8], xmm0
-      vmovss  dword ptr [rsp+190h+start+4], xmm2
-    }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::Vec2Dot(&pm->refFrame, &_RDI->dir, &ps->velocity);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@43960000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _R12 = DCONST_DVARFLT_mantle_min_over_dist;
-    __asm { vmulss  xmm8, xmm0, cs:__real@3b5a740e }
-    if ( !DCONST_DVARFLT_mantle_min_over_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_min_over_dist") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_R12);
-    __asm { vmovss  xmm6, dword ptr [r12+28h] }
-    _R12 = DCONST_DVARFLT_mantle_max_over_dist;
-    if ( !DCONST_DVARFLT_mantle_max_over_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_max_over_dist") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_R12);
-    v24 = (_RDI->edgeFlags[0] & 4) == 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+28h]
-      vmovss  xmm7, cs:__real@3f800000
-      vmaxss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, xmm8
-      vsubss  xmm0, xmm7, xmm8
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm3, dword ptr [rdi+4]
-      vmulss  xmm2, xmm3, dword ptr [rdi]
-      vaddss  xmm0, xmm2, dword ptr [rsp+190h+start]
-      vmovss  dword ptr [rsp+190h+vec], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rsp+190h+start+4]
-      vmulss  xmm1, xmm3, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+190h+vec+4], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rsp+190h+start+8]
-      vmovss  dword ptr [rsp+190h+vec+8], xmm0
-    }
-    if ( !v24 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+60h]
-        vmovss  xmm1, dword ptr [rdi+64h]
-        vmovss  dword ptr [rsp+190h+vec], xmm0
-        vmovss  xmm0, dword ptr [rdi+68h]
-        vmovss  dword ptr [rsp+190h+vec+8], xmm0
-        vmovss  dword ptr [rsp+190h+vec+4], xmm1
-      }
-    }
-    __asm { vmovaps xmm1, xmm10; height }
-    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-    contentMask = pm->tracemask;
+    mresults->flags &= ~1u;
+    mresults->endPos.v[0] = mresults->ledgePos.v[0];
+    mresults->endPos.v[1] = mresults->ledgePos.v[1];
+    mresults->endPos.v[2] = mresults->ledgePos.v[2];
+    return 0;
+  }
+  mresults->debugDraw.overFlags |= 1u;
+  v11 = (Bounds *)BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+  v12 = DCONST_DVARMPFLT_mantle_over_forward_trace_capsule_height;
+  v61 = *v11;
+  bounds = v61;
+  if ( !DCONST_DVARMPFLT_mantle_over_forward_trace_capsule_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_forward_trace_capsule_height") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.value;
+  if ( v13 > 0.0 )
+  {
+    bounds.halfSize.v[2] = v13 * 0.5;
+    bounds.midPoint.v[2] = v13 * 0.5;
+  }
+  v14 = mresults->ledgePos.v[1];
+  start.v[0] = mresults->ledgePos.v[0];
+  start.v[2] = mresults->ledgePos.v[2];
+  start.v[1] = v14;
+  v15 = WorldUpReferenceFrame::Vec2Dot(&pm->refFrame, &mresults->dir, &ps->velocity);
+  v16 = I_fclamp(*(float *)&v15, 0.0, 300.0);
+  v17 = DCONST_DVARFLT_mantle_min_over_dist;
+  v18 = *(float *)&v16 * 0.0033333334;
+  if ( !DCONST_DVARFLT_mantle_min_over_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_min_over_dist") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v17);
+  v19 = v17->current.value;
+  v20 = DCONST_DVARFLT_mantle_max_over_dist;
+  if ( !DCONST_DVARFLT_mantle_max_over_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_max_over_dist") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v20);
+  v21 = (mresults->edgeFlags[0] & 4) == 0;
+  _XMM0 = v20->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  v24 = (float)(*(float *)&_XMM1 * v18) + (float)((float)(1.0 - v18) * v19);
+  *(float *)&_XMM1 = v24 * mresults->dir.v[1];
+  vec.v[0] = (float)(v24 * mresults->dir.v[0]) + start.v[0];
+  v25 = v24 * mresults->dir.v[2];
+  vec.v[1] = *(float *)&_XMM1 + start.v[1];
+  vec.v[2] = v25 + start.v[2];
+  if ( !v21 )
+  {
+    v26 = mresults->ladderOverPos.v[1];
+    vec.v[0] = mresults->ladderOverPos.v[0];
+    vec.v[2] = mresults->ladderOverPos.v[2];
+    vec.v[1] = v26;
+  }
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, value, &vec);
+  contentMask = pm->tracemask;
+  Mantle_SetTraceFlags(pm->m_trace);
+  BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &bounds, ps->clientNum, contentMask);
+  Mantle_RestoreTraceFlags(pm->m_trace);
+  if ( BG_Glass_CanBreakGlass(&results) )
+  {
+    contentMask &= ~0x10u;
     Mantle_SetTraceFlags(pm->m_trace);
     BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &bounds, ps->clientNum, contentMask);
     Mantle_RestoreTraceFlags(pm->m_trace);
-    if ( BG_Glass_CanBreakGlass(&results) )
-    {
-      contentMask &= ~0x10u;
-      Mantle_SetTraceFlags(pm->m_trace);
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &bounds, ps->clientNum, contentMask);
-      Mantle_RestoreTraceFlags(pm->m_trace);
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+190h+var_120.midPoint]
-      vmovsd  xmm1, qword ptr [rbp+90h+var_120.halfSize+4]
-    }
-    startsolid = results.startsolid;
-    __asm
-    {
-      vmovups xmmword ptr [rdi+0FCh], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+start]
-      vmovsd  qword ptr [rdi+10Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+190h+start+4]
-      vmovss  dword ptr [rdi+114h], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+start+8]
-      vmovss  dword ptr [rdi+118h], xmm1
-      vmovss  xmm1, dword ptr [rsp+190h+vec]
-      vmovss  dword ptr [rdi+11Ch], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+vec+4]
-      vmovss  dword ptr [rdi+120h], xmm1
-      vmovss  xmm1, dword ptr [rsp+190h+vec+8]
-      vmovss  dword ptr [rdi+124h], xmm0
-      vmovss  xmm0, [rbp+90h+results.fraction]
-      vmovss  dword ptr [rdi+128h], xmm1
-    }
-    _RDI->debugDraw.ledgeForwardCapsuleSweepStartSolid = startsolid;
-    __asm { vmovss  dword ptr [rdi+12Ch], xmm0 }
-    if ( startsolid )
-    {
-      if ( !Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
-      {
-        v63 = 4;
-        if ( results.startsolid )
-          v63 = 2;
-        _RDI->debugDraw.overFlags |= v63;
-        goto LABEL_48;
-      }
-    }
-    else
-    {
-      __asm { vcomiss xmm0, xmm7 }
-    }
-    if ( !Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
-      goto LABEL_49;
+  }
+  v28 = *(double *)&bounds.halfSize.y;
+  startsolid = results.startsolid;
+  *(_OWORD *)mresults->debugDraw.ledgeForwardCapsuleSweepBounds.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+  v30 = start.v[0];
+  *(double *)&mresults->debugDraw.ledgeForwardCapsuleSweepBounds.halfSize.y = v28;
+  *(float *)&v28 = start.v[1];
+  mresults->debugDraw.ledgeForwardCapsuleSweepStart.v[0] = v30;
+  v31 = start.v[2];
+  mresults->debugDraw.ledgeForwardCapsuleSweepStart.v[1] = *(float *)&v28;
+  *(float *)&v28 = vec.v[0];
+  mresults->debugDraw.ledgeForwardCapsuleSweepStart.v[2] = v31;
+  v32 = vec.v[1];
+  mresults->debugDraw.ledgeForwardCapsuleSweepEnd.v[0] = *(float *)&v28;
+  *(float *)&v28 = vec.v[2];
+  mresults->debugDraw.ledgeForwardCapsuleSweepEnd.v[1] = v32;
+  fraction = results.fraction;
+  mresults->debugDraw.ledgeForwardCapsuleSweepEnd.v[2] = *(float *)&v28;
+  mresults->debugDraw.ledgeForwardCapsuleSweepStartSolid = startsolid;
+  mresults->debugDraw.ledgeForwardCapsuleSweepFraction = fraction;
+  if ( (startsolid || fraction < 1.0) && !Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
+  {
+    v34 = 4;
+    if ( results.startsolid )
+      v34 = 2;
+    mresults->debugDraw.overFlags |= v34;
+    goto LABEL_49;
+  }
+  if ( Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
+  {
     if ( !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 594, ASSERT_TYPE_ASSERT, "( ( pm->m_bgHandler->IsClient() ) )", "( pm->m_bgHandler ) = %p", pm->m_bgHandler) )
       __debugbreak();
     Mantle_SetTraceFlags(pm->m_trace);
     BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &bounds, ps->clientNum, contentMask & 0xFDFFBFFF);
     Mantle_RestoreTraceFlags(pm->m_trace);
-    v64 = results.startsolid;
-    _RDI->debugDraw.ledgeForwardCapsuleSweepStartSolid = results.startsolid;
-    __asm
+    v35 = results.startsolid;
+    mresults->debugDraw.ledgeForwardCapsuleSweepStartSolid = results.startsolid;
+    v36 = results.fraction;
+    mresults->debugDraw.ledgeForwardCapsuleSweepFraction = results.fraction;
+    if ( v35 )
     {
-      vmovss  xmm0, [rbp+90h+results.fraction]
-      vmovss  dword ptr [rdi+12Ch], xmm0
+      mresults->debugDraw.overFlags |= 2u;
+      goto LABEL_49;
     }
-    if ( !v64 )
+    if ( v36 < 1.0 )
     {
-      __asm { vcomiss xmm0, xmm7 }
+      mresults->debugDraw.overFlags |= 4u;
 LABEL_49:
-      __asm { vmovsd  xmm0, qword ptr [rsp+190h+vec] }
-      start.v[2] = vec.v[2];
-      __asm { vmovsd  qword ptr [rsp+190h+start], xmm0 }
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetVerticalDelta(&pm->refFrame, &_RDI->ledgePos, &_RDI->startPos);
-      __asm
-      {
-        vaddss  xmm1, xmm0, xmm10
-        vaddss  xmm6, xmm1, xmm11
-        vmovaps xmm8, xmm0
-      }
-      if ( Mantle_IsLadder(_RDI) )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_down_dist, "mantle_ladder_down_dist");
-        __asm { vmovaps xmm6, xmm0 }
-      }
-      __asm { vxorps  xmm1, xmm6, cs:__xmm@80000000800000008000000080000000; height }
-      WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-      Mantle_SetTraceFlags(pm->m_trace);
-      BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &v101, ps->clientNum, contentMask);
-      Mantle_RestoreTraceFlags(pm->m_trace);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+90h+var_A0.midPoint]
-        vmovsd  xmm1, qword ptr [rbp+90h+var_A0.halfSize+4]
-      }
-      v73 = results.startsolid;
-      __asm
-      {
-        vmovups xmmword ptr [rdi+134h], xmm0
-        vmovss  xmm0, dword ptr [rsp+190h+start]
-        vmovsd  qword ptr [rdi+144h], xmm1
-        vmovss  xmm1, dword ptr [rsp+190h+start+4]
-        vmovss  dword ptr [rdi+14Ch], xmm0
-        vmovss  xmm0, dword ptr [rsp+190h+start+8]
-        vmovss  dword ptr [rdi+150h], xmm1
-        vmovss  xmm1, dword ptr [rsp+190h+vec]
-        vmovss  dword ptr [rdi+154h], xmm0
-        vmovss  xmm0, dword ptr [rsp+190h+vec+4]
-        vmovss  dword ptr [rdi+158h], xmm1
-        vmovss  xmm1, dword ptr [rsp+190h+vec+8]
-        vmovss  dword ptr [rdi+15Ch], xmm0
-        vmovss  xmm0, [rbp+90h+results.fraction]
-        vmovss  dword ptr [rdi+160h], xmm1
-      }
-      _RDI->debugDraw.ledgeDownwardCapsuleSweepStartSolid = v73;
-      __asm { vmovss  dword ptr [rdi+164h], xmm0 }
-      if ( !v73 )
-        goto LABEL_55;
-      if ( !Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
-        goto LABEL_61;
-      if ( !results.startsolid )
-      {
-        __asm { vmovss  xmm0, [rbp+90h+results.fraction] }
-LABEL_55:
-        __asm { vcomiss xmm0, xmm7 }
-LABEL_64:
-        _RDI->flags |= 0x20u;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+190h+vec]
-          vmovss  xmm1, dword ptr [rsp+190h+vec+4]
-          vmovss  dword ptr [rdi+24h], xmm0
-          vmovss  xmm0, dword ptr [rsp+190h+vec+8]
-          vmovss  dword ptr [rdi+2Ch], xmm0
-          vmovss  dword ptr [rdi+28h], xmm1
-        }
-        *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &start);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &vec);
-        __asm
-        {
-          vsubss  xmm1, xmm7, [rbp+90h+results.fraction]
-          vmulss  xmm0, xmm0, [rbp+90h+results.fraction]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm1, xmm2, xmm0; height
-        }
-        WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RDI->endPos);
-        _RDI->debugDraw.overFlags |= 0x80u;
-        result = 1;
-        goto LABEL_65;
-      }
-      if ( Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
-      {
-        if ( !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 666, ASSERT_TYPE_ASSERT, "( ( pm->m_bgHandler->IsClient() ) )", "( pm->m_bgHandler ) = %p", pm->m_bgHandler) )
-          __debugbreak();
-        Mantle_SetTraceFlags(pm->m_trace);
-        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &v101, ps->clientNum, contentMask & 0xFDFFBFFF);
-        Mantle_RestoreTraceFlags(pm->m_trace);
-        v81 = results.startsolid;
-        _RDI->debugDraw.ledgeDownwardCapsuleSweepStartSolid = results.startsolid;
-        __asm
-        {
-          vmovss  xmm6, [rbp+90h+results.fraction]
-          vmovss  dword ptr [rdi+164h], xmm6
-        }
-        if ( v81 )
-        {
-LABEL_61:
-          _RDI->flags &= ~1u;
-          _RDI->endPos.v[0] = _RDI->ledgePos.v[0];
-          _RDI->endPos.v[1] = _RDI->ledgePos.v[1];
-          _RDI->endPos.v[2] = _RDI->ledgePos.v[2];
-          _RDI->debugDraw.overFlags |= 8u;
-          result = 0;
-          goto LABEL_65;
-        }
-      }
-      else
-      {
-        __asm { vmovss  xmm6, [rbp+90h+results.fraction] }
-      }
-      __asm { vcomiss xmm6, xmm7 }
-      goto LABEL_64;
+      mresults->flags &= ~1u;
+      mresults->endPos.v[0] = mresults->ledgePos.v[0];
+      mresults->endPos.v[1] = mresults->ledgePos.v[1];
+      mresults->endPos.v[2] = mresults->ledgePos.v[2];
+      return 0;
     }
-    _RDI->debugDraw.overFlags |= 2u;
-LABEL_48:
-    _RDI->flags &= ~1u;
-    _RDI->endPos.v[0] = _RDI->ledgePos.v[0];
-    _RDI->endPos.v[1] = _RDI->ledgePos.v[1];
-    _RDI->endPos.v[2] = _RDI->ledgePos.v[2];
-    result = 0;
-LABEL_65:
-    __asm
-    {
-      vmovaps xmm7, [rsp+190h+var_50]
-      vmovaps xmm6, [rsp+190h+var_40]
-      vmovaps xmm8, [rsp+190h+var_60]
-    }
-    goto LABEL_66;
   }
-  _RDI->flags &= ~1u;
-  _RDI->endPos.v[0] = _RDI->ledgePos.v[0];
-  _RDI->endPos.v[1] = _RDI->ledgePos.v[1];
-  _RDI->endPos.v[2] = _RDI->ledgePos.v[2];
-  result = 0;
-LABEL_66:
-  _R11 = &v107;
-  __asm
+  start = vec;
+  VerticalDelta = WorldUpReferenceFrame::GetVerticalDelta(&pm->refFrame, &mresults->ledgePos, &mresults->startPos);
+  v38 = (float)(*(float *)&VerticalDelta + value) + v7;
+  v39 = LODWORD(VerticalDelta);
+  if ( Mantle_IsLadder(mresults) )
   {
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_down_dist, "mantle_ladder_down_dist");
+    v38 = *(float *)&Float_Internal_DebugName;
   }
-  return result;
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, COERCE_FLOAT(LODWORD(v38) ^ _xmm), &vec);
+  Mantle_SetTraceFlags(pm->m_trace);
+  BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &v61, ps->clientNum, contentMask);
+  Mantle_RestoreTraceFlags(pm->m_trace);
+  v41 = *(double *)&v61.halfSize.y;
+  v42 = results.startsolid;
+  *(_OWORD *)mresults->debugDraw.ledgeDownwardCapsuleSweepBounds.midPoint.v = *(_OWORD *)v61.midPoint.v;
+  v43 = start.v[0];
+  *(double *)&mresults->debugDraw.ledgeDownwardCapsuleSweepBounds.halfSize.y = v41;
+  *(float *)&v41 = start.v[1];
+  mresults->debugDraw.ledgeDownwardCapsuleSweepStart.v[0] = v43;
+  v44 = start.v[2];
+  mresults->debugDraw.ledgeDownwardCapsuleSweepStart.v[1] = *(float *)&v41;
+  *(float *)&v41 = vec.v[0];
+  mresults->debugDraw.ledgeDownwardCapsuleSweepStart.v[2] = v44;
+  v45 = vec.v[1];
+  mresults->debugDraw.ledgeDownwardCapsuleSweepEnd.v[0] = *(float *)&v41;
+  *(float *)&v41 = vec.v[2];
+  mresults->debugDraw.ledgeDownwardCapsuleSweepEnd.v[1] = v45;
+  v46 = results.fraction;
+  mresults->debugDraw.ledgeDownwardCapsuleSweepEnd.v[2] = *(float *)&v41;
+  mresults->debugDraw.ledgeDownwardCapsuleSweepStartSolid = v42;
+  mresults->debugDraw.ledgeDownwardCapsuleSweepFraction = v46;
+  if ( v42 )
+  {
+    if ( !Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
+    {
+LABEL_62:
+      mresults->flags &= ~1u;
+      mresults->endPos.v[0] = mresults->ledgePos.v[0];
+      mresults->endPos.v[1] = mresults->ledgePos.v[1];
+      mresults->endPos.v[2] = mresults->ledgePos.v[2];
+      mresults->debugDraw.overFlags |= 8u;
+      return 0;
+    }
+    if ( results.startsolid )
+      goto LABEL_57;
+    v46 = results.fraction;
+  }
+  if ( v46 >= 1.0 )
+  {
+LABEL_74:
+    mresults->flags |= 0x20u;
+    goto LABEL_75;
+  }
+LABEL_57:
+  if ( Mantle_EntityIsOwnedByPlayer(ps, pm->m_bgHandler, results.hitType, results.hitId) )
+  {
+    if ( !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 666, ASSERT_TYPE_ASSERT, "( ( pm->m_bgHandler->IsClient() ) )", "( pm->m_bgHandler ) = %p", pm->m_bgHandler) )
+      __debugbreak();
+    contentMask &= 0xFDFFBFFF;
+    Mantle_SetTraceFlags(pm->m_trace);
+    BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &v61, ps->clientNum, contentMask);
+    Mantle_RestoreTraceFlags(pm->m_trace);
+    v47 = results.startsolid;
+    mresults->debugDraw.ledgeDownwardCapsuleSweepStartSolid = results.startsolid;
+    v48 = results.fraction;
+    mresults->debugDraw.ledgeDownwardCapsuleSweepFraction = results.fraction;
+    if ( v47 )
+      goto LABEL_62;
+  }
+  else
+  {
+    v48 = results.fraction;
+  }
+  if ( v48 >= 1.0 )
+    goto LABEL_74;
+  if ( (results.contents & 0x2004000) != 0 )
+  {
+    mresults->flags &= ~1u;
+    mresults->endPos.v[0] = mresults->ledgePos.v[0];
+    mresults->endPos.v[1] = mresults->ledgePos.v[1];
+    mresults->endPos.v[2] = mresults->ledgePos.v[2];
+    mresults->debugDraw.overFlags |= 0x10u;
+    return 0;
+  }
+  vecB.v[0] = (float)((float)(vec.v[0] - start.v[0]) * v48) + start.v[0];
+  vecB.v[1] = (float)((float)(vec.v[1] - start.v[1]) * v48) + start.v[1];
+  vecB.v[2] = (float)((float)(vec.v[2] - start.v[2]) * v48) + start.v[2];
+  v49 = WorldUpReferenceFrame::GetVerticalDelta(&pm->refFrame, &mresults->ledgePos, &vecB);
+  if ( COERCE_FLOAT(LODWORD(v49) & _xmm) < value )
+  {
+    mresults->flags &= ~1u;
+    mresults->endPos.v[0] = mresults->ledgePos.v[0];
+    mresults->endPos.v[1] = mresults->ledgePos.v[1];
+    mresults->endPos.v[2] = mresults->ledgePos.v[2];
+    mresults->debugDraw.overFlags |= 0x20u;
+    return 0;
+  }
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &start);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&UpContribution, &vec);
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, COERCE_FLOAT(v39 ^ _xmm), &vec);
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, COERCE_FLOAT(LODWORD(value) ^ _xmm), &vec);
+  v51 = WorldUpReferenceFrame::GetVerticalDelta(&pm->refFrame, &vecB, &vec);
+  if ( COERCE_FLOAT(LODWORD(v51) & _xmm) > v7 )
+  {
+    mresults->flags &= ~1u;
+    mresults->endPos.v[0] = mresults->ledgePos.v[0];
+    mresults->endPos.v[1] = mresults->ledgePos.v[1];
+    mresults->endPos.v[2] = mresults->ledgePos.v[2];
+    mresults->debugDraw.overFlags |= 0x40u;
+    return 0;
+  }
+  vec = vecB;
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, 0.125, &vec);
+  Mantle_SetTraceFlags(pm->m_trace);
+  BgTrace::LegacyTrace(pm->m_trace, pm, &results, &start, &vec, &v61, ps->clientNum, contentMask);
+  Mantle_RestoreTraceFlags(pm->m_trace);
+  if ( results.fraction != 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 735, ASSERT_TYPE_ASSERT, "( ( trace.fraction == 1.0f ) )", "( trace.fraction ) = %g", results.fraction) )
+    __debugbreak();
+LABEL_75:
+  v52 = vec.v[1];
+  mresults->endPos.v[0] = vec.v[0];
+  mresults->endPos.v[2] = vec.v[2];
+  mresults->endPos.v[1] = v52;
+  v53 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &start);
+  v54 = *(float *)&v53;
+  v55 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &vec);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, (float)((float)(1.0 - results.fraction) * v54) + (float)(*(float *)&v55 * results.fraction), &mresults->endPos);
+  mresults->debugDraw.overFlags |= 0x80u;
+  return 1;
 }
 
 /*
@@ -1473,161 +1337,109 @@ Mantle_CalcFallingPosition
 void Mantle_CalcFallingPosition(pmove_t *pm, MantleResults *mresults)
 {
   playerState_s *ps; 
+  const Bounds *v5; 
   int flags; 
-  char v11; 
-  int v13; 
+  const dvar_t *v7; 
+  double Float_Internal_DebugName; 
+  int v9; 
   const BgHandler *m_bgHandler; 
-  const dvar_t *v23; 
-  BgHandler_vtbl *v26; 
+  const dvar_t *v11; 
+  BgHandler_vtbl *v12; 
+  float v13; 
+  double v14; 
+  double v15; 
+  double v16; 
   int Int_Internal_DebugName; 
-  char *fmt; 
-  char *fmta; 
   Bounds *bounds; 
   vec3_t outPos; 
-  int v52[4]; 
+  int v20[4]; 
   trace_t results; 
   BSplineRelaxedCBezier outMantleSpline; 
 
-  _RBX = mresults;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 979, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 979, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 980, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 980, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  _R14 = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 437, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  v5 = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 437, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  flags = _RBX->flags;
-  if ( (_RBX->edgeFlags[0] & 0xA) == 8 )
+  flags = mresults->flags;
+  if ( (mresults->edgeFlags[0] & 0xA) == 8 )
   {
     if ( (flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 987, ASSERT_TYPE_ASSERT, "(mresults->flags & (1<<0))", (const char *)&queryFormat, "mresults->flags & MANTLE_FLAG_OVER") )
       __debugbreak();
-    _RBX->flags &= ~0x20u;
+    mresults->flags &= ~0x20u;
     ps->mantleState.flags &= ~0x20u;
   }
   else if ( (flags & 0x20) != 0 )
   {
     if ( (flags & 0x801) != 0 )
     {
-      _RBP = DCONST_DVARFLT_mantle_falling_time;
+      v7 = DCONST_DVARFLT_mantle_falling_time;
       if ( !DCONST_DVARFLT_mantle_falling_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_falling_time") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBP);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rbp+28h]
-      }
-      if ( v11 )
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.value > 0.0 )
       {
         ps->mantleState.flags |= 1u;
         BSplineRelaxedCBezier::BSplineRelaxedCBezier(&outMantleSpline);
         Mantle_BuildMotionPath(pm, &outMantleSpline);
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_falling_time, "mantle_falling_time");
-        __asm { vmovaps xmm1, xmm0; t }
-        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&_XMM1, &outPos);
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_falling_time, "mantle_falling_time");
+        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&Float_Internal_DebugName, &outPos);
         Mantle_SetTraceFlags(pm->m_trace);
-        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &outPos, &outPos, _R14, ps->clientNum, pm->tracemask);
+        BgTrace::LegacyTrace(pm->m_trace, pm, &results, &outPos, &outPos, v5, ps->clientNum, pm->tracemask);
         Mantle_RestoreTraceFlags(pm->m_trace);
         if ( results.startsolid )
         {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rsp+438h+outPos+4]
-            vmovss  xmm2, dword ptr [rsp+438h+outPos]
-            vmovss  xmm0, dword ptr [rsp+438h+outPos+8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm2, xmm2
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovaps [rsp+438h+var_48], xmm7
-            vmovsd  [rsp+438h+fmt], xmm0
-          }
-          Com_Printf(19, "Falling position is blocked at (%f, %f, %f). Forcing mantle up.\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt);
+          Com_Printf(19, "Falling position is blocked at (%f, %f, %f). Forcing mantle up.\n", outPos.v[0], outPos.v[1], outPos.v[2]);
           Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
           m_bgHandler = pm->m_bgHandler;
-          if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 255, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
+          if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 255, ASSERT_TYPE_ASSERT, "(capsuleBounds)", (const char *)&queryFormat, "capsuleBounds") )
             __debugbreak();
-          v23 = DCONST_DVARINT_mantle_debug;
+          v11 = DCONST_DVARINT_mantle_debug;
           if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v23);
-          if ( (v23->current.enabled & 4) != 0 )
+          Dvar_CheckFrontendServerThread(v11);
+          if ( (v11->current.enabled & 4) != 0 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+438h+outPos]
-              vmovss  xmm1, dword ptr [rsp+438h+outPos+4]
-            }
-            v26 = m_bgHandler->__vftable;
-            __asm
-            {
-              vmovss  xmm3, dword ptr [r14+0Ch]
-              vmovss  [rsp+438h+var_3E8], xmm0
-              vmovss  xmm0, dword ptr [r14+8]
-              vmulss  xmm2, xmm0, cs:__real@40000000
-              vmovss  [rsp+438h+var_3E4], xmm1
-              vaddss  xmm1, xmm2, dword ptr [rsp+438h+outPos+8]
-              vmovss  [rsp+438h+var_3E0], xmm1
-            }
-            ((void (__fastcall *)(const BgHandler *, vec3_t *, int *))v26->DebugCapsule)(m_bgHandler, &outPos, v52);
+            v12 = m_bgHandler->__vftable;
+            v20[0] = SLODWORD(outPos.v[0]);
+            v13 = v5->midPoint.v[2];
+            v20[1] = SLODWORD(outPos.v[1]);
+            *(float *)&v20[2] = (float)(v13 * 2.0) + outPos.v[2];
+            ((void (__fastcall *)(const BgHandler *, vec3_t *, int *))v12->DebugCapsule)(m_bgHandler, &outPos, v20);
           }
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rbx+10h]
-            vmovss  xmm2, dword ptr [rbx+0Ch]
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm2, xmm2
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+438h+fmt], xmm0
-          }
-          Com_Printf(19, "Start position (%f, %f, %f)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta);
-          __asm { vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize }
-          *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, *(float *)&_XMM1, 8u);
-          __asm
-          {
-            vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize
-            vcvtss2sd xmm7, xmm0, xmm0
-          }
-          *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distance2D, *(float *)&_XMM1, 8u);
-          __asm
-          {
-            vcvtss2sd xmm2, xmm0, xmm0
-            vmovaps xmm3, xmm7
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-          }
-          Com_Printf(19, "2D Distance %.3f Height %.3f\n", *(double *)&_XMM2, *(double *)&_XMM3);
+          Com_Printf(19, "Start position (%f, %f, %f)\n", mresults->startPos.v[0], mresults->startPos.v[1], mresults->startPos.v[2]);
+          v14 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, 190.0, 8u);
+          v15 = *(float *)&v14;
+          v16 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distance2D, 190.0, 8u);
+          Com_Printf(19, "2D Distance %.3f Height %.3f\n", *(float *)&v16, v15);
           Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
           Mantle_DebugStar(pm->m_bgHandler, &outPos, &colorRed, Int_Internal_DebugName);
-          _RBX->flags &= 0xFFFFFFDE;
+          mresults->flags &= 0xFFFFFFDE;
           ps->mantleState.flags &= 0xFFFFFFDE;
-          __asm { vmovaps xmm7, [rsp+438h+var_48] }
-          _RBX->endPos.v[0] = _RBX->ledgePos.v[0];
-          _RBX->endPos.v[1] = _RBX->ledgePos.v[1];
-          _RBX->endPos.v[2] = _RBX->ledgePos.v[2];
+          mresults->endPos.v[0] = mresults->ledgePos.v[0];
+          mresults->endPos.v[1] = mresults->ledgePos.v[1];
+          mresults->endPos.v[2] = mresults->ledgePos.v[2];
         }
         else
         {
-          v13 = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
-          Mantle_DebugStar(pm->m_bgHandler, &outPos, &colorLtOrange, v13);
+          v9 = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
+          Mantle_DebugStar(pm->m_bgHandler, &outPos, &colorLtOrange, v9);
         }
       }
       else
       {
-        _RBX->flags &= ~0x20u;
+        mresults->flags &= ~0x20u;
         ps->mantleState.flags &= ~0x20u;
       }
     }
     else
     {
-      LODWORD(bounds) = _RBX->flags;
+      LODWORD(bounds) = mresults->flags;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 995, ASSERT_TYPE_ASSERT, "( ( !(mresults->flags & (1<<5)) ) )", "( mresults->flags ) = %i", bounds) )
         __debugbreak();
     }
@@ -1641,140 +1453,100 @@ Mantle_CalcWishDir
 */
 void Mantle_CalcWishDir(const pmove_t *pm, const pml_t *pml, vec3_t *outWishDir, float *outWishMag)
 {
+  float v4; 
+  float v5; 
+  __int128 v10; 
+  float v14; 
+  const dvar_t *v15; 
+  float value; 
+  int rightmove; 
+  __int128 v18; 
+  float v22; 
+  int forwardmove; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  __int128 v27; 
+  int v31; 
+  int v32; 
   vec3_t vec; 
-  vec3_t v90; 
-  void *retaddr; 
+  vec3_t v34; 
 
-  _RAX = &retaddr;
+  v4 = pml->forward.v[1];
+  vec.v[0] = pml->forward.v[0];
+  v5 = pml->forward.v[2];
+  vec.v[1] = v4;
+  vec.v[2] = v5;
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+  v10 = LODWORD(vec.v[1]);
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+  _XMM3 = v10;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [rsp+0C8h+vec], xmm0
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+0C8h+vec+4], xmm1
-  }
-  _R14 = outWishDir;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+0C8h+vec+8], xmm0
-  }
-  _R15 = outWishMag;
-  _RBX = pml;
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+0C8h+vec]
-    vmovss  xmm6, dword ptr [rsp+0C8h+vec+4]
-    vmovss  xmm5, dword ptr [rsp+0C8h+vec+8]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+0C8h+vec], xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0C8h+vec+8], xmm0
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0C8h+var_78], xmm0
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  dword ptr [rsp+0C8h+vec+4], xmm1
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmovss  dword ptr [rsp+0C8h+var_78+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+var_78+4], xmm1
   }
+  *(float *)&v10 = 1.0 / *(float *)&_XMM0;
+  vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  vec.v[2] = vec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v34.v[0] = pml->right.v[0];
+  *(float *)&_XMM0 = pml->right.v[2];
+  vec.v[1] = vec.v[1] * *(float *)&v10;
+  v14 = pml->right.v[1];
+  v34.v[2] = *(float *)&_XMM0;
+  v34.v[1] = v14;
   if ( (pm->cmd.buttons & 0x8000000000000i64) != 0 || pm->cmd.forwardmove <= 0 )
   {
-    __asm { vmovaps xmm8, xmm7 }
+    value = FLOAT_1_0;
   }
   else
   {
-    _RDI = DCONST_DVARFLT_mantle_kbm_wishdirection_strafe_scale;
+    v15 = DCONST_DVARFLT_mantle_kbm_wishdirection_strafe_scale;
     if ( !DCONST_DVARFLT_mantle_kbm_wishdirection_strafe_scale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_kbm_wishdirection_strafe_scale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm8, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v15);
+    value = v15->current.value;
   }
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &v90);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &v34);
+  rightmove = pm->cmd.rightmove;
+  v18 = LODWORD(v34.v[1]);
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(v34.v[0] * v34.v[0])) + (float)(v34.v[2] * v34.v[2]));
+  _XMM3 = v18;
   __asm
   {
-    vmovss  xmm4, dword ptr [rsp+0C8h+var_78]
-    vmovss  xmm6, dword ptr [rsp+0C8h+var_78+4]
-    vmovss  xmm5, dword ptr [rsp+0C8h+var_78+8]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+0C8h+var_78], xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0C8h+var_78+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm4, xmm0, xmm8
-    vmulss  xmm0, xmm4, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rsp+0C8h+var_78+4], xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, eax
-    vmulss  xmm1, xmm3, dword ptr [rbx]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [r14], xmm1
-    vmulss  xmm2, xmm4, dword ptr [rbx+10h]
-    vmulss  xmm0, xmm3, dword ptr [rbx+4]
-    vaddss  xmm2, xmm2, xmm0
-    vmovss  dword ptr [r14+4], xmm2
-    vmulss  xmm2, xmm4, dword ptr [rbx+14h]
-    vmulss  xmm0, xmm3, dword ptr [rbx+8]
-    vaddss  xmm2, xmm2, xmm0
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [r14+8], xmm2
   }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, _R14);
+  v22 = 1.0 / *(float *)&_XMM0;
+  v34.v[0] = v34.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v34.v[2] = v34.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v18 = (float)rightmove;
+  forwardmove = pm->cmd.forwardmove;
+  *(float *)&_XMM0 = (float)(*(float *)&v18 * value) * pml->right.v[0];
+  v34.v[1] = v34.v[1] * v22;
+  outWishDir->v[0] = (float)((float)forwardmove * pml->forward.v[0]) + *(float *)&_XMM0;
+  outWishDir->v[1] = (float)((float)(*(float *)&v18 * value) * pml->right.v[1]) + (float)((float)forwardmove * pml->forward.v[1]);
+  outWishDir->v[2] = (float)((float)(*(float *)&v18 * value) * pml->right.v[2]) + (float)((float)forwardmove * pml->forward.v[2]);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, outWishDir);
+  v24 = outWishDir->v[1];
+  v25 = LODWORD(outWishDir->v[0]);
+  v26 = outWishDir->v[2];
+  v27 = v25;
+  *(float *)&v27 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v24 * v24)) + (float)(v26 * v26));
+  _XMM3 = v27;
   __asm
   {
-    vmovss  xmm5, dword ptr [r14+4]
-    vmovss  xmm4, dword ptr [r14]
-    vmovss  xmm6, dword ptr [r14+8]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [r14], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [r14+8], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [r14+4], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmovss  dword ptr [r15], xmm0
-    vmovaps xmm6, [rsp+0C8h+var_38]
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_58]
   }
+  outWishDir->v[0] = *(float *)&v25 * (float)(1.0 / *(float *)&_XMM0);
+  outWishDir->v[2] = v26 * (float)(1.0 / *(float *)&_XMM0);
+  outWishDir->v[1] = v24 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = abs8(pm->cmd.rightmove);
+  v32 = abs8(pm->cmd.forwardmove);
+  if ( v32 > v31 )
+    v31 = v32;
+  *outWishMag = (float)v31;
 }
 
 /*
@@ -1809,62 +1581,83 @@ bool Mantle_CanAutoTriggerMantle(const pmove_t *pm, const pml_t *pml, const bool
 Mantle_CanMantle
 ==============
 */
-__int64 Mantle_CanMantle(pmove_t *pm, pml_t *pml, const BgWeaponMap *weaponMap, playerState_s *ps, Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, vec3_t *inOutWishDir, const int gameTime)
+_BOOL8 Mantle_CanMantle(pmove_t *pm, pml_t *pml, const BgWeaponMap *weaponMap, playerState_s *ps, Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, vec3_t *inOutWishDir, const int gameTime)
 {
-  const dvar_t *v18; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
+  const char *v18; 
   const dvar_t *v19; 
   const dvar_t *v20; 
   const char *v21; 
-  const dvar_t *v22; 
-  const dvar_t *v23; 
-  const char *v24; 
-  unsigned __int8 v25; 
-  __int64 result; 
+  bool v22; 
   __int16 groundRefEnt; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v30; 
+  bool v26; 
   int WeaponHand; 
-  __int64 v32; 
+  __int64 v28; 
   int *p_weaponState; 
-  __int64 v34; 
+  __int64 v30; 
+  double Float_Internal_DebugName; 
   bool IsForceOver; 
   bool IsForceOn; 
-  bool v40; 
-  char v41; 
-  bool v45; 
-  bool v46; 
-  __int64 v49; 
-  __int64 v50; 
-  bool v60; 
-  float wishDir; 
-  float wishDira; 
-  float wishDirb; 
-  float wishDirc; 
-  char v79[400]; 
-  void *retaddr; 
+  bool v34; 
+  char v35; 
+  double v36; 
+  float v37; 
+  bool v38; 
+  char v39; 
+  MantleResults *v40; 
+  char *v41; 
+  __int64 v42; 
+  __int64 v43; 
+  char v44; 
+  MantleResults *v45; 
+  char *v46; 
+  float v47; 
+  char v48[400]; 
   bool mresultsa; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3077, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3078, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX = mresults;
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3079, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF008008, "Mantle_CanMantle");
-  v18 = DCONST_DVARINT_mantle_debug;
+  v15 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( (v18->current.enabled & 3) != 0 )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( (v15->current.enabled & 3) != 0 )
     Com_Printf(17, "%s\n", "====== Mantle Debug ======");
-  v19 = DCONST_DVARMPBOOL_mantle_enable;
+  v16 = DCONST_DVARMPBOOL_mantle_enable;
   if ( !DCONST_DVARMPBOOL_mantle_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( !v19->current.enabled )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( !v16->current.enabled )
+  {
+    v17 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v17);
+    if ( !v17->current.enabled )
+      goto LABEL_40;
+    v18 = "Mantle Failed: Not enabled";
+    goto LABEL_36;
+  }
+  if ( ps->pm_type >= 7 )
+  {
+    v19 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v19);
+    if ( !v19->current.enabled )
+      goto LABEL_40;
+    v18 = "Mantle Failed: Player is dead";
+    goto LABEL_36;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
   {
     v20 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
@@ -1872,354 +1665,263 @@ __int64 Mantle_CanMantle(pmove_t *pm, pml_t *pml, const BgWeaponMap *weaponMap, 
     Dvar_CheckFrontendServerThread(v20);
     if ( !v20->current.enabled )
       goto LABEL_40;
-    v21 = "Mantle Failed: Not enabled";
-    goto LABEL_36;
+    v18 = "Mantle Failed: Player already mantling";
+LABEL_36:
+    Com_Printf(17, "%s\n", v18);
+LABEL_40:
+    v22 = 0;
+    goto LABEL_41;
   }
-  if ( ps->pm_type >= 7 )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x24u) )
   {
-    v22 = DCONST_DVARINT_mantle_debug;
-    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( !v22->current.enabled )
-      goto LABEL_40;
-    v21 = "Mantle Failed: Player is dead";
-    goto LABEL_36;
-  }
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
-  {
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x24u) )
-    {
-      v24 = "Mantle Failed: Player not allowed to mantle";
+    v21 = "Mantle Failed: Player not allowed to mantle";
 LABEL_39:
-      Mantle_DebugPrint(1u, v24);
-      goto LABEL_40;
-    }
-    if ( BG_HasLadderHand(ps) )
+    Mantle_DebugPrint(1u, v21);
+    goto LABEL_40;
+  }
+  if ( BG_HasLadderHand(ps) )
+  {
+    v21 = "Mantle Failed: Player using ladder";
+    goto LABEL_39;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xCu) )
+  {
+    v21 = "Mantle Failed: Can't mantle while falling into a hard landing";
+    goto LABEL_39;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
+  {
+    v21 = "Mantle Failed: Can't mantle while sliding";
+    goto LABEL_39;
+  }
+  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 1u) || BG_Offhand_IsPlayingGrenadeGesture(weaponMap, ps) && !BG_Offhand_GrenadeGestureInterruptable(weaponMap, ps, gameTime) || BG_Offhand_IsPlayingGesture(weaponMap, ps, OHGT_WEAPON) && !BG_Offhand_ScriptWeaponInterruptable(weaponMap, ps, gameTime) )
+  {
+    v21 = "Mantle Failed: Player using offhand";
+    goto LABEL_39;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, GameModeFlagValues::ms_spValue, 0x3Au) )
+  {
+    if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2559, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
+      __debugbreak();
+    v21 = "Mantle Failed: Player is swimming";
+    goto LABEL_39;
+  }
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
+  {
+    groundRefEnt = ps->groundRefEnt;
+    if ( groundRefEnt == 2047 || !groundRefEnt )
     {
-      v24 = "Mantle Failed: Player using ladder";
-      goto LABEL_39;
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0xCu) )
-    {
-      v24 = "Mantle Failed: Can't mantle while falling into a hard landing";
-      goto LABEL_39;
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
-    {
-      v24 = "Mantle Failed: Can't mantle while sliding";
-      goto LABEL_39;
-    }
-    if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 1u) || BG_Offhand_IsPlayingGrenadeGesture(weaponMap, ps) && !BG_Offhand_GrenadeGestureInterruptable(weaponMap, ps, gameTime) || BG_Offhand_IsPlayingGesture(weaponMap, ps, OHGT_WEAPON) && !BG_Offhand_ScriptWeaponInterruptable(weaponMap, ps, gameTime) )
-    {
-      v24 = "Mantle Failed: Player using offhand";
-      goto LABEL_39;
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, GameModeFlagValues::ms_spValue, 0x3Au) )
-    {
-      if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2559, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_SWIMMING )") )
+      if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
         __debugbreak();
-      v24 = "Mantle Failed: Player is swimming";
-      goto LABEL_39;
-    }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
-    {
-      groundRefEnt = ps->groundRefEnt;
-      if ( groundRefEnt == 2047 || !groundRefEnt )
+      if ( !BG_IsPlayerZeroGWalking(ps) )
       {
-        if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
-          __debugbreak();
-        if ( !BG_IsPlayerZeroGWalking(ps) )
-        {
-          v24 = "Mantle Failed: Player is zero gravity floating";
-          goto LABEL_39;
-        }
+        v21 = "Mantle Failed: Player is zero gravity floating";
+        goto LABEL_39;
       }
     }
-    if ( BG_Skydive_IsSkydiving(ps) )
+  }
+  if ( BG_Skydive_IsSkydiving(ps) )
+  {
+    v21 = "Mantle Failed: Player is skydiving";
+    goto LABEL_39;
+  }
+  CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+  if ( SLOBYTE(ps->mantleState.flags) < 0 )
+  {
+    v21 = "Mantle Failed: We're blocking due to a cancel until we hit the ground";
+    goto LABEL_39;
+  }
+  v26 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Bu));
+  if ( BG_IsForceUseWeapon(CurrentWeaponForPlayer, v26) )
+    goto LABEL_40;
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) )
+  {
+    if ( !Com_GameMode_SupportsFeature(WEAPON_LADDER_CLIMB|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2514, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION )") )
+      __debugbreak();
+    v21 = "Mantle Failed: Player in execution";
+    goto LABEL_39;
+  }
+  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_prevent_mantle_while_linked_enabled, "killswitch_prevent_mantle_while_linked_enabled") && (ps->vehicleState.entity != 2047 || ps->pm_type == 1) )
+  {
+    v21 = "Mantle Failed: Player is linked";
+    goto LABEL_39;
+  }
+  WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
+  if ( WeaponHand >= 0 )
+  {
+    v28 = 0i64;
+    p_weaponState = &ps->weapState[0].weaponState;
+    while ( 1 )
     {
-      v24 = "Mantle Failed: Player is skydiving";
-      goto LABEL_39;
+      v30 = v28;
+      if ( (unsigned int)(*p_weaponState - 22) <= 2 )
+        break;
+      ++v28;
+      p_weaponState += 20;
+      if ( v30 >= WeaponHand )
+        goto LABEL_90;
     }
-    CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
-    if ( SLOBYTE(ps->mantleState.flags) < 0 )
-    {
-      v24 = "Mantle Failed: We're blocking due to a cancel until we hit the ground";
-      goto LABEL_39;
-    }
-    v30 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Bu));
-    if ( BG_IsForceUseWeapon(CurrentWeaponForPlayer, v30) )
-      goto LABEL_40;
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) )
-    {
-      if ( !Com_GameMode_SupportsFeature(WEAPON_LADDER_CLIMB|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2514, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION )") )
-        __debugbreak();
-      v24 = "Mantle Failed: Player in execution";
-      goto LABEL_39;
-    }
-    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_prevent_mantle_while_linked_enabled, "killswitch_prevent_mantle_while_linked_enabled") && (ps->vehicleState.entity != 2047 || ps->pm_type == 1) )
-    {
-      v24 = "Mantle Failed: Player is linked";
-      goto LABEL_39;
-    }
-    WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
-    if ( WeaponHand >= 0 )
-    {
-      v32 = 0i64;
-      p_weaponState = &ps->weapState[0].weaponState;
-      while ( 1 )
-      {
-        v34 = v32;
-        if ( (unsigned int)(*p_weaponState - 22) <= 2 )
-          break;
-        ++v32;
-        p_weaponState += 20;
-        if ( v34 >= WeaponHand )
-          goto LABEL_90;
-      }
-      v24 = "Mantle Failed: Player is using the melee attack";
-      goto LABEL_39;
-    }
+    v21 = "Mantle Failed: Player is using the melee attack";
+    goto LABEL_39;
+  }
 LABEL_90:
-    if ( cm.mapEnts && (cm.mapEnts->edgeListUsedQueryTypes & 2) != 0 )
+  if ( cm.mapEnts && (cm.mapEnts->edgeListUsedQueryTypes & 2) != 0 )
+  {
+    Sys_ProfBeginNamedEvent(0xFF008008, "Mantle Find Ledge - With Edges");
+    if ( !Mantle_FindMantleEdge(pm, worldId, pmoveHandler, &ps->origin, mresults, inOutWishDir) || !Mantle_ShouldCheckForLedges(weaponMap, ps, pmoveHandler, mresults, inOutWishDir) )
+      goto LABEL_127;
+    if ( Mantle_IsLadder(mresults) )
     {
-      Sys_ProfBeginNamedEvent(0xFF008008, "Mantle Find Ledge - With Edges");
-      if ( !Mantle_FindMantleEdge(pm, worldId, pmoveHandler, &ps->origin, mresults, inOutWishDir) || !Mantle_ShouldCheckForLedges(weaponMap, ps, pmoveHandler, mresults, inOutWishDir) )
-        goto LABEL_127;
-      if ( Mantle_IsLadder(mresults) )
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_spline_ladder_point_height, "mantle_spline_ladder_point_height");
+      if ( Mantle_CheckLadderEdge(ps, worldId, pmoveHandler, traceMask, mresults, *(float *)&Float_Internal_DebugName + (float)(mresults->edgePos.v[2] - ps->origin.v[2])) )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_spline_ladder_point_height, "mantle_spline_ladder_point_height");
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+38h]
-          vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-          vaddss  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rsp+228h+wishDir], xmm0
-        }
-        if ( Mantle_CheckLadderEdge(ps, worldId, pmoveHandler, traceMask, mresults, wishDir) )
-        {
-          v25 = 1;
+        v22 = 1;
 LABEL_128:
-          Sys_ProfEndNamedEvent();
-          goto LABEL_41;
-        }
-        goto LABEL_127;
-      }
-      Mantle_SetOverFlagBasedOnSprintState(pm, pml, mresults);
-      IsForceOver = Mantle_IsForceOver(mresults);
-      IsForceOn = Mantle_IsForceOn(mresults);
-      v40 = (IsForceOver || (mresults->flags & 1) != 0) && !IsForceOn;
-      v41 = 0;
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_edge_ledge_check_rise_amount, "mantle_edge_ledge_check_rise_amount");
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+38h]
-        vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-        vaddss  xmm6, xmm0, xmm2
-        vmovss  dword ptr [rsp+228h+wishDir], xmm6
-      }
-      v45 = Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, wishDira);
-      if ( v45 && v40 )
-      {
-        mresults->endPosCalculated = 1;
-        v46 = Mantle_CalcEndPos(pm, mresults);
-        mresults->overPosFound = v46;
-        if ( !v46 )
-        {
-          if ( IsForceOver )
-          {
-            mresultsa = 0;
-LABEL_111:
-            _RAX = _RBX;
-            _RCX = v79;
-            v49 = 2i64;
-            v50 = 2i64;
-            do
-            {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm0, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rcx+20h], ymm0
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rcx+40h], ymm0
-                vmovups xmm0, xmmword ptr [rax+60h]
-                vmovups xmmword ptr [rcx+60h], xmm0
-              }
-              _RCX += 128;
-              __asm
-              {
-                vmovups xmm1, xmmword ptr [rax+70h]
-                vmovups xmmword ptr [rcx-10h], xmm1
-              }
-              _RAX = (MantleResults *)((char *)_RAX + 128);
-              --v50;
-            }
-            while ( v50 );
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            *((_DWORD *)_RCX + 28) = LODWORD(_RAX->distanceToMantleSurface);
-            if ( !Mantle_FixUpMantleDirForEdge(ps, worldId, pmoveHandler, traceMask, _RBX, inOutWishDir) )
-              goto LABEL_120;
-            *(_QWORD *)&_RBX->debugDraw.ledgeFlags = 0i64;
-            *(_QWORD *)_RBX->debugDraw.forwardCapsuleSweepForLedgeBounds.midPoint.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.forwardCapsuleSweepForLedgeBounds.midPoint.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.forwardCapsuleSweepForLedgeBounds.halfSize.y = 0i64;
-            *(_QWORD *)_RBX->debugDraw.forwardCapsuleSweepForLedgeStart.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.forwardCapsuleSweepForLedgeStart.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.forwardCapsuleSweepForLedgeEnd.y = 0i64;
-            _RBX->debugDraw.forwardCapsuleSweepForLedgeFraction = 0.0;
-            _RBX->debugDraw.forwardCapsuleSweepForLedgeStartSolid = 0;
-            *(_QWORD *)_RBX->debugDraw.downwardCapsuleSweepForLedgeBounds.midPoint.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.downwardCapsuleSweepForLedgeBounds.midPoint.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.downwardCapsuleSweepForLedgeBounds.halfSize.y = 0i64;
-            *(_QWORD *)_RBX->debugDraw.downwardCapsuleSweepForLedgeStart.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.downwardCapsuleSweepForLedgeStart.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.downwardCapsuleSweepForLedgeEnd.y = 0i64;
-            _RBX->debugDraw.downwardCapsuleSweepForLedgeFraction = 0.0;
-            _RBX->debugDraw.downwardCapsuleSweepForLedgeStartSolid = 0;
-            *(_QWORD *)_RBX->debugDraw.ledgeForwardCapsuleSweepBounds.midPoint.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeForwardCapsuleSweepBounds.midPoint.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeForwardCapsuleSweepBounds.halfSize.y = 0i64;
-            *(_QWORD *)_RBX->debugDraw.ledgeForwardCapsuleSweepStart.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeForwardCapsuleSweepStart.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeForwardCapsuleSweepEnd.y = 0i64;
-            _RBX->debugDraw.ledgeForwardCapsuleSweepFraction = 0.0;
-            _RBX->debugDraw.ledgeForwardCapsuleSweepStartSolid = 0;
-            *(_QWORD *)_RBX->debugDraw.ledgeDownwardCapsuleSweepBounds.midPoint.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeDownwardCapsuleSweepBounds.midPoint.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeDownwardCapsuleSweepBounds.halfSize.y = 0i64;
-            *(_QWORD *)_RBX->debugDraw.ledgeDownwardCapsuleSweepStart.v = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeDownwardCapsuleSweepStart.z = 0i64;
-            *(_QWORD *)&_RBX->debugDraw.ledgeDownwardCapsuleSweepEnd.y = 0i64;
-            _RBX->debugDraw.ledgeDownwardCapsuleSweepFraction = 0.0;
-            _RBX->debugDraw.ledgeDownwardCapsuleSweepStartSolid = 0;
-            __asm { vmovss  dword ptr [rsp+228h+wishDir], xmm6 }
-            v45 = Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, _RBX, wishDirb);
-            if ( !v45 )
-              goto LABEL_120;
-            if ( v40 )
-            {
-              Mantle_SetOverFlagBasedOnSprintState(pm, pml, _RBX);
-              _RBX->endPosCalculated = 1;
-              v60 = Mantle_CalcEndPos(pm, _RBX);
-              _RBX->overPosFound = v60;
-              if ( IsForceOver && !v60 )
-                goto LABEL_120;
-            }
-            if ( v41 && !_RBX->overPosFound )
-            {
-LABEL_120:
-              _RCX = _RBX;
-              _RAX = v79;
-              do
-              {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rcx], ymm0
-                  vmovups ymm0, ymmword ptr [rax+20h]
-                  vmovups ymmword ptr [rcx+20h], ymm0
-                  vmovups ymm0, ymmword ptr [rax+40h]
-                  vmovups ymmword ptr [rcx+40h], ymm0
-                  vmovups xmm0, xmmword ptr [rax+60h]
-                  vmovups xmmword ptr [rcx+60h], xmm0
-                }
-                _RCX = (MantleResults *)((char *)_RCX + 128);
-                __asm
-                {
-                  vmovups xmm1, xmmword ptr [rax+70h]
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
-                _RAX += 128;
-                --v49;
-              }
-              while ( v49 );
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm0, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rcx+20h], ymm0
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rcx+40h], ymm0
-                vmovups xmm0, xmmword ptr [rax+60h]
-                vmovups xmmword ptr [rcx+60h], xmm0
-              }
-              _RCX->distanceToMantleSurface = *((float *)_RAX + 28);
-              v45 = mresultsa;
-            }
-LABEL_123:
-            if ( v45 && (!IsForceOver || _RBX->overPosFound) )
-            {
-              v25 = 1;
-              goto LABEL_128;
-            }
-LABEL_127:
-            v25 = 0;
-            goto LABEL_128;
-          }
-          v41 = 1;
-        }
-      }
-      mresultsa = v45;
-      if ( v45 && !v41 )
-        goto LABEL_123;
-      goto LABEL_111;
-    }
-    Sys_ProfBeginNamedEvent(0xFF008008, "Mantle Find Ledge - Without Edges");
-    if ( Mantle_FindMantleSurface(ps, worldId, pmoveHandler, &ps->origin, mresults, inOutWishDir) && Mantle_ShouldCheckForLedges(weaponMap, ps, pmoveHandler, mresults, inOutWishDir) )
-    {
-      *(float *)&_XMM0 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  dword ptr [rsp+228h+wishDir], xmm0
-      }
-      if ( Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, wishDirc) )
-      {
-        v25 = 1;
-LABEL_135:
         Sys_ProfEndNamedEvent();
         goto LABEL_41;
       }
-      __asm
+      goto LABEL_127;
+    }
+    Mantle_SetOverFlagBasedOnSprintState(pm, pml, mresults);
+    IsForceOver = Mantle_IsForceOver(mresults);
+    IsForceOn = Mantle_IsForceOn(mresults);
+    v34 = (IsForceOver || (mresults->flags & 1) != 0) && !IsForceOn;
+    v35 = 0;
+    v36 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_edge_ledge_check_rise_amount, "mantle_edge_ledge_check_rise_amount");
+    v37 = *(float *)&v36 + (float)(mresults->edgePos.v[2] - ps->origin.v[2]);
+    v38 = Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, v37);
+    if ( v38 && v34 )
+    {
+      mresults->endPosCalculated = 1;
+      v39 = Mantle_CalcEndPos(pm, mresults);
+      mresults->overPosFound = v39;
+      if ( !v39 )
       {
-        vmovss  xmm0, cs:__real@42200000
-        vcomiss xmm6, xmm0
-        vmovss  xmm0, cs:__real@41900000
-        vcomiss xmm6, xmm0
+        if ( IsForceOver )
+        {
+          mresultsa = 0;
+LABEL_111:
+          v40 = mresults;
+          v41 = v48;
+          v42 = 2i64;
+          v43 = 2i64;
+          do
+          {
+            *(__m256i *)v41 = *(__m256i *)v40->dir.v;
+            *((__m256i *)v41 + 1) = *(__m256i *)&v40->ledgePos.z;
+            *((__m256i *)v41 + 2) = *(__m256i *)&v40->edgeLineSegment[0].y;
+            *((_OWORD *)v41 + 6) = *(_OWORD *)v40->ladderOverPos.v;
+            v41 += 128;
+            *((_OWORD *)v41 - 1) = *(_OWORD *)&v40->distanceToMantleSurface;
+            v40 = (MantleResults *)((char *)v40 + 128);
+            --v43;
+          }
+          while ( v43 );
+          *(__m256i *)v41 = *(__m256i *)v40->dir.v;
+          *((__m256i *)v41 + 1) = *(__m256i *)&v40->ledgePos.z;
+          *((__m256i *)v41 + 2) = *(__m256i *)&v40->edgeLineSegment[0].y;
+          *((_OWORD *)v41 + 6) = *(_OWORD *)v40->ladderOverPos.v;
+          *((_DWORD *)v41 + 28) = LODWORD(v40->distanceToMantleSurface);
+          if ( !Mantle_FixUpMantleDirForEdge(ps, worldId, pmoveHandler, traceMask, mresults, inOutWishDir) )
+            goto LABEL_120;
+          *(_QWORD *)&mresults->debugDraw.ledgeFlags = 0i64;
+          *(_QWORD *)mresults->debugDraw.forwardCapsuleSweepForLedgeBounds.midPoint.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.forwardCapsuleSweepForLedgeBounds.midPoint.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.forwardCapsuleSweepForLedgeBounds.halfSize.y = 0i64;
+          *(_QWORD *)mresults->debugDraw.forwardCapsuleSweepForLedgeStart.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.forwardCapsuleSweepForLedgeStart.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.forwardCapsuleSweepForLedgeEnd.y = 0i64;
+          mresults->debugDraw.forwardCapsuleSweepForLedgeFraction = 0.0;
+          mresults->debugDraw.forwardCapsuleSweepForLedgeStartSolid = 0;
+          *(_QWORD *)mresults->debugDraw.downwardCapsuleSweepForLedgeBounds.midPoint.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.downwardCapsuleSweepForLedgeBounds.midPoint.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.downwardCapsuleSweepForLedgeBounds.halfSize.y = 0i64;
+          *(_QWORD *)mresults->debugDraw.downwardCapsuleSweepForLedgeStart.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.downwardCapsuleSweepForLedgeStart.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.downwardCapsuleSweepForLedgeEnd.y = 0i64;
+          mresults->debugDraw.downwardCapsuleSweepForLedgeFraction = 0.0;
+          mresults->debugDraw.downwardCapsuleSweepForLedgeStartSolid = 0;
+          *(_QWORD *)mresults->debugDraw.ledgeForwardCapsuleSweepBounds.midPoint.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeForwardCapsuleSweepBounds.midPoint.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeForwardCapsuleSweepBounds.halfSize.y = 0i64;
+          *(_QWORD *)mresults->debugDraw.ledgeForwardCapsuleSweepStart.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeForwardCapsuleSweepStart.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeForwardCapsuleSweepEnd.y = 0i64;
+          mresults->debugDraw.ledgeForwardCapsuleSweepFraction = 0.0;
+          mresults->debugDraw.ledgeForwardCapsuleSweepStartSolid = 0;
+          *(_QWORD *)mresults->debugDraw.ledgeDownwardCapsuleSweepBounds.midPoint.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeDownwardCapsuleSweepBounds.midPoint.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeDownwardCapsuleSweepBounds.halfSize.y = 0i64;
+          *(_QWORD *)mresults->debugDraw.ledgeDownwardCapsuleSweepStart.v = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeDownwardCapsuleSweepStart.z = 0i64;
+          *(_QWORD *)&mresults->debugDraw.ledgeDownwardCapsuleSweepEnd.y = 0i64;
+          mresults->debugDraw.ledgeDownwardCapsuleSweepFraction = 0.0;
+          mresults->debugDraw.ledgeDownwardCapsuleSweepStartSolid = 0;
+          v38 = Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, v37);
+          if ( !v38 )
+            goto LABEL_120;
+          if ( v34 )
+          {
+            Mantle_SetOverFlagBasedOnSprintState(pm, pml, mresults);
+            mresults->endPosCalculated = 1;
+            v44 = Mantle_CalcEndPos(pm, mresults);
+            mresults->overPosFound = v44;
+            if ( IsForceOver && !v44 )
+              goto LABEL_120;
+          }
+          if ( v35 && !mresults->overPosFound )
+          {
+LABEL_120:
+            v45 = mresults;
+            v46 = v48;
+            do
+            {
+              *(__m256i *)v45->dir.v = *(__m256i *)v46;
+              *(__m256i *)&v45->ledgePos.z = *((__m256i *)v46 + 1);
+              *(__m256i *)&v45->edgeLineSegment[0].y = *((__m256i *)v46 + 2);
+              *(_OWORD *)v45->ladderOverPos.v = *((_OWORD *)v46 + 6);
+              v45 = (MantleResults *)((char *)v45 + 128);
+              *(_OWORD *)&v45[-1].debugDraw.ledgeDownwardCapsuleSweepFraction = *((_OWORD *)v46 + 7);
+              v46 += 128;
+              --v42;
+            }
+            while ( v42 );
+            *(__m256i *)v45->dir.v = *(__m256i *)v46;
+            *(__m256i *)&v45->ledgePos.z = *((__m256i *)v46 + 1);
+            *(__m256i *)&v45->edgeLineSegment[0].y = *((__m256i *)v46 + 2);
+            *(_OWORD *)v45->ladderOverPos.v = *((_OWORD *)v46 + 6);
+            v45->distanceToMantleSurface = *((float *)v46 + 28);
+            v38 = mresultsa;
+          }
+LABEL_123:
+          if ( v38 && (!IsForceOver || mresults->overPosFound) )
+          {
+            v22 = 1;
+            goto LABEL_128;
+          }
+LABEL_127:
+          v22 = 0;
+          goto LABEL_128;
+        }
+        v35 = 1;
       }
     }
-    v25 = 0;
-    goto LABEL_135;
+    mresultsa = v38;
+    if ( v38 && !v35 )
+      goto LABEL_123;
+    goto LABEL_111;
   }
-  v23 = DCONST_DVARINT_mantle_debug;
-  if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( !v23->current.enabled )
-    goto LABEL_40;
-  v21 = "Mantle Failed: Player already mantling";
-LABEL_36:
-  Com_Printf(17, "%s\n", v21);
-LABEL_40:
-  v25 = 0;
+  Sys_ProfBeginNamedEvent(0xFF008008, "Mantle Find Ledge - Without Edges");
+  v22 = 0;
+  if ( Mantle_FindMantleSurface(ps, worldId, pmoveHandler, &ps->origin, mresults, inOutWishDir) && Mantle_ShouldCheckForLedges(weaponMap, ps, pmoveHandler, mresults, inOutWishDir) )
+  {
+    if ( (v47 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults), Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, v47)) || v47 > 40.0 && Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, 40.0) || v47 > 18.0 && Mantle_CheckLedge(ps, worldId, pmoveHandler, traceMask, mresults, 18.0) )
+      v22 = 1;
+  }
+  Sys_ProfEndNamedEvent();
 LABEL_41:
   Sys_ProfEndNamedEvent();
-  result = v25;
-  __asm { vmovaps xmm6, [rsp+228h+var_48] }
-  return result;
+  return v22;
 }
 
 /*
@@ -2262,269 +1964,196 @@ Mantle_CheckLadderEdge
 */
 __int64 Mantle_CheckLadderEdge(const playerState_s *ps, Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, float height)
 {
-  const BgPlayerTraceInfo *v12; 
+  const BgPlayerTraceInfo *v10; 
+  float v11; 
+  float v12; 
   EffectiveStance EffectiveStance; 
-  char v19; 
-  char v20; 
-  const dvar_t *v21; 
+  double BoundsHeight; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  __int128 v18; 
+  double UpContribution; 
+  __m128 v21; 
   const dvar_t *v22; 
-  const dvar_t *v40; 
-  const dvar_t *v43; 
-  const dvar_t *v44; 
-  const dvar_t *v45; 
-  const dvar_t *v47; 
-  const dvar_t *v49; 
-  const char *v50; 
-  const dvar_t *v57; 
-  const dvar_t *v58; 
-  const dvar_t *v60; 
-  const dvar_t *v62; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const char *v28; 
+  float v29; 
+  float v30; 
+  const dvar_t *v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  const dvar_t *v34; 
+  const dvar_t *v35; 
   __int64 result; 
-  BgTrace v65; 
+  BgTrace v37; 
   vec3_t vec; 
   vec3_t start; 
-  vec3_t v68; 
+  vec3_t v40; 
   Bounds bounds; 
-  vec3_t v70; 
+  vec3_t v42; 
   trace_t results; 
-  WorldUpReferenceFrame v72; 
+  WorldUpReferenceFrame v44; 
 
-  __asm { vmovaps [rsp+1B0h+var_50], xmm6 }
-  _RBX = mresults;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1945, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pmoveHandler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1946, ASSERT_TYPE_ASSERT, "(pmoveHandler)", (const char *)&queryFormat, "pmoveHandler") )
     __debugbreak();
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1947, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v72, ps, pmoveHandler);
-  v12 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
-  BgTrace::BgTrace(&v65, v12);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmovss  xmm6, [rbp+0B0h+height]
-    vmovss  dword ptr [rsp+1B0h+vec], xmm0
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  dword ptr [rsp+1B0h+vec+4], xmm1
-    vmovaps xmm1, xmm6; height
-    vmovss  dword ptr [rsp+1B0h+vec+8], xmm0
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v72, *(float *)&_XMM1, &vec);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v44, ps, pmoveHandler);
+  v10 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
+  BgTrace::BgTrace(&v37, v10);
+  v11 = mresults->startPos.v[1];
+  vec.v[0] = mresults->startPos.v[0];
+  v12 = mresults->startPos.v[2];
+  vec.v[1] = v11;
+  vec.v[2] = v12;
+  WorldUpReferenceFrame::AddUpContribution(&v44, height, &vec);
   EffectiveStance = PM_GetEffectiveStance(ps);
-  *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(ps, EffectiveStance);
-  __asm { vcomiss xmm6, xmm0 }
-  if ( !(v19 | v20) )
+  BoundsHeight = BG_Suit_GetBoundsHeight(ps, EffectiveStance);
+  if ( height > *(float *)&BoundsHeight )
   {
-    v65.m_flags |= 0x80u;
-    v21 = DVARBOOL_mantle_fixMantleIntoCollision;
+    v37.m_flags |= 0x80u;
+    v15 = DVARBOOL_mantle_fixMantleIntoCollision;
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    if ( v21->current.enabled )
-      v65.m_flags |= 0x200u;
-    BgTrace::LegacyTraceHandler(&v65, worldId, &results, &mresults->startPos, &vec, &bounds_origin, ps->clientNum, traceMask, ps);
-    v65.m_flags &= ~0x80u;
-    v22 = DVARBOOL_mantle_fixMantleIntoCollision;
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled )
+      v37.m_flags |= 0x200u;
+    BgTrace::LegacyTraceHandler(&v37, worldId, &results, &mresults->startPos, &vec, &bounds_origin, ps->clientNum, traceMask, ps);
+    v37.m_flags &= ~0x80u;
+    v16 = DVARBOOL_mantle_fixMantleIntoCollision;
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
-      v65.m_flags &= ~0x200u;
-    if ( results.startsolid )
-      goto LABEL_80;
-    __asm
-    {
-      vmovss  xmm0, [rbp+0B0h+results.fraction]
-      vcomiss xmm0, cs:__real@3f800000
-    }
+    Dvar_CheckFrontendServerThread(v16);
+    if ( v16->current.enabled )
+      v37.m_flags &= ~0x200u;
+    if ( results.startsolid || results.fraction < 1.0 )
+      return 0i64;
   }
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+1B0h+vec]
-    vmovss  xmm1, dword ptr [rbx+34h]
-    vsubss  xmm3, xmm1, dword ptr [rsp+1B0h+vec+4]
-    vmovsd  qword ptr [rbp+0B0h+start], xmm0
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vsubss  xmm4, xmm0, dword ptr [rsp+1B0h+vec]
-    vmovss  xmm0, dword ptr [rbx+38h]
-    vsubss  xmm2, xmm0, dword ptr [rsp+1B0h+vec+8]
-    vunpcklps xmm1, xmm4, xmm3
-    vmovss  dword ptr [rbp+0B0h+var_F8+8], xmm2
-  }
+  *(double *)start.v = *(double *)vec.v;
+  v18 = LODWORD(mresults->edgePos.v[0]);
+  *(float *)&v18 = mresults->edgePos.v[0] - vec.v[0];
+  _XMM4 = v18;
+  __asm { vunpcklps xmm1, xmm4, xmm3 }
+  v42.v[2] = mresults->edgePos.v[2] - vec.v[2];
   start.v[2] = vec.v[2];
-  v68.v[2] = v70.v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rbp+0B0h+var_F8], xmm1
-    vmovsd  qword ptr [rbp+0B0h+var_120], xmm1
-  }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v72, &v70);
-  __asm
-  {
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm1, xmm0, xmm6; height
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v72, *(float *)&_XMM1, &v68);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0B0h+var_120]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0B0h+start]
-    vmovss  xmm2, dword ptr [rbp+0B0h+var_120+4]
-    vaddss  xmm0, xmm2, dword ptr [rbp+0B0h+start+4]
-    vmovss  dword ptr [rsp+1B0h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbp+0B0h+var_120+8]
-    vaddss  xmm2, xmm1, dword ptr [rbp+0B0h+start+8]
-    vmovss  dword ptr [rsp+1B0h+vec+8], xmm2
-    vmovss  dword ptr [rsp+1B0h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-  v65.m_flags |= 0x80u;
-  v40 = DVARBOOL_mantle_fixMantleIntoCollision;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vshufps xmm0, xmm0, xmm0, 0
-    vmovss  dword ptr [rbp+0B0h+var_110.midPoint], xmm1
-    vmovss  dword ptr [rbp+0B0h+var_110.midPoint+4], xmm1
-    vmovups xmmword ptr [rbp+0B0h+var_110.midPoint+8], xmm0
-  }
+  v40.v[2] = v42.v[2];
+  *(double *)v42.v = *(double *)&_XMM1;
+  *(double *)v40.v = *(double *)&_XMM1;
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&v44, &v42);
+  WorldUpReferenceFrame::AddUpContribution(&v44, COERCE_FLOAT(LODWORD(UpContribution) ^ _xmm), &v40);
+  v21.m128_u64[1] = 0i64;
+  vec.v[0] = v40.v[0] + start.v[0];
+  vec.v[2] = v40.v[2] + start.v[2];
+  vec.v[1] = v40.v[1] + start.v[1];
+  *(double *)v21.m128_u64 = BG_Suit_GetBoundsRadius(ps);
+  v37.m_flags |= 0x80u;
+  v22 = DVARBOOL_mantle_fixMantleIntoCollision;
+  bounds.midPoint.v[0] = 0.0;
+  bounds.midPoint.v[1] = 0.0;
+  *(__m128 *)&bounds.midPoint.z = _mm_shuffle_ps(v21, v21, 0);
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v40);
-  if ( v40->current.enabled )
-    v65.m_flags |= 0x200u;
-  BgTrace::LegacyTraceHandler(&v65, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
-  v65.m_flags &= ~0x80u;
-  v43 = DVARBOOL_mantle_fixMantleIntoCollision;
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
+    v37.m_flags |= 0x200u;
+  BgTrace::LegacyTraceHandler(&v37, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
+  v37.m_flags &= ~0x80u;
+  v23 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v43);
-  if ( v43->current.enabled )
-    v65.m_flags &= ~0x200u;
+  Dvar_CheckFrontendServerThread(v23);
+  if ( v23->current.enabled )
+    v37.m_flags &= ~0x200u;
   if ( BG_Glass_CanBreakGlass(&results) )
   {
-    v65.m_flags |= 0x80u;
+    v37.m_flags |= 0x80u;
     traceMask &= ~0x10u;
-    v44 = DVARBOOL_mantle_fixMantleIntoCollision;
+    v24 = DVARBOOL_mantle_fixMantleIntoCollision;
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v44);
-    if ( v44->current.enabled )
-      v65.m_flags |= 0x200u;
-    BgTrace::LegacyTraceHandler(&v65, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
-    v65.m_flags &= ~0x80u;
-    v45 = DVARBOOL_mantle_fixMantleIntoCollision;
+    Dvar_CheckFrontendServerThread(v24);
+    if ( v24->current.enabled )
+      v37.m_flags |= 0x200u;
+    BgTrace::LegacyTraceHandler(&v37, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
+    v37.m_flags &= ~0x80u;
+    v25 = DVARBOOL_mantle_fixMantleIntoCollision;
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v45);
-    if ( v45->current.enabled )
-      v65.m_flags &= ~0x200u;
+    Dvar_CheckFrontendServerThread(v25);
+    if ( v25->current.enabled )
+      v37.m_flags &= ~0x200u;
   }
-  if ( results.startsolid )
+  if ( (results.startsolid || results.fraction < 1.0) && !Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
   {
-    if ( !Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
-    {
-      v47 = DVARINT_mantle_debugLineTime;
-      if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v47);
-      __asm { vmovss  xmm3, [rbp+0B0h+results.fraction]; fraction }
-      Mantle_DebugTraceLine(pmoveHandler, &start, &vec, *(const float *)&_XMM3, &colorRed, v47->current.integer);
-      v49 = DCONST_DVARINT_mantle_debug;
-      if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v49);
-      if ( !v49->current.enabled )
-        goto LABEL_80;
-      v50 = "Ladder Mantle Failed: Forward movement is blocked";
-      goto LABEL_79;
-    }
+    v26 = DVARINT_mantle_debugLineTime;
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v26);
+    Mantle_DebugTraceLine(pmoveHandler, &start, &vec, results.fraction, &colorRed, v26->current.integer);
+    v27 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v27);
+    if ( !v27->current.enabled )
+      return 0i64;
+    v28 = "Ladder Mantle Failed: Forward movement is blocked";
+LABEL_79:
+    Com_Printf(17, "%s\n", v28);
+    return 0i64;
   }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm0, [rbp+0B0h+results.fraction]
-      vcomiss xmm0, cs:__real@3f800000
-    }
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+60h]
-    vmovss  xmm1, dword ptr [rbx+64h]
-    vmovss  xmm0, dword ptr [rbx+68h]
-  }
-  _RSI = DCONST_DVARFLT_mantle_ladder_down_dist;
-  __asm
-  {
-    vmovss  dword ptr [rbp+0B0h+start], xmm2
-    vmovss  dword ptr [rbp+0B0h+start+4], xmm1
-    vmovss  dword ptr [rbp+0B0h+start+8], xmm0
-    vmovss  dword ptr [rsp+1B0h+vec], xmm2
-    vmovss  dword ptr [rsp+1B0h+vec+4], xmm1
-    vmovss  dword ptr [rsp+1B0h+vec+8], xmm0
-  }
+  v29 = mresults->ladderOverPos.v[1];
+  v30 = mresults->ladderOverPos.v[2];
+  v31 = DCONST_DVARFLT_mantle_ladder_down_dist;
+  start.v[0] = mresults->ladderOverPos.v[0];
+  start.v[1] = v29;
+  start.v[2] = v30;
+  vec.v[0] = start.v[0];
+  vec.v[1] = v29;
+  vec.v[2] = v30;
   if ( !DCONST_DVARFLT_mantle_ladder_down_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_down_dist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vxorps  xmm1, xmm0, xmm6; height
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v72, *(float *)&_XMM1, &vec);
-  v65.m_flags |= 0x80u;
-  v57 = DVARBOOL_mantle_fixMantleIntoCollision;
+  Dvar_CheckFrontendServerThread(v31);
+  WorldUpReferenceFrame::AddUpContribution(&v44, COERCE_FLOAT(v31->current.integer ^ _xmm), &vec);
+  v37.m_flags |= 0x80u;
+  v32 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v57);
-  if ( v57->current.enabled )
-    v65.m_flags |= 0x200u;
-  BgTrace::LegacyTraceHandler(&v65, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
-  v65.m_flags &= ~0x80u;
-  v58 = DVARBOOL_mantle_fixMantleIntoCollision;
+  Dvar_CheckFrontendServerThread(v32);
+  if ( v32->current.enabled )
+    v37.m_flags |= 0x200u;
+  BgTrace::LegacyTraceHandler(&v37, worldId, &results, &start, &vec, &bounds, ps->clientNum, traceMask, ps);
+  v37.m_flags &= ~0x80u;
+  v33 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v58);
-  if ( v58->current.enabled )
-    v65.m_flags &= ~0x200u;
-  if ( !results.startsolid )
+  Dvar_CheckFrontendServerThread(v33);
+  if ( v33->current.enabled )
+    v37.m_flags &= ~0x200u;
+  if ( (results.startsolid || results.fraction < 1.0) && !Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
   {
-    __asm
-    {
-      vmovss  xmm0, [rbp+0B0h+results.fraction]
-      vcomiss xmm0, cs:__real@3f800000
-    }
-LABEL_81:
-    mresults->ledgePos = mresults->edgePos;
-    result = 1i64;
-    mresults->endGroundEnt = 2046;
-    goto LABEL_82;
+    v34 = DVARINT_mantle_debugLineTime;
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v34);
+    Mantle_DebugTraceLine(pmoveHandler, &start, &vec, results.fraction, &colorRed, v34->current.integer);
+    v35 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v35);
+    if ( !v35->current.enabled )
+      return 0i64;
+    v28 = "Ladder Mantle Failed: Downward movement is blocked";
+    goto LABEL_79;
   }
-  if ( Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
-    goto LABEL_81;
-  v60 = DVARINT_mantle_debugLineTime;
-  if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v60);
-  __asm { vmovss  xmm3, [rbp+0B0h+results.fraction]; fraction }
-  Mantle_DebugTraceLine(pmoveHandler, &start, &vec, *(const float *)&_XMM3, &colorRed, v60->current.integer);
-  v62 = DCONST_DVARINT_mantle_debug;
-  if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v62);
-  if ( v62->current.enabled )
-  {
-    v50 = "Ladder Mantle Failed: Downward movement is blocked";
-LABEL_79:
-    Com_Printf(17, "%s\n", v50);
-  }
-LABEL_80:
-  result = 0i64;
-LABEL_82:
-  __asm { vmovaps xmm6, [rsp+1B0h+var_50] }
+  mresults->ledgePos = mresults->edgePos;
+  result = 1i64;
+  mresults->endGroundEnt = 2046;
   return result;
 }
 
@@ -2535,413 +2164,317 @@ Mantle_CheckLedge
 */
 bool Mantle_CheckLedge(const playerState_s *ps, Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, float height)
 {
-  const dvar_t *v17; 
-  const char *v20; 
-  const BgPlayerTraceInfo *v21; 
+  __m128 fraction_low; 
+  const dvar_t *v11; 
+  const char *v12; 
+  const BgPlayerTraceInfo *v13; 
   EffectiveStance EffectiveStance; 
-  char v24; 
-  const dvar_t *v29; 
-  const dvar_t *v30; 
+  double BoundsHeight; 
+  float v16; 
+  float v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
   int ledgeFlags; 
-  const dvar_t *v43; 
-  const dvar_t *v47; 
-  const dvar_t *v48; 
-  const dvar_t *v49; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  const dvar_t *v25; 
+  float v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  double v30; 
   bool startsolid; 
-  const dvar_t *v63; 
-  const dvar_t *v64; 
-  bool v65; 
-  bool v68; 
-  bool v76; 
-  Bounds *bounds; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float fraction; 
+  double UpContribution; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  double v39; 
+  bool v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  bool v44; 
+  bool v45; 
+  float v46; 
+  double v47; 
+  float v48; 
+  double v49; 
+  float v50; 
+  double v51; 
+  double v52; 
+  float v53; 
+  double v54; 
   BgTrace trace; 
   vec3_t end; 
-  vec3_t v100; 
-  Bounds v101; 
+  vec3_t v58; 
+  Bounds bounds; 
   vec3_t vec; 
   vec3_t start; 
   trace_t results; 
-  WorldUpReferenceFrame v105; 
-  void *retaddr; 
+  WorldUpReferenceFrame v63; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _RBX = mresults;
-  __asm { vmovss  xmm6, [rbp+0D0h+height] }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1726, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v105, ps, pmoveHandler);
-  v17 = DCONST_DVARINT_mantle_debug;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v63, ps, pmoveHandler);
+  v11 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  if ( v17->current.integer )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v20 = j_va("Checking for ledge at %f units", _RDX);
-    Mantle_DebugPrint(3u, v20);
+    v12 = j_va("Checking for ledge at %f units", height);
+    Mantle_DebugPrint(3u, v12);
   }
-  v21 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
-  BgTrace::BgTrace(&trace, v21);
+  v13 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
+  BgTrace::BgTrace(&trace, v13);
   EffectiveStance = PM_GetEffectiveStance(ps);
-  *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(ps, EffectiveStance);
-  __asm
+  BoundsHeight = BG_Suit_GetBoundsHeight(ps, EffectiveStance);
+  if ( height <= *(float *)&BoundsHeight )
+    goto LABEL_23;
+  v16 = mresults->startPos.v[0];
+  v17 = mresults->startPos.v[2];
+  start.v[1] = mresults->startPos.v[1];
+  vec.v[1] = start.v[1];
+  start.v[0] = v16;
+  start.v[2] = v17;
+  vec.v[0] = v16;
+  vec.v[2] = v17;
+  WorldUpReferenceFrame::AddUpContribution(&v63, height, &vec);
+  trace.m_flags |= 0x80u;
+  v18 = DVARBOOL_mantle_fixMantleIntoCollision;
+  if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.enabled )
+    trace.m_flags |= 0x200u;
+  BgTrace::LegacyTraceHandler(&trace, worldId, &results, &start, &vec, &bounds_origin, ps->clientNum, traceMask, ps);
+  trace.m_flags &= ~0x80u;
+  v19 = DVARBOOL_mantle_fixMantleIntoCollision;
+  if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v19);
+  if ( v19->current.enabled )
+    trace.m_flags &= ~0x200u;
+  if ( results.startsolid || (fraction_low = (__m128)LODWORD(results.fraction), results.fraction < 1.0) )
   {
-    vcomiss xmm6, xmm0
-    vmovss  xmm7, cs:__real@3f800000
+    LOBYTE(ledgeFlags) = 0;
   }
-  if ( v24 | v65 )
+  else
   {
 LABEL_23:
-    __asm { vmovaps [rsp+1D0h+var_78+8], xmm8 }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+10h]
-      vshufps xmm0, xmm0, xmm0, 0
-      vmovups xmmword ptr [rbp+0D0h+var_140.midPoint+8], xmm0
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vmovss  dword ptr [rbp+0D0h+var_150], xmm0
-      vmovss  xmm0, dword ptr [rbx+14h]
-      vxorps  xmm8, xmm8, xmm8
-      vmovaps xmm1, xmm6; height
-      vmovss  dword ptr [rbp+0D0h+var_150+8], xmm0
-      vmovss  dword ptr [rbp+0D0h+var_140.midPoint], xmm8
-      vmovss  dword ptr [rbp+0D0h+var_140.midPoint+4], xmm8
-      vmovss  dword ptr [rbp+0D0h+var_150+4], xmm2
-    }
-    WorldUpReferenceFrame::AddUpContribution(&v105, *(float *)&_XMM1, &v100);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+70h]
-      vaddss  xmm2, xmm0, cs:__real@40800000
-      vmulss  xmm1, xmm2, dword ptr [rbx]
-      vaddss  xmm0, xmm1, dword ptr [rbp+0D0h+var_150]
-      vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    }
+    *(double *)fraction_low.m128_u64 = BG_Suit_GetBoundsRadius(ps);
+    v21 = mresults->startPos.v[1];
+    *(__m128 *)&bounds.midPoint.z = _mm_shuffle_ps(fraction_low, fraction_low, 0);
+    v58.v[0] = mresults->startPos.v[0];
+    v58.v[2] = mresults->startPos.v[2];
+    bounds.midPoint.v[0] = 0.0;
+    bounds.midPoint.v[1] = 0.0;
+    v58.v[1] = v21;
+    WorldUpReferenceFrame::AddUpContribution(&v63, height, &v58);
+    v22 = mresults->distanceToMantleSurface + 4.0;
+    v23 = (float)(v22 * mresults->dir.v[0]) + v58.v[0];
+    v24 = v22 * mresults->dir.v[1];
     trace.m_flags |= 0x80u;
-    v43 = DVARBOOL_mantle_fixMantleIntoCollision;
-    __asm
-    {
-      vmovss  dword ptr [rsp+1D0h+end], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rbp+0D0h+var_150+4]
-      vmulss  xmm1, xmm2, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+1D0h+end+4], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rbp+0D0h+var_150+8]
-      vmovss  dword ptr [rsp+1D0h+end+8], xmm0
-    }
+    v25 = DVARBOOL_mantle_fixMantleIntoCollision;
+    end.v[0] = v23;
+    v26 = v22 * mresults->dir.v[2];
+    end.v[1] = v24 + v58.v[1];
+    end.v[2] = v26 + v58.v[2];
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v43);
-    if ( v43->current.enabled )
+    Dvar_CheckFrontendServerThread(v25);
+    if ( v25->current.enabled )
       trace.m_flags |= 0x200u;
-    BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v100, &end, &v101, ps->clientNum, traceMask, ps);
+    BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v58, &end, &bounds, ps->clientNum, traceMask, ps);
     trace.m_flags &= ~0x80u;
-    v47 = DVARBOOL_mantle_fixMantleIntoCollision;
+    v27 = DVARBOOL_mantle_fixMantleIntoCollision;
     if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v47);
-    if ( v47->current.enabled )
+    Dvar_CheckFrontendServerThread(v27);
+    if ( v27->current.enabled )
       trace.m_flags &= ~0x200u;
     if ( BG_Glass_CanBreakGlass(&results) )
     {
       trace.m_flags |= 0x80u;
       traceMask &= ~0x10u;
-      v48 = DVARBOOL_mantle_fixMantleIntoCollision;
+      v28 = DVARBOOL_mantle_fixMantleIntoCollision;
       if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v48);
-      if ( v48->current.enabled )
+      Dvar_CheckFrontendServerThread(v28);
+      if ( v28->current.enabled )
         trace.m_flags |= 0x200u;
-      BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v100, &end, &v101, ps->clientNum, traceMask, ps);
+      BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v58, &end, &bounds, ps->clientNum, traceMask, ps);
       trace.m_flags &= ~0x80u;
-      v49 = DVARBOOL_mantle_fixMantleIntoCollision;
+      v29 = DVARBOOL_mantle_fixMantleIntoCollision;
       if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v49);
-      if ( v49->current.enabled )
+      Dvar_CheckFrontendServerThread(v29);
+      if ( v29->current.enabled )
         trace.m_flags &= ~0x200u;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0D0h+var_140.midPoint]
-      vmovsd  xmm1, qword ptr [rbp+0D0h+var_140.halfSize+4]
-    }
+    v30 = *(double *)&bounds.halfSize.y;
     startsolid = results.startsolid;
-    __asm
-    {
-      vmovups xmmword ptr [rbx+8Ch], xmm0
-      vmovss  xmm0, dword ptr [rbp+0D0h+var_150]
-      vmovsd  qword ptr [rbx+9Ch], xmm1
-      vmovss  xmm1, dword ptr [rbp+0D0h+var_150+4]
-      vmovss  dword ptr [rbx+0A4h], xmm0
-      vmovss  xmm0, dword ptr [rbp+0D0h+var_150+8]
-      vmovss  dword ptr [rbx+0A8h], xmm1
-      vmovss  xmm1, dword ptr [rsp+1D0h+end]
-      vmovss  dword ptr [rbx+0ACh], xmm0
-      vmovss  xmm0, dword ptr [rsp+1D0h+end+4]
-      vmovss  dword ptr [rbx+0B0h], xmm1
-      vmovss  xmm1, dword ptr [rsp+1D0h+end+8]
-      vmovss  dword ptr [rbx+0B4h], xmm0
-      vmovss  xmm0, [rbp+0D0h+results.fraction]
-      vmovss  dword ptr [rbx+0B8h], xmm1
-    }
+    *(_OWORD *)mresults->debugDraw.forwardCapsuleSweepForLedgeBounds.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+    v32 = v58.v[0];
+    *(double *)&mresults->debugDraw.forwardCapsuleSweepForLedgeBounds.halfSize.y = v30;
+    *(float *)&v30 = v58.v[1];
+    mresults->debugDraw.forwardCapsuleSweepForLedgeStart.v[0] = v32;
+    v33 = v58.v[2];
+    mresults->debugDraw.forwardCapsuleSweepForLedgeStart.v[1] = *(float *)&v30;
+    *(float *)&v30 = end.v[0];
+    mresults->debugDraw.forwardCapsuleSweepForLedgeStart.v[2] = v33;
+    v34 = end.v[1];
+    mresults->debugDraw.forwardCapsuleSweepForLedgeEnd.v[0] = *(float *)&v30;
+    *(float *)&v30 = end.v[2];
+    mresults->debugDraw.forwardCapsuleSweepForLedgeEnd.v[1] = v34;
+    fraction = results.fraction;
+    mresults->debugDraw.forwardCapsuleSweepForLedgeEnd.v[2] = *(float *)&v30;
     mresults->debugDraw.forwardCapsuleSweepForLedgeStartSolid = startsolid;
-    __asm { vmovss  dword ptr [rbx+0BCh], xmm0 }
-    if ( startsolid )
+    mresults->debugDraw.forwardCapsuleSweepForLedgeFraction = fraction;
+    if ( !startsolid && fraction >= 1.0 || Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
     {
-      if ( !Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
+      v58 = end;
+      UpContribution = WorldUpReferenceFrame::GetUpContribution(&v63, &mresults->startPos);
+      WorldUpReferenceFrame::SetUpContribution(&v63, *(float *)&UpContribution, &end);
+      if ( mresults->closeToGround )
+        WorldUpReferenceFrame::AddUpContribution(&v63, 18.0, &end);
+      trace.m_flags |= 0x80u;
+      v37 = DVARBOOL_mantle_fixMantleIntoCollision;
+      if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v37);
+      if ( v37->current.enabled )
+        trace.m_flags |= 0x200u;
+      BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v58, &end, &bounds, ps->clientNum, traceMask, ps);
+      trace.m_flags &= ~0x80u;
+      v38 = DVARBOOL_mantle_fixMantleIntoCollision;
+      if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v38);
+      if ( v38->current.enabled )
+        trace.m_flags &= ~0x200u;
+      v39 = *(double *)&bounds.halfSize.y;
+      v40 = results.startsolid;
+      *(_OWORD *)mresults->debugDraw.downwardCapsuleSweepForLedgeBounds.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+      v41 = v58.v[0];
+      *(double *)&mresults->debugDraw.downwardCapsuleSweepForLedgeBounds.halfSize.y = v39;
+      *(float *)&v39 = v58.v[1];
+      mresults->debugDraw.downwardCapsuleSweepForLedgeStart.v[0] = v41;
+      mresults->debugDraw.downwardCapsuleSweepForLedgeStart.v[2] = v58.v[2];
+      v42 = end.v[1];
+      mresults->debugDraw.downwardCapsuleSweepForLedgeStart.v[1] = *(float *)&v39;
+      *(float *)&v39 = end.v[0];
+      mresults->debugDraw.downwardCapsuleSweepForLedgeEnd.v[1] = v42;
+      v43 = results.fraction;
+      v44 = results.fraction == 1.0;
+      mresults->debugDraw.downwardCapsuleSweepForLedgeEnd.v[0] = *(float *)&v39;
+      mresults->debugDraw.downwardCapsuleSweepForLedgeEnd.v[2] = end.v[2];
+      mresults->debugDraw.downwardCapsuleSweepForLedgeFraction = v43;
+      mresults->debugDraw.downwardCapsuleSweepForLedgeStartSolid = v40;
+      if ( v44 )
       {
-        ledgeFlags = 4;
-        if ( results.startsolid )
-          ledgeFlags = 2;
-        mresults->debugDraw.ledgeFlags |= ledgeFlags;
+        mresults->debugDraw.ledgeFlags |= 8u;
         LOBYTE(ledgeFlags) = 0;
-        goto LABEL_89;
       }
-    }
-    else
-    {
-      __asm { vcomiss xmm0, xmm7 }
-    }
-    __asm { vmovsd  xmm0, qword ptr [rsp+1D0h+end] }
-    v100.v[2] = end.v[2];
-    __asm { vmovsd  qword ptr [rbp+0D0h+var_150], xmm0 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v105, &mresults->startPos);
-    __asm { vmovaps xmm1, xmm0; height }
-    WorldUpReferenceFrame::SetUpContribution(&v105, *(float *)&_XMM1, &end);
-    if ( mresults->closeToGround )
-    {
-      __asm { vmovss  xmm1, cs:__real@41900000; height }
-      WorldUpReferenceFrame::AddUpContribution(&v105, *(float *)&_XMM1, &end);
-    }
-    trace.m_flags |= 0x80u;
-    v63 = DVARBOOL_mantle_fixMantleIntoCollision;
-    if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v63);
-    if ( v63->current.enabled )
-      trace.m_flags |= 0x200u;
-    BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v100, &end, &v101, ps->clientNum, traceMask, ps);
-    trace.m_flags &= ~0x80u;
-    v64 = DVARBOOL_mantle_fixMantleIntoCollision;
-    if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v64);
-    v65 = !v64->current.enabled;
-    if ( v64->current.enabled )
-    {
-      v65 = (trace.m_flags & 0xFFFFFDFF) == 0;
-      trace.m_flags &= ~0x200u;
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0D0h+var_140.midPoint]
-      vmovsd  xmm1, qword ptr [rbp+0D0h+var_140.halfSize+4]
-    }
-    v68 = results.startsolid;
-    __asm
-    {
-      vmovups xmmword ptr [rbx+0C4h], xmm0
-      vmovss  xmm0, dword ptr [rbp+0D0h+var_150]
-      vmovsd  qword ptr [rbx+0D4h], xmm1
-      vmovss  xmm1, dword ptr [rbp+0D0h+var_150+4]
-      vmovss  dword ptr [rbx+0DCh], xmm0
-      vmovss  xmm0, dword ptr [rbp+0D0h+var_150+8]
-      vmovss  dword ptr [rbx+0E4h], xmm0
-      vmovss  xmm0, dword ptr [rsp+1D0h+end+4]
-      vmovss  dword ptr [rbx+0E0h], xmm1
-      vmovss  xmm1, dword ptr [rsp+1D0h+end]
-      vmovss  dword ptr [rbx+0ECh], xmm0
-      vmovss  xmm0, [rbp+0D0h+results.fraction]
-      vucomiss xmm0, xmm7
-      vmovss  dword ptr [rbx+0E8h], xmm1
-      vmovss  xmm1, dword ptr [rsp+1D0h+end+8]
-      vmovss  dword ptr [rbx+0F0h], xmm1
-      vmovss  dword ptr [rbx+0F4h], xmm0
-    }
-    mresults->debugDraw.downwardCapsuleSweepForLedgeStartSolid = v68;
-    if ( v65 )
-    {
-      mresults->debugDraw.ledgeFlags |= 8u;
-      LOBYTE(ledgeFlags) = 0;
-    }
-    else if ( !v68 || (ledgeFlags = Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId)) != 0 )
-    {
-      if ( Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
+      else if ( !v40 || (ledgeFlags = Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId)) != 0 )
       {
+        if ( !Mantle_EntityIsOwnedByPlayer(ps, pmoveHandler, results.hitType, results.hitId) )
+          goto LABEL_76;
         if ( !pmoveHandler->IsClient((BgHandler *)pmoveHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1857, ASSERT_TYPE_ASSERT, "( ( pmoveHandler->IsClient() ) )", "( pmoveHandler ) = %p", pmoveHandler) )
           __debugbreak();
+        traceMask &= 0xFDFFBFFF;
         Mantle_SetTraceFlags(&trace);
-        BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v100, &end, &v101, ps->clientNum, traceMask & 0xFDFFBFFF, ps);
+        BgTrace::LegacyTraceHandler(&trace, worldId, &results, &v58, &end, &bounds, ps->clientNum, traceMask, ps);
         Mantle_RestoreTraceFlags(&trace);
-        v76 = results.startsolid;
+        v45 = results.startsolid;
         mresults->debugDraw.downwardCapsuleSweepForLedgeStartSolid = results.startsolid;
-        __asm
+        v46 = results.fraction;
+        mresults->debugDraw.downwardCapsuleSweepForLedgeFraction = results.fraction;
+        if ( v45 || v46 == 1.0 )
         {
-          vmovss  xmm0, [rbp+0D0h+results.fraction]
-          vmovss  dword ptr [rbx+0F4h], xmm0
-        }
-        if ( !v76 )
-          __asm { vucomiss xmm0, xmm7 }
-        ledgeFlags = 8;
-        if ( v76 )
-          ledgeFlags = 16;
-        mresults->debugDraw.ledgeFlags |= ledgeFlags;
-        LOBYTE(ledgeFlags) = 0;
-      }
-      else if ( (results.contents & 0x2004000) != 0 )
-      {
-        mresults->debugDraw.ledgeFlags |= 0x20u;
-        LOBYTE(ledgeFlags) = 0;
-      }
-      else
-      {
-        if ( v105.m_axisAdjusted )
-        {
-          *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v105, &results.normal);
-          __asm { vcomiss xmm0, cs:__real@3f333333 }
-          LOBYTE(ledgeFlags) = !(v24 | v65);
-          results.walkable = ledgeFlags;
+          ledgeFlags = 8;
+          if ( v45 )
+            ledgeFlags = 16;
+          mresults->debugDraw.ledgeFlags |= ledgeFlags;
+          LOBYTE(ledgeFlags) = 0;
         }
         else
         {
-          LOBYTE(ledgeFlags) = results.walkable;
-        }
-        if ( (_BYTE)ledgeFlags )
-        {
-          __asm
+LABEL_76:
+          if ( (results.contents & 0x2004000) != 0 )
           {
-            vmovss  xmm0, dword ptr [rsp+1D0h+end]
-            vmovss  xmm1, dword ptr [rsp+1D0h+end+4]
-          }
-          _RSI = &mresults->ledgePos;
-          __asm
-          {
-            vmovss  dword ptr [rsi], xmm0
-            vmovss  xmm0, dword ptr [rsp+1D0h+end+8]
-            vmovss  dword ptr [rsi+8], xmm0
-            vmovss  dword ptr [rsi+4], xmm1
-          }
-          *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v105, &end);
-          __asm { vmovaps xmm6, xmm0 }
-          WorldUpReferenceFrame::GetUpContribution(&v105, &v100);
-          __asm
-          {
-            vsubss  xmm1, xmm7, [rbp+0D0h+results.fraction]
-            vmulss  xmm2, xmm1, xmm0
-            vmulss  xmm0, xmm6, [rbp+0D0h+results.fraction]
-            vaddss  xmm1, xmm2, xmm0; height
-          }
-          WorldUpReferenceFrame::SetUpContribution(&v105, *(float *)&_XMM1, &mresults->ledgePos);
-          mresults->endGroundEnt = Trace_GetEntityHitId(&results);
-          *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v105, &mresults->startPos);
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v105, &mresults->ledgePos);
-          __asm
-          {
-            vsubss  xmm1, xmm0, xmm6
-            vcomiss xmm1, xmm8
-          }
-          if ( v24 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm1, xmm1
-              vmovsd  [rsp+1D0h+bounds], xmm0
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1919, ASSERT_TYPE_ASSERT, "( ( ((ledgeUpVal - startPosUpVal) >= 0.0f) ) )", "( (ledgeUpVal - startPosUpVal) ) = %g", *(double *)&bounds) )
-              __debugbreak();
-          }
-          _RAX = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rbp+0D0h+var_140.midPoint], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rbp+0D0h+var_140.halfSize+4], xmm1
-          }
-          Mantle_SetTraceFlags(&trace);
-          BgTrace::LegacyTraceHandler(&trace, worldId, &results, &mresults->ledgePos, &mresults->ledgePos, &v101, ps->clientNum, traceMask, ps);
-          Mantle_RestoreTraceFlags(&trace);
-          ledgeFlags = mresults->debugDraw.ledgeFlags;
-          if ( results.startsolid )
-          {
-            mresults->debugDraw.ledgeFlags = ledgeFlags | 0x80;
+            mresults->debugDraw.ledgeFlags |= 0x20u;
             LOBYTE(ledgeFlags) = 0;
           }
           else
           {
-            mresults->debugDraw.ledgeFlags = ledgeFlags | 1;
-            LOBYTE(ledgeFlags) = 1;
+            if ( v63.m_axisAdjusted )
+            {
+              v47 = WorldUpReferenceFrame::GetUpContribution(&v63, &results.normal);
+              LOBYTE(ledgeFlags) = *(float *)&v47 > 0.69999999;
+              results.walkable = *(float *)&v47 > 0.69999999;
+            }
+            else
+            {
+              LOBYTE(ledgeFlags) = results.walkable;
+            }
+            if ( (_BYTE)ledgeFlags )
+            {
+              v48 = end.v[1];
+              mresults->ledgePos.v[0] = end.v[0];
+              mresults->ledgePos.v[2] = end.v[2];
+              mresults->ledgePos.v[1] = v48;
+              v49 = WorldUpReferenceFrame::GetUpContribution(&v63, &end);
+              v50 = *(float *)&v49;
+              v51 = WorldUpReferenceFrame::GetUpContribution(&v63, &v58);
+              WorldUpReferenceFrame::SetUpContribution(&v63, (float)((float)(1.0 - results.fraction) * *(float *)&v51) + (float)(v50 * results.fraction), &mresults->ledgePos);
+              mresults->endGroundEnt = Trace_GetEntityHitId(&results);
+              v52 = WorldUpReferenceFrame::GetUpContribution(&v63, &mresults->startPos);
+              v53 = *(float *)&v52;
+              v54 = WorldUpReferenceFrame::GetUpContribution(&v63, &mresults->ledgePos);
+              if ( (float)(*(float *)&v54 - v53) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1919, ASSERT_TYPE_ASSERT, "( ( ((ledgeUpVal - startPosUpVal) >= 0.0f) ) )", "( (ledgeUpVal - startPosUpVal) ) = %g", (float)(*(float *)&v54 - v53)) )
+                __debugbreak();
+              bounds = *BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DUCKED);
+              Mantle_SetTraceFlags(&trace);
+              BgTrace::LegacyTraceHandler(&trace, worldId, &results, &mresults->ledgePos, &mresults->ledgePos, &bounds, ps->clientNum, traceMask, ps);
+              Mantle_RestoreTraceFlags(&trace);
+              ledgeFlags = mresults->debugDraw.ledgeFlags;
+              if ( results.startsolid )
+              {
+                mresults->debugDraw.ledgeFlags = ledgeFlags | 0x80;
+                LOBYTE(ledgeFlags) = 0;
+              }
+              else
+              {
+                mresults->debugDraw.ledgeFlags = ledgeFlags | 1;
+                LOBYTE(ledgeFlags) = 1;
+              }
+            }
+            else
+            {
+              mresults->debugDraw.ledgeFlags |= 0x40u;
+            }
           }
         }
-        else
-        {
-          mresults->debugDraw.ledgeFlags |= 0x40u;
-        }
+      }
+      else
+      {
+        mresults->debugDraw.ledgeFlags |= 0x10u;
       }
     }
     else
     {
-      mresults->debugDraw.ledgeFlags |= 0x10u;
+      ledgeFlags = 4;
+      if ( results.startsolid )
+        ledgeFlags = 2;
+      mresults->debugDraw.ledgeFlags |= ledgeFlags;
+      LOBYTE(ledgeFlags) = 0;
     }
-LABEL_89:
-    __asm { vmovaps xmm8, [rsp+1D0h+var_78+8] }
-    goto LABEL_90;
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+10h]
-    vmovss  xmm2, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  dword ptr [rbp+0D0h+start+4], xmm1
-    vmovss  dword ptr [rbp+0D0h+vec+4], xmm1
-    vmovaps xmm1, xmm6; height
-    vmovss  dword ptr [rbp+0D0h+start], xmm2
-    vmovss  dword ptr [rbp+0D0h+start+8], xmm0
-    vmovss  dword ptr [rbp+0D0h+vec], xmm2
-    vmovss  dword ptr [rbp+0D0h+vec+8], xmm0
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v105, *(float *)&_XMM1, &vec);
-  trace.m_flags |= 0x80u;
-  v29 = DVARBOOL_mantle_fixMantleIntoCollision;
-  if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  if ( v29->current.enabled )
-    trace.m_flags |= 0x200u;
-  BgTrace::LegacyTraceHandler(&trace, worldId, &results, &start, &vec, &bounds_origin, ps->clientNum, traceMask, ps);
-  trace.m_flags &= ~0x80u;
-  v30 = DVARBOOL_mantle_fixMantleIntoCollision;
-  if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v30);
-  if ( v30->current.enabled )
-    trace.m_flags &= ~0x200u;
-  if ( !results.startsolid )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rbp+0D0h+results.fraction]
-      vcomiss xmm0, xmm7
-    }
-    goto LABEL_23;
-  }
-  LOBYTE(ledgeFlags) = 0;
-LABEL_90:
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+1D0h+var_58+8]
-    vmovaps xmm7, [rsp+1D0h+var_68+8]
   }
   return ledgeFlags;
 }
@@ -2953,59 +2486,39 @@ Mantle_CheckMinimumSpeed
 */
 __int64 Mantle_CheckMinimumSpeed(const playerState_s *ps, const BgHandler *pmoveHandler, const MantleResults *mresults, const vec3_t *wishdir)
 {
-  char v11; 
-  char v12; 
-  const dvar_t *v13; 
-  const dvar_t *v16; 
-  WorldUpReferenceFrame v23; 
+  double v8; 
+  const dvar_t *v9; 
+  const dvar_t *v11; 
+  float v12; 
+  WorldUpReferenceFrame v13; 
 
-  _RDI = mresults;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2658, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2659, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2659, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  if ( Mantle_PlayerPushingIntoSurface(ps, pmoveHandler, wishdir, _RDI) || Mantle_InDistanceRegardlessOfSpeed(ps, _RDI) && ps->groundEntityNum != 2047 )
+  if ( Mantle_PlayerPushingIntoSurface(ps, pmoveHandler, wishdir, mresults) || Mantle_InDistanceRegardlessOfSpeed(ps, mresults) && ps->groundEntityNum != 2047 )
     return 1i64;
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v23, ps, pmoveHandler);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::Vec2Dot(&v23, &_RDI->dir, &ps->velocity);
-  __asm
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v13, ps, pmoveHandler);
+  v8 = WorldUpReferenceFrame::Vec2Dot(&v13, &mresults->dir, &ps->velocity);
+  if ( *(float *)&v8 > 0.001 )
   {
-    vcomiss xmm0, cs:__real@3a83126f
-    vmovaps xmm2, xmm0
-  }
-  if ( !(v11 | v12) )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+70h] }
-    v16 = DCONST_DVARINT_mantle_max_time;
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vdivss  xmm6, xmm1, xmm2
-    }
+    v11 = DCONST_DVARINT_mantle_max_time;
+    v12 = (float)(mresults->distanceToMantleSurface + 8.0) / *(float *)&v8;
     if ( !DCONST_DVARINT_mantle_max_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_max_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, cs:__real@3a03126f
-      vcomiss xmm6, xmm1
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
-    if ( !(v11 | v12) )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v12 > (float)((float)v11->current.integer * 0.00050000002) )
     {
       Mantle_DebugPrint(1u, "Mantle Failed: Player is not fast enough to reach ledge from this distance");
       return 0i64;
     }
     return 1i64;
   }
-  v13 = DCONST_DVARINT_mantle_debug;
+  v9 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
     Com_Printf(17, "%s\n", "Mantle Failed: Player is not moving at mantle");
   return 0i64;
 }
@@ -3035,37 +2548,29 @@ Mantle_CloseToGround
 */
 bool Mantle_CloseToGround(pmove_t *pm)
 {
-  char v8; 
+  playerState_s *ps; 
+  float v3; 
+  float v4; 
   vec3_t vec; 
   trace_t results; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2723, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2723, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2723, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( _RSI->groundEntityNum != 2047 )
+  if ( ps->groundEntityNum != 2047 )
     return 1;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+34h]
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vmovss  xmm2, dword ptr [rsi+38h]
-    vmovss  dword ptr [rsp+0C8h+vec+4], xmm1
-    vmovss  xmm1, cs:__real@c2100000; height
-    vmovss  dword ptr [rsp+0C8h+vec], xmm0
-    vmovss  dword ptr [rsp+0C8h+vec+8], xmm2
-  }
-  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
+  v3 = ps->origin.v[0];
+  v4 = ps->origin.v[2];
+  vec.v[1] = ps->origin.v[1];
+  vec.v[0] = v3;
+  vec.v[2] = v4;
+  WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, -36.0, &vec);
   Mantle_SetTraceFlags(pm->m_trace);
-  BgTrace::LegacyTrace(pm->m_trace, pm, &results, &_RSI->origin, &vec, &bounds_origin, _RSI->clientNum, pm->tracemask);
+  BgTrace::LegacyTrace(pm->m_trace, pm, &results, &ps->origin, &vec, &bounds_origin, ps->clientNum, pm->tracemask);
   Mantle_RestoreTraceFlags(pm->m_trace);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+results.fraction]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  return !v8;
+  return results.fraction != 1.0;
 }
 
 /*
@@ -3076,483 +2581,311 @@ Mantle_DebugDrawTraces
 void Mantle_DebugDrawTraces(pmove_t *pm, const MantleResults *results, const bool mantleActivated)
 {
   playerState_s *ps; 
+  const dvar_t *v7; 
   const dvar_t *v8; 
-  const dvar_t *v9; 
   const BgHandler *m_bgHandler; 
-  const dvar_t *v11; 
+  const dvar_t *v10; 
   unsigned int unsignedInt; 
-  __int64 v14; 
-  bool v15; 
-  char v33; 
+  __int64 v12; 
+  bool v13; 
+  char v14; 
+  float v15; 
+  float v16; 
+  int v17; 
+  float v18; 
   int ledgeFlags; 
-  const char *v59; 
-  char v60; 
-  bool v61; 
-  int v68; 
+  float forwardCapsuleSweepForLedgeFraction; 
+  const char *v21; 
+  char v22; 
+  bool v23; 
+  int v24; 
   Bounds *p_downwardCapsuleSweepForLedgeBounds; 
   vec3_t *p_downwardCapsuleSweepForLedgeStart; 
   vec3_t *p_downwardCapsuleSweepForLedgeEnd; 
-  bool v72; 
-  const char *v73; 
+  bool v28; 
+  const char *v29; 
+  float downwardCapsuleSweepForLedgeFraction; 
+  float v31; 
+  float v32; 
   int overFlags; 
-  char v99; 
-  bool v100; 
-  const char *v101; 
-  int v108; 
+  float ledgeForwardCapsuleSweepFraction; 
+  char v35; 
+  bool v36; 
+  const char *v37; 
+  int v38; 
   Bounds *p_ledgeDownwardCapsuleSweepBounds; 
-  char v111; 
+  float ledgeDownwardCapsuleSweepFraction; 
+  char v41; 
   vec3_t *p_ledgeDownwardCapsuleSweepStart; 
-  bool v113; 
+  bool v43; 
   vec3_t *p_ledgeDownwardCapsuleSweepEnd; 
-  const char *v115; 
-  float v136; 
-  float v137; 
-  float v138; 
-  float v139; 
-  tmat33_t<vec3_t> v140; 
-  vec4_t v141; 
-  vec4_t v142; 
-  vec4_t v143; 
+  const char *v45; 
+  float v46; 
+  float v47; 
+  tmat33_t<vec3_t> v48; 
+  vec4_t v49; 
+  vec4_t v50; 
+  vec4_t v51; 
   tmat33_t<vec3_t> axis; 
-  vec4_t v145; 
+  vec4_t v53; 
   vec3_t outOrigin; 
-  int v147[4]; 
-  int v148[4]; 
-  int v149[4]; 
-  int v150[4]; 
-  int v151[4]; 
-  vec4_t v152; 
+  int v55[4]; 
+  int v56[4]; 
+  int v57[4]; 
+  int v58[4]; 
+  int v59[4]; 
+  vec4_t v60; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3644, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3644, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v8 = DVARBOOL_mantle_debug_traces_once;
+  v7 = DVARBOOL_mantle_debug_traces_once;
   if ( !DVARBOOL_mantle_debug_traces_once && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug_traces_once") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
-    goto LABEL_19;
-  if ( mantleActivated )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled )
   {
-    v9 = DCONST_DVARBOOL_mantle_debug_traces_activation;
+    if ( !mantleActivated )
+      return;
+    v8 = DCONST_DVARBOOL_mantle_debug_traces_activation;
     if ( !DCONST_DVARBOOL_mantle_debug_traces_activation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug_traces_activation") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    if ( v9->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( !v8->current.enabled )
+      return;
+  }
+  if ( !results && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 444, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+    __debugbreak();
+  if ( (results->edgeFlags[0] & 4) != 0 )
+    return;
+  m_bgHandler = pm->m_bgHandler;
+  if ( !m_bgHandler->IsClient((BgHandler *)m_bgHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3657, ASSERT_TYPE_ASSERT, "(handler->IsClient())", (const char *)&queryFormat, "handler->IsClient()") )
+    __debugbreak();
+  v10 = DCONST_DVARINT_mantle_debug_traces_duration;
+  if ( !DCONST_DVARINT_mantle_debug_traces_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug_traces_duration") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v10);
+  unsignedInt = v10->current.unsignedInt;
+  BG_GetPlayerEyePosition(pm->weaponMap, ps, &outOrigin, m_bgHandler);
+  AnglesToAxis(&ps->viewangles, &axis);
+  v13 = !results->debugDraw.edgeFound;
+  *(float *)v55 = (float)((float)(DEFAULT_TEXT_FORWARD_OFFSET * axis.m[0].v[0]) + outOrigin.v[0]) + (float)(DEFAULT_TEXT_LEFT_OFFSET * axis.m[1].v[0]);
+  *(float *)&v55[2] = (float)((float)(DEFAULT_TEXT_FORWARD_OFFSET * axis.m[0].v[2]) + outOrigin.v[2]) + (float)(DEFAULT_TEXT_LEFT_OFFSET * axis.m[1].v[2]);
+  *(float *)&v55[1] = (float)((float)(DEFAULT_TEXT_FORWARD_OFFSET * axis.m[0].v[1]) + outOrigin.v[1]) + (float)(DEFAULT_TEXT_LEFT_OFFSET * axis.m[1].v[1]);
+  if ( v13 )
+  {
+    ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v55, &colorRed);
+    return;
+  }
+  v14 = 0;
+  v15 = EDGE_NORMAL_LENGTH * results->edgeNormal.v[1];
+  *(float *)v56 = (float)(EDGE_NORMAL_LENGTH * results->edgeNormal.v[0]) + results->edgePos.v[0];
+  v16 = EDGE_NORMAL_LENGTH * results->edgeNormal.v[2];
+  *(float *)&v56[1] = v15 + results->edgePos.v[1];
+  *(float *)&v56[2] = v16 + results->edgePos.v[2];
+  ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, unsigned int))m_bgHandler->DebugSphere)(m_bgHandler, &results->edgePos, v12, &colorGreen, 0, unsignedInt);
+  m_bgHandler->DebugLine((BgHandler *)m_bgHandler, &results->edgePos, (const vec3_t *)v56, &colorGreen, 0, unsignedInt);
+  *(float *)&v17 = (float)((float)(EDGE_TEXT_OFFSET_X * axis.m[1].v[1]) + results->edgePos.v[1]) + (float)(EDGE_TEXT_OFFSET_Z * axis.m[2].v[1]);
+  v18 = (float)(EDGE_TEXT_OFFSET_X * axis.m[1].v[2]) + results->edgePos.v[2];
+  *(float *)v57 = (float)((float)(EDGE_TEXT_OFFSET_X * axis.m[1].v[0]) + results->edgePos.v[0]) + (float)(EDGE_TEXT_OFFSET_Z * axis.m[2].v[0]);
+  *(float *)&v57[2] = v18 + (float)(EDGE_TEXT_OFFSET_Z * axis.m[2].v[2]);
+  v57[1] = v17;
+  ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v57, &colorGreen);
+  ledgeFlags = results->debugDraw.ledgeFlags;
+  forwardCapsuleSweepForLedgeFraction = results->debugDraw.forwardCapsuleSweepForLedgeFraction;
+  v21 = "Ledge Forward Sweep: Successful";
+  v22 = 0;
+  v23 = 1;
+  v53 = colorBlue;
+  v51 = colorGreen;
+  v50 = colorBlue;
+  v49 = colorBlue;
+  if ( (ledgeFlags & 2) != 0 )
+  {
+    v51 = colorRed;
+    v50 = colorRed;
+    v21 = "Ledge Forward Sweep: Start Pos Blocked!";
+    v23 = 0;
+  }
+  else if ( (ledgeFlags & 4) != 0 )
+  {
+    v51 = colorRed;
+    v49 = colorRed;
+    v21 = "Ledge Forward Sweep: End Pos Blocked!";
+    v23 = 1;
+  }
+  else
+  {
+    v22 = 1;
+  }
+  v48 = axis;
+  Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v48, v21, DEFAULT_TEXT_SCALE, &v51, &results->debugDraw.forwardCapsuleSweepForLedgeBounds, &results->debugDraw.forwardCapsuleSweepForLedgeStart, &v50, &results->debugDraw.forwardCapsuleSweepForLedgeEnd, &v49, v23, &v53, forwardCapsuleSweepForLedgeFraction, unsignedInt);
+  if ( !v22 )
+    return;
+  v24 = results->debugDraw.ledgeFlags;
+  p_downwardCapsuleSweepForLedgeBounds = &results->debugDraw.downwardCapsuleSweepForLedgeBounds;
+  p_downwardCapsuleSweepForLedgeStart = &results->debugDraw.downwardCapsuleSweepForLedgeStart;
+  p_downwardCapsuleSweepForLedgeEnd = &results->debugDraw.downwardCapsuleSweepForLedgeEnd;
+  v28 = 1;
+  v29 = "Ledge Downward Sweep: Successful";
+  downwardCapsuleSweepForLedgeFraction = results->debugDraw.downwardCapsuleSweepForLedgeFraction;
+  v53 = colorBlue;
+  v50 = colorGreen;
+  v51 = colorBlue;
+  v49 = colorBlue;
+  if ( (v24 & 0x10) != 0 )
+  {
+    v50 = colorRed;
+    v51 = colorRed;
+    v29 = "Ledge Downward Sweep: Start Pos Blocked!";
+    v28 = 0;
+    goto LABEL_50;
+  }
+  if ( (v24 & 0x20) != 0 )
+  {
+    v29 = "Ledge Downward Sweep: Blocked by a body!";
+LABEL_42:
+    v50 = colorRed;
+    v49 = colorRed;
+    goto LABEL_50;
+  }
+  if ( (v24 & 0x40) != 0 )
+  {
+    v29 = "Ledge Downward Sweep: Surface Not Walkable!";
+    goto LABEL_42;
+  }
+  if ( (v24 & 0x80u) != 0 )
+  {
+    v29 = "Ledge Downward Sweep: Cannot Fit Crouched!";
+    goto LABEL_42;
+  }
+  if ( (v24 & 8) != 0 )
+  {
+    v50 = colorRed;
+    v29 = "Ledge Downward Sweep: No Ledge Found!";
+  }
+  else
+  {
+    if ( (v24 & 1) == 0 )
     {
-LABEL_19:
-      if ( !results && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 444, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3803, ASSERT_TYPE_ASSERT, "(debugDrawData.ledgeFlags & (1 << 0))", (const char *)&queryFormat, "debugDrawData.ledgeFlags & MANTLE_DEBUG_DRAW_FLAGS_LEDGE_FOUND") )
         __debugbreak();
-      if ( (results->edgeFlags[0] & 4) == 0 )
+      p_downwardCapsuleSweepForLedgeEnd = &results->debugDraw.downwardCapsuleSweepForLedgeEnd;
+      v28 = 1;
+      p_downwardCapsuleSweepForLedgeStart = &results->debugDraw.downwardCapsuleSweepForLedgeStart;
+      p_downwardCapsuleSweepForLedgeBounds = &results->debugDraw.downwardCapsuleSweepForLedgeBounds;
+    }
+    v14 = 1;
+  }
+LABEL_50:
+  v48 = axis;
+  Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v48, v29, DEFAULT_TEXT_SCALE, &v50, p_downwardCapsuleSweepForLedgeBounds, p_downwardCapsuleSweepForLedgeStart, &v51, p_downwardCapsuleSweepForLedgeEnd, &v49, v28, &v53, downwardCapsuleSweepForLedgeFraction, unsignedInt);
+  if ( v14 )
+  {
+    m_bgHandler->DebugStar((BgHandler *)m_bgHandler, &results->ledgePos, &colorGreen, unsignedInt);
+    v31 = (float)(LEDGE_TEXT_OFFSET_X * axis.m[1].v[1]) + results->ledgePos.v[1];
+    v32 = (float)(LEDGE_TEXT_OFFSET_X * axis.m[1].v[2]) + results->ledgePos.v[2];
+    *(float *)v58 = (float)((float)(LEDGE_TEXT_OFFSET_X * axis.m[1].v[0]) + results->ledgePos.v[0]) + (float)(LEDGE_TEXT_OFFSET_Z * axis.m[2].v[0]);
+    *(float *)&v58[1] = v31 + (float)(LEDGE_TEXT_OFFSET_Z * axis.m[2].v[1]);
+    *(float *)&v58[2] = v32 + (float)(LEDGE_TEXT_OFFSET_Z * axis.m[2].v[2]);
+    ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v58, &colorGreen);
+    overFlags = results->debugDraw.overFlags;
+    if ( (overFlags & 1) != 0 )
+    {
+      ledgeForwardCapsuleSweepFraction = results->debugDraw.ledgeForwardCapsuleSweepFraction;
+      v35 = 0;
+      v36 = 1;
+      v37 = "Over Forward Sweep: Successful";
+      v53 = colorCyan;
+      v51 = colorGreen;
+      v50 = colorCyan;
+      v49 = colorCyan;
+      if ( (overFlags & 2) != 0 )
       {
-        m_bgHandler = pm->m_bgHandler;
-        if ( !m_bgHandler->IsClient((BgHandler *)m_bgHandler) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3657, ASSERT_TYPE_ASSERT, "(handler->IsClient())", (const char *)&queryFormat, "handler->IsClient()") )
-          __debugbreak();
-        v11 = DCONST_DVARINT_mantle_debug_traces_duration;
-        _RDI = &results->debugDraw;
-        if ( !DCONST_DVARINT_mantle_debug_traces_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug_traces_duration") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v11);
-        unsignedInt = v11->current.unsignedInt;
-        BG_GetPlayerEyePosition(pm->weaponMap, ps, &outOrigin, m_bgHandler);
-        AnglesToAxis(&ps->viewangles, &axis);
-        v15 = !results->debugDraw.edgeFound;
-        __asm
+        v51 = colorRed;
+        v50 = colorRed;
+        v37 = "Over Forward Sweep: Start Pos Blocked!";
+        v36 = 0;
+      }
+      else if ( (overFlags & 4) != 0 )
+      {
+        v51 = colorRed;
+        v49 = colorRed;
+        v37 = "Over Forward Sweep: End Pos Blocked!";
+      }
+      else
+      {
+        v35 = 1;
+      }
+      v48 = axis;
+      Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v48, v37, DEFAULT_TEXT_SCALE, &v51, &results->debugDraw.ledgeForwardCapsuleSweepBounds, &results->debugDraw.ledgeForwardCapsuleSweepStart, &v50, &results->debugDraw.ledgeForwardCapsuleSweepEnd, &v49, v36, &v53, ledgeForwardCapsuleSweepFraction, unsignedInt);
+      if ( v35 )
+      {
+        v38 = results->debugDraw.overFlags;
+        p_ledgeDownwardCapsuleSweepBounds = &results->debugDraw.ledgeDownwardCapsuleSweepBounds;
+        ledgeDownwardCapsuleSweepFraction = results->debugDraw.ledgeDownwardCapsuleSweepFraction;
+        v41 = 0;
+        p_ledgeDownwardCapsuleSweepStart = &results->debugDraw.ledgeDownwardCapsuleSweepStart;
+        v43 = 1;
+        p_ledgeDownwardCapsuleSweepEnd = &results->debugDraw.ledgeDownwardCapsuleSweepEnd;
+        *(_QWORD *)v50.v = &results->debugDraw.ledgeDownwardCapsuleSweepEnd;
+        v45 = "Over Downward Sweep: Successful";
+        v60 = colorCyan;
+        v49 = colorGreen;
+        v53 = colorCyan;
+        v51 = colorCyan;
+        if ( (v38 & 8) != 0 )
         {
-          vmovss  xmm5, cs:DEFAULT_TEXT_FORWARD_OFFSET
-          vmovss  xmm4, cs:DEFAULT_TEXT_LEFT_OFFSET
-          vmulss  xmm1, xmm5, dword ptr [rbp+0D0h+axis]
-          vaddss  xmm2, xmm1, dword ptr [rbp+0D0h+outOrigin]
-          vmulss  xmm1, xmm4, dword ptr [rbp+0D0h+axis+0Ch]
-          vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+10h]
-          vaddss  xmm2, xmm2, xmm1
-          vmulss  xmm1, xmm5, dword ptr [rbp+0D0h+axis+4]
-          vaddss  xmm3, xmm1, dword ptr [rbp+0D0h+outOrigin+4]
-          vaddss  xmm1, xmm3, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rbp+0D0h+axis+8]
-          vaddss  xmm3, xmm0, dword ptr [rbp+0D0h+outOrigin+8]
-          vmovss  [rbp+0D0h+var_A8], xmm2
-          vmulss  xmm2, xmm4, dword ptr [rbp+0D0h+axis+14h]
-          vaddss  xmm0, xmm3, xmm2
-          vmovss  [rbp+0D0h+var_A0], xmm0
-          vmovss  [rbp+0D0h+var_A4], xmm1
-        }
-        if ( v15 )
-        {
-          __asm { vmovss  xmm3, cs:DEFAULT_TEXT_SCALE }
-          ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v147, &colorRed);
-          return;
-        }
-        __asm
-        {
-          vmovss  xmm2, cs:EDGE_NORMAL_LENGTH
-          vmulss  xmm0, xmm2, dword ptr [r13+54h]
-        }
-        v33 = 0;
-        __asm
-        {
-          vaddss  xmm1, xmm0, dword ptr [rbx]
-          vmulss  xmm0, xmm2, dword ptr [r13+58h]
-          vmovss  [rbp+0D0h+var_98], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rbx+4]
-          vmulss  xmm0, xmm2, dword ptr [r13+5Ch]
-          vmovss  xmm2, cs:EDGE_RADIUS
-          vmovss  [rbp+0D0h+var_94], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rbx+8]
-          vmovss  [rbp+0D0h+var_90], xmm1
-        }
-        ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, unsigned int))m_bgHandler->DebugSphere)(m_bgHandler, &results->edgePos, v14, &colorGreen, 0, unsignedInt);
-        m_bgHandler->DebugLine((BgHandler *)m_bgHandler, &results->edgePos, (const vec3_t *)v148, &colorGreen, 0, unsignedInt);
-        __asm
-        {
-          vmovss  xmm5, cs:EDGE_TEXT_OFFSET_X
-          vmovss  xmm4, cs:EDGE_TEXT_OFFSET_Z
-          vmulss  xmm1, xmm5, dword ptr [rbp+0D0h+axis+0Ch]
-          vaddss  xmm2, xmm1, dword ptr [rbx]
-          vmulss  xmm1, xmm4, dword ptr [rbp+0D0h+axis+18h]
-          vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+1Ch]
-          vaddss  xmm2, xmm2, xmm1
-          vmulss  xmm1, xmm5, dword ptr [rbp+0D0h+axis+10h]
-          vaddss  xmm3, xmm1, dword ptr [rbx+4]
-          vaddss  xmm1, xmm3, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rbp+0D0h+axis+14h]
-          vaddss  xmm3, xmm0, dword ptr [rbx+8]
-          vmovss  [rbp+0D0h+var_88], xmm2
-          vmulss  xmm2, xmm4, dword ptr [rbp+0D0h+axis+20h]
-          vaddss  xmm0, xmm3, xmm2
-          vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-          vmovss  [rbp+0D0h+var_80], xmm0
-          vmovss  [rbp+0D0h+var_84], xmm1
-        }
-        ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v149, &colorGreen);
-        __asm { vmovups xmm1, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue }
-        ledgeFlags = results->debugDraw.ledgeFlags;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-          vmovss  xmm2, dword ptr [rdi+30h]
-        }
-        v59 = "Ledge Forward Sweep: Successful";
-        v60 = 0;
-        v61 = 1;
-        __asm
-        {
-          vmovups [rbp+0D0h+var_C8], xmm1
-          vmovups [rbp+0D0h+var_100], xmm0
-          vmovups [rbp+0D0h+var_110], xmm1
-          vmovups [rbp+0D0h+var_120], xmm1
-        }
-        if ( (ledgeFlags & 2) != 0 )
-        {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-            vmovups [rbp+0D0h+var_100], xmm0
-            vmovups [rbp+0D0h+var_110], xmm0
-          }
-          v59 = "Ledge Forward Sweep: Start Pos Blocked!";
-          v61 = 0;
-        }
-        else if ( (ledgeFlags & 4) != 0 )
-        {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-            vmovups [rbp+0D0h+var_100], xmm0
-            vmovups [rbp+0D0h+var_120], xmm0
-          }
-          v59 = "Ledge Forward Sweep: End Pos Blocked!";
-          v61 = 1;
+          v49 = colorRed;
+          v53 = colorRed;
+          v45 = "Over Downward Sweep: Start Pos Blocked!";
+          v43 = 0;
         }
         else
         {
-          v60 = 1;
-        }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+0D0h+axis]
-          vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-          vmovss  [rsp+1D0h+var_170], xmm2
-        }
-        v140.m[2].v[2] = axis.m[2].v[2];
-        __asm { vmovups [rbp+0D0h+var_150], ymm0 }
-        Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v140, v59, *(const float *)&_XMM3, &v143, &results->debugDraw.forwardCapsuleSweepForLedgeBounds, &results->debugDraw.forwardCapsuleSweepForLedgeStart, &v142, &results->debugDraw.forwardCapsuleSweepForLedgeEnd, &v141, v61, &v145, v136, unsignedInt);
-        if ( v60 )
-        {
-          __asm
+          if ( (v38 & 0x10) != 0 )
           {
-            vmovups xmm1, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue
-            vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
+            v45 = "Over Downward Sweep: Blocked by Body!";
           }
-          v68 = results->debugDraw.ledgeFlags;
-          p_downwardCapsuleSweepForLedgeBounds = &results->debugDraw.downwardCapsuleSweepForLedgeBounds;
-          __asm { vmovaps [rsp+1D0h+var_40], xmm6 }
-          p_downwardCapsuleSweepForLedgeStart = &results->debugDraw.downwardCapsuleSweepForLedgeStart;
-          p_downwardCapsuleSweepForLedgeEnd = &results->debugDraw.downwardCapsuleSweepForLedgeEnd;
-          v72 = 1;
-          v73 = "Ledge Downward Sweep: Successful";
-          __asm
+          else if ( (v38 & 0x20) != 0 )
           {
-            vmovss  xmm6, dword ptr [rdi+68h]
-            vmovups [rbp+0D0h+var_C8], xmm1
-            vmovups [rbp+0D0h+var_110], xmm0
-            vmovups [rbp+0D0h+var_100], xmm1
-            vmovups [rbp+0D0h+var_120], xmm1
-          }
-          if ( (v68 & 0x10) != 0 )
-          {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-              vmovups [rbp+0D0h+var_110], xmm0
-              vmovups [rbp+0D0h+var_100], xmm0
-            }
-            v73 = "Ledge Downward Sweep: Start Pos Blocked!";
-            v72 = 0;
-            goto LABEL_50;
-          }
-          if ( (v68 & 0x20) != 0 )
-          {
-            v73 = "Ledge Downward Sweep: Blocked by a body!";
-          }
-          else if ( (v68 & 0x40) != 0 )
-          {
-            v73 = "Ledge Downward Sweep: Surface Not Walkable!";
+            v45 = "Over Downward Sweep: Not low enough!";
           }
           else
           {
-            if ( (v68 & 0x80u) == 0 )
+            if ( (v38 & 0x40) == 0 )
             {
-              if ( (v68 & 8) != 0 )
+              if ( (v38 & 0x80u) == 0 )
               {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups [rbp+0D0h+var_110], xmm0
-                }
-                v73 = "Ledge Downward Sweep: No Ledge Found!";
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3918, ASSERT_TYPE_ASSERT, "(debugDrawData.overFlags & (1 << 7))", (const char *)&queryFormat, "debugDrawData.overFlags & MANTLE_DEBUG_DRAW_FLAGS_OVER_POS_FOUND") )
+                  __debugbreak();
+                p_ledgeDownwardCapsuleSweepEnd = *(vec3_t **)v50.v;
+                v43 = 1;
+                p_ledgeDownwardCapsuleSweepStart = &results->debugDraw.ledgeDownwardCapsuleSweepStart;
+                p_ledgeDownwardCapsuleSweepBounds = &results->debugDraw.ledgeDownwardCapsuleSweepBounds;
               }
-              else
-              {
-                if ( (v68 & 1) == 0 )
-                {
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3803, ASSERT_TYPE_ASSERT, "(debugDrawData.ledgeFlags & (1 << 0))", (const char *)&queryFormat, "debugDrawData.ledgeFlags & MANTLE_DEBUG_DRAW_FLAGS_LEDGE_FOUND") )
-                    __debugbreak();
-                  p_downwardCapsuleSweepForLedgeEnd = &results->debugDraw.downwardCapsuleSweepForLedgeEnd;
-                  v72 = 1;
-                  p_downwardCapsuleSweepForLedgeStart = &results->debugDraw.downwardCapsuleSweepForLedgeStart;
-                  p_downwardCapsuleSweepForLedgeBounds = &results->debugDraw.downwardCapsuleSweepForLedgeBounds;
-                }
-                v33 = 1;
-              }
-LABEL_50:
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+0D0h+axis]
-                vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-                vmovss  [rsp+1D0h+var_170], xmm6
-              }
-              v140.m[2].v[2] = axis.m[2].v[2];
-              __asm { vmovups [rbp+0D0h+var_150], ymm0 }
-              Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v140, v73, *(const float *)&_XMM3, &v142, p_downwardCapsuleSweepForLedgeBounds, p_downwardCapsuleSweepForLedgeStart, &v143, p_downwardCapsuleSweepForLedgeEnd, &v141, v72, &v145, v137, unsignedInt);
-              if ( !v33 )
-                goto LABEL_74;
-              m_bgHandler->DebugStar((BgHandler *)m_bgHandler, &results->ledgePos, &colorGreen, unsignedInt);
-              __asm
-              {
-                vmovss  xmm3, cs:LEDGE_TEXT_OFFSET_X
-                vmulss  xmm0, xmm3, dword ptr [rbp+0D0h+axis+0Ch]
-                vaddss  xmm2, xmm0, dword ptr [rbx]
-                vmovss  xmm4, cs:LEDGE_TEXT_OFFSET_Z
-                vmulss  xmm1, xmm4, dword ptr [rbp+0D0h+axis+18h]
-                vaddss  xmm0, xmm2, xmm1
-                vmulss  xmm2, xmm3, dword ptr [rbp+0D0h+axis+10h]
-                vaddss  xmm1, xmm2, dword ptr [rbx+4]
-                vmulss  xmm2, xmm3, dword ptr [rbp+0D0h+axis+14h]
-                vaddss  xmm3, xmm2, dword ptr [rbx+8]
-                vmovss  [rbp+0D0h+var_78], xmm0
-                vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+1Ch]
-                vaddss  xmm1, xmm1, xmm0
-                vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+20h]
-                vmovss  [rbp+0D0h+var_74], xmm1
-                vaddss  xmm1, xmm3, xmm0
-                vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-                vmovss  [rbp+0D0h+var_70], xmm1
-              }
-              ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v150, &colorGreen);
-              overFlags = results->debugDraw.overFlags;
-              if ( (overFlags & 1) == 0 )
-                goto LABEL_74;
-              __asm
-              {
-                vmovups xmm1, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; vec4_t const colorCyan
-                vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-                vmovss  xmm2, dword ptr [rdi+0A0h]
-              }
-              v99 = 0;
-              v100 = 1;
-              v101 = "Over Forward Sweep: Successful";
-              __asm
-              {
-                vmovups [rbp+0D0h+var_C8], xmm1
-                vmovups [rbp+0D0h+var_100], xmm0
-                vmovups [rbp+0D0h+var_110], xmm1
-                vmovups [rbp+0D0h+var_120], xmm1
-              }
-              if ( (overFlags & 2) != 0 )
-              {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups [rbp+0D0h+var_100], xmm0
-                  vmovups [rbp+0D0h+var_110], xmm0
-                }
-                v101 = "Over Forward Sweep: Start Pos Blocked!";
-                v100 = 0;
-              }
-              else if ( (overFlags & 4) != 0 )
-              {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups [rbp+0D0h+var_100], xmm0
-                  vmovups [rbp+0D0h+var_120], xmm0
-                }
-                v101 = "Over Forward Sweep: End Pos Blocked!";
-              }
-              else
-              {
-                v99 = 1;
-              }
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+0D0h+axis]
-                vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-                vmovss  [rsp+1D0h+var_170], xmm2
-              }
-              v140.m[2].v[2] = axis.m[2].v[2];
-              __asm { vmovups [rbp+0D0h+var_150], ymm0 }
-              Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v140, v101, *(const float *)&_XMM3, &v143, &results->debugDraw.ledgeForwardCapsuleSweepBounds, &results->debugDraw.ledgeForwardCapsuleSweepStart, &v142, &results->debugDraw.ledgeForwardCapsuleSweepEnd, &v141, v100, &v145, v138, unsignedInt);
-              if ( !v99 )
-                goto LABEL_74;
-              __asm
-              {
-                vmovups xmm1, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; vec4_t const colorCyan
-                vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-              }
-              v108 = results->debugDraw.overFlags;
-              p_ledgeDownwardCapsuleSweepBounds = &results->debugDraw.ledgeDownwardCapsuleSweepBounds;
-              __asm { vmovss  xmm6, dword ptr [rdi+0D8h] }
-              v111 = 0;
-              p_ledgeDownwardCapsuleSweepStart = &results->debugDraw.ledgeDownwardCapsuleSweepStart;
-              v113 = 1;
-              p_ledgeDownwardCapsuleSweepEnd = &results->debugDraw.ledgeDownwardCapsuleSweepEnd;
-              *(_QWORD *)v142.v = &results->debugDraw.ledgeDownwardCapsuleSweepEnd;
-              v115 = "Over Downward Sweep: Successful";
-              __asm
-              {
-                vmovups [rbp+0D0h+var_58], xmm1
-                vmovups [rbp+0D0h+var_120], xmm0
-                vmovups [rbp+0D0h+var_C8], xmm1
-                vmovups [rbp+0D0h+var_100], xmm1
-              }
-              if ( (v108 & 8) != 0 )
-              {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups [rbp+0D0h+var_120], xmm0
-                  vmovups [rbp+0D0h+var_C8], xmm0
-                }
-                v115 = "Over Downward Sweep: Start Pos Blocked!";
-                v113 = 0;
-              }
-              else
-              {
-                if ( (v108 & 0x10) != 0 )
-                {
-                  v115 = "Over Downward Sweep: Blocked by Body!";
-                }
-                else if ( (v108 & 0x20) != 0 )
-                {
-                  v115 = "Over Downward Sweep: Not low enough!";
-                }
-                else
-                {
-                  if ( (v108 & 0x40) == 0 )
-                  {
-                    if ( (v108 & 0x80u) == 0 )
-                    {
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3918, ASSERT_TYPE_ASSERT, "(debugDrawData.overFlags & (1 << 7))", (const char *)&queryFormat, "debugDrawData.overFlags & MANTLE_DEBUG_DRAW_FLAGS_OVER_POS_FOUND") )
-                        __debugbreak();
-                      p_ledgeDownwardCapsuleSweepEnd = *(vec3_t **)v142.v;
-                      v113 = 1;
-                      p_ledgeDownwardCapsuleSweepStart = &results->debugDraw.ledgeDownwardCapsuleSweepStart;
-                      p_ledgeDownwardCapsuleSweepBounds = &results->debugDraw.ledgeDownwardCapsuleSweepBounds;
-                    }
-                    v111 = 1;
-                    goto LABEL_72;
-                  }
-                  v115 = "Over Downward Sweep: Not within height tolerance!";
-                }
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-                  vmovups [rbp+0D0h+var_120], xmm0
-                  vmovups [rbp+0D0h+var_100], xmm0
-                }
-              }
-LABEL_72:
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+0D0h+axis]
-                vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-                vmovss  [rsp+1D0h+var_170], xmm6
-              }
-              v140.m[2].v[2] = axis.m[2].v[2];
-              __asm { vmovups [rbp+0D0h+var_150], ymm0 }
-              Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v140, v115, *(const float *)&_XMM3, &v141, p_ledgeDownwardCapsuleSweepBounds, p_ledgeDownwardCapsuleSweepStart, &v145, p_ledgeDownwardCapsuleSweepEnd, &v143, v113, &v152, v139, unsignedInt);
-              if ( v111 )
-              {
-                m_bgHandler->DebugStar((BgHandler *)m_bgHandler, &results->endPos, &colorGreen, unsignedInt);
-                __asm
-                {
-                  vmovss  xmm3, cs:OVER_TEXT_OFFSET_X
-                  vmulss  xmm0, xmm3, dword ptr [rbp+0D0h+axis+0Ch]
-                  vaddss  xmm2, xmm0, dword ptr [r13+24h]
-                  vmovss  xmm4, cs:OVER_TEXT_OFFSET_Z
-                  vmulss  xmm1, xmm4, dword ptr [rbp+0D0h+axis+18h]
-                  vaddss  xmm0, xmm2, xmm1
-                  vmulss  xmm2, xmm3, dword ptr [rbp+0D0h+axis+10h]
-                  vaddss  xmm1, xmm2, dword ptr [r13+28h]
-                  vmulss  xmm2, xmm3, dword ptr [rbp+0D0h+axis+14h]
-                  vaddss  xmm3, xmm2, dword ptr [r13+2Ch]
-                  vmovss  [rbp+0D0h+var_68], xmm0
-                  vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+1Ch]
-                  vaddss  xmm1, xmm1, xmm0
-                  vmulss  xmm0, xmm4, dword ptr [rbp+0D0h+axis+20h]
-                  vmovss  [rbp+0D0h+var_64], xmm1
-                  vaddss  xmm1, xmm3, xmm0
-                  vmovss  xmm3, cs:DEFAULT_TEXT_SCALE
-                  vmovss  [rbp+0D0h+var_60], xmm1
-                }
-                ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v151, &colorGreen);
-              }
-LABEL_74:
-              __asm { vmovaps xmm6, [rsp+1D0h+var_40] }
-              return;
+              v41 = 1;
+              goto LABEL_72;
             }
-            v73 = "Ledge Downward Sweep: Cannot Fit Crouched!";
+            v45 = "Over Downward Sweep: Not within height tolerance!";
           }
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-            vmovups [rbp+0D0h+var_110], xmm0
-            vmovups [rbp+0D0h+var_120], xmm0
-          }
-          goto LABEL_50;
+          v49 = colorRed;
+          v51 = colorRed;
+        }
+LABEL_72:
+        v48 = axis;
+        Mantle_DebugDrawTraces_DrawCapsuleSweep(pm, &v48, v45, DEFAULT_TEXT_SCALE, &v49, p_ledgeDownwardCapsuleSweepBounds, p_ledgeDownwardCapsuleSweepStart, &v53, p_ledgeDownwardCapsuleSweepEnd, &v51, v43, &v60, ledgeDownwardCapsuleSweepFraction, unsignedInt);
+        if ( v41 )
+        {
+          m_bgHandler->DebugStar((BgHandler *)m_bgHandler, &results->endPos, &colorGreen, unsignedInt);
+          v46 = (float)(OVER_TEXT_OFFSET_X * axis.m[1].v[1]) + results->endPos.v[1];
+          v47 = (float)(OVER_TEXT_OFFSET_X * axis.m[1].v[2]) + results->endPos.v[2];
+          *(float *)v59 = (float)((float)(OVER_TEXT_OFFSET_X * axis.m[1].v[0]) + results->endPos.v[0]) + (float)(OVER_TEXT_OFFSET_Z * axis.m[2].v[0]);
+          *(float *)&v59[1] = v46 + (float)(OVER_TEXT_OFFSET_Z * axis.m[2].v[1]);
+          *(float *)&v59[2] = v47 + (float)(OVER_TEXT_OFFSET_Z * axis.m[2].v[2]);
+          ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))m_bgHandler->DebugString)(m_bgHandler, v59, &colorGreen);
         }
       }
     }
@@ -3564,17 +2897,18 @@ LABEL_74:
 Mantle_DebugDrawTraces_DrawCapsuleSweep
 ==============
 */
-
-void __fastcall Mantle_DebugDrawTraces_DrawCapsuleSweep(pmove_t *pm, const tmat33_t<vec3_t> *cameraAxis, const char *debugText, double debugTextScale, const vec4_t *debugTextColor, const Bounds *bounds, const vec3_t *start, const vec4_t *startColor, const vec3_t *end, const vec4_t *endColor, const bool drawEndCapsule, const vec4_t *lineColor, const float fraction, const int renderDuration)
+void Mantle_DebugDrawTraces_DrawCapsuleSweep(pmove_t *pm, const tmat33_t<vec3_t> *cameraAxis, const char *debugText, const float debugTextScale, const vec4_t *debugTextColor, const Bounds *bounds, const vec3_t *start, const vec4_t *startColor, const vec3_t *end, const vec4_t *endColor, const bool drawEndCapsule, const vec4_t *lineColor, const float fraction, const int renderDuration)
 {
   const BgHandler *m_bgHandler; 
-  BgHandler v25; 
+  BgHandler v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   char *fmt; 
-  vec3_t v51; 
+  vec3_t v25; 
 
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-  _RBP = end;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3608, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3608, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -3582,61 +2916,28 @@ void __fastcall Mantle_DebugDrawTraces_DrawCapsuleSweep(pmove_t *pm, const tmat3
   m_bgHandler = pm->m_bgHandler;
   if ( debugText && *debugText )
   {
-    __asm
-    {
-      vmovss  xmm5, cs:TEXT_OFFSET_X
-      vmovss  xmm4, cs:TEXT_OFFSET_Z
-      vmulss  xmm0, xmm5, dword ptr [r13+0Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm4, dword ptr [r13+18h]
-    }
-    v25.__vftable = m_bgHandler->__vftable;
-    __asm
-    {
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm5, dword ptr [r13+10h]
-      vaddss  xmm2, xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+0A8h+var_60], xmm1
-      vmulss  xmm1, xmm4, dword ptr [r13+1Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm5, dword ptr [r13+14h]
-      vaddss  xmm2, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+0A8h+var_60+4], xmm0
-      vmulss  xmm0, xmm4, dword ptr [r13+20h]
-      vaddss  xmm1, xmm2, xmm0
-      vmovaps xmm3, xmm6
-      vmovss  dword ptr [rsp+0A8h+var_60+8], xmm1
-    }
+    v18.__vftable = m_bgHandler->__vftable;
+    v19 = (float)(TEXT_OFFSET_X * cameraAxis->m[1].v[1]) + start->v[1];
+    v25.v[0] = (float)((float)(TEXT_OFFSET_X * cameraAxis->m[1].v[0]) + start->v[0]) + (float)(TEXT_OFFSET_Z * cameraAxis->m[2].v[0]);
+    v20 = v19 + (float)(TEXT_OFFSET_Z * cameraAxis->m[2].v[1]);
+    v21 = (float)(TEXT_OFFSET_X * cameraAxis->m[1].v[2]) + start->v[2];
+    v25.v[1] = v20;
+    v25.v[2] = v21 + (float)(TEXT_OFFSET_Z * cameraAxis->m[2].v[2]);
     HIDWORD(fmt) = HIDWORD(debugText);
-    ((void (__fastcall *)(const BgHandler *, vec3_t *, const vec4_t *))v25.DebugString)(m_bgHandler, &v51, debugTextColor);
+    ((void (__fastcall *)(const BgHandler *, vec3_t *, const vec4_t *))v18.DebugString)(m_bgHandler, &v25, debugTextColor);
   }
   MantleDebugDrawData_DrawCapsule(m_bgHandler, start, bounds, startColor);
   if ( drawEndCapsule )
   {
-    __asm
-    {
-      vmovss  xmm4, [rsp+0A8h+arg_60]
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  xmm2, dword ptr [rbp+4]
-      vmulss  xmm1, xmm1, xmm4
-      vaddss  xmm0, xmm1, dword ptr [rdi]
-      vsubss  xmm1, xmm2, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+0A8h+var_60], xmm0
-      vmulss  xmm0, xmm1, xmm4
-      vaddss  xmm3, xmm0, dword ptr [rdi+4]
-      vmovss  xmm1, dword ptr [rbp+8]
-      vsubss  xmm0, xmm1, dword ptr [rdi+8]
-      vmulss  xmm2, xmm0, xmm4
-      vmovss  dword ptr [rsp+0A8h+var_60+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+0A8h+var_60+8], xmm3
-    }
-    MantleDebugDrawData_DrawCapsule(m_bgHandler, &v51, bounds, endColor);
+    v22 = end->v[1] - start->v[1];
+    v25.v[0] = (float)((float)(end->v[0] - start->v[0]) * fraction) + start->v[0];
+    v23 = (float)(end->v[2] - start->v[2]) * fraction;
+    v25.v[1] = (float)(v22 * fraction) + start->v[1];
+    v25.v[2] = v23 + start->v[2];
+    MantleDebugDrawData_DrawCapsule(m_bgHandler, &v25, bounds, endColor);
   }
   LODWORD(fmt) = 0;
   m_bgHandler->DebugLine((BgHandler *)m_bgHandler, start, end, lineColor, (int)fmt, renderDuration);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
 }
 
 /*
@@ -3697,47 +2998,28 @@ void Mantle_DebugStar(const BgHandler *pmoveHandler, const vec3_t *pos, const ve
 Mantle_DebugTraceLine
 ==============
 */
-
-void __fastcall Mantle_DebugTraceLine(const BgHandler *pmoveHandler, const vec3_t *startPos, const vec3_t *endPos, double fraction, const vec4_t *color, const int time)
+void Mantle_DebugTraceLine(const BgHandler *pmoveHandler, const vec3_t *startPos, const vec3_t *endPos, const float fraction, const vec4_t *color, const int time)
 {
-  const dvar_t *v7; 
-  BgHandler_vtbl *v15; 
-  int v26[4]; 
+  const dvar_t *v6; 
+  BgHandler_vtbl *v10; 
+  float v11; 
+  float v12; 
+  int v13[4]; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  v7 = DCONST_DVARINT_mantle_debug;
-  _RSI = endPos;
-  __asm { vmovaps xmm6, xmm3 }
+  v6 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( (v7->current.enabled & 4) != 0 )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( (v6->current.enabled & 4) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  xmm0, dword ptr [rsi+4]
-    }
-    v15 = pmoveHandler->__vftable;
-    __asm
-    {
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rdi]
-      vsubss  xmm1, xmm0, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+88h+var_48], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rdi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  [rsp+88h+var_44], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rdi+8]
-      vmovss  [rsp+88h+var_40], xmm3
-    }
-    v15->DebugLine((BgHandler *)pmoveHandler, startPos, (const vec3_t *)v26, color, 0, time);
+    v10 = pmoveHandler->__vftable;
+    v11 = (float)(endPos->v[1] - startPos->v[1]) * fraction;
+    v12 = endPos->v[2] - startPos->v[2];
+    *(float *)v13 = (float)((float)(endPos->v[0] - startPos->v[0]) * fraction) + startPos->v[0];
+    *(float *)&v13[1] = v11 + startPos->v[1];
+    *(float *)&v13[2] = (float)(v12 * fraction) + startPos->v[2];
+    v10->DebugLine((BgHandler *)pmoveHandler, startPos, (const vec3_t *)v13, color, 0, time);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -3765,228 +3047,117 @@ char Mantle_DrawLegsModel(const playerState_s *ps)
 Mantle_DumpMotionPath
 ==============
 */
-
-void __fastcall Mantle_DumpMotionPath(const MantleMotionPathParams *params, double distance2D, double height, double speed2D)
+void Mantle_DumpMotionPath(const MantleMotionPathParams *params, const float distance2D, const float height, const float speed2D)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  float v9; 
+  float totalLength; 
+  int v11; 
+  int v12; 
+  const dvar_t *v13; 
+  unsigned int value; 
+  const dvar_t *v15; 
+  int MantleTime; 
+  const char *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   int v21; 
-  int v22; 
-  const char *v30; 
-  char v64; 
-  fileHandle_t *v65; 
-  fileHandle_t v67; 
-  char *fmt; 
-  char *fmta; 
-  double v106; 
-  double v107; 
+  float v22; 
+  float v23; 
+  float v24; 
+  unsigned int v25; 
+  float v26; 
+  fileHandle_t *v27; 
+  fileHandle_t v28; 
+  float v29; 
   vec3_t outPos; 
   BSplineRelaxedCBezier outMantleSpline; 
   char dest[256]; 
-  char v116; 
-  void *retaddr; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-    vmovaps xmmword ptr [r11-0C8h], xmm14
-    vmovaps xmmword ptr [r11-0D8h], xmm15
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
-  _RBP = params;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovss  [rsp+568h+var_524], xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm15, xmm2
-    vmovaps xmm8, xmm1
-  }
+  v35 = v4;
+  v34 = v5;
+  v33 = v6;
+  v9 = distance2D;
   BSplineRelaxedCBezier::BSplineRelaxedCBezier(&outMantleSpline);
-  Mantle_BuildMotionPathWithParams(_RBP, &outMantleSpline);
-  __asm { vmovss  xmm7, [rsp+568h+outMantleSpline.totalLength] }
-  v21 = 0;
-  v22 = 0;
-  __asm { vmovss  [rsp+568h+var_528], xmm7 }
-  if ( _RBP->isLadder )
+  Mantle_BuildMotionPathWithParams(params, &outMantleSpline);
+  totalLength = outMantleSpline.totalLength;
+  v11 = 0;
+  v12 = 0;
+  v29 = outMantleSpline.totalLength;
+  if ( params->isLadder )
   {
-    _RBX = DVARFLT_mantle_export_height;
-    v22 = 2048;
+    v13 = DVARFLT_mantle_export_height;
+    v12 = 2048;
     if ( !DVARFLT_mantle_export_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_export_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcvttss2si r14d, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_mantle_export_ledge_dist;
+    Dvar_CheckFrontendServerThread(v13);
+    value = (int)v13->current.value;
+    v15 = DVARFLT_mantle_export_ledge_dist;
     if ( !DVARFLT_mantle_export_ledge_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_export_ledge_dist") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcvttss2si r8d, dword ptr [rbx+28h] }
-    Com_sprintf<256>((char (*)[256])dest, "mantle_motion_ladder_%d_%d.txt", _R8, _ER14);
+    Dvar_CheckFrontendServerThread(v15);
+    Com_sprintf<256>((char (*)[256])dest, "mantle_motion_ladder_%d_%d.txt", (unsigned int)(int)v15->current.value, value);
   }
-  else if ( _RBP->isOver )
+  else if ( params->isOver )
   {
-    v22 = 1;
+    v12 = 1;
     Com_sprintf<256>((char (*)[256])dest, "mantle_motion_over.txt");
   }
   else
   {
     Com_sprintf<256>((char (*)[256])dest, "mantle_motion_on.txt");
   }
-  __asm
+  MantleTime = Mantle_GetMantleTime(v12, height, totalLength, speed2D);
+  v18 = params->startPos.v[0];
+  v19 = params->startPos.v[1];
+  v20 = (float)MantleTime * 0.001;
+  v21 = (int)(float)(v20 * 29.999998);
+  v22 = (float)(params->startPos.v[0] + params->ledgeOffset.v[0]) - params->startPos.v[0];
+  v23 = fsqrt((float)((float)((float)(v19 + params->ledgeOffset.v[1]) - v19) * (float)((float)(v19 + params->ledgeOffset.v[1]) - v19)) + (float)(v22 * v22));
+  v24 = FLOAT_1_0;
+  if ( params->isOver )
   {
-    vmovaps xmm3, xmm6; vel2D
-    vmovaps xmm2, xmm7; distance3D
-    vmovaps xmm1, xmm15; height
-  }
-  Mantle_GetMantleTime(v22, *(const float *)&_XMM1, *(const float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rbp+0]
-    vmovss  xmm10, dword ptr [rbp+4]
-    vmovss  xmm12, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm14, xmm0, cs:__real@3a83126f
-    vmulss  xmm1, xmm14, cs:__real@41efffff
-    vaddss  xmm0, xmm9, dword ptr [rbp+0Ch]
-    vcvttss2si esi, xmm1
-    vaddss  xmm1, xmm10, dword ptr [rbp+10h]
-    vsubss  xmm2, xmm0, xmm9
-    vsubss  xmm0, xmm1, xmm10
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm3, xmm2
-    vsqrtss xmm11, xmm1, xmm1
-    vmovaps xmm13, xmm12
-  }
-  if ( _RBP->isOver )
-  {
-    _EBX = 0;
-    if ( _ESI >= 0 )
+    v25 = 0;
+    if ( v21 >= 0 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm7, xmm12, xmm0
-        vxorps  xmm8, xmm8, xmm8
-      }
       while ( 1 )
       {
-        __asm
-        {
-          vmovd   xmm6, ebx
-          vcvtdq2ps xmm6, xmm6
-          vmulss  xmm1, xmm7, xmm6; t
-        }
-        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&_XMM1, &outPos);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+568h+outPos]
-          vmovss  xmm1, dword ptr [rsp+568h+outPos+4]
-          vsubss  xmm2, xmm1, xmm10
-          vmulss  xmm3, xmm2, xmm2
-          vsubss  xmm4, xmm0, xmm9
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm1, xmm3, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vcomiss xmm2, xmm11
-          vmovss  dword ptr [rsp+568h+outPos+8], xmm8
-        }
-        if ( !v64 )
+        v26 = _mm_cvtepi32_ps((__m128i)v25).m128_f32[0];
+        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, (float)(1.0 / (float)v21) * v26, &outPos);
+        outPos.v[2] = 0.0;
+        if ( fsqrt((float)((float)(outPos.v[1] - v19) * (float)(outPos.v[1] - v19)) + (float)((float)(outPos.v[0] - v18) * (float)(outPos.v[0] - v18))) >= v23 )
           break;
-        if ( ++_EBX > _ESI )
-          goto LABEL_19;
+        if ( (int)++v25 > v21 )
+          goto LABEL_18;
       }
-      __asm { vmulss  xmm13, xmm6, cs:__real@3d088889 }
-LABEL_19:
-      __asm
-      {
-        vmovss  xmm8, [rsp+568h+var_524]
-        vmovss  xmm7, [rsp+568h+var_528]
-      }
+      v24 = v26 * 0.033333335;
+LABEL_18:
+      v9 = distance2D;
+      totalLength = v29;
     }
   }
-  v65 = FS_FOpenFileAppend((fileHandle_t *)dest, v30);
-  __asm { vmovaps xmm11, [rsp+568h+var_98] }
-  v67.handle.handle = (__int64)v65;
-  __asm
+  v27 = FS_FOpenFileAppend((fileHandle_t *)dest, v17);
+  v28.handle.handle = (__int64)v27;
+  if ( v27 != (fileHandle_t *)-1i64 )
   {
-    vmovaps xmm10, [rsp+568h+var_88]
-    vmovaps xmm9, [rsp+568h+var_78]
-  }
-  if ( v65 != (fileHandle_t *)-1i64 )
-  {
-    __asm
+    FS_Printf((fileHandle_t)v27, "X: %.4f Y: %.4f 3D Distance: %.4f Total Time: %.4f (seconds) Ledge Time: %.4f (seconds)\n", v9, height, totalLength, v20, (float)(v24 * v20));
+    FS_Printf(v28, "Frame\tDistance\tHeight\n");
+    if ( v21 >= 0 )
     {
-      vmulss  xmm0, xmm13, xmm14
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+568h+var_538], xmm1
-      vcvtss2sd xmm4, xmm14, xmm14
-      vcvtss2sd xmm3, xmm15, xmm15
-      vcvtss2sd xmm2, xmm8, xmm8
-      vcvtss2sd xmm5, xmm7, xmm7
-      vmovsd  [rsp+568h+var_540], xmm4
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+568h+fmt], xmm5
-    }
-    FS_Printf((fileHandle_t)v65, "X: %.4f Y: %.4f 3D Distance: %.4f Total Time: %.4f (seconds) Ledge Time: %.4f (seconds)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v106, v107);
-    FS_Printf(v67, "Frame\tDistance\tHeight\n");
-    if ( _ESI >= 0 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm6, xmm12, xmm0
-      }
       do
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vmulss  xmm1, xmm0, xmm6; t
-        }
-        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&_XMM1, &outPos);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+568h+outPos]
-          vsubss  xmm5, xmm0, dword ptr [rbp+0]
-          vmovss  xmm1, dword ptr [rsp+568h+outPos+4]
-          vsubss  xmm3, xmm1, dword ptr [rbp+4]
-          vmovss  xmm0, dword ptr [rsp+568h+outPos+8]
-          vsubss  xmm2, xmm0, dword ptr [rbp+8]
-          vmulss  xmm1, xmm3, xmm3
-          vcvtss2sd xmm4, xmm2, xmm2
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmovq   r9, xmm3
-          vmovsd  [rsp+568h+fmt], xmm4
-        }
-        FS_Printf(v67, "%d\t%.4f\t%.4f\n", (unsigned int)v21++, *(double *)&_XMM3, *(double *)&fmta);
+        BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, (float)v11 * (float)(1.0 / (float)v21), &outPos);
+        FS_Printf(v28, "%d\t%.4f\t%.4f\n", (unsigned int)v11++, fsqrt((float)((float)(outPos.v[1] - params->startPos.v[1]) * (float)(outPos.v[1] - params->startPos.v[1])) + (float)((float)(outPos.v[0] - params->startPos.v[0]) * (float)(outPos.v[0] - params->startPos.v[0]))), (float)(outPos.v[2] - params->startPos.v[2]));
       }
-      while ( v21 <= _ESI );
+      while ( v11 <= v21 );
     }
-    FS_FCloseFile(v67);
-  }
-  _R11 = &v116;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm12, xmmword ptr [r11-88h]
-    vmovaps xmm13, xmmword ptr [r11-98h]
-    vmovaps xmm14, xmmword ptr [r11-0A8h]
-    vmovaps xmm15, xmmword ptr [r11-0B8h]
+    FS_FCloseFile(v28);
   }
 }
 
@@ -3997,84 +3168,58 @@ Mantle_DumpMotionPath
 */
 void Mantle_DumpMotionPath(pmove_t *pm)
 {
-  const dvar_t *v6; 
-  unsigned int v14; 
+  playerState_s *ps; 
+  const dvar_t *v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v8; 
+  float v9; 
+  unsigned int v11; 
+  float v12; 
+  float v13; 
   MantleMotionPathParams params; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1546, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RSI = pm->ps;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1546, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1546, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = DCONST_DVARINT_mantle_debug;
+  v3 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( (v6->current.enabled & 8) != 0 && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( (v3->current.enabled & 8) != 0 && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_18], xmm6
-      vmovaps [rsp+0A8h+var_28], xmm7
-    }
-    if ( _RSI == (playerState_s *)-948i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 293, ASSERT_TYPE_ASSERT, "(compressedData)", (const char *)&queryFormat, "compressedData") )
+    if ( ps == (playerState_s *)-948i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 293, ASSERT_TYPE_ASSERT, "(compressedData)", (const char *)&queryFormat, "compressedData") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(_RSI->mantleState.compressedAnimData.distance2D, *(float *)&_XMM1, 8u);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize
-      vmovaps xmm7, xmm0
-    }
-    *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(_RSI->mantleState.compressedAnimData.distanceZ, *(float *)&_XMM1, 8u);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-      vmovaps xmm6, xmm0
-    }
-    MSG_UnpackSignedFloat(_RSI->mantleState.compressedAnimData.angle, *(float *)&_XMM1, 9u);
-    __asm { vmovss  xmm0, dword ptr [rsi+390h] }
+    v4 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distance2D, 190.0, 8u);
+    v5 = *(float *)&v4;
+    v6 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, 190.0, 8u);
+    _XMM1 = LODWORD(FLOAT_180_0);
+    v8 = *(float *)&v6;
+    MSG_UnpackSignedFloat(ps->mantleState.compressedAnimData.angle, 180.0, 9u);
+    v9 = ps->mantleState.startPosition.v[0];
     *(_QWORD *)&params.endPosOffset.y = 0i64;
     *((_DWORD *)&params.endPosOffset + 3) = 0;
     *(_DWORD *)(&params.drawDebug + 1) = 0;
     *(&params.drawDebug + 5) = 0;
     params.bgHandler = pm->m_bgHandler;
-    params.isOver = _RSI->mantleState.flags & 1;
+    params.isOver = ps->mantleState.flags & 1;
     __asm { vpxor   xmm1, xmm1, xmm1 }
-    v14 = (unsigned int)_RSI->mantleState.flags >> 11;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0A8h+params.startPos], xmm0
-      vmovss  xmm0, dword ptr [rsi+398h]
-      vmovdqu xmmword ptr [rsp+0A8h+params.ledgeOffset], xmm1
-      vmovss  xmm1, dword ptr [rsi+394h]
-    }
-    params.isLadder = v14 & 1;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0A8h+params.startPos+4], xmm1
-      vmovss  dword ptr [rsp+0A8h+params.startPos+8], xmm0
-    }
-    BG_GetMantleLedgePosOffset(_RSI, &params.ledgeOffset);
-    BG_GetMantleEndPosOffset(_RSI, &params.endPosOffset);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+40h]
-      vmovss  xmm0, dword ptr [rsi+3Ch]
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2; speed2D
-      vmovaps xmm2, xmm6; height
-      vmovaps xmm1, xmm7; distance2D
-    }
+    v11 = (unsigned int)ps->mantleState.flags >> 11;
+    params.startPos.v[0] = v9;
+    v12 = ps->mantleState.startPosition.v[2];
+    *(_OWORD *)params.ledgeOffset.v = _XMM1;
+    *(float *)&_XMM1 = ps->mantleState.startPosition.v[1];
+    params.isLadder = v11 & 1;
+    params.startPos.v[1] = *(float *)&_XMM1;
+    params.startPos.v[2] = v12;
+    BG_GetMantleLedgePosOffset(ps, &params.ledgeOffset);
+    BG_GetMantleEndPosOffset(ps, &params.endPosOffset);
+    v13 = fsqrt((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1]));
     params.drawDebug = !pm->isExtrapolation;
-    Mantle_DumpMotionPath(&params, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vmovaps xmm6, [rsp+0A8h+var_18]
-    }
+    Mantle_DumpMotionPath(&params, v5, v8, v13);
   }
 }
 
@@ -4108,13 +3253,17 @@ Mantle_ExecuteAnimScript
 void Mantle_ExecuteAnimScript(pmove_t *pm, int elapsedAnimTime, int mantleLength)
 {
   playerState_s *ps; 
-  __int64 v8; 
-  _DWORD *v9; 
+  __int64 v7; 
+  _DWORD *v8; 
   __int64 clientNum; 
   cg_t *LocalClientGlobals; 
   characterInfo_t *CharacterInfo; 
-  int v13; 
-  char v28; 
+  int v12; 
+  playerState_s *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double Float_Internal_DebugName; 
   __int64 turn; 
   vec3_t vec; 
 
@@ -4125,14 +3274,14 @@ void Mantle_ExecuteAnimScript(pmove_t *pm, int elapsedAnimTime, int mantleLength
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1632, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
     __debugbreak();
-  v8 = tls_index;
+  v7 = tls_index;
   if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_static.h", 169, ASSERT_TYPE_ASSERT, "(ms_activeBgs)", (const char *)&queryFormat, "ms_activeBgs") )
     __debugbreak();
-  v9 = *(_DWORD **)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v8) + 272i64);
+  v8 = *(_DWORD **)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v7) + 272i64);
   clientNum = ps->clientNum;
-  if ( (*(unsigned __int8 (__fastcall **)(_DWORD *))(*(_QWORD *)v9 + 160i64))(v9) )
+  if ( (*(unsigned __int8 (__fastcall **)(_DWORD *))(*(_QWORD *)v8 + 160i64))(v8) )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9[2]);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v8[2]);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 25, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     if ( LocalClientGlobals->IsMP(LocalClientGlobals) )
@@ -4152,60 +3301,41 @@ void Mantle_ExecuteAnimScript(pmove_t *pm, int elapsedAnimTime, int mantleLength
   }
   else
   {
-    CharacterInfo = (characterInfo_t *)(*(__int64 (__fastcall **)(_DWORD *, _QWORD))(*(_QWORD *)v9 + 224i64))(v9, (unsigned int)clientNum);
+    CharacterInfo = (characterInfo_t *)(*(__int64 (__fastcall **)(_DWORD *, _QWORD))(*(_QWORD *)v8 + 224i64))(v8, (unsigned int)clientNum);
   }
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1637, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  v13 = 0;
+  v12 = 0;
   BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_MANTLE, 1, 0);
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1585, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1587, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v13 = pm->ps;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1587, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (_RBX->mantleState.flags & 0x20) == 0 && elapsedAnimTime < mantleLength - 250 )
+  if ( (v13->mantleState.flags & 0x20) == 0 && elapsedAnimTime < mantleLength - 250 )
   {
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x14u) && pm->cmd.forwardmove == 127 )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v13->pm_flags, ACTIVE, 0x14u) && pm->cmd.forwardmove == 127 )
     {
-      _RBX->mantleState.compressedAnimData.endScriptAnimTableIndex = 3;
+      v13->mantleState.compressedAnimData.endScriptAnimTableIndex = 3;
     }
     else if ( pm->cmd.forwardmove <= 0 )
     {
-      _RBX->mantleState.compressedAnimData.endScriptAnimTableIndex = 0;
-      *(_QWORD *)_RBX->velocity.v = 0i64;
-      _RBX->velocity.v[2] = 0.0;
+      v13->mantleState.compressedAnimData.endScriptAnimTableIndex = 0;
+      *(_QWORD *)v13->velocity.v = 0i64;
+      v13->velocity.v[2] = 0.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+3Ch]
-        vmovss  xmm1, dword ptr [rbx+40h]
-        vmovss  dword ptr [rsp+98h+vec], xmm0
-        vmovss  xmm0, dword ptr [rbx+44h]
-        vmovss  dword ptr [rsp+98h+vec+4], xmm1
-        vmovaps [rsp+98h+var_38], xmm6
-        vxorps  xmm1, xmm1, xmm1; height
-        vmovss  dword ptr [rsp+98h+vec+8], xmm0
-      }
-      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+vec+4]
-        vmovss  xmm1, dword ptr [rsp+98h+vec]
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm3, xmm0, xmm0
-        vmovss  xmm0, dword ptr [rsp+98h+vec+8]
-        vmulss  xmm1, xmm0, xmm0
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm2, xmm4, xmm1
-        vsqrtss xmm6, xmm2, xmm2
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_runbkThreshhold, "player_runbkThreshhold");
-      __asm { vcomiss xmm0, xmm6 }
-      LOBYTE(v13) = v28;
-      _RBX->mantleState.compressedAnimData.endScriptAnimTableIndex = v13 + 1;
-      __asm { vmovaps xmm6, [rsp+98h+var_38] }
+      v14 = v13->velocity.v[1];
+      vec.v[0] = v13->velocity.v[0];
+      v15 = v13->velocity.v[2];
+      vec.v[1] = v14;
+      vec.v[2] = v15;
+      WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &vec);
+      v16 = fsqrt((float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_runbkThreshhold, "player_runbkThreshhold");
+      LOBYTE(v12) = *(float *)&Float_Internal_DebugName < v16;
+      v13->mantleState.compressedAnimData.endScriptAnimTableIndex = v12 + 1;
     }
   }
 }
@@ -4255,95 +3385,111 @@ Mantle_FindMantleEdge
 */
 __int64 Mantle_FindMantleEdge(pmove_t *pm, Physics_WorldId worldId, const BgHandler *pmoveHandler, const vec3_t *searchOrigin, MantleResults *mresults, const vec3_t *wishDir)
 {
+  __int128 v6; 
   playerState_s *ps; 
+  __int128 v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float value; 
+  float v15; 
+  float v16; 
   EdgeQueryCache *outHintNodeIndex; 
-  const dvar_t *v43; 
-  char v44; 
-  __int64 v68; 
-  __int64 v69; 
-  const dvar_t *v82; 
-  char v83; 
-  unsigned __int64 v84; 
-  const dvar_t *v85; 
-  const char *v87; 
-  char v93; 
-  unsigned __int64 v121; 
-  const BgHandler *v122; 
-  unsigned __int8 v125; 
-  EdgeId *v128; 
-  char v134; 
-  EdgeId v136; 
-  const dvar_t *v150; 
+  const dvar_t *v18; 
+  __int128 v20; 
+  EdgeFrustumQueryShape *p_mantleQueryShape; 
+  EdgeFrustumQueryShape *p_shape; 
+  __int64 v24; 
+  __int64 v25; 
+  const dvar_t *v26; 
+  char v27; 
+  unsigned __int64 v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const char *v31; 
+  float v32; 
+  double Float_Internal_DebugName; 
+  double v34; 
+  double v35; 
+  EdgeFrustumQueryShape *p_mantleLadderQueryShape; 
+  EdgeFrustumQueryShape *v37; 
+  unsigned __int64 v38; 
+  const BgHandler *v39; 
+  const dvar_t *v40; 
+  float v41; 
+  unsigned __int8 v42; 
+  float v43; 
+  unsigned __int64 v44; 
+  EdgeId *v45; 
+  char v46; 
+  float v47; 
+  EdgeId v48; 
+  const dvar_t *v49; 
   int integer; 
-  const dvar_t *v153; 
-  __int64 v154; 
+  const dvar_t *v51; 
+  __int64 v52; 
+  double v53; 
   unsigned int EntityIndex; 
   unsigned int EdgeIndex; 
-  const dvar_t *v167; 
-  char v194; 
-  bool v195; 
-  const char *v211; 
-  char v212; 
-  char v213; 
-  char v249; 
+  const dvar_t *v56; 
+  __int128 v57; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  const dvar_t *v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  vec3_t *v72; 
+  float v73; 
+  float v74; 
+  const dvar_t *v75; 
+  const char *v76; 
+  double UpContribution; 
+  char v78; 
+  float v79; 
   int flags; 
-  int v257; 
-  __int64 result; 
-  char v270; 
+  int v81; 
+  char v83; 
   unsigned __int64 outResultCount; 
-  unsigned __int64 v272; 
-  vec3_t *v273; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v274; 
-  __int64 v275; 
+  unsigned __int64 v85; 
+  vec3_t *v86; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v87; 
+  __int64 v88; 
   vec3_t handler; 
   vec3_t vec; 
   vec3_t point; 
   vec3_t outNormal; 
   vec3_t outSearchDir; 
-  vec3_t v281; 
+  vec3_t v94; 
   vec3_t forward; 
-  EdgeFrustumQueryDefinition v283; 
-  vec3_t v284; 
+  EdgeFrustumQueryDefinition v96; 
+  vec3_t edgePos; 
   EdgeFrustumQueryDefinition definition; 
   tmat43_t<vec3_t> v1; 
   vec3_t outEdgePoint; 
   vec3_t start; 
   vec3_t axis; 
   vec3_t entityUp; 
-  int v291[4]; 
+  int v104[4]; 
   vec3_t end; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v293; 
-  WorldUpReferenceFrame v294; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v106; 
+  WorldUpReferenceFrame v107; 
   tmat33_t<vec3_t> outAxis; 
   tmat33_t<vec3_t> viewBasis; 
   EdgeFrustumQueryShape shape; 
-  EdgeFrustumQueryShape v298; 
-  EdgeOctreeQueryFrustum v299; 
-  EdgeOctreeQueryFrustum v300; 
+  EdgeFrustumQueryShape v111; 
+  EdgeOctreeQueryFrustum v112; 
+  EdgeOctreeQueryFrustum v113; 
   float resultFractionPool[16]; 
   EdgeId resultIdPool[17]; 
-  char v303; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v275 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R14 = searchOrigin;
-  v273 = (vec3_t *)searchOrigin;
+  v88 = -2i64;
+  v86 = (vec3_t *)searchOrigin;
   *(_QWORD *)handler.v = pmoveHandler;
-  _RDI = mresults;
   Sys_ProfBeginNamedEvent(0xFF008008, "Mantle_FindMantleEdge");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2314, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -4351,756 +3497,378 @@ __int64 Mantle_FindMantleEdge(pmove_t *pm, Physics_WorldId worldId, const BgHand
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2314, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Mantle_GetSearchDirection(ps, pmoveHandler, mresults, wishDir, &outSearchDir, &forward);
-  *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-  __asm { vmovaps xmm8, xmm0 }
-  *(float *)&_XMM0 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults);
-  __asm { vmovaps xmm6, xmm0 }
-  _RBX = DCONST_DVARFLT_mantle_check_radius;
+  *(double *)&v6 = BG_Suit_GetBoundsRadius(ps);
+  v11 = v6;
+  v12 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults);
+  v13 = DCONST_DVARFLT_mantle_check_radius;
   if ( !DCONST_DVARFLT_mantle_check_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_check_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rbx+28h]
-    vmulss  xmm9, xmm6, cs:__real@3f000000
-  }
-  *(float *)&_XMM0 = Mantle_GetCheckRange(ps, mresults);
-  __asm { vmovaps xmm6, xmm0 }
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v294, ps, pmoveHandler);
-  GenerateAxisFromForwardVector(&outSearchDir, &v294.m_axis, &outAxis);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+940h+outAxis+0Ch]
-    vmovss  dword ptr [rbp+940h+axis], xmm1
-    vmovss  xmm2, dword ptr [rbp+940h+outAxis+10h]
-    vmovss  dword ptr [rbp+940h+axis+4], xmm2
-    vmovss  xmm1, dword ptr [rbp+940h+outAxis+14h]
-    vmovss  dword ptr [rbp+940h+axis+8], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+outAxis+18h]
-    vmovss  dword ptr [rbp+940h+var_960], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+outAxis+1Ch]
-    vmovss  dword ptr [rbp+940h+var_960+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+outAxis+20h]
-    vmovss  dword ptr [rbp+940h+var_960+8], xmm0
-  }
-  GenerateAxisFromForwardVector(&forward, &v294.m_axis, &viewBasis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+940h+viewBasis+18h]
-    vmovss  dword ptr [rbp+940h+entityUp], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+viewBasis+1Ch]
-    vmovss  dword ptr [rbp+940h+entityUp+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+viewBasis+20h]
-    vmovss  dword ptr [rbp+940h+entityUp+8], xmm0
-    vmovss  xmm1, dword ptr [r14]
-    vmovss  dword ptr [rbp+940h+vec], xmm1
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+940h+vec+4], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+940h+vec+8], xmm1
-    vmovaps xmm1, xmm9; height
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v294, *(float *)&_XMM1, &vec);
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  v15 = v12 * 0.5;
+  v16 = Mantle_GetCheckRange(ps, mresults);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v107, ps, pmoveHandler);
+  GenerateAxisFromForwardVector(&outSearchDir, &v107.m_axis, &outAxis);
+  axis = outAxis.m[1];
+  v94 = outAxis.m[2];
+  GenerateAxisFromForwardVector(&forward, &v107.m_axis, &viewBasis);
+  entityUp = viewBasis.m[2];
+  vec = *searchOrigin;
+  WorldUpReferenceFrame::AddUpContribution(&v107, v15, &vec);
   outHintNodeIndex = pmoveHandler->GetEdgeQueryCache(pmoveHandler, (unsigned int)ps->clientNum);
-  __asm
-  {
-    vmovss  [rbp+940h+definition.nearHalfWidth], xmm10
-    vmovss  [rbp+940h+definition.nearHalfHeight], xmm9
-    vmovss  [rbp+940h+definition.farHalfWidth], xmm10
-    vmovss  [rbp+940h+definition.farHalfHeight], xmm9
-  }
-  v43 = DCONST_DVARMPFLT_mantle_edge_search_near_plane_offset;
+  definition.nearHalfWidth = value;
+  definition.nearHalfHeight = v15;
+  definition.farHalfWidth = value;
+  definition.farHalfHeight = v15;
+  v18 = DCONST_DVARMPFLT_mantle_edge_search_near_plane_offset;
   if ( !DCONST_DVARMPFLT_mantle_edge_search_near_plane_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_edge_search_near_plane_offset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v43);
-  __asm
+  Dvar_CheckFrontendServerThread(v18);
+  v20 = v11;
+  *(float *)&v20 = *(float *)&v11 - v18->current.value;
+  _XMM0 = v20;
+  __asm { vmaxss  xmm1, xmm0, xmm1 }
+  definition.nearDist = *(float *)&_XMM1;
+  definition.farDist = (float)(v16 + *(float *)&v11) + 0.125;
+  if ( definition.nearHalfWidth != outHintNodeIndex->mantleQueryDefinition.nearHalfWidth || definition.nearHalfHeight != outHintNodeIndex->mantleQueryDefinition.nearHalfHeight || definition.farHalfWidth != outHintNodeIndex->mantleQueryDefinition.farHalfWidth || definition.farHalfHeight != outHintNodeIndex->mantleQueryDefinition.farHalfHeight || *(float *)&_XMM1 != outHintNodeIndex->mantleQueryDefinition.nearDist || (float)((float)(v16 + *(float *)&v11) + 0.125) != outHintNodeIndex->mantleQueryDefinition.farDist )
   {
-    vsubss  xmm0, xmm8, dword ptr [r14+28h]
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm1, xmm0, xmm1
-    vmovss  [rbp+940h+definition.nearDist], xmm1
-    vaddss  xmm0, xmm6, xmm8
-    vmovss  xmm12, cs:__real@3e000000
-    vaddss  xmm2, xmm0, xmm12
-    vmovss  [rbp+940h+definition.farDist], xmm2
-    vmovss  xmm0, [rbp+940h+definition.nearHalfWidth]
-    vucomiss xmm0, dword ptr [rbx+150h]
-  }
-  if ( !v44 )
-    goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+definition.nearHalfHeight]
-    vucomiss xmm0, dword ptr [rbx+154h]
-  }
-  if ( !v44 )
-    goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+definition.farHalfWidth]
-    vucomiss xmm0, dword ptr [rbx+158h]
-  }
-  if ( !v44 )
-    goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+definition.farHalfHeight]
-    vucomiss xmm0, dword ptr [rbx+15Ch]
-  }
-  if ( !v44 )
-    goto LABEL_19;
-  __asm { vucomiss xmm1, dword ptr [rbx+160h] }
-  if ( !v44 )
-    goto LABEL_19;
-  __asm { vucomiss xmm2, dword ptr [rbx+164h] }
-  if ( !v44 )
-  {
-LABEL_19:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+940h+definition.nearHalfWidth]
-      vmovups xmmword ptr [rbx+150h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+940h+definition.nearDist]
-      vmovsd  qword ptr [rbx+160h], xmm1
-    }
+    outHintNodeIndex->mantleQueryDefinition = definition;
     EdgeFrustumQueryShape::Calculate(&outHintNodeIndex->mantleQueryShape, &definition);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+940h+outSearchDir]
-    vmovss  dword ptr [rbp+940h+v1], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+outSearchDir+4]
-    vmovss  dword ptr [rbp+940h+v1+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+outSearchDir+8]
-    vmovss  dword ptr [rbp+940h+v1+8], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+var_960]
-    vmovss  dword ptr [rbp+940h+v0], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+var_960+4]
-    vmovss  dword ptr [rbp+940h+v0+4], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+var_960+8]
-    vmovss  dword ptr [rbp+940h+v0+8], xmm1
-  }
+  v1.m[0] = outSearchDir;
+  v1.m[2] = v94;
   Vec3Cross(&v1.m[2], v1.m, &v1.m[1]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+940h+vec]
-    vmovss  [rbp+940h+var_8DC], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+vec+4]
-    vmovss  [rbp+940h+var_8D8], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+vec+8]
-    vmovss  [rbp+940h+var_8D4], xmm0
-  }
-  _RAX = &outHintNodeIndex->mantleQueryShape;
-  _RCX = &shape;
-  v68 = 2i64;
-  v69 = 2i64;
+  v1.m[3] = vec;
+  p_mantleQueryShape = &outHintNodeIndex->mantleQueryShape;
+  p_shape = &shape;
+  v24 = 2i64;
+  v25 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (EdgeFrustumQueryShape *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (EdgeFrustumQueryShape *)((char *)_RAX + 128);
-    --v69;
+    p_shape->m_planes[0] = p_mantleQueryShape->m_planes[0];
+    p_shape->m_planes[1] = p_mantleQueryShape->m_planes[1];
+    p_shape->m_planes[2] = p_mantleQueryShape->m_planes[2];
+    p_shape->m_planes[3] = p_mantleQueryShape->m_planes[3];
+    p_shape->m_planes[4] = p_mantleQueryShape->m_planes[4];
+    p_shape->m_planes[5] = p_mantleQueryShape->m_planes[5];
+    p_shape->m_corners[0] = p_mantleQueryShape->m_corners[0];
+    p_shape = (EdgeFrustumQueryShape *)((char *)p_shape + 128);
+    p_shape[-1].m_forward = p_mantleQueryShape->m_corners[1];
+    p_mantleQueryShape = (EdgeFrustumQueryShape *)((char *)p_mantleQueryShape + 128);
+    --v25;
   }
-  while ( v69 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
+  while ( v25 );
+  p_shape->m_planes[0] = p_mantleQueryShape->m_planes[0];
+  p_shape->m_planes[1] = p_mantleQueryShape->m_planes[1];
   EdgeFrustumQueryShape::Transform(&shape, &v1);
-  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v299, &shape);
-  __asm { vmovss  xmm1, cs:MANTLE_EDGE_DISTANCE_CENTER_BIAS; centerBias }
-  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v299, *(float *)&_XMM1);
-  __asm { vmovss  xmm2, cs:MANTLE_EDGE_PARALLEL_BIAS; bias }
-  EdgeOctreeQueryFrustum::SetAxisBias(&v299, &axis, *(float *)&_XMM2);
-  v274.m_hint = 16777208;
-  v274.m_flags = 1;
-  v274.m_bucket = MANTLE;
-  v274.m_queryShape = &v299;
-  v274.m_hint = outHintNodeIndex->mantleEdgeHintNode;
+  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v112, &shape);
+  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v112, MANTLE_EDGE_DISTANCE_CENTER_BIAS);
+  EdgeOctreeQueryFrustum::SetAxisBias(&v112, &axis, MANTLE_EDGE_PARALLEL_BIAS);
+  v87.m_hint = 16777208;
+  v87.m_flags = 1;
+  v87.m_bucket = MANTLE;
+  v87.m_queryShape = &v112;
+  v87.m_hint = outHintNodeIndex->mantleEdgeHintNode;
   outResultCount = 0i64;
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v274, pmoveHandler, resultIdPool, resultFractionPool, NULL, 0x10ui64, &outResultCount, &outHintNodeIndex->mantleEdgeHintNode);
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v87, pmoveHandler, resultIdPool, resultFractionPool, NULL, 0x10ui64, &outResultCount, &outHintNodeIndex->mantleEdgeHintNode);
   if ( PM_IsSprinting(ps) || PM_IsInAir(pm) )
     goto LABEL_29;
-  v82 = DCONST_DVARINT_mantle_ladder_sprint_cooldown_time;
+  v26 = DCONST_DVARINT_mantle_ladder_sprint_cooldown_time;
   if ( !DCONST_DVARINT_mantle_ladder_sprint_cooldown_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_sprint_cooldown_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v82);
-  if ( ps->serverTime <= ps->sprintState.lastSprintEnd + v82->current.integer )
+  Dvar_CheckFrontendServerThread(v26);
+  if ( ps->serverTime <= ps->sprintState.lastSprintEnd + v26->current.integer )
 LABEL_29:
-    v83 = 0;
+    v27 = 0;
   else
-    v83 = 1;
-  if ( (pm->cmd.buttons & 0x800000000000000i64) == 0 && !pm->isBot || !v83 )
+    v27 = 1;
+  if ( (pm->cmd.buttons & 0x800000000000000i64) == 0 && !pm->isBot || !v27 )
   {
-    v84 = outResultCount;
-    v272 = outResultCount;
+    v28 = outResultCount;
+    v85 = outResultCount;
     goto LABEL_57;
   }
-  v84 = outResultCount;
-  v272 = outResultCount;
+  v28 = outResultCount;
+  v85 = outResultCount;
   if ( outResultCount >= 0x10 )
   {
 LABEL_57:
-    v122 = *(const BgHandler **)handler.v;
+    v39 = *(const BgHandler **)handler.v;
     goto LABEL_58;
   }
-  v85 = DCONST_DVARMPBOOL_mantle_ladder_enable;
+  v29 = DCONST_DVARMPBOOL_mantle_ladder_enable;
   if ( !DCONST_DVARMPBOOL_mantle_ladder_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v85);
-  if ( !v85->current.enabled )
+  Dvar_CheckFrontendServerThread(v29);
+  if ( !v29->current.enabled )
   {
-    v84 = outResultCount;
+    v28 = outResultCount;
     goto LABEL_57;
   }
   if ( ps->groundEntityNum == 2047 )
   {
-    _RSI = DCONST_DVARFLT_mantle_check_range_air;
+    v30 = DCONST_DVARFLT_mantle_check_range_air;
     if ( !DCONST_DVARFLT_mantle_check_range_air )
     {
-      v87 = "mantle_check_range_air";
+      v31 = "mantle_check_range_air";
       goto LABEL_43;
     }
   }
   else
   {
-    _RSI = DCONST_DVARFLT_mantle_check_range;
+    v30 = DCONST_DVARFLT_mantle_check_range;
     if ( !DCONST_DVARFLT_mantle_check_range )
     {
-      v87 = "mantle_check_range";
+      v31 = "mantle_check_range";
 LABEL_43:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v87) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v31) )
         __debugbreak();
     }
   }
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v30);
+  v32 = v30->current.value;
+  v96.nearHalfWidth = value;
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin, "mantle_ladder_edge_search_min_height_above_search_origin");
+  v96.nearHalfHeight = COERCE_FLOAT(LODWORD(Float_Internal_DebugName) & _xmm) + v15;
+  v96.farHalfWidth = value;
+  v34 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin, "mantle_ladder_edge_search_min_height_above_search_origin");
+  v96.farHalfHeight = COERCE_FLOAT(LODWORD(v34) & _xmm) + v15;
+  v35 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_near_plane_offset, "mantle_ladder_edge_search_near_plane_offset");
+  v96.nearDist = *(float *)&v11 - *(float *)&v35;
+  v96.farDist = (float)(v32 + *(float *)&v11) + 0.125;
+  if ( v96.nearHalfWidth != outHintNodeIndex->mantleLadderQueryDefinition.nearHalfWidth || v96.nearHalfHeight != outHintNodeIndex->mantleLadderQueryDefinition.nearHalfHeight || v96.farHalfWidth != outHintNodeIndex->mantleLadderQueryDefinition.farHalfWidth || v96.farHalfHeight != outHintNodeIndex->mantleLadderQueryDefinition.farHalfHeight || (float)(*(float *)&v11 - *(float *)&v35) != outHintNodeIndex->mantleLadderQueryDefinition.nearDist || (float)((float)(v32 + *(float *)&v11) + 0.125) != outHintNodeIndex->mantleLadderQueryDefinition.farDist )
   {
-    vmovss  xmm7, dword ptr [rsi+28h]
-    vmovss  [rbp+940h+var_940.nearHalfWidth], xmm10
+    outHintNodeIndex->mantleLadderQueryDefinition = v96;
+    EdgeFrustumQueryShape::Calculate(&outHintNodeIndex->mantleLadderQueryShape, &v96);
   }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin, "mantle_ladder_edge_search_min_height_above_search_origin");
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm0, xmm0, xmm9
-    vmovss  [rbp+940h+var_940.nearHalfHeight], xmm0
-    vmovss  [rbp+940h+var_940.farHalfWidth], xmm10
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin, "mantle_ladder_edge_search_min_height_above_search_origin");
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm0, xmm0, xmm9
-    vmovss  [rbp+940h+var_940.farHalfHeight], xmm0
-  }
-  Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_ladder_edge_search_near_plane_offset, "mantle_ladder_edge_search_near_plane_offset");
-  __asm
-  {
-    vsubss  xmm2, xmm8, xmm0
-    vmovss  [rbp+940h+var_940.nearDist], xmm2
-    vaddss  xmm1, xmm7, xmm8
-    vaddss  xmm3, xmm1, xmm12
-    vmovss  [rbp+940h+var_940.farDist], xmm3
-    vmovss  xmm0, [rbp+940h+var_940.nearHalfWidth]
-    vucomiss xmm0, dword ptr [rbx+290h]
-  }
-  if ( !v93 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+var_940.nearHalfHeight]
-    vucomiss xmm0, dword ptr [rbx+294h]
-  }
-  if ( !v93 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+var_940.farHalfWidth]
-    vucomiss xmm0, dword ptr [rbx+298h]
-  }
-  if ( !v93 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, [rbp+940h+var_940.farHalfHeight]
-    vucomiss xmm0, dword ptr [rbx+29Ch]
-  }
-  if ( !v93 )
-    goto LABEL_51;
-  __asm { vucomiss xmm2, dword ptr [rbx+2A0h] }
-  if ( !v93 )
-    goto LABEL_51;
-  __asm { vucomiss xmm3, dword ptr [rbx+2A4h] }
-  if ( !v93 )
-  {
-LABEL_51:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+940h+var_940.nearHalfWidth]
-      vmovups xmmword ptr [rbx+290h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+940h+var_940.nearDist]
-      vmovsd  qword ptr [rbx+2A0h], xmm1
-    }
-    EdgeFrustumQueryShape::Calculate(&outHintNodeIndex->mantleLadderQueryShape, &v283);
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+940h+forward]
-    vmovss  dword ptr [rbp+940h+v1], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+forward+4]
-    vmovss  dword ptr [rbp+940h+v1+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+forward+8]
-    vmovss  dword ptr [rbp+940h+v1+8], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+var_960]
-    vmovss  dword ptr [rbp+940h+v0], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+var_960+4]
-    vmovss  dword ptr [rbp+940h+v0+4], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+var_960+8]
-    vmovss  dword ptr [rbp+940h+v0+8], xmm1
-  }
+  v1.m[0] = forward;
+  v1.m[2] = v94;
   Vec3Cross(&v1.m[2], v1.m, &v1.m[1]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+940h+vec]
-    vmovss  [rbp+940h+var_8DC], xmm0
-    vmovss  xmm1, dword ptr [rbp+940h+vec+4]
-    vmovss  [rbp+940h+var_8D8], xmm1
-    vmovss  xmm0, dword ptr [rbp+940h+vec+8]
-    vmovss  [rbp+940h+var_8D4], xmm0
-  }
-  _RAX = &outHintNodeIndex->mantleLadderQueryShape;
-  _RCX = &v298;
+  v1.m[3] = vec;
+  p_mantleLadderQueryShape = &outHintNodeIndex->mantleLadderQueryShape;
+  v37 = &v111;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (EdgeFrustumQueryShape *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (EdgeFrustumQueryShape *)((char *)_RAX + 128);
-    --v68;
+    *(__m256i *)v37->m_planes[0].v.m128_f32 = *(__m256i *)p_mantleLadderQueryShape->m_planes[0].v.m128_f32;
+    *(__m256i *)v37->m_planes[2].v.m128_f32 = *(__m256i *)p_mantleLadderQueryShape->m_planes[2].v.m128_f32;
+    *(__m256i *)v37->m_planes[4].v.m128_f32 = *(__m256i *)p_mantleLadderQueryShape->m_planes[4].v.m128_f32;
+    v37->m_corners[0] = p_mantleLadderQueryShape->m_corners[0];
+    v37 = (EdgeFrustumQueryShape *)((char *)v37 + 128);
+    v37[-1].m_forward = p_mantleLadderQueryShape->m_corners[1];
+    p_mantleLadderQueryShape = (EdgeFrustumQueryShape *)((char *)p_mantleLadderQueryShape + 128);
+    --v24;
   }
-  while ( v68 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rcx], ymm0
-  }
-  EdgeFrustumQueryShape::Transform(&v298, &v1);
-  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v300, &v298);
-  __asm { vmovss  xmm1, cs:MANTLE_EDGE_DISTANCE_CENTER_BIAS; centerBias }
-  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v300, *(float *)&_XMM1);
-  v293.m_hint = 16777208;
-  v293.m_flags = 1;
-  v293.m_bucket = LADDER_CENTERLINE;
-  v293.m_queryShape = &v300;
-  v274.m_hint = outHintNodeIndex->mantleLadderHintNode;
-  v121 = outResultCount;
-  v122 = *(const BgHandler **)handler.v;
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v293, *(const BgHandler **)handler.v, &resultIdPool[outResultCount], &resultFractionPool[outResultCount], (float *)(unsigned __int8)v68, 16 - outResultCount, &v272, &outHintNodeIndex->mantleLadderHintNode);
-  v84 = v272 + v121;
-  v272 = v84;
+  while ( v24 );
+  *(__m256i *)v37->m_planes[0].v.m128_f32 = *(__m256i *)p_mantleLadderQueryShape->m_planes[0].v.m128_f32;
+  EdgeFrustumQueryShape::Transform(&v111, &v1);
+  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v113, &v111);
+  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v113, MANTLE_EDGE_DISTANCE_CENTER_BIAS);
+  v106.m_hint = 16777208;
+  v106.m_flags = 1;
+  v106.m_bucket = LADDER_CENTERLINE;
+  v106.m_queryShape = &v113;
+  v87.m_hint = outHintNodeIndex->mantleLadderHintNode;
+  v38 = outResultCount;
+  v39 = *(const BgHandler **)handler.v;
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v106, *(const BgHandler **)handler.v, &resultIdPool[outResultCount], &resultFractionPool[outResultCount], NULL, 16 - outResultCount, &v85, &outHintNodeIndex->mantleLadderHintNode);
+  v28 = v85 + v38;
+  v85 = v28;
 LABEL_58:
-  _RBX = DCONST_DVARFLT_mantle_check_angle;
+  v40 = DCONST_DVARFLT_mantle_check_angle;
   if ( !DCONST_DVARFLT_mantle_check_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_check_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm10, dword ptr [rbx+28h] }
-  v125 = 0;
-  v270 = 0;
-  __asm { vmovss  xmm9, cs:__real@7f7fffff }
-  _R13 = 0i64;
-  if ( v84 )
+  Dvar_CheckFrontendServerThread(v40);
+  v41 = v40->current.value;
+  v42 = 0;
+  v83 = 0;
+  v43 = FLOAT_3_4028235e38;
+  v44 = 0i64;
+  if ( v28 )
   {
-    v128 = resultIdPool;
-    __asm
-    {
-      vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm14, cs:__real@80000000
-      vmovss  xmm13, cs:__real@3f800000
-      vmovss  xmm15, cs:__real@38d1b717
-      vmovss  xmm11, cs:__real@42652ee0
-    }
+    v45 = resultIdPool;
     while ( 1 )
     {
-      v134 = Edge_GetFlags(*v128) & 4;
-      __asm { vmovss  xmm2, [rbp+r13*4+940h+resultFractionPool]; fraction }
-      v136 = *v128;
-      if ( v134 )
+      v46 = Edge_GetFlags(*v45) & 4;
+      v47 = resultFractionPool[v44];
+      v48 = *v45;
+      if ( v46 )
       {
-        Edge_CalculateVectors(v122, v136, *(float *)&_XMM2, &entityUp, &viewBasis, &outNormal, (vec3_t *)&v283, (vec3_t *)&v293, &handler);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+940h+handler]
-          vxorps  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rbp+940h+outNormal], xmm1
-          vmovss  xmm2, dword ptr [rbp+940h+handler+4]
-          vxorps  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rbp+940h+outNormal+4], xmm0
-          vmovss  xmm1, [rbp+940h+var_9A8]
-          vxorps  xmm2, xmm1, xmm8
-          vmovss  dword ptr [rbp+940h+outNormal+8], xmm2
-        }
+        Edge_CalculateVectors(v39, v48, v47, &entityUp, &viewBasis, &outNormal, (vec3_t *)&v96, (vec3_t *)&v106, &handler);
+        LODWORD(outNormal.v[0]) = LODWORD(handler.v[0]) ^ _xmm;
+        LODWORD(outNormal.v[1]) = LODWORD(handler.v[1]) ^ _xmm;
+        LODWORD(outNormal.v[2]) = LODWORD(handler.v[2]) ^ _xmm;
       }
       else
       {
-        Edge_CalculateVectors(v122, v136, *(float *)&_XMM2, &v281, &outAxis, &outNormal, (vec3_t *)&v283, (vec3_t *)&v293);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+940h+outNormal]
-          vxorps  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rbp+940h+handler], xmm1
-          vmovss  xmm2, dword ptr [rbp+940h+outNormal+4]
-          vxorps  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rbp+940h+handler+4], xmm0
-          vmovss  xmm1, dword ptr [rbp+940h+outNormal+8]
-          vxorps  xmm2, xmm1, xmm8
-          vmovss  [rbp+940h+var_9A8], xmm2
-        }
+        Edge_CalculateVectors(v39, v48, v47, &v94, &outAxis, &outNormal, (vec3_t *)&v96, (vec3_t *)&v106);
+        LODWORD(handler.v[0]) = LODWORD(outNormal.v[0]) ^ _xmm;
+        LODWORD(handler.v[1]) = LODWORD(outNormal.v[1]) ^ _xmm;
+        LODWORD(handler.v[2]) = LODWORD(outNormal.v[2]) ^ _xmm;
       }
-      __asm { vmovss  xmm2, [rbp+r13*4+940h+resultFractionPool]; fraction }
-      Edge_CalculatePoint(v122, *v128, *(float *)&_XMM2, &outEdgePoint);
-      v150 = DVARINT_mantle_debugLineTime;
+      Edge_CalculatePoint(v39, *v45, resultFractionPool[v44], &outEdgePoint);
+      v49 = DVARINT_mantle_debugLineTime;
       if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v150);
-      integer = v150->current.integer;
-      __asm { vmovss  xmm6, cs:EDGE_DRAW_RADIUS }
-      v153 = DCONST_DVARINT_mantle_debug;
+      Dvar_CheckFrontendServerThread(v49);
+      integer = v49->current.integer;
+      v51 = DCONST_DVARINT_mantle_debug;
       if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v153);
-      if ( (v153->current.enabled & 4) != 0 )
-      {
-        __asm { vmovaps xmm2, xmm6 }
-        ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, int))v122->DebugSphere)(v122, &outEdgePoint, v154, &colorBlue, 0, integer);
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+940h+outEdgePoint]
-        vmovss  [rbp+940h+var_890], xmm0
-        vmovss  xmm1, dword ptr [rbp+940h+outEdgePoint+4]
-        vmovss  [rbp+940h+var_88C], xmm1
-        vmovss  xmm2, dword ptr [rbp+940h+outEdgePoint+8]
-        vaddss  xmm0, xmm2, cs:EDGE_DRAW_TEXT_OFFSET
-        vmovss  [rbp+940h+var_888], xmm0
-        vmovss  xmm7, cs:EDGE_DRAW_TEXT_SCALE
-        vsubss  xmm1, xmm2, dword ptr [rax+8]
-        vcvtss2sd xmm6, xmm1, xmm1
-      }
-      EntityIndex = EdgeId::GetEntityIndex(v128);
-      EdgeIndex = EdgeId::GetEdgeIndex(v128);
-      __asm
-      {
-        vmovaps xmm3, xmm6
-        vmovq   r9, xmm3
-      }
-      j_va("Edge Index: %d Entity Index: %d Height: %.3f", EdgeIndex, EntityIndex, _R9);
-      v167 = DCONST_DVARINT_mantle_debug;
+      Dvar_CheckFrontendServerThread(v51);
+      if ( (v51->current.enabled & 4) != 0 )
+        ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, _DWORD, int))v39->DebugSphere)(v39, &outEdgePoint, v52, &colorBlue, 0, integer);
+      v104[0] = SLODWORD(outEdgePoint.v[0]);
+      v104[1] = SLODWORD(outEdgePoint.v[1]);
+      *(float *)&v104[2] = outEdgePoint.v[2] + EDGE_DRAW_TEXT_OFFSET;
+      v53 = (float)(outEdgePoint.v[2] - v86->v[2]);
+      EntityIndex = EdgeId::GetEntityIndex(v45);
+      EdgeIndex = EdgeId::GetEdgeIndex(v45);
+      j_va("Edge Index: %d Entity Index: %d Height: %.3f", EdgeIndex, EntityIndex, v53);
+      v56 = DCONST_DVARINT_mantle_debug;
       if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v167);
-      if ( (v167->current.enabled & 4) != 0 )
-      {
-        __asm { vmovaps xmm3, xmm7 }
-        ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))v122->DebugString)(v122, v291, &colorWhite);
-      }
-      __asm { vxorps  xmm1, xmm1, xmm1; height }
-      WorldUpReferenceFrame::SetUpContribution(&v294, *(float *)&_XMM1, &handler);
+      Dvar_CheckFrontendServerThread(v56);
+      if ( (v56->current.enabled & 4) != 0 )
+        ((void (__fastcall *)(const BgHandler *, int *, vec4_t *))v39->DebugString)(v39, v104, &colorWhite);
+      WorldUpReferenceFrame::SetUpContribution(&v107, 0.0, &handler);
+      v57 = LODWORD(handler.v[1]);
+      *(float *)&v57 = fsqrt((float)((float)(*(float *)&v57 * *(float *)&v57) + (float)(handler.v[0] * handler.v[0])) + (float)(handler.v[2] * handler.v[2]));
+      _XMM5 = v57;
       __asm
       {
-        vmovss  xmm6, dword ptr [rbp+940h+handler+4]
-        vmulss  xmm1, xmm6, xmm6
-        vmovss  xmm3, dword ptr [rbp+940h+handler]
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm4, [rbp+940h+var_9A8]
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm5, xmm0, xmm0
         vcmpless xmm0, xmm5, xmm14
         vblendvps xmm1, xmm5, xmm13, xmm0
-        vdivss  xmm0, xmm13, xmm1
-        vmulss  xmm2, xmm3, xmm0
-        vmovss  dword ptr [rbp+940h+handler], xmm2
-        vmulss  xmm6, xmm6, xmm0
-        vmovss  dword ptr [rbp+940h+handler+4], xmm6
-        vmulss  xmm7, xmm4, xmm0
-        vmovss  [rbp+940h+var_9A8], xmm7
-        vcomiss xmm5, xmm15
       }
-      if ( v194 )
+      v61 = handler.v[0] * (float)(1.0 / *(float *)&_XMM1);
+      handler.v[0] = v61;
+      v62 = handler.v[1] * (float)(1.0 / *(float *)&_XMM1);
+      handler.v[1] = v62;
+      v63 = handler.v[2] * (float)(1.0 / *(float *)&_XMM1);
+      handler.v[2] = v63;
+      if ( *(float *)&_XMM5 < 0.000099999997 )
         goto LABEL_111;
-      if ( v134 )
+      if ( v46 )
       {
-        __asm
-        {
-          vmulss  xmm3, xmm2, dword ptr [rbp+940h+forward]
-          vmulss  xmm2, xmm6, dword ptr [rbp+940h+forward+4]
-          vmulss  xmm1, xmm7, dword ptr [rbp+940h+forward+8]
-        }
+        v64 = v61 * forward.v[0];
+        v65 = v62 * forward.v[1];
+        v66 = v63 * forward.v[2];
       }
       else
       {
-        __asm
-        {
-          vmulss  xmm3, xmm2, dword ptr [rbp+940h+outSearchDir]
-          vmulss  xmm2, xmm6, dword ptr [rbp+940h+outSearchDir+4]
-          vmulss  xmm1, xmm7, dword ptr [rbp+940h+outSearchDir+8]
-        }
+        v64 = v61 * outSearchDir.v[0];
+        v65 = v62 * outSearchDir.v[1];
+        v66 = v63 * outSearchDir.v[2];
       }
-      __asm
-      {
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm0, xmm4, xmm1; X
-      }
-      *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm11
-        vcomiss xmm1, xmm10
-      }
-      if ( !(v194 | v44) )
+      if ( (float)(acosf_0((float)(v64 + v65) + v66) * 57.295776) > v41 )
         goto LABEL_111;
-      __asm { vmovss  xmm2, [rbp+r13*4+940h+resultFractionPool]; fraction }
-      Edge_CalculatePoint(v122, *v128, *(float *)&_XMM2, &point);
-      v194 = 0;
-      v195 = v134 == 0;
-      if ( v134 )
+      Edge_CalculatePoint(v39, *v45, resultFractionPool[v44], &point);
+      if ( v46 )
       {
-        __asm { vmovss  xmm2, cs:__real@3f000000; fraction }
-        Edge_CalculatePoint(v122, *v128, *(float *)&_XMM2, &point);
-        _RBX = DCONST_DVARFLT_mantle_ladder_over_dist;
+        Edge_CalculatePoint(v39, *v45, 0.5, &point);
+        v67 = DCONST_DVARFLT_mantle_ladder_over_dist;
         if ( !DCONST_DVARFLT_mantle_ladder_over_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_over_dist") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+28h]
-          vmulss  xmm0, xmm2, dword ptr [rbp+940h+handler]
-          vaddss  xmm4, xmm0, dword ptr [rbp+940h+point]
-          vmovss  dword ptr [rbp+940h+end], xmm4
-          vmulss  xmm1, xmm2, dword ptr [rbp+940h+handler+4]
-          vaddss  xmm3, xmm1, dword ptr [rbp+940h+point+4]
-          vmovss  dword ptr [rbp+940h+end+4], xmm3
-          vmulss  xmm0, xmm2, [rbp+940h+var_9A8]
-          vmovss  xmm1, dword ptr [rbp+940h+point+8]; height
-          vaddss  xmm2, xmm0, xmm1
-          vmovss  dword ptr [rbp+940h+end+8], xmm2
-          vmovss  dword ptr [rdi+60h], xmm4
-          vmovss  dword ptr [rdi+64h], xmm3
-          vmovss  dword ptr [rdi+68h], xmm2
-          vmovsd  xmm0, qword ptr [rbp+940h+vec]
-          vmovsd  qword ptr [rbp+940h+start], xmm0
-        }
-        start.v[2] = vec.v[2];
-        WorldUpReferenceFrame::SetUpContribution(&v294, *(float *)&_XMM1, &start);
+        Dvar_CheckFrontendServerThread(v67);
+        v68 = v67->current.value;
+        end.v[0] = (float)(v68 * handler.v[0]) + point.v[0];
+        v69 = (float)(v68 * handler.v[1]) + point.v[1];
+        end.v[1] = v69;
+        v70 = point.v[2];
+        v71 = (float)(v68 * handler.v[2]) + point.v[2];
+        end.v[2] = v71;
+        mresults->ladderOverPos.v[0] = end.v[0];
+        mresults->ladderOverPos.v[1] = v69;
+        mresults->ladderOverPos.v[2] = v71;
+        start = vec;
+        WorldUpReferenceFrame::SetUpContribution(&v107, v70, &start);
         ProjectPointOntoVectorClamped(&point, &start, &end, &point, NULL);
       }
-      __asm { vmovss  xmm0, dword ptr [rbp+940h+point+8] }
-      _R14 = v273;
-      __asm
-      {
-        vsubss  xmm6, xmm0, dword ptr [r14+8]
-        vcomiss xmm6, xmm9
-      }
-      if ( !(v194 | v195) )
+      v72 = v86;
+      v74 = point.v[2] - v86->v[2];
+      v73 = v74;
+      if ( v74 > v43 )
         goto LABEL_111;
-      if ( v134 )
+      if ( v46 )
       {
-        _RBX = DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin;
+        v75 = DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin;
         if ( DCONST_DVARFLT_mantle_ladder_edge_search_min_height_above_search_origin )
           goto LABEL_97;
-        v211 = "mantle_ladder_edge_search_min_height_above_search_origin";
+        v76 = "mantle_ladder_edge_search_min_height_above_search_origin";
       }
       else
       {
-        _RBX = DCONST_DVARFLT_mantle_edge_search_min_height_above_search_origin;
+        v75 = DCONST_DVARFLT_mantle_edge_search_min_height_above_search_origin;
         if ( DCONST_DVARFLT_mantle_edge_search_min_height_above_search_origin )
           goto LABEL_97;
-        v211 = "mantle_edge_search_min_height_above_search_origin";
+        v76 = "mantle_edge_search_min_height_above_search_origin";
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v211) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v76) )
         __debugbreak();
 LABEL_97:
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
+      Dvar_CheckFrontendServerThread(v75);
+      if ( v74 >= v75->current.value )
       {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vcomiss xmm6, xmm0
-      }
-      if ( !v212 )
-      {
-        __asm
+        if ( v74 <= 0.0 && v46 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm6, xmm0
+          WorldUpReferenceFrame::AddUpContribution(&v107, 0.125 - v74, &point);
+          WorldUpReferenceFrame::AddUpContribution(&v107, 0.125 - v74, &mresults->ladderOverPos);
+          v73 = FLOAT_0_125;
         }
-        if ( v212 | v213 && v134 )
-        {
-          __asm
-          {
-            vsubss  xmm6, xmm12, xmm6
-            vmovaps xmm1, xmm6; height
-          }
-          WorldUpReferenceFrame::AddUpContribution(&v294, *(float *)&_XMM1, &point);
-          __asm { vmovaps xmm1, xmm6; height }
-          WorldUpReferenceFrame::AddUpContribution(&v294, *(float *)&_XMM1, &mresults->ladderOverPos);
-          __asm { vmovaps xmm6, xmm12 }
-        }
-        __asm
-        {
-          vmovaps xmm9, xmm6
-          vmovss  xmm0, dword ptr [rbp+940h+point]
-          vmovss  dword ptr [rdi+30h], xmm0
-          vmovss  xmm1, dword ptr [rbp+940h+point+4]
-          vmovss  dword ptr [rdi+34h], xmm1
-          vmovss  xmm0, dword ptr [rbp+940h+point+8]
-          vmovss  dword ptr [rdi+38h], xmm0
-          vmovss  xmm1, dword ptr [rbp+940h+outNormal]
-          vmovss  dword ptr [rdi+54h], xmm1
-          vmovss  xmm0, dword ptr [rbp+940h+outNormal+4]
-          vmovss  dword ptr [rdi+58h], xmm0
-          vmovss  xmm1, dword ptr [rbp+940h+outNormal+8]
-          vmovss  dword ptr [rdi+5Ch], xmm1
-        }
-        Edge_GetLineSegment(v122, *v128, (vec3_t (*)[2])mresults->edgeLineSegment);
-        mresults->edgeFlags[0] = Edge_GetFlags(*v128);
+        v43 = v73;
+        mresults->edgePos = point;
+        mresults->edgeNormal = outNormal;
+        Edge_GetLineSegment(v39, *v45, (vec3_t (*)[2])mresults->edgeLineSegment);
+        mresults->edgeFlags[0] = Edge_GetFlags(*v45);
         if ( Mantle_IsForceOver(mresults) )
         {
           mresults->flags |= 1u;
         }
-        else if ( v134 )
+        else if ( v46 )
         {
           mresults->flags |= 0x800u;
         }
-        mresults->startPos.v[0] = _R14->v[0];
-        __asm
+        mresults->startPos = *v72;
+        edgePos = mresults->edgePos;
+        UpContribution = WorldUpReferenceFrame::GetUpContribution(&v107, v72);
+        WorldUpReferenceFrame::SetUpContribution(&v107, *(float *)&UpContribution, &edgePos);
+        mresults->distanceToMantleSurface = fsqrt((float)((float)((float)(edgePos.v[1] - mresults->startPos.v[1]) * (float)(edgePos.v[1] - mresults->startPos.v[1])) + (float)((float)(edgePos.v[0] - mresults->startPos.v[0]) * (float)(edgePos.v[0] - mresults->startPos.v[0]))) + (float)((float)(edgePos.v[2] - mresults->startPos.v[2]) * (float)(edgePos.v[2] - mresults->startPos.v[2])));
+        if ( v46 )
         {
-          vmovss  xmm0, dword ptr [r14+4]
-          vmovss  dword ptr [rdi+10h], xmm0
-          vmovss  xmm1, dword ptr [r14+8]
-          vmovss  dword ptr [rdi+14h], xmm1
-          vmovss  xmm0, dword ptr [rdi+30h]
-          vmovss  dword ptr [rbp+940h+var_928], xmm0
-          vmovss  xmm1, dword ptr [rdi+34h]
-          vmovss  dword ptr [rbp+940h+var_928+4], xmm1
-          vmovss  xmm0, dword ptr [rdi+38h]
-          vmovss  dword ptr [rbp+940h+var_928+8], xmm0
-        }
-        *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v294, _R14);
-        __asm { vmovaps xmm1, xmm0; height }
-        WorldUpReferenceFrame::SetUpContribution(&v294, *(float *)&_XMM1, &v284);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+940h+var_928]
-          vsubss  xmm3, xmm0, dword ptr [rdi+0Ch]
-          vmovss  xmm1, dword ptr [rbp+940h+var_928+4]
-          vsubss  xmm2, xmm1, dword ptr [rdi+10h]
-          vmovss  xmm0, dword ptr [rbp+940h+var_928+8]
-          vsubss  xmm4, xmm0, dword ptr [rdi+14h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vmovss  dword ptr [rdi+70h], xmm1
-        }
-        if ( v134 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+60h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+0Ch]
-            vmovss  dword ptr [rdi], xmm1
-            vmovss  xmm2, dword ptr [rdi+64h]
-            vsubss  xmm0, xmm2, dword ptr [rdi+10h]
-            vmovss  dword ptr [rdi+4], xmm0
-            vmovss  xmm1, dword ptr [rdi+68h]
-            vsubss  xmm2, xmm1, dword ptr [rdi+14h]
-            vmovss  dword ptr [rdi+8], xmm2
-          }
+          mresults->dir.v[0] = mresults->ladderOverPos.v[0] - mresults->startPos.v[0];
+          mresults->dir.v[1] = mresults->ladderOverPos.v[1] - mresults->startPos.v[1];
+          mresults->dir.v[2] = mresults->ladderOverPos.v[2] - mresults->startPos.v[2];
           Vec3Normalize(&mresults->dir);
-          v249 = 1;
-          v270 = 1;
+          v78 = 1;
+          v83 = 1;
         }
         else
         {
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_use_approach_angle, "mantle_use_approach_angle") )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+940h+outSearchDir]
-              vmovss  dword ptr [rdi], xmm0
-              vmovss  xmm1, dword ptr [rbp+940h+outSearchDir+4]
-              vmovss  xmm0, dword ptr [rbp+940h+outSearchDir+8]
-              vmovss  dword ptr [rdi+8], xmm0
-              vmovss  dword ptr [rdi+4], xmm1
-            }
+            mresults->dir.v[0] = outSearchDir.v[0];
+            v79 = outSearchDir.v[1];
+            mresults->dir.v[2] = outSearchDir.v[2];
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+940h+handler]
-              vmovss  dword ptr [rdi], xmm0
-              vmovss  xmm1, dword ptr [rbp+940h+handler+4]
-              vmovss  xmm0, [rbp+940h+var_9A8]
-              vmovss  dword ptr [rdi+8], xmm0
-              vmovss  dword ptr [rdi+4], xmm1
-            }
+            mresults->dir.v[0] = handler.v[0];
+            v79 = handler.v[1];
+            mresults->dir.v[2] = handler.v[2];
           }
-          v249 = 1;
-          v270 = 1;
+          mresults->dir.v[1] = v79;
+          v78 = 1;
+          v83 = 1;
         }
         goto LABEL_112;
       }
 LABEL_111:
-      v249 = v270;
+      v78 = v83;
 LABEL_112:
-      ++_R13;
-      ++v128;
-      if ( _R13 >= v272 )
+      ++v44;
+      ++v45;
+      if ( v44 >= v85 )
       {
-        if ( v249 )
+        if ( v78 )
         {
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_side_mantle_use_over, "mantle_side_mantle_use_over") )
           {
@@ -5110,34 +3878,19 @@ LABEL_112:
           }
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_back_mantle_use_over, "mantle_back_mantle_use_over") )
           {
-            v257 = mresults->flags;
-            if ( (v257 & 0x400) != 0 )
-              mresults->flags = v257 | 1;
+            v81 = mresults->flags;
+            if ( (v81 & 0x400) != 0 )
+              mresults->flags = v81 | 1;
           }
           mresults->debugDraw.edgeFound = 1;
         }
-        v125 = v270;
+        v42 = v83;
         break;
       }
     }
   }
   Sys_ProfEndNamedEvent();
-  result = v125;
-  _R11 = &v303;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  return v42;
 }
 
 /*
@@ -5147,31 +3900,46 @@ Mantle_FindMantleSurface
 */
 __int64 Mantle_FindMantleSurface(const playerState_s *ps, Physics_WorldId worldId, const BgHandler *pmoveHandler, const vec3_t *searchOrigin, MantleResults *mresults, const vec3_t *wishDir)
 {
-  char v23; 
-  bool v24; 
-  bool v28; 
-  const dvar_t *v41; 
+  double BoundsRadius; 
+  float v11; 
+  const Bounds *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float value; 
+  float v16; 
+  const dvar_t *v17; 
   int contentMask; 
-  const BgPlayerTraceInfo *v43; 
-  const dvar_t *v44; 
-  const dvar_t *v45; 
-  bool v46; 
-  const dvar_t *v49; 
+  const BgPlayerTraceInfo *v19; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
   int integer; 
-  const dvar_t *v51; 
-  const dvar_t *v52; 
-  const char *v53; 
-  const dvar_t *v54; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const char *v26; 
+  const dvar_t *v27; 
   int Int_Internal_DebugName; 
-  int v70; 
+  float v29; 
+  float v30; 
+  float v31; 
+  int v32; 
+  float v33; 
+  double Float_Internal_DebugName; 
+  __int128 v35; 
+  __int128 v36; 
+  float v40; 
+  float v41; 
+  double v42; 
+  float v43; 
+  float v44; 
+  float v45; 
   int flags; 
-  int v125; 
-  unsigned __int8 v129; 
-  const dvar_t *v130; 
-  const dvar_t *v131; 
-  __int64 result; 
-  BgTrace v140; 
-  __int64 v141; 
+  int v47; 
+  unsigned __int8 v48; 
+  const dvar_t *v49; 
+  const dvar_t *v50; 
+  BgTrace v52; 
+  __int64 v53; 
   vec3_t start; 
   vec3_t end; 
   vec3_t outSearchDir; 
@@ -5179,299 +3947,167 @@ __int64 Mantle_FindMantleSurface(const playerState_s *ps, Physics_WorldId worldI
   Bounds bounds; 
   trace_t results; 
   vec3_t outSearchStraightDir; 
-  WorldUpReferenceFrame v149; 
-  char v150; 
-  void *retaddr; 
+  WorldUpReferenceFrame v61; 
 
-  _RAX = &retaddr;
-  v141 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _R14 = searchOrigin;
-  _RBX = mresults;
+  v53 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF008008, "Mantle_FindMantleSurface");
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2184, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2185, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
   Mantle_GetSearchDirection(ps, pmoveHandler, mresults, wishDir, &outSearchDir, &outSearchStraightDir);
-  *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-  __asm { vmovaps xmm9, xmm0 }
-  _R12 = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
-  *(float *)&_XMM0 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults);
-  __asm { vmovaps xmm7, xmm0 }
-  _R15 = DCONST_DVARFLT_mantle_check_radius;
+  BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+  v11 = *(float *)&BoundsRadius;
+  v12 = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+  v13 = Mantle_GetCheckHeight(ps, pmoveHandler, mresults);
+  v14 = DCONST_DVARFLT_mantle_check_radius;
   if ( !DCONST_DVARFLT_mantle_check_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_check_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R15);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r15+28h]
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  dword ptr [rbp+120h+bounds.midPoint], xmm8
-    vmovss  dword ptr [rbp+120h+bounds.midPoint+4], xmm8
-    vmulss  xmm0, xmm7, cs:__real@3f000000
-    vmovss  dword ptr [rbp+120h+bounds.midPoint+8], xmm0
-    vmovss  dword ptr [rbp+120h+bounds.halfSize], xmm6
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+4], xmm6
-    vmovss  dword ptr [rbp+120h+bounds.halfSize+8], xmm0
-    vcomiss xmm6, dword ptr [r12+14h]
-  }
-  if ( !(v23 | v24) )
-  {
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2200, ASSERT_TYPE_ASSERT, "(bounds.halfSize[0] <= playerBounds->halfSize[2])", (const char *)&queryFormat, "bounds.halfSize[0] <= playerBounds->halfSize[2]");
-    v23 = 0;
-    v24 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+bounds.halfSize+4]
-    vcomiss xmm0, dword ptr [r12+14h]
-  }
-  if ( !(v23 | v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2201, ASSERT_TYPE_ASSERT, "(bounds.halfSize[1] <= playerBounds->halfSize[2])", (const char *)&queryFormat, "bounds.halfSize[1] <= playerBounds->halfSize[2]") )
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  bounds.midPoint.v[0] = 0.0;
+  bounds.midPoint.v[1] = 0.0;
+  bounds.midPoint.v[2] = v13 * 0.5;
+  bounds.halfSize.v[0] = value;
+  bounds.halfSize.v[1] = value;
+  bounds.halfSize.v[2] = v13 * 0.5;
+  if ( value > v12->halfSize.v[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2200, ASSERT_TYPE_ASSERT, "(bounds.halfSize[0] <= playerBounds->halfSize[2])", (const char *)&queryFormat, "bounds.halfSize[0] <= playerBounds->halfSize[2]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  dword ptr [rbp+120h+start], xmm0
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+120h+start+4], xmm1
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+120h+start+8], xmm0
-  }
-  *(float *)&_XMM0 = Mantle_GetCheckRange(ps, mresults);
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm9
-    vsubss  xmm3, xmm1, xmm6
-    vmulss  xmm0, xmm3, dword ptr [rbp+120h+outSearchDir]
-    vaddss  xmm1, xmm0, dword ptr [r14]
-    vmovss  dword ptr [rbp+120h+end], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rbp+120h+outSearchDir+4]
-    vaddss  xmm1, xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+120h+end+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rbp+120h+outSearchDir+8]
-    vaddss  xmm1, xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+120h+end+8], xmm1
-  }
-  v41 = DCONST_DVARBOOL_mantle_everything;
+  if ( bounds.halfSize.v[1] > v12->halfSize.v[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2201, ASSERT_TYPE_ASSERT, "(bounds.halfSize[1] <= playerBounds->halfSize[2])", (const char *)&queryFormat, "bounds.halfSize[1] <= playerBounds->halfSize[2]") )
+    __debugbreak();
+  start = *searchOrigin;
+  v16 = (float)(Mantle_GetCheckRange(ps, mresults) + v11) - value;
+  end.v[0] = (float)(v16 * outSearchDir.v[0]) + searchOrigin->v[0];
+  end.v[1] = (float)(v16 * outSearchDir.v[1]) + searchOrigin->v[1];
+  end.v[2] = (float)(v16 * outSearchDir.v[2]) + searchOrigin->v[2];
+  v17 = DCONST_DVARBOOL_mantle_everything;
   if ( !DCONST_DVARBOOL_mantle_everything && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_everything") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v41);
+  Dvar_CheckFrontendServerThread(v17);
   contentMask = 8454161;
-  if ( !v41->current.enabled )
+  if ( !v17->current.enabled )
     contentMask = 0x1000000;
-  v43 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
-  BgTrace::BgTrace(&v140, v43);
-  v140.m_flags |= 0x80u;
-  v44 = DVARBOOL_mantle_fixMantleIntoCollision;
+  v19 = pmoveHandler->GetPlayerTraceInfo(pmoveHandler, (unsigned int)ps->clientNum);
+  BgTrace::BgTrace(&v52, v19);
+  v52.m_flags |= 0x80u;
+  v20 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v44);
-  if ( v44->current.enabled )
-    v140.m_flags |= 0x200u;
-  BgTrace::LegacyTraceHandler(&v140, worldId, &results, &start, &end, &bounds, ps->clientNum, contentMask, ps);
-  v140.m_flags &= ~0x80u;
-  v45 = DVARBOOL_mantle_fixMantleIntoCollision;
+  Dvar_CheckFrontendServerThread(v20);
+  if ( v20->current.enabled )
+    v52.m_flags |= 0x200u;
+  BgTrace::LegacyTraceHandler(&v52, worldId, &results, &start, &end, &bounds, ps->clientNum, contentMask, ps);
+  v52.m_flags &= ~0x80u;
+  v21 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  v46 = !v45->current.enabled;
-  if ( v45->current.enabled )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( v21->current.enabled )
+    v52.m_flags &= ~0x200u;
+  if ( results.fraction == 1.0 )
   {
-    v46 = (v140.m_flags & 0xFFFFFDFF) == 0;
-    v140.m_flags &= ~0x200u;
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm0, [rbp+120h+results.fraction]
-    vucomiss xmm0, xmm7
-  }
-  if ( v46 )
-  {
-    v49 = DVARINT_mantle_debugLineTime;
+    v22 = DVARINT_mantle_debugLineTime;
     if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v49);
-    integer = v49->current.integer;
-    v51 = DCONST_DVARINT_mantle_debug;
+    Dvar_CheckFrontendServerThread(v22);
+    integer = v22->current.integer;
+    v24 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v51);
-    if ( (v51->current.enabled & 4) != 0 )
+    Dvar_CheckFrontendServerThread(v24);
+    if ( (v24->current.enabled & 4) != 0 )
       pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &start, &end, &colorRed, 0, integer);
-    v52 = DCONST_DVARINT_mantle_debug;
+    v25 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v52);
-    if ( !v52->current.enabled )
+    Dvar_CheckFrontendServerThread(v25);
+    if ( !v25->current.enabled )
       goto LABEL_81;
-    v53 = "Mantle Failed: No mantle surface found";
+    v26 = "Mantle Failed: No mantle surface found";
     goto LABEL_80;
   }
   if ( results.startsolid || results.allsolid )
   {
-    v130 = DCONST_DVARINT_mantle_debug;
+    v49 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v130);
-    if ( (v130->current.enabled & 4) != 0 )
+    Dvar_CheckFrontendServerThread(v49);
+    if ( (v49->current.enabled & 4) != 0 )
       pmoveHandler->DebugStar((BgHandler *)pmoveHandler, &start, &colorRed, 0);
-    v131 = DCONST_DVARINT_mantle_debug;
+    v50 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v131);
-    if ( !v131->current.enabled )
+    Dvar_CheckFrontendServerThread(v50);
+    if ( !v50->current.enabled )
       goto LABEL_81;
-    v53 = "Mantle Failed: Mantle brush is too thick";
+    v26 = "Mantle Failed: Mantle brush is too thick";
 LABEL_80:
-    Com_Printf(17, "%s\n", v53);
+    Com_Printf(17, "%s\n", v26);
     goto LABEL_81;
   }
-  v54 = DCONST_DVARBOOL_mantle_everything;
+  v27 = DCONST_DVARBOOL_mantle_everything;
   if ( !DCONST_DVARBOOL_mantle_everything && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_everything") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v54);
-  if ( !v54->current.enabled && (results.surfaceFlags & 0x6000000) == 0 )
+  Dvar_CheckFrontendServerThread(v27);
+  if ( !v27->current.enabled && (results.surfaceFlags & 0x6000000) == 0 )
   {
     Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
-    __asm { vmovss  xmm3, [rbp+120h+results.fraction]; fraction }
-    Mantle_DebugTraceLine(pmoveHandler, &start, &end, *(double *)&_XMM3, &colorRedFaded, Int_Internal_DebugName);
+    Mantle_DebugTraceLine(pmoveHandler, &start, &end, results.fraction, &colorRedFaded, Int_Internal_DebugName);
     Mantle_DebugPrint(1u, "Mantle Failed: No mantle surface with MANTLE_ON or MANTLE_OVER found");
 LABEL_81:
-    v129 = 0;
+    v48 = 0;
     goto LABEL_82;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+end]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start]
-    vmovss  xmm5, [rbp+120h+results.fraction]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm9, xmm1, dword ptr [rbp+120h+start]
-    vmovss  xmm0, dword ptr [rbp+120h+end+4]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm10, xmm2, dword ptr [rbp+120h+start+4]
-    vmovss  xmm0, dword ptr [rbp+120h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rbp+120h+start+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm11, xmm2, dword ptr [rbp+120h+start+8]
-  }
-  v70 = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
-  __asm { vmovss  xmm3, [rbp+120h+results.fraction]; fraction }
-  Mantle_DebugTraceLine(pmoveHandler, &start, &end, *(double *)&_XMM3, &colorGreen, v70);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v149, ps, pmoveHandler);
-  WorldUpReferenceFrame::GetUpVector(&v149, &outUp);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+results.normal]
-    vmulss  xmm3, xmm0, dword ptr [rbp+120h+outUp]
-    vmovss  xmm1, dword ptr [rbp+120h+results.normal+4]
-    vmulss  xmm2, xmm1, dword ptr [rbp+120h+outUp+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm0, dword ptr [rbp+120h+results.normal+8]
-    vmulss  xmm1, xmm0, dword ptr [rbp+120h+outUp+8]
-    vaddss  xmm6, xmm4, xmm1
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_check_dot_vertical, "mantle_check_dot_vertical");
-  __asm { vcomiss xmm6, xmm0 }
-  if ( !(v23 | v24) )
+  v29 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  v30 = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+  v31 = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+  v32 = Dvar_GetInt_Internal_DebugName(DVARINT_mantle_debugLineTime, "mantle_debugLineTime");
+  Mantle_DebugTraceLine(pmoveHandler, &start, &end, results.fraction, &colorGreen, v32);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v61, ps, pmoveHandler);
+  WorldUpReferenceFrame::GetUpVector(&v61, &outUp);
+  LODWORD(v33) = COERCE_UNSIGNED_INT((float)((float)(results.normal.v[0] * outUp.v[0]) + (float)(results.normal.v[1] * outUp.v[1])) + (float)(results.normal.v[2] * outUp.v[2])) & _xmm;
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_check_dot_vertical, "mantle_check_dot_vertical");
+  if ( v33 > *(float *)&Float_Internal_DebugName )
   {
     Mantle_DebugPrint(1u, "Mantle Failed: Mantle facing surface has too vertical of a normal");
     goto LABEL_81;
   }
+  mresults->dir.v[0] = COERCE_FLOAT(LODWORD(results.normal.v[0]) ^ _xmm);
+  mresults->dir.v[1] = COERCE_FLOAT(LODWORD(results.normal.v[1]) ^ _xmm);
+  mresults->dir.v[2] = COERCE_FLOAT(LODWORD(results.normal.v[2]) ^ _xmm);
+  WorldUpReferenceFrame::SetUpContribution(&v61, 0.0, &mresults->dir);
+  v35 = LODWORD(mresults->dir.v[0]);
+  v36 = v35;
+  *(float *)&v36 = fsqrt((float)((float)(*(float *)&v35 * *(float *)&v35) + (float)(mresults->dir.v[1] * mresults->dir.v[1])) + (float)(mresults->dir.v[2] * mresults->dir.v[2]));
+  _XMM5 = v36;
   __asm
   {
-    vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rbp+120h+results.normal]
-    vxorps  xmm2, xmm0, xmm4
-    vmovss  dword ptr [rbx], xmm2
-    vmovss  xmm3, dword ptr [rbp+120h+results.normal+4]
-    vxorps  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm0, dword ptr [rbp+120h+results.normal+8]
-    vxorps  xmm2, xmm0, xmm4
-    vmovss  dword ptr [rbx+8], xmm2
-    vxorps  xmm1, xmm1, xmm1; height
-  }
-  WorldUpReferenceFrame::SetUpContribution(&v149, *(float *)&_XMM1, &mresults->dir);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm5, xmm2, xmm2
     vcmpless xmm0, xmm5, cs:__real@80000000
     vblendvps xmm1, xmm5, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm4, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm4
-    vcomiss xmm5, cs:__real@38d1b717
   }
-  if ( v23 )
+  mresults->dir.v[0] = *(float *)&v35 * (float)(1.0 / *(float *)&_XMM1);
+  mresults->dir.v[1] = (float)(1.0 / *(float *)&_XMM1) * mresults->dir.v[1];
+  v40 = (float)(1.0 / *(float *)&_XMM1) * mresults->dir.v[2];
+  mresults->dir.v[2] = v40;
+  if ( *(float *)&v36 < 0.000099999997 )
   {
     Mantle_DebugPrint(1u, "Mantle Failed: Mantle surface has vertical normal");
     goto LABEL_81;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+outSearchDir]
-    vmulss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbp+120h+outSearchDir+4]
-    vmulss  xmm2, xmm1, dword ptr [rbx+4]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm4, dword ptr [rbp+120h+outSearchDir+8]
-    vaddss  xmm0, xmm3, xmm0; X
-  }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm { vmulss  xmm6, xmm0, cs:__real@42652ee0 }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_check_angle, "mantle_check_angle");
-  __asm { vcomiss xmm6, xmm0 }
-  if ( !(v23 | v24) )
+  v41 = acosf_0((float)((float)(outSearchDir.v[0] * mresults->dir.v[0]) + (float)(outSearchDir.v[1] * mresults->dir.v[1])) + (float)(v40 * outSearchDir.v[2])) * 57.295776;
+  v42 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_check_angle, "mantle_check_angle");
+  if ( v41 > *(float *)&v42 )
   {
     Mantle_DebugPrint(1u, "Mantle Failed: Player is not facing mantle surface");
     goto LABEL_81;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]
-    vmovss  dword ptr [rbx+0Ch], xmm2
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbx+14h], xmm1
-    vsubss  xmm2, xmm9, xmm2
-    vsubss  xmm0, xmm10, xmm0
-    vsubss  xmm3, xmm11, xmm1
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmovss  dword ptr [rbx+70h], xmm0
-  }
+  v43 = searchOrigin->v[0];
+  mresults->startPos.v[0] = searchOrigin->v[0];
+  v44 = searchOrigin->v[1];
+  mresults->startPos.v[1] = v44;
+  v45 = searchOrigin->v[2];
+  mresults->startPos.v[2] = v45;
+  mresults->distanceToMantleSurface = fsqrt((float)((float)((float)(v30 - v44) * (float)(v30 - v44)) + (float)((float)(v29 - v43) * (float)(v29 - v43))) + (float)((float)(v31 - v45) * (float)(v31 - v45)));
   if ( (results.surfaceFlags & 0x4000000) != 0 )
     mresults->flags |= 1u;
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_side_mantle_use_over, "mantle_side_mantle_use_over") )
@@ -5482,37 +4118,16 @@ LABEL_81:
   }
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_back_mantle_use_over, "mantle_back_mantle_use_over") )
   {
-    v125 = mresults->flags;
-    if ( (v125 & 0x400) != 0 )
-      mresults->flags = v125 | 1;
+    v47 = mresults->flags;
+    if ( (v47 & 0x400) != 0 )
+      mresults->flags = v47 | 1;
   }
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mantle_use_approach_angle, "mantle_use_approach_angle") )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+120h+outSearchDir]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr [rbp+120h+outSearchDir+4]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+120h+outSearchDir+8]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
-  }
-  v129 = 1;
+    mresults->dir = outSearchDir;
+  v48 = 1;
 LABEL_82:
   Sys_ProfEndNamedEvent();
-  result = v129;
-  _R11 = &v150;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return v48;
 }
 
 /*
@@ -5520,442 +4135,322 @@ LABEL_82:
 Mantle_FixUpMantleDirForEdge
 ==============
 */
-bool Mantle_FixUpMantleDirForEdge(playerState_s *ps, const Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, vec3_t *inOutWishDir)
+char Mantle_FixUpMantleDirForEdge(playerState_s *ps, const Physics_WorldId worldId, const BgHandler *pmoveHandler, int traceMask, MantleResults *mresults, vec3_t *inOutWishDir)
 {
-  const dvar_t *v21; 
-  char v22; 
-  BgHandler_vtbl *v78; 
+  const dvar_t *v10; 
+  double BoundsRadius; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  float v16; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  BgHandler_vtbl *v36; 
   __int64 clientNum; 
-  const BgPlayerTraceInfo *v83; 
-  const dvar_t *v84; 
-  const dvar_t *v87; 
-  const dvar_t *v90; 
+  float v38; 
+  const BgPlayerTraceInfo *v39; 
+  const dvar_t *v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
+  int v43; 
+  float v44; 
+  float v45; 
+  const dvar_t *v46; 
+  float v47; 
+  const dvar_t *v48; 
   int integer; 
-  const dvar_t *v94; 
-  int v97; 
-  const dvar_t *v98; 
-  const dvar_t *v99; 
-  const dvar_t *v106; 
-  const dvar_t *v113; 
-  char v114; 
-  bool result; 
-  BgTrace v195; 
-  vec3_t *v196; 
+  const dvar_t *v50; 
+  int v51; 
+  const dvar_t *v52; 
+  float v53; 
+  float v54; 
+  const dvar_t *v55; 
+  float v56; 
+  int v57; 
+  const dvar_t *v58; 
+  const dvar_t *v59; 
+  const dvar_t *v60; 
+  float v61; 
+  const dvar_t *v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  double UpContribution; 
+  float v69; 
+  float v70; 
+  __int64 v71; 
+  __int128 v72; 
+  float v73; 
+  __int128 v74; 
+  float v78; 
+  BgTrace v82; 
+  vec3_t *v83; 
   vec3_t vec; 
-  vec3_t v198; 
-  vec3_t v199; 
-  WorldUpReferenceFrame v200; 
+  float v85; 
+  float v86; 
+  float v87; 
+  vec3_t v88; 
+  vec3_t v89; 
+  WorldUpReferenceFrame v90; 
   trace_t results; 
   vec3_t end; 
-  vec3_t v203; 
+  vec3_t v93; 
   vec3_t pos; 
-  vec3_t v205; 
+  vec3_t v95; 
 
-  _RBX = mresults;
-  v196 = inOutWishDir;
+  v83 = inOutWishDir;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2898, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pmoveHandler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2899, ASSERT_TYPE_ASSERT, "(pmoveHandler)", (const char *)&queryFormat, "pmoveHandler") )
     __debugbreak();
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2900, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  v21 = DCONST_DVARMPBOOL_mantle_enableDirectionAssist;
+  v10 = DCONST_DVARMPBOOL_mantle_enableDirectionAssist;
   if ( !DCONST_DVARMPBOOL_mantle_enableDirectionAssist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_enableDirectionAssist") )
     __debugbreak();
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled )
+    return 0;
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v90, ps, pmoveHandler);
+  BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+  v12 = mresults->edgeLineSegment[1].v[0] - mresults->edgeLineSegment[0].v[0];
+  v14 = LODWORD(mresults->edgeLineSegment[1].v[1]);
+  v13 = mresults->edgeLineSegment[1].v[1] - mresults->edgeLineSegment[0].v[1];
+  v15 = mresults->edgeLineSegment[1].v[2] - mresults->edgeLineSegment[0].v[2];
+  v16 = *(float *)&BoundsRadius;
+  *(float *)&v14 = fsqrt((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v15 * v15));
+  _XMM11 = v14;
   __asm
   {
-    vmovaps [rsp+260h+var_50], xmm6
-    vmovaps [rsp+260h+var_60], xmm7
-    vmovaps [rsp+260h+var_70], xmm8
-    vmovaps [rsp+260h+var_B0], xmm12
-    vmovaps [rsp+260h+var_C0], xmm13
-  }
-  Dvar_CheckFrontendServerThread(v21);
-  if ( !v21->current.enabled )
-    goto LABEL_62;
-  __asm
-  {
-    vmovaps [rsp+260h+var_80], xmm9
-    vmovaps [rsp+260h+var_90], xmm10
-    vmovaps [rsp+260h+var_A0], xmm11
-    vmovaps [rsp+260h+var_D0], xmm14
-  }
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v200, ps, pmoveHandler);
-  *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+48h]
-    vsubss  xmm5, xmm1, dword ptr [rbx+3Ch]
-    vmovss  xmm2, dword ptr [rbx+4Ch]
-    vsubss  xmm6, xmm2, dword ptr [rbx+40h]
-    vmovss  xmm1, dword ptr [rbx+50h]
-    vsubss  xmm7, xmm1, dword ptr [rbx+44h]
-    vmovss  xmm12, cs:__real@3f800000
-    vmovaps xmm14, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm3, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm0, xmm4, xmm1
-    vsqrtss xmm11, xmm0, xmm0
     vcmpless xmm0, xmm11, cs:__real@80000000
     vblendvps xmm0, xmm11, xmm12, xmm0
-    vdivss  xmm1, xmm12, xmm0
-    vmulss  xmm10, xmm5, xmm1
-    vxorps  xmm13, xmm13, xmm13
-    vucomiss xmm10, xmm13
-    vmulss  xmm9, xmm6, xmm1
-    vmulss  xmm8, xmm7, xmm1
   }
-  if ( v22 )
-  {
-    __asm { vucomiss xmm9, xmm13 }
-    if ( v22 )
-    {
-      __asm { vucomiss xmm8, xmm13 }
-      if ( v22 )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2917, ASSERT_TYPE_ASSERT, "(Vec3NotZero( edgeDir ))", (const char *)&queryFormat, "Vec3NotZero( edgeDir )") )
-          __debugbreak();
-      }
-    }
-  }
-  __asm
-  {
-    vmulss  xmm3, xmm11, cs:__real@3f000000
-    vmulss  xmm0, xmm10, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rbx+3Ch]
-    vmovss  dword ptr [rbp+160h+vec], xmm1
-    vmulss  xmm2, xmm9, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rbx+40h]
-    vmulss  xmm1, xmm8, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbx+44h]
-    vmovss  xmm1, cs:EDGE_TRACE_RAISE_AMOUNT; height
-    vmovss  dword ptr [rbp+160h+vec+8], xmm2
-    vmovss  dword ptr [rbp+160h+vec+4], xmm0
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v200, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vmovss  xmm3, cs:EDGE_TRACE_MOVE_INWARDS_AMOUNT
-    vmulss  xmm2, xmm3, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmulss  xmm1, xmm3, dword ptr [rbx+54h]
-    vaddss  xmm1, xmm1, dword ptr [rbp+160h+vec]
-    vmovss  dword ptr [rbp+160h+vec], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+vec+4]
-    vmulss  xmm2, xmm3, dword ptr [rbx+5Ch]
-    vmovss  dword ptr [rbp+160h+vec+4], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+vec+8]
-    vmovss  dword ptr [rbp+160h+vec+8], xmm1
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vmovss  dword ptr [rbp+160h+end], xmm0
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vmovss  dword ptr [rbp+160h+end+4], xmm1
-    vmovss  xmm1, cs:EDGE_TRACE_RAISE_AMOUNT; height
-    vmovss  dword ptr [rbp+160h+end+8], xmm0
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v200, *(float *)&_XMM1, &end);
-  __asm
-  {
-    vmovss  xmm3, cs:EDGE_TRACE_MOVE_INWARDS_AMOUNT
-    vmulss  xmm2, xmm3, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vmulss  xmm1, xmm3, dword ptr [rbx+54h]
-    vaddss  xmm1, xmm1, dword ptr [rbp+160h+end]
-    vmovss  dword ptr [rbp+160h+end], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+end+4]
-    vmulss  xmm2, xmm3, dword ptr [rbx+5Ch]
-    vmovss  dword ptr [rbp+160h+end+4], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+end+8]
-    vmovss  dword ptr [rbp+160h+end+8], xmm1
-    vmovss  xmm1, dword ptr [rbx+4Ch]
-    vmovss  dword ptr [rbp+160h+var_104], xmm0
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vmovss  dword ptr [rbp+160h+var_104+4], xmm1
-    vmovss  xmm1, cs:EDGE_TRACE_RAISE_AMOUNT; height
-    vmovss  dword ptr [rbp+160h+var_104+8], xmm0
-  }
-  WorldUpReferenceFrame::AddUpContribution(&v200, *(float *)&_XMM1, &v203);
-  __asm
-  {
-    vmovss  xmm3, cs:EDGE_TRACE_MOVE_INWARDS_AMOUNT
-    vmulss  xmm2, xmm3, dword ptr [rbx+58h]
-    vmulss  xmm1, xmm3, dword ptr [rbx+54h]
-    vaddss  xmm1, xmm1, dword ptr [rbp+160h+var_104]
-  }
-  v78 = pmoveHandler->__vftable;
+  v20 = v12 * (float)(1.0 / *(float *)&_XMM0);
+  v21 = v13 * (float)(1.0 / *(float *)&_XMM0);
+  v23 = v15 * (float)(1.0 / *(float *)&_XMM0);
+  v22 = v23;
+  if ( v20 == 0.0 && v21 == 0.0 && v23 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2917, ASSERT_TYPE_ASSERT, "(Vec3NotZero( edgeDir ))", (const char *)&queryFormat, "Vec3NotZero( edgeDir )") )
+    __debugbreak();
+  vec.v[0] = (float)(v20 * (float)(*(float *)&_XMM11 * 0.5)) + mresults->edgeLineSegment[0].v[0];
+  v24 = (float)(v21 * (float)(*(float *)&_XMM11 * 0.5)) + mresults->edgeLineSegment[0].v[1];
+  vec.v[2] = (float)(v23 * (float)(*(float *)&_XMM11 * 0.5)) + mresults->edgeLineSegment[0].v[2];
+  vec.v[1] = v24;
+  WorldUpReferenceFrame::AddUpContribution(&v90, EDGE_TRACE_RAISE_AMOUNT, &vec);
+  v25 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[1];
+  v26 = mresults->edgeLineSegment[0].v[0];
+  vec.v[0] = (float)(EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[0]) + vec.v[0];
+  v27 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[2];
+  vec.v[1] = v25 + vec.v[1];
+  vec.v[2] = v27 + vec.v[2];
+  v28 = mresults->edgeLineSegment[0].v[1];
+  end.v[0] = v26;
+  v29 = mresults->edgeLineSegment[0].v[2];
+  end.v[1] = v28;
+  end.v[2] = v29;
+  WorldUpReferenceFrame::AddUpContribution(&v90, EDGE_TRACE_RAISE_AMOUNT, &end);
+  v30 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[1];
+  v31 = mresults->edgeLineSegment[1].v[0];
+  end.v[0] = (float)(EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[0]) + end.v[0];
+  v32 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[2];
+  end.v[1] = v30 + end.v[1];
+  end.v[2] = v32 + end.v[2];
+  v33 = mresults->edgeLineSegment[1].v[1];
+  v93.v[0] = v31;
+  v34 = mresults->edgeLineSegment[1].v[2];
+  v93.v[1] = v33;
+  v93.v[2] = v34;
+  WorldUpReferenceFrame::AddUpContribution(&v90, EDGE_TRACE_RAISE_AMOUNT, &v93);
+  v35 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[1];
+  v36 = pmoveHandler->__vftable;
   clientNum = (unsigned int)ps->clientNum;
-  __asm
-  {
-    vmovss  dword ptr [rbp+160h+var_104], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+var_104+4]
-    vmulss  xmm2, xmm3, dword ptr [rbx+5Ch]
-    vmovss  dword ptr [rbp+160h+var_104+4], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rbp+160h+var_104+8]
-    vmovss  dword ptr [rbp+160h+var_104+8], xmm1
-  }
-  v83 = v78->GetPlayerTraceInfo(pmoveHandler, clientNum);
-  BgTrace::BgTrace(&v195, v83);
-  v195.m_flags |= 0x80u;
-  v84 = DVARBOOL_mantle_fixMantleIntoCollision;
+  v93.v[0] = (float)(EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[0]) + v93.v[0];
+  v38 = EDGE_TRACE_MOVE_INWARDS_AMOUNT * mresults->edgeNormal.v[2];
+  v93.v[1] = v35 + v93.v[1];
+  v93.v[2] = v38 + v93.v[2];
+  v39 = v36->GetPlayerTraceInfo(pmoveHandler, clientNum);
+  BgTrace::BgTrace(&v82, v39);
+  v82.m_flags |= 0x80u;
+  v40 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v84);
-  if ( v84->current.enabled )
-    v195.m_flags |= 0x200u;
-  BgTrace::LegacyTraceHandler(&v195, worldId, &results, &vec, &end, &bounds_origin, ps->clientNum, traceMask, ps);
-  if ( !results.startsolid )
+  Dvar_CheckFrontendServerThread(v40);
+  if ( v40->current.enabled )
+    v82.m_flags |= 0x200u;
+  BgTrace::LegacyTraceHandler(&v82, worldId, &results, &vec, &end, &bounds_origin, ps->clientNum, traceMask, ps);
+  if ( results.startsolid || results.fraction == 1.0 )
   {
-    __asm
-    {
-      vmovss  xmm6, [rbp+160h+results.fraction]
-      vucomiss xmm6, xmm12
-    }
+    v46 = DVARINT_mantle_debugLineTime;
+    v47 = mresults->edgeLineSegment[0].v[1];
+    pos.v[0] = mresults->edgeLineSegment[0].v[0];
+    pos.v[2] = mresults->edgeLineSegment[0].v[2];
+    pos.v[1] = v47;
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v46);
+    v48 = DCONST_DVARINT_mantle_debug;
+    integer = v46->current.integer;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v48);
+    if ( (v48->current.enabled & 4) != 0 )
+      pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, &end, &colorLtOrange, 0, integer);
   }
-  __asm { vmovss  xmm0, dword ptr [rbx+3Ch] }
-  v87 = DVARINT_mantle_debugLineTime;
-  __asm
+  else
   {
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vmovss  dword ptr [rbp+160h+pos], xmm0
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vmovss  dword ptr [rbp+160h+pos+8], xmm0
-    vmovss  dword ptr [rbp+160h+pos+4], xmm1
+    v41 = DVARINT_mantle_debugLineTime;
+    v85 = (float)((float)(end.v[0] - vec.v[0]) * results.fraction) + vec.v[0];
+    v86 = (float)((float)(end.v[1] - vec.v[1]) * results.fraction) + vec.v[1];
+    v87 = (float)((float)(end.v[2] - vec.v[2]) * results.fraction) + vec.v[2];
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v41);
+    v42 = DCONST_DVARINT_mantle_debug;
+    v43 = v41->current.integer;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v42);
+    if ( (v42->current.enabled & 4) != 0 )
+      pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, (const vec3_t *)&v85, &colorLtOrange, 0, v43);
+    v44 = (float)((float)((float)(v85 - mresults->edgeLineSegment[0].v[0]) * v20) + (float)((float)(v86 - mresults->edgeLineSegment[0].v[1]) * v21)) + (float)((float)(v87 - mresults->edgeLineSegment[0].v[2]) * v22);
+    v45 = (float)(v44 * v21) + mresults->edgeLineSegment[0].v[1];
+    pos.v[0] = (float)(v44 * v20) + mresults->edgeLineSegment[0].v[0];
+    pos.v[2] = (float)(v44 * v22) + mresults->edgeLineSegment[0].v[2];
+    pos.v[1] = v45;
   }
-  if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v87);
-  v90 = DCONST_DVARINT_mantle_debug;
-  integer = v87->current.integer;
-  if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v90);
-  if ( (v90->current.enabled & 4) != 0 )
-    pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, &end, &colorLtOrange, 0, integer);
-  BgTrace::LegacyTraceHandler(&v195, worldId, &results, &vec, &v203, &bounds_origin, ps->clientNum, traceMask, ps);
-  if ( !results.startsolid )
+  BgTrace::LegacyTraceHandler(&v82, worldId, &results, &vec, &v93, &bounds_origin, ps->clientNum, traceMask, ps);
+  if ( results.startsolid || results.fraction == 1.0 )
   {
-    __asm
-    {
-      vmovss  xmm6, [rbp+160h+results.fraction]
-      vucomiss xmm6, xmm12
-    }
+    v55 = DVARINT_mantle_debugLineTime;
+    v56 = mresults->edgeLineSegment[1].v[1];
+    v95.v[0] = mresults->edgeLineSegment[1].v[0];
+    v95.v[2] = mresults->edgeLineSegment[1].v[2];
+    v95.v[1] = v56;
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v55);
+    v57 = v55->current.integer;
+    v58 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v58);
+    if ( (v58->current.enabled & 4) != 0 )
+      pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, &v93, &colorLtOrange, 0, v57);
   }
-  __asm { vmovss  xmm0, dword ptr [rbx+48h] }
-  v94 = DVARINT_mantle_debugLineTime;
-  __asm
+  else
   {
-    vmovss  xmm1, dword ptr [rbx+4Ch]
-    vmovss  dword ptr [rbp+160h+var_EC], xmm0
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vmovss  dword ptr [rbp+160h+var_EC+8], xmm0
-    vmovss  dword ptr [rbp+160h+var_EC+4], xmm1
+    v50 = DVARINT_mantle_debugLineTime;
+    v85 = (float)((float)(v93.v[0] - vec.v[0]) * results.fraction) + vec.v[0];
+    v86 = (float)((float)(v93.v[1] - vec.v[1]) * results.fraction) + vec.v[1];
+    v87 = (float)((float)(v93.v[2] - vec.v[2]) * results.fraction) + vec.v[2];
+    if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v50);
+    v51 = v50->current.integer;
+    v52 = DCONST_DVARINT_mantle_debug;
+    if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v52);
+    if ( (v52->current.enabled & 4) != 0 )
+      pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, (const vec3_t *)&v85, &colorLtOrange, 0, v51);
+    v53 = (float)((float)((float)(v85 - mresults->edgeLineSegment[0].v[0]) * v20) + (float)((float)(v86 - mresults->edgeLineSegment[0].v[1]) * v21)) + (float)((float)(v87 - mresults->edgeLineSegment[0].v[2]) * v22);
+    v54 = (float)(v53 * v21) + mresults->edgeLineSegment[0].v[1];
+    v95.v[0] = (float)(v53 * v20) + mresults->edgeLineSegment[0].v[0];
+    v95.v[2] = (float)(v53 * v22) + mresults->edgeLineSegment[0].v[2];
+    v95.v[1] = v54;
   }
-  if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v94);
-  v97 = v94->current.integer;
-  v98 = DCONST_DVARINT_mantle_debug;
-  if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v98);
-  if ( (v98->current.enabled & 4) != 0 )
-    pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &vec, &v203, &colorLtOrange, 0, v97);
-  v195.m_flags &= ~0x80u;
-  v99 = DVARBOOL_mantle_fixMantleIntoCollision;
+  v82.m_flags &= ~0x80u;
+  v59 = DVARBOOL_mantle_fixMantleIntoCollision;
   if ( !DVARBOOL_mantle_fixMantleIntoCollision && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_fixMantleIntoCollision") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v99);
-  if ( v99->current.enabled )
-    v195.m_flags &= ~0x200u;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+160h+var_EC]
-    vsubss  xmm3, xmm0, dword ptr [rbp+160h+pos]
-    vmovss  xmm1, dword ptr [rbp+160h+var_EC+4]
-    vsubss  xmm2, xmm1, dword ptr [rbp+160h+pos+4]
-    vmovss  xmm0, dword ptr [rbp+160h+var_EC+8]
-    vsubss  xmm4, xmm0, dword ptr [rbp+160h+pos+8]
-  }
-  v106 = DVARINT_mantle_debugLineTime;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm7, xmm2, xmm2
-  }
+  Dvar_CheckFrontendServerThread(v59);
+  if ( v59->current.enabled )
+    v82.m_flags &= ~0x200u;
+  v60 = DVARINT_mantle_debugLineTime;
+  v61 = fsqrt((float)((float)((float)(v95.v[1] - pos.v[1]) * (float)(v95.v[1] - pos.v[1])) + (float)((float)(v95.v[0] - pos.v[0]) * (float)(v95.v[0] - pos.v[0]))) + (float)((float)(v95.v[2] - pos.v[2]) * (float)(v95.v[2] - pos.v[2])));
   if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v106);
-  Mantle_DebugStar(pmoveHandler, &pos, &colorLtOrange, v106->current.integer);
-  v113 = DVARINT_mantle_debugLineTime;
+  Dvar_CheckFrontendServerThread(v60);
+  Mantle_DebugStar(pmoveHandler, &pos, &colorLtOrange, v60->current.integer);
+  v62 = DVARINT_mantle_debugLineTime;
   if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v113);
-  Mantle_DebugStar(pmoveHandler, &v205, &colorLtOrange, v113->current.integer);
-  __asm
+  Dvar_CheckFrontendServerThread(v62);
+  Mantle_DebugStar(pmoveHandler, &v95, &colorLtOrange, v62->current.integer);
+  v63 = (float)((float)((float)(mresults->startPos.v[1] - pos.v[1]) * v21) + (float)((float)(mresults->startPos.v[0] - pos.v[0]) * v20)) + (float)((float)(mresults->startPos.v[2] - pos.v[2]) * v22);
+  v64 = COLLISION_THRESHOLD + v16;
+  if ( v63 < (float)(COLLISION_THRESHOLD + v16) || v61 < (float)((float)(v63 + v16) + COLLISION_THRESHOLD) )
   {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm5, dword ptr [rbp+160h+pos+4]
-    vmovss  xmm6, dword ptr [rbp+160h+pos]
-    vmovss  xmm11, dword ptr [rbp+160h+pos+8]
-    vsubss  xmm0, xmm0, xmm5
-    vmulss  xmm2, xmm0, xmm9
-    vsubss  xmm0, xmm1, xmm6
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rbx+14h]
-    vsubss  xmm0, xmm2, xmm11
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm4, xmm3, xmm1
-    vmovss  xmm1, cs:COLLISION_THRESHOLD
-    vaddss  xmm2, xmm1, xmm14
-    vcomiss xmm4, xmm2
-  }
-  if ( v114 )
-  {
-    __asm
+    if ( v63 >= (float)(v61 * 0.5) )
     {
-      vmulss  xmm0, xmm7, cs:__real@3f000000
-      vcomiss xmm4, xmm0
-    }
-    if ( v114 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm10, xmm2
-        vaddss  xmm6, xmm0, xmm6
-        vmulss  xmm0, xmm2, xmm8
-        vmulss  xmm1, xmm2, xmm9
-        vaddss  xmm8, xmm0, xmm11
-        vaddss  xmm7, xmm1, xmm5
-      }
+      v65 = (float)(v20 * COERCE_FLOAT(LODWORD(v64) ^ _xmm)) + v95.v[0];
+      v66 = (float)(COERCE_FLOAT(LODWORD(v64) ^ _xmm) * v22) + v95.v[2];
+      v67 = (float)(COERCE_FLOAT(LODWORD(v64) ^ _xmm) * v21) + v95.v[1];
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm0, xmm10, xmm2
-        vaddss  xmm6, xmm0, dword ptr [rbp+160h+var_EC]
-        vmulss  xmm0, xmm2, xmm8
-        vaddss  xmm8, xmm0, dword ptr [rbp+160h+var_EC+8]
-        vmulss  xmm1, xmm2, xmm9
-        vaddss  xmm7, xmm1, dword ptr [rbp+160h+var_EC+4]
-      }
+      v65 = (float)(v20 * v64) + pos.v[0];
+      v66 = (float)(v64 * v22) + pos.v[2];
+      v67 = (float)(v64 * v21) + pos.v[1];
     }
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm0, xmm4, xmm14
-      vaddss  xmm1, xmm0, xmm1
-      vcomiss xmm7, xmm1
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm6, xmm0, xmm6
-      vmulss  xmm0, xmm8, xmm4
-      vmulss  xmm1, xmm9, xmm4
-      vaddss  xmm8, xmm0, xmm11
-      vaddss  xmm7, xmm1, xmm5
-    }
+    v65 = (float)(v20 * v63) + pos.v[0];
+    v66 = (float)(v22 * v63) + pos.v[2];
+    v67 = (float)(v21 * v63) + pos.v[1];
   }
+  v88.v[0] = v65;
+  v88.v[1] = v67;
+  v88.v[2] = v66;
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&v90, &mresults->startPos);
+  WorldUpReferenceFrame::SetUpContribution(&v90, *(float *)&UpContribution, &v88);
+  v69 = fsqrt((float)((float)((float)(v88.v[1] - mresults->startPos.v[1]) * (float)(v88.v[1] - mresults->startPos.v[1])) + (float)((float)(v88.v[0] - mresults->startPos.v[0]) * (float)(v88.v[0] - mresults->startPos.v[0]))) + (float)((float)(v88.v[2] - mresults->startPos.v[2]) * (float)(v88.v[2] - mresults->startPos.v[2])));
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v69 - mresults->distanceToMantleSurface) & _xmm) > EDGE_ASSIST_DISTANCE_THRESHOLD )
+    return 0;
+  mresults->edgePos.v[0] = v65;
+  mresults->edgePos.v[1] = v67;
+  mresults->edgePos.v[2] = v66;
+  mresults->distanceToMantleSurface = v69;
+  v70 = mresults->edgePos.v[1] - mresults->startPos.v[1];
+  v89.v[0] = mresults->edgePos.v[0] - mresults->startPos.v[0];
+  v89.v[2] = mresults->edgePos.v[2] - mresults->startPos.v[2];
+  v89.v[1] = v70;
+  WorldUpReferenceFrame::SetUpContribution(&v90, 0.0, &v89);
+  v71 = (__int64)v83;
+  v72 = LODWORD(v89.v[1]);
+  v73 = v89.v[2];
+  v74 = v72;
+  *(float *)&v74 = fsqrt((float)((float)(*(float *)&v72 * *(float *)&v72) + (float)(v89.v[0] * v89.v[0])) + (float)(v73 * v73));
+  _XMM3 = v74;
   __asm
   {
-    vmovss  dword ptr [rbp+160h+var_1C0], xmm6
-    vmovss  dword ptr [rbp+160h+var_1C0+4], xmm7
-    vmovss  dword ptr [rbp+160h+var_1C0+8], xmm8
+    vcmpless xmm0, xmm3, cs:__real@80000000
+    vblendvps xmm0, xmm3, xmm12, xmm0
   }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v200, &mresults->startPos);
-  __asm { vmovaps xmm1, xmm0; height }
-  WorldUpReferenceFrame::SetUpContribution(&v200, *(float *)&_XMM1, &v198);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+160h+var_1C0]
-    vsubss  xmm3, xmm0, dword ptr [rbx+0Ch]
-    vmovss  xmm1, dword ptr [rbp+160h+var_1C0+4]
-    vsubss  xmm2, xmm1, dword ptr [rbx+10h]
-    vmovss  xmm0, dword ptr [rbp+160h+var_1C0+8]
-    vsubss  xmm4, xmm0, dword ptr [rbx+14h]
-    vmovaps xmm14, [rsp+260h+var_D0]
-    vmovaps xmm11, [rsp+260h+var_A0]
-    vmovaps xmm10, [rsp+260h+var_90]
-    vmovaps xmm9, [rsp+260h+var_80]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm5, xmm2, xmm2
-    vsubss  xmm0, xmm5, dword ptr [rbx+70h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:EDGE_ASSIST_DISTANCE_THRESHOLD
-  }
-  if ( v114 | v22 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbx+30h], xmm6
-      vmovss  dword ptr [rbx+34h], xmm7
-      vmovss  dword ptr [rbx+38h], xmm8
-      vmovss  dword ptr [rbx+70h], xmm5
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vsubss  xmm2, xmm0, dword ptr [rbx+0Ch]
-      vmovss  xmm3, dword ptr [rbx+34h]
-      vsubss  xmm0, xmm3, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbp+160h+var_1B0], xmm2
-      vmovss  xmm2, dword ptr [rbx+38h]
-      vsubss  xmm3, xmm2, dword ptr [rbx+14h]
-      vxorps  xmm1, xmm1, xmm1; height
-      vmovss  dword ptr [rbp+160h+var_1B0+8], xmm3
-      vmovss  dword ptr [rbp+160h+var_1B0+4], xmm0
-    }
-    WorldUpReferenceFrame::SetUpContribution(&v200, *(float *)&_XMM1, &v199);
-    _RCX = (__int64)v196;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+160h+var_1B0]
-      vmovss  xmm6, dword ptr [rbp+160h+var_1B0+4]
-      vmovss  xmm5, dword ptr [rbp+160h+var_1B0+8]
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
-      vcmpless xmm0, xmm3, cs:__real@80000000
-      vblendvps xmm0, xmm3, xmm12, xmm0
-      vdivss  xmm1, xmm12, xmm0
-      vmulss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rbx], xmm2
-      vmulss  xmm0, xmm6, xmm1
-      vmovss  dword ptr [rbx+4], xmm0
-      vmulss  xmm1, xmm5, xmm1
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  dword ptr [rcx], xmm2
-    }
-    *(_QWORD *)(_RCX + 4) = *(_QWORD *)&mresults->dir.y;
-    result = 1;
-  }
-  else
-  {
-LABEL_62:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm13, [rsp+260h+var_C0]
-    vmovaps xmm12, [rsp+260h+var_B0]
-    vmovaps xmm8, [rsp+260h+var_70]
-    vmovaps xmm7, [rsp+260h+var_60]
-    vmovaps xmm6, [rsp+260h+var_50]
-  }
-  return result;
+  v78 = v89.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  mresults->dir.v[0] = v78;
+  mresults->dir.v[1] = *(float *)&v72 * (float)(1.0 / *(float *)&_XMM0);
+  mresults->dir.v[2] = v73 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)v71 = v78;
+  *(_QWORD *)(v71 + 4) = *(_QWORD *)&mresults->dir.y;
+  return 1;
 }
 
 /*
@@ -6007,6 +4502,7 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
   bool IsGameTypeQuick_BR; 
   __int16 groundEntityNum; 
   int v7; 
+  const dvar_t *v8; 
   const char *v9; 
 
   IsGameTypeQuick_BR = BG_IsGameTypeQuick_BR(pmoveHandler);
@@ -6018,14 +4514,14 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
     {
       if ( groundEntityNum == 2047 )
       {
-        _RBX = DCONST_DVARFLT_mantle_check_height_side_back_air_br;
+        v8 = DCONST_DVARFLT_mantle_check_height_side_back_air_br;
         if ( DCONST_DVARFLT_mantle_check_height_side_back_air_br )
           goto LABEL_26;
         v9 = "mantle_check_height_side_back_air_br";
       }
       else
       {
-        _RBX = DCONST_DVARFLT_mantle_check_height_side_back_br;
+        v8 = DCONST_DVARFLT_mantle_check_height_side_back_br;
         if ( DCONST_DVARFLT_mantle_check_height_side_back_br )
           goto LABEL_26;
         v9 = "mantle_check_height_side_back_br";
@@ -6033,14 +4529,14 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
     }
     else if ( groundEntityNum == 2047 )
     {
-      _RBX = DCONST_DVARFLT_mantle_check_height_air_br;
+      v8 = DCONST_DVARFLT_mantle_check_height_air_br;
       if ( DCONST_DVARFLT_mantle_check_height_air_br )
         goto LABEL_26;
       v9 = "mantle_check_height_air_br";
     }
     else
     {
-      _RBX = DCONST_DVARFLT_mantle_check_height_br;
+      v8 = DCONST_DVARFLT_mantle_check_height_br;
       if ( DCONST_DVARFLT_mantle_check_height_br )
         goto LABEL_26;
       v9 = "mantle_check_height_br";
@@ -6050,14 +4546,14 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
   {
     if ( groundEntityNum == 2047 )
     {
-      _RBX = DCONST_DVARMPFLT_mantle_check_height_side_back_air;
+      v8 = DCONST_DVARMPFLT_mantle_check_height_side_back_air;
       if ( DCONST_DVARMPFLT_mantle_check_height_side_back_air )
         goto LABEL_26;
       v9 = "mantle_check_height_side_back_air";
     }
     else
     {
-      _RBX = DCONST_DVARMPFLT_mantle_check_height_side_back;
+      v8 = DCONST_DVARMPFLT_mantle_check_height_side_back;
       if ( DCONST_DVARMPFLT_mantle_check_height_side_back )
         goto LABEL_26;
       v9 = "mantle_check_height_side_back";
@@ -6065,14 +4561,14 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
   }
   else if ( groundEntityNum == 2047 )
   {
-    _RBX = DCONST_DVARMPFLT_mantle_check_height_air;
+    v8 = DCONST_DVARMPFLT_mantle_check_height_air;
     if ( DCONST_DVARMPFLT_mantle_check_height_air )
       goto LABEL_26;
     v9 = "mantle_check_height_air";
   }
   else
   {
-    _RBX = DCONST_DVARMPFLT_mantle_check_height;
+    v8 = DCONST_DVARMPFLT_mantle_check_height;
     if ( DCONST_DVARMPFLT_mantle_check_height )
       goto LABEL_26;
     v9 = "mantle_check_height";
@@ -6080,9 +4576,8 @@ float Mantle_GetCheckHeight(const playerState_s *ps, const BgHandler *pmoveHandl
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v9) )
     __debugbreak();
 LABEL_26:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v8);
+  return v8->current.value;
 }
 
 /*
@@ -6093,6 +4588,7 @@ Mantle_GetCheckRange
 float Mantle_GetCheckRange(const playerState_s *ps, const MantleResults *mresults)
 {
   __int16 groundEntityNum; 
+  const dvar_t *v3; 
   const char *v4; 
 
   groundEntityNum = ps->groundEntityNum;
@@ -6100,14 +4596,14 @@ float Mantle_GetCheckRange(const playerState_s *ps, const MantleResults *mresult
   {
     if ( groundEntityNum == 2047 )
     {
-      _RBX = DCONST_DVARFLT_mantle_check_range_side_back_air;
+      v3 = DCONST_DVARFLT_mantle_check_range_side_back_air;
       if ( DCONST_DVARFLT_mantle_check_range_side_back_air )
         goto LABEL_14;
       v4 = "mantle_check_range_side_back_air";
     }
     else
     {
-      _RBX = DCONST_DVARFLT_mantle_check_range_side_back;
+      v3 = DCONST_DVARFLT_mantle_check_range_side_back;
       if ( DCONST_DVARFLT_mantle_check_range_side_back )
         goto LABEL_14;
       v4 = "mantle_check_range_side_back";
@@ -6115,14 +4611,14 @@ float Mantle_GetCheckRange(const playerState_s *ps, const MantleResults *mresult
   }
   else if ( groundEntityNum == 2047 )
   {
-    _RBX = DCONST_DVARFLT_mantle_check_range_air;
+    v3 = DCONST_DVARFLT_mantle_check_range_air;
     if ( DCONST_DVARFLT_mantle_check_range_air )
       goto LABEL_14;
     v4 = "mantle_check_range_air";
   }
   else
   {
-    _RBX = DCONST_DVARFLT_mantle_check_range;
+    v3 = DCONST_DVARFLT_mantle_check_range;
     if ( DCONST_DVARFLT_mantle_check_range )
       goto LABEL_14;
     v4 = "mantle_check_range";
@@ -6130,9 +4626,8 @@ float Mantle_GetCheckRange(const playerState_s *ps, const MantleResults *mresult
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v4) )
     __debugbreak();
 LABEL_14:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v3);
+  return v3->current.value;
 }
 
 /*
@@ -6173,8 +4668,7 @@ double Mantle_GetLedgeHeight(const playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1162, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize }
-  return MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, *(float *)&_XMM1, 8u);
+  return MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, 190.0, 8u);
 }
 
 /*
@@ -6182,311 +4676,263 @@ double Mantle_GetLedgeHeight(const playerState_s *ps)
 Mantle_GetMantleTime
 ==============
 */
-
-int __fastcall Mantle_GetMantleTime(const int flags, double height, double distance3D, double vel2D)
+__int64 Mantle_GetMantleTime(const int flags, const float height, const float distance3D, float vel2D)
 {
-  char v33; 
-  char v34; 
-  const char *v40; 
-  const char *v56; 
-  int result; 
-  __int64 v108; 
-  __int64 v109; 
-  char v113; 
-  void *retaddr; 
+  float v4; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  const dvar_t *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  const char *v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  const dvar_t *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  const char *v37; 
+  const dvar_t *v38; 
+  const dvar_t *v39; 
+  const dvar_t *v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
+  const dvar_t *v43; 
+  float v44; 
+  double v45; 
+  float v46; 
+  double v47; 
+  __int64 v49; 
+  __int64 v50; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+20h], xmm3
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-    vmovaps [rsp+0F8h+var_98], xmm14
-    vmovaps [rsp+0F8h+var_A8], xmm15
-    vmovaps xmm10, xmm2
-    vmovaps xmm13, xmm1
-  }
+  v4 = distance3D;
   if ( (flags & 0x800) != 0 )
   {
-    _RSI = DCONST_DVARFLT_mantle_ladder_dist_min;
+    v5 = DCONST_DVARFLT_mantle_ladder_dist_min;
     if ( !DCONST_DVARFLT_mantle_ladder_dist_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_dist_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm15, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_dist_max;
+    Dvar_CheckFrontendServerThread(v5);
+    value = v5->current.value;
+    v7 = DCONST_DVARFLT_mantle_ladder_dist_max;
     if ( !DCONST_DVARFLT_mantle_ladder_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_dist_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm12, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_time_min;
+    Dvar_CheckFrontendServerThread(v7);
+    v8 = v7->current.value;
+    v9 = DCONST_DVARFLT_mantle_ladder_time_min;
     if ( !DCONST_DVARFLT_mantle_ladder_time_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_time_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm14, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_time_max;
+    Dvar_CheckFrontendServerThread(v9);
+    v10 = v9->current.value;
+    v11 = DCONST_DVARFLT_mantle_ladder_time_max;
     if ( !DCONST_DVARFLT_mantle_ladder_time_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_time_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm11, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_speed_min;
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = v11->current.value;
+    v13 = DCONST_DVARFLT_mantle_ladder_speed_min;
     if ( !DCONST_DVARFLT_mantle_ladder_speed_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_speed_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_ladder_speed_max;
+    Dvar_CheckFrontendServerThread(v13);
+    v14 = v13->current.value;
+    v15 = DCONST_DVARFLT_mantle_ladder_speed_max;
     if ( !DCONST_DVARFLT_mantle_ladder_speed_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_speed_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARMPFLT_mantle_ladder_timescale_min;
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = v15->current.value;
+    v17 = DCONST_DVARMPFLT_mantle_ladder_timescale_min;
     if ( !DCONST_DVARMPFLT_mantle_ladder_timescale_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_timescale_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm9, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARMPFLT_mantle_ladder_timescale_max;
+    Dvar_CheckFrontendServerThread(v17);
+    v18 = v17->current.value;
+    v19 = DCONST_DVARMPFLT_mantle_ladder_timescale_max;
     if ( !DCONST_DVARMPFLT_mantle_ladder_timescale_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_timescale_max") )
       __debugbreak();
 LABEL_26:
-    Dvar_CheckFrontendServerThread(_RSI);
+    Dvar_CheckFrontendServerThread(v19);
     goto LABEL_110;
   }
   if ( (flags & 1) != 0 )
   {
-    _RSI = DCONST_DVARFLT_mantle_over_dist_max;
+    v20 = DCONST_DVARFLT_mantle_over_dist_max;
     if ( !DCONST_DVARFLT_mantle_over_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_dist_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vcomiss xmm10, dword ptr [rsi+28h] }
-    if ( v33 | v34 )
+    Dvar_CheckFrontendServerThread(v20);
+    if ( distance3D <= v20->current.value )
     {
-      _RSI = DCONST_DVARFLT_mantle_over_dist_min;
+      v26 = DCONST_DVARFLT_mantle_over_dist_min;
       if ( !DCONST_DVARFLT_mantle_over_dist_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_dist_min") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm15, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_dist_max;
+      Dvar_CheckFrontendServerThread(v26);
+      value = v26->current.value;
+      v27 = DCONST_DVARFLT_mantle_over_dist_max;
       if ( !DCONST_DVARFLT_mantle_over_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_dist_max") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm12, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_time_min;
+      Dvar_CheckFrontendServerThread(v27);
+      v8 = v27->current.value;
+      v28 = DCONST_DVARFLT_mantle_over_time_min;
       if ( !DCONST_DVARFLT_mantle_over_time_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_time_min") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm14, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_time_max;
+      Dvar_CheckFrontendServerThread(v28);
+      v10 = v28->current.value;
+      v24 = DCONST_DVARFLT_mantle_over_time_max;
       if ( DCONST_DVARFLT_mantle_over_time_max )
         goto LABEL_56;
-      v40 = "mantle_over_time_max";
+      v25 = "mantle_over_time_max";
     }
     else
     {
-      _RSI = DCONST_DVARFLT_mantle_over_high_dist_min;
+      v21 = DCONST_DVARFLT_mantle_over_high_dist_min;
       if ( !DCONST_DVARFLT_mantle_over_high_dist_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_high_dist_min") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm15, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_high_dist_max;
+      Dvar_CheckFrontendServerThread(v21);
+      value = v21->current.value;
+      v22 = DCONST_DVARFLT_mantle_over_high_dist_max;
       if ( !DCONST_DVARFLT_mantle_over_high_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_high_dist_max") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm12, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_high_time_min;
+      Dvar_CheckFrontendServerThread(v22);
+      v8 = v22->current.value;
+      v23 = DCONST_DVARFLT_mantle_over_high_time_min;
       if ( !DCONST_DVARFLT_mantle_over_high_time_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_high_time_min") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm14, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_mantle_over_high_time_max;
+      Dvar_CheckFrontendServerThread(v23);
+      v10 = v23->current.value;
+      v24 = DCONST_DVARFLT_mantle_over_high_time_max;
       if ( DCONST_DVARFLT_mantle_over_high_time_max )
         goto LABEL_56;
-      v40 = "mantle_over_high_time_max";
+      v25 = "mantle_over_high_time_max";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v40) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v25) )
       __debugbreak();
 LABEL_56:
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm11, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_speed_min;
+    Dvar_CheckFrontendServerThread(v24);
+    v12 = v24->current.value;
+    v29 = DCONST_DVARFLT_mantle_over_speed_min;
     if ( !DCONST_DVARFLT_mantle_over_speed_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_speed_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_over_speed_max;
+    Dvar_CheckFrontendServerThread(v29);
+    v14 = v29->current.value;
+    v30 = DCONST_DVARFLT_mantle_over_speed_max;
     if ( !DCONST_DVARFLT_mantle_over_speed_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_speed_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARMPFLT_mantle_over_timescale_min;
+    Dvar_CheckFrontendServerThread(v30);
+    v16 = v30->current.value;
+    v31 = DCONST_DVARMPFLT_mantle_over_timescale_min;
     if ( !DCONST_DVARMPFLT_mantle_over_timescale_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_timescale_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm9, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARMPFLT_mantle_over_timescale_max;
+    Dvar_CheckFrontendServerThread(v31);
+    v18 = v31->current.value;
+    v19 = DCONST_DVARMPFLT_mantle_over_timescale_max;
     if ( !DCONST_DVARMPFLT_mantle_over_timescale_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_over_timescale_max") )
       __debugbreak();
     goto LABEL_26;
   }
-  _RSI = DCONST_DVARFLT_mantle_on_dist_max;
+  v32 = DCONST_DVARFLT_mantle_on_dist_max;
   if ( !DCONST_DVARFLT_mantle_on_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_dist_max") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vcomiss xmm13, dword ptr [rsi+28h] }
-  if ( v33 | v34 )
+  Dvar_CheckFrontendServerThread(v32);
+  if ( height <= v32->current.value )
   {
-    _RSI = DCONST_DVARFLT_mantle_on_dist_min;
+    v38 = DCONST_DVARFLT_mantle_on_dist_min;
     if ( !DCONST_DVARFLT_mantle_on_dist_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_dist_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm15, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_dist_max;
+    Dvar_CheckFrontendServerThread(v38);
+    value = v38->current.value;
+    v39 = DCONST_DVARFLT_mantle_on_dist_max;
     if ( !DCONST_DVARFLT_mantle_on_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_dist_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm12, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_time_min;
+    Dvar_CheckFrontendServerThread(v39);
+    v8 = v39->current.value;
+    v40 = DCONST_DVARFLT_mantle_on_time_min;
     if ( !DCONST_DVARFLT_mantle_on_time_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_time_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm14, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_time_max;
+    Dvar_CheckFrontendServerThread(v40);
+    v10 = v40->current.value;
+    v36 = DCONST_DVARFLT_mantle_on_time_max;
     if ( DCONST_DVARFLT_mantle_on_time_max )
       goto LABEL_97;
-    v56 = "mantle_on_time_max";
+    v37 = "mantle_on_time_max";
   }
   else
   {
-    _RSI = DCONST_DVARFLT_mantle_on_high_dist_min;
+    v33 = DCONST_DVARFLT_mantle_on_high_dist_min;
     if ( !DCONST_DVARFLT_mantle_on_high_dist_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_high_dist_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm15, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_high_dist_max;
+    Dvar_CheckFrontendServerThread(v33);
+    value = v33->current.value;
+    v34 = DCONST_DVARFLT_mantle_on_high_dist_max;
     if ( !DCONST_DVARFLT_mantle_on_high_dist_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_high_dist_max") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm12, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_high_time_min;
+    Dvar_CheckFrontendServerThread(v34);
+    v8 = v34->current.value;
+    v35 = DCONST_DVARFLT_mantle_on_high_time_min;
     if ( !DCONST_DVARFLT_mantle_on_high_time_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_high_time_min") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm14, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_mantle_on_high_time_max;
+    Dvar_CheckFrontendServerThread(v35);
+    v10 = v35->current.value;
+    v36 = DCONST_DVARFLT_mantle_on_high_time_max;
     if ( DCONST_DVARFLT_mantle_on_high_time_max )
       goto LABEL_97;
-    v56 = "mantle_on_high_time_max";
+    v37 = "mantle_on_high_time_max";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v56) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v37) )
     __debugbreak();
 LABEL_97:
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm11, dword ptr [rsi+28h] }
-  _RSI = DCONST_DVARFLT_mantle_on_speed_min;
+  Dvar_CheckFrontendServerThread(v36);
+  v12 = v36->current.value;
+  v41 = DCONST_DVARFLT_mantle_on_speed_min;
   if ( !DCONST_DVARFLT_mantle_on_speed_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_speed_min") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-  _RSI = DCONST_DVARFLT_mantle_on_speed_max;
+  Dvar_CheckFrontendServerThread(v41);
+  v14 = v41->current.value;
+  v42 = DCONST_DVARFLT_mantle_on_speed_max;
   if ( !DCONST_DVARFLT_mantle_on_speed_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_speed_max") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-  _RSI = DCONST_DVARMPFLT_mantle_on_timescale_min;
+  Dvar_CheckFrontendServerThread(v42);
+  v16 = v42->current.value;
+  v43 = DCONST_DVARMPFLT_mantle_on_timescale_min;
   if ( !DCONST_DVARMPFLT_mantle_on_timescale_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_timescale_min") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm9, dword ptr [rsi+28h] }
-  _RSI = DCONST_DVARMPFLT_mantle_on_timescale_max;
+  Dvar_CheckFrontendServerThread(v43);
+  v18 = v43->current.value;
+  v19 = DCONST_DVARMPFLT_mantle_on_timescale_max;
   if ( !DCONST_DVARMPFLT_mantle_on_timescale_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_on_timescale_max") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovaps xmm10, xmm13 }
+  Dvar_CheckFrontendServerThread(v19);
+  v4 = height;
 LABEL_110:
-  __asm
+  v44 = v19->current.value;
+  v45 = I_fclamp(v4, value, v8);
+  if ( v8 <= value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1143, ASSERT_TYPE_ASSERT, "( mantleMaxDist ) > ( mantleMinDist )", "%s > %s\n\t%i, %i", "mantleMaxDist", "mantleMinDist", (int)v8, (int)value) )
+    __debugbreak();
+  v46 = (float)((float)(1.0 - (float)((float)(*(float *)&v45 - value) / (float)(v8 - value))) * v10) + (float)((float)((float)(*(float *)&v45 - value) / (float)(v8 - value)) * v12);
+  v47 = I_fclamp(vel2D, v14, v16);
+  if ( v16 <= v14 )
   {
-    vmovss  xmm6, dword ptr [rsi+28h]
-    vmovaps xmm2, xmm12; max
-    vmovaps xmm1, xmm15; min
-    vmovaps xmm0, xmm10; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm12, xmm15
-    vmovaps xmm13, [rsp+0F8h+var_88]
-    vmovaps xmm10, xmm0
-  }
-  if ( v33 | v34 )
-  {
-    __asm
-    {
-      vcvttss2si eax, xmm15
-      vcvttss2si ecx, xmm12
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1143, ASSERT_TYPE_ASSERT, "( mantleMaxDist ) > ( mantleMinDist )", "%s > %s\n\t%i, %i", "mantleMaxDist", "mantleMinDist", _ECX, _EAX) )
+    LODWORD(v50) = (int)v14;
+    LODWORD(v49) = (int)v16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1152, ASSERT_TYPE_ASSERT, "( mantleMaxSpeed ) > ( mantleMinSpeed )", "%s > %s\n\t%i, %i", "mantleMaxSpeed", "mantleMinSpeed", v49, v50) )
       __debugbreak();
   }
-  __asm
-  {
-    vsubss  xmm1, xmm10, xmm15
-    vmovss  xmm10, cs:__real@3f800000
-    vsubss  xmm0, xmm12, xmm15
-    vdivss  xmm3, xmm1, xmm0
-    vsubss  xmm0, xmm10, xmm3
-    vmulss  xmm2, xmm0, xmm14
-    vmovss  xmm0, [rsp+0F8h+arg_18]; val
-    vmulss  xmm1, xmm3, xmm11
-    vaddss  xmm11, xmm2, xmm1
-    vmovaps xmm2, xmm7; max
-    vmovaps xmm1, xmm8; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm7, xmm8
-    vmovaps xmm15, [rsp+0F8h+var_A8]
-    vmovaps xmm14, [rsp+0F8h+var_98]
-    vmovaps xmm12, xmm0
-  }
-  if ( v33 | v34 )
-  {
-    __asm
-    {
-      vcvttss2si edx, xmm7
-      vcvttss2si eax, xmm8
-    }
-    LODWORD(v109) = _EAX;
-    LODWORD(v108) = _EDX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1152, ASSERT_TYPE_ASSERT, "( mantleMaxSpeed ) > ( mantleMinSpeed )", "%s > %s\n\t%i, %i", "mantleMaxSpeed", "mantleMinSpeed", v108, v109) )
-      __debugbreak();
-  }
-  _R11 = &v113;
-  __asm
-  {
-    vsubss  xmm1, xmm12, xmm8
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vsubss  xmm0, xmm7, xmm8
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vdivss  xmm3, xmm1, xmm0
-    vsubss  xmm1, xmm10, xmm3
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmulss  xmm2, xmm1, xmm9
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmulss  xmm0, xmm3, xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm1, xmm2, xmm11
-    vmulss  xmm3, xmm1, cs:__real@447a0000
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vcvttss2si eax, xmm3
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)((float)((float)((float)(1.0 - (float)((float)(*(float *)&v47 - v14) / (float)(v16 - v14))) * v18) + (float)((float)((float)(*(float *)&v47 - v14) / (float)(v16 - v14)) * v44)) * v46) * 1000.0);
 }
 
 /*
@@ -6496,181 +4942,128 @@ Mantle_GetSearchDirection
 */
 void Mantle_GetSearchDirection(const playerState_s *ps, const BgHandler *pmoveHandler, MantleResults *mresults, const vec3_t *wishDir, vec3_t *outSearchDir, vec3_t *outSearchStraightDir)
 {
-  const dvar_t *v34; 
-  bool v35; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  const dvar_t *v17; 
+  __int128 v18; 
+  __int128 v19; 
+  double v23; 
+  double v24; 
+  const dvar_t *v25; 
+  float v26; 
+  float value; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  float v30; 
+  const dvar_t *v31; 
   double Float_Internal_DebugName; 
+  float v33; 
+  double v34; 
+  float v35; 
   vec3_t forward; 
   vec3_t angles; 
   vec3_t outUp; 
-  WorldUpReferenceFrame v77; 
-  void *retaddr; 
+  WorldUpReferenceFrame v39; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R14 = outSearchDir;
-  _RSI = mresults;
-  _RDI = outSearchStraightDir;
-  _RBX = ps;
-  _R15 = wishDir;
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v77, ps, pmoveHandler);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1D8h]
-    vmovss  xmm1, dword ptr [rbx+1DCh]
-    vmovss  dword ptr [rbp+47h+angles], xmm0
-    vmovss  xmm0, dword ptr [rbx+1E0h]
-    vmovss  dword ptr [rbp+47h+angles+8], xmm0
-    vmovss  dword ptr [rbp+47h+angles+4], xmm1
-  }
-  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v77, &angles);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v39, ps, pmoveHandler);
+  v9 = ps->viewangles.v[1];
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v9;
+  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v39, &angles);
   AngleVectors(&angles, &forward, NULL, NULL);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&v77, *(float *)&_XMM1, &forward);
+  WorldUpReferenceFrame::SetUpContribution(&v39, 0.0, &forward);
+  v10 = LODWORD(forward.v[0]);
+  v11 = forward.v[1];
+  v12 = forward.v[2];
+  mresults->signedAngleBetweenMantleDirAndLookDir = 0.0;
+  v13 = v10;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v11 * v11)) + (float)(v12 * v12));
+  _XMM3 = v13;
   __asm
   {
-    vmovss  xmm5, dword ptr [rbp+47h+forward]
-    vmovss  xmm6, dword ptr [rbp+47h+forward+4]
-    vmovss  xmm4, dword ptr [rbp+47h+forward+8]
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  _RSI->signedAngleBetweenMantleDirAndLookDir = 0.0;
-  __asm
-  {
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm3, xmm5, xmm1
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm0, xmm4, xmm1
-    vmovss  dword ptr [rdi], xmm3
-    vmovss  dword ptr [rdi+4], xmm2
-    vmovss  dword ptr [rdi+8], xmm0
   }
-  v34 = DCONST_DVARBOOL_mantle_any_direction;
-  __asm
-  {
-    vmovss  dword ptr [rbp+47h+forward], xmm3
-    vmovss  dword ptr [rbp+47h+forward+4], xmm2
-    vmovss  dword ptr [rbp+47h+forward+8], xmm0
-  }
+  outSearchStraightDir->v[0] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  outSearchStraightDir->v[1] = v11 * (float)(1.0 / *(float *)&_XMM0);
+  outSearchStraightDir->v[2] = v12 * (float)(1.0 / *(float *)&_XMM0);
+  v17 = DCONST_DVARBOOL_mantle_any_direction;
+  forward.v[0] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[1] = v11 * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[2] = v12 * (float)(1.0 / *(float *)&_XMM0);
   if ( !DCONST_DVARBOOL_mantle_any_direction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_any_direction") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  v35 = !v34->current.enabled;
-  if ( !v34->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( !v17->current.enabled )
     goto LABEL_24;
+  v18 = LODWORD(wishDir->v[0]);
+  v19 = v18;
+  *(float *)&v19 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(wishDir->v[1] * wishDir->v[1])) + (float)(wishDir->v[2] * wishDir->v[2]));
+  _XMM5 = v19;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  xmm4, dword ptr [r15]
-    vmovss  xmm3, dword ptr [r15+8]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm5, xmm2, xmm2
     vcmpless xmm0, xmm5, cs:__real@80000000
     vblendvps xmm0, xmm5, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [r14], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r15+4]
-    vmovss  dword ptr [r14+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r15+8]
-    vcvtss2sd xmm1, xmm5, xmm5
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-    vmovss  dword ptr [r14+8], xmm0
   }
-  if ( v35 )
+  outSearchDir->v[0] = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM0);
+  outSearchDir->v[1] = (float)(1.0 / *(float *)&_XMM0) * wishDir->v[1];
+  outSearchDir->v[2] = (float)(1.0 / *(float *)&_XMM0) * wishDir->v[2];
+  if ( *(float *)&v19 > 0.000001 )
   {
-LABEL_24:
-    __asm
+    WorldUpReferenceFrame::GetUpVector(&v39, &outUp);
+    v23 = SignedAngleBetween(&forward, outSearchDir, &outUp);
+    mresults->signedAngleBetweenMantleDirAndLookDir = *(float *)&v23;
+    v24 = AngleNormalize360(*(const float *)&v23);
+    v25 = DCONST_DVARFLT_mantle_left_mantle_angle_end;
+    v26 = *(float *)&v24;
+    if ( !DCONST_DVARFLT_mantle_left_mantle_angle_end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_left_mantle_angle_end") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v25);
+    value = v25->current.value;
+    v28 = DCONST_DVARFLT_mantle_left_mantle_angle_begin;
+    if ( !DCONST_DVARFLT_mantle_left_mantle_angle_begin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_left_mantle_angle_begin") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v28);
+    if ( Mantle_IsIn360AngleInterval(v28->current.value, value, *(const float *)&v24) )
     {
-      vmovss  xmm0, dword ptr [rbp+47h+forward]
-      vmovss  xmm1, dword ptr [rbp+47h+forward+4]
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [rbp+47h+forward+8]
-      vmovss  dword ptr [r14+8], xmm0
-      vmovss  dword ptr [r14+4], xmm1
+      mresults->flags |= 0x100u;
+    }
+    else
+    {
+      v29 = DCONST_DVARFLT_mantle_back_mantle_angle_end;
+      if ( !DCONST_DVARFLT_mantle_back_mantle_angle_end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_back_mantle_angle_end") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v29);
+      v30 = v29->current.value;
+      v31 = DCONST_DVARFLT_mantle_back_mantle_angle_begin;
+      if ( !DCONST_DVARFLT_mantle_back_mantle_angle_begin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_back_mantle_angle_begin") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v31);
+      if ( Mantle_IsIn360AngleInterval(v31->current.value, v30, *(const float *)&v24) )
+      {
+        mresults->flags |= 0x400u;
+      }
+      else
+      {
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_right_mantle_angle_end, "mantle_right_mantle_angle_end");
+        v33 = *(float *)&Float_Internal_DebugName;
+        v34 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_right_mantle_angle_begin, "mantle_right_mantle_angle_begin");
+        if ( Mantle_IsIn360AngleInterval(*(const float *)&v34, v33, v26) )
+          mresults->flags |= 0x200u;
+      }
     }
   }
   else
   {
-    WorldUpReferenceFrame::GetUpVector(&v77, &outUp);
-    *(double *)&_XMM0 = SignedAngleBetween(&forward, outSearchDir, &outUp);
-    __asm { vmovss  dword ptr [rsi+84h], xmm0 }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    _RBX = DCONST_DVARFLT_mantle_left_mantle_angle_end;
-    __asm { vmovaps xmm7, xmm0 }
-    if ( !DCONST_DVARFLT_mantle_left_mantle_angle_end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_left_mantle_angle_end") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_mantle_left_mantle_angle_begin;
-    if ( !DCONST_DVARFLT_mantle_left_mantle_angle_begin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_left_mantle_angle_begin") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]; rangeBegin
-      vmovaps xmm2, xmm7; angle
-      vmovaps xmm1, xmm6; rangeEnd
-    }
-    if ( Mantle_IsIn360AngleInterval(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2) )
-    {
-      _RSI->flags |= 0x100u;
-    }
-    else
-    {
-      _RBX = DCONST_DVARFLT_mantle_back_mantle_angle_end;
-      if ( !DCONST_DVARFLT_mantle_back_mantle_angle_end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_back_mantle_angle_end") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_mantle_back_mantle_angle_begin;
-      if ( !DCONST_DVARFLT_mantle_back_mantle_angle_begin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_back_mantle_angle_begin") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]; rangeBegin
-        vmovaps xmm2, xmm7; angle
-        vmovaps xmm1, xmm6; rangeEnd
-      }
-      if ( Mantle_IsIn360AngleInterval(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2) )
-      {
-        _RSI->flags |= 0x400u;
-      }
-      else
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_right_mantle_angle_end, "mantle_right_mantle_angle_end");
-        __asm { vmovaps xmm6, xmm0 }
-        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_right_mantle_angle_begin, "mantle_right_mantle_angle_begin");
-        __asm
-        {
-          vmovaps xmm2, xmm7; angle
-          vmovaps xmm1, xmm6; rangeEnd
-        }
-        if ( Mantle_IsIn360AngleInterval(*(const float *)&Float_Internal_DebugName, *(const float *)&_XMM1, *(const float *)&_XMM2) )
-          _RSI->flags |= 0x200u;
-      }
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+0F0h+var_48+8]
-    vmovaps xmm7, [rsp+0F0h+var_58+8]
+LABEL_24:
+    v35 = forward.v[1];
+    outSearchDir->v[0] = forward.v[0];
+    outSearchDir->v[2] = forward.v[2];
+    outSearchDir->v[1] = v35;
   }
 }
 
@@ -6700,46 +5093,31 @@ Mantle_GetWeaponMantleGestureHeightType
 */
 __int64 Mantle_GetWeaponMantleGestureHeightType(const playerState_s *ps)
 {
-  char v6; 
-  __int64 result; 
+  double LedgeHeight; 
+  const dvar_t *v3; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1182, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  *(double *)&_XMM0 = Mantle_GetLedgeHeight(ps);
-  _RBX = DCONST_DVARFLT_mantle_gesture_extreme_min_height;
-  __asm { vmovaps xmm6, xmm0 }
+  LedgeHeight = Mantle_GetLedgeHeight(ps);
+  v3 = DCONST_DVARFLT_mantle_gesture_extreme_min_height;
   if ( !DCONST_DVARFLT_mantle_gesture_extreme_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_extreme_min_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v6 )
-  {
-    _RBX = DCONST_DVARFLT_mantle_gesture_high_min_height;
-    if ( !DCONST_DVARFLT_mantle_gesture_high_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_high_min_height") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-    if ( v6 )
-    {
-      _RBX = DCONST_DVARFLT_mantle_gesture_middle_min_height;
-      if ( !DCONST_DVARFLT_mantle_gesture_middle_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_middle_min_height") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      result = 1i64;
-    }
-    else
-    {
-      result = 2i64;
-    }
-  }
-  else
-  {
-    result = 3i64;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v3);
+  if ( *(float *)&LedgeHeight >= v3->current.value )
+    return 3i64;
+  v5 = DCONST_DVARFLT_mantle_gesture_high_min_height;
+  if ( !DCONST_DVARFLT_mantle_gesture_high_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_high_min_height") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v5);
+  if ( *(float *)&LedgeHeight >= v5->current.value )
+    return 2i64;
+  v6 = DCONST_DVARFLT_mantle_gesture_middle_min_height;
+  if ( !DCONST_DVARFLT_mantle_gesture_middle_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_middle_min_height") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  return *(float *)&LedgeHeight >= v6->current.value;
 }
 
 /*
@@ -6747,27 +5125,21 @@ __int64 Mantle_GetWeaponMantleGestureHeightType(const playerState_s *ps)
 Mantle_InDistanceRegardlessOfSpeed
 ==============
 */
-__int64 Mantle_InDistanceRegardlessOfSpeed(const playerState_s *ps, const MantleResults *mresults)
+_BOOL8 Mantle_InDistanceRegardlessOfSpeed(const playerState_s *ps, const MantleResults *mresults)
 {
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = mresults;
+  const dvar_t *v4; 
+  float value; 
+  double BoundsRadius; 
+
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2642, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_mantle_check_radius;
+  v4 = DCONST_DVARFLT_mantle_check_radius;
   if ( !DCONST_DVARFLT_mantle_check_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_check_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-  __asm { vsubss  xmm6, xmm0, xmm6 }
-  *(float *)&_XMM0 = Mantle_GetCheckRange(ps, _RDI);
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm6
-    vcomiss xmm1, dword ptr [rdi+70h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return 1i64;
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+  return (float)(Mantle_GetCheckRange(ps, mresults) + (float)(*(float *)&BoundsRadius - value)) >= mresults->distanceToMantleSurface;
 }
 
 /*
@@ -6799,64 +5171,17 @@ bool Mantle_IsForceOver(MantleResults *mresults)
 Mantle_IsIn360AngleInterval
 ==============
 */
-
-bool __fastcall Mantle_IsIn360AngleInterval(double rangeBegin, double rangeEnd, double angle)
+bool Mantle_IsIn360AngleInterval(const float rangeBegin, const float rangeEnd, const float angle)
 {
-  bool v11; 
-  bool result; 
-
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm0, xmm10
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm8, xmm0
-    vcomiss xmm0, cs:__real@43b40000
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2040, ASSERT_TYPE_ASSERT, "((rangeBegin >= 0.0f) && (rangeBegin < 360.0f))", (const char *)&queryFormat, "(rangeBegin >= 0.0f) && (rangeBegin < 360.0f)") )
+  if ( (rangeBegin < 0.0 || rangeBegin >= 360.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2040, ASSERT_TYPE_ASSERT, "((rangeBegin >= 0.0f) && (rangeBegin < 360.0f))", (const char *)&queryFormat, "(rangeBegin >= 0.0f) && (rangeBegin < 360.0f)") )
     __debugbreak();
-  __asm
-  {
-    vcomiss xmm7, xmm10
-    vcomiss xmm7, cs:__real@43b40000
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2041, ASSERT_TYPE_ASSERT, "((rangeEnd >= 0.0f) && (rangeEnd < 360.0f))", (const char *)&queryFormat, "(rangeEnd >= 0.0f) && (rangeEnd < 360.0f)") )
+  if ( (rangeEnd < 0.0 || rangeEnd >= 360.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2041, ASSERT_TYPE_ASSERT, "((rangeEnd >= 0.0f) && (rangeEnd < 360.0f))", (const char *)&queryFormat, "(rangeEnd >= 0.0f) && (rangeEnd < 360.0f)") )
     __debugbreak();
-  __asm
-  {
-    vcomiss xmm6, xmm10
-    vcomiss xmm6, cs:__real@43b40000
-  }
-  v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2042, ASSERT_TYPE_ASSERT, "((angle >= 0.0f) && (angle < 360.0f))", (const char *)&queryFormat, "(angle >= 0.0f) && (angle < 360.0f)");
-  if ( v11 )
+  if ( (angle < 0.0 || angle >= 360.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 2042, ASSERT_TYPE_ASSERT, "((angle >= 0.0f) && (angle < 360.0f))", (const char *)&queryFormat, "(angle >= 0.0f) && (angle < 360.0f)") )
     __debugbreak();
-  __asm { vcomiss xmm8, xmm7 }
-  if ( v11 )
-  {
-    __asm { vcomiss xmm6, xmm8 }
-  }
-  else
-  {
-    __asm
-    {
-      vcomiss xmm6, xmm8
-      vcomiss xmm6, xmm7
-    }
-  }
-  result = 1;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm10, [rsp+78h+var_48]
-  }
-  return result;
+  if ( rangeBegin <= rangeEnd )
+    return angle >= rangeBegin && angle <= rangeEnd;
+  return angle >= rangeBegin || angle <= rangeEnd;
 }
 
 /*
@@ -6890,23 +5215,17 @@ Mantle_IsWeaponDown
 */
 bool Mantle_IsWeaponDown(const playerState_s *ps)
 {
-  char v7; 
+  double LedgeHeight; 
+  const dvar_t *v3; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1059, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  *(double *)&_XMM0 = Mantle_GetLedgeHeight(ps);
-  _RBX = DCONST_DVARFLT_mantle_gesture_high_min_height;
-  __asm { vmovaps xmm6, xmm0 }
+  LedgeHeight = Mantle_GetLedgeHeight(ps);
+  v3 = DCONST_DVARFLT_mantle_gesture_high_min_height;
   if ( !DCONST_DVARFLT_mantle_gesture_high_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_high_min_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rbx+28h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return !v7;
+  Dvar_CheckFrontendServerThread(v3);
+  return *(float *)&LedgeHeight >= v3->current.value;
 }
 
 /*
@@ -6916,235 +5235,149 @@ Mantle_Move
 */
 void Mantle_Move(pmove_t *pm, pml_t *pml)
 {
-  int v12; 
-  int v13; 
-  const dvar_t *v46; 
-  const dvar_t *v47; 
-  const dvar_t *v48; 
-  const dvar_t *v50; 
   playerState_s *ps; 
-  bool v52; 
-  char v56; 
-  playerState_s *v60; 
-  playerState_s *v61; 
+  int v5; 
+  int v6; 
+  double v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  float v14; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  playerState_s *v21; 
+  bool v22; 
+  playerState_s *v23; 
+  playerState_s *v24; 
   int flags; 
-  const dvar_t *v63; 
-  int v65; 
-  bool v67; 
-  char v68; 
-  const dvar_t *v69; 
-  const dvar_t *v70; 
-  const char *v80; 
+  const dvar_t *v26; 
+  float v27; 
+  int v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const char *v31; 
   int elapsedAnimTime; 
   vec3_t end; 
   pml_t *pmla; 
   vec3_t outPos; 
   trace_t outResults; 
   BSplineRelaxedCBezier outMantleSpline; 
-  char v93; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
   pmla = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4237, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _R14 = pm->ps;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4237, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4237, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v12 = 0;
-  v13 = _R14->mantleState.endTime - _R14->mantleState.startTime;
-  if ( v13 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4242, ASSERT_TYPE_ASSERT, "( mantleDuration ) > ( 0 )", "%s > %s\n\t%lli, %lli", "mantleDuration", "0", v13, 0i64) )
+  v5 = 0;
+  v6 = ps->mantleState.endTime - ps->mantleState.startTime;
+  if ( v6 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4242, ASSERT_TYPE_ASSERT, "( mantleDuration ) > ( 0 )", "%s > %s\n\t%lli, %lli", "mantleDuration", "0", v6, 0i64) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm9, xmm9, xmm9
-  }
-  if ( pm->cmd.serverTime - _R14->mantleState.startTime > 0 )
-    v12 = pm->cmd.serverTime - _R14->mantleState.startTime;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, esi
-    vcvtsi2ss xmm9, xmm9, edi
-    vdivss  xmm0, xmm0, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  elapsedAnimTime = v12;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm10, xmm0 }
+  if ( pm->cmd.serverTime - ps->mantleState.startTime > 0 )
+    v5 = pm->cmd.serverTime - ps->mantleState.startTime;
+  elapsedAnimTime = v5;
+  v7 = I_fclamp((float)v5 / (float)v6, 0.0, 1.0);
+  v8 = *(float *)&v7;
   BSplineRelaxedCBezier::BSplineRelaxedCBezier(&outMantleSpline);
   Mantle_BuildMotionPath(pm, &outMantleSpline);
-  __asm { vmovaps xmm1, xmm10; t }
-  BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&_XMM1, &outPos);
+  BG_BSpline_RelaxedCBezier_Evaluate(&outMantleSpline, *(float *)&v7, &outPos);
+  v9 = outPos.v[0] - ps->origin.v[0];
+  v11 = LODWORD(outPos.v[1]);
+  v10 = outPos.v[1] - ps->origin.v[1];
+  v12 = outPos.v[2] - ps->origin.v[2];
+  *(float *)&v11 = fsqrt((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v12 * v12));
+  _XMM1 = v11;
+  v14 = *(float *)&v11 / pml->frametime;
   __asm
   {
-    vmovss  xmm1, dword ptr [rsp+4A0h+outPos]
-    vsubss  xmm5, xmm1, dword ptr [r14+30h]
-    vmovss  xmm2, dword ptr [rsp+4A0h+outPos+4]
-    vsubss  xmm6, xmm2, dword ptr [r14+34h]
-    vmovss  xmm0, dword ptr [rbp+3A0h+outPos+8]
-    vsubss  xmm7, xmm0, dword ptr [r14+38h]
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vdivss  xmm3, xmm1, dword ptr [r15+24h]
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm8, xmm0
-    vdivss  xmm4, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm4
-    vmulss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [r14+3Ch], xmm1
-    vmulss  xmm2, xmm6, xmm4
-    vmulss  xmm0, xmm2, xmm3
-    vmulss  xmm1, xmm7, xmm4
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [r14+44h], xmm2
-    vmovss  dword ptr [r14+40h], xmm0
   }
-  v46 = DCONST_DVARINT_mantle_debug;
+  ps->velocity.v[0] = (float)(v9 * (float)(1.0 / *(float *)&_XMM0)) * v14;
+  ps->velocity.v[2] = (float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * v14;
+  ps->velocity.v[1] = (float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * v14;
+  v17 = DCONST_DVARINT_mantle_debug;
   if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v46);
-  if ( (v46->current.enabled & 4) != 0 && !pm->isExtrapolation )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( (v17->current.enabled & 4) != 0 && !pm->isExtrapolation )
   {
-    v47 = DVARINT_mantle_debugLineTime;
+    v18 = DVARINT_mantle_debugLineTime;
     if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v47);
-    Mantle_DebugLine(pm->m_bgHandler, &_R14->origin, &outPos, &colorYellow, v47->current.integer);
+    Dvar_CheckFrontendServerThread(v18);
+    Mantle_DebugLine(pm->m_bgHandler, &ps->origin, &outPos, &colorYellow, v18->current.integer);
   }
-  v48 = DVARBOOL_playerCharacterCollisionMantleVehicleWallFix;
-  end.v[2] = outPos.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+4A0h+outPos]
-    vmovsd  qword ptr [rsp+4A0h+end], xmm0
-  }
+  v19 = DVARBOOL_playerCharacterCollisionMantleVehicleWallFix;
+  end = outPos;
   if ( !DVARBOOL_playerCharacterCollisionMantleVehicleWallFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionMantleVehicleWallFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  if ( !v48->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
-    goto LABEL_37;
-  v50 = DVARBOOL_playerCharacterCollisionMantleWindowFix;
-  ps = pm->ps;
+  Dvar_CheckFrontendServerThread(v19);
+  if ( !v19->current.enabled || !Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
+    goto LABEL_40;
+  v20 = DVARBOOL_playerCharacterCollisionMantleWindowFix;
+  v21 = pm->ps;
   if ( !DVARBOOL_playerCharacterCollisionMantleWindowFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionMantleWindowFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v50);
-  v52 = !v50->current.enabled || (ps->mantleState.flags & 0x1000) != 0;
-  if ( !BGMovingPlatformPS::IsOnMovingPlatform(&ps->movingPlatforms) )
-    goto LABEL_37;
-  if ( !v52 )
-    goto LABEL_37;
-  __asm { vmovss  xmm0, dword ptr [rsp+4A0h+end] }
-  _R9 = &ps->origin;
-  __asm { vucomiss xmm0, dword ptr [r9] }
-  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &ps->origin, &end, pm->bounds, ps->movingPlatforms.m_movingPlatformEntity, pm->tracemask & 0xFDFFBFFF, ps != NULL);
-  __asm
-  {
-    vmovss  xmm0, [rbp+3A0h+outResults.fraction]
-    vucomiss xmm0, xmm8
-  }
-  if ( v56 || outResults.hitId != 2046 )
-  {
-LABEL_37:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+4A0h+outPos]
-      vmovss  dword ptr [r14+30h], xmm0
-      vmovss  xmm1, dword ptr [rsp+4A0h+outPos+4]
-      vmovss  dword ptr [r14+34h], xmm1
-      vmovss  xmm0, dword ptr [rbp+3A0h+outPos+8]
-      vmovss  dword ptr [r14+38h], xmm0
-    }
-  }
-  v60 = pm->ps;
-  if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4090, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  Dvar_CheckFrontendServerThread(v20);
+  v22 = !v20->current.enabled || (v21->mantleState.flags & 0x1000) != 0;
+  if ( !BGMovingPlatformPS::IsOnMovingPlatform(&v21->movingPlatforms) || !v22 || end.v[0] == v21->origin.v[0] && end.v[1] == v21->origin.v[1] && end.v[2] == v21->origin.v[2] || (BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &v21->origin, &end, pm->bounds, v21->movingPlatforms.m_movingPlatformEntity, pm->tracemask & 0xFDFFBFFF, v21 != NULL), outResults.fraction == 1.0) || outResults.hitId != 2046 )
+LABEL_40:
+    ps->origin = outPos;
+  v23 = pm->ps;
+  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4090, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Mantle_SetTraceFlags(pm->m_trace);
-  BgTrace::LegacyTrace(pm->m_trace, pm, &outResults, &v60->origin, &v60->origin, pm->bounds, v60->clientNum, 16);
+  BgTrace::LegacyTrace(pm->m_trace, pm, &outResults, &v23->origin, &v23->origin, pm->bounds, v23->clientNum, 16);
   Mantle_RestoreTraceFlags(pm->m_trace);
   if ( BG_Glass_CanBreakGlass(&outResults) )
-    BG_AddPredictableEventToPlayerstate(EV_BREAK_GLASS, 0, pm->cmd.serverTime, pm->weaponMap, v60);
-  v61 = pm->ps;
-  if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4063, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    BG_AddPredictableEventToPlayerstate(EV_BREAK_GLASS, 0, pm->cmd.serverTime, pm->weaponMap, v23);
+  v24 = pm->ps;
+  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4063, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  flags = v61->mantleState.flags;
+  flags = v24->mantleState.flags;
   if ( (flags & 0x20) != 0 || (flags & 0x40) != 0 )
   {
-    v65 = elapsedAnimTime;
+    v28 = elapsedAnimTime;
   }
   else
   {
-    v63 = DCONST_DVARFLT_mantle_land_time;
+    v26 = DCONST_DVARFLT_mantle_land_time;
     if ( !DCONST_DVARFLT_mantle_land_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_land_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v63);
-    __asm { vmulss  xmm0, xmm9, dword ptr [r15+28h] }
-    v65 = elapsedAnimTime;
-    __asm { vcvttss2si eax, xmm0 }
-    if ( _EAX >= elapsedAnimTime )
-      v61->mantleState.flags |= 0x40u;
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = (float)v6 * v26->current.value;
+    v28 = elapsedAnimTime;
+    if ( (int)v27 >= elapsedAnimTime )
+      v24->mantleState.flags |= 0x40u;
   }
-  v67 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW);
-  v68 = 0;
-  if ( v67 )
-    Mantle_ExecuteAnimScript(pm, v65, v13);
-  __asm { vcomiss xmm10, xmm8 }
-  if ( v68 )
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
+    Mantle_ExecuteAnimScript(pm, v28, v6);
+  if ( v8 < 1.0 )
   {
     Mantle_UpdateViewYaw(pm);
   }
   else
   {
-    Mantle_MoveComplete(pm, pmla, v13, &outMantleSpline);
-    v69 = DVARINT_mantle_debugLineTime;
+    Mantle_MoveComplete(pm, pmla, v6, &outMantleSpline);
+    v29 = DVARINT_mantle_debugLineTime;
     if ( !DVARINT_mantle_debugLineTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debugLineTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v69);
-    Mantle_DebugStar(pm->m_bgHandler, &_R14->origin, &colorCyan, v69->current.integer);
-    v70 = DCONST_DVARINT_mantle_debug;
+    Dvar_CheckFrontendServerThread(v29);
+    Mantle_DebugStar(pm->m_bgHandler, &ps->origin, &colorCyan, v29->current.integer);
+    v30 = DCONST_DVARINT_mantle_debug;
     if ( !DCONST_DVARINT_mantle_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v70);
-    if ( v70->current.integer )
+    Dvar_CheckFrontendServerThread(v30);
+    if ( v30->current.integer )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+38h]
-        vmovss  xmm2, dword ptr [r14+34h]
-        vmovss  xmm1, dword ptr [r14+30h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v80 = j_va("Mantle End: (%.2f, %.2f, %.2f)\n", _RDX, _R8, _R9);
-      Mantle_DebugPrint(2u, v80);
+      v31 = j_va("Mantle End: (%.2f, %.2f, %.2f)\n", ps->origin.v[0], ps->origin.v[1], ps->origin.v[2]);
+      Mantle_DebugPrint(2u, v31);
     }
-  }
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 
@@ -7155,73 +5388,51 @@ Mantle_MoveComplete
 */
 void Mantle_MoveComplete(pmove_t *pm, pml_t *pml, const int mantleLength, const BSplineRelaxedCBezier *mantleSpline)
 {
+  playerState_s *ps; 
   int flags; 
-  char v15; 
-  char v16; 
-  int v20; 
+  const dvar_t *v9; 
+  int v10; 
   vec3_t vec; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4159, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4159, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4159, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4161, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 5u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4165, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE )") )
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4165, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE )") )
     __debugbreak();
-  _RBX->pm_flags.m_flags[0] &= ~0x20u;
+  ps->pm_flags.m_flags[0] &= ~0x20u;
   pm->m_flags &= ~0x40u;
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RBX->eFlags, GameModeFlagValues::ms_mpValue, 0x18u);
-  flags = _RBX->mantleState.flags;
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&ps->eFlags, GameModeFlagValues::ms_mpValue, 0x18u);
+  flags = ps->mantleState.flags;
   if ( (flags & 4) != 0 )
   {
-    BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_STAND, 0, pm->cmd.serverTime, pm->weaponMap, _RBX);
-    flags = _RBX->mantleState.flags;
+    BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_STAND, 0, pm->cmd.serverTime, pm->weaponMap, ps);
+    flags = ps->mantleState.flags;
   }
   Mantle_SetEndingVelocity(pm, (flags & 0x20) != 0, mantleSpline);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmovss  dword ptr [rsp+88h+vec], xmm0
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vmovss  dword ptr [rsp+88h+vec+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vmovss  dword ptr [rsp+88h+vec+8], xmm0
-  }
+  vec = ps->velocity;
   WorldUpReferenceFrame::RemoveReferenceFrameFromVector(&pm->refFrame, &vec);
-  _RSI = DCONST_DVARFLT_mantle_max_vertical_end_velocity;
+  v9 = DCONST_DVARFLT_mantle_max_vertical_end_velocity;
   if ( !DCONST_DVARFLT_mantle_max_vertical_end_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_max_vertical_end_velocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v9);
+  if ( vec.v[2] > v9->current.value )
   {
-    vmovss  xmm1, dword ptr [rsi+28h]
-    vmovss  xmm0, dword ptr [rsp+88h+vec+8]
-    vcomiss xmm0, xmm1
-  }
-  if ( !(v15 | v16) )
-  {
-    __asm { vmovss  dword ptr [rsp+88h+vec+8], xmm1 }
+    LODWORD(vec.v[2]) = v9->current.integer;
     WorldUpReferenceFrame::ApplyReferenceFrameToVector(&pm->refFrame, &vec);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+vec]
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vmovss  xmm1, dword ptr [rsp+88h+vec+4]
-      vmovss  dword ptr [rbx+40h], xmm1
-      vmovss  xmm0, dword ptr [rsp+88h+vec+8]
-      vmovss  dword ptr [rbx+44h], xmm0
-    }
+    ps->velocity = vec;
   }
-  v20 = _RBX->mantleState.flags;
-  if ( (v20 & 0x800) != 0 )
+  v10 = ps->mantleState.flags;
+  if ( (v10 & 0x800) != 0 )
   {
-    *(_QWORD *)_RBX->velocity.v = 0i64;
-    _RBX->velocity.v[2] = 0.0;
-    v20 = _RBX->mantleState.flags;
+    *(_QWORD *)ps->velocity.v = 0i64;
+    ps->velocity.v[2] = 0.0;
+    v10 = ps->mantleState.flags;
   }
-  _RBX->mantleState.flags = v20 | 8;
+  ps->mantleState.flags = v10 | 8;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
     Mantle_ExecuteFinishedAnimScript(pm, pml);
 }
@@ -7233,37 +5444,26 @@ Mantle_PlayerPushingIntoSurface
 */
 _BOOL8 Mantle_PlayerPushingIntoSurface(const playerState_s *ps, const BgHandler *pmoveHandler, const vec3_t *wishdir, const MantleResults *mresults)
 {
+  const dvar_t *v8; 
+  double v9; 
   const dvar_t *v10; 
-  const dvar_t *v11; 
-  char v17; 
-  char v18; 
-  WorldUpReferenceFrame v20; 
+  WorldUpReferenceFrame v12; 
 
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 371, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  v10 = DCONST_DVARBOOL_mantle_requires_stick;
+  v8 = DCONST_DVARBOOL_mantle_requires_stick;
   if ( !DCONST_DVARBOOL_mantle_requires_stick && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_requires_stick") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( !v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
     return 0i64;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v20, ps, pmoveHandler);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::Vec2Dot(&v20, &mresults->dir, wishdir);
-  v11 = DCONST_DVARINT_mantle_required_stick_magnitude;
-  __asm { vmovaps xmm6, xmm0 }
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v12, ps, pmoveHandler);
+  v9 = WorldUpReferenceFrame::Vec2Dot(&v12, &mresults->dir, wishdir);
+  v10 = DCONST_DVARINT_mantle_required_stick_magnitude;
   if ( !DCONST_DVARINT_mantle_required_stick_magnitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_required_stick_magnitude") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  __asm
-  {
-    vmulss  xmm1, xmm6, dword ptr [rdi+7Ch]
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-    vcomiss xmm1, xmm0
-  }
-  return !(v17 | v18);
+  Dvar_CheckFrontendServerThread(v10);
+  return (float)(*(float *)&v9 * mresults->wishMag) > (float)v10->current.integer;
 }
 
 /*
@@ -7292,183 +5492,59 @@ Mantle_SavePosOffsets
 void Mantle_SavePosOffsets(pmove_t *pm, MantleResults *mresults)
 {
   playerState_s *ps; 
-  char v77; 
-  char v78; 
+  float v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  float v18; 
+  double v19; 
   vec3_t outVec; 
-  char v102; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-  }
-  _RBX = mresults;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1416, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1416, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1417, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1417, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+1Ch]
-    vmovss  xmm2, dword ptr [rbx+20h]
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vsubss  xmm7, xmm1, dword ptr [rbx+10h]
-    vsubss  xmm8, xmm2, dword ptr [rbx+14h]
-    vmovss  xmm9, cs:__real@42dc0000
-    vmovss  xmm6, cs:__real@c2dc0000
-    vsubss  xmm0, xmm0, dword ptr [rbx+0Ch]; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm11, xmm0
-    vmovaps xmm0, xmm7; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm12, xmm0
-    vmovaps xmm0, xmm8; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm13, xmm0 }
+  v5 = mresults->ledgePos.v[1] - mresults->startPos.v[1];
+  v6 = mresults->ledgePos.v[2] - mresults->startPos.v[2];
+  v7 = I_fclamp(mresults->ledgePos.v[0] - mresults->startPos.v[0], -110.0, 110.0);
+  v8 = *(float *)&v7;
+  v9 = I_fclamp(v5, -110.0, 110.0);
+  v10 = *(float *)&v9;
+  v11 = I_fclamp(v6, -110.0, 110.0);
+  v12 = *(float *)&v11;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1243, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps xmm0, xmm11; value
-  }
-  ps->mantleState.ledgePosOffset.v[0] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps xmm0, xmm12; value
-  }
-  ps->mantleState.ledgePosOffset.v[1] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps xmm0, xmm13; value
-    vmovss  xmm9, cs:__real@43200000
-    vmovss  xmm6, cs:__real@c3200000
-  }
-  ps->mantleState.ledgePosOffset.v[2] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+28h]
-    vmovss  xmm2, dword ptr [rbx+2Ch]
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vsubss  xmm7, xmm1, dword ptr [rbx+10h]
-    vsubss  xmm8, xmm2, dword ptr [rbx+14h]
-    vsubss  xmm0, xmm0, dword ptr [rbx+0Ch]; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm10, xmm0
-    vmovaps xmm0, xmm7; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vmovaps xmm0, xmm8; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovaps xmm0, xmm10; value
-    vmovaps xmm1, xmm9; maxAbsValueSize
-  }
-  ps->mantleState.endPosOffset.v[0] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps xmm0, xmm7; value
-  }
-  ps->mantleState.endPosOffset.v[1] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
-  __asm
-  {
-    vmovaps xmm1, xmm9; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  ps->mantleState.endPosOffset.v[2] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xFu);
+  ps->mantleState.ledgePosOffset.v[0] = MSG_PackSignedFloat(v8, 110.0, 0xFu);
+  ps->mantleState.ledgePosOffset.v[1] = MSG_PackSignedFloat(v10, 110.0, 0xFu);
+  ps->mantleState.ledgePosOffset.v[2] = MSG_PackSignedFloat(*(float *)&v11, 110.0, 0xFu);
+  v13 = mresults->endPos.v[1] - mresults->startPos.v[1];
+  v14 = mresults->endPos.v[2] - mresults->startPos.v[2];
+  v15 = I_fclamp(mresults->endPos.v[0] - mresults->startPos.v[0], -160.0, 160.0);
+  v16 = *(float *)&v15;
+  v17 = I_fclamp(v13, -160.0, 160.0);
+  v18 = *(float *)&v17;
+  v19 = I_fclamp(v14, -160.0, 160.0);
+  ps->mantleState.endPosOffset.v[0] = MSG_PackSignedFloat(v16, 160.0, 0xFu);
+  ps->mantleState.endPosOffset.v[1] = MSG_PackSignedFloat(v18, 160.0, 0xFu);
+  ps->mantleState.endPosOffset.v[2] = MSG_PackSignedFloat(*(float *)&v19, 160.0, 0xFu);
   BG_GetMantleLedgePosOffset(ps, &outVec);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+outVec]
-    vmovss  xmm1, dword ptr [rsp+0D8h+outVec+4]
-    vmovss  xmm8, cs:__real@3e000000
-    vsubss  xmm3, xmm0, xmm11
-    vmovss  xmm0, dword ptr [rsp+0D8h+outVec+8]
-    vsubss  xmm2, xmm1, xmm12
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm4, xmm0, xmm13
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomiss xmm1, xmm8
-  }
-  if ( !(v77 | v78) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1437, ASSERT_TYPE_ASSERT, "(Vec3Distance( ledgePosOffset, ledgePosOffsetAfterQuantization ) <= LEDGE_ERROR_MARGIN)", "%s\n\tThe quantization fidelity for the mantle ledge offset is not high enough. Consider either increasing MANTLE_LEDGE_OFFSET_BITS or decreasing MANTLE_LEDGE_OFFSET_MAX", "Vec3Distance( ledgePosOffset, ledgePosOffsetAfterQuantization ) <= LEDGE_ERROR_MARGIN") )
+  if ( fsqrt((float)((float)((float)(outVec.v[1] - v10) * (float)(outVec.v[1] - v10)) + (float)((float)(outVec.v[0] - v8) * (float)(outVec.v[0] - v8))) + (float)((float)(outVec.v[2] - v12) * (float)(outVec.v[2] - v12))) > 0.125 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1437, ASSERT_TYPE_ASSERT, "(Vec3Distance( ledgePosOffset, ledgePosOffsetAfterQuantization ) <= LEDGE_ERROR_MARGIN)", "%s\n\tThe quantization fidelity for the mantle ledge offset is not high enough. Consider either increasing MANTLE_LEDGE_OFFSET_BITS or decreasing MANTLE_LEDGE_OFFSET_MAX", "Vec3Distance( ledgePosOffset, ledgePosOffsetAfterQuantization ) <= LEDGE_ERROR_MARGIN") )
     __debugbreak();
   BG_GetMantleEndPosOffset(ps, &outVec);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+outVec]
-    vmovss  xmm1, dword ptr [rsp+0D8h+outVec+4]
-    vsubss  xmm3, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rsp+0D8h+outVec+8]
-    vsubss  xmm2, xmm1, xmm7
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm4, xmm0, xmm6
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomiss xmm1, xmm8
-  }
-  if ( !(v77 | v78) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1442, ASSERT_TYPE_ASSERT, "(Vec3Distance( endPosOffset, endPosOffsetAfterQuantization ) <= END_ERROR_MARGIN)", "%s\n\tThe quantization fidelity for the mantle end offset is not high enough. Consider either increasing MANTLE_END_OFFSET_BITS or decreasing MANTLE_END_OFFSET_MAX", "Vec3Distance( endPosOffset, endPosOffsetAfterQuantization ) <= END_ERROR_MARGIN") )
+  if ( fsqrt((float)((float)((float)(outVec.v[1] - v18) * (float)(outVec.v[1] - v18)) + (float)((float)(outVec.v[0] - v16) * (float)(outVec.v[0] - v16))) + (float)((float)(outVec.v[2] - *(float *)&v19) * (float)(outVec.v[2] - *(float *)&v19))) > 0.125 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1442, ASSERT_TYPE_ASSERT, "(Vec3Distance( endPosOffset, endPosOffsetAfterQuantization ) <= END_ERROR_MARGIN)", "%s\n\tThe quantization fidelity for the mantle end offset is not high enough. Consider either increasing MANTLE_END_OFFSET_BITS or decreasing MANTLE_END_OFFSET_MAX", "Vec3Distance( endPosOffset, endPosOffsetAfterQuantization ) <= END_ERROR_MARGIN") )
     __debugbreak();
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
 }
 
 /*
@@ -7478,169 +5554,98 @@ Mantle_SetConstantParameters
 */
 void Mantle_SetConstantParameters(pmove_t *pm, const MantleResults *mresults)
 {
-  char v23; 
+  playerState_s *ps; 
+  double v5; 
+  float v6; 
+  double UpContribution; 
+  float v8; 
+  double v9; 
   int MantleTime; 
   int serverTime; 
+  double LedgeHeight; 
+  const dvar_t *v13; 
   int flags; 
-  bool v44; 
-  char v45; 
+  const dvar_t *v15; 
   vec3_t outVec; 
   BSplineRelaxedCBezier outMantleSpline; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RDI = mresults;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1311, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1311, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1311, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1312, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
+  if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1312, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43340000; max
-    vmovss  xmm1, cs:__real@c3340000; min
-    vmovss  xmm0, dword ptr [rdi+84h]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-  _RBX->mantleState.compressedAnimData.angle = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
-  BG_GetMantleEndPosOffset(_RBX, &outVec);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &outVec);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+3B8h+outVec]
-    vmovss  xmm1, dword ptr [rsp+3B8h+outVec+4]
-    vmovss  xmm7, cs:__real@433e0000
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+3B8h+outVec+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, xmm7
-  }
-  if ( !(v45 | v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1335, ASSERT_TYPE_ASSERT, "(mantleDistance <= 190.0f)", (const char *)&queryFormat, "mantleDistance <= MANTLE_MAX_DISTANCE") )
+  v5 = I_fclamp(mresults->signedAngleBetweenMantleDirAndLookDir, -180.0, 180.0);
+  ps->mantleState.compressedAnimData.angle = MSG_PackSignedFloat(*(float *)&v5, 180.0, 9u);
+  BG_GetMantleEndPosOffset(ps, &outVec);
+  WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &outVec);
+  v6 = fsqrt((float)((float)(outVec.v[0] * outVec.v[0]) + (float)(outVec.v[1] * outVec.v[1])) + (float)(outVec.v[2] * outVec.v[2]));
+  if ( v6 > 190.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1335, ASSERT_TYPE_ASSERT, "(mantleDistance <= 190.0f)", (const char *)&queryFormat, "mantleDistance <= MANTLE_MAX_DISTANCE") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  _RBX->mantleState.compressedAnimData.distance2D = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 8u);
-  BG_GetMantleLedgePosOffset(_RBX, &outVec);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &outVec);
-  __asm
-  {
-    vcomiss xmm0, xmm7
-    vmovaps xmm6, xmm0
-  }
-  if ( !(v45 | v23) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1348, ASSERT_TYPE_ASSERT, "(mantleClimbHeight <= 190.0f)", (const char *)&queryFormat, "mantleClimbHeight <= MANTLE_MAX_DISTANCE") )
+  ps->mantleState.compressedAnimData.distance2D = MSG_PackUnsignedFloat(v6, 190.0, 8u);
+  BG_GetMantleLedgePosOffset(ps, &outVec);
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &outVec);
+  if ( *(float *)&UpContribution > 190.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1348, ASSERT_TYPE_ASSERT, "(mantleClimbHeight <= 190.0f)", (const char *)&queryFormat, "mantleClimbHeight <= MANTLE_MAX_DISTANCE") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  _RBX->mantleState.compressedAnimData.distanceZ = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 8u);
+  ps->mantleState.compressedAnimData.distanceZ = MSG_PackUnsignedFloat(*(float *)&UpContribution, 190.0, 8u);
   BSplineRelaxedCBezier::BSplineRelaxedCBezier(&outMantleSpline);
   Mantle_BuildMotionPath(pm, &outMantleSpline);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+40h]
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm3, xmm2
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vsqrtss xmm6, xmm3, xmm3
-  }
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(_RBX->mantleState.compressedAnimData.distanceZ, *(float *)&_XMM1, 8u);
-  __asm
-  {
-    vmovss  xmm2, [rsp+3B8h+outMantleSpline.totalLength]; distance3D
-    vmovaps xmm3, xmm6; vel2D
-    vmovaps xmm1, xmm0; height
-  }
-  MantleTime = Mantle_GetMantleTime(_RDI->flags, *(const float *)&_XMM1, *(const float *)&_XMM2, *(float *)&_XMM3);
+  v8 = fsqrt((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1]));
+  v9 = MSG_UnpackUnsignedFloat(ps->mantleState.compressedAnimData.distanceZ, 190.0, 8u);
+  MantleTime = Mantle_GetMantleTime(mresults->flags, *(const float *)&v9, outMantleSpline.totalLength, v8);
   serverTime = pm->cmd.serverTime;
-  _RBX->mantleState.startTime = serverTime;
-  _RBX->mantleState.endTime = serverTime + MantleTime;
-  *(double *)&_XMM0 = Mantle_GetLedgeHeight(_RBX);
-  _RSI = DCONST_DVARFLT_mantle_gesture_high_min_height;
-  __asm { vmovaps xmm7, xmm0 }
+  ps->mantleState.startTime = serverTime;
+  ps->mantleState.endTime = serverTime + MantleTime;
+  LedgeHeight = Mantle_GetLedgeHeight(ps);
+  v13 = DCONST_DVARFLT_mantle_gesture_high_min_height;
   if ( !DCONST_DVARFLT_mantle_gesture_high_min_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_gesture_high_min_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vcomiss xmm7, dword ptr [rsi+28h] }
-  if ( !v45 )
-    _RBX->mantleState.compressedAnimData.flags |= 4u;
-  flags = _RDI->flags;
+  Dvar_CheckFrontendServerThread(v13);
+  if ( *(float *)&LedgeHeight >= v13->current.value )
+    ps->mantleState.compressedAnimData.flags |= 4u;
+  flags = mresults->flags;
   if ( (flags & 1) != 0 )
   {
-    _RBX->mantleState.compressedAnimData.flags |= 2u;
-    flags = _RDI->flags;
+    ps->mantleState.compressedAnimData.flags |= 2u;
+    flags = mresults->flags;
   }
   if ( (flags & 0x800) != 0 )
   {
-    _RBX->mantleState.compressedAnimData.flags |= 0x80u;
-    flags = _RDI->flags;
+    ps->mantleState.compressedAnimData.flags |= 0x80u;
+    flags = mresults->flags;
   }
   if ( (flags & 0x100) != 0 )
   {
-    _RBX->mantleState.compressedAnimData.flags |= 8u;
+    ps->mantleState.compressedAnimData.flags |= 8u;
   }
   else if ( (flags & 0x200) != 0 )
   {
-    _RBX->mantleState.compressedAnimData.flags |= 0x10u;
+    ps->mantleState.compressedAnimData.flags |= 0x10u;
   }
   else if ( (flags & 0x400) != 0 )
   {
-    _RBX->mantleState.compressedAnimData.flags |= 0x20u;
+    ps->mantleState.compressedAnimData.flags |= 0x20u;
   }
-  v44 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x14u);
-  v45 = 0;
-  if ( v44 )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) )
   {
-    _RDI = DCONST_DVARFLT_mantle_sprint_anim_cond_min_speed;
+    v15 = DCONST_DVARFLT_mantle_sprint_anim_cond_min_speed;
     if ( !DCONST_DVARFLT_mantle_sprint_anim_cond_min_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_sprint_anim_cond_min_speed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    if ( !v45 )
-    {
-      v45 = 0;
-      _RBX->mantleState.compressedAnimData.flags |= 0x40u;
-    }
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v8 >= v15->current.value )
+      ps->mantleState.compressedAnimData.flags |= 0x40u;
   }
-  __asm { vcomiss xmm6, cs:__real@43520000 }
-  if ( v45 )
+  if ( v8 < 210.0 )
   {
-    __asm
-    {
-      vcomiss xmm6, cs:__real@432a0000
-      vcomiss xmm6, cs:__real@42c80000
-    }
-    _RBX->mantleState.mantleSpeedAnimCond = 2;
+    if ( v8 < 170.0 )
+      ps->mantleState.mantleSpeedAnimCond = (v8 >= 100.0) + 1;
+    else
+      ps->mantleState.mantleSpeedAnimCond = 3;
   }
   else
   {
-    _RBX->mantleState.mantleSpeedAnimCond = 4;
-  }
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    ps->mantleState.mantleSpeedAnimCond = 4;
   }
 }
 
@@ -7651,155 +5656,110 @@ Mantle_SetEndingVelocity
 */
 void Mantle_SetEndingVelocity(pmove_t *pm, const bool willBeFalling, const BSplineRelaxedCBezier *mantleSpline)
 {
-  char v39; 
-  char v40; 
+  playerState_s *ps; 
+  __int128 v7; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v24; 
+  __int128 v25; 
+  float v29; 
+  __int128 v30; 
+  __int128 v34; 
+  float v37; 
   vec3_t outVec; 
-  vec3_t v93; 
+  vec3_t v39; 
   vec3_t outPos; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4106, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4106, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4106, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovaps [rsp+0B8h+var_28], xmm6 }
   if ( willBeFalling )
   {
+    v7 = LODWORD(ps->velocity.v[0]);
+    *(float *)&v7 = fsqrt((float)((float)(ps->velocity.v[0] * ps->velocity.v[0]) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+    _XMM0 = v7;
+    __asm { vminss  xmm7, xmm0, cs:MAX_MANTLE_EXIT_SPEED }
+    BG_BSpline_RelaxedCBezier_Evaluate(mantleSpline, MANTLE_SLOPE_CALC_BEGIN_FRAC, &outPos);
+    BG_BSpline_RelaxedCBezier_Evaluate(mantleSpline, 1.0, &v39);
+    v10 = v39.v[0] - outPos.v[0];
+    v12 = LODWORD(v39.v[1]);
+    v11 = v39.v[1] - outPos.v[1];
+    v13 = v39.v[2] - outPos.v[2];
+    *(float *)&v12 = fsqrt((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v13 * v13));
+    _XMM1 = v12;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vmovss  xmm2, dword ptr [rbx+40h]
-      vmovss  xmm3, dword ptr [rbx+44h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:MANTLE_SLOPE_CALC_BEGIN_FRAC; t
-      vsqrtss xmm0, xmm2, xmm2
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vminss  xmm7, xmm0, cs:MAX_MANTLE_EXIT_SPEED
-      vmovaps [rsp+0B8h+var_48], xmm8
-    }
-    BG_BSpline_RelaxedCBezier_Evaluate(mantleSpline, *(float *)&_XMM1, &outPos);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vmovaps xmm1, xmm8; t
-    }
-    BG_BSpline_RelaxedCBezier_Evaluate(mantleSpline, *(float *)&_XMM1, &v93);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+var_78]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+outPos]
-      vmovss  xmm1, dword ptr [rsp+0B8h+var_78+4]
-      vsubss  xmm5, xmm1, dword ptr [rsp+0B8h+outPos+4]
-      vmovss  xmm0, dword ptr [rsp+0B8h+var_78+8]
-      vsubss  xmm6, xmm0, dword ptr [rsp+0B8h+outPos+8]
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm8, xmm0
-      vdivss  xmm2, xmm8, xmm0
-      vcvtss2sd xmm0, xmm1, xmm1
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
     }
-    if ( v39 | v40 )
+    v18 = 1.0 / *(float *)&_XMM0;
+    v17 = 1.0 / *(float *)&_XMM0;
+    if ( *(float *)&_XMM1 <= 0.000001 )
     {
+      v22 = ps->velocity.v[2];
+      v23 = ps->velocity.v[1];
+      v24 = LODWORD(ps->velocity.v[0]);
+      v25 = v24;
+      *(float *)&v25 = fsqrt((float)((float)(*(float *)&v24 * *(float *)&v24) + (float)(v23 * v23)) + (float)(v22 * v22));
+      _XMM3 = v25;
       __asm
       {
-        vmovss  xmm4, dword ptr [rbx+44h]
-        vmovss  xmm5, dword ptr [rbx+40h]
-        vmovss  xmm6, dword ptr [rbx+3Ch]
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm8, xmm0
-        vdivss  xmm1, xmm8, xmm0
-        vmulss  xmm0, xmm4, xmm1
-        vmulss  xmm4, xmm6, xmm1
-        vmulss  xmm3, xmm5, xmm1
       }
+      v29 = 1.0 / *(float *)&_XMM0;
+      v19 = v22 * (float)(1.0 / *(float *)&_XMM0);
+      v21 = *(float *)&v24 * v29;
+      v20 = v23 * v29;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm0, xmm2, xmm6
-        vmulss  xmm3, xmm2, xmm5
-        vmulss  xmm4, xmm2, xmm4
-      }
+      v19 = v18 * v13;
+      v20 = v18 * v11;
+      v21 = v17 * v10;
     }
-    __asm
-    {
-      vmulss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm7, xmm4
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vmulss  xmm1, xmm3, xmm7
-      vmovss  dword ptr [rbx+40h], xmm1
-      vmovss  dword ptr [rbx+44h], xmm2
-      vmovaps xmm8, [rsp+0B8h+var_48]
-      vmovaps xmm7, [rsp+0B8h+var_38]
-    }
+    ps->velocity.v[0] = *(float *)&_XMM7 * v21;
+    ps->velocity.v[1] = v20 * *(float *)&_XMM7;
+    ps->velocity.v[2] = *(float *)&_XMM7 * v19;
   }
   else
   {
-    BG_GetMantleEndPosOffset(_RBX, &outVec);
+    BG_GetMantleEndPosOffset(ps, &outVec);
+    v30 = LODWORD(outVec.v[1]);
+    *(float *)&v30 = fsqrt((float)((float)(*(float *)&v30 * *(float *)&v30) + (float)(outVec.v[0] * outVec.v[0])) + (float)(outVec.v[2] * outVec.v[2]));
+    _XMM6 = v30;
     __asm
     {
-      vmovss  xmm5, dword ptr [rsp+0B8h+outVec+4]
-      vmovss  xmm3, dword ptr [rsp+0B8h+outVec]
-      vmovss  xmm4, dword ptr [rsp+0B8h+outVec+8]
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm6, xmm0, xmm0
       vcmpless xmm0, xmm6, cs:__real@80000000
       vblendvps xmm0, xmm6, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rsp+0B8h+outVec], xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rsp+0B8h+outVec+4], xmm1
-      vxorps  xmm1, xmm1, xmm1; height
-      vmovss  dword ptr [rsp+0B8h+outVec+8], xmm0
     }
-    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &outVec);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@447a0000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, xmm6
-      vminss  xmm3, xmm2, cs:MAX_MANTLE_EXIT_SPEED
-      vmulss  xmm1, xmm3, dword ptr [rsp+0B8h+outVec]
-      vmulss  xmm0, xmm3, dword ptr [rsp+0B8h+outVec+4]
-    }
-    *(_QWORD *)&_RBX->velocity.y = 0i64;
-    __asm
-    {
-      vmovss  dword ptr [rbx+3Ch], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+40h]
-      vmulss  xmm0, xmm3, dword ptr [rsp+0B8h+outVec+8]
-      vmovss  dword ptr [rbx+40h], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm1
-    }
+    outVec.v[0] = outVec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    outVec.v[1] = outVec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    outVec.v[2] = outVec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, 0.0, &outVec);
+    v34 = LODWORD(FLOAT_1000_0);
+    *(float *)&v34 = (float)(1000.0 / (float)(ps->mantleState.endTime - ps->mantleState.startTime)) * *(float *)&_XMM6;
+    _XMM2 = v34;
+    __asm { vminss  xmm3, xmm2, cs:MAX_MANTLE_EXIT_SPEED }
+    v37 = *(float *)&_XMM3 * outVec.v[0];
+    *(float *)&_XMM0 = *(float *)&_XMM3 * outVec.v[1];
+    *(_QWORD *)&ps->velocity.y = 0i64;
+    ps->velocity.v[0] = v37;
+    *(float *)&v34 = *(float *)&_XMM3 * outVec.v[2];
+    ps->velocity.v[1] = *(float *)&_XMM0 + ps->velocity.v[1];
+    ps->velocity.v[2] = *(float *)&v34 + ps->velocity.v[2];
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_28] }
 }
 
 /*
@@ -7867,129 +5827,63 @@ char Mantle_ShouldCheckForLedges(const BgWeaponMap *weaponMap, const playerState
 Mantle_SlowInputTurnRate
 ==============
 */
-
-float __fastcall Mantle_SlowInputTurnRate(const playerState_s *ps, double inputDeltaYaw)
+float Mantle_SlowInputTurnRate(const playerState_s *ps, const float inputDeltaYaw)
 {
-  char v13; 
-  char v14; 
-  double v27; 
-  double v28; 
-  double v29; 
+  const dvar_t *v4; 
+  float value; 
+  __int128 yaw_low; 
+  bool v7; 
+  float v9; 
+  float v10; 
+  double Float_Internal_DebugName; 
+  double v13; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm8 }
-  _RBX = ps;
-  __asm { vmovaps xmm8, xmm1 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4348, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 5u) )
-    goto LABEL_27;
-  _RDI = DCONST_DVARFLT_mantle_view_yawcap;
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
+    return inputDeltaYaw;
+  v4 = DCONST_DVARFLT_mantle_view_yawcap;
   if ( !DCONST_DVARFLT_mantle_view_yawcap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_view_yawcap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  if ( value <= 0.0 )
+    return 0.0;
+  yaw_low = LODWORD(ps->mantleState.yaw);
+  *(double *)&yaw_low = AngleDelta(*(const float *)&yaw_low, ps->viewangles.v[1]);
+  if ( *(float *)&yaw_low < COERCE_FLOAT(LODWORD(value) ^ _xmm) || *(float *)&yaw_low > value )
+    return 0.0;
+  v7 = *(float *)&yaw_low < 0.0;
+  _XMM1 = 0i64;
+  if ( *(float *)&yaw_low > 0.0 )
   {
-    vmovss  xmm7, dword ptr [rdi+28h]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  if ( v13 | v14 )
-    goto LABEL_26;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+1DCh]; angle2
-    vmovss  xmm0, dword ptr [rbx+37Ch]; angle1
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm2, xmm0
-    vxorps  xmm0, xmm7, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm2, xmm0
-  }
-  if ( v13 )
-    goto LABEL_26;
-  __asm { vcomiss xmm2, xmm7 }
-  if ( !(v13 | v14) )
-  {
-LABEL_26:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    goto LABEL_28;
-  }
-  __asm
-  {
-    vcomiss xmm2, xmm6
-    vxorps  xmm1, xmm1, xmm1
-  }
-  if ( !(v13 | v14) )
-  {
-    __asm { vcomiss xmm8, xmm6 }
-    if ( v13 )
+    if ( inputDeltaYaw < 0.0 )
     {
-      __asm { vmovaps xmm1, xmm2 }
+      _XMM1 = yaw_low;
       goto LABEL_18;
     }
-    __asm { vcomiss xmm2, xmm6 }
+    v7 = *(float *)&yaw_low < 0.0;
   }
-  if ( v13 )
-  {
-    __asm { vcomiss xmm8, xmm6 }
-    if ( !(v13 | v14) )
-      __asm { vandps  xmm1, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  }
+  if ( v7 && inputDeltaYaw > 0.0 )
+    _XMM1 = yaw_low & _xmm;
 LABEL_18:
-  if ( (_RBX->mantleState.flags & 0x800) != 0 )
-    goto LABEL_27;
-  __asm { vcomiss xmm1, xmm6 }
-  if ( (_RBX->mantleState.flags & 0x800) == 0 )
+  if ( (ps->mantleState.flags & 0x800) != 0 || *(float *)&_XMM1 <= 0.0 )
+    return inputDeltaYaw;
+  v10 = 1.0 - (float)(*(float *)&_XMM1 / value);
+  v9 = v10;
+  if ( v10 < 0.0 || v10 > 1.0 )
   {
-LABEL_27:
-    __asm { vmovaps xmm0, xmm8 }
-    goto LABEL_28;
-  }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm7
-    vsubss  xmm7, xmm2, xmm0
-    vcomiss xmm7, xmm6
-    vcomiss xmm7, xmm2
-  }
-  if ( (_RBX->mantleState.flags & 0x800) != 0 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+78h+var_40], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+78h+var_48], xmm1
-      vcvtss2sd xmm2, xmm7, xmm7
-      vmovsd  [rsp+78h+var_50], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4385, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( slowDownScaler ) && ( slowDownScaler ) <= ( 1.0f )", "slowDownScaler not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v27, v28, v29) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4385, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( slowDownScaler ) && ( slowDownScaler ) <= ( 1.0f )", "slowDownScaler not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v10, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_slow_input_turn_rate_override, "mantle_slow_input_turn_rate_override");
-  __asm { vcomiss xmm0, xmm6 }
-  if ( !v13 )
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_slow_input_turn_rate_override, "mantle_slow_input_turn_rate_override");
+  if ( *(float *)&Float_Internal_DebugName >= 0.0 )
   {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_slow_input_turn_rate_override, "mantle_slow_input_turn_rate_override");
-    __asm { vmovaps xmm7, xmm0 }
+    v13 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mantle_slow_input_turn_rate_override, "mantle_slow_input_turn_rate_override");
+    v9 = *(float *)&v13;
   }
-  __asm { vmulss  xmm0, xmm7, xmm8 }
-LABEL_28:
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return v9 * inputDeltaYaw;
 }
 
 /*
@@ -7999,70 +5893,67 @@ Mantle_Start
 */
 void Mantle_Start(pmove_t *pm, MantleResults *mresults)
 {
-  const dvar_t *v8; 
-  int v9; 
-  const dvar_t *v10; 
+  playerState_s *ps; 
+  float v5; 
+  double v6; 
+  const dvar_t *v7; 
+  int v8; 
+  const dvar_t *v9; 
   gestureAnimType_t MantleType; 
-  unsigned int v12; 
+  unsigned int v11; 
   vec3_t vec; 
 
-  _RBP = mresults;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1650, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1650, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1650, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI->mantleState.startPosition.v[0] = _RDI->origin.v[0];
-  _RDI->mantleState.startPosition.v[1] = _RDI->origin.v[1];
-  _RDI->mantleState.startPosition.v[2] = _RDI->origin.v[2];
-  Mantle_SavePosOffsets(pm, _RBP);
-  Mantle_CalcFallingPosition(pm, _RBP);
-  Mantle_SavePosOffsets(pm, _RBP);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  dword ptr [rsp+0A8h+vec], xmm0
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+0A8h+vec+8], xmm0
-    vmovss  dword ptr [rsp+0A8h+vec+4], xmm1
-  }
+  ps->mantleState.startPosition.v[0] = ps->origin.v[0];
+  ps->mantleState.startPosition.v[1] = ps->origin.v[1];
+  ps->mantleState.startPosition.v[2] = ps->origin.v[2];
+  Mantle_SavePosOffsets(pm, mresults);
+  Mantle_CalcFallingPosition(pm, mresults);
+  Mantle_SavePosOffsets(pm, mresults);
+  v5 = mresults->dir.v[1];
+  vec.v[0] = mresults->dir.v[0];
+  vec.v[2] = mresults->dir.v[2];
+  vec.v[1] = v5;
   WorldUpReferenceFrame::RemoveReferenceFrameFromVector(&pm->refFrame, &vec);
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)&vec);
-  __asm { vmovss  dword ptr [rdi+37Ch], xmm0 }
-  _RDI->mantleState.flags = _RBP->flags;
-  v8 = DVARBOOL_playerCharacterCollisionMantleFloorFix;
+  v6 = vectoyaw((const vec2_t *)&vec);
+  ps->mantleState.yaw = *(float *)&v6;
+  ps->mantleState.flags = mresults->flags;
+  v7 = DVARBOOL_playerCharacterCollisionMantleFloorFix;
   if ( !DVARBOOL_playerCharacterCollisionMantleFloorFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionMantleFloorFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
-    BGMovingPlatformClient::StartMantle(pm->movingPlatforms, _RDI, _RBP->endGroundEnt);
-  _RDI->mantleState.flags &= 0xFFFFEFEF;
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 5u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1679, ASSERT_TYPE_ASSERT, "(!ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE ))", (const char *)&queryFormat, "!ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE )") )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
+    BGMovingPlatformClient::StartMantle(pm->movingPlatforms, ps, mresults->endGroundEnt);
+  ps->mantleState.flags &= 0xFFFFEFEF;
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1679, ASSERT_TYPE_ASSERT, "(!ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE ))", (const char *)&queryFormat, "!ps->pm_flags.TestFlag( PMoveFlagsCommon::MANTLE )") )
     __debugbreak();
-  _RDI->pm_flags.m_flags[0] |= 0x20u;
-  Mantle_SetConstantParameters(pm, _RBP);
-  v9 = _RDI->mantleState.endTime - _RDI->mantleState.startTime;
-  if ( v9 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1686, ASSERT_TYPE_ASSERT, "( mantleDuration ) > ( 0 )", "%s > %s\n\t%lli, %lli", "mantleDuration", "0", v9, 0i64) )
+  ps->pm_flags.m_flags[0] |= 0x20u;
+  Mantle_SetConstantParameters(pm, mresults);
+  v8 = ps->mantleState.endTime - ps->mantleState.startTime;
+  if ( v8 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 1686, ASSERT_TYPE_ASSERT, "( mantleDuration ) > ( 0 )", "%s > %s\n\t%lli, %lli", "mantleDuration", "0", v8, 0i64) )
     __debugbreak();
-  PM_Weapon_Mantle(pm, v9);
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RDI->eFlags, GameModeFlagValues::ms_mpValue, 0x18u);
-  pm->mantleEndPos.v[0] = _RBP->endPos.v[0];
-  pm->mantleEndPos.v[1] = _RBP->endPos.v[1];
-  pm->mantleEndPos.v[2] = _RBP->endPos.v[2];
+  PM_Weapon_Mantle(pm, v8);
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&ps->eFlags, GameModeFlagValues::ms_mpValue, 0x18u);
+  pm->mantleEndPos.v[0] = mresults->endPos.v[0];
+  pm->mantleEndPos.v[1] = mresults->endPos.v[1];
+  pm->mantleEndPos.v[2] = mresults->endPos.v[2];
   pm->m_flags |= 0x40u;
-  pm->mantleDuration = v9;
-  v10 = DVARBOOL_playerCharacterCollisionMantleFloorFix;
+  pm->mantleDuration = v8;
+  v9 = DVARBOOL_playerCharacterCollisionMantleFloorFix;
   if ( !DVARBOOL_playerCharacterCollisionMantleFloorFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionMantleFloorFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( !v10->current.enabled )
-    BGMovingPlatformClient::StartMantle(pm->movingPlatforms, _RDI, _RBP->endGroundEnt);
-  MantleType = BG_Mantle_GetMantleType(_RDI);
-  v12 = BG_PackMantleEventParm(pm->weaponMap, _RDI, _RDI->mantleState.soundFlavorPLR, _RDI->mantleState.soundFlavorNPC, MantleType);
-  BG_AddPredictableEventToPlayerstate(EV_MANTLE, v12, pm->cmd.serverTime, pm->weaponMap, _RDI);
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
+    BGMovingPlatformClient::StartMantle(pm->movingPlatforms, ps, mresults->endGroundEnt);
+  MantleType = BG_Mantle_GetMantleType(ps);
+  v11 = BG_PackMantleEventParm(pm->weaponMap, ps, ps->mantleState.soundFlavorPLR, ps->mantleState.soundFlavorNPC, MantleType);
+  BG_AddPredictableEventToPlayerstate(EV_MANTLE, v11, pm->cmd.serverTime, pm->weaponMap, ps);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
-    Mantle_ExecuteAnimScript(pm, 0, v9);
+    Mantle_ExecuteAnimScript(pm, 0, v8);
   Mantle_DumpMotionPath(pm);
 }
 
@@ -8073,28 +5964,22 @@ Mantle_UnpackAnimData
 */
 void Mantle_UnpackAnimData(const compressedAnimData_s *compressedData, characterAnimData_s *animDistances)
 {
-  _RBX = animDistances;
+  double v4; 
+  double v5; 
+  double v6; 
+
   if ( !compressedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 293, ASSERT_TYPE_ASSERT, "(compressedData)", (const char *)&queryFormat, "compressedData") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 294, ASSERT_TYPE_ASSERT, "(animDistances)", (const char *)&queryFormat, "animDistances") )
+  if ( !animDistances && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 294, ASSERT_TYPE_ASSERT, "(animDistances)", (const char *)&queryFormat, "animDistances") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize }
-  _RBX->flags = compressedData->flags;
-  _RBX->endScriptAnimTableIndex = compressedData->endScriptAnimTableIndex;
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(compressedData->distance2D, *(float *)&_XMM1, 8u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@433e0000; maxAbsValueSize
-    vmovss  dword ptr [rbx+4], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(compressedData->distanceZ, *(float *)&_XMM1, 8u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(compressedData->angle, *(float *)&_XMM1, 9u);
-  __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
+  animDistances->flags = compressedData->flags;
+  animDistances->endScriptAnimTableIndex = compressedData->endScriptAnimTableIndex;
+  v4 = MSG_UnpackUnsignedFloat(compressedData->distance2D, 190.0, 8u);
+  animDistances->distance2D = *(float *)&v4;
+  v5 = MSG_UnpackUnsignedFloat(compressedData->distanceZ, 190.0, 8u);
+  animDistances->distanceZ = *(float *)&v5;
+  v6 = MSG_UnpackSignedFloat(compressedData->angle, 180.0, 9u);
+  animDistances->angle = *(float *)&v6;
 }
 
 /*
@@ -8107,17 +5992,17 @@ void Mantle_Update(pmove_t *pm, pml_t *pml, const bool lastSprinting, const Spri
   playerState_s *ps; 
   playerState_s *v9; 
   playerState_s *v10; 
-  char v17; 
-  Physics_WorldId v18; 
-  bool v19; 
-  char v21; 
-  const dvar_t *v22; 
-  SprintState v23; 
+  float v11; 
+  float v12; 
+  Physics_WorldId v13; 
+  bool v14; 
+  char v15; 
+  const dvar_t *v16; 
+  SprintState v17; 
   vec3_t vec; 
   vec3_t outWishDir; 
   trace_t results; 
 
-  _R15 = lastSprintState;
   Sys_ProfBeginNamedEvent(0xFF008008, "Mantle_Update");
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3945, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -8143,55 +6028,39 @@ void Mantle_Update(pmove_t *pm, pml_t *pml, const bool lastSprinting, const Spri
       __debugbreak();
     if ( v10->groundEntityNum != 2047 )
       goto LABEL_27;
-    _RBX = &v10->origin;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  xmm2, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+158h+vec], xmm0
-      vmovss  dword ptr [rsp+158h+vec+4], xmm1
-      vmovss  dword ptr [rsp+158h+vec+8], xmm2
-      vmovss  xmm1, cs:__real@c2100000; height
-    }
-    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, *(float *)&_XMM1, &vec);
+    v11 = v10->origin.v[1];
+    v12 = v10->origin.v[2];
+    vec.v[0] = v10->origin.v[0];
+    vec.v[1] = v11;
+    vec.v[2] = v12;
+    WorldUpReferenceFrame::AddUpContribution(&pm->refFrame, -36.0, &vec);
     Mantle_SetTraceFlags(pm->m_trace);
     BgTrace::LegacyTrace(pm->m_trace, pm, &results, &v10->origin, &vec, &bounds_origin, v10->clientNum, pm->tracemask);
     Mantle_RestoreTraceFlags(pm->m_trace);
-    __asm
-    {
-      vmovss  xmm0, [rsp+158h+results.fraction]
-      vucomiss xmm0, cs:__real@3f800000
-    }
-    if ( !v17 )
+    if ( results.fraction != 1.0 )
 LABEL_27:
       pml->mresults.closeToGround = 1;
-    v18 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
-    if ( Mantle_CanMantle(pm, pml, pm->weaponMap, pm->ps, v18, pm->m_bgHandler, pm->tracemask, &pml->mresults, &outWishDir, pm->cmd.serverTime) )
+    v13 = pm->m_bgHandler->GetPhysicsWorldId((BgHandler *)pm->m_bgHandler);
+    if ( Mantle_CanMantle(pm, pml, pm->weaponMap, pm->ps, v13, pm->m_bgHandler, pm->tracemask, &pml->mresults, &outWishDir, pm->cmd.serverTime) )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15]
-        vmovups [rsp+158h+var_F8], ymm0
-      }
-      v23.sprintStartMaxLength = _R15->sprintStartMaxLength;
-      v21 = Mantle_Activate(pm, pml, &pml->mresults, lastSprinting, &v23, &outWishDir);
+      v17 = *lastSprintState;
+      v15 = Mantle_Activate(pm, pml, &pml->mresults, lastSprinting, &v17, &outWishDir);
       if ( !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
         goto LABEL_38;
-      v19 = v21;
+      v14 = v15;
     }
     else
     {
       if ( !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
         goto LABEL_38;
-      v19 = 0;
+      v14 = 0;
     }
-    Mantle_DebugDrawTraces(pm, &pml->mresults, v19);
-    v22 = DVARBOOL_mantle_debug_traces_once;
+    Mantle_DebugDrawTraces(pm, &pml->mresults, v14);
+    v16 = DVARBOOL_mantle_debug_traces_once;
     if ( !DVARBOOL_mantle_debug_traces_once && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_debug_traces_once") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v16);
+    if ( v16->current.enabled )
       Dvar_SetBool_Internal(DVARBOOL_mantle_debug_traces_once, 0);
   }
 LABEL_38:
@@ -8205,78 +6074,61 @@ Mantle_UpdateSprintState
 */
 void Mantle_UpdateSprintState(pmove_t *pm, const pml_t *pml, MantleResults *mresults, const bool lastSprinting, const SprintState *lastSprintState)
 {
-  bool v12; 
+  playerState_s *ps; 
+  bool v9; 
+  int sprintStartMaxLength; 
+  vec3_t *p_velocity; 
   WorldUpReferenceFramePM *p_refFrame; 
-  char v21; 
+  double v13; 
+  const dvar_t *v14; 
+  float value; 
+  const dvar_t *v16; 
+  float v17; 
+  double UpContribution; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3392, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3392, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3392, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !mresults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 3394, ASSERT_TYPE_ASSERT, "(mresults)", (const char *)&queryFormat, "mresults") )
     __debugbreak();
-  v12 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u);
-  if ( lastSprinting && !v12 )
+  v9 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u);
+  if ( lastSprinting && !v9 )
   {
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 9u) )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 9u) )
       PM_ExitAimDownSight(pm);
-    _RDI->pm_flags.m_flags[0] &= ~0x800u;
-    _RAX = lastSprintState;
-    _RDI->pm_flags.m_flags[0] |= 0x100000u;
-    __asm { vmovups ymm0, ymmword ptr [rax] }
-    LODWORD(_RAX) = lastSprintState->sprintStartMaxLength;
-    __asm { vmovups ymmword ptr [rdi+328h], ymm0 }
-    _RDI->sprintState.sprintStartMaxLength = (int)_RAX;
+    ps->pm_flags.m_flags[0] &= ~0x800u;
+    ps->pm_flags.m_flags[0] |= 0x100000u;
+    sprintStartMaxLength = lastSprintState->sprintStartMaxLength;
+    *(__m256i *)&ps->sprintState.sprintButtonUpRequired = *(__m256i *)&lastSprintState->sprintButtonUpRequired;
+    ps->sprintState.sprintStartMaxLength = sprintStartMaxLength;
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x14u) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x14u) )
   {
-    _RDI = &_RDI->velocity;
+    p_velocity = &ps->velocity;
     p_refFrame = &pm->refFrame;
-    __asm { vmovaps [rsp+78h+var_38], xmm7 }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::Vec2Dot(p_refFrame, &mresults->dir, _RDI);
-    _RBX = DCONST_DVARFLT_mantle_sprint_min_speed_threshold;
-    __asm { vmovaps xmm7, xmm0 }
+    v13 = WorldUpReferenceFrame::Vec2Dot(p_refFrame, &mresults->dir, p_velocity);
+    v14 = DCONST_DVARFLT_mantle_sprint_min_speed_threshold;
     if ( !DCONST_DVARFLT_mantle_sprint_min_speed_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_sprint_min_speed_threshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v14);
+    value = v14->current.value;
+    if ( value < 0.0 || *(float *)&v13 >= value )
     {
-      vmovss  xmm1, dword ptr [rbx+28h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm1, xmm0
-    }
-    if ( !v21 )
-      __asm { vcomiss xmm7, xmm1 }
-    _RBX = DCONST_DVARFLT_mantle_sprint_min_speed;
-    __asm { vmovaps [rsp+78h+var_28], xmm6 }
-    if ( !DCONST_DVARFLT_mantle_sprint_min_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_sprint_min_speed") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vcomiss xmm7, xmm6
-    }
-    if ( v21 )
-    {
-      *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, _RDI);
-      __asm
+      v16 = DCONST_DVARFLT_mantle_sprint_min_speed;
+      if ( !DCONST_DVARFLT_mantle_sprint_min_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_sprint_min_speed") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v16);
+      v17 = v16->current.value;
+      if ( *(float *)&v13 < v17 )
       {
-        vmulss  xmm1, xmm6, dword ptr [rbp+0]
-        vmovss  dword ptr [rdi], xmm1
-        vmulss  xmm2, xmm6, dword ptr [rbp+4]
-        vmovss  dword ptr [rdi+4], xmm2
-        vmulss  xmm1, xmm6, dword ptr [rbp+8]
-        vmovss  dword ptr [rdi+8], xmm1
-        vmovaps xmm1, xmm0; height
+        UpContribution = WorldUpReferenceFrame::GetUpContribution(p_refFrame, p_velocity);
+        p_velocity->v[0] = v17 * mresults->dir.v[0];
+        p_velocity->v[1] = v17 * mresults->dir.v[1];
+        p_velocity->v[2] = v17 * mresults->dir.v[2];
+        WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&UpContribution, p_velocity);
       }
-      WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, _RDI);
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+78h+var_28]
-      vmovaps xmm7, [rsp+78h+var_38]
     }
   }
 }
@@ -8288,81 +6140,47 @@ Mantle_UpdateViewYaw
 */
 void Mantle_UpdateViewYaw(pmove_t *pm)
 {
-  char v30; 
-  char v31; 
-  const dvar_t *v32; 
-  int v33; 
-  const dvar_t *v36; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  playerState_s *ps; 
+  const dvar_t *v6; 
+  int v7; 
+  float v8; 
+  float yaw; 
+  const dvar_t *v10; 
   vec3_t outVec; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4305, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4305, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4305, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (_RBX->mantleState.flags & 0x800) != 0 )
+  if ( (ps->mantleState.flags & 0x800) != 0 )
   {
-    __asm
+    v14 = v1;
+    v13 = v2;
+    v12 = v3;
+    BG_GetMantleLedgePosOffset(ps, &outVec);
+    if ( (float)((float)((float)((float)(ps->origin.v[1] - (float)(ps->mantleState.startPosition.v[1] + outVec.v[1])) * (float)(ps->mantleState.startPosition.v[1] - (float)(ps->mantleState.startPosition.v[1] + outVec.v[1]))) + (float)((float)(ps->mantleState.startPosition.v[0] - (float)(ps->mantleState.startPosition.v[0] + outVec.v[0])) * (float)(ps->origin.v[0] - (float)(ps->mantleState.startPosition.v[0] + outVec.v[0])))) + (float)((float)(ps->origin.v[2] - (float)(ps->mantleState.startPosition.v[2] + outVec.v[2])) * (float)(ps->mantleState.startPosition.v[2] - (float)(ps->mantleState.startPosition.v[2] + outVec.v[2])))) <= 0.0 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x10u) )
     {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vmovaps [rsp+0A8h+var_48], xmm8
-    }
-    BG_GetMantleLedgePosOffset(_RBX, &outVec);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+394h]
-      vaddss  xmm1, xmm3, dword ptr [rsp+0A8h+outVec+4]
-      vmovss  xmm5, dword ptr [rbx+390h]
-      vaddss  xmm6, xmm5, dword ptr [rsp+0A8h+outVec]
-      vmovss  xmm8, dword ptr [rbx+398h]
-      vaddss  xmm7, xmm8, dword ptr [rsp+0A8h+outVec+8]
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vsubss  xmm2, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vsubss  xmm1, xmm3, xmm1
-      vmulss  xmm4, xmm2, xmm1
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vsubss  xmm3, xmm5, xmm6
-      vmovaps xmm6, [rsp+0A8h+var_28]
-      vmulss  xmm2, xmm3, xmm1
-      vsubss  xmm3, xmm0, xmm7
-      vsubss  xmm1, xmm8, xmm7
-      vmovaps xmm8, [rsp+0A8h+var_48]
-      vmovaps xmm7, [rsp+0A8h+var_38]
-      vaddss  xmm5, xmm4, xmm2
-      vmulss  xmm2, xmm3, xmm1
-      vaddss  xmm4, xmm5, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm4, xmm0
-    }
-    if ( v30 | v31 )
-    {
-      if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, ACTIVE, 0x10u) )
-      {
-        v32 = DCONST_DVARINT_mantle_ladder_yaw_extra_time;
-        if ( !DCONST_DVARINT_mantle_ladder_yaw_extra_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_yaw_extra_time") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v32);
-        v33 = v32->current.integer + _RBX->mantleState.endTime - _RBX->serverTime;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+1D8h]
-          vmovss  xmm1, dword ptr [rbx+37Ch]
-        }
-        v36 = DCONST_DVARINT_mantle_ladder_yaw_ease_mode;
-        __asm
-        {
-          vaddss  xmm2, xmm1, cs:__real@43340000
-          vmovss  dword ptr [rsp+0A8h+outVec], xmm0
-          vmovss  dword ptr [rsp+0A8h+outVec+4], xmm2
-        }
-        if ( !DCONST_DVARINT_mantle_ladder_yaw_ease_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_yaw_ease_mode") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v36);
-        PM_StartViewAngleTransition(pm, v33, (EViewAngleEaseMode)v36->current.integer, (EViewAngleEaseMode)v36->current.integer, (const vec2_t *)&outVec, 2);
-      }
+      v6 = DCONST_DVARINT_mantle_ladder_yaw_extra_time;
+      if ( !DCONST_DVARINT_mantle_ladder_yaw_extra_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_yaw_extra_time") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v6);
+      v7 = v6->current.integer + ps->mantleState.endTime - ps->serverTime;
+      v8 = ps->viewangles.v[0];
+      yaw = ps->mantleState.yaw;
+      v10 = DCONST_DVARINT_mantle_ladder_yaw_ease_mode;
+      outVec.v[0] = v8;
+      outVec.v[1] = yaw + 180.0;
+      if ( !DCONST_DVARINT_mantle_ladder_yaw_ease_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_ladder_yaw_ease_mode") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v10);
+      PM_StartViewAngleTransition(pm, v7, (EViewAngleEaseMode)v10->current.integer, (EViewAngleEaseMode)v10->current.integer, (const vec2_t *)&outVec, 2);
     }
   }
 }
@@ -8409,151 +6227,84 @@ char Mantle_WantsToActivate(pmove_t *pm, pml_t *pml, const MantleResults *mresul
 Mantle_WillReachLedgeWithoutMantle
 ==============
 */
-__int64 Mantle_WillReachLedgeWithoutMantle(pmove_t *pm, const MantleResults *mresults)
+_BOOL8 Mantle_WillReachLedgeWithoutMantle(pmove_t *pm, const MantleResults *mresults)
 {
-  const dvar_t *v11; 
-  __int64 result; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  playerState_s *ps; 
+  const dvar_t *v8; 
+  float v10; 
+  double JumpHeight; 
+  double Velocity; 
   WorldUpReferenceFramePM *p_refFrame; 
-  char v67; 
-  vec3_t v72; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  double UpContribution; 
+  float v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  const dvar_t *v25; 
+  vec3_t v26; 
   vec3_t vec; 
-  vec3_t v74; 
+  vec3_t v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
 
-  _RDI = mresults;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 389, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _R14 = pm->ps;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 389, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 389, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v11 = DCONST_DVARBOOL_mantle_check_trajectory;
+  v8 = DCONST_DVARBOOL_mantle_check_trajectory;
   if ( !DCONST_DVARBOOL_mantle_check_trajectory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_check_trajectory") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
     return 0i64;
-  __asm
+  v31 = v2;
+  v30 = v3;
+  v29 = v4;
+  v10 = 0.0;
+  if ( ps->groundEntityNum != 2047 )
   {
-    vmovaps [rsp+0F8h+var_38], xmm6
-    vmovaps [rsp+0F8h+var_48], xmm7
-    vmovaps [rsp+0F8h+var_58], xmm8
-    vmovaps [rsp+0F8h+var_68], xmm9
-    vmovaps [rsp+0F8h+var_78], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vxorps  xmm9, xmm9, xmm9
+    JumpHeight = Jump_GetJumpHeight(ps);
+    Velocity = Jump_GetVelocity(pm, *(float *)&JumpHeight);
+    v10 = *(float *)&Velocity;
   }
-  if ( _R14->groundEntityNum != 2047 )
-  {
-    *(double *)&_XMM0 = Jump_GetJumpHeight(_R14);
-    __asm { vmovaps xmm1, xmm0; height }
-    *(double *)&_XMM0 = Jump_GetVelocity(pm, *(float *)&_XMM1);
-    __asm { vmovaps xmm10, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r14+30h]
-    vmovss  dword ptr [rsp+0F8h+vec], xmm1
-    vmovss  xmm2, dword ptr [r14+34h]
-    vmovss  dword ptr [rsp+0F8h+vec+4], xmm2
-    vmovss  xmm1, dword ptr [r14+38h]
-    vmovss  dword ptr [rsp+0F8h+vec+8], xmm1
-  }
+  vec = ps->origin;
   p_refFrame = &pm->refFrame;
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+18h]
-    vmovss  xmm1, dword ptr [rdi+1Ch]
-    vmovss  dword ptr [rsp+0F8h+var_B8], xmm0
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vmovss  dword ptr [rsp+0F8h+var_B8+4], xmm1
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+0F8h+var_B8+8], xmm0
-  }
-  WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, &v72);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_B8]
-    vsubss  xmm8, xmm0, dword ptr [rsp+0F8h+vec]
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_B8+8]
-    vsubss  xmm7, xmm0, dword ptr [rsp+0F8h+vec+8]
-    vmovss  xmm0, dword ptr [r14+3Ch]
-    vmovss  xmm1, dword ptr [rsp+0F8h+var_B8+4]
-    vsubss  xmm6, xmm1, dword ptr [rsp+0F8h+vec+4]
-    vmovss  dword ptr [rsp+0F8h+var_98], xmm0
-    vmovss  xmm1, dword ptr [r14+40h]
-    vmovss  dword ptr [rsp+0F8h+var_98+4], xmm1
-    vmovss  xmm0, dword ptr [r14+44h]
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+0F8h+var_98+8], xmm0
-  }
-  WorldUpReferenceFrame::SetUpContribution(p_refFrame, *(float *)&_XMM1, &v74);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_98+4]
-    vmovss  xmm1, dword ptr [rsp+0F8h+var_98]
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_98+8]
-    vmulss  xmm2, xmm1, xmm1
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vaddss  xmm2, xmm4, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmulss  xmm2, xmm6, xmm6
-    vdivss  xmm4, xmm0, xmm3
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm6, xmm4, xmm1
-  }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &_R14->velocity);
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm10
-    vmulss  xmm4, xmm1, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmulss  xmm2, xmm1, xmm6
-    vmulss  xmm3, xmm2, xmm6
-    vsubss  xmm7, xmm4, xmm3
-  }
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &_RDI->ledgePos);
-  __asm { vmovaps xmm6, xmm0 }
-  WorldUpReferenceFrame::GetUpContribution(p_refFrame, &_R14->origin);
-  __asm
-  {
-    vmovaps xmm10, [rsp+0F8h+var_78]
-    vmovaps xmm8, [rsp+0F8h+var_58]
-    vsubss  xmm6, xmm6, xmm0
-    vcomiss xmm6, xmm9
-    vmovaps xmm9, [rsp+0F8h+var_68]
-  }
-  if ( v67 )
-    goto LABEL_20;
-  _RBX = DCONST_DVARFLT_mantle_prevention_jump_height_delta;
+  WorldUpReferenceFrame::SetUpContribution(p_refFrame, 0.0, &vec);
+  v14 = mresults->ledgePos.v[1];
+  v26.v[0] = mresults->ledgePos.v[0];
+  v15 = mresults->ledgePos.v[2];
+  v26.v[1] = v14;
+  v26.v[2] = v15;
+  WorldUpReferenceFrame::SetUpContribution(p_refFrame, 0.0, &v26);
+  v16 = v26.v[0] - vec.v[0];
+  v17 = v26.v[2] - vec.v[2];
+  v18 = v26.v[1] - vec.v[1];
+  v28 = ps->velocity;
+  WorldUpReferenceFrame::SetUpContribution(p_refFrame, 0.0, &v28);
+  v19 = (float)(1.0 / fsqrt((float)((float)(v28.v[1] * v28.v[1]) + (float)(v28.v[0] * v28.v[0])) + (float)(v28.v[2] * v28.v[2]))) * fsqrt((float)((float)(v18 * v18) + (float)(v16 * v16)) + (float)(v17 * v17));
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->velocity);
+  v21 = (float)((float)(*(float *)&UpContribution + v10) * v19) - (float)((float)((float)((float)ps->gravity * 0.5) * v19) * v19);
+  v22 = COERCE_FLOAT(COERCE_UNSIGNED_INT64(WorldUpReferenceFrame::GetUpContribution(p_refFrame, &mresults->ledgePos)));
+  v23 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->origin);
+  v24 = v22 - *(float *)&v23;
+  if ( v24 < 0.0 )
+    return 1i64;
+  v25 = DCONST_DVARFLT_mantle_prevention_jump_height_delta;
   if ( !DCONST_DVARFLT_mantle_prevention_jump_height_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mantle_prevention_jump_height_delta") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vsubss  xmm0, xmm7, xmm6
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( !v67 )
-LABEL_20:
-    result = 1i64;
-  else
-    result = 0i64;
-  __asm
-  {
-    vmovaps xmm7, [rsp+0F8h+var_48]
-    vmovaps xmm6, [rsp+0F8h+var_38]
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v25);
+  return (float)(v21 - v24) >= v25->current.value;
 }
 
 /*
@@ -8561,16 +6312,14 @@ LABEL_20:
 PM_Mantle_ValidateMantleOnMover
 ==============
 */
-bool PM_Mantle_ValidateMantleOnMover(const pmove_t *pm, const vec3_t *targetOrigin)
+char PM_Mantle_ValidateMantleOnMover(const pmove_t *pm, const vec3_t *targetOrigin)
 {
   const dvar_t *v4; 
   const dvar_t *v5; 
   playerState_s *ps; 
   bool v7; 
-  char v11; 
   trace_t outResults; 
 
-  _RBP = targetOrigin;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_mantle.cpp", 4207, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   v4 = DVARBOOL_playerCharacterCollisionMantleVehicleWallFix;
@@ -8585,21 +6334,9 @@ bool PM_Mantle_ValidateMantleOnMover(const pmove_t *pm, const vec3_t *targetOrig
     __debugbreak();
   Dvar_CheckFrontendServerThread(v5);
   v7 = !v5->current.enabled || (ps->mantleState.flags & 0x1000) != 0;
-  if ( !BGMovingPlatformPS::IsOnMovingPlatform(&ps->movingPlatforms) )
+  if ( BGMovingPlatformPS::IsOnMovingPlatform(&ps->movingPlatforms) && v7 && (targetOrigin->v[0] != ps->origin.v[0] || targetOrigin->v[1] != ps->origin.v[1] || targetOrigin->v[2] != ps->origin.v[2]) && (BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &ps->origin, targetOrigin, pm->bounds, ps->movingPlatforms.m_movingPlatformEntity, pm->tracemask & 0xFDFFBFFF, ps != NULL), outResults.fraction != 1.0) && outResults.hitId == 2046 )
+    return 0;
+  else
     return 1;
-  if ( !v7 )
-    return 1;
-  __asm { vmovss  xmm0, dword ptr [rbp+0] }
-  _R9 = &ps->origin;
-  __asm { vucomiss xmm0, dword ptr [r9] }
-  BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &ps->origin, _RBP, pm->bounds, ps->movingPlatforms.m_movingPlatformEntity, pm->tracemask & 0xFDFFBFFF, ps != NULL);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0E8h+outResults.fraction]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  if ( v11 )
-    return 1;
-  return outResults.hitId != 2046;
 }
 

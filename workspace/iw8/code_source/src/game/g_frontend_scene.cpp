@@ -148,16 +148,10 @@ G_FrontEndScene_SetCameraCharacters
 */
 void G_FrontEndScene_SetCameraCharacters(const bool *requiredCharacters, const int activateTime)
 {
-  _RBX = requiredCharacters;
   if ( !requiredCharacters && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_frontend_scene.cpp", 82, ASSERT_TYPE_ASSERT, "( requiredCharacters )", (const char *)&queryFormat, "requiredCharacters") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr cs:s_gFrontEndSceneData.m_cameraState.m_requiredCharacters, xmm0
-    vmovsd  xmm1, qword ptr [rbx+10h]
-    vmovsd  qword ptr cs:s_gFrontEndSceneData.m_cameraState.m_requiredCharacters+10h, xmm1
-  }
+  *(_OWORD *)s_gFrontEndSceneData.m_cameraState.m_requiredCharacters = *(_OWORD *)requiredCharacters;
+  *(_QWORD *)&s_gFrontEndSceneData.m_cameraState.m_requiredCharacters[16] = *((_QWORD *)requiredCharacters + 2);
   s_gFrontEndSceneData.m_cameraState.m_requiredCharacersTime = activateTime;
 }
 

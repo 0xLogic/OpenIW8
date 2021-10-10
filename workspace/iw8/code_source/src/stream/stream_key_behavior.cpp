@@ -187,31 +187,25 @@ StreamKey_SetBehavior
 */
 void StreamKey_SetBehavior(StreamKeyBehaviorIndex index, StreamKeyBehavior *behavior)
 {
-  int v9; 
-  int v10; 
+  __m256i v4; 
+  __int64 v5; 
+  double v6; 
+  int v7; 
+  int v8; 
 
-  _RDI = behavior;
   if ( (unsigned __int8)index >= SKBI_COUNT )
   {
-    v10 = 5;
-    v9 = (unsigned __int8)index;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_key_behavior.cpp", 14, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_streamKeyBehaviors ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_streamKeyBehaviors )\n\t%i not in [0, %i)", v9, v10) )
+    v8 = 5;
+    v7 = (unsigned __int8)index;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_key_behavior.cpp", 14, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_streamKeyBehaviors ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_streamKeyBehaviors )\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymm1, ymmword ptr [rdi+20h]
-  }
-  _RCX = 9i64 * (unsigned __int8)index;
-  _RAX = s_streamKeyBehaviors;
-  __asm
-  {
-    vmovups ymmword ptr [rax+rcx*8], ymm0
-    vmovsd  xmm0, qword ptr [rdi+40h]
-    vmovups ymmword ptr [rax+rcx*8+20h], ymm1
-    vmovsd  qword ptr [rax+rcx*8+40h], xmm0
-  }
+  v4 = *(__m256i *)&behavior->dbPreRelease;
+  v5 = (unsigned __int8)index;
+  *(__m256i *)&s_streamKeyBehaviors[v5].loadedFrontend = *(__m256i *)&behavior->loadedFrontend;
+  v6 = *(double *)&behavior->forceFixedRegion;
+  *(__m256i *)&s_streamKeyBehaviors[v5].dbPreRelease = v4;
+  *(double *)&s_streamKeyBehaviors[v5].forceFixedRegion = v6;
 }
 
 /*

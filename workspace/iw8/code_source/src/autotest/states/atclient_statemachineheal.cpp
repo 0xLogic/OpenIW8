@@ -38,22 +38,16 @@ ATClient_StateMachineHealEnter
 */
 void ATClient_StateMachineHealEnter(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
   AutomatedInput_Record records; 
 
-  __asm { vmovss  xmm1, cs:__real@3dcccccd }
-  v3 = localClientNum;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  memset(&records.keys.keyBits.array[1], 0, 24);
-  __asm
-  {
-    vmovss  [rsp+68h+records.deferTimeSeconds], xmm0
-    vmovss  [rsp+68h+records.holdTimeSeconds], xmm1
-  }
+  v1 = localClientNum;
+  memset(&records.keys.keyBits.array[1], 0, 40);
+  records.deferTimeSeconds = 0.0;
+  records.holdTimeSeconds = FLOAT_0_1;
   records.keys.keyBits.array[0] = 2048;
-  __asm { vmovups xmmword ptr [rsp+68h+records.moveStick], xmm0 }
   CL_Input_AddAutomatedSequence(localClientNum, &records, 1);
-  s_durationMS_1[v3] = 2000;
+  s_durationMS_1[v1] = 2000;
 }
 
 /*

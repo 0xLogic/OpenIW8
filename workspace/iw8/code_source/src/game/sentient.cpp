@@ -687,22 +687,28 @@ Sentient_BanNearNodes
 void Sentient_BanNearNodes(sentient_s *self, bool ignoreBanNodeTime)
 {
   pathnode_t *pClaimedNode; 
-  int v13; 
+  int v4; 
   team_t eTeam; 
-  __int64 v15; 
+  __int64 v6; 
   pathsort_s *p_nodes; 
   pathnode_t *node; 
   int NodeTeam; 
   gentity_s *ent; 
   AICommonInterface *m_pAI; 
   gclient_s *client; 
-  char v49; 
-  char v50; 
-  AICommonWrapper v81; 
-  vec2_t v82; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v25; 
+  float v26; 
+  AICommonWrapper v27; 
+  vec2_t v28; 
   vec3_t forward; 
   vec3_t pos; 
-  vec3_t v85; 
+  vec3_t v31; 
   vec3_t vector; 
   pathsort_s nodes; 
 
@@ -717,32 +723,13 @@ void Sentient_BanNearNodes(sentient_s *self, bool ignoreBanNodeTime)
       if ( (pClaimedNode->constant.spawnflags & 0x8000) != 0 )
       {
         pathnode_t::GetPos(pClaimedNode, &pos);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@42a00000; maxDist
-          vmovaps xmm3, xmm2; maxHeight
-        }
-        v13 = Path_NodesInCylinder(&pos, NULL, *(float *)&_XMM2, *(float *)&_XMM3, &nodes, 64, -2107367684);
+        v4 = Path_NodesInCylinder(&pos, NULL, 80.0, 80.0, &nodes, 64, -2107367684);
         eTeam = self->eTeam;
-        v15 = v13;
-        if ( v13 > 0 )
+        v6 = v4;
+        if ( v4 > 0 )
         {
           p_nodes = &nodes;
-          __asm
-          {
-            vmovaps [rsp+5B0h+var_60], xmm9
-            vmovss  xmm9, cs:__real@bf000000
-            vmovaps [rsp+5B0h+var_70], xmm10
-            vmovss  xmm10, cs:__real@3f000000
-            vmovaps [rsp+5B0h+var_80], xmm11
-            vmovss  xmm11, cs:__real@3f800000
-            vmovaps [rsp+5B0h+var_90], xmm12
-            vmovss  xmm12, cs:__real@80000000
-            vmovaps [rsp+5B0h+var_30], xmm6
-            vmovaps [rsp+5B0h+var_40], xmm7
-            vmovaps [rsp+5B0h+var_50], xmm8
-          }
-          while ( 1 )
+          do
           {
             node = p_nodes->node;
             if ( (p_nodes->node->constant.spawnflags & 0x8000) == 0 )
@@ -750,58 +737,39 @@ void Sentient_BanNearNodes(sentient_s *self, bool ignoreBanNodeTime)
             NodeTeam = Path_GetNodeTeam(eTeam);
             if ( Path_NodeIsClaimed(node, NodeTeam) )
               goto LABEL_29;
-            pathnode_t::GetPos(node, &v85);
+            pathnode_t::GetPos(node, &v31);
             if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1235, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
               __debugbreak();
             ent = self->ent;
-            AIActorInterface::AIActorInterface(&v81.m_actorInterface);
-            AIAgentInterface::AIAgentInterface(&v81.m_newAgentInterface);
-            v81.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v81.m_botInterface);
-            v81.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v81.m_botAgentInterface);
-            v81.m_pAI = NULL;
-            v81.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-            AICommonWrapper::Setup(&v81, ent);
-            m_pAI = v81.m_pAI;
+            AIActorInterface::AIActorInterface(&v27.m_actorInterface);
+            AIAgentInterface::AIAgentInterface(&v27.m_newAgentInterface);
+            v27.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v27.m_botInterface);
+            v27.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v27.m_botAgentInterface);
+            v27.m_pAI = NULL;
+            v27.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+            AICommonWrapper::Setup(&v27, ent);
+            m_pAI = v27.m_pAI;
             client = self->ent->client;
             if ( client && BG_IsPlayerZeroG(&client->ps) || m_pAI && AICommonInterface::Use3DPathing(m_pAI) )
             {
+              v13 = LODWORD(pos.v[1]);
+              *(float *)&v13 = fsqrt((float)((float)((float)(pos.v[1] - v31.v[1]) * (float)(pos.v[1] - v31.v[1])) + (float)((float)(pos.v[0] - v31.v[0]) * (float)(pos.v[0] - v31.v[0]))) + (float)((float)(pos.v[2] - v31.v[2]) * (float)(pos.v[2] - v31.v[2])));
+              _XMM1 = v13;
               __asm
               {
-                vmovss  xmm0, dword ptr [rbp+4B0h+pos]
-                vsubss  xmm6, xmm0, dword ptr [rbp+4B0h+var_4C8]
-                vmovss  xmm1, dword ptr [rbp+4B0h+pos+4]
-                vsubss  xmm5, xmm1, dword ptr [rbp+4B0h+var_4C8+4]
-                vmovss  xmm0, dword ptr [rbp+4B0h+pos+8]
-                vsubss  xmm4, xmm0, dword ptr [rbp+4B0h+var_4C8+8]
-                vmulss  xmm1, xmm6, xmm6
-                vmulss  xmm2, xmm5, xmm5
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm1, xmm2, xmm2
                 vcmpless xmm0, xmm1, xmm12
                 vblendvps xmm0, xmm1, xmm11, xmm0
-                vdivss  xmm1, xmm11, xmm0
-                vmulss  xmm6, xmm1, xmm6
-                vmulss  xmm7, xmm1, xmm5
-                vmulss  xmm8, xmm1, xmm4
               }
+              v17 = (float)(1.0 / *(float *)&_XMM0) * (float)(pos.v[0] - v31.v[0]);
+              v18 = (float)(1.0 / *(float *)&_XMM0) * (float)(pos.v[1] - v31.v[1]);
+              v19 = (float)(1.0 / *(float *)&_XMM0) * (float)(pos.v[2] - v31.v[2]);
               if ( !Path_NodeIgnoresAngles(pClaimedNode) )
               {
                 pathnode_t::GetAngles(pClaimedNode, &vector);
                 AngleVectors(&vector, &forward, NULL, NULL);
-                __asm
-                {
-                  vmulss  xmm3, xmm7, dword ptr [rbp+4B0h+forward+4]
-                  vmulss  xmm2, xmm6, dword ptr [rbp+4B0h+forward]
-                  vmulss  xmm0, xmm8, dword ptr [rbp+4B0h+forward+8]
-                  vaddss  xmm3, xmm3, xmm2
-                  vaddss  xmm1, xmm3, xmm0
-                  vcomiss xmm1, xmm9
-                }
-                if ( !(v50 | v49) )
+                if ( (float)((float)((float)(v18 * forward.v[1]) + (float)(v17 * forward.v[0])) + (float)(v19 * forward.v[2])) > -0.5 )
                   goto LABEL_29;
               }
               if ( Path_NodeIgnoresAngles(node) )
@@ -812,76 +780,38 @@ LABEL_28:
               }
               pathnode_t::GetAngles(node, &vector);
               AngleVectors(&vector, &forward, NULL, NULL);
-              __asm
-              {
-                vmulss  xmm3, xmm7, dword ptr [rbp+4B0h+forward+4]
-                vmulss  xmm2, xmm6, dword ptr [rbp+4B0h+forward]
-                vmulss  xmm0, xmm8, dword ptr [rbp+4B0h+forward+8]
-                vaddss  xmm3, xmm3, xmm2
-                vaddss  xmm1, xmm3, xmm0
-              }
+              v20 = (float)((float)(v18 * forward.v[1]) + (float)(v17 * forward.v[0])) + (float)(v19 * forward.v[2]);
             }
             else
             {
+              v21 = LODWORD(pos.v[1]);
+              *(float *)&v21 = fsqrt((float)((float)(pos.v[1] - v31.v[1]) * (float)(pos.v[1] - v31.v[1])) + (float)((float)(pos.v[0] - v31.v[0]) * (float)(pos.v[0] - v31.v[0])));
+              _XMM3 = v21;
               __asm
               {
-                vmovss  xmm0, dword ptr [rbp+4B0h+pos]
-                vsubss  xmm5, xmm0, dword ptr [rbp+4B0h+var_4C8]
-                vmovss  xmm1, dword ptr [rbp+4B0h+pos+4]
-                vsubss  xmm4, xmm1, dword ptr [rbp+4B0h+var_4C8+4]
-                vmulss  xmm0, xmm5, xmm5
-                vmulss  xmm2, xmm4, xmm4
-                vaddss  xmm1, xmm2, xmm0
-                vsqrtss xmm3, xmm1, xmm1
                 vcmpless xmm0, xmm3, xmm12
                 vblendvps xmm0, xmm3, xmm11, xmm0
-                vdivss  xmm1, xmm11, xmm0
-                vmulss  xmm6, xmm1, xmm5
-                vmulss  xmm7, xmm1, xmm4
               }
+              v25 = (float)(1.0 / *(float *)&_XMM0) * (float)(pos.v[0] - v31.v[0]);
+              v26 = (float)(1.0 / *(float *)&_XMM0) * (float)(pos.v[1] - v31.v[1]);
               if ( !Path_NodeIgnoresAngles(pClaimedNode) )
               {
-                pathnode_t::GetForward(pClaimedNode, &v82);
-                __asm
-                {
-                  vmulss  xmm1, xmm6, dword ptr [rbp+4B0h+var_4F0]
-                  vmulss  xmm0, xmm7, dword ptr [rbp+4B0h+var_4F0+4]
-                  vaddss  xmm1, xmm1, xmm0
-                  vcomiss xmm1, xmm9
-                }
-                if ( !(v50 | v49) )
+                pathnode_t::GetForward(pClaimedNode, &v28);
+                if ( (float)((float)(v25 * v28.v[0]) + (float)(v26 * v28.v[1])) > -0.5 )
                   goto LABEL_29;
               }
               if ( Path_NodeIgnoresAngles(node) )
                 goto LABEL_28;
-              pathnode_t::GetForward(node, &v82);
-              __asm
-              {
-                vmulss  xmm1, xmm6, dword ptr [rbp+4B0h+var_4F0]
-                vmulss  xmm0, xmm7, dword ptr [rbp+4B0h+var_4F0+4]
-                vaddss  xmm1, xmm1, xmm0
-              }
+              pathnode_t::GetForward(node, &v28);
+              v20 = (float)(v25 * v28.v[0]) + (float)(v26 * v28.v[1]);
             }
-            __asm { vcomiss xmm1, xmm10 }
-            if ( !v50 )
+            if ( v20 >= 0.5 )
               goto LABEL_28;
 LABEL_29:
             ++p_nodes;
-            if ( !--v15 )
-            {
-              __asm
-              {
-                vmovaps xmm12, [rsp+5B0h+var_90]
-                vmovaps xmm11, [rsp+5B0h+var_80]
-                vmovaps xmm10, [rsp+5B0h+var_70]
-                vmovaps xmm9, [rsp+5B0h+var_60]
-                vmovaps xmm8, [rsp+5B0h+var_50]
-                vmovaps xmm7, [rsp+5B0h+var_40]
-                vmovaps xmm6, [rsp+5B0h+var_30]
-              }
-              return;
-            }
+            --v6;
           }
+          while ( v6 );
         }
       }
     }
@@ -893,106 +823,79 @@ LABEL_29:
 Sentient_BanNodesInDirAndRadius
 ==============
 */
-
-void __fastcall Sentient_BanNodesInDirAndRadius(sentient_s *self, double radius)
+void Sentient_BanNodesInDirAndRadius(sentient_s *self, float radius)
 {
   gentity_s *ent; 
-  int v9; 
+  int v4; 
   team_t eTeam; 
-  __int64 v12; 
-  __int64 v14; 
-  pathsort_s *p_nodes; 
+  __int64 v6; 
+  __int64 v7; 
+  pathsort_s *i; 
   pathnode_t *node; 
-  unsigned int v18; 
-  bool v19; 
-  char v25; 
+  unsigned int v10; 
+  bool v11; 
   __int64 maxNodes; 
   __int64 typeFlags; 
-  vec2_t v29; 
+  vec2_t v14; 
   vec3_t forward; 
   pathsort_s nodes; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( level.time - self->banNodeTime >= 0 )
   {
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
     ent = self->ent;
-    __asm { vmovss  xmm3, cs:__real@42a00000; maxHeight }
     self->banNodeTime = level.time - level.frameDuration + 2500;
-    __asm { vmovaps xmm2, xmm6; maxDist }
-    v9 = Path_NodesInCylinder(&ent->r.currentOrigin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, &nodes, 64, -2107367684);
-    _RCX = self->ent;
+    v4 = Path_NodesInCylinder(&ent->r.currentOrigin, NULL, radius, 80.0, &nodes, 64, -2107367684);
     eTeam = self->eTeam;
-    v12 = v9;
-    __asm { vmovss  xmm0, dword ptr [rcx+140h]; yaw }
-    YawVectors(*(float *)&_XMM0, &forward, NULL);
-    v14 = v12;
-    if ( (int)v12 > 0 )
+    v6 = v4;
+    YawVectors(self->ent->r.currentAngles.v[1], &forward, NULL);
+    v7 = v6;
+    if ( (int)v6 > 0 )
     {
-      p_nodes = &nodes;
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      while ( 1 )
+      for ( i = &nodes; ; ++i )
       {
-        node = p_nodes->node;
-        if ( (p_nodes->node->constant.spawnflags & 0x8000) != 0 )
+        node = i->node;
+        if ( (i->node->constant.spawnflags & 0x8000) != 0 )
           break;
 LABEL_22:
-        ++p_nodes;
-        if ( !--v14 )
-          goto LABEL_23;
+        if ( !--v7 )
+          return;
       }
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
       {
-        v18 = 2;
+        v10 = 2;
         if ( eTeam <= TEAM_TWO )
-          v18 = eTeam - 1;
-        if ( v18 < 3 )
+          v10 = eTeam - 1;
+        if ( v10 < 3 )
           goto LABEL_19;
         LODWORD(typeFlags) = 3;
-        LODWORD(maxNodes) = v18;
-        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 205, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( (3) )", "result doesn't index MAX_NODE_TEAMS_SP\n\t%i not in [0, %i)", maxNodes, typeFlags);
+        LODWORD(maxNodes) = v10;
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 205, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( (3) )", "result doesn't index MAX_NODE_TEAMS_SP\n\t%i not in [0, %i)", maxNodes, typeFlags);
       }
       else
       {
-        v18 = 1;
+        v10 = 1;
         if ( eTeam <= TEAM_ONE )
-          v18 = eTeam - 1;
-        if ( v18 < 2 )
+          v10 = eTeam - 1;
+        if ( v10 < 2 )
           goto LABEL_19;
         LODWORD(typeFlags) = 2;
-        LODWORD(maxNodes) = v18;
-        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 210, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( (2) )", "result doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", maxNodes, typeFlags);
+        LODWORD(maxNodes) = v10;
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode.h", 210, ASSERT_TYPE_ASSERT, "(unsigned)( result ) < (unsigned)( (2) )", "result doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", maxNodes, typeFlags);
       }
-      if ( v19 )
+      if ( v11 )
         __debugbreak();
 LABEL_19:
-      if ( Path_NodeGetFreeTime(node, v18) != 0x7FFFFFFF )
+      if ( Path_NodeGetFreeTime(node, v10) != 0x7FFFFFFF )
       {
-        pathnode_t::GetForward(node, &v29);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+4B8h+forward]
-          vmovss  xmm1, dword ptr [rsp+4B8h+forward+4]
-          vmulss  xmm3, xmm0, dword ptr [rsp+4B8h+var_478]
-          vmulss  xmm2, xmm1, dword ptr [rsp+4B8h+var_478+4]
-          vaddss  xmm0, xmm3, xmm2
-          vcomiss xmm0, xmm6
-        }
-        if ( !v25 )
+        pathnode_t::GetForward(node, &v14);
+        if ( (float)((float)(forward.v[0] * v14.v[0]) + (float)(forward.v[1] * v14.v[1])) >= 0.0 )
           Path_MarkNodeInvalid(node, eTeam, 2500);
       }
       goto LABEL_22;
     }
   }
-LABEL_23:
-  __asm { vmovaps xmm6, [rsp+4B8h+var_48] }
 }
 
 /*
@@ -1008,17 +911,9 @@ void Sentient_CheckAndUpdateNearestData(sentient_s *pSelf, bool originChanged)
     pSelf->originChanged = 1;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@43c80000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vdivss  xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r8d, xmm4
-  }
-  if ( level.framenum % _ER8 == ((int)pSelf - LODWORD(level.sentients)) / 184 % _ER8 )
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  if ( level.framenum % (int)*(float *)&_XMM4 == ((int)pSelf - LODWORD(level.sentients)) / 184 % (int)*(float *)&_XMM4 )
   {
     if ( pSelf->originChanged )
     {
@@ -1103,19 +998,23 @@ Sentient_Dissociate
 */
 void Sentient_Dissociate(sentient_s *pSentient)
 {
-  unsigned int v5; 
+  const bitarray<224> *AllTeamFlags; 
+  double v3; 
+  unsigned int v4; 
+  const bitarray<224> *v5; 
+  __int128 v6; 
+  unsigned int v7; 
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v11; 
-  unsigned int v12; 
-  __int128 *v13; 
-  __int64 v14; 
+  _DWORD *v10; 
+  __int64 v11; 
   unsigned __int64 eTeam; 
   sentient_s *i; 
+  __int64 v14; 
+  __int64 v15; 
+  _DWORD v16[4]; 
   __int64 v17; 
-  __int64 v18; 
-  __int128 v19; 
-  __int64 v20; 
-  unsigned int v21; 
+  unsigned int v18; 
   bitarray<224> iTeamFlags; 
 
   if ( !pSentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 205, ASSERT_TYPE_ASSERT, "( pSentient )", (const char *)&queryFormat, "pSentient") )
@@ -1125,50 +1024,35 @@ void Sentient_Dissociate(sentient_s *pSentient)
     Path_RelinquishNodeNow(pSentient);
   pSentient->eTeam = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? TEAM_FIVE : TEAM_ZERO;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovsd  xmm1, qword ptr [rax+10h]
-  }
-  v5 = _RAX->array[6];
-  __asm
-  {
-    vmovups xmmword ptr [rbp+57h+iTeamFlags.array], xmm0
-    vmovsd  qword ptr [rbp+57h+iTeamFlags.array+10h], xmm1
-  }
-  iTeamFlags.array[6] = v5;
+    AllTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+  v3 = *(double *)&AllTeamFlags->array[4];
+  v4 = AllTeamFlags->array[6];
+  *(_OWORD *)iTeamFlags.array = *(_OWORD *)AllTeamFlags->array;
+  *(double *)&iTeamFlags.array[4] = v3;
+  iTeamFlags.array[6] = v4;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    v5 = Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
+    v5 = Com_TeamsMP_GetAllTeamFlags();
+  v6 = *(_OWORD *)v5->array;
+  v7 = v5->array[6];
+  v17 = *(_QWORD *)&v5->array[4];
+  v16[0] = iTeamFlags.array[0] & ~(_DWORD)v6;
+  v18 = v4 & ~v7;
+  v16[1] = iTeamFlags.array[1] & ~DWORD1(v6);
+  v16[2] = iTeamFlags.array[2] & ~DWORD2(v6);
+  v16[3] = iTeamFlags.array[3] & ~HIDWORD(v6);
+  v17 = *(_QWORD *)&iTeamFlags.array[4] & ~v17;
+  v8 = 0;
+  v9 = 0;
+  v10 = v16;
+  while ( !*v10 )
   {
-    vmovups xmm1, xmmword ptr [rax]
-    vmovsd  xmm0, qword ptr [rax+10h]
-  }
-  v9 = _RAX->array[6];
-  __asm
-  {
-    vmovups [rbp+57h+var_60], xmm1
-    vmovsd  [rbp+57h+var_50], xmm0
-    vmovd   eax, xmm1
-  }
-  LODWORD(v19) = iTeamFlags.array[0] & ~_EAX;
-  v21 = v5 & ~v9;
-  *(_QWORD *)((char *)&v19 + 4) = *(_QWORD *)&iTeamFlags.array[1] & ~*(_QWORD *)((char *)&v19 + 4);
-  HIDWORD(v19) = iTeamFlags.array[3] & ~HIDWORD(v19);
-  v20 = *(_QWORD *)&iTeamFlags.array[4] & ~v20;
-  v11 = 0;
-  v12 = 0;
-  v13 = &v19;
-  while ( !*(_DWORD *)v13 )
-  {
-    ++v12;
-    v13 = (__int128 *)((char *)v13 + 4);
-    if ( v12 >= 7 )
+    ++v9;
+    ++v10;
+    if ( v9 >= 7 )
       goto LABEL_18;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 986, ASSERT_TYPE_ASSERT, "( Com_Teams_IsValidTeamFlag( iTeamFlags ) )", (const char *)&queryFormat, "Com_Teams_IsValidTeamFlag( iTeamFlags )") )
@@ -1178,24 +1062,24 @@ LABEL_18:
   {
     while ( 1 )
     {
-      v14 = v11;
-      if ( level.sentients[v14].inuse )
+      v11 = v8;
+      if ( level.sentients[v11].inuse )
       {
-        eTeam = (unsigned int)level.sentients[v14].eTeam;
+        eTeam = (unsigned int)level.sentients[v11].eTeam;
         if ( (unsigned int)eTeam >= 0xE0 )
         {
-          LODWORD(v18) = 224;
-          LODWORD(v17) = level.sentients[v14].eTeam;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
+          LODWORD(v15) = 224;
+          LODWORD(v14) = level.sentients[v11].eTeam;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
             __debugbreak();
         }
         if ( ((0x80000000 >> (eTeam & 0x1F)) & iTeamFlags.array[eTeam >> 5]) != 0 )
           break;
       }
-      if ( ++v11 >= level.maxSentients )
+      if ( ++v8 >= level.maxSentients )
         return;
     }
-    for ( i = &level.sentients[v14]; i; i = Sentient_NextSentient(i, &iTeamFlags) )
+    for ( i = &level.sentients[v11]; i; i = Sentient_NextSentient(i, &iTeamFlags) )
     {
       if ( i != pSentient )
         Sentient_DissociateSentient(i, pSentient);
@@ -1299,21 +1183,20 @@ Sentient_FindLastTacPointOnPathWithVis
 const tacpoint_t *Sentient_FindLastTacPointOnPathWithVis(sentient_s *pSelf, sentient_s *pOtherGuy, sentient_info_t *pInfo, const vec3_t *pos, vec3_t *outCornerPos)
 {
   AINavigator *Navigator; 
-  bool v10; 
+  gentity_s *ent; 
   const tacpoint_t *ClosestPointWithStaticNavLos; 
-  __int64 v16; 
-  __int64 v17; 
-  bfx::SpaceHandle *v19; 
-  const tacpoint_t *v20; 
-  const tacpoint_t *v21; 
+  __int64 v12; 
+  __int64 v13; 
+  bfx::SpaceHandle *v15; 
+  const tacpoint_t *v16; 
+  const tacpoint_t *v17; 
   bfx::AreaHandle hArea; 
-  __int64 v23; 
+  __int64 v19; 
   vec3_t outUp; 
   vec3_t losPos; 
   vec3_t outLastKnownPos; 
 
-  v23 = -2i64;
-  _RBP = pos;
+  v19 = -2i64;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1650, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pOtherGuy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1651, ASSERT_TYPE_ASSERT, "(pOtherGuy)", (const char *)&queryFormat, "pOtherGuy") )
@@ -1322,65 +1205,43 @@ const tacpoint_t *Sentient_FindLastTacPointOnPathWithVis(sentient_s *pSelf, sent
     __debugbreak();
   SentientInfo_GetLastKnownPos(pInfo, &outLastKnownPos);
   Navigator = Nav_GetNavigator(pOtherGuy->ent);
-  v10 = Navigator == NULL;
   if ( !Navigator )
   {
     Navigator = Nav_GetNavigator(pSelf->ent);
-    v10 = Navigator == NULL;
     if ( !Navigator )
       return 0i64;
   }
-  _RAX = pSelf->ent;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vucomiss xmm0, dword ptr [rax+130h]
-  }
-  if ( !v10 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vucomiss xmm0, dword ptr [rax+134h]
-  }
-  if ( !v10 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vucomiss xmm0, dword ptr [rax+138h]
-  }
-  if ( v10 )
+  ent = pSelf->ent;
+  if ( pos->v[0] == pSelf->ent->r.currentOrigin.v[0] && pos->v[1] == ent->r.currentOrigin.v[1] && pos->v[2] == ent->r.currentOrigin.v[2] )
   {
     ClosestPointWithStaticNavLos = Sentient_NearestTacPoint(pSelf);
   }
   else
   {
-LABEL_16:
     bfx::AreaHandle::AreaHandle(&hArea);
     AINavigator::GetUpVector(Navigator, &outUp);
-    v16 = (__int64)Navigator->Get2DNavigator(Navigator);
-    v17 = v16;
-    if ( !v16 )
+    v12 = (__int64)Navigator->Get2DNavigator(Navigator);
+    v13 = v12;
+    if ( !v12 )
     {
       bfx::AreaHandle::~AreaHandle(&hArea);
       return 0i64;
     }
-    v19 = *(bfx::SpaceHandle **)(v16 + 16);
-    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1681, ASSERT_TYPE_ASSERT, "(navSpace)", (const char *)&queryFormat, "navSpace") )
+    v15 = *(bfx::SpaceHandle **)(v12 + 16);
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1681, ASSERT_TYPE_ASSERT, "(navSpace)", (const char *)&queryFormat, "navSpace") )
       __debugbreak();
-    Nav_GetClosestVerticalPos(_RBP, &outUp, *(_DWORD *)(v17 + 112), v19, (const bfx::PathSpec *)(v17 + 1188), &losPos, &hArea);
-    ClosestPointWithStaticNavLos = TacGraph_FindClosestPointWithStaticNavLos(_RBP, &losPos, &hArea);
+    Nav_GetClosestVerticalPos(pos, &outUp, *(_DWORD *)(v13 + 112), v15, (const bfx::PathSpec *)(v13 + 1188), &losPos, &hArea);
+    ClosestPointWithStaticNavLos = TacGraph_FindClosestPointWithStaticNavLos(pos, &losPos, &hArea);
     bfx::AreaHandle::~AreaHandle(&hArea);
   }
   if ( !ClosestPointWithStaticNavLos )
     return 0i64;
-  v20 = Sentient_NearestTacPoint(pOtherGuy);
-  v21 = v20;
-  if ( !v20 || !TacVisGraph_HasVis(ClosestPointWithStaticNavLos, v20) )
-    return Navigator->FindLastTacPointOnPathWithVis(Navigator, &outLastKnownPos, ClosestPointWithStaticNavLos, _RBP, outCornerPos);
-  TacGraph_GetApproxGroundPosForPoint(v21, outCornerPos);
-  return v21;
+  v16 = Sentient_NearestTacPoint(pOtherGuy);
+  v17 = v16;
+  if ( !v16 || !TacVisGraph_HasVis(ClosestPointWithStaticNavLos, v16) )
+    return Navigator->FindLastTacPointOnPathWithVis(Navigator, &outLastKnownPos, ClosestPointWithStaticNavLos, pos, outCornerPos);
+  TacGraph_GetApproxGroundPosForPoint(v17, outCornerPos);
+  return v17;
 }
 
 /*
@@ -1390,47 +1251,44 @@ Sentient_FirstSentient
 */
 sentient_s *Sentient_FirstSentient(const bitarray<224> *iTeamFlags)
 {
+  const bitarray<224> *AllTeamFlags; 
+  __int128 v3; 
+  double v4; 
   unsigned int v5; 
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
-  __int128 *v9; 
-  __int64 v10; 
+  __int128 *v8; 
+  __int64 v9; 
   unsigned __int64 eTeam; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int128 v15; 
-  __int64 v16; 
-  unsigned int v17; 
+  __int128 v14; 
+  double v15; 
+  unsigned int v16; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rax]
-    vmovsd  xmm0, qword ptr [rax+10h]
-  }
-  v5 = _RAX->array[6];
-  __asm
-  {
-    vmovups [rsp+78h+var_38], xmm1
-    vmovsd  [rsp+78h+var_28], xmm0
-    vmovd   eax, xmm1
-  }
-  LODWORD(v15) = iTeamFlags->array[0] & ~_EAX;
-  *(_QWORD *)((char *)&v15 + 4) = ~*(_QWORD *)((char *)&v15 + 4) & *(_QWORD *)&iTeamFlags->array[1];
-  HIDWORD(v15) = ~HIDWORD(v15) & iTeamFlags->array[3];
-  v16 = ~v16 & *(_QWORD *)&iTeamFlags->array[4];
+    AllTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+  v3 = *(_OWORD *)AllTeamFlags->array;
+  v4 = *(double *)&AllTeamFlags->array[4];
+  v5 = AllTeamFlags->array[6];
+  v14 = v3;
+  v15 = v4;
+  LODWORD(v14) = iTeamFlags->array[0] & ~(_DWORD)v3;
+  DWORD1(v14) = ~DWORD1(v3) & iTeamFlags->array[1];
+  DWORD2(v14) = ~DWORD2(v3) & iTeamFlags->array[2];
+  HIDWORD(v14) = ~HIDWORD(v3) & iTeamFlags->array[3];
+  *(_QWORD *)&v15 = ~*(_QWORD *)&v4 & *(_QWORD *)&iTeamFlags->array[4];
+  v6 = 0;
+  v16 = ~v5 & iTeamFlags->array[6];
   v7 = 0;
-  v17 = ~v5 & iTeamFlags->array[6];
-  v8 = 0;
-  v9 = &v15;
-  while ( !*(_DWORD *)v9 )
+  v8 = &v14;
+  while ( !*(_DWORD *)v8 )
   {
-    ++v8;
-    v9 = (__int128 *)((char *)v9 + 4);
-    if ( v8 >= 7 )
+    ++v7;
+    v8 = (__int128 *)((char *)v8 + 4);
+    if ( v7 >= 7 )
       goto LABEL_10;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 986, ASSERT_TYPE_ASSERT, "( Com_Teams_IsValidTeamFlag( iTeamFlags ) )", (const char *)&queryFormat, "Com_Teams_IsValidTeamFlag( iTeamFlags )") )
@@ -1440,24 +1298,24 @@ LABEL_10:
     return 0i64;
   while ( 1 )
   {
-    v10 = v7;
-    if ( level.sentients[v10].inuse )
+    v9 = v6;
+    if ( level.sentients[v9].inuse )
     {
-      eTeam = (unsigned int)level.sentients[v10].eTeam;
+      eTeam = (unsigned int)level.sentients[v9].eTeam;
       if ( (unsigned int)eTeam >= 0xE0 )
       {
-        LODWORD(v14) = 224;
-        LODWORD(v13) = level.sentients[v10].eTeam;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, v14) )
+        LODWORD(v13) = 224;
+        LODWORD(v12) = level.sentients[v9].eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, v13) )
           __debugbreak();
       }
       if ( ((0x80000000 >> (eTeam & 0x1F)) & iTeamFlags->array[eTeam >> 5]) != 0 )
         break;
     }
-    if ( ++v7 >= level.maxSentients )
+    if ( ++v6 >= level.maxSentients )
       return 0i64;
   }
-  return &level.sentients[v10];
+  return &level.sentients[v9];
 }
 
 /*
@@ -1553,8 +1411,8 @@ Sentient_GetDebugEyePosition
 void Sentient_GetDebugEyePosition(const sentient_s *self, vec3_t *vEyePosOut)
 {
   const playerState_s *EntityPlayerState; 
+  gentity_s *ent; 
 
-  _RDI = vEyePosOut;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 470, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 471, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
@@ -1562,19 +1420,14 @@ void Sentient_GetDebugEyePosition(const sentient_s *self, vec3_t *vEyePosOut)
   EntityPlayerState = G_GetEntityPlayerState(self->ent);
   if ( EntityPlayerState )
   {
-    G_Client_GetEyePosition(EntityPlayerState, _RDI);
+    G_Client_GetEyePosition(EntityPlayerState, vEyePosOut);
   }
   else
   {
-    _RCX = self->ent;
-    _RDI->v[0] = self->ent->r.currentOrigin.v[0];
-    _RDI->v[1] = _RCX->r.currentOrigin.v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+138h]
-      vaddss  xmm1, xmm0, cs:__real@42600000
-      vmovss  dword ptr [rdi+8], xmm1
-    }
+    ent = self->ent;
+    vEyePosOut->v[0] = self->ent->r.currentOrigin.v[0];
+    vEyePosOut->v[1] = ent->r.currentOrigin.v[1];
+    vEyePosOut->v[2] = ent->r.currentOrigin.v[2] + 56.0;
   }
 }
 
@@ -1629,9 +1482,7 @@ void Sentient_GetForwardDir(const sentient_s *self, vec3_t *vDirOut)
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 342, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
     __debugbreak();
-  _RAX = self->ent;
-  __asm { vmovss  xmm0, dword ptr [rax+140h]; yaw }
-  YawVectors(*(float *)&_XMM0, vDirOut, NULL);
+  YawVectors(self->ent->r.currentAngles.v[1], vDirOut, NULL);
 }
 
 /*
@@ -1691,54 +1542,37 @@ Sentient_GetHeadHeight
 float Sentient_GetHeadHeight(const sentient_s *self)
 {
   gclient_s *client; 
+  const SuitDef *SuitDef; 
   gagent_s *agent; 
-  AIWrapper v9; 
+  AIWrapper v6; 
 
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 490, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 491, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
     __debugbreak();
-  AIWrapper::AIWrapper(&v9, self->ent);
+  AIWrapper::AIWrapper(&v6, self->ent);
   client = self->ent->client;
   if ( client )
   {
-    if ( !BG_GetSuitDef(client->ps.suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 498, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    SuitDef = BG_GetSuitDef(client->ps.suitIndex);
+    if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 498, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    goto LABEL_11;
+    return (float)(SuitDef->bounds_height_stand - SuitDef->viewheight_stand);
   }
   agent = self->ent->agent;
   if ( !agent )
   {
-    if ( !v9.m_pAI )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      return *(float *)&_XMM0;
-    }
-    goto LABEL_18;
+    if ( !v6.m_pAI )
+      return 0.0;
+    return FLOAT_6_0;
   }
-  if ( v9.m_pAI )
-  {
-LABEL_18:
-    __asm { vmovss  xmm0, cs:__real@40c00000 }
-    return *(float *)&_XMM0;
-  }
-  if ( !BG_GetSuitDef(agent->playerState.suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 504, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
-  {
-    __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    return *(float *)&_XMM0;
-  }
-LABEL_11:
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  return *(float *)&_XMM0;
+  if ( v6.m_pAI )
+    return FLOAT_6_0;
+  SuitDef = BG_GetSuitDef(agent->playerState.suitIndex);
+  if ( SuitDef || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 504, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+    return (float)(SuitDef->bounds_height_stand - SuitDef->viewheight_stand);
+  __debugbreak();
+  return (float)(MEMORY[0x224] - MEMORY[0x200]);
 }
 
 /*
@@ -1751,12 +1585,15 @@ void Sentient_GetHeadPosition(const sentient_s *self, vec3_t *vEyePosOut)
   bool HasRemoteEyes; 
   playerState_s *EntityPlayerState; 
   const playerState_s *v6; 
+  gentity_s *ent; 
+  float v8; 
   GHandler *Handler; 
   int BoneIndex; 
-  gentity_s *ent; 
-  AICommonWrapper v16; 
+  gentity_s *v11; 
+  float v12; 
+  gentity_s *v13; 
+  AICommonWrapper v14; 
 
-  _RSI = vEyePosOut;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 422, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 423, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
@@ -1768,37 +1605,29 @@ void Sentient_GetHeadPosition(const sentient_s *self, vec3_t *vEyePosOut)
   v6 = EntityPlayerState;
   if ( HasRemoteEyes )
   {
-    _RDX = self->ent;
-    _RSI->v[0] = self->ent->r.currentOrigin.v[0];
-    _RSI->v[1] = _RDX->r.currentOrigin.v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+138h]
-      vmovss  dword ptr [rsi+8], xmm0
-      vaddss  xmm0, xmm0, dword ptr [rax+1E8h]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
+    ent = self->ent;
+    vEyePosOut->v[0] = self->ent->r.currentOrigin.v[0];
+    vEyePosOut->v[1] = ent->r.currentOrigin.v[1];
+    v8 = ent->r.currentOrigin.v[2];
+    vEyePosOut->v[2] = v8;
+    vEyePosOut->v[2] = v8 + EntityPlayerState->viewHeightCurrent;
     return;
   }
   if ( EntityPlayerState && (Handler = GHandler::getHandler(), BG_ShouldHandleThirdPersonVehicleCamera(v6, Handler)) )
   {
     BoneIndex = SV_Game_DObjGetBoneIndex(self->ent, scr_const.tag_eye);
-    _RCX = self->ent;
+    v11 = self->ent;
     if ( BoneIndex < 0 )
     {
-      _RSI->v[0] = _RCX->r.currentOrigin.v[0];
-      _RSI->v[1] = _RCX->r.currentOrigin.v[1];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vmovss  dword ptr [rsi+8], xmm0
-        vaddss  xmm0, xmm0, dword ptr [rbp+1E8h]
-        vmovss  dword ptr [rsi+8], xmm0
-      }
+      vEyePosOut->v[0] = v11->r.currentOrigin.v[0];
+      vEyePosOut->v[1] = v11->r.currentOrigin.v[1];
+      v12 = v11->r.currentOrigin.v[2];
+      vEyePosOut->v[2] = v12;
+      vEyePosOut->v[2] = v12 + v6->viewHeightCurrent;
     }
     else
     {
-      G_Utils_DObjGetWorldBoneIndexPos(_RCX, BoneIndex, _RSI);
+      G_Utils_DObjGetWorldBoneIndexPos(v11, BoneIndex, vEyePosOut);
     }
   }
   else
@@ -1806,29 +1635,29 @@ void Sentient_GetHeadPosition(const sentient_s *self, vec3_t *vEyePosOut)
 LABEL_25:
     if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 393, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
       __debugbreak();
-    ent = self->ent;
-    AIActorInterface::AIActorInterface(&v16.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v16.m_newAgentInterface);
-    v16.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v16.m_botInterface);
-    v16.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v16.m_botAgentInterface);
-    v16.m_pAI = NULL;
-    v16.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    AICommonWrapper::Setup(&v16, ent);
-    if ( v16.m_pAI )
+    v13 = self->ent;
+    AIActorInterface::AIActorInterface(&v14.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v14.m_newAgentInterface);
+    v14.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v14.m_botInterface);
+    v14.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v14.m_botAgentInterface);
+    v14.m_pAI = NULL;
+    v14.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    AICommonWrapper::Setup(&v14, v13);
+    if ( v14.m_pAI )
     {
-      v16.m_pAI->GetEyePosition(v16.m_pAI, _RSI);
+      v14.m_pAI->GetEyePosition(v14.m_pAI, vEyePosOut);
     }
     else if ( self->ent->client )
     {
       Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Client_GetEyePosition");
-      G_Client_GetEyePosition_NoBob(&self->ent->client->ps, _RSI);
+      G_Client_GetEyePosition_NoBob(&self->ent->client->ps, vEyePosOut);
       Sys_ProfEndNamedEvent();
     }
     else
     {
-      G_Utils_EntityCentroid(self->ent, _RSI);
+      G_Utils_EntityCentroid(self->ent, vEyePosOut);
     }
   }
 }
@@ -1900,9 +1729,7 @@ float Sentient_GetMaxSightDistSqrd(sentient_s *pSelf)
     __debugbreak();
   if ( !pSelf->ai && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 529, ASSERT_TYPE_ASSERT, "(pSelf->ai)", (const char *)&queryFormat, "pSelf->ai") )
     __debugbreak();
-  _RAX = pSelf->ai;
-  __asm { vmovss  xmm0, dword ptr [rax+0A4h] }
-  return *(float *)&_XMM0;
+  return pSelf->ai->sight.fMaxSightDistSqrd;
 }
 
 /*
@@ -1931,132 +1758,109 @@ Sentient_GetRemoteEyePosition
 */
 void Sentient_GetRemoteEyePosition(const sentient_s *self, vec3_t *vEyePosOut)
 {
+  playerState_s *EntityPlayerState; 
   int entity; 
   __int16 remoteControlEnt; 
-  gentity_s *v8; 
+  gentity_s *v7; 
+  const VehicleDef *ServerDef; 
   gentity_s *ent; 
-  scr_string_t v16; 
+  float vehCam_offsetZ; 
+  float vehCam_offsetY; 
+  scr_string_t v15; 
   int WorldTagMatrix; 
-  int v18; 
+  int v17; 
+  float v18; 
   Vehicle *vehicle; 
+  const VehicleDef *v20; 
+  float vehCam_offsetZ3P; 
+  float vehCam_offsetX3P; 
   float targetFovOffset; 
   vec3_t in1; 
   tmat43_t<vec3_t> outTagMat; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
 
-  _R14 = vEyePosOut;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 625, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 626, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
     __debugbreak();
-  _RDI = G_GetEntityPlayerState(self->ent);
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 636, ASSERT_TYPE_ASSERT, "(ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES ))", (const char *)&queryFormat, "ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES )") )
+  EntityPlayerState = G_GetEntityPlayerState(self->ent);
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 636, ASSERT_TYPE_ASSERT, "(ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES ))", (const char *)&queryFormat, "ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES )") )
     __debugbreak();
-  if ( _RDI->remoteEyesEnt == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 637, ASSERT_TYPE_ASSERT, "(ps->remoteEyesEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->remoteEyesEnt != ENTITYNUM_NONE") )
+  if ( EntityPlayerState->remoteEyesEnt == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 637, ASSERT_TYPE_ASSERT, "(ps->remoteEyesEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->remoteEyesEnt != ENTITYNUM_NONE") )
     __debugbreak();
-  entity = _RDI->vehicleState.entity;
-  if ( entity != 2047 && entity != _RDI->remoteEyesEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 638, ASSERT_TYPE_ASSERT, "((ps->vehicleState.entity == ENTITYNUM_NONE) || (ps->vehicleState.entity == ps->remoteEyesEnt))", (const char *)&queryFormat, "(ps->vehicleState.entity == ENTITYNUM_NONE) || (ps->vehicleState.entity == ps->remoteEyesEnt)") )
+  entity = EntityPlayerState->vehicleState.entity;
+  if ( entity != 2047 && entity != EntityPlayerState->remoteEyesEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 638, ASSERT_TYPE_ASSERT, "((ps->vehicleState.entity == ENTITYNUM_NONE) || (ps->vehicleState.entity == ps->remoteEyesEnt))", (const char *)&queryFormat, "(ps->vehicleState.entity == ENTITYNUM_NONE) || (ps->vehicleState.entity == ps->remoteEyesEnt)") )
     __debugbreak();
-  remoteControlEnt = _RDI->remoteControlEnt;
-  if ( remoteControlEnt != 2047 && remoteControlEnt != _RDI->remoteEyesEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 639, ASSERT_TYPE_ASSERT, "((ps->remoteControlEnt == ENTITYNUM_NONE) || (ps->remoteControlEnt == ps->remoteEyesEnt))", (const char *)&queryFormat, "(ps->remoteControlEnt == ENTITYNUM_NONE) || (ps->remoteControlEnt == ps->remoteEyesEnt)") )
+  remoteControlEnt = EntityPlayerState->remoteControlEnt;
+  if ( remoteControlEnt != 2047 && remoteControlEnt != EntityPlayerState->remoteEyesEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 639, ASSERT_TYPE_ASSERT, "((ps->remoteControlEnt == ENTITYNUM_NONE) || (ps->remoteControlEnt == ps->remoteEyesEnt))", (const char *)&queryFormat, "(ps->remoteControlEnt == ENTITYNUM_NONE) || (ps->remoteControlEnt == ps->remoteEyesEnt)") )
     __debugbreak();
-  v8 = &g_entities[_RDI->remoteEyesEnt];
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 642, ASSERT_TYPE_ASSERT, "( remoteEyesEnt )", (const char *)&queryFormat, "remoteEyesEnt") )
+  v7 = &g_entities[EntityPlayerState->remoteEyesEnt];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 642, ASSERT_TYPE_ASSERT, "( remoteEyesEnt )", (const char *)&queryFormat, "remoteEyesEnt") )
     __debugbreak();
-  if ( _RDI->vehicleState.entity == 2047 )
+  if ( EntityPlayerState->vehicleState.entity == 2047 )
   {
     if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
       __debugbreak();
-    v16 = GConfigStrings::ms_gConfigStrings->GetClientTagName(GConfigStrings::ms_gConfigStrings, _RDI->remoteEyesTagname);
-    WorldTagMatrix = G_Utils_DObjGetWorldTagMatrix(v8, v16, &outTagMat);
-    if ( WorldTagMatrix || (v18 = G_Utils_DObjGetWorldTagMatrix(v8, scr_const.tag_origin, &outTagMat)) != 0 )
+    v15 = GConfigStrings::ms_gConfigStrings->GetClientTagName(GConfigStrings::ms_gConfigStrings, EntityPlayerState->remoteEyesTagname);
+    WorldTagMatrix = G_Utils_DObjGetWorldTagMatrix(v7, v15, &outTagMat);
+    if ( WorldTagMatrix || (v17 = G_Utils_DObjGetWorldTagMatrix(v7, scr_const.tag_origin, &outTagMat)) != 0 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0F8h+outTagMat+24h]
-        vmovss  xmm1, dword ptr [rsp+0F8h+outTagMat+28h]
-        vmovss  dword ptr [r14], xmm0
-        vmovss  xmm0, dword ptr [rsp+0F8h+outTagMat+2Ch]
-        vmovss  dword ptr [r14+8], xmm0
-        vmovss  dword ptr [r14+4], xmm1
-      }
+      v18 = outTagMat.m[3].v[1];
+      vEyePosOut->v[0] = outTagMat.m[3].v[0];
+      vEyePosOut->v[2] = outTagMat.m[3].v[2];
+      vEyePosOut->v[1] = v18;
       goto LABEL_43;
     }
     goto LABEL_42;
   }
-  if ( !G_Utils_DObjGetWorldTagMatrix(v8, scr_const.tag_camera, &outTagMat) && !G_Utils_DObjGetWorldTagMatrix(v8, scr_const.tag_player, &outTagMat) && !G_Utils_DObjGetWorldTagMatrix(v8, scr_const.tag_origin, &outTagMat) )
+  if ( !G_Utils_DObjGetWorldTagMatrix(v7, scr_const.tag_camera, &outTagMat) && !G_Utils_DObjGetWorldTagMatrix(v7, scr_const.tag_player, &outTagMat) && !G_Utils_DObjGetWorldTagMatrix(v7, scr_const.tag_origin, &outTagMat) )
   {
 LABEL_42:
-    _R14->v[0] = v8->r.currentOrigin.v[0];
-    _R14->v[1] = v8->r.currentOrigin.v[1];
-    _R14->v[2] = v8->r.currentOrigin.v[2];
+    vEyePosOut->v[0] = v7->r.currentOrigin.v[0];
+    vEyePosOut->v[1] = v7->r.currentOrigin.v[1];
+    vEyePosOut->v[2] = v7->r.currentOrigin.v[2];
     goto LABEL_43;
   }
-  if ( !v8->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 658, ASSERT_TYPE_ASSERT, "( remoteEyesEnt->vehicle )", (const char *)&queryFormat, "remoteEyesEnt->vehicle") )
+  if ( !v7->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 658, ASSERT_TYPE_ASSERT, "( remoteEyesEnt->vehicle )", (const char *)&queryFormat, "remoteEyesEnt->vehicle") )
     __debugbreak();
-  _RBP = G_Vehicle_GetServerDef(v8->vehicle->defIndex);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 660, ASSERT_TYPE_ASSERT, "( vehicleDef )", (const char *)&queryFormat, "vehicleDef") )
+  ServerDef = G_Vehicle_GetServerDef(v7->vehicle->defIndex);
+  if ( !ServerDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 660, ASSERT_TYPE_ASSERT, "( vehicleDef )", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
   ent = self->ent;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0C1Ch]
-    vmovss  xmm1, dword ptr [rbp+0C18h]
-    vmovss  xmm0, dword ptr [rbp+0C14h]
-    vmovss  dword ptr [rsp+0F8h+in1], xmm0
-    vmovss  dword ptr [rsp+0F8h+in1+4], xmm1
-    vmovss  dword ptr [rsp+0F8h+in1+8], xmm2
-  }
-  _R14->v[0] = ent->r.currentOrigin.v[0];
-  _R14->v[1] = ent->r.currentOrigin.v[1];
-  _R14->v[2] = ent->r.currentOrigin.v[2];
-  MatrixTransformVector43(&in1, &outTagMat, _R14);
+  vehCam_offsetZ = ServerDef->vehCam_offsetZ;
+  vehCam_offsetY = ServerDef->vehCam_offsetY;
+  in1.v[0] = ServerDef->vehCam_offsetX;
+  in1.v[1] = vehCam_offsetY;
+  in1.v[2] = vehCam_offsetZ;
+  vEyePosOut->v[0] = ent->r.currentOrigin.v[0];
+  vEyePosOut->v[1] = ent->r.currentOrigin.v[1];
+  vEyePosOut->v[2] = ent->r.currentOrigin.v[2];
+  MatrixTransformVector43(&in1, &outTagMat, vEyePosOut);
 LABEL_43:
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  if ( ((v8->s.eType - 12) & 0xFFFD) == 0 )
+  if ( ((v7->s.eType - 12) & 0xFFFD) == 0 )
   {
-    vehicle = v8->vehicle;
+    vehicle = v7->vehicle;
     if ( vehicle )
     {
-      _RBX = G_Vehicle_GetServerDef(vehicle->defIndex);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 692, ASSERT_TYPE_ASSERT, "( vehicleDef )", (const char *)&queryFormat, "vehicleDef") )
+      v20 = G_Vehicle_GetServerDef(vehicle->defIndex);
+      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 692, ASSERT_TYPE_ASSERT, "( vehicleDef )", (const char *)&queryFormat, "vehicleDef") )
         __debugbreak();
-      if ( !_RBX->camRemoteDrive && _RBX->vehCam_zOffsetMode == VEHCAM_ZMODE_VEHICLE && _RBX->vehCam_zOffsetMode3P == VEHCAM_ZMODE_VIEW )
+      if ( !v20->camRemoteDrive && v20->vehCam_zOffsetMode == VEHCAM_ZMODE_VEHICLE && v20->vehCam_zOffsetMode3P == VEHCAM_ZMODE_VIEW && v20->vehCam_radius3P > 0.0 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm0, dword ptr [rbx+0C54h]
-        }
-        if ( _RBX->vehCam_zOffsetMode3P < (unsigned int)VEHCAM_ZMODE_VIEW )
-        {
-          if ( _RDI->vehicleState.entity == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 701, ASSERT_TYPE_ASSERT, "( ps->vehicleState.entity != ENTITYNUM_NONE )", (const char *)&queryFormat, "ps->vehicleState.entity != ENTITYNUM_NONE") )
-            __debugbreak();
-          vectoangles(&self->ai->eyeInfo.dir, &angles);
-          AnglesToAxis(&angles, &axis);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx+0C50h]
-            vmovss  xmm1, dword ptr [rbx+0C4Ch]
-            vmovss  xmm0, dword ptr [rbx+0C48h]
-            vmovss  dword ptr [rsp+0F8h+in1+4], xmm1
-            vmovss  dword ptr [rsp+0F8h+in1+8], xmm2
-            vmovss  dword ptr [rsp+0F8h+in1], xmm0
-            vmovss  xmm0, dword ptr [rdi+144h]
-            vmovss  xmm2, dword ptr [rdi+148h]
-            vmovss  xmm3, dword ptr [rdi+14Ch]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm1, xmm2, xmm2; absSpeed
-          }
-          BG_Vehicle_GetCameraTargetFovAndOffset(_RBX, *(float *)&_XMM1, NULL, &targetFovOffset);
-          G_Vehicle_GetVehicleViewOrigin(_RDI, _R14);
-        }
+        if ( EntityPlayerState->vehicleState.entity == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 701, ASSERT_TYPE_ASSERT, "( ps->vehicleState.entity != ENTITYNUM_NONE )", (const char *)&queryFormat, "ps->vehicleState.entity != ENTITYNUM_NONE") )
+          __debugbreak();
+        vectoangles(&self->ai->eyeInfo.dir, &angles);
+        AnglesToAxis(&angles, &axis);
+        vehCam_offsetZ3P = v20->vehCam_offsetZ3P;
+        vehCam_offsetX3P = v20->vehCam_offsetX3P;
+        in1.v[1] = v20->vehCam_offsetY3P;
+        in1.v[2] = vehCam_offsetZ3P;
+        in1.v[0] = vehCam_offsetX3P;
+        BG_Vehicle_GetCameraTargetFovAndOffset(v20, fsqrt((float)((float)(EntityPlayerState->vehicleState.velocity.v[0] * EntityPlayerState->vehicleState.velocity.v[0]) + (float)(EntityPlayerState->vehicleState.velocity.v[1] * EntityPlayerState->vehicleState.velocity.v[1])) + (float)(EntityPlayerState->vehicleState.velocity.v[2] * EntityPlayerState->vehicleState.velocity.v[2])), NULL, &targetFovOffset);
+        G_Vehicle_GetVehicleViewOrigin(EntityPlayerState, vEyePosOut);
       }
     }
   }
@@ -2089,52 +1893,36 @@ sentient_s *Sentient_GetRemoteVehicleSentient(const sentient_s *self)
 Sentient_GetScarinessForDistance
 ==============
 */
-
-float __fastcall Sentient_GetScarinessForDistance(sentient_s *self, sentient_s *enemy, double fDist)
+float Sentient_GetScarinessForDistance(sentient_s *self, sentient_s *enemy, float fDist)
 {
+  double DefaultScarinessForDistance; 
   gentity_s *ent; 
-  AICommonWrapper v15; 
-  char v17; 
+  AICommonWrapper v8; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1430, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1431, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
     __debugbreak();
   if ( !enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1432, ASSERT_TYPE_ASSERT, "(enemy)", (const char *)&queryFormat, "enemy") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
+  LODWORD(DefaultScarinessForDistance) = 0;
+  if ( fDist < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1433, ASSERT_TYPE_ASSERT, "(fDist >= 0)", (const char *)&queryFormat, "fDist >= 0") )
+    __debugbreak();
   ent = self->ent;
-  AIActorInterface::AIActorInterface(&v15.m_actorInterface);
-  AIAgentInterface::AIAgentInterface(&v15.m_newAgentInterface);
-  v15.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-  AICommonInterface::AICommonInterface(&v15.m_botInterface);
-  v15.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-  AICommonInterface::AICommonInterface(&v15.m_botAgentInterface);
-  v15.m_pAI = NULL;
-  v15.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-  AICommonWrapper::Setup(&v15, ent);
-  if ( v15.m_pAI )
-  {
-    __asm { vmovaps xmm2, xmm6 }
-    ((void (__fastcall *)(AICommonInterface *, sentient_s *))v15.m_pAI->GetScarinessForDistance)(v15.m_pAI, enemy);
-  }
+  AIActorInterface::AIActorInterface(&v8.m_actorInterface);
+  AIAgentInterface::AIAgentInterface(&v8.m_newAgentInterface);
+  v8.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  AICommonInterface::AICommonInterface(&v8.m_botInterface);
+  v8.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+  AICommonInterface::AICommonInterface(&v8.m_botAgentInterface);
+  v8.m_pAI = NULL;
+  v8.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+  AICommonWrapper::Setup(&v8, ent);
+  if ( v8.m_pAI )
+    ((void (__fastcall *)(AICommonInterface *, sentient_s *))v8.m_pAI->GetScarinessForDistance)(v8.m_pAI, enemy);
   else
-  {
-    __asm { vmovaps xmm1, xmm6; fDist }
-    *(double *)&_XMM0 = AICommonInterface::GetDefaultScarinessForDistance(enemy, *(float *)&_XMM1);
-  }
-  _R11 = &v17;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return *(float *)&_XMM0;
+    DefaultScarinessForDistance = AICommonInterface::GetDefaultScarinessForDistance(enemy, fDist);
+  return *(float *)&DefaultScarinessForDistance;
 }
 
 /*
@@ -2194,14 +1982,14 @@ bool Sentient_HasDecentVis(sentient_s *pSelf, sentient_s *pOther)
   pathnode_t *v5; 
   pathnode_t *pClaimedNode; 
   AICommonInterface *m_pAI; 
-  ai_common_t *v9; 
-  AICommonInterface *v10; 
+  ai_common_t *v8; 
+  AICommonInterface *v9; 
+  const tacpoint_t *v11; 
+  const tacpoint_t *v12; 
   const tacpoint_t *v13; 
   const tacpoint_t *v14; 
-  const tacpoint_t *v15; 
-  const tacpoint_t *v16; 
-  AICommonWrapper v17; 
-  AICommonWrapper v18; 
+  AICommonWrapper v15; 
+  AICommonWrapper v16; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1544, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
@@ -2212,39 +2000,37 @@ bool Sentient_HasDecentVis(sentient_s *pSelf, sentient_s *pOther)
   pClaimedNode = NULL;
   if ( ai )
   {
-    AIActorInterface::AIActorInterface(&v17.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v17.m_newAgentInterface);
-    v17.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v17.m_botInterface);
-    v17.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v17.m_botAgentInterface);
-    v17.m_pAI = NULL;
-    v17.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    AICommonWrapper::Setup(&v17, ai->ent);
-    m_pAI = v17.m_pAI;
-    if ( !v17.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1558, ASSERT_TYPE_ASSERT, "(pSelfAI)", (const char *)&queryFormat, "pSelfAI") )
+    AIActorInterface::AIActorInterface(&v15.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v15.m_newAgentInterface);
+    v15.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v15.m_botInterface);
+    v15.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v15.m_botAgentInterface);
+    v15.m_pAI = NULL;
+    v15.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    AICommonWrapper::Setup(&v15, ai->ent);
+    m_pAI = v15.m_pAI;
+    if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1558, ASSERT_TYPE_ASSERT, "(pSelfAI)", (const char *)&queryFormat, "pSelfAI") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@42400000; dist }
-    if ( AICommonInterface::NearClaimNode(m_pAI, *(float *)&_XMM1) )
+    if ( AICommonInterface::NearClaimNode(m_pAI, 48.0) )
       pClaimedNode = pSelf->pClaimedNode;
   }
-  v9 = pOther->ai;
-  if ( v9 )
+  v8 = pOther->ai;
+  if ( v8 )
   {
-    AIActorInterface::AIActorInterface(&v18.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v18.m_newAgentInterface);
-    v18.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v18.m_botInterface);
-    v18.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v18.m_botAgentInterface);
-    v18.m_pAI = NULL;
-    v18.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    AICommonWrapper::Setup(&v18, v9->ent);
-    v10 = v18.m_pAI;
-    if ( !v18.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1566, ASSERT_TYPE_ASSERT, "(pOtherAI)", (const char *)&queryFormat, "pOtherAI") )
+    AIActorInterface::AIActorInterface(&v16.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v16.m_newAgentInterface);
+    v16.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v16.m_botInterface);
+    v16.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v16.m_botAgentInterface);
+    v16.m_pAI = NULL;
+    v16.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    AICommonWrapper::Setup(&v16, v8->ent);
+    v9 = v16.m_pAI;
+    if ( !v16.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1566, ASSERT_TYPE_ASSERT, "(pOtherAI)", (const char *)&queryFormat, "pOtherAI") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@42400000; dist }
-    if ( AICommonInterface::NearClaimNode(v10, *(float *)&_XMM1) )
+    if ( AICommonInterface::NearClaimNode(v9, 48.0) )
       v5 = pOther->pClaimedNode;
   }
   if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && SV_BotIsBotEnt(pSelf->ent) )
@@ -2256,18 +2042,18 @@ bool Sentient_HasDecentVis(sentient_s *pSelf, sentient_s *pOther)
   {
     return 1;
   }
-  v13 = Sentient_NearestTacPoint(pSelf);
-  v14 = v13;
-  if ( v13 && v5 && TacGraph_HasVis(v13, v5) )
+  v11 = Sentient_NearestTacPoint(pSelf);
+  v12 = v11;
+  if ( v11 && v5 && TacGraph_HasVis(v11, v5) )
     return 1;
-  v15 = Sentient_NearestTacPoint(pOther);
-  v16 = v15;
+  v13 = Sentient_NearestTacPoint(pOther);
+  v14 = v13;
   if ( pClaimedNode )
   {
-    if ( v15 && TacGraph_HasVis(v15, pClaimedNode) )
+    if ( v13 && TacGraph_HasVis(v13, pClaimedNode) )
       return 1;
   }
-  return v14 && v16 && TacVisGraph_HasVis(v14, v16);
+  return v12 && v14 && TacVisGraph_HasVis(v12, v14);
 }
 
 /*
@@ -2281,13 +2067,13 @@ bool Sentient_HasDecentVisFromExposed(sentient_s *pSelf, sentient_s *pOther)
   pathnode_t *v5; 
   pathnode_t *pClaimedNode; 
   AICommonInterface *m_pAI; 
-  ai_common_t *v9; 
-  AICommonInterface *v10; 
+  ai_common_t *v8; 
+  AICommonInterface *v9; 
   const tacpoint_t *PointForPathnode; 
-  const tacpoint_t *v13; 
-  const tacpoint_t *v14; 
-  AICommonWrapper v16; 
-  AICommonWrapper v17; 
+  const tacpoint_t *v11; 
+  const tacpoint_t *v12; 
+  AICommonWrapper v14; 
+  AICommonWrapper v15; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1489, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
@@ -2298,51 +2084,49 @@ bool Sentient_HasDecentVisFromExposed(sentient_s *pSelf, sentient_s *pOther)
   pClaimedNode = NULL;
   if ( ai )
   {
-    AIActorInterface::AIActorInterface(&v16.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v16.m_newAgentInterface);
-    v16.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v16.m_botInterface);
-    v16.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v16.m_botAgentInterface);
-    v16.m_pAI = NULL;
-    v16.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    AICommonWrapper::Setup(&v16, ai->ent);
-    m_pAI = v16.m_pAI;
-    if ( !v16.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1503, ASSERT_TYPE_ASSERT, "(pSelfAI)", (const char *)&queryFormat, "pSelfAI") )
+    AIActorInterface::AIActorInterface(&v14.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v14.m_newAgentInterface);
+    v14.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v14.m_botInterface);
+    v14.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v14.m_botAgentInterface);
+    v14.m_pAI = NULL;
+    v14.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    AICommonWrapper::Setup(&v14, ai->ent);
+    m_pAI = v14.m_pAI;
+    if ( !v14.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1503, ASSERT_TYPE_ASSERT, "(pSelfAI)", (const char *)&queryFormat, "pSelfAI") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@42400000; dist }
-    if ( AICommonInterface::NearClaimNode(m_pAI, *(float *)&_XMM1) )
+    if ( AICommonInterface::NearClaimNode(m_pAI, 48.0) )
       pClaimedNode = pSelf->pClaimedNode;
   }
-  v9 = pOther->ai;
-  if ( v9 )
+  v8 = pOther->ai;
+  if ( v8 )
   {
-    AIActorInterface::AIActorInterface(&v17.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v17.m_newAgentInterface);
-    v17.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v17.m_botInterface);
-    v17.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v17.m_botAgentInterface);
-    v17.m_pAI = NULL;
-    v17.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    AICommonWrapper::Setup(&v17, v9->ent);
-    v10 = v17.m_pAI;
-    if ( !v17.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1511, ASSERT_TYPE_ASSERT, "(pOtherAI)", (const char *)&queryFormat, "pOtherAI") )
+    AIActorInterface::AIActorInterface(&v15.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v15.m_newAgentInterface);
+    v15.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v15.m_botInterface);
+    v15.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v15.m_botAgentInterface);
+    v15.m_pAI = NULL;
+    v15.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    AICommonWrapper::Setup(&v15, v8->ent);
+    v9 = v15.m_pAI;
+    if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1511, ASSERT_TYPE_ASSERT, "(pOtherAI)", (const char *)&queryFormat, "pOtherAI") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:__real@42400000; dist }
-    if ( AICommonInterface::NearClaimNode(v10, *(float *)&_XMM1) )
+    if ( AICommonInterface::NearClaimNode(v9, 48.0) )
       v5 = pOther->pClaimedNode;
   }
   if ( pClaimedNode )
     PointForPathnode = TacGraph_GetPointForPathnode(pClaimedNode);
   else
     PointForPathnode = Sentient_NearestTacPoint(pSelf);
-  v13 = PointForPathnode;
+  v11 = PointForPathnode;
   if ( v5 )
-    v14 = TacGraph_GetPointForPathnode(v5);
+    v12 = TacGraph_GetPointForPathnode(v5);
   else
-    v14 = Sentient_NearestTacPoint(pOther);
-  return v13 && v14 && TacVisGraph_HasVis(v13, v14);
+    v12 = Sentient_NearestTacPoint(pOther);
+  return v11 && v12 && TacVisGraph_HasVis(v11, v12);
 }
 
 /*
@@ -2452,34 +2236,26 @@ Sentient_Init
 */
 void Sentient_Init(sentient_s *sentient, gentity_s *ent, team_t eTeam)
 {
-  _RBX = sentient;
   sentient->ent = ent;
   if ( Com_GameMode_SupportsFeature(WEAPON_READY) )
-    _RBX->ai = ent->actor;
-  Sentient_SetTeam(_RBX, eTeam);
-  _ESI = 0;
-  *(_QWORD *)&_RBX->iThreatBias = 0i64;
-  _RBX->pPrevClaimedNode = NULL;
-  _RBX->locDamageTableIndex = 0;
-  __asm { vmovss  xmm2, cs:__real@46000000 }
-  _EAX = Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH);
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, esi
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@469c4000
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  dword ptr [rbx+30h], xmm0
-  }
-  _RBX->attackerAccuracy = 1.0;
-  _RBX->iDamageParts = -1;
-  _RBX->oldOrigin.v[0] = ent->r.currentOrigin.v[0];
-  _RBX->oldOrigin.v[1] = ent->r.currentOrigin.v[1];
-  _RBX->oldOrigin.v[2] = ent->r.currentOrigin.v[2];
-  _RBX->lastNavObstacleTime = level.time;
-  _RBX->navObstacleActive = 0;
-  Scr_SetString(&_RBX->enemySelector, scr_const.enemyselector_default);
+    sentient->ai = ent->actor;
+  Sentient_SetTeam(sentient, eTeam);
+  *(_QWORD *)&sentient->iThreatBias = 0i64;
+  sentient->pPrevClaimedNode = NULL;
+  sentient->locDamageTableIndex = 0;
+  _XMM0 = Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH);
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_20000_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  sentient->maxVisibleDist = *(float *)&_XMM0;
+  sentient->attackerAccuracy = 1.0;
+  sentient->iDamageParts = -1;
+  sentient->oldOrigin.v[0] = ent->r.currentOrigin.v[0];
+  sentient->oldOrigin.v[1] = ent->r.currentOrigin.v[1];
+  sentient->oldOrigin.v[2] = ent->r.currentOrigin.v[2];
+  sentient->lastNavObstacleTime = level.time;
+  sentient->navObstacleActive = 0;
+  Scr_SetString(&sentient->enemySelector, scr_const.enemyselector_default);
 }
 
 /*
@@ -2601,23 +2377,24 @@ Sentient_NearestNode
 */
 pathnode_t *Sentient_NearestNode(sentient_s *self, bool allowDontLinkNodes)
 {
-  int v14; 
+  gentity_s *ent; 
+  float v5; 
   int clipmask; 
-  pathnode_t *v16; 
+  pathnode_t *v7; 
   entityType_s eType; 
-  bool v18; 
-  bool v19; 
-  bool v20; 
-  int v28; 
-  __int64 v29; 
-  __int64 v30; 
-  pathsort_s *v31; 
+  __int128 v9; 
+  __int128 v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  bool v14; 
+  pathsort_s *v15; 
   pathnode_t *node; 
-  int v33; 
-  char v34; 
+  int v17; 
+  double IndoorPercent; 
   int returnCount; 
   NearestNodeInput pInput; 
-  int v43[4]; 
+  int v22[4]; 
   pathsort_s nodes; 
   pathsort_s _First[256]; 
 
@@ -2625,65 +2402,39 @@ pathnode_t *Sentient_NearestNode(sentient_s *self, bool allowDontLinkNodes)
     __debugbreak();
   if ( !self->bNearestNodeValid )
   {
-    v19 = self->ent == NULL;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@43400000
-      vmovss  [rsp+1520h+pInput.fMaxDist], xmm0
-    }
+    v14 = self->ent == NULL;
+    pInput.fMaxDist = FLOAT_192_0;
     pInput.typeFlags = -2;
     pInput.blockPlanes = NULL;
     pInput.heightCheck = NEAREST_NODE_DO_HEIGHT_CHECK;
     pInput.entNum = 2047;
     *(_WORD *)&pInput.bAllowCrouch = 257;
     pInput.bAllowFailedUnuseable = 1;
-    if ( v19 )
+    if ( v14 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 782, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
         __debugbreak();
       if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 331, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
         __debugbreak();
     }
-    _RDX = self->ent;
-    __asm
+    ent = self->ent;
+    v22[0] = LODWORD(self->ent->r.currentOrigin.v[0]);
+    v22[1] = LODWORD(ent->r.currentOrigin.v[1]);
+    v5 = ent->r.currentOrigin.v[2];
+    pInput.vOrigin = (const vec3_t *)v22;
+    clipmask = 33685521;
+    *(float *)&v22[2] = v5;
+    if ( ent->clipmask )
+      clipmask = ent->clipmask;
+    pInput.traceMask = clipmask;
+    pInput.baseBounds = &ent->r.box;
+    pInput.entNum = ent->s.number;
+    v7 = Path_NearestNodeExtended(&pInput, &nodes, 64, &returnCount, allowDontLinkNodes);
+    if ( v7 )
     {
-      vmovss  xmm0, dword ptr [rdx+130h]
-      vmovss  [rbp+1420h+var_14A0], xmm0
-      vmovss  xmm1, dword ptr [rdx+134h]
-      vmovss  [rbp+1420h+var_149C], xmm1
-      vmovss  xmm0, dword ptr [rdx+138h]
-    }
-    pInput.vOrigin = (const vec3_t *)v43;
-    v14 = 33685521;
-    __asm
-    {
-      vmovaps [rsp+1520h+var_40], xmm6
-      vmovss  [rbp+1420h+var_1498], xmm0
-    }
-    clipmask = _RDX->clipmask;
-    __asm { vmovaps [rsp+1520h+var_50], xmm7 }
-    if ( clipmask )
-      v14 = clipmask;
-    __asm { vmovaps [rsp+1520h+var_60], xmm8 }
-    pInput.traceMask = v14;
-    __asm { vmovaps [rsp+1520h+var_70], xmm9 }
-    pInput.baseBounds = &_RDX->r.box;
-    pInput.entNum = _RDX->s.number;
-    __asm { vmovaps [rsp+1520h+var_80], xmm10 }
-    v16 = Path_NearestNodeExtended(&pInput, &nodes, 64, &returnCount, allowDontLinkNodes);
-    if ( v16 )
-    {
-      self->pNearestNode = v16;
+      self->pNearestNode = v7;
       self->bNearestNodeBad = 0;
 LABEL_51:
-      __asm
-      {
-        vmovaps xmm10, [rsp+1520h+var_80]
-        vmovaps xmm9, [rsp+1520h+var_70]
-        vmovaps xmm8, [rsp+1520h+var_60]
-        vmovaps xmm7, [rsp+1520h+var_50]
-        vmovaps xmm6, [rsp+1520h+var_40]
-      }
       self->bNearestNodeValid = 1;
       return self->pNearestNode;
     }
@@ -2707,69 +2458,50 @@ LABEL_50:
     }
     if ( !self->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 718, ASSERT_TYPE_ASSERT, "( self->ent )", (const char *)&queryFormat, "self->ent") )
       __debugbreak();
-    v18 = Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH);
-    v19 = !v18;
-    if ( !v18 )
-    {
-      v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 719, ASSERT_TYPE_ASSERT, "( G_Bot_SystemActive() )", (const char *)&queryFormat, "G_Bot_SystemActive()");
-      v19 = !v20;
-      if ( v20 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@45bb8000
-      vmovss  xmm9, cs:__real@43fa0000
-      vmovss  xmm10, cs:__real@453b8000
-      vmovss  xmm7, cs:__real@3e800000
-      vxorps  xmm6, xmm6, xmm6
-    }
+    if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 719, ASSERT_TYPE_ASSERT, "( G_Bot_SystemActive() )", (const char *)&queryFormat, "G_Bot_SystemActive()") )
+      __debugbreak();
+    v9 = 0i64;
     self->bNearestNodeBad = 1;
     while ( 1 )
     {
-      __asm { vcomiss xmm6, xmm8 }
-      if ( !v19 || !self->bNearestNodeBad )
+      if ( *(float *)&v9 > 6000.0 || !self->bNearestNodeBad )
         goto LABEL_51;
-      __asm
-      {
-        vaddss  xmm6, xmm6, xmm9
-        vaddss  xmm3, xmm6, xmm10; maxHeight
-        vmovaps xmm2, xmm6; maxDist
-      }
-      v28 = Path_NodesInCylinder(&self->ent->r.currentOrigin, NULL, *(float *)&_XMM2, *(float *)&_XMM3, _First, 256, -2);
-      v29 = v28;
-      if ( v28 <= 0 )
+      v10 = v9;
+      *(float *)&v10 = *(float *)&v9 + 500.0;
+      v9 = v10;
+      v11 = Path_NodesInCylinder(&self->ent->r.currentOrigin, NULL, *(float *)&v10, *(float *)&v10 + 3000.0, _First, 256, -2);
+      v12 = v11;
+      if ( v11 <= 0 )
         goto LABEL_47;
-      std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(_First, &_First[v28], v28, Path_CompareNodesIncreasing);
-      v30 = 0i64;
-      v19 = (_DWORD)v29 == 0;
-      if ( (int)v29 > 0 )
+      std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(_First, &_First[v11], v11, Path_CompareNodesIncreasing);
+      v13 = 0i64;
+      v14 = (_DWORD)v12 == 0;
+      if ( (int)v12 > 0 )
         break;
 LABEL_48:
-      if ( !v19 )
+      if ( !v14 )
         goto LABEL_51;
     }
-    v31 = _First;
+    v15 = _First;
     while ( 1 )
     {
-      node = v31->node;
-      v33 = Path_NodeZoneFromNode(v31->node);
-      if ( Path_IsExposedSky(node) && v33 != 255 )
+      node = v15->node;
+      v17 = Path_NodeZoneFromNode(v15->node);
+      if ( Path_IsExposedSky(node) && v17 != 255 )
       {
-        *(double *)&_XMM0 = SV_BotZoneGetIndoorPercent(v33);
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v34 )
+        IndoorPercent = SV_BotZoneGetIndoorPercent(v17);
+        if ( *(float *)&IndoorPercent < 0.25 )
           break;
       }
-      ++v30;
-      ++v31;
-      if ( v30 >= v29 )
+      ++v13;
+      ++v15;
+      if ( v13 >= v12 )
         goto LABEL_47;
     }
     self->pNearestNode = node;
     self->bNearestNodeBad = 0;
 LABEL_47:
-    v19 = (_DWORD)v29 == 0;
+    v14 = (_DWORD)v12 == 0;
     goto LABEL_48;
   }
   return self->pNearestNode;
@@ -2800,17 +2532,16 @@ Sentient_NearestTacPoint
 tacpoint_t *Sentient_NearestTacPoint(sentient_s *pSelf)
 {
   pathnode_t *pClaimedNode; 
-  char v15; 
   const tacpoint_t *PointForPathnode; 
   ai_common_t *ai; 
   AINavigator *pNavigator; 
   tacpoint_ref_t *p_nearestTacPoint; 
   bfx::AreaHandle pOutArea; 
-  __int64 v22; 
+  __int64 v9; 
   vec3_t pos; 
   vec3_t outClosestPos; 
 
-  v22 = -2i64;
+  v9 = -2i64;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1603, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( pSelf->bNearestTacPointValid )
@@ -2824,23 +2555,7 @@ tacpoint_t *Sentient_NearestTacPoint(sentient_s *pSelf)
     if ( pClaimedNode )
     {
       pathnode_t::GetPos(pClaimedNode, &pos);
-      _RAX = pSelf->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+130h]
-        vsubss  xmm3, xmm0, dword ptr [rsp+78h+pos]
-        vmovss  xmm1, dword ptr [rax+134h]
-        vsubss  xmm2, xmm1, dword ptr [rsp+78h+pos+4]
-        vmovss  xmm0, dword ptr [rax+138h]
-        vsubss  xmm4, xmm0, dword ptr [rsp+78h+pos+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, cs:__real@45100000
-      }
-      if ( v15 )
+      if ( (float)((float)((float)((float)(pSelf->ent->r.currentOrigin.v[1] - pos.v[1]) * (float)(pSelf->ent->r.currentOrigin.v[1] - pos.v[1])) + (float)((float)(pSelf->ent->r.currentOrigin.v[0] - pos.v[0]) * (float)(pSelf->ent->r.currentOrigin.v[0] - pos.v[0]))) + (float)((float)(pSelf->ent->r.currentOrigin.v[2] - pos.v[2]) * (float)(pSelf->ent->r.currentOrigin.v[2] - pos.v[2]))) < 2304.0 )
       {
         PointForPathnode = TacGraph_GetPointForPathnode(pSelf->pClaimedNode);
         if ( PointForPathnode )
@@ -2896,46 +2611,43 @@ Sentient_NextSentient
 */
 sentient_s *Sentient_NextSentient(sentient_s *pPrevSentient, const bitarray<224> *iTeamFlags)
 {
+  const bitarray<224> *AllTeamFlags; 
+  __int128 v5; 
+  double v6; 
   unsigned int v7; 
-  unsigned int v9; 
-  __int128 *v10; 
-  unsigned int v11; 
-  __int64 v12; 
+  unsigned int v8; 
+  __int128 *v9; 
+  unsigned int v10; 
+  __int64 v11; 
   unsigned __int64 eTeam; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
-  __int128 v17; 
-  __int64 v18; 
-  unsigned int v19; 
+  __int128 v16; 
+  double v17; 
+  unsigned int v18; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
+    AllTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+  v5 = *(_OWORD *)AllTeamFlags->array;
+  v6 = *(double *)&AllTeamFlags->array[4];
+  v7 = AllTeamFlags->array[6];
+  v16 = v5;
+  v17 = v6;
+  LODWORD(v16) = iTeamFlags->array[0] & ~(_DWORD)v5;
+  DWORD1(v16) = ~DWORD1(v5) & iTeamFlags->array[1];
+  DWORD2(v16) = ~DWORD2(v5) & iTeamFlags->array[2];
+  HIDWORD(v16) = ~HIDWORD(v5) & iTeamFlags->array[3];
+  *(_QWORD *)&v17 = ~*(_QWORD *)&v6 & *(_QWORD *)&iTeamFlags->array[4];
+  v18 = ~v7 & iTeamFlags->array[6];
+  v8 = 0;
+  v9 = &v16;
+  while ( !*(_DWORD *)v9 )
   {
-    vmovups xmm1, xmmword ptr [rax]
-    vmovsd  xmm0, qword ptr [rax+10h]
-  }
-  v7 = _RAX->array[6];
-  __asm
-  {
-    vmovups [rsp+88h+var_48], xmm1
-    vmovsd  [rsp+88h+var_38], xmm0
-    vmovd   eax, xmm1
-  }
-  LODWORD(v17) = iTeamFlags->array[0] & ~_EAX;
-  *(_QWORD *)((char *)&v17 + 4) = ~*(_QWORD *)((char *)&v17 + 4) & *(_QWORD *)&iTeamFlags->array[1];
-  HIDWORD(v17) = ~HIDWORD(v17) & iTeamFlags->array[3];
-  v18 = ~v18 & *(_QWORD *)&iTeamFlags->array[4];
-  v19 = ~v7 & iTeamFlags->array[6];
-  v9 = 0;
-  v10 = &v17;
-  while ( !*(_DWORD *)v10 )
-  {
-    ++v9;
-    v10 = (__int128 *)((char *)v10 + 4);
-    if ( v9 >= 7 )
+    ++v8;
+    v9 = (__int128 *)((char *)v9 + 4);
+    if ( v8 >= 7 )
       goto LABEL_10;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1012, ASSERT_TYPE_ASSERT, "( Com_Teams_IsValidTeamFlag( iTeamFlags ) )", (const char *)&queryFormat, "Com_Teams_IsValidTeamFlag( iTeamFlags )") )
@@ -2947,29 +2659,29 @@ LABEL_10:
     __debugbreak();
   if ( pPrevSentient != &level.sentients[pPrevSentient - level.sentients] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1016, ASSERT_TYPE_ASSERT, "( pPrevSentient == level.sentients + (pPrevSentient - level.sentients) )", (const char *)&queryFormat, "pPrevSentient == level.sentients + (pPrevSentient - level.sentients)") )
     __debugbreak();
-  v11 = ((int)pPrevSentient - LODWORD(level.sentients)) / 184 + 1;
-  if ( v11 >= level.maxSentients )
+  v10 = ((int)pPrevSentient - LODWORD(level.sentients)) / 184 + 1;
+  if ( v10 >= level.maxSentients )
     return 0i64;
   while ( 1 )
   {
-    v12 = v11;
-    if ( level.sentients[v12].inuse )
+    v11 = v10;
+    if ( level.sentients[v11].inuse )
     {
-      eTeam = (unsigned int)level.sentients[v12].eTeam;
+      eTeam = (unsigned int)level.sentients[v11].eTeam;
       if ( (unsigned int)eTeam >= 0xE0 )
       {
-        LODWORD(v16) = 224;
-        LODWORD(v15) = level.sentients[v12].eTeam;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v15, v16) )
+        LODWORD(v15) = 224;
+        LODWORD(v14) = level.sentients[v11].eTeam;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
           __debugbreak();
       }
       if ( ((0x80000000 >> (eTeam & 0x1F)) & iTeamFlags->array[eTeam >> 5]) != 0 )
         break;
     }
-    if ( ++v11 >= level.maxSentients )
+    if ( ++v10 >= level.maxSentients )
       return 0i64;
   }
-  return &level.sentients[v12];
+  return &level.sentients[v11];
 }
 
 /*
@@ -3095,29 +2807,15 @@ LABEL_35:
 Sentient_SetMaxSightDistSqrd
 ==============
 */
-
-void __fastcall Sentient_SetMaxSightDistSqrd(sentient_s *pSelf, double maxSightDistSqrd)
+void Sentient_SetMaxSightDistSqrd(sentient_s *pSelf, float maxSightDistSqrd)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 518, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
+  if ( maxSightDistSqrd < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 519, ASSERT_TYPE_ASSERT, "(maxSightDistSqrd >= 0)", (const char *)&queryFormat, "maxSightDistSqrd >= 0") )
+    __debugbreak();
   if ( !pSelf->ai && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 520, ASSERT_TYPE_ASSERT, "(pSelf->ai)", (const char *)&queryFormat, "pSelf->ai") )
     __debugbreak();
-  _RAX = pSelf->ai;
-  __asm
-  {
-    vmovss  dword ptr [rax+0A4h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  pSelf->ai->sight.fMaxSightDistSqrd = maxSightDistSqrd;
 }
 
 /*
@@ -3205,16 +2903,15 @@ Sentient_SetThreatSightState
 */
 void Sentient_SetThreatSightState(sentient_s *pSelf, const sentient_info_t *infoOther)
 {
-  __int64 v4; 
+  signed __int64 v4; 
   gentity_s *ent; 
   bool bInCombat; 
   ThreatSight *v7; 
   char v8; 
-  char v12; 
-  __int64 v13; 
-  __int64 v14; 
+  char v9; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RBP = infoOther;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1718, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pSelf->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1719, ASSERT_TYPE_ASSERT, "( pSelf->ent )", (const char *)&queryFormat, "pSelf->ent") )
@@ -3223,11 +2920,11 @@ void Sentient_SetThreatSightState(sentient_s *pSelf, const sentient_info_t *info
     __debugbreak();
   if ( !pSelf->ai->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1721, ASSERT_TYPE_ASSERT, "( pSelf->ai->sentientInfo )", (const char *)&queryFormat, "pSelf->ai->sentientInfo") )
     __debugbreak();
-  v4 = _RBP - pSelf->ai->sentientInfo;
+  v4 = infoOther - pSelf->ai->sentientInfo;
   if ( (unsigned int)v4 >= 0x110 )
   {
-    LODWORD(v13) = _RBP - pSelf->ai->sentientInfo;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1724, ASSERT_TYPE_ASSERT, "(unsigned)( otherSentientIndex ) < (unsigned)( ( sizeof( *array_counter( g_sentients ) ) + 0 ) )", "otherSentientIndex doesn't index ARRAY_COUNT( g_sentients )\n\t%i not in [0, %i)", v13, 272) )
+    LODWORD(v10) = infoOther - pSelf->ai->sentientInfo;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1724, ASSERT_TYPE_ASSERT, "(unsigned)( otherSentientIndex ) < (unsigned)( ( sizeof( *array_counter( g_sentients ) ) + 0 ) )", "otherSentientIndex doesn't index ARRAY_COUNT( g_sentients )\n\t%i not in [0, %i)", v10, 272) )
       __debugbreak();
   }
   ent = level.sentients[(int)v4].ent;
@@ -3237,31 +2934,25 @@ void Sentient_SetThreatSightState(sentient_s *pSelf, const sentient_info_t *info
   {
     if ( ent->s.number )
     {
-      LODWORD(v14) = 1;
-      LODWORD(v13) = ent->s.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1732, ASSERT_TYPE_ASSERT, "(unsigned)( otherEnt->s.number ) < (unsigned)( ( sizeof( *array_counter( pSelf->ent->s.lerp.u.actor.threatSight ) ) + 0 ) )", "otherEnt->s.number doesn't index ARRAY_COUNT( pSelf->ent->s.lerp.u.actor.threatSight )\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v11) = 1;
+      LODWORD(v10) = ent->s.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1732, ASSERT_TYPE_ASSERT, "(unsigned)( otherEnt->s.number ) < (unsigned)( ( sizeof( *array_counter( pSelf->ent->s.lerp.u.actor.threatSight ) ) + 0 ) )", "otherEnt->s.number doesn't index ARRAY_COUNT( pSelf->ent->s.lerp.u.actor.threatSight )\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
     bInCombat = pSelf->ent->actor->combat.bInCombat;
     v7 = &pSelf->ent->s.lerp.u.actor.threatSight[ent->s.number];
-    if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1703, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+    if ( !infoOther && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1703, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
       __debugbreak();
     if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 1704, ASSERT_TYPE_ASSERT, "(threatSight)", (const char *)&queryFormat, "threatSight") )
       __debugbreak();
     v8 = 0;
     *v7 = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1Ch]
-      vmulss  xmm1, xmm0, cs:__real@42fe0000
-      vcvttss2si ecx, xmm1
-    }
-    v12 = _ECX & 0x7F;
-    *(_BYTE *)v7 = v12;
-    if ( _RBP->VisCache.bVisible || _RBP->VisCache.bPeripherallyVisible )
+    v9 = (int)(float)(infoOther->threatSight * 127.0) & 0x7F;
+    *(_BYTE *)v7 = v9;
+    if ( infoOther->VisCache.bVisible || infoOther->VisCache.bPeripherallyVisible )
       v8 = 0x80;
     *((_BYTE *)v7 + 1) &= ~1u;
-    *(_BYTE *)v7 = v12 | v8;
+    *(_BYTE *)v7 = v9 | v8;
     *((_BYTE *)v7 + 1) |= bInCombat;
   }
 }
@@ -3291,24 +2982,28 @@ void Sentient_StealClaimNode(sentient_s *self, sentient_s *other)
 Sentient_UpdateNavObstacles
 ==============
 */
-
-void __fastcall Sentient_UpdateNavObstacles(sentient_s *self, __int64 a2, double _XMM2_8, double _XMM3_8)
+void Sentient_UpdateNavObstacles(sentient_s *self)
 {
   gentity_s *ent; 
-  gentity_s *v7; 
+  gentity_s *v3; 
   unsigned int userDataFlags; 
-  char v9; 
-  bool v10; 
+  float v5; 
+  float v6; 
+  float v7; 
+  gclient_s *client; 
   bool navObstacleActive; 
-  bool v22; 
+  float v10; 
+  bool v11; 
   int lastNavObstacleTime; 
-  gentity_s *v24; 
+  gentity_s *v13; 
   AINavigator *Navigator; 
-  __int64 v26; 
+  __int64 v15; 
   nav_space_s *pSpace; 
   nav_repulsor_s *FirstRepulsor; 
-  AICommonWrapper v30; 
-  int v31; 
+  AICommonWrapper v18; 
+  float v19; 
+  float v20; 
+  float v21; 
 
   ent = self->ent;
   if ( self->ent->tagInfo )
@@ -3324,90 +3019,69 @@ void __fastcall Sentient_UpdateNavObstacles(sentient_s *self, __int64 a2, double
   {
     if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\sentient.cpp", 376, ASSERT_TYPE_ASSERT, "(self->ent)", (const char *)&queryFormat, "self->ent") )
       __debugbreak();
-    v7 = self->ent;
-    AIActorInterface::AIActorInterface(&v30.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v30.m_newAgentInterface);
-    v30.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v30.m_botInterface);
-    v30.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-    AICommonInterface::AICommonInterface(&v30.m_botAgentInterface);
+    v3 = self->ent;
+    AIActorInterface::AIActorInterface(&v18.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v18.m_newAgentInterface);
+    v18.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v18.m_botInterface);
+    v18.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+    AICommonInterface::AICommonInterface(&v18.m_botAgentInterface);
     userDataFlags = 0;
-    v30.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-    v30.m_pAI = NULL;
-    AICommonWrapper::Setup(&v30, v7);
-    if ( v30.m_pAI )
+    v18.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+    v18.m_pAI = NULL;
+    AICommonWrapper::Setup(&v18, v3);
+    if ( v18.m_pAI )
     {
-      v30.m_pAI->GetVelocity(v30.m_pAI, (vec3_t *)&v31);
-      __asm
-      {
-        vmovss  xmm3, [rsp+0E8h+var_20]
-        vmovss  xmm0, [rsp+0E8h+var_24]
-        vmovss  xmm2, [rsp+0E8h+var_28]
-      }
+      v18.m_pAI->GetVelocity(v18.m_pAI, (vec3_t *)&v19);
+      v5 = v21;
+      v6 = v20;
+      v7 = v19;
     }
     else
     {
-      _RCX = self->ent->client;
-      v9 = 0;
-      v10 = _RCX == NULL;
-      if ( _RCX )
+      client = self->ent->client;
+      if ( client )
       {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rcx+3Ch]
-          vmovss  [rsp+0E8h+var_28], xmm2
-          vmovss  xmm0, dword ptr [rcx+40h]
-          vmovss  [rsp+0E8h+var_24], xmm0
-          vmovss  xmm3, dword ptr [rcx+44h]
-        }
+        v7 = client->ps.velocity.v[0];
+        v19 = v7;
+        v6 = client->ps.velocity.v[1];
+        v20 = v6;
+        v5 = client->ps.velocity.v[2];
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm2, xmm2, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rsp+0E8h+var_28], xmm2
-          vmovss  [rsp+0E8h+var_24], xmm0
-          vxorps  xmm3, xmm3, xmm3
-        }
+        v7 = 0.0;
+        v6 = 0.0;
+        v19 = 0.0;
+        v20 = 0.0;
+        v5 = 0.0;
       }
-      __asm { vmovss  [rsp+0E8h+var_20], xmm3 }
+      v21 = v5;
     }
     navObstacleActive = self->navObstacleActive;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm0, cs:__real@41c80000
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm4, xmm2, xmm1
-      vcomiss xmm4, xmm0
-    }
-    if ( v9 && (v9 = 0, v10 = !navObstacleActive, navObstacleActive) )
+    v10 = (float)((float)(v6 * v6) + (float)(v7 * v7)) + (float)(v5 * v5);
+    if ( v10 < 25.0 && navObstacleActive )
     {
       self->lastNavObstacleTime = level.time;
-      v22 = navObstacleActive;
+      v11 = navObstacleActive;
     }
     else
     {
-      __asm { vcomiss xmm4, xmm0 }
-      v22 = self->navObstacleActive;
-      if ( !(v9 | v10) && !navObstacleActive )
+      v11 = self->navObstacleActive;
+      if ( v10 > 25.0 && !navObstacleActive )
       {
         self->lastNavObstacleTime = level.time;
-        v22 = 0;
+        v11 = 0;
       }
     }
     lastNavObstacleTime = self->lastNavObstacleTime;
-    if ( v22 )
+    if ( v11 )
     {
       if ( level.time - lastNavObstacleTime > 400 )
       {
-        v24 = self->ent;
+        v13 = self->ent;
         self->navObstacleActive = 0;
-        Nav_DestroyObstacleByEnt(v24);
+        Nav_DestroyObstacleByEnt(v13);
       }
     }
     else
@@ -3417,10 +3091,10 @@ void __fastcall Sentient_UpdateNavObstacles(sentient_s *self, __int64 a2, double
       Navigator = Nav_GetNavigator(self->ent);
       if ( Navigator )
       {
-        v26 = (__int64)Navigator->Get2DNavigator(Navigator);
-        if ( !v26 )
+        v15 = (__int64)Navigator->Get2DNavigator(Navigator);
+        if ( !v15 )
           return;
-        pSpace = *(nav_space_s **)(v26 + 16);
+        pSpace = *(nav_space_s **)(v15 + 16);
       }
       else
       {
@@ -3438,8 +3112,7 @@ void __fastcall Sentient_UpdateNavObstacles(sentient_s *self, __int64 a2, double
       }
       if ( pSpace )
       {
-        __asm { vmovss  xmm2, cs:__real@41600000; penalty }
-        Nav_CreateObstacleByEnt(pSpace, self->ent, *(float *)&_XMM2, 0xFFFFFFFF, 0x6000u, 0, userDataFlags);
+        Nav_CreateObstacleByEnt(pSpace, self->ent, 14.0, 0xFFFFFFFF, 0x6000u, 0, userDataFlags);
         self->navObstacleActive = 1;
       }
     }

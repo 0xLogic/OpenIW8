@@ -1547,37 +1547,8 @@ G_SetOrigin
 */
 bool G_SetOrigin(gentity_s *ent, const vec3_t *origin, const bool warpPhysics, const bool updateBroadphase)
 {
-  const vec3_t *v7; 
-  int v12; 
-  int v13; 
-  int v14; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  v7 = origin;
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-  {
-LABEL_17:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1621, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1621, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
   if ( ent->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -1585,14 +1556,14 @@ LABEL_17:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1623, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos )") )
       __debugbreak();
   }
-  Trajectory_SetTrBase(&ent->s.lerp.pos, v7);
+  Trajectory_SetTrBase(&ent->s.lerp.pos, origin);
   *(_QWORD *)&ent->s.lerp.pos.trType = 0i64;
   ent->s.lerp.pos.trDuration = 0;
   *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
   ent->s.lerp.pos.trDelta.v[2] = 0.0;
-  ent->r.currentOrigin.v[0] = v7->v[0];
-  ent->r.currentOrigin.v[1] = v7->v[1];
-  ent->r.currentOrigin.v[2] = v7->v[2];
+  ent->r.currentOrigin.v[0] = origin->v[0];
+  ent->r.currentOrigin.v[1] = origin->v[1];
+  ent->r.currentOrigin.v[2] = origin->v[2];
   return warpPhysics && G_PhysicsObject_WarpToCurrentTransform(ent, updateBroadphase);
 }
 
@@ -1613,37 +1584,8 @@ G_SetOriginAndAngleTrajectory
 */
 bool G_SetOriginAndAngleTrajectory(gentity_s *ent, const vec3_t *origin, const vec3_t *angle, const bool warpPhysics, const bool updateBroadphase, trType_t trType)
 {
-  const vec3_t *v9; 
-  int v14; 
-  int v15; 
-  int v16; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+58h+arg_18], xmm0
-  }
-  v9 = origin;
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+58h+arg_18], xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+58h+arg_18], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1675, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1675, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
   if ( ent->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -1651,14 +1593,14 @@ LABEL_23:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1677, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos )") )
       __debugbreak();
   }
-  Trajectory_SetTrBase(&ent->s.lerp.pos, v9);
+  Trajectory_SetTrBase(&ent->s.lerp.pos, origin);
   *(_QWORD *)&ent->s.lerp.pos.trTime = 0i64;
   ent->s.lerp.pos.trType = trType;
   *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
   ent->s.lerp.pos.trDelta.v[2] = 0.0;
-  ent->r.currentOrigin.v[0] = v9->v[0];
-  ent->r.currentOrigin.v[1] = v9->v[1];
-  ent->r.currentOrigin.v[2] = v9->v[2];
+  ent->r.currentOrigin.v[0] = origin->v[0];
+  ent->r.currentOrigin.v[1] = origin->v[1];
+  ent->r.currentOrigin.v[2] = origin->v[2];
   if ( ent->s.lerp.apos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -1810,47 +1752,36 @@ void G_Utils_ApplyWorldUpToPos(const gentity_s *ent, const vec3_t *pos, vec3_t *
 {
   const playerState_s *EntityPlayerStateConst; 
   GHandler *Handler; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t vec; 
-  WorldUpReferenceFrame v21; 
+  WorldUpReferenceFrame v13; 
 
-  _RBX = outPos;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3452, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  _RBX->v[0] = pos->v[0];
-  _RBX->v[1] = pos->v[1];
-  _RBX->v[2] = pos->v[2];
+  outPos->v[0] = pos->v[0];
+  outPos->v[1] = pos->v[1];
+  outPos->v[2] = pos->v[2];
   if ( G_Utils_EntNeedsWorldUpFixUp(ent) )
   {
     EntityPlayerStateConst = G_GetEntityPlayerStateConst(ent);
     if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3462, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     Handler = GHandler::getHandler();
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v21, EntityPlayerStateConst, Handler);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-      vmovss  xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rsp+88h+vec], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+88h+vec+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-      vmovss  dword ptr [rsp+88h+vec+8], xmm2
-    }
-    WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v21, &vec);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+vec]
-      vaddss  xmm1, xmm0, dword ptr [rdi+30h]
-      vmovss  xmm2, dword ptr [rsp+88h+vec+4]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdi+34h]
-      vmovss  xmm1, dword ptr [rsp+88h+vec+8]
-      vmovss  dword ptr [rbx+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rdi+38h]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v13, EntityPlayerStateConst, Handler);
+    v8 = outPos->v[1];
+    vec.v[0] = outPos->v[0] - EntityPlayerStateConst->origin.v[0];
+    v9 = outPos->v[2];
+    vec.v[1] = v8 - EntityPlayerStateConst->origin.v[1];
+    vec.v[2] = v9 - EntityPlayerStateConst->origin.v[2];
+    WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v13, &vec);
+    v10 = vec.v[1];
+    outPos->v[0] = vec.v[0] + EntityPlayerStateConst->origin.v[0];
+    v11 = vec.v[2];
+    outPos->v[1] = v10 + EntityPlayerStateConst->origin.v[1];
+    outPos->v[2] = v11 + EntityPlayerStateConst->origin.v[2];
   }
 }
 
@@ -2006,6 +1937,7 @@ void G_Utils_CreateEntityPhysics(gentity_s *ent)
   int v18; 
   unsigned __int8 v19; 
   unsigned int v20; 
+  G_PhysicsObject *v21; 
   gentity_s *v22; 
   EntityTagInfo *tagInfo; 
   gentity_s *i; 
@@ -2022,47 +1954,47 @@ void G_Utils_CreateEntityPhysics(gentity_s *ent)
   bool forQueryOnly; 
   unsigned int ScriptableIndexForEntity; 
   int CanCurrentModelMove; 
-  int v45; 
-  bool v46; 
-  XModel *v47; 
-  int v48; 
-  unsigned int v49; 
+  int v38; 
+  bool v39; 
+  XModel *v40; 
+  int v41; 
+  unsigned int v42; 
   hknpBodyId *RigidBodyID; 
   Vehicle *vehicle; 
   GVehicles *VehicleSystem; 
-  bool v53; 
-  entityType_s v54; 
-  char v55; 
-  int v56; 
+  bool v46; 
+  entityType_s v47; 
+  char v48; 
+  int v49; 
   int *physShapeAddendumIdx; 
   int *physShapeAddendumIdxa; 
   XModel **detailModel; 
   XModel **detailModela; 
   bool detailModelc; 
   XModel **detailModelb; 
-  bool v63; 
-  bool v64; 
+  bool v56; 
+  bool v57; 
   bool overrideContents; 
   int ref; 
   int contentsOverride; 
   int physShapeOverrideIdx; 
-  int v69; 
+  int v62; 
   int contents; 
   PhysicsAsset *physAsset; 
-  XModel *v72; 
+  XModel *v65; 
   XModel *baseModel; 
-  int v74; 
+  int v67; 
   PhysicsAsset *physicsAsset; 
   PhysicsAsset *physAssetAddendum; 
   Physics_InstantiateShapeOverride shapeOverride; 
-  Physics_InstantiateShapeOverride v78; 
-  __int64 v79; 
-  XModel *v80; 
-  PhysicsAsset *v81; 
-  XModel *v82; 
+  Physics_InstantiateShapeOverride v71; 
+  __int64 v72; 
+  XModel *v73; 
+  PhysicsAsset *v74; 
+  XModel *v75; 
   vec4_t quat; 
 
-  v79 = -2i64;
+  v72 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "G_Utils_CreateEntityPhysics");
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
@@ -2120,12 +2052,12 @@ void G_Utils_CreateEntityPhysics(gentity_s *ent)
     }
     v6 = Physics_RefSystem_GEntities;
   }
-  G_Utils_GetPhysicsAsset(ent, (const XModel **)&baseModel, (const PhysicsAsset **)&physAsset, &physShapeOverrideIdx, (const PhysicsAsset **)&physAssetAddendum, &v69, (const XModel **)&v72, &overrideContents, &contents);
+  G_Utils_GetPhysicsAsset(ent, (const XModel **)&baseModel, (const PhysicsAsset **)&physAsset, &physShapeOverrideIdx, (const PhysicsAsset **)&physAssetAddendum, &v62, (const XModel **)&v65, &overrideContents, &contents);
   v7 = physAsset;
   if ( physAsset )
   {
     IsXAssetDefaultNonLocking = DB_IsXAssetDefaultNonLocking(ASSET_TYPE_PHYSICSASSET, physAsset->name);
-    if ( v72 && (detailCollision = v72->detailCollision) != NULL )
+    if ( v65 && (detailCollision = v65->detailCollision) != NULL )
       v10 = DB_IsXAssetDefaultNonLocking(ASSET_TYPE_XMODEL_DETAIL_COLLISION, detailCollision->name);
     else
       v10 = 0;
@@ -2176,12 +2108,12 @@ LABEL_56:
           }
         }
       }
-      _RDI = G_PhysicsObject_Get(ent);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 985, ASSERT_TYPE_ASSERT, "(physicsObj)", (const char *)&queryFormat, "physicsObj") )
+      v21 = G_PhysicsObject_Get(ent);
+      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 985, ASSERT_TYPE_ASSERT, "(physicsObj)", (const char *)&queryFormat, "physicsObj") )
         __debugbreak();
-      if ( _RDI->physicsInstances[0] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 986, ASSERT_TYPE_ASSERT, "(physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_MAIN ] == 0xFFFFFFFF)", (const char *)&queryFormat, "physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_MAIN ] == PHYSICSINSTANCEID_INVALID") )
+      if ( v21->physicsInstances[0] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 986, ASSERT_TYPE_ASSERT, "(physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_MAIN ] == 0xFFFFFFFF)", (const char *)&queryFormat, "physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_MAIN ] == PHYSICSINSTANCEID_INVALID") )
         __debugbreak();
-      if ( _RDI->physicsInstances[1] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 987, ASSERT_TYPE_ASSERT, "(physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_DETAIL ] == 0xFFFFFFFF)", (const char *)&queryFormat, "physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_DETAIL ] == PHYSICSINSTANCEID_INVALID") )
+      if ( v21->physicsInstances[1] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 987, ASSERT_TYPE_ASSERT, "(physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_DETAIL ] == 0xFFFFFFFF)", (const char *)&queryFormat, "physicsObj->physicsInstances[ PHYSICS_WORLD_ID_SERVER_DETAIL ] == PHYSICSINSTANCEID_INVALID") )
         __debugbreak();
       AnglesToQuat(&ent->r.currentAngles, &quat);
       if ( ent->s.number > 0x7FFEu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 991, ASSERT_TYPE_ASSERT, "(ent->s.number >= 0 && ent->s.number < 32767)", "%s\n\tEntity Number truncated to a short here - but it doesn't fit", "ent->s.number >= 0 && ent->s.number < 32767") )
@@ -2211,7 +2143,7 @@ LABEL_56:
       if ( ent->s.number < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,short>(short)", "unsigned", (unsigned __int16)v30, "signed", v30) )
         __debugbreak();
       ref = Physics_MakeRef(v6, PhysicsRelationshipSystemFlag, ent->r.modelType, v30);
-      v63 = !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ent->s.lerp.eFlags, ACTIVE, 0xCu);
+      v56 = !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ent->s.lerp.eFlags, ACTIVE, 0xCu);
       v31 = ent->s.eType;
       if ( v31 == ET_ITEM )
       {
@@ -2221,7 +2153,7 @@ LABEL_56:
       {
         if ( v31 != ET_SCRIPTMOVER )
           goto LABEL_91;
-        G_Utils_GetPhysicsAsset(ent, (const XModel **)&v82, (const PhysicsAsset **)&physicsAsset, (int *)&physAsset, (const PhysicsAsset **)&v81, &v74, (const XModel **)&v80, &v64, &contentsOverride);
+        G_Utils_GetPhysicsAsset(ent, (const XModel **)&v75, (const PhysicsAsset **)&physicsAsset, (int *)&physAsset, (const PhysicsAsset **)&v74, &v67, (const XModel **)&v73, &v57, &contentsOverride);
         v33 = physicsAsset;
         if ( !physicsAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 620, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
           __debugbreak();
@@ -2236,38 +2168,25 @@ LABEL_91:
         forceType = Physics_InstantiationForceTypeNone;
       contentsOverride = forceType;
       forQueryOnly = ent->r.modelType == 4;
-      v64 = forQueryOnly;
+      v57 = forQueryOnly;
       shapeOverride.customShape = NULL;
       shapeOverride.massProperties = NULL;
       *(_WORD *)&shapeOverride.overrideMass = 0;
       shapeOverride.overrideTensor = 0;
       shapeOverride.shapeOverride = physShapeOverrideIdx;
       shapeOverride.physicsAssetAddendum = physAssetAddendum;
-      shapeOverride.shapeAddendum = v69;
-      v78.customShape = NULL;
-      v78.physicsAssetAddendum = NULL;
-      v78.shapeAddendum = -1;
-      v78.massProperties = NULL;
-      *(_WORD *)&v78.overrideMass = 0;
-      v78.overrideTensor = 0;
-      v78.shapeOverride = physShapeOverrideIdx;
-      _R13 = &ent->r.currentOrigin;
-      _RDI->detailCache.position.v[0] = ent->r.currentOrigin.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+4]
-        vmovss  dword ptr [rdi+8Ch], xmm0
-        vmovss  xmm1, dword ptr [r13+8]
-        vmovss  dword ptr [rdi+90h], xmm1
-        vmovss  xmm0, dword ptr [rbp+80h+quat]
-        vmovss  dword ptr [rdi+94h], xmm0
-        vmovss  xmm1, dword ptr [rbp+80h+quat+4]
-        vmovss  dword ptr [rdi+98h], xmm1
-        vmovss  xmm0, dword ptr [rbp+80h+quat+8]
-        vmovss  dword ptr [rdi+9Ch], xmm0
-        vmovss  xmm1, dword ptr [rbp+80h+quat+0Ch]
-        vmovss  dword ptr [rdi+0A0h], xmm1
-      }
+      shapeOverride.shapeAddendum = v62;
+      v71.customShape = NULL;
+      v71.physicsAssetAddendum = NULL;
+      v71.shapeAddendum = -1;
+      v71.massProperties = NULL;
+      *(_WORD *)&v71.overrideMass = 0;
+      v71.overrideTensor = 0;
+      v71.shapeOverride = physShapeOverrideIdx;
+      v21->detailCache.position.v[0] = ent->r.currentOrigin.v[0];
+      v21->detailCache.position.v[1] = ent->r.currentOrigin.v[1];
+      v21->detailCache.position.v[2] = ent->r.currentOrigin.v[2];
+      v21->detailCache.orientationAsQuat = quat;
       if ( ent->s.eType == ET_SCRIPTMOVER && ent->s.un.scriptMoverType == 2 )
       {
         ScriptableIndexForEntity = ScriptableSv_GetScriptableIndexForEntity(ent);
@@ -2285,37 +2204,37 @@ LABEL_91:
         if ( !CanCurrentModelMove )
           forceType = Physics_InstantiationForceTypeStatic;
       }
-      _RDI->physicsInstances[0] = Physics_InstantiateAsset(PHYSICS_WORLD_ID_FIRST, baseModel, v7, ref, &ent->r.currentOrigin, &quat, v63, 1, v32, &shapeOverride, forceType, Physics_InstantiationFilterTypeServer, forQueryOnly);
+      v21->physicsInstances[0] = Physics_InstantiateAsset(PHYSICS_WORLD_ID_FIRST, baseModel, v7, ref, &ent->r.currentOrigin, &quat, v56, 1, v32, &shapeOverride, forceType, Physics_InstantiationFilterTypeServer, forQueryOnly);
       ++v7->usageCounter.serverEnt;
-      v45 = contents;
-      v46 = overrideContents;
+      v38 = contents;
+      v39 = overrideContents;
       if ( overrideContents )
-        Physics_SetInstanceContents(PHYSICS_WORLD_ID_FIRST, _RDI->physicsInstances[0], contents);
-      if ( v72 )
+        Physics_SetInstanceContents(PHYSICS_WORLD_ID_FIRST, v21->physicsInstances[0], contents);
+      if ( v65 )
       {
         detailModelc = v32;
-        v47 = v72;
-        _RDI->physicsInstances[1] = Physics_InstantiateDetailModel(PHYSICS_WORLD_ID_SERVER_DETAIL, v72, ref, &ent->r.currentOrigin, &quat, v63, detailModelc, v64, 0);
-        ++v47->physicsUsageCounter.serverEnt;
+        v40 = v65;
+        v21->physicsInstances[1] = Physics_InstantiateDetailModel(PHYSICS_WORLD_ID_SERVER_DETAIL, v65, ref, &ent->r.currentOrigin, &quat, v56, detailModelc, v57, 0);
+        ++v40->physicsUsageCounter.serverEnt;
       }
       else
       {
-        _RDI->physicsInstances[1] = Physics_InstantiateAsset(PHYSICS_WORLD_ID_SERVER_DETAIL, baseModel, v7, ref, &ent->r.currentOrigin, &quat, v63, 1, v32, &v78, Physics_InstantiationForceTypeStatic, Physics_InstantiationFilterTypeServer, v64);
+        v21->physicsInstances[1] = Physics_InstantiateAsset(PHYSICS_WORLD_ID_SERVER_DETAIL, baseModel, v7, ref, &ent->r.currentOrigin, &quat, v56, 1, v32, &v71, Physics_InstantiationForceTypeStatic, Physics_InstantiationFilterTypeServer, v57);
       }
-      if ( v46 )
-        Physics_SetInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, _RDI->physicsInstances[1], v45);
+      if ( v39 )
+        Physics_SetInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, v21->physicsInstances[1], v38);
       if ( ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH )
       {
-        _RDI->mapping = PHYSICSOBJECT_MAPPING_PHYSICS_AUTH;
-        v48 = 0;
+        v21->mapping = PHYSICSOBJECT_MAPPING_PHYSICS_AUTH;
+        v41 = 0;
       }
       else
       {
-        v49 = _RDI->physicsInstances[0];
+        v42 = v21->physicsInstances[0];
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        v48 = 0;
-        if ( v49 == -1 )
+        v41 = 0;
+        if ( v42 == -1 )
         {
           LODWORD(detailModelb) = 0;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", detailModelb) )
@@ -2327,18 +2246,18 @@ LABEL_91:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", detailModelb) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&physAsset, PHYSICS_WORLD_ID_FIRST, v49, 0);
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&physAsset, PHYSICS_WORLD_ID_FIRST, v42, 0);
         if ( Physics_IsRigidBodyDynamic(PHYSICS_WORLD_ID_FIRST, RigidBodyID->m_serialAndIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1062, ASSERT_TYPE_ASSERT, "(!Physics_IsRigidBodyDynamic( PHYSICS_WORLD_ID_SERVER_MAIN, bodyId ))", "%s\n\tTrying to create an entity driven physics object for a dynamic body - asset %s", "!Physics_IsRigidBodyDynamic( PHYSICS_WORLD_ID_SERVER_MAIN, bodyId )", v7->name) )
           __debugbreak();
-        _RDI->mapping = PHYSICSOBJECT_MAPPING_ENTITY_AUTH;
+        v21->mapping = PHYSICSOBJECT_MAPPING_ENTITY_AUTH;
       }
       G_PhysicsObject_MarkPhysicsObjectAsUsed(ent->s.number, 1);
-      G_PhysicsObject_MarkPhysicsObjectAsShown(ent->s.number, v63, 1);
-      G_PhysicsObject_MarkPhysicsObjectDetailAsShown(ent->s.number, v63, 1);
+      G_PhysicsObject_MarkPhysicsObjectAsShown(ent->s.number, v56, 1);
+      G_PhysicsObject_MarkPhysicsObjectDetailAsShown(ent->s.number, v56, 1);
       G_PhysicsObject_CachePrimaryBodies(ent->s.number);
-      G_PhysicsObject_CreateChildEntities(PHYSICS_WORLD_ID_FIRST, ent, _RDI);
-      G_PhysicsObject_CreateKeyframedBoneMapping(PHYSICS_WORLD_ID_FIRST, ent, _RDI, v7);
-      G_PhysicsObject_CreateDetailBoneMapping(PHYSICS_WORLD_ID_SERVER_DETAIL, ent, _RDI);
+      G_PhysicsObject_CreateChildEntities(PHYSICS_WORLD_ID_FIRST, ent, v21);
+      G_PhysicsObject_CreateKeyframedBoneMapping(PHYSICS_WORLD_ID_FIRST, ent, v21, v7);
+      G_PhysicsObject_CreateDetailBoneMapping(PHYSICS_WORLD_ID_SERVER_DETAIL, ent, v21);
       G_PhysicsObject_IdentifyRigidBodyType(ent->s.number);
       if ( ent->s.eType == ET_VEHICLE )
       {
@@ -2352,18 +2271,18 @@ LABEL_91:
           }
         }
       }
-      v53 = ent->classname == scr_const.script_item && (ent->spawnflags & 8) == 0;
-      v54 = ent->s.eType;
-      v55 = v53;
-      if ( v54 == ET_ITEM )
-        v55 = 1;
-      if ( v54 == ET_ITEM )
-        v48 = 1078198280;
-      v56 = v48 | (v53 << 30);
-      if ( v55 )
+      v46 = ent->classname == scr_const.script_item && (ent->spawnflags & 8) == 0;
+      v47 = ent->s.eType;
+      v48 = v46;
+      if ( v47 == ET_ITEM )
+        v48 = 1;
+      if ( v47 == ET_ITEM )
+        v41 = 1078198280;
+      v49 = v41 | (v46 << 30);
+      if ( v48 )
       {
-        Physics_AddInstanceContents(PHYSICS_WORLD_ID_FIRST, _RDI->physicsInstances[0], v56);
-        Physics_AddInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, _RDI->physicsInstances[1], v56);
+        Physics_AddInstanceContents(PHYSICS_WORLD_ID_FIRST, v21->physicsInstances[0], v49);
+        Physics_AddInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, v21->physicsInstances[1], v49);
       }
     }
   }
@@ -2428,27 +2347,28 @@ G_Utils_DObjCalcAntilagPose
 */
 void G_Utils_DObjCalcAntilagPose(gentity_s *ent, SvAntilagArchiveInfo *antilagInfo, DObjPartBits *partBits)
 {
-  SvAntilagArchiveInfo *v6; 
+  SvAntilagArchiveInfo *v5; 
   DObj *ServerDObjForEnt; 
-  const dvar_t *v8; 
+  const dvar_t *v7; 
   int integer; 
-  const dvar_t *v10; 
+  const dvar_t *v9; 
   SvAntilagArchiveFrame *toFrame; 
-  int v12; 
-  unsigned int v13; 
-  gentity_s *v17; 
+  int v11; 
+  unsigned int v12; 
+  DObjPartBits *v13; 
+  gentity_s *v14; 
   SvAntilagArchiveFrame *fromFrame; 
   unsigned int animData; 
   AnimationController ControllerByIndex; 
-  int v21; 
+  int v18; 
   CEntPlayerInfo info; 
   clientControllers_t control; 
 
-  v6 = antilagInfo;
+  v5 = antilagInfo;
   info.control = (clientControllers_t *)antilagInfo;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2602, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2603, ASSERT_TYPE_ASSERT, "( antilagInfo )", (const char *)&queryFormat, "antilagInfo") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2603, ASSERT_TYPE_ASSERT, "( antilagInfo )", (const char *)&queryFormat, "antilagInfo") )
     __debugbreak();
   if ( !partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2604, ASSERT_TYPE_ASSERT, "( partBits )", (const char *)&queryFormat, "partBits") )
     __debugbreak();
@@ -2457,54 +2377,51 @@ void G_Utils_DObjCalcAntilagPose(gentity_s *ent, SvAntilagArchiveInfo *antilagIn
     __debugbreak();
   if ( !ServerDObjForEnt->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2608, ASSERT_TYPE_ASSERT, "( obj->tree )", (const char *)&queryFormat, "obj->tree") )
     __debugbreak();
-  v8 = DVARINT_bg_debugRewindCharacter;
+  v7 = DVARINT_bg_debugRewindCharacter;
   if ( !DVARINT_bg_debugRewindCharacter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindCharacter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  integer = v8->current.integer;
-  v10 = DVARINT_bg_debugRewindPositions;
-  v21 = integer;
+  Dvar_CheckFrontendServerThread(v7);
+  integer = v7->current.integer;
+  v9 = DVARINT_bg_debugRewindPositions;
+  v18 = integer;
   if ( !DVARINT_bg_debugRewindPositions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindPositions") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
+  Dvar_CheckFrontendServerThread(v9);
   toFrame = NULL;
-  v12 = v10->current.integer;
-  if ( (integer == ent->s.number || integer < 0) && (v12 == 2 || v12 == 5) )
+  v11 = v9->current.integer;
+  if ( (integer == ent->s.number || integer < 0) && (v11 == 2 || v11 == 5) )
   {
-    v13 = 0;
-    __asm { vmovaps [rsp+138h+var_48], xmm6 }
-    _RBP = partBits;
-    __asm { vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff }
+    v12 = 0;
+    v13 = partBits;
     do
     {
-      __asm { vmovdqu xmmword ptr [rbp+0], xmm6 }
-      _RBP = (DObjPartBits *)((char *)_RBP + 16);
-      ++v13;
+      *(_OWORD *)v13->array = _xmm_ffffffffffffffffffffffffffffffff;
+      v13 = (DObjPartBits *)((char *)v13 + 16);
+      ++v12;
     }
-    while ( v13 < 2 );
+    while ( v12 < 2 );
     partBits->array[7] &= ~2u;
-    v6 = (SvAntilagArchiveInfo *)info.control;
-    integer = v21;
-    __asm { vmovaps xmm6, [rsp+138h+var_48] }
+    v5 = (SvAntilagArchiveInfo *)info.control;
+    integer = v18;
   }
-  v17 = ent;
+  v14 = ent;
   if ( ((ent->s.eType - 1) & 0xFFEF) != 0 )
     goto LABEL_38;
-  if ( G_Utils_IsValidAntilagPoseFrame(ent, v6->fromFrame) )
-    fromFrame = v6->fromFrame;
+  if ( G_Utils_IsValidAntilagPoseFrame(ent, v5->fromFrame) )
+    fromFrame = v5->fromFrame;
   else
     fromFrame = NULL;
-  if ( G_Utils_IsValidAntilagPoseFrame(ent, v6->toFrame) )
-    toFrame = v6->toFrame;
+  if ( G_Utils_IsValidAntilagPoseFrame(ent, v5->toFrame) )
+    toFrame = v5->toFrame;
   if ( !fromFrame && !toFrame )
   {
-    v17 = ent;
+    v14 = ent;
 LABEL_38:
-    G_Utils_DObjCalcPose(v17, partBits);
+    G_Utils_DObjCalcPose(v14, partBits);
     goto LABEL_39;
   }
   DObjLock(ServerDObjForEnt);
-  if ( !G_Utils_DObjCreateAntilagSkel(ServerDObjForEnt, ent, v6, partBits, fromFrame, toFrame, &control) )
+  if ( !G_Utils_DObjCreateAntilagSkel(ServerDObjForEnt, ent, v5, partBits, fromFrame, toFrame, &control) )
   {
     animData = ent->s.animInfo.animData;
     if ( (animData & 1) != 0 )
@@ -2527,7 +2444,7 @@ LABEL_38:
   }
   DObjUnlock(ServerDObjForEnt);
 LABEL_39:
-  if ( (integer == ent->s.number || integer < 0) && (v12 == 2 || v12 == 5) )
+  if ( (integer == ent->s.number || integer < 0) && (v11 == 2 || v11 == 5) )
     SV_Game_XModelDebugBoxes(ent, &colorYellow, 100);
 }
 
@@ -2551,6 +2468,8 @@ G_Utils_DObjCalcBones
 */
 void G_Utils_DObjCalcBones(const gentity_s *ent, const int boneCount, const int *boneIndices)
 {
+  __int128 v4; 
+  __int128 v5; 
   const int *v6; 
   __int64 v7; 
   DObj *ServerDObjForEnt; 
@@ -2562,18 +2481,21 @@ void G_Utils_DObjCalcBones(const gentity_s *ent, const int boneCount, const int 
   int v14; 
   const XModel *Model; 
   const char **p_name; 
+  double v17; 
+  double v18; 
   const char *Name; 
-  unsigned int v27; 
-  unsigned __int64 v30; 
+  DObjPartBits *p_partBits; 
+  unsigned int v21; 
+  unsigned __int64 v23; 
   void (__fastcall *controller)(const gentity_s *, DObjPartBits *); 
   char *fmt; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  __int64 v38; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   DObjPartBits partBits; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
 
   v6 = boneIndices;
   v7 = boneCount;
@@ -2591,15 +2513,12 @@ void G_Utils_DObjCalcBones(const gentity_s *ent, const int boneCount, const int 
     while ( SV_Game_DObjCreateSkelForBone(ServerDObjForEnt, v6[v11]) )
     {
       if ( ++v11 >= v9 )
-        goto LABEL_34;
+        goto LABEL_33;
     }
     v12 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_48], xmm6
-      vmovaps [rsp+0F8h+var_58], xmm7
-      vmovaps [rsp+0F8h+var_68], xmm8
-    }
+    v34 = _XMM6;
+    v33 = v4;
+    v32 = v5;
     do
     {
       v13 = v6[v12];
@@ -2619,55 +2538,39 @@ void G_Utils_DObjCalcBones(const gentity_s *ent, const int boneCount, const int 
           while ( v14 < ServerDObjForEnt->numModels );
           v6 = boneIndices;
         }
-        _RDI = ent;
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rdi+138h]
-          vmovss  xmm7, dword ptr [rdi+134h]
-          vmovss  xmm8, dword ptr [rdi+130h]
-          vcvtss2sd xmm6, xmm6, xmm6
-          vcvtss2sd xmm7, xmm7, xmm7
-          vcvtss2sd xmm8, xmm8, xmm8
-        }
+        _XMM6 = COERCE_UNSIGNED_INT64(ent->r.currentOrigin.v[2]);
+        v17 = ent->r.currentOrigin.v[1];
+        v18 = ent->r.currentOrigin.v[0];
         Name = DObjGetName(ServerDObjForEnt);
-        __asm
-        {
-          vmovsd  [rsp+0F8h+var_B0], xmm6
-          vmovsd  [rsp+0F8h+var_B8], xmm7
-          vmovsd  [rsp+0F8h+var_C0], xmm8
-        }
-        LODWORD(v33) = ent->s.number;
+        LODWORD(v26) = ent->s.number;
         LODWORD(fmt) = ServerDObjForEnt->numBones;
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E33540, 750i64, (unsigned int)v13, fmt, v33, Name, v35, v37, v38);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E33540, 750i64, (unsigned int)v13, fmt, v26, Name, v18, v17, (_QWORD)_XMM6);
       }
       ++v12;
     }
     while ( v12 < v9 );
-    __asm { vmovaps xmm8, [rsp+0F8h+var_68] }
-    _RDI = &partBits;
-    __asm { vmovaps xmm7, [rsp+0F8h+var_58] }
-    v27 = 0;
+    p_partBits = &partBits;
+    v21 = 0;
     __asm { vpxor   xmm6, xmm6, xmm6 }
     do
     {
-      __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-      _RDI = (DObjPartBits *)((char *)_RDI + 16);
-      ++v27;
+      *(_OWORD *)p_partBits->array = _XMM6;
+      p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
+      ++v21;
     }
-    while ( v27 < 2 );
-    __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
+    while ( v21 < 2 );
     do
     {
-      v30 = (unsigned int)v6[v10];
-      if ( (unsigned int)v30 >= 0x100 )
+      v23 = (unsigned int)v6[v10];
+      if ( (unsigned int)v23 >= 0x100 )
       {
-        LODWORD(v36) = 256;
-        LODWORD(v34) = v6[v10];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v34, v36) )
+        LODWORD(v28) = 256;
+        LODWORD(v27) = v6[v10];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v28) )
           __debugbreak();
       }
       ++v10;
-      partBits.array[v30 >> 5] |= 0x80000000 >> (v30 & 0x1F);
+      partBits.array[v23 >> 5] |= 0x80000000 >> (v23 & 0x1F);
     }
     while ( v10 < v9 );
     DObjCompleteHierarchyBits(ServerDObjForEnt, &partBits);
@@ -2676,7 +2579,7 @@ void G_Utils_DObjCalcBones(const gentity_s *ent, const int boneCount, const int 
       controller(ent, &partBits);
     DObjCalcSkel(ServerDObjForEnt, &partBits);
   }
-LABEL_34:
+LABEL_33:
   DObjUnlock(ServerDObjForEnt);
 }
 
@@ -2731,165 +2634,117 @@ G_Utils_DObjCreateAntilagSkel
 char G_Utils_DObjCreateAntilagSkel(DObj *obj, const gentity_s *ent, SvAntilagArchiveInfo *antilagInfo, DObjPartBits *partBits, SvAntilagArchiveFrame *fromFrame, SvAntilagArchiveFrame *toFrame, clientControllers_t *outCtrl)
 {
   __int64 number; 
-  __int64 v16; 
-  const char *v17; 
-  bool v20; 
-  bool v21; 
-  bool v22; 
-  const dvar_t *v25; 
+  __int64 v12; 
+  const char *v13; 
+  float progress; 
+  const dvar_t *v16; 
+  __int64 v17; 
+  double v18; 
+  clientControllers_t *v19; 
+  double v20; 
   char *fmt; 
-  float fmta; 
-  __int64 v49; 
-  __int64 v50; 
-  double v51; 
+  __int64 v22; 
+  __int64 v23; 
 
-  _RBP = antilagInfo;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2566, ASSERT_TYPE_ASSERT, "( obj )", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2567, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2568, ASSERT_TYPE_ASSERT, "( antilagInfo )", (const char *)&queryFormat, "antilagInfo") )
+  if ( !antilagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2568, ASSERT_TYPE_ASSERT, "( antilagInfo )", (const char *)&queryFormat, "antilagInfo") )
     __debugbreak();
   if ( !partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2569, ASSERT_TYPE_ASSERT, "( partBits )", (const char *)&queryFormat, "partBits") )
     __debugbreak();
   number = ent->s.number;
   if ( (unsigned int)number >= 0xF8 )
   {
-    LODWORD(v49) = ent->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2572, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ( sizeof( *array_counter( antilagInfo->hasAntilagPose ) ) + 0 ) )", "characterIndex doesn't index ARRAY_COUNT( antilagInfo->hasAntilagPose )\n\t%i not in [0, %i)", v49, 248) )
+    LODWORD(v22) = ent->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2572, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( ( sizeof( *array_counter( antilagInfo->hasAntilagPose ) ) + 0 ) )", "characterIndex doesn't index ARRAY_COUNT( antilagInfo->hasAntilagPose )\n\t%i not in [0, %i)", v22, 248) )
       __debugbreak();
   }
-  _RBX = toFrame;
-  _RDI = fromFrame;
-  v16 = number;
+  v12 = number;
   LODWORD(fmt) = toFrame != NULL;
-  v17 = j_va("ci:%d hp:%d f:%d t:%d", (unsigned int)number, _RBP->hasAntilagPose[number], fromFrame != NULL, fmt);
-  Sys_ProfSetMarker(0xFF0F0F0F, v17);
-  if ( _RBP->hasAntilagPose[number] )
+  v13 = j_va("ci:%d hp:%d f:%d t:%d", (unsigned int)number, antilagInfo->hasAntilagPose[number], fromFrame != NULL, fmt);
+  Sys_ProfSetMarker(0xFF0F0F0F, v13);
+  if ( antilagInfo->hasAntilagPose[number] )
   {
-    if ( !_RBP->savedTree[number] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2579, ASSERT_TYPE_ASSERT, "( antilagInfo->savedTree[characterIndex] != nullptr )", (const char *)&queryFormat, "antilagInfo->savedTree[characterIndex] != nullptr") )
+    if ( !antilagInfo->savedTree[number] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2579, ASSERT_TYPE_ASSERT, "( antilagInfo->savedTree[characterIndex] != nullptr )", (const char *)&queryFormat, "antilagInfo->savedTree[characterIndex] != nullptr") )
       __debugbreak();
     if ( SV_Game_DObjCreateSkelForBones(obj, partBits) )
       return 1;
   }
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  if ( !_RBP->hasAntilagPose[number] )
+  if ( !antilagInfo->hasAntilagPose[number] )
   {
-    G_Utils_DObjSaveCurrentAnimTree(obj, ent, _RBP, partBits);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+10h]
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    G_Utils_DObjReadAntilagAnimTree(obj, number, fromFrame, toFrame, fmta);
+    G_Utils_DObjSaveCurrentAnimTree(obj, ent, antilagInfo, partBits);
+    G_Utils_DObjReadAntilagAnimTree(obj, number, fromFrame, toFrame, antilagInfo->progress);
   }
-  __asm { vmovss  xmm6, dword ptr [rbp+10h] }
-  v20 = (unsigned int)number < 0xF8;
-  v21 = (unsigned int)number <= 0xF8;
+  progress = antilagInfo->progress;
   if ( (unsigned int)number >= 0xF8 )
   {
-    LODWORD(v50) = 248;
-    LODWORD(v49) = number;
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2528, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "characterIndex doesn't index MAX_ANTILAG_CLIENT_AGENTS\n\t%i not in [0, %i)", v49, v50);
-    v20 = 0;
-    v21 = !v22;
-    if ( v22 )
+    LODWORD(v23) = 248;
+    LODWORD(v22) = number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2528, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "characterIndex doesn't index MAX_ANTILAG_CLIENT_AGENTS\n\t%i not in [0, %i)", v22, v23) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v20 )
-    goto LABEL_48;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v21 )
-  {
-LABEL_48:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+78h+var_48], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2529, ASSERT_TYPE_ASSERT, "( ( (lerp >= 0.0f) && (lerp <= 1.0f) ) )", "%s\n\t( lerp ) = %g", "( (lerp >= 0.0f) && (lerp <= 1.0f) )", v51) )
-      __debugbreak();
-  }
+  if ( (progress < 0.0 || progress > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2529, ASSERT_TYPE_ASSERT, "( ( (lerp >= 0.0f) && (lerp <= 1.0f) ) )", "%s\n\t( lerp ) = %g", "( (lerp >= 0.0f) && (lerp <= 1.0f) )", progress) )
+    __debugbreak();
   if ( fromFrame )
   {
     if ( toFrame )
     {
-      v25 = DCONST_DVARBOOL_g_antilagPoseBlend;
+      v16 = DCONST_DVARBOOL_g_antilagPoseBlend;
       if ( !DCONST_DVARBOOL_g_antilagPoseBlend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_antilagPoseBlend") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      _RCX = v16;
-      if ( v25->current.enabled )
+      Dvar_CheckFrontendServerThread(v16);
+      v17 = v12;
+      if ( v16->current.enabled )
       {
-        __asm { vmovaps xmm2, xmm6; progress }
-        G_Utils_DObjLerpAntilagControllers(&fromFrame->ctrlInfo.controllers[_RCX], &toFrame->ctrlInfo.controllers[_RCX], *(float *)&_XMM2, outCtrl);
+        G_Utils_DObjLerpAntilagControllers(&fromFrame->ctrlInfo.controllers[v17], &toFrame->ctrlInfo.controllers[v17], progress, outCtrl);
       }
       else
       {
-        __asm { vcomiss xmm6, cs:__real@3f000000 }
-        _RAX = outCtrl;
-        __asm
+        if ( progress >= 0.5 )
         {
-          vmovups ymm0, ymmword ptr [rcx+rbx+1F0h]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm1, ymmword ptr [rcx+rbx+210h]
-          vmovups ymmword ptr [rax+20h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+rbx+230h]
-          vmovups ymmword ptr [rax+40h], ymm0
-          vmovups xmm1, xmmword ptr [rcx+rbx+250h]
-          vmovups xmmword ptr [rax+60h], xmm1
-          vmovsd  xmm0, qword ptr [rcx+rbx+260h]
-          vmovsd  qword ptr [rax+70h], xmm0
+          *(__m256i *)outCtrl->angles[0].v = *(__m256i *)toFrame->ctrlInfo.controllers[v17].angles[0].v;
+          *(__m256i *)&outCtrl->angles[2].z = *(__m256i *)&toFrame->ctrlInfo.controllers[v17].angles[2].z;
+          *(__m256i *)&outCtrl->tag_origin_offset.y = *(__m256i *)&toFrame->ctrlInfo.controllers[v17].tag_origin_offset.y;
+          *(_OWORD *)outCtrl->hand_ik_local_ang[0].v = *(_OWORD *)toFrame->ctrlInfo.controllers[v17].hand_ik_local_ang[0].v;
+          v18 = *(double *)&toFrame->ctrlInfo.controllers[v17].hand_ik_local_ang[1].y;
         }
+        else
+        {
+          *(__m256i *)outCtrl->angles[0].v = *(__m256i *)fromFrame->ctrlInfo.controllers[v17].angles[0].v;
+          *(__m256i *)&outCtrl->angles[2].z = *(__m256i *)&fromFrame->ctrlInfo.controllers[v17].angles[2].z;
+          *(__m256i *)&outCtrl->tag_origin_offset.y = *(__m256i *)&fromFrame->ctrlInfo.controllers[v17].tag_origin_offset.y;
+          *(_OWORD *)outCtrl->hand_ik_local_ang[0].v = *(_OWORD *)fromFrame->ctrlInfo.controllers[v17].hand_ik_local_ang[0].v;
+          v18 = *(double *)&fromFrame->ctrlInfo.controllers[v17].hand_ik_local_ang[1].y;
+        }
+        *(double *)&outCtrl->hand_ik_local_ang[1].y = v18;
       }
-      goto LABEL_45;
+      return 0;
     }
-    goto LABEL_43;
+    goto LABEL_46;
   }
   if ( !toFrame )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2556, ASSERT_TYPE_ASSERT, "( fromFrame )", (const char *)&queryFormat, "fromFrame") )
       __debugbreak();
-LABEL_43:
-    _RCX = outCtrl;
-    _RAX = 120 * number;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+rdi+1F0h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm1, ymmword ptr [rax+rdi+210h]
-      vmovups ymmword ptr [rcx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+rdi+230h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm1, xmmword ptr [rax+rdi+250h]
-      vmovups xmmword ptr [rcx+60h], xmm1
-      vmovsd  xmm0, qword ptr [rax+rdi+260h]
-    }
-    goto LABEL_44;
+LABEL_46:
+    v19 = outCtrl;
+    *(__m256i *)outCtrl->angles[0].v = *(__m256i *)fromFrame->ctrlInfo.controllers[number].angles[0].v;
+    *(__m256i *)&outCtrl->angles[2].z = *(__m256i *)&fromFrame->ctrlInfo.controllers[number].angles[2].z;
+    *(__m256i *)&outCtrl->tag_origin_offset.y = *(__m256i *)&fromFrame->ctrlInfo.controllers[number].tag_origin_offset.y;
+    *(_OWORD *)outCtrl->hand_ik_local_ang[0].v = *(_OWORD *)fromFrame->ctrlInfo.controllers[number].hand_ik_local_ang[0].v;
+    v20 = *(double *)&fromFrame->ctrlInfo.controllers[number].hand_ik_local_ang[1].y;
+    goto LABEL_47;
   }
-  _RCX = outCtrl;
-  _RAX = 120 * number;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+rbx+1F0h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rax+rbx+210h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+rbx+230h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups xmm1, xmmword ptr [rax+rbx+250h]
-    vmovups xmmword ptr [rcx+60h], xmm1
-    vmovsd  xmm0, qword ptr [rax+rbx+260h]
-  }
-LABEL_44:
-  __asm { vmovsd  qword ptr [rcx+70h], xmm0 }
-LABEL_45:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  v19 = outCtrl;
+  *(__m256i *)outCtrl->angles[0].v = *(__m256i *)toFrame->ctrlInfo.controllers[number].angles[0].v;
+  *(__m256i *)&outCtrl->angles[2].z = *(__m256i *)&toFrame->ctrlInfo.controllers[number].angles[2].z;
+  *(__m256i *)&outCtrl->tag_origin_offset.y = *(__m256i *)&toFrame->ctrlInfo.controllers[number].tag_origin_offset.y;
+  *(_OWORD *)outCtrl->hand_ik_local_ang[0].v = *(_OWORD *)toFrame->ctrlInfo.controllers[number].hand_ik_local_ang[0].v;
+  v20 = *(double *)&toFrame->ctrlInfo.controllers[number].hand_ik_local_ang[1].y;
+LABEL_47:
+  *(double *)&v19->hand_ik_local_ang[1].y = v20;
   return 0;
 }
 
@@ -2926,8 +2781,11 @@ void G_Utils_DObjGetLocalBoneIndexMatrices(const gentity_s *ent, const int boneC
   __int64 v4; 
   DObjAnimMat *MatrixArray; 
   __int64 v9; 
+  DObjAnimMat *v10; 
   int v11; 
   __int64 v14; 
+  const int *v15; 
+  DObjAnimMat **v16; 
   __int64 i; 
 
   v4 = boneCount;
@@ -2944,57 +2802,61 @@ void G_Utils_DObjGetLocalBoneIndexMatrices(const gentity_s *ent, const int boneC
   Profile_EndInternal(NULL);
   MatrixArray = SV_Game_DObjGetMatrixArray(ent);
   v9 = 0i64;
-  _R8 = MatrixArray;
+  v10 = MatrixArray;
   v11 = 0;
-  __asm
-  {
-    vmovq   xmm4, r8
-    vpunpcklqdq xmm4, xmm4, xmm4
-  }
+  _XMM4 = (unsigned __int64)MatrixArray;
+  __asm { vpunpcklqdq xmm4, xmm4, xmm4 }
   if ( (int)v4 > 0 && (unsigned int)v4 >= 8 )
   {
     v14 = (int)v4 - 1;
     if ( outMatrices > (DObjAnimMat **)&boneIndices[v14] || &outMatrices[v14] < (DObjAnimMat **)boneIndices )
     {
-      _RCX = boneIndices + 4;
-      _EAX = 5;
-      __asm { vmovd   xmm5, eax }
-      _RAX = outMatrices + 4;
+      v15 = boneIndices + 4;
+      v16 = outMatrices + 4;
       do
       {
+        _XMM0 = *((unsigned __int64 *)v15 - 2);
+        __asm { vpmovsxdq xmm1, xmm0 }
+        _XMM0 = *((unsigned __int64 *)v15 - 1);
         __asm
         {
-          vmovq   xmm0, qword ptr [rcx-10h]
-          vpmovsxdq xmm1, xmm0
-          vmovq   xmm0, qword ptr [rcx-8]
           vpsllq  xmm2, xmm1, xmm5
           vpaddq  xmm3, xmm2, xmm4
-          vmovdqu xmmword ptr [rax-20h], xmm3
-          vpmovsxdq xmm1, xmm0
-          vmovq   xmm0, qword ptr [rcx]
+        }
+        *((_OWORD *)v16 - 2) = _XMM3;
+        __asm { vpmovsxdq xmm1, xmm0 }
+        _XMM0 = *(unsigned __int64 *)v15;
+        __asm
+        {
           vpsllq  xmm2, xmm1, xmm5
           vpaddq  xmm3, xmm2, xmm4
-          vmovdqu xmmword ptr [rax-10h], xmm3
-          vpmovsxdq xmm1, xmm0
-          vmovq   xmm0, qword ptr [rcx+8]
+        }
+        *((_OWORD *)v16 - 1) = _XMM3;
+        __asm { vpmovsxdq xmm1, xmm0 }
+        _XMM0 = *((unsigned __int64 *)v15 + 1);
+        __asm
+        {
           vpsllq  xmm2, xmm1, xmm5
           vpaddq  xmm3, xmm2, xmm4
-          vmovdqu xmmword ptr [rax], xmm3
+        }
+        *(_OWORD *)v16 = _XMM3;
+        __asm
+        {
           vpmovsxdq xmm1, xmm0
           vpsllq  xmm2, xmm1, xmm5
           vpaddq  xmm3, xmm2, xmm4
         }
         v11 += 8;
         v9 += 8i64;
-        __asm { vmovdqu xmmword ptr [rax+10h], xmm3 }
-        _RAX += 8;
-        _RCX += 8;
+        *((_OWORD *)v16 + 1) = _XMM3;
+        v16 += 8;
+        v15 += 8;
       }
       while ( v9 < (int)v4 - (int)v4 % 8 );
     }
   }
   for ( i = v11; i < v4; ++i )
-    outMatrices[i] = &_R8[boneIndices[i]];
+    outMatrices[i] = &v10[boneIndices[i]];
 }
 
 /*
@@ -3044,154 +2906,82 @@ G_Utils_DObjGetWorldBoneIndexMatrices
 */
 void G_Utils_DObjGetWorldBoneIndexMatrices(const gentity_s *ent, const int boneCount, const int *boneIndices, tmat43_t<vec3_t> *outMatrices)
 {
-  __int64 v12; 
-  int v16; 
+  __int64 v4; 
+  int v8; 
   vec3_t *p_currentOrigin; 
   vec3_t *p_currentAngles; 
-  __int64 v19; 
-  int v63; 
-  int v64; 
-  int v65; 
-  int v66; 
-  int v67; 
+  __int64 i; 
+  DObjAnimMat *v12; 
+  float transWeight; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int64 v24; 
   tmat33_t<vec3_t> in1; 
   tmat43_t<vec3_t> result; 
   DObjAnimMat *outMatricesa[254]; 
 
-  v12 = boneCount;
+  v4 = boneCount;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2888, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( (int)v12 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2889, ASSERT_TYPE_ASSERT, "(boneCount > 0)", (const char *)&queryFormat, "boneCount > 0") )
+  if ( (int)v4 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2889, ASSERT_TYPE_ASSERT, "(boneCount > 0)", (const char *)&queryFormat, "boneCount > 0") )
     __debugbreak();
   if ( !boneIndices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2890, ASSERT_TYPE_ASSERT, "(boneIndices)", (const char *)&queryFormat, "boneIndices") )
     __debugbreak();
   if ( !outMatrices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2891, ASSERT_TYPE_ASSERT, "(outMatrices)", (const char *)&queryFormat, "outMatrices") )
     __debugbreak();
   memset_0(outMatricesa, 0, sizeof(outMatricesa));
-  if ( (unsigned int)v12 > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2896, ASSERT_TYPE_ASSERT, "(boneCount <= ( sizeof( *array_counter( matrices ) ) + 0 ))", (const char *)&queryFormat, "boneCount <= ARRAY_COUNT( matrices )") )
+  if ( (unsigned int)v4 > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2896, ASSERT_TYPE_ASSERT, "(boneCount <= ( sizeof( *array_counter( matrices ) ) + 0 ))", (const char *)&queryFormat, "boneCount <= ARRAY_COUNT( matrices )") )
     __debugbreak();
-  G_Utils_DObjGetLocalBoneIndexMatrices(ent, v12, boneIndices, outMatricesa);
-  v16 = 0;
-  if ( (int)v12 > 0 )
+  G_Utils_DObjGetLocalBoneIndexMatrices(ent, v4, boneIndices, outMatricesa);
+  v8 = 0;
+  if ( (int)v4 > 0 )
   {
     p_currentOrigin = &ent->r.currentOrigin;
-    __asm { vmovaps [rsp+958h+var_58], xmm6 }
     p_currentAngles = &ent->r.currentAngles;
-    __asm
+    for ( i = 0i64; i < v4; ++i )
     {
-      vmovaps [rsp+958h+var_68], xmm7
-      vmovaps [rsp+958h+var_78], xmm8
-    }
-    v19 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+958h+var_88], xmm9
-      vmovaps [rsp+958h+var_98], xmm10
-      vmovaps [rsp+958h+var_A8], xmm11
-      vmovaps [rsp+958h+var_B8], xmm12
-      vmovaps [rsp+958h+var_C8], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-    }
-    do
-    {
-      _RDI = outMatricesa[v19];
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2906, ASSERT_TYPE_ASSERT, "( mat )", (const char *)&queryFormat, "mat") )
+      v12 = outMatricesa[i];
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2906, ASSERT_TYPE_ASSERT, "( mat )", (const char *)&queryFormat, "mat") )
         __debugbreak();
       AnglesAndOriginToMatrix43(p_currentAngles, p_currentOrigin, &result);
-      __asm
+      *(float *)&v24 = v12->quat.v[0];
+      if ( (LODWORD(v12->quat.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v24 = v12->quat.v[1], (v24 & 0x7F800000) == 2139095040) || (*(float *)&v24 = v12->quat.v[2], (v24 & 0x7F800000) == 2139095040) || (*(float *)&v24 = v12->quat.v[3], (v24 & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  [rsp+958h+var_928], xmm0
-      }
-      if ( (v63 & 0x7F800000) == 2139095040 )
-        goto LABEL_34;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmovss  [rsp+958h+var_928], xmm0
-      }
-      if ( (v64 & 0x7F800000) == 2139095040 )
-        goto LABEL_34;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+8]
-        vmovss  [rsp+958h+var_928], xmm0
-      }
-      if ( (v65 & 0x7F800000) == 2139095040 )
-        goto LABEL_34;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  [rsp+958h+var_928], xmm0
-      }
-      if ( (v66 & 0x7F800000) == 2139095040 )
-      {
-LABEL_34:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )", v24) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1Ch]
-        vmovss  [rsp+958h+var_928], xmm0
-      }
-      if ( (v67 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
+      if ( (LODWORD(v12->transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1Ch]
-        vmulss  xmm2, xmm0, dword ptr [rdi]
-        vmovss  xmm3, dword ptr [rdi+4]
-        vmovss  xmm5, dword ptr [rdi+8]
-        vmulss  xmm12, xmm2, dword ptr [rdi]
-        vmulss  xmm4, xmm3, xmm0
-        vmulss  xmm6, xmm5, xmm0
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmulss  xmm10, xmm2, xmm0
-        vmulss  xmm7, xmm2, xmm3
-        vmulss  xmm11, xmm4, xmm3
-        vmulss  xmm9, xmm2, xmm5
-        vmulss  xmm2, xmm6, xmm0
-        vmulss  xmm8, xmm4, xmm5
-        vmulss  xmm4, xmm4, xmm0
-        vmulss  xmm3, xmm6, xmm5
-        vaddss  xmm1, xmm2, xmm7
-        vmovss  dword ptr [rsp+958h+in1+4], xmm1
-        vsubss  xmm1, xmm7, xmm2
-        vmovss  dword ptr [rsp+958h+in1+0Ch], xmm1
-        vaddss  xmm1, xmm8, xmm10
-        vaddss  xmm0, xmm3, xmm11
-        vsubss  xmm0, xmm13, xmm0
-        vmovss  dword ptr [rsp+958h+in1], xmm0
-        vsubss  xmm0, xmm9, xmm4
-        vmovss  dword ptr [rsp+958h+in1+8], xmm0
-        vaddss  xmm0, xmm3, xmm12
-        vsubss  xmm0, xmm13, xmm0
-        vmovss  dword ptr [rsp+958h+in1+10h], xmm0
-        vaddss  xmm0, xmm4, xmm9
-        vmovss  dword ptr [rsp+958h+in1+18h], xmm0
-        vaddss  xmm0, xmm11, xmm12
-        vmovss  dword ptr [rsp+958h+in1+14h], xmm1
-        vsubss  xmm0, xmm13, xmm0
-        vsubss  xmm1, xmm8, xmm10
-        vmovss  dword ptr [rsp+958h+in1+20h], xmm0
-        vmovss  dword ptr [rsp+958h+in1+1Ch], xmm1
-      }
-      MatrixMultiply(&in1, (const tmat33_t<vec3_t> *)&result, (tmat33_t<vec3_t> *)&outMatrices[v16]);
-      MatrixTransformVector43(&_RDI->trans, &result, &outMatrices[v16++].m[3]);
-      ++v19;
-    }
-    while ( v19 < v12 );
-    __asm
-    {
-      vmovaps xmm13, [rsp+958h+var_C8]
-      vmovaps xmm12, [rsp+958h+var_B8]
-      vmovaps xmm11, [rsp+958h+var_A8]
-      vmovaps xmm10, [rsp+958h+var_98]
-      vmovaps xmm9, [rsp+958h+var_88]
-      vmovaps xmm8, [rsp+958h+var_78]
-      vmovaps xmm7, [rsp+958h+var_68]
-      vmovaps xmm6, [rsp+958h+var_58]
+      transWeight = v12->transWeight;
+      v14 = transWeight * v12->quat.v[0];
+      v15 = v12->quat.v[1];
+      v16 = v12->quat.v[2];
+      v17 = v14 * v12->quat.v[0];
+      v18 = v15 * transWeight;
+      v19 = v16 * transWeight;
+      v20 = v12->quat.v[3];
+      v21 = v18 * v15;
+      v22 = v18 * v16;
+      v23 = v18 * v20;
+      in1.m[0].v[1] = (float)(v19 * v20) + (float)(v14 * v15);
+      in1.m[1].v[0] = (float)(v14 * v15) - (float)(v19 * v20);
+      in1.m[0].v[0] = 1.0 - (float)((float)(v19 * v16) + v21);
+      in1.m[0].v[2] = (float)(v14 * v16) - v23;
+      in1.m[1].v[1] = 1.0 - (float)((float)(v19 * v16) + v17);
+      in1.m[2].v[0] = v23 + (float)(v14 * v16);
+      in1.m[1].v[2] = v22 + (float)(v14 * v20);
+      in1.m[2].v[2] = 1.0 - (float)(v21 + v17);
+      in1.m[2].v[1] = v22 - (float)(v14 * v20);
+      MatrixMultiply(&in1, (const tmat33_t<vec3_t> *)&result, (tmat33_t<vec3_t> *)&outMatrices[v8]);
+      MatrixTransformVector43(&v12->trans, &result, &outMatrices[v8++].m[3]);
     }
   }
 }
@@ -3415,246 +3205,55 @@ char G_Utils_DObjGetWorldTagPos_CheckTagExists(const gentity_s *ent, const scr_s
 G_Utils_DObjLerpAntilagControllers
 ==============
 */
-
-void __fastcall G_Utils_DObjLerpAntilagControllers(const clientControllers_t *from, const clientControllers_t *to, double progress, clientControllers_t *outCtrl)
+void G_Utils_DObjLerpAntilagControllers(const clientControllers_t *from, const clientControllers_t *to, float progress, clientControllers_t *outCtrl)
 {
-  char v195; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = outCtrl;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RDI = to;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm10, xmm2
-  }
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2387, ASSERT_TYPE_ASSERT, "( from )", (const char *)&queryFormat, "from") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2388, ASSERT_TYPE_ASSERT, "( to )", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2388, ASSERT_TYPE_ASSERT, "( to )", (const char *)&queryFormat, "to") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2389, ASSERT_TYPE_ASSERT, "( outCtrl )", (const char *)&queryFormat, "outCtrl") )
+  if ( !outCtrl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2389, ASSERT_TYPE_ASSERT, "( outCtrl )", (const char *)&queryFormat, "outCtrl") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  xmm8, cs:__real@3b360b61
-    vmovss  xmm7, cs:__real@3f000000
-    vmovss  xmm6, cs:__real@43b40000
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vxorps  xmm9, xmm9, xmm9
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm0, xmm0, xmm6
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, dword ptr [rsi]
-    vmovss  dword ptr [rbx], xmm2
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+4]
-    vmovss  dword ptr [rbx+4], xmm3
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, dword ptr [rsi+8]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+8], xmm3
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+0Ch]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+0Ch]
-    vmovss  dword ptr [rbx+0Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+10h]
-    vmovss  dword ptr [rbx+10h], xmm3
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+14h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+14h]
-    vmovss  dword ptr [rbx+14h], xmm3
-    vmovss  xmm0, dword ptr [rdi+18h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+18h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+18h]
-    vmovss  dword ptr [rbx+18h], xmm3
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+1Ch]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+1Ch]
-    vmovss  dword ptr [rbx+1Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+20h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+20h]
-    vmovss  dword ptr [rbx+20h], xmm3
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+24h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+24h]
-    vmovss  dword ptr [rbx+24h], xmm3
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+28h]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+28h]
-    vmovss  dword ptr [rbx+28h], xmm3
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+2Ch]
-    vmulss  xmm4, xmm1, xmm8
-    vaddss  xmm2, xmm4, xmm7
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+2Ch]
-    vmovaps xmm2, xmm10; frac
-    vmovss  dword ptr [rbx+2Ch], xmm3
-  }
-  LerpAngles(&from->tag_origin_angles, &_RDI->tag_origin_angles, *(const float *)&_XMM2, &_RBX->tag_origin_angles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+3Ch]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+3Ch]
-    vmovss  dword ptr [rbx+3Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+40h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+40h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+40h]
-    vmovss  dword ptr [rbx+40h], xmm3
-    vmovss  xmm0, dword ptr [rdi+44h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+44h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+44h]
-    vmovss  dword ptr [rbx+44h], xmm3
-    vmovss  xmm0, dword ptr [rdi+48h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+48h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+48h]
-    vmovss  dword ptr [rbx+48h], xmm3
-    vmovss  xmm0, dword ptr [rdi+4Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+4Ch]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+4Ch]
-    vmovss  dword ptr [rbx+4Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+50h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+50h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+50h]
-    vmovss  dword ptr [rbx+50h], xmm3
-    vmovss  xmm0, dword ptr [rdi+54h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+54h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+54h]
-    vmovss  dword ptr [rbx+54h], xmm3
-    vmovss  xmm0, dword ptr [rdi+58h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+58h]
-    vmovaps xmm6, [rsp+88h+var_18]
-  }
-  _R11 = &v195;
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+58h]
-    vmovss  dword ptr [rbx+58h], xmm3
-    vmovss  xmm0, dword ptr [rdi+5Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+5Ch]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+5Ch]
-    vmovss  dword ptr [rbx+5Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+60h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+60h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+60h]
-    vmovss  dword ptr [rbx+60h], xmm3
-    vmovss  xmm0, dword ptr [rdi+64h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+64h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+64h]
-    vmovss  dword ptr [rbx+64h], xmm3
-    vmovss  xmm0, dword ptr [rdi+68h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+68h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+68h]
-    vmovss  dword ptr [rbx+68h], xmm3
-    vmovss  xmm0, dword ptr [rdi+6Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+6Ch]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+6Ch]
-    vmovss  dword ptr [rbx+6Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+70h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+70h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+70h]
-    vmovss  dword ptr [rbx+70h], xmm3
-    vmovss  xmm0, dword ptr [rdi+74h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+74h]
-    vmulss  xmm2, xmm1, xmm10
-    vaddss  xmm3, xmm2, dword ptr [rsi+74h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rbx+74h], xmm3
-  }
+  _XMM9 = 0i64;
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[0].v[0] = (float)((float)((float)((float)((float)(to->angles[0].v[0] - from->angles[0].v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[0].v[0];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[0].v[1] = (float)((float)((float)((float)((float)(to->angles[0].v[1] - from->angles[0].v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[0].v[1];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[0].v[2] = (float)((float)((float)((float)((float)(to->angles[0].v[2] - from->angles[0].v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[0].v[2];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[1].v[0] = (float)((float)((float)((float)((float)(to->angles[1].v[0] - from->angles[1].v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[1].v[0];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[1].v[1] = (float)((float)((float)((float)((float)(to->angles[1].v[1] - from->angles[1].v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[1].v[1];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[1].v[2] = (float)((float)((float)((float)((float)(to->angles[1].v[2] - from->angles[1].v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[1].v[2];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[2].v[0] = (float)((float)((float)((float)((float)(to->angles[2].v[0] - from->angles[2].v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[2].v[0];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[2].v[1] = (float)((float)((float)((float)((float)(to->angles[2].v[1] - from->angles[2].v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[2].v[1];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[2].v[2] = (float)((float)((float)((float)((float)(to->angles[2].v[2] - from->angles[2].v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[2].v[2];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[3].v[0] = (float)((float)((float)((float)((float)(to->angles[3].v[0] - from->angles[3].v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[3].v[0];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[3].v[1] = (float)((float)((float)((float)((float)(to->angles[3].v[1] - from->angles[3].v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[3].v[1];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  outCtrl->angles[3].v[2] = (float)((float)((float)((float)((float)(to->angles[3].v[2] - from->angles[3].v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * progress) + from->angles[3].v[2];
+  LerpAngles(&from->tag_origin_angles, &to->tag_origin_angles, progress, &outCtrl->tag_origin_angles);
+  outCtrl->tag_origin_offset.v[0] = (float)((float)(to->tag_origin_offset.v[0] - from->tag_origin_offset.v[0]) * progress) + from->tag_origin_offset.v[0];
+  outCtrl->tag_origin_offset.v[1] = (float)((float)(to->tag_origin_offset.v[1] - from->tag_origin_offset.v[1]) * progress) + from->tag_origin_offset.v[1];
+  outCtrl->tag_origin_offset.v[2] = (float)((float)(to->tag_origin_offset.v[2] - from->tag_origin_offset.v[2]) * progress) + from->tag_origin_offset.v[2];
+  outCtrl->hand_ik_local_pos[0].v[0] = (float)((float)(to->hand_ik_local_pos[0].v[0] - from->hand_ik_local_pos[0].v[0]) * progress) + from->hand_ik_local_pos[0].v[0];
+  outCtrl->hand_ik_local_pos[0].v[1] = (float)((float)(to->hand_ik_local_pos[0].v[1] - from->hand_ik_local_pos[0].v[1]) * progress) + from->hand_ik_local_pos[0].v[1];
+  outCtrl->hand_ik_local_pos[0].v[2] = (float)((float)(to->hand_ik_local_pos[0].v[2] - from->hand_ik_local_pos[0].v[2]) * progress) + from->hand_ik_local_pos[0].v[2];
+  outCtrl->hand_ik_local_pos[1].v[0] = (float)((float)(to->hand_ik_local_pos[1].v[0] - from->hand_ik_local_pos[1].v[0]) * progress) + from->hand_ik_local_pos[1].v[0];
+  outCtrl->hand_ik_local_pos[1].v[1] = (float)((float)(to->hand_ik_local_pos[1].v[1] - from->hand_ik_local_pos[1].v[1]) * progress) + from->hand_ik_local_pos[1].v[1];
+  outCtrl->hand_ik_local_pos[1].v[2] = (float)((float)(to->hand_ik_local_pos[1].v[2] - from->hand_ik_local_pos[1].v[2]) * progress) + from->hand_ik_local_pos[1].v[2];
+  outCtrl->hand_ik_local_ang[0].v[0] = (float)((float)(to->hand_ik_local_ang[0].v[0] - from->hand_ik_local_ang[0].v[0]) * progress) + from->hand_ik_local_ang[0].v[0];
+  outCtrl->hand_ik_local_ang[0].v[1] = (float)((float)(to->hand_ik_local_ang[0].v[1] - from->hand_ik_local_ang[0].v[1]) * progress) + from->hand_ik_local_ang[0].v[1];
+  outCtrl->hand_ik_local_ang[0].v[2] = (float)((float)(to->hand_ik_local_ang[0].v[2] - from->hand_ik_local_ang[0].v[2]) * progress) + from->hand_ik_local_ang[0].v[2];
+  outCtrl->hand_ik_local_ang[1].v[0] = (float)((float)(to->hand_ik_local_ang[1].v[0] - from->hand_ik_local_ang[1].v[0]) * progress) + from->hand_ik_local_ang[1].v[0];
+  outCtrl->hand_ik_local_ang[1].v[1] = (float)((float)(to->hand_ik_local_ang[1].v[1] - from->hand_ik_local_ang[1].v[1]) * progress) + from->hand_ik_local_ang[1].v[1];
+  outCtrl->hand_ik_local_ang[1].v[2] = (float)((float)(to->hand_ik_local_ang[1].v[2] - from->hand_ik_local_ang[1].v[2]) * progress) + from->hand_ik_local_ang[1].v[2];
 }
 
 /*
@@ -3664,113 +3263,63 @@ G_Utils_DObjReadAntilagAnimTree
 */
 void G_Utils_DObjReadAntilagAnimTree(DObj *obj, const int characterIndex, SvAntilagArchiveFrame *fromFrame, SvAntilagArchiveFrame *toFrame, const float lerp)
 {
-  __int64 v10; 
-  bool v12; 
-  bool v13; 
-  bool v14; 
-  const dvar_t *v19; 
-  unsigned int v21; 
-  unsigned int v22; 
-  char *v23; 
-  const unsigned __int8 *v24; 
+  __int64 v7; 
   float weightScale; 
-  float weightScalea; 
-  double v29; 
+  const dvar_t *v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  char *v13; 
+  const unsigned __int8 *v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  v10 = characterIndex;
+  v7 = characterIndex;
   Profile_Begin(399);
-  v12 = (unsigned int)v10 < 0xF8;
-  v13 = (unsigned int)v10 <= 0xF8;
-  if ( (unsigned int)v10 >= 0xF8 )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2464, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "characterIndex doesn't index MAX_ANTILAG_CLIENT_AGENTS\n\t%i not in [0, %i)", v10, 248);
-    v12 = 0;
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+68h+lerp]
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v12 )
-    goto LABEL_25;
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !v13 )
-  {
-LABEL_25:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+68h+var_38], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2465, ASSERT_TYPE_ASSERT, "( ( (lerp >= 0.0f) && (lerp <= 1.0f) ) )", "%s\n\t( lerp ) = %g", "( (lerp >= 0.0f) && (lerp <= 1.0f) )", v29) )
-      __debugbreak();
-  }
-  if ( fromFrame )
+  if ( (unsigned int)v7 >= 0xF8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2464, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "characterIndex doesn't index MAX_ANTILAG_CLIENT_AGENTS\n\t%i not in [0, %i)", v7, 248) )
+    __debugbreak();
+  weightScale = lerp;
+  if ( (lerp < 0.0 || lerp > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2465, ASSERT_TYPE_ASSERT, "( ( (lerp >= 0.0f) && (lerp <= 1.0f) ) )", "%s\n\t( lerp ) = %g", "( (lerp >= 0.0f) && (lerp <= 1.0f) )", lerp) )
+    __debugbreak();
+  if ( !fromFrame )
   {
     if ( toFrame )
     {
-      v19 = DCONST_DVARBOOL_g_antilagPoseBlend;
-      if ( !DCONST_DVARBOOL_g_antilagPoseBlend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_antilagPoseBlend") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      if ( v19->current.enabled )
-      {
-        XAnimCreateRootNodeForAntilag(obj);
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vmovss  [rsp+68h+weightScale], xmm0
-        }
-        XAnimReadAnimTreeForAntilag(obj, &fromFrame->animInfo.antilagAnimInfo[fromFrame->animInfo.characterInfoStart[v10]], fromFrame->animInfo.characterInfoCount[v10], &fromFrame->animInfo.customNodeData[fromFrame->animInfo.characterCustomNodeDataStart[v10]], fromFrame->animInfo.characterCustomNodeDataSize[v10], weightScale);
-      }
-      else
-      {
-        __asm
-        {
-          vcomiss xmm6, cs:__real@3f000000
-          vmovaps xmm6, xmm7
-        }
-      }
-      goto LABEL_18;
+      weightScale = FLOAT_1_0;
+      goto LABEL_19;
     }
-LABEL_21:
-    __asm { vmovaps xmm6, xmm7 }
-    v22 = fromFrame->animInfo.characterCustomNodeDataSize[v10];
-    v21 = fromFrame->animInfo.characterInfoCount[v10];
-    v23 = (char *)fromFrame + 16 * fromFrame->animInfo.characterInfoStart[v10];
-    v24 = (const unsigned __int8 *)fromFrame + fromFrame->animInfo.characterCustomNodeDataStart[v10];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2514, ASSERT_TYPE_ASSERT, "( fromFrame )", (const char *)&queryFormat, "fromFrame") )
+      __debugbreak();
     goto LABEL_22;
   }
   if ( !toFrame )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2514, ASSERT_TYPE_ASSERT, "( fromFrame )", (const char *)&queryFormat, "fromFrame") )
-      __debugbreak();
-    goto LABEL_21;
-  }
-  __asm { vmovaps xmm6, xmm7 }
-LABEL_18:
-  v21 = toFrame->animInfo.characterInfoCount[v10];
-  v22 = toFrame->animInfo.characterCustomNodeDataSize[v10];
-  v23 = (char *)toFrame + 16 * toFrame->animInfo.characterInfoStart[v10];
-  v24 = (const unsigned __int8 *)toFrame + toFrame->animInfo.characterCustomNodeDataStart[v10];
 LABEL_22:
-  __asm { vmovss  [rsp+68h+weightScale], xmm6 }
-  XAnimReadAnimTreeForAntilag(obj, (AntilagAnimInfo *)(v23 + 34228), v21, v24 + 50232, v22, weightScalea);
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    weightScale = FLOAT_1_0;
+    goto LABEL_23;
   }
+  v10 = DCONST_DVARBOOL_g_antilagPoseBlend;
+  if ( !DCONST_DVARBOOL_g_antilagPoseBlend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_antilagPoseBlend") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled )
+  {
+    weightScale = FLOAT_1_0;
+    if ( lerp >= 0.5 )
+      goto LABEL_19;
+LABEL_23:
+    v12 = fromFrame->animInfo.characterCustomNodeDataSize[v7];
+    v11 = fromFrame->animInfo.characterInfoCount[v7];
+    v13 = (char *)fromFrame + 16 * fromFrame->animInfo.characterInfoStart[v7];
+    v14 = (const unsigned __int8 *)fromFrame + fromFrame->animInfo.characterCustomNodeDataStart[v7];
+    goto LABEL_24;
+  }
+  XAnimCreateRootNodeForAntilag(obj);
+  XAnimReadAnimTreeForAntilag(obj, &fromFrame->animInfo.antilagAnimInfo[fromFrame->animInfo.characterInfoStart[v7]], fromFrame->animInfo.characterInfoCount[v7], &fromFrame->animInfo.customNodeData[fromFrame->animInfo.characterCustomNodeDataStart[v7]], fromFrame->animInfo.characterCustomNodeDataSize[v7], 1.0 - lerp);
+LABEL_19:
+  v11 = toFrame->animInfo.characterInfoCount[v7];
+  v12 = toFrame->animInfo.characterCustomNodeDataSize[v7];
+  v13 = (char *)toFrame + 16 * toFrame->animInfo.characterInfoStart[v7];
+  v14 = (const unsigned __int8 *)toFrame + toFrame->animInfo.characterCustomNodeDataStart[v7];
+LABEL_24:
+  XAnimReadAnimTreeForAntilag(obj, (AntilagAnimInfo *)(v13 + 34228), v11, v14 + 50232, v12, weightScale);
   Profile_EndInternal(NULL);
 }
 
@@ -4068,101 +3617,50 @@ G_Utils_DisplayEntityInfo
 */
 void G_Utils_DisplayEntityInfo(const gentity_s *ent, const vec4_t *color, bool isLeakDisplay, vec3_t *inOutOrigin)
 {
+  const char *v8; 
+  const char *v9; 
   const char *v10; 
   const char *v11; 
-  const char *v17; 
-  const char *v18; 
   scr_string_t targetname; 
-  const char *v22; 
-  const char *v23; 
+  const char *v13; 
+  const char *v14; 
   unsigned __int16 model; 
   const char *ModelName; 
-  const char *v28; 
-  const char *v36; 
+  const char *v17; 
+  const char *v18; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = inOutOrigin;
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
-  v10 = SL_ConvertToString(ent->classname);
-  v11 = j_va("code_classname \"%s\"", v10);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f000000
-    vmovaps xmm2, xmm6; scale
-  }
-  CL_AddDebugString(_RBX, color, *(float *)&_XMM2, v11, 1, 1);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  xmm7, cs:__real@40b00000
-    vsubss  xmm0, xmm0, xmm7
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  v8 = SL_ConvertToString(ent->classname);
+  v9 = j_va("code_classname \"%s\"", v8);
+  CL_AddDebugString(inOutOrigin, color, 0.5, v9, 1, 1);
+  inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
   if ( isLeakDisplay )
   {
-    v17 = SL_ConvertToString(ent->script_classname);
-    v18 = j_va("classname \"%s\"", v17);
-    __asm { vmovaps xmm2, xmm6; scale }
-    CL_AddDebugString(_RBX, color, *(float *)&_XMM2, v18, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    v10 = SL_ConvertToString(ent->script_classname);
+    v11 = j_va("classname \"%s\"", v10);
+    CL_AddDebugString(inOutOrigin, color, 0.5, v11, 1, 1);
+    inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
   }
   targetname = ent->targetname;
   if ( targetname )
   {
-    v22 = SL_ConvertToString(targetname);
-    v23 = j_va("targetname \"%s\"", v22);
-    __asm { vmovaps xmm2, xmm6; scale }
-    CL_AddDebugString(_RBX, color, *(float *)&_XMM2, v23, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    v13 = SL_ConvertToString(targetname);
+    v14 = j_va("targetname \"%s\"", v13);
+    CL_AddDebugString(inOutOrigin, color, 0.5, v14, 1, 1);
+    inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
   }
   model = ent->model;
   if ( model )
   {
     ModelName = G_CString_GetModelName(model);
-    v28 = j_va("model \"%s\"", ModelName);
-    __asm { vmovaps xmm2, xmm6; scale }
-    CL_AddDebugString(_RBX, color, *(float *)&_XMM2, v28, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    v17 = j_va("model \"%s\"", ModelName);
+    CL_AddDebugString(inOutOrigin, color, 0.5, v17, 1, 1);
+    inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
   }
   if ( isLeakDisplay )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovq   r8, xmm2
-    }
-    v36 = j_va("birthtime %i (%f.1 ago)", (unsigned int)ent->birthTime, _R8);
-    __asm { vmovaps xmm2, xmm6; scale }
-    CL_AddDebugString(_RBX, color, *(float *)&_XMM2, v36, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rbx+8], xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
+    v18 = j_va("birthtime %i (%f.1 ago)", (unsigned int)ent->birthTime, (float)((float)(level.time - ent->birthTime) * 0.001));
+    CL_AddDebugString(inOutOrigin, color, 0.5, v18, 1, 1);
+    inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
   }
 }
 
@@ -4173,15 +3671,8 @@ G_Utils_DisplayInfoLine
 */
 void G_Utils_DisplayInfoLine(vec3_t *inOutOrigin, const char *text, const vec4_t *color)
 {
-  __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-  _RBX = inOutOrigin;
-  CL_AddDebugString(inOutOrigin, color, *(float *)&_XMM2, text, 1, 1);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm1, xmm0, cs:__real@40b00000
-    vmovss  dword ptr [rbx+8], xmm1
-  }
+  CL_AddDebugString(inOutOrigin, color, 0.5, text, 1, 1);
+  inOutOrigin->v[2] = inOutOrigin->v[2] - 5.5;
 }
 
 /*
@@ -4318,8 +3809,6 @@ void G_Utils_EntityCentroid(const gentity_s *ent, vec3_t *outCentroid)
 {
   tmat33_t<vec3_t> axis; 
 
-  _RDI = outCentroid;
-  _RBX = ent;
   if ( !ent )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2255, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
@@ -4327,20 +3816,11 @@ void G_Utils_EntityCentroid(const gentity_s *ent, vec3_t *outCentroid)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2244, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
       __debugbreak();
   }
-  AnglesToAxis(&_RBX->r.currentAngles, &axis);
-  MatrixTransformVector(&_RBX->r.box.midPoint, &axis, _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm0, dword ptr [rbx+134h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
+  AnglesToAxis(&ent->r.currentAngles, &axis);
+  MatrixTransformVector(&ent->r.box.midPoint, &axis, outCentroid);
+  outCentroid->v[0] = outCentroid->v[0] + ent->r.currentOrigin.v[0];
+  outCentroid->v[1] = ent->r.currentOrigin.v[1] + outCentroid->v[1];
+  outCentroid->v[2] = ent->r.currentOrigin.v[2] + outCentroid->v[2];
 }
 
 /*
@@ -4352,24 +3832,13 @@ void G_Utils_EntityCentroidWithBounds(const gentity_s *ent, const Bounds *bounds
 {
   tmat33_t<vec3_t> axis; 
 
-  _RDI = outCentroid;
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2244, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  AnglesToAxis(&_RBX->r.currentAngles, &axis);
-  MatrixTransformVector(&bounds->midPoint, &axis, _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm0, dword ptr [rbx+134h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
+  AnglesToAxis(&ent->r.currentAngles, &axis);
+  MatrixTransformVector(&bounds->midPoint, &axis, outCentroid);
+  outCentroid->v[0] = outCentroid->v[0] + ent->r.currentOrigin.v[0];
+  outCentroid->v[1] = ent->r.currentOrigin.v[1] + outCentroid->v[1];
+  outCentroid->v[2] = ent->r.currentOrigin.v[2] + outCentroid->v[2];
 }
 
 /*
@@ -4651,42 +4120,33 @@ G_Utils_GetClientCommonUserCommand
 */
 void G_Utils_GetClientCommonUserCommand(const gclient_s *client, usercmd_s *outUserCmd)
 {
+  usercmd_s *p_cmd; 
   __int64 v5; 
+  __int128 v6; 
 
-  _RBX = outUserCmd;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1962, ASSERT_TYPE_ASSERT, "( client )", (const char *)&queryFormat, "client") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1963, ASSERT_TYPE_ASSERT, "( outUserCmd )", (const char *)&queryFormat, "outUserCmd") )
+  if ( !outUserCmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1963, ASSERT_TYPE_ASSERT, "( outUserCmd )", (const char *)&queryFormat, "outUserCmd") )
     __debugbreak();
-  _RAX = &client->sess.cmd;
+  p_cmd = &client->sess.cmd;
   v5 = 2i64;
   do
   {
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rbx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rbx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rbx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rbx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rbx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rbx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rbx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
+    outUserCmd = (usercmd_s *)((char *)outUserCmd + 128);
+    v6 = *(_OWORD *)&p_cmd->buttons;
+    p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+    *(_OWORD *)&outUserCmd[-1].offHand.attachmentVariationIndices[13] = v6;
+    *(_OWORD *)&outUserCmd[-1].offHand.weaponCamo = *(_OWORD *)&p_cmd[-1].offHand.weaponCamo;
+    *(_OWORD *)outUserCmd[-1].remoteControlMove = *(_OWORD *)p_cmd[-1].remoteControlMove;
+    *(_OWORD *)outUserCmd[-1].vehAngles = *(_OWORD *)p_cmd[-1].vehAngles;
+    *(_OWORD *)&outUserCmd[-1].vehOrgZ = *(_OWORD *)&p_cmd[-1].vehOrgZ;
+    *(_OWORD *)&outUserCmd[-1].gunYOfs = *(_OWORD *)&p_cmd[-1].gunYOfs;
+    *(_OWORD *)outUserCmd[-1].sightedClientsMask.data = *(_OWORD *)p_cmd[-1].sightedClientsMask.data;
+    *(_OWORD *)&outUserCmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd[-1].sightedClientsMask.data[4];
     --v5;
   }
   while ( v5 );
-  _RBX->buttons = _RAX->buttons;
+  outUserCmd->buttons = p_cmd->buttons;
 }
 
 /*
@@ -4750,78 +4210,42 @@ XAnimTree *G_Utils_GetEntAnimTree(gentity_s *ent)
 G_Utils_GetEntityBoundsPoint
 ==============
 */
-
-void __fastcall G_Utils_GetEntityBoundsPoint(const gentity_s *ent, double ratioFromCenterX, double ratioFromCenterY, double ratioFromCenterZ, vec3_t *outPoint)
+void G_Utils_GetEntityBoundsPoint(const gentity_s *ent, float ratioFromCenterX, float ratioFromCenterY, float ratioFromCenterZ, vec3_t *outPoint)
 {
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   tmat33_t<vec3_t> axis; 
-  char v45; 
-  char v46; 
-  void *retaddr; 
+  char v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RDI = outPoint;
-  __asm
-  {
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2265, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
   AnglesToAxis(&ent->r.currentAngles, &axis);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rbx+10Ch]
-    vaddss  xmm8, xmm0, dword ptr [rbx+100h]
-    vmulss  xmm0, xmm6, dword ptr [rbx+114h]
-    vmulss  xmm1, xmm7, dword ptr [rbx+110h]
-    vaddss  xmm9, xmm0, dword ptr [rbx+108h]
-    vaddss  xmm7, xmm1, dword ptr [rbx+104h]
-  }
-  if ( &v45 == (char *)outPoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  v6 = (float)(ratioFromCenterX * ent->r.box.halfSize.v[0]) + ent->r.box.midPoint.v[0];
+  v7 = (float)(ratioFromCenterZ * ent->r.box.halfSize.v[2]) + ent->r.box.midPoint.v[2];
+  v9 = (float)(ratioFromCenterY * ent->r.box.halfSize.v[1]) + ent->r.box.midPoint.v[1];
+  v8 = v9;
+  if ( &v17 == (char *)outPoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm3, xmm8, dword ptr [rsp+0B8h+axis]
-    vmulss  xmm2, xmm7, dword ptr [rsp+0B8h+axis+0Ch]
-    vmulss  xmm1, xmm9, dword ptr [rsp+0B8h+axis+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm8, dword ptr [rsp+0B8h+axis+4]
-    vmulss  xmm2, xmm7, dword ptr [rsp+0B8h+axis+10h]
-    vaddss  xmm6, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+0B8h+axis+1Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm2, xmm7, dword ptr [rsp+0B8h+axis+14h]
-    vmulss  xmm3, xmm8, dword ptr [rsp+0B8h+axis+8]
-    vaddss  xmm5, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+0B8h+axis+20h]
-    vmovss  dword ptr [rdi], xmm6
-    vmovss  dword ptr [rdi+4], xmm5
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi+8], xmm2
-    vaddss  xmm0, xmm6, dword ptr [rbx+130h]
-    vmovss  dword ptr [rdi], xmm0
-    vaddss  xmm1, xmm5, dword ptr [rbx+134h]
-    vmovss  dword ptr [rdi+4], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbx+138h]
-    vmovss  dword ptr [rdi+8], xmm0
-  }
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v10 = (float)((float)(v6 * axis.m[0].v[0]) + (float)(v9 * axis.m[1].v[0])) + (float)(v7 * axis.m[2].v[0]);
+  v11 = v9 * axis.m[1].v[2];
+  v12 = v6 * axis.m[0].v[2];
+  v13 = (float)((float)(v6 * axis.m[0].v[1]) + (float)(v8 * axis.m[1].v[1])) + (float)(v7 * axis.m[2].v[1]);
+  v14 = v7 * axis.m[2].v[2];
+  outPoint->v[0] = v10;
+  outPoint->v[1] = v13;
+  v15 = (float)(v12 + v11) + v14;
+  outPoint->v[2] = v15;
+  outPoint->v[0] = v10 + ent->r.currentOrigin.v[0];
+  outPoint->v[1] = v13 + ent->r.currentOrigin.v[1];
+  outPoint->v[2] = v15 + ent->r.currentOrigin.v[2];
 }
 
 /*
@@ -4876,49 +4300,50 @@ G_Utils_GetModelBounds
 bool G_Utils_GetModelBounds(const gentity_s *ent, Bounds *outBounds)
 {
   bool result; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 v15; 
+  __int128 v17; 
   vec3_t aabbMin; 
   vec3_t aabbMax; 
 
-  _RBX = outBounds;
   if ( !outBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 299, ASSERT_TYPE_ASSERT, "(outBounds)", (const char *)&queryFormat, "outBounds") )
     __debugbreak();
   result = G_PhysicsObject_GetAABB(PHYSICS_WORLD_ID_FIRST, ent, &aabbMin, &aabbMax, 0);
   if ( result )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f000000
-      vmovaps [rsp+88h+var_18], xmm7
-      vmovss  xmm7, dword ptr [rsp+88h+aabbMax+8]
-      vmovaps [rsp+88h+var_28], xmm9
-      vmovss  xmm9, dword ptr [rsp+88h+aabbMax+4]
-      vmovaps [rsp+88h+var_38], xmm10
-      vmovss  xmm10, dword ptr [rsp+88h+aabbMax]
-      vaddss  xmm0, xmm10, dword ptr [rsp+88h+aabbMin]
-      vmulss  xmm2, xmm0, xmm1
-      vaddss  xmm0, xmm9, dword ptr [rsp+88h+aabbMin+4]
-      vmulss  xmm3, xmm0, xmm1
-      vaddss  xmm0, xmm7, dword ptr [rsp+88h+aabbMin+8]
-      vmulss  xmm4, xmm0, xmm1
-      vsubss  xmm1, xmm2, dword ptr [rsp+88h+aabbMin]
-      vsubss  xmm0, xmm10, xmm2
-      vmovaps xmm10, [rsp+88h+var_38]
-      vmaxss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx], xmm2
-      vsubss  xmm2, xmm3, dword ptr [rsp+88h+aabbMin+4]
-      vsubss  xmm0, xmm9, xmm3
-      vmovaps xmm9, [rsp+88h+var_28]
-      vmovss  dword ptr [rbx+4], xmm3
-      vsubss  xmm3, xmm4, dword ptr [rsp+88h+aabbMin+8]
-      vmovss  dword ptr [rbx+8], xmm4
-      vmovss  dword ptr [rbx+0Ch], xmm1
-      vmaxss  xmm1, xmm2, xmm0
-      vsubss  xmm0, xmm7, xmm4
-      vmovaps xmm7, [rsp+88h+var_18]
-      vmovss  dword ptr [rbx+10h], xmm1
-      vmaxss  xmm1, xmm3, xmm0
-      vmovss  dword ptr [rbx+14h], xmm1
-    }
+    v5 = LODWORD(aabbMax.v[0]);
+    *(float *)&v5 = (float)(aabbMax.v[0] + aabbMin.v[0]) * 0.5;
+    v6 = v5;
+    v7 = LODWORD(aabbMax.v[1]);
+    *(float *)&v7 = (float)(aabbMax.v[1] + aabbMin.v[1]) * 0.5;
+    v8 = v7;
+    v9 = LODWORD(aabbMax.v[2]);
+    *(float *)&v9 = (float)(aabbMax.v[2] + aabbMin.v[2]) * 0.5;
+    v10 = v9;
+    v12 = v6;
+    *(float *)&v12 = *(float *)&v6 - aabbMin.v[0];
+    _XMM1 = v12;
+    __asm { vmaxss  xmm1, xmm1, xmm0 }
+    outBounds->midPoint.v[0] = *(float *)&v6;
+    v15 = v8;
+    *(float *)&v15 = *(float *)&v8 - aabbMin.v[1];
+    _XMM2 = v15;
+    outBounds->midPoint.v[1] = *(float *)&v8;
+    v17 = v10;
+    *(float *)&v17 = *(float *)&v10 - aabbMin.v[2];
+    _XMM3 = v17;
+    outBounds->midPoint.v[2] = *(float *)&v10;
+    outBounds->halfSize.v[0] = *(float *)&_XMM1;
+    __asm { vmaxss  xmm1, xmm2, xmm0 }
+    outBounds->halfSize.v[1] = *(float *)&_XMM1;
+    __asm { vmaxss  xmm1, xmm3, xmm0 }
+    outBounds->halfSize.v[2] = *(float *)&_XMM1;
   }
   return result;
 }
@@ -5857,30 +5282,32 @@ G_Utils_PrintEntitiesInternal
 */
 void G_Utils_PrintEntitiesInternal(bool onlyPrintLeakedEnts)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
   bool v4; 
   unsigned int v5; 
   unsigned int v6; 
   __int64 v7; 
+  __int64 v8; 
+  gentity_s *v9; 
   const char *EntityTypeName; 
   const char *v11; 
   const char *v12; 
   unsigned __int16 v13; 
+  double v14; 
+  double v15; 
+  double v16; 
   XModel *Model; 
   int moverFlags; 
-  const char *v37; 
+  const char *v19; 
   char *fmt; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v42; 
-  double v43; 
-  __int64 v44; 
-  __int64 v45; 
-  double v46; 
-  __int64 v47; 
-  __int64 v48; 
-  double v49; 
+  __int64 v21; 
+  __int64 v22; 
   char dest[1024]; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
 
   v4 = onlyPrintLeakedEnts;
   Com_Printf(15, "This function is DEPRECATED - USE dumpEntInfo Instead\n");
@@ -5889,59 +5316,44 @@ void G_Utils_PrintEntitiesInternal(bool onlyPrintLeakedEnts)
   if ( level.num_entities > 0 )
   {
     v7 = 0i64;
-    __asm { vmovaps [rsp+4C8h+var_38], xmm6 }
-    _RDI = 0i64;
-    __asm
-    {
-      vmovaps [rsp+4C8h+var_48], xmm7
-      vmovaps [rsp+4C8h+var_58], xmm8
-    }
+    v27 = v1;
+    v8 = 0i64;
+    v26 = v2;
+    v25 = v3;
     do
     {
       if ( v6 >= 0x800 )
       {
-        LODWORD(v40) = 2048;
-        LODWORD(v39) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v39, v40) )
+        LODWORD(v22) = 2048;
+        LODWORD(v21) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[_RDI].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v8].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
       if ( g_entityIsInUse[v7] )
       {
-        _RBX = g_entities;
-        if ( !v4 || g_entities[_RDI].s.eType != ET_PLAYER && (g_entities[_RDI].flags.m_flags[0] & 0x40000000) == 0 )
+        v9 = g_entities;
+        if ( !v4 || g_entities[v8].s.eType != ET_PLAYER && (g_entities[v8].flags.m_flags[0] & 0x40000000) == 0 )
         {
-          EntityTypeName = BG_GetEntityTypeName((const entityType_s)g_entities[_RDI].s.eType);
-          v11 = SL_ConvertToStringSafe(_RBX[_RDI].classname);
+          EntityTypeName = BG_GetEntityTypeName((const entityType_s)g_entities[v8].s.eType);
+          v11 = SL_ConvertToStringSafe(v9[v8].classname);
           ++v5;
-          v12 = SL_ConvertToStringSafe(_RBX[_RDI].targetname);
-          if ( scr_const.script_model == _RBX[_RDI].classname && (v13 = _RBX[_RDI].model) != 0 )
+          v12 = SL_ConvertToStringSafe(v9[v8].targetname);
+          if ( scr_const.script_model == v9[v8].classname && (v13 = v9[v8].model) != 0 )
           {
-            __asm
-            {
-              vmovss  xmm6, dword ptr [rdi+rbx+138h]
-              vmovss  xmm7, dword ptr [rdi+rbx+134h]
-              vmovss  xmm8, dword ptr [rdi+rbx+130h]
-              vcvtss2sd xmm6, xmm6, xmm6
-              vcvtss2sd xmm7, xmm7, xmm7
-              vcvtss2sd xmm8, xmm8, xmm8
-            }
+            v14 = v9[v8].r.currentOrigin.v[2];
+            v15 = v9[v8].r.currentOrigin.v[1];
+            v16 = v9[v8].r.currentOrigin.v[0];
             Model = G_Utils_GetModel(v13);
-            __asm
-            {
-              vmovsd  [rsp+4C8h+var_480], xmm6
-              vmovsd  [rsp+4C8h+var_488], xmm7
-              vmovsd  [rsp+4C8h+var_490], xmm8
-            }
-            Com_Printf(15, "%4i: Type: %s, Class: %s, Target: %s, model '%s', origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, v11, v12, Model->name, v43, v46, v49);
+            Com_Printf(15, "%4i: Type: %s, Class: %s, Target: %s, model '%s', origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, v11, v12, Model->name, v16, v15, v14);
           }
-          else if ( (unsigned __int16)(_RBX[_RDI].s.eType - 8) <= 1u )
+          else if ( (unsigned __int16)(v9[v8].s.eType - 8) <= 1u )
           {
             Core_strcpy(dest, 0x400ui64, "NULL");
-            moverFlags = _RBX[_RDI].s.staticState.mover.moverFlags;
+            moverFlags = v9[v8].s.staticState.mover.moverFlags;
             if ( moverFlags > 0 )
             {
               if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 98, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
@@ -5953,56 +5365,26 @@ void G_Utils_PrintEntitiesInternal(bool onlyPrintLeakedEnts)
                 GConfigStrings::ms_gConfigStrings->GetEffectName(GConfigStrings::ms_gConfigStrings, moverFlags, dest, 1024);
               }
             }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+rbx+138h]
-              vmovss  xmm1, dword ptr [rdi+rbx+134h]
-              vmovss  xmm2, dword ptr [rdi+rbx+130h]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+4C8h+var_488], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+4C8h+var_490], xmm1
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovsd  [rsp+4C8h+var_498], xmm2
-            }
             LODWORD(fmt) = moverFlags;
-            Com_Printf(15, "%4i: Type: %s, ID:%4i, name: '%s', origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, fmt, dest, v42, v45, v48);
+            Com_Printf(15, "%4i: Type: %s, ID:%4i, name: '%s', origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, fmt, dest, v9[v8].r.currentOrigin.v[0], v9[v8].r.currentOrigin.v[1], v9[v8].r.currentOrigin.v[2]);
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+rbx+138h]
-              vmovss  xmm1, dword ptr [rdi+rbx+134h]
-              vmovss  xmm2, dword ptr [rdi+rbx+130h]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+4C8h+var_488], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+4C8h+var_490], xmm1
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovsd  [rsp+4C8h+var_498], xmm2
-            }
-            Com_Printf(15, "%4i: Type: %s, Class: %s, Target: %s, origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, v11, v12, v41, v44, v47);
+            Com_Printf(15, "%4i: Type: %s, Class: %s, Target: %s, origin: %6.1f %6.1f %6.1f\n", v6, EntityTypeName, v11, v12, v9[v8].r.currentOrigin.v[0], v9[v8].r.currentOrigin.v[1], v9[v8].r.currentOrigin.v[2]);
           }
           v4 = onlyPrintLeakedEnts;
         }
       }
       ++v6;
       ++v7;
-      ++_RDI;
+      ++v8;
     }
     while ( (int)v6 < level.num_entities );
-    __asm
-    {
-      vmovaps xmm8, [rsp+4C8h+var_58]
-      vmovaps xmm7, [rsp+4C8h+var_48]
-      vmovaps xmm6, [rsp+4C8h+var_38]
-    }
   }
-  v37 = "%i new entities since baseline.\n";
+  v19 = "%i new entities since baseline.\n";
   if ( !v4 )
-    v37 = "%i total entities in use.\n";
-  Com_Printf(15, v37, v5);
+    v19 = "%i total entities in use.\n";
+  Com_Printf(15, v19, v5);
 }
 
 /*
@@ -6034,7 +5416,7 @@ void G_Utils_SetCachedCompositeModel(const char *compositeModelName, const unsig
 {
   unsigned __int64 v2; 
   bool v4; 
-  __int128 v8; 
+  BgXModelHandle v5; 
 
   v2 = compositeModelIndex;
   if ( compositeModelIndex )
@@ -6054,16 +5436,10 @@ LABEL_7:
     __debugbreak();
   if ( v2 >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 181, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
     __debugbreak();
-  LODWORD(v8) = 96;
-  _RSI = 0x140000000ui64;
+  v5.assetType = ASSET_TYPE_XCOMPOSITEMODEL;
   s_cachedCompositeModelsSet[0].m_data[v2 >> 6] |= 0x8000000000000000ui64 >> (v2 & 0x3F);
-  _RBX = 2 * v2;
-  *((_QWORD *)&v8 + 1) = SV_Game_GetXCompositeModel(compositeModelName);
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_18]
-    vmovups xmmword ptr rva s_cachedModels.assetType[rsi+rbx*8], xmm0
-  }
+  v5.un.compositeModel = SV_Game_GetXCompositeModel(compositeModelName);
+  s_cachedModels[v2] = v5;
 }
 
 /*
@@ -6075,7 +5451,7 @@ void G_Utils_SetCachedModel(const char *modelName, const unsigned int modelIndex
 {
   unsigned __int64 v2; 
   bool v4; 
-  __int128 v8; 
+  BgXModelHandle v5; 
 
   v2 = modelIndex;
   if ( modelIndex )
@@ -6095,16 +5471,10 @@ LABEL_7:
     __debugbreak();
   if ( v2 >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 181, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
     __debugbreak();
-  LODWORD(v8) = 9;
-  _RSI = 0x140000000ui64;
+  v5.assetType = ASSET_TYPE_XMODEL;
   s_cachedModelsSet[0].m_data[v2 >> 6] |= 0x8000000000000000ui64 >> (v2 & 0x3F);
-  _RBX = 2 * v2;
-  *((_QWORD *)&v8 + 1) = SV_Game_GetXModel(modelName);
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_18]
-    vmovups xmmword ptr rva s_cachedModels.assetType[rsi+rbx*8], xmm0
-  }
+  v5.un.compositeModel = (XCompositeModelDef *)SV_Game_GetXModel(modelName);
+  s_cachedModels[v2] = v5;
 }
 
 /*
@@ -6312,122 +5682,75 @@ LABEL_42:
 G_Utils_SpawnEventEntity
 ==============
 */
-
-gentity_s *__fastcall G_Utils_SpawnEventEntity(const vec3_t *origin, int event, double _XMM2_8)
+gentity_s *G_Utils_SpawnEventEntity(const vec3_t *origin, int event)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  float v7; 
+  float v8; 
+  float v9; 
+  double v10; 
   const char *EventTypeName; 
-  int v23; 
-  char *fmt; 
-  __int64 v39; 
-  int v40; 
-  int v41; 
-  int v42; 
+  int v12; 
+  gentity_s *v13; 
+  float v14; 
+  float v15; 
   vec3_t origina; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
 
-  _RBX = origin;
   if ( Sys_IsServerUserMoveWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 2286, ASSERT_TYPE_ASSERT, "( !Sys_IsServerUserMoveWorker() )", (const char *)&queryFormat, "!Sys_IsServerUserMoveWorker()") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Utils_SpawnEventEntity");
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+0A8h+origin], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0A8h+origin+8], xmm0
-    vmovss  dword ptr [rsp+0A8h+origin+4], xmm1
-  }
+  v7 = origin->v[1];
+  origina.v[0] = origin->v[0];
+  origina.v[2] = origin->v[2];
+  origina.v[1] = v7;
   if ( !SV_Game_CheckPointInPlayableBounds(&origina) )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbx+8]
-      vmovaps [rsp+0A8h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rbx+4]
-      vmovaps [rsp+0A8h+var_38], xmm8
-      vmovss  xmm8, dword ptr [rbx]
-      vcvtss2sd xmm8, xmm8, xmm8
-      vcvtss2sd xmm6, xmm6, xmm6
-      vcvtss2sd xmm7, xmm7, xmm7
-    }
+    v20 = v2;
+    v8 = origin->v[2];
+    v19 = v3;
+    v9 = origin->v[1];
+    v18 = v4;
+    v10 = origin->v[0];
     EventTypeName = BG_GetEventTypeName(event);
-    __asm
-    {
-      vmovaps xmm3, xmm8
-      vmovq   r9, xmm3
-      vmovsd  [rsp+0A8h+var_80], xmm6
-      vmovsd  [rsp+0A8h+fmt], xmm7
-    }
-    Com_PrintWarning(15, "G_TempEntity: Spawning event %s outside of map bounds at %f, %f, %f - we're moving it back into the playable area, so it won't be where you expected it to be\n", EventTypeName, _R9, fmt, v39);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0A8h+var_38]
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vmovaps xmm6, [rsp+0A8h+var_18]
-    }
+    Com_PrintWarning(15, "G_TempEntity: Spawning event %s outside of map bounds at %f, %f, %f - we're moving it back into the playable area, so it won't be where you expected it to be\n", EventTypeName, v10, v9, v8);
   }
   SV_Game_KeepPointInPlayableBounds(&origina);
-  v23 = event + 29;
-  _RBX = G_Utils_SpawnEntity();
-  if ( (unsigned int)(v23 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,int>(int)", "signed", (__int16)v23, "signed", v23) )
+  v12 = event + 29;
+  v13 = G_Utils_SpawnEntity();
+  if ( (unsigned int)(v12 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,int>(int)", "signed", (__int16)v12, "signed", v12) )
     __debugbreak();
-  _RBX->s.eType = v23;
-  _RBX->r.eventTime = level.time;
-  _RBX->r.eventTypeFlags = 1;
-  __asm
-  {
-    vcvttss2si eax, dword ptr [rsp+0A8h+origin]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vcvttss2si eax, dword ptr [rsp+0A8h+origin+4]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vcvttss2si eax, dword ptr [rsp+0A8h+origin+8]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  [rsp+0A8h+var_58], xmm0
-    vmovss  dword ptr [rsp+0A8h+origin], xmm0
-    vmovss  dword ptr [rsp+0A8h+origin+4], xmm2
-    vmovss  dword ptr [rsp+0A8h+origin+8], xmm1
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+0A8h+var_58], xmm2 }
-  if ( (v41 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+0A8h+var_58], xmm1 }
-  if ( (v42 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1621, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
-  if ( _RBX->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  v13->s.eType = v12;
+  v13->r.eventTime = level.time;
+  v13->r.eventTypeFlags = 1;
+  v14 = (float)(int)origina.v[1];
+  v15 = (float)(int)origina.v[2];
+  origina.v[0] = (float)(int)origina.v[0];
+  origina.v[1] = v14;
+  origina.v[2] = v15;
+  if ( ((LODWORD(origina.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v14) & 0x7F800000) == 2139095040 || (LODWORD(v15) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1621, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
+  if ( v13->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1623, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos )") )
       __debugbreak();
   }
-  Trajectory_SetTrBase(&_RBX->s.lerp.pos, &origina);
-  *(_QWORD *)&_RBX->s.lerp.pos.trType = 0i64;
-  _RBX->s.lerp.pos.trDuration = 0;
-  *(_QWORD *)_RBX->s.lerp.pos.trDelta.v = 0i64;
-  _RBX->s.lerp.pos.trDelta.v[2] = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+origin]
-    vmovss  dword ptr [rbx+130h], xmm0
-    vmovss  xmm1, dword ptr [rsp+0A8h+origin+4]
-    vmovss  dword ptr [rbx+134h], xmm1
-    vmovss  xmm0, dword ptr [rsp+0A8h+origin+8]
-    vmovss  dword ptr [rbx+138h], xmm0
-  }
-  G_PhysicsObject_WarpToCurrentTransform(_RBX, 1);
-  SV_LinkEntity(_RBX);
+  Trajectory_SetTrBase(&v13->s.lerp.pos, &origina);
+  *(_QWORD *)&v13->s.lerp.pos.trType = 0i64;
+  v13->s.lerp.pos.trDuration = 0;
+  *(_QWORD *)v13->s.lerp.pos.trDelta.v = 0i64;
+  v13->s.lerp.pos.trDelta.v[2] = 0.0;
+  v13->r.currentOrigin = origina;
+  G_PhysicsObject_WarpToCurrentTransform(v13, 1);
+  SV_LinkEntity(v13);
   Sys_ProfEndNamedEvent();
-  return _RBX;
+  return v13;
 }
 
 /*
@@ -6437,38 +5760,10 @@ G_Utils_UpdateAnglesTrajectory
 */
 bool G_Utils_UpdateAnglesTrajectory(gentity_s *ent, const vec3_t *angles, const bool warpPhysics, const bool updateBroadphase)
 {
-  int v12; 
-  int v13; 
-  int v14; 
-
-  _RDI = angles;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1733, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1734, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angles )[0] ) && !IS_NAN( ( angles )[1] ) && !IS_NAN( ( angles )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angles )[0] ) && !IS_NAN( ( angles )[1] ) && !IS_NAN( ( angles )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(angles->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(angles->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(angles->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1734, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angles )[0] ) && !IS_NAN( ( angles )[1] ) && !IS_NAN( ( angles )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angles )[0] ) && !IS_NAN( ( angles )[1] ) && !IS_NAN( ( angles )[2] )") )
+    __debugbreak();
   if ( ent->s.lerp.apos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -6476,13 +5771,13 @@ LABEL_20:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1736, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.apos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.apos )") )
       __debugbreak();
   }
-  Trajectory_SetTrBase(&ent->s.lerp.apos, _RDI);
+  Trajectory_SetTrBase(&ent->s.lerp.apos, angles);
   *(_QWORD *)&ent->s.lerp.apos.trTime = 0i64;
   *(_QWORD *)ent->s.lerp.apos.trDelta.v = 0i64;
   ent->s.lerp.apos.trDelta.v[2] = 0.0;
-  ent->r.currentAngles.v[0] = _RDI->v[0];
-  ent->r.currentAngles.v[1] = _RDI->v[1];
-  ent->r.currentAngles.v[2] = _RDI->v[2];
+  ent->r.currentAngles.v[0] = angles->v[0];
+  ent->r.currentAngles.v[1] = angles->v[1];
+  ent->r.currentAngles.v[2] = angles->v[2];
   return warpPhysics && G_PhysicsObject_WarpToCurrentTransform(ent, updateBroadphase);
 }
 
@@ -6589,38 +5884,10 @@ G_Utils_UpdateOriginTrajectory
 */
 bool G_Utils_UpdateOriginTrajectory(gentity_s *ent, const vec3_t *origin, const bool warpPhysics, const bool updateBroadphase)
 {
-  int v12; 
-  int v13; 
-  int v14; 
-
-  _RDI = origin;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1710, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1711, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1711, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
   if ( ent->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -6628,13 +5895,13 @@ LABEL_20:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 1713, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos )") )
       __debugbreak();
   }
-  Trajectory_SetTrBase(&ent->s.lerp.pos, _RDI);
+  Trajectory_SetTrBase(&ent->s.lerp.pos, origin);
   *(_QWORD *)&ent->s.lerp.pos.trTime = 0i64;
   *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
   ent->s.lerp.pos.trDelta.v[2] = 0.0;
-  ent->r.currentOrigin.v[0] = _RDI->v[0];
-  ent->r.currentOrigin.v[1] = _RDI->v[1];
-  ent->r.currentOrigin.v[2] = _RDI->v[2];
+  ent->r.currentOrigin.v[0] = origin->v[0];
+  ent->r.currentOrigin.v[1] = origin->v[1];
+  ent->r.currentOrigin.v[2] = origin->v[2];
   return warpPhysics && G_PhysicsObject_WarpToCurrentTransform(ent, updateBroadphase);
 }
 
@@ -6714,19 +5981,10 @@ LABEL_20:
 G_crandom
 ==============
 */
-
-float __fastcall G_crandom(double _XMM0_8)
+float G_crandom()
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   s_holdRand = 214013 * s_holdRand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@38000000
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vsubss  xmm0, xmm2, cs:__real@3f800000
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(s_holdRand >> 17) * 0.000030517578) * 2.0) - 1.0;
 }
 
 /*
@@ -6734,23 +5992,10 @@ float __fastcall G_crandom(double _XMM0_8)
 G_flrand
 ==============
 */
-
-float __fastcall G_flrand(float min, double max, double _XMM2_8)
+float G_flrand(float min, float max)
 {
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vsubss  xmm1, xmm1, xmm0
-  }
   s_holdRand = 214013 * s_holdRand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm2, xmm2, eax
-    vmulss  xmm2, xmm2, xmm1
-    vmulss  xmm3, xmm2, cs:__real@38000000
-    vaddss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)(s_holdRand >> 17) * (float)(max - min)) * 0.000030517578) + min;
 }
 
 /*
@@ -6780,17 +6025,10 @@ __int64 G_rand()
 G_random
 ==============
 */
-
-float __fastcall G_random(double _XMM0_8)
+float G_random()
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   s_holdRand = 214013 * s_holdRand + 2531011;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@38000000
-  }
-  return *(float *)&_XMM0;
+  return (float)(s_holdRand >> 17) * 0.000030517578;
 }
 
 /*
@@ -6808,63 +6046,48 @@ void G_srand(unsigned int seed)
 GUtils::GetPlayersInRadius
 ==============
 */
-
-void __fastcall GUtils::GetPlayersInRadius(GUtils *this, const vec3_t *pos, double radius, unsigned int maxPlayersWanted, unsigned int *outNumPlayers, unsigned __int16 *outPlayerEntIds)
+void GUtils::GetPlayersInRadius(GUtils *this, const vec3_t *pos, float radius, unsigned int maxPlayersWanted, unsigned int *outNumPlayers, unsigned __int16 *outPlayerEntIds)
 {
-  unsigned int v11; 
+  unsigned int v8; 
   unsigned int maxclients; 
+  float v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
+  if ( radius <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3552, ASSERT_TYPE_ASSERT, "(radius > 0.f)", (const char *)&queryFormat, "radius > 0.f") )
+    __debugbreak();
   if ( !maxPlayersWanted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3553, ASSERT_TYPE_ASSERT, "(maxPlayersWanted > 0)", (const char *)&queryFormat, "maxPlayersWanted > 0") )
     __debugbreak();
   if ( !outNumPlayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3554, ASSERT_TYPE_ASSERT, "(outNumPlayers)", (const char *)&queryFormat, "outNumPlayers") )
     __debugbreak();
   if ( !outPlayerEntIds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3555, ASSERT_TYPE_ASSERT, "(outPlayerEntIds)", (const char *)&queryFormat, "outPlayerEntIds") )
     __debugbreak();
-  v11 = 0;
+  v8 = 0;
   *outNumPlayers = 0;
   maxclients = level.maxclients;
-  __asm { vmulss  xmm6, xmm6, xmm6 }
+  v10 = radius * radius;
   if ( level.maxclients )
   {
-    _RDI = 0i64;
+    v11 = 0i64;
     do
     {
       if ( *outNumPlayers >= maxPlayersWanted )
         break;
-      _RAX = g_entities;
-      if ( g_entities[_RDI].r.isInUse )
+      if ( g_entities[v11].r.isInUse )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+rax+130h]
-          vsubss  xmm3, xmm0, dword ptr [r12]
-          vmovss  xmm1, dword ptr [rdi+rax+134h]
-          vsubss  xmm2, xmm1, dword ptr [r12+4]
-          vmovss  xmm0, dword ptr [rdi+rax+138h]
-          vsubss  xmm4, xmm0, dword ptr [r12+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( !g_entities[_RDI].r.isInUse )
-          outPlayerEntIds[(*outNumPlayers)++] = truncate_cast<unsigned short,unsigned int>(v11);
+        v12 = g_entities[v11].r.currentOrigin.v[0] - pos->v[0];
+        v13 = g_entities[v11].r.currentOrigin.v[1] - pos->v[1];
+        v14 = g_entities[v11].r.currentOrigin.v[2] - pos->v[2];
+        if ( (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) <= v10 )
+          outPlayerEntIds[(*outNumPlayers)++] = truncate_cast<unsigned short,unsigned int>(v8);
       }
+      ++v8;
       ++v11;
-      ++_RDI;
     }
-    while ( v11 < maxclients );
+    while ( v8 < maxclients );
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -6984,72 +6207,67 @@ GUtils::WorldBoundsWouldTelefrag
 */
 char GUtils::WorldBoundsWouldTelefrag(GUtils *this, const Bounds *worldBounds)
 {
-  int v13; 
-  __int64 v15; 
-  gentity_s *v16; 
+  __int128 v2; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  __int64 v10; 
+  gentity_s *v11; 
   gclient_s *client; 
   int *ignoreEnts; 
   PhysicsQuery_Collected<unsigned short> *collectedEnts; 
-  PhysicsQuery_Collected<unsigned short> v21; 
+  PhysicsQuery_Collected<unsigned short> v16; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
-  __int16 v24[2048]; 
+  __int16 v19[2048]; 
+  __int128 v20; 
 
-  __asm { vmovaps [rsp+10A8h+var_18], xmm6 }
-  _RBX = worldBounds;
+  v20 = v2;
   if ( !worldBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.cpp", 3588, ASSERT_TYPE_ASSERT, "(worldBounds)", (const char *)&queryFormat, "worldBounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx]
-    vsubss  xmm0, xmm6, dword ptr [rbx+0Ch]
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vaddss  xmm1, xmm6, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rsp+10A8h+aabbMin], xmm0
-    vsubss  xmm0, xmm5, dword ptr [rbx+10h]
-    vmovss  dword ptr [rsp+10A8h+aabbMin+4], xmm0
-    vsubss  xmm0, xmm3, dword ptr [rbx+14h]
-    vmovss  dword ptr [rsp+10A8h+aabbMin+8], xmm0
-    vaddss  xmm0, xmm5, dword ptr [rbx+10h]
-    vmovss  dword ptr [rsp+10A8h+aabbMax], xmm1
-    vaddss  xmm1, xmm3, dword ptr [rbx+14h]
-  }
-  v13 = 0;
-  v21.ids = (unsigned __int16 *)v24;
-  __asm
-  {
-    vmovss  dword ptr [rsp+10A8h+aabbMax+4], xmm0
-    vmovss  dword ptr [rsp+10A8h+aabbMax+8], xmm1
-  }
-  v21.count = 0;
-  v21.countMax = 2048;
-  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 33570816, 0, NULL, &v21, NULL, 1);
-  __asm { vmovaps xmm6, [rsp+10A8h+var_18] }
-  if ( !v21.count )
+  v4 = worldBounds->midPoint.v[1];
+  v5 = worldBounds->midPoint.v[2];
+  v6 = worldBounds->midPoint.v[0] + worldBounds->halfSize.v[0];
+  aabbMin.v[0] = worldBounds->midPoint.v[0] - worldBounds->halfSize.v[0];
+  aabbMin.v[1] = v4 - worldBounds->halfSize.v[1];
+  aabbMin.v[2] = v5 - worldBounds->halfSize.v[2];
+  v7 = v4 + worldBounds->halfSize.v[1];
+  aabbMax.v[0] = v6;
+  v8 = v5 + worldBounds->halfSize.v[2];
+  v9 = 0;
+  v16.ids = (unsigned __int16 *)v19;
+  aabbMax.v[1] = v7;
+  aabbMax.v[2] = v8;
+  v16.count = 0;
+  v16.countMax = 2048;
+  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 33570816, 0, NULL, &v16, NULL, 1);
+  if ( !v16.count )
     return 0;
   while ( 1 )
   {
-    v15 = (unsigned __int16)v24[v13];
-    if ( (unsigned int)v15 >= 0x800 )
+    v10 = (unsigned __int16)v19[v9];
+    if ( (unsigned int)v10 >= 0x800 )
     {
       LODWORD(collectedEnts) = 2048;
-      LODWORD(ignoreEnts) = (unsigned __int16)v24[v13];
+      LODWORD(ignoreEnts) = (unsigned __int16)v19[v9];
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", ignoreEnts, collectedEnts) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v16 = &g_entities[v15];
-    client = v16->client;
+    v11 = &g_entities[v10];
+    client = v11->client;
     if ( client )
     {
       if ( client->ps.pm_type < 7 )
         break;
     }
-    if ( v16->actor && v16->health > 0 )
+    if ( v11->actor && v11->health > 0 )
       break;
-    if ( ++v13 >= v21.count )
+    if ( ++v9 >= v16.count )
       return 0;
   }
   return 1;

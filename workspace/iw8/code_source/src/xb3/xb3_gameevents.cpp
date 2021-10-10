@@ -229,42 +229,33 @@ LABEL_10:
 XB3GameEvent_GameProgress
 ==============
 */
-
-void __fastcall XB3GameEvent_GameProgress(const int controllerIndex, double completionPercentage)
+void XB3GameEvent_GameProgress(const int controllerIndex, const float completionPercentage)
 {
-  __int64 v5; 
+  __int64 v2; 
   HSTRING XboxUserIdFromController; 
   PCWSTR StringRawBuffer_0; 
-  __int64 v8; 
-  int v9; 
-  const wchar_t *v10; 
-  unsigned int v11; 
-  const wchar_t *v12; 
+  __int64 v5; 
+  int v6; 
+  const wchar_t *v7; 
+  unsigned int v8; 
+  const wchar_t *v9; 
   INT32 result[2]; 
-  __int64 v16; 
-  HSTRING v17; 
-  char v18[16]; 
-  const wchar_t *v19; 
-  int v20; 
-  int v21; 
+  __int64 v11; 
+  HSTRING v12; 
+  char v13[16]; 
+  const wchar_t *v14; 
+  int v15; 
+  int v16; 
   _GUID *p_m_sessionGUID; 
-  __int64 v23; 
-  INT32 *v24; 
-  __int64 v25; 
-  char v26[64]; 
-  char v27; 
-  void *retaddr; 
+  __int64 v18; 
+  INT32 *v19; 
+  __int64 v20; 
+  char v21[64]; 
 
-  _RAX = &retaddr;
-  v16 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = controllerIndex;
+  v11 = -2i64;
+  v2 = controllerIndex;
   XboxUserIdFromController = (HSTRING)GetXboxUserIdFromController(controllerIndex);
-  v17 = XboxUserIdFromController;
+  v12 = XboxUserIdFromController;
   result[1] = 0;
   WindowsDeleteString_0(NULL);
   result[0] = 0;
@@ -272,40 +263,38 @@ void __fastcall XB3GameEvent_GameProgress(const int controllerIndex, double comp
   if ( result[0] )
   {
     StringRawBuffer_0 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-    __asm { vmovss  [rsp+0F8h+result], xmm6 }
-    EtxFillCommonFields_v7_0(v18, v26, 64i64);
+    *(float *)result = completionPercentage;
+    EtxFillCommonFields_v7_0(v13, v21, 64i64);
     if ( StringRawBuffer_0 )
     {
-      v8 = -1i64;
+      v5 = -1i64;
       do
-        ++v8;
-      while ( StringRawBuffer_0[v8] );
-      v9 = 2 * v8 + 2;
+        ++v5;
+      while ( StringRawBuffer_0[v5] );
+      v6 = 2 * v5 + 2;
     }
     else
     {
-      v9 = 2;
+      v6 = 2;
     }
-    v10 = &LocaleName;
+    v7 = &LocaleName;
     if ( StringRawBuffer_0 )
-      v10 = StringRawBuffer_0;
-    v19 = v10;
-    v20 = v9;
-    v21 = 0;
-    p_m_sessionGUID = &g_sessionEventData[v5].m_sessionGUID;
-    v23 = 16i64;
-    v24 = result;
-    v25 = 4i64;
-    v11 = EtxEventWrite_0(&ACNA_24574A4BEvents[74], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v18);
-    if ( v11 )
+      v7 = StringRawBuffer_0;
+    v14 = v7;
+    v15 = v6;
+    v16 = 0;
+    p_m_sessionGUID = &g_sessionEventData[v2].m_sessionGUID;
+    v18 = 16i64;
+    v19 = result;
+    v20 = 4i64;
+    v8 = EtxEventWrite_0(&ACNA_24574A4BEvents[74], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v13);
+    if ( v8 )
     {
-      v12 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-      Com_Printf(16, "EventWriteGameProgress failed for XUID(%ls), with(%i).\n", v12, v11);
+      v9 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+      Com_Printf(16, "EventWriteGameProgress failed for XUID(%ls), with(%i).\n", v9, v8);
     }
   }
   WindowsDeleteString_0(XboxUserIdFromController);
-  _R11 = &v27;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -464,59 +453,46 @@ void XB3GameEvent_GameTypeStarted(const int controllerIndex, const wchar_t *game
 XB3GameEvent_HeroStats
 ==============
 */
-
-void __fastcall XB3GameEvent_HeroStats(const int controllerIndex, double percentageSP, double percentageMP, double percentageCP)
+void XB3GameEvent_HeroStats(const int controllerIndex, const float percentageSP, const float percentageMP, const float percentageCP)
 {
-  __int64 v11; 
+  __int64 v4; 
   HSTRING XboxUserIdFromController; 
   PCWSTR StringRawBuffer_0; 
-  __int64 v14; 
-  unsigned int v15; 
-  __int64 v16; 
-  unsigned int v17; 
-  const wchar_t *v18; 
-  const wchar_t *v19; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  const wchar_t *v11; 
+  const wchar_t *v12; 
   _GUID *p_m_sessionGUID; 
-  unsigned int v21; 
-  const wchar_t *v22; 
-  PCWSTR v23; 
-  __int64 v24; 
-  unsigned int v25; 
-  const wchar_t *v26; 
-  unsigned int v27; 
-  const wchar_t *v28; 
-  PCWSTR v29; 
-  bool v30; 
-  unsigned int v31; 
-  const wchar_t *v32; 
+  unsigned int v14; 
+  const wchar_t *v15; 
+  PCWSTR v16; 
+  __int64 v17; 
+  unsigned int v18; 
+  const wchar_t *v19; 
+  unsigned int v20; 
+  const wchar_t *v21; 
+  PCWSTR v22; 
+  bool v23; 
+  unsigned int v24; 
+  const wchar_t *v25; 
   INT32 result[2]; 
-  __int64 v38; 
-  HSTRING v39; 
-  char v40[16]; 
-  const wchar_t *v41; 
-  __int64 v42; 
-  _GUID *v43; 
-  __int64 v44; 
-  INT32 *v45; 
-  __int64 v46; 
-  char v47[64]; 
-  char v48; 
-  void *retaddr; 
+  __int64 v27; 
+  HSTRING v28; 
+  char v29[16]; 
+  const wchar_t *v30; 
+  __int64 v31; 
+  _GUID *v32; 
+  __int64 v33; 
+  INT32 *v34; 
+  __int64 v35; 
+  char v36[64]; 
 
-  _RAX = &retaddr;
-  v38 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  v11 = controllerIndex;
+  v27 = -2i64;
+  v4 = controllerIndex;
   XboxUserIdFromController = (HSTRING)GetXboxUserIdFromController(controllerIndex);
-  v39 = XboxUserIdFromController;
+  v28 = XboxUserIdFromController;
   result[1] = 0;
   WindowsDeleteString_0(NULL);
   result[0] = 0;
@@ -524,104 +500,97 @@ void __fastcall XB3GameEvent_HeroStats(const int controllerIndex, double percent
   if ( result[0] )
   {
     StringRawBuffer_0 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-    __asm { vmovss  [rsp+130h+result], xmm6 }
-    EtxFillCommonFields_v7_0(v40, v47, 64i64);
-    v14 = -1i64;
-    v15 = 2;
+    *(float *)result = percentageSP;
+    EtxFillCommonFields_v7_0(v29, v36, 64i64);
+    v7 = -1i64;
+    v8 = 2;
     if ( StringRawBuffer_0 )
     {
-      v16 = -1i64;
+      v9 = -1i64;
       do
-        ++v16;
-      while ( StringRawBuffer_0[v16] );
-      v17 = 2 * v16 + 2;
+        ++v9;
+      while ( StringRawBuffer_0[v9] );
+      v10 = 2 * v9 + 2;
     }
     else
     {
-      v17 = 2;
+      v10 = 2;
     }
-    v18 = &LocaleName;
+    v11 = &LocaleName;
+    v12 = &LocaleName;
+    if ( StringRawBuffer_0 )
+      v12 = StringRawBuffer_0;
+    v30 = v12;
+    v31 = v10;
+    p_m_sessionGUID = &g_sessionEventData[v4].m_sessionGUID;
+    v32 = p_m_sessionGUID;
+    v33 = 16i64;
+    v34 = result;
+    v35 = 4i64;
+    v14 = EtxEventWrite_0(&ACNA_24574A4BEvents[52], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v29);
+    if ( v14 )
+    {
+      v15 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+      Com_Printf(16, "EventWriteAchievementsSP failed for XUID(%ls), with(%i).\n", v15, v14);
+    }
+    v16 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+    *(float *)result = percentageMP;
+    EtxFillCommonFields_v7_0(v29, v36, 64i64);
+    if ( v16 )
+    {
+      v17 = -1i64;
+      do
+        ++v17;
+      while ( v16[v17] );
+      v18 = 2 * v17 + 2;
+    }
+    else
+    {
+      v18 = 2;
+    }
     v19 = &LocaleName;
-    if ( StringRawBuffer_0 )
-      v19 = StringRawBuffer_0;
-    v41 = v19;
-    v42 = v17;
-    p_m_sessionGUID = &g_sessionEventData[v11].m_sessionGUID;
-    v43 = p_m_sessionGUID;
-    v44 = 16i64;
-    v45 = result;
-    v46 = 4i64;
-    v21 = EtxEventWrite_0(&ACNA_24574A4BEvents[52], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v40);
-    if ( v21 )
+    if ( v16 )
+      v19 = v16;
+    v30 = v19;
+    v31 = v18;
+    v32 = p_m_sessionGUID;
+    v33 = 16i64;
+    v34 = result;
+    v35 = 4i64;
+    v20 = EtxEventWrite_0(&ACNA_24574A4BEvents[51], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v29);
+    if ( v20 )
     {
-      v22 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-      Com_Printf(16, "EventWriteAchievementsSP failed for XUID(%ls), with(%i).\n", v22, v21);
+      v21 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+      Com_Printf(16, "EventWriteAchievementsMP failed for XUID(%ls), with(%i).\n", v21, v20);
     }
-    v23 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-    __asm { vmovss  [rsp+130h+result], xmm7 }
-    EtxFillCommonFields_v7_0(v40, v47, 64i64);
-    if ( v23 )
-    {
-      v24 = -1i64;
-      do
-        ++v24;
-      while ( v23[v24] );
-      v25 = 2 * v24 + 2;
-    }
-    else
-    {
-      v25 = 2;
-    }
-    v26 = &LocaleName;
-    if ( v23 )
-      v26 = v23;
-    v41 = v26;
-    v42 = v25;
-    v43 = p_m_sessionGUID;
-    v44 = 16i64;
-    v45 = result;
-    v46 = 4i64;
-    v27 = EtxEventWrite_0(&ACNA_24574A4BEvents[51], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v40);
-    if ( v27 )
-    {
-      v28 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-      Com_Printf(16, "EventWriteAchievementsMP failed for XUID(%ls), with(%i).\n", v28, v27);
-    }
-    v29 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-    __asm { vmovss  [rsp+130h+result], xmm8 }
-    EtxFillCommonFields_v7_0(v40, v47, 64i64);
-    v30 = v29 == NULL;
-    if ( v29 )
+    v22 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+    *(float *)result = percentageCP;
+    EtxFillCommonFields_v7_0(v29, v36, 64i64);
+    v23 = v22 == NULL;
+    if ( v22 )
     {
       do
-        ++v14;
-      while ( v29[v14] );
-      v15 = 2 * v14 + 2;
-      v30 = v29 == NULL;
+        ++v7;
+      while ( v22[v7] );
+      v8 = 2 * v7 + 2;
+      v23 = v22 == NULL;
     }
-    if ( !v30 )
-      v18 = v29;
-    v41 = v18;
-    v42 = v15;
-    v43 = p_m_sessionGUID;
-    v44 = 16i64;
-    v45 = result;
-    v46 = 4i64;
-    v31 = EtxEventWrite_0(&ACNA_24574A4BEvents[50], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v40);
-    if ( v31 )
+    if ( !v23 )
+      v11 = v22;
+    v30 = v11;
+    v31 = v8;
+    v32 = p_m_sessionGUID;
+    v33 = 16i64;
+    v34 = result;
+    v35 = 4i64;
+    v24 = EtxEventWrite_0(&ACNA_24574A4BEvents[50], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 4i64, v29);
+    if ( v24 )
     {
-      v32 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
-      Com_Printf(16, "EventWriteAchievementsCP failed for XUID(%ls), with(%i).\n", v32, v31);
+      v25 = WindowsGetStringRawBuffer_0(XboxUserIdFromController, NULL);
+      Com_Printf(16, "EventWriteAchievementsCP failed for XUID(%ls), with(%i).\n", v25, v24);
     }
   }
   WindowsDeleteString_0(XboxUserIdFromController);
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -776,190 +745,186 @@ XB3GameEvent_MultiplayerRoundEnd
 */
 void XB3GameEvent_MultiplayerRoundEnd(const int controllerIndex)
 {
-  __int64 v2; 
-  const dvar_t *v3; 
+  __int64 v1; 
+  const dvar_t *v2; 
   _GUID *p_m_mpRoundGUID; 
   Platform::String *m_userID; 
-  int v6; 
-  HSTRING v7; 
+  int v5; 
+  HSTRING v6; 
   Platform::String *m_sessionCorrelationId; 
-  int v9; 
-  HSTRING v10; 
+  int v8; 
+  HSTRING v9; 
   PCWSTR StringRawBuffer_0; 
-  PCWSTR v12; 
+  PCWSTR v11; 
+  __int64 v12; 
+  int v13; 
   __int64 v14; 
   int v15; 
-  __int64 v16; 
-  int v17; 
-  const wchar_t *v18; 
-  const wchar_t *v19; 
-  bool v20; 
-  unsigned int v21; 
-  PCWSTR v22; 
-  PCWSTR v23; 
-  Platform::String *v24; 
-  Platform::String *v25; 
+  const wchar_t *v16; 
+  const wchar_t *v17; 
+  bool v18; 
+  unsigned int v19; 
+  PCWSTR v20; 
+  PCWSTR v21; 
+  Platform::String *v22; 
+  Platform::String *v23; 
   INT32 result; 
   int ActiveGameMode; 
-  int v28; 
-  int v29; 
-  int v30; 
-  __int64 v31; 
+  int v26; 
+  int v27; 
+  float v28; 
+  __int64 v29; 
   HSTRING newString; 
-  HSTRING v33; 
+  HSTRING v31; 
   HSTRING string1; 
-  HSTRING v35; 
-  __int64 v36; 
-  char v37[16]; 
-  const wchar_t *v38; 
-  int v39; 
-  int v40; 
-  _GUID *v41; 
-  __int64 v42; 
+  HSTRING v33; 
+  __int64 v34; 
+  char v35[16]; 
+  const wchar_t *v36; 
+  int v37; 
+  int v38; 
+  _GUID *v39; 
+  __int64 v40; 
   INT32 *p_result; 
-  __int64 v44; 
+  __int64 v42; 
   _GUID *p_m_sessionGUID; 
-  __int64 v46; 
-  const wchar_t *v47; 
-  int v48; 
-  int v49; 
+  __int64 v44; 
+  const wchar_t *v45; 
+  int v46; 
+  int v47; 
   int *p_ActiveGameMode; 
+  __int64 v49; 
+  int *v50; 
   __int64 v51; 
   int *v52; 
   __int64 v53; 
-  int *v54; 
+  float *v54; 
   __int64 v55; 
-  int *v56; 
+  __int64 *v56; 
   __int64 v57; 
-  __int64 *v58; 
-  __int64 v59; 
-  char v60[64]; 
+  char v58[64]; 
 
-  v36 = -2i64;
-  v2 = controllerIndex;
-  v3 = DVARBOOL_systemlink;
+  v34 = -2i64;
+  v1 = controllerIndex;
+  v2 = DVARBOOL_systemlink;
   if ( !DVARBOOL_systemlink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "systemlink") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( !v3->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled )
   {
-    p_m_mpRoundGUID = &g_sessionEventData[v2].m_mpRoundGUID;
-    if ( *(_QWORD *)&p_m_mpRoundGUID->Data1 || *(_QWORD *)g_sessionEventData[v2].m_mpRoundGUID.Data4 )
+    p_m_mpRoundGUID = &g_sessionEventData[v1].m_mpRoundGUID;
+    if ( *(_QWORD *)&p_m_mpRoundGUID->Data1 || *(_QWORD *)g_sessionEventData[v1].m_mpRoundGUID.Data4 )
     {
-      m_userID = g_sessionEventData[v2].m_userID;
+      m_userID = g_sessionEventData[v1].m_userID;
       if ( m_userID )
       {
-        v6 = WindowsDuplicateString_0((HSTRING)m_userID, &newString);
-        if ( v6 < 0 )
-          __abi_WinRTraiseException(v6);
-        v7 = newString;
-        v33 = newString;
+        v5 = WindowsDuplicateString_0((HSTRING)m_userID, &newString);
+        if ( v5 < 0 )
+          __abi_WinRTraiseException(v5);
+        v6 = newString;
+        v31 = newString;
       }
       else
       {
-        v7 = NULL;
+        v6 = NULL;
+        v31 = NULL;
+      }
+      result = 0;
+      WindowsCompareStringOrdinal_0(v6, NULL, &result);
+      if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gameevents.cpp", 374, ASSERT_TYPE_ASSERT, "(userId != nullptr)", (const char *)&queryFormat, "userId != nullptr") )
+        __debugbreak();
+      m_sessionCorrelationId = g_sessionEventData[v1].m_sessionCorrelationId;
+      if ( m_sessionCorrelationId )
+      {
+        v8 = WindowsDuplicateString_0((HSTRING)m_sessionCorrelationId, &string1);
+        if ( v8 < 0 )
+          __abi_WinRTraiseException(v8);
+        v9 = string1;
+        v33 = string1;
+      }
+      else
+      {
+        v9 = NULL;
         v33 = NULL;
       }
       result = 0;
-      WindowsCompareStringOrdinal_0(v7, NULL, &result);
-      if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gameevents.cpp", 374, ASSERT_TYPE_ASSERT, "(userId != nullptr)", (const char *)&queryFormat, "userId != nullptr") )
-        __debugbreak();
-      m_sessionCorrelationId = g_sessionEventData[v2].m_sessionCorrelationId;
-      if ( m_sessionCorrelationId )
-      {
-        v9 = WindowsDuplicateString_0((HSTRING)m_sessionCorrelationId, &string1);
-        if ( v9 < 0 )
-          __abi_WinRTraiseException(v9);
-        v10 = string1;
-        v35 = string1;
-      }
-      else
-      {
-        v10 = NULL;
-        v35 = NULL;
-      }
-      result = 0;
-      WindowsCompareStringOrdinal_0(v10, NULL, &result);
+      WindowsCompareStringOrdinal_0(v9, NULL, &result);
       if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_gameevents.cpp", 378, ASSERT_TYPE_ASSERT, "(sessionCorrelationId != nullptr)", (const char *)&queryFormat, "sessionCorrelationId != nullptr") )
         __debugbreak();
       result = 0;
-      WindowsCompareStringOrdinal_0(v10, NULL, &result);
-      if ( result && _Platform_WindowsGetStringLen(v10) )
+      WindowsCompareStringOrdinal_0(v9, NULL, &result);
+      if ( result && _Platform_WindowsGetStringLen(v9) )
       {
         ActiveGameMode = (unsigned __int8)Com_GameMode_GetActiveGameMode();
-        StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v10, NULL);
-        v12 = WindowsGetStringRawBuffer_0(v7, NULL);
-        LODWORD(v31) = 0;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rsp+1C0h+var_160], xmm0
-        }
-        v29 = 0;
-        v28 = 0;
+        StringRawBuffer_0 = WindowsGetStringRawBuffer_0(v9, NULL);
+        v11 = WindowsGetStringRawBuffer_0(v6, NULL);
+        LODWORD(v29) = 0;
+        v28 = 0.0;
+        v27 = 0;
+        v26 = 0;
         result = 0;
-        EtxFillCommonFields_v7_0(v37, v60, 64i64);
-        v14 = -1i64;
-        v15 = 2;
-        if ( v12 )
+        EtxFillCommonFields_v7_0(v35, v58, 64i64);
+        v12 = -1i64;
+        v13 = 2;
+        if ( v11 )
         {
-          v16 = -1i64;
+          v14 = -1i64;
           do
-            ++v16;
-          while ( v12[v16] );
-          v17 = 2 * v16 + 2;
+            ++v14;
+          while ( v11[v14] );
+          v15 = 2 * v14 + 2;
         }
         else
         {
-          v17 = 2;
+          v15 = 2;
         }
-        v18 = &LocaleName;
-        v19 = &LocaleName;
-        if ( v12 )
-          v19 = v12;
-        v38 = v19;
-        v39 = v17;
-        v40 = 0;
-        v41 = &g_sessionEventData[v2].m_mpRoundGUID;
-        v42 = 16i64;
+        v16 = &LocaleName;
+        v17 = &LocaleName;
+        if ( v11 )
+          v17 = v11;
+        v36 = v17;
+        v37 = v15;
+        v38 = 0;
+        v39 = &g_sessionEventData[v1].m_mpRoundGUID;
+        v40 = 16i64;
         p_result = &result;
-        v44 = 4i64;
-        p_m_sessionGUID = &g_sessionEventData[v2].m_sessionGUID;
-        v46 = 16i64;
-        v20 = StringRawBuffer_0 == NULL;
+        v42 = 4i64;
+        p_m_sessionGUID = &g_sessionEventData[v1].m_sessionGUID;
+        v44 = 16i64;
+        v18 = StringRawBuffer_0 == NULL;
         if ( StringRawBuffer_0 )
         {
           do
-            ++v14;
-          while ( StringRawBuffer_0[v14] );
-          v15 = 2 * v14 + 2;
-          v20 = StringRawBuffer_0 == NULL;
+            ++v12;
+          while ( StringRawBuffer_0[v12] );
+          v13 = 2 * v12 + 2;
+          v18 = StringRawBuffer_0 == NULL;
         }
-        if ( !v20 )
-          v18 = StringRawBuffer_0;
-        v47 = v18;
-        v48 = v15;
-        v49 = 0;
+        if ( !v18 )
+          v16 = StringRawBuffer_0;
+        v45 = v16;
+        v46 = v13;
+        v47 = 0;
         p_ActiveGameMode = &ActiveGameMode;
+        v49 = 4i64;
+        v50 = &v26;
         v51 = 4i64;
-        v52 = &v28;
+        v52 = &v27;
         v53 = 4i64;
-        v54 = &v29;
+        v54 = &v28;
         v55 = 4i64;
-        v56 = &v30;
+        v56 = &v29;
         v57 = 4i64;
-        v58 = &v31;
-        v59 = 4i64;
-        v21 = EtxEventWrite_0(&ACNA_24574A4BEvents[78], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 11i64, v37);
-        if ( v21 )
+        v19 = EtxEventWrite_0(&ACNA_24574A4BEvents[78], &ACNA_24574A4BProvider, ACNA_24574A4BHandle, 11i64, v35);
+        if ( v19 )
         {
-          v22 = WindowsGetStringRawBuffer_0(v7, NULL);
-          Com_Printf(16, "EventWriteMultiplayerRoundEnd failed for XUID(%ls), with(%i).\n", v22, v21);
+          v20 = WindowsGetStringRawBuffer_0(v6, NULL);
+          Com_Printf(16, "EventWriteMultiplayerRoundEnd failed for XUID(%ls), with(%i).\n", v20, v19);
         }
         else
         {
-          v23 = WindowsGetStringRawBuffer_0(v7, NULL);
-          Com_Printf(16, "EventWriteMultiplayerRoundEnd called for XUID [%ls], controller [%i].\n", v23, (unsigned int)v2);
+          v21 = WindowsGetStringRawBuffer_0(v6, NULL);
+          Com_Printf(16, "EventWriteMultiplayerRoundEnd called for XUID [%ls], controller [%i].\n", v21, (unsigned int)v1);
         }
       }
       else
@@ -967,21 +932,21 @@ void XB3GameEvent_MultiplayerRoundEnd(const int controllerIndex)
         Com_Printf(16, "EventWriteMultiplayerRoundEnd has no sessionCorrelationId, not posting event!!\n");
       }
       *(_QWORD *)&p_m_mpRoundGUID->Data1 = 0i64;
-      *(_QWORD *)g_sessionEventData[v2].m_mpRoundGUID.Data4 = 0i64;
-      v24 = g_sessionEventData[v2].m_sessionCorrelationId;
-      if ( v24 )
+      *(_QWORD *)g_sessionEventData[v1].m_mpRoundGUID.Data4 = 0i64;
+      v22 = g_sessionEventData[v1].m_sessionCorrelationId;
+      if ( v22 )
       {
-        WindowsDeleteString_0((HSTRING)v24);
-        g_sessionEventData[v2].m_sessionCorrelationId = NULL;
+        WindowsDeleteString_0((HSTRING)v22);
+        g_sessionEventData[v1].m_sessionCorrelationId = NULL;
       }
-      v25 = g_sessionEventData[v2].m_userID;
-      if ( v25 )
+      v23 = g_sessionEventData[v1].m_userID;
+      if ( v23 )
       {
-        WindowsDeleteString_0((HSTRING)v25);
-        g_sessionEventData[v2].m_userID = NULL;
+        WindowsDeleteString_0((HSTRING)v23);
+        g_sessionEventData[v1].m_userID = NULL;
       }
-      WindowsDeleteString_0(v10);
-      WindowsDeleteString_0(v7);
+      WindowsDeleteString_0(v9);
+      WindowsDeleteString_0(v6);
     }
     else
     {
@@ -1906,30 +1871,26 @@ XB3GetSessionCorrelationString
 Platform::String *XB3GetSessionCorrelationString(const int controllerIndex)
 {
   PartyData *CurrentParty; 
-  HSTRING v3; 
+  HSTRING v2; 
   SessionType SessionType; 
   std::wstring *p_correlationId; 
   std::wstring *Ptr; 
+  HSTRING v6; 
   HSTRING v7; 
-  HSTRING v8; 
-  int v9; 
-  HSTRING v10; 
-  int v11; 
-  unsigned __int64 v12; 
-  wchar_t *v13; 
+  int v8; 
+  HSTRING v9; 
+  int v10; 
+  unsigned __int64 v11; 
+  wchar_t *v12; 
   HSTRING newString; 
-  HSTRING v16; 
-  __int64 v17; 
+  HSTRING v15; 
+  __int64 v16; 
   std::wstring correlationId; 
 
-  v17 = -2i64;
+  v16 = -2i64;
   CurrentParty = Live_GetCurrentParty();
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000000070000000000000000
-    vmovdqu xmmword ptr [rsp+68h+correlationId.baseclass_0._Mypair._Myval2._Mysize], xmm0
-  }
-  v3 = NULL;
+  *(_OWORD *)&correlationId._Mypair._Myval2._Mysize = _xmm;
+  v2 = NULL;
   correlationId._Mypair._Myval2._Bx._Buf[0] = 0;
   SessionType = Session_GetSessionType(CurrentParty->session);
   if ( Xb3MultiplayerManager::GetCorrelationId(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, SessionType, &correlationId) )
@@ -1943,43 +1904,43 @@ Platform::String *XB3GetSessionCorrelationString(const int controllerIndex)
     if ( correlationId._Mypair._Myval2._Myres >= 8 )
       Ptr = (std::wstring *)correlationId._Mypair._Myval2._Bx._Ptr;
     Platform::String::String(NULL, Ptr->_Mypair._Myval2._Bx._Buf);
-    v8 = v7;
-    v16 = v7;
-    if ( v7 )
+    v7 = v6;
+    v15 = v6;
+    if ( v6 )
     {
-      v9 = WindowsDuplicateString_0(v7, &newString);
-      if ( v9 < 0 )
-        __abi_WinRTraiseException(v9);
-      v3 = newString;
+      v8 = WindowsDuplicateString_0(v6, &newString);
+      if ( v8 < 0 )
+        __abi_WinRTraiseException(v8);
+      v2 = newString;
     }
   }
   else
   {
     Platform::String::String(NULL, &LocaleName);
-    v8 = v10;
-    v16 = v10;
-    if ( v10 )
+    v7 = v9;
+    v15 = v9;
+    if ( v9 )
     {
-      v11 = WindowsDuplicateString_0(v10, &newString);
-      if ( v11 < 0 )
-        __abi_WinRTraiseException(v11);
-      v3 = newString;
+      v10 = WindowsDuplicateString_0(v9, &newString);
+      if ( v10 < 0 )
+        __abi_WinRTraiseException(v10);
+      v2 = newString;
     }
   }
-  WindowsDeleteString_0(v8);
+  WindowsDeleteString_0(v7);
   if ( correlationId._Mypair._Myval2._Myres >= 8 )
   {
-    v12 = 2 * correlationId._Mypair._Myval2._Myres + 2;
-    v13 = correlationId._Mypair._Myval2._Bx._Ptr;
-    if ( v12 >= 0x1000 )
+    v11 = 2 * correlationId._Mypair._Myval2._Myres + 2;
+    v12 = correlationId._Mypair._Myval2._Bx._Ptr;
+    if ( v11 >= 0x1000 )
     {
-      v12 = 2 * correlationId._Mypair._Myval2._Myres + 41;
-      v13 = (wchar_t *)*((_QWORD *)correlationId._Mypair._Myval2._Bx._Ptr - 1);
-      if ( (unsigned __int64)((char *)correlationId._Mypair._Myval2._Bx._Ptr - (char *)v13 - 8) > 0x1F )
+      v11 = 2 * correlationId._Mypair._Myval2._Myres + 41;
+      v12 = (wchar_t *)*((_QWORD *)correlationId._Mypair._Myval2._Bx._Ptr - 1);
+      if ( (unsigned __int64)((char *)correlationId._Mypair._Myval2._Bx._Ptr - (char *)v12 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v13, v12);
+    operator delete(v12, v11);
   }
-  return (Platform::String *)v3;
+  return (Platform::String *)v2;
 }
 

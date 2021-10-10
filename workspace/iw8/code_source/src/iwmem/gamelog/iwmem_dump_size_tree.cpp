@@ -63,9 +63,10 @@ void IWMemDumpSizeTree::AddToSizeTree(IWMemDumpSizeTree *this, const IWMemAlloca
   const IWMemProfileNode *MemProfileNode; 
   unsigned __int64 m_address; 
   __int64 v6; 
+  LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *mp_root; 
   __int64 v8; 
-  __int128 v15; 
-  __int64 v16; 
+  __int128 v9; 
+  double v10; 
 
   MemProfileNode = IWMemAllocatorTableEntry::GetMemProfileNode((IWMemAllocatorTableEntry *)r_allocationEntry);
   if ( MemProfileNode )
@@ -78,50 +79,35 @@ void IWMemDumpSizeTree::AddToSizeTree(IWMemDumpSizeTree *this, const IWMemAlloca
       __debugbreak();
     if ( v6 )
     {
-      _RBX = this->m_sizeTree.mp_root;
+      mp_root = this->m_sizeTree.mp_root;
       if ( this->m_sizeTree.mp_root )
       {
-        while ( MemProfileNode != _RBX->m_key )
+        while ( MemProfileNode != mp_root->m_key )
         {
           v8 = 40i64;
-          if ( MemProfileNode > _RBX->m_key )
+          if ( MemProfileNode > mp_root->m_key )
             v8 = 48i64;
-          _RBX = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&_RBX->m_key + v8);
-          if ( !_RBX )
+          mp_root = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&mp_root->m_key + v8);
+          if ( !mp_root )
             goto LABEL_14;
         }
       }
       else
       {
 LABEL_14:
-        _RBX = IWMemDumpSizeTree::NewSizeNode(this, MemProfileNode);
+        mp_root = IWMemDumpSizeTree::NewSizeNode(this, MemProfileNode);
       }
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+8]
-        vmovsd  xmm0, qword ptr [rbx+18h]
-        vmovups [rsp+58h+var_28], xmm1
-      }
-      *((_QWORD *)&v15 + 1) = *((_QWORD *)&_RT0 + 1);
-      __asm
-      {
-        vmovq   rcx, xmm1
-        vmovsd  [rsp+58h+var_18], xmm0
-      }
-      LODWORD(v16) = v16 + 1;
-      *(_QWORD *)&v15 = v6 + _RCX;
-      if ( *((_QWORD *)&v15 + 1) )
+      *((_QWORD *)&v9 + 1) = mp_root->m_value.recursiveSize;
+      v10 = *(double *)&mp_root->m_value.numAllocs;
+      ++LODWORD(v10);
+      *(_QWORD *)&v9 = v6 + mp_root->m_value.size;
+      if ( *((_QWORD *)&v9 + 1) )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 125, ASSERT_TYPE_ASSERT, "(entry.recursiveSize == 0)", (const char *)&queryFormat, "entry.recursiveSize == 0") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, [rsp+58h+var_28]
-        vmovsd  xmm1, [rsp+58h+var_18]
-        vmovups xmmword ptr [rbx+8], xmm0
-        vmovsd  qword ptr [rbx+18h], xmm1
-      }
+      *(_OWORD *)&mp_root->m_value.size = v9;
+      *(double *)&mp_root->m_value.numAllocs = v10;
     }
   }
 }
@@ -166,56 +152,48 @@ IWMemDumpSizeTree::FillInRecursiveSizes
 */
 unsigned __int64 IWMemDumpSizeTree::FillInRecursiveSizes(IWMemDumpSizeTree *this, const IWMemProfileNode *r_memProfileNode)
 {
+  LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *mp_root; 
   unsigned __int64 size; 
   __int64 v6; 
   const IWMemProfileNode *i; 
-  __int128 v13; 
+  __int128 v9; 
+  double v10; 
 
-  _RBX = this->m_sizeTree.mp_root;
+  mp_root = this->m_sizeTree.mp_root;
   size = 0i64;
   if ( this->m_sizeTree.mp_root )
   {
-    while ( r_memProfileNode != _RBX->m_key )
+    while ( r_memProfileNode != mp_root->m_key )
     {
       v6 = 40i64;
-      if ( r_memProfileNode > _RBX->m_key )
+      if ( r_memProfileNode > mp_root->m_key )
         v6 = 48i64;
-      _RBX = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&_RBX->m_key + v6);
-      if ( !_RBX )
+      mp_root = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&mp_root->m_key + v6);
+      if ( !mp_root )
         goto LABEL_6;
     }
-    size = _RBX->m_value.size;
+    size = mp_root->m_value.size;
   }
   else
   {
 LABEL_6:
-    _RBX = NULL;
+    mp_root = NULL;
   }
   for ( i = (const IWMemProfileNode *)r_memProfileNode->mp_first_child; i; i = (const IWMemProfileNode *)i->mp_next_sibling )
   {
     size += IWMemDumpSizeTree::FillInRecursiveSizes(this, i);
-    if ( size && !_RBX )
-      _RBX = IWMemDumpSizeTree::NewSizeNode(this, r_memProfileNode);
+    if ( size && !mp_root )
+      mp_root = IWMemDumpSizeTree::NewSizeNode(this, r_memProfileNode);
   }
-  if ( _RBX )
+  if ( mp_root )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+8]
-      vmovups [rsp+68h+var_38], xmm0
-      vmovsd  xmm0, qword ptr [rbx+18h]
-      vmovsd  [rsp+68h+arg_0], xmm0
-    }
-    *((_QWORD *)&v13 + 1) = size;
-    if ( size < (unsigned __int64)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 200, ASSERT_TYPE_ASSERT, "(sizeEntry.recursiveSize >= sizeEntry.size)", (const char *)&queryFormat, "sizeEntry.recursiveSize >= sizeEntry.size") )
+    v9 = *(_OWORD *)&mp_root->m_value.size;
+    v10 = *(double *)&mp_root->m_value.numAllocs;
+    *((_QWORD *)&v9 + 1) = size;
+    if ( size < (unsigned __int64)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 200, ASSERT_TYPE_ASSERT, "(sizeEntry.recursiveSize >= sizeEntry.size)", (const char *)&queryFormat, "sizeEntry.recursiveSize >= sizeEntry.size") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_38]
-      vmovsd  xmm1, [rsp+68h+arg_0]
-      vmovups xmmword ptr [rbx+8], xmm0
-      vmovsd  qword ptr [rbx+18h], xmm1
-    }
+    *(_OWORD *)&mp_root->m_value.size = v9;
+    *(double *)&mp_root->m_value.numAllocs = v10;
   }
   return size;
 }
@@ -227,47 +205,38 @@ IWMemDumpSizeTree::GetSizeEntry
 */
 IWMemDumpSizeTree::SizeEntry *IWMemDumpSizeTree::GetSizeEntry(IWMemDumpSizeTree *this, IWMemDumpSizeTree::SizeEntry *result, const IWMemProfileNode *r_memProfileNode)
 {
+  LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *mp_root; 
   __int64 v4; 
-  IWMemDumpSizeTree::SizeEntry *v6; 
-  __int128 v10; 
-  __int64 v11; 
+  IWMemDumpSizeTree::SizeEntry *v5; 
+  double v6; 
+  double v7; 
 
-  _R9 = this->m_sizeTree.mp_root;
+  mp_root = this->m_sizeTree.mp_root;
   if ( this->m_sizeTree.mp_root )
   {
-    while ( r_memProfileNode != _R9->m_key )
+    while ( r_memProfileNode != mp_root->m_key )
     {
       v4 = 40i64;
-      if ( r_memProfileNode > _R9->m_key )
+      if ( r_memProfileNode > mp_root->m_key )
         v4 = 48i64;
-      _R9 = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&_R9->m_key + v4);
-      if ( !_R9 )
+      mp_root = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&mp_root->m_key + v4);
+      if ( !mp_root )
         goto LABEL_6;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r9+8]
-      vmovsd  xmm1, qword ptr [r9+18h]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovsd  qword ptr [rdx+10h], xmm1
-    }
+    v6 = *(double *)&mp_root->m_value.numAllocs;
+    *(_OWORD *)&result->size = *(_OWORD *)&mp_root->m_value.size;
+    *(double *)&result->numAllocs = v6;
     return result;
   }
   else
   {
 LABEL_6:
-    v10 = 0ui64;
-    __asm { vmovups xmm0, [rsp+28h+var_28] }
-    LODWORD(v11) = 0;
-    v6 = result;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+28h+var_18]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovsd  qword ptr [rdx+10h], xmm1
-    }
+    LODWORD(v7) = 0;
+    v5 = result;
+    *(_OWORD *)&result->size = 0ui64;
+    *(double *)&result->numAllocs = v7;
   }
-  return v6;
+  return v5;
 }
 
 /*
@@ -281,9 +250,10 @@ void IWMem_Dump_SizeTree_AddToSizeTree(const IWMemAllocatorTableEntry *p_allocat
   const IWMemProfileNode *MemProfileNode; 
   unsigned __int64 m_address; 
   __int64 v5; 
+  LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *mp_root; 
   __int64 v7; 
-  __int128 v14; 
-  __int64 v15; 
+  __int128 v8; 
+  double v9; 
 
   if ( !s_iwMemDumpSizeTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 43, ASSERT_TYPE_ASSERT, "(s_iwMemDumpSizeTree)", (const char *)&queryFormat, "s_iwMemDumpSizeTree") )
     __debugbreak();
@@ -301,50 +271,35 @@ void IWMem_Dump_SizeTree_AddToSizeTree(const IWMemAllocatorTableEntry *p_allocat
       __debugbreak();
     if ( v5 )
     {
-      _RBX = v2->m_sizeTree.mp_root;
+      mp_root = v2->m_sizeTree.mp_root;
       if ( v2->m_sizeTree.mp_root )
       {
-        while ( MemProfileNode != _RBX->m_key )
+        while ( MemProfileNode != mp_root->m_key )
         {
           v7 = 40i64;
-          if ( MemProfileNode > _RBX->m_key )
+          if ( MemProfileNode > mp_root->m_key )
             v7 = 48i64;
-          _RBX = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&_RBX->m_key + v7);
-          if ( !_RBX )
+          mp_root = *(LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> **)((char *)&mp_root->m_key + v7);
+          if ( !mp_root )
             goto LABEL_20;
         }
       }
       else
       {
 LABEL_20:
-        _RBX = IWMemDumpSizeTree::NewSizeNode(v2, MemProfileNode);
+        mp_root = IWMemDumpSizeTree::NewSizeNode(v2, MemProfileNode);
       }
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+8]
-        vmovsd  xmm0, qword ptr [rbx+18h]
-        vmovups [rsp+68h+var_38], xmm1
-      }
-      *((_QWORD *)&v14 + 1) = *((_QWORD *)&_RT0 + 1);
-      __asm
-      {
-        vmovq   rdx, xmm1
-        vmovsd  [rsp+68h+var_28], xmm0
-      }
-      LODWORD(v15) = v15 + 1;
-      *(_QWORD *)&v14 = v5 + _RDX;
-      if ( *((_QWORD *)&v14 + 1) )
+      *((_QWORD *)&v8 + 1) = mp_root->m_value.recursiveSize;
+      v9 = *(double *)&mp_root->m_value.numAllocs;
+      ++LODWORD(v9);
+      *(_QWORD *)&v8 = v5 + mp_root->m_value.size;
+      if ( *((_QWORD *)&v8 + 1) )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 125, ASSERT_TYPE_ASSERT, "(entry.recursiveSize == 0)", (const char *)&queryFormat, "entry.recursiveSize == 0") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups xmm0, [rsp+68h+var_38]
-        vmovsd  xmm1, [rsp+68h+var_28]
-        vmovups xmmword ptr [rbx+8], xmm0
-        vmovsd  qword ptr [rbx+18h], xmm1
-      }
+      *(_OWORD *)&mp_root->m_value.size = v8;
+      *(double *)&mp_root->m_value.numAllocs = v9;
     }
   }
 }
@@ -357,35 +312,29 @@ IWMemDumpSizeTree::NewSizeNode
 LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *IWMemDumpSizeTree::NewSizeNode(IWMemDumpSizeTree *this, const IWMemProfileNode *r_memProfileNode)
 {
   __int64 v4; 
+  LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry> *v5; 
   unsigned int m_nodePoolCount; 
-  int v10; 
-  __int128 v11; 
-  __int64 v12; 
+  int v8; 
+  double v9; 
 
   if ( this->m_nodePoolCount >= 0x2000 )
   {
-    v10 = 0x2000;
+    v8 = 0x2000;
     m_nodePoolCount = this->m_nodePoolCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 140, ASSERT_TYPE_ASSERT, "(unsigned)( m_nodePoolCount ) < (unsigned)( ( sizeof( *array_counter( m_nodePool ) ) + 0 ) )", "m_nodePoolCount doesn't index ARRAY_COUNT( m_nodePool )\n\t%i not in [0, %i)", m_nodePoolCount, v10) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_dump_size_tree.cpp", 140, ASSERT_TYPE_ASSERT, "(unsigned)( m_nodePoolCount ) < (unsigned)( ( sizeof( *array_counter( m_nodePool ) ) + 0 ) )", "m_nodePoolCount doesn't index ARRAY_COUNT( m_nodePool )\n\t%i not in [0, %i)", m_nodePoolCount, v8) )
       __debugbreak();
   }
   v4 = this->m_nodePoolCount;
-  _RBX = &this->m_nodePool[v4];
+  v5 = &this->m_nodePool[v4];
   this->m_nodePoolCount = v4 + 1;
-  _RBX->m_is_red = 1;
-  _RBX->mp_child_nodes[0] = NULL;
-  _RBX->mp_child_nodes[1] = NULL;
-  v11 = 0ui64;
-  __asm { vmovups xmm0, [rsp+68h+var_28] }
-  LODWORD(v12) = 0;
-  __asm
-  {
-    vmovsd  xmm1, [rsp+68h+var_18]
-    vmovups xmmword ptr [rbx+8], xmm0
-    vmovsd  qword ptr [rbx+18h], xmm1
-  }
-  _RBX->m_key = r_memProfileNode;
-  LeanRBTree<LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry>>::Insert(&this->m_sizeTree, _RBX);
-  return _RBX;
+  v5->m_is_red = 1;
+  v5->mp_child_nodes[0] = NULL;
+  v5->mp_child_nodes[1] = NULL;
+  LODWORD(v9) = 0;
+  *(_OWORD *)&v5->m_value.size = 0ui64;
+  *(double *)&v5->m_value.numAllocs = v9;
+  v5->m_key = r_memProfileNode;
+  LeanRBTree<LeanRBTreeNodePair<IWMemProfileNode const *,IWMemDumpSizeTree::SizeEntry>>::Insert(&this->m_sizeTree, v5);
+  return v5;
 }
 

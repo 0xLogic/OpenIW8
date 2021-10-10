@@ -1146,19 +1146,20 @@ Com_HandleNoFreeDobjs
 */
 void Com_HandleNoFreeDobjs(bool fromServer)
 {
+  DObjModelInstanceCount *v2; 
   __int64 v3; 
   __int64 v4; 
   DObjModelInstanceCount *v5; 
-  const char *v8; 
-  __m256i v9; 
+  const char *v6; 
+  __m256i v7; 
 
-  _RSI = (DObjModelInstanceCount *)Mem_Virtual_Alloc(0x10000ui64, "Com_HandleNoFreeDobjs", TRACK_DEBUG);
-  v3 = (int)Com_BuildDObjModelList(_RSI);
+  v2 = (DObjModelInstanceCount *)Mem_Virtual_Alloc(0x10000ui64, "Com_HandleNoFreeDobjs", TRACK_DEBUG);
+  v3 = (int)Com_BuildDObjModelList(v2);
   Com_Printf_NoFilter("Alloced Dobj Models:\n");
   v4 = v3;
   if ( (int)v3 > 0 )
   {
-    v5 = _RSI;
+    v5 = v2;
     do
     {
       Com_Printf_NoFilter(" %s %d\n", v5->modelName, v5->dobjCount);
@@ -1167,20 +1168,14 @@ void Com_HandleNoFreeDobjs(bool fromServer)
     }
     while ( v4 );
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups [rsp+88h+var_38], ymm0
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups [rsp+88h+var_18], xmm0
-  }
-  Mem_Virtual_Free(_RSI);
+  v7 = *(__m256i *)&v2->modelName;
+  Mem_Virtual_Free(v2);
   if ( fromServer )
     G_DebugBlameForEntCount(0);
-  v8 = "null";
+  v6 = "null";
   if ( (int)v3 > 0 )
-    v8 = (const char *)v9.m256i_i64[0];
-  Sys_Error((const ObfuscateErrorText)&stru_144012160, (unsigned int)s_objCount, v8);
+    v6 = (const char *)v7.m256i_i64[0];
+  Sys_Error((const ObfuscateErrorText)&stru_144012160, (unsigned int)s_objCount, v6);
 }
 
 /*

@@ -1428,43 +1428,39 @@ GfxLightmapAtlas::BinaryTreePacker::GetUtilization
 */
 float GfxLightmapAtlas::BinaryTreePacker::GetUtilization(GfxLightmapAtlas::BinaryTreePacker *this, int nodeIndex)
 {
-  unsigned int v6; 
-  bool v7; 
-  int v8; 
-  int v9; 
+  unsigned int v4; 
+  bool v5; 
+  int v6; 
+  int v7; 
+  double Utilization; 
+  float v10; 
+  double v11; 
 
   if ( nodeIndex >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 1562, ASSERT_TYPE_ASSERT, "(nodeIndex < MAX_NUM_NODES)", (const char *)&queryFormat, "nodeIndex < MAX_NUM_NODES") )
     __debugbreak();
-  v6 = 2 * nodeIndex;
-  v7 = bitarray_base<bitarray<16384>>::testBit((bitarray_base<bitarray<16384> > *)this, 2 * nodeIndex + 1);
-  v8 = v7 + (bitarray_base<bitarray<16384>>::testBit((bitarray_base<bitarray<16384> > *)this, v6) ? 2 : 0);
-  if ( v8 )
+  v4 = 2 * nodeIndex;
+  v5 = bitarray_base<bitarray<16384>>::testBit((bitarray_base<bitarray<16384> > *)this, 2 * nodeIndex + 1);
+  v6 = v5 + (bitarray_base<bitarray<16384>>::testBit((bitarray_base<bitarray<16384> > *)this, v4) ? 2 : 0);
+  if ( !v6 )
+    return 0.0;
+  v7 = v6 - 1;
+  if ( v7 )
   {
-    v9 = v8 - 1;
-    if ( !v9 )
+    if ( v7 != 1 )
     {
-      __asm { vmovaps [rsp+48h+var_18], xmm7 }
-      *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(this, v6 + 2);
-      __asm { vmulss  xmm7, xmm0, cs:__real@3f000000 }
-      *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(this, v6 + 1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vaddss  xmm0, xmm1, xmm7
-        vmovaps xmm7, [rsp+48h+var_18]
-      }
-      return *(float *)&_XMM0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 1575, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
+        __debugbreak();
+      return 0.0;
     }
-    if ( v9 == 1 )
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-      return *(float *)&_XMM0;
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 1575, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
-      __debugbreak();
+    return FLOAT_1_0;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  else
+  {
+    Utilization = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(this, v4 + 2);
+    v10 = *(float *)&Utilization * 0.5;
+    v11 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(this, v4 + 1);
+    return (float)(*(float *)&v11 * 0.5) + v10;
+  }
 }
 
 /*
@@ -2207,8 +2203,11 @@ GfxLightmapAtlas::PrepareForCopy
 */
 void GfxLightmapAtlas::PrepareForCopy(GfxLightmapAtlas *this, GfxLightmapAtlas::LightmapAtlasState *targetState)
 {
+  signed __int64 v4; 
+  char *v5; 
   __int64 v6; 
   __int64 m_textureSize; 
+  double v9; 
   unsigned int v10; 
   unsigned int m_numTextureSlices; 
   GfxLightmapAtlas *v12; 
@@ -2222,67 +2221,64 @@ void GfxLightmapAtlas::PrepareForCopy(GfxLightmapAtlas *this, GfxLightmapAtlas::
   int v20; 
   unsigned int v21; 
   unsigned int CardMemoryAmount; 
-  __int64 v25; 
+  __int64 v23; 
   unsigned __int64 m_lightmapAtlasVARangeAllocOffset; 
-  unsigned __int8 *v27; 
-  char *v28; 
+  unsigned __int8 *v25; 
+  char *v26; 
+  int v27; 
+  unsigned int v28; 
   unsigned int v29; 
-  unsigned int v30; 
   unsigned int v31; 
+  unsigned int v32; 
   unsigned int v33; 
-  unsigned int v34; 
-  unsigned int v38; 
-  int v39; 
-  unsigned int v40; 
-  unsigned int v43; 
-  __int64 v44; 
-  int v45; 
-  __int64 v46; 
-  unsigned __int64 v47; 
-  GfxPixelFormat v48; 
+  int v34; 
+  unsigned int v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  int v38; 
+  __int64 v39; 
+  unsigned __int64 v40; 
+  GfxPixelFormat v41; 
   ID3D12Resource *basemap; 
   unsigned int freeSlot; 
-  unsigned int *v51; 
+  unsigned int *v44; 
   GraphicsUnknown_Function_Table *m_pFunction; 
-  bool v53; 
-  _QWORD v54[4]; 
-  __m256i v55; 
-  unsigned __int8 *v56; 
+  bool v46; 
+  __m256i v47; 
+  __m256i v48; 
+  unsigned __int8 *v49; 
   GfxImage *image; 
-  GfxTextureId *v58; 
-  __int64 v59; 
-  GfxLightmapAtlas::LightmapAtlasState *v60; 
-  char *v61; 
-  __int64 v62; 
-  GfxLightmapAtlas *v63; 
-  unsigned int v64; 
-  unsigned __int64 v65; 
-  Image_SetupParams v66; 
+  GfxTextureId *v51; 
+  __int64 v52; 
+  GfxLightmapAtlas::LightmapAtlasState *v53; 
+  char *v54; 
+  __int64 v55; 
+  GfxLightmapAtlas *v56; 
+  unsigned int v57; 
+  unsigned __int64 v58; 
+  Image_SetupParams v59; 
   Image_SetupParams params; 
-  Image_SetupParams v68; 
-  char v69[14]; 
-  char v70[66]; 
+  Image_SetupParams v61; 
+  char v62[14]; 
+  char v63[66]; 
 
-  v63 = this;
-  v60 = targetState;
+  v56 = this;
+  v53 = targetState;
   if ( this->m_state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 852, ASSERT_TYPE_ASSERT, "(m_state == State::IDLE)", (const char *)&queryFormat, "m_state == State::IDLE") )
     __debugbreak();
   GfxLightmapAtlas::InitLightmapAtlasState(this, targetState);
   GfxLightmapAtlas::Pack(this, this->m_lightmaps, &this->m_lightmapsUsed, targetState, this->m_packers);
-  _R15 = (char *)this - v69;
-  _RBX = v69;
-  v62 = 3i64;
+  v4 = (char *)this - v62;
+  v5 = v62;
+  v55 = 3i64;
   v6 = 3i64;
   do
   {
-    __asm { vmovups xmm0, xmmword ptr [r15+rbx] }
+    _XMM0 = *(_OWORD *)&v5[v4];
     m_textureSize = targetState->m_textureSize;
-    __asm
-    {
-      vmovsd  xmm1, qword ptr [r15+rbx+10h]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
+    v9 = *(double *)&v5[v4 + 16];
+    *(_OWORD *)v5 = _XMM0;
+    *((double *)v5 + 2) = v9;
     if ( (unsigned int)m_textureSize > 0xFFFF )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)m_textureSize, "unsigned", m_textureSize) )
@@ -2293,20 +2289,20 @@ void GfxLightmapAtlas::PrepareForCopy(GfxLightmapAtlas *this, GfxLightmapAtlas::
     {
       v10 = m_textureSize;
     }
-    *((_WORD *)_RBX + 6) = m_textureSize;
+    *((_WORD *)v5 + 6) = m_textureSize;
     if ( v10 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v10, "unsigned", v10) )
       __debugbreak();
-    *((_WORD *)_RBX + 7) = v10;
+    *((_WORD *)v5 + 7) = v10;
     m_numTextureSlices = targetState->m_numTextureSlices;
     if ( m_numTextureSlices > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)m_numTextureSlices, "unsigned", targetState->m_numTextureSlices) )
       __debugbreak();
-    *((_WORD *)_RBX + 9) = m_numTextureSlices;
-    _RBX += 24;
+    *((_WORD *)v5 + 9) = m_numTextureSlices;
+    v5 += 24;
     --v6;
   }
   while ( v6 );
-  v12 = v63;
-  v13 = v70;
+  v12 = v56;
+  v13 = v63;
   LODWORD(v14) = 0;
   v15 = 3i64;
   do
@@ -2316,28 +2312,20 @@ void GfxLightmapAtlas::PrepareForCopy(GfxLightmapAtlas *this, GfxLightmapAtlas::
     v18 = *((unsigned __int16 *)v13 + 1);
     v19 = *((unsigned __int16 *)v13 + 2);
     v20 = (unsigned __int8)v13[6];
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+230h+var_1C0+8], xmm0
-    }
-    v54[0] = __PAIR64__(v17, v16);
-    v54[1] = __PAIR64__(v19, v18);
-    v55.m256i_i64[0] = 0i64;
-    v55.m256i_i32[6] = -1;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v48.m256i_u64[1] = _XMM0;
+    v47.m256i_i64[0] = __PAIR64__(v17, v16);
+    v47.m256i_i64[1] = __PAIR64__(v19, v18);
+    v48.m256i_i64[0] = 0i64;
+    v48.m256i_i32[6] = -1;
     v21 = Image_CountMipmaps(v16, v17, v18);
-    __asm { vmovups ymm1, [rsp+230h+var_1C0] }
-    HIDWORD(v54[2]) = *(_DWORD *)(v13 - 10);
+    v47.m256i_i32[5] = *(_DWORD *)(v13 - 10);
     if ( v21 == v20 )
       v20 = 0;
-    LODWORD(v54[3]) = *(_DWORD *)(v13 - 14);
-    LODWORD(v54[2]) = v20;
-    __asm
-    {
-      vmovups ymm0, [rsp+230h+var_1E0]
-      vmovups ymmword ptr [rbp+130h+params.width], ymm0
-      vmovups ymmword ptr [rbp+130h+params.customAllocFunc], ymm1
-    }
+    v47.m256i_i32[6] = *(_DWORD *)(v13 - 14);
+    v47.m256i_i32[4] = v20;
+    *(__m256i *)&params.width = v47;
+    *(__m256i *)&params.customAllocFunc = v48;
     CardMemoryAmount = Image_GetCardMemoryAmount(&params);
     if ( (_BYTE)CardMemoryAmount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 875, ASSERT_TYPE_ASSERT, "(IsAligned( size, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( size, R_IMAGE_ALIGNMENT )") )
       __debugbreak();
@@ -2346,159 +2334,145 @@ void GfxLightmapAtlas::PrepareForCopy(GfxLightmapAtlas *this, GfxLightmapAtlas::
     --v15;
   }
   while ( v15 );
-  v25 = (__int64)v60;
-  if ( (unsigned int)v14 > v63->m_lightmapAtlasVARangeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 878, ASSERT_TYPE_ASSERT, "( vaSize ) <= ( m_lightmapAtlasVARangeSize )", "%s <= %s\n\t%llu, %llu", "vaSize", "m_lightmapAtlasVARangeSize", (unsigned int)v14, v63->m_lightmapAtlasVARangeSize) )
+  v23 = (__int64)v53;
+  if ( (unsigned int)v14 > v56->m_lightmapAtlasVARangeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 878, ASSERT_TYPE_ASSERT, "( vaSize ) <= ( m_lightmapAtlasVARangeSize )", "%s <= %s\n\t%llu, %llu", "vaSize", "m_lightmapAtlasVARangeSize", (unsigned int)v14, v56->m_lightmapAtlasVARangeSize) )
     __debugbreak();
-  m_lightmapAtlasVARangeAllocOffset = v63->m_lightmapAtlasVARangeAllocOffset;
-  if ( m_lightmapAtlasVARangeAllocOffset + v14 > v63->m_lightmapAtlasVARangeSize )
+  m_lightmapAtlasVARangeAllocOffset = v56->m_lightmapAtlasVARangeAllocOffset;
+  if ( m_lightmapAtlasVARangeAllocOffset + v14 > v56->m_lightmapAtlasVARangeSize )
   {
-    if ( g_gpuSwapFrame - v63->m_lightmapAtlasVARangeWrapFrame < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 884, ASSERT_TYPE_ASSERT, "(g_gpuSwapFrame - m_lightmapAtlasVARangeWrapFrame >= 3)", (const char *)&queryFormat, "g_gpuSwapFrame - m_lightmapAtlasVARangeWrapFrame >= 3") )
+    if ( g_gpuSwapFrame - v56->m_lightmapAtlasVARangeWrapFrame < 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 884, ASSERT_TYPE_ASSERT, "(g_gpuSwapFrame - m_lightmapAtlasVARangeWrapFrame >= 3)", (const char *)&queryFormat, "g_gpuSwapFrame - m_lightmapAtlasVARangeWrapFrame >= 3") )
       __debugbreak();
-    v63->m_lightmapAtlasVARangeAllocOffset = 0i64;
+    v56->m_lightmapAtlasVARangeAllocOffset = 0i64;
     m_lightmapAtlasVARangeAllocOffset = v12->m_lightmapAtlasVARangeAllocOffset;
     v12->m_lightmapAtlasVARangeWrapFrame = g_gpuSwapFrame;
   }
-  v27 = &v12->m_lightmapAtlasVARangeStart[m_lightmapAtlasVARangeAllocOffset];
-  v56 = v27;
-  RB_BackendDataCopier::CommitMem(&rbBackendDataCopier, 0, v27, &v27[v14], (StreamerMemLoan *)(v25 + 17688), (Mem_PageRange *)(v25 + 17680), "lightmap atlas");
+  v25 = &v12->m_lightmapAtlasVARangeStart[m_lightmapAtlasVARangeAllocOffset];
+  v49 = v25;
+  RB_BackendDataCopier::CommitMem(&rbBackendDataCopier, 0, v25, &v25[v14], (StreamerMemLoan *)(v23 + 17688), (Mem_PageRange *)(v23 + 17680), "lightmap atlas");
   if ( ((unsigned __int8)&s_lightmapCommitTotal & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_lightmapCommitTotal) )
     __debugbreak();
   _InterlockedExchangeAdd(&s_lightmapCommitTotal, v14);
-  *(_QWORD *)(v25 + 17672) = (unsigned int)v14;
-  v59 = v25 + 704;
-  *(_QWORD *)(v25 + 17664) = v27;
+  *(_QWORD *)(v23 + 17672) = (unsigned int)v14;
+  v52 = v23 + 704;
+  *(_QWORD *)(v23 + 17664) = v25;
   v12->m_lightmapAtlasVARangeAllocOffset += (unsigned int)v14;
-  v58 = (GfxTextureId *)(v25 + 24);
-  v28 = v70;
-  v61 = v70;
-  image = (GfxImage *)(v25 + 8);
+  v51 = (GfxTextureId *)(v23 + 24);
+  v26 = v63;
+  v54 = v63;
+  image = (GfxImage *)(v23 + 8);
   do
   {
-    if ( (*(_DWORD *)(v28 - 10) & 0x20000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 912, ASSERT_TYPE_ASSERT, "(desc.flags & IMG_DISK_FLAG_MAPTYPE_ARRAY)", (const char *)&queryFormat, "desc.flags & IMG_DISK_FLAG_MAPTYPE_ARRAY") )
+    if ( (*(_DWORD *)(v26 - 10) & 0x20000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 912, ASSERT_TYPE_ASSERT, "(desc.flags & IMG_DISK_FLAG_MAPTYPE_ARRAY)", (const char *)&queryFormat, "desc.flags & IMG_DISK_FLAG_MAPTYPE_ARRAY") )
       __debugbreak();
-    if ( *((_WORD *)v28 + 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 913, ASSERT_TYPE_ASSERT, "(desc.depth == 1)", (const char *)&queryFormat, "desc.depth == 1") )
+    if ( *((_WORD *)v26 + 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 913, ASSERT_TYPE_ASSERT, "(desc.depth == 1)", (const char *)&queryFormat, "desc.depth == 1") )
       __debugbreak();
-    v29 = *(_DWORD *)(v28 - 14);
-    if ( v29 )
+    v27 = *(_DWORD *)(v26 - 14);
+    if ( v27 )
     {
-      v30 = *((unsigned __int16 *)v28 - 1);
-      v31 = *(unsigned __int16 *)v28;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+230h+var_1C0+8], xmm0
-      }
-      v55.m256i_i64[0] = 0i64;
-      v33 = *(_DWORD *)(v28 - 10);
-      v34 = *((unsigned __int16 *)v28 + 2);
-      HIDWORD(v54[2]) = v33 | 0x20000;
-      v55.m256i_i32[6] = -1;
-      __asm
-      {
-        vmovups ymm1, [rsp+230h+var_1C0]
-        vmovups ymmword ptr [rbp+130h+var_150.customAllocFunc], ymm1
-      }
-      *(_OWORD *)&v66.customLayout = *(_OWORD *)&_RT0.m256i_u64[2];
-      v66.customAllocFunc = lambda_29874e1d434f9c0b745e22adb6af095e_::_lambda_invoker_cdecl_;
-      LODWORD(v54[0]) = v30;
-      *(_QWORD *)((char *)v54 + 4) = v31 | 0x100000000i64;
-      *(_QWORD *)((char *)&v54[1] + 4) = v34;
-      LODWORD(v54[3]) = v29;
-      __asm { vmovups ymm0, [rsp+230h+var_1E0] }
-      v66.customAllocUserData = v56;
-      __asm { vmovups ymmword ptr [rbp+130h+var_150.width], ymm0 }
-      Image_Setup(image, &v66);
-      v38 = *((unsigned __int16 *)v28 + 1);
+      v28 = *((unsigned __int16 *)v26 - 1);
+      v29 = *(unsigned __int16 *)v26;
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      HIDWORD(v54[1]) = v34;
-      v39 = (unsigned __int8)v28[6];
-      v55.m256i_i64[0] = 0i64;
-      __asm { vmovdqu xmmword ptr [rsp+230h+var_1C0+8], xmm0 }
-      v55.m256i_i32[6] = -1;
-      LODWORD(v54[0]) = v30;
-      *(_QWORD *)((char *)v54 + 4) = __PAIR64__(v38, v31);
-      v40 = Image_CountMipmaps(v30, v31, v38);
-      __asm { vmovups ymm1, [rsp+230h+var_1C0] }
-      *(_QWORD *)((char *)&v54[2] + 4) = __PAIR64__(v29, v33);
-      if ( v40 == v39 )
-        v39 = 0;
-      LODWORD(v54[2]) = v39;
-      __asm
-      {
-        vmovups ymm0, [rsp+230h+var_1E0]
-        vmovups ymmword ptr [rbp+130h+var_D0.width], ymm0
-        vmovups ymmword ptr [rbp+130h+var_D0.customAllocFunc], ymm1
-      }
-      v43 = Image_GetCardMemoryAmount(&v68);
-      v44 = v43;
-      if ( (_BYTE)v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 927, ASSERT_TYPE_ASSERT, "(IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT )") )
+      *(_OWORD *)&v48.m256i_u64[1] = _XMM0;
+      v48.m256i_i64[0] = 0i64;
+      v31 = *(_DWORD *)(v26 - 10);
+      v32 = *((unsigned __int16 *)v26 + 2);
+      v47.m256i_i32[5] = v31 | 0x20000;
+      v48.m256i_i32[6] = -1;
+      *(_OWORD *)&v59.customLayout = *(_OWORD *)&v48.m256i_u64[2];
+      v59.customAllocFunc = lambda_29874e1d434f9c0b745e22adb6af095e_::_lambda_invoker_cdecl_;
+      v47.m256i_i32[0] = v28;
+      *(__int64 *)((char *)v47.m256i_i64 + 4) = v29 | 0x100000000i64;
+      *(__int64 *)((char *)&v47.m256i_i64[1] + 4) = v32;
+      v47.m256i_i32[6] = v27;
+      v59.customAllocUserData = v49;
+      *(__m256i *)&v59.width = v47;
+      Image_Setup(image, &v59);
+      v33 = *((unsigned __int16 *)v26 + 1);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v47.m256i_i32[3] = v32;
+      v34 = (unsigned __int8)v26[6];
+      v48.m256i_i64[0] = 0i64;
+      *(_OWORD *)&v48.m256i_u64[1] = _XMM0;
+      v48.m256i_i32[6] = -1;
+      v47.m256i_i32[0] = v28;
+      *(__int64 *)((char *)v47.m256i_i64 + 4) = __PAIR64__(v33, v29);
+      v35 = Image_CountMipmaps(v28, v29, v33);
+      *(__int64 *)((char *)&v47.m256i_i64[2] + 4) = __PAIR64__(v27, v31);
+      if ( v35 == v34 )
+        v34 = 0;
+      v47.m256i_i32[4] = v34;
+      *(__m256i *)&v61.width = v47;
+      *(__m256i *)&v61.customAllocFunc = v48;
+      v36 = Image_GetCardMemoryAmount(&v61);
+      v37 = v36;
+      if ( (_BYTE)v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 927, ASSERT_TYPE_ASSERT, "(IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( textureAllocSize, R_IMAGE_ALIGNMENT )") )
         __debugbreak();
-      v56 += v44;
-      if ( v29 - 33 > 0xC )
+      v49 += v37;
+      if ( (unsigned int)(v27 - 33) > 0xC )
       {
-        v45 = 0;
-        if ( *(int *)(v25 + 4) > 0 )
+        v38 = 0;
+        if ( *(int *)(v23 + 4) > 0 )
         {
-          v46 = v59;
-          v47 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
+          v39 = v52;
+          v40 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
           do
           {
-            v48 = *(_DWORD *)(v28 - 14);
-            memset(v54, 0, sizeof(v54));
-            v55.m256i_i64[0] = 0i64;
-            LODWORD(v54[0]) = R_D3D_GetDXGIFormatForPixelFormat(v48);
-            *(_QWORD *)((char *)v54 + 4) = 5i64;
-            HIDWORD(v54[1]) = v45;
-            v54[2] = 1i64;
-            basemap = R_Texture_GetResident(*v58)->basemap;
+            v41 = *(_DWORD *)(v26 - 14);
+            memset(&v47, 0, sizeof(v47));
+            v48.m256i_i64[0] = 0i64;
+            v47.m256i_i32[0] = R_D3D_GetDXGIFormatForPixelFormat(v41);
+            *(__int64 *)((char *)v47.m256i_i64 + 4) = 5i64;
+            v47.m256i_i32[3] = v38;
+            v47.m256i_i64[2] = 1i64;
+            basemap = R_Texture_GetResident(*v51)->basemap;
             while ( 1 )
             {
-              if ( v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+              if ( v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
                 __debugbreak();
               if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
                 break;
               Sys_Sleep(0);
             }
             freeSlot = g_descriptorPools.shaderViewPool.freeSlot;
-            v28 = v61;
-            v25 = (__int64)v60;
+            v26 = v54;
+            v23 = (__int64)v53;
             if ( !g_descriptorPools.shaderViewPool.freeSlot )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
                 __debugbreak();
               freeSlot = g_descriptorPools.shaderViewPool.freeSlot;
             }
-            v51 = &g_descriptorPools.shaderViewPool.nextSlot[freeSlot];
-            g_descriptorPools.shaderViewPool.freeSlot = *v51;
-            *v51 = 0;
+            v44 = &g_descriptorPools.shaderViewPool.nextSlot[freeSlot];
+            g_descriptorPools.shaderViewPool.freeSlot = *v44;
+            *v44 = 0;
             ++g_descriptorPools.shaderViewPool.handle.used;
-            if ( v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+            if ( v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
               __debugbreak();
             _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
-            v64 = freeSlot;
+            v57 = freeSlot;
             m_pFunction = g_dx.d3d12device->m_pFunction;
-            v65 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot);
-            ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, _QWORD, _QWORD *, unsigned __int64))m_pFunction[6].AddRef)(g_dx.d3d12device, basemap, 0i64, v54, v65);
-            *(_DWORD *)(v46 + 16) = freeSlot;
-            ++v45;
-            *(_QWORD *)v46 = basemap;
-            *(_QWORD *)(v46 + 8) = 0i64;
-            *(_DWORD *)(v46 + 20) = -1;
-            v46 += 24i64;
+            v58 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot);
+            ((void (__fastcall *)(ID3D12Device *, ID3D12Resource *, _QWORD, __m256i *, unsigned __int64))m_pFunction[6].AddRef)(g_dx.d3d12device, basemap, 0i64, &v47, v58);
+            *(_DWORD *)(v39 + 16) = freeSlot;
+            ++v38;
+            *(_QWORD *)v39 = basemap;
+            *(_QWORD *)(v39 + 8) = 0i64;
+            *(_DWORD *)(v39 + 20) = -1;
+            v39 += 24i64;
           }
-          while ( v45 < *(_DWORD *)(v25 + 4) );
+          while ( v38 < *(_DWORD *)(v23 + 4) );
         }
       }
     }
     ++image;
-    v58 += 58;
-    v59 += 192i64;
-    v28 += 24;
-    v53 = v62-- == 1;
-    v61 = v28;
+    v51 += 58;
+    v52 += 192i64;
+    v26 += 24;
+    v46 = v55-- == 1;
+    v54 = v26;
   }
-  while ( !v53 );
-  v63->m_flipTexturePending = 1;
+  while ( !v46 );
+  v56->m_flipTexturePending = 1;
 }
 
 /*
@@ -2891,123 +2865,102 @@ RB_UpdateLightmapAtlas
 */
 void RB_UpdateLightmapAtlas(const GfxBackEndData *data, ComputeCmdBufState *state)
 {
-  __int64 v10; 
+  GfxLightmapAtlas *v2; 
+  __int64 v5; 
   GfxLightmapAtlas::State m_state; 
-  __int32 v13; 
-  int v14; 
-  int v15; 
+  __int32 v7; 
+  int v8; 
+  int v9; 
   __int64 m_activeAtlasState; 
   int m_numTextureSlices; 
-  bool v20; 
+  float m_singleSliceFefragmentationUtilizationThreshold; 
+  __int128 v13; 
   GfxLightmapAtlas::BinaryTreePacker *m_packers; 
-  __int64 v22; 
-  bool v23; 
-  __int64 v26; 
-  char v33; 
-  void *retaddr; 
+  __int64 v15; 
+  double Utilization; 
+  __int128 v17; 
+  __int64 v18; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RBX = g_lightmapAtlas;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v10 = 3i64;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v2 = g_lightmapAtlas;
+  v5 = 3i64;
   do
   {
     if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 496, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
       __debugbreak();
-    GfxLightmapAtlas::ProcessRemovedLightmaps(_RBX);
-    m_state = _RBX->m_state;
+    GfxLightmapAtlas::ProcessRemovedLightmaps(v2);
+    m_state = v2->m_state;
     if ( m_state )
     {
-      v13 = m_state - 1;
-      if ( v13 )
+      v7 = m_state - 1;
+      if ( v7 )
       {
-        if ( v13 == 1 )
-          GfxLightmapAtlas::UpdateWaitForTextureFree(_RBX);
+        if ( v7 == 1 )
+          GfxLightmapAtlas::UpdateWaitForTextureFree(v2);
       }
-      else if ( _RBX->m_copyingFence )
+      else if ( v2->m_copyingFence )
       {
-        if ( _RBX->m_flipTexturePending )
+        if ( v2->m_flipTexturePending )
         {
-          if ( _RBX->m_numWaitFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 542, ASSERT_TYPE_ASSERT, "(m_numWaitFrames == 0)", (const char *)&queryFormat, "m_numWaitFrames == 0") )
+          if ( v2->m_numWaitFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 542, ASSERT_TYPE_ASSERT, "(m_numWaitFrames == 0)", (const char *)&queryFormat, "m_numWaitFrames == 0") )
             __debugbreak();
-          v14 = 1 - _RBX->m_activeAtlasState;
-          ++_RBX->m_numWaitFrames;
-          _RBX->m_activeAtlasState = v14;
-          v15 = 2;
+          v8 = 1 - v2->m_activeAtlasState;
+          ++v2->m_numWaitFrames;
+          v2->m_activeAtlasState = v8;
+          v9 = 2;
         }
         else
         {
-          v15 = 0;
+          v9 = 0;
         }
-        _RBX->m_state = v15;
-        GfxLightmapAtlas::UpdatePackingBuffer(_RBX, state);
-        GfxLightmapAtlas::PostCopy(_RBX, state, &_RBX->m_atlasState[_RBX->m_activeAtlasState]);
+        v2->m_state = v9;
+        GfxLightmapAtlas::UpdatePackingBuffer(v2, state);
+        GfxLightmapAtlas::PostCopy(v2, state, &v2->m_atlasState[v2->m_activeAtlasState]);
       }
       goto LABEL_27;
     }
-    if ( _RBX->m_defragRequested._My_val )
+    if ( v2->m_defragRequested._My_val )
       goto LABEL_26;
-    m_activeAtlasState = _RBX->m_activeAtlasState;
-    m_numTextureSlices = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+    m_activeAtlasState = v2->m_activeAtlasState;
+    m_numTextureSlices = v2->m_atlasState[m_activeAtlasState].m_numTextureSlices;
     if ( m_numTextureSlices == 1 )
     {
-      __asm { vmovss  xmm7, dword ptr [rbx+0A8h] }
+      m_singleSliceFefragmentationUtilizationThreshold = v2->m_singleSliceFefragmentationUtilizationThreshold;
     }
     else
     {
-      __asm { vmovss  xmm7, dword ptr [rbx+0A4h] }
+      m_singleSliceFefragmentationUtilizationThreshold = v2->m_defragmentationUtilizationThreshold;
       if ( m_numTextureSlices > 1 )
         goto LABEL_22;
     }
-    if ( _RBX->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
+    if ( v2->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
       goto LABEL_27;
 LABEL_22:
-    __asm { vmovaps xmm6, xmm8 }
-    v20 = m_numTextureSlices == 0;
+    v13 = 0i64;
     if ( m_numTextureSlices > 0 )
     {
-      m_packers = _RBX->m_packers;
-      v22 = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+      m_packers = v2->m_packers;
+      v15 = v2->m_atlasState[m_activeAtlasState].m_numTextureSlices;
       do
       {
-        *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
-        __asm { vaddss  xmm6, xmm6, xmm0 }
-        v23 = v22-- == 0;
-        v20 = v23 || v22 == 0;
+        Utilization = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
+        v17 = v13;
+        *(float *)&v17 = *(float *)&v13 + *(float *)&Utilization;
+        v13 = v17;
+        --v15;
       }
-      while ( v22 );
+      while ( v15 );
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebp
-      vdivss  xmm1, xmm6, xmm0
-      vcomiss xmm1, xmm7
-    }
-    if ( v20 )
+    if ( (float)(*(float *)&v13 / (float)m_numTextureSlices) <= m_singleSliceFefragmentationUtilizationThreshold )
 LABEL_26:
-      GfxLightmapAtlas::Defragment(_RBX, state);
+      GfxLightmapAtlas::Defragment(v2, state);
 LABEL_27:
-    v26 = ((unsigned __int8)data->lightmapAtlasIndex - 1) & 1;
-    _RBX->m_renderAtlasState[v26] = _RBX->m_activeAtlasState;
-    _RBX->m_renderPackingBuffer[v26] = _RBX->m_activePackingBuffer;
-    ++_RBX;
-    --v10;
+    v18 = ((unsigned __int8)data->lightmapAtlasIndex - 1) & 1;
+    v2->m_renderAtlasState[v18] = v2->m_activeAtlasState;
+    v2->m_renderPackingBuffer[v18] = v2->m_activePackingBuffer;
+    ++v2;
+    --v5;
   }
-  while ( v10 );
-  __asm { vmovaps xmm7, [rsp+88h+var_48] }
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm6, [rsp+88h+var_38]
-  }
+  while ( v5 );
 }
 
 /*
@@ -3462,70 +3415,49 @@ void GfxLightmapAtlas::ScheduleWaitForCopies(GfxLightmapAtlas *this)
 GfxLightmapAtlas::ShouldDefragment
 ==============
 */
-char GfxLightmapAtlas::ShouldDefragment(GfxLightmapAtlas *this)
+bool GfxLightmapAtlas::ShouldDefragment(GfxLightmapAtlas *this)
 {
   __int64 m_activeAtlasState; 
   signed int m_numTextureSlices; 
-  bool v8; 
+  float m_singleSliceFefragmentationUtilizationThreshold; 
+  __int128 v4; 
   GfxLightmapAtlas::BinaryTreePacker *m_packers; 
-  __int64 v10; 
-  bool v11; 
-  char result; 
+  __int64 v6; 
+  double Utilization; 
+  __int128 v8; 
 
-  __asm { vmovaps [rsp+48h+var_28], xmm7 }
   if ( this->m_defragRequested._My_val )
-    goto LABEL_11;
+    return 1;
   m_activeAtlasState = this->m_activeAtlasState;
   m_numTextureSlices = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
   if ( m_numTextureSlices == 1 )
   {
-    __asm { vmovss  xmm7, dword ptr [rcx+0A8h] }
+    m_singleSliceFefragmentationUtilizationThreshold = this->m_singleSliceFefragmentationUtilizationThreshold;
     goto LABEL_5;
   }
-  __asm { vmovss  xmm7, dword ptr [rcx+0A4h] }
+  m_singleSliceFefragmentationUtilizationThreshold = this->m_defragmentationUtilizationThreshold;
   if ( m_numTextureSlices <= 1 )
   {
 LABEL_5:
     if ( this->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
-    {
-LABEL_10:
-      result = 0;
-      __asm { vmovaps xmm7, [rsp+48h+var_28] }
-      return result;
-    }
+      return 0;
   }
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v8 = m_numTextureSlices == 0;
+  v4 = 0i64;
   if ( m_numTextureSlices > 0 )
   {
     m_packers = this->m_packers;
-    v10 = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+    v6 = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
     do
     {
-      *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v11 = v10-- == 0;
-      v8 = v11 || v10 == 0;
+      Utilization = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
+      v8 = v4;
+      *(float *)&v8 = *(float *)&v4 + *(float *)&Utilization;
+      v4 = v8;
+      --v6;
     }
-    while ( v10 );
+    while ( v6 );
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vdivss  xmm1, xmm6, xmm0
-    vcomiss xmm1, xmm7
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  if ( !v8 )
-    goto LABEL_10;
-LABEL_11:
-  __asm { vmovaps xmm7, [rsp+48h+var_28] }
-  return 1;
+  return (float)(*(float *)&v4 / (float)m_numTextureSlices) <= m_singleSliceFefragmentationUtilizationThreshold;
 }
 
 /*
@@ -3653,112 +3585,94 @@ GfxLightmapAtlas::Update
 void GfxLightmapAtlas::Update(GfxLightmapAtlas *this, const GfxBackEndData *data, ComputeCmdBufState *state)
 {
   GfxLightmapAtlas::State m_state; 
-  __int32 v10; 
-  int v11; 
-  int v12; 
+  __int32 v7; 
+  int v8; 
+  GfxLightmapAtlas::State v9; 
   __int64 m_activeAtlasState; 
-  int m_numTextureSlices; 
-  bool v17; 
+  signed int m_numTextureSlices; 
+  float m_singleSliceFefragmentationUtilizationThreshold; 
+  __int128 v13; 
   GfxLightmapAtlas::BinaryTreePacker *m_packers; 
-  __int64 v19; 
-  bool v20; 
-  __int64 v26; 
+  __int64 v15; 
+  double Utilization; 
+  __int128 v17; 
+  __int64 v18; 
 
-  _RBX = this;
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 496, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
-  GfxLightmapAtlas::ProcessRemovedLightmaps(_RBX);
-  m_state = _RBX->m_state;
-  if ( m_state == IDLE )
+  GfxLightmapAtlas::ProcessRemovedLightmaps(this);
+  m_state = this->m_state;
+  if ( m_state )
   {
-    __asm { vmovaps [rsp+68h+var_38], xmm7 }
-    if ( _RBX->m_defragRequested._My_val )
+    v7 = m_state - 1;
+    if ( v7 )
     {
-LABEL_25:
-      GfxLightmapAtlas::Defragment(_RBX, state);
-      goto LABEL_26;
+      if ( v7 == 1 )
+        GfxLightmapAtlas::UpdateWaitForTextureFree(this);
     }
-    m_activeAtlasState = _RBX->m_activeAtlasState;
-    m_numTextureSlices = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
-    if ( m_numTextureSlices == 1 )
+    else if ( this->m_copyingFence )
     {
-      __asm { vmovss  xmm7, dword ptr [rbx+0A8h] }
-    }
-    else
-    {
-      __asm { vmovss  xmm7, dword ptr [rbx+0A4h] }
-      if ( m_numTextureSlices > 1 )
+      if ( this->m_flipTexturePending )
       {
-LABEL_21:
-        __asm
-        {
-          vmovaps [rsp+68h+var_28], xmm6
-          vxorps  xmm6, xmm6, xmm6
-        }
-        v17 = m_numTextureSlices == 0;
-        if ( m_numTextureSlices > 0 )
-        {
-          m_packers = _RBX->m_packers;
-          v19 = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
-          do
-          {
-            *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
-            __asm { vaddss  xmm6, xmm6, xmm0 }
-            v20 = v19-- == 0;
-            v17 = v20 || v19 == 0;
-          }
-          while ( v19 );
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vdivss  xmm1, xmm6, xmm0
-          vcomiss xmm1, xmm7
-          vmovaps xmm6, [rsp+68h+var_28]
-        }
-        if ( !v17 )
-          goto LABEL_26;
-        goto LABEL_25;
+        if ( this->m_numWaitFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 542, ASSERT_TYPE_ASSERT, "(m_numWaitFrames == 0)", (const char *)&queryFormat, "m_numWaitFrames == 0") )
+          __debugbreak();
+        v8 = 1 - this->m_activeAtlasState;
+        ++this->m_numWaitFrames;
+        this->m_activeAtlasState = v8;
+        v9 = SEARCHING;
       }
+      else
+      {
+        v9 = IDLE;
+      }
+      this->m_state = v9;
+      GfxLightmapAtlas::UpdatePackingBuffer(this, state);
+      GfxLightmapAtlas::PostCopy(this, state, &this->m_atlasState[this->m_activeAtlasState]);
     }
-    if ( _RBX->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
+    goto LABEL_26;
+  }
+  if ( this->m_defragRequested._My_val )
+  {
+LABEL_25:
+    GfxLightmapAtlas::Defragment(this, state);
+    goto LABEL_26;
+  }
+  m_activeAtlasState = this->m_activeAtlasState;
+  m_numTextureSlices = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+  if ( m_numTextureSlices == 1 )
+  {
+    m_singleSliceFefragmentationUtilizationThreshold = this->m_singleSliceFefragmentationUtilizationThreshold;
+  }
+  else
+  {
+    m_singleSliceFefragmentationUtilizationThreshold = this->m_defragmentationUtilizationThreshold;
+    if ( m_numTextureSlices > 1 )
+      goto LABEL_21;
+  }
+  if ( this->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
+    goto LABEL_26;
+LABEL_21:
+  v13 = 0i64;
+  if ( m_numTextureSlices > 0 )
+  {
+    m_packers = this->m_packers;
+    v15 = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+    do
     {
+      Utilization = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
+      v17 = v13;
+      *(float *)&v17 = *(float *)&v13 + *(float *)&Utilization;
+      v13 = v17;
+      --v15;
+    }
+    while ( v15 );
+  }
+  if ( (float)(*(float *)&v13 / (float)m_numTextureSlices) <= m_singleSliceFefragmentationUtilizationThreshold )
+    goto LABEL_25;
 LABEL_26:
-      __asm { vmovaps xmm7, [rsp+68h+var_38] }
-      goto LABEL_27;
-    }
-    goto LABEL_21;
-  }
-  v10 = m_state - 1;
-  if ( v10 )
-  {
-    if ( v10 == 1 )
-      GfxLightmapAtlas::UpdateWaitForTextureFree(_RBX);
-  }
-  else if ( _RBX->m_copyingFence )
-  {
-    if ( _RBX->m_flipTexturePending )
-    {
-      if ( _RBX->m_numWaitFrames && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_lightmap_atlas.cpp", 542, ASSERT_TYPE_ASSERT, "(m_numWaitFrames == 0)", (const char *)&queryFormat, "m_numWaitFrames == 0") )
-        __debugbreak();
-      v11 = 1 - _RBX->m_activeAtlasState;
-      ++_RBX->m_numWaitFrames;
-      _RBX->m_activeAtlasState = v11;
-      v12 = 2;
-    }
-    else
-    {
-      v12 = 0;
-    }
-    _RBX->m_state = v12;
-    GfxLightmapAtlas::UpdatePackingBuffer(_RBX, state);
-    GfxLightmapAtlas::PostCopy(_RBX, state, &_RBX->m_atlasState[_RBX->m_activeAtlasState]);
-  }
-LABEL_27:
-  v26 = ((unsigned __int8)data->lightmapAtlasIndex - 1) & 1;
-  _RBX->m_renderAtlasState[v26] = _RBX->m_activeAtlasState;
-  _RBX->m_renderPackingBuffer[v26] = _RBX->m_activePackingBuffer;
+  v18 = ((unsigned __int8)data->lightmapAtlasIndex - 1) & 1;
+  this->m_renderAtlasState[v18] = this->m_activeAtlasState;
+  this->m_renderPackingBuffer[v18] = this->m_activePackingBuffer;
 }
 
 /*
@@ -3803,65 +3717,52 @@ GfxLightmapAtlas::UpdateIdle
 void GfxLightmapAtlas::UpdateIdle(GfxLightmapAtlas *this, ComputeCmdBufState *state)
 {
   __int64 m_activeAtlasState; 
-  int m_numTextureSlices; 
-  bool v11; 
-  __int64 v12; 
+  signed int m_numTextureSlices; 
+  float m_singleSliceFefragmentationUtilizationThreshold; 
+  __int128 v7; 
+  __int64 v8; 
   GfxLightmapAtlas::BinaryTreePacker *m_packers; 
-  bool v14; 
+  double Utilization; 
+  __int128 v11; 
 
-  __asm { vmovaps [rsp+48h+var_28], xmm7 }
-  _RBX = this;
   if ( this->m_defragRequested._My_val )
   {
 LABEL_10:
-    GfxLightmapAtlas::Defragment(_RBX, state);
-    goto LABEL_11;
+    GfxLightmapAtlas::Defragment(this, state);
+    return;
   }
   m_activeAtlasState = this->m_activeAtlasState;
-  m_numTextureSlices = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+  m_numTextureSlices = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
   if ( m_numTextureSlices == 1 )
   {
-    __asm { vmovss  xmm7, dword ptr [rbx+0A8h] }
-    goto LABEL_5;
+    m_singleSliceFefragmentationUtilizationThreshold = this->m_singleSliceFefragmentationUtilizationThreshold;
   }
-  __asm { vmovss  xmm7, dword ptr [rbx+0A4h] }
-  if ( m_numTextureSlices <= 1 )
+  else
   {
-LABEL_5:
-    if ( _RBX->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
-      goto LABEL_11;
+    m_singleSliceFefragmentationUtilizationThreshold = this->m_defragmentationUtilizationThreshold;
+    if ( m_numTextureSlices > 1 )
+      goto LABEL_6;
   }
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v11 = m_numTextureSlices == 0;
+  if ( this->m_atlasState[m_activeAtlasState].m_textureSize <= 0x400 )
+    return;
+LABEL_6:
+  v7 = 0i64;
   if ( m_numTextureSlices > 0 )
   {
-    v12 = _RBX->m_atlasState[m_activeAtlasState].m_numTextureSlices;
-    m_packers = _RBX->m_packers;
+    v8 = this->m_atlasState[m_activeAtlasState].m_numTextureSlices;
+    m_packers = this->m_packers;
     do
     {
-      *(double *)&_XMM0 = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v14 = v12-- == 0;
-      v11 = v14 || v12 == 0;
+      Utilization = GfxLightmapAtlas::BinaryTreePacker::GetUtilization(m_packers++, 0);
+      v11 = v7;
+      *(float *)&v11 = *(float *)&v7 + *(float *)&Utilization;
+      v7 = v11;
+      --v8;
     }
-    while ( v12 );
+    while ( v8 );
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vdivss  xmm1, xmm6, xmm0
-    vcomiss xmm1, xmm7
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  if ( v11 )
+  if ( (float)(*(float *)&v7 / (float)m_numTextureSlices) <= m_singleSliceFefragmentationUtilizationThreshold )
     goto LABEL_10;
-LABEL_11:
-  __asm { vmovaps xmm7, [rsp+48h+var_28] }
 }
 
 /*

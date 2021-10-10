@@ -477,13 +477,18 @@ bool bdObjectStoreCompleteUploadSessionsRequest::serializeRequestBody(bdObjectSt
   const char *SessionID; 
   unsigned __int64 ContentSize; 
   char v8; 
-  __int64 v19; 
-  char *v31; 
+  const bdObjectStoreMetadata *Metadata; 
+  char *m_contentURL; 
+  _OWORD *v11; 
+  __int64 v12; 
+  __m256i *v13; 
   __int64 m_capacity; 
   unsigned int m_size; 
-  __int64 v36; 
-  char v40; 
-  _QWORD v42[437]; 
+  __m256i *v16; 
+  signed __int64 v17; 
+  __int64 v18; 
+  char v19; 
+  _QWORD v21[437]; 
 
   if ( !bdJSONSerializer::writeBeginObject(json) || !bdJSONSerializer::writeBeginArray(json, "uploadSessionCompletions") )
     return 0;
@@ -505,124 +510,76 @@ LABEL_10:
       goto LABEL_10;
     v8 = 1;
 LABEL_11:
-    _RBX = bdObjectStoreObject::getMetadata((bdObjectStoreObject *)&this->m_objects[v5]);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+0E00h+var_DD8+8], xmm0
-      vmovups ymm1, ymmword ptr [rax+10h]
-      vmovups ymmword ptr [rsp+0E00h+var_DD8+18h], ymm1
-      vmovups ymm0, ymmword ptr [rax+30h]
-      vmovups ymmword ptr [rsp+0E00h+var_DD8+38h], ymm0
-      vmovups ymm1, ymmword ptr [rax+50h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+58h], ymm1
-      vmovups xmm0, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rbp+0D00h+var_DD8+78h], xmm0
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+88h], ymm1
-    }
-    LOBYTE(v42[21]) = _RBX->m_contentChecksum[32];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+0A1h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+0A9h], ymm0
-    }
-    BYTE1(v42[25]) = _RBX->m_objectVersion[32];
-    v42[26] = _RBX->m_expiresOn;
-    v42[27] = _RBX->m_contentLength;
-    LODWORD(v42[28]) = _RBX->m_acl.m_aclType;
-    v42[29] = _RBX->m_created;
-    v42[30] = _RBX->m_modified;
-    _RCX = _RBX->m_contentURL;
-    _RAX = &v42[31];
-    v19 = 8i64;
+    Metadata = bdObjectStoreObject::getMetadata((bdObjectStoreObject *)&this->m_objects[v5]);
+    *(_OWORD *)&v21[1] = *(_OWORD *)Metadata->m_context;
+    *(bdObjectStoreObjectID *)&v21[3] = Metadata->m_objectID;
+    *(__m256i *)&v21[17] = *(__m256i *)Metadata->m_contentChecksum;
+    LOBYTE(v21[21]) = Metadata->m_contentChecksum[32];
+    *(__m256i *)((char *)&v21[21] + 1) = *(__m256i *)Metadata->m_objectVersion;
+    BYTE1(v21[25]) = Metadata->m_objectVersion[32];
+    v21[26] = Metadata->m_expiresOn;
+    v21[27] = Metadata->m_contentLength;
+    LODWORD(v21[28]) = Metadata->m_acl.m_aclType;
+    v21[29] = Metadata->m_created;
+    v21[30] = Metadata->m_modified;
+    m_contentURL = Metadata->m_contentURL;
+    v11 = &v21[31];
+    v12 = 8i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rcx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 16;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RCX += 128;
-      --v19;
+      *v11 = *(_OWORD *)m_contentURL;
+      v11[1] = *((_OWORD *)m_contentURL + 1);
+      v11[2] = *((_OWORD *)m_contentURL + 2);
+      v11[3] = *((_OWORD *)m_contentURL + 3);
+      v11[4] = *((_OWORD *)m_contentURL + 4);
+      v11[5] = *((_OWORD *)m_contentURL + 5);
+      v11[6] = *((_OWORD *)m_contentURL + 6);
+      v11 += 8;
+      *(v11 - 1) = *((_OWORD *)m_contentURL + 7);
+      m_contentURL += 128;
+      --v12;
     }
-    while ( v19 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+4F0h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+4F8h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+510h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+518h], ymm1
-    }
-    LOBYTE(v42[167]) = _RBX->m_category[64];
-    memcpy_0((char *)&v42[167] + 1, _RBX->m_extraData, 0x800ui64);
-    HIDWORD(v42[423]) = _RBX->m_extraDataSize;
-    v42[424] = _RBX->m_summaryContentLength;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+0D40h]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+0D48h], ymm0
-    }
-    LOWORD(v42[429]) = *(_WORD *)&_RBX->m_summaryChecksum[32];
-    v42[431] = *(_QWORD *)&_RBX->m_tags.m_capacity;
-    v31 = NULL;
-    m_capacity = _RBX->m_tags.m_capacity;
+    while ( v12 );
+    *(__m256i *)&v21[159] = *(__m256i *)Metadata->m_category;
+    *(__m256i *)&v21[163] = *(__m256i *)&Metadata->m_category[32];
+    LOBYTE(v21[167]) = Metadata->m_category[64];
+    memcpy_0((char *)&v21[167] + 1, Metadata->m_extraData, 0x800ui64);
+    HIDWORD(v21[423]) = Metadata->m_extraDataSize;
+    v21[424] = Metadata->m_summaryContentLength;
+    *(__m256i *)&v21[425] = *(__m256i *)Metadata->m_summaryChecksum;
+    LOWORD(v21[429]) = *(_WORD *)&Metadata->m_summaryChecksum[32];
+    v21[431] = *(_QWORD *)&Metadata->m_tags.m_capacity;
+    v13 = NULL;
+    m_capacity = Metadata->m_tags.m_capacity;
     if ( (_DWORD)m_capacity )
     {
-      v31 = (char *)bdMemory::allocate(66 * m_capacity);
-      m_size = _RBX->m_tags.m_size;
+      v13 = (__m256i *)bdMemory::allocate(66 * m_capacity);
+      m_size = Metadata->m_tags.m_size;
       if ( m_size )
       {
-        _RCX = v31;
-        _R8 = (char *)_RBX->m_tags.m_data - v31;
-        v36 = m_size;
+        v16 = v13;
+        v17 = (char *)Metadata->m_tags.m_data - (char *)v13;
+        v18 = m_size;
         do
         {
-          if ( _RCX )
+          if ( v16 )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r8+rcx]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm1, ymmword ptr [r8+rcx+20h]
-              vmovups ymmword ptr [rcx+20h], ymm1
-            }
-            *((_WORD *)_RCX + 32) = *(_WORD *)&_RCX[_R8 + 64];
+            *v16 = *(__m256i *)((char *)v16 + v17);
+            v16[1] = *(__m256i *)((char *)&v16[1] + v17);
+            v16[2].m256i_i16[0] = *(__int16 *)((char *)v16[2].m256i_i16 + v17);
           }
-          _RCX += 66;
-          --v36;
+          v16 = (__m256i *)((char *)v16 + 66);
+          --v18;
         }
-        while ( v36 );
+        while ( v18 );
       }
     }
-    v42[430] = v31;
-    LODWORD(v42[432]) = _RBX->m_numTags;
-    __asm
+    v21[430] = v13;
+    LODWORD(v21[432]) = Metadata->m_numTags;
+    *(bdObjectStoreObjectStatistics *)((char *)&v21[432] + 4) = Metadata->m_statistics;
+    if ( bdObjectStoreMetadata::hasTags((bdObjectStoreMetadata *)&v21[1]) )
     {
-      vmovups ymm0, ymmword ptr [rbx+0D7Ch]
-      vmovups ymmword ptr [rbp+0D00h+var_DD8+0D84h], ymm0
-    }
-    if ( bdObjectStoreMetadata::hasTags((bdObjectStoreMetadata *)&v42[1]) )
-    {
-      if ( !v8 || !bdObjectStoreMetadata::serializeTagsToJSON((bdObjectStoreMetadata *)&v42[1], json, "tags") )
+      if ( !v8 || !bdObjectStoreMetadata::serializeTagsToJSON((bdObjectStoreMetadata *)&v21[1], json, "tags") )
         goto LABEL_22;
     }
     else if ( !v8 )
@@ -631,17 +588,17 @@ LABEL_11:
     }
     if ( bdJSONSerializer::writeEndObject(json) )
     {
-      v40 = 1;
+      v19 = 1;
       goto LABEL_23;
     }
 LABEL_22:
-    v40 = 0;
+    v19 = 0;
 LABEL_23:
-    bdMemory::deallocate((void *)v42[430]);
-    v42[430] = 0i64;
-    v42[431] = 0i64;
-    bdObjectStoreACL::~bdObjectStoreACL((bdObjectStoreACL *)&v42[28]);
-    if ( !v40 )
+    bdMemory::deallocate((void *)v21[430]);
+    v21[430] = 0i64;
+    v21[431] = 0i64;
+    bdObjectStoreACL::~bdObjectStoreACL((bdObjectStoreACL *)&v21[28]);
+    if ( !v19 )
       return 0;
   }
   return bdJSONSerializer::writeEndArray(json) && bdJSONSerializer::writeEndObject(json);

@@ -1939,17 +1939,18 @@ PartyAtomic_AcceptInviteMP
 */
 void PartyAtomic_AcceptInviteMP(const unsigned int controllerIndex, const XSESSION_INFO *hostInfo, const unsigned __int64 lobbyId, const int fromGameInvite, const int fromOnlineGame)
 {
-  unsigned int v10; 
+  unsigned int v9; 
   int ControllerFromClient; 
   PartyData *PartyData; 
-  int v13; 
-  bool v14; 
-  const dvar_t *v15; 
-  PartyJoinType v16; 
+  int v12; 
+  bool v13; 
+  const dvar_t *v14; 
+  PartyJoinType v15; 
   int integer; 
-  const char *v18; 
+  const char *v17; 
+  double v18; 
   char *fmt; 
-  PartySplitscreenData *v25; 
+  PartySplitscreenData *v20; 
   PartySplitscreenData splitscreenData; 
 
   if ( Live_AreWeAcceptingInvite() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 2706, ASSERT_TYPE_ASSERT, "(!Live_AreWeAcceptingInvite())", (const char *)&queryFormat, "!Live_AreWeAcceptingInvite()") )
@@ -1960,12 +1961,12 @@ void PartyAtomic_AcceptInviteMP(const unsigned int controllerIndex, const XSESSI
     __debugbreak();
   if ( g_partyJoinInfo.state )
   {
-    LODWORD(v25) = g_partyJoinInfo.state;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 2709, ASSERT_TYPE_ASSERT, "( ( PartyAtomic_GetJoinState( &g_partyJoinInfo ) == PARTYJOIN_INACTIVE ) )", "( PartyAtomic_GetJoinState( &g_partyJoinInfo ) ) = %i", v25) )
+    LODWORD(v20) = g_partyJoinInfo.state;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 2709, ASSERT_TYPE_ASSERT, "( ( PartyAtomic_GetJoinState( &g_partyJoinInfo ) == PARTYJOIN_INACTIVE ) )", "( PartyAtomic_GetJoinState( &g_partyJoinInfo ) ) = %i", v20) )
       __debugbreak();
   }
-  v10 = Sys_Milliseconds();
-  Com_Printf(14, "PartyJoin: AcceptInviteMP - Joining <lobby|party> from session info at time %i\n", v10);
+  v9 = Sys_Milliseconds();
+  Com_Printf(14, "PartyJoin: AcceptInviteMP - Joining <lobby|party> from session info at time %i\n", v9);
   memset(&splitscreenData, 0, sizeof(splitscreenData));
   PartyAtomic_SetupSplitscreenControllersForInvite(controllerIndex, fromOnlineGame, &splitscreenData);
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
@@ -1984,17 +1985,17 @@ void PartyAtomic_AcceptInviteMP(const unsigned int controllerIndex, const XSESSI
     Com_Printf(25, "%s\n", "PartyAtomic_InviteShutdown");
     Session_DeleteSession(&g_partyJoinSession);
   }
-  v13 = PartyAtomic_SetupPotentialHostForJoining(ControllerFromClient, hostInfo, ANY_PARTY_ID, 0, &g_partyJoinInfo, &splitscreenData);
+  v12 = PartyAtomic_SetupPotentialHostForJoining(ControllerFromClient, hostInfo, ANY_PARTY_ID, 0, &g_partyJoinInfo, &splitscreenData);
   g_partyJoinInfo.subPartyCount = 1;
-  v14 = fromGameInvite == 0;
+  v13 = fromGameInvite == 0;
   g_partyJoinInfo.memberCount = (g_partyJoinInfo.splitscreenData.otherClientActive != 0) + 1;
-  v15 = DVARINT_pt_connectAttempts;
+  v14 = DVARINT_pt_connectAttempts;
   g_partyJoinInfo.subPartyList[0] = (g_partyJoinInfo.splitscreenData.otherClientActive != 0) + 1;
-  v16 = !v14 + 1;
+  v15 = !v13 + 1;
   if ( !DVARINT_pt_connectAttempts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_connectAttempts") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  integer = v15->current.integer;
+  Dvar_CheckFrontendServerThread(v14);
+  integer = v14->current.integer;
   if ( g_partyJoinInfo.state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 145, ASSERT_TYPE_ASSERT, "(PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_INACTIVE)", (const char *)&queryFormat, "PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_INACTIVE") )
     __debugbreak();
   if ( g_partyJoinInfo.atomicParty && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 146, ASSERT_TYPE_ASSERT, "(partyJoinInfo->atomicParty == 0)", (const char *)&queryFormat, "partyJoinInfo->atomicParty == NULL") )
@@ -2006,30 +2007,22 @@ void PartyAtomic_AcceptInviteMP(const unsigned int controllerIndex, const XSESSI
     g_partyJoinInfo.startTimeUtc = 0;
   g_partyJoinInfo.startTimeMillis = Sys_Milliseconds();
   g_partyJoinInfo.atomicParty = NULL;
-  v18 = s_partyJoinStateName[g_partyJoinInfo.state];
-  g_partyJoinInfo.joinType = v16;
+  v17 = s_partyJoinStateName[g_partyJoinInfo.state];
+  g_partyJoinInfo.joinType = v15;
   g_partyJoinInfo.availableRetryCount = integer;
   LODWORD(fmt) = 0;
-  Com_Printf(25, "PartyJoin: Changing from %s to %s, with timeout %i.\n", v18, s_partyJoinStateName[1], fmt);
+  Com_Printf(25, "PartyJoin: Changing from %s to %s, with timeout %i.\n", v17, s_partyJoinStateName[1], fmt);
   g_partyJoinInfo.state = PARTYJOIN_REQUEST;
   g_partyJoinInfo.timeoutTime = 0;
   g_partyJoinInfo.lobbyId = lobbyId;
-  if ( !v13 )
+  if ( !v12 )
   {
     Com_PrintError(14, "PartyJoin: Failed to setup potential host.\n");
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, NULL);
     if ( g_partyJoinInfo.state == PARTYJOIN_INACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 649, ASSERT_TYPE_ASSERT, "(PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE)", (const char *)&queryFormat, "PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE") )
       __debugbreak();
-    Sys_Milliseconds();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", (const char *)&stru_143DD5890, *(double *)&_XMM3);
+    v18 = (float)((float)(Sys_Milliseconds() - g_partyJoinInfo.startTimeMillis) * 0.001);
+    Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", (const char *)&stru_143DD5890, v18);
     if ( g_partyJoinInfo.errorMessage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 653, ASSERT_TYPE_ASSERT, "( ( partyJoinInfo->errorMessage == 0 ) )", "( partyJoinInfo->errorMessage ) = %s", g_partyJoinInfo.errorMessage) )
       __debugbreak();
     g_partyJoinInfo.errorState = g_partyJoinInfo.state;
@@ -2256,9 +2249,10 @@ PartyAtomic_DlogJoinFailure
 */
 bool PartyAtomic_DlogJoinFailure(PartyJoinInfo *partyJoinInfo)
 {
+  __int128 v1; 
   bool IsDedicated; 
-  const dvar_t *v5; 
-  bool v6; 
+  const dvar_t *v4; 
+  bool v5; 
   int integer; 
   int controllerIndex; 
   unsigned __int64 UserId; 
@@ -2267,45 +2261,48 @@ bool PartyAtomic_DlogJoinFailure(PartyJoinInfo *partyJoinInfo)
   PartyJoinState errorState; 
   PartyJoinType joinType; 
   unsigned __int8 memberCount; 
+  int v15; 
   unsigned int startTimeUtc; 
   unsigned __int64 lobbyId; 
-  bool v21; 
+  float v18; 
+  bool v19; 
   unsigned int i; 
-  NetConnection *v24; 
+  NetConnection *v21; 
   LocalClientNum_t LocalClient; 
-  bool v26; 
-  bool v27; 
-  __int64 v29; 
-  unsigned __int8 v30; 
+  bool v23; 
+  bool v24; 
+  __int64 v25; 
+  unsigned __int8 v26; 
   DLogContext context; 
   char dest[36]; 
   char buffer[4096]; 
+  __int128 v30; 
 
   IsDedicated = NetConnection::IsDedicated(partyJoinInfo->connections);
-  v5 = DVARINT_party_join_failure_dlog_mode;
-  v6 = IsDedicated;
+  v4 = DVARINT_party_join_failure_dlog_mode;
+  v5 = IsDedicated;
   if ( !DVARINT_party_join_failure_dlog_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_join_failure_dlog_mode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  integer = v5->current.integer;
+  Dvar_CheckFrontendServerThread(v4);
+  integer = v4->current.integer;
   switch ( integer )
   {
     case 0:
       return 0;
     case 1:
-      if ( !v6 )
+      if ( !v5 )
         return 0;
       break;
     case 2:
       break;
     default:
-      LODWORD(v29) = v5->current.integer;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_local.h", 291, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unhandled disconnect dlog mode %d", v29) )
+      LODWORD(v25) = v4->current.integer;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\party_local.h", 291, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unhandled disconnect dlog mode %d", v25) )
         __debugbreak();
       return 0;
   }
   controllerIndex = partyJoinInfo->controllerIndex;
-  __asm { vmovaps [rsp+1238h+var_38], xmm6 }
+  v30 = v1;
   UserId = DLog_GetUserId(controllerIndex);
   if ( DLog_CreateContext(&context, UserId, buffer, 4096) )
   {
@@ -2314,7 +2311,7 @@ bool PartyAtomic_DlogJoinFailure(PartyJoinInfo *partyJoinInfo)
       __debugbreak();
     errorMessage = (char *)&queryFormat.fmt + 3;
     errorState = partyJoinInfo->errorState;
-    v30 = partyJoinInfo->errorReason[0];
+    v26 = partyJoinInfo->errorReason[0];
     if ( partyJoinInfo->errorMessage )
       errorMessage = partyJoinInfo->errorMessage;
     if ( (errorState < PARTYJOIN_INACTIVE || (unsigned int)errorState > (PARTYJOIN_COUNT|PARTYJOIN_WAIT_PRIMED_HOST_ACK|0xE0)) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum PartyJoinState>(enum PartyJoinState)", "unsigned", (unsigned __int8)errorState, "signed", errorState) )
@@ -2323,27 +2320,18 @@ bool PartyAtomic_DlogJoinFailure(PartyJoinInfo *partyJoinInfo)
     memberCount = partyJoinInfo->memberCount;
     if ( (joinType < PJT_NONE || (unsigned int)joinType > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum PartyJoinType>(enum PartyJoinType)", "unsigned", (unsigned __int8)joinType, "signed", joinType) )
       __debugbreak();
-    Sys_Milliseconds();
+    v15 = Sys_Milliseconds();
     startTimeUtc = partyJoinInfo->startTimeUtc;
     lobbyId = partyJoinInfo->lobbyId;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm0, cs:__real@3a83126f
-    }
+    v18 = (float)(v15 - partyJoinInfo->startTimeMillis) * 0.001;
     if ( DLog_IsActive() )
     {
-      v27 = DLog_BeginEvent(&context, "dlog_event_client_join_failure");
+      v24 = DLog_BeginEvent(&context, "dlog_event_client_join_failure");
       context.autoEndEvent = 1;
-      if ( v27 && DLog_UInt64(&context, "lobby_id", lobbyId) && DLog_UInt32(&context, "start_time", startTimeUtc) )
+      if ( v24 && DLog_UInt64(&context, "lobby_id", lobbyId) && DLog_UInt32(&context, "start_time", startTimeUtc) && DLog_Float32(&context, "duration", v18) && DLog_UInt8(&context, "join_type", joinType) && DLog_UInt8(&context, "member_count", memberCount) && DLog_UInt8(&context, "error_state", errorState) && DLog_String(&context, "error_message", errorMessage, 0) && DLog_UInt8(&context, "error_reason", v26) && DLog_UInt8(&context, "error_response", errorResponse) )
       {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(&context, "duration", *(float *)&_XMM2) && DLog_UInt8(&context, "join_type", joinType) && DLog_UInt8(&context, "member_count", memberCount) && DLog_UInt8(&context, "error_state", errorState) && DLog_String(&context, "error_message", errorMessage, 0) && DLog_UInt8(&context, "error_reason", v30) && DLog_UInt8(&context, "error_response", errorResponse) )
-        {
-          v21 = 1;
-          goto LABEL_29;
-        }
+        v19 = 1;
+        goto LABEL_29;
       }
     }
     else
@@ -2351,20 +2339,19 @@ bool PartyAtomic_DlogJoinFailure(PartyJoinInfo *partyJoinInfo)
       context.error = DLOG_ERROR_NOT_ACTIVE;
     }
   }
-  v21 = 0;
+  v19 = 0;
 LABEL_29:
-  __asm { vmovaps xmm6, [rsp+1238h+var_38] }
   for ( i = 0; i < 2; ++i )
   {
-    v24 = &partyJoinInfo->connections[i];
-    if ( NetConnection::IsOpened(v24) )
+    v21 = &partyJoinInfo->connections[i];
+    if ( NetConnection::IsOpened(v21) )
     {
-      LocalClient = NetConnection::GetLocalClient(v24);
+      LocalClient = NetConnection::GetLocalClient(v21);
       Com_sprintf<36>((char (*)[36])dest, "client_%d", (unsigned int)LocalClient);
-      v21 = v21 && (v26 = NetConnection::IsDedicated(v24), NetConnection::GetTelemetry(v24, &context, dest, v26));
+      v19 = v19 && (v23 = NetConnection::IsDedicated(v21), NetConnection::GetTelemetry(v21, &context, dest, v23));
     }
   }
-  return v21 && NET_DlogTelemetry(&context, "net") && DLog_RecordContext(&context);
+  return v19 && NET_DlogTelemetry(&context, "net") && DLog_RecordContext(&context);
 }
 
 /*
@@ -2854,9 +2841,10 @@ PartyAtomic_JoinAttemptFailed
 */
 void PartyAtomic_JoinAttemptFailed(PartyJoinInfo *partyJoinInfo, const char *errorMsg, PartyDisconnectReason errorReason)
 {
-  char v4; 
+  char v3; 
+  double v6; 
 
-  v4 = errorReason;
+  v3 = errorReason;
   if ( !errorMsg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 647, ASSERT_TYPE_ASSERT, "(errorMsg)", (const char *)&queryFormat, "errorMsg") )
     __debugbreak();
   if ( !partyJoinInfo )
@@ -2868,21 +2856,13 @@ void PartyAtomic_JoinAttemptFailed(PartyJoinInfo *partyJoinInfo, const char *err
   }
   if ( partyJoinInfo->state == PARTYJOIN_INACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 649, ASSERT_TYPE_ASSERT, "(PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE)", (const char *)&queryFormat, "PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE") )
     __debugbreak();
-  Sys_Milliseconds();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", errorMsg, *(double *)&_XMM3);
+  v6 = (float)((float)(Sys_Milliseconds() - partyJoinInfo->startTimeMillis) * 0.001);
+  Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", errorMsg, v6);
   if ( partyJoinInfo->errorMessage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 653, ASSERT_TYPE_ASSERT, "( ( partyJoinInfo->errorMessage == 0 ) )", "( partyJoinInfo->errorMessage ) = %s", partyJoinInfo->errorMessage) )
     __debugbreak();
   partyJoinInfo->errorState = partyJoinInfo->state;
   partyJoinInfo->errorMessage = errorMsg;
-  partyJoinInfo->errorReason[0] = v4;
+  partyJoinInfo->errorReason[0] = v3;
   OnlineMatchmakerOmniscient::JoinAttemptFailed(&OnlineMatchmakerOmniscient::ms_instance);
 }
 
@@ -2911,33 +2891,33 @@ void PartyAtomic_MovePotentialStateToActiveState(PartyJoinInfo *partyJoinInfo)
 {
   PartyJoinType joinType; 
   PartyType partyType; 
+  PartyData *v4; 
   PartyData *PartyData; 
   PartyStateData *p_partyStateData; 
   unsigned int v7; 
   int v8; 
   unsigned __int8 **p_data; 
   __int64 v10; 
-  PartyActiveClient v13; 
+  PartyActiveClient v11; 
   __int64 state; 
-  const dvar_t *v15; 
+  const dvar_t *v13; 
   unsigned int lobbyFlags; 
-  const dvar_t *v17; 
+  const dvar_t *v15; 
   char *fmt; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v17; 
+  __int64 v18; 
   PartyActiveClient mainActiveClient; 
 
-  _RBX = partyJoinInfo;
   if ( partyJoinInfo->partyType )
   {
     joinType = partyJoinInfo->joinType;
     if ( (((joinType - 1) & 0xFFFFFFFA) != 0 || joinType == PJT_MATCHMAKING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 751, ASSERT_TYPE_ASSERT, "( ( (partyJoinInfo->partyType == GAME_LOBBY_ID) || (partyJoinInfo->joinType == PJT_INVITE) || (partyJoinInfo->joinType == PJT_PRESENCE) || (partyJoinInfo->joinType == PJT_HOSTREQUEST_PRIVATE_PARTY) ) )", "( partyJoinInfo->joinType ) = %i", joinType) )
       __debugbreak();
   }
-  partyType = _RBX->partyType;
+  partyType = partyJoinInfo->partyType;
   if ( partyType == PRIVATE_PARTY_ID )
   {
-    _RDI = &g_partyData;
+    v4 = &g_partyData;
     PartyData = Lobby_GetPartyData();
   }
   else
@@ -2945,26 +2925,26 @@ void PartyAtomic_MovePotentialStateToActiveState(PartyJoinInfo *partyJoinInfo)
     if ( partyType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 760, ASSERT_TYPE_ASSERT, "(partyJoinInfo->partyType == GAME_LOBBY_ID)", (const char *)&queryFormat, "partyJoinInfo->partyType == GAME_LOBBY_ID") )
       __debugbreak();
     PartyData = &g_partyData;
-    _RDI = Lobby_GetPartyData();
+    v4 = Lobby_GetPartyData();
     Voice_DisableLocalMics(&g_partyData);
   }
-  p_partyStateData = &_RDI->partyStateData;
-  if ( _RBX == (PartyJoinInfo *)-6800i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 680, ASSERT_TYPE_ASSERT, "(sourcePartyStateData)", (const char *)&queryFormat, "sourcePartyStateData") )
+  p_partyStateData = &v4->partyStateData;
+  if ( partyJoinInfo == (PartyJoinInfo *)-6800i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 680, ASSERT_TYPE_ASSERT, "(sourcePartyStateData)", (const char *)&queryFormat, "sourcePartyStateData") )
     __debugbreak();
-  if ( _RDI == (PartyData *)-314600i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 681, ASSERT_TYPE_ASSERT, "(destPartyStateData)", (const char *)&queryFormat, "destPartyStateData") )
+  if ( v4 == (PartyData *)-314600i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 681, ASSERT_TYPE_ASSERT, "(destPartyStateData)", (const char *)&queryFormat, "destPartyStateData") )
     __debugbreak();
-  memcpy_0(&_RDI->partyStateData, &_RBX->partyStateData, sizeof(_RDI->partyStateData));
+  memcpy_0(&v4->partyStateData, &partyJoinInfo->partyStateData, sizeof(v4->partyStateData));
   v7 = 0;
   if ( p_partyStateData->packetCount > 0x1Fu )
   {
-    LODWORD(v19) = p_partyStateData->packetCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 686, ASSERT_TYPE_ASSERT, "( 0 ) <= ( destPartyStateData->packetCount ) && ( destPartyStateData->packetCount ) <= ( ( 31 ) )", "destPartyStateData->packetCount not in [0, MAX_PARTYSTATE_PACKETS]\n\t%i not in [%i, %i]", v19, 0i64, 31) )
+    LODWORD(v17) = p_partyStateData->packetCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 686, ASSERT_TYPE_ASSERT, "( 0 ) <= ( destPartyStateData->packetCount ) && ( destPartyStateData->packetCount ) <= ( ( 31 ) )", "destPartyStateData->packetCount not in [0, MAX_PARTYSTATE_PACKETS]\n\t%i not in [%i, %i]", v17, 0i64, 31) )
       __debugbreak();
   }
   v8 = 0;
   if ( p_partyStateData->packetCount > 0 )
   {
-    p_data = &_RDI->partyStateData.partMsgs[0].data;
+    p_data = &v4->partyStateData.partMsgs[0].data;
     do
     {
       p_data += 7;
@@ -2973,47 +2953,42 @@ void PartyAtomic_MovePotentialStateToActiveState(PartyJoinInfo *partyJoinInfo)
     }
     while ( v8 < p_partyStateData->packetCount );
   }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 694, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 694, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  if ( !_RBX->session && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 697, ASSERT_TYPE_ASSERT, "(partyJoinInfo->session)", (const char *)&queryFormat, "partyJoinInfo->session") )
+  if ( !partyJoinInfo->session && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 697, ASSERT_TYPE_ASSERT, "(partyJoinInfo->session)", (const char *)&queryFormat, "partyJoinInfo->session") )
     __debugbreak();
-  if ( !Session_IsValid(_RBX->session) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 698, ASSERT_TYPE_ASSERT, "(Session_IsValid( partyJoinInfo->session ))", (const char *)&queryFormat, "Session_IsValid( partyJoinInfo->session )") )
+  if ( !Session_IsValid(partyJoinInfo->session) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 698, ASSERT_TYPE_ASSERT, "(Session_IsValid( partyJoinInfo->session ))", (const char *)&queryFormat, "Session_IsValid( partyJoinInfo->session )") )
     __debugbreak();
-  Session_DeleteSession(_RDI->session);
-  Session_MoveSession(_RBX->session, _RDI->session);
-  Session_ClearSession(_RBX->session);
-  _RDI->m_lobbyId = _RBX->lobbyId;
-  PartyHostDetails::Init(&_RDI->currentHost, _RDI, _RBX->connections);
-  if ( _RDI->inParty )
+  Session_DeleteSession(v4->session);
+  Session_MoveSession(partyJoinInfo->session, v4->session);
+  Session_ClearSession(partyJoinInfo->session);
+  v4->m_lobbyId = partyJoinInfo->lobbyId;
+  PartyHostDetails::Init(&v4->currentHost, v4, partyJoinInfo->connections);
+  if ( v4->inParty )
   {
-    if ( _RDI->splitscreenData.otherClientActive != _RBX->splitscreenData.otherClientActive )
+    if ( v4->splitscreenData.otherClientActive != partyJoinInfo->splitscreenData.otherClientActive )
     {
-      LODWORD(v20) = _RDI->splitscreenData.otherClientActive;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 732, ASSERT_TYPE_ASSERT, "( party->splitscreenData.otherClientActive ) == ( partyJoinInfo->splitscreenData.otherClientActive )", "%s == %s\n\t%i, %i", "party->splitscreenData.otherClientActive", "partyJoinInfo->splitscreenData.otherClientActive", v20, _RBX->splitscreenData.otherClientActive) )
+      LODWORD(v18) = v4->splitscreenData.otherClientActive;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 732, ASSERT_TYPE_ASSERT, "( party->splitscreenData.otherClientActive ) == ( partyJoinInfo->splitscreenData.otherClientActive )", "%s == %s\n\t%i, %i", "party->splitscreenData.otherClientActive", "partyJoinInfo->splitscreenData.otherClientActive", v18, partyJoinInfo->splitscreenData.otherClientActive) )
         __debugbreak();
     }
-    if ( _RDI->splitscreenData.otherClientActive && (*(_QWORD *)&_RDI->splitscreenData.mainClient != *(_QWORD *)&_RBX->splitscreenData.mainClient || *(_QWORD *)&_RDI->splitscreenData.otherClient != *(_QWORD *)&_RBX->splitscreenData.otherClient || *(_QWORD *)&_RDI->splitscreenData.otherClientActive != *(_QWORD *)&_RBX->splitscreenData.otherClientActive) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 734, ASSERT_TYPE_ASSERT, "(I_memcmp( &party->splitscreenData, &partyJoinInfo->splitscreenData, sizeof( partyJoinInfo->splitscreenData ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &party->splitscreenData, &partyJoinInfo->splitscreenData, sizeof( partyJoinInfo->splitscreenData ) ) == 0") )
+    if ( v4->splitscreenData.otherClientActive && (*(_QWORD *)&v4->splitscreenData.mainClient != *(_QWORD *)&partyJoinInfo->splitscreenData.mainClient || *(_QWORD *)&v4->splitscreenData.otherClient != *(_QWORD *)&partyJoinInfo->splitscreenData.otherClient || *(_QWORD *)&v4->splitscreenData.otherClientActive != *(_QWORD *)&partyJoinInfo->splitscreenData.otherClientActive) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 734, ASSERT_TYPE_ASSERT, "(I_memcmp( &party->splitscreenData, &partyJoinInfo->splitscreenData, sizeof( partyJoinInfo->splitscreenData ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &party->splitscreenData, &partyJoinInfo->splitscreenData, sizeof( partyJoinInfo->splitscreenData ) ) == 0") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+1A5Ch]
-    vmovups xmmword ptr [rdi+4CC38h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+1A6Ch]
-    vmovsd  qword ptr [rdi+4CC48h], xmm1
-  }
-  v13 = PartyAtomicJoin_GetMainActiveClient(_RBX, _RBX->controllerIndex);
-  state = _RBX->state;
-  mainActiveClient = v13;
+  *(_OWORD *)&v4->splitscreenData.mainClient.localClientNum = *(_OWORD *)&partyJoinInfo->splitscreenData.mainClient.localClientNum;
+  *(double *)&v4->splitscreenData.otherClientActive = *(double *)&partyJoinInfo->splitscreenData.otherClientActive;
+  v11 = PartyAtomicJoin_GetMainActiveClient(partyJoinInfo, partyJoinInfo->controllerIndex);
+  state = partyJoinInfo->state;
+  mainActiveClient = v11;
   LODWORD(fmt) = 0;
   Com_Printf(25, "PartyJoin: Changing from %s to %s, with timeout %i.\n", s_partyJoinStateName[state], s_partyJoinStateName[0], fmt);
-  _RBX->state = PARTYJOIN_INACTIVE;
-  _RBX->timeoutTime = 0;
-  PartyAtomicClient_CommitNewPartyState(_RDI, &mainActiveClient);
+  partyJoinInfo->state = PARTYJOIN_INACTIVE;
+  partyJoinInfo->timeoutTime = 0;
+  PartyAtomicClient_CommitNewPartyState(v4, &mainActiveClient);
   do
-    NetConnection::Close(&_RBX->connections[v7++], NET_CLOSE_SOFT);
+    NetConnection::Close(&partyJoinInfo->connections[v7++], NET_CLOSE_SOFT);
   while ( v7 < 2 );
-  if ( !_RDI->inParty )
+  if ( !v4->inParty )
   {
     Com_Printf(25, "PartyJoinAtomic: There was an issue committing to the new party state, shutting down.\n");
 LABEL_47:
@@ -3021,41 +2996,41 @@ LABEL_47:
     PartyUI_RecoverFromError();
     return;
   }
-  v15 = DVARBOOL_online_parties_in_main_menu_feature_enabled;
+  v13 = DVARBOOL_online_parties_in_main_menu_feature_enabled;
   if ( !DVARBOOL_online_parties_in_main_menu_feature_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_parties_in_main_menu_feature_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( !v15->current.enabled && (unsigned __int8)Com_GameMode_GetActiveGameMode() != _RBX->partyCodPlayMode[0] )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( !v13->current.enabled && (unsigned __int8)Com_GameMode_GetActiveGameMode() != partyJoinInfo->partyCodPlayMode[0] )
   {
     Com_Printf(25, "PartyJoinAtomic: Changing game modes at this point is not supported, shutting down.\n");
     goto LABEL_47;
   }
-  lobbyFlags = _RDI->lobbyFlags;
-  if ( _RBX->joinType != PJT_HOSTREQUEST_PRIVATE_PARTY )
+  lobbyFlags = v4->lobbyFlags;
+  if ( partyJoinInfo->joinType != PJT_HOSTREQUEST_PRIVATE_PARTY )
   {
     Party_Sleep(PartyData);
-    Party_Awake(_RDI, mainActiveClient.localControllerIndex, 1);
+    Party_Awake(v4, mainActiveClient.localControllerIndex, 1);
   }
-  _RDI->lobbyFlags = lobbyFlags;
-  _RDI->joiningAGameInProgress = _RBX->joiningAGameInProgress;
+  v4->lobbyFlags = lobbyFlags;
+  v4->joiningAGameInProgress = partyJoinInfo->joiningAGameInProgress;
   Live_TryCloseDialog(LOCAL_CLIENT_0, LIVE_DIALOG_ACCEPTING_INVITE);
   if ( InviteJoinHSM::IsHSMHandlingInvitation(&g_invitationHSM) )
     InviteJoinHSM::HandlePartyJoinComplete(&g_invitationHSM);
-  ++_RDI->partyVersionNumber;
-  if ( (_RDI->lobbyFlags & 0x800) != 0 )
+  ++v4->partyVersionNumber;
+  if ( (v4->lobbyFlags & 0x800) != 0 )
   {
-    v17 = DVARBOOL_com_codcasterHighClientSupport;
+    v15 = DVARBOOL_com_codcasterHighClientSupport;
     if ( !DVARBOOL_com_codcasterHighClientSupport && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_codcasterHighClientSupport") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( !v17->current.enabled )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( !v15->current.enabled )
     {
       Com_Printf(25, "Connected to a CDL lobby, setting com_codcasterHighClientSupport to true and com_maxStreamedModelsForLargePlayerCountEnabled to false\n");
       Dvar_SetBool_Internal(DVARBOOL_com_codcasterHighClientSupport, 1);
       Dvar_SetBool_Internal(DVARBOOL_com_maxStreamedModelsForLargePlayerCountEnabled, 0);
     }
   }
-  _RDI->partyModifyTime = Sys_Milliseconds();
+  v4->partyModifyTime = Sys_Milliseconds();
   Com_Printf(25, "PartyJoinAtomic: Successful join attempt!\n");
 }
 
@@ -3415,29 +3390,26 @@ PartyAtomic_SetupPotentialHostForJoining
 */
 __int64 PartyAtomic_SetupPotentialHostForJoining(const int controllerIndex, const XSESSION_INFO *hostInfo, const PartyType partyType, const bool isPrivateMatch, PartyJoinInfo *outPartyJoinInfo, const PartySplitscreenData *splitscreenData)
 {
+  PartyJoinInfo *v6; 
+  const PartySplitscreenData *v10; 
   LocalClientNum_t localClientNum; 
 
-  _RBX = outPartyJoinInfo;
+  v6 = outPartyJoinInfo;
   if ( !outPartyJoinInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 1490, ASSERT_TYPE_ASSERT, "(outPartyJoinInfo)", (const char *)&queryFormat, "outPartyJoinInfo") )
     __debugbreak();
-  if ( PartyAtomic_IsJoiningActive(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 1492, ASSERT_TYPE_ASSERT, "(!PartyAtomic_IsJoiningActive( outPartyJoinInfo ))", "%s\n\tWiping out an active join process", "!PartyAtomic_IsJoiningActive( outPartyJoinInfo )") )
+  if ( PartyAtomic_IsJoiningActive(v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 1492, ASSERT_TYPE_ASSERT, "(!PartyAtomic_IsJoiningActive( outPartyJoinInfo ))", "%s\n\tWiping out an active join process", "!PartyAtomic_IsJoiningActive( outPartyJoinInfo )") )
     __debugbreak();
-  _RSI = splitscreenData;
+  v10 = splitscreenData;
   if ( !splitscreenData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 1493, ASSERT_TYPE_ASSERT, "((1 &&(((1 && 1) || ( (1 &&! 1) && !(1 &&(((1 &&(((1 &&! 1))?1:0)&& 1) || (1 &&! 1))?1:0)&& 1) ))?1:0)&& 1) == ( splitscreenData != 0 ))", "%s\n\tSplitscreen data argument mismatch", "USING( SPLITSCREEN ) == ( splitscreenData != NULL )") )
     __debugbreak();
-  PartyAtomic_ResetPartyJoinInfo(_RBX, (GameModeType)(unsigned __int8)_RBX->partyCodPlayMode[0]);
-  _RBX->partyType = partyType;
-  _RBX->controllerIndex = controllerIndex;
-  _RBX->session = &g_partyJoinSession;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rbx+1A5Ch], xmm0
-    vmovsd  xmm1, qword ptr [rsi+10h]
-    vmovsd  qword ptr [rbx+1A6Ch], xmm1
-  }
-  localClientNum = PartyAtomicJoin_GetMainActiveClient(_RBX, controllerIndex).localClientNum;
-  if ( !(unsigned int)PartyAtomic_OpenHostConnection(_RBX, localClientNum, hostInfo) || (unsigned int)PartyAtomicJoin_GetSecondaryActiveClient(_RBX, (PartyActiveClient *)&outPartyJoinInfo) && !(unsigned int)PartyAtomic_OpenHostConnection(_RBX, (const LocalClientNum_t)outPartyJoinInfo, hostInfo) )
+  PartyAtomic_ResetPartyJoinInfo(v6, (GameModeType)(unsigned __int8)v6->partyCodPlayMode[0]);
+  v6->partyType = partyType;
+  v6->controllerIndex = controllerIndex;
+  v6->session = &g_partyJoinSession;
+  *(_OWORD *)&v6->splitscreenData.mainClient.localClientNum = *(_OWORD *)&v10->mainClient.localClientNum;
+  *(double *)&v6->splitscreenData.otherClientActive = *(double *)&v10->otherClientActive;
+  localClientNum = PartyAtomicJoin_GetMainActiveClient(v6, controllerIndex).localClientNum;
+  if ( !(unsigned int)PartyAtomic_OpenHostConnection(v6, localClientNum, hostInfo) || (unsigned int)PartyAtomicJoin_GetSecondaryActiveClient(v6, (PartyActiveClient *)&outPartyJoinInfo) && !(unsigned int)PartyAtomic_OpenHostConnection(v6, (const LocalClientNum_t)outPartyJoinInfo, hostInfo) )
     return 0i64;
   XSESSION_INFO::operator=(&g_partyJoinSession.dyn.sessionInfo, hostInfo);
   Session_StartClient(&g_partyJoinSession, controllerIndex, 46);
@@ -3543,18 +3515,19 @@ void Party_StartLANServerJoin(LocalClientNum_t localClientNum, const XSESSION_IN
   int ControllerFromClient; 
   PartyData *ActiveParty; 
   const PartySplitscreenData *splitscreenData; 
-  bool v7; 
-  int v8; 
-  const dvar_t *v9; 
-  PartyData *v10; 
+  bool v6; 
+  int v7; 
+  const dvar_t *v8; 
+  PartyData *v9; 
   int integer; 
-  const char *v12; 
+  const char *v11; 
+  double v12; 
   PartyJoinInfo *outPartyJoinInfo; 
 
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
   ActiveParty = Party_GetActiveParty();
   splitscreenData = Party_GetSplitscreenData(ActiveParty);
-  v7 = PartyAtomic_SetupPotentialHostForJoining(ControllerFromClient, hostInfo, PRIVATE_PARTY_ID, 0, &g_partyJoinInfo, splitscreenData) != 0;
+  v6 = PartyAtomic_SetupPotentialHostForJoining(ControllerFromClient, hostInfo, PRIVATE_PARTY_ID, 0, &g_partyJoinInfo, splitscreenData) != 0;
   if ( Party_InParty(ActiveParty) )
   {
     PartyAtomic_FillSubPartyInfoForParty(&g_partyJoinInfo, ActiveParty);
@@ -3565,15 +3538,15 @@ void Party_StartLANServerJoin(LocalClientNum_t localClientNum, const XSESSION_IN
     g_partyJoinInfo.memberCount = (g_partyJoinInfo.splitscreenData.otherClientActive != 0) + 1;
     g_partyJoinInfo.subPartyList[0] = (g_partyJoinInfo.splitscreenData.otherClientActive != 0) + 1;
   }
-  v8 = Party_InParty(ActiveParty);
-  v9 = DVARINT_pt_searchConnectAttempts;
-  v10 = NULL;
-  if ( v8 )
-    v10 = ActiveParty;
+  v7 = Party_InParty(ActiveParty);
+  v8 = DVARINT_pt_searchConnectAttempts;
+  v9 = NULL;
+  if ( v7 )
+    v9 = ActiveParty;
   if ( !DVARINT_pt_searchConnectAttempts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pt_searchConnectAttempts") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  integer = v9->current.integer;
+  Dvar_CheckFrontendServerThread(v8);
+  integer = v8->current.integer;
   if ( g_partyJoinInfo.state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 145, ASSERT_TYPE_ASSERT, "(PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_INACTIVE)", (const char *)&queryFormat, "PartyAtomic_GetJoinState( partyJoinInfo ) == PARTYJOIN_INACTIVE") )
     __debugbreak();
   if ( g_partyJoinInfo.atomicParty && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 146, ASSERT_TYPE_ASSERT, "(partyJoinInfo->atomicParty == 0)", (const char *)&queryFormat, "partyJoinInfo->atomicParty == NULL") )
@@ -3584,30 +3557,22 @@ void Party_StartLANServerJoin(LocalClientNum_t localClientNum, const XSESSION_IN
   else
     g_partyJoinInfo.startTimeUtc = 0;
   g_partyJoinInfo.startTimeMillis = Sys_Milliseconds();
-  g_partyJoinInfo.atomicParty = v10;
-  v12 = s_partyJoinStateName[g_partyJoinInfo.state];
+  g_partyJoinInfo.atomicParty = v9;
+  v11 = s_partyJoinStateName[g_partyJoinInfo.state];
   g_partyJoinInfo.joinType = PJT_INVITE;
   g_partyJoinInfo.availableRetryCount = integer;
   LODWORD(outPartyJoinInfo) = 0;
-  Com_Printf(25, "PartyJoin: Changing from %s to %s, with timeout %i.\n", v12, s_partyJoinStateName[1], outPartyJoinInfo);
+  Com_Printf(25, "PartyJoin: Changing from %s to %s, with timeout %i.\n", v11, s_partyJoinStateName[1], outPartyJoinInfo);
   g_partyJoinInfo.state = PARTYJOIN_REQUEST;
   g_partyJoinInfo.timeoutTime = 0;
-  if ( !v7 )
+  if ( !v6 )
   {
     Com_PrintError(14, "PartyJoin: Failed to setup potential host.\n");
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, NULL);
     if ( g_partyJoinInfo.state == PARTYJOIN_INACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 649, ASSERT_TYPE_ASSERT, "(PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE)", (const char *)&queryFormat, "PartyAtomic_GetJoinState( partyJoinInfo ) != PARTYJOIN_INACTIVE") )
       __debugbreak();
-    Sys_Milliseconds();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", (const char *)&stru_143DD5890, *(double *)&_XMM3);
+    v12 = (float)((float)(Sys_Milliseconds() - g_partyJoinInfo.startTimeMillis) * 0.001);
+    Com_Printf(25, "PartyJoinAtomic: Join attempt failed - Reason: %s - Duration: %.3fs\n", (const char *)&stru_143DD5890, v12);
     if ( g_partyJoinInfo.errorMessage )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyjoining.cpp", 653, ASSERT_TYPE_ASSERT, "( ( partyJoinInfo->errorMessage == 0 ) )", "( partyJoinInfo->errorMessage ) = %s", g_partyJoinInfo.errorMessage) )

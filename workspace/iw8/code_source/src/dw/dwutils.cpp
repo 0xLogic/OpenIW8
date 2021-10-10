@@ -370,12 +370,12 @@ __int64 dwGetHostByNamePump(const char *const domainNameStr, bdGetHostByName **g
   bdGetHostByName *v11; 
   bdGetHostByName::bdStatus Status; 
   unsigned int NumAddresses; 
-  bool v17; 
-  bdGetHostByNameConfig v18[2]; 
-  __int64 v19; 
+  bool v15; 
+  bdGetHostByNameConfig v16[2]; 
+  __int64 v17; 
   bdSockAddr result; 
 
-  v19 = -2i64;
+  v17 = -2i64;
   if ( !getHostByName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwutils.cpp", 376, ASSERT_TYPE_ASSERT, "(getHostByName)", (const char *)&queryFormat, "getHostByName") )
     __debugbreak();
   if ( !resolvedAddr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwutils.cpp", 377, ASSERT_TYPE_ASSERT, "(resolvedAddr)", (const char *)&queryFormat, "resolvedAddr") )
@@ -396,23 +396,18 @@ __int64 dwGetHostByNamePump(const char *const domainNameStr, bdGetHostByName **g
       if ( *getHostByName )
         goto LABEL_20;
       v10 = (bdGetHostByName *)bdMemory::allocate(0x240ui64);
-      *(_QWORD *)&v18[0].m_timeout = v10;
+      *(_QWORD *)&v16[0].m_timeout = v10;
       if ( v10 )
         bdGetHostByName::bdGetHostByName(v10, 0);
       *getHostByName = v10;
-      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwutils.cpp", 280, ASSERT_TYPE_ASSERT, "(*getHostByName)", (const char *)&queryFormat, "*getHostByName", *(_QWORD *)&v18[0].m_timeout, v19) )
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwutils.cpp", 280, ASSERT_TYPE_ASSERT, "(*getHostByName)", (const char *)&queryFormat, "*getHostByName", *(_QWORD *)&v16[0].m_timeout, v17) )
         __debugbreak();
       v11 = *getHostByName;
       if ( *getHostByName )
       {
-        bdGetHostByNameConfig::bdGetHostByNameConfig(v18);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@40400000
-          vmovss  [rsp+108h+var_D8.m_timeout], xmm0
-          vmovd   r8d, xmm0; config
-        }
-        if ( bdGetHostByName::start(v11, domainNameStr, _ER8) )
+        bdGetHostByNameConfig::bdGetHostByNameConfig(v16);
+        v16[0].m_timeout = FLOAT_3_0;
+        if ( bdGetHostByName::start(v11, domainNameStr, LODWORD(FLOAT_3_0)) )
           v8 = 0;
       }
     }
@@ -434,13 +429,13 @@ LABEL_20:
     if ( Status == BD_LOOKUP_SUCCEEDED )
     {
       NumAddresses = bdGetHostByName::getNumAddresses(v6);
-      v17 = NumAddresses != 0;
+      v15 = NumAddresses != 0;
       if ( NumAddresses )
       {
         bdGetHostByName::getAddressAt(v6, &result, 0);
         bdSockAddr::set(resolvedAddr, &result);
       }
-      if ( v17 && bdSockAddr::isValid(resolvedAddr) )
+      if ( v15 && bdSockAddr::isValid(resolvedAddr) )
         v7 = 1;
     }
   }

@@ -1089,6 +1089,7 @@ void LUIBinding::PushFloat(LUIBinding *this, LocalClientNum_t localClientNum)
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
   unsigned __int16 Model; 
+  double v8; 
 
   if ( !this->models[localClientNum * this->paramInstances] )
   {
@@ -1098,9 +1099,8 @@ void LUIBinding::PushFloat(LUIBinding *this, LocalClientNum_t localClientNum)
     LUIBinding::CreateModels(this, ModelFromPath, localClientNum);
   }
   Model = LUIBinding::GetModel(this, localClientNum);
-  *(double *)&_XMM0 = ((double (__fastcall *)(_QWORD))this->getSharedBool)((unsigned int)localClientNum);
-  __asm { vmovaps xmm1, xmm0; newValue }
-  LUI_Model_SetReal(Model, *(float *)&_XMM1);
+  v8 = ((double (__fastcall *)(_QWORD))this->getSharedBool)((unsigned int)localClientNum);
+  LUI_Model_SetReal(Model, *(float *)&v8);
 }
 
 /*
@@ -1113,6 +1113,7 @@ void LUIBinding::PushFloat(LUIBinding *this)
   unsigned __int16 GlobalModel; 
   unsigned __int16 ModelFromPath; 
   unsigned __int16 Model; 
+  double v5; 
 
   if ( !*this->models )
   {
@@ -1121,9 +1122,8 @@ void LUIBinding::PushFloat(LUIBinding *this)
     LUIBinding::CreateModels(this, ModelFromPath, LOCAL_CLIENT_0);
   }
   Model = LUIBinding::GetModel(this);
-  *(double *)&_XMM0 = ((double (*)(void))this->getSharedBool)();
-  __asm { vmovaps xmm1, xmm0; newValue }
-  LUI_Model_SetReal(Model, *(float *)&_XMM1);
+  v5 = ((double (*)(void))this->getSharedBool)();
+  LUI_Model_SetReal(Model, *(float *)&v5);
 }
 
 /*
@@ -1250,8 +1250,9 @@ void LUIBinding::PushParamFloat(LUIBinding *this, LocalClientNum_t localClientNu
   int ControllerFromClient; 
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
-  unsigned __int8 v9; 
+  unsigned __int8 v8; 
   unsigned __int16 Model; 
+  double v10; 
 
   paramInstances = this->paramInstances;
   if ( !this->models[localClientNum * paramInstances] )
@@ -1262,18 +1263,17 @@ void LUIBinding::PushParamFloat(LUIBinding *this, LocalClientNum_t localClientNu
     LUIBinding::CreateModels(this, ModelFromPath, localClientNum);
     LOBYTE(paramInstances) = this->paramInstances;
   }
-  v9 = 0;
+  v8 = 0;
   if ( (_BYTE)paramInstances )
   {
     do
     {
-      Model = LUIBinding::GetModel(this, localClientNum, v9);
-      *(double *)&_XMM0 = ((double (__fastcall *)(_QWORD, _QWORD))this->getSharedBool)((unsigned int)localClientNum, v9);
-      __asm { vmovaps xmm1, xmm0; newValue }
-      LUI_Model_SetReal(Model, *(float *)&_XMM1);
-      ++v9;
+      Model = LUIBinding::GetModel(this, localClientNum, v8);
+      v10 = ((double (__fastcall *)(_QWORD, _QWORD))this->getSharedBool)((unsigned int)localClientNum, v8);
+      LUI_Model_SetReal(Model, *(float *)&v10);
+      ++v8;
     }
-    while ( v9 < this->paramInstances );
+    while ( v8 < this->paramInstances );
   }
 }
 
@@ -1288,6 +1288,7 @@ void LUIBinding::PushParamFloat(LUIBinding *this)
   unsigned __int16 ModelFromPath; 
   unsigned __int8 i; 
   unsigned __int16 Model; 
+  double v6; 
 
   if ( !*this->models )
   {
@@ -1298,9 +1299,8 @@ void LUIBinding::PushParamFloat(LUIBinding *this)
   for ( i = 0; i < this->paramInstances; ++i )
   {
     Model = LUIBinding::GetModel(this, i);
-    *(double *)&_XMM0 = ((double (__fastcall *)(_QWORD))this->getSharedBool)(i);
-    __asm { vmovaps xmm1, xmm0; newValue }
-    LUI_Model_SetReal(Model, *(float *)&_XMM1);
+    v6 = ((double (__fastcall *)(_QWORD))this->getSharedBool)(i);
+    LUI_Model_SetReal(Model, *(float *)&v6);
   }
 }
 

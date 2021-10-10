@@ -673,11 +673,9 @@ void CgHandler::AcquirePhysicsReadLock(CgHandler *this, Physics_WorldId worldId)
 CgHandler::DebugAxisAll
 ==============
 */
-
-void __fastcall CgHandler::DebugAxisAll(CgHandler *this, const tmat33_t<vec3_t> *axes, const vec3_t *pos, double length, const int depthTest, int duration)
+void CgHandler::DebugAxisAll(CgHandler *this, const tmat33_t<vec3_t> *axes, const vec3_t *pos, float length, const int depthTest, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; length }
-  CG_DebugAxis(axes, pos, *(float *)&_XMM2, depthTest, duration);
+  CG_DebugAxis(axes, pos, length, depthTest, duration);
 }
 
 /*
@@ -685,11 +683,9 @@ void __fastcall CgHandler::DebugAxisAll(CgHandler *this, const tmat33_t<vec3_t> 
 CgHandler::DebugBox
 ==============
 */
-
-void __fastcall CgHandler::DebugBox(CgHandler *this, const vec3_t *origin, const Bounds *bounds, double yaw, const vec4_t *color, int depthTest, int duration)
+void CgHandler::DebugBox(CgHandler *this, const vec3_t *origin, const Bounds *bounds, float yaw, const vec4_t *color, int depthTest, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; yaw }
-  CG_DebugBox(origin, bounds, *(float *)&_XMM2, color, depthTest, duration);
+  CG_DebugBox(origin, bounds, yaw, color, depthTest, duration);
 }
 
 /*
@@ -707,11 +703,9 @@ void CgHandler::DebugBoxOriented(CgHandler *this, const vec3_t *origin, const Bo
 CgHandler::DebugCapsule
 ==============
 */
-
-void __fastcall CgHandler::DebugCapsule(CgHandler *this, const vec3_t *start, const vec3_t *end, double radius, const vec4_t *color, int depthTest, int duration)
+void CgHandler::DebugCapsule(CgHandler *this, const vec3_t *start, const vec3_t *end, float radius, const vec4_t *color, int depthTest, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; radius }
-  CG_DebugCapsule(start, end, *(float *)&_XMM2, color, depthTest, duration);
+  CG_DebugCapsule(start, end, radius, color, depthTest, duration);
 }
 
 /*
@@ -719,15 +713,9 @@ void __fastcall CgHandler::DebugCapsule(CgHandler *this, const vec3_t *start, co
 CgHandler::DebugCone
 ==============
 */
-
-void __fastcall CgHandler::DebugCone(CgHandler *this, const vec3_t *origin, const vec3_t *direction, double radius, float length, const vec4_t *color, int depthTest, int duration)
+void CgHandler::DebugCone(CgHandler *this, const vec3_t *origin, const vec3_t *direction, float radius, float length, const vec4_t *color, int depthTest, int duration)
 {
-  __asm
-  {
-    vmovaps xmm2, xmm3; radius
-    vmovss  xmm3, [rsp+48h+length]; length
-  }
-  CG_DebugCone(origin, direction, *(float *)&_XMM2, *(float *)&_XMM3, color, depthTest, duration);
+  CG_DebugCone(origin, direction, radius, length, color, depthTest, duration);
 }
 
 /*
@@ -735,11 +723,9 @@ void __fastcall CgHandler::DebugCone(CgHandler *this, const vec3_t *origin, cons
 CgHandler::DebugCylinder
 ==============
 */
-
-void __fastcall CgHandler::DebugCylinder(CgHandler *this, const vec3_t *start, const vec3_t *end, double radius, const vec4_t *color, int depthTest, int duration)
+void CgHandler::DebugCylinder(CgHandler *this, const vec3_t *start, const vec3_t *end, float radius, const vec4_t *color, int depthTest, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; radius }
-  CG_DebugCylinder(start, end, *(float *)&_XMM2, color, depthTest, duration);
+  CG_DebugCylinder(start, end, radius, color, depthTest, duration);
 }
 
 /*
@@ -778,11 +764,9 @@ void CgHandler::DebugLineAll(CgHandler *this, const vec3_t *start, const vec3_t 
 CgHandler::DebugSphere
 ==============
 */
-
-void __fastcall CgHandler::DebugSphere(CgHandler *this, const vec3_t *center, double radius, const vec4_t *color, int depthTest, int duration)
+void CgHandler::DebugSphere(CgHandler *this, const vec3_t *center, float radius, const vec4_t *color, int depthTest, int duration)
 {
-  __asm { vmovaps xmm1, xmm2; radius }
-  CG_DebugSphere(center, *(float *)&_XMM1, color, depthTest, duration);
+  CG_DebugSphere(center, radius, color, depthTest, duration);
 }
 
 /*
@@ -790,11 +774,9 @@ void __fastcall CgHandler::DebugSphere(CgHandler *this, const vec3_t *center, do
 CgHandler::DebugSphereAll
 ==============
 */
-
-void __fastcall CgHandler::DebugSphereAll(CgHandler *this, const vec3_t *center, double radius, const vec4_t *colorServer, const vec4_t *colorClient, int depthTest, int duration)
+void CgHandler::DebugSphereAll(CgHandler *this, const vec3_t *center, float radius, const vec4_t *colorServer, const vec4_t *colorClient, int depthTest, int duration)
 {
-  __asm { vmovaps xmm1, xmm2; radius }
-  CG_DebugSphere(center, *(float *)&_XMM1, colorClient, depthTest, duration);
+  CG_DebugSphere(center, radius, colorClient, depthTest, duration);
 }
 
 /*
@@ -812,11 +794,9 @@ void CgHandler::DebugStar(CgHandler *this, const vec3_t *point, const vec4_t *co
 CgHandler::DebugString
 ==============
 */
-
-void __fastcall CgHandler::DebugString(CgHandler *this, const vec3_t *point, const vec4_t *color, double scale, const char *text, int duration)
+void CgHandler::DebugString(CgHandler *this, const vec3_t *point, const vec4_t *color, float scale, const char *text, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; scale }
-  CG_DebugString(point, color, *(float *)&_XMM2, text, 0, duration);
+  CG_DebugString(point, color, scale, text, 0, duration);
 }
 
 /*
@@ -824,11 +804,9 @@ void __fastcall CgHandler::DebugString(CgHandler *this, const vec3_t *point, con
 CgHandler::DebugStringAll
 ==============
 */
-
-void __fastcall CgHandler::DebugStringAll(CgHandler *this, const vec3_t *point, const vec4_t *color, double scale, const char *text, int duration)
+void CgHandler::DebugStringAll(CgHandler *this, const vec3_t *point, const vec4_t *color, float scale, const char *text, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; scale }
-  CG_DebugString(point, color, *(float *)&_XMM2, text, 0, duration);
+  CG_DebugString(point, color, scale, text, 0, duration);
 }
 
 /*
@@ -841,17 +819,15 @@ char CgHandler::FindBestConeTarget(CgHandler *this, LocalClientNum_t localClient
   __int64 v13; 
   centity_t *Entity; 
   CTargetEvaluator *TargetEvaluator; 
-  char v20; 
+  char v17; 
   ConeTargetHitResults *HitResults; 
+  ConeTargetHitInfo *FirstVisibleHit; 
   const centity_t *Target; 
-  __int64 v26; 
-  __int64 v27; 
-  int v28; 
-  int v29; 
+  __int64 v21; 
+  __int64 v22; 
   CAssistTarget ptr[20]; 
 
   v13 = localClientNum;
-  _RDI = outHitInfo;
   if ( !outentIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 575, ASSERT_TYPE_ASSERT, "(outentIndex)", (const char *)&queryFormat, "outentIndex") )
     __debugbreak();
   if ( !outHitInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 576, ASSERT_TYPE_ASSERT, "(outHitInfo)", (const char *)&queryFormat, "outHitInfo") )
@@ -865,54 +841,40 @@ char CgHandler::FindBestConeTarget(CgHandler *this, LocalClientNum_t localClient
     __debugbreak();
   if ( (unsigned int)v13 >= CgWeaponSystem::ms_allocatedCount )
   {
-    LODWORD(v27) = CgWeaponSystem::ms_allocatedCount;
-    LODWORD(v26) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v26, v27) )
+    LODWORD(v22) = CgWeaponSystem::ms_allocatedCount;
+    LODWORD(v21) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
   if ( !CgWeaponSystem::ms_weaponSystemArray[v13] )
   {
-    LODWORD(v27) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v27) )
+    LODWORD(v22) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v22) )
       __debugbreak();
   }
   TargetEvaluator = CgWeaponSystem::GetTargetEvaluator(TARGET_ASSISTTYPPE_CONE);
   if ( !TargetEvaluator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 587, ASSERT_TYPE_ASSERT, "(targetEvaluator)", (const char *)&queryFormat, "targetEvaluator") )
     __debugbreak();
   `eh vector constructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))CAssistTarget::CAssistTarget, (void (__fastcall *)(void *))CAssistTarget::~CAssistTarget);
-  __asm
-  {
-    vmovss  xmm0, [rsp+4318h+arg_30]
-    vmovss  [rsp+4318h+var_42D8], xmm0
-    vmovss  xmm1, [rsp+4318h+arg_28]
-    vmovss  [rsp+4318h+var_42E0], xmm1
-  }
-  if ( ((__int64 (__fastcall *)(CTargetEvaluator *, _QWORD, Weapon *, _QWORD, centity_t *, const vec3_t *, const vec3_t *, int, int, int, _BYTE, unsigned int, int, _BYTE, CAssistTarget *))TargetEvaluator->FindTargets)(TargetEvaluator, (unsigned int)v13, &NULL_WEAPON, 0i64, Entity, origin, dir, v28, v29, 1, 0, hitMask, time, 0, ptr) > 0 )
+  if ( ((__int64 (__fastcall *)(CTargetEvaluator *, _QWORD, Weapon *, _QWORD, centity_t *, const vec3_t *, const vec3_t *, _DWORD, _DWORD, int, _BYTE, unsigned int, int, _BYTE, CAssistTarget *))TargetEvaluator->FindTargets)(TargetEvaluator, (unsigned int)v13, &NULL_WEAPON, 0i64, Entity, origin, dir, LODWORD(range), LODWORD(angle), 1, 0, hitMask, time, 0, ptr) > 0 )
   {
     HitResults = ConeTargetInfo::GetHitResults(ptr);
-    _RBX = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 597, ASSERT_TYPE_ASSERT, "(hitInfo != 0)", (const char *)&queryFormat, "hitInfo != NULL") )
+    FirstVisibleHit = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
+    if ( !FirstVisibleHit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 597, ASSERT_TYPE_ASSERT, "(hitInfo != 0)", (const char *)&queryFormat, "hitInfo != NULL") )
       __debugbreak();
     Target = CAssistTarget::GetTarget(ptr);
     if ( !Target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 600, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
       __debugbreak();
     *outentIndex = Target->nextState.number;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
-    outHitInfo->priority = _RBX->priority;
-    v20 = 1;
+    *outHitInfo = *FirstVisibleHit;
+    v17 = 1;
   }
   else
   {
-    v20 = 0;
+    v17 = 0;
   }
   `eh vector destructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))CAssistTarget::~CAssistTarget);
-  return v20;
+  return v17;
 }
 
 /*
@@ -968,17 +930,17 @@ __int64 CgHandler::GetEntIndexByImpulseFieldIndex(CgHandler *this, LocalClientNu
 CgHandler::GetEntityAngles
 ==============
 */
-__int64 CgHandler::GetEntityAngles(CgHandler *this, int entIndex, vec3_t *outAngles)
+centity_t *CgHandler::GetEntityAngles(CgHandler *this, int entIndex, vec3_t *outAngles)
 {
   const dvar_t *v3; 
   CgAntiLag *Instance; 
   cg_t *LocalClientGlobals; 
   int m_sceneAntiLagTime; 
-  __int64 result; 
+  float v10; 
+  centity_t *result; 
   BgAntiLagEntityInfo outInfo; 
 
   v3 = DCONST_DVARBOOL_useBgTraceSystem;
-  _RBX = outAngles;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v3);
@@ -999,27 +961,22 @@ __int64 CgHandler::GetEntityAngles(CgHandler *this, int entIndex, vec3_t *outAng
   outInfo.boneInfo.boneList.m_maxSize = 0;
   if ( BgAntiLag::GetEntityInfoAtTime(Instance, LocalClientGlobals->predictedPlayerState.clientNum, entIndex, 2u, m_sceneAntiLagTime, &outInfo) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+108h+var_C8.baseclass_0.angles]
-      vmovss  xmm1, dword ptr [rsp+108h+var_C8.baseclass_0.angles+4]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+108h+var_C8.baseclass_0.angles+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-    return 1i64;
+    v10 = outInfo.angles.v[1];
+    outAngles->v[0] = outInfo.angles.v[0];
+    outAngles->v[2] = outInfo.angles.v[2];
+    outAngles->v[1] = v10;
+    return (centity_t *)1;
   }
   else
   {
 LABEL_17:
-    result = (__int64)CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entIndex);
+    result = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entIndex);
     if ( result )
     {
-      _RBX->v[0] = *(float *)(result + 72);
-      _RBX->v[1] = *(float *)(result + 76);
-      _RBX->v[2] = *(float *)(result + 80);
-      return 1i64;
+      outAngles->v[0] = result->pose.angles.v[0];
+      outAngles->v[1] = result->pose.angles.v[1];
+      outAngles->v[2] = result->pose.angles.v[2];
+      return (centity_t *)1;
     }
   }
   return result;
@@ -1034,9 +991,9 @@ __int64 CgHandler::GetEntityAntilagVelocity(CgHandler *this, int entNum, const p
 {
   CgAntiLag *Instance; 
   int clientNum; 
+  float v9; 
   BgAntiLagEntityInfo outInfo; 
 
-  _RBX = outVelocity;
   Instance = CgAntiLag::GetInstance((const LocalClientNum_t)this->m_localClientNum);
   if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_handler.cpp", 85, ASSERT_TYPE_ASSERT, "(antiLag)", (const char *)&queryFormat, "antiLag") )
     __debugbreak();
@@ -1045,15 +1002,10 @@ __int64 CgHandler::GetEntityAntilagVelocity(CgHandler *this, int entNum, const p
   outInfo.boneInfo.boneList.m_maxSize = 0;
   if ( !BgAntiLag::GetEntityInfoAtTime(Instance, clientNum, entNum, 8u, ps->serverTime, &outInfo) )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_C8.velocity]
-    vmovss  xmm1, dword ptr [rsp+0F8h+var_C8.velocity+4]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_C8.velocity+8]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+  v9 = outInfo.velocity.v[1];
+  outVelocity->v[0] = outInfo.velocity.v[0];
+  outVelocity->v[2] = outInfo.velocity.v[2];
+  outVelocity->v[1] = v9;
   return 1i64;
 }
 
@@ -1371,21 +1323,15 @@ CgHandler::GetScriptableDimensions
 void CgHandler::GetScriptableDimensions(CgHandler *this, unsigned int scriptableIndex, float *outInitialAngle, vec3_t *outOrigin, Bounds *outBounds)
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  const XModel *ScriptableModel; 
 
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)this->m_localClientNum, scriptableIndex);
   ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, outOrigin);
   *outInitialAngle = InstanceCommonContext->anglesInitial.v[1];
-  _RAX = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
-  _RCX = outBounds;
-  if ( _RAX )
+  ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
+  if ( ScriptableModel )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+2Ch]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+3Ch]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
+    *outBounds = ScriptableModel->bounds;
   }
   else
   {

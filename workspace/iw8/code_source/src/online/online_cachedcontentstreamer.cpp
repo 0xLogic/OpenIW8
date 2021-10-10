@@ -1115,35 +1115,38 @@ Online_CachedContentStreamer::HandleDownload
 void Online_CachedContentStreamer::HandleDownload(Online_CachedContentStreamer *this, void *data, unsigned int dataSize, unsigned int bytesDownloaded, unsigned int fileSize, unsigned __int64 fileID)
 {
   unsigned __int16 m_currentStreamIndex; 
-  __int64 v13; 
+  __int64 v7; 
+  __int64 v11; 
   ccsStreamState state; 
-  Online_ErrorReporting *v15; 
+  Online_ErrorReporting *v13; 
   Online_ErrorReporting *InstancePtr; 
-  unsigned __int16 v17; 
+  unsigned __int16 v15; 
   unsigned __int64 streamFileID; 
-  int v19; 
-  Online_ErrorReporting *v20; 
-  __int64 v21; 
+  int v17; 
+  Online_ErrorReporting *v18; 
+  __int64 v19; 
   void (__fastcall *OnProgress)(const CCSPatchType, const dcacheType_t, const unsigned __int64, const dcacheLocation_t, const unsigned int, const unsigned int, const unsigned int); 
+  float v21; 
+  float v22; 
   char *fmt; 
   char *fmta; 
   unsigned __int8 *buffer; 
-  unsigned __int8 *buffera; 
-  __int64 v34; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   char outData[1024]; 
 
   m_currentStreamIndex = this->m_currentStreamIndex;
+  v7 = bytesDownloaded;
   if ( m_currentStreamIndex >= 0x80u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_cachedcontentstreamer.cpp", 254, ASSERT_TYPE_ASSERT, "(unsigned)( m_currentStreamIndex ) < (unsigned)( 128 )", "m_currentStreamIndex doesn't index CCS_DOWNLOAD_LIST_MAX\n\t%i not in [0, %i)", m_currentStreamIndex, 128) )
     __debugbreak();
-  v13 = this->m_currentStreamIndex;
-  state = this->m_streamList[v13].state;
+  v11 = this->m_currentStreamIndex;
+  state = this->m_streamList[v11].state;
   if ( state )
   {
     if ( state == CCS_STATE_ACTIVE_DOWNLOAD )
     {
-      if ( this->m_streamList[v13].controllerIndex == -1 )
+      if ( this->m_streamList[v11].controllerIndex == -1 )
       {
         Online_CachedContentStreamer::GetErrorReportingContext(this, outData, 1024);
         InstancePtr = Online_ErrorReporting::GetInstancePtr();
@@ -1152,12 +1155,12 @@ void Online_CachedContentStreamer::HandleDownload(Online_CachedContentStreamer *
       else if ( dataSize )
       {
         Sys_LockWrite(&s_dcacheStreamCritSect);
-        v17 = this->m_currentStreamIndex;
-        if ( v17 >= 0x80u )
+        v15 = this->m_currentStreamIndex;
+        if ( v15 >= 0x80u )
         {
-          LODWORD(v34) = 128;
-          LODWORD(buffer) = v17;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_cachedcontentstreamer.cpp", 286, ASSERT_TYPE_ASSERT, "(unsigned)( m_currentStreamIndex ) < (unsigned)( 128 )", "m_currentStreamIndex doesn't index CCS_DOWNLOAD_LIST_MAX\n\t%i not in [0, %i)", buffer, v34) )
+          LODWORD(v26) = 128;
+          LODWORD(buffer) = v15;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_cachedcontentstreamer.cpp", 286, ASSERT_TYPE_ASSERT, "(unsigned)( m_currentStreamIndex ) < (unsigned)( 128 )", "m_currentStreamIndex doesn't index CCS_DOWNLOAD_LIST_MAX\n\t%i not in [0, %i)", buffer, v26) )
             __debugbreak();
         }
         streamFileID = this->m_streamList[this->m_currentStreamIndex].streamFileID;
@@ -1165,40 +1168,31 @@ void Online_CachedContentStreamer::HandleDownload(Online_CachedContentStreamer *
           __debugbreak();
         if ( this->m_streamList[this->m_currentStreamIndex].state != CCS_STATE_ACTIVE_DOWNLOAD )
         {
-          LODWORD(v36) = 4;
-          LODWORD(v35) = this->m_streamList[this->m_currentStreamIndex].state;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_cachedcontentstreamer.cpp", 288, ASSERT_TYPE_ASSERT, "( m_streamList[m_currentStreamIndex].state ) == ( CCS_STATE_ACTIVE_DOWNLOAD )", "%s == %s\n\t%i, %i", "m_streamList[m_currentStreamIndex].state", "CCS_STATE_ACTIVE_DOWNLOAD", v35, v36) )
+          LODWORD(v28) = 4;
+          LODWORD(v27) = this->m_streamList[this->m_currentStreamIndex].state;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_cachedcontentstreamer.cpp", 288, ASSERT_TYPE_ASSERT, "( m_streamList[m_currentStreamIndex].state ) == ( CCS_STATE_ACTIVE_DOWNLOAD )", "%s == %s\n\t%i, %i", "m_streamList[m_currentStreamIndex].state", "CCS_STATE_ACTIVE_DOWNLOAD", v27, v28) )
             __debugbreak();
         }
-        v19 = DCache_StreamToCache(this->m_streamList[this->m_currentStreamIndex].cacheType, fileID, this->m_streamList[this->m_currentStreamIndex].locationType, bytesDownloaded, dataSize, (unsigned __int8 *)data);
-        if ( v19 == dataSize )
+        v17 = DCache_StreamToCache(this->m_streamList[this->m_currentStreamIndex].cacheType, fileID, this->m_streamList[this->m_currentStreamIndex].locationType, v7, dataSize, (unsigned __int8 *)data);
+        if ( v17 == dataSize )
         {
-          v21 = this->m_currentStreamIndex;
-          OnProgress = this->m_streamList[v21].OnProgress;
+          v19 = this->m_currentStreamIndex;
+          OnProgress = this->m_streamList[v19].OnProgress;
           if ( OnProgress )
-            OnProgress((const CCSPatchType)this->m_streamList[v21].patchType, (const dcacheType_t)this->m_streamList[v21].cacheType, this->m_streamList[v21].streamFileID, (const dcacheLocation_t)this->m_streamList[v21].locationType, dataSize, bytesDownloaded, fileSize);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm1, xmm1, rbp
-            vcvtsi2ss xmm0, xmm0, rsi
-            vdivss  xmm1, xmm1, xmm0
-            vmulss  xmm2, xmm1, cs:__real@42c80000
-            vcvtss2sd xmm3, xmm2, xmm2
-          }
+            OnProgress((const CCSPatchType)this->m_streamList[v19].patchType, (const dcacheType_t)this->m_streamList[v19].cacheType, this->m_streamList[v19].streamFileID, (const dcacheLocation_t)this->m_streamList[v19].locationType, dataSize, v7, fileSize);
+          v21 = (float)v7;
+          v22 = (float)fileSize;
           this->m_streamList[this->m_currentStreamIndex].lastAccessTime = Sys_Milliseconds();
-          __asm { vmovsd  [rsp+498h+buffer], xmm3 }
-          LODWORD(fmta) = bytesDownloaded;
-          j_sprintf_s(outData, 0x400ui64, "handle dl.[ packetSize:%d, totalSize:%d, percent:%f ]\n", dataSize, fmta, *(double *)&buffera);
+          LODWORD(fmta) = v7;
+          j_sprintf_s(outData, 0x400ui64, "handle dl.[ packetSize:%d, totalSize:%d, percent:%f ]\n", dataSize, fmta, (float)((float)(v21 / v22) * 100.0));
           OnlineSystem::DebugLog(this, outData);
         }
         else
         {
           Online_CachedContentStreamer::GetErrorReportingContext(this, outData, 1024);
-          v20 = Online_ErrorReporting::GetInstancePtr();
-          Online_ErrorReporting::ReportError(v20, (Online_Error_CAT_CCS_t)32, outData);
-          LODWORD(fmta) = v19;
+          v18 = Online_ErrorReporting::GetInstancePtr();
+          Online_ErrorReporting::ReportError(v18, (Online_Error_CAT_CCS_t)32, outData);
+          LODWORD(fmta) = v17;
           j_sprintf_s(outData, 0x400ui64, "handle dl. write mismatch. bytes got:%d, bytes written:%d.\n", dataSize, fmta);
           OnlineSystem::DebugLog(this, outData);
           Online_CachedContentStreamer::SetCurrentStreamState(this, CCS_STATE_ERROR_CLEANUP);
@@ -1208,15 +1202,15 @@ void Online_CachedContentStreamer::HandleDownload(Online_CachedContentStreamer *
       else
       {
         LODWORD(fmt) = fileSize;
-        j_sprintf_s(outData, 0x400ui64, "handle dl. early exit on 0 data size. bytes downloaded:%d, file size:%d.\n", bytesDownloaded, fmt);
+        j_sprintf_s(outData, 0x400ui64, "handle dl. early exit on 0 data size. bytes downloaded:%d, file size:%d.\n", (unsigned int)v7, fmt);
         OnlineSystem::DebugLog(this, outData);
       }
     }
     else
     {
       Online_CachedContentStreamer::GetErrorReportingContext(this, outData, 1024);
-      v15 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v15, (Online_Error_CAT_CCS_IOSTREAMS_t)0x2000, outData);
+      v13 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v13, (Online_Error_CAT_CCS_IOSTREAMS_t)0x2000, outData);
     }
   }
 }

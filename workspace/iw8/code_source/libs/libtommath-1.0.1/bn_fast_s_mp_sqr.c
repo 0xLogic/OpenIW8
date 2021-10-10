@@ -9,6 +9,7 @@ int fast_s_mp_sqr(mp_int *a, mp_int *b)
   int v3; 
   mp_int *v4; 
   int result; 
+  unsigned __int64 v6; 
   unsigned __int64 v7; 
   int v8; 
   __int64 v9; 
@@ -29,18 +30,19 @@ int fast_s_mp_sqr(mp_int *a, mp_int *b)
   int v24; 
   int v25; 
   int v26; 
+  unsigned int *v27; 
   __int64 v28; 
-  int v30; 
-  __int64 v39; 
-  int v40; 
+  int v29; 
+  __int64 v38; 
+  int v39; 
   __int64 i; 
-  int v42; 
-  __int128 v45[128]; 
+  int v41; 
+  __int128 v44[128]; 
 
   v2 = b;
   v3 = 2 * a->used;
   v4 = a;
-  v42 = v3;
+  v41 = v3;
   if ( b->alloc < v3 )
   {
     result = j_mp_grow(b, v3);
@@ -48,7 +50,7 @@ int fast_s_mp_sqr(mp_int *a, mp_int *b)
       return result;
     v4 = a;
   }
-  _RBP = 0i64;
+  v6 = 0i64;
   v7 = 0i64;
   v8 = 0;
   v9 = v3;
@@ -90,62 +92,58 @@ int fast_s_mp_sqr(mp_int *a, mp_int *b)
       ++v8;
       v24 = v23 & 0xFFFFFFF;
       v7 = v23 >> 28;
-      *((_DWORD *)v45 + v11++) = v24;
+      *((_DWORD *)v44 + v11++) = v24;
     }
     while ( v11 < v9 );
-    v3 = v42;
+    v3 = v41;
     v2 = b;
   }
   v25 = 0;
   v26 = v2->used;
-  _RDI = (int *)v2->dp;
+  v27 = v2->dp;
   v2->used = 2 * a->used;
   if ( v3 > 0 && (unsigned int)v3 >= 0x10 )
   {
     v28 = v3 - 1;
-    if ( _RDI > (int *)v45 + v28 || &_RDI[v28] < (int *)v45 )
+    if ( v27 > (unsigned int *)v44 + v28 || &v27[v28] < (unsigned int *)v44 )
     {
-      __asm { vmovdqu xmm2, cs:__xmm@0fffffff0fffffff0fffffff0fffffff }
-      v30 = v3 - (v3 & 0xF);
+      v29 = v3 - (v3 & 0xF);
       do
       {
-        __asm
-        {
-          vmovdqu xmm0, [rsp+rbp*4+888h+var_848]
-          vpand   xmm1, xmm0, xmm2
-          vmovdqu xmm0, [rsp+rbp*4+888h+var_838]
-          vmovdqu xmmword ptr [rdi], xmm1
-          vpand   xmm1, xmm0, xmm2
-          vmovdqu xmm0, [rsp+rbp*4+888h+var_828]
-          vmovdqu xmmword ptr [rdi+10h], xmm1
-          vpand   xmm1, xmm0, xmm2
-          vmovdqu xmm0, [rsp+rbp*4+888h+var_818]
-          vmovdqu xmmword ptr [rdi+20h], xmm1
-          vpand   xmm1, xmm0, xmm2
-          vmovdqu xmmword ptr [rdi+30h], xmm1
-        }
-        _RDI += 16;
+        _XMM0 = v44[v6 / 4];
+        __asm { vpand   xmm1, xmm0, xmm2 }
+        _XMM0 = v44[v6 / 4 + 1];
+        *(_OWORD *)v27 = _XMM1;
+        __asm { vpand   xmm1, xmm0, xmm2 }
+        _XMM0 = v44[v6 / 4 + 2];
+        *((_OWORD *)v27 + 1) = _XMM1;
+        __asm { vpand   xmm1, xmm0, xmm2 }
+        _XMM0 = v44[v6 / 4 + 3];
+        *((_OWORD *)v27 + 2) = _XMM1;
+        __asm { vpand   xmm1, xmm0, xmm2 }
+        *((_OWORD *)v27 + 3) = _XMM1;
+        v27 += 16;
         v25 += 16;
-        _RBP += 16i64;
+        v6 += 16i64;
       }
-      while ( _RBP < v30 );
+      while ( (__int64)v6 < v29 );
     }
   }
-  v39 = v25;
+  v38 = v25;
   if ( v25 < v9 )
   {
     v25 = v9;
     do
     {
-      v40 = *((_DWORD *)v45 + v39++);
-      *_RDI++ = v40 & 0xFFFFFFF;
+      v39 = *((_DWORD *)v44 + v38++);
+      *v27++ = v39 & 0xFFFFFFF;
     }
-    while ( v39 < v9 );
+    while ( v38 < v9 );
   }
   if ( v25 < v26 )
   {
     for ( i = v26 - v25; i; --i )
-      *_RDI++ = 0;
+      *v27++ = 0;
   }
   j_mp_clamp(v2);
   return 0;

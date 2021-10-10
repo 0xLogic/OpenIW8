@@ -36,51 +36,43 @@ void __fastcall ATClient_StateMachineShootEnter(const LocalClientNum_t localClie
 ATClient_StateMachineShootEnter
 ==============
 */
-
-void __fastcall ATClient_StateMachineShootEnter(const LocalClientNum_t localClientNum, double _XMM1_8)
+void ATClient_StateMachineShootEnter(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
-  __int64 v3; 
-  int v4; 
+  const dvar_t *v1; 
+  __int64 v2; 
+  int v3; 
   AutomatedInput_Record records; 
-  int v11; 
-  __int64 v12; 
-  __int64 v13; 
-  __int64 v14; 
+  float v5; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int128 v11; 
 
-  v2 = DVARBOOL_ATClient_AllowOffensiveBehavior;
-  v3 = localClientNum;
+  v1 = DVARBOOL_ATClient_AllowOffensiveBehavior;
+  v2 = localClientNum;
   if ( !DVARBOOL_ATClient_AllowOffensiveBehavior && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_AllowOffensiveBehavior") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  v4 = 0;
-  if ( v2->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  v3 = 0;
+  if ( v1->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  [rbp+57h+records.holdTimeSeconds], xmm0
-      vmovss  [rbp+57h+var_4C], xmm0
-      vmovss  xmm0, cs:__real@3dcccccd
-    }
-    memset(&records.keys.keyBits.array[1], 0, 24);
-    v12 = 0i64;
-    v13 = 0i64;
-    v14 = 0i64;
-    __asm
-    {
-      vmovss  [rbp+57h+var_48], xmm0
-      vmovss  [rbp+57h+records.deferTimeSeconds], xmm1
-    }
+    records.holdTimeSeconds = FLOAT_1_0;
+    v5 = FLOAT_1_0;
+    memset(&records.keys.keyBits.array[1], 0, 40);
+    v8 = 0i64;
+    v9 = 0i64;
+    v10 = 0i64;
+    v6 = FLOAT_0_1;
+    records.deferTimeSeconds = 0.0;
     records.keys.keyBits.array[0] = 4096;
-    __asm { vmovups xmmword ptr [rbp+57h+records.moveStick], xmm1 }
-    v11 = 0x10000000;
-    __asm { vmovups [rbp+57h+var_28], xmm1 }
-    CL_Input_AddAutomatedSequence((LocalClientNum_t)v3, &records, 2);
-    v4 = 3000;
+    v7 = 0x10000000;
+    v11 = 0i64;
+    CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 2);
+    v3 = 3000;
   }
-  s_durationMS_5[v3] = v4;
+  s_durationMS_5[v2] = v3;
 }
 
 /*

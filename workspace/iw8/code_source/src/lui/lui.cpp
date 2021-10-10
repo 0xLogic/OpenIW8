@@ -2003,25 +2003,15 @@ void LUIElementGfxState::~LUIElementGfxState(LUIElementGfxState *this)
 AdjustPixelSizeForResolution
 ==============
 */
-int AdjustPixelSizeForResolution(lua_State *luaVM, int pixelValue)
+__int64 AdjustPixelSizeForResolution(lua_State *luaVM, int pixelValue)
 {
   const LUIElement *CurrentRoot; 
-  int result; 
 
   CurrentRoot = LUI_CoD_GetCurrentRoot(luaVM);
   LUI_GetRootData(CurrentRoot);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm1, xmm0, cs:__real@3f2aaaab
-    vmulss  xmm2, xmm1, dword ptr [rax+0F8h]
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -2075,262 +2065,116 @@ LUIElement_ApplyTransform
 */
 void LUIElement_ApplyTransform(LUIElement *element, lua_State *luaVM)
 {
-  char v12; 
-  bool v18; 
-  bool v62; 
+  __int128 v2; 
+  float scale; 
+  float left; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float zRot; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float yRot; 
+  float v15; 
+  float v16; 
+  float xRot; 
+  float v18; 
+  float v19; 
+  float depth; 
   unsigned __int8 parallaxAmount; 
   tmat44_t<vec4_t> result; 
   tmat44_t<vec4_t> matrix1; 
   tmat44_t<vec4_t> matrix2; 
-  void *retaddr; 
+  __int128 v25; 
 
-  _R11 = &retaddr;
-  __asm { vmovss  xmm5, dword ptr [rcx+34h] }
-  _RBX = element;
-  __asm
+  scale = element->currentAnimationState.scale;
+  if ( scale != 0.0 )
   {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovss  xmm7, cs:__real@3f000000
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm5, xmm6
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-78h], xmm11
-  }
-  if ( !v12 )
-  {
-    v18 = s_currentMatrix < 31;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rcx+0D0h]
-      vmovss  xmm0, dword ptr [rcx+0D8h]
-      vmovss  xmm4, dword ptr [rcx+0CCh]
-      vmovss  xmm9, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rcx+0D4h]
-      vmulss  xmm2, xmm1, xmm7
-      vsubss  xmm1, xmm0, xmm4
-      vaddss  xmm11, xmm2, xmm3
-      vmulss  xmm2, xmm1, xmm7
-      vmovaps xmmword ptr [r11-88h], xmm12
-      vaddss  xmm12, xmm2, xmm4
-      vaddss  xmm10, xmm5, xmm9
-    }
-    if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
-      __debugbreak();
-    ++s_currentMatrix;
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2; z
-      vmovaps xmm1, xmm11; y
-      vmovaps xmm0, xmm12; x
-    }
-    LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
-    LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-    __asm
-    {
-      vmovaps xmm2, xmm9; z
-      vmovaps xmm1, xmm10; y
-      vmovaps xmm0, xmm10; x
-    }
-    LUI_Matrix_BuildScaleMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix2);
-    LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix2, &matrix1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+180h+result+0Ch]
-      vmovss  xmm2, dword ptr [rsp+180h+result+1Ch]
-      vxorps  xmm1, xmm0, xmm8
-      vxorps  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rsp+180h+result+0Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+180h+result+2Ch]
-      vxorps  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rsp+180h+result+2Ch], xmm2
-      vmovss  dword ptr [rsp+180h+result+1Ch], xmm0
-    }
-    LUI_Matrix_Multiply(&matrix1, &result, &s_matrixStack[(__int64)s_currentMatrix]);
-    __asm { vmovaps xmm12, [rsp+180h+var_80] }
-  }
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx+30h]
-    vucomiss xmm5, xmm6
-  }
-  if ( !v12 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+0D0h]
-      vmovss  xmm0, dword ptr [rbx+0D8h]
-      vmovss  xmm4, dword ptr [rbx+0CCh]
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rbx+0D4h]
-      vmulss  xmm2, xmm1, xmm7
-      vsubss  xmm1, xmm0, xmm4
-      vaddss  xmm9, xmm2, xmm3
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm10, xmm2, xmm4
-      vxorps  xmm11, xmm5, xmm8
-    }
+    left = element->left;
+    v6 = element->right - left;
+    v7 = (float)((float)(element->bottom - element->top) * 0.5) + element->top;
+    v25 = v2;
+    v8 = (float)(v6 * 0.5) + left;
+    v9 = scale + 1.0;
     if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
       __debugbreak();
     ++s_currentMatrix;
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2; z
-      vmovaps xmm1, xmm9; y
-      vmovaps xmm0, xmm10; x
-    }
-    LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+    LUI_Matrix_BuildTranslationMatrix(v8, v7, 0.0, &result);
     LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-    __asm { vmovaps xmm0, xmm11; degrees }
-    LUI_Matrix_BuildZRotationMatrix(*(const float *)&_XMM0, &matrix1);
+    LUI_Matrix_BuildScaleMatrix(v9, v9, 1.0, &matrix2);
+    LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix2, &matrix1);
+    LODWORD(result.m[0].v[3]) ^= _xmm;
+    LODWORD(result.m[2].v[3]) ^= _xmm;
+    LODWORD(result.m[1].v[3]) ^= _xmm;
+    LUI_Matrix_Multiply(&matrix1, &result, &s_matrixStack[(__int64)s_currentMatrix]);
+  }
+  zRot = element->currentAnimationState.zRot;
+  if ( zRot != 0.0 )
+  {
+    v11 = (float)((float)(element->bottom - element->top) * 0.5) + element->top;
+    v12 = (float)((float)(element->right - element->left) * 0.5) + element->left;
+    LODWORD(v13) = LODWORD(zRot) ^ _xmm;
+    if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
+      __debugbreak();
+    ++s_currentMatrix;
+    LUI_Matrix_BuildTranslationMatrix(v12, v11, 0.0, &result);
+    LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
+    LUI_Matrix_BuildZRotationMatrix(v13, &matrix1);
     LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix1, &matrix2);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+180h+result+0Ch]
-      vmovss  xmm2, dword ptr [rsp+180h+result+1Ch]
-      vxorps  xmm1, xmm0, xmm8
-      vxorps  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rsp+180h+result+0Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+180h+result+2Ch]
-      vxorps  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rsp+180h+result+2Ch], xmm2
-      vmovss  dword ptr [rsp+180h+result+1Ch], xmm0
-    }
+    LODWORD(result.m[0].v[3]) ^= _xmm;
+    LODWORD(result.m[2].v[3]) ^= _xmm;
+    LODWORD(result.m[1].v[3]) ^= _xmm;
     LUI_Matrix_Multiply(&matrix2, &result, &s_matrixStack[(__int64)s_currentMatrix]);
   }
-  v62 = (_RBX->usageFlags & 4) == 0;
-  if ( (_RBX->usageFlags & 4) != 0 )
+  if ( (element->usageFlags & 4) != 0 )
   {
-    __asm
+    yRot = element->yRot;
+    if ( yRot != 0.0 )
     {
-      vmovss  xmm9, dword ptr [rbx+0E4h]
-      vucomiss xmm9, xmm6
-    }
-    if ( (_RBX->usageFlags & 4) != 0 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+0D0h]
-        vmovss  xmm0, dword ptr [rbx+0D8h]
-        vmovss  xmm4, dword ptr [rbx+0CCh]
-        vsubss  xmm1, xmm0, xmm3
-        vmovss  xmm0, dword ptr [rbx+0D4h]
-        vmulss  xmm2, xmm1, xmm7
-        vsubss  xmm1, xmm0, xmm4
-        vaddss  xmm10, xmm2, xmm3
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm11, xmm2, xmm4
-      }
+      v15 = (float)((float)(element->bottom - element->top) * 0.5) + element->top;
+      v16 = (float)((float)(element->right - element->left) * 0.5) + element->left;
       if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
         __debugbreak();
       ++s_currentMatrix;
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2; z
-        vmovaps xmm1, xmm10; y
-        vmovaps xmm0, xmm11; x
-      }
-      LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+      LUI_Matrix_BuildTranslationMatrix(v16, v15, 0.0, &result);
       LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-      __asm { vmovaps xmm0, xmm9; degrees }
-      LUI_Matrix_BuildYRotationMatrix(*(const float *)&_XMM0, &matrix1);
+      LUI_Matrix_BuildYRotationMatrix(yRot, &matrix1);
       LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix1, &matrix2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+180h+result+0Ch]
-        vmovss  xmm2, dword ptr [rsp+180h+result+1Ch]
-        vxorps  xmm1, xmm0, xmm8
-        vxorps  xmm0, xmm2, xmm8
-        vmovss  dword ptr [rsp+180h+result+0Ch], xmm1
-        vmovss  xmm1, dword ptr [rsp+180h+result+2Ch]
-        vxorps  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rsp+180h+result+2Ch], xmm2
-        vmovss  dword ptr [rsp+180h+result+1Ch], xmm0
-      }
+      LODWORD(result.m[0].v[3]) ^= _xmm;
+      LODWORD(result.m[2].v[3]) ^= _xmm;
+      LODWORD(result.m[1].v[3]) ^= _xmm;
       LUI_Matrix_Multiply(&matrix2, &result, &s_matrixStack[(__int64)s_currentMatrix]);
     }
-    __asm
+    xRot = element->xRot;
+    if ( xRot != 0.0 )
     {
-      vmovss  xmm9, dword ptr [rbx+0E0h]
-      vucomiss xmm9, xmm6
-    }
-    if ( !v62 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+0D0h]
-        vmovss  xmm0, dword ptr [rbx+0D8h]
-        vmovss  xmm4, dword ptr [rbx+0CCh]
-        vsubss  xmm1, xmm0, xmm3
-        vmovss  xmm0, dword ptr [rbx+0D4h]
-        vmulss  xmm2, xmm1, xmm7
-        vsubss  xmm1, xmm0, xmm4
-        vaddss  xmm10, xmm2, xmm3
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm7, xmm2, xmm4
-      }
+      v18 = (float)((float)(element->bottom - element->top) * 0.5) + element->top;
+      v19 = (float)((float)(element->right - element->left) * 0.5) + element->left;
       if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
         __debugbreak();
       ++s_currentMatrix;
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2; z
-        vmovaps xmm1, xmm10; y
-        vmovaps xmm0, xmm7; x
-      }
-      LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+      LUI_Matrix_BuildTranslationMatrix(v19, v18, 0.0, &result);
       LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-      __asm { vmovaps xmm0, xmm9; degrees }
-      LUI_Matrix_BuildXRotationMatrix(*(const float *)&_XMM0, &matrix1);
+      LUI_Matrix_BuildXRotationMatrix(xRot, &matrix1);
       LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix1, &matrix2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+180h+result+0Ch]
-        vmovss  xmm2, dword ptr [rsp+180h+result+1Ch]
-        vxorps  xmm1, xmm0, xmm8
-        vxorps  xmm0, xmm2, xmm8
-        vmovss  dword ptr [rsp+180h+result+0Ch], xmm1
-        vmovss  xmm1, dword ptr [rsp+180h+result+2Ch]
-        vxorps  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rsp+180h+result+2Ch], xmm2
-        vmovss  dword ptr [rsp+180h+result+1Ch], xmm0
-      }
+      LODWORD(result.m[0].v[3]) ^= _xmm;
+      LODWORD(result.m[2].v[3]) ^= _xmm;
+      LODWORD(result.m[1].v[3]) ^= _xmm;
       LUI_Matrix_Multiply(&matrix2, &result, &s_matrixStack[(__int64)s_currentMatrix]);
     }
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx+0DCh]
-      vucomiss xmm7, xmm6
-    }
-    if ( !v62 )
+    depth = element->depth;
+    if ( depth != 0.0 )
     {
       if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
         __debugbreak();
       ++s_currentMatrix;
-      __asm
-      {
-        vmovaps xmm2, xmm7; z
-        vxorps  xmm1, xmm1, xmm1; y
-        vxorps  xmm0, xmm0, xmm0; x
-      }
-      LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix1);
+      LUI_Matrix_BuildTranslationMatrix(0.0, 0.0, depth, &matrix1);
       LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &matrix1, &s_matrixStack[(__int64)s_currentMatrix]);
     }
   }
-  parallaxAmount = _RBX->parallaxAmount;
-  __asm
-  {
-    vmovaps xmm11, [rsp+180h+var_70]
-    vmovaps xmm10, [rsp+180h+var_60]
-    vmovaps xmm9, [rsp+180h+var_50]
-    vmovaps xmm8, [rsp+180h+var_40]
-    vmovaps xmm7, [rsp+180h+var_30]
-    vmovaps xmm6, [rsp+180h+var_20]
-  }
+  parallaxAmount = element->parallaxAmount;
   if ( parallaxAmount )
     LUI_Render_PushParallaxEnabled(parallaxAmount);
 }
@@ -2342,269 +2186,259 @@ LUIElement_BuildDrawList
 */
 void LUIElement_BuildDrawList(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, LUIRootData *rootData, lua_State *luaVM, float alphaMultiplier, float redMultiplier, float greenMultiplier, float blueMultiplier, bool *outDynamicRendering)
 {
-  bool *v18; 
+  bool *v13; 
   LUIElement *parent; 
-  char v22; 
+  char v15; 
+  float v20; 
+  float v21; 
+  float v22; 
+  char v23; 
   LUIElementUsageFlag usageFlags; 
   LUIBlendMode CurrentBlendMode; 
   LUIBlendMode blendMode; 
   LUIElement *maskElement; 
-  bool v43; 
+  bool v28; 
+  float glitchAmount; 
   void (__fastcall *renderFunction)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *); 
+  float v31; 
   LUIElement *i; 
-  bool v50; 
-  LUIElementUsageFlag v51; 
-  unsigned int v52; 
-  float fmt; 
-  float v61; 
-  float v63; 
-  float v64; 
-  float v65; 
-  bool v66; 
+  bool v33; 
+  LUIElement *j; 
+  UIQuadCache *firstDeepCache; 
+  UIQuadCache *lastDeepCache; 
+  LUIElementUsageFlag v37; 
+  unsigned int v38; 
   LUIColorOp op; 
-  bool v68; 
-  bool v69; 
-  bool v70; 
-  LUIElementGfxState v71; 
-  __int64 v72; 
-  char v73; 
-  void *retaddr; 
+  bool v40; 
+  bool v41; 
+  bool v42; 
+  LUIElementGfxState v43; 
+  __int64 v44; 
 
-  _RAX = &retaddr;
-  v72 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RBX = element;
-  v18 = outDynamicRendering;
+  v44 = -2i64;
+  v13 = outDynamicRendering;
   *outDynamicRendering = 0;
   if ( !element || (element->currentAnimationState.flags & 1) == 0 )
-    goto LABEL_87;
-  LUIElementGfxState::LUIElementGfxState(&v71, localClientNum, element, v18);
-  parent = _RBX->parent;
+    return;
+  LUIElementGfxState::LUIElementGfxState(&v43, localClientNum, element, v13);
+  parent = element->parent;
   if ( parent && !parent->quadCached )
   {
-    _RBX->quadCached = 0;
-    _RBX->hasLeftoverQuadcache = _RBX->firstCache != NULL;
+    element->quadCached = 0;
+    element->hasLeftoverQuadcache = element->firstCache != NULL;
     goto LABEL_6;
   }
-  if ( !_RBX->deeplyCached || s_drawDebugBoundingBoxes )
+  if ( !element->deeplyCached || s_drawDebugBoundingBoxes )
   {
 LABEL_6:
-    __asm
+    v15 = element->usageFlags & 1;
+    if ( (float)(alphaMultiplier * element->currentAnimationState.alpha) <= 0.000099999997 )
     {
-      vmovss  xmm0, [rsp+118h+alphaMultiplier]
-      vmulss  xmm3, xmm0, dword ptr [rbx+44h]
+      if ( !v15 )
+      {
+        element->deeplyCached = 1;
+        element->firstDeepCache = NULL;
+        element->lastDeepCache = NULL;
+      }
+      goto LABEL_97;
     }
-    v22 = _RBX->usageFlags & 1;
-    __asm { vcomiss xmm3, cs:__real@38d1b717 }
-    if ( v22 )
+    _XMM0 = (element->usageFlags & 0x4000000) != 0;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_1_0);
+    __asm { vblendvps xmm0, xmm1, xmm3, xmm2 }
+    *(float *)&outDynamicRendering = *(float *)&_XMM0;
+    v20 = redMultiplier * element->currentAnimationState.red;
+    v21 = greenMultiplier * element->currentAnimationState.green;
+    v22 = blueMultiplier * element->currentAnimationState.blue;
+    v23 = 1;
+    LUIElement_ApplyTransform(element, luaVM);
+    usageFlags = element->usageFlags;
+    if ( (usageFlags & 8) != 0 )
     {
-      _ER15 = 0;
-      __asm { vmovd   xmm1, r15d }
-      _EAX = (_RBX->usageFlags & 0x4000000) != 0;
-      __asm
+      LUI_SetScopeUIStencilEnabled(1);
+      LUI_Render_PushScopeIndex(((unsigned int)element->usageFlags >> 15) & 1);
+      usageFlags = element->usageFlags;
+    }
+    if ( (usageFlags & 4) != 0 )
+    {
+      if ( !s_isInBuildDrawList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7953, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
+        __debugbreak();
+      ++s_current3DTransforms;
+    }
+    CurrentBlendMode = LUI_Render_GetCurrentBlendMode();
+    blendMode = element->blendMode;
+    v40 = CurrentBlendMode != blendMode;
+    if ( CurrentBlendMode != blendMode )
+      LUI_Render_PushBlendMode(blendMode);
+    maskElement = element->maskElement;
+    if ( maskElement )
+    {
+      if ( (maskElement->currentAnimationState.flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8234, ASSERT_TYPE_ASSERT, "(element->maskElement->currentAnimationState.flags & ( 1 << 0 ))", "%s\n\tMask element has uninitialized animation state!", "element->maskElement->currentAnimationState.flags & LUI_ANIMSTATE_INITIALIZED") )
+        __debugbreak();
+      LUIElement_Mask_Push(localClientNum, element->maskElement, luaVM);
+    }
+    else
+    {
+      if ( (element->currentAnimationState.flags & 2) == 0 )
       {
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vblendvps xmm0, xmm1, xmm3, xmm2
-        vmovss  dword ptr [rsp+118h+outDynamicRendering], xmm0
-        vmovss  xmm2, [rsp+118h+redMultiplier]
-        vmulss  xmm7, xmm2, dword ptr [rbx+38h]
-        vmovss  xmm0, [rsp+118h+greenMultiplier]
-        vmulss  xmm8, xmm0, dword ptr [rbx+3Ch]
-        vmovss  xmm1, [rsp+118h+blueMultiplier]
-        vmulss  xmm9, xmm1, dword ptr [rbx+40h]
-      }
-      LUIElement_ApplyTransform(_RBX, luaVM);
-      usageFlags = _RBX->usageFlags;
-      if ( (usageFlags & 8) != 0 )
-      {
-        LUI_SetScopeUIStencilEnabled(1);
-        LUI_Render_PushScopeIndex(((unsigned int)_RBX->usageFlags >> 15) & 1);
-        usageFlags = _RBX->usageFlags;
-      }
-      if ( (usageFlags & 4) != 0 )
-      {
-        if ( !s_isInBuildDrawList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7953, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
-          __debugbreak();
-        ++s_current3DTransforms;
-      }
-      CurrentBlendMode = LUI_Render_GetCurrentBlendMode();
-      blendMode = _RBX->blendMode;
-      v68 = CurrentBlendMode != blendMode;
-      if ( CurrentBlendMode != blendMode )
-        LUI_Render_PushBlendMode(blendMode);
-      maskElement = _RBX->maskElement;
-      if ( maskElement )
-      {
-        if ( (maskElement->currentAnimationState.flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8234, ASSERT_TYPE_ASSERT, "(element->maskElement->currentAnimationState.flags & ( 1 << 0 ))", "%s\n\tMask element has uninitialized animation state!", "element->maskElement->currentAnimationState.flags & LUI_ANIMSTATE_INITIALIZED") )
-          __debugbreak();
-        LUIElement_Mask_Push(localClientNum, _RBX->maskElement, luaVM);
-      }
-      else if ( (_RBX->currentAnimationState.flags & 2) != 0 )
-      {
-        __asm
+LABEL_29:
+        v41 = (element->usageFlags & 0x40) != 0;
+        v28 = 0;
+        if ( !v15 )
+          v28 = v23;
+        if ( (element->usageFlags & 0x40) != 0 )
         {
-          vmovss  xmm0, dword ptr [rbx+0D8h]
-          vmovss  dword ptr [rsp+118h+fmt], xmm0
-          vmovss  xmm3, dword ptr [rbx+0D4h]; right
-          vmovss  xmm2, dword ptr [rbx+0D0h]; top
-          vmovss  xmm1, dword ptr [rbx+0CCh]; left
+          LUI_Render_PushPixelGrid(localClientNum, element);
+          v28 = 0;
         }
-        LUI_Render_PushStencilRectangle(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-      }
-      v69 = (_RBX->usageFlags & 0x40) != 0;
-      v43 = (_RBX->usageFlags & 0x40) == 0;
-      if ( (_RBX->usageFlags & 0x40) != 0 )
-      {
-        LUI_Render_PushPixelGrid(localClientNum, _RBX);
-        v43 = 1;
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]; glitchAmount
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
-      }
-      v66 = !v43;
-      if ( !v43 )
-        LUI_Render_PushGlitch(*(float *)&_XMM0);
-      op = _RBX->colorOp.op;
-      if ( op )
-        LUI_Render_PushColorOp(&_RBX->colorOp);
-      v70 = (_RBX->usageFlags & 0x800000) != 0;
-      if ( (_RBX->usageFlags & 0x800000) != 0 )
-        LUI_Render_PushAsyncRenderSuspend();
-      renderFunction = _RBX->renderFunction;
-      __asm { vmovss  xmm6, dword ptr [rsp+118h+outDynamicRendering] }
-      if ( renderFunction )
-      {
-        if ( _RBX->quadCached )
+        glitchAmount = element->glitchAmount;
+        if ( glitchAmount > 0.0 )
+          LUI_Render_PushGlitch(glitchAmount);
+        op = element->colorOp.op;
+        if ( op )
+          LUI_Render_PushColorOp(&element->colorOp);
+        v42 = (element->usageFlags & 0x800000) != 0;
+        if ( (element->usageFlags & 0x800000) != 0 )
+          LUI_Render_PushAsyncRenderSuspend();
+        renderFunction = element->renderFunction;
+        v31 = *(float *)&outDynamicRendering;
+        if ( renderFunction )
         {
-          if ( LUI_QuadCache_Element_CanDraw(_RBX) )
-            LUI_QuadCache_AddDrawListElement(localClientNum, _RBX);
+          if ( element->quadCached )
+          {
+            if ( LUI_QuadCache_Element_CanDraw(element) )
+              LUI_QuadCache_AddDrawListElement(localClientNum, element);
+          }
+          else
+          {
+            ((void (__fastcall *)(_QWORD, LUIElement *, LUIElement *))renderFunction)((unsigned int)localClientNum, element, root);
+            *v13 = 1;
+          }
+        }
+        for ( i = element->firstChild; i; i = i->nextSibling )
+        {
+          LUIElement_BuildDrawList(localClientNum, i, root, rootData, luaVM, v31, v20, v21, v22, (bool *)&outDynamicRendering);
+          v28 = v28 && i->deeplyCached;
+          v33 = *v13 || (_BYTE)outDynamicRendering;
+          *v13 = v33;
+        }
+        if ( v15 )
+        {
+          if ( element->firstCache )
+            element->hasLeftoverQuadcache = 1;
         }
         else
         {
-          __asm
-          {
-            vmovss  [rsp+118h+var_E8], xmm9
-            vmovss  [rsp+118h+var_F0], xmm8
-            vmovss  dword ptr [rsp+118h+fmt], xmm7
-            vmovaps xmm3, xmm6
-          }
-          ((void (__fastcall *)(_QWORD, LUIElement *, LUIElement *))renderFunction)((unsigned int)localClientNum, _RBX, root);
-          *v18 = 1;
+          element->quadCached = 1;
         }
-      }
-      for ( i = _RBX->firstChild; i; i = i->nextSibling )
-      {
-        __asm
+        if ( v28 )
         {
-          vmovss  [rsp+118h+var_D8], xmm9
-          vmovss  [rsp+118h+var_E0], xmm8
-          vmovss  [rsp+118h+var_E8], xmm7
-          vmovss  [rsp+118h+var_F0], xmm6
+          element->deeplyCached = 1;
+          if ( LUI_QuadCache_Element_CanDraw(element) )
+          {
+            element->firstDeepCache = element->firstCache;
+            element->lastDeepCache = element->lastCache;
+          }
+          else
+          {
+            element->firstDeepCache = NULL;
+            element->lastDeepCache = NULL;
+          }
+          for ( j = element->firstChild; j; j = j->nextSibling )
+          {
+            firstDeepCache = j->firstDeepCache;
+            if ( firstDeepCache )
+            {
+              lastDeepCache = element->lastDeepCache;
+              if ( lastDeepCache )
+                lastDeepCache->next = firstDeepCache;
+              else
+                element->firstDeepCache = firstDeepCache;
+              element->lastDeepCache = j->lastDeepCache;
+            }
+          }
+          if ( !element->deeplyCached && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8315, ASSERT_TYPE_ASSERT, "(element->deeplyCached)", (const char *)&queryFormat, "element->deeplyCached") )
+            __debugbreak();
         }
-        LUIElement_BuildDrawList(localClientNum, i, root, rootData, luaVM, v61, v63, v64, v65, (bool *)&outDynamicRendering);
-        v50 = *v18 || (_BYTE)outDynamicRendering;
-        *v18 = v50;
+        else
+        {
+          element->deeplyCached = 0;
+        }
+        if ( v41 )
+          LUI_Render_PopPixelGrid(localClientNum);
+        if ( glitchAmount > 0.0 )
+          LUI_Render_PopGlitch();
+        if ( v42 )
+          LUI_Render_PopAsyncRenderSuspend();
+        if ( op )
+          LUI_Render_PopColorOp();
+        if ( element->maskElement )
+        {
+          LUI_Render_PopMask(localClientNum);
+        }
+        else if ( (element->currentAnimationState.flags & 2) != 0 )
+        {
+          LUI_Render_PopStencilRectangle(localClientNum);
+        }
+        if ( v40 )
+          LUI_Render_PopBlendMode();
+        if ( s_drawDebugBoundingBoxes )
+          LUI_Interface_DrawBoundingBox(localClientNum, element, luaVM);
+        v37 = element->usageFlags;
+        if ( (v37 & 4) != 0 )
+        {
+          if ( !s_isInBuildDrawList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7960, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
+            __debugbreak();
+          --s_current3DTransforms;
+          v37 = element->usageFlags;
+        }
+        if ( (v37 & 8) != 0 )
+        {
+          LUI_SetScopeUIStencilEnabled(0);
+          LUI_Render_PopScopeIndex();
+        }
+        LUIElement_UndoTransform(element, luaVM);
+        goto LABEL_97;
       }
-      if ( _RBX->firstCache )
-        _RBX->hasLeftoverQuadcache = 1;
-      _RBX->deeplyCached = 0;
-      if ( v69 )
-        LUI_Render_PopPixelGrid(localClientNum);
-      if ( v66 )
-        LUI_Render_PopGlitch();
-      if ( v70 )
-        LUI_Render_PopAsyncRenderSuspend();
-      if ( op )
-        LUI_Render_PopColorOp();
-      if ( _RBX->maskElement )
-      {
-        LUI_Render_PopMask(localClientNum);
-      }
-      else if ( (_RBX->currentAnimationState.flags & 2) != 0 )
-      {
-        LUI_Render_PopStencilRectangle(localClientNum);
-      }
-      if ( v68 )
-        LUI_Render_PopBlendMode();
-      if ( s_drawDebugBoundingBoxes )
-        LUI_Interface_DrawBoundingBox(localClientNum, _RBX, luaVM);
-      v51 = _RBX->usageFlags;
-      if ( (v51 & 4) != 0 )
-      {
-        if ( !s_isInBuildDrawList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7960, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
-          __debugbreak();
-        --s_current3DTransforms;
-        v51 = _RBX->usageFlags;
-      }
-      if ( (v51 & 8) != 0 )
-      {
-        LUI_SetScopeUIStencilEnabled(0);
-        LUI_Render_PopScopeIndex();
-      }
-      LUIElement_UndoTransform(_RBX, luaVM);
+      LUI_Render_PushStencilRectangle(localClientNum, element->left, element->top, element->right, element->bottom);
     }
-    else
-    {
-      _RBX->deeplyCached = 1;
-      _RBX->firstDeepCache = NULL;
-      _RBX->lastDeepCache = NULL;
-    }
-    goto LABEL_72;
+    v23 = 0;
+    goto LABEL_29;
   }
-  LUI_QuadCache_AddDrawListDeepCachedElement(localClientNum, _RBX);
-LABEL_72:
-  if ( !v71.m_rttHandle )
+  LUI_QuadCache_AddDrawListDeepCachedElement(localClientNum, element);
+LABEL_97:
+  if ( v43.m_rttHandle )
   {
-    if ( v71.m_usePostFX )
-    {
-      v52 = 1;
-    }
-    else if ( v71.m_usePostFXLite )
-    {
-      v52 = 2;
-    }
-    else if ( v71.m_usePostFXComposite )
-    {
-      v52 = 3;
-    }
-    else if ( v71.m_useLowresOverlay )
-    {
-      v52 = 4;
-    }
-    else if ( v71.m_pixelgridOverlay )
-    {
-      v52 = 5;
-    }
-    else
-    {
-      if ( !v71.m_useRegularList )
-        goto LABEL_87;
-      v52 = 0;
-    }
-    LUI_Render_PopCustomList((const LocalClientNum_t)v71.m_localClientNum, v52);
-    goto LABEL_87;
+    LUI_Render_PopRTT((const LocalClientNum_t)v43.m_localClientNum);
+    return;
   }
-  LUI_Render_PopRTT((const LocalClientNum_t)v71.m_localClientNum);
-LABEL_87:
-  _R11 = &v73;
-  __asm
+  if ( v43.m_usePostFX )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    v38 = 1;
   }
+  else if ( v43.m_usePostFXLite )
+  {
+    v38 = 2;
+  }
+  else if ( v43.m_usePostFXComposite )
+  {
+    v38 = 3;
+  }
+  else if ( v43.m_useLowresOverlay )
+  {
+    v38 = 4;
+  }
+  else if ( v43.m_pixelgridOverlay )
+  {
+    v38 = 5;
+  }
+  else
+  {
+    if ( !v43.m_useRegularList )
+      return;
+    v38 = 0;
+  }
+  LUI_Render_PopCustomList((const LocalClientNum_t)v43.m_localClientNum, v38);
 }
 
 /*
@@ -2614,40 +2448,21 @@ LUIElement_CalculateGlobalRectangle
 */
 void LUIElement_CalculateGlobalRectangle(LUIElement *element, LUIAnimationState *animationState)
 {
-  if ( element->parent )
+  LUIElement *parent; 
+  float v3; 
+  LUIElement *v4; 
+  float v5; 
+
+  parent = element->parent;
+  if ( parent )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdx+10h]
-      vmovss  xmm3, cs:__real@3f800000
-      vsubss  xmm0, xmm3, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rax+8]
-      vmulss  xmm1, xmm1, dword ptr [rax+0Ch]
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdx]
-      vmovss  xmm1, dword ptr [rdx+14h]
-      vmovss  dword ptr [rdx+8], xmm0
-      vsubss  xmm0, xmm3, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rax+0Ch]
-      vmulss  xmm1, xmm1, dword ptr [rax+8]
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdx+4]
-      vmovss  dword ptr [rdx+0Ch], xmm0
-      vmovss  xmm1, dword ptr [rdx+28h]
-      vsubss  xmm0, xmm3, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rax+20h]
-      vmulss  xmm1, xmm1, dword ptr [rax+24h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rdx+18h]
-      vmovss  xmm1, dword ptr [rdx+2Ch]
-      vsubss  xmm0, xmm3, xmm1
-      vmovss  dword ptr [rdx+20h], xmm2
-      vmulss  xmm2, xmm0, dword ptr [rax+24h]
-      vmulss  xmm1, xmm1, dword ptr [rax+20h]
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm0, xmm2, dword ptr [rdx+1Ch]
-      vmovss  dword ptr [rdx+24h], xmm0
-    }
+    v3 = animationState->position.x.anchors[1];
+    animationState->position.x.global[0] = (float)((float)((float)(1.0 - animationState->position.x.anchors[0]) * parent->currentAnimationState.position.x.global[0]) + (float)(animationState->position.x.anchors[0] * parent->currentAnimationState.position.x.global[1])) + animationState->position.x.offsets[0];
+    animationState->position.x.global[1] = (float)((float)((float)(1.0 - v3) * parent->currentAnimationState.position.x.global[1]) + (float)(v3 * parent->currentAnimationState.position.x.global[0])) + animationState->position.x.offsets[1];
+    v4 = element->parent;
+    v5 = animationState->position.y.anchors[1];
+    animationState->position.y.global[0] = (float)((float)((float)(1.0 - animationState->position.y.anchors[0]) * v4->currentAnimationState.position.y.global[0]) + (float)(animationState->position.y.anchors[0] * v4->currentAnimationState.position.y.global[1])) + animationState->position.y.offsets[0];
+    animationState->position.y.global[1] = (float)((float)((float)(1.0 - v5) * v4->currentAnimationState.position.y.global[1]) + (float)(v5 * v4->currentAnimationState.position.y.global[0])) + animationState->position.y.offsets[1];
   }
 }
 
@@ -2658,31 +2473,25 @@ LUIElement_CalculateRTTHandledElementGlobalRectangle
 */
 void LUIElement_CalculateRTTHandledElementGlobalRectangle(LUIElement *element)
 {
+  LUIElement *parent; 
+
   if ( element->rttHandle )
   {
+    parent = element->parent;
+    _XMM0 = LODWORD(element->currentAnimationState.position.x.anchors[1]);
+    __asm { vcmpltss xmm1, xmm0, dword ptr [rcx+10h] }
+    _XMM2 = LODWORD(FLOAT_N1_0);
+    _XMM0 = LODWORD(element->currentAnimationState.position.y.anchors[1]);
     __asm
     {
-      vmovss  xmm0, dword ptr [rcx+14h]
-      vcmpltss xmm1, xmm0, dword ptr [rcx+10h]
-      vmovss  xmm3, cs:__real@3f800000
-      vmovss  xmm2, cs:__real@bf800000
-      vmovss  xmm0, dword ptr [rcx+2Ch]
       vblendvps xmm4, xmm2, xmm3, xmm1
       vcmpltss xmm1, xmm0, dword ptr [rcx+28h]
-      vmulss  xmm0, xmm4, dword ptr [rax+8]
       vblendvps xmm5, xmm2, xmm3, xmm1
-      vaddss  xmm1, xmm0, dword ptr [rcx+8]
-      vmovss  dword ptr [rcx+8], xmm1
-      vmulss  xmm0, xmm4, dword ptr [rax+8]
-      vaddss  xmm1, xmm0, dword ptr [rcx+0Ch]
-      vmovss  dword ptr [rcx+0Ch], xmm1
-      vmulss  xmm0, xmm5, dword ptr [rax+20h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+20h]
-      vmovss  dword ptr [rcx+20h], xmm1
-      vmulss  xmm0, xmm5, dword ptr [rax+20h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+24h]
-      vmovss  dword ptr [rcx+24h], xmm1
     }
+    element->currentAnimationState.position.x.global[0] = (float)(*(float *)&_XMM4 * parent->currentAnimationState.position.x.global[0]) + element->currentAnimationState.position.x.global[0];
+    element->currentAnimationState.position.x.global[1] = (float)(*(float *)&_XMM4 * parent->currentAnimationState.position.x.global[0]) + element->currentAnimationState.position.x.global[1];
+    element->currentAnimationState.position.y.global[0] = (float)(*(float *)&_XMM5 * parent->currentAnimationState.position.y.global[0]) + element->currentAnimationState.position.y.global[0];
+    element->currentAnimationState.position.y.global[1] = (float)(*(float *)&_XMM5 * parent->currentAnimationState.position.y.global[0]) + element->currentAnimationState.position.y.global[1];
   }
 }
 
@@ -2691,44 +2500,35 @@ void LUIElement_CalculateRTTHandledElementGlobalRectangle(LUIElement *element)
 LUIElement_DefaultLayout
 ==============
 */
-
-void __fastcall LUIElement_DefaultLayout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_DefaultLayout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
   bool canCacheLayout; 
-  char v12; 
+  char v9; 
   LUIElement *firstChild; 
-  bool v14; 
-  unsigned int v17; 
+  bool v11; 
+  unsigned int v12; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm1, xmm2; unitScale
-    vmovaps xmm6, xmm2
-  }
-  LUIElement_UpdateLayout(element, *(float *)&_XMM1, deltaTime, luaVM);
+  LUIElement_UpdateLayout(element, unitScale, deltaTime, luaVM);
   canCacheLayout = element->canCacheLayout;
-  v12 = 1;
+  v9 = 1;
   firstChild = element->firstChild;
-  v14 = canCacheLayout;
+  v11 = canCacheLayout;
   element->layoutDeeplyCached = canCacheLayout;
   if ( firstChild )
   {
     do
     {
-      __asm { vmovaps xmm2, xmm6; unitScale }
-      LUIElement_Layout(localClientNum, firstChild, *(float *)&_XMM2, deltaTime, luaVM);
-      v12 &= firstChild->layoutDeeplyCached;
+      LUIElement_Layout(localClientNum, firstChild, unitScale, deltaTime, luaVM);
+      v9 &= firstChild->layoutDeeplyCached;
       firstChild = firstChild->nextSibling;
     }
     while ( firstChild );
     canCacheLayout = element->layoutDeeplyCached;
-    v14 = element->canCacheLayout;
+    v11 = element->canCacheLayout;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  v17 = (unsigned int)element->usageFlags >> 1;
-  element->layoutCached = v14;
-  element->layoutDeeplyCached = v12 & canCacheLayout & ~(_BYTE)v17 & 1;
+  v12 = (unsigned int)element->usageFlags >> 1;
+  element->layoutCached = v11;
+  element->layoutDeeplyCached = v9 & canCacheLayout & ~(_BYTE)v12 & 1;
 }
 
 /*
@@ -2832,21 +2632,22 @@ bool LUIElement_IsTextLike(const LUIElement *element)
 LUIElement_Layout
 ==============
 */
-
-void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
   __int64 v5; 
   LUIElement *parent; 
-  bool v14; 
+  bool v11; 
   int ControllerFromClient; 
-  char v16; 
+  float v13; 
+  float v14; 
+  float v15; 
   void (__fastcall *layoutFunction)(const LocalClientNum_t, LUIElement *, float, int, lua_State *); 
   bool canCacheLayout; 
-  char v33; 
+  char v18; 
   LUIElement *firstChild; 
-  bool v35; 
-  unsigned int v37; 
-  int v38; 
+  bool v20; 
+  unsigned int v21; 
+  int v22; 
   int width; 
   int height; 
   float aspect; 
@@ -2854,18 +2655,13 @@ void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElem
   if ( element )
   {
     parent = element->parent;
-    __asm
-    {
-      vmovaps [rsp+88h+var_48], xmm6
-      vmovaps xmm6, xmm2
-    }
     if ( parent && !parent->layoutCached )
       element->layoutCached = 0;
     if ( !element->layoutDeeplyCached || !element->layoutCached )
     {
-      v14 = 0;
+      v11 = 0;
       if ( (element->usageFlags & 0x20) != 0 )
-        v14 = (element->currentAnimationState.flags & 1) == 0;
+        v11 = (element->currentAnimationState.flags & 1) == 0;
       element->currentAnimationState.flags |= 1u;
       if ( (element->currentAnimationState.flags & 0x10) != 0 )
       {
@@ -2875,87 +2671,52 @@ void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElem
       if ( element->rttHandle )
       {
         CL_GetScreenDimensions(&width, &height, &aspect);
-        __asm
+        v13 = (float)width / (float)height;
+        if ( v13 >= 1.7777778 )
         {
-          vmovss  xmm4, cs:__real@3fe38e39
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, [rsp+88h+width]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, [rsp+88h+height]
-          vdivss  xmm3, xmm1, xmm0
-          vcomiss xmm3, xmm4
-        }
-        if ( v16 )
-        {
-          __asm
-          {
-            vmovss  xmm2, cs:__real@44a00000
-            vdivss  xmm1, xmm2, xmm3
-          }
+          v15 = FLOAT_720_0;
+          v14 = v13 * 720.0;
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm1, cs:__real@44340000
-            vmulss  xmm2, xmm3, xmm1
-          }
+          v14 = FLOAT_1280_0;
+          v15 = 1280.0 / v13;
         }
-        __asm
-        {
-          vdivss  xmm0, xmm2, xmm1
-          vcomiss xmm0, xmm4
-        }
-        if ( v16 )
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@44f00000
-            vdivss  xmm6, xmm0, xmm2
-          }
-        }
+        if ( (float)(v14 / v15) >= 1.7777778 )
+          unitScale = 1080.0 / v15;
         else
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@44870000
-            vdivss  xmm6, xmm0, xmm1
-          }
-        }
+          unitScale = 1920.0 / v14;
       }
       layoutFunction = element->layoutFunction;
       if ( layoutFunction )
       {
-        __asm { vmovaps xmm2, xmm6 }
         ((void (__fastcall *)(_QWORD, LUIElement *, __int64, _QWORD, lua_State *))layoutFunction)((unsigned int)localClientNum, element, v5, (unsigned int)deltaTime, luaVM);
       }
       else
       {
-        __asm { vmovaps xmm1, xmm6; unitScale }
-        LUIElement_UpdateLayout(element, *(float *)&_XMM1, deltaTime, luaVM);
+        LUIElement_UpdateLayout(element, unitScale, deltaTime, luaVM);
         canCacheLayout = element->canCacheLayout;
-        v33 = 1;
+        v18 = 1;
         firstChild = element->firstChild;
-        v35 = canCacheLayout;
+        v20 = canCacheLayout;
         element->layoutDeeplyCached = canCacheLayout;
         if ( firstChild )
         {
           do
           {
-            __asm { vmovaps xmm2, xmm6; unitScale }
-            LUIElement_Layout(localClientNum, firstChild, *(float *)&_XMM2, deltaTime, luaVM);
-            v33 &= firstChild->layoutDeeplyCached;
+            LUIElement_Layout(localClientNum, firstChild, unitScale, deltaTime, luaVM);
+            v18 &= firstChild->layoutDeeplyCached;
             firstChild = firstChild->nextSibling;
           }
           while ( firstChild );
           canCacheLayout = element->layoutDeeplyCached;
-          v35 = element->canCacheLayout;
+          v20 = element->canCacheLayout;
         }
-        v37 = (unsigned int)element->usageFlags >> 1;
-        element->layoutCached = v35;
-        element->layoutDeeplyCached = v33 & canCacheLayout & ~(_BYTE)v37 & 1;
+        v21 = (unsigned int)element->usageFlags >> 1;
+        element->layoutCached = v20;
+        element->layoutDeeplyCached = v18 & canCacheLayout & ~(_BYTE)v21 & 1;
       }
-      if ( v14 )
+      if ( v11 )
       {
         Sys_EnterCriticalSection(CRITSECT_LUI);
         if ( g_lui_lock_level < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6855, ASSERT_TYPE_ASSERT, "(g_lui_lock_level >= 0)", (const char *)&queryFormat, "g_lui_lock_level >= 0") )
@@ -2968,11 +2729,11 @@ void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElem
         {
           LUI_CoD_SetCurrentLocalClient(localClientNum);
           LUI_PushViaWeakReference(element, luaVM);
-          v38 = j_lua_type(luaVM, -1);
+          v22 = j_lua_type(luaVM, -1);
           j_lua_settop(luaVM, -2);
-          if ( !v38 )
+          if ( !v22 )
             LUI_Interface_DebugPrint("LUIElement did not have a weak table entry.\n");
-          if ( v38 )
+          if ( v22 )
           {
             LUI_PutElementOnTopOfStack(element, luaVM);
             j_lua_getfield(luaVM, -1, "m_eventHandlers");
@@ -2993,7 +2754,6 @@ void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElem
         LUI_LeaveCriticalSection();
       }
     }
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
   }
 }
 
@@ -3002,31 +2762,18 @@ void __fastcall LUIElement_Layout(const LocalClientNum_t localClientNum, LUIElem
 LUIElement_LayoutChildren
 ==============
 */
-
-__int64 __fastcall LUIElement_LayoutChildren(LocalClientNum_t localClientNum, LUIElement *firstChild, double unitScale, int deltaTime, lua_State *luaVM)
+__int64 LUIElement_LayoutChildren(LocalClientNum_t localClientNum, LUIElement *firstChild, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  LUIElement *v7; 
-  unsigned __int8 v9; 
-  __int64 result; 
+  LUIElement *v6; 
+  unsigned __int8 i; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v7 = firstChild;
-  v9 = 1;
-  __asm { vmovaps xmm6, xmm2 }
-  if ( firstChild )
+  v6 = firstChild;
+  for ( i = 1; v6; v6 = v6->nextSibling )
   {
-    do
-    {
-      __asm { vmovaps xmm2, xmm6; unitScale }
-      LUIElement_Layout(localClientNum, v7, *(float *)&_XMM2, deltaTime, luaVM);
-      v9 &= v7->layoutDeeplyCached;
-      v7 = v7->nextSibling;
-    }
-    while ( v7 );
+    LUIElement_Layout(localClientNum, v6, unitScale, deltaTime, luaVM);
+    i &= v6->layoutDeeplyCached;
   }
-  result = v9;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return i;
 }
 
 /*
@@ -3034,45 +2781,26 @@ __int64 __fastcall LUIElement_LayoutChildren(LocalClientNum_t localClientNum, LU
 LUIElement_SetDimensions
 ==============
 */
-
-void __fastcall LUIElement_SetDimensions(LUIElement *element, double unitScale)
+void LUIElement_SetDimensions(LUIElement *element, float unitScale)
 {
+  float v2; 
   float Px; 
 
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [rcx+20h]
-    vmulss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rcx+0D0h], xmm0
-    vmulss  xmm0, xmm1, dword ptr [rcx+0Ch]
-    vmovss  dword ptr [rcx+0D4h], xmm0
-    vmulss  xmm0, xmm1, dword ptr [rcx+24h]
-    vmovss  dword ptr [rcx+0D8h], xmm0
-    vmovss  dword ptr [rcx+0CCh], xmm2
-  }
-  _RBX = element;
-  __asm { vmovss  [rsp+38h+Px], xmm2 }
+  v2 = unitScale * element->currentAnimationState.position.x.global[0];
+  element->top = unitScale * element->currentAnimationState.position.y.global[0];
+  element->right = unitScale * element->currentAnimationState.position.x.global[1];
+  element->bottom = unitScale * element->currentAnimationState.position.y.global[1];
+  element->left = v2;
+  Px = v2;
   if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7620, ASSERT_TYPE_ASSERT, "(!isnan( element->left ))", (const char *)&queryFormat, "!isnan( element->left )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0D4h]
-    vmovss  [rsp+38h+Px], xmm0
-  }
+  Px = element->right;
   if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7621, ASSERT_TYPE_ASSERT, "(!isnan( element->right ))", (const char *)&queryFormat, "!isnan( element->right )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0D0h]
-    vmovss  [rsp+38h+Px], xmm0
-  }
+  Px = element->top;
   if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7622, ASSERT_TYPE_ASSERT, "(!isnan( element->top ))", (const char *)&queryFormat, "!isnan( element->top )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0D8h]
-    vmovss  [rsp+38h+Px], xmm0
-  }
+  Px = element->bottom;
   if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7623, ASSERT_TYPE_ASSERT, "(!isnan( element->bottom ))", (const char *)&queryFormat, "!isnan( element->bottom )") )
     __debugbreak();
 }
@@ -3084,38 +2812,21 @@ LUIElement_UndoTransform
 */
 void LUIElement_UndoTransform(LUIElement *element, lua_State *luaVM)
 {
-  bool v3; 
-  bool v6; 
-
-  v3 = element->parallaxAmount == 0;
-  _RBX = element;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( element->parallaxAmount )
     LUI_Render_PopParallaxEnabled();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rbx+34h]
-  }
-  if ( !v3 )
+  if ( element->currentAnimationState.scale != 0.0 )
     LUI_Matrix_Pop();
-  v6 = (_RBX->usageFlags & 4) == 0;
-  if ( (_RBX->usageFlags & 4) != 0 )
+  if ( (element->usageFlags & 4) != 0 )
   {
-    __asm { vucomiss xmm6, dword ptr [rbx+0DCh] }
-    if ( (_RBX->usageFlags & 4) != 0 )
+    if ( element->depth != 0.0 )
       LUI_Matrix_Pop();
-    __asm { vucomiss xmm6, dword ptr [rbx+0E0h] }
-    if ( !v6 )
+    if ( element->xRot != 0.0 )
       LUI_Matrix_Pop();
-    __asm { vucomiss xmm6, dword ptr [rbx+0E4h] }
-    if ( !v6 )
+    if ( element->yRot != 0.0 )
       LUI_Matrix_Pop();
   }
-  __asm { vucomiss xmm6, dword ptr [rbx+30h] }
-  if ( !v6 )
+  if ( element->currentAnimationState.zRot != 0.0 )
     LUI_Matrix_Pop();
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -3123,123 +2834,69 @@ void LUIElement_UndoTransform(LUIElement *element, lua_State *luaVM)
 LUIElement_UpdateLayout
 ==============
 */
-
-void __fastcall LUIElement_UpdateLayout(LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_UpdateLayout(LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
+  LUIElement *parent; 
+  float v7; 
+  float v8; 
+  float v16; 
+  float v17; 
+  float v18; 
   float Px; 
 
-  _RBX = element;
-  __asm { vmovaps xmm5, xmm1 }
   if ( !element->layoutCached )
   {
-    __asm
+    parent = element->parent;
+    if ( parent )
     {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovss  xmm4, cs:__real@3f800000
-    }
-    if ( element->parent )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rcx+10h]
-        vmulss  xmm1, xmm3, dword ptr [rax+0Ch]
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm2, xmm0, dword ptr [rax+8]
-        vaddss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, dword ptr [rcx]
-        vmovss  xmm1, dword ptr [rcx+14h]
-        vmovss  dword ptr [rcx+8], xmm0
-        vsubss  xmm0, xmm4, xmm1
-        vmulss  xmm2, xmm0, dword ptr [rax+0Ch]
-        vmulss  xmm1, xmm1, dword ptr [rax+8]
-        vaddss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, dword ptr [rcx+4]
-        vmovss  dword ptr [rcx+0Ch], xmm0
-        vmovss  xmm1, dword ptr [rcx+28h]
-        vsubss  xmm0, xmm4, xmm1
-        vmulss  xmm2, xmm0, dword ptr [rax+20h]
-        vmulss  xmm1, xmm1, dword ptr [rax+24h]
-        vaddss  xmm0, xmm2, xmm1
-        vaddss  xmm2, xmm0, dword ptr [rcx+18h]
-        vmovss  xmm1, dword ptr [rcx+2Ch]
-        vsubss  xmm0, xmm4, xmm1
-        vmovss  dword ptr [rcx+20h], xmm2
-        vmulss  xmm2, xmm0, dword ptr [rax+24h]
-        vmulss  xmm1, xmm1, dword ptr [rax+20h]
-        vaddss  xmm0, xmm2, xmm1
-        vaddss  xmm2, xmm0, dword ptr [rcx+1Ch]
-        vmovss  dword ptr [rcx+24h], xmm2
-      }
+      v7 = element->currentAnimationState.position.x.anchors[1];
+      element->currentAnimationState.position.x.global[0] = (float)((float)((float)(1.0 - element->currentAnimationState.position.x.anchors[0]) * parent->currentAnimationState.position.x.global[0]) + (float)(element->currentAnimationState.position.x.anchors[0] * parent->currentAnimationState.position.x.global[1])) + element->currentAnimationState.position.x.offsets[0];
+      element->currentAnimationState.position.x.global[1] = (float)((float)((float)(1.0 - v7) * parent->currentAnimationState.position.x.global[1]) + (float)(v7 * parent->currentAnimationState.position.x.global[0])) + element->currentAnimationState.position.x.offsets[1];
+      v8 = element->currentAnimationState.position.y.anchors[1];
+      element->currentAnimationState.position.y.global[0] = (float)((float)((float)(1.0 - element->currentAnimationState.position.y.anchors[0]) * parent->currentAnimationState.position.y.global[0]) + (float)(element->currentAnimationState.position.y.anchors[0] * parent->currentAnimationState.position.y.global[1])) + element->currentAnimationState.position.y.offsets[0];
+      element->currentAnimationState.position.y.global[1] = (float)((float)((float)(1.0 - v8) * parent->currentAnimationState.position.y.global[1]) + (float)(v8 * parent->currentAnimationState.position.y.global[0])) + element->currentAnimationState.position.y.offsets[1];
     }
     if ( element->rttHandle )
     {
+      _XMM0 = LODWORD(element->currentAnimationState.position.x.anchors[1]);
+      __asm { vcmpltss xmm1, xmm0, dword ptr [rcx+10h] }
+      _XMM2 = LODWORD(FLOAT_N1_0);
+      _XMM0 = LODWORD(element->currentAnimationState.position.y.anchors[1]);
       __asm
       {
-        vmovss  xmm0, dword ptr [rcx+14h]
-        vcmpltss xmm1, xmm0, dword ptr [rcx+10h]
-        vmovss  xmm2, cs:__real@bf800000
-        vmovss  xmm0, dword ptr [rcx+2Ch]
         vblendvps xmm3, xmm2, xmm4, xmm1
         vcmpltss xmm1, xmm0, dword ptr [rcx+28h]
-        vmulss  xmm0, xmm3, dword ptr [rax+8]
         vblendvps xmm4, xmm2, xmm4, xmm1
-        vaddss  xmm1, xmm0, dword ptr [rcx+8]
-        vmovss  dword ptr [rcx+8], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rax+8]
-        vaddss  xmm1, xmm0, dword ptr [rcx+0Ch]
-        vmovss  dword ptr [rcx+0Ch], xmm1
-        vmulss  xmm0, xmm4, dword ptr [rax+20h]
-        vaddss  xmm6, xmm0, dword ptr [rcx+20h]
-        vmovss  [rsp+48h+Px], xmm3
-        vmovss  dword ptr [rcx+20h], xmm6
-        vmulss  xmm0, xmm4, dword ptr [rax+20h]
-        vaddss  xmm3, xmm0, dword ptr [rcx+24h]
-        vmovss  dword ptr [rcx+24h], xmm3
-        vmovss  [rsp+48h+Px], xmm4
       }
+      element->currentAnimationState.position.x.global[0] = (float)(*(float *)&_XMM3 * parent->currentAnimationState.position.x.global[0]) + element->currentAnimationState.position.x.global[0];
+      element->currentAnimationState.position.x.global[1] = (float)(*(float *)&_XMM3 * parent->currentAnimationState.position.x.global[0]) + element->currentAnimationState.position.x.global[1];
+      v16 = (float)(*(float *)&_XMM4 * parent->currentAnimationState.position.y.global[0]) + element->currentAnimationState.position.y.global[0];
+      Px = *(float *)&_XMM3;
+      element->currentAnimationState.position.y.global[0] = v16;
+      v17 = (float)(*(float *)&_XMM4 * parent->currentAnimationState.position.y.global[0]) + element->currentAnimationState.position.y.global[1];
+      element->currentAnimationState.position.y.global[1] = v17;
+      Px = *(float *)&_XMM4;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rcx+24h]
-        vmovss  xmm6, dword ptr [rcx+20h]
-      }
+      v17 = element->currentAnimationState.position.y.global[1];
+      v16 = element->currentAnimationState.position.y.global[0];
     }
-    __asm
-    {
-      vmulss  xmm2, xmm5, dword ptr [rcx+8]
-      vmulss  xmm0, xmm6, xmm5
-      vmovss  dword ptr [rcx+0D0h], xmm0
-      vmovss  dword ptr [rcx+0CCh], xmm2
-      vmulss  xmm1, xmm5, dword ptr [rcx+0Ch]
-      vmulss  xmm0, xmm3, xmm5
-      vmovss  dword ptr [rcx+0D4h], xmm1
-      vmovss  dword ptr [rcx+0D8h], xmm0
-      vmovss  [rsp+48h+Px], xmm2
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v18 = unitScale * element->currentAnimationState.position.x.global[0];
+    element->top = v16 * unitScale;
+    element->left = v18;
+    element->right = unitScale * element->currentAnimationState.position.x.global[1];
+    element->bottom = v17 * unitScale;
+    Px = v18;
     if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7620, ASSERT_TYPE_ASSERT, "(!isnan( element->left ))", (const char *)&queryFormat, "!isnan( element->left )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0D4h]
-      vmovss  [rsp+48h+Px], xmm0
-    }
+    Px = element->right;
     if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7621, ASSERT_TYPE_ASSERT, "(!isnan( element->right ))", (const char *)&queryFormat, "!isnan( element->right )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0D0h]
-      vmovss  [rsp+48h+Px], xmm0
-    }
+    Px = element->top;
     if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7622, ASSERT_TYPE_ASSERT, "(!isnan( element->top ))", (const char *)&queryFormat, "!isnan( element->top )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0D8h]
-      vmovss  [rsp+48h+Px], xmm0
-    }
+    Px = element->bottom;
     if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7623, ASSERT_TYPE_ASSERT, "(!isnan( element->bottom ))", (const char *)&queryFormat, "!isnan( element->bottom )") )
       __debugbreak();
   }
@@ -3257,28 +2914,12 @@ void LUI_AddBulletHitMarker(const LocalClientNum_t *localClientNum, int victim, 
 
   v6 = LUI_luaVM;
   v8 = victim;
-  _RDI = impactPosition;
   if ( LUI_BeginEvent(*localClientNum, "add_bullet_hit_marker", LUI_luaVM) )
   {
     LuaShared_SetTableInt("victimEntityNum", v8, v6);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LuaShared_SetTableNumber("impactPositionX", *(long double *)&_XMM1, v6);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+4]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LuaShared_SetTableNumber("impactPositionY", *(long double *)&_XMM1, v6);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+8]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LuaShared_SetTableNumber("impactPositionZ", *(long double *)&_XMM1, v6);
+    LuaShared_SetTableNumber("impactPositionX", impactPosition->v[0], v6);
+    LuaShared_SetTableNumber("impactPositionY", impactPosition->v[1], v6);
+    LuaShared_SetTableNumber("impactPositionZ", impactPosition->v[2], v6);
     LuaShared_SetTableString("tagName", tagName, v6);
     LuaShared_SetTableBool("armorHit", armorHit, v6);
     LuaShared_SetTableBool("isPenetrating", isPenetrating, v6);
@@ -3612,50 +3253,27 @@ LUI_BuildDrawList
 */
 void LUI_BuildDrawList(const LocalClientNum_t localClientNum, LUIRootData *rootData, lua_State *luaVM)
 {
-  tmat44_t<vec4_t> *v9; 
+  float v6; 
+  tmat44_t<vec4_t> *v7; 
   LUIElement *RootElement; 
-  float alphaMultiplier; 
-  float v16; 
-  float v17; 
-  float v18; 
   bool outDynamicRendering; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
   s_isInBuildDrawList = 1;
   s_currentMatrix = 0;
-  _RDI = rootData;
   LUI_Matrix_LoadIdentity(s_matrixStack);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vdivss  xmm0, xmm6, dword ptr [rdi+0FCh]; x
-  }
-  v9 = &s_matrixStack[(__int64)++s_currentMatrix];
-  __asm
-  {
-    vmovaps xmm2, xmm6; z
-    vmovaps xmm1, xmm6; y
-  }
-  LUI_Matrix_BuildScaleMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, v9);
+  v6 = 1.0 / rootData->pixelAspectRatio;
+  v7 = &s_matrixStack[(__int64)++s_currentMatrix];
+  LUI_Matrix_BuildScaleMatrix(v6, 1.0, 1.0, v7);
   LUI_Render_ClearStencilStack();
-  RootElement = LUI_GetRootElement(_RDI->name, luaVM);
+  RootElement = LUI_GetRootElement(rootData->name, luaVM);
   if ( !RootElement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8415, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
   LUI_Render_Reset(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rdi+0F8h]; unitScale }
-  LUI_Render_PushUnitScale(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  [rsp+78h+var_38], xmm6
-    vmovss  [rsp+78h+var_40], xmm6
-    vmovss  [rsp+78h+var_48], xmm6
-    vmovss  [rsp+78h+alphaMultiplier], xmm6
-  }
-  LUIElement_BuildDrawList(localClientNum, RootElement, RootElement, _RDI, luaVM, alphaMultiplier, v16, v17, v18, &outDynamicRendering);
+  LUI_Render_PushUnitScale(rootData->unitScale);
+  LUIElement_BuildDrawList(localClientNum, RootElement, RootElement, rootData, luaVM, 1.0, 1.0, 1.0, 1.0, &outDynamicRendering);
   if ( LUI_IsParallaxEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8425, ASSERT_TYPE_ASSERT, "(!LUI_IsParallaxEnabled())", (const char *)&queryFormat, "!LUI_IsParallaxEnabled()") )
     __debugbreak();
   LUI_Render_Reset(localClientNum);
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
   s_isInBuildDrawList = 0;
 }
 
@@ -3666,24 +3284,11 @@ LUI_CalculateGlobalPosition
 */
 void LUI_CalculateGlobalPosition(LUIElementAxisPosition *parentPosition, LUIElementAxisPosition *position)
 {
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+10h]
-    vmovss  xmm3, cs:__real@3f800000
-    vsubss  xmm0, xmm3, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rcx+8]
-    vmulss  xmm1, xmm1, dword ptr [rcx+0Ch]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rdx+14h]
-    vmovss  dword ptr [rdx+8], xmm0
-    vsubss  xmm0, xmm3, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rcx+0Ch]
-    vmulss  xmm1, xmm1, dword ptr [rcx+8]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [rdx+0Ch], xmm0
-  }
+  float v2; 
+
+  v2 = position->anchors[1];
+  position->global[0] = (float)((float)((float)(1.0 - position->anchors[0]) * parentPosition->global[0]) + (float)(position->anchors[0] * parentPosition->global[1])) + position->offsets[0];
+  position->global[1] = (float)((float)((float)(1.0 - v2) * parentPosition->global[1]) + (float)(v2 * parentPosition->global[0])) + position->offsets[1];
 }
 
 /*
@@ -3703,39 +3308,29 @@ void LUI_ClearStrongReference(void *key, lua_State *luaVM)
 LUI_CreateRoot
 ==============
 */
-
-void __fastcall LUI_CreateRoot(const int controllerIndex, LUIRootData *rootData, double left, double top, const float right, const float bottom, const float pixelAspectRatio, lua_State *luaVM)
+void LUI_CreateRoot(const int controllerIndex, LUIRootData *rootData, const float left, const float top, const float right, const float bottom, const float pixelAspectRatio, lua_State *luaVM)
 {
-  __int64 v11; 
-  const char *v14; 
-  const char *v15; 
-  LUIElement *v16; 
-  float righta; 
-  float bottoma; 
+  __int64 v9; 
+  const char *v10; 
+  const char *v11; 
+  LUIElement *v12; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v11 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
+  v9 = controllerIndex;
   j_lua_getfield(luaVM, -10002, "LUI");
   j_lua_getfield(luaVM, -1, "UIRoot");
   j_lua_getfield(luaVM, -1, "new");
-  if ( (int)v11 < 0 )
+  if ( (int)v9 < 0 )
     j_lua_pushnil(luaVM);
   else
-    j_lua_pushinteger(luaVM, v11);
+    j_lua_pushinteger(luaVM, v9);
   j_lua_pushstring(luaVM, rootData->name);
   if ( j_lua_pcall(luaVM, 2, 0, 0) )
   {
-    v14 = j_lua_tolstring(luaVM, -1, NULL);
-    v15 = j_lua_tolstring(luaVM, -1, NULL);
+    v10 = j_lua_tolstring(luaVM, -1, NULL);
+    v11 = j_lua_tolstring(luaVM, -1, NULL);
     j_lua_settop(luaVM, -2);
-    LUI_ReportErrorWithInfo("Error while creating UI root:\n", v15, luaVM);
-    Sys_Error((const ObfuscateErrorText)&stru_144462A28, v14);
+    LUI_ReportErrorWithInfo("Error while creating UI root:\n", v11, luaVM);
+    Sys_Error((const ObfuscateErrorText)&stru_144462A28, v10);
   }
   j_lua_settop(luaVM, -3);
   j_lua_getfield(luaVM, -10002, "LUI");
@@ -3743,25 +3338,13 @@ void __fastcall LUI_CreateRoot(const int controllerIndex, LUIRootData *rootData,
   j_lua_getfield(luaVM, -1, rootData->name);
   if ( !j_lua_isuserdata(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8661, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, -1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, -1 )") )
     __debugbreak();
-  v16 = LUI_ToElement(luaVM, -1);
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8664, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
+  v12 = LUI_ToElement(luaVM, -1);
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8664, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  rootData->root = v16;
-  v16->customElementData = rootData;
+  rootData->root = v12;
+  v12->customElementData = rootData;
   j_lua_settop(luaVM, -4);
-  __asm
-  {
-    vmovss  xmm1, [rsp+68h+bottom]
-    vmovss  xmm0, dword ptr [rsp+68h+pixelAspectRatio]
-    vmovss  xmm3, [rsp+68h+right]; right
-    vmovss  [rsp+68h+bottom], xmm0
-    vmovss  [rsp+68h+right], xmm1
-    vmovaps xmm1, xmm7; left
-    vmovaps xmm2, xmm6; top
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  LUI_Resize(rootData->name, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, righta, bottoma, luaVM);
+  LUI_Resize(rootData->name, left, top, right, bottom, pixelAspectRatio, luaVM);
 }
 
 /*
@@ -4078,14 +3661,9 @@ void LUI_EmergencyFullGC(lua_State *luaVM, const char *const fmt, ...)
   __rdtsc();
   LUI_CoD_CollectGarbage(luaVM, 0);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_PrintWarning(13, "LUI EmergencyFullGC over %4.3f ms: %s\n", _R8, dest);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  Com_PrintWarning(13, "LUI EmergencyFullGC over %4.3f ms: %s\n", *(double *)&_XMM0 * msecPerRawTimerTick, dest);
   Sys_ProfEndNamedEvent();
 }
 
@@ -4297,26 +3875,12 @@ tmat44_t<vec4_t> *LUI_GetCurrentMenuTransform()
 LUI_GetCurrentParallaxMatrix
 ==============
 */
-
-void __fastcall LUI_GetCurrentParallaxMatrix(double parallaxAmount, tmat44_t<vec4_t> *outMatrix)
+void LUI_GetCurrentParallaxMatrix(float parallaxAmount, tmat44_t<vec4_t> *outMatrix)
 {
-  _RBX = outMatrix;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   LUI_Matrix_Copy(s_parallaxMatrix, outMatrix);
-  __asm
-  {
-    vmulss  xmm1, xmm6, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rbx+0Ch], xmm1
-    vmulss  xmm2, xmm6, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rbx+1Ch], xmm2
-    vmulss  xmm0, xmm6, dword ptr [rbx+2Ch]
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovss  dword ptr [rbx+2Ch], xmm0
-  }
+  outMatrix->m[0].v[3] = parallaxAmount * outMatrix->m[0].v[3];
+  outMatrix->m[1].v[3] = parallaxAmount * outMatrix->m[1].v[3];
+  outMatrix->m[2].v[3] = parallaxAmount * outMatrix->m[2].v[3];
 }
 
 /*
@@ -4336,20 +3900,20 @@ LUI_GetLuaTypeData
 */
 int LUI_GetLuaTypeData(lua_State *const luaVM, const int index, char *const buffer, const unsigned __int64 bufSize)
 {
-  int v10; 
+  int v8; 
   int result; 
-  int v12; 
-  const char *v13; 
-  const GfxImage *v14; 
+  int v10; 
+  const char *v11; 
+  const GfxImage *v12; 
   const char **p_name; 
-  const char *v18; 
-  void *v19; 
-  int v20; 
-  int v21; 
-  double v22; 
+  double v14; 
+  const char *v15; 
+  void *v16; 
+  int v17; 
+  int v18; 
 
-  v10 = j_lua_type(luaVM, index);
-  switch ( v10 )
+  v8 = j_lua_type(luaVM, index);
+  switch ( v8 )
   {
     case -1:
       result = Com_sprintf_truncate(buffer, bufSize, "%d: TNONE\n", (unsigned int)index);
@@ -4358,35 +3922,28 @@ int LUI_GetLuaTypeData(lua_State *const luaVM, const int index, char *const buff
       result = Com_sprintf_truncate(buffer, bufSize, "%d: TNIL\n", (unsigned int)index);
       break;
     case 1:
-      v12 = j_lua_toboolean(luaVM, index);
-      v13 = "false";
-      if ( v12 )
-        v13 = "true";
-      result = Com_sprintf_truncate(buffer, bufSize, "%d: TBOOLEAN %s\n", (unsigned int)index, v13);
+      v10 = j_lua_toboolean(luaVM, index);
+      v11 = "false";
+      if ( v10 )
+        v11 = "true";
+      result = Com_sprintf_truncate(buffer, bufSize, "%d: TBOOLEAN %s\n", (unsigned int)index, v11);
       break;
     case 2:
-      v14 = (const GfxImage *)j_lua_touserdata(luaVM, index);
-      p_name = &v14->name;
-      if ( v14 && DB_IsImageInPool(v14) )
+      v12 = (const GfxImage *)j_lua_touserdata(luaVM, index);
+      p_name = &v12->name;
+      if ( v12 && DB_IsImageInPool(v12) )
         result = Com_sprintf_truncate(buffer, bufSize, "%d: TLIGHTUSERDATA %p (gfxImage) %s\n", (unsigned int)index, p_name, *p_name);
       else
         result = Com_sprintf_truncate(buffer, bufSize, "%d: TLIGHTUSERDATA %p (unknown)\n", (unsigned int)index, p_name);
       break;
     case 3:
-      __asm { vmovaps [rsp+48h+var_18], xmm6 }
-      *(double *)&_XMM0 = lua_tonumber32(luaVM, index);
-      __asm
-      {
-        vcvtss2sd xmm6, xmm0, xmm0
-        vmovsd  [rsp+48h+var_20], xmm6
-      }
-      v20 = lua_tointeger32(luaVM, index);
-      result = Com_sprintf_truncate(buffer, bufSize, "%d: TNUMBER (int=%d, float=%f)\n", (unsigned int)index, v20, v22);
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
+      v14 = lua_tonumber32(luaVM, index);
+      v17 = lua_tointeger32(luaVM, index);
+      result = Com_sprintf_truncate(buffer, bufSize, "%d: TNUMBER (int=%d, float=%f)\n", (unsigned int)index, v17, *(float *)&v14);
       break;
     case 4:
-      v18 = j_lua_tolstring(luaVM, index, NULL);
-      result = Com_sprintf_truncate(buffer, bufSize, "%d: TSTRING \"%s\"\n", (unsigned int)index, v18);
+      v15 = j_lua_tolstring(luaVM, index, NULL);
+      result = Com_sprintf_truncate(buffer, bufSize, "%d: TSTRING \"%s\"\n", (unsigned int)index, v15);
       break;
     case 5:
       result = Com_sprintf_truncate(buffer, bufSize, "%d: TTABLE\n", (unsigned int)index);
@@ -4395,15 +3952,15 @@ int LUI_GetLuaTypeData(lua_State *const luaVM, const int index, char *const buff
       result = Com_sprintf_truncate(buffer, bufSize, "%d: TFUNCTION\n", (unsigned int)index);
       break;
     case 7:
-      v19 = j_lua_touserdata(luaVM, index);
-      result = Com_sprintf_truncate(buffer, bufSize, "%d: TUSERDATA %p\n", (unsigned int)index, v19);
+      v16 = j_lua_touserdata(luaVM, index);
+      result = Com_sprintf_truncate(buffer, bufSize, "%d: TUSERDATA %p\n", (unsigned int)index, v16);
       break;
     case 8:
       result = Com_sprintf_truncate(buffer, bufSize, "%d: TTHREAD\n", (unsigned int)index);
       break;
     default:
-      v21 = v10;
-      result = Com_sprintf_truncate(buffer, bufSize, "%d: <%d>\n", (unsigned int)index, v21);
+      v18 = v8;
+      result = Com_sprintf_truncate(buffer, bufSize, "%d: <%d>\n", (unsigned int)index, v18);
       break;
   }
   return result;
@@ -4414,56 +3971,21 @@ int LUI_GetLuaTypeData(lua_State *const luaVM, const int index, char *const buff
 LUI_GetMousePosition
 ==============
 */
-
-void __fastcall LUI_GetMousePosition(const char *rootName, double x, double y, float *xResult, float *yResult, lua_State *luaVM)
+void LUI_GetMousePosition(const char *rootName, float x, float y, float *xResult, float *yResult, lua_State *luaVM)
 {
   const LUIElement *RootElement; 
+  LUIRootData *RootData; 
+  float v9; 
+  float height; 
 
-  _RDI = xResult;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm1
-    vmovaps xmm6, xmm2
-  }
   RootElement = LUI_GetRootElement(rootName, luaVM);
   if ( !RootElement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 611, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  _RAX = LUI_GetRootData(RootElement);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rax+110h]
-    vmovss  xmm0, dword ptr [rax+10Ch]
-    vsubss  xmm1, xmm0, dword ptr [rax+104h]
-    vmovss  xmm0, dword ptr [rax+108h]
-    vmulss  xmm5, xmm3, cs:__real@bf000000
-    vdivss  xmm8, xmm6, xmm1
-    vsubss  xmm1, xmm0, dword ptr [rax+100h]
-    vmovss  xmm6, dword ptr [rax+114h]
-    vmulss  xmm0, xmm3, cs:__real@3f000000
-    vmulss  xmm7, xmm6, cs:__real@bf000000
-  }
-  _RAX = yResult;
-  __asm
-  {
-    vdivss  xmm2, xmm9, xmm1
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm1, xmm0, xmm5
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmulss  xmm2, xmm2, xmm1
-    vaddss  xmm3, xmm2, xmm5
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm2, xmm1, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovss  dword ptr [rdi], xmm3
-    vaddss  xmm3, xmm2, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovss  dword ptr [rax], xmm3
-  }
+  RootData = LUI_GetRootData(RootElement);
+  v9 = y / (float)(RootData->bottom - RootData->top);
+  height = RootData->height;
+  *xResult = (float)((float)(x / (float)(RootData->right - RootData->left)) * (float)((float)(RootData->width * 0.5) - (float)(RootData->width * -0.5))) + (float)(RootData->width * -0.5);
+  *yResult = (float)((float)((float)(height * 0.5) - (float)(height * -0.5)) * v9) + (float)(height * -0.5);
 }
 
 /*
@@ -4614,6 +4136,7 @@ void LUI_Init(lua_State *(*createFunc)(), void (*destroyFunc)(lua_State *))
   LUIMethod<LUIGlobalPackage> *v17; 
   lua_State *i; 
   unsigned int v19; 
+  tmat33_t<vec3_t> *p_matrix; 
 
   LUI_Interface_DebugPrint("LUI: Initializing Lua internals\n");
   v4 = 0;
@@ -4679,22 +4202,15 @@ void LUI_Init(lua_State *(*createFunc)(), void (*destroyFunc)(lua_State *))
   }
   v19 = LUI_CoD_GetMemoryUsedBytes();
   LUI_Interface_DebugPrint("  LUI_RegisterGlobalFunctions() [Lua Memory used: %d KB]\n", v19 >> 10);
-  _RAX = &s_daltonizeData[0].matrix;
-  __asm { vmovups ymm0, ymmword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B; tmat33_t<vec3_t> const identityMatrix33 }
+  p_matrix = &s_daltonizeData[0].matrix;
   do
   {
-    if ( !LOBYTE(_RAX[-1].row2.v[0]) )
-    {
-      __asm { vmovups ymmword ptr [rax], ymm0 }
-      _RAX->m[2].v[2] = identityMatrix33.m[2].v[2];
-    }
-    if ( !LOBYTE(_RAX[1].m[0].v[0]) )
-    {
-      __asm { vmovups ymmword ptr [rax+30h], ymm0 }
-      _RAX[2].m[0].v[2] = identityMatrix33.m[2].v[2];
-    }
+    if ( !LOBYTE(p_matrix[-1].row2.v[0]) )
+      *p_matrix = identityMatrix33;
+    if ( !LOBYTE(p_matrix[1].m[0].v[0]) )
+      *(tmat33_t<vec3_t> *)((char *)p_matrix + 48) = identityMatrix33;
     v4 += 2;
-    _RAX = (tmat33_t<vec3_t> *)((char *)_RAX + 96);
+    p_matrix = (tmat33_t<vec3_t> *)((char *)p_matrix + 96);
   }
   while ( v4 < 2 );
   memset_0(s_luiRefVerifyTypes, 0, sizeof(s_luiRefVerifyTypes));
@@ -4913,40 +4429,8 @@ LUI_LUIElement_CheckUnFlagAs3D
 */
 void LUI_LUIElement_CheckUnFlagAs3D(LUIElement *element)
 {
-  if ( (element->usageFlags & 4) != 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+0DCh]
-      vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovsd  xmm2, cs:__real@3eb0c6f7a0b5ed8d
-      vandps  xmm0, xmm0, xmm1
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, xmm2
-    }
-    if ( (element->usageFlags & 4) == 0 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+0E0h]
-        vandps  xmm0, xmm0, xmm1
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcomisd xmm0, xmm2
-      }
-      if ( (element->usageFlags & 4) == 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+0E4h]
-          vandps  xmm0, xmm0, xmm1
-          vcvtss2sd xmm0, xmm0, xmm0
-          vcomisd xmm0, xmm2
-        }
-        if ( (element->usageFlags & 4) == 0 )
-          element->usageFlags &= ~4u;
-      }
-    }
-  }
+  if ( (element->usageFlags & 4) != 0 && COERCE_FLOAT(LODWORD(element->depth) & _xmm) <= 0.000001 && COERCE_FLOAT(LODWORD(element->xRot) & _xmm) <= 0.000001 && COERCE_FLOAT(LODWORD(element->yRot) & _xmm) <= 0.000001 )
+    element->usageFlags &= ~4u;
 }
 
 /*
@@ -4966,26 +4450,26 @@ LUI_LUIElement_GetExclusiveController
 */
 __int64 LUI_LUIElement_GetExclusiveController(LUIElement *element, lua_State *luaVM)
 {
-  int v5; 
+  int v4; 
+  double v5; 
 
   if ( !element && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 527, ASSERT_TYPE_ASSERT, "(element)", (const char *)&queryFormat, "element") )
     __debugbreak();
   LUI_PushViaWeakReference(element, luaVM);
-  v5 = j_lua_type(luaVM, -1);
+  v4 = j_lua_type(luaVM, -1);
   j_lua_settop(luaVM, -2);
-  if ( !v5 )
+  if ( !v4 )
     LUI_Interface_DebugPrint("LUIElement did not have a weak table entry.\n");
-  if ( v5 )
+  if ( v4 )
   {
     LUI_PutElementOnTopOfStack(element, luaVM);
     j_lua_getfield(luaVM, -1, "_scoped");
     if ( j_lua_type(luaVM, -1) == 5 )
     {
       j_lua_getfield(luaVM, -1, "exclusiveController");
-      *(double *)&_XMM0 = lua_tonumber32(luaVM, -1);
-      __asm { vcvttss2si ebx, xmm0 }
+      v5 = lua_tonumber32(luaVM, -1);
       j_lua_settop(luaVM, -4);
-      return _EBX;
+      return (unsigned int)(int)*(float *)&v5;
     }
     j_lua_settop(luaVM, -3);
   }
@@ -5090,15 +4574,11 @@ LABEL_14:
 LUI_LUIElement_SetAlpha
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetAlpha(LUIElement *element, double alpha)
+void LUI_LUIElement_SetAlpha(LUIElement *element, float alpha)
 {
-  char v2; 
-
-  __asm { vucomiss xmm1, dword ptr [rcx+44h] }
-  if ( !v2 )
+  if ( alpha != element->currentAnimationState.alpha )
   {
-    __asm { vmovss  dword ptr [rcx+44h], xmm1 }
+    element->currentAnimationState.alpha = alpha;
     LUI_QuadCache_Element_Invalidate(element);
   }
 }
@@ -5108,19 +4588,15 @@ void __fastcall LUI_LUIElement_SetAlpha(LUIElement *element, double alpha)
 LUI_LUIElement_SetBottom
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetBottom(LUIElement *element, double bottom)
+void LUI_LUIElement_SetBottom(LUIElement *element, float bottom)
 {
-  char v2; 
   LUIElement *parent; 
 
-  __asm { vucomiss xmm1, dword ptr [rcx+1Ch] }
-  if ( !v2 )
+  if ( bottom != element->currentAnimationState.position.y.offsets[1] )
   {
     parent = element->parent;
     *(_WORD *)&element->layoutDeeplyCached = 0;
-    __asm { vmovss  dword ptr [rcx+1Ch], xmm1 }
-    for ( ; parent; parent = parent->parent )
+    for ( element->currentAnimationState.position.y.offsets[1] = bottom; parent; parent = parent->parent )
     {
       if ( !parent->layoutDeeplyCached )
         break;
@@ -5136,35 +4612,18 @@ LUI_LUIElement_SetColor
 */
 void LUI_LUIElement_SetColor(LUIElement *element, int color)
 {
-  __asm
+  float v2; 
+  float v3; 
+  float v4; 
+
+  v2 = (float)BYTE2(color) * 0.0039215689;
+  v3 = (float)BYTE1(color) * 0.0039215689;
+  v4 = (float)(unsigned __int8)color * 0.0039215689;
+  if ( v2 != element->currentAnimationState.red || v3 != element->currentAnimationState.green || v4 != element->currentAnimationState.blue )
   {
-    vmovss  xmm1, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm4, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm4, dword ptr [rcx+38h]
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm3, xmm0, xmm1
-  }
-  if ( color >> 8 )
-    goto LABEL_4;
-  __asm { vucomiss xmm2, dword ptr [rcx+3Ch] }
-  if ( color >> 8 )
-    goto LABEL_4;
-  __asm { vucomiss xmm3, dword ptr [rcx+40h] }
-  if ( color >> 8 )
-  {
-LABEL_4:
-    __asm
-    {
-      vmovss  dword ptr [rcx+38h], xmm4
-      vmovss  dword ptr [rcx+3Ch], xmm2
-      vmovss  dword ptr [rcx+40h], xmm3
-    }
+    element->currentAnimationState.red = v2;
+    element->currentAnimationState.green = v3;
+    element->currentAnimationState.blue = v4;
     LUI_QuadCache_Element_Invalidate(element);
   }
 }
@@ -5174,19 +4633,15 @@ LABEL_4:
 LUI_LUIElement_SetLeft
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetLeft(LUIElement *element, double left)
+void LUI_LUIElement_SetLeft(LUIElement *element, float left)
 {
-  char v2; 
   LUIElement *parent; 
 
-  __asm { vucomiss xmm1, dword ptr [rcx] }
-  if ( !v2 )
+  if ( left != element->currentAnimationState.position.x.offsets[0] )
   {
     parent = element->parent;
     *(_WORD *)&element->layoutDeeplyCached = 0;
-    __asm { vmovss  dword ptr [rcx], xmm1 }
-    for ( ; parent; parent = parent->parent )
+    for ( element->currentAnimationState.position.x.offsets[0] = left; parent; parent = parent->parent )
     {
       if ( !parent->layoutDeeplyCached )
         break;
@@ -5200,27 +4655,13 @@ void __fastcall LUI_LUIElement_SetLeft(LUIElement *element, double left)
 LUI_LUIElement_SetRGB
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetRGB(LUIElement *element, double r, double g, double b)
+void LUI_LUIElement_SetRGB(LUIElement *element, float r, float g, float b)
 {
-  char v4; 
-
-  __asm { vucomiss xmm1, dword ptr [rcx+38h] }
-  if ( !v4 )
-    goto LABEL_4;
-  __asm { vucomiss xmm2, dword ptr [rcx+3Ch] }
-  if ( !v4 )
-    goto LABEL_4;
-  __asm { vucomiss xmm3, dword ptr [rcx+40h] }
-  if ( !v4 )
+  if ( r != element->currentAnimationState.red || g != element->currentAnimationState.green || b != element->currentAnimationState.blue )
   {
-LABEL_4:
-    __asm
-    {
-      vmovss  dword ptr [rcx+38h], xmm1
-      vmovss  dword ptr [rcx+3Ch], xmm2
-      vmovss  dword ptr [rcx+40h], xmm3
-    }
+    element->currentAnimationState.red = r;
+    element->currentAnimationState.green = g;
+    element->currentAnimationState.blue = b;
     LUI_QuadCache_Element_Invalidate(element);
   }
 }
@@ -5230,19 +4671,15 @@ LABEL_4:
 LUI_LUIElement_SetRight
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetRight(LUIElement *element, double right)
+void LUI_LUIElement_SetRight(LUIElement *element, float right)
 {
-  char v2; 
   LUIElement *parent; 
 
-  __asm { vucomiss xmm1, dword ptr [rcx+4] }
-  if ( !v2 )
+  if ( right != element->currentAnimationState.position.x.offsets[1] )
   {
     parent = element->parent;
     *(_WORD *)&element->layoutDeeplyCached = 0;
-    __asm { vmovss  dword ptr [rcx+4], xmm1 }
-    for ( ; parent; parent = parent->parent )
+    for ( element->currentAnimationState.position.x.offsets[1] = right; parent; parent = parent->parent )
     {
       if ( !parent->layoutDeeplyCached )
         break;
@@ -5256,15 +4693,11 @@ void __fastcall LUI_LUIElement_SetRight(LUIElement *element, double right)
 LUI_LUIElement_SetScale
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetScale(LUIElement *element, double scale)
+void LUI_LUIElement_SetScale(LUIElement *element, float scale)
 {
-  char v2; 
-
-  __asm { vucomiss xmm1, dword ptr [rcx+34h] }
-  if ( !v2 )
+  if ( scale != element->currentAnimationState.scale )
   {
-    __asm { vmovss  dword ptr [rcx+34h], xmm1 }
+    element->currentAnimationState.scale = scale;
     LUI_QuadCache_Element_Invalidate(element);
   }
 }
@@ -5318,19 +4751,15 @@ LABEL_16:
 LUI_LUIElement_SetTop
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetTop(LUIElement *element, double top)
+void LUI_LUIElement_SetTop(LUIElement *element, float top)
 {
-  char v2; 
   LUIElement *parent; 
 
-  __asm { vucomiss xmm1, dword ptr [rcx+18h] }
-  if ( !v2 )
+  if ( top != element->currentAnimationState.position.y.offsets[0] )
   {
     parent = element->parent;
     *(_WORD *)&element->layoutDeeplyCached = 0;
-    __asm { vmovss  dword ptr [rcx+18h], xmm1 }
-    for ( ; parent; parent = parent->parent )
+    for ( element->currentAnimationState.position.y.offsets[0] = top; parent; parent = parent->parent )
     {
       if ( !parent->layoutDeeplyCached )
         break;
@@ -5344,15 +4773,11 @@ void __fastcall LUI_LUIElement_SetTop(LUIElement *element, double top)
 LUI_LUIElement_SetZRotation
 ==============
 */
-
-void __fastcall LUI_LUIElement_SetZRotation(LUIElement *element, double rotation)
+void LUI_LUIElement_SetZRotation(LUIElement *element, float rotation)
 {
-  char v2; 
-
-  __asm { vucomiss xmm1, dword ptr [rcx+30h] }
-  if ( !v2 )
+  if ( rotation != element->currentAnimationState.zRot )
   {
-    __asm { vmovss  dword ptr [rcx+30h], xmm1 }
+    element->currentAnimationState.zRot = rotation;
     LUI_QuadCache_Element_Invalidate(element);
   }
 }
@@ -5364,15 +4789,23 @@ LUI_LUIElement_UpdatePropertyBinding
 */
 void LUI_LUIElement_UpdatePropertyBinding(LUIElement *element, LUIDataBindingProperty bindProp, unsigned __int16 model, lua_State *luaVM)
 {
-  char v8; 
+  double Number; 
   int Int; 
+  float v9; 
+  float v10; 
+  float v11; 
+  double v12; 
+  double v13; 
+  double v14; 
   LUIElement *parent; 
+  double v16; 
+  LUIElement *v17; 
+  double v18; 
+  LUIElement *v19; 
+  double v20; 
   LUIElement *v21; 
-  LUIElement *v22; 
-  LUIElement *v23; 
-  __int64 v24; 
+  __int64 v22; 
 
-  _RBX = element;
   if ( !element && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 2304, ASSERT_TYPE_ASSERT, "(element)", (const char *)&queryFormat, "element") )
     __debugbreak();
   if ( LUI_Model_GetDataType(model) )
@@ -5380,74 +4813,49 @@ void LUI_LUIElement_UpdatePropertyBinding(LUIElement *element, LUIDataBindingPro
     switch ( bindProp )
     {
       case 1:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+44h] }
-        if ( !v8 )
+        Number = LUI_Model_GetNumber(model);
+        if ( *(float *)&Number != element->currentAnimationState.alpha )
         {
-          __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-          LUI_QuadCache_Element_Invalidate(_RBX);
+          element->currentAnimationState.alpha = *(float *)&Number;
+          LUI_QuadCache_Element_Invalidate(element);
         }
         break;
       case 2:
         Int = LUI_Model_GetInt(model);
-        __asm
+        v9 = (float)BYTE2(Int) * 0.0039215689;
+        v10 = (float)BYTE1(Int) * 0.0039215689;
+        v11 = (float)(unsigned __int8)Int * 0.0039215689;
+        if ( v9 != element->currentAnimationState.red || v10 != element->currentAnimationState.green || v11 != element->currentAnimationState.blue )
         {
-          vmovss  xmm1, cs:__real@3b808081
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm4, xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm4, dword ptr [rbx+38h]
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm2, xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm3, xmm0, xmm1
-        }
-        if ( Int >> 8 )
-          goto LABEL_11;
-        __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-        if ( Int >> 8 )
-          goto LABEL_11;
-        __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-        if ( Int >> 8 )
-        {
-LABEL_11:
-          __asm
-          {
-            vmovss  dword ptr [rbx+38h], xmm4
-            vmovss  dword ptr [rbx+3Ch], xmm2
-            vmovss  dword ptr [rbx+40h], xmm3
-          }
-          LUI_QuadCache_Element_Invalidate(_RBX);
+          element->currentAnimationState.red = v9;
+          element->currentAnimationState.green = v10;
+          element->currentAnimationState.blue = v11;
+          LUI_QuadCache_Element_Invalidate(element);
         }
         break;
       case 3:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+34h] }
-        if ( !v8 )
+        v12 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v12 != element->currentAnimationState.scale )
         {
-          __asm { vmovss  dword ptr [rbx+34h], xmm0 }
-          LUI_QuadCache_Element_Invalidate(_RBX);
+          element->currentAnimationState.scale = *(float *)&v12;
+          LUI_QuadCache_Element_Invalidate(element);
         }
         break;
       case 4:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+30h] }
-        if ( !v8 )
+        v13 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v13 != element->currentAnimationState.zRot )
         {
-          __asm { vmovss  dword ptr [rbx+30h], xmm0 }
-          LUI_QuadCache_Element_Invalidate(_RBX);
+          element->currentAnimationState.zRot = *(float *)&v13;
+          LUI_QuadCache_Element_Invalidate(element);
         }
         break;
       case 5:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx] }
-        if ( !v8 )
+        v14 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v14 != element->currentAnimationState.position.x.offsets[0] )
         {
-          __asm { vmovss  dword ptr [rbx], xmm0 }
-          parent = _RBX->parent;
-          for ( *(_WORD *)&_RBX->layoutDeeplyCached = 0; parent; parent = parent->parent )
+          element->currentAnimationState.position.x.offsets[0] = *(float *)&v14;
+          parent = element->parent;
+          for ( *(_WORD *)&element->layoutDeeplyCached = 0; parent; parent = parent->parent )
           {
             if ( !parent->layoutDeeplyCached )
               break;
@@ -5456,13 +4864,40 @@ LABEL_11:
         }
         break;
       case 6:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+4] }
-        if ( !v8 )
+        v16 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v16 != element->currentAnimationState.position.x.offsets[1] )
         {
-          __asm { vmovss  dword ptr [rbx+4], xmm0 }
-          v21 = _RBX->parent;
-          for ( *(_WORD *)&_RBX->layoutDeeplyCached = 0; v21; v21 = v21->parent )
+          element->currentAnimationState.position.x.offsets[1] = *(float *)&v16;
+          v17 = element->parent;
+          for ( *(_WORD *)&element->layoutDeeplyCached = 0; v17; v17 = v17->parent )
+          {
+            if ( !v17->layoutDeeplyCached )
+              break;
+            v17->layoutDeeplyCached = 0;
+          }
+        }
+        break;
+      case 7:
+        v18 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v18 != element->currentAnimationState.position.y.offsets[0] )
+        {
+          element->currentAnimationState.position.y.offsets[0] = *(float *)&v18;
+          v19 = element->parent;
+          for ( *(_WORD *)&element->layoutDeeplyCached = 0; v19; v19 = v19->parent )
+          {
+            if ( !v19->layoutDeeplyCached )
+              break;
+            v19->layoutDeeplyCached = 0;
+          }
+        }
+        break;
+      case 8:
+        v20 = LUI_Model_GetNumber(model);
+        if ( *(float *)&v20 != element->currentAnimationState.position.y.offsets[1] )
+        {
+          element->currentAnimationState.position.y.offsets[1] = *(float *)&v20;
+          v21 = element->parent;
+          for ( *(_WORD *)&element->layoutDeeplyCached = 0; v21; v21 = v21->parent )
           {
             if ( !v21->layoutDeeplyCached )
               break;
@@ -5470,39 +4905,9 @@ LABEL_11:
           }
         }
         break;
-      case 7:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+18h] }
-        if ( !v8 )
-        {
-          __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-          v22 = _RBX->parent;
-          for ( *(_WORD *)&_RBX->layoutDeeplyCached = 0; v22; v22 = v22->parent )
-          {
-            if ( !v22->layoutDeeplyCached )
-              break;
-            v22->layoutDeeplyCached = 0;
-          }
-        }
-        break;
-      case 8:
-        *(double *)&_XMM0 = LUI_Model_GetNumber(model);
-        __asm { vucomiss xmm0, dword ptr [rbx+1Ch] }
-        if ( !v8 )
-        {
-          __asm { vmovss  dword ptr [rbx+1Ch], xmm0 }
-          v23 = _RBX->parent;
-          for ( *(_WORD *)&_RBX->layoutDeeplyCached = 0; v23; v23 = v23->parent )
-          {
-            if ( !v23->layoutDeeplyCached )
-              break;
-            v23->layoutDeeplyCached = 0;
-          }
-        }
-        break;
       default:
-        LODWORD(v24) = bindProp;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 2362, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected binding property: %d", v24) )
+        LODWORD(v22) = bindProp;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 2362, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected binding property: %d", v22) )
           __debugbreak();
         break;
     }
@@ -5518,6 +4923,7 @@ void LUI_Layout(const LocalClientNum_t localClientNum, const char *rootName, int
 {
   LUIElement *RootElement; 
   const LUIElement *v9; 
+  LUIRootData *RootData; 
 
   Sys_ProfBeginNamedEvent(0xFF008008, "LUI_Layout");
   RootElement = LUI_GetRootElement(rootName, luaVM);
@@ -5526,11 +4932,10 @@ void LUI_Layout(const LocalClientNum_t localClientNum, const char *rootName, int
   v9 = LUI_GetRootElement(rootName, luaVM);
   if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 611, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  _RBX = LUI_GetRootData(v9);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7864, ASSERT_TYPE_ASSERT, "(rootData)", (const char *)&queryFormat, "rootData") )
+  RootData = LUI_GetRootData(v9);
+  if ( !RootData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7864, ASSERT_TYPE_ASSERT, "(rootData)", (const char *)&queryFormat, "rootData") )
     __debugbreak();
-  __asm { vmovss  xmm2, dword ptr [rbx+0F8h]; unitScale }
-  LUIElement_Layout(localClientNum, RootElement, *(float *)&_XMM2, deltaTime, luaVM);
+  LUIElement_Layout(localClientNum, RootElement, RootData->unitScale, deltaTime, luaVM);
   Sys_ProfEndNamedEvent();
 }
 
@@ -5829,28 +5234,20 @@ LUI_LuaCall_LUIElement_GetAlpha
 __int64 LUI_LuaCall_LUIElement_GetAlpha(lua_State *luaVM)
 {
   unsigned int v2; 
-  unsigned int v6; 
+  LUIElement *v3; 
+  unsigned int v4; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetAlpha()");
-  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (_RSI = LUI_ToElement(luaVM, 1), LUI_ElementHasWeakTableEntry(_RSI, luaVM)) )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+44h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  }
+  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v3 = LUI_ToElement(luaVM, 1), LUI_ElementHasWeakTableEntry(v3, luaVM)) )
+    j_lua_pushnumber(luaVM, v3->currentAnimationState.alpha);
   else
-  {
     v2 = 0;
-  }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
   return v2;
 }
@@ -5862,41 +5259,22 @@ LUI_LuaCall_LUIElement_GetAnchorData
 */
 __int64 LUI_LuaCall_LUIElement_GetAnchorData(lua_State *luaVM)
 {
-  unsigned int v11; 
+  LUIElement *v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 1");
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
-  _RBX = LUI_ToElement(luaVM, 1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+10h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+28h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+14h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  v2 = LUI_ToElement(luaVM, 1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.anchors[0]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.anchors[0]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.anchors[1]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.anchors[1]);
   if ( j_lua_gettop(luaVM) < 4 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v11);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v3);
   }
   return 4i64;
 }
@@ -5906,35 +5284,31 @@ __int64 LUI_LuaCall_LUIElement_GetAnchorData(lua_State *luaVM)
 LUI_LuaCall_LUIElement_GetBlendMode
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_GetBlendMode(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIElement_GetBlendMode(lua_State *luaVM)
 {
-  unsigned int v3; 
-  unsigned int v6; 
+  unsigned int v2; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: element:GetBlendMode()");
   if ( j_lua_gettop(luaVM) == 1 )
   {
-    v3 = 1;
+    v2 = 1;
     LUI_ToElement(luaVM, 1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, ecx; n
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, ecx; n }
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v6);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v5);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -5963,79 +5337,41 @@ LUI_LuaCall_LUIElement_GetCurrentAnchorsAndPositions_impl
 */
 __int64 LUI_LuaCall_LUIElement_GetCurrentAnchorsAndPositions_impl(lua_State *const luaVM)
 {
+  LUIElement *v2; 
+
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetCurrentAnchorsAndPositions()");
   if ( j_lua_gettop(luaVM) != 1 )
     return 0i64;
   if ( !j_lua_isuserdata(luaVM, 1) )
     return 0i64;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
     return 0i64;
   j_lua_createtable(luaVM, 8, 0);
   j_lua_pushstring(luaVM, "leftAnchor");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+10h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.anchors[0]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "rightAnchor");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+14h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.anchors[1]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "topAnchor");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.anchors[0]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "bottomAnchor");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+2Ch]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.anchors[1]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "left");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.offsets[0]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "right");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+4]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.offsets[1]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "top");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+18h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.offsets[0]);
   j_lua_settable(luaVM, -3);
   j_lua_pushstring(luaVM, "bottom");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+1Ch]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.offsets[1]);
   j_lua_settable(luaVM, -3);
   return 1i64;
 }
@@ -6075,20 +5411,16 @@ LUI_LuaCall_LUIElement_GetDepth
 __int64 LUI_LuaCall_LUIElement_GetDepth(lua_State *luaVM)
 {
   unsigned int v2; 
-  unsigned int v6; 
+  LUIElement *v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: element:GetDepth()");
   if ( j_lua_gettop(luaVM) == 1 )
   {
     v2 = 1;
-    _RAX = LUI_ToElement(luaVM, 1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+0DCh]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    v3 = LUI_ToElement(luaVM, 1);
+    j_lua_pushnumber(luaVM, v3->depth);
   }
   else
   {
@@ -6096,8 +5428,8 @@ __int64 LUI_LuaCall_LUIElement_GetDepth(lua_State *luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
   return v2;
 }
@@ -6110,22 +5442,18 @@ LUI_LuaCall_LUIElement_GetFontSize
 __int64 LUI_LuaCall_LUIElement_GetFontSize(lua_State *luaVM)
 {
   unsigned int v2; 
-  unsigned int v6; 
+  LUIElement *v3; 
+  unsigned int v4; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetFontSize()");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
-    _RSI = LUI_ToElement(luaVM, 1);
-    if ( (_RSI->usageFlags & 0x80) == 0 )
+    v3 = LUI_ToElement(luaVM, 1);
+    if ( (v3->usageFlags & 0x80) == 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "LUIElement_IsTextLike( self )");
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+11Ch]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    j_lua_pushnumber(luaVM, v3->imageData.uMax);
   }
   else
   {
@@ -6133,8 +5461,8 @@ __int64 LUI_LuaCall_LUIElement_GetFontSize(lua_State *luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
   return v2;
 }
@@ -6224,18 +5552,22 @@ LUI_LuaCall_LUIElement_GetPagedText_impl
 */
 __int64 LUI_LuaCall_LUIElement_GetPagedText_impl(lua_State *const luaVM)
 {
-  const char *v8; 
+  LUIElement *v2; 
+  const char *v3; 
+  double v4; 
   int maxCharsPerPage; 
+  float v6; 
+  double v7; 
   const LUIElement *CurrentRoot; 
-  char v12; 
-  char v13; 
-  TextPage *v26; 
-  const LUIElement *v27; 
-  LocalClientNum_t v30; 
+  float v9; 
+  float v10; 
+  float v11; 
+  TextPage *v12; 
+  const LUIElement *v13; 
+  float unitScale; 
+  LocalClientNum_t v15; 
   __int64 TextPages; 
-  __int64 v41; 
-  float wrapWidth; 
-  float v44; 
+  __int64 v17; 
   LocalClientNum_t localClientNum; 
   int controllerIndex; 
 
@@ -6243,104 +5575,55 @@ __int64 LUI_LuaCall_LUIElement_GetPagedText_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, "USAGE: element:GetPagedText( text, pageHeight, [maxCharsPerPage] )");
   if ( j_lua_gettop(luaVM) < 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isstring(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_38], xmm6
-    vmovaps [rsp+0D8h+var_48], xmm7
-    vmovaps [rsp+0D8h+var_68], xmm9
-  }
   if ( j_lua_gettop(luaVM) == 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:GetPagedText( text, pageHeight, [maxCharsPerPage] )");
-  _RDI = LUI_ToElement(luaVM, 1);
-  v8 = j_lua_tolstring(luaVM, 2, NULL);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = j_lua_tolstring(luaVM, 2, NULL);
+  v4 = lua_tonumber32(luaVM, 3);
   maxCharsPerPage = -1;
-  __asm { vmovaps xmm6, xmm0 }
+  v6 = *(float *)&v4;
   if ( j_lua_gettop(luaVM) == 4 )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 4);
-    __asm { vcvttss2si r14d, xmm0 }
+    v7 = lua_tonumber32(luaVM, 4);
+    maxCharsPerPage = (int)*(float *)&v7;
   }
   CurrentRoot = LUI_CoD_GetCurrentRoot(luaVM);
-  LUI_GetRootData(CurrentRoot);
-  __asm
+  v9 = v6 * LUI_GetRootData(CurrentRoot)->unitScale;
+  LODWORD(v10) = COERCE_UNSIGNED_INT(_mm_shuffle_ps(*(__m128 *)v2->currentAnimationState.position.x.offsets, *(__m128 *)v2->currentAnimationState.position.x.offsets, 255).m128_f32[0] - _mm_shuffle_ps(*(__m128 *)v2->currentAnimationState.position.x.offsets, *(__m128 *)v2->currentAnimationState.position.x.offsets, 170).m128_f32[0]) & _xmm;
+  LODWORD(v11) = COERCE_UNSIGNED_INT(_mm_shuffle_ps(*(__m128 *)v2->currentAnimationState.position.y.offsets, *(__m128 *)v2->currentAnimationState.position.y.offsets, 255).m128_f32[0] - _mm_shuffle_ps(*(__m128 *)v2->currentAnimationState.position.y.offsets, *(__m128 *)v2->currentAnimationState.position.y.offsets, 170).m128_f32[0]) & _xmm;
+  v12 = pagesBuffer;
+  if ( v10 <= 0.0 || v11 <= 0.0 || v9 <= 0.0 || v11 > v9 )
   {
-    vmovups xmm2, xmmword ptr [rdi]
-    vshufps xmm1, xmm2, xmm2, 0FFh
-    vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-    vmulss  xmm7, xmm6, dword ptr [rax+0F8h]
-    vsubss  xmm9, xmm1, xmm2
-    vmovups xmm2, xmmword ptr [rdi+18h]
-    vandps  xmm9, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vshufps xmm1, xmm2, xmm2, 0FFh
-    vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm9, xmm0
-    vsubss  xmm6, xmm1, xmm2
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v26 = pagesBuffer;
-  if ( v12 | v13 )
-    goto LABEL_26;
-  __asm { vcomiss xmm6, xmm0 }
-  if ( v12 | v13 )
-    goto LABEL_26;
-  __asm { vcomiss xmm7, xmm0 }
-  if ( v12 | v13 )
-    goto LABEL_26;
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !(v12 | v13) )
-  {
-LABEL_26:
     TextPages = 0i64;
   }
   else
   {
-    __asm { vmovaps [rsp+0D8h+var_58], xmm8 }
-    v27 = LUI_CoD_GetCurrentRoot(luaVM);
-    _RAX = LUI_GetRootData(v27);
-    __asm { vmovss  xmm8, dword ptr [rax+0F8h] }
-    if ( (_RDI->usageFlags & 0x80) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5038, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
+    v13 = LUI_CoD_GetCurrentRoot(luaVM);
+    unitScale = LUI_GetRootData(v13)->unitScale;
+    if ( (v2->usageFlags & 0x80) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5038, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
       __debugbreak();
     if ( LUI_CoD_CanInferLocalClientAndController() )
     {
       LUI_CoD_AttemptInferLocalClientAndController(&localClientNum, &controllerIndex);
-      v30 = localClientNum;
+      v15 = localClientNum;
     }
     else
     {
-      v30 = LOCAL_CLIENT_0;
+      v15 = LOCAL_CLIENT_0;
       localClientNum = LOCAL_CLIENT_0;
       controllerIndex = 0;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm8, dword ptr [rdi+120h]
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vmulss  xmm0, xmm8, xmm9
-      vcvttss2si eax, xmm1
-      vmovss  [rsp+0D8h+var_A8], xmm7
-      vmovss  [rsp+0D8h+wrapWidth], xmm0
-      vmulss  xmm3, xmm8, xmm6; elementHeight
-      vmovaps xmm8, [rsp+0D8h+var_58]
-    }
-    TextPages = (unsigned int)LUI_Interface_GetTextPages(v30, v8, _RDI->textData.font, *(float *)&_XMM3, _EAX, wrapWidth, v44, 64, pagesBuffer, maxCharsPerPage);
+    TextPages = (unsigned int)LUI_Interface_GetTextPages(v15, v3, v2->textData.font, unitScale * v11, (int)(float)((float)(unitScale * v2->imageData.vMin) + 0.5), unitScale * v10, v9, 64, pagesBuffer, maxCharsPerPage);
   }
   j_lua_createtable(luaVM, TextPages, 0);
-  __asm
-  {
-    vmovaps xmm9, [rsp+0D8h+var_68]
-    vmovaps xmm7, [rsp+0D8h+var_48]
-    vmovaps xmm6, [rsp+0D8h+var_38]
-  }
   if ( (int)TextPages > 0 )
   {
-    v41 = 1i64;
+    v17 = 1i64;
     do
     {
-      LuaShared_SetTableString(v41, v26->text, luaVM);
-      ++v26;
-      ++v41;
+      LuaShared_SetTableString(v17, v12->text, luaVM);
+      ++v12;
+      ++v17;
       --TextPages;
     }
     while ( TextPages );
@@ -6355,44 +5638,30 @@ LUI_LuaCall_LUIElement_GetRotation
 */
 __int64 LUI_LuaCall_LUIElement_GetRotation(lua_State *luaVM)
 {
-  unsigned int v9; 
-  unsigned int v10; 
+  LUIElement *v2; 
+  unsigned int v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: element:GetRotation()");
   if ( j_lua_gettop(luaVM) == 1 )
   {
-    _RBX = LUI_ToElement(luaVM, 1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+0E0h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+0E4h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+30h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v9 = 3;
+    v2 = LUI_ToElement(luaVM, 1);
+    j_lua_pushnumber(luaVM, v2->xRot);
+    j_lua_pushnumber(luaVM, v2->yRot);
+    j_lua_pushnumber(luaVM, v2->currentAnimationState.zRot);
+    v3 = 3;
   }
   else
   {
-    v9 = 0;
+    v3 = 0;
   }
-  if ( (int)v9 > j_lua_gettop(luaVM) )
+  if ( (int)v3 > j_lua_gettop(luaVM) )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v9, v10);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v4);
   }
-  return v9;
+  return v3;
 }
 
 /*
@@ -6403,20 +5672,16 @@ LUI_LuaCall_LUIElement_GetScale
 __int64 LUI_LuaCall_LUIElement_GetScale(lua_State *luaVM)
 {
   unsigned int v2; 
-  unsigned int v6; 
+  LUIElement *v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: element:GetScale()");
   if ( j_lua_gettop(luaVM) == 1 )
   {
     v2 = 1;
-    _RAX = LUI_ToElement(luaVM, 1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+34h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    v3 = LUI_ToElement(luaVM, 1);
+    j_lua_pushnumber(luaVM, v3->currentAnimationState.scale);
   }
   else
   {
@@ -6424,8 +5689,8 @@ __int64 LUI_LuaCall_LUIElement_GetScale(lua_State *luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
   return v2;
 }
@@ -6438,20 +5703,16 @@ LUI_LuaCall_LUIElement_GetSpacing
 __int64 LUI_LuaCall_LUIElement_GetSpacing(lua_State *luaVM)
 {
   unsigned int v2; 
-  unsigned int v6; 
+  LUIElement *v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: element:GetSpacing()");
   if ( j_lua_gettop(luaVM) == 1 )
   {
     v2 = 1;
-    _RAX = LUI_ToElement(luaVM, 1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+48h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    v3 = LUI_ToElement(luaVM, 1);
+    j_lua_pushnumber(luaVM, v3->currentAnimationState.userData);
   }
   else
   {
@@ -6459,8 +5720,8 @@ __int64 LUI_LuaCall_LUIElement_GetSpacing(lua_State *luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v4);
   }
   return v2;
 }
@@ -7036,48 +6297,32 @@ LUI_LuaCall_LUIElement_RootPixelsToUnits
 */
 __int64 LUI_LuaCall_LUIElement_RootPixelsToUnits(lua_State *luaVM)
 {
-  const LUIElement *v7; 
-  unsigned int v16; 
-  __int64 result; 
+  double v2; 
+  float v3; 
+  double v4; 
+  LUIElement *v5; 
+  LUIRootData *RootData; 
+  float v7; 
+  float v8; 
+  unsigned int v9; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-  __asm { vmovaps xmm6, xmm0 }
-  v7 = LUI_ToElement(luaVM, 1);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4933, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
+  v2 = lua_tonumber32(luaVM, 2);
+  v3 = *(float *)&v2;
+  v4 = lua_tonumber32(luaVM, 3);
+  v5 = LUI_ToElement(luaVM, 1);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4933, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  LUI_GetRootData(v7);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm6, dword ptr [rdi+18h]
-    vdivss  xmm2, xmm0, dword ptr [rax+0F8h]
-    vsubss  xmm0, xmm7, dword ptr [rdi]
-    vmulss  xmm6, xmm1, xmm2
-    vmulss  xmm2, xmm0, xmm2
-    vcvtss2sd xmm1, xmm2, xmm2; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm { vcvtss2sd xmm1, xmm6, xmm6; n }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  RootData = LUI_GetRootData(v5);
+  v7 = *(float *)&v4 - v5->currentAnimationState.position.y.offsets[0];
+  v8 = 1.0 / RootData->unitScale;
+  j_lua_pushnumber(luaVM, (float)((float)(v3 - v5->currentAnimationState.position.x.offsets[0]) * v8));
+  j_lua_pushnumber(luaVM, (float)(v7 * v8));
   if ( j_lua_gettop(luaVM) < 2 )
   {
-    v16 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 2i64, v16);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 2i64, v9);
   }
-  result = 2i64;
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return result;
+  return 2i64;
 }
 
 /*
@@ -7143,50 +6388,43 @@ LUI_LuaCall_LUIElement_SetAlpha_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetAlpha_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
-  char v10; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetAlpha( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_26;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_26;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_26;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 1;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vucomiss xmm6, dword ptr [rdi+44h] }
-    if ( !v10 )
+    LOBYTE(v4) = 1;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    if ( *(float *)&v3 != v2->currentAnimationState.alpha )
     {
-      __asm { vmovss  dword ptr [rdi+44h], xmm6 }
-      LUI_QuadCache_Element_Invalidate(_RDI);
+      v2->currentAnimationState.alpha = *(float *)&v3;
+      LUI_QuadCache_Element_Invalidate(v2);
     }
-LABEL_26:
-    result = 0i64;
-    goto LABEL_27;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 1;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.alpha);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_27:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 1;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->currentAnimationState.alpha);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -7234,17 +6472,41 @@ LUI_LuaCall_LUIElement_SetAnchorsAndPosition_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetAnchorsAndPosition_impl(lua_State *const luaVM)
 {
-  int v20; 
-  Easing v26; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
+  float v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  int v18; 
+  LUITween *v19; 
+  LUITween *v20; 
+  LUITween *v21; 
+  LUITween *v22; 
+  LUITween *v23; 
+  Easing v24; 
+  LUITween *v25; 
+  LUITween *v26; 
+  LUITween *v27; 
   __int64 result; 
-  LUITweenProperty v39; 
-  LUITweenProperty v40; 
-  LUITweenProperty v41; 
-  LUITweenProperty v42; 
-  LUITweenProperty v43; 
-  LUITweenProperty v44; 
-  LUITweenProperty v45; 
-  LUITweenProperty v46; 
+  LUITweenProperty v29; 
+  LUITweenProperty v30; 
+  LUITweenProperty v31; 
+  LUITweenProperty v32; 
+  LUITweenProperty v33; 
+  LUITweenProperty v34; 
+  LUITweenProperty v35; 
+  LUITweenProperty v36; 
   LUITween *Px; 
   LUITween *tween; 
   LUITween *tweenToAdd; 
@@ -7255,190 +6517,158 @@ __int64 LUI_LuaCall_LUIElement_SetAnchorsAndPosition_impl(lua_State *const luaVM
     return 0i64;
   if ( j_lua_gettop(luaVM) >= 11 && !j_lua_isnumber(luaVM, 11) )
     return 0i64;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_48], xmm6
-    vmovaps [rsp+0D8h+var_58], xmm7
-    vmovaps [rsp+0D8h+var_68], xmm8
-    vmovaps [rsp+0D8h+var_78], xmm9
-    vmovaps [rsp+0D8h+var_88], xmm10
-    vmovaps [rsp+0D8h+var_98], xmm11
-    vmovaps [rsp+0D8h+var_A8], xmm12
-    vmovaps [rsp+0D8h+var_B8], xmm13
-  }
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm13, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 4);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 5);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 6);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 7);
-  __asm { vmovaps xmm10, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 8);
-  __asm { vmovaps xmm11, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 9);
-  __asm
-  {
-    vmovss  dword ptr [rsp+0D8h+Px], xmm13
-    vmovaps xmm12, xmm0
-  }
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  v4 = *(float *)&v3;
+  v5 = lua_tonumber32(luaVM, 3);
+  v6 = *(float *)&v5;
+  v7 = lua_tonumber32(luaVM, 4);
+  v8 = *(float *)&v7;
+  v9 = lua_tonumber32(luaVM, 5);
+  v10 = *(float *)&v9;
+  v11 = lua_tonumber32(luaVM, 6);
+  v12 = *(float *)&v11;
+  v13 = lua_tonumber32(luaVM, 7);
+  v14 = *(float *)&v13;
+  v15 = lua_tonumber32(luaVM, 8);
+  v16 = *(float *)&v15;
+  v17 = lua_tonumber32(luaVM, 9);
+  *(float *)&Px = v4;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( leftAnchor )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm6 }
+  *(float *)&Px = v6;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( rightAnchor )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm7 }
+  *(float *)&Px = v8;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( topAnchor )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm8 }
+  *(float *)&Px = v10;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( bottomAnchor )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm9 }
+  *(float *)&Px = v12;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( left )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm10 }
+  *(float *)&Px = v14;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( right )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm11 }
+  *(float *)&Px = v16;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( top )");
-  __asm { vmovss  dword ptr [rsp+0D8h+Px], xmm12 }
+  *(float *)&Px = *(float *)&v17;
   if ( _fdtest((float *)&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( bottom )");
-  if ( j_lua_gettop(luaVM) < 10 || (v20 = lua_tointeger32(luaVM, 10), v20 <= 0) )
+  if ( j_lua_gettop(luaVM) < 10 || (v18 = lua_tointeger32(luaVM, 10), v18 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v39) = 7;
-    LUI_Tween_InterruptElementTween(_RDI, v39, luaVM);
-    LOBYTE(v40) = 8;
-    LUI_Tween_InterruptElementTween(_RDI, v40, luaVM);
-    LOBYTE(v41) = 9;
-    LUI_Tween_InterruptElementTween(_RDI, v41, luaVM);
-    LOBYTE(v42) = 10;
-    LUI_Tween_InterruptElementTween(_RDI, v42, luaVM);
-    LOBYTE(v43) = 11;
-    LUI_Tween_InterruptElementTween(_RDI, v43, luaVM);
-    LOBYTE(v44) = 12;
-    LUI_Tween_InterruptElementTween(_RDI, v44, luaVM);
-    LOBYTE(v45) = 13;
-    LUI_Tween_InterruptElementTween(_RDI, v45, luaVM);
-    LOBYTE(v46) = 14;
-    LUI_Tween_InterruptElementTween(_RDI, v46, luaVM);
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v29) = 7;
+    LUI_Tween_InterruptElementTween(v2, v29, luaVM);
+    LOBYTE(v30) = 8;
+    LUI_Tween_InterruptElementTween(v2, v30, luaVM);
+    LOBYTE(v31) = 9;
+    LUI_Tween_InterruptElementTween(v2, v31, luaVM);
+    LOBYTE(v32) = 10;
+    LUI_Tween_InterruptElementTween(v2, v32, luaVM);
+    LOBYTE(v33) = 11;
+    LUI_Tween_InterruptElementTween(v2, v33, luaVM);
+    LOBYTE(v34) = 12;
+    LUI_Tween_InterruptElementTween(v2, v34, luaVM);
+    LOBYTE(v35) = 13;
+    LUI_Tween_InterruptElementTween(v2, v35, luaVM);
+    LOBYTE(v36) = 14;
+    LUI_Tween_InterruptElementTween(v2, v36, luaVM);
     result = 0i64;
-    __asm
-    {
-      vmovss  dword ptr [rdi+10h], xmm13
-      vmovss  dword ptr [rdi+14h], xmm6
-      vmovss  dword ptr [rdi+28h], xmm7
-      vmovss  dword ptr [rdi+2Ch], xmm8
-      vmovss  dword ptr [rdi], xmm9
-      vmovss  dword ptr [rdi+4], xmm10
-      vmovss  dword ptr [rdi+18h], xmm11
-      vmovss  dword ptr [rdi+1Ch], xmm12
-    }
+    v2->currentAnimationState.position.x.anchors[0] = v4;
+    v2->currentAnimationState.position.x.anchors[1] = v6;
+    v2->currentAnimationState.position.y.anchors[0] = v8;
+    v2->currentAnimationState.position.y.anchors[1] = v10;
+    v2->currentAnimationState.position.x.offsets[0] = v12;
+    v2->currentAnimationState.position.x.offsets[1] = v14;
+    v2->currentAnimationState.position.y.offsets[0] = v16;
+    v2->currentAnimationState.position.y.offsets[1] = *(float *)&v17;
   }
   else
   {
-    _RBP = LUI_Tween_Create(luaVM, _RDI);
-    _R14 = LUI_Tween_Create(luaVM, _RDI);
-    _R15 = LUI_Tween_Create(luaVM, _RDI);
-    _R13 = LUI_Tween_Create(luaVM, _RDI);
-    _R12 = LUI_Tween_Create(luaVM, _RDI);
-    tweenToAdd = LUI_Tween_Create(luaVM, _RDI);
-    tween = LUI_Tween_Create(luaVM, _RDI);
-    Px = LUI_Tween_Create(luaVM, _RDI);
+    v19 = LUI_Tween_Create(luaVM, v2);
+    v20 = LUI_Tween_Create(luaVM, v2);
+    v21 = LUI_Tween_Create(luaVM, v2);
+    v22 = LUI_Tween_Create(luaVM, v2);
+    v23 = LUI_Tween_Create(luaVM, v2);
+    tweenToAdd = LUI_Tween_Create(luaVM, v2);
+    tween = LUI_Tween_Create(luaVM, v2);
+    Px = LUI_Tween_Create(luaVM, v2);
     if ( j_lua_gettop(luaVM) < 11 )
     {
-      _RCX = tweenToAdd;
-      _RDX = tween;
-      _R8 = Px;
+      v25 = tweenToAdd;
+      v26 = tween;
+      v27 = Px;
     }
     else
     {
-      v26 = (unsigned __int8)lua_tointeger32(luaVM, 11);
-      _RCX = tweenToAdd;
-      _RDX = tween;
-      _R8 = Px;
-      _RBP->easing = v26;
-      _R14->easing = v26;
-      _R15->easing = v26;
-      _R13->easing = v26;
-      _R12->easing = v26;
-      _RCX->easing = v26;
-      _RDX->easing = v26;
-      _R8->easing = v26;
+      v24 = (unsigned __int8)lua_tointeger32(luaVM, 11);
+      v25 = tweenToAdd;
+      v26 = tween;
+      v27 = Px;
+      v19->easing = v24;
+      v20->easing = v24;
+      v21->easing = v24;
+      v22->easing = v24;
+      v23->easing = v24;
+      v25->easing = v24;
+      v26->easing = v24;
+      v27->easing = v24;
     }
-    _RBP->targetProperty[0] = 7;
-    _R14->targetProperty[0] = 8;
-    _R15->targetProperty[0] = 9;
-    _R13->targetProperty[0] = 10;
-    _R12->targetProperty[0] = 11;
-    _RCX->targetProperty[0] = 12;
-    _RDX->targetProperty[0] = 13;
-    _R8->targetProperty[0] = 14;
-    _RBP->duration = v20;
-    _R14->duration = v20;
-    _R15->duration = v20;
-    _R13->duration = v20;
-    _R12->duration = v20;
-    _RCX->duration = v20;
-    _RDX->duration = v20;
-    _R8->duration = v20;
-    _RBP->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.anchors[0]);
-    _R14->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.anchors[1]);
-    _R15->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.anchors[0]);
-    _R13->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.anchors[1]);
-    _R12->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.offsets[0]);
-    _RCX->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.offsets[1]);
-    _RDX->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.offsets[0]);
-    _R8->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.offsets[1]);
-    __asm
-    {
-      vmovss  dword ptr [rbp+28h], xmm13
-      vmovss  dword ptr [r14+28h], xmm6
-      vmovss  dword ptr [r15+28h], xmm7
-      vmovss  dword ptr [r13+28h], xmm8
-      vmovss  dword ptr [r12+28h], xmm9
-      vmovss  dword ptr [rcx+28h], xmm10
-      vmovss  dword ptr [rdx+28h], xmm11
-      vmovss  dword ptr [r8+28h], xmm12
-    }
-    LUI_Tween_AddElementTween(_RDI, _RBP, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, _R14, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, _R15, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, _R13, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, _R12, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, tweenToAdd, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, tween, luaVM, 0);
-    LUI_Tween_AddElementTween(_RDI, Px, luaVM, 0);
+    v19->targetProperty[0] = 7;
+    v20->targetProperty[0] = 8;
+    v21->targetProperty[0] = 9;
+    v22->targetProperty[0] = 10;
+    v23->targetProperty[0] = 11;
+    v25->targetProperty[0] = 12;
+    v26->targetProperty[0] = 13;
+    v27->targetProperty[0] = 14;
+    v19->duration = v18;
+    v20->duration = v18;
+    v21->duration = v18;
+    v22->duration = v18;
+    v23->duration = v18;
+    v25->duration = v18;
+    v26->duration = v18;
+    v27->duration = v18;
+    v19->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[0]);
+    v20->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[1]);
+    v21->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[0]);
+    v22->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[1]);
+    v23->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.offsets[0]);
+    v25->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.offsets[1]);
+    v26->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.offsets[0]);
+    v27->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.offsets[1]);
+    v19->endValue.floatValue = v4;
+    v20->endValue.floatValue = v6;
+    v21->endValue.floatValue = v8;
+    v22->endValue.floatValue = v10;
+    v23->endValue.floatValue = v12;
+    v25->endValue.floatValue = v14;
+    v26->endValue.floatValue = v16;
+    v27->endValue.floatValue = *(float *)&v17;
+    LUI_Tween_AddElementTween(v2, v19, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, v20, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, v21, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, v22, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, v23, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, tweenToAdd, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, tween, luaVM, 0);
+    LUI_Tween_AddElementTween(v2, Px, luaVM, 0);
     LUI_Tween_PushOnLuaStack(Px, luaVM);
     LUI_Tween_PushOnLuaStack(tween, luaVM);
     LUI_Tween_PushOnLuaStack(tweenToAdd, luaVM);
-    LUI_Tween_PushOnLuaStack(_R12, luaVM);
-    LUI_Tween_PushOnLuaStack(_R13, luaVM);
-    LUI_Tween_PushOnLuaStack(_R15, luaVM);
-    LUI_Tween_PushOnLuaStack(_R14, luaVM);
-    LUI_Tween_PushOnLuaStack(_RBP, luaVM);
-    result = 8i64;
-  }
-  __asm
-  {
-    vmovaps xmm11, [rsp+0D8h+var_98]
-    vmovaps xmm10, [rsp+0D8h+var_88]
-    vmovaps xmm9, [rsp+0D8h+var_78]
-    vmovaps xmm8, [rsp+0D8h+var_68]
-    vmovaps xmm7, [rsp+0D8h+var_58]
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm12, [rsp+0D8h+var_A8]
-    vmovaps xmm13, [rsp+0D8h+var_B8]
+    LUI_Tween_PushOnLuaStack(v23, luaVM);
+    LUI_Tween_PushOnLuaStack(v22, luaVM);
+    LUI_Tween_PushOnLuaStack(v21, luaVM);
+    LUI_Tween_PushOnLuaStack(v20, luaVM);
+    LUI_Tween_PushOnLuaStack(v19, luaVM);
+    return 8i64;
   }
   return result;
 }
@@ -7448,21 +6678,35 @@ __int64 LUI_LuaCall_LUIElement_SetAnchorsAndPosition_impl(lua_State *const luaVM
 LUI_LuaCall_LUIElement_SetAnchors_impl
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_SetAnchors_impl(lua_State *const luaVM, double _XMM1_8, __int64 a3, double _XMM3_8)
+__int64 LUI_LuaCall_LUIElement_SetAnchors_impl(lua_State *const luaVM)
 {
-  int v11; 
-  bool v12; 
-  bool v13; 
-  int v14; 
-  bool v18; 
+  LUIElement *v2; 
+  int v3; 
+  bool v4; 
+  bool v5; 
+  int v6; 
+  float v8; 
+  float v9; 
+  float v13; 
+  float v17; 
   __int64 result; 
-  int v48; 
-  Easing v53; 
-  LUITweenProperty v58; 
-  LUITweenProperty v59; 
-  LUITweenProperty v60; 
-  LUITweenProperty v61; 
+  double v25; 
+  float v26; 
+  double v27; 
+  float v28; 
+  double v29; 
+  float v30; 
+  double v31; 
+  int v32; 
+  LUITween *v33; 
+  LUITween *v34; 
+  LUITween *v35; 
+  LUITween *v36; 
+  Easing v37; 
+  LUITweenProperty v38; 
+  LUITweenProperty v39; 
+  LUITweenProperty v40; 
+  LUITweenProperty v41; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 5 || j_lua_gettop(luaVM) > 7 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 1 && !j_lua_isnumber(luaVM, 2) || j_lua_type(luaVM, 3) != 1 && !j_lua_isnumber(luaVM, 3) || j_lua_type(luaVM, 4) != 1 && !j_lua_isnumber(luaVM, 4) || j_lua_type(luaVM, 5) != 1 && !j_lua_isnumber(luaVM, 5) || j_lua_gettop(luaVM) >= 6 && !j_lua_isnumber(luaVM, 6) || j_lua_gettop(luaVM) >= 7 && !j_lua_isnumber(luaVM, 7) )
@@ -7479,10 +6723,10 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetAnchors_impl(lua_State *const luaVM
     return 0i64;
   if ( j_lua_gettop(luaVM) >= 7 && !j_lua_isnumber(luaVM, 7) )
     return 0i64;
-  _RSI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RSI, luaVM) )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
     return 0i64;
-  LUI_LUIElement_InvalidateLayout(_RSI);
+  LUI_LUIElement_InvalidateLayout(v2);
   if ( j_lua_type(luaVM, 2) == 1 )
   {
     if ( j_lua_type(luaVM, 3) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 1378, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (3)) == 1))", (const char *)&queryFormat, "lua_isboolean( luaVM, 3 )") )
@@ -7491,97 +6735,76 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetAnchors_impl(lua_State *const luaVM
       __debugbreak();
     if ( j_lua_type(luaVM, 5) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 1380, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (5)) == 1))", (const char *)&queryFormat, "lua_isboolean( luaVM, 5 )") )
       __debugbreak();
-    v11 = j_lua_toboolean(luaVM, 2);
-    v12 = j_lua_toboolean(luaVM, 3) == 1;
-    v13 = j_lua_toboolean(luaVM, 4) == 1;
-    v14 = j_lua_toboolean(luaVM, 5);
-    __asm
+    v3 = j_lua_toboolean(luaVM, 2);
+    v4 = j_lua_toboolean(luaVM, 3) == 1;
+    v5 = j_lua_toboolean(luaVM, 4) == 1;
+    v6 = j_lua_toboolean(luaVM, 5);
+    _XMM5 = LODWORD(FLOAT_1_0);
+    v8 = 0.0;
+    if ( v3 == 1 )
     {
-      vmovss  xmm4, cs:__real@3f000000
-      vmovss  xmm5, cs:__real@3f800000
-      vxorps  xmm3, xmm3, xmm3
-    }
-    v18 = v14 == 1;
-    _EDX = 0;
-    if ( v11 == 1 )
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      v9 = 0.0;
     }
     else
     {
-      __asm { vmovd   xmm1, edx }
-      _EAX = v12;
+      _XMM0 = v4;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm5, xmm4, xmm2
-        vmovaps xmm1, xmm0
-        vmovss  [rsp+98h+Px], xmm0
       }
+      v9 = *(float *)&_XMM0;
+      Px = *(float *)&_XMM0;
     }
-    __asm { vmovss  dword ptr [rsi+10h], xmm1 }
-    if ( v12 )
+    v2->currentAnimationState.position.x.anchors[0] = v9;
+    if ( v4 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      v13 = 0.0;
     }
     else
     {
-      __asm { vmovd   xmm1, edx }
-      _EAX = v11 == 1;
+      _XMM0 = v3 == 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm5, xmm4, xmm2
-        vmovaps xmm1, xmm0
-        vmovss  [rsp+98h+Px], xmm0
       }
+      v13 = *(float *)&_XMM0;
+      Px = *(float *)&_XMM0;
     }
-    __asm { vmovss  dword ptr [rsi+14h], xmm1 }
-    if ( v13 )
+    v2->currentAnimationState.position.x.anchors[1] = v13;
+    if ( v5 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      v17 = 0.0;
     }
     else
     {
-      __asm { vmovd   xmm1, edx }
-      _EAX = v18;
+      _XMM0 = v6 == 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm5, xmm4, xmm2
-        vmovaps xmm1, xmm0
-        vmovss  [rsp+98h+Px], xmm0
       }
+      v17 = *(float *)&_XMM0;
+      Px = *(float *)&_XMM0;
     }
-    __asm { vmovss  dword ptr [rsi+28h], xmm1 }
-    if ( !v18 )
+    v2->currentAnimationState.position.y.anchors[0] = v17;
+    if ( v6 != 1 )
     {
-      _EAX = v13;
+      _XMM0 = v5;
       __asm
       {
-        vmovd   xmm0, eax
-        vmovd   xmm1, edx
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm5, xmm4, xmm2
-        vmovss  [rsp+98h+Px], xmm0
-        vmovaps xmm3, xmm0
       }
+      Px = *(float *)&_XMM0;
+      v8 = *(float *)&_XMM0;
     }
-    __asm { vmovss  dword ptr [rsi+2Ch], xmm3 }
+    v2->currentAnimationState.position.y.anchors[1] = v8;
     return 0i64;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovaps [rsp+98h+var_58], xmm8
-      vmovaps [rsp+98h+var_68], xmm9
-    }
     if ( !j_lua_isnumber(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 1393, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 2 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )") )
       __debugbreak();
     if ( !j_lua_isnumber(luaVM, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 1394, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 3 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, 3 )") )
@@ -7590,98 +6813,81 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetAnchors_impl(lua_State *const luaVM
       __debugbreak();
     if ( !j_lua_isnumber(luaVM, 5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 1396, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 5 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, 5 )") )
       __debugbreak();
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm9, xmm0 }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 5);
-    __asm
-    {
-      vmovss  [rsp+98h+Px], xmm9
-      vmovaps xmm8, xmm0
-    }
+    v25 = lua_tonumber32(luaVM, 2);
+    v26 = *(float *)&v25;
+    v27 = lua_tonumber32(luaVM, 3);
+    v28 = *(float *)&v27;
+    v29 = lua_tonumber32(luaVM, 4);
+    v30 = *(float *)&v29;
+    v31 = lua_tonumber32(luaVM, 5);
+    Px = v26;
     if ( _fdtest(&Px) > 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( leftAnchor )");
-    __asm { vmovss  [rsp+98h+Px], xmm6 }
+    Px = v28;
     if ( _fdtest(&Px) > 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( rightAnchor )");
-    __asm { vmovss  [rsp+98h+Px], xmm7 }
+    Px = v30;
     if ( _fdtest(&Px) > 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( topAnchor )");
-    __asm { vmovss  [rsp+98h+Px], xmm8 }
+    Px = *(float *)&v31;
     if ( _fdtest(&Px) > 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( bottomAnchor )");
-    if ( j_lua_gettop(luaVM) < 6 || (v48 = lua_tointeger32(luaVM, 6), v48 <= 0) )
+    if ( j_lua_gettop(luaVM) < 6 || (v32 = lua_tointeger32(luaVM, 6), v32 <= 0) )
     {
-      LUI_QuadCache_Element_Invalidate(_RSI);
-      LOBYTE(v58) = 7;
-      LUI_Tween_InterruptElementTween(_RSI, v58, luaVM);
-      LOBYTE(v59) = 8;
-      LUI_Tween_InterruptElementTween(_RSI, v59, luaVM);
-      LOBYTE(v60) = 9;
-      LUI_Tween_InterruptElementTween(_RSI, v60, luaVM);
-      LOBYTE(v61) = 10;
-      LUI_Tween_InterruptElementTween(_RSI, v61, luaVM);
+      LUI_QuadCache_Element_Invalidate(v2);
+      LOBYTE(v38) = 7;
+      LUI_Tween_InterruptElementTween(v2, v38, luaVM);
+      LOBYTE(v39) = 8;
+      LUI_Tween_InterruptElementTween(v2, v39, luaVM);
+      LOBYTE(v40) = 9;
+      LUI_Tween_InterruptElementTween(v2, v40, luaVM);
+      LOBYTE(v41) = 10;
+      LUI_Tween_InterruptElementTween(v2, v41, luaVM);
       result = 0i64;
-      __asm
-      {
-        vmovss  dword ptr [rsi+10h], xmm9
-        vmovss  dword ptr [rsi+14h], xmm6
-        vmovss  dword ptr [rsi+28h], xmm7
-        vmovss  dword ptr [rsi+2Ch], xmm8
-      }
+      v2->currentAnimationState.position.x.anchors[0] = v26;
+      v2->currentAnimationState.position.x.anchors[1] = v28;
+      v2->currentAnimationState.position.y.anchors[0] = v30;
+      v2->currentAnimationState.position.y.anchors[1] = *(float *)&v31;
     }
     else
     {
-      _RBP = LUI_Tween_Create(luaVM, _RSI);
-      _R14 = LUI_Tween_Create(luaVM, _RSI);
-      _R15 = LUI_Tween_Create(luaVM, _RSI);
-      _R13 = LUI_Tween_Create(luaVM, _RSI);
+      v33 = LUI_Tween_Create(luaVM, v2);
+      v34 = LUI_Tween_Create(luaVM, v2);
+      v35 = LUI_Tween_Create(luaVM, v2);
+      v36 = LUI_Tween_Create(luaVM, v2);
       if ( j_lua_gettop(luaVM) >= 7 )
       {
-        v53 = (unsigned __int8)lua_tointeger32(luaVM, 7);
-        _RBP->easing = v53;
-        _R14->easing = v53;
-        _R15->easing = v53;
-        _R13->easing = v53;
+        v37 = (unsigned __int8)lua_tointeger32(luaVM, 7);
+        v33->easing = v37;
+        v34->easing = v37;
+        v35->easing = v37;
+        v36->easing = v37;
       }
-      _RBP->targetProperty[0] = 7;
-      _R14->targetProperty[0] = 8;
-      _R15->targetProperty[0] = 9;
-      _R13->targetProperty[0] = 10;
-      _RBP->duration = v48;
-      _R14->duration = v48;
-      _R15->duration = v48;
-      _R13->duration = v48;
-      _RBP->startValue.intValue = LODWORD(_RSI->currentAnimationState.position.x.anchors[0]);
-      _R14->startValue.intValue = LODWORD(_RSI->currentAnimationState.position.x.anchors[1]);
-      _R15->startValue.intValue = LODWORD(_RSI->currentAnimationState.position.y.anchors[0]);
-      _R13->startValue.intValue = LODWORD(_RSI->currentAnimationState.position.y.anchors[1]);
-      __asm
-      {
-        vmovss  dword ptr [rbp+28h], xmm9
-        vmovss  dword ptr [r14+28h], xmm6
-        vmovss  dword ptr [r15+28h], xmm7
-        vmovss  dword ptr [r13+28h], xmm8
-      }
-      LUI_Tween_AddElementTween(_RSI, _RBP, luaVM, 0);
-      LUI_Tween_AddElementTween(_RSI, _R14, luaVM, 0);
-      LUI_Tween_AddElementTween(_RSI, _R15, luaVM, 0);
-      LUI_Tween_AddElementTween(_RSI, _R13, luaVM, 0);
-      LUI_Tween_PushOnLuaStack(_R13, luaVM);
-      LUI_Tween_PushOnLuaStack(_R15, luaVM);
-      LUI_Tween_PushOnLuaStack(_R14, luaVM);
-      LUI_Tween_PushOnLuaStack(_RBP, luaVM);
-      result = 4i64;
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+98h+var_58]
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
-      vmovaps xmm9, [rsp+98h+var_68]
+      v33->targetProperty[0] = 7;
+      v34->targetProperty[0] = 8;
+      v35->targetProperty[0] = 9;
+      v36->targetProperty[0] = 10;
+      v33->duration = v32;
+      v34->duration = v32;
+      v35->duration = v32;
+      v36->duration = v32;
+      v33->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[0]);
+      v34->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[1]);
+      v35->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[0]);
+      v36->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[1]);
+      v33->endValue.floatValue = v26;
+      v34->endValue.floatValue = v28;
+      v35->endValue.floatValue = v30;
+      v36->endValue.floatValue = *(float *)&v31;
+      LUI_Tween_AddElementTween(v2, v33, luaVM, 0);
+      LUI_Tween_AddElementTween(v2, v34, luaVM, 0);
+      LUI_Tween_AddElementTween(v2, v35, luaVM, 0);
+      LUI_Tween_AddElementTween(v2, v36, luaVM, 0);
+      LUI_Tween_PushOnLuaStack(v36, luaVM);
+      LUI_Tween_PushOnLuaStack(v35, luaVM);
+      LUI_Tween_PushOnLuaStack(v34, luaVM);
+      LUI_Tween_PushOnLuaStack(v33, luaVM);
+      return 4i64;
     }
   }
   return result;
@@ -7775,44 +6981,39 @@ LUI_LuaCall_LUIElement_SetBlurStrength_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetBlurStrength_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetBlurStrength( blurStrength, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_25;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_25;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_25;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 23;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+48h], xmm6 }
-LABEL_25:
-    result = 0i64;
-    goto LABEL_26;
+    LOBYTE(v4) = 23;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->currentAnimationState.userData = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 23;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = _RDI->currentAnimationState.userDataInt;
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_26:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 23;
+  v6->duration = v5;
+  v6->startValue.intValue = v2->currentAnimationState.userDataInt;
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -7860,53 +7061,45 @@ LUI_LuaCall_LUIElement_SetBottomAnchor_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetBottomAnchor_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetBottomAnchor( anchor, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 10;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+2Ch], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 10;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.y.anchors[1] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 10;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.anchors[1]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 10;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[1]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -7916,53 +7109,45 @@ LUI_LuaCall_LUIElement_SetBottom_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetBottom_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetBottom( offset, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 14;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+1Ch], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 14;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.y.offsets[1] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 14;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.offsets[1]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 14;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.offsets[1]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8010,45 +7195,40 @@ LUI_LuaCall_LUIElement_SetColorOpParam_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetColorOpParam_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetColorOpParam( param, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_25;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_25;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_25;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 46;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+12Ch], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_25:
-    result = 0i64;
-    goto LABEL_26;
+    LOBYTE(v4) = 46;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->colorOp.param = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 46;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->colorOp.param);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_26:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 46;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->colorOp.param);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8129,64 +7309,48 @@ LUI_LuaCall_LUIElement_SetDepth_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetDepth_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  char v7; 
-  int v8; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetDepth( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-  {
-    v7 = 1;
-    v8 = 0;
-  }
+    v5 = 0;
   else
-  {
-    v8 = lua_tointeger32(luaVM, 3);
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v7 )
-    LUI_LUIElement_CheckUnFlagAs3D(_RDI);
+    v5 = lua_tointeger32(luaVM, 3);
+  if ( *(float *)&v3 == 0.0 )
+    LUI_LUIElement_CheckUnFlagAs3D(v2);
   else
-    _RDI->usageFlags |= 4u;
-  if ( v8 <= 0 )
+    v2->usageFlags |= 4u;
+  if ( v5 <= 0 )
   {
-    LOBYTE(v6) = 15;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+0DCh], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    LOBYTE(v4) = 15;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->depth = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 15;
-  _RSI->duration = v8;
-  _RSI->startValue.intValue = LODWORD(_RDI->depth);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 15;
+  v7->duration = v5;
+  v7->startValue.intValue = LODWORD(v2->depth);
+  v7->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8253,21 +7417,19 @@ LUI_LuaCall_LUIElement_SetFontSize
 */
 __int64 LUI_LuaCall_LUIElement_SetFontSize(lua_State *luaVM)
 {
+  LUIElement *v3; 
   unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetFontSize( size )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    _RDI = LUI_ToElement(luaVM, 1);
-    if ( (_RDI->usageFlags & 0x80) == 0 )
+    v3 = LUI_ToElement(luaVM, 1);
+    if ( (v3->usageFlags & 0x80) == 0 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "LUIElement_IsTextLike( self )");
     *(double *)&_XMM0 = lua_tonumber32(luaVM, -1);
-    __asm
-    {
-      vmaxss  xmm1, xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rdi+11Ch], xmm1
-    }
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3f800000 }
+    v3->imageData.uMax = *(float *)&_XMM1;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
@@ -8301,54 +7463,44 @@ __int64 LUI_LuaCall_LUIElement_SetGlitchAmount(lua_State *luaVM)
 LUI_LuaCall_LUIElement_SetGlitchAmount_impl
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_SetGlitchAmount_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIElement_SetGlitchAmount_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v9; 
-  int v10; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  double v4; 
+  LUITweenProperty v5; 
+  int v6; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetGlitchAmount( amount, duration, easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_25;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_25;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_25;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  v4 = I_fclamp(*(float *)&v3, 0.0, 1.0);
+  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
   {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
+    LOBYTE(v5) = 44;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    v2->glitchAmount = *(float *)&v4;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v10 = lua_tointeger32(luaVM, 3), v10 <= 0) )
-  {
-    LOBYTE(v9) = 44;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+138h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_25:
-    result = 0i64;
-    goto LABEL_26;
-  }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 44;
-  _RSI->duration = v10;
-  _RSI->startValue.intValue = LODWORD(_RDI->glitchAmount);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_26:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 44;
+  v7->duration = v6;
+  v7->startValue.intValue = LODWORD(v2->glitchAmount);
+  v7->endValue.floatValue = *(float *)&v4;
+  LUI_Tween_AddElementTween(v2, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8424,47 +7576,42 @@ LUI_LuaCall_LUIElement_SetLeading_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetLeading_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v3; 
+  LUITweenProperty v5; 
+  int v6; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetLeading( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  if ( (_RDI->usageFlags & 0x80) == 0 )
+    return 0i64;
+  v3 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) )
+    return 0i64;
+  if ( (v3->usageFlags & 0x80) == 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "LUIElement_IsTextLike( self )");
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 2);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
   {
-    LOBYTE(v6) = 33;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+124h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    LOBYTE(v5) = 33;
+    LUI_Tween_InterruptElementTween(v3, v5, luaVM);
+    v3->imageData.vMax = *(float *)&_XMM6;
+    LUI_QuadCache_Element_Invalidate(v3);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v3);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 33;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.vMax);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 33;
+  v7->duration = v6;
+  v7->startValue.intValue = LODWORD(v3->imageData.vMax);
+  v7->endValue.floatValue = *(float *)&_XMM6;
+  LUI_Tween_AddElementTween(v3, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8512,53 +7659,45 @@ LUI_LuaCall_LUIElement_SetLeftAnchor_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetLeftAnchor_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetLeftAnchor( anchor, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 7;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+10h], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 7;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.x.anchors[0] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 7;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.anchors[0]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 7;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[0]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8568,53 +7707,45 @@ LUI_LuaCall_LUIElement_SetLeft_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetLeft_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetLeft( offset, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 11;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 11;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.x.offsets[0] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 11;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.offsets[0]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 11;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.offsets[0]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -8680,11 +7811,12 @@ __int64 LUI_LuaCall_LUIElement_SetOptOutRightToLeftAlignmentFlip(lua_State *luaV
 LUI_LuaCall_LUIElement_SetParallaxMotionAmount
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_SetParallaxMotionAmount(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIElement_SetParallaxMotionAmount(lua_State *luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v10; 
+  LUIElement *v2; 
+  double v3; 
+  double v4; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4736, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 2)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 2") )
     __debugbreak();
@@ -8692,25 +7824,14 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetParallaxMotionAmount(lua_State *lua
     __debugbreak();
   if ( !j_lua_isnumber(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4738, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 2 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )") )
     __debugbreak();
-  v4 = LUI_ToElement(luaVM, 1);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3d4ccccd; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@437f0000
-    vcvttss2si ecx, xmm1
-  }
-  v4->parallaxAmount = _ECX;
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = lua_tonumber32(luaVM, 2);
+  v4 = I_fclamp(*(float *)&v3 * 0.050000001, 0.0, 1.0);
+  v2->parallaxAmount = (int)(float)(*(float *)&v4 * 255.0);
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v10);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -8869,10 +7990,12 @@ LUI_LuaCall_LUIElement_SetPixelGridContrast_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetPixelGridContrast_impl(lua_State *const luaVM)
 {
-  LUIElement *v3; 
-  LUITweenProperty v6; 
-  int v7; 
-  LUITween *v8; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  int v6; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetPixelGridContrast( contrast, ?duration, ?easing )");
@@ -8880,32 +8003,28 @@ __int64 LUI_LuaCall_LUIElement_SetPixelGridContrast_impl(lua_State *const luaVM)
     return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     return 0i64;
-  v3 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
     return 0i64;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
+  v3 = lua_tonumber32(luaVM, 2);
+  v4 = (int)(float)(*(float *)&v3 * 255.0);
+  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
   {
-    vmulss  xmm1, xmm0, cs:__real@437f0000
-    vcvttss2si r14d, xmm1
-  }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
-  {
-    LOBYTE(v6) = 43;
-    LUI_Tween_InterruptElementTween(v3, v6, luaVM);
-    v3->pixelGrid.contrast = _ER14;
-    LUI_QuadCache_Element_Invalidate(v3);
+    LOBYTE(v5) = 43;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    v2->pixelGrid.contrast = v4;
+    LUI_QuadCache_Element_Invalidate(v2);
     return 0i64;
   }
-  v8 = LUI_Tween_Create(luaVM, v3);
+  v7 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    v8->easing = lua_tointeger32(luaVM, 4);
-  v8->targetProperty[0] = 43;
-  v8->duration = v7;
-  v8->startValue.byteValue = v3->pixelGrid.contrast;
-  v8->endValue.byteValue = _ER14;
-  LUI_Tween_AddElementTween(v3, v8, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(v8, luaVM);
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 43;
+  v7->duration = v6;
+  v7->startValue.byteValue = v2->pixelGrid.contrast;
+  v7->endValue.byteValue = v4;
+  LUI_Tween_AddElementTween(v2, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
   return 1i64;
 }
 
@@ -9091,95 +8210,59 @@ LUI_LuaCall_LUIElement_SetRGBFromInt_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetRGBFromInt_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v7; 
-  int v8; 
-  char v19; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  LUITween *v10; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetRGBFromInt( colorValue, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  lua_tointeger32(luaVM, 2);
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tointeger32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v8 = 0;
+    v5 = 0;
   else
-    v8 = lua_tointeger32(luaVM, 3);
-  __asm
+    v5 = lua_tointeger32(luaVM, 3);
+  v6 = (float)BYTE2(v3) * 0.0039215689;
+  v7 = (float)BYTE1(v3) * 0.0039215689;
+  v8 = (float)(unsigned __int8)v3 * 0.0039215689;
+  if ( v5 <= 0 )
   {
-    vmovss  xmm1, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm8, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm7, xmm0, xmm1
-  }
-  if ( v8 <= 0 )
-  {
-    LOBYTE(v7) = 2;
-    LUI_Tween_InterruptElementTween(_RDI, v7, luaVM);
-    __asm { vucomiss xmm8, dword ptr [rdi+38h] }
-    if ( !v19 )
-      goto LABEL_26;
-    __asm { vucomiss xmm6, dword ptr [rdi+3Ch] }
-    if ( !v19 )
-      goto LABEL_26;
-    __asm { vucomiss xmm7, dword ptr [rdi+40h] }
-    if ( !v19 )
+    LOBYTE(v4) = 2;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    if ( v6 != v2->currentAnimationState.red || v7 != v2->currentAnimationState.green || v8 != v2->currentAnimationState.blue )
     {
-LABEL_26:
-      __asm
-      {
-        vmovss  dword ptr [rdi+38h], xmm8
-        vmovss  dword ptr [rdi+3Ch], xmm6
-        vmovss  dword ptr [rdi+40h], xmm7
-      }
-      LUI_QuadCache_Element_Invalidate(_RDI);
+      v2->currentAnimationState.red = v6;
+      v2->currentAnimationState.green = v7;
+      v2->currentAnimationState.blue = v8;
+      LUI_QuadCache_Element_Invalidate(v2);
     }
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v10 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 2;
-  _RSI->duration = v8;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.red);
-  _RSI->startValue.colorValue.g = _RDI->currentAnimationState.green;
-  _RSI->startValue.colorValue.b = _RDI->currentAnimationState.blue;
-  __asm
-  {
-    vmovss  dword ptr [rsi+28h], xmm8
-    vmovss  dword ptr [rsi+2Ch], xmm6
-    vmovss  dword ptr [rsi+30h], xmm7
-  }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v10->easing = lua_tointeger32(luaVM, 4);
+  v10->targetProperty[0] = 2;
+  v10->duration = v5;
+  v10->startValue.intValue = LODWORD(v2->currentAnimationState.red);
+  v10->startValue.colorValue.g = v2->currentAnimationState.green;
+  v10->startValue.colorValue.b = v2->currentAnimationState.blue;
+  v10->endValue.floatValue = v6;
+  v10->endValue.colorValue.g = v7;
+  v10->endValue.colorValue.b = v8;
+  LUI_Tween_AddElementTween(v2, v10, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v10, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9208,106 +8291,79 @@ LUI_LuaCall_LUIElement_SetRGBFromTable_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetRGBFromTable_impl(lua_State *const luaVM)
 {
-  int v7; 
-  LUITweenProperty v11; 
-  char v12; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  LUITweenProperty v10; 
+  LUITween *v12; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetRGBFromTable( colorTable, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_33;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_33;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_33;
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
   if ( j_lua_gettop(luaVM) < 3 )
-    v7 = 0;
+    v3 = 0;
   else
-    v7 = lua_tointeger32(luaVM, 3);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm7, xmm7, xmm7
-  }
+    v3 = lua_tointeger32(luaVM, 3);
+  v4 = 0.0;
+  v5 = 0.0;
+  v6 = 0.0;
   j_lua_getfield(luaVM, 2, "r");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm6, xmm0 }
+    v7 = lua_tonumber32(luaVM, -1);
+    v4 = *(float *)&v7;
   }
   j_lua_getfield(luaVM, 2, "g");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm8, xmm0 }
+    v8 = lua_tonumber32(luaVM, -1);
+    v5 = *(float *)&v8;
   }
   j_lua_getfield(luaVM, 2, "b");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm7, xmm0 }
+    v9 = lua_tonumber32(luaVM, -1);
+    v6 = *(float *)&v9;
   }
   j_lua_settop(luaVM, -4);
-  if ( v7 <= 0 )
+  if ( v3 <= 0 )
   {
-    LOBYTE(v11) = 2;
-    LUI_Tween_InterruptElementTween(_RDI, v11, luaVM);
-    __asm { vucomiss xmm6, dword ptr [rdi+38h] }
-    if ( !v12 )
-      goto LABEL_32;
-    __asm { vucomiss xmm8, dword ptr [rdi+3Ch] }
-    if ( !v12 )
-      goto LABEL_32;
-    __asm { vucomiss xmm7, dword ptr [rdi+40h] }
-    if ( !v12 )
+    LOBYTE(v10) = 2;
+    LUI_Tween_InterruptElementTween(v2, v10, luaVM);
+    if ( v4 != v2->currentAnimationState.red || v5 != v2->currentAnimationState.green || v6 != v2->currentAnimationState.blue )
     {
-LABEL_32:
-      __asm
-      {
-        vmovss  dword ptr [rdi+38h], xmm6
-        vmovss  dword ptr [rdi+3Ch], xmm8
-        vmovss  dword ptr [rdi+40h], xmm7
-      }
-      LUI_QuadCache_Element_Invalidate(_RDI);
+      v2->currentAnimationState.red = v4;
+      v2->currentAnimationState.green = v5;
+      v2->currentAnimationState.blue = v6;
+      LUI_QuadCache_Element_Invalidate(v2);
     }
-LABEL_33:
-    result = 0i64;
-    goto LABEL_34;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v12 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 2;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.red);
-  _RSI->startValue.colorValue.g = _RDI->currentAnimationState.green;
-  _RSI->startValue.colorValue.b = _RDI->currentAnimationState.blue;
-  __asm
-  {
-    vmovss  dword ptr [rsi+28h], xmm6
-    vmovss  dword ptr [rsi+2Ch], xmm8
-    vmovss  dword ptr [rsi+30h], xmm7
-  }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_34:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v12->easing = lua_tointeger32(luaVM, 4);
+  v12->targetProperty[0] = 2;
+  v12->duration = v3;
+  v12->startValue.intValue = LODWORD(v2->currentAnimationState.red);
+  v12->startValue.colorValue.g = v2->currentAnimationState.green;
+  v12->startValue.colorValue.b = v2->currentAnimationState.blue;
+  v12->endValue.floatValue = v4;
+  v12->endValue.colorValue.g = v5;
+  v12->endValue.colorValue.b = v6;
+  LUI_Tween_AddElementTween(v2, v12, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v12, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9355,53 +8411,45 @@ LUI_LuaCall_LUIElement_SetRightAnchor_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetRightAnchor_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetRightAnchor( anchor, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 8;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+14h], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 8;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.x.anchors[1] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 8;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.anchors[1]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 8;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.anchors[1]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9411,53 +8459,45 @@ LUI_LuaCall_LUIElement_SetRight_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetRight_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetRight( offset, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 12;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+4], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 12;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.x.offsets[1] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 12;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.x.offsets[1]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 12;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.x.offsets[1]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9486,45 +8526,40 @@ LUI_LuaCall_LUIElement_SetScale_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetScale_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetScale( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_25;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_25;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_25;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 3;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+34h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_25:
-    result = 0i64;
-    goto LABEL_26;
+    LOBYTE(v4) = 3;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->currentAnimationState.scale = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 3;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.scale);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_26:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 3;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->currentAnimationState.scale);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9563,6 +8598,8 @@ LUI_LuaCall_LUIElement_SetSpacing
 */
 __int64 LUI_LuaCall_LUIElement_SetSpacing(lua_State *luaVM)
 {
+  LUIElement *v2; 
+  double v3; 
   LUIElement *parent; 
   unsigned int v5; 
 
@@ -9572,12 +8609,11 @@ __int64 LUI_LuaCall_LUIElement_SetSpacing(lua_State *luaVM)
     __debugbreak();
   if ( !j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4224, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 2 ) || (lua_type(luaVM, (2)) == 0))", (const char *)&queryFormat, "lua_isnumber( luaVM, 2 ) || lua_isnil( luaVM, 2 )") )
     __debugbreak();
-  _RBX = LUI_ToElement(luaVM, 1);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  parent = _RBX->parent;
-  *(_WORD *)&_RBX->layoutDeeplyCached = 0;
-  __asm { vmovss  dword ptr [rbx+48h], xmm0 }
-  for ( ; parent; parent = parent->parent )
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = lua_tonumber32(luaVM, 2);
+  parent = v2->parent;
+  *(_WORD *)&v2->layoutDeeplyCached = 0;
+  for ( v2->currentAnimationState.userData = *(float *)&v3; parent; parent = parent->parent )
   {
     if ( !parent->layoutDeeplyCached )
       break;
@@ -9692,53 +8728,45 @@ LUI_LuaCall_LUIElement_SetTopAnchor_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetTopAnchor_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetTopAnchor( anchor, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 9;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+28h], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 9;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.y.anchors[0] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 9;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.anchors[0]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 9;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.anchors[0]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9748,53 +8776,45 @@ LUI_LuaCall_LUIElement_SetTop_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetTop_impl(lua_State *const luaVM)
 {
-  int v6; 
-  __int64 result; 
-  LUITweenProperty v9; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITween *v5; 
+  LUITweenProperty v7; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetTop( offset, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) && j_lua_type(luaVM, 3) )
-    goto LABEL_31;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) && j_lua_type(luaVM, 4) )
-    goto LABEL_31;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_31;
-  LUI_LUIElement_InvalidateLayout(_RDI);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  LUI_LUIElement_InvalidateLayout(v2);
+  v3 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v3;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( value )");
-  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v4 = lua_tointeger32(luaVM, 3), v4 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RDI);
-    LOBYTE(v9) = 13;
-    LUI_Tween_InterruptElementTween(_RDI, v9, luaVM);
-    __asm { vmovss  dword ptr [rdi+18h], xmm6 }
-LABEL_31:
-    result = 0i64;
-    goto LABEL_32;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v7) = 13;
+    LUI_Tween_InterruptElementTween(v2, v7, luaVM);
+    v2->currentAnimationState.position.y.offsets[0] = *(float *)&v3;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v5 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 13;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.position.y.offsets[0]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v5->easing = lua_tointeger32(luaVM, 4);
+  v5->targetProperty[0] = 13;
+  v5->duration = v4;
+  v5->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.offsets[0]);
+  v5->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v5, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v5, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9823,47 +8843,42 @@ LUI_LuaCall_LUIElement_SetTracking_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetTracking_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v3; 
+  LUITweenProperty v5; 
+  int v6; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetTracking( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  if ( (_RDI->usageFlags & 0x80) == 0 )
+    return 0i64;
+  v3 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) )
+    return 0i64;
+  if ( (v3->usageFlags & 0x80) == 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "LUIElement_IsTextLike( self )");
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 2);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v6 = lua_tointeger32(luaVM, 3), v6 <= 0) )
   {
-    LOBYTE(v6) = 32;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+120h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    LOBYTE(v5) = 32;
+    LUI_Tween_InterruptElementTween(v3, v5, luaVM);
+    v3->imageData.vMin = *(float *)&_XMM6;
+    LUI_QuadCache_Element_Invalidate(v3);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v3);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 32;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.vMin);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 32;
+  v7->duration = v6;
+  v7->startValue.intValue = LODWORD(v3->imageData.vMin);
+  v7->endValue.floatValue = *(float *)&_XMM6;
+  LUI_Tween_AddElementTween(v3, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9892,47 +8907,42 @@ LUI_LuaCall_LUIElement_SetUMax_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetUMax_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetUMax( uMaxValue, ?duration, ?easing )");
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_28;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_28;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_28;
-  if ( (_RDI->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5337, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  if ( (v2->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5337, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
     __debugbreak();
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 20;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+11Ch], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_28:
-    result = 0i64;
-    goto LABEL_29;
+    LOBYTE(v4) = 20;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->imageData.uMax = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 20;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.uMax);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 20;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->imageData.uMax);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -9961,47 +8971,42 @@ LUI_LuaCall_LUIElement_SetUMin_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetUMin_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetUMin( uMinValue, ?duration, ?easing )");
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_28;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_28;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_28;
-  if ( (_RDI->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5279, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  if ( (v2->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5279, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
     __debugbreak();
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 19;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+118h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_28:
-    result = 0i64;
-    goto LABEL_29;
+    LOBYTE(v4) = 19;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->imageData.uMin = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 19;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.uMin);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 19;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->imageData.uMin);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10116,47 +9121,42 @@ LUI_LuaCall_LUIElement_SetVMax_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetVMax_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetVMax( vMaxValue, ?duration, ?easing )");
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_28;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_28;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_28;
-  if ( (_RDI->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5451, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  if ( (v2->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5451, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
     __debugbreak();
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 22;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+124h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_28:
-    result = 0i64;
-    goto LABEL_29;
+    LOBYTE(v4) = 22;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->imageData.vMax = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 22;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.vMax);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 22;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->imageData.vMax);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10185,47 +9185,42 @@ LUI_LuaCall_LUIElement_SetVMin_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetVMin_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetVMin( vMinValue, ?duration, ?easing )");
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_28;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_28;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_28;
-  if ( (_RDI->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5394, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  if ( (v2->usageFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5394, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( self ))", (const char *)&queryFormat, "LUIElement_IsImageLike( self )") )
     __debugbreak();
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 21;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+120h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_28:
-    result = 0i64;
-    goto LABEL_29;
+    LOBYTE(v4) = 21;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->imageData.vMin = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 21;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->imageData.vMin);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 21;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->imageData.vMin);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10319,64 +9314,48 @@ LUI_LuaCall_LUIElement_SetXRotation_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetXRotation_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  char v7; 
-  int v8; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetXRotation( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-  {
-    v7 = 1;
-    v8 = 0;
-  }
+    v5 = 0;
   else
-  {
-    v8 = lua_tointeger32(luaVM, 3);
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v7 )
-    LUI_LUIElement_CheckUnFlagAs3D(_RDI);
+    v5 = lua_tointeger32(luaVM, 3);
+  if ( *(float *)&v3 == 0.0 )
+    LUI_LUIElement_CheckUnFlagAs3D(v2);
   else
-    _RDI->usageFlags |= 4u;
-  if ( v8 <= 0 )
+    v2->usageFlags |= 4u;
+  if ( v5 <= 0 )
   {
-    LOBYTE(v6) = 4;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+0E0h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    LOBYTE(v4) = 4;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->xRot = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 4;
-  _RSI->duration = v8;
-  _RSI->startValue.intValue = LODWORD(_RDI->xRot);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 4;
+  v7->duration = v5;
+  v7->startValue.intValue = LODWORD(v2->xRot);
+  v7->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10405,64 +9384,48 @@ LUI_LuaCall_LUIElement_SetYRotation_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetYRotation_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  char v7; 
-  int v8; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v7; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetYRotation( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_27;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_27;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_27;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-  {
-    v7 = 1;
-    v8 = 0;
-  }
+    v5 = 0;
   else
-  {
-    v8 = lua_tointeger32(luaVM, 3);
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v7 )
-    LUI_LUIElement_CheckUnFlagAs3D(_RDI);
+    v5 = lua_tointeger32(luaVM, 3);
+  if ( *(float *)&v3 == 0.0 )
+    LUI_LUIElement_CheckUnFlagAs3D(v2);
   else
-    _RDI->usageFlags |= 4u;
-  if ( v8 <= 0 )
+    v2->usageFlags |= 4u;
+  if ( v5 <= 0 )
   {
-    LOBYTE(v6) = 5;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vmovss  dword ptr [rdi+0E4h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(_RDI);
-LABEL_27:
-    result = 0i64;
-    goto LABEL_28;
+    LOBYTE(v4) = 5;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    v2->yRot = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v7 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 5;
-  _RSI->duration = v8;
-  _RSI->startValue.intValue = LODWORD(_RDI->yRot);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v7->easing = lua_tointeger32(luaVM, 4);
+  v7->targetProperty[0] = 5;
+  v7->duration = v5;
+  v7->startValue.intValue = LODWORD(v2->yRot);
+  v7->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v7, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v7, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10491,50 +9454,43 @@ LUI_LuaCall_LUIElement_SetZRotation_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetZRotation_impl(lua_State *const luaVM)
 {
-  LUITweenProperty v6; 
-  int v7; 
-  __int64 result; 
-  char v10; 
+  LUIElement *v2; 
+  double v3; 
+  LUITweenProperty v4; 
+  int v5; 
+  LUITween *v6; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetZRotation( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_26;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_26;
-  _RDI = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(_RDI, luaVM) )
-    goto LABEL_26;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lua_tonumber32(luaVM, 2);
+  if ( j_lua_gettop(luaVM) < 3 || (v5 = lua_tointeger32(luaVM, 3), v5 <= 0) )
   {
-    LOBYTE(v6) = 6;
-    LUI_Tween_InterruptElementTween(_RDI, v6, luaVM);
-    __asm { vucomiss xmm6, dword ptr [rdi+30h] }
-    if ( !v10 )
+    LOBYTE(v4) = 6;
+    LUI_Tween_InterruptElementTween(v2, v4, luaVM);
+    if ( *(float *)&v3 != v2->currentAnimationState.zRot )
     {
-      __asm { vmovss  dword ptr [rdi+30h], xmm6 }
-      LUI_QuadCache_Element_Invalidate(_RDI);
+      v2->currentAnimationState.zRot = *(float *)&v3;
+      LUI_QuadCache_Element_Invalidate(v2);
     }
-LABEL_26:
-    result = 0i64;
-    goto LABEL_27;
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, _RDI);
+  v6 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lua_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 6;
-  _RSI->duration = v7;
-  _RSI->startValue.intValue = LODWORD(_RDI->currentAnimationState.zRot);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(_RDI, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_27:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v6->easing = lua_tointeger32(luaVM, 4);
+  v6->targetProperty[0] = 6;
+  v6->duration = v5;
+  v6->startValue.intValue = LODWORD(v2->currentAnimationState.zRot);
+  v6->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v6, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v6, luaVM);
+  return 1i64;
 }
 
 /*
@@ -10563,28 +9519,30 @@ LUI_LuaCall_LUIElement_SetupRenderTarget_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetupRenderTarget_impl(lua_State *const luaVM)
 {
-  LUIElement *v7; 
-  const char *v8; 
+  __int128 v1; 
+  vec4_t v2; 
+  vec4_t v3; 
+  vec4_t v4; 
+  LUIElement *v6; 
+  const char *v7; 
+  int v8; 
   int v9; 
-  int v10; 
   const GfxViewInfo *ViewInfo; 
-  const GfxViewInfo *v20; 
+  const GfxViewInfo *v15; 
   LocalClientNum_t clientIndex; 
-  bool v22; 
-  LocalClientNum_t v23; 
-  int v24; 
+  bool v17; 
+  LocalClientNum_t v18; 
+  int v19; 
   LocalClientNum_t ClientFromController; 
-  unsigned int v26; 
-  unsigned __int8 v28; 
-  unsigned int v29; 
+  unsigned int v21; 
+  unsigned __int8 v22; 
+  unsigned int v23; 
   unsigned __int8 rttHandle; 
   char *fmt; 
-  vec4_t v33[2]; 
-  void *retaddr; 
-  int v37; 
+  vec4_t v27[4]; 
+  int v28; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm8 }
+  v27[1] = v4;
   if ( j_lua_gettop(luaVM) < 5 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) >= 5");
   if ( !j_lua_isuserdata(luaVM, 1) )
@@ -10597,23 +9555,20 @@ __int64 LUI_LuaCall_LUIElement_SetupRenderTarget_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 4 )");
   if ( !j_lua_isnumber(luaVM, 5) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 5 )");
-  v7 = LUI_ToElement(luaVM, 1);
-  v8 = j_lua_tolstring(luaVM, 2, NULL);
-  v37 = lua_tointeger32(luaVM, 3);
-  v9 = lua_tointeger32(luaVM, 4);
-  if ( v37 > 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5737, ASSERT_TYPE_ASSERT, "(width <= 1024)", (const char *)&queryFormat, "width <= R_RTT_TEXTURE_MAX_WIDTH") )
+  v6 = LUI_ToElement(luaVM, 1);
+  v7 = j_lua_tolstring(luaVM, 2, NULL);
+  v28 = lua_tointeger32(luaVM, 3);
+  v8 = lua_tointeger32(luaVM, 4);
+  if ( v28 > 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5737, ASSERT_TYPE_ASSERT, "(width <= 1024)", (const char *)&queryFormat, "width <= R_RTT_TEXTURE_MAX_WIDTH") )
     __debugbreak();
-  if ( v9 > 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5738, ASSERT_TYPE_ASSERT, "(height <= 1024)", (const char *)&queryFormat, "height <= R_RTT_TEXTURE_MAX_HEIGHT") )
+  if ( v8 > 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5738, ASSERT_TYPE_ASSERT, "(height <= 1024)", (const char *)&queryFormat, "height <= R_RTT_TEXTURE_MAX_HEIGHT") )
     __debugbreak();
-  v10 = lua_tointeger32(luaVM, 5);
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v9 = lua_tointeger32(luaVM, 5);
+  _XMM8 = 0i64;
   if ( j_lua_gettop(luaVM) > 5 )
   {
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovaps [rsp+0C8h+var_48], xmm7
-    }
+    v27[3] = v2;
+    v27[2] = v3;
     if ( !j_lua_isnumber(luaVM, 6) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 6 )");
     if ( !j_lua_isnumber(luaVM, 7) )
@@ -10622,55 +9577,50 @@ __int64 LUI_LuaCall_LUIElement_SetupRenderTarget_impl(lua_State *const luaVM)
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 8 )");
     if ( !j_lua_isnumber(luaVM, 9) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 9 )");
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 6);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 7);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 8);
-    __asm { vmovaps xmm6, xmm0 }
+    *(double *)&v1 = lua_tonumber32(luaVM, 6);
+    _XMM8 = v1;
+    lua_tonumber32(luaVM, 7);
+    lua_tonumber32(luaVM, 8);
     lua_tonumber32(luaVM, 9);
     __asm
     {
       vinsertps xmm8, xmm8, xmm7, 10h
-      vmovaps xmm7, [rsp+0C8h+var_48]
       vinsertps xmm8, xmm8, xmm6, 20h ; ' '
-      vmovaps xmm6, [rsp+0C8h+var_38]
       vinsertps xmm8, xmm8, xmm0, 30h ; '0'
     }
   }
   ViewInfo = LUI_GetViewInfo();
-  v20 = ViewInfo;
+  v15 = ViewInfo;
   if ( ViewInfo )
     clientIndex = ViewInfo->clientIndex;
   else
     clientIndex = LOCAL_CLIENT_0;
-  v22 = CL_GetLocalClientActiveCount() == 2 && !LUI_CoD_InFrontend();
-  if ( j_lua_gettop(luaVM) > 9 && v22 )
+  v17 = CL_GetLocalClientActiveCount() == 2 && !LUI_CoD_InFrontend();
+  if ( j_lua_gettop(luaVM) > 9 && v17 )
   {
-    v23 = clientIndex;
+    v18 = clientIndex;
     if ( !j_lua_isnumber(luaVM, 10) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 10 )");
-    v24 = lua_tointeger32(luaVM, 10);
-    ClientFromController = CL_Mgr_GetClientFromController(v24);
+    v19 = lua_tointeger32(luaVM, 10);
+    ClientFromController = CL_Mgr_GetClientFromController(v19);
     clientIndex = ClientFromController;
-    if ( v23 != ClientFromController )
+    if ( v18 != ClientFromController )
     {
       LODWORD(fmt) = ClientFromController;
-      Com_Printf(13, "LUI_METHOD:SetupRenderTarget %s - fontEndData client %d != LUI controller client %d\n", v8, (unsigned int)v20->clientIndex, fmt);
+      Com_Printf(13, "LUI_METHOD:SetupRenderTarget %s - fontEndData client %d != LUI controller client %d\n", v7, (unsigned int)v15->clientIndex, fmt);
     }
   }
-  __asm { vmovdqa [rsp+0C8h+var_68], xmm8 }
-  v26 = R_RTT_Create(clientIndex, v8, v37, v9, v10, v33);
-  __asm { vmovaps xmm8, [rsp+0C8h+var_58] }
-  v28 = v26;
-  if ( v26 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v26, "unsigned", v26) )
+  v27[0] = _XMM8;
+  v21 = R_RTT_Create(clientIndex, v7, v28, v8, v9, v27);
+  v22 = v21;
+  if ( v21 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v21, "unsigned", v21) )
     __debugbreak();
-  v7->rttHandle = v28;
-  v29 = v7->usageFlags & 0xFEFFFFFE | 1;
+  v6->rttHandle = v22;
+  v23 = v6->usageFlags & 0xFEFFFFFE | 1;
   if ( clientIndex == LOCAL_CLIENT_1 )
-    v29 = v7->usageFlags | 0x1000001;
-  v7->usageFlags = v29;
-  rttHandle = v7->rttHandle;
+    v23 = v6->usageFlags | 0x1000001;
+  v6->usageFlags = v23;
+  rttHandle = v6->rttHandle;
   if ( rttHandle )
     R_RTT_ActivateDirtyCheck(clientIndex, rttHandle, 1);
   return 0i64;
@@ -11009,66 +9959,37 @@ LUI_LuaCall_LUIElement_getCurrentGlobalRect
 */
 __int64 LUI_LuaCall_LUIElement_getCurrentGlobalRect(lua_State *luaVM)
 {
-  char v3; 
-  unsigned int v8; 
-  unsigned int v16; 
+  LUIElement *v2; 
+  float *v3; 
+  float v4; 
+  unsigned int v5; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 1");
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
-  _RAX = LUI_ToElement(luaVM, 1);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _RDI = _RAX;
-  __asm
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = (float *)v2;
+  v4 = v2->currentAnimationState.position.x.global[0];
+  if ( v4 == 0.0 && v2->currentAnimationState.position.x.global[1] == 0.0 && v2->currentAnimationState.position.y.global[0] == 0.0 && v2->currentAnimationState.position.y.global[1] == 0.0 )
   {
-    vmovss  xmm1, dword ptr [rax+8]
-    vucomiss xmm1, xmm0
-  }
-  if ( !v3 )
-    goto LABEL_10;
-  __asm { vucomiss xmm0, dword ptr [rax+0Ch] }
-  if ( !v3 )
-    goto LABEL_10;
-  __asm { vucomiss xmm0, dword ptr [rax+20h] }
-  if ( !v3 )
-    goto LABEL_10;
-  __asm { vucomiss xmm0, dword ptr [rax+24h] }
-  if ( v3 )
-  {
-    v8 = 0;
+    v5 = 0;
   }
   else
   {
-LABEL_10:
-    __asm { vcvtss2sd xmm1, xmm1, xmm1; n }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+20h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+0Ch]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+24h]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v8 = 4;
+    j_lua_pushnumber(luaVM, v4);
+    j_lua_pushnumber(luaVM, v3[8]);
+    j_lua_pushnumber(luaVM, v3[3]);
+    j_lua_pushnumber(luaVM, v3[9]);
+    v5 = 4;
   }
-  if ( (int)v8 > j_lua_gettop(luaVM) )
+  if ( (int)v5 > j_lua_gettop(luaVM) )
   {
-    v16 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v8, v16);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v5, v6);
   }
-  return v8;
+  return v5;
 }
 
 /*
@@ -11078,41 +9999,22 @@ LUI_LuaCall_LUIElement_getCurrentRGBA
 */
 __int64 LUI_LuaCall_LUIElement_getCurrentRGBA(lua_State *luaVM)
 {
-  unsigned int v11; 
+  LUIElement *v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5146, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 1)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 1") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5147, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, 1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )") )
     __debugbreak();
-  _RBX = LUI_ToElement(luaVM, 1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+38h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+3Ch]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+44h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  v2 = LUI_ToElement(luaVM, 1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.red);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.green);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.blue);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.alpha);
   if ( j_lua_gettop(luaVM) < 4 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v11);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v3);
   }
   return 4i64;
 }
@@ -11125,43 +10027,28 @@ LUI_LuaCall_LUIElement_getElementTextDims
 __int64 LUI_LuaCall_LUIElement_getElementTextDims(lua_State *luaVM)
 {
   const LUIElement *CurrentRoot; 
-  LUIElement *v6; 
-  unsigned int v12; 
-  __int64 result; 
+  float unitScale; 
+  LUIElement *v4; 
+  unsigned int v5; 
   float outWidth; 
   float outHeight; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5005, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 1)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 1") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 5006, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, 1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )") )
     __debugbreak();
   CurrentRoot = LUI_CoD_GetCurrentRoot(luaVM);
-  _RAX = LUI_GetRootData(CurrentRoot);
-  __asm { vmovss  xmm6, dword ptr [rax+0F8h] }
-  v6 = LUI_ToElement(luaVM, 1);
-  __asm { vmovaps xmm0, xmm6; unitScale }
-  LUI_MeasureTextElement(*(float *)&_XMM0, v6, luaVM, &outWidth, &outHeight);
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+outWidth]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+outHeight]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  unitScale = LUI_GetRootData(CurrentRoot)->unitScale;
+  v4 = LUI_ToElement(luaVM, 1);
+  LUI_MeasureTextElement(unitScale, v4, luaVM, &outWidth, &outHeight);
+  j_lua_pushnumber(luaVM, outWidth);
+  j_lua_pushnumber(luaVM, outHeight);
   if ( j_lua_gettop(luaVM) < 2 )
   {
-    v12 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 2i64, v12);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 2i64, v5);
   }
-  result = 2i64;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return 2i64;
 }
 
 /*
@@ -11211,27 +10098,19 @@ LUI_LuaCall_LUIElement_getHeight
 */
 __int64 LUI_LuaCall_LUIElement_getHeight(lua_State *luaVM)
 {
-  unsigned int v9; 
+  __m128 v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4759, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 1)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 1") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4760, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, 1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )") )
     __debugbreak();
-  _RAX = LUI_ToElement(luaVM, 1);
-  __asm
-  {
-    vmovups xmm2, xmmword ptr [rax+18h]
-    vshufps xmm1, xmm2, xmm2, 0FFh
-    vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-    vsubss  xmm0, xmm1, xmm2
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm1, xmm0, xmm0; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  v2 = *(__m128 *)LUI_ToElement(luaVM, 1)->currentAnimationState.position.y.offsets;
+  j_lua_pushnumber(luaVM, COERCE_FLOAT(COERCE_UNSIGNED_INT(_mm_shuffle_ps(v2, v2, 255).m128_f32[0] - _mm_shuffle_ps(v2, v2, 170).m128_f32[0]) & _xmm));
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v9 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v9);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v3);
   }
   return 1i64;
 }
@@ -11307,41 +10186,22 @@ LUI_LuaCall_LUIElement_getLocalRect
 */
 __int64 LUI_LuaCall_LUIElement_getLocalRect(lua_State *luaVM)
 {
-  unsigned int v11; 
+  LUIElement *v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 1");
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
-  _RBX = LUI_ToElement(luaVM, 1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+18h]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+1Ch]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  v2 = LUI_ToElement(luaVM, 1);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.offsets[0]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.offsets[0]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.x.offsets[1]);
+  j_lua_pushnumber(luaVM, v2->currentAnimationState.position.y.offsets[1]);
   if ( j_lua_gettop(luaVM) < 4 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v11);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v3);
   }
   return 4i64;
 }
@@ -11541,93 +10401,50 @@ __int64 LUI_LuaCall_LUIElement_getPriority(lua_State *luaVM)
 LUI_LuaCall_LUIElement_getRect
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_getRect(lua_State *luaVM, __int64 a2, __int64 a3, double _XMM3_8)
+__int64 LUI_LuaCall_LUIElement_getRect(lua_State *luaVM)
 {
-  char v5; 
-  unsigned int v9; 
-  unsigned int v22; 
+  LUIElement *v2; 
+  unsigned int v3; 
+  float bottom; 
+  unsigned int v5; 
   vec4_t inPosition; 
-  vec4_t v25; 
+  vec4_t v8; 
   vec4_t outPosition; 
-  vec4_t v27; 
+  vec4_t v10; 
 
   if ( j_lua_gettop(luaVM) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4604, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 1)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 1") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4605, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, 1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )") )
     __debugbreak();
-  _RAX = LUI_ToElement(luaVM, 1);
-  __asm
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( v2->left == 0.0 && v2->top == 0.0 && v2->right == 0.0 && v2->bottom == 0.0 )
   {
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  xmm0, dword ptr [rax+0CCh]
-    vucomiss xmm0, xmm3
-  }
-  if ( !v5 )
-    goto LABEL_12;
-  __asm { vucomiss xmm3, dword ptr [rax+0D0h] }
-  if ( !v5 )
-    goto LABEL_12;
-  __asm { vucomiss xmm3, dword ptr [rax+0D4h] }
-  if ( !v5 )
-    goto LABEL_12;
-  __asm { vucomiss xmm3, dword ptr [rax+0D8h] }
-  if ( v5 )
-  {
-    v9 = 0;
+    v3 = 0;
   }
   else
   {
-LABEL_12:
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vmovss  xmm1, dword ptr [rax+0D8h]
-      vmovss  dword ptr [rsp+88h+inPosition], xmm0
-      vmovss  xmm0, dword ptr [rax+0D0h]
-      vmovss  dword ptr [rsp+88h+inPosition+4], xmm0
-      vmovss  xmm0, dword ptr [rax+0D4h]
-      vmovss  dword ptr [rsp+88h+var_48], xmm0
-      vmovss  dword ptr [rsp+88h+inPosition+8], xmm3
-      vmovss  dword ptr [rsp+88h+inPosition+0Ch], xmm2
-      vmovss  dword ptr [rsp+88h+var_48+4], xmm1
-      vmovss  dword ptr [rsp+88h+var_48+8], xmm3
-      vmovss  dword ptr [rsp+88h+var_48+0Ch], xmm2
-    }
+    bottom = v2->bottom;
+    *(_QWORD *)inPosition.v = *(_QWORD *)&v2->left;
+    v8.v[0] = v2->right;
+    inPosition.v[2] = 0.0;
+    inPosition.v[3] = FLOAT_1_0;
+    v8.v[1] = bottom;
+    v8.v[2] = 0.0;
+    v8.v[3] = FLOAT_1_0;
     LUI_Render_ApplyParallax(&inPosition, &outPosition, NULL);
-    LUI_Render_ApplyParallax(&v25, &v27, NULL);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+88h+outPosition]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+88h+outPosition+4]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+88h+var_28]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+88h+var_28+4]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v9 = 4;
+    LUI_Render_ApplyParallax(&v8, &v10, NULL);
+    j_lua_pushnumber(luaVM, outPosition.v[0]);
+    j_lua_pushnumber(luaVM, outPosition.v[1]);
+    j_lua_pushnumber(luaVM, v10.v[0]);
+    j_lua_pushnumber(luaVM, v10.v[1]);
+    v3 = 4;
   }
-  if ( (int)v9 > j_lua_gettop(luaVM) )
+  if ( (int)v3 > j_lua_gettop(luaVM) )
   {
-    v22 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v9, v22);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v5);
   }
-  return v9;
+  return v3;
 }
 
 /*
@@ -11727,27 +10544,19 @@ LUI_LuaCall_LUIElement_getWidth
 */
 __int64 LUI_LuaCall_LUIElement_getWidth(lua_State *luaVM)
 {
-  unsigned int v9; 
+  __m128 v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4825, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 1)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 1") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4826, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, 1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )") )
     __debugbreak();
-  _RAX = LUI_ToElement(luaVM, 1);
-  __asm
-  {
-    vmovups xmm2, xmmword ptr [rax]
-    vshufps xmm1, xmm2, xmm2, 0FFh
-    vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-    vsubss  xmm0, xmm1, xmm2
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm1, xmm0, xmm0; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+  v2 = *(__m128 *)LUI_ToElement(luaVM, 1)->currentAnimationState.position.x.offsets;
+  j_lua_pushnumber(luaVM, COERCE_FLOAT(COERCE_UNSIGNED_INT(_mm_shuffle_ps(v2, v2, 255).m128_f32[0] - _mm_shuffle_ps(v2, v2, 170).m128_f32[0]) & _xmm));
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v9 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v9);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v3);
   }
   return 1i64;
 }
@@ -11836,9 +10645,10 @@ LUI_LuaCall_LUIElement_setEndTimeInC
 */
 __int64 LUI_LuaCall_LUIElement_setEndTimeInC(lua_State *luaVM)
 {
-  LUIElement *v3; 
+  LUIElement *v2; 
+  double v3; 
   bool v4; 
-  unsigned int v6; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
@@ -11846,19 +10656,18 @@ __int64 LUI_LuaCall_LUIElement_setEndTimeInC(lua_State *luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )");
-  v3 = LUI_ToElement(luaVM, 1);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  v4 = v3->customElementData == NULL;
-  __asm { vcvttss2si ecx, xmm0 }
-  v3->currentAnimationState.userDataInt = _ECX;
-  v3->timeValue = 0;
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = lua_tonumber32(luaVM, 2);
+  v4 = v2->customElementData == NULL;
+  v2->currentAnimationState.userDataInt = (int)*(float *)&v3;
+  v2->timeValue = 0;
   if ( v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  *(_DWORD *)v3->customElementData = 0;
+  *(_DWORD *)v2->customElementData = 0;
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -11930,11 +10739,13 @@ LUI_LuaCall_LUIElement_setHeight_impl
 */
 __int64 LUI_LuaCall_LUIElement_setHeight_impl(lua_State *const luaVM)
 {
-  int v5; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
   LUIElement *parent; 
-  int v9; 
-  LUITweenProperty v12; 
+  double v6; 
+  int v7; 
+  LUITween *v8; 
+  LUITweenProperty v9; 
   float Px; 
 
   if ( j_lua_gettop(luaVM) != 2 && j_lua_gettop(luaVM) != 3 && j_lua_gettop(luaVM) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4771, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 2 || lua_gettop( luaVM ) == 3 || lua_gettop( luaVM ) == 4)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 2 || lua_gettop( luaVM ) == 3 || lua_gettop( luaVM ) == 4") )
@@ -11943,61 +10754,46 @@ __int64 LUI_LuaCall_LUIElement_setHeight_impl(lua_State *const luaVM)
     __debugbreak();
   if ( !j_lua_isnumber(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4773, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 2 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )") )
     __debugbreak();
-  _RSI = LUI_ToElement(luaVM, 1);
-  LUI_PushViaWeakReference(_RSI, luaVM);
-  v5 = j_lua_type(luaVM, -1);
+  v2 = LUI_ToElement(luaVM, 1);
+  LUI_PushViaWeakReference(v2, luaVM);
+  v3 = j_lua_type(luaVM, -1);
   j_lua_settop(luaVM, -2);
-  if ( !v5 )
+  if ( !v3 )
     LUI_Interface_DebugPrint("LUIElement did not have a weak table entry.\n");
-  if ( !v5 )
+  if ( !v3 )
     return 0i64;
-  parent = _RSI->parent;
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  for ( *(_WORD *)&_RSI->layoutDeeplyCached = 0; parent; parent = parent->parent )
+  parent = v2->parent;
+  for ( *(_WORD *)&v2->layoutDeeplyCached = 0; parent; parent = parent->parent )
   {
     if ( !parent->layoutDeeplyCached )
       break;
     parent->layoutDeeplyCached = 0;
   }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm
-  {
-    vmovss  [rsp+58h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
+  v6 = lua_tonumber32(luaVM, 2);
+  Px = *(float *)&v6;
   if ( _fdtest(&Px) > 0 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "isfinite( height )");
-  if ( j_lua_gettop(luaVM) < 3 || (v9 = lua_tointeger32(luaVM, 3), v9 <= 0) )
+  if ( j_lua_gettop(luaVM) < 3 || (v7 = lua_tointeger32(luaVM, 3), v7 <= 0) )
   {
-    LUI_QuadCache_Element_Invalidate(_RSI);
-    LOBYTE(v12) = 14;
-    LUI_Tween_InterruptElementTween(_RSI, v12, luaVM);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rsi+18h]
-      vmovss  dword ptr [rsi+1Ch], xmm0
-    }
-    result = 0i64;
+    LUI_QuadCache_Element_Invalidate(v2);
+    LOBYTE(v9) = 14;
+    LUI_Tween_InterruptElementTween(v2, v9, luaVM);
+    v2->currentAnimationState.position.y.offsets[1] = *(float *)&v6 + v2->currentAnimationState.position.y.offsets[0];
+    return 0i64;
   }
   else
   {
-    _RBX = LUI_Tween_Create(luaVM, _RSI);
+    v8 = LUI_Tween_Create(luaVM, v2);
     if ( j_lua_gettop(luaVM) >= 4 )
-      _RBX->easing = lua_tointeger32(luaVM, 4);
-    _RBX->targetProperty[0] = 14;
-    _RBX->duration = v9;
-    _RBX->startValue.intValue = LODWORD(_RSI->currentAnimationState.position.y.offsets[1]);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rsi+18h]
-      vmovss  dword ptr [rbx+28h], xmm0
-    }
-    LUI_Tween_AddElementTween(_RSI, _RBX, luaVM, 0);
-    LUI_Tween_PushOnLuaStack(_RBX, luaVM);
-    result = 1i64;
+      v8->easing = lua_tointeger32(luaVM, 4);
+    v8->targetProperty[0] = 14;
+    v8->duration = v7;
+    v8->startValue.intValue = LODWORD(v2->currentAnimationState.position.y.offsets[1]);
+    v8->endValue.floatValue = *(float *)&v6 + v2->currentAnimationState.position.y.offsets[0];
+    LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+    LUI_Tween_PushOnLuaStack(v8, luaVM);
+    return 1i64;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return result;
 }
 
 /*
@@ -12132,9 +10928,10 @@ LUI_LuaCall_LUIElement_setShowDecimalsAtTimeInC
 */
 __int64 LUI_LuaCall_LUIElement_setShowDecimalsAtTimeInC(lua_State *luaVM)
 {
-  LUIElement *v3; 
+  LUIElement *v2; 
   _DWORD *customElementData; 
-  unsigned int v6; 
+  double v4; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
@@ -12142,17 +10939,16 @@ __int64 LUI_LuaCall_LUIElement_setShowDecimalsAtTimeInC(lua_State *luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )");
-  v3 = LUI_ToElement(luaVM, 1);
-  if ( !v3->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !v2->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  customElementData = v3->customElementData;
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vcvttss2si eax, xmm0 }
-  customElementData[1] = _EAX;
+  customElementData = v2->customElementData;
+  v4 = lua_tonumber32(luaVM, 2);
+  customElementData[1] = (int)*(float *)&v4;
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -12164,6 +10960,8 @@ LUI_LuaCall_LUIElement_setTacMapZoom
 */
 __int64 LUI_LuaCall_LUIElement_setTacMapZoom(lua_State *luaVM)
 {
+  LUIElement *v2; 
+  double v3; 
   unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4713, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 2)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 2") )
@@ -12172,9 +10970,9 @@ __int64 LUI_LuaCall_LUIElement_setTacMapZoom(lua_State *luaVM)
     __debugbreak();
   if ( !j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4715, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, 2 ) || (lua_type(luaVM, (2)) == 0))", (const char *)&queryFormat, "lua_isnumber( luaVM, 2 ) || lua_isnil( luaVM, 2 )") )
     __debugbreak();
-  _RBX = LUI_ToElement(luaVM, 1);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovss  dword ptr [rbx+48h], xmm0 }
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = lua_tonumber32(luaVM, 2);
+  v2->currentAnimationState.userData = *(float *)&v3;
   if ( j_lua_gettop(luaVM) < 0 )
   {
     v4 = j_lua_gettop(luaVM);
@@ -12264,7 +11062,8 @@ LUI_LuaCall_LUIElement_setUseStencil
 */
 __int64 LUI_LuaCall_LUIElement_setUseStencil(lua_State *luaVM)
 {
-  unsigned int v5; 
+  LUIElement *v2; 
+  unsigned int v3; 
 
   if ( j_lua_gettop(luaVM) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4670, ASSERT_TYPE_ASSERT, "(lua_gettop( luaVM ) == 2)", (const char *)&queryFormat, "lua_gettop( luaVM ) == 2") )
     __debugbreak();
@@ -12272,41 +11071,21 @@ __int64 LUI_LuaCall_LUIElement_setUseStencil(lua_State *luaVM)
     __debugbreak();
   if ( j_lua_type(luaVM, 2) != 1 && j_lua_type(luaVM, 2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4672, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (2)) == 1) || (lua_type(luaVM, (2)) == 0))", (const char *)&queryFormat, "lua_isboolean( luaVM, 2 ) || lua_isnil( luaVM, 2 )") )
     __debugbreak();
-  _RBX = LUI_ToElement(luaVM, 1);
+  v2 = LUI_ToElement(luaVM, 1);
   if ( j_lua_type(luaVM, 2) == 1 && j_lua_toboolean(luaVM, 2) )
-    _RBX->currentAnimationState.flags |= 2u;
+    v2->currentAnimationState.flags |= 2u;
   else
-    _RBX->currentAnimationState.flags &= ~2u;
-  if ( (_RBX->usageFlags & 0x80) == 0 )
+    v2->currentAnimationState.flags &= ~2u;
+  if ( (v2->usageFlags & 0x80) == 0 && v2->imageData.uMin == 0.0 && v2->imageData.uMax == 0.0 && v2->imageData.vMin == 0.0 && v2->imageData.vMax == 0.0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+118h]
-    }
-    if ( (_RBX->usageFlags & 0x80) != 0 )
-    {
-      __asm { vucomiss xmm0, dword ptr [rbx+11Ch] }
-      if ( (_RBX->usageFlags & 0x80) != 0 )
-      {
-        __asm { vucomiss xmm0, dword ptr [rbx+120h] }
-        if ( (_RBX->usageFlags & 0x80) != 0 )
-        {
-          __asm { vucomiss xmm0, dword ptr [rbx+124h] }
-          if ( (_RBX->usageFlags & 0x80) != 0 )
-          {
-            *(_QWORD *)&_RBX->textData.fontSize = 1065353216i64;
-            _RBX->imageData.uMin = 0.0;
-            _RBX->imageData.vMax = 1.0;
-          }
-        }
-      }
-    }
+    *(_QWORD *)&v2->textData.fontSize = 1065353216i64;
+    v2->imageData.uMin = 0.0;
+    v2->imageData.vMax = 1.0;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
+    v3 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v3);
   }
   return 0i64;
 }
@@ -12405,58 +11184,51 @@ __int64 LUI_LuaCall_LUIGlobalPackage_DebugPrint(lua_State *luaVM)
 LUI_LuaCall_LUIGlobalPackage_GetMaterialDimensions
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIGlobalPackage_GetMaterialDimensions(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIGlobalPackage_GetMaterialDimensions(lua_State *luaVM)
 {
-  unsigned int v3; 
+  unsigned int v2; 
+  const char *v3; 
   const char *v4; 
-  const char *v5; 
-  const dvar_t *v6; 
-  unsigned int v11; 
+  const dvar_t *v5; 
+  unsigned int v10; 
   GfxImage *output_material; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isstring(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: GetMaterialDimensions( materialName )");
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isstring(luaVM, 1) )
     goto LABEL_17;
-  v4 = j_lua_tolstring(luaVM, 1, NULL);
-  v5 = v4;
-  if ( !*v4 )
+  v3 = j_lua_tolstring(luaVM, 1, NULL);
+  v4 = v3;
+  if ( !*v3 )
     j_luaL_error(luaVM, "Image name was empty string");
-  if ( !LUI_Interface_RegisterMaterial(v4, (const GfxImage **)&output_material) )
+  if ( !LUI_Interface_RegisterMaterial(v3, (const GfxImage **)&output_material) )
   {
-    LUI_Interface_ErrorPrint("Error getting dimensions for material: %s\n", v5);
+    LUI_Interface_ErrorPrint("Error getting dimensions for material: %s\n", v4);
 LABEL_17:
-    v3 = 0;
+    v2 = 0;
     goto LABEL_18;
   }
-  v6 = DCONST_DVARBOOL_lui_dev_printMissingImageLuaStacks;
+  v5 = DCONST_DVARBOOL_lui_dev_printMissingImageLuaStacks;
   if ( !DCONST_DVARBOOL_lui_dev_printMissingImageLuaStacks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_dev_printMissingImageLuaStacks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled && DB_IsXAssetDefault(ASSET_TYPE_IMAGE, output_material->name) )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled && DB_IsXAssetDefault(ASSET_TYPE_IMAGE, output_material->name) )
     LUI_CoD_PrintCallstack();
   j_lua_createtable(luaVM, 0, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, ecx; value
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, ecx; value }
   LuaShared_SetTableNumber("width", *(long double *)&_XMM1, luaVM);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, ecx; value
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, ecx; value }
   LuaShared_SetTableNumber("height", *(long double *)&_XMM1, luaVM);
 LABEL_18:
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v11);
+    v10 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v10);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -12485,35 +11257,29 @@ LUI_LuaCall_LUIGlobalPackage_GetTextDimensions_impl
 */
 __int64 LUI_LuaCall_LUIGlobalPackage_GetTextDimensions_impl(lua_State *const luaVM)
 {
-  int v8; 
+  int v2; 
   LocalClientNum_t ClientFromController; 
   const char *RootNameForController; 
   const LUIElement *RootElement; 
-  const char *v14; 
-  GfxFont *v15; 
+  float unitScale; 
+  const char *v7; 
+  GfxFont *v8; 
+  double v9; 
+  float v10; 
+  float v11; 
+  double v12; 
   int tracking; 
+  double v14; 
   int leading; 
-  bool v26; 
-  bool v29; 
-  __int64 result; 
-  float v47; 
+  double v16; 
+  float v17; 
   float bottom; 
   float top; 
   float right[18]; 
-  char v51; 
-  void *retaddr; 
   int controllerIndex; 
   LocalClientNum_t localClientNum; 
   float left; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   if ( !j_lua_isstring(luaVM, 1) && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6583, "lua_isstring( luaVM, 1 )") )
     __debugbreak();
   if ( !j_lua_isuserdata(luaVM, 2) && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6584, "lua_isuserdata( luaVM, 2 )") )
@@ -12523,16 +11289,16 @@ __int64 LUI_LuaCall_LUIGlobalPackage_GetTextDimensions_impl(lua_State *const lua
   controllerIndex = -1;
   if ( j_lua_gettop(luaVM) >= 7 && j_lua_type(luaVM, 7) )
   {
-    v8 = lua_tointeger32(luaVM, 7);
-    controllerIndex = v8;
+    v2 = lua_tointeger32(luaVM, 7);
+    controllerIndex = v2;
   }
   else
   {
-    v8 = controllerIndex;
+    v2 = controllerIndex;
   }
-  if ( v8 != -1 )
+  if ( v2 != -1 )
   {
-    ClientFromController = CL_Mgr_GetClientFromController(v8);
+    ClientFromController = CL_Mgr_GetClientFromController(v2);
 LABEL_19:
     localClientNum = ClientFromController;
     goto LABEL_20;
@@ -12547,106 +11313,40 @@ LABEL_19:
 LABEL_20:
   RootNameForController = LUI_CoD_GetRootNameForController(controllerIndex);
   RootElement = LUI_GetRootElement(RootNameForController, luaVM);
-  _RAX = LUI_GetRootData(RootElement);
-  __asm { vmovss  xmm6, dword ptr [rax+0F8h] }
-  v14 = j_lua_tolstring(luaVM, 1, NULL);
-  v15 = (GfxFont *)j_lua_touserdata(luaVM, 2);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@bf800000
-    vmulss  xmm9, xmm0, xmm6
-  }
+  unitScale = LUI_GetRootData(RootElement)->unitScale;
+  v7 = j_lua_tolstring(luaVM, 1, NULL);
+  v8 = (GfxFont *)j_lua_touserdata(luaVM, 2);
+  v9 = lua_tonumber32(luaVM, 3);
+  v10 = FLOAT_N1_0;
+  v11 = *(float *)&v9 * unitScale;
   if ( j_lua_gettop(luaVM) >= 4 && j_lua_type(luaVM, 4) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 4);
-    __asm { vmulss  xmm8, xmm0, xmm6 }
+    v12 = lua_tonumber32(luaVM, 4);
+    v10 = *(float *)&v12 * unitScale;
   }
   LOBYTE(tracking) = 0;
-  __asm { vmovss  xmm7, cs:__real@3f000000 }
   if ( j_lua_gettop(luaVM) >= 5 && j_lua_type(luaVM, 5) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 5);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm2, xmm1, xmm7
-      vcvttss2si esi, xmm2
-    }
+    v14 = lua_tonumber32(luaVM, 5);
+    tracking = (int)(float)((float)(*(float *)&v14 * unitScale) + 0.5);
   }
   LOBYTE(leading) = 0;
   if ( j_lua_gettop(luaVM) >= 6 && j_lua_type(luaVM, 6) )
   {
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 6);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm2, xmm1, xmm7
-      vcvttss2si edi, xmm2
-    }
+    v16 = lua_tonumber32(luaVM, 6);
+    leading = (int)(float)((float)(*(float *)&v16 * unitScale) + 0.5);
   }
-  __asm
-  {
-    vmovss  [rsp+0D8h+var_88], xmm8
-    vmovaps xmm3, xmm9; fontHeight
-  }
-  LUI_Interface_GetTextDimensions(localClientNum, v14, v15, *(float *)&_XMM3, tracking, leading, &left, &top, right, &bottom, v47);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0D8h+arg_18]
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm0, xmm7
-  }
-  if ( !v26 )
-  {
-    v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6639, ASSERT_TYPE_ASSERT, "(left == 0)", (const char *)&queryFormat, "left == 0");
-    v26 = !v29;
-    if ( v29 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0D8h+var_78]
-    vucomiss xmm0, xmm7
-  }
-  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6640, ASSERT_TYPE_ASSERT, "(bottom == 0)", (const char *)&queryFormat, "bottom == 0") )
+  LUI_Interface_GetTextDimensions(localClientNum, v7, v8, v11, tracking, leading, &left, &top, right, &bottom, v10);
+  if ( left != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6639, ASSERT_TYPE_ASSERT, "(left == 0)", (const char *)&queryFormat, "left == 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rsp+0D8h+arg_18]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm6, xmm0, xmm6
-    vmulss  xmm1, xmm6, [rsp+0D8h+var_74]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm0, xmm6, [rsp+0D8h+var_70]
-    vcvtss2sd xmm1, xmm0, xmm0; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+0D8h+var_78]
-    vcvtss2sd xmm1, xmm1, xmm1; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  _R11 = &v51;
-  result = 4i64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  if ( bottom != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 6640, ASSERT_TYPE_ASSERT, "(bottom == 0)", (const char *)&queryFormat, "bottom == 0") )
+    __debugbreak();
+  j_lua_pushnumber(luaVM, left);
+  v17 = 1.0 / unitScale;
+  j_lua_pushnumber(luaVM, (float)(v17 * top));
+  j_lua_pushnumber(luaVM, (float)(v17 * right[0]));
+  j_lua_pushnumber(luaVM, bottom);
+  return 4i64;
 }
 
 /*
@@ -12656,51 +11356,35 @@ LUI_LuaCall_LUIGlobalPackage_ProjectRootCoordinate
 */
 __int64 LUI_LuaCall_LUIGlobalPackage_ProjectRootCoordinate(lua_State *luaVM)
 {
-  unsigned int v4; 
-  const char *v5; 
-  unsigned int v13; 
-  __int64 result; 
+  unsigned int v2; 
+  const char *v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  unsigned int v7; 
   float outMouseX; 
   float outMouseY; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v4 = 2;
-  v5 = j_lua_tolstring(luaVM, 1, NULL);
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-  __asm
+  v2 = 2;
+  v3 = j_lua_tolstring(luaVM, 1, NULL);
+  v4 = lua_tonumber32(luaVM, 2);
+  v5 = *(float *)&v4;
+  v6 = lua_tonumber32(luaVM, 3);
+  if ( LUI_ProjectRootCoordinate(luaVM, v3, v5, *(float *)&v6, &outMouseX, &outMouseY) )
   {
-    vmovaps xmm3, xmm0; screenY
-    vmovaps xmm2, xmm6; screenX
-  }
-  if ( LUI_ProjectRootCoordinate(luaVM, v5, *(float *)&_XMM2, *(float *)&_XMM3, &outMouseX, &outMouseY) )
-  {
-    __asm
-    {
-      vmovss  xmm1, [rsp+48h+arg_8]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, [rsp+48h+arg_10]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    j_lua_pushnumber(luaVM, outMouseX);
+    j_lua_pushnumber(luaVM, outMouseY);
   }
   else
   {
-    v4 = 0;
+    v2 = 0;
   }
-  if ( (int)v4 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v13 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v4, v13);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v7);
   }
-  result = v4;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return v2;
 }
 
 /*
@@ -12844,13 +11528,10 @@ LUI_Measure
 */
 float LUI_Measure(LUIElementAxisPosition *axisPosition)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vsubss  xmm0, xmm0, dword ptr [rcx+8]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  return *(float *)&_XMM0;
+  float result; 
+
+  LODWORD(result) = COERCE_UNSIGNED_INT(axisPosition->global[1] - axisPosition->global[0]) & _xmm;
+  return result;
 }
 
 /*
@@ -12858,15 +11539,18 @@ float LUI_Measure(LUIElementAxisPosition *axisPosition)
 LUI_MeasureTextElement
 ==============
 */
-
-void __fastcall LUI_MeasureTextElement(double unitScale, LUIElement *element, lua_State *luaVM, float *outWidth, float *outHeight)
+void LUI_MeasureTextElement(float unitScale, LUIElement *element, lua_State *luaVM, float *outWidth, float *outHeight)
 {
-  unsigned int v8; 
-  LUISharedTextRefIndex v13; 
-  const char *v14; 
-  int leading; 
-  LocalClientNum_t v34; 
-  float v50; 
+  LUISharedTextRefIndex v8; 
+  const char *v9; 
+  float v10; 
+  float v11; 
+  int v12; 
+  float v13; 
+  LocalClientNum_t v14; 
+  float *v15; 
+  float v16; 
+  float *v17; 
   int controllerIndex; 
   float top; 
   float bottom; 
@@ -12874,106 +11558,46 @@ void __fastcall LUI_MeasureTextElement(double unitScale, LUIElement *element, lu
   float left[20]; 
   LocalClientNum_t localClientNum; 
 
-  v8 = (unsigned int)element->usageFlags >> 7;
-  _RSI = outWidth;
-  __asm { vmovaps [rsp+108h+var_38], xmm7 }
-  _RBX = element;
-  __asm { vmovaps xmm7, xmm0 }
-  if ( (v8 & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4949, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
+  if ( (element->usageFlags & 0x80) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4949, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
     __debugbreak();
-  v13 = *(unsigned __int16 *)_RBX->textData.textRef;
-  if ( (_WORD)v13 == INVALID_INDEX )
+  v8 = *(unsigned __int16 *)element->textData.textRef;
+  if ( (_WORD)v8 == INVALID_INDEX )
   {
-    _RAX = outHeight;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  dword ptr [rax], xmm0
-    }
+    v17 = outHeight;
+    *outWidth = 0;
+    *v17 = 0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+108h+var_28], xmm6
-      vmovaps [rsp+108h+var_48], xmm8
-    }
-    LUI_SharedTextRef_PushRefOnStack(luaVM, v13);
+    LUI_SharedTextRef_PushRefOnStack(luaVM, v8);
     if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 4953, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
       __debugbreak();
-    v14 = j_lua_tolstring(luaVM, -1, NULL);
+    v9 = j_lua_tolstring(luaVM, -1, NULL);
     j_lua_settop(luaVM, -2);
-    __asm { vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-    if ( (_RBX->usageFlags & 0x100) != 0 )
-    {
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rbx]
-        vshufps xmm1, xmm2, xmm2, 0FFh
-        vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-        vsubss  xmm0, xmm1, xmm2
-        vandps  xmm0, xmm0, xmm3
-        vmulss  xmm6, xmm0, xmm7
-      }
-    }
+    if ( (element->usageFlags & 0x100) != 0 )
+      v10 = COERCE_FLOAT(COERCE_UNSIGNED_INT(_mm_shuffle_ps(*(__m128 *)element->currentAnimationState.position.x.offsets, *(__m128 *)element->currentAnimationState.position.x.offsets, 255).m128_f32[0] - _mm_shuffle_ps(*(__m128 *)element->currentAnimationState.position.x.offsets, *(__m128 *)element->currentAnimationState.position.x.offsets, 170).m128_f32[0]) & _xmm) * unitScale;
     else
-    {
-      __asm { vmovss  xmm6, cs:__real@bf800000 }
-    }
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rbx+18h]
-      vshufps xmm1, xmm2, xmm2, 0FFh
-      vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-      vsubss  xmm0, xmm1, xmm2
-      vmulss  xmm1, xmm7, dword ptr [rbx+120h]
-      vandps  xmm0, xmm0, xmm3
-      vmulss  xmm8, xmm0, xmm7
-      vaddss  xmm0, xmm1, cs:__real@3f000000
-      vcvttss2si edi, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rbx+124h]
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vcvttss2si r14d, xmm1
-    }
+      v10 = FLOAT_N1_0;
+    v11 = COERCE_FLOAT(COERCE_UNSIGNED_INT(_mm_shuffle_ps(*(__m128 *)element->currentAnimationState.position.y.offsets, *(__m128 *)element->currentAnimationState.position.y.offsets, 255).m128_f32[0] - _mm_shuffle_ps(*(__m128 *)element->currentAnimationState.position.y.offsets, *(__m128 *)element->currentAnimationState.position.y.offsets, 170).m128_f32[0]) & _xmm) * unitScale;
+    v12 = (int)(float)((float)(unitScale * element->imageData.vMin) + 0.5);
+    v13 = (float)(unitScale * element->imageData.vMax) + 0.5;
     if ( LUI_CoD_CanInferLocalClientAndController() )
     {
       LUI_CoD_AttemptInferLocalClientAndController(&localClientNum, &controllerIndex);
-      v34 = localClientNum;
+      v14 = localClientNum;
     }
     else
     {
-      v34 = LOCAL_CLIENT_0;
+      v14 = LOCAL_CLIENT_0;
       localClientNum = LOCAL_CLIENT_0;
       controllerIndex = 0;
     }
-    __asm
-    {
-      vmovss  [rsp+108h+var_B8], xmm6
-      vmovaps xmm3, xmm8; fontHeight
-    }
-    LUI_Interface_GetTextDimensions(v34, v14, _RBX->textData.font, *(float *)&_XMM3, _EDI, leading, left, &top, &right, &bottom, v50);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm1, [rsp+108h+var_A4]
-      vsubss  xmm2, xmm1, [rsp+108h+var_A0]
-    }
-    _RAX = outHeight;
-    __asm
-    {
-      vdivss  xmm3, xmm0, xmm7
-      vmovss  xmm0, [rsp+108h+var_9C]
-      vsubss  xmm1, xmm0, [rsp+108h+var_98]
-      vmulss  xmm4, xmm2, xmm3
-      vmulss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rsi], xmm2
-      vmovss  dword ptr [rax], xmm4
-      vmovaps xmm8, [rsp+108h+var_48]
-      vmovaps xmm6, [rsp+108h+var_28]
-    }
+    LUI_Interface_GetTextDimensions(v14, v9, element->textData.font, v11, v12, (int)v13, left, &top, &right, &bottom, v10);
+    v15 = outHeight;
+    v16 = (float)(top - bottom) * (float)(1.0 / unitScale);
+    *outWidth = (float)(right - left[0]) * (float)(1.0 / unitScale);
+    *v15 = v16;
   }
-  __asm { vmovaps xmm7, [rsp+108h+var_38] }
 }
 
 /*
@@ -13003,46 +11627,40 @@ void LUI_NotifyOmnvarChanged(int controllerIndex, const OmnvarDef *def, const Om
   char *outStringValue; 
 
   v4 = controllerIndex;
-  _RBX = omnvar;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8995, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8996, ASSERT_TYPE_ASSERT, "(omnvar)", (const char *)&queryFormat, "omnvar") )
+  if ( !omnvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8996, ASSERT_TYPE_ASSERT, "(omnvar)", (const char *)&queryFormat, "omnvar") )
     __debugbreak();
   ClientFromController = CL_Mgr_GetClientFromController(v4);
-  LUI_Model_UpdateModelFromOmnvar(ClientFromController, def, _RBX);
+  LUI_Model_UpdateModelFromOmnvar(ClientFromController, def, omnvar);
   if ( LUI_BeginEvent(ClientFromController, "omnvar_update", luaVM) )
   {
     LuaShared_SetTableString("omnvar", def->name, LUI_luaVM);
     switch ( def->type )
     {
       case OMNVAR_TYPE_BOOL:
-        LuaShared_SetTableBool((const char *)&stru_143CE7590, _RBX->current.enabled, LUI_luaVM);
+        LuaShared_SetTableBool((const char *)&stru_143CE7590, omnvar->current.enabled, LUI_luaVM);
         break;
       case OMNVAR_TYPE_FLOAT:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+4]; jumptable 0000000142441766 case 1
-          vcvtss2sd xmm1, xmm1, xmm1; value
-        }
-        LuaShared_SetTableNumber((const char *)&stru_143CE7590, *(long double *)&_XMM1, LUI_luaVM);
+        LuaShared_SetTableNumber((const char *)&stru_143CE7590, omnvar->current.value, LUI_luaVM);
         break;
       case OMNVAR_TYPE_INT:
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+        if ( !omnvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
           __debugbreak();
         if ( def->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 208, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
           __debugbreak();
-        integer = _RBX->current.integer + def->minvalue;
+        integer = omnvar->current.integer + def->minvalue;
         goto LABEL_18;
       case OMNVAR_TYPE_UINT:
-        integer = _RBX->current.integer;
+        integer = omnvar->current.integer;
         goto LABEL_18;
       case OMNVAR_TYPE_TIME:
-        integer = CG_Omnvar_GetTime(def, _RBX, ClientFromController);
+        integer = CG_Omnvar_GetTime(def, omnvar, ClientFromController);
 LABEL_18:
         LuaShared_SetTableInt((const char *)&stru_143CE7590, integer, LUI_luaVM);
         break;
       case OMNVAR_TYPE_NCS_LUI:
-        if ( BG_Omnvar_GetNCString(def, _RBX, (const char **)&outStringValue) )
+        if ( BG_Omnvar_GetNCString(def, omnvar, (const char **)&outStringValue) )
           LuaShared_SetTableString((const char *)&stru_143CE7590, outStringValue, LUI_luaVM);
         break;
       default:
@@ -13270,17 +11888,17 @@ __int64 LUI_Panic(lua_State *luaVM)
   __int64 v2; 
   const char *v3; 
   __int64 v4; 
-  __int128 *v7; 
+  __int128 *v5; 
+  __int64 v6; 
+  char v7; 
   __int64 v8; 
   char v9; 
-  __int64 v10; 
-  char v11; 
-  unsigned __int64 v12; 
-  LUIElement *v13; 
-  const char *v14; 
-  __int128 v16; 
-  __int64 v17; 
-  __int64 v18; 
+  unsigned __int64 v10; 
+  LUIElement *v11; 
+  const char *v12; 
+  __int128 v14; 
+  __int64 v15; 
+  __int64 v16; 
   char buffer[4096]; 
   char dest[2048]; 
 
@@ -13290,54 +11908,49 @@ __int64 LUI_Panic(lua_State *luaVM)
   else
     v3 = NULL;
   LUI_Interface_DebugPrint("==============================\nLUI Panic error:\n  %s\n", v3);
-  strcpy((char *)&v18, "n");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:aIwStackFrameCo; "iw stack frame corruption"
-    vmovsd  xmm1, qword ptr cs:aIwStackFrameCo+10h; "orruption"
-    vmovups [rsp+1858h+var_1838], xmm0
-    vmovsd  [rsp+1858h+var_1828], xmm1
-  }
+  strcpy((char *)&v16, "n");
+  v14 = *(_OWORD *)"iw stack frame corruption";
+  v15 = *(__int64 *)"orruption";
   if ( v3 )
   {
-    v7 = &v16;
-    v8 = 25i64;
+    v5 = &v14;
+    v6 = 25i64;
     do
     {
-      v9 = *((_BYTE *)v7 + v3 - (const char *)&v16);
-      v10 = v8;
-      v4 = *(unsigned __int8 *)v7;
-      v7 = (__int128 *)((char *)v7 + 1);
-      --v8;
-      if ( !v10 )
+      v7 = *((_BYTE *)v5 + v3 - (const char *)&v14);
+      v8 = v6;
+      v4 = *(unsigned __int8 *)v5;
+      v5 = (__int128 *)((char *)v5 + 1);
+      --v6;
+      if ( !v8 )
         break;
-      if ( v9 != (_BYTE)v4 )
+      if ( v7 != (_BYTE)v4 )
         goto LABEL_11;
     }
-    while ( v9 );
-    v11 = 1;
+    while ( v7 );
+    v9 = 1;
   }
   else
   {
 LABEL_11:
-    v11 = 0;
+    v9 = 0;
   }
   if ( v3 )
     Com_sprintf_truncate(dest, 0x800ui64, "LUI Panic error: %s", v3);
   else
-    Com_sprintf_truncate(dest, 0x800ui64, "LUI Panic error: (no message)", v4, v16, v17, v18);
-  if ( v11 )
+    Com_sprintf_truncate(dest, 0x800ui64, "LUI Panic error: (no message)", v4, v14, v15, v16);
+  if ( v9 )
   {
     j_lua_settop(luaVM, -2);
     memset_0(buffer, 0, sizeof(buffer));
-    v12 = LUI_DumpStackToBuffer(luaVM, buffer, 0x1000ui64);
-    if ( v12 >= 0x1000 )
-      v12 = 4095i64;
-    if ( v12 + 1 < 0x1000 && s_LUIElementPool.m_lastAllocated < 0x1194u )
+    v10 = LUI_DumpStackToBuffer(luaVM, buffer, 0x1000ui64);
+    if ( v10 >= 0x1000 )
+      v10 = 4095i64;
+    if ( v10 + 1 < 0x1000 && s_LUIElementPool.m_lastAllocated < 0x1194u )
     {
-      v13 = &s_LUIElementPool.m_pool[s_LUIElementPool.m_lastAllocated];
-      if ( v13 )
-        LUI_DumpElementIdChainToBuffer_r(luaVM, v13, &buffer[v12], 4096 - v12);
+      v11 = &s_LUIElementPool.m_pool[s_LUIElementPool.m_lastAllocated];
+      if ( v11 )
+        LUI_DumpElementIdChainToBuffer_r(luaVM, v11, &buffer[v10], 4096 - v10);
     }
     buffer[4095] = 0;
   }
@@ -13345,12 +11958,12 @@ LABEL_11:
   {
     j_lua_checkstack(luaVM, 1);
     j_luaL_traceback(luaVM, luaVM, (const char *)&queryFormat.fmt + 3, 1);
-    v14 = j_lua_tolstring(luaVM, -1, NULL);
+    v12 = j_lua_tolstring(luaVM, -1, NULL);
     do
       ++v2;
-    while ( v14[v2] );
+    while ( v12[v2] );
     if ( (unsigned __int64)(v2 + 2) <= 0x1000 )
-      j_sprintf(buffer, "%s\n%s\n", (const char *)&queryFormat.fmt + 3, v14);
+      j_sprintf(buffer, "%s\n%s\n", (const char *)&queryFormat.fmt + 3, v12);
     j_lua_settop(luaVM, -2);
   }
   LUI_Interface_DebugPrint((const char *)&queryFormat, buffer);
@@ -13392,218 +12005,125 @@ void LUI_PostGC(void)
 LUI_ProjectRootCoordinate
 ==============
 */
-
-bool __fastcall LUI_ProjectRootCoordinate(lua_State *luaVM, const char *rootName, double screenX, double screenY, float *outMouseX, float *outMouseY)
+char LUI_ProjectRootCoordinate(lua_State *luaVM, const char *rootName, float screenX, float screenY, float *outMouseX, float *outMouseY)
 {
   const LUIElement *RootElement; 
+  LUIRootData *RootData; 
+  float v8; 
+  float height; 
+  float v10; 
   const tmat44_t<vec4_t> *p_inverseProjectionMatrix; 
-  int v43; 
+  int v12; 
+  vec4_t *v13; 
   int i; 
-  char v67; 
-  bool v68; 
-  __int64 v80; 
-  __int64 v81; 
+  float v15; 
+  vec4_t *v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v21; 
+  float v22; 
+  __int64 v23; 
+  __int64 v24; 
   vec3_t x; 
   vec4_t vec2; 
-  vec4_t v84; 
+  vec4_t v27; 
   vec4_t result; 
-  vec4_t v86; 
+  vec4_t v29; 
   vec3_t vec1; 
   vec4_t vec; 
-  vec4_t v89; 
-  vec4_t v90; 
-  vec4_t v91; 
-  vec4_t v92; 
-  vec4_t v93; 
+  vec4_t v32; 
+  vec4_t v33; 
+  vec4_t v34; 
+  vec4_t v35; 
+  vec4_t v36; 
   tmat44_t<vec4_t> matrix; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _R15 = outMouseX;
-  _R12 = outMouseY;
-  __asm
-  {
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
   RootElement = LUI_GetRootElement(rootName, luaVM);
   if ( !RootElement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 611, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  _RAX = LUI_GetRootData(RootElement);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f000000
-    vmulss  xmm0, xmm7, cs:__real@40000000
-    vmovss  xmm7, cs:__real@3f800000
-    vdivss  xmm5, xmm0, dword ptr [rax+110h]
-    vmovss  xmm0, dword ptr [rax+100h]
-    vaddss  xmm1, xmm0, dword ptr [rax+108h]
-    vmovss  xmm4, dword ptr [rax+114h]
-    vmulss  xmm1, xmm1, xmm3
-    vmovss  dword ptr [rbp+0B0h+vec], xmm1
-    vmovss  xmm0, dword ptr [rax+10Ch]
-    vaddss  xmm1, xmm0, dword ptr [rax+104h]
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbp+0B0h+vec+4], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+0B0h+vec+8], xmm0
-    vmovss  dword ptr [rbp+0B0h+vec+0Ch], xmm7
-    vmovss  xmm0, dword ptr [rax+100h]
-    vaddss  xmm1, xmm0, dword ptr [rax+108h]
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbp+0B0h+var_100], xmm2
-    vmovss  xmm0, dword ptr [rax+10Ch]
-    vaddss  xmm1, xmm0, dword ptr [rax+104h]
-    vmulss  xmm0, xmm6, cs:__real@c0000000
-    vmulss  xmm2, xmm1, xmm3
-    vdivss  xmm1, xmm0, xmm4
-    vmovss  xmm0, cs:__real@bf800000
-    vmovss  dword ptr [rbp+0B0h+var_E0+8], xmm0
-    vmovss  dword ptr [rbp+0B0h+var_100+4], xmm2
-    vmovss  dword ptr [rbp+0B0h+var_100+8], xmm7
-    vmovss  dword ptr [rbp+0B0h+var_100+0Ch], xmm7
-    vmovss  dword ptr [rbp+0B0h+var_F0], xmm5
-    vmovss  dword ptr [rbp+0B0h+var_F0+4], xmm1
-    vmovss  dword ptr [rbp+0B0h+var_F0+8], xmm7
-    vmovss  dword ptr [rbp+0B0h+var_F0+0Ch], xmm7
-    vmovss  dword ptr [rbp+0B0h+var_E0], xmm5
-    vmovss  dword ptr [rbp+0B0h+var_E0+4], xmm1
-    vmovss  dword ptr [rbp+0B0h+var_E0+0Ch], xmm7
-  }
-  p_inverseProjectionMatrix = &_RAX->inverseProjectionMatrix;
+  RootData = LUI_GetRootData(RootElement);
+  v8 = (float)(screenX * 2.0) / RootData->width;
+  height = RootData->height;
+  vec.v[0] = (float)(RootData->left + RootData->right) * 0.5;
+  vec.v[1] = (float)(RootData->bottom + RootData->top) * 0.5;
+  vec.v[2] = 0.0;
+  vec.v[3] = FLOAT_1_0;
+  v32.v[0] = (float)(RootData->left + RootData->right) * 0.5;
+  v10 = (float)(RootData->bottom + RootData->top) * 0.5;
+  v34.v[2] = FLOAT_N1_0;
+  v32.v[1] = v10;
+  v32.v[2] = FLOAT_1_0;
+  v32.v[3] = FLOAT_1_0;
+  v33.v[0] = v8;
+  v33.v[1] = (float)(screenY * -2.0) / height;
+  v33.v[2] = FLOAT_1_0;
+  v33.v[3] = FLOAT_1_0;
+  v34.v[0] = v8;
+  v34.v[1] = v33.v[1];
+  v34.v[3] = FLOAT_1_0;
+  p_inverseProjectionMatrix = &RootData->inverseProjectionMatrix;
   LUI_Matrix_MultiplyVector(&s_matrixStack[(__int64)s_currentMatrix], &vec, &result);
-  LUI_Matrix_MultiplyVector(&s_matrixStack[(__int64)s_currentMatrix], &v89, &vec2);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1B0h+vec2]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+result]
-    vmovss  xmm2, dword ptr [rsp+1B0h+vec2+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+1B0h+result+4]
-    vmovss  dword ptr [rsp+1B0h+vec2], xmm1
-    vmovss  xmm1, dword ptr [rsp+1B0h+vec2+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+1B0h+result+8]
-    vmovss  dword ptr [rsp+1B0h+vec2+8], xmm2
-    vmovss  dword ptr [rsp+1B0h+vec2+4], xmm0
-  }
+  LUI_Matrix_MultiplyVector(&s_matrixStack[(__int64)s_currentMatrix], &v32, &vec2);
+  vec2.v[0] = vec2.v[0] - result.v[0];
+  vec2.v[2] = vec2.v[2] - result.v[2];
+  vec2.v[1] = vec2.v[1] - result.v[1];
   LUI_Vector_NormalizeInPlace(vec2.v, &vec2.v[1], &vec2.v[2]);
-  LUI_Matrix_MultiplyVector(p_inverseProjectionMatrix, &v90, &v84);
-  v43 = 0;
-  _RSI = &v84;
+  LUI_Matrix_MultiplyVector(p_inverseProjectionMatrix, &v33, &v27);
+  v12 = 0;
+  v13 = &v27;
   for ( i = 0; i < 4; ++i )
   {
-    __asm { vmovss  xmm6, dword ptr [rsp+1B0h+var_150+0Ch] }
+    v15 = v27.v[3];
     if ( (unsigned int)i >= 4 )
     {
-      LODWORD(v81) = 4;
-      LODWORD(v80) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v80, v81) )
+      LODWORD(v24) = 4;
+      LODWORD(v23) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vdivss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsi], xmm1
-    }
-    _RSI = (vec4_t *)((char *)_RSI + 4);
+    v13->v[0] = v13->v[0] / v15;
+    v13 = (vec4_t *)((char *)v13 + 4);
   }
-  LUI_Matrix_MultiplyVector(p_inverseProjectionMatrix, &v91, &v86);
-  _RDI = &v86;
+  LUI_Matrix_MultiplyVector(p_inverseProjectionMatrix, &v34, &v29);
+  v16 = &v29;
   do
   {
-    __asm { vmovss  xmm6, dword ptr [rbp+0B0h+var_130+0Ch] }
-    if ( (unsigned int)v43 >= 4 )
+    v17 = v29.v[3];
+    if ( (unsigned int)v12 >= 4 )
     {
-      LODWORD(v81) = 4;
-      LODWORD(v80) = v43;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v80, v81) )
+      LODWORD(v24) = 4;
+      LODWORD(v23) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v24) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vdivss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm1
-    }
-    _RDI = (vec4_t *)((char *)_RDI + 4);
-    ++v43;
+    v16->v[0] = v16->v[0] / v17;
+    v16 = (vec4_t *)((char *)v16 + 4);
+    ++v12;
   }
-  while ( v43 < 4 );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0B0h+var_130]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+var_150]
-    vmovss  xmm2, dword ptr [rbp+0B0h+var_130+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+1B0h+var_150+4]
-    vmovss  [rsp+1B0h+x], xmm1
-    vmovss  xmm1, dword ptr [rbp+0B0h+var_130+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+1B0h+var_150+8]
-    vmovss  [rsp+1B0h+z], xmm2
-    vmovss  [rsp+1B0h+y], xmm0
-  }
+  while ( v12 < 4 );
+  x.v[0] = v29.v[0] - v27.v[0];
+  x.v[2] = v29.v[2] - v27.v[2];
+  x.v[1] = v29.v[1] - v27.v[1];
   LUI_Vector_NormalizeInPlace(x.v, &x.v[1], &x.v[2]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1B0h+result]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+var_150]
-    vmovss  xmm2, dword ptr [rsp+1B0h+result+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+1B0h+var_150+4]
-    vmovss  dword ptr [rbp+0B0h+vec1], xmm1
-    vmovss  xmm1, dword ptr [rsp+1B0h+result+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+1B0h+var_150+8]
-    vmovss  dword ptr [rbp+0B0h+vec1+8], xmm2
-    vmovss  dword ptr [rbp+0B0h+vec1+4], xmm0
-  }
-  *(double *)&_XMM0 = LUI_Vector3_DotProduct(&x, &vec2);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovaps xmm6, xmm0
-  }
-  if ( v67 )
-  {
-    v68 = 0;
-  }
-  else
-  {
-    *(double *)&_XMM0 = LUI_Vector3_DotProduct(&vec1, &vec2);
-    __asm
-    {
-      vdivss  xmm3, xmm0, xmm6
-      vmulss  xmm2, xmm3, [rsp+1B0h+x]
-      vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+var_150]
-      vmulss  xmm2, xmm3, [rsp+1B0h+y]
-      vmovss  dword ptr [rbp+0B0h+var_D0], xmm0
-      vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+var_150+4]
-      vmulss  xmm2, xmm3, [rsp+1B0h+z]
-      vmovss  dword ptr [rbp+0B0h+var_D0+4], xmm0
-      vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+var_150+8]
-      vmovss  dword ptr [rbp+0B0h+var_D0+8], xmm0
-      vmovss  dword ptr [rbp+0B0h+var_D0+0Ch], xmm7
-    }
-    LUI_Matrix_Invert(&s_matrixStack[(__int64)s_currentMatrix], &matrix);
-    LUI_Matrix_MultiplyVector(&matrix, &v92, &v93);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0B0h+var_C0]
-      vmovss  xmm1, dword ptr [rbp+0B0h+var_C0+4]
-      vmovss  dword ptr [r15], xmm0
-      vmovss  dword ptr [r12], xmm1
-    }
-    v68 = 1;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+1B0h+var_50]
-    vmovaps xmm7, [rsp+1B0h+var_60]
-  }
-  return v68;
+  vec1.v[0] = result.v[0] - v27.v[0];
+  vec1.v[2] = result.v[2] - v27.v[2];
+  vec1.v[1] = result.v[1] - v27.v[1];
+  v18 = LUI_Vector3_DotProduct(&x, &vec2);
+  v19 = *(float *)&v18;
+  if ( COERCE_FLOAT(LODWORD(v18) & _xmm) < 0.001 )
+    return 0;
+  v21 = LUI_Vector3_DotProduct(&vec1, &vec2);
+  v35.v[0] = (float)((float)(*(float *)&v21 / v19) * x.v[0]) + v27.v[0];
+  v35.v[1] = (float)((float)(*(float *)&v21 / v19) * x.v[1]) + v27.v[1];
+  v35.v[2] = (float)((float)(*(float *)&v21 / v19) * x.v[2]) + v27.v[2];
+  v35.v[3] = FLOAT_1_0;
+  LUI_Matrix_Invert(&s_matrixStack[(__int64)s_currentMatrix], &matrix);
+  LUI_Matrix_MultiplyVector(&matrix, &v35, &v36);
+  v22 = v36.v[1];
+  *outMouseX = v36.v[0];
+  *outMouseY = v22;
+  return 1;
 }
 
 /*
@@ -13611,68 +12131,23 @@ bool __fastcall LUI_ProjectRootCoordinate(lua_State *luaVM, const char *rootName
 LUI_PushScaleMatrix
 ==============
 */
-
-void __fastcall LUI_PushScaleMatrix(double scaleX, double scaleY, double centerX, double centerY)
+void LUI_PushScaleMatrix(float scaleX, float scaleY, float centerX, float centerY)
 {
   tmat44_t<vec4_t> result; 
   tmat44_t<vec4_t> matrix2; 
   tmat44_t<vec4_t> matrix1; 
-  char v34; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm9, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
   if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
     __debugbreak();
   ++s_currentMatrix;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; z
-    vmovaps xmm1, xmm9; y
-    vmovaps xmm0, xmm8; x
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+  LUI_Matrix_BuildTranslationMatrix(centerX, centerY, 0.0, &result);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; z
-    vmovaps xmm1, xmm7; y
-    vmovaps xmm0, xmm6; x
-  }
-  LUI_Matrix_BuildScaleMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix2);
+  LUI_Matrix_BuildScaleMatrix(scaleX, scaleY, 1.0, &matrix2);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix2, &matrix1);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+148h+result+0Ch]
-    vmovss  xmm2, dword ptr [rsp+148h+result+1Ch]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+148h+result+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+148h+result+2Ch]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+148h+result+2Ch], xmm2
-    vmovss  dword ptr [rsp+148h+result+1Ch], xmm0
-  }
+  LODWORD(result.m[0].v[3]) ^= _xmm;
+  LODWORD(result.m[2].v[3]) ^= _xmm;
+  LODWORD(result.m[1].v[3]) ^= _xmm;
   LUI_Matrix_Multiply(&matrix1, &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -13680,65 +12155,23 @@ void __fastcall LUI_PushScaleMatrix(double scaleX, double scaleY, double centerX
 LUI_PushScaleMatrix
 ==============
 */
-
-void __fastcall LUI_PushScaleMatrix(double scale, double centerX, double centerY, lua_State *luaVM)
+void LUI_PushScaleMatrix(float scale, float centerX, float centerY, lua_State *luaVM)
 {
   tmat44_t<vec4_t> result; 
   tmat44_t<vec4_t> matrix2; 
   tmat44_t<vec4_t> matrix1; 
-  char v31; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
   if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
     __debugbreak();
   ++s_currentMatrix;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; z
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm7; x
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+  LUI_Matrix_BuildTranslationMatrix(centerX, centerY, 0.0, &result);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; z
-    vmovaps xmm1, xmm6; y
-    vmovaps xmm0, xmm6; x
-  }
-  LUI_Matrix_BuildScaleMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix2);
+  LUI_Matrix_BuildScaleMatrix(scale, scale, 1.0, &matrix2);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix2, &matrix1);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+138h+result+0Ch]
-    vmovss  xmm2, dword ptr [rsp+138h+result+1Ch]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+138h+result+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+138h+result+2Ch]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+138h+result+2Ch], xmm2
-    vmovss  dword ptr [rsp+138h+result+1Ch], xmm0
-  }
+  LODWORD(result.m[0].v[3]) ^= _xmm;
+  LODWORD(result.m[2].v[3]) ^= _xmm;
+  LODWORD(result.m[1].v[3]) ^= _xmm;
   LUI_Matrix_Multiply(&matrix1, &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -13787,60 +12220,23 @@ void LUI_PushXUID(lua_State *luaVM, const XUID xuid)
 LUI_PushZRotationMatrix
 ==============
 */
-
-void __fastcall LUI_PushZRotationMatrix(double degrees, double centerX, double centerY, lua_State *luaVM)
+void LUI_PushZRotationMatrix(float degrees, float centerX, float centerY, lua_State *luaVM)
 {
   tmat44_t<vec4_t> result; 
   tmat44_t<vec4_t> matrix2; 
   tmat44_t<vec4_t> matrix1; 
-  char v29; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
   if ( s_currentMatrix >= 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 334, ASSERT_TYPE_ASSERT, "(s_currentMatrix < LUI_MAX_MATRICES - 1)", (const char *)&queryFormat, "s_currentMatrix < LUI_MAX_MATRICES - 1") )
     __debugbreak();
   ++s_currentMatrix;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; z
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm7; x
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &result);
+  LUI_Matrix_BuildTranslationMatrix(centerX, centerY, 0.0, &result);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)(s_currentMatrix - 1)], &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  __asm { vmovaps xmm0, xmm6; degrees }
-  LUI_Matrix_BuildZRotationMatrix(*(const float *)&_XMM0, &matrix2);
+  LUI_Matrix_BuildZRotationMatrix(degrees, &matrix2);
   LUI_Matrix_Multiply(&s_matrixStack[(__int64)s_currentMatrix], &matrix2, &matrix1);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+138h+result+0Ch]
-    vmovss  xmm2, dword ptr [rsp+138h+result+1Ch]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+138h+result+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+138h+result+2Ch]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+138h+result+2Ch], xmm2
-    vmovss  dword ptr [rsp+138h+result+1Ch], xmm0
-  }
+  LODWORD(result.m[0].v[3]) ^= _xmm;
+  LODWORD(result.m[2].v[3]) ^= _xmm;
+  LODWORD(result.m[1].v[3]) ^= _xmm;
   LUI_Matrix_Multiply(&matrix1, &result, &s_matrixStack[(__int64)s_currentMatrix]);
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -13983,16 +12379,16 @@ void LUI_Render(const LocalClientNum_t localClientNum, LUIRootData *rootData, lu
 {
   const dvar_t *v3; 
   __int64 v4; 
+  LUIDaltonizeData *v6; 
   GfxBackEndData *v7; 
   int ControllerFromClient; 
-  GfxDaltonizeType v12; 
-  unsigned __int8 v13; 
-  GfxDaltonizeType m_correctionMode; 
-  int v20; 
-  GfxBackEndData *v21; 
-  const dvar_t *v22; 
-  unsigned int v23; 
-  __int64 v24; 
+  GfxDaltonizeType v9; 
+  unsigned __int8 v10; 
+  int v11; 
+  GfxBackEndData *v12; 
+  const dvar_t *v13; 
+  unsigned int v14; 
+  __int64 v15; 
   GfxDaltonizeOptions options; 
 
   v3 = DVARBOOL_lui_ui_colorblind_filter_enabled;
@@ -14003,7 +12399,7 @@ void LUI_Render(const LocalClientNum_t localClientNum, LUIRootData *rootData, lu
   Dvar_CheckFrontendServerThread(v3);
   if ( v3->current.enabled )
   {
-    _R14 = &s_daltonizeData[v4];
+    v6 = &s_daltonizeData[v4];
     if ( !R_IsInRemoteScreenUpdate() && (v7 = frontEndDataOut) != NULL && frontEndDataOut->viewInfoCount )
     {
       if ( !frontEndDataOut->viewInfo )
@@ -14012,74 +12408,44 @@ void LUI_Render(const LocalClientNum_t localClientNum, LUIRootData *rootData, lu
           __debugbreak();
         v7 = frontEndDataOut;
       }
-      _RCX = v7->viewInfoIndex;
-      _RAX = v7->viewInfo;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rcx+rax+3C5Ch]
-        vmovsd  qword ptr [rsp+98h+options.m_enabled], xmm0
-      }
-      *(_DWORD *)&options.m_simulationMode = *(_DWORD *)&_RAX[_RCX].uiDaltonizeOptions.m_simulationMode;
+      options = v7->viewInfo[v7->viewInfoIndex].uiDaltonizeOptions;
     }
     else
     {
       ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
-      v12 = GamerProfile_ColorBlindMode(ControllerFromClient);
-      v13 = GamerProfile_ColorBlindTargets(ControllerFromClient);
-      _RCX = r_daltonizeUIIntensity;
-      __asm { vmovss  xmm2, dword ptr [rcx+28h]; intensity }
-      R_InitDaltonizeOptions(&options, v12, *(const float *)&_XMM2, v13, 2u);
+      v9 = GamerProfile_ColorBlindMode(ControllerFromClient);
+      v10 = GamerProfile_ColorBlindTargets(ControllerFromClient);
+      R_InitDaltonizeOptions(&options, v9, r_daltonizeUIIntensity->current.value, v10, 2u);
     }
-    if ( options.m_enabled != _R14->options.m_enabled )
-      goto LABEL_18;
-    m_correctionMode = _R14->options.m_correctionMode;
-    if ( options.m_correctionMode != m_correctionMode )
-      goto LABEL_18;
-    __asm
+    if ( options.m_enabled != v6->options.m_enabled || options.m_correctionMode != v6->options.m_correctionMode || options.m_correctionScale != v6->options.m_correctionScale || options.m_simulationMode != v6->options.m_simulationMode )
     {
-      vmovss  xmm0, [rsp+98h+options.m_correctionScale]
-      vucomiss xmm0, dword ptr [r14+4]
-    }
-    if ( options.m_correctionMode != m_correctionMode || options.m_simulationMode != _R14->options.m_simulationMode )
-    {
-LABEL_18:
       if ( options.m_enabled )
-      {
-        R_Macroclut_GetDaltonizeMatrix(&options, &_R14->matrix);
-      }
+        R_Macroclut_GetDaltonizeMatrix(&options, &v6->matrix);
       else
-      {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B; tmat33_t<vec3_t> const identityMatrix33
-          vmovups ymmword ptr [r14+0Ch], ymm0
-        }
-        _R14->matrix.m[2].v[2] = identityMatrix33.m[2].v[2];
-      }
-      __asm { vmovsd  xmm0, qword ptr [rsp+98h+options.m_enabled] }
-      v20 = *(_DWORD *)&options.m_simulationMode;
-      __asm { vmovsd  qword ptr [r14], xmm0 }
-      *(_DWORD *)&_R14->options.m_simulationMode = v20;
+        v6->matrix = identityMatrix33;
+      v11 = *(_DWORD *)&options.m_simulationMode;
+      *(double *)&v6->options.m_enabled = *(double *)&options.m_enabled;
+      *(_DWORD *)&v6->options.m_simulationMode = v11;
     }
   }
   if ( R_IsInRemoteScreenUpdate() )
     goto LABEL_49;
-  v21 = frontEndDataOut;
+  v12 = frontEndDataOut;
   if ( !frontEndDataOut || !frontEndDataOut->viewInfoCount )
     goto LABEL_49;
   if ( !frontEndDataOut->viewInfo )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 8489, ASSERT_TYPE_ASSERT, "(frontEndDataOut->viewInfo)", (const char *)&queryFormat, "frontEndDataOut->viewInfo") )
       __debugbreak();
-    v21 = frontEndDataOut;
+    v12 = frontEndDataOut;
   }
-  if ( v21->viewInfo[v21->viewInfoIndex].displayCmds[0] )
+  if ( v12->viewInfo[v12->viewInfoIndex].displayCmds[0] )
   {
-    v22 = DCONST_DVARBOOL_r_lowResOverlays;
+    v13 = DCONST_DVARBOOL_r_lowResOverlays;
     if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled && LUI_QuadCache_UsingCustomDrawList((const LocalClientNum_t)v4, 4u) )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( v13->current.enabled && LUI_QuadCache_UsingCustomDrawList((const LocalClientNum_t)v4, 4u) )
       LUI_QuadCache_ExecDrawList_CustomList((const LocalClientNum_t)v4, 4u, luaVM);
     R_AddCmdEndOfList();
     R_BeginClientCmdList2D(GFX_CLIENT_CMD_LIST_LUI);
@@ -14112,20 +12478,20 @@ LABEL_18:
       R_AddCmdEndOfList();
     }
     LUI_Render_SendCommandForRTT(1);
-    v23 = 6;
-    v24 = 8i64;
+    v14 = 6;
+    v15 = 8i64;
     do
     {
-      if ( LUI_QuadCache_UsingCustomDrawList((const LocalClientNum_t)v4, v23) )
+      if ( LUI_QuadCache_UsingCustomDrawList((const LocalClientNum_t)v4, v14) )
       {
-        R_BeginClientCmdList2D((const GfxClientCmdListType)(v23 + 2));
-        LUI_QuadCache_ExecDrawList_CustomList((const LocalClientNum_t)v4, v23, luaVM);
+        R_BeginClientCmdList2D((const GfxClientCmdListType)(v14 + 2));
+        LUI_QuadCache_ExecDrawList_CustomList((const LocalClientNum_t)v4, v14, luaVM);
         R_AddCmdEndOfList();
       }
-      ++v23;
-      --v24;
+      ++v14;
+      --v15;
     }
-    while ( v24 );
+    while ( v15 );
     LUI_Render_SendCommandForRTT(0);
     R_BeginClientCmdList2D(GFX_CLIENT_CMD_LIST_POST_LUI);
   }
@@ -14191,9 +12557,8 @@ LUI_ReportErrorWithInfo
 */
 void LUI_ReportErrorWithInfo(const char *error, const char *luaErrorInfo, lua_State *luaVM)
 {
-  char *v6; 
-  char SubStr[16]; 
-  char v8[8]; 
+  char *v5; 
+  char SubStr[32]; 
   char dest[4096]; 
 
   LUI_Interface_ErrorPrint("LUI: %s", error);
@@ -14201,17 +12566,15 @@ void LUI_ReportErrorWithInfo(const char *error, const char *luaErrorInfo, lua_St
   LUI_CoD_PrintCallstack();
   LUI_ReportMemoryUsage();
   LUI_Interface_DebugPrint("\n");
-  __asm { vmovups xmm0, xmmword ptr cs:aStackTraceback_0; "stack traceback:\n" }
-  strcpy(v8, "\n");
-  __asm { vmovups xmmword ptr [rsp+1068h+SubStr], xmm0 }
+  strcpy(SubStr, "stack traceback:\n");
   Com_sprintf_truncate(dest, 0x1000ui64, "%s:\n%s", error, luaErrorInfo);
-  v6 = strstr_0(dest, SubStr);
-  if ( v6 )
+  v5 = strstr_0(dest, SubStr);
+  if ( v5 )
   {
-    *v6 = 0;
-    v6 += 17;
+    *v5 = 0;
+    v5 += 17;
   }
-  DLog_RecordErrorEvent(DLOG_ERROR_CODE_LUA, dest, v6);
+  DLog_RecordErrorEvent(DLOG_ERROR_CODE_LUA, dest, v5);
   if ( IsDebuggerConnected() )
     __debugbreak();
 }
@@ -14296,191 +12659,100 @@ void LUI_ReportReferenceCounts(void)
 LUI_Resize
 ==============
 */
-
-void __fastcall LUI_Resize(const char *rootName, double left, double top, double right, const float bottom, const float pixelAspectRatio, lua_State *luaVM)
+void LUI_Resize(const char *rootName, const float left, const float top, const float right, const float bottom, const float pixelAspectRatio, lua_State *luaVM)
 {
-  char v26; 
-  bool v30; 
+  LUIElement *RootElement; 
+  float v10; 
+  float v11; 
+  bool v12; 
   int ControllerFromClient; 
   LUIRootData *RootDataForController; 
+  float v15; 
   LUIElement *i; 
-  const LUIElement *RootElement; 
+  const LUIElement *v17; 
+  LUIRootData *RootData; 
+  float v19; 
+  float v20; 
+  float v21; 
   int width; 
   int height; 
   float aspect; 
   vec4_t result; 
-  vec4_t v84; 
+  __int128 v26; 
   tmat44_t<vec4_t> matrix2; 
   tmat44_t<vec4_t> matrix1; 
-  tmat44_t<vec4_t> v87; 
+  tmat44_t<vec4_t> v29; 
   tmat44_t<vec4_t> dest; 
-  char v89; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmm8, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm10, xmm1
-  }
-  _RBX = LUI_GetRootElement(rootName, luaVM);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7481, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
+  RootElement = LUI_GetRootElement(rootName, luaVM);
+  if ( !RootElement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7481, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
   CL_GetScreenDimensions(&width, &height, &aspect);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, [rsp+200h+width]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+200h+height]
-    vdivss  xmm2, xmm1, xmm0
-    vcomiss xmm2, cs:__real@3fe38e39
-  }
-  if ( v26 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@44a00000
-      vdivss  xmm6, xmm0, xmm2
-    }
-  }
+  v10 = (float)width / (float)height;
+  if ( v10 >= 1.7777778 )
+    v11 = FLOAT_720_0;
   else
-  {
-    __asm { vmovss  xmm6, cs:__real@44340000 }
-  }
-  __asm { vmovss  xmm7, [rbp+100h+bottom] }
-  v30 = 0;
-  __asm
-  {
-    vsubss  xmm0, xmm8, xmm10
-    vsubss  xmm11, xmm7, xmm9
-    vdivss  xmm12, xmm0, xmm11
-    vmovss  dword ptr [rbx], xmm10
-    vmovss  dword ptr [rbx+18h], xmm9
-    vmovss  dword ptr [rbx+4], xmm8
-    vmovss  dword ptr [rbx+1Ch], xmm7
-  }
-  _RBX->currentAnimationState.position.x.global[0] = 0.0;
-  _RBX->currentAnimationState.position.y.global[0] = 0.0;
+    v11 = 1280.0 / v10;
+  v12 = 0;
+  RootElement->currentAnimationState.position.x.offsets[0] = left;
+  RootElement->currentAnimationState.position.y.offsets[0] = top;
+  RootElement->currentAnimationState.position.x.offsets[1] = right;
+  RootElement->currentAnimationState.position.y.offsets[1] = bottom;
+  RootElement->currentAnimationState.position.x.global[0] = 0.0;
+  RootElement->currentAnimationState.position.y.global[0] = 0.0;
   if ( !LUI_CoD_InFrontend() )
   {
     ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
     RootDataForController = LUI_CoD_GetRootDataForController(ControllerFromClient);
-    v30 = RootDataForController->root == _RBX && RootDataForController->forceFullscreen;
+    v12 = RootDataForController->root == RootElement && RootDataForController->forceFullscreen;
   }
-  if ( !LUI_CoD_UsingSplitscreenUpscaling() || v30 )
-    __asm { vmovaps xmm0, xmm6 }
+  if ( !LUI_CoD_UsingSplitscreenUpscaling() || v12 )
+    v15 = v11;
   else
-    __asm { vmovss  xmm0, cs:__real@43d80000 }
-  __asm
-  {
-    vmovss  dword ptr [rbx+24h], xmm0
-    vmulss  xmm0, xmm12, xmm0
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
-  *(_WORD *)&_RBX->layoutDeeplyCached = 0;
-  for ( i = _RBX->parent; i; i = i->parent )
+    v15 = FLOAT_432_0;
+  RootElement->currentAnimationState.position.y.global[1] = v15;
+  RootElement->currentAnimationState.position.x.global[1] = (float)((float)(right - left) / (float)(bottom - top)) * v15;
+  *(_WORD *)&RootElement->layoutDeeplyCached = 0;
+  for ( i = RootElement->parent; i; i = i->parent )
   {
     if ( !i->layoutDeeplyCached )
       break;
     i->layoutDeeplyCached = 0;
   }
-  LUI_QuadCache_Element_Invalidate(_RBX);
-  RootElement = LUI_GetRootElement(rootName, luaVM);
-  if ( !RootElement && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 611, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
+  LUI_QuadCache_Element_Invalidate(RootElement);
+  v17 = LUI_GetRootElement(rootName, luaVM);
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 611, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
     __debugbreak();
-  _RBX = LUI_GetRootData(RootElement);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7521, ASSERT_TYPE_ASSERT, "(rootData)", (const char *)&queryFormat, "rootData") )
+  RootData = LUI_GetRootData(v17);
+  if ( !RootData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7521, ASSERT_TYPE_ASSERT, "(rootData)", (const char *)&queryFormat, "rootData") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, [rbp+100h+pixelAspectRatio]
-    vdivss  xmm0, xmm11, xmm6
-    vmovss  dword ptr [rbx+0F8h], xmm0
-    vmovss  dword ptr [rbx+0FCh], xmm1
-    vmovss  dword ptr [rbx+100h], xmm10
-    vmovss  dword ptr [rbx+104h], xmm9
-    vmovss  dword ptr [rbx+108h], xmm8
-    vmovss  dword ptr [rbx+10Ch], xmm7
-  }
-  if ( !LUI_Matrix_Invert(&_RBX->projectionMatrix, &_RBX->inverseProjectionMatrix) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7530, ASSERT_TYPE_ASSERT, "(LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix ))", (const char *)&queryFormat, "LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix )") )
+  RootData->unitScale = (float)(bottom - top) / v11;
+  RootData->pixelAspectRatio = pixelAspectRatio;
+  RootData->left = left;
+  RootData->top = top;
+  RootData->right = right;
+  RootData->bottom = bottom;
+  if ( !LUI_Matrix_Invert(&RootData->projectionMatrix, &RootData->inverseProjectionMatrix) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7530, ASSERT_TYPE_ASSERT, "(LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix ))", (const char *)&queryFormat, "LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f000000bf8000003f800000
-    vmovups [rsp+200h+anonymous_0], xmm0
-  }
-  LUI_Matrix_MultiplyVector(&_RBX->inverseProjectionMatrix, &v84, &result);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm3, xmm0, dword ptr [rsp+200h+result+0Ch]
-    vmulss  xmm1, xmm3, dword ptr [rsp+200h+result+4]
-    vmulss  xmm4, xmm3, dword ptr [rsp+200h+result]
-    vmulss  xmm0, xmm3, dword ptr [rsp+200h+result+8]
-    vmovss  dword ptr [rsp+200h+result+4], xmm1
-    vmulss  xmm1, xmm4, cs:__real@40000000
-    vmovss  dword ptr [rsp+200h+result+8], xmm0
-    vmovss  dword ptr [rsp+200h+result], xmm4
-    vmovss  dword ptr [rbx+110h], xmm1
-    vmovss  xmm0, dword ptr [rsp+200h+result+4]
-    vmulss  xmm1, xmm0, cs:__real@c0000000
-    vmovss  xmm0, dword ptr [rbx+10Ch]
-    vmovss  dword ptr [rbx+114h], xmm1
-    vsubss  xmm1, xmm0, dword ptr [rbx+104h]
-    vmovss  xmm0, dword ptr [rbx+108h]
-    vsubss  xmm2, xmm0, dword ptr [rbx+100h]
-    vmulss  xmm0, xmm2, cs:__real@bf000000; x
-    vmulss  xmm1, xmm1, cs:__real@bf000000; y
-    vmovss  xmm6, dword ptr [rsp+200h+result+8]
-    vxorps  xmm2, xmm2, xmm2; z
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix2);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10Ch]
-    vsubss  xmm3, xmm0, dword ptr [rbx+104h]
-    vmovss  xmm1, dword ptr [rbx+114h]
-    vmovss  xmm4, dword ptr [rbx+110h]
-    vdivss  xmm2, xmm1, xmm3; z
-    vmovss  xmm3, dword ptr [rbx+108h]
-    vsubss  xmm5, xmm3, dword ptr [rbx+100h]
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; y
-    vdivss  xmm0, xmm4, xmm5; x
-  }
-  LUI_Matrix_BuildScaleMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix1);
-  LUI_Matrix_Multiply(&matrix1, &matrix2, &v87);
-  __asm
-  {
-    vmovaps xmm2, xmm6; z
-    vxorps  xmm1, xmm1, xmm1; y
-    vxorps  xmm0, xmm0, xmm0; x
-  }
-  LUI_Matrix_BuildTranslationMatrix(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &matrix2);
-  LUI_Matrix_Multiply(&matrix2, &v87, &matrix1);
-  LUI_Matrix_Copy(&_RBX->projectionMatrix, &dest);
-  LUI_Matrix_Multiply(&dest, &matrix1, &_RBX->projectionMatrix);
-  if ( !LUI_Matrix_Invert(&_RBX->projectionMatrix, &_RBX->inverseProjectionMatrix) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7555, ASSERT_TYPE_ASSERT, "(LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix ))", (const char *)&queryFormat, "LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix )") )
+  v26 = _xmm;
+  LUI_Matrix_MultiplyVector(&RootData->inverseProjectionMatrix, (const vec4_t *)&v26, &result);
+  result.v[1] = (float)(1.0 / result.v[3]) * result.v[1];
+  result.v[2] = (float)(1.0 / result.v[3]) * result.v[2];
+  result.v[0] = (float)(1.0 / result.v[3]) * result.v[0];
+  RootData->width = result.v[0] * 2.0;
+  v19 = RootData->bottom;
+  RootData->height = result.v[1] * -2.0;
+  v20 = result.v[2];
+  LUI_Matrix_BuildTranslationMatrix((float)(RootData->right - RootData->left) * -0.5, (float)(v19 - RootData->top) * -0.5, 0.0, &matrix2);
+  v21 = RootData->height / (float)(RootData->bottom - RootData->top);
+  LUI_Matrix_BuildScaleMatrix(RootData->width / (float)(RootData->right - RootData->left), COERCE_CONST_FLOAT(LODWORD(v21) ^ _xmm), v21, &matrix1);
+  LUI_Matrix_Multiply(&matrix1, &matrix2, &v29);
+  LUI_Matrix_BuildTranslationMatrix(0.0, 0.0, v20, &matrix2);
+  LUI_Matrix_Multiply(&matrix2, &v29, &matrix1);
+  LUI_Matrix_Copy(&RootData->projectionMatrix, &dest);
+  LUI_Matrix_Multiply(&dest, &matrix1, &RootData->projectionMatrix);
+  if ( !LUI_Matrix_Invert(&RootData->projectionMatrix, &RootData->inverseProjectionMatrix) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui.cpp", 7555, ASSERT_TYPE_ASSERT, "(LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix ))", (const char *)&queryFormat, "LUI_Matrix_Invert( rootData->projectionMatrix, rootData->inverseProjectionMatrix )") )
     __debugbreak();
-  _R11 = &v89;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -15111,31 +13383,12 @@ _BOOL8 LUI_TryEnterCriticalSection(const char *functionNameIn)
 LUI_UnitsToProjectedUnits
 ==============
 */
-
-void __fastcall LUI_UnitsToProjectedUnits(double LUILeft, double LUITop, double LUIRight, double LUIBottom, float unitScale, float *left, float *top, float *right, float *bottom)
+void LUI_UnitsToProjectedUnits(const float LUILeft, const float LUITop, const float LUIRight, const float LUIBottom, float unitScale, float *left, float *top, float *right, float *bottom)
 {
-  __asm { vmovss  xmm4, [rsp+unitScale] }
-  _RAX = left;
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm4
-    vmulss  xmm1, xmm1, xmm4
-    vmovss  dword ptr [rax], xmm0
-  }
-  _RAX = top;
-  __asm
-  {
-    vmulss  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rax], xmm1
-  }
-  _RAX = right;
-  __asm
-  {
-    vmulss  xmm1, xmm3, xmm4
-    vmovss  dword ptr [rax], xmm0
-  }
-  _RAX = bottom;
-  __asm { vmovss  dword ptr [rax], xmm1 }
+  *left = LUILeft * unitScale;
+  *top = LUITop * unitScale;
+  *right = LUIRight * unitScale;
+  *bottom = LUIBottom * unitScale;
 }
 
 /*

@@ -21,6 +21,7 @@ __int64 yyparse()
   int v2; 
   __int64 v3; 
   int v4; 
+  sval_u *v5; 
   __int16 *v6; 
   char *v7; 
   __int128 *v8; 
@@ -46,31 +47,35 @@ __int64 yyparse()
   __int64 v28; 
   int v29; 
   int v30; 
+  int v31; 
+  unsigned int v32; 
+  __int64 v33; 
   int v34; 
-  unsigned int v35; 
-  __int64 v36; 
-  int v37; 
-  sval_u v39; 
+  sval_u v35; 
   sval_u ArrayStatement; 
   sval_u val5; 
-  sval_u v42; 
+  sval_u v38; 
+  sval_u v39; 
+  int v40; 
+  sval_u v41; 
+  int v42; 
   sval_u v43; 
-  int v44; 
+  sval_u v44; 
   sval_u v45; 
-  int v46; 
-  sval_u v47; 
-  sval_u v48; 
+  sval_u v46; 
+  scr_string_t v47; 
+  unsigned int canonicalString; 
   sval_u v49; 
   sval_u v50; 
   scr_string_t v51; 
-  unsigned int canonicalString; 
+  unsigned int v52; 
   sval_u v53; 
-  sval_u v54; 
-  scr_string_t v55; 
-  unsigned int v56; 
+  scr_string_t v54; 
+  unsigned int v55; 
+  sval_u v56; 
   sval_u v57; 
-  scr_string_t v58; 
-  unsigned int v59; 
+  sval_u v58; 
+  sval_u v59; 
   sval_u v60; 
   sval_u v61; 
   sval_u v62; 
@@ -98,27 +103,27 @@ __int64 yyparse()
   sval_u v84; 
   sval_u v85; 
   sval_u v86; 
-  sval_u v87; 
-  sval_u v88; 
+  scr_string_t v87; 
+  unsigned int v88; 
   sval_u v89; 
   sval_u v90; 
-  scr_string_t v91; 
-  unsigned int v92; 
+  sval_u v91; 
+  sval_u v92; 
   sval_u v93; 
-  sval_u v94; 
-  sval_u v95; 
+  scr_string_t v94; 
+  unsigned int v95; 
   sval_u v96; 
   sval_u v97; 
-  scr_string_t v98; 
-  unsigned int v99; 
-  sval_u v100; 
+  sval_u v98; 
+  scr_string_t v99; 
+  unsigned int v100; 
   sval_u v101; 
-  sval_u v102; 
-  scr_string_t v103; 
-  unsigned int v104; 
+  scr_string_t v102; 
+  unsigned int v103; 
+  sval_u v104; 
   sval_u v105; 
-  scr_string_t v106; 
-  unsigned int v107; 
+  sval_u v106; 
+  sval_u v107; 
   sval_u v108; 
   sval_u v109; 
   sval_u v110; 
@@ -128,11 +133,11 @@ __int64 yyparse()
   sval_u v114; 
   sval_u v115; 
   sval_u v116; 
-  sval_u v117; 
+  int v117; 
   sval_u v118; 
   sval_u v119; 
   sval_u v120; 
-  int v121; 
+  sval_u v121; 
   sval_u v122; 
   sval_u v123; 
   sval_u v124; 
@@ -155,11 +160,11 @@ __int64 yyparse()
   sval_u v141; 
   sval_u v142; 
   sval_u v143; 
-  sval_u v144; 
+  sval_u val6; 
   sval_u v145; 
   sval_u v146; 
   sval_u v147; 
-  sval_u val6; 
+  sval_u v148; 
   sval_u v149; 
   sval_u v150; 
   sval_u v151; 
@@ -178,11 +183,11 @@ __int64 yyparse()
   sval_u v164; 
   sval_u v165; 
   sval_u v166; 
-  sval_u v167; 
+  sval_u appended; 
   sval_u v168; 
   sval_u v169; 
   sval_u v170; 
-  sval_u appended; 
+  sval_u v171; 
   sval_u v172; 
   sval_u v173; 
   sval_u v174; 
@@ -197,69 +202,65 @@ __int64 yyparse()
   sval_u v183; 
   sval_u v184; 
   sval_u v185; 
-  sval_u v186; 
-  sval_u v187; 
+  scr_string_t v186; 
+  unsigned int v187; 
   sval_u v188; 
   sval_u v189; 
-  scr_string_t v190; 
-  unsigned int v191; 
+  sval_u v190; 
+  sval_u v191; 
   sval_u v192; 
   sval_u v193; 
-  sval_u v194; 
+  sval_u CurrentExtFilename; 
   sval_u v195; 
   sval_u v196; 
   sval_u v197; 
-  sval_u CurrentExtFilename; 
-  sval_u v199; 
-  sval_u v200; 
-  sval_u v201; 
-  sval_u v202; 
-  __int64 v204; 
-  int v205; 
+  sval_u v198; 
+  __int64 v199; 
+  int v200; 
+  __int64 v201; 
+  unsigned __int64 v202; 
+  __int16 v203; 
+  unsigned int v205; 
   __int64 v206; 
-  unsigned __int64 v207; 
-  __int16 v208; 
-  unsigned int v210; 
-  __int64 v211; 
   sval_u val7; 
   sval_u val8; 
-  __int128 v214; 
-  int v215; 
-  sval_u *v216; 
-  int v217; 
-  __int128 *v218; 
-  int v219; 
-  __int16 *v220; 
+  __int128 v209; 
+  int v210; 
+  sval_u *v211; 
+  int v212; 
+  __int128 *v213; 
+  int v214; 
+  __int16 *v215; 
   sval_u val1; 
-  __int128 *v222; 
+  __int128 *v217; 
   sval_u valueExpr; 
-  unsigned __int64 v224; 
-  char v225[3200]; 
+  unsigned __int64 v219; 
+  char v220[3200]; 
   char dest[64]; 
-  char v227[400]; 
+  char v222[400]; 
 
-  v0 = (__int128 *)v227;
-  v1 = v225;
-  v222 = (__int128 *)v227;
+  v0 = (__int128 *)v222;
+  v1 = v220;
+  v217 = (__int128 *)v222;
   v2 = 200;
-  v218 = (__int128 *)v225;
-  v217 = 200;
-  v215 = 0;
+  v213 = (__int128 *)v220;
+  v212 = 200;
+  v210 = 0;
   v3 = 0i64;
   yynerrs = 0;
   v4 = 0;
-  DWORD2(v214) = 0;
+  DWORD2(v209) = 0;
   yychar = -2;
-  _R13 = (sval_u *)v225;
-  v6 = (__int16 *)&v211 + 1719;
+  v5 = (sval_u *)v220;
+  v6 = (__int16 *)&v206 + 1719;
   while ( 2 )
   {
     while ( 2 )
     {
-      v216 = _R13;
+      v211 = v5;
       while ( 1 )
       {
-        v220 = ++v6;
+        v215 = ++v6;
         *v6 = v3;
         if ( v6 >= (__int16 *)v0 + v2 - 1 )
         {
@@ -276,10 +277,10 @@ __int64 yyparse()
             {
               if ( yychar != 257 )
               {
-                v210 = 0;
+                v205 = 0;
                 if ( g_sourcePos != -1 )
-                  v210 = g_sourcePos;
-                CompileError(g_pScrCompileContext, v210, "bad syntax");
+                  v205 = g_sourcePos;
+                CompileError(g_pScrCompileContext, v205, "bad syntax");
                 Scr_Error(COM_ERR_1495, g_pScrCompileContext, "bad syntax");
               }
               return 2i64;
@@ -293,19 +294,19 @@ __int64 yyparse()
           v2 *= 2;
           if ( v2 > 10000 )
             v2 = 10000;
-          v217 = v2;
+          v212 = v2;
           v10 = 2i64 * v2;
           v11 = v10 + 15;
           if ( v10 + 15 <= v10 )
             v11 = 0xFFFFFFFFFFFFFF0i64;
           v12 = alloca(v11 & 0xFFFFFFFFFFFFFFF0ui64);
           v13 = 2 * v9;
-          v0 = &v214;
-          v222 = &v214;
-          v14 = &v214;
+          v0 = &v209;
+          v217 = &v209;
+          v14 = &v209;
           if ( 2 * (int)v9 > 0 )
           {
-            v15 = (char *)v8 - (char *)&v214;
+            v15 = (char *)v8 - (char *)&v209;
             do
             {
               --v13;
@@ -320,11 +321,11 @@ __int64 yyparse()
             v17 = 0xFFFFFFFFFFFFFF0i64;
           v18 = alloca(v17 & 0xFFFFFFFFFFFFFFF0ui64);
           v19 = 16 * v9;
-          v218 = &v214;
-          v20 = &v214;
+          v213 = &v209;
+          v20 = &v209;
           if ( 16 * (int)v9 > 0 )
           {
-            v21 = v7 - (char *)&v214;
+            v21 = v7 - (char *)&v209;
             do
             {
               --v19;
@@ -334,13 +335,13 @@ __int64 yyparse()
             while ( v19 > 0 );
           }
           v22 = (int)v9;
-          v6 = (__int16 *)&v214 + (int)v9 - 1;
-          v220 = v6;
-          _R13 = (sval_u *)(&v214 + v22 - 1);
-          v216 = _R13;
-          if ( v6 >= (__int16 *)((char *)&v214 + v10 - 2) )
+          v6 = (__int16 *)&v209 + (int)v9 - 1;
+          v215 = v6;
+          v5 = (sval_u *)(&v209 + v22 - 1);
+          v211 = v5;
+          if ( v6 >= (__int16 *)((char *)&v209 + v10 - 2) )
             return 1i64;
-          v4 = v215;
+          v4 = v210;
         }
         v23 = yypact[v3];
         v24 = yychar;
@@ -373,128 +374,121 @@ __int64 yyparse()
         if ( !yydefact[v3] )
           goto $yyerrlab;
 $yyreduce:
-        v224 = 2i64 * v29;
-        v30 = yyr2[v224 / 2];
-        v219 = v30;
+        v219 = 2i64 * v29;
+        v30 = yyr2[v219 / 2];
+        v214 = v30;
         if ( v30 > 0 )
-        {
-          _RCX = 2i64 * (1 - v30);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r13+rcx*8+0]
-            vmovups [rbp+0EE0h+var_EE0], xmm0
-          }
-        }
+          v209 = *(_OWORD *)&v5[2 * (1 - v30)].type;
         switch ( v29 )
         {
           case 1:
-            yaccResult = node2_(_R13[-2], *_R13);
+            yaccResult = node2_(v5[-2], *v5);
             break;
           case 2:
-            yaccResult = node1(74, *_R13);
+            yaccResult = node1(74, *v5);
             break;
           case 3:
           case 4:
-            yaccResult = node1(94, *_R13);
+            yaccResult = node1(94, *v5);
             break;
           case 5:
-            v39 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(7, *_R13, v39);
+            v35 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(7, *v5, v35);
             goto LABEL_208;
           case 6:
-            val5 = node_pos(_R13[-1].canonicalString);
-            v42 = node_pos(_R13[1].canonicalString);
-            v43 = node_pos(_R13[-3].canonicalString);
-            v44 = 55;
+            val5 = node_pos(v5[-1].canonicalString);
+            v38 = node_pos(v5[1].canonicalString);
+            v39 = node_pos(v5[-3].canonicalString);
+            v40 = 55;
             goto LABEL_76;
           case 7:
-            val5 = node_pos(_R13[-1].canonicalString);
-            v42 = node_pos(_R13[1].canonicalString);
-            v43 = node_pos(_R13[-3].canonicalString);
-            v44 = 56;
+            val5 = node_pos(v5[-1].canonicalString);
+            v38 = node_pos(v5[1].canonicalString);
+            v39 = node_pos(v5[-3].canonicalString);
+            v40 = 56;
 LABEL_76:
-            *(sval_u *)&v214 = node5(v44, _R13[-4], *_R13, v43, v42, val5);
-            DWORD2(v214) = _R13[-1].type;
+            *(sval_u *)&v209 = node5(v40, v5[-4], *v5, v39, v38, val5);
+            DWORD2(v209) = v5[-1].type;
             break;
           case 8:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 15;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 15;
             goto LABEL_79;
           case 9:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 153;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 153;
             goto LABEL_79;
           case 10:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 144;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 144;
             goto LABEL_79;
           case 11:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 16;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 16;
             goto LABEL_79;
           case 12:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 151;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 151;
             goto LABEL_79;
           case 13:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 118;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 118;
             goto LABEL_79;
           case 14:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 10;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 10;
             goto LABEL_79;
           case 15:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 61;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 61;
             goto LABEL_79;
           case 16:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 83;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 83;
             goto LABEL_79;
           case 17:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 45;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 45;
             goto LABEL_79;
           case 18:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 12;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 12;
             goto LABEL_79;
           case 19:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 2;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 2;
             goto LABEL_79;
           case 20:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 78;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 78;
             goto LABEL_79;
           case 21:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 139;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 139;
             goto LABEL_79;
           case 22:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 136;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 136;
             goto LABEL_79;
           case 23:
-            v45 = node_pos(_R13[-1].canonicalString);
-            v46 = 100;
+            v41 = node_pos(v5[-1].canonicalString);
+            v42 = 100;
 LABEL_79:
-            v47 = v45;
-            v48 = node1_(v46);
-            *(sval_u *)&v214 = node4(57, _R13[-4], *_R13, v48, v47);
-            DWORD2(v214) = _R13[-1].type;
+            v43 = v41;
+            v44 = node1_(v42);
+            *(sval_u *)&v209 = node4(57, v5[-4], *v5, v44, v43);
+            DWORD2(v209) = v5[-1].type;
             break;
           case 24:
-            v49 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(58, *_R13, v49);
+            v45 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(58, *v5, v45);
             goto LABEL_208;
           case 25:
-            v50 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(59, *_R13, v50);
+            v46 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(59, *v5, v46);
             goto LABEL_208;
           case 26:
-            ArrayStatement = node1(74, *_R13);
+            ArrayStatement = node1(74, *v5);
             goto LABEL_208;
           case 27:
           case 106:
@@ -504,393 +498,393 @@ LABEL_79:
             goto LABEL_208;
           case 28:
           case 29:
-            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            ArrayStatement = *_R13;
+            v5->type = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            ArrayStatement = *v5;
             goto LABEL_208;
           case 30:
-            v51 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            canonicalString = _R13[-3].canonicalString;
-            _R13->type = v51;
-            v53 = node_pos(canonicalString);
-            v54 = node3(24, _R13[-4], *_R13, v53);
+            v47 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            canonicalString = v5[-3].canonicalString;
+            v5->type = v47;
+            v49 = node_pos(canonicalString);
+            v50 = node3(24, v5[-4], *v5, v49);
             goto LABEL_101;
           case 31:
-            v55 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v56 = _R13[1].canonicalString;
+            v51 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v52 = v5[1].canonicalString;
             goto LABEL_103;
           case 32:
-            v58 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v59 = _R13[-3].canonicalString;
-            _R13->type = v58;
-            v60 = node_pos(v59);
-            *(sval_u *)&v214 = node3(24, _R13[-4], *_R13, v60);
-            DWORD2(v214) = _R13[-1].type;
+            v54 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v55 = v5[-3].canonicalString;
+            v5->type = v54;
+            v56 = node_pos(v55);
+            *(sval_u *)&v209 = node3(24, v5[-4], *v5, v56);
+            DWORD2(v209) = v5[-1].type;
             ++g_pScrCompileContext->m_compilePub.far_function_count;
             break;
           case 33:
-            v55 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v56 = _R13[-1].canonicalString;
+            v51 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v52 = v5[-1].canonicalString;
 LABEL_103:
-            _R13->type = v55;
-            v57 = node_pos(v56);
-            ArrayStatement = node2(23, *_R13, v57);
+            v5->type = v51;
+            v53 = node_pos(v52);
+            ArrayStatement = node2(23, *v5, v53);
             goto LABEL_208;
           case 34:
           case 61:
-            v61 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(21, *_R13, v61);
+            v57 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(21, *v5, v57);
             goto LABEL_208;
           case 35:
-            v62 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node2(25, _R13[-4], v62);
+            v58 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node2(25, v5[-4], v58);
             goto LABEL_208;
           case 36:
-            v63 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(29, *_R13, v63);
+            v59 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(29, *v5, v59);
             goto LABEL_208;
           case 37:
-            v64 = node_pos(_R13[1].canonicalString);
-            v65 = node_pos(_R13[-1].canonicalString);
-            *(sval_u *)&v214 = node3(33, *_R13, v65, v64);
-            DWORD2(v214) = _R13[1].type;
+            v60 = node_pos(v5[1].canonicalString);
+            v61 = node_pos(v5[-1].canonicalString);
+            *(sval_u *)&v209 = node3(33, *v5, v61, v60);
+            DWORD2(v209) = v5[1].type;
             break;
           case 38:
-            v66 = node_pos(_R13[1].canonicalString);
-            v67 = node_pos(_R13[-1].canonicalString);
-            *(sval_u *)&v214 = node3(34, *_R13, v67, v66);
-            DWORD2(v214) = _R13[1].type;
+            v62 = node_pos(v5[1].canonicalString);
+            v63 = node_pos(v5[-1].canonicalString);
+            *(sval_u *)&v209 = node3(34, *v5, v63, v62);
+            DWORD2(v209) = v5[1].type;
             break;
           case 39:
-            v68 = node_pos(_R13[-3].canonicalString);
-            *(sval_u *)&v214 = node2(35, _R13[-4], v68);
-            DWORD2(v214) = _R13[-3].type;
+            v64 = node_pos(v5[-3].canonicalString);
+            *(sval_u *)&v209 = node2(35, v5[-4], v64);
+            DWORD2(v209) = v5[-3].type;
             break;
           case 40:
-            v69 = node_pos(_R13[-3].canonicalString);
-            *(sval_u *)&v214 = node3(26, _R13[-6], _R13[-2], v69);
-            DWORD2(v214) = _R13[-3].type;
+            v65 = node_pos(v5[-3].canonicalString);
+            *(sval_u *)&v209 = node3(26, v5[-6], v5[-2], v65);
+            DWORD2(v209) = v5[-3].type;
             break;
           case 41:
-            v70 = node_pos(_R13[-3].canonicalString);
-            v71 = node_pos(_R13[-7].canonicalString);
-            *(sval_u *)&v214 = node5(27, _R13[-8], _R13[-6], _R13[-2], v71, v70);
-            DWORD2(v214) = _R13[-3].type;
+            v66 = node_pos(v5[-3].canonicalString);
+            v67 = node_pos(v5[-7].canonicalString);
+            *(sval_u *)&v209 = node5(27, v5[-8], v5[-6], v5[-2], v67, v66);
+            DWORD2(v209) = v5[-3].type;
             break;
           case 42:
-            v72 = node_pos(_R13[-3].canonicalString);
-            v73 = node_reverse_list(_R13[-2]);
-            ArrayStatement = node2(75, v73, v72);
+            v68 = node_pos(v5[-3].canonicalString);
+            v69 = node_reverse_list(v5[-2]);
+            ArrayStatement = node2(75, v69, v68);
             goto LABEL_208;
           case 43:
-            v74 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node2(54, _R13[-2], v74);
+            v70 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node2(54, v5[-2], v70);
             goto LABEL_208;
           case 44:
-            v75 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(9, *_R13, v75);
+            v71 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(9, *v5, v71);
             goto LABEL_208;
           case 45:
-            v76 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(10, *_R13, v76);
+            v72 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(10, *v5, v72);
             goto LABEL_208;
           case 46:
-            v77 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(11, *_R13, v77);
+            v73 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(11, *v5, v73);
             goto LABEL_208;
           case 47:
-            v78 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(12, *_R13, v78);
+            v74 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(12, *v5, v74);
             goto LABEL_208;
           case 48:
-            v79 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(13, *_R13, v79);
+            v75 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(13, *v5, v75);
             goto LABEL_208;
           case 49:
-            v80 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(14, *_R13, v80);
+            v76 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(14, *v5, v76);
             goto LABEL_208;
           case 50:
-            v81 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(36, _R13[-2], v81);
+            v77 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(36, v5[-2], v77);
             goto LABEL_208;
           case 51:
-            v82 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(37, _R13[-2], v82);
+            v78 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(37, v5[-2], v78);
             goto LABEL_208;
           case 52:
-            ArrayStatement = node1(22, *_R13);
+            ArrayStatement = node1(22, *v5);
             goto LABEL_208;
           case 53:
-            v83 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node2(20, *_R13, v83);
+            v79 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node2(20, *v5, v79);
             goto LABEL_208;
           case 54:
-            v84 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(38, v84);
+            v80 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(38, v80);
             goto LABEL_208;
           case 55:
-            v85 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(39, v85);
+            v81 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(39, v81);
             goto LABEL_208;
           case 56:
-            v86 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(41, v86);
+            v82 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(41, v82);
             goto LABEL_208;
           case 57:
-            v87 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(42, v87);
+            v83 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(42, v83);
             goto LABEL_208;
           case 58:
-            v88 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(43, v88);
+            v84 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(43, v84);
             goto LABEL_208;
           case 59:
-            v89 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(44, v89);
+            v85 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(44, v85);
             goto LABEL_208;
           case 60:
-            v90 = node_pos(_R13[-1].canonicalString);
-            *(sval_u *)&v214 = node2(60, _R13[-2], v90);
-            DWORD2(v214) = _R13[1].type;
+            v86 = node_pos(v5[-1].canonicalString);
+            *(sval_u *)&v209 = node2(60, v5[-2], v86);
+            DWORD2(v209) = v5[1].type;
             break;
           case 63:
           case 64:
-            v91 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v92 = _R13[1].canonicalString;
-            _R13->type = v91;
-            v93 = node_pos(v92);
-            ArrayStatement = node2(76, *_R13, v93);
+            v87 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v88 = v5[1].canonicalString;
+            v5->type = v87;
+            v89 = node_pos(v88);
+            ArrayStatement = node2(76, *v5, v89);
             goto LABEL_208;
           case 65:
-            v94 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(81, v94);
+            v90 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(81, v90);
             goto LABEL_208;
           case 66:
-            v95 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(82, v95);
+            v91 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(82, v91);
             goto LABEL_208;
           case 67:
-            v96 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(83, v96);
+            v92 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(83, v92);
             goto LABEL_208;
           case 68:
-            v97 = node_pos(_R13[-5].canonicalString);
-            ArrayStatement = node3(84, _R13[-8], _R13[-2], v97);
+            v93 = node_pos(v5[-5].canonicalString);
+            ArrayStatement = node3(84, v5[-8], v5[-2], v93);
             goto LABEL_208;
           case 69:
-            v98 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v99 = _R13[-3].canonicalString;
-            _R13->type = v98;
-            v100 = node_pos(v99);
-            *(sval_u *)&v214 = node3(17, _R13[-4], *_R13, v100);
-            DWORD2(v214) = _R13[1].type;
+            v94 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v95 = v5[-3].canonicalString;
+            v5->type = v94;
+            v96 = node_pos(v95);
+            *(sval_u *)&v209 = node3(17, v5[-4], *v5, v96);
+            DWORD2(v209) = v5[1].type;
             break;
           case 70:
-            v101 = node_pos(_R13[-1].canonicalString);
-            v102 = node_pos(_R13[-5].canonicalString);
-            *(sval_u *)&v214 = node4(15, _R13[-6], _R13[-2], v102, v101);
-            DWORD2(v214) = _R13[-3].type;
+            v97 = node_pos(v5[-1].canonicalString);
+            v98 = node_pos(v5[-5].canonicalString);
+            *(sval_u *)&v209 = node4(15, v5[-6], v5[-2], v98, v97);
+            DWORD2(v209) = v5[-3].type;
             break;
           case 71:
-            v103 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v104 = _R13[1].canonicalString;
-            _R13->type = v103;
-            v105 = node_pos(v104);
-            ArrayStatement = node2(5, *_R13, v105);
+            v99 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v100 = v5[1].canonicalString;
+            v5->type = v99;
+            v101 = node_pos(v100);
+            ArrayStatement = node2(5, *v5, v101);
             goto LABEL_208;
           case 72:
-            v106 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
-            v107 = _R13[-1].canonicalString;
-            _R13->type = v106;
-            v108 = node_pos(v107);
-            ArrayStatement = node2(91, *_R13, v108);
+            v102 = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
+            v103 = v5[-1].canonicalString;
+            v5->type = v102;
+            v104 = node_pos(v103);
+            ArrayStatement = node2(91, *v5, v104);
             goto LABEL_208;
           case 73:
-            v109 = node_pos(_R13[-3].canonicalString);
-            *(sval_u *)&v214 = node2(61, _R13[-4], v109);
-            DWORD2(v214) = _R13[1].type;
+            v105 = node_pos(v5[-3].canonicalString);
+            *(sval_u *)&v209 = node2(61, v5[-4], v105);
+            DWORD2(v209) = v5[1].type;
             break;
           case 74:
-            v110 = node_pos(_R13[1].canonicalString);
-            v111 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node4(2, _R13[-4], *_R13, v111, v110);
+            v106 = node_pos(v5[1].canonicalString);
+            v107 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node4(2, v5[-4], *v5, v107, v106);
             goto LABEL_208;
           case 75:
-            v112 = node_pos(_R13[1].canonicalString);
-            v113 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = Scr_CreateExtractArrayStatement(_R13[-4], *_R13, v113, v112);
+            v108 = node_pos(v5[1].canonicalString);
+            v109 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = Scr_CreateExtractArrayStatement(v5[-4], *v5, v109, v108);
             goto LABEL_208;
           case 76:
-            v114 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(30, *_R13, v114);
+            v110 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(30, *v5, v110);
             goto LABEL_208;
           case 77:
-            v115 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(31, v115);
+            v111 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(31, v111);
             goto LABEL_208;
           case 78:
-            v116 = node_pos(_R13[-1].canonicalString);
-            v117 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node3(32, *_R13, v117, v116);
+            v112 = node_pos(v5[-1].canonicalString);
+            v113 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node3(32, *v5, v113, v112);
             goto LABEL_208;
           case 79:
-            v118 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(49, _R13[-2], v118);
+            v114 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(49, v5[-2], v114);
             goto LABEL_208;
           case 80:
-            v119 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(50, _R13[-2], v119);
+            v115 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(50, v5[-2], v115);
             goto LABEL_208;
           case 81:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 15;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 15;
             goto LABEL_151;
           case 82:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 153;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 153;
             goto LABEL_151;
           case 83:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 144;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 144;
             goto LABEL_151;
           case 84:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 45;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 45;
             goto LABEL_151;
           case 85:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 12;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 12;
             goto LABEL_151;
           case 86:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 2;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 2;
             goto LABEL_151;
           case 87:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 78;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 78;
             goto LABEL_151;
           case 88:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 139;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 139;
             goto LABEL_151;
           case 89:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 136;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 136;
             goto LABEL_151;
           case 90:
-            v120 = node_pos(_R13[-1].canonicalString);
-            v121 = 100;
+            v116 = node_pos(v5[-1].canonicalString);
+            v117 = 100;
 LABEL_151:
-            v122 = v120;
-            v123 = node1_(v121);
-            ArrayStatement = node4(51, _R13[-4], *_R13, v123, v122);
+            v118 = v116;
+            v119 = node1_(v117);
+            ArrayStatement = node4(51, v5[-4], *v5, v119, v118);
             goto LABEL_208;
           case 91:
-            v124 = node_pos(_R13[-5].canonicalString);
-            v125 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node4(63, _R13[-8], _R13[-2], v125, v124);
+            v120 = node_pos(v5[-5].canonicalString);
+            v121 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node4(63, v5[-8], v5[-2], v121, v120);
             goto LABEL_208;
           case 92:
-            v126 = node_pos(_R13[-5].canonicalString);
-            v127 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node4(64, _R13[-8], _R13[-2], v127, v126);
+            v122 = node_pos(v5[-5].canonicalString);
+            v123 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node4(64, v5[-8], v5[-2], v123, v122);
             goto LABEL_208;
           case 93:
-            v128 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(65, v128);
+            v124 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(65, v124);
             goto LABEL_208;
           case 94:
-            v129 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(66, v129);
+            v125 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(66, v125);
             goto LABEL_208;
           case 95:
-            v130 = node_pos(_R13[-5].canonicalString);
-            v131 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node4(67, _R13[-8], _R13[-2], v131, v130);
+            v126 = node_pos(v5[-5].canonicalString);
+            v127 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node4(67, v5[-8], v5[-2], v127, v126);
             goto LABEL_208;
           case 96:
-            v132 = node_pos(_R13[-1].canonicalString);
-            v133 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node4(68, _R13[-8], _R13[-2], v133, v132);
+            v128 = node_pos(v5[-1].canonicalString);
+            v129 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node4(68, v5[-8], v5[-2], v129, v128);
             goto LABEL_208;
           case 97:
-            v134 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(72, v134);
+            v130 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(72, v130);
             goto LABEL_208;
           case 98:
-            v135 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(73, v135);
+            v131 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(73, v131);
             goto LABEL_208;
           case 99:
-            v136 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(85, v136);
+            v132 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(85, v132);
             goto LABEL_208;
           case 100:
-            v137 = node_pos(_R13[-5].canonicalString);
-            ArrayStatement = node2(86, _R13[-2], v137);
+            v133 = node_pos(v5[-5].canonicalString);
+            ArrayStatement = node2(86, v5[-2], v133);
             goto LABEL_208;
           case 101:
-            v138 = node_pos(_R13[-9].canonicalString);
-            ArrayStatement = node3(88, _R13[-6], _R13[-2], v138);
+            v134 = node_pos(v5[-9].canonicalString);
+            ArrayStatement = node3(88, v5[-6], v5[-2], v134);
             goto LABEL_208;
           case 102:
-            v139 = node_pos(_R13[-5].canonicalString);
-            ArrayStatement = node2(87, _R13[-2], v139);
+            v135 = node_pos(v5[-5].canonicalString);
+            ArrayStatement = node2(87, v5[-2], v135);
             goto LABEL_208;
           case 103:
-            v140 = node_pos(_R13[-9].canonicalString);
-            ArrayStatement = node3(89, _R13[-6], _R13[-2], v140);
+            v136 = node_pos(v5[-9].canonicalString);
+            ArrayStatement = node3(89, v5[-6], v5[-2], v136);
             goto LABEL_208;
           case 104:
-            ArrayStatement = node1(28, *_R13);
+            ArrayStatement = node1(28, *v5);
             goto LABEL_208;
           case 109:
-            v141 = node_pos(_R13[1].canonicalString);
-            v142 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node3(52, _R13[-2], v142, v141);
+            v137 = node_pos(v5[1].canonicalString);
+            v138 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node3(52, v5[-2], v138, v137);
             goto LABEL_208;
           case 110:
-            v143 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node4(45, _R13[-4], *_R13, v143, g_dummyVal);
+            v139 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node4(45, v5[-4], *v5, v139, g_dummyVal);
             goto LABEL_208;
           case 111:
-            v144 = node_pos(_R13[-1].canonicalString);
-            v145 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node7(46, _R13[-8], _R13[-4], *_R13, v145, v144, g_dummyVal, g_dummyVal);
+            v140 = node_pos(v5[-1].canonicalString);
+            v141 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node7(46, v5[-8], v5[-4], *v5, v141, v140, g_dummyVal, g_dummyVal);
             goto LABEL_208;
           case 112:
-            v146 = node_pos(_R13[-7].canonicalString);
-            v147 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node5(47, _R13[-4], *_R13, v147, v146, g_dummyVal);
+            v142 = node_pos(v5[-7].canonicalString);
+            v143 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node5(47, v5[-4], *v5, v143, v142, g_dummyVal);
             goto LABEL_208;
           case 113:
-            val6 = node_pos(_R13[-13].canonicalString);
-            v149 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node8(48, _R13[-10], _R13[-8], _R13[-4], *_R13, v149, val6, g_dummyVal, g_dummyVal);
+            val6 = node_pos(v5[-13].canonicalString);
+            v145 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node8(48, v5[-10], v5[-8], v5[-4], *v5, v145, val6, g_dummyVal, g_dummyVal);
             goto LABEL_208;
           case 114:
-            v150 = node_pos(_R13[-1].canonicalString);
-            v151 = node_pos(_R13[-5].canonicalString);
-            v152 = node_pos(_R13[-3].canonicalString);
-            v153 = node_pos(_R13[-11].canonicalString);
-            v154 = node_pos(_R13[-15].canonicalString);
-            v155 = *_R13;
-            v156 = _R13[-4];
-            v157 = _R13[-8];
-            v158 = _R13[-12];
-            val8 = v150;
-            val7 = v151;
-            ArrayStatement = Scr_CreateForEachStatement(v158, v157, v156, v155, v154, v153, v152);
+            v146 = node_pos(v5[-1].canonicalString);
+            v147 = node_pos(v5[-5].canonicalString);
+            v148 = node_pos(v5[-3].canonicalString);
+            v149 = node_pos(v5[-11].canonicalString);
+            v150 = node_pos(v5[-15].canonicalString);
+            v151 = *v5;
+            v152 = v5[-4];
+            v153 = v5[-8];
+            v154 = v5[-12];
+            val8 = v146;
+            val7 = v147;
+            ArrayStatement = Scr_CreateForEachStatement(v154, v153, v152, v151, v150, v149, v148);
             goto LABEL_208;
           case 115:
-            v159 = node_pos(_R13[-1].canonicalString);
-            v160 = node_pos(_R13[-5].canonicalString);
-            v161 = node_pos(_R13[-3].canonicalString);
-            v162 = node_pos(_R13[-11].canonicalString);
-            v163 = *_R13;
-            v164 = v162;
-            v165 = _R13[-4];
-            valueExpr = v216[-8];
+            v155 = node_pos(v5[-1].canonicalString);
+            v156 = node_pos(v5[-5].canonicalString);
+            v157 = node_pos(v5[-3].canonicalString);
+            v158 = node_pos(v5[-11].canonicalString);
+            v159 = *v5;
+            v160 = v158;
+            v161 = v5[-4];
+            valueExpr = v211[-8];
             if ( !g_pScrCompileContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 207, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext )", (const char *)&queryFormat, "g_pScrCompileContext") )
               __debugbreak();
             if ( !g_pScrCompileContext->m_compilePub.parseBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 208, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext->m_compilePub.parseBuf )", (const char *)&queryFormat, "g_pScrCompileContext->m_compilePub.parseBuf") )
@@ -899,158 +893,157 @@ LABEL_151:
             ++g_tempVarIndex;
             val1.type = j_SL_GetString_(dest, g_parse_user, 16);
             SL_AddRefToString(val1.stringValue);
-            v166 = node2(5, val1, v161);
-            val8 = v159;
-            val7 = v160;
-            v167 = v166;
-            val1 = v166;
-            v168 = Scr_CreateForEachStatement(v166, valueExpr, v165, v163, v164, v164, v161);
-            v169 = node0(0);
-            v170 = linked_list_end(v169);
-            appended = append_node(v170, v168);
-            v172 = node1(3, v167);
-            v173 = append_node(appended, v172);
-            ArrayStatement = node3(52, v173, v164, v164);
-            _R13 = v216;
-            v6 = v220;
-            v2 = v217;
+            v162 = node2(5, val1, v157);
+            val8 = v155;
+            val7 = v156;
+            v163 = v162;
+            val1 = v162;
+            v164 = Scr_CreateForEachStatement(v162, valueExpr, v161, v159, v160, v160, v157);
+            v165 = node0(0);
+            v166 = linked_list_end(v165);
+            appended = append_node(v166, v164);
+            v168 = node1(3, v163);
+            v169 = append_node(appended, v168);
+            ArrayStatement = node3(52, v169, v160, v160);
+            v5 = v211;
+            v6 = v215;
+            v2 = v212;
             goto LABEL_208;
           case 116:
-            v174 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node3(69, _R13[-8], _R13[-2], v174);
+            v170 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node3(69, v5[-8], v5[-2], v170);
             goto LABEL_208;
           case 117:
-            v175 = node_pos(_R13[1].canonicalString);
-            v176 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node4(53, _R13[-2], v176, g_dummyVal, v175);
+            v171 = node_pos(v5[1].canonicalString);
+            v172 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node4(53, v5[-2], v172, g_dummyVal, v171);
             goto LABEL_208;
           case 119:
-            v177 = node_pos(_R13[-3].canonicalString);
-            ArrayStatement = node3(70, _R13[-2], v177, g_dummyVal);
+            v173 = node_pos(v5[-3].canonicalString);
+            ArrayStatement = node3(70, v5[-2], v173, g_dummyVal);
             goto LABEL_208;
           case 120:
-            v178 = node_pos(_R13[-1].canonicalString);
-            ArrayStatement = node2(71, v178, g_dummyVal);
+            v174 = node_pos(v5[-1].canonicalString);
+            ArrayStatement = node2(71, v174, g_dummyVal);
             goto LABEL_208;
           case 122:
-            ArrayStatement = append_node(_R13[-2], *_R13);
+            ArrayStatement = append_node(v5[-2], *v5);
             goto LABEL_208;
           case 123:
           case 131:
           case 144:
           case 147:
-            v202 = node0(0);
-            ArrayStatement = linked_list_end(v202);
+            v198 = node0(0);
+            ArrayStatement = linked_list_end(v198);
             goto LABEL_208;
           case 124:
           case 136:
-            v179 = node_pos(_R13[1].canonicalString);
-            v180 = node2_(*_R13, v179);
-            ArrayStatement = prepend_node(v180, _R13[-4]);
+            v175 = node_pos(v5[1].canonicalString);
+            v176 = node2_(*v5, v175);
+            ArrayStatement = prepend_node(v176, v5[-4]);
             goto LABEL_208;
           case 125:
           case 137:
-            v181 = node0(0);
-            v182 = node_pos(_R13[1].canonicalString);
-            v183 = node2_(*_R13, v182);
-            ArrayStatement = prepend_node(v183, v181);
+            v177 = node0(0);
+            v178 = node_pos(v5[1].canonicalString);
+            v179 = node2_(*v5, v178);
+            ArrayStatement = prepend_node(v179, v177);
             goto LABEL_208;
           case 128:
           case 132:
-            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v5->type = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
             goto $LN164;
           case 129:
-            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v5->type = j_SL_ConvertToLowercase(v5->stringValue, g_parse_user, 16);
             goto $LN163_0;
           case 133:
           case 135:
 $LN163_0:
-            v186 = node_pos(_R13[1].canonicalString);
-            v187 = node2_(*_R13, v186);
-            v188 = node0(0);
-            v189 = linked_list_end(v188);
-            ArrayStatement = append_node(v189, v187);
+            v182 = node_pos(v5[1].canonicalString);
+            v183 = node2_(*v5, v182);
+            v184 = node0(0);
+            v185 = linked_list_end(v184);
+            ArrayStatement = append_node(v185, v183);
             goto LABEL_208;
           case 134:
 $LN164:
-            v184 = node_pos(_R13[1].canonicalString);
-            v185 = node2_(*_R13, v184);
-            ArrayStatement = append_node(_R13[-4], v185);
+            v180 = node_pos(v5[1].canonicalString);
+            v181 = node2_(*v5, v180);
+            ArrayStatement = append_node(v5[-4], v181);
             goto LABEL_208;
           case 138:
-            Scr_NotAllowedInline(_R13[-11].canonicalString);
-            v190 = j_SL_ConvertToLowercase(_R13[-12].stringValue, g_parse_user, 16);
-            v191 = _R13[1].canonicalString;
-            _R13[-12].type = v190;
-            v192 = node_pos(v191);
-            v193 = node_pos(_R13[-11].canonicalString);
-            ArrayStatement = node6(77, _R13[-12], _R13[-8], _R13[-2], v193, v192, g_dummyVal);
+            Scr_NotAllowedInline(v5[-11].canonicalString);
+            v186 = j_SL_ConvertToLowercase(v5[-12].stringValue, g_parse_user, 16);
+            v187 = v5[1].canonicalString;
+            v5[-12].type = v186;
+            v188 = node_pos(v187);
+            v189 = node_pos(v5[-11].canonicalString);
+            ArrayStatement = node6(77, v5[-12], v5[-8], v5[-2], v189, v188, g_dummyVal);
             goto LABEL_208;
           case 139:
-            Scr_NotAllowedInline(_R13[-7].canonicalString);
-            v194 = node_pos(_R13[-3].canonicalString);
-            v195 = node_pos(_R13[-7].canonicalString);
-            ArrayStatement = node3(80, _R13[-4], v195, v194);
+            Scr_NotAllowedInline(v5[-7].canonicalString);
+            v190 = node_pos(v5[-3].canonicalString);
+            v191 = node_pos(v5[-7].canonicalString);
+            ArrayStatement = node3(80, v5[-4], v191, v190);
             goto LABEL_208;
           case 140:
-            Scr_NotAllowedInline(_R13[1].canonicalString);
-            v196 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(78, v196);
+            Scr_NotAllowedInline(v5[1].canonicalString);
+            v192 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(78, v192);
             goto LABEL_208;
           case 141:
-            Scr_NotAllowedInline(_R13[1].canonicalString);
-            v197 = node_pos(_R13[1].canonicalString);
-            ArrayStatement = node1(79, v197);
+            Scr_NotAllowedInline(v5[1].canonicalString);
+            v193 = node_pos(v5[1].canonicalString);
+            ArrayStatement = node1(79, v193);
             goto LABEL_208;
           case 142:
-            _R13[-6].type = j_SL_ConvertToLowercase(_R13[-6].stringValue, g_parse_user, 16);
+            v5[-6].type = j_SL_ConvertToLowercase(v5[-6].stringValue, g_parse_user, 16);
             CurrentExtFilename = Scr_GetCurrentExtFilename();
-            v199 = node_pos(_R13[-1].canonicalString);
-            v200 = node_pos(_R13[-5].canonicalString);
-            ArrayStatement = node5(99, _R13[-6], _R13[-2], v200, v199, CurrentExtFilename);
+            v195 = node_pos(v5[-1].canonicalString);
+            v196 = node_pos(v5[-5].canonicalString);
+            ArrayStatement = node5(99, v5[-6], v5[-2], v196, v195, CurrentExtFilename);
             goto LABEL_208;
           case 143:
-            *(sval_u *)&v214 = append_node(_R13[-2], *_R13);
+            *(sval_u *)&v209 = append_node(v5[-2], *v5);
             g_tempVarIndex = 0;
             break;
           case 145:
-            v201 = node_pos(_R13[-1].canonicalString);
-            v54 = node2(97, *_R13, v201);
+            v197 = node_pos(v5[-1].canonicalString);
+            v50 = node2(97, *v5, v197);
 LABEL_101:
-            *(sval_u *)&v214 = v54;
+            *(sval_u *)&v209 = v50;
             ++g_pScrCompileContext->m_compilePub.far_function_count;
             break;
           case 146:
-            ArrayStatement = append_node(_R13[-4], _R13[-2]);
+            ArrayStatement = append_node(v5[-4], v5[-2]);
 LABEL_208:
-            *(sval_u *)&v214 = ArrayStatement;
+            *(sval_u *)&v209 = ArrayStatement;
             break;
           default:
             break;
         }
-        __asm { vmovups xmm0, [rbp+0EE0h+var_EE0] }
-        v6 -= v219;
-        _R13 = (sval_u *)((char *)_R13 + 16 - 16i64 * v219);
-        v216 = _R13;
-        v204 = yyr1[v224 / 2];
-        __asm { vmovups xmmword ptr [r13+0], xmm0 }
-        v205 = *v6;
-        v206 = 2 * v204 - 202;
-        v207 = v205 + *(const __int16 *)((char *)yypgoto + v206);
-        if ( v207 <= 0x643 && yycheck[v207] == (_WORD)v205 )
+        v6 -= v214;
+        v5 = (sval_u *)((char *)v5 + 16 - 16i64 * v214);
+        v211 = v5;
+        v199 = yyr1[v219 / 2];
+        *(_OWORD *)&v5->type = v209;
+        v200 = *v6;
+        v201 = 2 * v199 - 202;
+        v202 = v200 + *(const __int16 *)((char *)yypgoto + v201);
+        if ( v202 <= 0x643 && yycheck[v202] == (_WORD)v200 )
         {
-          v0 = v222;
-          v1 = (char *)v218;
-          v4 = v215;
-          v3 = yytable[v207];
+          v0 = v217;
+          v1 = (char *)v213;
+          v4 = v210;
+          v3 = yytable[v202];
         }
         else
         {
-          v208 = *(const __int16 *)((char *)yydefgoto + v206);
-          v0 = v222;
-          v1 = (char *)v218;
-          v4 = v215;
-          v3 = v208;
+          v203 = *(const __int16 *)((char *)yydefgoto + v201);
+          v0 = v217;
+          v1 = (char *)v213;
+          v4 = v210;
+          v3 = v203;
         }
       }
       v28 = yytable[v27];
@@ -1065,19 +1058,18 @@ LABEL_208:
       {
         if ( (_DWORD)v28 == 305 )
           return 0i64;
-        __asm { vmovups xmm0, xmmword ptr cs:?yylval@@3Ustype_t@@A.val; stype_t yylval }
-        v1 = (char *)v218;
+        v1 = (char *)v213;
         v3 = v28;
         if ( v24 )
           v24 = -2;
-        _R13 += 2;
+        v5 += 2;
         yychar = v24;
-        v34 = v4 - 1;
+        v31 = v4 - 1;
         if ( !v4 )
-          v34 = 0;
-        v4 = v34;
-        v215 = v34;
-        __asm { vmovups xmmword ptr [r13+0], xmm0 }
+          v31 = 0;
+        v4 = v31;
+        v210 = v31;
+        *(stype_t *)&v5->type = yylval;
         continue;
       }
       break;
@@ -1099,10 +1091,10 @@ $yyerrlab:
       {
         if ( v24 != 257 )
         {
-          v35 = 0;
+          v32 = 0;
           if ( g_sourcePos != -1 )
-            v35 = g_sourcePos;
-          CompileError(g_pScrCompileContext, v35, "bad syntax", 0i64);
+            v32 = g_sourcePos;
+          CompileError(g_pScrCompileContext, v32, "bad syntax", 0i64);
           Scr_Error(COM_ERR_1495, g_pScrCompileContext, "bad syntax");
         }
       }
@@ -1112,43 +1104,42 @@ $yyerrlab:
       }
     }
     v4 = 3;
-    v215 = 3;
+    v210 = 3;
     while ( 2 )
     {
-      v36 = yypact[v3];
-      if ( (_DWORD)v36 == -32768 || (unsigned int)(v36 + 1) > 0x643 || yycheck[v36 + 1] != 1 )
+      v33 = yypact[v3];
+      if ( (_DWORD)v33 == -32768 || (unsigned int)(v33 + 1) > 0x643 || yycheck[v33 + 1] != 1 )
         goto $yyerrdefault;
-      v37 = yytable[v36 + 1];
-      if ( v37 < 0 )
+      v34 = yytable[v33 + 1];
+      if ( v34 < 0 )
       {
-        if ( v37 != -32768 )
+        if ( v34 != -32768 )
         {
-          v29 = -v37;
+          v29 = -v34;
           goto $yyreduce;
         }
         goto $yyerrdefault;
       }
-      if ( !yytable[v36 + 1] )
+      if ( !yytable[v33 + 1] )
       {
 $yyerrdefault:
         if ( v6 == (__int16 *)v0 )
           return 1i64;
         v3 = *(v6 - 1);
-        _R13 -= 2;
+        v5 -= 2;
         --v6;
-        v216 = _R13;
-        v220 = v6;
+        v211 = v5;
+        v215 = v6;
         continue;
       }
       break;
     }
-    if ( v37 != 305 )
+    if ( v34 != 305 )
     {
-      __asm { vmovups xmm0, xmmword ptr cs:?yylval@@3Ustype_t@@A.val; stype_t yylval }
-      v1 = (char *)v218;
-      _R13 += 2;
-      v3 = yytable[v36 + 1];
-      __asm { vmovups xmmword ptr [r13+0], xmm0 }
+      v1 = (char *)v213;
+      v5 += 2;
+      v3 = yytable[v33 + 1];
+      *(stype_t *)&v5->type = yylval;
       continue;
     }
     return 0i64;

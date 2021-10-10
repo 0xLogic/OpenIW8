@@ -469,103 +469,58 @@ void WeaponOffsetPattern::WeaponOffsetPattern(WeaponOffsetPattern *this, const p
 WeaponOffsetCurve::ApplyInterpolationType
 ==============
 */
-
-double __fastcall WeaponOffsetCurve::ApplyInterpolationType(double curveFraction, const WeaponOffsetBlendInterpolationType interpType)
+double WeaponOffsetCurve::ApplyInterpolationType(double curveFraction, const WeaponOffsetBlendInterpolationType interpType)
 {
-  __asm
+  double v2; 
+  double v3; 
+  double v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+
+  if ( *(float *)&curveFraction != 0.0 && *(float *)&curveFraction != 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm6, xmm0
-    vmovss  xmm7, cs:__real@3f800000
-    vucomiss xmm0, xmm7
+    switch ( interpType )
+    {
+      case WOBIT_LINEAR:
+        return curveFraction;
+      case WOBIT_CUBIC_EASE_IN:
+        HIDWORD(v2) = HIDWORD(curveFraction);
+        *(float *)&v2 = (float)(*(float *)&curveFraction * *(float *)&curveFraction) * *(float *)&curveFraction;
+        curveFraction = v2;
+        break;
+      case WOBIT_CUBIC_EASE_OUT:
+        HIDWORD(v3) = HIDWORD(curveFraction);
+        *(float *)&v3 = (float)((float)((float)(*(float *)&curveFraction - 1.0) * (float)(*(float *)&curveFraction - 1.0)) * (float)(*(float *)&curveFraction - 1.0)) + 1.0;
+        curveFraction = v3;
+        break;
+      case WOBIT_QUARTIC_EASE_IN:
+        HIDWORD(v4) = HIDWORD(curveFraction);
+        *(float *)&v4 = (float)((float)(*(float *)&curveFraction * *(float *)&curveFraction) * *(float *)&curveFraction) * *(float *)&curveFraction;
+        curveFraction = v4;
+        break;
+      case WOBIT_QUARTIC_EASE_OUT:
+        *(_QWORD *)&v5 = LODWORD(FLOAT_1_0);
+        *(float *)&v5 = 1.0 - (float)((float)((float)((float)(*(float *)&curveFraction - 1.0) * (float)(*(float *)&curveFraction - 1.0)) * (float)(*(float *)&curveFraction - 1.0)) * (float)(*(float *)&curveFraction - 1.0));
+        curveFraction = v5;
+        break;
+      case WOBIT_EXPONENTIAL_EASE_IN:
+        v6 = (float)(*(float *)&curveFraction - 1.0) * 10.0;
+        *(_QWORD *)&curveFraction = LODWORD(FLOAT_2_0);
+        *(float *)&curveFraction = powf_0(2.0, v6);
+        break;
+      case WOBIT_EXPONENTIAL_EASE_OUT:
+        *(_QWORD *)&v7 = LODWORD(FLOAT_1_0);
+        *(float *)&v7 = 1.0 - powf_0(2.0, *(float *)&curveFraction * -10.0);
+        curveFraction = v7;
+        break;
+      default:
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 263, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend interpolation type! %d", interpType) )
+          __debugbreak();
+        break;
+    }
   }
-  switch ( interpType )
-  {
-    case WOBIT_LINEAR:
-      goto $LN8_0;
-    case WOBIT_CUBIC_EASE_IN:
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm6; jumptable 000000014038AF92 case 1
-        vmulss  xmm0, xmm0, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      break;
-    case WOBIT_CUBIC_EASE_OUT:
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm7; jumptable 000000014038AF92 case 2
-        vmulss  xmm0, xmm1, xmm1
-        vmulss  xmm1, xmm0, xmm1
-        vaddss  xmm0, xmm1, xmm7
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      break;
-    case WOBIT_QUARTIC_EASE_IN:
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm6; jumptable 000000014038AF92 case 3
-        vmulss  xmm1, xmm0, xmm6
-        vmulss  xmm0, xmm1, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      break;
-    case WOBIT_QUARTIC_EASE_OUT:
-      __asm
-      {
-        vsubss  xmm2, xmm6, xmm7; jumptable 000000014038AF92 case 4
-        vmulss  xmm0, xmm2, xmm2
-        vmulss  xmm1, xmm0, xmm2
-        vmulss  xmm2, xmm1, xmm2
-        vsubss  xmm0, xmm7, xmm2
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      break;
-    case WOBIT_EXPONENTIAL_EASE_IN:
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm7; jumptable 000000014038AF92 case 5
-        vmulss  xmm1, xmm0, cs:__real@41200000; Y
-        vmovss  xmm0, cs:__real@40000000; X
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      break;
-    case WOBIT_EXPONENTIAL_EASE_OUT:
-      __asm
-      {
-        vmulss  xmm1, xmm6, cs:__real@c1200000; jumptable 000000014038AF92 case 6
-        vmovss  xmm0, cs:__real@40000000; X
-      }
-      powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm0
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
-      }
-      break;
-    default:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 263, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend interpolation type! %d", interpType) )
-        __debugbreak();
-$LN8_0:
-      __asm
-      {
-        vmovaps xmm7, [rsp+58h+var_28]; jumptable 000000014038AF92 case 0
-        vmovaps xmm0, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      break;
-  }
-  return *(double *)&_XMM0;
+  return curveFraction;
 }
 
 /*
@@ -575,102 +530,75 @@ BG_WeaponOffsets_AdsUpdate
 */
 void BG_WeaponOffsets_AdsUpdate(playerState_s *ps, const BgHandler *handler)
 {
-  const BgWeaponMap *v8; 
+  const BgWeaponMap *v4; 
+  const WeaponDef *WeaponDef; 
+  float fWeaponPosFrac; 
   WeaponOffsetBlendInterpolationType interpType; 
+  float holdTime; 
+  float decayTime; 
+  float adsFractionBegin; 
+  float shotDecayFireTimeFrac; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
-  bool v19; 
-  bool v20; 
-  char v21; 
-  bool v24; 
-  WeaponOffsetCurve v29; 
-  char v31; 
-  void *retaddr; 
+  float adsFractionEnd; 
+  bool v14; 
+  bool v15; 
+  bool v16; 
+  WeaponOffsetCurve v17; 
   int outAdjustedBlendTime; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBX = ps;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm8 }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1377, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1378, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  v8 = handler->GetWeaponMap(handler);
-  _RAX = BG_WeaponOffsets_GetWeaponDef(v8, _RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+730h] }
-  v29.m_type = WOBC_ADS_BLEND;
-  interpType = _RAX->weaponOffsetCurveAds.interpType;
-  __asm
+  v4 = handler->GetWeaponMap(handler);
+  WeaponDef = BG_WeaponOffsets_GetWeaponDef(v4, ps);
+  fWeaponPosFrac = ps->weapCommon.fWeaponPosFrac;
+  v17.m_type = WOBC_ADS_BLEND;
+  interpType = WeaponDef->weaponOffsetCurveAds.interpType;
+  holdTime = WeaponDef->weaponOffsetCurveAds.holdTime;
+  decayTime = WeaponDef->weaponOffsetCurveAds.decayTime;
+  adsFractionBegin = WeaponDef->weaponOffsetCurveAds.adsFractionBegin;
+  v17.m_blendTime = WeaponDef->weaponOffsetCurveAds.blendTime;
+  shotDecayFireTimeFrac = WeaponDef->weaponOffsetCurveAds.shotDecayFireTimeFrac;
+  v17.m_interpType = interpType;
+  interpTypeOut = WeaponDef->weaponOffsetCurveAds.interpTypeOut;
+  v17.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionEnd = WeaponDef->weaponOffsetCurveAds.adsFractionEnd;
+  v17.m_interpTypeOut = interpTypeOut;
+  v17.m_adsFractionEnd = adsFractionEnd;
+  v17.m_holdTime = holdTime;
+  v17.m_decayTime = decayTime;
+  v17.m_adsFractionBegin = adsFractionBegin;
+  v14 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Fu);
+  v15 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 9u);
+  if ( !v15 )
   {
-    vmovss  xmm0, dword ptr [rax+0B7Ch]
-    vmovss  xmm8, dword ptr [rax+0B88h]
-    vmovss  xmm1, dword ptr [rax+0B80h]
-    vmovss  xmm6, dword ptr [rax+0B8Ch]
-    vmovss  [rsp+0A8h+var_78.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [rax+0B84h]
+    if ( fWeaponPosFrac > adsFractionBegin )
+      goto LABEL_11;
+    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x30u);
   }
-  v29.m_interpType = interpType;
-  interpTypeOut = _RAX->weaponOffsetCurveAds.interpTypeOut;
-  __asm
+  if ( fWeaponPosFrac < adsFractionBegin )
   {
-    vmovss  [rsp+0A8h+var_78.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [rax+0B90h]
+    if ( !v14 )
+      return;
+    goto LABEL_19;
   }
-  v29.m_interpTypeOut = interpTypeOut;
-  __asm
+LABEL_11:
+  if ( v14 )
   {
-    vmovss  [rsp+0A8h+var_78.m_adsFractionEnd], xmm0
-    vmovss  [rsp+0A8h+var_78.m_holdTime], xmm8
-    vmovss  [rsp+0A8h+var_78.m_decayTime], xmm1
-    vmovss  [rsp+0A8h+var_78.m_adsFractionBegin], xmm6
-  }
-  v19 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBX->weapCommon.weapFlags, ACTIVE, 0x2Fu);
-  v20 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 9u);
-  v21 = 0;
-  if ( !v20 )
-  {
-    __asm { vcomiss xmm7, xmm6 }
-    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&_RBX->weapCommon.weapFlags, ACTIVE, 0x30u);
-  }
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v21 )
-  {
-    if ( v19 )
+    WeaponOffsetCurve::GetAdsBlendCurveFractionDelta(&v17, v4, ps, ps->serverTime, &outAdjustedBlendTime);
+    if ( !v15 || ps->serverTime - ps->weapCommon.weaponOffsetAdsBlendTime >= outAdjustedBlendTime - (int)(float)(holdTime * -1000.0) )
     {
 LABEL_19:
-      v24 = 1;
+      v16 = 1;
       goto LABEL_20;
     }
   }
-  else if ( v19 )
+  else if ( v15 && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x30u) )
   {
-    WeaponOffsetCurve::GetAdsBlendCurveFractionDelta(&v29, v8, _RBX, _RBX->serverTime, &outAdjustedBlendTime);
-    if ( !v20 )
-      goto LABEL_19;
-    __asm
-    {
-      vmulss  xmm0, xmm8, cs:__real@c47a0000
-      vcvttss2si eax, xmm0
-    }
-    if ( _RBX->serverTime - _RBX->weapCommon.weaponOffsetAdsBlendTime >= outAdjustedBlendTime - _EAX )
-      goto LABEL_19;
-  }
-  else if ( v20 && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBX->weapCommon.weapFlags, ACTIVE, 0x30u) )
-  {
-    v24 = 0;
+    v16 = 0;
 LABEL_20:
-    BG_WeaponOffsets_ResetAdsBlend(_RBX, handler, v24);
-  }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    BG_WeaponOffsets_ResetAdsBlend(ps, handler, v16);
   }
 }
 
@@ -684,14 +612,16 @@ void BG_WeaponOffsets_ApplyTransformPattern(const playerState_s *ps, const int s
   const BgWeaponMap *v9; 
   const WeaponDef *WeaponDef; 
   int v11; 
+  float *v12; 
   __int64 v13; 
   WeaponOffsetPatternDescription *v14; 
   WeaponOffsetPatternCache *v15; 
   WeaponOffsetBlendCurveId curveType; 
   WeaponOffsetPatternCache *cache; 
+  float v18; 
   int serverTimea; 
   BgWeaponMap *weaponMap; 
-  WeaponOffsetPattern v24; 
+  WeaponOffsetPattern v22; 
   vec3_t outOffset; 
 
   serverTimea = serverTime;
@@ -706,7 +636,7 @@ void BG_WeaponOffsets_ApplyTransformPattern(const playerState_s *ps, const int s
   weaponMap = (BgWeaponMap *)handler->GetWeaponMap(handler);
   if ( WeaponDef->numWeaponOffsetPatterns > 0 )
   {
-    _RDI = &(*outAnglesCategorized)[18].v[2];
+    v12 = &(*outAnglesCategorized)[18].v[2];
     v13 = 0i64;
     do
     {
@@ -716,28 +646,23 @@ void BG_WeaponOffsets_ApplyTransformPattern(const playerState_s *ps, const int s
         v15 = handler->PlayerWeaponOffsetPatternCache(handler, ps, (unsigned int)v11);
         curveType = v14->curveType;
         cache = v15;
-        v24.m_desc = v14;
-        v24.m_ps = ps;
-        WeaponOffsetCurve::WeaponOffsetCurve(&v24.m_curve, WeaponDef, curveType);
-        WeaponOffsetPattern::Update(&v24, serverTimea, weaponMap, &outOffset, outCombinedAngles, cache);
+        v22.m_desc = v14;
+        v22.m_ps = ps;
+        WeaponOffsetCurve::WeaponOffsetCurve(&v22.m_curve, WeaponDef, curveType);
+        WeaponOffsetPattern::Update(&v22, serverTimea, weaponMap, &outOffset, outCombinedAngles, cache);
         if ( patternType == WOTT_WEAPON_ANGLES )
         {
           if ( outAnglesCategorized )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0E8h+outOffset]
-              vmovss  xmm1, dword ptr [rsp+0E8h+outOffset+4]
-              vmovss  dword ptr [rdi-8], xmm0
-              vmovss  xmm0, dword ptr [rsp+0E8h+outOffset+8]
-              vmovss  dword ptr [rdi], xmm0
-              vmovss  dword ptr [rdi-4], xmm1
-            }
+            v18 = outOffset.v[1];
+            *(v12 - 2) = outOffset.v[0];
+            *v12 = outOffset.v[2];
+            *(v12 - 1) = v18;
           }
         }
       }
       ++v11;
-      _RDI += 3;
+      v12 += 3;
       ++v13;
     }
     while ( v11 < WeaponDef->numWeaponOffsetPatterns );
@@ -810,146 +735,125 @@ void BG_WeaponOffsets_ApplyWeaponTranslation(const playerState_s *ps, const int 
 BG_WeaponOffsets_AreAnyBulletBlendsActive
 ==============
 */
-bool BG_WeaponOffsets_AreAnyBulletBlendsActive(const BgWeaponMap *weaponMap, const WeaponDef *weapDef, const playerState_s *ps)
+char BG_WeaponOffsets_AreAnyBulletBlendsActive(const BgWeaponMap *weaponMap, const WeaponDef *weapDef, const playerState_s *ps)
 {
+  float holdTime; 
   WeaponOffsetBlendInterpolationType interpType; 
-  int v10; 
+  int v8; 
+  float shotDecayFireTimeFrac; 
+  float decayTime; 
+  float adsFractionBegin; 
+  float adsFractionEnd; 
+  float blendTime; 
+  float v14; 
+  float v15; 
+  float v16; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
-  WeaponOffsetBlendInterpolationType v22; 
-  WeaponOffsetBlendInterpolationType v25; 
-  WeaponOffsetBlendInterpolationType v28; 
-  WeaponOffsetBlendInterpolationType v31; 
-  __int64 v33; 
+  float v18; 
+  float v19; 
+  WeaponOffsetBlendInterpolationType v20; 
+  float v21; 
+  float v22; 
+  WeaponOffsetBlendInterpolationType v23; 
+  float v24; 
+  float v25; 
+  WeaponOffsetBlendInterpolationType v26; 
+  float v27; 
+  float v28; 
+  WeaponOffsetBlendInterpolationType v29; 
+  __int64 i; 
   WeaponOffsetPatternDescription *weaponOffsetPatterns; 
-  WeaponOffsetPatternDescription *v35; 
-  char v36; 
-  bool result; 
+  WeaponOffsetPatternDescription *v32; 
+  double CurrentCurveFraction; 
+  double v34; 
+  double v35; 
+  WeaponOffsetCurve v37; 
+  WeaponOffsetCurve v38; 
   WeaponOffsetCurve v39; 
-  WeaponOffsetCurve v40; 
-  WeaponOffsetCurve v41; 
 
-  _R14 = weapDef;
   if ( !weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 888, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 889, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
+  holdTime = weapDef->weaponOffsetCurveKick.holdTime;
+  interpType = weapDef->weaponOffsetCurveKick.interpType;
+  v8 = 0;
+  v37.m_blendTime = weapDef->weaponOffsetCurveKick.blendTime;
+  shotDecayFireTimeFrac = weapDef->weaponOffsetCurveKick.shotDecayFireTimeFrac;
+  v37.m_holdTime = holdTime;
+  decayTime = weapDef->weaponOffsetCurveKick.decayTime;
+  v37.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionBegin = weapDef->weaponOffsetCurveKick.adsFractionBegin;
+  v37.m_decayTime = decayTime;
+  adsFractionEnd = weapDef->weaponOffsetCurveKick.adsFractionEnd;
+  v37.m_adsFractionBegin = adsFractionBegin;
+  blendTime = weapDef->weaponOffsetCurveSnapDecay.blendTime;
+  v37.m_adsFractionEnd = adsFractionEnd;
+  v14 = weapDef->weaponOffsetCurveSnapDecay.holdTime;
+  v38.m_blendTime = blendTime;
+  v15 = weapDef->weaponOffsetCurveSnapDecay.shotDecayFireTimeFrac;
+  v38.m_holdTime = v14;
+  v16 = weapDef->weaponOffsetCurveSnapDecay.decayTime;
+  v37.m_interpType = interpType;
+  interpTypeOut = weapDef->weaponOffsetCurveKick.interpTypeOut;
+  v38.m_shotDecayFireTimeFrac = v15;
+  v18 = weapDef->weaponOffsetCurveSnapDecay.adsFractionBegin;
+  v38.m_decayTime = v16;
+  v19 = weapDef->weaponOffsetCurveSnapDecay.adsFractionEnd;
+  v37.m_interpTypeOut = interpTypeOut;
+  v20 = weapDef->weaponOffsetCurveSnapDecay.interpType;
+  v38.m_adsFractionBegin = v18;
+  v21 = weapDef->weaponOffsetCurveAds.blendTime;
+  v38.m_adsFractionEnd = v19;
+  v22 = weapDef->weaponOffsetCurveAds.holdTime;
+  v38.m_interpType = v20;
+  v23 = weapDef->weaponOffsetCurveSnapDecay.interpTypeOut;
+  v39.m_blendTime = v21;
+  v24 = weapDef->weaponOffsetCurveAds.shotDecayFireTimeFrac;
+  v39.m_holdTime = v22;
+  v25 = weapDef->weaponOffsetCurveAds.decayTime;
+  v38.m_interpTypeOut = v23;
+  v26 = weapDef->weaponOffsetCurveAds.interpType;
+  v39.m_shotDecayFireTimeFrac = v24;
+  v27 = weapDef->weaponOffsetCurveAds.adsFractionBegin;
+  v39.m_decayTime = v25;
+  v28 = weapDef->weaponOffsetCurveAds.adsFractionEnd;
+  v39.m_interpType = v26;
+  v29 = weapDef->weaponOffsetCurveAds.interpTypeOut;
+  v39.m_adsFractionBegin = v27;
+  v39.m_adsFractionEnd = v28;
+  v37.m_type = WOBC_KICK_BLEND;
+  v38.m_type = WOBC_SNAP_DECAY_BLEND;
+  v39.m_type = WOBC_ADS_BLEND;
+  v39.m_interpTypeOut = v29;
+  if ( weapDef->numWeaponOffsetPatterns <= 0 )
+    return 0;
+  for ( i = 0i64; ; ++i )
   {
-    vmovss  xmm0, dword ptr [r14+0BBCh]
-    vmovss  xmm1, dword ptr [r14+0BC8h]
-  }
-  interpType = _R14->weaponOffsetCurveKick.interpType;
-  v10 = 0;
-  __asm
-  {
-    vmovss  [rbp+57h+var_A0.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [r14+0BC4h]
-    vmovss  [rbp+57h+var_A0.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0BC0h]
-    vmovss  [rbp+57h+var_A0.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [r14+0BCCh]
-    vmovss  [rbp+57h+var_A0.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0BD0h]
-    vmovss  [rbp+57h+var_A0.m_adsFractionBegin], xmm0
-    vmovss  xmm0, dword ptr [r14+0BDCh]
-    vmovss  [rbp+57h+var_A0.m_adsFractionEnd], xmm1
-    vmovss  xmm1, dword ptr [r14+0BE8h]
-    vmovss  [rbp+57h+var_78.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [r14+0BE4h]
-    vmovss  [rbp+57h+var_78.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0BE0h]
-  }
-  v39.m_interpType = interpType;
-  interpTypeOut = _R14->weaponOffsetCurveKick.interpTypeOut;
-  __asm
-  {
-    vmovss  [rbp+57h+var_78.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [r14+0BECh]
-    vmovss  [rbp+57h+var_78.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0BF0h]
-  }
-  v39.m_interpTypeOut = interpTypeOut;
-  v22 = _R14->weaponOffsetCurveSnapDecay.interpType;
-  __asm
-  {
-    vmovss  [rbp+57h+var_78.m_adsFractionBegin], xmm0
-    vmovss  xmm0, dword ptr [r14+0B7Ch]
-    vmovss  [rbp+57h+var_78.m_adsFractionEnd], xmm1
-    vmovss  xmm1, dword ptr [r14+0B88h]
-  }
-  v40.m_interpType = v22;
-  v25 = _R14->weaponOffsetCurveSnapDecay.interpTypeOut;
-  __asm
-  {
-    vmovss  [rbp+57h+var_50.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [r14+0B84h]
-    vmovss  [rbp+57h+var_50.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0B80h]
-  }
-  v40.m_interpTypeOut = v25;
-  v28 = _R14->weaponOffsetCurveAds.interpType;
-  __asm
-  {
-    vmovss  [rbp+57h+var_50.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [r14+0B8Ch]
-    vmovss  [rbp+57h+var_50.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [r14+0B90h]
-  }
-  v41.m_interpType = v28;
-  v31 = _R14->weaponOffsetCurveAds.interpTypeOut;
-  __asm
-  {
-    vmovss  [rbp+57h+var_50.m_adsFractionBegin], xmm0
-    vmovss  [rbp+57h+var_50.m_adsFractionEnd], xmm1
-    vmovaps [rsp+0D0h+var_20], xmm6
-  }
-  v39.m_type = WOBC_KICK_BLEND;
-  v40.m_type = WOBC_SNAP_DECAY_BLEND;
-  v41.m_type = WOBC_ADS_BLEND;
-  v41.m_interpTypeOut = v31;
-  if ( _R14->numWeaponOffsetPatterns <= 0 )
-  {
-LABEL_16:
-    result = 0;
-  }
-  else
-  {
-    __asm { vmovss  xmm6, cs:__real@3a83126f }
-    v33 = 0i64;
-    while ( 1 )
+    weaponOffsetPatterns = weapDef->weaponOffsetPatterns;
+    v32 = &weaponOffsetPatterns[i];
+    if ( weaponOffsetPatterns[i].curveType == WOBC_KICK_BLEND )
     {
-      weaponOffsetPatterns = _R14->weaponOffsetPatterns;
-      v35 = &weaponOffsetPatterns[v33];
-      if ( weaponOffsetPatterns[v33].curveType == WOBC_KICK_BLEND )
-      {
-        *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v39, weaponMap, ps, ps->serverTime, &weaponOffsetPatterns[v33]);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v36 )
-          break;
-      }
-      if ( v35->curveType == WOBC_SNAP_DECAY_BLEND )
-      {
-        *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v40, weaponMap, ps, ps->serverTime, v35);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v36 )
-          break;
-      }
-      if ( v35->curveType == WOBC_ADS_BLEND )
-      {
-        *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v41, weaponMap, ps, ps->serverTime, v35);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v36 )
-          break;
-      }
-      ++v10;
-      ++v33;
-      if ( v10 >= _R14->numWeaponOffsetPatterns )
-        goto LABEL_16;
+      CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&v37, weaponMap, ps, ps->serverTime, &weaponOffsetPatterns[i]);
+      if ( *(float *)&CurrentCurveFraction >= 0.001 )
+        break;
     }
-    result = 1;
+    if ( v32->curveType == WOBC_SNAP_DECAY_BLEND )
+    {
+      v34 = WeaponOffsetCurve::GetCurrentCurveFraction(&v38, weaponMap, ps, ps->serverTime, v32);
+      if ( *(float *)&v34 >= 0.001 )
+        break;
+    }
+    if ( v32->curveType == WOBC_ADS_BLEND )
+    {
+      v35 = WeaponOffsetCurve::GetCurrentCurveFraction(&v39, weaponMap, ps, ps->serverTime, v32);
+      if ( *(float *)&v35 >= 0.001 )
+        break;
+    }
+    if ( ++v8 >= weapDef->numWeaponOffsetPatterns )
+      return 0;
   }
-  __asm { vmovaps xmm6, [rsp+0D0h+var_20] }
-  return result;
+  return 1;
 }
 
 /*
@@ -978,10 +882,21 @@ BG_WeaponOffsets_GetFullAutoScale
 */
 float BG_WeaponOffsets_GetFullAutoScale(const WeaponDef *weapDef, const WeaponOffsetPatternDescription *pattern, const playerState_s *ps, const int fireTime)
 {
-  __int64 v41; 
-  __int64 v42; 
+  unsigned int v8; 
+  float v9; 
+  float v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  int v17; 
+  int v18; 
+  double v19; 
+  __int64 v21; 
+  __int64 v22; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   if ( !weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1098, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   if ( !pattern && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1099, ASSERT_TYPE_ASSERT, "(pattern)", (const char *)&queryFormat, "pattern") )
@@ -996,81 +911,47 @@ float BG_WeaponOffsets_GetFullAutoScale(const WeaponDef *weapDef, const WeaponOf
     __debugbreak();
   if ( pattern->kickOrSnapDecayIndex >= (unsigned int)weapDef->numWeaponOffsetPatternsKickOrSnapDecay )
   {
-    LODWORD(v41) = pattern->kickOrSnapDecayIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1063, ASSERT_TYPE_ASSERT, "(unsigned)( pattern->kickOrSnapDecayIndex ) < (unsigned)( weapDef->numWeaponOffsetPatternsKickOrSnapDecay )", "pattern->kickOrSnapDecayIndex doesn't index weapDef->numWeaponOffsetPatternsKickOrSnapDecay\n\t%i not in [0, %i)", v41, weapDef->numWeaponOffsetPatternsKickOrSnapDecay) )
+    LODWORD(v21) = pattern->kickOrSnapDecayIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1063, ASSERT_TYPE_ASSERT, "(unsigned)( pattern->kickOrSnapDecayIndex ) < (unsigned)( weapDef->numWeaponOffsetPatternsKickOrSnapDecay )", "pattern->kickOrSnapDecayIndex doesn't index weapDef->numWeaponOffsetPatternsKickOrSnapDecay\n\t%i not in [0, %i)", v21, weapDef->numWeaponOffsetPatternsKickOrSnapDecay) )
       __debugbreak();
   }
-  if ( (ps->weapCommon.weaponOffsetPatternFullAutoScale & (15 << (4 * LOBYTE(pattern->kickOrSnapDecayIndex)))) >> (4 * LOBYTE(pattern->kickOrSnapDecayIndex)) > 0xF )
+  v8 = (ps->weapCommon.weaponOffsetPatternFullAutoScale & (15 << (4 * LOBYTE(pattern->kickOrSnapDecayIndex)))) >> (4 * LOBYTE(pattern->kickOrSnapDecayIndex));
+  if ( v8 > 0xF )
   {
-    LODWORD(v42) = 15;
-    LODWORD(v41) = (ps->weapCommon.weaponOffsetPatternFullAutoScale & (15 << (4 * LOBYTE(pattern->kickOrSnapDecayIndex)))) >> (4 * LOBYTE(pattern->kickOrSnapDecayIndex));
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1067, ASSERT_TYPE_ASSERT, "( quantizedScale ) <= ( ((1u << (4u)) - 1u) )", "quantizedScale not in [0, FULL_AUTO_SCALE_BITS_PER_PATTERN_MAX]\n\t%u not in [0, %u]", v41, v42) )
+    LODWORD(v22) = 15;
+    LODWORD(v21) = (ps->weapCommon.weaponOffsetPatternFullAutoScale & (15 << (4 * LOBYTE(pattern->kickOrSnapDecayIndex)))) >> (4 * LOBYTE(pattern->kickOrSnapDecayIndex));
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1067, ASSERT_TYPE_ASSERT, "( quantizedScale ) <= ( ((1u << (4u)) - 1u) )", "quantizedScale not in [0, FULL_AUTO_SCALE_BITS_PER_PATTERN_MAX]\n\t%u not in [0, %u]", v21, v22) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@3d888889; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
+  v9 = (float)v8;
+  v10 = v9 * 0.06666667;
+  I_fclamp(v10, 0.0, 1.0);
   if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x31u) )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebp
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+38h]
-      vmulss  xmm2, xmm1, xmm6
-      vmulss  xmm2, xmm2, xmm0
-      vcvttss2si ebx, xmm2
-    }
-    if ( ps->serverTimeInterpolated - ps->weapCommon.weaponOffsetSustainedFireStartTime < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1116, ASSERT_TYPE_ASSERT, "(currentSustainedFireTime >= 0)", (const char *)&queryFormat, "currentSustainedFireTime >= 0") )
+    v11 = ps->serverTimeInterpolated - ps->weapCommon.weaponOffsetSustainedFireStartTime;
+    v12 = (int)(float)((float)((float)fireTime * v10) * (float)pattern->fullAutoBullets);
+    if ( v11 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1116, ASSERT_TYPE_ASSERT, "(currentSustainedFireTime >= 0)", (const char *)&queryFormat, "currentSustainedFireTime >= 0") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm0, xmm0, ebp
-      vcvtsi2ss xmm3, xmm3, eax
-      vdivss  xmm0, xmm3, xmm0
-    }
-    goto LABEL_35;
+    v13 = v11 + v12;
+    v14 = pattern->fullAutoBullets * fireTime;
+    v15 = (float)v14;
+    if ( v13 < v14 )
+      v14 = v13;
+    v16 = (float)v14 / v15;
+    goto LABEL_37;
   }
-  if ( ps->serverTimeInterpolated - ps->weapCommon.weaponOffsetSustainedFireStopTime < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1131, ASSERT_TYPE_ASSERT, "(currentNoFireTime >= 0)", (const char *)&queryFormat, "currentNoFireTime >= 0") )
+  v17 = ps->serverTimeInterpolated - ps->weapCommon.weaponOffsetSustainedFireStopTime;
+  if ( v17 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1131, ASSERT_TYPE_ASSERT, "(currentNoFireTime >= 0)", (const char *)&queryFormat, "currentNoFireTime >= 0") )
     __debugbreak();
-  __asm
+  v18 = (int)(float)((float)(v10 * pattern->fullAutoDecay) * 1000.0);
+  LODWORD(v19) = 0;
+  if ( v18 )
   {
-    vmulss  xmm0, xmm6, dword ptr [rdi+3Ch]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-    vxorps  xmm0, xmm0, xmm0
+    v16 = v10 - (float)((float)((float)v17 * v10) / (float)v18);
+LABEL_37:
+    v19 = I_fclamp(v16, 0.0, 1.0);
   }
-  if ( _EAX )
-  {
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm2, xmm0, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm2, xmm2, xmm1
-      vsubss  xmm0, xmm6, xmm2; val
-    }
-LABEL_35:
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return *(float *)&_XMM0;
+  return *(float *)&v19;
 }
 
 /*
@@ -1097,21 +978,17 @@ const WeaponDef *BG_WeaponOffsets_GetWeaponDef(const BgWeaponMap *weaponMap, con
 BG_WeaponOffsets_OnWeaponChange
 ==============
 */
-
-void __fastcall BG_WeaponOffsets_OnWeaponChange(playerState_s *ps, double _XMM1_8)
+void BG_WeaponOffsets_OnWeaponChange(playerState_s *ps)
 {
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1501, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
   *(_QWORD *)&ps->weapCommon.weaponStartFireTime_BlendedOut = 0i64;
   *(_QWORD *)&ps->weapCommon.weaponOffsetHoldFireFastBlendTime = 0i64;
   *(_QWORD *)&ps->weapCommon.weaponOffsetPrevHoldFireBlendInDuration = 0i64;
   *(_QWORD *)&ps->weapCommon.weaponOffsetSustainedFireStopTime = 0i64;
-  BG_SetHoldBlendFractionStartSlow(ps, *(float *)&_XMM1);
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  BG_SetHoldBlendFractionStartFast(ps, *(float *)&_XMM1);
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  BG_SetAdsBlendFractionStart(ps, *(float *)&_XMM1);
+  BG_SetHoldBlendFractionStartSlow(ps, 0.0);
+  BG_SetHoldBlendFractionStartFast(ps, 0.0);
+  BG_SetAdsBlendFractionStart(ps, 0.0);
 }
 
 /*
@@ -1123,11 +1000,18 @@ void BG_WeaponOffsets_ResetAdsBlend(playerState_s *ps, const BgHandler *handler,
 {
   const BgWeaponMap *v6; 
   const BgWeaponMap *v7; 
+  const WeaponDef *WeaponDef; 
   int serverTime; 
   WeaponOffsetBlendInterpolationType interpType; 
+  float holdTime; 
+  float shotDecayFireTimeFrac; 
+  float decayTime; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
+  float adsFractionBegin; 
+  float adsFractionEnd; 
+  double CurrentCurveFraction; 
   GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
-  WeaponOffsetCurve v20; 
+  WeaponOffsetCurve v19; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1346, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -1135,37 +1019,26 @@ void BG_WeaponOffsets_ResetAdsBlend(playerState_s *ps, const BgHandler *handler,
     __debugbreak();
   v6 = handler->GetWeaponMap(handler);
   v7 = handler->GetWeaponMap(handler);
-  _RAX = BG_WeaponOffsets_GetWeaponDef(v7, ps);
+  WeaponDef = BG_WeaponOffsets_GetWeaponDef(v7, ps);
   serverTime = ps->serverTime;
-  v20.m_type = WOBC_ADS_BLEND;
-  interpType = _RAX->weaponOffsetCurveAds.interpType;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B7Ch]
-    vmovss  xmm1, dword ptr [rax+0B88h]
-    vmovss  [rsp+68h+var_38.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [rax+0B84h]
-    vmovss  [rsp+68h+var_38.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B80h]
-  }
-  v20.m_interpType = interpType;
-  interpTypeOut = _RAX->weaponOffsetCurveAds.interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [rax+0B8Ch]
-    vmovss  [rsp+68h+var_38.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B90h]
-  }
-  v20.m_interpTypeOut = interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_adsFractionBegin], xmm0
-    vmovss  [rsp+68h+var_38.m_adsFractionEnd], xmm1
-  }
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v20, v6, ps, serverTime, NULL);
-  __asm { vmovaps xmm1, xmm0; value }
-  BG_SetAdsBlendFractionStart(ps, *(float *)&_XMM1);
+  v19.m_type = WOBC_ADS_BLEND;
+  interpType = WeaponDef->weaponOffsetCurveAds.interpType;
+  holdTime = WeaponDef->weaponOffsetCurveAds.holdTime;
+  v19.m_blendTime = WeaponDef->weaponOffsetCurveAds.blendTime;
+  shotDecayFireTimeFrac = WeaponDef->weaponOffsetCurveAds.shotDecayFireTimeFrac;
+  v19.m_holdTime = holdTime;
+  decayTime = WeaponDef->weaponOffsetCurveAds.decayTime;
+  v19.m_interpType = interpType;
+  interpTypeOut = WeaponDef->weaponOffsetCurveAds.interpTypeOut;
+  v19.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionBegin = WeaponDef->weaponOffsetCurveAds.adsFractionBegin;
+  v19.m_decayTime = decayTime;
+  adsFractionEnd = WeaponDef->weaponOffsetCurveAds.adsFractionEnd;
+  v19.m_interpTypeOut = interpTypeOut;
+  v19.m_adsFractionBegin = adsFractionBegin;
+  v19.m_adsFractionEnd = adsFractionEnd;
+  CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&v19, v6, ps, serverTime, NULL);
+  BG_SetAdsBlendFractionStart(ps, *(float *)&CurrentCurveFraction);
   ps->weapCommon.weaponOffsetAdsBlendTime = ps->serverTime;
   p_weapFlags = &ps->weapCommon.weapFlags;
   if ( isDecaying )
@@ -1188,10 +1061,17 @@ void BG_WeaponOffsets_ResetHoldFireFastBlend(playerState_s *ps, const BgHandler 
 {
   const BgWeaponMap *v4; 
   const BgWeaponMap *v5; 
+  const WeaponDef *WeaponDef; 
   int serverTime; 
   WeaponOffsetBlendInterpolationType interpType; 
+  float holdTime; 
+  float shotDecayFireTimeFrac; 
+  float decayTime; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
-  WeaponOffsetCurve v17; 
+  float adsFractionBegin; 
+  float adsFractionEnd; 
+  double CurrentCurveFraction; 
+  WeaponOffsetCurve v16; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1013, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -1199,37 +1079,26 @@ void BG_WeaponOffsets_ResetHoldFireFastBlend(playerState_s *ps, const BgHandler 
     __debugbreak();
   v4 = handler->GetWeaponMap(handler);
   v5 = handler->GetWeaponMap(handler);
-  _RAX = BG_WeaponOffsets_GetWeaponDef(v5, ps);
+  WeaponDef = BG_WeaponOffsets_GetWeaponDef(v5, ps);
   serverTime = ps->serverTime;
-  v17.m_type = WOBC_HOLD_FIRE_BLEND_FAST;
-  interpType = _RAX->weaponOffsetCurveHoldFireFast.interpType;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B5Ch]
-    vmovss  xmm1, dword ptr [rax+0B68h]
-    vmovss  [rsp+68h+var_38.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [rax+0B64h]
-    vmovss  [rsp+68h+var_38.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B60h]
-  }
-  v17.m_interpType = interpType;
-  interpTypeOut = _RAX->weaponOffsetCurveHoldFireFast.interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [rax+0B6Ch]
-    vmovss  [rsp+68h+var_38.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B70h]
-  }
-  v17.m_interpTypeOut = interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_adsFractionBegin], xmm0
-    vmovss  [rsp+68h+var_38.m_adsFractionEnd], xmm1
-  }
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v17, v4, ps, serverTime, NULL);
-  __asm { vmovaps xmm1, xmm0; value }
-  BG_SetHoldBlendFractionStartFast(ps, *(float *)&_XMM1);
+  v16.m_type = WOBC_HOLD_FIRE_BLEND_FAST;
+  interpType = WeaponDef->weaponOffsetCurveHoldFireFast.interpType;
+  holdTime = WeaponDef->weaponOffsetCurveHoldFireFast.holdTime;
+  v16.m_blendTime = WeaponDef->weaponOffsetCurveHoldFireFast.blendTime;
+  shotDecayFireTimeFrac = WeaponDef->weaponOffsetCurveHoldFireFast.shotDecayFireTimeFrac;
+  v16.m_holdTime = holdTime;
+  decayTime = WeaponDef->weaponOffsetCurveHoldFireFast.decayTime;
+  v16.m_interpType = interpType;
+  interpTypeOut = WeaponDef->weaponOffsetCurveHoldFireFast.interpTypeOut;
+  v16.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionBegin = WeaponDef->weaponOffsetCurveHoldFireFast.adsFractionBegin;
+  v16.m_decayTime = decayTime;
+  adsFractionEnd = WeaponDef->weaponOffsetCurveHoldFireFast.adsFractionEnd;
+  v16.m_interpTypeOut = interpTypeOut;
+  v16.m_adsFractionBegin = adsFractionBegin;
+  v16.m_adsFractionEnd = adsFractionEnd;
+  CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&v16, v4, ps, serverTime, NULL);
+  BG_SetHoldBlendFractionStartFast(ps, *(float *)&CurrentCurveFraction);
   ps->weapCommon.weaponOffsetHoldFireFastBlendTime = ps->serverTime;
 }
 
@@ -1242,10 +1111,17 @@ void BG_WeaponOffsets_ResetHoldFireSlowBlend(playerState_s *ps, const BgHandler 
 {
   const BgWeaponMap *v4; 
   const BgWeaponMap *v5; 
+  const WeaponDef *WeaponDef; 
   int serverTime; 
   WeaponOffsetBlendInterpolationType interpType; 
+  float holdTime; 
+  float shotDecayFireTimeFrac; 
+  float decayTime; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
-  WeaponOffsetCurve v17; 
+  float adsFractionBegin; 
+  float adsFractionEnd; 
+  double CurrentCurveFraction; 
+  WeaponOffsetCurve v16; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 965, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -1253,37 +1129,26 @@ void BG_WeaponOffsets_ResetHoldFireSlowBlend(playerState_s *ps, const BgHandler 
     __debugbreak();
   v4 = handler->GetWeaponMap(handler);
   v5 = handler->GetWeaponMap(handler);
-  _RAX = BG_WeaponOffsets_GetWeaponDef(v5, ps);
+  WeaponDef = BG_WeaponOffsets_GetWeaponDef(v5, ps);
   serverTime = ps->serverTime;
-  v17.m_type = WOBC_HOLD_FIRE_BLEND_SLOW;
-  interpType = _RAX->weaponOffsetCurveHoldFireSlow.interpType;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B3Ch]
-    vmovss  xmm1, dword ptr [rax+0B48h]
-    vmovss  [rsp+68h+var_38.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [rax+0B44h]
-    vmovss  [rsp+68h+var_38.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B40h]
-  }
-  v17.m_interpType = interpType;
-  interpTypeOut = _RAX->weaponOffsetCurveHoldFireSlow.interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [rax+0B4Ch]
-    vmovss  [rsp+68h+var_38.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B50h]
-  }
-  v17.m_interpTypeOut = interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+68h+var_38.m_adsFractionBegin], xmm0
-    vmovss  [rsp+68h+var_38.m_adsFractionEnd], xmm1
-  }
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v17, v4, ps, serverTime, NULL);
-  __asm { vmovaps xmm1, xmm0; value }
-  BG_SetHoldBlendFractionStartSlow(ps, *(float *)&_XMM1);
+  v16.m_type = WOBC_HOLD_FIRE_BLEND_SLOW;
+  interpType = WeaponDef->weaponOffsetCurveHoldFireSlow.interpType;
+  holdTime = WeaponDef->weaponOffsetCurveHoldFireSlow.holdTime;
+  v16.m_blendTime = WeaponDef->weaponOffsetCurveHoldFireSlow.blendTime;
+  shotDecayFireTimeFrac = WeaponDef->weaponOffsetCurveHoldFireSlow.shotDecayFireTimeFrac;
+  v16.m_holdTime = holdTime;
+  decayTime = WeaponDef->weaponOffsetCurveHoldFireSlow.decayTime;
+  v16.m_interpType = interpType;
+  interpTypeOut = WeaponDef->weaponOffsetCurveHoldFireSlow.interpTypeOut;
+  v16.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionBegin = WeaponDef->weaponOffsetCurveHoldFireSlow.adsFractionBegin;
+  v16.m_decayTime = decayTime;
+  adsFractionEnd = WeaponDef->weaponOffsetCurveHoldFireSlow.adsFractionEnd;
+  v16.m_interpTypeOut = interpTypeOut;
+  v16.m_adsFractionBegin = adsFractionBegin;
+  v16.m_adsFractionEnd = adsFractionEnd;
+  CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&v16, v4, ps, serverTime, NULL);
+  BG_SetHoldBlendFractionStartSlow(ps, *(float *)&CurrentCurveFraction);
   ps->weapCommon.weaponOffsetHoldFireSlowBlendTime = ps->serverTime;
 }
 
@@ -1292,86 +1157,51 @@ void BG_WeaponOffsets_ResetHoldFireSlowBlend(playerState_s *ps, const BgHandler 
 BG_WeaponOffsets_SetFullAutoScaleMarker
 ==============
 */
-
-void __fastcall BG_WeaponOffsets_SetFullAutoScaleMarker(const WeaponDef *weapDef, const WeaponOffsetPatternDescription *pattern, playerState_s *ps, double fullAutoScale)
+void BG_WeaponOffsets_SetFullAutoScaleMarker(const WeaponDef *weapDef, const WeaponOffsetPatternDescription *pattern, playerState_s *ps, const float fullAutoScale)
 {
-  bool v11; 
-  bool v12; 
-  unsigned int v19; 
-  int v20; 
-  __int64 v22; 
-  double v23; 
-  __int64 v24; 
-  double v25; 
-  __int64 v26; 
-  double v27; 
+  unsigned int v9; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1075, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   if ( !pattern && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1076, ASSERT_TYPE_ASSERT, "(pattern)", (const char *)&queryFormat, "pattern") )
     __debugbreak();
-  v11 = ps == NULL;
-  if ( !ps )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1077, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  if ( fullAutoScale < 0.0 || fullAutoScale > 1.0 )
   {
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1077, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-    v11 = !v12;
-    if ( v12 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( !v11 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+68h+var_30], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_38], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+68h+var_40], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1078, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fullAutoScale ) && ( fullAutoScale ) <= ( 1.0f )", "fullAutoScale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v23, v25, v27) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1078, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fullAutoScale ) && ( fullAutoScale ) <= ( 1.0f )", "fullAutoScale not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", fullAutoScale, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   if ( pattern->kickOrSnapDecayIndex >= (unsigned int)weapDef->numWeaponOffsetPatternsKickOrSnapDecay )
   {
-    LODWORD(v24) = weapDef->numWeaponOffsetPatternsKickOrSnapDecay;
-    LODWORD(v22) = pattern->kickOrSnapDecayIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1079, ASSERT_TYPE_ASSERT, "(unsigned)( pattern->kickOrSnapDecayIndex ) < (unsigned)( weapDef->numWeaponOffsetPatternsKickOrSnapDecay )", "pattern->kickOrSnapDecayIndex doesn't index weapDef->numWeaponOffsetPatternsKickOrSnapDecay\n\t%i not in [0, %i)", v22, v24) )
+    LODWORD(v13) = weapDef->numWeaponOffsetPatternsKickOrSnapDecay;
+    LODWORD(v12) = pattern->kickOrSnapDecayIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1079, ASSERT_TYPE_ASSERT, "(unsigned)( pattern->kickOrSnapDecayIndex ) < (unsigned)( weapDef->numWeaponOffsetPatternsKickOrSnapDecay )", "pattern->kickOrSnapDecayIndex doesn't index weapDef->numWeaponOffsetPatternsKickOrSnapDecay\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
   if ( weapDef->numWeaponOffsetPatternsKickOrSnapDecay > 7u )
   {
-    LODWORD(v26) = weapDef->numWeaponOffsetPatternsKickOrSnapDecay;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1082, ASSERT_TYPE_ASSERT, "( static_cast<uint>(weapDef->numWeaponOffsetPatternsKickOrSnapDecay) ) <= ( (7u) )", "%s <= %s\n\t%u, %u", "static_cast<uint>(weapDef->numWeaponOffsetPatternsKickOrSnapDecay)", "FULL_AUTO_SCALE_NUM_MAX_PATTERNS", v26, 7) )
+    LODWORD(v14) = weapDef->numWeaponOffsetPatternsKickOrSnapDecay;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1082, ASSERT_TYPE_ASSERT, "( static_cast<uint>(weapDef->numWeaponOffsetPatternsKickOrSnapDecay) ) <= ( (7u) )", "%s <= %s\n\t%u, %u", "static_cast<uint>(weapDef->numWeaponOffsetPatternsKickOrSnapDecay)", "FULL_AUTO_SCALE_NUM_MAX_PATTERNS", v14, 7) )
       __debugbreak();
   }
   ps->weapCommon.weaponOffsetPatternFullAutoScale &= 0x1FFFFFFFu;
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@41700000
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  v19 = ps->weapCommon.weaponOffsetPatternFullAutoScale | (weapDef->numWeaponOffsetPatternsKickOrSnapDecay << 29);
-  ps->weapCommon.weaponOffsetPatternFullAutoScale = v19;
-  v20 = v19 & ~(15 << (4 * pattern->kickOrSnapDecayIndex));
-  ps->weapCommon.weaponOffsetPatternFullAutoScale = v20;
-  __asm { vcvttss2si rdx, xmm0 }
-  if ( (int)_RDX > 15 )
-    LODWORD(_RDX) = 15;
-  if ( (int)_RDX < 0 )
-    LODWORD(_RDX) = 0;
-  ps->weapCommon.weaponOffsetPatternFullAutoScale = v20 | ((_DWORD)_RDX << (4 * pattern->kickOrSnapDecayIndex));
+  v9 = ps->weapCommon.weaponOffsetPatternFullAutoScale | (weapDef->numWeaponOffsetPatternsKickOrSnapDecay << 29);
+  ps->weapCommon.weaponOffsetPatternFullAutoScale = v9;
+  v10 = v9 & ~(15 << (4 * pattern->kickOrSnapDecayIndex));
+  ps->weapCommon.weaponOffsetPatternFullAutoScale = v10;
+  v11 = (int)(float)(fullAutoScale * 15.0);
+  if ( v11 > 15 )
+    v11 = 15;
+  if ( v11 < 0 )
+    v11 = 0;
+  ps->weapCommon.weaponOffsetPatternFullAutoScale = v10 | (v11 << (4 * pattern->kickOrSnapDecayIndex));
 }
 
 /*
@@ -1418,146 +1248,66 @@ WeaponOffsetCurve::CalculateBlendCurrentFractionDelta
 
 float __fastcall WeaponOffsetCurve::CalculateBlendCurrentFractionDelta(const int currentTime, const int startTime, double startFraction, double isBlendingIn, const float blendTime, const WeaponOffsetBlendInterpolationType interpType, int *outAdjustedBlendTime)
 {
-  char v27; 
-  char v28; 
-  __int64 v58; 
-  __int128 v59; 
-  __int128 v60; 
-  char v63; 
+  float v13; 
+  float v14; 
+  float v15; 
+  double v16; 
+  __int64 v18; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm3
-    vmovaps xmm6, xmm2
-  }
-  if ( !outAdjustedBlendTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 226, ASSERT_TYPE_ASSERT, "(outAdjustedBlendTime)", (const char *)&queryFormat, "outAdjustedBlendTime", v59, v60) )
+  _XMM9 = *(_OWORD *)&isBlendingIn;
+  if ( !outAdjustedBlendTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 226, ASSERT_TYPE_ASSERT, "(outAdjustedBlendTime)", (const char *)&queryFormat, "outAdjustedBlendTime") )
     __debugbreak();
+  _XMM2 = *(_OWORD *)&startFraction ^ _xmm;
   __asm
   {
-    vxorps  xmm2, xmm6, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm7, cs:__real@3f800000
-    vsubss  xmm1, xmm7, xmm6
-    vxorps  xmm8, xmm8, xmm8
     vcmpneqss xmm0, xmm9, xmm8
     vblendvps xmm0, xmm2, xmm1, xmm0; val
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm2, xmm7; max
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
+  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -1.0, 1.0);
+  v13 = COERCE_FLOAT(_XMM0 & _xmm) * blendTime;
+  *outAdjustedBlendTime = (int)(float)(v13 * 1000.0);
+  v14 = *(float *)&_XMM0;
+  if ( v13 > 0.000001 )
   {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm3, xmm1, [rsp+78h+blendTime]
-    vmulss  xmm1, xmm3, cs:__real@447a0000
-    vcvtss2sd xmm2, xmm3, xmm3
-    vcomisd xmm2, cs:__real@3eb0c6f7a0b5ed8d
-    vcvttss2si eax, xmm1
-  }
-  *outAdjustedBlendTime = _EAX;
-  __asm { vmovaps xmm9, xmm0 }
-  if ( v27 | v28 )
-  {
-    __asm { vmovaps xmm6, xmm7 }
-  }
-  else
-  {
-    __asm
+    v16 = I_fclamp((float)((float)(currentTime - startTime) * 0.001) / v13, 0.0, 1.0);
+    v15 = *(float *)&v16;
+    if ( *(float *)&v16 != 0.0 && *(float *)&v16 != 1.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vdivss  xmm0, xmm1, xmm3; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vucomiss xmm0, xmm8
-      vmovaps xmm6, xmm0
-    }
-    if ( !v28 )
-    {
-      __asm { vucomiss xmm0, xmm7 }
       switch ( interpType )
       {
         case WOBIT_LINEAR:
-          break;
+          return v15 * v14;
         case WOBIT_CUBIC_EASE_IN:
-          __asm
-          {
-            vmulss  xmm0, xmm6, xmm6; jumptable 000000014038D587 case 1
-            vmulss  xmm6, xmm0, xmm6
-          }
+          v15 = (float)(*(float *)&v16 * *(float *)&v16) * *(float *)&v16;
           break;
         case WOBIT_CUBIC_EASE_OUT:
-          __asm
-          {
-            vsubss  xmm1, xmm6, xmm7; jumptable 000000014038D587 case 2
-            vmulss  xmm0, xmm1, xmm1
-            vmulss  xmm1, xmm0, xmm1
-            vaddss  xmm6, xmm1, xmm7
-          }
+          v15 = (float)((float)((float)(*(float *)&v16 - 1.0) * (float)(*(float *)&v16 - 1.0)) * (float)(*(float *)&v16 - 1.0)) + 1.0;
           break;
         case WOBIT_QUARTIC_EASE_IN:
-          __asm
-          {
-            vmulss  xmm0, xmm6, xmm6; jumptable 000000014038D587 case 3
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm6, xmm1, xmm6
-          }
+          v15 = (float)((float)(*(float *)&v16 * *(float *)&v16) * *(float *)&v16) * *(float *)&v16;
           break;
         case WOBIT_QUARTIC_EASE_OUT:
-          __asm
-          {
-            vsubss  xmm2, xmm6, xmm7; jumptable 000000014038D587 case 4
-            vmulss  xmm0, xmm2, xmm2
-            vmulss  xmm1, xmm0, xmm2
-            vmulss  xmm2, xmm1, xmm2
-            vsubss  xmm6, xmm7, xmm2
-          }
+          v15 = 1.0 - (float)((float)((float)((float)(*(float *)&v16 - 1.0) * (float)(*(float *)&v16 - 1.0)) * (float)(*(float *)&v16 - 1.0)) * (float)(*(float *)&v16 - 1.0));
           break;
         case WOBIT_EXPONENTIAL_EASE_IN:
-          __asm
-          {
-            vsubss  xmm0, xmm6, xmm7; jumptable 000000014038D587 case 5
-            vmulss  xmm1, xmm0, cs:__real@41200000; Y
-            vmovss  xmm0, cs:__real@40000000; X
-          }
-          *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm { vmovaps xmm6, xmm0 }
+          v15 = powf_0(2.0, (float)(*(float *)&v16 - 1.0) * 10.0);
           break;
         case WOBIT_EXPONENTIAL_EASE_OUT:
-          __asm
-          {
-            vmulss  xmm1, xmm6, cs:__real@c1200000; jumptable 000000014038D587 case 6
-            vmovss  xmm0, cs:__real@40000000; X
-          }
-          powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm { vsubss  xmm6, xmm7, xmm0 }
+          v15 = 1.0 - powf_0(2.0, *(float *)&v16 * -10.0);
           break;
         default:
-          LODWORD(v58) = interpType;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 263, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend interpolation type! %d", v58) )
+          LODWORD(v18) = interpType;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 263, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend interpolation type! %d", v18) )
             __debugbreak();
           break;
       }
     }
   }
-  __asm { vmovaps xmm7, [rsp+78h+var_28]; jumptable 000000014038D587 case 0 }
-  _R11 = &v63;
-  __asm
+  else
   {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmulss  xmm0, xmm6, xmm9
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm6, [rsp+78h+var_18]
+    v15 = FLOAT_1_0;
   }
-  return *(float *)&_XMM0;
+  return v15 * v14;
 }
 
 /*
@@ -1567,229 +1317,124 @@ WeaponOffsetPattern::CalculatePatternWeight
 */
 void WeaponOffsetPattern::CalculatePatternWeight(WeaponOffsetPattern *this, const int serverTime, const BgWeaponMap *weaponMap, WeaponOffsetPatternCache *cache, float *outPatternStrength, vec3_t *outPatternScale)
 {
-  const dvar_t *v21; 
-  char v27; 
-  const WeaponOffsetPatternDescription *m_desc; 
-  bool v30; 
-  const Weapon *r_currentWeapon; 
-  bool v37; 
+  const dvar_t *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  double CurrentCurveFraction; 
+  float v15; 
   const playerState_s *m_ps; 
+  float v17; 
+  const Weapon *r_currentWeapon; 
+  bool v19; 
+  const playerState_s *v20; 
   bool isAlternate; 
-  const playerState_s *v45; 
+  double CrouchProneBlendMap; 
+  float v23; 
+  const playerState_s *v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  const playerState_s *v28; 
+  float mountFraction; 
   scr_string_t patternKey; 
-  float fmt; 
+  float v31; 
+  float fWeaponPosFrac; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
   vec3_t outCrouchScale; 
   vec3_t outAttachmentScale; 
   vec3_t outProneScale; 
   vec3_t outMountScale; 
-  __int64 v114; 
-  char v115; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v114;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RSI = outPatternScale;
-  _R14 = outPatternStrength;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 716, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  v21 = DCONST_DVARBOOL_weaponOffsetsFullBlend;
+  v10 = DCONST_DVARBOOL_weaponOffsetsFullBlend;
   if ( !DCONST_DVARBOOL_weaponOffsetsFullBlend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "weaponOffsetsFullBlend") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( v21->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmm6, xmm9
-      vmovaps xmm0, xmm9
-    }
+    v11 = FLOAT_1_0;
+    v12 = FLOAT_1_0;
+    v13 = FLOAT_1_0;
     *outPatternStrength = 1.0;
   }
   else
   {
-    *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&this->m_curve, weaponMap, this->m_ps, serverTime, this->m_desc);
-    __asm
+    CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&this->m_curve, weaponMap, this->m_ps, serverTime, this->m_desc);
+    v15 = *(float *)&CurrentCurveFraction;
+    if ( *(float *)&CurrentCurveFraction >= 0.000001 )
     {
-      vmovaps xmm2, xmm0
-      vcvtss2sd xmm1, xmm2, xmm0
-      vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( v27 )
-    {
-      *outPatternStrength = 0.0;
-      __asm
-      {
-        vxorps  xmm9, xmm9, xmm9
-        vxorps  xmm6, xmm6, xmm6
-        vxorps  xmm0, xmm0, xmm0
-      }
+      m_ps = this->m_ps;
+      if ( this->m_desc->curveType == WOBC_ADS_BLEND )
+        v17 = FLOAT_1_0;
+      else
+        v17 = (float)((float)(1.0 - m_ps->weapCommon.fWeaponPosFrac) * this->m_desc->hipScale) + m_ps->weapCommon.fWeaponPosFrac;
+      *outPatternStrength = v17 * v15;
+      r_currentWeapon = BG_GetViewmodelWeapon(weaponMap, m_ps);
+      v19 = BG_UsingAlternate(this->m_ps);
+      v20 = this->m_ps;
+      isAlternate = v19;
+      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1218, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        __debugbreak();
+      CrouchProneBlendMap = BG_GetCrouchProneBlendMap(v20);
+      v23 = *(float *)&CrouchProneBlendMap * 2.0;
+      if ( *(float *)&CrouchProneBlendMap >= 0.5 )
+        v23 = 2.0 - v23;
+      I_fclamp(v23, 0.0, 1.0);
+      v24 = this->m_ps;
+      v25 = v23;
+      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1208, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        __debugbreak();
+      v26 = BG_GetCrouchProneBlendMap(v24);
+      v27 = (float)(*(float *)&v26 * 2.0) - 1.0;
+      I_fclamp(v27, 0.0, 1.0);
+      v28 = this->m_ps;
+      mountFraction = v28->mountState.mountFraction;
+      patternKey = this->m_desc->patternKey;
+      v31 = v27;
+      fWeaponPosFrac = v28->weapCommon.fWeaponPosFrac;
+      outAttachmentScale.v[0] = FLOAT_1_0;
+      outAttachmentScale.v[1] = FLOAT_1_0;
+      outAttachmentScale.v[2] = FLOAT_1_0;
+      outCrouchScale.v[0] = FLOAT_1_0;
+      outCrouchScale.v[1] = FLOAT_1_0;
+      outCrouchScale.v[2] = FLOAT_1_0;
+      outProneScale.v[0] = FLOAT_1_0;
+      outProneScale.v[1] = FLOAT_1_0;
+      outProneScale.v[2] = FLOAT_1_0;
+      outMountScale.v[0] = FLOAT_1_0;
+      outMountScale.v[1] = FLOAT_1_0;
+      outMountScale.v[2] = FLOAT_1_0;
+      WeaponOffsetPattern::GetScales(this, weaponMap, v28, patternKey, fWeaponPosFrac, r_currentWeapon, isAlternate, cache, &outAttachmentScale, &outCrouchScale, &outProneScale, &outMountScale);
+      v33 = (float)((float)((float)((float)(outCrouchScale.v[1] - 1.0) * v23) + 1.0) * outAttachmentScale.v[1]) * (float)((float)((float)(outProneScale.v[1] - 1.0) * v27) + 1.0);
+      v34 = (float)((float)((float)((float)(outCrouchScale.v[2] - 1.0) * v23) + 1.0) * outAttachmentScale.v[2]) * (float)((float)((float)(outProneScale.v[2] - 1.0) * v27) + 1.0);
+      v11 = (float)((float)((float)(outMountScale.v[2] - 1.0) * mountFraction) + 1.0) * v34;
+      v35 = (float)((float)(outMountScale.v[1] - 1.0) * mountFraction) + 1.0;
+      v36 = outProneScale.v[0];
+      v37 = (float)(outCrouchScale.v[0] - 1.0) * v25;
+      outPatternScale->v[1] = v33;
+      v12 = v35 * v33;
+      v38 = (float)(v37 + 1.0) * outAttachmentScale.v[0];
+      outPatternScale->v[2] = v34;
+      v13 = (float)(v38 * (float)((float)((float)(v36 - 1.0) * v31) + 1.0)) * (float)((float)((float)(outMountScale.v[0] - 1.0) * mountFraction) + 1.0);
     }
     else
     {
-      m_desc = this->m_desc;
-      _RDX = this->m_ps;
-      __asm
-      {
-        vmovaps xmmword ptr [rsp+140h+var_58+8], xmm7
-        vmovaps [rsp+140h+var_68+8], xmm8
-      }
-      v30 = m_desc->curveType == WOBC_ADS_BLEND;
-      __asm
-      {
-        vmovaps xmmword ptr [rsp+140h+var_88+8], xmm10
-        vmovss  xmm10, cs:__real@3f800000
-        vmovaps [rsp+140h+var_98+8], xmm11
-      }
-      if ( v30 )
-      {
-        __asm { vmovaps xmm0, xmm10 }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdx+730h]
-          vsubss  xmm0, xmm10, xmm1
-          vmulss  xmm0, xmm0, dword ptr [rax+28h]
-          vaddss  xmm0, xmm0, xmm1
-        }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [r14], xmm0
-      }
-      r_currentWeapon = BG_GetViewmodelWeapon(weaponMap, _RDX);
-      v37 = BG_UsingAlternate(this->m_ps);
-      m_ps = this->m_ps;
-      isAlternate = v37;
-      if ( !m_ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1218, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-      *(double *)&_XMM0 = BG_GetCrouchProneBlendMap(m_ps);
-      __asm
-      {
-        vcomiss xmm0, cs:__real@3f000000
-        vmovss  xmm6, cs:__real@40000000
-        vmulss  xmm3, xmm0, xmm6
-      }
-      if ( !v27 )
-        __asm { vsubss  xmm3, xmm6, xmm3 }
-      __asm
-      {
-        vmovaps xmm2, xmm10; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm0, xmm3; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      v45 = this->m_ps;
-      __asm { vmovaps xmm11, xmm0 }
-      if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1208, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-      *(double *)&_XMM0 = BG_GetCrouchProneBlendMap(v45);
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm6
-        vsubss  xmm0, xmm2, xmm10; val
-        vmovaps xmm2, xmm10; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _R8 = this->m_ps;
-      __asm { vmovss  xmm8, dword ptr [r8+4C0h] }
-      patternKey = this->m_desc->patternKey;
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovss  xmm0, dword ptr [r8+730h]
-        vmovss  dword ptr [rsp+140h+fmt], xmm0
-        vmovss  dword ptr [rsp+140h+var_D0], xmm10
-        vmovss  dword ptr [rsp+140h+var_D0+4], xmm10
-        vmovss  dword ptr [rsp+140h+var_D0+8], xmm10
-        vmovss  dword ptr [rsp+140h+var_E0], xmm10
-        vmovss  dword ptr [rsp+140h+var_E0+4], xmm10
-        vmovss  dword ptr [rsp+140h+var_E0+8], xmm10
-        vmovss  dword ptr [rbp+40h+var_C0], xmm10
-        vmovss  dword ptr [rbp+40h+var_C0+4], xmm10
-        vmovss  dword ptr [rbp+40h+var_C0+8], xmm10
-        vmovss  dword ptr [rbp+40h+var_B0], xmm10
-        vmovss  dword ptr [rbp+40h+var_B0+4], xmm10
-        vmovss  dword ptr [rbp+40h+var_B0+8], xmm10
-      }
-      WeaponOffsetPattern::GetScales(this, weaponMap, _R8, patternKey, fmt, r_currentWeapon, isAlternate, cache, &outAttachmentScale, &outCrouchScale, &outProneScale, &outMountScale);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+140h+var_E0+4]
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rbp+40h+var_C0+4]
-        vmulss  xmm2, xmm1, xmm11
-        vaddss  xmm3, xmm2, xmm10
-        vmulss  xmm4, xmm3, dword ptr [rsp+140h+var_D0+4]
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rsp+140h+var_E0+8]
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm3, xmm2, xmm10
-        vmulss  xmm6, xmm4, xmm3
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rbp+40h+var_C0+8]
-        vmulss  xmm2, xmm1, xmm11
-        vaddss  xmm3, xmm2, xmm10
-        vmulss  xmm4, xmm3, dword ptr [rsp+140h+var_D0+8]
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rbp+40h+var_B0+8]
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm3, xmm2, xmm10
-        vmulss  xmm5, xmm4, xmm3
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rbp+40h+var_B0+4]
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm10
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rsp+140h+var_E0]
-        vmulss  xmm2, xmm1, xmm8
-        vmulss  xmm9, xmm3, xmm5
-        vaddss  xmm3, xmm2, xmm10
-        vsubss  xmm1, xmm0, xmm10
-        vmovss  xmm0, dword ptr [rbp+40h+var_C0]
-        vmulss  xmm2, xmm1, xmm11
-        vmovss  dword ptr [rsi+4], xmm6
-        vmulss  xmm6, xmm3, xmm6
-        vaddss  xmm3, xmm2, xmm10
-        vmulss  xmm4, xmm3, dword ptr [rsp+140h+var_D0]
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, xmm7
-        vaddss  xmm3, xmm2, xmm10
-        vmovss  dword ptr [rsi+8], xmm5
-        vmovss  xmm0, dword ptr [rbp+40h+var_B0]
-        vmovaps xmm11, [rsp+140h+var_98+8]
-        vmovaps xmm7, xmmword ptr [rsp+140h+var_58+8]
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, xmm8
-        vmovaps xmm8, [rsp+140h+var_68+8]
-        vmulss  xmm5, xmm4, xmm3
-        vaddss  xmm3, xmm2, xmm10
-        vmovaps xmm10, xmmword ptr [rsp+140h+var_88+8]
-        vmulss  xmm0, xmm5, xmm3
-      }
+      *outPatternStrength = 0.0;
+      v11 = 0.0;
+      v12 = 0.0;
+      v13 = 0.0;
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsi+4], xmm6
-    vmovss  dword ptr [rsi+8], xmm9
-  }
-  _R11 = &v115;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  outPatternScale->v[0] = v13;
+  outPatternScale->v[1] = v12;
+  outPatternScale->v[2] = v11;
 }
 
 /*
@@ -1797,93 +1442,72 @@ void WeaponOffsetPattern::CalculatePatternWeight(WeaponOffsetPattern *this, cons
 WeaponOffsetPattern::FindPatternScale
 ==============
 */
-
-void __fastcall WeaponOffsetPattern::FindPatternScale(const scr_string_t patternKey, const WeaponOffsetPatternScaleInfo *scales, double adsFraction, const bool applyAtHip, vec3_t *outScales)
+void WeaponOffsetPattern::FindPatternScale(const scr_string_t patternKey, const WeaponOffsetPatternScaleInfo *scales, const float adsFraction, const bool applyAtHip, vec3_t *outScales)
 {
-  int v12; 
-  WeaponOffsetPatternScale *v13; 
+  int v8; 
+  WeaponOffsetPatternScale *v9; 
   WeaponOffsetPatternScale *patternScales; 
   __int64 numPatternScales; 
-  WeaponOffsetPatternScale *v16; 
-  bool v17; 
-  WeaponOffsetPatternScale *v18; 
-  bool v21; 
-  __int64 v29; 
-  __int64 v30; 
-  char v34; 
+  WeaponOffsetPatternScale *v12; 
+  bool v13; 
+  WeaponOffsetPatternScale *v14; 
+  vec3_t *v15; 
+  bool v16; 
+  float v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm2
-  }
   if ( !scales && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 564, ASSERT_TYPE_ASSERT, "(scales)", (const char *)&queryFormat, "scales") )
     __debugbreak();
-  v12 = 0;
-  v13 = NULL;
+  v8 = 0;
+  v9 = NULL;
   if ( scales->numPatternScales > 0 )
   {
     patternScales = scales->patternScales;
     numPatternScales = (unsigned int)scales->numPatternScales;
-    v16 = patternScales;
+    v12 = patternScales;
     do
     {
-      v17 = patternScales->patternKey == patternKey;
+      v13 = patternScales->patternKey == patternKey;
       ++patternScales;
-      v18 = v16;
-      if ( !v17 )
-        v18 = v13;
-      ++v16;
-      v13 = v18;
+      v14 = v12;
+      if ( !v13 )
+        v14 = v9;
+      ++v12;
+      v9 = v14;
       --numPatternScales;
     }
     while ( numPatternScales );
   }
-  _RDI = outScales;
-  if ( v13 )
+  v15 = outScales;
+  if ( v9 )
   {
-    *outScales = v13->scale;
+    *outScales = v9->scale;
     if ( !applyAtHip )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovaps [rsp+78h+var_18], xmm6
-        vmovaps [rsp+78h+var_28], xmm7
-      }
-      v21 = 1;
-      __asm { vsubss  xmm7, xmm0, xmm8 }
+      v16 = 1;
       do
       {
-        if ( !v21 )
+        if ( !v16 )
         {
-          LODWORD(v30) = 3;
-          LODWORD(v29) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v30) )
+          LODWORD(v19) = 3;
+          LODWORD(v18) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
-        __asm
+        v17 = (float)(adsFraction * v15->v[0]) + (float)(1.0 - adsFraction);
+        if ( (unsigned int)v8 >= 3 )
         {
-          vmulss  xmm0, xmm8, dword ptr [rdi]
-          vaddss  xmm6, xmm0, xmm7
-        }
-        if ( (unsigned int)v12 >= 3 )
-        {
-          LODWORD(v30) = 3;
-          LODWORD(v29) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v30) )
+          LODWORD(v19) = 3;
+          LODWORD(v18) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rdi], xmm6 }
-        _RDI = (vec3_t *)((char *)_RDI + 4);
-        v21 = (unsigned int)++v12 < 3;
+        v15->v[0] = v17;
+        v15 = (vec3_t *)((char *)v15 + 4);
+        v16 = (unsigned int)++v8 < 3;
       }
-      while ( v12 < 3 );
-      __asm
-      {
-        vmovaps xmm7, [rsp+78h+var_28]
-        vmovaps xmm6, [rsp+78h+var_18]
-      }
+      while ( v8 < 3 );
     }
   }
   else
@@ -1892,8 +1516,6 @@ void __fastcall WeaponOffsetPattern::FindPatternScale(const scr_string_t pattern
     outScales->v[1] = 1.0;
     outScales->v[2] = 1.0;
   }
-  _R11 = &v34;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
 }
 
 /*
@@ -1904,91 +1526,46 @@ WeaponOffsetCurve::GetAdsBlendCurveFractionDelta
 float WeaponOffsetCurve::GetAdsBlendCurveFractionDelta(WeaponOffsetCurve *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const int serverTime, int *outAdjustedBlendTime)
 {
   int CurveTimeFromType; 
-  bool v15; 
-  WeaponOffsetBlendInterpolationType v16; 
+  double CurveStartFractionFromType; 
+  float v11; 
+  bool v12; 
+  WeaponOffsetBlendInterpolationType v13; 
   const Weapon *ViewmodelWeapon; 
-  bool v18; 
-  char v19; 
-  char v22; 
-  double v38; 
+  bool v15; 
+  float v16; 
+  float m_adsFractionEnd; 
+  float m_adsFractionBegin; 
+  float m_decayTime; 
+  double v20; 
   float outAdsTransInSpeedMs; 
-  double v42; 
-  double v43; 
-  float v46; 
   float outAdsTransOutSpeedMs; 
 
-  __asm { vmovaps [rsp+0A8h+var_58], xmm7 }
-  _RDI = this;
   CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(this, NULL, ps, this->m_type);
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurveStartFractionFromType(_RDI, ps, _RDI->m_type);
-  __asm { vmovaps xmm7, xmm0 }
-  v15 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Fu);
-  v16 = WeaponOffsetCurve::PickInterpolationType(v15, (const WeaponOffsetBlendInterpolationType)_RDI->m_interpType, (const WeaponOffsetBlendInterpolationType)_RDI->m_interpTypeOut);
-  if ( v15 )
+  CurveStartFractionFromType = WeaponOffsetCurve::GetCurveStartFractionFromType(this, ps, this->m_type);
+  v11 = *(float *)&CurveStartFractionFromType;
+  v12 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Fu);
+  v13 = WeaponOffsetCurve::PickInterpolationType(v12, (const WeaponOffsetBlendInterpolationType)this->m_interpType, (const WeaponOffsetBlendInterpolationType)this->m_interpTypeOut);
+  if ( v12 )
   {
-    __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
     ViewmodelWeapon = BG_GetViewmodelWeapon(weaponMap, ps);
-    v18 = BG_UsingAlternate(ps);
-    BG_GetADSTransTimes(weaponMap, ps, ViewmodelWeapon, v18, &v46, &outAdsTransOutSpeedMs);
-    __asm
-    {
-      vmovss  xmm1, [rsp+0A8h+arg_0]
-      vcvtss2sd xmm0, xmm1, xmm1
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( v19 | v22 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-    }
+    v15 = BG_UsingAlternate(ps);
+    BG_GetADSTransTimes(weaponMap, ps, ViewmodelWeapon, v15, &outAdsTransInSpeedMs, &outAdsTransOutSpeedMs);
+    if ( outAdsTransInSpeedMs <= 0.000001 )
+      v16 = 0.0;
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm6, xmm0, xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+18h]
-      vmovss  xmm0, dword ptr [rdi+14h]
-      vcomiss xmm1, xmm0
-    }
-    if ( v19 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0A8h+var_68], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0A8h+var_70], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 423, ASSERT_TYPE_ASSERT, "( m_adsFractionEnd ) >= ( m_adsFractionBegin )", "%s >= %s\n\t%g, %g", "m_adsFractionEnd", "m_adsFractionBegin", v42, v43) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vsubss  xmm1, xmm0, dword ptr [rdi+14h]
-      vmulss  xmm2, xmm1, xmm6
-      vmulss  xmm4, xmm2, cs:__real@3a83126f
-      vmovaps xmm6, [rsp+0A8h+var_48]
-    }
+      v16 = 1.0 / outAdsTransInSpeedMs;
+    m_adsFractionEnd = this->m_adsFractionEnd;
+    m_adsFractionBegin = this->m_adsFractionBegin;
+    if ( m_adsFractionEnd < m_adsFractionBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 423, ASSERT_TYPE_ASSERT, "( m_adsFractionEnd ) >= ( m_adsFractionBegin )", "%s >= %s\n\t%g, %g", "m_adsFractionEnd", "m_adsFractionBegin", m_adsFractionEnd, m_adsFractionBegin) )
+      __debugbreak();
+    m_decayTime = (float)((float)(this->m_adsFractionEnd - this->m_adsFractionBegin) * v16) * 0.001;
   }
   else
   {
-    __asm { vmovss  xmm4, dword ptr [rdi+10h] }
+    m_decayTime = this->m_decayTime;
   }
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, eax; isBlendingIn
-    vmovaps xmm2, xmm7; startFraction
-    vmovss  dword ptr [rsp+0A8h+outAdsTransInSpeedMs], xmm4
-  }
-  v38 = WeaponOffsetCurve::CalculateBlendCurrentFractionDelta(serverTime, CurveTimeFromType, *(const float *)&_XMM2, *(const float *)&_XMM3, outAdsTransInSpeedMs, v16, outAdjustedBlendTime);
-  __asm { vmovaps xmm7, [rsp+0A8h+var_58] }
-  return *(float *)&v38;
+  v20 = WeaponOffsetCurve::CalculateBlendCurrentFractionDelta(serverTime, CurveTimeFromType, v11, (float)v12, m_decayTime, v13, outAdjustedBlendTime);
+  return *(float *)&v20;
 }
 
 /*
@@ -1998,8 +1575,7 @@ WeaponOffsetCurve::GetAdsFractionBegin
 */
 float WeaponOffsetCurve::GetAdsFractionBegin(WeaponOffsetCurve *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+14h] }
-  return *(float *)&_XMM0;
+  return this->m_adsFractionBegin;
 }
 
 /*
@@ -2009,8 +1585,7 @@ WeaponOffsetCurve::GetAdsFractionEnd
 */
 float WeaponOffsetCurve::GetAdsFractionEnd(WeaponOffsetCurve *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+18h] }
-  return *(float *)&_XMM0;
+  return this->m_adsFractionEnd;
 }
 
 /*
@@ -2018,11 +1593,12 @@ float WeaponOffsetCurve::GetAdsFractionEnd(WeaponOffsetCurve *this)
 WeaponOffsetCurve::GetBlendTimeScale
 ==============
 */
-
-float __fastcall WeaponOffsetCurve::GetBlendTimeScale(double fractionToFinishBlend, const WeaponOffsetBlendInterpolationType interpType)
+float WeaponOffsetCurve::GetBlendTimeScale(const float fractionToFinishBlend, const WeaponOffsetBlendInterpolationType interpType)
 {
-  __asm { vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  return *(float *)&_XMM0;
+  float result; 
+
+  LODWORD(result) = LODWORD(fractionToFinishBlend) & _xmm;
+  return result;
 }
 
 /*
@@ -2074,205 +1650,143 @@ WeaponOffsetCurve::GetCurrentCurveFraction
 float WeaponOffsetCurve::GetCurrentCurveFraction(WeaponOffsetCurve *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const int serverTime, const WeaponOffsetPatternDescription *patternDesc)
 {
   WeaponOffsetBlendCurveId m_type; 
-  unsigned int CurveTimeFromType; 
-  unsigned int v39; 
-  int v46; 
+  const WeaponOffsetPatternDescription *v10; 
+  double HoldFireBlendCurveFractionDelta; 
+  float v12; 
+  double HoldBlendFractionStartSlow; 
+  double v14; 
+  double v15; 
+  int CurveTimeFromType; 
+  float v17; 
+  float blendTime; 
+  double v19; 
+  float v20; 
+  float v21; 
+  double CurrentFullAutoScale; 
+  float v23; 
+  float v24; 
+  double v25; 
+  int v26; 
+  float m_blendTime; 
+  float v28; 
+  int v29; 
   int WeaponHand; 
   int *p_weaponPrevFireTime; 
-  __int64 v49; 
-  int v50; 
-  __int64 v64; 
+  __int64 v32; 
+  int v33; 
+  double v34; 
+  double AdsBlendCurveFractionDelta; 
+  __int64 v37; 
   int outAdjustedBlendTime; 
 
-  _RSI = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 437, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  m_type = _RSI->m_type;
-  _R14 = patternDesc;
-  if ( ((_RSI->m_type & 0xFFFFFFFA) != 0 || m_type == WOBC_ALWAYS_ON) && (((m_type - 2) & 0xFFFFFFFC) != 0 || m_type == WOBC_ADS_BLEND || !patternDesc) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 443, ASSERT_TYPE_ASSERT, "(((m_type == WOBC_HOLD_FIRE_BLEND_SLOW) || (m_type == WOBC_HOLD_FIRE_BLEND_FAST) || (m_type == WOBC_ADS_BLEND)) || (((m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND) || (m_type == WOBC_ALWAYS_ON)) && patternDesc))", (const char *)&queryFormat, "((m_type == WOBC_HOLD_FIRE_BLEND_SLOW) || (m_type == WOBC_HOLD_FIRE_BLEND_FAST) || (m_type == WOBC_ADS_BLEND)) || (((m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND) || (m_type == WOBC_ALWAYS_ON)) && patternDesc)") )
+  m_type = this->m_type;
+  v10 = patternDesc;
+  if ( ((this->m_type & 0xFFFFFFFA) != 0 || m_type == WOBC_ALWAYS_ON) && (((m_type - 2) & 0xFFFFFFFC) != 0 || m_type == WOBC_ADS_BLEND || !patternDesc) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 443, ASSERT_TYPE_ASSERT, "(((m_type == WOBC_HOLD_FIRE_BLEND_SLOW) || (m_type == WOBC_HOLD_FIRE_BLEND_FAST) || (m_type == WOBC_ADS_BLEND)) || (((m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND) || (m_type == WOBC_ALWAYS_ON)) && patternDesc))", (const char *)&queryFormat, "((m_type == WOBC_HOLD_FIRE_BLEND_SLOW) || (m_type == WOBC_HOLD_FIRE_BLEND_FAST) || (m_type == WOBC_ADS_BLEND)) || (((m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND) || (m_type == WOBC_ALWAYS_ON)) && patternDesc)") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-    vmovaps [rsp+98h+var_58], xmm8
-    vmovaps [rsp+98h+var_68], xmm9
-  }
-  switch ( _RSI->m_type )
+  switch ( this->m_type )
   {
     case WOBC_HOLD_FIRE_BLEND_SLOW:
-      *(double *)&_XMM0 = WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(_RSI, ps, serverTime);
-      __asm { vmovaps xmm6, xmm0 }
-      BG_GetHoldBlendFractionStartSlow(ps);
+      HoldFireBlendCurveFractionDelta = WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(this, ps, serverTime);
+      v12 = *(float *)&HoldFireBlendCurveFractionDelta;
+      HoldBlendFractionStartSlow = BG_GetHoldBlendFractionStartSlow(ps);
       goto LABEL_13;
     case WOBC_HOLD_FIRE_BLEND_FAST:
-      *(double *)&_XMM0 = WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(_RSI, ps, serverTime);
-      __asm { vmovaps xmm6, xmm0 }
-      BG_GetHoldBlendFractionStartFast(ps);
+      v15 = WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(this, ps, serverTime);
+      v12 = *(float *)&v15;
+      HoldBlendFractionStartSlow = BG_GetHoldBlendFractionStartFast(ps);
       goto LABEL_13;
     case WOBC_KICK_BLEND:
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 365, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 366, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 366, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
         __debugbreak();
-      CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(_RSI, weaponMap, ps, _RSI->m_type);
-      __asm { vxorps  xmm9, xmm9, xmm9 }
+      CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(this, weaponMap, ps, this->m_type);
+      v17 = 0.0;
       if ( !CurveTimeFromType )
         goto LABEL_26;
-      __asm
+      blendTime = v10->blendTime;
+      if ( blendTime <= 0.0 )
       {
-        vmovss  xmm1, dword ptr [r14+18h]
-        vcomiss xmm1, xmm9
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, eax
-      }
-      if ( serverTime <= CurveTimeFromType )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+4]
-          vcomiss xmm1, xmm9
-        }
-        if ( serverTime <= CurveTimeFromType )
+        blendTime = this->m_blendTime;
+        if ( blendTime <= 0.0 )
           goto LABEL_26;
       }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3a83126f
-        vdivss  xmm1, xmm0, xmm1
-        vmulss  xmm0, xmm1, xmm2; val
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmulss  xmm0, xmm0, cs:__real@40490fdb; X }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm { vmovaps xmm7, xmm0 }
-      *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentFullAutoScale(_RSI, weaponMap, ps, serverTime, _R14);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
+      v19 = I_fclamp((float)(0.001 / blendTime) * (float)(serverTime - CurveTimeFromType), 0.0, 1.0);
+      v20 = *(float *)&v19 * 3.1415927;
+      sinf_0(*(float *)&v19 * 3.1415927);
+      v21 = v20;
+      CurrentFullAutoScale = WeaponOffsetCurve::GetCurrentFullAutoScale(this, weaponMap, ps, serverTime, v10);
+      v23 = FLOAT_1_0;
       goto LABEL_25;
     case WOBC_SNAP_DECAY_BLEND:
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 318, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 319, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 319, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
         __debugbreak();
-      v39 = WeaponOffsetCurve::GetCurveTimeFromType(_RSI, weaponMap, ps, _RSI->m_type);
-      __asm { vxorps  xmm9, xmm9, xmm9 }
-      if ( !v39 )
+      v26 = WeaponOffsetCurve::GetCurveTimeFromType(this, weaponMap, ps, this->m_type);
+      v17 = 0.0;
+      if ( !v26 )
         goto LABEL_26;
-      __asm
+      m_blendTime = v10->blendTime;
+      v28 = (float)(serverTime - v26) * 0.001;
+      if ( m_blendTime <= 0.0 )
       {
-        vmovss  xmm6, dword ptr [r14+18h]
-        vmovss  xmm7, cs:__real@3a83126f
-        vcomiss xmm6, xmm9
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-      }
-      if ( serverTime <= v39 )
-      {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rsi+4]
-          vcomiss xmm6, xmm9
-        }
-        if ( serverTime <= v39 )
+        m_blendTime = this->m_blendTime;
+        if ( m_blendTime <= 0.0 )
           goto LABEL_26;
       }
-      if ( v39 == serverTime )
+      if ( v26 == serverTime )
       {
-        v46 = 0;
+        v29 = 0;
         WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
         if ( WeaponHand >= 0 )
         {
           p_weaponPrevFireTime = &ps->weapState[0].weaponPrevFireTime;
-          v49 = WeaponHand + 1i64;
+          v32 = WeaponHand + 1i64;
           do
           {
-            v50 = *p_weaponPrevFireTime;
+            v33 = *p_weaponPrevFireTime;
             p_weaponPrevFireTime += 20;
-            if ( v46 > v50 )
-              v50 = v46;
-            v46 = v50;
-            --v49;
+            if ( v29 > v33 )
+              v33 = v29;
+            v29 = v33;
+            --v32;
           }
-          while ( v49 );
+          while ( v32 );
         }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-        }
+        v28 = (float)(serverTime - v29) * 0.001;
       }
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3f800000
-        vdivss  xmm0, xmm1, xmm6; val
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm9; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@40490fdb
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vaddss  xmm0, xmm1, cs:__real@40490fdb; X
-      }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm { vaddss  xmm7, xmm0, xmm8 }
-      *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentFullAutoScale(_RSI, weaponMap, ps, serverTime, _R14);
-      __asm
-      {
-        vmovaps xmm2, xmm8
-        vmovaps xmm1, xmm9
-      }
+      v34 = I_fclamp(v28 / m_blendTime, 0.0, 1.0);
+      v21 = sinf_0((float)((float)(*(float *)&v34 * 3.1415927) * 0.5) + 3.1415927) + 1.0;
+      CurrentFullAutoScale = WeaponOffsetCurve::GetCurrentFullAutoScale(this, weaponMap, ps, serverTime, v10);
+      v23 = FLOAT_1_0;
 LABEL_25:
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovaps xmm0, xmm7; val
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmulss  xmm9, xmm6, xmm0 }
+      v24 = *(float *)&CurrentFullAutoScale;
+      v25 = I_fclamp(v21, 0.0, v23);
+      v17 = v24 * *(float *)&v25;
 LABEL_26:
-      __asm { vmovaps xmm0, xmm9 }
+      *(float *)&v14 = v17;
       break;
     case WOBC_ADS_BLEND:
-      *(double *)&_XMM0 = WeaponOffsetCurve::GetAdsBlendCurveFractionDelta(_RSI, weaponMap, ps, serverTime, &outAdjustedBlendTime);
-      __asm { vmovaps xmm6, xmm0 }
-      BG_GetAdsBlendFractionStart(ps);
+      AdsBlendCurveFractionDelta = WeaponOffsetCurve::GetAdsBlendCurveFractionDelta(this, weaponMap, ps, serverTime, &outAdjustedBlendTime);
+      v12 = *(float *)&AdsBlendCurveFractionDelta;
+      HoldBlendFractionStartSlow = BG_GetAdsBlendFractionStart(ps);
 LABEL_13:
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vaddss  xmm0, xmm6, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v14 = I_fclamp(v12 + *(float *)&HoldBlendFractionStartSlow, 0.0, 1.0);
       break;
     case WOBC_ALWAYS_ON:
-      __asm { vmovss  xmm0, cs:__real@3f800000; jumptable 000000014038E34E case 5 }
+      *(float *)&v14 = FLOAT_1_0;
       break;
     default:
-      LODWORD(v64) = _RSI->m_type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 461, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend curve! %d", v64) )
+      LODWORD(v37) = this->m_type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 461, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern blend curve! %d", v37) )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      LODWORD(v14) = 0;
       break;
   }
-  __asm
-  {
-    vmovaps xmm9, [rsp+98h+var_68]
-    vmovaps xmm8, [rsp+98h+var_58]
-    vmovaps xmm7, [rsp+98h+var_48]
-    vmovaps xmm6, [rsp+98h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v14;
 }
 
 /*
@@ -2282,11 +1796,12 @@ WeaponOffsetCurve::GetCurrentFullAutoScale
 */
 float WeaponOffsetCurve::GetCurrentFullAutoScale(WeaponOffsetCurve *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const int serverTime, const WeaponOffsetPatternDescription *patternDesc)
 {
-  const WeaponOffsetPatternDescription *v9; 
+  const WeaponOffsetPatternDescription *v8; 
   const Weapon *ViewmodelWeapon; 
+  bool v11; 
   bool v12; 
-  bool v13; 
-  const WeaponDef *v14; 
+  const WeaponDef *v13; 
+  float FullAutoScale; 
   int fireTime; 
   int fireDelay; 
 
@@ -2294,36 +1809,24 @@ float WeaponOffsetCurve::GetCurrentFullAutoScale(WeaponOffsetCurve *this, const 
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 470, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = patternDesc;
+  v8 = patternDesc;
   if ( !patternDesc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 471, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
     __debugbreak();
   if ( (unsigned int)(this->m_type - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 472, ASSERT_TYPE_ASSERT, "((m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND))", (const char *)&queryFormat, "(m_type == WOBC_KICK_BLEND) || (m_type == WOBC_SNAP_DECAY_BLEND)") )
     __debugbreak();
-  if ( v9->kickOrSnapDecayIndex >= 0 )
-  {
-    if ( v9->fullAutoBullets < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 479, ASSERT_TYPE_ASSERT, "( patternDesc->fullAutoBullets ) >= ( 1 )", "%s >= %s\n\t%i, %i", "patternDesc->fullAutoBullets", "1", v9->fullAutoBullets, 1) )
-      __debugbreak();
-    ViewmodelWeapon = BG_GetViewmodelWeapon(weaponMap, ps);
-    v12 = BG_UsingAlternate(ps);
-    v13 = BG_PlayerDualWielding(ps) == 1;
-    v14 = BG_WeaponDef(ViewmodelWeapon, v12);
-    BG_GetFireTime(weaponMap, ps, ViewmodelWeapon, v12, v13, 0, &fireTime, &fireDelay);
-    if ( fireTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 490, ASSERT_TYPE_ASSERT, "(fireTime > 0)", (const char *)&queryFormat, "fireTime > 0") )
-      __debugbreak();
-    *(float *)&_XMM0 = BG_WeaponOffsets_GetFullAutoScale(v14, v9, ps, fireTime);
-    __asm
-    {
-      vmulss  xmm2, xmm0, dword ptr [rbp+34h]
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm0, xmm1, xmm0
-      vaddss  xmm0, xmm2, xmm0
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  if ( v8->kickOrSnapDecayIndex < 0 )
+    return FLOAT_1_0;
+  if ( v8->fullAutoBullets < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 479, ASSERT_TYPE_ASSERT, "( patternDesc->fullAutoBullets ) >= ( 1 )", "%s >= %s\n\t%i, %i", "patternDesc->fullAutoBullets", "1", v8->fullAutoBullets, 1) )
+    __debugbreak();
+  ViewmodelWeapon = BG_GetViewmodelWeapon(weaponMap, ps);
+  v11 = BG_UsingAlternate(ps);
+  v12 = BG_PlayerDualWielding(ps) == 1;
+  v13 = BG_WeaponDef(ViewmodelWeapon, v11);
+  BG_GetFireTime(weaponMap, ps, ViewmodelWeapon, v11, v12, 0, &fireTime, &fireDelay);
+  if ( fireTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 490, ASSERT_TYPE_ASSERT, "(fireTime > 0)", (const char *)&queryFormat, "fireTime > 0") )
+    __debugbreak();
+  FullAutoScale = BG_WeaponOffsets_GetFullAutoScale(v13, v8, ps, fireTime);
+  return (float)(FullAutoScale * v8->fullAutoScale) + (float)(1.0 - FullAutoScale);
 }
 
 /*
@@ -2333,6 +1836,8 @@ WeaponOffsetCurve::GetCurveStartFractionFromType
 */
 double WeaponOffsetCurve::GetCurveStartFractionFromType(WeaponOffsetCurve *this, const playerState_s *ps, WeaponOffsetBlendCurveId type)
 {
+  double result; 
+
   switch ( type )
   {
     case WOBC_HOLD_FIRE_BLEND_SLOW:
@@ -2342,15 +1847,14 @@ double WeaponOffsetCurve::GetCurveStartFractionFromType(WeaponOffsetCurve *this,
     case WOBC_ADS_BLEND:
       return BG_GetAdsBlendFractionStart(ps);
     case WOBC_ALWAYS_ON:
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
+      *(_QWORD *)&result = LODWORD(FLOAT_1_0);
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 209, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled blend curve! %d", type) )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      break;
+      return 0.0;
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*
@@ -2424,39 +1928,30 @@ $LN13_8:
 WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta
 ==============
 */
-
-float __fastcall WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(WeaponOffsetCurve *this, const playerState_s *ps, const int serverTime, double _XMM3_8)
+float WeaponOffsetCurve::GetHoldFireBlendCurveFractionDelta(WeaponOffsetCurve *this, const playerState_s *ps, const int serverTime)
 {
   int CurveTimeFromType; 
-  bool v11; 
+  double CurveStartFractionFromType; 
+  float v8; 
+  bool v9; 
   WeaponOffsetBlendInterpolationType interpType; 
-  double v17; 
-  float fmt; 
+  float m_blendTime; 
+  double v12; 
   int outAdjustedBlendTime; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 394, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(_RBX, NULL, ps, _RBX->m_type);
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurveStartFractionFromType(_RBX, ps, _RBX->m_type);
-  __asm { vmovaps xmm6, xmm0 }
-  v11 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, (_RBX->m_type != WOBC_HOLD_FIRE_BLEND_SLOW) + 45);
-  interpType = WeaponOffsetCurve::PickInterpolationType(v11, (const WeaponOffsetBlendInterpolationType)_RBX->m_interpType, (const WeaponOffsetBlendInterpolationType)_RBX->m_interpTypeOut);
-  if ( v11 )
-    __asm { vmovss  xmm0, dword ptr [rbx+4] }
+  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(this, NULL, ps, this->m_type);
+  CurveStartFractionFromType = WeaponOffsetCurve::GetCurveStartFractionFromType(this, ps, this->m_type);
+  v8 = *(float *)&CurveStartFractionFromType;
+  v9 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, (this->m_type != WOBC_HOLD_FIRE_BLEND_SLOW) + 45);
+  interpType = WeaponOffsetCurve::PickInterpolationType(v9, (const WeaponOffsetBlendInterpolationType)this->m_interpType, (const WeaponOffsetBlendInterpolationType)this->m_interpTypeOut);
+  if ( v9 )
+    m_blendTime = this->m_blendTime;
   else
-    __asm { vmovss  xmm0, dword ptr [rbx+10h] }
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, eax; isBlendingIn
-    vmovaps xmm2, xmm6; startFraction
-    vmovss  dword ptr [rsp+58h+fmt], xmm0
-  }
-  v17 = WeaponOffsetCurve::CalculateBlendCurrentFractionDelta(serverTime, CurveTimeFromType, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, interpType, &outAdjustedBlendTime);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return *(float *)&v17;
+    m_blendTime = this->m_decayTime;
+  v12 = WeaponOffsetCurve::CalculateBlendCurrentFractionDelta(serverTime, CurveTimeFromType, v8, (float)v9, m_blendTime, interpType, &outAdjustedBlendTime);
+  return *(float *)&v12;
 }
 
 /*
@@ -2466,8 +1961,7 @@ WeaponOffsetCurve::GetHoldTime
 */
 float WeaponOffsetCurve::GetHoldTime(WeaponOffsetCurve *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+8] }
-  return *(float *)&_XMM0;
+  return this->m_holdTime;
 }
 
 /*
@@ -2477,76 +1971,35 @@ WeaponOffsetCurve::GetKickBlendCurve
 */
 float WeaponOffsetCurve::GetKickBlendCurve(WeaponOffsetCurve *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const int serverTime, const WeaponOffsetPatternDescription *patternDesc)
 {
-  unsigned int CurveTimeFromType; 
-  char v37; 
-  void *retaddr; 
+  int CurveTimeFromType; 
+  float blendTime; 
+  double v11; 
+  float v12; 
+  double CurrentFullAutoScale; 
+  float v14; 
+  double v15; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm9 }
-  _RBX = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 365, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = patternDesc;
   if ( !patternDesc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 366, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
     __debugbreak();
-  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(_RBX, weaponMap, ps, _RBX->m_type);
-  __asm { vxorps  xmm9, xmm9, xmm9 }
+  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(this, weaponMap, ps, this->m_type);
   if ( !CurveTimeFromType )
-    goto LABEL_11;
-  __asm
+    return 0.0;
+  blendTime = patternDesc->blendTime;
+  if ( blendTime <= 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdi+18h]
-    vcomiss xmm1, xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm2, xmm0, cs:__real@3a83126f
+    blendTime = this->m_blendTime;
+    if ( blendTime <= 0.0 )
+      return 0.0;
   }
-  if ( serverTime > CurveTimeFromType )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vcomiss xmm1, xmm9
-  }
-  if ( serverTime > CurveTimeFromType )
-  {
-LABEL_10:
-    __asm
-    {
-      vdivss  xmm0, xmm2, xmm1; val
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovaps [rsp+78h+var_38], xmm7
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmulss  xmm0, xmm0, cs:__real@40490fdb; X }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentFullAutoScale(_RBX, weaponMap, ps, serverTime, patternDesc);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovaps xmm6, xmm0
-      vmovaps xmm0, xmm7; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm7, [rsp+78h+var_38]
-      vmulss  xmm0, xmm6, xmm0
-      vmovaps xmm6, [rsp+78h+var_28]
-    }
-  }
-  else
-  {
-LABEL_11:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  _R11 = &v37;
-  __asm { vmovaps xmm9, xmmword ptr [r11-30h] }
-  return *(float *)&_XMM0;
+  v11 = I_fclamp((float)((float)(serverTime - CurveTimeFromType) * 0.001) / blendTime, 0.0, 1.0);
+  v12 = *(float *)&v11 * 3.1415927;
+  sinf_0(*(float *)&v11 * 3.1415927);
+  CurrentFullAutoScale = WeaponOffsetCurve::GetCurrentFullAutoScale(this, weaponMap, ps, serverTime, patternDesc);
+  v14 = *(float *)&CurrentFullAutoScale;
+  v15 = I_fclamp(v12, 0.0, 1.0);
+  return v14 * *(float *)&v15;
 }
 
 /*
@@ -2556,218 +2009,165 @@ WeaponOffsetPattern::GetScales
 */
 void WeaponOffsetPattern::GetScales(WeaponOffsetPattern *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const scr_string_t patternKey, const float adsFraction, const Weapon *r_currentWeapon, const bool isAlternate, WeaponOffsetPatternCache *cache, vec3_t *outAttachmentScale, vec3_t *outCrouchScale, vec3_t *outProneScale, vec3_t *outMountScale)
 {
-  const WeaponDef *v20; 
-  __int64 v24; 
-  BgWeaponScalarAccumulator *v25; 
-  __int64 v26; 
-  BgWeaponScalarAccumulator *v27; 
-  __int64 v28; 
-  BgWeaponScalarAccumulator *v29; 
-  const BgWeaponMap *v30; 
+  const WeaponDef *v14; 
+  __int64 v15; 
+  BgWeaponScalarAccumulator *v16; 
+  __int64 v17; 
+  BgWeaponScalarAccumulator *v18; 
+  __int64 v19; 
+  BgWeaponScalarAccumulator *v20; 
+  const BgWeaponMap *v21; 
   unsigned int WeaponAttachments; 
   bool usingHybridScope; 
-  WeaponAttachment **v33; 
-  __int64 v34; 
+  WeaponAttachment **v24; 
+  __int64 v25; 
   const WeaponAttachment *OverrideAttachmentWhenApplicable; 
   const WeaponOffsetPatternScaleInfo *weaponOffsetPatternScaleInfo; 
-  bool v37; 
+  bool v28; 
   AttADSStanceScales *adsStanceScales; 
-  bool v70; 
-  vec3_t v73; 
-  vec3_t v74; 
+  double FinalValue; 
+  double v31; 
+  double v32; 
+  float v33; 
+  double v34; 
+  float v35; 
+  double v36; 
+  float v37; 
+  double v38; 
+  float v39; 
+  double v40; 
+  float v41; 
+  double v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  bool v46; 
+  vec3_t v49; 
+  vec3_t v50; 
   vec3_t outScales; 
-  vec3_t v76; 
-  vec3_t v77; 
-  vec3_t v78; 
-  BgWeaponScalarAccumulator v79; 
-  BgWeaponScalarAccumulator v80; 
-  BgWeaponScalarAccumulator v81; 
-  BgWeaponScalarAccumulator v82; 
-  BgWeaponScalarAccumulator v83; 
-  BgWeaponScalarAccumulator v84; 
-  BgWeaponScalarAccumulator v85; 
-  BgWeaponScalarAccumulator v86; 
-  BgWeaponScalarAccumulator v87; 
+  vec3_t v52; 
+  vec3_t v53; 
+  vec3_t v54; 
+  BgWeaponScalarAccumulator v55; 
+  BgWeaponScalarAccumulator v56; 
+  BgWeaponScalarAccumulator v57; 
+  BgWeaponScalarAccumulator v58; 
+  BgWeaponScalarAccumulator v59; 
+  BgWeaponScalarAccumulator v60; 
+  BgWeaponScalarAccumulator v61; 
+  BgWeaponScalarAccumulator v62; 
+  BgWeaponScalarAccumulator v63; 
   WeaponAttachment *attachments[30]; 
-  char v89; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
   if ( !cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 601, ASSERT_TYPE_ASSERT, "(cache)", (const char *)&queryFormat, "cache") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  dword ptr [rsp+260h+var_1F8], xmm7
-    vmovss  dword ptr [rsp+260h+var_1F8+4], xmm7
-    vmovss  dword ptr [rsp+260h+var_1F8+8], xmm7
-    vmovss  dword ptr [rsp+260h+var_1E8], xmm7
-    vmovss  dword ptr [rsp+260h+var_1E8+4], xmm7
-    vmovss  dword ptr [rbp+160h+var_1E8+8], xmm7
-    vmovss  dword ptr [rbp+160h+outScales], xmm7
-    vmovss  dword ptr [rbp+160h+outScales+4], xmm7
-    vmovss  dword ptr [rbp+160h+outScales+8], xmm7
-    vmovss  xmm6, [rbp+160h+adsFraction]
-  }
-  v20 = BG_WeaponDef(r_currentWeapon, isAlternate);
-  __asm { vmovaps xmm2, xmm6; adsFraction }
-  WeaponOffsetPattern::FindPatternScale(patternKey, &v20->mountWeaponOffsetPatternScaleInfo, *(const float *)&_XMM2, 1, &outScales);
-  __asm { vmovaps xmm2, xmm6; adsFraction }
-  WeaponOffsetPattern::FindPatternScale(patternKey, &v20->crouchedWeaponOffsetPatternScaleInfo, *(const float *)&_XMM2, 1, &v73);
-  __asm { vmovaps xmm2, xmm6; adsFraction }
-  WeaponOffsetPattern::FindPatternScale(patternKey, &v20->proneWeaponOffsetPatternScaleInfo, *(const float *)&_XMM2, 1, &v74);
-  v24 = 3i64;
-  v25 = &v82;
-  v26 = 3i64;
+  v49.v[0] = FLOAT_1_0;
+  v49.v[1] = FLOAT_1_0;
+  v49.v[2] = FLOAT_1_0;
+  v50.v[0] = FLOAT_1_0;
+  v50.v[1] = FLOAT_1_0;
+  v50.v[2] = FLOAT_1_0;
+  outScales.v[0] = FLOAT_1_0;
+  outScales.v[1] = FLOAT_1_0;
+  outScales.v[2] = FLOAT_1_0;
+  v14 = BG_WeaponDef(r_currentWeapon, isAlternate);
+  WeaponOffsetPattern::FindPatternScale(patternKey, &v14->mountWeaponOffsetPatternScaleInfo, adsFraction, 1, &outScales);
+  WeaponOffsetPattern::FindPatternScale(patternKey, &v14->crouchedWeaponOffsetPatternScaleInfo, adsFraction, 1, &v49);
+  WeaponOffsetPattern::FindPatternScale(patternKey, &v14->proneWeaponOffsetPatternScaleInfo, adsFraction, 1, &v50);
+  v15 = 3i64;
+  v16 = &v58;
+  v17 = 3i64;
   do
   {
-    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v25++);
-    --v26;
+    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v16++);
+    --v17;
   }
-  while ( v26 );
-  v27 = &v79;
-  v28 = 3i64;
+  while ( v17 );
+  v18 = &v55;
+  v19 = 3i64;
   do
   {
-    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v27++);
-    --v28;
+    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v18++);
+    --v19;
   }
-  while ( v28 );
-  v29 = &v85;
+  while ( v19 );
+  v20 = &v61;
   do
   {
-    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v29++);
-    --v24;
+    BgWeaponScalarAccumulator::BgWeaponScalarAccumulator(v20++);
+    --v15;
   }
-  while ( v24 );
-  v30 = weaponMap;
+  while ( v15 );
+  v21 = weaponMap;
   WeaponAttachments = BG_GetWeaponAttachments(r_currentWeapon, isAlternate, (const WeaponAttachment **)attachments);
   usingHybridScope = BG_IsUsingHybridScope(weaponMap, ps, r_currentWeapon);
-  v70 = usingHybridScope;
+  v46 = usingHybridScope;
   if ( WeaponAttachments )
   {
-    v33 = attachments;
-    v34 = WeaponAttachments;
+    v24 = attachments;
+    v25 = WeaponAttachments;
     do
     {
-      OverrideAttachmentWhenApplicable = BG_GetOverrideAttachmentWhenApplicable(v30, ps, r_currentWeapon, isAlternate, *v33, usingHybridScope);
+      OverrideAttachmentWhenApplicable = BG_GetOverrideAttachmentWhenApplicable(v21, ps, r_currentWeapon, isAlternate, *v24, usingHybridScope);
       if ( !OverrideAttachmentWhenApplicable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 653, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
         __debugbreak();
       weaponOffsetPatternScaleInfo = OverrideAttachmentWhenApplicable->weaponOffsetPatternScaleInfo;
-      v37 = OverrideAttachmentWhenApplicable->type != ATTACHMENT_SCOPE;
+      v28 = OverrideAttachmentWhenApplicable->type != ATTACHMENT_SCOPE;
       if ( weaponOffsetPatternScaleInfo )
       {
-        __asm { vmovaps xmm2, xmm6; adsFraction }
-        WeaponOffsetPattern::FindPatternScale(patternKey, weaponOffsetPatternScaleInfo, *(const float *)&_XMM2, v37, &v76);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1C8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v82, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1C8+4]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v83, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1C8+8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v84, *(const float *)&_XMM1);
+        WeaponOffsetPattern::FindPatternScale(patternKey, weaponOffsetPatternScaleInfo, adsFraction, v28, &v52);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v58, v52.v[0]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v59, v52.v[1]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v60, v52.v[2]);
       }
       adsStanceScales = OverrideAttachmentWhenApplicable->adsStanceScales;
       if ( adsStanceScales )
       {
-        __asm { vmovaps xmm2, xmm6; adsFraction }
-        WeaponOffsetPattern::FindPatternScale(patternKey, &adsStanceScales->crouchedWeaponOffsetPatternScales, *(const float *)&_XMM2, v37, &v77);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1B8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v79, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1B8+4]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v80, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1B8+8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v81, *(const float *)&_XMM1);
-        __asm { vmovaps xmm2, xmm6; adsFraction }
-        WeaponOffsetPattern::FindPatternScale(patternKey, &OverrideAttachmentWhenApplicable->adsStanceScales->proneWeaponOffsetPatternScales, *(const float *)&_XMM2, v37, &v78);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1A8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v85, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1A8+4]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v86, *(const float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbp+160h+var_1A8+8]; scale }
-        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v87, *(const float *)&_XMM1);
+        WeaponOffsetPattern::FindPatternScale(patternKey, &adsStanceScales->crouchedWeaponOffsetPatternScales, adsFraction, v28, &v53);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v55, v53.v[0]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v56, v53.v[1]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v57, v53.v[2]);
+        WeaponOffsetPattern::FindPatternScale(patternKey, &OverrideAttachmentWhenApplicable->adsStanceScales->proneWeaponOffsetPatternScales, adsFraction, v28, &v54);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v61, v54.v[0]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v62, v54.v[1]);
+        BgWeaponScalarAccumulator::ApplyAdditiveScale(&v63, v54.v[2]);
       }
-      usingHybridScope = v70;
-      ++v33;
-      v30 = weaponMap;
-      --v34;
+      usingHybridScope = v46;
+      ++v24;
+      v21 = weaponMap;
+      --v25;
     }
-    while ( v34 );
+    while ( v25 );
   }
-  __asm { vmovaps xmm1, xmm7; baseValue }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v82, *(const float *)&_XMM1);
-  _RBX = outAttachmentScale;
-  __asm
-  {
-    vmovaps xmm1, xmm7; baseValue
-    vmovss  dword ptr [rbx], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v83, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm1, xmm7; baseValue
-    vmovss  dword ptr [rbx+4], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v84, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+260h+var_1F8]; baseValue
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v79, *(const float *)&_XMM1);
-  _RBX = outCrouchScale;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+260h+var_1F8+4]; baseValue
-    vmovss  dword ptr [rbx], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v80, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+260h+var_1F8+8]; baseValue
-    vmovss  dword ptr [rbx+4], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v81, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+260h+var_1E8]; baseValue
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v79, *(const float *)&_XMM1);
-  _RBX = outProneScale;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+260h+var_1E8+4]; baseValue
-    vmovss  dword ptr [rbx], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v80, *(const float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+160h+var_1E8+8]; baseValue
-    vmovss  dword ptr [rbx+4], xmm0
-  }
-  *(double *)&_XMM0 = BgWeaponScalarAccumulator::GetFinalValue(&v81, *(const float *)&_XMM1);
-  _RAX = outMountScale;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+160h+outScales]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+160h+outScales+4]
-    vmovss  dword ptr [rax], xmm1
-    vmovss  xmm1, dword ptr [rbp+160h+outScales+8]
-    vmovss  dword ptr [rax+8], xmm1
-    vmovss  dword ptr [rax+4], xmm0
-  }
-  _R11 = &v89;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  FinalValue = BgWeaponScalarAccumulator::GetFinalValue(&v58, 1.0);
+  outAttachmentScale->v[0] = *(float *)&FinalValue;
+  v31 = BgWeaponScalarAccumulator::GetFinalValue(&v59, 1.0);
+  outAttachmentScale->v[1] = *(float *)&v31;
+  v32 = BgWeaponScalarAccumulator::GetFinalValue(&v60, 1.0);
+  v33 = v49.v[0];
+  outAttachmentScale->v[2] = *(float *)&v32;
+  v34 = BgWeaponScalarAccumulator::GetFinalValue(&v55, v33);
+  v35 = v49.v[1];
+  outCrouchScale->v[0] = *(float *)&v34;
+  v36 = BgWeaponScalarAccumulator::GetFinalValue(&v56, v35);
+  v37 = v49.v[2];
+  outCrouchScale->v[1] = *(float *)&v36;
+  v38 = BgWeaponScalarAccumulator::GetFinalValue(&v57, v37);
+  v39 = v50.v[0];
+  outCrouchScale->v[2] = *(float *)&v38;
+  v40 = BgWeaponScalarAccumulator::GetFinalValue(&v55, v39);
+  v41 = v50.v[1];
+  outProneScale->v[0] = *(float *)&v40;
+  v42 = BgWeaponScalarAccumulator::GetFinalValue(&v56, v41);
+  v43 = v50.v[2];
+  outProneScale->v[1] = *(float *)&v42;
+  v44 = BgWeaponScalarAccumulator::GetFinalValue(&v57, v43);
+  v45 = outScales.v[0];
+  outProneScale->v[2] = *(float *)&v44;
+  *(float *)&v44 = outScales.v[1];
+  outMountScale->v[0] = v45;
+  outMountScale->v[2] = outScales.v[2];
+  outMountScale->v[1] = *(float *)&v44;
 }
 
 /*
@@ -2777,8 +2177,7 @@ WeaponOffsetCurve::GetShotDecayFireTimeFrac
 */
 float WeaponOffsetCurve::GetShotDecayFireTimeFrac(WeaponOffsetCurve *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0Ch] }
-  return *(float *)&_XMM0;
+  return this->m_shotDecayFireTimeFrac;
 }
 
 /*
@@ -2788,117 +2187,62 @@ WeaponOffsetCurve::GetSnapDecayBlendCurve
 */
 float WeaponOffsetCurve::GetSnapDecayBlendCurve(WeaponOffsetCurve *this, const BgWeaponMap *weaponMap, const playerState_s *ps, const int serverTime, const WeaponOffsetPatternDescription *patternDesc)
 {
-  WeaponOffsetBlendCurveId m_type; 
-  unsigned int CurveTimeFromType; 
-  int v22; 
+  int CurveTimeFromType; 
+  float blendTime; 
+  float v11; 
+  int v12; 
   int WeaponHand; 
   int *p_weaponPrevFireTime; 
-  __int64 v25; 
-  int v26; 
-  __int128 v46; 
-  char v49; 
+  __int64 v15; 
+  int v16; 
+  double v17; 
+  float v18; 
+  double CurrentFullAutoScale; 
+  float v20; 
+  double v21; 
 
-  __asm { vmovaps [rsp+78h+var_48], xmm9 }
-  _R14 = this;
-  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 318, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps", v46) )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 318, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBP = patternDesc;
   if ( !patternDesc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 319, ASSERT_TYPE_ASSERT, "(patternDesc)", (const char *)&queryFormat, "patternDesc") )
     __debugbreak();
-  m_type = _R14->m_type;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
-  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(_R14, weaponMap, ps, m_type);
-  __asm { vxorps  xmm9, xmm9, xmm9 }
+  CurveTimeFromType = WeaponOffsetCurve::GetCurveTimeFromType(this, weaponMap, ps, this->m_type);
   if ( !CurveTimeFromType )
-    goto LABEL_18;
-  __asm
+    return 0.0;
+  blendTime = patternDesc->blendTime;
+  v11 = (float)(serverTime - CurveTimeFromType) * 0.001;
+  if ( blendTime <= 0.0 )
   {
-    vmovss  xmm6, dword ptr [rbp+18h]
-    vmovss  xmm7, cs:__real@3a83126f
-    vcomiss xmm6, xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, xmm7
+    blendTime = this->m_blendTime;
+    if ( blendTime <= 0.0 )
+      return 0.0;
   }
-  if ( serverTime > CurveTimeFromType )
-    goto LABEL_10;
-  __asm
+  if ( CurveTimeFromType == serverTime )
   {
-    vmovss  xmm6, dword ptr [r14+4]
-    vcomiss xmm6, xmm9
-  }
-  if ( serverTime > CurveTimeFromType )
-  {
-LABEL_10:
-    if ( CurveTimeFromType == serverTime )
+    v12 = 0;
+    WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
+    if ( WeaponHand >= 0 )
     {
-      v22 = 0;
-      WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
-      if ( WeaponHand >= 0 )
+      p_weaponPrevFireTime = &ps->weapState[0].weaponPrevFireTime;
+      v15 = WeaponHand + 1i64;
+      do
       {
-        p_weaponPrevFireTime = &ps->weapState[0].weaponPrevFireTime;
-        v25 = WeaponHand + 1i64;
-        do
-        {
-          v26 = *p_weaponPrevFireTime;
-          p_weaponPrevFireTime += 20;
-          if ( v22 > v26 )
-            v26 = v22;
-          v22 = v26;
-          --v25;
-        }
-        while ( v25 );
+        v16 = *p_weaponPrevFireTime;
+        p_weaponPrevFireTime += 20;
+        if ( v12 > v16 )
+          v16 = v12;
+        v12 = v16;
+        --v15;
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-      }
+      while ( v15 );
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vdivss  xmm0, xmm1, xmm6; val
-      vmovaps xmm1, xmm9; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@40490fdb
-      vmulss  xmm3, xmm0, cs:__real@3f000000
-      vaddss  xmm0, xmm3, cs:__real@40490fdb; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm { vaddss  xmm7, xmm0, cs:__real@3f800000 }
-    *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentFullAutoScale(_R14, weaponMap, ps, serverTime, patternDesc);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovaps xmm6, xmm0
-      vmovaps xmm0, xmm7; val
-      vmovaps xmm1, xmm9; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmulss  xmm0, xmm6, xmm0 }
+    v11 = (float)(serverTime - v12) * 0.001;
   }
-  else
-  {
-LABEL_18:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  __asm { vmovaps xmm7, [rsp+78h+var_38] }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm6, [rsp+78h+var_28]
-  }
-  return *(float *)&_XMM0;
+  v17 = I_fclamp(v11 / blendTime, 0.0, 1.0);
+  v18 = sinf_0((float)((float)(*(float *)&v17 * 3.1415927) * 0.5) + 3.1415927) + 1.0;
+  CurrentFullAutoScale = WeaponOffsetCurve::GetCurrentFullAutoScale(this, weaponMap, ps, serverTime, patternDesc);
+  v20 = *(float *)&CurrentFullAutoScale;
+  v21 = I_fclamp(v18, 0.0, 1.0);
+  return v20 * *(float *)&v21;
 }
 
 /*
@@ -2910,96 +2254,76 @@ void PM_WeaponOffsets_FireWeapon(pmove_t *pm)
 {
   playerState_s *ps; 
   BgWeaponMap *weaponMap; 
+  const WeaponDef *WeaponDef; 
   int serverTime; 
   WeaponOffsetBlendInterpolationType interpType; 
+  const WeaponDef *v7; 
+  float holdTime; 
+  float shotDecayFireTimeFrac; 
+  float decayTime; 
   WeaponOffsetBlendInterpolationType interpTypeOut; 
-  WeaponOffsetBlendInterpolationType v19; 
-  int v20; 
-  WeaponOffsetBlendInterpolationType v26; 
+  float adsFractionBegin; 
+  float adsFractionEnd; 
+  double CurrentCurveFraction; 
+  float v15; 
+  WeaponOffsetBlendInterpolationType v16; 
+  int v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  WeaponOffsetBlendInterpolationType v21; 
+  double v22; 
   const BgHandler *m_bgHandler; 
-  const BgHandler *v30; 
-  playerState_s *v31; 
-  WeaponOffsetCurve v34; 
+  const BgHandler *v24; 
+  playerState_s *v25; 
+  WeaponOffsetCurve v26; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1214, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1214, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   weaponMap = pm->weaponMap;
-  _RAX = BG_WeaponOffsets_GetWeaponDef(weaponMap, ps);
+  WeaponDef = BG_WeaponOffsets_GetWeaponDef(weaponMap, ps);
   serverTime = ps->serverTime;
-  v34.m_type = WOBC_HOLD_FIRE_BLEND_SLOW;
-  interpType = _RAX->weaponOffsetCurveHoldFireSlow.interpType;
-  _RBX = _RAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B3Ch]
-    vmovss  xmm1, dword ptr [rax+0B48h]
-    vmovss  [rsp+98h+var_68.m_blendTime], xmm0
-    vmovss  xmm0, dword ptr [rax+0B44h]
-    vmovss  [rsp+98h+var_68.m_holdTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B40h]
-  }
-  v34.m_interpType = interpType;
-  interpTypeOut = _RAX->weaponOffsetCurveHoldFireSlow.interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+98h+var_68.m_shotDecayFireTimeFrac], xmm0
-    vmovss  xmm0, dword ptr [rax+0B4Ch]
-    vmovss  [rsp+98h+var_68.m_decayTime], xmm1
-    vmovss  xmm1, dword ptr [rax+0B50h]
-  }
-  v34.m_interpTypeOut = interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+98h+var_68.m_adsFractionBegin], xmm0
-    vmovss  [rsp+98h+var_68.m_adsFractionEnd], xmm1
-  }
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v34, weaponMap, ps, serverTime, NULL);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+0B5Ch]
-    vmovss  xmm2, dword ptr [rbx+0B68h]
-  }
-  v19 = _RBX->weaponOffsetCurveHoldFireFast.interpType;
-  v20 = ps->serverTime;
-  __asm
-  {
-    vmovss  [rsp+98h+var_68.m_blendTime], xmm1
-    vmovss  xmm1, dword ptr [rbx+0B64h]
-    vmovss  [rsp+98h+var_68.m_shotDecayFireTimeFrac], xmm1
-    vmovss  xmm1, dword ptr [rbx+0B70h]
-    vmovss  [rsp+98h+var_68.m_holdTime], xmm2
-    vmovss  xmm2, dword ptr [rbx+0B60h]
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, dword ptr [rbx+0B6Ch]
-  }
-  v34.m_interpType = v19;
-  v26 = _RBX->weaponOffsetCurveHoldFireFast.interpTypeOut;
-  __asm
-  {
-    vmovss  [rsp+98h+var_68.m_adsFractionEnd], xmm1
-    vmovss  [rsp+98h+var_68.m_decayTime], xmm2
-    vmovss  [rsp+98h+var_68.m_adsFractionBegin], xmm0
-  }
-  v34.m_type = WOBC_HOLD_FIRE_BLEND_FAST;
-  v34.m_interpTypeOut = v26;
-  *(double *)&_XMM0 = WeaponOffsetCurve::GetCurrentCurveFraction(&v34, weaponMap, ps, v20, NULL);
-  __asm { vmovaps xmm7, xmm0 }
-  if ( !BG_WeaponOffsets_AreAnyBulletBlendsActive(weaponMap, _RBX, ps) )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3a83126f
-      vcomiss xmm6, xmm1
-    }
-  }
+  v26.m_type = WOBC_HOLD_FIRE_BLEND_SLOW;
+  interpType = WeaponDef->weaponOffsetCurveHoldFireSlow.interpType;
+  v7 = WeaponDef;
+  holdTime = WeaponDef->weaponOffsetCurveHoldFireSlow.holdTime;
+  v26.m_blendTime = WeaponDef->weaponOffsetCurveHoldFireSlow.blendTime;
+  shotDecayFireTimeFrac = WeaponDef->weaponOffsetCurveHoldFireSlow.shotDecayFireTimeFrac;
+  v26.m_holdTime = holdTime;
+  decayTime = WeaponDef->weaponOffsetCurveHoldFireSlow.decayTime;
+  v26.m_interpType = interpType;
+  interpTypeOut = WeaponDef->weaponOffsetCurveHoldFireSlow.interpTypeOut;
+  v26.m_shotDecayFireTimeFrac = shotDecayFireTimeFrac;
+  adsFractionBegin = WeaponDef->weaponOffsetCurveHoldFireSlow.adsFractionBegin;
+  v26.m_decayTime = decayTime;
+  adsFractionEnd = WeaponDef->weaponOffsetCurveHoldFireSlow.adsFractionEnd;
+  v26.m_interpTypeOut = interpTypeOut;
+  v26.m_adsFractionBegin = adsFractionBegin;
+  v26.m_adsFractionEnd = adsFractionEnd;
+  CurrentCurveFraction = WeaponOffsetCurve::GetCurrentCurveFraction(&v26, weaponMap, ps, serverTime, NULL);
+  v15 = v7->weaponOffsetCurveHoldFireFast.holdTime;
+  v16 = v7->weaponOffsetCurveHoldFireFast.interpType;
+  v17 = ps->serverTime;
+  v26.m_blendTime = v7->weaponOffsetCurveHoldFireFast.blendTime;
+  v26.m_shotDecayFireTimeFrac = v7->weaponOffsetCurveHoldFireFast.shotDecayFireTimeFrac;
+  v18 = v7->weaponOffsetCurveHoldFireFast.adsFractionEnd;
+  v26.m_holdTime = v15;
+  v19 = v7->weaponOffsetCurveHoldFireFast.decayTime;
+  v20 = *(float *)&CurrentCurveFraction;
+  *(float *)&CurrentCurveFraction = v7->weaponOffsetCurveHoldFireFast.adsFractionBegin;
+  v26.m_interpType = v16;
+  v21 = v7->weaponOffsetCurveHoldFireFast.interpTypeOut;
+  v26.m_adsFractionEnd = v18;
+  v26.m_decayTime = v19;
+  v26.m_adsFractionBegin = *(float *)&CurrentCurveFraction;
+  v26.m_type = WOBC_HOLD_FIRE_BLEND_FAST;
+  v26.m_interpTypeOut = v21;
+  v22 = WeaponOffsetCurve::GetCurrentCurveFraction(&v26, weaponMap, ps, v17, NULL);
+  if ( !BG_WeaponOffsets_AreAnyBulletBlendsActive(weaponMap, v7, ps) && v20 < 0.001 && *(float *)&v22 < 0.001 )
+    ps->weapCommon.weaponStartFireTime_BlendedOut = ps->serverTime;
   m_bgHandler = pm->m_bgHandler;
   if ( !m_bgHandler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 982, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
@@ -3008,27 +2332,22 @@ void PM_WeaponOffsets_FireWeapon(pmove_t *pm)
     BG_WeaponOffsets_ResetHoldFireSlowBlend(ps, m_bgHandler);
     GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Du);
   }
-  v30 = pm->m_bgHandler;
-  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1030, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
+  v24 = pm->m_bgHandler;
+  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1030, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
   if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Eu) )
   {
-    BG_WeaponOffsets_ResetHoldFireFastBlend(ps, v30);
+    BG_WeaponOffsets_ResetHoldFireFastBlend(ps, v24);
     GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x2Eu);
   }
-  v31 = pm->ps;
-  if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1176, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v25 = pm->ps;
+  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1176, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v31->weapCommon.weapFlags, ACTIVE, 0x31u) )
+  if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v25->weapCommon.weapFlags, ACTIVE, 0x31u) )
   {
     PM_WeaponOffsets_StoreFullAutoScales(pm);
-    v31->weapCommon.weaponOffsetSustainedFireStartTime = pm->cmd.serverTime;
-    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&v31->weapCommon.weapFlags, ACTIVE, 0x31u);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
+    v25->weapCommon.weaponOffsetSustainedFireStartTime = pm->cmd.serverTime;
+    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&v25->weapCommon.weapFlags, ACTIVE, 0x31u);
   }
 }
 
@@ -3041,12 +2360,13 @@ void PM_WeaponOffsets_StoreFullAutoScales(pmove_t *pm)
 {
   playerState_s *ps; 
   const Weapon *ViewmodelWeapon; 
+  bool v4; 
   bool v5; 
-  bool v6; 
-  const WeaponDef *v7; 
-  int v8; 
-  __int64 v9; 
-  const WeaponOffsetPatternDescription *v10; 
+  const WeaponDef *v6; 
+  int v7; 
+  __int64 v8; 
+  const WeaponOffsetPatternDescription *v9; 
+  float FullAutoScale; 
   int fireTime; 
   int fireDelay; 
 
@@ -3056,24 +2376,23 @@ void PM_WeaponOffsets_StoreFullAutoScales(pmove_t *pm)
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1150, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, ps);
-  v5 = BG_UsingAlternate(ps);
-  v6 = BG_PlayerDualWielding(ps) == 1;
-  v7 = BG_WeaponDef(ViewmodelWeapon, v5);
-  v8 = 0;
-  BG_GetFireTime(pm->weaponMap, ps, ViewmodelWeapon, v5, v6, 0, &fireTime, &fireDelay);
-  if ( v7->numWeaponOffsetPatternsKickOrSnapDecay > 0 )
+  v4 = BG_UsingAlternate(ps);
+  v5 = BG_PlayerDualWielding(ps) == 1;
+  v6 = BG_WeaponDef(ViewmodelWeapon, v4);
+  v7 = 0;
+  BG_GetFireTime(pm->weaponMap, ps, ViewmodelWeapon, v4, v5, 0, &fireTime, &fireDelay);
+  if ( v6->numWeaponOffsetPatternsKickOrSnapDecay > 0 )
   {
-    v9 = 0i64;
+    v8 = 0i64;
     do
     {
-      v10 = v7->weaponOffsetPatternsKickOrSnapDecay[v9];
-      *(float *)&_XMM0 = BG_WeaponOffsets_GetFullAutoScale(v7, v10, ps, fireTime);
-      __asm { vmovaps xmm3, xmm0; fullAutoScale }
-      BG_WeaponOffsets_SetFullAutoScaleMarker(v7, v10, ps, *(double *)&_XMM3);
+      v9 = v6->weaponOffsetPatternsKickOrSnapDecay[v8];
+      FullAutoScale = BG_WeaponOffsets_GetFullAutoScale(v6, v9, ps, fireTime);
+      BG_WeaponOffsets_SetFullAutoScaleMarker(v6, v9, ps, FullAutoScale);
+      ++v7;
       ++v8;
-      ++v9;
     }
-    while ( v8 < v7->numWeaponOffsetPatternsKickOrSnapDecay );
+    while ( v7 < v6->numWeaponOffsetPatternsKickOrSnapDecay );
   }
 }
 
@@ -3085,12 +2404,12 @@ PM_WeaponOffsets_Update
 void PM_WeaponOffsets_Update(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
-  playerState_s *v9; 
+  playerState_s *v5; 
   int WeaponHand; 
-  __int64 v11; 
-  __int64 v12; 
+  __int64 v7; 
+  __int64 v8; 
   int *p_weaponState; 
-  playerState_s *v14; 
+  playerState_s *v10; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1330, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -3101,49 +2420,46 @@ void PM_WeaponOffsets_Update(pmove_t *pm, pml_t *pml)
   {
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1501, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    __asm { vxorps  xmm1, xmm1, xmm1; value }
     *(_QWORD *)&ps->weapCommon.weaponStartFireTime_BlendedOut = 0i64;
     *(_QWORD *)&ps->weapCommon.weaponOffsetHoldFireFastBlendTime = 0i64;
     *(_QWORD *)&ps->weapCommon.weaponOffsetPrevHoldFireBlendInDuration = 0i64;
     *(_QWORD *)&ps->weapCommon.weaponOffsetSustainedFireStopTime = 0i64;
-    BG_SetHoldBlendFractionStartSlow(ps, *(float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; value }
-    BG_SetHoldBlendFractionStartFast(ps, *(float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; value }
-    BG_SetAdsBlendFractionStart(ps, *(float *)&_XMM1);
+    BG_SetHoldBlendFractionStartSlow(ps, 0.0);
+    BG_SetHoldBlendFractionStartFast(ps, 0.0);
+    BG_SetAdsBlendFractionStart(ps, 0.0);
   }
   else
   {
     PM_WeaponOffsets_UpdateShotDecay(pm, pml);
-    v9 = pm->ps;
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1307, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v5 = pm->ps;
+    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1307, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, v9);
-    v11 = WeaponHand;
+    WeaponHand = BG_PlayerLastWeaponHand(pm->weaponMap, v5);
+    v7 = WeaponHand;
     if ( WeaponHand < 0 )
     {
 LABEL_19:
-      BG_WeaponOffsets_StopHoldFireSlowBlend(v9, pm->m_bgHandler);
-      BG_WeaponOffsets_StopHoldFireFastBlend(v9, pm->m_bgHandler);
-      v14 = pm->ps;
-      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1193, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+      BG_WeaponOffsets_StopHoldFireSlowBlend(v5, pm->m_bgHandler);
+      BG_WeaponOffsets_StopHoldFireFastBlend(v5, pm->m_bgHandler);
+      v10 = pm->ps;
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1193, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v14->weapCommon.weapFlags, ACTIVE, 0x31u) )
+      if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v10->weapCommon.weapFlags, ACTIVE, 0x31u) )
       {
         PM_WeaponOffsets_StoreFullAutoScales(pm);
-        v14->weapCommon.weaponOffsetSustainedFireStopTime = pm->cmd.serverTime;
-        GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&v14->weapCommon.weapFlags, ACTIVE, 0x31u);
+        v10->weapCommon.weaponOffsetSustainedFireStopTime = pm->cmd.serverTime;
+        GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&v10->weapCommon.weapFlags, ACTIVE, 0x31u);
       }
     }
     else
     {
-      v12 = 0i64;
-      p_weaponState = &v9->weapState[0].weaponState;
+      v8 = 0i64;
+      p_weaponState = &v5->weapState[0].weaponState;
       while ( *p_weaponState != 16 )
       {
-        ++v12;
+        ++v8;
         p_weaponState += 20;
-        if ( v12 > v11 )
+        if ( v8 > v7 )
           goto LABEL_19;
       }
     }
@@ -3159,113 +2475,61 @@ void PM_WeaponOffsets_UpdateShotDecay(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
   const Weapon *ViewmodelWeapon; 
-  bool v11; 
-  bool v12; 
-  bool v14; 
-  bool v15; 
-  bool v22; 
-  bool v23; 
-  double shotCount; 
-  double shotCounta; 
-  int *fireTime; 
-  int *fireTimea; 
-  int *fireDelay; 
-  int *fireDelaya; 
-  char v40; 
-  void *retaddr; 
-  int v42; 
-  int v43; 
+  bool v6; 
+  bool v7; 
+  const WeaponDef *v8; 
+  playerState_s *v9; 
+  int v10; 
+  float shotDecayFireTimeFrac; 
+  bool v13; 
+  playerState_s *v14; 
+  int v15; 
+  float v16; 
+  bool v17; 
+  int fireTime; 
+  int fireDelay; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0C8h+var_88], xmm10
-  }
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1286, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1286, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   ViewmodelWeapon = BG_GetViewmodelWeapon(pm->weaponMap, ps);
-  v11 = BG_UsingAlternate(ps);
-  v12 = BG_PlayerDualWielding(ps) == 1;
-  _R15 = BG_WeaponDef(ViewmodelWeapon, v11);
-  BG_GetFireTime(pm->weaponMap, ps, ViewmodelWeapon, v11, v12, 0, &v42, &v43);
-  if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1244, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  v6 = BG_UsingAlternate(ps);
+  v7 = BG_PlayerDualWielding(ps) == 1;
+  v8 = BG_WeaponDef(ViewmodelWeapon, v6);
+  BG_GetFireTime(pm->weaponMap, ps, ViewmodelWeapon, v6, v7, 0, &fireTime, &fireDelay);
+  v9 = pm->ps;
+  v10 = fireTime;
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1244, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v14 = _R15 == NULL;
-  if ( !_R15 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1245, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef");
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r15+0B44h]
-    vmovsd  xmm9, cs:__real@3ff0000000000000
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm6, xmm8
-    vxorpd  xmm10, xmm10, xmm10
-    vcomiss xmm6, xmm7
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0C8h+fireDelay], xmm9
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+fireTime], xmm10
-      vmovsd  qword ptr [rsp+0C8h+shotCount], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1249, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( slowBlendShotDecayFireTimeFrac ) && ( slowBlendShotDecayFireTimeFrac ) <= ( 1.0f )", "slowBlendShotDecayFireTimeFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", shotCount, *(double *)&fireTime, *(double *)&fireDelay) )
-      __debugbreak();
-    __asm { vcomiss xmm6, xmm7 }
-  }
-  if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1265, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1245, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  v22 = _R15 == NULL;
-  if ( !_R15 )
+  shotDecayFireTimeFrac = v8->weaponOffsetCurveHoldFireSlow.shotDecayFireTimeFrac;
+  __asm { vxorpd  xmm10, xmm10, xmm10 }
+  if ( shotDecayFireTimeFrac < 0.0 || (v13 = shotDecayFireTimeFrac < 1.0, shotDecayFireTimeFrac > 1.0) )
   {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1266, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef");
-    v22 = !v23;
-    if ( v23 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1249, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( slowBlendShotDecayFireTimeFrac ) && ( slowBlendShotDecayFireTimeFrac ) <= ( 1.0f )", "slowBlendShotDecayFireTimeFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", shotDecayFireTimeFrac, *(double *)&_XMM10, DOUBLE_1_0) )
       __debugbreak();
+    v13 = shotDecayFireTimeFrac < 1.0;
   }
-  __asm
+  if ( v13 && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v9->weapCommon.weapFlags, ACTIVE, 0x2Du) && pm->cmd.serverTime - v9->weapState[0].weaponFireTime >= (int)(float)((float)v10 * shotDecayFireTimeFrac) )
+    BG_WeaponOffsets_StopHoldFireSlowBlend(v9, pm->m_bgHandler);
+  v14 = pm->ps;
+  v15 = fireTime;
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1265, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1266, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+    __debugbreak();
+  v16 = v8->weaponOffsetCurveHoldFireFast.shotDecayFireTimeFrac;
+  if ( v16 < 0.0 || (v17 = v16 < 1.0, v16 > 1.0) )
   {
-    vmovss  xmm6, dword ptr [r15+0B64h]
-    vcomiss xmm6, xmm8
-    vcomiss xmm6, xmm7
-  }
-  if ( !v22 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0C8h+fireDelay], xmm9
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+fireTime], xmm10
-      vmovsd  qword ptr [rsp+0C8h+shotCount], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1270, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fastBlendShotDecayFireTimeFrac ) && ( fastBlendShotDecayFireTimeFrac ) <= ( 1.0f )", "fastBlendShotDecayFireTimeFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", shotCounta, *(double *)&fireTimea, *(double *)&fireDelaya) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 1270, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( fastBlendShotDecayFireTimeFrac ) && ( fastBlendShotDecayFireTimeFrac ) <= ( 1.0f )", "fastBlendShotDecayFireTimeFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v16, *(double *)&_XMM10, DOUBLE_1_0) )
       __debugbreak();
-    __asm { vcomiss xmm6, xmm7 }
+    v17 = v16 < 1.0;
   }
-  __asm { vmovaps xmm7, [rsp+0C8h+var_58] }
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  if ( v17 && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v14->weapCommon.weapFlags, ACTIVE, 0x2Eu) && pm->cmd.serverTime - v14->weapState[0].weaponFireTime >= (int)(float)((float)v15 * v16) )
+    BG_WeaponOffsets_StopHoldFireFastBlend(v14, pm->m_bgHandler);
 }
 
 /*
@@ -3320,155 +2584,89 @@ WeaponOffsetPattern::Update
 */
 void WeaponOffsetPattern::Update(WeaponOffsetPattern *this, const int serverTime, const BgWeaponMap *weaponMap, vec3_t *outOffset, vec3_t *outCombinesAngles, WeaponOffsetPatternCache *cache)
 {
+  const WeaponOffsetPatternDescription *m_desc; 
   WeaponOffsetPatternId patternType; 
+  float v12; 
+  int v15; 
+  float v16; 
   int adsStartTime; 
   WeaponOffsetTransformType transformType; 
-  const playerState_s *m_ps; 
-  char v57; 
-  __int64 v86; 
-  __int64 v87; 
+  double v19; 
+  float v20; 
+  double v21; 
+  float v22; 
+  float v23; 
+  const WeaponOffsetPatternDescription *v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int64 v31; 
   unsigned int pHoldrand; 
   float outPatternStrength; 
   vec3_t outPos; 
   vec3_t outPatternScale; 
   vec3_t start; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-68h], xmm7 }
-  _R12 = outCombinesAngles;
-  _R13 = outOffset;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 775, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !cache && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 776, ASSERT_TYPE_ASSERT, "(cache)", (const char *)&queryFormat, "cache") )
     __debugbreak();
-  __asm { vmovaps xmmword ptr [rsp+0F0h+var_58+8], xmm6 }
   WeaponOffsetPattern::CalculatePatternWeight(this, serverTime, weaponMap, cache, &outPatternStrength, &outPatternScale);
-  _R8 = this->m_desc;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rbp+47h+outPos], xmm7
-    vmovss  dword ptr [rbp+47h+outPos+4], xmm7
-    vmovss  dword ptr [rbp+47h+outPos+8], xmm7
-  }
-  patternType = _R8->patternType;
+  m_desc = this->m_desc;
+  outPos.v[0] = 0.0;
+  outPos.v[1] = 0.0;
+  outPos.v[2] = 0.0;
+  patternType = m_desc->patternType;
   if ( patternType == WOP_KEYFRAME )
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    v12 = FLOAT_1_0;
 LABEL_39:
-    __asm
-    {
-      vmovss  dword ptr [rbp+47h+outPos+4], xmm0
-      vmovss  dword ptr [rbp+47h+outPos], xmm0
-    }
+    outPos.v[1] = v12;
+    outPos.v[0] = v12;
 LABEL_40:
-    __asm { vmovss  dword ptr [rbp+47h+outPos+8], xmm0 }
+    outPos.v[2] = v12;
     goto LABEL_41;
   }
   if ( patternType == WOP_NOISY_SINE )
   {
-    m_ps = this->m_ps;
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f933333; max
-      vmovss  xmm0, cs:__real@3f866666; min
-      vmovaps [rsp+0F0h+var_78+8], xmm8
-    }
-    pHoldrand = m_ps->weapCommon.weaponStartFireTime_BlendedOut;
-    __asm { vmovaps [rsp+0F0h+var_88+8], xmm9 }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, &pHoldrand);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3fa00000; max
-      vmovaps xmm8, xmm0
-      vmovss  xmm0, cs:__real@3f99999a; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, &pHoldrand);
-    _RAX = this->m_desc;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vmulss  xmm6, xmm1, cs:__real@3a83126f
-      vcomiss xmm7, dword ptr [rax+14h]
-      vmovaps xmm9, xmm0
-    }
-    if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 806, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
+    pHoldrand = this->m_ps->weapCommon.weaponStartFireTime_BlendedOut;
+    v19 = BG_flrand(1.05, 1.15, &pHoldrand);
+    v20 = *(float *)&v19;
+    v21 = BG_flrand(1.2, 1.25, &pHoldrand);
+    v22 = *(float *)&v21;
+    if ( this->m_desc->frequency <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 806, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
       __debugbreak();
-    __asm
-    {
-      vdivss  xmm6, xmm6, dword ptr [rax+14h]
-      vmovaps xmm0, xmm6; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbp+47h+outPos], xmm0
-      vmulss  xmm0, xmm6, xmm8; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rbp+47h+outPos+4], xmm0
-      vmulss  xmm0, xmm6, xmm9; X
-    }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm9, [rsp+0F0h+var_88+8]
-      vmovaps xmm8, [rsp+0F0h+var_78+8]
-    }
+    v23 = (float)((float)serverTime * 0.001) / this->m_desc->frequency;
+    outPos.v[0] = sinf_0(v23);
+    outPos.v[1] = sinf_0(v23 * v20);
+    v12 = sinf_0(v23 * v22);
     goto LABEL_40;
   }
   if ( patternType != WOP_RANDOM_SQUARE )
   {
     if ( patternType != WOP_SINE )
     {
-      LODWORD(v86) = _R8->patternType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern. %d", v86) )
+      LODWORD(v31) = m_desc->patternType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled pattern. %d", v31) )
         __debugbreak();
       goto LABEL_41;
     }
-    __asm
-    {
-      vcomiss xmm7, dword ptr [r8+14h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm6, xmm0, cs:__real@3a83126f
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 836, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
+    if ( m_desc->frequency <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 836, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
       __debugbreak();
-    __asm { vdivss  xmm0, xmm6, dword ptr [rax+14h]; X }
-    *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
+    v12 = sinf_0((float)((float)serverTime * 0.001) / this->m_desc->frequency);
     goto LABEL_39;
   }
-  __asm { vcomiss xmm7, dword ptr [r8+14h] }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 817, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
+  if ( m_desc->frequency <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 817, ASSERT_TYPE_ASSERT, "(m_desc->frequency > 0.0f)", (const char *)&queryFormat, "m_desc->frequency > 0.0f") )
     __debugbreak();
-  _RAX = this->m_desc;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, ebx
-    vmovss  xmm0, dword ptr [rax+14h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-    vcvtsi2ss xmm2, xmm2, eax
-    vdivss  xmm4, xmm3, xmm2
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm4, 1
-    vcvttss2si edi, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vsubss  xmm0, xmm4, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( cache->periodIndexUsedForRandomPatternSpline != _EDI || !cache->randomPatternSpline.ncurves )
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm4, 1 }
+  v15 = (int)*(float *)&_XMM1;
+  v16 = (float)((float)serverTime / (float)(int)(float)(this->m_desc->frequency * 1000.0)) - (float)(int)*(float *)&_XMM1;
+  I_fclamp(v16, 0.0, 1.0);
+  if ( cache->periodIndexUsedForRandomPatternSpline != (int)*(float *)&_XMM1 || !cache->randomPatternSpline.ncurves )
   {
     adsStartTime = this->m_ps->weapCommon.adsStartTime;
     transformType = this->m_desc->transformType;
@@ -3477,97 +2675,61 @@ LABEL_40:
       switch ( transformType )
       {
         case WOTT_VIEW_ANGLES:
-          adsStartTime += 4057 * _EDI + 4057;
+          adsStartTime += 4057 * v15 + 4057;
           break;
         case WOTT_WEAPON_ORIGIN:
-          adsStartTime += 5857 * _EDI + 5857;
+          adsStartTime += 5857 * v15 + 5857;
           break;
         case WOTT_WEAPON_ANGLES:
-          adsStartTime += 5443 * _EDI + 5443;
+          adsStartTime += 5443 * v15 + 5443;
           break;
         default:
-          LODWORD(v87) = this->m_desc->transformType;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 552, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled transform type %d in UpdateRandomPatternSpline", v87) )
+          LODWORD(v31) = this->m_desc->transformType;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_offsets.cpp", 552, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled transform type %d in UpdateRandomPatternSpline", v31) )
             __debugbreak();
           break;
       }
     }
     else
     {
-      adsStartTime += 3907 * _EDI + 3907;
+      adsStartTime += 3907 * v15 + 3907;
     }
     BG_BuildRandomPatternSpline(adsStartTime, &cache->randomPatternSpline);
-    cache->periodIndexUsedForRandomPatternSpline = _EDI;
+    cache->periodIndexUsedForRandomPatternSpline = v15;
   }
-  __asm { vmovaps xmm1, xmm6; t }
-  BG_BSpline_RelaxedCBezier_Evaluate(&cache->randomPatternSpline, *(float *)&_XMM1, &outPos);
+  BG_BSpline_RelaxedCBezier_Evaluate(&cache->randomPatternSpline, v16, &outPos);
 LABEL_41:
-  _RAX = this->m_desc;
-  __asm
+  v24 = this->m_desc;
+  v25 = (float)(outPos.v[0] * this->m_desc->magnitude.v[0]) * outPatternScale.v[0];
+  outPos.v[0] = outPos.v[0] * this->m_desc->magnitude.v[0];
+  v26 = (float)(outPos.v[1] * v24->magnitude.v[1]) * outPatternScale.v[1];
+  outPos.v[1] = outPos.v[1] * v24->magnitude.v[1];
+  v27 = (float)(v24->magnitude.v[2] * outPos.v[2]) * outPatternScale.v[2];
+  outPos.v[2] = v27;
+  outPos.v[0] = v25;
+  outPos.v[1] = v26;
+  if ( ((v24->transformType - 1) & 0xFFFFFFFD) != 0 )
   {
-    vmovss  xmm0, dword ptr [rbp+47h+outPos]
-    vmovaps xmm6, xmmword ptr [rsp+0F0h+var_58+8]
-    vmulss  xmm2, xmm0, dword ptr [rax+1Ch]
-    vmovss  xmm0, dword ptr [rbp+47h+outPos+4]
-    vmulss  xmm4, xmm2, dword ptr [rbp+47h+outPatternScale]
-    vmovss  dword ptr [rbp+47h+outPos], xmm2
-    vmulss  xmm1, xmm0, dword ptr [rax+20h]
-    vmulss  xmm2, xmm1, dword ptr [rbp+47h+outPatternScale+4]
-    vmovss  dword ptr [rbp+47h+outPos+4], xmm1
-    vmovss  xmm3, dword ptr [rax+24h]
-    vmulss  xmm1, xmm3, dword ptr [rbp+47h+outPos+8]
-    vmulss  xmm5, xmm1, dword ptr [rbp+47h+outPatternScale+8]
-    vmovss  dword ptr [rbp+47h+outPos+8], xmm5
-    vmovss  dword ptr [rbp+47h+outPos], xmm4
-    vmovss  dword ptr [rbp+47h+outPos+4], xmm2
-  }
-  if ( ((_RAX->transformType - 1) & 0xFFFFFFFD) != 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rbp+47h+outPatternStrength]
-      vmulss  xmm1, xmm4, xmm0
-      vmulss  xmm2, xmm2, xmm0
-      vmulss  xmm3, xmm5, xmm0
-    }
+    v28 = v25 * outPatternStrength;
+    v29 = v26 * outPatternStrength;
+    v30 = v27 * outPatternStrength;
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+47h+outPos]
-      vmovss  xmm2, [rbp+47h+outPatternStrength]; fraction
-    }
     *(_QWORD *)&start.y = 0i64;
-    outPatternScale.v[2] = outPos.v[2];
-    __asm
-    {
-      vmovss  dword ptr [rbp+47h+start], xmm7
-      vmovsd  qword ptr [rbp+47h+outPatternScale], xmm0
-    }
-    SlerpAngles(&start, &outPatternScale, *(const float *)&_XMM2, &outPos);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+47h+outPos+8]
-      vmovss  xmm2, dword ptr [rbp+47h+outPos+4]
-      vmovss  xmm1, dword ptr [rbp+47h+outPos]
-    }
+    outPatternScale = outPos;
+    start.v[0] = 0.0;
+    SlerpAngles(&start, &outPatternScale, outPatternStrength, &outPos);
+    v30 = outPos.v[2];
+    v29 = outPos.v[1];
+    v28 = outPos.v[0];
   }
-  __asm
-  {
-    vmovss  dword ptr [r13+0], xmm1
-    vmovss  dword ptr [r13+4], xmm2
-    vmovss  dword ptr [r13+8], xmm3
-    vaddss  xmm0, xmm1, dword ptr [r12]
-    vmovss  dword ptr [r12], xmm0
-    vmovss  xmm1, dword ptr [r13+4]
-    vaddss  xmm0, xmm1, dword ptr [r12+4]
-    vmovss  dword ptr [r12+4], xmm0
-    vmovss  xmm1, dword ptr [r13+8]
-    vaddss  xmm0, xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [r12+8], xmm0
-    vmovaps xmm7, [rsp+0F0h+var_68+8]
-  }
+  outOffset->v[0] = v28;
+  outOffset->v[1] = v29;
+  outOffset->v[2] = v30;
+  outCombinesAngles->v[0] = v28 + outCombinesAngles->v[0];
+  outCombinesAngles->v[1] = outOffset->v[1] + outCombinesAngles->v[1];
+  outCombinesAngles->v[2] = outOffset->v[2] + outCombinesAngles->v[2];
 }
 
 /*

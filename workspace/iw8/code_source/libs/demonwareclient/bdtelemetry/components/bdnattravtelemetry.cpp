@@ -81,49 +81,32 @@ bdNATTravTelemetry::addRecord
 void bdNATTravTelemetry::addRecord(bdNATTravTelemetry *this, bdNATTravTelemetry::bdNATTravRecordType type, const bdAddr *src, const bdAddr *dst, bool result)
 {
   __int64 m_attemptRecordsCount; 
-  char v9; 
+  char v8; 
+  bdNATTravTelemetry::bdNATTravEvent *v9; 
+  double ElapsedTimeInSeconds; 
 
   m_attemptRecordsCount = this->m_attemptRecordsCount;
-  _RDI = dst;
-  _RSI = src;
-  v9 = type;
+  v8 = type;
   if ( (unsigned int)m_attemptRecordsCount < 0x20 )
   {
     this->m_attemptRecordsCount = m_attemptRecordsCount + 1;
-    _RBX = &this->m_attemptRecords[m_attemptRecordsCount];
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-    __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
-    _RBX->type = v9;
-    __asm { vcvttss2si rax, xmm1 }
-    _RBX->msSinceStart = _RAX;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [rbx+8], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rbx+28h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups ymmword ptr [rbx+48h], ymm0
-      vmovups ymm1, ymmword ptr [rsi+60h]
-      vmovups ymmword ptr [rbx+68h], ymm1
-      vmovups xmm0, xmmword ptr [rsi+80h]
-      vmovups xmmword ptr [rbx+88h], xmm0
-      vmovsd  xmm1, qword ptr [rsi+90h]
-      vmovsd  qword ptr [rbx+98h], xmm1
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx+0A0h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rbx+0C0h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rbx+0E0h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rbx+100h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rbx+120h], xmm0
-      vmovsd  xmm1, qword ptr [rdi+90h]
-      vmovsd  qword ptr [rbx+130h], xmm1
-    }
-    _RBX->result = result;
+    v9 = &this->m_attemptRecords[m_attemptRecordsCount];
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+    v9->type = v8;
+    v9->msSinceStart = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+    *(__m256i *)&v9->src.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&src->m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&v9->src.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&src->m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&v9->src.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&src->m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&v9->src.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&src->m_address.inUn.m_ipv6Sockaddr + 3);
+    v9->src.m_relayRoute = src->m_relayRoute;
+    *(double *)&v9->src.m_type = *(double *)&src->m_type;
+    *(__m256i *)&v9->dst.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&dst->m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&v9->dst.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&v9->dst.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&v9->dst.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&dst->m_address.inUn.m_ipv6Sockaddr + 3);
+    v9->dst.m_relayRoute = dst->m_relayRoute;
+    *(double *)&v9->dst.m_type = *(double *)&dst->m_type;
+    v9->result = result;
   }
 }
 
@@ -134,38 +117,18 @@ bdNATTravTelemetry::setResult
 */
 void bdNATTravTelemetry::setResult(bdNATTravTelemetry *this, bdNATTravTelemetry::bdNATTravResultType result, const bdNATTravClientData *data, const bdAddr *realAddr)
 {
-  bdNATTravTelemetry *v4; 
+  double ElapsedTimeInSeconds; 
 
   this->m_result = result;
-  v4 = this;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9]
-    vmovups ymmword ptr [rcx+2820h], ymm0
-    vmovups ymm1, ymmword ptr [r9+20h]
-    vmovups ymmword ptr [rcx+2840h], ymm1
-    vmovups ymm0, ymmword ptr [r9+40h]
-    vmovups ymmword ptr [rcx+2860h], ymm0
-    vmovups ymm1, ymmword ptr [r9+60h]
-    vmovups ymmword ptr [rcx+2880h], ymm1
-    vmovups xmm0, xmmword ptr [r9+80h]
-    vmovups xmmword ptr [rcx+28A0h], xmm0
-    vmovsd  xmm1, qword ptr [r9+90h]
-    vmovsd  qword ptr [rcx+28B0h], xmm1
-  }
+  this->m_realAddr = *realAddr;
   bdReference<bdCommonAddr>::operator=(&this->m_localCommonAddr, &data->m_local);
-  bdReference<bdCommonAddr>::operator=(&v4->m_remoteCommonAddr, &data->m_remote);
-  v4->m_throttled = data->m_throttled;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v4->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  v4->m_duration = _RAX;
-  v4->m_triesStage1 = data->m_tries[1];
-  v4->m_triesStage2 = data->m_tries[2];
-  v4->m_triesStage3 = data->m_tries[3];
+  bdReference<bdCommonAddr>::operator=(&this->m_remoteCommonAddr, &data->m_remote);
+  this->m_throttled = data->m_throttled;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_duration = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_triesStage1 = data->m_tries[1];
+  this->m_triesStage2 = data->m_tries[2];
+  this->m_triesStage3 = data->m_tries[3];
 }
 
 /*
@@ -175,20 +138,6 @@ bdNATTravTelemetry::setSTUNAddr
 */
 void bdNATTravTelemetry::setSTUNAddr(bdNATTravTelemetry *this, const bdAddr *addr)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+28B8h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+28D8h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+28F8h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rcx+2918h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [rcx+2938h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+90h]
-    vmovsd  qword ptr [rcx+2948h], xmm1
-  }
+  this->m_stunAddr = *addr;
 }
 

@@ -1031,24 +1031,26 @@ void GetPresenceComplete(GenericTask *task, eTaskManagerTaskState state)
   DWServicesAccess *Instance; 
   int TitleID; 
   unsigned int v14; 
-  bool v19; 
-  DWServicesAccess *v20; 
-  int v21; 
-  const char *v22; 
+  const bdUserPresenceInfoV3 *v15; 
+  bool v16; 
+  DWServicesAccess *v17; 
+  int v18; 
+  const char *v19; 
   __int64 m_controllerIndex; 
-  __int64 v24; 
-  int v25; 
+  __int64 v21; 
+  int v22; 
   int nextPresenceCount; 
+  bool *p_online; 
   unsigned __int64 TransactionID; 
   bdLobbyErrorCode ErrorCode; 
-  __int64 v32; 
-  bdGetUsersPresenceResponseV3 *v33; 
-  XUID *v34; 
-  XUID v36; 
+  __int64 v27; 
+  bdGetUsersPresenceResponseV3 *v28; 
+  XUID *v29; 
+  XUID v31; 
   bdUserPresenceInfoV3 *p_inData; 
   bdPresenceData presenceData; 
   bdUserPresenceInfoV3 inData; 
-  bdUserPresenceInfoV3 v40; 
+  bdUserPresenceInfoV3 v35; 
   bdUserAccountID result; 
 
   v2 = task;
@@ -1062,7 +1064,7 @@ void GetPresenceComplete(GenericTask *task, eTaskManagerTaskState state)
   else
   {
     UserTaskResponse = GetGetUserTaskResponse();
-    v33 = UserTaskResponse;
+    v28 = UserTaskResponse;
     PresenceStore = GetFetchPresenceStore(v2->m_controllerIndex);
     if ( PresenceStore->nextPresenceCount + bdGetUsersPresenceResponseV3::getNumUsers(UserTaskResponse) > 0x866 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\social_presence.cpp", 1243, ASSERT_TYPE_ASSERT, "(store->nextPresenceCount + response->getNumUsers() <= 200 + 250 + 1200 + ( 500 ))", (const char *)&queryFormat, "store->nextPresenceCount + response->getNumUsers() <= MAX_FETCH_DW_PRESENCE_USERS") )
       __debugbreak();
@@ -1073,114 +1075,96 @@ void GetPresenceComplete(GenericTask *task, eTaskManagerTaskState state)
       {
         UserPresence = (bdUserPresenceV3 *)bdGetUsersPresenceResponseV3::getUserPresence(UserTaskResponse, v5);
         p_xuid = &PresenceStore->nextPresence[v5 + PresenceStore->nextPresenceCount].xuid;
-        v34 = p_xuid;
+        v29 = p_xuid;
         User = bdUserPresenceV3::getUser(UserPresence, &result);
-        v9 = XUID::FromUniversalId(&v36, User->m_userID);
+        v9 = XUID::FromUniversalId(&v31, User->m_userID);
         XUID::operator=(p_xuid, v9);
         bdUserAccountID::~bdUserAccountID((bdUserAccountID *)result.gap38);
         bdReferencable::~bdReferencable((bdReferencable *)result.gap38);
-        bdUserPresenceInfoV3::bdUserPresenceInfoV3(&v40);
-        bdUserPresenceInfoV3::setOnline(&v40, 0);
+        bdUserPresenceInfoV3::bdUserPresenceInfoV3(&v35);
+        bdUserPresenceInfoV3::setOnline(&v35, 0);
         NumPresences = bdUserPresenceV3::getNumPresences(UserPresence);
         if ( NumPresences )
         {
           Presence = bdUserPresenceV3::getPresence(UserPresence, 0);
-          bdUserPresenceInfoV3::operator=(&v40, Presence);
+          bdUserPresenceInfoV3::operator=(&v35, Presence);
           Instance = DWServicesAccess::GetInstance();
           TitleID = DWServicesAccess::GetTitleID(Instance);
-          if ( bdUserPresenceInfoV3::getTitleID(&v40) != TitleID )
+          if ( bdUserPresenceInfoV3::getTitleID(&v35) != TitleID )
           {
             v14 = 0;
             while ( 1 )
             {
-              _RDI = bdUserPresenceV3::getPresence(UserPresence, v14);
-              inData.m_online = _RDI->m_online;
-              inData.m_platform.m_hasValue = _RDI->m_platform.m_hasValue;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax+2]
-                vmovups xmmword ptr [rbp+550h+inData.m_platform.m_value.m_buffer], xmm0
-              }
-              inData.m_platform.m_value.m_buffer[16] = _RDI->m_platform.m_value.m_buffer[16];
-              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_titleToken, &_RDI->m_titleToken);
-              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_presenceToken, &_RDI->m_presenceToken);
-              inData.m_titleID.m_hasValue = _RDI->m_titleID.m_hasValue;
-              inData.m_titleID.m_value = _RDI->m_titleID.m_value;
-              inData.m_data.m_hasValue = _RDI->m_data.m_hasValue;
-              bdPresenceData::bdPresenceData(&inData.m_data.m_value, &_RDI->m_data.m_value);
-              inData.m_updateTime.m_hasValue = _RDI->m_updateTime.m_hasValue;
-              inData.m_updateTime.m_value = _RDI->m_updateTime.m_value;
+              v15 = bdUserPresenceV3::getPresence(UserPresence, v14);
+              inData.m_online = v15->m_online;
+              inData.m_platform = v15->m_platform;
+              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_titleToken, &v15->m_titleToken);
+              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_presenceToken, &v15->m_presenceToken);
+              inData.m_titleID.m_hasValue = v15->m_titleID.m_hasValue;
+              inData.m_titleID.m_value = v15->m_titleID.m_value;
+              inData.m_data.m_hasValue = v15->m_data.m_hasValue;
+              bdPresenceData::bdPresenceData(&inData.m_data.m_value, &v15->m_data.m_value);
+              inData.m_updateTime.m_hasValue = v15->m_updateTime.m_hasValue;
+              inData.m_updateTime.m_value = v15->m_updateTime.m_value;
               if ( bdUserPresenceInfoV3::getTitleID(&inData) == TitleID )
                 break;
               bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&inData);
               if ( ++v14 >= NumPresences )
                 goto LABEL_13;
             }
-            v40.m_online = inData.m_online;
-            v40.m_platform.m_hasValue = inData.m_platform.m_hasValue;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbp+550h+inData.m_platform.m_value.m_buffer]
-              vmovups xmmword ptr [rbp+550h+var_320.m_platform.m_value.m_buffer], xmm0
-            }
-            v40.m_platform.m_value.m_buffer[16] = inData.m_platform.m_value.m_buffer[16];
-            bdStructOptionalObject<bdLocalizationToken>::operator=(&v40.m_titleToken, &inData.m_titleToken);
-            bdStructOptionalObject<bdLocalizationToken>::operator=(&v40.m_presenceToken, &inData.m_presenceToken);
-            v40.m_titleID.m_hasValue = inData.m_titleID.m_hasValue;
-            v40.m_titleID.m_value = inData.m_titleID.m_value;
-            v40.m_data.m_hasValue = inData.m_data.m_hasValue;
-            bdCrossPlatformUserMetadata::operator=(&v40.m_data.m_value, &inData.m_data.m_value);
-            v40.m_updateTime.m_hasValue = inData.m_updateTime.m_hasValue;
-            v40.m_updateTime.m_value = inData.m_updateTime.m_value;
+            v35.m_online = inData.m_online;
+            v35.m_platform = inData.m_platform;
+            bdStructOptionalObject<bdLocalizationToken>::operator=(&v35.m_titleToken, &inData.m_titleToken);
+            bdStructOptionalObject<bdLocalizationToken>::operator=(&v35.m_presenceToken, &inData.m_presenceToken);
+            v35.m_titleID.m_hasValue = inData.m_titleID.m_hasValue;
+            v35.m_titleID.m_value = inData.m_titleID.m_value;
+            v35.m_data.m_hasValue = inData.m_data.m_hasValue;
+            bdCrossPlatformUserMetadata::operator=(&v35.m_data.m_value, &inData.m_data.m_value);
+            v35.m_updateTime.m_hasValue = inData.m_updateTime.m_hasValue;
+            v35.m_updateTime.m_value = inData.m_updateTime.m_value;
             bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&inData);
           }
 LABEL_13:
-          UserTaskResponse = v33;
+          UserTaskResponse = v28;
         }
         p_inData = &inData;
-        inData.m_online = v40.m_online;
-        inData.m_platform.m_hasValue = v40.m_platform.m_hasValue;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+550h+var_320.m_platform.m_value.m_buffer]
-          vmovups xmmword ptr [rbp+550h+inData.m_platform.m_value.m_buffer], xmm0
-        }
-        inData.m_platform.m_value.m_buffer[16] = v40.m_platform.m_value.m_buffer[16];
-        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_titleToken, &v40.m_titleToken);
-        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_presenceToken, &v40.m_presenceToken);
-        inData.m_titleID.m_hasValue = v40.m_titleID.m_hasValue;
-        inData.m_titleID.m_value = v40.m_titleID.m_value;
-        inData.m_data.m_hasValue = v40.m_data.m_hasValue;
-        bdPresenceData::bdPresenceData(&inData.m_data.m_value, &v40.m_data.m_value);
-        inData.m_updateTime.m_hasValue = v40.m_updateTime.m_hasValue;
-        inData.m_updateTime.m_value = v40.m_updateTime.m_value;
+        inData.m_online = v35.m_online;
+        inData.m_platform = v35.m_platform;
+        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_titleToken, &v35.m_titleToken);
+        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&inData.m_presenceToken, &v35.m_presenceToken);
+        inData.m_titleID.m_hasValue = v35.m_titleID.m_hasValue;
+        inData.m_titleID.m_value = v35.m_titleID.m_value;
+        inData.m_data.m_hasValue = v35.m_data.m_hasValue;
+        bdPresenceData::bdPresenceData(&inData.m_data.m_value, &v35.m_data.m_value);
+        inData.m_updateTime.m_hasValue = v35.m_updateTime.m_hasValue;
+        inData.m_updateTime.m_value = v35.m_updateTime.m_value;
         if ( bdUserPresenceInfoV3::getOnline(&inData) )
         {
-          v19 = LiveCrossTitlePresence_Read((CrossTitlePresenceData *)&v34[1], &inData);
-          v20 = DWServicesAccess::GetInstance();
-          v21 = DWServicesAccess::GetTitleID(v20);
-          if ( v19 && HIDWORD(v34[2].m_id) == v21 )
+          v16 = LiveCrossTitlePresence_Read((CrossTitlePresenceData *)&v29[1], &inData);
+          v17 = DWServicesAccess::GetInstance();
+          v18 = DWServicesAccess::GetTitleID(v17);
+          if ( v16 && HIDWORD(v29[2].m_id) == v18 )
           {
             bdUserPresenceInfoV3::getData(&inData, &presenceData);
-            if ( !ReadPresenceData(&presenceData, (SocialPresence *)&v34[1]) )
+            if ( !ReadPresenceData(&presenceData, (SocialPresence *)&v29[1]) )
             {
-              v22 = XUID::ToDevString(v34);
-              Com_PrintError(25, "Invalid presence read in for user %s\n", v22);
+              v19 = XUID::ToDevString(v29);
+              Com_PrintError(25, "Invalid presence read in for user %s\n", v19);
             }
             bdPresenceData::~bdPresenceData(&presenceData);
           }
         }
         else
         {
-          v34[1].m_id = 0i64;
-          v34[2].m_id = 0i64;
-          v34[3].m_id = 0i64;
-          v34[4].m_id = 0i64;
-          v34[5].m_id = 0i64;
-          v34[6].m_id = 0i64;
+          v29[1].m_id = 0i64;
+          v29[2].m_id = 0i64;
+          v29[3].m_id = 0i64;
+          v29[4].m_id = 0i64;
+          v29[5].m_id = 0i64;
+          v29[6].m_id = 0i64;
         }
         bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&inData);
-        bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&v40);
+        bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&v35);
         ++v5;
       }
       while ( v5 < (int)bdGetUsersPresenceResponseV3::getNumUsers(UserTaskResponse) );
@@ -1194,34 +1178,29 @@ LABEL_13:
       m_controllerIndex = v2->m_controllerIndex;
       if ( (unsigned int)m_controllerIndex >= 8 )
       {
-        LODWORD(v32) = v2->m_controllerIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\social_presence.cpp", 589, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v32, 8) )
+        LODWORD(v27) = v2->m_controllerIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\social\\social_presence.cpp", 589, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, 8) )
           __debugbreak();
       }
-      v24 = m_controllerIndex;
-      v25 = 0;
+      v21 = m_controllerIndex;
+      v22 = 0;
       nextPresenceCount = s_dwFetchPresenceStore[m_controllerIndex].nextPresenceCount;
       if ( nextPresenceCount > 0 )
       {
-        _RBX = &s_dwFetchPresenceStore[v24].activePresence[0].presence.m_crossTitlePresenceData.online;
+        p_online = &s_dwFetchPresenceStore[v21].activePresence[0].presence.m_crossTitlePresenceData.online;
         do
         {
-          *_RBX = _RBX[120400];
-          XUID::operator=((XUID *)(_RBX - 25), (const XUID *)(_RBX + 120375));
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx+1D63Fh]
-            vmovups ymmword ptr [rbx-11h], ymm0
-            vmovups xmm1, xmmword ptr [rbx+1D65Fh]
-            vmovups xmmword ptr [rbx+0Fh], xmm1
-          }
-          ++v25;
-          _RBX += 56;
-          nextPresenceCount = s_dwFetchPresenceStore[v24].nextPresenceCount;
+          *p_online = p_online[120400];
+          XUID::operator=((XUID *)(p_online - 25), (const XUID *)(p_online + 120375));
+          *(__m256i *)(p_online - 17) = *(__m256i *)(p_online + 120383);
+          *(_OWORD *)(p_online + 15) = *(_OWORD *)(p_online + 120415);
+          ++v22;
+          p_online += 56;
+          nextPresenceCount = s_dwFetchPresenceStore[v21].nextPresenceCount;
         }
-        while ( v25 < nextPresenceCount );
+        while ( v22 < nextPresenceCount );
       }
-      s_dwFetchPresenceStore[v24].activePresenceCount = nextPresenceCount;
+      s_dwFetchPresenceStore[v21].activePresenceCount = nextPresenceCount;
       PresenceStore->fetched = 1;
       s_getTaskId = 0;
       PresenceStore->fetchedTime = Sys_Milliseconds();
@@ -1873,6 +1852,7 @@ void Social_GetReleventPresenceInfo(const bdUserPresenceV3 *userPresence, bdUser
   DWServicesAccess *Instance; 
   int TitleID; 
   unsigned int v8; 
+  const bdUserPresenceInfoV3 *v9; 
   bdUserPresenceInfoV3 __that; 
 
   bdUserPresenceInfoV3::setOnline(outPresenceInfo, 0);
@@ -1888,23 +1868,17 @@ void Social_GetReleventPresenceInfo(const bdUserPresenceV3 *userPresence, bdUser
       v8 = 0;
       while ( 1 )
       {
-        _RDI = bdUserPresenceV3::getPresence((bdUserPresenceV3 *)userPresence, v8);
-        __that.m_online = _RDI->m_online;
-        __that.m_platform.m_hasValue = _RDI->m_platform.m_hasValue;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax+2]
-          vmovups xmmword ptr [rsp+308h+__that.m_platform.m_value.m_buffer], xmm0
-        }
-        __that.m_platform.m_value.m_buffer[16] = _RDI->m_platform.m_value.m_buffer[16];
-        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&__that.m_titleToken, &_RDI->m_titleToken);
-        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&__that.m_presenceToken, &_RDI->m_presenceToken);
-        __that.m_titleID.m_hasValue = _RDI->m_titleID.m_hasValue;
-        __that.m_titleID.m_value = _RDI->m_titleID.m_value;
-        __that.m_data.m_hasValue = _RDI->m_data.m_hasValue;
-        bdPresenceData::bdPresenceData(&__that.m_data.m_value, &_RDI->m_data.m_value);
-        __that.m_updateTime.m_hasValue = _RDI->m_updateTime.m_hasValue;
-        __that.m_updateTime.m_value = _RDI->m_updateTime.m_value;
+        v9 = bdUserPresenceV3::getPresence((bdUserPresenceV3 *)userPresence, v8);
+        __that.m_online = v9->m_online;
+        __that.m_platform = v9->m_platform;
+        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&__that.m_titleToken, &v9->m_titleToken);
+        bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&__that.m_presenceToken, &v9->m_presenceToken);
+        __that.m_titleID.m_hasValue = v9->m_titleID.m_hasValue;
+        __that.m_titleID.m_value = v9->m_titleID.m_value;
+        __that.m_data.m_hasValue = v9->m_data.m_hasValue;
+        bdPresenceData::bdPresenceData(&__that.m_data.m_value, &v9->m_data.m_value);
+        __that.m_updateTime.m_hasValue = v9->m_updateTime.m_hasValue;
+        __that.m_updateTime.m_value = v9->m_updateTime.m_value;
         if ( bdUserPresenceInfoV3::getTitleID(&__that) == TitleID )
           break;
         bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&__that);

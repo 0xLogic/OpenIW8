@@ -357,132 +357,89 @@ CL_InputMP_AdjustViewanglesForKeyboard
 */
 void CL_InputMP_AdjustViewanglesForKeyboard(LocalClientNum_t localClientNum)
 {
-  kbutton_t *v8; 
+  kbutton_t *v2; 
   ClActiveClientMP *ClientMP; 
-  ClActiveClientMP *v10; 
-  ClActiveClientMP *v11; 
-  const dvar_t *v12; 
-  char v21; 
-  char v22; 
+  ClActiveClientMP *v4; 
+  ClActiveClientMP *v5; 
+  int frametime; 
+  const dvar_t *v7; 
+  float v9; 
+  double MaxYawSpeed; 
+  float v11; 
+  float v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  double MaxPitchSpeed; 
+  const dvar_t *v17; 
+  double v20; 
+  float v21; 
+  double v22; 
   vec3_t clViewangles; 
-  char v44; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  v8 = g_playersKb[localClientNum];
+  v2 = g_playersKb[localClientNum];
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-  v10 = ClActiveClientMP::GetClientMP(localClientNum);
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v10->snap.ps.pm_flags, ACTIVE, 0x10u) && (!(unsigned __int8)CL_GetLocalClientFrontEntState(localClientNum) || !CL_InputMP_DisableFrontEndMovement(localClientNum)) )
+  v4 = ClActiveClientMP::GetClientMP(localClientNum);
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v4->snap.ps.pm_flags, ACTIVE, 0x10u) && (!(unsigned __int8)CL_GetLocalClientFrontEntState(localClientNum) || !CL_InputMP_DisableFrontEndMovement(localClientNum)) )
   {
-    v11 = ClActiveClientMP::GetClientMP(localClientNum);
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v11->snap.ps.pm_flags, ACTIVE, 0x11u) )
+    v5 = ClActiveClientMP::GetClientMP(localClientNum);
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v5->snap.ps.pm_flags, ACTIVE, 0x11u) )
     {
-      if ( v8[9].active )
+      frametime = cls.frametime;
+      if ( v2[9].active )
       {
-        v12 = DVARFLT_cl_anglespeedkey;
+        v7 = DVARFLT_cl_anglespeedkey;
         if ( !DVARFLT_cl_anglespeedkey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_anglespeedkey") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v12);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebp
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vmulss  xmm9, xmm1, dword ptr [rbx+28h]
-        }
+        Dvar_CheckFrontendServerThread(v7);
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        v9 = (float)((float)frametime * 0.001) * v7->current.value;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebp
-          vmulss  xmm9, xmm0, cs:__real@3a83126f
-        }
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        v9 = (float)cls.frametime * 0.001;
       }
       ClActiveClient_GetCLViewangles(ClientMP, &clViewangles);
-      __asm { vxorps  xmm8, xmm8, xmm8 }
-      if ( !v8[8].active )
+      if ( !v2[8].active )
       {
-        *(double *)&_XMM0 = CL_GetMaxYawSpeed(localClientNum);
-        __asm { vmovaps xmm6, xmm0 }
+        MaxYawSpeed = CL_GetMaxYawSpeed(localClientNum);
+        v11 = *(float *)&MaxYawSpeed;
         *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_yawspeed, "cl_yawspeed");
-        __asm { vcomiss xmm6, xmm8 }
-        if ( !(v21 | v22) )
+        if ( v11 > 0.0 )
           __asm { vminss  xmm0, xmm0, xmm6 }
-        __asm { vmulss  xmm7, xmm0, xmm9 }
-        *(double *)&_XMM0 = CL_Input_KeyState(v8 + 1);
-        __asm
-        {
-          vmulss  xmm2, xmm0, xmm7
-          vmovss  xmm1, dword ptr [rsp+0B8h+clViewangles+4]
-          vsubss  xmm6, xmm1, xmm2
-          vmovss  dword ptr [rsp+0B8h+clViewangles+4], xmm6
-        }
-        *(double *)&_XMM0 = CL_Input_KeyState(v8);
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm1, xmm1, xmm6
-          vmovss  dword ptr [rsp+0B8h+clViewangles+4], xmm1
-        }
+        v12 = *(float *)&_XMM0 * v9;
+        v13 = CL_Input_KeyState(v2 + 1);
+        clViewangles.v[1] = clViewangles.v[1] - (float)(*(float *)&v13 * v12);
+        v14 = clViewangles.v[1];
+        v15 = CL_Input_KeyState(v2);
+        clViewangles.v[1] = (float)(*(float *)&v15 * v12) + v14;
       }
-      *(double *)&_XMM0 = CL_GetMaxPitchSpeed(localClientNum);
-      __asm { vmovaps xmm6, xmm0 }
-      _RDI = DVARFLT_cl_pitchspeed;
-      __asm { vcomiss xmm0, xmm8 }
-      if ( v21 | v22 )
+      MaxPitchSpeed = CL_GetMaxPitchSpeed(localClientNum);
+      v17 = DVARFLT_cl_pitchspeed;
+      if ( *(float *)&MaxPitchSpeed <= 0.0 )
       {
         if ( !DVARFLT_cl_pitchspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_pitchspeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm { vmovss  xmm1, dword ptr [rdi+28h] }
+        Dvar_CheckFrontendServerThread(v17);
+        LODWORD(_XMM1) = v17->current.integer;
       }
       else
       {
         if ( !DVARFLT_cl_pitchspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_pitchspeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vminss  xmm1, xmm0, xmm6
-        }
+        Dvar_CheckFrontendServerThread(v17);
+        _XMM0 = v17->current.unsignedInt;
+        __asm { vminss  xmm1, xmm0, xmm6 }
       }
-      __asm { vmulss  xmm7, xmm1, xmm9 }
-      *(double *)&_XMM0 = CL_Input_KeyState(v8 + 4);
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm7
-        vmovss  xmm1, dword ptr [rsp+0B8h+clViewangles]
-        vsubss  xmm6, xmm1, xmm2
-        vmovss  dword ptr [rsp+0B8h+clViewangles], xmm6
-      }
-      *(double *)&_XMM0 = CL_Input_KeyState(v8 + 5);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm1, xmm1, xmm6
-        vmovss  dword ptr [rsp+0B8h+clViewangles], xmm1
-      }
+      v20 = CL_Input_KeyState(v2 + 4);
+      clViewangles.v[0] = clViewangles.v[0] - (float)(*(float *)&v20 * (float)(*(float *)&_XMM1 * v9));
+      v21 = clViewangles.v[0];
+      v22 = CL_Input_KeyState(v2 + 5);
+      clViewangles.v[0] = (float)(*(float *)&v22 * (float)(*(float *)&_XMM1 * v9)) + v21;
       ClActiveClient_SetCLViewangles(ClientMP, &clViewangles);
       memset(&clViewangles, 0, sizeof(clViewangles));
     }
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -640,17 +597,18 @@ void CL_InputMP_ExecBinding(LocalClientNum_t localClientNum, int kb, int key, in
   int EquippedWeaponIndex; 
   __int64 v34; 
   int ControllerFromClient; 
-  ClActiveClientMP *v39; 
+  ClActiveClientMP *v36; 
+  ClActiveClientMP *v37; 
+  int v38; 
+  int v39; 
   int v40; 
-  int v41; 
+  const char *v41; 
   int v42; 
-  const char *v43; 
-  int v44; 
-  int v45; 
-  Online_Loot *v46; 
-  lua_State *v47; 
-  __int64 v48; 
-  __int64 v49; 
+  int v43; 
+  Online_Loot *v44; 
+  lua_State *v45; 
+  __int64 v46; 
+  __int64 v47; 
   StringTable *tablePtr; 
 
   v4 = localClientNum;
@@ -667,9 +625,9 @@ void CL_InputMP_ExecBinding(LocalClientNum_t localClientNum, int kb, int key, in
   v10 = com_frameTime;
   if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v49) = 2;
-    LODWORD(v48) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v48, v49) )
+    LODWORD(v47) = 2;
+    LODWORD(v46) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v46, v47) )
       __debugbreak();
   }
   connectionState = clientUIActives[v8].connectionState;
@@ -793,13 +751,8 @@ LABEL_87:
         ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
         if ( !GamerProfile_GetFreeLook(ControllerFromClient) )
         {
-          _RAX = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+87DCh]
-            vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000; inAngleValue
-          }
-          ClActiveClient_SetCLViewangle(_RAX, 0, *(const float *)&_XMM2);
+          v36 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
+          ClActiveClient_SetCLViewangle(v36, 0, COERCE_CONST_FLOAT(LODWORD(v36->snap.ps.delta_angles.v[0]) ^ _xmm));
         }
       }
       return;
@@ -807,31 +760,31 @@ LABEL_87:
     case 118:
       if ( connectionState >= CA_CONNECTED )
       {
-        v39 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
-        v39->Pause(v39);
+        v37 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
+        v37->Pause(v37);
       }
       return;
     case 119:
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_textChatEnabled, "cl_textChatEnabled") )
       {
-        v40 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
-        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v40) )
+        v38 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v38) )
           Cbuf_AddText((LocalClientNum_t)v4, "chatmodepublic\n");
       }
       return;
     case 120:
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_textChatEnabled, "cl_textChatEnabled") )
       {
-        v41 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
-        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v41) )
+        v39 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v39) )
           Cbuf_AddText((LocalClientNum_t)v4, "chatmodeteam\n");
       }
       return;
     case 121:
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_textChatEnabled, "cl_textChatEnabled") )
       {
-        v42 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
-        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v42) )
+        v40 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        if ( Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v40) )
           Cbuf_AddText((LocalClientNum_t)v4, "chatmodelastused\n");
       }
       return;
@@ -857,36 +810,36 @@ LABEL_87:
     case 242:
     case 243:
     case 244:
-      if ( createAClassFeatureID != -1 || (StringTable_GetAsset("loot/feature_ids.csv", (const StringTable **)&tablePtr), v43 = StringTable_Lookup(tablePtr, 1, "create_a_class", 0), createAClassFeatureID = atoi(v43), createAClassFeatureID != -1) )
+      if ( createAClassFeatureID != -1 || (StringTable_GetAsset("loot/feature_ids.csv", (const StringTable **)&tablePtr), v41 = StringTable_Lookup(tablePtr, 1, "create_a_class", 0), createAClassFeatureID = atoi(v41), createAClassFeatureID != -1) )
       {
-        v44 = -1;
-        v45 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
-        v46 = Online_Loot::GetInstance();
-        if ( (Online_Loot::GetItemUnlockQuantity(v46, v45, createAClassFeatureID) || Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch")) && (unsigned __int8)Com_GameMode_GetActiveGameMode() != LONG )
+        v42 = -1;
+        v43 = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        v44 = Online_Loot::GetInstance();
+        if ( (Online_Loot::GetItemUnlockQuantity(v44, v43, createAClassFeatureID) || Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch")) && (unsigned __int8)Com_GameMode_GetActiveGameMode() != LONG )
         {
           if ( (unsigned int)(kb - 147) > 4 )
           {
             if ( (unsigned int)(kb - 240) <= 4 )
             {
-              v44 = kb - 235;
+              v42 = kb - 235;
               CG_ServerCmd_NotifyServer((const LocalClientNum_t)v4, "class_select", kb - 235);
             }
           }
           else
           {
             CG_ServerCmd_NotifyServer((const LocalClientNum_t)v4, "class_select", kb - 147);
-            v44 = kb - 147;
+            v42 = kb - 147;
           }
           LUI_BeginEvent((LocalClientNum_t)v4, "lui_fastloadout_keybind_used", LUI_luaVM);
-          v47 = LUI_luaVM;
+          v45 = LUI_luaVM;
           if ( LUI_luaVM )
           {
-            if ( (unsigned int)v44 <= 9 )
+            if ( (unsigned int)v42 <= 9 )
             {
-              LUI_SetTableInt("index", v44, LUI_luaVM);
-              v47 = LUI_luaVM;
+              LUI_SetTableInt("index", v42, LUI_luaVM);
+              v45 = LUI_luaVM;
             }
-            LUI_EndEvent(v47);
+            LUI_EndEvent(v45);
           }
         }
       }
@@ -1010,117 +963,63 @@ CL_InputMP_FinishMove
 */
 void CL_InputMP_FinishMove(LocalClientNum_t localClientNum, usercmd_s *cmd, ButtonSet *outClearButtons)
 {
-  int v18; 
+  ClActiveClientMP *ClientMP; 
+  int v5; 
   vec3_t *p_cgameKickAngles; 
-  bool v27; 
-  int v36; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
+  vec3_t *p_clViewangles; 
+  signed __int64 v9; 
+  bool v10; 
+  int v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
   vec3_t clViewangles; 
-  char v48; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _R13 = cmd;
-  _RBX = ClActiveClientMP::GetClientMP(localClientNum);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+90h]
-    vmovups ymmword ptr [r13+24h], ymm0
-    vmovups xmm1, xmmword ptr [rax+0B0h]
-    vmovups xmmword ptr [r13+44h], xmm1
-    vmovsd  xmm0, qword ptr [rax+0C0h]
-    vmovsd  qword ptr [r13+54h], xmm0
-  }
-  *(_DWORD *)&_R13->weapon.weaponCamo = *(_DWORD *)&_RBX->cgameUserCmdWeapon.weaponCamo;
-  _RCX = &_R13->offHand;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+0CCh]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rax+0ECh]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rax+0FCh]
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)&_R13->offHand.weaponCamo = *(_DWORD *)&_RBX->cgameUserCmdOffHand.weaponCamo;
-  _R13->isAlternate = _RBX->cgameUserCmdAlternate != 0;
-  BG_AssertOffhandIndexOrNone(&_R13->offHand);
-  _R13->serverTime = _RBX->serverTime;
-  _R13->inputTime = _RBX->cmdInputAccumTimeMs;
-  ClActiveClient_GetCLViewangles(_RBX, &clViewangles);
-  v18 = 0;
-  p_cgameKickAngles = &_RBX->cgameKickAngles;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  _RBX = &clViewangles;
-  _R15 = (char *)p_cgameKickAngles - (char *)&clViewangles;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3b360b61
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm9, cs:__real@43b40000
-    vmovss  xmm10, cs:__real@43340000
-  }
-  v27 = 1;
+  ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
+  cmd->weapon = ClientMP->cgameUserCmdWeapon;
+  cmd->offHand = ClientMP->cgameUserCmdOffHand;
+  cmd->isAlternate = ClientMP->cgameUserCmdAlternate != 0;
+  BG_AssertOffhandIndexOrNone(&cmd->offHand);
+  cmd->serverTime = ClientMP->serverTime;
+  cmd->inputTime = ClientMP->cmdInputAccumTimeMs;
+  ClActiveClient_GetCLViewangles(ClientMP, &clViewangles);
+  v5 = 0;
+  p_cgameKickAngles = &ClientMP->cgameKickAngles;
+  _XMM6 = 0i64;
+  p_clViewangles = &clViewangles;
+  v9 = (char *)p_cgameKickAngles - (char *)&clViewangles;
+  v10 = 1;
   do
   {
-    if ( !v27 )
+    if ( !v10 )
     {
-      LODWORD(v45) = 3;
-      LODWORD(v43) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v43, v45) )
+      LODWORD(v15) = 3;
+      LODWORD(v13) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v15) )
         __debugbreak();
-      LODWORD(v46) = 3;
-      LODWORD(v44) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rbx]
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmulss  xmm4, xmm1, xmm7
-      vaddss  xmm2, xmm4, xmm8
-      vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm0, xmm0, xmm9; value
-      vmovaps xmm1, xmm10; maxAbsValueSize
-    }
-    v36 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x14u);
-    if ( (unsigned int)v18 >= 3 )
-    {
-      LODWORD(v45) = 3;
-      LODWORD(v43) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v43, v45) )
+      LODWORD(v16) = 3;
+      LODWORD(v14) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v14, v16) )
         __debugbreak();
     }
-    *(_DWORD *)((char *)_RBX->v + (char *)&_R13->angles - (char *)&clViewangles) = v36;
-    ++v18;
-    _RBX = (vec3_t *)((char *)_RBX + 4);
-    v27 = (unsigned int)v18 < 3;
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    v12 = MSG_PackSignedFloat((float)((float)((float)(*(float *)((char *)p_clViewangles->v + v9) + p_clViewangles->v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0, 180.0, 0x14u);
+    if ( (unsigned int)v5 >= 3 )
+    {
+      LODWORD(v15) = 3;
+      LODWORD(v13) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vec_types.h", 39, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v15) )
+        __debugbreak();
+    }
+    *(_DWORD *)((char *)p_clViewangles->v + (char *)&cmd->angles - (char *)&clViewangles) = v12;
+    ++v5;
+    p_clViewangles = (vec3_t *)((char *)p_clViewangles + 4);
+    v10 = (unsigned int)v5 < 3;
   }
-  while ( v18 < 3 );
-  CL_Input_FinishCmdButtons(localClientNum, _R13, outClearButtons);
+  while ( v5 < 3 );
+  CL_Input_FinishCmdButtons(localClientNum, cmd, outClearButtons);
   memset(&clViewangles, 0, sizeof(clViewangles));
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -1140,332 +1039,229 @@ void CL_InputMP_FrontEndMove(LocalClientNum_t localClientNum, usercmd_s *cmd)
 CL_InputMP_GamepadMove
 ==============
 */
-
-void __fastcall CL_InputMP_GamepadMove(LocalClientNum_t localClientNum, double frametime_base, usercmd_s *cmd, ButtonSet *outClearButtons)
+void CL_InputMP_GamepadMove(LocalClientNum_t localClientNum, float frametime_base, usercmd_s *cmd, ButtonSet *outClearButtons)
 {
-  __int64 v15; 
+  __int128 v4; 
+  __int64 v7; 
   ClActiveClientMP *ClientMP; 
-  ClActiveClientMP *v17; 
-  ClActiveClientMP *v35; 
-  char v42; 
-  char v43; 
-  __int64 v62; 
+  ClActiveClientMP *v9; 
+  __int128 v10; 
+  double ClientLookInversion; 
+  __int128 v13; 
+  ClActiveClientMP *v21; 
+  float v22; 
+  float v23; 
+  double v24; 
+  double v26; 
+  float v27; 
+  double v28; 
+  float v29; 
+  const dvar_t *v30; 
+  double v34; 
+  int forwardmove; 
+  int rightmove; 
+  int pitchmove; 
+  int yawmove; 
+  __int64 v39; 
+  const dvar_t *v40; 
   CgWeaponMap *Instance; 
   playerState_s *p_predictedPlayerState; 
   bool IsUsingOffhandGestureWeaponADSSupport; 
   const Weapon *OffhandGestureWeapon; 
-  const Weapon *v68; 
-  bool v69; 
-  cg_t *v70; 
+  const Weapon *v45; 
+  bool v46; 
+  double Button; 
   cg_t *LocalClientGlobals; 
-  float fmt; 
-  float fmta; 
+  double v49; 
+  double MaxPitchSpeed; 
+  double MaxYawSpeed; 
+  cg_t *v52; 
   vec3_t outClearButtonsa; 
   int portIndex[2]; 
-  __int64 v100; 
+  __int64 v55; 
   AimOutput output; 
   AimInput input; 
-  char v103; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v100 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-  }
+  v55 = -2i64;
   *(_QWORD *)outClearButtonsa.v = outClearButtons;
-  __asm { vmovaps xmm12, xmm1 }
-  v15 = localClientNum;
-  if ( CL_Input_IsGamepadEnabled(localClientNum) )
+  v7 = localClientNum;
+  if ( !CL_Input_IsGamepadEnabled(localClientNum) )
+    return;
+  cmd->inputFromGamepad = 1;
+  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v7);
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x10u) || (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v7) && CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v7) )
   {
-    cmd->inputFromGamepad = 1;
-    ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v15);
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x10u) || (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v15) && CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v15) )
-    {
-      g_lastInputTimeForAnyLocalPlayer = com_frameTime;
-      goto LABEL_76;
-    }
-    if ( !CL_Cameraman_isActive() )
-    {
-      v17 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v15);
-      portIndex[1] = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v15);
-      *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v15, 3);
-      __asm { vmovaps xmm6, xmm0 }
-      CL_Input_GetClientLookInversion((LocalClientNum_t)v15);
-      __asm
-      {
-        vmulss  xmm6, xmm6, xmm0
-        vmovaps xmm2, xmm6; delta
-      }
-      _EAX = PM_AllowCameraInputForAxis(&v17->snap.ps, 0, *(float *)&_XMM2);
-      _ER14 = 0;
-      __asm
-      {
-        vmovd   xmm1, r14d
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vxorps  xmm7, xmm7, xmm7
-        vblendvps xmm0, xmm6, xmm7, xmm2
-        vmovss  [rsp+170h+portIndex], xmm0
-      }
-      *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v15, 2);
-      __asm
-      {
-        vxorps  xmm6, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovaps xmm2, xmm6; delta
-      }
-      _EAX = PM_AllowCameraInputForAxis(&v17->snap.ps, 1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovd   xmm1, r14d
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm0, xmm6, xmm7, xmm2
-        vmovss  dword ptr [rsp+170h+var_130], xmm0
-      }
-      v35 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v15);
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v35->snap.ps.pm_flags, ACTIVE, 0x11u) )
-      {
-        g_lastInputTimeForAnyLocalPlayer = com_frameTime;
-        __asm
-        {
-          vxorps  xmm9, xmm9, xmm9
-          vxorps  xmm8, xmm8, xmm8
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm9, [rsp+170h+portIndex]
-          vmovss  xmm8, dword ptr [rsp+170h+var_130]
-        }
-      }
-      *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v15, 1);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v15, 4);
-      __asm { vmovaps xmm11, xmm0 }
-      *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v15, 0);
-      __asm { vmovaps xmm10, xmm0 }
-      if ( CL_Keys_IsCatcherActive((LocalClientNum_t)v15, 1024) )
-      {
-        if ( CL_GamepadGetPhysicalAxisFromVirtualAxis((LocalClientNum_t)v15, 3) == 1 )
-          __asm { vxorps  xmm9, xmm9, xmm9 }
-        else
-          __asm { vxorps  xmm6, xmm6, xmm6 }
-        if ( CL_GamepadGetPhysicalAxisFromVirtualAxis((LocalClientNum_t)v15, 2) )
-          __asm { vxorps  xmm10, xmm10, xmm10 }
-        else
-          __asm { vxorps  xmm8, xmm8, xmm8 }
-      }
-      _RDI = DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection;
-      if ( !DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_autoForwardCancelMinBackwardDeflection") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-      if ( v43 )
-      {
-        v17->autoForward = 0;
-      }
-      else
-      {
-        __asm { vmovd   xmm1, r14d }
-        _EAX = v17->autoForward;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vblendvps xmm6, xmm1, xmm6, xmm2
-        }
-      }
-      __asm { vucomiss xmm9, xmm7 }
-      if ( !v42 )
-        goto LABEL_27;
-      __asm { vucomiss xmm8, xmm7 }
-      if ( !v42 )
-        goto LABEL_27;
-      __asm { vucomiss xmm6, xmm7 }
-      if ( !v42 )
-        goto LABEL_27;
-      __asm { vucomiss xmm11, xmm7 }
-      if ( !v42 )
-        goto LABEL_27;
-      __asm { vucomiss xmm10, xmm7 }
-      if ( !v42 )
-LABEL_27:
-        g_lastInputTimeForAnyLocalPlayer = com_frameTime;
-      __asm
-      {
-        vmovaps xmm1, xmm10; side
-        vmovaps xmm0, xmm6; forward
-      }
-      *(double *)&_XMM0 = BG_CmdScale_CalcInputScale(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vmovss  xmm3, cs:__real@42fe0000
-        vmulss  xmm1, xmm1, xmm3
-        vcvttss2si edi, xmm1
-        vmulss  xmm0, xmm0, xmm10
-        vmulss  xmm2, xmm0, xmm3
-        vcvttss2si ecx, xmm2
-        vmulss  xmm1, xmm9, xmm3
-        vcvttss2si r14d, xmm1
-        vmulss  xmm0, xmm8, xmm3
-        vcvttss2si r15d, xmm0
-      }
-      if ( !_ECX )
-        _ECX = cmd->rightmove;
-      cmd->rightmove = CL_Input_ClampInputChar(_ECX);
-      if ( !_EDI )
-        _EDI = cmd->forwardmove;
-      cmd->forwardmove = CL_Input_ClampInputChar(_EDI);
-      if ( !_ER14 )
-        _ER14 = cmd->pitchmove;
-      cmd->pitchmove = CL_Input_ClampInputChar(_ER14);
-      if ( !_ER15 )
-        _ER15 = cmd->yawmove;
-      cmd->yawmove = CL_Input_ClampInputChar(_ER15);
-      CL_InputMP_ValidateZeroCmds(cmd);
-      v62 = v15;
-      if ( g_playersKb[v15][32].active || g_playersKb[v62][32].wasPressed )
-      {
-        cmd->buttons |= 2ui64;
-        g_playersKb[v62][32].wasPressed = 0;
-      }
-      else
-      {
-        cmd->buttons &= ~2ui64;
-      }
-      _RDI = DVARFLT_cl_analog_attack_threshold;
-      if ( !DVARFLT_cl_analog_attack_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_analog_attack_threshold") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcomiss xmm11, dword ptr [rdi+28h] }
-      if ( !v43 )
-        cmd->buttons |= 1ui64;
-      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v15);
-      p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v15)->predictedPlayerState;
-      IsUsingOffhandGestureWeaponADSSupport = BG_IsUsingOffhandGestureWeaponADSSupport(Instance, p_predictedPlayerState);
-      if ( IsUsingOffhandGestureWeaponADSSupport )
-        OffhandGestureWeapon = BG_GetOffhandGestureWeapon(Instance, p_predictedPlayerState);
-      else
-        OffhandGestureWeapon = BG_GetCurrentWeaponForPlayer(Instance, p_predictedPlayerState);
-      v68 = OffhandGestureWeapon;
-      v69 = BG_UsingAlternate(p_predictedPlayerState) && !IsUsingOffhandGestureWeaponADSSupport;
-      if ( (cmd->buttons & 1) != 0 && (BG_IsMeleeOnlyWeapon(v68, v69) && !BG_IsWeaponMeleeOverride(Instance, p_predictedPlayerState, v68) || BG_IsThrowingAxe(v68) && !BG_IsFauxFists(p_predictedPlayerState, v68, v69)) )
-        cmd->buttons |= 4ui64;
-      if ( (cmd->buttons & 0x200) != 0 && BG_WeaponIsDualWield(v68) && BG_IsMeleeOnlyWeapon(v68, v69) )
-        cmd->buttons |= 4ui64;
-      if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v17->snap.ps.eFlags, ACTIVE, 0xBu) )
-      {
-        *(double *)&_XMM0 = GPad_GetButton(portIndex[1], GPAD_R_TRIG);
-        __asm { vucomiss xmm0, xmm7 }
-        if ( !v42 )
-          cmd->buttons |= 0x1000000ui64;
-      }
-      CG_HandleSpecialStateInput((LocalClientNum_t)v15, &cmd->buttons, *(ButtonSet **)outClearButtonsa.v);
-      if ( (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v15) )
-      {
-        if ( CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 525, ASSERT_TYPE_ASSERT, "(!CL_InputMP_DisableFrontEndMovement( localClientNum ))", "%s\n\tShould not proceed with gamepad input when controls are frozen", "!CL_InputMP_DisableFrontEndMovement( localClientNum )") )
-          __debugbreak();
-      }
-      else if ( !CG_ShouldUpdateViewAngles((LocalClientNum_t)v15) )
-      {
-LABEL_72:
-        if ( CollAvoid_ShouldUpdateMoveCmd((LocalClientNum_t)v15) )
-        {
-          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v15);
-          __asm { vmovaps xmm2, xmm12; deltaTime }
-          CollAvoid_UpdateMoveCmd((LocalClientNum_t)v15, &LocalClientGlobals->predictedPlayerState, *(float *)&_XMM2, cmd);
-        }
-        CG_GetLocalClientGlobals((const LocalClientNum_t)v15);
-        __asm
-        {
-          vmovss  dword ptr [rsp+170h+fmt], xmm8
-          vmovaps xmm3, xmm9; pitch
-          vmovaps xmm2, xmm10; side
-          vmovaps xmm1, xmm6; forward
-        }
-        CG_ModelPreviewerHandleGamepadEvents((LocalClientNum_t)v15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-        __asm
-        {
-          vmovss  dword ptr [rsp+170h+fmt], xmm8
-          vmovaps xmm3, xmm9; pitch
-          vmovaps xmm2, xmm10; side
-          vmovaps xmm1, xmm6; forward
-        }
-        CG_CreateFx_HandleGamepadEvents((LocalClientNum_t)v15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta);
-        goto LABEL_76;
-      }
-      v70 = CG_GetLocalClientGlobals((const LocalClientNum_t)v15);
-      __asm { vmovaps xmm1, xmm8; inputDeltaYaw }
-      *(double *)&_XMM0 = Mantle_SlowInputTurnRate(&v70->predictedPlayerState, *(const float *)&_XMM1);
-      __asm { vmovaps xmm8, xmm0 }
-      ClActiveClient_GetCLViewangles(v17, &outClearButtonsa);
-      __asm
-      {
-        vmovss  [rsp+170h+input.deltaTime], xmm12
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, cs:?cls@@3UClStatic@@A.frametime; ClStatic cls
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vmovss  [rsp+170h+input.deltaTimeScaled], xmm1
-        vmovss  xmm2, dword ptr [rsp+170h+outClearButtons]
-        vmovss  [rbp+70h+input.pitch], xmm2
-        vmovss  [rbp+70h+input.pitchAxis], xmm9
-      }
-      *(double *)&_XMM0 = CL_GetMaxPitchSpeed((LocalClientNum_t)v15);
-      __asm
-      {
-        vmovss  [rbp+70h+input.pitchMax], xmm0
-        vmovss  xmm0, dword ptr [rsp+170h+outClearButtons+4]
-        vmovss  [rbp+70h+input.yaw], xmm0
-        vmovss  [rbp+70h+input.yawAxis], xmm8
-      }
-      *(double *)&_XMM0 = CL_GetMaxYawSpeed((LocalClientNum_t)v15);
-      __asm
-      {
-        vmovss  [rbp+70h+input.yawMax], xmm0
-        vmovss  [rbp+70h+input.forwardAxis], xmm6
-        vmovss  [rbp+70h+input.rightAxis], xmm10
-      }
-      input.buttons = cmd->buttons;
-      input.localClientNum = v15;
-      input.meleeChargeEnt = cmd->meleeChargeEnt;
-      AimAssist_UpdateGamePadInput(&input, &output);
-      __asm
-      {
-        vmovss  xmm0, [rsp+170h+output.pitch]
-        vmovss  dword ptr [rsp+170h+outClearButtons], xmm0
-        vmovss  xmm1, [rsp+170h+output.yaw]
-        vmovss  dword ptr [rsp+170h+outClearButtons+4], xmm1
-      }
-      ClActiveClient_SetCLViewangles(v17, &outClearButtonsa);
-      BG_SetMeleeChargeCmd(&output, cmd);
-      memset(&outClearButtonsa, 0, sizeof(outClearButtonsa));
-      goto LABEL_72;
-    }
+    g_lastInputTimeForAnyLocalPlayer = com_frameTime;
+    return;
   }
-LABEL_76:
-  _R11 = &v103;
+  if ( CL_Cameraman_isActive() )
+    return;
+  v9 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v7);
+  portIndex[1] = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v7);
+  *(double *)&v4 = CL_GamepadAxisValue((LocalClientNum_t)v7, 3);
+  v10 = v4;
+  ClientLookInversion = CL_Input_GetClientLookInversion((LocalClientNum_t)v7);
+  v13 = v10;
+  *(float *)&v13 = *(float *)&v10 * *(float *)&ClientLookInversion;
+  _XMM6 = v13;
+  _XMM0 = PM_AllowCameraInputForAxis(&v9->snap.ps, 0, *(float *)&v13);
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
+    vpcmpeqd xmm2, xmm0, xmm1
+    vblendvps xmm0, xmm6, xmm7, xmm2
   }
+  portIndex[0] = _XMM0;
+  *(double *)&_XMM0 = CL_GamepadAxisValue((LocalClientNum_t)v7, 2);
+  _XMM6 = _XMM0 ^ _xmm;
+  _XMM0 = PM_AllowCameraInputForAxis(&v9->snap.ps, 1, COERCE_FLOAT(_XMM0 ^ _xmm));
+  __asm
+  {
+    vpcmpeqd xmm2, xmm0, xmm1
+    vblendvps xmm0, xmm6, xmm7, xmm2
+  }
+  v21 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v7);
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v21->snap.ps.pm_flags, ACTIVE, 0x11u) )
+  {
+    g_lastInputTimeForAnyLocalPlayer = com_frameTime;
+    v22 = 0.0;
+    v23 = 0.0;
+  }
+  else
+  {
+    v22 = *(float *)portIndex;
+    v23 = *(float *)&_XMM0;
+  }
+  v24 = CL_GamepadAxisValue((LocalClientNum_t)v7, 1);
+  LODWORD(_XMM6) = LODWORD(v24);
+  v26 = CL_GamepadAxisValue((LocalClientNum_t)v7, 4);
+  v27 = *(float *)&v26;
+  v28 = CL_GamepadAxisValue((LocalClientNum_t)v7, 0);
+  v29 = *(float *)&v28;
+  if ( CL_Keys_IsCatcherActive((LocalClientNum_t)v7, 1024) )
+  {
+    if ( CL_GamepadGetPhysicalAxisFromVirtualAxis((LocalClientNum_t)v7, 3) == 1 )
+      v22 = 0.0;
+    else
+      LODWORD(_XMM6) = 0;
+    if ( CL_GamepadGetPhysicalAxisFromVirtualAxis((LocalClientNum_t)v7, 2) )
+      v29 = 0.0;
+    else
+      v23 = 0.0;
+  }
+  v30 = DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection;
+  if ( !DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_autoForwardCancelMinBackwardDeflection") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v30);
+  if ( *(float *)&_XMM6 >= v30->current.value )
+  {
+    _XMM0 = v9->autoForward;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_1_0);
+    __asm { vblendvps xmm6, xmm1, xmm6, xmm2 }
+  }
+  else
+  {
+    v9->autoForward = 0;
+  }
+  if ( v22 != 0.0 || v23 != 0.0 || *(float *)&_XMM6 != 0.0 || v27 != 0.0 || v29 != 0.0 )
+    g_lastInputTimeForAnyLocalPlayer = com_frameTime;
+  v34 = BG_CmdScale_CalcInputScale(*(float *)&_XMM6, v29);
+  forwardmove = (int)(float)((float)(*(float *)&v34 * *(float *)&_XMM6) * 127.0);
+  rightmove = (int)(float)((float)(*(float *)&v34 * v29) * 127.0);
+  pitchmove = (int)(float)(v22 * 127.0);
+  yawmove = (int)(float)(v23 * 127.0);
+  if ( !rightmove )
+    rightmove = cmd->rightmove;
+  cmd->rightmove = CL_Input_ClampInputChar(rightmove);
+  if ( !forwardmove )
+    forwardmove = cmd->forwardmove;
+  cmd->forwardmove = CL_Input_ClampInputChar(forwardmove);
+  if ( !pitchmove )
+    pitchmove = cmd->pitchmove;
+  cmd->pitchmove = CL_Input_ClampInputChar(pitchmove);
+  if ( !yawmove )
+    yawmove = cmd->yawmove;
+  cmd->yawmove = CL_Input_ClampInputChar(yawmove);
+  CL_InputMP_ValidateZeroCmds(cmd);
+  v39 = v7;
+  if ( g_playersKb[v7][32].active || g_playersKb[v39][32].wasPressed )
+  {
+    cmd->buttons |= 2ui64;
+    g_playersKb[v39][32].wasPressed = 0;
+  }
+  else
+  {
+    cmd->buttons &= ~2ui64;
+  }
+  v40 = DVARFLT_cl_analog_attack_threshold;
+  if ( !DVARFLT_cl_analog_attack_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_analog_attack_threshold") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v40);
+  if ( v27 >= v40->current.value )
+    cmd->buttons |= 1ui64;
+  Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v7);
+  p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v7)->predictedPlayerState;
+  IsUsingOffhandGestureWeaponADSSupport = BG_IsUsingOffhandGestureWeaponADSSupport(Instance, p_predictedPlayerState);
+  if ( IsUsingOffhandGestureWeaponADSSupport )
+    OffhandGestureWeapon = BG_GetOffhandGestureWeapon(Instance, p_predictedPlayerState);
+  else
+    OffhandGestureWeapon = BG_GetCurrentWeaponForPlayer(Instance, p_predictedPlayerState);
+  v45 = OffhandGestureWeapon;
+  v46 = BG_UsingAlternate(p_predictedPlayerState) && !IsUsingOffhandGestureWeaponADSSupport;
+  if ( (cmd->buttons & 1) != 0 && (BG_IsMeleeOnlyWeapon(v45, v46) && !BG_IsWeaponMeleeOverride(Instance, p_predictedPlayerState, v45) || BG_IsThrowingAxe(v45) && !BG_IsFauxFists(p_predictedPlayerState, v45, v46)) )
+    cmd->buttons |= 4ui64;
+  if ( (cmd->buttons & 0x200) != 0 && BG_WeaponIsDualWield(v45) && BG_IsMeleeOnlyWeapon(v45, v46) )
+    cmd->buttons |= 4ui64;
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v9->snap.ps.eFlags, ACTIVE, 0xBu) )
+  {
+    Button = GPad_GetButton(portIndex[1], GPAD_R_TRIG);
+    if ( *(float *)&Button != 0.0 )
+      cmd->buttons |= 0x1000000ui64;
+  }
+  CG_HandleSpecialStateInput((LocalClientNum_t)v7, &cmd->buttons, *(ButtonSet **)outClearButtonsa.v);
+  if ( (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v7) )
+  {
+    if ( CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 525, ASSERT_TYPE_ASSERT, "(!CL_InputMP_DisableFrontEndMovement( localClientNum ))", "%s\n\tShould not proceed with gamepad input when controls are frozen", "!CL_InputMP_DisableFrontEndMovement( localClientNum )") )
+      __debugbreak();
+    goto LABEL_71;
+  }
+  if ( CG_ShouldUpdateViewAngles((LocalClientNum_t)v7) )
+  {
+LABEL_71:
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    v49 = Mantle_SlowInputTurnRate(&LocalClientGlobals->predictedPlayerState, v23);
+    v23 = *(float *)&v49;
+    ClActiveClient_GetCLViewangles(v9, &outClearButtonsa);
+    input.deltaTime = frametime_base;
+    input.deltaTimeScaled = (float)cls.frametime * 0.001;
+    input.pitch = outClearButtonsa.v[0];
+    input.pitchAxis = v22;
+    MaxPitchSpeed = CL_GetMaxPitchSpeed((LocalClientNum_t)v7);
+    input.pitchMax = *(float *)&MaxPitchSpeed;
+    input.yaw = outClearButtonsa.v[1];
+    input.yawAxis = v23;
+    MaxYawSpeed = CL_GetMaxYawSpeed((LocalClientNum_t)v7);
+    input.yawMax = *(float *)&MaxYawSpeed;
+    input.forwardAxis = *(float *)&_XMM6;
+    input.rightAxis = v29;
+    input.buttons = cmd->buttons;
+    input.localClientNum = v7;
+    input.meleeChargeEnt = cmd->meleeChargeEnt;
+    AimAssist_UpdateGamePadInput(&input, &output);
+    outClearButtonsa.v[0] = output.pitch;
+    outClearButtonsa.v[1] = output.yaw;
+    ClActiveClient_SetCLViewangles(v9, &outClearButtonsa);
+    BG_SetMeleeChargeCmd(&output, cmd);
+    memset(&outClearButtonsa, 0, sizeof(outClearButtonsa));
+  }
+  if ( CollAvoid_ShouldUpdateMoveCmd((LocalClientNum_t)v7) )
+  {
+    v52 = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    CollAvoid_UpdateMoveCmd((LocalClientNum_t)v7, &v52->predictedPlayerState, frametime_base, cmd);
+  }
+  CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  CG_ModelPreviewerHandleGamepadEvents((LocalClientNum_t)v7, *(float *)&_XMM6, v29, v22, v23);
+  CG_CreateFx_HandleGamepadEvents((LocalClientNum_t)v7, *(float *)&_XMM6, v29, v22, v23);
 }
 
 /*
@@ -1475,6 +1271,7 @@ CL_InputMP_GetCommandDelta
 */
 char CL_InputMP_GetCommandDelta(const LocalClientNum_t localClientNum, const ClActiveClientMP *const cl, const ClConnectionMP *const clc, unsigned __int8 *outCmdDelta, usercmd_s *outCmd, CmdPredict *outPredict)
 {
+  usercmd_s *v10; 
   int messageAcknowledge; 
   netchan_t *p_netchan; 
   int v13; 
@@ -1484,9 +1281,10 @@ char CL_InputMP_GetCommandDelta(const LocalClientNum_t localClientNum, const ClA
   const ClActiveClient *Client; 
   int v18; 
   int v19; 
+  usercmd_s *v21; 
   __int64 v22; 
   char *fmt; 
-  __int64 v32; 
+  __int64 v24; 
   ClOutPacketMP outPacket; 
 
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1277, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
@@ -1495,7 +1293,7 @@ char CL_InputMP_GetCommandDelta(const LocalClientNum_t localClientNum, const ClA
     __debugbreak();
   if ( !outCmdDelta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1279, ASSERT_TYPE_ASSERT, "(outCmdDelta != nullptr)", (const char *)&queryFormat, "outCmdDelta != nullptr") )
     __debugbreak();
-  _RSI = outCmd;
+  v10 = outCmd;
   if ( !outCmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1280, ASSERT_TYPE_ASSERT, "(outCmd != nullptr)", (const char *)&queryFormat, "outCmd != nullptr") )
     __debugbreak();
   if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)ClConnection::ms_activeConnectionType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 164, ASSERT_TYPE_ASSERT, "(BG_GameInterface_GameModeIsMP( ms_activeConnectionType ))", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_activeConnectionType )") )
@@ -1506,8 +1304,8 @@ char CL_InputMP_GetCommandDelta(const LocalClientNum_t localClientNum, const ClA
   p_netchan = &clc->m_connectionData.netchan;
   if ( messageAcknowledge < 0 || messageAcknowledge > p_netchan->outgoingSequence )
   {
-    LODWORD(v32) = clc->m_connectionData.messageAcknowledge;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1295, ASSERT_TYPE_ASSERT, "( 0 ) <= ( clcData->messageAcknowledge ) && ( clcData->messageAcknowledge ) <= ( clcData->netchan.outgoingSequence )", "clcData->messageAcknowledge not in [0, clcData->netchan.outgoingSequence]\n\t%i not in [%i, %i]", v32, 0i64, p_netchan->outgoingSequence) )
+    LODWORD(v24) = clc->m_connectionData.messageAcknowledge;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1295, ASSERT_TYPE_ASSERT, "( 0 ) <= ( clcData->messageAcknowledge ) && ( clcData->messageAcknowledge ) <= ( clcData->netchan.outgoingSequence )", "clcData->messageAcknowledge not in [0, clcData->netchan.outgoingSequence]\n\t%i not in [%i, %i]", v24, 0i64, p_netchan->outgoingSequence) )
       __debugbreak();
   }
   v13 = clc->m_connectionData.messageAcknowledge;
@@ -1534,41 +1332,27 @@ char CL_InputMP_GetCommandDelta(const LocalClientNum_t localClientNum, const ClA
     memset(&outCmd, 0, 4ui64);
     return 0;
   }
-  _RBX = &Client->cmds[p_cmdNumber & 0x7F];
+  v21 = &Client->cmds[p_cmdNumber & 0x7F];
   memset(&outCmd, 0, 4ui64);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
     __debugbreak();
   v22 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsi], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rsi+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rsi+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rsi+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rsi+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rsi+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rsi+60h], xmm0
-    }
-    _RSI = (usercmd_s *)((char *)_RSI + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rsi-10h], xmm1
-    }
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
+    *(_OWORD *)&v10->buttons = *(_OWORD *)&v21->buttons;
+    *(_OWORD *)&v10->commandTime = *(_OWORD *)&v21->commandTime;
+    *(_OWORD *)(&v10->angles.xy + 1) = *(_OWORD *)(&v21->angles.xy + 1);
+    *(_OWORD *)&v10->weapon.weaponOthers = *(_OWORD *)&v21->weapon.weaponOthers;
+    *(_OWORD *)&v10->weapon.attachmentVariationIndices[1] = *(_OWORD *)&v21->weapon.attachmentVariationIndices[1];
+    *(_OWORD *)&v10->weapon.attachmentVariationIndices[17] = *(_OWORD *)&v21->weapon.attachmentVariationIndices[17];
+    *(_OWORD *)&v10->offHand.weaponIdx = *(_OWORD *)&v21->offHand.weaponIdx;
+    v10 = (usercmd_s *)((char *)v10 + 128);
+    *(_OWORD *)&v10[-1].sightedClientsMask.data[4] = *(_OWORD *)&v21->offHand.weaponAttachments[2];
+    v21 = (usercmd_s *)((char *)v21 + 128);
     --v22;
   }
   while ( v22 );
-  _RSI->buttons = _RBX->buttons;
+  v10->buttons = v21->buttons;
   if ( !ClActiveClientMP::GetPredictedData((ClActiveClientMP *)cl, p_cmdNumber, outPredict) )
     return 0;
   *outCmdDelta = v14;
@@ -1702,493 +1486,358 @@ void CL_InputMP_KeyMove(LocalClientNum_t localClientNum, usercmd_s *cmd, ButtonS
 CL_InputMP_MouseMove
 ==============
 */
-
-void __fastcall CL_InputMP_MouseMove(LocalClientNum_t localClientNum, usercmd_s *cmd, double frametime_base, double rawMx, float rawMy)
+void CL_InputMP_MouseMove(LocalClientNum_t localClientNum, usercmd_s *cmd, float frametime_base, float rawMx, float rawMy)
 {
-  usercmd_s *v18; 
-  __int64 v19; 
-  __int64 v21; 
+  usercmd_s *v5; 
+  __int64 v6; 
+  ClActiveClient *Client; 
+  __int64 v8; 
+  unsigned int v9; 
   ClActiveClientMP *ClientMP; 
-  const dvar_t *v25; 
+  const dvar_t *v11; 
   bool enabled; 
-  const dvar_t *v27; 
-  int integer; 
-  bool v29; 
-  char v31; 
-  bool v32; 
-  bool v33; 
-  ClActiveClientMP *v38; 
-  bool v39; 
+  const dvar_t *v13; 
+  bool v14; 
+  char v16; 
+  bool v17; 
+  bool v18; 
+  float v19; 
+  double Float_Internal_DebugName; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  ClActiveClientMP *v26; 
+  bool v27; 
   int ControllerFromClient; 
   bool FreeLook; 
   bool active; 
-  char v56; 
-  bool v57; 
-  int v94; 
-  char v102; 
-  const dvar_t *v104; 
-  int v105; 
-  int v106; 
-  int v107; 
+  char v31; 
+  double MaxYawSpeed; 
+  float v37; 
+  double MaxPitchSpeed; 
+  float v39; 
+  bool v40; 
+  double v41; 
+  double v42; 
+  float v43; 
+  double ClientLookInversion; 
+  float v45; 
+  float v46; 
+  float v47; 
+  __int128 v48; 
+  __int128 v49; 
+  float v52; 
+  float v54; 
+  double updated; 
+  int v56; 
+  int v57; 
+  float v58; 
+  int v59; 
+  bool v60; 
+  double v61; 
+  bool v62; 
+  int v63; 
+  bool v64; 
+  unsigned int v65; 
+  const dvar_t *v66; 
+  unsigned int v67; 
+  unsigned int v68; 
+  int v69; 
   const CameraDef *Def; 
-  bool v109; 
-  int v128; 
-  char v129; 
-  int v130; 
-  char v131; 
-  float fmt; 
-  float fmta; 
+  bool v71; 
+  __m128 v72; 
+  __m128 v73; 
+  __m128 v74; 
+  __m128 v75; 
+  __int128 v76; 
+  __int128 v80; 
+  int v84; 
+  char v85; 
+  int v86; 
+  char v87; 
   float outMx; 
-  int v155; 
+  int v89; 
   float outMy; 
-  int v157; 
-  int v158; 
+  int v91; 
+  int v92; 
+  float v93; 
+  __int64 v94; 
   vec3_t clViewangles; 
-  __int64 v162; 
-  unsigned __int64 v163; 
-  __int64 v164; 
+  __int64 v96; 
+  unsigned __int64 v97; 
+  __int64 v98; 
   AimOutput output; 
   AimInput input; 
-  char v167; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v164 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-    vmovaps xmmword ptr [rax-0E8h], xmm15
-    vmovaps xmm6, xmm3
-    vmovss  dword ptr [rsp+1C0h+var_168], xmm3
-    vmovss  [rsp+1C0h+var_16C], xmm2
-  }
-  v18 = cmd;
+  v98 = -2i64;
+  *(float *)&v94 = rawMx;
+  v93 = frametime_base;
+  v5 = cmd;
   *(_QWORD *)clViewangles.v = cmd;
-  v19 = localClientNum;
+  v6 = localClientNum;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 607, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   if ( frame_msec )
   {
-    _RDI = ClActiveClient::GetClient((const LocalClientNum_t)v19);
-    v21 = (__int64)_RDI->GetPlayerState(_RDI);
-    v162 = v21;
-    __asm
+    Client = ClActiveClient::GetClient((const LocalClientNum_t)v6);
+    v8 = (__int64)Client->GetPlayerState(Client);
+    v96 = v8;
+    outMx = rawMx;
+    outMy = rawMy;
+    CL_Input_ApplyMouseSensitivity((const LocalClientNum_t)v6, &outMx, &outMy);
+    v9 = 0;
+    *(_QWORD *)Client->mouseViewDelta.v = 0i64;
+    Client->mouseViewDelta.v[2] = 0.0;
+    ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v6);
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x10u) && (!(unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v6) || !CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v6)) )
     {
-      vmovss  [rsp+1C0h+outMx], xmm6
-      vmovss  xmm7, [rbp+0C0h+rawMy]
-      vmovss  [rsp+1C0h+outMy], xmm7
-    }
-    CL_Input_ApplyMouseSensitivity((const LocalClientNum_t)v19, &outMx, &outMy);
-    _EBX = 0;
-    *(_QWORD *)_RDI->mouseViewDelta.v = 0i64;
-    _RDI->mouseViewDelta.v[2] = 0.0;
-    ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v19);
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x10u) || (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v19) && CL_InputMP_DisableFrontEndMovement((LocalClientNum_t)v19) )
-    {
-      g_lastInputTimeForAnyLocalPlayer = com_frameTime;
-    }
-    else
-    {
-      v25 = DCONST_DVARBOOL_cl_accumulateShellshockedMouseInput;
+      v11 = DCONST_DVARBOOL_cl_accumulateShellshockedMouseInput;
       if ( !DCONST_DVARBOOL_cl_accumulateShellshockedMouseInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_accumulateShellshockedMouseInput") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      enabled = v25->current.enabled;
-      v27 = DCONST_DVARINT_cl_accumulatedInputExpirationTime;
+      Dvar_CheckFrontendServerThread(v11);
+      enabled = v11->current.enabled;
+      v13 = DCONST_DVARINT_cl_accumulatedInputExpirationTime;
       if ( !DCONST_DVARINT_cl_accumulatedInputExpirationTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_accumulatedInputExpirationTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v27);
-      integer = v27->current.integer;
-      v29 = enabled && _RDI->accumulatedInputTimer < integer;
-      __asm
+      Dvar_CheckFrontendServerThread(v13);
+      v14 = enabled && Client->accumulatedInputTimer < v13->current.integer;
+      _XMM9 = 0i64;
+      if ( Client->accumulatedMouseDelta.v[1] == 0.0 && Client->accumulatedMouseDelta.v[0] == 0.0 )
+        v14 = 0;
+      v16 = 1;
+      v17 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *)(v8 + 20), ACTIVE, 0x15u) && BG_GetShellshockParms(*(_DWORD *)(v8 + 4412))->lookControl.affect;
+      v18 = v17 && v14;
+      if ( !v18 )
       {
-        vxorps  xmm9, xmm9, xmm9
-        vucomiss xmm9, dword ptr [rdi+1CCh]
+        *(_QWORD *)&Client->accumulatedMouseDelta.y = 0i64;
+        Client->accumulatedMouseDelta.v[0] = 0.0;
       }
-      if ( !v29 )
+      v19 = FLOAT_0_001;
+      if ( AimAssist_IsMeleeLockOnActive((LocalClientNum_t)v6) || rawMx == 0.0 && rawMy == 0.0 && !v18 )
+        goto LABEL_119;
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_maxShellshockCatchUpSpeed, "cl_maxShellshockCatchUpSpeed");
+      v21 = *(float *)&Float_Internal_DebugName;
+      v22 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_shortMovementThreshold, "cl_shortMovementThreshold");
+      v23 = *(float *)&v22;
+      v24 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_longMovementThreshold, "cl_longMovementThreshold");
+      v25 = *(float *)&v24;
+      if ( v23 >= *(float *)&v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 664, ASSERT_TYPE_ASSERT, "(shortMovementThreshold < longMovementThreshold)", (const char *)&queryFormat, "shortMovementThreshold < longMovementThreshold") )
+        __debugbreak();
+      LOBYTE(v91) = 0;
+      g_lastInputTimeForAnyLocalPlayer = com_frameTime;
+      v92 = 0;
+      v97 = 1632 * v6;
+      v26 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v6);
+      v27 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v26->snap.ps.pm_flags, ACTIVE, 0x11u);
+      LOBYTE(v89) = v27;
+      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v6);
+      FreeLook = GamerProfile_GetFreeLook(ControllerFromClient);
+      if ( !g_playersKb[v6][14].active && !FreeLook )
+        v16 = 0;
+      active = g_playersKb[v6][8].active;
+      if ( active || !v16 )
       {
-        __asm { vucomiss xmm9, dword ptr [rdi+1C8h] }
-        if ( !enabled || _RDI->accumulatedInputTimer >= integer )
-          v29 = 0;
-      }
-      v31 = 1;
-      v32 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *)(v21 + 20), ACTIVE, 0x15u) && BG_GetShellshockParms(*(_DWORD *)(v21 + 4412))->lookControl.affect;
-      v33 = v32 && v29;
-      if ( !v33 )
-      {
-        *(_QWORD *)&_RDI->accumulatedMouseDelta.y = 0i64;
-        _RDI->accumulatedMouseDelta.v[0] = 0.0;
-      }
-      __asm { vmovss  xmm11, cs:__real@3a83126f }
-      if ( !AimAssist_IsMeleeLockOnActive((LocalClientNum_t)v19) )
-      {
-        __asm
+        v31 = 1;
+        if ( active )
         {
-          vucomiss xmm6, xmm9
-          vucomiss xmm7, xmm9
-        }
-        if ( v33 )
-        {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_maxShellshockCatchUpSpeed, "cl_maxShellshockCatchUpSpeed");
-          __asm { vmovaps xmm15, xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_shortMovementThreshold, "cl_shortMovementThreshold");
-          __asm { vmovaps xmm11, xmm0 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cl_longMovementThreshold, "cl_longMovementThreshold");
-          __asm
-          {
-            vmovaps xmm14, xmm0
-            vcomiss xmm11, xmm0
-          }
-          if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 664, ASSERT_TYPE_ASSERT, "(shortMovementThreshold < longMovementThreshold)", (const char *)&queryFormat, "shortMovementThreshold < longMovementThreshold") )
-            __debugbreak();
-          LOBYTE(v157) = 0;
-          g_lastInputTimeForAnyLocalPlayer = com_frameTime;
-          v158 = 0;
-          v163 = 1632 * v19;
-          v38 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v19);
-          v39 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v38->snap.ps.pm_flags, ACTIVE, 0x11u);
-          LOBYTE(v155) = v39;
-          ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v19);
-          FreeLook = GamerProfile_GetFreeLook(ControllerFromClient);
-          if ( !g_playersKb[v19][14].active && !FreeLook )
-            v31 = 0;
-          active = g_playersKb[v19][8].active;
-          __asm { vmovss  xmm6, cs:__real@3f000000 }
-          if ( (active || !v31) && active )
-          {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_side, "m_side");
-            __asm
-            {
-              vmulss  xmm1, xmm0, [rsp+1C0h+outMx]
-              vaddss  xmm3, xmm1, xmm6
-              vxorps  xmm2, xmm2, xmm2
-              vmovss  xmm4, xmm2, xmm3
-              vxorps  xmm0, xmm0, xmm0
-              vroundss xmm1, xmm0, xmm4, 1
-              vcvttss2si ecx, xmm1
-            }
-            v18->rightmove = CL_Input_ClampInputChar(v18->rightmove + _ECX);
-          }
-          if ( !v31 )
-          {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_forward, "m_forward");
-            __asm
-            {
-              vmulss  xmm1, xmm0, [rsp+1C0h+outMy]
-              vaddss  xmm3, xmm1, xmm6
-              vxorps  xmm2, xmm2, xmm2
-              vmovss  xmm4, xmm2, xmm3
-              vxorps  xmm0, xmm0, xmm0
-              vroundss xmm1, xmm0, xmm4, 1
-              vcvttss2si eax, xmm1
-            }
-            v18->forwardmove = CL_Input_ClampInputChar(v18->forwardmove - _EAX);
-          }
-          __asm { vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-          v56 = 0;
-          v57 = !v39;
-          if ( v39 )
-            goto LABEL_51;
-          *(double *)&_XMM0 = CL_GetMaxYawSpeed((LocalClientNum_t)v19);
-          __asm { vmovaps xmm7, xmm0 }
-          *(double *)&_XMM0 = CL_GetMaxPitchSpeed((LocalClientNum_t)v19);
-          __asm { vmovaps xmm8, xmm0 }
-          if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_combinedCameraRotationSpeed, "cl_combinedCameraRotationSpeed") )
-            __asm { vucomiss xmm7, xmm8 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_yaw, "m_yaw");
-          __asm
-          {
-            vmulss  xmm1, xmm0, [rsp+1C0h+outMx]
-            vaddss  xmm1, xmm1, dword ptr [rdi+1CCh]
-            vmovss  dword ptr [rdi+1CCh], xmm1
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_pitch, "m_pitch");
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = CL_Input_GetClientLookInversion((LocalClientNum_t)v19);
-          __asm
-          {
-            vmulss  xmm13, xmm0, xmm6
-            vxorps  xmm12, xmm13, cs:__xmm@80000000800000008000000080000000
-            vmulss  xmm0, xmm12, [rsp+1C0h+outMy]
-            vaddss  xmm6, xmm0, dword ptr [rdi+1C8h]
-            vmovss  dword ptr [rdi+1C8h], xmm6
-          }
-          if ( g_playersKb[v163 / 0x660][8].active )
-          {
-            LOBYTE(v18) = v157;
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, [rsp+1C0h+outMx]
-              vandps  xmm1, xmm0, xmm10
-              vcomiss xmm1, xmm11
-            }
-            if ( g_playersKb[v163 / 0x660][8].active )
-            {
-              __asm
-              {
-                vmulss  xmm0, xmm0, dword ptr [rdi+1CCh]
-                vcomiss xmm0, xmm9
-              }
-            }
-            __asm { vcomiss xmm11, xmm1 }
-            LOBYTE(v18) = 0;
-            v157 = (int)v18;
-            __asm
-            {
-              vmovss  dword ptr [rsp+1C0h+fmt], xmm9
-              vmovaps xmm2, xmm7; maxAxisSpeed
-            }
-            *(double *)&_XMM0 = CL_Input_UpdateViewAnglesAxis(_RDI, YAW, *(const float *)&_XMM2, 0, fmt);
-            __asm
-            {
-              vmovaps xmm2, xmm0; deltaYaw
-              vmovss  xmm1, dword ptr [rdi+1CCh]
-              vandps  xmm1, xmm1, xmm10
-              vcomiss xmm1, cs:__real@3a83126f
-            }
-            if ( !v56 )
-              __asm { vcomiss xmm7, xmm9 }
-            _RDI->accumulatedMouseDelta.v[1] = 0.0;
-            __asm
-            {
-              vmovss  xmm1, [rsp+1C0h+outMx]; mx
-              vcvttss2si eax, xmm1
-            }
-            v158 = -_EAX;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+1C0h]
-              vsubss  xmm3, xmm0, dword ptr [rax+0B8h]; yaw
-              vmovss  xmm0, [rsp+1C0h+var_16C]; deltaTime
-            }
-            CL_Input_LogMouseInputVelocity(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-          }
-          v56 = 0;
-          v57 = v31 == 0;
-          if ( !v31 )
-          {
-LABEL_51:
-            __asm
-            {
-              vmovss  xmm1, [rsp+1C0h+outMy]
-              vmovss  xmm11, cs:__real@3a83126f
-              vmovss  xmm13, cs:__real@3f800000
-            }
-            v94 = v158;
-            _ECX = 0;
-            LOBYTE(v18) = v157;
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm1, [rsp+1C0h+outMy]
-              vandps  xmm0, xmm1, xmm10
-              vcomiss xmm0, xmm11
-              vmulss  xmm0, xmm12, xmm1
-              vmulss  xmm1, xmm0, dword ptr [rdi+1C8h]
-              vcomiss xmm1, xmm9
-              vmovss  xmm0, [rsp+1C0h+outMx]
-              vandps  xmm0, xmm0, xmm10
-              vcomiss xmm11, xmm0
-              vmovss  dword ptr [rsp+1C0h+fmt], xmm9
-              vmovaps xmm2, xmm8; maxAxisSpeed
-            }
-            CL_Input_UpdateViewAnglesAxis(_RDI, PITCH, *(const float *)&_XMM2, 0, fmta);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+1C8h]
-              vandps  xmm0, xmm0, xmm10
-              vmovss  xmm11, cs:__real@3a83126f
-              vcomiss xmm0, xmm11
-            }
-            if ( !v56 )
-            {
-              v56 = 0;
-              v57 = 1;
-              __asm { vcomiss xmm8, xmm9 }
-            }
-            _RDI->accumulatedMouseDelta.v[0] = 0.0;
-            __asm
-            {
-              vcomiss xmm13, cs:__real@80000000
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmovss  xmm1, [rsp+1C0h+outMy]
-              vmulss  xmm0, xmm0, xmm1
-              vcvttss2si ecx, xmm0
-              vmovss  xmm13, cs:__real@3f800000
-            }
-            v94 = v158;
-          }
-          __asm
-          {
-            vmovss  xmm0, [rsp+1C0h+outMx]
-            vandps  xmm0, xmm0, xmm10
-            vcomiss xmm0, xmm14
-          }
-          if ( !(v56 | v57) )
-            goto LABEL_60;
-          __asm
-          {
-            vandps  xmm1, xmm1, xmm10
-            vcomiss xmm1, xmm14
-          }
-          if ( v56 | v57 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+1C0h+var_168]
-              vucomiss xmm0, xmm9
-            }
-            if ( !v57 )
-              goto LABEL_57;
-            __asm
-            {
-              vmovss  xmm0, [rbp+0C0h+rawMy]
-              vucomiss xmm0, xmm9
-            }
-            if ( v57 )
-              v102 = 0;
-            else
-LABEL_57:
-              v102 = 1;
-            if ( ((unsigned __int8)v102 & (unsigned __int8)v18) != 0 )
-              _RDI->accumulatedInputTimer += frame_msec;
-          }
-          else
-          {
-LABEL_60:
-            _RDI->accumulatedInputTimer = 0;
-          }
-          _ESI = 0;
-          if ( !(_BYTE)v155 )
-            _ESI = _ECX;
-          if ( !(_BYTE)v155 )
-            _EBX = v94;
-          v104 = DVARBOOL_scaledOrbitKbmControlsEnabled;
-          if ( !DVARBOOL_scaledOrbitKbmControlsEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scaledOrbitKbmControlsEnabled") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v104);
-          v105 = _EBX;
-          v106 = _ESI;
-          if ( v104->current.enabled )
-          {
-            v107 = CG_Camera_Active_Get((LocalClientNum_t)v19);
-            Def = BG_Camera_GetDef(v107);
-            v109 = v107 && v107 < 256 && (unsigned int)(v107 - 1) < 0xFA && Def->profile == CAMERAPROFILE_ORBIT;
-            v105 = _EBX;
-            if ( !CL_Input_IsGamepadEnabled((LocalClientNum_t)v19) && v109 )
-            {
-              __asm
-              {
-                vmovd   xmm0, esi
-                vcvtdq2ps xmm0, xmm0
-                vmulss  xmm6, xmm0, cs:__real@3c010204
-                vmovd   xmm0, ebx
-                vcvtdq2ps xmm0, xmm0
-                vmulss  xmm8, xmm0, cs:__real@3c010204
-                vandps  xmm2, xmm6, xmm10
-                vaddss  xmm0, xmm2, xmm13; X
-              }
-              *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-              __asm
-              {
-                vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-                vcmpless xmm1, xmm9, xmm6
-                vblendvps xmm7, xmm2, xmm0, xmm1
-                vandps  xmm0, xmm8, xmm10
-                vaddss  xmm0, xmm0, xmm13; X
-              }
-              *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-              __asm
-              {
-                vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-                vcmpless xmm1, xmm9, xmm8
-                vblendvps xmm6, xmm2, xmm0, xmm1
-                vmovaps xmm0, xmm7; v
-              }
-              v106 = CL_Input_AxisValueToChar(*(float *)&_XMM0);
-              __asm { vmovaps xmm0, xmm6; v }
-              v105 = CL_Input_AxisValueToChar(*(float *)&_XMM0);
-            }
-          }
-          v18 = *(usercmd_s **)clViewangles.v;
-          v128 = v106 + *(char *)(*(_QWORD *)clViewangles.v + 158i64);
-          if ( v128 > 127 )
-            v128 = 127;
-          v129 = v128;
-          if ( v128 < -128 )
-            v129 = 0x80;
-          *(_BYTE *)(*(_QWORD *)clViewangles.v + 158i64) = v129;
-          v130 = v105 + v18->yawmove;
-          if ( v130 > 127 )
-            v130 = 127;
-          v131 = v130;
-          if ( v130 < -128 )
-            v131 = 0x80;
-          v18->yawmove = v131;
+          Dvar_GetFloat_Internal_DebugName(DVARFLT_m_side, "m_side");
+          _XMM0 = 0i64;
+          __asm { vroundss xmm1, xmm0, xmm4, 1 }
+          v5->rightmove = CL_Input_ClampInputChar(v5->rightmove + (int)*(float *)&_XMM1);
         }
       }
-      CL_InputMP_ValidateZeroCmds(v18);
-      ClActiveClient_GetCLViewangles(_RDI, &clViewangles);
-      __asm
+      else
       {
-        vmovss  xmm0, [rsp+1C0h+var_16C]
-        vmovss  [rbp+0C0h+input.deltaTime], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, cs:?cls@@3UClStatic@@A.frametime; ClStatic cls
-        vmulss  xmm1, xmm0, xmm11
-        vmovss  [rbp+0C0h+input.deltaTimeScaled], xmm1
-        vmovss  xmm2, dword ptr [rsp+1C0h+clViewangles]
-        vmovss  [rbp+0C0h+input.pitch], xmm2
-        vmovss  [rbp+0C0h+input.pitchAxis], xmm9
-        vmovss  [rbp+0C0h+input.pitchMax], xmm9
-        vmovss  xmm0, dword ptr [rsp+1C0h+clViewangles+4]
-        vmovss  [rbp+0C0h+input.yaw], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovups xmmword ptr [rbp+0C0h+input.yawAxis], xmm1
+        v31 = 0;
       }
-      input.buttons = v18->buttons;
-      input.localClientNum = v19;
-      input.meleeChargeEnt = v18->meleeChargeEnt;
+      if ( !v16 )
+      {
+        Dvar_GetFloat_Internal_DebugName(DVARFLT_m_forward, "m_forward");
+        _XMM0 = 0i64;
+        __asm { vroundss xmm1, xmm0, xmm4, 1 }
+        v5->forwardmove = CL_Input_ClampInputChar(v5->forwardmove - (int)*(float *)&_XMM1);
+      }
+      if ( !v27 )
+      {
+        MaxYawSpeed = CL_GetMaxYawSpeed((LocalClientNum_t)v6);
+        v37 = *(float *)&MaxYawSpeed;
+        MaxPitchSpeed = CL_GetMaxPitchSpeed((LocalClientNum_t)v6);
+        v39 = *(float *)&MaxPitchSpeed;
+        v40 = Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_combinedCameraRotationSpeed, "cl_combinedCameraRotationSpeed") && v37 == *(float *)&MaxPitchSpeed && v37 > 0.0;
+        v41 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_yaw, "m_yaw");
+        Client->accumulatedMouseDelta.v[1] = (float)(*(float *)&v41 * outMx) + Client->accumulatedMouseDelta.v[1];
+        v42 = Dvar_GetFloat_Internal_DebugName(DVARFLT_m_pitch, "m_pitch");
+        v43 = *(float *)&v42;
+        ClientLookInversion = CL_Input_GetClientLookInversion((LocalClientNum_t)v6);
+        v45 = *(float *)&ClientLookInversion * v43;
+        LODWORD(v46) = COERCE_UNSIGNED_INT(*(float *)&ClientLookInversion * v43) ^ _xmm;
+        v47 = (float)(v46 * outMy) + Client->accumulatedMouseDelta.v[0];
+        Client->accumulatedMouseDelta.v[0] = v47;
+        if ( v40 && !v31 )
+        {
+          v48 = LODWORD(Client->accumulatedMouseDelta.v[1]);
+          v49 = v48;
+          *(float *)&v49 = fsqrt((float)(*(float *)&v48 * *(float *)&v48) + (float)(v47 * v47));
+          _XMM2 = v49;
+          __asm { vcmpless xmm0, xmm2, cs:__real@80000000 }
+          v52 = FLOAT_1_0;
+          __asm { vblendvps xmm1, xmm2, xmm13, xmm0 }
+          *(float *)&v49 = (float)frame_msec;
+          v19 = FLOAT_0_001;
+          v54 = (float)(*(float *)&v49 * v37) * 0.001;
+          updated = CL_Input_UpdateViewAnglesAxis(Client, YAW, 0.0, v40, COERCE_CONST_FLOAT(COERCE_UNSIGNED_INT((float)((float)(1.0 / *(float *)&_XMM1) * *(float *)&v48) * v54) & _xmm));
+          if ( COERCE_FLOAT(LODWORD(Client->accumulatedMouseDelta.v[1]) & _xmm) < 0.001 )
+            Client->accumulatedMouseDelta.v[1] = 0.0;
+          v56 = -(int)outMx;
+          CL_Input_LogMouseInputVelocity(v93, outMx, *(float *)&updated, Client->mouseViewDelta.v[1] - *(float *)(v96 + 184));
+          CL_Input_UpdateViewAnglesAxis(Client, PITCH, 0.0, v40, COERCE_CONST_FLOAT(COERCE_UNSIGNED_INT((float)(v47 * (float)(1.0 / *(float *)&_XMM1)) * v54) & _xmm));
+          if ( COERCE_FLOAT(LODWORD(Client->accumulatedMouseDelta.v[0]) & _xmm) < 0.001 )
+            Client->accumulatedMouseDelta.v[0] = 0.0;
+          v57 = -1;
+          if ( v46 > 0.0 )
+            v57 = 1;
+          v58 = outMy;
+          v59 = (int)(float)((float)v57 * outMy);
+          goto LABEL_83;
+        }
+        if ( g_playersKb[v97 / 0x660][8].active )
+        {
+          LOBYTE(v5) = v91;
+        }
+        else
+        {
+          v60 = COERCE_FLOAT(LODWORD(outMx) & _xmm) > v23 && (float)(outMx * Client->accumulatedMouseDelta.v[1]) < 0.0;
+          LOBYTE(v5) = v23 > COERCE_FLOAT(LODWORD(outMx) & _xmm);
+          v91 = (int)v5;
+          v61 = CL_Input_UpdateViewAnglesAxis(Client, YAW, v37, v40, 0.0);
+          if ( COERCE_FLOAT(LODWORD(Client->accumulatedMouseDelta.v[1]) & _xmm) < 0.001 || v60 || v37 <= 0.0 || v37 > v21 )
+            Client->accumulatedMouseDelta.v[1] = 0.0;
+          v92 = -(int)outMx;
+          CL_Input_LogMouseInputVelocity(v93, outMx, *(float *)&v61, Client->mouseViewDelta.v[1] - *(float *)(v96 + 184));
+        }
+        if ( v16 )
+        {
+          v62 = COERCE_FLOAT(LODWORD(outMy) & _xmm) > v23 && (float)((float)(v46 * outMy) * Client->accumulatedMouseDelta.v[0]) < 0.0;
+          if ( v23 > COERCE_FLOAT(LODWORD(outMx) & _xmm) )
+            LOBYTE(v5) = 1;
+          CL_Input_UpdateViewAnglesAxis(Client, PITCH, v39, v40, 0.0);
+          v19 = FLOAT_0_001;
+          if ( COERCE_FLOAT(LODWORD(Client->accumulatedMouseDelta.v[0]) & _xmm) < 0.001 || v62 || v39 <= 0.0 || v39 > v21 )
+            Client->accumulatedMouseDelta.v[0] = 0.0;
+          v63 = -1;
+          if ( v45 < -0.0 )
+            v63 = 1;
+          v58 = outMy;
+          v59 = (int)(float)((float)v63 * outMy);
+          v52 = FLOAT_1_0;
+          v56 = v92;
+          goto LABEL_84;
+        }
+      }
+      v58 = outMy;
+      v19 = FLOAT_0_001;
+      v52 = FLOAT_1_0;
+      v56 = v92;
+      v59 = 0;
+LABEL_83:
+      LOBYTE(v5) = v91;
+LABEL_84:
+      if ( COERCE_FLOAT(LODWORD(outMx) & _xmm) > v25 || COERCE_FLOAT(LODWORD(v58) & _xmm) > v25 )
+      {
+        Client->accumulatedInputTimer = 0;
+      }
+      else
+      {
+        v64 = *(float *)&v94 != 0.0 || rawMy != 0.0;
+        if ( (v64 & (unsigned __int8)v5) != 0 )
+          Client->accumulatedInputTimer += frame_msec;
+      }
+      v65 = 0;
+      if ( !(_BYTE)v89 )
+        v65 = v59;
+      if ( !(_BYTE)v89 )
+        v9 = v56;
+      v66 = DVARBOOL_scaledOrbitKbmControlsEnabled;
+      if ( !DVARBOOL_scaledOrbitKbmControlsEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scaledOrbitKbmControlsEnabled") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v66);
+      v67 = v9;
+      v68 = v65;
+      if ( v66->current.enabled )
+      {
+        v69 = CG_Camera_Active_Get((LocalClientNum_t)v6);
+        Def = BG_Camera_GetDef(v69);
+        v71 = v69 && v69 < 256 && (unsigned int)(v69 - 1) < 0xFA && Def->profile == CAMERAPROFILE_ORBIT;
+        v67 = v9;
+        if ( !CL_Input_IsGamepadEnabled((LocalClientNum_t)v6) && v71 )
+        {
+          v73 = _mm_cvtepi32_ps((__m128i)v65);
+          v73.m128_f32[0] = v73.m128_f32[0] * 0.0078740157;
+          v72 = v73;
+          v75 = _mm_cvtepi32_ps((__m128i)v9);
+          v75.m128_f32[0] = v75.m128_f32[0] * 0.0078740157;
+          v74 = v75;
+          v76 = *(_OWORD *)&v72 & (unsigned int)_xmm;
+          *(float *)&v76 = COERCE_FLOAT(v72.m128_i32[0] & _xmm) + v52;
+          log10f_0(*(float *)&v76);
+          _XMM2 = v76 ^ _xmm;
+          __asm
+          {
+            vcmpless xmm1, xmm9, xmm6
+            vblendvps xmm7, xmm2, xmm0, xmm1
+          }
+          v80 = *(_OWORD *)&v74 & (unsigned int)_xmm;
+          *(float *)&v80 = COERCE_FLOAT(v74.m128_i32[0] & _xmm) + v52;
+          log10f_0(*(float *)&v80);
+          _XMM2 = v80 ^ _xmm;
+          __asm
+          {
+            vcmpless xmm1, xmm9, xmm8
+            vblendvps xmm6, xmm2, xmm0, xmm1
+          }
+          v68 = CL_Input_AxisValueToChar(*(float *)&_XMM7);
+          v67 = CL_Input_AxisValueToChar(*(float *)&_XMM6);
+        }
+      }
+      v5 = *(usercmd_s **)clViewangles.v;
+      v84 = v68 + *(char *)(*(_QWORD *)clViewangles.v + 158i64);
+      if ( v84 > 127 )
+        v84 = 127;
+      v85 = v84;
+      if ( v84 < -128 )
+        v85 = 0x80;
+      *(_BYTE *)(*(_QWORD *)clViewangles.v + 158i64) = v85;
+      v86 = v67 + v5->yawmove;
+      if ( v86 > 127 )
+        v86 = 127;
+      v87 = v86;
+      if ( v86 < -128 )
+        v87 = 0x80;
+      v5->yawmove = v87;
+LABEL_119:
+      CL_InputMP_ValidateZeroCmds(v5);
+      ClActiveClient_GetCLViewangles(Client, &clViewangles);
+      input.deltaTime = v93;
+      input.deltaTimeScaled = (float)cls.frametime * v19;
+      input.pitch = clViewangles.v[0];
+      input.pitchAxis = 0.0;
+      input.pitchMax = 0.0;
+      input.yaw = clViewangles.v[1];
+      *(_OWORD *)&input.yawAxis = 0i64;
+      input.buttons = v5->buttons;
+      input.localClientNum = v6;
+      input.meleeChargeEnt = v5->meleeChargeEnt;
       AimAssist_UpdateMouseInput(&input, &output);
-      __asm
-      {
-        vmovss  xmm0, [rbp+0C0h+output.pitch]
-        vmovss  dword ptr [rsp+1C0h+clViewangles], xmm0
-        vmovss  xmm1, [rbp+0C0h+output.yaw]
-        vmovss  dword ptr [rsp+1C0h+clViewangles+4], xmm1
-      }
-      ClActiveClient_SetCLViewangles(_RDI, &clViewangles);
-      BG_SetMeleeChargeCmd(&output, v18);
+      clViewangles.v[0] = output.pitch;
+      clViewangles.v[1] = output.yaw;
+      ClActiveClient_SetCLViewangles(Client, &clViewangles);
+      BG_SetMeleeChargeCmd(&output, v5);
       memset(&clViewangles, 0, sizeof(clViewangles));
+      return;
     }
-  }
-  _R11 = &v167;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
+    g_lastInputTimeForAnyLocalPlayer = com_frameTime;
   }
 }
 
@@ -2303,19 +1952,9 @@ LABEL_19:
 CL_InputMP_RemoteControlMove
 ==============
 */
-
-void __fastcall CL_InputMP_RemoteControlMove(LocalClientNum_t localClientNum, usercmd_s *cmd, ButtonSet *outClearButtons, double mx, float my)
+void CL_InputMP_RemoteControlMove(LocalClientNum_t localClientNum, usercmd_s *cmd, ButtonSet *outClearButtons, float mx, float my)
 {
-  float v6; 
-  float v7; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+my]
-    vmovss  [rsp+38h+var_10], xmm0
-    vmovss  [rsp+38h+var_18], xmm3
-  }
-  CL_Input_RemoteControlMove(localClientNum, cmd, 0, outClearButtons, v6, v7);
+  CL_Input_RemoteControlMove(localClientNum, cmd, 0, outClearButtons, mx, my);
 }
 
 /*
@@ -2458,11 +2097,10 @@ CL_InputMP_UpdateAngleWrap
 */
 void CL_InputMP_UpdateAngleWrap(ClActiveClientMP *cl, const vec3_t *oldAngles)
 {
-  unsigned int v6; 
-  int v11; 
-  int v12; 
+  float v4; 
+  float v5; 
+  float v6; 
 
-  _RDI = oldAngles;
   if ( !cl )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 1061, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
@@ -2470,36 +2108,19 @@ void CL_InputMP_UpdateAngleWrap(ClActiveClientMP *cl, const vec3_t *oldAngles)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 283, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
       __debugbreak();
   }
-  __asm
+  v4 = oldAngles->v[0];
+  LODWORD(v5) = LODWORD(cl->clViewangles.clViewangles.v[0]) ^ ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) * ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) + 2));
+  if ( (float)(v5 - oldAngles->v[0]) <= 90.0 )
   {
-    vmovss  xmm1, dword ptr [rdi]
-    vmovss  xmm2, cs:__real@42b40000
-  }
-  v6 = ((_DWORD)cl + 428) ^ cl->clviewangles_aab;
-  v11 = LODWORD(cl->clViewangles.clViewangles.v[0]) ^ (v6 * (v6 + 2));
-  __asm
-  {
-    vmovss  xmm3, [rsp+38h+arg_0]
-    vsubss  xmm0, xmm3, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( v11 )
-  {
-    __asm { vaddss  xmm0, xmm1, xmm2 }
+    if ( (float)(v4 - v5) <= 90.0 )
+      return;
+    v6 = v4 - 90.0;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm1, xmm3
-      vcomiss xmm0, xmm2
-    }
-    if ( LODWORD(cl->clViewangles.clViewangles.v[0]) == v6 * (v6 + 2) )
-      return;
-    __asm { vsubss  xmm0, xmm1, xmm2 }
+    v6 = v4 + 90.0;
   }
-  __asm { vmovss  [rsp+38h+arg_0], xmm0 }
-  LODWORD(cl->clViewangles.clViewangles.v[0]) = v12 ^ ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) * ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) + 2));
+  LODWORD(cl->clViewangles.clViewangles.v[0]) = LODWORD(v6) ^ ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) * ((((_DWORD)cl + 428) ^ cl->clviewangles_aab) + 2));
 }
 
 /*
@@ -2536,51 +2157,18 @@ CL_InputMP_ValidateZeroCmds
 */
 void CL_InputMP_ValidateZeroCmds(const usercmd_s *cmd)
 {
-  bool v3; 
-  bool v4; 
-  bool v6; 
-
-  _RBX = cmd;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  if ( cmd->upmove || (v3 = cmd->downmove == 0, cmd->downmove) )
-  {
-    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 280, ASSERT_TYPE_ASSERT, "((cmd->upmove == 0) && (cmd->downmove == 0))", "%s\n\tMP does not use upmove or downmmove", "(cmd->upmove == 0) && (cmd->downmove == 0)");
-    v3 = !v4;
-    if ( v4 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rbx+0CCh]
-  }
-  if ( !v3 )
-    goto LABEL_24;
-  __asm { vucomiss xmm6, dword ptr [rbx+0D0h] }
-  if ( !v3 )
-    goto LABEL_24;
-  __asm { vucomiss xmm6, dword ptr [rbx+0D4h] }
-  if ( !v3 )
-    goto LABEL_24;
-  __asm { vucomiss xmm6, dword ptr [rbx+0D8h] }
-  if ( !v3 )
-    goto LABEL_24;
-  __asm { vucomiss xmm6, dword ptr [rbx+0DCh] }
-  if ( !v3 )
-  {
-LABEL_24:
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 281, ASSERT_TYPE_ASSERT, "((cmd->gunPitch == 0.0f) && (cmd->gunYaw == 0.0f) && (cmd->gunXOfs == 0.0f) && (cmd->gunYOfs == 0.0f) && (cmd->gunZOfs == 0.0f))", "%s\n\tMP does not support those ADS fields", "(cmd->gunPitch == 0.0f) && (cmd->gunYaw == 0.0f) && (cmd->gunXOfs == 0.0f) && (cmd->gunYOfs == 0.0f) && (cmd->gunZOfs == 0.0f)");
-    v3 = !v6;
-    if ( v6 )
-      __debugbreak();
-  }
-  __asm { vucomiss xmm6, dword ptr [rbx+0E0h] }
-  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 285, ASSERT_TYPE_ASSERT, "((cmd->rollSensitivity == 0))", "%s\n\tMP does not use rollSensitivity in usercmd.", "(cmd->rollSensitivity == 0)") )
+  if ( (cmd->upmove || cmd->downmove) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 280, ASSERT_TYPE_ASSERT, "((cmd->upmove == 0) && (cmd->downmove == 0))", "%s\n\tMP does not use upmove or downmmove", "(cmd->upmove == 0) && (cmd->downmove == 0)") )
+    __debugbreak();
+  if ( (cmd->gunPitch != 0.0 || cmd->gunYaw != 0.0 || cmd->gunXOfs != 0.0 || cmd->gunYOfs != 0.0 || cmd->gunZOfs != 0.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 281, ASSERT_TYPE_ASSERT, "((cmd->gunPitch == 0.0f) && (cmd->gunYaw == 0.0f) && (cmd->gunXOfs == 0.0f) && (cmd->gunYOfs == 0.0f) && (cmd->gunZOfs == 0.0f))", "%s\n\tMP does not support those ADS fields", "(cmd->gunPitch == 0.0f) && (cmd->gunYaw == 0.0f) && (cmd->gunXOfs == 0.0f) && (cmd->gunYOfs == 0.0f) && (cmd->gunZOfs == 0.0f)") )
+    __debugbreak();
+  if ( cmd->rollSensitivity != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 285, ASSERT_TYPE_ASSERT, "((cmd->rollSensitivity == 0))", "%s\n\tMP does not use rollSensitivity in usercmd.", "(cmd->rollSensitivity == 0)") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_MANTLE_LADDER|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 287, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTED_MELEE ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::SCRIPTED_MELEE )") )
     __debugbreak();
-  if ( _RBX->scriptedMeleeTarget && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 288, ASSERT_TYPE_ASSERT, "((cmd->scriptedMeleeTarget == 0))", "%s\n\tMP does not use the scripted_melee system.", "(cmd->scriptedMeleeTarget == 0)") )
-    __debugbreak();
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  if ( cmd->scriptedMeleeTarget )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp.cpp", 288, ASSERT_TYPE_ASSERT, "((cmd->scriptedMeleeTarget == 0))", "%s\n\tMP does not use the scripted_melee system.", "(cmd->scriptedMeleeTarget == 0)") )
+      __debugbreak();
+  }
 }
 

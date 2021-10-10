@@ -586,6 +586,8 @@ void MSG_CopyFieldOver(const NetField *stateFields, const void *from, void *to, 
   __int64 offset; 
   const NetField *v6; 
   int bits; 
+  char *v8; 
+  char *v9; 
   __int16 size; 
   int v11; 
   unsigned int v12; 
@@ -596,29 +598,21 @@ void MSG_CopyFieldOver(const NetField *stateFields, const void *from, void *to, 
   offset = stateFields[v4].offset;
   v6 = &stateFields[v4];
   bits = v6->bits;
-  _RBX = (char *)from + offset;
-  _RDI = (char *)to + offset;
+  v8 = (char *)from + offset;
+  v9 = (char *)to + offset;
   size = v6->size;
   if ( bits == -94 )
   {
     if ( abs16(size) != 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2181, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( EntityEvent ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( EntityEvent )") )
       __debugbreak();
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx]
-      vmovsd  qword ptr [rdi], xmm0
-    }
+    *(double *)v9 = *(double *)v8;
   }
   else if ( bits == -65 )
   {
     if ( abs16(size) != 36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2188, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( mat33_t ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( mat33_t )") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-    }
-    _RDI[8] = _RBX[8];
+    *(__m256i *)v9 = *(__m256i *)v8;
+    *((_DWORD *)v9 + 8) = *((_DWORD *)v8 + 8);
   }
   else
   {
@@ -628,13 +622,13 @@ void MSG_CopyFieldOver(const NetField *stateFields, const void *from, void *to, 
     {
       if ( v12 != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2195, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( ClientBits ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( ClientBits )") )
         __debugbreak();
-      *_RDI = *_RBX;
-      _RDI[1] = _RBX[1];
-      _RDI[2] = _RBX[2];
-      _RDI[3] = _RBX[3];
-      _RDI[4] = _RBX[4];
-      _RDI[5] = _RBX[5];
-      _RDI[6] = _RBX[6];
+      *(_DWORD *)v9 = *(_DWORD *)v8;
+      *((_DWORD *)v9 + 1) = *((_DWORD *)v8 + 1);
+      *((_DWORD *)v9 + 2) = *((_DWORD *)v8 + 2);
+      *((_DWORD *)v9 + 3) = *((_DWORD *)v8 + 3);
+      *((_DWORD *)v9 + 4) = *((_DWORD *)v8 + 4);
+      *((_DWORD *)v9 + 5) = *((_DWORD *)v8 + 5);
+      *((_DWORD *)v9 + 6) = *((_DWORD *)v8 + 6);
     }
     else
     {
@@ -643,8 +637,8 @@ void MSG_CopyFieldOver(const NetField *stateFields, const void *from, void *to, 
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2206, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 1 || abs( field->size ) == 2 || abs( field->size ) == 4 || abs( field->size ) == 8)", "%s\n\tnetfield %s (size %d) can not be copied with the default netfield copy case. Did you forget to handle the bit serialization %d with a special case?\n", "abs( field->size ) == 1 || abs( field->size ) == 2 || abs( field->size ) == 4 || abs( field->size ) == 8", v6->name, v11, bits) )
           __debugbreak();
       }
-      Field = MSG_GetField(_RBX, v6->size);
-      MSG_SetField(_RDI, v6->size, Field);
+      Field = MSG_GetField(v8, v6->size);
+      MSG_SetField(v9, v6->size, Field);
     }
   }
 }
@@ -801,81 +795,80 @@ MSG_DumpNetFieldChanges_f
 */
 void MSG_DumpNetFieldChanges_f(void)
 {
-  __int64 v1; 
-  __m256i *v2; 
+  __int64 v0; 
+  __m256i *v1; 
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
-  unsigned int v5; 
-  __int64 v6; 
+  unsigned int v4; 
+  __int64 v5; 
   __int64 i; 
-  unsigned int v8; 
-  netFieldOrderInfo_t *v9; 
+  unsigned int v7; 
+  netFieldOrderInfo_t *v8; 
   int j; 
+  __int64 v10[10]; 
   __int64 v11[10]; 
-  __int64 v12[10]; 
-  __m256i v13; 
+  __m256i v12; 
+  int v13; 
   int v14; 
-  int v15; 
 
-  __asm { vmovdqu ymm0, cs:__ymm@0000003e00000005000000060000002e0000002f0000023f0000005a00000076 }
-  v14 = 8;
-  v12[0] = (__int64)orderInfo.clientState;
-  v15 = 55;
-  v12[1] = (__int64)orderInfo.agentState;
-  v12[2] = (__int64)orderInfo.playerState;
-  v12[3] = (__int64)orderInfo.objective;
-  v12[4] = (__int64)orderInfo.hudElem;
-  v12[5] = (__int64)orderInfo.headIcon;
-  v12[6] = (__int64)orderInfo.headIconExtendedData;
-  v12[7] = (__int64)orderInfo.targetMarkers;
-  v12[8] = (__int64)orderInfo.calloutMarkers;
-  v12[9] = (__int64)orderInfo.mlgSpectator;
-  v11[0] = (__int64)"Client State";
-  v11[1] = (__int64)"Agent State";
-  v11[2] = (__int64)"Player State";
-  v11[3] = (__int64)"Objective";
-  v11[4] = (__int64)"HUD Elem";
-  v11[5] = (__int64)"Head Icon";
-  v11[6] = (__int64)"Head Icon Extended";
-  v11[7] = (__int64)"Target Markers";
-  v11[8] = (__int64)"Callout Markers";
-  v11[9] = (__int64)"MLG Spectator";
-  __asm { vmovdqu [rbp+57h+var_50], ymm0 }
+  v13 = 8;
+  v11[0] = (__int64)orderInfo.clientState;
+  v14 = 55;
+  v11[1] = (__int64)orderInfo.agentState;
+  v11[2] = (__int64)orderInfo.playerState;
+  v11[3] = (__int64)orderInfo.objective;
+  v11[4] = (__int64)orderInfo.hudElem;
+  v11[5] = (__int64)orderInfo.headIcon;
+  v11[6] = (__int64)orderInfo.headIconExtendedData;
+  v11[7] = (__int64)orderInfo.targetMarkers;
+  v11[8] = (__int64)orderInfo.calloutMarkers;
+  v11[9] = (__int64)orderInfo.mlgSpectator;
+  v10[0] = (__int64)"Client State";
+  v10[1] = (__int64)"Agent State";
+  v10[2] = (__int64)"Player State";
+  v10[3] = (__int64)"Objective";
+  v10[4] = (__int64)"HUD Elem";
+  v10[5] = (__int64)"Head Icon";
+  v10[6] = (__int64)"Head Icon Extended";
+  v10[7] = (__int64)"Target Markers";
+  v10[8] = (__int64)"Callout Markers";
+  v10[9] = (__int64)"MLG Spectator";
+  v12 = _ymm;
   Com_Printf(0, "========================================\n");
   Com_Printf(0, "NetField changes. format: field# : #changes\n");
-  v1 = 0i64;
-  v2 = &v13;
-  v3 = 10i64;
+  v0 = 0i64;
+  v1 = &v12;
+  v2 = 10i64;
   do
   {
     Com_Printf(0, "========================================\n");
-    Com_Printf(0, "    %s\n", (const char *)v11[v1]);
+    Com_Printf(0, "    %s\n", (const char *)v10[v0]);
     Com_Printf(0, "--------------------\n");
-    v4 = v2->m256i_i32[0];
-    v5 = 0;
-    v6 = v12[v1];
-    for ( i = 0i64; i < v4; ++i )
-      Com_Printf(0, "%3i : %8i\n", v5++, *(unsigned int *)(v6 + 4 * i));
-    ++v1;
-    v2 = (__m256i *)((char *)v2 + 4);
-    --v3;
+    v3 = v1->m256i_i32[0];
+    v4 = 0;
+    v5 = v11[v0];
+    for ( i = 0i64; i < v3; ++i )
+      Com_Printf(0, "%3i : %8i\n", v4++, *(unsigned int *)(v5 + 4 * i));
+    ++v0;
+    v1 = (__m256i *)((char *)v1 + 4);
+    --v2;
   }
-  while ( v3 );
-  v8 = 0;
-  v9 = &orderInfo;
+  while ( v2 );
+  v7 = 0;
+  v8 = &orderInfo;
   do
   {
     Com_Printf(0, "========================================\n");
-    Com_Printf(0, "    Entity State: Type %d\n", v8);
+    Com_Printf(0, "    Entity State: Type %d\n", v7);
     Com_Printf(0, "--------------------\n");
     for ( j = 0; j < 68; ++j )
     {
-      Com_Printf(0, "%3i : %8i\n", (unsigned int)j, (unsigned int)v9->entState[0][0]);
-      v9 = (netFieldOrderInfo_t *)((char *)v9 + 4);
+      Com_Printf(0, "%3i : %8i\n", (unsigned int)j, (unsigned int)v8->entState[0][0]);
+      v8 = (netFieldOrderInfo_t *)((char *)v8 + 4);
     }
-    ++v8;
+    ++v7;
   }
-  while ( v8 <= 0x1D );
+  while ( v7 <= 0x1D );
   Com_Printf(0, "========================================\n");
   Com_Printf(0, "========================================\n");
 }
@@ -899,129 +892,76 @@ MSG_PrintNetFieldValue
 void MSG_PrintNetFieldValue(const void *const netfieldBuffer, const NetField *field, char *string, unsigned __int64 stringSize)
 {
   int bits; 
-  int v34; 
+  int v9; 
   unsigned int i; 
-  const char *v36; 
+  const char *v11; 
   int size; 
-  int v38; 
-  unsigned int fmt; 
-  char *fmta; 
-  double v44; 
-  int v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
-  double v51; 
+  int v13; 
+  int fmt; 
+  int v15; 
 
-  _RBX = (unsigned int *)netfieldBuffer;
   bits = (unsigned __int16)field->bits;
   switch ( (_WORD)bits )
   {
     case 0xFFA2:
-      fmt = _RBX[1];
-      Com_sprintf(string, stringSize, "%d %u", *_RBX, fmt);
+      fmt = *((_DWORD *)netfieldBuffer + 1);
+      Com_sprintf(string, stringSize, "%d %u", *(unsigned int *)netfieldBuffer, fmt);
       break;
     case 0xFF91:
 $LN28_27:
-      Com_sprintf(string, stringSize, "%u", *_RBX);
+      Com_sprintf(string, stringSize, "%u", *(unsigned int *)netfieldBuffer);
       break;
     case 0xFFBF:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  xmm1, dword ptr [rbx+1Ch]
-        vmovss  xmm2, dword ptr [rbx+18h]
-        vmovss  xmm4, dword ptr [rbx+14h]
-        vmovss  xmm5, dword ptr [rbx+10h]
-        vmovss  xmm3, dword ptr [rbx]
-        vmovaps [rsp+98h+var_18], xmm6
-        vmovss  xmm6, dword ptr [rbx+0Ch]
-        vmovaps [rsp+98h+var_28], xmm7
-        vmovss  xmm7, dword ptr [rbx+8]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_40], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+98h+var_48], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+98h+var_50], xmm2
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+98h+var_58], xmm4
-        vmovaps [rsp+98h+var_38], xmm8
-        vmovss  xmm8, dword ptr [rbx+4]
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+98h+var_60], xmm5
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+98h+var_68], xmm6
-        vcvtss2sd xmm7, xmm7, xmm7
-        vcvtss2sd xmm8, xmm8, xmm8
-        vmovsd  [rsp+98h+var_70], xmm7
-        vmovq   r9, xmm3
-        vmovsd  [rsp+98h+fmt], xmm8
-      }
-      Com_sprintf(string, stringSize, "[%f,%f,%f],[%f,%f,%f],[%f,%f,%f]", *(double *)&_XMM3, *(double *)&fmta, v44, v46, v47, v48, v49, v50, v51);
-      __asm
-      {
-        vmovaps xmm8, [rsp+98h+var_38]
-        vmovaps xmm7, [rsp+98h+var_28]
-        vmovaps xmm6, [rsp+98h+var_18]
-      }
+      Com_sprintf(string, stringSize, "[%f,%f,%f],[%f,%f,%f],[%f,%f,%f]", *(float *)netfieldBuffer, *((float *)netfieldBuffer + 1), *((float *)netfieldBuffer + 2), *((float *)netfieldBuffer + 3), *((float *)netfieldBuffer + 4), *((float *)netfieldBuffer + 5), *((float *)netfieldBuffer + 6), *((float *)netfieldBuffer + 7), *((float *)netfieldBuffer + 8));
       break;
     case 0xFFD3:
-      v34 = Com_sprintf(string, stringSize, "[", field);
+      v9 = Com_sprintf(string, stringSize, "[", field);
       for ( i = 0; i < 7; ++i )
       {
-        v36 = "%u";
+        v11 = "%u";
         if ( i )
-          v36 = ",%u";
-        v34 += Com_sprintf(&string[v34], stringSize - v34, v36, *_RBX++);
+          v11 = ",%u";
+        v9 += Com_sprintf(&string[v9], stringSize - v9, v11, *(unsigned int *)netfieldBuffer);
+        netfieldBuffer = (char *)netfieldBuffer + 4;
       }
-      Com_sprintf(&string[v34], stringSize - v34, "]");
+      Com_sprintf(&string[v9], stringSize - v9, "]");
       break;
     default:
       size = field->size;
-      if ( abs16(field->size) == 4 && (!(_WORD)bits || (unsigned __int16)(bits + 106) <= 0x1Cu && (v38 = 530038791, _bittest(&v38, bits + 106)) || (unsigned __int16)(bits + 39) <= 2u) )
+      if ( abs16(field->size) == 4 && (!(_WORD)bits || (unsigned __int16)(bits + 106) <= 0x1Cu && (v13 = 530038791, _bittest(&v13, bits + 106)) || (unsigned __int16)(bits + 39) <= 2u) )
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbx]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(string, stringSize, "%g", *(double *)&_XMM3);
+        Com_sprintf(string, stringSize, "%g", *(float *)netfieldBuffer);
       }
       else
       {
         switch ( size )
         {
           case -8:
-            Com_sprintf(string, stringSize, "%lld", *(_QWORD *)_RBX);
+            Com_sprintf(string, stringSize, "%lld", *(_QWORD *)netfieldBuffer);
             break;
           case -4:
-            Com_sprintf(string, stringSize, "%d", *_RBX);
+            Com_sprintf(string, stringSize, "%d", *(unsigned int *)netfieldBuffer);
             break;
           case -2:
-            Com_sprintf(string, stringSize, "%hd", (unsigned int)*(__int16 *)_RBX);
+            Com_sprintf(string, stringSize, "%hd", (unsigned int)*(__int16 *)netfieldBuffer);
             break;
           case -1:
-            Com_sprintf(string, stringSize, "%hhd", (unsigned int)*(char *)_RBX);
+            Com_sprintf(string, stringSize, "%hhd", (unsigned int)*(char *)netfieldBuffer);
             break;
           case 1:
-            Com_sprintf(string, stringSize, "%hhu", *(unsigned __int8 *)_RBX);
+            Com_sprintf(string, stringSize, "%hhu", *(unsigned __int8 *)netfieldBuffer);
             break;
           case 2:
-            Com_sprintf(string, stringSize, "%hu", *(unsigned __int16 *)_RBX);
+            Com_sprintf(string, stringSize, "%hu", *(unsigned __int16 *)netfieldBuffer);
             break;
           case 4:
             goto $LN28_27;
           case 8:
-            Com_sprintf(string, stringSize, "%llu", *(_QWORD *)_RBX);
+            Com_sprintf(string, stringSize, "%llu", *(_QWORD *)netfieldBuffer);
             break;
           default:
-            v45 = size;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 4199, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported field size %d for %s\n", v45, field->name) )
+            v15 = size;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 4199, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported field size %d for %s\n", v15, field->name) )
               __debugbreak();
             break;
         }
@@ -1318,75 +1258,63 @@ int MSG_ReadDeltaAgent(msg_t *msg, const int time, const agentState_s *from, age
 MSG_ReadDeltaAngle
 ==============
 */
-
-float __fastcall MSG_ReadDeltaAngle(msg_t *msg, double oldFloat)
+float MSG_ReadDeltaAngle(msg_t *msg, const float oldFloat)
 {
+  __int16 v3; 
   int Bit; 
-  int v6; 
+  int v5; 
   unsigned int MinBitCountForNum; 
   __int64 Bits; 
-  int v9; 
-  __int64 v10; 
+  int v8; 
+  __int64 v9; 
+  __int16 v10; 
   const char *v11; 
   int v12; 
   const char *v13; 
   __int64 v15; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v3 = 1;
   Bit = MSG_ReadBit(msg);
-  v6 = MSG_ReadBit(msg);
+  v5 = MSG_ReadBit(msg);
   if ( Bit == 1 )
   {
+    if ( v5 )
+      v3 = -1;
     MinBitCountForNum = GetMinBitCountForNum(7u);
     Bits = MSG_ReadBits(msg, MinBitCountForNum);
-    v9 = truncate_cast<int,__int64>(Bits);
-    v10 = v9;
-    if ( (unsigned int)v9 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 682, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 7 )", "index doesn't index COMMON_ANGLE_DELTA_ARRAYCOUNT\n\t%i not in [0, %i)", v9, 7) )
+    v8 = truncate_cast<int,__int64>(Bits);
+    v9 = v8;
+    if ( (unsigned int)v8 >= 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 682, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( 7 )", "index doesn't index COMMON_ANGLE_DELTA_ARRAYCOUNT\n\t%i not in [0, %i)", v8, 7) )
       __debugbreak();
-    if ( g_commonAngleDeltas[v10] )
-      goto LABEL_13;
+    v10 = g_commonAngleDeltas[v9];
+    if ( v10 )
+      goto LABEL_17;
     v11 = "delta";
     v12 = 684;
     v13 = "(delta)";
-    goto LABEL_11;
+LABEL_15:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", v12, ASSERT_TYPE_ASSERT, v13, (const char *)&queryFormat, v11) )
+      __debugbreak();
+LABEL_17:
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm3, 1 }
+    *(float *)&_XMM0 = (float)(__int16)((int)*(float *)&_XMM4 + v10 * v3) * 0.0054931641;
+    return *(float *)&_XMM0;
   }
-  if ( v6 )
+  if ( v5 )
   {
-    MSG_ReadBit(msg);
+    if ( MSG_ReadBit(msg) )
+      v3 = -1;
     v15 = MSG_ReadBits(msg, 0xCu);
-    if ( truncate_cast<short,__int64>(v15) )
-    {
-LABEL_13:
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@43360b61
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm3, xmm1, xmm2
-        vroundss xmm4, xmm0, xmm3, 1
-        vxorps  xmm0, xmm0, xmm0
-        vcvttss2si edx, xmm4
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3bb40000
-      }
-      goto LABEL_14;
-    }
+    v10 = truncate_cast<short,__int64>(v15);
+    if ( v10 )
+      goto LABEL_17;
     v11 = "deltaAngle";
     v12 = 706;
     v13 = "(deltaAngle)";
-LABEL_11:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", v12, ASSERT_TYPE_ASSERT, v13, (const char *)&queryFormat, v11) )
-      __debugbreak();
-    goto LABEL_13;
+    goto LABEL_15;
   }
   *(double *)&_XMM0 = MSG_ReadAngle16(msg);
-LABEL_14:
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
   return *(float *)&_XMM0;
 }
 
@@ -1434,62 +1362,50 @@ MSG_ReadDeltaArchivedWeaponMapEntry
 */
 void MSG_ReadDeltaArchivedWeaponMapEntry(msg_t *msg, const int weaponMapIndex, const WeaponMapEntry *from, WeaponMapEntry *to)
 {
-  __int16 v11; 
-  int v16; 
+  __int16 v8; 
+  Weapon *v9; 
+  __int128 v10; 
+  double v11; 
+  int v12; 
   Weapon result; 
 
-  _RBX = to;
-  _RDI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3511, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3512, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3512, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
-  if ( _RDI )
+  if ( from )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RDI->weapon.attachmentVariationIndices[27];
-    v11 = *(_WORD *)&_RDI->weapon.scopeVariation;
+    *(__m256i *)&to->index = *(__m256i *)&from->index;
+    *(_OWORD *)&to->weapon.attachmentVariationIndices[3] = *(_OWORD *)&from->weapon.attachmentVariationIndices[3];
+    *(double *)&to->weapon.attachmentVariationIndices[19] = *(double *)&from->weapon.attachmentVariationIndices[19];
+    *(_DWORD *)&to->weapon.attachmentVariationIndices[27] = *(_DWORD *)&from->weapon.attachmentVariationIndices[27];
+    v8 = *(_WORD *)&from->weapon.scopeVariation;
   }
   else
   {
-    v11 = 0;
-    *(_QWORD *)&_RBX->index = 0i64;
-    *(_QWORD *)&_RBX->weapon.stickerIndices[2] = 0i64;
-    *(_QWORD *)_RBX->weapon.weaponAttachments = 0i64;
-    *(_QWORD *)&_RBX->weapon.weaponAttachments[8] = 0i64;
-    *(_QWORD *)&_RBX->weapon.attachmentVariationIndices[3] = 0i64;
-    *(_QWORD *)&_RBX->weapon.attachmentVariationIndices[11] = 0i64;
-    *(_QWORD *)&_RBX->weapon.attachmentVariationIndices[19] = 0i64;
-    *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27] = 0;
+    v8 = 0;
+    *(_QWORD *)&to->index = 0i64;
+    *(_QWORD *)&to->weapon.stickerIndices[2] = 0i64;
+    *(_QWORD *)to->weapon.weaponAttachments = 0i64;
+    *(_QWORD *)&to->weapon.weaponAttachments[8] = 0i64;
+    *(_QWORD *)&to->weapon.attachmentVariationIndices[3] = 0i64;
+    *(_QWORD *)&to->weapon.attachmentVariationIndices[11] = 0i64;
+    *(_QWORD *)&to->weapon.attachmentVariationIndices[19] = 0i64;
+    *(_DWORD *)&to->weapon.attachmentVariationIndices[27] = 0;
   }
-  *(_WORD *)&_RBX->weapon.scopeVariation = v11;
+  *(_WORD *)&to->weapon.scopeVariation = v8;
   if ( !MSG_ReadBit(msg) )
   {
-    _RAX = MSG_ReadWeapon(&result, msg);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v16 = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rbx+2], ymm1
-      vmovups xmmword ptr [rbx+22h], xmm2
-      vmovsd  qword ptr [rbx+32h], xmm0
-    }
-    *(_DWORD *)&_RBX->weapon.weaponCamo = v16;
+    v9 = MSG_ReadWeapon(&result, msg);
+    v10 = *(_OWORD *)&v9->attachmentVariationIndices[5];
+    v11 = *(double *)&v9->attachmentVariationIndices[21];
+    v12 = *(_DWORD *)&v9->weaponCamo;
+    *(__m256i *)&to->weapon.weaponIdx = *(__m256i *)&v9->weaponIdx;
+    *(_OWORD *)&to->weapon.attachmentVariationIndices[5] = v10;
+    *(double *)&to->weapon.attachmentVariationIndices[21] = v11;
+    *(_DWORD *)&to->weapon.weaponCamo = v12;
   }
-  _RBX->index = truncate_cast<unsigned short,int>(weaponMapIndex);
+  to->index = truncate_cast<unsigned short,int>(weaponMapIndex);
 }
 
 /*
@@ -1633,52 +1549,43 @@ MSG_ReadDeltaEntityLoD
 */
 void MSG_ReadDeltaEntityLoD(msg_t *msg, const clientLoDInfo_t *fromLoD, clientLoDInfo_t *toLoD, const int clientIndex)
 {
+  clientLoDInfo_t *v8; 
   __int64 v9; 
-  int v18; 
+  __int128 v10; 
+  int v11; 
   EntityLoDs *p_clientEntityLoD; 
-  __int64 v20; 
+  __int64 v13; 
 
-  _RDI = fromLoD;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2734, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
   if ( !toLoD && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2735, ASSERT_TYPE_ASSERT, "(toLoD != nullptr)", (const char *)&queryFormat, "toLoD != nullptr") )
     __debugbreak();
   toLoD->clientIndex = clientIndex;
-  if ( _RDI )
+  if ( fromLoD )
   {
-    if ( _RDI->clientIndex != clientIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2738, ASSERT_TYPE_ASSERT, "((fromLoD == nullptr) || (fromLoD->clientIndex == clientIndex))", (const char *)&queryFormat, "(fromLoD == nullptr) || (fromLoD->clientIndex == clientIndex)") )
+    if ( fromLoD->clientIndex != clientIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2738, ASSERT_TYPE_ASSERT, "((fromLoD == nullptr) || (fromLoD->clientIndex == clientIndex))", (const char *)&queryFormat, "(fromLoD == nullptr) || (fromLoD->clientIndex == clientIndex)") )
       __debugbreak();
-    _RCX = toLoD;
+    v8 = toLoD;
     v9 = 2i64;
     do
     {
-      _RCX = (clientLoDInfo_t *)((char *)_RCX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      _RDI = (const clientLoDInfo_t *)((char *)_RDI + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v8 = (clientLoDInfo_t *)((char *)v8 + 128);
+      v10 = *(_OWORD *)&fromLoD->clientIndex;
+      fromLoD = (const clientLoDInfo_t *)((char *)fromLoD + 128);
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[32] = v10;
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[36] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[36];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[40] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[40];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[44] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[44];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[48] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[48];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[52] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[52];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[56] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[56];
+      *(_OWORD *)&v8[-1].clientEntityLoD.array[60] = *(_OWORD *)&fromLoD[-1].clientEntityLoD.array[60];
       --v9;
     }
     while ( v9 );
-    v18 = _RDI->clientIndex;
+    v11 = fromLoD->clientIndex;
     p_clientEntityLoD = &toLoD->clientEntityLoD;
-    _RCX->clientIndex = v18;
+    v8->clientIndex = v11;
   }
   else
   {
@@ -1718,15 +1625,15 @@ void MSG_ReadDeltaEntityLoD(msg_t *msg, const clientLoDInfo_t *fromLoD, clientLo
   }
   if ( MSG_ReadBit(msg) )
   {
-    v20 = 64i64;
+    v13 = 64i64;
     do
     {
       if ( MSG_ReadBit(msg) )
         p_clientEntityLoD->array[0] = MSG_ReadLong(msg);
       p_clientEntityLoD = (EntityLoDs *)((char *)p_clientEntityLoD + 4);
-      --v20;
+      --v13;
     }
-    while ( v20 );
+    while ( v13 );
   }
 }
 
@@ -1746,43 +1653,41 @@ __int64 MSG_ReadDeltaEntityStruct(msg_t *msg, const int time, const void *from, 
   int skippedNetfieldBits; 
   const NetField *array; 
   int LastChangedField; 
-  __int64 v37; 
-  __int64 v38; 
-  char v39; 
+  __int64 v22; 
+  __int64 v23; 
+  char v24; 
   int NumFieldsSkipped; 
-  int v41; 
-  int v42; 
-  entityType_s v43; 
+  int v26; 
+  int v27; 
+  entityType_s v28; 
   unsigned int NetFieldsCountForEntityType; 
-  int v45; 
+  int v30; 
   __int16 bits; 
-  bool v47; 
-  bool v48; 
-  int v49; 
-  const NetField *v50; 
-  __int64 v51; 
-  bool v52; 
+  bool v32; 
+  bool v33; 
+  int v34; 
+  const NetField *v35; 
+  __int64 v36; 
+  bool v37; 
   __int16 *p_bits; 
-  __int16 v54; 
-  bool v55; 
+  __int16 v39; 
+  bool v40; 
   __int64 Field; 
-  entityType_s v57; 
+  entityType_s v42; 
   const char *EntityTypeName; 
-  char v59; 
-  bool v60; 
+  char v44; 
+  bool v45; 
   __int64 print; 
   __int64 xorValues; 
-  __int64 v63; 
-  __int64 v64; 
-  unsigned int v65; 
-  const NetField *v66; 
-  const NetField *v67; 
-  bool v69; 
+  __int64 v48; 
+  __int64 v49; 
+  unsigned int v50; 
+  const NetField *v51; 
+  const NetField *v52; 
+  bool v54; 
   int skippedFieldBits; 
   bool outLoDa; 
 
-  _R14 = to;
-  _RBP = from;
   if ( number >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2368, ASSERT_TYPE_ASSERT, "( number < (1u << ( 11 )) )", (const char *)&queryFormat, "number < (1u << GENTITYNUM_BITS)") )
     __debugbreak();
   v12 = -1;
@@ -1795,40 +1700,22 @@ __int64 MSG_ReadDeltaEntityStruct(msg_t *msg, const int time, const void *from, 
     if ( outLoD )
       *outLoD = v16;
     Bit = MSG_ReadBit(msg);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [r14], xmm0
-      vmovups xmm1, xmmword ptr [rbp+10h]
-      vmovups xmmword ptr [r14+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+20h]
-      vmovups xmmword ptr [r14+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+30h]
-      vmovups xmmword ptr [r14+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+40h]
-      vmovups xmmword ptr [r14+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+50h]
-      vmovups xmmword ptr [r14+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+60h]
-      vmovups xmmword ptr [r14+60h], xmm0
-      vmovups xmm0, xmmword ptr [rbp+70h]
-      vmovups xmmword ptr [r14+70h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+80h]
-      vmovups xmmword ptr [r14+80h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+90h]
-      vmovups xmmword ptr [r14+90h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+0A0h]
-      vmovups xmmword ptr [r14+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+0B0h]
-      vmovups xmmword ptr [r14+0B0h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+0C0h]
-      vmovups xmmword ptr [r14+0C0h], xmm1
-      vmovups xmm0, xmmword ptr [rbp+0D0h]
-      vmovups xmmword ptr [r14+0D0h], xmm0
-      vmovups xmm1, xmmword ptr [rbp+0E0h]
-      vmovups xmmword ptr [r14+0E0h], xmm1
-    }
-    *((_QWORD *)_R14 + 30) = _RBP[30];
+    *(_OWORD *)to = *(_OWORD *)from;
+    *((_OWORD *)to + 1) = *((_OWORD *)from + 1);
+    *((_OWORD *)to + 2) = *((_OWORD *)from + 2);
+    *((_OWORD *)to + 3) = *((_OWORD *)from + 3);
+    *((_OWORD *)to + 4) = *((_OWORD *)from + 4);
+    *((_OWORD *)to + 5) = *((_OWORD *)from + 5);
+    *((_OWORD *)to + 6) = *((_OWORD *)from + 6);
+    *((_OWORD *)to + 7) = *((_OWORD *)from + 7);
+    *((_OWORD *)to + 8) = *((_OWORD *)from + 8);
+    *((_OWORD *)to + 9) = *((_OWORD *)from + 9);
+    *((_OWORD *)to + 10) = *((_OWORD *)from + 10);
+    *((_OWORD *)to + 11) = *((_OWORD *)from + 11);
+    *((_OWORD *)to + 12) = *((_OWORD *)from + 12);
+    *((_OWORD *)to + 13) = *((_OWORD *)from + 13);
+    *((_OWORD *)to + 14) = *((_OWORD *)from + 14);
+    *((_QWORD *)to + 30) = *((_QWORD *)from + 30);
     if ( !Bit )
       return 0i64;
     NetFieldListForNetFieldType = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_ENTITY_STATE);
@@ -1837,33 +1724,33 @@ __int64 MSG_ReadDeltaEntityStruct(msg_t *msg, const int time, const void *from, 
     if ( NetFieldListForNetFieldType->count > 0x44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2419, ASSERT_TYPE_ASSERT, "(netFieldList->count <= maxNumFields)", (const char *)&queryFormat, "netFieldList->count <= maxNumFields") )
       __debugbreak();
     array = NetFieldListForNetFieldType->array;
-    v67 = array;
-    v69 = MSG_ReadBit(msg) > 0;
+    v52 = array;
+    v54 = MSG_ReadBit(msg) > 0;
     LastChangedField = MSG_ReadLastChangedField(msg, 68);
     if ( (unsigned int)LastChangedField > 0x43 )
     {
       MSG_Discard(msg);
       Com_PrintError(25, "Got lastChanged field of %i, but there are only %i fields\n", (unsigned int)LastChangedField, 68i64);
       LODWORD(print) = LastChangedField;
-      v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2429, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Got lastChanged field of %i, but there are only %i fields\n", print, 68);
+      v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2429, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Got lastChanged field of %i, but there are only %i fields\n", print, 68);
 LABEL_114:
-      if ( v60 )
+      if ( v45 )
         __debugbreak();
       return 0i64;
     }
     if ( DVARINT_cl_shownet && (Dvar_GetInt_Internal_DebugName(DVARINT_cl_shownet, "cl_shownet") >= 2 || Dvar_GetInt_Internal_DebugName(DVARINT_cl_shownet, "cl_shownet") == -1) )
-      Com_Printf(25, "%3i: #%-3i ", (unsigned int)msg->readcount, *(unsigned int *)_R14);
-    *_R14 = number;
+      Com_Printf(25, "%3i: #%-3i ", (unsigned int)msg->readcount, *(unsigned int *)to);
+    *(_WORD *)to = number;
     if ( number != (unsigned __int64)(unsigned __int16)number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.h", 385, ASSERT_TYPE_ASSERT, "(value == *static_cast<unsigned short*>(i))", "%s\n\tvalue %lld != *static_cast<unsigned short*>(i) %u", "value == *static_cast<unsigned short*>(i)", number, (unsigned __int16)number) )
       __debugbreak();
-    v37 = 0i64;
-    v38 = 0i64;
+    v22 = 0i64;
+    v23 = 0i64;
     while ( 1 )
     {
-      v39 = array->name[v38++];
-      if ( v39 != aEtype[v38 - 1] )
+      v24 = array->name[v23++];
+      if ( v24 != aEtype[v23 - 1] )
         break;
-      if ( v38 == 6 )
+      if ( v23 == 6 )
         goto LABEL_38;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2448, ASSERT_TYPE_ASSERT, "( strcmp( esField[0].name, \"eType\" ) == 0 )", (const char *)&queryFormat, "strcmp( esField[0].name, \"eType\" ) == 0") )
@@ -1872,33 +1759,33 @@ LABEL_38:
     if ( array->bits != -77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2450, ASSERT_TYPE_ASSERT, "( esField[0].bits == (-77) )", (const char *)&queryFormat, "esField[0].bits == MSG_FIELD_ETYPE") )
       __debugbreak();
     NumFieldsSkipped = MSG_ReadNumFieldsSkipped(msg, skippedNetfieldBits, LastChangedField + 1);
-    v41 = NumFieldsSkipped;
+    v26 = NumFieldsSkipped;
     if ( NumFieldsSkipped <= 0 )
     {
       LODWORD(xorValues) = NumFieldsSkipped;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2459, ASSERT_TYPE_ASSERT, "( ( nextChanged > 0 ) )", "%s\n\t( nextChanged ) = %i", "( nextChanged > 0 )", xorValues) )
         __debugbreak();
     }
-    v42 = v41 - 1;
-    v65 = v42;
-    if ( (unsigned int)v42 > 0x43 )
+    v27 = v26 - 1;
+    v50 = v27;
+    if ( (unsigned int)v27 > 0x43 )
     {
       MSG_Discard(msg);
-      Com_PrintError(25, "Got nextChanged field of %i, but there are only %i fields\n", (unsigned int)v42, 68i64);
+      Com_PrintError(25, "Got nextChanged field of %i, but there are only %i fields\n", (unsigned int)v27, 68i64);
       return 0i64;
     }
-    if ( !v42 )
+    if ( !v27 )
     {
-      MSG_ReadDeltaField(msg, time, _RBP, _R14, array, 0, 0);
+      MSG_ReadDeltaField(msg, time, from, to, array, 0, 0);
       v12 = 0;
       if ( LastChangedField > 0 )
       {
-        v65 = MSG_ReadNumFieldsSkipped(msg, skippedFieldBits, LastChangedField);
-        v42 = v65;
-        if ( v65 > 0x43 )
+        v50 = MSG_ReadNumFieldsSkipped(msg, skippedFieldBits, LastChangedField);
+        v27 = v50;
+        if ( v50 > 0x43 )
         {
           MSG_Discard(msg);
-          Com_PrintError(25, "Got nextChanged (2) field of %i, but there are only %i fields\n", v65, 68i64);
+          Com_PrintError(25, "Got nextChanged (2) field of %i, but there are only %i fields\n", v50, 68i64);
           return 0i64;
         }
       }
@@ -1908,9 +1795,9 @@ LABEL_38:
       Com_PrintError(25, "MSG_ReadDeltaEntityStruct overflowed, could not determine eType\n");
       return 0i64;
     }
-    v43 = _R14[4];
-    v66 = MSG_GetStateFieldListForEntityType(v43)->array;
-    NetFieldsCountForEntityType = MSG_GetNetFieldsCountForEntityType(v43);
+    v28 = *((_WORD *)to + 4);
+    v51 = MSG_GetStateFieldListForEntityType(v28)->array;
+    NetFieldsCountForEntityType = MSG_GetNetFieldsCountForEntityType(v28);
     if ( LastChangedField >= (int)NetFieldsCountForEntityType )
     {
       MSG_Discard(msg);
@@ -1921,124 +1808,124 @@ LABEL_38:
     {
       if ( v12 == LastChangedField )
       {
-        LODWORD(v63) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2521, ASSERT_TYPE_ASSERT, "( lastChanged ) != ( lc )", "%s != %s\n\t%i, %i", "lastChanged", "lc", v63, LastChangedField) )
+        LODWORD(v48) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2521, ASSERT_TYPE_ASSERT, "( lastChanged ) != ( lc )", "%s != %s\n\t%i, %i", "lastChanged", "lc", v48, LastChangedField) )
           __debugbreak();
       }
-      v45 = NetFieldsCountForEntityType;
+      v30 = NetFieldsCountForEntityType;
       while ( 1 )
       {
-        v47 = 0;
-        if ( *((_WORD *)_RBP + 4) == _R14[4] )
+        v32 = 0;
+        if ( *((_WORD *)from + 4) == *((_WORD *)to + 4) )
         {
-          bits = v66[v42].bits;
-          if ( bits != -77 && (!v69 || bits != -108 && (unsigned int)(bits + 83) > 5) )
-            v47 = 1;
+          bits = v51[v27].bits;
+          if ( bits != -77 && (!v54 || bits != -108 && (unsigned int)(bits + 83) > 5) )
+            v32 = 1;
         }
-        MSG_ReadDeltaField(msg, time, _RBP, _R14, &v66[v42], 0, v47);
-        v48 = v42 == LastChangedField;
-        if ( v42 >= LastChangedField )
+        MSG_ReadDeltaField(msg, time, from, to, &v51[v27], 0, v32);
+        v33 = v27 == LastChangedField;
+        if ( v27 >= LastChangedField )
           break;
-        v49 = v42;
-        v42 += MSG_ReadNumFieldsSkipped(msg, skippedFieldBits, LastChangedField - v42);
-        v65 = v42;
-        if ( v42 >= v45 || v42 < 0 )
+        v34 = v27;
+        v27 += MSG_ReadNumFieldsSkipped(msg, skippedFieldBits, LastChangedField - v27);
+        v50 = v27;
+        if ( v27 >= v30 || v27 < 0 )
         {
           MSG_Discard(msg);
-          Com_Printf(14, "Last changed field was %i, but there are only %i fields (loop)\n", (unsigned int)LastChangedField, (unsigned int)v45);
+          Com_Printf(14, "Last changed field was %i, but there are only %i fields (loop)\n", (unsigned int)LastChangedField, (unsigned int)v30);
           return 0i64;
         }
-        if ( LastChangedField < v42 )
+        if ( LastChangedField < v27 )
         {
-          LODWORD(v63) = LastChangedField;
-          LODWORD(xorValues) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2548, ASSERT_TYPE_ASSERT, "(lc >= nextChanged)", "%s\n\tnextChanged is %i, lc is %i", "lc >= nextChanged", xorValues, v63) )
+          LODWORD(v48) = LastChangedField;
+          LODWORD(xorValues) = v27;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2548, ASSERT_TYPE_ASSERT, "(lc >= nextChanged)", "%s\n\tnextChanged is %i, lc is %i", "lc >= nextChanged", xorValues, v48) )
             __debugbreak();
         }
-        if ( v42 <= v49 )
+        if ( v27 <= v34 )
         {
-          LODWORD(v63) = v49;
-          LODWORD(xorValues) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2549, ASSERT_TYPE_ASSERT, "(nextChanged > lastChanged)", "%s\n\tnextChanged is %i, lastChanged is %i", "nextChanged > lastChanged", xorValues, v63) )
+          LODWORD(v48) = v34;
+          LODWORD(xorValues) = v27;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2549, ASSERT_TYPE_ASSERT, "(nextChanged > lastChanged)", "%s\n\tnextChanged is %i, lastChanged is %i", "nextChanged > lastChanged", xorValues, v48) )
             __debugbreak();
         }
-        if ( v42 > LastChangedField )
+        if ( v27 > LastChangedField )
         {
-          LODWORD(v64) = LastChangedField;
-          LODWORD(v63) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2550, ASSERT_TYPE_ASSERT, "( nextChanged ) <= ( lc )", "%s <= %s\n\t%i, %i", "nextChanged", "lc", v63, v64) )
+          LODWORD(v49) = LastChangedField;
+          LODWORD(v48) = v27;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2550, ASSERT_TYPE_ASSERT, "( nextChanged ) <= ( lc )", "%s <= %s\n\t%i, %i", "nextChanged", "lc", v48, v49) )
             __debugbreak();
         }
       }
     }
     else
     {
-      v48 = v42 == 0;
+      v33 = v27 == 0;
     }
-    if ( !v48 )
+    if ( !v33 )
     {
       LODWORD(xorValues) = LastChangedField;
-      LODWORD(print) = v42;
+      LODWORD(print) = v27;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2554, ASSERT_TYPE_ASSERT, "( nextChanged ) == ( lc )", "nextChanged == lc\n\t%i, %i", print, xorValues) )
         __debugbreak();
     }
-    v50 = v66;
+    v35 = v51;
     if ( outLoDa )
     {
-      v51 = v42;
-      v52 = v42 < 0;
-      if ( v42 <= 0 )
+      v36 = v27;
+      v37 = v27 < 0;
+      if ( v27 <= 0 )
       {
 LABEL_97:
-        if ( v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2580, ASSERT_TYPE_ASSERT, "( nextChanged >= 0 )", (const char *)&queryFormat, "nextChanged >= 0") )
+        if ( v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2580, ASSERT_TYPE_ASSERT, "( nextChanged >= 0 )", (const char *)&queryFormat, "nextChanged >= 0") )
           __debugbreak();
         if ( msg_dumpEnts->current.enabled )
         {
-          if ( v67->size > 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2586, ASSERT_TYPE_ASSERT, "(esField[0].size <= 32)", (const char *)&queryFormat, "esField[0].size <= 32") )
+          if ( v52->size > 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2586, ASSERT_TYPE_ASSERT, "(esField[0].size <= 32)", (const char *)&queryFormat, "esField[0].size <= 32") )
             __debugbreak();
-          Field = MSG_GetField((char *)_R14 + v67->offset, v67->size);
-          v57 = truncate_cast<enum entityType_s,__int64>(Field);
-          EntityTypeName = BG_GetEntityTypeName(v57);
+          Field = MSG_GetField((char *)to + v52->offset, v52->size);
+          v42 = truncate_cast<enum entityType_s,__int64>(Field);
+          EntityTypeName = BG_GetEntityTypeName(v42);
           Com_Printf(25, "%3i: changed ent, eType %s\n", number, EntityTypeName);
         }
         while ( 1 )
         {
-          v59 = v50->name[v37++];
-          if ( v59 != aEtype[v37 - 1] )
+          v44 = v35->name[v22++];
+          if ( v44 != aEtype[v22 - 1] )
             break;
-          if ( v37 == 6 )
+          if ( v22 == 6 )
             goto LABEL_110;
         }
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2593, ASSERT_TYPE_ASSERT, "( strcmp( stateFields[0].name, \"eType\" ) == 0 )", (const char *)&queryFormat, "strcmp( stateFields[0].name, \"eType\" ) == 0") )
           __debugbreak();
 LABEL_110:
-        if ( v50->bits == -77 )
+        if ( v35->bits == -77 )
           return 0i64;
-        v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2595, ASSERT_TYPE_ASSERT, "( stateFields[0].bits == (-77) )", (const char *)&queryFormat, "stateFields[0].bits == MSG_FIELD_ETYPE");
+        v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2595, ASSERT_TYPE_ASSERT, "( stateFields[0].bits == (-77) )", (const char *)&queryFormat, "stateFields[0].bits == MSG_FIELD_ETYPE");
         goto LABEL_114;
       }
-      p_bits = &v66->bits;
+      p_bits = &v51->bits;
       do
       {
         if ( *((_BYTE *)p_bits + 2) == 2 )
         {
-          v55 = 0;
-          if ( *((_WORD *)_RBP + 4) == _R14[4] )
+          v40 = 0;
+          if ( *((_WORD *)from + 4) == *((_WORD *)to + 4) )
           {
-            v54 = *p_bits;
-            if ( *p_bits != -77 && (!v69 || v54 != -108 && (unsigned int)(v54 + 83) > 5) )
-              v55 = 1;
+            v39 = *p_bits;
+            if ( *p_bits != -77 && (!v54 || v39 != -108 && (unsigned int)(v39 + 83) > 5) )
+              v40 = 1;
           }
-          MSG_ReadDeltaField(msg, time, _RBP, _R14, (const NetField *)(p_bits - 6), 0, v55);
+          MSG_ReadDeltaField(msg, time, from, to, (const NetField *)(p_bits - 6), 0, v40);
         }
         p_bits += 12;
-        --v51;
+        --v36;
       }
-      while ( v51 );
-      v42 = v65;
-      v50 = v66;
+      while ( v36 );
+      v27 = v50;
+      v35 = v51;
     }
-    v52 = v42 < 0;
+    v37 = v27 < 0;
     goto LABEL_97;
   }
   v13 = DVARINT_cl_shownet;
@@ -2065,155 +1952,162 @@ MSG_ReadDeltaField
 */
 void MSG_ReadDeltaField(msg_t *msg, const int time, const void *from, void *to, const NetField *field, int print, bool xorValues)
 {
+  __int128 v8; 
   __int64 Short; 
   unsigned __int16 offset; 
+  float *v14; 
+  float *v15; 
   int bits; 
   int AnimData; 
+  __int64 v18; 
+  float v19; 
   __int64 v20; 
-  float v21; 
+  int v21; 
   __int64 v22; 
-  int v23; 
-  __int64 v24; 
-  __int16 v25; 
-  int v26; 
-  __int64 v27; 
-  float v28; 
+  __int16 v23; 
+  int v24; 
+  __int64 v25; 
+  float v26; 
+  float v27; 
+  int v30; 
+  float OriginExpGolomb; 
   unsigned int OriginExtraPrecisionBitsForField; 
   int FloatCase; 
-  int v47; 
+  int v34; 
   unsigned int MinBitCountForNum; 
-  __int64 v49; 
-  int v50; 
-  __int64 v51; 
-  int v52; 
-  __int64 v53; 
-  int v54; 
-  __int64 v55; 
-  int v56; 
-  int v57; 
-  int v59; 
-  int v62; 
-  int v65; 
-  __int64 v68; 
-  int v69; 
-  int v70; 
-  int v72; 
-  float v81; 
-  __int64 v82; 
-  int v83; 
-  __int64 v84; 
-  unsigned int v85; 
-  char v86; 
+  __int64 v36; 
+  int v37; 
+  __int64 v38; 
+  int v39; 
+  __int64 v40; 
+  int v41; 
+  __int64 v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  __int64 v47; 
+  int v48; 
+  int v49; 
+  float v50; 
+  float v51; 
+  __int64 v52; 
+  int v53; 
+  __int64 v54; 
+  unsigned int v55; 
+  char v56; 
   int DeltaTime; 
-  __int64 v88; 
-  int v89; 
-  __int64 v90; 
+  __int64 v58; 
+  int v59; 
+  __int64 v60; 
   int Byte; 
-  int v92; 
-  int v93; 
-  __int64 v94; 
-  int v95; 
+  int v62; 
+  int v63; 
+  __int64 v64; 
+  int v65; 
   int EventParamBits; 
   __int64 ValueNoXor; 
   unsigned int Long; 
   int size; 
   unsigned __int16 RuntimeMapIndexBits; 
   __int64 Value; 
+  __int64 v72; 
+  int v73; 
+  entityType_s v74; 
+  float OriginFloat; 
+  float v76; 
+  unsigned int v77; 
+  float v78; 
+  int v79; 
+  __int64 v80; 
+  float v81; 
+  __int64 v84; 
+  float v85; 
+  __int64 v86; 
+  __int64 v89; 
+  float v90; 
+  double Angle16; 
+  float v92; 
+  int v93; 
+  msg_t *v94; 
+  __int64 v95; 
+  __int64 v96; 
+  int Bit; 
+  __int64 v98; 
+  __int64 v99; 
+  char v100; 
+  __int64 v101; 
   __int64 v102; 
   int v103; 
-  entityType_s v104; 
-  unsigned int v108; 
-  int v111; 
-  __int64 v112; 
-  __int64 v124; 
-  __int64 v131; 
-  __int64 v140; 
-  int v154; 
-  msg_t *v155; 
-  __int64 v156; 
-  __int64 v157; 
-  int Bit; 
-  __int64 v159; 
-  __int64 v160; 
-  char v161; 
-  __int64 v162; 
-  __int64 v163; 
-  int v164; 
-  __int64 v165; 
-  __int64 v166; 
-  __int64 v167; 
-  char v170; 
-  char v171; 
-  unsigned __int8 v172; 
-  unsigned __int8 v176; 
-  char v183; 
-  unsigned int v192; 
+  __int64 v104; 
+  __int64 v105; 
+  __int64 v106; 
+  unsigned __int8 v107; 
+  float v108; 
+  unsigned __int8 v109; 
+  char v113; 
+  float v114; 
+  unsigned int v115; 
   int FloatByRangeAndBits; 
   __int64 NetConstString; 
-  __int64 v195; 
-  __int64 v196; 
-  __int64 v197; 
-  __int64 v198; 
-  __int64 v199; 
-  __int64 v200; 
-  __int64 v201; 
-  __int64 v202; 
-  __int64 v203; 
-  __int64 v204; 
-  __int64 v205; 
-  __int64 v206; 
-  __int64 v207; 
-  __int64 v208; 
+  __int64 v118; 
+  __int64 v119; 
+  __int64 v120; 
+  __int64 v121; 
+  __int64 v122; 
+  __int64 v123; 
+  __int64 v124; 
+  __int64 v125; 
+  __int64 v126; 
+  __int64 v127; 
+  __int64 v128; 
+  __int64 v129; 
+  __int64 v130; 
+  __int64 v131; 
   unsigned int ClientAttachTagBits; 
-  __int64 v210; 
+  __int64 v133; 
   unsigned int m_effectBits; 
   unsigned int m_esIndexBits; 
-  __int64 v213; 
-  __int64 v214; 
-  __int64 v215; 
-  unsigned int v216; 
-  __int64 v217; 
-  __int64 v218; 
-  unsigned int v219; 
-  char v220; 
-  __int64 v221; 
-  unsigned int v222; 
-  int v223; 
-  int v224; 
-  __int64 v225; 
+  __int64 v136; 
+  __int64 v137; 
+  __int64 v138; 
+  unsigned int v139; 
+  __int64 v140; 
+  __int64 v141; 
+  unsigned int v142; 
+  char v143; 
+  double Float; 
+  double v145; 
+  double v146; 
+  __int64 v147; 
+  unsigned int v148; 
+  int v149; 
+  int v150; 
+  __int64 v151; 
   char *fmt; 
   char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  char *fmte; 
-  char *fmtf; 
-  char *fmtg; 
-  __int64 v235; 
-  double v236; 
-  __int64 v237; 
-  double v238; 
-  double v239; 
-  int v240; 
-  int v241; 
-  int v242; 
+  __int64 v154; 
+  __int64 v155; 
+  float v156; 
+  float v157; 
   int fromF; 
   int key; 
-  __int64 v245; 
+  __int64 v160; 
   vec3_t quatPacked; 
   vec4_t outQuat; 
+  __int128 v163; 
 
   Short = 0i64;
   fromF = time;
-  v245 = 0i64;
+  v160 = 0i64;
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1530, ASSERT_TYPE_ASSERT, "( from )", (const char *)&queryFormat, "from") )
     __debugbreak();
   offset = field->offset;
   if ( xorValues )
-    _R15 = (__int64 *)((char *)from + offset);
+    v14 = (float *)((char *)from + offset);
   else
-    _R15 = &v245;
-  _R14 = (tmat33_t<vec3_t> *)((char *)to + offset);
+    v14 = (float *)&v160;
+  v15 = (float *)((char *)to + offset);
   if ( msg->overflowed )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1538, ASSERT_TYPE_ASSERT, "( !msg->overflowed )", (const char *)&queryFormat, "!msg->overflowed") )
@@ -2222,901 +2116,704 @@ void MSG_ReadDeltaField(msg_t *msg, const int time, const void *from, void *to, 
       __debugbreak();
   }
   bits = field->bits;
-  __asm { vmovaps [rsp+0F8h+var_58], xmm6 }
-  switch ( bits )
+  switch ( field->bits )
   {
-    case -115:
+    case 0xFF8D:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1768, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      __asm { vmovss  xmm6, dword ptr [r15] }
+      v85 = *v14;
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v131 = MSG_ReadBits(msg, 8u);
-        truncate_cast<int,__int64>(v131);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@3dcccccd
-          vaddss  xmm2, xmm1, xmm6
-        }
+        v86 = MSG_ReadBits(msg, 8u);
+        v81 = (float)((float)(truncate_cast<int,__int64>(v86) - 128) * 0.1) + v85;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?cls@@3UClStatic@@A.mapCenter+8; ClStatic cls
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vxorps  xmm0, xmm0, xmm0
-          vroundss xmm6, xmm0, xmm2, 1
-        }
-        v140 = MSG_ReadBits(msg, 0x15u);
-        _EAX = truncate_cast<int,__int64>(v140) - 1048570;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vcvttss2si eax, xmm6
-          vmovd   xmm1, eax
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm2, xmm0, cs:__real@3dcccccd
-          vcvtdq2ps xmm1, xmm1
-          vaddss  xmm2, xmm2, xmm1
-        }
+        _XMM0 = 0i64;
+        __asm { vroundss xmm6, xmm0, xmm2, 1 }
+        v89 = MSG_ReadBits(msg, 0x15u);
+        v81 = (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)(truncate_cast<int,__int64>(v89) - 1048570)).m128_f32[0] * 0.1) + _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM6).m128_f32[0];
       }
-      __asm { vmovss  dword ptr [r14], xmm2 }
+      *v15 = v81;
       if ( print )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm2, xmm2
-          vmovsd  [rsp+0F8h+fmt], xmm0
-        }
-        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, fmtf);
-      }
-      goto LABEL_295;
-    case -114:
-    case -113:
+        goto LABEL_130;
+      return;
+    case 0xFF8E:
+    case 0xFF8F:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1759, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      __asm { vmovss  xmm6, dword ptr [r15] }
-      v111 = field->bits;
+      v78 = *v14;
+      v79 = field->bits;
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v112 = MSG_ReadBits(msg, 8u);
-        truncate_cast<int,__int64>(v112);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@3dcccccd
-          vaddss  xmm2, xmm1, xmm6
-        }
+        v80 = MSG_ReadBits(msg, 8u);
+        v81 = (float)((float)(truncate_cast<int,__int64>(v80) - 128) * 0.1) + v78;
       }
       else
       {
-        if ( v111 == -113 )
-        {
-          __asm { vmovss  xmm0, dword ptr cs:?cls@@3UClStatic@@A.mapCenter; ClStatic cls }
-        }
-        else
-        {
-          if ( v111 != -114 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 400, ASSERT_TYPE_ASSERT, "( bits == (-114) )", (const char *)&queryFormat, "bits == MSG_FIELD_ORIGIN_PHYSICSY") )
-            __debugbreak();
-          __asm { vmovss  xmm0, dword ptr cs:?cls@@3UClStatic@@A.mapCenter+4; ClStatic cls }
-        }
-        __asm
-        {
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm3, xmm1, xmm2, 1
-          vcvttss2si eax, xmm3
-          vmovd   xmm6, eax
-          vcvtdq2ps xmm6, xmm6
-        }
-        v124 = MSG_ReadBits(msg, 0x15u);
-        _EAX = truncate_cast<int,__int64>(v124) - 1048570;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm1, xmm0, cs:__real@3dcccccd
-          vaddss  xmm2, xmm6, xmm1
-        }
+        if ( v79 != -113 && v79 != -114 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 400, ASSERT_TYPE_ASSERT, "( bits == (-114) )", (const char *)&queryFormat, "bits == MSG_FIELD_ORIGIN_PHYSICSY") )
+          __debugbreak();
+        _XMM1 = 0i64;
+        __asm { vroundss xmm3, xmm1, xmm2, 1 }
+        v84 = MSG_ReadBits(msg, 0x15u);
+        v81 = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM3).m128_f32[0] + (float)(_mm_cvtepi32_ps((__m128i)(unsigned int)(truncate_cast<int,__int64>(v84) - 1048570)).m128_f32[0] * 0.1);
       }
-      __asm { vmovss  dword ptr [r14], xmm2 }
+      *v15 = v81;
       if ( print )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm2, xmm2
-          vmovsd  [rsp+0F8h+fmt], xmm0
-        }
-        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, fmte);
-      }
-      goto LABEL_295;
-    case -112:
+LABEL_130:
+        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, v81);
+      return;
+    case 0xFF90:
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v27 = MSG_ReadBits(msg, 6u);
-        LOBYTE(v28) = truncate_cast<unsigned int,__int64>(v27);
+        v25 = MSG_ReadBits(msg, 6u);
+        LOBYTE(v26) = truncate_cast<unsigned int,__int64>(v25);
       }
       else
       {
-        v28 = *(float *)_R15;
+        v26 = *v14;
       }
-      LODWORD(Short) = LOBYTE(v28) & 0x3F;
+      LODWORD(Short) = LOBYTE(v26) & 0x3F;
       if ( print )
         Com_Printf(25, "%s:%d ", field->name, Short & 0x3F);
       goto LABEL_26;
-    case -111:
+    case 0xFF91:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1723, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( BgWeaponHandle ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( BgWeaponHandle )") )
         __debugbreak();
       size = field->size;
       RuntimeMapIndexBits = BgWeaponMap::GetRuntimeMapIndexBits();
-      Value = MSG_ReadValue(msg, _R15, RuntimeMapIndexBits, size);
-      LODWORD(_R14->m[0].v[0]) = truncate_cast<unsigned int,__int64>(Value);
-      goto LABEL_295;
-    case -110:
+      Value = MSG_ReadValue(msg, v14, RuntimeMapIndexBits, size);
+      *(_DWORD *)v15 = truncate_cast<unsigned int,__int64>(Value);
+      return;
+    case 0xFF92:
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v20 = MSG_ReadBits(msg, 6u);
-        LOBYTE(v21) = truncate_cast<unsigned int,__int64>(v20);
+        v18 = MSG_ReadBits(msg, 6u);
+        LOBYTE(v19) = truncate_cast<unsigned int,__int64>(v18);
       }
       else
       {
-        v21 = *(float *)_R15;
+        v19 = *v14;
       }
-      v22 = MSG_ReadBits(msg, 1u);
-      v23 = LOBYTE(v21) & 0x3F ^ (LOBYTE(v21) & 0x3F ^ (unsigned __int8)((unsigned __int8)truncate_cast<unsigned int,__int64>(v22) << 6)) & 0x40;
-      v24 = MSG_ReadBits(msg, 2u);
-      v25 = truncate_cast<unsigned int,__int64>(v24);
-      v26 = v23 ^ ((unsigned __int16)v23 ^ (unsigned __int16)(v25 << 7)) & 0x180;
+      v20 = MSG_ReadBits(msg, 1u);
+      v21 = LOBYTE(v19) & 0x3F ^ (LOBYTE(v19) & 0x3F ^ (unsigned __int8)((unsigned __int8)truncate_cast<unsigned int,__int64>(v20) << 6)) & 0x40;
+      v22 = MSG_ReadBits(msg, 2u);
+      v23 = truncate_cast<unsigned int,__int64>(v22);
+      v24 = v21 ^ ((unsigned __int16)v21 ^ (unsigned __int16)(v23 << 7)) & 0x180;
       if ( print )
-        Com_Printf(25, "%s:%d ", field->name, ((unsigned __int8)v23 ^ ((unsigned __int8)v23 ^ (unsigned __int8)((_BYTE)v25 << 7)) & 0x80) & 0x3F);
-      MSG_SetField(_R14, field->size, v26);
-      goto LABEL_295;
-    case -109:
+        Com_Printf(25, "%s:%d ", field->name, ((unsigned __int8)v21 ^ ((unsigned __int8)v21 ^ (unsigned __int8)((_BYTE)v23 << 7)) & 0x80) & 0x3F);
+      MSG_SetField(v15, field->size, v24);
+      return;
+    case 0xFF93:
       if ( field->size != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1856, ASSERT_TYPE_ASSERT, "(field->size == 4)", (const char *)&queryFormat, "field->size == 4") )
         __debugbreak();
       if ( MSG_ReadBit(msg) )
-        LODWORD(Short) = MSG_ReadLong(msg) ^ *(_DWORD *)_R15;
-      LODWORD(_R14->m[0].v[0]) = Short;
-      goto LABEL_295;
-    case -108:
+        LODWORD(Short) = MSG_ReadLong(msg) ^ *(_DWORD *)v14;
+      *(_DWORD *)v15 = Short;
+      return;
+    case 0xFF94:
     case 0:
-      FloatCase = MSG_ReadFloatCase(msg, (const int *)_R15, field, print);
-      MSG_SetField(_R14, field->size, FloatCase);
-      goto LABEL_295;
-    case -107:
-      AnimData = MSG_ReadAnimData(msg, (const int *)_R15, field, print);
-      MSG_SetField(_R14, field->size, AnimData);
-      goto LABEL_295;
-    case -106:
-    case -105:
-    case -104:
-    case -39:
-    case -38:
-    case -37:
-      __asm { vmovss  xmm6, dword ptr [r15]; jumptable 0000000141429225 cases -106--104,-39--37 }
-      MSG_GetOriginExtraPrecisionBitsForField(bits);
-      __asm
-      {
-        vxorps  xmm5, xmm5, xmm5
-        vcvtsi2ss xmm5, xmm5, rax
-        vmulss  xmm0, xmm5, xmm6
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm2, 1
-        vcvttss2si eax, xmm4
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm6, xmm0, xmm5
-        vmovss  [rsp+0F8h+fromF], xmm6
-      }
+      FloatCase = MSG_ReadFloatCase(msg, (const int *)v14, field, print);
+      MSG_SetField(v15, field->size, FloatCase);
+      return;
+    case 0xFF95:
+      AnimData = MSG_ReadAnimData(msg, (const int *)v14, field, print);
+      MSG_SetField(v15, field->size, AnimData);
+      return;
+    case 0xFF96:
+    case 0xFF97:
+    case 0xFF98:
+    case 0xFFD9:
+    case 0xFFDA:
+    case 0xFFDB:
+      v27 = (float)(unsigned int)(1 << MSG_GetOriginExtraPrecisionBitsForField(bits));
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      *(float *)&v30 = (float)(int)*(float *)&_XMM4 / v27;
+      fromF = v30;
       if ( MSG_ReadBit(msg) )
       {
-        v240 = MSG_ReadFloatCase(msg, &fromF, field, print);
+        v156 = COERCE_FLOAT(MSG_ReadFloatCase(msg, &fromF, field, print));
       }
       else
       {
         if ( bits == -104 || bits == -37 )
         {
           OriginExtraPrecisionBitsForField = MSG_GetOriginExtraPrecisionBitsForField(bits);
-          __asm { vmovaps xmm3, xmm6; oldValue }
-          *(float *)&_XMM0 = MSG_ReadOriginExpGolomb(2, OriginExtraPrecisionBitsForField, msg, *(float *)&_XMM3);
+          OriginExpGolomb = MSG_ReadOriginExpGolomb(2, OriginExtraPrecisionBitsForField, msg, *(float *)&v30);
         }
         else
         {
-          __asm { vmovaps xmm2, xmm6; oldValue }
-          *(float *)&_XMM0 = MSG_ReadOriginFloat(bits, msg, *(float *)&_XMM2);
+          OriginExpGolomb = MSG_ReadOriginFloat(bits, msg, *(float *)&v30);
         }
-        __asm { vmovss  [rsp+0F8h+var_A8], xmm0 }
+        v156 = OriginExpGolomb;
         if ( print )
-        {
-          __asm
-          {
-            vcvtss2sd xmm3, xmm0, xmm0
-            vmovq   r9, xmm3
-          }
-          Com_Printf(25, "%s:%f ", field->name, *(double *)&_XMM3);
-        }
+          Com_Printf(25, "%s:%f ", field->name, OriginExpGolomb);
       }
-      MSG_SetField(_R14, field->size, v240);
-      goto LABEL_295;
-    case -103:
+      MSG_SetField(v15, field->size, SLODWORD(v156));
+      return;
+    case 0xFF99:
       Bit = MSG_ReadBit(msg);
-      v155 = msg;
+      v94 = msg;
       if ( Bit )
-        goto LABEL_154;
-      v159 = MSG_ReadBits(msg, 4u);
-      MSG_SetField(_R14, field->size, 50 * v159);
-      goto LABEL_295;
-    case -102:
-      v154 = MSG_ReadBit(msg);
-      v155 = msg;
-      if ( v154 )
+        goto LABEL_152;
+      v98 = MSG_ReadBits(msg, 4u);
+      MSG_SetField(v15, field->size, 50 * v98);
+      return;
+    case 0xFF9A:
+      v93 = MSG_ReadBit(msg);
+      v94 = msg;
+      if ( v93 )
       {
-LABEL_154:
-        v156 = MSG_ReadBits(v155, 0x10u);
-        MSG_SetField(_R14, field->size, v156);
+LABEL_152:
+        v95 = MSG_ReadBits(v94, 0x10u);
+        MSG_SetField(v15, field->size, v95);
       }
       else
       {
-        v157 = MSG_ReadBits(msg, 4u);
-        MSG_SetField(_R14, field->size, 250 * v157);
+        v96 = MSG_ReadBits(msg, 4u);
+        MSG_SetField(v15, field->size, 250 * v96);
       }
-      goto LABEL_295;
-    case -101:
+      return;
+    case 0xFF9B:
       if ( MSG_ReadBit(msg) )
         Short = MSG_ReadShort(msg);
-      MSG_SetField(_R14, field->size, Short);
-      goto LABEL_295;
-    case -100:
-    case -79:
-      __asm { vmovss  xmm6, dword ptr [r15] }
+      MSG_SetField(v15, field->size, Short);
+      return;
+    case 0xFF9C:
+    case 0xFFB1:
+      v90 = *v14;
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1780, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      __asm { vmovaps xmm1, xmm6; oldFloat }
-      *(float *)&_XMM0 = MSG_ReadDeltaAngle(msg, *(double *)&_XMM1);
-      __asm { vmovss  dword ptr [r14], xmm0 }
-      goto LABEL_295;
-    case -99:
+      *v15 = MSG_ReadDeltaAngle(msg, v90);
+      return;
+    case 0xFF9D:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1657, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
       if ( MSG_ReadBit(msg) )
       {
         if ( MSG_ReadBit(msg) )
         {
-          LODWORD(_R14->m[0].v[0]) = MSG_ReadLong(msg) ^ *(_DWORD *)_R15;
+          *(_DWORD *)v15 = MSG_ReadLong(msg) ^ *(_DWORD *)v14;
           if ( print )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r14]
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+0F8h+fmt], xmm0
-            }
-            Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, fmtc);
-          }
+            Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, *v15);
         }
         else
         {
-          v68 = MSG_ReadBits(msg, 4u);
-          v69 = truncate_cast<int,__int64>(v68);
-          v70 = 16 * MSG_ReadByte(msg) + v69;
-          __asm { vcvttss2si eax, dword ptr [r15] }
-          v72 = (v70 ^ (_EAX + 2048)) - 2048;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmovss  dword ptr [r14], xmm0
-          }
+          v47 = MSG_ReadBits(msg, 4u);
+          v48 = truncate_cast<int,__int64>(v47);
+          v49 = ((16 * MSG_ReadByte(msg) + v48) ^ ((int)*v14 + 2048)) - 2048;
+          *v15 = (float)v49;
           if ( print )
           {
-            LODWORD(fmt) = v72;
+            LODWORD(fmt) = v49;
             Com_Printf(25, "%s%s:%i \n", (char *)&queryFormat.fmt + 3, field->name, fmt);
           }
         }
       }
       else
       {
-        _R14->m[0].v[0] = 0.0;
+        *v15 = 0.0;
       }
-      __asm
+      v50 = *v15 + 2048.0;
+      if ( (unsigned int)(int)v50 >= 0x1000 )
       {
-        vmovss  xmm0, dword ptr [r14]
-        vaddss  xmm1, xmm0, cs:__real@45000000
-        vcvttss2si rax, xmm1
-      }
-      if ( (unsigned int)_RAX >= 0x1000 )
-      {
-        __asm { vcvttss2si eax, xmm1 }
-        LODWORD(v237) = 4096;
-        LODWORD(v235) = _EAX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1697, ASSERT_TYPE_ASSERT, "(unsigned)( *(float *)toF + (1<<(12-1)) ) < (unsigned)( 1 << 12 )", "*(float *)toF + HUDELEM_COORD_BIAS doesn't index 1 << HUDELEM_COORD_BITS\n\t%i not in [0, %i)", v235, v237) )
+        LODWORD(v155) = 4096;
+        LODWORD(v154) = (int)v50;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1697, ASSERT_TYPE_ASSERT, "(unsigned)( *(float *)toF + (1<<(12-1)) ) < (unsigned)( 1 << 12 )", "*(float *)toF + HUDELEM_COORD_BIAS doesn't index 1 << HUDELEM_COORD_BITS\n\t%i not in [0, %i)", v154, v155) )
           __debugbreak();
       }
-      goto LABEL_295;
-    case -98:
-      v81 = *(float *)_R15;
+      return;
+    case 0xFF9E:
+      v51 = *v14;
       if ( msg->overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 227, ASSERT_TYPE_ASSERT, "( !msg->overflowed )", (const char *)&queryFormat, "!msg->overflowed") )
         __debugbreak();
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v82 = MSG_ReadBits(msg, 0x1Eu);
-        v83 = truncate_cast<int,__int64>(v82);
-        MSG_SetField(_R14, field->size, v83);
+        v52 = MSG_ReadBits(msg, 0x1Eu);
+        v53 = truncate_cast<int,__int64>(v52);
+        MSG_SetField(v15, field->size, v53);
       }
       else
       {
-        v84 = MSG_ReadBits(msg, 5u);
-        v85 = truncate_cast<int,__int64>(v84);
-        v86 = v85;
-        if ( v85 > 0x1D )
+        v54 = MSG_ReadBits(msg, 5u);
+        v55 = truncate_cast<int,__int64>(v54);
+        v56 = v55;
+        if ( v55 > 0x1D )
         {
-          LODWORD(v237) = v85;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 240, ASSERT_TYPE_ASSERT, "( ( bitChanged >= 0 && bitChanged < 30 ) )", "%s\n\t( bitChanged ) = %i", "( bitChanged >= 0 && bitChanged < 30 )", v237) )
+          LODWORD(v155) = v55;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 240, ASSERT_TYPE_ASSERT, "( ( bitChanged >= 0 && bitChanged < 30 ) )", "%s\n\t( bitChanged ) = %i", "( bitChanged >= 0 && bitChanged < 30 )", v155) )
             __debugbreak();
         }
-        MSG_SetField(_R14, field->size, LODWORD(v81) ^ (1 << v86));
+        MSG_SetField(v15, field->size, LODWORD(v51) ^ (1 << v56));
       }
-      goto LABEL_295;
-    case -97:
-    case -74:
-    case -70:
+      return;
+    case 0xFF9F:
+    case 0xFFB6:
+    case 0xFFBA:
       DeltaTime = MSG_ReadDeltaTime(msg, fromF);
-      MSG_SetField(_R14, field->size, DeltaTime);
-      goto LABEL_295;
-    case -96:
+      MSG_SetField(v15, field->size, DeltaTime);
+      return;
+    case 0xFFA0:
       if ( MSG_ReadBit(msg) == 1 )
       {
-        MSG_SetField(_R14, field->size, 2046i64);
-        goto LABEL_295;
+        MSG_SetField(v15, field->size, 2046i64);
+        return;
       }
       if ( MSG_ReadBit(msg) != 1 )
       {
-        v88 = MSG_ReadBits(msg, 3u);
-        v89 = truncate_cast<int,__int64>(v88);
-        LODWORD(Short) = (8 * MSG_ReadByte(msg)) | v89;
+        v58 = MSG_ReadBits(msg, 3u);
+        v59 = truncate_cast<int,__int64>(v58);
+        LODWORD(Short) = (8 * MSG_ReadByte(msg)) | v59;
       }
       goto LABEL_26;
-    case -95:
-      v102 = MSG_ReadBits(msg, 7u);
-      MSG_SetField(_R14, field->size, 100 * v102);
-      goto LABEL_295;
-    case -94:
-      v90 = field->offset;
+    case 0xFFA1:
+      v72 = MSG_ReadBits(msg, 7u);
+      MSG_SetField(v15, field->size, 100 * v72);
+      return;
+    case 0xFFA2:
+      v60 = field->offset;
       if ( abs16(field->size) != 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 592, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( *toEvent ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( *toEvent )") )
         __debugbreak();
       if ( !MSG_ReadBit(msg) )
       {
-        v95 = *(_DWORD *)((char *)from + v90);
-        *(_DWORD *)((char *)to + v90) = v95;
-        EventParamBits = MSG_GetEventParamBits(v95);
+        v65 = *(_DWORD *)((char *)from + v60);
+        *(_DWORD *)((char *)to + v60) = v65;
+        EventParamBits = MSG_GetEventParamBits(v65);
         if ( EventParamBits )
         {
-          v93 = EventParamBits;
+          v63 = EventParamBits;
           goto LABEL_100;
         }
 LABEL_101:
-        *(_DWORD *)((char *)to + v90 + 4) = Short;
-        goto LABEL_295;
+        *(_DWORD *)((char *)to + v60 + 4) = Short;
+        return;
       }
       Byte = MSG_ReadByte(msg);
-      *(_DWORD *)((char *)to + v90) = Byte;
-      v92 = MSG_GetEventParamBits(Byte);
-      if ( !v92 )
+      *(_DWORD *)((char *)to + v60) = Byte;
+      v62 = MSG_GetEventParamBits(Byte);
+      if ( !v62 )
         goto LABEL_101;
       if ( MSG_ReadBit(msg) )
       {
-        v93 = v92;
+        v63 = v62;
 LABEL_100:
-        ValueNoXor = MSG_ReadValueNoXor(msg, v93);
+        ValueNoXor = MSG_ReadValueNoXor(msg, v63);
         LODWORD(Short) = truncate_cast<unsigned int,__int64>(ValueNoXor);
         goto LABEL_101;
       }
-      LODWORD(v94) = -1;
-      if ( v92 != 64 )
-        v94 = ~(-1i64 << v92);
-      *(_DWORD *)((char *)to + v90 + 4) = v94 & *(_DWORD *)((_BYTE *)from + v90 + 4);
-LABEL_295:
-      __asm { vmovaps xmm6, [rsp+0F8h+var_58] }
+      LODWORD(v64) = -1;
+      if ( v62 != 64 )
+        v64 = ~(-1i64 << v62);
+      *(_DWORD *)((char *)to + v60 + 4) = v64 & *(_DWORD *)((_BYTE *)from + v60 + 4);
       return;
-    case -93:
+    case 0xFFA3:
       Long = MSG_ReadLong(msg);
-      MSG_SetField(_R14, field->size, Long);
-      goto LABEL_295;
-    case -92:
-    case -91:
-    case -83:
-    case -82:
+      MSG_SetField(v15, field->size, Long);
+      return;
+    case 0xFFA4:
+    case 0xFFA5:
+    case 0xFFAD:
+    case 0xFFAE:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1739, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      __asm { vmovss  xmm2, dword ptr [r15]; oldValue }
-      *(float *)&_XMM0 = MSG_ReadOriginFloat(field->bits, msg, *(float *)&_XMM2);
+      OriginFloat = MSG_ReadOriginFloat(field->bits, msg, *v14);
       goto LABEL_113;
-    case -90:
-    case -81:
+    case 0xFFA6:
+    case 0xFFAF:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1749, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      __asm { vmovss  xmm6, dword ptr [r15] }
-      v108 = MSG_GetOriginExtraPrecisionBitsForField(field->bits);
-      __asm { vmovaps xmm3, xmm6; oldValue }
-      *(float *)&_XMM0 = MSG_ReadOriginExpGolomb(2, v108, msg, *(float *)&_XMM3);
+      v76 = *v14;
+      v77 = MSG_GetOriginExtraPrecisionBitsForField(field->bits);
+      OriginFloat = MSG_ReadOriginExpGolomb(2, v77, msg, v76);
 LABEL_113:
-      __asm { vmovss  dword ptr [r14], xmm0 }
+      *v15 = OriginFloat;
       if ( print )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0F8h+fmt], xmm0
-        }
-        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, fmtd);
-      }
-      goto LABEL_295;
-    case -89:
+        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, OriginFloat);
+      return;
+    case 0xFFA7:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1612, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
       if ( MSG_ReadBit(msg) )
       {
-        v62 = MSG_ReadLong(msg);
-        LODWORD(_R14->m[0].v[0]) = v62;
-        LODWORD(_R14->m[0].v[0]) = *(_DWORD *)_R15 ^ v62;
+        v45 = MSG_ReadLong(msg);
+        *(_DWORD *)v15 = v45;
+        *(_DWORD *)v15 = *(_DWORD *)v14 ^ v45;
         if ( print )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0F8h+fmt], xmm0
-          }
-          Com_Printf(25, "%s%s:%f\n", (char *)&queryFormat.fmt + 3, field->name, fmta);
-        }
+          Com_Printf(25, "%s%s:%f\n", (char *)&queryFormat.fmt + 3, field->name, *v15);
       }
       else
       {
-        v55 = MSG_ReadBits(msg, 5u);
-        v56 = truncate_cast<int,__int64>(v55);
-        v57 = 32 * MSG_ReadByte(msg) + v56;
-        __asm { vcvttss2si eax, dword ptr [r15] }
-        v59 = (v57 ^ (_EAX + 4096)) - 4096;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r14], xmm0
-        }
+        v42 = MSG_ReadBits(msg, 5u);
+        v43 = truncate_cast<int,__int64>(v42);
+        v44 = ((32 * MSG_ReadByte(msg) + v43) ^ ((int)*v14 + 4096)) - 4096;
+        *v15 = (float)v44;
         if ( print )
         {
-          LODWORD(fmt) = v59;
+          LODWORD(fmt) = v44;
           Com_Printf(25, "%s%s:%i\n", (char *)&queryFormat.fmt + 3, field->name, fmt);
         }
       }
-      goto LABEL_295;
-    case -88:
+      return;
+    case 0xFFA8:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1646, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      v65 = MSG_ReadLong(msg);
-      LODWORD(_R14->m[0].v[0]) = v65;
-      LODWORD(_R14->m[0].v[0]) = *(_DWORD *)_R15 ^ v65;
+      v46 = MSG_ReadLong(msg);
+      *(_DWORD *)v15 = v46;
+      *(_DWORD *)v15 = *(_DWORD *)v14 ^ v46;
       if ( print )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0F8h+fmt], xmm0
-        }
-        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, fmtb);
-      }
-      goto LABEL_295;
-    case -87:
+        Com_Printf(25, "%s%s:%f \n", (char *)&queryFormat.fmt + 3, field->name, *v15);
+      return;
+    case 0xFFA9:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1786, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      *(double *)&_XMM0 = MSG_ReadAngle16(msg);
-      __asm { vmovss  dword ptr [r14], xmm0 }
-      goto LABEL_295;
-    case -86:
+      Angle16 = MSG_ReadAngle16(msg);
+      *v15 = *(float *)&Angle16;
+      return;
+    case 0xFFAA:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1791, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( float ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( float )") )
         __debugbreak();
-      MSG_ReadBits(msg, 6u);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, cs:__real@3dcccccd
-        vmovss  dword ptr [r14], xmm1
-      }
-      goto LABEL_295;
-    case -85:
+      v92 = (float)MSG_ReadBits(msg, 6u);
+      *v15 = v92 * 0.1;
+      return;
+    case 0xFFAB:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1813, ASSERT_TYPE_ASSERT, "(abs( field->size ) == sizeof( *toColor ))", (const char *)&queryFormat, "abs( field->size ) == sizeof( *toColor )") )
         __debugbreak();
       if ( MSG_ReadBit(msg) )
       {
-        _R14->m[0].v[0] = *(float *)_R15;
-        if ( !*((_BYTE *)_R15 + 3) )
+        *v15 = *v14;
+        if ( !*((_BYTE *)v14 + 3) )
           LOBYTE(Short) = -1;
-        HIBYTE(_R14->row0.x) = Short;
+        *((_BYTE *)v15 + 3) = Short;
       }
       else
       {
         if ( !MSG_ReadBit(msg) )
         {
-          LOBYTE(_R14->m[0].v[0]) = MSG_ReadByte(msg);
-          BYTE1(_R14->m[0].v[0]) = MSG_ReadByte(msg);
-          BYTE2(_R14->row0.x) = MSG_ReadByte(msg);
+          *(_BYTE *)v15 = MSG_ReadByte(msg);
+          *((_BYTE *)v15 + 1) = MSG_ReadByte(msg);
+          *((_BYTE *)v15 + 2) = MSG_ReadByte(msg);
         }
-        v160 = MSG_ReadBits(msg, 8u);
-        v161 = v160;
-        if ( (v160 < 0 || (unsigned __int64)v160 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v160, "signed", v160) )
+        v99 = MSG_ReadBits(msg, 8u);
+        v100 = v99;
+        if ( (v99 < 0 || (unsigned __int64)v99 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v99, "signed", v99) )
           __debugbreak();
-        HIBYTE(_R14->row0.x) = v161;
+        *((_BYTE *)v15 + 3) = v100;
       }
-      goto LABEL_295;
-    case -84:
-      v162 = MSG_ReadBits(msg, 0x1Du);
-      MSG_SetField(_R14, field->size, v162);
-      goto LABEL_295;
-    case -80:
-    case -78:
-      v47 = MSG_ReadLong(msg);
-      MSG_SetField(_R14, field->size, v47);
-      goto LABEL_295;
-    case -77:
-      v103 = MSG_ReadByte(msg);
-      v104 = truncate_cast<enum entityType_s,__int64>(v103);
-      MSG_SetField(_R14, field->size, v104);
-      goto LABEL_295;
-    case -76:
+      return;
+    case 0xFFAC:
+      v101 = MSG_ReadBits(msg, 0x1Du);
+      MSG_SetField(v15, field->size, v101);
+      return;
+    case 0xFFB0:
+    case 0xFFB2:
+      v34 = MSG_ReadLong(msg);
+      MSG_SetField(v15, field->size, v34);
+      return;
+    case 0xFFB3:
+      v73 = MSG_ReadByte(msg);
+      v74 = truncate_cast<enum entityType_s,__int64>(v73);
+      MSG_SetField(v15, field->size, v74);
+      return;
+    case 0xFFB4:
       if ( abs16(field->size) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1838, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 2)", (const char *)&queryFormat, "abs( field->size ) == 2") )
         __debugbreak();
       if ( MSG_ReadBit(msg) == 1 )
       {
-        v163 = MSG_ReadBits(msg, 4u);
-        v164 = truncate_cast<int,__int64>(v163);
-        v165 = MSG_GetField(_R15, field->size);
-        v166 = truncate_cast<short,__int64>(v165) + v164 - 8;
+        v102 = MSG_ReadBits(msg, 4u);
+        v103 = truncate_cast<int,__int64>(v102);
+        v104 = MSG_GetField(v14, field->size);
+        v105 = truncate_cast<short,__int64>(v104) + v103 - 8;
       }
       else
       {
-        v167 = MSG_ReadValue(msg, _R15, 8, field->size);
-        v166 = truncate_cast<short,__int64>(v167);
+        v106 = MSG_ReadValue(msg, v14, 8, field->size);
+        v105 = truncate_cast<short,__int64>(v106);
       }
-      MSG_SetField(_R14, field->size, v166);
+      MSG_SetField(v15, field->size, v105);
       if ( print )
       {
-        *(float *)&fmt = _R14->m[0].v[0];
+        *(float *)&fmt = *v15;
         Com_Printf(25, "%s%s:%i \n", (char *)&queryFormat.fmt + 3, field->name, fmt);
       }
-      goto LABEL_295;
-    case -75:
+      return;
+    case 0xFFB5:
       if ( MSG_ReadBit(msg) == 1 )
       {
         if ( abs16(field->size) > 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1602, ASSERT_TYPE_ASSERT, "(abs( field->size ) <= 4)", (const char *)&queryFormat, "abs( field->size ) <= 4") )
           __debugbreak();
         MinBitCountForNum = GetMinBitCountForNum(0x10u);
-        v49 = MSG_ReadBits(msg, MinBitCountForNum);
-        v50 = truncate_cast<int,__int64>(v49);
-        v51 = MSG_GetField(_R15, field->size);
-        v52 = truncate_cast<int,__int64>(v51);
-        MSG_SetField(_R14, field->size, v50 + v52 + 1);
+        v36 = MSG_ReadBits(msg, MinBitCountForNum);
+        v37 = truncate_cast<int,__int64>(v36);
+        v38 = MSG_GetField(v14, field->size);
+        v39 = truncate_cast<int,__int64>(v38);
+        MSG_SetField(v15, field->size, v37 + v39 + 1);
       }
       else
       {
-        v53 = MSG_ReadValue(msg, _R15, 8, field->size);
-        v54 = truncate_cast<int,__int64>(v53);
-        MSG_SetField(_R14, field->size, v54);
+        v40 = MSG_ReadValue(msg, v14, 8, field->size);
+        v41 = truncate_cast<int,__int64>(v40);
+        MSG_SetField(v15, field->size, v41);
       }
-      goto LABEL_295;
-    case -73:
+      return;
+    case 0xFFB7:
       NetConstString = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_HINTSTRING);
-      MSG_SetField(_R14, field->size, NetConstString);
-      goto LABEL_295;
-    case -72:
-      v195 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_LOCSTRING);
-      MSG_SetField(_R14, field->size, v195);
-      goto LABEL_295;
-    case -71:
-      v196 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_XMODEL);
-      MSG_SetField(_R14, field->size, v196);
-      goto LABEL_295;
-    case -69:
+      MSG_SetField(v15, field->size, NetConstString);
+      return;
+    case 0xFFB8:
+      v118 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_LOCSTRING);
+      MSG_SetField(v15, field->size, v118);
+      return;
+    case 0xFFB9:
+      v119 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_XMODEL);
+      MSG_SetField(v15, field->size, v119);
+      return;
+    case 0xFFBB:
       if ( MSG_ReadBit(msg) )
       {
-        __asm { vmovaps [rsp+0F8h+var_68], xmm7 }
-        v172 = MSG_ReadByte(msg);
-        __asm
+        v163 = v8;
+        v107 = MSG_ReadByte(msg);
+        v108 = *v14;
+        v109 = v107;
+        if ( *v14 < 0.0 || v108 > 1.0 )
         {
-          vmovss  xmm6, dword ptr [r15]
-          vmovss  xmm7, cs:__real@3f800000
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm6, xmm0
-        }
-        v176 = v172;
-        if ( v170 )
-          goto LABEL_298;
-        __asm { vcomiss xmm6, xmm7 }
-        if ( !(v170 | v171) )
-        {
-LABEL_298:
-          __asm
-          {
-            vmovsd  xmm0, cs:__real@3ff0000000000000
-            vmovsd  [rsp+0F8h+var_C0], xmm0
-            vxorpd  xmm1, xmm1, xmm1
-            vmovsd  [rsp+0F8h+var_C8], xmm1
-            vcvtss2sd xmm2, xmm6, xmm6
-            vmovsd  qword ptr [rsp+0F8h+var_D0], xmm2
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", v236, v238, v239) )
+          __asm { vxorpd  xmm1, xmm1, xmm1 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1152, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( value ) && ( value ) <= ( 1.f )", "value not in [0.f, 1.f]\n\t%g not in [%g, %g]", v108, *(double *)&_XMM1, DOUBLE_1_0) )
             __debugbreak();
         }
-        __asm
-        {
-          vmulss  xmm0, xmm6, cs:__real@43800000
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm1, xmm1, xmm0, 1
-          vcvttss2si eax, xmm1
-        }
-        v183 = _EAX;
-        if ( _EAX > 255 )
-          v183 = -1;
-        if ( (v176 ^ (unsigned __int8)v183) == 0xFF )
-        {
-          __asm { vmovss  [rsp+0F8h+var_A8], xmm7 }
-        }
+        _XMM1 = 0i64;
+        __asm { vroundss xmm1, xmm1, xmm0, 1 }
+        v113 = (int)*(float *)&_XMM1;
+        if ( (int)*(float *)&_XMM1 > 255 )
+          v113 = -1;
+        if ( (v109 ^ (unsigned __int8)v113) == 0xFF )
+          v157 = FLOAT_1_0;
         else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, cs:__real@3b800000
-            vmovss  [rsp+0F8h+var_A8], xmm1
-          }
-        }
-        LODWORD(Short) = v242;
-        __asm { vmovaps xmm7, [rsp+0F8h+var_68] }
+          v157 = (float)(unsigned __int8)(v109 ^ v113) * 0.00390625;
+        *(float *)&Short = v157;
         if ( print )
-        {
-          __asm
-          {
-            vmovss  xmm3, [rsp+0F8h+var_A8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vmovq   r9, xmm3
-          }
-          Com_Printf(25, "%s:%f ", field->name, *(double *)&_XMM3);
-        }
+          Com_Printf(25, "%s:%f ", field->name, v157);
       }
       else
       {
         LODWORD(Short) = MSG_ReadBit(msg) << 31;
-        v241 = Short;
-        __asm
-        {
-          vmovss  xmm0, [rsp+0F8h+var_A8]
-          vxorps  xmm1, xmm1, xmm1
-          vucomiss xmm0, xmm1
-        }
-        if ( (_DWORD)Short && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 942, ASSERT_TYPE_ASSERT, "( *reinterpret_cast<float *>( &value ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast<float *>( &value ) == 0.0f") )
+        if ( *(float *)&Short != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 942, ASSERT_TYPE_ASSERT, "( *reinterpret_cast<float *>( &value ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast<float *>( &value ) == 0.0f") )
         {
           __debugbreak();
-          MSG_SetField(_R14, field->size, (int)Short);
-          goto LABEL_295;
+          MSG_SetField(v15, field->size, (int)Short);
+          return;
         }
       }
 LABEL_26:
-      MSG_SetField(_R14, field->size, (int)Short);
-      goto LABEL_295;
-    case -68:
+      MSG_SetField(v15, field->size, (int)Short);
+      return;
+    case 0xFFBC:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1874, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@461c4000; maxValue }
-      goto LABEL_207;
-    case -67:
+      v114 = FLOAT_10000_0;
+      goto LABEL_205;
+    case 0xFFBD:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1881, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@40a00000 }
-      v192 = 12;
-      goto LABEL_208;
-    case -66:
+      v114 = FLOAT_5_0;
+      v115 = 12;
+      goto LABEL_206;
+    case 0xFFBE:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1888, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@41300000 }
-LABEL_207:
-      v192 = 14;
-      goto LABEL_208;
-    case -65:
+      v114 = FLOAT_11_0;
+LABEL_205:
+      v115 = 14;
+      goto LABEL_206;
+    case 0xFFBF:
       if ( MSG_ReadBit(msg) )
       {
-        *(double *)&_XMM0 = MSG_ReadFloat(msg);
-        __asm { vmovss  dword ptr [rsp+0F8h+quatPacked], xmm0 }
-        *(double *)&_XMM0 = MSG_ReadFloat(msg);
-        __asm { vmovss  dword ptr [rsp+0F8h+quatPacked+4], xmm0 }
-        *(double *)&_XMM0 = MSG_ReadFloat(msg);
-        __asm { vmovss  dword ptr [rsp+0F8h+quatPacked+8], xmm0 }
+        Float = MSG_ReadFloat(msg);
+        quatPacked.v[0] = *(float *)&Float;
+        v145 = MSG_ReadFloat(msg);
+        quatPacked.v[1] = *(float *)&v145;
+        v146 = MSG_ReadFloat(msg);
+        quatPacked.v[2] = *(float *)&v146;
         PackedQuatToUnitQuat(&quatPacked, &outQuat);
-        QuatToAxis(&outQuat, _R14);
+        QuatToAxis(&outQuat, (tmat33_t<vec3_t> *)v15);
       }
       else
       {
-        *(_QWORD *)_R14->m[0].v = 0i64;
-        *(_QWORD *)&_R14->row0.z = 0i64;
-        *(_QWORD *)&_R14->row1.y = 0i64;
-        *(_QWORD *)_R14->row2.v = 0i64;
-        _R14->m[2].v[2] = 0.0;
+        *(_QWORD *)v15 = 0i64;
+        *((_QWORD *)v15 + 1) = 0i64;
+        *((_QWORD *)v15 + 2) = 0i64;
+        *((_QWORD *)v15 + 3) = 0i64;
+        v15[8] = 0.0;
       }
-      goto LABEL_295;
-    case -64:
+      return;
+    case 0xFFC0:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1902, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@42b40000 }
-      v192 = 11;
-      goto LABEL_208;
-    case -63:
+      v114 = FLOAT_90_0;
+      v115 = 11;
+      goto LABEL_206;
+    case 0xFFC1:
       m_esIndexBits = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_VEHICLES) + 7;
-      goto LABEL_249;
-    case -62:
-      v199 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_HEADICON);
-      MSG_SetField(_R14, field->size, v199);
-      goto LABEL_295;
-    case -61:
-      v202 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_SHOCK);
-      MSG_SetField(_R14, field->size, v202);
-      goto LABEL_295;
-    case -60:
-      v203 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_CLIENT_TAGS);
-      MSG_SetField(_R14, field->size, v203);
-      goto LABEL_295;
-    case -59:
+      goto LABEL_247;
+    case 0xFFC2:
+      v122 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_HEADICON);
+      MSG_SetField(v15, field->size, v122);
+      return;
+    case 0xFFC3:
+      v125 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_SHOCK);
+      MSG_SetField(v15, field->size, v125);
+      return;
+    case 0xFFC4:
+      v126 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_CLIENT_TAGS);
+      MSG_SetField(v15, field->size, v126);
+      return;
+    case 0xFFC5:
       ClientAttachTagBits = BgDynamicLimits::GetClientAttachTagBits();
-      v210 = MSG_ReadValueNoXor(msg, ClientAttachTagBits + 11);
-      MSG_SetField(_R14, field->size, v210);
-      goto LABEL_295;
-    case -58:
+      v133 = MSG_ReadValueNoXor(msg, ClientAttachTagBits + 11);
+      MSG_SetField(v15, field->size, v133);
+      return;
+    case 0xFFC6:
       if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 66, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
         __debugbreak();
       if ( !BgDynamicLimits::ms_data.m_effectBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 67, ASSERT_TYPE_ASSERT, "(ms_data.m_effectBits > 0)", (const char *)&queryFormat, "ms_data.m_effectBits > 0") )
         __debugbreak();
       m_effectBits = BgDynamicLimits::ms_data.m_effectBits;
-      goto LABEL_248;
-    case -57:
-      v204 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_SUIT);
-      MSG_SetField(_R14, field->size, v204);
-      goto LABEL_295;
-    case -56:
+      goto LABEL_246;
+    case 0xFFC7:
+      v127 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_SUIT);
+      MSG_SetField(v15, field->size, v127);
+      return;
+    case 0xFFC8:
       if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 82, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
         __debugbreak();
       if ( !BgDynamicLimits::ms_data.m_modelBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 83, ASSERT_TYPE_ASSERT, "(ms_data.m_modelBits > 0)", (const char *)&queryFormat, "ms_data.m_modelBits > 0") )
         __debugbreak();
       m_effectBits = BgDynamicLimits::ms_data.m_modelBits;
-LABEL_248:
+LABEL_246:
       m_esIndexBits = m_effectBits + BgDynamicLimits::GetClientAttachTagBits();
-      goto LABEL_249;
-    case -55:
+      goto LABEL_247;
+    case 0xFFC9:
       if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 90, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
         __debugbreak();
       if ( !BgDynamicLimits::ms_data.m_esIndexBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 91, ASSERT_TYPE_ASSERT, "(ms_data.m_esIndexBits > 0)", (const char *)&queryFormat, "ms_data.m_esIndexBits > 0") )
         __debugbreak();
       m_esIndexBits = BgDynamicLimits::ms_data.m_esIndexBits;
-      goto LABEL_249;
-    case -54:
-      v206 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_MATERIAL);
-      MSG_SetField(_R14, field->size, v206);
-      goto LABEL_295;
-    case -53:
-      v197 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_ANIM);
-      MSG_SetField(_R14, field->size, v197);
-      goto LABEL_295;
-    case -52:
-      v198 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_VISIONSET);
-      MSG_SetField(_R14, field->size, v198);
-      goto LABEL_295;
-    case -51:
-      v207 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_VFX);
-      MSG_SetField(_R14, field->size, v207);
-      goto LABEL_295;
-    case -50:
-      v208 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_MINIMAPICON);
-      MSG_SetField(_R14, field->size, v208);
-      goto LABEL_295;
-    case -49:
-      v214 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_OBJECTIVEICON);
-      MSG_SetField(_R14, field->size, v214);
-      goto LABEL_295;
-    case -48:
-      v200 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_LUI);
-      MSG_SetField(_R14, field->size, v200);
-      goto LABEL_295;
-    case -47:
-      v201 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_IMAGE);
-      MSG_SetField(_R14, field->size, v201);
-      goto LABEL_295;
-    case -46:
+      goto LABEL_247;
+    case 0xFFCA:
+      v129 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_MATERIAL);
+      MSG_SetField(v15, field->size, v129);
+      return;
+    case 0xFFCB:
+      v120 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_ANIM);
+      MSG_SetField(v15, field->size, v120);
+      return;
+    case 0xFFCC:
+      v121 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_VISIONSET);
+      MSG_SetField(v15, field->size, v121);
+      return;
+    case 0xFFCD:
+      v130 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_VFX);
+      MSG_SetField(v15, field->size, v130);
+      return;
+    case 0xFFCE:
+      v131 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_MINIMAPICON);
+      MSG_SetField(v15, field->size, v131);
+      return;
+    case 0xFFCF:
+      v137 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_OBJECTIVEICON);
+      MSG_SetField(v15, field->size, v137);
+      return;
+    case 0xFFD0:
+      v123 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_LUI);
+      MSG_SetField(v15, field->size, v123);
+      return;
+    case 0xFFD1:
+      v124 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_IMAGE);
+      MSG_SetField(v15, field->size, v124);
+      return;
+    case 0xFFD2:
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 85, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
       if ( !ComCharacterLimits::ms_gameData.m_clientBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 86, ASSERT_TYPE_ASSERT, "(ms_gameData.m_clientBits > 0)", (const char *)&queryFormat, "ms_gameData.m_clientBits > 0") )
         __debugbreak();
       m_esIndexBits = ComCharacterLimits::ms_gameData.m_clientBits;
-      goto LABEL_249;
-    case -45:
+      goto LABEL_247;
+    case 0xFFD3:
       key = 0;
-      MSG_ReadDeltaClientBitsKey(msg, &key, _R15, _R14);
-      goto LABEL_295;
-    case -44:
+      MSG_ReadDeltaClientBitsKey(msg, &key, v14, v15);
+      return;
+    case 0xFFD4:
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 101, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
       if ( !ComCharacterLimits::ms_gameData.m_characterBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 102, ASSERT_TYPE_ASSERT, "(ms_gameData.m_characterBits > 0)", (const char *)&queryFormat, "ms_gameData.m_characterBits > 0") )
         __debugbreak();
       m_esIndexBits = ComCharacterLimits::ms_gameData.m_characterBits;
-LABEL_249:
-      v213 = MSG_ReadValueNoXor(msg, m_esIndexBits);
-      MSG_SetField(_R14, field->size, v213);
-      goto LABEL_295;
-    case -43:
-      v215 = MSG_ReadBits(msg, 3u);
-      v216 = truncate_cast<unsigned int,__int64>(v215);
-      v217 = v216;
-      if ( v216 > 7 )
+LABEL_247:
+      v136 = MSG_ReadValueNoXor(msg, m_esIndexBits);
+      MSG_SetField(v15, field->size, v136);
+      return;
+    case 0xFFD5:
+      v138 = MSG_ReadBits(msg, 3u);
+      v139 = truncate_cast<unsigned int,__int64>(v138);
+      v140 = v139;
+      if ( v139 > 7 )
       {
-        LODWORD(v237) = 7;
-        LODWORD(v235) = v216;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2002, ASSERT_TYPE_ASSERT, "( numPatterns ) <= ( (7u) )", "numPatterns not in [0, FULL_AUTO_SCALE_NUM_MAX_PATTERNS]\n\t%u not in [0, %u]", v235, v237) )
+        LODWORD(v155) = 7;
+        LODWORD(v154) = v139;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2002, ASSERT_TYPE_ASSERT, "( numPatterns ) <= ( (7u) )", "numPatterns not in [0, FULL_AUTO_SCALE_NUM_MAX_PATTERNS]\n\t%u not in [0, %u]", v154, v155) )
           __debugbreak();
       }
-      LODWORD(_R14->m[0].v[0]) = (_DWORD)v217 << 29;
-      if ( (_DWORD)v217 )
+      *(_DWORD *)v15 = (_DWORD)v140 << 29;
+      if ( (_DWORD)v140 )
       {
         do
         {
-          v218 = MSG_ReadBits(msg, 4u);
-          v219 = truncate_cast<unsigned int,__int64>(v218);
-          v220 = Short;
+          v141 = MSG_ReadBits(msg, 4u);
+          v142 = truncate_cast<unsigned int,__int64>(v141);
+          v143 = Short;
           LODWORD(Short) = Short + 4;
-          LODWORD(_R14->m[0].v[0]) |= v219 << v220;
-          --v217;
+          *(_DWORD *)v15 |= v142 << v143;
+          --v140;
         }
-        while ( v217 );
+        while ( v140 );
       }
-      goto LABEL_295;
-    case -42:
-      v205 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_CARRYOBJECT);
-      MSG_SetField(_R14, field->size, v205);
-      goto LABEL_295;
-    case -41:
-      v221 = MSG_ReadBits(msg, 0x12u);
-      v222 = truncate_cast<unsigned int,__int64>(v221);
-      MSG_SetField(_R14, field->size, v222 - 1);
-      goto LABEL_295;
-    case -40:
+      return;
+    case 0xFFD6:
+      v128 = MSG_ReadNetConstString(msg, NETCONSTSTRINGTYPE_CARRYOBJECT);
+      MSG_SetField(v15, field->size, v128);
+      return;
+    case 0xFFD7:
+      v147 = MSG_ReadBits(msg, 0x12u);
+      v148 = truncate_cast<unsigned int,__int64>(v147);
+      MSG_SetField(v15, field->size, v148 - 1);
+      return;
+    case 0xFFD8:
       if ( abs16(field->size) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 1895, ASSERT_TYPE_ASSERT, "(abs( field->size ) == 4)", (const char *)&queryFormat, "abs( field->size ) == 4") )
         __debugbreak();
-      __asm { vmovss  xmm2, cs:__real@41a00000 }
-      v192 = 10;
-LABEL_208:
-      FloatByRangeAndBits = MSG_ReadFloatByRangeAndBits(msg, (const int *)_R15, *(float *)&_XMM2, v192, field, print);
-      MSG_SetField(_R14, field->size, FloatByRangeAndBits);
-      goto LABEL_295;
+      v114 = FLOAT_20_0;
+      v115 = 10;
+LABEL_206:
+      FloatByRangeAndBits = MSG_ReadFloatByRangeAndBits(msg, (const int *)v14, v114, v115, field, print);
+      MSG_SetField(v15, field->size, FloatByRangeAndBits);
+      return;
     default:
-      v223 = MSG_ReadBit(msg);
-      v224 = field->size;
-      if ( v223 )
+      v149 = MSG_ReadBit(msg);
+      v150 = field->size;
+      if ( v149 )
       {
-        v225 = MSG_ReadValue(msg, _R15, field->bits, v224);
-        MSG_SetField(_R14, field->size, v225);
+        v151 = MSG_ReadValue(msg, v14, field->bits, v150);
+        MSG_SetField(v15, field->size, v151);
         if ( print )
         {
-          fmtg = (char *)MSG_GetField(_R14, field->size);
-          Com_Printf(25, "%s%s:%lld\n", (char *)&queryFormat.fmt + 3, field->name, fmtg);
+          fmta = (char *)MSG_GetField(v15, field->size);
+          Com_Printf(25, "%s%s:%lld\n", (char *)&queryFormat.fmt + 3, field->name, fmta);
         }
       }
       else
       {
-        MSG_SetField(_R14, v224, 0i64);
+        MSG_SetField(v15, v150, 0i64);
       }
-      goto LABEL_295;
+      return;
   }
 }
 
@@ -3421,102 +3118,84 @@ char MSG_ReadDeltaMLGSpectatorInfo(msg_t *msg, const int time, const MLGSpectato
   const NetFieldList *NetFieldListForNetFieldType; 
   __int64 count; 
   __int64 Bits; 
-  int v26; 
-  char v27; 
-  int v28; 
-  __int64 v29; 
-  const NetField *v30; 
-  __int64 v31; 
-  __int64 v32; 
+  int v13; 
+  char v14; 
+  int v15; 
+  __int64 v16; 
+  const NetField *v17; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned __int16 *p_offset; 
-  int v34; 
+  int v21; 
   const NetField *array; 
-  char v38[224]; 
+  char v25[224]; 
 
-  _RBP = to;
-  _RSI = from;
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3301, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
   NetFieldListForNetFieldType = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_MLG_SPECTATOR);
   count = (int)NetFieldListForNetFieldType->count;
   array = NetFieldListForNetFieldType->array;
-  if ( !_RSI )
+  if ( !from )
   {
-    _RSI = (const MLGSpectatorClientInfo *)v38;
-    memset_0(v38, 0, 0xD8ui64);
+    from = (const MLGSpectatorClientInfo *)v25;
+    memset_0(v25, 0, 0xD8ui64);
   }
   if ( MSG_ReadBit(msg) )
   {
     Bits = MSG_ReadBits(msg, 6u);
-    v26 = truncate_cast<int,__int64>(Bits);
-    v27 = 0;
-    v28 = 0;
-    v29 = count;
+    v13 = truncate_cast<int,__int64>(Bits);
+    v14 = 0;
+    v15 = 0;
+    v16 = count;
     if ( (int)count > 0 )
     {
-      v30 = array;
-      v31 = 0i64;
-      v32 = v26;
+      v17 = array;
+      v18 = 0i64;
+      v19 = v13;
       p_offset = &array->offset;
       do
       {
-        if ( v31 >= v32 )
+        if ( v18 >= v19 )
         {
-          *(int *)((char *)&_RBP->mlgMessageSent + *p_offset) = *(int *)((char *)&_RSI->mlgMessageSent + *p_offset);
+          *(int *)((char *)&to->mlgMessageSent + *p_offset) = *(int *)((char *)&from->mlgMessageSent + *p_offset);
         }
         else
         {
-          MSG_ReadDeltaField(msg, time, _RSI, _RBP, &v30[v28], 1, 1);
-          if ( !v27 )
+          MSG_ReadDeltaField(msg, time, from, to, &v17[v15], 1, 1);
+          if ( !v14 )
           {
-            v34 = (__int16)p_offset[1];
-            if ( v34 == 7 || v34 == -111 )
-              v27 = 1;
+            v21 = (__int16)p_offset[1];
+            if ( v21 == 7 || v21 == -111 )
+              v14 = 1;
           }
-          v30 = array;
+          v17 = array;
         }
-        ++v28;
-        ++v31;
+        ++v15;
+        ++v18;
         p_offset += 12;
       }
-      while ( v31 < v29 );
-      if ( v27 )
+      while ( v18 < v16 );
+      if ( v14 )
         CgMLGSpectator::SetClientLoadoutDirty(cGameGlob->m_mlgSpectatorPtr, clientIdx, 1);
     }
     return 1;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rbp+0], xmm0
-      vmovups xmm1, xmmword ptr [rsi+10h]
-      vmovups xmmword ptr [rbp+10h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+20h]
-      vmovups xmmword ptr [rbp+20h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+30h]
-      vmovups xmmword ptr [rbp+30h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+40h]
-      vmovups xmmword ptr [rbp+40h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+50h]
-      vmovups xmmword ptr [rbp+50h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+60h]
-      vmovups xmmword ptr [rbp+60h], xmm0
-      vmovups xmm0, xmmword ptr [rsi+70h]
-      vmovups xmmword ptr [rbp+70h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+80h]
-      vmovups xmmword ptr [rbp+80h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+90h]
-      vmovups xmmword ptr [rbp+90h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+0A0h]
-      vmovups xmmword ptr [rbp+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+0B0h]
-      vmovups xmmword ptr [rbp+0B0h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+0C0h]
-      vmovups xmmword ptr [rbp+0C0h], xmm1
-    }
-    *(_QWORD *)&_RBP->clientFoV = *(_QWORD *)&_RSI->clientFoV;
+    *(_OWORD *)&to->mlgMessageSent = *(_OWORD *)&from->mlgMessageSent;
+    *(_OWORD *)&to->killstreakIndexes[1] = *(_OWORD *)&from->killstreakIndexes[1];
+    *(_OWORD *)&to->killstreakAvailability[1] = *(_OWORD *)&from->killstreakAvailability[1];
+    *(_OWORD *)&to->inClipAmmo[1] = *(_OWORD *)&from->inClipAmmo[1];
+    *(_OWORD *)&to->powerSecondaryAmmo = *(_OWORD *)&from->powerSecondaryAmmo;
+    *(_OWORD *)&to->nextKillstreakCost = *(_OWORD *)&from->nextKillstreakCost;
+    *(_OWORD *)&to->isGametypeVIP = *(_OWORD *)&from->isGametypeVIP;
+    *(_OWORD *)&to->isSpecialist = *(_OWORD *)&from->isSpecialist;
+    *(_OWORD *)to->loadoutIndicies = *(_OWORD *)from->loadoutIndicies;
+    *(_OWORD *)&to->loadoutIndicies[4] = *(_OWORD *)&from->loadoutIndicies[4];
+    *(_OWORD *)&to->loadoutIndicies[8] = *(_OWORD *)&from->loadoutIndicies[8];
+    *(_OWORD *)to->extraPower = *(_OWORD *)from->extraPower;
+    *(_OWORD *)&to->locationSelectorCursor.y = *(_OWORD *)&from->locationSelectorCursor.y;
+    *(_QWORD *)&to->clientFoV = *(_QWORD *)&from->clientFoV;
     return 0;
   }
 }
@@ -3711,65 +3390,73 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, const int time, const playerState_s *f
   int v44; 
   __int64 v45; 
   WeaponAmmoType v46; 
+  Weapon *v47; 
   int v48; 
-  __int64 v53; 
-  int v54; 
-  const NetFieldList *v55; 
+  __int128 v49; 
+  double v50; 
+  char *v51; 
+  __int64 v52; 
+  int v53; 
+  const NetFieldList *v54; 
   ObjectiveView *objectives; 
-  __int64 v57; 
+  __int64 v56; 
+  int v57; 
   int v58; 
-  int v59; 
-  const NetField *v60; 
-  const playerState_s *v61; 
+  const NetField *v59; 
+  const playerState_s *v60; 
+  unsigned int v61; 
   unsigned int v62; 
   unsigned int v63; 
-  unsigned int v64; 
-  const NetFieldList *v65; 
-  signed int v66; 
+  const NetFieldList *v64; 
+  signed int v65; 
+  int v66; 
   int v67; 
-  int v68; 
-  const NetField *v69; 
-  const NetFieldList *v70; 
-  signed int v71; 
+  const NetField *v68; 
+  const NetFieldList *v69; 
+  signed int v70; 
+  int v71; 
   int v72; 
-  int v73; 
-  const NetField *v74; 
-  const NetFieldList *v75; 
+  const NetField *v73; 
+  const NetFieldList *v74; 
   TargetMarkerGroupView *targetMarkerGroups; 
-  signed __int64 v77; 
-  __int64 v78; 
+  signed __int64 v76; 
+  __int64 v77; 
+  int v78; 
   int v79; 
-  int v80; 
-  const NetField *v81; 
-  const NetFieldList *v82; 
+  const NetField *v80; 
+  const NetFieldList *v81; 
   CalloutMarkerPingView *calloutMarkerPings; 
-  char *v84; 
-  __int64 v85; 
+  char *v83; 
+  __int64 v84; 
+  int v85; 
   int v86; 
-  int v87; 
-  const NetField *v88; 
+  const NetField *v87; 
+  __int64 v88; 
   __int64 v89; 
-  __int64 v91; 
-  int v92; 
-  __int64 v94; 
-  int v98; 
-  _DWORD *v99; 
+  __int64 v90; 
+  int v91; 
+  Weapon *v92; 
+  __int64 v93; 
+  __int128 v94; 
+  double v95; 
+  int v96; 
+  _DWORD *v97; 
+  __int64 v98; 
+  int v99; 
   __int64 v100; 
   int v101; 
   __int64 v102; 
   int v103; 
-  __int64 v104; 
-  int v105; 
   const char *fmt; 
-  int v107; 
+  int v105; 
   __int64 print; 
   __int64 xorValues; 
   bool xorValuesa; 
-  __int64 v111; 
+  __int64 v109; 
   const playerState_s *froma; 
+  int v113; 
+  int v114; 
   int v115; 
-  int v116; 
-  int v117; 
   Weapon result; 
   playerState_s ps; 
 
@@ -3809,13 +3496,13 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, const int time, const playerState_s *f
   {
 LABEL_21:
     v7 = 1;
-    v115 = 1;
+    v113 = 1;
     Com_Printf(25, "%3i: playerstate ", (unsigned int)v10->readcount);
   }
   else
   {
 LABEL_22:
-    v115 = 0;
+    v113 = 0;
   }
   *outRecvOriginAndVelocity = MSG_ReadBit(v10) > 0;
   *outRecvVehicleState = MSG_ReadBit(v10) > 0;
@@ -3824,8 +3511,8 @@ LABEL_22:
   count = NetFieldListForNetFieldType->count;
   skippedNetfieldBits = NetFieldListForNetFieldType->skippedNetfieldBits;
   array = NetFieldListForNetFieldType->array;
-  v116 = skippedNetfieldBits;
-  v117 = count;
+  v114 = skippedNetfieldBits;
+  v115 = count;
   v18 = MSG_ReadLastChangedField(v10, count + 1) - 1;
   if ( v18 < -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2933, ASSERT_TYPE_ASSERT, "(lc >= -1)", (const char *)&queryFormat, "lc >= -1") )
     __debugbreak();
@@ -3865,29 +3552,29 @@ LABEL_22:
       v26 = archived || !v25 && v24->changeHints != 7;
       if ( v14 > v18 )
       {
-        LODWORD(v111) = v18;
+        LODWORD(v109) = v18;
         LODWORD(xorValues) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2964, ASSERT_TYPE_ASSERT, "(nextChanged <= lc)", "%s\n\tnextChanged == %i, lc == %i", "nextChanged <= lc", xorValues, v111) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2964, ASSERT_TYPE_ASSERT, "(nextChanged <= lc)", "%s\n\tnextChanged == %i, lc == %i", "nextChanged <= lc", xorValues, v109) )
           __debugbreak();
       }
       if ( v14 <= v21 )
       {
-        LODWORD(v111) = v21;
+        LODWORD(v109) = v21;
         LODWORD(xorValues) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2965, ASSERT_TYPE_ASSERT, "(nextChanged > lastChanged)", "%s\n\tnextChanged == %i, lastChanged == %i", "nextChanged > lastChanged", xorValues, v111) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2965, ASSERT_TYPE_ASSERT, "(nextChanged > lastChanged)", "%s\n\tnextChanged == %i, lastChanged == %i", "nextChanged > lastChanged", xorValues, v109) )
           __debugbreak();
       }
       v8 = to;
       xorValuesa = v26;
-      v7 = v115;
-      MSG_ReadDeltaField(v10, time, froma, to, &array[v14], v115, xorValuesa);
+      v7 = v113;
+      MSG_ReadDeltaField(v10, time, froma, to, &array[v14], v113, xorValuesa);
       if ( v10->overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2969, ASSERT_TYPE_ASSERT, "( !msg->overflowed )", (const char *)&queryFormat, "!msg->overflowed") )
         __debugbreak();
-      skippedNetfieldBits = v116;
+      skippedNetfieldBits = v114;
       v19 = v14 == v18;
     }
     while ( v14 < v18 );
-    count = v117;
+    count = v115;
   }
   if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 2971, ASSERT_TYPE_ASSERT, "( nextChanged == lc )", (const char *)&queryFormat, "nextChanged == lc") )
     __debugbreak();
@@ -3931,71 +3618,64 @@ LABEL_22:
   {
     while ( 1 )
     {
-      v89 = MSG_ReadBits(v10, 4u);
-      v44 = v89;
-      if ( (unsigned __int64)(v89 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v89, "signed", v89) )
+      v88 = MSG_ReadBits(v10, 4u);
+      v44 = v88;
+      if ( (unsigned __int64)(v88 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v88, "signed", v88) )
         __debugbreak();
       if ( v10->overflowed || v44 >= 15 )
         break;
-      _RSI = (__int64)&v8->weapCommon.ammoInClip[v44];
-      v91 = MSG_ReadBits(v10, 1u);
-      v92 = v91;
-      if ( (unsigned __int64)(v91 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum WeaponAmmoType __cdecl truncate_cast_impl<enum WeaponAmmoType,__int64>(__int64)", "signed", (int)v91, "signed", v91) )
+      v89 = (__int64)&v8->weapCommon.ammoInClip[v44];
+      v90 = MSG_ReadBits(v10, 1u);
+      v91 = v90;
+      if ( (unsigned __int64)(v90 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum WeaponAmmoType __cdecl truncate_cast_impl<enum WeaponAmmoType,__int64>(__int64)", "signed", (int)v90, "signed", v90) )
         __debugbreak();
-      *(_DWORD *)(_RSI + 60) = v92;
-      _RAX = MSG_ReadWeapon(&result, v10);
-      v94 = 2i64;
-      __asm
-      {
-        vmovups ymm1, ymmword ptr [rax]
-        vmovups xmm2, xmmword ptr [rax+20h]
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
-      v98 = *(_DWORD *)&_RAX->weaponCamo;
-      __asm
-      {
-        vmovups ymmword ptr [rsi], ymm1
-        vmovups xmmword ptr [rsi+20h], xmm2
-        vmovsd  qword ptr [rsi+30h], xmm0
-      }
-      *(_DWORD *)(_RSI + 56) = v98;
-      v99 = (_DWORD *)(_RSI + 72);
+      *(_DWORD *)(v89 + 60) = v91;
+      v92 = MSG_ReadWeapon(&result, v10);
+      v93 = 2i64;
+      v94 = *(_OWORD *)&v92->attachmentVariationIndices[5];
+      v95 = *(double *)&v92->attachmentVariationIndices[21];
+      v96 = *(_DWORD *)&v92->weaponCamo;
+      *(__m256i *)v89 = *(__m256i *)&v92->weaponIdx;
+      *(_OWORD *)(v89 + 32) = v94;
+      *(double *)(v89 + 48) = v95;
+      *(_DWORD *)(v89 + 56) = v96;
+      v97 = (_DWORD *)(v89 + 72);
       do
       {
+        if ( MSG_ReadBit(v10) )
+        {
+          v98 = MSG_ReadBits(v10, 5u);
+          v99 = v98;
+          if ( (unsigned __int64)(v98 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v98, "signed", v98) )
+            __debugbreak();
+          *(v97 - 2) = v99;
+        }
         if ( MSG_ReadBit(v10) )
         {
           v100 = MSG_ReadBits(v10, 5u);
           v101 = v100;
           if ( (unsigned __int64)(v100 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v100, "signed", v100) )
             __debugbreak();
-          *(v99 - 2) = v101;
+          *v97 = v101;
         }
         if ( MSG_ReadBit(v10) )
         {
-          v102 = MSG_ReadBits(v10, 5u);
+          v102 = MSG_ReadBits(v10, 9u);
           v103 = v102;
           if ( (unsigned __int64)(v102 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v102, "signed", v102) )
             __debugbreak();
-          *v99 = v103;
+          v97[2] = v103;
         }
-        if ( MSG_ReadBit(v10) )
-        {
-          v104 = MSG_ReadBits(v10, 9u);
-          v105 = v104;
-          if ( (unsigned __int64)(v104 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v104, "signed", v104) )
-            __debugbreak();
-          v99[2] = v105;
-        }
-        ++v99;
-        --v94;
+        ++v97;
+        --v93;
       }
-      while ( v94 );
+      while ( v93 );
       v8 = to;
       if ( MSG_ReadBit(v10) <= 0 )
         goto LABEL_85;
     }
     fmt = "Invalid state, message overflowed in clip ammo (%i)";
-    v107 = 3019;
+    v105 = 3019;
   }
   else
   {
@@ -4064,94 +3744,94 @@ LABEL_85:
 LABEL_126:
       if ( MSG_ReadBit(v10) > 0 )
       {
-        v55 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_OBJECTIVE);
+        v54 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_OBJECTIVE);
         objectives = froma->objectives;
-        v57 = 32i64;
-        v58 = v55->skippedNetfieldBits;
-        v59 = v55->count;
-        v60 = v55->array;
+        v56 = 32i64;
+        v57 = v54->skippedNetfieldBits;
+        v58 = v54->count;
+        v59 = v54->array;
         do
         {
-          MSG_ReadDeltaFields(v10, time, objectives, (char *)objectives + (char *)v8 - (char *)froma, v59, v60, v58);
+          MSG_ReadDeltaFields(v10, time, objectives, (char *)objectives + (char *)v8 - (char *)froma, v58, v59, v57);
           ++objectives;
-          --v57;
+          --v56;
         }
-        while ( v57 );
+        while ( v56 );
         v8 = to;
       }
-      v61 = froma;
+      v60 = froma;
       if ( MSG_ReadBit(v10) > 0 )
       {
         MSG_ReadDeltaHudElems(v10, time, froma->hud.archival, v8->hud.archival, 15, 4);
         MSG_ReadDeltaHudElems(v10, time, froma->hud.current, v8->hud.current, 30, 5);
       }
-      v62 = BG_Omnvar_PerSnapCount();
-      v63 = BG_Omnvar_PerPlayerstateMinBitsForIndex();
-      v64 = BG_Omnvar_PerPlayerstateCount();
-      MSG_ReadDeltaOmnvars_Internal(v10, time, v64, v63, froma->rxvOmnvars, v8->rxvOmnvars, v62);
+      v61 = BG_Omnvar_PerSnapCount();
+      v62 = BG_Omnvar_PerPlayerstateMinBitsForIndex();
+      v63 = BG_Omnvar_PerPlayerstateCount();
+      MSG_ReadDeltaOmnvars_Internal(v10, time, v63, v62, froma->rxvOmnvars, v8->rxvOmnvars, v61);
       if ( MSG_ReadBit(v10) > 0 )
       {
-        v65 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_HEAD_ICON);
-        v66 = 0;
-        v67 = v65->skippedNetfieldBits;
-        v68 = v65->count;
-        v69 = v65->array;
+        v64 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_HEAD_ICON);
+        v65 = 0;
+        v66 = v64->skippedNetfieldBits;
+        v67 = v64->count;
+        v68 = v64->array;
         do
         {
-          MSG_ReadDeltaFields(v10, time, &froma->headIcons[v66], &v8->headIcons[v66], v68, v69, v67);
-          ++v66;
+          MSG_ReadDeltaFields(v10, time, &froma->headIcons[v65], &v8->headIcons[v65], v67, v68, v66);
+          ++v65;
         }
-        while ( (unsigned int)v66 < 0x20 );
+        while ( (unsigned int)v65 < 0x20 );
       }
       if ( MSG_ReadBit(v10) > 0 )
       {
-        v70 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_HEAD_ICON_EXTENDED_DATA);
-        v71 = 0;
-        v72 = v70->skippedNetfieldBits;
-        v73 = v70->count;
-        v74 = v70->array;
+        v69 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_HEAD_ICON_EXTENDED_DATA);
+        v70 = 0;
+        v71 = v69->skippedNetfieldBits;
+        v72 = v69->count;
+        v73 = v69->array;
         do
         {
-          MSG_ReadDeltaFields(v10, time, &froma->headIconsExtendedData[v71], &v8->headIconsExtendedData[v71], v73, v74, v72);
-          ++v71;
+          MSG_ReadDeltaFields(v10, time, &froma->headIconsExtendedData[v70], &v8->headIconsExtendedData[v70], v72, v73, v71);
+          ++v70;
         }
-        while ( (unsigned int)v71 < 0x20 );
+        while ( (unsigned int)v70 < 0x20 );
       }
       if ( MSG_ReadBit(v10) > 0 )
       {
-        v75 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_TARGET_MARKER);
+        v74 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_TARGET_MARKER);
         targetMarkerGroups = froma->targetMarkerGroups;
-        v77 = (char *)v8 - (char *)froma->targetMarkerGroups;
-        v78 = 2i64;
-        v79 = v75->skippedNetfieldBits;
-        v80 = v75->count;
-        v81 = v75->array;
+        v76 = (char *)v8 - (char *)froma->targetMarkerGroups;
+        v77 = 2i64;
+        v78 = v74->skippedNetfieldBits;
+        v79 = v74->count;
+        v80 = v74->array;
         do
         {
-          MSG_ReadDeltaFields(v10, time, targetMarkerGroups, &targetMarkerGroups[130].extraStates[v77 + 4], v80, v81, v79);
+          MSG_ReadDeltaFields(v10, time, targetMarkerGroups, &targetMarkerGroups[130].extraStates[v76 + 4], v79, v80, v78);
           ++targetMarkerGroups;
-          --v78;
+          --v77;
         }
-        while ( v78 );
+        while ( v77 );
         v8 = to;
-        v61 = froma;
+        v60 = froma;
       }
       if ( MSG_ReadBit(v10) > 0 )
       {
-        v82 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_CALLOUT_MARKER_PING);
-        calloutMarkerPings = v61->calloutMarkerPings;
-        v84 = (char *)((char *)v8 - (char *)v61);
-        v85 = 52i64;
-        v86 = v82->skippedNetfieldBits;
-        v87 = v82->count;
-        v88 = v82->array;
+        v81 = MSG_GetNetFieldListForNetFieldType(NET_FIELD_TYPE_CALLOUT_MARKER_PING);
+        calloutMarkerPings = v60->calloutMarkerPings;
+        v83 = (char *)((char *)v8 - (char *)v60);
+        v84 = 52i64;
+        v85 = v81->skippedNetfieldBits;
+        v86 = v81->count;
+        v87 = v81->array;
         do
         {
-          MSG_ReadDeltaFields(v10, time, calloutMarkerPings, &v84[(_QWORD)calloutMarkerPings], v87, v88, v86);
+          MSG_ReadDeltaFields(v10, time, calloutMarkerPings, &v83[(_QWORD)calloutMarkerPings], v86, v87, v85);
           ++calloutMarkerPings;
-          --v85;
+          --v84;
         }
-        while ( v85 );
+        while ( v84 );
       }
       return;
     }
@@ -4168,35 +3848,28 @@ LABEL_126:
       if ( (unsigned __int64)(v45 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum WeaponAmmoType __cdecl truncate_cast_impl<enum WeaponAmmoType,__int64>(__int64)", "signed", (int)v45, "signed", v45) )
         __debugbreak();
       v8->weapCommon.ammoNotInClip[v44].ammoType.ammoType = v46;
-      _RAX = MSG_ReadWeapon(&result, v10);
-      v48 = *(_DWORD *)&_RAX->weaponCamo;
-      __asm
-      {
-        vmovups ymm1, ymmword ptr [rax]
-        vmovups xmm2, xmmword ptr [rax+20h]
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
-      _RSI = (char *)v8 + 68 * v44;
-      __asm
-      {
-        vmovups ymmword ptr [rsi+778h], ymm1
-        vmovups xmmword ptr [rsi+798h], xmm2
-        vmovsd  qword ptr [rsi+7A8h], xmm0
-      }
-      *((_DWORD *)_RSI + 492) = v48;
-      v53 = MSG_ReadBits(v10, 0xAu);
-      v54 = v53;
-      if ( (unsigned __int64)(v53 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v53, "signed", v53) )
+      v47 = MSG_ReadWeapon(&result, v10);
+      v48 = *(_DWORD *)&v47->weaponCamo;
+      v49 = *(_OWORD *)&v47->attachmentVariationIndices[5];
+      v50 = *(double *)&v47->attachmentVariationIndices[21];
+      v51 = (char *)v8 + 68 * v44;
+      *(__m256i *)(v51 + 1912) = *(__m256i *)&v47->weaponIdx;
+      *(_OWORD *)(v51 + 1944) = v49;
+      *((double *)v51 + 245) = v50;
+      *((_DWORD *)v51 + 492) = v48;
+      v52 = MSG_ReadBits(v10, 0xAu);
+      v53 = v52;
+      if ( (unsigned __int64)(v52 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v52, "signed", v52) )
         __debugbreak();
-      *((_DWORD *)_RSI + 494) = v54;
+      *((_DWORD *)v51 + 494) = v53;
       if ( MSG_ReadBit(v10) <= 0 )
         goto LABEL_126;
     }
     fmt = "Invalid state, message overflowed in ammo stored (%i)";
-    v107 = 3103;
+    v105 = 3103;
   }
   LODWORD(print) = v44;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", v107, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, fmt, print) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", v105, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, fmt, print) )
     __debugbreak();
   MSG_Discard(v10);
 }
@@ -4226,129 +3899,119 @@ MSG_ReadDeltaScoreboard
 void MSG_ReadDeltaScoreboard(msg_t *msg, const int time, const ScoreboardInfo *from, ScoreboardInfo *to, const int clientCount)
 {
   const ScoreboardInfo *v6; 
+  int *teamPlacement; 
   __int64 v9; 
-  ScoreboardInfo *v21; 
-  __int64 v22; 
-  signed __int64 v23; 
-  int v24; 
-  __int64 v25; 
+  int *v10; 
+  __int128 v11; 
+  ScoreboardInfo *v12; 
+  __int64 v13; 
+  signed __int64 v14; 
+  int v15; 
+  __int64 v16; 
   __int64 Bits; 
+  int v18; 
+  __int64 v19; 
+  int v20; 
+  __int64 v21; 
+  __int64 i; 
+  __int64 v23; 
+  ScoreInfo *v24; 
+  int v25; 
+  __int64 v26; 
   int v27; 
   __int64 v28; 
   int v29; 
   __int64 v30; 
-  __int64 i; 
-  int v36; 
-  __int64 v37; 
-  int v38; 
-  __int64 v39; 
-  int v40; 
-  __int64 v41; 
-  int v42; 
-  __int64 v43; 
-  int v44; 
-  __int64 v45; 
-  int v46; 
-  __int64 v47; 
-  int v48; 
-  __int64 v49; 
-  int v50; 
-  __int64 v51; 
-  int v52; 
-  __int64 v53; 
-  int v54; 
-  __int64 v55; 
-  int v56; 
-  __int64 v57; 
-  char *v58; 
+  int v31; 
+  __int64 v32; 
+  int v33; 
+  __int64 v34; 
+  int v35; 
+  __int64 v36; 
+  int v37; 
+  __int64 v38; 
+  int v39; 
+  __int64 v40; 
+  int v41; 
+  __int64 v42; 
+  int v43; 
+  __int64 v44; 
+  int v45; 
+  __int64 v46; 
+  char *v47; 
   ScoreInfo *clientScores; 
   int ping; 
-  __int64 v61; 
-  int v62; 
+  __int64 v50; 
+  int v51; 
   int fromF; 
-  const ScoreboardInfo *v64; 
-  char v65[6032]; 
+  const ScoreboardInfo *v53; 
+  char v54[6032]; 
 
-  v64 = from;
+  v53 = from;
   v6 = from;
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3218, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
   if ( !v6 )
   {
-    v6 = (const ScoreboardInfo *)v65;
-    v64 = (const ScoreboardInfo *)v65;
-    memset_0(v65, 0, 0x1784ui64);
+    v6 = (const ScoreboardInfo *)v54;
+    v53 = (const ScoreboardInfo *)v54;
+    memset_0(v54, 0, 0x1784ui64);
   }
-  _R9 = v6->teamPlacement;
+  teamPlacement = v6->teamPlacement;
   v9 = 6i64;
-  _R10 = to->teamPlacement;
+  v10 = to->teamPlacement;
   do
   {
-    _R10 += 32;
-    __asm { vmovups xmm0, xmmword ptr [r9] }
-    _R9 += 32;
-    __asm
-    {
-      vmovups xmmword ptr [r10-80h], xmm0
-      vmovups xmm1, xmmword ptr [r9-70h]
-      vmovups xmmword ptr [r10-70h], xmm1
-      vmovups xmm0, xmmword ptr [r9-60h]
-      vmovups xmmword ptr [r10-60h], xmm0
-      vmovups xmm1, xmmword ptr [r9-50h]
-      vmovups xmmword ptr [r10-50h], xmm1
-      vmovups xmm0, xmmword ptr [r9-40h]
-      vmovups xmmword ptr [r10-40h], xmm0
-      vmovups xmm1, xmmword ptr [r9-30h]
-      vmovups xmmword ptr [r10-30h], xmm1
-      vmovups xmm0, xmmword ptr [r9-20h]
-      vmovups xmmword ptr [r10-20h], xmm0
-      vmovups xmm1, xmmword ptr [r9-10h]
-      vmovups xmmword ptr [r10-10h], xmm1
-    }
+    v10 += 32;
+    v11 = *(_OWORD *)teamPlacement;
+    teamPlacement += 32;
+    *((_OWORD *)v10 - 8) = v11;
+    *((_OWORD *)v10 - 7) = *((_OWORD *)teamPlacement - 7);
+    *((_OWORD *)v10 - 6) = *((_OWORD *)teamPlacement - 6);
+    *((_OWORD *)v10 - 5) = *((_OWORD *)teamPlacement - 5);
+    *((_OWORD *)v10 - 4) = *((_OWORD *)teamPlacement - 4);
+    *((_OWORD *)v10 - 3) = *((_OWORD *)teamPlacement - 3);
+    *((_OWORD *)v10 - 2) = *((_OWORD *)teamPlacement - 2);
+    *((_OWORD *)v10 - 1) = *((_OWORD *)teamPlacement - 1);
     --v9;
   }
   while ( v9 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9]
-    vmovups xmmword ptr [r10], xmm0
-    vmovups xmm1, xmmword ptr [r9+10h]
-    vmovups xmmword ptr [r10+10h], xmm1
-  }
-  *((_QWORD *)_R10 + 4) = *((_QWORD *)_R9 + 4);
-  _R10[10] = _R9[10];
+  *(_OWORD *)v10 = *(_OWORD *)teamPlacement;
+  *((_OWORD *)v10 + 1) = *((_OWORD *)teamPlacement + 1);
+  *((_QWORD *)v10 + 4) = *((_QWORD *)teamPlacement + 4);
+  v10[10] = teamPlacement[10];
   if ( MSG_ReadBit(msg) )
   {
-    v21 = to;
-    v22 = 2i64;
-    v23 = (char *)v6 - (char *)to;
+    v12 = to;
+    v13 = 2i64;
+    v14 = (char *)v6 - (char *)to;
     do
     {
-      v24 = *(int *)((char *)v21->teamScores + v23);
+      v15 = *(int *)((char *)v12->teamScores + v14);
       if ( MSG_ReadBit(msg) )
       {
-        fromF = v24;
-        v25 = MSG_ReadValue(msg, &fromF, 16, -4);
-        v24 = truncate_cast<int,__int64>(v25);
+        fromF = v15;
+        v16 = MSG_ReadValue(msg, &fromF, 16, -4);
+        v15 = truncate_cast<int,__int64>(v16);
       }
-      v21->teamScores[0] = v24;
-      v21 = (ScoreboardInfo *)((char *)v21 + 4);
-      --v22;
+      v12->teamScores[0] = v15;
+      v12 = (ScoreboardInfo *)((char *)v12 + 4);
+      --v13;
     }
-    while ( v22 );
+    while ( v13 );
     if ( MSG_ReadBit(msg) )
     {
       while ( !msg->overflowed )
       {
         Bits = MSG_ReadBits(msg, 8u);
-        v27 = Bits;
+        v18 = Bits;
         if ( (unsigned __int64)(Bits + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)Bits, "signed", Bits) )
           __debugbreak();
-        v28 = MSG_ReadBits(msg, 8u);
-        v29 = v28;
-        if ( (unsigned __int64)(v28 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v28, "signed", v28) )
+        v19 = MSG_ReadBits(msg, 8u);
+        v20 = v19;
+        if ( (unsigned __int64)(v19 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v19, "signed", v19) )
           __debugbreak();
-        to->teamPlacement[v27] = v29;
+        to->teamPlacement[v18] = v20;
         if ( !MSG_ReadBit(msg) )
           goto LABEL_23;
       }
@@ -4356,160 +4019,155 @@ void MSG_ReadDeltaScoreboard(msg_t *msg, const int time, const ScoreboardInfo *f
     else
     {
 LABEL_23:
-      v30 = clientCount;
+      v21 = clientCount;
       fromF = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_STATUSICON);
       if ( clientCount > 0 )
       {
         for ( i = 0i64; i < clientCount; ++i )
         {
-          _RSI = (__int64)&v64->clientScores[i];
-          _R14 = &to->clientScores[i];
+          v23 = (__int64)&v53->clientScores[i];
+          v24 = &to->clientScores[i];
           if ( MSG_ReadBit(msg) )
           {
-            v36 = *(unsigned __int8 *)(_RSI + 2);
+            v25 = *(unsigned __int8 *)(v23 + 2);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v36;
-              v37 = MSG_ReadValue(msg, &v62, fromF, -4);
-              v36 = truncate_cast<int,__int64>(v37);
+              v51 = v25;
+              v26 = MSG_ReadValue(msg, &v51, fromF, -4);
+              v25 = truncate_cast<int,__int64>(v26);
             }
-            if ( (v36 < 0 || (unsigned int)v36 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v36, "signed", v36) )
+            if ( (v25 < 0 || (unsigned int)v25 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v25, "signed", v25) )
               __debugbreak();
-            to->clientScores[i].status = v36;
-            v38 = *(unsigned __int16 *)(_RSI + 8);
+            to->clientScores[i].status = v25;
+            v27 = *(unsigned __int16 *)(v23 + 8);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v38;
-              v39 = MSG_ReadValue(msg, &v62, 10, -4);
-              v38 = truncate_cast<int,__int64>(v39);
+              v51 = v27;
+              v28 = MSG_ReadValue(msg, &v51, 10, -4);
+              v27 = truncate_cast<int,__int64>(v28);
             }
-            if ( (v38 < 0 || (unsigned int)v38 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v38, "signed", v38) )
+            if ( (v27 < 0 || (unsigned int)v27 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v27, "signed", v27) )
               __debugbreak();
-            to->clientScores[i].deaths = v38;
-            v40 = *(unsigned __int16 *)(_RSI + 4);
+            to->clientScores[i].deaths = v27;
+            v29 = *(unsigned __int16 *)(v23 + 4);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v40;
-              v41 = MSG_ReadValue(msg, &v62, 16, -4);
-              v40 = truncate_cast<int,__int64>(v41);
+              v51 = v29;
+              v30 = MSG_ReadValue(msg, &v51, 16, -4);
+              v29 = truncate_cast<int,__int64>(v30);
             }
-            if ( (v40 < 0 || (unsigned int)v40 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v40, "signed", v40) )
+            if ( (v29 < 0 || (unsigned int)v29 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v29, "signed", v29) )
               __debugbreak();
-            to->clientScores[i].score = v40;
-            v42 = *(unsigned __int16 *)(_RSI + 6);
+            to->clientScores[i].score = v29;
+            v31 = *(unsigned __int16 *)(v23 + 6);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v42;
-              v43 = MSG_ReadValue(msg, &v62, 14, -4);
-              v42 = truncate_cast<int,__int64>(v43);
+              v51 = v31;
+              v32 = MSG_ReadValue(msg, &v51, 14, -4);
+              v31 = truncate_cast<int,__int64>(v32);
             }
-            if ( (v42 < 0 || (unsigned int)v42 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v42, "signed", v42) )
+            if ( (v31 < 0 || (unsigned int)v31 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v31, "signed", v31) )
               __debugbreak();
-            to->clientScores[i].kills = v42;
-            v44 = *(unsigned __int16 *)(_RSI + 10);
+            to->clientScores[i].kills = v31;
+            v33 = *(unsigned __int16 *)(v23 + 10);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v44;
-              v45 = MSG_ReadValue(msg, &v62, 10, -4);
-              v44 = truncate_cast<int,__int64>(v45);
+              v51 = v33;
+              v34 = MSG_ReadValue(msg, &v51, 10, -4);
+              v33 = truncate_cast<int,__int64>(v34);
             }
-            if ( (v44 < 0 || (unsigned int)v44 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v44, "signed", v44) )
+            if ( (v33 < 0 || (unsigned int)v33 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v33, "signed", v33) )
               __debugbreak();
-            to->clientScores[i].assists = v44;
-            v46 = *(unsigned __int16 *)(_RSI + 12);
+            to->clientScores[i].assists = v33;
+            v35 = *(unsigned __int16 *)(v23 + 12);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v46;
-              v47 = MSG_ReadValue(msg, &v62, 16, -4);
-              v46 = truncate_cast<int,__int64>(v47);
+              v51 = v35;
+              v36 = MSG_ReadValue(msg, &v51, 16, -4);
+              v35 = truncate_cast<int,__int64>(v36);
             }
-            if ( (v46 < 0 || (unsigned int)v46 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v46, "signed", v46) )
+            if ( (v35 < 0 || (unsigned int)v35 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v35, "signed", v35) )
               __debugbreak();
-            to->clientScores[i].extrascore0 = v46;
-            v48 = *(unsigned __int16 *)(_RSI + 14);
+            to->clientScores[i].extrascore0 = v35;
+            v37 = *(unsigned __int16 *)(v23 + 14);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v48;
-              v49 = MSG_ReadValue(msg, &v62, 8, -4);
-              v48 = truncate_cast<int,__int64>(v49);
+              v51 = v37;
+              v38 = MSG_ReadValue(msg, &v51, 8, -4);
+              v37 = truncate_cast<int,__int64>(v38);
             }
-            if ( (v48 < 0 || (unsigned int)v48 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v48, "signed", v48) )
+            if ( (v37 < 0 || (unsigned int)v37 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v37, "signed", v37) )
               __debugbreak();
-            to->clientScores[i].extrascore1 = v48;
-            v50 = *(unsigned __int16 *)(_RSI + 16);
+            to->clientScores[i].extrascore1 = v37;
+            v39 = *(unsigned __int16 *)(v23 + 16);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v50;
-              v51 = MSG_ReadValue(msg, &v62, 16, -4);
-              v50 = truncate_cast<int,__int64>(v51);
+              v51 = v39;
+              v40 = MSG_ReadValue(msg, &v51, 16, -4);
+              v39 = truncate_cast<int,__int64>(v40);
             }
-            if ( (v50 < 0 || (unsigned int)v50 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v50, "signed", v50) )
+            if ( (v39 < 0 || (unsigned int)v39 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v39, "signed", v39) )
               __debugbreak();
-            to->clientScores[i].extrascore2 = v50;
-            v52 = *(unsigned __int16 *)(_RSI + 18);
+            to->clientScores[i].extrascore2 = v39;
+            v41 = *(unsigned __int16 *)(v23 + 18);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v52;
-              v53 = MSG_ReadValue(msg, &v62, 16, -4);
-              v52 = truncate_cast<int,__int64>(v53);
+              v51 = v41;
+              v42 = MSG_ReadValue(msg, &v51, 16, -4);
+              v41 = truncate_cast<int,__int64>(v42);
             }
-            if ( (v52 < 0 || (unsigned int)v52 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v52, "signed", v52) )
+            if ( (v41 < 0 || (unsigned int)v41 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v41, "signed", v41) )
               __debugbreak();
-            to->clientScores[i].extrascore3 = v52;
-            v54 = *(unsigned __int16 *)(_RSI + 22);
+            to->clientScores[i].extrascore3 = v41;
+            v43 = *(unsigned __int16 *)(v23 + 22);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v54;
-              v55 = MSG_ReadValue(msg, &v62, 6, -4);
-              v54 = truncate_cast<int,__int64>(v55);
+              v51 = v43;
+              v44 = MSG_ReadValue(msg, &v51, 6, -4);
+              v43 = truncate_cast<int,__int64>(v44);
             }
-            if ( (v54 < 0 || (unsigned int)v54 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v54, "signed", v54) )
+            if ( (v43 < 0 || (unsigned int)v43 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v43, "signed", v43) )
               __debugbreak();
-            to->clientScores[i].adrenaline = v54;
-            v56 = *(unsigned __int16 *)(_RSI + 24);
+            to->clientScores[i].adrenaline = v43;
+            v45 = *(unsigned __int16 *)(v23 + 24);
             if ( MSG_ReadBit(msg) )
             {
-              v62 = v56;
-              v57 = MSG_ReadValue(msg, &v62, 10, -4);
-              v56 = truncate_cast<int,__int64>(v57);
+              v51 = v45;
+              v46 = MSG_ReadValue(msg, &v51, 10, -4);
+              v45 = truncate_cast<int,__int64>(v46);
             }
-            if ( (v56 < 0 || (unsigned int)v56 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v56, "signed", v56) )
+            if ( (v45 < 0 || (unsigned int)v45 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v45, "signed", v45) )
               __debugbreak();
-            to->clientScores[i].deathTimerLength = v56;
-            _R14->ping = *(_WORD *)_RSI;
+            to->clientScores[i].deathTimerLength = v45;
+            v24->ping = *(_WORD *)v23;
           }
           else
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsi]
-              vmovups xmmword ptr [r14], xmm0
-              vmovsd  xmm1, qword ptr [rsi+10h]
-              vmovsd  qword ptr [r14+10h], xmm1
-            }
-            to->clientScores[i].deathTimerLength = *(_WORD *)(_RSI + 24);
+            *(_OWORD *)&v24->ping = *(_OWORD *)v23;
+            *(double *)&to->clientScores[i].extrascore2 = *(double *)(v23 + 16);
+            to->clientScores[i].deathTimerLength = *(_WORD *)(v23 + 24);
           }
         }
       }
       if ( MSG_ReadBit(msg) && clientCount > 0i64 )
       {
-        v58 = (char *)((char *)to - (char *)v64);
-        clientScores = v64->clientScores;
+        v47 = (char *)((char *)to - (char *)v53);
+        clientScores = v53->clientScores;
         do
         {
           ping = clientScores->ping;
           if ( MSG_ReadBit(msg) )
           {
-            v62 = ping;
-            v61 = MSG_ReadValue(msg, &v62, 10, -4);
-            ping = truncate_cast<int,__int64>(v61);
+            v51 = ping;
+            v50 = MSG_ReadValue(msg, &v51, 10, -4);
+            ping = truncate_cast<int,__int64>(v50);
           }
           if ( (unsigned int)(ping + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)ping, "signed", ping) )
             __debugbreak();
-          *(_WORD *)&v58[(_QWORD)clientScores++] = ping;
-          --v30;
+          *(_WORD *)&v47[(_QWORD)clientScores++] = ping;
+          --v21;
         }
-        while ( v30 );
+        while ( v21 );
       }
     }
   }
@@ -4581,25 +4239,23 @@ bitarray<384> *MSG_ReadDeltaUmbraGateState(bitarray<384> *result, msg_t *msg, co
 {
   unsigned __int64 numUmbraGates; 
   int v7; 
-  unsigned int v12; 
+  unsigned int v8; 
   __int64 Bits; 
+  unsigned __int64 v10; 
+  unsigned int v11; 
+  unsigned int *v12; 
+  __int64 v13; 
   unsigned __int64 v14; 
-  unsigned int v15; 
-  unsigned int *v16; 
+  __int64 v15; 
   __int64 v17; 
-  unsigned __int64 v18; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
+  __int64 v20; 
 
   *(_QWORD *)result->array = -1i64;
   *(_QWORD *)&result->array[2] = -1i64;
-  _RBX = from;
   *(_QWORD *)&result->array[4] = -1i64;
   *(_QWORD *)&result->array[6] = -1i64;
-  _RDI = result;
   *(_QWORD *)&result->array[8] = -1i64;
   *(_QWORD *)&result->array[10] = -1i64;
   if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 141, ASSERT_TYPE_ASSERT, "(Com_IsWorldLoaded())", (const char *)&queryFormat, "Com_IsWorldLoaded()") )
@@ -4609,107 +4265,97 @@ bitarray<384> *MSG_ReadDeltaUmbraGateState(bitarray<384> *result, msg_t *msg, co
   {
     if ( !MSG_ReadBit(msg) )
     {
-      if ( _RBX )
+      if ( from )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymmword ptr [rdi], ymm0
-          vmovups xmm1, xmmword ptr [rbx+20h]
-          vmovups xmmword ptr [rdi+20h], xmm1
-        }
-        return _RDI;
+        *(__m256i *)result->array = *(__m256i *)from->array;
+        *(_OWORD *)&result->array[8] = *(_OWORD *)&from->array[8];
+        return result;
       }
       v7 = 4051;
       goto LABEL_12;
     }
     if ( MSG_ReadBit(msg) )
     {
-      if ( !_RBX )
+      if ( !from )
       {
         v7 = 4064;
 LABEL_12:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", v7, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Received a 'no change' umbra state without a 'from' state") )
           __debugbreak();
         MSG_Discard(msg);
-        return _RDI;
+        return result;
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rdi+20h], xmm1
-      }
-      v12 = I_log2Ceil(numUmbraGates);
+      *(__m256i *)result->array = *(__m256i *)from->array;
+      *(_OWORD *)&result->array[8] = *(_OWORD *)&from->array[8];
+      v8 = I_log2Ceil(numUmbraGates);
       while ( 1 )
       {
-        Bits = MSG_ReadBits(msg, v12);
-        v14 = (unsigned int)truncate_cast<int,__int64>(Bits);
+        Bits = MSG_ReadBits(msg, v8);
+        v10 = (unsigned int)truncate_cast<int,__int64>(Bits);
         if ( msg->overflowed )
           break;
-        if ( ((v14 & 0x80000000) != 0i64 || (int)v14 >= (int)numUmbraGates) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 4082, ASSERT_TYPE_ASSERT, "(gateIndex >= 0 && gateIndex < numWorldGates)", (const char *)&queryFormat, "gateIndex >= 0 && gateIndex < numWorldGates") )
+        if ( ((v10 & 0x80000000) != 0i64 || (int)v10 >= (int)numUmbraGates) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 4082, ASSERT_TYPE_ASSERT, "(gateIndex >= 0 && gateIndex < numWorldGates)", (const char *)&queryFormat, "gateIndex >= 0 && gateIndex < numWorldGates") )
           __debugbreak();
-        if ( (unsigned int)v14 >= 0x180 )
+        if ( (unsigned int)v10 >= 0x180 )
         {
-          LODWORD(v22) = 384;
-          LODWORD(v21) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v21, v22) )
+          LODWORD(v18) = 384;
+          LODWORD(v17) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
             __debugbreak();
         }
-        v15 = 0x80000000 >> (v14 & 0x1F);
-        v16 = &_RDI->array[v14 >> 5];
-        if ( (v15 & *v16) != 0 )
+        v11 = 0x80000000 >> (v10 & 0x1F);
+        v12 = &result->array[v10 >> 5];
+        if ( (v11 & *v12) != 0 )
         {
-          if ( (unsigned int)v14 >= 0x180 )
+          if ( (unsigned int)v10 >= 0x180 )
           {
-            LODWORD(v24) = 384;
-            LODWORD(v23) = v14;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v23, v24) )
+            LODWORD(v20) = 384;
+            LODWORD(v19) = v10;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v19, v20) )
               __debugbreak();
           }
-          *v16 &= ~v15;
+          *v12 &= ~v11;
         }
         else
         {
-          if ( (unsigned int)v14 >= 0x180 )
+          if ( (unsigned int)v10 >= 0x180 )
           {
-            LODWORD(v24) = 384;
-            LODWORD(v23) = v14;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v23, v24) )
+            LODWORD(v20) = 384;
+            LODWORD(v19) = v10;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v19, v20) )
               __debugbreak();
           }
-          *v16 |= v15;
+          *v12 |= v11;
         }
         if ( !MSG_ReadBit(msg) )
-          return _RDI;
+          return result;
       }
       Com_PrintError(25, "MSG_ReadDeltaUmbraGateState: Invalid state, message overflowed\n");
       MSG_Discard(msg);
     }
     else
     {
-      v17 = 0i64;
+      v13 = 0i64;
       if ( (unsigned int)numUmbraGates >= 0x20 )
       {
-        v18 = numUmbraGates >> 5;
+        v14 = numUmbraGates >> 5;
         do
         {
-          _RDI->array[v17] = MSG_ReadLong(msg);
+          result->array[v13] = MSG_ReadLong(msg);
           LODWORD(numUmbraGates) = numUmbraGates - 32;
-          v17 = (unsigned int)(v17 + 1);
-          --v18;
+          v13 = (unsigned int)(v13 + 1);
+          --v14;
         }
-        while ( v18 );
+        while ( v14 );
       }
       if ( (_DWORD)numUmbraGates )
       {
-        v19 = MSG_ReadBits(msg, numUmbraGates);
-        _RDI->array[v17] = (0xFFFFFFFF >> numUmbraGates) | (truncate_cast<int,__int64>(v19) << (32 - numUmbraGates));
+        v15 = MSG_ReadBits(msg, numUmbraGates);
+        result->array[v13] = (0xFFFFFFFF >> numUmbraGates) | (truncate_cast<int,__int64>(v15) << (32 - numUmbraGates));
       }
     }
   }
-  return _RDI;
+  return result;
 }
 
 /*
@@ -4719,14 +4365,16 @@ MSG_ReadDeltaWeaponMapEntry
 */
 char MSG_ReadDeltaWeaponMapEntry(msg_t *msg, const int weaponMapIndex, const WeaponMapEntry *from, WeaponMapEntry *to)
 {
-  int v12; 
-  __int64 v13; 
+  Weapon *v8; 
+  __int128 v9; 
+  double v10; 
+  int v11; 
+  __int64 v12; 
   Weapon result; 
 
-  _RBX = to;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3530, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3531, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3531, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
   if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
     __debugbreak();
@@ -4734,29 +4382,22 @@ char MSG_ReadDeltaWeaponMapEntry(msg_t *msg, const int weaponMapIndex, const Wea
   {
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v13) = weaponMapIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3532, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v13, BgWeaponMap::ms_runtimeSize) )
+    LODWORD(v12) = weaponMapIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3532, ASSERT_TYPE_ASSERT, "(unsigned)( weaponMapIndex ) < (unsigned)( BgWeaponMap::GetRuntimeSize() )", "weaponMapIndex doesn't index BgWeaponMap::GetRuntimeSize()\n\t%i not in [0, %i)", v12, BgWeaponMap::ms_runtimeSize) )
       __debugbreak();
   }
   if ( MSG_ReadBit(msg) )
     return 1;
-  _RBX->index = truncate_cast<unsigned short,int>(weaponMapIndex);
-  _RAX = MSG_ReadWeapon(&result, msg);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups xmm2, xmmword ptr [rax+20h]
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
-  v12 = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rbx+2], ymm1
-    vmovups xmmword ptr [rbx+22h], xmm2
-    vmovsd  qword ptr [rbx+32h], xmm0
-  }
-  *(_DWORD *)&_RBX->weapon.weaponCamo = v12;
-  if ( !_RBX->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3547, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( to->weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( to->weapon )") )
+  to->index = truncate_cast<unsigned short,int>(weaponMapIndex);
+  v8 = MSG_ReadWeapon(&result, msg);
+  v9 = *(_OWORD *)&v8->attachmentVariationIndices[5];
+  v10 = *(double *)&v8->attachmentVariationIndices[21];
+  v11 = *(_DWORD *)&v8->weaponCamo;
+  *(__m256i *)&to->weapon.weaponIdx = *(__m256i *)&v8->weaponIdx;
+  *(_OWORD *)&to->weapon.attachmentVariationIndices[5] = v9;
+  *(double *)&to->weapon.attachmentVariationIndices[21] = v10;
+  *(_DWORD *)&to->weapon.weaponCamo = v11;
+  if ( !to->weapon.weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3547, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( to->weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( to->weapon )") )
     __debugbreak();
   return 0;
 }
@@ -4824,63 +4465,38 @@ __int64 MSG_ReadEntityIndex(msg_t *msg, int indexBits)
 MSG_ReadFloatByRangeAndBits
 ==============
 */
-
-__int64 __fastcall MSG_ReadFloatByRangeAndBits(msg_t *msg, const int *fromF, double maxValue, unsigned int bitCount, const NetField *field, int print)
+__int64 MSG_ReadFloatByRangeAndBits(msg_t *msg, const int *fromF, float maxValue, unsigned int bitCount, const NetField *field, int print)
 {
-  unsigned int v12; 
-  __int64 result; 
+  int Bit; 
+  unsigned int v10; 
   __int64 Bits; 
-  int v17; 
-  int v18; 
-  int v20; 
-  char *fmt; 
-  unsigned int v26; 
-  unsigned int v27; 
+  int v13; 
+  int v14; 
+  double v15; 
+  int v16; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RSI = fromF;
   if ( MSG_ReadBit(msg) )
   {
     Bits = MSG_ReadBits(msg, bitCount);
-    v17 = truncate_cast<int,__int64>(Bits);
-    __asm { vmovss  xmm0, dword ptr [rsi]; value }
-    v18 = v17;
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    v20 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, bitCount);
-    __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-    *(double *)&_XMM0 = MSG_UnpackSignedFloat(v18 ^ (unsigned int)v20, *(float *)&_XMM1, bitCount);
-    __asm { vmovss  [rsp+58h+var_28], xmm0 }
+    v13 = truncate_cast<int,__int64>(Bits);
+    v14 = MSG_PackSignedFloat(*(float *)fromF, maxValue, bitCount);
+    v15 = MSG_UnpackSignedFloat(v13 ^ (unsigned int)v14, maxValue, bitCount);
     if ( print && field )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+58h+fmt], xmm0
-      }
-      Com_Printf(25, "%s%s:%f \n", (const char *)&queryFormat.fmt + 3, field->name, *(double *)&fmt);
-    }
-    result = v27;
+      Com_Printf(25, "%s%s:%f \n", (const char *)&queryFormat.fmt + 3, field->name, *(float *)&v15);
+    return LODWORD(v15);
   }
   else
   {
-    v12 = MSG_ReadBit(msg) << 31;
-    v26 = v12;
-    __asm
+    Bit = MSG_ReadBit(msg);
+    v10 = Bit << 31;
+    if ( COERCE_FLOAT(Bit << 31) != 0.0 )
     {
-      vmovss  xmm0, [rsp+58h+var_28]
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
+      v16 = Bit << 31;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 972, ASSERT_TYPE_ASSERT, "( *reinterpret_cast<float *>( &value ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast<float *>( &value ) == 0.0f", v16) )
+        __debugbreak();
     }
-    if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 972, ASSERT_TYPE_ASSERT, "( *reinterpret_cast<float *>( &value ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast<float *>( &value ) == 0.0f") )
-      __debugbreak();
-    result = v12;
+    return v10;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
 }
 
 /*
@@ -4891,68 +4507,41 @@ MSG_ReadFloatCase
 __int64 MSG_ReadFloatCase(msg_t *msg, const int *fromF, const NetField *field, int print)
 {
   int Bit; 
-  int v11; 
-  unsigned int v12; 
+  int v9; 
+  unsigned int v10; 
   __int64 Bits; 
-  int v16; 
-  int Byte; 
-  __int64 v19; 
-  unsigned int v26; 
-  unsigned int v27; 
-  unsigned int v28; 
+  int v12; 
+  __int64 v13; 
+  float v15; 
 
-  _R15 = fromF;
   Bit = MSG_ReadBit(msg);
-  v11 = MSG_ReadBit(msg);
+  v9 = MSG_ReadBit(msg);
   if ( Bit )
   {
-    if ( v11 )
+    if ( v9 )
     {
-      v12 = *_R15 ^ MSG_ReadLong(msg);
-      v28 = v12;
+      v10 = *fromF ^ MSG_ReadLong(msg);
       if ( print && field )
-      {
-        __asm
-        {
-          vmovss  xmm3, [rsp+58h+var_28]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_Printf(25, "%s:%f ", field->name, *(double *)&_XMM3);
-      }
+        Com_Printf(25, "%s:%f ", field->name, *(float *)&v10);
     }
     else
     {
       Bits = MSG_ReadBits(msg, 5u);
-      v16 = truncate_cast<int,__int64>(Bits);
-      Byte = MSG_ReadByte(msg);
-      __asm { vcvttss2si r9d, dword ptr [r15] }
-      v19 = ((32 * Byte + v16) ^ (unsigned int)(_ER9 + 4096)) - 4096;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r9d
-        vmovss  [rsp+58h+var_28], xmm0
-      }
+      v12 = truncate_cast<int,__int64>(Bits);
+      v13 = ((32 * MSG_ReadByte(msg) + v12) ^ (unsigned int)((int)*(float *)fromF + 4096)) - 4096;
+      v15 = (float)(int)v13;
       if ( print && field )
-        Com_Printf(25, "%s:%i ", field->name, v19);
-      return v27;
+        Com_Printf(25, "%s:%i ", field->name, v13);
+      *(float *)&v10 = v15;
     }
   }
   else
   {
-    v12 = v11 << 31;
-    v26 = v12;
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+var_28]
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 895, ASSERT_TYPE_ASSERT, "( *reinterpret_cast< float * >( toF ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast< float * >( toF ) == 0.0f") )
+    v10 = v9 << 31;
+    if ( *(float *)&v10 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 895, ASSERT_TYPE_ASSERT, "( *reinterpret_cast< float * >( toF ) == 0.0f )", (const char *)&queryFormat, "*reinterpret_cast< float * >( toF ) == 0.0f", v10) )
       __debugbreak();
   }
-  return v12;
+  return v10;
 }
 
 /*
@@ -5065,31 +4654,18 @@ __int64 MSG_ReadNumFieldsSkipped(msg_t *msg, const int skippedFieldBits, const i
 MSG_ReadOriginExpGolomb
 ==============
 */
-
-float __fastcall MSG_ReadOriginExpGolomb(const int kBits, const unsigned int precisionBits, msg_t *msg, double oldValue)
+float MSG_ReadOriginExpGolomb(const int kBits, const unsigned int precisionBits, msg_t *msg, float oldValue)
 {
-  char v7; 
+  char v4; 
+  int SignedExpGolomb; 
+  int v6; 
 
-  v7 = precisionBits;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
-  MSG_ReadSignedExpGolomb(msg, kBits);
-  if ( !(1 << v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 262, ASSERT_TYPE_ASSERT, "(( 1 << precisionBits ) != 0)", (const char *)&queryFormat, "( 1 << precisionBits ) != 0") )
+  v4 = precisionBits;
+  SignedExpGolomb = MSG_ReadSignedExpGolomb(msg, kBits);
+  v6 = 1 << v4;
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 262, ASSERT_TYPE_ASSERT, "(( 1 << precisionBits ) != 0)", (const char *)&queryFormat, "( 1 << precisionBits ) != 0") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vcvtsi2ss xmm1, xmm1, edi
-    vdivss  xmm1, xmm1, xmm0
-    vaddss  xmm0, xmm1, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)SignedExpGolomb / (float)v6) + oldValue;
 }
 
 /*
@@ -5097,32 +4673,21 @@ float __fastcall MSG_ReadOriginExpGolomb(const int kBits, const unsigned int pre
 MSG_ReadOriginFloat
 ==============
 */
-
-double __fastcall MSG_ReadOriginFloat(int bits, msg_t *msg, double oldValue)
+double MSG_ReadOriginFloat(int bits, msg_t *msg, float oldValue)
 {
-  unsigned __int64 v4; 
-  __int64 v8; 
+  unsigned __int64 v3; 
+  __int64 v6; 
   unsigned int OriginExtraPrecisionBitsForField; 
   double result; 
 
-  v4 = (unsigned int)(bits + 114);
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( (unsigned int)v4 > 0x20 || (v8 = 0x180C00303i64, !_bittest64(&v8, v4)) )
+  v3 = (unsigned int)(bits + 114);
+  if ( (unsigned int)v3 > 0x20 || (v6 = 0x180C00303i64, !_bittest64(&v6, v3)) )
   {
     if ( (unsigned int)(bits + 39) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 284, ASSERT_TYPE_ASSERT, "(bits == (-92) || bits == (-83) || bits == (-106) || bits == (-113) || bits == (-91) || bits == (-82) || bits == (-105) || bits == (-114) || bits == (-39) || bits == (-38))", (const char *)&queryFormat, "bits == MSG_FIELD_ORIGINX || bits == MSG_FIELD_ES_ORIGINX || bits == MSG_FIELD_MOVING_PLATFORM_ORIGINX || bits == MSG_FIELD_ORIGIN_PHYSICSX || bits == MSG_FIELD_ORIGINY || bits == MSG_FIELD_ES_ORIGINY || bits == MSG_FIELD_MOVING_PLATFORM_ORIGINY || bits == MSG_FIELD_ORIGIN_PHYSICSY || bits == MSG_FIELD_HIGH_PRECISION_ORIGINX || bits == MSG_FIELD_HIGH_PRECISION_ORIGINY") )
       __debugbreak();
   }
   OriginExtraPrecisionBitsForField = MSG_GetOriginExtraPrecisionBitsForField(bits);
-  __asm
-  {
-    vmovaps xmm3, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  *(float *)&result = MSG_ReadOriginExpGolomb(4, OriginExtraPrecisionBitsForField, msg, *(double *)&_XMM3);
+  *(float *)&result = MSG_ReadOriginExpGolomb(4, OriginExtraPrecisionBitsForField, msg, oldValue);
   return result;
 }
 
@@ -5282,7 +4847,7 @@ MSG_ResetEntityToLowLoD
 */
 void MSG_ResetEntityToLowLoD(entityState_t *const entityState)
 {
-  entityType_s v2; 
+  entityType_s eType; 
   const NetFieldList *StateFieldListForEntityType; 
   unsigned int v4; 
   unsigned int NetFieldsCountForEntityType; 
@@ -5291,20 +4856,21 @@ void MSG_ResetEntityToLowLoD(entityState_t *const entityState)
   NetFieldLoD netfieldLoD; 
   netFieldResetValue resetValue; 
   __int64 v10; 
-  __int64 v20; 
-  __int16 to[120]; 
-  __int64 v22; 
+  __m256i v11; 
+  __int64 v12; 
+  _BYTE to[224]; 
+  __int128 v14; 
+  __int64 v15; 
 
-  _R14 = &entityState->number;
   if ( !entityState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 4211, ASSERT_TYPE_ASSERT, "(entityState != nullptr)", (const char *)&queryFormat, "entityState != nullptr") )
     __debugbreak();
   memset_0(to, 0, 0xF8ui64);
-  v2 = _R14[4];
-  to[0] = *_R14;
-  to[4] = v2;
-  StateFieldListForEntityType = MSG_GetStateFieldListForEntityType(v2);
+  eType = entityState->eType;
+  *(_WORD *)to = entityState->number;
+  *(_WORD *)&to[8] = eType;
+  StateFieldListForEntityType = MSG_GetStateFieldListForEntityType(eType);
   v4 = 0;
-  NetFieldsCountForEntityType = MSG_GetNetFieldsCountForEntityType((const entityType_s)_R14[4]);
+  NetFieldsCountForEntityType = MSG_GetNetFieldsCountForEntityType((const entityType_s)entityState->eType);
   if ( NetFieldsCountForEntityType )
   {
     v6 = 0i64;
@@ -5321,7 +4887,7 @@ void MSG_ResetEntityToLowLoD(entityState_t *const entityState)
         {
           v10 = 2047i64;
 LABEL_15:
-          MSG_SetField((char *)to + array[v6].offset, array[v6].size, v10);
+          MSG_SetField(&to[array[v6].offset], array[v6].size, v10);
           goto LABEL_16;
         }
         if ( resetValue == NET_FIELD_RESET_SM_ANIMRATE )
@@ -5332,7 +4898,7 @@ LABEL_15:
       }
       else
       {
-        MSG_CopyFieldOver(StateFieldListForEntityType->array, _R14, to, v4);
+        MSG_CopyFieldOver(StateFieldListForEntityType->array, entityState, to, v4);
       }
 LABEL_16:
       ++v4;
@@ -5340,28 +4906,17 @@ LABEL_16:
     }
     while ( v4 < NetFieldsCountForEntityType );
   }
-  _RAX = to;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [r14], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [r14+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [r14+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [r14+60h], ymm0
-    vmovups ymmword ptr [r14+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [r14+0A0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0C0h]
-    vmovups ymmword ptr [r14+0C0h], ymm1
-    vmovups xmm1, xmmword ptr [rax+0E0h]
-  }
-  v20 = v22;
-  __asm { vmovups xmmword ptr [r14+0E0h], xmm1 }
-  *((_QWORD *)_R14 + 30) = v20;
+  v11 = *(__m256i *)&to[128];
+  *(__m256i *)&entityState->number = *(__m256i *)to;
+  *(__m256i *)&entityState->lerp.pos.trBase.y = *(__m256i *)&to[32];
+  *(__m256i *)entityState->lerp.apos.trBase.v = *(__m256i *)&to[64];
+  *(__m256i *)&entityState->lerp.u.vehicle.bodyPitch = *(__m256i *)&to[96];
+  *(__m256i *)&entityState->staticState.turret.carrierEntNum = v11;
+  *(__m256i *)&entityState->events[0].eventType = *(__m256i *)&to[160];
+  *(__m256i *)&entityState->index.brushModel = *(__m256i *)&to[192];
+  v12 = v15;
+  *(_OWORD *)&entityState->partBits.array[2] = v14;
+  *(_QWORD *)&entityState->partBits.array[6] = v12;
 }
 
 /*
@@ -5382,77 +4937,54 @@ MSG_ValuesAreEqualPost
 */
 bool MSG_ValuesAreEqualPost(const void *first, const void *second, const int bits, const int size)
 {
-  bool v10; 
-  bool v11; 
+  _DWORD *v7; 
   bool result; 
-  unsigned int v50; 
-  signed __int64 v51; 
-  unsigned int v52; 
-  int v53; 
+  unsigned int v18; 
+  char *v19; 
+  unsigned int v20; 
+  int v21; 
 
-  _RDI = second;
-  _RBX = first;
+  v7 = first;
   if ( !first && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 66, ASSERT_TYPE_ASSERT, "(first)", (const char *)&queryFormat, "first") )
     __debugbreak();
-  v10 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 67, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  if ( !second && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 67, ASSERT_TYPE_ASSERT, "(second)", (const char *)&queryFormat, "second") )
+    __debugbreak();
   switch ( bits )
   {
     case -115:
     case -114:
     case -113:
     case -86:
+      _XMM6 = 0i64;
       __asm
       {
-        vmovss  xmm5, cs:__real@41200000; jumptable 0000000141430DAB cases -115--113,-86
-        vmulss  xmm1, xmm5, dword ptr [rbx]
-        vaddss  xmm2, xmm1, cs:__real@3f000000
-        vmulss  xmm1, xmm5, dword ptr [rdi]
-        vxorps  xmm6, xmm6, xmm6
         vroundss xmm3, xmm6, xmm2, 1
-        vcvttss2si ecx, xmm3
-        vaddss  xmm3, xmm1, cs:__real@3f000000
         vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si eax, xmm1
       }
-      result = _ECX == _EAX;
+      result = SLODWORD(_XMM3) == SLODWORD(_XMM1);
       break;
     case -109:
-      result = *_RBX == *_RDI;
+      result = *v7 == *(_DWORD *)second;
       break;
     case -100:
     case -87:
     case -79:
+      _XMM6 = 0i64;
       __asm
       {
-        vmovss  xmm5, cs:__real@43360b61; jumptable 0000000141430DAB cases -100,-87,-79
-        vmulss  xmm1, xmm5, dword ptr [rbx]
-        vaddss  xmm2, xmm1, cs:__real@3f000000
-        vmulss  xmm1, xmm5, dword ptr [rdi]
-        vxorps  xmm6, xmm6, xmm6
         vroundss xmm3, xmm6, xmm2, 1
-        vcvttss2si ecx, xmm3
-        vaddss  xmm3, xmm1, cs:__real@3f000000
         vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si eax, xmm1
       }
-      result = (unsigned __int16)(_EAX ^ _ECX) == 0;
+      result = (unsigned __int16)((int)*(float *)&_XMM1 ^ (int)*(float *)&_XMM3) == 0;
       break;
     case -98:
-      result = ((*_RDI ^ *_RBX) & 0x3FFFFFFF) == 0;
+      result = ((*(_DWORD *)second ^ *v7) & 0x3FFFFFFF) == 0;
       break;
     case -95:
-      result = *_RBX / 100 == *_RDI / 100;
+      result = *v7 / 100 == *(_DWORD *)second / 100;
       break;
     case -94:
-      if ( _RBX[1] != _RDI[1] || *_RBX != *_RDI )
+      if ( v7[1] != *((_DWORD *)second + 1) || *v7 != *(_DWORD *)second )
         goto LABEL_41;
       result = 1;
       break;
@@ -5462,109 +4994,43 @@ bool MSG_ValuesAreEqualPost(const void *first, const void *second, const int bit
     case -83:
     case -82:
     case -81:
+      _XMM4 = 0i64;
       __asm
       {
-        vmovss  xmm3, cs:__real@3f000000; jumptable 0000000141430DAB cases -92--90,-83--81
-        vaddss  xmm1, xmm3, dword ptr [rbx]
-        vaddss  xmm3, xmm3, dword ptr [rdi]
-        vxorps  xmm4, xmm4, xmm4
         vroundss xmm0, xmm4, xmm3, 1
-        vcvttss2si eax, xmm0
         vroundss xmm2, xmm4, xmm1, 1
-        vcvttss2si ecx, xmm2
       }
-      result = _ECX == _EAX;
+      result = SLODWORD(_XMM2) == SLODWORD(_XMM0);
       break;
     case -85:
-      if ( *(_BYTE *)_RBX != *(_BYTE *)_RDI || *((_BYTE *)_RBX + 1) != *((_BYTE *)_RDI + 1) || *((_BYTE *)_RBX + 2) != *((_BYTE *)_RDI + 2) || *((_BYTE *)_RBX + 3) != *((_BYTE *)_RDI + 3) )
+      if ( *(_BYTE *)v7 != *(_BYTE *)second || *((_BYTE *)v7 + 1) != *((_BYTE *)second + 1) || *((_BYTE *)v7 + 2) != *((_BYTE *)second + 2) || *((_BYTE *)v7 + 3) != *((_BYTE *)second + 3) )
         goto LABEL_41;
       result = 1;
       break;
     case -84:
-      result = ((*_RDI ^ *_RBX) & 0x1FFFFFFF) == 0;
+      result = ((*(_DWORD *)second ^ *v7) & 0x1FFFFFFF) == 0;
       break;
     case -65:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]; jumptable 0000000141430DAB case -65
-        vucomiss xmm0, dword ptr [rbx]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vucomiss xmm0, dword ptr [rbx+4]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+8]
-        vucomiss xmm0, dword ptr [rbx+8]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vucomiss xmm0, dword ptr [rbx+0Ch]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+10h]
-        vucomiss xmm0, dword ptr [rbx+10h]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+14h]
-        vucomiss xmm0, dword ptr [rbx+14h]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+18h]
-        vucomiss xmm0, dword ptr [rbx+18h]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1Ch]
-        vucomiss xmm0, dword ptr [rbx+1Ch]
-      }
-      if ( !v10 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+20h]
-        vucomiss xmm0, dword ptr [rbx+20h]
-      }
-      if ( !v10 )
+      if ( *(float *)second != *(float *)v7 || *((float *)second + 1) != *((float *)v7 + 1) || *((float *)second + 2) != *((float *)v7 + 2) || *((float *)second + 3) != *((float *)v7 + 3) || *((float *)second + 4) != *((float *)v7 + 4) || *((float *)second + 5) != *((float *)v7 + 5) || *((float *)second + 6) != *((float *)v7 + 6) || *((float *)second + 7) != *((float *)v7 + 7) || *((float *)second + 8) != *((float *)v7 + 8) )
         goto LABEL_41;
       result = 1;
       break;
     case -45:
-      v50 = 0;
-      v51 = (char *)_RDI - (char *)_RBX;
+      v18 = 0;
+      v19 = (char *)((_BYTE *)second - (_BYTE *)v7);
       do
       {
-        if ( *_RBX != *(_DWORD *)((char *)_RBX + v51) )
+        if ( *v7 != *(_DWORD *)((char *)v7 + (_QWORD)v19) )
           goto LABEL_41;
-        ++v50;
-        ++_RBX;
+        ++v18;
+        ++v7;
       }
-      while ( v50 < 7 );
+      while ( v18 < 7 );
       result = 1;
       break;
     default:
-      v52 = abs32(size);
-      if ( v52 > 8 || (v53 = 278, !_bittest(&v53, v52)) )
+      v20 = abs32(size);
+      if ( v20 > 8 || (v21 = 278, !_bittest(&v21, v20)) )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 151, ASSERT_TYPE_ASSERT, "(abs( size ) == 1 || abs( size ) == 2 || abs( size ) == 4 || abs( size ) == 8)", "%s\n\tunexpected size %d\n", "abs( size ) == 1 || abs( size ) == 2 || abs( size ) == 4 || abs( size ) == 8", size) )
           __debugbreak();
@@ -5573,7 +5039,6 @@ LABEL_41:
       result = 0;
       break;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
   return result;
 }
 
@@ -5721,25 +5186,26 @@ void MSG_WriteDeltaUmbraGateState(msg_t *msg, const bitarray<384> *from, const b
 {
   unsigned __int64 numUmbraGates; 
   __int64 v7; 
-  __int64 v10; 
-  __m256i *v11; 
-  __int64 v12; 
-  __int64 v15; 
-  int v18; 
+  __int128 v8; 
+  __int64 v9; 
+  __m256i *v10; 
+  __int64 v11; 
+  __m256i *v12; 
+  __int64 v13; 
+  int v16; 
   __m256i *i; 
-  int v20; 
-  __m256i *v21; 
+  int v18; 
+  __m256i *v19; 
+  unsigned int v20; 
+  unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  bool v25; 
-  unsigned __int64 v26; 
-  __int64 v27; 
-  __int64 v28; 
-  __m256i v29; 
-  __int128 v30; 
+  bool v23; 
+  unsigned __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __m256i v27; 
+  __int128 v28; 
 
-  _RSI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3954, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3955, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
@@ -5750,71 +5216,60 @@ void MSG_WriteDeltaUmbraGateState(msg_t *msg, const bitarray<384> *from, const b
   if ( comWorld.numUmbraGates )
   {
     v7 = 0i64;
-    if ( !_RSI )
+    if ( !from )
       goto LABEL_41;
-    __asm
+    v8 = *(_OWORD *)&from->array[8];
+    v9 = 12i64;
+    v27 = *(__m256i *)from->array;
+    v28 = v8;
+    if ( &v27 > (__m256i *)&to->array[11] || (char *)&v28 + 12 < (char *)to )
     {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups xmm1, xmmword ptr [rsi+20h]
-    }
-    v10 = 12i64;
-    __asm
-    {
-      vmovups [rsp+0C8h+var_78], ymm0
-      vmovups [rsp+0C8h+var_58], xmm1
-    }
-    if ( &v29 > (__m256i *)&to->array[11] || (char *)&v30 + 12 < (char *)to )
-    {
-      _RDX = (char *)to - (char *)&v29;
-      _RAX = &v29;
-      v15 = 3i64;
+      v12 = &v27;
+      v13 = 3i64;
       do
       {
-        __asm
-        {
-          vmovdqu xmm1, xmmword ptr [rdx+rax]
-          vpxor   xmm1, xmm1, xmmword ptr [rax]
-          vmovdqu xmmword ptr [rax], xmm1
-        }
-        _RAX = (__m256i *)((char *)_RAX + 16);
-        --v15;
+        _XMM1 = *(_OWORD *)&v12->m256i_i8[(char *)to - (char *)&v27];
+        __asm { vpxor   xmm1, xmm1, xmmword ptr [rax] }
+        *(_OWORD *)v12->m256i_i8 = _XMM1;
+        v12 = (__m256i *)((char *)v12 + 16);
+        --v13;
       }
-      while ( v15 );
+      while ( v13 );
     }
     else
     {
-      v11 = &v29;
-      v12 = 12i64;
+      v10 = &v27;
+      v11 = 12i64;
       do
       {
-        v11->m256i_i32[0] ^= *(unsigned int *)((char *)v11->m256i_u32 + (char *)to - (char *)&v29);
-        v11 = (__m256i *)((char *)v11 + 4);
-        --v12;
+        v10->m256i_i32[0] ^= *(unsigned int *)((char *)v10->m256i_u32 + (char *)to - (char *)&v27);
+        v10 = (__m256i *)((char *)v10 + 4);
+        --v11;
       }
-      while ( v12 );
+      while ( v11 );
     }
-    v18 = 0;
-    for ( i = &v29; !i->m256i_i32[0]; i = (__m256i *)((char *)i + 4) )
+    v16 = 0;
+    for ( i = &v27; !i->m256i_i32[0]; i = (__m256i *)((char *)i + 4) )
     {
-      if ( (unsigned int)++v18 >= 0xC )
+      if ( (unsigned int)++v16 >= 0xC )
       {
         MSG_WriteBit0(msg);
         return;
       }
     }
-    v20 = 0;
-    v21 = &v29;
+    v18 = 0;
+    v19 = &v27;
     do
     {
-      v20 += __popcnt(v21->m256i_i32[0]);
-      v21 = (__m256i *)((char *)v21 + 4);
-      --v10;
+      v18 += __popcnt(v19->m256i_i32[0]);
+      v19 = (__m256i *)((char *)v19 + 4);
+      --v9;
     }
-    while ( v10 );
+    while ( v9 );
     if ( !(_DWORD)numUmbraGates && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 212, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
       __debugbreak();
-    v22 = 32 - __lzcnt(numUmbraGates - 1);
-    if ( v20 * (v22 + 1) < (unsigned int)numUmbraGates )
+    v20 = 32 - __lzcnt(numUmbraGates - 1);
+    if ( v18 * (v20 + 1) < (unsigned int)numUmbraGates )
     {
       MSG_WriteBit1(msg);
       MSG_WriteBit1(msg);
@@ -5822,28 +5277,28 @@ void MSG_WriteDeltaUmbraGateState(msg_t *msg, const bitarray<384> *from, const b
       {
         if ( (unsigned int)v7 >= 0xC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp.cpp", 3991, ASSERT_TYPE_ASSERT, "(blockIndex < umbraGateStates_t::WORD_COUNT)", (const char *)&queryFormat, "blockIndex < umbraGateStates_t::WORD_COUNT") )
           __debugbreak();
-        v23 = v29.m256i_u32[v7];
-        if ( v23 )
+        v21 = v27.m256i_u32[v7];
+        if ( v21 )
         {
-          v24 = 32 * v7 + __lzcnt(v23);
-          MSG_WriteBits(msg, v24, v22);
-          v25 = v20-- == 1;
-          MSG_WriteBool(msg, !v25);
-          if ( v24 >= 0x180 )
+          v22 = 32 * v7 + __lzcnt(v21);
+          MSG_WriteBits(msg, v22, v20);
+          v23 = v18-- == 1;
+          MSG_WriteBool(msg, !v23);
+          if ( v22 >= 0x180 )
           {
-            LODWORD(v28) = 384;
-            LODWORD(v27) = v24;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v27, v28) )
+            LODWORD(v26) = 384;
+            LODWORD(v25) = v22;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
               __debugbreak();
           }
-          v29.m256i_i32[(unsigned __int64)v24 >> 5] &= ~(0x80000000 >> (v24 & 0x1F));
+          v27.m256i_i32[(unsigned __int64)v22 >> 5] &= ~(0x80000000 >> (v22 & 0x1F));
         }
         else
         {
           v7 = (unsigned int)(v7 + 1);
         }
       }
-      while ( v20 );
+      while ( v18 );
     }
     else
     {
@@ -5852,15 +5307,15 @@ LABEL_41:
       MSG_WriteBit0(msg);
       if ( (unsigned int)numUmbraGates >= 0x20 )
       {
-        v26 = numUmbraGates >> 5;
+        v24 = numUmbraGates >> 5;
         do
         {
           MSG_WriteLong(msg, to->array[v7]);
           LODWORD(numUmbraGates) = numUmbraGates - 32;
           v7 = (unsigned int)(v7 + 1);
-          --v26;
+          --v24;
         }
-        while ( v26 );
+        while ( v24 );
       }
       if ( (_DWORD)numUmbraGates )
         MSG_WriteBits(msg, (__int64)(int)to->array[v7] >> (32 - (unsigned __int8)numUmbraGates), numUmbraGates);

@@ -479,8 +479,7 @@ CgVehicleSystem::PhysicsGetLastStepTime
 */
 float CgVehicleSystem::PhysicsGetLastStepTime(CgVehicleSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+119510h] }
-  return *(float *)&_XMM0;
+  return this->m_lastPhysicsStepTime;
 }
 
 /*

@@ -115,98 +115,83 @@ RB_Distortion_Apply
 */
 void RB_Distortion_Apply(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, R_RT_Group *activeGroup, R_RT_ColorHandle *packedStencil)
 {
-  const dvar_t *v9; 
-  int v10; 
+  const dvar_t *v8; 
+  int v9; 
+  const dvar_t *v10; 
   const dvar_t *v11; 
-  const dvar_t *v12; 
-  int v13; 
+  int v12; 
   int rtFlags; 
   unsigned int m_allocHeight; 
   unsigned int m_allocWidth; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  bool v22; 
+  R_RT_Handle v18; 
+  bool v20; 
   GfxCmdBufState *state; 
-  unsigned int v24; 
-  const R_RT_Surface *v25; 
-  const char *m_location; 
-  R_RT_Handle v45; 
-  R_RT_Handle v46; 
+  unsigned int v22; 
+  const R_RT_Surface *v23; 
+  GfxCmdBufContext v24; 
+  R_RT_Handle v25; 
+  R_RT_Handle v26; 
   R_RT_Handle result; 
-  R_RT_ColorHandle *v48; 
-  R_RT_ColorHandle v49; 
-  R_RT_Group v51; 
-  R_RT_Group v52; 
+  R_RT_ColorHandle *v28; 
+  R_RT_Handle v29; 
+  R_RT_Handle v30; 
+  R_RT_Group v31; 
+  R_RT_Group v32; 
 
-  _R12 = gfxContext;
-  v48 = packedStencil;
-  _R15 = activeGroup;
+  v28 = packedStencil;
   if ( R_Distortion_GetEffectType(viewInfo) )
   {
-    R_ProfBeginNamedEvent(_R12->state, "RB_ApplyUVDistortion");
+    R_ProfBeginNamedEvent(gfxContext->state, "RB_ApplyUVDistortion");
     R_GPU_BeginTimer(GPU_TIMER_MERGED_POSTFX);
-    if ( _R15->m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+    if ( activeGroup->m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [r15+8] }
-    v9 = DCONST_DVARINT_r_dccPostFX;
-    __asm
-    {
-      vmovups [rbp+220h+var_210], ymm0
-      vmovups ymmword ptr [rbp+220h+var_280.m_surfaceID], ymm0
-    }
+    v8 = DCONST_DVARINT_r_dccPostFX;
+    v30 = (R_RT_Handle)activeGroup->m_colorRts[0];
+    v26 = v30;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    if ( v9->current.integer == 1 )
-      v10 = 8;
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.integer == 1 )
+      v9 = 8;
     else
-      v10 = 0;
-    v11 = r_deviceDebug;
+      v9 = 0;
+    v10 = r_deviceDebug;
     if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
       goto LABEL_19;
-    v12 = DCONST_DVARBOOL_r_esramPostFX;
+    v11 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    v13 = 2112;
-    if ( !v12->current.enabled )
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = 2112;
+    if ( !v11->current.enabled )
 LABEL_19:
-      v13 = 2048;
-    rtFlags = v10 | v13;
-    m_allocHeight = R_RT_Handle::GetSurface(&v46)->m_allocHeight;
-    m_allocWidth = R_RT_Handle::GetSurface(&v46)->m_allocWidth;
-    height = R_RT_Handle::GetSurface(&v46)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v46);
-    _RAX = R_RT_CreateInternal(&result, Surface->m_image.m_base.width, height, m_allocWidth, m_allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "uv distort color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(191)");
-    __asm
+      v12 = 2048;
+    rtFlags = v9 | v12;
+    m_allocHeight = R_RT_Handle::GetSurface(&v26)->m_allocHeight;
+    m_allocWidth = R_RT_Handle::GetSurface(&v26)->m_allocWidth;
+    height = R_RT_Handle::GetSurface(&v26)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v26);
+    v18 = *R_RT_CreateInternal(&result, Surface->m_image.m_base.width, height, m_allocWidth, m_allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "uv distort color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(191)");
+    v26 = v18;
+    v25 = v18;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+220h+var_280.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+220h+var_2A0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v45);
-      if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v25);
+      if ( (R_RT_Handle::GetSurface(&v25)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+220h+var_2A0.m_surfaceID]
-          vmovups ymmword ptr [rbp+220h+var_280.m_surfaceID], ymm0
-        }
+        v18 = v25;
+        v26 = v25;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+220h+var_2A0.m_surfaceID]
-          vmovups ymmword ptr [rbp+220h+var_280.m_surfaceID], ymm0
-        }
+        v18 = v25;
+        v26 = v25;
       }
     }
     else
@@ -214,83 +199,44 @@ LABEL_19:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+220h+var_280.m_surfaceID] }
-        if ( v22 )
+        v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v18 = v26;
+        if ( v20 )
           __debugbreak();
       }
     }
-    state = _R12->state;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+220h+var_2A0.m_surfaceID], ymm0
-      vmovups [rbp+220h+var_230], ymm0
-    }
-    R_AddRenderTargetTransition(state, &v49, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    state = gfxContext->state;
+    v25 = v18;
+    v29 = v18;
+    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v29, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    v24 = R_RT_Handle::GetSurface(&v45)->m_image.m_base.height;
-    v25 = R_RT_Handle::GetSurface(&v45);
-    R_SetRenderTargetSize(_R12->source, v25->m_image.m_base.width, v24, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+220h+var_280.m_surfaceID]
-      vmovups [rbp+220h+var_230], ymm0
-    }
-    R_RT_Group::AssignColor(&v51, &v49);
-    _RCX = &v52;
-    _RAX = &v51;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    m_location = v51.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-    v52.m_vrsRt.m_tracking.m_location = m_location;
-    __asm { vmovups xmmword ptr [rbp+220h+var_2A0.m_surfaceID], xmm0 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v45, &v52, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(197)");
-    _RAX = v48;
-    __asm
-    {
-      vmovups ymm1, [rbp+220h+var_210]
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+220h+var_230], ymm0
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups xmmword ptr [rbp+220h+var_2A0.m_surfaceID], xmm0
-      vmovups ymmword ptr [rbp+220h+result.m_surfaceID], ymm1
-    }
-    R_Distortion_Apply((GfxCmdBufContext *)&v45, viewInfo, (R_RT_ColorHandle *)&result, &v49);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+220h+var_280.m_surfaceID]
-      vmovups ymmword ptr [rbp+220h+result.m_surfaceID], ymm0
-    }
+    v22 = R_RT_Handle::GetSurface(&v25)->m_image.m_base.height;
+    v23 = R_RT_Handle::GetSurface(&v25);
+    R_SetRenderTargetSize(gfxContext->source, v23->m_image.m_base.width, v22, GFX_USE_VIEWPORT_FOR_VIEW);
+    v29 = v26;
+    R_RT_Group::AssignColor(&v31, (R_RT_ColorHandle *)&v29);
+    *(__m256i *)&v32.m_colorRtCount = *(__m256i *)&v31.m_colorRtCount;
+    *(__m256i *)&v32.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v31.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v32.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v31.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v32.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v31.m_colorRts[2].m_tracking.m_location;
+    v24 = *gfxContext;
+    *(__m256i *)&v32.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v31.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v32.m_depthRt.m_tracking.m_location = *(__m256i *)&v31.m_depthRt.m_tracking.m_location;
+    v32.m_vrsRt.m_tracking.m_location = v31.m_vrsRt.m_tracking.m_location;
+    *(GfxCmdBufContext *)&v25.m_surfaceID = v24;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v25, &v32, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(197)");
+    v29 = v28->R_RT_Handle;
+    *(GfxCmdBufContext *)&v25.m_surfaceID = *gfxContext;
+    result = v30;
+    R_Distortion_Apply((GfxCmdBufContext *)&v25, viewInfo, (R_RT_ColorHandle *)&result, (R_RT_ColorHandle *)&v29);
+    result = v26;
     R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups ymm0, [rbp+220h+var_210]
-      vmovups ymmword ptr [rbp+220h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups xmmword ptr [rbp+220h+var_2A0.m_surfaceID], xmm0
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v45, (R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+220h+var_280.m_surfaceID]
-      vmovups ymmword ptr [rbp+220h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(_R15, (R_RT_ColorHandle *)&result);
+    result = v30;
+    *(GfxCmdBufContext *)&v25.m_surfaceID = *gfxContext;
+    R_RT_Destroy((GfxCmdBufContext *)&v25, (R_RT_ColorHandle *)&result);
+    result = v26;
+    R_RT_Group::AssignColor(activeGroup, (R_RT_ColorHandle *)&result);
     R_GPU_EndTimer();
     R_ProfEndNamedEvent(state);
   }
@@ -306,148 +252,90 @@ void R_Distortion_Apply(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInf
   DistortionEffectType EffectType; 
   Material *watersheetingMaterial; 
   float analogRewindAmount; 
+  GfxCmdBufSourceState *v11; 
+  float analogCrtEffectAmount; 
   float analogRollEffectAmount; 
+  GfxCmdBufSourceState *v14; 
   float intensity; 
   int duration; 
-  bool v26; 
-  bool v27; 
-  int v28; 
-  const R_RT_Surface *Surface; 
+  float v17; 
+  float v18; 
+  float distortionMagnitude; 
+  float v20; 
   GfxCmdBufSourceState *source; 
+  float v22; 
+  const R_RT_Surface *Surface; 
+  GfxCmdBufSourceState *v24; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  const R_RT_Surface *v43; 
-  GfxCmdBufSourceState *v44; 
-  R_RT_Image *v45; 
-  GfxCmdBufInput *v46; 
-  DistortionEffectType v47; 
-  const R_RT_Surface *v49; 
-  float fmt; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  GfxCmdBufContext v65; 
-  GfxCmdBufContext v66[8]; 
-  void *retaddr; 
+  const R_RT_Surface *v27; 
+  GfxCmdBufSourceState *v28; 
+  R_RT_Image *v29; 
+  GfxCmdBufInput *v30; 
+  DistortionEffectType v31; 
+  const R_RT_Surface *v32; 
+  __int64 height; 
+  float state_low; 
+  float v35; 
+  GfxCmdBufContext v36; 
+  GfxCmdBufContext v37; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _RSI = gfxContext;
-  _RBX = viewInfo;
   EffectType = R_Distortion_GetEffectType(viewInfo);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
   watersheetingMaterial = NULL;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   if ( EffectType )
   {
     switch ( EffectType )
     {
       case DISTORTION_EFFECT_TYPE_WATER:
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        duration = _RBX->waterSheetingFx.duration;
-        __asm { vmovups [rsp+108h+var_88], xmm0 }
-        v26 = duration == 0;
-        v27 = duration == 0;
+        duration = viewInfo->waterSheetingFx.duration;
+        v37 = *gfxContext;
         if ( duration )
-        {
-          v28 = _RBX->waterSheetingFx.startMSec - _RBX->waterSheetingFx.currentTime;
-          v26 = duration + v28 == 0;
-          v27 = __CFADD__(duration, v28) || v26;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm1, xmm1, eax
-            vcvtsi2ss xmm0, xmm0, ecx
-            vdivss  xmm2, xmm1, xmm0
-            vsubss  xmm3, xmm7, xmm2
-          }
-        }
+          v17 = 1.0 - (float)((float)(duration + viewInfo->waterSheetingFx.startMSec - viewInfo->waterSheetingFx.currentTime) / (float)duration);
         else
-        {
-          __asm { vxorps  xmm3, xmm3, xmm3 }
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+0E04h]
-          vcomiss xmm0, xmm6
-          vmovss  xmm2, dword ptr [rbx+0E10h]
-        }
-        if ( v27 )
-          __asm { vxorps  xmm0, xmm0, xmm0 }
+          v17 = 0.0;
+        v18 = viewInfo->waterSheetingFx.distortionScale.v[1];
+        distortionMagnitude = viewInfo->waterSheetingFx.distortionMagnitude;
+        if ( v18 <= 0.0 )
+          v20 = 0.0;
         else
-          __asm { vdivss  xmm0, xmm7, xmm0 }
-        _RAX = v66[0].source;
-        __asm
+          v20 = 1.0 / v18;
+        source = v37.source;
+        v22 = viewInfo->waterSheetingFx.distortionScale.v[0];
+        if ( v22 != v37.source->input.consts[133].v[0] || v20 != v37.source->input.consts[133].v[1] || distortionMagnitude != v37.source->input.consts[133].v[2] || v17 != v37.source->input.consts[133].v[3] )
         {
-          vmovss  xmm1, dword ptr [rbx+0E00h]
-          vucomiss xmm1, dword ptr [rax+0F50h]
-        }
-        if ( !v26 )
-          goto LABEL_21;
-        __asm { vucomiss xmm0, dword ptr [rax+0F54h] }
-        if ( !v26 )
-          goto LABEL_21;
-        __asm { vucomiss xmm2, dword ptr [rax+0F58h] }
-        if ( !v26 )
-          goto LABEL_21;
-        __asm { vucomiss xmm3, dword ptr [rax+0F5Ch] }
-        if ( !v26 )
-        {
-LABEL_21:
-          __asm
-          {
-            vmovss  dword ptr [rax+0F50h], xmm1
-            vmovss  dword ptr [rax+0F54h], xmm0
-            vmovss  dword ptr [rax+0F58h], xmm2
-            vmovss  dword ptr [rax+0F5Ch], xmm3
-          }
-          ++_RAX->constVersions[133];
+          v37.source->input.consts[133].v[0] = v22;
+          source->input.consts[133].v[1] = v20;
+          source->input.consts[133].v[2] = distortionMagnitude;
+          source->input.consts[133].v[3] = v17;
+          ++source->constVersions[133];
         }
         watersheetingMaterial = rgp.watersheetingMaterial;
         break;
       case DISTORTION_EFFECT_TYPE_DIGITAL:
-        _RCX = _RSI->source;
-        __asm { vmovss  xmm1, dword ptr [rbx+2DD4h] }
-        intensity = _RBX->digitalDistort.intensity;
-        __asm { vmovss  dword ptr [rcx+0F54h], xmm1 }
-        _RCX->input.consts[133].v[0] = intensity;
-        *(_QWORD *)&_RCX->input.consts[133].xyz.z = 0i64;
-        ++_RCX->constVersions[133];
+        v14 = gfxContext->source;
+        intensity = viewInfo->digitalDistort.intensity;
+        v14->input.consts[133].v[1] = viewInfo->digitalDistort.timeScale;
+        v14->input.consts[133].v[0] = intensity;
+        *(_QWORD *)&v14->input.consts[133].xyz.z = 0i64;
+        ++v14->constVersions[133];
         watersheetingMaterial = rgp.digitalDistortionMaterial;
         break;
       case DISTORTION_EFFECT_TYPE_ANALOG:
-        __asm { vmovss  xmm1, dword ptr [rbx+2DDCh] }
-        analogRewindAmount = _RBX->analogEffects.analogRewindAmount;
-        _RCX = _RSI->source;
-        __asm { vmovss  dword ptr [rcx+0F54h], xmm1 }
-        _RCX->input.consts[133].v[0] = analogRewindAmount;
-        *(_QWORD *)&_RCX->input.consts[133].xyz.z = 0i64;
-        ++_RCX->constVersions[133];
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+2DE0h]
-          vmovss  xmm0, dword ptr [rbx+2DE8h]
-        }
-        analogRollEffectAmount = _RBX->analogEffects.analogRollEffectAmount;
-        __asm
-        {
-          vmovss  dword ptr [rcx+0F64h], xmm0
-          vmovss  dword ptr [rcx+0F68h], xmm1
-        }
-        _RCX->input.consts[134].v[0] = analogRollEffectAmount;
-        _RCX->input.consts[134].v[3] = 0.0;
-        ++_RCX->constVersions[134];
+        analogRewindAmount = viewInfo->analogEffects.analogRewindAmount;
+        v11 = gfxContext->source;
+        v11->input.consts[133].v[1] = viewInfo->analogEffects.analogInterferenceAmount;
+        v11->input.consts[133].v[0] = analogRewindAmount;
+        *(_QWORD *)&v11->input.consts[133].xyz.z = 0i64;
+        ++v11->constVersions[133];
+        analogCrtEffectAmount = viewInfo->analogEffects.analogCrtEffectAmount;
+        analogRollEffectAmount = viewInfo->analogEffects.analogRollEffectAmount;
+        v11->input.consts[134].v[1] = viewInfo->analogEffects.analogChromaSeparationEffectAmount;
+        v11->input.consts[134].v[2] = analogCrtEffectAmount;
+        v11->input.consts[134].v[0] = analogRollEffectAmount;
+        v11->input.consts[134].v[3] = 0.0;
+        ++v11->constVersions[134];
         watersheetingMaterial = rgp.analogUVColorDistortionMaterial;
-        if ( _RBX->thermalParams.useScopedNVG )
+        if ( viewInfo->thermalParams.useScopedNVG )
           watersheetingMaterial = rgp.analogUVColorDistortionScopedMaterial;
         break;
       default:
@@ -463,65 +351,40 @@ LABEL_24:
     __debugbreak();
 LABEL_26:
   Surface = R_RT_Handle::GetSurface(srcColor);
-  source = _RSI->source;
+  v24 = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &source->input;
+  p_input = &v24->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[4] = &p_m_image->m_base;
-  v43 = R_RT_Handle::GetSurface(packedStencil);
-  v44 = _RSI->source;
-  v45 = &v43->m_image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v27 = R_RT_Handle::GetSurface(packedStencil);
+  v28 = gfxContext->source;
+  v29 = &v27->m_image;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v46 = &v44->input;
-  if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v30 = &v28->input;
+  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v46->codeImages[79] = &v45->m_base;
-  v47 = R_Distortion_GetEffectType(_RBX);
-  if ( _RBX->thermalParams.useScopedNVG && v47 == DISTORTION_EFFECT_TYPE_ANALOG )
+  v30->codeImages[79] = &v29->m_base;
+  v31 = R_Distortion_GetEffectType(viewInfo);
+  if ( viewInfo->thermalParams.useScopedNVG && v31 == DISTORTION_EFFECT_TYPE_ANALOG )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_88], xmm0
-    }
-    RB_ScopeSizeScreenFilter(v66, _RBX, watersheetingMaterial, NULL);
+    v37 = *gfxContext;
+    RB_ScopeSizeScreenFilter(&v37, viewInfo, watersheetingMaterial, NULL);
   }
   else
   {
-    v66[0].source = NULL;
-    LODWORD(v66[0].state) = R_RT_Handle::GetSurface(srcColor)->m_image.m_base.width;
-    v49 = R_RT_Handle::GetSurface(srcColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_98], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
-    HIDWORD(v66[0].state) = v49->m_image.m_base.height;
-    __asm
-    {
-      vmovss  [rsp+108h+var_B0], xmm7
-      vmovss  [rsp+108h+var_B8], xmm7
-      vmovss  [rsp+108h+var_C0], xmm6
-      vmovss  [rsp+108h+var_C8], xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vmovss  [rsp+108h+var_D0], xmm1
-      vmovss  [rsp+108h+var_D8], xmm0
-      vmovss  dword ptr [rsp+108h+var_E0], xmm6
-      vmovss  dword ptr [rsp+108h+fmt], xmm6
-    }
-    RB_ViewportFilterDirectInternal(&v65, watersheetingMaterial, 0xFFFFFFFF, (const GfxViewport *)v66, fmt, v58, v59, v60, v61, v62, v63, v64, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(175)");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+108h+var_58]
-    vmovaps xmm7, [rsp+108h+var_68]
+    v37.source = NULL;
+    LODWORD(v37.state) = R_RT_Handle::GetSurface(srcColor)->m_image.m_base.width;
+    v32 = R_RT_Handle::GetSurface(srcColor);
+    v36 = *gfxContext;
+    height = v32->m_image.m_base.height;
+    state_low = (float)LODWORD(v37.state);
+    HIDWORD(v37.state) = v32->m_image.m_base.height;
+    v35 = (float)height;
+    RB_ViewportFilterDirectInternal(&v36, watersheetingMaterial, 0xFFFFFFFF, (const GfxViewport *)&v37, 0.0, 0.0, state_low, v35, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp(175)");
   }
 }
 
@@ -543,32 +406,25 @@ R_Distortion_GetEffectType
 __int64 R_Distortion_GetEffectType(const GfxViewInfo *viewInfo)
 {
   bool enabled; 
-  char v4; 
-  bool v5; 
+  bool v3; 
 
   enabled = viewInfo->waterSheetingFx.enabled;
-  _RBX = viewInfo;
-  v5 = R_Distortion_UsingAnalogDistort(viewInfo);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+2DD0h]
-  }
+  v3 = R_Distortion_UsingAnalogDistort(viewInfo);
   if ( enabled )
   {
-    if ( v5 || v4 )
+    if ( v3 || viewInfo->digitalDistort.intensity > 0.0 )
       R_WarnOncePerFrame(R_WARN_DISTORTION_CONFLICT, "watersheeting");
     return 1i64;
   }
-  else if ( v5 )
+  else if ( v3 )
   {
-    if ( v4 )
+    if ( viewInfo->digitalDistort.intensity > 0.0 )
       R_WarnOncePerFrame(R_WARN_DISTORTION_CONFLICT, "analog");
     return 3i64;
   }
   else
   {
-    return v4 != 0 ? 2 : 0;
+    return viewInfo->digitalDistort.intensity > 0.0 ? 2 : 0;
   }
 }
 
@@ -577,120 +433,73 @@ __int64 R_Distortion_GetEffectType(const GfxViewInfo *viewInfo)
 R_Distortion_GetMaterialAndUpdateParams
 ==============
 */
-
-Material *__fastcall R_Distortion_GetMaterialAndUpdateParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, DistortionEffectType distortionType, double _XMM3_8)
+Material *R_Distortion_GetMaterialAndUpdateParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, DistortionEffectType distortionType)
 {
   Material *result; 
   float analogRewindAmount; 
+  GfxCmdBufSourceState *v5; 
   float analogRollEffectAmount; 
+  float analogCrtEffectAmount; 
   float intensity; 
+  GfxCmdBufSourceState *v9; 
+  GfxCmdBufContext v10; 
   int duration; 
-  bool v20; 
-  bool v21; 
-  int v22; 
-  __int128 v33; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float distortionMagnitude; 
+  float v16; 
+  GfxCmdBufSourceState *source; 
 
   switch ( distortionType )
   {
     case DISTORTION_EFFECT_TYPE_NONE:
       return 0i64;
     case DISTORTION_EFFECT_TYPE_WATER:
-      __asm { vmovups xmm0, xmmword ptr [rcx] }
+      v10 = *gfxContext;
       duration = viewInfo->waterSheetingFx.duration;
-      __asm
-      {
-        vmovss  xmm5, cs:__real@3f800000
-        vmovups [rsp+48h+var_18], xmm0
-        vxorps  xmm3, xmm3, xmm3
-      }
-      v20 = duration == 0;
-      v21 = duration == 0;
+      source = v10.source;
+      v12 = 0.0;
       if ( duration )
-      {
-        v22 = viewInfo->waterSheetingFx.startMSec - viewInfo->waterSheetingFx.currentTime;
-        v20 = duration + v22 == 0;
-        v21 = __CFADD__(duration, v22) || v20;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm2, xmm1, xmm0
-          vsubss  xmm4, xmm5, xmm2
-        }
-      }
+        v13 = 1.0 - (float)((float)(duration + viewInfo->waterSheetingFx.startMSec - viewInfo->waterSheetingFx.currentTime) / (float)duration);
       else
+        v13 = 0.0;
+      v14 = viewInfo->waterSheetingFx.distortionScale.v[1];
+      distortionMagnitude = viewInfo->waterSheetingFx.distortionMagnitude;
+      if ( v14 > 0.0 )
+        v12 = 1.0 / v14;
+      v16 = viewInfo->waterSheetingFx.distortionScale.v[0];
+      if ( v16 != source->input.consts[133].v[0] || v12 != source->input.consts[133].v[1] || distortionMagnitude != source->input.consts[133].v[2] || v13 != source->input.consts[133].v[3] )
       {
-        __asm { vxorps  xmm4, xmm4, xmm4 }
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+0E04h]
-        vcomiss xmm0, xmm3
-        vmovss  xmm1, dword ptr [rdx+0E10h]
-      }
-      if ( !v21 )
-        __asm { vdivss  xmm3, xmm5, xmm0 }
-      _RAX = v33;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+0E00h]
-        vucomiss xmm0, dword ptr [rax+0F50h]
-      }
-      if ( !v20 )
-        goto LABEL_21;
-      __asm { vucomiss xmm3, dword ptr [rax+0F54h] }
-      if ( !v20 )
-        goto LABEL_21;
-      __asm { vucomiss xmm1, dword ptr [rax+0F58h] }
-      if ( !v20 )
-        goto LABEL_21;
-      __asm { vucomiss xmm4, dword ptr [rax+0F5Ch] }
-      if ( !v20 )
-      {
-LABEL_21:
-        __asm
-        {
-          vmovss  dword ptr [rax+0F50h], xmm0
-          vmovss  dword ptr [rax+0F54h], xmm3
-          vmovss  dword ptr [rax+0F58h], xmm1
-          vmovss  dword ptr [rax+0F5Ch], xmm4
-        }
-        ++*(_WORD *)(v33 + 10430);
+        source->input.consts[133].v[0] = v16;
+        source->input.consts[133].v[1] = v12;
+        source->input.consts[133].v[2] = distortionMagnitude;
+        source->input.consts[133].v[3] = v13;
+        ++source->constVersions[133];
       }
       return rgp.watersheetingMaterial;
     case DISTORTION_EFFECT_TYPE_DIGITAL:
       intensity = viewInfo->digitalDistort.intensity;
-      _RCX = gfxContext->source;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdx+2DD4h]
-        vmovss  dword ptr [rcx+0F54h], xmm1
-      }
-      _RCX->input.consts[133].v[0] = intensity;
-      *(_QWORD *)&_RCX->input.consts[133].xyz.z = 0i64;
-      ++_RCX->constVersions[133];
+      v9 = gfxContext->source;
+      v9->input.consts[133].v[1] = viewInfo->digitalDistort.timeScale;
+      v9->input.consts[133].v[0] = intensity;
+      *(_QWORD *)&v9->input.consts[133].xyz.z = 0i64;
+      ++v9->constVersions[133];
       return rgp.digitalDistortionMaterial;
     case DISTORTION_EFFECT_TYPE_ANALOG:
       analogRewindAmount = viewInfo->analogEffects.analogRewindAmount;
-      __asm { vmovss  xmm1, dword ptr [rdx+2DDCh] }
-      _RCX = gfxContext->source;
-      __asm { vmovss  dword ptr [rcx+0F54h], xmm1 }
-      _RCX->input.consts[133].v[0] = analogRewindAmount;
-      *(_QWORD *)&_RCX->input.consts[133].xyz.z = 0i64;
-      ++_RCX->constVersions[133];
+      v5 = gfxContext->source;
+      v5->input.consts[133].v[1] = viewInfo->analogEffects.analogInterferenceAmount;
+      v5->input.consts[133].v[0] = analogRewindAmount;
+      *(_QWORD *)&v5->input.consts[133].xyz.z = 0i64;
+      ++v5->constVersions[133];
       analogRollEffectAmount = viewInfo->analogEffects.analogRollEffectAmount;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdx+2DE0h]
-        vmovss  xmm0, dword ptr [rdx+2DE8h]
-        vmovss  dword ptr [rcx+0F64h], xmm0
-        vmovss  dword ptr [rcx+0F68h], xmm1
-      }
-      _RCX->input.consts[134].v[0] = analogRollEffectAmount;
-      _RCX->input.consts[134].v[3] = 0.0;
-      ++_RCX->constVersions[134];
+      analogCrtEffectAmount = viewInfo->analogEffects.analogCrtEffectAmount;
+      v5->input.consts[134].v[1] = viewInfo->analogEffects.analogChromaSeparationEffectAmount;
+      v5->input.consts[134].v[2] = analogCrtEffectAmount;
+      v5->input.consts[134].v[0] = analogRollEffectAmount;
+      v5->input.consts[134].v[3] = 0.0;
+      ++v5->constVersions[134];
       result = rgp.analogUVColorDistortionMaterial;
       if ( viewInfo->thermalParams.useScopedNVG )
         return rgp.analogUVColorDistortionScopedMaterial;
@@ -723,30 +532,24 @@ R_Distortion_UpdateAnalogDistortionParams
 */
 void R_Distortion_UpdateAnalogDistortionParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  GfxCmdBufSourceState *source; 
   float analogRewindAmount; 
+  float analogCrtEffectAmount; 
   float analogRollEffectAmount; 
 
-  _R8 = gfxContext->source;
-  __asm { vmovss  xmm0, dword ptr [rdx+2DDCh] }
+  source = gfxContext->source;
   analogRewindAmount = viewInfo->analogEffects.analogRewindAmount;
-  __asm { vmovss  dword ptr [r8+0F54h], xmm0 }
-  _R8->input.consts[133].v[0] = analogRewindAmount;
-  *(_QWORD *)&_R8->input.consts[133].xyz.z = 0i64;
-  ++_R8->constVersions[133];
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+2DE0h]
-    vmovss  xmm0, dword ptr [rdx+2DE8h]
-  }
+  source->input.consts[133].v[1] = viewInfo->analogEffects.analogInterferenceAmount;
+  source->input.consts[133].v[0] = analogRewindAmount;
+  *(_QWORD *)&source->input.consts[133].xyz.z = 0i64;
+  ++source->constVersions[133];
+  analogCrtEffectAmount = viewInfo->analogEffects.analogCrtEffectAmount;
   analogRollEffectAmount = viewInfo->analogEffects.analogRollEffectAmount;
-  __asm
-  {
-    vmovss  dword ptr [r8+0F64h], xmm0
-    vmovss  dword ptr [r8+0F68h], xmm1
-  }
-  _R8->input.consts[134].v[0] = analogRollEffectAmount;
-  _R8->input.consts[134].v[3] = 0.0;
-  ++_R8->constVersions[134];
+  source->input.consts[134].v[1] = viewInfo->analogEffects.analogChromaSeparationEffectAmount;
+  source->input.consts[134].v[2] = analogCrtEffectAmount;
+  source->input.consts[134].v[0] = analogRollEffectAmount;
+  source->input.consts[134].v[3] = 0.0;
+  ++source->constVersions[134];
 }
 
 /*
@@ -756,12 +559,15 @@ R_Distortion_UpdateDigitalDistortionParams
 */
 void R_Distortion_UpdateDigitalDistortionParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
-  _R8 = gfxContext->source;
-  __asm { vmovss  xmm0, dword ptr [rdx+2DD4h] }
-  _R8->input.consts[133].v[0] = viewInfo->digitalDistort.intensity;
-  *(_QWORD *)&_R8->input.consts[133].xyz.z = 0i64;
-  __asm { vmovss  dword ptr [r8+0F54h], xmm0 }
-  ++_R8->constVersions[133];
+  GfxCmdBufSourceState *source; 
+  float timeScale; 
+
+  source = gfxContext->source;
+  timeScale = viewInfo->digitalDistort.timeScale;
+  source->input.consts[133].v[0] = viewInfo->digitalDistort.intensity;
+  *(_QWORD *)&source->input.consts[133].xyz.z = 0i64;
+  source->input.consts[133].v[1] = timeScale;
+  ++source->constVersions[133];
 }
 
 /*
@@ -769,75 +575,35 @@ void R_Distortion_UpdateDigitalDistortionParams(GfxCmdBufContext *gfxContext, co
 R_Distortion_UpdateWaterSheetingParams
 ==============
 */
-
-void __fastcall R_Distortion_UpdateWaterSheetingParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, __int64 a3, double _XMM3_8)
+void R_Distortion_UpdateWaterSheetingParams(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   int duration; 
-  bool v10; 
-  bool v11; 
-  int v12; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float distortionMagnitude; 
+  GfxCmdBufSourceState *source; 
+  float v8; 
 
   duration = viewInfo->waterSheetingFx.duration;
-  __asm
-  {
-    vmovss  xmm5, cs:__real@3f800000
-    vxorps  xmm3, xmm3, xmm3
-  }
-  v10 = duration == 0;
-  v11 = duration == 0;
+  v3 = 0.0;
   if ( duration )
-  {
-    v12 = viewInfo->waterSheetingFx.startMSec - viewInfo->waterSheetingFx.currentTime;
-    v10 = duration + v12 == 0;
-    v11 = __CFADD__(duration, v12) || v10;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, r8d
-      vdivss  xmm2, xmm1, xmm0
-      vsubss  xmm4, xmm5, xmm2
-    }
-  }
+    v4 = 1.0 - (float)((float)(duration + viewInfo->waterSheetingFx.startMSec - viewInfo->waterSheetingFx.currentTime) / (float)duration);
   else
+    v4 = 0.0;
+  v5 = viewInfo->waterSheetingFx.distortionScale.v[1];
+  distortionMagnitude = viewInfo->waterSheetingFx.distortionMagnitude;
+  if ( v5 > 0.0 )
+    v3 = 1.0 / v5;
+  source = gfxContext->source;
+  v8 = viewInfo->waterSheetingFx.distortionScale.v[0];
+  if ( v8 != gfxContext->source->input.consts[133].v[0] || v3 != source->input.consts[133].v[1] || distortionMagnitude != source->input.consts[133].v[2] || v4 != source->input.consts[133].v[3] )
   {
-    __asm { vxorps  xmm4, xmm4, xmm4 }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+0E04h]
-    vcomiss xmm0, xmm3
-    vmovss  xmm1, dword ptr [rdx+0E10h]
-  }
-  if ( !v11 )
-    __asm { vdivss  xmm3, xmm5, xmm0 }
-  _RAX = gfxContext->source;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+0E00h]
-    vucomiss xmm0, dword ptr [rax+0F50h]
-  }
-  if ( !v10 )
-    goto LABEL_10;
-  __asm { vucomiss xmm3, dword ptr [rax+0F54h] }
-  if ( !v10 )
-    goto LABEL_10;
-  __asm { vucomiss xmm1, dword ptr [rax+0F58h] }
-  if ( !v10 )
-    goto LABEL_10;
-  __asm { vucomiss xmm4, dword ptr [rax+0F5Ch] }
-  if ( !v10 )
-  {
-LABEL_10:
-    __asm
-    {
-      vmovss  dword ptr [rax+0F50h], xmm0
-      vmovss  dword ptr [rax+0F54h], xmm3
-      vmovss  dword ptr [rax+0F58h], xmm1
-      vmovss  dword ptr [rax+0F5Ch], xmm4
-    }
-    ++_RAX->constVersions[133];
+    source->input.consts[133].v[0] = v8;
+    source->input.consts[133].v[1] = v3;
+    source->input.consts[133].v[2] = distortionMagnitude;
+    source->input.consts[133].v[3] = v4;
+    ++source->constVersions[133];
   }
 }
 
@@ -848,19 +614,9 @@ R_Distortion_UsingAnalogDistort
 */
 bool R_Distortion_UsingAnalogDistort(const GfxViewInfo *viewInfo)
 {
-  _RBX = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp", 21, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+2DE0h]
-    vcomiss xmm0, dword ptr [rbx+2DDCh]
-    vcomiss xmm0, dword ptr [rbx+2DD8h]
-    vcomiss xmm0, dword ptr [rbx+2DE4h]
-    vcomiss xmm0, dword ptr [rbx+2DE8h]
-  }
-  return 0;
+  return viewInfo->analogEffects.analogCrtEffectAmount > 0.0 || viewInfo->analogEffects.analogInterferenceAmount > 0.0 || viewInfo->analogEffects.analogRewindAmount > 0.0 || viewInfo->analogEffects.analogRollEffectAmount > 0.0 || viewInfo->analogEffects.analogChromaSeparationEffectAmount > 0.0;
 }
 
 /*
@@ -872,16 +628,12 @@ bool R_UsingDistortion(const GfxViewInfo *viewInfo)
 {
   bool result; 
 
-  _RBX = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_distortion.cpp", 33, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+2DD0h]
-  }
-  result = R_Distortion_UsingAnalogDistort(_RBX);
-  if ( result || _RBX->waterSheetingFx.enabled )
+  if ( viewInfo->digitalDistort.intensity > 0.0 )
+    return 1;
+  result = R_Distortion_UsingAnalogDistort(viewInfo);
+  if ( result || viewInfo->waterSheetingFx.enabled )
     return 1;
   return result;
 }

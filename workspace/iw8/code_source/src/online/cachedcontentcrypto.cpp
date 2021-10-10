@@ -213,29 +213,27 @@ __int64 CachedContentCrypto::Cipher_AESDecryptStream(CachedContentCrypto *this, 
   const char *v15; 
   Online_ErrorReporting *InstancePtr; 
   unsigned __int8 v17; 
-  Online_CachedContentStreamer *v20; 
-  const char *v21; 
-  Online_ErrorReporting *v22; 
+  Online_CachedContentStreamer *v18; 
+  const char *v19; 
+  Online_ErrorReporting *v20; 
+  unsigned int v21; 
+  unsigned int v22; 
   unsigned int v23; 
-  unsigned int v24; 
-  unsigned int v25; 
-  Online_CachedContentStreamer *v27; 
-  const char *v28; 
-  Online_ErrorReporting *v29; 
-  Online_CachedContentStreamer *v30; 
-  const char *v31; 
-  Online_ErrorReporting *v32; 
-  Mem_LargeLocal v33; 
-  Mem_LargeLocal v34; 
-  unsigned int v35; 
+  Online_CachedContentStreamer *v25; 
+  const char *v26; 
+  Online_ErrorReporting *v27; 
+  Online_CachedContentStreamer *v28; 
+  const char *v29; 
+  Online_ErrorReporting *v30; 
+  Mem_LargeLocal v31; 
+  Mem_LargeLocal v32; 
+  unsigned int v33; 
   unsigned __int8 *cipherText; 
 
-  _RBX = inKey;
-  _R13 = this;
-  Mem_LargeLocal::Mem_LargeLocal(&v34, 0x400ui64, "cccAESBuffer_t inputBufferAES");
-  cipherText = (unsigned __int8 *)v34.m_ptr;
-  Mem_LargeLocal::Mem_LargeLocal(&v33, 0x400ui64, "cccAESBuffer_t outputBufferAES");
-  m_ptr = (unsigned __int8 *)v33.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v32, 0x400ui64, "cccAESBuffer_t inputBufferAES");
+  cipherText = (unsigned __int8 *)v32.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v31, 0x400ui64, "cccAESBuffer_t outputBufferAES");
+  m_ptr = (unsigned __int8 *)v31.m_ptr;
   if ( !cipherStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 554, ASSERT_TYPE_ASSERT, "(cipherStream)", (const char *)&queryFormat, "cipherStream", -2i64) )
     __debugbreak();
   if ( !plainStream && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 555, ASSERT_TYPE_ASSERT, "(plainStream)", (const char *)&queryFormat, "plainStream") )
@@ -260,7 +258,7 @@ LABEL_21:
       Com_Printf(25, "%s: %s", v12->m_name, v13);
     goto LABEL_21;
   }
-  if ( !cipherStream->Size(cipherStream, &v35) )
+  if ( !cipherStream->Size(cipherStream, &v33) )
   {
     v14 = Online_CachedContentStreamer::GetInstance();
     v15 = j_va("CachedContentCrypto::Cipher_AESDecryptStream: failed to get input stream size \n");
@@ -268,75 +266,70 @@ LABEL_21:
       Com_Printf(25, "%s: %s", v14->m_name, v15);
     goto LABEL_21;
   }
-  if ( _R13->m_inUseCipher && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 495, ASSERT_TYPE_ASSERT, "(!m_inUseCipher)", (const char *)&queryFormat, "!m_inUseCipher") )
+  if ( this->m_inUseCipher && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 495, ASSERT_TYPE_ASSERT, "(!m_inUseCipher)", (const char *)&queryFormat, "!m_inUseCipher") )
     __debugbreak();
-  _R13->m_inUseCipher = 1;
-  __asm
+  this->m_inUseCipher = 1;
+  *(__m256i *)this->m_AESKey.keyBytes = *(__m256i *)inKey->keyBytes;
+  *(_OWORD *)this->m_AESKey.intialVectorBytes = *(_OWORD *)inKey->intialVectorBytes;
+  if ( !this->m_AESEncryptor.init(&this->m_AESEncryptor, (const unsigned __int8 *)&this->m_AESKey, 32u) )
   {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [r13+1C0h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [r13+1E0h], xmm1
+    v18 = Online_CachedContentStreamer::GetInstance();
+    v19 = j_va("Cipher_AESInit: Setup failed\n");
+    if ( Dvar_GetInt_Internal_DebugName(DVARINT_onlineSystemDebugAll, "onlineSystemDebugAll") || v18->ShowLogOutput(v18) )
+      Com_Printf(25, "%s: %s", v18->m_name, v19);
+    v20 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v20, (Online_Error_CAT_CCS_t)0x200000, NULL);
   }
-  if ( !_R13->m_AESEncryptor.init(&_R13->m_AESEncryptor, _R13->m_AESKey.keyBytes, 32u) )
-  {
-    v20 = Online_CachedContentStreamer::GetInstance();
-    v21 = j_va("Cipher_AESInit: Setup failed\n");
-    if ( Dvar_GetInt_Internal_DebugName(DVARINT_onlineSystemDebugAll, "onlineSystemDebugAll") || v20->ShowLogOutput(v20) )
-      Com_Printf(25, "%s: %s", v20->m_name, v21);
-    v22 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v22, (Online_Error_CAT_CCS_t)0x200000, NULL);
-  }
-  v23 = expectedPlainStreamSize;
-  v24 = 0;
-  if ( v35 )
+  v21 = expectedPlainStreamSize;
+  v22 = 0;
+  if ( v33 )
   {
     while ( 1 )
     {
-      v24 += cipherStream->Read(cipherStream, cipherText, 1024i64);
-      if ( !CachedContentCrypto::Cipher_AESDecryptBlock(_R13, cipherText, m_ptr, 0x400u) )
+      v22 += cipherStream->Read(cipherStream, cipherText, 1024i64);
+      if ( !CachedContentCrypto::Cipher_AESDecryptBlock(this, cipherText, m_ptr, 0x400u) )
         break;
-      v25 = v23;
-      if ( v23 > 0x400 )
-        v25 = 1024;
-      if ( plainStream->Write(plainStream, m_ptr, v25) != v25 )
+      v23 = v21;
+      if ( v21 > 0x400 )
+        v23 = 1024;
+      if ( plainStream->Write(plainStream, m_ptr, v23) != v23 )
       {
-        v27 = Online_CachedContentStreamer::GetInstance();
-        v28 = j_va("CachedContentCrypto::Cipher_AESDecryptStream: failed to write all of output. \n");
-        OnlineSystem::DebugLog(v27, v28);
-        v29 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v29, MOVEMENT, NULL);
+        v25 = Online_CachedContentStreamer::GetInstance();
+        v26 = j_va("CachedContentCrypto::Cipher_AESDecryptStream: failed to write all of output. \n");
+        OnlineSystem::DebugLog(v25, v26);
+        v27 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v27, MOVEMENT, NULL);
         v17 = 0;
         goto LABEL_40;
       }
-      v23 -= v25;
-      if ( v24 >= v35 )
+      v21 -= v23;
+      if ( v22 >= v33 )
         goto LABEL_36;
     }
-    v30 = Online_CachedContentStreamer::GetInstance();
-    v31 = j_va("CachedContentCrypto::Cipher_AESDecryptStream:  error while encryting. \n");
-    OnlineSystem::DebugLog(v30, v31);
-    v32 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v32, MOVEMENT, NULL);
+    v28 = Online_CachedContentStreamer::GetInstance();
+    v29 = j_va("CachedContentCrypto::Cipher_AESDecryptStream:  error while encryting. \n");
+    OnlineSystem::DebugLog(v28, v29);
+    v30 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v30, MOVEMENT, NULL);
     v17 = 0;
   }
   else
   {
 LABEL_36:
-    if ( !_R13->m_inUseCipher && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 513, ASSERT_TYPE_ASSERT, "(m_inUseCipher)", (const char *)&queryFormat, "m_inUseCipher") )
+    if ( !this->m_inUseCipher && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 513, ASSERT_TYPE_ASSERT, "(m_inUseCipher)", (const char *)&queryFormat, "m_inUseCipher") )
       __debugbreak();
-    _R13->m_inUseCipher = 0;
-    *(_QWORD *)_R13->m_AESKey.keyBytes = 0i64;
-    *(_QWORD *)&_R13->m_AESKey.keyBytes[8] = 0i64;
-    *(_QWORD *)&_R13->m_AESKey.keyBytes[16] = 0i64;
-    *(_QWORD *)&_R13->m_AESKey.keyBytes[24] = 0i64;
-    *(_QWORD *)_R13->m_AESKey.intialVectorBytes = 0i64;
-    *(_QWORD *)&_R13->m_AESKey.intialVectorBytes[8] = 0i64;
+    this->m_inUseCipher = 0;
+    *(_QWORD *)this->m_AESKey.keyBytes = 0i64;
+    *(_QWORD *)&this->m_AESKey.keyBytes[8] = 0i64;
+    *(_QWORD *)&this->m_AESKey.keyBytes[16] = 0i64;
+    *(_QWORD *)&this->m_AESKey.keyBytes[24] = 0i64;
+    *(_QWORD *)this->m_AESKey.intialVectorBytes = 0i64;
+    *(_QWORD *)&this->m_AESKey.intialVectorBytes[8] = 0i64;
     v17 = 1;
   }
 LABEL_40:
-  Mem_LargeLocal::~Mem_LargeLocal(&v33);
-  Mem_LargeLocal::~Mem_LargeLocal(&v34);
+  Mem_LargeLocal::~Mem_LargeLocal(&v31);
+  Mem_LargeLocal::~Mem_LargeLocal(&v32);
   return v17;
 }
 
@@ -365,30 +358,23 @@ CachedContentCrypto::Cipher_AESInit
 */
 char CachedContentCrypto::Cipher_AESInit(CachedContentCrypto *this, const cccAESKey_t *inKey)
 {
-  bdCypherAES_vtbl *v7; 
+  bdCypherAES_vtbl *v4; 
   Online_CachedContentStreamer *Instance; 
-  const char *v9; 
+  const char *v6; 
   Online_ErrorReporting *InstancePtr; 
 
-  _RDI = inKey;
   if ( this->m_inUseCipher && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 495, ASSERT_TYPE_ASSERT, "(!m_inUseCipher)", (const char *)&queryFormat, "!m_inUseCipher") )
     __debugbreak();
   this->m_inUseCipher = 1;
-  _RDX = &this->m_AESKey;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-  }
-  v7 = this->m_AESEncryptor.__vftable;
-  __asm { vmovups xmmword ptr [rdx+20h], xmm1 }
-  if ( v7->init(&this->m_AESEncryptor, this->m_AESKey.keyBytes, 32u) )
+  *(__m256i *)this->m_AESKey.keyBytes = *(__m256i *)inKey->keyBytes;
+  v4 = this->m_AESEncryptor.__vftable;
+  *(_OWORD *)this->m_AESKey.intialVectorBytes = *(_OWORD *)inKey->intialVectorBytes;
+  if ( v4->init(&this->m_AESEncryptor, this->m_AESKey.keyBytes, 32u) )
     return 1;
   Instance = Online_CachedContentStreamer::GetInstance();
-  v9 = j_va("Cipher_AESInit: Setup failed\n");
+  v6 = j_va("Cipher_AESInit: Setup failed\n");
   if ( Dvar_GetInt_Internal_DebugName(DVARINT_onlineSystemDebugAll, "onlineSystemDebugAll") || Instance->ShowLogOutput(Instance) )
-    Com_Printf(25, "%s: %s", Instance->m_name, v9);
+    Com_Printf(25, "%s: %s", Instance->m_name, v6);
   InstancePtr = Online_ErrorReporting::GetInstancePtr();
   Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_CCS_t)0x200000, NULL);
   return 0;
@@ -493,40 +479,31 @@ CachedContentCrypto::Init
 */
 void CachedContentCrypto::Init(CachedContentCrypto *this)
 {
+  __m256i *v2; 
   __int64 v3; 
+  ltc_math_descriptor *v4; 
+  __m256i v5; 
+  __int128 v6; 
   Online_ErrorReporting *InstancePtr; 
 
-  _RDX = &ltc_mp;
+  v2 = (__m256i *)&ltc_mp;
   v3 = 3i64;
-  _RAX = &ltm_desc;
+  v4 = &ltm_desc;
   do
   {
-    _RDX = (ltc_math_descriptor *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (ltc_math_descriptor *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v2 += 4;
+    v5 = *(__m256i *)&v4->name;
+    v6 = *(_OWORD *)&v4->count_lsb_bits;
+    v4 = (ltc_math_descriptor *)((char *)v4 + 128);
+    v2[-4] = v5;
+    v2[-3] = *(__m256i *)&v4[-1].exptmod;
+    v2[-2] = *(__m256i *)&v4[-1].ecc_ptdbl;
+    *(_OWORD *)v2[-1].m256i_i8 = *(_OWORD *)&v4[-1].rsa_me;
+    *(_OWORD *)&v2[-1].m256i_u64[2] = v6;
     --v3;
   }
   while ( v3 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdx], ymm0
-  }
+  *v2 = *(__m256i *)&v4->name;
   if ( j_register_hash(&sha256_desc) == -1 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\cachedcontentcrypto.cpp", 77, ASSERT_TYPE_ASSERT, "(registerIndex != -1)", (const char *)&queryFormat, "registerIndex != -1") )

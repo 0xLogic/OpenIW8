@@ -1140,21 +1140,24 @@ void OnlineClan::CancelMemberInvitationCallback(GenericTask *task, eTaskManagerT
   bdArray<bdClansRemovedMembershipProposal> *Proposals; 
   bdUserAccountID *TargetUser; 
   unsigned __int64 v15; 
+  ActiveClanData *ActiveClanData; 
   __int64 v17; 
   bdUserAccountID *v18; 
   unsigned __int64 v19; 
   unsigned __int64 v20; 
-  unsigned __int64 v28; 
+  __int64 v21; 
+  __int64 v22; 
+  unsigned __int64 v23; 
   unsigned __int64 TransactionID; 
   int errorCode; 
   bdLobbyErrorCode fmt; 
-  bool v32; 
+  bool v27; 
   bdArray<bdClansFailedMembershipProposal> result; 
-  __int64 v34; 
-  bdUserAccountID v35; 
+  __int64 v29; 
+  bdUserAccountID v30; 
   bdClansRemovedMembershipProposal value; 
 
-  v34 = -2i64;
+  v29 = -2i64;
   m_appData = (OnlineClan *)task->m_appData;
   m_controllerIndex = m_appData->m_controllerIndex;
   if ( m_controllerIndex == -1 || GetActiveClanData(m_controllerIndex)->clan != m_appData )
@@ -1164,7 +1167,7 @@ void OnlineClan::CancelMemberInvitationCallback(GenericTask *task, eTaskManagerT
   else
   {
     v6 = state == TASKSTATE_SUCCESS;
-    v32 = state == TASKSTATE_SUCCESS;
+    v27 = state == TASKSTATE_SUCCESS;
     if ( state )
     {
       TransactionID = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
@@ -1182,11 +1185,11 @@ void OnlineClan::CancelMemberInvitationCallback(GenericTask *task, eTaskManagerT
         FailedProposals = bdClansRemoveProposalsResponse::getFailedProposals(&m_appData->m_removeProposalsResponse, &result);
         bdArray<bdClansFailedMembershipProposal>::get(FailedProposals, 0, (bdClansFailedMembershipProposal *)&value);
         bdArray<bdClansFailedMembershipProposal>::~bdArray<bdClansFailedMembershipProposal>(&result);
-        User = bdClansFailedMembershipProposal::getUser((bdClansFailedMembershipProposal *)&value, &v35);
+        User = bdClansFailedMembershipProposal::getUser((bdClansFailedMembershipProposal *)&value, &v30);
         UserID = bdUserAccountID::getUserID(User);
         Com_PrintError(14, "[Clan] %s: Failed to cancel invite to player %zu\n", "OnlineClan::CancelMemberInvitationCallback", UserID);
-        bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v35.gap38);
-        bdReferencable::~bdReferencable((bdReferencable *)v35.gap38);
+        bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v30.gap38);
+        bdReferencable::~bdReferencable((bdReferencable *)v30.gap38);
         v6 = 0;
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&value.m_group.__vftable + 1));
         bdReferencable::~bdReferencable((bdReferencable *)&value.m_group.m_rootID);
@@ -1207,46 +1210,38 @@ void OnlineClan::CancelMemberInvitationCallback(GenericTask *task, eTaskManagerT
           Proposals = bdClansRemoveProposalsResponse::getProposals(&m_appData->m_removeProposalsResponse, (bdArray<bdClansRemovedMembershipProposal> *)&result);
           bdArray<bdClansRemovedMembershipProposal>::get(Proposals, 0, &value);
           bdArray<bdClansRemovedMembershipProposal>::~bdArray<bdClansRemovedMembershipProposal>((bdArray<bdClansRemovedMembershipProposal> *)&result);
-          TargetUser = bdClansRemovedMembershipProposal::getTargetUser(&value, &v35);
+          TargetUser = bdClansRemovedMembershipProposal::getTargetUser(&value, &v30);
           v15 = bdUserAccountID::getUserID(TargetUser);
           Com_Printf(14, "[Clan] %s: Successfully canceled invite to player %zu\n", "OnlineClan::CancelMemberInvitationCallback", v15);
-          bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v35.gap38);
-          bdReferencable::~bdReferencable((bdReferencable *)v35.gap38);
-          _R14 = GetActiveClanData(task->m_controllerIndex);
-          if ( !_R14->numClanInvites && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_clan.cpp", 1486, ASSERT_TYPE_ASSERT, "(activeData->numClanInvites > 0)", (const char *)&queryFormat, "activeData->numClanInvites > 0") )
+          bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v30.gap38);
+          bdReferencable::~bdReferencable((bdReferencable *)v30.gap38);
+          ActiveClanData = GetActiveClanData(task->m_controllerIndex);
+          if ( !ActiveClanData->numClanInvites && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_clan.cpp", 1486, ASSERT_TYPE_ASSERT, "(activeData->numClanInvites > 0)", (const char *)&queryFormat, "activeData->numClanInvites > 0") )
             __debugbreak();
           v17 = 0i64;
-          if ( _R14->numClanInvites )
+          if ( ActiveClanData->numClanInvites )
           {
             while ( 1 )
             {
-              v18 = bdClansRemovedMembershipProposal::getTargetUser(&value, &v35);
-              v19 = XUID::ToUint64(&_R14->clanInvites[(unsigned int)v17].xuid);
+              v18 = bdClansRemovedMembershipProposal::getTargetUser(&value, &v30);
+              v19 = XUID::ToUint64(&ActiveClanData->clanInvites[(unsigned int)v17].xuid);
               v20 = bdUserAccountID::getUserID(v18);
-              bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v35.gap38);
-              bdReferencable::~bdReferencable((bdReferencable *)v35.gap38);
+              bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v30.gap38);
+              bdReferencable::~bdReferencable((bdReferencable *)v30.gap38);
               if ( v19 == v20 )
                 break;
               v17 = (unsigned int)(v17 + 1);
-              if ( (unsigned int)v17 >= _R14->numClanInvites )
+              if ( (unsigned int)v17 >= ActiveClanData->numClanInvites )
                 goto LABEL_15;
             }
-            _RDX = 120 * (_R14->numClanInvites - 1 + 250i64);
-            _RCX = 120 * (v17 + 250);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdx+r14]
-              vmovups ymmword ptr [rcx+r14], ymm0
-              vmovups ymm1, ymmword ptr [rdx+r14+20h]
-              vmovups ymmword ptr [rcx+r14+20h], ymm1
-              vmovups ymm0, ymmword ptr [rdx+r14+40h]
-              vmovups ymmword ptr [rcx+r14+40h], ymm0
-              vmovups xmm1, xmmword ptr [rdx+r14+60h]
-              vmovups xmmword ptr [rcx+r14+60h], xmm1
-              vmovsd  xmm0, qword ptr [rdx+r14+70h]
-              vmovsd  qword ptr [rcx+r14+70h], xmm0
-            }
-            --_R14->numClanInvites;
+            v21 = ActiveClanData->numClanInvites - 1 + 250i64;
+            v22 = v17 + 250;
+            *(__m256i *)ActiveClanData->members[v22].name = *(__m256i *)ActiveClanData->members[v21].name;
+            *(__m256i *)&ActiveClanData->members[v22].name[32] = *(__m256i *)&ActiveClanData->members[v21].name[32];
+            *(__m256i *)&ActiveClanData->members[v22].nameWithHash[28] = *(__m256i *)&ActiveClanData->members[v21].nameWithHash[28];
+            *(_OWORD *)&ActiveClanData->members[v22].nameWithHash[60] = *(_OWORD *)&ActiveClanData->members[v21].nameWithHash[60];
+            *(double *)&ActiveClanData->members[v22].role = *(double *)&ActiveClanData->members[v21].role;
+            --ActiveClanData->numClanInvites;
           }
 LABEL_15:
           bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&value.m_group.__vftable + 2));
@@ -1256,13 +1251,13 @@ LABEL_15:
           bdReferencable::~bdReferencable((bdReferencable *)&value.m_targetUser[136]);
           bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&value.__vftable + 2));
           bdReferencable::~bdReferencable((bdReferencable *)&value.gapFC[4]);
-          v6 = v32;
+          v6 = v27;
           m_name = m_appData->m_name;
         }
         else
         {
-          v28 = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
-          Com_PrintError(14, "[Clan] %s: zero failed proposals and zero proposals were returned for clan %s, something has gone wrong, tid %zu\n", "OnlineClan::CancelMemberInvitationCallback", m_appData->m_name, v28);
+          v23 = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
+          Com_PrintError(14, "[Clan] %s: zero failed proposals and zero proposals were returned for clan %s, something has gone wrong, tid %zu\n", "OnlineClan::CancelMemberInvitationCallback", m_appData->m_name, v23);
           v6 = 0;
           m_name = m_appData->m_name;
         }
@@ -1484,15 +1479,19 @@ void OnlineClan::FetchClanInfoCallback(GenericTask *task, eTaskManagerTaskState 
   unsigned int m_size; 
   bdArray<bdClansGroupInfo> *GroupInfos; 
   bdClansGroupInfo *m_data; 
+  _OWORD *v8; 
+  unsigned __int64 *v9; 
   __int64 v10; 
   __int64 v11; 
+  bdStructFixedSizeString<255> *p_m_uniqueTag; 
+  bdStructFixedSizeString<255> *v13; 
   bool *p_m_hasValue; 
   int errorCode; 
   bdArray<bdClansGroupInfo> result; 
-  __int64 v33; 
+  __int64 v17; 
   bdClansGroupInfo info; 
 
-  v33 = -2i64;
+  v17 = -2i64;
   v2 = state;
   m_appData = (OnlineClan *)task->m_appData;
   if ( state )
@@ -1516,67 +1515,39 @@ void OnlineClan::FetchClanInfoCallback(GenericTask *task, eTaskManagerTaskState 
         *((_QWORD *)&info.__vftable + 3) = *((_QWORD *)&m_data->__vftable + 3);
         info.m_rootKind = m_data->m_rootKind;
         info.m_rootID = m_data->m_rootID;
-        _RAX = &m_data->m_rootID + 1;
-        _RCX = &info.m_rootID + 1;
+        v8 = &m_data->m_rootID + 1;
+        v9 = &info.m_rootID + 1;
         v10 = 2i64;
         v11 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 16;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 16;
+          *(_OWORD *)v9 = *v8;
+          *((_OWORD *)v9 + 1) = v8[1];
+          *((_OWORD *)v9 + 2) = v8[2];
+          *((_OWORD *)v9 + 3) = v8[3];
+          *((_OWORD *)v9 + 4) = v8[4];
+          *((_OWORD *)v9 + 5) = v8[5];
+          *((_OWORD *)v9 + 6) = v8[6];
+          v9 += 16;
+          *((_OWORD *)v9 - 1) = v8[7];
+          v8 += 8;
           --v11;
         }
         while ( v11 );
-        _RAX = &m_data->m_uniqueTag;
-        _RCX = &info.m_uniqueTag;
+        p_m_uniqueTag = &m_data->m_uniqueTag;
+        v13 = &info.m_uniqueTag;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX = (bdStructFixedSizeString<255> *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
+          *(_OWORD *)v13->m_buffer = *(_OWORD *)p_m_uniqueTag->m_buffer;
+          *(_OWORD *)&v13->m_buffer[16] = *(_OWORD *)&p_m_uniqueTag->m_buffer[16];
+          *(_OWORD *)&v13->m_buffer[32] = *(_OWORD *)&p_m_uniqueTag->m_buffer[32];
+          *(_OWORD *)&v13->m_buffer[48] = *(_OWORD *)&p_m_uniqueTag->m_buffer[48];
+          *(_OWORD *)&v13->m_buffer[64] = *(_OWORD *)&p_m_uniqueTag->m_buffer[64];
+          *(_OWORD *)&v13->m_buffer[80] = *(_OWORD *)&p_m_uniqueTag->m_buffer[80];
+          *(_OWORD *)&v13->m_buffer[96] = *(_OWORD *)&p_m_uniqueTag->m_buffer[96];
+          v13 = (bdStructFixedSizeString<255> *)((char *)v13 + 128);
+          *(_OWORD *)&v13[-1].m_buffer[240] = *(_OWORD *)&p_m_uniqueTag->m_buffer[112];
+          p_m_uniqueTag = (bdStructFixedSizeString<255> *)((char *)p_m_uniqueTag + 128);
           --v10;
         }
         while ( v10 );
@@ -3657,45 +3628,42 @@ OnlineClan_SendLuaClanNotification
 */
 void OnlineClan_SendLuaClanNotification(const int controllerIndex, const bool success, const unsigned __int64 clanId, const char *clanName, const char *clanTag, const char *luiEvent, const int errorCode)
 {
-  lua_State *v8; 
-  __int64 v10; 
+  lua_State *v7; 
+  __int64 v9; 
   LocalClientNum_t ClientFromController; 
   int luiError; 
-  const ClanFailureEntry *v17; 
-  unsigned int v18; 
+  const ClanFailureEntry *v16; 
+  unsigned int v17; 
 
-  v8 = LUI_luaVM;
-  v10 = controllerIndex;
+  v7 = LUI_luaVM;
+  v9 = controllerIndex;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
-  if ( LUI_BeginEvent(ClientFromController, "clans_notification", v8) )
+  if ( LUI_BeginEvent(ClientFromController, "clans_notification", v7) )
   {
     LUI_BeginTable("options", 0, 2, LUI_luaVM);
     LUI_SetTableString("genEventName", luiEvent, LUI_luaVM);
-    LUI_SetTableInt("controllerIndex", v10, LUI_luaVM);
+    LUI_SetTableInt("controllerIndex", v9, LUI_luaVM);
     LUI_SetTableBool("success", success, LUI_luaVM);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rsi
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rsi }
     if ( (clanId & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; value }
+      *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
     LUI_SetTableNumber("clanId", *(long double *)&_XMM1, LUI_luaVM);
     LUI_SetTableString("clanName", clanName, LUI_luaVM);
     LUI_SetTableString("clanTag", clanTag, LUI_luaVM);
     if ( !success )
     {
       luiError = 0;
-      v17 = s_clanFailureEntries;
-      v18 = 0;
-      while ( v17->error != errorCode )
+      v16 = s_clanFailureEntries;
+      v17 = 0;
+      while ( v16->error != errorCode )
       {
-        ++v18;
         ++v17;
-        if ( v18 >= 0xE )
+        ++v16;
+        if ( v17 >= 0xE )
           goto LABEL_10;
       }
-      luiError = s_clanFailureEntries[v18].luiError;
+      luiError = s_clanFailureEntries[v17].luiError;
 LABEL_10:
       LUI_SetTableInt("error", luiError, LUI_luaVM);
     }
@@ -3968,10 +3936,13 @@ void OnlineClan::RemoveMemberCallback(GenericTask *task, eTaskManagerTaskState s
   OnlineClan *v10; 
   int v11; 
   unsigned int v12; 
+  ActiveClanData *v13; 
   int numClanMembers; 
   bool v15; 
   unsigned int v16; 
   const char *m_name; 
+  __int64 v18; 
+  __int64 v19; 
   OnlinePresenceNotifications *Instance; 
   unsigned __int64 TransactionID; 
   int errorCode; 
@@ -4013,14 +3984,14 @@ void OnlineClan::RemoveMemberCallback(GenericTask *task, eTaskManagerTaskState s
       else
       {
         v12 = 0;
-        _RDI = GetActiveClanData(v10->m_controllerIndex);
-        numClanMembers = _RDI->numClanMembers;
+        v13 = GetActiveClanData(v10->m_controllerIndex);
+        numClanMembers = v13->numClanMembers;
         if ( numClanMembers )
         {
           while ( 1 )
           {
-            v15 = XUID::operator==(&_RDI->members[v12].xuid, &xuid);
-            v16 = _RDI->numClanMembers;
+            v15 = XUID::operator==(&v13->members[v12].xuid, &xuid);
+            v16 = v13->numClanMembers;
             if ( v15 )
               break;
             if ( ++v12 >= v16 )
@@ -4030,25 +4001,17 @@ void OnlineClan::RemoveMemberCallback(GenericTask *task, eTaskManagerTaskState s
               goto LABEL_17;
             }
           }
-          _RAX = 120i64 * v12;
-          _RDX = 120i64 * (v16 - 1);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdx+rdi]
-            vmovups ymmword ptr [rax+rdi], ymm0
-            vmovups ymm1, ymmword ptr [rdx+rdi+20h]
-            vmovups ymmword ptr [rax+rdi+20h], ymm1
-            vmovups ymm0, ymmword ptr [rdx+rdi+40h]
-            vmovups ymmword ptr [rax+rdi+40h], ymm0
-            vmovups xmm1, xmmword ptr [rdx+rdi+60h]
-            vmovups xmmword ptr [rax+rdi+60h], xmm1
-            vmovsd  xmm0, qword ptr [rdx+rdi+70h]
-            vmovsd  qword ptr [rax+rdi+70h], xmm0
-          }
-          --_RDI->numClanMembers;
+          v18 = v12;
+          v19 = v16 - 1;
+          *(__m256i *)v13->members[v18].name = *(__m256i *)v13->members[v19].name;
+          *(__m256i *)&v13->members[v18].name[32] = *(__m256i *)&v13->members[v19].name[32];
+          *(__m256i *)&v13->members[v18].nameWithHash[28] = *(__m256i *)&v13->members[v19].nameWithHash[28];
+          *(_OWORD *)&v13->members[v18].nameWithHash[60] = *(_OWORD *)&v13->members[v19].nameWithHash[60];
+          *(double *)&v13->members[v18].role = *(double *)&v13->members[v19].role;
+          --v13->numClanMembers;
           Instance = OnlinePresenceNotifications::GetInstance();
           OnlinePresenceNotifications::UnsubscribeFromUser(Instance, v10->m_controllerIndex, xuid, ClanMember);
-          numClanMembers = _RDI->numClanMembers;
+          numClanMembers = v13->numClanMembers;
         }
         v10->m_deactivatedNumMembers = numClanMembers;
         m_name = m_id->m_name;
@@ -4069,8 +4032,11 @@ void OnlineClan::RemovePlayerNotification(OnlineClan *this, const XUID xuid)
 {
   int m_controllerIndex; 
   unsigned int v4; 
+  ActiveClanData *ActiveClanData; 
   unsigned int numClanMembers; 
   bool v7; 
+  __int64 v8; 
+  __int64 v9; 
   OnlinePresenceNotifications *Instance; 
   XUID xuida; 
 
@@ -4083,38 +4049,30 @@ void OnlineClan::RemovePlayerNotification(OnlineClan *this, const XUID xuid)
   else
   {
     v4 = 0;
-    _RDI = GetActiveClanData(this->m_controllerIndex);
-    numClanMembers = _RDI->numClanMembers;
+    ActiveClanData = GetActiveClanData(this->m_controllerIndex);
+    numClanMembers = ActiveClanData->numClanMembers;
     if ( numClanMembers )
     {
       while ( 1 )
       {
-        v7 = XUID::operator==(&_RDI->members[v4].xuid, &xuida);
-        numClanMembers = _RDI->numClanMembers;
+        v7 = XUID::operator==(&ActiveClanData->members[v4].xuid, &xuida);
+        numClanMembers = ActiveClanData->numClanMembers;
         if ( v7 )
           break;
         if ( ++v4 >= numClanMembers )
           goto LABEL_8;
       }
-      _RAX = 120i64 * v4;
-      _RDX = 120i64 * (numClanMembers - 1);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx+rdi]
-        vmovups ymmword ptr [rax+rdi], ymm0
-        vmovups ymm1, ymmword ptr [rdx+rdi+20h]
-        vmovups ymmword ptr [rax+rdi+20h], ymm1
-        vmovups ymm0, ymmword ptr [rdx+rdi+40h]
-        vmovups ymmword ptr [rax+rdi+40h], ymm0
-        vmovups xmm1, xmmword ptr [rdx+rdi+60h]
-        vmovups xmmword ptr [rax+rdi+60h], xmm1
-        vmovsd  xmm0, qword ptr [rdx+rdi+70h]
-        vmovsd  qword ptr [rax+rdi+70h], xmm0
-      }
-      --_RDI->numClanMembers;
+      v8 = v4;
+      v9 = numClanMembers - 1;
+      *(__m256i *)ActiveClanData->members[v8].name = *(__m256i *)ActiveClanData->members[v9].name;
+      *(__m256i *)&ActiveClanData->members[v8].name[32] = *(__m256i *)&ActiveClanData->members[v9].name[32];
+      *(__m256i *)&ActiveClanData->members[v8].nameWithHash[28] = *(__m256i *)&ActiveClanData->members[v9].nameWithHash[28];
+      *(_OWORD *)&ActiveClanData->members[v8].nameWithHash[60] = *(_OWORD *)&ActiveClanData->members[v9].nameWithHash[60];
+      *(double *)&ActiveClanData->members[v8].role = *(double *)&ActiveClanData->members[v9].role;
+      --ActiveClanData->numClanMembers;
       Instance = OnlinePresenceNotifications::GetInstance();
       OnlinePresenceNotifications::UnsubscribeFromUser(Instance, this->m_controllerIndex, xuida, ClanMember);
-      numClanMembers = _RDI->numClanMembers;
+      numClanMembers = ActiveClanData->numClanMembers;
     }
 LABEL_8:
     this->m_deactivatedNumMembers = numClanMembers;

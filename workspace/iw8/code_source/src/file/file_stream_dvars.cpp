@@ -14,17 +14,10 @@ void FileStream_RegisterDvars(void)
 FileStream_RegisterDvars
 ==============
 */
-
-void __fastcall FileStream_RegisterDvars(__int64 a1, double _XMM1_8, double _XMM2_8)
+void FileStream_RegisterDvars(void)
 {
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@447a0000; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_fileStream_mbPerSec = Dvar_RegisterFloat("LONORMOKT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Throttle file reads to the specified megabytes per second. When set to 0 no throttling occurs.");
+  DVARFLT_fileStream_mbPerSec = Dvar_RegisterFloat("LONORMOKT", 0.0, 0.0, 1000.0, 0, "Throttle file reads to the specified megabytes per second. When set to 0 no throttling occurs.");
   DCONST_DVARBOOL_fileStream_allowBackSeeking = Dvar_RegisterBool("fileStream_allowBackSeeking", 1, 0x40004u, "When true allows the file read priority queue to enqueue a read request that would cause back seeking within the file currently being read from to be queued immediately after the current read is finished.");
   DCONST_DVARINT_fileStream_readDeadlineMS_DB = Dvar_RegisterInt("fileStream_readDeadlineMS_DB", 100, 0, 10000, 0x40004u, "Time deadline for async DB read in milliseconds.");
   DCONST_DVARINT_fileStream_readPriority_XPak = Dvar_RegisterEnum("fileStream_readPriority_XPak", fileStream_readPriorityNames, 0, 0x40004u, "Priority for async XPak reads issued via the regular streamer read code path");
@@ -36,14 +29,8 @@ void __fastcall FileStream_RegisterDvars(__int64 a1, double _XMM1_8, double _XMM
   DCONST_DVARBOOL_fileStream_printQueue = Dvar_RegisterBool("fileStream_printQueue", 0, 0x40004u, "When enabled prints to the log when read requests are added to or removed from the file stream queue.");
   DCONST_DVARBOOL_fileStream_showReadSpeeds = Dvar_RegisterBool("fileStream_showReadSpeeds", 0, 0x40004u, "Show file stream read bandwidth.");
   DCONST_DVARINT_fileStream_minPerfDataClearTimeMS = Dvar_RegisterInt("fileStream_minPerfDataClearTimeMS", 1000, 50, 0x7FFFFFFF, 0x40004u, "Minimum time in ms before performance data can be cleared.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm2, cs:__real@3a83126f; min
-    vmovss  xmm1, cs:__real@3e3851ec; value
-  }
   DCONST_DVARBOOL_fileStream_drawReadHistory = Dvar_RegisterBool("fileStream_drawReadHistory", 0, 0x40004u, "Draw the read history on the screen.");
-  DCONST_DVARFLT_fileStream_drawReadHistoryFontSize = Dvar_RegisterFloat("fileStream_drawReadHistoryFontSize", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Sets the font size used to draw the file read history display.");
+  DCONST_DVARFLT_fileStream_drawReadHistoryFontSize = Dvar_RegisterFloat("fileStream_drawReadHistoryFontSize", 0.18000001, 0.001, 10.0, 0x40004u, "Sets the font size used to draw the file read history display.");
   DCONST_DVARINT_fileStream_drawReadHistoryFilterFileStreamTrack = Dvar_RegisterEnum("fileStream_drawReadHistoryFilterFileStreamTrack", fileStream_fileStreamTrackNames, 8, 0x40004u, "Filter the read history by this file stream track.");
   DCONST_DVARSTR_fileStream_drawReadHistoryFilterName = Dvar_RegisterString("fileStream_drawReadHistoryFilterName", (const char *)&queryFormat.fmt + 3, 0x40004u, "Filter the read history by this file name substring.");
   DCONST_DVARINT_fileStream_drawReadHistoryFilterTimeMs = Dvar_RegisterInt("fileStream_drawReadHistoryFilterTimeMs", 0, 0, 0x7FFFFFFF, 0x40004u, "Filter times less than this out of the read history (0 disables).");

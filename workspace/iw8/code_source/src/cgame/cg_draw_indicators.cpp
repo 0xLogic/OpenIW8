@@ -73,270 +73,193 @@ void CG_AddHudGrenade(cg_t *cgameGlob, const centity_t *grenadeEnt)
 {
   entityType_s eType; 
   __int64 localClientNum; 
-  CgWeaponMap *v12; 
+  CgWeaponMap *v6; 
   const Weapon *Weapon; 
   bool inAltWeaponMode; 
-  unsigned int v17; 
-  int v18; 
-  __int64 v19; 
-  bool v21; 
-  bool v22; 
-  Material *v33; 
-  char v34; 
+  double v9; 
+  unsigned int v10; 
+  int v11; 
+  __int64 v12; 
+  float v13; 
+  double Float_Internal_DebugName; 
+  float v15; 
+  double v16; 
+  Material *v17; 
+  bool v18; 
   Material *grenadeIconThrowBack; 
-  Material *v36; 
-  int v37; 
-  __int64 v38; 
+  Material *v20; 
+  int v21; 
+  __int64 v22; 
+  __int64 v23; 
+  float v24; 
+  float v25; 
+  double v26; 
+  double v27; 
+  float v28; 
+  double v29; 
   centity_t *LinkToParent; 
-  entityType_s v61; 
-  __int64 v66; 
-  __int64 v67; 
+  entityType_s v31; 
+  __int64 v32; 
+  __int64 v33; 
   float outMaxOffset; 
   vec3_t outOrigin; 
-  __int64 v70; 
-  char v71; 
-  void *retaddr; 
+  __int64 v36; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RDI = grenadeEnt;
-  _RBX = cgameGlob;
+  v36 = -2i64;
   eType = grenadeEnt->nextState.eType;
   if ( eType != ET_MISSILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 612, ASSERT_TYPE_ASSERT, "( ( state->eType == ET_MISSILE ) )", "( state->eType ) = %i", eType) )
     __debugbreak();
-  __asm
+  outMaxOffset = grenadeEnt->nextState.lerp.pos.trDelta.v[0];
+  if ( (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040 || (outMaxOffset = grenadeEnt->nextState.lerp.pos.trDelta.v[1], (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040) || (outMaxOffset = grenadeEnt->nextState.lerp.pos.trDelta.v[2], (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdi+1B8h]
-    vmovss  [rsp+0D8h+outMaxOffset], xmm0
-  }
-  if ( (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040 )
-    goto LABEL_84;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1BCh]
-    vmovss  [rsp+0D8h+outMaxOffset], xmm0
-  }
-  if ( (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040 )
-    goto LABEL_84;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1C0h]
-    vmovss  [rsp+0D8h+outMaxOffset], xmm0
-  }
-  if ( (LODWORD(outMaxOffset) & 0x7F800000) == 2139095040 )
-  {
-LABEL_84:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 614, ASSERT_TYPE_SANITY, "( !IS_NAN( ( state->lerp.pos.trDelta )[0] ) && !IS_NAN( ( state->lerp.pos.trDelta )[1] ) && !IS_NAN( ( state->lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( state->lerp.pos.trDelta )[0] ) && !IS_NAN( ( state->lerp.pos.trDelta )[1] ) && !IS_NAN( ( state->lerp.pos.trDelta )[2] )") )
       __debugbreak();
   }
-  if ( (*((_BYTE *)&_RDI->nextState.lerp.u.ragdollConstraint + 16) & 0x10) == 0 )
+  if ( (*((_BYTE *)&grenadeEnt->nextState.lerp.u.ragdollConstraint + 16) & 0x10) == 0 )
   {
-    localClientNum = _RBX->localClientNum;
+    localClientNum = cgameGlob->localClientNum;
     if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
       __debugbreak();
-    v12 = CgWeaponMap::ms_instance[localClientNum];
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    v6 = CgWeaponMap::ms_instance[localClientNum];
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    Weapon = BgWeaponMap::GetWeapon(v12, _RDI->nextState.weaponHandle);
-    inAltWeaponMode = _RDI->nextState.inAltWeaponMode;
-    if ( !BG_HideWarningIcons(Weapon, inAltWeaponMode) && _RBX->predictedPlayerState.pm_type < 7 )
+    Weapon = BgWeaponMap::GetWeapon(v6, grenadeEnt->nextState.weaponHandle);
+    inAltWeaponMode = grenadeEnt->nextState.inAltWeaponMode;
+    if ( !BG_HideWarningIcons(Weapon, inAltWeaponMode) && cgameGlob->predictedPlayerState.pm_type < 7 )
     {
-      if ( _RDI->nextState.otherEntityNum != _RBX->predictedPlayerState.clientNum )
-        goto LABEL_21;
-      *(double *)&_XMM0 = BG_WarningIconsDelay(Weapon, inAltWeaponMode);
-      __asm
+      if ( grenadeEnt->nextState.otherEntityNum != cgameGlob->predictedPlayerState.clientNum || (v9 = BG_WarningIconsDelay(Weapon, inAltWeaponMode), *(float *)&v9 <= 0.0) || cgameGlob->time - cgameGlob->predictedPlayerState.deltaTime - grenadeEnt->nextState.lerp.u.anonymous.data[2] > (int)(float)(*(float *)&v9 * 1000.0) )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
-      }
-      if ( v21 || v22 )
-        goto LABEL_21;
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@447a0000
-        vcvttss2si ecx, xmm0
-      }
-      if ( _RBX->time - _RBX->predictedPlayerState.deltaTime - _RDI->nextState.lerp.u.anonymous.data[2] > _ECX )
-      {
-LABEL_21:
-        v17 = BG_ProjExplosionType(Weapon, inAltWeaponMode);
+        v10 = BG_ProjExplosionType(Weapon, inAltWeaponMode);
         if ( BG_GetWeaponType(Weapon, inAltWeaponMode) == WEAPTYPE_GRENADE )
         {
-          if ( v17 > 7 )
-            goto LABEL_81;
-          v18 = 133;
-          if ( !_bittest(&v18, v17) )
-            goto LABEL_81;
+          if ( v10 > 7 )
+            return;
+          v11 = 133;
+          if ( !_bittest(&v11, v10) )
+            return;
         }
-        else if ( v17 )
+        else if ( v10 )
         {
-          goto LABEL_81;
+          return;
         }
         if ( BG_TimedDetonation(Weapon, inAltWeaponMode) )
         {
-          v19 = _RBX->localClientNum;
-          if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", _RBX->localClientNum) )
+          v12 = cgameGlob->localClientNum;
+          if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", cgameGlob->localClientNum) )
             __debugbreak();
-          if ( (unsigned int)v19 >= CgWeaponSystem::ms_allocatedCount )
+          if ( (unsigned int)v12 >= CgWeaponSystem::ms_allocatedCount )
           {
-            LODWORD(v67) = CgWeaponSystem::ms_allocatedCount;
-            LODWORD(v66) = v19;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v66, v67) )
+            LODWORD(v33) = CgWeaponSystem::ms_allocatedCount;
+            LODWORD(v32) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v32, v33) )
               __debugbreak();
           }
-          if ( !CgWeaponSystem::ms_weaponSystemArray[v19] )
+          if ( !CgWeaponSystem::ms_weaponSystemArray[v12] )
           {
-            LODWORD(v67) = v19;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v67) )
+            LODWORD(v33) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v33) )
               __debugbreak();
           }
-          if ( CgWeaponSystem::ms_weaponSystemArray[v19]->IsGrenadeDangerous(CgWeaponSystem::ms_weaponSystemArray[v19], _RDI) )
+          if ( CgWeaponSystem::ms_weaponSystemArray[v12]->IsGrenadeDangerous(CgWeaponSystem::ms_weaponSystemArray[v12], grenadeEnt) )
           {
-            __asm { vmovss  xmm8, cs:__real@3f800000 }
-            if ( !v17 || (v21 = v17 < 7, v22 = v17 == 7) )
+            if ( !v10 || v10 == 7 )
             {
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_maxGrenadeIndicatorSpeed, "bg_maxGrenadeIndicatorSpeed");
-              __asm { vmovaps xmm6, xmm0 }
-              Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_maxGrenadeIndicatorSpeed, "bg_maxGrenadeIndicatorSpeed");
-              __asm { vmulss  xmm4, xmm6, xmm0 }
+              Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_maxGrenadeIndicatorSpeed, "bg_maxGrenadeIndicatorSpeed");
+              v15 = *(float *)&Float_Internal_DebugName;
+              v16 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_maxGrenadeIndicatorSpeed, "bg_maxGrenadeIndicatorSpeed");
+              v13 = v15 * *(float *)&v16;
             }
             else
             {
-              __asm { vmovaps xmm4, xmm8 }
+              v13 = FLOAT_1_0;
             }
-            __asm
+            if ( (float)((float)((float)(grenadeEnt->nextState.lerp.pos.trDelta.v[0] * grenadeEnt->nextState.lerp.pos.trDelta.v[0]) + (float)(grenadeEnt->nextState.lerp.pos.trDelta.v[1] * grenadeEnt->nextState.lerp.pos.trDelta.v[1])) + (float)(grenadeEnt->nextState.lerp.pos.trDelta.v[2] * grenadeEnt->nextState.lerp.pos.trDelta.v[2])) <= v13 && CG_AddHudGrenade_PositionCheck(cgameGlob, grenadeEnt, Weapon, inAltWeaponMode, &outMaxOffset) )
             {
-              vmovss  xmm2, dword ptr [rdi+1BCh]
-              vmovss  xmm0, dword ptr [rdi+1B8h]
-              vmovss  xmm3, dword ptr [rdi+1C0h]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vcomiss xmm2, xmm4
-            }
-            if ( (v21 || v22) && CG_AddHudGrenade_PositionCheck(_RBX, _RDI, Weapon, inAltWeaponMode, &outMaxOffset) )
-            {
-              v33 = BG_DangerIcon(Weapon, inAltWeaponMode);
-              v34 = 0;
-              if ( !v17 || v17 == 7 )
+              v17 = BG_DangerIcon(Weapon, inAltWeaponMode);
+              v18 = 0;
+              if ( !v10 || v10 == 7 )
               {
-                if ( _RBX->predictedPlayerState.cursorHint == HINT_WEAPON && _RBX->predictedPlayerState.cursorHintClass == USE_CLASS_GENTITY && _RBX->predictedPlayerState.cursorHintEntIndex == _RDI->nextState.number )
+                if ( cgameGlob->predictedPlayerState.cursorHint == HINT_WEAPON && cgameGlob->predictedPlayerState.cursorHintClass == USE_CLASS_GENTITY && cgameGlob->predictedPlayerState.cursorHintEntIndex == grenadeEnt->nextState.number )
                 {
-                  v36 = BG_ThrowBackIcon(Weapon, inAltWeaponMode);
+                  v20 = BG_ThrowBackIcon(Weapon, inAltWeaponMode);
                   grenadeIconThrowBack = cgMedia.grenadeIconThrowBack;
-                  if ( v36 )
-                    grenadeIconThrowBack = v36;
-                  v34 = 1;
-                  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x33u) )
-                    goto LABEL_81;
+                  if ( v20 )
+                    grenadeIconThrowBack = v20;
+                  v18 = 1;
+                  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x33u) )
+                    return;
                   goto LABEL_60;
                 }
                 grenadeIconThrowBack = cgMedia.grenadeIconFrag;
               }
               else
               {
-                if ( v17 != 2 )
+                if ( v10 != 2 )
                 {
-                  LODWORD(v66) = v17;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 728, ASSERT_TYPE_ASSERT, "( ( projExplosionType == WEAPPROJEXP_FLASHBANG ) )", "( projExplosionType ) = %i", v66) )
+                  LODWORD(v32) = v10;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 728, ASSERT_TYPE_ASSERT, "( ( projExplosionType == WEAPPROJEXP_FLASHBANG ) )", "( projExplosionType ) = %i", v32) )
                     __debugbreak();
                 }
                 if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cg_hudGrenadeIconEnabledFlash, "cg_hudGrenadeIconEnabledFlash") )
-                  goto LABEL_81;
+                  return;
                 grenadeIconThrowBack = cgMedia.grenadeIconFlash;
               }
-              if ( v33 )
-                grenadeIconThrowBack = v33;
+              if ( v17 )
+                grenadeIconThrowBack = v17;
 LABEL_60:
-              v37 = Sys_InterlockedExchangeAdd((volatile int *)&_RBX->hudGrenadeCount, 1);
-              v38 = v37;
-              if ( (unsigned __int64)v37 < 0x20 )
+              v21 = Sys_InterlockedExchangeAdd((volatile int *)&cgameGlob->hudGrenadeCount, 1);
+              v22 = v21;
+              if ( (unsigned __int64)v21 < 0x20 )
               {
-                if ( (unsigned int)v37 >= 0x20 )
+                if ( (unsigned int)v21 >= 0x20 )
                 {
-                  LODWORD(v67) = 32;
-                  LODWORD(v66) = v37;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 755, ASSERT_TYPE_ASSERT, "(unsigned)( hudGrenadeIndex ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->hudGrenades ) ) + 0 ) )", "hudGrenadeIndex doesn't index cgameGlob->hudGrenades\n\t%i not in [0, %i)", v66, v67) )
+                  LODWORD(v33) = 32;
+                  LODWORD(v32) = v21;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 755, ASSERT_TYPE_ASSERT, "(unsigned)( hudGrenadeIndex ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->hudGrenades ) ) + 0 ) )", "hudGrenadeIndex doesn't index cgameGlob->hudGrenades\n\t%i not in [0, %i)", v32, v33) )
                     __debugbreak();
                 }
-                _RBP = v38;
-                CG_GetPoseOrigin(&_RDI->pose, &outOrigin);
+                v23 = v22;
+                CG_GetPoseOrigin(&grenadeEnt->pose, &outOrigin);
                 if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_LOOP) )
                 {
-                  _RBX->hudGrenades[_RBP].lerpDistanceAmount = 1.0;
-                  __asm
+                  cgameGlob->hudGrenades[v23].lerpDistanceAmount = 1.0;
+                  v24 = fsqrt((float)((float)((float)(outOrigin.v[1] - cgameGlob->predictedPlayerState.origin.v[1]) * (float)(outOrigin.v[1] - cgameGlob->predictedPlayerState.origin.v[1])) + (float)((float)(outOrigin.v[0] - cgameGlob->predictedPlayerState.origin.v[0]) * (float)(outOrigin.v[0] - cgameGlob->predictedPlayerState.origin.v[0]))) + (float)((float)(outOrigin.v[2] - cgameGlob->predictedPlayerState.origin.v[2]) * (float)(outOrigin.v[2] - cgameGlob->predictedPlayerState.origin.v[2])));
+                  v25 = outMaxOffset;
+                  if ( outMaxOffset < v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 768, ASSERT_TYPE_ASSERT, "( maxOffset ) >= ( grenadeOffsetLength )", "%s >= %s\n\t%g, %g", "maxOffset", "grenadeOffsetLength", outMaxOffset, v24) )
+                    __debugbreak();
+                  v26 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
+                  if ( v24 > *(float *)&v26 )
                   {
-                    vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin]
-                    vsubss  xmm3, xmm0, dword ptr [rbx+38h]
-                    vmovss  xmm1, dword ptr [rsp+0D8h+outOrigin+4]
-                    vsubss  xmm2, xmm1, dword ptr [rbx+3Ch]
-                    vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin+8]
-                    vsubss  xmm4, xmm0, dword ptr [rbx+40h]
-                    vmulss  xmm2, xmm2, xmm2
-                    vmulss  xmm1, xmm3, xmm3
-                    vaddss  xmm3, xmm2, xmm1
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm2, xmm3, xmm0
-                    vsqrtss xmm6, xmm2, xmm2
-                    vmovss  xmm7, [rsp+0D8h+outMaxOffset]
-                    vcomiss xmm7, xmm6
-                  }
-                  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
-                  __asm { vcomiss xmm6, xmm0 }
-                  if ( !v21 && !v22 )
-                  {
-                    Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
-                    __asm { vsubss  xmm6, xmm6, xmm0 }
-                    Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
-                    __asm
-                    {
-                      vsubss  xmm1, xmm7, xmm0
-                      vdivss  xmm2, xmm6, xmm1
-                      vsubss  xmm0, xmm8, xmm2
-                      vmovss  dword ptr [rbx+rbp+59940h], xmm0
-                    }
+                    v27 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
+                    v28 = v24 - *(float *)&v27;
+                    v29 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadeDangerCloseDistance, "cg_hudGrenadeDangerCloseDistance");
+                    cgameGlob->hudGrenades[v23].lerpDistanceAmount = 1.0 - (float)(v28 / (float)(v25 - *(float *)&v29));
                   }
                 }
                 else
                 {
-                  _RBX->hudGrenades[_RBP].lerpDistanceAmount = 0.0;
+                  cgameGlob->hudGrenades[v23].lerpDistanceAmount = 0.0;
                 }
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin]
-                  vmovss  dword ptr [rbx+rbp+59928h], xmm0
-                  vmovss  xmm1, dword ptr [rsp+0D8h+outOrigin+4]
-                  vmovss  dword ptr [rbx+rbp+5992Ch], xmm1
-                  vmovss  xmm0, dword ptr [rsp+0D8h+outOrigin+8]
-                  vmovss  dword ptr [rbx+rbp+59930h], xmm0
-                }
-                _RBX->hudGrenades[_RBP].material = grenadeIconThrowBack;
-                _RBX->hudGrenades[_RBP].isThrowback = v34;
-                _RBX->hudGrenades[_RBP].stuckToCharacterNum = 2047;
+                cgameGlob->hudGrenades[v23].origin = outOrigin;
+                cgameGlob->hudGrenades[v23].material = grenadeIconThrowBack;
+                cgameGlob->hudGrenades[v23].isThrowback = v18;
+                cgameGlob->hudGrenades[v23].stuckToCharacterNum = 2047;
                 if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_DROP) )
                 {
-                  LinkToParent = CG_Entity_GetLinkToParent(_RBX->localClientNum, _RDI);
+                  LinkToParent = CG_Entity_GetLinkToParent(cgameGlob->localClientNum, grenadeEnt);
                   if ( LinkToParent )
                   {
                     while ( (LinkToParent->flags & 1) != 0 )
                     {
                       if ( LinkToParent == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
                         __debugbreak();
-                      v61 = LinkToParent->nextState.eType;
-                      if ( ((v61 - 1) & 0xFFED) == 0 && v61 != ET_ITEM )
+                      v31 = LinkToParent->nextState.eType;
+                      if ( ((v31 - 1) & 0xFFED) == 0 && v31 != ET_ITEM )
                       {
-                        _RBX->hudGrenades[_RBP].stuckToCharacterNum = LinkToParent->nextState.number;
+                        cgameGlob->hudGrenades[v23].stuckToCharacterNum = LinkToParent->nextState.number;
                         break;
                       }
-                      LinkToParent = CG_Entity_GetLinkToParent(_RBX->localClientNum, LinkToParent);
+                      LinkToParent = CG_Entity_GetLinkToParent(cgameGlob->localClientNum, LinkToParent);
                       if ( !LinkToParent )
                         break;
                     }
@@ -346,21 +269,13 @@ LABEL_60:
               }
               else
               {
-                Sys_InterlockedDecrement((volatile int *)&_RBX->hudGrenadeCount);
+                Sys_InterlockedDecrement((volatile int *)&cgameGlob->hudGrenadeCount);
               }
             }
           }
         }
       }
     }
-  }
-LABEL_81:
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -371,129 +286,97 @@ CG_AddHudGrenade_PositionCheck
 */
 __int64 CG_AddHudGrenade_PositionCheck(cg_t *cgameGlob, const centity_t *grenadeEnt, const Weapon *weapon, bool isAlternate, float *outMaxOffset)
 {
+  float v9; 
+  float v10; 
+  float v11; 
   unsigned int weaponIdx; 
-  weapProjExposion_t v23; 
-  char v29; 
-  unsigned __int8 v36; 
-  __int64 result; 
-  bool v43; 
-  bool v44; 
-  __int64 v45; 
+  weapProjExposion_t v13; 
+  const dvar_t *v14; 
+  double GrenadeDangerIconDistance; 
+  float value; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  unsigned __int8 v19; 
+  __int64 v21; 
   vec3_t outOrigin; 
-  __int64 v47; 
-  char v49; 
-  void *retaddr; 
+  __int64 v23; 
 
-  _RAX = &retaddr;
-  v47 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps [rsp+0E8h+var_88], xmm9
-  }
-  _RDI = cgameGlob;
-  _R12 = outMaxOffset;
+  v23 = -2i64;
   if ( !grenadeEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 530, ASSERT_TYPE_ASSERT, "(grenadeEnt)", (const char *)&queryFormat, "grenadeEnt") )
     __debugbreak();
   CG_GetPoseOrigin(&grenadeEnt->pose, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+outOrigin]
-    vsubss  xmm8, xmm0, dword ptr [rdi+38h]
-    vmovss  xmm1, dword ptr [rsp+0E8h+outOrigin+4]
-    vsubss  xmm9, xmm1, dword ptr [rdi+3Ch]
-    vmovss  xmm0, dword ptr [rsp+0E8h+outOrigin+8]
-    vsubss  xmm6, xmm0, dword ptr [rdi+40h]
-  }
+  v9 = outOrigin.v[0] - cgameGlob->predictedPlayerState.origin.v[0];
+  v10 = outOrigin.v[1] - cgameGlob->predictedPlayerState.origin.v[1];
+  v11 = outOrigin.v[2] - cgameGlob->predictedPlayerState.origin.v[2];
   weaponIdx = weapon->weaponIdx;
   if ( weaponIdx > bg_lastParsedWeaponIndex )
   {
-    LODWORD(v45) = weapon->weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v45, bg_lastParsedWeaponIndex) )
+    LODWORD(v21) = weapon->weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v21, bg_lastParsedWeaponIndex) )
       __debugbreak();
   }
   if ( !bg_weaponDefs[(unsigned __int16)weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  v23 = BG_ProjExplosionType(weapon, isAlternate);
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( v23 == WEAPPROJEXP_GRENADE || v23 == WEAPPROJEXP_HEAVY )
+  v13 = BG_ProjExplosionType(weapon, isAlternate);
+  if ( v13 == WEAPPROJEXP_GRENADE || v13 == WEAPPROJEXP_HEAVY )
   {
     if ( !LODWORD(cl_maxLocalClients) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 329, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
       __debugbreak();
     if ( cls.m_activeGameHardcoreSetting )
     {
-      __asm { vxorps  xmm2, xmm2, xmm2 }
+      value = 0.0;
     }
     else
     {
-      _RBX = DCONST_DVARMPFLT_cg_hudGrenadeIconMaxRangeFrag;
+      v17 = DCONST_DVARMPFLT_cg_hudGrenadeIconMaxRangeFrag;
       if ( !DCONST_DVARMPFLT_cg_hudGrenadeIconMaxRangeFrag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconMaxRangeFrag") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm2, dword ptr [rbx+28h]; defaultValue }
+      Dvar_CheckFrontendServerThread(v17);
+      value = v17->current.value;
     }
-    *(double *)&_XMM0 = BG_GetGrenadeDangerIconDistance(weapon, isAlternate, *(const float *)&_XMM2);
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !(v29 | v43) )
-      __asm { vaddss  xmm0, xmm0, cs:__real@41b80000 }
+    GrenadeDangerIconDistance = BG_GetGrenadeDangerIconDistance(weapon, isAlternate, value);
+    if ( *(float *)&GrenadeDangerIconDistance > 0.0 )
+      *(float *)&GrenadeDangerIconDistance = *(float *)&GrenadeDangerIconDistance + 23.0;
   }
   else
   {
-    if ( v23 != WEAPPROJEXP_FLASHBANG && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 558, ASSERT_TYPE_ASSERT, "(projExplosionType == WEAPPROJEXP_FLASHBANG)", (const char *)&queryFormat, "projExplosionType == WEAPPROJEXP_FLASHBANG") )
+    if ( v13 != WEAPPROJEXP_FLASHBANG && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 558, ASSERT_TYPE_ASSERT, "(projExplosionType == WEAPPROJEXP_FLASHBANG)", (const char *)&queryFormat, "projExplosionType == WEAPPROJEXP_FLASHBANG") )
       __debugbreak();
-    _RBX = DCONST_DVARFLT_cg_hudGrenadeIconMaxRangeFlash;
+    v14 = DCONST_DVARFLT_cg_hudGrenadeIconMaxRangeFlash;
     if ( !DCONST_DVARFLT_cg_hudGrenadeIconMaxRangeFlash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconMaxRangeFlash") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm2, dword ptr [rbx+28h]; defaultValue }
-    *(double *)&_XMM0 = BG_GetGrenadeDangerIconDistance(weapon, isAlternate, *(const float *)&_XMM2);
+    Dvar_CheckFrontendServerThread(v14);
+    GrenadeDangerIconDistance = BG_GetGrenadeDangerIconDistance(weapon, isAlternate, v14->current.value);
   }
   if ( outMaxOffset )
-    __asm { vmovss  dword ptr [r12], xmm0 }
-  __asm
+    *outMaxOffset = *(float *)&GrenadeDangerIconDistance;
+  if ( (float)((float)((float)(v9 * v9) + (float)(v10 * v10)) + (float)(v11 * v11)) > (float)(*(float *)&GrenadeDangerIconDistance * *(float *)&GrenadeDangerIconDistance) )
+    goto LABEL_38;
+  if ( v11 >= 0.0 )
   {
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, xmm3
+    if ( !BG_WeaponSticksToWalls(weapon, isAlternate) )
+    {
+      CG_AddHudGrenade_UpdateHudGrenadeMaxHeight(cgameGlob);
+      if ( cgameGlob->hudGrenadeMaxHeightIsDirty && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 584, ASSERT_TYPE_ASSERT, "(!cgameGlob->hudGrenadeMaxHeightIsDirty)", (const char *)&queryFormat, "!cgameGlob->hudGrenadeMaxHeightIsDirty") )
+        __debugbreak();
+      if ( v11 > cgameGlob->hudGrenadeMaxHeight )
+        goto LABEL_38;
+    }
+LABEL_45:
+    v19 = 1;
+    goto LABEL_39;
   }
-  if ( outMaxOffset )
-    goto LABEL_34;
-  __asm { vcomiss xmm6, xmm7 }
-  if ( BG_WeaponSticksToWalls(weapon, isAlternate) )
-    goto LABEL_41;
-  CG_AddHudGrenade_UpdateHudGrenadeMaxHeight(_RDI);
-  v43 = !_RDI->hudGrenadeMaxHeightIsDirty;
-  if ( _RDI->hudGrenadeMaxHeightIsDirty )
-  {
-    v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 584, ASSERT_TYPE_ASSERT, "(!cgameGlob->hudGrenadeMaxHeightIsDirty)", (const char *)&queryFormat, "!cgameGlob->hudGrenadeMaxHeightIsDirty");
-    v43 = !v44;
-    if ( v44 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, dword ptr [rdi+59D2Ch] }
-  if ( v43 )
-LABEL_41:
-    v36 = 1;
-  else
-LABEL_34:
-    v36 = 0;
+  v18 = DCONST_DVARFLT_cg_hudGrenadeIconMaxHeight;
+  if ( !DCONST_DVARFLT_cg_hudGrenadeIconMaxHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconMaxHeight") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v11 >= COERCE_FLOAT(v18->current.integer ^ _xmm) )
+    goto LABEL_45;
+LABEL_38:
+  v19 = 0;
+LABEL_39:
   memset(&outOrigin, 0, sizeof(outOrigin));
-  result = v36;
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
-  return result;
+  return v19;
 }
 
 /*
@@ -503,87 +386,67 @@ CG_AddHudGrenade_UpdateHudGrenadeMaxHeight
 */
 void CG_AddHudGrenade_UpdateHudGrenadeMaxHeight(cg_t *cgameGlob)
 {
-  int v10; 
-  hkMemoryAllocator *v13; 
-  hkMemoryAllocator *v14; 
+  const dvar_t *v2; 
+  float v3; 
+  __int32 v4; 
+  float v5; 
+  hkMemoryAllocator *v6; 
+  hkMemoryAllocator *v7; 
   Physics_RaycastExtendedData extendedData; 
   HavokPhysics_IgnoreBodies ignoreBodies; 
-  __int64 v19; 
+  __int64 v10; 
   vec3_t end; 
   PhysicsQuery_RaycastHit hit; 
-  char v22; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v19 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RSI = cgameGlob;
+  v10 = -2i64;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 465, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   Sys_EnterCriticalSection(CRITSECT_ENTITY_WORKER_GRENADE_HUD);
-  if ( _RSI->hudGrenadeMaxHeightIsDirty )
+  if ( cgameGlob->hudGrenadeMaxHeightIsDirty )
   {
-    _RBX = DCONST_DVARFLT_cg_hudGrenadeIconMaxHeight;
+    v2 = DCONST_DVARFLT_cg_hudGrenadeIconMaxHeight;
     if ( !DCONST_DVARFLT_cg_hudGrenadeIconMaxHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconMaxHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vaddss  xmm6, xmm0, dword ptr [rsi+1F0h]
-      vmovss  dword ptr [rsi+59D2Ch], xmm6
-    }
-    _RSI->hudGrenadeMaxHeightIsDirty = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+38h]
-      vmovss  dword ptr [rbp+30h+end], xmm0
-      vmovss  xmm1, dword ptr [rsi+3Ch]
-      vmovss  dword ptr [rbp+30h+end+4], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rsi+40h]
-      vmovss  dword ptr [rbp+30h+end+8], xmm0
-    }
-    v10 = 3 * _RSI->localClientNum + 2;
+    Dvar_CheckFrontendServerThread(v2);
+    v3 = v2->current.value + cgameGlob->predictedPlayerState.viewHeightCurrent;
+    cgameGlob->hudGrenadeMaxHeight = v3;
+    cgameGlob->hudGrenadeMaxHeightIsDirty = 0;
+    *(_QWORD *)end.v = *(_QWORD *)cgameGlob->predictedPlayerState.origin.v;
+    end.v[2] = v3 + cgameGlob->predictedPlayerState.origin.v[2];
+    v4 = 3 * cgameGlob->localClientNum + 2;
     extendedData.ignoreBodies = NULL;
     extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+130h+extendedData.collisionBuffer], xmm0
-    }
+    extendedData.collisionBuffer = 0.0;
     extendedData.phaseSelection = All;
     extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
     *(_WORD *)&extendedData.collectInsideHits = 256;
     extendedData.contents = 9441297;
     HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&ignoreBodies, 1, 0);
     HavokPhysics_IgnoreBodies::Reset(&ignoreBodies);
-    PhysicsQuery_AddEntityChainToIgnoreList(_RSI->predictedPlayerState.clientNum, &ignoreBodies, 1, 1, 0, 1, 1);
+    PhysicsQuery_AddEntityChainToIgnoreList(cgameGlob->predictedPlayerState.clientNum, &ignoreBodies, 1, 1, 0, 1, 1);
     ignoreBodies.m_ignoreTransparentVolumes = 1;
     CG_EntityWorkers_AcquireReadLock_Physics(BASE);
-    PhysicsQuery_ImmediateRaycastClosest((Physics_WorldId)v10, &_RSI->predictedPlayerState.origin, &end, &extendedData, &hit);
+    PhysicsQuery_ImmediateRaycastClosest((Physics_WorldId)v4, &cgameGlob->predictedPlayerState.origin, &end, &extendedData, &hit);
     CG_EntityWorkers_ReleaseReadLock_Physics(BASE);
-    if ( hit.isValid )
+    if ( hit.isValid && hit.fraction < 1.0 )
     {
-      __asm
-      {
-        vmovss  xmm0, [rbp+30h+hit.fraction]
-        vcomiss xmm0, cs:__real@3f800000
-      }
+      v5 = hit.position.v[2] - cgameGlob->predictedPlayerState.origin.v[2];
+      cgameGlob->hudGrenadeMaxHeight = v5;
+      if ( v5 > v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 505, ASSERT_TYPE_ASSERT, "( cgameGlob->hudGrenadeMaxHeight ) <= ( maxHeight )", "%s <= %s\n\t%g, %g", "cgameGlob->hudGrenadeMaxHeight", "maxHeight", v5, v3) )
+        __debugbreak();
     }
-    v13 = hkMemHeapAllocator();
+    v6 = hkMemHeapAllocator();
     ignoreBodies.m_ignoreBodies.m_size = 0;
     if ( ignoreBodies.m_ignoreBodies.m_capacityAndFlags >= 0 )
-      hkMemoryAllocator::bufFree2(v13, ignoreBodies.m_ignoreBodies.m_data, 4, ignoreBodies.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+      hkMemoryAllocator::bufFree2(v6, ignoreBodies.m_ignoreBodies.m_data, 4, ignoreBodies.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
     ignoreBodies.m_ignoreBodies.m_data = NULL;
     ignoreBodies.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-    v14 = hkMemHeapAllocator();
+    v7 = hkMemHeapAllocator();
     ignoreBodies.m_ignoreEntities.m_size = 0;
     if ( ignoreBodies.m_ignoreEntities.m_capacityAndFlags >= 0 )
-      hkMemoryAllocator::bufFree2(v14, ignoreBodies.m_ignoreEntities.m_data, 8, ignoreBodies.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+      hkMemoryAllocator::bufFree2(v7, ignoreBodies.m_ignoreEntities.m_data, 8, ignoreBodies.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   }
   Sys_LeaveCriticalSection(CRITSECT_ENTITY_WORKER_GRENADE_HUD);
-  _R11 = &v22;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -603,305 +466,248 @@ void CG_ClearHudGrenades(cg_t *cgameGlob)
 CG_DrawDamageDirectionIndicators
 ==============
 */
-
-void __fastcall CG_DrawDamageDirectionIndicators(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_DrawDamageDirectionIndicators(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
   int entity; 
-  bool v16; 
-  const dvar_t *v18; 
-  const dvar_t *v28; 
-  __int64 v47; 
+  bool v4; 
+  const ScreenPlacement *ActivePlacement; 
+  const dvar_t *v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  const dvar_t *v10; 
+  float value; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  viewDamage_t *viewDamage; 
+  int v20; 
+  int duration; 
   unsigned int type; 
   Material *damageMaterial; 
-  unsigned int v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  DamageFeedbackType v62; 
+  unsigned int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  double v27; 
+  float v28; 
+  __int128 v30; 
+  DamageFeedbackType v32; 
+  float yaw; 
+  double Float_Internal_DebugName; 
+  float v35; 
+  double v36; 
+  float v37; 
+  double v38; 
+  float v39; 
+  double v40; 
+  int v41; 
+  double v42; 
   vec2_t *p_verts; 
+  double v44; 
+  float v45; 
+  double v46; 
+  float v47; 
+  double v48; 
+  int v49; 
   float optionalOutData; 
   vec4_t *color; 
   Material *material; 
   Material *materiala; 
-  bool v101; 
+  bool v54; 
   float x; 
   float y; 
   int result[2]; 
-  vec4_t v105; 
-  int v106[8]; 
-  int v107[8]; 
+  vec4_t v58; 
+  int v59[8]; 
+  int v60[8]; 
   vec2_t verts; 
+  int v62; 
+  float v63; 
+  int v64; 
+  float v65; 
+  float v66; 
+  float v67; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( LocalClientGlobals->nextSnap && !CG_GetFlashbangedRemainingTime(localClientNum) && (LocalClientGlobals->predictedPlayerState.linkFlags.m_flags[0] & 4) == 0 && (!CG_GetWeapReticleZoom(LocalClientGlobals, NULL) || Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cg_hudDamageIconInScope, "cg_hudDamageIconInScope")) && (!CG_GetOmnvar_IntegerByName(localClientNum, "post_game_state", result, NULL, NULL) || !result[0] || (unsigned int)(result[0] - 3) <= 1) )
   {
-    __asm
-    {
-      vmovaps [rsp+190h+var_30], xmm6
-      vmovaps [rsp+190h+var_40], xmm7
-      vmovaps [rsp+190h+var_70], xmm10
-      vmovaps [rsp+190h+var_80], xmm11
-      vmovaps [rsp+190h+var_90], xmm12
-      vmovaps [rsp+190h+var_A0], xmm13
-      vmovaps [rsp+190h+var_B0], xmm14
-      vmovaps [rsp+190h+var_C0], xmm15
-    }
     entity = CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.vehicleState.entity;
-    v16 = entity && entity != 2047 || CG_Vehicle_RemoteControlledVehicleType(localClientNum, NULL) != VEH_TYPE_COUNT;
-    v101 = v16;
-    _R15 = ScrPlace_GetActivePlacement(localClientNum);
+    v4 = entity && entity != 2047 || CG_Vehicle_RemoteControlledVehicleType(localClientNum, NULL) != VEH_TYPE_COUNT;
+    v54 = v4;
+    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
     if ( CG_GetWeapReticleZoom(LocalClientGlobals, NULL) )
     {
-      v18 = DCONST_DVARBOOL_cg_hudDamageIconInScope;
+      v6 = DCONST_DVARBOOL_cg_hudDamageIconInScope;
       if ( !DCONST_DVARBOOL_cg_hudDamageIconInScope && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudDamageIconInScope") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v18);
-      if ( !v18->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 205, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_cg_hudDamageIconInScope, \"cg_hudDamageIconInScope\" ))", (const char *)&queryFormat, "Dconst_GetBool( cg_hudDamageIconInScope )") )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( !v6->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 205, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_cg_hudDamageIconInScope, \"cg_hudDamageIconInScope\" ))", (const char *)&queryFormat, "Dconst_GetBool( cg_hudDamageIconInScope )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm2, cs:__real@43f00000; screenHeight
-        vmovss  xmm1, cs:__real@44200000; screenWidth
-      }
-      CG_CalcCrosshairPosition(LocalClientGlobals, *(const float *)&_XMM1, *(const float *)&_XMM2, &x, &y);
-      __asm { vmovss  xmm1, [rsp+190h+x]; x }
-      *(double *)&_XMM0 = ScrPlace_ApplyX(_R15, *(float *)&_XMM1, 2);
-      __asm { vmovss  xmm1, [rsp+190h+y] }
+      CG_CalcCrosshairPosition(LocalClientGlobals, 640.0, 480.0, &x, &y);
+      v7 = ScrPlace_ApplyX(ActivePlacement, x, 2);
+      v8 = y;
     }
     else
     {
-      __asm { vxorps  xmm1, xmm1, xmm1; x }
-      *(double *)&_XMM0 = ScrPlace_ApplyX(_R15, *(float *)&_XMM1, 2);
-      __asm { vxorps  xmm1, xmm1, xmm1; y }
+      v7 = ScrPlace_ApplyX(ActivePlacement, 0.0, 2);
+      v8 = 0.0;
     }
-    __asm { vmovss  [rsp+190h+x], xmm0 }
-    *(double *)&_XMM0 = ScrPlace_ApplyY(_R15, *(float *)&_XMM1, 2);
-    _RBX = DCONST_DVARFLT_cg_hudDamageIconWidth;
-    __asm { vmovss  [rsp+190h+y], xmm0 }
+    x = *(float *)&v7;
+    v9 = ScrPlace_ApplyY(ActivePlacement, v8, 2);
+    v10 = DCONST_DVARFLT_cg_hudDamageIconWidth;
+    y = *(float *)&v9;
     if ( !DCONST_DVARFLT_cg_hudDamageIconWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudDamageIconWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_cg_hudDamageIconHeight;
+    Dvar_CheckFrontendServerThread(v10);
+    value = v10->current.value;
+    v12 = DCONST_DVARFLT_cg_hudDamageIconHeight;
     if ( !DCONST_DVARFLT_cg_hudDamageIconHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudDamageIconHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v28 = DCONST_DVARFLT_cg_hudDamageIconOffset;
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = v12->current.value;
+    v14 = DCONST_DVARFLT_cg_hudDamageIconOffset;
     if ( !DCONST_DVARFLT_cg_hudDamageIconOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudDamageIconOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v28);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r15+4]
-      vmovss  xmm3, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      vmovss  xmm11, cs:__real@3f000000
-      vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm10, cs:__real@40000000
-      vmovss  xmm13, cs:__real@3f800000
-      vmovss  xmm15, cs:__real@3c8efa35
-      vmulss  xmm0, xmm3, xmm7
-      vmulss  xmm1, xmm0, dword ptr [r15]
-      vmulss  xmm0, xmm3, dword ptr [rbx+28h]
-      vmulss  xmm4, xmm0, xmm2
-      vmulss  xmm5, xmm1, xmm11
-      vmulss  xmm1, xmm3, xmm6
-      vmulss  xmm0, xmm1, xmm2
-      vaddss  xmm2, xmm0, xmm4
-      vxorps  xmm0, xmm5, xmm12
-      vmovss  [rbp+90h+var_E0], xmm0
-      vmovss  [rbp+90h+var_D8], xmm0
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-    }
-    v47 = 12i64;
-    __asm
-    {
-      vmovaps [rsp+190h+var_50], xmm8
-      vmovups xmmword ptr [rsp+190h+var_138], xmm0
-      vmovss  dword ptr [rbp+90h+verts], xmm5
-      vmovss  dword ptr [rbp+90h+verts+4], xmm2
-      vmovss  [rbp+90h+var_DC], xmm2
-      vmovss  [rbp+90h+var_D4], xmm4
-      vmovss  [rbp+90h+var_D0], xmm5
-      vmovss  [rbp+90h+var_CC], xmm4
-    }
-    _RDI = LocalClientGlobals->viewDamage;
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = ActivePlacement->scaleVirtualToReal.v[1];
+    v16 = (float)(cg_hudSplitscreenScale * v14->current.value) * v15;
+    v17 = (float)((float)(cg_hudSplitscreenScale * value) * ActivePlacement->scaleVirtualToReal.v[0]) * 0.5;
+    v62 = LODWORD(v17) ^ _xmm;
+    v64 = LODWORD(v17) ^ _xmm;
+    v18 = 12i64;
+    v58 = colorWhite;
+    verts.v[0] = v17;
+    verts.v[1] = (float)((float)(cg_hudSplitscreenScale * v13) * v15) + v16;
+    v63 = verts.v[1];
+    v65 = v16;
+    v66 = v17;
+    v67 = v16;
+    viewDamage = LocalClientGlobals->viewDamage;
     *(_QWORD *)result = 12i64;
-    __asm { vmovaps [rsp+190h+var_60], xmm9 }
     do
     {
-      if ( v16 == _RDI->inVehicle && LocalClientGlobals->time - _RDI->time > 0 && LocalClientGlobals->time - _RDI->time < _RDI->duration )
+      if ( v4 == viewDamage->inVehicle )
       {
-        type = _RDI->type;
-        if ( type != 5 )
+        v20 = LocalClientGlobals->time - viewDamage->time;
+        if ( v20 > 0 )
         {
-          if ( type >= 7 )
+          duration = viewDamage->duration;
+          if ( v20 < duration )
           {
-            LODWORD(material) = 7;
-            LODWORD(color) = _RDI->type;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 47, ASSERT_TYPE_ASSERT, "(unsigned)( damageFeedbackType ) < (unsigned)( DamageFeedbackType::COUNT )", "damageFeedbackType doesn't index DamageFeedbackType::COUNT\n\t%i not in [0, %i)", color, material) )
-              __debugbreak();
-          }
-          damageMaterial = cgMedia.damageMaterial;
-          v51 = type - 1;
-          if ( v51 )
-          {
-            v52 = v51 - 1;
-            if ( v52 )
+            type = viewDamage->type;
+            if ( type != 5 )
             {
-              v53 = v52 - 1;
-              if ( v53 )
+              if ( type >= 7 )
               {
-                if ( v53 == 1 )
-                  damageMaterial = cgMedia.damageMaterialArmor;
+                LODWORD(material) = 7;
+                LODWORD(color) = viewDamage->type;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_indicators.cpp", 47, ASSERT_TYPE_ASSERT, "(unsigned)( damageFeedbackType ) < (unsigned)( DamageFeedbackType::COUNT )", "damageFeedbackType doesn't index DamageFeedbackType::COUNT\n\t%i not in [0, %i)", color, material) )
+                  __debugbreak();
+              }
+              damageMaterial = cgMedia.damageMaterial;
+              v24 = type - 1;
+              if ( v24 )
+              {
+                v25 = v24 - 1;
+                if ( v25 )
+                {
+                  v26 = v25 - 1;
+                  if ( v26 )
+                  {
+                    if ( v26 == 1 )
+                      damageMaterial = cgMedia.damageMaterialArmor;
+                  }
+                  else
+                  {
+                    damageMaterial = cgMedia.damageMaterialRicochet;
+                  }
+                }
+                else
+                {
+                  damageMaterial = cgMedia.damageMaterialStun;
+                }
               }
               else
               {
-                damageMaterial = cgMedia.damageMaterialRicochet;
+                damageMaterial = cgMedia.damageMaterialWhizby;
               }
-            }
-            else
-            {
-              damageMaterial = cgMedia.damageMaterialStun;
-            }
-          }
-          else
-          {
-            damageMaterial = cgMedia.damageMaterialWhizby;
-          }
-          *(double *)&_XMM0 = vectoyaw((const vec2_t *)&LocalClientGlobals->refdef.view.axis);
-          __asm
-          {
-            vsubss  xmm8, xmm0, dword ptr [rdi+14h]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, r14d
-            vxorps  xmm1, xmm1, xmm1
-            vmulss  xmm2, xmm0, xmm10
-            vcvtsi2ss xmm1, xmm1, r12d
-            vdivss  xmm3, xmm2, xmm1
-            vsubss  xmm0, xmm10, xmm3
-            vminss  xmm1, xmm0, xmm13
-            vmovss  dword ptr [rsp+190h+var_138+0Ch], xmm1
-          }
-          v62 = _RDI->type;
-          if ( v62 == DODGE )
-          {
-            __asm { vmovss  xmm9, dword ptr [rdi+14h] }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyWidth, "hudWhizbyWidth");
-            __asm
-            {
-              vmulss  xmm0, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-              vmulss  xmm2, xmm0, dword ptr [r15]
-              vmulss  xmm8, xmm2, xmm11
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyHeight, "hudWhizbyHeight");
-            __asm
-            {
-              vmulss  xmm0, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-              vmulss  xmm7, xmm0, dword ptr [r15+4]
-              vmulss  xmm0, xmm15, xmm9; X
-            }
-            *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-            __asm { vandps  xmm6, xmm0, xmm14 }
-            Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyAddOffset, "hudWhizbyAddOffset");
-            __asm { vmulss  xmm6, xmm6, xmm0 }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyOffset, "hudWhizbyOffset");
-            __asm
-            {
-              vaddss  xmm2, xmm0, xmm6
-              vmulss  xmm2, xmm2, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-              vmulss  xmm3, xmm2, dword ptr [r15]
-              vaddss  xmm1, xmm3, xmm7
-              vxorps  xmm0, xmm8, xmm12
-              vmovss  [rsp+190h+var_124], xmm1
-              vmovss  [rsp+190h+var_11C], xmm1
-              vmovss  [rsp+190h+var_128], xmm8
-              vmovss  [rsp+190h+var_120], xmm0
-              vmovss  [rsp+190h+var_118], xmm0
-              vmovss  [rsp+190h+var_114], xmm3
-              vmovss  [rbp+90h+var_110], xmm8
-              vmovss  [rbp+90h+var_10C], xmm3
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyAlphaMult, "hudWhizbyAlphaMult");
-            __asm { vmulss  xmm0, xmm0, dword ptr [rsp+190h+var_138+0Ch] }
-            materiala = damageMaterial;
-            p_verts = (vec2_t *)v106;
-            __asm
-            {
-              vmovss  dword ptr [rsp+190h+optionalOutData], xmm9
-              vmovss  dword ptr [rsp+190h+var_138+0Ch], xmm0
-            }
-          }
-          else
-          {
-            if ( v62 == (COUNT|DODGE) )
-            {
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconWidth, "cg_hudRicochetDamageIconWidth");
-              __asm
+              v27 = vectoyaw((const vec2_t *)&LocalClientGlobals->refdef.view.axis);
+              v28 = *(float *)&v27 - viewDamage->yaw;
+              v30 = LODWORD(FLOAT_2_0);
+              *(float *)&v30 = 2.0 - (float)((float)((float)v20 * 2.0) / (float)duration);
+              _XMM0 = v30;
+              __asm { vminss  xmm1, xmm0, xmm13 }
+              v58.v[3] = *(float *)&_XMM1;
+              v32 = viewDamage->type;
+              if ( v32 == DODGE )
               {
-                vmulss  xmm0, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-                vmulss  xmm2, xmm0, dword ptr [r15]
-                vmulss  xmm7, xmm2, xmm11
+                yaw = viewDamage->yaw;
+                Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyWidth, "hudWhizbyWidth");
+                v35 = (float)((float)(*(float *)&Float_Internal_DebugName * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0]) * 0.5;
+                v36 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyHeight, "hudWhizbyHeight");
+                v37 = (float)(*(float *)&v36 * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+                sinf_0(0.017453292 * yaw);
+                v38 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyAddOffset, "hudWhizbyAddOffset");
+                v39 = COERCE_FLOAT(COERCE_UNSIGNED_INT(0.017453292 * yaw) & _xmm) * *(float *)&v38;
+                v40 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyOffset, "hudWhizbyOffset");
+                *(float *)&v41 = (float)((float)(*(float *)&v40 + v39) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0];
+                *(float *)&v59[1] = *(float *)&v41 + v37;
+                *(float *)&v59[3] = *(float *)&v41 + v37;
+                *(float *)v59 = v35;
+                v59[2] = LODWORD(v35) ^ _xmm;
+                v59[4] = LODWORD(v35) ^ _xmm;
+                v59[5] = v41;
+                *(float *)&v59[6] = v35;
+                v59[7] = v41;
+                v42 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_hudWhizbyAlphaMult, "hudWhizbyAlphaMult");
+                materiala = damageMaterial;
+                p_verts = (vec2_t *)v59;
+                optionalOutData = yaw;
+                v58.v[3] = *(float *)&v42 * v58.v[3];
               }
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconHeight, "cg_hudRicochetDamageIconHeight");
-              __asm
+              else
               {
-                vmulss  xmm0, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-                vmulss  xmm6, xmm0, dword ptr [r15+4]
+                if ( v32 == (COUNT|DODGE) )
+                {
+                  v44 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconWidth, "cg_hudRicochetDamageIconWidth");
+                  v45 = (float)((float)(*(float *)&v44 * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0]) * 0.5;
+                  v46 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconHeight, "cg_hudRicochetDamageIconHeight");
+                  v47 = (float)(*(float *)&v46 * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+                  v48 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconOffset, "cg_hudRicochetDamageIconOffset");
+                  *(float *)&v49 = (float)(*(float *)&v48 * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+                  *(float *)&v60[1] = *(float *)&v49 + v47;
+                  *(float *)&v60[3] = *(float *)&v49 + v47;
+                  *(float *)v60 = v45;
+                  v60[2] = LODWORD(v45) ^ _xmm;
+                  v60[4] = LODWORD(v45) ^ _xmm;
+                  v60[5] = v49;
+                  *(float *)&v60[6] = v45;
+                  v60[7] = v49;
+                  p_verts = (vec2_t *)v60;
+                }
+                else
+                {
+                  p_verts = &verts;
+                }
+                materiala = damageMaterial;
+                optionalOutData = v28;
               }
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudRicochetDamageIconOffset, "cg_hudRicochetDamageIconOffset");
-              __asm
-              {
-                vmulss  xmm0, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-                vmulss  xmm2, xmm0, dword ptr [r15+4]
-                vaddss  xmm1, xmm2, xmm6
-                vxorps  xmm0, xmm7, xmm12
-                vmovss  [rbp+90h+var_104], xmm1
-                vmovss  [rbp+90h+var_FC], xmm1
-                vmovss  [rbp+90h+var_108], xmm7
-                vmovss  [rbp+90h+var_100], xmm0
-                vmovss  [rbp+90h+var_F8], xmm0
-                vmovss  [rbp+90h+var_F4], xmm2
-                vmovss  [rbp+90h+var_F0], xmm7
-                vmovss  [rbp+90h+var_EC], xmm2
-              }
-              p_verts = (vec2_t *)v107;
+              CG_DrawRotatedQuadPic(ActivePlacement, x, y, p_verts, optionalOutData, &v58, materiala);
+              v18 = *(_QWORD *)result;
+              v4 = v54;
             }
-            else
-            {
-              p_verts = &verts;
-            }
-            materiala = damageMaterial;
-            __asm { vmovss  dword ptr [rsp+190h+optionalOutData], xmm8 }
           }
-          __asm
-          {
-            vmovss  xmm2, [rsp+190h+y]; y
-            vmovss  xmm1, [rsp+190h+x]; x
-          }
-          CG_DrawRotatedQuadPic(_R15, *(float *)&_XMM1, *(float *)&_XMM2, p_verts, optionalOutData, &v105, materiala);
-          v47 = *(_QWORD *)result;
-          v16 = v101;
         }
       }
-      ++_RDI;
-      *(_QWORD *)result = --v47;
+      ++viewDamage;
+      *(_QWORD *)result = --v18;
     }
-    while ( v47 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+190h+var_C0]
-      vmovaps xmm14, [rsp+190h+var_B0]
-      vmovaps xmm13, [rsp+190h+var_A0]
-      vmovaps xmm12, [rsp+190h+var_90]
-      vmovaps xmm11, [rsp+190h+var_80]
-      vmovaps xmm10, [rsp+190h+var_70]
-      vmovaps xmm9, [rsp+190h+var_60]
-      vmovaps xmm8, [rsp+190h+var_50]
-      vmovaps xmm7, [rsp+190h+var_40]
-      vmovaps xmm6, [rsp+190h+var_30]
-    }
+    while ( v18 );
   }
 }
 
@@ -912,115 +718,66 @@ CG_DrawFlashDamage
 */
 void CG_DrawFlashDamage(const cg_t *cgameGlob)
 {
-  int time; 
-  const dvar_t *v11; 
+  __int128 v3; 
+  const dvar_t *v4; 
+  __int128 v5; 
   int v_dmg_stun_time; 
-  int v16; 
-  bool v17; 
+  int time; 
+  __int128 v8; 
+  float v9; 
   LocalClientNum_t localClientNum; 
+  const ScreenPlacement *ActivePlacement; 
   vec4_t color; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   if ( cgameGlob->nextSnap )
   {
-    time = cgameGlob->time;
-    __asm
+    _XMM8 = 0i64;
+    v3 = 0i64;
+    if ( cgameGlob->v_dmg_time > cgameGlob->time )
     {
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps [rsp+98h+var_28], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( cgameGlob->v_dmg_time > time )
-    {
-      v11 = DCONST_DVARMPBOOL_cg_drawDamageFlash;
+      v4 = DCONST_DVARMPBOOL_cg_drawDamageFlash;
       if ( !DCONST_DVARMPBOOL_cg_drawDamageFlash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDamageFlash") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( v11->current.enabled )
+      Dvar_CheckFrontendServerThread(v4);
+      if ( v4->current.enabled )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, dword ptr [rbx+49D7Ch]
-          vmulss  xmm7, xmm1, cs:__real@3b03126f
-          vandps  xmm7, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        }
+        v5 = 0i64;
+        *(float *)&v5 = (float)((float)(cgameGlob->v_dmg_time - cgameGlob->time) * cgameGlob->v_dmg_pitch) * 0.0020000001;
+        v3 = v5 & _xmm;
       }
     }
     v_dmg_stun_time = cgameGlob->v_dmg_stun_time;
-    v16 = cgameGlob->time;
-    v17 = v_dmg_stun_time == v16;
-    if ( v_dmg_stun_time > v16 )
+    time = cgameGlob->time;
+    if ( v_dmg_stun_time > time )
     {
-      v17 = v_dmg_stun_time == v16;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, dword ptr [rbx+49D7Ch]
-        vmulss  xmm8, xmm1, cs:__real@3b03126f
-        vandps  xmm8, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      }
+      v8 = 0i64;
+      *(float *)&v8 = (float)((float)(v_dmg_stun_time - time) * cgameGlob->v_dmg_pitch) * 0.0020000001;
+      _XMM8 = v8 & _xmm;
     }
-    __asm { vucomiss xmm7, xmm6 }
-    if ( !v17 )
+    if ( *(float *)&v3 != 0.0 )
       goto LABEL_14;
-    __asm { vucomiss xmm8, xmm6 }
-    if ( v17 )
-    {
-LABEL_16:
-      __asm
-      {
-        vmovaps xmm7, [rsp+98h+var_28]
-        vmovaps xmm6, [rsp+98h+var_18]
-        vmovaps xmm8, [rsp+98h+var_38]
-      }
+    if ( *(float *)&_XMM8 == 0.0 )
       return;
-    }
-    __asm { vucomiss xmm7, xmm6 }
-    if ( v17 )
+    if ( *(float *)&v3 == 0.0 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  dword ptr [rsp+98h+var_58+4], xmm0
-        vmovss  dword ptr [rsp+98h+var_58+8], xmm0
-      }
+      v9 = FLOAT_1_0;
+      color.v[1] = FLOAT_1_0;
+      color.v[2] = FLOAT_1_0;
     }
     else
     {
 LABEL_14:
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e4ccccd
-        vmovss  dword ptr [rsp+98h+var_58+4], xmm6
-        vmovss  dword ptr [rsp+98h+var_58+8], xmm6
-        vmovaps xmm8, xmm7
-      }
+      v9 = FLOAT_0_2;
+      color.v[1] = 0.0;
+      color.v[2] = 0.0;
+      _XMM8 = v3;
     }
     localClientNum = cgameGlob->localClientNum;
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+var_58], xmm0
-      vminss  xmm0, xmm8, cs:__real@40a00000
-      vmulss  xmm1, xmm0, cs:__real@3e0f5c29
-      vmovss  dword ptr [rsp+98h+var_58+0Ch], xmm1
-    }
-    _RAX = ScrPlace_GetActivePlacement(localClientNum);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rax+24h]; height
-      vmovss  xmm2, dword ptr [rax+20h]; width
-      vmovss  xmm1, dword ptr [rax+1Ch]; y
-      vmovss  xmm0, dword ptr [rax+18h]; x
-    }
-    UI_FillRectPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
-    goto LABEL_16;
+    color.v[0] = v9;
+    __asm { vminss  xmm0, xmm8, cs:__real@40a00000 }
+    color.v[3] = *(float *)&_XMM0 * 0.14;
+    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+    UI_FillRectPhysical(ActivePlacement->realViewportPosition.v[0], ActivePlacement->realViewportPosition.v[1], ActivePlacement->realViewportSize.v[0], ActivePlacement->realViewportSize.v[1], &color);
   }
 }
 
@@ -1029,208 +786,137 @@ LABEL_14:
 CG_DrawGrenadeIndicators
 ==============
 */
-
-void __fastcall CG_DrawGrenadeIndicators(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_DrawGrenadeIndicators(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
-  VehicleType v12; 
+  const cg_t *v3; 
+  VehicleType v4; 
   const ScreenPlacement *ActivePlacement; 
-  unsigned int v19; 
-  bool v23; 
-  float sizeLerpValue; 
+  double v6; 
+  float v7; 
+  double v8; 
+  unsigned int v9; 
+  bool v10; 
+  __m128 sizeLerpValue; 
+  __int64 v12; 
+  __m128 v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  __m128 current; 
+  const dvar_t *v17; 
+  __m128 v18; 
+  double Float_Internal_DebugName; 
+  float v20; 
+  double v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  double v25; 
+  double v26; 
   bool result; 
   float x; 
   float y; 
   vec4_t color; 
   vec3_t grenadeOffset; 
+  __m128 v32; 
+  __m128 v33; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RBX = LocalClientGlobals;
-  if ( LocalClientGlobals->nextSnap && LocalClientGlobals->hudGrenadeCount && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 1u) && (_RBX->predictedPlayerState.linkFlags.m_flags[0] & 4) == 0 && _RBX->predictedPlayerState.pm_type != 5 )
+  v3 = LocalClientGlobals;
+  if ( LocalClientGlobals->nextSnap && LocalClientGlobals->hudGrenadeCount && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 1u) && (v3->predictedPlayerState.linkFlags.m_flags[0] & 4) == 0 && v3->predictedPlayerState.pm_type != 5 )
   {
-    if ( _RBX == (const cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2275, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( v3 == (const cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2275, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
+    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v3->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
     {
-      v12 = CG_Vehicle_RemoteControlledVehicleType(localClientNum, NULL);
-      if ( v12 != VEH_PLANE && v12 != VEH_HELICOPTER )
+      v4 = CG_Vehicle_RemoteControlledVehicleType(localClientNum, NULL);
+      if ( v4 != VEH_PLANE && v4 != VEH_HELICOPTER )
       {
         ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-        if ( CG_GetWeapReticleZoom(_RBX, NULL) )
+        if ( CG_GetWeapReticleZoom(v3, NULL) )
         {
           if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_hudGrenadeIconInScope, "cg_hudGrenadeIconInScope") )
             return;
-          __asm
-          {
-            vmovss  xmm2, cs:__real@43f00000; screenHeight
-            vmovss  xmm1, cs:__real@44200000; screenWidth
-          }
-          CG_CalcCrosshairPosition(_RBX, *(const float *)&_XMM1, *(const float *)&_XMM2, &x, &y);
-          __asm { vmovss  xmm1, [rsp+120h+x]; x }
-          *(double *)&_XMM0 = ScrPlace_ApplyX(ActivePlacement, *(float *)&_XMM1, 2);
-          __asm { vmovss  xmm1, [rsp+120h+y] }
+          CG_CalcCrosshairPosition(v3, 640.0, 480.0, &x, &y);
+          v6 = ScrPlace_ApplyX(ActivePlacement, x, 2);
+          v7 = y;
         }
         else
         {
-          __asm { vxorps  xmm1, xmm1, xmm1; x }
-          *(double *)&_XMM0 = ScrPlace_ApplyX(ActivePlacement, *(float *)&_XMM1, 2);
-          __asm { vxorps  xmm1, xmm1, xmm1; y }
+          v6 = ScrPlace_ApplyX(ActivePlacement, 0.0, 2);
+          v7 = 0.0;
         }
-        __asm { vmovss  [rsp+120h+x], xmm0 }
-        *(double *)&_XMM0 = ScrPlace_ApplyY(ActivePlacement, *(float *)&_XMM1, 2);
-        v19 = 0;
-        __asm { vmovss  [rsp+120h+y], xmm0 }
+        x = *(float *)&v6;
+        v8 = ScrPlace_ApplyY(ActivePlacement, v7, 2);
+        v9 = 0;
+        y = *(float *)&v8;
         CG_GetOmnvar_BooleanByName(localClientNum, "ui_realism_hud", &result, NULL, NULL);
-        if ( _RBX->hudGrenadeCount )
+        if ( v3->hudGrenadeCount )
         {
-          __asm
-          {
-            vmovaps [rsp+120h+var_30], xmm6
-            vmovaps [rsp+120h+var_40], xmm7
-            vmovaps [rsp+120h+var_50], xmm8
-            vmovaps [rsp+120h+var_60], xmm9
-            vmovss  xmm9, cs:__real@3f800000
-            vmovaps [rsp+120h+var_70], xmm10
-            vmovss  xmm10, cs:__real@3f000000
-            vmovaps [rsp+120h+var_80], xmm11
-            vmovss  xmm11, cs:__real@3bcde32e
-          }
           do
           {
-            if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_DROP) && _RBX->hudGrenades[v19].stuckToCharacterNum == _RBX->predictedPlayerState.clientNum )
+            if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_DROP) && v3->hudGrenades[v9].stuckToCharacterNum == v3->predictedPlayerState.clientNum )
             {
-              v23 = 1;
-              __asm { vmovaps xmm8, xmm9 }
+              v10 = 1;
+              sizeLerpValue = (__m128)LODWORD(FLOAT_1_0);
             }
             else
             {
-              v23 = 0;
-              _RAX = 32 * (v19 + 11466i64);
-              __asm { vmovss  xmm8, dword ptr [rax+rbx] }
+              v10 = 0;
+              sizeLerpValue = (__m128)LODWORD(v3->hudGrenades[v9].lerpDistanceAmount);
             }
-            _RSI = v19;
-            __asm
+            v12 = v9;
+            v13 = _mm_shuffle_ps(sizeLerpValue, sizeLerpValue, 0);
+            grenadeOffset.v[0] = v3->hudGrenades[v12].origin.v[0] - v3->predictedPlayerState.origin.v[0];
+            grenadeOffset.v[1] = v3->hudGrenades[v12].origin.v[1] - v3->predictedPlayerState.origin.v[1];
+            grenadeOffset.v[2] = v3->hudGrenades[v12].origin.v[2] - v3->predictedPlayerState.origin.v[2];
+            if ( v3->hudGrenades[v12].isThrowback )
             {
-              vmovaps xmm6, xmm8
-              vshufps xmm6, xmm6, xmm6, 0
-              vmovss  xmm0, dword ptr [rsi+rbx+59928h]
-              vsubss  xmm1, xmm0, dword ptr [rbx+38h]
-              vmovss  dword ptr [rsp+120h+grenadeOffset], xmm1
-              vmovss  xmm2, dword ptr [rsi+rbx+5992Ch]
-              vsubss  xmm0, xmm2, dword ptr [rbx+3Ch]
-              vmovss  dword ptr [rsp+120h+grenadeOffset+4], xmm0
-              vmovss  xmm1, dword ptr [rsi+rbx+59930h]
-              vsubss  xmm2, xmm1, dword ptr [rbx+40h]
-              vmovss  dword ptr [rsp+120h+grenadeOffset+8], xmm2
-            }
-            if ( _RBX->hudGrenades[_RSI].isThrowback )
-            {
-              _RDI = DCONST_DVARVEC4_cg_hudGrenadeColorThrowback;
+              v14 = DCONST_DVARVEC4_cg_hudGrenadeColorThrowback;
               if ( !DCONST_DVARVEC4_cg_hudGrenadeColorThrowback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeColorThrowback") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(_RDI);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+28h]
-                vmovss  dword ptr [rsp+120h+color], xmm0
-                vmovss  xmm1, dword ptr [rdi+2Ch]
-                vmovss  dword ptr [rsp+120h+color+4], xmm1
-                vmovss  xmm0, dword ptr [rdi+30h]
-                vmovss  dword ptr [rsp+120h+color+8], xmm0
-                vmovss  xmm1, dword ptr [rdi+34h]
-                vmovss  dword ptr [rsp+120h+color+0Ch], xmm1
-              }
+              Dvar_CheckFrontendServerThread(v14);
+              color = v14->current.vector;
             }
             else if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_LOOP) )
             {
-              _RDI = DCONST_DVARVEC4_cg_hudGrenadeColorInProximity;
+              v15 = DCONST_DVARVEC4_cg_hudGrenadeColorInProximity;
               if ( !DCONST_DVARVEC4_cg_hudGrenadeColorInProximity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeColorInProximity") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(_RDI);
-              __asm { vmovups xmm0, xmmword ptr [rdi+28h] }
-              _RDI = DCONST_DVARVEC4_cg_hudGrenadeColorDangerClose;
-              __asm { vmovups [rsp+120h+var_B0], xmm0 }
+              Dvar_CheckFrontendServerThread(v15);
+              current = (__m128)v15->current;
+              v17 = DCONST_DVARVEC4_cg_hudGrenadeColorDangerClose;
+              v32 = current;
               if ( !DCONST_DVARVEC4_cg_hudGrenadeColorDangerClose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeColorDangerClose") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(_RDI);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rdi+28h]
-                vsubps  xmm1, xmm0, [rsp+120h+var_B0]
-                vmulps  xmm2, xmm1, xmm6
-                vaddps  xmm3, xmm2, [rsp+120h+var_B0]
-                vmovups xmmword ptr [rsp+120h+color], xmm3
-                vmovups [rbp+20h+var_A0], xmm0
-              }
+              Dvar_CheckFrontendServerThread(v17);
+              v18 = (__m128)v17->current;
+              color = (vec4_t)_mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v18, v32), v13), v32);
+              v33 = v18;
             }
             else
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                vmovups xmmword ptr [rsp+120h+color], xmm0
-              }
+              color = colorWhite;
             }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMax, "cg_hudGrenadePointerPulseMax");
-            __asm { vmovaps xmm6, xmm0 }
-            Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMin, "cg_hudGrenadePointerPulseMin");
-            __asm
-            {
-              vsubss  xmm1, xmm6, xmm0
-              vmulss  xmm7, xmm1, xmm10
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMin, "cg_hudGrenadePointerPulseMin");
-            __asm { vaddss  xmm6, xmm0, xmm7 }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseFreq, "cg_hudGrenadePointerPulseFreq");
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, dword ptr [rbx+65ECh]
-              vmulss  xmm2, xmm1, xmm11
-              vmulss  xmm0, xmm0, xmm2; X
-            }
-            *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-            __asm
-            {
-              vmulss  xmm1, xmm0, xmm7
-              vaddss  xmm0, xmm1, xmm6; val
-              vxorps  xmm1, xmm1, xmm1; min
-              vmovaps xmm2, xmm9; max
-              vmovss  dword ptr [rsp+120h+color+0Ch], xmm0
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm { vmovss  dword ptr [rsp+120h+color+0Ch], xmm0 }
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMax, "cg_hudGrenadePointerPulseMax");
+            v20 = *(float *)&Float_Internal_DebugName;
+            v21 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMin, "cg_hudGrenadePointerPulseMin");
+            v22 = (float)(v20 - *(float *)&v21) * 0.5;
+            v23 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseMin, "cg_hudGrenadePointerPulseMin");
+            v24 = *(float *)&v23 + v22;
+            v25 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_hudGrenadePointerPulseFreq, "cg_hudGrenadePointerPulseFreq");
+            color.v[3] = (float)(sinf_0(*(float *)&v25 * (float)((float)v3->time * 0.0062831854)) * v22) + v24;
+            v26 = I_fclamp(color.v[3], 0.0, 1.0);
+            color.v[3] = *(float *)&v26;
             if ( !result )
             {
-              if ( !v23 )
-              {
-                __asm
-                {
-                  vmovss  xmm2, [rsp+120h+y]; centerY
-                  vmovss  xmm1, [rsp+120h+x]; centerX
-                }
-                DrawGrenadePointer(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, &grenadeOffset, &color);
-              }
-              __asm
-              {
-                vmovss  xmm2, [rsp+120h+y]; centerY
-                vmovss  xmm1, [rsp+120h+x]; centerX
-                vmovss  [rsp+120h+sizeLerpValue], xmm8
-              }
-              DrawGrenadeIcon(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, v23, &grenadeOffset, sizeLerpValue, &color, _RBX->hudGrenades[_RSI].material);
+              if ( !v10 )
+                DrawGrenadePointer(localClientNum, x, y, &grenadeOffset, &color);
+              DrawGrenadeIcon(localClientNum, x, y, v10, &grenadeOffset, sizeLerpValue.m128_f32[0], &color, v3->hudGrenades[v12].material);
             }
-            ++v19;
+            ++v9;
           }
-          while ( v19 < _RBX->hudGrenadeCount );
-          __asm
-          {
-            vmovaps xmm11, [rsp+120h+var_80]
-            vmovaps xmm10, [rsp+120h+var_70]
-            vmovaps xmm9, [rsp+120h+var_60]
-            vmovaps xmm8, [rsp+120h+var_50]
-            vmovaps xmm7, [rsp+120h+var_40]
-            vmovaps xmm6, [rsp+120h+var_30]
-          }
+          while ( v9 < v3->hudGrenadeCount );
         }
       }
     }
@@ -1254,197 +940,149 @@ bool CG_ShouldDrawDamageDirectionIndicators(LocalClientNum_t localClientNum, con
 DrawGrenadeIcon
 ==============
 */
-
-void __fastcall DrawGrenadeIcon(LocalClientNum_t localClientNum, double centerX, double centerY, const bool isStuckToLocalPlayer, const vec3_t *grenadeOffset, const float sizeLerpValue, const vec4_t *color, Material *material)
+void DrawGrenadeIcon(LocalClientNum_t localClientNum, float centerX, float centerY, const bool isStuckToLocalPlayer, const vec3_t *grenadeOffset, const float sizeLerpValue, const vec4_t *color, Material *material)
 {
+  const dvar_t *v8; 
+  cg_t *LocalClientGlobals; 
+  const ScreenPlacement *ActivePlacement; 
+  const dvar_t *v13; 
+  float value; 
   const dvar_t *v15; 
-  const char *v30; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  const char *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
   CgHandler *Handler; 
-  bool IsScramblingActive; 
+  float v32; 
+  double v33; 
+  float v34; 
   float s; 
   float c; 
   vec3_t inOutViewAngles; 
-  WorldUpReferenceFrame v88; 
+  WorldUpReferenceFrame v38; 
   vec2_t verts; 
-  char v103; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
 
-  __asm
-  {
-    vmovaps [rsp+148h+var_88], xmm11
-    vmovaps [rsp+148h+var_98], xmm12
-  }
-  v15 = DCONST_DVARBOOL_lui_footage_capture_enabled;
-  __asm
-  {
-    vmovaps xmm11, xmm2
-    vmovaps xmm12, xmm1
-  }
+  v8 = DCONST_DVARBOOL_lui_footage_capture_enabled;
   if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( !v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+148h+var_38], xmm6
-      vmovaps [rsp+148h+var_48], xmm7
-      vmovaps [rsp+148h+var_58], xmm8
-      vmovaps [rsp+148h+var_68], xmm9
-      vmovaps [rsp+148h+var_78], xmm10
-    }
-    _RSI = CG_GetLocalClientGlobals(localClientNum);
-    ScrPlace_GetActivePlacement(localClientNum);
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
     if ( CL_IsRenderingSplitScreen() )
     {
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconWidthMinSplitscreen;
+      v13 = DCONST_DVARFLT_cg_hudGrenadeIconWidthMinSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconWidthMinSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconWidthMinSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm10, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconHeightMinSplitscreen;
+      Dvar_CheckFrontendServerThread(v13);
+      value = v13->current.value;
+      v15 = DCONST_DVARFLT_cg_hudGrenadeIconHeightMinSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconHeightMinSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconHeightMinSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconWidthSplitscreen;
+      Dvar_CheckFrontendServerThread(v15);
+      v16 = v15->current.value;
+      v17 = DCONST_DVARFLT_cg_hudGrenadeIconWidthSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconWidthSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconWidthSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconHeightSplitscreen;
+      Dvar_CheckFrontendServerThread(v17);
+      v18 = v17->current.value;
+      v19 = DCONST_DVARFLT_cg_hudGrenadeIconHeightSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconHeightSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconHeightSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen;
+      Dvar_CheckFrontendServerThread(v19);
+      v20 = v19->current.value;
+      v21 = DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen;
       if ( DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen )
         goto LABEL_36;
-      v30 = "cg_hudGrenadeIconOffsetSplitscreen";
+      v22 = "cg_hudGrenadeIconOffsetSplitscreen";
     }
     else
     {
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconWidthMin;
+      v23 = DCONST_DVARFLT_cg_hudGrenadeIconWidthMin;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconWidthMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconWidthMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm10, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconHeightMin;
+      Dvar_CheckFrontendServerThread(v23);
+      value = v23->current.value;
+      v24 = DCONST_DVARFLT_cg_hudGrenadeIconHeightMin;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconHeightMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconHeightMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconWidth;
+      Dvar_CheckFrontendServerThread(v24);
+      v16 = v24->current.value;
+      v25 = DCONST_DVARFLT_cg_hudGrenadeIconWidth;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconWidth") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconHeight;
+      Dvar_CheckFrontendServerThread(v25);
+      v18 = v25->current.value;
+      v26 = DCONST_DVARFLT_cg_hudGrenadeIconHeight;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconHeight") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconOffset;
+      Dvar_CheckFrontendServerThread(v26);
+      v20 = v26->current.value;
+      v21 = DCONST_DVARFLT_cg_hudGrenadeIconOffset;
       if ( DCONST_DVARFLT_cg_hudGrenadeIconOffset )
         goto LABEL_36;
-      v30 = "cg_hudGrenadeIconOffset";
+      v22 = "cg_hudGrenadeIconOffset";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v30) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v22) )
       __debugbreak();
 LABEL_36:
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm3, [rsp+148h+sizeLerpValue]
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm8, dword ptr [rbx+28h]
-      vsubss  xmm2, xmm0, xmm3
-      vmulss  xmm1, xmm2, xmm10
-      vmulss  xmm0, xmm7, xmm3
-      vaddss  xmm10, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm3
-      vmulss  xmm2, xmm2, xmm9
-      vaddss  xmm9, xmm2, xmm1
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( BG_IsPlayerZeroG(&_RSI->predictedPlayerState) )
+    Dvar_CheckFrontendServerThread(v21);
+    v27 = v21->current.value;
+    v28 = (float)((float)(1.0 - sizeLerpValue) * value) + (float)(v18 * sizeLerpValue);
+    v29 = (float)((float)(1.0 - sizeLerpValue) * v16) + (float)(v20 * sizeLerpValue);
+    v30 = 0.0;
+    if ( BG_IsPlayerZeroG(&LocalClientGlobals->predictedPlayerState) )
     {
       Handler = CgHandler::getHandler(localClientNum);
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v88, &_RSI->predictedPlayerState, Handler);
-      __asm
-      {
-        vmovss  dword ptr [rsp+148h+inOutViewAngles], xmm6
-        vmovss  dword ptr [rsp+148h+inOutViewAngles+4], xmm6
-        vmovss  dword ptr [rsp+148h+inOutViewAngles+8], xmm6
-      }
-      BG_CalcLinkedViewValues(&_RSI->predictedPlayerState, &inOutViewAngles);
-      WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v88, &inOutViewAngles);
-      __asm { vmovss  xmm7, dword ptr [rsp+148h+inOutViewAngles+4] }
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v38, &LocalClientGlobals->predictedPlayerState, Handler);
+      inOutViewAngles.v[0] = 0.0;
+      inOutViewAngles.v[1] = 0.0;
+      inOutViewAngles.v[2] = 0.0;
+      BG_CalcLinkedViewValues(&LocalClientGlobals->predictedPlayerState, &inOutViewAngles);
+      WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v38, &inOutViewAngles);
+      v32 = inOutViewAngles.v[1];
     }
     else
     {
-      __asm { vmovss  xmm7, dword ptr [rsi+1E4h] }
+      v32 = LocalClientGlobals->predictedPlayerState.viewangles.v[1];
     }
     if ( !isStuckToLocalPlayer )
     {
-      *(double *)&_XMM0 = vectoyaw((const vec2_t *)grenadeOffset);
-      __asm { vsubss  xmm0, xmm0, xmm7; angle }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm { vmovaps xmm6, xmm0 }
+      v33 = vectoyaw((const vec2_t *)grenadeOffset);
+      v34 = *(float *)&v33 - v32;
+      AngleNormalize360(*(float *)&v33 - v32);
+      v30 = v34;
     }
-    __asm { vmulss  xmm0, xmm6, cs:__real@3c8efa35; radians }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmovss  xmm7, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      vmulss  xmm4, xmm10, cs:__real@3f000000
-      vxorps  xmm1, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm3, xmm8, [rsp+148h+s]
-      vmulss  xmm5, xmm9, cs:__real@3f000000
-      vsubss  xmm0, xmm1, xmm3
-      vmulss  xmm0, xmm0, xmm7
-      vmulss  xmm1, xmm0, dword ptr [r13+0]
-      vaddss  xmm2, xmm1, xmm12
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm4, xmm8, [rsp+148h+c]
-      vmulss  xmm1, xmm0, xmm7
-      vmovss  [rsp+148h+var_B0], xmm2
-      vmovss  dword ptr [rsp+148h+verts], xmm2
-      vmulss  xmm2, xmm1, dword ptr [r13+0]
-      vxorps  xmm1, xmm5, cs:__xmm@80000000800000008000000080000000
-      vaddss  xmm3, xmm2, xmm12
-      vsubss  xmm0, xmm1, xmm4
-      vmulss  xmm2, xmm0, xmm7
-      vmovss  [rsp+148h+var_B8], xmm3
-      vmovss  [rsp+148h+var_C0], xmm3
-      vmulss  xmm3, xmm2, dword ptr [r13+4]
-      vaddss  xmm1, xmm3, xmm11
-      vmovss  [rsp+148h+var_BC], xmm1
-      vmovss  dword ptr [rsp+148h+verts+4], xmm1
-      vsubss  xmm0, xmm5, xmm4
-      vmulss  xmm1, xmm0, xmm7
-      vmulss  xmm2, xmm1, dword ptr [r13+4]
-      vaddss  xmm3, xmm2, xmm11
-      vmovss  [rsp+148h+var_AC], xmm3
-      vmovss  [rsp+148h+var_B4], xmm3
-    }
-    CG_Draw_UpdateScramblerState(_RSI, localClientNum);
-    IsScramblingActive = CG_Draw_IsScramblingActive(localClientNum);
-    __asm
-    {
-      vmovaps xmm10, [rsp+148h+var_78]
-      vmovaps xmm9, [rsp+148h+var_68]
-      vmovaps xmm8, [rsp+148h+var_58]
-      vmovaps xmm7, [rsp+148h+var_48]
-      vmovaps xmm6, [rsp+148h+var_38]
-    }
-    if ( !IsScramblingActive )
+    FastSinCos(v30 * 0.017453292, &s, &c);
+    v44 = (float)((float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v28 * 0.5) ^ _xmm) - (float)(v27 * s)) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0]) + centerX;
+    verts.v[0] = v44;
+    v42 = (float)((float)((float)((float)(v28 * 0.5) - (float)(v27 * s)) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0]) + centerX;
+    v40 = v42;
+    v41 = (float)((float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v29 * 0.5) ^ _xmm) - (float)(v27 * c)) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1]) + centerY;
+    verts.v[1] = v41;
+    v45 = (float)((float)((float)((float)(v29 * 0.5) - (float)(v27 * c)) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1]) + centerY;
+    v43 = v45;
+    CG_Draw_UpdateScramblerState(LocalClientGlobals, localClientNum);
+    if ( !CG_Draw_IsScramblingActive(localClientNum) )
       R_AddCmdDrawQuadPic(&verts, color, material);
-  }
-  _R11 = &v103;
-  __asm
-  {
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
   }
 }
 
@@ -1453,194 +1091,133 @@ LABEL_36:
 DrawGrenadePointer
 ==============
 */
-
-void __fastcall DrawGrenadePointer(LocalClientNum_t localClientNum, double centerX, double centerY, const vec3_t *grenadeOffset, const vec4_t *color)
+void DrawGrenadePointer(LocalClientNum_t localClientNum, float centerX, float centerY, const vec3_t *grenadeOffset, const vec4_t *color)
 {
-  const dvar_t *v15; 
+  const dvar_t *v5; 
+  cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
-  const char *v29; 
+  const dvar_t *v10; 
+  float value; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  const char *v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
   CgHandler *Handler; 
-  bool IsScramblingActive; 
-  float fmt; 
+  float v24; 
+  double v25; 
+  float v26; 
+  double v27; 
+  float v28; 
+  float v29; 
   float s; 
   float c; 
   vec3_t inOutViewAngles; 
-  WorldUpReferenceFrame v80; 
+  WorldUpReferenceFrame v33; 
   vec2_t verts; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
 
-  __asm
-  {
-    vmovaps [rsp+178h+var_A8], xmm12
-    vmovaps [rsp+178h+var_C8], xmm14
-  }
-  v15 = DCONST_DVARBOOL_lui_footage_capture_enabled;
-  __asm
-  {
-    vmovaps xmm14, xmm2
-    vmovaps xmm12, xmm1
-  }
+  v5 = DCONST_DVARBOOL_lui_footage_capture_enabled;
   if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( !v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+178h+var_48], xmm6
-      vmovaps [rsp+178h+var_58], xmm7
-      vmovaps [rsp+178h+var_68], xmm8
-      vmovaps [rsp+178h+var_78], xmm9
-      vmovaps [rsp+178h+var_88], xmm10
-      vmovaps [rsp+178h+var_98], xmm11
-      vmovaps [rsp+178h+var_B8], xmm13
-    }
-    _RSI = CG_GetLocalClientGlobals(localClientNum);
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
     if ( CL_IsRenderingSplitScreen() )
     {
-      _RBX = DCONST_DVARFLT_cg_hudGrenadePointerWidthSplitscreen;
+      v10 = DCONST_DVARFLT_cg_hudGrenadePointerWidthSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadePointerWidthSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadePointerWidthSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm13, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadePointerHeightSplitscreen;
+      Dvar_CheckFrontendServerThread(v10);
+      value = v10->current.value;
+      v12 = DCONST_DVARFLT_cg_hudGrenadePointerHeightSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadePointerHeightSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadePointerHeightSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm11, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen;
+      Dvar_CheckFrontendServerThread(v12);
+      v13 = v12->current.value;
+      v14 = DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconOffsetSplitscreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconOffsetSplitscreen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARVEC2_cg_hudGrenadePointerPivotSplitscreen;
+      Dvar_CheckFrontendServerThread(v14);
+      v15 = v14->current.value;
+      v16 = DCONST_DVARVEC2_cg_hudGrenadePointerPivotSplitscreen;
       if ( DCONST_DVARVEC2_cg_hudGrenadePointerPivotSplitscreen )
         goto LABEL_30;
-      v29 = "cg_hudGrenadePointerPivotSplitscreen";
+      v17 = "cg_hudGrenadePointerPivotSplitscreen";
     }
     else
     {
-      _RBX = DCONST_DVARFLT_cg_hudGrenadePointerWidth;
+      v18 = DCONST_DVARFLT_cg_hudGrenadePointerWidth;
       if ( !DCONST_DVARFLT_cg_hudGrenadePointerWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadePointerWidth") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm13, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadePointerHeight;
+      Dvar_CheckFrontendServerThread(v18);
+      value = v18->current.value;
+      v19 = DCONST_DVARFLT_cg_hudGrenadePointerHeight;
       if ( !DCONST_DVARFLT_cg_hudGrenadePointerHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadePointerHeight") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm11, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_cg_hudGrenadeIconOffset;
+      Dvar_CheckFrontendServerThread(v19);
+      v13 = v19->current.value;
+      v20 = DCONST_DVARFLT_cg_hudGrenadeIconOffset;
       if ( !DCONST_DVARFLT_cg_hudGrenadeIconOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_hudGrenadeIconOffset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARVEC2_cg_hudGrenadePointerPivot;
+      Dvar_CheckFrontendServerThread(v20);
+      v15 = v20->current.value;
+      v16 = DCONST_DVARVEC2_cg_hudGrenadePointerPivot;
       if ( DCONST_DVARVEC2_cg_hudGrenadePointerPivot )
         goto LABEL_30;
-      v29 = "cg_hudGrenadePointerPivot";
+      v17 = "cg_hudGrenadePointerPivot";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v29) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v17) )
       __debugbreak();
 LABEL_30:
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx+2Ch]
-      vmovss  xmm6, dword ptr [rbx+28h]
-    }
-    if ( BG_IsPlayerZeroG(&_RSI->predictedPlayerState) )
+    Dvar_CheckFrontendServerThread(v16);
+    v21 = v16->current.vector.v[1];
+    v22 = v16->current.value;
+    if ( BG_IsPlayerZeroG(&LocalClientGlobals->predictedPlayerState) )
     {
       Handler = CgHandler::getHandler(localClientNum);
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v80, &_RSI->predictedPlayerState, Handler);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+178h+inOutViewAngles], xmm0
-        vmovss  dword ptr [rsp+178h+inOutViewAngles+4], xmm0
-        vmovss  dword ptr [rsp+178h+inOutViewAngles+8], xmm0
-      }
-      BG_CalcLinkedViewValues(&_RSI->predictedPlayerState, &inOutViewAngles);
-      WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v80, &inOutViewAngles);
-      __asm { vmovss  xmm8, dword ptr [rsp+178h+inOutViewAngles+4] }
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v33, &LocalClientGlobals->predictedPlayerState, Handler);
+      inOutViewAngles.v[0] = 0.0;
+      inOutViewAngles.v[1] = 0.0;
+      inOutViewAngles.v[2] = 0.0;
+      BG_CalcLinkedViewValues(&LocalClientGlobals->predictedPlayerState, &inOutViewAngles);
+      WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v33, &inOutViewAngles);
+      v24 = inOutViewAngles.v[1];
     }
     else
     {
-      __asm { vmovss  xmm8, dword ptr [rsi+1E4h] }
+      v24 = LocalClientGlobals->predictedPlayerState.viewangles.v[1];
     }
-    *(double *)&_XMM0 = vectoyaw((const vec2_t *)grenadeOffset);
-    __asm { vsubss  xmm0, xmm0, xmm8; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm10, xmm0
-      vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmovss  xmm5, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-      vmulss  xmm2, xmm9, [rsp+178h+s]
-      vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm2, xmm2, xmm5
-      vmulss  xmm1, xmm2, dword ptr [rbp+0]
-      vsubss  xmm12, xmm12, xmm1
-      vmulss  xmm1, xmm9, [rsp+178h+c]
-      vmulss  xmm0, xmm1, xmm5
-      vmulss  xmm3, xmm0, dword ptr [rbp+4]
-      vxorps  xmm0, xmm6, xmm8
-      vmulss  xmm1, xmm0, xmm5
-      vmulss  xmm2, xmm1, dword ptr [rbp+0]
-      vsubss  xmm0, xmm13, xmm6
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  [rsp+178h+var_E0], xmm2
-      vmovss  dword ptr [rsp+178h+verts], xmm2
-      vmulss  xmm2, xmm1, dword ptr [rbp+0]
-      vxorps  xmm0, xmm7, xmm8
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  [rsp+178h+var_E8], xmm2
-      vmovss  [rsp+178h+var_F0], xmm2
-      vmulss  xmm2, xmm1, dword ptr [rbp+4]
-      vsubss  xmm0, xmm11, xmm7
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  [rsp+178h+var_EC], xmm2
-      vmovss  dword ptr [rsp+178h+verts+4], xmm2
-      vmulss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovss  [rsp+178h+var_DC], xmm2
-      vmovss  [rsp+178h+var_E4], xmm2
-      vsubss  xmm9, xmm14, xmm3
-    }
-    CG_Draw_UpdateScramblerState(_RSI, localClientNum);
-    IsScramblingActive = CG_Draw_IsScramblingActive(localClientNum);
-    __asm
-    {
-      vmovaps xmm13, [rsp+178h+var_B8]
-      vmovaps xmm11, [rsp+178h+var_98]
-      vmovaps xmm7, [rsp+178h+var_58]
-      vmovaps xmm6, [rsp+178h+var_48]
-    }
-    if ( !IsScramblingActive )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm10, xmm8
-        vmovaps xmm2, xmm9; y
-        vmovaps xmm1, xmm12; x
-        vmovss  dword ptr [rsp+178h+fmt], xmm0
-      }
-      CG_DrawRotatedQuadPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, &verts, fmt, color, cgMedia.grenadePointer);
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+178h+var_78]
-      vmovaps xmm8, [rsp+178h+var_68]
-      vmovaps xmm10, [rsp+178h+var_88]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm12, [rsp+178h+var_A8]
-    vmovaps xmm14, [rsp+178h+var_C8]
+    v25 = vectoyaw((const vec2_t *)grenadeOffset);
+    v26 = *(float *)&v25 - v24;
+    v27 = AngleNormalize360(*(float *)&v25 - v24);
+    FastSinCos(*(float *)&v27 * 0.017453292, &s, &c);
+    v28 = centerX - (float)((float)((float)(v15 * s) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0]);
+    v29 = (float)((float)(v15 * c) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+    v39 = (float)(COERCE_FLOAT(LODWORD(v22) ^ _xmm) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0];
+    verts.v[0] = v39;
+    v37 = (float)((float)(value - v22) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[0];
+    v35 = v37;
+    v36 = (float)(COERCE_FLOAT(LODWORD(v21) ^ _xmm) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+    verts.v[1] = v36;
+    v40 = (float)((float)(v13 - v21) * cg_hudSplitscreenScale) * ActivePlacement->scaleVirtualToReal.v[1];
+    v38 = v40;
+    CG_Draw_UpdateScramblerState(LocalClientGlobals, localClientNum);
+    if ( !CG_Draw_IsScramblingActive(localClientNum) )
+      CG_DrawRotatedQuadPic(ActivePlacement, v28, centerY - v29, &verts, COERCE_FLOAT(LODWORD(v26) ^ _xmm), color, cgMedia.grenadePointer);
   }
 }
 

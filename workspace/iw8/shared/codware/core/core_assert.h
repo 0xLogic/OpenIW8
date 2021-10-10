@@ -192,24 +192,18 @@ __int64 truncate_cast<int,__int64>(__int64 val)
 float_to_integral_cast<int,float>
 ==============
 */
-
-__int64 __fastcall float_to_integral_cast<int,float>(double val)
+__int64 float_to_integral_cast<int,float>(float val)
 {
-  double v4; 
+  int v1; 
+  bool v2; 
+  bool v3; 
 
-  __asm
-  {
-    vcomiss xmm0, cs:__real@cb800000
-    vcvttss2si ebx, xmm0
-    vcomiss xmm0, cs:__real@4b800000
-    vcomiss xmm0, cs:__real@cf000000
-    vcomiss xmm0, cs:__real@4f000000
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", (int)_EBX, v4) )
+  v1 = (int)val;
+  v2 = val >= -16777216.0 && val <= 16777216.0;
+  v3 = val >= -2147483600.0 && val <= 2147483600.0;
+  if ( (!v2 || !v3) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "int __cdecl float_to_integral_cast<int,float>(float)", v1, val) )
     __debugbreak();
-  return _EBX;
+  return (unsigned int)v1;
 }
 
 /*

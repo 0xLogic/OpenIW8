@@ -61,100 +61,38 @@ void __fastcall IWMem_HUD_DrawHierarchy(const LocalClientNum_t localClientNum)
 IWMemHUDDraw::DrawBar
 ==============
 */
-
-float __fastcall IWMemHUDDraw::DrawBar(IWMemHUDDraw *this, double xPos, double yPos, double width, const vec4_t *color, const bool trim)
+float IWMemHUDDraw::DrawBar(IWMemHUDDraw *this, const float xPos, const float yPos, const float width, const vec4_t *color, const bool trim)
 {
-  IWMemHUDDraw *v12; 
-  __int64 v17; 
-  float v44; 
-  float v45; 
-  float v46; 
-  int horzAlign; 
-  float v48; 
-  void *retaddr; 
+  float result; 
+  __int64 v9; 
+  float charWidth; 
+  float v11; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v12 = this;
-  __asm
+  result = 0.0;
+  if ( width >= 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm3, xmm0
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm9, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm8, xmm2
-  }
-  v17 = -1i64;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  do
-    ++v17;
-  while ( this->captionName[v17] );
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41000000
-    vmovss  xmm2, dword ptr [rcx+10h]
-    vsubss  xmm0, xmm6, xmm3
-    vdivss  xmm1, xmm0, xmm2
-    vcvttss2si eax, xmm1
-  }
-  if ( trim )
-  {
-    __asm { vmovaps xmm7, xmm6 }
-    if ( _EAX < (int)v17 )
-      LODWORD(v17) = _EAX;
-  }
-  else
-  {
-    __asm
+    v9 = -1i64;
+    do
+      ++v9;
+    while ( this->captionName[v9] );
+    charWidth = this->charWidth;
+    if ( trim )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, xmm2
-      vaddss  xmm7, xmm1, xmm3
+      v11 = width;
+      if ( (int)(float)((float)(width - 8.0) / charWidth) < (int)v9 )
+        LODWORD(v9) = (int)(float)((float)(width - 8.0) / charWidth);
     }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41400000
-    vmovaps xmm3, xmm7; width
-    vmovaps xmm2, xmm8; y
-    vmovaps xmm1, xmm9; x
-    vmovss  [rsp+0A8h+var_88], xmm0
-  }
-  UI_FillRect(this->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v44, 1, 1, &colorBlack);
-  __asm
-  {
-    vsubss  xmm3, xmm6, cs:__real@40000000; width
-    vmovss  xmm6, cs:__real@41200000
-    vaddss  xmm2, xmm8, cs:__real@3f800000; y
-    vaddss  xmm1, xmm9, cs:__real@3f800000; x
-    vmovss  [rsp+0A8h+var_88], xmm6
-  }
-  UI_FillRect(v12->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v45, 1, 1, color);
-  if ( (int)v17 > 0 )
-  {
-    __asm
+    else
     {
-      vmovss  xmm1, cs:__real@3e4ccccd
-      vaddss  xmm3, xmm9, cs:__real@40000000
-      vmovss  [rsp+0A8h+var_68], xmm1
-      vaddss  xmm2, xmm8, xmm6
-      vmovss  [rsp+0A8h+horzAlign], xmm2
-      vmovss  [rsp+0A8h+var_88], xmm3
+      v11 = (float)((float)(int)v9 * charWidth) + 8.0;
     }
-    UI_DrawText(v12->scrPlace, v12->captionName, v17, v12->font, v46, *(float *)&horzAlign, 1, 1, v48, &colorWhite, 3);
+    UI_FillRect(this->scrPlace, xPos, yPos, v11, 12.0, 1, 1, &colorBlack);
+    UI_FillRect(this->scrPlace, xPos + 1.0, yPos + 1.0, width - 2.0, 10.0, 1, 1, color);
+    if ( (int)v9 > 0 )
+      UI_DrawText(this->scrPlace, this->captionName, v9, this->font, xPos + 2.0, yPos + 10.0, 1, 1, 0.2, &colorWhite, 3);
+    return v11;
   }
-  __asm
-  {
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+0A8h+var_28]
-    vmovaps xmm6, [rsp+0A8h+var_18]
-    vmovaps xmm8, [rsp+0A8h+var_38]
-    vmovaps xmm9, [rsp+0A8h+var_48]
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -162,57 +100,20 @@ float __fastcall IWMemHUDDraw::DrawBar(IWMemHUDDraw *this, double xPos, double y
 IWMemHUDDraw::DrawLabel
 ==============
 */
-
-void __fastcall IWMemHUDDraw::DrawLabel(IWMemHUDDraw *this, double xPos, double yPos, const char *const caption)
+void IWMemHUDDraw::DrawLabel(IWMemHUDDraw *this, const float xPos, const float yPos, const char *const caption)
 {
-  __int64 v11; 
-  float fmt; 
-  float fmta; 
-  int horzAlign; 
-  float v27; 
+  __int64 v6; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm2
-  }
   if ( !caption && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 150, ASSERT_TYPE_ASSERT, "(caption)", (const char *)&queryFormat, "caption") )
     __debugbreak();
-  v11 = -1i64;
+  v6 = -1i64;
   do
-    ++v11;
-  while ( caption[v11] );
-  if ( (int)v11 > 0 )
+    ++v6;
+  while ( caption[v6] );
+  if ( (int)v6 > 0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm0, xmm0, dword ptr [rsi+10h]
-      vaddss  xmm3, xmm0, cs:__real@41000000; width
-      vmovss  xmm0, cs:__real@41400000
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm0
-    }
-    UI_FillRect(this->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 1, 1, &colorBlack);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e4ccccd
-      vaddss  xmm1, xmm6, cs:__real@41200000
-      vaddss  xmm2, xmm7, cs:__real@40000000
-      vmovss  [rsp+88h+var_48], xmm0
-      vmovss  [rsp+88h+horzAlign], xmm1
-      vmovss  dword ptr [rsp+88h+fmt], xmm2
-    }
-    UI_DrawText(this->scrPlace, caption, v11, this->font, fmta, *(float *)&horzAlign, 1, 1, v27, &colorWhite, 3);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
+    UI_FillRect(this->scrPlace, xPos, yPos, (float)((float)(int)v6 * this->charWidth) + 8.0, 12.0, 1, 1, &colorBlack);
+    UI_DrawText(this->scrPlace, caption, v6, this->font, xPos + 2.0, yPos + 10.0, 1, 1, 0.2, &colorWhite, 3);
   }
 }
 
@@ -224,132 +125,110 @@ IWMem_HUD_DrawHierarchy
 void IWMem_HUD_DrawHierarchy(const LocalClientNum_t localClientNum)
 {
   signed __int64 v1; 
-  void *v13; 
-  LocalClientNum_t v14; 
-  unsigned int v18; 
-  IWMemAllocator *v22; 
+  void *v2; 
+  LocalClientNum_t v3; 
+  __int128 v4; 
+  unsigned int v5; 
+  float v6; 
+  IWMemAllocator *v7; 
   IWMemAllocatorType m_type; 
-  __int64 v24; 
-  unsigned __int64 v25; 
+  __int64 v9; 
+  unsigned __int64 v10; 
   unsigned int i; 
   unsigned __int64 CommitSize; 
-  int v28; 
+  int v13; 
   IWMemAllocator *j; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  __int128 v20; 
   unsigned int AllocatorIndex; 
+  unsigned __int64 v22; 
   const vec4_t *color; 
   const IWMemAllocator *ParentAllocator; 
-  unsigned int v38; 
+  unsigned int v25; 
+  __int64 v26; 
+  __int128 v27; 
+  __int128 v32; 
   const char *AllocatorTypeName; 
-  char v57; 
-  bool v58; 
-  bool v60; 
-  bool v62; 
-  __int64 v63; 
+  float v36; 
+  __int128 v38; 
+  bool v40; 
+  __int128 v41; 
+  __int64 v42; 
+  __int128 v44; 
+  __int128 v48; 
   int IsKeyDown; 
-  unsigned int v87; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
+  unsigned int v50; 
   __int64 horzAlign; 
-  double horzAligna; 
-  int horzAlignb; 
-  int horzAlignc; 
   __int64 vertAlign; 
-  float v119; 
-  float v120; 
-  unsigned int v121; 
-  IWMemHUDDraw v124; 
-  int v125[386]; 
-  char v136; 
+  unsigned int v53; 
+  IWMemHUDDraw v55; 
+  int v56[386]; 
 
-  v13 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+1470h+var_30], xmm6
-    vmovaps [rsp+1470h+var_40], xmm7
-    vmovaps [rsp+1470h+var_50], xmm8
-    vmovaps [rsp+1470h+var_60], xmm9
-    vmovaps [rsp+1470h+var_70], xmm10
-    vmovaps [rsp+1470h+var_80], xmm11
-    vmovaps [rsp+1470h+var_90], xmm12
-    vmovaps [rsp+1470h+var_A0], xmm13
-    vmovaps [rsp+1470h+var_B0], xmm14
-    vmovaps [rsp+1470h+var_C0], xmm15
-  }
-  v14 = localClientNum;
+  v2 = alloca(v1);
+  v3 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFF808000, "IWMem_HUD_DrawHierarchy");
-  if ( IWMemHUDDraw::Init(&v124, v14) )
+  if ( IWMemHUDDraw::Init(&v55, v3) )
   {
-    memset_0(v125, 0, 0x600ui64);
-    __asm
+    memset_0(v56, 0, 0x600ui64);
+    v4 = 0i64;
+    v5 = 0;
+    v53 = 0;
+    if ( v55.allocatorCount )
     {
-      vxorps  xmm14, xmm14, xmm14
-      vxorps  xmm12, xmm12, xmm12
-    }
-    _ER13 = 0;
-    v18 = 0;
-    v121 = 0;
-    if ( v124.allocatorCount )
-    {
-      __asm
-      {
-        vmovss  xmm13, cs:__real@41200000
-        vmovss  xmm15, cs:__real@40000000
-        vmovss  xmm8, cs:__real@41300000
-      }
+      v6 = FLOAT_11_0;
       do
       {
-        if ( !v124.allocators[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 351, ASSERT_TYPE_ASSERT, "(draw.allocators[i])", (const char *)&queryFormat, "draw.allocators[i]") )
+        if ( !v55.allocators[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 351, ASSERT_TYPE_ASSERT, "(draw.allocators[i])", (const char *)&queryFormat, "draw.allocators[i]") )
           __debugbreak();
-        v22 = (IWMemAllocator *)v124.allocators[v18];
-        m_type = v22->m_type;
+        v7 = (IWMemAllocator *)v55.allocators[v5];
+        m_type = v7->m_type;
         if ( m_type )
         {
           if ( m_type == Count )
           {
-            v24 = 0i64;
+            v9 = 0i64;
           }
           else
           {
-            v25 = 0i64;
-            for ( i = 0; i < v124.allocatorCount; ++i )
+            v10 = 0i64;
+            for ( i = 0; i < v55.allocatorCount; ++i )
             {
-              if ( IWMemAllocator::GetParentAllocator((IWMemAllocator *)v124.allocators[i]) == v22 )
-                v25 += IWMemAllocator::GetCommitSize((IWMemAllocator *)v124.allocators[i]);
+              if ( IWMemAllocator::GetParentAllocator((IWMemAllocator *)v55.allocators[i]) == v7 )
+                v10 += IWMemAllocator::GetCommitSize((IWMemAllocator *)v55.allocators[i]);
             }
-            CommitSize = IWMemAllocator::GetCommitSize(v22);
-            if ( v25 > CommitSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 229, ASSERT_TYPE_ASSERT, "(childUsage <= thisUsage)", (const char *)&queryFormat, "childUsage <= thisUsage") )
+            CommitSize = IWMemAllocator::GetCommitSize(v7);
+            if ( v10 > CommitSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 229, ASSERT_TYPE_ASSERT, "(childUsage <= thisUsage)", (const char *)&queryFormat, "childUsage <= thisUsage") )
               __debugbreak();
-            v24 = CommitSize - v25;
+            v9 = CommitSize - v10;
           }
         }
         else
         {
-          v24 = 0i64;
+          v9 = 0i64;
         }
-        v28 = 0;
-        for ( j = (IWMemAllocator *)IWMemAllocator::GetParentAllocator(v22); j; j = (IWMemAllocator *)IWMemAllocator::GetParentAllocator(j) )
-          ++v28;
-        __asm
+        v13 = 0;
+        for ( j = (IWMemAllocator *)IWMemAllocator::GetParentAllocator(v7); j; j = (IWMemAllocator *)IWMemAllocator::GetParentAllocator(j) )
+          ++v13;
+        v16 = 0i64;
+        *(float *)&v16 = (float)v9;
+        v15 = v16;
+        if ( v9 < 0 )
         {
-          vxorps  xmm10, xmm10, xmm10
-          vcvtsi2ss xmm10, xmm10, rdi
+          *(float *)&v16 = *(float *)&v16 + 1.8446744e19;
+          v15 = v16;
         }
-        if ( v24 < 0 )
-          __asm { vaddss  xmm10, xmm10, cs:__real@5f800000 }
-        __asm
-        {
-          vmulss  xmm9, xmm10, cs:__real@36000000
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-          vmulss  xmm11, xmm0, xmm13
-        }
-        AllocatorIndex = IWMem_AllocatorManager_GetAllocatorIndex(v22);
-        _RBX = AllocatorIndex;
+        v18 = v15;
+        *(float *)&v18 = *(float *)&v15 * 0.0000019073486;
+        v17 = v18;
+        v20 = 0i64;
+        *(float *)&v20 = (float)v13 * 10.0;
+        v19 = *(float *)&v20;
+        AllocatorIndex = IWMem_AllocatorManager_GetAllocatorIndex(v7);
+        v22 = AllocatorIndex;
         if ( AllocatorIndex >= 0x180 )
         {
           LODWORD(vertAlign) = 384;
@@ -357,212 +236,112 @@ void IWMem_HUD_DrawHierarchy(const LocalClientNum_t localClientNum)
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 362, ASSERT_TYPE_ASSERT, "(unsigned)( fixedIndex ) < (unsigned)( ( sizeof( *array_counter( allocYPos ) ) + 0 ) )", "fixedIndex doesn't index ARRAY_COUNT( allocYPos )\n\t%i not in [0, %i)", horzAlign, vertAlign) )
             __debugbreak();
         }
-        __asm { vmovss  [rbp+rbx*4+1370h+var_6D0], xmm12 }
-        if ( v18 >= s_iwMemHUDHierarchyOffset )
+        v56[v22] = v4;
+        if ( v5 >= s_iwMemHUDHierarchyOffset )
         {
-          color = &BAR_COLORS[_RBX % 9];
-          if ( IWMemAllocator::GetParentAllocator(v22) )
+          color = &BAR_COLORS[v22 % 9];
+          if ( IWMemAllocator::GetParentAllocator(v7) )
           {
-            ParentAllocator = IWMemAllocator::GetParentAllocator(v22);
-            v38 = IWMem_AllocatorManager_GetAllocatorIndex(ParentAllocator);
-            _RBX = v38;
-            if ( v38 >= 0x180 )
+            ParentAllocator = IWMemAllocator::GetParentAllocator(v7);
+            v25 = IWMem_AllocatorManager_GetAllocatorIndex(ParentAllocator);
+            v26 = v25;
+            if ( v25 >= 0x180 )
             {
               LODWORD(vertAlign) = 384;
-              LODWORD(horzAlign) = v38;
+              LODWORD(horzAlign) = v25;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 375, ASSERT_TYPE_ASSERT, "(unsigned)( parentFixedIndex ) < (unsigned)( ( sizeof( *array_counter( allocYPos ) ) + 0 ) )", "parentFixedIndex doesn't index ARRAY_COUNT( allocYPos )\n\t%i not in [0, %i)", horzAlign, vertAlign) )
                 __debugbreak();
             }
+            v27 = (unsigned int)v56[v26];
+            *(float *)&v20 = *(float *)&v20 - 10.0;
+            _XMM8 = v20;
             __asm
             {
-              vmovss  xmm7, [rbp+rbx*4+1370h+var_6D0]
-              vsubss  xmm8, xmm11, xmm13
               vminss  xmm1, xmm8, xmm11; x
               vmaxss  xmm0, xmm8, xmm11
-              vaddss  xmm6, xmm12, cs:__real@40b00000
-              vsubss  xmm3, xmm0, xmm1; width
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  dword ptr [rsp+1470h+fmt], xmm0
-              vmovaps xmm2, xmm6; y
             }
-            UI_FillRect(v124.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 1, 1, &colorWhite);
+            UI_FillRect(v55.scrPlace, *(float *)&_XMM1, *(float *)&v4 + 5.5, *(float *)&_XMM0 - *(float *)&_XMM1, 1.0, 1, 1, &colorWhite);
+            v32 = v27;
+            *(float *)&v32 = *(float *)&v27 + 5.5;
+            _XMM0 = v32;
             __asm
             {
-              vaddss  xmm0, xmm7, cs:__real@40b00000
               vminss  xmm2, xmm0, xmm6; y
               vmaxss  xmm0, xmm0, xmm6
-              vsubss  xmm1, xmm0, xmm2
-              vmovss  dword ptr [rsp+1470h+fmt], xmm1
-              vmovss  xmm3, cs:__real@3f800000; width
-              vmovaps xmm1, xmm8; x
             }
-            UI_FillRect(v124.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 1, 1, &colorWhite);
-            __asm { vmovss  xmm8, cs:__real@41300000 }
+            UI_FillRect(v55.scrPlace, *(float *)&_XMM8, *(float *)&_XMM2, 1.0, *(float *)&_XMM0 - *(float *)&_XMM2, 1, 1, &colorWhite);
+            v6 = FLOAT_11_0;
           }
-          AllocatorTypeName = IWMem_GetAllocatorTypeName((const IWMemAllocatorType)v22->m_type);
-          __asm
+          AllocatorTypeName = IWMem_GetAllocatorTypeName((const IWMemAllocatorType)v7->m_type);
+          Com_sprintf(v55.captionName, 0x100ui64, "%s (%s-%.2fmb)", v7->m_name, AllocatorTypeName, (float)(*(float *)&v15 * 0.00000095367432));
+          if ( *(float *)&v17 <= 0.001 )
           {
-            vmulss  xmm0, xmm10, cs:__real@35800000
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  qword ptr [rsp+1470h+horzAlign], xmm1
-          }
-          Com_sprintf(v124.captionName, 0x100ui64, "%s (%s-%.2fmb)", v22->m_name, AllocatorTypeName, horzAligna);
-          __asm
-          {
-            vmovss  xmm10, cs:__real@3a83126f
-            vcomiss xmm9, xmm10
-          }
-          if ( v57 | v58 )
-          {
-            __asm
-            {
-              vmovaps xmm3, xmm14; width
-              vmovaps xmm2, xmm12; yPos
-              vmovaps xmm1, xmm11; xPos
-            }
-            *(double *)&_XMM0 = IWMemHUDDraw::DrawBar(&v124, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, &colorBlack, 0);
+            IWMemHUDDraw::DrawBar(&v55, v19, *(const float *)&v4, 0.0, &colorBlack, 0);
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, cs:__real@44340000
-              vsubss  xmm7, xmm0, xmm11
-            }
+            v36 = FLOAT_720_0;
+            v38 = LODWORD(FLOAT_720_0);
+            *(float *)&v38 = 720.0 - v19;
+            _XMM7 = v38;
             do
             {
-              __asm { vcomiss xmm11, xmm0 }
-              if ( !v57 )
+              if ( v19 >= v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 391, ASSERT_TYPE_ASSERT, "(rowLeft > 0.0f)", (const char *)&queryFormat, "rowLeft > 0.0f") )
+                __debugbreak();
+              __asm { vminss  xmm6, xmm7, xmm9 }
+              v40 = *(float *)&v17 >= *(float *)&_XMM7;
+              v41 = v17;
+              *(float *)&v41 = *(float *)&v17 - *(float *)&_XMM6;
+              v17 = v41;
+              if ( *(float *)&_XMM6 >= 0.0 )
               {
-                v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 391, ASSERT_TYPE_ASSERT, "(rowLeft > 0.0f)", (const char *)&queryFormat, "rowLeft > 0.0f");
-                v57 = 0;
-                v58 = !v60;
-                if ( v60 )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vminss  xmm6, xmm7, xmm9
-                vcomiss xmm9, xmm7
-              }
-              v62 = !v57;
-              __asm
-              {
-                vsubss  xmm9, xmm9, xmm6
-                vcomiss xmm6, xmm14
-              }
-              if ( !v57 )
-              {
-                v63 = -1i64;
+                v42 = -1i64;
                 do
-                  ++v63;
-                while ( v124.captionName[v63] );
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ebx
-                  vmulss  xmm1, xmm0, [rbp+1370h+var_13F0.charWidth]
-                  vaddss  xmm3, xmm1, cs:__real@41000000; width
-                  vmovss  xmm0, cs:__real@41400000
-                  vmovss  dword ptr [rsp+1470h+fmt], xmm0
-                  vmovaps xmm2, xmm12; y
-                  vmovaps xmm1, xmm11; x
-                }
-                UI_FillRect(v124.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, 1, 1, &colorBlack);
-                __asm
-                {
-                  vsubss  xmm3, xmm6, xmm15; width
-                  vaddss  xmm2, xmm12, cs:__real@3f800000; y
-                  vaddss  xmm1, xmm11, cs:__real@3f800000; x
-                  vmovss  dword ptr [rsp+1470h+fmt], xmm13
-                }
-                UI_FillRect(v124.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, 1, 1, color);
-                v57 = 0;
-                v58 = (_DWORD)v63 == 0;
-                if ( (int)v63 > 0 )
-                {
-                  __asm
-                  {
-                    vaddss  xmm0, xmm12, xmm13
-                    vaddss  xmm1, xmm11, xmm15
-                    vmovss  xmm2, cs:__real@3e4ccccd
-                    vmovss  [rsp+1470h+var_1430], xmm2
-                    vmovss  [rsp+1470h+horzAlign], xmm0
-                    vmovss  dword ptr [rsp+1470h+fmt], xmm1
-                  }
-                  UI_DrawText(v124.scrPlace, v124.captionName, v63, v124.font, fmtd, *(float *)&horzAlignb, 1, 1, v119, &colorWhite, 3);
-                }
+                  ++v42;
+                while ( v55.captionName[v42] );
+                UI_FillRect(v55.scrPlace, v19, *(float *)&v4, (float)((float)(int)v42 * v55.charWidth) + 8.0, 12.0, 1, 1, &colorBlack);
+                UI_FillRect(v55.scrPlace, v19 + 1.0, *(float *)&v4 + 1.0, *(float *)&_XMM6 - 2.0, 10.0, 1, 1, color);
+                if ( (int)v42 > 0 )
+                  UI_DrawText(v55.scrPlace, v55.captionName, v42, v55.font, v19 + 2.0, *(float *)&v4 + 10.0, 1, 1, 0.2, &colorWhite, 3);
               }
-              _EAX = v62;
+              v44 = v4;
+              *(float *)&v44 = *(float *)&v4 + v6;
+              _XMM3 = v44;
+              _XMM0 = v40;
               __asm
               {
-                vaddss  xmm3, xmm12, xmm8
-                vmovd   xmm1, r13d
-                vmovd   xmm0, eax
                 vpcmpeqd xmm2, xmm0, xmm1
                 vblendvps xmm3, xmm3, xmm12, xmm2
-                vmovaps xmm12, xmm3
-                vmovss  [rsp+1470h+var_1408], xmm3
-                vcomiss xmm9, xmm10
-                vmovss  xmm0, cs:__real@44340000
               }
+              v4 = _XMM3;
+              v36 = FLOAT_720_0;
             }
-            while ( !(v57 | v58) );
-            v18 = v121;
+            while ( *(float *)&v17 > 0.001 );
+            v5 = v53;
           }
-          __asm { vaddss  xmm12, xmm12, xmm8 }
+          v48 = v4;
+          *(float *)&v48 = *(float *)&v4 + v6;
+          v4 = v48;
         }
-        v121 = ++v18;
+        v53 = ++v5;
       }
-      while ( v18 < v124.allocatorCount );
-      v14 = localClientNum;
+      while ( v5 < v55.allocatorCount );
+      v3 = localClientNum;
     }
     IWMem_DumpUnlock();
-    if ( CL_Keys_IsKeyDown(v14, 170) && s_iwMemHUDHierarchyOffset )
+    if ( CL_Keys_IsKeyDown(v3, 170) && s_iwMemHUDHierarchyOffset )
       --s_iwMemHUDHierarchyOffset;
-    IsKeyDown = CL_Keys_IsKeyDown(v14, 176);
-    v87 = s_iwMemHUDHierarchyOffset;
+    IsKeyDown = CL_Keys_IsKeyDown(v3, 176);
+    v50 = s_iwMemHUDHierarchyOffset;
     if ( IsKeyDown )
-      v87 = s_iwMemHUDHierarchyOffset + 1;
-    if ( v87 > v124.allocatorCount - 1 )
-      v87 = v124.allocatorCount - 1;
-    s_iwMemHUDHierarchyOffset = v87;
-    __asm
-    {
-      vmovss  xmm0, [rbp+1370h+var_13F0.charWidth]
-      vmulss  xmm1, xmm0, cs:__real@42200000
-      vaddss  xmm3, xmm1, cs:__real@41000000; width
-      vmovss  xmm0, cs:__real@41400000
-      vmovss  dword ptr [rsp+1470h+fmt], xmm0
-      vmovss  xmm2, cs:__real@c1200000; y
-      vmovss  xmm1, cs:__real@43fa0000; x
-    }
-    UI_FillRect(v124.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, 1, 1, &colorBlack);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e4ccccd
-      vmovss  [rsp+1470h+var_1430], xmm0
-      vmovss  [rsp+1470h+horzAlign], xmm14
-      vmovss  xmm0, cs:__real@43fb0000
-      vmovss  dword ptr [rsp+1470h+fmt], xmm0
-    }
-    UI_DrawText(v124.scrPlace, "iwmem: Use Numpad arrow keys to navigate", 40, v124.font, fmtf, *(float *)&horzAlignc, 1, 1, v120, &colorWhite, 3);
+      v50 = s_iwMemHUDHierarchyOffset + 1;
+    if ( v50 > v55.allocatorCount - 1 )
+      v50 = v55.allocatorCount - 1;
+    s_iwMemHUDHierarchyOffset = v50;
+    UI_FillRect(v55.scrPlace, 500.0, -10.0, (float)(v55.charWidth * 40.0) + 8.0, 12.0, 1, 1, &colorBlack);
+    UI_DrawText(v55.scrPlace, "iwmem: Use Numpad arrow keys to navigate", 40, v55.font, 502.0, 0.0, 1, 1, 0.2, &colorWhite, 3);
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v136;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -572,231 +351,142 @@ IWMem_HUD_DrawUsageBars
 */
 void IWMem_HUD_DrawUsageBars(const LocalClientNum_t localClientNum)
 {
-  int v17; 
-  IWMemAllocator *v22; 
-  IWMemAllocatorType m_type; 
-  unsigned __int64 v24; 
+  __int128 v2; 
+  __int128 v3; 
   unsigned int i; 
+  IWMemAllocator *v5; 
+  IWMemAllocatorType m_type; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  unsigned int j; 
   unsigned __int64 CommitSize; 
-  int v29; 
-  IWMemAllocator *v30; 
-  unsigned __int8 j; 
-  unsigned __int64 v32; 
-  bool v33; 
-  bool v34; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  int v14; 
+  IWMemAllocator *v15; 
+  unsigned __int8 k; 
   const vec4_t *color; 
-  bool v38; 
+  __int128 v19; 
+  bool v21; 
+  __int128 v22; 
   const char *AllocatorTypeName; 
-  __int64 v43; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  double horzAlign; 
-  int horzAligna; 
-  float v79; 
-  IWMemHUDDraw v81; 
-  char v82; 
-  void *retaddr; 
+  __int64 v24; 
+  __int128 v25; 
+  __int128 v27; 
+  IWMemHUDDraw v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
   Sys_ProfBeginNamedEvent(0xFF808000, "IWMem_HUD_DrawUsageBars");
-  if ( IWMemHUDDraw::Init(&v81, localClientNum) )
+  if ( IWMemHUDDraw::Init(&v31, localClientNum) )
   {
-    __asm
+    v2 = 0i64;
+    v3 = 0i64;
+    for ( i = 0; i < v31.allocatorCount; ++i )
     {
-      vxorps  xmm10, xmm10, xmm10
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm9, xmm9, xmm9
-    }
-    _ER15 = 0;
-    v17 = 0;
-    if ( v81.allocatorCount )
-    {
-      __asm
+      if ( !v31.allocators[i] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 277, ASSERT_TYPE_ASSERT, "(draw.allocators[i])", (const char *)&queryFormat, "draw.allocators[i]") )
+        __debugbreak();
+      v5 = (IWMemAllocator *)v31.allocators[i];
+      m_type = v5->m_type;
+      if ( m_type )
       {
-        vmovss  xmm15, cs:__real@3a83126f
-        vmovss  xmm12, cs:__real@44340000
-        vmovss  xmm13, cs:__real@40000000
-        vmovss  xmm14, cs:__real@41200000
-      }
-      while ( 1 )
-      {
-        if ( !v81.allocators[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 277, ASSERT_TYPE_ASSERT, "(draw.allocators[i])", (const char *)&queryFormat, "draw.allocators[i]") )
-          __debugbreak();
-        v22 = (IWMemAllocator *)v81.allocators[v17];
-        m_type = v22->m_type;
-        if ( m_type == All || m_type == Count )
-          goto LABEL_39;
-        v24 = 0i64;
-        for ( i = 0; i < v81.allocatorCount; ++i )
+        if ( m_type == Count )
         {
-          if ( IWMemAllocator::GetParentAllocator((IWMemAllocator *)v81.allocators[i]) == v22 )
-            v24 += IWMemAllocator::GetCommitSize((IWMemAllocator *)v81.allocators[i]);
-        }
-        CommitSize = IWMemAllocator::GetCommitSize(v22);
-        if ( v24 > CommitSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 229, ASSERT_TYPE_ASSERT, "(childUsage <= thisUsage)", (const char *)&queryFormat, "childUsage <= thisUsage") )
-          __debugbreak();
-        if ( CommitSize - v24 <= 0x200000000i64 )
-        {
-LABEL_39:
-          __asm
-          {
-            vxorps  xmm11, xmm11, xmm11
-            vcvtsi2ss xmm11, xmm11, rbx
-            vmulss  xmm8, xmm11, cs:__real@36000000
-          }
-          v29 = 0;
-          v30 = v22;
-          for ( j = v22->m_name[0]; v30->m_name[0]; j = v30->m_name[0] )
-          {
-            v30 = (IWMemAllocator *)((char *)v30 + 1);
-            v29 = j ^ (16777619 * v29);
-          }
-          v32 = (v22->m_type ^ (unsigned int)v29) % 9ui64;
-          v33 = __CFADD__(BAR_COLORS, v32 * 16);
-          v34 = __CFADD__(BAR_COLORS, v32 * 16) || &BAR_COLORS[v32] == NULL;
-          color = &BAR_COLORS[v32];
-          __asm { vcomiss xmm8, xmm15 }
-          if ( !v34 )
-            break;
-        }
-LABEL_34:
-        if ( ++v17 >= v81.allocatorCount )
-          goto LABEL_35;
-      }
-      while ( 1 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm12, xmm7
-          vcomiss xmm7, xmm12
-        }
-        if ( v33 )
-        {
-          __asm
-          {
-            vminss  xmm6, xmm0, xmm8
-            vcomiss xmm8, xmm0
-          }
-          v38 = !v33;
-          __asm { vsubss  xmm8, xmm8, xmm6 }
-          AllocatorTypeName = IWMem_GetAllocatorTypeName((const IWMemAllocatorType)v22->m_type);
-          __asm
-          {
-            vmulss  xmm0, xmm11, cs:__real@35800000
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  qword ptr [rsp+0E68h+horzAlign], xmm1
-          }
-          Com_sprintf(v81.captionName, 0x100ui64, "%s (%s-%.2fmb)", v22->m_name, AllocatorTypeName, horzAlign);
-          __asm { vcomiss xmm6, xmm10 }
-          if ( v33 )
-          {
-            __asm { vmovaps xmm6, xmm10 }
-          }
-          else
-          {
-            v43 = -1i64;
-            do
-              ++v43;
-            while ( v81.captionName[v43] );
-            __asm
-            {
-              vsubss  xmm0, xmm6, cs:__real@41000000
-              vdivss  xmm1, xmm0, [rsp+0E68h+var_DF8.charWidth]
-              vcvttss2si eax, xmm1
-            }
-            if ( _EAX < (int)v43 )
-              LODWORD(v43) = _EAX;
-            __asm
-            {
-              vmovss  xmm0, cs:__real@41400000
-              vmovss  dword ptr [rsp+0E68h+fmt], xmm0
-              vmovaps xmm3, xmm6; width
-              vmovaps xmm2, xmm9; y
-              vmovaps xmm1, xmm7; x
-            }
-            UI_FillRect(v81.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 1, 1, &colorBlack);
-            __asm
-            {
-              vsubss  xmm3, xmm6, xmm13; width
-              vaddss  xmm2, xmm9, cs:__real@3f800000; y
-              vaddss  xmm1, xmm7, cs:__real@3f800000; x
-              vmovss  dword ptr [rsp+0E68h+fmt], xmm14
-            }
-            UI_FillRect(v81.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 1, 1, color);
-            if ( (int)v43 > 0 )
-            {
-              __asm
-              {
-                vaddss  xmm0, xmm9, xmm14
-                vaddss  xmm1, xmm7, xmm13
-                vmovss  xmm2, cs:__real@3e4ccccd
-                vmovss  [rsp+0E68h+var_E28], xmm2
-                vmovss  [rsp+0E68h+horzAlign], xmm0
-                vmovss  dword ptr [rsp+0E68h+fmt], xmm1
-              }
-              UI_DrawText(v81.scrPlace, v81.captionName, v43, v81.font, fmtb, *(float *)&horzAligna, 1, 1, v79, &colorWhite, 3);
-            }
-          }
-          __asm { vaddss  xmm7, xmm7, xmm6 }
-          v33 = 0;
-          v34 = !v38;
-          if ( !v38 )
-            goto LABEL_33;
+          v7 = 0i64;
         }
         else
         {
-          v38 = 1;
+          v8 = 0i64;
+          for ( j = 0; j < v31.allocatorCount; ++j )
+          {
+            if ( IWMemAllocator::GetParentAllocator((IWMemAllocator *)v31.allocators[j]) == v5 )
+              v8 += IWMemAllocator::GetCommitSize((IWMemAllocator *)v31.allocators[j]);
+          }
+          CommitSize = IWMemAllocator::GetCommitSize(v5);
+          if ( v8 > CommitSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_hud.cpp", 229, ASSERT_TYPE_ASSERT, "(childUsage <= thisUsage)", (const char *)&queryFormat, "childUsage <= thisUsage") )
+            __debugbreak();
+          v7 = CommitSize - v8;
+          if ( (unsigned __int64)v7 > 0x200000000i64 )
+            continue;
         }
-        __asm { vmovaps xmm7, xmm10 }
-LABEL_33:
-        _EAX = v38;
-        __asm
+      }
+      else
+      {
+        v7 = 0i64;
+      }
+      v13 = 0i64;
+      v11 = (float)v7;
+      *(float *)&v13 = v11 * 0.0000019073486;
+      v12 = v13;
+      v14 = 0;
+      v15 = v5;
+      for ( k = v5->m_name[0]; v15->m_name[0]; k = v15->m_name[0] )
+      {
+        v15 = (IWMemAllocator *)((char *)v15 + 1);
+        v14 = k ^ (16777619 * v14);
+      }
+      color = &BAR_COLORS[(v5->m_type ^ (unsigned int)v14) % 9ui64];
+      if ( *(float *)&v13 > 0.001 )
+      {
+        do
         {
-          vaddss  xmm3, xmm9, cs:__real@41300000
-          vmovd   xmm1, r15d
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vblendvps xmm3, xmm3, xmm9, xmm2
-          vmovaps xmm9, xmm3
-          vmovss  [rsp+0E68h+var_E08], xmm3
-          vcomiss xmm8, xmm15
+          v19 = LODWORD(FLOAT_720_0);
+          *(float *)&v19 = 720.0 - *(float *)&v2;
+          _XMM0 = v19;
+          if ( *(float *)&v2 >= 720.0 )
+          {
+            v21 = 1;
+          }
+          else
+          {
+            __asm { vminss  xmm6, xmm0, xmm8 }
+            v21 = *(float *)&v12 >= *(float *)&v19;
+            v22 = v12;
+            *(float *)&v22 = *(float *)&v12 - *(float *)&_XMM6;
+            v12 = v22;
+            AllocatorTypeName = IWMem_GetAllocatorTypeName((const IWMemAllocatorType)v5->m_type);
+            Com_sprintf(v31.captionName, 0x100ui64, "%s (%s-%.2fmb)", v5->m_name, AllocatorTypeName, (float)(v11 * 0.00000095367432));
+            if ( *(float *)&_XMM6 >= 0.0 )
+            {
+              v24 = -1i64;
+              do
+                ++v24;
+              while ( v31.captionName[v24] );
+              if ( (int)(float)((float)(*(float *)&_XMM6 - 8.0) / v31.charWidth) < (int)v24 )
+                LODWORD(v24) = (int)(float)((float)(*(float *)&_XMM6 - 8.0) / v31.charWidth);
+              UI_FillRect(v31.scrPlace, *(float *)&v2, *(float *)&v3, *(float *)&_XMM6, 12.0, 1, 1, &colorBlack);
+              UI_FillRect(v31.scrPlace, *(float *)&v2 + 1.0, *(float *)&v3 + 1.0, *(float *)&_XMM6 - 2.0, 10.0, 1, 1, color);
+              if ( (int)v24 > 0 )
+                UI_DrawText(v31.scrPlace, v31.captionName, v24, v31.font, *(float *)&v2 + 2.0, *(float *)&v3 + 10.0, 1, 1, 0.2, &colorWhite, 3);
+            }
+            else
+            {
+              LODWORD(_XMM6) = 0;
+            }
+            v25 = v2;
+            *(float *)&v25 = *(float *)&v2 + *(float *)&_XMM6;
+            v2 = v25;
+            if ( !v21 )
+              goto LABEL_34;
+          }
+          v2 = 0i64;
+LABEL_34:
+          v27 = v3;
+          *(float *)&v27 = *(float *)&v3 + 11.0;
+          _XMM3 = v27;
+          _XMM0 = v21;
+          __asm
+          {
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm3, xmm3, xmm9, xmm2
+          }
+          v3 = _XMM3;
         }
-        if ( v34 )
-          goto LABEL_34;
+        while ( *(float *)&v12 > 0.001 );
       }
     }
-LABEL_35:
     IWMem_DumpUnlock();
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v82;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -806,68 +496,48 @@ IWMemHUDDraw::Init
 */
 char IWMemHUDDraw::Init(IWMemHUDDraw *this, const LocalClientNum_t localClientNum)
 {
-  bool v5; 
-  const ScreenPlacement *v6; 
+  bool v3; 
+  const ScreenPlacement *v4; 
   GfxFont *FontHandle; 
-  char result; 
+  float v6; 
+  double v7; 
 
-  _RBX = this;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( activeScreenPlacementMode == SCRMODE_FULL )
   {
 LABEL_7:
-    v6 = &scrPlaceFull;
+    v4 = &scrPlaceFull;
     goto LABEL_8;
   }
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v5 )
+      v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v3 )
       __debugbreak();
     goto LABEL_7;
   }
-  v6 = &scrPlaceViewDisplay[localClientNum];
+  v4 = &scrPlaceViewDisplay[localClientNum];
 LABEL_8:
-  __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-  _RBX->scrPlace = v6;
-  FontHandle = UI_GetFontHandle(v6, 5, *(float *)&_XMM2);
-  _RBX->font = FontHandle;
-  R_TextWidth("#", 1, FontHandle);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e4ccccd; scale
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-  }
-  *(double *)&_XMM0 = R_NormalizedTextScale(_RBX->font, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbx+10h], xmm1
-  }
-  _RBX->allocatorCount = 0;
+  this->scrPlace = v4;
+  FontHandle = UI_GetFontHandle(v4, 5, 1.0);
+  this->font = FontHandle;
+  v6 = (float)R_TextWidth("#", 1, FontHandle);
+  v7 = R_NormalizedTextScale(this->font, 0.2);
+  this->charWidth = *(float *)&v7 * v6;
+  this->allocatorCount = 0;
   if ( IWMem_HasHadInternalError() )
   {
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2; yPos
-      vxorps  xmm1, xmm1, xmm1; xPos
-    }
-    IWMemHUDDraw::DrawLabel(_RBX, *(const float *)&_XMM1, *(const float *)&_XMM2, "IWMem Internal Error");
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    IWMemHUDDraw::DrawLabel(this, 0.0, 0.0, "IWMem Internal Error");
+    return 0;
   }
   else
   {
     IWMem_PollingUpdate();
     IWMem_DumpLock();
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    _RBX->allocatorCount = IWMem_AllocatorManager_GetSortedAllocatorList(_RBX->allocators, 0x180u);
+    this->allocatorCount = IWMem_AllocatorManager_GetSortedAllocatorList(this->allocators, 0x180u);
     return 1;
   }
-  return result;
 }
 

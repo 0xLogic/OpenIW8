@@ -99,38 +99,22 @@ BG_SlopeWorldmodel_GetBSCoord
 */
 void BG_SlopeWorldmodel_GetBSCoord(const float legsYaw, const vec3_t *groundNormal, float *outForwardSlope, float *outRightSlope)
 {
+  float v7; 
+  float v8; 
+  float v9; 
   tmat33_t<vec3_t> out; 
-  char v24; 
+  char v11; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+0C8h+var_28], xmm6 }
-  _RBX = (char *)groundNormal;
-  _RSI = outRightSlope;
-  _RDI = outForwardSlope;
   YawToAxis(legsYaw, &axis);
   MatrixTranspose(&axis, &out);
-  if ( _RBX == &v24 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  if ( groundNormal == (const vec3_t *)&v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx]
-    vmovss  xmm6, dword ptr [rbx+8]
-    vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+out+4]
-    vmulss  xmm0, xmm5, dword ptr [rsp+0C8h+out+10h]
-    vmulss  xmm3, xmm3, dword ptr [rsp+0C8h+out]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+0C8h+out+1Ch]
-    vmulss  xmm0, xmm5, dword ptr [rsp+0C8h+out+0Ch]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+0C8h+out+18h]
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  dword ptr [rsi], xmm4
-    vmovaps xmm6, [rsp+0C8h+var_28]
-  }
+  v7 = groundNormal->v[1];
+  v8 = groundNormal->v[2];
+  v9 = (float)((float)(groundNormal->v[0] * out.m[0].v[1]) + (float)(v7 * out.m[1].v[1])) + (float)(v8 * out.m[2].v[1]);
+  *outForwardSlope = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(groundNormal->v[0] * out.m[0].v[0]) + (float)(v7 * out.m[1].v[0])) + (float)(v8 * out.m[2].v[0])) ^ _xmm);
+  *outRightSlope = v9;
 }
 
 /*
@@ -140,68 +124,24 @@ BG_SlopeWorldmodel_GetZAdjustment
 */
 double BG_SlopeWorldmodel_GetZAdjustment(const int suitIndex, const vec3_t *slopeNormal)
 {
-  char v19; 
+  const SuitDef *SuitDef; 
+  double v5; 
+  float v6; 
+  const dvar_t *v7; 
 
-  if ( BG_GetSuitDef(suitIndex) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:worldUp_2+4
-      vmulss  xmm3, xmm0, dword ptr [rdi+4]
-      vmovss  xmm1, dword ptr cs:worldUp_2
-      vmulss  xmm2, xmm1, dword ptr [rdi]
-      vmovss  xmm0, dword ptr cs:worldUp_2+8
-      vmulss  xmm1, xmm0, dword ptr [rdi+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1; val
-      vmovss  xmm1, cs:__real@bf800000; min
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vmovaps xmm2, xmm6; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcvtss2sd xmm1, xmm1, xmm1
-      vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-      vmovaps xmm3, xmm0
-    }
-    if ( v19 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-    }
-    else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm3
-        vsubss  xmm0, xmm6, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rbx+220h]
-        vsqrtss xmm2, xmm0, xmm0
-        vmulss  xmm2, xmm2, xmm1
-        vdivss  xmm6, xmm2, xmm3
-      }
-    }
-    _RBX = DCONST_DVARFLT_bg_slope_max_offset;
-    if ( !DCONST_DVARFLT_bg_slope_max_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_max_offset") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]; max
-      vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-      vxorps  xmm0, xmm6, cs:__xmm@80000000800000008000000080000000; val
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
+  SuitDef = BG_GetSuitDef(suitIndex);
+  if ( !SuitDef )
+    return 0.0;
+  v5 = I_fclamp((float)((float)(worldUp_2.v[1] * slopeNormal->v[1]) + (float)(worldUp_2.v[0] * slopeNormal->v[0])) + (float)(worldUp_2.v[2] * slopeNormal->v[2]), -1.0, 1.0);
+  if ( COERCE_FLOAT(LODWORD(v5) & _xmm) >= 0.000001 )
+    v6 = (float)(fsqrt(1.0 - (float)(*(float *)&v5 * *(float *)&v5)) * (float)SuitDef->bounds_radius) / *(float *)&v5;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+    v6 = 0.0;
+  v7 = DCONST_DVARFLT_bg_slope_max_offset;
+  if ( !DCONST_DVARFLT_bg_slope_max_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_max_offset") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v7);
+  return I_fclamp(COERCE_FLOAT(LODWORD(v6) ^ _xmm), COERCE_FLOAT(v7->current.integer ^ _xmm), v7->current.value);
 }
 
 /*
@@ -211,68 +151,37 @@ BG_SlopeWorldmodel_Pack
 */
 void BG_SlopeWorldmodel_Pack(const vec3_t *slopeNormal, unsigned __int16 *slopePacked)
 {
-  int v25; 
-  char v26; 
-  int v29; 
-  __int64 v31; 
+  float v3; 
+  double v6; 
+  float v7; 
+  int v8; 
+  char v9; 
+  int v10; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm7
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcvtss2sd xmm0, xmm2, xmm2
-    vcomisd xmm0, cs:__real@3d719799812dea11
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( (unsigned __int64)&v31 != _security_cookie )
+  if ( (float)((float)((float)(slopeNormal->v[0] * slopeNormal->v[0]) + (float)(slopeNormal->v[1] * slopeNormal->v[1])) + (float)(slopeNormal->v[2] * slopeNormal->v[2])) > 1.0e-12 )
   {
     vectoangles(slopeNormal, &angles);
-    __asm { vmovss  xmm0, dword ptr [rsp+58h+angles] }
+    v3 = angles.v[0];
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+58h+angles], xmm0
-      vmovss  dword ptr [rsp+58h+angles+4], xmm7
-      vmovss  dword ptr [rsp+58h+angles+8], xmm7
-    }
+    v3 = 0.0;
+    angles.v[0] = 0.0;
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
   }
-  __asm
-  {
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm3, xmm5, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm4, xmm2, xmm3, 1
-    vmovss  xmm2, cs:s_maxWalkablePitchValue; max
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm0, xmm0, cs:__real@43b40000
-    vaddss  xmm0, xmm0, cs:__real@42b40000; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm1, cs:s_maxWalkablePitchValue; maxAbsValueSize }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm4, xmm2, xmm3, 1 }
+  v6 = I_fclamp((float)((float)((float)(v3 * 0.0027777778) - *(float *)&_XMM4) * 360.0) + 90.0, 0.0, s_maxWalkablePitchValue);
+  v7 = s_maxWalkablePitchValue;
   *slopePacked = 0;
-  v25 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 5u);
-  v26 = truncate_cast<unsigned short,int>(v25);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43b40000; maxAbsValueSize
-    vmovss  xmm0, dword ptr [rsp+58h+angles+4]; value
-  }
-  *slopePacked = (*slopePacked | v26 & 0x1F) << 6;
-  v29 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 6u);
-  *slopePacked |= truncate_cast<unsigned short,int>(v29) & 0x3F;
-  __asm { vmovaps xmm7, [rsp+58h+var_18] }
+  v8 = MSG_PackUnsignedFloat(*(float *)&v6, v7, 5u);
+  v9 = truncate_cast<unsigned short,int>(v8);
+  *(float *)&v6 = angles.v[1];
+  *slopePacked = (*slopePacked | v9 & 0x1F) << 6;
+  v10 = MSG_PackUnsignedFloat(*(float *)&v6, 360.0, 6u);
+  *slopePacked |= truncate_cast<unsigned short,int>(v10) & 0x3F;
 }
 
 /*
@@ -282,66 +191,30 @@ BG_SlopeWorldmodel_Unpack
 */
 void BG_SlopeWorldmodel_Unpack(const unsigned __int16 *slopePacked, vec3_t *outSlopeNormal)
 {
-  unsigned int v4; 
-  char v21; 
-  double v28; 
-  double v29; 
-  double v30; 
-  double v31; 
+  unsigned int v2; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t angles; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  v4 = *slopePacked;
-  __asm { vmovss  xmm1, cs:__real@43b40000; maxAbsValueSize }
-  _RDI = outSlopeNormal;
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(*slopePacked & 0x3F, *(float *)&_XMM1, 6u);
-  __asm
-  {
-    vmovss  xmm1, cs:s_maxWalkablePitchValue; maxAbsValueSize
-    vmovaps xmm6, xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackUnsignedFloat((v4 >> 6) & 0x1F, *(float *)&_XMM1, 5u);
-  __asm
-  {
-    vsubss  xmm0, xmm0, cs:__real@42b40000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+88h+angles+8], xmm1
-    vmovss  dword ptr [rsp+88h+angles], xmm0
-    vmovss  dword ptr [rsp+88h+angles+4], xmm6
-  }
-  AngleVectors(&angles, _RDI, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rdi]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm1
-    vsubss  xmm0, xmm1, cs:__real@3f800000
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm1, xmm1
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+88h+var_48], xmm1
-      vcvtss2sd xmm2, xmm5, xmm5
-      vmovsd  [rsp+88h+var_50], xmm2
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+88h+var_58], xmm3
-      vcvtss2sd xmm0, xmm4, xmm4
-      vmovsd  [rsp+88h+var_60], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 459, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( outSlopeNormal ) )", "(%g, %g, %g) len %g", v28, v29, v30, v31) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
+  v2 = *slopePacked;
+  v4 = MSG_UnpackUnsignedFloat(*slopePacked & 0x3F, 360.0, 6u);
+  v5 = *(float *)&v4;
+  v6 = MSG_UnpackUnsignedFloat((v2 >> 6) & 0x1F, s_maxWalkablePitchValue, 5u);
+  angles.v[2] = 0.0;
+  angles.v[0] = *(float *)&v6 - 90.0;
+  angles.v[1] = v5;
+  AngleVectors(&angles, outSlopeNormal, NULL, NULL);
+  v7 = outSlopeNormal->v[1];
+  v8 = outSlopeNormal->v[0];
+  v9 = outSlopeNormal->v[2];
+  v10 = (float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v9 * v9);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v10 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 459, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( outSlopeNormal ) )", "(%g, %g, %g) len %g", v8, v7, v9, fsqrt(v10)) )
+    __debugbreak();
 }
 
 /*
@@ -351,77 +224,65 @@ BG_Slope_CalcProperties
 */
 void BG_Slope_CalcProperties(const vec3_t *wishDir, const bool isOnSlope, const bool isOnStairs, const vec3_t *entityUp, const vec3_t *groundNormal, float *outAscentRatio, float *outSteepnessRatio)
 {
-  double v65; 
-  double v66; 
-  double v67; 
-  double v68; 
-  double v69; 
-  double v70; 
-  double v71; 
-  double v72; 
-  char v75; 
-  void *retaddr; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v13; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  double v23; 
+  float v24; 
+  const dvar_t *v25; 
+  float value; 
+  const dvar_t *v27; 
+  float v28; 
+  float v29; 
+  float v31; 
+  __int128 v32; 
+  float v33; 
+  float v34; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  __int128 v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  __int128 v56; 
+  float v60; 
+  __int64 v61; 
+  __int64 v62; 
+  vec3_t outProjectedPoint; 
+  vec3_t relativePoint; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovss  xmm3, dword ptr [r9+4]
-    vmovss  xmm4, dword ptr [r9]
-    vmovss  xmm5, dword ptr [r9+8]
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@3b03126f
-  }
-  _RBX = groundNormal;
-  __asm
-  {
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm1
-    vsubss  xmm0, xmm1, xmm7
-    vandps  xmm0, xmm0, xmm11
-    vcomiss xmm0, xmm8
-    vsqrtss xmm0, xmm1, xmm1
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+168h+var_128], xmm1
-    vcvtss2sd xmm2, xmm5, xmm5
-    vmovsd  [rsp+168h+var_130], xmm2
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+168h+var_138], xmm3
-    vcvtss2sd xmm0, xmm4, xmm4
-    vmovsd  [rsp+168h+var_140], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 16, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( entityUp ) )", "(%g, %g, %g) len %g", v65, v67, v69, v71) )
+  v7 = entityUp->v[1];
+  v8 = entityUp->v[0];
+  v9 = entityUp->v[2];
+  v10 = FLOAT_0_0020000001;
+  v13 = (float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v9 * v9);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 16, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( entityUp ) )", "(%g, %g, %g) len %g", v8, v7, v9, fsqrt(v13)) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm5, dword ptr [rbx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm1
-    vsubss  xmm0, xmm1, xmm7
-    vandps  xmm0, xmm0, xmm11
-    vcomiss xmm0, xmm8
-    vsqrtss xmm0, xmm1, xmm1
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+168h+var_128], xmm1
-    vcvtss2sd xmm2, xmm5, xmm5
-    vmovsd  [rsp+168h+var_130], xmm2
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  [rsp+168h+var_138], xmm3
-    vcvtss2sd xmm0, xmm4, xmm4
-    vmovsd  [rsp+168h+var_140], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 17, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( groundNormal ) )", "(%g, %g, %g) len %g", v66, v68, v70, v72) )
+  v16 = groundNormal->v[1];
+  v17 = groundNormal->v[0];
+  v18 = groundNormal->v[2];
+  v19 = (float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v18 * v18);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v19 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 17, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( groundNormal ) )", "(%g, %g, %g) len %g", v17, v16, v18, fsqrt(v19)) )
     __debugbreak();
   if ( !outAscentRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 18, ASSERT_TYPE_ASSERT, "(outAscentRatio)", (const char *)&queryFormat, "outAscentRatio") )
     __debugbreak();
@@ -431,31 +292,117 @@ void BG_Slope_CalcProperties(const vec3_t *wishDir, const bool isOnSlope, const 
   *outSteepnessRatio = 0.0;
   if ( isOnSlope || isOnStairs )
   {
-    __asm
+    v21 = LODWORD(groundNormal->v[0]);
+    *(float *)&v21 = (float)((float)(groundNormal->v[0] * entityUp->v[0]) + (float)(groundNormal->v[1] * entityUp->v[1])) + (float)(groundNormal->v[2] * entityUp->v[2]);
+    v20 = v21;
+    if ( COERCE_FLOAT(v21 & _xmm) < 0.99900001 )
     {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmulss  xmm2, xmm1, dword ptr [rbp+4]
-      vmulss  xmm3, xmm0, dword ptr [rbp+0]
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmulss  xmm1, xmm0, dword ptr [rbp+8]
-      vaddss  xmm4, xmm3, xmm2
-      vmovaps [rsp+168h+var_B8], xmm12
-      vaddss  xmm12, xmm4, xmm1
-      vmovaps [rsp+168h+var_D8], xmm14
-      vmovss  xmm14, cs:__real@3f7fbe77
-      vandps  xmm2, xmm12, xmm11
-      vcomiss xmm2, xmm14
-      vmovaps xmm12, [rsp+168h+var_B8]
-      vmovaps xmm14, [rsp+168h+var_D8]
+      if ( isOnStairs == isOnSlope )
+      {
+        LODWORD(v62) = isOnSlope;
+        LODWORD(v61) = isOnStairs;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 35, ASSERT_TYPE_ASSERT, "( isOnStairs ) != ( isOnSlope )", "%s != %s\n\t%i, %i", "isOnStairs", "isOnSlope", v61, v62) )
+          __debugbreak();
+      }
+      if ( isOnStairs )
+      {
+        _XMM0 = LODWORD(FLOAT_1_0);
+      }
+      else
+      {
+        v23 = I_fclamp(*(float *)&v21, -1.0, 1.0);
+        v24 = acosf_0(*(float *)&v23);
+        v25 = DCONST_DVARFLT_player_slope_minAngle;
+        if ( !DCONST_DVARFLT_player_slope_minAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_minAngle") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v25);
+        value = v25->current.value;
+        v27 = DCONST_DVARFLT_player_slope_maxAngle;
+        if ( !DCONST_DVARFLT_player_slope_maxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_maxAngle") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v27);
+        v28 = v27->current.value - value;
+        if ( v28 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 45, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( (slopeAngleDegMax - slopeAngleDegMin) )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "(slopeAngleDegMax - slopeAngleDegMin)", DOUBLE_9_999999974752427eN7, v28) )
+          __debugbreak();
+        v29 = (float)((float)(v24 * 57.295776) - value) / v28;
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        *outSteepnessRatio = v29;
+        *(double *)&_XMM0 = I_fclamp(v29, 0.0, 1.0);
+        v10 = FLOAT_0_0020000001;
+      }
+      *outSteepnessRatio = *(float *)&_XMM0;
+      if ( *(float *)&_XMM0 < 0.0 || *(float *)&_XMM0 > 1.0 )
+      {
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 49, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( *outSteepnessRatio ) && ( *outSteepnessRatio ) <= ( 1.0f )", "*outSteepnessRatio not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *outSteepnessRatio, *(double *)&_XMM0, DOUBLE_1_0) )
+          __debugbreak();
+      }
+      v31 = (float)(COERCE_FLOAT(v20 ^ _xmm) * groundNormal->v[0]) + entityUp->v[0];
+      v32 = v20 ^ _xmm;
+      v33 = (float)(COERCE_FLOAT(v20 ^ _xmm) * groundNormal->v[1]) + entityUp->v[1];
+      v34 = (float)(COERCE_FLOAT(v20 ^ _xmm) * groundNormal->v[2]) + entityUp->v[2];
+      *(float *)&v32 = fsqrt((float)((float)(v33 * v33) + (float)(v31 * v31)) + (float)(v34 * v34));
+      _XMM1 = v32;
+      __asm
+      {
+        vcmpless xmm0, xmm1, cs:__real@80000000
+        vblendvps xmm0, xmm1, xmm7, xmm0
+      }
+      v38 = v31 * (float)(1.0 / *(float *)&_XMM0);
+      v39 = v33 * (float)(1.0 / *(float *)&_XMM0);
+      v40 = v34 * (float)(1.0 / *(float *)&_XMM0);
+      v41 = (float)((float)(v39 * v39) + (float)(v38 * v38)) + (float)(v40 * v40);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v41 - 1.0) & _xmm) >= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 55, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( steepestAscentDir ) )", "(%g, %g, %g) len %g", v38, v39, v40, fsqrt(v41)) )
+        __debugbreak();
+      v42 = wishDir->v[1];
+      v43 = wishDir->v[0];
+      v44 = wishDir->v[2];
+      v45 = fsqrt((float)((float)(v43 * v43) + (float)(v42 * v42)) + (float)(v44 * v44));
+      if ( v45 > 0.001 )
+      {
+        v46 = (float)(v42 / v45) * groundNormal->v[1];
+        v47 = v43 / v45;
+        relativePoint.v[1] = v42 / v45;
+        v48 = (float)(v43 / v45) * groundNormal->v[0];
+        v49 = v44 / v45;
+        relativePoint.v[0] = v47;
+        v50 = v46 + v48;
+        v51 = v49 * groundNormal->v[2];
+        relativePoint.v[2] = v49;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v50 + v51) & _xmm) < 0.99900001 )
+        {
+          ProjectPointOnPlane(&relativePoint, groundNormal, &outProjectedPoint);
+          v52 = LODWORD(outProjectedPoint.v[0]);
+          v53 = outProjectedPoint.v[1];
+          v54 = outProjectedPoint.v[2];
+          v55 = (float)((float)(*(float *)&v52 * *(float *)&v52) + (float)(v53 * v53)) + (float)(v54 * v54);
+          if ( v55 <= 0.001 )
+          {
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 79, ASSERT_TYPE_ASSERT, "( 0.001f ) < ( Vec3LengthSq( projectedWishDir ) )", "%s < %s\n\t%g, %g", "EQUAL_EPSILON", "Vec3LengthSq( projectedWishDir )", DOUBLE_0_001000000047497451, v55) )
+              __debugbreak();
+            v52 = LODWORD(outProjectedPoint.v[0]);
+            v53 = outProjectedPoint.v[1];
+            v54 = outProjectedPoint.v[2];
+          }
+          v56 = v52;
+          *(float *)&v56 = fsqrt((float)((float)(*(float *)&v52 * *(float *)&v52) + (float)(v53 * v53)) + (float)(v54 * v54));
+          _XMM3 = v56;
+          __asm
+          {
+            vcmpless xmm0, xmm3, cs:__real@80000000
+            vblendvps xmm0, xmm3, xmm7, xmm0
+          }
+          outProjectedPoint.v[1] = v53 * (float)(1.0 / *(float *)&_XMM0);
+          outProjectedPoint.v[0] = *(float *)&v52 * (float)(1.0 / *(float *)&_XMM0);
+          outProjectedPoint.v[2] = v54 * (float)(1.0 / *(float *)&_XMM0);
+          *(double *)&_XMM0 = I_fclamp((float)((float)(v39 * outProjectedPoint.v[1]) + (float)(outProjectedPoint.v[0] * v38)) + (float)(outProjectedPoint.v[2] * v40), -1.0, 1.0);
+          v60 = 1.0 - (float)(acosf_0(*(float *)&_XMM0) * 0.63661975);
+          *outAscentRatio = v60;
+          if ( (v60 < -1.0 || v60 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 88, ASSERT_TYPE_SANITY, "( -1.0f ) <= ( *outAscentRatio ) && ( *outAscentRatio ) <= ( 1.0f )", "*outAscentRatio not in [-1.0f, 1.0f]\n\t%g not in [%g, %g]", v60, DOUBLE_N1_0, DOUBLE_1_0) )
+            __debugbreak();
+        }
+      }
     }
-  }
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
   }
 }
 
@@ -466,412 +413,274 @@ PM_SlopeWorldmodel_Update
 */
 void PM_SlopeWorldmodel_Update(const pmove_t *pm, pml_t *pml)
 {
-  bool v15; 
-  bool v16; 
-  bool v17; 
-  bool v21; 
-  bool v48; 
-  char v66; 
-  const dvar_t *v108; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  playerState_s *ps; 
+  bool v9; 
+  bool v10; 
+  bool v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  BgGroundState *ground; 
+  BgGroundPersistentState *groundPersistent; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float frametime; 
+  float v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __m128 v27; 
+  double v28; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
+  double Float_Internal_DebugName; 
+  float v33; 
+  float v34; 
+  float v35; 
+  double v36; 
+  __m128 v37; 
+  __int128 v42; 
+  float v43; 
+  __int128 v47; 
+  const dvar_t *v60; 
+  BgGroundPersistentState *v61; 
   const BgHandler *m_bgHandler; 
-  int v142; 
-  unsigned __int16 v143; 
-  unsigned __int16 v145; 
-  int v147; 
-  char v148; 
-  unsigned int v149; 
-  const BgHandler *v170; 
-  double v182; 
-  double v183; 
-  double v184; 
-  double v185; 
-  double v186; 
-  double v187; 
-  double v188; 
-  double v189; 
-  double v190; 
-  double v191; 
-  double v192; 
-  double v193; 
-  __int128 v194; 
+  BgGroundPersistentState *v63; 
+  float v64; 
+  double v67; 
+  int v68; 
+  unsigned __int16 v69; 
+  int v70; 
+  char v71; 
+  unsigned int v72; 
+  double v73; 
+  float v74; 
+  double v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  const BgHandler *v80; 
+  float v81; 
+  __int128 v82; 
   vec3_t forward; 
-  int v196; 
-  void *retaddr; 
+  float v84; 
+  float v85; 
+  float v86; 
+  __int128 v87; 
+  __int128 v88; 
+  __int128 v89; 
+  __int128 v90; 
 
-  _R11 = &retaddr;
-  _RBX = pml;
   if ( pm->groundPersistent )
   {
-    _R14 = pm->ps;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps xmmword ptr [r11-0A8h], xmm12
-      vmovaps xmmword ptr [r11-0B8h], xmm13
-      vmovaps xmmword ptr [r11-0C8h], xmm14
-    }
-    if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 287, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    ps = pm->ps;
+    v89 = v3;
+    v88 = v4;
+    v87 = v5;
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 287, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( _RBX->ranSlopeUpdate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 288, ASSERT_TYPE_ASSERT, "(!pml->ranSlopeUpdate)", (const char *)&queryFormat, "!pml->ranSlopeUpdate") )
+    if ( pml->ranSlopeUpdate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 288, ASSERT_TYPE_ASSERT, "(!pml->ranSlopeUpdate)", (const char *)&queryFormat, "!pml->ranSlopeUpdate") )
       __debugbreak();
-    _RBX->ranSlopeUpdate = 1;
-    v15 = PM_IsInAir(pm);
-    v16 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R14->pm_flags, ACTIVE, 6u);
+    pml->ranSlopeUpdate = 1;
+    v9 = PM_IsInAir(pm);
+    v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u);
     if ( !pm->ground && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 294, ASSERT_TYPE_ASSERT, "( pm->ground ) != ( nullptr )", "%s != %s\n\t%p, %p", "pm->ground", "nullptr", NULL, NULL) )
       __debugbreak();
-    v17 = v15 || v16 || !pm->ground->groundPlane;
-    __asm
+    v11 = v9 || v10 || !pm->ground->groundPlane;
+    v12 = worldUp_1.v[0];
+    v13 = worldUp_1.v[1];
+    v14 = worldUp_1.v[2];
+    if ( !v11 )
     {
-      vmovss  xmm10, dword ptr cs:worldUp_1
-      vmovss  xmm11, dword ptr cs:worldUp_1+4
-      vmovss  xmm12, dword ptr cs:worldUp_1+8
+      ground = pm->ground;
+      v12 = ground->trace.normal.v[0];
+      v13 = ground->trace.normal.v[1];
+      v14 = ground->trace.normal.v[2];
     }
-    v21 = !v17;
-    if ( !v17 )
+    groundPersistent = pm->groundPersistent;
+    v17 = FLOAT_0_0020000001;
+    v18 = groundPersistent->smoothedNormal.v[1];
+    v19 = groundPersistent->smoothedNormal.v[0];
+    v20 = groundPersistent->smoothedNormal.v[2];
+    v21 = (float)((float)(v19 * v19) + (float)(v18 * v18)) + (float)(v20 * v20);
+    v22 = fsqrt(v21);
+    if ( v22 >= 0.99900001 )
     {
-      _RAX = pm->ground;
-      __asm
+      frametime = pml->frametime;
+      v90 = v2;
+      if ( frametime > 0.000001 )
       {
-        vmovss  xmm10, dword ptr [rax+10h]
-        vmovss  xmm11, dword ptr [rax+14h]
-        vmovss  xmm12, dword ptr [rax+18h]
-      }
-    }
-    _RAX = pm->groundPersistent;
-    __asm
-    {
-      vmovss  xmm14, cs:__real@3f800000
-      vmovss  xmm13, cs:__real@3b03126f
-      vmovaps [rsp+150h+var_48+8], xmm6
-      vmovss  xmm4, dword ptr [rax+4]
-      vmovss  xmm3, dword ptr [rax]
-      vmovss  xmm5, dword ptr [rax+8]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm1, xmm2, xmm1
-      vsqrtss xmm2, xmm1, xmm1
-      vcomiss xmm2, cs:__real@3f7fbe77
-      vmovaps [rsp+150h+var_58+8], xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  xmm0, dword ptr [rbx+24h]
-      vmovaps [rsp+150h+var_78+8], xmm9
-      vmovsd  xmm9, cs:__real@3eb0c6f7a0b5ed8d
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, xmm9
-    }
-    if ( !v21 )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm1, xmm14
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, xmm13
-        vcvtss2sd xmm0, xmm2, xmm2
-        vmovsd  qword ptr [rsp+40h], xmm0
-        vcvtss2sd xmm1, xmm5, xmm5
-        vmovsd  [rsp+150h+var_118], xmm1
-        vcvtss2sd xmm2, xmm4, xmm4
-        vmovsd  [rsp+150h+var_120], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+150h+var_128], xmm3
-      }
-      v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 315, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( pm->groundPersistent->smoothedNormal ) )", "(%g, %g, %g) len %g", v182, v184, v186, v190);
-      if ( v48 )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+30h]
-        vsubss  xmm3, xmm0, dword ptr [rbx+40h]
-        vmovss  xmm1, dword ptr [r14+34h]
-        vsubss  xmm2, xmm1, dword ptr [rbx+44h]
-        vmovss  xmm0, dword ptr [r14+38h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+48h]
-        vmovsd  xmm13, cs:__real@3eb0c6f7a0000000
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm1, dword ptr [rbx+24h]
-        vmulss  xmm0, xmm4, xmm4
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcomisd xmm1, xmm9
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm6, xmm2, xmm2
-      }
-      if ( !v48 )
-      {
-        __asm
-        {
-          vmovsd  qword ptr [rsp+40h], xmm1
-          vmovsd  [rsp+150h+var_118], xmm13
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 318, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( pml->frametime )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "pml->frametime", v187, v191) )
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v21 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 315, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( pm->groundPersistent->smoothedNormal ) )", "(%g, %g, %g) len %g", v19, v18, v20, v22) )
           __debugbreak();
-      }
-      _RDI = DCONST_DVARFLT_bg_slope_blend_movespeed_min_threshold;
-      __asm { vdivss  xmm6, xmm6, dword ptr [rbx+24h] }
-      if ( !DCONST_DVARFLT_bg_slope_blend_movespeed_min_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_blend_movespeed_min_threshold") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-      if ( v66 )
-      {
-        __asm { vmovss  xmm13, cs:__real@3b03126f }
-      }
-      else
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_movespeed_min, "bg_slope_blend_movespeed_min");
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_movespeed_max, "bg_slope_blend_movespeed_max");
-        __asm
+        v24 = ps->origin.v[0] - pml->previous_origin.v[0];
+        v26 = LODWORD(ps->origin.v[1]);
+        *(float *)&v26 = ps->origin.v[1] - pml->previous_origin.v[1];
+        v25 = v26;
+        *(float *)&v26 = ps->origin.v[2] - pml->previous_origin.v[2];
+        v27.m128_u64[1] = 0i64;
+        v28 = pml->frametime;
+        v29 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v24 * v24)) + (float)(*(float *)&v26 * *(float *)&v26));
+        if ( v28 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 318, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( pml->frametime )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "pml->frametime", DOUBLE_9_999999974752427eN7, v28) )
+          __debugbreak();
+        v30 = DCONST_DVARFLT_bg_slope_blend_movespeed_min_threshold;
+        v31 = v29 / pml->frametime;
+        if ( !DCONST_DVARFLT_bg_slope_blend_movespeed_min_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_blend_movespeed_min_threshold") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v30);
+        if ( v31 < v30->current.value )
         {
-          vsubss  xmm1, xmm0, xmm7
-          vcomiss xmm1, xmm8
-        }
-        if ( v66 | v21 )
-        {
-          __asm { vxorps  xmm7, xmm7, xmm7 }
+          v17 = FLOAT_0_0020000001;
         }
         else
         {
-          __asm
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_movespeed_min, "bg_slope_blend_movespeed_min");
+          v33 = *(float *)&Float_Internal_DebugName;
+          *(double *)v27.m128_u64 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_movespeed_max, "bg_slope_blend_movespeed_max");
+          if ( (float)(v27.m128_f32[0] - v33) <= 0.0 )
           {
-            vsubss  xmm0, xmm6, xmm7
-            vdivss  xmm7, xmm0, xmm1
+            v34 = 0.0;
           }
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_time_min, "bg_slope_blend_time_min");
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_time_max, "bg_slope_blend_time_max");
-        __asm
-        {
-          vsubss  xmm1, xmm14, xmm7
-          vmulss  xmm2, xmm0, xmm1
-          vmovss  xmm1, dword ptr [rbx+24h]
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcomisd xmm1, xmm9
-          vmulss  xmm0, xmm6, xmm7
-          vaddss  xmm6, xmm2, xmm0
-        }
-        if ( v66 | v21 )
-        {
-          __asm
+          else
           {
-            vmovsd  qword ptr [rsp+40h], xmm1
-            vmovsd  [rsp+150h+var_118], xmm13
+            v27.m128_u64[1] = *((_QWORD *)&v25 + 1);
+            v34 = (float)(v31 - v33) / (float)(v27.m128_f32[0] - v33);
           }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 334, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( pml->frametime )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "pml->frametime", v188, v192) )
+          *(double *)v27.m128_u64 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_time_min, "bg_slope_blend_time_min");
+          v35 = v27.m128_f32[0];
+          *(double *)v27.m128_u64 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_slope_blend_time_max, "bg_slope_blend_time_max");
+          v37 = v27;
+          v36 = pml->frametime;
+          v37.m128_f32[0] = (float)(v27.m128_f32[0] * (float)(1.0 - v34)) + (float)(v35 * v34);
+          if ( v36 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 334, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) < ( pml->frametime )", "%s < %s\n\t%g, %g", "ZERO_EPSILON", "pml->frametime", DOUBLE_9_999999974752427eN7, v36) )
             __debugbreak();
-        }
-        __asm
-        {
-          vdivss  xmm5, xmm6, dword ptr [rbx+24h]
-          vmovss  xmm13, cs:__real@3b03126f
-        }
-        HIDWORD(v194) = 0;
-        __asm { vmovups xmm4, [rsp+150h+var_100] }
-        _RAX = pm->groundPersistent;
-        __asm
-        {
-          vshufps xmm5, xmm5, xmm5, 0
-          vrcpps  xmm1, xmm5
-          vmovss  xmm4, xmm4, xmm10
-          vmovss  xmm0, dword ptr [rax]
-          vinsertps xmm4, xmm4, xmm11, 10h
-          vinsertps xmm4, xmm4, xmm12, 20h ; ' '
-          vmovups [rsp+150h+var_100], xmm4
-        }
-        HIDWORD(v194) = 0;
-        __asm
-        {
-          vmovups xmm3, [rsp+150h+var_100]
-          vmovss  xmm3, xmm3, xmm0
-          vinsertps xmm3, xmm3, dword ptr [rax+4], 10h
-          vinsertps xmm3, xmm3, dword ptr [rax+8], 20h ; ' '
-          vmulps  xmm0, xmm1, xmm3
-          vsubps  xmm2, xmm3, xmm0
-          vcmpleps xmm0, xmm5, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-          vmulps  xmm1, xmm4, xmm1
-          vmovups [rsp+150h+var_100], xmm3
-          vaddps  xmm3, xmm1, xmm2
-          vblendvps xmm5, xmm3, xmm4, xmm0
-          vmulps  xmm2, xmm5, xmm5
-          vhaddps xmm0, xmm2, xmm2
-          vhaddps xmm0, xmm0, xmm0
-          vsqrtps xmm1, xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcomisd xmm1, xmm9
-          vinsertps xmm0, xmm2, xmm2, 8
-          vhaddps xmm1, xmm0, xmm0
-          vhaddps xmm0, xmm1, xmm1
-          vsqrtps xmm1, xmm0
-          vdivps  xmm2, xmm5, xmm1
-          vmovss  dword ptr [rax], xmm2
-          vextractps dword ptr [rax+4], xmm2, 1
-          vextractps dword ptr [rax+8], xmm2, 2
+          v37.m128_f32[0] = v37.m128_f32[0] / pml->frametime;
+          v17 = FLOAT_0_0020000001;
+          HIDWORD(v82) = 0;
+          _RAX = pm->groundPersistent;
+          _XMM5 = _mm_shuffle_ps(v37, v37, 0);
+          __asm { vrcpps  xmm1, xmm5 }
+          v42 = v82;
+          *(float *)&v42 = v12;
+          _XMM4 = v42;
+          v43 = _RAX->smoothedNormal.v[0];
+          __asm
+          {
+            vinsertps xmm4, xmm4, xmm11, 10h
+            vinsertps xmm4, xmm4, xmm12, 20h ; ' '
+          }
+          v82 = (__int128)_XMM4;
+          HIDWORD(v82) = 0;
+          v47 = v82;
+          *(float *)&v47 = v43;
+          _XMM3 = v47;
+          __asm
+          {
+            vinsertps xmm3, xmm3, dword ptr [rax+4], 10h
+            vinsertps xmm3, xmm3, dword ptr [rax+8], 20h ; ' '
+            vcmpleps xmm0, xmm5, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
+          }
+          v82 = (__int128)_XMM3;
+          _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM4, _XMM1), _mm128_sub_ps(_XMM3, _mm128_mul_ps(_XMM1, _XMM3)));
+          __asm { vblendvps xmm5, xmm3, xmm4, xmm0 }
+          _XMM2 = _mm128_mul_ps(_XMM5, _XMM5);
+          __asm
+          {
+            vhaddps xmm0, xmm2, xmm2
+            vhaddps xmm0, xmm0, xmm0
+          }
+          if ( _mm_sqrt_ps(_XMM0).m128_f32[0] >= 0.000001 )
+          {
+            __asm
+            {
+              vinsertps xmm0, xmm2, xmm2, 8
+              vhaddps xmm1, xmm0, xmm0
+              vhaddps xmm0, xmm1, xmm1
+            }
+            _XMM2 = _mm128_div_ps(_XMM5, _mm_sqrt_ps(_XMM0));
+            _RAX->smoothedNormal.v[0] = _XMM2.m128_f32[0];
+            __asm
+            {
+              vextractps dword ptr [rax+4], xmm2, 1
+              vextractps dword ptr [rax+8], xmm2, 2
+            }
+          }
         }
       }
     }
-    __asm { vmovaps xmm9, [rsp+150h+var_78+8] }
-    v108 = DCONST_DVARINT_bg_slope_debug;
-    __asm
+    else
     {
-      vmovaps xmm12, [rsp+150h+var_A8+8]
-      vmovaps xmm11, [rsp+150h+var_98+8]
-      vmovaps xmm10, [rsp+150h+var_88+8]
+      groundPersistent->smoothedNormal.v[0] = v12;
+      groundPersistent->smoothedNormal.v[1] = v13;
+      groundPersistent->smoothedNormal.v[2] = v14;
     }
+    v60 = DCONST_DVARINT_bg_slope_debug;
     if ( !DCONST_DVARINT_bg_slope_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_slope_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v108);
-    if ( v108->current.integer == _R14->clientNum && !pm->isExtrapolation && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
+    Dvar_CheckFrontendServerThread(v60);
+    if ( v60->current.integer == ps->clientNum && !pm->isExtrapolation && !pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
     {
-      __asm { vmovss  xmm2, cs:length }
+      v61 = pm->groundPersistent;
       m_bgHandler = pm->m_bgHandler;
-      __asm
+      v84 = (float)(length * v61->smoothedNormal.v[0]) + ps->origin.v[0];
+      v85 = (float)(length * v61->smoothedNormal.v[1]) + ps->origin.v[1];
+      v86 = (float)(length * v61->smoothedNormal.v[2]) + ps->origin.v[2];
+      ((void (__fastcall *)(const BgHandler *, vec3_t *, float *))m_bgHandler->DebugLineAll)(m_bgHandler, &ps->origin, &v84);
+      v63 = pm->groundPersistent;
+      if ( (float)((float)((float)(v63->smoothedNormal.v[0] * v63->smoothedNormal.v[0]) + (float)(v63->smoothedNormal.v[1] * v63->smoothedNormal.v[1])) + (float)(v63->smoothedNormal.v[2] * v63->smoothedNormal.v[2])) > 1.0e-12 )
       {
-        vmulss  xmm0, xmm2, dword ptr [rax]
-        vaddss  xmm1, xmm0, dword ptr [r14+30h]
-        vmovss  [rsp+150h+var_E0], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rax+4]
-        vaddss  xmm1, xmm0, dword ptr [r14+34h]
-        vmovss  [rsp+150h+anonymous_0], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rax+8]
-        vaddss  xmm1, xmm0, dword ptr [r14+38h]
-        vmovss  [rsp+150h+anonymous_1], xmm1
-      }
-      ((void (__fastcall *)(const BgHandler *, vec3_t *, int *))m_bgHandler->DebugLineAll)(m_bgHandler, &_R14->origin, &v196);
-      _RCX = pm->groundPersistent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vmovss  xmm2, dword ptr [rcx+4]
-        vmovss  xmm3, dword ptr [rcx+8]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcvtss2sd xmm0, xmm2, xmm2
-        vcomisd xmm0, cs:__real@3d719799812dea11
-      }
-      if ( v66 | v21 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rsp+150h+var_100], xmm0
-          vmovss  dword ptr [rsp+150h+var_100+4], xmm8
-          vmovss  dword ptr [rsp+150h+var_100+8], xmm8
-        }
+        vectoangles(&v63->smoothedNormal, (vec3_t *)&v82);
+        v64 = *(float *)&v82;
       }
       else
       {
-        vectoangles(&_RCX->smoothedNormal, (vec3_t *)&v194);
-        __asm { vmovss  xmm0, dword ptr [rsp+150h+var_100] }
+        v64 = 0.0;
+        *(float *)&v82 = 0.0;
+        *((float *)&v82 + 1) = 0.0;
+        *((float *)&v82 + 2) = 0.0;
       }
-      __asm
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      v67 = I_fclamp((float)((float)((float)(v64 * 0.0027777778) - *(float *)&_XMM3) * 360.0) + 90.0, 0.0, s_maxWalkablePitchValue);
+      v68 = MSG_PackUnsignedFloat(*(float *)&v67, s_maxWalkablePitchValue, 5u);
+      v69 = truncate_cast<unsigned short,int>(v68);
+      v70 = MSG_PackUnsignedFloat(*((float *)&v82 + 1), 360.0, 6u);
+      v71 = truncate_cast<unsigned short,int>(v70);
+      v69 <<= 6;
+      v72 = v69 | v71 & 0x3F;
+      v73 = MSG_UnpackUnsignedFloat(v69 & 0x3F | v71 & 0x3Fu, 360.0, 6u);
+      v74 = *(float *)&v73;
+      v75 = MSG_UnpackUnsignedFloat((v72 >> 6) & 0x1F, s_maxWalkablePitchValue, 5u);
+      *(float *)&v82 = *(float *)&v75 - 90.0;
+      *((float *)&v82 + 2) = 0.0;
+      *((float *)&v82 + 1) = v74;
+      AngleVectors((const vec3_t *)&v82, &forward, NULL, NULL);
+      v76 = forward.v[0];
+      v77 = forward.v[1];
+      v78 = forward.v[2];
+      v79 = (float)((float)(v76 * v76) + (float)(v77 * v77)) + (float)(v78 * v78);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v79 - 1.0) & _xmm) >= v17 )
       {
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vmovss  xmm6, cs:__real@43b40000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 1
-        vmovss  xmm2, cs:s_maxWalkablePitchValue; max
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm0, xmm1, cs:__real@42b40000; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  xmm1, cs:s_maxWalkablePitchValue; maxAbsValueSize }
-      v142 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 5u);
-      v143 = truncate_cast<unsigned short,int>(v142);
-      __asm { vmovss  xmm0, dword ptr [rsp+150h+var_100+4]; value }
-      v145 = v143;
-      __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-      v147 = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 6u);
-      v148 = truncate_cast<unsigned short,int>(v147);
-      v145 <<= 6;
-      v149 = v145 | v148 & 0x3F;
-      __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-      *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(v145 & 0x3F | v148 & 0x3Fu, *(float *)&_XMM1, 6u);
-      __asm
-      {
-        vmovss  xmm1, cs:s_maxWalkablePitchValue; maxAbsValueSize
-        vmovaps xmm6, xmm0
-      }
-      *(double *)&_XMM0 = MSG_UnpackUnsignedFloat((v149 >> 6) & 0x1F, *(float *)&_XMM1, 5u);
-      __asm
-      {
-        vsubss  xmm0, xmm0, cs:__real@42b40000
-        vmovss  dword ptr [rsp+150h+var_100], xmm0
-        vmovss  dword ptr [rsp+150h+var_100+8], xmm8
-        vmovss  dword ptr [rsp+150h+var_100+4], xmm6
-      }
-      AngleVectors((const vec3_t *)&v194, &forward, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+150h+forward]
-        vmovss  xmm5, dword ptr [rsp+150h+forward+4]
-        vmovss  xmm6, dword ptr [rsp+150h+forward+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vsubss  xmm0, xmm3, xmm14
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, xmm13
-      }
-      if ( !v66 )
-      {
-        __asm
-        {
-          vsqrtss xmm0, xmm3, xmm3
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  qword ptr [rsp+40h], xmm1
-          vcvtss2sd xmm2, xmm6, xmm6
-          vmovsd  [rsp+150h+var_118], xmm2
-          vcvtss2sd xmm3, xmm5, xmm5
-          vmovsd  [rsp+150h+var_120], xmm3
-          vcvtss2sd xmm0, xmm4, xmm4
-          vmovsd  [rsp+150h+var_128], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 459, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( outSlopeNormal ) )", "(%g, %g, %g) len %g", v183, v185, v189, v193) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 459, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( outSlopeNormal ) )", "(%g, %g, %g) len %g", forward.v[0], forward.v[1], forward.v[2], fsqrt(v79)) )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+150h+forward]
-          vmovss  xmm5, dword ptr [rsp+150h+forward+4]
-          vmovss  xmm6, dword ptr [rsp+150h+forward+8]
-        }
+        v76 = forward.v[0];
+        v77 = forward.v[1];
+        v78 = forward.v[2];
       }
-      __asm { vmovss  xmm3, cs:length }
-      v170 = pm->m_bgHandler;
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm3
-        vaddss  xmm1, xmm0, dword ptr [r14+30h]
-        vmovss  [rsp+150h+var_E0], xmm1
-        vmulss  xmm2, xmm5, xmm3
-        vaddss  xmm0, xmm2, dword ptr [r14+34h]
-        vmulss  xmm1, xmm6, xmm3
-        vaddss  xmm2, xmm1, dword ptr [r14+38h]
-        vmovss  [rsp+150h+anonymous_1], xmm2
-        vmovss  [rsp+150h+anonymous_0], xmm0
-      }
-      ((void (__fastcall *)(const BgHandler *, vec3_t *, int *))v170->DebugLineAll)(v170, &_R14->origin, &v196);
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+150h+var_58+8]
-      vmovaps xmm6, [rsp+150h+var_48+8]
-      vmovaps xmm8, [rsp+150h+var_68+8]
-      vmovaps xmm13, [rsp+150h+var_B8+8]
-      vmovaps xmm14, [rsp+150h+var_C8+8]
+      v80 = pm->m_bgHandler;
+      v84 = (float)(v76 * length) + ps->origin.v[0];
+      v81 = (float)(v77 * length) + ps->origin.v[1];
+      v86 = (float)(v78 * length) + ps->origin.v[2];
+      v85 = v81;
+      ((void (__fastcall *)(const BgHandler *, vec3_t *, float *))v80->DebugLineAll)(v80, &ps->origin, &v84);
     }
   }
 }
@@ -882,87 +691,32 @@ PM_Slope_BlendAscentAndSteepness
 ==============
 */
 
-float __fastcall PM_Slope_BlendAscentAndSteepness(double ascentRatio, double steepnessRatio, double levelGroundValue, double upSlopeValue)
+float __fastcall PM_Slope_BlendAscentAndSteepness(double ascentRatio, float steepnessRatio, float levelGroundValue, float upSlopeValue, float lateralSlopeValue, float downSlopeValue)
 {
-  bool v21; 
-  double v41; 
-  double v42; 
-  double v43; 
-  double v44; 
-  double v45; 
-  double v46; 
-  void *retaddr; 
+  float v7; 
+  float v9; 
+  float v10; 
 
-  _RAX = &retaddr;
-  __asm
+  v7 = *(float *)&ascentRatio;
+  if ( steepnessRatio < 0.0 || steepnessRatio > 1.0 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovsd  xmm10, cs:__real@3ff0000000000000
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm1, xmm9
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm12, xmm2
-    vmovaps xmm11, xmm3
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm0
-    vcomiss xmm1, xmm7
-    vmovsd  [rsp+0B8h+var_80], xmm10
-    vxorpd  xmm0, xmm0, xmm0
-    vmovsd  [rsp+0B8h+var_88], xmm0
-    vcvtss2sd xmm1, xmm8, xmm8
-    vmovsd  [rsp+0B8h+var_90], xmm1
-  }
-  v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 140, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( steepnessRatio ) && ( steepnessRatio ) <= ( 1.0f )", "steepnessRatio not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v41, v43, v45);
-  if ( v21 )
-    __debugbreak();
-  __asm
-  {
-    vcomiss xmm6, cs:__real@bf800000
-    vcomiss xmm6, xmm7
-  }
-  if ( v21 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@bff0000000000000
-      vmovsd  [rsp+0B8h+var_80], xmm10
-      vmovsd  [rsp+0B8h+var_88], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+0B8h+var_90], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 126, ASSERT_TYPE_ASSERT, "( -1.0f ) <= ( ascentRatio ) && ( ascentRatio ) <= ( 1.0f )", "ascentRatio not in [-1.0f, 1.0f]\n\t%g not in [%g, %g]", v42, v44, v46) )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 140, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( steepnessRatio ) && ( steepnessRatio ) <= ( 1.0f )", "steepnessRatio not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", steepnessRatio, *(double *)&_XMM0, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm
+  if ( (v7 < -1.0 || v7 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 126, ASSERT_TYPE_ASSERT, "( -1.0f ) <= ( ascentRatio ) && ( ascentRatio ) <= ( 1.0f )", "ascentRatio not in [-1.0f, 1.0f]\n\t%g not in [%g, %g]", v7, DOUBLE_N1_0, DOUBLE_1_0) )
+    __debugbreak();
+  if ( v7 < 0.0 )
   {
-    vcomiss xmm6, xmm9
-    vsubss  xmm0, xmm7, xmm6
-    vmulss  xmm1, xmm6, xmm11
-    vmulss  xmm2, xmm0, [rsp+0B8h+lateralSlopeValue]
+    v9 = 1.0 - COERCE_FLOAT(LODWORD(v7) ^ _xmm);
+    v10 = COERCE_FLOAT(LODWORD(v7) ^ _xmm) * downSlopeValue;
   }
-  _R11 = &retaddr;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vsubss  xmm0, xmm7, xmm8
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm3, xmm8
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmulss  xmm2, xmm0, xmm12
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vaddss  xmm0, xmm2, xmm1
+    v9 = 1.0 - v7;
+    v10 = v7 * upSlopeValue;
   }
-  return *(float *)&_XMM0;
+  return (float)((float)(1.0 - steepnessRatio) * levelGroundValue) + (float)((float)((float)(v9 * lateralSlopeValue) + v10) * steepnessRatio);
 }
 
 /*
@@ -977,11 +731,10 @@ void PM_Slope_CalcProperties(const vec3_t *wishDir, const pmove_t *pm, float *ou
   bool v10; 
   bool v11; 
   bool v12; 
-  char v24; 
-  float *outAscentRatioa; 
-  float *outSteepnessRatioa; 
-  double v33; 
-  double v34; 
+  BgGroundState *ground; 
+  float v14; 
+  float v15; 
+  float v16; 
   vec3_t outUp; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 94, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -1006,39 +759,12 @@ void PM_Slope_CalcProperties(const vec3_t *wishDir, const pmove_t *pm, float *ou
     if ( pm->ground->groundPlane )
     {
       WorldUpReferenceFrame::GetUpVector(&pm->refFrame, &outUp);
-      _RAX = pm->ground;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+14h]
-        vmovss  xmm5, dword ptr [rax+10h]
-        vmovss  xmm3, dword ptr [rax+18h]
-        vmulss  xmm0, xmm0, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm1, xmm2, xmm1
-        vsubss  xmm0, xmm1, cs:__real@3f800000
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@3b03126f
-      }
-      if ( !v24 )
-      {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rax+14h]
-          vsqrtss xmm0, xmm1, xmm1
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+0A8h+var_68], xmm1
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+0A8h+var_70], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vmovsd  [rsp+0A8h+outSteepnessRatio], xmm4
-          vcvtss2sd xmm2, xmm5, xmm5
-          vmovsd  [rsp+0A8h+outAscentRatio], xmm2
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 119, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( pm->ground->trace.normal ) )", "(%g, %g, %g) len %g", *(double *)&outAscentRatioa, *(double *)&outSteepnessRatioa, v33, v34) )
-          __debugbreak();
-      }
+      ground = pm->ground;
+      v14 = ground->trace.normal.v[0];
+      v15 = ground->trace.normal.v[2];
+      v16 = (float)((float)(v14 * v14) + (float)(ground->trace.normal.v[1] * ground->trace.normal.v[1])) + (float)(v15 * v15);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v16 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 119, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( pm->ground->trace.normal ) )", "(%g, %g, %g) len %g", v14, ground->trace.normal.v[1], v15, fsqrt(v16)) )
+        __debugbreak();
       BG_Slope_CalcProperties(wishDir, v10, v12, &outUp, &pm->ground->trace.normal, outAscentRatio, outSteepnessRatio);
     }
   }
@@ -1052,234 +778,263 @@ PM_Slope_GetBobCycleScale
 void PM_Slope_GetBobCycleScale(const pmove_t *pm, float *outStairsAscentRatio, float *outFrequencyScale, float *outAmplitudeScale)
 {
   playerState_s *ps; 
-  __int64 v10; 
+  __int64 v9; 
+  unsigned __int8 v10; 
   unsigned __int8 v11; 
   unsigned __int8 v12; 
-  unsigned __int8 v13; 
   bool IsSprinting; 
+  const dvar_t *v14; 
+  float value; 
+  const dvar_t *v16; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  const dvar_t *v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
+  const dvar_t *v32; 
+  float v33; 
+  const dvar_t *v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float v37; 
+  const dvar_t *v38; 
+  float v39; 
+  const dvar_t *v40; 
+  float v41; 
+  const dvar_t *v42; 
+  float v43; 
+  const dvar_t *v44; 
+  float v45; 
+  const dvar_t *v46; 
+  float v47; 
+  const dvar_t *v48; 
+  float v49; 
+  const dvar_t *v50; 
+  float v51; 
+  const dvar_t *v52; 
+  float v53; 
+  const dvar_t *v54; 
+  float v55; 
+  const dvar_t *v56; 
+  float v57; 
+  const dvar_t *v58; 
+  float v59; 
+  const dvar_t *v60; 
+  double v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float downSlopeValue; 
   float outSteepnessRatio; 
   float outAscentRatio; 
-  float *v86; 
-  float *v87; 
+  float *v70; 
+  float *v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  int v77[19]; 
 
-  v87 = outAmplitudeScale;
-  v86 = outFrequencyScale;
-  _R15 = outStairsAscentRatio;
+  v71 = outAmplitudeScale;
+  v70 = outFrequencyScale;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 211, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 211, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 212, ASSERT_TYPE_ASSERT, "(outStairsAscentRatio)", (const char *)&queryFormat, "outStairsAscentRatio") )
+  if ( !outStairsAscentRatio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 212, ASSERT_TYPE_ASSERT, "(outStairsAscentRatio)", (const char *)&queryFormat, "outStairsAscentRatio") )
     __debugbreak();
   if ( !outFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 213, ASSERT_TYPE_ASSERT, "(outFrequencyScale)", (const char *)&queryFormat, "outFrequencyScale") )
     __debugbreak();
   if ( !outAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 214, ASSERT_TYPE_ASSERT, "(outAmplitudeScale)", (const char *)&queryFormat, "outAmplitudeScale") )
     __debugbreak();
-  v10 = 0i64;
-  *_R15 = 0.0;
+  v9 = 0i64;
+  *outStairsAscentRatio = 0.0;
   *outFrequencyScale = 1.0;
   *outAmplitudeScale = 1.0;
-  v11 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 7u);
-  v12 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 8u);
-  v13 = v12;
-  if ( v11 )
+  v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 7u);
+  v11 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 8u);
+  v12 = v11;
+  if ( v10 )
   {
-    if ( v11 == v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 226, ASSERT_TYPE_ASSERT, "( isOnSlope ) != ( isOnStairs )", "%s != %s\n\t%i, %i", "isOnSlope", "isOnStairs", v11, v12) )
+    if ( v10 == v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 226, ASSERT_TYPE_ASSERT, "( isOnSlope ) != ( isOnStairs )", "%s != %s\n\t%i, %i", "isOnSlope", "isOnStairs", v10, v11) )
       __debugbreak();
   }
-  else if ( !v12 )
+  else if ( !v11 )
   {
     return;
   }
-  __asm { vmovaps [rsp+130h+var_50], xmm8 }
   IsSprinting = PM_IsSprinting(ps);
-  _RBX = DCONST_DVARFLT_player_slope_upBobFrequencyScale;
+  v14 = DCONST_DVARFLT_player_slope_upBobFrequencyScale;
   if ( IsSprinting )
-    v10 = 1i64;
+    v9 = 1i64;
   if ( !DCONST_DVARFLT_player_slope_upBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_upBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_lateralBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_C0], xmm0 }
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  v16 = DCONST_DVARFLT_player_slope_lateralBobFrequencyScale;
+  v72 = value;
   if ( !DCONST_DVARFLT_player_slope_lateralBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_lateralBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_downBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_BC], xmm0 }
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v16->current.value;
+  v18 = DCONST_DVARFLT_player_slope_downBobFrequencyScale;
+  v73 = v17;
   if ( !DCONST_DVARFLT_player_slope_downBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_downBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_upBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_B8], xmm0 }
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v18->current.value;
+  v20 = DCONST_DVARFLT_player_slope_upBobAmplitudeScale;
+  v74 = v19;
   if ( !DCONST_DVARFLT_player_slope_upBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_upBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_lateralBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_B4], xmm0 }
+  Dvar_CheckFrontendServerThread(v20);
+  v21 = v20->current.value;
+  v22 = DCONST_DVARFLT_player_slope_lateralBobAmplitudeScale;
+  v75 = v21;
   if ( !DCONST_DVARFLT_player_slope_lateralBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_lateralBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_downBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_B0], xmm0 }
+  Dvar_CheckFrontendServerThread(v22);
+  v23 = v22->current.value;
+  v24 = DCONST_DVARFLT_player_slope_downBobAmplitudeScale;
+  v76 = v23;
   if ( !DCONST_DVARFLT_player_slope_downBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_downBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_upBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_AC], xmm0 }
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = v24->current.value;
+  v26 = DCONST_DVARFLT_player_stairs_upBobFrequencyScale;
+  *(float *)v77 = v25;
   if ( !DCONST_DVARFLT_player_stairs_upBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_upBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_lateralBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_A8], xmm0 }
+  Dvar_CheckFrontendServerThread(v26);
+  v27 = v26->current.value;
+  v28 = DCONST_DVARFLT_player_stairs_lateralBobFrequencyScale;
+  *(float *)&v77[1] = v27;
   if ( !DCONST_DVARFLT_player_stairs_lateralBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_lateralBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_downBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_A4], xmm0 }
+  Dvar_CheckFrontendServerThread(v28);
+  v29 = v28->current.value;
+  v30 = DCONST_DVARFLT_player_stairs_downBobFrequencyScale;
+  *(float *)&v77[2] = v29;
   if ( !DCONST_DVARFLT_player_stairs_downBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_downBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_upBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_A0], xmm0 }
+  Dvar_CheckFrontendServerThread(v30);
+  v31 = v30->current.value;
+  v32 = DCONST_DVARFLT_player_stairs_upBobAmplitudeScale;
+  *(float *)&v77[3] = v31;
   if ( !DCONST_DVARFLT_player_stairs_upBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_upBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_lateralBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_9C], xmm0 }
+  Dvar_CheckFrontendServerThread(v32);
+  v33 = v32->current.value;
+  v34 = DCONST_DVARFLT_player_stairs_lateralBobAmplitudeScale;
+  *(float *)&v77[4] = v33;
   if ( !DCONST_DVARFLT_player_stairs_lateralBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_lateralBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_downBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_98], xmm0 }
+  Dvar_CheckFrontendServerThread(v34);
+  v35 = v34->current.value;
+  v36 = DCONST_DVARFLT_player_stairs_downBobAmplitudeScale;
+  *(float *)&v77[5] = v35;
   if ( !DCONST_DVARFLT_player_stairs_downBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_downBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_upBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_94], xmm0 }
+  Dvar_CheckFrontendServerThread(v36);
+  v37 = v36->current.value;
+  v38 = DCONST_DVARFLT_player_slope_sprint_upBobFrequencyScale;
+  *(float *)&v77[6] = v37;
   if ( !DCONST_DVARFLT_player_slope_sprint_upBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_upBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_lateralBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_90], xmm0 }
+  Dvar_CheckFrontendServerThread(v38);
+  v39 = v38->current.value;
+  v40 = DCONST_DVARFLT_player_slope_sprint_lateralBobFrequencyScale;
+  *(float *)&v77[7] = v39;
   if ( !DCONST_DVARFLT_player_slope_sprint_lateralBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_lateralBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_downBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_8C], xmm0 }
+  Dvar_CheckFrontendServerThread(v40);
+  v41 = v40->current.value;
+  v42 = DCONST_DVARFLT_player_slope_sprint_downBobFrequencyScale;
+  *(float *)&v77[8] = v41;
   if ( !DCONST_DVARFLT_player_slope_sprint_downBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_downBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_upBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_88], xmm0 }
+  Dvar_CheckFrontendServerThread(v42);
+  v43 = v42->current.value;
+  v44 = DCONST_DVARFLT_player_slope_sprint_upBobAmplitudeScale;
+  *(float *)&v77[9] = v43;
   if ( !DCONST_DVARFLT_player_slope_sprint_upBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_upBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_lateralBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_84], xmm0 }
+  Dvar_CheckFrontendServerThread(v44);
+  v45 = v44->current.value;
+  v46 = DCONST_DVARFLT_player_slope_sprint_lateralBobAmplitudeScale;
+  *(float *)&v77[10] = v45;
   if ( !DCONST_DVARFLT_player_slope_sprint_lateralBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_lateralBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_slope_sprint_downBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_80], xmm0 }
+  Dvar_CheckFrontendServerThread(v46);
+  v47 = v46->current.value;
+  v48 = DCONST_DVARFLT_player_slope_sprint_downBobAmplitudeScale;
+  *(float *)&v77[11] = v47;
   if ( !DCONST_DVARFLT_player_slope_sprint_downBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_sprint_downBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_upBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_7C], xmm0 }
+  Dvar_CheckFrontendServerThread(v48);
+  v49 = v48->current.value;
+  v50 = DCONST_DVARFLT_player_stairs_sprint_upBobFrequencyScale;
+  *(float *)&v77[12] = v49;
   if ( !DCONST_DVARFLT_player_stairs_sprint_upBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_upBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_lateralBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_78], xmm0 }
+  Dvar_CheckFrontendServerThread(v50);
+  v51 = v50->current.value;
+  v52 = DCONST_DVARFLT_player_stairs_sprint_lateralBobFrequencyScale;
+  *(float *)&v77[13] = v51;
   if ( !DCONST_DVARFLT_player_stairs_sprint_lateralBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_lateralBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_downBobFrequencyScale;
-  __asm { vmovss  [rbp+57h+var_74], xmm0 }
+  Dvar_CheckFrontendServerThread(v52);
+  v53 = v52->current.value;
+  v54 = DCONST_DVARFLT_player_stairs_sprint_downBobFrequencyScale;
+  *(float *)&v77[14] = v53;
   if ( !DCONST_DVARFLT_player_stairs_sprint_downBobFrequencyScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_downBobFrequencyScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_upBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_70], xmm0 }
+  Dvar_CheckFrontendServerThread(v54);
+  v55 = v54->current.value;
+  v56 = DCONST_DVARFLT_player_stairs_sprint_upBobAmplitudeScale;
+  *(float *)&v77[15] = v55;
   if ( !DCONST_DVARFLT_player_stairs_sprint_upBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_upBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_lateralBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_6C], xmm0 }
+  Dvar_CheckFrontendServerThread(v56);
+  v57 = v56->current.value;
+  v58 = DCONST_DVARFLT_player_stairs_sprint_lateralBobAmplitudeScale;
+  *(float *)&v77[16] = v57;
   if ( !DCONST_DVARFLT_player_stairs_sprint_lateralBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_lateralBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_player_stairs_sprint_downBobAmplitudeScale;
-  __asm { vmovss  [rbp+57h+var_68], xmm0 }
+  Dvar_CheckFrontendServerThread(v58);
+  v59 = v58->current.value;
+  v60 = DCONST_DVARFLT_player_stairs_sprint_downBobAmplitudeScale;
+  *(float *)&v77[17] = v59;
   if ( !DCONST_DVARFLT_player_stairs_sprint_downBobAmplitudeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_sprint_downBobAmplitudeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rbp+57h+var_64], xmm0
-  }
-  _RBX = 3 * (v13 + 2 * v10);
+  Dvar_CheckFrontendServerThread(v60);
+  v77[18] = v60->current.integer;
   PM_Slope_CalcProperties(&ps->velocity, pm, &outAscentRatio, &outSteepnessRatio);
-  __asm { vmovss  xmm8, [rsp+130h+outAscentRatio] }
-  if ( v13 )
-    __asm { vmovss  dword ptr [r15], xmm8 }
-  __asm
-  {
-    vmovss  xmm1, [rbp+rbx*8+57h+var_BC]
-    vmovss  xmm0, [rbp+rbx*8+57h+var_B8]
-    vmovss  xmm3, [rbp+rbx*8+57h+var_C0]; upSlopeValue
-    vmovss  xmm2, cs:__real@3f800000; levelGroundValue
-    vmovss  [rsp+130h+downSlopeValue], xmm0
-    vmovss  dword ptr [rsp+130h+fmt], xmm1
-    vmovss  xmm1, [rsp+130h+outSteepnessRatio]; steepnessRatio
-    vmovaps xmm0, xmm8; ascentRatio
-  }
-  *(float *)&_XMM0 = PM_Slope_BlendAscentAndSteepness(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovss  xmm3, [rbp+rbx*8+57h+var_AC] }
-  _RAX = v86;
-  __asm
-  {
-    vmovss  xmm4, [rbp+rbx*8+57h+var_B0]
-    vmovss  xmm2, cs:__real@3f800000; levelGroundValue
-    vmovss  xmm1, [rsp+130h+outSteepnessRatio]; steepnessRatio
-    vmovss  [rsp+130h+downSlopeValue], xmm3
-    vmovss  xmm3, [rbp+rbx*8+57h+var_B4]; upSlopeValue
-    vmovss  dword ptr [rax], xmm0
-    vmovaps xmm0, xmm8; ascentRatio
-    vmovss  dword ptr [rsp+130h+fmt], xmm4
-  }
-  *(float *)&_XMM0 = PM_Slope_BlendAscentAndSteepness(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-  _RAX = v87;
-  __asm
-  {
-    vmovaps xmm8, [rsp+130h+var_50]
-    vmovss  dword ptr [rax], xmm0
-  }
+  *(_QWORD *)&v61 = LODWORD(outAscentRatio);
+  if ( v12 )
+    *outStairsAscentRatio = outAscentRatio;
+  v62 = PM_Slope_BlendAscentAndSteepness(v61, outSteepnessRatio, 1.0, *(&v72 + 12 * v9 + 6 * v12), *(&v73 + 12 * v9 + 6 * v12), *(&v74 + 12 * v9 + 6 * v12));
+  v63 = *(float *)&v77[12 * v9 - 1 + 6 * v12];
+  v64 = outSteepnessRatio;
+  downSlopeValue = *(float *)&v77[12 * v9 + 6 * v12];
+  v65 = *(&v75 + 12 * v9 + 6 * v12);
+  *v70 = v62;
+  v66 = PM_Slope_BlendAscentAndSteepness(v61, v64, 1.0, v65, v63, downSlopeValue);
+  *v71 = v66;
 }
 
 /*
@@ -1291,10 +1046,17 @@ float PM_Slope_GetSpeedScale(const vec3_t *wishDir, const pmove_t *pm)
 {
   playerState_s *ps; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
+  unsigned __int8 v6; 
+  bool v7; 
   unsigned __int8 v8; 
-  bool v9; 
-  unsigned __int8 v10; 
-  const char *v17; 
+  const dvar_t *v10; 
+  float downSlopeValue; 
+  const dvar_t *v12; 
+  float value; 
+  const dvar_t *v14; 
+  const char *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
   float outSteepnessRatio; 
   float outAscentRatio; 
 
@@ -1304,75 +1066,52 @@ float PM_Slope_GetSpeedScale(const vec3_t *wishDir, const pmove_t *pm)
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 149, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   p_pm_flags = &ps->pm_flags;
-  v8 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 7u);
-  v9 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 8u);
-  v10 = v9;
-  if ( v8 || v9 )
+  v6 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 7u);
+  v7 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 8u);
+  v8 = v7;
+  if ( !v6 && !v7 )
+    return FLOAT_1_0;
+  PM_Slope_CalcProperties(wishDir, pm, &outAscentRatio, &outSteepnessRatio);
+  if ( v6 == v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 163, ASSERT_TYPE_ASSERT, "( isOnSlope ) != ( isOnStairs )", "%s != %s\n\t%i, %i", "isOnSlope", "isOnStairs", v6, v8) )
+    __debugbreak();
+  if ( v6 )
   {
-    PM_Slope_CalcProperties(wishDir, pm, &outAscentRatio, &outSteepnessRatio);
-    if ( v8 == v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_slope_stairs.cpp", 163, ASSERT_TYPE_ASSERT, "( isOnSlope ) != ( isOnStairs )", "%s != %s\n\t%i, %i", "isOnSlope", "isOnStairs", v8, v10) )
+    v10 = DCONST_DVARFLT_player_slope_downSpeedScale;
+    if ( !DCONST_DVARFLT_player_slope_downSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_downSpeedScale") )
       __debugbreak();
-    __asm
-    {
-      vmovaps [rsp+88h+var_28], xmm6
-      vmovaps [rsp+88h+var_38], xmm7
-    }
-    if ( v8 )
-    {
-      _RSI = DCONST_DVARFLT_player_slope_downSpeedScale;
-      if ( !DCONST_DVARFLT_player_slope_downSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_downSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_player_slope_lateralSpeedScale;
-      if ( !DCONST_DVARFLT_player_slope_lateralSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_lateralSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_player_slope_upSpeedScale;
-      if ( DCONST_DVARFLT_player_slope_upSpeedScale )
-        goto LABEL_32;
-      v17 = "player_slope_upSpeedScale";
-    }
-    else
-    {
-      _RSI = DCONST_DVARFLT_player_stairs_downSpeedScale;
-      if ( !DCONST_DVARFLT_player_stairs_downSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_downSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_player_stairs_lateralSpeedScale;
-      if ( !DCONST_DVARFLT_player_stairs_lateralSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_lateralSpeedScale") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-      _RSI = DCONST_DVARFLT_player_stairs_upSpeedScale;
-      if ( DCONST_DVARFLT_player_stairs_upSpeedScale )
-        goto LABEL_32;
-      v17 = "player_stairs_upSpeedScale";
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v17) )
+    Dvar_CheckFrontendServerThread(v10);
+    downSlopeValue = v10->current.value;
+    v12 = DCONST_DVARFLT_player_slope_lateralSpeedScale;
+    if ( !DCONST_DVARFLT_player_slope_lateralSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_slope_lateralSpeedScale") )
       __debugbreak();
-LABEL_32:
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+28h]; upSlopeValue
-      vmovss  xmm2, cs:__real@3f800000; levelGroundValue
-      vmovss  xmm1, [rsp+88h+outSteepnessRatio]; steepnessRatio
-      vmovss  xmm0, [rsp+88h+outAscentRatio]; ascentRatio
-      vmovss  [rsp+88h+downSlopeValue], xmm7
-      vmovss  dword ptr [rsp+88h+fmt], xmm6
-    }
-    *(float *)&_XMM0 = PM_Slope_BlendAscentAndSteepness(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm7, [rsp+88h+var_38]
-      vmovaps xmm6, [rsp+88h+var_28]
-    }
-    return *(float *)&_XMM0;
+    Dvar_CheckFrontendServerThread(v12);
+    value = v12->current.value;
+    v14 = DCONST_DVARFLT_player_slope_upSpeedScale;
+    if ( DCONST_DVARFLT_player_slope_upSpeedScale )
+      goto LABEL_32;
+    v15 = "player_slope_upSpeedScale";
   }
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  else
+  {
+    v16 = DCONST_DVARFLT_player_stairs_downSpeedScale;
+    if ( !DCONST_DVARFLT_player_stairs_downSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_downSpeedScale") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v16);
+    downSlopeValue = v16->current.value;
+    v17 = DCONST_DVARFLT_player_stairs_lateralSpeedScale;
+    if ( !DCONST_DVARFLT_player_stairs_lateralSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_stairs_lateralSpeedScale") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v17);
+    value = v17->current.value;
+    v14 = DCONST_DVARFLT_player_stairs_upSpeedScale;
+    if ( DCONST_DVARFLT_player_stairs_upSpeedScale )
+      goto LABEL_32;
+    v15 = "player_stairs_upSpeedScale";
+  }
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v15) )
+    __debugbreak();
+LABEL_32:
+  Dvar_CheckFrontendServerThread(v14);
+  return PM_Slope_BlendAscentAndSteepness(COERCE_DOUBLE((unsigned __int64)LODWORD(outAscentRatio)), outSteepnessRatio, 1.0, v14->current.value, value, downSlopeValue);
 }
 

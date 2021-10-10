@@ -350,12 +350,14 @@ void SD_MixerServiceCallback(const AD_MixerServiceCallbackData *const data)
   unsigned __int64 v7; 
   __m256 *v8; 
   const __m256 *v9; 
+  __m256i *v10; 
+  signed __int64 v11; 
   SD_DSP::ConstInterleavedBufferRefType<SD_DSP::AtmosFrame,256> src; 
-  SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256> v15; 
-  __int64 v16; 
+  SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256> v13; 
+  __int64 v14; 
   AD_DeviceConfig destDevInfo; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   if ( s_mixerActive )
   {
     Sys_ProfBeginNamedEvent(0xFF00u, "SD_MixerServiceCallback");
@@ -376,9 +378,9 @@ void SD_MixerServiceCallback(const AD_MixerServiceCallbackData *const data)
         {
           if ( outputEndpointViews[i].mixBed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 422, ASSERT_TYPE_ASSERT, "(AD_MixBedToChannelCount( data->outputEndpointViews[i].mixBed ) == (AD_MixBed_Channel_Count)SD_SubmixBus::SamplesPerFrame)", (const char *)&queryFormat, "AD_MixBedToChannelCount( data->outputEndpointViews[i].mixBed ) == (AD_MixBed_Channel_Count)SD_SubmixBus::SamplesPerFrame") )
             __debugbreak();
-          v15.data = (SD_DSP::AtmosFrame *)SD_DSP::Buffer<SD_DSP::AtmosFrame,256>::GetInterleavedView(interleavedBuffer, (float *const)v2);
+          v13.data = (SD_DSP::AtmosFrame *)SD_DSP::Buffer<SD_DSP::AtmosFrame,256>::GetInterleavedView(interleavedBuffer, (float *const)v2);
           src.data = SD_GetConstInterleavedBus(0xFu).data;
-          SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256>::CopyFrom(&v15, &src);
+          SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256>::CopyFrom(&v13, &src);
         }
       }
       else
@@ -435,19 +437,14 @@ void SD_MixerServiceCallback(const AD_MixerServiceCallbackData *const data)
           __debugbreak();
         v8 = SD_DSP::RegisterTraits<__m256>::Upcast((float *const)interleavedBuffer);
         v9 = SD_DSP::RegisterTraits<__m256>::Upcast(&g_sd.busBuffers[57344]);
-        _RCX = v8 + 1;
-        _RAX = (char *)v9 - (char *)v8;
+        v10 = (__m256i *)&v8[1];
+        v11 = (char *)v9 - (char *)v8;
         v2 = 256i64;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax+rcx-20h]
-            vmovups ymmword ptr [rcx-20h], ymm0
-            vmovups ymm1, ymmword ptr [rax+rcx]
-            vmovups ymmword ptr [rcx], ymm1
-          }
-          _RCX += 2;
+          v10[-1] = *(__m256i *)((char *)&v10[-1] + v11);
+          *v10 = *(__m256i *)((char *)v10 + v11);
+          v10 += 2;
           --v2;
         }
         while ( v2 );
@@ -476,29 +473,26 @@ void SD_OutputClosePadPort(int localControllerIndex)
 {
   unsigned int v2; 
   int *v3; 
+  AD_UserInfo *v4; 
 
   if ( SND_Active() )
   {
     v2 = 0;
     v3 = s_userToControllerIndexLookup;
-    _RBX = s_userInfoCache;
+    v4 = s_userInfoCache;
     do
     {
       if ( *v3 == localControllerIndex )
       {
-        if ( _RBX->userId == AD_InvalidUser.userId && _RBX->platformId == AD_InvalidUser.platformId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 157, ASSERT_TYPE_ASSERT, "(s_userInfoCache[i] != AD_InvalidUser)", (const char *)&queryFormat, "s_userInfoCache[i] != AD_InvalidUser") )
+        if ( v4->userId == AD_InvalidUser.userId && v4->platformId == AD_InvalidUser.platformId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 157, ASSERT_TYPE_ASSERT, "(s_userInfoCache[i] != AD_InvalidUser)", (const char *)&queryFormat, "s_userInfoCache[i] != AD_InvalidUser") )
           __debugbreak();
         AD_DeactivateUser(&s_userInfoCache[v2]);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-          vmovups xmmword ptr [rbx], xmm0
-        }
+        *v4 = AD_InvalidUser;
         *v3 = -1;
       }
       ++v2;
       ++v3;
-      ++_RBX;
+      ++v4;
     }
     while ( v2 < 2 );
   }
@@ -514,8 +508,10 @@ void SD_OutputEnableUserSystems(bool enable)
   int *v2; 
   int v3; 
   unsigned __int64 PlatformUserId; 
-  unsigned int v6; 
-  unsigned int v9; 
+  unsigned int v5; 
+  AD_UserInfo v6; 
+  unsigned int v7; 
+  AD_UserInfo *v8; 
   AD_UserInfo userInfo; 
 
   if ( SND_Active() && s_userSystemEnabled != enable )
@@ -523,7 +519,6 @@ void SD_OutputEnableUserSystems(bool enable)
     v2 = s_userToControllerIndexLookup;
     v3 = 0;
     s_userSystemEnabled = enable;
-    _R15 = s_userInfoCache;
     do
     {
       if ( enable )
@@ -537,18 +532,17 @@ void SD_OutputEnableUserSystems(bool enable)
               PlatformUserId = Live_GetPlatformUserId(v3);
               userInfo.userId = 0;
               userInfo.platformId = PlatformUserId;
-              v6 = AD_ActivateUser(&userInfo);
-              if ( v6 == 2 )
+              v5 = AD_ActivateUser(&userInfo);
+              if ( v5 == 2 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 116, ASSERT_TYPE_ASSERT, "(h != AD_InvalidUserHandle)", (const char *)&queryFormat, "h != AD_InvalidUserHandle") )
                   __debugbreak();
               }
               else
               {
-                __asm { vmovups xmm0, xmmword ptr [rsp+68h+userInfo.userId] }
-                s_userToControllerIndexLookup[v6] = v3;
-                _RAX = 2i64 * v6;
-                __asm { vmovups xmmword ptr [r15+rax*8], xmm0 }
+                v6 = userInfo;
+                s_userToControllerIndexLookup[v5] = v3;
+                s_userInfoCache[v5] = v6;
               }
             }
           }
@@ -560,27 +554,23 @@ void SD_OutputEnableUserSystems(bool enable)
       }
       else if ( SND_Active() )
       {
-        v9 = 0;
-        _RBX = s_userInfoCache;
+        v7 = 0;
+        v8 = s_userInfoCache;
         do
         {
           if ( *v2 == v3 )
           {
-            if ( _RBX->userId == AD_InvalidUser.userId && _RBX->platformId == AD_InvalidUser.platformId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 157, ASSERT_TYPE_ASSERT, "(s_userInfoCache[i] != AD_InvalidUser)", (const char *)&queryFormat, "s_userInfoCache[i] != AD_InvalidUser") )
+            if ( v8->userId == AD_InvalidUser.userId && v8->platformId == AD_InvalidUser.platformId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_output_libad.cpp", 157, ASSERT_TYPE_ASSERT, "(s_userInfoCache[i] != AD_InvalidUser)", (const char *)&queryFormat, "s_userInfoCache[i] != AD_InvalidUser") )
               __debugbreak();
-            AD_DeactivateUser(&s_userInfoCache[v9]);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-              vmovups xmmword ptr [rbx], xmm0
-            }
+            AD_DeactivateUser(&s_userInfoCache[v7]);
+            *v8 = AD_InvalidUser;
             *v2 = -1;
           }
-          ++v9;
+          ++v7;
           ++v2;
-          ++_RBX;
+          ++v8;
         }
-        while ( v9 < 2 );
+        while ( v7 < 2 );
         v2 = s_userToControllerIndexLookup;
       }
       ++v3;
@@ -607,12 +597,9 @@ SD_OutputInit
 */
 void SD_OutputInit(bool __formal)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-    vinsertf128 ymm0, ymm0, xmm0, 1
-    vmovups ymmword ptr cs:s_userInfoCache.userId, ymm0
-  }
+  _YMM0 = (__m256i)*(unsigned __int128 *)&AD_InvalidUser;
+  __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+  *(__m256i *)&s_userInfoCache[0].userId = _YMM0;
   *(_QWORD *)s_userToControllerIndexLookup = -1i64;
   s_mixerActive = 1;
 }
@@ -625,6 +612,7 @@ SD_OutputInitPadPort
 void SD_OutputInitPadPort(int localControllerIndex)
 {
   unsigned int v2; 
+  AD_UserInfo v3; 
   AD_UserInfo userInfo; 
 
   if ( Live_IsSignedIn(localControllerIndex) )
@@ -641,11 +629,9 @@ void SD_OutputInitPadPort(int localControllerIndex)
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rsp+48h+userInfo.userId] }
-        _RCX = 0x140000000ui64;
+        v3 = userInfo;
         s_userToControllerIndexLookup[v2] = localControllerIndex;
-        _RAX = 2i64 * v2;
-        __asm { vmovups xmmword ptr rva s_userInfoCache.userId[rcx+rax*8], xmm0 }
+        s_userInfoCache[v2] = v3;
       }
     }
   }

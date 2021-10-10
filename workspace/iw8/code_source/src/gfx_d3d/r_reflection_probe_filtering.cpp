@@ -575,9 +575,10 @@ FilteringComputeCmdSequence::AddBruteForceFilterCmd
 bool FilteringComputeCmdSequence::AddBruteForceFilterCmd(FilteringComputeCmdSequence *this, const GfxShaderTextureView *sourceTexture, const unsigned int sourceTextureSize, const FilteringComputeCmdSequence::TargetImage destination, const unsigned int destinationMipLevel, const float specularGloss, GfxWrappedRWBuffer *shCoeffs)
 {
   ReflectionProbeFilteringComputeCmd *v11; 
+  ReflectionProbeFilteringComputeCmd *v12; 
 
   v11 = FilteringComputeCmdSequence::AddCommand(this);
-  _RDI = v11;
+  v12 = v11;
   if ( v11 )
   {
     v11->src2DArrayView = sourceTexture;
@@ -586,17 +587,16 @@ bool FilteringComputeCmdSequence::AddBruteForceFilterCmd(FilteringComputeCmdSequ
     v11->shaderType = BRUTE_FORCE;
     v11->dst2DArrayRWView = FilteringComputeCmdSequence::GetTargetTextureRWView(this, destination, destinationMipLevel);
     LODWORD(v11) = ReflectionProbeCompressionMaxResolution();
-    __asm { vmovss  xmm0, [rsp+28h+specularGloss] }
-    _RDI->dstMipLevel = destinationMipLevel;
-    _RDI->dstImageSize = (int)v11 >> destinationMipLevel;
-    _RDI->shCoeffs = shCoeffs;
+    v12->dstMipLevel = destinationMipLevel;
+    v12->dstImageSize = (int)v11 >> destinationMipLevel;
+    v12->shCoeffs = shCoeffs;
     LOBYTE(v11) = 1;
-    __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-    _RDI->sampleCount = 0;
-    _RDI->firstFaceIndex = 0;
-    _RDI->faceCount = 6;
-    _RDI->waitLabel.labelAddress = NULL;
-    _RDI->waitLabel.value = 0;
+    v12->specularGloss = specularGloss;
+    v12->sampleCount = 0;
+    v12->firstFaceIndex = 0;
+    v12->faceCount = 6;
+    v12->waitLabel.labelAddress = NULL;
+    v12->waitLabel.value = 0;
   }
   return (char)v11;
 }
@@ -611,11 +611,12 @@ bool FilteringComputeCmdSequence::AddBruteForceFilterFromTargetCmd(FilteringComp
   int v11; 
   const GfxShaderTextureView *SourceTextureView; 
   ReflectionProbeFilteringComputeCmd *v13; 
+  ReflectionProbeFilteringComputeCmd *v14; 
 
   v11 = ReflectionProbeCompressionMaxResolution() >> sourceMipLevel;
   SourceTextureView = FilteringComputeCmdSequence::GetSourceTextureView(this, source, sourceMipLevel);
   v13 = FilteringComputeCmdSequence::AddCommand(this);
-  _RDI = v13;
+  v14 = v13;
   if ( v13 )
   {
     v13->src2DArrayView = SourceTextureView;
@@ -624,17 +625,16 @@ bool FilteringComputeCmdSequence::AddBruteForceFilterFromTargetCmd(FilteringComp
     v13->srcCubeMapView = NULL;
     v13->dst2DArrayRWView = FilteringComputeCmdSequence::GetTargetTextureRWView(this, destination, destinationMipLevel);
     LODWORD(v13) = ReflectionProbeCompressionMaxResolution();
-    __asm { vmovss  xmm0, [rsp+28h+specularGloss] }
-    _RDI->dstMipLevel = destinationMipLevel;
-    _RDI->dstImageSize = (int)v13 >> destinationMipLevel;
-    _RDI->shCoeffs = shCoeffs;
+    v14->dstMipLevel = destinationMipLevel;
+    v14->dstImageSize = (int)v13 >> destinationMipLevel;
+    v14->shCoeffs = shCoeffs;
     LOBYTE(v13) = 1;
-    __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-    _RDI->sampleCount = 0;
-    _RDI->firstFaceIndex = 0;
-    _RDI->faceCount = 6;
-    _RDI->waitLabel.labelAddress = NULL;
-    _RDI->waitLabel.value = 0;
+    v14->specularGloss = specularGloss;
+    v14->sampleCount = 0;
+    v14->firstFaceIndex = 0;
+    v14->faceCount = 6;
+    v14->waitLabel.labelAddress = NULL;
+    v14->waitLabel.value = 0;
   }
   return (char)v13;
 }
@@ -648,14 +648,16 @@ void FilteringComputeCmdSequence::AddBruteForceFilterSequence(FilteringComputeCm
 {
   unsigned int width; 
   const GfxTexture *Resident; 
-  unsigned int v15; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  unsigned int i; 
+  float v15; 
   unsigned int v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  unsigned int v24; 
   __int64 m_cmdCount; 
-  __int64 v26; 
-  int v28; 
+  __int64 v18; 
+  ReflectionProbeFilteringComputeCmd *v19; 
+  int v20; 
 
   if ( !sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1259, ASSERT_TYPE_ASSERT, "(sourceImage)", (const char *)&queryFormat, "sourceImage") )
     __debugbreak();
@@ -665,75 +667,49 @@ void FilteringComputeCmdSequence::AddBruteForceFilterSequence(FilteringComputeCm
   FilteringComputeCmdSequence::AddSHProjectionFromImageCmd(this, (const GfxImage *)s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering, dstProbeIndex);
   if ( boxFilterTopMip )
   {
-    v15 = ReflectionProbeCompressionMaxResolution();
-    v16 = 1;
-    FilteringComputeCmdSequence::AddBoxFilterCmd(this, (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view, v15, FINAL, 0, flipFaces, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
+    v11 = ReflectionProbeCompressionMaxResolution();
+    v12 = 1;
+    FilteringComputeCmdSequence::AddBoxFilterCmd(this, (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view, v11, FINAL, 0, flipFaces, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
   }
   else
   {
-    v16 = 0;
+    v12 = 0;
   }
-  v17 = ReflectionProbeCompressionMaxResolution();
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
+  v13 = ReflectionProbeCompressionMaxResolution();
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
     __debugbreak();
-  v18 = 32 - __lzcnt(v17);
-  if ( v16 < v18 )
+  for ( i = 32 - __lzcnt(v13); v12 < i; ++v12 )
   {
-    __asm
+    v16 = ReflectionProbeCompressionMaxResolution();
+    m_cmdCount = this->m_cmdCount;
+    if ( (unsigned int)(m_cmdCount + 1) <= 0x31 )
     {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovss  xmm7, cs:__real@40a00000
-      vmovaps [rsp+98h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3e4ccccd
+      this->m_cmdCount = m_cmdCount + 1;
+      v18 = m_cmdCount;
+      v19 = &this->m_computeCmds[v18];
+      if ( (FilteringComputeCmdSequence *)((char *)this + v18 * 96) != (FilteringComputeCmdSequence *)-8i64 )
+      {
+        v19->shaderType = BRUTE_FORCE;
+        this->m_computeCmds[v18].src2DArrayView = (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view;
+        this->m_computeCmds[v18].srcImageSize = v16;
+        this->m_computeCmds[v18].srcCubeMapView = NULL;
+        this->m_computeCmds[v18].dst2DArrayRWView = (const GfxShaderTextureRWView *)&s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipRWView[v12 + 2].rwCounterResource;
+        v20 = ReflectionProbeCompressionMaxResolution();
+        v19->dstMipLevel = v12;
+        v19->dstImageSize = v20 >> v12;
+        v15 = (float)v12;
+        v19->specularGloss = (float)(5.0 - v15) * 0.2;
+        v19->shCoeffs = (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering;
+        v19->sampleCount = 0;
+        v19->firstFaceIndex = 0;
+        v19->faceCount = 6;
+        v19->waitLabel.labelAddress = NULL;
+        v19->waitLabel.value = 0;
+      }
     }
-    do
+    else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 848, ASSERT_TYPE_ASSERT, "(nextCmdIndex <= MAX_COMPUTE_COMMANDS)", (const char *)&queryFormat, "nextCmdIndex <= MAX_COMPUTE_COMMANDS") )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vsubss  xmm0, xmm7, xmm0
-        vmulss  xmm6, xmm0, xmm8
-      }
-      v24 = ReflectionProbeCompressionMaxResolution();
-      m_cmdCount = this->m_cmdCount;
-      if ( (unsigned int)(m_cmdCount + 1) <= 0x31 )
-      {
-        this->m_cmdCount = m_cmdCount + 1;
-        v26 = m_cmdCount;
-        _RDI = &this->m_computeCmds[v26];
-        if ( (FilteringComputeCmdSequence *)((char *)this + v26 * 96) != (FilteringComputeCmdSequence *)-8i64 )
-        {
-          _RDI->shaderType = BRUTE_FORCE;
-          this->m_computeCmds[v26].src2DArrayView = (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view;
-          this->m_computeCmds[v26].srcImageSize = v24;
-          this->m_computeCmds[v26].srcCubeMapView = NULL;
-          this->m_computeCmds[v26].dst2DArrayRWView = (const GfxShaderTextureRWView *)&s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipRWView[v16 + 2].rwCounterResource;
-          v28 = ReflectionProbeCompressionMaxResolution();
-          _RDI->dstMipLevel = v16;
-          _RDI->dstImageSize = v28 >> v16;
-          __asm { vmovss  dword ptr [rdi+48h], xmm6 }
-          _RDI->shCoeffs = (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering;
-          _RDI->sampleCount = 0;
-          _RDI->firstFaceIndex = 0;
-          _RDI->faceCount = 6;
-          _RDI->waitLabel.labelAddress = NULL;
-          _RDI->waitLabel.value = 0;
-        }
-      }
-      else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 848, ASSERT_TYPE_ASSERT, "(nextCmdIndex <= MAX_COMPUTE_COMMANDS)", (const char *)&queryFormat, "nextCmdIndex <= MAX_COMPUTE_COMMANDS") )
-      {
-        __debugbreak();
-      }
-      ++v16;
-    }
-    while ( v16 < v18 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+98h+var_58]
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
+      __debugbreak();
     }
   }
 }
@@ -769,9 +745,10 @@ FilteringComputeCmdSequence::AddImportanceSampleFilterCmd
 bool FilteringComputeCmdSequence::AddImportanceSampleFilterCmd(FilteringComputeCmdSequence *this, const GfxShaderTextureView *sourceCubemapTexture, const unsigned int sourceTextureSize, const FilteringComputeCmdSequence::TargetImage destination, const unsigned int destinationMipLevel, const float specularGloss, const unsigned int sampleCount, GfxWrappedRWBuffer *shCoeffs)
 {
   ReflectionProbeFilteringComputeCmd *v12; 
+  ReflectionProbeFilteringComputeCmd *v13; 
 
   v12 = FilteringComputeCmdSequence::AddCommand(this);
-  _RDI = v12;
+  v13 = v12;
   if ( v12 )
   {
     v12->srcImageSize = sourceTextureSize;
@@ -780,17 +757,16 @@ bool FilteringComputeCmdSequence::AddImportanceSampleFilterCmd(FilteringComputeC
     v12->srcCubeMapView = sourceCubemapTexture;
     v12->dst2DArrayRWView = FilteringComputeCmdSequence::GetTargetTextureRWView(this, destination, destinationMipLevel);
     LODWORD(v12) = ReflectionProbeCompressionMaxResolution();
-    __asm { vmovss  xmm0, [rsp+38h+specularGloss] }
-    _RDI->firstFaceIndex = 0;
-    _RDI->dstImageSize = (int)v12 >> destinationMipLevel;
-    _RDI->shCoeffs = shCoeffs;
-    _RDI->sampleCount = sampleCount;
+    v13->firstFaceIndex = 0;
+    v13->dstImageSize = (int)v12 >> destinationMipLevel;
+    v13->shCoeffs = shCoeffs;
+    v13->sampleCount = sampleCount;
     LOBYTE(v12) = 1;
-    _RDI->waitLabel.labelAddress = NULL;
-    _RDI->waitLabel.value = 0;
-    __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-    _RDI->dstMipLevel = destinationMipLevel;
-    _RDI->faceCount = 6;
+    v13->waitLabel.labelAddress = NULL;
+    v13->waitLabel.value = 0;
+    v13->specularGloss = specularGloss;
+    v13->dstMipLevel = destinationMipLevel;
+    v13->faceCount = 6;
   }
   return (char)v12;
 }
@@ -805,11 +781,12 @@ bool FilteringComputeCmdSequence::AddImportanceSampleFilterFromImageCmd(Filterin
   unsigned int width; 
   GfxShaderTextureView *p_shaderView; 
   ReflectionProbeFilteringComputeCmd *v12; 
+  ReflectionProbeFilteringComputeCmd *v13; 
 
   width = sourceCubemapImage->width;
   p_shaderView = &R_Texture_GetResident(sourceCubemapImage->textureId)->shaderView;
   v12 = FilteringComputeCmdSequence::AddCommand(this);
-  _RBX = v12;
+  v13 = v12;
   if ( v12 )
   {
     v12->shaderType = IMPORTANCE_SAMPLE;
@@ -818,17 +795,16 @@ bool FilteringComputeCmdSequence::AddImportanceSampleFilterFromImageCmd(Filterin
     v12->srcCubeMapView = p_shaderView;
     v12->dst2DArrayRWView = FilteringComputeCmdSequence::GetTargetTextureRWView(this, destination, destinationMipLevel);
     LODWORD(v12) = ReflectionProbeCompressionMaxResolution();
-    __asm { vmovss  xmm0, [rsp+38h+specularGloss] }
-    _RBX->firstFaceIndex = 0;
-    _RBX->dstImageSize = (int)v12 >> destinationMipLevel;
-    _RBX->shCoeffs = shCoeffs;
-    _RBX->sampleCount = sampleCount;
+    v13->firstFaceIndex = 0;
+    v13->dstImageSize = (int)v12 >> destinationMipLevel;
+    v13->shCoeffs = shCoeffs;
+    v13->sampleCount = sampleCount;
     LOBYTE(v12) = 1;
-    _RBX->waitLabel.labelAddress = NULL;
-    _RBX->waitLabel.value = 0;
-    __asm { vmovss  dword ptr [rbx+48h], xmm0 }
-    _RBX->dstMipLevel = destinationMipLevel;
-    _RBX->faceCount = 6;
+    v13->waitLabel.labelAddress = NULL;
+    v13->waitLabel.value = 0;
+    v13->specularGloss = specularGloss;
+    v13->dstMipLevel = destinationMipLevel;
+    v13->faceCount = 6;
   }
   return (char)v12;
 }
@@ -840,89 +816,71 @@ FilteringComputeCmdSequence::AddImportanceSampleFilterSequence
 */
 void FilteringComputeCmdSequence::AddImportanceSampleFilterSequence(FilteringComputeCmdSequence *this, const GfxImage *sourceImage, const bool flipFaces, const bool boxFilterTopMip, const unsigned int sampleCount, const unsigned int dstProbeIndex)
 {
-  unsigned int v14; 
+  unsigned int v10; 
   ID3D12Resource *resource; 
-  unsigned int v16; 
-  unsigned int v17; 
-  __int64 v18; 
-  unsigned int v21; 
+  unsigned int v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned int v15; 
+  float v16; 
   GfxShaderTextureView *p_shaderView; 
   __int64 m_cmdCount; 
-  int v28; 
+  ReflectionProbeFilteringComputeCmd *v19; 
+  int v20; 
 
   if ( !sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1313, ASSERT_TYPE_ASSERT, "(sourceImage)", (const char *)&queryFormat, "sourceImage") )
     __debugbreak();
-  v14 = ReflectionProbeCompressionMaxResolution();
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
+  v10 = ReflectionProbeCompressionMaxResolution();
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
     __debugbreak();
   resource = s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource;
-  v16 = 32 - __lzcnt(v14);
+  v12 = 32 - __lzcnt(v10);
   FilteringComputeCmdSequence::AddBoxFilterSequence(this, sourceImage, flipFaces, INITIAL, NULL, dstProbeIndex);
   FilteringComputeCmdSequence::AddSHProjectionFromImageCmd(this, (const GfxImage *)resource, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering, dstProbeIndex);
   if ( boxFilterTopMip )
   {
-    v17 = ReflectionProbeCompressionMaxResolution();
-    FilteringComputeCmdSequence::AddBoxFilterCmd(this, (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view, v17, FINAL, 0, 0, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
+    v13 = ReflectionProbeCompressionMaxResolution();
+    FilteringComputeCmdSequence::AddBoxFilterCmd(this, (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view, v13, FINAL, 0, 0, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
   }
-  v18 = boxFilterTopMip;
-  if ( boxFilterTopMip < v16 )
+  v14 = boxFilterTopMip;
+  if ( boxFilterTopMip < v12 )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovss  xmm7, cs:__real@40a00000
-      vmovaps [rsp+98h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3e4ccccd
-    }
     do
     {
-      v21 = WORD2(resource[2].m_pFunction);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vsubss  xmm0, xmm7, xmm0
-        vmulss  xmm6, xmm0, xmm8
-      }
+      v15 = WORD2(resource[2].m_pFunction);
       p_shaderView = &R_Texture_GetResident((GfxTextureId)LODWORD(resource[1].m_pFunction))->shaderView;
       m_cmdCount = this->m_cmdCount;
       if ( (unsigned int)(m_cmdCount + 1) <= 0x31 )
       {
         this->m_cmdCount = m_cmdCount + 1;
-        _RBX = &this->m_computeCmds[m_cmdCount];
+        v19 = &this->m_computeCmds[m_cmdCount];
         if ( (FilteringComputeCmdSequence *)((char *)this + 96 * m_cmdCount) != (FilteringComputeCmdSequence *)-8i64 )
         {
-          this->m_computeCmds[m_cmdCount].srcImageSize = v21;
-          _RBX->shaderType = IMPORTANCE_SAMPLE;
+          this->m_computeCmds[m_cmdCount].srcImageSize = v15;
+          v19->shaderType = IMPORTANCE_SAMPLE;
           this->m_computeCmds[m_cmdCount].src2DArrayView = NULL;
-          this->m_computeCmds[m_cmdCount].dst2DArrayRWView = (const GfxShaderTextureRWView *)&s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipRWView[v18 + 2].rwCounterResource;
+          this->m_computeCmds[m_cmdCount].dst2DArrayRWView = (const GfxShaderTextureRWView *)&s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipRWView[v14 + 2].rwCounterResource;
           this->m_computeCmds[m_cmdCount].srcCubeMapView = p_shaderView;
-          v28 = ReflectionProbeCompressionMaxResolution();
-          _RBX->dstMipLevel = v18;
-          _RBX->dstImageSize = v28 >> v18;
-          __asm { vmovss  dword ptr [rbx+48h], xmm6 }
-          _RBX->shCoeffs = (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering;
-          _RBX->sampleCount = sampleCount;
-          _RBX->firstFaceIndex = 0;
-          _RBX->faceCount = 6;
-          _RBX->waitLabel.labelAddress = NULL;
-          _RBX->waitLabel.value = 0;
+          v20 = ReflectionProbeCompressionMaxResolution();
+          v19->dstMipLevel = v14;
+          v19->dstImageSize = v20 >> v14;
+          v16 = (float)(unsigned int)v14;
+          v19->specularGloss = (float)(5.0 - v16) * 0.2;
+          v19->shCoeffs = (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering;
+          v19->sampleCount = sampleCount;
+          v19->firstFaceIndex = 0;
+          v19->faceCount = 6;
+          v19->waitLabel.labelAddress = NULL;
+          v19->waitLabel.value = 0;
         }
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 848, ASSERT_TYPE_ASSERT, "(nextCmdIndex <= MAX_COMPUTE_COMMANDS)", (const char *)&queryFormat, "nextCmdIndex <= MAX_COMPUTE_COMMANDS") )
       {
         __debugbreak();
       }
-      v18 = (unsigned int)(v18 + 1);
+      v14 = (unsigned int)(v14 + 1);
     }
-    while ( (unsigned int)v18 < v16 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+98h+var_58]
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
-    }
+    while ( (unsigned int)v14 < v12 );
   }
 }
 
@@ -990,10 +948,11 @@ FilteringComputeCmdSequence::AddSampleOctahedronCmd
 __int64 FilteringComputeCmdSequence::AddSampleOctahedronCmd(FilteringComputeCmdSequence *this, const GfxShaderTextureView *sourceTextureView, const unsigned int sourceTextureSize, const FilteringComputeCmdSequence::TargetImage destination, const unsigned int destinationMipLevel, const float specularGloss, unsigned int sampleCount, ReflectionProbeFilteringShaderType shaderType, GfxWrappedRWBuffer *shCoeffs)
 {
   __int64 result; 
+  __int64 v14; 
   int v15; 
 
   result = (__int64)FilteringComputeCmdSequence::AddCommand(this);
-  _RDI = result;
+  v14 = result;
   if ( result )
   {
     *(_QWORD *)(result + 16) = sourceTextureView;
@@ -1002,17 +961,16 @@ __int64 FilteringComputeCmdSequence::AddSampleOctahedronCmd(FilteringComputeCmdS
     *(_DWORD *)(result + 24) = sourceTextureSize;
     *(_QWORD *)(result + 40) = FilteringComputeCmdSequence::GetTargetTextureRWView(this, destination, destinationMipLevel);
     v15 = ReflectionProbeCompressionMaxResolution_Octahedron();
-    __asm { vmovss  xmm0, [rsp+28h+specularGloss] }
-    *(_DWORD *)(_RDI + 52) = destinationMipLevel;
-    *(_DWORD *)(_RDI + 48) = v15 >> destinationMipLevel;
-    *(_QWORD *)(_RDI + 56) = shCoeffs;
-    *(_DWORD *)(_RDI + 68) = sampleCount;
+    *(_DWORD *)(v14 + 52) = destinationMipLevel;
+    *(_DWORD *)(v14 + 48) = v15 >> destinationMipLevel;
+    *(_QWORD *)(v14 + 56) = shCoeffs;
+    *(_DWORD *)(v14 + 68) = sampleCount;
     result = 1i64;
-    *(_DWORD *)(_RDI + 4) = 0;
-    *(_QWORD *)(_RDI + 80) = 0i64;
-    *(_DWORD *)(_RDI + 88) = 0;
-    __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-    *(_DWORD *)(_RDI + 8) = 1;
+    *(_DWORD *)(v14 + 4) = 0;
+    *(_QWORD *)(v14 + 80) = 0i64;
+    *(_DWORD *)(v14 + 88) = 0;
+    *(const float *)(v14 + 72) = specularGloss;
+    *(_DWORD *)(v14 + 8) = 1;
   }
   return result;
 }
@@ -1024,68 +982,38 @@ FilteringComputeCmdSequence::AddSampleOctahedronSequence
 */
 void FilteringComputeCmdSequence::AddSampleOctahedronSequence(FilteringComputeCmdSequence *this, GfxImage *sourceImage, const FilteringComputeCmdSequence::TargetImage destination, unsigned int sampleCount, ReflectionProbeFilteringShaderType shaderType, unsigned int maxLevels)
 {
-  unsigned int v14; 
-  unsigned int v15; 
+  unsigned int v10; 
+  unsigned int i; 
   unsigned __int16 width; 
+  float v13; 
+  float v14; 
   const GfxShaderTextureView *p_view; 
-  float specularGloss; 
+  float v16; 
 
   if ( !sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1156, ASSERT_TYPE_ASSERT, "(sourceImage)", (const char *)&queryFormat, "sourceImage") )
     __debugbreak();
-  v14 = R_ReflectionProbeCompression_MainMipLevelCount_Octahedron();
-  if ( maxLevels && v14 > maxLevels )
-    v14 = maxLevels;
-  v15 = 0;
-  if ( v14 )
+  v10 = R_ReflectionProbeCompression_MainMipLevelCount_Octahedron();
+  if ( maxLevels && v10 > maxLevels )
+    v10 = maxLevels;
+  for ( i = 0; i < v10; ++i )
   {
-    __asm
+    if ( shaderType == OCTAHEDRON_BRUTE_FORCE )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@40a00000
-      vmovaps [rsp+0A8h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3e4ccccd
+      if ( (GfxImage *)s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource != sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1174, ASSERT_TYPE_ASSERT, "(s_reflectionProbeFiltering.m_initialFilteredImage.m_image == sourceImage)", (const char *)&queryFormat, "s_reflectionProbeFiltering.m_initialFilteredImage.m_image == sourceImage") )
+        __debugbreak();
+      width = sourceImage->width;
+      v13 = (float)i;
+      v14 = 5.0 - v13;
+      p_view = (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view;
     }
-    do
+    else
     {
-      if ( shaderType == OCTAHEDRON_BRUTE_FORCE )
-      {
-        if ( (GfxImage *)s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource != sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1174, ASSERT_TYPE_ASSERT, "(s_reflectionProbeFiltering.m_initialFilteredImage.m_image == sourceImage)", (const char *)&queryFormat, "s_reflectionProbeFiltering.m_initialFilteredImage.m_image == sourceImage") )
-          __debugbreak();
-        width = sourceImage->width;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vsubss  xmm6, xmm7, xmm0
-        }
-        p_view = (const GfxShaderTextureView *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].view;
-      }
-      else
-      {
-        width = sourceImage->width;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vsubss  xmm6, xmm7, xmm0
-        }
-        p_view = &R_Texture_GetResident(sourceImage->textureId)->shaderView;
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm8
-        vmovss  [rsp+0A8h+specularGloss], xmm0
-      }
-      FilteringComputeCmdSequence::AddSampleOctahedronCmd(this, p_view, width, destination, v15++, specularGloss, sampleCount, shaderType, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
+      width = sourceImage->width;
+      v16 = (float)i;
+      v14 = 5.0 - v16;
+      p_view = &R_Texture_GetResident(sourceImage->textureId)->shaderView;
     }
-    while ( v15 < v14 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0A8h+var_58]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
+    FilteringComputeCmdSequence::AddSampleOctahedronCmd(this, p_view, width, destination, i, v14 * 0.2, sampleCount, shaderType, (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering);
   }
 }
 
@@ -1186,15 +1114,17 @@ void R_ExecuteReflectionProbeFilteringComputeCmd(ComputeCmdBufState *cmdBufState
   ComputeShader *reflectionProbeFilteringBoxShader; 
   GfxShaderTextureView *srcCubeMapView; 
   int v6; 
-  GfxReflectionProbeFilteringStaticData *shCoeffs; 
+  GfxWrappedRWBuffer *shCoeffs; 
   BOOL v8; 
   unsigned int dstMipLevel; 
+  float specularGloss; 
+  float value; 
+  float v12; 
   GfxShaderTextureView *views[2]; 
   int data[8]; 
 
-  _RDI = cmd;
   R_ComputeWaitForCompute(cmdBufState, PIPE_FLUSH_PARTIAL);
-  switch ( _RDI->shaderType )
+  switch ( cmd->shaderType )
   {
     case BOX:
       reflectionProbeFilteringBoxShader = rgp.reflectionProbeFilteringBoxShader;
@@ -1218,58 +1148,53 @@ void R_ExecuteReflectionProbeFilteringComputeCmd(ComputeCmdBufState *cmdBufState
       reflectionProbeFilteringBoxShader = rgp.reflectionProbeFilteringOctahedronImportanceSample;
       break;
     default:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 655, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Invalid shader type %u", _RDI->shaderType) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 655, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Invalid shader type %u", cmd->shaderType) )
         __debugbreak();
       reflectionProbeFilteringBoxShader = NULL;
       break;
   }
   R_SetComputeShader(cmdBufState, reflectionProbeFilteringBoxShader);
-  switch ( _RDI->shaderType )
+  switch ( cmd->shaderType )
   {
     case IMPORTANCE_SAMPLE:
     case OCTAHEDRON_FROM_CUBE:
     case OCTAHEDRON_IMPORTANCE_SAMPLE:
-      srcCubeMapView = (GfxShaderTextureView *)_RDI->srcCubeMapView;
+      srcCubeMapView = (GfxShaderTextureView *)cmd->srcCubeMapView;
       v6 = 1;
       break;
     default:
-      srcCubeMapView = (GfxShaderTextureView *)_RDI->src2DArrayView;
+      srcCubeMapView = (GfxShaderTextureView *)cmd->src2DArrayView;
       v6 = 0;
       break;
   }
   views[0] = srcCubeMapView;
   R_SetComputeTextureViews(cmdBufState, v6, 1, (const GfxShaderTextureView *const *)views);
-  shCoeffs = (GfxReflectionProbeFilteringStaticData *)_RDI->shCoeffs;
+  shCoeffs = cmd->shCoeffs;
   v8 = shCoeffs != NULL;
-  if ( shCoeffs && shCoeffs != &s_reflectionProbeFiltering && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 734, ASSERT_TYPE_ASSERT, "(!cmd->shCoeffs || cmd->shCoeffs == &s_reflectionProbeFiltering.m_shCoeffs)", (const char *)&queryFormat, "!cmd->shCoeffs || cmd->shCoeffs == &s_reflectionProbeFiltering.m_shCoeffs") )
+  if ( shCoeffs && shCoeffs != (GfxWrappedRWBuffer *)&s_reflectionProbeFiltering && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 734, ASSERT_TYPE_ASSERT, "(!cmd->shCoeffs || cmd->shCoeffs == &s_reflectionProbeFiltering.m_shCoeffs)", (const char *)&queryFormat, "!cmd->shCoeffs || cmd->shCoeffs == &s_reflectionProbeFiltering.m_shCoeffs") )
     __debugbreak();
   views[0] = s_reflectionProbeFiltering.m_compressedImage.m_imageMipView;
   R_SetComputeViews(cmdBufState, 2, 1, (const GfxShaderBufferView *const *)views);
   Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels");
-  dstMipLevel = _RDI->dstMipLevel;
-  R_HW_AddResourceTransition(cmdBufState, _RDI->dst2DArrayRWView, dstMipLevel, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  dstMipLevel = cmd->dstMipLevel;
+  R_HW_AddResourceTransition(cmdBufState, cmd->dst2DArrayRWView, dstMipLevel, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(cmdBufState);
-  views[0] = (GfxShaderTextureView *)_RDI->dst2DArrayRWView;
+  views[0] = (GfxShaderTextureView *)cmd->dst2DArrayRWView;
   R_SetComputeTextureRWViews(cmdBufState, 2, 1, (const GfxShaderTextureRWView *const *)views);
-  __asm { vmovss  xmm0, dword ptr [rdi+48h] }
-  data[0] = _RDI->firstFaceIndex;
-  data[1] = _RDI->faceCount;
-  data[2] = _RDI->srcImageSize;
-  data[3] = _RDI->sampleCount;
-  _RAX = r_reflectionProbeIrradianceMin;
-  __asm { vmovss  [rsp+88h+var_34], xmm0 }
+  specularGloss = cmd->specularGloss;
+  data[0] = cmd->firstFaceIndex;
+  data[1] = cmd->faceCount;
+  data[2] = cmd->srcImageSize;
+  data[3] = cmd->sampleCount;
+  *(float *)&data[5] = specularGloss;
   data[4] = v8;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+28h]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  [rsp+88h+var_2C], xmm0
-    vmovss  [rsp+88h+var_30], xmm1
-  }
+  value = r_reflectionProbeIrradianceMin->current.value;
+  v12 = (float)cmd->dstMipLevel;
+  *(float *)&data[7] = v12;
+  *(float *)&data[6] = value;
   R_UploadAndSetComputeConstants(cmdBufState, 0, data, 0x20u, NULL);
-  R_Dispatch(cmdBufState, (_RDI->dstImageSize + 7) >> 3, (_RDI->dstImageSize + 7) >> 3, _RDI->faceCount);
-  R_HW_AddResourceTransition(cmdBufState, _RDI->dst2DArrayRWView, dstMipLevel, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_Dispatch(cmdBufState, (cmd->dstImageSize + 7) >> 3, (cmd->dstImageSize + 7) >> 3, cmd->faceCount);
+  R_HW_AddResourceTransition(cmdBufState, cmd->dst2DArrayRWView, dstMipLevel, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(cmdBufState);
 }
 
@@ -1461,50 +1386,39 @@ char R_ReflectionProbeFiltering_FilterImage(const GfxImage *sourceImage, const G
   unsigned int v11; 
   unsigned int m_cmdCount; 
   ComputeCmdList *cmdList; 
+  __m256i *v14; 
   unsigned int v15; 
-  FilteringComputeCmdSequence v23; 
+  __int64 v16; 
+  FilteringComputeCmdSequence v18; 
 
   if ( !sourceImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_filtering.cpp", 1350, ASSERT_TYPE_ASSERT, "(sourceImage)", (const char *)&queryFormat, "sourceImage") )
     __debugbreak();
   v11 = 0;
-  v23.m_cmdCount = 0;
-  FilteringComputeCmdSequence::SetupCmdSequence(&v23, sourceImage, filteringMethod, flipFaces, boxFilterTopMip, sampleCount, dstProbeIndex);
-  m_cmdCount = v23.m_cmdCount;
+  v18.m_cmdCount = 0;
+  FilteringComputeCmdSequence::SetupCmdSequence(&v18, sourceImage, filteringMethod, flipFaces, boxFilterTopMip, sampleCount, dstProbeIndex);
+  m_cmdCount = v18.m_cmdCount;
   cmdList = frontEndDataOut->compute.cmdList;
-  _RBX = (char *)R_AllocComputeCmdDataAligned(cmdList, 96 * v23.m_cmdCount, 8u);
-  if ( _RBX )
+  v14 = (__m256i *)R_AllocComputeCmdDataAligned(cmdList, 96 * v18.m_cmdCount, 8u);
+  if ( v14 )
   {
     v15 = m_cmdCount - 1;
     if ( !m_cmdCount )
       return 1;
-    _RSI = waitLabelInfo;
     while ( 1 )
     {
-      _RCX = 96i64 * (v15 - v11);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+rcx+12E8h+var_12A8.m_computeCmds.shaderType]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups ymm1, ymmword ptr [rsp+rcx+12E8h+var_12A8.m_computeCmds.srcCubeMapView]
-        vmovups ymmword ptr [rbx+20h], ymm1
-        vmovups ymm0, ymmword ptr [rsp+rcx+12E8h+var_12A8.m_computeCmds.dstProbeIndex]
-        vmovups ymmword ptr [rbx+40h], ymm0
-      }
+      v16 = v15 - v11;
+      *v14 = *(__m256i *)&v18.m_computeCmds[v16].shaderType;
+      v14[1] = *(__m256i *)&v18.m_computeCmds[v16].srcCubeMapView;
+      v14[2] = *(__m256i *)&v18.m_computeCmds[v16].dstProbeIndex;
       if ( v11 == v15 )
       {
         if ( waitLabelInfo )
-        {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups xmmword ptr [rbx+50h], xmm0
-          }
-        }
+          *(GfxLabelSyncInfo *)&v14[2].m256i_u64[2] = *waitLabelInfo;
       }
-      if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_FILTERING, _RBX) )
+      if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_FILTERING, v14) )
         break;
       ++v11;
-      _RBX += 96;
+      v14 += 3;
       if ( v11 >= m_cmdCount )
         return 1;
     }
@@ -1604,6 +1518,7 @@ void R_ReflectionProbeFiltering_SetupImageViews(GfxReflectionProbeFilteringImage
   int v21; 
   __int64 v22; 
   int v23[5]; 
+  __int128 v24; 
   int v25; 
   unsigned __int64 v26; 
   unsigned __int64 v27; 
@@ -1623,11 +1538,8 @@ void R_ReflectionProbeFiltering_SetupImageViews(GfxReflectionProbeFilteringImage
       resource = R_Texture_GetResident(v2->m_image->textureId)->basemap;
       *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Resource *, char *))resource->m_pFunction[3].AddRef)(resource, v28);
       v23[0] = v29;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+57h+var_84], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v24 = _XMM0;
       v25 = 0;
       v23[1] = 5;
       v23[4] = 6;
@@ -1739,6 +1651,7 @@ void R_ReflectionProbeFiltering_SetupImageViews_Octahedron(GfxReflectionProbeFil
   int v21; 
   __int64 v22; 
   int v23[5]; 
+  __int128 v24; 
   int v25; 
   unsigned __int64 v26; 
   unsigned __int64 v27; 
@@ -1758,11 +1671,8 @@ void R_ReflectionProbeFiltering_SetupImageViews_Octahedron(GfxReflectionProbeFil
       basemap = R_Texture_GetResident(v3->m_image->textureId)->basemap;
       *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Resource *, char *))basemap->m_pFunction[3].AddRef)(basemap, v28);
       v23[0] = v29;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+57h+var_84], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v24 = _XMM0;
       v25 = 0;
       v23[1] = 5;
       v23[4] = 1;
@@ -1910,10 +1820,10 @@ void __fastcall R_ReflectionProbeFiltering_Startup(double _XMM0_8)
   int v4; 
   int v5; 
   GfxPixelFormat ImagePixelFormat; 
+  GfxPixelFormat v8; 
   GfxPixelFormat v10; 
-  GfxPixelFormat v14; 
-  __m256i v18; 
-  __m256i v19; 
+  __m256i v12; 
+  __m256i v13; 
   Image_SetupParams params; 
 
   v1 = R_ReflectionProbeSH_UseOfflineShader();
@@ -1928,74 +1838,50 @@ void __fastcall R_ReflectionProbeFiltering_Startup(double _XMM0_8)
   R_CreateGfxWrappedBuffer((GfxWrappedRWBuffer *)&s_reflectionProbeFiltering, GfxWrappedBuffer_Structured, v5, 24 * v3 * ((v2 - 1 + v4) / v2), GFX_DATA_FORMAT_R32_UINT, 9u, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL, NULL, "Reflection Probe SH Coeffs");
   s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource = (ID3D12Resource *)Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_FILTERING_INITIAL, IMG_CATEGORY_RAW, TS_FUNCTION);
   ImagePixelFormat = R_ReflectionProbe_GetImagePixelFormat();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_60+8], xmm0
-  }
-  v18.m256i_i32[0] = ReflectionProbeCompressionMaxResolution();
-  v18.m256i_i32[1] = v18.m256i_i32[0];
-  v18.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v18.m256i_i64[1] + 4) = 1i64;
-  v19.m256i_i64[0] = 0i64;
-  v19.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_60] }
-  v18.m256i_i32[5] = 8421376;
-  v18.m256i_i32[6] = ImagePixelFormat;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_80]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.m256i_u64[1] = _XMM0;
+  v12.m256i_i32[0] = ReflectionProbeCompressionMaxResolution();
+  v12.m256i_i32[1] = v12.m256i_i32[0];
+  v12.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
+  v13.m256i_i64[0] = 0i64;
+  v13.m256i_i32[6] = -1;
+  v12.m256i_i32[5] = 8421376;
+  v12.m256i_i32[6] = ImagePixelFormat;
+  *(__m256i *)&params.width = v12;
+  *(__m256i *)&params.customAllocFunc = v13;
   Image_Setup((GfxImage *)s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3].resource, &params);
   R_ReflectionProbeFiltering_SetupImageViews((GfxReflectionProbeFilteringImageData *)&s_reflectionProbeFiltering.m_compressedImage.m_imageMipView[3]);
   s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipView[3].resource = (ID3D12Resource *)Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_FILTERING_FINAL, IMG_CATEGORY_RAW, TS_FUNCTION);
-  v10 = R_ReflectionProbe_GetImagePixelFormat();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_60+8], xmm0
-  }
-  v18.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v18.m256i_i64[1] + 4) = 1i64;
-  v18.m256i_i32[0] = ReflectionProbeCompressionMaxResolution();
-  v18.m256i_i32[1] = v18.m256i_i32[0];
-  v18.m256i_i32[5] = 8421376;
-  v18.m256i_i32[6] = v10;
-  __asm { vmovups ymm0, [rbp+57h+var_80] }
-  v19.m256i_i64[0] = 0i64;
-  v19.m256i_i32[6] = -1;
-  __asm
-  {
-    vmovups ymm1, [rbp+57h+var_60]
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-  }
+  v8 = R_ReflectionProbe_GetImagePixelFormat();
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.m256i_u64[1] = _XMM0;
+  v12.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
+  v12.m256i_i32[0] = ReflectionProbeCompressionMaxResolution();
+  v12.m256i_i32[1] = v12.m256i_i32[0];
+  v12.m256i_i32[5] = 8421376;
+  v12.m256i_i32[6] = v8;
+  v13.m256i_i64[0] = 0i64;
+  v13.m256i_i32[6] = -1;
+  *(__m256i *)&params.customAllocFunc = v13;
+  *(__m256i *)&params.width = v12;
   Image_Setup((GfxImage *)s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipView[3].resource, &params);
   R_ReflectionProbeFiltering_SetupImageViews((GfxReflectionProbeFilteringImageData *)&s_reflectionProbeFiltering.m_compressedImageOctahedron.m_imageMipView[3]);
   imageData.m_image = Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_FILTERING_OCTAHEDRON, IMG_CATEGORY_RAW, TS_FUNCTION);
-  v14 = R_ReflectionProbe_GetImagePixelFormat();
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_60+8], xmm0
-  }
-  v18.m256i_i32[0] = ReflectionProbeCompressionMaxResolution_Octahedron();
-  v18.m256i_i32[1] = v18.m256i_i32[0];
-  v18.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v18.m256i_i64[1] + 4) = 1i64;
-  v19.m256i_i64[0] = 0i64;
-  v19.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_60] }
-  v18.m256i_i32[5] = 0x800000;
-  v18.m256i_i32[6] = v14;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_80]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
+  v10 = R_ReflectionProbe_GetImagePixelFormat();
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.m256i_u64[1] = _XMM0;
+  v12.m256i_i32[0] = ReflectionProbeCompressionMaxResolution_Octahedron();
+  v12.m256i_i32[1] = v12.m256i_i32[0];
+  v12.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
+  v13.m256i_i64[0] = 0i64;
+  v13.m256i_i32[6] = -1;
+  v12.m256i_i32[5] = 0x800000;
+  v12.m256i_i32[6] = v10;
+  *(__m256i *)&params.width = v12;
+  *(__m256i *)&params.customAllocFunc = v13;
   Image_Setup(imageData.m_image, &params);
   R_ReflectionProbeFiltering_SetupImageViews_Octahedron(&imageData);
 }

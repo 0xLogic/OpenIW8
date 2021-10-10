@@ -1543,13 +1543,14 @@ void Stream_TouchDObj(const DObj *obj, StreamImageMip streamMip)
   XModelMaterialOverride *modelMaterialOverrides; 
   XModelMaterialOverride *v11; 
   __int64 v12; 
+  __m256i *v13; 
   __int64 data[16]; 
-  __int64 v17; 
-  StreamImageMip v18; 
+  __int64 v15; 
+  StreamImageMip v16; 
   DObjPartBits partBits; 
-  _BYTE v20[512]; 
-  __int64 v21; 
-  StreamImageMip v22; 
+  __m256i v18[16]; 
+  __int64 v19; 
+  StreamImageMip v20; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj");
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 413, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj", -2i64) )
@@ -1561,13 +1562,13 @@ void Stream_TouchDObj(const DObj *obj, StreamImageMip streamMip)
       NumModels = DObjGetNumModels(obj);
       if ( NumModels > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 428, ASSERT_TYPE_SANITY, "( modelCount <= ( DOBJ_MAX_PARTS ) )", (const char *)&queryFormat, "modelCount <= DOBJ_MAX_SUBMODELS") )
         __debugbreak();
-      v17 = 0i64;
-      v18 = streamMip;
+      v15 = 0i64;
+      v16 = streamMip;
       DObjGetHidePartBits(obj, &partBits);
-      memset_0(v20, 0, sizeof(v20));
+      memset_0(v18, 0, sizeof(v18));
       v5 = 0i64;
-      v21 = 0i64;
-      v22 = streamMip;
+      v19 = 0i64;
+      v20 = streamMip;
       v6 = 0;
       if ( NumModels )
       {
@@ -1577,40 +1578,36 @@ void Stream_TouchDObj(const DObj *obj, StreamImageMip streamMip)
           Model = DObjGetModel(obj, v6);
           if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 445, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
-          v9 = v17;
-          if ( v17 == 16 )
+          v9 = v15;
+          if ( v15 == 16 )
           {
             Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
             Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_DOBJ, data);
-            v17 = 0i64;
+            v15 = 0i64;
             Sys_ProfEndNamedEvent();
-            v9 = v17;
+            v9 = v15;
           }
           data[v9] = (__int64)Model;
-          ++v17;
+          ++v15;
           modelMaterialOverrides = obj->modelMaterialOverrides;
           if ( modelMaterialOverrides && (v11 = &modelMaterialOverrides[v7]) != NULL && (v12 = 0i64, v11->materialOverrideCount) )
           {
-            v5 = v21;
+            v5 = v19;
             do
             {
-              if ( v11->materialOverride[v12] )
+              v13 = (__m256i *)v11->materialOverride[v12];
+              if ( v13 )
               {
                 if ( v5 == 16 )
                 {
                   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
-                  Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v20);
-                  v21 = 0i64;
+                  Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v18);
+                  v19 = 0i64;
                   Sys_ProfEndNamedEvent();
-                  v5 = v21;
+                  v5 = v19;
                 }
-                _RDX = 32 * v5;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rsi]
-                  vmovups [rbp+rdx+240h+var_250], ymm0
-                }
-                v5 = ++v21;
+                v18[v5] = *v13;
+                v5 = ++v19;
               }
               v12 = (unsigned int)(v12 + 1);
             }
@@ -1618,24 +1615,24 @@ void Stream_TouchDObj(const DObj *obj, StreamImageMip streamMip)
           }
           else
           {
-            v5 = v21;
+            v5 = v19;
           }
           ++v6;
           ++v7;
         }
         while ( v6 < NumModels );
       }
-      if ( v17 )
+      if ( v15 )
       {
         Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
         Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_DOBJ, data);
         Sys_ProfEndNamedEvent();
-        v5 = v21;
+        v5 = v19;
       }
       if ( v5 )
       {
         Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
-        Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v20);
+        Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v18);
         Sys_ProfEndNamedEvent();
       }
     }
@@ -1654,31 +1651,36 @@ Stream_TouchDObjAndCheck
 */
 __int64 Stream_TouchDObjAndCheck(const DObj *obj, StreamImageMip streamMip)
 {
-  StreamImageMip v4; 
-  const DObj *v5; 
-  unsigned __int8 v6; 
+  StreamImageMip v2; 
+  const DObj *v3; 
+  unsigned __int8 v4; 
   unsigned int NumModels; 
-  unsigned int v8; 
-  __int64 v9; 
+  unsigned int v6; 
+  __int64 v7; 
   const XModel *Model; 
-  const dvar_t *v11; 
+  const dvar_t *v9; 
   unsigned int flags; 
-  __int64 v13; 
+  __int64 v11; 
   XModelMaterialOverride *modelMaterialOverrides; 
-  XModelMaterialOverride *v15; 
+  XModelMaterialOverride *v13; 
   __int64 i; 
-  unsigned int v20; 
-  unsigned int v21; 
+  __m256i *v15; 
+  unsigned int v16; 
+  unsigned int v17; 
   const XModelLodInfo *LodInfo; 
-  const XModelLodInfo *v23; 
+  const XModelLodInfo *v19; 
   unsigned int numsurfs; 
-  unsigned int v25; 
-  unsigned int v26; 
-  char v27; 
-  const XModelLodInfo *v28; 
+  unsigned int v21; 
+  unsigned int v22; 
+  char v23; 
+  const XModelLodInfo *v24; 
   XSurface *surfs; 
-  unsigned int v30; 
-  char v34; 
+  unsigned int v26; 
+  char v30; 
+  unsigned int v31; 
+  int v32; 
+  unsigned int v33; 
+  int v34; 
   unsigned int v35; 
   int v36; 
   unsigned int v37; 
@@ -1691,361 +1693,344 @@ __int64 Stream_TouchDObjAndCheck(const DObj *obj, StreamImageMip streamMip)
   int v44; 
   unsigned int v45; 
   int v46; 
-  unsigned int v47; 
+  int v47; 
   int v48; 
-  unsigned int v49; 
+  int v49; 
   int v50; 
   int v51; 
   int v52; 
   int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  unsigned int v58; 
-  __int64 v65; 
-  XModelMaterialOverride *v66; 
-  XModelMaterialOverride *v67; 
-  int v68; 
-  MaterialOverride *v69; 
+  unsigned int v54; 
+  __int64 v61; 
+  XModelMaterialOverride *v62; 
+  XModelMaterialOverride *v63; 
+  int v64; 
+  MaterialOverride *v65; 
   const Material *overrideMaterial; 
-  bool v71; 
+  bool v67; 
   const Camo *overrideCamo; 
-  const dvar_t *v73; 
-  unsigned int v74; 
-  const dvar_t *v75; 
-  unsigned int v76; 
-  __int64 result; 
-  __int64 v80; 
-  __int64 v81; 
-  __int64 v82; 
-  char v83; 
+  const dvar_t *v69; 
+  unsigned int v70; 
+  const dvar_t *v71; 
+  unsigned int v72; 
+  __int64 v74; 
+  __int64 v75; 
+  __int64 v76; 
+  char v77; 
+  unsigned int v78; 
+  unsigned int v79; 
+  int numBones; 
+  __int64 v83; 
   unsigned int v84; 
   unsigned int v85; 
-  int numBones; 
-  __int64 v89; 
-  unsigned int v90; 
-  unsigned int v91; 
-  unsigned int v92; 
-  __int64 v93; 
+  unsigned int v86; 
+  __int64 v87; 
   volatile int (*touchArray)[10240]; 
   Material *const *Skins; 
-  const XModel *v96; 
+  const XModel *v90; 
   __int64 data[16]; 
-  __int64 v98; 
-  StreamImageMip v99; 
+  __int64 v92; 
+  StreamImageMip v93; 
   DObjPartBits partBits; 
-  _BYTE v101[512]; 
-  __int64 v102; 
-  StreamImageMip v103; 
-  int v104[7]; 
-  int v105; 
+  __m256i v95[16]; 
+  __int64 v96; 
+  StreamImageMip v97; 
+  int v98[7]; 
+  int v99; 
+  unsigned int v100; 
+  int v101; 
+  int v102; 
+  int v103; 
+  unsigned int v104; 
+  unsigned int v105; 
   unsigned int v106; 
   int v107; 
-  int v108; 
-  int v109; 
-  unsigned int v110; 
-  unsigned int v111; 
-  unsigned int v112; 
-  int v113; 
-  char v114; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v4 = streamMip;
-  v5 = obj;
+  v2 = streamMip;
+  v3 = obj;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObjAndCheck");
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 239, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 239, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_stream_hintDobjs, "stream_hintDobjs") )
   {
-    v6 = 0;
+    v4 = 0;
     goto LABEL_198;
   }
   touchArray = (volatile int (*)[10240])streamFrontendGlob->imageTouchBits[streamFrontendGlob->touchBufferIndex];
   numBones = 0;
-  v85 = 0;
-  NumModels = DObjGetNumModels(v5);
-  v92 = NumModels;
+  v79 = 0;
+  NumModels = DObjGetNumModels(v3);
+  v86 = NumModels;
   if ( NumModels > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 253, ASSERT_TYPE_SANITY, "( modelCount <= ( DOBJ_MAX_PARTS ) )", (const char *)&queryFormat, "modelCount <= DOBJ_MAX_SUBMODELS") )
     __debugbreak();
-  v6 = 1;
-  v83 = 1;
-  v98 = 0i64;
-  v99 = v4;
-  DObjGetHidePartBits(v5, &partBits);
-  memset_0(v101, 0, sizeof(v101));
-  v102 = 0i64;
-  v103 = v4;
-  v8 = 0;
-  v84 = 0;
+  v4 = 1;
+  v77 = 1;
+  v92 = 0i64;
+  v93 = v2;
+  DObjGetHidePartBits(v3, &partBits);
+  memset_0(v95, 0, sizeof(v95));
+  v96 = 0i64;
+  v97 = v2;
+  v6 = 0;
+  v78 = 0;
   if ( NumModels )
   {
-    v9 = 0i64;
-    v89 = 0i64;
+    v7 = 0i64;
+    v83 = 0i64;
     while ( 1 )
     {
-      Model = DObjGetModel(v5, v8);
-      v96 = Model;
+      Model = DObjGetModel(v3, v6);
+      v90 = Model;
       if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 270, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
-      if ( v6 )
+      if ( v4 )
         break;
-      v11 = DCONST_DVARBOOL_stream_workerTouchDObj;
+      v9 = DCONST_DVARBOOL_stream_workerTouchDObj;
       if ( !DCONST_DVARBOOL_stream_workerTouchDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_workerTouchDObj") )
         __debugbreak();
       if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
       {
-        flags = v11->flags;
-        if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v11->name) )
+        flags = v9->flags;
+        if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v9->name) )
           __debugbreak();
       }
-      if ( !v11->current.enabled )
+      if ( !v9->current.enabled )
         break;
-      v13 = v98;
-      if ( v98 == 16 )
+      v11 = v92;
+      if ( v92 == 16 )
       {
         Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObjAndCheck::AddExtraWorker");
         Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_DOBJ, data);
-        v98 = 0i64;
+        v92 = 0i64;
         Sys_ProfEndNamedEvent();
-        v13 = v98;
+        v11 = v92;
       }
-      data[v13] = (__int64)Model;
-      ++v98;
-      modelMaterialOverrides = v5->modelMaterialOverrides;
+      data[v11] = (__int64)Model;
+      ++v92;
+      modelMaterialOverrides = v3->modelMaterialOverrides;
       if ( modelMaterialOverrides )
       {
-        v15 = &modelMaterialOverrides[v9];
-        if ( v15 )
+        v13 = &modelMaterialOverrides[v7];
+        if ( v13 )
         {
-          for ( i = 0i64; (unsigned int)i < v15->materialOverrideCount; i = (unsigned int)(i + 1) )
+          for ( i = 0i64; (unsigned int)i < v13->materialOverrideCount; i = (unsigned int)(i + 1) )
           {
-            if ( v15->materialOverride[i] )
+            v15 = (__m256i *)v13->materialOverride[i];
+            if ( v15 )
             {
-              if ( v102 == 16 )
+              if ( v96 == 16 )
               {
                 Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObjAndCheck::AddExtraWorker");
-                Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v101);
-                v102 = 0i64;
+                Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v95);
+                v96 = 0i64;
                 Sys_ProfEndNamedEvent();
               }
-              _RAX = 32 * v102;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rsi]
-                vmovups [rsp+rax+3E8h+var_298], ymm0
-              }
-              ++v102;
+              v95[v96++] = *v15;
             }
           }
         }
 LABEL_168:
-        v5 = obj;
+        v3 = obj;
       }
 LABEL_169:
-      v84 = ++v8;
-      v89 = ++v9;
-      v85 += numBones;
-      if ( v8 >= v92 )
+      v78 = ++v6;
+      v83 = ++v7;
+      v79 += numBones;
+      if ( v6 >= v86 )
         goto LABEL_170;
     }
     if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
     numBones = Model->numBones;
-    v20 = XModelHighLod(Model);
-    v21 = v20;
-    v91 = v20;
-    if ( v20 >= Model->numLods )
+    v16 = XModelHighLod(Model);
+    v17 = v16;
+    v85 = v16;
+    if ( v16 >= Model->numLods )
     {
-      LODWORD(v81) = Model->numLods;
-      LODWORD(v80) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v80, v81) )
+      LODWORD(v75) = Model->numLods;
+      LODWORD(v74) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v74, v75) )
         __debugbreak();
     }
-    LodInfo = XModelGetLodInfo(Model, v21);
+    LodInfo = XModelGetLodInfo(Model, v17);
     if ( LodInfo->numsurfs && LodInfo->surfs )
     {
-      if ( v21 + 1 > 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 214, ASSERT_TYPE_ASSERT, "(newLod <= static_cast<uint>( StreamModelLod::LOWEST ))", (const char *)&queryFormat, "newLod <= static_cast<uint>( StreamModelLod::LOWEST )") )
+      if ( v17 + 1 > 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 214, ASSERT_TYPE_ASSERT, "(newLod <= static_cast<uint>( StreamModelLod::LOWEST ))", (const char *)&queryFormat, "newLod <= static_cast<uint>( StreamModelLod::LOWEST )") )
         __debugbreak();
-      Stream_TouchMeshForXModelLod(Model, (StreamModelLod)(v21 + 1));
-      Skins = XModelGetSkins(Model, v21);
-      v23 = XModelGetLodInfo(Model, v21);
-      numsurfs = v23->numsurfs;
-      v90 = numsurfs;
-      if ( !v23->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 331, ASSERT_TYPE_ASSERT, "(surfaceCount > 0)", (const char *)&queryFormat, "surfaceCount > 0") )
+      Stream_TouchMeshForXModelLod(Model, (StreamModelLod)(v17 + 1));
+      Skins = XModelGetSkins(Model, v17);
+      v19 = XModelGetLodInfo(Model, v17);
+      numsurfs = v19->numsurfs;
+      v84 = numsurfs;
+      if ( !v19->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 331, ASSERT_TYPE_ASSERT, "(surfaceCount > 0)", (const char *)&queryFormat, "surfaceCount > 0") )
         __debugbreak();
-      v25 = 0;
+      v21 = 0;
       if ( numsurfs )
       {
-        v93 = 0i64;
-        v26 = v85 >> 5;
-        v27 = v85 & 0x1F;
+        v87 = 0i64;
+        v22 = v79 >> 5;
+        v23 = v79 & 0x1F;
         do
         {
-          v28 = XModelGetLodInfo(Model, v21);
-          if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
+          v24 = XModelGetLodInfo(Model, v17);
+          if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
             __debugbreak();
-          if ( v25 >= v28->numsurfs )
+          if ( v21 >= v24->numsurfs )
           {
-            LODWORD(v81) = v28->numsurfs;
-            LODWORD(v80) = v25;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v80, v81) )
+            LODWORD(v75) = v24->numsurfs;
+            LODWORD(v74) = v21;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v74, v75) )
               __debugbreak();
           }
-          if ( v25 + v28->surfIndex >= Model->numsurfs )
+          if ( v21 + v24->surfIndex >= Model->numsurfs )
           {
-            LODWORD(v81) = Model->numsurfs;
-            LODWORD(v80) = v25 + v28->surfIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v80, v81) )
+            LODWORD(v75) = Model->numsurfs;
+            LODWORD(v74) = v21 + v24->surfIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v74, v75) )
               __debugbreak();
           }
-          if ( !v28->surfs )
+          if ( !v24->surfs )
           {
-            LODWORD(v82) = v21;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", Model->name, v82) )
+            LODWORD(v76) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", Model->name, v76) )
               __debugbreak();
           }
-          if ( !v28->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
+          if ( !v24->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
             __debugbreak();
-          surfs = v28->surfs;
-          v30 = 0;
-          _RDI = v104;
-          _RSI = (__int64)&surfs->partBits + 192i64 * (int)v25 - (_QWORD)v104;
+          surfs = v24->surfs;
+          v26 = 0;
+          _RDI = v98;
+          _RSI = (__int64)&surfs->partBits + 192i64 * (int)v21 - (_QWORD)v98;
           do
           {
-            __asm
-            {
-              vlddqu  xmm6, xmmword ptr [rsi+rdi]
-              vmovdqu xmmword ptr [rdi], xmm6
-            }
-            ++v30;
+            __asm { vlddqu  xmm6, xmmword ptr [rsi+rdi] }
+            *(_OWORD *)_RDI = _XMM6;
+            ++v26;
             _RDI += 4;
           }
-          while ( v30 < 2 );
-          v34 = 32 - v27;
-          if ( (v85 & 0x1F) != 0 )
+          while ( v26 < 2 );
+          v30 = 32 - v23;
+          if ( (v79 & 0x1F) != 0 )
           {
-            if ( v26 )
+            if ( v22 )
+              v31 = 0;
+            else
+              v31 = (unsigned int)v98[0] >> v23;
+            v100 = v31;
+            if ( v22 )
+              v32 = 0;
+            else
+              v32 = v98[0] << v30;
+            if ( v22 <= 1 )
+              v33 = (unsigned int)v98[1 - v22] >> v23;
+            else
+              v33 = 0;
+            v101 = v32 | v33;
+            if ( v22 <= 1 )
+              v34 = v98[1 - v22] << v30;
+            else
+              v34 = 0;
+            if ( v22 <= 2 )
+              v35 = (unsigned int)v98[2 - v22] >> v23;
+            else
               v35 = 0;
+            v102 = v34 | v35;
+            if ( v22 <= 2 )
+              v36 = v98[2 - v22] << v30;
             else
-              v35 = (unsigned int)v104[0] >> v27;
-            v106 = v35;
-            if ( v26 )
               v36 = 0;
-            else
-              v36 = v104[0] << v34;
-            if ( v26 <= 1 )
-              v37 = (unsigned int)v104[1 - v26] >> v27;
+            if ( v22 <= 3 )
+              v37 = (unsigned int)v98[3 - v22] >> v23;
             else
               v37 = 0;
-            v107 = v36 | v37;
-            if ( v26 <= 1 )
-              v38 = v104[1 - v26] << v34;
+            v103 = v36 | v37;
+            if ( v22 <= 3 )
+              v38 = v98[3 - v22] << v30;
             else
               v38 = 0;
-            if ( v26 <= 2 )
-              v39 = (unsigned int)v104[2 - v26] >> v27;
+            if ( v22 <= 4 )
+              v39 = (unsigned int)v98[4 - v22] >> v23;
             else
               v39 = 0;
-            v108 = v38 | v39;
-            if ( v26 <= 2 )
-              v40 = v104[2 - v26] << v34;
+            v104 = v38 | v39;
+            if ( v22 <= 4 )
+              v40 = v98[4 - v22] << v30;
             else
               v40 = 0;
-            if ( v26 <= 3 )
-              v41 = (unsigned int)v104[3 - v26] >> v27;
+            if ( v22 <= 5 )
+              v41 = (unsigned int)v98[5 - v22] >> v23;
             else
               v41 = 0;
-            v109 = v40 | v41;
-            if ( v26 <= 3 )
-              v42 = v104[3 - v26] << v34;
+            v105 = v40 | v41;
+            if ( v22 <= 5 )
+              v42 = v98[5 - v22] << v30;
             else
               v42 = 0;
-            if ( v26 <= 4 )
-              v43 = (unsigned int)v104[4 - v26] >> v27;
+            if ( v22 <= 6 )
+              v43 = (unsigned int)v98[6 - v22] >> v23;
             else
               v43 = 0;
-            v110 = v42 | v43;
-            if ( v26 <= 4 )
-              v44 = v104[4 - v26] << v34;
+            v106 = v42 | v43;
+            if ( v22 <= 6 )
+              v44 = v98[6 - v22] << v30;
             else
               v44 = 0;
-            if ( v26 <= 5 )
-              v45 = (unsigned int)v104[5 - v26] >> v27;
+            if ( v22 <= 7 )
+              v45 = v44 | ((unsigned int)v98[7 - v22] >> v23);
             else
-              v45 = 0;
-            v111 = v44 | v45;
-            if ( v26 <= 5 )
-              v46 = v104[5 - v26] << v34;
-            else
+              v45 = v44;
+          }
+          else
+          {
+            if ( v22 )
               v46 = 0;
-            if ( v26 <= 6 )
-              v47 = (unsigned int)v104[6 - v26] >> v27;
+            else
+              v46 = v98[0];
+            v100 = v46;
+            if ( v22 <= 1 )
+              v47 = v98[1 - v22];
             else
               v47 = 0;
-            v112 = v46 | v47;
-            if ( v26 <= 6 )
-              v48 = v104[6 - v26] << v34;
+            v101 = v47;
+            if ( v22 <= 2 )
+              v48 = v98[2 - v22];
             else
               v48 = 0;
-            if ( v26 <= 7 )
-              v49 = v48 | ((unsigned int)v104[7 - v26] >> v27);
-            else
-              v49 = v48;
-          }
-          else
-          {
-            if ( v26 )
-              v50 = 0;
-            else
-              v50 = v104[0];
-            v106 = v50;
-            if ( v26 <= 1 )
-              v51 = v104[1 - v26];
-            else
-              v51 = 0;
-            v107 = v51;
-            if ( v26 <= 2 )
-              v52 = v104[2 - v26];
-            else
-              v52 = 0;
-            v108 = v52;
-            if ( v26 <= 3 )
-              v53 = v104[3 - v26];
-            else
-              v53 = 0;
-            v109 = v53;
-            if ( v26 <= 4 )
-              v54 = v104[4 - v26];
-            else
-              v54 = 0;
-            v110 = v54;
-            if ( v26 <= 5 )
-              v55 = v104[5 - v26];
-            else
-              v55 = 0;
-            v111 = v55;
-            if ( v26 <= 6 )
-              v56 = v104[6 - v26];
-            else
-              v56 = 0;
-            v112 = v56;
-            if ( v26 <= 7 )
-              v49 = v104[7 - v26];
+            v102 = v48;
+            if ( v22 <= 3 )
+              v49 = v98[3 - v22];
             else
               v49 = 0;
+            v103 = v49;
+            if ( v22 <= 4 )
+              v50 = v98[4 - v22];
+            else
+              v50 = 0;
+            v104 = v50;
+            if ( v22 <= 5 )
+              v51 = v98[5 - v22];
+            else
+              v51 = 0;
+            v105 = v51;
+            if ( v22 <= 6 )
+              v52 = v98[6 - v22];
+            else
+              v52 = 0;
+            v106 = v52;
+            if ( v22 <= 7 )
+              v45 = v98[7 - v22];
+            else
+              v45 = 0;
           }
-          if ( (v105 & 2) != 0 )
-            v57 = v49 | 2;
+          if ( (v99 & 2) != 0 )
+            v53 = v45 | 2;
           else
-            v57 = v49 & 0xFFFFFFFD;
-          v113 = v57;
-          v58 = 0;
+            v53 = v45 & 0xFFFFFFFD;
+          v107 = v53;
+          v54 = 0;
           while ( 1 )
           {
-            _RDI = 2i64 * v58;
+            _RDI = 2i64 * v54;
             __asm
             {
               vlddqu  xmm6, [rsp+rdi*8+3E8h+var_68]
@@ -2055,118 +2040,115 @@ LABEL_169:
             }
             if ( !_ZF )
               break;
-            if ( ++v58 >= 2 )
+            if ( ++v54 >= 2 )
             {
-              v65 = v93;
-              v83 &= Stream_TouchMaterialAndCheck_Internal<0>(Skins[v93], streamMip, touchArray);
+              v61 = v87;
+              v77 &= Stream_TouchMaterialAndCheck_Internal<0>(Skins[v87], streamMip, touchArray);
               goto LABEL_147;
             }
           }
-          v65 = v93;
+          v61 = v87;
 LABEL_147:
-          ++v25;
-          v93 = v65 + 1;
-          v21 = v91;
-          Model = v96;
+          ++v21;
+          v87 = v61 + 1;
+          v17 = v85;
+          Model = v90;
         }
-        while ( v25 < v90 );
-        v6 = v83;
-        v4 = streamMip;
-        v8 = v84;
-        v9 = v89;
+        while ( v21 < v84 );
+        v4 = v77;
+        v2 = streamMip;
+        v6 = v78;
+        v7 = v83;
       }
       else
       {
-        v9 = v89;
+        v7 = v83;
       }
     }
-    v5 = obj;
-    v66 = obj->modelMaterialOverrides;
-    if ( !v66 )
+    v3 = obj;
+    v62 = obj->modelMaterialOverrides;
+    if ( !v62 )
       goto LABEL_169;
-    v67 = &v66[v9];
-    v68 = 0;
-    if ( !v67->materialOverrideCount )
+    v63 = &v62[v7];
+    v64 = 0;
+    if ( !v63->materialOverrideCount )
       goto LABEL_168;
     while ( 1 )
     {
-      v69 = v67->materialOverride[v68];
-      if ( v69 )
+      v65 = v63->materialOverride[v64];
+      if ( v65 )
       {
-        if ( v69->overrideType == MATERIAL_OVERRIDETYPE_CAMO )
+        if ( v65->overrideType == MATERIAL_OVERRIDETYPE_CAMO )
         {
-          overrideCamo = v69->overrideCamo;
+          overrideCamo = v65->overrideCamo;
           if ( !overrideCamo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 370, ASSERT_TYPE_ASSERT, "( ( camo != nullptr ) )", "( camo ) = %p", NULL) )
             __debugbreak();
-          v71 = Stream_TouchCamoAndCheck(overrideCamo, v4);
+          v67 = Stream_TouchCamoAndCheck(overrideCamo, v2);
         }
         else
         {
-          if ( v69->overrideType != MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
+          if ( v65->overrideType != MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
           {
-            LODWORD(v80) = v69->overrideType;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 382, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp(382): unhandled case %d in switch statement", v80) )
+            LODWORD(v74) = v65->overrideType;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 382, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp(382): unhandled case %d in switch statement", v74) )
               __debugbreak();
             goto LABEL_166;
           }
-          overrideMaterial = v69->overrideMaterial;
+          overrideMaterial = v65->overrideMaterial;
           if ( !overrideMaterial && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 377, ASSERT_TYPE_ASSERT, "( ( material != nullptr ) )", "( material ) = %p", NULL) )
             __debugbreak();
-          v71 = Stream_TouchMaterialAndCheck_Internal<0>(overrideMaterial, v4, (volatile int (*)[10240])streamFrontendGlob->imageTouchBits[streamFrontendGlob->touchBufferIndex]);
+          v67 = Stream_TouchMaterialAndCheck_Internal<0>(overrideMaterial, v2, (volatile int (*)[10240])streamFrontendGlob->imageTouchBits[streamFrontendGlob->touchBufferIndex]);
         }
-        v6 &= v71;
+        v4 &= v67;
       }
 LABEL_166:
-      if ( ++v68 >= v67->materialOverrideCount )
+      if ( ++v64 >= v63->materialOverrideCount )
       {
-        v83 = v6;
-        v8 = v84;
-        v9 = v89;
+        v77 = v4;
+        v6 = v78;
+        v7 = v83;
         goto LABEL_168;
       }
     }
   }
 LABEL_170:
-  if ( v98 )
+  if ( v92 )
   {
-    v73 = DCONST_DVARBOOL_stream_workerTouchDObj;
+    v69 = DCONST_DVARBOOL_stream_workerTouchDObj;
     if ( !DCONST_DVARBOOL_stream_workerTouchDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_workerTouchDObj") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      v74 = v73->flags;
-      if ( (v74 & 0x81488) != 0 && (v74 & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v73->name) )
+      v70 = v69->flags;
+      if ( (v70 & 0x81488) != 0 && (v70 & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v69->name) )
         __debugbreak();
     }
-    if ( !v73->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 392, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_stream_workerTouchDObj, \"stream_workerTouchDObj\" ))", (const char *)&queryFormat, "Dconst_GetBool( stream_workerTouchDObj )") )
+    if ( !v69->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 392, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_stream_workerTouchDObj, \"stream_workerTouchDObj\" ))", (const char *)&queryFormat, "Dconst_GetBool( stream_workerTouchDObj )") )
       __debugbreak();
     Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
     Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_DOBJ, data);
     Sys_ProfEndNamedEvent();
   }
-  if ( v102 )
+  if ( v96 )
   {
-    v75 = DCONST_DVARBOOL_stream_workerTouchDObj;
+    v71 = DCONST_DVARBOOL_stream_workerTouchDObj;
     if ( !DCONST_DVARBOOL_stream_workerTouchDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_workerTouchDObj") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      v76 = v75->flags;
-      if ( (v76 & 0x81488) != 0 && (v76 & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v75->name) )
+      v72 = v71->flags;
+      if ( (v72 & 0x81488) != 0 && (v72 & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v71->name) )
         __debugbreak();
     }
-    if ( !v75->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 400, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_stream_workerTouchDObj, \"stream_workerTouchDObj\" ))", (const char *)&queryFormat, "Dconst_GetBool( stream_workerTouchDObj )") )
+    if ( !v71->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 400, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_stream_workerTouchDObj, \"stream_workerTouchDObj\" ))", (const char *)&queryFormat, "Dconst_GetBool( stream_workerTouchDObj )") )
       __debugbreak();
     Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TouchDObj::AddExtraWorker");
-    Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v101);
+    Sys_AddWorkerCmd(WRKCMD_STREAM_TOUCH_MATERIAL_OVERRIDES, v95);
     Sys_ProfEndNamedEvent();
   }
 LABEL_198:
   Sys_ProfEndNamedEvent();
-  result = v6;
-  _R11 = &v114;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return v4;
 }
 
 /*
@@ -2176,27 +2158,28 @@ Stream_TouchDObjCmd
 */
 void Stream_TouchDObjCmd(const void *const data)
 {
-  _QWORD *v2; 
-  unsigned __int64 v3; 
-  unsigned int v4; 
-  unsigned __int64 v5; 
-  const XModel *v6; 
+  _QWORD *v1; 
+  unsigned __int64 v2; 
+  unsigned int v3; 
+  unsigned __int64 v4; 
+  const XModel *v5; 
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
   const XModelLodInfo *LodInfo; 
-  const XModelLodInfo *v10; 
+  const XModelLodInfo *v9; 
   unsigned __int16 numsurfs; 
-  const XModelLodInfo *v12; 
+  const XModelLodInfo *v11; 
   unsigned __int16 surfIndex; 
-  const XModelLodInfo *v14; 
+  const XModelLodInfo *v13; 
+  unsigned int v14; 
   unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
-  int v18; 
-  const XModelLodInfo *v19; 
+  int v17; 
+  const XModelLodInfo *v18; 
   unsigned int i; 
-  char v24; 
-  unsigned int v25; 
+  char v23; 
+  unsigned int v24; 
+  int v25; 
   int v26; 
   int v27; 
   int v28; 
@@ -2210,271 +2193,266 @@ void Stream_TouchDObjCmd(const void *const data)
   int v36; 
   int v37; 
   int v38; 
-  int v39; 
-  unsigned int v40; 
+  unsigned int v39; 
+  int v40; 
   int v41; 
   int v42; 
   int v43; 
   int v44; 
   int v45; 
   int v46; 
-  int v47; 
-  unsigned int v48; 
+  unsigned int v47; 
+  __int64 v55; 
   __int64 v56; 
+  __int64 v57; 
   __int64 v58; 
-  __int64 v59; 
-  __int64 v60; 
+  unsigned int v59; 
+  unsigned int v60; 
   unsigned int v61; 
-  unsigned int v62; 
-  unsigned int v63; 
   int numBones; 
-  __int64 v65; 
-  unsigned __int64 v67; 
-  __int64 v68; 
-  const XModel *v69; 
-  unsigned __int64 v70; 
-  __int128 v71; 
+  __int64 v63; 
+  unsigned __int64 v65; 
+  __int64 v66; 
+  const XModel *v67; 
+  unsigned __int64 v68; 
+  __int128 v69; 
+  int v70; 
+  unsigned int v71; 
   int v72; 
-  unsigned int v73; 
+  int v73; 
   int v74; 
   int v75; 
   int v76; 
   int v77; 
   int v78; 
-  int v79; 
-  int v80; 
 
-  v2 = data;
+  v1 = data;
   if ( !*((_QWORD *)data + 16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 509, ASSERT_TYPE_ASSERT, "(cmd->modelCount)", (const char *)&queryFormat, "cmd->modelCount") )
     __debugbreak();
-  if ( v2[16] > 0x10ui64 )
+  if ( v1[16] > 0x10ui64 )
   {
-    LODWORD(v58) = v2[16];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 510, ASSERT_TYPE_ASSERT, "( cmd->modelCount ) <= ( StreamTouchDObjCmd::MAX_MODEL_COUNT )", "cmd->modelCount not in [0, StreamTouchDObjCmd::MAX_MODEL_COUNT]\n\t%u not in [0, %u]", v58, 16) )
+    LODWORD(v56) = v1[16];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 510, ASSERT_TYPE_ASSERT, "( cmd->modelCount ) <= ( StreamTouchDObjCmd::MAX_MODEL_COUNT )", "cmd->modelCount not in [0, StreamTouchDObjCmd::MAX_MODEL_COUNT]\n\t%u not in [0, %u]", v56, 16) )
       __debugbreak();
   }
-  v3 = v2[16];
-  v4 = 0;
-  v61 = 0;
-  v70 = v3;
-  if ( v3 > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 518, ASSERT_TYPE_SANITY, "( modelCount <= ( DOBJ_MAX_PARTS ) )", (const char *)&queryFormat, "modelCount <= DOBJ_MAX_SUBMODELS") )
+  v2 = v1[16];
+  v3 = 0;
+  v59 = 0;
+  v68 = v2;
+  if ( v2 > 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 518, ASSERT_TYPE_SANITY, "( modelCount <= ( DOBJ_MAX_PARTS ) )", (const char *)&queryFormat, "modelCount <= DOBJ_MAX_SUBMODELS") )
     __debugbreak();
-  v5 = 0i64;
-  v67 = 0i64;
-  if ( v3 )
+  v4 = 0i64;
+  v65 = 0i64;
+  if ( v2 )
   {
-    __asm { vmovaps [rsp+100h+var_30], xmm6 }
     do
     {
-      v6 = (const XModel *)v2[v5];
-      v69 = v6;
-      if ( !v6 )
+      v5 = (const XModel *)v1[v4];
+      v67 = v5;
+      if ( !v5 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 523, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
       }
-      numBones = v6->numBones;
-      v7 = XModelHighLod(v6);
-      v8 = v7;
-      v63 = v7;
-      if ( v7 >= v6->numLods )
+      numBones = v5->numBones;
+      v6 = XModelHighLod(v5);
+      v7 = v6;
+      v61 = v6;
+      if ( v6 >= v5->numLods )
       {
-        LODWORD(v59) = v6->numLods;
-        LODWORD(v58) = v7;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v58, v59) )
+        LODWORD(v57) = v5->numLods;
+        LODWORD(v56) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 43, ASSERT_TYPE_ASSERT, "(unsigned)( lod ) < (unsigned)( model->numLods )", "lod doesn't index model->numLods\n\t%i not in [0, %i)", v56, v57) )
           __debugbreak();
       }
-      LodInfo = XModelGetLodInfo(v6, v8);
+      LodInfo = XModelGetLodInfo(v5, v7);
       if ( LodInfo->numsurfs && LodInfo->surfs )
       {
-        if ( v8 + 1 > 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 214, ASSERT_TYPE_ASSERT, "(newLod <= static_cast<uint>( StreamModelLod::LOWEST ))", (const char *)&queryFormat, "newLod <= static_cast<uint>( StreamModelLod::LOWEST )") )
+        if ( v7 + 1 > 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 214, ASSERT_TYPE_ASSERT, "(newLod <= static_cast<uint>( StreamModelLod::LOWEST ))", (const char *)&queryFormat, "newLod <= static_cast<uint>( StreamModelLod::LOWEST )") )
           __debugbreak();
-        Stream_TouchMeshForXModelLod(v6, (StreamModelLod)(v8 + 1));
-        v10 = XModelGetLodInfo(v6, v8);
-        numsurfs = v6->numsurfs;
-        v12 = v10;
-        surfIndex = v10->surfIndex;
+        Stream_TouchMeshForXModelLod(v5, (StreamModelLod)(v7 + 1));
+        v9 = XModelGetLodInfo(v5, v7);
+        numsurfs = v5->numsurfs;
+        v11 = v9;
+        surfIndex = v9->surfIndex;
         if ( surfIndex >= numsurfs )
         {
-          LODWORD(v59) = numsurfs;
-          LODWORD(v58) = surfIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 261, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v58, v59) )
+          LODWORD(v57) = numsurfs;
+          LODWORD(v56) = surfIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 261, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v56, v57) )
             __debugbreak();
         }
-        v68 = (__int64)&v6->materialHandles[v12->surfIndex];
-        v14 = XModelGetLodInfo(v6, v8);
-        v15 = v14->numsurfs;
-        v62 = v15;
-        if ( !v14->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 536, ASSERT_TYPE_ASSERT, "(surfaceCount > 0)", (const char *)&queryFormat, "surfaceCount > 0") )
+        v66 = (__int64)&v5->materialHandles[v11->surfIndex];
+        v13 = XModelGetLodInfo(v5, v7);
+        v14 = v13->numsurfs;
+        v60 = v14;
+        if ( !v13->numsurfs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_touch.cpp", 536, ASSERT_TYPE_ASSERT, "(surfaceCount > 0)", (const char *)&queryFormat, "surfaceCount > 0") )
           __debugbreak();
-        v16 = 0;
-        if ( v15 )
+        v15 = 0;
+        if ( v14 )
         {
-          v65 = 0i64;
-          v17 = v4 >> 5;
-          v18 = v4 & 0x1F;
+          v63 = 0i64;
+          v16 = v3 >> 5;
+          v17 = v3 & 0x1F;
           do
           {
-            v19 = XModelGetLodInfo(v6, v8);
-            if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
+            v18 = XModelGetLodInfo(v5, v7);
+            if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 331, ASSERT_TYPE_ASSERT, "(lodInfo)", (const char *)&queryFormat, "lodInfo") )
               __debugbreak();
-            if ( v16 >= v19->numsurfs )
+            if ( v15 >= v18->numsurfs )
             {
-              LODWORD(v59) = v19->numsurfs;
-              LODWORD(v58) = v16;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v58, v59) )
+              LODWORD(v57) = v18->numsurfs;
+              LODWORD(v56) = v15;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 332, ASSERT_TYPE_ASSERT, "(unsigned)( surfIndex ) < (unsigned)( lodInfo->numsurfs )", "surfIndex doesn't index lodInfo->numsurfs\n\t%i not in [0, %i)", v56, v57) )
                 __debugbreak();
             }
-            if ( v16 + v19->surfIndex >= v6->numsurfs )
+            if ( v15 + v18->surfIndex >= v5->numsurfs )
             {
-              LODWORD(v59) = v6->numsurfs;
-              LODWORD(v58) = v16 + v19->surfIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v58, v59) )
+              LODWORD(v57) = v5->numsurfs;
+              LODWORD(v56) = v15 + v18->surfIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 333, ASSERT_TYPE_ASSERT, "(unsigned)( lodInfo->surfIndex + surfIndex ) < (unsigned)( model->numsurfs )", "lodInfo->surfIndex + surfIndex doesn't index model->numsurfs\n\t%i not in [0, %i)", v56, v57) )
                 __debugbreak();
             }
-            if ( !v19->surfs )
+            if ( !v18->surfs )
             {
-              LODWORD(v60) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", v6->name, v60) )
+              LODWORD(v58) = v7;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 340, ASSERT_TYPE_ASSERT, "(lodInfo->surfs)", "%s\n\tModel missing surfs : %s,%u. Perhaps you need to check XModelIsLodUsable()?", "lodInfo->surfs", v5->name, v58) )
                 __debugbreak();
             }
-            if ( !v19->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
+            if ( !v18->modelSurfsStaging && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 341, ASSERT_TYPE_ASSERT, "(lodInfo->modelSurfsStaging)", (const char *)&queryFormat, "lodInfo->modelSurfsStaging") )
               __debugbreak();
             _RDI = 0i64;
-            _RSI = (__int64)&v19->surfs[v16];
+            _RSI = (__int64)&v18->surfs[v15];
             for ( i = 0; i < 2; ++i )
             {
-              __asm
-              {
-                vlddqu  xmm6, xmmword ptr [rdi+rsi+70h]
-                vmovdqu [rbp+rdi+57h+var_78], xmm6
-              }
+              __asm { vlddqu  xmm6, xmmword ptr [rdi+rsi+70h] }
+              *(__int128 *)((char *)&v69 + _RDI) = _XMM6;
               _RDI += 16i64;
             }
-            v24 = 32 - v18;
-            if ( v18 )
+            v23 = 32 - v17;
+            if ( v17 )
             {
-              if ( v17 )
+              if ( v16 )
+                v24 = 0;
+              else
+                v24 = (unsigned int)v69 >> v17;
+              v71 = v24;
+              if ( v16 )
                 v25 = 0;
               else
-                v25 = (unsigned int)v71 >> v18;
-              v73 = v25;
-              if ( v17 )
-                v26 = 0;
+                v25 = (_DWORD)v69 << v23;
+              if ( v16 <= 1 )
+                v26 = *((_DWORD *)&v69 + 1 - v16) >> v17;
               else
-                v26 = (_DWORD)v71 << v24;
-              if ( v17 <= 1 )
-                v27 = *((_DWORD *)&v71 + 1 - v17) >> v18;
+                v26 = 0;
+              v72 = v25 | v26;
+              if ( v16 <= 1 )
+                v27 = *((_DWORD *)&v69 + 1 - v16) << v23;
               else
                 v27 = 0;
-              v74 = v26 | v27;
-              if ( v17 <= 1 )
-                v28 = *((_DWORD *)&v71 + 1 - v17) << v24;
+              if ( v16 <= 2 )
+                v28 = *((_DWORD *)&v69 + 2 - v16) >> v17;
               else
                 v28 = 0;
-              if ( v17 <= 2 )
-                v29 = *((_DWORD *)&v71 + 2 - v17) >> v18;
+              v73 = v27 | v28;
+              if ( v16 <= 2 )
+                v29 = *((_DWORD *)&v69 + 2 - v16) << v23;
               else
                 v29 = 0;
-              v75 = v28 | v29;
-              if ( v17 <= 2 )
-                v30 = *((_DWORD *)&v71 + 2 - v17) << v24;
+              if ( v16 <= 3 )
+                v30 = *((_DWORD *)&v69 + 3 - v16) >> v17;
               else
                 v30 = 0;
-              if ( v17 <= 3 )
-                v31 = *((_DWORD *)&v71 + 3 - v17) >> v18;
+              v74 = v29 | v30;
+              if ( v16 <= 3 )
+                v31 = *((_DWORD *)&v69 + 3 - v16) << v23;
               else
                 v31 = 0;
-              v76 = v30 | v31;
-              if ( v17 <= 3 )
-                v32 = *((_DWORD *)&v71 + 3 - v17) << v24;
+              if ( v16 <= 4 )
+                v32 = *((_DWORD *)&v69 + 4 - v16) >> v17;
               else
                 v32 = 0;
-              if ( v17 <= 4 )
-                v33 = *((_DWORD *)&v71 + 4 - v17) >> v18;
+              v75 = v31 | v32;
+              if ( v16 <= 4 )
+                v33 = *((_DWORD *)&v69 + 4 - v16) << v23;
               else
                 v33 = 0;
-              v77 = v32 | v33;
-              if ( v17 <= 4 )
-                v34 = *((_DWORD *)&v71 + 4 - v17) << v24;
+              if ( v16 <= 5 )
+                v34 = *((_DWORD *)&v69 + 5 - v16) >> v17;
               else
                 v34 = 0;
-              if ( v17 <= 5 )
-                v35 = *((_DWORD *)&v71 + 5 - v17) >> v18;
+              v76 = v33 | v34;
+              if ( v16 <= 5 )
+                v35 = *((_DWORD *)&v69 + 5 - v16) << v23;
               else
                 v35 = 0;
-              v78 = v34 | v35;
-              if ( v17 <= 5 )
-                v36 = *((_DWORD *)&v71 + 5 - v17) << v24;
+              if ( v16 <= 6 )
+                v36 = *((_DWORD *)&v69 + 6 - v16) >> v17;
               else
                 v36 = 0;
-              if ( v17 <= 6 )
-                v37 = *((_DWORD *)&v71 + 6 - v17) >> v18;
+              v77 = v35 | v36;
+              if ( v16 <= 6 )
+                v37 = *((_DWORD *)&v69 + 6 - v16) << v23;
               else
                 v37 = 0;
-              v79 = v36 | v37;
-              if ( v17 <= 6 )
-                v38 = *((_DWORD *)&v71 + 6 - v17) << v24;
+              if ( v16 <= 7 )
+                v38 = v37 | (*((_DWORD *)&v69 + 7 - v16) >> v17);
               else
-                v38 = 0;
-              if ( v17 <= 7 )
-                v39 = v38 | (*((_DWORD *)&v71 + 7 - v17) >> v18);
-              else
-                v39 = v38;
+                v38 = v37;
             }
             else
             {
-              if ( v17 )
-                v40 = 0;
+              if ( v16 )
+                v39 = 0;
               else
-                v40 = v71;
-              v73 = v40;
-              if ( v17 <= 1 )
-                v41 = *((_DWORD *)&v71 + 1 - v17);
+                v39 = v69;
+              v71 = v39;
+              if ( v16 <= 1 )
+                v40 = *((_DWORD *)&v69 + 1 - v16);
+              else
+                v40 = 0;
+              v72 = v40;
+              if ( v16 <= 2 )
+                v41 = *((_DWORD *)&v69 + 2 - v16);
               else
                 v41 = 0;
-              v74 = v41;
-              if ( v17 <= 2 )
-                v42 = *((_DWORD *)&v71 + 2 - v17);
+              v73 = v41;
+              if ( v16 <= 3 )
+                v42 = *((_DWORD *)&v69 + 3 - v16);
               else
                 v42 = 0;
-              v75 = v42;
-              if ( v17 <= 3 )
-                v43 = *((_DWORD *)&v71 + 3 - v17);
+              v74 = v42;
+              if ( v16 <= 4 )
+                v43 = *((_DWORD *)&v69 + 4 - v16);
               else
                 v43 = 0;
-              v76 = v43;
-              if ( v17 <= 4 )
-                v44 = *((_DWORD *)&v71 + 4 - v17);
+              v75 = v43;
+              if ( v16 <= 5 )
+                v44 = *((_DWORD *)&v69 + 5 - v16);
               else
                 v44 = 0;
-              v77 = v44;
-              if ( v17 <= 5 )
-                v45 = *((_DWORD *)&v71 + 5 - v17);
+              v76 = v44;
+              if ( v16 <= 6 )
+                v45 = *((_DWORD *)&v69 + 6 - v16);
               else
                 v45 = 0;
-              v78 = v45;
-              if ( v17 <= 6 )
-                v46 = *((_DWORD *)&v71 + 6 - v17);
+              v77 = v45;
+              if ( v16 <= 7 )
+                v38 = *((_DWORD *)&v69 + 7 - v16);
               else
-                v46 = 0;
-              v79 = v46;
-              if ( v17 <= 7 )
-                v39 = *((_DWORD *)&v71 + 7 - v17);
-              else
-                v39 = 0;
+                v38 = 0;
             }
-            if ( (v72 & 2) != 0 )
-              v47 = v39 | 2;
+            if ( (v70 & 2) != 0 )
+              v46 = v38 | 2;
             else
-              v47 = v39 & 0xFFFFFFFD;
-            v80 = v47;
-            v48 = 0;
+              v46 = v38 & 0xFFFFFFFD;
+            v78 = v46;
+            v47 = 0;
             while ( 1 )
             {
-              _RDI = 2i64 * v48;
+              _RDI = 2i64 * v47;
               __asm { vlddqu  xmm6, [rbp+rdi*8+57h+var_58] }
               _RAX = data;
               __asm
@@ -2485,32 +2463,31 @@ void Stream_TouchDObjCmd(const void *const data)
               }
               if ( !_ZF )
                 break;
-              if ( ++v48 >= 2 )
+              if ( ++v47 >= 2 )
               {
-                v56 = v65;
-                Stream_TouchMaterial_Internal(*(const Material **)(v68 + 8 * v65), *((StreamImageMip *)data + 34), (volatile int (*)[10240])streamFrontendGlob->imageTouchBits[streamFrontendGlob->touchBufferIndex]);
-                goto LABEL_128;
+                v55 = v63;
+                Stream_TouchMaterial_Internal(*(const Material **)(v66 + 8 * v63), *((StreamImageMip *)data + 34), (volatile int (*)[10240])streamFrontendGlob->imageTouchBits[streamFrontendGlob->touchBufferIndex]);
+                goto LABEL_127;
               }
             }
-            v56 = v65;
-LABEL_128:
-            v6 = v69;
-            ++v16;
-            v65 = v56 + 1;
-            v8 = v63;
+            v55 = v63;
+LABEL_127:
+            v5 = v67;
+            ++v15;
+            v63 = v55 + 1;
+            v7 = v61;
           }
-          while ( v16 < v62 );
-          v2 = data;
-          v4 = v61;
+          while ( v15 < v60 );
+          v1 = data;
+          v3 = v59;
         }
       }
-      v4 += numBones;
-      v5 = v67 + 1;
-      v67 = v5;
-      v61 = v4;
+      v3 += numBones;
+      v4 = v65 + 1;
+      v65 = v4;
+      v59 = v3;
     }
-    while ( v5 < v70 );
-    __asm { vmovaps xmm6, [rsp+100h+var_30] }
+    while ( v4 < v68 );
   }
 }
 

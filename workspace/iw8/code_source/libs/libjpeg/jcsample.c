@@ -458,18 +458,19 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
   unsigned __int8 **v27; 
   __int64 v28; 
   int v30; 
+  unsigned __int8 *v31; 
   int v37; 
   int v38; 
   unsigned int v39; 
   __int64 v40; 
+  int v45; 
   int v46; 
-  int v47; 
-  unsigned int v48; 
+  unsigned int v47; 
+  unsigned __int8 **v49; 
   unsigned __int8 **v50; 
-  unsigned __int8 **v51; 
 
-  v51 = output_data;
-  v50 = input_data;
+  v50 = output_data;
+  v49 = input_data;
   max_v_samp_factor = cinfo->max_v_samp_factor;
   v8 = input_data;
   v9 = output_data;
@@ -478,9 +479,9 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
   v12 = cinfo->max_h_samp_factor / compptr->h_samp_factor;
   v13 = 8 * compptr->width_in_blocks;
   v14 = cinfo->max_v_samp_factor;
-  v48 = v13;
+  v47 = v13;
   v15 = v14 / v_samp_factor;
-  v46 = v12 * (v14 / v_samp_factor);
+  v45 = v12 * (v14 / v_samp_factor);
   if ( (int)(v13 * v12 - image_width) > 0 && (int)max_v_samp_factor > 0 )
   {
     for ( i = 0i64; i < max_v_samp_factor; ++i )
@@ -492,7 +493,7 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
   }
   v18 = 0;
   v19 = v15;
-  v47 = 0;
+  v46 = 0;
   if ( v_samp_factor > 0 )
   {
     v20 = compptr;
@@ -503,7 +504,7 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
       v23 = 0;
       if ( v13 )
       {
-        v24 = v46;
+        v24 = v45;
         v25 = v13;
         do
         {
@@ -520,19 +521,16 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
             do
             {
               v30 = 0;
-              _RAX = &(*v27)[v23];
+              v31 = &(*v27)[v23];
               if ( v12 > 0 && (unsigned int)v12 >= 8 )
               {
                 do
                 {
-                  __asm
-                  {
-                    vmovd   xmm0, dword ptr [rax]
-                    vpmovzxbd xmm1, xmm0
-                    vmovd   xmm0, dword ptr [rax+4]
-                    vpaddd  xmm2, xmm1, xmm2
-                  }
-                  _RAX += 8;
+                  _XMM0 = *(unsigned int *)v31;
+                  __asm { vpmovzxbd xmm1, xmm0 }
+                  _XMM0 = *((unsigned int *)v31 + 1);
+                  __asm { vpaddd  xmm2, xmm1, xmm2 }
+                  v31 += 8;
                   v30 += 8;
                   __asm
                   {
@@ -553,23 +551,23 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
                   v30 += 2 * v39;
                   do
                   {
-                    v37 += *_RAX;
-                    v38 += _RAX[1];
-                    _RAX += 2;
+                    v37 += *v31;
+                    v38 += v31[1];
+                    v31 += 2;
                     --v40;
                   }
                   while ( v40 );
                 }
                 if ( v30 < v12 )
-                  v26 += *_RAX;
+                  v26 += *v31;
                 v26 += v38 + v37;
               }
               ++v27;
               --v28;
             }
             while ( v28 );
-            v8 = v50;
-            v24 = v46;
+            v8 = v49;
+            v24 = v45;
             __asm
             {
               vpaddd  xmm1, xmm3, xmm2
@@ -577,27 +575,26 @@ void int_downsample(jpeg_compress_struct *cinfo, jpeg_component_info *compptr, u
               vpaddd  xmm2, xmm1, xmm0
               vpsrldq xmm0, xmm2, 4
               vpaddd  xmm0, xmm2, xmm0
-              vmovd   eax, xmm0
             }
-            v26 += _EAX;
+            v26 += _XMM0;
           }
           v23 += v12;
-          *v22++ = (v26 + v46 / 2) / v24;
+          *v22++ = (v26 + v45 / 2) / v24;
           --v25;
         }
         while ( v25 );
-        v18 = v47;
+        v18 = v46;
         v21 = 8 * v19;
-        v9 = v51;
-        v13 = v48;
+        v9 = v50;
+        v13 = v47;
         v20 = compptr;
       }
       v8 = (unsigned __int8 **)((char *)v8 + v21);
       ++v18;
       ++v9;
-      v50 = v8;
-      v47 = v18;
-      v51 = v9;
+      v49 = v8;
+      v46 = v18;
+      v50 = v9;
     }
     while ( v18 < v20->v_samp_factor );
   }

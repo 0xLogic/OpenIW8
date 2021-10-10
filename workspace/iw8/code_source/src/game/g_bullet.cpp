@@ -456,301 +456,237 @@ GConeTargetEvaluator::FindTargets
 */
 int GConeTargetEvaluator::FindTargets(GConeTargetEvaluator *this, const Weapon *r_weapon, const bool isAlternate, const gentity_s *attacker, const vec3_t *bulletStart, const vec3_t *bulletDir, float range, float spread, int maxTargets, const bool isBeamWeapon, const unsigned int hitLocMask, const int gameTime, const bool isFiring, ntl::fixed_array<GAssistTarget,20> *outTargetArray)
 {
-  const vec3_t *v21; 
-  const gentity_s *v22; 
-  const vec3_t *v23; 
-  int v27; 
-  GTargetAssist *v29; 
-  int v30; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  const vec3_t *v18; 
+  const gentity_s *v19; 
+  const vec3_t *v20; 
+  int v21; 
+  float v22; 
+  GTargetAssist *v23; 
+  int v24; 
+  gentity_s *v25; 
   gentity_s **p_m_target; 
   const DObj *ServerDObjForEnt; 
-  DObj *v35; 
-  __int64 v51; 
-  __int64 v59; 
-  __int64 v63; 
-  __int64 v70; 
-  unsigned __int64 v71; 
-  const dvar_t *v76; 
-  const dvar_t *v78; 
-  const dvar_t *v79; 
+  DObj *v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  char *v36; 
+  __int64 v37; 
+  ConeTargetHitResults *p_outSearchResults; 
+  __m256i v39; 
+  __int128 v40; 
+  __int64 v41; 
+  ConeTargetHitResults *HitResults; 
+  char *v43; 
+  __int64 v44; 
+  __m256i v45; 
+  __int128 v46; 
+  __int64 v47; 
+  unsigned __int64 v48; 
+  const dvar_t *v49; 
+  const dvar_t *v50; 
+  const dvar_t *v51; 
+  float v52; 
+  float v53; 
+  float v54; 
   const playerState_s *EntityPlayerStateConst; 
-  const playerState_s *v90; 
   GHandler *Handler; 
   tmat33_t<vec3_t> *p_m_axis; 
   __int16 attackerEntNum; 
-  GHandler *v95; 
-  __int16 v97; 
-  bool v98; 
-  const gentity_s *v99; 
+  GHandler *v59; 
+  __int16 v61; 
+  bool v62; 
+  const gentity_s *v63; 
   ntl::fixed_array<GAssistTarget,20> *inOutTargetArray; 
-  unsigned __int64 v101; 
-  const vec3_t *v102; 
+  unsigned __int64 v65; 
+  const vec3_t *v66; 
   Weapon *r_weapona; 
-  char v104[832]; 
+  char v68[832]; 
   BGConeTargetBoneSearchParam searchParam; 
   vec3_t center; 
   vec3_t outAngles; 
   WorldUpReferenceFrame axis; 
   tmat33_t<vec3_t> outAxis; 
   ConeTargetHitResults outSearchResults; 
-  void *retaddr; 
+  __int128 v75; 
+  __int128 v76; 
+  _OWORD v77[5]; 
 
-  _R11 = &retaddr;
-  v21 = bulletStart;
-  v22 = attacker;
-  v23 = bulletDir;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-  }
-  v99 = attacker;
-  v98 = isAlternate;
+  v18 = bulletStart;
+  v19 = attacker;
+  v20 = bulletDir;
+  v75 = v17;
+  v63 = attacker;
+  v62 = isAlternate;
   r_weapona = (Weapon *)r_weapon;
   *(_QWORD *)center.v = bulletStart;
-  v102 = bulletDir;
+  v66 = bulletDir;
   inOutTargetArray = outTargetArray;
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1961, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+7A0h+spread]
-    vmulss  xmm10, xmm0, cs:__real@3c8efa35
-    vmovaps xmm0, xmm10; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  v27 = 0;
-  v97 = 2047;
-  __asm { vmovaps xmm11, xmm0 }
+  v21 = 0;
+  v61 = 2047;
+  v22 = cosf_0(spread * 0.017453292);
   if ( !GTargetAssist::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_targetassist.h", 61, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
     __debugbreak();
-  v29 = GTargetAssist::ms_instance;
-  v30 = ((__int64 (__fastcall *)(GTargetAssist *, __int64, _QWORD))GTargetAssist::ms_instance->FindNextTarget)(GTargetAssist::ms_instance, 0xFFFFFFFFi64, (unsigned __int16)v22->s.number);
-  __asm { vmovss  xmm9, [rbp+7A0h+range] }
-  if ( v30 != 0x7FFFFFFF )
+  v23 = GTargetAssist::ms_instance;
+  v24 = ((__int64 (__fastcall *)(GTargetAssist *, __int64, _QWORD))GTargetAssist::ms_instance->FindNextTarget)(GTargetAssist::ms_instance, 0xFFFFFFFFi64, (unsigned __int16)v19->s.number);
+  if ( v24 != 0x7FFFFFFF )
   {
-    _RBX = &g_entities[v97];
-    if ( _RBX )
+    v25 = &g_entities[v61];
+    if ( v25 )
     {
-      __asm { vmovaps xmmword ptr [rsp+8A0h+var_48+8], xmm6 }
+      v77[1] = v14;
       p_m_target = &inOutTargetArray->m_data[0].m_target;
-      __asm
-      {
-        vmovaps [rsp+8A0h+var_58+8], xmm7
-        vmovaps [rsp+8A0h+var_68+8], xmm8
-      }
-      v101 = 0i64;
+      v77[0] = v15;
+      v76 = v16;
+      v65 = 0i64;
       do
       {
-        if ( (unsigned __int64)v27 >= 0x14 )
+        if ( (unsigned __int64)v21 >= 0x14 )
           break;
-        ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-        v35 = (DObj *)ServerDObjForEnt;
+        ServerDObjForEnt = Com_GetServerDObjForEnt(v25);
+        v28 = (DObj *)ServerDObjForEnt;
         if ( ServerDObjForEnt )
         {
           if ( DObjGetFirstModel(ServerDObjForEnt) )
           {
-            G_Utils_GetAnglesWithWorldUp(_RBX, &outAngles);
+            G_Utils_GetAnglesWithWorldUp(v25, &outAngles);
             AnglesToAxis(&outAngles, (tmat33_t<vec3_t> *)&axis);
-            __asm
-            {
-              vcvttss2si eax, dword ptr [rbx+130h]
-              vxorps  xmm8, xmm8, xmm8
-              vcvtsi2ss xmm8, xmm8, eax
-              vcvttss2si eax, dword ptr [rbx+134h]
-              vxorps  xmm7, xmm7, xmm7
-              vcvtsi2ss xmm7, xmm7, eax
-              vcvttss2si eax, dword ptr [rbx+138h]
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, eax
-            }
+            v29 = (float)(int)v25->r.currentOrigin.v[0];
+            v30 = (float)(int)v25->r.currentOrigin.v[1];
+            v31 = (float)(int)v25->r.currentOrigin.v[2];
             memset_0(&searchParam, 0, sizeof(searchParam));
             searchParam.pmoveHandler = GHandler::getHandler();
-            searchParam.es = &_RBX->s;
-            __asm
-            {
-              vmovss  dword ptr [rbp+7A0h+searchParam.entityOrigin], xmm8
-              vmovss  dword ptr [rbp+7A0h+searchParam.entityOrigin+4], xmm7
-              vmovss  dword ptr [rbp+7A0h+searchParam.entityOrigin+8], xmm6
-            }
-            searchParam.entityDobj = v35;
+            searchParam.es = &v25->s;
+            searchParam.entityOrigin.v[0] = v29;
+            searchParam.entityOrigin.v[1] = v30;
+            searchParam.entityOrigin.v[2] = v31;
+            searchParam.entityDobj = v28;
             AxisCopy((const tmat33_t<vec3_t> *)&axis, &searchParam.entityAxis);
             searchParam.pmoveHandler = GHandler::getHandler();
-            _RAX = *(_QWORD *)center.v;
             searchParam.localClientNum = LOCAL_CLIENT_INVALID;
-            __asm
-            {
-              vmovss  [rbp+7A0h+searchParam.bulletRange], xmm9
-              vmovss  [rbp+7A0h+searchParam.maxDot], xmm11
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletStart], xmm0
-              vmovss  xmm0, dword ptr [rax+8]
-            }
-            _RAX = v102;
-            __asm
-            {
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletStart+4], xmm1
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletStart+8], xmm0
-              vmovss  xmm1, dword ptr [rax]
-              vmovss  xmm0, dword ptr [rax+4]
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletDir], xmm1
-              vmovss  xmm1, dword ptr [rax+8]
-            }
+            searchParam.bulletRange = range;
+            searchParam.maxDot = v22;
+            v32 = *(float *)(*(_QWORD *)center.v + 4i64);
+            searchParam.bulletStart.v[0] = **(float **)center.v;
+            v33 = *(float *)(*(_QWORD *)center.v + 8i64);
+            searchParam.bulletStart.v[1] = v32;
+            searchParam.bulletStart.v[2] = v33;
+            v34 = v66->v[1];
+            searchParam.bulletDir.v[0] = v66->v[0];
+            v35 = v66->v[2];
             searchParam.hitLocMask = hitLocMask;
             searchParam.isFiring = isFiring;
-            __asm
+            searchParam.bulletDir.v[1] = v34;
+            searchParam.bulletDir.v[2] = v35;
+            if ( BgTargetAssist::FindBonesWithinCone(v23, &searchParam, &outSearchResults) )
             {
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletDir+4], xmm0
-              vmovss  dword ptr [rbp+7A0h+searchParam.bulletDir+8], xmm1
-            }
-            if ( BgTargetAssist::FindBonesWithinCone(v29, &searchParam, &outSearchResults) )
-            {
-              _RCX = v104;
-              v51 = 6i64;
-              _RDX = &outSearchResults;
+              v36 = v68;
+              v37 = 6i64;
+              p_outSearchResults = &outSearchResults;
               do
               {
-                _RCX += 128;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rdx]
-                  vmovups xmm1, xmmword ptr [rdx+70h]
-                }
-                _RDX = (ConeTargetHitResults *)((char *)_RDX + 128);
-                __asm
-                {
-                  vmovups ymmword ptr [rcx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rdx-60h]
-                  vmovups ymmword ptr [rcx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rdx-40h]
-                  vmovups ymmword ptr [rcx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rdx-20h]
-                  vmovups xmmword ptr [rcx-20h], xmm0
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
-                --v51;
+                v36 += 128;
+                v39 = *(__m256i *)p_outSearchResults->hits[0].tagWorldPos.v;
+                v40 = *(_OWORD *)&p_outSearchResults->hits[1].tagWorldRot.row2.z;
+                p_outSearchResults = (ConeTargetHitResults *)((char *)p_outSearchResults + 128);
+                *((__m256i *)v36 - 4) = v39;
+                *((__m256i *)v36 - 3) = *(__m256i *)&p_outSearchResults[-1].hits[10].hitLocation;
+                *((__m256i *)v36 - 2) = *(__m256i *)&p_outSearchResults[-1].hits[11].tagWorldRot.row0.y;
+                *((_OWORD *)v36 - 2) = *(_OWORD *)&p_outSearchResults[-1].hits[11].tagName;
+                *((_OWORD *)v36 - 1) = v40;
+                --v37;
               }
-              while ( v51 );
-              __asm { vmovups ymm0, ymmword ptr [rdx] }
-              v59 = *(_QWORD *)&_RDX->hits[0].tagName;
-              __asm
-              {
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups xmm0, xmmword ptr [rdx+20h]
-                vmovups xmmword ptr [rcx+20h], xmm0
-              }
-              *((_QWORD *)_RCX + 6) = v59;
-              *((_DWORD *)_RCX + 14) = _RDX->hits[0].modelIndex;
-              _RCX = ConeTargetInfo::GetHitResults(&inOutTargetArray->m_data[v27]);
-              _RDX = v104;
-              v63 = 6i64;
+              while ( v37 );
+              v41 = *(_QWORD *)&p_outSearchResults->hits[0].tagName;
+              *(__m256i *)v36 = *(__m256i *)p_outSearchResults->hits[0].tagWorldPos.v;
+              *((_OWORD *)v36 + 2) = *(_OWORD *)&p_outSearchResults->hits[0].tagWorldRot.row1.z;
+              *((_QWORD *)v36 + 6) = v41;
+              *((_DWORD *)v36 + 14) = p_outSearchResults->hits[0].modelIndex;
+              HitResults = ConeTargetInfo::GetHitResults(&inOutTargetArray->m_data[v21]);
+              v43 = v68;
+              v44 = 6i64;
               do
               {
-                _RCX = (ConeTargetHitResults *)((char *)_RCX + 128);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rdx]
-                  vmovups xmm1, xmmword ptr [rdx+70h]
-                }
-                _RDX += 128;
-                __asm
-                {
-                  vmovups ymmword ptr [rcx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rdx-60h]
-                  vmovups ymmword ptr [rcx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rdx-40h]
-                  vmovups ymmword ptr [rcx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rdx-20h]
-                  vmovups xmmword ptr [rcx-20h], xmm0
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
-                --v63;
+                HitResults = (ConeTargetHitResults *)((char *)HitResults + 128);
+                v45 = *(__m256i *)v43;
+                v46 = *((_OWORD *)v43 + 7);
+                v43 += 128;
+                *(__m256i *)&HitResults[-1].hits[10].tagWorldRot.row0.z = v45;
+                *(__m256i *)&HitResults[-1].hits[10].hitLocation = *((__m256i *)v43 - 3);
+                *(__m256i *)&HitResults[-1].hits[11].tagWorldRot.row0.y = *((__m256i *)v43 - 2);
+                *(_OWORD *)&HitResults[-1].hits[11].tagName = *((_OWORD *)v43 - 2);
+                *(_OWORD *)&HitResults[-1].hits[11].priority = v46;
+                --v44;
               }
-              while ( v63 );
-              __asm { vmovups ymm0, ymmword ptr [rdx] }
-              v70 = *((_QWORD *)_RDX + 6);
-              v71 = v101;
-              __asm
-              {
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups xmm0, xmmword ptr [rdx+20h]
-                vmovups xmmword ptr [rcx+20h], xmm0
-              }
-              *(_QWORD *)&_RCX->hits[0].tagName = v70;
-              _RCX->hits[0].modelIndex = *((_DWORD *)_RDX + 14);
-              if ( v71 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              while ( v44 );
+              v47 = *((_QWORD *)v43 + 6);
+              v48 = v65;
+              *(__m256i *)HitResults->hits[0].tagWorldPos.v = *(__m256i *)v43;
+              *(_OWORD *)&HitResults->hits[0].tagWorldRot.row1.z = *((_OWORD *)v43 + 2);
+              *(_QWORD *)&HitResults->hits[0].tagName = v47;
+              HitResults->hits[0].modelIndex = *((_DWORD *)v43 + 14);
+              if ( v48 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
-              *p_m_target = (gentity_s *)_RBX;
-              ++v27;
-              v101 = v71 + 1;
+              *p_m_target = v25;
+              ++v21;
+              v65 = v48 + 1;
               p_m_target += 106;
             }
           }
         }
-        v22 = v99;
-        if ( v30 == 0x7FFFFFFF )
+        v19 = v63;
+        if ( v24 == 0x7FFFFFFF )
           break;
-        v30 = v29->FindNextTarget(v29, LOCAL_CLIENT_INVALID, v99->s.number, v30, gameTime, &v97);
-        _RBX = &g_entities[v97];
+        v24 = v23->FindNextTarget(v23, LOCAL_CLIENT_INVALID, v63->s.number, v24, gameTime, &v61);
+        v25 = &g_entities[v61];
       }
-      while ( _RBX );
-      v23 = v102;
-      v21 = *(const vec3_t **)center.v;
-      __asm
-      {
-        vmovaps xmm8, [rsp+8A0h+var_68+8]
-        vmovaps xmm7, [rsp+8A0h+var_58+8]
-        vmovaps xmm6, xmmword ptr [rsp+8A0h+var_48+8]
-      }
+      while ( v25 );
+      v20 = v66;
+      v18 = *(const vec3_t **)center.v;
     }
   }
-  v76 = DVARINT_g_debugBullets;
-  __asm { vmovaps xmm11, [rsp+8A0h+var_98+8] }
+  v49 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v76);
-  if ( v76->current.integer == 2 )
+  Dvar_CheckFrontendServerThread(v49);
+  if ( v49->current.integer == 2 )
     goto LABEL_37;
-  v78 = DVARINT_g_debugBullets;
+  v50 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v78);
-  if ( v78->current.integer == 3 )
+  Dvar_CheckFrontendServerThread(v50);
+  if ( v50->current.integer == 3 )
     goto LABEL_37;
-  v79 = DVARINT_g_debugBullets;
+  v51 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v79);
-  if ( v79->current.integer == 4 )
+  Dvar_CheckFrontendServerThread(v51);
+  if ( v51->current.integer == 4 )
   {
 LABEL_37:
-    __asm
-    {
-      vmulss  xmm1, xmm9, dword ptr [r14]
-      vaddss  xmm2, xmm1, dword ptr [r13+0]
-      vmulss  xmm1, xmm9, dword ptr [r14+4]
-      vmovss  dword ptr [rbp+7A0h+center], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r13+4]
-      vmulss  xmm1, xmm9, dword ptr [r14+8]
-      vmovss  dword ptr [rbp+7A0h+center+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r13+8]
-      vmovaps xmm0, xmm10; X
-      vmovss  dword ptr [rbp+7A0h+center+8], xmm2
-    }
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    __asm { vmulss  xmm1, xmm0, xmm9; radius }
-    G_DebugCircleEx(&center, *(float *)&_XMM1, v23, &colorBlue, 0, 100);
+    v52 = range * v20->v[1];
+    center.v[0] = (float)(range * v20->v[0]) + v18->v[0];
+    v53 = range * v20->v[2];
+    center.v[1] = v52 + v18->v[1];
+    center.v[2] = v53 + v18->v[2];
+    v54 = tanf_0(spread * 0.017453292);
+    G_DebugCircleEx(&center, v54 * range, v20, &colorBlue, 0, 100);
   }
-  EntityPlayerStateConst = G_GetEntityPlayerStateConst(v22);
-  __asm { vmovaps xmm10, [rsp+8A0h+var_88+8] }
-  v90 = EntityPlayerStateConst;
-  __asm { vmovaps xmm9, [rsp+8A0h+var_78+8] }
+  EntityPlayerStateConst = G_GetEntityPlayerStateConst(v19);
   if ( EntityPlayerStateConst )
   {
     Handler = GHandler::getHandler();
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&axis, v90, Handler);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&axis, EntityPlayerStateConst, Handler);
     p_m_axis = &axis.m_axis;
   }
   else
@@ -758,10 +694,10 @@ LABEL_37:
     MatrixIdentity33((tmat33_t<vec3_t> *)&axis);
     p_m_axis = (tmat33_t<vec3_t> *)&axis;
   }
-  GenerateAxisFromForwardVector(v23, p_m_axis, &outAxis);
-  attackerEntNum = v22->s.number;
-  v95 = GHandler::getHandler();
-  return BgTargetAssist::EvaluateTargetsWithinCone<GAssistTarget>(v29, v95, r_weapona, v98, inOutTargetArray, v27, &outAxis, v21, maxTargets, attackerEntNum, PHYSICS_WORLD_ID_SERVER_DETAIL, isFiring);
+  GenerateAxisFromForwardVector(v20, p_m_axis, &outAxis);
+  attackerEntNum = v19->s.number;
+  v59 = GHandler::getHandler();
+  return BgTargetAssist::EvaluateTargetsWithinCone<GAssistTarget>(v23, v59, r_weapona, v62, inOutTargetArray, v21, &outAxis, v18, maxTargets, attackerEntNum, PHYSICS_WORLD_ID_SERVER_DETAIL, isFiring);
 }
 
 /*
@@ -769,78 +705,45 @@ LABEL_37:
 GConeTargetEvaluator::EvaluateTarget
 ==============
 */
-
-bool __fastcall GConeTargetEvaluator::EvaluateTarget(GConeTargetEvaluator *this, const GAssistTarget *assistTarget, const vec3_t *bulletStart, double range, vec3_t *outBulletEnd, vec3_t *outBulletDir)
+bool GConeTargetEvaluator::EvaluateTarget(GConeTargetEvaluator *this, const GAssistTarget *assistTarget, const vec3_t *bulletStart, float range, vec3_t *outBulletEnd, vec3_t *outBulletDir)
 {
   ConeTargetHitResults *HitResults; 
-  ConeTargetHitResults *v15; 
-  __int128 v46; 
-  char v49; 
+  const ConeTargetHitInfo *FirstVisibleHit; 
+  ConeTargetHitResults *v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
 
-  _RBP = outBulletEnd;
-  _RSI = outBulletDir;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm3
-  }
-  if ( !assistTarget && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2073, ASSERT_TYPE_ASSERT, "(assistTarget)", (const char *)&queryFormat, "assistTarget", v46) )
+  if ( !assistTarget && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2073, ASSERT_TYPE_ASSERT, "(assistTarget)", (const char *)&queryFormat, "assistTarget") )
     __debugbreak();
   HitResults = (ConeTargetHitResults *)ConeTargetInfo::GetHitResults(&assistTarget->ConeTargetInfo);
-  _RAX = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
-  if ( _RAX )
+  FirstVisibleHit = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
+  if ( FirstVisibleHit )
   {
+    v10 = (ConeTargetHitResults *)ConeTargetInfo::GetHitResults(&assistTarget->ConeTargetInfo);
+    FirstVisibleHit = ConeTargetHitResults::GetFirstVisibleHit(v10);
+    v11 = FirstVisibleHit->tagWorldPos.v[0] - bulletStart->v[0];
+    v13 = LODWORD(FirstVisibleHit->tagWorldPos.v[1]);
+    v12 = FirstVisibleHit->tagWorldPos.v[1] - bulletStart->v[1];
+    v14 = FirstVisibleHit->tagWorldPos.v[2] - bulletStart->v[2];
+    *(float *)&v13 = fsqrt((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v14 * v14));
+    _XMM4 = v13;
     __asm
     {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmovaps [rsp+68h+var_28], xmm7
-    }
-    v15 = (ConeTargetHitResults *)ConeTargetInfo::GetHitResults(&assistTarget->ConeTargetInfo);
-    _RAX = ConeTargetHitResults::GetFirstVisibleHit(v15);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm5, xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm6, xmm1, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm7, xmm0, dword ptr [rdi+8]
-      vmulss  xmm0, xmm7, xmm7
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm2, xmm6
-      vmovaps xmm6, [rsp+68h+var_18]
     }
-    LOBYTE(_RAX) = 1;
-    __asm
-    {
-      vmovss  dword ptr [rsi+4], xmm0
-      vmulss  xmm1, xmm2, xmm7
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovss  dword ptr [rsi+8], xmm1
-      vmulss  xmm3, xmm2, xmm5
-      vmovss  dword ptr [rsi], xmm3
-      vmulss  xmm0, xmm3, xmm8
-      vaddss  xmm2, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rbp+0], xmm2
-      vmulss  xmm0, xmm8, dword ptr [rsi+4]
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rbp+4], xmm1
-      vmulss  xmm0, xmm8, dword ptr [rsi+8]
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+8], xmm1
-    }
+    LOBYTE(FirstVisibleHit) = 1;
+    outBulletDir->v[1] = (float)(1.0 / *(float *)&_XMM0) * v12;
+    outBulletDir->v[2] = (float)(1.0 / *(float *)&_XMM0) * v14;
+    *(float *)&v13 = (float)(1.0 / *(float *)&_XMM0) * v11;
+    outBulletDir->v[0] = *(float *)&v13;
+    outBulletEnd->v[0] = (float)(*(float *)&v13 * range) + bulletStart->v[0];
+    outBulletEnd->v[1] = (float)(range * outBulletDir->v[1]) + bulletStart->v[1];
+    outBulletEnd->v[2] = (float)(range * outBulletDir->v[2]) + bulletStart->v[2];
   }
-  _R11 = &v49;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
-  return (char)_RAX;
+  return (char)FirstVisibleHit;
 }
 
 /*
@@ -1006,73 +909,43 @@ GBullet::CalculateHitImpactSoundDelay
 __int64 GBullet::CalculateHitImpactSoundDelay(GBullet *this, const gentity_s *attacker, const gentity_s *victim)
 {
   const playerState_s *EntityPlayerStateConst; 
-  char v16; 
-  char v17; 
-  int v28; 
+  float v6; 
+  float v7; 
+  float v8; 
+  double Float_Internal_DebugName; 
+  int v10; 
+  int v11; 
 
-  _RSI = attacker;
   if ( attacker )
     EntityPlayerStateConst = G_GetEntityPlayerStateConst(attacker);
   else
     EntityPlayerStateConst = NULL;
   if ( !victim || victim->s.eType != ET_PLAYER && victim->s.eType != ET_AGENT && victim->s.eType != ET_ACTOR || !EntityPlayerStateConst || GameModeFlagValues::ms_mpValue == ACTIVE && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->otherFlags, ACTIVE, 0x22u) )
     return 0xFFFFFFFFi64;
-  __asm
+  v6 = attacker->r.currentOrigin.v[0] - victim->r.currentOrigin.v[0];
+  v7 = attacker->r.currentOrigin.v[1] - victim->r.currentOrigin.v[1];
+  v8 = attacker->r.currentOrigin.v[2] - victim->r.currentOrigin.v[2];
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_bulletHitImpactSoundSpeed, "bg_bulletHitImpactSoundSpeed");
+  if ( *(float *)&Float_Internal_DebugName <= 0.000001 )
   {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vmovss  xmm1, dword ptr [rsi+134h]
-    vmovaps [rsp+78h+var_28], xmm6
-    vsubss  xmm6, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm0, dword ptr [rsi+138h]
-    vmovaps [rsp+78h+var_38], xmm7
-    vsubss  xmm7, xmm1, dword ptr [rbx+134h]
-    vmovaps [rsp+78h+var_48], xmm8
-    vsubss  xmm8, xmm0, dword ptr [rbx+138h]
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_bg_bulletHitImpactSoundSpeed, "bg_bulletHitImpactSoundSpeed");
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v16 | v17 )
-  {
-    _EBX = 0;
+    v10 = 0;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm2, xmm7, xmm7
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@447a0000
-      vmulss  xmm2, xmm8, xmm8
-      vaddss  xmm3, xmm3, xmm2
-      vsqrtss xmm4, xmm3, xmm3
-      vdivss  xmm0, xmm1, xmm0
-      vmulss  xmm2, xmm4, xmm0
-      vcvttss2si ebx, xmm2
-    }
-    if ( _EBX < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2991, ASSERT_TYPE_ASSERT, "(timeToVictimMs >= 0)", (const char *)&queryFormat, "timeToVictimMs >= 0") )
+    v10 = (int)(float)(fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v8 * v8)) * (float)(1000.0 / *(float *)&Float_Internal_DebugName));
+    if ( v10 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2991, ASSERT_TYPE_ASSERT, "(timeToVictimMs >= 0)", (const char *)&queryFormat, "timeToVictimMs >= 0") )
       __debugbreak();
   }
-  v28 = level.time - EntityPlayerStateConst->serverTime;
-  __asm
-  {
-    vmovaps xmm8, [rsp+78h+var_48]
-    vmovaps xmm7, [rsp+78h+var_38]
-    vmovaps xmm6, [rsp+78h+var_28]
-  }
-  if ( v28 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2994, ASSERT_TYPE_ASSERT, "(viewDelay >= 0)", (const char *)&queryFormat, "viewDelay >= 0") )
+  v11 = level.time - EntityPlayerStateConst->serverTime;
+  if ( v11 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2994, ASSERT_TYPE_ASSERT, "(viewDelay >= 0)", (const char *)&queryFormat, "viewDelay >= 0") )
     __debugbreak();
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_bg_bulletHitImpactLagCompensation, "bg_bulletHitImpactLagCompensation") )
   {
-    _EBX -= v28;
-    if ( _EBX < 0 )
+    v10 -= v11;
+    if ( v10 < 0 )
       return 0;
   }
-  return (unsigned int)_EBX;
+  return (unsigned int)v10;
 }
 
 /*
@@ -1185,169 +1058,102 @@ G_Bullet_BoneHitEncode
 */
 char G_Bullet_BoneHitEncode(const gentity_s *hitClient, scr_string_t partName, const vec3_t *hitPoint, BulletHitBoneInfo *outHitInfo)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
   const DObj *ServerDObjForEnt; 
   const DObj *v16; 
-  char v25; 
-  unsigned __int8 v64; 
-  unsigned __int8 v69; 
-  unsigned __int8 v71; 
+  XBoneInfo *BoneInfoForBoneIndex; 
+  DObjAnimMat *LocalBoneIndexMatrix; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  unsigned __int8 v30; 
   unsigned __int8 inOutIndex[4]; 
   int modelIndex; 
-  vec3_t v82; 
+  vec3_t v36; 
   vec3_t out; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v85; 
+  tmat43_t<vec3_t> v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
 
-  _RSI = hitClient;
   if ( !hitClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2743, ASSERT_TYPE_ASSERT, "( hitClient )", (const char *)&queryFormat, "hitClient") )
     __debugbreak();
   if ( !outHitInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2744, ASSERT_TYPE_ASSERT, "( outHitInfo )", (const char *)&queryFormat, "outHitInfo") )
     __debugbreak();
   if ( !partName )
     return 0;
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RSI);
+  ServerDObjForEnt = Com_GetServerDObjForEnt(hitClient);
   v16 = ServerDObjForEnt;
   if ( !ServerDObjForEnt )
     return 0;
   inOutIndex[0] = -2;
   if ( !DObjGetBoneIndexInternal_20(ServerDObjForEnt, partName, inOutIndex, &modelIndex) )
     return 0;
-  __asm
-  {
-    vmovaps [rsp+160h+var_40], xmm6
-    vmovaps [rsp+160h+var_50], xmm7
-    vmovaps [rsp+160h+var_60], xmm8
-    vmovaps [rsp+160h+var_70], xmm9
-    vmovaps [rsp+160h+var_80], xmm10
-    vmovaps [rsp+160h+var_90], xmm11
-    vmovaps [rsp+160h+var_A0], xmm12
-  }
+  v46 = v4;
+  v45 = v5;
+  v44 = v6;
+  v43 = v7;
+  v42 = v8;
+  v41 = v9;
+  v40 = v10;
   if ( inOutIndex[0] == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2757, ASSERT_TYPE_ASSERT, "( boneIndex != 255 )", (const char *)&queryFormat, "boneIndex != NO_BONEINDEX") )
     __debugbreak();
-  _RDI = DObjGetBoneInfoForBoneIndex(v16, inOutIndex[0]);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2760, ASSERT_TYPE_ASSERT, "( boneInfo )", (const char *)&queryFormat, "boneInfo") )
+  BoneInfoForBoneIndex = DObjGetBoneInfoForBoneIndex(v16, inOutIndex[0]);
+  if ( !BoneInfoForBoneIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2760, ASSERT_TYPE_ASSERT, "( boneInfo )", (const char *)&queryFormat, "boneInfo") )
     __debugbreak();
-  _RBX = G_Utils_DObjGetLocalBoneIndexMatrix(_RSI, inOutIndex[0]);
-  AnglesToAxis(&_RSI->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vmovss  xmm1, dword ptr [rsi+134h]
-    vmovss  [rsp+160h+var_E4], xmm0
-    vmovss  xmm0, dword ptr [rsi+138h]
-    vmovss  [rbp+60h+var_DC], xmm0
-    vmovss  [rbp+60h+var_E0], xmm1
-  }
+  LocalBoneIndexMatrix = G_Utils_DObjGetLocalBoneIndexMatrix(hitClient, inOutIndex[0]);
+  AnglesToAxis(&hitClient->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
+  v19 = hitClient->r.currentOrigin.v[1];
+  axis.m[3].v[0] = hitClient->r.currentOrigin.v[0];
+  axis.m[3].v[2] = hitClient->r.currentOrigin.v[2];
+  axis.m[3].v[1] = v19;
   MatrixTransposeTransformVector43(hitPoint, &axis, &out);
-  QuatToAxis(&_RBX->quat, (tmat33_t<vec3_t> *)&v85);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rbp+60h+var_B4], xmm0
-    vmovss  xmm1, dword ptr [rbx+14h]
-    vmovss  [rbp+60h+var_B0], xmm1
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rbp+60h+var_AC], xmm0
-  }
-  MatrixTransposeTransformVector43(&out, &v85, &v82);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+160h+var_128+4]
-    vmovss  xmm0, dword ptr [rsp+160h+var_128]
-    vsubss  xmm3, xmm1, dword ptr [rdi+4]
-    vmovss  xmm1, dword ptr [rdi+0Ch]
-    vsubss  xmm2, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rsp+160h+var_128+8]
-    vsubss  xmm4, xmm0, dword ptr [rdi+8]
-    vxorps  xmm11, xmm11, xmm11
-    vucomiss xmm1, xmm11
-  }
-  if ( v25 )
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+  QuatToAxis(&LocalBoneIndexMatrix->quat, (tmat33_t<vec3_t> *)&v39);
+  v39.m[3] = LocalBoneIndexMatrix->trans;
+  MatrixTransposeTransformVector43(&out, &v39, &v36);
+  v20 = BoneInfoForBoneIndex->bounds.halfSize.v[0];
+  if ( v20 == 0.0 )
+    v21 = 0.0;
   else
-    __asm { vdivss  xmm1, xmm2, xmm1 }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vucomiss xmm0, xmm11
-  }
-  if ( v25 )
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v21 = (float)(v36.v[0] - BoneInfoForBoneIndex->bounds.midPoint.v[0]) / v20;
+  v22 = BoneInfoForBoneIndex->bounds.halfSize.v[1];
+  if ( v22 == 0.0 )
+    v23 = 0.0;
   else
-    __asm { vdivss  xmm9, xmm3, xmm0 }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vucomiss xmm0, xmm11
-  }
-  if ( v25 )
-    __asm { vxorps  xmm12, xmm12, xmm12 }
+    v23 = (float)(v36.v[1] - BoneInfoForBoneIndex->bounds.midPoint.v[1]) / v22;
+  v24 = BoneInfoForBoneIndex->bounds.halfSize.v[2];
+  if ( v24 == 0.0 )
+    v25 = 0.0;
   else
-    __asm { vdivss  xmm12, xmm4, xmm0 }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm10, cs:__real@3f000000
-    vaddss  xmm0, xmm1, xmm7
-    vmulss  xmm0, xmm0, xmm10; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@437f0000
-    vmulss  xmm8, xmm0, xmm6
-    vaddss  xmm0, xmm9, xmm7
-    vmulss  xmm0, xmm0, xmm10; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vaddss  xmm3, xmm12, xmm7
-    vmulss  xmm9, xmm0, xmm6
-    vmulss  xmm0, xmm3, xmm10; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, xmm10
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm0, xmm8, xmm10
-    vroundss xmm1, xmm1, xmm0, 1
-    vxorps  xmm6, xmm6, xmm6
-    vcvttss2si rcx, xmm1; val
-    vroundss xmm6, xmm6, xmm2, 1
-  }
-  v64 = truncate_cast<unsigned char,unsigned int>(_RCX);
-  __asm
-  {
-    vaddss  xmm0, xmm9, xmm10
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1
-    vcvttss2si rcx, xmm1; val
-  }
-  *((_BYTE *)outHitInfo + 1) = v64;
-  v69 = truncate_cast<unsigned char,unsigned int>(_RCX);
-  __asm { vcvttss2si rcx, xmm6; val }
-  *((_BYTE *)outHitInfo + 2) = v69;
-  v71 = truncate_cast<unsigned char,unsigned int>(_RCX);
-  __asm
-  {
-    vmovaps xmm12, [rsp+160h+var_A0]
-    vmovaps xmm11, [rsp+160h+var_90]
-    vmovaps xmm10, [rsp+160h+var_80]
-    vmovaps xmm9, [rsp+160h+var_70]
-    vmovaps xmm8, [rsp+160h+var_60]
-    vmovaps xmm7, [rsp+160h+var_50]
-    vmovaps xmm6, [rsp+160h+var_40]
-  }
-  *((_BYTE *)outHitInfo + 3) = v71;
+    v25 = (float)(v36.v[2] - BoneInfoForBoneIndex->bounds.midPoint.v[2]) / v24;
+  I_fclamp((float)(v21 + 1.0) * 0.5, 0.0, 1.0);
+  I_fclamp((float)(v23 + 1.0) * 0.5, 0.0, 1.0);
+  I_fclamp((float)(v25 + 1.0) * 0.5, 0.0, 1.0);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  _XMM6 = 0i64;
+  __asm { vroundss xmm6, xmm6, xmm2, 1 }
+  v30 = truncate_cast<unsigned char,unsigned int>((int)*(float *)&_XMM1);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1 }
+  *((_BYTE *)outHitInfo + 1) = v30;
+  *((_BYTE *)outHitInfo + 2) = truncate_cast<unsigned char,unsigned int>((int)*(float *)&_XMM1);
+  *((_BYTE *)outHitInfo + 3) = truncate_cast<unsigned char,unsigned int>((int)*(float *)&_XMM6);
   if ( (unsigned int)inOutIndex[0] + 1 >= 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2800, ASSERT_TYPE_ASSERT, "( boneIndex + 1 < 0xff )", (const char *)&queryFormat, "boneIndex + 1 < UCHAR_MAX") )
     __debugbreak();
   *(_BYTE *)outHitInfo = inOutIndex[0] + 1;
@@ -1359,120 +1165,71 @@ char G_Bullet_BoneHitEncode(const gentity_s *hitClient, scr_string_t partName, c
 G_Bullet_CalculateLinearDamage
 ==============
 */
-int G_Bullet_CalculateLinearDamage(const WeaponDamageCalcType damageCalcType, const BulletFireParams *bp, const BulletTraceResults *br, const Weapon *weapon, bool isAlternate)
+__int64 G_Bullet_CalculateLinearDamage(const WeaponDamageCalcType damageCalcType, const BulletFireParams *bp, const BulletTraceResults *br, const Weapon *weapon, bool isAlternate)
 {
-  const dvar_t *v13; 
-  char v15; 
-  bool v16; 
-  bool v21; 
-  int result; 
-  float *maxDamageRange; 
+  __int128 v5; 
+  int v10; 
+  const dvar_t *v11; 
+  float v12; 
+  float travelDistance; 
+  float v14; 
+  float v15; 
   float minDamageRange[4]; 
-  float v46; 
+  __int128 v18; 
+  float maxDamageRange; 
   int outMaxDamage; 
   int outMinDamage; 
 
-  _R14 = bp;
   if ( (unsigned int)damageCalcType >= WEAP_DMG_CALC_TYPE_NUM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 215, ASSERT_TYPE_ASSERT, "(unsigned)( damageCalcType ) < (unsigned)( WEAP_DMG_CALC_TYPE_NUM )", "damageCalcType doesn't index WEAP_DMG_CALC_TYPE_NUM\n\t%i not in [0, %i)", damageCalcType, 3) )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 226, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
+  if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 226, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 227, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
   if ( br->trace.hitType == TRACE_HITTYPE_BEGIN && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 228, ASSERT_TYPE_ASSERT, "( br->trace.hitType != TRACE_HITTYPE_NONE )", (const char *)&queryFormat, "br->trace.hitType != TRACE_HITTYPE_NONE") )
     __debugbreak();
   BG_GetMinMaxDamage(damageCalcType, weapon, isAlternate, &outMinDamage, &outMaxDamage);
+  v10 = outMaxDamage;
   if ( outMaxDamage != outMinDamage )
   {
-    v13 = DVARBOOL_bg_bulletsUseMaxDamageMinRange;
+    v11 = DVARBOOL_bg_bulletsUseMaxDamageMinRange;
     if ( !DVARBOOL_bg_bulletsUseMaxDamageMinRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletsUseMaxDamageMinRange") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( !v13->current.enabled || BG_GetWeaponClass(weapon, isAlternate) == WEAPCLASS_SPREAD )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( !v11->current.enabled || BG_GetWeaponClass(weapon, isAlternate) == WEAPCLASS_SPREAD )
     {
-      __asm
+      BG_GetDamageRange(damageCalcType, weapon, isAlternate, bp->rangeScale, minDamageRange, &maxDamageRange);
+      v12 = maxDamageRange;
+      travelDistance = bp->travelDistance;
+      if ( travelDistance >= maxDamageRange )
       {
-        vmovss  xmm3, dword ptr [r14+48h]; rangeScale
-        vmovaps [rsp+0A8h+var_38], xmm6
-      }
-      BG_GetDamageRange(damageCalcType, weapon, isAlternate, *(float *)&_XMM3, minDamageRange, &v46);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0A8h+arg_0]
-        vmovss  xmm6, dword ptr [r14+8Ch]
-        vcomiss xmm6, xmm0
-      }
-      if ( !v15 )
-      {
-        __asm
+        if ( travelDistance >= minDamageRange[0] )
         {
-          vmovss  xmm1, [rsp+0A8h+minDamageRange]
-          vcomiss xmm6, xmm1
+          v10 = outMinDamage;
         }
-        if ( v15 )
+        else
         {
-          __asm
+          v18 = v5;
+          v14 = minDamageRange[0] - maxDamageRange;
+          if ( (float)(minDamageRange[0] - maxDamageRange) == 0.0 )
           {
-            vmovaps [rsp+0A8h+var_48], xmm7
-            vmovaps [rsp+0A8h+var_58], xmm8
-            vxorps  xmm8, xmm8, xmm8
-            vsubss  xmm7, xmm1, xmm0
-            vucomiss xmm7, xmm8
-          }
-          if ( v16 )
-          {
-            v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 247, ASSERT_TYPE_ASSERT, "(range != 0.0f)", (const char *)&queryFormat, "range != 0.0f");
-            v15 = 0;
-            v16 = !v21;
-            if ( v21 )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 247, ASSERT_TYPE_ASSERT, "(range != 0.0f)", (const char *)&queryFormat, "range != 0.0f") )
               __debugbreak();
-            __asm { vmovss  xmm0, [rsp+0A8h+arg_0] }
+            v12 = maxDamageRange;
           }
-          __asm
-          {
-            vsubss  xmm0, xmm6, xmm0
-            vdivss  xmm6, xmm0, xmm7
-            vmovss  xmm7, cs:__real@3f800000
-            vcomiss xmm6, xmm8
-            vmovaps xmm8, [rsp+0A8h+var_58]
-            vcomiss xmm6, xmm7
-          }
-          if ( !(v15 | v16) )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm6, xmm6
-              vmovsd  [rsp+0A8h+maxDamageRange], xmm0
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 249, ASSERT_TYPE_ASSERT, "( ( (lerpAmount >= 0.0) && (lerpAmount <= 1.0) ) )", "( lerpAmount ) = %g", *(double *)&maxDamageRange) )
-              __debugbreak();
-          }
-          __asm
-          {
-            vsubss  xmm1, xmm7, xmm6
-            vmovaps xmm7, [rsp+0A8h+var_48]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, [rsp+0A8h+outMaxDamage]
-            vmulss  xmm3, xmm1, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, [rsp+0A8h+outMinDamage]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm0, xmm3, xmm2
-            vcvttss2si ebx, xmm0
-          }
+          v15 = (float)(travelDistance - v12) / v14;
+          if ( (v15 < 0.0 || v15 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 249, ASSERT_TYPE_ASSERT, "( ( (lerpAmount >= 0.0) && (lerpAmount <= 1.0) ) )", "( lerpAmount ) = %g", v15) )
+            __debugbreak();
+          v10 = (int)(float)((float)((float)(1.0 - v15) * (float)outMaxDamage) + (float)((float)outMinDamage * v15));
         }
       }
-      __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+      else
+      {
+        v10 = outMaxDamage;
+      }
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm0, xmm0, dword ptr [r14+4Ch]
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)v10 * bp->damageMultiplier);
 }
 
 /*
@@ -1487,6 +1244,7 @@ void G_Bullet_ClientOnlyFire(gentity_s *attacker, float spread, const BgWeaponPa
   bool v8; 
   ai_event_t v9; 
   unsigned __int64 eTeam; 
+  bitarray<224> *AllTeamFlags; 
   bitarray<224> teamFlags; 
   vec3_t angles; 
 
@@ -1507,17 +1265,10 @@ void G_Bullet_ClientOnlyFire(gentity_s *attacker, float spread, const BgWeaponPa
       v9 = AI_EV_SILENCED_SHOT;
     eTeam = (unsigned int)attacker->sentient->eTeam;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllTeamFlags();
+      AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+0A8h+teamFlags.array], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rsp+0A8h+teamFlags.array+10h], xmm1
-    }
-    teamFlags.array[6] = _RAX->array[6];
+      AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+    teamFlags = *AllTeamFlags;
     if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
       __debugbreak();
     teamFlags.array[eTeam >> 5] &= ~(0x80000000 >> (eTeam & 0x1F));
@@ -1535,10 +1286,11 @@ void G_Bullet_DamageGlass(const BulletFireParams *bp, const BulletTraceResults *
   int GlassHitId; 
   int Damage; 
   unsigned __int64 eTeam; 
-  unsigned int v15; 
-  __int64 v18; 
-  int v21; 
-  int v22; 
+  bitarray<224> *AllTeamFlags; 
+  unsigned int v13; 
+  double v14; 
+  __int64 v15; 
+  unsigned int v16; 
   bitarray<224> teamFlags; 
 
   if ( !Trace_GetGlassHitId(&br->trace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 907, ASSERT_TYPE_ASSERT, "(Trace_GetGlassHitId( &br->trace ) != 0)", (const char *)&queryFormat, "Trace_GetGlassHitId( &br->trace ) != 0") )
@@ -1554,57 +1306,36 @@ void G_Bullet_DamageGlass(const BulletFireParams *bp, const BulletTraceResults *
       {
         eTeam = (unsigned int)attacker->sentient->eTeam;
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-          _RAX = Com_TeamsSP_GetAllTeamFlags();
+          AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
         else
-          _RAX = Com_TeamsMP_GetAllTeamFlags();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+0C8h+teamFlags.array], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [rsp+0C8h+teamFlags.array+10h], xmm1
-        }
-        teamFlags.array[6] = _RAX->array[6];
-        if ( (unsigned int)eTeam >= 0xE0 )
-        {
-          v22 = 224;
-          v21 = eTeam;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v21, v22) )
-            __debugbreak();
-        }
+          AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+        teamFlags = *AllTeamFlags;
+        if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
+          __debugbreak();
         teamFlags.array[eTeam >> 5] &= ~(0x80000000 >> (eTeam & 0x1F));
         if ( s_bulletDeferNotifyActors )
         {
-          v15 = s_bulletNumDeferredGlassNotifies;
+          v13 = s_bulletNumDeferredGlassNotifies;
           if ( s_bulletNumDeferredGlassNotifies < 0x20 )
             goto LABEL_20;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 479, ASSERT_TYPE_ASSERT, "(s_bulletNumDeferredGlassNotifies < MAX_DEFERRED_BULLET_GLASS_NOTIFIES)", (const char *)&queryFormat, "s_bulletNumDeferredGlassNotifies < MAX_DEFERRED_BULLET_GLASS_NOTIFIES") )
             __debugbreak();
-          v15 = s_bulletNumDeferredGlassNotifies;
+          v13 = s_bulletNumDeferredGlassNotifies;
           if ( s_bulletNumDeferredGlassNotifies < 0x20 )
           {
 LABEL_20:
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+0C8h+teamFlags.array]
-              vmovsd  xmm1, qword ptr [rsp+0C8h+teamFlags.array+10h]
-            }
-            s_bulletNumDeferredGlassNotifies = v15 + 1;
-            v18 = v15;
-            _RDX = s_bulletDeferredGlassNotifies;
-            _RCX = v18;
-            LODWORD(v18) = teamFlags.array[6];
-            __asm
-            {
-              vmovups xmmword ptr [rcx+rdx+0Ch], xmm0
-              vmovsd  qword ptr [rcx+rdx+1Ch], xmm1
-            }
-            s_bulletDeferredGlassNotifies[_RCX].teamFlags.array[6] = v18;
-            s_bulletDeferredGlassNotifies[_RCX].originator = attacker;
-            s_bulletDeferredGlassNotifies[_RCX].eType = AI_EV_GLASS_DESTROYED;
-            s_bulletDeferredGlassNotifies[_RCX].vOrigin.v[0] = br->hitPos.v[0];
-            s_bulletDeferredGlassNotifies[_RCX].vOrigin.v[1] = br->hitPos.v[1];
-            s_bulletDeferredGlassNotifies[_RCX].vOrigin.v[2] = br->hitPos.v[2];
+            v14 = *(double *)&teamFlags.array[4];
+            s_bulletNumDeferredGlassNotifies = v13 + 1;
+            v15 = v13;
+            v16 = teamFlags.array[6];
+            *(_OWORD *)s_bulletDeferredGlassNotifies[v15].teamFlags.array = *(_OWORD *)teamFlags.array;
+            *(double *)&s_bulletDeferredGlassNotifies[v15].teamFlags.array[4] = v14;
+            s_bulletDeferredGlassNotifies[v15].teamFlags.array[6] = v16;
+            s_bulletDeferredGlassNotifies[v15].originator = attacker;
+            s_bulletDeferredGlassNotifies[v15].eType = AI_EV_GLASS_DESTROYED;
+            s_bulletDeferredGlassNotifies[v15].vOrigin.v[0] = br->hitPos.v[0];
+            s_bulletDeferredGlassNotifies[v15].vOrigin.v[1] = br->hitPos.v[1];
+            s_bulletDeferredGlassNotifies[v15].vOrigin.v[2] = br->hitPos.v[2];
           }
         }
         else
@@ -1623,13 +1354,16 @@ G_Bullet_DebugDrawHit
 */
 void G_Bullet_DebugDrawHit(BulletTraceResults *br, BulletFireParams *bp)
 {
+  __int128 v2; 
   const dvar_t *v5; 
   const dvar_t *v6; 
   unsigned int v7; 
+  DObjPartBits *p_partBits; 
+  const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v12; 
-  const dvar_t *v13; 
+  const dvar_t *v11; 
   DObjPartBits partBits; 
+  __int128 v13; 
 
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1099, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
@@ -1648,36 +1382,31 @@ void G_Bullet_DebugDrawHit(BulletTraceResults *br, BulletFireParams *bp)
   if ( v6->current.integer == br->hitEnt->s.number )
   {
     v7 = 0;
-    _RDI = &partBits;
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff
-    }
+    p_partBits = &partBits;
+    v13 = v2;
     do
     {
-      __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-      _RDI = (DObjPartBits *)((char *)_RDI + 16);
+      *(_OWORD *)p_partBits->array = _xmm_ffffffffffffffffffffffffffffffff;
+      p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
       ++v7;
     }
     while ( v7 < 2 );
     G_Utils_DObjCalcPose(br->hitEnt, &partBits);
+    v9 = DVARINT_g_debugLocHitTime;
+    if ( !DVARINT_g_debugLocHitTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugLocHitTime") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v9);
+    SV_Game_XModelDebugBoxes(br->hitEnt, &colorYellow, v9->current.integer);
     v10 = DVARINT_g_debugLocHitTime;
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
     if ( !DVARINT_g_debugLocHitTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugLocHitTime") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v10);
-    SV_Game_XModelDebugBoxes(br->hitEnt, &colorYellow, v10->current.integer);
-    v12 = DVARINT_g_debugLocHitTime;
+    CL_AddDebugLine(&bp->start, &br->hitPos, &colorGreen, 0, v10->current.integer, 1);
+    v11 = DVARINT_g_debugLocHitTime;
     if ( !DVARINT_g_debugLocHitTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugLocHitTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    CL_AddDebugLine(&bp->start, &br->hitPos, &colorGreen, 0, v12->current.integer, 1);
-    v13 = DVARINT_g_debugLocHitTime;
-    if ( !DVARINT_g_debugLocHitTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugLocHitTime") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    CL_AddDebugStar(&br->hitPos, &colorRed, 0, v13->current.integer, 1);
+    Dvar_CheckFrontendServerThread(v11);
+    CL_AddDebugStar(&br->hitPos, &colorRed, 0, v11->current.integer, 1);
   }
 }
 
@@ -1686,425 +1415,218 @@ void G_Bullet_DebugDrawHit(BulletTraceResults *br, BulletFireParams *bp)
 G_Bullet_Endpos
 ==============
 */
-
-void __fastcall G_Bullet_Endpos(unsigned int *randSeed, double spreadMin, double spreadMax, vec3_t *end, vec3_t *dir, float angleMin, float angleMax, const BgWeaponParms *wp, float maxRange)
+void G_Bullet_Endpos(unsigned int *randSeed, float spreadMin, float spreadMax, vec3_t *end, vec3_t *dir, float angleMin, float angleMax, const BgWeaponParms *wp, float maxRange)
 {
-  bool v26; 
-  bool v27; 
-  int v62; 
-  const dvar_t *v63; 
-  const dvar_t *v64; 
-  const dvar_t *v90; 
-  const dvar_t *v91; 
-  const dvar_t *v92; 
-  float v104; 
-  double v133; 
-  double v134; 
+  float v11; 
+  float v12; 
+  float v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  const dvar_t *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  __int128 v45; 
+  float v46; 
+  float v50; 
+  float v51; 
   float s; 
   float c; 
   vec3_t enda; 
-  char v139; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rsp+0F0h+var_88+8], xmm11
-  }
-  _R15 = dir;
-  _RBX = wp;
-  _RDI = end;
-  __asm
-  {
-    vmovss  [rbp+37h+c], xmm1
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-  }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 134, ASSERT_TYPE_SANITY, "( !IS_NAN( spreadMin ) )", (const char *)&queryFormat, "!IS_NAN( spreadMin )") )
+  c = spreadMin;
+  if ( (LODWORD(spreadMin) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 134, ASSERT_TYPE_SANITY, "( !IS_NAN( spreadMin ) )", (const char *)&queryFormat, "!IS_NAN( spreadMin )") )
     __debugbreak();
-  __asm { vmovss  [rbp+37h+c], xmm6 }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 135, ASSERT_TYPE_SANITY, "( !IS_NAN( spreadMax ) )", (const char *)&queryFormat, "!IS_NAN( spreadMax )") )
+  c = spreadMax;
+  if ( (LODWORD(spreadMax) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 135, ASSERT_TYPE_SANITY, "( !IS_NAN( spreadMax ) )", (const char *)&queryFormat, "!IS_NAN( spreadMax )") )
     __debugbreak();
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 141, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  __asm { vmulss  xmm0, xmm7, cs:__real@3c8efa35; X }
-  *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm7, [rbp+37h+maxRange]
-    vmulss  xmm8, xmm0, xmm7
-    vmulss  xmm0, xmm6, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  [rbp+37h+c], xmm8
-    vmulss  xmm11, xmm0, xmm7
-  }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 151, ASSERT_TYPE_SANITY, "( !IS_NAN( aimOffsetMin ) )", (const char *)&queryFormat, "!IS_NAN( aimOffsetMin )") )
+  v11 = tanf_0(spreadMin * 0.017453292) * maxRange;
+  c = v11;
+  v13 = tanf_0(spreadMax * 0.017453292) * maxRange;
+  v12 = v13;
+  if ( (LODWORD(v11) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 151, ASSERT_TYPE_SANITY, "( !IS_NAN( aimOffsetMin ) )", (const char *)&queryFormat, "!IS_NAN( aimOffsetMin )") )
     __debugbreak();
-  __asm { vmovss  [rbp+37h+c], xmm11 }
-  v26 = (LODWORD(c) & 0x7F800000u) <= 0x7F800000;
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 )
-  {
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 152, ASSERT_TYPE_SANITY, "( !IS_NAN( aimOffsetMax ) )", (const char *)&queryFormat, "!IS_NAN( aimOffsetMax )");
-    v26 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rbp+37h+angleMin]
-    vmovss  xmm9, [rbp+37h+angleMax]
-    vcomiss xmm6, xmm9
-  }
-  if ( !v26 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm9, xmm9
-      vmovsd  [rsp+0F0h+var_B0], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+0F0h+var_B8], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 105, ASSERT_TYPE_ASSERT, "( angleMin ) <= ( angleMax )", "%s <= %s\n\t%g, %g", "angleMin", "angleMax", v133, v134) )
-      __debugbreak();
-  }
-  *(double *)&_XMM0 = BG_random(randSeed);
-  __asm
-  {
-    vsubss  xmm1, xmm9, xmm6
-    vmulss  xmm0, xmm0, xmm1
-    vaddss  xmm0, xmm0, xmm6; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  BG_random(randSeed);
-  __asm
-  {
-    vmulss  xmm2, xmm8, [rbp+37h+c]
-    vsubss  xmm5, xmm11, xmm8
-    vmulss  xmm1, xmm5, [rbp+37h+c]
-    vmulss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm5, [rbp+37h+s]
-    vaddss  xmm9, xmm3, xmm2
-    vmulss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm8, [rbp+37h+s]
-    vmovss  [rbp+37h+s], xmm9
-    vaddss  xmm8, xmm2, xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 164, ASSERT_TYPE_SANITY, "( !IS_NAN( right ) )", (const char *)&queryFormat, "!IS_NAN( right )") )
+  c = v13;
+  if ( (LODWORD(v13) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 152, ASSERT_TYPE_SANITY, "( !IS_NAN( aimOffsetMax ) )", (const char *)&queryFormat, "!IS_NAN( aimOffsetMax )") )
     __debugbreak();
-  __asm { vmovss  [rbp+37h+s], xmm8 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 165, ASSERT_TYPE_SANITY, "( !IS_NAN( up ) )", (const char *)&queryFormat, "!IS_NAN( up )") )
+  if ( angleMin > angleMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 105, ASSERT_TYPE_ASSERT, "( angleMin ) <= ( angleMax )", "%s <= %s\n\t%g, %g", "angleMin", "angleMax", angleMin, angleMax) )
     __debugbreak();
-  __asm
+  v14 = BG_random(randSeed);
+  v15 = AngleNormalize360((float)(*(float *)&v14 * (float)(angleMax - angleMin)) + angleMin);
+  FastSinCos(*(float *)&v15 * 0.017453292, &s, &c);
+  v16 = BG_random(randSeed);
+  v17 = (float)((float)((float)(v13 - v11) * c) * *(float *)&v16) + (float)(v11 * c);
+  v18 = (float)((float)(v13 - v11) * s) * *(float *)&v16;
+  *(float *)&v16 = v11 * s;
+  s = v17;
+  v20 = v18 + *(float *)&v16;
+  v19 = v20;
+  if ( (LODWORD(v17) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 164, ASSERT_TYPE_SANITY, "( !IS_NAN( right ) )", (const char *)&queryFormat, "!IS_NAN( right )") )
+    __debugbreak();
+  s = v20;
+  if ( (LODWORD(v20) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 165, ASSERT_TYPE_SANITY, "( !IS_NAN( up ) )", (const char *)&queryFormat, "!IS_NAN( up )") )
+    __debugbreak();
+  s = wp->muzzleTrace.v[0];
+  if ( (LODWORD(s) & 0x7F800000) == 2139095040 || (s = wp->muzzleTrace.v[1], (LODWORD(s) & 0x7F800000) == 2139095040) || (s = wp->muzzleTrace.v[2], (LODWORD(s) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_85;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_85;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_85:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 166, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->muzzleTrace )[0] ) && !IS_NAN( ( wp->muzzleTrace )[1] ) && !IS_NAN( ( wp->muzzleTrace )[2] )") )
       __debugbreak();
   }
-  __asm
+  s = wp->forward.v[0];
+  if ( (LODWORD(s) & 0x7F800000) == 2139095040 || (s = wp->forward.v[1], (LODWORD(s) & 0x7F800000) == 2139095040) || (s = wp->forward.v[2], (LODWORD(s) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_86;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_86;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_86:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 167, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->forward )[0] ) && !IS_NAN( ( wp->forward )[1] ) && !IS_NAN( ( wp->forward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->forward )[0] ) && !IS_NAN( ( wp->forward )[1] ) && !IS_NAN( ( wp->forward )[2] )") )
       __debugbreak();
   }
-  __asm
+  s = wp->right.v[0];
+  if ( (LODWORD(s) & 0x7F800000) == 2139095040 || (s = wp->right.v[1], (LODWORD(s) & 0x7F800000) == 2139095040) || (s = wp->right.v[2], (LODWORD(s) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_87;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_87;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_87:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 168, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->right )[0] ) && !IS_NAN( ( wp->right )[1] ) && !IS_NAN( ( wp->right )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->right )[0] ) && !IS_NAN( ( wp->right )[1] ) && !IS_NAN( ( wp->right )[2] )") )
       __debugbreak();
   }
-  __asm
+  s = wp->up.v[0];
+  if ( (LODWORD(s) & 0x7F800000) == 2139095040 || (s = wp->up.v[1], (LODWORD(s) & 0x7F800000) == 2139095040) || (s = wp->up.v[2], (LODWORD(s) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_88;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_88;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rbp+37h+s], xmm0
-  }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_88:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 169, ASSERT_TYPE_SANITY, "( !IS_NAN( ( wp->up )[0] ) && !IS_NAN( ( wp->up )[1] ) && !IS_NAN( ( wp->up )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( wp->up )[0] ) && !IS_NAN( ( wp->up )[1] ) && !IS_NAN( ( wp->up )[2] )") )
       __debugbreak();
   }
-  __asm
+  v21 = (float)(maxRange * wp->forward.v[0]) + wp->muzzleTrace.v[0];
+  end->v[0] = v21;
+  v22 = (float)(maxRange * wp->forward.v[1]) + wp->muzzleTrace.v[1];
+  end->v[1] = v22;
+  v23 = (float)(maxRange * wp->forward.v[2]) + wp->muzzleTrace.v[2];
+  s = v21;
+  end->v[2] = v23;
+  if ( (LODWORD(v21) & 0x7F800000) == 2139095040 || (s = v22, (LODWORD(v22) & 0x7F800000) == 2139095040) || (s = v23, (LODWORD(v23) & 0x7F800000) == 2139095040) )
   {
-    vmulss  xmm0, xmm7, dword ptr [rbx]
-    vaddss  xmm1, xmm0, dword ptr [rbx+24h]
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm7, dword ptr [rbx+4]
-    vaddss  xmm2, xmm0, dword ptr [rbx+28h]
-    vmovss  dword ptr [rdi+4], xmm2
-    vmulss  xmm0, xmm7, dword ptr [rbx+8]
-    vaddss  xmm3, xmm0, dword ptr [rbx+2Ch]
-    vmovss  [rbp+37h+s], xmm1
-  }
-  v62 = LODWORD(s) & 0x7F800000;
-  __asm { vmovss  dword ptr [rdi+8], xmm3 }
-  if ( v62 == 2139095040 )
-    goto LABEL_89;
-  __asm { vmovss  [rbp+37h+s], xmm2 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_89;
-  __asm { vmovss  [rbp+37h+s], xmm3 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_89:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 176, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
       __debugbreak();
   }
-  v63 = DVARINT_g_debugBullets;
+  v24 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v63);
-  if ( v63->current.integer == 3 )
+  Dvar_CheckFrontendServerThread(v24);
+  if ( v24->current.integer == 3 )
     goto LABEL_58;
-  v64 = DVARINT_g_debugBullets;
+  v25 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v64);
-  if ( v64->current.integer == 4 )
+  Dvar_CheckFrontendServerThread(v25);
+  if ( v25->current.integer == 4 )
   {
 LABEL_58:
-    __asm
-    {
-      vmulss  xmm0, xmm11, dword ptr [rbx+0Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm11, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmulss  xmm0, xmm11, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
+    v26 = v12 * wp->right.v[1];
+    enda.v[0] = (float)(v12 * wp->right.v[0]) + end->v[0];
+    v27 = v12 * wp->right.v[2];
+    enda.v[1] = v26 + end->v[1];
+    enda.v[2] = v27 + end->v[2];
     G_DebugLineWithDuration(&wp->muzzleTrace, &enda, &colorBlue, 1, 100);
-    __asm
-    {
-      vxorps  xmm6, xmm11, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, dword ptr [rbx+0Ch]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm6, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmulss  xmm0, xmm6, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
+    v28 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->right.v[1];
+    enda.v[0] = (float)(COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->right.v[0]) + end->v[0];
+    v29 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->right.v[2];
+    enda.v[1] = v28 + end->v[1];
+    enda.v[2] = v29 + end->v[2];
     G_DebugLineWithDuration(&wp->muzzleTrace, &enda, &colorBlue, 1, 100);
-    __asm
-    {
-      vmulss  xmm0, xmm11, dword ptr [rbx+18h]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm11, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmulss  xmm0, xmm11, dword ptr [rbx+20h]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
+    v30 = v12 * wp->up.v[1];
+    enda.v[0] = (float)(v12 * wp->up.v[0]) + end->v[0];
+    v31 = v12 * wp->up.v[2];
+    enda.v[1] = v30 + end->v[1];
+    enda.v[2] = v31 + end->v[2];
     G_DebugLineWithDuration(&wp->muzzleTrace, &enda, &colorBlue, 1, 100);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+18h]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm6, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmulss  xmm0, xmm6, dword ptr [rbx+20h]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
+    v32 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->up.v[1];
+    enda.v[0] = (float)(COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->up.v[0]) + end->v[0];
+    v33 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * wp->up.v[2];
+    enda.v[1] = v32 + end->v[1];
+    enda.v[2] = v33 + end->v[2];
     G_DebugLineWithDuration(&wp->muzzleTrace, &enda, &colorBlue, 1, 100);
   }
-  v90 = DVARINT_g_debugBullets;
+  v34 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v90);
-  if ( v90->current.integer == 2 )
+  Dvar_CheckFrontendServerThread(v34);
+  if ( v34->current.integer == 2 )
     goto LABEL_71;
-  v91 = DVARINT_g_debugBullets;
+  v35 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v91);
-  if ( v91->current.integer == 3 )
+  Dvar_CheckFrontendServerThread(v35);
+  if ( v35->current.integer == 3 )
     goto LABEL_71;
-  v92 = DVARINT_g_debugBullets;
+  v36 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v92);
-  if ( v92->current.integer == 4 )
-  {
+  Dvar_CheckFrontendServerThread(v36);
+  if ( v36->current.integer == 4 )
 LABEL_71:
-    __asm { vmovaps xmm1, xmm11; radius }
-    G_DebugCircleEx(_RDI, *(float *)&_XMM1, &wp->forward, &colorBlue, 1, 100);
-  }
-  __asm
+    G_DebugCircleEx(end, v12, &wp->forward, &colorBlue, 1, 100);
+  v37 = (float)(v17 * wp->right.v[0]) + end->v[0];
+  end->v[0] = v37;
+  v38 = (float)(v17 * wp->right.v[1]) + end->v[1];
+  end->v[1] = v38;
+  v39 = (float)(v17 * wp->right.v[2]) + end->v[2];
+  end->v[2] = v39;
+  v40 = (float)(v19 * wp->up.v[0]) + v37;
+  end->v[0] = v40;
+  v41 = (float)(v19 * wp->up.v[1]) + v38;
+  s = v40;
+  end->v[1] = v41;
+  v42 = (float)(v19 * wp->up.v[2]) + v39;
+  end->v[2] = v42;
+  if ( (LODWORD(v40) & 0x7F800000) == 2139095040 || (s = v41, (LODWORD(v41) & 0x7F800000) == 2139095040) || (s = v42, (LODWORD(v42) & 0x7F800000) == 2139095040) )
   {
-    vmulss  xmm0, xmm9, dword ptr [rbx+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm9, dword ptr [rbx+10h]
-    vaddss  xmm2, xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi+4], xmm2
-    vmulss  xmm0, xmm9, dword ptr [rbx+14h]
-    vaddss  xmm3, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm3
-    vmulss  xmm0, xmm8, dword ptr [rbx+18h]
-    vaddss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm8, dword ptr [rbx+1Ch]
-    vaddss  xmm4, xmm0, xmm2
-    vmovss  [rbp+37h+s], xmm1
-  }
-  v104 = s;
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm4
-    vmulss  xmm0, xmm8, dword ptr [rbx+20h]
-    vaddss  xmm2, xmm0, xmm3
-    vmovss  dword ptr [rdi+8], xmm2
-  }
-  if ( (LODWORD(v104) & 0x7F800000) == 2139095040 )
-    goto LABEL_90;
-  __asm { vmovss  [rbp+37h+s], xmm4 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_90;
-  __asm { vmovss  [rbp+37h+s], xmm2 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-  {
-LABEL_90:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 201, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
       __debugbreak();
   }
+  v43 = end->v[0] - wp->muzzleTrace.v[0];
+  dir->v[0] = v43;
+  v45 = LODWORD(end->v[1]);
+  v44 = end->v[1] - wp->muzzleTrace.v[1];
+  dir->v[1] = v44;
+  v46 = end->v[2] - wp->muzzleTrace.v[2];
+  *(float *)&v45 = fsqrt((float)((float)(v44 * v44) + (float)(v43 * v43)) + (float)(v46 * v46));
+  _XMM4 = v45;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm7, xmm0, dword ptr [rbx+24h]
-    vmovss  dword ptr [r15], xmm7
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm6, xmm0, dword ptr [rbx+28h]
-    vmovss  dword ptr [r15+4], xmm6
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm5, xmm0, dword ptr [rbx+2Ch]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [r15], xmm0
-    vmulss  xmm1, xmm2, xmm6
-    vmulss  xmm3, xmm5, xmm2
-    vmovss  dword ptr [r15+4], xmm1
-    vmovss  dword ptr [r15+8], xmm3
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rbp+37h+s], xmm0
   }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_91;
-  __asm { vmovss  [rbp+37h+s], xmm1 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
-    goto LABEL_91;
-  __asm { vmovss  [rbp+37h+s], xmm3 }
-  if ( (LODWORD(s) & 0x7F800000) == 2139095040 )
+  dir->v[0] = v43 * (float)(1.0 / *(float *)&_XMM0);
+  v50 = (float)(1.0 / *(float *)&_XMM0) * v44;
+  v51 = v46 * (float)(1.0 / *(float *)&_XMM0);
+  dir->v[1] = v50;
+  dir->v[2] = v51;
+  s = dir->v[0];
+  if ( (LODWORD(s) & 0x7F800000) == 2139095040 || (s = (float)(1.0 / *(float *)&_XMM0) * v44, (LODWORD(v50) & 0x7F800000) == 2139095040) || (s = v46 * (float)(1.0 / *(float *)&_XMM0), (LODWORD(v51) & 0x7F800000) == 2139095040) )
   {
-LABEL_91:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 208, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] )") )
       __debugbreak();
-  }
-  _R11 = &v139;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
   }
 }
 
@@ -2113,29 +1635,21 @@ LABEL_91:
 G_Bullet_Fire
 ==============
 */
-
-int __fastcall G_Bullet_Fire(gentity_s *attacker, double spread, const BgWeaponParms *wp, const gentity_s *weaponEnt, PlayerHandIndex hand, const int gameTime)
+int G_Bullet_Fire(gentity_s *attacker, float spread, const BgWeaponParms *wp, const gentity_s *weaponEnt, PlayerHandIndex hand, const int gameTime)
 {
+  __m256i v6; 
+  double v7; 
   GWeaponFireParms params; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovups ymm0, ymmword ptr [r8] }
+  v6 = *(__m256i *)wp->forward.v;
   memset(&params.136, 0, sizeof(params.136));
-  __asm
-  {
-    vmovups ymmword ptr [rsp+118h+params.wp.forward], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rsp+118h+params.wp.weapDef], ymm0
-    vmovsd  xmm0, qword ptr [r8+80h]
-    vmovaps xmm3, xmm1; spread
-    vmovups ymm1, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rsp+118h+params.wp.up+8], ymm1
-    vmovups ymm1, ymmword ptr [r8+60h]
-    vmovups ymmword ptr [r11-78h], ymm1
-    vmovsd  qword ptr [r11-58h], xmm0
-  }
-  G_Bullet_SetupFireParams(attacker, weaponEnt, gameTime, *(const float *)&_XMM3, 0, hand, 0, &params);
+  *(__m256i *)params.wp.forward.v = v6;
+  *(__m256i *)&params.wp.weapDef = *(__m256i *)&wp->weapDef;
+  v7 = *(double *)&wp->weapon.weaponCamo;
+  *(__m256i *)&params.wp.up.z = *(__m256i *)&wp->up.z;
+  *(__m256i *)&params.wp.weapon.weaponAttachments[10] = *(__m256i *)&wp->weapon.weaponAttachments[10];
+  *(double *)&params.wp.weapon.weaponCamo = v7;
+  G_Bullet_SetupFireParams(attacker, weaponEnt, gameTime, spread, 0, hand, 0, &params);
   return G_Bullet_FireWithParams(&params, gameTime);
 }
 
@@ -2147,135 +1661,115 @@ G_Bullet_FireExtended
 __int64 G_Bullet_FireExtended(unsigned int *randSeed, BulletFireParams *bp, BulletTraceResults *br, const Weapon *weapon, const PlayerHandIndex hand, bool isAlternate, gentity_s *attacker, const bitarray<64> *r_attackerPerks, const float bulletRange, int gameTime, const bool initialSimStep)
 {
   PenetrateType PenetrateType; 
-  PenetrateType v25; 
-  bool v33; 
-  int v35; 
-  int v36; 
+  PenetrateType v15; 
+  float v16; 
+  bool v17; 
+  float v18; 
+  int v19; 
+  int v20; 
   gentity_s *LinkedBeamEntity; 
   int dFlags; 
   unsigned __int16 partGroup; 
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v42; 
+  gentity_s *v24; 
   GBullet *BulletSystem; 
-  bool v48; 
-  bool v49; 
-  const gentity_s *hitEnt; 
-  gentity_s *v109; 
+  double PenetrateMultiplier; 
+  gentity_s *hitEnt; 
+  float v28; 
+  float travelDistance; 
+  __int128 v31; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  gentity_s *v46; 
   GWeaponMap *Instance; 
-  gentity_s *v111; 
+  gentity_s *v48; 
   int number; 
-  gentity_s *v113; 
-  int v114; 
-  gentity_s *v115; 
-  __int64 result; 
-  float fmt; 
-  float fmta; 
+  gentity_s *v50; 
+  int v51; 
+  gentity_s *v52; 
+  float v53; 
+  float v54; 
+  float v55; 
   __int64 lastSurfaceType; 
-  int lastSurfaceTypea; 
-  int lastSurfaceTypeb; 
-  float allowHitSelf; 
-  float allowHitSelfa; 
-  unsigned __int8 v151; 
-  bool v152; 
-  int v153; 
+  unsigned __int8 v58; 
+  bool v59; 
+  int v60; 
   int outImpactFlags; 
-  const bitarray<64> *v156; 
+  const bitarray<64> *v63; 
   vec3_t resultNormal; 
   vec3_t start; 
-  char v169; 
 
-  __asm
-  {
-    vmovaps [rsp+198h+var_98], xmm10
-    vmovaps [rsp+198h+var_A8], xmm11
-    vmovaps [rsp+198h+var_B8], xmm12
-    vmovaps [rsp+198h+var_C8], xmm13
-    vmovaps [rsp+198h+var_D8], xmm14
-    vmovaps [rsp+198h+var_E8], xmm15
-  }
-  _RDI = br;
-  v156 = r_attackerPerks;
-  _RSI = bp;
+  v63 = r_attackerPerks;
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1352, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1353, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
+  if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1353, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1354, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
   PenetrateType = BG_GetPenetrateType(weapon, isAlternate);
-  v25 = PenetrateType;
+  v15 = PenetrateType;
   if ( (unsigned int)PenetrateType >= PENETRATE_TYPE_COUNT )
   {
     LODWORD(lastSurfaceType) = PenetrateType;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1357, ASSERT_TYPE_ASSERT, "(unsigned)( penetrateType ) < (unsigned)( PENETRATE_TYPE_COUNT )", "penetrateType doesn't index PENETRATE_TYPE_COUNT\n\t%i not in [0, %i)", lastSurfaceType, 6) )
       __debugbreak();
   }
-  __asm
+  v16 = bp->start.v[1];
+  v17 = v15 == PENETRATE_TYPE_RICOCHET;
+  v59 = v15 == PENETRATE_TYPE_RICOCHET;
+  start.v[0] = bp->start.v[0];
+  v18 = bp->start.v[2];
+  v19 = 0;
+  v60 = 0;
+  v20 = 0;
+  v58 = 1;
+  start.v[1] = v16;
+  start.v[2] = v18;
+  while ( G_Bullet_Trace(bp, weapon, isAlternate, attacker, br, 0, v19 > 0, gameTime) )
   {
-    vmovss  xmm0, dword ptr [rsi+68h]
-    vmovss  xmm1, dword ptr [rsi+6Ch]
-    vmovss  xmm11, [rsp+198h+bulletRange]
-    vmovss  xmm12, cs:__real@3e0a3d71
-    vmovss  xmm13, cs:__real@3f000000
-    vmovss  xmm14, cs:__real@c0000000
-    vmovss  xmm15, cs:__real@40000000
-    vmovaps [rsp+198h+var_58], xmm6
-    vmovaps [rsp+198h+var_68], xmm7
-  }
-  v33 = v25 == PENETRATE_TYPE_RICOCHET;
-  __asm { vmovaps [rsp+198h+var_78], xmm8 }
-  v152 = v25 == PENETRATE_TYPE_RICOCHET;
-  __asm
-  {
-    vmovss  dword ptr [rsp+198h+start], xmm0
-    vmovss  xmm0, dword ptr [rsi+70h]
-  }
-  v35 = 0;
-  v153 = 0;
-  v36 = 0;
-  v151 = 1;
-  __asm
-  {
-    vmovss  dword ptr [rsp+198h+start+4], xmm1
-    vmovss  dword ptr [rsp+198h+start+8], xmm0
-    vxorps  xmm10, xmm10, xmm10
-    vmovaps [rsp+198h+var_88], xmm9
-  }
-  while ( G_Bullet_Trace(_RSI, weapon, isAlternate, attacker, _RDI, 0, v35 > 0, gameTime) )
-  {
-    if ( !v36 && BG_IsBeamWeapon(weapon, isAlternate) )
+    if ( !v20 && BG_IsBeamWeapon(weapon, isAlternate) )
     {
       LinkedBeamEntity = G_BeamEntity_GetLinkedBeamEntity(attacker);
       if ( !LinkedBeamEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1344, ASSERT_TYPE_ASSERT, "(beamEnt)", (const char *)&queryFormat, "beamEnt") )
         __debugbreak();
-      G_BeamEntity_SetPos(LinkedBeamEntity, &_RDI->hitPos);
-      v35 = v153;
+      G_BeamEntity_SetPos(LinkedBeamEntity, &br->hitPos);
+      v19 = v60;
     }
-    if ( !_RSI->firstImpactOccurred )
+    if ( !bp->firstImpactOccurred )
     {
-      G_Bullet_FirstImpactNotify(attacker, _RSI, _RDI, weapon, isAlternate);
-      _RSI->firstImpactOccurred = 1;
+      G_Bullet_FirstImpactNotify(attacker, bp, br, weapon, isAlternate);
+      bp->firstImpactOccurred = 1;
     }
     dFlags = 256;
-    if ( v35 <= 0 )
+    if ( v19 <= 0 )
       dFlags = 0;
-    if ( !G_Bullet_Process(randSeed, _RSI, _RDI, weapon, hand, isAlternate, attacker, dFlags, gameTime, &outImpactFlags, 1, initialSimStep) )
+    if ( !G_Bullet_Process(randSeed, bp, br, weapon, hand, isAlternate, attacker, dFlags, gameTime, &outImpactFlags, 1, initialSimStep) )
       goto LABEL_32;
-    if ( (_RDI->trace.contents & 0x10) == 0 )
+    if ( (br->trace.contents & 0x10) == 0 )
       goto LABEL_33;
-    if ( Trace_GetGlassHitId(&_RDI->trace) )
-      G_Bullet_DamageGlass(_RSI, _RDI, weapon, isAlternate, attacker);
-    if ( (_RDI->trace.surfaceFlags & 0x100) != 0 )
+    if ( Trace_GetGlassHitId(&br->trace) )
+      G_Bullet_DamageGlass(bp, br, weapon, isAlternate, attacker);
+    if ( (br->trace.surfaceFlags & 0x100) != 0 )
       goto LABEL_32;
-    if ( v33 )
+    if ( v17 )
     {
 LABEL_33:
-      partGroup = _RDI->trace.partGroup;
-      if ( partGroup != 19 && (v42 = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)_RDI->hitEnt) != NULL && GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(v42 + 3, ACTIVE, 0x10u) )
+      partGroup = br->trace.partGroup;
+      if ( partGroup != 19 && (v24 = br->hitEnt) != NULL && GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v24->s.lerp.eFlags, ACTIVE, 0x10u) )
       {
-        if ( _RDI->ignoreHitEnt )
+        if ( br->ignoreHitEnt )
         {
-          __asm { vmovaps xmm3, xmm10; dist }
-          BG_AdvanceTrace(_RSI, &_RDI->trace, &_RDI->hitPos, *(float *)&_XMM3);
+          BG_AdvanceTrace(bp, &br->trace, &br->hitPos, 0.0);
         }
         else
         {
@@ -2284,236 +1778,126 @@ LABEL_33:
           if ( !BG_IsRifleBullet(weapon, isAlternate) )
             goto LABEL_32;
           BulletSystem = GBullet::GetBulletSystem();
-          if ( !BulletSystem->CheckFireExtendedAdvance(BulletSystem, _RDI, attacker) )
+          if ( !BulletSystem->CheckFireExtendedAdvance(BulletSystem, br, attacker) )
             goto LABEL_32;
-          __asm
-          {
-            vmulss  xmm1, xmm13, dword ptr [rsi+4Ch]
-            vmovaps xmm3, xmm10; dist
-            vmovss  dword ptr [rsi+4Ch], xmm1
-          }
-          BG_AdvanceTrace(_RSI, &_RDI->trace, &_RDI->hitPos, *(float *)&_XMM3);
+          bp->damageMultiplier = 0.5 * bp->damageMultiplier;
+          BG_AdvanceTrace(bp, &br->trace, &br->hitPos, 0.0);
         }
       }
       else
       {
-        if ( !v152 )
+        if ( !v59 )
           goto LABEL_32;
-        *(double *)&_XMM0 = BG_GetPenetrateMultiplier(weapon, isAlternate);
-        __asm { vcvttss2si ebx, xmm0 }
-        if ( _EBX >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1471, ASSERT_TYPE_ASSERT, "(weaponRicochetMax < 5)", (const char *)&queryFormat, "weaponRicochetMax < BULLET_MAX_RICOCHET") )
+        PenetrateMultiplier = BG_GetPenetrateMultiplier(weapon, isAlternate);
+        if ( (int)*(float *)&PenetrateMultiplier >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1471, ASSERT_TYPE_ASSERT, "(weaponRicochetMax < 5)", (const char *)&queryFormat, "weaponRicochetMax < BULLET_MAX_RICOCHET") )
           __debugbreak();
-        if ( v153 >= _EBX || !BG_WeaponBulletFire_ShouldRicochet(*v156, weapon, isAlternate) )
+        if ( v60 >= (int)*(float *)&PenetrateMultiplier || !BG_WeaponBulletFire_ShouldRicochet(*v63, weapon, isAlternate) )
           goto LABEL_32;
-        v48 = partGroup < 0x13u;
-        v49 = partGroup == 19;
-        if ( partGroup == 19 && (hitEnt = _RDI->hitEnt, v48 = 0, v49 = hitEnt == NULL, hitEnt) )
+        if ( partGroup == 19 && (hitEnt = br->hitEnt) != NULL )
         {
           G_Weapon_GetShieldTagNormal(hitEnt, &resultNormal);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+198h+resultNormal+4]
-            vmovss  xmm1, dword ptr [rsp+198h+resultNormal]
-            vmulss  xmm2, xmm1, dword ptr [rsi+80h]
-            vmulss  xmm3, xmm0, dword ptr [rsi+84h]
-            vmovss  xmm0, dword ptr [rsp+198h+resultNormal+8]
-            vmulss  xmm1, xmm0, dword ptr [rsi+88h]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vcomiss xmm2, xmm10
-          }
-          if ( !v48 && !v49 )
+          if ( (float)((float)((float)(resultNormal.v[1] * bp->dir.v[1]) + (float)(resultNormal.v[0] * bp->dir.v[0])) + (float)(resultNormal.v[2] * bp->dir.v[2])) > 0.0 )
             goto LABEL_32;
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+10h]
-            vmovss  xmm1, dword ptr [rdi+14h]
-            vmovss  dword ptr [rsp+198h+resultNormal], xmm0
-            vmovss  xmm0, dword ptr [rdi+18h]
-            vmovss  dword ptr [rsp+198h+resultNormal+8], xmm0
-            vmovss  dword ptr [rsp+198h+resultNormal+4], xmm1
-          }
+          v28 = br->trace.normal.v[1];
+          resultNormal.v[0] = br->trace.normal.v[0];
+          resultNormal.v[2] = br->trace.normal.v[2];
+          resultNormal.v[1] = v28;
         }
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rsi+8Ch]
-          vsubss  xmm0, xmm11, xmm5
-          vmaxss  xmm9, xmm0, xmm10
-          vcomiss xmm9, xmm10
-        }
-        if ( v48 || v49 )
+        travelDistance = bp->travelDistance;
+        v31 = LODWORD(bulletRange);
+        *(float *)&v31 = bulletRange - travelDistance;
+        _XMM0 = v31;
+        __asm { vmaxss  xmm9, xmm0, xmm10 }
+        if ( *(float *)&_XMM9 <= 0.0 )
         {
 LABEL_32:
-          v151 = 0;
+          v58 = 0;
           goto LABEL_72;
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+60h]
-          vsubss  xmm3, xmm0, dword ptr [rsi+68h]
-          vmovss  xmm1, dword ptr [rdi+64h]
-          vsubss  xmm2, xmm1, dword ptr [rsi+6Ch]
-          vmovss  xmm0, dword ptr [rdi+68h]
-          vsubss  xmm4, xmm0, dword ptr [rsi+70h]
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm0, dword ptr [rsi+48h]
-          vsqrtss xmm1, xmm2, xmm2
-          vsubss  xmm4, xmm5, xmm1
-          vmovss  dword ptr [rsp+198h+allowHitSelf], xmm11
-          vmovss  [rsp+198h+lastSurfaceType], xmm0
-          vmovss  dword ptr [rsp+198h+fmt], xmm4
-        }
-        G_Debug_BulletDamage(weapon, isAlternate, &start, &_RDI->hitPos, fmt, *(float *)&lastSurfaceTypea, allowHitSelf);
-        __asm
-        {
-          vmulss  xmm2, xmm12, dword ptr [rsi+80h]
-          vmovss  xmm1, dword ptr [rdi+60h]
-          vmovss  xmm8, dword ptr [rsp+198h+resultNormal+8]
-          vmovss  xmm6, dword ptr [rsp+198h+resultNormal+4]
-          vsubss  xmm5, xmm1, xmm2
-          vmovss  dword ptr [rsi+68h], xmm5
-          vmulss  xmm2, xmm12, dword ptr [rsi+84h]
-          vmovss  xmm1, dword ptr [rdi+64h]
-          vsubss  xmm4, xmm1, xmm2
-          vmovss  dword ptr [rsi+6Ch], xmm4
-          vmulss  xmm2, xmm12, dword ptr [rsi+88h]
-          vmovss  xmm1, dword ptr [rdi+68h]
-          vsubss  xmm3, xmm1, xmm2
-          vmovss  dword ptr [rsi+70h], xmm3
-          vmulss  xmm0, xmm8, dword ptr [rsi+88h]
-          vmovss  xmm7, dword ptr [rsi+80h]
-          vmulss  xmm1, xmm6, dword ptr [rsi+84h]
-        }
-        v35 = ++v153;
-        __asm
-        {
-          vmovss  dword ptr [rsp+198h+start+4], xmm4
-          vmulss  xmm4, xmm0, xmm14
-          vmulss  xmm0, xmm7, dword ptr [rsp+198h+resultNormal]
-          vaddss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, xmm15
-          vmovss  dword ptr [rsp+198h+start], xmm5
-          vsubss  xmm5, xmm4, xmm2
-          vmulss  xmm0, xmm5, dword ptr [rsp+198h+resultNormal]
-          vaddss  xmm2, xmm0, xmm7
-          vmovss  dword ptr [rsi+80h], xmm2
-          vmulss  xmm0, xmm6, xmm5
-          vaddss  xmm1, xmm0, dword ptr [rsi+84h]
-          vmovss  dword ptr [rsi+84h], xmm1
-          vmulss  xmm0, xmm8, xmm5
-          vaddss  xmm1, xmm0, dword ptr [rsi+88h]
-          vmovss  dword ptr [rsi+88h], xmm1
-          vmulss  xmm0, xmm2, xmm9
-          vaddss  xmm1, xmm0, dword ptr [rsi+68h]
-          vmovss  dword ptr [rsi+74h], xmm1
-          vmulss  xmm0, xmm9, dword ptr [rsi+84h]
-          vaddss  xmm1, xmm0, dword ptr [rsi+6Ch]
-          vmovss  dword ptr [rsi+78h], xmm1
-          vmulss  xmm0, xmm9, dword ptr [rsi+88h]
-          vaddss  xmm1, xmm0, dword ptr [rsi+70h]
-          vmovss  dword ptr [rsi+7Ch], xmm1
-          vmovss  dword ptr [rsp+198h+start+8], xmm3
-        }
+        v33 = br->hitPos.v[0] - bp->start.v[0];
+        v34 = br->hitPos.v[1] - bp->start.v[1];
+        v35 = br->hitPos.v[2] - bp->start.v[2];
+        G_Debug_BulletDamage(weapon, isAlternate, &start, &br->hitPos, travelDistance - fsqrt((float)((float)(v34 * v34) + (float)(v33 * v33)) + (float)(v35 * v35)), bp->rangeScale, bulletRange);
+        v36 = resultNormal.v[2];
+        v37 = resultNormal.v[1];
+        v38 = br->hitPos.v[0] - (float)(0.13500001 * bp->dir.v[0]);
+        bp->start.v[0] = v38;
+        v39 = br->hitPos.v[1] - (float)(0.13500001 * bp->dir.v[1]);
+        bp->start.v[1] = v39;
+        v40 = br->hitPos.v[2] - (float)(0.13500001 * bp->dir.v[2]);
+        bp->start.v[2] = v40;
+        v41 = v36 * bp->dir.v[2];
+        v42 = bp->dir.v[0];
+        v43 = v37 * bp->dir.v[1];
+        v19 = ++v60;
+        start.v[1] = v39;
+        start.v[0] = v38;
+        v44 = (float)(v41 * -2.0) - (float)((float)(v43 + (float)(v42 * resultNormal.v[0])) * 2.0);
+        v45 = (float)(v44 * resultNormal.v[0]) + v42;
+        bp->dir.v[0] = v45;
+        bp->dir.v[1] = (float)(v37 * v44) + bp->dir.v[1];
+        bp->dir.v[2] = (float)(v36 * v44) + bp->dir.v[2];
+        bp->end.v[0] = (float)(v45 * *(float *)&_XMM9) + bp->start.v[0];
+        bp->end.v[1] = (float)(*(float *)&_XMM9 * bp->dir.v[1]) + bp->start.v[1];
+        bp->end.v[2] = (float)(*(float *)&_XMM9 * bp->dir.v[2]) + bp->start.v[2];
+        start.v[2] = v40;
         if ( partGroup == 19 )
         {
-          v109 = G_Utils_SpawnEventEntity(&_RSI->start, 45);
+          v46 = G_Utils_SpawnEventEntity(&bp->start, 45);
           Instance = GWeaponMap::GetInstance();
-          BG_SetWeaponForEntity(Instance, &v109->s, weapon);
-          v109->s.inAltWeaponMode = isAlternate;
-          v109->s.lerp.u.anonymous.data[0] = LODWORD(_RSI->dir.v[0]);
-          v109->s.lerp.u.anonymous.data[1] = LODWORD(_RSI->dir.v[1]);
-          v109->s.lerp.u.anonymous.data[2] = LODWORD(_RSI->dir.v[2]);
-          v109->s.lerp.u.anonymous.data[3] = v153;
-          v109->s.lerp.u.anonymous.data[4] = LODWORD(_RSI->travelDistance);
-          v109->s.otherEntityNum = attacker->s.number;
-          v111 = _RDI->hitEnt;
-          if ( v111 )
-            number = v111->s.number;
+          BG_SetWeaponForEntity(Instance, &v46->s, weapon);
+          v46->s.inAltWeaponMode = isAlternate;
+          v46->s.lerp.u.anonymous.data[0] = LODWORD(bp->dir.v[0]);
+          v46->s.lerp.u.anonymous.data[1] = LODWORD(bp->dir.v[1]);
+          v46->s.lerp.u.anonymous.data[2] = LODWORD(bp->dir.v[2]);
+          v46->s.lerp.u.anonymous.data[3] = v60;
+          v46->s.lerp.u.anonymous.data[4] = LODWORD(bp->travelDistance);
+          v46->s.otherEntityNum = attacker->s.number;
+          v48 = br->hitEnt;
+          if ( v48 )
+            number = v48->s.number;
           else
             number = 2047;
-          v109->s.eventParm = number;
-          v109->s.eventParm2 = 0;
-          v35 = v153;
+          v46->s.eventParm = number;
+          v46->s.eventParm2 = 0;
+          v19 = v60;
         }
-        BG_RemoveIgnoreEntFromBP(_RSI, _RSI->weaponEntIndex);
-        v113 = &g_entities[_RSI->weaponEntIndex];
-        if ( v113->s.eType == ET_TURRET )
+        BG_RemoveIgnoreEntFromBP(bp, bp->weaponEntIndex);
+        v50 = &g_entities[bp->weaponEntIndex];
+        if ( v50->s.eType == ET_TURRET )
         {
-          v114 = v113->s.lerp.u.anonymous.data[6];
-          if ( v114 != 2047 )
-            BG_RemoveIgnoreEntFromBP(_RSI, v114);
+          v51 = v50->s.lerp.u.anonymous.data[6];
+          if ( v51 != 2047 )
+            BG_RemoveIgnoreEntFromBP(bp, v51);
         }
-        _RDI->hitClientNum = -1;
+        br->hitClientNum = -1;
       }
-      v33 = v152;
+      v17 = v59;
     }
-    else
+    else if ( !BG_AdvanceTrace(bp, &br->trace, &br->hitPos, 0.13500001) )
     {
-      __asm { vmovaps xmm3, xmm12; dist }
-      if ( !BG_AdvanceTrace(_RSI, &_RDI->trace, &_RDI->hitPos, *(float *)&_XMM3) )
-        goto LABEL_32;
+      goto LABEL_32;
     }
-    if ( ++v36 >= 12 )
+    if ( ++v20 >= 12 )
       goto LABEL_72;
   }
   if ( BG_IsBeamWeapon(weapon, isAlternate) )
   {
-    v115 = G_BeamEntity_GetLinkedBeamEntity(attacker);
-    if ( !v115 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1344, ASSERT_TYPE_ASSERT, "(beamEnt)", (const char *)&queryFormat, "beamEnt") )
+    v52 = G_BeamEntity_GetLinkedBeamEntity(attacker);
+    if ( !v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1344, ASSERT_TYPE_ASSERT, "(beamEnt)", (const char *)&queryFormat, "beamEnt") )
       __debugbreak();
-    G_BeamEntity_SetPos(v115, &_RDI->hitPos);
+    G_BeamEntity_SetPos(v52, &br->hitPos);
   }
-  G_Bullet_HitNothing(randSeed, _RSI, _RDI, weapon, isAlternate, attacker);
+  G_Bullet_HitNothing(randSeed, bp, br, weapon, isAlternate, attacker);
 LABEL_72:
-  _R9 = &_RDI->hitPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm3, xmm0, dword ptr [rsi+68h]
-    vmovss  xmm1, dword ptr [r9+4]
-    vsubss  xmm2, xmm1, dword ptr [rsi+6Ch]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm4, xmm0, dword ptr [rsi+70h]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rsi+8Ch]
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm0, dword ptr [rsi+48h]
-    vsqrtss xmm4, xmm2, xmm2
-    vsubss  xmm3, xmm1, xmm4
-    vmovss  dword ptr [rsp+198h+allowHitSelf], xmm11
-    vmovss  [rsp+198h+lastSurfaceType], xmm0
-    vmovss  dword ptr [rsp+198h+fmt], xmm3
-  }
-  G_Debug_BulletDamage(weapon, isAlternate, &start, &_RDI->hitPos, fmta, *(float *)&lastSurfaceTypeb, allowHitSelfa);
-  result = v151;
-  __asm
-  {
-    vmovaps xmm9, [rsp+198h+var_88]
-    vmovaps xmm8, [rsp+198h+var_78]
-    vmovaps xmm7, [rsp+198h+var_68]
-    vmovaps xmm6, [rsp+198h+var_58]
-  }
-  _R11 = &v169;
-  __asm
-  {
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
-  return result;
+  v53 = br->hitPos.v[0] - bp->start.v[0];
+  v54 = br->hitPos.v[1] - bp->start.v[1];
+  v55 = br->hitPos.v[2] - bp->start.v[2];
+  G_Debug_BulletDamage(weapon, isAlternate, &start, &br->hitPos, bp->travelDistance - fsqrt((float)((float)(v54 * v54) + (float)(v53 * v53)) + (float)(v55 * v55)), bp->rangeScale, bulletRange);
+  return v58;
 }
 
 /*
@@ -2521,428 +1905,279 @@ LABEL_72:
 G_Bullet_FirePenetrate
 ==============
 */
-char G_Bullet_FirePenetrate(unsigned int *randSeed, BulletFireParams *bp, BulletTraceResults *br, const Weapon *weapon, const PlayerHandIndex hand, bool isAlternate, gentity_s *attacker, int gameTime, const bool initialSimStep)
+bool G_Bullet_FirePenetrate(unsigned int *randSeed, BulletFireParams *bp, BulletTraceResults *br, const Weapon *weapon, const PlayerHandIndex hand, bool isAlternate, gentity_s *attacker, int gameTime, const bool initialSimStep)
 {
-  gentity_s *v20; 
-  const dvar_t *v24; 
+  gentity_s *v9; 
+  const dvar_t *v13; 
   PenetrateType PenetrateType; 
-  bool v26; 
-  const dvar_t *v27; 
+  bool v15; 
+  const dvar_t *v16; 
   gentity_s *hitEnt; 
-  const vec4_t *v29; 
-  char result; 
-  bool v32; 
-  char v36; 
-  bool v45; 
-  int v63; 
-  bool v95; 
-  bool v110; 
-  bool v114; 
+  const vec4_t *v18; 
+  bool v20; 
+  int v21; 
+  char v22; 
+  float v23; 
+  double SurfacePenetrationDepth; 
+  vec3_t *p_hitPos; 
+  float v26; 
+  __int128 v27; 
+  float v28; 
+  bool v29; 
+  float fraction; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  __int128 v36; 
+  bool v38; 
+  bool v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  bool v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  double v47; 
   bool processFx; 
-  char v142; 
-  bool v143; 
-  unsigned int *v158; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v53; 
+  __int128 damageMultiplier_low; 
+  float v59; 
+  float v60; 
+  float v61; 
+  double Float_Internal_DebugName; 
+  unsigned int *v63; 
   bool IsHitSurfaceTransparent; 
   GCombat *CombatSystem; 
-  __int16 v161; 
-  bool v173; 
-  bool v174; 
-  bool v175; 
-  bool v176; 
-  bool v177; 
+  __int16 v66; 
+  bool v67; 
+  bool v68; 
+  bool v69; 
+  bool v70; 
+  bool v71; 
   int impactFlags; 
-  gentity_s *v180; 
+  gentity_s *v74; 
   int integer; 
   int entityIndex; 
-  int v183; 
+  int v77; 
   gentity_s *hitEffectEnt; 
-  GBullet *v185; 
+  GBullet *v79; 
   BulletTraceResults trace; 
   vec3_t center; 
-  vec3_t v188; 
-  BulletFireParams v189; 
+  vec3_t v82; 
+  BulletFireParams v83; 
 
-  v20 = attacker;
-  v180 = attacker;
-  _RBX = br;
-  _RDI = bp;
+  v9 = attacker;
+  v74 = attacker;
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1575, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1576, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
+  if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1576, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1577, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
-  v24 = DVARINT_g_debugBullets;
+  v13 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  integer = v24->current.integer;
+  Dvar_CheckFrontendServerThread(v13);
+  integer = v13->current.integer;
   PenetrateType = BG_GetPenetrateType(weapon, isAlternate);
   if ( PenetrateType == PENETRATE_TYPE_RICOCHET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1586, ASSERT_TYPE_ASSERT, "(!( PENETRATE_TYPE_RICOCHET == penetrateType ))", (const char *)&queryFormat, "!PENETRATETYPE_IS_RICOCHET( penetrateType )") )
     __debugbreak();
-  v183 = 0;
-  v26 = G_Bullet_Trace(_RDI, weapon, isAlternate, attacker, _RBX, 0, 0, gameTime);
-  v27 = DVARINT_g_debugBullets;
-  v174 = v26;
+  v77 = 0;
+  v15 = G_Bullet_Trace(bp, weapon, isAlternate, attacker, br, 0, 0, gameTime);
+  v16 = DVARINT_g_debugBullets;
+  v68 = v15;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v27);
-  if ( v27->current.integer == 6 )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v16->current.integer == 6 )
   {
-    hitEnt = _RBX->hitEnt;
-    if ( !hitEnt || (unsigned __int16)(hitEnt->s.number - 2046) <= 1u || (v29 = &colorRed, _RBX->ignoreHitEnt) )
-      v29 = &colorBlue;
-    G_DebugLineWithDuration(&_RDI->start, &_RDI->end, v29, 1, 300);
+    hitEnt = br->hitEnt;
+    if ( !hitEnt || (unsigned __int16)(hitEnt->s.number - 2046) <= 1u || (v18 = &colorRed, br->ignoreHitEnt) )
+      v18 = &colorBlue;
+    G_DebugLineWithDuration(&bp->start, &bp->end, v18, 1, 300);
   }
-  G_Bullet_OnFirstContact(attacker, weapon, isAlternate, 0, &_RBX->hitPos);
-  if ( !v174 )
+  G_Bullet_OnFirstContact(attacker, weapon, isAlternate, 0, &br->hitPos);
+  if ( !v68 )
   {
-    G_Bullet_HitNothing(randSeed, _RDI, _RBX, weapon, isAlternate, attacker);
+    G_Bullet_HitNothing(randSeed, bp, br, weapon, isAlternate, attacker);
     return 1;
   }
-  if ( !_RDI->firstImpactOccurred )
+  if ( !bp->firstImpactOccurred )
   {
-    G_Bullet_FirstImpactNotify(attacker, _RDI, _RBX, weapon, isAlternate);
-    _RDI->firstImpactOccurred = 1;
+    G_Bullet_FirstImpactNotify(attacker, bp, br, weapon, isAlternate);
+    bp->firstImpactOccurred = 1;
   }
-  __asm
-  {
-    vmovaps [rsp+2D0h+var_50], xmm6
-    vmovaps [rsp+2D0h+var_60], xmm7
-    vmovaps [rsp+2D0h+var_70], xmm8
-    vmovaps [rsp+2D0h+var_80], xmm9
-    vmovaps [rsp+2D0h+var_90], xmm10
-    vmovaps [rsp+2D0h+var_A0], xmm11
-    vmovaps [rsp+2D0h+var_B0], xmm12
-    vmovaps [rsp+2D0h+var_C0], xmm13
-    vmovaps [rsp+2D0h+var_D0], xmm14
-    vmovaps [rsp+2D0h+var_E0], xmm15
-  }
-  v176 = G_Bullet_Process(randSeed, _RDI, _RBX, weapon, hand, isAlternate, attacker, 0, gameTime, &impactFlags, 1, initialSimStep);
-  if ( v176 )
+  v70 = G_Bullet_Process(randSeed, bp, br, weapon, hand, isAlternate, attacker, 0, gameTime, &impactFlags, 1, initialSimStep);
+  if ( v70 )
   {
     if ( integer == 7 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:DEBUG_SPHERE_RADIUS_BASE
-        vmulss  xmm1, xmm0, cs:__real@3f8ccccd; radius
-      }
-      G_DebugSphere(&_RBX->hitPos, *(float *)&_XMM1, &colorBlue, 0, DEBUG_DRAW_DURATION_PENETRATION);
-    }
-    v32 = PenetrateType == PENETRATE_TYPE_MAXIMUM;
-    v175 = PenetrateType == PENETRATE_TYPE_MAXIMUM;
-    __asm
-    {
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm15, cs:__real@7f7fffff
-      vmovss  xmm14, cs:__real@3c23d70a
-    }
-    v36 = 1;
-    entityIndex = Trace_GetEntityHitId(&_RBX->trace);
-    __asm { vxorps  xmm13, xmm13, xmm13 }
+      G_DebugSphere(&br->hitPos, DEBUG_SPHERE_RADIUS_BASE * 1.1, &colorBlue, 0, DEBUG_DRAW_DURATION_PENETRATION);
+    v20 = PenetrateType == PENETRATE_TYPE_MAXIMUM;
+    v69 = PenetrateType == PENETRATE_TYPE_MAXIMUM;
+    v21 = _xmm;
+    v22 = 1;
+    entityIndex = Trace_GetEntityHitId(&br->trace);
     while ( 1 )
     {
-      __asm { vmovaps xmm9, xmm15 }
-      if ( !v32 )
+      v23 = FLOAT_3_4028235e38;
+      if ( !v20 )
       {
-        *(double *)&_XMM0 = BG_GetSurfacePenetrationDepth(weapon, isAlternate, _RBX->depthSurfaceType);
-        __asm
-        {
-          vmulss  xmm9, xmm0, dword ptr [rdi+50h]
-          vcomiss xmm9, xmm13
-        }
-        if ( v142 | v143 )
-          break;
+        SurfacePenetrationDepth = BG_GetSurfacePenetrationDepth(weapon, isAlternate, br->depthSurfaceType);
+        v23 = *(float *)&SurfacePenetrationDepth * bp->penetrationMultiplier;
+        if ( v23 <= 0.0 )
+          return 0;
       }
-      _RSI = &_RBX->hitPos;
-      __asm
-      {
-        vmovss  xmm10, dword ptr [rsi]
-        vmovss  xmm11, dword ptr [rsi+4]
-        vmovss  xmm12, dword ptr [rsi+8]
-      }
-      if ( Trace_GetGlassHitId(&_RBX->trace) )
-        G_Bullet_DamageGlass(_RDI, _RBX, weapon, isAlternate, v20);
-      __asm { vmovss  xmm3, cs:__real@3e0a3d71; dist }
-      if ( !BG_AdvanceTrace(_RDI, &_RBX->trace, &_RBX->hitPos, *(float *)&_XMM3) )
-        break;
-      if ( !v36 || (v177 = 1, (_RBX->trace.contents & 0x10) == 0) )
-        v177 = 0;
-      v45 = G_Bullet_Trace(_RDI, weapon, isAlternate, v20, _RBX, _RBX->depthSurfaceType, 0, gameTime);
-      v173 = v45;
+      p_hitPos = &br->hitPos;
+      v26 = br->hitPos.v[0];
+      v27 = LODWORD(br->hitPos.v[1]);
+      v28 = br->hitPos.v[2];
+      if ( Trace_GetGlassHitId(&br->trace) )
+        G_Bullet_DamageGlass(bp, br, weapon, isAlternate, v9);
+      if ( !BG_AdvanceTrace(bp, &br->trace, &br->hitPos, 0.13500001) )
+        return 0;
+      if ( !v22 || (v71 = 1, (br->trace.contents & 0x10) == 0) )
+        v71 = 0;
+      v29 = G_Bullet_Trace(bp, weapon, isAlternate, v9, br, br->depthSurfaceType, 0, gameTime);
+      v67 = v29;
       if ( integer == 7 )
       {
-        _R14 = &_RDI->end;
-        G_DebugLineWithDuration(&_RDI->start, &_RDI->end, &colorCyan, 0, DEBUG_DRAW_DURATION_PENETRATION);
-        if ( v173 )
+        G_DebugLineWithDuration(&bp->start, &bp->end, &colorCyan, 0, DEBUG_DRAW_DURATION_PENETRATION);
+        if ( v29 )
         {
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rbx]
-            vmovss  xmm0, dword ptr [r14]
-            vsubss  xmm1, xmm0, dword ptr [rdi+68h]
-            vmovss  xmm0, dword ptr [r14+4]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rdi+68h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+6Ch]
-            vmovss  xmm0, dword ptr [r14+8]
-            vmulss  xmm2, xmm1, xmm6
-            vsubss  xmm1, xmm0, dword ptr [rdi+70h]
-            vmovss  dword ptr [rbp+1D0h+center], xmm3
-            vaddss  xmm3, xmm2, dword ptr [rdi+6Ch]
-            vmulss  xmm2, xmm1, xmm6
-            vmovss  xmm1, cs:DEBUG_SPHERE_RADIUS_BASE; radius
-            vmovss  dword ptr [rbp+1D0h+center+4], xmm3
-            vaddss  xmm3, xmm2, dword ptr [rdi+70h]
-            vmovss  dword ptr [rbp+1D0h+center+8], xmm3
-          }
-          G_DebugSphere(&center, *(float *)&_XMM1, &colorCyan, 0, DEBUG_DRAW_DURATION_PENETRATION);
-          __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
+          fraction = br->trace.fraction;
+          v31 = (float)(bp->end.v[1] - bp->start.v[1]) * br->trace.fraction;
+          v32 = bp->end.v[2] - bp->start.v[2];
+          center.v[0] = (float)((float)(bp->end.v[0] - bp->start.v[0]) * br->trace.fraction) + bp->start.v[0];
+          center.v[1] = v31 + bp->start.v[1];
+          center.v[2] = (float)(v32 * fraction) + bp->start.v[2];
+          G_DebugSphere(&center, DEBUG_SPHERE_RADIUS_BASE, &colorCyan, 0, DEBUG_DRAW_DURATION_PENETRATION);
+          v21 = _xmm;
         }
-        v45 = v173;
-        v20 = v180;
+        v9 = v74;
       }
       if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
         __debugbreak();
-      v185 = GBullet::ms_gBulletSystem;
-      if ( GBullet::ms_gBulletSystem->CheckFirePenetrateStop(GBullet::ms_gBulletSystem, _RBX, v20, v177) )
-        break;
-      __asm { vmovups ymm0, ymmword ptr [rdi] }
-      v63 = entityIndex;
-      _RCX = &v189;
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rdi+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rdi+60h]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymm0, ymmword ptr [rdi+80h]
-        vmovups ymmword ptr [rcx+80h], ymm0
-      }
-      BG_RemoveIgnoreEntFromBP(&v189, v63);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+80h]
-        vmovss  xmm3, dword ptr [rdi+84h]
-        vmovss  xmm4, dword ptr [rdi+88h]
-        vxorps  xmm0, xmm2, xmm6
-        vmovss  dword ptr [rbp+1D0h+var_190.dir], xmm0
-        vxorps  xmm1, xmm3, xmm6
-        vmovss  dword ptr [rbp+1D0h+var_190.dir+4], xmm1
-        vmovss  xmm1, dword ptr [rdi+74h]
-        vmovss  dword ptr [rbp+1D0h+var_190.start], xmm1
-        vmovss  xmm1, dword ptr [rdi+7Ch]
-        vmovss  dword ptr [rbp+1D0h+var_190.start+8], xmm1
-        vxorps  xmm0, xmm4, xmm6
-        vmovss  dword ptr [rbp+1D0h+var_190.dir+8], xmm0
-        vmovss  xmm0, dword ptr [rdi+78h]
-        vmovss  dword ptr [rbp+1D0h+var_190.start+4], xmm0
-        vmulss  xmm0, xmm2, xmm14
-        vsubss  xmm2, xmm10, xmm0
-        vmulss  xmm1, xmm3, xmm14
-        vsubss  xmm0, xmm11, xmm1
-        vmovss  dword ptr [rbp+1D0h+var_190.end+4], xmm0
-        vmovups ymm0, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rbp+1D0h+trace.contents], ymm0
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovss  dword ptr [rbp+1D0h+var_190.end], xmm2
-        vmovups [rbp+1D0h+var_1D0], xmm0
-        vmulss  xmm2, xmm4, xmm14
-        vsubss  xmm1, xmm12, xmm2
-        vmovups ymm2, ymmword ptr [rbx]
-        vmovups ymmword ptr [rbp+1D0h+trace.fraction], ymm2
-        vmovss  dword ptr [rbp+1D0h+var_190.end+8], xmm1
-        vmovups ymm1, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rbp+1D0h+trace.allsolid], ymm1
-        vmovsd  xmm1, qword ptr [rbx+70h]
-        vextractf128 xmm0, ymm2, 1
-        vxorps  xmm0, xmm0, xmm6
-        vmovsd  qword ptr [rbp+1D0h+surfaceType], xmm1
-        vmovss  xmm1, dword ptr [rbp+1D0h+trace.normal+4]
-        vxorps  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbp+1D0h+trace.normal], xmm0
-        vmovss  xmm0, dword ptr [rbp+1D0h+trace.normal+8]
-        vxorps  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rbp+1D0h+trace.normal+8], xmm1
-        vmovss  dword ptr [rbp+1D0h+trace.normal+4], xmm2
-      }
-      if ( v45 )
-      {
-        __asm { vmovaps xmm3, xmm14; dist }
-        BG_AdvanceTrace(&v189, &trace.trace, &trace.hitPos, *(float *)&_XMM3);
-      }
+      v79 = GBullet::ms_gBulletSystem;
+      if ( GBullet::ms_gBulletSystem->CheckFirePenetrateStop(GBullet::ms_gBulletSystem, br, v9, v71) )
+        return 0;
+      v83 = *bp;
+      BG_RemoveIgnoreEntFromBP(&v83, entityIndex);
+      v33 = bp->dir.v[0];
+      v34 = bp->dir.v[1];
+      v35 = bp->dir.v[2];
+      LODWORD(v83.dir.v[0]) = LODWORD(v33) ^ v21;
+      LODWORD(v83.dir.v[1]) = LODWORD(v34) ^ v21;
+      v83.start.v[0] = bp->end.v[0];
+      v83.start.v[2] = bp->end.v[2];
+      LODWORD(v83.dir.v[2]) = LODWORD(v35) ^ v21;
+      v83.start.v[1] = bp->end.v[1];
+      v83.end.v[1] = *(float *)&v27 - (float)(v34 * 0.0099999998);
+      *(__m256i *)&trace.trace.contents = *(__m256i *)&br->trace.contents;
+      v36 = *(_OWORD *)br->hitPos.v;
+      v83.end.v[0] = v26 - (float)(v33 * 0.0099999998);
+      *(_OWORD *)trace.hitPos.v = v36;
+      *(__m256i *)&trace.trace.fraction = *(__m256i *)&br->trace.fraction;
+      v83.end.v[2] = v28 - (float)(v35 * 0.0099999998);
+      *(__m256i *)&trace.trace.allsolid = *(__m256i *)&br->trace.allsolid;
+      __asm { vextractf128 xmm0, ymm2, 1 }
+      *(_QWORD *)&trace.depthSurfaceType = *(_QWORD *)&br->depthSurfaceType;
+      LODWORD(trace.trace.normal.v[0]) = _XMM0 ^ v21;
+      LODWORD(trace.trace.normal.v[2]) ^= v21;
+      LODWORD(trace.trace.normal.v[1]) ^= v21;
+      if ( v29 )
+        BG_AdvanceTrace(&v83, &trace.trace, &trace.hitPos, 0.0099999998);
       else
-      {
-        BG_AddIgnoreEntToBP(&v189, 2047);
-      }
-      v95 = G_Bullet_Trace(&v189, weapon, isAlternate, v20, &trace, trace.depthSurfaceType, 0, gameTime);
+        BG_AddIgnoreEntToBP(&v83, 2047);
+      v38 = G_Bullet_Trace(&v83, weapon, isAlternate, v9, &trace, trace.depthSurfaceType, 0, gameTime);
       if ( integer == 7 )
       {
-        G_DebugLineWithDuration(&v189.start, &v189.end, &colorOrange, 0, DEBUG_DRAW_DURATION_PENETRATION);
-        if ( !v95 )
+        G_DebugLineWithDuration(&v83.start, &v83.end, &colorOrange, 0, DEBUG_DRAW_DURATION_PENETRATION);
+        if ( !v38 )
           goto LABEL_57;
-        __asm
-        {
-          vmovss  xmm5, [rbp+1D0h+trace.fraction]
-          vmovss  xmm0, dword ptr [rbp+1D0h+var_190.end]
-          vsubss  xmm1, xmm0, dword ptr [rbp+1D0h+var_190.start]
-          vmulss  xmm1, xmm1, xmm5
-          vaddss  xmm0, xmm1, dword ptr [rbp+1D0h+var_190.start]
-          vmovss  xmm1, dword ptr [rbp+1D0h+var_190.end+4]
-          vmovss  dword ptr [rbp+1D0h+var_1A0], xmm0
-          vsubss  xmm0, xmm1, dword ptr [rbp+1D0h+var_190.start+4]
-          vmulss  xmm2, xmm0, xmm5
-          vaddss  xmm3, xmm2, dword ptr [rbp+1D0h+var_190.start+4]
-          vmovss  xmm0, dword ptr [rbp+1D0h+var_190.end+8]
-          vsubss  xmm1, xmm0, dword ptr [rbp+1D0h+var_190.start+8]
-          vmovss  xmm0, cs:DEBUG_SPHERE_RADIUS_BASE
-          vmulss  xmm2, xmm1, xmm5
-          vmulss  xmm1, xmm0, cs:__real@3f99999a; radius
-          vmovss  dword ptr [rbp+1D0h+var_1A0+4], xmm3
-          vaddss  xmm3, xmm2, dword ptr [rbp+1D0h+var_190.start+8]
-          vmovss  dword ptr [rbp+1D0h+var_1A0+8], xmm3
-        }
-        G_DebugSphere(&v188, *(float *)&_XMM1, &colorOrange, 0, DEBUG_DRAW_DURATION_PENETRATION);
+        v82.v[0] = (float)((float)(v83.end.v[0] - v83.start.v[0]) * trace.trace.fraction) + v83.start.v[0];
+        v82.v[1] = (float)((float)(v83.end.v[1] - v83.start.v[1]) * trace.trace.fraction) + v83.start.v[1];
+        v82.v[2] = (float)((float)(v83.end.v[2] - v83.start.v[2]) * trace.trace.fraction) + v83.start.v[2];
+        G_DebugSphere(&v82, DEBUG_SPHERE_RADIUS_BASE * 1.2, &colorOrange, 0, DEBUG_DRAW_DURATION_PENETRATION);
       }
-      if ( v95 && trace.trace.allsolid )
+      if ( v38 && trace.trace.allsolid )
       {
 LABEL_59:
-        v110 = 1;
+        v39 = 1;
         goto LABEL_61;
       }
 LABEL_57:
-      if ( _RBX->trace.startsolid && trace.trace.startsolid )
+      if ( br->trace.startsolid && trace.trace.startsolid )
         goto LABEL_59;
-      v110 = 0;
+      v39 = 0;
 LABEL_61:
-      __asm
+      v40 = trace.hitPos.v[2];
+      v41 = trace.hitPos.v[1];
+      v42 = trace.hitPos.v[0];
+      if ( v38 )
       {
-        vmovss  xmm8, dword ptr [rbp+1D0h+var_1D0+8]
-        vmovss  xmm6, dword ptr [rbp+1D0h+var_1D0+4]
-        vmovss  xmm7, dword ptr [rbp+1D0h+var_1D0]
-      }
-      if ( v95 )
-      {
-        if ( v110 )
+        if ( v39 )
         {
 LABEL_70:
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1D0h+var_190.end]
-            vsubss  xmm3, xmm0, dword ptr [rbp+1D0h+var_190.start]
-            vmovss  xmm1, dword ptr [rbp+1D0h+var_190.end+4]
-            vmovss  xmm0, dword ptr [rbp+1D0h+var_190.end+8]
-            vsubss  xmm2, xmm1, dword ptr [rbp+1D0h+var_190.start+4]
-            vsubss  xmm4, xmm0, dword ptr [rbp+1D0h+var_190.start+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-          }
+          v49 = LODWORD(v83.end.v[1]);
+          *(float *)&v49 = (float)((float)((float)(v83.end.v[1] - v83.start.v[1]) * (float)(v83.end.v[1] - v83.start.v[1])) + (float)((float)(v83.end.v[0] - v83.start.v[0]) * (float)(v83.end.v[0] - v83.start.v[0]))) + (float)((float)(v83.end.v[2] - v83.start.v[2]) * (float)(v83.end.v[2] - v83.start.v[2]));
+          v50 = v49;
         }
         else
         {
-          __asm
-          {
-            vsubss  xmm0, xmm11, xmm6
-            vmulss  xmm1, xmm0, xmm0
-            vsubss  xmm2, xmm10, xmm7
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vsubss  xmm3, xmm12, xmm8
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm5, xmm2, xmm1
-          }
+          v51 = v27;
+          *(float *)&v51 = (float)((float)((float)(*(float *)&v27 - trace.hitPos.v[1]) * (float)(*(float *)&v27 - trace.hitPos.v[1])) + (float)((float)(v26 - trace.hitPos.v[0]) * (float)(v26 - trace.hitPos.v[0]))) + (float)((float)(v28 - trace.hitPos.v[2]) * (float)(v28 - trace.hitPos.v[2]));
+          v50 = v51;
         }
-        v142 = 0;
-        v143 = !v175;
-        __asm
+        v53 = v50;
+        *(float *)&v53 = fsqrt(*(float *)&v50);
+        _XMM0 = v53;
+        __asm { vmaxss  xmm10, xmm0, cs:__real@3f800000 }
+        if ( v69 )
         {
-          vsqrtss xmm0, xmm5, xmm5
-          vmaxss  xmm10, xmm0, cs:__real@3f800000
-        }
-        if ( v175 )
-        {
-          __asm { vmovss  xmm3, dword ptr [rdi+4Ch] }
+          *(float *)&_XMM3 = bp->damageMultiplier;
         }
         else
         {
-          v142 = 0;
-          v143 = !v95;
-          if ( v95 )
+          if ( v38 )
           {
             *(double *)&_XMM0 = BG_GetSurfacePenetrationDepth(weapon, isAlternate, trace.depthSurfaceType);
-            __asm
-            {
-              vminss  xmm1, xmm0, xmm9
-              vmulss  xmm9, xmm1, dword ptr [rdi+50h]
-              vcomiss xmm9, xmm13
-            }
-            if ( v142 | v143 )
-              break;
-            __asm
-            {
-              vmovss  xmm8, dword ptr [rbp+1D0h+var_1D0+8]
-              vmovss  xmm6, dword ptr [rbp+1D0h+var_1D0+4]
-              vmovss  xmm7, dword ptr [rbp+1D0h+var_1D0]
-            }
+            __asm { vminss  xmm1, xmm0, xmm9 }
+            v23 = *(float *)&_XMM1 * bp->penetrationMultiplier;
+            if ( v23 <= 0.0 )
+              return 0;
+            v40 = trace.hitPos.v[2];
+            v41 = trace.hitPos.v[1];
+            v42 = trace.hitPos.v[0];
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+4Ch]
-            vdivss  xmm1, xmm10, xmm9
-            vsubss  xmm2, xmm0, xmm1
-            vmaxss  xmm3, xmm2, xmm13
-            vmovss  dword ptr [rdi+4Ch], xmm3
-          }
+          damageMultiplier_low = LODWORD(bp->damageMultiplier);
+          *(float *)&damageMultiplier_low = bp->damageMultiplier - (float)(*(float *)&_XMM10 / v23);
+          _XMM2 = damageMultiplier_low;
+          __asm { vmaxss  xmm3, xmm2, xmm13 }
+          bp->damageMultiplier = *(float *)&_XMM3;
         }
-        __asm { vcomiss xmm3, xmm13 }
-        if ( v142 | v143 )
-          break;
-        if ( v110 )
+        if ( *(float *)&_XMM3 <= 0.0 )
+          return 0;
+        if ( v39 )
         {
-          v20 = v180;
+          v9 = v74;
         }
         else
         {
-          if ( ((trace.trace.surfaceFlags >> 19) & 0x3F) != 7 )
+          if ( ((trace.trace.surfaceFlags >> 19) & 0x3F) != 7 && (v59 = v42 - p_hitPos->v[0], v60 = v41 - br->hitPos.v[1], v61 = v40 - br->hitPos.v[2], Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bullet_penetrationMinFxDist, "bullet_penetrationMinFxDist"), (float)((float)((float)(v60 * v60) + (float)(v59 * v59)) + (float)(v61 * v61)) <= (float)(*(float *)&Float_Internal_DebugName * *(float *)&Float_Internal_DebugName)) || (v39 = 1, v67) && (br->trace.surfaceFlags & 4) != 0 )
           {
-            __asm
-            {
-              vsubss  xmm7, xmm7, dword ptr [rsi]
-              vsubss  xmm6, xmm6, dword ptr [rsi+4]
-              vsubss  xmm8, xmm8, dword ptr [rsi+8]
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bullet_penetrationMinFxDist, "bullet_penetrationMinFxDist");
-            __asm
-            {
-              vmulss  xmm2, xmm6, xmm6
-              vmulss  xmm1, xmm7, xmm7
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm2, xmm8, xmm8
-              vaddss  xmm4, xmm3, xmm2
-              vmulss  xmm0, xmm0, xmm0
-              vcomiss xmm4, xmm0
-            }
-            if ( v142 | v143 )
-              goto LABEL_82;
-          }
-          v110 = 1;
-          if ( v173 && (_RBX->trace.surfaceFlags & 4) != 0 )
-          {
-LABEL_82:
-            v20 = v180;
+            v9 = v74;
             goto LABEL_83;
           }
           IsHitSurfaceTransparent = BG_IsHitSurfaceTransparent(&trace.trace);
-          v20 = v180;
-          v158 = randSeed;
-          G_Bullet_ImpactEffect(randSeed, &v189, &trace, &_RDI->dir, weapon, isAlternate, v180, impactFlags | (IsHitSurfaceTransparent ? 0x100 : 0) | 4, &hitEffectEnt);
+          v9 = v74;
+          v63 = randSeed;
+          G_Bullet_ImpactEffect(randSeed, &v83, &trace, &bp->dir, weapon, isAlternate, v74, impactFlags | (IsHitSurfaceTransparent ? 0x100 : 0) | 4, &hitEffectEnt);
           if ( hitEffectEnt )
           {
             CombatSystem = GCombat::GetCombatSystem();
@@ -2950,93 +2185,58 @@ LABEL_82:
               __debugbreak();
             if ( trace.hitEnt )
             {
-              v161 = G_GetEntityIndex(trace.hitEnt);
-              if ( G_IsEntityInUse(v161) )
+              v66 = G_GetEntityIndex(trace.hitEnt);
+              if ( G_IsEntityInUse(v66) )
               {
                 if ( GCombat::QueuedDamageEnabled(CombatSystem) )
-                  GBullet::DeferImpactEffectFlags(v185, trace.hitEnt, hitEffectEnt, impactFlags);
+                  GBullet::DeferImpactEffectFlags(v79, trace.hitEnt, hitEffectEnt, impactFlags);
               }
             }
 LABEL_83:
-            v158 = randSeed;
+            v63 = randSeed;
           }
-          if ( v173 )
-            v176 = G_Bullet_Process(v158, _RDI, _RBX, weapon, hand, isAlternate, v20, 8, gameTime, &impactFlags, v110, initialSimStep);
+          if ( v67 )
+            v70 = G_Bullet_Process(v63, bp, br, weapon, hand, isAlternate, v9, 8, gameTime, &impactFlags, v39, initialSimStep);
         }
-        v114 = v173;
+        v43 = v67;
         goto LABEL_99;
       }
-      if ( v110 )
+      if ( v39 )
         goto LABEL_70;
-      v114 = v173;
-      if ( v173 )
+      v43 = v67;
+      if ( v67 )
       {
-        if ( ((trace.trace.surfaceFlags >> 19) & 0x3F) == 7 )
-          goto LABEL_67;
-        __asm
+        processFx = 1;
+        if ( ((trace.trace.surfaceFlags >> 19) & 0x3F) != 7 )
         {
-          vsubss  xmm7, xmm10, dword ptr [rsi]
-          vsubss  xmm6, xmm11, dword ptr [rsi+4]
-          vsubss  xmm8, xmm12, dword ptr [rsi+8]
+          v44 = v26 - p_hitPos->v[0];
+          v45 = *(float *)&v27 - br->hitPos.v[1];
+          v46 = v28 - br->hitPos.v[2];
+          v47 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bullet_penetrationMinFxDist, "bullet_penetrationMinFxDist");
+          if ( (float)((float)((float)(v45 * v45) + (float)(v44 * v44)) + (float)(v46 * v46)) <= (float)(*(float *)&v47 * *(float *)&v47) )
+            processFx = 0;
         }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bullet_penetrationMinFxDist, "bullet_penetrationMinFxDist");
-        __asm
-        {
-          vmulss  xmm2, xmm6, xmm6
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm2, xmm8, xmm8
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm0, xmm0, xmm0
-          vcomiss xmm4, xmm0
-        }
-        if ( !(v142 | v143) )
-LABEL_67:
-          processFx = 1;
-        else
-          processFx = 0;
-        v20 = v180;
-        v176 = G_Bullet_Process(randSeed, _RDI, _RBX, weapon, hand, isAlternate, v180, 8, gameTime, &impactFlags, processFx, initialSimStep);
+        v9 = v74;
+        v70 = G_Bullet_Process(randSeed, bp, br, weapon, hand, isAlternate, v74, 8, gameTime, &impactFlags, processFx, initialSimStep);
       }
       else
       {
-        v20 = v180;
+        v9 = v74;
       }
 LABEL_99:
-      entityIndex = Trace_GetEntityHitId(&_RBX->trace);
-      if ( !v176 )
-        break;
-      if ( !v114 )
-      {
-        result = _RDI->isBallistics;
-        goto LABEL_105;
-      }
-      __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      v36 = v177;
-      v32 = v175;
-      if ( ++v183 >= 5 )
-      {
-        result = 1;
-        goto LABEL_105;
-      }
+      entityIndex = Trace_GetEntityHitId(&br->trace);
+      if ( !v70 )
+        return 0;
+      if ( !v43 )
+        return bp->isBallistics;
+      v21 = _xmm;
+      v22 = v71;
+      v20 = v69;
+      if ( ++v77 >= 5 )
+        return 1;
     }
   }
-  result = 0;
-LABEL_105:
-  __asm
-  {
-    vmovaps xmm14, [rsp+2D0h+var_D0]
-    vmovaps xmm13, [rsp+2D0h+var_C0]
-    vmovaps xmm12, [rsp+2D0h+var_B0]
-    vmovaps xmm11, [rsp+2D0h+var_A0]
-    vmovaps xmm10, [rsp+2D0h+var_90]
-    vmovaps xmm9, [rsp+2D0h+var_80]
-    vmovaps xmm8, [rsp+2D0h+var_70]
-    vmovaps xmm7, [rsp+2D0h+var_60]
-    vmovaps xmm6, [rsp+2D0h+var_50]
-    vmovaps xmm15, [rsp+2D0h+var_E0]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -3044,160 +2244,146 @@ LABEL_105:
 G_Bullet_FireWithParams
 ==============
 */
-
-__int64 __fastcall G_Bullet_FireWithParams(const GWeaponFireParms *const params, const int serverTime, __int64 a3, double _XMM3_8)
+__int64 G_Bullet_FireWithParams(const GWeaponFireParms *const params, const int serverTime)
 {
-  signed __int64 v4; 
-  void *v10; 
+  signed __int64 v2; 
+  void *v3; 
+  const GWeaponFireParms *wp; 
   unsigned __int16 attackerEntity; 
-  gentity_s *v14; 
+  gentity_s *v7; 
   unsigned __int16 weaponEntity; 
-  unsigned __int16 v16; 
-  __int64 v17; 
-  GBullet *v18; 
-  GAntiLag *v19; 
-  GItems *v20; 
-  const dvar_t *v21; 
+  unsigned __int16 v9; 
+  __int64 v10; 
+  GBullet *v11; 
+  GAntiLag *v12; 
+  GItems *v13; 
+  const dvar_t *v14; 
   const bitarray<64> *p_attackerPerks; 
-  bool v23; 
-  char v24; 
+  bool v16; 
+  char v17; 
   bool ShouldSpread; 
   bool IsBeamWeapon; 
   targetAssistBehavior_t TargetAssistBehavior; 
+  int v21; 
+  int v22; 
+  float maxRange; 
+  float attackerSpread; 
+  bool v25; 
+  double v26; 
+  GConeTargetEvaluator *v27; 
   int v28; 
-  int v29; 
-  char v34; 
-  GConeTargetEvaluator *v38; 
-  int v39; 
   gentity_s *LinkedBeamEntity; 
-  unsigned int v43; 
+  unsigned int v30; 
   bitarray<64> *client; 
-  GBallistics *v50; 
-  int v51; 
-  __int64 v52; 
-  bitarray<64> v53; 
-  __int64 v54; 
+  GBallistics *v32; 
+  int v33; 
+  __int64 v34; 
+  bitarray<64> v35; 
+  __int64 v36; 
+  vec3_t *p_muzzleTrace; 
   const playerState_s *EntityPlayerStateConst; 
-  const playerState_s *v58; 
-  int v59; 
+  const playerState_s *v39; 
+  int v40; 
   unsigned __int16 *p_linkedEnt; 
-  int v61; 
-  int v69; 
+  int v42; 
+  int v43; 
   bool (__fastcall *EvaluateTarget)(GTargetEvaluator *, const GAssistTarget *, const vec3_t *, float, vec3_t *, vec3_t *); 
   ConeTargetHitResults *HitResults; 
-  ConeTargetHitResults *v73; 
+  ConeTargetHitResults *v46; 
   scr_string_t tagName; 
-  int v85; 
-  scrContext_t *v86; 
-  const Weapon *v87; 
+  int v48; 
+  scrContext_t *v49; 
+  const Weapon *v50; 
   char *Value; 
-  int *v91; 
-  _QWORD *v92; 
-  char *v93; 
-  __int64 v94; 
-  unsigned __int64 v95; 
+  int *v52; 
+  _QWORD *v53; 
+  char *v54; 
+  __int64 v55; 
+  unsigned __int64 v56; 
   ThreadContext CurrentThreadContext; 
-  __int64 v97; 
-  int v98; 
-  unsigned __int64 v99; 
-  gentity_s **v100; 
-  unsigned __int8 (__fastcall *v101)(GConeTargetEvaluator *, _OWORD *, vec3_t *); 
-  ConeTargetHitResults *v103; 
-  GCombat *v117; 
+  __int64 v58; 
+  int v59; 
+  unsigned __int64 v60; 
+  gentity_s **v61; 
+  unsigned __int8 (__fastcall *v62)(GConeTargetEvaluator *, _OWORD *, vec3_t *); 
+  ConeTargetHitResults *v63; 
+  ConeTargetHitInfo *FirstVisibleHit; 
+  GCombat *v65; 
   damageReturnCode_t (__fastcall *Damage)(GCombat *, gentity_s *, const gentity_s *, gentity_s *, const vec3_t *, const vec3_t *, int, int, int, const Weapon *, bool, hitLocation_t, unsigned int, scr_string_t, int, const vec3_t *, const GExtraDamageParams *); 
-  int v119; 
-  PlayerHandIndex v120; 
-  scr_string_t v121; 
-  GBullet *v122; 
-  unsigned int v123; 
+  int v67; 
+  PlayerHandIndex v68; 
+  scr_string_t v69; 
+  GBullet *v70; 
+  unsigned int v71; 
   unsigned int hitClientNum; 
-  __int64 result; 
   BOOL fmt; 
-  float fmta; 
-  float fmtb; 
   float *outRange; 
   vec3_t *outRangea; 
-  float outRangeb; 
-  float outRangec; 
   __int64 angleMax; 
-  int angleMaxa; 
-  float angleMaxb; 
-  float angleMaxc; 
-  int wp; 
-  float maxRange; 
-  float maxRangea; 
   BOOL initialSimStep; 
-  bool v161; 
-  bool v162; 
+  bool v79; 
+  bool v80; 
   bool isAlternate; 
-  __int16 v164; 
-  bool v165; 
+  __int16 v82; 
+  bool v83; 
   float outAngle; 
-  int v167; 
-  bool v168; 
+  int v85; 
+  bool v86; 
   int gameTime; 
-  unsigned int v170; 
+  unsigned int v88; 
   PlayerHandIndex hand; 
   float spreadMaxOut; 
-  float v173; 
-  GConeTargetEvaluator *v174; 
+  float v91; 
+  GConeTargetEvaluator *v92; 
   gentity_s *beamEnt; 
   float angleMaxOut; 
   float angleMinOut; 
   float spreadMinOut; 
-  const gentity_s **v179; 
+  const gentity_s **v97; 
   unsigned int pHoldrand; 
-  __int64 v181; 
-  GBallistics *v182; 
-  const GWeaponFireParms *v183; 
-  gentity_s *v184; 
-  gentity_s *v185; 
-  GBullet *v186; 
+  __int64 v99; 
+  GBallistics *v100; 
+  const GWeaponFireParms *v101; 
+  gentity_s *v102; 
+  gentity_s *v103; 
+  GBullet *v104; 
   Weapon *p_weapon; 
-  GAntiLag *v188; 
-  GItems *v189; 
-  BGSpreadSetting v190; 
-  __int64 v191; 
+  GAntiLag *v106; 
+  GItems *v107; 
+  BGSpreadSetting v108; 
+  __int64 v109; 
   BulletTraceResults br; 
   bitarray<64> perks; 
   vec3_t angles; 
   BulletFireParams fireParams; 
   _OWORD ptr[52]; 
-  char v197[16128]; 
-  char v202; 
+  char v115[16128]; 
 
-  v10 = alloca(v4);
-  v191 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+4550h+var_40], xmm6
-    vmovaps [rsp+4550h+var_50], xmm7
-    vmovaps [rsp+4550h+var_60], xmm8
-    vmovaps [rsp+4550h+var_70], xmm9
-  }
+  v3 = alloca(v2);
+  v109 = -2i64;
   gameTime = serverTime;
-  _R15 = params;
-  v183 = params;
+  wp = params;
+  v101 = params;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2197, ASSERT_TYPE_ASSERT, "(params)", (const char *)&queryFormat, "params") )
     __debugbreak();
-  if ( !_R15->wp.weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2198, ASSERT_TYPE_ASSERT, "(params->wp.weapDef)", (const char *)&queryFormat, "params->wp.weapDef") )
+  if ( !wp->wp.weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2198, ASSERT_TYPE_ASSERT, "(params->wp.weapDef)", (const char *)&queryFormat, "params->wp.weapDef") )
     __debugbreak();
-  p_weapon = &_R15->wp.weapon;
-  if ( BG_GetWeaponType(&_R15->wp.weapon, _R15->wp.isAlternate) != WEAPTYPE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2199, ASSERT_TYPE_ASSERT, "(BG_GetWeaponType( params->wp.weapon, params->wp.isAlternate ) == WEAPTYPE_BULLET)", (const char *)&queryFormat, "BG_GetWeaponType( params->wp.weapon, params->wp.isAlternate ) == WEAPTYPE_BULLET") )
+  p_weapon = &wp->wp.weapon;
+  if ( BG_GetWeaponType(&wp->wp.weapon, wp->wp.isAlternate) != WEAPTYPE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2199, ASSERT_TYPE_ASSERT, "(BG_GetWeaponType( params->wp.weapon, params->wp.isAlternate ) == WEAPTYPE_BULLET)", (const char *)&queryFormat, "BG_GetWeaponType( params->wp.weapon, params->wp.isAlternate ) == WEAPTYPE_BULLET") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "G_Bullet_FireWithParams");
   PhysPerfTrack_BulletServerTimeStart();
   PhysPerfTrack_BulletServerEventCountAdd();
-  attackerEntity = _R15->bullet.attackerEntity;
+  attackerEntity = wp->bullet.attackerEntity;
   if ( attackerEntity > 0x800u )
   {
     LODWORD(outRange) = attackerEntity;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2206, ASSERT_TYPE_ASSERT, "( params->bullet.attackerEntity ) <= ( ( 2048 ) )", "params->bullet.attackerEntity not in [0, MAX_GENTITIES]\n\t%u not in [0, %u]", outRange, 2048) )
       __debugbreak();
   }
-  v14 = &g_entities[_R15->bullet.attackerEntity];
-  v184 = v14;
-  weaponEntity = _R15->bullet.weaponEntity;
+  v7 = &g_entities[wp->bullet.attackerEntity];
+  v102 = v7;
+  weaponEntity = wp->bullet.weaponEntity;
   if ( weaponEntity > 0x800u )
   {
     LODWORD(angleMax) = 2048;
@@ -3205,140 +2391,116 @@ __int64 __fastcall G_Bullet_FireWithParams(const GWeaponFireParms *const params,
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2209, ASSERT_TYPE_ASSERT, "( params->bullet.weaponEntity ) <= ( ( 2048 ) )", "params->bullet.weaponEntity not in [0, MAX_GENTITIES]\n\t%u not in [0, %u]", outRange, angleMax) )
       __debugbreak();
   }
-  v16 = _R15->bullet.weaponEntity;
-  v17 = 0i64;
-  if ( v16 == 2046 )
-    v185 = NULL;
+  v9 = wp->bullet.weaponEntity;
+  v10 = 0i64;
+  if ( v9 == 2046 )
+    v103 = NULL;
   else
-    v185 = &g_entities[v16];
+    v103 = &g_entities[v9];
   if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
     __debugbreak();
-  v18 = GBullet::ms_gBulletSystem;
-  v186 = GBullet::ms_gBulletSystem;
+  v11 = GBullet::ms_gBulletSystem;
+  v104 = GBullet::ms_gBulletSystem;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
     __debugbreak();
-  v19 = GAntiLag::ms_gAntiLagData;
-  v188 = GAntiLag::ms_gAntiLagData;
+  v12 = GAntiLag::ms_gAntiLagData;
+  v106 = GAntiLag::ms_gAntiLagData;
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
-  v20 = GItems::ms_gItemsSystem;
-  v189 = GItems::ms_gItemsSystem;
-  v18->m_impaleCount = 0i64;
-  ((void (__fastcall *)(GItems *, __int64))v20->BeginDeferItemDrops)(v20, v17);
-  v168 = v19->ShouldPerformBulletFireAntiLag(v19, serverTime, v14);
-  if ( v168 )
+  v13 = GItems::ms_gItemsSystem;
+  v107 = GItems::ms_gItemsSystem;
+  v11->m_impaleCount = 0i64;
+  ((void (__fastcall *)(GItems *, __int64))v13->BeginDeferItemDrops)(v13, v10);
+  v86 = v12->ShouldPerformBulletFireAntiLag(v12, serverTime, v7);
+  if ( v86 )
   {
-    v21 = DVARINT_bg_debugRewindPositions;
+    v14 = DVARINT_bg_debugRewindPositions;
     if ( !DVARINT_bg_debugRewindPositions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindPositions") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    v19->m_debugMethod = v21->current.integer;
-    p_attackerPerks = &_R15->bullet.attackerPerks;
-    v23 = BG_WeaponBulletFire_ExplodeOnImpact(_R15->bullet.attackerPerks, &_R15->wp.weapon, _R15->wp.isAlternate);
+    Dvar_CheckFrontendServerThread(v14);
+    v12->m_debugMethod = v14->current.integer;
+    p_attackerPerks = &wp->bullet.attackerPerks;
+    v16 = BG_WeaponBulletFire_ExplodeOnImpact(wp->bullet.attackerPerks, &wp->wp.weapon, wp->wp.isAlternate);
     LOBYTE(outRange) = 0;
     LOBYTE(fmt) = 1;
-    v19->RewindPositions(v19, serverTime, v14, v23, fmt, (bool)outRange, "Bullet");
-    v19->m_debugMethod = ANTILAG_DEBUG_METHOD_DISABLED;
+    v12->RewindPositions(v12, serverTime, v7, v16, fmt, (bool)outRange, "Bullet");
+    v12->m_debugMethod = ANTILAG_DEBUG_METHOD_DISABLED;
   }
   else
   {
-    p_attackerPerks = &_R15->bullet.attackerPerks;
+    p_attackerPerks = &wp->bullet.attackerPerks;
   }
-  v24 = _R15->bullet.flags[0];
-  ShouldSpread = BG_WeaponBulletFire_ShouldSpread(*p_attackerPerks, &_R15->wp.weapon, _R15->wp.isAlternate);
-  v165 = ShouldSpread;
-  IsBeamWeapon = BG_IsBeamWeapon(&_R15->wp.weapon, _R15->wp.isAlternate);
-  v161 = IsBeamWeapon;
-  if ( (v24 & 1) != 0 )
+  v17 = wp->bullet.flags[0];
+  ShouldSpread = BG_WeaponBulletFire_ShouldSpread(*p_attackerPerks, &wp->wp.weapon, wp->wp.isAlternate);
+  v83 = ShouldSpread;
+  IsBeamWeapon = BG_IsBeamWeapon(&wp->wp.weapon, wp->wp.isAlternate);
+  v79 = IsBeamWeapon;
+  if ( (v17 & 1) != 0 )
   {
-    TargetAssistBehavior = BG_GetTargetAssistBehavior(&_R15->wp.weapon, _R15->wp.isAlternate);
-    IsBeamWeapon = v161;
+    TargetAssistBehavior = BG_GetTargetAssistBehavior(&wp->wp.weapon, wp->wp.isAlternate);
+    IsBeamWeapon = v79;
   }
   else
   {
     TargetAssistBehavior = TARGET_ASSISTBEHAVE_DEFAULT;
   }
-  v167 = TargetAssistBehavior;
-  hand = _R15->bullet.attackerHand;
+  v85 = TargetAssistBehavior;
+  hand = wp->bullet.attackerHand;
   if ( ShouldSpread || IsBeamWeapon )
   {
-    v29 = BG_ShotCount(&_R15->wp.weapon, _R15->wp.isAlternate);
-    v28 = v29;
-    v170 = v29;
-    if ( v161 && v29 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2272, ASSERT_TYPE_ASSERT, "((!isBeamWeapon || (shotCount <= 7)))", "%s\n\tBeam weapons can support/track at most 7 targets.", "(!isBeamWeapon || (shotCount <= BEAM_ENT_BONE_PAIR_COUNT))") )
+    v22 = BG_ShotCount(&wp->wp.weapon, wp->wp.isAlternate);
+    v21 = v22;
+    v88 = v22;
+    if ( v79 && v22 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2272, ASSERT_TYPE_ASSERT, "((!isBeamWeapon || (shotCount <= 7)))", "%s\n\tBeam weapons can support/track at most 7 targets.", "(!isBeamWeapon || (shotCount <= BEAM_ENT_BONE_PAIR_COUNT))") )
       __debugbreak();
-    if ( !v186->m_reduceSpreadShotCount )
+    if ( !v104->m_reduceSpreadShotCount )
       goto LABEL_47;
-    --v28;
+    --v21;
   }
   else
   {
-    v28 = 1;
+    v21 = 1;
   }
-  v170 = v28;
+  v88 = v21;
 LABEL_47:
-  __asm
+  maxRange = wp->bullet.range;
+  spreadMinOut = 0.0;
+  attackerSpread = wp->bullet.attackerSpread;
+  spreadMaxOut = attackerSpread;
+  angleMinOut = 0.0;
+  angleMaxOut = FLOAT_360_0;
+  pHoldrand = wp->bullet.randSeed;
+  v25 = v83 && v21 > 1 && attackerSpread > 0.0;
+  LOBYTE(v82) = v25;
+  memset(&v108, 0, sizeof(v108));
+  if ( v25 )
   {
-    vmovss  xmm9, dword ptr [r15+90h]
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  [rbp+4440h+spreadMinOut], xmm8
-    vmovss  xmm6, dword ptr [r15+8Ch]
-    vmovss  [rbp+4440h+spreadMaxOut], xmm6
-    vmovss  [rbp+4440h+angleMinOut], xmm8
-    vmovss  xmm7, cs:__real@43b40000
-    vmovss  [rbp+4440h+angleMaxOut], xmm7
-  }
-  pHoldrand = _R15->bullet.randSeed;
-  if ( v165 && v28 > 1 )
-  {
-    __asm { vcomiss xmm6, xmm8 }
-    v34 = 1;
-  }
-  else
-  {
-    v34 = 0;
-  }
-  LOBYTE(v164) = v34;
-  *(_QWORD *)&v190.m_shotCount = 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rbp+4440h+var_4420.m_angleRange], xmm0
-  }
-  if ( v34 )
-  {
-    *(double *)&_XMM0 = BG_random(&pHoldrand);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm7; angleStart
-      vmovss  dword ptr [rsp+4550h+fmt], xmm6
-      vxorps  xmm3, xmm3, xmm3; initSpreadMin
-    }
-    BGSpreadSetting::Init(&v190, *(float *)&_XMM1, v28, *(float *)&_XMM3, fmta);
+    v26 = BG_random(&pHoldrand);
+    BGSpreadSetting::Init(&v108, *(float *)&v26 * 360.0, v21, 0.0, attackerSpread);
   }
   br.hitClientNum = -1;
   `eh vector constructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))GAssistTarget::GAssistTarget, (void (__fastcall *)(void *))GAssistTarget::~GAssistTarget);
-  if ( (v24 & 1) != 0 )
+  if ( (v17 & 1) != 0 )
   {
-    v38 = &GBullet::ms_coneTargetEvaluator;
-    v39 = 0;
-    if ( BG_GetTargetAssistType(&_R15->wp.weapon, _R15->wp.isAlternate) != TARGET_ASSISTTYPPE_CONE )
-      v38 = NULL;
+    v27 = &GBullet::ms_coneTargetEvaluator;
+    v28 = 0;
+    if ( BG_GetTargetAssistType(&wp->wp.weapon, wp->wp.isAlternate) != TARGET_ASSISTTYPPE_CONE )
+      v27 = NULL;
   }
   else
   {
-    v39 = 0;
-    v38 = NULL;
+    v28 = 0;
+    v27 = NULL;
   }
-  v174 = v38;
+  v92 = v27;
   beamEnt = NULL;
-  if ( v161 )
+  if ( v79 )
   {
-    LinkedBeamEntity = G_BeamEntity_GetLinkedBeamEntity(v14);
+    LinkedBeamEntity = G_BeamEntity_GetLinkedBeamEntity(v7);
     beamEnt = LinkedBeamEntity;
     if ( !LinkedBeamEntity )
     {
-      LinkedBeamEntity = G_BeamEntity_WeaponSpawn(v14, &_R15->wp.weapon);
+      LinkedBeamEntity = G_BeamEntity_WeaponSpawn(v7, &wp->wp.weapon);
       beamEnt = LinkedBeamEntity;
       if ( !LinkedBeamEntity )
       {
@@ -3349,248 +2511,186 @@ LABEL_47:
     }
     G_BeamEntity_ClearTargets(LinkedBeamEntity);
   }
-  if ( v38 && (v24 & 2) == 0 )
+  if ( v27 && (v17 & 2) == 0 )
   {
-    __asm
-    {
-      vmovaps xmm3, xmm9; fallbackRange
-      vmovss  xmm2, [rbp+4440h+spreadMaxOut]; fallbackAngle
-    }
-    BG_GetTargetAssistAngleRange(&_R15->wp.weapon, _R15->wp.isAlternate, *(const float *)&_XMM2, *(const float *)&_XMM3, &outAngle, &v173);
-    v43 = v170;
+    BG_GetTargetAssistAngleRange(&wp->wp.weapon, wp->wp.isAlternate, spreadMaxOut, maxRange, &outAngle, &v91);
+    v30 = v88;
     if ( TargetAssistBehavior == TARGET_ASSISTBEHAVE_DIRECT_DAMAGE )
-      v43 = 20;
-    __asm
-    {
-      vmovss  xmm0, [rbp+4440h+outAngle]
-      vmovss  dword ptr [rsp+4550h+wp], xmm0
-      vmovss  xmm1, [rbp+4440h+var_449C]
-      vmovss  [rsp+4550h+angleMax], xmm1
-    }
-    v39 = ((__int64 (__fastcall *)(GConeTargetEvaluator *, Weapon *, bool, gentity_s *, vec3_t *, const GWeaponFireParms *, int, int, unsigned int, bool, const unsigned int, int, char, _OWORD *))v38->FindTargets)(v38, &_R15->wp.weapon, _R15->wp.isAlternate, v14, &_R15->wp.muzzleTrace, _R15, angleMaxa, wp, v43, v161, HITLOC_MASK_ALL, gameTime, 1, ptr);
+      v30 = 20;
+    v28 = ((__int64 (__fastcall *)(GConeTargetEvaluator *, Weapon *, bool, gentity_s *, vec3_t *, const GWeaponFireParms *, _DWORD, _DWORD, unsigned int, bool, const unsigned int, int, char, _OWORD *))v27->FindTargets)(v27, &wp->wp.weapon, wp->wp.isAlternate, v7, &wp->wp.muzzleTrace, wp, LODWORD(v91), LODWORD(outAngle), v30, v79, HITLOC_MASK_ALL, gameTime, 1, ptr);
   }
-  fireParams.weaponEntIndex = _R15->bullet.weaponEntity;
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 286, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
+  fireParams.weaponEntIndex = wp->bullet.weaponEntity;
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 286, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
-  client = (bitarray<64> *)v14->client;
+  client = (bitarray<64> *)v7->client;
   if ( client )
     perks = client[558];
   else
     perks = 0i64;
-  fireParams.methodOfDeath = BG_WeaponBulletFire_GetMethodOfDeath(perks, &_R15->wp.weapon, _R15->wp.isAlternate);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+94h]
-    vmovss  [rbp+4440h+fireParams.rangeScale], xmm0
-    vmovss  xmm1, dword ptr [r15+98h]
-    vmovss  [rbp+4440h+fireParams.penetrationMultiplier], xmm1
-    vmovss  xmm0, dword ptr [r15+9Ch]
-    vmovss  [rbp+4440h+fireParams.chargedDamageMultiplier], xmm0
-  }
+  fireParams.methodOfDeath = BG_WeaponBulletFire_GetMethodOfDeath(perks, &wp->wp.weapon, wp->wp.isAlternate);
+  fireParams.rangeScale = wp->bullet.rangeScale;
+  fireParams.penetrationMultiplier = wp->bullet.penetrationMultiplier;
+  LODWORD(fireParams.chargedDamageMultiplier) = wp->missile.missileParams.trackingTrajectory;
   fireParams.firstImpactOccurred = 0;
-  fireParams.shotCount = _R15->bullet.shotCount;
+  fireParams.shotCount = wp->bullet.shotCount;
   if ( !GBallistics::ms_gBallisticsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.h", 79, ASSERT_TYPE_ASSERT, "( ms_gBallisticsSystem )", (const char *)&queryFormat, "ms_gBallisticsSystem") )
     __debugbreak();
-  v50 = GBallistics::ms_gBallisticsSystem;
-  v182 = GBallistics::ms_gBallisticsSystem;
+  v32 = GBallistics::ms_gBallisticsSystem;
+  v100 = GBallistics::ms_gBallisticsSystem;
   if ( !GBallistics::ms_gBallisticsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2374, ASSERT_TYPE_ASSERT, "( ballisticsSystem )", (const char *)&queryFormat, "ballisticsSystem") )
     __debugbreak();
-  v162 = v50->ShouldFireBallisticBullet(v50, &_R15->wp.weapon, _R15->wp.isAlternate, v14->s.number);
-  v51 = 0;
-  v52 = (int)v170;
-  v181 = (int)v170;
-  v53 = (bitarray<64>)v39;
-  perks = (bitarray<64>)v39;
-  if ( (int)v170 <= 0 )
+  v80 = v32->ShouldFireBallisticBullet(v32, &wp->wp.weapon, wp->wp.isAlternate, v7->s.number);
+  v33 = 0;
+  v34 = (int)v88;
+  v99 = (int)v88;
+  v35 = (bitarray<64>)v28;
+  perks = (bitarray<64>)v28;
+  if ( (int)v88 <= 0 )
   {
-    v85 = v167;
+    v48 = v85;
     goto LABEL_161;
   }
-  v54 = 0i64;
-  v179 = (const gentity_s **)v197;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  v36 = 0i64;
+  v97 = (const gentity_s **)v115;
   do
   {
-    _RBX = &_R15->wp.muzzleTrace;
+    p_muzzleTrace = &wp->wp.muzzleTrace;
     Sys_ProfBeginNamedEvent(0xFF008008, "G_Bullet_FireWithParams-Pellet");
     PhysPerfTrack_BulletServerPelletCountAdd();
-    LODWORD(outAngle) = v51 + pHoldrand;
+    LODWORD(outAngle) = v33 + pHoldrand;
     BG_srand((unsigned int *)&outAngle);
     fireParams.ignoreHitEntCount = 0;
     BG_AddIgnoreEntToBP(&fireParams, fireParams.weaponEntIndex);
-    EntityPlayerStateConst = G_GetEntityPlayerStateConst(v14);
-    v58 = EntityPlayerStateConst;
+    EntityPlayerStateConst = G_GetEntityPlayerStateConst(v7);
+    v39 = EntityPlayerStateConst;
     if ( EntityPlayerStateConst && EntityPlayerStateConst->numViewLinkedEnts > 0 )
     {
-      v59 = 0;
+      v40 = 0;
       p_linkedEnt = &EntityPlayerStateConst->viewLinkedEntityData[0].linkedEnt;
       do
       {
         BG_AddIgnoreEntToBP(&fireParams, *p_linkedEnt);
-        ++v59;
+        ++v40;
         p_linkedEnt += 16;
       }
-      while ( v59 < v58->numViewLinkedEnts );
-      _RBX = &_R15->wp.muzzleTrace;
-      v53 = perks;
+      while ( v40 < v39->numViewLinkedEnts );
+      p_muzzleTrace = &wp->wp.muzzleTrace;
+      v35 = perks;
     }
-    if ( v185 )
+    if ( v103 )
     {
-      if ( v185->s.eType == ET_TURRET )
+      if ( v103->s.eType == ET_TURRET )
       {
-        v61 = v185->s.lerp.u.anonymous.data[6];
-        if ( v61 != 2047 )
-          BG_AddIgnoreEntToBP(&fireParams, v61);
+        v42 = v103->s.lerp.u.anonymous.data[6];
+        if ( v42 != 2047 )
+          BG_AddIgnoreEntToBP(&fireParams, v42);
       }
     }
-    __asm
+    fireParams.damageMultiplier = FLOAT_1_0;
+    fireParams.start = *p_muzzleTrace;
+    fireParams.initialPos = fireParams.start;
+    fireParams.dir = wp->wp.forward;
+    fireParams.travelDistance = 0.0;
+    if ( !G_GameInterface_CalcBulletEndPos(v39, gameTime, &fireParams.start, maxRange, &fireParams.dir, &fireParams.end) )
     {
-      vmovss  [rbp+4440h+fireParams.damageMultiplier], xmm6
-      vmovss  xmm2, dword ptr [rbx]
-      vmovss  dword ptr [rbp+4440h+fireParams.start], xmm2
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+4440h+fireParams.start+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+4440h+fireParams.start+8], xmm0
-      vmovss  dword ptr [rbp+4440h+fireParams.initialPos], xmm2
-      vmovss  dword ptr [rbp+4440h+fireParams.initialPos+4], xmm1
-      vmovss  dword ptr [rbp+4440h+fireParams.initialPos+8], xmm0
-      vmovss  xmm0, dword ptr [r15]
-      vmovss  dword ptr [rbp+4440h+fireParams.dir], xmm0
-      vmovss  xmm1, dword ptr [r15+4]
-      vmovss  dword ptr [rbp+4440h+fireParams.dir+4], xmm1
-      vmovss  xmm0, dword ptr [r15+8]
-      vmovss  dword ptr [rbp+4440h+fireParams.dir+8], xmm0
-      vmovss  [rbp+4440h+fireParams.travelDistance], xmm8
-      vmovaps xmm3, xmm9; range
-    }
-    if ( !G_GameInterface_CalcBulletEndPos(v58, gameTime, &fireParams.start, *(float *)&_XMM3, &fireParams.dir, &fireParams.end) )
-    {
-      v69 = v167;
-      if ( v54 < *(_QWORD *)&v53 && ((v167 - 1) & 0xFFFFFFFD) != 0 )
+      v43 = v85;
+      if ( v36 < *(_QWORD *)&v35 && ((v85 - 1) & 0xFFFFFFFD) != 0 )
       {
-        if ( !v174 )
+        if ( !v92 )
         {
 LABEL_123:
-          if ( (_BYTE)v164 )
-            BGSpreadSetting::CalculateSpread(&v190, v51, &spreadMinOut, &spreadMaxOut, &angleMinOut, &angleMaxOut);
-          __asm
-          {
-            vmovss  [rsp+4550h+maxRange], xmm9
-            vmovss  xmm0, [rbp+4440h+angleMaxOut]
-            vmovss  [rsp+4550h+angleMax], xmm0
-            vmovss  xmm1, [rbp+4440h+angleMinOut]
-            vmovss  dword ptr [rsp+4550h+outRange], xmm1
-            vmovss  xmm2, [rbp+4440h+spreadMaxOut]; spreadMax
-            vmovss  xmm1, [rbp+4440h+spreadMinOut]; spreadMin
-          }
-          G_Bullet_Endpos((unsigned int *)&outAngle, *(float *)&_XMM1, *(float *)&_XMM2, &fireParams.end, &fireParams.dir, outRangeb, angleMaxb, &_R15->wp, maxRange);
+          if ( (_BYTE)v82 )
+            BGSpreadSetting::CalculateSpread(&v108, v33, &spreadMinOut, &spreadMaxOut, &angleMinOut, &angleMaxOut);
+          G_Bullet_Endpos((unsigned int *)&outAngle, spreadMinOut, spreadMaxOut, &fireParams.end, &fireParams.dir, angleMinOut, angleMaxOut, &wp->wp, maxRange);
           goto LABEL_126;
         }
-        EvaluateTarget = v174->EvaluateTarget;
-        if ( (unsigned __int64)v51 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+        EvaluateTarget = v92->EvaluateTarget;
+        if ( (unsigned __int64)v33 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
         outRangea = &fireParams.dir;
-        __asm { vmovaps xmm3, xmm9 }
-        if ( ((unsigned __int8 (__fastcall *)(GConeTargetEvaluator *, _OWORD *, vec3_t *))EvaluateTarget)(v174, &ptr[53 * v51], &_R15->wp.muzzleTrace) )
+        if ( ((unsigned __int8 (__fastcall *)(GConeTargetEvaluator *, _OWORD *, vec3_t *))EvaluateTarget)(v92, &ptr[53 * v33], &wp->wp.muzzleTrace) )
         {
-          if ( v161 )
+          if ( v79 )
           {
-            if ( (unsigned __int64)v51 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            if ( (unsigned __int64)v33 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
-            HitResults = ConeTargetInfo::GetHitResults((ConeTargetInfo *)&ptr[53 * v51]);
+            HitResults = ConeTargetInfo::GetHitResults((ConeTargetInfo *)&ptr[53 * v33]);
             if ( !ConeTargetHitResults::GetFirstVisibleHit(HitResults) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2453, ASSERT_TYPE_ASSERT, "(targetArray[shotIndex].GetHitResults().GetFirstVisibleHit())", (const char *)&queryFormat, "targetArray[shotIndex].GetHitResults().GetFirstVisibleHit()") )
               __debugbreak();
-            if ( (unsigned __int64)v51 >= 0x14 )
+            if ( (unsigned __int64)v33 >= 0x14 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
-              if ( (unsigned __int64)v51 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              if ( (unsigned __int64)v33 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
             }
-            v73 = ConeTargetInfo::GetHitResults((ConeTargetInfo *)&ptr[53 * v51]);
-            tagName = ConeTargetHitResults::GetFirstVisibleHit(v73)->tagName;
-            if ( (unsigned __int64)v54 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            v46 = ConeTargetInfo::GetHitResults((ConeTargetInfo *)&ptr[53 * v33]);
+            tagName = ConeTargetHitResults::GetFirstVisibleHit(v46)->tagName;
+            if ( (unsigned __int64)v36 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
-            G_BeamEntity_AddTargetEnt(beamEnt, *v179, tagName, (const ConeTargetInfo *)&ptr[53 * v51]);
+            G_BeamEntity_AddTargetEnt(beamEnt, *v97, tagName, (const ConeTargetInfo *)&ptr[53 * v33]);
           }
           goto LABEL_126;
         }
-        v69 = v167;
+        p_muzzleTrace = &wp->wp.muzzleTrace;
+        v43 = v85;
       }
-      if ( v174 && (unsigned int)(v69 - 1) <= 2 )
+      if ( v92 && (unsigned int)(v43 - 1) <= 2 )
       {
-        __asm
-        {
-          vmulss  xmm0, xmm9, dword ptr [r15]
-          vaddss  xmm1, xmm0, dword ptr [rbx]
-          vmovss  dword ptr [rbp+4440h+fireParams.end], xmm1
-          vmulss  xmm0, xmm9, dword ptr [r15+4]
-          vaddss  xmm1, xmm0, dword ptr [rbx+4]
-          vmovss  dword ptr [rbp+4440h+fireParams.end+4], xmm1
-          vmulss  xmm0, xmm9, dword ptr [r15+8]
-          vaddss  xmm1, xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rbp+4440h+fireParams.end+8], xmm1
-        }
+        fireParams.end.v[0] = (float)(maxRange * wp->wp.forward.v[0]) + p_muzzleTrace->v[0];
+        fireParams.end.v[1] = (float)(maxRange * wp->wp.forward.v[1]) + p_muzzleTrace->v[1];
+        fireParams.end.v[2] = (float)(maxRange * wp->wp.forward.v[2]) + p_muzzleTrace->v[2];
         goto LABEL_126;
       }
       goto LABEL_123;
     }
 LABEL_126:
-    v85 = v167;
-    if ( v167 == 3 )
+    v48 = v85;
+    if ( v85 == 3 )
     {
-      v53 = perks;
-      if ( v51 || *(__int64 *)&perks > 0 )
+      v35 = perks;
+      if ( v33 || *(__int64 *)&perks > 0 )
       {
 LABEL_129:
         Sys_ProfEndNamedEvent();
-        v52 = v181;
+        v34 = v99;
         goto LABEL_161;
       }
 LABEL_134:
       vectoangles(&fireParams.dir, &angles);
-      v86 = ScriptContext_Server();
-      Scr_AddVector(v86, angles.v);
-      Scr_AddVector(v86, fireParams.start.v);
-      v87 = &_R15->wp.weapon;
-      GScr_Weapon_AddParam(v86, &_R15->wp.weapon, _R15->wp.isAlternate);
-      GScr_Notify(v14, scr_const.weapon_fired, 3u);
+      v49 = ScriptContext_Server();
+      Scr_AddVector(v49, angles.v);
+      Scr_AddVector(v49, fireParams.start.v);
+      v50 = &wp->wp.weapon;
+      GScr_Weapon_AddParam(v49, &wp->wp.weapon, wp->wp.isAlternate);
+      GScr_Notify(v7, scr_const.weapon_fired, 3u);
       goto LABEL_136;
     }
-    if ( v167 == 2 )
+    if ( v85 == 2 )
     {
-      if ( !v51 )
+      if ( !v33 )
         goto LABEL_134;
-      v53 = perks;
-      if ( v54 >= *(_QWORD *)&perks )
+      v35 = perks;
+      if ( v36 >= *(_QWORD *)&perks )
         goto LABEL_129;
     }
-    if ( !v51 )
+    if ( !v33 )
       goto LABEL_134;
-    v87 = &_R15->wp.weapon;
+    v50 = &wp->wp.weapon;
 LABEL_136:
-    if ( v162 )
+    if ( v80 )
     {
-      GBallistics::FireBallistics(v182, v87, _R15->wp.isAlternate, hand, LODWORD(outAngle), &fireParams, &_R15->wp.right, &_R15->wp.up, v14->s.number, gameTime);
+      GBallistics::FireBallistics(v100, v50, wp->wp.isAlternate, hand, LODWORD(outAngle), &fireParams, &wp->wp.right, &wp->wp.up, v7->s.number, gameTime);
     }
-    else if ( BG_WeaponBulletFire_ShouldPenetrate(_R15->bullet.attackerPerks, v87, _R15->wp.isAlternate) )
+    else if ( BG_WeaponBulletFire_ShouldPenetrate(wp->bullet.attackerPerks, v50, wp->wp.isAlternate) )
     {
-      __asm
-      {
-        vmovss  [rsp+4550h+angleMax], xmm9
-        vmovss  xmm0, [rbp+4440h+fireParams.rangeScale]
-        vmovss  dword ptr [rsp+4550h+outRange], xmm0
-        vmovss  xmm1, [rbp+4440h+fireParams.travelDistance]
-        vmovss  dword ptr [rsp+4550h+fmt], xmm1
-      }
-      G_Debug_BulletDamage(v87, _R15->wp.isAlternate, &fireParams.start, &fireParams.end, fmtb, outRangec, angleMaxc);
-      G_Bullet_FirePenetrate((unsigned int *)&outAngle, &fireParams, &br, v87, hand, _R15->wp.isAlternate, v14, gameTime, 1);
+      G_Debug_BulletDamage(v50, wp->wp.isAlternate, &fireParams.start, &fireParams.end, fireParams.travelDistance, fireParams.rangeScale, maxRange);
+      G_Bullet_FirePenetrate((unsigned int *)&outAngle, &fireParams, &br, v50, hand, wp->wp.isAlternate, v7, gameTime, 1);
     }
     else
     {
       Value = (char *)Sys_GetValue(0);
-      v91 = (int *)(Value + 33336);
+      v52 = (int *)(Value + 33336);
       if ( (unsigned int)(*((_DWORD *)Value + 8334) + 1) >= 3 )
       {
         LODWORD(angleMax) = 3;
@@ -3598,183 +2698,137 @@ LABEL_136:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outRangea, angleMax) )
           __debugbreak();
       }
-      if ( (unsigned int)++*v91 >= 3 )
+      if ( (unsigned int)++*v52 >= 3 )
       {
         LODWORD(angleMax) = 3;
-        LODWORD(outRangea) = *v91;
+        LODWORD(outRangea) = *v52;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outRangea, angleMax) )
           __debugbreak();
       }
-      v92 = Value + 2088;
-      v93 = Value + 40;
-      if ( *v92 < (unsigned __int64)v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+      v53 = Value + 2088;
+      v54 = Value + 40;
+      if ( *v53 < (unsigned __int64)v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
         __debugbreak();
-      *v92 += 8i64;
-      if ( *v92 >= (unsigned __int64)v92 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+      *v53 += 8i64;
+      if ( *v53 >= (unsigned __int64)v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
         __debugbreak();
-      *(_QWORD *)*v92 = v91;
-      if ( *v92 <= (unsigned __int64)v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+      *(_QWORD *)*v53 = v52;
+      if ( *v53 <= (unsigned __int64)v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
         __debugbreak();
-      v94 = *v91;
-      v95 = __rdtsc();
-      v91[v94 + 2] = v95;
+      v55 = *v52;
+      v56 = __rdtsc();
+      v52[v55 + 2] = v56;
       if ( Sys_HasValidCurrentThreadContext() )
         CurrentThreadContext = Sys_GetCurrentThreadContext();
       else
         CurrentThreadContext = THREAD_CONTEXT_COUNT;
       CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 781, NULL, 0);
-      __asm { vmovss  [rsp+4550h+maxRange], xmm9 }
-      G_Bullet_FireExtended((unsigned int *)&outAngle, &fireParams, &br, &_R15->wp.weapon, hand, _R15->wp.isAlternate, v14, &_R15->bullet.attackerPerks, maxRangea, gameTime, 1);
+      G_Bullet_FireExtended((unsigned int *)&outAngle, &fireParams, &br, &wp->wp.weapon, hand, wp->wp.isAlternate, v7, &wp->bullet.attackerPerks, maxRange, gameTime, 1);
       Profile_EndInternal(NULL);
     }
     Sys_ProfEndNamedEvent();
-    ++v51;
-    ++v54;
-    v179 += 106;
-    v52 = v181;
-    v53 = perks;
+    ++v33;
+    ++v36;
+    v97 += 106;
+    v34 = v99;
+    v35 = perks;
   }
-  while ( v54 < v181 );
-  v85 = v167;
+  while ( v36 < v99 );
+  v48 = v85;
 LABEL_161:
-  v97 = (__int64)v174;
-  if ( v174 )
+  v58 = (__int64)v92;
+  if ( v92 )
   {
-    if ( ((v85 - 1) & 0xFFFFFFFD) == 0 )
+    if ( ((v48 - 1) & 0xFFFFFFFD) == 0 )
     {
-      v98 = 0;
+      v59 = 0;
       outAngle = 0.0;
-      if ( *(__int64 *)&v53 > 0 )
+      if ( *(__int64 *)&v35 > 0 )
       {
-        v99 = 0i64;
-        v100 = (gentity_s **)v197;
+        v60 = 0i64;
+        v61 = (gentity_s **)v115;
         do
         {
-          if ( v167 == 3 && (__int64)v99 >= v52 )
+          if ( v85 == 3 && (__int64)v60 >= v34 )
             break;
-          if ( v99 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+          if ( v60 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          br.hitEnt = *v100;
+          br.hitEnt = *v61;
           br.trace.hitType = TRACE_HITTYPE_ENTITY;
-          v101 = *(unsigned __int8 (__fastcall **)(GConeTargetEvaluator *, _OWORD *, vec3_t *))(*(_QWORD *)v97 + 8i64);
-          if ( (unsigned __int64)v98 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+          v62 = *(unsigned __int8 (__fastcall **)(GConeTargetEvaluator *, _OWORD *, vec3_t *))(*(_QWORD *)v58 + 8i64);
+          if ( (unsigned __int64)v59 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          __asm { vmovaps xmm3, xmm9 }
-          if ( v101(v174, &ptr[53 * v98], &_R15->wp.muzzleTrace) )
+          if ( v62(v92, &ptr[53 * v59], &wp->wp.muzzleTrace) )
           {
-            if ( (unsigned __int64)v98 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            if ( (unsigned __int64)v59 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
-            *(_QWORD *)angles.v = &ptr[53 * v98];
-            v103 = ConeTargetInfo::GetHitResults(*(ConeTargetInfo **)angles.v);
-            _RBX = ConeTargetHitResults::GetFirstVisibleHit(v103);
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2578, ASSERT_TYPE_ASSERT, "(hitInfo)", (const char *)&queryFormat, "hitInfo") )
+            *(_QWORD *)angles.v = &ptr[53 * v59];
+            v63 = ConeTargetInfo::GetHitResults(*(ConeTargetInfo **)angles.v);
+            FirstVisibleHit = ConeTargetHitResults::GetFirstVisibleHit(v63);
+            if ( !FirstVisibleHit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2578, ASSERT_TYPE_ASSERT, "(hitInfo)", (const char *)&queryFormat, "hitInfo") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbx]
-              vmovss  dword ptr [rbp+4440h+br.hitPos], xmm2
-              vmovss  xmm0, dword ptr [rbx+4]
-              vmovss  dword ptr [rbp+4440h+br.hitPos+4], xmm0
-              vmovss  xmm1, dword ptr [rbx+8]
-              vmovss  dword ptr [rbp+4440h+br.hitPos+8], xmm1
-              vsubss  xmm2, xmm2, dword ptr [r15+24h]
-              vsubss  xmm0, xmm0, dword ptr [r15+28h]
-              vsubss  xmm3, xmm1, dword ptr [r15+2Ch]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vmovss  [rbp+4440h+fireParams.travelDistance], xmm0
-            }
-            LODWORD(v179) = G_Bullet_GetDamage(&fireParams, &br, &_R15->wp.weapon, _R15->wp.isAlternate, v14);
+            br.hitPos = FirstVisibleHit->tagWorldPos;
+            fireParams.travelDistance = fsqrt((float)((float)((float)(br.hitPos.v[1] - wp->wp.muzzleTrace.v[1]) * (float)(br.hitPos.v[1] - wp->wp.muzzleTrace.v[1])) + (float)((float)(br.hitPos.v[0] - wp->wp.muzzleTrace.v[0]) * (float)(br.hitPos.v[0] - wp->wp.muzzleTrace.v[0]))) + (float)((float)(br.hitPos.v[2] - wp->wp.muzzleTrace.v[2]) * (float)(br.hitPos.v[2] - wp->wp.muzzleTrace.v[2])));
+            LODWORD(v97) = G_Bullet_GetDamage(&fireParams, &br, &wp->wp.weapon, wp->wp.isAlternate, v7);
             if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
               __debugbreak();
-            v117 = GCombat::ms_gCombatSystem;
+            v65 = GCombat::ms_gCombatSystem;
             Damage = GCombat::ms_gCombatSystem->Damage;
-            v164 = 1;
-            v119 = level.time - gameTime;
-            v120 = _RBX->tagName;
-            hand = v120;
-            v173 = *(float *)&_RBX->modelIndex;
-            LODWORD(v182) = _RBX->hitLocation;
-            isAlternate = v183->wp.isAlternate;
-            if ( v99 >= 0x14 )
+            v82 = 1;
+            v67 = level.time - gameTime;
+            v68 = FirstVisibleHit->tagName;
+            hand = v68;
+            v91 = *(float *)&FirstVisibleHit->modelIndex;
+            LODWORD(v100) = FirstVisibleHit->hitLocation;
+            isAlternate = v101->wp.isAlternate;
+            if ( v60 >= 0x14 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
-              v120 = hand;
+              v68 = hand;
             }
             LOBYTE(initialSimStep) = isAlternate;
-            Damage(v117, *v100, v184, v184, &fireParams.dir, &_RBX->tagWorldPos, (int)v179, 0, fireParams.methodOfDeath, p_weapon, initialSimStep, (hitLocation_t)v182, LODWORD(v173), (scr_string_t)v120, v119, NULL, (const GExtraDamageParams *)&v164);
-            if ( v161 )
+            Damage(v65, *v61, v102, v102, &fireParams.dir, &FirstVisibleHit->tagWorldPos, (int)v97, 0, fireParams.methodOfDeath, p_weapon, initialSimStep, (hitLocation_t)v100, LODWORD(v91), (scr_string_t)v68, v67, NULL, (const GExtraDamageParams *)&v82);
+            if ( v79 )
             {
-              if ( (unsigned __int64)v98 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              if ( (unsigned __int64)v59 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
-              v121 = _RBX->tagName;
-              if ( v99 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              v69 = FirstVisibleHit->tagName;
+              if ( v60 >= 0x14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                 __debugbreak();
-              G_BeamEntity_AddTargetEnt(beamEnt, *v100, v121, *(const ConeTargetInfo **)angles.v);
+              G_BeamEntity_AddTargetEnt(beamEnt, *v61, v69, *(const ConeTargetInfo **)angles.v);
             }
-            v14 = v184;
-            _R15 = v183;
+            v7 = v102;
+            wp = v101;
           }
-          v98 = ++LODWORD(outAngle);
-          ++v99;
-          v100 += 106;
-          v97 = (__int64)v174;
-          v52 = v181;
+          v59 = ++LODWORD(outAngle);
+          ++v60;
+          v61 += 106;
+          v58 = (__int64)v92;
+          v34 = v99;
         }
-        while ( (signed __int64)v99 < *(_QWORD *)&perks );
+        while ( (signed __int64)v60 < *(_QWORD *)&perks );
       }
     }
   }
-  v122 = v186;
-  v123 = v170;
-  if ( v165 )
+  v70 = v104;
+  v71 = v88;
+  if ( v83 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4440h+br.hitPos]
-      vsubss  xmm4, xmm0, dword ptr [r15+24h]
-      vmovss  xmm1, dword ptr [rbp+4440h+br.hitPos+4]
-      vsubss  xmm2, xmm1, dword ptr [r15+28h]
-      vmovss  xmm0, dword ptr [rbp+4440h+br.hitPos+8]
-      vsubss  xmm5, xmm0, dword ptr [r15+2Ch]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm4, xmm2, xmm1
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm4, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vmovss  [rbp+4440h+fireParams.travelDistance], xmm1
-      vmovss  xmm0, dword ptr [r15+8Ch]
-      vmovss  dword ptr [rsp+4550h+fmt], xmm0
-      vmovaps xmm3, xmm9
-    }
-    ((void (__fastcall *)(GBullet *, gentity_s *, _QWORD))v186->SpreadFireTargets)(v186, v14, v170);
+    fireParams.travelDistance = fsqrt((float)((float)((float)(br.hitPos.v[1] - wp->wp.muzzleTrace.v[1]) * (float)(br.hitPos.v[1] - wp->wp.muzzleTrace.v[1])) + (float)((float)(br.hitPos.v[0] - wp->wp.muzzleTrace.v[0]) * (float)(br.hitPos.v[0] - wp->wp.muzzleTrace.v[0]))) + (float)((float)(br.hitPos.v[2] - wp->wp.muzzleTrace.v[2]) * (float)(br.hitPos.v[2] - wp->wp.muzzleTrace.v[2])));
+    ((void (__fastcall *)(GBullet *, gentity_s *, _QWORD))v104->SpreadFireTargets)(v104, v7, v88);
   }
-  if ( v168 )
-    v188->RestorePositions(v188, v14, "Bullet");
-  GBullet::HandleImpaledEntities(v122);
-  v189->FinishDeferItemDrops(v189);
+  if ( v86 )
+    v106->RestorePositions(v106, v7, "Bullet");
+  GBullet::HandleImpaledEntities(v70);
+  v107->FinishDeferItemDrops(v107);
   PhysPerfTrack_BulletServerTimeStop();
-  if ( br.hitClientNum != -1 && v123 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2629, ASSERT_TYPE_ASSERT, "(br.hitClientNum == -1 || shotCount == 1)", (const char *)&queryFormat, "br.hitClientNum == CLIENTNUM_NONE || shotCount == 1") )
+  if ( br.hitClientNum != -1 && v71 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2629, ASSERT_TYPE_ASSERT, "(br.hitClientNum == -1 || shotCount == 1)", (const char *)&queryFormat, "br.hitClientNum == CLIENTNUM_NONE || shotCount == 1") )
     __debugbreak();
   hitClientNum = br.hitClientNum;
   `eh vector destructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))GAssistTarget::~GAssistTarget);
   Sys_ProfEndNamedEvent();
-  result = hitClientNum;
-  _R11 = &v202;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  return hitClientNum;
 }
 
 /*
@@ -3784,95 +2838,77 @@ G_Bullet_FirstImpactNotify
 */
 void G_Bullet_FirstImpactNotify(const gentity_s *attacker, const BulletFireParams *bp, const BulletTraceResults *br, const Weapon *weapon, const bool isAlternate)
 {
-  scrContext_t *v11; 
+  scrContext_t *v9; 
   hitLocation_t partGroup; 
-  scrContext_t *v13; 
+  scrContext_t *v11; 
   scr_string_t HitLocationString; 
-  const char *v34; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  float v16; 
+  const char *v20; 
   scr_string_t partName; 
-  const char *v36; 
+  const char *v22; 
   unsigned __int16 EntityHitId; 
   float value[4]; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
-  _RBP = bp;
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1821, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1822, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
+  if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1822, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1823, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
-  v11 = ScriptContext_Server();
+  v9 = ScriptContext_Server();
   partGroup = br->trace.partGroup;
-  v13 = v11;
+  v11 = v9;
   if ( (unsigned int)partGroup >= HITLOC_NUM )
     HitLocationString = 0;
   else
     HitLocationString = G_Combat_GetHitLocationString(partGroup);
-  Scr_AddConstString(v13, HitLocationString);
-  Scr_AddVector(v13, br->hitPos.v);
+  Scr_AddConstString(v11, HitLocationString);
+  Scr_AddVector(v11, br->hitPos.v);
+  v13 = bp->end.v[0] - bp->start.v[0];
+  v15 = LODWORD(bp->end.v[1]);
+  v14 = bp->end.v[1] - bp->start.v[1];
+  v16 = bp->end.v[2] - bp->start.v[2];
+  *(float *)&v15 = fsqrt((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v16 * v16));
+  _XMM4 = v15;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+74h]
-    vsubss  xmm5, xmm0, dword ptr [rbp+68h]
-    vmovss  xmm1, dword ptr [rbp+78h]
-    vsubss  xmm6, xmm1, dword ptr [rbp+6Ch]
-    vmovss  xmm0, dword ptr [rbp+7Ch]
-    vsubss  xmm7, xmm0, dword ptr [rbp+70h]
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  [rsp+98h+value], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  [rsp+98h+var_64], xmm1
   }
-  Scr_AddVector(v13, value);
-  GScr_Weapon_AddParam(v13, weapon, isAlternate);
+  value[0] = v13 * (float)(1.0 / *(float *)&_XMM0);
+  value[2] = v16 * (float)(1.0 / *(float *)&_XMM0);
+  value[1] = v14 * (float)(1.0 / *(float *)&_XMM0);
+  Scr_AddVector(v11, value);
+  GScr_Weapon_AddParam(v11, weapon, isAlternate);
   if ( ((br->trace.surfaceFlags >> 19) & 0x3F) != 0 )
   {
-    v34 = Com_SurfaceTypeToName((br->trace.surfaceFlags >> 19) & 0x3F);
-    Scr_AddString(v13, v34);
+    v20 = Com_SurfaceTypeToName((br->trace.surfaceFlags >> 19) & 0x3F);
+    Scr_AddString(v11, v20);
   }
   else
   {
-    Scr_AddUndefined(v13);
+    Scr_AddUndefined(v11);
   }
-  Scr_AddVector(v13, br->trace.normal.v);
+  Scr_AddVector(v11, br->trace.normal.v);
   partName = br->trace.partName;
   if ( partName )
   {
-    v36 = SL_ConvertToString(partName);
-    Scr_AddString(v13, v36);
+    v22 = SL_ConvertToString(partName);
+    Scr_AddString(v11, v22);
   }
   else
   {
-    Scr_AddUndefined(v13);
+    Scr_AddUndefined(v11);
   }
   EntityHitId = Trace_GetEntityHitId(&br->trace);
   if ( (unsigned __int16)(EntityHitId - 2046) <= 1u )
-    Scr_AddUndefined(v13);
+    Scr_AddUndefined(v11);
   else
     GScr_AddEntity(&g_entities[EntityHitId]);
   GScr_Notify(attacker, scr_const.bullet_first_impact, 8u);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_48]
-  }
 }
 
 /*
@@ -3880,7 +2916,7 @@ void G_Bullet_FirstImpactNotify(const gentity_s *attacker, const BulletFireParam
 G_Bullet_GetDamage
 ==============
 */
-int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br, const Weapon *weapon, bool isAlternate, const gentity_s *attacker)
+__int64 G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br, const Weapon *weapon, bool isAlternate, const gentity_s *attacker)
 {
   bool IsActor; 
   unsigned __int16 number; 
@@ -3902,14 +2938,11 @@ int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br,
   char v25; 
   bool v26; 
   const Weapon *v27; 
-  int result; 
-  float fmt; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v29; 
+  __int64 v30; 
   gclient_s *client; 
   bool attackera; 
 
-  _R15 = bp;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 333, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 334, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
@@ -3930,8 +2963,8 @@ int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br,
   v13 = number - 1;
   if ( v13 >= 0x800 )
   {
-    LODWORD(v35) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v35, 2048) )
+    LODWORD(v29) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v29, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -3941,8 +2974,8 @@ int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br,
     __debugbreak();
   if ( !g_entityIsInUse[v14] )
   {
-    LODWORD(v36) = attacker->r.ownerNum.number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v36) )
+    LODWORD(v30) = attacker->r.ownerNum.number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v30) )
       __debugbreak();
   }
   v15 = attacker->r.ownerNum.number;
@@ -3950,17 +2983,17 @@ int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br,
     goto LABEL_90;
   if ( (unsigned int)v15 - 1 >= 0x7FF )
   {
-    LODWORD(v36) = 2047;
-    LODWORD(v35) = v15 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v30) = 2047;
+    LODWORD(v29) = v15 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v29, v30) )
       __debugbreak();
   }
   v16 = attacker->r.ownerNum.number;
   if ( (unsigned int)(v16 - 1) >= 0x800 )
   {
-    LODWORD(v36) = 2048;
-    LODWORD(v35) = v16 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v30) = 2048;
+    LODWORD(v29) = v16 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v29, v30) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -3970,8 +3003,8 @@ int G_Bullet_GetDamage(const BulletFireParams *bp, const BulletTraceResults *br,
     __debugbreak();
   if ( !g_entityIsInUse[v17] )
   {
-    LODWORD(v36) = attacker->r.ownerNum.number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v36) )
+    LODWORD(v30) = attacker->r.ownerNum.number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v30) )
       __debugbreak();
   }
   v18 = attacker->r.ownerNum.number;
@@ -4033,31 +3066,17 @@ LABEL_63:
   {
     v27 = weapon;
     v26 = isAlternate;
-    return G_Bullet_CalculateLinearDamage(v10, _R15, br, v27, v26);
+    return G_Bullet_CalculateLinearDamage(v10, bp, br, v27, v26);
   }
   v26 = isAlternate;
   v27 = weapon;
   if ( !BG_UsesShelvedDamageFalloff(v10, weapon, isAlternate) )
-    return G_Bullet_CalculateLinearDamage(v10, _R15, br, v27, v26);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 268, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
+    return G_Bullet_CalculateLinearDamage(v10, bp, br, v27, v26);
+  if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 268, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( br->trace.hitType == TRACE_HITTYPE_BEGIN && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 270, ASSERT_TYPE_ASSERT, "( br->trace.hitType != TRACE_HITTYPE_NONE )", (const char *)&queryFormat, "br->trace.hitType != TRACE_HITTYPE_NONE") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8Ch]
-    vmovss  xmm3, dword ptr [r15+48h]; rangeScale
-    vmovss  dword ptr [rsp+78h+fmt], xmm0
-  }
-  BG_GetShelvedDamageForRange(v10, weapon, isAlternate, *(float *)&_XMM3, fmt);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, dword ptr [r15+4Ch]
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)BG_GetShelvedDamageForRange(v10, weapon, isAlternate, bp->rangeScale, bp->travelDistance) * bp->damageMultiplier);
 }
 
 /*
@@ -4146,19 +3165,15 @@ void G_Bullet_HitNothing(unsigned int *randSeed, BulletFireParams *bp, BulletTra
   bool v11; 
   gentity_s *outHitEffectEnt; 
 
-  _RDI = bp;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1065, ASSERT_TYPE_ASSERT, "(bp)", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1066, ASSERT_TYPE_ASSERT, "(br)", (const char *)&queryFormat, "br") )
     __debugbreak();
   v10 = attacker;
   v11 = isAlternate;
-  G_Bullet_ImpactEffect(randSeed, _RDI, br, &br->trace.normal, weapon, isAlternate, attacker, 0, &outHitEffectEnt);
+  G_Bullet_ImpactEffect(randSeed, bp, br, &br->trace.normal, weapon, isAlternate, attacker, 0, &outHitEffectEnt);
   if ( v10->sentient )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+4Ch]; damageMultiplier }
-    G_Bullet_NotifyActor(*(float *)&_XMM0, v10, &_RDI->start, &br->hitPos, weapon, v11);
-  }
+    G_Bullet_NotifyActor(bp->damageMultiplier, v10, &bp->start, &br->hitPos, weapon, v11);
 }
 
 /*
@@ -4172,10 +3187,9 @@ void G_Bullet_ImpactEffect(unsigned int *randSeed, const BulletFireParams *bp, c
   bool v14; 
   int surfaceFlags; 
 
-  _RSI = br;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 871, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 872, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
+  if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 872, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 873, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
@@ -4185,25 +3199,17 @@ void G_Bullet_ImpactEffect(unsigned int *randSeed, const BulletFireParams *bp, c
     __debugbreak();
   v13 = GBullet::ms_gBulletSystem;
   v14 = GBullet::ms_gBulletSystem->UseFriendlyFire(GBullet::ms_gBulletSystem);
-  GBullet::NotifyWhizbys(v13, bp, _RSI, attacker, v14);
-  if ( _RSI->ignoreHitEnt || !v13->ImpactEffectCreate(v13, randSeed, bp, _RSI, normal, weapon, isAlternate, attacker, impactEffectFlags, outHitEffectEnt) )
+  GBullet::NotifyWhizbys(v13, bp, br, attacker, v14);
+  if ( br->ignoreHitEnt || !v13->ImpactEffectCreate(v13, randSeed, bp, br, normal, weapon, isAlternate, attacker, impactEffectFlags, outHitEffectEnt) )
   {
     *outHitEffectEnt = NULL;
     return;
   }
   if ( !*outHitEffectEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 892, ASSERT_TYPE_ASSERT, "( (*outHitEffectEnt) != 0 )", (const char *)&queryFormat, "(*outHitEffectEnt) != NULL") )
     __debugbreak();
-  surfaceFlags = _RSI->trace.surfaceFlags;
-  if ( (surfaceFlags & 4) != 0 )
-    goto LABEL_26;
-  __asm
+  surfaceFlags = br->trace.surfaceFlags;
+  if ( (surfaceFlags & 4) != 0 || br->trace.fraction >= 1.0 )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rsi]
-  }
-  if ( (surfaceFlags & 4) == 0 )
-  {
-LABEL_26:
     v13->ImpactEffectSetAdditionalFlags(v13, *outHitEffectEnt, 16);
     goto LABEL_27;
   }
@@ -4220,31 +3226,28 @@ G_Bullet_ImpactExplosion
 void G_Bullet_ImpactExplosion(BulletFireParams *bp, BulletTraceResults *br, const Weapon *weapon, bool isAlternate, gentity_s *inflictor, gentity_s *attacker)
 {
   gentity_s *hitEnt; 
-  gentity_s *v19; 
-  bool v21; 
-  bool v22; 
-  gentity_s *v23; 
+  double ExplDmg; 
+  float v12; 
+  double ExplDmgMin; 
+  float v14; 
+  double ExplRadius; 
+  gentity_s *v16; 
+  float v17; 
+  gentity_s *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   Vehicle *vehicle; 
-  int v52; 
   vec3_t origin; 
-  __int64 v54; 
-  float v55; 
+  vec3_t v27; 
   BgExplosionDamageRangeInfo outDamageRangeInfo; 
-  char v57; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
-  _RBP = bp;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 558, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
-  if ( _RBP->methodOfDeath != MOD_EXPLOSIVE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 559, ASSERT_TYPE_ASSERT, "( bp->methodOfDeath == MOD_EXPLOSIVE_BULLET )", (const char *)&queryFormat, "bp->methodOfDeath == MOD_EXPLOSIVE_BULLET") )
+  if ( bp->methodOfDeath != MOD_EXPLOSIVE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 559, ASSERT_TYPE_ASSERT, "( bp->methodOfDeath == MOD_EXPLOSIVE_BULLET )", (const char *)&queryFormat, "bp->methodOfDeath == MOD_EXPLOSIVE_BULLET") )
     __debugbreak();
   if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 560, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
@@ -4262,89 +3265,39 @@ void G_Bullet_ImpactExplosion(BulletFireParams *bp, BulletTraceResults *br, cons
   if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
     __debugbreak();
   GBullet::ms_gBulletSystem->CheckExplosiveBulletType(GBullet::ms_gBulletSystem, attacker);
-  __asm { vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin }
-  v55 = vec3_origin.v[2];
-  __asm { vmovsd  [rsp+148h+var_C8], xmm0 }
-  *(double *)&_XMM0 = BG_WeaponBulletFire_GetExplDmg(weapon, isAlternate);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = BG_WeaponBulletFire_GetExplDmgMin(weapon, isAlternate);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = BG_WeaponBulletFire_GetExplRadius(weapon, isAlternate);
-  v19 = br->hitEnt;
-  __asm { vmovaps xmm9, xmm0 }
-  if ( v19 && (v21 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v19->s.lerp.eFlags, ACTIVE, 0x10u), v22 = !v21, v21) )
-  {
-    v23 = br->hitEnt;
-  }
+  v27 = vec3_origin;
+  ExplDmg = BG_WeaponBulletFire_GetExplDmg(weapon, isAlternate);
+  v12 = *(float *)&ExplDmg;
+  ExplDmgMin = BG_WeaponBulletFire_GetExplDmgMin(weapon, isAlternate);
+  v14 = *(float *)&ExplDmgMin;
+  ExplRadius = BG_WeaponBulletFire_GetExplRadius(weapon, isAlternate);
+  v16 = br->hitEnt;
+  v17 = *(float *)&ExplRadius;
+  if ( v16 && GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v16->s.lerp.eFlags, ACTIVE, 0x10u) )
+    v18 = br->hitEnt;
   else
-  {
-    v22 = 1;
-    v23 = NULL;
-  }
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+84h]
-    vmulss  xmm1, xmm5, dword ptr [rbx+14h]
-    vmovss  xmm4, dword ptr [rbp+80h]
-    vmulss  xmm0, xmm4, dword ptr [rbx+10h]
-    vmovss  xmm6, dword ptr [rbp+88h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rbx+18h]
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, cs:__real@be000000
-  }
-  if ( v22 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e800000
-      vdivss  xmm3, xmm0, xmm3
-    }
-  }
+    v18 = NULL;
+  v19 = bp->dir.v[1];
+  v20 = bp->dir.v[0];
+  v21 = bp->dir.v[2];
+  v22 = (float)((float)(v19 * br->trace.normal.v[1]) + (float)(v20 * br->trace.normal.v[0])) + (float)(v21 * br->trace.normal.v[2]);
+  if ( v22 <= -0.125 )
+    v23 = 0.25 / v22;
   else
-  {
-    __asm { vmovss  xmm3, cs:__real@c0000000 }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm4, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rbx+60h]
-    vmovss  dword ptr [rsp+148h+origin], xmm1
-    vmulss  xmm2, xmm5, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rbx+64h]
-    vmulss  xmm1, xmm6, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbx+68h]
-    vmovss  dword ptr [rsp+148h+origin+8], xmm2
-    vmovss  dword ptr [rsp+148h+origin+4], xmm0
-    vmovaps xmm2, xmm9; damageRadius
-    vmovaps xmm1, xmm8; outerDamage
-    vmovaps xmm0, xmm7; innerDamage
-  }
-  BG_BuildExplosionDamageRangeInfo_Interpolated(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &outDamageRangeInfo);
+    v23 = FLOAT_N2_0;
+  origin.v[0] = (float)(v20 * v23) + br->hitPos.v[0];
+  v24 = (float)(v19 * v23) + br->hitPos.v[1];
+  origin.v[2] = (float)(v21 * v23) + br->hitPos.v[2];
+  origin.v[1] = v24;
+  BG_BuildExplosionDamageRangeInfo_Interpolated(v12, v14, v17, &outDamageRangeInfo);
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  __asm
+  ((void (__fastcall *)(GCombat *, vec3_t *, gentity_s *, gentity_s *, BgExplosionDamageRangeInfo *, _DWORD, vec3_t *, gentity_s *, meansOfDeath_t, const Weapon *, bool, _BYTE, char))GCombat::ms_gCombatSystem->RadiusDamage)(GCombat::ms_gCombatSystem, &origin, inflictor, attacker, &outDamageRangeInfo, LODWORD(FLOAT_N1_0), &v27, v18, bp->methodOfDeath, weapon, isAlternate, 0, 1);
+  if ( v18 )
   {
-    vmovss  xmm0, cs:__real@bf800000
-    vmovss  dword ptr [rsp+148h+var_120], xmm0
-  }
-  ((void (__fastcall *)(GCombat *, vec3_t *, gentity_s *, gentity_s *, BgExplosionDamageRangeInfo *, int, __int64 *, gentity_s *, meansOfDeath_t, const Weapon *, bool, _BYTE, char))GCombat::ms_gCombatSystem->RadiusDamage)(GCombat::ms_gCombatSystem, &origin, inflictor, attacker, &outDamageRangeInfo, v52, &v54, v23, _RBP->methodOfDeath, weapon, isAlternate, 0, 1);
-  if ( v23 )
-  {
-    vehicle = v23->vehicle;
+    vehicle = v18->vehicle;
     if ( vehicle )
-    {
-      __asm { vmovss  xmm3, cs:__real@3f800000; forceScale }
-      G_Vehicle_Knockback(vehicle, &_RBP->dir, MOD_EXPLOSIVE_BULLET, *(float *)&_XMM3, &origin);
-    }
-  }
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
+      G_Vehicle_Knockback(vehicle, &bp->dir, MOD_EXPLOSIVE_BULLET, 1.0, &origin);
   }
 }
 
@@ -4353,64 +3306,44 @@ void G_Bullet_ImpactExplosion(BulletFireParams *bp, BulletTraceResults *br, cons
 G_Bullet_NotifyActor
 ==============
 */
-
-void __fastcall G_Bullet_NotifyActor(double damageMultiplier, gentity_s *attacker, const vec3_t *start, const vec3_t *end, const Weapon *weapon, bool isAlternate)
+void G_Bullet_NotifyActor(float damageMultiplier, gentity_s *attacker, const vec3_t *start, const vec3_t *end, const Weapon *weapon, bool isAlternate)
 {
-  unsigned int v12; 
-  __int64 v13; 
+  unsigned int v9; 
+  __int64 v10; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 439, ASSERT_TYPE_ASSERT, "(attacker)", (const char *)&queryFormat, "attacker") )
     __debugbreak();
   if ( !attacker->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 440, ASSERT_TYPE_ASSERT, "(attacker->sentient)", (const char *)&queryFormat, "attacker->sentient") )
     __debugbreak();
   if ( s_bulletDeferNotifyActors )
   {
-    v12 = s_bulletNumDeferredNotifies;
+    v9 = s_bulletNumDeferredNotifies;
     if ( s_bulletNumDeferredNotifies < 0x40 )
       goto LABEL_13;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 449, ASSERT_TYPE_ASSERT, "(s_bulletNumDeferredNotifies < MAX_DEFERRED_BULLET_NOTIFIES)", (const char *)&queryFormat, "s_bulletNumDeferredNotifies < MAX_DEFERRED_BULLET_NOTIFIES") )
       __debugbreak();
-    v12 = s_bulletNumDeferredNotifies;
+    v9 = s_bulletNumDeferredNotifies;
     if ( s_bulletNumDeferredNotifies < 0x40 )
     {
 LABEL_13:
-      s_bulletNumDeferredNotifies = v12 + 1;
-      v13 = v12;
-      _RDX = s_bulletDeferredNotifies;
-      _RCX = v13;
-      __asm { vmovss  dword ptr [rcx+rdx], xmm6 }
-      s_bulletDeferredNotifies[_RCX].attacker = attacker;
-      s_bulletDeferredNotifies[_RCX].start.v[0] = start->v[0];
-      s_bulletDeferredNotifies[_RCX].start.v[1] = start->v[1];
-      s_bulletDeferredNotifies[_RCX].start.v[2] = start->v[2];
-      s_bulletDeferredNotifies[_RCX].end.v[0] = end->v[0];
-      s_bulletDeferredNotifies[_RCX].end.v[1] = end->v[1];
-      s_bulletDeferredNotifies[_RCX].end.v[2] = end->v[2];
-      _RAX = weapon;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rcx+rdx+28h], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+rdx+48h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rcx+rdx+58h], xmm0
-      }
-      *(_DWORD *)&s_bulletDeferredNotifies[_RCX].weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
-      s_bulletDeferredNotifies[_RCX].isAlternate = isAlternate;
+      s_bulletNumDeferredNotifies = v9 + 1;
+      v10 = v9;
+      s_bulletDeferredNotifies[v10].damageMultiplier = damageMultiplier;
+      s_bulletDeferredNotifies[v10].attacker = attacker;
+      s_bulletDeferredNotifies[v10].start.v[0] = start->v[0];
+      s_bulletDeferredNotifies[v10].start.v[1] = start->v[1];
+      s_bulletDeferredNotifies[v10].start.v[2] = start->v[2];
+      s_bulletDeferredNotifies[v10].end.v[0] = end->v[0];
+      s_bulletDeferredNotifies[v10].end.v[1] = end->v[1];
+      s_bulletDeferredNotifies[v10].end.v[2] = end->v[2];
+      s_bulletDeferredNotifies[v10].weapon = *weapon;
+      s_bulletDeferredNotifies[v10].isAlternate = isAlternate;
     }
   }
   else
   {
-    __asm { vmovaps xmm0, xmm6; damageMultiplier }
-    G_Bullet_ProcessNotifyActor(*(float *)&_XMM0, attacker, start, end, weapon, isAlternate);
+    G_Bullet_ProcessNotifyActor(damageMultiplier, attacker, start, end, weapon, isAlternate);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -4441,51 +3374,52 @@ char G_Bullet_Process(unsigned int *randSeed, BulletFireParams *bp, BulletTraceR
   GBullet *v15; 
   int v16; 
   int Damage; 
+  int v18; 
   int v19; 
-  int v20; 
   const HyperBurstInfo *HyperBurstInfo; 
+  bool v21; 
   gentity_s *hitEnt; 
-  bool v23; 
-  bool v24; 
   PhysicsObject *Base; 
-  unsigned int v26; 
-  Weapon *v42; 
-  gentity_s *v43; 
-  char v44; 
+  unsigned int v24; 
+  float v25; 
+  float v26; 
+  Weapon *v27; 
+  gentity_s *v28; 
+  char v29; 
   int *ignoreHitEntityQueue; 
-  gentity_s *v46; 
+  gentity_s *v31; 
   entityType_s eType; 
-  int v48; 
+  int v33; 
   __int16 EntityIndex; 
   hitLocation_t partGroup; 
+  float v36; 
   GCombat *CombatSystem; 
   scr_string_t partName; 
   meansOfDeath_t methodOfDeath; 
   unsigned int modelIndex; 
-  damageReturnCode_t (__fastcall *v59)(GCombat *, gentity_s *, const gentity_s *, gentity_s *, const vec3_t *, const vec3_t *, int, int, int, const Weapon *, bool, hitLocation_t, unsigned int, scr_string_t, int, const vec3_t *, const GExtraDamageParams *); 
-  gentity_s *v60; 
-  damageReturnCode_t v61; 
-  __int16 v62; 
-  bool v63; 
+  damageReturnCode_t (__fastcall *v41)(GCombat *, gentity_s *, const gentity_s *, gentity_s *, const vec3_t *, const vec3_t *, int, int, int, const Weapon *, bool, hitLocation_t, unsigned int, scr_string_t, int, const vec3_t *, const GExtraDamageParams *); 
+  gentity_s *v42; 
+  damageReturnCode_t v43; 
+  __int16 v44; 
+  bool v45; 
   char result; 
   unsigned int hitId; 
   ScriptableInstanceContext *InstanceCommonContext; 
   BOOL isMelee; 
-  int v68; 
-  char v69; 
-  bool v70; 
+  int v50; 
+  char v51; 
+  bool v52; 
   int iDamage; 
   Weapon *r_weapon; 
   unsigned int *randSeeda; 
-  GBullet *v74; 
+  GBullet *v56; 
   gentity_s *inflictor; 
   gentity_s *hitEffectEnt; 
-  gentity_s *v77; 
+  gentity_s *v59; 
 
-  _RDI = bp;
   r_weapon = (Weapon *)weapon;
-  v70 = isAlternate;
-  v77 = attacker;
+  v52 = isAlternate;
+  v59 = attacker;
   randSeeda = randSeed;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1151, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
@@ -4500,87 +3434,58 @@ char G_Bullet_Process(unsigned int *randSeed, BulletFireParams *bp, BulletTraceR
   v15 = GBullet::ms_gBulletSystem;
   v16 = 0;
   *outImpactFlags = 0;
-  v74 = v15;
-  v69 = 1;
+  v56 = v15;
+  v51 = 1;
   if ( attacker->sentient )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+4Ch]; damageMultiplier }
-    G_Bullet_NotifyActor(*(double *)&_XMM0, attacker, &_RDI->start, &br->hitPos, weapon, isAlternate);
-  }
+    G_Bullet_NotifyActor(bp->damageMultiplier, attacker, &bp->start, &br->hitPos, weapon, isAlternate);
   inflictor = G_Bullet_GetInflictor(attacker);
-  Damage = G_Bullet_GetDamage(_RDI, br, weapon, isAlternate, attacker);
-  v19 = dFlags | 0x800;
+  Damage = G_Bullet_GetDamage(bp, br, weapon, isAlternate, attacker);
+  v18 = dFlags | 0x800;
   iDamage = Damage;
   if ( hand != WEAPON_HAND_LEFT )
-    v19 = dFlags;
-  v20 = v19;
-  if ( _RDI->shotCount == 2 )
+    v18 = dFlags;
+  v19 = v18;
+  if ( bp->shotCount == 2 )
   {
-    HyperBurstInfo = BG_GetHyperBurstInfo(r_weapon, v70);
+    HyperBurstInfo = BG_GetHyperBurstInfo(r_weapon, v52);
     if ( !HyperBurstInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1184, ASSERT_TYPE_ASSERT, "(hyperBurstInfo)", (const char *)&queryFormat, "hyperBurstInfo") )
       __debugbreak();
-    v24 = !HyperBurstInfo->enabled;
-    v15 = v74;
-    if ( !v24 )
-      v20 = v19 | 0x2000;
+    v21 = !HyperBurstInfo->enabled;
+    v15 = v56;
+    if ( !v21 )
+      v19 = v18 | 0x2000;
   }
   hitEnt = br->hitEnt;
-  v23 = 0;
-  v24 = hitEnt == NULL;
-  if ( hitEnt )
+  if ( hitEnt && (unsigned __int16)(hitEnt->s.number - 2046) > 1u )
   {
-    v23 = hitEnt->s.number == 2046;
-    v24 = hitEnt->s.number == 2047;
-    if ( (unsigned __int16)(hitEnt->s.number - 2046) > 1u )
-    {
-      Base = G_PhysicsObject_GetBase(hitEnt->s.number, LOCAL_CLIENT_INVALID);
-      if ( !Base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1195, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
-        __debugbreak();
-      v26 = Base->physicsInstances[0];
-      v23 = v26 != -1;
-      v24 = v26 == -1;
-      if ( v26 != -1 )
-        Physics_ApplyBulletForceInstance(PHYSICS_WORLD_ID_FIRST, v26, &br->hitPos, &_RDI->dir, inflictor->s.number, 0);
-    }
+    Base = G_PhysicsObject_GetBase(hitEnt->s.number, LOCAL_CLIENT_INVALID);
+    if ( !Base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1195, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+      __debugbreak();
+    v24 = Base->physicsInstances[0];
+    if ( v24 != -1 )
+      Physics_ApplyBulletForceInstance(PHYSICS_WORLD_ID_FIRST, v24, &br->hitPos, &bp->dir, inflictor->s.number, 0);
   }
-  _RCX = &br->hitPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm4, xmm0, dword ptr [r9]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm3, xmm0, dword ptr [r9+8]
-    vsubss  xmm2, xmm1, dword ptr [r9+4]
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vsubss  xmm3, xmm0, dword ptr [rdi+8Ch]
-    vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm3, cs:__real@3a83126f
-  }
-  G_Trigger_DamageCheckHit(PHYSICS_WORLD_ID_SERVER_DETAIL, attacker, v23 || v24, &_RDI->start, &br->hitPos, iDamage, _RDI->methodOfDeath);
-  v42 = r_weapon;
+  v25 = br->hitPos.v[0] - bp->start.v[0];
+  v26 = br->hitPos.v[2] - bp->start.v[2];
+  G_Trigger_DamageCheckHit(PHYSICS_WORLD_ID_SERVER_DETAIL, attacker, COERCE_FLOAT(COERCE_UNSIGNED_INT(fsqrt((float)((float)((float)(br->hitPos.v[1] - bp->start.v[1]) * (float)(br->hitPos.v[1] - bp->start.v[1])) + (float)(v25 * v25)) + (float)(v26 * v26)) - bp->travelDistance) & _xmm) <= 0.001, &bp->start, &br->hitPos, iDamage, bp->methodOfDeath);
+  v27 = r_weapon;
   hitEffectEnt = NULL;
   if ( processFx )
-    G_Bullet_ImpactEffect(randSeeda, _RDI, br, &br->trace.normal, r_weapon, v70, attacker, 0, &hitEffectEnt);
-  if ( _RDI->methodOfDeath == MOD_EXPLOSIVE_BULLET && (br->trace.contents & 0x10) == 0 )
+    G_Bullet_ImpactEffect(randSeeda, bp, br, &br->trace.normal, r_weapon, v52, attacker, 0, &hitEffectEnt);
+  if ( bp->methodOfDeath == MOD_EXPLOSIVE_BULLET && (br->trace.contents & 0x10) == 0 )
   {
-    G_Bullet_ImpactExplosion(_RDI, br, r_weapon, v70, inflictor, attacker);
-    v69 = 0;
+    G_Bullet_ImpactExplosion(bp, br, r_weapon, v52, inflictor, attacker);
+    v51 = 0;
   }
   if ( BG_IsHitSurfaceTransparent(&br->trace) )
   {
-    v43 = hitEffectEnt;
+    v28 = hitEffectEnt;
     *outImpactFlags |= 0x100u;
-    if ( v43 )
+    if ( v28 )
       ((void (__fastcall *)(GBullet *))v15->ImpactEffectSetAdditionalFlags)(v15);
   }
   if ( br->ignoreHitEnt )
-    return v69;
+    return v51;
   if ( !br->hitEnt )
   {
     if ( br->trace.hitType == TRACE_HITTYPE_SCRIPTABLE )
@@ -4591,43 +3496,43 @@ char G_Bullet_Process(unsigned int *randSeed, BulletFireParams *bp, BulletTraceR
       if ( !ScriptableSv_IsServerInstance(hitId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1316, ASSERT_TYPE_ASSERT, "( ScriptableSv_IsServerInstance( scriptableIndex ) )", (const char *)&queryFormat, "ScriptableSv_IsServerInstance( scriptableIndex )") )
         __debugbreak();
       InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(hitId);
-      ScriptableSv_Damage(inflictor, attacker, hitId, &InstanceCommonContext->origin, &_RDI->dir, _RDI->methodOfDeath, r_weapon, v70, (const scr_string_t)br->trace.partName, iDamage, v20, 0);
+      ScriptableSv_Damage(inflictor, attacker, hitId, &InstanceCommonContext->origin, &bp->dir, bp->methodOfDeath, r_weapon, v52, (const scr_string_t)br->trace.partName, iDamage, v19, 0);
     }
-    return v69;
+    return v51;
   }
-  LOBYTE(isMelee) = v70;
-  if ( v15->ProcessRiotShield(v15, randSeeda, _RDI, br, v42, isMelee, attacker, gameTime, v20, iDamage, (bool *)&v69) || !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&br->hitEnt->s.lerp.eFlags, ACTIVE, 0x10u) )
-    return v69;
-  if ( (v20 & 8) == 0 )
+  LOBYTE(isMelee) = v52;
+  if ( v15->ProcessRiotShield(v15, randSeeda, bp, br, v27, isMelee, attacker, gameTime, v19, iDamage, (bool *)&v51) || !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&br->hitEnt->s.lerp.eFlags, ACTIVE, 0x10u) )
+    return v51;
+  if ( (v19 & 8) == 0 )
     goto LABEL_46;
-  if ( _RDI->ignoreHitEntCount > 0 )
+  if ( bp->ignoreHitEntCount > 0 )
   {
-    ignoreHitEntityQueue = _RDI->ignoreHitEntityQueue;
+    ignoreHitEntityQueue = bp->ignoreHitEntityQueue;
     while ( 1 )
     {
-      v46 = &g_entities[*(__int16 *)ignoreHitEntityQueue];
-      if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      v31 = &g_entities[*(__int16 *)ignoreHitEntityQueue];
+      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      eType = v46->s.eType;
+      eType = v31->s.eType;
       if ( ((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM )
         break;
       ++v16;
       ++ignoreHitEntityQueue;
-      if ( v16 >= _RDI->ignoreHitEntCount )
+      if ( v16 >= bp->ignoreHitEntCount )
         goto LABEL_55;
     }
 LABEL_46:
-    v44 = 0;
+    v29 = 0;
     goto LABEL_56;
   }
 LABEL_55:
-  v44 = 1;
+  v29 = 1;
 LABEL_56:
-  v48 = v20 | 0x4000;
-  if ( !v44 )
-    v48 = v20;
-  if ( BG_IsArmorPiercing(r_weapon, v70) )
-    v48 |= 2u;
+  v33 = v19 | 0x4000;
+  if ( !v29 )
+    v33 = v19;
+  if ( BG_IsArmorPiercing(r_weapon, v52) )
+    v33 |= 2u;
   EntityIndex = G_GetEntityIndex(br->hitEnt);
   if ( !G_IsEntityInUse(EntityIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1255, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( G_GetEntityIndex( br->hitEnt ) ))", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( br->hitEnt ) )") )
     __debugbreak();
@@ -4641,46 +3546,40 @@ LABEL_56:
   {
     *outImpactFlags |= 0x40u;
   }
-  G_Bullet_DebugDrawHit(br, _RDI);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+118h+iDamage]
-    vmulss  xmm0, xmm0, dword ptr [rdi+54h]
-    vcvttss2si esi, xmm0
-  }
-  G_CoverWall_DamageCheckHit(br, _ESI);
+  G_Bullet_DebugDrawHit(br, bp);
+  v36 = (float)iDamage * bp->chargedDamageMultiplier;
+  G_CoverWall_DamageCheckHit(br, (int)v36);
   CombatSystem = GCombat::GetCombatSystem();
   partName = br->trace.partName;
-  methodOfDeath = _RDI->methodOfDeath;
+  methodOfDeath = bp->methodOfDeath;
   modelIndex = br->trace.modelIndex;
-  v59 = CombatSystem->Damage;
-  v60 = br->hitEnt;
+  v41 = CombatSystem->Damage;
+  v42 = br->hitEnt;
   BYTE1(iDamage) = initialSimStep;
-  LOBYTE(v68) = v70;
+  LOBYTE(v50) = v52;
   LOBYTE(iDamage) = 1;
-  v61 = v59(CombatSystem, v60, inflictor, v77, &_RDI->dir, &br->hitPos, _ESI, v48, methodOfDeath, r_weapon, v68, partGroup, modelIndex, partName, level.time - gameTime, &br->trace.normal, (const GExtraDamageParams *)&iDamage);
-  v62 = G_GetEntityIndex(br->hitEnt);
-  v63 = G_IsEntityInUse(v62) && br->hitEnt->health > 0;
-  if ( (int)randSeeda > 0 && !v63 )
+  v43 = v41(CombatSystem, v42, inflictor, v59, &bp->dir, &br->hitPos, (int)v36, v33, methodOfDeath, r_weapon, v50, partGroup, modelIndex, partName, level.time - gameTime, &br->trace.normal, (const GExtraDamageParams *)&iDamage);
+  v44 = G_GetEntityIndex(br->hitEnt);
+  v45 = G_IsEntityInUse(v44) && br->hitEnt->health > 0;
+  if ( (int)randSeeda > 0 && !v45 )
     *outImpactFlags |= 2u;
   if ( br->trace.partGroup == 20 )
   {
     result = 0;
     *outImpactFlags |= 0x80u;
-    v69 = 0;
+    v51 = 0;
   }
   else
   {
-    result = v69;
+    result = v51;
   }
   if ( hitEffectEnt )
   {
-    if ( v61 == DAMAGE_RETURNCODE_DEFERRED )
-      GBullet::DeferImpactEffectFlags(v74, br->hitEnt, hitEffectEnt, *outImpactFlags);
+    if ( v43 == DAMAGE_RETURNCODE_DEFERRED )
+      GBullet::DeferImpactEffectFlags(v56, br->hitEnt, hitEffectEnt, *outImpactFlags);
     else
-      v74->ImpactEffectSetAdditionalFlags(v74, hitEffectEnt, *outImpactFlags);
-    return v69;
+      v56->ImpactEffectSetAdditionalFlags(v56, hitEffectEnt, *outImpactFlags);
+    return v51;
   }
   return result;
 }
@@ -4693,26 +3592,25 @@ G_Bullet_ProcessDeferredNotifyActors
 void G_Bullet_ProcessDeferredNotifyActors(void)
 {
   unsigned int i; 
+  __int64 v1; 
   unsigned int j; 
-  __int64 v5; 
+  __int64 v3; 
   gentity_s *originator; 
   ai_event_t eType; 
 
-  _R14 = 0x140000000ui64;
   for ( i = 0; i < s_bulletNumDeferredNotifies; ++i )
   {
-    _R10 = i;
-    __asm { vmovss  xmm0, dword ptr [r10+r14+0C8A4B40h]; damageMultiplier }
-    G_Bullet_ProcessNotifyActor(*(float *)&_XMM0, s_bulletDeferredNotifies[_R10].attacker, &s_bulletDeferredNotifies[_R10].start, &s_bulletDeferredNotifies[_R10].end, &s_bulletDeferredNotifies[_R10].weapon, s_bulletDeferredNotifies[_R10].isAlternate);
+    v1 = i;
+    G_Bullet_ProcessNotifyActor(s_bulletDeferredNotifies[v1].damageMultiplier, s_bulletDeferredNotifies[v1].attacker, &s_bulletDeferredNotifies[v1].start, &s_bulletDeferredNotifies[v1].end, &s_bulletDeferredNotifies[v1].weapon, s_bulletDeferredNotifies[v1].isAlternate);
   }
   for ( j = 0; j < s_bulletNumDeferredGlassNotifies; ++j )
   {
-    v5 = j;
-    originator = s_bulletDeferredGlassNotifies[v5].originator;
-    eType = s_bulletDeferredGlassNotifies[v5].eType;
+    v3 = j;
+    originator = s_bulletDeferredGlassNotifies[v3].originator;
+    eType = s_bulletDeferredGlassNotifies[v3].eType;
     if ( !originator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 431, ASSERT_TYPE_ASSERT, "(originator)", (const char *)&queryFormat, "originator") )
       __debugbreak();
-    Actor_BroadcastGlassEvent(originator, eType, &s_bulletDeferredGlassNotifies[v5].teamFlags, &s_bulletDeferredGlassNotifies[v5].vOrigin);
+    Actor_BroadcastGlassEvent(originator, eType, &s_bulletDeferredGlassNotifies[v3].teamFlags, &s_bulletDeferredGlassNotifies[v3].vOrigin);
   }
   s_bulletNumDeferredGlassNotifies = 0;
   s_bulletNumDeferredNotifies = 0;
@@ -4723,218 +3621,182 @@ void G_Bullet_ProcessDeferredNotifyActors(void)
 G_Bullet_ProcessNotifyActor
 ==============
 */
-
-void __fastcall G_Bullet_ProcessNotifyActor(double damageMultiplier, gentity_s *attacker, const vec3_t *start, const vec3_t *end, const Weapon *weapon, bool isAlternate)
+void G_Bullet_ProcessNotifyActor(float damageMultiplier, gentity_s *attacker, const vec3_t *start, const vec3_t *end, const Weapon *weapon, bool isAlternate)
 {
-  bool v12; 
-  bool v17; 
-  ai_event_t v19; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  bool v11; 
+  ai_event_t v15; 
   unsigned __int64 eTeam; 
-  unsigned __int64 v24; 
-  unsigned int v59; 
-  unsigned __int64 v60; 
-  bool v64; 
-  unsigned int v68; 
+  bitarray<224> *AllTeamFlags; 
+  unsigned __int64 v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  float v25; 
+  float v29; 
+  const bitarray<224> *v30; 
+  unsigned int v31; 
+  unsigned __int64 v32; 
+  const bitarray<224> *v33; 
+  __int128 v34; 
+  double v35; 
+  bool v36; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v38; 
+  double v39; 
+  unsigned int v40; 
   const WeaponDef *weapDef; 
-  __int64 v72; 
-  __int64 v73; 
+  __int64 v42; 
+  __int64 v43; 
   bitarray<224> result; 
   vec3_t vStart; 
-  bitarray<224> v76; 
+  bitarray<224> v46; 
   bitarray<224> teamFlags; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
 
-  __asm { vmovaps [rsp+160h+var_40], xmm6 }
-  v12 = isAlternate;
-  _R14 = start;
-  __asm { vmovaps xmm6, xmm0 }
+  v11 = isAlternate;
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 373, ASSERT_TYPE_ASSERT, "(attacker)", (const char *)&queryFormat, "attacker") )
     __debugbreak();
-  v17 = attacker->sentient == NULL;
   if ( attacker->sentient )
   {
-    __asm
+    v49 = v9;
+    v48 = v10;
+    if ( damageMultiplier == 1.0 )
     {
-      vmovaps [rsp+160h+var_80], xmm10
-      vmovaps [rsp+160h+var_90], xmm11
-      vmovss  xmm11, cs:__real@3f800000
-      vucomiss xmm6, xmm11
-    }
-    if ( v17 )
-    {
-      v19 = AI_EV_GUNSHOT;
+      v15 = AI_EV_GUNSHOT;
       if ( BG_IsSilenced(weapon, isAlternate) )
-        v19 = AI_EV_SILENCED_SHOT;
+        v15 = AI_EV_SILENCED_SHOT;
       eTeam = (unsigned int)attacker->sentient->eTeam;
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+60h+teamFlags.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rbp+60h+teamFlags.array+10h], xmm1
-      }
-      teamFlags.array[6] = _RAX->array[6];
+        AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      teamFlags = *AllTeamFlags;
       if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
         __debugbreak();
       teamFlags.array[eTeam >> 5] &= ~(0x80000000 >> (eTeam & 0x1F));
-      Actor_BroadcastPointEvent(attacker, v19, &teamFlags, _R14);
+      Actor_BroadcastPointEvent(attacker, v15, &teamFlags, start);
       if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) )
       {
-        v24 = (unsigned int)attacker->sentient->eTeam;
+        v18 = (unsigned int)attacker->sentient->eTeam;
         memset(&result, 0, sizeof(result));
-        if ( (unsigned int)v24 >= 0xE0 )
+        if ( (unsigned int)v18 >= 0xE0 )
         {
-          LODWORD(v73) = 224;
-          LODWORD(v72) = v24;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v72, v73) )
+          LODWORD(v43) = 224;
+          LODWORD(v42) = v18;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v42, v43) )
             __debugbreak();
         }
-        result.array[v24 >> 5] |= 0x80000000 >> (v24 & 0x1F);
+        result.array[v18 >> 5] |= 0x80000000 >> (v18 & 0x1F);
         Actor_BroadcastPointEvent(attacker, AI_EV_GUNSHOT_TEAMMATE, &result, end);
       }
-      v12 = isAlternate;
+      v11 = isAlternate;
     }
-    __asm { vmovss  xmm10, dword ptr [r14] }
+    v19 = start->v[0];
     if ( attacker->client )
     {
+      v20 = v19 - end->v[0];
+      v52 = v6;
+      v51 = v7;
+      v21 = LODWORD(start->v[1]);
+      v23 = v21;
+      v22 = *(float *)&v21 - end->v[1];
+      v50 = v8;
+      v24 = start->v[2];
+      v25 = v24 - end->v[2];
+      *(float *)&v23 = fsqrt((float)((float)(v22 * v22) + (float)(v20 * v20)) + (float)(v25 * v25));
+      _XMM3 = v23;
       __asm
       {
-        vsubss  xmm5, xmm10, dword ptr [r12]
-        vmovaps [rsp+160h+var_50], xmm7
-        vmovaps [rsp+160h+var_60], xmm8
-        vmovss  xmm8, dword ptr [r14+4]
-        vsubss  xmm6, xmm8, dword ptr [r12+4]
-        vmovaps [rsp+160h+var_70], xmm9
-        vmovss  xmm9, dword ptr [r14+8]
-        vsubss  xmm7, xmm9, dword ptr [r12+8]
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm11, xmm0
-        vmovss  xmm3, cs:__real@43480000
-        vdivss  xmm4, xmm11, xmm0
-        vmulss  xmm1, xmm5, xmm4
-        vmulss  xmm0, xmm1, xmm3
-        vaddss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm6, xmm4
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rsp+160h+vStart], xmm1
-        vaddss  xmm1, xmm0, xmm8
-        vmovaps xmm8, [rsp+160h+var_60]
-        vmulss  xmm2, xmm7, xmm4
-        vmovaps xmm7, [rsp+160h+var_50]
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rsp+160h+vStart+4], xmm1
-        vaddss  xmm1, xmm0, xmm9
-        vmovaps xmm9, [rsp+160h+var_70]
       }
+      vStart.v[0] = (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * 200.0) + v19;
+      vStart.v[1] = (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM0)) * 200.0) + *(float *)&v21;
+      v29 = (float)((float)(v25 * (float)(1.0 / *(float *)&_XMM0)) * 200.0) + v24;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+4]
-        vmovss  xmm1, dword ptr [r14+8]
-        vmovss  dword ptr [rsp+160h+vStart+4], xmm0
-        vmovss  dword ptr [rsp+160h+vStart], xmm10
-      }
+      v29 = start->v[2];
+      vStart.v[1] = start->v[1];
+      vStart.v[0] = v19;
     }
-    __asm
-    {
-      vmovaps xmm11, [rsp+160h+var_90]
-      vmovaps xmm10, [rsp+160h+var_80]
-      vmovss  dword ptr [rbp+60h+vStart+8], xmm1
-    }
+    vStart.v[2] = v29;
     if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
       __debugbreak();
     if ( GBullet::ms_gBulletSystem->UseAISuppression(GBullet::ms_gBulletSystem) )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        v30 = Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+60h+var_D8.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rbp+60h+var_D8.array+10h], xmm1
-      }
-      v59 = _RAX->array[6];
+        v30 = Com_TeamsMP_GetAllTeamFlags();
+      *(_OWORD *)v46.array = *(_OWORD *)v30->array;
+      *(_QWORD *)&v46.array[4] = *(_QWORD *)&v30->array[4];
+      v31 = v30->array[6];
       goto LABEL_49;
     }
-    v60 = (unsigned int)attacker->sentient->eTeam;
+    v32 = (unsigned int)attacker->sentient->eTeam;
     if ( attacker->client )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        v33 = Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
+        v33 = Com_TeamsMP_GetAllTeamFlags();
+      v34 = *(_OWORD *)v33->array;
+      v35 = *(double *)&v33->array[4];
+      result.array[6] = v33->array[6];
+      *(_OWORD *)result.array = v34;
+      *(double *)&result.array[4] = v35;
+      if ( (unsigned int)v32 >= 0xE0 )
       {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovsd  xmm1, qword ptr [rax+10h]
-      }
-      result.array[6] = _RAX->array[6];
-      __asm
-      {
-        vmovups xmmword ptr [rsp+160h+result.array], xmm0
-        vmovsd  qword ptr [rsp+160h+result.array+10h], xmm1
-      }
-      if ( (unsigned int)v60 >= 0xE0 )
-      {
-        LODWORD(v73) = 224;
-        LODWORD(v72) = v60;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v72, v73) )
+        LODWORD(v43) = 224;
+        LODWORD(v42) = v32;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v42, v43) )
           __debugbreak();
       }
-      result.array[v60 >> 5] &= ~(0x80000000 >> (v60 & 0x1F));
+      result.array[v32 >> 5] &= ~(0x80000000 >> (v32 & 0x1F));
     }
     else
     {
       if ( level.teammode == TEAMMODE_FFA )
       {
-        v64 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+        v36 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-          _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+          AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
         else
-          _RAX = Com_TeamsMP_GetAllTeamFlags();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovsd  xmm1, qword ptr [rax+10h]
-        }
-        v68 = _RAX->array[6] & 0xFFEFFFFF;
-        __asm { vmovups xmmword ptr [rsp+160h+result.array], xmm0 }
-        if ( v64 )
+          AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+        v38 = *(_OWORD *)AllCombatTeamFlags->array;
+        v39 = *(double *)&AllCombatTeamFlags->array[4];
+        v40 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+        *(_OWORD *)result.array = v38;
+        if ( v36 )
           result.array[0] &= ~0x8000000u;
-        v59 = v68 & 0xFF9FFFFF;
+        v31 = v40 & 0xFF9FFFFF;
         goto LABEL_48;
       }
-      Com_Teams_GetEnemyTeamFlags(&result, (team_t)v60);
+      Com_Teams_GetEnemyTeamFlags(&result, (team_t)v32);
     }
-    __asm { vmovsd  xmm1, qword ptr [rsp+160h+result.array+10h] }
-    v59 = result.array[6];
+    v39 = *(double *)&result.array[4];
+    v31 = result.array[6];
 LABEL_48:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+160h+result.array]
-      vmovups xmmword ptr [rbp+60h+var_D8.array], xmm0
-      vmovsd  qword ptr [rbp+60h+var_D8.array+10h], xmm1
-    }
+    *(_OWORD *)v46.array = *(_OWORD *)result.array;
+    *(double *)&v46.array[4] = v39;
 LABEL_49:
-    v76.array[6] = v59;
-    weapDef = BG_WeaponDef(weapon, v12);
-    Actor_BroadcastLineEvent(attacker, AI_EV_BULLET, &v76, &vStart, end, weapDef);
+    v46.array[6] = v31;
+    weapDef = BG_WeaponDef(weapon, v11);
+    Actor_BroadcastLineEvent(attacker, AI_EV_BULLET, &v46, &vStart, end, weapDef);
   }
-  __asm { vmovaps xmm6, [rsp+160h+var_40] }
 }
 
 /*
@@ -4952,147 +3814,128 @@ void G_Bullet_SetDeferNotifyActors(bool set)
 G_Bullet_SetupFireParams
 ==============
 */
-
-void __fastcall G_Bullet_SetupFireParams(const gentity_s *const attacker, const gentity_s *const weapon, const int serverTime, double spread, const int sequence, const PlayerHandIndex hand, const unsigned int eventParm, GWeaponFireParms *const outParams)
+void G_Bullet_SetupFireParams(const gentity_s *const attacker, const gentity_s *const weapon, const int serverTime, const float spread, const int sequence, const PlayerHandIndex hand, const unsigned int eventParm, GWeaponFireParms *const outParams)
 {
-  int v16; 
+  GWeaponFireParms *v8; 
+  int v10; 
   const playerState_s *EntityPlayerStateConst; 
-  __int64 v19; 
+  __int64 v12; 
   bitarray<64> *p_attackerPerks; 
   unsigned int weaponShotCount; 
-  const playerState_s *v22; 
-  unsigned int v27; 
+  const playerState_s *v15; 
+  double ADSDamageRangeScale; 
+  float v17; 
+  const dvar_t *v18; 
+  float value; 
+  unsigned int v20; 
   bool isAlternate; 
-  unsigned __int16 v30; 
-  bool v31; 
-  bool v34; 
-  char v41; 
-  void *retaddr; 
+  double Bullet; 
+  unsigned __int16 v23; 
+  bool v24; 
+  const dvar_t *v25; 
+  float v26; 
+  bool v27; 
+  double FireAtMaxDamageMultiplier; 
   unsigned int pHoldrand; 
 
-  _RAX = &retaddr;
-  _RBX = outParams;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v16 = serverTime;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmm9, xmm3
-  }
+  v8 = outParams;
+  v10 = serverTime;
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2125, ASSERT_TYPE_ASSERT, "( attacker != nullptr )", (const char *)&queryFormat, "attacker != nullptr") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2126, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2126, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
     __debugbreak();
   outParams = (GWeaponFireParms *const)GWeaponMap::GetInstance();
   EntityPlayerStateConst = G_GetEntityPlayerStateConst(attacker);
-  v19 = hand;
-  p_attackerPerks = &_RBX->bullet.attackerPerks;
+  v12 = hand;
+  p_attackerPerks = &v8->bullet.attackerPerks;
   weaponShotCount = 0;
-  v22 = EntityPlayerStateConst;
+  v15 = EntityPlayerStateConst;
   if ( EntityPlayerStateConst )
   {
     p_attackerPerks->array[0] = EntityPlayerStateConst->perks.array[0];
-    _RBX->bullet.attackerPerks.array[1] = EntityPlayerStateConst->perks.array[1];
-    LOBYTE(hand) = EntityPlayerStateConst->weapState[v19].weaponFiredAtMaxCharge != 0;
+    v8->bullet.attackerPerks.array[1] = EntityPlayerStateConst->perks.array[1];
+    LOBYTE(hand) = EntityPlayerStateConst->weapState[v12].weaponFiredAtMaxCharge != 0;
   }
   else
   {
     p_attackerPerks->array[0] = 0;
-    _RBX->bullet.attackerPerks.array[1] = 0;
+    v8->bullet.attackerPerks.array[1] = 0;
     LOBYTE(hand) = 0;
   }
-  *(double *)&_XMM0 = BG_GetADSDamageRangeScale((const BgWeaponMap *)outParams, EntityPlayerStateConst, &_RBX->wp.weapon, _RBX->wp.isAlternate);
-  __asm
+  ADSDamageRangeScale = BG_GetADSDamageRangeScale((const BgWeaponMap *)outParams, EntityPlayerStateConst, &v8->wp.weapon, v8->wp.isAlternate);
+  v17 = *(float *)&ADSDamageRangeScale;
+  if ( BG_HasPerk(&v8->bullet.attackerPerks, 0x18u) )
   {
-    vmovaps xmm8, xmm0
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  if ( BG_HasPerk(&_RBX->bullet.attackerPerks, 0x18u) )
-  {
-    _RBP = DCONST_DVARFLT_perk_longerRangeScale;
+    v18 = DCONST_DVARFLT_perk_longerRangeScale;
     if ( !DCONST_DVARFLT_perk_longerRangeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_longerRangeScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm { vmovss  xmm6, dword ptr [rbp+28h] }
-    v16 = serverTime;
+    Dvar_CheckFrontendServerThread(v18);
+    value = v18->current.value;
+    v10 = serverTime;
   }
   else
   {
-    __asm { vmovaps xmm6, xmm7 }
+    value = FLOAT_1_0;
   }
-  if ( v22 )
+  if ( v15 )
   {
-    v27 = BG_srand_timeangles(v22->serverTime + ((_DWORD)v19 != 0 ? 0xA : 0), &v22->viewangles);
+    v20 = BG_srand_timeangles(v15->serverTime + ((_DWORD)v12 != 0 ? 0xA : 0), &v15->viewangles);
   }
   else
   {
-    pHoldrand = v16 + ((_DWORD)v19 != 0 ? 0xA : 0);
+    pHoldrand = v10 + ((_DWORD)v12 != 0 ? 0xA : 0);
     BG_srand(&pHoldrand);
-    v27 = pHoldrand;
+    v20 = pHoldrand;
   }
-  isAlternate = _RBX->wp.isAlternate;
-  _RBX->bullet.randSeed = v27;
+  isAlternate = v8->wp.isAlternate;
+  v8->bullet.randSeed = v20;
   if ( !GBallistics::ms_gBallisticsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ballistics.h", 79, ASSERT_TYPE_ASSERT, "( ms_gBallisticsSystem )", (const char *)&queryFormat, "ms_gBallisticsSystem") )
     __debugbreak();
-  *(double *)&_XMM0 = BG_GetBulletRange<GBallisticInstance>((const BgWeaponMap *)outParams, GBallistics::ms_gBallisticsSystem, v22, &attacker->s, &_RBX->bullet.attackerPerks, &_RBX->wp.weapon, isAlternate);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm8
-    vmovss  dword ptr [rbx+94h], xmm1
-    vmovss  dword ptr [rbx+90h], xmm0
-  }
-  if ( ((int)v19 < 0 || (unsigned int)v19 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum PlayerHandIndex>(enum PlayerHandIndex)", "unsigned", (unsigned __int8)v19, "signed", v19) )
+  Bullet = BG_GetBulletRange<GBallisticInstance>((const BgWeaponMap *)outParams, GBallistics::ms_gBallisticsSystem, v15, &attacker->s, &v8->bullet.attackerPerks, &v8->wp.weapon, isAlternate);
+  v8->bullet.rangeScale = value * v17;
+  v8->bullet.range = *(float *)&Bullet;
+  if ( ((int)v12 < 0 || (unsigned int)v12 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum PlayerHandIndex>(enum PlayerHandIndex)", "unsigned", (unsigned __int8)v12, "signed", v12) )
     __debugbreak();
-  __asm { vmovss  dword ptr [rbx+8Ch], xmm9 }
-  _RBX->bullet.attackerHand = v19;
-  _RBX->bullet.attackerEntity = truncate_cast<unsigned short,short>(attacker->s.number);
+  v8->bullet.attackerSpread = spread;
+  v8->bullet.attackerHand = v12;
+  v8->bullet.attackerEntity = truncate_cast<unsigned short,short>(attacker->s.number);
   if ( weapon )
-    v30 = truncate_cast<unsigned short,short>(weapon->s.number);
+    v23 = truncate_cast<unsigned short,short>(weapon->s.number);
   else
-    v30 = 2046;
-  _RBX->bullet.weaponEntity = v30;
-  _RBX->bullet.shipEntity = 2047;
-  _RBX->bullet.eventParm = eventParm;
-  if ( v22 )
-    weaponShotCount = v22->weapState[v19].weaponShotCount;
-  v31 = _RBX->wp.isAlternate;
-  _RBX->bullet.shotCount = weaponShotCount;
-  if ( BG_IsTargetAssistActive(v22, &attacker->s, &_RBX->wp.weapon, v31) )
-    _RBX->bullet.flags[0] |= 1u;
-  if ( BG_GameInterface_HasCustomBulletTargetLogic(v22) )
-    _RBX->bullet.flags[0] |= 2u;
-  if ( BG_HasPerk(&_RBX->bullet.attackerPerks, 0x1Cu) )
+    v23 = 2046;
+  v8->bullet.weaponEntity = v23;
+  v8->bullet.shipEntity = 2047;
+  v8->bullet.eventParm = eventParm;
+  if ( v15 )
+    weaponShotCount = v15->weapState[v12].weaponShotCount;
+  v24 = v8->wp.isAlternate;
+  v8->bullet.shotCount = weaponShotCount;
+  if ( BG_IsTargetAssistActive(v15, &attacker->s, &v8->wp.weapon, v24) )
+    v8->bullet.flags[0] |= 1u;
+  if ( BG_GameInterface_HasCustomBulletTargetLogic(v15) )
+    v8->bullet.flags[0] |= 2u;
+  if ( BG_HasPerk(&v8->bullet.attackerPerks, 0x1Cu) )
   {
-    _RDI = DVARFLT_perk_bulletPenetrationMultiplier;
+    v25 = DVARFLT_perk_bulletPenetrationMultiplier;
     if ( !DVARFLT_perk_bulletPenetrationMultiplier && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_bulletPenetrationMultiplier") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm0, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v25);
+    v26 = v25->current.value;
   }
   else
   {
-    __asm { vmovaps xmm0, xmm7 }
+    v26 = FLOAT_1_0;
   }
-  v34 = (_BYTE)hand == WEAPON_HAND_DEFAULT;
-  __asm { vmovss  dword ptr [rbx+98h], xmm0 }
-  if ( v34 || !BG_IsChargeShotWeapon(&_RBX->wp.weapon, _RBX->wp.isAlternate) )
+  v27 = (_BYTE)hand == WEAPON_HAND_DEFAULT;
+  v8->bullet.penetrationMultiplier = v26;
+  if ( v27 || !BG_IsChargeShotWeapon(&v8->wp.weapon, v8->wp.isAlternate) )
   {
-    __asm { vmovss  dword ptr [rbx+9Ch], xmm7 }
+    v8->bullet.chargedDamageMultiplier = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = BG_WeaponCharge_GetFireAtMaxDamageMultiplier(&_RBX->wp.weapon, _RBX->wp.isAlternate);
-    __asm { vmovss  dword ptr [rbx+9Ch], xmm0 }
-  }
-  __asm { vmovaps xmm7, [rsp+0C8h+var_58] }
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    FireAtMaxDamageMultiplier = BG_WeaponCharge_GetFireAtMaxDamageMultiplier(&v8->wp.weapon, v8->wp.isAlternate);
+    v8->bullet.chargedDamageMultiplier = *(float *)&FireAtMaxDamageMultiplier;
   }
 }
 
@@ -5103,55 +3946,40 @@ G_Bullet_Trace
 */
 bool G_Bullet_Trace(BulletFireParams *bp, const Weapon *weapon, bool isAlternate, gentity_s *attacker, BulletTraceResults *br, int lastSurfaceType, bool allowHitSelf)
 {
-  const dvar_t *v17; 
+  const dvar_t *v11; 
   bool enabled; 
-  unsigned __int8 *WeaponPriorityMap; 
+  unsigned __int8 *priorityMap; 
   int IgnoreHitEntityCount; 
-  const vec3_t *p_end; 
-  const vec3_t *p_start; 
+  vec3_t *p_end; 
+  vec3_t *p_start; 
   unsigned __int16 EntityHitId; 
-  gentity_s *v46; 
+  gentity_s *v18; 
+  float fraction; 
+  float v20; 
+  float v21; 
+  float v22; 
   gentity_s *hitEnt; 
-  const dvar_t *v73; 
-  gentity_s *v74; 
+  const dvar_t *v24; 
+  gentity_s *v25; 
   GWeaponMap *Instance; 
-  const Weapon *v76; 
-  const WeaponDef *v77; 
+  const Weapon *v27; 
+  const WeaponDef *v28; 
   gentity_s *RootParent; 
-  gentity_s *v79; 
-  gentity_s *v80; 
+  gentity_s *v30; 
+  gentity_s *v31; 
   unsigned int eType; 
-  int v82; 
-  bool v83; 
-  unsigned int v84; 
-  bool v85; 
+  int v33; 
+  bool v34; 
+  unsigned int v35; 
+  bool v36; 
   BOOL fmt; 
   int *skipEntities; 
-  int *skipEntitiesa; 
+  const int *skipEntitiesa; 
   int *skipEntitiesb; 
   __int64 skipEntityCount; 
   __int64 skipChildren; 
   __int64 contentMask; 
-  double locational; 
-  unsigned __int8 *priorityMap; 
-  double phaseSelection; 
-  double v97; 
-  double v98; 
-  double v99; 
-  double v100; 
-  double v101; 
-  double v102; 
-  double v103; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RDI = br;
-  _RSI = bp;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 958, ASSERT_TYPE_ASSERT, "(bp)", (const char *)&queryFormat, "bp") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 959, ASSERT_TYPE_ASSERT, "(attacker)", (const char *)&queryFormat, "attacker") )
@@ -5167,24 +3995,24 @@ bool G_Bullet_Trace(BulletFireParams *bp, const Weapon *weapon, bool isAlternate
   Sys_ProfBeginNamedEvent(0xFF008008, "G_Bullet_Trace");
   PhysPerfTrack_BulletServerTraceTimeStart();
   PhysPerfTrack_BulletServerTraceCountAdd();
-  v17 = DVARBOOL_killswitch_bullet_penetration_fix;
+  v11 = DVARBOOL_killswitch_bullet_penetration_fix;
   if ( !DVARBOOL_killswitch_bullet_penetration_fix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_bullet_penetration_fix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  enabled = v17->current.enabled;
-  WeaponPriorityMap = BG_GetWeaponPriorityMap(weapon, isAlternate);
-  IgnoreHitEntityCount = BG_GetIgnoreHitEntityCount(_RSI);
-  p_end = &_RSI->end;
-  p_start = &_RSI->start;
-  skipEntitiesa = _RSI->ignoreHitEntityQueue;
+  Dvar_CheckFrontendServerThread(v11);
+  enabled = v11->current.enabled;
+  priorityMap = BG_GetWeaponPriorityMap(weapon, isAlternate);
+  IgnoreHitEntityCount = BG_GetIgnoreHitEntityCount(bp);
+  p_end = &bp->end;
+  p_start = &bp->start;
+  skipEntitiesa = bp->ignoreHitEntityQueue;
   if ( enabled )
-    PhysicsQuery_LegacyTraceSkipEntities(PHYSICS_WORLD_ID_SERVER_DETAIL, &br->trace, p_start, p_end, &bounds_origin, skipEntitiesa, IgnoreHitEntityCount, 0, 41969969, 1, WeaponPriorityMap, All);
+    PhysicsQuery_LegacyTraceSkipEntities(PHYSICS_WORLD_ID_SERVER_DETAIL, &br->trace, p_start, p_end, &bounds_origin, skipEntitiesa, IgnoreHitEntityCount, 0, 41969969, 1, priorityMap, All);
   else
-    PhysicsQuery_LegacyBulletTrace(PHYSICS_WORLD_ID_SERVER_DETAIL, &br->trace, p_start, p_end, &bounds_origin, skipEntitiesa, IgnoreHitEntityCount, 0, 41969969, 1, WeaponPriorityMap, All);
+    PhysicsQuery_LegacyBulletTrace(PHYSICS_WORLD_ID_SERVER_DETAIL, &br->trace, p_start, p_end, &bounds_origin, skipEntitiesa, IgnoreHitEntityCount, 0, 41969969, 1, priorityMap, All);
   EntityHitId = Trace_GetEntityHitId(&br->trace);
   if ( (unsigned __int16)(EntityHitId - 2046) <= 1u )
   {
-    v46 = NULL;
+    v18 = NULL;
   }
   else
   {
@@ -5201,107 +4029,43 @@ bool G_Bullet_Trace(BulletFireParams *bp, const Weapon *weapon, bool isAlternate
       __debugbreak();
     if ( !g_entityIsInUse[EntityHitId] )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  xmm1, dword ptr [rdi+8]
-        vmovss  xmm2, dword ptr [rdi+4]
-        vmovss  xmm3, dword ptr [rdi]
-        vmovss  xmm4, dword ptr [rsi+7Ch]
-        vmovss  xmm5, dword ptr [rsi+78h]
-        vmovss  xmm6, dword ptr [rsi+74h]
-        vmovss  xmm7, dword ptr [rsi+70h]
-        vmovaps [rsp+138h+var_78], xmm8
-        vmovss  xmm8, dword ptr [rsi+6Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+138h+var_A8], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+138h+var_B0], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+138h+var_B8], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+138h+var_C0], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+138h+var_C8], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+138h+var_D0], xmm5
-        vmovaps [rsp+138h+var_88], xmm9
-        vmovss  xmm9, dword ptr [rsi+68h]
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+138h+var_D8], xmm6
-        vcvtss2sd xmm7, xmm7, xmm7
-        vmovsd  qword ptr [rsp+138h+phaseSelection], xmm7
-        vcvtss2sd xmm8, xmm8, xmm8
-        vmovsd  [rsp+138h+priorityMap], xmm8
-        vcvtss2sd xmm9, xmm9, xmm9
-        vmovsd  qword ptr [rsp+138h+locational], xmm9
-      }
       LODWORD(contentMask) = br->trace.hitId;
       LODWORD(skipChildren) = br->trace.hitType;
       LODWORD(skipEntityCount) = EntityHitId;
-      __asm
-      {
-        vmovaps xmm9, [rsp+138h+var_88]
-        vmovaps xmm8, [rsp+138h+var_78]
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1010, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( hitEntId ))", "%s\n\tGot invalid entity from bullet raycast. Ent Idx: %d %d %d Start: [%.2f, %.2f, %.2f] End: [%.2f, %.2f, %.2f] Fraction:%.2f Pos: [%.2f, %.2f, %.2f] Surface Flags: %d Contents: %d", "G_IsEntityInUse( hitEntId )", skipEntityCount, skipChildren, contentMask, locational, *(double *)&priorityMap, phaseSelection, v97, v98, v99, v100, v101, v102, v103, br->trace.surfaceFlags, br->trace.contents) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1010, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( hitEntId ))", "%s\n\tGot invalid entity from bullet raycast. Ent Idx: %d %d %d Start: [%.2f, %.2f, %.2f] End: [%.2f, %.2f, %.2f] Fraction:%.2f Pos: [%.2f, %.2f, %.2f] Surface Flags: %d Contents: %d", "G_IsEntityInUse( hitEntId )", skipEntityCount, skipChildren, contentMask, bp->start.v[0], bp->start.v[1], bp->start.v[2], bp->end.v[0], bp->end.v[1], bp->end.v[2], br->trace.fraction, br->trace.position.v[0], br->trace.position.v[1], br->trace.position.v[2], br->trace.surfaceFlags, br->trace.contents) )
         __debugbreak();
     }
-    v46 = &g_entities[EntityHitId];
+    v18 = &g_entities[EntityHitId];
   }
-  br->hitEnt = v46;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rsi+74h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+68h]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm6, xmm2, dword ptr [rsi+68h]
-    vmovss  dword ptr [rdi+60h], xmm6
-    vmovss  xmm0, dword ptr [rsi+78h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+6Ch]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm5, xmm2, dword ptr [rsi+6Ch]
-    vmovss  dword ptr [rdi+64h], xmm5
-    vmovss  xmm0, dword ptr [rsi+7Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+70h]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm4, xmm2, dword ptr [rsi+70h]
-    vmovaps xmm7, [rsp+138h+var_68]
-    vmovss  dword ptr [rdi+68h], xmm4
-    vsubss  xmm2, xmm6, dword ptr [rsi+68h]
-    vsubss  xmm0, xmm5, dword ptr [rsi+6Ch]
-    vsubss  xmm3, xmm4, dword ptr [rsi+70h]
-    vmovaps xmm6, [rsp+138h+var_58]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vaddss  xmm3, xmm0, dword ptr [rsi+8Ch]
-    vmovss  dword ptr [rsi+8Ch], xmm3
-  }
+  br->hitEnt = v18;
+  fraction = br->trace.fraction;
+  v20 = (float)((float)(bp->end.v[0] - bp->start.v[0]) * br->trace.fraction) + bp->start.v[0];
+  br->hitPos.v[0] = v20;
+  v21 = (float)((float)(bp->end.v[1] - bp->start.v[1]) * fraction) + bp->start.v[1];
+  br->hitPos.v[1] = v21;
+  v22 = (float)((float)(bp->end.v[2] - bp->start.v[2]) * fraction) + bp->start.v[2];
+  br->hitPos.v[2] = v22;
+  bp->travelDistance = fsqrt((float)((float)((float)(v21 - bp->start.v[1]) * (float)(v21 - bp->start.v[1])) + (float)((float)(v20 - bp->start.v[0]) * (float)(v20 - bp->start.v[0]))) + (float)((float)(v22 - bp->start.v[2]) * (float)(v22 - bp->start.v[2]))) + bp->travelDistance;
   hitEnt = br->hitEnt;
   if ( hitEnt && hitEnt->s.eType == ET_TURRET )
   {
-    v73 = DVARBOOL_g_turretAllowDeferDamageToParentVehicle;
+    v24 = DVARBOOL_g_turretAllowDeferDamageToParentVehicle;
     if ( !DVARBOOL_g_turretAllowDeferDamageToParentVehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_turretAllowDeferDamageToParentVehicle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v73);
-    if ( v73->current.enabled )
+    Dvar_CheckFrontendServerThread(v24);
+    if ( v24->current.enabled )
     {
-      v74 = br->hitEnt;
+      v25 = br->hitEnt;
       Instance = GWeaponMap::GetInstance();
       if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
-      if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      v76 = BgWeaponMap::GetWeapon(Instance, v74->s.weaponHandle);
-      v77 = BG_WeaponDef(v76, 0);
-      if ( !v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 938, ASSERT_TYPE_ASSERT, "(turretDef)", (const char *)&queryFormat, "turretDef") )
+      v27 = BgWeaponMap::GetWeapon(Instance, v25->s.weaponHandle);
+      v28 = BG_WeaponDef(v27, 0);
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 938, ASSERT_TYPE_ASSERT, "(turretDef)", (const char *)&queryFormat, "turretDef") )
         __debugbreak();
-      if ( v77->deferDamageToParentVehicle )
+      if ( v28->deferDamageToParentVehicle )
       {
         RootParent = (gentity_s *)GUtils::GetRootParent(br->hitEnt);
         if ( RootParent )
@@ -5312,8 +4076,8 @@ bool G_Bullet_Trace(BulletFireParams *bp, const Weapon *weapon, bool isAlternate
       }
     }
   }
-  v79 = br->hitEnt;
-  if ( v79 )
+  v30 = br->hitEnt;
+  if ( v30 )
   {
     if ( br->trace.partGroup == 19 )
     {
@@ -5321,16 +4085,16 @@ bool G_Bullet_Trace(BulletFireParams *bp, const Weapon *weapon, bool isAlternate
     }
     else
     {
-      if ( BG_IsCharacterEntity(&v79->s) )
+      if ( BG_IsCharacterEntity(&v30->s) )
         goto LABEL_81;
-      v80 = br->hitEnt;
-      if ( !v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      v31 = br->hitEnt;
+      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1983, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      eType = (unsigned __int16)v80->s.eType;
+      eType = (unsigned __int16)v31->s.eType;
       if ( (unsigned __int16)eType <= 0x15u )
       {
-        v82 = 2359300;
-        if ( _bittest(&v82, eType) )
+        v33 = 2359300;
+        if ( _bittest(&v33, eType) )
         {
 LABEL_81:
           if ( !br->trace.surfaceFlags )
@@ -5341,27 +4105,27 @@ LABEL_81:
     if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
       __debugbreak();
     LOBYTE(fmt) = allowHitSelf;
-    v83 = GBullet::ms_gBulletSystem->TraceIgnoreHitEntity(GBullet::ms_gBulletSystem, _RSI, br, attacker, fmt);
+    v34 = GBullet::ms_gBulletSystem->TraceIgnoreHitEntity(GBullet::ms_gBulletSystem, bp, br, attacker, fmt);
   }
   else
   {
-    v83 = 0;
+    v34 = 0;
   }
-  br->ignoreHitEnt = v83;
-  v84 = (br->trace.surfaceFlags >> 19) & 0x3F;
-  v85 = (br->trace.surfaceFlags & 0x100) == 0;
-  br->depthSurfaceType = v84;
-  if ( v85 )
+  br->ignoreHitEnt = v34;
+  v35 = (br->trace.surfaceFlags >> 19) & 0x3F;
+  v36 = (br->trace.surfaceFlags & 0x100) == 0;
+  br->depthSurfaceType = v35;
+  if ( v36 )
   {
-    if ( !v84 && lastSurfaceType )
+    if ( !v35 && lastSurfaceType )
     {
       br->depthSurfaceType = lastSurfaceType;
-      v84 = lastSurfaceType;
+      v35 = lastSurfaceType;
     }
-    if ( v84 >= 0x40 )
+    if ( v35 >= 0x40 )
     {
       LODWORD(skipEntityCount) = 64;
-      LODWORD(skipEntitiesb) = v84;
+      LODWORD(skipEntitiesb) = v35;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1051, ASSERT_TYPE_SANITY, "(unsigned)( br->depthSurfaceType ) < (unsigned)( 64 )", "br->depthSurfaceType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", skipEntitiesb, skipEntityCount) )
         __debugbreak();
     }
@@ -5382,225 +4146,146 @@ G_Debug_BulletDamage
 */
 void G_Debug_BulletDamage(const Weapon *weapon, bool isAlternate, const vec3_t *start, const vec3_t *end, float travelDistance, float rangeScale, float bulletRange)
 {
-  const dvar_t *v14; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
+  const dvar_t *v7; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v24; 
   int ShelvedDamageRanges; 
-  int v49; 
-  int v50; 
-  __int64 v52; 
-  char v70; 
+  int v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  float v35; 
+  float v36; 
+  float v41; 
   float maxDamageRange; 
   float minDamageRange; 
   vec3_t starta; 
   vec3_t enda; 
   vec4_t color; 
+  vec4_t v47; 
+  vec4_t v48; 
+  vec4_t v49; 
+  vec4_t v50; 
   float rangeArray[4]; 
 
-  v14 = DVARINT_g_debugBullets;
-  _R15 = end;
-  _R14 = start;
+  v7 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.integer == 1 )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.integer == 1 )
     goto LABEL_13;
-  v19 = DVARINT_g_debugBullets;
+  v12 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( v19->current.integer == 2 )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.integer == 2 )
     goto LABEL_13;
-  v20 = DVARINT_g_debugBullets;
+  v13 = DVARINT_g_debugBullets;
   if ( !DVARINT_g_debugBullets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugBullets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.integer == 4 )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.integer == 4 )
   {
 LABEL_13:
+    v14 = end->v[0] - start->v[0];
+    v24 = LODWORD(end->v[1]);
+    v15 = end->v[1] - start->v[1];
+    v16 = end->v[2] - start->v[2];
+    *(float *)&v24 = fsqrt((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16));
+    _XMM4 = v24;
     __asm
     {
-      vmovss  xmm0, dword ptr [r15]
-      vsubss  xmm5, xmm0, dword ptr [r14]
-      vmovss  xmm1, dword ptr [r15+4]
-      vmovss  xmm0, dword ptr [r15+8]
-      vmovaps [rsp+180h+var_40], xmm6
-      vsubss  xmm6, xmm1, dword ptr [r14+4]
-      vmovaps [rsp+180h+var_50], xmm7
-      vsubss  xmm7, xmm0, dword ptr [r14+8]
-      vmovaps [rsp+180h+var_60], xmm8
-      vmovss  xmm8, [rbp+80h+travelDistance]
-      vmovaps [rsp+180h+var_70], xmm9
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
-      vmovaps [rsp+180h+var_80], xmm10
       vblendvps xmm0, xmm4, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmovaps [rsp+180h+var_90], xmm11
-      vmovaps [rsp+180h+var_A0], xmm12
-      vmulss  xmm10, xmm5, xmm2
-      vmulss  xmm11, xmm6, xmm2
-      vmulss  xmm12, xmm7, xmm2
-      vaddss  xmm9, xmm4, xmm8
-      vmovss  xmm3, [rbp+80h+rangeScale]; rangeScale
     }
+    v20 = v14 * (float)(1.0 / *(float *)&_XMM0);
+    v21 = v15 * (float)(1.0 / *(float *)&_XMM0);
+    v22 = v16 * (float)(1.0 / *(float *)&_XMM0);
+    *(float *)&v24 = *(float *)&v24 + travelDistance;
+    _XMM9 = v24;
     if ( BG_UsesShelvedDamageFalloff(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, isAlternate) )
     {
-      ShelvedDamageRanges = BG_GetShelvedDamageRanges(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, isAlternate, *(float *)&_XMM3, rangeArray, 4);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-        vmovaps xmmword ptr [rsp+180h+color], xmm0
-        vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow
-        vmovaps [rbp+80h+var_100], xmm0
-        vmovups xmm0, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; vec4_t const colorCyan
-        vmovaps [rbp+80h+var_F0], xmm0
-        vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-        vmovaps [rbp+80h+var_E0], xmm0
-        vmovups xmm0, xmmword ptr cs:?colorDkGrey@@3Tvec4_t@@B; vec4_t const colorDkGrey
-      }
-      v49 = 0;
-      v50 = ShelvedDamageRanges + 1;
-      __asm { vmovaps [rbp+80h+var_D0], xmm0 }
+      ShelvedDamageRanges = BG_GetShelvedDamageRanges(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, isAlternate, rangeScale, rangeArray, 4);
+      color = colorRed;
+      v47 = colorYellow;
+      v48 = colorCyan;
+      v49 = colorWhite;
+      v26 = 0;
+      v27 = ShelvedDamageRanges + 1;
+      v50 = colorDkGrey;
       if ( ShelvedDamageRanges + 1 > 0 )
       {
-        __asm { vmovss  xmm7, [rbp+80h+bulletRange] }
-        v52 = ShelvedDamageRanges;
-        _RBX = 0i64;
+        v28 = ShelvedDamageRanges;
+        v29 = 0i64;
         do
         {
-          if ( v52 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1905, ASSERT_TYPE_ASSERT, "(rangeCount > 0)", (const char *)&queryFormat, "rangeCount > 0") )
+          if ( v28 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 1905, ASSERT_TYPE_ASSERT, "(rangeCount > 0)", (const char *)&queryFormat, "rangeCount > 0") )
             __debugbreak();
-          if ( v49 )
-            __asm { vmovss  xmm0, dword ptr [rbp+rbx*4+80h+var_D0+0Ch] }
+          if ( v26 )
+            _XMM0 = LODWORD(v50.v[v29 + 3]);
           else
-            __asm { vxorps  xmm0, xmm0, xmm0 }
-          if ( _RBX == v52 )
-            __asm { vmovaps xmm3, xmm7 }
+            _XMM0 = 0i64;
+          if ( v29 == v28 )
+            _XMM3 = LODWORD(bulletRange);
           else
-            __asm { vmovss  xmm3, [rbp+rbx*4+80h+rangeArray] }
-          __asm { vcomiss xmm3, xmm8 }
-          if ( _RBX >= v52 )
+            _XMM3 = LODWORD(rangeArray[v29]);
+          if ( *(float *)&_XMM3 >= travelDistance && *(float *)&_XMM0 < *(float *)&v24 )
           {
-            __asm { vcomiss xmm0, xmm9 }
-            if ( _RBX < v52 )
-            {
-              __asm
-              {
-                vmaxss  xmm0, xmm0, xmm8
-                vsubss  xmm2, xmm0, xmm8
-                vmulss  xmm1, xmm10, xmm2
-                vaddss  xmm0, xmm1, dword ptr [r14]
-                vmulss  xmm1, xmm11, xmm2
-                vmovss  dword ptr [rsp+180h+start], xmm0
-                vaddss  xmm0, xmm1, dword ptr [r14+4]
-                vmulss  xmm1, xmm12, xmm2
-                vmovss  dword ptr [rsp+180h+start+4], xmm0
-                vaddss  xmm0, xmm1, dword ptr [r14+8]
-                vminss  xmm2, xmm3, xmm9
-                vsubss  xmm3, xmm2, xmm8
-                vmovss  dword ptr [rsp+180h+start+8], xmm0
-                vmulss  xmm0, xmm10, xmm3
-                vaddss  xmm1, xmm0, dword ptr [r14]
-                vmulss  xmm2, xmm11, xmm3
-                vaddss  xmm0, xmm2, dword ptr [r14+4]
-                vmovss  dword ptr [rsp+180h+end], xmm1
-                vmulss  xmm1, xmm12, xmm3
-                vaddss  xmm2, xmm1, dword ptr [r14+8]
-                vmovss  dword ptr [rsp+180h+end+8], xmm2
-                vmovss  dword ptr [rsp+180h+end+4], xmm0
-              }
-              G_DebugLineWithDuration(&starta, &enda, &color + v49, 1, 300);
-            }
+            __asm { vmaxss  xmm0, xmm0, xmm8 }
+            starta.v[0] = (float)(v20 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[0];
+            starta.v[1] = (float)(v21 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[1];
+            __asm { vminss  xmm2, xmm3, xmm9 }
+            starta.v[2] = (float)(v22 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[2];
+            *(float *)&_XMM0 = (float)(v21 * (float)(*(float *)&_XMM2 - travelDistance)) + start->v[1];
+            enda.v[0] = (float)(v20 * (float)(*(float *)&_XMM2 - travelDistance)) + start->v[0];
+            enda.v[2] = (float)(v22 * (float)(*(float *)&_XMM2 - travelDistance)) + start->v[2];
+            enda.v[1] = *(float *)&_XMM0;
+            G_DebugLineWithDuration(&starta, &enda, &color + v26, 1, 300);
           }
-          ++v49;
-          ++_RBX;
+          ++v26;
+          ++v29;
         }
-        while ( v49 < v50 );
+        while ( v26 < v27 );
       }
     }
     else
     {
-      BG_GetDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, isAlternate, *(float *)&_XMM3, &minDamageRange, &maxDamageRange);
-      __asm
+      BG_GetDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, isAlternate, rangeScale, &minDamageRange, &maxDamageRange);
+      _XMM0 = LODWORD(maxDamageRange);
+      if ( travelDistance < maxDamageRange )
       {
-        vmovss  xmm0, [rsp+180h+maxDamageRange]
-        vcomiss xmm8, xmm0
-      }
-      if ( v70 )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14]
-          vmovss  xmm4, dword ptr [r14+4]
-          vmovss  xmm5, dword ptr [r14+8]
-          vminss  xmm0, xmm0, xmm9
-          vsubss  xmm3, xmm0, xmm8
-          vmulss  xmm1, xmm3, xmm10
-          vmovss  dword ptr [rsp+180h+end], xmm2
-          vaddss  xmm2, xmm1, xmm2
-          vmulss  xmm0, xmm3, xmm11
-          vaddss  xmm1, xmm0, xmm4
-          vmovss  dword ptr [rsp+180h+start], xmm2
-          vmulss  xmm2, xmm3, xmm12
-          vaddss  xmm0, xmm2, xmm5
-          vmovss  dword ptr [rsp+180h+start+8], xmm0
-          vmovss  dword ptr [rsp+180h+end+4], xmm4
-          vmovss  dword ptr [rsp+180h+end+8], xmm5
-          vmovss  dword ptr [rsp+180h+start+4], xmm1
-        }
+        v35 = start->v[1];
+        v36 = start->v[2];
+        __asm { vminss  xmm0, xmm0, xmm9 }
+        enda.v[0] = start->v[0];
+        starta.v[0] = (float)((float)(*(float *)&_XMM0 - travelDistance) * v20) + enda.v[0];
+        starta.v[2] = (float)((float)(*(float *)&_XMM0 - travelDistance) * v22) + v36;
+        enda.v[1] = v35;
+        enda.v[2] = v36;
+        starta.v[1] = (float)((float)(*(float *)&_XMM0 - travelDistance) * v21) + v35;
         G_DebugLineWithDuration(&enda, &starta, &colorRed, 1, 300);
       }
-      __asm
+      _XMM0 = LODWORD(minDamageRange);
+      if ( minDamageRange < *(float *)&v24 )
       {
-        vmovss  xmm0, [rsp+180h+minDamageRange]
-        vcomiss xmm0, xmm9
-      }
-      if ( v70 )
-      {
-        __asm
-        {
-          vmaxss  xmm0, xmm0, xmm8
-          vsubss  xmm2, xmm0, xmm8
-          vmulss  xmm1, xmm10, xmm2
-          vaddss  xmm0, xmm1, dword ptr [r14]
-          vmulss  xmm1, xmm11, xmm2
-          vmovss  dword ptr [rsp+180h+end], xmm0
-          vaddss  xmm0, xmm1, dword ptr [r14+4]
-          vmulss  xmm1, xmm12, xmm2
-          vminss  xmm2, xmm9, [rbp+80h+bulletRange]
-          vsubss  xmm3, xmm2, xmm8
-          vmovss  dword ptr [rsp+180h+end+4], xmm0
-          vaddss  xmm0, xmm1, dword ptr [r14+8]
-          vmovss  dword ptr [rsp+180h+end+8], xmm0
-          vmulss  xmm0, xmm3, xmm10
-          vaddss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm2, xmm3, xmm11
-          vaddss  xmm0, xmm2, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+180h+start], xmm1
-          vmulss  xmm1, xmm3, xmm12
-          vaddss  xmm2, xmm1, dword ptr [r14+8]
-          vmovss  dword ptr [rsp+180h+start+8], xmm2
-          vmovss  dword ptr [rsp+180h+start+4], xmm0
-        }
+        __asm { vmaxss  xmm0, xmm0, xmm8 }
+        enda.v[0] = (float)(v20 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[0];
+        __asm { vminss  xmm2, xmm9, [rbp+80h+bulletRange] }
+        enda.v[1] = (float)(v21 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[1];
+        enda.v[2] = (float)(v22 * (float)(*(float *)&_XMM0 - travelDistance)) + start->v[2];
+        v41 = (float)((float)(*(float *)&_XMM2 - travelDistance) * v21) + start->v[1];
+        starta.v[0] = (float)((float)(*(float *)&_XMM2 - travelDistance) * v20) + start->v[0];
+        starta.v[2] = (float)((float)(*(float *)&_XMM2 - travelDistance) * v22) + start->v[2];
+        starta.v[1] = v41;
         G_DebugLineWithDuration(&enda, &starta, &colorWhite, 1, 300);
       }
-    }
-    __asm
-    {
-      vmovaps xmm11, [rsp+180h+var_90]
-      vmovaps xmm10, [rsp+180h+var_80]
-      vmovaps xmm9, [rsp+180h+var_70]
-      vmovaps xmm8, [rsp+180h+var_60]
-      vmovaps xmm7, [rsp+180h+var_50]
-      vmovaps xmm6, [rsp+180h+var_40]
-      vmovaps xmm12, [rsp+180h+var_A0]
     }
   }
 }
@@ -5894,27 +4579,41 @@ GBullet::NotifyWhizbys
 */
 void GBullet::NotifyWhizbys(GBullet *this, const BulletFireParams *bp, const BulletTraceResults *br, gentity_s *attacker, bool useFriendlyFire)
 {
-  char v17; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v22; 
-  gentity_s *v23; 
-  bool v24; 
-  bool v25; 
-  bool v26; 
-  team_t v27; 
+  char v7; 
+  int v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 i; 
+  gentity_s *v12; 
+  bool v13; 
+  bool v14; 
+  bool v15; 
+  team_t v16; 
   gclient_s *client; 
   gagent_s *agent; 
   sentient_s *sentient; 
-  char v31; 
-  char v32; 
-  scrContext_t *v83; 
-  __int64 v95; 
-  __int64 v96; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  __int128 v30; 
+  float v31; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  float v35; 
+  __int128 v36; 
+  scrContext_t *v39; 
+  __int64 v40; 
+  __int64 v41; 
   vec3_t vEyePosOut; 
   float value[4]; 
-  float v101[4]; 
+  float v46; 
+  float v47; 
+  float v48; 
 
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 768, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
@@ -5924,89 +4623,58 @@ void GBullet::NotifyWhizbys(GBullet *this, const BulletFireParams *bp, const Bul
     __debugbreak();
   if ( G_Utils_IsClientOrActorOrAgent(attacker) )
   {
-    v17 = 0;
-    v18 = 0;
-    v19 = 0i64;
-    __asm { vmovaps [rsp+158h+var_C8], xmm15 }
-    v20 = 0i64;
-    __asm
-    {
-      vmovss  xmm15, cs:__real@3f800000
-      vmovaps [rsp+158h+var_38], xmm6
-    }
-    v22 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+158h+var_48], xmm7
-      vmovaps [rsp+158h+var_58], xmm8
-      vmovaps [rsp+158h+var_68], xmm9
-      vmovaps [rsp+158h+var_78], xmm10
-      vmovaps [rsp+158h+var_88], xmm11
-      vmovaps [rsp+158h+var_98], xmm12
-      vmovaps [rsp+158h+var_A8], xmm13
-      vmovaps [rsp+158h+var_B8], xmm14
-    }
-    while ( 1 )
+    v7 = 0;
+    v8 = 0;
+    v9 = 0i64;
+    v10 = 0i64;
+    for ( i = 0i64; ; ++i )
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      if ( v18 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
+      if ( v8 >= (int)ComCharacterLimits::ms_gameData.m_characterCount )
       {
-        __asm
-        {
-          vmovaps xmm15, [rsp+158h+var_C8]
-          vmovaps xmm14, [rsp+158h+var_B8]
-          vmovaps xmm13, [rsp+158h+var_A8]
-          vmovaps xmm12, [rsp+158h+var_98]
-          vmovaps xmm11, [rsp+158h+var_88]
-          vmovaps xmm10, [rsp+158h+var_78]
-          vmovaps xmm9, [rsp+158h+var_68]
-          vmovaps xmm8, [rsp+158h+var_58]
-          vmovaps xmm7, [rsp+158h+var_48]
-          vmovaps xmm6, [rsp+158h+var_38]
-        }
-        if ( v17 )
+        if ( v7 )
           GScr_Notify(attacker, scr_const.attackerbulletwhizby, 0);
         return;
       }
-      if ( (unsigned int)v18 >= 0x800 )
+      if ( (unsigned int)v8 >= 0x800 )
       {
-        LODWORD(v96) = 2048;
-        LODWORD(v95) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v95, v96) )
+        LODWORD(v41) = 2048;
+        LODWORD(v40) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v40, v41) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v22].r.isInUse != g_entityIsInUse[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[i].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v19] )
+      if ( !g_entityIsInUse[v9] )
         goto LABEL_64;
-      v23 = &g_entities[v22];
-      if ( !&g_entities[v22] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 783, ASSERT_TYPE_ASSERT, "(target)", (const char *)&queryFormat, "target") )
+      v12 = &g_entities[i];
+      if ( !&g_entities[i] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 783, ASSERT_TYPE_ASSERT, "(target)", (const char *)&queryFormat, "target") )
         __debugbreak();
-      if ( v23 == attacker )
+      if ( v12 == attacker )
         goto LABEL_64;
-      v24 = v18 < level.maxclients;
-      if ( v18 < level.maxclients )
+      v13 = v8 < level.maxclients;
+      if ( v8 < level.maxclients )
       {
-        if ( level.clients[v20].sess.connected != CON_CONNECTED )
+        if ( level.clients[v10].sess.connected != CON_CONNECTED )
           goto LABEL_64;
-        v25 = level.clients[v20].sess.sessionState == SESS_STATE_PLAYING;
+        v14 = level.clients[v10].sess.sessionState == SESS_STATE_PLAYING;
       }
       else
       {
-        v25 = v23->s.eType == ET_AGENT;
+        v14 = v12->s.eType == ET_AGENT;
       }
-      if ( !v25 )
+      if ( !v14 )
         goto LABEL_64;
-      if ( v18 < level.maxclients )
+      if ( v8 < level.maxclients )
         break;
-      if ( v23->agent )
+      if ( v12->agent )
       {
-        v26 = v23->sentient == NULL;
+        v15 = v12->sentient == NULL;
 LABEL_39:
-        if ( !v26 )
+        if ( !v15 )
           goto LABEL_42;
       }
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 802, ASSERT_TYPE_ASSERT, "( (isAClient && target->client) || (!isAClient && target->agent && target->sentient) )", (const char *)&queryFormat, "(isAClient && target->client) || (!isAClient && target->agent && target->sentient)") )
@@ -6016,19 +4684,19 @@ LABEL_42:
         goto LABEL_57;
       if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
         __debugbreak();
-      v27 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, v23);
+      v16 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, v12);
       client = attacker->client;
-      if ( !client || v27 == TEAM_ZERO || v27 != client->sess.cs.team )
+      if ( !client || v16 == TEAM_ZERO || v16 != client->sess.cs.team )
       {
         agent = attacker->agent;
-        if ( !agent || v27 == TEAM_ZERO || v27 != agent->agentState.team )
+        if ( !agent || v16 == TEAM_ZERO || v16 != agent->agentState.team )
         {
           sentient = attacker->sentient;
           if ( sentient )
           {
-            if ( v27 )
+            if ( v16 )
             {
-              if ( v27 == sentient->eTeam )
+              if ( v16 == sentient->eTeam )
                 goto LABEL_64;
             }
             else if ( sentient->eTeam == TEAM_TWO )
@@ -6037,101 +4705,62 @@ LABEL_42:
             }
           }
 LABEL_57:
-          if ( v24 )
-            G_Client_GetEyePosition(&v23->client->ps, &vEyePosOut);
+          if ( v13 )
+            G_Client_GetEyePosition(&v12->client->ps, &vEyePosOut);
           else
-            Sentient_GetEyePosition(v23->sentient, &vEyePosOut);
-          _RAX = bp;
-          _RBX = br;
+            Sentient_GetEyePosition(v12->sentient, &vEyePosOut);
+          v20 = bp->start.v[0];
+          v21 = bp->start.v[1];
+          v22 = bp->start.v[2];
+          v23 = br->hitPos.v[0] - v20;
+          v24 = br->hitPos.v[2] - v22;
+          v26 = LODWORD(br->hitPos.v[1]);
+          v25 = br->hitPos.v[1] - v21;
+          *(float *)&v26 = fsqrt((float)((float)(v25 * v25) + (float)(v23 * v23)) + (float)(v24 * v24));
+          _XMM7 = v26;
           __asm
           {
-            vmovss  xmm12, dword ptr [rsp+158h+vEyePosOut+4]
-            vmovss  xmm13, dword ptr [rsp+158h+vEyePosOut]
-            vmovss  xmm8, dword ptr [rax+68h]
-            vmovss  xmm0, dword ptr [rbx+60h]
-            vmovss  xmm9, dword ptr [rax+6Ch]
-            vmovss  xmm1, dword ptr [rbx+64h]
-            vmovss  xmm10, dword ptr [rax+70h]
-            vmovss  xmm14, dword ptr [rsp+158h+vEyePosOut+8]
-            vsubss  xmm6, xmm0, xmm8
-            vmovss  xmm0, dword ptr [rbx+68h]
-            vsubss  xmm4, xmm0, xmm10
-            vsubss  xmm5, xmm1, xmm9
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm5, xmm5
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm7, xmm2, xmm2
             vcmpless xmm0, xmm7, cs:__real@80000000
             vblendvps xmm0, xmm7, xmm15, xmm0
-            vdivss  xmm1, xmm15, xmm0
-            vmulss  xmm11, xmm1, xmm4
-            vmulss  xmm6, xmm1, xmm6
-            vmulss  xmm5, xmm1, xmm5
-            vsubss  xmm0, xmm12, xmm9
-            vmulss  xmm2, xmm0, xmm5
-            vsubss  xmm1, xmm13, xmm8
-            vmulss  xmm0, xmm1, xmm6
-            vaddss  xmm3, xmm2, xmm0
-            vsubss  xmm1, xmm14, xmm10
-            vmulss  xmm0, xmm1, xmm11
-            vaddss  xmm4, xmm3, xmm0
-            vcomiss xmm4, xmm7
-            vmovss  [rsp+158h+value], xmm6
-            vmovss  [rsp+158h+var_F4], xmm5
-            vmovss  [rsp+158h+var_F0], xmm11
           }
-          if ( v31 | v32 )
+          v30 = LODWORD(FLOAT_1_0);
+          v31 = (float)(1.0 / *(float *)&_XMM0) * v24;
+          v32 = (float)(1.0 / *(float *)&_XMM0) * v23;
+          *(float *)&v30 = (float)(1.0 / *(float *)&_XMM0) * v25;
+          v33 = v30;
+          v35 = (float)((float)((float)(vEyePosOut.v[1] - v21) * *(float *)&v30) + (float)((float)(vEyePosOut.v[0] - v20) * v32)) + (float)((float)(vEyePosOut.v[2] - v22) * v31);
+          v34 = v35;
+          value[0] = v32;
+          value[1] = *(float *)&v33;
+          value[2] = v31;
+          if ( v35 <= *(float *)&_XMM7 && v35 >= 64.0 )
           {
-            __asm { vcomiss xmm4, cs:__real@42800000 }
-            if ( !v31 )
+            v46 = (float)(v32 * v35) + v20;
+            v36 = v33;
+            v48 = (float)(v31 * v34) + v22;
+            v47 = (float)(*(float *)&v33 * v34) + v21;
+            *(float *)&v36 = fsqrt((float)((float)((float)(v47 - vEyePosOut.v[1]) * (float)(v47 - vEyePosOut.v[1])) + (float)((float)(v46 - vEyePosOut.v[0]) * (float)(v46 - vEyePosOut.v[0]))) + (float)((float)(v48 - vEyePosOut.v[2]) * (float)(v48 - vEyePosOut.v[2])));
+            _XMM0 = v36;
+            __asm { vmaxss  xmm6, xmm0, xmm15 }
+            if ( *(float *)&_XMM6 <= 75.0 )
             {
-              __asm
-              {
-                vmulss  xmm0, xmm6, xmm4
-                vaddss  xmm2, xmm0, xmm8
-                vmovss  [rsp+158h+var_E8], xmm2
-                vsubss  xmm2, xmm2, xmm13
-                vmulss  xmm1, xmm5, xmm4
-                vaddss  xmm3, xmm1, xmm9
-                vmulss  xmm0, xmm11, xmm4
-                vaddss  xmm1, xmm0, xmm10
-                vsubss  xmm0, xmm3, xmm12
-                vmovss  [rsp+158h+var_E0], xmm1
-                vmovss  [rsp+158h+var_E4], xmm3
-                vsubss  xmm3, xmm1, xmm14
-                vmulss  xmm1, xmm0, xmm0
-                vmulss  xmm0, xmm2, xmm2
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm3, xmm3
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm0, xmm2, xmm2
-                vmaxss  xmm6, xmm0, xmm15
-                vcomiss xmm6, cs:__real@42960000
-              }
-              if ( v31 | v32 )
-              {
-                v83 = ScriptContext_Server();
-                Scr_AddVector(v83, value);
-                Scr_AddVector(v83, v101);
-                __asm { vmovaps xmm1, xmm6; value }
-                Scr_AddFloat(v83, *(float *)&_XMM1);
-                GScr_AddEntity(attacker);
-                GScr_Notify(v23, scr_const.bulletwhizby, 4u);
-                v17 = 1;
-              }
+              v39 = ScriptContext_Server();
+              Scr_AddVector(v39, value);
+              Scr_AddVector(v39, &v46);
+              Scr_AddFloat(v39, *(float *)&_XMM6);
+              GScr_AddEntity(attacker);
+              GScr_Notify(v12, scr_const.bulletwhizby, 4u);
+              v7 = 1;
             }
           }
         }
       }
 LABEL_64:
-      ++v18;
-      ++v19;
-      ++v22;
-      ++v20;
+      ++v8;
+      ++v9;
+      ++v10;
     }
-    v26 = v23->client == NULL;
+    v15 = v12->client == NULL;
     goto LABEL_39;
   }
 }
@@ -6147,17 +4776,17 @@ void GBullet::RegisterImpaledEntity(GBullet *this, const gentity_s *attacker, co
   __int64 v14; 
   entityType_s eType; 
   unsigned __int64 m_impaleCount; 
-  __int64 v21; 
-  __int64 v22; 
+  GEntityImpaleEntry *v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _R15 = weapon;
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2815, ASSERT_TYPE_ASSERT, "(attacker)", (const char *)&queryFormat, "attacker") )
     __debugbreak();
   number = attacker->s.number;
   if ( (unsigned int)number >= 0x800 )
   {
-    LODWORD(v21) = attacker->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, 2048) )
+    LODWORD(v18) = attacker->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -6171,9 +4800,9 @@ void GBullet::RegisterImpaledEntity(GBullet *this, const gentity_s *attacker, co
   v14 = victim->s.number;
   if ( (unsigned int)v14 >= 0x800 )
   {
-    LODWORD(v22) = 2048;
-    LODWORD(v21) = victim->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v19) = 2048;
+    LODWORD(v18) = victim->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -6184,9 +4813,9 @@ void GBullet::RegisterImpaledEntity(GBullet *this, const gentity_s *attacker, co
     __debugbreak();
   if ( (unsigned int)hitLocation >= HITLOC_NUM )
   {
-    LODWORD(v22) = 22;
-    LODWORD(v21) = hitLocation;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2819, ASSERT_TYPE_ASSERT, "(unsigned)( hitLocation ) < (unsigned)( HITLOC_NUM )", "hitLocation doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v19) = 22;
+    LODWORD(v18) = hitLocation;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2819, ASSERT_TYPE_ASSERT, "(unsigned)( hitLocation ) < (unsigned)( HITLOC_NUM )", "hitLocation doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( !partName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2820, ASSERT_TYPE_ASSERT, "(partName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "partName != NULL_SCR_STRING") )
@@ -6194,50 +4823,44 @@ void GBullet::RegisterImpaledEntity(GBullet *this, const gentity_s *attacker, co
   eType = victim->s.eType;
   if ( eType != ET_PLAYER && eType != ET_AGENT_CORPSE )
   {
-    LODWORD(v22) = eType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2823, ASSERT_TYPE_ASSERT, "(victim->s.eType == ET_PLAYER || victim->s.eType == ET_AGENT_CORPSE)", "%s\n\tRegisterImpaledEntity invoked on an invalid entity type: %i", "victim->s.eType == ET_PLAYER || victim->s.eType == ET_AGENT_CORPSE", v22) )
+    LODWORD(v19) = eType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2823, ASSERT_TYPE_ASSERT, "(victim->s.eType == ET_PLAYER || victim->s.eType == ET_AGENT_CORPSE)", "%s\n\tRegisterImpaledEntity invoked on an invalid entity type: %i", "victim->s.eType == ET_PLAYER || victim->s.eType == ET_AGENT_CORPSE", v19) )
       __debugbreak();
   }
   m_impaleCount = this->m_impaleCount;
   if ( m_impaleCount < 8 )
   {
-    _R10 = &this->m_impaledEntities.m_data[m_impaleCount];
-    *(_QWORD *)&_R10->attackerNum = 2047i64;
-    _R10->partName = 0;
-    _R10->victimNum = 2047;
-    *(_QWORD *)_R10->clientHitPos.v = 0i64;
-    _R10->clientHitPos.v[2] = 0.0;
-    *(_QWORD *)_R10->boneOffset.v = 0i64;
-    _R10->boneOffset.v[2] = 0.0;
-    *(_QWORD *)_R10->hitDirection.v = 0i64;
-    _R10->hitDirection.v[2] = 0.0;
-    *(_QWORD *)&_R10->weapon.weaponIdx = 0i64;
-    *(_QWORD *)&_R10->weapon.stickerIndices[3] = 0i64;
-    *(_QWORD *)&_R10->weapon.weaponAttachments[2] = 0i64;
-    *(_QWORD *)&_R10->weapon.weaponAttachments[10] = 0i64;
-    *(_QWORD *)&_R10->weapon.attachmentVariationIndices[5] = 0i64;
-    *(_QWORD *)&_R10->weapon.attachmentVariationIndices[13] = 0i64;
-    *(_QWORD *)&_R10->weapon.attachmentVariationIndices[21] = 0i64;
-    *(_DWORD *)&_R10->weapon.weaponCamo = 0;
-    _R10->isAlternate = 0;
-    _R10->victimNum = victim->s.number;
-    _R10->attackerNum = attacker->s.number;
-    _R10->hitLocation = hitLocation;
-    _R10->partName = partName;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r15]
-      vmovups ymmword ptr [r10+34h], ymm0
-      vmovups xmm1, xmmword ptr [r15+20h]
-      vmovups xmmword ptr [r10+54h], xmm1
-      vmovsd  xmm0, qword ptr [r15+30h]
-      vmovsd  qword ptr [r10+64h], xmm0
-    }
-    *(_DWORD *)&_R10->weapon.weaponCamo = *(_DWORD *)&_R15->weaponCamo;
-    _R10->isAlternate = isAlternate;
-    _R10->clientHitPos = *location;
-    _R10->hitDirection = *direction;
-    if ( G_Utils_DObjWorldPosToBoneSpace(victim, partName, &_R10->clientHitPos, &_R10->boneOffset) )
+    v17 = &this->m_impaledEntities.m_data[m_impaleCount];
+    *(_QWORD *)&v17->attackerNum = 2047i64;
+    v17->partName = 0;
+    v17->victimNum = 2047;
+    *(_QWORD *)v17->clientHitPos.v = 0i64;
+    v17->clientHitPos.v[2] = 0.0;
+    *(_QWORD *)v17->boneOffset.v = 0i64;
+    v17->boneOffset.v[2] = 0.0;
+    *(_QWORD *)v17->hitDirection.v = 0i64;
+    v17->hitDirection.v[2] = 0.0;
+    *(_QWORD *)&v17->weapon.weaponIdx = 0i64;
+    *(_QWORD *)&v17->weapon.stickerIndices[3] = 0i64;
+    *(_QWORD *)&v17->weapon.weaponAttachments[2] = 0i64;
+    *(_QWORD *)&v17->weapon.weaponAttachments[10] = 0i64;
+    *(_QWORD *)&v17->weapon.attachmentVariationIndices[5] = 0i64;
+    *(_QWORD *)&v17->weapon.attachmentVariationIndices[13] = 0i64;
+    *(_QWORD *)&v17->weapon.attachmentVariationIndices[21] = 0i64;
+    *(_DWORD *)&v17->weapon.weaponCamo = 0;
+    v17->isAlternate = 0;
+    v17->victimNum = victim->s.number;
+    v17->attackerNum = attacker->s.number;
+    v17->hitLocation = hitLocation;
+    v17->partName = partName;
+    *(__m256i *)&v17->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+    *(_OWORD *)&v17->weapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+    *(double *)&v17->weapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+    *(_DWORD *)&v17->weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
+    v17->isAlternate = isAlternate;
+    v17->clientHitPos = *location;
+    v17->hitDirection = *direction;
+    if ( G_Utils_DObjWorldPosToBoneSpace(victim, partName, &v17->clientHitPos, &v17->boneOffset) )
       ++this->m_impaleCount;
   }
 }
@@ -6295,27 +4918,33 @@ bool GBullet::TraceIgnoreHitEntityForAI(GBullet *this, const BulletFireParams *b
   sentient_s *sentient; 
   team_t eTeam; 
   const playerState_s *p_ps; 
-  bool IsPlayerZeroG; 
-  bool v25; 
+  float v12; 
+  float v13; 
+  float v14; 
   GHandler *Handler; 
+  gclient_s *client; 
   __int16 groundRefEnt; 
-  const char *v29; 
-  int v30; 
-  const char *v31; 
-  bool v36; 
+  const char *v18; 
+  int v19; 
+  const char *v20; 
+  vec3_t *p_dir; 
+  __int128 v22; 
+  float v23; 
+  __int128 v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
   __int128 angles; 
   vec3_t outOrigin; 
   vec3_t up; 
-  char v80[16]; 
-  WorldUpReferenceFrame v81; 
+  char v35; 
+  WorldUpReferenceFrame v36; 
 
-  _RBX = br;
-  _RSI = bp;
   if ( !bp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2673, ASSERT_TYPE_ASSERT, "( bp )", (const char *)&queryFormat, "bp") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2674, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
+  if ( !br && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2674, ASSERT_TYPE_ASSERT, "( br )", (const char *)&queryFormat, "br") )
     __debugbreak();
-  if ( !_RBX->hitEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2675, ASSERT_TYPE_ASSERT, "( br->hitEnt )", (const char *)&queryFormat, "br->hitEnt") )
+  if ( !br->hitEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2675, ASSERT_TYPE_ASSERT, "( br->hitEnt )", (const char *)&queryFormat, "br->hitEnt") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2676, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
@@ -6324,9 +4953,9 @@ bool GBullet::TraceIgnoreHitEntityForAI(GBullet *this, const BulletFireParams *b
   if ( !attacker->actor && !attacker->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.cpp", 2678, ASSERT_TYPE_ASSERT, "( attacker->actor || attacker->agent )", (const char *)&queryFormat, "attacker->actor || attacker->agent") )
     __debugbreak();
   tagInfo = attacker->tagInfo;
-  if ( tagInfo && tagInfo->parent == _RBX->hitEnt )
+  if ( tagInfo && tagInfo->parent == br->hitEnt )
     return 1;
-  hitEnt = _RBX->hitEnt;
+  hitEnt = br->hitEnt;
   sentient = hitEnt->sentient;
   if ( sentient )
   {
@@ -6338,137 +4967,72 @@ bool GBullet::TraceIgnoreHitEntityForAI(GBullet *this, const BulletFireParams *b
     }
   }
   p_ps = &hitEnt->client->ps;
-  if ( p_ps && _RBX->trace.partGroup != 19 )
+  if ( p_ps && br->trace.partGroup != 19 )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_28], xmm6
-      vmovaps [rsp+118h+var_38], xmm8
-      vmovaps [rsp+118h+var_48], xmm9
-      vmovaps [rsp+118h+var_58], xmm10
-      vmovaps [rsp+118h+var_68], xmm11
-      vmovaps [rsp+118h+var_78], xmm12
-    }
     G_Client_GetEyePosition(p_ps, &outOrigin);
-    __asm
+    v12 = br->hitPos.v[0] - outOrigin.v[0];
+    v13 = br->hitPos.v[1] - outOrigin.v[1];
+    v14 = br->hitPos.v[2] - outOrigin.v[2];
+    if ( !BG_IsPlayerZeroG(&br->hitEnt->client->ps) )
     {
-      vmovss  xmm0, dword ptr [rbx+60h]
-      vsubss  xmm10, xmm0, dword ptr [rsp+118h+outOrigin]
-      vmovss  xmm1, dword ptr [rbx+64h]
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vsubss  xmm11, xmm1, dword ptr [rsp+118h+outOrigin+4]
-      vsubss  xmm12, xmm0, dword ptr [rsp+118h+outOrigin+8]
-    }
-    IsPlayerZeroG = BG_IsPlayerZeroG(&_RBX->hitEnt->client->ps);
-    v25 = !IsPlayerZeroG;
-    if ( !IsPlayerZeroG )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+80h]
-        vxorps  xmm9, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm8, dword ptr [rsi+84h]
-        vxorps  xmm6, xmm6, xmm6
-      }
+      LODWORD(v25) = LODWORD(bp->dir.v[0]) ^ _xmm;
+      v24 = LODWORD(bp->dir.v[1]);
+      v26 = 0.0;
       goto LABEL_48;
     }
     Handler = GHandler::getHandler();
-    _RBX = &_RBX->hitEnt->client->ps;
-    if ( !_RBX )
+    client = br->hitEnt->client;
+    if ( !client )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2587, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
     }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x2Au) && ((groundRefEnt = _RBX->groundRefEnt, groundRefEnt == 2047) || !groundRefEnt) )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0x2Au) && ((groundRefEnt = client->ps.groundRefEnt, groundRefEnt == 2047) || !groundRefEnt) )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) )
       {
 LABEL_41:
-        __asm
+        *(_QWORD *)&angles = *(_QWORD *)client->ps.viewangles.v;
+        DWORD2(angles) = LODWORD(client->ps.viewangles.v[2]);
+        if ( WorldUpReferenceFrame::HasValidWorldUpInPs(&client->ps) )
         {
-          vmovss  xmm0, dword ptr [rbx+1D8h]
-          vmovss  dword ptr [rsp+118h+angles], xmm0
-          vmovss  xmm1, dword ptr [rbx+1DCh]
-          vmovss  dword ptr [rsp+118h+angles+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+1E0h]
-          vmovss  dword ptr [rsp+118h+angles+8], xmm0
-        }
-        if ( WorldUpReferenceFrame::HasValidWorldUpInPs(_RBX) )
-        {
-          WorldUpReferenceFrame::WorldUpReferenceFrame(&v81, _RBX, Handler);
-          WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v81, (vec3_t *)&angles);
+          WorldUpReferenceFrame::WorldUpReferenceFrame(&v36, &client->ps, Handler);
+          WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v36, (vec3_t *)&angles);
         }
         AngleVectors((const vec3_t *)&angles, NULL, NULL, &up);
-        _RBX = &_RSI->dir;
-        v25 = &_RSI->dir <= (vec3_t *)v80;
-        if ( &_RSI->dir == (vec3_t *)v80 )
-        {
-          v36 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross", angles);
-          v25 = !v36;
-          if ( v36 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsp+118h+up+8]
-          vmulss  xmm1, xmm2, dword ptr [rbx+4]
-          vmovss  xmm6, dword ptr [rbx]
-          vmovss  xmm5, dword ptr [rbx+8]
-          vmulss  xmm0, xmm5, dword ptr [rsp+118h+up+4]
-          vmovss  xmm3, dword ptr [rsp+118h+up]
-          vsubss  xmm8, xmm1, xmm0
-          vmulss  xmm0, xmm2, xmm6
-          vmulss  xmm2, xmm6, dword ptr [rsp+118h+up+4]
-          vmulss  xmm1, xmm3, xmm5
-          vsubss  xmm9, xmm1, xmm0
-          vmulss  xmm1, xmm3, dword ptr [rbx+4]
-          vsubss  xmm6, xmm2, xmm1
-        }
+        p_dir = &bp->dir;
+        if ( &bp->dir == (vec3_t *)&v35 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross", angles) )
+          __debugbreak();
+        v22 = LODWORD(up.v[2]);
+        v23 = bp->dir.v[2];
+        *(float *)&v22 = (float)(up.v[2] * bp->dir.v[1]) - (float)(v23 * up.v[1]);
+        v24 = v22;
+        v25 = (float)(up.v[0] * v23) - (float)(up.v[2] * p_dir->v[0]);
+        v26 = (float)(p_dir->v[0] * up.v[1]) - (float)(up.v[0] * bp->dir.v[1]);
 LABEL_48:
+        v27 = v24;
+        *(float *)&v27 = fsqrt((float)((float)(*(float *)&v24 * *(float *)&v24) + (float)(v25 * v25)) + (float)(v26 * v26));
+        _XMM3 = v27;
         __asm
         {
-          vmulss  xmm0, xmm9, xmm9
-          vmulss  xmm1, xmm8, xmm8
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm1, xmm0
-          vdivss  xmm5, xmm1, xmm0
-          vmulss  xmm0, xmm8, xmm5
-          vmovaps xmm8, [rsp+118h+var_38]
-          vmulss  xmm1, xmm9, xmm5
-          vmovaps xmm9, [rsp+118h+var_48]
-          vmulss  xmm2, xmm1, xmm11
-          vmovaps xmm11, [rsp+118h+var_68]
-          vmulss  xmm3, xmm0, xmm10
-          vmovaps xmm10, [rsp+118h+var_58]
-          vmulss  xmm0, xmm6, xmm5
-          vmovaps xmm6, [rsp+118h+var_28]
-          vmulss  xmm1, xmm0, xmm12
-          vmovaps xmm12, [rsp+118h+var_78]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vcomiss xmm2, cs:__real@41000000
         }
-        return !v25;
+        return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v24 * (float)(1.0 / *(float *)&_XMM0)) * v12) + (float)((float)(v25 * (float)(1.0 / *(float *)&_XMM0)) * v13)) + (float)((float)(v26 * (float)(1.0 / *(float *)&_XMM0)) * v14)) & _xmm) > 8.0;
       }
-      v29 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )";
-      v30 = 2575;
-      v31 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))";
+      v18 = "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )";
+      v19 = 2575;
+      v20 = "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))";
     }
     else
     {
-      v29 = "BG_IsPlayerZeroG( ps )";
-      v30 = 2588;
-      v31 = "(BG_IsPlayerZeroG( ps ))";
+      v18 = "BG_IsPlayerZeroG( ps )";
+      v19 = 2588;
+      v20 = "(BG_IsPlayerZeroG( ps ))";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", v30, ASSERT_TYPE_ASSERT, v31, (const char *)&queryFormat, v29) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", v19, ASSERT_TYPE_ASSERT, v20, (const char *)&queryFormat, v18) )
       __debugbreak();
     goto LABEL_41;
   }

@@ -540,13 +540,13 @@ bool bdRESTLSGResponseMessageDeserializer::deserialize(bdRESTLSGResponseMessageD
   __int64 v7; 
   bool v8; 
   bool v10; 
-  bool v14; 
+  bool v13; 
   unsigned int readCount; 
   unsigned int value; 
-  long double v18[3]; 
+  long double v17[3]; 
   bdStructBufferSerializable ptr[40]; 
 
-  v18[1] = NAN;
+  v17[1] = NAN;
   value = 0;
   v5 = bdStructBufferDeserializer::readUInt32(deserializer, 1u, &value);
   **((_DWORD **)&this->__vftable + 2) = bdRESTInternal::HTTPStatusFromInteger(value);
@@ -562,23 +562,16 @@ bool bdRESTLSGResponseMessageDeserializer::deserialize(bdRESTLSGResponseMessageD
   while ( v7 );
   v8 = v5 && bdStructBufferDeserializer::readObjectArray(deserializer, 6u, ptr, 0x20u, &readCount);
   `eh vector destructor iterator'(ptr, 0x28ui64, 0x20ui64, (void (__fastcall *)(void *))bdRESTHeaderFieldDeserializer::`vbase destructor);
-  __asm
-  {
-    vxorpd  xmm0, xmm0, xmm0
-    vmovsd  [rsp+578h+var_540], xmm0
-  }
-  v10 = v8 && bdStructBufferDeserializer::readFloat64(deserializer, 0xCBu, v18);
-  __asm
-  {
-    vmovsd  xmm0, [rsp+578h+var_540]
-    vcvtpd2ps xmm0, xmm0
-  }
-  _RAX = *((_QWORD *)&this->__vftable + 2);
-  __asm { vmovss  dword ptr [rax+2A28h], xmm0 }
+  __asm { vxorpd  xmm0, xmm0, xmm0 }
+  v17[0] = *(double *)&_XMM0;
+  v10 = v8 && bdStructBufferDeserializer::readFloat64(deserializer, 0xCBu, v17);
+  _XMM0 = *(unsigned __int64 *)&v17[0];
+  __asm { vcvtpd2ps xmm0, xmm0 }
+  *(float *)(*((_QWORD *)&this->__vftable + 2) + 10792i64) = *(float *)&_XMM0;
   readCount = 0;
-  v14 = v10 && bdStructBufferDeserializer::readUInt32(deserializer, 0x12Eu, &readCount);
+  v13 = v10 && bdStructBufferDeserializer::readUInt32(deserializer, 0x12Eu, &readCount);
   *(_DWORD *)(*((_QWORD *)&this->__vftable + 2) + 10796i64) = bdRESTInternal::mimeTypeFromInteger(readCount);
-  return v14 && bdStructBufferDeserializer::readBool(deserializer, 0x190u, (bool *)(*((_QWORD *)&this->__vftable + 2) + 10800i64)) && bdStructBufferDeserializer::readObjectBegin(deserializer, 0x3E8u) && bdStructBufferDeserializer::readBlob(deserializer, 1u, (void *)(*((_QWORD *)&this->__vftable + 2) + 11064i64), 0x1000u, (unsigned int *)(*((_QWORD *)&this->__vftable + 2) + 15168i64)) && bdStructBufferDeserializer::readBlob(deserializer, 0x64u, (void *)(*((_QWORD *)&this->__vftable + 2) + 10808i64), 0x100u, (unsigned int *)(*((_QWORD *)&this->__vftable + 2) + 15172i64)) && bdStructBufferDeserializer::readUInt64(deserializer, 0x65u, (unsigned __int64 *)(*((_QWORD *)&this->__vftable + 2) + 15160i64)) && bdStructBufferDeserializer::readBool(deserializer, 0x66u, (bool *)(*((_QWORD *)&this->__vftable + 2) + 15176i64)) && bdStructBufferDeserializer::readObjectEnd(deserializer);
+  return v13 && bdStructBufferDeserializer::readBool(deserializer, 0x190u, (bool *)(*((_QWORD *)&this->__vftable + 2) + 10800i64)) && bdStructBufferDeserializer::readObjectBegin(deserializer, 0x3E8u) && bdStructBufferDeserializer::readBlob(deserializer, 1u, (void *)(*((_QWORD *)&this->__vftable + 2) + 11064i64), 0x1000u, (unsigned int *)(*((_QWORD *)&this->__vftable + 2) + 15168i64)) && bdStructBufferDeserializer::readBlob(deserializer, 0x64u, (void *)(*((_QWORD *)&this->__vftable + 2) + 10808i64), 0x100u, (unsigned int *)(*((_QWORD *)&this->__vftable + 2) + 15172i64)) && bdStructBufferDeserializer::readUInt64(deserializer, 0x65u, (unsigned __int64 *)(*((_QWORD *)&this->__vftable + 2) + 15160i64)) && bdStructBufferDeserializer::readBool(deserializer, 0x66u, (bool *)(*((_QWORD *)&this->__vftable + 2) + 15176i64)) && bdStructBufferDeserializer::readObjectEnd(deserializer);
 }
 
 /*
@@ -588,47 +581,39 @@ bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog
 */
 void bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog(bdRESTResponseMessage::bdRESTLSGResponseMessage *this)
 {
-  const char *v4; 
-  int v5; 
+  const char *v2; 
+  int v3; 
   const bdRESTHeaders::bdRESTHeaderField *i; 
   bdREST::bdHTTPStatus m_statusCode; 
-  double v8; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
   __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v13; 
 
   m_statusCode = this->m_statusCode;
-  _R14 = this;
   bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x23u, "statusCode:          %d", m_statusCode);
-  __asm
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x24u, "retryAfter:          %f", this->m_retryAfter);
+  v2 = bdRESTInternal::mimeTypeEnumToString(this->m_contentType);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x25u, "contentType:         %s", v2);
+  LODWORD(v6) = this->m_isGatewayGenerated;
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x26u, "isGatewayGenerated:  %d", v6);
+  LODWORD(v7) = bdRESTHeaders::getFieldCount(&this->m_headers);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x28u, "header fields count: %u", v7);
+  v3 = 0;
+  for ( i = bdRESTHeaders::begin(&this->m_headers); i != bdRESTHeaders::end(&this->m_headers); ++v3 )
   {
-    vmovss  xmm0, dword ptr [r14+2A28h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+68h+var_30], xmm0
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x24u, "retryAfter:          %f", v8);
-  v4 = bdRESTInternal::mimeTypeEnumToString(_R14->m_contentType);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x25u, "contentType:         %s", v4);
-  LODWORD(v9) = _R14->m_isGatewayGenerated;
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x26u, "isGatewayGenerated:  %d", v9);
-  LODWORD(v10) = bdRESTHeaders::getFieldCount(&_R14->m_headers);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x28u, "header fields count: %u", v10);
-  v5 = 0;
-  for ( i = bdRESTHeaders::begin(&_R14->m_headers); i != bdRESTHeaders::end(&_R14->m_headers); ++v5 )
-  {
-    LODWORD(v11) = v5;
-    bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x2Cu, "header[%02d]:  %s: %s", v11, i->m_key, i->m_value);
+    LODWORD(v8) = v3;
+    bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x2Cu, "header[%02d]:  %s: %s", v8, i->m_key, i->m_value);
     ++i;
   }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x2Fu, "reply_extra.transactionID:      %llu", _R14->m_replyExtra.m_transactionID);
-  LODWORD(v12) = _R14->m_replyExtra.m_debugInfoLength;
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x30u, "reply_extra.m_debugInfoLength:  %u", v12);
-  LODWORD(v13) = _R14->m_replyExtra.m_retryTokenLength;
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x31u, "reply_extra.m_retryTokenLength: %u", v13);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x32u, "reply_extra.m_debugInfo:        %.*s", _R14->m_replyExtra.m_debugInfoLength, (const char *)_R14->m_replyExtra.m_debugInfo);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x33u, "reply_extra.m_retryToken:       %.*s", _R14->m_replyExtra.m_retryTokenLength, (const char *)&_R14->m_replyExtra);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x2Fu, "reply_extra.transactionID:      %llu", this->m_replyExtra.m_transactionID);
+  LODWORD(v9) = this->m_replyExtra.m_debugInfoLength;
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x30u, "reply_extra.m_debugInfoLength:  %u", v9);
+  LODWORD(v10) = this->m_replyExtra.m_retryTokenLength;
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x31u, "reply_extra.m_retryTokenLength: %u", v10);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x32u, "reply_extra.m_debugInfo:        %.*s", this->m_replyExtra.m_debugInfoLength, (const char *)this->m_replyExtra.m_debugInfo);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::bdRESTLSGResponseMessage::dumpToLog", 0x33u, "reply_extra.m_retryToken:       %.*s", this->m_replyExtra.m_retryTokenLength, (const char *)&this->m_replyExtra);
 }
 
 /*
@@ -661,10 +646,9 @@ __int64 bdRESTResponseMessage::getBodyAsJSON(bdRESTResponseMessage *this, bdJSON
   bdREST::bdMimeType m_contentType; 
   const char *v6; 
   bool v7; 
-  bdJSONDeserializer v10; 
+  bdJSONDeserializer v9; 
 
-  _RSI = deserializer;
-  bdJSONDeserializer::bdJSONDeserializer(&v10);
+  bdJSONDeserializer::bdJSONDeserializer(&v9);
   v4 = 1;
   m_contentType = this->m_lsgResponse.m_contentType;
   if ( m_contentType == BD_MIME_JSON )
@@ -687,16 +671,12 @@ __int64 bdRESTResponseMessage::getBodyAsJSON(bdRESTResponseMessage *this, bdJSON
   }
   v4 = 0;
 LABEL_8:
-  v7 = bdJSONDeserializer::parse(&v10, (const char *)this->m_body);
+  v7 = bdJSONDeserializer::parse(&v9, (const char *)this->m_body);
   if ( v4 )
   {
     if ( v7 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+var_30.m_type]
-        vmovups ymmword ptr [rsi], ymm0
-      }
+      *deserializer = v9;
     }
     else
     {
@@ -704,7 +684,7 @@ LABEL_8:
       v4 = 0;
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v10);
+  bdJSONDeserializer::~bdJSONDeserializer(&v9);
   return v4;
 }
 
@@ -983,26 +963,26 @@ _BOOL8 bdRESTResponseMessage::initFromBuffer(bdRESTResponseMessage *this, bdLobb
   const char *v14; 
   bool v15; 
   bool FieldByKey; 
+  bool v17; 
   bool v18; 
-  bool v19; 
-  const char *v20; 
-  __int64 v22; 
+  const char *v19; 
+  __int64 v21; 
   unsigned int u; 
   unsigned int available; 
-  __int64 v25; 
+  __int64 v24; 
   bdReference<bdByteBuffer> buffera; 
-  bdRESTLSGResponseMessageDeserializer v27; 
+  bdRESTLSGResponseMessageDeserializer v26; 
   bdJSONDeserializer value; 
-  __int64 v29; 
+  __int64 v28; 
   bdByteBuffer *m_ptr; 
+  bdJSONDeserializer v30; 
   bdJSONDeserializer v31; 
-  bdJSONDeserializer v32; 
-  bdStructBufferDeserializer v33; 
+  bdStructBufferDeserializer v32; 
   bdStructBufferDeserializer deserializer; 
 
-  v29 = -2i64;
+  v28 = -2i64;
   m_ptr = buffer.m_ptr;
-  LODWORD(v25) = 0;
+  LODWORD(v24) = 0;
   bdRESTResponseMessage::reset(this);
   this->m_lobbyService = lobbyService;
   u = 0;
@@ -1016,14 +996,14 @@ LABEL_4:
     v6 = 0;
   }
   available = 0;
-  *((_QWORD *)&v27.__vftable + 1) = &bdRESTLSGResponseMessageDeserializer::`vbtable';
-  *((_QWORD *)&v27.__vftable + 3) = &bdReferencable::`vftable';
-  *(_DWORD *)v27.gap20 = 0;
-  LODWORD(v25) = 1;
-  bdStructBufferSerializable::bdStructBufferSerializable(&v27);
-  v27.__vftable = (bdRESTLSGResponseMessageDeserializer_vtbl *)&bdRESTLSGResponseMessageDeserializer::`vftable'{for `bdStructBufferSerializable'};
-  *(_QWORD *)&v27.gap20[*(int *)(*((_QWORD *)&v27.__vftable + 1) + 4i64) - 24] = &bdRESTLSGResponseMessageDeserializer::`vftable'{for `bdReferencable'};
-  *((_QWORD *)&v27.__vftable + 2) = &this->m_lsgResponse;
+  *((_QWORD *)&v26.__vftable + 1) = &bdRESTLSGResponseMessageDeserializer::`vbtable';
+  *((_QWORD *)&v26.__vftable + 3) = &bdReferencable::`vftable';
+  *(_DWORD *)v26.gap20 = 0;
+  LODWORD(v24) = 1;
+  bdStructBufferSerializable::bdStructBufferSerializable(&v26);
+  v26.__vftable = (bdRESTLSGResponseMessageDeserializer_vtbl *)&bdRESTLSGResponseMessageDeserializer::`vftable'{for `bdStructBufferSerializable'};
+  *(_QWORD *)&v26.gap20[*(int *)(*((_QWORD *)&v26.__vftable + 1) + 4i64) - 24] = &bdRESTLSGResponseMessageDeserializer::`vftable'{for `bdReferencable'};
+  *((_QWORD *)&v26.__vftable + 2) = &this->m_lsgResponse;
   v7 = v6 && bdByteBuffer::readDataType((bdByteBuffer *)buffer.m_ptr->__vftable) == BD_BB_BLOB_TYPE && bdByteBuffer::readUInt32((bdByteBuffer *)buffer.m_ptr->__vftable, &available);
   v8 = available;
   v9 = (bdByteBuffer *)buffer.m_ptr->__vftable;
@@ -1031,7 +1011,7 @@ LABEL_4:
   if ( v9 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
   bdStructBufferDeserializer::bdStructBufferDeserializer(&deserializer, (bdReference<bdByteBuffer>)&buffera, v8, 0);
-  v10 = v7 && bdRESTLSGResponseMessageDeserializer::deserialize(&v27, &deserializer) && bdByteBuffer::readBool((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_hasBody) && bdByteBuffer::readBlobPointer((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_body, &this->m_contentLength);
+  v10 = v7 && bdRESTLSGResponseMessageDeserializer::deserialize(&v26, &deserializer) && bdByteBuffer::readBool((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_hasBody) && bdByteBuffer::readBlobPointer((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_body, &this->m_contentLength);
   if ( !this->m_hasBody && this->m_contentLength )
   {
     v10 = 0;
@@ -1045,21 +1025,21 @@ LABEL_4:
     {
       if ( m_contentType == BD_MIME_PROTOBUF )
       {
-        bdStructBufferDeserializer::bdStructBufferDeserializer(&v33);
-        v10 = bdRESTResponseMessage::getBodyAsStructBuffer(this, &v33) && bdStructBufferDeserializer::readObject(&v33, 1u, &this->m_error);
-        bdStructBufferDeserializer::~bdStructBufferDeserializer(&v33);
+        bdStructBufferDeserializer::bdStructBufferDeserializer(&v32);
+        v10 = bdRESTResponseMessage::getBodyAsStructBuffer(this, &v32) && bdStructBufferDeserializer::readObject(&v32, 1u, &this->m_error);
+        bdStructBufferDeserializer::~bdStructBufferDeserializer(&v32);
       }
       else
       {
         v10 = 0;
-        v20 = bdRESTInternal::mimeTypeEnumToString(m_contentType);
-        LODWORD(v22) = m_contentType;
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::initFromBuffer", 0xECu, "received error with an unsupported mime type: %s [%d]", v20, v22);
+        v19 = bdRESTInternal::mimeTypeEnumToString(m_contentType);
+        LODWORD(v21) = m_contentType;
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::initFromBuffer", 0xECu, "received error with an unsupported mime type: %s [%d]", v19, v21);
       }
       goto LABEL_56;
     }
-    bdJSONDeserializer::bdJSONDeserializer(&v32);
     bdJSONDeserializer::bdJSONDeserializer(&v31);
+    bdJSONDeserializer::bdJSONDeserializer(&v30);
     v12 = 1;
     v13 = this->m_lsgResponse.m_contentType;
     if ( v13 == BD_MIME_JSON )
@@ -1069,16 +1049,12 @@ LABEL_4:
         if ( this->m_body )
         {
 LABEL_32:
-          v15 = bdJSONDeserializer::parse(&v31, (const char *)this->m_body);
+          v15 = bdJSONDeserializer::parse(&v30, (const char *)this->m_body);
           if ( v12 )
           {
             if ( v15 )
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+190h+var_1D0.m_type]
-                vmovups ymmword ptr [rbp+190h+var_1B0.m_type], ymm0
-              }
+              v31 = v30;
             }
             else
             {
@@ -1086,21 +1062,21 @@ LABEL_32:
               v12 = 0;
             }
           }
-          bdJSONDeserializer::~bdJSONDeserializer(&v31);
+          bdJSONDeserializer::~bdJSONDeserializer(&v30);
           v10 = 0;
           if ( v12 )
           {
             bdJSONDeserializer::bdJSONDeserializer(&value);
-            FieldByKey = bdJSONDeserializer::getFieldByKey(&v32, "error", &value, 1);
-            v18 = FieldByKey && bdJSONDeserializer::getString(&value, (const char *const)&stru_143C9A1A4, (char *const)&this->m_error.__vftable + 18, 0x80u);
-            *((_BYTE *)&this->m_error.__vftable + 16) = v18;
-            v19 = FieldByKey && bdJSONDeserializer::getString(&value, "msg", this->m_error.m_message.m_buffer, 0x100u);
-            *((_BYTE *)&this->m_error.__vftable + 17) = v19;
+            FieldByKey = bdJSONDeserializer::getFieldByKey(&v31, "error", &value, 1);
+            v17 = FieldByKey && bdJSONDeserializer::getString(&value, (const char *const)&stru_143C9A1A4, (char *const)&this->m_error.__vftable + 18, 0x80u);
+            *((_BYTE *)&this->m_error.__vftable + 16) = v17;
+            v18 = FieldByKey && bdJSONDeserializer::getString(&value, "msg", this->m_error.m_message.m_buffer, 0x100u);
+            *((_BYTE *)&this->m_error.__vftable + 17) = v18;
             bdJSONDeserializer::~bdJSONDeserializer(&value);
             if ( FieldByKey )
               v10 = 1;
           }
-          bdJSONDeserializer::~bdJSONDeserializer(&v32);
+          bdJSONDeserializer::~bdJSONDeserializer(&v31);
           goto LABEL_56;
         }
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestresponsemessage.cpp", "bdRESTResponseMessage::getBodyAsJSON", 0x142u, "Can't get body as JSON because the response body is NULL");
@@ -1120,8 +1096,8 @@ LABEL_32:
   }
 LABEL_56:
   bdStructBufferDeserializer::~bdStructBufferDeserializer(&deserializer);
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v27.__vftable + 2));
-  bdReferencable::~bdReferencable((bdReferencable *)(&v27.__vftable + 3));
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v26.__vftable + 2));
+  bdReferencable::~bdReferencable((bdReferencable *)(&v26.__vftable + 3));
   if ( buffer.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&buffer.m_ptr->allocateBuffer, 0xFFFFFFFF) == 1 )
   {
     if ( buffer.m_ptr->__vftable )
@@ -1162,89 +1138,67 @@ bdRESTResponseMessage::reset
 */
 void bdRESTResponseMessage::reset(bdRESTResponseMessage *this)
 {
-  __int64 v4; 
-  __int64 v12; 
+  __int64 v2; 
+  __int64 v3; 
+  bdStructFixedSizeString<256> *p_m_message; 
+  _OWORD *v5; 
+  __int64 v6; 
   int Src; 
-  bdRESTHeaders v22; 
-  int v24; 
-  char v25; 
-  char v26[4352]; 
-  __int64 v27; 
-  __int64 v28; 
-  char v29; 
+  bdRESTHeaders v8; 
+  float v9; 
+  int v10; 
+  char v11; 
+  char v12[4352]; 
+  __int64 v13; 
+  __int64 v14; 
+  char v15; 
 
-  _RDI = this;
   this->m_lobbyService = NULL;
   Src = 418;
-  bdRESTHeaders::bdRESTHeaders(&v22);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+3B98h+var_1140], xmm0
-  }
-  v24 = 0;
-  v25 = 0;
-  v27 = 0i64;
-  v28 = 0i64;
-  v29 = 0;
-  memset_0(v26, 0, sizeof(v26));
-  memcpy_0(&_RDI->m_lsgResponse, &Src, sizeof(_RDI->m_lsgResponse));
-  _RDI->m_hasBody = 0;
-  _RDI->m_body = NULL;
-  _RDI->m_contentLength = 0;
+  bdRESTHeaders::bdRESTHeaders(&v8);
+  v9 = 0.0;
+  v10 = 0;
+  v11 = 0;
+  v13 = 0i64;
+  v14 = 0i64;
+  v15 = 0;
+  memset_0(v12, 0, sizeof(v12));
+  memcpy_0(&this->m_lsgResponse, &Src, sizeof(this->m_lsgResponse));
+  this->m_hasBody = 0;
+  this->m_body = NULL;
+  this->m_contentLength = 0;
   bdRESTResponseMessage::bdRESTError::bdRESTError((bdRESTResponseMessage::bdRESTError *)&Src);
-  _RBX = (_BYTE *)v4;
-  bdReferencable::operator=((bdReferencable *)((char *)&_RDI->m_error.__vftable + *(int *)(*((_QWORD *)&_RDI->m_error.__vftable + 1) + 4i64) + 8), (const bdReferencable *)(*(int *)(*(_QWORD *)(v4 + 8) + 4i64) + v4 + 8));
-  *((_BYTE *)&_RDI->m_error.__vftable + 16) = _RBX[16];
-  *((_BYTE *)&_RDI->m_error.__vftable + 17) = _RBX[17];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+12h]
-    vmovups ymmword ptr [rdi+3B82h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+32h]
-    vmovups ymmword ptr [rdi+3BA2h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+52h]
-    vmovups ymmword ptr [rdi+3BC2h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+72h]
-    vmovups ymmword ptr [rdi+3BE2h], ymm1
-  }
-  _RDI->m_error.m_name[114] = _RBX[146];
-  _RDI = &_RDI->m_error.m_message;
-  _RBX = _RBX + 147;
-  v12 = 2i64;
+  v3 = v2;
+  bdReferencable::operator=((bdReferencable *)((char *)&this->m_error.__vftable + *(int *)(*((_QWORD *)&this->m_error.__vftable + 1) + 4i64) + 8), (const bdReferencable *)(*(int *)(*(_QWORD *)(v2 + 8) + 4i64) + v2 + 8));
+  *((_BYTE *)&this->m_error.__vftable + 16) = *(_BYTE *)(v3 + 16);
+  *((_BYTE *)&this->m_error.__vftable + 17) = *(_BYTE *)(v3 + 17);
+  *(bdStructBufferSerializable *)((char *)&this->m_error.bdStructBufferSerializable + 18) = *(bdStructBufferSerializable *)(v3 + 18);
+  *(__m256i *)&this->m_error.m_name[18] = *(__m256i *)(v3 + 50);
+  *(__m256i *)&this->m_error.m_name[50] = *(__m256i *)(v3 + 82);
+  *(__m256i *)&this->m_error.m_name[82] = *(__m256i *)(v3 + 114);
+  this->m_error.m_name[114] = *(_BYTE *)(v3 + 146);
+  p_m_message = &this->m_error.m_message;
+  v5 = (_OWORD *)(v3 + 147);
+  v6 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rdi], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rdi+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rdi+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rdi+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rdi+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rdi+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rdi+60h], xmm0
-    }
-    _RDI = (bdStructFixedSizeString<256> *)((char *)_RDI + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rdi-10h], xmm1
-    }
-    _RBX += 128;
-    --v12;
+    *(_OWORD *)p_m_message->m_buffer = *v5;
+    *(_OWORD *)&p_m_message->m_buffer[16] = v5[1];
+    *(_OWORD *)&p_m_message->m_buffer[32] = v5[2];
+    *(_OWORD *)&p_m_message->m_buffer[48] = v5[3];
+    *(_OWORD *)&p_m_message->m_buffer[64] = v5[4];
+    *(_OWORD *)&p_m_message->m_buffer[80] = v5[5];
+    *(_OWORD *)&p_m_message->m_buffer[96] = v5[6];
+    p_m_message = (bdStructFixedSizeString<256> *)((char *)p_m_message + 128);
+    *(_OWORD *)&p_m_message[-1].m_buffer[241] = v5[7];
+    v5 += 8;
+    --v6;
   }
-  while ( v12 );
-  _RDI->m_buffer[0] = *_RBX;
-  bdStructFixedSizeString<256>::~bdStructFixedSizeString<256>((bdStructFixedSizeString<256> *)((char *)&v22.m_fields[8].m_key + 3));
-  bdStructFixedSizeString<128>::~bdStructFixedSizeString<128>((bdStructFixedSizeString<128> *)((char *)&v22.m_fields[0].m_key + 2));
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v22.m_fields);
-  bdReferencable::~bdReferencable((bdReferencable *)&v22.m_fields[24].m_value);
+  while ( v6 );
+  p_m_message->m_buffer[0] = *(_BYTE *)v5;
+  bdStructFixedSizeString<256>::~bdStructFixedSizeString<256>((bdStructFixedSizeString<256> *)((char *)&v8.m_fields[8].m_key + 3));
+  bdStructFixedSizeString<128>::~bdStructFixedSizeString<128>((bdStructFixedSizeString<128> *)((char *)&v8.m_fields[0].m_key + 2));
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v8.m_fields);
+  bdReferencable::~bdReferencable((bdReferencable *)&v8.m_fields[24].m_value);
 }
 

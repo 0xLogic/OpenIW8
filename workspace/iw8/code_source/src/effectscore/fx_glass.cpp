@@ -347,72 +347,32 @@ SndAliasList *__fastcall Glass_GetDestroyedSound(unsigned int initialPieceIndex)
 Glass_AccumInertiaTensorForTriangleWedge
 ==============
 */
-
-float __fastcall Glass_AccumInertiaTensorForTriangleWedge(FxGlassInertiaTensor *tensor, const vec2_t *v0, const vec2_t *v1, double halfThickness)
+float Glass_AccumInertiaTensorForTriangleWedge(FxGlassInertiaTensor *tensor, const vec2_t *v0, const vec2_t *v1, float halfThickness)
 {
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float result; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rdx+4]
-    vmovss  xmm4, dword ptr [r8]
-    vmovss  xmm2, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, dword ptr [r8+4]
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vaddss  xmm1, xmm4, xmm2
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmulss  xmm10, xmm2, xmm6
-    vmulss  xmm2, xmm1, xmm2
-    vmulss  xmm9, xmm4, xmm5
-    vmovaps [rsp+68h+var_68], xmm11
-    vaddss  xmm1, xmm5, xmm6
-    vmovaps xmm8, xmm3
-    vsubss  xmm0, xmm9, xmm10
-    vmulss  xmm11, xmm0, xmm3
-    vmulss  xmm3, xmm1, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm7, xmm2, xmm0
-    vmulss  xmm0, xmm6, xmm6
-    vmovaps xmm6, xmmword ptr [rax-18h]
-    vaddss  xmm5, xmm3, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm4, xmm1, cs:__real@40000000
-    vmovaps xmm8, xmmword ptr [rax-38h]
-    vaddss  xmm0, xmm4, xmm5
-    vmulss  xmm2, xmm0, xmm11
-    vaddss  xmm1, xmm2, dword ptr [rcx]
-    vmovss  dword ptr [rcx], xmm1
-    vaddss  xmm0, xmm4, xmm7
-    vmulss  xmm1, xmm0, xmm11
-    vaddss  xmm2, xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr [rcx+4], xmm2
-    vaddss  xmm0, xmm5, xmm7
-    vmovaps xmm7, xmmword ptr [rax-28h]
-    vmulss  xmm1, xmm0, xmm11
-    vaddss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rcx+8], xmm2
-    vmovss  xmm2, dword ptr [rdx+4]
-    vmulss  xmm3, xmm2, dword ptr [rdx]
-    vaddss  xmm1, xmm9, xmm10
-    vmulss  xmm4, xmm1, cs:__real@3f000000
-    vmovss  xmm1, dword ptr [r8]
-    vmulss  xmm2, xmm1, dword ptr [r8+4]
-    vmovss  xmm1, dword ptr [rcx+0Ch]
-    vmovaps xmm9, xmmword ptr [rax-48h]
-    vmovaps xmm10, xmmword ptr [rax-58h]
-    vaddss  xmm5, xmm4, xmm3
-    vaddss  xmm3, xmm5, xmm2
-    vmulss  xmm4, xmm3, xmm11
-    vsubss  xmm2, xmm1, xmm4
-    vmovaps xmm0, xmm11
-    vmovaps xmm11, [rsp+68h+var_68]
-    vmovss  dword ptr [rcx+0Ch], xmm2
-  }
-  return *(float *)&_XMM0;
+  v4 = v0->v[1];
+  v5 = v1->v[1];
+  v6 = v0->v[0] * v5;
+  v7 = v1->v[0] * v4;
+  v9 = (float)(v7 - v6) * halfThickness;
+  v10 = (float)(v4 + v5) * v4;
+  v11 = (float)((float)(v1->v[0] + v0->v[0]) * v0->v[0]) + (float)(v1->v[0] * v1->v[0]);
+  v12 = (float)(halfThickness * halfThickness) * 2.0;
+  tensor->xx = (float)((float)(v12 + (float)(v10 + (float)(v5 * v5))) * v9) + tensor->xx;
+  tensor->yy = (float)((float)(v12 + v11) * v9) + tensor->yy;
+  tensor->zz = (float)((float)((float)(v10 + (float)(v5 * v5)) + v11) * v9) + tensor->zz;
+  result = v9;
+  tensor->xy = tensor->xy - (float)((float)((float)((float)((float)(v7 + v6) * 0.5) + (float)(v0->v[1] * v0->v[0])) + (float)(v1->v[0] * v1->v[1])) * v9);
+  return result;
 }
 
 /*
@@ -752,12 +712,16 @@ void Glass_DestroyInitialPiece(FxGlassSystem *glassSys, unsigned int initialPiec
   unsigned int v13; 
   __int64 v14; 
   FxGlassPieceState *pieceStates; 
+  __int64 v16; 
   unsigned int v17; 
   FxGlassPieceState *v18; 
-  unsigned __int64 v24; 
+  FxGlassPiecePlace *piecePlaces; 
+  unsigned __int64 v20; 
+  FxGlassPiecePlace *v21; 
+  unsigned __int64 v22; 
   FxGlassPieceDynamics *pieceDynamics; 
-  __int64 v26; 
-  __int64 v27; 
+  __int64 v24; 
+  __int64 v25; 
   FindInitialPieceData data; 
 
   v5 = initialPieceIndex;
@@ -782,9 +746,9 @@ void Glass_DestroyInitialPiece(FxGlassSystem *glassSys, unsigned int initialPiec
           v13 = __lzcnt(v12);
           if ( v13 >= 0x20 )
           {
-            LODWORD(v27) = 32;
-            LODWORD(v26) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v26, v27) )
+            LODWORD(v25) = 32;
+            LODWORD(v24) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v24, v25) )
               __debugbreak();
           }
           v12 &= ~(0x80000000 >> v13);
@@ -804,37 +768,32 @@ void Glass_DestroyInitialPiece(FxGlassSystem *glassSys, unsigned int initialPiec
     if ( glassSys != &fxWorld.glassSys )
     {
       pieceStates = glassSys->pieceStates;
-      _RBX = v5;
-      v17 = Glass_AllocPiece(&fxWorld.glassSys, pieceStates[_RBX].vertCount, pieceStates[_RBX].holeDataCount, pieceStates[_RBX].crackDataCount, pieceStates[_RBX].fanDataCount);
+      v16 = v5;
+      v17 = Glass_AllocPiece(&fxWorld.glassSys, pieceStates[v16].vertCount, pieceStates[v16].holeDataCount, pieceStates[v16].crackDataCount, pieceStates[v16].fanDataCount);
       v14 = v17;
       if ( v17 != 0xFFFF )
       {
         v18 = fxWorld.glassSys.pieceStates;
-        _RDX = glassSys->piecePlaces;
-        _R11 = v17;
-        fxWorld.glassSys.pieceStates[_R11].areaX2 = pieceStates[_RBX].areaX2;
-        v18[_R11].defIndex = pieceStates[_RBX].defIndex;
-        v18[_R11].supportMask = pieceStates[_RBX].supportMask;
-        v18[_R11].flags = pieceStates[_RBX].flags;
-        v18[_R11].initIndex = -1;
-        v18[_R11].texCoordOrigin = pieceStates[_RBX].texCoordOrigin;
-        __asm { vmovups xmm0, xmmword ptr [rbx+rdx] }
-        _RCX = fxWorld.glassSys.piecePlaces;
-        __asm
-        {
-          vmovups xmmword ptr [r11+rcx], xmm0
-          vmovsd  xmm1, qword ptr [rbx+rdx+10h]
-          vmovsd  qword ptr [r11+rcx+10h], xmm1
-        }
-        _RCX[_R11].frame.origin.v[2] = _RDX[_RBX].frame.origin.v[2];
-        _RCX[_R11].radius = _RDX[_RBX].radius;
-        v24 = v17;
+        piecePlaces = glassSys->piecePlaces;
+        v20 = v17;
+        fxWorld.glassSys.pieceStates[v20].areaX2 = pieceStates[v16].areaX2;
+        v18[v20].defIndex = pieceStates[v16].defIndex;
+        v18[v20].supportMask = pieceStates[v16].supportMask;
+        v18[v20].flags = pieceStates[v16].flags;
+        v18[v20].initIndex = -1;
+        v18[v20].texCoordOrigin = pieceStates[v16].texCoordOrigin;
+        v21 = fxWorld.glassSys.piecePlaces;
+        fxWorld.glassSys.piecePlaces[v20].frame.quat = piecePlaces[v16].frame.quat;
+        *((double *)&v21[v20].nextFree + 2) = *((double *)&piecePlaces[v16].nextFree + 2);
+        v21[v20].frame.origin.v[2] = piecePlaces[v16].frame.origin.v[2];
+        v21[v20].radius = piecePlaces[v16].radius;
+        v22 = v17;
         pieceDynamics = fxWorld.glassSys.pieceDynamics;
-        fxWorld.glassSys.pieceDynamics[v24].fallTime = 0x7FFFFFFF;
-        *(_QWORD *)&pieceDynamics[v24].physicsInstance = -1i64;
-        pieceDynamics[v24].pendingCreation = 0;
-        fxWorld.glassSys.halfThickness[v14] = fxWorld.glassGlob.defs[v18[_R11].defIndex].halfThickness;
-        memcpy_0(&fxWorld.glassSys.geoData[v18[_R11].geoDataStart], &glassSys->geoData[pieceStates[_RBX].geoDataStart], 4 * (pieceStates[_RBX].vertCount + pieceStates[_RBX].holeDataCount + pieceStates[_RBX].crackDataCount + (unsigned __int64)pieceStates[_RBX].fanDataCount));
+        fxWorld.glassSys.pieceDynamics[v22].fallTime = 0x7FFFFFFF;
+        *(_QWORD *)&pieceDynamics[v22].physicsInstance = -1i64;
+        pieceDynamics[v22].pendingCreation = 0;
+        fxWorld.glassSys.halfThickness[v14] = fxWorld.glassGlob.defs[v18[v20].defIndex].halfThickness;
+        memcpy_0(&fxWorld.glassSys.geoData[v18[v20].geoDataStart], &glassSys->geoData[pieceStates[v16].geoDataStart], 4 * (pieceStates[v16].vertCount + pieceStates[v16].holeDataCount + pieceStates[v16].crackDataCount + (unsigned __int64)pieceStates[v16].fanDataCount));
       }
       if ( (_DWORD)v14 == 0xFFFF )
         Com_PrintError(0, "Failed to copy transient glass piece to root system.\n");
@@ -852,6 +811,7 @@ Glass_DrawDebug
 */
 void Glass_DrawDebug(const vec3_t *playerOrigin)
 {
+  double v1; 
   unsigned int pieceWordCount; 
   unsigned int v3; 
   __int64 v4; 
@@ -861,11 +821,11 @@ void Glass_DrawDebug(const vec3_t *playerOrigin)
   __int64 v8; 
   vec3_t playerOrigina; 
 
-  __asm { vmovsd  xmm0, qword ptr [rcx] }
+  v1 = *(double *)playerOrigin->v;
   pieceWordCount = fxWorld.glassSys.pieceWordCount;
   v3 = 0;
   playerOrigina.v[2] = playerOrigin->v[2];
-  __asm { vmovsd  qword ptr [rsp+68h+playerOrigin], xmm0 }
+  *(double *)playerOrigina.v = v1;
   if ( fxWorld.glassSys.pieceWordCount )
   {
     v4 = 0i64;
@@ -899,116 +859,52 @@ Glass_DrawDebugPiece
 */
 void Glass_DrawDebugPiece(FxGlassSystem *glassSys, const vec3_t *playerOrigin, unsigned int pieceIndex)
 {
-  __int64 v6; 
-  FxGlassPiecePlace *v8; 
+  __int64 v4; 
+  FxGlassPiecePlace *v6; 
   unsigned __int16 initIndex; 
+  float v8; 
+  float v9; 
   unsigned int initPieceCount; 
-  __int64 v25; 
-  int duration; 
-  unsigned int v53; 
-  vec3_t v54; 
+  __int64 v11; 
+  vec3_t v12; 
   vec3_t end; 
   tmat33_t<vec3_t> axis; 
   char dest[32]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v6 = pieceIndex;
-  v8 = &glassSys->piecePlaces[v6];
-  initIndex = glassSys->pieceStates[v6].initIndex;
+  v4 = pieceIndex;
+  v6 = &glassSys->piecePlaces[v4];
+  initIndex = glassSys->pieceStates[v4].initIndex;
   if ( initIndex != 0xFFFF )
   {
-    __asm
+    v8 = playerOrigin->v[1] - v6->frame.origin.v[1];
+    v9 = playerOrigin->v[2] - v6->frame.origin.v[2];
+    if ( (float)((float)((float)(v8 * v8) + (float)((float)(playerOrigin->v[0] - v6->frame.origin.v[0]) * (float)(playerOrigin->v[0] - v6->frame.origin.v[0]))) + (float)(v9 * v9)) <= (float)(glass_debugDistance->current.value * glass_debugDistance->current.value) )
     {
-      vmovss  xmm0, dword ptr [rdx]
-      vsubss  xmm5, xmm0, dword ptr [r15+10h]
-      vmovss  xmm1, dword ptr [rdx+4]
-      vsubss  xmm2, xmm1, dword ptr [r15+14h]
-      vmovss  xmm0, dword ptr [rdx+8]
-      vsubss  xmm3, xmm0, dword ptr [r15+18h]
-    }
-    _RAX = glass_debugDistance;
-    __asm
-    {
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm4, dword ptr [rax+28h]
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vcomiss xmm3, xmm0
-    }
-    initPieceCount = glassSys->initPieceCount;
-    __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-    if ( initPieceCount )
-    {
-      v25 = initIndex;
-      if ( initIndex >= initPieceCount )
+      initPieceCount = glassSys->initPieceCount;
+      if ( initPieceCount )
       {
-        v53 = initPieceCount;
-        duration = initIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 1583, ASSERT_TYPE_ASSERT, "(unsigned)( initialPieceIndex ) < (unsigned)( glassSys->initPieceCount )", "initialPieceIndex doesn't index glassSys->initPieceCount\n\t%i not in [0, %i)", duration, v53) )
+        v11 = initIndex;
+        if ( initIndex >= initPieceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 1583, ASSERT_TYPE_ASSERT, "(unsigned)( initialPieceIndex ) < (unsigned)( glassSys->initPieceCount )", "initialPieceIndex doesn't index glassSys->initPieceCount\n\t%i not in [0, %i)", initIndex, glassSys->initPieceCount) )
           __debugbreak();
+        end = glassSys->initPieceStates[v11].frame.origin;
+        CG_DebugLine(&v6->frame.origin, &end, &colorWhite, 0, 0);
       }
-      _RAX = glassSys->initPieceStates;
-      _RDX = 52 * v25;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+rax+10h]
-        vmovss  dword ptr [rbp+57h+end], xmm0
-        vmovss  xmm1, dword ptr [rdx+rax+14h]
-        vmovss  dword ptr [rbp+57h+end+4], xmm1
-        vmovss  xmm0, dword ptr [rdx+rax+18h]
-        vmovss  dword ptr [rbp+57h+end+8], xmm0
-      }
-      CG_DebugLine(&v8->frame.origin, &end, &colorWhite, 0, 0);
+      QuatToAxis(&v6->frame.quat, &axis);
+      v12.v[0] = (float)(5.0 * axis.m[0].v[0]) + v6->frame.origin.v[0];
+      v12.v[1] = (float)(5.0 * axis.m[0].v[1]) + v6->frame.origin.v[1];
+      v12.v[2] = (float)(5.0 * axis.m[0].v[2]) + v6->frame.origin.v[2];
+      CG_DebugLine(&v6->frame.origin, &v12, &colorMdGrey, 0, 0);
+      v12.v[0] = (float)(5.0 * axis.m[1].v[0]) + v6->frame.origin.v[0];
+      v12.v[1] = (float)(5.0 * axis.m[1].v[1]) + v6->frame.origin.v[1];
+      v12.v[2] = (float)(5.0 * axis.m[1].v[2]) + v6->frame.origin.v[2];
+      CG_DebugLine(&v6->frame.origin, &v12, &colorMdGrey, 0, 0);
+      v12.v[0] = (float)(5.0 * axis.m[2].v[0]) + v6->frame.origin.v[0];
+      v12.v[1] = (float)(5.0 * axis.m[2].v[1]) + v6->frame.origin.v[1];
+      v12.v[2] = (float)(5.0 * axis.m[2].v[2]) + v6->frame.origin.v[2];
+      CG_DebugLine(&v6->frame.origin, &v12, &colorMdGrey, 0, 0);
+      Com_sprintf(dest, 0x20ui64, "%d", pieceIndex);
+      CL_AddDebugString(&v6->frame.origin, &colorMdGrey, 0.25, dest, 0, 0);
     }
-    QuatToAxis(&v8->frame.quat, &axis);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40a00000
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis]
-      vaddss  xmm2, xmm1, dword ptr [r15+10h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+4]
-      vmovss  dword ptr [rbp+57h+var_A0], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+14h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+8]
-      vmovss  dword ptr [rbp+57h+var_A0+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+18h]
-      vmovss  dword ptr [rbp+57h+var_A0+8], xmm2
-    }
-    CG_DebugLine(&v8->frame.origin, &v54, &colorMdGrey, 0, 0);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+0Ch]
-      vaddss  xmm2, xmm1, dword ptr [r15+10h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+10h]
-      vmovss  dword ptr [rbp+57h+var_A0], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+14h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+14h]
-      vmovss  dword ptr [rbp+57h+var_A0+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+18h]
-      vmovss  dword ptr [rbp+57h+var_A0+8], xmm2
-    }
-    CG_DebugLine(&v8->frame.origin, &v54, &colorMdGrey, 0, 0);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+18h]
-      vaddss  xmm2, xmm1, dword ptr [r15+10h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+1Ch]
-      vmovss  dword ptr [rbp+57h+var_A0], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+14h]
-      vmulss  xmm1, xmm6, dword ptr [rbp+57h+axis+20h]
-      vmovss  dword ptr [rbp+57h+var_A0+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r15+18h]
-      vmovss  dword ptr [rbp+57h+var_A0+8], xmm2
-    }
-    CG_DebugLine(&v8->frame.origin, &v54, &colorMdGrey, 0, 0);
-    Com_sprintf(dest, 0x20ui64, "%d", pieceIndex);
-    __asm { vmovss  xmm2, cs:__real@3e800000; scale }
-    CL_AddDebugString(&v8->frame.origin, &colorMdGrey, *(float *)&_XMM2, dest, 0, 0);
-    __asm { vmovaps xmm6, [rsp+0E0h+var_38+8] }
   }
 }
 
@@ -1660,14 +1556,9 @@ Glass_GetDamagedSound
 */
 SndAliasList *Glass_GetDamagedSound(unsigned int initialPieceIndex)
 {
-  _RAX = Glass_GetDefForInitialPiece(initialPieceIndex);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax+40h]
-    vextractf128 xmm0, ymm2, 1
-    vmovq   rcx, xmm0; name
-  }
-  return SND_FindAlias(_RCX);
+  _YMM2 = *(__m256i *)&Glass_GetDefForInitialPiece(initialPieceIndex)->shatterSmallEffect.particleSystemDef;
+  __asm { vextractf128 xmm0, ymm2, 1 }
+  return SND_FindAlias((const char *)_XMM0);
 }
 
 /*
@@ -1795,10 +1686,9 @@ Glass_GetDestroyedSound
 */
 SndAliasList *Glass_GetDestroyedSound(unsigned int initialPieceIndex)
 {
-  _RAX = Glass_GetDefForInitialPiece(initialPieceIndex);
+  _YMM2 = *(__m256i *)&Glass_GetDefForInitialPiece(initialPieceIndex)->shatterSmallEffect.particleSystemDef;
   __asm
   {
-    vmovups ymm2, ymmword ptr [rax+40h]
     vextractf128 xmm0, ymm2, 1
     vpextrq rcx, xmm0, 1; name
   }
@@ -1810,191 +1700,87 @@ SndAliasList *Glass_GetDestroyedSound(unsigned int initialPieceIndex)
 Glass_GetInertiaTensor
 ==============
 */
-
-void __fastcall Glass_GetInertiaTensor(FxGlassInertiaTensor *tensor, const FxGlassGeometryData *geoData, unsigned int vertCount, double halfThickness, float totalMass)
+void Glass_GetInertiaTensor(FxGlassInertiaTensor *tensor, const FxGlassGeometryData *geoData, unsigned int vertCount, float halfThickness, float totalMass)
 {
-  unsigned int v24; 
-  bool v25; 
-  vec2_t *v27; 
-  vec2_t *v31; 
-  __int64 v32; 
-  __int64 v33; 
-  bool v34; 
-  bool v38; 
-  bool v45; 
-  bool v48; 
-  bool v51; 
-  double v57; 
-  double v58; 
-  double v59; 
-  double v60; 
-  double v61; 
-  double v62; 
-  double v63; 
-  double v64; 
-  double v65; 
-  double v66; 
+  int y; 
+  float v9; 
+  __int64 v10; 
+  vec2_t *v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int64 v14; 
+  __int128 v15; 
+  unsigned int v16; 
+  float *v17; 
+  __int16 *v18; 
+  vec2_t *v19; 
+  float v20; 
+  float v21; 
+  vec2_t *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int128 v25; 
+  __int64 v26; 
+  __m128 v28; 
+  FxGlassInertiaTensor v29; 
+  float yy; 
+  float zz; 
   vec2_t v1; 
-  vec2_t v68; 
-  char v69; 
-  void *retaddr; 
+  vec2_t v33; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
   *(_QWORD *)&tensor->xx = 0i64;
   *(_QWORD *)&tensor->zz = 0i64;
-  _RBX = tensor;
-  __asm
+  y = geoData->vert.y;
+  v1.v[0] = (float)geoData->vert.x;
+  v9 = (float)y;
+  v10 = vertCount - 1;
+  v1.v[1] = v9;
+  v11 = &v1 + v10;
+  v13 = 0i64;
+  *(float *)&v13 = (float)geoData[v10].vert.x;
+  v12 = v13;
+  *(float *)&v13 = (float)geoData[v10].vert.y;
+  v11->v[0] = *(float *)&v12;
+  v1.v[2 * v10 + 1] = *(float *)&v13;
+  *(float *)&v12 = Glass_AccumInertiaTensorForTriangleWedge(tensor, v11, &v1, halfThickness);
+  v15 = v12;
+  if ( v16 > 1 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rsp+4A8h+v1], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  dword ptr [rsp+4A8h+v1+4], xmm1
-  }
-  _R11 = vertCount - 1;
-  _RDX = &v1 + _R11;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  dword ptr [rsp+r11*8+4A8h+v1+4], xmm1
-    vmovaps xmm7, xmm3
-  }
-  *(float *)&_XMM0 = Glass_AccumInertiaTensorForTriangleWedge(tensor, _RDX, &v1, halfThickness);
-  __asm { vmovaps xmm6, xmm0 }
-  v25 = v24 <= 1;
-  if ( v24 > 1 )
-  {
-    _R9 = (float *)&v68 + 1;
-    v27 = &v68;
+    v17 = (float *)&v33 + 1;
+    v18 = (__int16 *)(v14 + 4);
+    v19 = &v33;
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [r9-4], xmm1
-        vmovaps xmm3, xmm7; halfThickness
-        vmovss  dword ptr [r9], xmm0
-      }
-      *(float *)&_XMM0 = Glass_AccumInertiaTensorForTriangleWedge(_RBX, v27 - 1, v27, *(double *)&_XMM3);
-      v27 = v31 + 1;
-      _R9 = (float *)(v32 + 8);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v34 = v33-- == 0;
-      v25 = v34 || v33 == 0;
+      v20 = (float)v18[1];
+      *(v17 - 1) = (float)*v18;
+      *v17 = v20;
+      v21 = Glass_AccumInertiaTensorForTriangleWedge(tensor, v19 - 1, v19, halfThickness);
+      v19 = v22 + 1;
+      v18 = (__int16 *)(v23 + 4);
+      v17 = (float *)(v24 + 8);
+      v25 = v15;
+      *(float *)&v25 = *(float *)&v15 + v21;
+      v15 = v25;
     }
-    while ( v33 );
+    while ( v26 != 1 );
   }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vxorpd  xmm8, xmm8, xmm8
-  }
-  if ( v25 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+4A8h+var_468], xmm8
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+4A8h+var_470], xmm0
-    }
-    v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 132, ASSERT_TYPE_ASSERT, "( totalVolume ) > ( 0.0f )", "%s > %s\n\t%g, %g", "totalVolume", "0.0f", v57, v62);
-    v25 = !v38;
-    if ( v38 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+4A8h+totalMass]
-    vdivss  xmm1, xmm0, xmm6
-    vmulss  xmm3, xmm1, cs:__real@392aaaab
-    vshufps xmm3, xmm3, xmm3, 0
-    vmulps  xmm1, xmm3, xmmword ptr [rbx]
-    vcomiss xmm1, xmm7
-    vmovups xmmword ptr [rbx], xmm1
-  }
-  if ( v25 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+4A8h+var_468], xmm8
-      vcvtss2sd xmm0, xmm1, xmm1
-      vmovsd  [rsp+4A8h+var_470], xmm0
-    }
-    v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 140, ASSERT_TYPE_ASSERT, "( tensor->xx ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->xx", "0.0f", v58, v63);
-    v25 = !v45;
-    if ( v45 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vcomiss xmm0, xmm7
-  }
-  if ( v25 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+4A8h+var_468], xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+4A8h+var_470], xmm0
-    }
-    v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 141, ASSERT_TYPE_ASSERT, "( tensor->yy ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->yy", "0.0f", v59, v64);
-    v25 = !v48;
-    if ( v48 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcomiss xmm0, xmm7
-  }
-  if ( v25 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+4A8h+var_468], xmm8
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+4A8h+var_470], xmm0
-    }
-    v51 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 142, ASSERT_TYPE_ASSERT, "( tensor->zz ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->zz", "0.0f", v60, v65);
-    v25 = !v51;
-    if ( v51 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( v25 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+4A8h+var_468], xmm8
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+4A8h+var_470], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 143, ASSERT_TYPE_ASSERT, "( totalVolume ) > ( 0.0f )", "%s > %s\n\t%g, %g", "totalVolume", "0.0f", v61, v66) )
-      __debugbreak();
-  }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  __asm { vxorpd  xmm8, xmm8, xmm8 }
+  if ( *(float *)&v15 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 132, ASSERT_TYPE_ASSERT, "( totalVolume ) > ( 0.0f )", "%s > %s\n\t%g, %g", "totalVolume", "0.0f", *(float *)&v15, *(double *)&_XMM8) )
+    __debugbreak();
+  v28 = (__m128)LODWORD(totalMass);
+  v28.m128_f32[0] = (float)(totalMass / *(float *)&v15) * 0.00016276042;
+  v29 = (FxGlassInertiaTensor)_mm128_mul_ps(_mm_shuffle_ps(v28, v28, 0), *(__m128 *)tensor);
+  *tensor = v29;
+  if ( v29.xx <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 140, ASSERT_TYPE_ASSERT, "( tensor->xx ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->xx", "0.0f", v29.xx, *(double *)&_XMM8) )
+    __debugbreak();
+  yy = tensor->yy;
+  if ( yy <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 141, ASSERT_TYPE_ASSERT, "( tensor->yy ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->yy", "0.0f", yy, *(double *)&_XMM8) )
+    __debugbreak();
+  zz = tensor->zz;
+  if ( zz <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 142, ASSERT_TYPE_ASSERT, "( tensor->zz ) > ( 0.0f )", "%s > %s\n\t%g, %g", "tensor->zz", "0.0f", zz, *(double *)&_XMM8) )
+    __debugbreak();
+  if ( *(float *)&v15 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 143, ASSERT_TYPE_ASSERT, "( totalVolume ) > ( 0.0f )", "%s > %s\n\t%g, %g", "totalVolume", "0.0f", *(float *)&v15, *(double *)&_XMM8) )
+    __debugbreak();
 }
 
 /*
@@ -2014,10 +1800,7 @@ float Glass_GetInitialPieceAreaX2(const FxGlassSystem *glassSys, unsigned int in
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 1573, ASSERT_TYPE_ASSERT, "(unsigned)( initialPieceIndex ) < (unsigned)( glassSys->initPieceCount )", "initialPieceIndex doesn't index glassSys->initPieceCount\n\t%i not in [0, %i)", initialPieceIndex, initPieceCount) )
       __debugbreak();
   }
-  _RAX = glassSys->initPieceStates;
-  _RCX = 52 * v3;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax+2Ch] }
-  return *(float *)&_XMM0;
+  return glassSys->initPieceStates[v3].areaX2;
 }
 
 /*
@@ -2371,87 +2154,74 @@ Glass_MakeRoomForNewPieces
 */
 void Glass_MakeRoomForNewPieces(Glass_BreakData *breakData)
 {
-  int v13; 
-  int v14; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
+  __int128 totalAreaX2_low; 
+  __int128 v4; 
+  int v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12; 
   unsigned int pieceWordCount; 
   unsigned int priorityCount; 
-  __int64 v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  __int64 v27; 
-  __int64 v28; 
+  __int64 v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _RBX = breakData;
   if ( fxWorld.glassSys.lastPieceDeletionTime < fxWorld.glassSys.time )
   {
     fxWorld.glassSys.lastPieceDeletionTime = fxWorld.glassSys.time;
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rcx+4]
-      vxorps  xmm0, xmm0, xmm0
-      vdivss  xmm1, xmm3, dword ptr [rax+28h]
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+28h]
-      vminss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, cs:__real@3f400000
-      vdivss  xmm0, xmm3, dword ptr [rax+28h]
-      vmulss  xmm1, xmm0, cs:__real@3e800000
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si r10d, xmm2
-    }
-    if ( _ER10 > 512 )
-      _ER10 = 512;
-    v13 = 3 * _ER10;
-    v14 = fxWorld.glassSys.activePieceCount - fxWorld.glassSys.pieceLimit + _ER10;
-    v15 = 4 * v13;
-    v16 = fxWorld.glassSys.activePieceCount - 100;
-    v17 = (signed int)fxWorld.glassSys.geoDataLimit / 2;
-    if ( v15 <= (signed int)fxWorld.glassSys.geoDataLimit / 2 )
-      v17 = v15;
-    v18 = fxWorld.glassSys.geoDataCount + v17 - fxWorld.glassSys.geoDataLimit;
-    if ( fxWorld.glassSys.activePieceCount - v14 >= 0x64 )
-      v16 = v14;
-    if ( v18 > 0 || v16 > 0 )
+    totalAreaX2_low = LODWORD(breakData->totalAreaX2);
+    v4 = totalAreaX2_low;
+    *(float *)&v4 = *(float *)&totalAreaX2_low / glass_shard_maxsize->current.value;
+    _XMM1 = v4;
+    __asm { vminss  xmm1, xmm1, xmm0 }
+    v6 = (int)(float)((float)(*(float *)&_XMM1 * 0.75) + (float)((float)(*(float *)&totalAreaX2_low / glass_fringe_maxsize->current.value) * 0.25));
+    if ( v6 > 512 )
+      v6 = 512;
+    v7 = 3 * v6;
+    v8 = fxWorld.glassSys.activePieceCount - fxWorld.glassSys.pieceLimit + v6;
+    v9 = 4 * v7;
+    v10 = fxWorld.glassSys.activePieceCount - 100;
+    v11 = (signed int)fxWorld.glassSys.geoDataLimit / 2;
+    if ( v9 <= (signed int)fxWorld.glassSys.geoDataLimit / 2 )
+      v11 = v9;
+    v12 = fxWorld.glassSys.geoDataCount + v11 - fxWorld.glassSys.geoDataLimit;
+    if ( fxWorld.glassSys.activePieceCount - v8 >= 0x64 )
+      v10 = v8;
+    if ( v12 > 0 || v10 > 0 )
     {
       Sys_EnterCriticalSection(CRITSECT_FX_GLASS);
       pieceWordCount = fxWorld.glassSys.pieceWordCount;
       priorityCount = 0;
       s_removePiecesData.priorityCount = 0;
-      s_removePiecesData.piecesNeeded = v16;
-      s_removePiecesData.geoDataNeeded = v18;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr cs:s_removePiecesData.playerOrigin, xmm0
-        vmovss  xmm1, dword ptr [rbx+0Ch]
-        vmovss  dword ptr cs:s_removePiecesData.playerOrigin+4, xmm1
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmovss  dword ptr cs:s_removePiecesData.playerOrigin+8, xmm0
-      }
+      s_removePiecesData.piecesNeeded = v10;
+      s_removePiecesData.geoDataNeeded = v12;
+      s_removePiecesData.playerOrigin = breakData->playerOrigin;
       if ( fxWorld.glassSys.pieceWordCount )
       {
-        v24 = 0i64;
+        v15 = 0i64;
         do
         {
-          v25 = fxWorld.glassSys.isInUse[v24];
-          while ( v25 )
+          v16 = fxWorld.glassSys.isInUse[v15];
+          while ( v16 )
           {
-            v26 = __lzcnt(v25);
-            if ( v26 >= 0x20 )
+            v17 = __lzcnt(v16);
+            if ( v17 >= 0x20 )
             {
-              LODWORD(v28) = 32;
-              LODWORD(v27) = v26;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
+              LODWORD(v19) = 32;
+              LODWORD(v18) = v17;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v18, v19) )
                 __debugbreak();
             }
-            v25 &= ~(0x80000000 >> v26);
-            Glass_SetupPriority(&fxWorld.glassSys, &s_removePiecesData, v26 | (32 * priorityCount));
+            v16 &= ~(0x80000000 >> v17);
+            Glass_SetupPriority(&fxWorld.glassSys, &s_removePiecesData, v17 | (32 * priorityCount));
           }
           ++priorityCount;
-          ++v24;
+          ++v15;
         }
         while ( priorityCount < pieceWordCount );
         priorityCount = s_removePiecesData.priorityCount;
@@ -2628,51 +2398,45 @@ Glass_PlayEffect
 */
 void Glass_PlayEffect(FxCombinedDef *fx, const vec3_t *origin, const vec3_t *normal)
 {
-  LocalClientNum_t v8; 
+  float v5; 
+  float v6; 
+  LocalClientNum_t v7; 
   connstate_t *p_connectionState; 
   cg_t *LocalClientGlobals; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
   FXRegisteredDef def; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = normal;
   def.m_particleSystemDef = fx->particleSystemDef;
   Vec3Basis_RightHanded(normal, &axis.m[1], &axis.m[2]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+98h+axis], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-  }
-  v8 = LOCAL_CLIENT_0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+axis+4], xmm1
-    vmovss  dword ptr [rsp+98h+axis+8], xmm0
-  }
+  v5 = normal->v[1];
+  axis.m[0].v[0] = normal->v[0];
+  v6 = normal->v[2];
+  v7 = LOCAL_CLIENT_0;
+  axis.m[0].v[1] = v5;
+  axis.m[0].v[2] = v6;
   if ( SLODWORD(cl_maxLocalClients) > 0 )
   {
     p_connectionState = &clientUIActives[0].connectionState;
     do
     {
-      if ( (unsigned int)v8 >= LOCAL_CLIENT_COUNT )
+      if ( (unsigned int)v7 >= LOCAL_CLIENT_COUNT )
       {
-        LODWORD(v12) = 2;
-        LODWORD(v11) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12) )
+        LODWORD(v11) = 2;
+        LODWORD(v10) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
-      if ( *p_connectionState == CA_ACTIVE && !CG_GetLocalClientGlobals(v8)->predictedPlayerState.deltaTime )
+      if ( *p_connectionState == CA_ACTIVE && !CG_GetLocalClientGlobals(v7)->predictedPlayerState.deltaTime )
       {
-        LocalClientGlobals = CG_GetLocalClientGlobals(v8);
-        FX_PlayOrientedEffect(v8, &def, LocalClientGlobals->time, origin, &axis);
+        LocalClientGlobals = CG_GetLocalClientGlobals(v7);
+        FX_PlayOrientedEffect(v7, &def, LocalClientGlobals->time, origin, &axis);
       }
-      ++v8;
+      ++v7;
       p_connectionState += 110;
     }
-    while ( v8 < SLODWORD(cl_maxLocalClients) );
+    while ( v7 < SLODWORD(cl_maxLocalClients) );
   }
 }
 
@@ -2683,7 +2447,8 @@ Glass_PlayEffectWithMark
 */
 void Glass_PlayEffectWithMark(FxCombinedDef *fx, const vec3_t *origin, const vec3_t *normal)
 {
-  LocalClientNum_t v7; 
+  float v5; 
+  LocalClientNum_t v6; 
   connstate_t *p_connectionState; 
   const Material *markMaterialOverride; 
   cg_t *LocalClientGlobals; 
@@ -2692,44 +2457,35 @@ void Glass_PlayEffectWithMark(FxCombinedDef *fx, const vec3_t *origin, const vec
   FXRegisteredDef def; 
   tmat33_t<vec3_t> axis; 
 
-  _RBX = normal;
   def.m_particleSystemDef = fx->particleSystemDef;
   Vec3Basis_RightHanded(normal, &axis.m[1], &axis.m[2]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  v7 = LOCAL_CLIENT_0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+axis], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0B8h+axis+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+axis+4], xmm1
-  }
+  v5 = normal->v[1];
+  v6 = LOCAL_CLIENT_0;
+  axis.m[0].v[0] = normal->v[0];
+  axis.m[0].v[2] = normal->v[2];
+  axis.m[0].v[1] = v5;
   if ( SLODWORD(cl_maxLocalClients) > 0 )
   {
     p_connectionState = &clientUIActives[0].connectionState;
     do
     {
-      if ( (unsigned int)v7 >= LOCAL_CLIENT_COUNT )
+      if ( (unsigned int)v6 >= LOCAL_CLIENT_COUNT )
       {
         LODWORD(markEntnum) = 2;
-        LODWORD(spawnFlags) = v7;
+        LODWORD(spawnFlags) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", spawnFlags, markEntnum) )
           __debugbreak();
       }
-      if ( *p_connectionState == CA_ACTIVE && !CG_GetLocalClientGlobals(v7)->predictedPlayerState.deltaTime )
+      if ( *p_connectionState == CA_ACTIVE && !CG_GetLocalClientGlobals(v6)->predictedPlayerState.deltaTime )
       {
         markMaterialOverride = MARK_MATERIAL_OVERRIDE_NONE_0;
-        LocalClientGlobals = CG_GetLocalClientGlobals(v7);
-        FX_PlayOrientedEffectWithMarkEntity(v7, &def, LocalClientGlobals->time, origin, &axis, 0, 0x7FEu, 0, 0xFEu, markMaterialOverride);
+        LocalClientGlobals = CG_GetLocalClientGlobals(v6);
+        FX_PlayOrientedEffectWithMarkEntity(v6, &def, LocalClientGlobals->time, origin, &axis, 0, 0x7FEu, 0, 0xFEu, markMaterialOverride);
       }
-      ++v7;
+      ++v6;
       p_connectionState += 110;
     }
-    while ( v7 < SLODWORD(cl_maxLocalClients) );
+    while ( v6 < SLODWORD(cl_maxLocalClients) );
   }
 }
 
@@ -2960,20 +2716,23 @@ void Glass_SetInitialState(FxGlassSystem *glassSys, const unsigned int transient
   unsigned int initPieceCount; 
   unsigned int v10; 
   unsigned int v11; 
+  FxGlassInitPieceState *v12; 
+  FxGlassPiecePlace *piecePlaces; 
   FxGlassPieceState *pieceStates; 
+  __int64 v15; 
   __int64 defIndex; 
   unsigned int supportMask; 
   int vertCount; 
   int fanDataCount; 
   vec3_t *linkOrg; 
+  __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
   unsigned int firstFreePiece; 
   __int64 initGeoDataCount; 
   FxGlassGeometryData *initGeoData; 
   FxGlassGeometryData *geoData; 
-  __int64 v30; 
+  __int64 v28; 
 
   if ( glassSys->geoDataCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 697, ASSERT_TYPE_ASSERT, "(glassSys->geoDataCount == 0)", (const char *)&queryFormat, "glassSys->geoDataCount == 0") )
     __debugbreak();
@@ -3012,37 +2771,32 @@ void Glass_SetInitialState(FxGlassSystem *glassSys, const unsigned int transient
       do
       {
         glassSys->pieceDynamics[v11].fallTime = 0x7FFFFFFF;
-        _RBP = &glassSys->initPieceStates[v11];
-        _RCX = glassSys->piecePlaces;
+        v12 = &glassSys->initPieceStates[v11];
+        piecePlaces = glassSys->piecePlaces;
         pieceStates = glassSys->pieceStates;
-        _RSI = v11;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+0]
-          vmovups xmmword ptr [rsi+rcx], xmm0
-          vmovsd  xmm1, qword ptr [rbp+10h]
-          vmovsd  qword ptr [rsi+rcx+10h], xmm1
-        }
-        _RCX[_RSI].frame.origin.v[2] = _RBP->frame.origin.v[2];
-        _RCX[_RSI].radius = _RBP->radius;
-        pieceStates[_RSI].texCoordOrigin.v[0] = _RBP->texCoordOrigin.v[0];
-        pieceStates[_RSI].texCoordOrigin.v[1] = _RBP->texCoordOrigin.v[1];
+        v15 = v11;
+        piecePlaces[v15].frame.quat = v12->frame.quat;
+        *((double *)&piecePlaces[v15].nextFree + 2) = *(double *)v12->frame.origin.v;
+        piecePlaces[v15].frame.origin.v[2] = v12->frame.origin.v[2];
+        piecePlaces[v15].radius = v12->radius;
+        pieceStates[v15].texCoordOrigin.v[0] = v12->texCoordOrigin.v[0];
+        pieceStates[v15].texCoordOrigin.v[1] = v12->texCoordOrigin.v[1];
         if ( v11 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v11, "unsigned", v11) )
           __debugbreak();
-        pieceStates[_RSI].initIndex = v11;
-        defIndex = _RBP->defIndex;
-        pieceStates[_RSI].defIndex = defIndex;
-        supportMask = _RBP->supportMask;
-        pieceStates[_RSI].geoDataStart = v10;
-        pieceStates[_RSI].supportMask = supportMask;
-        vertCount = _RBP->vertCount;
-        fanDataCount = _RBP->fanDataCount;
-        pieceStates[_RSI].vertCount = vertCount;
+        pieceStates[v15].initIndex = v11;
+        defIndex = v12->defIndex;
+        pieceStates[v15].defIndex = defIndex;
+        supportMask = v12->supportMask;
+        pieceStates[v15].geoDataStart = v10;
+        pieceStates[v15].supportMask = supportMask;
+        vertCount = v12->vertCount;
+        fanDataCount = v12->fanDataCount;
+        pieceStates[v15].vertCount = vertCount;
         v10 += fanDataCount + vertCount;
-        *(_WORD *)&pieceStates[_RSI].holeDataCount = 0;
-        pieceStates[_RSI].fanDataCount = _RBP->fanDataCount;
-        pieceStates[_RSI].areaX2 = _RBP->areaX2;
-        pieceStates[_RSI].flags = 0;
+        *(_WORD *)&pieceStates[v15].holeDataCount = 0;
+        pieceStates[v15].fanDataCount = v12->fanDataCount;
+        pieceStates[v15].areaX2 = v12->areaX2;
+        pieceStates[v15].flags = 0;
         glassSys->halfThickness[v11] = fxWorld.glassGlob.defs[defIndex].halfThickness;
         glassSys->isInUse[(unsigned __int64)v11 >> 5] |= 0x80000000 >> (v11 & 0x1F);
         Glass_LinkPiece_Static(glassSys, v11);
@@ -3064,19 +2818,19 @@ void Glass_SetInitialState(FxGlassSystem *glassSys, const unsigned int transient
         do
         {
           linkOrg = glassSys->linkOrg;
-          v23 = v11++;
-          v24 = v23;
-          linkOrg[v24].v[0] = 262144.0;
-          linkOrg[v24].v[1] = 262144.0;
-          linkOrg[v24].v[2] = 262144.0;
-          glassSys->piecePlaces[v23].nextFree = v11;
+          v21 = v11++;
+          v22 = v21;
+          linkOrg[v22].v[0] = 262144.0;
+          linkOrg[v22].v[1] = 262144.0;
+          linkOrg[v22].v[2] = 262144.0;
+          glassSys->piecePlaces[v21].nextFree = v11;
         }
         while ( v11 != glassSys->pieceLimit - 1 );
       }
       glassSys->piecePlaces[v11].nextFree = 0xFFFF;
-      v25 = glassSys->initPieceCount;
-      glassSys->firstFreePiece = v25;
-      if ( glassSys->pieceDynamics[v25].pendingCreation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 769, ASSERT_TYPE_ASSERT, "(!glassSys->pieceDynamics[glassSys->firstFreePiece].pendingCreation)", (const char *)&queryFormat, "!glassSys->pieceDynamics[glassSys->firstFreePiece].pendingCreation") )
+      v23 = glassSys->initPieceCount;
+      glassSys->firstFreePiece = v23;
+      if ( glassSys->pieceDynamics[v23].pendingCreation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 769, ASSERT_TYPE_ASSERT, "(!glassSys->pieceDynamics[glassSys->firstFreePiece].pendingCreation)", (const char *)&queryFormat, "!glassSys->pieceDynamics[glassSys->firstFreePiece].pendingCreation") )
         __debugbreak();
       initPieceCount = glassSys->initPieceCount;
       firstFreePiece = glassSys->firstFreePiece;
@@ -3085,8 +2839,8 @@ void Glass_SetInitialState(FxGlassSystem *glassSys, const unsigned int transient
     glassSys->activePieceCount = initPieceCount;
     if ( firstFreePiece >= glassSys->pieceLimit && firstFreePiece != 0xFFFF )
     {
-      LODWORD(v30) = firstFreePiece;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 780, ASSERT_TYPE_ASSERT, "( ( glassSys->firstFreePiece < glassSys->pieceLimit || glassSys->firstFreePiece == 0xffff ) )", "( glassSys->firstFreePiece ) = %i", v30) )
+      LODWORD(v28) = firstFreePiece;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 780, ASSERT_TYPE_ASSERT, "( ( glassSys->firstFreePiece < glassSys->pieceLimit || glassSys->firstFreePiece == 0xffff ) )", "( glassSys->firstFreePiece ) = %i", v28) )
         __debugbreak();
     }
     initGeoDataCount = glassSys->initGeoDataCount;
@@ -3104,87 +2858,76 @@ Glass_SetupPriority
 */
 void Glass_SetupPriority(FxGlassSystem *glassSys, RemovePiecesData *data, unsigned int pieceIndex)
 {
-  __int64 v5; 
-  __int64 v52; 
-  int v53; 
+  __int64 v4; 
+  FxGlassPieceState *pieceStates; 
+  __int64 v7; 
+  bool v8; 
+  FxGlassPiecePlace *piecePlaces; 
+  const dvar_t *v19; 
+  __int128 areaX2_low; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
 
-  v5 = pieceIndex;
+  v4 = pieceIndex;
   if ( data->priorityCount >= data->maxPriorityCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 944, ASSERT_TYPE_ASSERT, "(data->priorityCount < data->maxPriorityCount)", (const char *)&queryFormat, "data->priorityCount < data->maxPriorityCount") )
     __debugbreak();
-  _RSI = glassSys->pieceStates;
-  _RDI = v5;
-  if ( (_RSI[v5].flags & 2) != 0 )
+  pieceStates = glassSys->pieceStates;
+  v7 = v4;
+  if ( (pieceStates[v4].flags & 2) != 0 )
   {
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
-    LOBYTE(_EAX) = Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_OFF|0x80);
-    __asm { vmovss  xmm2, cs:__real@43800000 }
-    _ECX = (unsigned __int8)_EAX;
-    _EDX = 0;
-    __asm { vmovd   xmm0, ecx }
-    _ECX = (unsigned __int8)_EAX;
-    __asm
+    v8 = Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_OFF|0x80);
+    _XMM0 = v8;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_128_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    v33 = *(float *)&_XMM0;
+    _XMM0 = v8;
+    piecePlaces = glassSys->piecePlaces;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_512_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    v32 = *(float *)&_XMM0;
+    _XMM0 = v8;
+    v19 = glass_fringe_maxsize;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_25);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    v31 = *(float *)&_XMM0;
+    if ( !pieceStates[v7].supportMask )
+      v19 = glass_shard_maxsize;
+    areaX2_low = LODWORD(pieceStates[v7].areaX2);
+    *(float *)&areaX2_low = (float)(pieceStates[v7].areaX2 / v19->current.value) * 32767.0;
+    _XMM0 = areaX2_low;
+    __asm { vminss  xmm6, xmm0, cs:__real@46fffe00 }
+    v26 = piecePlaces[v7].frame.origin.v[0] - data->playerOrigin.v[0];
+    v27 = piecePlaces[v7].frame.origin.v[1] - data->playerOrigin.v[1];
+    v28 = piecePlaces[v7].frame.origin.v[2] - data->playerOrigin.v[2];
+    v29 = (float)((float)(v27 * v27) + (float)(v26 * v26)) + (float)(v28 * v28);
+    if ( v29 < (float)(v32 * v32) )
     {
-      vmovd   xmm1, edx
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@43000000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  xmm2, cs:__real@44800000
-      vmovss  [rsp+78h+var_40], xmm0
-      vmovd   xmm0, ecx
+      v30 = fsqrt(v29);
+      if ( v30 >= v33 )
+      {
+        if ( v30 < v32 )
+          *(float *)&_XMM6 = *(float *)&_XMM6 + (float)((float)((float)(1.0 - (float)((float)(v30 - v33) / (float)(v32 - v33))) * v31) * 65535.0);
+      }
+      else
+      {
+        *(float *)&_XMM6 = *(float *)&_XMM6 + (float)(v31 * 65535.0);
+      }
     }
-    _RCX = glassSys->piecePlaces;
-    __asm
-    {
-      vmovd   xmm1, edx
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@44000000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  xmm2, cs:__real@3f000000
-      vmovss  [rsp+78h+var_44], xmm0
-    }
-    _EAX = (unsigned __int8)_EAX;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vmovd   xmm1, edx
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3e800000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  [rsp+78h+var_48], xmm0
-      vmovss  xmm0, dword ptr [rdi+rsi+1Ch]
-      vdivss  xmm2, xmm0, dword ptr [rax+28h]
-      vmulss  xmm0, xmm2, cs:__real@46fffe00
-      vminss  xmm6, xmm0, cs:__real@46fffe00
-      vmovss  xmm0, dword ptr [rdi+rcx+10h]
-      vsubss  xmm3, xmm0, dword ptr [rbx+10h]
-      vmovss  xmm1, dword ptr [rdi+rcx+14h]
-      vsubss  xmm2, xmm1, dword ptr [rbx+14h]
-      vmovss  xmm0, dword ptr [rdi+rcx+18h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+18h]
-      vmovss  xmm5, [rsp+78h+var_44]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vcomiss xmm2, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-      vcomiss xmm6, cs:__real@477fff00
-    }
-    if ( _RSI[_RDI].supportMask )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 978, ASSERT_TYPE_ASSERT, "(priority <= 0xffff)", (const char *)&queryFormat, "priority <= USHRT_MAX", v52, v53) )
-        __debugbreak();
-    }
-    data->priorities[data->priorityCount].index = truncate_cast<unsigned short,unsigned int>(v5);
-    __asm
-    {
-      vcvttss2si edx, xmm6
-      vmovaps xmm6, [rsp+78h+var_38]
-    }
-    data->priorities[data->priorityCount++].priority = _EDX;
+    if ( *(float *)&_XMM6 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 977, ASSERT_TYPE_ASSERT, "(priority >= 0.0f)", (const char *)&queryFormat, "priority >= 0.0f") )
+      __debugbreak();
+    if ( *(float *)&_XMM6 > 65535.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass.cpp", 978, ASSERT_TYPE_ASSERT, "(priority <= 0xffff)", (const char *)&queryFormat, "priority <= USHRT_MAX") )
+      __debugbreak();
+    data->priorities[data->priorityCount].index = truncate_cast<unsigned short,unsigned int>(v4);
+    data->priorities[data->priorityCount++].priority = (int)*(float *)&_XMM6;
   }
 }
 

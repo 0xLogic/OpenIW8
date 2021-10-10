@@ -411,18 +411,28 @@ void G_Active_DoMissilePickup(gentity_s *clientEnt, gentity_s *grenadeEnt)
   EntHandle *p_parent; 
   GWeaponMap *Instance; 
   int number; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  __int16 v11; 
+  __int16 v10; 
   const Weapon *WeaponForEntity; 
   __int16 EntityIndex; 
   gclient_s *client; 
-  gclient_s *v15; 
+  gclient_s *v14; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v17; 
+  unsigned __int64 v16; 
+  gclient_s *v17; 
+  float throwbackGrenadeTimeLeft; 
+  double CookingGrenadeScaleTime; 
   int CookingGrenadeFuseMax; 
-  __int64 v30; 
-  __int64 v31; 
+  gclient_s *v21; 
+  int v22; 
+  float v23; 
+  double v24; 
+  gclient_s *v25; 
+  float v26; 
+  double v27; 
+  __int64 v28; 
+  __int64 v29; 
 
   EntHandlerList = G_Main_GetEntHandlerList(grenadeEnt);
   if ( EntHandlerList->touch )
@@ -434,101 +444,79 @@ void G_Active_DoMissilePickup(gentity_s *clientEnt, gentity_s *grenadeEnt)
       number = p_parent->number;
       if ( (unsigned int)(number - 1) >= 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", number - 1, 2047) )
         __debugbreak();
-      v9 = p_parent->number;
-      if ( (unsigned int)(v9 - 1) >= 0x800 )
+      v8 = p_parent->number;
+      if ( (unsigned int)(v8 - 1) >= 0x800 )
       {
-        LODWORD(v31) = 2048;
-        LODWORD(v30) = v9 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v30, v31) )
+        LODWORD(v29) = 2048;
+        LODWORD(v28) = v8 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, v29) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v10 = v9 - 1;
-      if ( g_entities[v10].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v9 = v8 - 1;
+      if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v10] )
+      if ( !g_entityIsInUse[v9] )
       {
-        LODWORD(v31) = p_parent->number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v31) )
+        LODWORD(v29) = p_parent->number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v29) )
           __debugbreak();
       }
-      v11 = p_parent->number - 1;
+      v10 = p_parent->number - 1;
     }
     else
     {
-      v11 = 2046;
+      v10 = 2046;
     }
     WeaponForEntity = BG_GetWeaponForEntity(Instance, &grenadeEnt->s);
     EntHandlerList->touch(grenadeEnt, clientEnt, 0);
     EntityIndex = G_GetEntityIndex(grenadeEnt);
     if ( !G_IsEntityInUse(EntityIndex) )
     {
-      __asm { vmovaps [rsp+78h+var_38], xmm6 }
-      clientEnt->client->ps.throwbackGrenadeOwner = v11;
+      clientEnt->client->ps.throwbackGrenadeOwner = v10;
       client = clientEnt->client;
       if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 927, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
       if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 928, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
       Instance->SetWeapon(Instance, &client->ps.weapCommon.offHandHandle, WeaponForEntity);
-      v15 = clientEnt->client;
+      v14 = clientEnt->client;
       PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x2Du);
-      v17 = (unsigned int)PerkNetworkPriorityIndex;
+      v16 = (unsigned int)PerkNetworkPriorityIndex;
       if ( PerkNetworkPriorityIndex >= 0 )
       {
         if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
         {
-          LODWORD(v31) = 64;
-          LODWORD(v30) = PerkNetworkPriorityIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v30, v31) )
+          LODWORD(v29) = 64;
+          LODWORD(v28) = PerkNetworkPriorityIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v28, v29) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v17 & 0x1F)) & v15->ps.perks.array[v17 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v16 & 0x1F)) & v14->ps.perks.array[v16 >> 5]) != 0 )
         {
-          __asm { vxorps  xmm6, xmm6, xmm6 }
           clientEnt->client->ps.throwbackGrenadeTimeLeft = BG_WeaponFuseTime(WeaponForEntity, 0);
-          __asm { vcvtsi2ss xmm6, xmm6, dword ptr [rcx+7Ch] }
-          BG_GetCookingGrenadeScaleTime(&clientEnt->client->ps);
-          __asm
-          {
-            vdivss  xmm1, xmm6, xmm0
-            vcvttss2si ebx, xmm1
-          }
-          if ( _EBX != BG_GetCookingGrenadeFuseMax(WeaponForEntity, 0, &clientEnt->client->ps) )
+          v17 = clientEnt->client;
+          throwbackGrenadeTimeLeft = (float)v17->ps.throwbackGrenadeTimeLeft;
+          CookingGrenadeScaleTime = BG_GetCookingGrenadeScaleTime(&v17->ps);
+          if ( (int)(float)(throwbackGrenadeTimeLeft / *(float *)&CookingGrenadeScaleTime) != BG_GetCookingGrenadeFuseMax(WeaponForEntity, 0, &clientEnt->client->ps) )
           {
             CookingGrenadeFuseMax = BG_GetCookingGrenadeFuseMax(WeaponForEntity, 0, &clientEnt->client->ps);
-            __asm
-            {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, dword ptr [rcx+7Ch]
-            }
-            BG_GetCookingGrenadeScaleTime(&clientEnt->client->ps);
-            __asm
-            {
-              vdivss  xmm1, xmm6, xmm0
-              vcvttss2si ecx, xmm1
-            }
-            LODWORD(v31) = CookingGrenadeFuseMax;
-            LODWORD(v30) = _ECX;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 313, ASSERT_TYPE_ASSERT, "( static_cast<int>( clientEnt->client->ps.throwbackGrenadeTimeLeft / BG_GetCookingGrenadeScaleTime( &clientEnt->client->ps ) ) ) == ( BG_GetCookingGrenadeFuseMax( offHand, false, &clientEnt->client->ps ) )", "static_cast<int>( clientEnt->client->ps.throwbackGrenadeTimeLeft / BG_GetCookingGrenadeScaleTime( &clientEnt->client->ps ) ) == BG_GetCookingGrenadeFuseMax( offHand, false, &clientEnt->client->ps )\n\t%i, %i", v30, v31) )
+            v21 = clientEnt->client;
+            v22 = CookingGrenadeFuseMax;
+            v23 = (float)v21->ps.throwbackGrenadeTimeLeft;
+            v24 = BG_GetCookingGrenadeScaleTime(&v21->ps);
+            LODWORD(v29) = v22;
+            LODWORD(v28) = (int)(float)(v23 / *(float *)&v24);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 313, ASSERT_TYPE_ASSERT, "( static_cast<int>( clientEnt->client->ps.throwbackGrenadeTimeLeft / BG_GetCookingGrenadeScaleTime( &clientEnt->client->ps ) ) ) == ( BG_GetCookingGrenadeFuseMax( offHand, false, &clientEnt->client->ps ) )", "static_cast<int>( clientEnt->client->ps.throwbackGrenadeTimeLeft / BG_GetCookingGrenadeScaleTime( &clientEnt->client->ps ) ) == BG_GetCookingGrenadeFuseMax( offHand, false, &clientEnt->client->ps )\n\t%i, %i", v28, v29) )
               __debugbreak();
           }
         }
       }
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, dword ptr [rcx+7Ch]
-      }
-      BG_GetCookingGrenadeScaleTime(&clientEnt->client->ps);
-      __asm
-      {
-        vdivss  xmm1, xmm6, xmm0
-        vmovaps xmm6, [rsp+78h+var_38]
-        vcvttss2si ecx, xmm1
-      }
-      clientEnt->client->ps.grenadeTimeLeft = _ECX;
+      v25 = clientEnt->client;
+      v26 = (float)v25->ps.throwbackGrenadeTimeLeft;
+      v27 = BG_GetCookingGrenadeScaleTime(&v25->ps);
+      clientEnt->client->ps.grenadeTimeLeft = (int)(float)(v26 / *(float *)&v27);
     }
   }
 }
@@ -541,22 +529,18 @@ G_Active_GestureStopEvent
 void G_Active_GestureStopEvent(const GGestureStopParms *const params, gentity_s *const ent)
 {
   scrContext_t *v4; 
-  scrContext_t *v6; 
   const char *NameFromIndex; 
 
-  _RDI = params;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 484, ASSERT_TYPE_ASSERT, "( params != nullptr )", (const char *)&queryFormat, "params != nullptr") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 485, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
     __debugbreak();
-  if ( _RDI->gestureIndex == 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 486, ASSERT_TYPE_ASSERT, "( params->gestureIndex != (1<<8) )", (const char *)&queryFormat, "params->gestureIndex != GESTURE_INVALID_INDEX") )
+  if ( params->gestureIndex == 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 486, ASSERT_TYPE_ASSERT, "( params->gestureIndex != (1<<8) )", (const char *)&queryFormat, "params->gestureIndex != GESTURE_INVALID_INDEX") )
     __debugbreak();
   v4 = ScriptContext_Server();
-  __asm { vmovss  xmm1, dword ptr [rdi+4]; value }
-  v6 = v4;
-  Scr_AddFloat(v4, *(float *)&_XMM1);
-  NameFromIndex = BG_Gesture_GetNameFromIndex(_RDI->gestureIndex);
-  Scr_AddString(v6, NameFromIndex);
+  Scr_AddFloat(v4, params->elapsedTime);
+  NameFromIndex = BG_Gesture_GetNameFromIndex(params->gestureIndex);
+  Scr_AddString(v4, NameFromIndex);
   GScr_Notify(ent, scr_const.xanim_gesture_stopped, 2u);
 }
 
@@ -567,53 +551,33 @@ G_Active_Glass_PlayerBreakEvent
 */
 void G_Active_Glass_PlayerBreakEvent(const GGlassBreakParms *const params, gentity_s *const ent)
 {
-  bool v4; 
-  bool v5; 
   unsigned __int16 GlassHitId; 
   sentient_s *sentient; 
   unsigned __int64 eTeam; 
+  bitarray<224> *AllTeamFlags; 
   bitarray<224> teamFlags; 
 
-  _RDI = params;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 523, ASSERT_TYPE_ASSERT, "( params != nullptr )", (const char *)&queryFormat, "params != nullptr") )
     __debugbreak();
-  v4 = ent == NULL;
-  if ( !ent )
+  if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 524, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
+    __debugbreak();
+  if ( params->trace.fraction < 1.0 && BG_Glass_CanBreakGlass(&params->trace) )
   {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 524, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rdi+18h]
-  }
-  if ( !v4 && BG_Glass_CanBreakGlass(&_RDI->trace) )
-  {
-    GlassHitId = Trace_GetGlassHitId(&_RDI->trace);
-    G_Glass_DestroyPiece((unsigned __int16)(GlassHitId - 1), &_RDI->pos, &_RDI->dir);
+    GlassHitId = Trace_GetGlassHitId(&params->trace);
+    G_Glass_DestroyPiece((unsigned __int16)(GlassHitId - 1), &params->pos, &params->dir);
     sentient = ent->sentient;
     if ( sentient )
     {
       eTeam = (unsigned int)sentient->eTeam;
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+98h+teamFlags.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rsp+98h+teamFlags.array+10h], xmm1
-      }
-      teamFlags.array[6] = _RAX->array[6];
+        AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      teamFlags = *AllTeamFlags;
       if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
         __debugbreak();
       teamFlags.array[eTeam >> 5] &= ~(0x80000000 >> (eTeam & 0x1F));
-      Actor_BroadcastGlassEvent(ent, AI_EV_GLASS_DESTROYED, &teamFlags, &_RDI->pos);
+      Actor_BroadcastGlassEvent(ent, AI_EV_GLASS_DESTROYED, &teamFlags, &params->pos);
     }
   }
 }
@@ -625,120 +589,78 @@ G_Active_Glass_SetupBreakParams
 */
 void G_Active_Glass_SetupBreakParams(playerState_s *const ps, const gentity_s *const ent, GGlassBreakParms *const outParams)
 {
+  __int128 v6; 
+  __int128 v7; 
+  const dvar_t *v11; 
+  float value; 
+  float v13; 
+  float v14; 
   GHandler *Handler; 
-  Physics_WorldId v34; 
+  Physics_WorldId v16; 
   GPlayerTraceInfo *PlayerTraceInfo; 
   int passEntityNum; 
   EffectiveStance EffectiveStance; 
   const Bounds *bounds; 
-  char v52; 
-  char v53; 
-  BgTrace v62; 
+  float fraction; 
+  float v22; 
+  float v23; 
+  float v24; 
+  const dvar_t *v25; 
+  float v26; 
+  BgTrace v27; 
   vec3_t end; 
-  char v64; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R14 = outParams;
-  _RBP = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 501, ASSERT_TYPE_ASSERT, "( ps != nullptr )", (const char *)&queryFormat, "ps != nullptr") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 502, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
+  if ( !outParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 502, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
     __debugbreak();
+  v6 = LODWORD(ps->velocity.v[0]);
+  v7 = v6;
+  *(float *)&v7 = fsqrt((float)((float)(*(float *)&v6 * *(float *)&v6) + (float)(ps->velocity.v[1] * ps->velocity.v[1])) + (float)(ps->velocity.v[2] * ps->velocity.v[2]));
+  _XMM4 = v7;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+40h]
-    vmovss  xmm5, dword ptr [rbp+3Ch]
-    vmovss  xmm3, dword ptr [rbp+44h]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm0, xmm5, xmm1
-    vmovss  dword ptr [r14], xmm0
-    vmulss  xmm0, xmm1, dword ptr [rbp+40h]
-    vmovss  dword ptr [r14+4], xmm0
-    vmulss  xmm0, xmm1, dword ptr [rbp+44h]
-    vmovss  dword ptr [r14+8], xmm0
   }
-  _RBX = DCONST_DVARFLT_player_glassBreakDistance;
+  outParams->dir.v[0] = *(float *)&v6 * (float)(1.0 / *(float *)&_XMM0);
+  outParams->dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * ps->velocity.v[1];
+  outParams->dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * ps->velocity.v[2];
+  v11 = DCONST_DVARFLT_player_glassBreakDistance;
   if ( !DCONST_DVARFLT_player_glassBreakDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_glassBreakDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm2, dword ptr [r14]
-    vaddss  xmm1, xmm0, dword ptr [rbp+30h]
-    vmulss  xmm0, xmm2, dword ptr [r14+4]
-    vmovss  dword ptr [rsp+0E8h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+34h]
-    vmulss  xmm0, xmm2, dword ptr [r14+8]
-    vmovss  dword ptr [rsp+0E8h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+38h]
-    vmovss  dword ptr [rsp+0E8h+end+8], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  v13 = value * outParams->dir.v[1];
+  end.v[0] = (float)(value * outParams->dir.v[0]) + ps->origin.v[0];
+  v14 = value * outParams->dir.v[2];
+  end.v[1] = v13 + ps->origin.v[1];
+  end.v[2] = v14 + ps->origin.v[2];
   Handler = GHandler::getHandler();
-  v34 = Handler->GetPhysicsWorldId(Handler);
+  v16 = Handler->GetPhysicsWorldId(Handler);
   PlayerTraceInfo = GPlayerTraceInfo::GetPlayerTraceInfo(ent->s.number);
-  BgTrace::BgTrace(&v62, PlayerTraceInfo);
-  passEntityNum = _RBP->clientNum;
-  EffectiveStance = PM_GetEffectiveStance(_RBP);
-  bounds = BG_Suit_GetBounds(_RBP->suitIndex, EffectiveStance);
-  BgTrace::LegacyTraceHandler(&v62, v34, &_R14->trace, &_RBP->origin, &end, bounds, passEntityNum, 16, _RBP);
-  __asm
+  BgTrace::BgTrace(&v27, PlayerTraceInfo);
+  passEntityNum = ps->clientNum;
+  EffectiveStance = PM_GetEffectiveStance(ps);
+  bounds = BG_Suit_GetBounds(ps->suitIndex, EffectiveStance);
+  BgTrace::LegacyTraceHandler(&v27, v16, &outParams->trace, &ps->origin, &end, bounds, passEntityNum, 16, ps);
+  fraction = outParams->trace.fraction;
+  v22 = end.v[1];
+  outParams->pos.v[0] = (float)((float)(end.v[0] - ps->origin.v[0]) * fraction) + ps->origin.v[0];
+  v23 = v22 - ps->origin.v[1];
+  v24 = end.v[2];
+  outParams->pos.v[1] = (float)(v23 * fraction) + ps->origin.v[1];
+  outParams->pos.v[2] = (float)((float)(v24 - ps->origin.v[2]) * fraction) + ps->origin.v[2];
+  if ( outParams->trace.fraction < 1.0 && BG_Glass_CanBreakGlass(&outParams->trace) )
   {
-    vmovss  xmm6, dword ptr [r14+18h]
-    vmovss  xmm0, dword ptr [rsp+0E8h+end]
-    vsubss  xmm1, xmm0, dword ptr [rbp+30h]
-    vmovss  xmm0, dword ptr [rsp+0E8h+end+4]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbp+30h]
-    vmovss  dword ptr [r14+0Ch], xmm3
-    vsubss  xmm1, xmm0, dword ptr [rbp+34h]
-    vmovss  xmm0, dword ptr [rsp+0E8h+end+8]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbp+34h]
-    vmovss  dword ptr [r14+10h], xmm3
-    vsubss  xmm1, xmm0, dword ptr [rbp+38h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rbp+38h]
-    vmovss  dword ptr [r14+14h], xmm3
-    vcomiss xmm7, dword ptr [r14+18h]
-  }
-  if ( !(v52 | v53) && BG_Glass_CanBreakGlass(&_R14->trace) )
-  {
-    _RBX = DCONST_DVARFLT_player_glassBreakSpeedScale;
+    v25 = DCONST_DVARFLT_player_glassBreakSpeedScale;
     if ( !DCONST_DVARFLT_player_glassBreakSpeedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_glassBreakSpeedScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]
-      vmulss  xmm0, xmm2, dword ptr [rbp+3Ch]
-      vmovss  dword ptr [rbp+3Ch], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+40h]
-      vmovss  dword ptr [rbp+40h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbp+44h]
-      vmovss  dword ptr [rbp+44h], xmm0
-    }
-  }
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    Dvar_CheckFrontendServerThread(v25);
+    v26 = v25->current.value;
+    ps->velocity.v[0] = v26 * ps->velocity.v[0];
+    ps->velocity.v[1] = v26 * ps->velocity.v[1];
+    ps->velocity.v[2] = v26 * ps->velocity.v[2];
   }
 }
 
@@ -1002,85 +924,52 @@ G_Active_PlayerStateToEntityStateExtrapolate
 */
 void G_Active_PlayerStateToEntityStateExtrapolate(const playerState_s *ps, entityState_t *s, int gameTime, int snap)
 {
-  entityState_t *v7; 
-  const playerState_s *v8; 
+  float v4; 
   const dvar_t *v9; 
   GHandler *Handler; 
   GWeaponMap *Instance; 
   GHandler *v12; 
   GWeaponMap *v13; 
+  vec3_t *v14; 
+  double v15; 
+  double v16; 
+  double v17; 
   gentity_s *v18; 
   const dvar_t *v19; 
-  int v20; 
-  int v21; 
-  int v22; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-    vmovss  dword ptr [rdx+28h], xmm0
-  }
+  v4 = ps->velocity.v[0];
+  s->lerp.pos.trDelta.v[0] = v4;
   s->lerp.pos.trDelta.v[1] = ps->velocity.v[1];
   s->lerp.pos.trDelta.v[2] = ps->velocity.v[2];
-  v7 = s;
-  __asm { vmovss  [rsp+68h+arg_10], xmm0 }
-  v8 = ps;
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_31;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+2Ch]
-    vmovss  [rsp+68h+arg_10], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_31;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+30h]
-    vmovss  [rsp+68h+arg_10], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-  {
-LABEL_31:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 84, ASSERT_TYPE_SANITY, "( !IS_NAN( ( s->lerp.pos.trDelta )[0] ) && !IS_NAN( ( s->lerp.pos.trDelta )[1] ) && !IS_NAN( ( s->lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( s->lerp.pos.trDelta )[0] ) && !IS_NAN( ( s->lerp.pos.trDelta )[1] ) && !IS_NAN( ( s->lerp.pos.trDelta )[2] )") )
-      __debugbreak();
-  }
-  v7->lerp.pos.trTime = gameTime;
+  if ( ((LODWORD(v4) & 0x7F800000) == 2139095040 || (LODWORD(s->lerp.pos.trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(s->lerp.pos.trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 84, ASSERT_TYPE_SANITY, "( !IS_NAN( ( s->lerp.pos.trDelta )[0] ) && !IS_NAN( ( s->lerp.pos.trDelta )[1] ) && !IS_NAN( ( s->lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( s->lerp.pos.trDelta )[0] ) && !IS_NAN( ( s->lerp.pos.trDelta )[1] ) && !IS_NAN( ( s->lerp.pos.trDelta )[2] )") )
+    __debugbreak();
+  s->lerp.pos.trTime = gameTime;
   v9 = DCONST_DVARINT_g_playerMaxExtrapolationTime;
   if ( !DCONST_DVARINT_g_playerMaxExtrapolationTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_playerMaxExtrapolationTime") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v9);
-  v7->lerp.pos.trDuration = v9->current.integer;
+  s->lerp.pos.trDuration = v9->current.integer;
   Handler = GHandler::getHandler();
   Instance = GWeaponMap::GetInstance();
-  BG_PlayerStateToEntityState(Instance, v8, v7, snap, Handler);
+  BG_PlayerStateToEntityState(Instance, ps, s, snap, Handler);
   v12 = GHandler::getHandler();
   v13 = GWeaponMap::GetInstance();
-  BG_PlayerToEntity_ProcessEvents(v13, v8, v7, v12, gameTime);
+  BG_PlayerToEntity_ProcessEvents(v13, ps, s, v12, gameTime);
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  _RBX = (vec3_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)v7->number);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 56, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  v14 = (vec3_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)s->number);
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 56, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(v7->lerp.u.player.extraAnimData.anonymous.data[0], *(float *)&_XMM1, 0x10u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovss  dword ptr [rbx+904h], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(v7->lerp.u.player.extraAnimData.anonymous.data[1], *(float *)&_XMM1, 0x10u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovss  dword ptr [rbx+908h], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(v7->lerp.u.player.extraAnimData.anonymous.data[2], *(float *)&_XMM1, 0x10u);
-  __asm { vmovss  dword ptr [rbx+90Ch], xmm0 }
-  BG_SlopeWorldmodel_Unpack(&v7->lerp.u.player.slopePacked, _RBX + 1221);
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 29, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+  v15 = MSG_UnpackSignedFloat(s->lerp.u.player.extraAnimData.anonymous.data[0], 1.0, 0x10u);
+  v14[192].v[1] = *(float *)&v15;
+  v16 = MSG_UnpackSignedFloat(s->lerp.u.player.extraAnimData.anonymous.data[1], 1.0, 0x10u);
+  v14[192].v[2] = *(float *)&v16;
+  v17 = MSG_UnpackSignedFloat(s->lerp.u.player.extraAnimData.anonymous.data[2], 1.0, 0x10u);
+  v14[193].v[0] = *(float *)&v17;
+  BG_SlopeWorldmodel_Unpack(&s->lerp.u.player.slopePacked, v14 + 1221);
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 29, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v18 = &g_entities[v8->clientNum];
+  v18 = &g_entities[ps->clientNum];
   if ( v18->s.eType != ET_PLAYER )
     goto LABEL_27;
   if ( !v18->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 37, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
@@ -1091,8 +980,8 @@ LABEL_31:
   Dvar_CheckFrontendServerThread(v19);
   if ( !v19->current.enabled && (v18->client->flags & 0x800) == 0 )
 LABEL_27:
-    v7->lerp.u.anonymous.data[4] = 0;
-  v7->lerp.pos.trType = TR_LINEAR_STOP;
+    s->lerp.u.anonymous.data[4] = 0;
+  s->lerp.pos.trType = TR_LINEAR_STOP;
 }
 
 /*
@@ -1281,28 +1170,28 @@ G_Active_SetupGestureStopParams
 */
 void G_Active_SetupGestureStopParams(const playerState_s *const ps, const int serverTime, const unsigned int slot, GGestureStopParms *const outParams)
 {
-  __int64 v5; 
+  __int64 v4; 
   unsigned int index; 
+  double ElapsedTime; 
   __int64 v10; 
 
-  v5 = slot;
-  _RDI = outParams;
+  v4 = slot;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 471, ASSERT_TYPE_ASSERT, "( ps != nullptr )", (const char *)&queryFormat, "ps != nullptr") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 472, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
+  if ( !outParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 472, ASSERT_TYPE_ASSERT, "( outParams != nullptr )", (const char *)&queryFormat, "outParams != nullptr") )
     __debugbreak();
-  if ( (unsigned int)v5 >= 2 )
+  if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v10) = v5;
+    LODWORD(v10) = v4;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 473, ASSERT_TYPE_ASSERT, "(unsigned)( slot ) < (unsigned)( ( sizeof( *array_counter( ps->gestureState.gestures ) ) + 0 ) )", "slot doesn't index ARRAY_COUNT( ps->gestureState.gestures )\n\t%i not in [0, %i)", v10, 2) )
       __debugbreak();
   }
-  index = ps->gestureState.gestures[v5].index;
-  _RDI->gestureIndex = index;
+  index = ps->gestureState.gestures[v4].index;
+  outParams->gestureIndex = index;
   if ( index == 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_active.cpp", 476, ASSERT_TYPE_ASSERT, "( outParams->gestureIndex != (1<<8) )", (const char *)&queryFormat, "outParams->gestureIndex != GESTURE_INVALID_INDEX") )
     __debugbreak();
-  *(double *)&_XMM0 = BG_Gesture_GetElapsedTime(ps, v5, serverTime);
-  __asm { vmovss  dword ptr [rdi+4], xmm0 }
+  ElapsedTime = BG_Gesture_GetElapsedTime(ps, v4, serverTime);
+  outParams->elapsedTime = *(float *)&ElapsedTime;
 }
 
 /*
@@ -1313,100 +1202,59 @@ G_Active_ThirdPersonViewTrace
 void G_Active_ThirdPersonViewTrace(const playerState_s *ps, const vec3_t *start, const vec3_t *end, int contentMask, float startSolidOffset, trace_t *trace, vec3_t *result)
 {
   int passEntityNum; 
-  bool v16; 
+  float fraction; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t enda; 
   Bounds bounds; 
 
   passEntityNum = ps->vehicleState.entity;
-  _RBP = trace;
-  _RSI = end;
-  _RBX = result;
   if ( passEntityNum == 2047 )
     passEntityNum = ps->clientNum;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40800000
-    vmovups xmm0, cs:__xmm@40800000000000000000000000000000
-    vmovss  dword ptr [rsp+0A8h+bounds.halfSize+4], xmm1
-    vmovss  dword ptr [rsp+0A8h+bounds.halfSize+8], xmm1
-    vmovups xmmword ptr [rsp+0A8h+bounds.midPoint], xmm0
-  }
+  bounds.halfSize.v[1] = FLOAT_4_0;
+  bounds.halfSize.v[2] = FLOAT_4_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
   G_Main_TraceCapsule(trace, start, end, &bounds, passEntityNum, contentMask);
-  v16 = !trace->startsolid;
   if ( trace->startsolid )
   {
-    __asm { vmovss  xmm0, [rsp+0A8h+startSolidOffset] }
     *(_QWORD *)result->v = *(_QWORD *)start->v;
-    __asm
-    {
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    result->v[2] = startSolidOffset + start->v[2];
   }
   else
   {
-    __asm
+    fraction = trace->fraction;
+    v12 = end->v[0];
+    if ( trace->fraction == 1.0 )
     {
-      vmovss  xmm5, dword ptr [rbp+0]
-      vmovss  xmm0, dword ptr [rsi]
-      vmovaps [rsp+0A8h+var_48], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vucomiss xmm5, xmm6
-    }
-    if ( v16 )
-    {
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-      result->v[1] = _RSI->v[1];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      result->v[0] = v12;
+      result->v[1] = end->v[1];
+      result->v[2] = end->v[2];
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm0, xmm0, dword ptr [rdi]
-        vmulss  xmm1, xmm0, xmm5
-        vaddss  xmm2, xmm1, dword ptr [rdi]
-        vmovss  xmm0, dword ptr [rsi+4]
-        vsubss  xmm1, xmm0, dword ptr [rdi+4]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rsp+0A8h+end], xmm2
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rdi+4]
-        vsubss  xmm1, xmm0, dword ptr [rdi+8]
-        vmulss  xmm2, xmm1, xmm5
-        vsubss  xmm0, xmm6, xmm5
-        vmulss  xmm1, xmm0, cs:__real@42000000
-        vmovss  dword ptr [rsp+0A8h+end+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rdi+8]
-        vaddss  xmm2, xmm3, xmm1
-        vmovss  dword ptr [rsp+0A8h+end+8], xmm2
-      }
+      v13 = (float)((float)(v12 - start->v[0]) * fraction) + start->v[0];
+      v14 = end->v[1] - start->v[1];
+      v15 = end->v[2];
+      enda.v[0] = v13;
+      v16 = (float)(v15 - start->v[2]) * fraction;
+      enda.v[1] = (float)(v14 * fraction) + start->v[1];
+      enda.v[2] = (float)(v16 + start->v[2]) + (float)((float)(1.0 - fraction) * 32.0);
       G_Main_TraceCapsule(trace, start, &enda, &bounds, passEntityNum, contentMask);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbp+0]
-        vmovss  xmm0, dword ptr [rsp+0A8h+end]
-        vsubss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  xmm0, dword ptr [rsp+0A8h+end+4]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rdi]
-        vmovss  dword ptr [rbx], xmm3
-        vsubss  xmm1, xmm0, dword ptr [rdi+4]
-        vmovss  xmm0, dword ptr [rsp+0A8h+end+8]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rdi+4]
-        vmovss  dword ptr [rbx+4], xmm3
-        vsubss  xmm1, xmm0, dword ptr [rdi+8]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rdi+8]
-        vmovss  dword ptr [rbx+8], xmm3
-      }
+      v17 = trace->fraction;
+      v18 = enda.v[1];
+      result->v[0] = (float)((float)(enda.v[0] - start->v[0]) * trace->fraction) + start->v[0];
+      v19 = v18 - start->v[1];
+      v20 = enda.v[2];
+      result->v[1] = (float)(v19 * v17) + start->v[1];
+      result->v[2] = (float)((float)(v20 - start->v[2]) * v17) + start->v[2];
     }
-    __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
   }
 }
 

@@ -192,16 +192,8 @@ XSECURITY_INFO::operator=
 */
 XSECURITY_INFO *XSECURITY_INFO::operator=(XSECURITY_INFO *this, const XSECURITY_INFO *other)
 {
-  XSECURITY_INFO *result; 
-
-  this->m_id = other->m_id;
-  result = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+8]
-    vmovups xmmword ptr [rcx+8], xmm0
-  }
-  return result;
+  *this = *other;
+  return this;
 }
 
 /*
@@ -247,18 +239,11 @@ __int64 XSECURITY_INFO::Deserialize(XSECURITY_INFO *this, const unsigned __int8 
 {
   __int64 result; 
 
-  _RBX = data;
-  _RDI = this;
   if ( length < 24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_security.cpp", 119, ASSERT_TYPE_ASSERT, "(length >= Size())", (const char *)&queryFormat, "length >= Size()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi+8], xmm0
-    vmovsd  xmm0, qword ptr [rbx+10h]
-  }
+  this->m_key = *(bdSecurityKey *)data;
   result = 24i64;
-  __asm { vmovsd  qword ptr [rdi], xmm0 }
+  this->m_id = *((bdSecurityID *)data + 2);
   return result;
 }
 
@@ -342,17 +327,10 @@ XSECURITY_INFO::Serialize
 */
 __int64 XSECURITY_INFO::Serialize(XSECURITY_INFO *this, unsigned __int8 *buffer, const int size)
 {
-  _RBX = buffer;
-  _RDI = this;
   if ( (unsigned int)size < 0x18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_security.cpp", 96, ASSERT_TYPE_ASSERT, "(size >= sizeof( m_key.ab ) + sizeof( m_id.ab ))", (const char *)&queryFormat, "size >= sizeof( m_key.ab ) + sizeof( m_id.ab )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+8]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr [rbx+10h], xmm0
-  }
+  *(bdSecurityKey *)buffer = this->m_key;
+  *((double *)buffer + 2) = *(double *)&this->m_id;
   return 24i64;
 }
 
@@ -375,10 +353,6 @@ XSECURITY_INFO::Set
 void XSECURITY_INFO::Set(XSECURITY_INFO *this, const bdSecurityID *id, const bdSecurityKey *key)
 {
   this->m_id = *id;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rcx+8], xmm0
-  }
+  this->m_key = *key;
 }
 

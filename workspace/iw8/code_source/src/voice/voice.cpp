@@ -703,214 +703,103 @@ Voice_DrawDebug
 */
 void Voice_DrawDebug(LocalClientNum_t localClientNum)
 {
-  ScreenPlacementMode v6; 
-  __int32 v7; 
-  bool v8; 
+  bool v1; 
+  ScreenPlacement *v2; 
+  float v3; 
+  float v4; 
   GfxFont *font; 
   const char *s; 
+  float v7; 
+  int v8; 
   GfxFont *smallDevFont; 
+  float v10; 
   unsigned __int64 AverageEncodeTime; 
-  const char *v29; 
-  GfxFont *v33; 
+  const char *v12; 
+  int v13; 
+  GfxFont *v14; 
+  float v15; 
   unsigned __int64 MaxEncodeTime; 
-  const char *v38; 
-  signed int v51; 
+  const char *v17; 
+  __int128 v18; 
+  signed int v19; 
   bool *p_allocated; 
-  int v54; 
-  GfxFont *v55; 
+  __int128 v21; 
+  int v22; 
+  GfxFont *v23; 
   unsigned int LocalVoiceBufferUsage; 
-  const char *v57; 
-  const char *v58; 
-  GfxFont *v69; 
-  unsigned int v70; 
-  const char *v71; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  char v90; 
-  void *retaddr; 
+  const char *v25; 
+  const char *v26; 
+  __int128 v27; 
+  __int128 v28; 
+  GfxFont *v29; 
+  unsigned int v30; 
+  const char *v31; 
+  __int128 v32; 
 
-  _RAX = &retaddr;
-  v6 = activeScreenPlacementMode;
-  __asm
+  if ( activeScreenPlacementMode )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  if ( v6 )
-  {
-    v7 = v6 - 1;
-    if ( !v7 )
+    if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      _RDI = &scrPlaceViewDisplay[localClientNum];
+      v2 = &scrPlaceViewDisplay[localClientNum];
       goto LABEL_8;
     }
-    if ( v7 == 1 )
-      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+    if ( activeScreenPlacementMode == SCRMODE_INVALID )
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v8 )
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v1 )
       __debugbreak();
   }
-  _RDI = &scrPlaceFull;
+  v2 = &scrPlaceFull;
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rdi+28h]
-    vmovss  xmm6, dword ptr [rdi+2Ch]
-  }
+  v3 = v2->virtualViewableMin.v[0];
+  v4 = v2->virtualViewableMin.v[1];
   font = cls.smallDevFont;
   s = j_va("Largest packet: %d bytes", (unsigned int)s_maxPacketSize);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f0ccccd
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, s, &colorWhite, 5, font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, "Encode time", &colorWhite, 5, cls.smallDevFont);
+  v7 = v4 + (float)CG_DrawDevString(v2, v3, v4, 0.55000001, 0.55000001, s, &colorWhite, 5, font);
+  v8 = CG_DrawDevString(v2, v3, v7, 0.55000001, 0.55000001, "Encode time", &colorWhite, 5, cls.smallDevFont);
   smallDevFont = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
+  v10 = v7 + (float)v8;
   AverageEncodeTime = VoiceEncode_GetAverageEncodeTime();
-  v29 = j_va("  Avg: %lluus", AverageEncodeTime);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v29, &colorWhite, 5, smallDevFont);
-  v33 = cls.smallDevFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
+  v12 = j_va("  Avg: %lluus", AverageEncodeTime);
+  v13 = CG_DrawDevString(v2, v3, v10, 0.55000001, 0.55000001, v12, &colorWhite, 5, smallDevFont);
+  v14 = cls.smallDevFont;
+  v15 = v10 + (float)v13;
   MaxEncodeTime = VoiceEncode_GetMaxEncodeTime();
-  v38 = j_va("  Max: %lluus", MaxEncodeTime);
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v38, &colorWhite, 5, v33);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm1, xmm0, xmm6
-    vaddss  xmm6, xmm1, cs:__real@41200000
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, "Local Talkers", &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  v51 = 0;
+  v17 = j_va("  Max: %lluus", MaxEncodeTime);
+  v18 = 0i64;
+  *(float *)&v18 = (float)((float)CG_DrawDevString(v2, v3, v15, 0.55000001, 0.55000001, v17, &colorWhite, 5, v14) + v15) + 10.0;
+  v19 = 0;
   p_allocated = &s_localTalkerInfo[0].allocated;
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  v54 = 0;
+  *(float *)&v18 = *(float *)&v18 + (float)CG_DrawDevString(v2, v3, *(float *)&v18, 0.55000001, 0.55000001, "Local Talkers", &colorWhite, 5, cls.smallDevFont);
+  v21 = v18;
+  v22 = 0;
   do
   {
-    v55 = cls.smallDevFont;
-    LocalVoiceBufferUsage = VoiceEncode_GetLocalVoiceBufferUsage(v54);
-    v57 = "False";
+    v23 = cls.smallDevFont;
+    LocalVoiceBufferUsage = VoiceEncode_GetLocalVoiceBufferUsage(v22);
+    v25 = "False";
     if ( *p_allocated )
-      v57 = "True";
-    v58 = j_va("  %d) Allocated: %s, Packet count: %d", (unsigned int)v54, v57, LocalVoiceBufferUsage);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+98h+fmt], xmm7
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v58, &colorWhite, 5, v55);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    ++v54;
+      v25 = "True";
+    v26 = j_va("  %d) Allocated: %s, Packet count: %d", (unsigned int)v22++, v25, LocalVoiceBufferUsage);
     p_allocated += 12;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+    v27 = v21;
+    *(float *)&v27 = *(float *)&v21 + (float)CG_DrawDevString(v2, v3, *(float *)&v21, 0.55000001, 0.55000001, v26, &colorWhite, 5, v23);
+    v21 = v27;
   }
-  while ( v54 < 8 );
-  __asm
-  {
-    vmovaps xmm3, xmm7; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, "Remote Talkers", &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm6, xmm6, xmm0
-  }
+  while ( v22 < 8 );
+  *(float *)&v27 = *(float *)&v27 + (float)CG_DrawDevString(v2, v3, *(float *)&v27, 0.55000001, 0.55000001, "Remote Talkers", &colorWhite, 5, cls.smallDevFont);
+  v28 = v27;
   do
   {
-    v69 = cls.smallDevFont;
-    v70 = VoiceDecode_GetLocalVoiceBufferUsage(v51);
-    v71 = j_va("  %d) packet count: %d", (unsigned int)v51, v70);
-    __asm
-    {
-      vmovaps xmm3, xmm7; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+98h+fmt], xmm7
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v71, &colorWhite, 5, v69);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    ++v51;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
+    v29 = cls.smallDevFont;
+    v30 = VoiceDecode_GetLocalVoiceBufferUsage(v19);
+    v31 = j_va("  %d) packet count: %d", (unsigned int)v19++, v30);
+    v32 = v28;
+    *(float *)&v32 = *(float *)&v28 + (float)CG_DrawDevString(v2, v3, *(float *)&v28, 0.55000001, 0.55000001, v31, &colorWhite, 5, v29);
+    v28 = v32;
   }
-  while ( v51 < 5 );
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
+  while ( v19 < 5 );
 }
 
 /*
@@ -993,6 +882,7 @@ void Voice_Frame(void)
   const SndFutz *FutzById; 
   bool updated; 
   int v13; 
+  const dvar_t *v14; 
 
   if ( s_voiceSystemInitialized )
   {
@@ -1049,12 +939,11 @@ void Voice_Frame(void)
         v13 = integer;
       s_currentFutzIndex = v13;
     }
-    _RBX = DVARFLT_voice_output_scaler;
+    v14 = DVARFLT_voice_output_scaler;
     if ( !DVARFLT_voice_output_scaler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_output_scaler") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h]; volume }
-    VoiceDecode_SetOutputVolume(*(float *)&_XMM0);
+    Dvar_CheckFrontendServerThread(v14);
+    VoiceDecode_SetOutputVolume(v14->current.value);
   }
 }
 
@@ -1259,20 +1148,19 @@ float __fastcall Voice_GetVoiceLevel(double _XMM0_8)
 {
   bool *p_microphoneAttached; 
   int i; 
-  int v5; 
+  int v4; 
   LocalClientNum_t outLocalClientNum; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   p_microphoneAttached = &s_localTalkerInfo[0].microphoneAttached;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  LODWORD(_XMM6) = 0;
   for ( i = 0; i < 8; ++i )
   {
     if ( Live_IsSignedIn(i) )
     {
-      v5 = 0;
-      while ( !CL_Mgr_IsControllerMappedToClient(v5, &outLocalClientNum) || Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v5) )
+      v4 = 0;
+      while ( !CL_Mgr_IsControllerMappedToClient(v4, &outLocalClientNum) || Live_GetDoesUserHaveOnlineCommunicationsPrivilege(v4) )
       {
-        if ( ++v5 >= 8 )
+        if ( ++v4 >= 8 )
         {
           if ( *p_microphoneAttached )
           {
@@ -1285,12 +1173,7 @@ float __fastcall Voice_GetVoiceLevel(double _XMM0_8)
     }
     p_microphoneAttached += 12;
   }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -1877,121 +1760,20 @@ Voice_RegisterDvars
 */
 void Voice_RegisterDvars()
 {
-  const dvar_t *v8; 
-  const dvar_t *v12; 
-  const dvar_t *v16; 
-  const dvar_t *v20; 
-  const dvar_t *v25; 
-  const dvar_t *v33; 
-  const dvar_t *v37; 
-  const dvar_t *v41; 
-  const dvar_t *v45; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@bf800000; value
-    vmovss  xmm3, cs:__real@44160000; max
-  }
   DVARBOOL_voice_mic_mute = Dvar_RegisterBool("NMOLNNPOST", 0, 0, "Mute the microphone");
-  __asm
-  {
-    vmovaps xmm2, xmm1; min
-    vmovss  xmm6, cs:__real@47800000
-  }
-  DVARFLT_voice_mic_inactivityMuteDelay = Dvar_RegisterFloat("LKPLLLNTNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Mute the microphone after this many seconds of in-game input inactivity (-1 to disable)");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  v8 = Dvar_RegisterFloat("OSONRTTPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone recording level");
-  __asm { vmovss  xmm1, cs:__real@450186e2; value }
-  DVARFLT_voice_mic_reclevel = v8;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v12 = Dvar_RegisterFloat("MSKKKMTQNT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone voice threshold (normal)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@3fff64c1; value
-  }
-  DVARFLT_voice_mic_threshold = v12;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v16 = Dvar_RegisterFloat("MMPQRNNTSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone voice threshold (aggressive, multiplied with voice_mic_threshold at runtime)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@40fe2f5e; value
-  }
-  DVARFLT_voice_mic_threshold_aggressive = v16;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v20 = Dvar_RegisterFloat("MSPQRMTSTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone voice threshold for detecting loud talking, multiplied with voice_mic_threshold at runtime");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@43960000
-    vmovss  xmm1, cs:__real@41700000; value
-  }
-  DVARFLT_voice_mic_threshold_loud = v20;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v25 = Dvar_RegisterFloat("LQQKKSNPNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone amount of continuous talk time before we switch to aggressive voice threshold");
-  __asm { vmovss  xmm1, cs:__real@42700000; value }
-  DVARFLT_voice_mic_aggressiveInTime = v25;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_voice_mic_aggressiveOutTime = Dvar_RegisterFloat("SKKNQTSPT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone amount of continuous mute time before we switch to normal voice threshold");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovss  xmm6, cs:__real@40a00000
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  v33 = Dvar_RegisterFloat("MPRRTSLLNL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "After loud talking detected, use aggressive voice threshold for this long to prevent possible audio feedback (seconds)");
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  DVARFLT_voice_mic_postLoudAggressiveTime = v33;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v37 = Dvar_RegisterFloat("OMONSMLKMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone voice amount of silence before we cut the mic (after normal talking)");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  DVARFLT_voice_mic_outTime = v37;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v41 = Dvar_RegisterFloat("NLNMRQRSP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone voice amount of silence before we cut the mic (after loud talking)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40800000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
-  DVARFLT_voice_mic_outTimeLoud = v41;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v45 = Dvar_RegisterFloat("LRTMQRTPLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Microphone scaler value");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40800000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
-  DVARFLT_voice_mic_scaler = v45;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_voice_output_scaler = Dvar_RegisterFloat("MPQSQTNRNO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Remote voice scaler value");
+  DVARFLT_voice_mic_inactivityMuteDelay = Dvar_RegisterFloat("LKPLLLNTNS", -1.0, -1.0, 600.0, 0, "Mute the microphone after this many seconds of in-game input inactivity (-1 to disable)");
+  DVARFLT_voice_mic_reclevel = Dvar_RegisterFloat("OSONRTTPO", 65536.0, 0.0, 65536.0, 0, "Microphone recording level");
+  DVARFLT_voice_mic_threshold = Dvar_RegisterFloat("MSKKKMTQNT", 2072.4302, 0.0, 65536.0, 0, "Microphone voice threshold (normal)");
+  DVARFLT_voice_mic_threshold_aggressive = Dvar_RegisterFloat("MMPQRNNTSO", 1.9952623, 0.0, 100.0, 0, "Microphone voice threshold (aggressive, multiplied with voice_mic_threshold at runtime)");
+  DVARFLT_voice_mic_threshold_loud = Dvar_RegisterFloat("MSPQRMTSTS", 7.9432821, 0.0, 100.0, 0, "Microphone voice threshold for detecting loud talking, multiplied with voice_mic_threshold at runtime");
+  DVARFLT_voice_mic_aggressiveInTime = Dvar_RegisterFloat("LQQKKSNPNS", 15.0, 0.0, 300.0, 0, "Microphone amount of continuous talk time before we switch to aggressive voice threshold");
+  DVARFLT_voice_mic_aggressiveOutTime = Dvar_RegisterFloat("SKKNQTSPT", 60.0, 0.0, 300.0, 0, "Microphone amount of continuous mute time before we switch to normal voice threshold");
+  DVARFLT_voice_mic_postLoudAggressiveTime = Dvar_RegisterFloat("MPRRTSLLNL", 5.0, 0.0, 300.0, 0, "After loud talking detected, use aggressive voice threshold for this long to prevent possible audio feedback (seconds)");
+  DVARFLT_voice_mic_outTime = Dvar_RegisterFloat("OMONSMLKMN", 1.0, 0.0, 5.0, 0, "Microphone voice amount of silence before we cut the mic (after normal talking)");
+  DVARFLT_voice_mic_outTimeLoud = Dvar_RegisterFloat("NLNMRQRSP", 0.5, 0.0, 5.0, 0, "Microphone voice amount of silence before we cut the mic (after loud talking)");
+  DVARFLT_voice_mic_scaler = Dvar_RegisterFloat("LRTMQRTPLO", 1.0, 0.0, 4.0, 0, "Microphone scaler value");
+  DVARFLT_voice_output_scaler = Dvar_RegisterFloat("MPQSQTNRNO", 1.0, 0.0, 4.0, 0, "Remote voice scaler value");
   DVARBOOL_voice_agc = Dvar_RegisterBool("NSPSRQONRN", 1, 0, "Use microphone Automatic Gain Control");
   DVARBOOL_voice_loopback = Dvar_RegisterBool("LNKRTSKLT", 0, 0, "Echo microphone input locally");
   DVARBOOL_voice_test_tone = Dvar_RegisterBool("NNQQMLKMOT", 0, 0, "Generates a continuous tone to the voice encoder");
@@ -2006,7 +1788,6 @@ void Voice_RegisterDvars()
   DCONST_DVARBOOL_voice_record_input = Dvar_RegisterBool("voice_record_input", 0, 0x40004u, "Save encoded mic data to a file");
   DCONST_DVARSTR_voice_replay_recording = Dvar_RegisterString("voice_replay_recording", (const char *)&queryFormat.fmt + 3, 0x40004u, "Name of recording file to replay");
   DCONST_DVARBOOL_voice_drawDebug = Dvar_RegisterBool("voice_drawDebug", 0, 0x40004u, "Draws debug voice communication overlay");
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   Dvar_EndPermanentRegistration();
 }
 

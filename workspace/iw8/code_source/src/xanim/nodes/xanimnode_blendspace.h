@@ -147,24 +147,18 @@ XAnimBlendSpace2D_GetXCoord
 */
 float XAnimBlendSpace2D_GetXCoord(const XAnimFieldArray<float> *coords, unsigned int index)
 {
-  unsigned int v6; 
+  __int64 v2; 
+  unsigned int v5; 
   unsigned int size; 
 
-  _RBX = 2 * index;
-  _RDI = coords;
-  if ( (unsigned int)_RBX < coords->size )
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+rbx*4+4] }
-  }
-  else
-  {
-    size = coords->size;
-    v6 = 2 * index;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 128, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", v6, size) )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rdi+rbx*4+4] }
-  }
-  return *(float *)&_XMM0;
+  v2 = 2 * index;
+  if ( (unsigned int)v2 < coords->size )
+    return coords->values[v2];
+  size = coords->size;
+  v5 = 2 * index;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 128, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", v5, size) )
+    __debugbreak();
+  return coords->values[v2];
 }
 
 /*
@@ -175,21 +169,18 @@ XAnimBlendSpace2D_GetYCoord
 float XAnimBlendSpace2D_GetYCoord(const XAnimFieldArray<float> *coords, unsigned int index)
 {
   unsigned int v2; 
-  unsigned int v7; 
+  unsigned int v5; 
   unsigned int size; 
 
   v2 = 2 * index;
-  _RDI = coords;
   if ( 2 * index >= coords->size )
   {
     size = coords->size;
-    v7 = 2 * index;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 134, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", v7, size) )
+    v5 = 2 * index;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 134, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", v5, size) )
       __debugbreak();
   }
-  _RAX = v2 + 1;
-  __asm { vmovss  xmm0, dword ptr [rdi+rax*4+4] }
-  return *(float *)&_XMM0;
+  return coords->values[v2 + 1];
 }
 
 /*

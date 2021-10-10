@@ -134,233 +134,206 @@ Cmd_AI_DisplayValue
 void Cmd_AI_DisplayValue(ai_scripted_t *pSelf, unsigned __int8 *pBase, const ai_scripted_fields_s *pField)
 {
   unsigned int number; 
-  int v10; 
-  const char *v11; 
-  int v12; 
-  const char *v13; 
-  int v14; 
-  const char *v15; 
-  const char *v19; 
-  scr_string_t v20; 
-  const char *v21; 
-  scr_string_t v22; 
-  const char *v30; 
-  __int64 v33; 
-  signed __int64 v34; 
-  scr_string_t targetname; 
-  const char *v36; 
-  const char *v37; 
+  int v7; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
+  int v11; 
+  const char *v12; 
+  double v13; 
+  const char *v14; 
+  scr_string_t v15; 
+  const char *v16; 
+  scr_string_t v17; 
   __int64 ofs; 
-  int v39; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v42; 
-  scr_string_t v43; 
+  double v19; 
+  double v20; 
+  double v21; 
+  const char *v22; 
+  __int64 v23; 
+  signed __int64 v24; 
+  scr_string_t targetname; 
+  const char *v26; 
+  const char *v27; 
+  __int64 v28; 
+  int v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  scr_string_t v33; 
+  const char *v34; 
+  const char *v35; 
+  __int16 **v36; 
+  unsigned __int64 v37; 
+  const char *v38; 
+  const pathnode_t *v39; 
+  int v40; 
+  const char *v41; 
+  const char *v42; 
+  unsigned int v43; 
   const char *v44; 
   const char *v45; 
-  __int16 **v46; 
-  unsigned __int64 v47; 
-  const char *v48; 
-  const pathnode_t *v49; 
-  int v50; 
-  const char *v51; 
-  const char *v52; 
-  unsigned int v53; 
-  const char *v54; 
-  const char *v55; 
   char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  __int64 v60; 
-  double v61; 
-  __int64 v62; 
-  double v63; 
+  __int64 v47; 
+  __int64 v48; 
 
-  _RBX = pBase;
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3847, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   number = pSelf->ent->s.number;
   switch ( pField->type )
   {
     case F_INT:
-      v10 = *(_DWORD *)&_RBX[pField->ofs];
-      v11 = SL_ConvertToString(*pField->name);
-      LODWORD(fmt) = v10;
-      Com_Printf(0, "ent %i: %s = %i\n", number, v11, fmt);
-      break;
+      v7 = *(_DWORD *)&pBase[pField->ofs];
+      v8 = SL_ConvertToString(*pField->name);
+      LODWORD(fmt) = v7;
+      Com_Printf(0, "ent %i: %s = %i\n", number, v8, fmt);
+      return;
     case F_SHORT:
-      v12 = *(__int16 *)&_RBX[pField->ofs];
-      v13 = SL_ConvertToString(*pField->name);
-      LODWORD(fmt) = v12;
-      Com_Printf(0, "ent %i: %s = %i\n", number, v13, fmt);
-      break;
+      v9 = *(__int16 *)&pBase[pField->ofs];
+      v10 = SL_ConvertToString(*pField->name);
+      LODWORD(fmt) = v9;
+      Com_Printf(0, "ent %i: %s = %i\n", number, v10, fmt);
+      return;
     case F_BYTE:
-      v14 = _RBX[pField->ofs];
-      v15 = SL_ConvertToString(*pField->name);
-      LODWORD(fmt) = v14;
-      Com_Printf(0, "ent %i: %s = %i\n", number, v15, fmt);
-      break;
+      v11 = pBase[pField->ofs];
+      v12 = SL_ConvertToString(*pField->name);
+      LODWORD(fmt) = v11;
+      Com_Printf(0, "ent %i: %s = %i\n", number, v12, fmt);
+      return;
     case F_FLOAT:
-      _RAX = pField->ofs;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rax+rbx]
-        vcvtss2sd xmm6, xmm6, xmm6
-      }
-      v19 = SL_ConvertToString(*pField->name);
-      __asm { vmovsd  [rsp+98h+fmt], xmm6 }
-      Com_Printf(0, "ent %i: %s = %g\n", number, v19, *(double *)&fmta);
-      break;
+      v13 = *(float *)&pBase[pField->ofs];
+      v14 = SL_ConvertToString(*pField->name);
+      Com_Printf(0, "ent %i: %s = %g\n", number, v14, v13);
+      return;
     case F_STRING:
-      v20 = *(_DWORD *)&_RBX[pField->ofs];
-      if ( v20 )
-        v21 = SL_ConvertToString(v20);
+      v15 = *(_DWORD *)&pBase[pField->ofs];
+      if ( v15 )
+        v16 = SL_ConvertToString(v15);
       else
-        v21 = "<undefined>";
-      v22 = *pField->name;
+        v16 = "<undefined>";
+      v17 = *pField->name;
       goto LABEL_62;
     case F_VECTOR:
-      _RAX = pField->ofs;
-      __asm
-      {
-        vmovaps [rsp+98h+var_38], xmm7
-        vmovaps [rsp+98h+var_48], xmm8
-        vmovss  xmm6, dword ptr [rax+rbx+8]
-        vmovss  xmm7, dword ptr [rax+rbx+4]
-        vmovss  xmm8, dword ptr [rax+rbx]
-        vcvtss2sd xmm6, xmm6, xmm6
-        vcvtss2sd xmm7, xmm7, xmm7
-        vcvtss2sd xmm8, xmm8, xmm8
-      }
-      v30 = SL_ConvertToString(*pField->name);
-      __asm
-      {
-        vmovsd  [rsp+98h+var_68], xmm6
-        vmovsd  [rsp+98h+var_70], xmm7
-        vmovsd  [rsp+98h+fmt], xmm8
-      }
-      Com_Printf(0, "ent %i: %s = %g %g %g\n", number, v30, *(double *)&fmtb, v61, v63);
-      __asm
-      {
-        vmovaps xmm8, [rsp+98h+var_48]
-        vmovaps xmm7, [rsp+98h+var_38]
-      }
-      break;
-    case F_ENTITY:
-      v33 = *(_QWORD *)&_RBX[pField->ofs];
-      if ( !v33 )
-        goto LABEL_57;
-      v34 = (signed __int64)(v33 - (unsigned __int64)level.gentities) / 1456;
-      if ( (unsigned __int64)(v34 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v34, "signed", (signed __int64)(v33 - (unsigned __int64)level.gentities) / 1456) )
-        __debugbreak();
-      if ( (unsigned int)v34 > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3886, ASSERT_TYPE_ASSERT, "(i >= 0 && i < ( 2048 ))", (const char *)&queryFormat, "i >= 0 && i < MAX_GENTITIES") )
-        __debugbreak();
-      targetname = level.gentities[(int)v34].targetname;
-      if ( targetname )
-        v36 = SL_ConvertToString(targetname);
-      else
-        v36 = "<undefined>";
-      v37 = SL_ConvertToString(*pField->name);
-      LODWORD(fmt) = v34;
-      Com_Printf(0, "ent %i: %s = %i (targetname %s)\n", number, v37, fmt, v36);
-      break;
-    case F_ENTHANDLE:
-      if ( !EntHandle::isDefined((EntHandle *)&_RBX[pField->ofs]) )
-        goto LABEL_57;
       ofs = pField->ofs;
-      v39 = *(unsigned __int16 *)&_RBX[ofs];
-      if ( (unsigned int)(v39 - 1) >= 0x7FF )
+      v19 = *(float *)&pBase[ofs + 8];
+      v20 = *(float *)&pBase[ofs + 4];
+      v21 = *(float *)&pBase[ofs];
+      v22 = SL_ConvertToString(*pField->name);
+      Com_Printf(0, "ent %i: %s = %g %g %g\n", number, v22, v21, v20, v19);
+      return;
+    case F_ENTITY:
+      v23 = *(_QWORD *)&pBase[pField->ofs];
+      if ( !v23 )
+        goto LABEL_57;
+      v24 = (signed __int64)(v23 - (unsigned __int64)level.gentities) / 1456;
+      if ( (unsigned __int64)(v24 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v24, "signed", (signed __int64)(v23 - (unsigned __int64)level.gentities) / 1456) )
+        __debugbreak();
+      if ( (unsigned int)v24 > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3886, ASSERT_TYPE_ASSERT, "(i >= 0 && i < ( 2048 ))", (const char *)&queryFormat, "i >= 0 && i < MAX_GENTITIES") )
+        __debugbreak();
+      targetname = level.gentities[(int)v24].targetname;
+      if ( targetname )
+        v26 = SL_ConvertToString(targetname);
+      else
+        v26 = "<undefined>";
+      v27 = SL_ConvertToString(*pField->name);
+      LODWORD(fmt) = v24;
+      Com_Printf(0, "ent %i: %s = %i (targetname %s)\n", number, v27, fmt, v26);
+      return;
+    case F_ENTHANDLE:
+      if ( !EntHandle::isDefined((EntHandle *)&pBase[pField->ofs]) )
+        goto LABEL_57;
+      v28 = pField->ofs;
+      v29 = *(unsigned __int16 *)&pBase[v28];
+      if ( (unsigned int)(v29 - 1) >= 0x7FF )
       {
-        LODWORD(v60) = v39 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v60, 2047) )
+        LODWORD(v47) = v29 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v47, 2047) )
           __debugbreak();
       }
-      v40 = *(unsigned __int16 *)&_RBX[ofs];
-      if ( (unsigned int)(v40 - 1) >= 0x800 )
+      v30 = *(unsigned __int16 *)&pBase[v28];
+      if ( (unsigned int)(v30 - 1) >= 0x800 )
       {
-        LODWORD(v62) = 2048;
-        LODWORD(v60) = v40 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v60, v62) )
+        LODWORD(v48) = 2048;
+        LODWORD(v47) = v30 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v47, v48) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v41 = v40 - 1;
-      if ( g_entities[v41].r.isInUse != g_entityIsInUse[v41] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v31 = v30 - 1;
+      if ( g_entities[v31].r.isInUse != g_entityIsInUse[v31] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v41] )
+      if ( !g_entityIsInUse[v31] )
       {
-        LODWORD(v62) = *(unsigned __int16 *)&_RBX[ofs] - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v62) )
+        LODWORD(v48) = *(unsigned __int16 *)&pBase[v28] - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v48) )
           __debugbreak();
       }
-      v42 = *(__int16 *)&_RBX[ofs];
-      LODWORD(ofs) = v42 - 1;
-      if ( (unsigned int)(v42 - 1) > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3900, ASSERT_TYPE_ASSERT, "(i >= 0 && i < ( 2048 ))", (const char *)&queryFormat, "i >= 0 && i < MAX_GENTITIES") )
+      v32 = *(__int16 *)&pBase[v28];
+      LODWORD(v28) = v32 - 1;
+      if ( (unsigned int)(v32 - 1) > 0x7FF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3900, ASSERT_TYPE_ASSERT, "(i >= 0 && i < ( 2048 ))", (const char *)&queryFormat, "i >= 0 && i < MAX_GENTITIES") )
         __debugbreak();
-      v43 = level.gentities[v42 - 1].targetname;
+      v33 = level.gentities[v32 - 1].targetname;
       goto LABEL_45;
     case F_SENTIENT:
-      v46 = *(__int16 ***)&_RBX[pField->ofs];
-      if ( !v46 )
+      v36 = *(__int16 ***)&pBase[pField->ofs];
+      if ( !v36 )
         goto LABEL_57;
-      ofs = **v46;
+      v28 = **v36;
       goto LABEL_51;
     case F_SENTIENTHANDLE:
-      if ( !SentientHandle::isDefined((SentientHandle *)&_RBX[pField->ofs]) )
+      if ( !SentientHandle::isDefined((SentientHandle *)&pBase[pField->ofs]) )
         goto LABEL_57;
-      ofs = SentientHandle::sentient((SentientHandle *)&_RBX[pField->ofs])->ent->s.number;
+      v28 = SentientHandle::sentient((SentientHandle *)&pBase[pField->ofs])->ent->s.number;
 LABEL_51:
-      v43 = level.gentities[ofs].targetname;
+      v33 = level.gentities[v28].targetname;
 LABEL_45:
-      if ( v43 )
-        v44 = SL_ConvertToString(v43);
+      if ( v33 )
+        v34 = SL_ConvertToString(v33);
       else
-        v44 = "<undefined>";
-      v45 = SL_ConvertToString(*pField->name);
-      LODWORD(fmt) = ofs;
-      Com_Printf(0, "ent %i: %s = %i (targetname %s)\n", number, v45, fmt, v44);
+        v34 = "<undefined>";
+      v35 = SL_ConvertToString(*pField->name);
+      LODWORD(fmt) = v28;
+      Com_Printf(0, "ent %i: %s = %i (targetname %s)\n", number, v35, fmt, v34);
       break;
     case F_CLIENT:
-      v47 = (__int64)((unsigned __int128)((__int64)(*(_QWORD *)&_RBX[pField->ofs] - (unsigned __int64)level.clients) * (__int128)0x103BDCBDFC935F7i64) >> 64) >> 8;
-      v48 = SL_ConvertToString(*pField->name);
-      Com_Printf(0, "ent %i: %s = client %zi\n", number, v48, (v47 >> 63) + v47);
-      break;
+      v37 = (__int64)((unsigned __int128)((__int64)(*(_QWORD *)&pBase[pField->ofs] - (unsigned __int64)level.clients) * (__int128)0x103BDCBDFC935F7i64) >> 64) >> 8;
+      v38 = SL_ConvertToString(*pField->name);
+      Com_Printf(0, "ent %i: %s = client %zi\n", number, v38, (v37 >> 63) + v37);
+      return;
     case F_PATHNODE:
-      v49 = *(const pathnode_t **)&_RBX[pField->ofs];
-      if ( v49 )
+      v39 = *(const pathnode_t **)&pBase[pField->ofs];
+      if ( v39 )
       {
-        v50 = Path_ConvertNodeToIndex(v49);
-        v51 = SL_ConvertToString(*pField->name);
-        LODWORD(fmt) = v50;
-        Com_Printf(0, "ent %i: %s = node %i\n", number, v51, fmt);
+        v40 = Path_ConvertNodeToIndex(v39);
+        v41 = SL_ConvertToString(*pField->name);
+        LODWORD(fmt) = v40;
+        Com_Printf(0, "ent %i: %s = node %i\n", number, v41, fmt);
       }
       else
       {
 LABEL_57:
-        v52 = SL_ConvertToString(*pField->name);
-        Com_Printf(0, "ent %i: %s = (null)\n", number, v52);
+        v42 = SL_ConvertToString(*pField->name);
+        Com_Printf(0, "ent %i: %s = (null)\n", number, v42);
       }
       break;
     case F_MODEL:
-      v53 = _RBX[pField->ofs];
+      v43 = pBase[pField->ofs];
       if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
         __debugbreak();
-      v21 = GConfigStrings::ms_gConfigStrings->GetModelNameString(GConfigStrings::ms_gConfigStrings, v53);
-      v22 = *pField->name;
+      v16 = GConfigStrings::ms_gConfigStrings->GetModelNameString(GConfigStrings::ms_gConfigStrings, v43);
+      v17 = *pField->name;
 LABEL_62:
-      v54 = SL_ConvertToString(v22);
-      Com_Printf(0, "ent %i: %s = %s\n", number, v54, v21);
+      v44 = SL_ConvertToString(v17);
+      Com_Printf(0, "ent %i: %s = %s\n", number, v44, v16);
       break;
     default:
-      v55 = SL_ConvertToString(*pField->name);
-      LODWORD(v60) = pField->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3949, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Cmd_AI_f: unhandled field type %i for %s\n", v60, v55) )
+      v45 = SL_ConvertToString(*pField->name);
+      LODWORD(v47) = pField->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 3949, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Cmd_AI_f: unhandled field type %i for %s\n", v47, v45) )
         __debugbreak();
       break;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -447,23 +420,23 @@ Cmd_AI_SetValue
 void Cmd_AI_SetValue(ai_scripted_t *pSelf, int argc, unsigned __int8 *pBase, const ai_scripted_fields_s *pField)
 {
   void (__fastcall *setter)(scrContext_t *, ai_scripted_t *, const ai_scripted_fields_s *); 
-  const char *v11; 
-  int v15; 
+  const char *v10; 
+  int v13; 
+  __int64 v14; 
   __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
   char buffer[256]; 
 
-  _R14 = pBase;
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 4056, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
   setter = pField->setter;
   if ( setter == AIScriptedScr_ReadOnly )
   {
-    v11 = SL_ConvertToString(*pField->name);
-    Com_PrintError(0, "%s is read-only\n", v11);
+    v10 = SL_ConvertToString(*pField->name);
+    Com_PrintError(0, "%s is read-only\n", v10);
   }
   else if ( setter == AIScriptedScr_SetGoalRadius )
   {
@@ -488,31 +461,27 @@ LABEL_19:
         if ( argc != 4 )
           goto LABEL_19;
         SV_Cmd_ArgvBuffer(3, buffer, 0x100ui64);
-        *(_DWORD *)&_R14[pField->ofs] = atoi(buffer);
+        *(_DWORD *)&pBase[pField->ofs] = atoi(buffer);
         break;
       case F_SHORT:
         if ( argc != 4 )
           goto LABEL_19;
         SV_Cmd_ArgvBuffer(3, buffer, 0x100ui64);
-        *(_WORD *)&_R14[pField->ofs] = atoi(buffer);
+        *(_WORD *)&pBase[pField->ofs] = atoi(buffer);
         break;
       case F_BYTE:
         if ( argc != 4 )
           goto LABEL_19;
         SV_Cmd_ArgvBuffer(3, buffer, 0x100ui64);
-        _R14[pField->ofs] = atoi(buffer);
+        pBase[pField->ofs] = atoi(buffer);
         break;
       case F_FLOAT:
         if ( argc != 4 )
           goto LABEL_19;
         SV_Cmd_ArgvBuffer(3, buffer, 0x100ui64);
         *(double *)&_XMM0 = atof(buffer);
-        _RAX = pField->ofs;
-        __asm
-        {
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [r14+rax], xmm1
-        }
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        *(float *)&pBase[pField->ofs] = *(float *)&_XMM1;
         break;
       case F_STRING:
       case F_ENTITY:
@@ -527,36 +496,34 @@ LABEL_19:
       case F_VECTOR:
         if ( argc != 6 )
           goto LABEL_19;
-        v15 = 0;
-        v16 = 0i64;
-        __asm { vmovaps [rsp+198h+var_38], xmm6 }
+        v13 = 0;
+        v14 = 0i64;
         do
         {
-          SV_Cmd_ArgvBuffer(v15 + 3, buffer, 0x100ui64);
+          SV_Cmd_ArgvBuffer(v13 + 3, buffer, 0x100ui64);
           *(double *)&_XMM0 = atof(buffer);
           __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-          if ( (unsigned int)v15 >= 3 )
+          if ( (unsigned int)v13 >= 3 )
           {
-            LODWORD(v22) = 3;
-            LODWORD(v20) = v15;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v20, v22) )
+            LODWORD(v19) = 3;
+            LODWORD(v17) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
               __debugbreak();
-            LODWORD(v23) = 3;
-            LODWORD(v21) = v15;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v23) )
+            LODWORD(v20) = 3;
+            LODWORD(v18) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v20) )
               __debugbreak();
           }
-          ++v15;
-          _RCX = v16 + pField->ofs;
-          v16 += 4i64;
-          __asm { vmovss  dword ptr [rcx+r14], xmm6 }
+          ++v13;
+          v16 = v14 + pField->ofs;
+          v14 += 4i64;
+          *(float *)&pBase[v16] = *(float *)&_XMM6;
         }
-        while ( v15 < 3 );
-        __asm { vmovaps xmm6, [rsp+198h+var_38] }
+        while ( v13 < 3 );
         break;
       default:
-        LODWORD(v20) = pField->type;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 4149, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Cmd_AI_f: unhandled field type %i\n", v20) )
+        LODWORD(v17) = pField->type;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 4149, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Cmd_AI_f: unhandled field type %i\n", v17) )
           __debugbreak();
         break;
     }
@@ -709,68 +676,57 @@ ActorScr_SetSpace
 */
 void ActorScr_SetSpace(scrContext_t *scrContext, actor_s *self, const actor_fields_s *field)
 {
-  bool v6; 
   gentity_s *ent; 
-  AINavigator *v12; 
+  bool v6; 
+  gentity_s *v7; 
+  float v8; 
+  float v9; 
+  AINavigator *v10; 
   AINavigator *pNavigator; 
   AINavLayer m_Layer; 
 
-  _RDI = self;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_fields.cpp", 613, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
-  _RBX = _RDI->ent;
+  ent = self->ent;
   v6 = Scr_GetInt(scrContext, 0) != 0;
-  if ( v6 != _RDI->Physics.bSpace )
+  if ( v6 != self->Physics.bSpace )
   {
-    ent = _RDI->ent;
+    v7 = self->ent;
     if ( v6 )
     {
-      _RDI->Physics.bSpace = 1;
-      ent->s.un.vehicleXModel |= 8u;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+8C8h]
-        vsubss  xmm0, xmm1, cs:__real@42240000
-        vmovss  dword ptr [rdi+8BCh], xmm0
-        vmovss  dword ptr [rdi+8C8h], xmm1
-        vmovss  xmm1, dword ptr [rbx+114h]
-        vsubss  xmm0, xmm1, cs:__real@42240000
-        vmovss  dword ptr [rbx+108h], xmm0
-        vmovss  dword ptr [rbx+114h], xmm1
-      }
-      _RBX->s.lerp.u.actor.flags |= 1u;
+      self->Physics.bSpace = 1;
+      v7->s.un.vehicleXModel |= 8u;
+      v8 = self->Physics.bounds.halfSize.v[2];
+      self->Physics.bounds.midPoint.v[2] = v8 - 41.0;
+      self->Physics.bounds.halfSize.v[2] = v8;
+      v9 = ent->r.box.halfSize.v[2];
+      ent->r.box.midPoint.v[2] = v9 - 41.0;
+      ent->r.box.halfSize.v[2] = v9;
+      ent->s.lerp.u.actor.flags |= 1u;
       if ( Nav_AnyVolumesLoaded() )
       {
-        v12 = Nav_Create3DNavigator(_RDI->ent, _RDI->pNavigator->m_Layer, 1);
-        Nav_FreeNavigator(_RDI->pNavigator);
-        _RDI->pNavigator = v12;
-        _RDI->avoidance.avoidanceEnabled = 0;
+        v10 = Nav_Create3DNavigator(self->ent, self->pNavigator->m_Layer, 1);
+        Nav_FreeNavigator(self->pNavigator);
+        self->pNavigator = v10;
+        self->avoidance.avoidanceEnabled = 0;
       }
     }
     else
     {
-      _RDI->Physics.bSpace = 0;
-      ent->s.un.vehicleXModel &= ~8u;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-        vmovups xmmword ptr [rdi+8B4h], xmm0
-        vmovsd  xmm1, qword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-        vmovsd  qword ptr [rdi+8C4h], xmm1
-        vmovups xmm0, xmmword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-        vmovups xmmword ptr [rbx+100h], xmm0
-        vmovsd  xmm1, qword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-      }
-      _RBX->s.lerp.u.actor.flags &= ~1u;
-      __asm { vmovsd  qword ptr [rbx+110h], xmm1 }
+      self->Physics.bSpace = 0;
+      v7->s.un.vehicleXModel &= ~8u;
+      self->Physics.bounds = actorBox;
+      *(_OWORD *)ent->r.box.midPoint.v = *(_OWORD *)actorBox.midPoint.v;
+      ent->s.lerp.u.actor.flags &= ~1u;
+      *(double *)&ent->r.box.halfSize.y = *(double *)&actorBox.halfSize.y;
       if ( Nav_AnyVolumesLoaded() )
       {
-        pNavigator = _RDI->pNavigator;
+        pNavigator = self->pNavigator;
         m_Layer = pNavigator->m_Layer;
         Nav_FreeNavigator(pNavigator);
-        _RDI->pNavigator = Nav_Create2DNavigator(_RDI->ent, m_Layer);
+        self->pNavigator = Nav_Create2DNavigator(self->ent, m_Layer);
       }
-      _RDI->avoidance.avoidanceEnabled = 1;
+      self->avoidance.avoidanceEnabled = 1;
     }
   }
 }
@@ -786,13 +742,7 @@ void ActorScr_GetTime(scrContext_t *scrContext, actor_s *pSelf, const actor_fiel
     __debugbreak();
   if ( pField->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_fields.cpp", 594, ASSERT_TYPE_ASSERT, "(pField->type == F_INT)", (const char *)&queryFormat, "pField->type == F_INT") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)*(int *)((char *)&pSelf->ent + pField->ofs) * 0.001);
 }
 
 /*
@@ -808,18 +758,10 @@ void ActorScr_SetTime(scrContext_t *scrContext, actor_s *pSelf, const actor_fiel
     __debugbreak();
   if ( pField->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_fields.cpp", 580, ASSERT_TYPE_ASSERT, "(pField->type == F_INT)", (const char *)&queryFormat, "pField->type == F_INT") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si ecx, xmm1
-  }
-  *(_DWORD *)((char *)&pSelf->ent + pField->ofs) = _ECX;
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+  *(_DWORD *)((char *)&pSelf->ent + pField->ofs) = (int)*(float *)&_XMM1;
 }
 
 /*
@@ -844,6 +786,7 @@ void Cmd_AI_f(void)
   char *p_s0; 
   char v13; 
   __int64 v14; 
+  bitarray<224> *AllTeamFlags; 
   __int64 v16; 
   int v17; 
   __int64 v18; 
@@ -864,15 +807,17 @@ void Cmd_AI_f(void)
   __int64 v33; 
   actor_s *i; 
   actor_s *actor; 
+  bitarray<224> *v36; 
   GUtils *Utils; 
-  unsigned int v42; 
-  unsigned __int64 v43; 
-  __int64 v44; 
+  unsigned int v38; 
+  unsigned __int64 v39; 
+  __int64 v40; 
+  bitarray<224> *v41; 
   actor_s *j; 
   scr_string_t to; 
   bitarray<224> iTeamFlags; 
   char buffer[256]; 
-  char v52; 
+  char v46; 
   char s0; 
 
   v0 = SV_Cmd_Argc();
@@ -961,13 +906,13 @@ LABEL_31:
     if ( v9 )
     {
 LABEL_14:
-      SV_Cmd_ArgvBuffer(1, &v52, 0x100ui64);
-      v11 = v52;
-      p_s0 = &v52;
-      v13 = v52;
-      if ( v52 == 33 )
+      SV_Cmd_ArgvBuffer(1, &v46, 0x100ui64);
+      v11 = v46;
+      p_s0 = &v46;
+      v13 = v46;
+      if ( v46 == 33 )
         v13 = s0;
-      if ( v52 == 33 )
+      if ( v46 == 33 )
         p_s0 = &s0;
       if ( (unsigned __int8)(v13 - 48) <= 9u )
       {
@@ -975,17 +920,10 @@ LABEL_14:
         if ( v11 == 33 )
         {
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllTeamFlags();
+            AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+2B0h+iTeamFlags.array], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rsp+2B0h+iTeamFlags.array+10h], xmm1
-          }
-          iTeamFlags.array[6] = _RAX->array[6];
+            AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+          iTeamFlags = *AllTeamFlags;
           for ( i = AIActorInterface::FirstActor(&iTeamFlags); i; i = AIActorInterface::NextActor(i, &iTeamFlags) )
           {
             if ( i->ent->s.number != (_DWORD)v14 )
@@ -1015,53 +953,39 @@ LABEL_14:
       if ( I_stricmp(p_s0, "all") )
       {
         Utils = GUtils::GetUtils();
-        v42 = Utils->GetTeamFromDebugString(Utils, p_s0);
-        v43 = v42;
-        if ( !v42 )
+        v38 = Utils->GetTeamFromDebugString(Utils, p_s0);
+        v39 = v38;
+        if ( !v38 )
         {
-          v44 = 404i64;
+          v40 = 404i64;
           if ( IsActorClassname(p_s0) )
-            v44 = 380i64;
+            v40 = 380i64;
           to = SL_GetString(p_s0, 0);
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllTeamFlags();
+            v41 = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+2B0h+iTeamFlags.array], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rsp+2B0h+iTeamFlags.array+10h], xmm1
-          }
-          iTeamFlags.array[6] = _RAX->array[6];
+            v41 = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+          iTeamFlags = *v41;
           for ( j = AIActorInterface::FirstActor(&iTeamFlags); j; j = AIActorInterface::NextActor(j, &iTeamFlags) )
           {
-            if ( (*(_DWORD *)((char *)&j->ent->s.number + v44) == to) == (v11 != 33) )
+            if ( (*(_DWORD *)((char *)&j->ent->s.number + v40) == to) == (v11 != 33) )
               Cmd_AI_Dispatch_0(v0, j, v10, v9);
           }
           Scr_SetString(&to, (scr_string_t)0);
           return;
         }
         memset(&iTeamFlags, 0, sizeof(iTeamFlags));
-        if ( v42 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v42, 224) )
+        if ( v38 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v38, 224) )
           __debugbreak();
-        iTeamFlags.array[v43 >> 5] |= 0x80000000 >> (v43 & 0x1F);
+        iTeamFlags.array[v39 >> 5] |= 0x80000000 >> (v39 & 0x1F);
       }
       else
       {
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-          _RAX = Com_TeamsSP_GetAllTeamFlags();
+          v36 = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
         else
-          _RAX = Com_TeamsMP_GetAllTeamFlags();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+2B0h+iTeamFlags.array], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [rsp+2B0h+iTeamFlags.array+10h], xmm1
-        }
-        iTeamFlags.array[6] = _RAX->array[6];
+          v36 = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+        iTeamFlags = *v36;
       }
       Cmd_AI_Team_0(v0, v10, v9, &iTeamFlags, v11 == 33);
       return;

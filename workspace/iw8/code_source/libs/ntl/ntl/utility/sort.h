@@ -269,393 +269,303 @@ ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>
 */
 void ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>(EdgePropertyTuple *const *r_iBegin, EdgePropertyTuple *iEnd, unsigned __int64 depthLimit, EdgePropertyTuple *predicate)
 {
-  EdgePropertyTuple *v9; 
-  __int64 v14; 
-  bool v15; 
-  bool v21; 
-  EdgePropertyTuple *v34; 
-  signed __int64 v35; 
-  __int64 v36; 
+  EdgePropertyTuple *v4; 
+  EdgePropertyTuple *v7; 
+  float viewDot; 
+  float v10; 
+  EdgePropertyTuple *v11; 
+  float v12; 
+  bool v13; 
+  float v14; 
+  EdgePropertyTuple *v15; 
+  __m256i v16; 
+  __m256i v17; 
+  __m256i v18; 
+  double v19; 
+  __m256i v20; 
+  __m256i v21; 
+  double v22; 
+  EdgePropertyTuple *v23; 
+  signed __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
   __int64 i; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v47; 
+  EdgePropertyTuple *v28; 
+  __int64 v29; 
+  __int64 v30; 
+  double v31; 
+  __m256i v32; 
+  __m256i v33; 
+  __m256i v34; 
+  EdgePropertyTuple *v35; 
+  __int64 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  float v40; 
+  EdgePropertyTuple *v41; 
+  __int64 v42; 
+  __int64 v43; 
+  EdgePropertyTuple *v44; 
+  __int64 v45; 
+  EdgePropertyTuple *j; 
+  EdgePropertyTuple *v47; 
+  EdgePropertyTuple *v48; 
+  __m256i v49; 
+  __m256i v50; 
+  __m256i v51; 
+  double v52; 
+  EdgePropertyTuple *v53; 
+  __int64 v54; 
+  __int64 v55; 
+  EdgePropertyTuple *v56; 
+  signed __int64 v57; 
+  bool v58; 
+  EdgePropertyTuple *v59; 
+  __int64 v60; 
+  __int64 v61; 
   __int64 v62; 
+  __int64 v63; 
+  float v64; 
+  EdgePropertyTuple *v65; 
+  __int64 v66; 
+  __int64 v67; 
+  EdgePropertyTuple *v68; 
+  __int64 v69; 
+  __m256i v70; 
+  EdgePropertyTuple v71; 
+  __int64 v72; 
   EdgePropertyTuple *v73; 
-  EdgePropertyTuple *v74; 
-  __int64 v81; 
-  __int64 v82; 
-  signed __int64 v88; 
-  bool v89; 
-  __int64 v91; 
-  __int64 v106; 
-  EdgePropertyTuple v121; 
-  void *retaddr; 
-  EdgePropertyTuple *v125; 
 
-  _R11 = &retaddr;
-  _R10 = *r_iBegin;
-  _RSI = predicate;
-  v9 = iEnd;
+  v4 = *r_iBegin;
+  v7 = iEnd;
   if ( (char *)iEnd - (char *)*r_iBegin < 1768 )
     return;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
   while ( depthLimit )
   {
-    __asm { vmovss  xmm1, dword ptr [r10+60h] }
-    _R8 = v9 - 1;
-    __asm { vmovss  xmm0, dword ptr [r8+60h] }
+    viewDot = v4->viewDot;
+    v10 = v7[-1].viewDot;
     --depthLimit;
-    v14 = ((char *)v9 - (char *)_R10) / 208;
-    v15 = __CFADD__(_R10, 104 * v14);
-    _RAX = &_R10[v14];
-    __asm
+    v11 = &v4[((char *)v7 - (char *)v4) / 208];
+    v12 = v11->viewDot;
+    if ( viewDot <= v12 )
     {
-      vmovss  xmm2, dword ptr [rax+60h]
-      vcomiss xmm1, xmm2
-    }
-    if ( v15 || _RAX == NULL )
-    {
-      __asm { vcomiss xmm1, xmm0 }
-      if ( __CFADD__(_R10, 104 * v14) || &_R10[v14] == NULL )
+      if ( viewDot <= v10 )
       {
-        __asm { vcomiss xmm2, xmm0 }
-LABEL_10:
-        if ( !__CFADD__(_R10, 104 * v14) && &_R10[v14] != NULL )
-          _RAX = v9 - 1;
-        goto LABEL_12;
+        v13 = v12 <= v10;
+LABEL_9:
+        if ( !v13 )
+          v11 = v7 - 1;
+        goto LABEL_11;
       }
-      _RAX = _R10;
+      v11 = v4;
     }
-    else
+    else if ( v12 <= v10 )
     {
-      __asm { vcomiss xmm2, xmm0 }
-      if ( __CFADD__(_R10, 104 * v14) || &_R10[v14] == NULL )
-      {
-        _RAX = _R10;
-        __asm { vcomiss xmm1, xmm0 }
-        goto LABEL_10;
-      }
+      v11 = v4;
+      v13 = viewDot <= v10;
+      goto LABEL_9;
     }
-LABEL_12:
-    __asm
-    {
-      vmovsd  xmm1, qword ptr [rax+60h]
-      vmovsd  [rsp+1A8h+var_48], xmm1
-      vmovss  xmm6, dword ptr [rsp+1A8h+var_48]
-    }
-    _RAX = (unsigned __int64)v9;
+LABEL_11:
+    v72 = *(_QWORD *)&v11->viewDot;
+    v14 = *(float *)&v72;
+    v15 = v7;
     while ( 1 )
     {
-      __asm { vcomiss xmm6, dword ptr [r10+60h] }
-      while ( v15 )
-      {
-        v15 = __CFADD__(_R10++, 104i64);
-        __asm { vcomiss xmm6, dword ptr [r10+60h] }
-      }
-      v21 = _RAX <= 0x68;
-      _RAX -= 104i64;
-      __asm { vcomiss xmm6, dword ptr [rax+60h] }
-      while ( !v21 )
-      {
-        v21 = _RAX <= 0x68;
-        _RAX -= 104i64;
-        __asm { vcomiss xmm6, dword ptr [rax+60h] }
-      }
-      if ( (unsigned __int64)_R10 >= _RAX )
+      for ( ; v14 < v4->viewDot; ++v4 )
+        ;
+      for ( --v15; v14 > v15->viewDot; --v15 )
+        ;
+      if ( v4 >= v15 )
         break;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymm3, ymmword ptr [r10]
-        vmovups ymm4, ymmword ptr [r10+20h]
-        vmovups ymm5, ymmword ptr [r10+40h]
-        vmovsd  xmm2, qword ptr [r10+60h]
-        vmovups ymmword ptr [r10], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [r10+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [r10+40h], ymm0
-        vmovsd  xmm1, qword ptr [rax+60h]
-        vmovsd  qword ptr [r10+60h], xmm1
-        vmovups ymmword ptr [rax], ymm3
-        vmovups ymmword ptr [rax+20h], ymm4
-        vmovups ymmword ptr [rax+40h], ymm5
-        vmovsd  qword ptr [rax+60h], xmm2
-      }
-      v15 = __CFADD__(_R10++, 104i64);
+      v16 = *(__m256i *)v4->edge.normal.v;
+      v17 = *(__m256i *)&v4->edge.below.z;
+      v18 = *(__m256i *)&v4->edge.normalFaceIndex;
+      v19 = *(double *)&v4->viewDot;
+      *(__m256i *)v4->edge.normal.v = *(__m256i *)v15->edge.normal.v;
+      *(__m256i *)&v4->edge.below.z = *(__m256i *)&v15->edge.below.z;
+      *(__m256i *)&v4->edge.normalFaceIndex = *(__m256i *)&v15->edge.normalFaceIndex;
+      *(double *)&v4->viewDot = *(double *)&v15->viewDot;
+      *(__m256i *)v15->edge.normal.v = v16;
+      *(__m256i *)&v15->edge.below.z = v17;
+      *(__m256i *)&v15->edge.normalFaceIndex = v18;
+      *(double *)&v15->viewDot = v19;
+      ++v4;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups [rsp+1A8h+var_118], ymm0
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups [rsp+1A8h+var_F8], ymm1
-      vmovsd  xmm1, qword ptr [rsi+60h]
-    }
-    v125 = _R10;
-    __asm
-    {
-      vmovups [rsp+1A8h+var_D8], ymm0
-      vmovsd  [rsp+1A8h+var_B8], xmm1
-    }
-    ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>(&v125, v9, depthLimit, &v121);
-    v9 = v125;
-    _R10 = *r_iBegin;
-    if ( (char *)v125 - (char *)*r_iBegin < 1768 )
-      goto LABEL_57;
+    v20 = *(__m256i *)&predicate->edge.below.z;
+    *(__m256i *)v71.edge.normal.v = *(__m256i *)predicate->edge.normal.v;
+    v21 = *(__m256i *)&predicate->edge.normalFaceIndex;
+    *(__m256i *)&v71.edge.below.z = v20;
+    v22 = *(double *)&predicate->viewDot;
+    v73 = v4;
+    *(__m256i *)&v71.edge.normalFaceIndex = v21;
+    *(double *)&v71.viewDot = v22;
+    ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>(&v73, v7, depthLimit, &v71);
+    v7 = v73;
+    v4 = *r_iBegin;
+    if ( (char *)v73 - (char *)*r_iBegin < 1768 )
+      return;
   }
-  if ( _R10 > v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
+  if ( v4 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
     __debugbreak();
-  v34 = *r_iBegin;
-  v35 = v9 - *r_iBegin;
-  if ( v35 >= 2 )
+  v23 = *r_iBegin;
+  v24 = v7 - *r_iBegin;
+  if ( v24 >= 2 )
   {
-    v36 = (v35 - 2) / 2;
-    _R11 = 104 * v36;
-    for ( i = 2 * v36 + 2; ; i -= 2i64 )
+    v25 = (v24 - 2) / 2;
+    v26 = v25;
+    for ( i = 2 * v25 + 2; ; i -= 2i64 )
     {
-      _RDX = *r_iBegin;
-      v40 = v36;
-      v41 = i;
-      __asm
-      {
-        vmovsd  xmm3, qword ptr [rdx+r11+60h]
-        vmovups ymm4, ymmword ptr [rdx+r11]
-        vmovups ymm5, ymmword ptr [rdx+r11+20h]
-        vmovups ymm6, ymmword ptr [rdx+r11+40h]
-        vmovsd  [rsp+1A8h+var_B8], xmm3
-      }
-      if ( i < v35 )
+      v28 = *r_iBegin;
+      v29 = v25;
+      v30 = i;
+      v31 = *(double *)&(*r_iBegin)[v26].viewDot;
+      v32 = *(__m256i *)(*r_iBegin)[v26].edge.normal.v;
+      v33 = *(__m256i *)&(*r_iBegin)[v26].edge.below.z;
+      v34 = *(__m256i *)&(*r_iBegin)[v26].edge.normalFaceIndex;
+      *(double *)&v71.viewDot = v31;
+      if ( i < v24 )
       {
         do
         {
-          _R8 = *r_iBegin;
-          v47 = v41 - 1;
-          _RAX = 104 * v41;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+r8+60h]
-            vcomiss xmm0, dword ptr [rax+r8-8]
-          }
-          if ( (unsigned __int128)(104 * (__int128)v41) >> 64 != 0 || v89 )
-            v47 = v41;
-          _RCX = 104 * v40;
-          _RAX = 104 * v47;
-          v41 = 2 * v47 + 2;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax+r8]
-            vmovups ymmword ptr [rcx+r8], ymm0
-            vmovups ymm1, ymmword ptr [rax+r8+20h]
-            vmovups ymmword ptr [rcx+r8+20h], ymm1
-            vmovups ymm0, ymmword ptr [rax+r8+40h]
-            vmovups ymmword ptr [rcx+r8+40h], ymm0
-            vmovsd  xmm1, qword ptr [rax+r8+60h]
-            vmovsd  qword ptr [rcx+r8+60h], xmm1
-          }
-          v40 = v47;
+          v35 = *r_iBegin;
+          v36 = v30 - 1;
+          if ( (*r_iBegin)[v30].viewDot <= (*r_iBegin)[v30 - 1].viewDot )
+            v36 = v30;
+          v37 = v29;
+          v30 = 2 * v36 + 2;
+          *(__m256i *)v35[v37].edge.normal.v = *(__m256i *)v35[v36].edge.normal.v;
+          *(__m256i *)&v35[v37].edge.below.z = *(__m256i *)&v35[v36].edge.below.z;
+          *(__m256i *)&v35[v37].edge.normalFaceIndex = *(__m256i *)&v35[v36].edge.normalFaceIndex;
+          *(double *)&v35[v37].viewDot = *(double *)&v35[v36].viewDot;
+          v29 = v36;
         }
-        while ( v41 < v35 );
-        _RDX = *r_iBegin;
+        while ( v30 < v24 );
+        v28 = *r_iBegin;
       }
-      if ( v41 == v35 )
+      if ( v30 == v24 )
       {
-        _RAX = 104 * v41;
-        _RCX = 104 * v40;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+rdx-68h]
-          vmovups ymmword ptr [rcx+rdx], ymm0
-          vmovups ymm1, ymmword ptr [rax+rdx-48h]
-          vmovups ymmword ptr [rcx+rdx+20h], ymm1
-          vmovups ymm0, ymmword ptr [rax+rdx-28h]
-          vmovups ymmword ptr [rcx+rdx+40h], ymm0
-          vmovsd  xmm1, qword ptr [rax+rdx-8]
-          vmovsd  qword ptr [rcx+rdx+60h], xmm1
-        }
-        v40 = v41 - 1;
+        v38 = v29;
+        *(__m256i *)v28[v38].edge.normal.v = *(__m256i *)v28[v30 - 1].edge.normal.v;
+        *(__m256i *)&v28[v38].edge.below.z = *(__m256i *)&v28[v30 - 1].edge.below.z;
+        *(__m256i *)&v28[v38].edge.normalFaceIndex = *(__m256i *)&v28[v30 - 1].edge.normalFaceIndex;
+        *(double *)&v28[v38].viewDot = *(double *)&v28[v30 - 1].viewDot;
+        v29 = v30 - 1;
       }
-      v62 = (v40 - 1) / 2;
-      if ( v40 > v36 )
+      v39 = (v29 - 1) / 2;
+      if ( v29 > v25 )
       {
-        __asm { vmovss  xmm2, dword ptr [rsp+1A8h+var_B8] }
+        v40 = v71.viewDot;
         do
         {
-          _RDX = *r_iBegin;
-          _R8 = 104 * v62;
-          __asm { vcomiss xmm2, dword ptr [r8+rdx+60h] }
-          if ( is_mul_ok(0x68ui64, v62) )
+          v41 = *r_iBegin;
+          v42 = v39;
+          if ( v40 >= (*r_iBegin)[v39].viewDot )
             break;
-          __asm { vmovups ymm0, ymmword ptr [r8+rdx] }
-          _RCX = 104 * v40;
-          __asm
-          {
-            vmovups ymmword ptr [rcx+rdx], ymm0
-            vmovups ymm1, ymmword ptr [r8+rdx+20h]
-            vmovups ymmword ptr [rcx+rdx+20h], ymm1
-            vmovups ymm0, ymmword ptr [r8+rdx+40h]
-            vmovups ymmword ptr [rcx+rdx+40h], ymm0
-            vmovsd  xmm1, qword ptr [r8+rdx+60h]
-            vmovsd  qword ptr [rcx+rdx+60h], xmm1
-          }
-          v40 = v62;
-          v62 = (v62 - 1) / 2;
+          v43 = v29;
+          *(__m256i *)v41[v43].edge.normal.v = *(__m256i *)v41[v42].edge.normal.v;
+          *(__m256i *)&v41[v43].edge.below.z = *(__m256i *)&v41[v42].edge.below.z;
+          *(__m256i *)&v41[v43].edge.normalFaceIndex = *(__m256i *)&v41[v42].edge.normalFaceIndex;
+          *(double *)&v41[v43].viewDot = *(double *)&v41[v42].viewDot;
+          v29 = v39;
+          v39 = (v39 - 1) / 2;
         }
-        while ( v40 > v36 );
+        while ( v29 > v25 );
       }
-      _RAX = *r_iBegin;
-      _RCX = 104 * v40;
-      __asm
-      {
-        vmovups ymmword ptr [rcx+rax], ymm4
-        vmovups ymmword ptr [rcx+rax+20h], ymm5
-        vmovups ymmword ptr [rcx+rax+40h], ymm6
-        vmovsd  qword ptr [rcx+rax+60h], xmm3
-      }
-      if ( !v36 )
+      v44 = *r_iBegin;
+      v45 = v29;
+      *(__m256i *)v44[v45].edge.normal.v = v32;
+      *(__m256i *)&v44[v45].edge.below.z = v33;
+      *(__m256i *)&v44[v45].edge.normalFaceIndex = v34;
+      *(double *)&v44[v45].viewDot = v31;
+      if ( !v25 )
         break;
-      --v36;
-      _R11 -= 104i64;
+      --v25;
+      --v26;
     }
-    v34 = *r_iBegin;
+    v23 = *r_iBegin;
   }
-  v73 = v34 + 1;
-  while ( v9 > v73 )
+  for ( j = v23 + 1; v7 > j; *(double *)&v68[v69].viewDot = v52 )
   {
-    v74 = v9--;
-    _RDI = v74 - 1;
-    __asm
-    {
-      vmovups ymm3, ymmword ptr [rdi]
-      vmovups ymm4, ymmword ptr [rdi+20h]
-      vmovups ymm5, ymmword ptr [rdi+40h]
-      vmovsd  xmm6, qword ptr [rdi+60h]
-      vmovups [rsp+1A8h+var_178], ymm3
-      vmovups [rsp+1A8h+var_158], ymm4
-      vmovups [rsp+1A8h+var_138], ymm5
-      vmovsd  [rsp+1A8h+var_B8], xmm6
-    }
-    if ( _RDI < *r_iBegin )
+    v47 = v7--;
+    v48 = v47 - 1;
+    v49 = *(__m256i *)v48->edge.normal.v;
+    v50 = *(__m256i *)&v48->edge.below.z;
+    v51 = *(__m256i *)&v48->edge.normalFaceIndex;
+    v52 = *(double *)&v48->viewDot;
+    v70 = *(__m256i *)v48->edge.normal.v;
+    *(double *)&v71.viewDot = v52;
+    if ( v48 < *r_iBegin )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm5, [rsp+1A8h+var_138]
-        vmovups ymm4, [rsp+1A8h+var_158]
-        vmovups ymm3, [rsp+1A8h+var_178]
-      }
+      v49 = v70;
     }
-    _RAX = *r_iBegin;
-    v81 = 0i64;
-    v82 = 2i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rdi+40h], ymm0
-      vmovsd  xmm1, qword ptr [rax+60h]
-      vmovsd  qword ptr [rdi+60h], xmm1
-    }
-    _R8 = *r_iBegin;
-    v88 = _RDI - *r_iBegin;
-    v89 = v88 == 2;
-    if ( v88 > 2 )
+    v53 = *r_iBegin;
+    v54 = 0i64;
+    v55 = 2i64;
+    *(__m256i *)v48->edge.normal.v = *(__m256i *)(*r_iBegin)->edge.normal.v;
+    *(__m256i *)&v48->edge.below.z = *(__m256i *)&v53->edge.below.z;
+    *(__m256i *)&v48->edge.normalFaceIndex = *(__m256i *)&v53->edge.normalFaceIndex;
+    *(double *)&v48->viewDot = *(double *)&v53->viewDot;
+    v56 = *r_iBegin;
+    v57 = v48 - *r_iBegin;
+    v58 = v57 == 2;
+    if ( v57 > 2 )
     {
       do
       {
-        _R8 = *r_iBegin;
-        v91 = v82 - 1;
-        _RAX = 104 * v82;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+r8+60h]
-          vcomiss xmm0, dword ptr [rax+r8-8]
-        }
-        if ( (unsigned __int128)(104 * (__int128)v82) >> 64 != 0 || v89 )
-          v91 = v82;
-        _RCX = 104 * v81;
-        _RAX = 104 * v91;
-        v82 = 2 * v91 + 2;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+r8]
-          vmovups ymmword ptr [rcx+r8], ymm0
-          vmovups ymm1, ymmword ptr [rax+r8+20h]
-          vmovups ymmword ptr [rcx+r8+20h], ymm1
-          vmovups ymm0, ymmword ptr [rax+r8+40h]
-          vmovups ymmword ptr [rcx+r8+40h], ymm0
-          vmovsd  xmm1, qword ptr [rax+r8+60h]
-          vmovsd  qword ptr [rcx+r8+60h], xmm1
-        }
-        v81 = v91;
-        v89 = v82 == v88;
+        v59 = *r_iBegin;
+        v60 = v55 - 1;
+        if ( (*r_iBegin)[v55].viewDot <= (*r_iBegin)[v55 - 1].viewDot )
+          v60 = v55;
+        v61 = v54;
+        v55 = 2 * v60 + 2;
+        *(__m256i *)v59[v61].edge.normal.v = *(__m256i *)v59[v60].edge.normal.v;
+        *(__m256i *)&v59[v61].edge.below.z = *(__m256i *)&v59[v60].edge.below.z;
+        *(__m256i *)&v59[v61].edge.normalFaceIndex = *(__m256i *)&v59[v60].edge.normalFaceIndex;
+        *(double *)&v59[v61].viewDot = *(double *)&v59[v60].viewDot;
+        v54 = v60;
+        v58 = v55 == v57;
       }
-      while ( v82 < v88 );
-      _R8 = *r_iBegin;
+      while ( v55 < v57 );
+      v56 = *r_iBegin;
     }
-    if ( v89 )
+    if ( v58 )
     {
-      _RAX = 104 * v82;
-      _RCX = 104 * v81;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+r8-68h]
-        vmovups ymmword ptr [rcx+r8], ymm0
-        vmovups ymm1, ymmword ptr [rax+r8-48h]
-        vmovups ymmword ptr [rcx+r8+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+r8-28h]
-        vmovups ymmword ptr [rcx+r8+40h], ymm0
-        vmovsd  xmm1, qword ptr [rax+r8-8]
-        vmovsd  qword ptr [rcx+r8+60h], xmm1
-      }
-      v81 = v82 - 1;
+      v62 = v54;
+      *(__m256i *)v56[v62].edge.normal.v = *(__m256i *)v56[v55 - 1].edge.normal.v;
+      *(__m256i *)&v56[v62].edge.below.z = *(__m256i *)&v56[v55 - 1].edge.below.z;
+      *(__m256i *)&v56[v62].edge.normalFaceIndex = *(__m256i *)&v56[v55 - 1].edge.normalFaceIndex;
+      *(double *)&v56[v62].viewDot = *(double *)&v56[v55 - 1].viewDot;
+      v54 = v55 - 1;
     }
-    v106 = (v81 - 1) / 2;
-    if ( v81 > 0 )
+    v63 = (v54 - 1) / 2;
+    if ( v54 > 0 )
     {
-      __asm { vmovss  xmm2, dword ptr [rsp+1A8h+var_B8] }
+      v64 = v71.viewDot;
       do
       {
-        _RDX = *r_iBegin;
-        _R8 = 104 * v106;
-        __asm { vcomiss xmm2, dword ptr [r8+rdx+60h] }
-        if ( is_mul_ok(0x68ui64, v106) )
+        v65 = *r_iBegin;
+        v66 = v63;
+        if ( v64 >= (*r_iBegin)[v63].viewDot )
           break;
-        __asm { vmovups ymm0, ymmword ptr [r8+rdx] }
-        _RCX = 104 * v81;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+rdx], ymm0
-          vmovups ymm1, ymmword ptr [r8+rdx+20h]
-          vmovups ymmword ptr [rcx+rdx+20h], ymm1
-          vmovups ymm0, ymmword ptr [r8+rdx+40h]
-          vmovups ymmword ptr [rcx+rdx+40h], ymm0
-          vmovsd  xmm1, qword ptr [r8+rdx+60h]
-          vmovsd  qword ptr [rcx+rdx+60h], xmm1
-        }
-        v81 = v106;
-        v106 = (v106 - 1) / 2;
+        v67 = v54;
+        *(__m256i *)v65[v67].edge.normal.v = *(__m256i *)v65[v66].edge.normal.v;
+        *(__m256i *)&v65[v67].edge.below.z = *(__m256i *)&v65[v66].edge.below.z;
+        *(__m256i *)&v65[v67].edge.normalFaceIndex = *(__m256i *)&v65[v66].edge.normalFaceIndex;
+        *(double *)&v65[v67].viewDot = *(double *)&v65[v66].viewDot;
+        v54 = v63;
+        v63 = (v63 - 1) / 2;
       }
-      while ( v81 > 0 );
+      while ( v54 > 0 );
     }
-    _RAX = *r_iBegin;
-    _RCX = 104 * v81;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rax], ymm3
-      vmovups ymmword ptr [rcx+rax+20h], ymm4
-      vmovups ymmword ptr [rcx+rax+40h], ymm5
-      vmovsd  qword ptr [rcx+rax+60h], xmm6
-    }
+    v68 = *r_iBegin;
+    v69 = v54;
+    *(__m256i *)v68[v69].edge.normal.v = v49;
+    *(__m256i *)&v68[v69].edge.below.z = v50;
+    *(__m256i *)&v68[v69].edge.normalFaceIndex = v51;
   }
-LABEL_57:
-  __asm { vmovaps xmm6, [rsp+1A8h+var_38] }
 }
 
 /*
@@ -665,296 +575,205 @@ ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedE
 */
 void ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *const *r_iBegin, EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *iEnd, unsigned __int64 depthLimit, EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *predicate)
 {
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v8; 
-  __int64 v13; 
-  bool v14; 
-  bool v15; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v4; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v7; 
+  float dist; 
+  float v10; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v11; 
+  float v12; 
+  bool v13; 
+  float v14; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v15; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v16; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v17; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 i; 
   EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v24; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  __int64 i; 
-  __int64 v31; 
-  __int64 v32; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v27; 
+  __int64 v28; 
+  __int64 v29; 
+  float v30; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *j; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v32; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v33; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v34; 
   __int64 v35; 
-  __int64 v44; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v52; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v53; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v61; 
-  bool v62; 
-  __int64 v64; 
-  __int64 v73; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v82; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v84; 
+  __int64 v36; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v37; 
+  __int64 v38; 
+  bool v39; 
+  __int64 v40; 
+  __int64 v41; 
+  float v42; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v43; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v44; 
 
-  _R10 = *r_iBegin;
-  _RSI = predicate;
-  v8 = iEnd;
+  v4 = *r_iBegin;
+  v7 = iEnd;
   if ( (__int64)(((char *)iEnd - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
     return;
   while ( depthLimit )
   {
-    __asm { vmovss  xmm1, dword ptr [r10+8] }
-    _RCX = v8 - 1;
-    __asm { vmovss  xmm0, dword ptr [rcx+8] }
+    dist = v4->dist;
+    v10 = v7[-1].dist;
     --depthLimit;
-    v13 = (v8 - _R10) / 2;
-    v14 = __CFADD__(_R10, v13 * 16);
-    v15 = __CFADD__(_R10, v13 * 16) || &_R10[v13] == NULL;
-    _RAX = &_R10[v13];
-    __asm
+    v11 = &v4[(v7 - v4) / 2];
+    v12 = v11->dist;
+    if ( dist >= v12 )
     {
-      vmovss  xmm2, dword ptr [rax+8]
-      vcomiss xmm1, xmm2
-    }
-    if ( v14 )
-    {
-      __asm { vcomiss xmm2, xmm0 }
-      if ( !v14 )
+      if ( dist >= v10 )
       {
-        _RAX = _R10;
-        __asm { vcomiss xmm0, xmm1 }
-        goto LABEL_9;
-      }
-    }
-    else
-    {
-      __asm { vcomiss xmm1, xmm0 }
-      if ( !v14 )
-      {
-        __asm { vcomiss xmm0, xmm2 }
+        v13 = v10 <= v12;
 LABEL_9:
-        if ( !v15 )
-          _RAX = v8 - 1;
+        if ( !v13 )
+          v11 = v7 - 1;
         goto LABEL_11;
       }
-      _RAX = _R10;
+      v11 = v4;
+    }
+    else if ( v12 >= v10 )
+    {
+      v11 = v4;
+      v13 = v10 <= dist;
+      goto LABEL_9;
     }
 LABEL_11:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+68h+var_38], xmm0
-      vmovss  xmm2, dword ptr [rsp+68h+var_38+8]
-    }
-    _RAX = (unsigned __int64)v8;
+    v43 = *v11;
+    v14 = v43.dist;
+    v15 = v7;
     while ( 1 )
     {
-      __asm { vcomiss xmm2, dword ptr [r10+8] }
-      while ( !v15 )
-      {
-        v15 = __CFADD__(_R10, 16i64) || &_R10[1] == NULL;
-        ++_R10;
-        __asm { vcomiss xmm2, dword ptr [r10+8] }
-      }
-      v14 = _RAX < 0x10;
-      _RAX -= 16i64;
-      __asm { vcomiss xmm2, dword ptr [rax+8] }
-      while ( v14 )
-      {
-        v14 = _RAX < 0x10;
-        _RAX -= 16i64;
-        __asm { vcomiss xmm2, dword ptr [rax+8] }
-      }
-      if ( (unsigned __int64)_R10 >= _RAX )
+      for ( ; v14 > v4->dist; ++v4 )
+        ;
+      for ( --v15; v14 < v15->dist; --v15 )
+        ;
+      if ( v4 >= v15 )
         break;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [r10]
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [r10], xmm0
-        vmovups xmmword ptr [rax], xmm1
-      }
-      v15 = __CFADD__(_R10, 16i64) || &_R10[1] == NULL;
-      ++_R10;
+      v16 = *v4;
+      *v4 = *v15;
+      *v15 = v16;
+      ++v4;
     }
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v84 = _R10;
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(&v84, v8, depthLimit, &v82);
-    v8 = v84;
-    _R10 = *r_iBegin;
-    if ( (__int64)(((char *)v84 - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
+    v17 = *predicate;
+    v44 = v4;
+    v43 = v17;
+    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(&v44, v7, depthLimit, &v43);
+    v7 = v44;
+    v4 = *r_iBegin;
+    if ( (__int64)(((char *)v44 - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
       return;
   }
-  if ( _R10 > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
+  if ( v4 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
     __debugbreak();
-  v24 = *r_iBegin;
-  v25 = v8 - *r_iBegin;
-  if ( v25 >= 2 )
+  v18 = *r_iBegin;
+  v19 = v7 - *r_iBegin;
+  if ( v19 >= 2 )
   {
-    v26 = (v25 - 2) / 2;
-    v27 = v26;
-    _RSI = 16 * v26;
-    for ( i = 2 * v26 + 2; ; i -= 2i64 )
+    v20 = (v19 - 2) / 2;
+    v21 = v20;
+    v22 = v20;
+    for ( i = 2 * v20 + 2; ; i -= 2i64 )
     {
-      _RCX = *r_iBegin;
-      v31 = v27;
-      v32 = i;
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rsi+rcx]
-        vmovups [rsp+68h+var_38], xmm2
-      }
-      if ( i < v25 )
+      v24 = *r_iBegin;
+      v25 = v21;
+      v26 = i;
+      v27 = (*r_iBegin)[v22];
+      v43 = v27;
+      if ( i < v19 )
       {
         do
         {
-          _RDX = *r_iBegin;
-          v35 = v32 - 1;
-          _RAX = 2 * v32;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx+rax*8-8]
-            vcomiss xmm0, dword ptr [rdx+rax*8+8]
-          }
-          if ( __CFADD__(v32, v32) || 2 * v32 == 0 )
-            v35 = v32;
-          _R8 = 2 * v31;
-          _RAX = 2 * v35;
-          v32 = 2 * v35 + 2;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx+rax*8]
-            vmovups xmmword ptr [rdx+r8*8], xmm0
-          }
-          v31 = v35;
+          v28 = v26 - 1;
+          if ( (*r_iBegin)[v26 - 1].dist <= (*r_iBegin)[v26].dist )
+            v28 = v26;
+          v26 = 2 * v28 + 2;
+          (*r_iBegin)[v25] = (*r_iBegin)[v28];
+          v25 = v28;
         }
-        while ( v32 < v25 );
-        _RCX = *r_iBegin;
+        while ( v26 < v19 );
+        v24 = *r_iBegin;
       }
-      if ( v32 == v25 )
+      if ( v26 == v19 )
       {
-        _RAX = 2 * v32;
-        _R8 = 2 * v31;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-          vmovups xmmword ptr [rcx+r8*8], xmm0
-        }
-        v31 = v32 - 1;
+        v24[v25] = v24[v26 - 1];
+        v25 = v26 - 1;
       }
-      v44 = (v31 - 1) / 2;
-      if ( v31 > v27 )
+      v29 = (v25 - 1) / 2;
+      if ( v25 > v21 )
       {
-        __asm { vmovss  xmm1, dword ptr [rsp+68h+var_38+8] }
+        v30 = v43.dist;
         do
         {
-          _RDX = *r_iBegin;
-          _RCX = 2 * v44;
-          __asm { vcomiss xmm1, dword ptr [rdx+rcx*8+8] }
-          if ( __CFADD__(v44, v44) || 2 * v44 == 0 )
+          if ( v30 <= (*r_iBegin)[v29].dist )
             break;
-          __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-          _R8 = 2 * v31;
-          __asm { vmovups xmmword ptr [rdx+r8*8], xmm0 }
-          v31 = v44;
-          v44 = (v44 - 1) / 2;
+          (*r_iBegin)[v25] = (*r_iBegin)[v29];
+          v25 = v29;
+          v29 = (v29 - 1) / 2;
         }
-        while ( v31 > v27 );
+        while ( v25 > v21 );
       }
-      _RAX = *r_iBegin;
-      _R8 = 2 * v31;
-      __asm { vmovups xmmword ptr [rax+r8*8], xmm2 }
-      if ( !v27 )
+      (*r_iBegin)[v25] = v27;
+      if ( !v21 )
         break;
-      --v27;
-      _RSI -= 16i64;
+      --v21;
+      --v22;
     }
-    v24 = *r_iBegin;
+    v18 = *r_iBegin;
   }
-  v52 = v24 + 1;
-  if ( v8 > &v24[1] )
+  for ( j = v18 + 1; v7 > j; (*r_iBegin)[v35] = v34 )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    do
+    v32 = v7--;
+    v33 = v32 - 1;
+    v34 = *v33;
+    v43 = *v33;
+    if ( v33 < *r_iBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin", *(_QWORD *)&v43.edgeId) )
+      __debugbreak();
+    v35 = 0i64;
+    v36 = 2i64;
+    *v33 = *(EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *)*r_iBegin;
+    v37 = *r_iBegin;
+    v38 = v33 - *r_iBegin;
+    v39 = v38 == 2;
+    if ( v38 > 2 )
     {
-      v53 = v8--;
-      _RDI = v53 - 1;
-      __asm
+      do
       {
-        vmovups xmm6, xmmword ptr [rdi]
-        vmovups [rsp+68h+var_38], xmm6
+        v40 = v36 - 1;
+        if ( (*r_iBegin)[v36 - 1].dist <= (*r_iBegin)[v36].dist )
+          v40 = v36;
+        v36 = 2 * v40 + 2;
+        (*r_iBegin)[v35] = (*r_iBegin)[v40];
+        v35 = v40;
+        v39 = v36 == v38;
       }
-      if ( _RDI < *r_iBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin", *(_QWORD *)&v82.edgeId) )
-        __debugbreak();
-      _RAX = *r_iBegin;
-      v57 = 0i64;
-      v58 = 2i64;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rdi], xmm0
-      }
-      _RCX = *r_iBegin;
-      v61 = _RDI - *r_iBegin;
-      v62 = v61 == 2;
-      if ( v61 > 2 )
-      {
-        do
-        {
-          _RDX = *r_iBegin;
-          v64 = v58 - 1;
-          _RAX = 2 * v58;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx+rax*8-8]
-            vcomiss xmm0, dword ptr [rdx+rax*8+8]
-          }
-          if ( __CFADD__(v58, v58) || 2 * v58 == 0 )
-            v64 = v58;
-          _R8 = 2 * v57;
-          _RAX = 2 * v64;
-          v58 = 2 * v64 + 2;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx+rax*8]
-            vmovups xmmword ptr [rdx+r8*8], xmm0
-          }
-          v57 = v64;
-          v62 = v58 == v61;
-        }
-        while ( v58 < v61 );
-        _RCX = *r_iBegin;
-      }
-      if ( v62 )
-      {
-        _RAX = 2 * v58;
-        _R8 = 2 * v57;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-          vmovups xmmword ptr [rcx+r8*8], xmm0
-        }
-        v57 = v58 - 1;
-      }
-      v73 = (v57 - 1) / 2;
-      if ( v57 > 0 )
-      {
-        __asm { vmovss  xmm1, dword ptr [rsp+68h+var_38+8] }
-        do
-        {
-          _RDX = *r_iBegin;
-          _RCX = 2 * v73;
-          __asm { vcomiss xmm1, dword ptr [rdx+rcx*8+8] }
-          if ( __CFADD__(v73, v73) || 2 * v73 == 0 )
-            break;
-          __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-          _R8 = 2 * v57;
-          __asm { vmovups xmmword ptr [rdx+r8*8], xmm0 }
-          v57 = v73;
-          v73 = (v73 - 1) / 2;
-        }
-        while ( v57 > 0 );
-      }
-      _RAX = *r_iBegin;
-      _R8 = 2 * v57;
-      __asm { vmovups xmmword ptr [rax+r8*8], xmm6 }
+      while ( v36 < v38 );
+      v37 = *r_iBegin;
     }
-    while ( v8 > v52 );
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
+    if ( v39 )
+    {
+      v37[v35] = v37[v36 - 1];
+      v35 = v36 - 1;
+    }
+    v41 = (v35 - 1) / 2;
+    if ( v35 > 0 )
+    {
+      v42 = v43.dist;
+      do
+      {
+        if ( v42 <= (*r_iBegin)[v41].dist )
+          break;
+        (*r_iBegin)[v35] = (*r_iBegin)[v41];
+        v35 = v41;
+        v41 = (v41 - 1) / 2;
+      }
+      while ( v35 > 0 );
+    }
   }
 }
 
@@ -965,296 +784,205 @@ ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEd
 */
 void ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *const *r_iBegin, EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *iEnd, unsigned __int64 depthLimit, EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *predicate)
 {
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v8; 
-  __int64 v13; 
-  bool v14; 
-  bool v15; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v4; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v7; 
+  float dist; 
+  float v10; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v11; 
+  float v12; 
+  bool v13; 
+  float v14; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v15; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v16; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v17; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 i; 
   EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v24; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  __int64 i; 
-  __int64 v31; 
-  __int64 v32; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v27; 
+  __int64 v28; 
+  __int64 v29; 
+  float v30; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *j; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v32; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v33; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v34; 
   __int64 v35; 
-  __int64 v44; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v52; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v53; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v61; 
-  bool v62; 
-  __int64 v64; 
-  __int64 v73; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v82; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v84; 
+  __int64 v36; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v37; 
+  __int64 v38; 
+  bool v39; 
+  __int64 v40; 
+  __int64 v41; 
+  float v42; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v43; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v44; 
 
-  _R10 = *r_iBegin;
-  _RSI = predicate;
-  v8 = iEnd;
+  v4 = *r_iBegin;
+  v7 = iEnd;
   if ( (__int64)(((char *)iEnd - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
     return;
   while ( depthLimit )
   {
-    __asm { vmovss  xmm1, dword ptr [r10+8] }
-    _RCX = v8 - 1;
-    __asm { vmovss  xmm0, dword ptr [rcx+8] }
+    dist = v4->dist;
+    v10 = v7[-1].dist;
     --depthLimit;
-    v13 = (v8 - _R10) / 2;
-    v14 = __CFADD__(_R10, v13 * 16);
-    v15 = __CFADD__(_R10, v13 * 16) || &_R10[v13] == NULL;
-    _RAX = &_R10[v13];
-    __asm
+    v11 = &v4[(v7 - v4) / 2];
+    v12 = v11->dist;
+    if ( dist >= v12 )
     {
-      vmovss  xmm2, dword ptr [rax+8]
-      vcomiss xmm1, xmm2
-    }
-    if ( v14 )
-    {
-      __asm { vcomiss xmm2, xmm0 }
-      if ( !v14 )
+      if ( dist >= v10 )
       {
-        _RAX = _R10;
-        __asm { vcomiss xmm0, xmm1 }
-        goto LABEL_9;
-      }
-    }
-    else
-    {
-      __asm { vcomiss xmm1, xmm0 }
-      if ( !v14 )
-      {
-        __asm { vcomiss xmm0, xmm2 }
+        v13 = v10 <= v12;
 LABEL_9:
-        if ( !v15 )
-          _RAX = v8 - 1;
+        if ( !v13 )
+          v11 = v7 - 1;
         goto LABEL_11;
       }
-      _RAX = _R10;
+      v11 = v4;
+    }
+    else if ( v12 >= v10 )
+    {
+      v11 = v4;
+      v13 = v10 <= dist;
+      goto LABEL_9;
     }
 LABEL_11:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+68h+var_38], xmm0
-      vmovss  xmm2, dword ptr [rsp+68h+var_38+8]
-    }
-    _RAX = (unsigned __int64)v8;
+    v43 = *v11;
+    v14 = v43.dist;
+    v15 = v7;
     while ( 1 )
     {
-      __asm { vcomiss xmm2, dword ptr [r10+8] }
-      while ( !v15 )
-      {
-        v15 = __CFADD__(_R10, 16i64) || &_R10[1] == NULL;
-        ++_R10;
-        __asm { vcomiss xmm2, dword ptr [r10+8] }
-      }
-      v14 = _RAX < 0x10;
-      _RAX -= 16i64;
-      __asm { vcomiss xmm2, dword ptr [rax+8] }
-      while ( v14 )
-      {
-        v14 = _RAX < 0x10;
-        _RAX -= 16i64;
-        __asm { vcomiss xmm2, dword ptr [rax+8] }
-      }
-      if ( (unsigned __int64)_R10 >= _RAX )
+      for ( ; v14 > v4->dist; ++v4 )
+        ;
+      for ( --v15; v14 < v15->dist; --v15 )
+        ;
+      if ( v4 >= v15 )
         break;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [r10]
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [r10], xmm0
-        vmovups xmmword ptr [rax], xmm1
-      }
-      v15 = __CFADD__(_R10, 16i64) || &_R10[1] == NULL;
-      ++_R10;
+      v16 = *v4;
+      *v4 = *v15;
+      *v15 = v16;
+      ++v4;
     }
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v84 = _R10;
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(&v84, v8, depthLimit, &v82);
-    v8 = v84;
-    _R10 = *r_iBegin;
-    if ( (__int64)(((char *)v84 - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
+    v17 = *predicate;
+    v44 = v4;
+    v43 = v17;
+    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(&v44, v7, depthLimit, &v43);
+    v7 = v44;
+    v4 = *r_iBegin;
+    if ( (__int64)(((char *)v44 - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
       return;
   }
-  if ( _R10 > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
+  if ( v4 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
     __debugbreak();
-  v24 = *r_iBegin;
-  v25 = v8 - *r_iBegin;
-  if ( v25 >= 2 )
+  v18 = *r_iBegin;
+  v19 = v7 - *r_iBegin;
+  if ( v19 >= 2 )
   {
-    v26 = (v25 - 2) / 2;
-    v27 = v26;
-    _RSI = 16 * v26;
-    for ( i = 2 * v26 + 2; ; i -= 2i64 )
+    v20 = (v19 - 2) / 2;
+    v21 = v20;
+    v22 = v20;
+    for ( i = 2 * v20 + 2; ; i -= 2i64 )
     {
-      _RCX = *r_iBegin;
-      v31 = v27;
-      v32 = i;
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rsi+rcx]
-        vmovups [rsp+68h+var_38], xmm2
-      }
-      if ( i < v25 )
+      v24 = *r_iBegin;
+      v25 = v21;
+      v26 = i;
+      v27 = (*r_iBegin)[v22];
+      v43 = v27;
+      if ( i < v19 )
       {
         do
         {
-          _RDX = *r_iBegin;
-          v35 = v32 - 1;
-          _RAX = 2 * v32;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx+rax*8-8]
-            vcomiss xmm0, dword ptr [rdx+rax*8+8]
-          }
-          if ( __CFADD__(v32, v32) || 2 * v32 == 0 )
-            v35 = v32;
-          _R8 = 2 * v31;
-          _RAX = 2 * v35;
-          v32 = 2 * v35 + 2;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx+rax*8]
-            vmovups xmmword ptr [rdx+r8*8], xmm0
-          }
-          v31 = v35;
+          v28 = v26 - 1;
+          if ( (*r_iBegin)[v26 - 1].dist <= (*r_iBegin)[v26].dist )
+            v28 = v26;
+          v26 = 2 * v28 + 2;
+          (*r_iBegin)[v25] = (*r_iBegin)[v28];
+          v25 = v28;
         }
-        while ( v32 < v25 );
-        _RCX = *r_iBegin;
+        while ( v26 < v19 );
+        v24 = *r_iBegin;
       }
-      if ( v32 == v25 )
+      if ( v26 == v19 )
       {
-        _RAX = 2 * v32;
-        _R8 = 2 * v31;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-          vmovups xmmword ptr [rcx+r8*8], xmm0
-        }
-        v31 = v32 - 1;
+        v24[v25] = v24[v26 - 1];
+        v25 = v26 - 1;
       }
-      v44 = (v31 - 1) / 2;
-      if ( v31 > v27 )
+      v29 = (v25 - 1) / 2;
+      if ( v25 > v21 )
       {
-        __asm { vmovss  xmm1, dword ptr [rsp+68h+var_38+8] }
+        v30 = v43.dist;
         do
         {
-          _RDX = *r_iBegin;
-          _RCX = 2 * v44;
-          __asm { vcomiss xmm1, dword ptr [rdx+rcx*8+8] }
-          if ( __CFADD__(v44, v44) || 2 * v44 == 0 )
+          if ( v30 <= (*r_iBegin)[v29].dist )
             break;
-          __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-          _R8 = 2 * v31;
-          __asm { vmovups xmmword ptr [rdx+r8*8], xmm0 }
-          v31 = v44;
-          v44 = (v44 - 1) / 2;
+          (*r_iBegin)[v25] = (*r_iBegin)[v29];
+          v25 = v29;
+          v29 = (v29 - 1) / 2;
         }
-        while ( v31 > v27 );
+        while ( v25 > v21 );
       }
-      _RAX = *r_iBegin;
-      _R8 = 2 * v31;
-      __asm { vmovups xmmword ptr [rax+r8*8], xmm2 }
-      if ( !v27 )
+      (*r_iBegin)[v25] = v27;
+      if ( !v21 )
         break;
-      --v27;
-      _RSI -= 16i64;
+      --v21;
+      --v22;
     }
-    v24 = *r_iBegin;
+    v18 = *r_iBegin;
   }
-  v52 = v24 + 1;
-  if ( v8 > &v24[1] )
+  for ( j = v18 + 1; v7 > j; (*r_iBegin)[v35] = v34 )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    do
+    v32 = v7--;
+    v33 = v32 - 1;
+    v34 = *v33;
+    v43 = *v33;
+    if ( v33 < *r_iBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin", *(_QWORD *)&v43.edgeId) )
+      __debugbreak();
+    v35 = 0i64;
+    v36 = 2i64;
+    *v33 = *(EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *)*r_iBegin;
+    v37 = *r_iBegin;
+    v38 = v33 - *r_iBegin;
+    v39 = v38 == 2;
+    if ( v38 > 2 )
     {
-      v53 = v8--;
-      _RDI = v53 - 1;
-      __asm
+      do
       {
-        vmovups xmm6, xmmword ptr [rdi]
-        vmovups [rsp+68h+var_38], xmm6
+        v40 = v36 - 1;
+        if ( (*r_iBegin)[v36 - 1].dist <= (*r_iBegin)[v36].dist )
+          v40 = v36;
+        v36 = 2 * v40 + 2;
+        (*r_iBegin)[v35] = (*r_iBegin)[v40];
+        v35 = v40;
+        v39 = v36 == v38;
       }
-      if ( _RDI < *r_iBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin", *(_QWORD *)&v82.edgeId) )
-        __debugbreak();
-      _RAX = *r_iBegin;
-      v57 = 0i64;
-      v58 = 2i64;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rdi], xmm0
-      }
-      _RCX = *r_iBegin;
-      v61 = _RDI - *r_iBegin;
-      v62 = v61 == 2;
-      if ( v61 > 2 )
-      {
-        do
-        {
-          _RDX = *r_iBegin;
-          v64 = v58 - 1;
-          _RAX = 2 * v58;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx+rax*8-8]
-            vcomiss xmm0, dword ptr [rdx+rax*8+8]
-          }
-          if ( __CFADD__(v58, v58) || 2 * v58 == 0 )
-            v64 = v58;
-          _R8 = 2 * v57;
-          _RAX = 2 * v64;
-          v58 = 2 * v64 + 2;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx+rax*8]
-            vmovups xmmword ptr [rdx+r8*8], xmm0
-          }
-          v57 = v64;
-          v62 = v58 == v61;
-        }
-        while ( v58 < v61 );
-        _RCX = *r_iBegin;
-      }
-      if ( v62 )
-      {
-        _RAX = 2 * v58;
-        _R8 = 2 * v57;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-          vmovups xmmword ptr [rcx+r8*8], xmm0
-        }
-        v57 = v58 - 1;
-      }
-      v73 = (v57 - 1) / 2;
-      if ( v57 > 0 )
-      {
-        __asm { vmovss  xmm1, dword ptr [rsp+68h+var_38+8] }
-        do
-        {
-          _RDX = *r_iBegin;
-          _RCX = 2 * v73;
-          __asm { vcomiss xmm1, dword ptr [rdx+rcx*8+8] }
-          if ( __CFADD__(v73, v73) || 2 * v73 == 0 )
-            break;
-          __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-          _R8 = 2 * v57;
-          __asm { vmovups xmmword ptr [rdx+r8*8], xmm0 }
-          v57 = v73;
-          v73 = (v73 - 1) / 2;
-        }
-        while ( v57 > 0 );
-      }
-      _RAX = *r_iBegin;
-      _R8 = 2 * v57;
-      __asm { vmovups xmmword ptr [rax+r8*8], xmm6 }
+      while ( v36 < v38 );
+      v37 = *r_iBegin;
     }
-    while ( v8 > v52 );
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
+    if ( v39 )
+    {
+      v37[v35] = v37[v36 - 1];
+      v35 = v36 - 1;
+    }
+    v41 = (v35 - 1) / 2;
+    if ( v35 > 0 )
+    {
+      v42 = v43.dist;
+      do
+      {
+        if ( v42 <= (*r_iBegin)[v41].dist )
+          break;
+        (*r_iBegin)[v35] = (*r_iBegin)[v41];
+        v35 = v41;
+        v41 = (v41 - 1) / 2;
+      }
+      while ( v35 > 0 );
+    }
   }
 }
 
@@ -1265,23 +993,20 @@ ntl::sort<EdgePropertyTuple *,EdgePropertyTuple>
 */
 void ntl::sort<EdgePropertyTuple *,EdgePropertyTuple>(EdgePropertyTuple *first, EdgePropertyTuple *last, EdgePropertyTuple *compare)
 {
-  EdgePropertyTuple v8; 
-  void *retaddr; 
-  ntl::random_access_iterator_tag v10; 
+  __m256i v3; 
+  __m256i v4; 
+  double v5; 
+  EdgePropertyTuple v6; 
+  ntl::random_access_iterator_tag v7; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymm1, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rax-78h], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rax-58h], ymm1
-    vmovsd  xmm1, qword ptr [r8+60h]
-    vmovups ymmword ptr [rax-38h], ymm0
-    vmovsd  qword ptr [rax-18h], xmm1
-  }
-  ntl::sort<EdgePropertyTuple *,EdgePropertyTuple>(first, last, &v8, v10);
+  v3 = *(__m256i *)&compare->edge.below.z;
+  *(__m256i *)v6.edge.normal.v = *(__m256i *)compare->edge.normal.v;
+  v4 = *(__m256i *)&compare->edge.normalFaceIndex;
+  *(__m256i *)&v6.edge.below.z = v3;
+  v5 = *(double *)&compare->viewDot;
+  *(__m256i *)&v6.edge.normalFaceIndex = v4;
+  *(double *)&v6.viewDot = v5;
+  ntl::sort<EdgePropertyTuple *,EdgePropertyTuple>(first, last, &v6, v7);
 }
 
 /*
@@ -1295,234 +1020,174 @@ void ntl::sort<EdgePropertyTuple *,EdgePropertyTuple>(EdgePropertyTuple *first, 
   unsigned __int64 v8; 
   unsigned __int64 v9; 
   unsigned __int64 v10; 
-  bool j; 
-  bool k; 
-  bool i; 
-  EdgePropertyTuple v61; 
-  EdgePropertyTuple *v62; 
+  __m256i v11; 
+  __m256i v12; 
+  double v13; 
+  EdgePropertyTuple *v14; 
+  EdgePropertyTuple *k; 
+  double v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  EdgePropertyTuple *m; 
+  __m256i v21; 
+  EdgePropertyTuple *v22; 
+  EdgePropertyTuple *v23; 
+  double v24; 
+  __m256i v25; 
+  __m256i v26; 
+  __m256i v27; 
+  EdgePropertyTuple *v28; 
+  EdgePropertyTuple *v29; 
+  EdgePropertyTuple *i; 
+  double v31; 
+  __m256i v32; 
+  __m256i v33; 
+  __m256i v34; 
+  EdgePropertyTuple *j; 
+  __m256i v36; 
+  EdgePropertyTuple *v37; 
+  EdgePropertyTuple *v38; 
+  EdgePropertyTuple v39; 
+  EdgePropertyTuple *v40; 
 
   if ( first != last )
   {
-    v62 = first;
+    v40 = first;
     v5 = (char *)last - (char *)first;
-    _R9 = compare;
-    _RBX = first;
     v8 = (__int64)((unsigned __int128)(((char *)last - (char *)first) * (__int128)0x4EC4EC4EC4EC4EC5i64) >> 64) >> 5;
     v9 = (v8 >> 63) + v8;
     if ( v9 )
       v10 = 63 - __lzcnt(v9);
     else
       v10 = 0i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups ymm1, ymmword ptr [r9+20h]
-      vmovups [rsp+98h+var_78], ymm0
-      vmovups ymm0, ymmword ptr [r9+40h]
-      vmovups [rsp+98h+var_58], ymm1
-      vmovsd  xmm1, qword ptr [r9+60h]
-      vmovups [rsp+98h+var_38], ymm0
-      vmovsd  [rsp+98h+var_18], xmm1
-    }
-    ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>(&v62, last, 2 * v10, &v61);
+    v11 = *(__m256i *)&compare->edge.below.z;
+    *(__m256i *)v39.edge.normal.v = *(__m256i *)compare->edge.normal.v;
+    v12 = *(__m256i *)&compare->edge.normalFaceIndex;
+    *(__m256i *)&v39.edge.below.z = v11;
+    v13 = *(double *)&compare->viewDot;
+    *(__m256i *)&v39.edge.normalFaceIndex = v12;
+    *(double *)&v39.viewDot = v13;
+    ntl::internal::introsort_loop<EdgePropertyTuple *,EdgePropertyTuple>(&v40, last, 2 * v10, &v39);
     if ( v5 < 1768 )
     {
-      _RDX = _RBX + 1;
-      for ( i = &_RBX[1] <= last; _RDX != last; i = _RDX <= last )
+      for ( i = first + 1; i != last; ++i )
       {
-        __asm
+        v31 = *(double *)&i->viewDot;
+        v32 = *(__m256i *)i->edge.normal.v;
+        v33 = *(__m256i *)&i->edge.below.z;
+        v34 = *(__m256i *)&i->edge.normalFaceIndex;
+        if ( *(float *)&v31 <= first->viewDot )
         {
-          vmovsd  xmm2, qword ptr [rdx+60h]
-          vcomiss xmm2, dword ptr [rbx+60h]
-          vmovups ymm3, ymmword ptr [rdx]
-          vmovups ymm4, ymmword ptr [rdx+20h]
-          vmovups ymm5, ymmword ptr [rdx+40h]
-        }
-        if ( i )
-        {
-          __asm { vcomiss xmm2, dword ptr [rdx-8] }
-          _RCX = (unsigned __int64)_RDX;
-          _RAX = (unsigned __int64)&_RDX[-1];
-          if ( !i )
+          v37 = i;
+          v38 = i - 1;
+          if ( *(float *)&v31 > i[-1].viewDot )
           {
             do
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm1, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rcx+20h], ymm1
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rcx+40h], ymm0
-                vmovsd  xmm1, qword ptr [rax+60h]
-                vmovsd  qword ptr [rcx+60h], xmm1
-              }
-              _RCX = _RAX;
-              j = _RAX <= 0x68;
-              _RAX -= 104i64;
-              __asm { vcomiss xmm2, dword ptr [rax+60h] }
+              *(__m256i *)v37->edge.normal.v = *(__m256i *)v38->edge.normal.v;
+              *(__m256i *)&v37->edge.below.z = *(__m256i *)&v38->edge.below.z;
+              *(__m256i *)&v37->edge.normalFaceIndex = *(__m256i *)&v38->edge.normalFaceIndex;
+              *(double *)&v37->viewDot = *(double *)&v38->viewDot;
+              v37 = v38--;
             }
-            while ( !j );
+            while ( *(float *)&v31 > v38->viewDot );
           }
-          __asm
-          {
-            vmovups ymmword ptr [rcx], ymm3
-            vmovups ymmword ptr [rcx+20h], ymm4
-            vmovups ymmword ptr [rcx+40h], ymm5
-            vmovsd  qword ptr [rcx+60h], xmm2
-          }
+          *(__m256i *)v37->edge.normal.v = v32;
+          *(__m256i *)&v37->edge.below.z = v33;
+          *(__m256i *)&v37->edge.normalFaceIndex = v34;
+          *(double *)&v37->viewDot = v31;
         }
         else
         {
-          _RAX = _RDX;
-          while ( _RAX != _RBX )
+          for ( j = i; j != first; *(double *)&j[1].viewDot = *(double *)&j->viewDot )
           {
-            __asm { vmovups ymm0, ymmword ptr [rax-68h] }
-            --_RAX;
-            __asm
-            {
-              vmovups ymmword ptr [rax+68h], ymm0
-              vmovups ymm1, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rax+88h], ymm1
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rax+0A8h], ymm0
-              vmovsd  xmm1, qword ptr [rax+60h]
-              vmovsd  qword ptr [rax+0C8h], xmm1
-            }
+            v36 = *(__m256i *)j[-1].edge.normal.v;
+            --j;
+            *(__m256i *)j[1].edge.normal.v = v36;
+            *(__m256i *)&j[1].edge.below.z = *(__m256i *)&j->edge.below.z;
+            *(__m256i *)&j[1].edge.normalFaceIndex = *(__m256i *)&j->edge.normalFaceIndex;
           }
-          __asm
-          {
-            vmovups ymmword ptr [rbx], ymm3
-            vmovups ymmword ptr [rbx+20h], ymm4
-            vmovups ymmword ptr [rbx+40h], ymm5
-            vmovsd  qword ptr [rbx+60h], xmm2
-          }
+          *(__m256i *)first->edge.normal.v = v32;
+          *(__m256i *)&first->edge.below.z = v33;
+          *(__m256i *)&first->edge.normalFaceIndex = v34;
+          *(double *)&first->viewDot = v31;
         }
-        ++_RDX;
       }
     }
     else
     {
-      _R8 = _RBX + 16;
-      if ( _RBX != &_RBX[16] )
+      v14 = first + 16;
+      if ( first != &first[16] )
       {
-        _RCX = _RBX + 1;
-        for ( j = &_RBX[1] <= _R8; _RCX != _R8; j = _RCX <= _R8 )
+        for ( k = first + 1; k != v14; ++k )
         {
-          __asm
+          v16 = *(double *)&k->viewDot;
+          v17 = *(__m256i *)k->edge.normal.v;
+          v18 = *(__m256i *)&k->edge.below.z;
+          v19 = *(__m256i *)&k->edge.normalFaceIndex;
+          if ( *(float *)&v16 <= first->viewDot )
           {
-            vmovsd  xmm2, qword ptr [rcx+60h]
-            vcomiss xmm2, dword ptr [rbx+60h]
-            vmovups ymm3, ymmword ptr [rcx]
-            vmovups ymm4, ymmword ptr [rcx+20h]
-            vmovups ymm5, ymmword ptr [rcx+40h]
-          }
-          if ( j )
-          {
-            __asm { vcomiss xmm2, dword ptr [rcx-8] }
-            _RDX = (unsigned __int64)_RCX;
-            _RAX = (unsigned __int64)&_RCX[-1];
-            while ( !j )
+            v22 = k;
+            v23 = k - 1;
+            if ( *(float *)&v16 > k[-1].viewDot )
             {
-              __asm
+              do
               {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rdx], ymm0
-                vmovups ymm1, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rdx+20h], ymm1
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rdx+40h], ymm0
-                vmovsd  xmm1, qword ptr [rax+60h]
-                vmovsd  qword ptr [rdx+60h], xmm1
+                *(__m256i *)v22->edge.normal.v = *(__m256i *)v23->edge.normal.v;
+                *(__m256i *)&v22->edge.below.z = *(__m256i *)&v23->edge.below.z;
+                *(__m256i *)&v22->edge.normalFaceIndex = *(__m256i *)&v23->edge.normalFaceIndex;
+                *(double *)&v22->viewDot = *(double *)&v23->viewDot;
+                v22 = v23--;
               }
-              _RDX = _RAX;
-              j = _RAX <= 0x68;
-              _RAX -= 104i64;
-              __asm { vcomiss xmm2, dword ptr [rax+60h] }
+              while ( *(float *)&v16 > v23->viewDot );
             }
-            __asm
-            {
-              vmovups ymmword ptr [rdx], ymm3
-              vmovups ymmword ptr [rdx+20h], ymm4
-              vmovups ymmword ptr [rdx+40h], ymm5
-              vmovsd  qword ptr [rdx+60h], xmm2
-            }
+            *(__m256i *)v22->edge.normal.v = v17;
+            *(__m256i *)&v22->edge.below.z = v18;
+            *(__m256i *)&v22->edge.normalFaceIndex = v19;
+            *(double *)&v22->viewDot = v16;
           }
           else
           {
-            _RAX = _RCX;
-            while ( _RAX != _RBX )
+            for ( m = k; m != first; *(double *)&m[1].viewDot = *(double *)&m->viewDot )
             {
-              __asm { vmovups ymm0, ymmword ptr [rax-68h] }
-              --_RAX;
-              __asm
-              {
-                vmovups ymmword ptr [rax+68h], ymm0
-                vmovups ymm1, ymmword ptr [rax+20h]
-                vmovups ymmword ptr [rax+88h], ymm1
-                vmovups ymm0, ymmword ptr [rax+40h]
-                vmovups ymmword ptr [rax+0A8h], ymm0
-                vmovsd  xmm1, qword ptr [rax+60h]
-                vmovsd  qword ptr [rax+0C8h], xmm1
-              }
+              v21 = *(__m256i *)m[-1].edge.normal.v;
+              --m;
+              *(__m256i *)m[1].edge.normal.v = v21;
+              *(__m256i *)&m[1].edge.below.z = *(__m256i *)&m->edge.below.z;
+              *(__m256i *)&m[1].edge.normalFaceIndex = *(__m256i *)&m->edge.normalFaceIndex;
             }
-            __asm
-            {
-              vmovups ymmword ptr [rbx], ymm3
-              vmovups ymmword ptr [rbx+20h], ymm4
-              vmovups ymmword ptr [rbx+40h], ymm5
-              vmovsd  qword ptr [rbx+60h], xmm2
-            }
+            *(__m256i *)first->edge.normal.v = v17;
+            *(__m256i *)&first->edge.below.z = v18;
+            *(__m256i *)&first->edge.normalFaceIndex = v19;
+            *(double *)&first->viewDot = v16;
           }
-          ++_RCX;
         }
       }
-      for ( k = _R8 <= last; _R8 != last; k = _R8 <= last )
+      for ( ; v14 != last; *(double *)&v28->viewDot = v24 )
       {
-        __asm
-        {
-          vmovsd  xmm2, qword ptr [r8+60h]
-          vcomiss xmm2, dword ptr [r8-8]
-          vmovups ymm3, ymmword ptr [r8]
-          vmovups ymm4, ymmword ptr [r8+20h]
-          vmovups ymm5, ymmword ptr [r8+40h]
-        }
-        _RCX = (unsigned __int64)_R8;
-        _RAX = (unsigned __int64)&_R8[-1];
-        if ( !k )
+        v24 = *(double *)&v14->viewDot;
+        v25 = *(__m256i *)v14->edge.normal.v;
+        v26 = *(__m256i *)&v14->edge.below.z;
+        v27 = *(__m256i *)&v14->edge.normalFaceIndex;
+        v28 = v14;
+        v29 = v14 - 1;
+        if ( *(float *)&v24 > v14[-1].viewDot )
         {
           do
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm1, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm1
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovsd  xmm1, qword ptr [rax+60h]
-              vmovsd  qword ptr [rcx+60h], xmm1
-            }
-            _RCX = _RAX;
-            j = _RAX <= 0x68;
-            _RAX -= 104i64;
-            __asm { vcomiss xmm2, dword ptr [rax+60h] }
+            *(__m256i *)v28->edge.normal.v = *(__m256i *)v29->edge.normal.v;
+            *(__m256i *)&v28->edge.below.z = *(__m256i *)&v29->edge.below.z;
+            *(__m256i *)&v28->edge.normalFaceIndex = *(__m256i *)&v29->edge.normalFaceIndex;
+            *(double *)&v28->viewDot = *(double *)&v29->viewDot;
+            v28 = v29--;
           }
-          while ( !j );
+          while ( *(float *)&v24 > v29->viewDot );
         }
-        __asm
-        {
-          vmovups ymmword ptr [rcx], ymm3
-          vmovups ymmword ptr [rcx+20h], ymm4
-        }
-        ++_R8;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+40h], ymm5
-          vmovsd  qword ptr [rcx+60h], xmm2
-        }
+        *(__m256i *)v28->edge.normal.v = v25;
+        *(__m256i *)&v28->edge.below.z = v26;
+        ++v14;
+        *(__m256i *)&v28->edge.normalFaceIndex = v27;
       }
     }
   }
@@ -1535,15 +1200,11 @@ ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuer
 */
 void ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *first, EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *last, EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *compare)
 {
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v4; 
-  ntl::random_access_iterator_tag v5; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v3; 
+  ntl::random_access_iterator_tag v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rsp+38h+var_18.edgeId.m_edgeIndex], xmm0
-  }
-  ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(first, last, &v4, v5);
+  v3 = *compare;
+  ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(first, last, &v3, v4);
 }
 
 /*
@@ -1555,151 +1216,123 @@ void ntl::sort<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctre
 {
   signed __int64 v7; 
   unsigned __int64 v8; 
-  bool j; 
-  bool k; 
-  bool i; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v35; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v36; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v9; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *k; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v11; 
+  float v12; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *m; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v14; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v15; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v16; 
+  __m128 v17; 
+  float v18; 
+  _OWORD *v19; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v20; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *i; 
+  __m128 v22; 
+  float v23; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *j; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v25; 
+  _OWORD *p_edgeId; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v27; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge v28; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *v29; 
 
   if ( first != last )
   {
-    v36 = first;
-    _R9 = compare;
-    _RBX = first;
+    v29 = first;
     v7 = last - first;
     if ( v7 )
       v8 = 63 - __lzcnt(v7);
     else
       v8 = 0i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r9]
-      vmovups xmmword ptr [rsp+38h+var_18.edgeId.m_edgeIndex], xmm0
-    }
-    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(&v36, last, 2 * v8, &v35);
+    v28 = *compare;
+    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge>(&v29, last, 2 * v8, &v28);
     if ( v7 <= 16 )
     {
-      _RCX = _RBX + 1;
-      for ( i = &_RBX[1] < last; _RCX != last; i = _RCX < last )
+      for ( i = first + 1; i != last; ++i )
       {
-        __asm
+        v22 = *(__m128 *)i;
+        v23 = _mm_shuffle_ps(v22, v22, 170).m128_f32[0];
+        if ( v23 >= first->dist )
         {
-          vmovups xmm2, xmmword ptr [rcx]
-          vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-          vcomiss xmm1, dword ptr [rbx+8]
-        }
-        if ( i )
-        {
-          _RAX = _RCX;
-          while ( _RAX != _RBX )
-          {
-            __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-            --_RAX;
-            __asm { vmovups xmmword ptr [rax+10h], xmm0 }
-          }
-          __asm { vmovups xmmword ptr [rbx], xmm2 }
-        }
-        else
-        {
-          __asm { vcomiss xmm1, dword ptr [rcx-8] }
-          _RDX = (unsigned __int64)_RCX;
-          _RAX = (unsigned __int64)&_RCX[-1];
-          if ( i )
+          p_edgeId = &i->edgeId;
+          v27 = i - 1;
+          if ( v23 < i[-1].dist )
           {
             do
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rdx], xmm0
-              }
-              _RDX = _RAX;
-              j = _RAX < 0x10;
-              _RAX -= 16i64;
-              __asm { vcomiss xmm1, dword ptr [rax+8] }
+              *p_edgeId = *v27;
+              p_edgeId = &v27->edgeId;
+              --v27;
             }
-            while ( j );
+            while ( v23 < v27->dist );
           }
-          __asm { vmovups xmmword ptr [rdx], xmm2 }
+          *p_edgeId = v22;
         }
-        ++_RCX;
+        else
+        {
+          for ( j = i; j != first; j[1] = v25 )
+          {
+            v25 = j[-1];
+            --j;
+          }
+          *first = (EdgeOctreeQuery<EdgeOctreeQueryFrustum>::SelectedEdge)v22;
+        }
       }
     }
     else
     {
-      _RDX = _RBX + 16;
-      if ( _RBX != &_RBX[16] )
+      v9 = first + 16;
+      if ( first != &first[16] )
       {
-        _RCX = _RBX + 1;
-        for ( j = &_RBX[1] < _RDX; _RCX != _RDX; j = _RCX < _RDX )
+        for ( k = first + 1; k != v9; ++k )
         {
-          __asm
+          v11 = *k;
+          v12 = _mm_shuffle_ps((__m128)v11, (__m128)v11, 170).m128_f32[0];
+          if ( v12 >= first->dist )
           {
-            vmovups xmm2, xmmword ptr [rcx]
-            vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-            vcomiss xmm1, dword ptr [rbx+8]
-          }
-          if ( j )
-          {
-            _RAX = _RCX;
-            while ( _RAX != _RBX )
+            v15 = k;
+            v16 = k - 1;
+            if ( v12 < k[-1].dist )
             {
-              __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-              --_RAX;
-              __asm { vmovups xmmword ptr [rax+10h], xmm0 }
+              do
+              {
+                *v15 = *v16;
+                v15 = v16--;
+              }
+              while ( v12 < v16->dist );
             }
-            __asm { vmovups xmmword ptr [rbx], xmm2 }
+            *v15 = v11;
           }
           else
           {
-            __asm { vcomiss xmm1, dword ptr [rcx-8] }
-            _R8 = (unsigned __int64)_RCX;
-            _RAX = (unsigned __int64)&_RCX[-1];
-            while ( j )
+            for ( m = k; m != first; m[1] = v14 )
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [r8], xmm0
-              }
-              _R8 = _RAX;
-              j = _RAX < 0x10;
-              _RAX -= 16i64;
-              __asm { vcomiss xmm1, dword ptr [rax+8] }
+              v14 = m[-1];
+              --m;
             }
-            __asm { vmovups xmmword ptr [r8], xmm2 }
+            *first = v11;
           }
-          ++_RCX;
         }
       }
-      for ( k = _RDX < last; _RDX != last; k = _RDX < last )
+      for ( ; v9 != last; *v19 = v17 )
       {
-        __asm
-        {
-          vmovups xmm2, xmmword ptr [rdx]
-          vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-          vcomiss xmm1, dword ptr [rdx-8]
-        }
-        _RCX = (unsigned __int64)_RDX;
-        _RAX = (unsigned __int64)&_RDX[-1];
-        if ( k )
+        v17 = *(__m128 *)v9;
+        v18 = _mm_shuffle_ps(v17, v17, 170).m128_f32[0];
+        v19 = &v9->edgeId;
+        v20 = v9 - 1;
+        if ( v18 < v9[-1].dist )
         {
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-            }
-            _RCX = _RAX;
-            j = _RAX < 0x10;
-            _RAX -= 16i64;
-            __asm { vcomiss xmm1, dword ptr [rax+8] }
+            *v19 = *v20;
+            v19 = &v20->edgeId;
+            --v20;
           }
-          while ( j );
+          while ( v18 < v20->dist );
         }
-        ++_RDX;
-        __asm { vmovups xmmword ptr [rcx], xmm2 }
+        ++v9;
       }
     }
   }
@@ -1712,15 +1345,11 @@ ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery
 */
 void ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *first, EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *last, EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *compare)
 {
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v4; 
-  ntl::random_access_iterator_tag v5; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v3; 
+  ntl::random_access_iterator_tag v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rsp+38h+var_18.edgeId.m_edgeIndex], xmm0
-  }
-  ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(first, last, &v4, v5);
+  v3 = *compare;
+  ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(first, last, &v3, v4);
 }
 
 /*
@@ -1732,151 +1361,123 @@ void ntl::sort<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctree
 {
   signed __int64 v7; 
   unsigned __int64 v8; 
-  bool j; 
-  bool k; 
-  bool i; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v35; 
-  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v36; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v9; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *k; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v11; 
+  float v12; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *m; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v14; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v15; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v16; 
+  __m128 v17; 
+  float v18; 
+  _OWORD *v19; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v20; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *i; 
+  __m128 v22; 
+  float v23; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *j; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v25; 
+  _OWORD *p_edgeId; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v27; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge v28; 
+  EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *v29; 
 
   if ( first != last )
   {
-    v36 = first;
-    _R9 = compare;
-    _RBX = first;
+    v29 = first;
     v7 = last - first;
     if ( v7 )
       v8 = 63 - __lzcnt(v7);
     else
       v8 = 0i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r9]
-      vmovups xmmword ptr [rsp+38h+var_18.edgeId.m_edgeIndex], xmm0
-    }
-    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(&v36, last, 2 * v8, &v35);
+    v28 = *compare;
+    ntl::internal::introsort_loop<EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge *,EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge>(&v29, last, 2 * v8, &v28);
     if ( v7 <= 16 )
     {
-      _RCX = _RBX + 1;
-      for ( i = &_RBX[1] < last; _RCX != last; i = _RCX < last )
+      for ( i = first + 1; i != last; ++i )
       {
-        __asm
+        v22 = *(__m128 *)i;
+        v23 = _mm_shuffle_ps(v22, v22, 170).m128_f32[0];
+        if ( v23 >= first->dist )
         {
-          vmovups xmm2, xmmword ptr [rcx]
-          vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-          vcomiss xmm1, dword ptr [rbx+8]
-        }
-        if ( i )
-        {
-          _RAX = _RCX;
-          while ( _RAX != _RBX )
-          {
-            __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-            --_RAX;
-            __asm { vmovups xmmword ptr [rax+10h], xmm0 }
-          }
-          __asm { vmovups xmmword ptr [rbx], xmm2 }
-        }
-        else
-        {
-          __asm { vcomiss xmm1, dword ptr [rcx-8] }
-          _RDX = (unsigned __int64)_RCX;
-          _RAX = (unsigned __int64)&_RCX[-1];
-          if ( i )
+          p_edgeId = &i->edgeId;
+          v27 = i - 1;
+          if ( v23 < i[-1].dist )
           {
             do
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rdx], xmm0
-              }
-              _RDX = _RAX;
-              j = _RAX < 0x10;
-              _RAX -= 16i64;
-              __asm { vcomiss xmm1, dword ptr [rax+8] }
+              *p_edgeId = *v27;
+              p_edgeId = &v27->edgeId;
+              --v27;
             }
-            while ( j );
+            while ( v23 < v27->dist );
           }
-          __asm { vmovups xmmword ptr [rdx], xmm2 }
+          *p_edgeId = v22;
         }
-        ++_RCX;
+        else
+        {
+          for ( j = i; j != first; j[1] = v25 )
+          {
+            v25 = j[-1];
+            --j;
+          }
+          *first = (EdgeOctreeQuery<EdgeOctreeQuerySphere>::SelectedEdge)v22;
+        }
       }
     }
     else
     {
-      _RDX = _RBX + 16;
-      if ( _RBX != &_RBX[16] )
+      v9 = first + 16;
+      if ( first != &first[16] )
       {
-        _RCX = _RBX + 1;
-        for ( j = &_RBX[1] < _RDX; _RCX != _RDX; j = _RCX < _RDX )
+        for ( k = first + 1; k != v9; ++k )
         {
-          __asm
+          v11 = *k;
+          v12 = _mm_shuffle_ps((__m128)v11, (__m128)v11, 170).m128_f32[0];
+          if ( v12 >= first->dist )
           {
-            vmovups xmm2, xmmword ptr [rcx]
-            vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-            vcomiss xmm1, dword ptr [rbx+8]
-          }
-          if ( j )
-          {
-            _RAX = _RCX;
-            while ( _RAX != _RBX )
+            v15 = k;
+            v16 = k - 1;
+            if ( v12 < k[-1].dist )
             {
-              __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-              --_RAX;
-              __asm { vmovups xmmword ptr [rax+10h], xmm0 }
+              do
+              {
+                *v15 = *v16;
+                v15 = v16--;
+              }
+              while ( v12 < v16->dist );
             }
-            __asm { vmovups xmmword ptr [rbx], xmm2 }
+            *v15 = v11;
           }
           else
           {
-            __asm { vcomiss xmm1, dword ptr [rcx-8] }
-            _R8 = (unsigned __int64)_RCX;
-            _RAX = (unsigned __int64)&_RCX[-1];
-            while ( j )
+            for ( m = k; m != first; m[1] = v14 )
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [r8], xmm0
-              }
-              _R8 = _RAX;
-              j = _RAX < 0x10;
-              _RAX -= 16i64;
-              __asm { vcomiss xmm1, dword ptr [rax+8] }
+              v14 = m[-1];
+              --m;
             }
-            __asm { vmovups xmmword ptr [r8], xmm2 }
+            *first = v11;
           }
-          ++_RCX;
         }
       }
-      for ( k = _RDX < last; _RDX != last; k = _RDX < last )
+      for ( ; v9 != last; *v19 = v17 )
       {
-        __asm
-        {
-          vmovups xmm2, xmmword ptr [rdx]
-          vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-          vcomiss xmm1, dword ptr [rdx-8]
-        }
-        _RCX = (unsigned __int64)_RDX;
-        _RAX = (unsigned __int64)&_RDX[-1];
-        if ( k )
+        v17 = *(__m128 *)v9;
+        v18 = _mm_shuffle_ps(v17, v17, 170).m128_f32[0];
+        v19 = &v9->edgeId;
+        v20 = v9 - 1;
+        if ( v18 < v9[-1].dist )
         {
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-            }
-            _RCX = _RAX;
-            j = _RAX < 0x10;
-            _RAX -= 16i64;
-            __asm { vcomiss xmm1, dword ptr [rax+8] }
+            *v19 = *v20;
+            v19 = &v20->edgeId;
+            --v20;
           }
-          while ( j );
+          while ( v18 < v20->dist );
         }
-        ++_RDX;
-        __asm { vmovups xmmword ptr [rcx], xmm2 }
+        ++v9;
       }
     }
   }
@@ -1889,34 +1490,44 @@ ntl::internal::introsort_loop<CachedLookup::Entry *,CachedLookup::SortFunc>
 */
 void ntl::internal::introsort_loop<CachedLookup::Entry *,CachedLookup::SortFunc>(CachedLookup::Entry *const *r_iBegin, CachedLookup::Entry *iEnd, unsigned __int64 depthLimit, CachedLookup::SortFunc predicate)
 {
+  CachedLookup::Entry *v5; 
   CachedLookup::Entry *v7; 
   unsigned __int64 address; 
   unsigned __int64 v10; 
+  CachedLookup::Entry *v11; 
   unsigned __int64 v12; 
   bool v13; 
-  CachedLookup::Entry *v18; 
+  unsigned __int64 v14; 
+  CachedLookup::Entry *v15; 
+  CachedLookup::Entry v16; 
+  CachedLookup::Entry *v17; 
+  __int64 v18; 
   __int64 v19; 
   __int64 v20; 
   __int64 v21; 
   __int64 i; 
+  CachedLookup::Entry *v23; 
+  __int64 v24; 
   __int64 v25; 
-  __int64 v26; 
-  __int64 v29; 
+  CachedLookup::Entry v26; 
+  __int64 v27; 
   __int64 j; 
-  CachedLookup::Entry *v43; 
-  CachedLookup::Entry *v44; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v52; 
-  bool v53; 
-  __int64 v55; 
-  __int64 k; 
-  __int128 v69; 
-  __int128 v70; 
-  __int128 v72; 
+  CachedLookup::Entry *k; 
+  CachedLookup::Entry *v30; 
+  CachedLookup::Entry *v31; 
+  CachedLookup::Entry v32; 
+  __int64 v33; 
+  __int64 v34; 
+  CachedLookup::Entry *v35; 
+  __int64 v36; 
+  bool v37; 
+  __int64 v38; 
+  __int64 m; 
+  CachedLookup::Entry v40; 
+  CachedLookup::Entry v41; 
   CachedLookup::Entry *r_iBegina; 
 
-  _R9 = *r_iBegin;
+  v5 = *r_iBegin;
   v7 = iEnd;
   if ( (__int64)(((char *)iEnd - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
     return;
@@ -1924,210 +1535,149 @@ void ntl::internal::introsort_loop<CachedLookup::Entry *,CachedLookup::SortFunc>
   {
     address = v7[-1].address;
     --depthLimit;
-    v10 = _R9->address;
-    _RAX = &_R9[(v7 - _R9) / 2];
-    v12 = _RAX->address;
-    if ( _R9->address >= _RAX->address )
+    v10 = v5->address;
+    v11 = &v5[(v7 - v5) / 2];
+    v12 = v11->address;
+    if ( v5->address >= v11->address )
     {
       if ( v10 >= address )
       {
         v13 = v12 < address;
 LABEL_9:
         if ( v13 )
-          _RAX = v7 - 1;
+          v11 = v7 - 1;
         goto LABEL_11;
       }
-      _RAX = _R9;
+      v11 = v5;
     }
     else if ( v12 >= address )
     {
-      _RAX = _R9;
+      v11 = v5;
       v13 = v10 < address;
       goto LABEL_9;
     }
 LABEL_11:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+68h+var_38], xmm0
-    }
-    _RAX = v7;
+    v14 = v11->address;
+    v15 = v7;
     while ( 1 )
     {
-      if ( v10 < (unsigned __int64)v69 )
+      if ( v10 < v14 )
       {
         do
-          ++_R9;
-        while ( _R9->address < (unsigned __int64)v69 );
+          ++v5;
+        while ( v5->address < v14 );
       }
-      for ( --_RAX; (unsigned __int64)v69 < _RAX->address; --_RAX )
+      for ( --v15; v14 < v15->address; --v15 )
         ;
-      if ( _R9 >= _RAX )
+      if ( v5 >= v15 )
         break;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [r9]
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [r9], xmm0
-      }
-      ++_R9;
-      __asm { vmovups xmmword ptr [rax], xmm1 }
-      v10 = _R9->address;
+      v16 = *v5;
+      *v5++ = *v15;
+      *v15 = v16;
+      v10 = v5->address;
     }
-    r_iBegina = _R9;
+    r_iBegina = v5;
     ntl::internal::introsort_loop<CachedLookup::Entry *,CachedLookup::SortFunc>(&r_iBegina, v7, depthLimit, predicate);
     v7 = r_iBegina;
-    _R9 = *r_iBegin;
+    v5 = *r_iBegin;
     if ( (__int64)(((char *)r_iBegina - (char *)*r_iBegin) & 0xFFFFFFFFFFFFFFF0ui64) <= 256 )
       return;
   }
-  if ( _R9 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
+  if ( v5 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\sort.h", 121, ASSERT_TYPE_ASSERT, "( r_iBegin <= r_iMid )", (const char *)&queryFormat, "r_iBegin <= r_iMid") )
     __debugbreak();
-  v18 = *r_iBegin;
-  v19 = v7 - *r_iBegin;
-  if ( v19 >= 2 )
+  v17 = *r_iBegin;
+  v18 = v7 - *r_iBegin;
+  if ( v18 >= 2 )
   {
-    v20 = (v19 - 2) / 2;
-    v21 = v20;
-    _RBP = 16 * v20;
-    for ( i = 2 * v20 + 2; ; i -= 2i64 )
+    v19 = (v18 - 2) / 2;
+    v20 = v19;
+    v21 = v19;
+    for ( i = 2 * v19 + 2; ; i -= 2i64 )
     {
-      _RCX = *r_iBegin;
-      v25 = v21;
-      v26 = i;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+rbp]
-        vmovups [rsp+68h+var_38], xmm1
-      }
-      if ( i < v19 )
+      v23 = *r_iBegin;
+      v24 = v20;
+      v25 = i;
+      v26 = (*r_iBegin)[v21];
+      if ( i < v18 )
       {
         do
         {
-          _R8 = *r_iBegin;
-          v29 = v26 - 1;
-          if ( (*r_iBegin)[v26].address >= (*r_iBegin)[v26 - 1].address )
-            v29 = v26;
-          _R9 = 2 * v25;
-          _RAX = 2 * v29;
-          v26 = 2 * v29 + 2;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r8+rax*8]
-            vmovups xmmword ptr [r8+r9*8], xmm0
-          }
-          v25 = v29;
+          v27 = v25 - 1;
+          if ( (*r_iBegin)[v25].address >= (*r_iBegin)[v25 - 1].address )
+            v27 = v25;
+          v25 = 2 * v27 + 2;
+          (*r_iBegin)[v24] = (*r_iBegin)[v27];
+          v24 = v27;
         }
-        while ( v26 < v19 );
-        _RCX = *r_iBegin;
+        while ( v25 < v18 );
+        v23 = *r_iBegin;
       }
-      if ( v26 == v19 )
+      if ( v25 == v18 )
       {
-        _RAX = 2 * v26;
-        _R9 = 2 * v25;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-          vmovups xmmword ptr [rcx+r9*8], xmm0
-        }
-        v25 = v26 - 1;
+        v23[v24] = v23[v25 - 1];
+        v24 = v25 - 1;
       }
-      for ( j = (v25 - 1) / 2; v25 > v21; j = (j - 1) / 2 )
+      for ( j = (v24 - 1) / 2; v24 > v20; j = (j - 1) / 2 )
       {
-        _RDX = *r_iBegin;
-        _RCX = 2 * j;
-        if ( (*r_iBegin)[j].address >= (unsigned __int64)v70 )
+        if ( (*r_iBegin)[j].address >= v26.address )
           break;
-        __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-        _R9 = 2 * v25;
-        __asm { vmovups xmmword ptr [rdx+r9*8], xmm0 }
-        v25 = j;
+        (*r_iBegin)[v24] = (*r_iBegin)[j];
+        v24 = j;
       }
-      _RAX = *r_iBegin;
-      _R9 = 2 * v25;
-      __asm { vmovups xmmword ptr [rax+r9*8], xmm1 }
-      if ( !v21 )
+      (*r_iBegin)[v24] = v26;
+      if ( !v20 )
         break;
+      --v20;
       --v21;
-      _RBP -= 16i64;
     }
-    v18 = *r_iBegin;
+    v17 = *r_iBegin;
   }
-  v43 = v18 + 1;
-  while ( v7 > v43 )
+  for ( k = v17 + 1; v7 > k; (*r_iBegin)[v33] = v32 )
   {
-    v44 = v7--;
-    _RBX = v44 - 1;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_38], xmm1
-      vmovups [rsp+68h+var_28], xmm1
-    }
-    if ( _RBX < *r_iBegin )
+    v30 = v7--;
+    v31 = v30 - 1;
+    v32 = *v31;
+    v40 = *v31;
+    v41 = *v31;
+    if ( v31 < *r_iBegin )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\utility\\heap_sort.h", 206, ASSERT_TYPE_ASSERT, "( r_iEnd >= r_iBegin )", (const char *)&queryFormat, "r_iEnd >= r_iBegin") )
         __debugbreak();
-      __asm { vmovups xmm1, [rsp+68h+var_38] }
+      v32 = v40;
     }
-    _RAX = *r_iBegin;
-    v48 = 0i64;
-    v49 = 2i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-    }
-    _RCX = *r_iBegin;
-    v52 = _RBX - *r_iBegin;
-    v53 = v52 == 2;
-    if ( v52 > 2 )
+    v33 = 0i64;
+    v34 = 2i64;
+    *v31 = *(CachedLookup::Entry *)*r_iBegin;
+    v35 = *r_iBegin;
+    v36 = v31 - *r_iBegin;
+    v37 = v36 == 2;
+    if ( v36 > 2 )
     {
       do
       {
-        _R8 = *r_iBegin;
-        v55 = v49 - 1;
-        if ( (*r_iBegin)[v49].address >= (*r_iBegin)[v49 - 1].address )
-          v55 = v49;
-        _R9 = 2 * v48;
-        _RAX = 2 * v55;
-        v49 = 2 * v55 + 2;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r8+rax*8]
-          vmovups xmmword ptr [r8+r9*8], xmm0
-        }
-        v48 = v55;
-        v53 = v49 == v52;
+        v38 = v34 - 1;
+        if ( (*r_iBegin)[v34].address >= (*r_iBegin)[v34 - 1].address )
+          v38 = v34;
+        v34 = 2 * v38 + 2;
+        (*r_iBegin)[v33] = (*r_iBegin)[v38];
+        v33 = v38;
+        v37 = v34 == v36;
       }
-      while ( v49 < v52 );
-      _RCX = *r_iBegin;
+      while ( v34 < v36 );
+      v35 = *r_iBegin;
     }
-    if ( v53 )
+    if ( v37 )
     {
-      _RAX = 2 * v49;
-      _R9 = 2 * v48;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+rax*8-10h]
-        vmovups xmmword ptr [rcx+r9*8], xmm0
-      }
-      v48 = v49 - 1;
+      v35[v33] = v35[v34 - 1];
+      v33 = v34 - 1;
     }
-    for ( k = (v48 - 1) / 2; v48 > 0; k = (k - 1) / 2 )
+    for ( m = (v33 - 1) / 2; v33 > 0; m = (m - 1) / 2 )
     {
-      _RDX = *r_iBegin;
-      _RCX = 2 * k;
-      if ( (*r_iBegin)[k].address >= (unsigned __int64)v72 )
+      if ( (*r_iBegin)[m].address >= v41.address )
         break;
-      __asm { vmovups xmm0, xmmword ptr [rdx+rcx*8] }
-      _R9 = 2 * v48;
-      __asm { vmovups xmmword ptr [rdx+r9*8], xmm0 }
-      v48 = k;
+      (*r_iBegin)[v33] = (*r_iBegin)[m];
+      v33 = m;
     }
-    _RAX = *r_iBegin;
-    _R9 = 2 * v48;
-    __asm { vmovups xmmword ptr [rax+r9*8], xmm1 }
   }
 }
 
@@ -2152,12 +1702,28 @@ void ntl::sort<CachedLookup::Entry *,CachedLookup::SortFunc>(CachedLookup::Entry
 {
   signed __int64 v7; 
   unsigned __int64 v8; 
+  CachedLookup::Entry *v9; 
+  CachedLookup::Entry *m; 
+  CachedLookup::Entry v11; 
+  CachedLookup::Entry *ii; 
+  CachedLookup::Entry v13; 
+  CachedLookup::Entry *v14; 
+  CachedLookup::Entry *n; 
+  CachedLookup::Entry v16; 
+  unsigned __int64 address; 
+  CachedLookup::Entry *v18; 
+  CachedLookup::Entry *jj; 
+  CachedLookup::Entry *i; 
+  CachedLookup::Entry v21; 
+  CachedLookup::Entry *k; 
+  CachedLookup::Entry v23; 
+  CachedLookup::Entry *v24; 
+  CachedLookup::Entry *j; 
   CachedLookup::Entry *r_iBegin; 
 
   if ( first != last )
   {
     r_iBegin = first;
-    _RBX = first;
     v7 = last - first;
     if ( v7 )
       v8 = 63 - __lzcnt(v7);
@@ -2166,110 +1732,70 @@ void ntl::sort<CachedLookup::Entry *,CachedLookup::SortFunc>(CachedLookup::Entry
     ntl::internal::introsort_loop<CachedLookup::Entry *,CachedLookup::SortFunc>(&r_iBegin, last, 2 * v8, compare);
     if ( v7 <= 16 )
     {
-      for ( _RCX = _RBX + 1; _RCX != last; ++_RCX )
+      for ( i = first + 1; i != last; ++i )
       {
-        __asm
+        v21 = *i;
+        if ( i->address >= first->address )
         {
-          vmovups xmm1, xmmword ptr [rcx]
-          vmovq   rax, xmm1
-        }
-        if ( _RAX >= _RBX->address )
-        {
-          _RAX = _RCX - 1;
-          _RDX = _RCX;
-          __asm { vmovq   r8, xmm1 }
-          if ( _R8 < _RCX[-1].address )
+          v24 = i - 1;
+          for ( j = i; v21.address < v24->address; --v24 )
           {
-            do
-            {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rdx], xmm0
-              }
-              _RDX = _RAX--;
-            }
-            while ( _R8 < _RAX->address );
+            *j = *v24;
+            j = v24;
           }
-          __asm { vmovups xmmword ptr [rdx], xmm1 }
+          *j = v21;
         }
         else
         {
-          _RAX = _RCX;
-          while ( _RAX != _RBX )
+          for ( k = i; k != first; k[1] = v23 )
           {
-            __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-            --_RAX;
-            __asm { vmovups xmmword ptr [rax+10h], xmm0 }
+            v23 = k[-1];
+            --k;
           }
-          __asm { vmovups xmmword ptr [rbx], xmm1 }
+          *first = v21;
         }
       }
     }
     else
     {
-      _RDX = _RBX + 16;
-      if ( _RBX != &_RBX[16] )
+      v9 = first + 16;
+      if ( first != &first[16] )
       {
-        for ( _RCX = _RBX + 1; _RCX != _RDX; ++_RCX )
+        for ( m = first + 1; m != v9; ++m )
         {
-          __asm
+          v11 = *m;
+          if ( m->address >= first->address )
           {
-            vmovups xmm1, xmmword ptr [rcx]
-            vmovq   rax, xmm1
-          }
-          if ( _RAX >= _RBX->address )
-          {
-            _RAX = _RCX - 1;
-            _R8 = _RCX;
-            __asm { vmovq   r9, xmm1 }
-            if ( _R9 < _RCX[-1].address )
+            v14 = m - 1;
+            for ( n = m; v11.address < v14->address; --v14 )
             {
-              do
-              {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rax]
-                  vmovups xmmword ptr [r8], xmm0
-                }
-                _R8 = _RAX--;
-              }
-              while ( _R9 < _RAX->address );
+              *n = *v14;
+              n = v14;
             }
-            __asm { vmovups xmmword ptr [r8], xmm1 }
+            *n = v11;
           }
           else
           {
-            _RAX = _RCX;
-            while ( _RAX != _RBX )
+            for ( ii = m; ii != first; ii[1] = v13 )
             {
-              __asm { vmovups xmm0, xmmword ptr [rax-10h] }
-              --_RAX;
-              __asm { vmovups xmmword ptr [rax+10h], xmm0 }
+              v13 = ii[-1];
+              --ii;
             }
-            __asm { vmovups xmmword ptr [rbx], xmm1 }
+            *first = v11;
           }
         }
       }
-      while ( _RDX != last )
+      for ( ; v9 != last; *jj = v16 )
       {
-        __asm
+        v16 = *v9;
+        address = v9->address;
+        v18 = v9 - 1;
+        for ( jj = v9; address < v18->address; --v18 )
         {
-          vmovups xmm1, xmmword ptr [rdx]
-          vmovq   r8, xmm1
+          *jj = *v18;
+          jj = v18;
         }
-        _RAX = _RDX - 1;
-        for ( _RCX = _RDX; _R8 < _RAX->address; --_RAX )
-        {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-          }
-          _RCX = _RAX;
-        }
-        ++_RDX;
-        __asm { vmovups xmmword ptr [rcx], xmm1 }
+        ++v9;
       }
     }
   }

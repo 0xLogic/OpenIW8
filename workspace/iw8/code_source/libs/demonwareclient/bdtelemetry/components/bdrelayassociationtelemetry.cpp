@@ -221,13 +221,10 @@ bdRelayAssociationTelemetry::setEstablishedStageTime
 */
 void bdRelayAssociationTelemetry::setEstablishedStageTime(bdRelayAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_timeToEstablishedMs = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_timeToEstablishedMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -237,13 +234,10 @@ bdRelayAssociationTelemetry::setInitAckStageTime
 */
 void bdRelayAssociationTelemetry::setInitAckStageTime(bdRelayAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_timeToInitAckMs = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_timeToInitAckMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -273,13 +267,10 @@ bdRelayAssociationTelemetry::setLifetime
 */
 void bdRelayAssociationTelemetry::setLifetime(bdRelayAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_lifeTimeMs = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_lifeTimeMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*
@@ -319,13 +310,10 @@ bdRelayAssociationTelemetry::setStartStageTime
 */
 void bdRelayAssociationTelemetry::setStartStageTime(bdRelayAssociationTelemetry *this)
 {
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_timeToStartMs = _RAX;
+  double ElapsedTimeInSeconds; 
+
+  ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_timeToStartMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
 }
 
 /*

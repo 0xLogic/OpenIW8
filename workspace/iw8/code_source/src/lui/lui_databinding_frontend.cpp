@@ -122,15 +122,15 @@ void LUI_DataBinding_UpdatePlayerCard()
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
   unsigned __int16 v5; 
-  char *v7; 
+  char *v6; 
   __int64 CacheLocation; 
-  unsigned __int16 v9; 
-  __int64 v10; 
+  unsigned __int16 v8; 
+  __int64 v9; 
+  unsigned __int16 v10; 
   unsigned __int16 v11; 
   unsigned __int16 v12; 
   unsigned __int16 v13; 
   unsigned __int16 v14; 
-  unsigned __int16 v15; 
   XUID result; 
   PlayerProfileData profileData; 
   char outBuffer[16]; 
@@ -152,37 +152,36 @@ void LUI_DataBinding_UpdatePlayerCard()
           v5 = LUI_Model_CreateModelFromPath(ModelFromPath, "fullName");
           if ( profileData.clanAbbrev[0] )
           {
-            __asm { vmovdqu xmm0, cs:__xmm@0000000000000000000000000000000c }
             dest[0] = 0;
-            __asm { vmovdqu xmmword ptr [rsp+0B1A8h+outBuffer], xmm0 }
+            *(_OWORD *)outBuffer = _xmm;
             Com_PlayerUtils_ColorizeClanTag(profileData.clanAbbrev, profileData.clanTagType, outBuffer, 0x10ui64, 0x37u);
             Com_sprintf(dest, 0x80ui64, "[%s]%s", outBuffer, LocalClientName);
-            v7 = dest;
+            v6 = dest;
           }
           else
           {
-            v7 = (char *)LocalClientName;
+            v6 = (char *)LocalClientName;
           }
-          LUI_Model_SetString(v5, v7);
+          LUI_Model_SetString(v5, v6);
           CacheLocation = PlayerCardData_GetCacheLocation();
-          v9 = LUI_Model_CreateModelFromPath(ModelFromPath, "customEmblemEquipped");
-          LUI_Model_SetBool(v9, 0);
-          v10 = CacheLocation;
+          v8 = LUI_Model_CreateModelFromPath(ModelFromPath, "customEmblemEquipped");
+          LUI_Model_SetBool(v8, 0);
+          v9 = CacheLocation;
           LODWORD(CacheLocation) = profileData.customization_patch[CacheLocation];
-          v11 = LUI_Model_CreateModelFromPath(ModelFromPath, "emblemIndex");
+          v10 = LUI_Model_CreateModelFromPath(ModelFromPath, "emblemIndex");
+          LUI_Model_SetInt(v10, CacheLocation);
+          LODWORD(CacheLocation) = profileData.customization_background[v9];
+          v11 = LUI_Model_CreateModelFromPath(ModelFromPath, "backgroundIndex");
           LUI_Model_SetInt(v11, CacheLocation);
-          LODWORD(CacheLocation) = profileData.customization_background[v10];
-          v12 = LUI_Model_CreateModelFromPath(ModelFromPath, "backgroundIndex");
-          LUI_Model_SetInt(v12, CacheLocation);
           LODWORD(CacheLocation) = profileData.rank_mp + profileData.prestige_mp;
-          v13 = LUI_Model_CreateModelFromPath(ModelFromPath, "rank");
-          LUI_Model_SetInt(v13, CacheLocation);
+          v12 = LUI_Model_CreateModelFromPath(ModelFromPath, "rank");
+          LUI_Model_SetInt(v12, CacheLocation);
           LODWORD(CacheLocation) = profileData.rank_mp;
-          v14 = LUI_Model_CreateModelFromPath(ModelFromPath, "baseRank");
-          LUI_Model_SetInt(v14, CacheLocation);
+          v13 = LUI_Model_CreateModelFromPath(ModelFromPath, "baseRank");
+          LUI_Model_SetInt(v13, CacheLocation);
           LODWORD(CacheLocation) = profileData.prestige_mp;
-          v15 = LUI_Model_CreateModelFromPath(ModelFromPath, "prestige");
-          LUI_Model_SetInt(v15, CacheLocation);
+          v14 = LUI_Model_CreateModelFromPath(ModelFromPath, "prestige");
+          LUI_Model_SetInt(v14, CacheLocation);
         }
       }
     }

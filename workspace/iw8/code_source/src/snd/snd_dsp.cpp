@@ -37,96 +37,43 @@ SND_DspBiquadBpf
 ==============
 */
 
-void __fastcall SND_DspBiquadBpf(double Fs, double Fhz, double q, SndDspBiQuadCoef *coef)
+void __fastcall SND_DspBiquadBpf(float Fs, double Fhz, float q, SndDspBiQuadCoef *coef)
 {
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v13; 
-  __int64 v14; 
-  bool v18; 
-  bool v19; 
-  bool v20; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
+  __int128 v9; 
+  float v11; 
   float b[4]; 
   float a[4]; 
-  int v42; 
-  int v43; 
 
-  __asm
-  {
-    vcomiss xmm0, cs:__real@447a0000
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm0
-    vcomiss xmm6, cs:__real@47c35000
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 204, ASSERT_TYPE_ASSERT, "(Fs < 100000)", (const char *)&queryFormat, "Fs < 100000") )
+  if ( Fs <= 1000.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 203, ASSERT_TYPE_ASSERT, "(Fs > 1000)", (const char *)&queryFormat, "Fs > 1000") )
     __debugbreak();
-  __asm
-  {
-    vdivss  xmm0, xmm8, xmm6
-    vmulss  xmm6, xmm0, cs:__real@40000000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm6, xmm8
-    vmovss  [rsp+88h+arg_0], xmm6
-  }
-  v18 = (v42 & 0x7F800000u) <= 0x7F800000;
-  if ( (v42 & 0x7F800000) == 2139095040 )
-  {
-    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 209, ASSERT_TYPE_ASSERT, "(!IS_NAN( f0 ))", (const char *)&queryFormat, "!IS_NAN( f0 )");
-    v18 = !v19;
-    if ( v19 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( v18 )
-  {
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 210, ASSERT_TYPE_ASSERT, "(q > 0.0f)", (const char *)&queryFormat, "q > 0.0f");
-    v18 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, cs:__real@42000000 }
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 211, ASSERT_TYPE_ASSERT, "(q <= 32.0f)", (const char *)&queryFormat, "q <= 32.0f") )
+  if ( Fs >= 100000.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 204, ASSERT_TYPE_ASSERT, "(Fs < 100000)", (const char *)&queryFormat, "Fs < 100000") )
     __debugbreak();
-  __asm { vmovss  [rsp+88h+arg_0], xmm7 }
-  if ( (v43 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 212, ASSERT_TYPE_ASSERT, "(!IS_NAN( q ))", (const char *)&queryFormat, "!IS_NAN( q )") )
+  v9 = *(_OWORD *)&Fhz;
+  *(float *)&v9 = (float)(*(float *)&Fhz / Fs) * 2.0;
+  _XMM6 = v9;
+  if ( *(float *)&v9 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 208, ASSERT_TYPE_ASSERT, "(f0 >= 0.0f)", (const char *)&queryFormat, "f0 >= 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vmaxss  xmm0, xmm6, cs:__real@358637bd
-    vmulss  xmm2, xmm0, cs:__real@40490fdb
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm0, xmm1, xmm2
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v12, v11, v13, v14);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm3, cs:__real@3f800000
-    vdivss  xmm2, xmm1, xmm7
-    vmulss  xmm4, xmm0, xmm2
-    vxorps  xmm1, xmm4, cs:__xmm@80000000800000008000000080000000
-    vshufps xmm0, xmm0, xmm0, 1
-    vmulss  xmm0, xmm0, cs:__real@c0000000
-    vmovss  [rsp+88h+var_50], xmm1
-    vsubss  xmm1, xmm3, xmm4
-    vaddss  xmm2, xmm4, xmm3
-    vmovss  [rsp+88h+var_40], xmm1
-    vmovss  [rsp+88h+b], xmm4
-    vmovss  [rsp+88h+var_54], xmm8
-    vmovss  [rsp+88h+a], xmm2
-    vmovss  [rsp+88h+var_44], xmm0
-  }
+  if ( (v9 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 209, ASSERT_TYPE_ASSERT, "(!IS_NAN( f0 ))", (const char *)&queryFormat, "!IS_NAN( f0 )") )
+    __debugbreak();
+  if ( q <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 210, ASSERT_TYPE_ASSERT, "(q > 0.0f)", (const char *)&queryFormat, "q > 0.0f") )
+    __debugbreak();
+  if ( q > 32.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 211, ASSERT_TYPE_ASSERT, "(q <= 32.0f)", (const char *)&queryFormat, "q <= 32.0f") )
+    __debugbreak();
+  if ( (LODWORD(q) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 212, ASSERT_TYPE_ASSERT, "(!IS_NAN( q ))", (const char *)&queryFormat, "!IS_NAN( q )") )
+    __debugbreak();
+  __asm { vmaxss  xmm0, xmm6, cs:__real@358637bd }
+  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v5, v4, v6, coef);
+  v11 = *(float *)&_XMM0 * (float)(0.5 / q);
+  LODWORD(b[2]) = LODWORD(v11) ^ _xmm;
+  a[2] = 1.0 - v11;
+  b[0] = v11;
+  b[1] = 0.0;
+  a[0] = v11 + 1.0;
+  a[1] = _mm_shuffle_ps((__m128)(unsigned __int64)_XMM0, (__m128)(unsigned __int64)_XMM0, 1).m128_f32[0] * -2.0;
   SND_DspBiquadNormalize(a, b, coef);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-  }
 }
 
 /*
@@ -135,163 +82,61 @@ SND_DspBiquadLShelve
 ==============
 */
 
-void __fastcall SND_DspBiquadLShelve(double Fs, double db, double Fhz, double q, SndDspBiQuadCoef *coef)
+void __fastcall SND_DspBiquadLShelve(float Fs, float db, double Fhz, float q, SndDspBiQuadCoef *coef)
 {
-  bool v21; 
-  bool v22; 
-  bool v23; 
-  bool v24; 
-  bool v25; 
-  bool v26; 
-  bool v27; 
-  bool v28; 
-  __int64 v36; 
-  __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
+  __int128 v6; 
+  float v7; 
+  float v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  double v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   float b[4]; 
   float a[32]; 
-  char v75; 
-  void *retaddr; 
-  int v77; 
-  int v78; 
-  int v79; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vcomiss xmm0, cs:__real@447a0000
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm11, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-    vcomiss xmm6, cs:__real@47c35000
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 125, ASSERT_TYPE_ASSERT, "(Fs < 100000)", (const char *)&queryFormat, "Fs < 100000") )
+  if ( Fs <= 1000.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 124, ASSERT_TYPE_ASSERT, "(Fs > 1000)", (const char *)&queryFormat, "Fs > 1000") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm12, cs:__real@40000000
-    vdivss  xmm0, xmm8, xmm6
-    vmulss  xmm8, xmm0, xmm12
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm8, xmm6
-    vmovss  [rsp+0C8h+arg_0], xmm8
-  }
-  v21 = (v77 & 0x7F800000u) < 0x7F800000;
-  v22 = (v77 & 0x7F800000u) <= 0x7F800000;
-  if ( (v77 & 0x7F800000) == 2139095040 )
-  {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 130, ASSERT_TYPE_ASSERT, "(!IS_NAN( f0 ))", (const char *)&queryFormat, "!IS_NAN( f0 )");
-    v21 = 0;
-    v22 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm11, xmm6 }
-  if ( v22 )
-  {
-    v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 131, ASSERT_TYPE_ASSERT, "(q > 0.0f)", (const char *)&queryFormat, "q > 0.0f");
-    v21 = 0;
-    if ( v24 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm11, cs:__real@42000000 }
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 132, ASSERT_TYPE_ASSERT, "(q < 32.0f)", (const char *)&queryFormat, "q < 32.0f") )
+  if ( Fs >= 100000.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 125, ASSERT_TYPE_ASSERT, "(Fs < 100000)", (const char *)&queryFormat, "Fs < 100000") )
     __debugbreak();
-  __asm { vmovss  [rsp+0C8h+arg_0], xmm11 }
-  v25 = (v78 & 0x7F800000u) < 0x7F800000;
-  v26 = (v78 & 0x7F800000u) <= 0x7F800000;
-  if ( (v78 & 0x7F800000) == 2139095040 )
-  {
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 133, ASSERT_TYPE_ASSERT, "(!IS_NAN( q ))", (const char *)&queryFormat, "!IS_NAN( q )");
-    v25 = 0;
-    v26 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, cs:__real@42480000 }
-  if ( !v25 )
-  {
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 134, ASSERT_TYPE_ASSERT, "(db < 50.0f)", (const char *)&queryFormat, "db < 50.0f");
-    v26 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, cs:__real@c47a0000 }
-  if ( v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 135, ASSERT_TYPE_ASSERT, "(db > -1000.0f)", (const char *)&queryFormat, "db > -1000.0f") )
+  v6 = *(_OWORD *)&Fhz;
+  *(float *)&v6 = (float)(*(float *)&Fhz / Fs) * 2.0;
+  _XMM8 = v6;
+  if ( *(float *)&v6 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 129, ASSERT_TYPE_ASSERT, "(f0 >= 0.0f)", (const char *)&queryFormat, "f0 >= 0.0f") )
     __debugbreak();
-  __asm { vmovss  [rsp+0C8h+arg_0], xmm7 }
-  if ( (v79 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 136, ASSERT_TYPE_ASSERT, "(!IS_NAN( db ))", (const char *)&queryFormat, "!IS_NAN( db )") )
+  if ( (v6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 130, ASSERT_TYPE_ASSERT, "(!IS_NAN( f0 ))", (const char *)&queryFormat, "!IS_NAN( f0 )") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm7, cs:__real@3ccccccd; Y
-    vmovss  xmm0, cs:__real@41200000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmaxss  xmm1, xmm8, cs:__real@358637bd
-    vmulss  xmm3, xmm1, cs:__real@40490fdb
-    vxorps  xmm2, xmm2, xmm2
-    vmovaps xmm10, xmm0
-    vmovss  xmm0, xmm2, xmm3
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v37, v36, v38, v39);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vsubss  xmm9, xmm10, cs:__real@3f800000
-    vaddss  xmm8, xmm10, cs:__real@3f800000
-    vdivss  xmm2, xmm1, xmm11
-    vmulss  xmm3, xmm0, xmm2
-    vshufps xmm4, xmm0, xmm0, 1
-    vmulss  xmm7, xmm9, xmm4
-    vsqrtss xmm0, xmm10, xmm10
-    vmulss  xmm1, xmm3, xmm0
-    vmulss  xmm6, xmm1, xmm12
-    vsubss  xmm5, xmm8, xmm7
-    vaddss  xmm2, xmm5, xmm6
-    vmulss  xmm0, xmm2, xmm10
-    vmovss  [rsp+0C8h+b], xmm0
-    vmulss  xmm4, xmm8, xmm4
-    vsubss  xmm1, xmm9, xmm4
-    vmulss  xmm0, xmm1, xmm10
-    vmulss  xmm2, xmm0, xmm12
-    vsubss  xmm1, xmm5, xmm6
-    vmulss  xmm0, xmm1, xmm10
-    vaddss  xmm3, xmm7, xmm8
-    vmovss  [rsp+0C8h+var_94], xmm2
-    vmulss  xmm2, xmm9, cs:__real@c0000000
-    vaddss  xmm1, xmm3, xmm6
-    vmovss  [rsp+0C8h+var_90], xmm0
-    vmulss  xmm0, xmm4, xmm12
-    vmovss  [rsp+0C8h+a], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vsubss  xmm2, xmm3, xmm6
-    vmovss  [rsp+0C8h+var_80], xmm2
-    vmovss  [rsp+0C8h+var_84], xmm1
-  }
+  if ( q <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 131, ASSERT_TYPE_ASSERT, "(q > 0.0f)", (const char *)&queryFormat, "q > 0.0f") )
+    __debugbreak();
+  if ( q >= 32.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 132, ASSERT_TYPE_ASSERT, "(q < 32.0f)", (const char *)&queryFormat, "q < 32.0f") )
+    __debugbreak();
+  if ( (LODWORD(q) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 133, ASSERT_TYPE_ASSERT, "(!IS_NAN( q ))", (const char *)&queryFormat, "!IS_NAN( q )") )
+    __debugbreak();
+  if ( db >= 50.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 134, ASSERT_TYPE_ASSERT, "(db < 50.0f)", (const char *)&queryFormat, "db < 50.0f") )
+    __debugbreak();
+  if ( db <= -1000.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 135, ASSERT_TYPE_ASSERT, "(db > -1000.0f)", (const char *)&queryFormat, "db > -1000.0f") )
+    __debugbreak();
+  if ( (LODWORD(db) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 136, ASSERT_TYPE_ASSERT, "(!IS_NAN( db ))", (const char *)&queryFormat, "!IS_NAN( db )") )
+    __debugbreak();
+  v7 = powf_0(10.0, db * 0.025);
+  __asm { vmaxss  xmm1, xmm8, cs:__real@358637bd }
+  v9 = v7;
+  v14 = j___libm_sse2_sincosf_(v11, v10, v12, v13);
+  v15 = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v14, (__m128)*(unsigned __int64 *)&v14, 1).m128_f32[0];
+  v16 = (float)(v9 - 1.0) * v15;
+  v17 = (float)((float)(*(float *)&v14 * (float)(0.5 / q)) * fsqrt(v9)) * 2.0;
+  b[0] = (float)((float)((float)(v9 + 1.0) - v16) + v17) * v9;
+  v18 = (float)(v9 + 1.0) * v15;
+  b[1] = (float)((float)((float)(v9 - 1.0) - v18) * v9) * 2.0;
+  b[2] = (float)((float)((float)(v9 + 1.0) - v16) - v17) * v9;
+  a[0] = (float)(v16 + (float)(v9 + 1.0)) + v17;
+  a[2] = (float)(v16 + (float)(v9 + 1.0)) - v17;
+  a[1] = (float)((float)(v9 - 1.0) * -2.0) - (float)(v18 * 2.0);
   SND_DspBiquadNormalize(a, b, coef);
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -301,110 +146,43 @@ SND_DspBiquadNormalize
 */
 void SND_DspBiquadNormalize(float *a, float *b, SndDspBiQuadCoef *coef)
 {
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
 
-  _RBX = coef;
-  _RDI = b;
-  _RSI = a;
   if ( a == b && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 53, ASSERT_TYPE_ASSERT, "(a != b)", (const char *)&queryFormat, "a != b") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 55, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[0] ))", (const char *)&queryFormat, "!IS_NAN( b[0] )") )
+  if ( (*(_DWORD *)b & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 55, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[0] ))", (const char *)&queryFormat, "!IS_NAN( b[0] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 56, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[1] ))", (const char *)&queryFormat, "!IS_NAN( b[1] )") )
+  if ( ((_DWORD)b[1] & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 56, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[1] ))", (const char *)&queryFormat, "!IS_NAN( b[1] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 57, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[2] ))", (const char *)&queryFormat, "!IS_NAN( b[2] )") )
+  if ( ((_DWORD)b[2] & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 57, ASSERT_TYPE_ASSERT, "(!IS_NAN( b[2] ))", (const char *)&queryFormat, "!IS_NAN( b[2] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 58, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[0] ))", (const char *)&queryFormat, "!IS_NAN( a[0] )") )
+  if ( (*(_DWORD *)a & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 58, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[0] ))", (const char *)&queryFormat, "!IS_NAN( a[0] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 59, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[1] ))", (const char *)&queryFormat, "!IS_NAN( a[1] )") )
+  if ( ((_DWORD)a[1] & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 59, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[1] ))", (const char *)&queryFormat, "!IS_NAN( a[1] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 60, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[2] ))", (const char *)&queryFormat, "!IS_NAN( a[2] )") )
+  if ( ((_DWORD)a[2] & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 60, ASSERT_TYPE_ASSERT, "(!IS_NAN( a[2] ))", (const char *)&queryFormat, "!IS_NAN( a[2] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm0, dword ptr [rsi]
-    vmulss  xmm3, xmm2, dword ptr [rdi]
-    vmulss  xmm0, xmm2, dword ptr [rdi+4]
-    vmulss  xmm1, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rbx+4], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rsi+4]
-    vmovss  [rsp+38h+arg_0], xmm3
-    vmovss  dword ptr [rbx+0Ch], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx], xmm3
-    vmovss  dword ptr [rbx+8], xmm1
-    vmovss  dword ptr [rbx+10h], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 73, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[0] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[0] )") )
+  v6 = 1.0 / *a;
+  v7 = v6 * *b;
+  v8 = v6 * b[2];
+  coef->s[1] = v6 * b[1];
+  coef->s[3] = v6 * a[1];
+  v9 = v6 * a[2];
+  coef->s[0] = v7;
+  coef->s[2] = v8;
+  coef->s[4] = v9;
+  if ( (LODWORD(v7) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 73, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[0] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[0] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 74, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[1] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[1] )") )
+  if ( (LODWORD(coef->s[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 74, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[1] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[1] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 75, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[2] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[2] )") )
+  if ( (LODWORD(coef->s[2]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 75, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[2] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[2] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 76, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[3] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[3] )") )
+  if ( (LODWORD(coef->s[3]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 76, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[3] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[3] )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 77, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[4] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[4] )") )
+  if ( (LODWORD(coef->s[4]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 77, ASSERT_TYPE_ASSERT, "(!IS_NAN( coef->s[4] ))", (const char *)&queryFormat, "!IS_NAN( coef->s[4] )") )
     __debugbreak();
 }
 
@@ -416,55 +194,36 @@ SND_DspClip
 
 void __fastcall SND_DspClip(unsigned int count, float *c, double minimum, double maximum)
 {
-  unsigned int v12; 
-  float *v19; 
-  __int64 v20; 
+  float *v4; 
+  unsigned int v6; 
+  float *v11; 
+  __int64 v12; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = c;
-  __asm
-  {
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
+  v4 = c;
   if ( ((unsigned __int8)c & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 301, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( c ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )c ) ) = 0x%llx", c) )
     __debugbreak();
-  v12 = count >> 3;
+  v6 = count >> 3;
+  _YMM2 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(*(__m128 *)&maximum, *(__m128 *)&maximum, 0);
+  _YMM3 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(*(__m128 *)&minimum, *(__m128 *)&minimum, 0);
   __asm
   {
-    vmovaps xmm2, xmm6
-    vmovaps xmm3, xmm7
-    vshufps xmm2, xmm2, xmm2, 0
-    vshufps xmm3, xmm3, xmm3, 0
     vinsertf128 ymm2, ymm2, xmm2, 1
     vinsertf128 ymm3, ymm3, xmm3, 1
   }
-  if ( v12 )
+  if ( v6 )
   {
-    v19 = _RBX;
-    v20 = v12;
+    v11 = v4;
+    v12 = v6;
     do
     {
-      _RBX += 8;
+      v4 += 8;
       __asm { vmaxps  ymm0, ymm3, ymmword ptr [rax] }
-      v19 += 8;
-      __asm
-      {
-        vminps  ymm1, ymm2, ymm0
-        vmovups ymmword ptr [rbx-20h], ymm1
-      }
-      --v20;
+      v11 += 8;
+      __asm { vminps  ymm1, ymm2, ymm0 }
+      *((__m256i *)v4 - 1) = _YMM1;
+      --v12;
     }
-    while ( v20 );
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    while ( v12 );
   }
 }
 
@@ -473,111 +232,36 @@ void __fastcall SND_DspClip(unsigned int count, float *c, double minimum, double
 SND_DspFutzMono
 ==============
 */
-
-void __fastcall SND_DspFutzMono(const SndDspFutzParam *param, SndDspFutzState *state, double rate, unsigned int count, float *input, float *tempa, float *tempb)
+void SND_DspFutzMono(const SndDspFutzParam *param, SndDspFutzState *state, float rate, unsigned int count, float *input, float *tempa, float *tempb)
 {
-  bool v15; 
-  bool v16; 
-  bool v17; 
-  bool v20; 
+  float blend; 
+  float v11; 
   SndDspBiQuadCoef coef; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_68], xmm9
-  }
-  _RBX = param;
-  __asm { vmovaps xmm9, xmm2 }
   if ( input == tempa && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 323, ASSERT_TYPE_ASSERT, "(input != tempa)", (const char *)&queryFormat, "input != tempa") )
     __debugbreak();
-  v15 = tempa < tempb;
-  v16 = tempa <= tempb;
-  if ( tempa == tempb )
+  if ( tempa == tempb && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 324, ASSERT_TYPE_ASSERT, "(tempa != tempb)", (const char *)&queryFormat, "tempa != tempb") )
+    __debugbreak();
+  blend = param->blend;
+  if ( param->blend >= 0.0000152879 )
   {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 324, ASSERT_TYPE_ASSERT, "(tempa != tempb)", (const char *)&queryFormat, "tempa != tempb");
-    v15 = 0;
-    v16 = !v17;
-    if ( v17 )
+    if ( blend < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 331, ASSERT_TYPE_ASSERT, "(param->blend >= 0.0f)", (const char *)&queryFormat, "param->blend >= 0.0f") )
       __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx]
-    vcomiss xmm6, cs:__real@37803e84
-  }
-  if ( !v15 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-      vmovaps [rsp+0B8h+var_58], xmm8
-    }
-    if ( v15 )
-    {
-      v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 331, ASSERT_TYPE_ASSERT, "(param->blend >= 0.0f)", (const char *)&queryFormat, "param->blend >= 0.0f");
-      v16 = !v20;
-      if ( v20 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vcomiss xmm6, xmm8
-    }
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 332, ASSERT_TYPE_ASSERT, "(param->blend <= 1.0f)", (const char *)&queryFormat, "param->blend <= 1.0f") )
+    if ( blend > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 332, ASSERT_TYPE_ASSERT, "(param->blend <= 1.0f)", (const char *)&queryFormat, "param->blend <= 1.0f") )
       __debugbreak();
-    __asm { vmovss  xmm1, dword ptr [rbx+1Ch]; scale }
-    SND_DspScale(count, *(float *)&_XMM1, input, tempa);
-    __asm { vmovss  xmm1, dword ptr [rbx+18h]; amount }
-    SND_DspPolyDistortion(count, *(float *)&_XMM1, tempa, tempb);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+24h]; maximum
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000; minimum
-    }
-    SND_DspClip(count, tempa, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+8]; q
-      vmovss  xmm1, dword ptr [rbx+4]; Fhz
-      vmovaps xmm0, xmm9; Fs
-    }
-    SND_DspBiquadBpf(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, &coef);
+    SND_DspScale(count, param->pregain, input, tempa);
+    SND_DspPolyDistortion(count, param->distortion, tempa, tempb);
+    SND_DspClip(count, tempa, COERCE_FLOAT(LODWORD(param->preclip) ^ _xmm), param->preclip);
+    SND_DspBiquadBpf(rate, COERCE_DOUBLE((unsigned __int64)LODWORD(param->bpfF)), param->bpfQ, &coef);
     SND_DspBiquadInPlace(&coef, &state->bpf, count, tempa);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+14h]; q
-      vmovss  xmm2, dword ptr [rbx+10h]; Fhz
-      vmovss  xmm1, dword ptr [rbx+0Ch]; db
-      vmovaps xmm0, xmm9; Fs
-    }
-    SND_DspBiquadLShelve(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &coef);
+    SND_DspBiquadLShelve(rate, param->lsG, COERCE_DOUBLE((unsigned __int64)LODWORD(param->lsF)), param->lsQ, &coef);
     SND_DspBiquadInPlace(&coef, &state->ls, count, tempa);
-    __asm { vmovaps xmm2, xmm9; frameRate }
-    SND_DspSquelch(&_RBX->squelch, &state->squelch, *(float *)&_XMM2, count, tempa);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx]
-      vmulss  xmm1, xmm6, dword ptr [rbx+20h]; scale
-    }
-    SND_DspScale(count, *(float *)&_XMM1, tempa, tempa);
-    __asm { vsubss  xmm1, xmm8, xmm6; scale }
-    SND_DspScale(count, *(float *)&_XMM1, input, input);
+    SND_DspSquelch(&param->squelch, &state->squelch, rate, count, tempa);
+    v11 = param->blend;
+    SND_DspScale(count, param->blend * param->postgain, tempa, tempa);
+    SND_DspScale(count, 1.0 - v11, input, input);
     SND_DspSum(count, tempa, input);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+28h]; maximum
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000; minimum
-    }
-    SND_DspClip(count, input, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovaps xmm8, [rsp+0B8h+var_58] }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm9, [rsp+0B8h+var_68]
+    SND_DspClip(count, input, COERCE_FLOAT(LODWORD(param->postclip) ^ _xmm), param->postclip);
   }
 }
 
@@ -586,227 +270,149 @@ void __fastcall SND_DspFutzMono(const SndDspFutzParam *param, SndDspFutzState *s
 SND_DspInit
 ==============
 */
-void SND_DspInit()
+void SND_DspInit(void)
 {
-  __asm
-  {
-    vmovups ymm3, cs:__ymm@3d0080813d0080813d0080813d0080813d0080813d0080813d0080813d008081
-    vmovups ymm4, cs:__ymm@3ce0e0e13cc0c0c13ca0a0a13c8080813c40c0c13c0080813b80808100000000
-    vmovups ymm5, cs:__ymm@3f8000003f8000003f8000003f8000003f8000003f8000003f8000003f800000
-  }
-  _EDX = 2;
-  _R8 = 0x140000000ui64;
-  _RCX = 0i64;
+  unsigned int v0; 
+  __int64 v1; 
+  __m128 v2; 
+  __m256 v5; 
+  __m128 v6; 
+  __m256 v9; 
+  __m128 v10; 
+  __m256 v13; 
+  __m128 v14; 
+  __m256 v17; 
+  __m128 v18; 
+  __m256 v21; 
+  __m128 v22; 
+  __m256 v25; 
+  __m128 v26; 
+  __m256 v29; 
+  __m128 v30; 
+  __m256 v33; 
+  __m128 v34; 
+  __m256 v37; 
+  __m128 v38; 
+  __m256 v41; 
+  __m128 v42; 
+  __m256 v45; 
+  __m128 v46; 
+  __m256 v49; 
+  __m128 v50; 
+  __m256 v53; 
+  __m128 v54; 
+  __m256 v57; 
+  __m128 v58; 
+  __m256 v61; 
+  unsigned int v62; 
+  __m128 v63; 
+  __m256 v66; 
+
+  v0 = 2;
+  v1 = 0i64;
   do
   {
-    _EAX = _EDX - 2;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04180h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03D80h], ymm1
-    }
-    _EAX = _EDX - 1;
-    __asm
-    {
-      vmovd   xmm1, eax
-      vcvtdq2ps xmm1, xmm1
-      vshufps xmm1, xmm1, xmm1, 0
-      vinsertf128 ymm1, ymm1, xmm1, 1
-      vmulps  ymm0, ymm1, ymm3
-      vaddps  ymm2, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm2
-      vmovups ymmword ptr [rcx+r8+15E041A0h], ymm0
-      vmovd   xmm0, edx
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E041C0h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03DC0h], ymm1
-    }
-    _EAX = _EDX + 1;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E041E0h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03DE0h], ymm1
-    }
-    _EAX = _EDX + 2;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04200h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03E00h], ymm1
-    }
-    _EAX = _EDX + 3;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04220h], ymm0
-    }
-    _EAX = _EDX + 4;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vmovups ymmword ptr [rcx+r8+15E03E20h], ymm1
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04240h], ymm0
-    }
-    _EAX = _EDX + 5;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vmovups ymmword ptr [rcx+r8+15E03E40h], ymm1
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-    }
-    _EAX = _EDX + 6;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+r8+15E04260h], ymm0
-      vmovd   xmm0, eax
-      vmovups ymmword ptr [rcx+r8+15E03DA0h], ymm2
-      vmovups ymmword ptr [rcx+r8+15E03E60h], ymm1
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04280h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03E80h], ymm1
-    }
-    _EAX = _EDX + 7;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E042A0h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03EA0h], ymm1
-    }
-    _EAX = _EDX + 8;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E042C0h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03EC0h], ymm1
-    }
-    _EAX = _EDX + 9;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E042E0h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03EE0h], ymm1
-    }
-    _EAX = _EDX + 10;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04300h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03F00h], ymm1
-    }
-    _EAX = _EDX + 11;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04320h], ymm0
-    }
-    _EAX = _EDX + 12;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vmovups ymmword ptr [rcx+r8+15E03F20h], ymm1
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04340h], ymm0
-    }
-    _EAX = _EDX + 13;
-    _EDX += 16;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vshufps xmm0, xmm0, xmm0, 0
-      vinsertf128 ymm0, ymm0, xmm0, 1
-      vmulps  ymm0, ymm0, ymm3
-      vmovups ymmword ptr [rcx+r8+15E03F40h], ymm1
-      vaddps  ymm1, ymm0, ymm4
-      vsubps  ymm0, ymm5, ymm1
-      vmovups ymmword ptr [rcx+r8+15E04360h], ymm0
-      vmovups ymmword ptr [rcx+r8+15E03F60h], ymm1
-    }
-    _RCX += 512i64;
+    v2 = _mm_cvtepi32_ps((__m128i)(v0 - 2));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v2, v2, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v5 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1] = _mm256_sub_ps(_ymm, v5);
+    *(__m256 *)&g_lerp_t[v1] = v5;
+    v6 = _mm_cvtepi32_ps((__m128i)(v0 - 1));
+    _YMM1 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v6, v6, 0);
+    __asm { vinsertf128 ymm1, ymm1, xmm1, 1 }
+    v9 = _mm256_add_ps(_mm256_mul_ps(_YMM1, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 8] = _mm256_sub_ps(_ymm, v9);
+    v10 = _mm_cvtepi32_ps((__m128i)v0);
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v10, v10, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v13 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 16] = _mm256_sub_ps(_ymm, v13);
+    *(__m256 *)&g_lerp_t[v1 + 16] = v13;
+    v14 = _mm_cvtepi32_ps((__m128i)(v0 + 1));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v14, v14, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v17 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 24] = _mm256_sub_ps(_ymm, v17);
+    *(__m256 *)&g_lerp_t[v1 + 24] = v17;
+    v18 = _mm_cvtepi32_ps((__m128i)(v0 + 2));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v18, v18, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v21 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 32] = _mm256_sub_ps(_ymm, v21);
+    *(__m256 *)&g_lerp_t[v1 + 32] = v21;
+    v22 = _mm_cvtepi32_ps((__m128i)(v0 + 3));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v22, v22, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v25 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 40] = _mm256_sub_ps(_ymm, v25);
+    v26 = _mm_cvtepi32_ps((__m128i)(v0 + 4));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v26, v26, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    *(__m256 *)&g_lerp_t[v1 + 40] = v25;
+    v29 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 48] = _mm256_sub_ps(_ymm, v29);
+    v30 = _mm_cvtepi32_ps((__m128i)(v0 + 5));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v30, v30, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    *(__m256 *)&g_lerp_t[v1 + 48] = v29;
+    v33 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 56] = _mm256_sub_ps(_ymm, v33);
+    *(__m256 *)&g_lerp_t[v1 + 8] = v9;
+    *(__m256 *)&g_lerp_t[v1 + 56] = v33;
+    v34 = _mm_cvtepi32_ps((__m128i)(v0 + 6));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v34, v34, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v37 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 64] = _mm256_sub_ps(_ymm, v37);
+    *(__m256 *)&g_lerp_t[v1 + 64] = v37;
+    v38 = _mm_cvtepi32_ps((__m128i)(v0 + 7));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v38, v38, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v41 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 72] = _mm256_sub_ps(_ymm, v41);
+    *(__m256 *)&g_lerp_t[v1 + 72] = v41;
+    v42 = _mm_cvtepi32_ps((__m128i)(v0 + 8));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v42, v42, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v45 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 80] = _mm256_sub_ps(_ymm, v45);
+    *(__m256 *)&g_lerp_t[v1 + 80] = v45;
+    v46 = _mm_cvtepi32_ps((__m128i)(v0 + 9));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v46, v46, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v49 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 88] = _mm256_sub_ps(_ymm, v49);
+    *(__m256 *)&g_lerp_t[v1 + 88] = v49;
+    v50 = _mm_cvtepi32_ps((__m128i)(v0 + 10));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v50, v50, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v53 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 96] = _mm256_sub_ps(_ymm, v53);
+    *(__m256 *)&g_lerp_t[v1 + 96] = v53;
+    v54 = _mm_cvtepi32_ps((__m128i)(v0 + 11));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v54, v54, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    v57 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 104] = _mm256_sub_ps(_ymm, v57);
+    v58 = _mm_cvtepi32_ps((__m128i)(v0 + 12));
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v58, v58, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    *(__m256 *)&g_lerp_t[v1 + 104] = v57;
+    v61 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 112] = _mm256_sub_ps(_ymm, v61);
+    v62 = v0 + 13;
+    v0 += 16;
+    v63 = _mm_cvtepi32_ps((__m128i)v62);
+    _YMM0 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(v63, v63, 0);
+    __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+    *(__m256 *)&g_lerp_t[v1 + 112] = v61;
+    v66 = _mm256_add_ps(_mm256_mul_ps(_YMM0, _ymm), _ymm);
+    *(__m256 *)&g_lerp_s[v1 + 120] = _mm256_sub_ps(_ymm, v66);
+    *(__m256 *)&g_lerp_t[v1 + 120] = v66;
+    v1 += 128i64;
   }
-  while ( _EDX - 2 < 32 );
+  while ( (int)(v0 - 2) < 32 );
 }
 
 /*
@@ -814,69 +420,45 @@ void SND_DspInit()
 SND_DspPolyDistortion
 ==============
 */
-
-void __fastcall SND_DspPolyDistortion(unsigned int count, double amount, float *frame, float *temp)
+void SND_DspPolyDistortion(unsigned int count, float amount, float *frame, float *temp)
 {
-  __int64 v6; 
-  __int64 v12; 
-  __int64 v13; 
-  __int64 v16; 
+  __int64 v5; 
+  __m256 *v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  float *v11; 
+  __m256 v12; 
+  double v13; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v6 = count;
-  __asm { vmovaps xmm6, xmm1 }
+  v5 = count;
   if ( frame == temp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 236, ASSERT_TYPE_ASSERT, "(frame != temp)", (const char *)&queryFormat, "frame != temp") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm6; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
+  I_fclamp(amount, 0.0, 1.0);
   if ( ((unsigned __int8)frame & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 458, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", frame) )
     __debugbreak();
   if ( ((unsigned __int8)temp & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 459, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", temp) )
     __debugbreak();
-  if ( (v6 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 460, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v6) )
+  if ( (v5 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 460, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( count ) ) & 7 ) == 0 ) )", "( ( ( uintptr_t )count ) ) = 0x%llx", v5) )
     __debugbreak();
-  v16 = (unsigned int)v6 >> 3;
-  if ( (unsigned int)v6 >> 3 )
+  v10 = (unsigned int)v5 >> 3;
+  if ( (unsigned int)v5 >> 3 )
   {
-    _RAX = temp;
-    _RCX = frame;
+    v11 = temp;
+    v7 = (__m256 *)frame;
     do
     {
-      _RAX += 8;
-      __asm { vmovups ymm0, ymmword ptr [rcx] }
-      _RCX += 8;
-      __asm
-      {
-        vmulps  ymm0, ymm0, ymm0
-        vmovups ymmword ptr [rax-20h], ymm0
-      }
-      --v16;
+      v11 += 8;
+      v12 = *v7++;
+      *((__m256 *)v11 - 1) = _mm256_mul_ps(v12, v12);
+      --v10;
     }
-    while ( v16 );
+    while ( v10 );
   }
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@3fc90fdb
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm0, xmm0, xmm1
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(_RCX, v16, v12, v13);
-  __asm
-  {
-    vshufps xmm1, xmm0, xmm0, 1; scale
-    vmovups xmm6, xmm0
-  }
-  SND_DspScale(v6, *(float *)&_XMM1, frame, frame);
-  __asm { vmovaps xmm1, xmm6; scale }
-  SND_DspScale(v6, *(float *)&_XMM1, temp, temp);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  SND_DspSum(v6, temp, frame);
+  v13 = j___libm_sse2_sincosf_(v7, v10, v8, v9);
+  SND_DspScale(v5, _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v13, (__m128)*(unsigned __int64 *)&v13, 1).m128_f32[0], frame, frame);
+  SND_DspScale(v5, *(float *)&v13, temp, temp);
+  SND_DspSum(v5, temp, frame);
 }
 
 /*
@@ -886,205 +468,98 @@ SND_DspSquelch
 */
 void SND_DspSquelch(const SndDspSquelchParam *param, SndDspSquelchState *state, float frameRate, unsigned int frameCount, float *input)
 {
-  bool v20; 
-  bool v21; 
-  bool v22; 
-  bool v23; 
-  __int64 v27; 
-  unsigned int v33; 
+  float tg; 
+  float v9; 
+  float v10; 
+  __int64 v11; 
+  float g; 
+  float v13; 
+  float v14; 
+  float *v15; 
+  unsigned int v16; 
+  __int64 v17; 
+  __int128 v18; 
+  float v21; 
+  __int128 v22; 
+  float v25; 
+  __int128 v26; 
+  float v29; 
+  __int128 v30; 
+  float *v33; 
   __int64 v34; 
-  __int64 v95; 
-  char v118; 
-  void *retaddr; 
-  int v120; 
-  int v121; 
-  int v122; 
+  __int128 v35; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RDI = state;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm9 }
-  _RSI = param;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rcx]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm9, xmm8
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vdivss  xmm6, xmm7, xmm2
-    vmovss  [rsp+0A8h+arg_10], xmm9
-  }
-  v20 = (v120 & 0x7F800000u) < 0x7F800000;
-  if ( (v120 & 0x7F800000) == 2139095040 )
-  {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 260, ASSERT_TYPE_ASSERT, "(!IS_NAN( time ))", (const char *)&queryFormat, "!IS_NAN( time )");
-    v20 = 0;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, xmm8 }
-  if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 261, ASSERT_TYPE_ASSERT, "(dt >= 0)", (const char *)&queryFormat, "dt >= 0") )
+  tg = param->tg;
+  v9 = 0.0;
+  v10 = 1.0 / frameRate;
+  if ( param->tg < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 259, ASSERT_TYPE_ASSERT, "(time >= 0)", (const char *)&queryFormat, "time >= 0") )
     __debugbreak();
-  __asm { vmovss  [rsp+0A8h+arg_10], xmm6 }
-  v22 = (v121 & 0x7F800000u) <= 0x7F800000;
-  if ( (v121 & 0x7F800000) == 2139095040 )
-  {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 262, ASSERT_TYPE_ASSERT, "(!IS_NAN( dt ))", (const char *)&queryFormat, "!IS_NAN( dt )");
-    v22 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm9, xmm6 }
-  if ( !v22 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@40a5c940
-      vdivss  xmm8, xmm0, xmm9
-    }
-  }
-  __asm { vmovss  xmm9, dword ptr [rsi+4] }
-  v27 = 0i64;
-  __asm
-  {
-    vmovss  xmm12, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm6, dword ptr [rdi+4]
-    vsubss  xmm10, xmm7, xmm8
-    vdivss  xmm11, xmm7, xmm9
-  }
+  if ( (LODWORD(tg) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 260, ASSERT_TYPE_ASSERT, "(!IS_NAN( time ))", (const char *)&queryFormat, "!IS_NAN( time )") )
+    __debugbreak();
+  if ( v10 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 261, ASSERT_TYPE_ASSERT, "(dt >= 0)", (const char *)&queryFormat, "dt >= 0") )
+    __debugbreak();
+  if ( (LODWORD(v10) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 262, ASSERT_TYPE_ASSERT, "(!IS_NAN( dt ))", (const char *)&queryFormat, "!IS_NAN( dt )") )
+    __debugbreak();
+  if ( tg > v10 )
+    v9 = (float)((float)(1.0 / frameRate) * 5.1808167) / tg;
+  v11 = 0i64;
+  g = state->g;
+  v13 = 1.0 - v9;
+  v14 = 1.0 / param->th;
   if ( frameCount >= 4 )
   {
-    _RCX = input + 2;
-    v33 = ((frameCount - 4) >> 2) + 1;
-    v34 = v33;
-    v27 = 4 * v33;
+    v15 = input + 2;
+    v16 = ((frameCount - 4) >> 2) + 1;
+    v17 = v16;
+    v11 = 4 * v16;
     do
     {
-      __asm { vmovss  xmm5, dword ptr [rcx-8] }
-      _RCX += 4;
-      __asm
-      {
-        vandps  xmm0, xmm5, xmm12
-        vmaxss  xmm1, xmm0, xmm9
-        vsubss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, xmm4
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm0, xmm11
-        vaddss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, xmm8
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm6, xmm3, xmm0
-        vmulss  xmm1, xmm6, xmm5
-        vmovss  xmm5, dword ptr [rcx-14h]
-        vmovss  dword ptr [rcx-18h], xmm1
-        vandps  xmm0, xmm5, xmm12
-        vmaxss  xmm1, xmm0, xmm9
-        vsubss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, xmm4
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm0, xmm11
-        vaddss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, xmm8
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm6, xmm3, xmm0
-        vmulss  xmm1, xmm6, xmm5
-        vmovss  xmm5, dword ptr [rcx-10h]
-        vmovss  dword ptr [rcx-14h], xmm1
-        vandps  xmm0, xmm5, xmm12
-        vmaxss  xmm1, xmm0, xmm9
-        vsubss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, xmm4
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm0, xmm11
-        vaddss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, xmm8
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm6, xmm3, xmm0
-        vmulss  xmm1, xmm6, xmm5
-        vmovss  xmm5, dword ptr [rcx-0Ch]
-        vmovss  dword ptr [rcx-10h], xmm1
-        vandps  xmm0, xmm5, xmm12
-        vmaxss  xmm1, xmm0, xmm9
-        vsubss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, xmm4
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm0, xmm11
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, xmm8
-        vaddss  xmm6, xmm3, xmm0
-        vmulss  xmm0, xmm6, xmm5
-        vmovss  dword ptr [rcx-0Ch], xmm0
-      }
+      v18 = *((unsigned int *)v15 - 2);
+      v15 += 4;
+      _XMM0 = v18 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm1, xmm0, xmm9 }
+      v21 = (float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 - *(float *)&_XMM1) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * v14) + 1.0) * v9) + (float)(g * v13);
+      *(float *)&_XMM1 = v21 * *(float *)&v18;
+      v22 = *((unsigned int *)v15 - 5);
+      *(v15 - 6) = *(float *)&_XMM1;
+      _XMM0 = v22 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm1, xmm0, xmm9 }
+      v25 = (float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 - *(float *)&_XMM1) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * v14) + 1.0) * v9) + (float)(v21 * v13);
+      *(float *)&_XMM1 = v25 * *(float *)&v22;
+      v26 = *((unsigned int *)v15 - 4);
+      *(v15 - 5) = *(float *)&_XMM1;
+      _XMM0 = v26 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm1, xmm0, xmm9 }
+      v29 = (float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 - *(float *)&_XMM1) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * v14) + 1.0) * v9) + (float)(v25 * v13);
+      *(float *)&_XMM1 = v29 * *(float *)&v26;
+      v30 = *((unsigned int *)v15 - 3);
+      *(v15 - 4) = *(float *)&_XMM1;
+      _XMM0 = v30 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm1, xmm0, xmm9 }
+      g = (float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 - *(float *)&_XMM1) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * v14) + 1.0) * v9) + (float)(v29 * v13);
+      *(v15 - 3) = g * *(float *)&v30;
+      --v17;
+    }
+    while ( v17 );
+    state->g = g;
+  }
+  if ( (unsigned int)v11 < frameCount )
+  {
+    v33 = &input[v11];
+    v34 = frameCount - (unsigned int)v11;
+    do
+    {
+      v35 = *(unsigned int *)v33++;
+      _XMM0 = v35 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm1, xmm0, xmm9 }
+      g = (float)((float)((float)((float)((float)((float)((float)((float)((float)(1.0 - *(float *)&_XMM1) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * (float)(1.0 - *(float *)&_XMM1)) * v14) + 1.0) * v9) + (float)(g * v13);
+      *(v33 - 1) = g * *(float *)&v35;
       --v34;
     }
     while ( v34 );
-    __asm { vmovss  dword ptr [rdi+4], xmm6 }
+    state->g = g;
   }
-  if ( (unsigned int)v27 < frameCount )
-  {
-    _RCX = &input[v27];
-    v95 = frameCount - (unsigned int)v27;
-    do
-    {
-      __asm { vmovss  xmm5, dword ptr [rcx] }
-      ++_RCX;
-      __asm
-      {
-        vandps  xmm0, xmm5, xmm12
-        vmaxss  xmm1, xmm0, xmm9
-        vsubss  xmm4, xmm7, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, xmm4
-        vmulss  xmm0, xmm3, xmm4
-        vmulss  xmm1, xmm0, xmm11
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, xmm8
-        vaddss  xmm6, xmm3, xmm0
-        vmulss  xmm0, xmm6, xmm5
-        vmovss  dword ptr [rcx-4], xmm0
-      }
-      --v95;
-    }
-    while ( v95 );
-    __asm { vmovss  dword ptr [rdi+4], xmm6 }
-  }
-  __asm { vmovss  [rsp+0A8h+arg_10], xmm6 }
-  if ( (v122 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 294, ASSERT_TYPE_ASSERT, "(!IS_NAN( state->g ))", (const char *)&queryFormat, "!IS_NAN( state->g )") )
+  if ( (LODWORD(g) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.cpp", 294, ASSERT_TYPE_ASSERT, "(!IS_NAN( state->g ))", (const char *)&queryFormat, "!IS_NAN( state->g )") )
     __debugbreak();
-  _R11 = &v118;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 

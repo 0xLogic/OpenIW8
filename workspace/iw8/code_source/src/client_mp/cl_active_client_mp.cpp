@@ -716,11 +716,10 @@ __int64 ClActiveClientMP::FindPredictedDataForTime(ClActiveClientMP *this, const
   int v13; 
   __int64 v14; 
   unsigned __int8 v15; 
-  char v28[4]; 
-  __int64 v29; 
+  char v17[4]; 
+  __int64 v18; 
 
-  v29 = -2i64;
-  _RBX = outPredictedData;
+  v18 = -2i64;
   v8 = -1;
   v9 = 0x7FFFFFFF;
   CmdNumber = ClActiveClient_GetCmdNumber(this);
@@ -741,7 +740,7 @@ __int64 ClActiveClientMP::FindPredictedDataForTime(ClActiveClientMP *this, const
   }
   if ( v8 == -1 )
   {
-    memset_0(_RBX, 0, sizeof(ClPredictResultMP));
+    memset_0(outPredictedData, 0, sizeof(ClPredictResultMP));
     *outPredictedTime = 0;
     v15 = 0;
     goto LABEL_12;
@@ -749,36 +748,22 @@ __int64 ClActiveClientMP::FindPredictedDataForTime(ClActiveClientMP *this, const
   v12 = v8;
   v14 = v8;
 LABEL_11:
-  _RCX = &this->m_predictedCmdData[v14];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+30h]
-    vmovups xmmword ptr [rbx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+50h]
-    vmovups xmmword ptr [rbx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+60h]
-    vmovups xmmword ptr [rbx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+70h]
-    vmovups xmmword ptr [rbx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+80h]
-    vmovups xmmword ptr [rbx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+90h]
-    vmovups xmmword ptr [rbx+90h], xmm1
-  }
-  *(_QWORD *)&_RBX->vehicle.gunAngles.y = *(_QWORD *)&this->m_predictedCmdData[v14].vehicle.gunAngles.y;
-  _RBX->lastStandMoveStopTime = this->m_predictedCmdData[v14].lastStandMoveStopTime;
+  *(_OWORD *)&outPredictedData->commandTime = *(_OWORD *)&this->m_predictedCmdData[v14].commandTime;
+  *(_OWORD *)&outPredictedData->origin.z = *(_OWORD *)&this->m_predictedCmdData[v14].origin.z;
+  *(_OWORD *)&outPredictedData->movementDir = *(_OWORD *)&this->m_predictedCmdData[v14].movementDir;
+  *(_OWORD *)(&outPredictedData->extrapData.offset.xy + 1) = *(_OWORD *)(&this->m_predictedCmdData[v14].extrapData.offset.xy + 1);
+  *(_OWORD *)&outPredictedData->extrapData.packedBobCycle[1] = *(_OWORD *)&this->m_predictedCmdData[v14].extrapData.packedBobCycle[1];
+  *(_OWORD *)&outPredictedData->vehicle.entity = *(_OWORD *)&this->m_predictedCmdData[v14].vehicle.entity;
+  *(_OWORD *)&outPredictedData->vehicle.origin.y = *(_OWORD *)&this->m_predictedCmdData[v14].vehicle.origin.y;
+  *(_OWORD *)&outPredictedData->vehicle.angles.z = *(_OWORD *)&this->m_predictedCmdData[v14].vehicle.angles.z;
+  *(_OWORD *)outPredictedData->vehicle.angVelocity.v = *(_OWORD *)this->m_predictedCmdData[v14].vehicle.angVelocity.v;
+  *(_OWORD *)&outPredictedData->vehicle.tilt.y = *(_OWORD *)&this->m_predictedCmdData[v14].vehicle.tilt.y;
+  *(_QWORD *)&outPredictedData->vehicle.gunAngles.y = *(_QWORD *)&this->m_predictedCmdData[v14].vehicle.gunAngles.y;
+  outPredictedData->lastStandMoveStopTime = this->m_predictedCmdData[v14].lastStandMoveStopTime;
   *outPredictedTime = this->m_predictedCmdTime[v12];
   v15 = 1;
 LABEL_12:
-  memset(v28, 0, sizeof(v28));
+  memset(v17, 0, sizeof(v17));
   return v15;
 }
 
@@ -965,75 +950,41 @@ void ClActiveClientMP::FreeSnapshotMemory(ClActiveClientMP *this)
 ClActiveClientMP::GetCommandThrottleScale
 ==============
 */
-
-long double __fastcall ClActiveClientMP::GetCommandThrottleScale(ClActiveClientMP *this, double _XMM1_8)
+double ClActiveClientMP::GetCommandThrottleScale(ClActiveClientMP *this)
 {
   int UserCommandConstantMsec; 
-  char v8; 
-  bool v9; 
-  bool v18; 
-  long double v28; 
-  char v32; 
+  const dvar_t *v2; 
+  __int128 v10; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
   UserCommandConstantMsec = Com_GetUserCommandConstantMsec();
   if ( 1000i64 * UserCommandConstantMsec <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 488, ASSERT_TYPE_ASSERT, "( commandTimeUsec ) > ( 0ll )", "%s > %s\n\t%lli, %lli", "commandTimeUsec", "0ll", 1000i64 * UserCommandConstantMsec, 0i64) )
     __debugbreak();
-  _RDI = DVARFLT_com_userCmdMaxBufferScale;
+  v2 = DVARFLT_com_userCmdMaxBufferScale;
   if ( !DVARFLT_com_userCmdMaxBufferScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxBufferScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v2);
+  _XMM6 = COERCE_UNSIGNED_INT64(v2->current.value);
+  __asm { vxorpd  xmm7, xmm6, cs:__xmm@80000000000000008000000000000000 }
+  _XMM1 = 0i64;
+  _XMM0 = 0i64;
   __asm
   {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vcvtss2sd xmm6, xmm6, xmm6
-    vxorpd  xmm7, xmm6, cs:__xmm@80000000000000008000000000000000
-    vcomisd xmm7, xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
     vcvtsi2sd xmm1, xmm1, rbx
     vcvtsi2sd xmm0, xmm0, rsi
-    vdivsd  xmm8, xmm1, xmm0
   }
-  if ( !(v8 | v9) )
-  {
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max");
-    v8 = 0;
-    v9 = !v18;
-    if ( v18 )
-      __debugbreak();
-  }
+  *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v10 = *(double *)&_XMM1 / *(double *)&_XMM0;
+  _XMM8 = v10;
+  if ( *(double *)&_XMM7 > v2->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+    __debugbreak();
   __asm
   {
     vminsd  xmm0, xmm8, xmm6
     vmaxsd  xmm6, xmm0, xmm7
-    vcomisd xmm6, cs:__real@bff0000000000000
-    vmovsd  xmm7, cs:__real@3ff0000000000000
   }
-  if ( v8 | v9 )
-    goto LABEL_12;
-  __asm { vcomisd xmm6, xmm7 }
-  if ( !v8 )
-  {
-LABEL_12:
-    __asm { vmovsd  [rsp+88h+var_60], xmm6 }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 497, ASSERT_TYPE_ASSERT, "( ( (cmdThrottleClamp > -1.0) && (cmdThrottleClamp < 1.0) ) )", "( cmdThrottleClamp ) = %lg", v28) )
-      __debugbreak();
-  }
-  _R11 = &v32;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vaddsd  xmm0, xmm6, xmm7
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return *(double *)&_XMM0;
+  if ( (*(double *)&_XMM6 <= -1.0 || *(double *)&_XMM6 >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 497, ASSERT_TYPE_ASSERT, "( ( (cmdThrottleClamp > -1.0) && (cmdThrottleClamp < 1.0) ) )", "( cmdThrottleClamp ) = %lg", *(long double *)&_XMM6) )
+    __debugbreak();
+  return *(double *)&_XMM6 + 1.0;
 }
 
 /*
@@ -1074,49 +1025,43 @@ ClActiveClientMP::GetPredictedData
 char ClActiveClientMP::GetPredictedData(ClActiveClientMP *this, const int commandNum, CmdPredict *const outCmdPredict)
 {
   __int64 v6; 
+  __int64 v7; 
   int entity; 
-  BOOL v11; 
+  int v9; 
   char result; 
 
-  _RBX = outCmdPredict;
-  _RDI = this;
   if ( !outCmdPredict && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 572, ASSERT_TYPE_ASSERT, "(outCmdPredict)", (const char *)&queryFormat, "outCmdPredict") )
     __debugbreak();
   v6 = commandNum & 0x7F;
-  if ( _RDI->m_predictedCmdNum[v6] == commandNum )
+  if ( this->m_predictedCmdNum[v6] == commandNum )
   {
-    _RCX = v6;
-    _RBX->origin.v[0] = _RDI->m_predictedCmdData[v6].origin.v[0];
-    _RBX->origin.v[1] = _RDI->m_predictedCmdData[v6].origin.v[1];
-    _RBX->origin.v[2] = _RDI->m_predictedCmdData[v6].origin.v[2];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx+rdi+1FFD0h]
-      vmovups xmmword ptr [rbx+0Ch], xmm0
-      vmovsd  xmm1, qword ptr [rcx+rdi+1FFE0h]
-      vmovsd  qword ptr [rbx+1Ch], xmm1
-    }
-    _RBX->extrapData.packedBobCycle[1] = _RDI->m_predictedCmdData[v6].extrapData.packedBobCycle[1];
-    entity = _RDI->m_predictedCmdData[v6].vehicle.entity;
-    v11 = entity && entity != 2047;
-    _RBX->vehActive = v11;
-    _RBX->vehTarget = _RDI->m_predictedCmdData[_RCX].vehicle.targetEntity;
-    _RBX->vehOrigin.v[0] = _RDI->m_predictedCmdData[_RCX].vehicle.origin.v[0];
-    _RBX->vehOrigin.v[1] = _RDI->m_predictedCmdData[_RCX].vehicle.origin.v[1];
-    _RBX->vehOrigin.v[2] = _RDI->m_predictedCmdData[_RCX].vehicle.origin.v[2];
+    v7 = v6;
+    outCmdPredict->origin.v[0] = this->m_predictedCmdData[v6].origin.v[0];
+    outCmdPredict->origin.v[1] = this->m_predictedCmdData[v6].origin.v[1];
+    outCmdPredict->origin.v[2] = this->m_predictedCmdData[v6].origin.v[2];
+    *(_OWORD *)outCmdPredict->extrapData.offset.v = *(_OWORD *)this->m_predictedCmdData[v6].extrapData.offset.v;
+    *(double *)&outCmdPredict->extrapData.inputTime = *(double *)&this->m_predictedCmdData[v6].extrapData.inputTime;
+    outCmdPredict->extrapData.packedBobCycle[1] = this->m_predictedCmdData[v6].extrapData.packedBobCycle[1];
+    entity = this->m_predictedCmdData[v6].vehicle.entity;
+    v9 = entity && entity != 2047;
+    outCmdPredict->vehActive = v9;
+    outCmdPredict->vehTarget = this->m_predictedCmdData[v7].vehicle.targetEntity;
+    outCmdPredict->vehOrigin.v[0] = this->m_predictedCmdData[v7].vehicle.origin.v[0];
+    outCmdPredict->vehOrigin.v[1] = this->m_predictedCmdData[v7].vehicle.origin.v[1];
+    outCmdPredict->vehOrigin.v[2] = this->m_predictedCmdData[v7].vehicle.origin.v[2];
     return 1;
   }
   else
   {
     result = 0;
-    *(_QWORD *)_RBX->origin.v = 0i64;
-    *(_QWORD *)&_RBX->origin.z = 0i64;
-    *(_QWORD *)&_RBX->extrapData.offset.xy.y = 0i64;
-    *(_QWORD *)&_RBX->extrapData.time = 0i64;
-    *(_QWORD *)_RBX->extrapData.packedBobCycle = 0i64;
-    *(_QWORD *)&_RBX->vehActive = 0i64;
-    *(_QWORD *)_RBX->vehOrigin.v = 0i64;
-    _RBX->vehOrigin.v[2] = 0.0;
+    *(_QWORD *)outCmdPredict->origin.v = 0i64;
+    *(_QWORD *)&outCmdPredict->origin.z = 0i64;
+    *(_QWORD *)&outCmdPredict->extrapData.offset.xy.y = 0i64;
+    *(_QWORD *)&outCmdPredict->extrapData.time = 0i64;
+    *(_QWORD *)outCmdPredict->extrapData.packedBobCycle = 0i64;
+    *(_QWORD *)&outCmdPredict->vehActive = 0i64;
+    *(_QWORD *)outCmdPredict->vehOrigin.v = 0i64;
+    outCmdPredict->vehOrigin.v[2] = 0.0;
   }
   return result;
 }
@@ -1294,50 +1239,37 @@ void ClActiveClientMP::SavePredictedData(ClActiveClientMP *this)
   int v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  int v18; 
+  usercmd_s *v6; 
+  ClPredictResultMP *v7; 
+  int v8; 
 
-  _RBX = this;
   CmdNumber = ClActiveClient_GetCmdNumber(this);
   v3 = CmdNumber;
-  v18 = CmdNumber;
+  v8 = CmdNumber;
   v4 = CmdNumber & 0x7F;
-  if ( _RBX->m_predictedCmdNum[v4] != CmdNumber )
+  if ( this->m_predictedCmdNum[v4] != CmdNumber )
   {
     v5 = CmdNumber & 0x7F;
-    v6 = (__int64)&_RBX->cmds[v5];
-    if ( (ClActiveClientMP *)((char *)_RBX + v5 * 264) == (ClActiveClientMP *)-472i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd", -2i64) )
+    v6 = &this->cmds[v5];
+    if ( (ClActiveClientMP *)((char *)this + v5 * 264) == (ClActiveClientMP *)-472i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.h", 2169, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd", -2i64) )
       __debugbreak();
-    _RBX->m_predictedCmdTime[v4] = *(_DWORD *)(v6 + 16);
-    _RDX = (__int64)&_RBX->m_predictedCmdData[v4];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+1FA0Ch]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rbx+1FA1Ch]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+1FA2Ch]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+1FA3Ch]
-      vmovups xmmword ptr [rdx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+1FA4Ch]
-      vmovups xmmword ptr [rdx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+1FA5Ch]
-      vmovups xmmword ptr [rdx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+1FA6Ch]
-      vmovups xmmword ptr [rdx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rbx+1FA7Ch]
-      vmovups xmmword ptr [rdx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+1FA8Ch]
-      vmovups xmmword ptr [rdx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+1FA9Ch]
-      vmovups xmmword ptr [rdx+90h], xmm0
-    }
-    *(_QWORD *)(_RDX + 160) = *(_QWORD *)&_RBX->cgamePredictedData.vehicle.gunAngles.y;
-    *(_DWORD *)(_RDX + 168) = _RBX->cgamePredictedData.lastStandMoveStopTime;
-    _RBX->m_predictedCmdNum[v4] = v3;
+    this->m_predictedCmdTime[v4] = v6->commandTime;
+    v7 = &this->m_predictedCmdData[v4];
+    *(_OWORD *)&v7->commandTime = *(_OWORD *)&this->cgamePredictedData.commandTime;
+    *(_OWORD *)&v7->origin.z = *(_OWORD *)&this->cgamePredictedData.origin.z;
+    *(_OWORD *)&v7->movementDir = *(_OWORD *)&this->cgamePredictedData.movementDir;
+    *(_OWORD *)(&v7->extrapData.offset.xy + 1) = *(_OWORD *)(&this->cgamePredictedData.extrapData.offset.xy + 1);
+    *(_OWORD *)&v7->extrapData.packedBobCycle[1] = *(_OWORD *)&this->cgamePredictedData.extrapData.packedBobCycle[1];
+    *(_OWORD *)&v7->vehicle.entity = *(_OWORD *)&this->cgamePredictedData.vehicle.entity;
+    *(_OWORD *)&v7->vehicle.origin.y = *(_OWORD *)&this->cgamePredictedData.vehicle.origin.y;
+    *(_OWORD *)&v7->vehicle.angles.z = *(_OWORD *)&this->cgamePredictedData.vehicle.angles.z;
+    *(_OWORD *)v7->vehicle.angVelocity.v = *(_OWORD *)this->cgamePredictedData.vehicle.angVelocity.v;
+    *(_OWORD *)&v7->vehicle.tilt.y = *(_OWORD *)&this->cgamePredictedData.vehicle.tilt.y;
+    *(_QWORD *)&v7->vehicle.gunAngles.y = *(_QWORD *)&this->cgamePredictedData.vehicle.gunAngles.y;
+    v7->lastStandMoveStopTime = this->cgamePredictedData.lastStandMoveStopTime;
+    this->m_predictedCmdNum[v4] = v3;
   }
-  memset(&v18, 0, sizeof(v18));
+  memset(&v8, 0, sizeof(v8));
 }
 
 /*
@@ -1358,39 +1290,26 @@ ClActiveClientMP::SetPredictedData
 void ClActiveClientMP::SetPredictedData(ClActiveClientMP *this, const int predictedIndex, const int commandTime, const ClPredictResultMP *predictedData)
 {
   __int64 v4; 
+  ClPredictResultMP *v8; 
 
   v4 = predictedIndex;
-  _RBX = predictedData;
   if ( (unsigned int)predictedIndex >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 641, ASSERT_TYPE_ASSERT, "(unsigned)( predictedIndex ) < (unsigned)( CMD_BACKUP )", "predictedIndex doesn't index CMD_BACKUP\n\t%i not in [0, %i)", predictedIndex, 128) )
     __debugbreak();
   this->m_predictedCmdTime[v4] = commandTime;
   this->m_predictedCmdNum[v4] = 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RCX = &this->m_predictedCmdData[v4];
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rcx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [rcx+90h], xmm1
-  }
-  *(_QWORD *)&_RCX->vehicle.gunAngles.y = *(_QWORD *)&_RBX->vehicle.gunAngles.y;
-  _RCX->lastStandMoveStopTime = _RBX->lastStandMoveStopTime;
+  v8 = &this->m_predictedCmdData[v4];
+  *(_OWORD *)&v8->commandTime = *(_OWORD *)&predictedData->commandTime;
+  *(_OWORD *)&v8->origin.z = *(_OWORD *)&predictedData->origin.z;
+  *(_OWORD *)&v8->movementDir = *(_OWORD *)&predictedData->movementDir;
+  *(_OWORD *)(&v8->extrapData.offset.xy + 1) = *(_OWORD *)(&predictedData->extrapData.offset.xy + 1);
+  *(_OWORD *)&v8->extrapData.packedBobCycle[1] = *(_OWORD *)&predictedData->extrapData.packedBobCycle[1];
+  *(_OWORD *)&v8->vehicle.entity = *(_OWORD *)&predictedData->vehicle.entity;
+  *(_OWORD *)&v8->vehicle.origin.y = *(_OWORD *)&predictedData->vehicle.origin.y;
+  *(_OWORD *)&v8->vehicle.angles.z = *(_OWORD *)&predictedData->vehicle.angles.z;
+  *(_OWORD *)v8->vehicle.angVelocity.v = *(_OWORD *)predictedData->vehicle.angVelocity.v;
+  *(_OWORD *)&v8->vehicle.tilt.y = *(_OWORD *)&predictedData->vehicle.tilt.y;
+  *(_QWORD *)&v8->vehicle.gunAngles.y = *(_QWORD *)&predictedData->vehicle.gunAngles.y;
+  v8->lastStandMoveStopTime = predictedData->lastStandMoveStopTime;
 }
 
 /*
@@ -1458,97 +1377,58 @@ ClActiveClientMP::UpdateCommandTime
 void ClActiveClientMP::UpdateCommandTime(ClActiveClientMP *this, const unsigned __int64 usec)
 {
   int UserCommandConstantMsec; 
-  char v12; 
-  bool v13; 
-  bool v22; 
-  bool v26; 
-  long double v37; 
-  long double v38; 
-  char v41; 
-  void *retaddr; 
+  const dvar_t *v5; 
+  __int128 v13; 
+  double v16; 
+  double v17; 
+  __int128 v21; 
+  __int128 v23; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
   UserCommandConstantMsec = Com_GetUserCommandConstantMsec();
   if ( 1000i64 * UserCommandConstantMsec <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 488, ASSERT_TYPE_ASSERT, "( commandTimeUsec ) > ( 0ll )", "%s > %s\n\t%lli, %lli", "commandTimeUsec", "0ll", 1000i64 * UserCommandConstantMsec, 0i64) )
     __debugbreak();
-  _RBP = DVARFLT_com_userCmdMaxBufferScale;
+  v5 = DVARFLT_com_userCmdMaxBufferScale;
   if ( !DVARFLT_com_userCmdMaxBufferScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxBufferScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
+  Dvar_CheckFrontendServerThread(v5);
+  _XMM6 = COERCE_UNSIGNED_INT64(v5->current.value);
+  __asm { vxorpd  xmm7, xmm6, cs:__xmm@80000000000000008000000000000000 }
+  _XMM1 = 0i64;
+  _XMM0 = 0i64;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbp+28h]
-    vcvtss2sd xmm6, xmm6, xmm6
-    vxorpd  xmm7, xmm6, cs:__xmm@80000000000000008000000000000000
-    vcomisd xmm7, xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
     vcvtsi2sd xmm1, xmm1, rsi
     vcvtsi2sd xmm0, xmm0, r14
-    vdivsd  xmm8, xmm1, xmm0
   }
-  if ( !(v12 | v13) )
-  {
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max");
-    v12 = 0;
-    v13 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
+  *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM1 + 1);
+  *(double *)&v13 = *(double *)&_XMM1 / *(double *)&_XMM0;
+  _XMM8 = v13;
+  if ( *(double *)&_XMM7 > v5->current.value && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+    __debugbreak();
   __asm
   {
     vminsd  xmm0, xmm8, xmm6
     vmaxsd  xmm6, xmm0, xmm7
-    vcomisd xmm6, cs:__real@bff0000000000000
-    vmovsd  xmm7, cs:__real@3ff0000000000000
   }
-  if ( v12 | v13 )
-    goto LABEL_22;
-  __asm { vcomisd xmm6, xmm7 }
-  if ( !v12 )
-  {
-LABEL_22:
-    __asm { vmovsd  [rsp+88h+var_60], xmm6 }
-    v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 497, ASSERT_TYPE_ASSERT, "( ( (cmdThrottleClamp > -1.0) && (cmdThrottleClamp < 1.0) ) )", "( cmdThrottleClamp ) = %lg", v37);
-    v12 = 0;
-    v13 = !v26;
-    if ( v26 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vaddsd  xmm6, xmm6, xmm7
-    vxorpd  xmm0, xmm0, xmm0
-    vcomisd xmm6, xmm0
-  }
-  if ( v12 | v13 )
-  {
-    __asm { vmovsd  [rsp+88h+var_60], xmm6 }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 510, ASSERT_TYPE_ASSERT, "( ( cmdThrottleScale > 0.0 ) )", "( cmdThrottleScale ) = %lg", v38) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rdi
-  }
+  if ( (*(double *)&_XMM6 <= -1.0 || *(double *)&_XMM6 >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 497, ASSERT_TYPE_ASSERT, "( ( (cmdThrottleClamp > -1.0) && (cmdThrottleClamp < 1.0) ) )", "( cmdThrottleClamp ) = %lg", *(long double *)&_XMM6) )
+    __debugbreak();
+  v17 = *(double *)&_XMM6 + 1.0;
+  v16 = v17;
+  __asm { vxorpd  xmm0, xmm0, xmm0 }
+  if ( v17 <= *(double *)&_XMM0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_active_client_mp.cpp", 510, ASSERT_TYPE_ASSERT, "( ( cmdThrottleScale > 0.0 ) )", "( cmdThrottleScale ) = %lg", v17) )
+    __debugbreak();
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rdi }
   if ( (usec & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmovaps xmm7, [rsp+88h+var_28] }
-  _R11 = &v41;
-  __asm
   {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmulsd  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
-    vcvttsd2si rax, xmm0
+    *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v21 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v21;
   }
+  *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v23 = *(double *)&_XMM0 * v16;
+  _XMM0 = v23;
+  __asm { vcvttsd2si rax, xmm0 }
   this->cmdAccumTimeUsec += _RAX;
   this->svCmdCurrentErrorUsec += _RAX - usec;
 }

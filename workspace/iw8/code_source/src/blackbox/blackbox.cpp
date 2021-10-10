@@ -1420,11 +1420,10 @@ int __fastcall BB_GetServerGameTime()
 BB_Init
 ==============
 */
-
-void __fastcall BB_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
+void BB_Init(void)
 {
   PublisherVariableManager *Instance; 
-  PublisherVariableManager *v7; 
+  PublisherVariableManager *v1; 
 
   if ( s_blackboxInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 612, ASSERT_TYPE_ASSERT, "(s_blackboxInitialized == false)", (const char *)&queryFormat, "s_blackboxInitialized == false") )
     __debugbreak();
@@ -1434,14 +1433,8 @@ void __fastcall BB_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
   Cmd_AddCommandInternal("bbdisable", BB_Disable_f, &BB_Disable_f_VAR);
   Cmd_AddCommandInternal("bbthrottle", BB_Throttle_f, &BB_Throttle_f_VAR);
   Dvar_BeginPermanentRegistration();
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
   blackboxBandwidthLimited = Dvar_RegisterBool("NLRMORNTQS", 0, 4u, "When true, limits blackbox sending so that it only occurs when not in game");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  blackboxHighVolumeProbability = Dvar_RegisterFloat("LNRNKLKMK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Probability of sending high volume blackbox data");
+  blackboxHighVolumeProbability = Dvar_RegisterFloat("LNRNKLKMK", 0.0, 0.0, 1.0, 4u, "Probability of sending high volume blackbox data");
   blackboxUseBlackbox = Dvar_RegisterBool("PMLMKLKPO", 1, 4u, "When true turns on blackbox");
   blackbox_dumpSystemMemoryFootprint = Dvar_RegisterBool("LRQNQONKSR", 0, 4u, "When true turns on blackbox system memory footprint logging");
   Dvar_EndPermanentRegistration();
@@ -1454,8 +1447,8 @@ void __fastcall BB_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
   }
   else
   {
-    v7 = PublisherVariableManager::GetInstance();
-    PublisherVariableManager::AddRetrievedCallback(v7, publisherVariablesRetrieved);
+    v1 = PublisherVariableManager::GetInstance();
+    PublisherVariableManager::AddRetrievedCallback(v1, publisherVariablesRetrieved);
   }
   s_connectionsHash = BB_HashString("connections", 0xBui64);
   s_sessionsHash = BB_HashString("sessions", 8ui64);
@@ -1742,22 +1735,51 @@ BB_RecordSystemMemoryFootprint
 */
 void BB_RecordSystemMemoryFootprint(const char *mapName, int onExit)
 {
-  const char *v11; 
+  const char *v3; 
+  float ullAvailVirtual; 
+  float v5; 
+  float v6; 
+  float ullTotalVirtual; 
+  float v8; 
+  float v9; 
+  float ullAvailPhys; 
+  float v11; 
+  float ullTotalPhys; 
+  float v13; 
   unsigned int dwMemoryLoad; 
-  bool v26; 
-  int v51; 
+  bool v15; 
+  float ullAvailExtendedVirtual; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float ullAvailPageFile; 
+  float v26; 
+  float v27; 
+  float ullTotalPageFile; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  int v35; 
   int NumXMemHeaps; 
+  float v37; 
+  float v38; 
+  float v39; 
   const char *XMemHeapName; 
   unsigned int ullTotalPageFile_high; 
-  unsigned int ullTotalPageFile; 
-  bool v63; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
+  unsigned int v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  bool v47; 
   unsigned __int64 heapHysteresis; 
   _MEMORYSTATUSEX Buffer; 
   DLogContext context; 
@@ -1765,223 +1787,141 @@ void BB_RecordSystemMemoryFootprint(const char *mapName, int onExit)
 
   if ( blackbox_dumpSystemMemoryFootprint && blackbox_dumpSystemMemoryFootprint->current.enabled )
   {
-    v11 = "enter";
-    __asm { vmovaps [rsp+1300h+var_40], xmm6 }
+    v3 = "enter";
     if ( onExit )
-      v11 = "exit";
-    __asm
-    {
-      vmovaps [rsp+1300h+var_50], xmm7
-      vmovaps [rsp+1300h+var_60], xmm8
-      vmovaps [rsp+1300h+var_70], xmm9
-      vmovaps [rsp+1300h+var_90], xmm11
-    }
+      v3 = "exit";
     Buffer.dwLength = 64;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@5f800000
-      vmovss  xmm11, cs:__real@35800000
-    }
     if ( GlobalMemoryStatusEx(&Buffer) )
     {
-      __asm
-      {
-        vmovaps [rsp+1300h+var_80], xmm10
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-      }
+      ullAvailVirtual = (float)(__int64)Buffer.ullAvailVirtual;
       if ( (Buffer.ullAvailVirtual & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vmovss  xmm2, cs:__real@30800000
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm10, xmm0, xmm2
-        vcvtsi2ss xmm1, xmm1, rax
+        v5 = (float)(__int64)Buffer.ullAvailVirtual;
+        ullAvailVirtual = v5 + 1.8446744e19;
       }
+      v6 = ullAvailVirtual * 9.3132257e-10;
+      ullTotalVirtual = (float)(__int64)Buffer.ullTotalVirtual;
       if ( (Buffer.ullTotalVirtual & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmulss  xmm9, xmm1, xmm2
-        vcvtsi2ss xmm0, xmm0, rax
+        v8 = (float)(__int64)Buffer.ullTotalVirtual;
+        ullTotalVirtual = v8 + 1.8446744e19;
       }
+      v9 = ullTotalVirtual * 9.3132257e-10;
+      ullAvailPhys = (float)(__int64)Buffer.ullAvailPhys;
       if ( (Buffer.ullAvailPhys & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm8, xmm0, xmm11
-        vcvtsi2ss xmm1, xmm1, rax
+        v11 = (float)(__int64)Buffer.ullAvailPhys;
+        ullAvailPhys = v11 + 1.8446744e19;
       }
+      ullTotalPhys = (float)(__int64)Buffer.ullTotalPhys;
       if ( (Buffer.ullTotalPhys & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
+      {
+        v13 = (float)(__int64)Buffer.ullTotalPhys;
+        ullTotalPhys = v13 + 1.8446744e19;
+      }
       dwMemoryLoad = Buffer.dwMemoryLoad;
-      __asm { vmulss  xmm7, xmm1, xmm11 }
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
       {
-        v26 = DLog_BeginEvent(&context, "system_mem_global");
+        v15 = DLog_BeginEvent(&context, "system_mem_global");
         context.autoEndEvent = 1;
-        if ( v26 && DLog_String(&context, "map", mapName, 0) && DLog_String(&context, "status", v11, 0) && DLog_UInt32(&context, "in_use", dwMemoryLoad) )
-        {
-          __asm { vmovaps xmm2, xmm7; value }
-          if ( DLog_Float32(&context, "total_phys_mb", *(float *)&_XMM2) )
-          {
-            __asm { vmovaps xmm2, xmm8; value }
-            if ( DLog_Float32(&context, "free_phys_mb", *(float *)&_XMM2) )
-            {
-              __asm { vmovaps xmm2, xmm9; value }
-              if ( DLog_Float32(&context, "total_virtual_gb", *(float *)&_XMM2) )
-              {
-                __asm { vmovaps xmm2, xmm10; value }
-                if ( DLog_Float32(&context, "free_virtual_gb", *(float *)&_XMM2) )
-                  DLog_RecordContext(&context);
-              }
-            }
-          }
-        }
+        if ( v15 && DLog_String(&context, "map", mapName, 0) && DLog_String(&context, "status", v3, 0) && DLog_UInt32(&context, "in_use", dwMemoryLoad) && DLog_Float32(&context, "total_phys_mb", ullTotalPhys * 0.00000095367432) && DLog_Float32(&context, "free_phys_mb", ullAvailPhys * 0.00000095367432) && DLog_Float32(&context, "total_virtual_gb", v9) && DLog_Float32(&context, "free_virtual_gb", v6) )
+          DLog_RecordContext(&context);
       }
-      __asm { vmovaps xmm10, [rsp+1300h+var_80] }
     }
     Buffer.dwLength = 80;
     if ( (unsigned int)TitleMemoryStatus(&Buffer) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-      }
+      ullAvailExtendedVirtual = (float)(__int64)Buffer.ullAvailExtendedVirtual;
       if ( (Buffer.ullAvailExtendedVirtual & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm8, xmm0, xmm11
-        vcvtsi2ss xmm1, xmm1, rax
+        v17 = (float)(__int64)Buffer.ullAvailExtendedVirtual;
+        ullAvailExtendedVirtual = v17 + 1.8446744e19;
       }
+      v18 = ullAvailExtendedVirtual * 0.00000095367432;
+      v19 = (float)(__int64)Buffer.ullAvailVirtual;
       if ( (Buffer.ullAvailVirtual & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmulss  xmm7, xmm1, xmm11
-        vcvtsi2ss xmm0, xmm0, rax
+        v20 = (float)(__int64)Buffer.ullAvailVirtual;
+        v19 = v20 + 1.8446744e19;
       }
+      v21 = v19 * 0.00000095367432;
+      v22 = (float)(__int64)Buffer.ullTotalVirtual;
       if ( (Buffer.ullTotalVirtual & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm5, xmm0, xmm11
-        vcvtsi2ss xmm1, xmm1, rax
+        v23 = (float)(__int64)Buffer.ullTotalVirtual;
+        v22 = v23 + 1.8446744e19;
       }
+      v24 = v22 * 0.00000095367432;
+      ullAvailPageFile = (float)(__int64)Buffer.ullAvailPageFile;
       if ( (Buffer.ullAvailPageFile & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmulss  xmm4, xmm1, xmm11
-        vcvtsi2ss xmm0, xmm0, rax
+        v26 = (float)(__int64)Buffer.ullAvailPageFile;
+        ullAvailPageFile = v26 + 1.8446744e19;
       }
+      v27 = ullAvailPageFile * 0.00000095367432;
+      ullTotalPageFile = (float)(__int64)Buffer.ullTotalPageFile;
       if ( (Buffer.ullTotalPageFile & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm3, xmm0, xmm11
-        vcvtsi2ss xmm1, xmm1, rax
+        v29 = (float)(__int64)Buffer.ullTotalPageFile;
+        ullTotalPageFile = v29 + 1.8446744e19;
       }
+      v30 = ullTotalPageFile * 0.00000095367432;
+      v31 = (float)(__int64)Buffer.ullAvailPhys;
       if ( (Buffer.ullAvailPhys & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmulss  xmm2, xmm1, xmm11
-        vcvtsi2ss xmm0, xmm0, rax
+        v32 = (float)(__int64)Buffer.ullAvailPhys;
+        v31 = v32 + 1.8446744e19;
       }
+      v33 = (float)(__int64)Buffer.ullTotalPhys;
       if ( (Buffer.ullTotalPhys & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vmovss  [rsp+1300h+var_1268], xmm8
-        vmovss  [rsp+1300h+var_1278], xmm7
-        vmovss  [rsp+1300h+var_1288], xmm5
-        vmovss  [rsp+1300h+var_1298], xmm4
-        vmovss  [rsp+1300h+var_12A8], xmm3
-        vmovss  [rsp+1300h+var_12B8], xmm2
-        vmulss  xmm0, xmm0, xmm11
-        vmovss  [rsp+1300h+var_12C8], xmm0
+        v34 = (float)(__int64)Buffer.ullTotalPhys;
+        v33 = v34 + 1.8446744e19;
       }
-      DLog_RecordEvent<char const *,char const *,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float>(0i64, "system_mem_title", "map", mapName, "status", v11, "total_mem_mb", v72, "available_mem_mb", v73, "legacy_use_mb", v74, "legacy_peak_mb", v75, "legacy_avail_mb", v76, "title_used_mb", v77, "title_avail_mb", v78);
+      DLog_RecordEvent<char const *,char const *,char const *,char const *,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float,char const *,float>(0i64, "system_mem_title", "map", mapName, "status", v3, "total_mem_mb", v33 * 0.00000095367432, "available_mem_mb", v31 * 0.00000095367432, "legacy_use_mb", v30, "legacy_peak_mb", v27, "legacy_avail_mb", v24, "title_used_mb", v21, "title_avail_mb", v18);
     }
     Buffer.dwLength = 32;
-    v51 = 0;
+    v35 = 0;
     NumXMemHeaps = XB3GetNumXMemHeaps();
     if ( NumXMemHeaps > 0 )
     {
       do
       {
-        if ( XB3GetXMemHeapStats(v51, (_XMEM_HEAP_STATISTICS *)&Buffer, &heapHysteresis) )
+        if ( XB3GetXMemHeapStats(v35, (_XMEM_HEAP_STATISTICS *)&Buffer, &heapHysteresis) )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-          }
+          v37 = (float)(__int64)heapHysteresis;
           if ( (heapHysteresis & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm0, xmm0, xmm6 }
-          __asm { vmulss  xmm9, xmm0, xmm11 }
-          XMemHeapName = XB3GetXMemHeapName(v51);
+          {
+            v38 = (float)(__int64)heapHysteresis;
+            v37 = v38 + 1.8446744e19;
+          }
+          v39 = v37 * 0.00000095367432;
+          XMemHeapName = XB3GetXMemHeapName(v35);
           ullTotalPageFile_high = HIDWORD(Buffer.ullTotalPageFile);
-          ullTotalPageFile = Buffer.ullTotalPageFile;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rcx
-          }
+          v42 = Buffer.ullTotalPageFile;
+          v43 = (float)(__int64)Buffer.ullAvailPhys;
           if ( (Buffer.ullAvailPhys & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm0, xmm0, xmm6 }
-          __asm
           {
-            vxorps  xmm1, xmm1, xmm1
-            vmulss  xmm8, xmm0, xmm11
-            vcvtsi2ss xmm1, xmm1, rcx
+            v44 = (float)(__int64)Buffer.ullAvailPhys;
+            v43 = v44 + 1.8446744e19;
           }
+          v45 = (float)(__int64)Buffer.ullTotalPhys;
           if ( (Buffer.ullTotalPhys & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm1, xmm1, xmm6 }
-          __asm { vmulss  xmm7, xmm1, xmm11 }
+          {
+            v46 = (float)(__int64)Buffer.ullTotalPhys;
+            v45 = v46 + 1.8446744e19;
+          }
           if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
           {
-            v63 = DLog_BeginEvent(&context, "system_mem_xmem");
+            v47 = DLog_BeginEvent(&context, "system_mem_xmem");
             context.autoEndEvent = 1;
-            if ( v63 && DLog_String(&context, "map", mapName, 0) && DLog_String(&context, "status", v11, 0) && DLog_String(&context, "heap", XMemHeapName, 0) )
-            {
-              __asm { vmovaps xmm2, xmm7; value }
-              if ( DLog_Float32(&context, "max_size_mb", *(float *)&_XMM2) )
-              {
-                __asm { vmovaps xmm2, xmm8; value }
-                if ( DLog_Float32(&context, "min_size_mb", *(float *)&_XMM2) )
-                {
-                  __asm { vmovaps xmm2, xmm9; value }
-                  if ( DLog_Float32(&context, "hysteresis_mb", *(float *)&_XMM2) && DLog_UInt32(&context, "alloc_count", ullTotalPageFile) && DLog_UInt32(&context, "free_count", ullTotalPageFile_high) )
-                    DLog_RecordContext(&context);
-                }
-              }
-            }
+            if ( v47 && DLog_String(&context, "map", mapName, 0) && DLog_String(&context, "status", v3, 0) && DLog_String(&context, "heap", XMemHeapName, 0) && DLog_Float32(&context, "max_size_mb", v45 * 0.00000095367432) && DLog_Float32(&context, "min_size_mb", v43 * 0.00000095367432) && DLog_Float32(&context, "hysteresis_mb", v39) && DLog_UInt32(&context, "alloc_count", v42) && DLog_UInt32(&context, "free_count", ullTotalPageFile_high) )
+              DLog_RecordContext(&context);
           }
         }
-        ++v51;
+        ++v35;
       }
-      while ( v51 < NumXMemHeaps );
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+1300h+var_70]
-      vmovaps xmm8, [rsp+1300h+var_60]
-      vmovaps xmm7, [rsp+1300h+var_50]
-      vmovaps xmm6, [rsp+1300h+var_40]
-      vmovaps xmm11, [rsp+1300h+var_90]
+      while ( v35 < NumXMemHeaps );
     }
   }
 }
@@ -2528,82 +2468,47 @@ BB_StreamMem
 */
 void BB_StreamMem(const vec3_t *viewPos, unsigned int bytesWanted)
 {
-  unsigned int v7; 
-  unsigned int v8; 
-  bool v9; 
-  bool v10; 
-  unsigned int v18; 
+  unsigned int v4; 
+  unsigned int v5; 
+  float v6; 
   unsigned __int64 UserId; 
-  int v27; 
-  bool v31; 
+  int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  bool v12; 
   DLogContext context; 
   char buffer[4096]; 
 
-  _RSI = viewPos;
-  v7 = s_sessionStartTime;
-  v8 = *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64);
-  v9 = dword_14F8E2D00 < v8;
-  v10 = dword_14F8E2D00 == v8;
-  if ( dword_14F8E2D00 > (int)v8 )
+  v4 = s_sessionStartTime;
+  if ( dword_14F8E2D00 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14F8E2D00);
-    v9 = dword_14F8E2D00 != -1;
-    v10 = dword_14F8E2D00 == -1;
     if ( dword_14F8E2D00 == -1 )
     {
       previous_time = s_sessionStartTime;
       j__Init_thread_footer(&dword_14F8E2D00);
     }
   }
-  __asm
+  v5 = 1;
+  if ( (float)((float)((float)((float)(previous_viewPos.v[1] - viewPos->v[1]) * (float)(previous_viewPos.v[1] - viewPos->v[1])) + (float)((float)(previous_viewPos.v[0] - viewPos->v[0]) * (float)(previous_viewPos.v[0] - viewPos->v[0]))) + (float)((float)(previous_viewPos.v[2] - viewPos->v[2]) * (float)(previous_viewPos.v[2] - viewPos->v[2]))) <= 1296.0 )
+    v5 = 60;
+  if ( v4 - previous_time >= v5 )
   {
-    vmovss  xmm0, dword ptr cs:previous_viewPos
-    vmovss  xmm1, dword ptr cs:previous_viewPos+4
-    vsubss  xmm2, xmm1, dword ptr [rsi+4]
-    vmovss  xmm5, dword ptr [rsi]
-    vsubss  xmm3, xmm0, xmm5
-    vmovss  xmm0, dword ptr cs:previous_viewPos+8
-    vsubss  xmm4, xmm0, dword ptr [rsi+8]
-  }
-  v18 = 1;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm4, cs:__real@44a20000
-  }
-  if ( v9 || v10 )
-    v18 = 60;
-  if ( v7 - previous_time >= v18 )
-  {
-    __asm
-    {
-      vmovss  dword ptr cs:previous_viewPos, xmm5
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovaps [rsp+11D8h+var_28], xmm6
-      vmovss  dword ptr cs:previous_viewPos+4, xmm0
-      vmovss  xmm1, dword ptr [rsi+8]
-    }
-    previous_time = v7;
+    *(_QWORD *)previous_viewPos.v = *(_QWORD *)viewPos->v;
+    v6 = viewPos->v[2];
+    previous_time = v4;
     UserId = 0i64;
-    __asm { vmovaps [rsp+11D8h+var_38], xmm7 }
-    v27 = 0;
-    __asm
-    {
-      vmovss  dword ptr cs:previous_viewPos+8, xmm1
-      vmovaps [rsp+11D8h+var_48], xmm8
-    }
+    v8 = 0;
+    previous_viewPos.v[2] = v6;
     do
     {
-      if ( dwGetLogOnStatus(v27) == DW_LIVE_CONNECTED )
+      if ( dwGetLogOnStatus(v8) == DW_LIVE_CONNECTED )
         break;
-      ++v27;
+      ++v8;
     }
-    while ( v27 < 8 );
-    if ( v27 >= 0 && v27 != 8 )
+    while ( v8 < 8 );
+    if ( v8 >= 0 && v8 != 8 )
     {
       do
       {
@@ -2616,36 +2521,15 @@ void BB_StreamMem(const vec3_t *viewPos, unsigned int bytesWanted)
         LODWORD(UserId) = -1;
       UserId = DLog_GetUserId(UserId);
     }
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rsi+8]
-      vmovss  xmm8, dword ptr [rsi+4]
-      vmovss  xmm6, dword ptr [rsi]
-    }
+    v9 = viewPos->v[2];
+    v10 = viewPos->v[1];
+    v11 = viewPos->v[0];
     if ( DLog_IsActive() && DLog_CreateContext(&context, UserId, buffer, 4096) && DLog_IsActive() )
     {
-      v31 = DLog_BeginEvent(&context, "streammem");
+      v12 = DLog_BeginEvent(&context, "streammem");
       context.autoEndEvent = 1;
-      if ( v31 )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(&context, "x", *(float *)&_XMM2) )
-        {
-          __asm { vmovaps xmm2, xmm8; value }
-          if ( DLog_Float32(&context, "y", *(float *)&_XMM2) )
-          {
-            __asm { vmovaps xmm2, xmm7; value }
-            if ( DLog_Float32(&context, "z", *(float *)&_XMM2) && DLog_UInt32(&context, "wanted", bytesWanted) )
-              DLog_RecordContext(&context);
-          }
-        }
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+11D8h+var_38]
-      vmovaps xmm6, [rsp+11D8h+var_28]
-      vmovaps xmm8, [rsp+11D8h+var_48]
+      if ( v12 && DLog_Float32(&context, "x", v11) && DLog_Float32(&context, "y", v10) && DLog_Float32(&context, "z", v9) && DLog_UInt32(&context, "wanted", bytesWanted) )
+        DLog_RecordContext(&context);
     }
   }
 }
@@ -3111,108 +2995,117 @@ GScr_BBPrint
 */
 void GScr_BBPrint(scrContext_t *scrContext)
 {
-  scrContext_t *v4; 
+  __int128 v1; 
+  scrContext_t *v3; 
   int NumParam; 
+  int v5; 
   int v6; 
   int v7; 
-  int v8; 
-  signed int v9; 
+  signed int v8; 
   unsigned int ArrayObject; 
   const char *String; 
-  const char *v12; 
-  int v13; 
+  const char *v11; 
+  int v12; 
   char DemonwareActiveController; 
-  unsigned int v15; 
-  int v16; 
-  unsigned int v17; 
-  __int64 v19; 
-  unsigned __int8 v20; 
+  unsigned int v14; 
+  int v15; 
+  unsigned int v16; 
+  __int64 v17; 
+  __int64 v18; 
+  unsigned __int8 v19; 
   __int64 intValue; 
-  char v23; 
-  unsigned int v25; 
+  __int64 v21; 
+  char v22; 
+  float floatValue; 
+  __int128 v24; 
+  __int128 v25; 
   unsigned int v26; 
+  unsigned int v27; 
+  VariableUnion *v28; 
   VariableType ValueType; 
-  const char *v30; 
-  char v31; 
-  int v32; 
+  __int128 v30; 
+  const char *v31; 
+  char v32; 
+  int v33; 
   const char *IString; 
-  unsigned __int64 v34; 
-  unsigned int v35; 
+  unsigned __int64 v35; 
+  unsigned int v36; 
   unsigned int ArrayVariable; 
   scr_string_t *VariableValueAddress; 
-  const char *v38; 
-  unsigned __int64 v39; 
-  const char *v42; 
-  unsigned __int64 v43; 
-  char v44; 
-  unsigned int v46; 
-  char *v47; 
+  const char *v39; 
+  unsigned __int64 v40; 
+  const char *v41; 
+  unsigned __int64 v42; 
+  char v43; 
+  unsigned int v44; 
+  char *v45; 
   unsigned int i; 
-  unsigned __int8 v49; 
-  __int64 v50; 
-  char v52; 
-  unsigned int v53; 
-  int v54; 
+  unsigned __int8 v47; 
+  __int64 v48; 
+  char v49; 
+  unsigned int v50; 
+  int v51; 
   unsigned __int8 *p_Type; 
-  unsigned __int8 v56; 
-  __int64 v57; 
-  unsigned int v58; 
-  char *v59; 
+  unsigned __int8 v53; 
+  __int64 v54; 
+  unsigned int v55; 
+  char *v56; 
   unsigned int j; 
-  unsigned __int8 v61; 
-  __int64 v62; 
+  unsigned __int8 v58; 
+  __int64 v59; 
+  unsigned int v60; 
+  int v61; 
+  unsigned int v62; 
   unsigned int v63; 
-  int v64; 
-  unsigned int v65; 
-  unsigned int v66; 
   __int64 isBlackboxWhitelisted; 
-  __int64 v70; 
+  __int64 v65; 
   VariableType Type; 
-  __int64 v72; 
-  __int64 v73; 
+  __int64 v67; 
+  __int64 v68; 
   int parameterCount; 
-  scrContext_t *v75; 
-  __int64 v76; 
+  scrContext_t *v70; 
+  __int64 v71; 
   unsigned __int8 *parameters; 
-  __int64 v78; 
+  __int64 v73; 
   vec3_t vectorValue; 
+  __int128 v75; 
 
-  v4 = scrContext;
-  v75 = scrContext;
+  v3 = scrContext;
+  v70 = scrContext;
   parameterCount = 0;
   NumParam = Scr_GetNumParam(scrContext);
-  v6 = 0;
-  v7 = NumParam;
+  v5 = 0;
+  v6 = NumParam;
   if ( s_blackboxInitialized && NumParam )
   {
+    v7 = 2;
     v8 = 2;
-    v9 = 2;
     if ( NumParam > 2 )
     {
       do
       {
-        switch ( Scr_GetType(v4, v9) )
+        switch ( Scr_GetType(v3, v8) )
         {
           case VAR_POINTER:
-            if ( Scr_GetPointerType(v4, v9) == VAR_ARRAY )
+            if ( Scr_GetPointerType(v3, v8) == VAR_ARRAY )
             {
-              ArrayObject = BGScr_Main_GetArrayObject(v4, v9);
-              v6 += GetArraySize(v4, ArrayObject);
+              ArrayObject = BGScr_Main_GetArrayObject(v3, v8);
+              v5 += GetArraySize(v3, ArrayObject);
             }
             break;
           case VAR_VECTOR:
-            v6 += 3;
+            v5 += 3;
             break;
           default:
-            ++v6;
+            ++v5;
             break;
         }
-        ++v9;
+        ++v8;
       }
-      while ( v9 < v7 );
+      while ( v8 < v6 );
     }
-    String = Scr_GetString(v4, 0);
-    v12 = Scr_GetString(v4, 1u);
+    String = Scr_GetString(v3, 0);
+    v11 = Scr_GetString(v3, 1u);
     if ( BB_CheckThrottle(String) )
     {
       if ( Sys_IsServerThread() )
@@ -3220,385 +3113,357 @@ void GScr_BBPrint(scrContext_t *scrContext)
         Sys_EnterCriticalSection(CRITSECT_BLACKBOX);
         s_script_locked = 1;
       }
-      v13 = BB_ParseAndCacheFormatString(&bb_msg, String, v12, &parameterCount, (const unsigned __int8 **)&parameters, 1);
-      if ( parameterCount != v6 )
-        goto LABEL_125;
-      DemonwareActiveController = BB_GetDemonwareActiveController();
-      BB_WriteVarUInt32_0(&bb_msg, 4 * ((4 * v13) | DemonwareActiveController & 3));
-      v15 = s_sessionStartTime;
-      v16 = Sys_Milliseconds();
-      BB_WriteVarUInt32_0(&bb_msg, v16 - v15);
-      v17 = 0;
-      v78 = v6;
-      s_blackboxIsInteresting = 1;
-      if ( v6 <= 0 )
-        goto LABEL_125;
-      _R12 = 0i64;
-      v19 = 0i64;
-      __asm { vmovaps [rsp+0E8h+var_38], xmm6 }
-      v76 = 0i64;
-      __asm { vmovaps [rsp+0E8h+var_48], xmm7 }
-      v73 = 0i64;
-      while ( 1 )
+      v12 = BB_ParseAndCacheFormatString(&bb_msg, String, v11, &parameterCount, (const unsigned __int8 **)&parameters, 1);
+      if ( parameterCount == v5 )
       {
-        v20 = parameters[v19];
-        _ESI = 0;
-        Type = Scr_GetType(v4, v8);
-        intValue = 0i64;
-        v23 = Type;
-        __asm
+        DemonwareActiveController = BB_GetDemonwareActiveController();
+        BB_WriteVarUInt32_0(&bb_msg, 4 * ((4 * v12) | DemonwareActiveController & 3));
+        v14 = s_sessionStartTime;
+        v15 = Sys_Milliseconds();
+        BB_WriteVarUInt32_0(&bb_msg, v15 - v14);
+        v16 = 0;
+        v73 = v5;
+        s_blackboxIsInteresting = 1;
+        if ( v5 > 0 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vxorpd  xmm7, xmm7, xmm7
-        }
-        if ( Type == VAR_FLOAT )
-        {
-          *(double *)&_XMM0 = Scr_GetFloat(v4, v8);
-          __asm
+          v17 = 0i64;
+          v18 = 0i64;
+          v71 = 0i64;
+          v75 = _XMM7;
+          v68 = 0i64;
+          while ( 1 )
           {
-            vmovaps xmm6, xmm0
-            vcvttss2si esi, xmm0
-            vcvtss2sd xmm7, xmm6, xmm0
-          }
-          intValue = _ESI;
-          goto LABEL_55;
-        }
-        if ( Type == VAR_INTEGER )
-        {
-          _ESI = Scr_GetInt(v4, v8);
-          __asm
-          {
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, esi
-            vcvtss2sd xmm7, xmm6, xmm6
-          }
-          intValue = _ESI;
-          goto LABEL_55;
-        }
-        if ( Type != VAR_VECTOR )
-          break;
-        Scr_GetVector(v4, v8, &vectorValue);
-        if ( v17 >= 3 )
-        {
-          LODWORD(v70) = 3;
-          LODWORD(isBlackboxWhitelisted) = v17;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", isBlackboxWhitelisted, v70) )
-            __debugbreak();
-        }
-        __asm { vcvttss2si esi, dword ptr [rsp+r12*4+0E8h+vectorValue] }
-        intValue = _ESI;
-        if ( v17 >= 3 )
-        {
-          LODWORD(v70) = 3;
-          LODWORD(isBlackboxWhitelisted) = v17;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", isBlackboxWhitelisted, v70) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rsp+r12*4+0E8h+vectorValue]
-          vcvtss2sd xmm7, xmm6, xmm6
-        }
+            v19 = parameters[v18];
+            LODWORD(intValue) = 0;
+            Type = Scr_GetType(v3, v7);
+            v21 = 0i64;
+            v22 = Type;
+            floatValue = 0.0;
+            __asm { vxorpd  xmm7, xmm7, xmm7 }
+            if ( Type == VAR_FLOAT )
+            {
+              *(double *)&v1 = Scr_GetFloat(v3, v7);
+              floatValue = *(float *)&v1;
+              LODWORD(intValue) = (int)*(float *)&v1;
+              *((_QWORD *)&v24 + 1) = *((_QWORD *)&v1 + 1);
+              *(double *)&v24 = *(float *)&v1;
+              _XMM7 = v24;
+              v21 = (int)*(float *)&v1;
+              goto LABEL_55;
+            }
+            if ( Type == VAR_INTEGER )
+            {
+              LODWORD(intValue) = Scr_GetInt(v3, v7);
+              v25 = 0i64;
+              floatValue = (float)(int)intValue;
+              *(double *)&v25 = (float)(int)intValue;
+              _XMM7 = v25;
+              v21 = (int)intValue;
+              goto LABEL_55;
+            }
+            if ( Type != VAR_VECTOR )
+              break;
+            Scr_GetVector(v3, v7, &vectorValue);
+            if ( v16 >= 3 )
+            {
+              LODWORD(v65) = 3;
+              LODWORD(isBlackboxWhitelisted) = v16;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", isBlackboxWhitelisted, v65) )
+                __debugbreak();
+            }
+            LODWORD(intValue) = (int)vectorValue.v[v17];
+            v21 = (int)intValue;
+            if ( v16 >= 3 )
+            {
+              LODWORD(v65) = 3;
+              LODWORD(isBlackboxWhitelisted) = v16;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", isBlackboxWhitelisted, v65) )
+                __debugbreak();
+            }
+            floatValue = vectorValue.v[v17];
+            _XMM7 = COERCE_UNSIGNED_INT64(floatValue);
 LABEL_55:
-        if ( (v20 & 3) != 0 )
-        {
-          if ( (v20 & 3) != 1 )
-          {
-            if ( (v20 & 3) != 2 )
+            if ( (v19 & 3) != 0 )
             {
-              if ( (v20 & 3) == 3 )
+              if ( (v19 & 3) != 1 )
               {
-                if ( v23 == 3 )
+                if ( (v19 & 3) != 2 )
                 {
-                  IString = Scr_GetIString(v4, v8);
-                  v34 = -1i64;
-                  do
-                    ++v34;
-                  while ( IString[v34] );
-LABEL_62:
-                  BB_WriteString(&bb_msg, IString, v34);
-                  goto LABEL_121;
-                }
-                if ( v23 == 2 )
-                {
-                  IString = Scr_GetDebugString(v4, v8);
-                  v34 = -1i64;
-                  do
-                    ++v34;
-                  while ( IString[v34] );
-                  goto LABEL_62;
-                }
-                if ( v23 == 1 && Scr_GetPointerType(v4, v8) == VAR_ARRAY )
-                {
-                  v35 = BGScr_Main_GetArrayObject(v4, v8);
-                  ArrayVariable = GetArrayVariable(v4, v35, v17);
-                  VariableValueAddress = (scr_string_t *)GetVariableValueAddress(v4, ArrayVariable);
-                  v38 = SL_ConvertToString(*VariableValueAddress);
-                  v39 = -1i64;
-                  do
-                    ++v39;
-                  while ( v38[v39] );
-                  BB_WriteString(&bb_msg, v38, v39);
-LABEL_119:
-                  if ( Scr_GetPointerType(v4, v8) == VAR_ARRAY )
+                  if ( (v19 & 3) == 3 )
                   {
-                    _R12 = ++v73;
-                    ++v17;
-                    v66 = BGScr_Main_GetArrayObject(v4, v8);
-                    if ( v17 != GetArraySize(v4, v66) )
-                      goto LABEL_123;
+                    if ( v22 == 3 )
+                    {
+                      IString = Scr_GetIString(v3, v7);
+                      v35 = -1i64;
+                      do
+                        ++v35;
+                      while ( IString[v35] );
+LABEL_62:
+                      BB_WriteString(&bb_msg, IString, v35);
+                      goto LABEL_121;
+                    }
+                    if ( v22 == 2 )
+                    {
+                      IString = Scr_GetDebugString(v3, v7);
+                      v35 = -1i64;
+                      do
+                        ++v35;
+                      while ( IString[v35] );
+                      goto LABEL_62;
+                    }
+                    if ( v22 == 1 && Scr_GetPointerType(v3, v7) == VAR_ARRAY )
+                    {
+                      v36 = BGScr_Main_GetArrayObject(v3, v7);
+                      ArrayVariable = GetArrayVariable(v3, v36, v16);
+                      VariableValueAddress = (scr_string_t *)GetVariableValueAddress(v3, ArrayVariable);
+                      v39 = SL_ConvertToString(*VariableValueAddress);
+                      v40 = -1i64;
+                      do
+                        ++v40;
+                      while ( v39[v40] );
+                      BB_WriteString(&bb_msg, v39, v40);
+LABEL_119:
+                      if ( Scr_GetPointerType(v3, v7) == VAR_ARRAY )
+                      {
+                        v17 = ++v68;
+                        ++v16;
+                        v63 = BGScr_Main_GetArrayObject(v3, v7);
+                        if ( v16 != GetArraySize(v3, v63) )
+                          goto LABEL_123;
+                      }
+                      goto LABEL_121;
+                    }
+                    v41 = j_va("%f", floatValue);
+                    v42 = -1i64;
+                    do
+                      ++v42;
+                    while ( v41[v42] );
+                    BB_WriteString(&bb_msg, v41, v42);
                   }
-                  goto LABEL_121;
+                  goto LABEL_110;
                 }
-                __asm
+                v43 = v19 & 0x1C;
+                if ( v43 == 4 )
                 {
-                  vcvtss2sd xmm1, xmm6, xmm6
-                  vmovq   rdx, xmm1
+                  *(float *)&v67 = floatValue;
+                  if ( (LODWORD(floatValue) & 0x7F800000) != 2139095040 )
+                    BB_WriteFloat16(&bb_msg, floatValue);
+                  goto LABEL_110;
                 }
-                v42 = j_va("%f", _RDX);
-                v43 = -1i64;
-                do
-                  ++v43;
-                while ( v42[v43] );
-                BB_WriteString(&bb_msg, v42, v43);
-              }
-              goto LABEL_110;
-            }
-            v44 = v20 & 0x1C;
-            if ( v44 == 4 )
-            {
-              __asm { vmovss  dword ptr [rsp+0E8h+var_A0], xmm6 }
-              if ( (v72 & 0x7F800000) != 2139095040 )
-              {
-                __asm { vmovaps xmm1, xmm6; f }
-                BB_WriteFloat16(&bb_msg, *(double *)&_XMM1);
-              }
-              goto LABEL_110;
-            }
-            if ( v44 != 12 )
-            {
-              __asm { vmovss  dword ptr [rsp+0E8h+var_A0], xmm6 }
-              if ( (v72 & 0x7F800000) != 2139095040 )
-              {
-                __asm { vmovaps xmm1, xmm6; f }
-                BB_WriteFloat32(&bb_msg, *(double *)&_XMM1);
-              }
-              goto LABEL_110;
-            }
-            __asm { vmovsd  [rsp+0E8h+var_A0], xmm7 }
-            if ( bb_msg.pppHashTable )
-              goto LABEL_110;
-            if ( !bb_msg.overflow && bb_msg.cursize + 8 <= bb_msg.maxsize )
-            {
-              v46 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
-              v47 = (char *)&v72 + 1;
-              for ( i = 0; i < 8; i += 8 )
-              {
-                v49 = *(v47 - 1);
-                v47 += 8;
-                bb_msg.data[i + v46] = v49;
-                bb_msg.data[i + 1 + v46] = *(v47 - 8);
-                bb_msg.data[i + 2 + v46] = *(v47 - 7);
-                bb_msg.data[i + 3 + v46] = *(v47 - 6);
-                bb_msg.data[i + 4 + v46] = *(v47 - 5);
-                bb_msg.data[i + 5 + v46] = *(v47 - 4);
-                bb_msg.data[v46 + 6 + i] = *(v47 - 3);
-                v50 = v46 + i + 7;
-                bb_msg.data[v50] = *(v47 - 2);
-              }
-              v23 = Type;
-              v4 = v75;
-              bb_msg.cursize += 8i64;
-              goto LABEL_110;
-            }
+                if ( v43 != 12 )
+                {
+                  *(float *)&v67 = floatValue;
+                  if ( (LODWORD(floatValue) & 0x7F800000) != 2139095040 )
+                    BB_WriteFloat32(&bb_msg, floatValue);
+                  goto LABEL_110;
+                }
+                v67 = *(__int64 *)&_XMM7;
+                if ( bb_msg.pppHashTable )
+                  goto LABEL_110;
+                if ( !bb_msg.overflow && bb_msg.cursize + 8 <= bb_msg.maxsize )
+                {
+                  v44 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
+                  v45 = (char *)&v67 + 1;
+                  for ( i = 0; i < 8; i += 8 )
+                  {
+                    v47 = *(v45 - 1);
+                    v45 += 8;
+                    bb_msg.data[i + v44] = v47;
+                    bb_msg.data[i + 1 + v44] = *(v45 - 8);
+                    bb_msg.data[i + 2 + v44] = *(v45 - 7);
+                    bb_msg.data[i + 3 + v44] = *(v45 - 6);
+                    bb_msg.data[i + 4 + v44] = *(v45 - 5);
+                    bb_msg.data[i + 5 + v44] = *(v45 - 4);
+                    bb_msg.data[v44 + 6 + i] = *(v45 - 3);
+                    v48 = v44 + i + 7;
+                    bb_msg.data[v48] = *(v45 - 2);
+                  }
+                  v22 = Type;
+                  v3 = v70;
+                  bb_msg.cursize += 8i64;
+                  goto LABEL_110;
+                }
 LABEL_109:
-            bb_msg.overflow = 1;
-            goto LABEL_110;
-          }
-          if ( (v20 & 0x10) != 0 )
-          {
-            BB_WriteVarUInt32_0(&bb_msg, _ESI);
-            goto LABEL_110;
-          }
-        }
-        else if ( (v20 & 0x10) != 0 )
-        {
-          BB_WriteVarUInt32_0(&bb_msg, (2 * _ESI) ^ (_ESI >> 31));
-          goto LABEL_110;
-        }
-        v52 = v20 & 0x1C;
-        switch ( v52 )
-        {
-          case 0:
-            Type = (char)_ESI;
-            if ( bb_msg.pppHashTable )
-              break;
-            if ( !bb_msg.overflow && bb_msg.cursize + 1 <= bb_msg.maxsize )
-            {
-              v53 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
-              v54 = 0;
-              p_Type = (unsigned __int8 *)&Type;
-              do
-              {
-                v56 = *p_Type;
-                v57 = v54 + v53;
-                ++p_Type;
-                ++v54;
-                bb_msg.data[v57] = v56;
+                bb_msg.overflow = 1;
+                goto LABEL_110;
               }
-              while ( !v54 );
-              ++bb_msg.cursize;
-              break;
+              if ( (v19 & 0x10) != 0 )
+              {
+                BB_WriteVarUInt32_0(&bb_msg, intValue);
+                goto LABEL_110;
+              }
             }
-            goto LABEL_109;
-          case 4:
-            BB_WriteInt16(&bb_msg, _ESI);
-            break;
-          case 8:
-            BB_WriteInt32(&bb_msg, _ESI);
-            break;
-          case 12:
-            v72 = intValue;
-            if ( !bb_msg.pppHashTable )
+            else if ( (v19 & 0x10) != 0 )
             {
-              if ( bb_msg.overflow || bb_msg.cursize + 8 > bb_msg.maxsize )
+              BB_WriteVarUInt32_0(&bb_msg, (2 * intValue) ^ ((int)intValue >> 31));
+              goto LABEL_110;
+            }
+            v49 = v19 & 0x1C;
+            switch ( v49 )
+            {
+              case 0:
+                Type = (char)intValue;
+                if ( bb_msg.pppHashTable )
+                  break;
+                if ( !bb_msg.overflow && bb_msg.cursize + 1 <= bb_msg.maxsize )
+                {
+                  v50 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
+                  v51 = 0;
+                  p_Type = (unsigned __int8 *)&Type;
+                  do
+                  {
+                    v53 = *p_Type;
+                    v54 = v51 + v50;
+                    ++p_Type;
+                    ++v51;
+                    bb_msg.data[v54] = v53;
+                  }
+                  while ( !v51 );
+                  ++bb_msg.cursize;
+                  break;
+                }
                 goto LABEL_109;
-              v58 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
-              v59 = (char *)&v72 + 1;
-              for ( j = 0; j < 8; j += 8 )
-              {
-                v61 = *(v59 - 1);
-                v59 += 8;
-                bb_msg.data[j + v58] = v61;
-                bb_msg.data[v58 + 1 + j] = *(v59 - 8);
-                bb_msg.data[v58 + 2 + j] = *(v59 - 7);
-                bb_msg.data[v58 + 3 + j] = *(v59 - 6);
-                bb_msg.data[v58 + 4 + j] = *(v59 - 5);
-                bb_msg.data[v58 + 5 + j] = *(v59 - 4);
-                bb_msg.data[v58 + 6 + j] = *(v59 - 3);
-                v62 = v58 + 7 + j;
-                bb_msg.data[v62] = *(v59 - 2);
-              }
-              v23 = Type;
-              v4 = v75;
-              bb_msg.cursize += 8i64;
+              case 4:
+                BB_WriteInt16(&bb_msg, intValue);
+                break;
+              case 8:
+                BB_WriteInt32(&bb_msg, intValue);
+                break;
+              case 12:
+                v67 = v21;
+                if ( !bb_msg.pppHashTable )
+                {
+                  if ( bb_msg.overflow || bb_msg.cursize + 8 > bb_msg.maxsize )
+                    goto LABEL_109;
+                  v55 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
+                  v56 = (char *)&v67 + 1;
+                  for ( j = 0; j < 8; j += 8 )
+                  {
+                    v58 = *(v56 - 1);
+                    v56 += 8;
+                    bb_msg.data[j + v55] = v58;
+                    bb_msg.data[v55 + 1 + j] = *(v56 - 8);
+                    bb_msg.data[v55 + 2 + j] = *(v56 - 7);
+                    bb_msg.data[v55 + 3 + j] = *(v56 - 6);
+                    bb_msg.data[v55 + 4 + j] = *(v56 - 5);
+                    bb_msg.data[v55 + 5 + j] = *(v56 - 4);
+                    bb_msg.data[v55 + 6 + j] = *(v56 - 3);
+                    v59 = v55 + 7 + j;
+                    bb_msg.data[v59] = *(v56 - 2);
+                  }
+                  v22 = Type;
+                  v3 = v70;
+                  bb_msg.cursize += 8i64;
+                }
+                break;
             }
-            break;
-        }
 LABEL_110:
-        if ( v23 == 4 )
-        {
-          v63 = v17 + 1;
-          _R12 = 0i64;
-          if ( v17 != 2 )
-            _R12 = v73 + 1;
-          v64 = v8 + 1;
-          if ( v17 != 2 )
-            v64 = v8;
-          v8 = v64;
-          v65 = v17;
-          v17 = 0;
-          if ( v65 != 2 )
-            v17 = v63;
-          goto LABEL_122;
-        }
-        if ( v23 == 1 )
-          goto LABEL_119;
-LABEL_121:
-        v17 = 0;
-        _R12 = 0i64;
-        ++v8;
-LABEL_122:
-        v73 = _R12;
-LABEL_123:
-        v19 = v76 + 1;
-        v76 = v19;
-        if ( v19 >= v78 )
-        {
-          __asm
-          {
-            vmovaps xmm7, [rsp+0E8h+var_48]
-            vmovaps xmm6, [rsp+0E8h+var_38]
-          }
-LABEL_125:
-          if ( s_script_locked && Sys_IsServerThread() )
-          {
-            Sys_LeaveCriticalSection(CRITSECT_BLACKBOX);
-            s_script_locked = 0;
-          }
-          return;
-        }
-      }
-      if ( Type == VAR_POINTER && Scr_GetPointerType(v4, v8) == VAR_ARRAY )
-      {
-        v25 = BGScr_Main_GetArrayObject(v4, v8);
-        v26 = GetArrayVariable(v4, v25, v17);
-        _R12 = GetVariableValueAddress(v4, v26);
-        ValueType = GetValueType(v4, v26);
-        if ( (unsigned __int8)ValueType >= VAR_STRING )
-        {
-          if ( (unsigned __int8)ValueType <= VAR_ISTRING )
-          {
-LABEL_37:
-            v23 = Type;
-            goto LABEL_55;
-          }
-          if ( ValueType == VAR_FLOAT )
-          {
-            __asm { vmovss  xmm6, dword ptr [r12] }
-            v23 = Type;
-            __asm { vcvttss2si esi, xmm6 }
-            intValue = _ESI;
-            __asm { vcvtss2sd xmm7, xmm6, xmm6 }
-            goto LABEL_55;
-          }
-          if ( ValueType == VAR_INTEGER )
-          {
-            _ESI = _R12->intValue;
-            v23 = Type;
-            intValue = _R12->intValue;
-            __asm
+            if ( v22 == 4 )
             {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, esi
-              vcvtss2sd xmm7, xmm6, xmm6
+              v60 = v16 + 1;
+              v17 = 0i64;
+              if ( v16 != 2 )
+                v17 = v68 + 1;
+              v61 = v7 + 1;
+              if ( v16 != 2 )
+                v61 = v7;
+              v7 = v61;
+              v62 = v16;
+              v16 = 0;
+              if ( v62 != 2 )
+                v16 = v60;
+              goto LABEL_122;
             }
-            goto LABEL_55;
+            if ( v22 == 1 )
+              goto LABEL_119;
+LABEL_121:
+            v16 = 0;
+            v17 = 0i64;
+            ++v7;
+LABEL_122:
+            v68 = v17;
+LABEL_123:
+            v18 = v71 + 1;
+            v71 = v18;
+            if ( v18 >= v73 )
+              goto LABEL_124;
           }
-        }
-        Scr_Error(COM_ERR_3436, v4, "All elements need to be ints or floats or strings, for now...");
-        goto LABEL_37;
-      }
-      if ( (unsigned __int8)(v23 - 2) > 1u || (v20 & 3u) > 1 || (v20 & 0x1C) != 12 )
-        goto LABEL_55;
-      if ( v23 == 3 )
-        v30 = Scr_GetIString(v4, v8);
-      else
-        v30 = v23 == 2 ? Scr_GetString(v4, v8) : (char *)&queryFormat.fmt + 3;
-      v31 = *v30;
-      if ( !*v30 )
-        goto LABEL_55;
-      while ( (unsigned __int8)(v31 - 48) > 9u )
-      {
-        if ( (unsigned __int8)(v31 - 97) <= 5u )
-        {
-          v32 = v31 - 87;
-          goto LABEL_53;
-        }
-        if ( (unsigned __int8)(v31 - 65) <= 5u )
-        {
-          v32 = v31 - 55;
-          goto LABEL_53;
-        }
+          if ( Type == VAR_POINTER && Scr_GetPointerType(v3, v7) == VAR_ARRAY )
+          {
+            v26 = BGScr_Main_GetArrayObject(v3, v7);
+            v27 = GetArrayVariable(v3, v26, v16);
+            v28 = GetVariableValueAddress(v3, v27);
+            ValueType = GetValueType(v3, v27);
+            if ( (unsigned __int8)ValueType >= VAR_STRING )
+            {
+              if ( (unsigned __int8)ValueType <= VAR_ISTRING )
+              {
+LABEL_37:
+                v22 = Type;
+                goto LABEL_55;
+              }
+              if ( ValueType == VAR_FLOAT )
+              {
+                floatValue = v28->floatValue;
+                v22 = Type;
+                LODWORD(intValue) = (int)v28->floatValue;
+                v21 = (int)intValue;
+                _XMM7 = COERCE_UNSIGNED_INT64(v28->floatValue);
+                goto LABEL_55;
+              }
+              if ( ValueType == VAR_INTEGER )
+              {
+                intValue = v28->intValue;
+                v22 = Type;
+                v21 = intValue;
+                v30 = 0i64;
+                floatValue = (float)(int)intValue;
+                *(double *)&v30 = (float)(int)intValue;
+                _XMM7 = v30;
+                goto LABEL_55;
+              }
+            }
+            Scr_Error(COM_ERR_3436, v3, "All elements need to be ints or floats or strings, for now...");
+            goto LABEL_37;
+          }
+          if ( (unsigned __int8)(v22 - 2) > 1u || (v19 & 3u) > 1 || (v19 & 0x1C) != 12 )
+            goto LABEL_55;
+          if ( v22 == 3 )
+            v31 = Scr_GetIString(v3, v7);
+          else
+            v31 = v22 == 2 ? Scr_GetString(v3, v7) : (char *)&queryFormat.fmt + 3;
+          v32 = *v31;
+          if ( !*v31 )
+            goto LABEL_55;
+          while ( (unsigned __int8)(v32 - 48) > 9u )
+          {
+            if ( (unsigned __int8)(v32 - 97) <= 5u )
+            {
+              v33 = v32 - 87;
+              goto LABEL_53;
+            }
+            if ( (unsigned __int8)(v32 - 65) <= 5u )
+            {
+              v33 = v32 - 55;
+              goto LABEL_53;
+            }
 LABEL_54:
-        v31 = *++v30;
-        if ( !v31 )
-          goto LABEL_55;
-      }
-      v32 = v31 - 48;
+            v32 = *++v31;
+            if ( !v32 )
+              goto LABEL_55;
+          }
+          v33 = v32 - 48;
 LABEL_53:
-      intValue = (16 * intValue) | v32;
-      goto LABEL_54;
+          v21 = (16 * v21) | v33;
+          goto LABEL_54;
+        }
+      }
+LABEL_124:
+      if ( s_script_locked && Sys_IsServerThread() )
+      {
+        Sys_LeaveCriticalSection(CRITSECT_BLACKBOX);
+        s_script_locked = 0;
+      }
     }
   }
 }
@@ -3611,230 +3476,149 @@ GScr_BBReportSpawnFactors
 void GScr_BBReportSpawnFactors(scrContext_t *scrContext)
 {
   signed __int64 v1; 
-  void *v7; 
-  unsigned __int64 v19; 
-  __int64 v26; 
+  void *v2; 
+  double Float; 
+  float v5; 
+  unsigned __int64 v8; 
+  __int64 v10; 
   int Int; 
-  unsigned int v28; 
-  int v29; 
-  unsigned __int8 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  unsigned __int64 v33; 
+  unsigned int v12; 
+  int v13; 
+  unsigned __int8 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned __int64 v17; 
+  int v18; 
+  unsigned __int8 v19; 
+  int v20; 
+  unsigned __int64 v21; 
+  int v23; 
+  double v25; 
+  unsigned __int64 v26; 
+  float v27; 
+  double v28; 
+  unsigned __int64 v29; 
+  int v30; 
+  unsigned __int8 v31; 
+  int v32; 
+  int v33; 
   int v34; 
-  unsigned __int8 v35; 
+  int v35; 
   int v36; 
-  unsigned __int64 v37; 
-  unsigned __int64 v51; 
-  unsigned __int64 v53; 
-  char v56; 
-  int v58; 
-  unsigned __int8 v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  int v64; 
-  unsigned int v70; 
-  unsigned int v77; 
-  unsigned int v78; 
-  char v79; 
-  unsigned __int8 v80; 
-  unsigned int v81; 
-  bool v82; 
-  unsigned int v88; 
-  int v89; 
-  unsigned int v90; 
-  unsigned int v91; 
-  unsigned int v92; 
-  unsigned int v93; 
+  unsigned int v38; 
+  unsigned int v41; 
+  unsigned int v42; 
+  char v43; 
+  unsigned __int8 v44; 
+  unsigned int v45; 
+  bool v46; 
+  unsigned int v47; 
   DLogContext context; 
   char buffer[4096]; 
-  char v100; 
 
-  v7 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+1218h+var_38], xmm6
-    vmovaps [rsp+1218h+var_48], xmm7
-    vmovaps [rsp+1218h+var_58], xmm8
-    vmovaps [rsp+1218h+var_68], xmm9
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmovss  [rsp+1218h+var_11E8], xmm0
-    vmovaps xmm6, xmm0
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@437f0000
-    vmovss  xmm9, cs:__real@3f000000
-    vaddss  xmm2, xmm1, xmm9
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm2, xmm1, xmm2
-    vxorps  xmm8, xmm8, xmm8
-    vroundss xmm3, xmm8, xmm2, 1
-    vcvttss2si ecx, xmm3; val
-    vmovaps xmm7, xmm0
-  }
-  v19 = (unsigned __int64)truncate_cast<unsigned char,int>(_ECX) << 24;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@427c0000
-    vaddss  xmm3, xmm1, xmm9
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, xmm2, xmm3
-    vroundss xmm1, xmm8, xmm0, 1
-    vcvttss2si ecx, xmm1; val
-  }
-  v26 = truncate_cast<unsigned char,int>(_ECX);
+  v2 = alloca(v1);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v47 = LODWORD(Float);
+  v5 = *(float *)&Float;
+  Scr_GetFloat(scrContext, 2u);
+  _XMM8 = 0i64;
+  __asm { vroundss xmm3, xmm8, xmm2, 1 }
+  v8 = (unsigned __int64)truncate_cast<unsigned char,int>((int)*(float *)&_XMM3) << 24;
+  Scr_GetFloat(scrContext, 3u);
+  __asm { vroundss xmm1, xmm8, xmm0, 1 }
+  v10 = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
   Int = Scr_GetInt(scrContext, 8u);
-  v28 = truncate_cast<unsigned char,int>(Int);
-  v29 = Scr_GetInt(scrContext, 9u);
-  v30 = truncate_cast<unsigned char,int>(v29);
-  v31 = v30;
-  v32 = v28;
-  v33 = v19 | ((v26 & 0x3F | ((v28 & 1 | (2 * (v30 & 1 | ((unsigned __int64)v88 << 9)))) << 6)) << 16);
-  v34 = Scr_GetInt(scrContext, 4u);
-  v35 = truncate_cast<unsigned char,int>(v34);
-  if ( v35 > 0x7Fu )
+  v12 = truncate_cast<unsigned char,int>(Int);
+  v13 = Scr_GetInt(scrContext, 9u);
+  v14 = truncate_cast<unsigned char,int>(v13);
+  v15 = v14;
+  v16 = v12;
+  v17 = v8 | ((v10 & 0x3F | ((v12 & 1 | (2 * (v14 & 1 | ((unsigned __int64)v47 << 9)))) << 6)) << 16);
+  v18 = Scr_GetInt(scrContext, 4u);
+  v19 = truncate_cast<unsigned char,int>(v18);
+  if ( v19 > 0x7Fu )
   {
-    v35 = 127;
+    v19 = 127;
     Com_PrintWarning(25, "random score above bounds");
   }
-  v36 = Scr_GetInt(scrContext, 5u);
-  if ( v36 <= 511 )
+  v20 = Scr_GetInt(scrContext, 5u);
+  if ( v20 <= 511 )
   {
-    v37 = ((unsigned __int64)(v35 & 0x7F) << 9) | v36 & 0x1FF | v33;
-    v89 = HIDWORD(v37);
-    __asm
-    {
-      vmovss  xmm0, [rsp+1218h+var_11E8]
-      vucomiss xmm0, xmm6
-    }
-    if ( HIDWORD(v37) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1401, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "totalscores encoded incorrectly") )
+    v21 = ((unsigned __int64)(v19 & 0x7F) << 9) | v20 & 0x1FF | v17;
+    if ( *((float *)&v21 + 1) != v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1401, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "totalscores encoded incorrectly") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmulss  xmm0, xmm0, cs:__real@407afafb
-      vaddss  xmm2, xmm0, xmm9
-      vroundss xmm0, xmm8, xmm2, 1
-      vcvttss2si ecx, xmm0
-      vmulss  xmm0, xmm7, cs:__real@447a0000
-      vaddss  xmm2, xmm0, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm2, xmm1, xmm2
-      vroundss xmm0, xmm8, xmm2, 1
-      vcvttss2si eax, xmm0
-    }
-    if ( _ECX != _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1407, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "maxEnemySightFraction encoded incorrectly") )
+    __asm { vroundss xmm0, xmm8, xmm2, 1 }
+    v23 = (int)*(float *)&_XMM0;
+    __asm { vroundss xmm0, xmm8, xmm2, 1 }
+    if ( v23 != (int)*(float *)&_XMM0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1407, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "maxEnemySightFraction encoded incorrectly") )
       __debugbreak();
-    if ( ((v37 >> 16) & 0x3F) != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1413, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "maxJumpenemySightFraction encoded incorrectly") )
+    if ( ((v21 >> 16) & 0x3F) != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1413, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "maxJumpenemySightFraction encoded incorrectly") )
       __debugbreak();
-    if ( ((v37 >> 22) & 1) != v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1419, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "chosenFlag encoded incorrectly") )
+    if ( ((v21 >> 22) & 1) != v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1419, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "chosenFlag encoded incorrectly") )
       __debugbreak();
-    if ( ((v37 >> 23) & 1) != v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1425, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isLastSpawnPoint encoded incorrectly") )
+    if ( ((v21 >> 23) & 1) != v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1425, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isLastSpawnPoint encoded incorrectly") )
       __debugbreak();
-    if ( (unsigned __int16)v37 >> 9 != v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1431, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "randomEnemyScore encoded incorrectly") )
+    if ( (unsigned __int16)v21 >> 9 != v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1431, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "randomEnemyScore encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<int,unsigned __int64>(v37 & 0x1FF) != v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnID encoded incorrectly") )
+    if ( truncate_cast<int,unsigned __int64>(v21 & 0x1FF) != v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnID encoded incorrectly") )
       __debugbreak();
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-    __asm { vmovss  [rsp+1218h+var_11E8], xmm0 }
-    v51 = (unsigned __int64)v90 << 32;
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 7u);
-    __asm { vmovss  [rsp+1218h+var_11E8], xmm0 }
-    v53 = v51 | v91;
-    __asm { vmovaps xmm7, xmm0 }
-    v92 = truncate_cast<unsigned int,unsigned __int64>(HIDWORD(v53));
-    __asm
-    {
-      vmovss  xmm1, [rsp+1218h+var_11E8]
-      vucomiss xmm1, xmm6
-    }
-    if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1460, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "allyDistance encoded incorrectly") )
+    v25 = Scr_GetFloat(scrContext, 6u);
+    v26 = (unsigned __int64)LODWORD(v25) << 32;
+    v27 = *(float *)&v25;
+    v28 = Scr_GetFloat(scrContext, 7u);
+    v29 = v26 | LODWORD(v28);
+    if ( COERCE_FLOAT(truncate_cast<unsigned int,unsigned __int64>(HIDWORD(v29))) != v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1460, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "allyDistance encoded incorrectly") )
       __debugbreak();
-    v93 = truncate_cast<unsigned int,unsigned __int64>((unsigned int)v53);
-    __asm
-    {
-      vmovss  xmm0, [rsp+1218h+var_11E8]
-      vucomiss xmm0, xmm7
-    }
-    if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1468, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "enemyDistance encoded incorrectly") )
+    if ( COERCE_FLOAT(truncate_cast<unsigned int,unsigned __int64>((unsigned int)v29)) != *(float *)&v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1468, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "enemyDistance encoded incorrectly") )
       __debugbreak();
-    v58 = Scr_GetInt(scrContext, 0xAu);
-    v59 = truncate_cast<unsigned char,int>(v58);
-    v60 = v59;
-    v61 = v59 & 3;
-    v62 = Scr_GetInt(scrContext, 0xBu);
-    v63 = truncate_cast<unsigned int,int>(v62);
-    if ( v63 > 1023 )
-      v63 = 0;
-    v64 = (4 * (v63 & 0x3FF)) | v61;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xCu);
-    __asm
-    {
-      vaddss  xmm2, xmm0, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm2, xmm1, xmm2
-      vroundss xmm0, xmm8, xmm2, 1
-      vcvttss2si ecx, xmm0; val
-    }
-    v70 = truncate_cast<unsigned int,int>(_ECX);
-    if ( v70 > 0x3FF )
-      v70 = 1023;
+    v30 = Scr_GetInt(scrContext, 0xAu);
+    v31 = truncate_cast<unsigned char,int>(v30);
+    v32 = v31;
+    v33 = v31 & 3;
+    v34 = Scr_GetInt(scrContext, 0xBu);
+    v35 = truncate_cast<unsigned int,int>(v34);
+    if ( v35 > 1023 )
+      v35 = 0;
+    v36 = (4 * (v35 & 0x3FF)) | v33;
+    Scr_GetFloat(scrContext, 0xCu);
+    __asm { vroundss xmm0, xmm8, xmm2, 1 }
+    v38 = truncate_cast<unsigned int,int>((int)*(float *)&_XMM0);
+    if ( v38 > 0x3FF )
+      v38 = 1023;
     *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xDu);
     __asm
     {
       vminss  xmm1, xmm0, cs:__real@447fc000
-      vaddss  xmm3, xmm1, xmm9
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm0, xmm2, xmm3
       vroundss xmm1, xmm8, xmm0, 1
-      vcvttss2si ecx, xmm1; val
     }
-    v77 = truncate_cast<unsigned int,int>(_ECX);
-    v78 = ((v70 & 0x3FF | (v77 << 10)) << 12) | v64;
-    if ( (v78 & 3) != v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1511, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "teamLastSpawnedHere encoded incorrectly") )
+    v41 = truncate_cast<unsigned int,int>((int)*(float *)&_XMM1);
+    v42 = ((v38 & 0x3FF | (v41 << 10)) << 12) | v36;
+    if ( (v42 & 3) != v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1511, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "teamLastSpawnedHere encoded incorrectly") )
       __debugbreak();
-    if ( ((v78 >> 2) & 0x3FF) != v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1517, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnPointId encoded incorrectly") )
+    if ( ((v42 >> 2) & 0x3FF) != v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1517, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnPointId encoded incorrectly") )
       __debugbreak();
-    if ( ((v78 >> 12) & 0x3FF) != v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1525, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnsHighUsedByEnemies encoded incorrectly") )
+    if ( ((v42 >> 12) & 0x3FF) != v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1525, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnsHighUsedByEnemies encoded incorrectly") )
       __debugbreak();
-    if ( v78 >> 22 != v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1533, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "timeSinceLastSpawn encoded incorrectly") )
+    if ( v42 >> 22 != v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1533, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "timeSinceLastSpawn encoded incorrectly") )
       __debugbreak();
-    v79 = Scr_GetInt(scrContext, 0xEu) & 0xF;
-    v80 = Scr_GetInt(scrContext, 0xFu) & 0xF;
-    v81 = (unsigned __int8)(v79 | (16 * v80));
-    if ( (v79 & 0xF) != v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1551, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnType encoded incorrectly") )
+    v43 = Scr_GetInt(scrContext, 0xEu) & 0xF;
+    v44 = Scr_GetInt(scrContext, 0xFu) & 0xF;
+    v45 = (unsigned __int8)(v43 | (16 * v44));
+    if ( (v43 & 0xF) != v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1551, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnType encoded incorrectly") )
       __debugbreak();
-    if ( v81 >> 4 != v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1557, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "badSpawnReason encoded incorrectly") )
+    if ( v45 >> 4 != v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1557, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "badSpawnReason encoded incorrectly") )
       __debugbreak();
     if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
     {
-      v82 = DLog_BeginEvent(&context, "analytics_spawn_factors_raw_data");
+      v46 = DLog_BeginEvent(&context, "analytics_spawn_factors_raw_data");
       context.autoEndEvent = 1;
-      if ( v82 && DLog_UInt64(&context, "datafield1", v37) && DLog_UInt64(&context, "datafield2", v53) && DLog_UInt32(&context, "datafield3", v78) && DLog_UInt32(&context, "datafield4", v81) )
+      if ( v46 && DLog_UInt64(&context, "datafield1", v21) && DLog_UInt64(&context, "datafield2", v29) && DLog_UInt32(&context, "datafield3", v42) && DLog_UInt32(&context, "datafield4", v45) )
         DLog_RecordContext(&context);
     }
   }
   else
   {
     Com_PrintWarning(25, "spawn id above bounds");
-  }
-  _R11 = &v100;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -3845,71 +3629,67 @@ GScr_BBReportSpawnPlayerDetails
 */
 void GScr_BBReportSpawnPlayerDetails(scrContext_t *scrContext)
 {
+  double Float; 
   unsigned __int16 v4; 
+  double v5; 
   unsigned __int16 v6; 
+  double v7; 
   unsigned __int16 v8; 
   int Int; 
   unsigned __int16 v10; 
-  __int64 v17; 
-  unsigned __int64 v18; 
+  __int64 v13; 
+  unsigned __int64 v14; 
+  int v15; 
+  unsigned __int8 v16; 
+  int v17; 
+  char v18; 
   int v19; 
-  unsigned __int8 v20; 
+  char v20; 
   int v21; 
   char v22; 
-  int v23; 
-  char v24; 
-  int v25; 
-  char v26; 
-  unsigned __int16 v27; 
+  unsigned __int16 v23; 
 
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vcvttss2si eax, xmm0 }
-  v4 = truncate_cast<short,int>(_EAX / 2);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vcvttss2si eax, xmm0 }
-  v6 = truncate_cast<short,int>(_EAX / 2);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm { vcvttss2si eax, xmm0 }
-  v8 = truncate_cast<short,int>(_EAX / 2);
+  Float = Scr_GetFloat(scrContext, 2u);
+  v4 = truncate_cast<short,int>((int)*(float *)&Float / 2);
+  v5 = Scr_GetFloat(scrContext, 3u);
+  v6 = truncate_cast<short,int>((int)*(float *)&v5 / 2);
+  v7 = Scr_GetFloat(scrContext, 4u);
+  v8 = truncate_cast<short,int>((int)*(float *)&v7 / 2);
   Int = Scr_GetInt(scrContext, 0);
   v10 = truncate_cast<unsigned short,int>(Int);
   if ( v10 <= 0x1FFu )
   {
     *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovss  xmm1, cs:__real@43b40000; Y }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, 360.0);
     __asm
     {
-      vaddss  xmm3, xmm0, cs:__real@43b40000
-      vxorps  xmm1, xmm1, xmm1
       vcmpltss xmm2, xmm0, xmm1
       vblendvps xmm0, xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@3eb49f4a; val
     }
-    v17 = float_to_integral_cast<unsigned char,float>(*(float *)&_XMM0);
-    v18 = v4 | ((v6 | ((v8 | (((v17 << 9) | v10 & 0x1FF) << 16)) << 16)) << 16);
-    if ( WORD2(v18) != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1796, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "player_position_z encoded incorrectly") )
+    v13 = float_to_integral_cast<unsigned char,float>(*(float *)&_XMM0 * 0.35277778);
+    v14 = v4 | ((v6 | ((v8 | (((v13 << 9) | v10 & 0x1FF) << 16)) << 16)) << 16);
+    if ( WORD2(v14) != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1796, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "player_position_z encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<int,unsigned __int64>(HIWORD(v18) & 0x1FF) != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1802, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnId encoded incorrectly") )
+    if ( truncate_cast<int,unsigned __int64>(HIWORD(v14) & 0x1FF) != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1802, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnId encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>(v18 >> 57) != (_BYTE)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1808, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "playerAngle encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>(v14 >> 57) != (_BYTE)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1808, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "playerAngle encoded incorrectly") )
       __debugbreak();
-    v19 = Scr_GetInt(scrContext, 5u);
+    v15 = Scr_GetInt(scrContext, 5u);
+    v16 = truncate_cast<signed char,int>(v15);
+    v17 = Scr_GetInt(scrContext, 6u);
+    v18 = truncate_cast<signed char,int>(v17);
+    v19 = Scr_GetInt(scrContext, 7u);
     v20 = truncate_cast<signed char,int>(v19);
-    v21 = Scr_GetInt(scrContext, 6u);
+    v21 = Scr_GetInt(scrContext, 8u);
     v22 = truncate_cast<signed char,int>(v21);
-    v23 = Scr_GetInt(scrContext, 7u);
-    v24 = truncate_cast<signed char,int>(v23);
-    v25 = Scr_GetInt(scrContext, 8u);
-    v26 = truncate_cast<signed char,int>(v25);
-    v27 = v20 | (unsigned __int16)((v22 & 3 | (unsigned __int16)(4 * (v24 & 1 | (2 * (v26 & 1))))) << 8);
-    if ( (v22 & 3) != v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1839, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "playerTeam encoded incorrectly") )
+    v23 = v16 | (unsigned __int16)((v18 & 3 | (unsigned __int16)(4 * (v20 & 1 | (2 * (v22 & 1))))) << 8);
+    if ( (v18 & 3) != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1839, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "playerTeam encoded incorrectly") )
       __debugbreak();
-    if ( ((((v22 & 3 | (unsigned __int16)(4 * (v24 & 1 | (2 * (v26 & 1))))) << 8) & 0x400) != 0) != v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnerFlag encoded incorrectly") )
+    if ( ((((v18 & 3 | (unsigned __int16)(4 * (v20 & 1 | (2 * (v22 & 1))))) << 8) & 0x400) != 0) != v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1845, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnerFlag encoded incorrectly") )
       __debugbreak();
-    if ( v27 >> 11 != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1851, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isLastAttacker encoded incorrectly") )
+    if ( v23 >> 11 != v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1851, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isLastAttacker encoded incorrectly") )
       __debugbreak();
-    DLog_RecordEvent<char const *,unsigned __int64,char const *,unsigned int>(0i64, "analytics_spawn_player_details_raw_data", "datafield1", v18, "datafield2", v27);
+    DLog_RecordEvent<char const *,unsigned __int64,char const *,unsigned int>(0i64, "analytics_spawn_player_details_raw_data", "datafield1", v14, "datafield2", v23);
   }
   else
   {
@@ -3924,73 +3704,67 @@ GScr_BBReportSpawnTypes
 */
 void GScr_BBReportSpawnTypes(scrContext_t *scrContext)
 {
-  __int16 v4; 
-  __int64 v5; 
-  unsigned __int16 v7; 
-  unsigned __int8 v14; 
+  __int16 v3; 
+  __int64 v4; 
+  unsigned __int16 v5; 
+  unsigned __int8 v8; 
   int Int; 
-  unsigned __int16 v16; 
-  unsigned __int8 v17; 
-  unsigned __int8 v18; 
-  int v19; 
-  char v20; 
-  int v21; 
-  unsigned __int64 v22; 
-  int v23; 
-  char v24; 
-  char v25; 
-  __int16 v26; 
+  unsigned __int16 v10; 
+  unsigned __int8 v11; 
+  unsigned __int8 v12; 
+  int v13; 
+  char v14; 
+  int v15; 
+  unsigned __int64 v16; 
+  int v17; 
+  char v18; 
+  char v19; 
+  __int16 v20; 
 
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vcvttss2si eax, xmm0 }
-  v4 = truncate_cast<short,int>(_EAX / 2);
-  v5 = (__int64)v4 << 48;
-  v26 = v4;
+  v3 = truncate_cast<short,int>((int)*(float *)&_XMM0 / 2);
+  v4 = (__int64)v3 << 48;
+  v20 = v3;
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vcvttss2si eax, xmm0 }
-  v7 = truncate_cast<short,int>(_EAX / 2);
+  v5 = truncate_cast<short,int>((int)*(float *)&_XMM0 / 2);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovss  xmm1, cs:__real@43b40000; Y }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, 360.0);
   __asm
   {
-    vaddss  xmm3, xmm0, cs:__real@43b40000
-    vxorps  xmm1, xmm1, xmm1
     vcmpltss xmm2, xmm0, xmm1
     vblendvps xmm0, xmm0, xmm3, xmm2
-    vmulss  xmm0, xmm0, cs:__real@3eb49f4a; val
   }
-  v14 = float_to_integral_cast<unsigned char,float>(*(float *)&_XMM0);
+  v8 = float_to_integral_cast<unsigned char,float>(*(float *)&_XMM0 * 0.35277778);
   Int = Scr_GetInt(scrContext, 4u);
-  v16 = truncate_cast<unsigned short,int>(Int);
-  if ( v16 <= 0x1FFu )
+  v10 = truncate_cast<unsigned short,int>(Int);
+  if ( v10 <= 0x1FFu )
   {
-    v17 = Scr_GetInt(scrContext, 5u) != 0;
-    v18 = Scr_GetInt(scrContext, 6u) != 0;
-    v19 = Scr_GetInt(scrContext, 7u);
-    v20 = truncate_cast<signed char,int>(v19);
-    v21 = Scr_GetInt(scrContext, 9u);
-    v25 = truncate_cast<signed char,int>(v21);
-    v22 = v25 & 0x7F | ((unsigned __int64)(v20 & 0x7F) << 7) | ((v18 | (2 * (v17 | (2 * (v16 & 0x1FF | ((v14 & 0x7F | ((unsigned __int64)v7 << 7)) << 9)))))) << 14) | v5;
-    if ( HIWORD(v22) != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1660, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_midpoint_x encoded incorrectly") )
+    v11 = Scr_GetInt(scrContext, 5u) != 0;
+    v12 = Scr_GetInt(scrContext, 6u) != 0;
+    v13 = Scr_GetInt(scrContext, 7u);
+    v14 = truncate_cast<signed char,int>(v13);
+    v15 = Scr_GetInt(scrContext, 9u);
+    v19 = truncate_cast<signed char,int>(v15);
+    v16 = v19 & 0x7F | ((unsigned __int64)(v14 & 0x7F) << 7) | ((v12 | (2 * (v11 | (2 * (v10 & 0x1FF | ((v8 & 0x7F | ((unsigned __int64)v5 << 7)) << 9)))))) << 14) | v4;
+    if ( HIWORD(v16) != v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1660, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_midpoint_x encoded incorrectly") )
       __debugbreak();
-    if ( WORD2(v22) != v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1666, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_midpoint_y encoded incorrectly") )
+    if ( WORD2(v16) != v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1666, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_midpoint_y encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>((unsigned int)v22 >> 25) != v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1672, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_angle encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>((unsigned int)v16 >> 25) != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1672, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontline_angle encoded incorrectly") )
       __debugbreak();
-    if ( (WORD1(v22) & 0x1FF) != v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1678, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnId encoded incorrectly") )
+    if ( (WORD1(v16) & 0x1FF) != v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1678, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "spawnId encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>((v22 >> 15) & 1) != v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1684, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isFrontlineActive encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>((v16 >> 15) & 1) != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1684, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "isFrontlineActive encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>((v22 >> 14) & 1) != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1690, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontlineDisabledReason encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>((v16 >> 14) & 1) != v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1690, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "frontlineDisabledReason encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>((v22 >> 7) & 0x7F) != v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1696, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lifeIndex encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>((v16 >> 7) & 0x7F) != v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1696, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "lifeIndex encoded incorrectly") )
       __debugbreak();
-    if ( truncate_cast<signed char,unsigned __int64>(v22 & 0x7F) != v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1702, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "buddySpawnId encoded incorrectly") )
+    if ( truncate_cast<signed char,unsigned __int64>(v16 & 0x7F) != v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox.cpp", 1702, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "buddySpawnId encoded incorrectly") )
       __debugbreak();
-    v23 = Scr_GetInt(scrContext, 8u);
-    v24 = truncate_cast<signed char,int>(v23);
-    DLog_RecordEvent<char const *,unsigned __int64,char const *,unsigned int>(0i64, "analytics_spawn_types_raw_data", "datafield1", v22, "datafield2", v24);
+    v17 = Scr_GetInt(scrContext, 8u);
+    v18 = truncate_cast<signed char,int>(v17);
+    DLog_RecordEvent<char const *,unsigned __int64,char const *,unsigned int>(0i64, "analytics_spawn_types_raw_data", "datafield1", v16, "datafield2", v18);
   }
   else
   {
@@ -4082,139 +3856,138 @@ LUI_CoD_LuaCall_BBPrint
 */
 __int64 LUI_CoD_LuaCall_BBPrint(lua_State *luaVM)
 {
-  char v3; 
-  int v4; 
+  char v2; 
+  int v3; 
+  const char *v4; 
   const char *v5; 
-  const char *v6; 
-  int v7; 
+  int v6; 
   char DemonwareActiveController; 
-  unsigned int v9; 
+  unsigned int v8; 
+  int v9; 
   int v10; 
-  int v11; 
-  __int64 v12; 
-  unsigned __int8 v13; 
-  const char *v14; 
-  unsigned __int64 v15; 
+  __int64 v11; 
+  unsigned __int8 v12; 
+  const char *v13; 
+  unsigned __int64 v14; 
+  double v15; 
   char v16; 
-  unsigned int v19; 
-  int v20; 
-  char v21; 
-  unsigned int v22; 
-  int v23; 
-  unsigned __int8 *v24; 
-  unsigned __int8 v25; 
-  __int64 v26; 
-  char v28; 
+  unsigned int v17; 
+  int v18; 
+  char v19; 
+  unsigned int v20; 
+  int v21; 
+  unsigned __int8 *v22; 
+  unsigned __int8 v23; 
+  __int64 v24; 
+  char v26; 
   int parameterCount; 
   unsigned __int8 *parameters; 
 
+  v2 = 0;
   v3 = 0;
-  v4 = 0;
   if ( j_lua_gettop(luaVM) >= 2 && j_lua_isstring(luaVM, 1) && j_lua_isstring(luaVM, 2) )
   {
     parameterCount = j_lua_gettop(luaVM) - 2;
-    if ( !s_blackboxInitialized || (v5 = j_lua_tolstring(luaVM, 1, NULL), v6 = j_lua_tolstring(luaVM, 2, NULL), !BB_CheckThrottle(v5)) )
+    if ( !s_blackboxInitialized || (v4 = j_lua_tolstring(luaVM, 1, NULL), v5 = j_lua_tolstring(luaVM, 2, NULL), !BB_CheckThrottle(v4)) )
     {
       j_lua_pushboolean(luaVM, 1);
       return 1i64;
     }
     Sys_EnterCriticalSection(CRITSECT_BLACKBOX);
-    v7 = BB_ParseAndCacheFormatString(&bb_msg, v5, v6, &parameterCount, (const unsigned __int8 **)&parameters, 1);
+    v6 = BB_ParseAndCacheFormatString(&bb_msg, v4, v5, &parameterCount, (const unsigned __int8 **)&parameters, 1);
     DemonwareActiveController = BB_GetDemonwareActiveController();
-    BB_WriteVarUInt32_0(&bb_msg, 4 * ((4 * v7) | DemonwareActiveController & 3));
-    v9 = s_sessionStartTime;
-    v10 = Sys_Milliseconds();
-    BB_WriteVarUInt32_0(&bb_msg, v10 - v9);
+    BB_WriteVarUInt32_0(&bb_msg, 4 * ((4 * v6) | DemonwareActiveController & 3));
+    v8 = s_sessionStartTime;
+    v9 = Sys_Milliseconds();
+    BB_WriteVarUInt32_0(&bb_msg, v9 - v8);
     s_blackboxIsInteresting = 1;
     if ( parameterCount > 0 )
     {
-      v11 = 3;
-      v12 = 0i64;
+      v10 = 3;
+      v11 = 0i64;
       while ( 1 )
       {
-        v13 = parameters[v12];
-        if ( (v13 & 3) == 0 )
+        v12 = parameters[v11];
+        if ( (v12 & 3) == 0 )
           break;
-        switch ( parameters[v12] & 3 )
+        switch ( parameters[v11] & 3 )
         {
           case 1:
-            if ( (v13 & 0x10) == 0 )
+            if ( (v12 & 0x10) == 0 )
               goto LABEL_25;
-            if ( !j_lua_isnumber(luaVM, v11) )
+            if ( !j_lua_isnumber(luaVM, v10) )
               goto LABEL_27;
-            v19 = lui_tointeger32(luaVM, v11);
-            BB_WriteVarUInt32_0(&bb_msg, v19);
+            v17 = lui_tointeger32(luaVM, v10);
+            BB_WriteVarUInt32_0(&bb_msg, v17);
             break;
           case 2:
-            if ( j_lua_isnumber(luaVM, v11) )
+            if ( j_lua_isnumber(luaVM, v10) )
             {
-              *(double *)&_XMM0 = lui_tonumber32(luaVM, v11);
-              v16 = v13 & 0x1C;
+              v15 = lui_tonumber32(luaVM, v10);
+              v16 = v12 & 0x1C;
               if ( v16 == 4 )
               {
-                __asm { vmovaps xmm1, xmm0; f }
-                BB_WriteFloat16(&bb_msg, *(double *)&_XMM1);
+                BB_WriteFloat16(&bb_msg, *(float *)&v15);
               }
               else if ( v16 == 12 )
               {
-                v3 = 1;
+                v2 = 1;
               }
               else
               {
-                __asm { vmovaps xmm1, xmm0; f }
-                BB_WriteFloat32(&bb_msg, *(double *)&_XMM1);
+                BB_WriteFloat32(&bb_msg, *(float *)&v15);
               }
               break;
             }
             goto LABEL_27;
           case 3:
-            if ( j_lua_isstring(luaVM, v11) )
+            if ( j_lua_isstring(luaVM, v10) )
             {
-              v14 = j_lua_tolstring(luaVM, v11, NULL);
-              v15 = -1i64;
+              v13 = j_lua_tolstring(luaVM, v10, NULL);
+              v14 = -1i64;
               do
-                ++v15;
-              while ( v14[v15] );
-              BB_WriteString(&bb_msg, v14, v15);
+                ++v14;
+              while ( v13[v14] );
+              BB_WriteString(&bb_msg, v13, v14);
               break;
             }
             goto LABEL_27;
         }
 LABEL_44:
+        ++v10;
         ++v11;
-        ++v12;
-        if ( v11 - 3 >= parameterCount )
+        if ( v10 - 3 >= parameterCount )
           goto LABEL_48;
       }
 LABEL_25:
-      if ( j_lua_isnumber(luaVM, v11) || j_lua_type(luaVM, v11) == 1 )
+      if ( j_lua_isnumber(luaVM, v10) || j_lua_type(luaVM, v10) == 1 )
       {
-        v20 = lui_tointeger32(luaVM, v11);
-        if ( (v13 & 0x10) != 0 )
+        v18 = lui_tointeger32(luaVM, v10);
+        if ( (v12 & 0x10) != 0 )
         {
-          BB_WriteVarUInt32_0(&bb_msg, (2 * v20) ^ ((unsigned __int64)v20 >> 31));
+          BB_WriteVarUInt32_0(&bb_msg, (2 * v18) ^ ((unsigned __int64)v18 >> 31));
         }
         else
         {
-          v21 = v13 & 0x1C;
-          if ( v21 )
+          v19 = v12 & 0x1C;
+          if ( v19 )
           {
-            switch ( v21 )
+            switch ( v19 )
             {
               case 4:
-                BB_WriteInt16(&bb_msg, v20);
+                BB_WriteInt16(&bb_msg, v18);
                 break;
               case 8:
-                BB_WriteInt32(&bb_msg, v20);
+                BB_WriteInt32(&bb_msg, v18);
                 break;
               case 12:
-                v3 = 1;
+                v2 = 1;
                 break;
             }
           }
           else
           {
-            v28 = v20;
+            v26 = v18;
             if ( !bb_msg.pppHashTable )
             {
               if ( bb_msg.overflow || bb_msg.cursize + 1 > bb_msg.maxsize )
@@ -4223,18 +3996,18 @@ LABEL_25:
               }
               else
               {
-                v22 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
-                v23 = 0;
-                v24 = (unsigned __int8 *)&v28;
+                v20 = truncate_cast<unsigned int,unsigned __int64>(bb_msg.cursize);
+                v21 = 0;
+                v22 = (unsigned __int8 *)&v26;
                 do
                 {
-                  v25 = *v24;
-                  v26 = v23 + v22;
-                  ++v24;
-                  ++v23;
-                  bb_msg.data[v26] = v25;
+                  v23 = *v22;
+                  v24 = v21 + v20;
+                  ++v22;
+                  ++v21;
+                  bb_msg.data[v24] = v23;
                 }
-                while ( !v23 );
+                while ( !v21 );
                 ++bb_msg.cursize;
               }
             }
@@ -4243,17 +4016,17 @@ LABEL_25:
         goto LABEL_44;
       }
 LABEL_27:
-      v3 = 1;
+      v2 = 1;
       goto LABEL_44;
     }
   }
   else
   {
-    v3 = 1;
+    v2 = 1;
   }
 LABEL_48:
-  LOBYTE(v4) = v3 == 0;
-  j_lua_pushboolean(luaVM, v4);
+  LOBYTE(v3) = v2 == 0;
+  j_lua_pushboolean(luaVM, v3);
   Sys_LeaveCriticalSection(CRITSECT_BLACKBOX);
   return 1i64;
 }

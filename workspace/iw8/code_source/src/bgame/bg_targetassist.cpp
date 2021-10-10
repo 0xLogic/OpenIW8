@@ -300,72 +300,51 @@ BgTargetAssist::DebugDrawCone
 */
 void BgTargetAssist::DebugDrawCone(BgTargetAssist *this, const BGConeTargetBoneSearchParam *searchParam)
 {
+  const dvar_t *v3; 
+  bool v4; 
   const dvar_t *v5; 
-  bool v6; 
-  const dvar_t *v7; 
-  BgHandler *pmoveHandler; 
-  BgHandler_vtbl *v24; 
-  int v29[4]; 
-  int v30[4]; 
+  float v6; 
+  float v7; 
+  const BgHandler *pmoveHandler; 
+  float v9; 
+  float bulletRange; 
+  float maxDot; 
+  int v12; 
+  BgHandler_vtbl *v13; 
+  float v14; 
+  int v15[4]; 
+  int v16[4]; 
 
-  _RSI = searchParam;
   if ( !searchParam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 411, ASSERT_TYPE_ASSERT, "(searchParam)", (const char *)&queryFormat, "searchParam") )
     __debugbreak();
-  v5 = DCONST_DVARBOOL_targetAssist_debug;
+  v3 = DCONST_DVARBOOL_targetAssist_debug;
   if ( !DCONST_DVARBOOL_targetAssist_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  v6 = v5->current.enabled && _RSI->isFiring;
-  v7 = DCONST_DVARINT_targetAssist_debugDrawDuration;
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = v3->current.enabled && searchParam->isFiring;
+  v5 = DCONST_DVARINT_targetAssist_debugDrawDuration;
   if ( !DCONST_DVARINT_targetAssist_debugDrawDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debugDrawDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v6 )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v4 )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm5, dword ptr [rsi+58h]
-      vmovss  xmm4, dword ptr [rsi+5Ch]
-    }
-    pmoveHandler = (BgHandler *)_RSI->pmoveHandler;
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovss  xmm6, dword ptr [rsi+54h]
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vmovss  xmm7, dword ptr [rsi+60h]
-      vmulss  xmm2, xmm7, xmm4
-      vmulss  xmm0, xmm7, xmm6
-      vaddss  xmm1, xmm0, dword ptr [rsi+48h]
-      vmovss  [rsp+0A8h+var_58], xmm1
-      vmulss  xmm0, xmm7, xmm5
-      vaddss  xmm1, xmm0, dword ptr [rsi+4Ch]
-      vmovss  xmm0, dword ptr [rsi+64h]; X
-      vmovss  [rsp+0A8h+var_54], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsi+50h]
-      vxorps  xmm2, xmm6, xmm3
-      vmovss  [rsp+0A8h+var_68], xmm2
-      vmovss  [rsp+0A8h+var_50], xmm1
-      vxorps  xmm2, xmm4, xmm3
-      vxorps  xmm1, xmm5, xmm3
-      vmovss  [rsp+0A8h+var_60], xmm2
-      vmovss  [rsp+0A8h+var_64], xmm1
-    }
-    v24 = pmoveHandler->__vftable;
-    *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm3, xmm0, xmm7
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-    }
-    ((void (__fastcall *)(BgHandler *, int *, int *))v24->DebugCone)(pmoveHandler, v30, v29);
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_38]
-      vmovaps xmm6, [rsp+0A8h+var_28]
-    }
+    v6 = searchParam->bulletDir.v[1];
+    v7 = searchParam->bulletDir.v[2];
+    pmoveHandler = searchParam->pmoveHandler;
+    v9 = searchParam->bulletDir.v[0];
+    bulletRange = searchParam->bulletRange;
+    *(float *)v16 = (float)(bulletRange * v9) + searchParam->bulletStart.v[0];
+    maxDot = searchParam->maxDot;
+    *(float *)&v16[1] = (float)(bulletRange * v6) + searchParam->bulletStart.v[1];
+    *(float *)&v12 = (float)(bulletRange * v7) + searchParam->bulletStart.v[2];
+    v15[0] = LODWORD(v9) ^ _xmm;
+    v16[2] = v12;
+    v15[2] = LODWORD(v7) ^ _xmm;
+    v15[1] = LODWORD(v6) ^ _xmm;
+    v13 = pmoveHandler->__vftable;
+    v14 = acosf_0(maxDot);
+    tanf_0(v14);
+    ((void (__fastcall *)(const BgHandler *, int *, int *))v13->DebugCone)(pmoveHandler, v16, v15);
   }
 }
 
@@ -376,44 +355,55 @@ BgTargetAssist::FindBonesWithinCone
 */
 bool BgTargetAssist::FindBonesWithinCone(BgTargetAssist *this, const BGConeTargetBoneSearchParam *searchParam, ConeTargetHitResults *outSearchResults)
 {
+  const dvar_t *v6; 
+  bool v7; 
   const dvar_t *v8; 
-  bool v9; 
-  const dvar_t *v10; 
-  BgHandler *pmoveHandler; 
-  BgHandler_vtbl *v27; 
-  XModelCharCollBoundsType v29; 
-  const dvar_t *v36; 
-  bool v37; 
-  const dvar_t *v38; 
+  float bulletRange; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const BgHandler *pmoveHandler; 
+  float maxDot; 
+  BgHandler_vtbl *v15; 
+  float v16; 
+  XModelCharCollBoundsType v17; 
+  float v18; 
+  const dvar_t *v19; 
+  bool v20; 
+  const dvar_t *v21; 
+  float v22; 
+  float v23; 
   const entityState_t *es; 
-  int v46; 
-  unsigned __int64 v50; 
-  int *v51; 
+  int v25; 
+  float v26; 
+  unsigned __int64 v27; 
+  int *v28; 
   ConeTarget *p_coneTargetTagList; 
   hitLocation_t hitLocation; 
-  const DObj *entityDobj; 
+  DObj *entityDobj; 
   scr_string_t tag_origin; 
-  const dvar_t *v56; 
-  const dvar_t *v59; 
-  const __int16 *p_number; 
+  const dvar_t *v33; 
+  float v34; 
+  const dvar_t *v35; 
+  const entityState_t *v36; 
   int integer; 
-  ConeTarget *v63; 
+  ConeTarget *v38; 
   unsigned __int64 i; 
   unsigned __int8 boneIndex; 
-  char v77; 
-  char v78; 
-  __int64 v81; 
-  int v87; 
-  bool result; 
-  vec4_t *v93; 
-  char v94; 
-  char v95; 
+  __int64 v41; 
+  ConeTargetHitInfo *v42; 
+  double v43; 
+  int v44; 
+  float distSq; 
+  vec4_t *v47; 
+  char v48; 
+  char v49; 
   unsigned __int8 inOutIndex[8]; 
-  int v97; 
-  BgTargetAssist *v98; 
+  int v51; 
+  BgTargetAssist *v52; 
   vec3_t point; 
-  int v100[4]; 
-  int v101[4]; 
+  int v54[4]; 
+  int v55[4]; 
   vec3_t coneDir; 
   vec3_t end; 
   Bounds bounds; 
@@ -421,160 +411,112 @@ bool BgTargetAssist::FindBonesWithinCone(BgTargetAssist *this, const BGConeTarge
   DObjPartBits partBits; 
   tmat33_t<vec3_t> src; 
   DObjBoneInfo boneInfo[12]; 
-  int v109[12]; 
+  int v63[12]; 
   ConeTarget coneTargetTagList; 
 
-  __asm { vmovaps [rsp+2E0h+var_50], xmm7 }
-  v98 = this;
-  _R15 = outSearchResults;
-  _RSI = searchParam;
+  v52 = this;
   if ( !searchParam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 232, ASSERT_TYPE_ASSERT, "(searchParam)", (const char *)&queryFormat, "searchParam") )
     __debugbreak();
-  if ( !_RSI->es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 233, ASSERT_TYPE_ASSERT, "(searchParam->es)", (const char *)&queryFormat, "searchParam->es") )
+  if ( !searchParam->es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 233, ASSERT_TYPE_ASSERT, "(searchParam->es)", (const char *)&queryFormat, "searchParam->es") )
     __debugbreak();
-  if ( !_RSI->entityDobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 234, ASSERT_TYPE_ASSERT, "(searchParam->entityDobj)", (const char *)&queryFormat, "searchParam->entityDobj") )
+  if ( !searchParam->entityDobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 234, ASSERT_TYPE_ASSERT, "(searchParam->entityDobj)", (const char *)&queryFormat, "searchParam->entityDobj") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 235, ASSERT_TYPE_ASSERT, "(outSearchResults)", (const char *)&queryFormat, "outSearchResults") )
+  if ( !outSearchResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_targetassist.cpp", 235, ASSERT_TYPE_ASSERT, "(outSearchResults)", (const char *)&queryFormat, "outSearchResults") )
     __debugbreak();
-  v8 = DCONST_DVARBOOL_targetAssist_debug;
+  v6 = DCONST_DVARBOOL_targetAssist_debug;
   if ( !DCONST_DVARBOOL_targetAssist_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debug") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.enabled && searchParam->isFiring;
+  v8 = DCONST_DVARINT_targetAssist_debugDrawDuration;
+  if ( !DCONST_DVARINT_targetAssist_debugDrawDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debugDrawDuration") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v8);
-  v9 = v8->current.enabled && _RSI->isFiring;
-  v10 = DCONST_DVARINT_targetAssist_debugDrawDuration;
-  if ( !DCONST_DVARINT_targetAssist_debugDrawDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debugDrawDuration") )
-    __debugbreak();
-  __asm { vmovaps [rsp+2E0h+var_40], xmm6 }
-  Dvar_CheckFrontendServerThread(v10);
-  __asm { vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  if ( v9 )
+  if ( v7 )
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi+60h]
-      vmovss  xmm2, dword ptr [rsi+54h]
-      vmovss  xmm4, dword ptr [rsi+58h]
-      vmovss  xmm3, dword ptr [rsi+5Ch]
-    }
-    pmoveHandler = (BgHandler *)_RSI->pmoveHandler;
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm2
-      vaddss  xmm1, xmm0, dword ptr [rsi+48h]
-      vmovss  [rbp+1E0h+var_260], xmm1
-      vmulss  xmm0, xmm6, xmm4
-      vaddss  xmm1, xmm0, dword ptr [rsi+4Ch]
-      vmulss  xmm0, xmm6, xmm3
-      vmovss  [rbp+1E0h+var_25C], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rsi+50h]
-      vmovss  [rbp+1E0h+var_258], xmm1
-      vxorps  xmm0, xmm4, xmm7
-      vmovss  [rsp+2E0h+var_26C], xmm0
-      vmovss  xmm0, dword ptr [rsi+64h]; X
-      vxorps  xmm1, xmm3, xmm7
-      vxorps  xmm2, xmm2, xmm7
-      vmovss  [rsp+2E0h+var_268], xmm1
-      vmovss  [rsp+2E0h+var_270], xmm2
-    }
-    v27 = pmoveHandler->__vftable;
-    *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    v93 = &colorBlue;
-    __asm
-    {
-      vmulss  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rsp+2E0h+fmt], xmm6
-    }
-    ((void (__fastcall *)(BgHandler *, int *, int *))v27->DebugCone)(pmoveHandler, v101, v100);
+    bulletRange = searchParam->bulletRange;
+    v10 = searchParam->bulletDir.v[0];
+    v11 = searchParam->bulletDir.v[1];
+    v12 = searchParam->bulletDir.v[2];
+    pmoveHandler = searchParam->pmoveHandler;
+    *(float *)v55 = (float)(bulletRange * v10) + searchParam->bulletStart.v[0];
+    *(float *)&v55[1] = (float)(bulletRange * v11) + searchParam->bulletStart.v[1];
+    *(float *)&v55[2] = (float)(bulletRange * v12) + searchParam->bulletStart.v[2];
+    v54[1] = LODWORD(v11) ^ _xmm;
+    maxDot = searchParam->maxDot;
+    v54[2] = LODWORD(v12) ^ _xmm;
+    v54[0] = LODWORD(v10) ^ _xmm;
+    v15 = pmoveHandler->__vftable;
+    v16 = acosf_0(maxDot);
+    tanf_0(v16);
+    v47 = &colorBlue;
+    ((void (__fastcall *)(const BgHandler *, int *, int *))v15->DebugCone)(pmoveHandler, v55, v54);
   }
-  _R15->hitCount = 0;
-  _R15->priority = 3.4028235e38;
-  _R15->firstVisibleHitIndex = -1;
-  v29 = this->GetCollBoundsType(this, _RSI->es->number);
-  if ( (unsigned int)(v29 - 1) > 8 )
-    v29 = CharCollBoundsType_Human;
-  PhysicsCharacterProxy_GetEncapsulatingBounds(&bounds, v29);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+54h]
-    vmovss  xmm2, dword ptr [rsi+58h]
-    vxorps  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm2, xmm7
-    vmovss  dword ptr [rbp+1E0h+coneDir], xmm1
-    vmovss  xmm1, dword ptr [rsi+5Ch]
-    vxorps  xmm2, xmm1, xmm7
-    vmovss  dword ptr [rbp+1E0h+coneDir+8], xmm2
-    vmovss  dword ptr [rbp+1E0h+coneDir+4], xmm0
-  }
-  Bounds_Transform(&bounds, &_RSI->entityOrigin, &_RSI->entityAxis, &rotatedBounds);
-  v36 = DCONST_DVARBOOL_targetAssist_debug;
+  outSearchResults->hitCount = 0;
+  outSearchResults->priority = 3.4028235e38;
+  outSearchResults->firstVisibleHitIndex = -1;
+  v17 = this->GetCollBoundsType(this, searchParam->es->number);
+  if ( (unsigned int)(v17 - 1) > 8 )
+    v17 = CharCollBoundsType_Human;
+  PhysicsCharacterProxy_GetEncapsulatingBounds(&bounds, v17);
+  LODWORD(v18) = LODWORD(searchParam->bulletDir.v[1]) ^ _xmm;
+  LODWORD(coneDir.v[0]) = LODWORD(searchParam->bulletDir.v[0]) ^ _xmm;
+  LODWORD(coneDir.v[2]) = LODWORD(searchParam->bulletDir.v[2]) ^ _xmm;
+  coneDir.v[1] = v18;
+  Bounds_Transform(&bounds, &searchParam->entityOrigin, &searchParam->entityAxis, &rotatedBounds);
+  v19 = DCONST_DVARBOOL_targetAssist_debug;
   if ( !DCONST_DVARBOOL_targetAssist_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  v37 = v36->current.enabled && _RSI->isFiring;
-  v38 = DCONST_DVARINT_targetAssist_debugDrawDuration;
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v19->current.enabled && searchParam->isFiring;
+  v21 = DCONST_DVARINT_targetAssist_debugDrawDuration;
   if ( !DCONST_DVARINT_targetAssist_debugDrawDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debugDrawDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v38);
-  if ( v37 )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( v20 )
   {
-    LODWORD(v93) = 1;
-    _RSI->pmoveHandler->DebugBoxOriented((BgHandler *)_RSI->pmoveHandler, &_RSI->entityOrigin, &bounds, &_RSI->entityAxis, &colorCyan, (int)v93, v38->current.integer);
+    LODWORD(v47) = 1;
+    searchParam->pmoveHandler->DebugBoxOriented((BgHandler *)searchParam->pmoveHandler, &searchParam->entityOrigin, &bounds, &searchParam->entityAxis, &colorCyan, (int)v47, v21->current.integer);
   }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+60h]; radius
-    vmovss  xmm2, dword ptr [rsi+64h]; cosHalfFov
-  }
-  if ( CullBoxFromConicSectionOfSphere(&_RSI->bulletStart, &coneDir, *(float *)&_XMM2, *(float *)&_XMM3, &rotatedBounds) )
-    goto LABEL_78;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+60h]
-    vmulss  xmm0, xmm2, dword ptr [rsi+54h]
-    vaddss  xmm1, xmm0, dword ptr [rsi+48h]
-    vmulss  xmm0, xmm2, dword ptr [rsi+58h]
-  }
-  es = _RSI->es;
-  v46 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+1E0h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4Ch]
-    vmulss  xmm0, xmm2, dword ptr [rsi+5Ch]
-    vmovss  dword ptr [rbp+1E0h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+50h]
-    vmovss  dword ptr [rbp+1E0h+end+8], xmm1
-  }
-  BgTargetAssist::GetConeTargetTagList(v98, es, &coneTargetTagList);
-  v50 = 0i64;
-  v51 = v109;
+  if ( CullBoxFromConicSectionOfSphere(&searchParam->bulletStart, &coneDir, searchParam->maxDot, searchParam->bulletRange, &rotatedBounds) )
+    return 0;
+  v22 = searchParam->bulletRange;
+  v23 = v22 * searchParam->bulletDir.v[1];
+  es = searchParam->es;
+  v25 = 0;
+  end.v[0] = (float)(v22 * searchParam->bulletDir.v[0]) + searchParam->bulletStart.v[0];
+  v26 = v22 * searchParam->bulletDir.v[2];
+  end.v[1] = v23 + searchParam->bulletStart.v[1];
+  end.v[2] = v26 + searchParam->bulletStart.v[2];
+  BgTargetAssist::GetConeTargetTagList(v52, es, &coneTargetTagList);
+  v27 = 0i64;
+  v28 = v63;
   p_coneTargetTagList = &coneTargetTagList;
   do
   {
     hitLocation = p_coneTargetTagList->hitLocation;
-    boneInfo[v50].boneIndex = -1;
-    if ( hitLocation && HitLoc_MaskContains(_RSI->hitLocMask, hitLocation) && DObjGetBoneAndModelIndex(_RSI->entityDobj, *p_coneTargetTagList->tag, &boneInfo[v50]) )
+    boneInfo[v27].boneIndex = -1;
+    if ( hitLocation && HitLoc_MaskContains(searchParam->hitLocMask, hitLocation) && DObjGetBoneAndModelIndex(searchParam->entityDobj, *p_coneTargetTagList->tag, &boneInfo[v27]) )
     {
-      DObjGetHidePartBits(_RSI->entityDobj, &partBits);
-      if ( ((0x80000000 >> (boneInfo[v50].boneIndex & 0x1F)) & partBits.array[(unsigned __int64)boneInfo[v50].boneIndex >> 5]) != 0 )
+      DObjGetHidePartBits(searchParam->entityDobj, &partBits);
+      if ( ((0x80000000 >> (boneInfo[v27].boneIndex & 0x1F)) & partBits.array[(unsigned __int64)boneInfo[v27].boneIndex >> 5]) != 0 )
       {
-        boneInfo[v50].boneIndex = -1;
+        boneInfo[v27].boneIndex = -1;
       }
       else
       {
-        ++v46;
-        *v51++ = boneInfo[v50].boneIndex;
+        ++v25;
+        *v28++ = boneInfo[v27].boneIndex;
       }
     }
-    ++v50;
+    ++v27;
     ++p_coneTargetTagList;
   }
-  while ( v50 < 0xC );
-  v95 = 0;
-  if ( v46 )
+  while ( v27 < 0xC );
+  v49 = 0;
+  if ( v25 )
     goto LABEL_57;
-  entityDobj = _RSI->entityDobj;
+  entityDobj = searchParam->entityDobj;
   tag_origin = scr_const.tag_origin;
   if ( !entityDobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public_inline.h", 89, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -583,119 +525,69 @@ bool BgTargetAssist::FindBonesWithinCone(BgTargetAssist *this, const BGConeTarge
   inOutIndex[4] = -2;
   *(_DWORD *)inOutIndex = 0;
   if ( !DObjGetBoneIndexInternal_0(entityDobj, tag_origin, &inOutIndex[4], (int *)inOutIndex) )
-  {
-LABEL_78:
-    result = 0;
-    goto LABEL_79;
-  }
-  v46 = 1;
+    return 0;
+  v25 = 1;
   boneInfo[0] = *(DObjBoneInfo *)inOutIndex;
-  v109[0] = inOutIndex[4];
-  v95 = 1;
+  v63[0] = inOutIndex[4];
+  v49 = 1;
 LABEL_57:
-  v56 = DCONST_DVARBOOL_targetAssist_debug;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+60h]
-    vmulss  xmm7, xmm0, xmm0
-  }
+  v33 = DCONST_DVARBOOL_targetAssist_debug;
+  v34 = searchParam->bulletRange * searchParam->bulletRange;
   if ( !DCONST_DVARBOOL_targetAssist_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v56);
-  if ( !v56->current.enabled || (v94 = 1, !_RSI->isFiring) )
-    v94 = 0;
-  v59 = DCONST_DVARINT_targetAssist_debugDrawDuration;
+  Dvar_CheckFrontendServerThread(v33);
+  if ( !v33->current.enabled || (v48 = 1, !searchParam->isFiring) )
+    v48 = 0;
+  v35 = DCONST_DVARINT_targetAssist_debugDrawDuration;
   if ( !DCONST_DVARINT_targetAssist_debugDrawDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_debugDrawDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v59);
-  p_number = &_RSI->es->number;
-  integer = v59->current.integer;
-  v97 = integer;
-  v98->CalculateSkeleton(v98, *(unsigned __int16 *)p_number, v46, v109);
-  __asm { vmovss  xmm6, cs:__real@40400000 }
-  v63 = &coneTargetTagList;
+  Dvar_CheckFrontendServerThread(v35);
+  v36 = searchParam->es;
+  integer = v35->current.integer;
+  v51 = integer;
+  v52->CalculateSkeleton(v52, v36->number, v25, v63);
+  v38 = &coneTargetTagList;
   for ( i = 0i64; i < 0xC; ++i )
   {
     boneIndex = boneInfo[i].boneIndex;
     if ( boneIndex != 0xFF )
     {
-      v98->GetWorldBoneMatrix(v98, _RSI->es->number, boneIndex, &src, &point);
-      __asm
+      v52->GetWorldBoneMatrix(v52, searchParam->es->number, boneIndex, &src, &point);
+      if ( (float)((float)((float)((float)(point.v[1] - searchParam->bulletStart.v[1]) * (float)(point.v[1] - searchParam->bulletStart.v[1])) + (float)((float)(point.v[0] - searchParam->bulletStart.v[0]) * (float)(point.v[0] - searchParam->bulletStart.v[0]))) + (float)((float)(point.v[2] - searchParam->bulletStart.v[2]) * (float)(point.v[2] - searchParam->bulletStart.v[2]))) <= v34 && PointInsideCone(&searchParam->bulletStart, &searchParam->bulletDir, searchParam->maxDot, searchParam->bulletRange, &point) )
       {
-        vmovss  xmm0, dword ptr [rsp+2E0h+point]
-        vsubss  xmm3, xmm0, dword ptr [rsi+48h]
-        vmovss  xmm1, dword ptr [rsp+2E0h+point+4]
-        vsubss  xmm2, xmm1, dword ptr [rsi+4Ch]
-        vmovss  xmm0, dword ptr [rsp+2E0h+point+8]
-        vsubss  xmm4, xmm0, dword ptr [rsi+50h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, xmm7
-      }
-      if ( v77 | v78 )
-      {
-        __asm
+        if ( v48 )
         {
-          vmovss  xmm3, dword ptr [rsi+60h]; coneHeight
-          vmovss  xmm2, dword ptr [rsi+64h]; cosHalfFov
+          LODWORD(v47) = 0;
+          ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, vec4_t *, vec4_t *, int))searchParam->pmoveHandler->DebugSphereAll)(searchParam->pmoveHandler, &point, v41, &colorMagenta, &colorCyan, v47, integer);
         }
-        if ( PointInsideCone(&_RSI->bulletStart, &_RSI->bulletDir, *(float *)&_XMM2, *(float *)&_XMM3, &point) )
+        v42 = &outSearchResults->hits[outSearchResults->hitCount];
+        v42->priority = v38->priority;
+        v43 = PointToLineSegmentDistSq(&point, &searchParam->bulletStart, &end);
+        v42->distSq = *(float *)&v43;
+        v42->tagWorldPos = point;
+        MatrixCopy33(&src, &v42->tagWorldRot);
+        v42->modelIndex = boneInfo[i].modelIndex;
+        if ( v49 )
         {
-          if ( v94 )
-          {
-            LODWORD(v93) = 0;
-            __asm { vmovaps xmm2, xmm6 }
-            ((void (__fastcall *)(const BgHandler *, vec3_t *, __int64, vec4_t *, vec4_t *, vec4_t *, int))_RSI->pmoveHandler->DebugSphereAll)(_RSI->pmoveHandler, &point, v81, &colorMagenta, &colorCyan, v93, integer);
-          }
-          _RBX = &_R15->hits[_R15->hitCount];
-          _RBX->priority = v63->priority;
-          *(double *)&_XMM0 = PointToLineSegmentDistSq(&point, &_RSI->bulletStart, &end);
-          __asm
-          {
-            vmovss  dword ptr [rbx+3Ch], xmm0
-            vmovss  xmm1, dword ptr [rsp+2E0h+point]
-            vmovss  dword ptr [rbx], xmm1
-            vmovss  xmm0, dword ptr [rsp+2E0h+point+4]
-            vmovss  dword ptr [rbx+4], xmm0
-            vmovss  xmm1, dword ptr [rsp+2E0h+point+8]
-            vmovss  dword ptr [rbx+8], xmm1
-          }
-          MatrixCopy33(&src, &_RBX->tagWorldRot);
-          _RBX->modelIndex = boneInfo[i].modelIndex;
-          if ( v95 )
-          {
-            _RBX->tagName = scr_const.tag_origin;
-            v87 = 5;
-          }
-          else
-          {
-            _RBX->tagName = *v63->tag;
-            v87 = v63->hitLocation;
-          }
-          _RBX->hitLocation = v87;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+3Ch]
-            vcomiss xmm0, dword ptr [r15+338h]
-          }
-          ++_R15->hitCount;
-          integer = v97;
+          v42->tagName = scr_const.tag_origin;
+          v44 = 5;
         }
+        else
+        {
+          v42->tagName = *v38->tag;
+          v44 = v38->hitLocation;
+        }
+        v42->hitLocation = v44;
+        distSq = v42->distSq;
+        if ( distSq < outSearchResults->priority )
+          outSearchResults->priority = distSq;
+        ++outSearchResults->hitCount;
+        integer = v51;
       }
     }
-    ++v63;
+    ++v38;
   }
-  result = _R15->hitCount > 0;
-LABEL_79:
-  __asm
-  {
-    vmovaps xmm6, [rsp+2E0h+var_40]
-    vmovaps xmm7, [rsp+2E0h+var_50]
-  }
-  return result;
+  return outSearchResults->hitCount > 0;
 }
 
 /*
@@ -818,12 +710,13 @@ BgTargetAssist::GetShieldMaxAngle
 */
 float BgTargetAssist::GetShieldMaxAngle(BgTargetAssist *this)
 {
-  _RBX = DCONST_DVARMPFLT_targetAssist_shieldMaxAngle;
+  const dvar_t *v1; 
+
+  v1 = DCONST_DVARMPFLT_targetAssist_shieldMaxAngle;
   if ( !DCONST_DVARMPFLT_targetAssist_shieldMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "targetAssist_shieldMaxAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v1);
+  return v1->current.value;
 }
 
 /*

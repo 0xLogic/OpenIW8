@@ -71,235 +71,137 @@ XAnimToggle_Update
 void XAnimToggle_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime, const bool isInstantInit, XModelNameMap *modelNameMap)
 {
   unsigned int GraftAnimIndex; 
-  XAnimCurveID ID; 
-  bool v18; 
   XAnimCurveID curveID; 
-  char v23; 
+  float goalWeight; 
+  bool v15; 
+  XModelNameMap *cachedModelNameMap; 
   const XAnim_s *SubTreeAnims; 
-  unsigned __int8 v28; 
+  unsigned __int8 v19; 
   __int64 ChildAt; 
-  const XAnim_s *v30; 
+  const XAnim_s *v21; 
   int NumChildren; 
-  int v32; 
+  int v23; 
   const char *AnimDebugName; 
-  unsigned int v34; 
-  unsigned __int8 v37; 
-  unsigned __int8 v38; 
+  unsigned int v25; 
+  double Time; 
+  float v27; 
+  double v28; 
+  float v29; 
+  double Weight; 
+  char v31; 
+  char v32; 
   int bRestart; 
   scr_string_t notifyName; 
-  scr_string_t v41; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
+  scr_string_t v35; 
+  double NotetrackTime; 
   __int64 goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float goalTimed; 
-  float rate; 
-  float ratea; 
-  float rateb; 
-  float ratec; 
-  char v62; 
-  void *retaddr; 
   XAnim_s *anims; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RDI = animInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  _RBX = (unsigned __int8 *)nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 118, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 119, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 120, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
+  if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 120, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
   GraftAnimIndex = XAnimGetGraftAnimIndex(animInfoIndex);
-  ID = XAnimCurve_GetID(*((const scr_string_t *)_RBX + 4));
-  v18 = _RBX[26] == 0;
-  curveID = ID;
-  __asm { vmovss  xmm6, dword ptr [rbx] }
-  if ( !_RBX[26] )
-    _RBX[26] = 1;
-  __asm
+  curveID = XAnimCurve_GetID(*((const scr_string_t *)nodeData + 4));
+  LODWORD(_XMM6) = *(_DWORD *)nodeData;
+  if ( !*((_BYTE *)nodeData + 26) )
+    *((_BYTE *)nodeData + 26) = 1;
+  goalWeight = animInfo->state.goalWeight;
+  v15 = goalWeight == 1.0 && animInfo->state.goalTime > 0.001;
+  if ( goalWeight == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+38h]
-    vxorps  xmm9, xmm9, xmm9
-    vucomiss xmm0, xmm9
+    XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, animInfo->state.goalTime, 0, (const XAnimCurveID)animInfo->state.curveID);
+    *((_DWORD *)nodeData + 3) = -1082130432;
+    *((_BYTE *)nodeData + 25) = 0;
+    return;
   }
-  if ( v18 )
+  if ( !v15 )
+    goto LABEL_22;
+  _XMM0 = LODWORD(animInfo->state.goalDuration);
+  curveID = animInfo->state.curveID;
+  __asm { vminss  xmm6, xmm0, xmm6 }
+  if ( *((_BYTE *)nodeData + 6) )
   {
-    v23 = 1;
+    cachedModelNameMap = modelNameMap;
+    if ( !*((_BYTE *)nodeData + 24) )
+      XAnimSetGoalWeight(obj, GraftAnimIndex, animInfo->subTreeID, animInfo->animIndex, 0.001, *(float *)&_XMM6, 1.0, animInfo->notifyName, animInfo->notifyType, 0, curveID, modelNameMap);
   }
   else
   {
-    v23 = 0;
-    v18 = 1;
+LABEL_22:
+    cachedModelNameMap = modelNameMap;
   }
-  __asm
+  SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)animInfo->subTreeID);
+  anims = (XAnim_s *)SubTreeAnims;
+  if ( *((unsigned __int8 *)nodeData + 25) - 1 >= XAnimGetNumChildren(SubTreeAnims, animInfo->animIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 156, ASSERT_TYPE_ASSERT, "(pNode->m_PrevChildIndex - 1 < XAnimGetNumChildren( anims, animInfo->animIndex ))", (const char *)&queryFormat, "pNode->m_PrevChildIndex - 1 < XAnimGetNumChildren( anims, animInfo->animIndex )") )
+    __debugbreak();
+  v19 = *((_BYTE *)nodeData + 25);
+  if ( v19 && v19 != *((_BYTE *)nodeData + 24) )
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vucomiss xmm0, xmm7
-    vmovss  xmm8, cs:__real@3a83126f
+    ChildAt = (int)XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, v19 - 1);
+    if ( obj->tree->owner[0] || (v21 = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)animInfo->subTreeID), !v21->entries[ChildAt].numAnims) || (v21->entries[ChildAt].animParent.flags & 0x800) == 0 )
+      XAnimClearGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, ChildAt, *(float *)&_XMM6, curveID);
+    if ( *((_BYTE *)nodeData + 6) && !*((_BYTE *)nodeData + 24) )
+      XAnimSetGoalWeight(obj, GraftAnimIndex, animInfo->subTreeID, animInfo->animIndex, 0.001, *(float *)&_XMM6, 1.0, animInfo->notifyName, animInfo->notifyType, 0, curveID, cachedModelNameMap);
+    *((_DWORD *)nodeData + 3) = -1082130432;
   }
-  if ( v18 )
-    __asm { vcomiss xmm8, dword ptr [rdi+34h] }
-  if ( !v23 )
+  NumChildren = XAnimGetNumChildren(SubTreeAnims, animInfo->animIndex);
+  v23 = *((unsigned __int8 *)nodeData + 24);
+  if ( v23 - 1 >= NumChildren )
   {
-    SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)_RDI->subTreeID);
-    anims = (XAnim_s *)SubTreeAnims;
-    if ( _RBX[25] - 1 >= XAnimGetNumChildren(SubTreeAnims, _RDI->animIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 156, ASSERT_TYPE_ASSERT, "(pNode->m_PrevChildIndex - 1 < XAnimGetNumChildren( anims, animInfo->animIndex ))", (const char *)&queryFormat, "pNode->m_PrevChildIndex - 1 < XAnimGetNumChildren( anims, animInfo->animIndex )") )
+    if ( !*((_BYTE *)nodeData + 7) && NumChildren > 0 )
+    {
+      *((_BYTE *)nodeData + 24) = 1;
+      LOBYTE(v23) = 1;
+      goto LABEL_44;
+    }
+    AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, animInfo->animIndex);
+    LODWORD(goalTime) = *((unsigned __int8 *)nodeData + 24) - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 182, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "XAnimToggle_Update: Invalid child index (%d) for anim node '%s'\n", goalTime, AnimDebugName) )
       __debugbreak();
-    v28 = _RBX[25];
-    if ( v28 && v28 != _RBX[24] )
-    {
-      ChildAt = (int)XAnimGetChildAt(SubTreeAnims, _RDI->animIndex, v28 - 1);
-      if ( obj->tree->owner[0] || (v30 = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)_RDI->subTreeID), !v30->entries[ChildAt].numAnims) || (v30->entries[ChildAt].animParent.flags & 0x800) == 0 )
-      {
-        __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm6 }
-        XAnimClearGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RDI->subTreeID, ChildAt, fmt, curveID);
-      }
-      if ( _RBX[6] && !_RBX[24] )
-      {
-        __asm
-        {
-          vmovss  [rsp+0C8h+rate], xmm7
-          vmovss  [rsp+0C8h+goalTime], xmm6
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-        }
-        XAnimSetGoalWeight(obj, GraftAnimIndex, _RDI->subTreeID, _RDI->animIndex, fmta, goalTimea, rate, _RDI->notifyName, _RDI->notifyType, 0, curveID, modelNameMap);
-      }
-      *((_DWORD *)_RBX + 3) = -1082130432;
-    }
-    NumChildren = XAnimGetNumChildren(SubTreeAnims, _RDI->animIndex);
-    v32 = _RBX[24];
-    if ( v32 - 1 >= NumChildren )
-    {
-      if ( !_RBX[7] && NumChildren > 0 )
-      {
-        _RBX[24] = 1;
-        LOBYTE(v32) = 1;
-LABEL_40:
-        v34 = XAnimGetChildAt(SubTreeAnims, _RDI->animIndex, (unsigned __int8)v32 - 1);
-        *(double *)&_XMM0 = XAnimGetTime(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RDI->subTreeID, v34);
-        if ( _RBX[5] )
-        {
-          __asm { vcomiss xmm0, xmm7 }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+0Ch]
-            vcomiss xmm1, xmm9
-          }
-          if ( !_RBX[5] )
-          {
-            *(double *)&_XMM0 = XAnimGetGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RDI->subTreeID, v34);
-            __asm { vmovaps xmm8, xmm0 }
-            *(double *)&_XMM0 = XAnimGetWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RDI->subTreeID, v34);
-            v37 = _RBX[25];
-            v38 = _RBX[24];
-            if ( v37 != v38 )
-              goto LABEL_68;
-            if ( !_RBX[5] )
-            {
-              __asm { vcomiss xmm8, xmm9 }
-              if ( !_RBX[5] )
-              {
-                __asm { vcomiss xmm0, xmm9 }
-                if ( _RBX[5] )
-                {
-LABEL_68:
-                  bRestart = _RBX[4] && (v37 != v38 || !_RDI->children);
-                  notifyName = *((_DWORD *)_RBX + 5);
-                  if ( !notifyName )
-                    notifyName = _RDI->notifyName;
-                  if ( XAnimToggle_ShouldSetChildIndexWeight(obj->tree, _RDI->subTreeID, v34) )
-                  {
-                    __asm
-                    {
-                      vmovss  [rsp+0C8h+rate], xmm7
-                      vmovss  [rsp+0C8h+goalTime], xmm6
-                      vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-                    }
-                    XAnimSetGoalWeight(obj, GraftAnimIndex, _RDI->subTreeID, v34, fmtd, goalTimec, rateb, notifyName, _RDI->notifyType, bRestart, curveID, modelNameMap);
-                  }
-                  v41 = *((_DWORD *)_RBX + 2);
-                  if ( v41 )
-                  {
-                    *(double *)&_XMM0 = XAnimGetNotetrackTime(anims, v34, v41);
-                    __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-                  }
-                  if ( _RBX[6] )
-                  {
-                    __asm
-                    {
-                      vmovss  [rsp+0C8h+rate], xmm7
-                      vmovss  [rsp+0C8h+goalTime], xmm6
-                      vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-                    }
-                    XAnimSetGoalWeight(obj, GraftAnimIndex, _RDI->subTreeID, _RDI->animIndex, fmte, goalTimed, ratec, _RDI->notifyName, _RDI->notifyType, 0, curveID, modelNameMap);
-                  }
-                }
-              }
-            }
-            goto LABEL_64;
-          }
-          __asm { vcomiss xmm0, xmm1 }
-        }
-        __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm6 }
-        XAnimClearGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RDI->subTreeID, v34, fmtb, curveID);
-        if ( _RBX[6] )
-        {
-          __asm
-          {
-            vmovss  [rsp+0C8h+rate], xmm7
-            vmovss  [rsp+0C8h+goalTime], xmm6
-            vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-          }
-          XAnimSetGoalWeight(obj, GraftAnimIndex, _RDI->subTreeID, _RDI->animIndex, fmtc, goalTimeb, ratea, _RDI->notifyName, _RDI->notifyType, 0, curveID, modelNameMap);
-        }
-        *((_DWORD *)_RBX + 3) = -1082130432;
-LABEL_64:
-        _RBX[25] = _RBX[24];
-        goto LABEL_65;
-      }
-      AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, _RDI->animIndex);
-      LODWORD(goalTime) = _RBX[24] - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 182, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "XAnimToggle_Update: Invalid child index (%d) for anim node '%s'\n", goalTime, AnimDebugName) )
-        __debugbreak();
-      LOBYTE(v32) = _RBX[24];
-    }
-    if ( !(_BYTE)v32 )
-      goto LABEL_64;
-    goto LABEL_40;
+    LOBYTE(v23) = *((_BYTE *)nodeData + 24);
   }
-  __asm { vmovss  xmm2, dword ptr [rdi+34h]; blendTime }
-  XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, *(float *)&_XMM2, 0, (const XAnimCurveID)_RDI->state.curveID);
-  *((_DWORD *)_RBX + 3) = -1082130432;
-  _RBX[25] = 0;
-LABEL_65:
-  _R11 = &v62;
-  __asm
+  if ( (_BYTE)v23 )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+LABEL_44:
+    v25 = XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, (unsigned __int8)v23 - 1);
+    Time = XAnimGetTime(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, v25);
+    if ( *((_BYTE *)nodeData + 5) && *(float *)&Time >= 1.0 || (v27 = *((float *)nodeData + 3), v27 > 0.0) && *(float *)&Time >= v27 )
+    {
+      XAnimClearGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, v25, *(float *)&_XMM6, curveID);
+      if ( *((_BYTE *)nodeData + 6) )
+        XAnimSetGoalWeight(obj, GraftAnimIndex, animInfo->subTreeID, animInfo->animIndex, 0.001, *(float *)&_XMM6, 1.0, animInfo->notifyName, animInfo->notifyType, 0, curveID, modelNameMap);
+      *((_DWORD *)nodeData + 3) = -1082130432;
+    }
+    else
+    {
+      v28 = XAnimGetGoalWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, v25);
+      v29 = *(float *)&v28;
+      Weight = XAnimGetWeight(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, v25);
+      v31 = *((_BYTE *)nodeData + 25);
+      v32 = *((_BYTE *)nodeData + 24);
+      if ( v31 != v32 || !*((_BYTE *)nodeData + 5) && v29 <= 0.0 && *(float *)&Weight > 0.0 )
+      {
+        bRestart = *((_BYTE *)nodeData + 4) && (v31 != v32 || !animInfo->children);
+        notifyName = *((_DWORD *)nodeData + 5);
+        if ( !notifyName )
+          notifyName = animInfo->notifyName;
+        if ( XAnimToggle_ShouldSetChildIndexWeight(obj->tree, animInfo->subTreeID, v25) )
+          XAnimSetGoalWeight(obj, GraftAnimIndex, animInfo->subTreeID, v25, 1.0, *(float *)&_XMM6, 1.0, notifyName, animInfo->notifyType, bRestart, curveID, modelNameMap);
+        v35 = *((_DWORD *)nodeData + 2);
+        if ( v35 )
+        {
+          NotetrackTime = XAnimGetNotetrackTime(anims, v25, v35);
+          *((float *)nodeData + 3) = *(float *)&NotetrackTime;
+        }
+        if ( *((_BYTE *)nodeData + 6) )
+          XAnimSetGoalWeight(obj, GraftAnimIndex, animInfo->subTreeID, animInfo->animIndex, 1.0, *(float *)&_XMM6, 1.0, animInfo->notifyName, animInfo->notifyType, 0, curveID, modelNameMap);
+      }
+    }
   }
+  *((_BYTE *)nodeData + 25) = *((_BYTE *)nodeData + 24);
 }
 
 /*
@@ -344,68 +246,58 @@ XAnimToggle_PostParse
 char XAnimToggle_PostParse(XAnim_s *anims, unsigned int animIndex)
 {
   const XAnimTypeFields *TypeFieldsForNodeType; 
-  const char *AnimDebugName; 
-  bool v12; 
-  int NumChildren; 
   const XAnimParameterBinding *ConstantBindParameterByFieldNameAllBindings; 
-  unsigned int v15; 
+  const XAnimParameterBinding *v6; 
+  const char *AnimDebugName; 
+  bool v8; 
+  int NumChildren; 
+  const XAnimParameterBinding *v10; 
+  unsigned int v11; 
   unsigned int ChildAt; 
-  double v18; 
-  const char *v19; 
-  const char *v20; 
+  const char *v14; 
+  const char *v15; 
 
   TypeFieldsForNodeType = XAnimGetTypeFieldsForNodeType(anims->entries[animIndex].nodeType);
   if ( !TypeFieldsForNodeType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 250, ASSERT_TYPE_ASSERT, "(typeFields)", (const char *)&queryFormat, "typeFields") )
     __debugbreak();
-  _RAX = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.blendtime, TypeFieldsForNodeType);
-  _RBX = _RAX;
-  if ( _RAX )
+  ConstantBindParameterByFieldNameAllBindings = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.blendtime, TypeFieldsForNodeType);
+  v6 = ConstantBindParameterByFieldNameAllBindings;
+  if ( ConstantBindParameterByFieldNameAllBindings && ConstantBindParameterByFieldNameAllBindings->constant.floatValue < 0.0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rax+8]
-    }
     AnimDebugName = XAnimGetAnimDebugName(anims, animIndex);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+48h+var_20], xmm0
-    }
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 255, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid blendtime value %.f specified in %s", v18, AnimDebugName);
+    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 255, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid blendtime value %.f specified in %s", v6->constant.floatValue, AnimDebugName);
   }
   else
   {
     NumChildren = XAnimGetNumChildren(anims, animIndex);
     if ( NumChildren <= 254 )
     {
-      ConstantBindParameterByFieldNameAllBindings = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.clearwhendone, TypeFieldsForNodeType);
-      if ( !ConstantBindParameterByFieldNameAllBindings )
+      v10 = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.clearwhendone, TypeFieldsForNodeType);
+      if ( !v10 )
         return 1;
-      if ( !ConstantBindParameterByFieldNameAllBindings->constant.boolValue )
+      if ( !v10->constant.boolValue )
         return 1;
-      v15 = 0;
+      v11 = 0;
       if ( NumChildren <= 0 )
         return 1;
       while ( 1 )
       {
-        ChildAt = XAnimGetChildAt(anims, animIndex, v15);
+        ChildAt = XAnimGetChildAt(anims, animIndex, v11);
         if ( XAnimIsLooped(anims, ChildAt) )
           break;
-        if ( (int)++v15 >= NumChildren )
+        if ( (int)++v11 >= NumChildren )
           return 1;
       }
-      v20 = XAnimGetAnimDebugName(anims, ChildAt);
-      v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "clearWhenDone toggle node cannot work with looped anim %s", v20);
+      v15 = XAnimGetAnimDebugName(anims, ChildAt);
+      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 274, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "clearWhenDone toggle node cannot work with looped anim %s", v15);
     }
     else
     {
-      v19 = XAnimGetAnimDebugName(anims, animIndex);
-      v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 262, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "exceeded max number of child anims (254) in %s", v19);
+      v14 = XAnimGetAnimDebugName(anims, animIndex);
+      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 262, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "exceeded max number of child anims (254) in %s", v14);
     }
   }
-  if ( v12 )
+  if ( v8 )
     __debugbreak();
   return 0;
 }
@@ -455,78 +347,45 @@ void XAnimToggleAll_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo,
   unsigned int GraftAnimIndex; 
   XAnimCurveID ID; 
   XAnimCurveID curveID; 
-  char v17; 
   const XAnim_s *SubTreeAnims; 
-  signed int v20; 
+  signed int v15; 
   int NumChildren; 
   unsigned int ChildAt; 
-  float fmt; 
-  float fmta; 
-  float goalTime; 
-  float v30; 
-  const XAnim_s *v32; 
+  const XAnim_s *v18; 
 
-  _RSI = animInfo;
-  _RDI = (unsigned __int8 *)nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 324, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 325, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 326, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
+  if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 326, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
   GraftAnimIndex = XAnimGetGraftAnimIndex(animInfoIndex);
-  ID = XAnimCurve_GetID(*((const scr_string_t *)_RDI + 2));
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rsi+38h]
-  }
+  ID = XAnimCurve_GetID(*((const scr_string_t *)nodeData + 2));
   curveID = ID;
-  if ( v17 )
+  if ( animInfo->state.goalWeight == 0.0 )
   {
-    __asm { vmovss  xmm2, dword ptr [rsi+34h]; blendTime }
-    XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, *(float *)&_XMM2, 0, ID);
+    XAnimClearTreeGoalWeightsNode(obj->tree, animInfoIndex, animInfo->state.goalTime, 0, ID);
   }
-  else if ( !_RDI[16] )
+  else if ( !*((_BYTE *)nodeData + 16) )
   {
-    SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)_RSI->subTreeID);
-    v32 = SubTreeAnims;
-    v20 = 0;
-    NumChildren = XAnimGetNumChildren(SubTreeAnims, _RSI->animIndex);
+    SubTreeAnims = XAnimGetSubTreeAnims(obj->tree, (const XAnimSubTreeID)animInfo->subTreeID);
+    v18 = SubTreeAnims;
+    v15 = 0;
+    NumChildren = XAnimGetNumChildren(SubTreeAnims, animInfo->animIndex);
     if ( NumChildren > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+98h+var_38], xmm6
-        vmovss  xmm6, cs:__real@3f800000
-      }
       do
       {
-        ChildAt = XAnimGetChildAt(SubTreeAnims, _RSI->animIndex, v20);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovss  dword ptr [rsp+98h+var_68], xmm6
-          vmovss  [rsp+98h+goalTime], xmm0
-          vmovss  dword ptr [rsp+98h+fmt], xmm6
-        }
-        XAnimSetCompleteGoalWeight(obj, GraftAnimIndex, (const XAnimSubTreeID)_RSI->subTreeID, ChildAt, fmt, goalTime, v30, *((scr_string_t *)_RDI + 3), _RSI->notifyType, _RDI[4], curveID, modelNameMap);
-        if ( _RDI[4] )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi]
-            vmovss  dword ptr [rsp+98h+fmt], xmm0
-          }
-          XAnimClearTreeGoalWeightsStrict(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)_RSI->subTreeID, ChildAt, fmta, NULL, curveID);
-        }
-        SubTreeAnims = v32;
-        ++v20;
+        ChildAt = XAnimGetChildAt(SubTreeAnims, animInfo->animIndex, v15);
+        XAnimSetCompleteGoalWeight(obj, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, ChildAt, 1.0, *(float *)nodeData, 1.0, *((scr_string_t *)nodeData + 3), animInfo->notifyType, *((unsigned __int8 *)nodeData + 4), curveID, modelNameMap);
+        if ( *((_BYTE *)nodeData + 4) )
+          XAnimClearTreeGoalWeightsStrict(obj->tree, GraftAnimIndex, (const XAnimSubTreeID)animInfo->subTreeID, ChildAt, *(float *)nodeData, NULL, curveID);
+        SubTreeAnims = v18;
+        ++v15;
       }
-      while ( v20 < NumChildren );
-      __asm { vmovaps xmm6, [rsp+98h+var_38] }
+      while ( v15 < NumChildren );
     }
-    _RDI[16] = 1;
+    *((_BYTE *)nodeData + 16) = 1;
   }
 }
 
@@ -564,31 +423,37 @@ XAnimToggleAll_PostParse
 char XAnimToggleAll_PostParse(XAnim_s *anims, unsigned int animIndex)
 {
   const XAnimTypeFields *TypeFieldsForNodeType; 
-  __int64 v13; 
+  const XAnimParameterBinding *ConstantBindParameterByFieldNameAllBindings; 
+  const XAnimParameterBinding *v6; 
+  float floatValue; 
+  int v8; 
+  const char *fmt; 
   const char *AnimDebugName; 
 
   TypeFieldsForNodeType = XAnimGetTypeFieldsForNodeType(anims->entries[animIndex].nodeType);
   if ( !TypeFieldsForNodeType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 372, ASSERT_TYPE_ASSERT, "(typeFields)", (const char *)&queryFormat, "typeFields") )
     __debugbreak();
-  _RAX = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.blendtime, TypeFieldsForNodeType);
-  _RBX = _RAX;
-  if ( !_RAX )
+  ConstantBindParameterByFieldNameAllBindings = XAnimFindConstantBindParameterByFieldNameAllBindings(anims, animIndex, scr_const.blendtime, TypeFieldsForNodeType);
+  v6 = ConstantBindParameterByFieldNameAllBindings;
+  if ( !ConstantBindParameterByFieldNameAllBindings )
     return 1;
-  __asm
+  floatValue = ConstantBindParameterByFieldNameAllBindings->constant.floatValue;
+  if ( floatValue >= 0.0 )
   {
-    vmovss  xmm1, dword ptr [rax+8]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vcomiss xmm1, cs:__real@42480000
+    if ( floatValue > 50.0 )
+    {
+      AnimDebugName = XAnimGetAnimDebugName(anims, animIndex);
+      v8 = 382;
+      fmt = "blendtime is in seconds, not milliseconds.  are you sure you want a blendtime of %.4f seconds for %s?";
+      goto LABEL_9;
+    }
+    return 1;
   }
   AnimDebugName = XAnimGetAnimDebugName(anims, animIndex);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_20], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", 382, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "blendtime is in seconds, not milliseconds.  are you sure you want a blendtime of %.4f seconds for %s?", v13, AnimDebugName) )
+  v8 = 377;
+  fmt = "invalid blendtime value %.f specified in %s";
+LABEL_9:
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_toggle.cpp", v8, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, fmt, v6->constant.floatValue, AnimDebugName) )
     __debugbreak();
   return 0;
 }

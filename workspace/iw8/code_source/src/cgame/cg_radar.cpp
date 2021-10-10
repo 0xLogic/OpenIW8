@@ -52,129 +52,97 @@ CG_Radar_CalculateJammingLevel
 */
 void CG_Radar_CalculateJammingLevel(const LocalClientNum_t localClientNum)
 {
-  char v10; 
-  char v14; 
-  const dvar_t *v21; 
-  const dvar_t *v23; 
-  const dvar_t *v25; 
-  const char *v26; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  __int128 radarJammedDist_low; 
+  __int128 v8; 
+  __int128 v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v13; 
+  const char *v14; 
 
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 56, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 56, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( CG_Radar_IsJammed(localClientNum) && !CG_View_ClientHasAntiJammer(localClientNum) )
+  if ( !CG_Radar_IsJammed(localClientNum) || CG_View_ClientHasAntiJammer(localClientNum) )
   {
-    _RDI = DVARFLT_scramblerJamDistMin;
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-    }
-    if ( !DVARFLT_scramblerJamDistMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMin") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    _RDI = DVARFLT_scramblerJamDistMax;
-    if ( !DVARFLT_scramblerJamDistMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMax") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vsubss  xmm1, xmm0, xmm6
-      vxorps  xmm7, xmm7, xmm7
-      vucomiss xmm1, xmm7
-    }
-    if ( v14 )
-    {
-      __asm { vmovss  dword ptr [rbx+59EBCh], xmm7 }
-LABEL_14:
-      __asm
-      {
-        vmovaps xmm6, [rsp+78h+var_18]
-        vmovaps xmm7, [rsp+78h+var_28]
-      }
-      return;
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+59EB8h]
-      vcomiss xmm0, xmm6
-      vmovaps [rsp+78h+var_38], xmm8
-    }
-    if ( v10 )
-    {
-      __asm { vmovss  xmm8, cs:__real@3f800000 }
-    }
-    else
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm6
-        vdivss  xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm8, xmm1, xmm2
-      }
-    }
-    v21 = DVARBOOL_scramblerJamSinCurve;
-    if ( !DVARBOOL_scramblerJamSinCurve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamSinCurve") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    if ( v21->current.enabled )
-    {
-      __asm { vmulss  xmm0, xmm8, cs:__real@3fc90fdb; X }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm { vmovaps xmm8, xmm0 }
-    }
-    v23 = DCONST_DVARINT_bg_counterUAVStrengthLevelFullyJammed;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( !DCONST_DVARINT_bg_counterUAVStrengthLevelFullyJammed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_counterUAVStrengthLevelFullyJammed") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    if ( _RBX->predictedPlayerState.radarStrength > v23->current.integer )
-    {
-      if ( _RBX->predictedPlayerState.radarStrength > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_counterUAVStrengthLevelShowMapOnly, "bg_counterUAVStrengthLevelShowMapOnly") )
-      {
-        if ( _RBX->predictedPlayerState.radarStrength > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_counterUAVStrengthLevelShowFriendlyOnly, "bg_counterUAVStrengthLevelShowFriendlyOnly") )
-        {
-LABEL_33:
-          if ( _RBX->rsdJamming )
-          {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_counterUAVRadarJamLevelFullyJammed, "bg_counterUAVRadarJamLevelFullyJammed");
-            __asm { vmovaps xmm7, xmm0 }
-          }
-          __asm
-          {
-            vmaxss  xmm1, xmm6, xmm8
-            vmaxss  xmm0, xmm1, xmm7
-            vmovss  dword ptr [rbx+59EBCh], xmm0
-            vmovaps xmm8, [rsp+78h+var_38]
-          }
-          goto LABEL_14;
-        }
-        v25 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelShowFriendlyOnly;
-        v26 = "bg_counterUAVRadarJamLevelShowFriendlyOnly";
-      }
-      else
-      {
-        v25 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelShowMapOnly;
-        v26 = "bg_counterUAVRadarJamLevelShowMapOnly";
-      }
-    }
-    else
-    {
-      v25 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelFullyJammed;
-      v26 = "bg_counterUAVRadarJamLevelFullyJammed";
-    }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v25, v26);
-    __asm { vmovaps xmm6, xmm0 }
+    LocalClientGlobals->radarJamLevel = 0;
+    return;
+  }
+  v3 = DVARFLT_scramblerJamDistMin;
+  if ( !DVARFLT_scramblerJamDistMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMin") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DVARFLT_scramblerJamDistMax;
+  if ( !DVARFLT_scramblerJamDistMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMax") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value - value;
+  if ( v6 == 0.0 )
+  {
+    LocalClientGlobals->radarJamLevel = 0;
+    return;
+  }
+  radarJammedDist_low = LODWORD(LocalClientGlobals->radarJammedDist);
+  if ( *(float *)&radarJammedDist_low >= value )
+  {
+    v9 = LODWORD(FLOAT_1_0);
+    *(float *)&v9 = 1.0 - (float)((float)(*(float *)&radarJammedDist_low - value) / v6);
+    v8 = v9;
+  }
+  else
+  {
+    v8 = LODWORD(FLOAT_1_0);
+  }
+  v10 = DVARBOOL_scramblerJamSinCurve;
+  if ( !DVARBOOL_scramblerJamSinCurve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamSinCurve") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
+  {
+    *((_QWORD *)&radarJammedDist_low + 1) = *((_QWORD *)&v8 + 1);
+    sinf_0(*(float *)&v8 * 1.5707964);
+  }
+  v11 = DCONST_DVARINT_bg_counterUAVStrengthLevelFullyJammed;
+  _XMM6 = 0i64;
+  if ( !DCONST_DVARINT_bg_counterUAVStrengthLevelFullyJammed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_counterUAVStrengthLevelFullyJammed") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v11);
+  if ( LocalClientGlobals->predictedPlayerState.radarStrength <= v11->current.integer )
+  {
+    v13 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelFullyJammed;
+    v14 = "bg_counterUAVRadarJamLevelFullyJammed";
+LABEL_32:
+    *(double *)&radarJammedDist_low = Dvar_GetFloat_Internal_DebugName(v13, v14);
+    _XMM6 = radarJammedDist_low;
     goto LABEL_33;
   }
+  if ( LocalClientGlobals->predictedPlayerState.radarStrength <= Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_counterUAVStrengthLevelShowMapOnly, "bg_counterUAVStrengthLevelShowMapOnly") )
+  {
+    v13 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelShowMapOnly;
+    v14 = "bg_counterUAVRadarJamLevelShowMapOnly";
+    goto LABEL_32;
+  }
+  if ( LocalClientGlobals->predictedPlayerState.radarStrength <= Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_counterUAVStrengthLevelShowFriendlyOnly, "bg_counterUAVStrengthLevelShowFriendlyOnly") )
+  {
+    v13 = DCONST_DVARFLT_bg_counterUAVRadarJamLevelShowFriendlyOnly;
+    v14 = "bg_counterUAVRadarJamLevelShowFriendlyOnly";
+    goto LABEL_32;
+  }
+LABEL_33:
+  if ( LocalClientGlobals->rsdJamming )
+    Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_counterUAVRadarJamLevelFullyJammed, "bg_counterUAVRadarJamLevelFullyJammed");
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbx+59EBCh], xmm0
+    vmaxss  xmm1, xmm6, xmm8
+    vmaxss  xmm0, xmm1, xmm7
   }
+  LocalClientGlobals->radarJamLevel = *(float *)&_XMM0;
 }
 
 /*
@@ -208,19 +176,15 @@ CG_Radar_GetJammingLevel
 */
 float CG_Radar_GetJammingLevel(const LocalClientNum_t localClientNum)
 {
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 123, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  cg_t *LocalClientGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 123, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|WEAPON_OFFHAND_END) )
-  {
-    __asm { vmovss  xmm0, dword ptr [rbx+0B52D4h] }
-  }
-  else
-  {
-    CG_Radar_CalculateJammingLevel(localClientNum);
-    __asm { vmovss  xmm0, dword ptr [rbx+59EBCh] }
-  }
-  return *(float *)&_XMM0;
+    return LocalClientGlobals->currentRadarJamLevel;
+  CG_Radar_CalculateJammingLevel(localClientNum);
+  return LocalClientGlobals->radarJamLevel;
 }
 
 /*
@@ -228,47 +192,26 @@ float CG_Radar_GetJammingLevel(const LocalClientNum_t localClientNum)
 CG_Radar_IsJammed
 ==============
 */
-__int64 CG_Radar_IsJammed(const LocalClientNum_t localClientNum)
+_BOOL8 CG_Radar_IsJammed(const LocalClientNum_t localClientNum)
 {
-  char v6; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
 
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|WEAPON_OFFHAND_END) )
-  {
-    if ( _RBX->predictedPlayerState.radarBlocked )
-      return 1i64;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+0B52D4h]
-    }
-  }
-  if ( !_RBX->rsdJamming )
-  {
-    _RDI = DVARFLT_scramblerJamDistMin;
-    if ( !DVARFLT_scramblerJamDistMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMin") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, dword ptr [rbx+59EB8h]
-    }
-    if ( !v6 )
-      return 0i64;
-    _RDI = DVARFLT_scramblerJamDistMax;
-    if ( !DVARFLT_scramblerJamDistMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMax") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, dword ptr [rbx+59EB8h]
-    }
-    if ( v6 )
-      return 0i64;
-  }
-  return 1i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|WEAPON_OFFHAND_END) && (LocalClientGlobals->predictedPlayerState.radarBlocked || LocalClientGlobals->currentRadarJamLevel > 0.0) || LocalClientGlobals->rsdJamming )
+    return 1i64;
+  v2 = DVARFLT_scramblerJamDistMin;
+  if ( !DVARFLT_scramblerJamDistMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMin") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.value >= LocalClientGlobals->radarJammedDist )
+    return 0i64;
+  v3 = DVARFLT_scramblerJamDistMax;
+  if ( !DVARFLT_scramblerJamDistMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMax") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v3);
+  return v3->current.value >= LocalClientGlobals->radarJammedDist;
 }
 
 /*
@@ -278,56 +221,41 @@ CG_Radar_UpdateJammingLevel
 */
 void CG_Radar_UpdateJammingLevel(const LocalClientNum_t localClientNum)
 {
-  char v4; 
-  char v9; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v3; 
+  float radarJamLevel; 
+  float currentRadarJamLevel; 
+  float v6; 
+  double v7; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 145, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_SMOOTH_SCRAMBLER ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_SMOOTH_SCRAMBLER )") )
     __debugbreak();
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 148, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_radar.cpp", 148, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( (unsigned int)CG_Radar_IsJammed(localClientNum) )
+  if ( CG_Radar_IsJammed(localClientNum) && -1.0 == LocalClientGlobals->radarJammedDist )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@bf800000
-      vucomiss xmm0, dword ptr [rbx+59EB8h]
-    }
+    v3 = DVARFLT_scramblerJamDistMax;
+    if ( !DVARFLT_scramblerJamDistMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scramblerJamDistMax") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v3);
+    LODWORD(LocalClientGlobals->radarJammedDist) = v3->current.integer;
   }
   CG_Radar_CalculateJammingLevel(localClientNum);
-  __asm
+  radarJamLevel = LocalClientGlobals->radarJamLevel;
+  currentRadarJamLevel = LocalClientGlobals->currentRadarJamLevel;
+  v6 = radarJamLevel - currentRadarJamLevel;
+  if ( (float)(v6 * v6) < 0.0099999998 )
   {
-    vmovss  xmm1, dword ptr [rbx+59EBCh]
-    vmovss  xmm3, dword ptr [rbx+0B52D4h]
-    vsubss  xmm2, xmm1, xmm3
-    vmulss  xmm0, xmm2, xmm2
-    vcomiss xmm0, cs:__real@3c23d70a
+    LocalClientGlobals->currentRadarJamLevel = radarJamLevel;
+    currentRadarJamLevel = radarJamLevel;
   }
-  if ( v9 )
+  if ( radarJamLevel != currentRadarJamLevel )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbx+0B52D4h], xmm1
-      vmovaps xmm3, xmm1
-    }
+    currentRadarJamLevel = (float)(v6 * 0.06666667) + currentRadarJamLevel;
+    LocalClientGlobals->currentRadarJamLevel = currentRadarJamLevel;
   }
-  __asm { vucomiss xmm1, xmm3 }
-  if ( !v4 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm2, cs:__real@3d888889
-      vaddss  xmm3, xmm1, xmm3
-      vmovss  dword ptr [rbx+0B52D4h], xmm3
-    }
-  }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm3; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rbx+0B52D4h], xmm0 }
+  v7 = I_fclamp(currentRadarJamLevel, 0.0, 1.0);
+  LocalClientGlobals->currentRadarJamLevel = *(float *)&v7;
 }
 

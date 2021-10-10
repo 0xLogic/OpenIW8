@@ -53,10 +53,11 @@ ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<
 ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::insert_node(ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare> *this, ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *result, ntl::red_black_tree_node_base *p_insert, const AdjacentEdgeInfo *r_element, bool hintElementLessInsert, bool hintInsertLessElement)
 {
   ntl::internal::pool_allocator_freelist<64> *p_m_freelist; 
-  ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *v16; 
-  __m256i v17; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  __m256i v14; 
+  ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *v15; 
+  __m256i v16; 
 
-  _RBP = r_element;
   if ( !p_insert && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
     __debugbreak();
   p_m_freelist = &this->m_freelist;
@@ -69,44 +70,40 @@ ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentE
   }
   if ( (ntl::internal::pool_allocator_freelist<64> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x40ui64, 0x400ui64) )
     __debugbreak();
-  _RDI = (ntl::red_black_tree_node<AdjacentEdgeInfo> *)p_m_freelist->m_head.mp_next;
+  mp_next = p_m_freelist->m_head.mp_next;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v17.m256i_i32[0] = 0;
-  v17.m256i_i64[1] = (__int64)p_insert;
+  v16.m256i_i32[0] = 0;
+  v16.m256i_i64[1] = (__int64)p_insert;
   p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [rbp+0]
-    vmovdqu xmmword ptr [rsp+98h+var_58+10h], xmm0
-    vmovups ymm0, ymmword ptr [rsp+98h+var_58]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymmword ptr [rdi+20h], ymm1
-  }
+  v14 = *(__m256i *)r_element;
+  *(_OWORD *)&v16.m256i_u64[2] = _XMM0;
+  *(__m256i *)&mp_next->mp_next = v16;
+  *(__m256i *)&mp_next[4].mp_next = v14;
   if ( p_insert == &this->m_endNodeBase )
   {
-    this->m_endNodeBase.mp_left = _RDI;
-    this->m_endNodeBase.mp_parent = _RDI;
+    this->m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+    this->m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
 LABEL_21:
-    this->m_endNodeBase.mp_right = _RDI;
+    this->m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
     goto LABEL_22;
   }
-  if ( !hintInsertLessElement && (hintElementLessInsert || AdjacentEdgeInfoCompare::operator()(&this->m_keyCompare, _RBP, (const AdjacentEdgeInfo *)&p_insert[1])) )
+  if ( !hintInsertLessElement && (hintElementLessInsert || AdjacentEdgeInfoCompare::operator()(&this->m_keyCompare, r_element, (const AdjacentEdgeInfo *)&p_insert[1])) )
   {
-    p_insert->mp_left = _RDI;
+    p_insert->mp_left = (ntl::red_black_tree_node_base *)mp_next;
     if ( p_insert == this->m_endNodeBase.mp_left )
-      this->m_endNodeBase.mp_left = _RDI;
+      this->m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
   }
   else
   {
-    p_insert->mp_right = _RDI;
+    p_insert->mp_right = (ntl::red_black_tree_node_base *)mp_next;
     if ( p_insert == this->m_endNodeBase.mp_right )
       goto LABEL_21;
   }
 LABEL_22:
-  ntl::red_black_tree_node_base::rebalance(_RDI, &this->m_endNodeBase.mp_parent);
+  ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &this->m_endNodeBase.mp_parent);
   ++this->m_size;
-  v16 = result;
-  result->mp_node = _RDI;
-  return v16;
+  v15 = result;
+  result->mp_node = (ntl::red_black_tree_node<AdjacentEdgeInfo> *)mp_next;
+  return v15;
 }
 

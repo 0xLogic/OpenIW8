@@ -423,8 +423,6 @@ void BG_GesturePriority_GetGameplayStateBlendOutInfo(const BgWeaponMap *weaponMa
   const Weapon *CurrentWeaponForPlayer; 
   GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
   bool v20; 
-  char v24; 
-  char v25; 
   int weaponTime; 
   GestureAnimationSettings *AnimationSettings; 
   int outDuration; 
@@ -477,22 +475,9 @@ void BG_GesturePriority_GetGameplayStateBlendOutInfo(const BgWeaponMap *weaponMa
 LABEL_19:
       v20 = 0;
     BG_GetADSTransTimes(weaponMap, ps, CurrentWeaponForPlayer, v20, (float *)&outEarlyOutDuration, (float *)&outEarlyOut);
-    __asm
+    if ( COERCE_FLOAT((unsigned int)outEarlyOut & _xmm) > 0.000001 )
     {
-      vmovss  xmm1, dword ptr [rsp+58h+outEarlyOut]
-      vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( !(v24 | v25) )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm1, xmm0, xmm1
-        vcvttss2si eax, xmm1
-      }
-      *v13 = _EAX;
+      *v13 = (int)(float)(1.0 / *(float *)&outEarlyOut);
       *v14 = 0;
       return;
     }
@@ -531,142 +516,133 @@ BG_GesturePriority_GetGestureInterruptingState
 __int64 BG_GesturePriority_GetGestureInterruptingState(const BgWeaponMap *weaponMap, const playerState_s *ps, const BgHandler *pmHandler, const Gesture *gesture, GestureHandCheck handCheck)
 {
   unsigned int priority; 
-  int v11; 
+  int v10; 
   PlayerHandIndex WeaponHand; 
-  PlayerHandIndex v13; 
-  unsigned __int64 v14; 
-  __int64 v15; 
+  PlayerHandIndex v12; 
+  unsigned __int64 v13; 
+  __int64 v14; 
   int *i; 
-  char v17; 
-  GesturePriority v18; 
-  int v19; 
-  unsigned __int64 v20; 
-  __int64 v21; 
-  __int64 v23; 
+  char v16; 
+  GesturePriority v17; 
+  int v18; 
+  unsigned __int64 v19; 
+  __int64 v20; 
+  __int64 v22; 
 
-  _R13 = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gesture_priority.cpp", 176, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !pmHandler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gesture_priority.cpp", 177, ASSERT_TYPE_ASSERT, "(pmHandler)", (const char *)&queryFormat, "pmHandler") )
     __debugbreak();
   if ( (unsigned int)handCheck >= GESTURE_HAND_CHECK_COUNT )
   {
-    LODWORD(v23) = handCheck;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gesture_priority.cpp", 178, ASSERT_TYPE_ASSERT, "(unsigned)( handCheck ) < (unsigned)( GESTURE_HAND_CHECK_COUNT )", "handCheck doesn't index GESTURE_HAND_CHECK_COUNT\n\t%i not in [0, %i)", v23, 3) )
+    LODWORD(v22) = handCheck;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gesture_priority.cpp", 178, ASSERT_TYPE_ASSERT, "(unsigned)( handCheck ) < (unsigned)( GESTURE_HAND_CHECK_COUNT )", "handCheck doesn't index GESTURE_HAND_CHECK_COUNT\n\t%i not in [0, %i)", v22, 3) )
       __debugbreak();
   }
   if ( !gesture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_gesture_priority.cpp", 179, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R13->pm_flags, ACTIVE, 9u) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 9u) || ADS_BLEND_THRESHOLD < ps->weapCommon.fWeaponPosFrac )
   {
     priority = gesture->priority;
     if ( priority > 9 )
       return 2i64;
-    v11 = 591;
-    if ( !_bittest(&v11, priority) )
+    v10 = 591;
+    if ( !_bittest(&v10, priority) )
       return 2i64;
   }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:ADS_BLEND_THRESHOLD
-      vcomiss xmm0, dword ptr [r13+730h]
-    }
-  }
-  WeaponHand = BG_PlayerLastWeaponHand(weaponMap, _R13);
+  WeaponHand = BG_PlayerLastWeaponHand(weaponMap, ps);
   if ( handCheck )
   {
-    v13 = handCheck == GESTURE_HAND_CHECK_LEFT;
-    v14 = WeaponHand >= WEAPON_HAND_LEFT;
+    v12 = handCheck == GESTURE_HAND_CHECK_LEFT;
+    v13 = WeaponHand >= WEAPON_HAND_LEFT;
   }
   else
   {
-    v14 = 0i64;
-    v13 = WEAPON_HAND_DEFAULT;
+    v13 = 0i64;
+    v12 = WEAPON_HAND_DEFAULT;
   }
-  v15 = (unsigned int)v13;
-  if ( (unsigned int)v13 > v14 )
+  v14 = (unsigned int)v12;
+  if ( (unsigned int)v12 > v13 )
     return 512i64;
-  for ( i = &_R13->weapState[v13].weaponState; ; i += 20 )
+  for ( i = &ps->weapState[v12].weaponState; ; i += 20 )
   {
     if ( gesture->priority != GESTURE_PRIORITY_MOUNT )
     {
 LABEL_29:
-      v17 = 0;
+      v16 = 0;
       goto LABEL_30;
     }
     if ( (unsigned int)(*i - 18) > 3 )
     {
       if ( *i == 17 )
       {
-        v17 = 1;
+        v16 = 1;
       }
       else
       {
-        if ( !PM_Weapon_IsInInterruptibleState(weaponMap, _R13, v13, pmHandler) )
+        if ( !PM_Weapon_IsInInterruptibleState(weaponMap, ps, v12, pmHandler) )
           goto LABEL_29;
-        v17 = 1;
+        v16 = 1;
       }
     }
     else
     {
-      v17 = 1;
+      v16 = 1;
     }
 LABEL_30:
-    v18 = gesture->priority;
-    if ( v18 != GESTURE_PRIORITY_SCRIPT && v18 != GESTURE_PRIORITY_DEMEANOR )
+    v17 = gesture->priority;
+    if ( v17 != GESTURE_PRIORITY_SCRIPT && v17 != GESTURE_PRIORITY_DEMEANOR )
       goto LABEL_37;
-    v19 = *i;
+    v18 = *i;
     if ( (unsigned int)(*i - 16) > 1 )
     {
-      if ( v19 == 22 )
+      if ( v18 == 22 )
         goto LABEL_38;
-      if ( (unsigned int)(v19 - 23) > 1 )
+      if ( (unsigned int)(v18 - 23) > 1 )
         goto LABEL_37;
     }
-    if ( v19 != 22 )
+    if ( v18 != 22 )
     {
-      if ( (unsigned int)(v19 - 23) > 1 )
+      if ( (unsigned int)(v18 - 23) > 1 )
         return 1i64;
 LABEL_37:
-      v19 = *i;
+      v18 = *i;
       if ( (unsigned int)(*i - 22) > 2 )
         goto LABEL_39;
     }
 LABEL_38:
-    if ( !v17 )
+    if ( !v16 )
       return 128i64;
 LABEL_39:
-    if ( (v18 == GESTURE_PRIORITY_SCRIPT || v18 == GESTURE_PRIORITY_MOUNT_REACH) && (unsigned int)(v19 - 34) <= 1 || v18 == GESTURE_PRIORITY_DEMEANOR && v19 == 36 && BG_Demeanor_IsFireRequested(_R13) )
+    if ( (v17 == GESTURE_PRIORITY_SCRIPT || v17 == GESTURE_PRIORITY_MOUNT_REACH) && (unsigned int)(v18 - 34) <= 1 || v17 == GESTURE_PRIORITY_DEMEANOR && v18 == 36 && BG_Demeanor_IsFireRequested(ps) )
       return 4i64;
-    v20 = *i;
-    if ( (unsigned int)(v20 - 1) <= 4 && gesture->priority == GESTURE_PRIORITY_DEMEANOR && !v17 )
+    v19 = *i;
+    if ( (unsigned int)(v19 - 1) <= 4 && gesture->priority == GESTURE_PRIORITY_DEMEANOR && !v16 )
     {
-      if ( (_R13->weapState[0].weapAnim & 0xFFFFFF7F) == 15 && BG_Demeanor_GetTargetState(_R13) == DEMEANOR_STATE_SAFE )
+      if ( (ps->weapState[0].weapAnim & 0xFFFFFF7F) == 15 && BG_Demeanor_GetTargetState(ps) == DEMEANOR_STATE_SAFE )
         return 16i64;
       return 512i64;
     }
-    if ( (unsigned int)v20 <= 0x32 )
+    if ( (unsigned int)v19 <= 0x32 )
     {
-      v21 = 0x4000000001FBEi64;
-      if ( _bittest64(&v21, v20) )
+      v20 = 0x4000000001FBEi64;
+      if ( _bittest64(&v20, v19) )
       {
-        if ( !v17 )
+        if ( !v16 )
           break;
       }
     }
-    if ( (unsigned int)(v20 - 18) <= 3 && !v17 )
+    if ( (unsigned int)(v19 - 18) <= 3 && !v16 )
       return 8i64;
-    if ( (_DWORD)v20 == 17 && !v17 )
+    if ( (_DWORD)v19 == 17 && !v16 )
       return 32i64;
-    if ( gesture->priority != GESTURE_PRIORITY_MANTLE && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R13->pm_flags, ACTIVE, 5u) )
+    if ( gesture->priority != GESTURE_PRIORITY_MANTLE && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
       return 256i64;
-    ++v13;
-    if ( ++v15 > (__int64)v14 )
+    ++v12;
+    if ( ++v14 > (__int64)v13 )
       return 512i64;
   }
-  if ( (unsigned int)(_R13->weapState[v13].weaponState - 9) > 1 || gesture->priority != GESTURE_PRIORITY_DEMEANOR )
+  if ( (unsigned int)(ps->weapState[v12].weaponState - 9) > 1 || gesture->priority != GESTURE_PRIORITY_DEMEANOR )
     return 16i64;
   return 512i64;
 }

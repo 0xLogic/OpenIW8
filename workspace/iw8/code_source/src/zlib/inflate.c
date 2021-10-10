@@ -231,13 +231,11 @@ __int64 inflateCopy(z_stream_s *dest, z_stream_s *source)
 {
   internal_state *state; 
   void *(__fastcall *zalloc)(void *, unsigned int, unsigned int); 
-  internal_state *v6; 
+  __int64 v6; 
   __int64 result; 
   void *v8; 
-  unsigned __int64 v13; 
+  unsigned __int64 v9; 
 
-  _RBX = source;
-  _R14 = dest;
   if ( !dest )
     return 4294967294i64;
   if ( !source )
@@ -248,40 +246,33 @@ __int64 inflateCopy(z_stream_s *dest, z_stream_s *source)
   zalloc = source->zalloc;
   if ( !zalloc || !source->zfree )
     return 4294967294i64;
-  v6 = (internal_state *)zalloc(source->opaque, 1u, 7144u);
+  v6 = (__int64)zalloc(source->opaque, 1u, 7144u);
   if ( !v6 )
     return 4294967292i64;
   v8 = NULL;
-  if ( !*(_QWORD *)&state[14].dummy || (v8 = _RBX->zalloc(_RBX->opaque, 1 << state[10].dummy, 1u)) != NULL )
+  if ( !*(_QWORD *)&state[14].dummy || (v8 = source->zalloc(source->opaque, (unsigned int)(1 << state[10].dummy), 1i64)) != NULL )
   {
-    __asm
+    *(__m256i *)&dest->next_in = *(__m256i *)&source->next_in;
+    *(__m256i *)&dest->msg = *(__m256i *)&source->msg;
+    *(_OWORD *)&dest->opaque = *(_OWORD *)&source->opaque;
+    *(double *)&dest->reserved = *(double *)&source->reserved;
+    memcpy_0((void *)v6, state, 0x1BE8ui64);
+    v9 = *(_QWORD *)&state[22].dummy;
+    if ( v9 >= (unsigned __int64)&state[338] && v9 <= (unsigned __int64)&state[1781] )
     {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [r14], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [r14+20h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [r14+40h], xmm0
-      vmovsd  xmm1, qword ptr [rbx+50h]
-      vmovsd  qword ptr [r14+50h], xmm1
+      *(_QWORD *)(v6 + 88) = v6 + 4 * ((__int64)(v9 - (_QWORD)state - 1352) >> 2) + 1352;
+      *(_QWORD *)(v6 + 96) = v6 + 4 * ((*(_QWORD *)&state[24].dummy - (_QWORD)state - 1352i64) >> 2) + 1352;
     }
-    memcpy_0(v6, state, 0x1BE8ui64);
-    v13 = *(_QWORD *)&state[22].dummy;
-    if ( v13 >= (unsigned __int64)&state[338] && v13 <= (unsigned __int64)&state[1781] )
-    {
-      *(_QWORD *)&v6[22].dummy = &v6[((__int64)(v13 - (_QWORD)state - 1352) >> 2) + 338];
-      *(_QWORD *)&v6[24].dummy = &v6[((*(_QWORD *)&state[24].dummy - (_QWORD)state - 1352i64) >> 2) + 338];
-    }
-    *(_QWORD *)&v6[32].dummy = &v6[((*(_QWORD *)&state[32].dummy - (_QWORD)state - 1352i64) >> 2) + 338];
+    *(_QWORD *)(v6 + 128) = v6 + 4 * ((*(_QWORD *)&state[32].dummy - (_QWORD)state - 1352i64) >> 2) + 1352;
     if ( v8 )
       memcpy_0(v8, *(const void **)&state[14].dummy, (unsigned int)(1 << state[10].dummy));
-    *(_QWORD *)&v6[14].dummy = v8;
+    *(_QWORD *)(v6 + 56) = v8;
     result = 0i64;
-    _R14->state = v6;
+    dest->state = (internal_state *)v6;
   }
   else
   {
-    _RBX->zfree(_RBX->opaque, v6);
+    source->zfree(source->opaque, (void *)v6);
     return 4294967292i64;
   }
   return result;

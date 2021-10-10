@@ -172,153 +172,109 @@ G_EntityMarks_EntityMarkedForClient
 */
 void G_EntityMarks_EntityMarkedForClient(const int clientNum, const gclient_s *const client, const __int16 entityIndex, const vec3_t *playerOrigin, const vec3_t *playerDir, float *inOutMarkDistSq, EntityMarkFlags *outMarkFlags)
 {
-  __int64 v12; 
+  __int64 v10; 
   gentity_s *GEntity; 
+  gentity_s *v12; 
   __int64 team; 
-  char v16; 
-  __int64 v17; 
-  __int64 v18; 
-  unsigned int v19; 
-  bool v20; 
-  bool v21; 
-  bool v23; 
-  bool v39; 
-  __int64 v58; 
+  char v14; 
+  __int64 v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  bool v18; 
+  bool v19; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v25; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v32; 
+  __int64 v33; 
 
-  _R15 = inOutMarkDistSq;
-  _RDI = client;
-  v12 = clientNum;
+  v10 = clientNum;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 113, ASSERT_TYPE_ASSERT, "( client != nullptr )", (const char *)&queryFormat, "client != nullptr") )
     __debugbreak();
   *outMarkFlags = MARK_FLAG_NONE;
   if ( G_IsEntityInUse(entityIndex) )
   {
     GEntity = G_GetGEntity(entityIndex);
-    _RBP = GEntity;
-    if ( GEntity->client != _RDI && (GEntity->r.svFlags & 1) == 0 )
+    v12 = GEntity;
+    if ( GEntity->client != client && (GEntity->r.svFlags & 1) == 0 )
     {
       if ( level.teammode == TEAMMODE_FFA )
       {
-        if ( (unsigned int)((int)v12 >> 5) >= 7 )
+        if ( (unsigned int)((int)v10 >> 5) >= 7 )
         {
-          LODWORD(v58) = (int)v12 >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 159, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum >> 5 ) < (unsigned)( ( sizeof( *array_counter( ent->markFilterIn ) ) + 0 ) )", "clientNum >> 5 doesn't index ARRAY_COUNT( ent->markFilterIn )\n\t%i not in [0, %i)", v58, 7) )
+          LODWORD(v33) = (int)v10 >> 5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 159, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum >> 5 ) < (unsigned)( ( sizeof( *array_counter( ent->markFilterIn ) ) + 0 ) )", "clientNum >> 5 doesn't index ARRAY_COUNT( ent->markFilterIn )\n\t%i not in [0, %i)", v33, 7) )
             __debugbreak();
         }
-        v16 = v12;
-        v17 = v12;
+        v14 = v10;
+        v15 = v10;
       }
       else
       {
-        team = _RDI->sess.cs.team;
+        team = client->sess.cs.team;
         if ( !(_DWORD)team || (unsigned int)(team - 201) <= 1 )
           return;
         if ( (unsigned int)((int)team >> 5) >= 7 )
         {
-          LODWORD(v58) = (int)team >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 148, ASSERT_TYPE_ASSERT, "(unsigned)( clientTeam >> 5 ) < (unsigned)( ( sizeof( *array_counter( ent->markFilterIn ) ) + 0 ) )", "clientTeam >> 5 doesn't index ARRAY_COUNT( ent->markFilterIn )\n\t%i not in [0, %i)", v58, 7) )
+          LODWORD(v33) = (int)team >> 5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 148, ASSERT_TYPE_ASSERT, "(unsigned)( clientTeam >> 5 ) < (unsigned)( ( sizeof( *array_counter( ent->markFilterIn ) ) + 0 ) )", "clientTeam >> 5 doesn't index ARRAY_COUNT( ent->markFilterIn )\n\t%i not in [0, %i)", v33, 7) )
             __debugbreak();
         }
-        v16 = team;
-        v17 = team;
+        v14 = team;
+        v15 = team;
       }
-      v18 = v17 >> 5;
-      v19 = 0x80000000 >> (v16 & 0x1F);
-      v20 = (v19 & _RBP->markFilterIn[v18]) != 0;
-      v21 = (v19 & _RBP->markFilterOut[v18]) == 0;
-      if ( v20 )
+      v16 = v15 >> 5;
+      v17 = 0x80000000 >> (v14 & 0x1F);
+      v18 = (v17 & v12->markFilterIn[v16]) != 0;
+      v19 = (v17 & v12->markFilterOut[v16]) == 0;
+      if ( v18 )
       {
-        LOBYTE(_ECX) = _RBP->markFlags;
-        v23 = (_BYTE)_ECX == 0;
+        LOBYTE(_ECX) = v12->markFlags;
         if ( (_BYTE)_ECX )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+130h]
-            vsubss  xmm3, xmm0, dword ptr [rdi+30h]
-            vmovss  xmm1, dword ptr [rbp+134h]
-            vsubss  xmm2, xmm1, dword ptr [rdi+34h]
-            vmovss  xmm0, dword ptr [rbp+138h]
-            vsubss  xmm4, xmm0, dword ptr [rdi+38h]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm5, xmm3, xmm0
-            vxorps  xmm1, xmm1, xmm1
-          }
+          v21 = v12->r.currentOrigin.v[0] - client->ps.origin.v[0];
+          v22 = v12->r.currentOrigin.v[1] - client->ps.origin.v[1];
+          v23 = v12->r.currentOrigin.v[2] - client->ps.origin.v[2];
           do
           {
             _ECX = (unsigned __int8)_ECX;
             __asm { tzcnt   edx, ecx }
-            _RAX = (unsigned __int8)_EDX;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+rax*4+0AB44h]
-              vucomiss xmm0, xmm1
-            }
-            if ( v23 )
+            v25 = client->markState.entityFilterInDistanceSq[(unsigned __int8)_EDX];
+            if ( v25 == 0.0 || (float)((float)((float)(v22 * v22) + (float)(v21 * v21)) + (float)(v23 * v23)) <= v25 )
               *outMarkFlags |= (unsigned __int8)(1 << _EDX) | 0x80;
-            else
-              __asm { vcomiss xmm5, xmm0 }
             _ECX = (unsigned __int8)_ECX ^ (1 << _EDX);
-            v23 = (_BYTE)_ECX == 0;
           }
           while ( (_BYTE)_ECX );
         }
       }
-      else if ( v21 )
+      else if ( v19 )
       {
-        LOBYTE(_EBX) = _RBP->markFlags & _RDI->markState.entityMarkEnable;
-        v39 = (_BYTE)_EBX == 0;
+        LOBYTE(_EBX) = v12->markFlags & client->markState.entityMarkEnable;
         if ( (_BYTE)_EBX )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+130h]
-            vsubss  xmm3, xmm0, dword ptr [rdi+30h]
-            vmovss  xmm1, dword ptr [rbp+134h]
-            vmovss  xmm0, dword ptr [rbp+138h]
-            vsubss  xmm2, xmm1, dword ptr [rdi+34h]
-            vsubss  xmm4, xmm0, dword ptr [rdi+38h]
-            vmovaps [rsp+0A8h+var_58], xmm6
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vmovaps [rsp+0A8h+var_68], xmm7
-            vaddss  xmm6, xmm3, xmm0
-            vxorps  xmm7, xmm7, xmm7
-          }
+          v27 = v12->r.currentOrigin.v[0] - client->ps.origin.v[0];
+          v28 = v12->r.currentOrigin.v[1] - client->ps.origin.v[1];
+          v29 = v12->r.currentOrigin.v[2] - client->ps.origin.v[2];
+          v30 = (float)((float)(v28 * v28) + (float)(v27 * v27)) + (float)(v29 * v29);
           do
           {
             _EBX = (unsigned __int8)_EBX;
             __asm { tzcnt   esi, ebx }
-            _RAX = (unsigned __int8)_ESI;
-            __asm
+            v32 = client->markState.entityMarkDistanceSq[(unsigned __int8)_ESI];
+            if ( v32 == 0.0 || v30 <= v32 )
             {
-              vmovss  xmm0, dword ptr [rdi+rax*4+0AB38h]
-              vucomiss xmm0, xmm7
-            }
-            if ( v39 )
-              goto LABEL_37;
-            __asm { vcomiss xmm6, xmm0 }
-            if ( v39 )
-            {
-LABEL_37:
               *outMarkFlags |= 1 << _ESI;
-              if ( _RDI->markState.entityMarkTargetEnable )
-                __asm { vcomiss xmm6, dword ptr [r15] }
+              if ( client->markState.entityMarkTargetEnable && v30 < *inOutMarkDistSq && G_EntityMarks_EntityMarkedTarget(client, playerOrigin, playerDir, (const EntityMarkType)_ESI, v12) )
+                *inOutMarkDistSq = v30;
             }
             _EBX ^= 1 << _ESI;
-            v39 = (_BYTE)_EBX == 0;
           }
           while ( (_BYTE)_EBX );
-          __asm
-          {
-            vmovaps xmm7, [rsp+0A8h+var_68]
-            vmovaps xmm6, [rsp+0A8h+var_58]
-          }
         }
       }
     }
@@ -333,18 +289,13 @@ G_EntityMarks_EntityMarkedTarget
 bool G_EntityMarks_EntityMarkedTarget(const gclient_s *const client, const vec3_t *playerOrigin, const vec3_t *playerDir, const EntityMarkType markType, const gentity_s *const ent)
 {
   unsigned int Instance; 
-  bool v16; 
   unsigned int m_serialAndIndex; 
-  char v18; 
-  bool v19; 
-  bool v24; 
-  bool v29; 
-  double v77; 
-  double v78; 
-  double v79; 
-  double v80; 
-  double v81; 
-  double v82; 
+  float v11; 
+  float v12; 
+  double v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   hknpBodyId result; 
   float tmin; 
   Bounds bounds; 
@@ -358,47 +309,31 @@ bool G_EntityMarks_EntityMarkedTarget(const gclient_s *const client, const vec3_
   vec4_t orientation; 
   vec3_t outHitPoint; 
 
-  _RBX = ent;
-  _RSI = playerOrigin;
-  _RDI = client;
-  _R14 = playerDir;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 45, ASSERT_TYPE_ASSERT, "( client != nullptr )", (const char *)&queryFormat, "client != nullptr") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 46, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
     __debugbreak();
   Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, ent);
-  v16 = Instance == -1;
   if ( Instance == -1 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+118h]
-      vmovsd  xmm1, qword ptr [rbx+128h]
-      vmovups xmmword ptr [rsp+180h+bounds.midPoint], xmm0
-      vmovss  xmm0, dword ptr [rsi]
-      vmovsd  qword ptr [rsp+180h+bounds.halfSize+4], xmm1
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rbp+80h+outTransformedPoint], xmm0
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rbp+80h+outTransformedPoint+4], xmm1
-      vmovss  xmm1, dword ptr [r14]
-      vmovss  dword ptr [rbp+80h+outTransformedPoint+8], xmm0
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  dword ptr [rbp+80h+out], xmm1
-      vmovss  xmm1, dword ptr [r14+8]
-      vmovss  dword ptr [rbp+80h+out+4], xmm0
-      vmovss  dword ptr [rbp+80h+out+8], xmm1
-    }
+    v13 = *(double *)&ent->r.absBox.halfSize.y;
+    *(_OWORD *)bounds.midPoint.v = *(_OWORD *)ent->r.absBox.midPoint.v;
+    v14 = playerOrigin->v[0];
+    *(double *)&bounds.halfSize.y = v13;
+    *(float *)&v13 = playerOrigin->v[1];
+    outTransformedPoint.v[0] = v14;
+    v15 = playerOrigin->v[2];
+    outTransformedPoint.v[1] = *(float *)&v13;
+    *(float *)&v13 = playerDir->v[0];
+    outTransformedPoint.v[2] = v15;
+    v16 = playerDir->v[1];
+    out.v[0] = *(float *)&v13;
+    *(float *)&v13 = playerDir->v[2];
+    out.v[1] = v16;
+    out.v[2] = *(float *)&v13;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+180h+var_40], xmm6
-      vmovaps [rsp+180h+var_50], xmm7
-      vmovaps [rsp+180h+var_60], xmm8
-      vmovaps [rsp+180h+var_70], xmm9
-    }
     if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
       __debugbreak();
     if ( !g_physicsServerWorldsCreated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", 0) )
@@ -407,167 +342,65 @@ bool G_EntityMarks_EntityMarkedTarget(const gclient_s *const client, const vec3_
     if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 60, ASSERT_TYPE_ASSERT, "( Physics_IsRigidBodyIdValid( physBodyId ) )", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( physBodyId )") )
       __debugbreak();
     Physics_GetRigidBodyAABB(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, &aabbMin, &aabbMax, 0);
-    __asm
+    if ( aabbMin.v[0] > aabbMax.v[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", aabbMin.v[0], aabbMax.v[0]) )
+      __debugbreak();
+    if ( aabbMin.v[1] > aabbMax.v[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", aabbMin.v[1], aabbMax.v[1]) )
+      __debugbreak();
+    v11 = aabbMin.v[2];
+    v12 = aabbMax.v[2];
+    if ( aabbMin.v[2] > aabbMax.v[2] )
     {
-      vmovss  xmm8, dword ptr [rsp+180h+aabbMin]
-      vmovss  xmm9, dword ptr [rbp+80h+aabbMax]
-      vcomiss xmm8, xmm9
-    }
-    if ( !(v18 | v19) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm9, xmm9
-        vmovsd  [rsp+180h+var_140], xmm0
-        vcvtss2sd xmm1, xmm8, xmm8
-        vmovsd  [rsp+180h+var_148], xmm1
-      }
-      v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", v77, v80);
-      v18 = 0;
-      v19 = !v24;
-      if ( v24 )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", aabbMin.v[2], aabbMax.v[2]) )
         __debugbreak();
+      v11 = aabbMin.v[2];
+      v12 = aabbMax.v[2];
     }
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+180h+aabbMin+4]
-      vmovss  xmm7, dword ptr [rbp+80h+aabbMax+4]
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v18 | v19) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+180h+var_140], xmm0
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovsd  [rsp+180h+var_148], xmm1
-      }
-      v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", v78, v81);
-      v18 = 0;
-      v19 = !v29;
-      if ( v29 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+180h+aabbMin+8]
-      vmovss  xmm5, dword ptr [rbp+80h+aabbMax+8]
-      vcomiss xmm4, xmm5
-    }
-    if ( !(v18 | v19) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm5, xmm5
-        vmovsd  [rsp+180h+var_140], xmm0
-        vcvtss2sd xmm1, xmm4, xmm4
-        vmovsd  [rsp+180h+var_148], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", v79, v82) )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+180h+aabbMin+8]
-        vmovss  xmm5, dword ptr [rbp+80h+aabbMax+8]
-      }
-    }
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f000000
-      vmovss  xmm9, dword ptr [rbp+80h+aabbMax]
-      vaddss  xmm0, xmm9, dword ptr [rsp+180h+aabbMin]
-      vmovss  xmm7, dword ptr [rbp+80h+aabbMax+4]
-      vmulss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rsp+180h+bounds.midPoint], xmm0
-      vaddss  xmm0, xmm7, dword ptr [rsp+180h+aabbMin+4]
-      vmulss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsp+180h+bounds.midPoint+4], xmm1
-      vsubss  xmm1, xmm9, dword ptr [rsp+180h+aabbMin]
-      vaddss  xmm2, xmm5, xmm4
-      vmulss  xmm0, xmm2, xmm3
-      vmulss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rsp+180h+bounds.midPoint+8], xmm0
-      vsubss  xmm0, xmm7, dword ptr [rsp+180h+aabbMin+4]
-      vmulss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsp+180h+bounds.halfSize], xmm2
-      vsubss  xmm2, xmm5, xmm4
-      vmulss  xmm0, xmm2, xmm3
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+8], xmm0
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+4], xmm1
-    }
+    bounds.midPoint.v[0] = (float)(aabbMax.v[0] + aabbMin.v[0]) * 0.5;
+    bounds.midPoint.v[1] = (float)(aabbMax.v[1] + aabbMin.v[1]) * 0.5;
+    bounds.midPoint.v[2] = (float)(v12 + v11) * 0.5;
+    bounds.halfSize.v[0] = (float)(aabbMax.v[0] - aabbMin.v[0]) * 0.5;
+    bounds.halfSize.v[2] = (float)(v12 - v11) * 0.5;
+    bounds.halfSize.v[1] = (float)(aabbMax.v[1] - aabbMin.v[1]) * 0.5;
     Physics_GetRigidBodyTransform(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, &position, &orientation);
     QuatTrans_Inverse(&orientation, &position, &outInvQuat, &outInvTrans);
-    QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, _RSI, &outTransformedPoint);
-    QuatTransform(&outInvQuat, _R14, &out);
-    __asm
-    {
-      vmovaps xmm9, [rsp+180h+var_70]
-      vmovaps xmm8, [rsp+180h+var_60]
-      vmovaps xmm7, [rsp+180h+var_50]
-      vmovaps xmm6, [rsp+180h+var_40]
-    }
+    QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, playerOrigin, &outTransformedPoint);
+    QuatTransform(&outInvQuat, playerDir, &out);
   }
-  _RAX = (unsigned __int8)markType;
-  __asm
+  if ( client->markState.entityMinRadius[(unsigned __int8)markType] == 0.0 )
   {
-    vxorps  xmm5, xmm5, xmm5
-    vmovss  xmm2, dword ptr [rdi+rax*4+0AB20h]
-    vucomiss xmm2, xmm5
-  }
-  if ( v16 )
-  {
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+180h+bounds.halfSize+8]
-      vmovss  xmm3, dword ptr [rsp+180h+bounds.halfSize+4]
-      vmovss  xmm1, dword ptr [rsp+180h+bounds.halfSize]
-    }
+    _XMM4 = LODWORD(bounds.halfSize.v[2]);
+    _XMM3 = LODWORD(bounds.halfSize.v[1]);
+    _XMM1 = LODWORD(bounds.halfSize.v[0]);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+180h+bounds.halfSize]
-      vmaxss  xmm1, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rsp+180h+bounds.halfSize+4]
-      vmaxss  xmm3, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rsp+180h+bounds.halfSize+8]
-      vmaxss  xmm4, xmm0, xmm2
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+8], xmm4
-      vmovss  dword ptr [rsp+180h+bounds.halfSize], xmm1
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+4], xmm3
-    }
+    _XMM0 = LODWORD(bounds.halfSize.v[0]);
+    __asm { vmaxss  xmm1, xmm0, xmm2 }
+    _XMM0 = LODWORD(bounds.halfSize.v[1]);
+    __asm { vmaxss  xmm3, xmm0, xmm2 }
+    _XMM0 = LODWORD(bounds.halfSize.v[2]);
+    __asm { vmaxss  xmm4, xmm0, xmm2 }
+    bounds.halfSize.v[2] = *(float *)&_XMM4;
+    bounds.halfSize.v[0] = *(float *)&_XMM1;
+    bounds.halfSize.v[1] = *(float *)&_XMM3;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+rax*4+0AB2Ch]
-    vucomiss xmm0, xmm5
-  }
-  if ( !v16 )
+  if ( client->markState.entityMaxRadius[(unsigned __int8)markType] != 0.0 )
   {
     __asm
     {
       vminss  xmm1, xmm1, xmm0
       vminss  xmm3, xmm3, xmm0
       vminss  xmm4, xmm4, xmm0
-      vmovss  dword ptr [rsp+180h+bounds.halfSize], xmm1
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+4], xmm3
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+8], xmm4
     }
+    bounds.halfSize.v[0] = *(float *)&_XMM1;
+    bounds.halfSize.v[1] = *(float *)&_XMM3;
+    bounds.halfSize.v[2] = *(float *)&_XMM4;
   }
-  if ( ent->s.number == _RDI->markState.entityMarkTarget )
+  if ( ent->s.number == client->markState.entityMarkTarget )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@40a00000
-      vaddss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rsp+180h+bounds.halfSize], xmm0
-      vaddss  xmm0, xmm4, xmm2
-      vaddss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+8], xmm0
-      vmovss  dword ptr [rsp+180h+bounds.halfSize+4], xmm1
-    }
+    bounds.halfSize.v[0] = *(float *)&_XMM1 + 5.0;
+    bounds.halfSize.v[2] = *(float *)&_XMM4 + 5.0;
+    bounds.halfSize.v[1] = *(float *)&_XMM3 + 5.0;
   }
   return IntersectRayBounds(&outTransformedPoint, &out, &bounds, &tmin, &outHitPoint);
 }
@@ -878,33 +711,29 @@ void G_EntityMarks_ProcessEntityMarks(const int clientNum)
 {
   gentity_s *GEntity; 
   gclient_s *client; 
-  __int16 v7; 
+  float v4; 
+  __int16 v5; 
+  __int16 v6; 
   EntityMarkFlags *entityMarkFlags; 
+  EntityMarkFlags v8; 
   EntityMarkFlags v9; 
-  EntityMarkFlags v10; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v10; 
+  __int64 v11; 
   EntityMarkFlags outMarkFlags[4]; 
   float inOutMarkDistSq; 
-  __int64 v18; 
+  __int64 v14; 
   vec3_t outForward; 
   vec3_t outOrigin; 
-  char v21; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v18 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
+  v14 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF9ACD32, "EntityMarks");
   GEntity = G_GetGEntity(clientNum);
   client = GEntity->client;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 237, ASSERT_TYPE_ASSERT, "( client != nullptr )", (const char *)&queryFormat, "client != nullptr") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@7f7fffff
-    vmovss  [rsp+0C8h+var_74], xmm6
-  }
+  v4 = FLOAT_3_4028235e38;
+  inOutMarkDistSq = FLOAT_3_4028235e38;
+  v5 = 2047;
   *(_WORD *)&client->markState.entityMarkAdded = 0;
   client->markState.entityMarkChanged = 0;
   *(_QWORD *)client->markState.entityMarkAddedBits.array = 0i64;
@@ -1006,82 +835,77 @@ void G_EntityMarks_ProcessEntityMarks(const int clientNum)
   client->markState.entityMarkTargetChanged = 0;
   G_Client_GetViewOrigin(&client->ps, &outOrigin);
   G_Client_GetViewDirection(GEntity, &outForward, NULL, NULL);
-  v7 = 0;
+  v6 = 0;
   entityMarkFlags = client->markState.entityMarkFlags;
   do
   {
-    G_EntityMarks_EntityMarkedForClient(clientNum, client, v7, &outOrigin, &outForward, &inOutMarkDistSq, outMarkFlags);
-    v9 = *entityMarkFlags;
-    v10 = outMarkFlags[0];
+    G_EntityMarks_EntityMarkedForClient(clientNum, client, v6, &outOrigin, &outForward, &inOutMarkDistSq, outMarkFlags);
+    v8 = *entityMarkFlags;
+    v9 = outMarkFlags[0];
     if ( outMarkFlags[0] != *entityMarkFlags )
     {
       if ( outMarkFlags[0] )
       {
-        if ( v9 )
+        if ( v8 )
         {
-          if ( (unsigned int)v7 >= 0x800 )
+          if ( (unsigned int)v6 >= 0x800 )
           {
-            LODWORD(v15) = 2048;
-            LODWORD(v14) = v7;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
+            LODWORD(v11) = 2048;
+            LODWORD(v10) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v10, v11) )
               __debugbreak();
           }
-          client->markState.entityMarkChangedBits.array[(unsigned __int64)(unsigned int)v7 >> 5] |= 0x80000000 >> (v7 & 0x1F);
+          client->markState.entityMarkChangedBits.array[(unsigned __int64)(unsigned int)v6 >> 5] |= 0x80000000 >> (v6 & 0x1F);
           client->markState.entityMarkChanged = 1;
         }
         else
         {
-          if ( (unsigned int)v7 >= 0x800 )
+          if ( (unsigned int)v6 >= 0x800 )
           {
-            LODWORD(v15) = 2048;
-            LODWORD(v14) = v7;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
+            LODWORD(v11) = 2048;
+            LODWORD(v10) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v10, v11) )
               __debugbreak();
           }
-          client->markState.entityMarkAddedBits.array[(unsigned __int64)(unsigned int)v7 >> 5] |= 0x80000000 >> (v7 & 0x1F);
+          client->markState.entityMarkAddedBits.array[(unsigned __int64)(unsigned int)v6 >> 5] |= 0x80000000 >> (v6 & 0x1F);
           client->markState.entityMarkAdded = 1;
         }
       }
       else
       {
-        if ( v9 == MARK_FLAG_NONE )
+        if ( v8 == MARK_FLAG_NONE )
         {
-          LODWORD(v14) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 280, ASSERT_TYPE_ASSERT, "( curMarkFlags ) != ( EntityMarkFlags::MARK_FLAG_NONE )", "%s != %s\n\t%i, %i", "curMarkFlags", "EntityMarkFlags::MARK_FLAG_NONE", v14, 0i64) )
+          LODWORD(v10) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_marks.cpp", 280, ASSERT_TYPE_ASSERT, "( curMarkFlags ) != ( EntityMarkFlags::MARK_FLAG_NONE )", "%s != %s\n\t%i, %i", "curMarkFlags", "EntityMarkFlags::MARK_FLAG_NONE", v10, 0i64) )
             __debugbreak();
         }
-        if ( (unsigned int)v7 >= 0x800 )
+        if ( (unsigned int)v6 >= 0x800 )
         {
-          LODWORD(v15) = 2048;
-          LODWORD(v14) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
+          LODWORD(v11) = 2048;
+          LODWORD(v10) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v10, v11) )
             __debugbreak();
         }
-        client->markState.entityMarkRemovedBits.array[(unsigned __int64)(unsigned int)v7 >> 5] |= 0x80000000 >> (v7 & 0x1F);
+        client->markState.entityMarkRemovedBits.array[(unsigned __int64)(unsigned int)v6 >> 5] |= 0x80000000 >> (v6 & 0x1F);
         client->markState.entityMarkRemoved = 1;
       }
-      *entityMarkFlags = v10;
-      v9 = v10;
+      *entityMarkFlags = v9;
+      v8 = v9;
     }
-    if ( v9 )
+    if ( v8 && inOutMarkDistSq < v4 )
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+var_74]
-        vcomiss xmm0, xmm6
-      }
+      v5 = v6;
+      v4 = inOutMarkDistSq;
     }
-    ++v7;
+    ++v6;
     ++entityMarkFlags;
   }
-  while ( v7 < 2048 );
-  if ( client->markState.entityMarkTarget != 2047 )
+  while ( v6 < 2048 );
+  if ( v5 != client->markState.entityMarkTarget )
   {
     client->markState.entityMarkTargetChanged = 1;
-    client->markState.entityMarkTarget = 2047;
+    client->markState.entityMarkTarget = v5;
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v21;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 

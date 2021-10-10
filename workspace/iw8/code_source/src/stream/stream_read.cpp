@@ -593,64 +593,29 @@ char MultiReadBuilder::ShouldAddItem(MultiReadBuilder *this, StreamItemType type
 Stream_ApplyFreeInertiaToImageDistance
 ==============
 */
-
-float __fastcall Stream_ApplyFreeInertiaToImageDistance(StreamDistance distance, double _XMM1_8)
+float Stream_ApplyFreeInertiaToImageDistance(StreamDistance distance)
 {
-  char v6; 
-  double v14; 
-  double v15; 
+  const dvar_t *v1; 
+  float value; 
+  float v4; 
   float Px; 
 
-  _RDI = DCONST_DVARFLT_stream_distanceImageInertia;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
+  v1 = DCONST_DVARFLT_stream_distanceImageInertia;
   if ( !DCONST_DVARFLT_stream_distanceImageInertia && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_distanceImageInertia") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( v6 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 747, ASSERT_TYPE_ASSERT, "( inertia ) >= ( 1.0f )", "%s >= %s\n\t%g, %g", "inertia", "1.0f", v14, v15) )
-      __debugbreak();
-  }
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  if ( value < 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 747, ASSERT_TYPE_ASSERT, "( inertia ) >= ( 1.0f )", "%s >= %s\n\t%g, %g", "inertia", "1.0f", value, DOUBLE_1_0) )
+    __debugbreak();
   if ( distance.mValue == -1 )
-  {
-    __asm { vmovss  xmm0, cs:__real@7f7fff80 }
-  }
+    v4 = FLOAT_3_4027977e38;
   else
-  {
-    LODWORD(Px) = (StreamDistance)(distance.mValue << 7);
-    __asm { vmovss  xmm0, [rsp+68h+Px] }
-  }
-  __asm
-  {
-    vmulss  xmm6, xmm0, xmm6
-    vmovss  [rsp+68h+Px], xmm6
-  }
-  if ( _fdtest(&Px) == 1 )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm6, xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return *(float *)&_XMM0;
+    LODWORD(v4) = (StreamDistance)(distance.mValue << 7);
+  Px = v4 * value;
+  if ( _fdtest(&Px) == 1 && (float)(v4 * value) > 0.0 )
+    return FLOAT_3_4027977e38;
+  else
+    return v4 * value;
 }
 
 /*
@@ -721,132 +686,101 @@ Stream_ComputeMultipleItemReadAheadDistance
 */
 StreamDistance *Stream_ComputeMultipleItemReadAheadDistance(StreamDistance *result, const StreamSortListFrame *sortList, StreamDistance maxDistance, const ItemPickInfo *primaryItem)
 {
-  bool v6; 
-  __int64 v9; 
-  char v18; 
+  __int128 v4; 
+  __int64 v7; 
+  float v8; 
+  const dvar_t *v9; 
   int ImagePartToFree; 
-  __int64 v20; 
-  __int64 v37; 
-  __int64 v38; 
-  __int128 v39; 
+  __int64 v11; 
+  const dvar_t *v12; 
+  __int128 unsignedInt; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  __int128 v19; 
+  __int64 v22; 
+  __int64 v23; 
+  __int128 v24; 
   ItemPickInfo resulta; 
+  __int128 v26; 
   int sortedImageIndex; 
-  unsigned int v44; 
+  unsigned int v28; 
 
-  v6 = primaryItem->type == STREAM_ITEM_IMAGE;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm7 }
-  if ( v6 )
-  {
-    LODWORD(v9) = primaryItem->distance.mValue;
-  }
-  else
+  if ( primaryItem->type )
   {
     sortedImageIndex = sortList->imageSortList.mCount - 1;
-    _RAX = Stream_UpdateFileBlock_GetBestImage(&resulta, sortList, &sortedImageIndex, maxDistance);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovq   rax, xmm1
-      vmovups [rsp+0B8h+var_78], xmm1
-    }
-    if ( _RAX )
-      v9 = HIDWORD(*((_QWORD *)&v39 + 1));
+    v24 = *(_OWORD *)&Stream_UpdateFileBlock_GetBestImage(&resulta, sortList, &sortedImageIndex, maxDistance)->item;
+    if ( (_QWORD)v24 )
+      v7 = HIDWORD(*((_QWORD *)&v24 + 1));
     else
-      LODWORD(v9) = 458762;
-  }
-  result->mValue = v9;
-  if ( (_DWORD)v9 == -1 )
-  {
-    __asm { vmovss  xmm7, cs:__real@7f7fff80 }
+      LODWORD(v7) = 458762;
   }
   else
   {
-    sortedImageIndex = (_DWORD)v9 << 7;
-    __asm { vmovss  xmm7, [rsp+0B8h+sortedImageIndex] }
+    LODWORD(v7) = primaryItem->distance.mValue;
   }
-  _RSI = DVARFLT_stream_distanceImageNeeded;
+  result->mValue = v7;
+  if ( (_DWORD)v7 == -1 )
+  {
+    v8 = FLOAT_3_4027977e38;
+  }
+  else
+  {
+    sortedImageIndex = (_DWORD)v7 << 7;
+    LODWORD(v8) = (_DWORD)v7 << 7;
+  }
+  v9 = DVARFLT_stream_distanceImageNeeded;
   if ( !DVARFLT_stream_distanceImageNeeded && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_distanceImageNeeded") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v8 < (float)((float)(v9->current.value * v9->current.value) * 9.0) )
   {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@41100000
-    vcomiss xmm7, xmm2
-  }
-  if ( v18 )
-  {
-    ImagePartToFree = Stream_Alloc_GetImagePartToFree(sortList, (StreamDistance)v9);
-    v20 = ImagePartToFree;
+    ImagePartToFree = Stream_Alloc_GetImagePartToFree(sortList, (StreamDistance)v7);
+    v11 = ImagePartToFree;
     if ( ImagePartToFree >= 0 )
     {
-      __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
+      v26 = v4;
       if ( (unsigned int)ImagePartToFree >= 0x50000 )
       {
-        LODWORD(v38) = 327680;
-        LODWORD(v37) = ImagePartToFree;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v37, v38) )
+        LODWORD(v23) = 327680;
+        LODWORD(v22) = ImagePartToFree;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v22, v23) )
           __debugbreak();
       }
-      *(float *)&_XMM0 = Stream_ApplyFreeInertiaToImageDistance(sortList->imagePartDistance.mDistances[v20], *(double *)&_XMM1);
-      __asm
-      {
-        vcomiss xmm7, xmm0
-        vmovaps xmm6, xmm7
-      }
-      if ( v18 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm7, xmm0
-          vmulss  xmm6, xmm0, cs:__real@3f000000
-        }
-      }
+      Stream_ApplyFreeInertiaToImageDistance(sortList->imagePartDistance.mDistances[v11]);
       if ( streamFrontendGlob->loadSync.startTimeMs > 0 || streamFrontendGlob->loadSync.isActiveInFrontend )
       {
-        _RBX = DCONST_DVARFLT_stream_syncSP_imageQuality;
+        v15 = DCONST_DVARFLT_stream_syncSP_imageQuality;
         if ( !DCONST_DVARFLT_stream_syncSP_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncSP_imageQuality") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-        _RBX = DCONST_DVARFLT_stream_syncMP_imageQuality;
+        Dvar_CheckFrontendServerThread(v15);
+        v16 = DCONST_DVARFLT_stream_syncMP_imageQuality;
         if ( !DCONST_DVARFLT_stream_syncMP_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMP_imageQuality") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vminss  xmm1, xmm0, xmm7
-          vmulss  xmm2, xmm1, xmm1
-        }
+        Dvar_CheckFrontendServerThread(v16);
+        _XMM0 = v16->current.unsignedInt;
+        __asm { vminss  xmm1, xmm0, xmm7 }
+        v19 = _XMM1;
+        *(float *)&v19 = *(float *)&_XMM1 * *(float *)&_XMM1;
+        _XMM2 = v19;
       }
       else
       {
-        _RBX = DVARFLT_stream_readAheadMaxDistanceRange;
+        v12 = DVARFLT_stream_readAheadMaxDistanceRange;
         if ( !DVARFLT_stream_readAheadMaxDistanceRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readAheadMaxDistanceRange") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmulss  xmm1, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm7
-        }
+        Dvar_CheckFrontendServerThread(v12);
+        unsignedInt = v12->current.unsignedInt;
+        *(float *)&unsignedInt = (float)(*(float *)&unsignedInt * *(float *)&unsignedInt) + v8;
+        _XMM2 = unsignedInt;
       }
-      __asm
-      {
-        vminss  xmm3, xmm2, xmm6
-        vmovaps xmm6, [rsp+0B8h+var_38]
-        vmovss  [rsp+0B8h+sortedImageIndex], xmm3
-        vmovss  [rsp+0B8h+arg_18], xmm3
-      }
-      if ( (sortedImageIndex & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+      __asm { vminss  xmm3, xmm2, xmm6 }
+      sortedImageIndex = _XMM3;
+      v28 = _XMM3;
+      if ( (_XMM3 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
         __debugbreak();
-      result->mValue = v44 >> 7;
+      result->mValue = v28 >> 7;
     }
   }
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
   return result;
 }
 
@@ -1451,76 +1385,70 @@ bool Stream_IsStreamingPart(StreamItemType type, unsigned int itemPartIndex)
 Stream_IssueBlockAllocs
 ==============
 */
-__int64 Stream_IssueBlockAllocs(StreamBufferBlockInfo *blockInfo, double a2)
+__int64 Stream_IssueBlockAllocs(StreamBufferBlockInfo *blockInfo)
 {
-  unsigned __int8 v3; 
-  char v4; 
-  __int64 v5; 
+  unsigned __int8 v1; 
+  char v2; 
+  __int64 v3; 
   unsigned int mValue; 
-  StreamAllocResult v8; 
+  StreamAllocResult v6; 
   __int64 result; 
-  int v10; 
-  unsigned int v11; 
+  float v8; 
   StreamUpdateId updateId; 
 
-  v3 = 0;
-  v4 = 0;
-  v5 = 0i64;
+  v1 = 0;
+  v2 = 0;
+  v3 = 0i64;
   if ( !blockInfo->readInfo.numItems )
-    return v3;
+    return v1;
   do
   {
-    if ( blockInfo->readInfo.itemReadInfo[v5].pickedItem.type == STREAM_ITEM_IMAGE && Stream_Primer_IsPrimingImagePart(blockInfo->readInfo.itemReadInfo[v5].pickedItem.image, blockInfo->readInfo.itemReadInfo[v5].pickedItem.itemPartIndex & 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1343, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_IMAGE || !Stream_Primer_IsPrimingImagePart( itemReadInfo->pickedItem.image, itemReadInfo->pickedItem.itemPartIndex % IMAGE_STREAM_COUNT ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_IMAGE || !Stream_Primer_IsPrimingImagePart( itemReadInfo->pickedItem.image, itemReadInfo->pickedItem.itemPartIndex % IMAGE_STREAM_COUNT )") )
+    if ( blockInfo->readInfo.itemReadInfo[v3].pickedItem.type == STREAM_ITEM_IMAGE && Stream_Primer_IsPrimingImagePart(blockInfo->readInfo.itemReadInfo[v3].pickedItem.image, blockInfo->readInfo.itemReadInfo[v3].pickedItem.itemPartIndex & 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1343, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_IMAGE || !Stream_Primer_IsPrimingImagePart( itemReadInfo->pickedItem.image, itemReadInfo->pickedItem.itemPartIndex % IMAGE_STREAM_COUNT ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_IMAGE || !Stream_Primer_IsPrimingImagePart( itemReadInfo->pickedItem.image, itemReadInfo->pickedItem.itemPartIndex % IMAGE_STREAM_COUNT )") )
       __debugbreak();
-    if ( blockInfo->readInfo.itemReadInfo[v5].pickedItem.type == STREAM_ITEM_MESH && Stream_Primer_IsPrimingMesh(blockInfo->readInfo.itemReadInfo[v5].pickedItem.mesh) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1344, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_MESH || !Stream_Primer_IsPrimingMesh( itemReadInfo->pickedItem.mesh ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_MESH || !Stream_Primer_IsPrimingMesh( itemReadInfo->pickedItem.mesh )") )
+    if ( blockInfo->readInfo.itemReadInfo[v3].pickedItem.type == STREAM_ITEM_MESH && Stream_Primer_IsPrimingMesh(blockInfo->readInfo.itemReadInfo[v3].pickedItem.mesh) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1344, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_MESH || !Stream_Primer_IsPrimingMesh( itemReadInfo->pickedItem.mesh ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_MESH || !Stream_Primer_IsPrimingMesh( itemReadInfo->pickedItem.mesh )") )
       __debugbreak();
-    if ( blockInfo->readInfo.itemReadInfo[v5].pickedItem.type == STREAM_ITEM_GENERIC && Stream_Primer_IsPrimingGeneric(blockInfo->readInfo.itemReadInfo[v5].pickedItem.streamKey) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1345, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_GENERIC || !Stream_Primer_IsPrimingGeneric( itemReadInfo->pickedItem.streamKey ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_GENERIC || !Stream_Primer_IsPrimingGeneric( itemReadInfo->pickedItem.streamKey )") )
+    if ( blockInfo->readInfo.itemReadInfo[v3].pickedItem.type == STREAM_ITEM_GENERIC && Stream_Primer_IsPrimingGeneric(blockInfo->readInfo.itemReadInfo[v3].pickedItem.streamKey) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1345, ASSERT_TYPE_ASSERT, "(itemReadInfo->pickedItem.type != STREAM_ITEM_GENERIC || !Stream_Primer_IsPrimingGeneric( itemReadInfo->pickedItem.streamKey ))", (const char *)&queryFormat, "itemReadInfo->pickedItem.type != STREAM_ITEM_GENERIC || !Stream_Primer_IsPrimingGeneric( itemReadInfo->pickedItem.streamKey )") )
       __debugbreak();
-    if ( blockInfo->readInfo.itemReadInfo[v5].allocResult == TASK_CREATE_FAIL )
+    if ( blockInfo->readInfo.itemReadInfo[v3].allocResult == TASK_CREATE_FAIL )
     {
-      v3 = 1;
+      v1 = 1;
     }
     else
     {
-      mValue = blockInfo->readInfo.itemReadInfo[v5].pickedItem.distance.mValue;
-      if ( blockInfo->readInfo.itemReadInfo[v5].pickedItem.type )
+      mValue = blockInfo->readInfo.itemReadInfo[v3].pickedItem.distance.mValue;
+      if ( blockInfo->readInfo.itemReadInfo[v3].pickedItem.type )
       {
         if ( mValue != 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1361, ASSERT_TYPE_ASSERT, "(distance == StreamDistance::Min())", (const char *)&queryFormat, "distance == StreamDistance::Min()") )
           __debugbreak();
       }
       else
       {
-        *(float *)&_XMM0 = Stream_ApplyFreeInertiaToImageDistance((StreamDistance)mValue, a2);
-        __asm
-        {
-          vmovss  [rsp+68h+arg_0], xmm0
-          vmovss  [rsp+68h+arg_8], xmm0
-        }
-        if ( (v10 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+        v8 = Stream_ApplyFreeInertiaToImageDistance((StreamDistance)mValue);
+        if ( (LODWORD(v8) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
           __debugbreak();
-        mValue = v11 >> 7;
+        mValue = LODWORD(v8) >> 7;
       }
-      v8 = Stream_Alloc_Allocate(blockInfo->readInfo.itemReadInfo[v5].pickedItem.type, blockInfo->readInfo.itemReadInfo[v5].pickedItem.itemPartIndex, (StreamDistance)mValue, NULL, &updateId);
-      if ( v8 == TASK_CREATE_FAIL )
+      v6 = Stream_Alloc_Allocate(blockInfo->readInfo.itemReadInfo[v3].pickedItem.type, blockInfo->readInfo.itemReadInfo[v3].pickedItem.itemPartIndex, (StreamDistance)mValue, NULL, &updateId);
+      if ( v6 == TASK_CREATE_FAIL )
       {
-        blockInfo->readInfo.itemReadInfo[v5].allocResult = TASK_CREATE_FAIL;
-        v3 = 1;
-        blockInfo->readInfo.itemReadInfo[v5].updateId = updateId;
+        blockInfo->readInfo.itemReadInfo[v3].allocResult = TASK_CREATE_FAIL;
+        v1 = 1;
+        blockInfo->readInfo.itemReadInfo[v3].updateId = updateId;
       }
       else
       {
-        blockInfo->readInfo.itemReadInfo[v5].allocResult = v8;
-        if ( v8 == TASK_LOGIC_FAIL )
-          v4 = 1;
+        blockInfo->readInfo.itemReadInfo[v3].allocResult = v6;
+        if ( v6 == TASK_LOGIC_FAIL )
+          v2 = 1;
       }
     }
-    v5 = (unsigned int)(v5 + 1);
+    v3 = (unsigned int)(v3 + 1);
   }
-  while ( (unsigned int)v5 < blockInfo->readInfo.numItems );
-  if ( v3 )
-    return v3;
+  while ( (unsigned int)v3 < blockInfo->readInfo.numItems );
+  if ( v1 )
+    return v1;
   result = 0i64;
-  if ( v4 )
+  if ( v2 )
     streamFrontendGlob->canStreamMoreForWrite = 0;
   return result;
 }
@@ -1656,26 +1584,26 @@ void Stream_LogRead(const StreamBufferBlockInfo *blockInfo)
 {
   const dvar_t *v1; 
   unsigned __int64 v3; 
-  unsigned int v5; 
-  fileHandle_t *v6; 
-  const char *v7; 
-  fileHandle_t *v8; 
-  fileHandle_t v9; 
+  unsigned int v4; 
+  fileHandle_t *v5; 
+  const char *v6; 
+  fileHandle_t *v7; 
+  fileHandle_t v8; 
   const XPakEntryInfo *XPakEntryInfo; 
+  unsigned __int64 v10; 
+  unsigned int blockIndex; 
+  unsigned __int8 v12; 
   unsigned __int64 v13; 
   unsigned __int8 v14; 
   unsigned __int64 v15; 
-  unsigned __int8 v16; 
+  __int64 v16; 
   unsigned __int64 v17; 
-  __int64 v18; 
-  unsigned __int64 v19; 
-  char *v20; 
-  unsigned __int8 v21; 
-  __int64 *v22; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 readOffset; 
-  __int64 v28; 
+  char *v18; 
+  unsigned __int8 v19; 
+  double *v20; 
+  unsigned __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
 
   v1 = DVARBOOL_stream_readLog;
   if ( !DVARBOOL_stream_readLog && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readLog") )
@@ -1690,92 +1618,83 @@ void Stream_LogRead(const StreamBufferBlockInfo *blockInfo)
         __debugbreak();
       v3 = s_logBufferPos;
     }
-    _RBP = s_logBuffer;
     if ( 0x8000 - v3 < 13 * blockInfo->readInfo.numItems + 15 )
     {
-      v5 = _time64(NULL);
-      v6 = (fileHandle_t *)j_va("StreamReadLog-%d.bin", v5);
-      v8 = FS_FOpenFileWrite(v6, v7);
-      v9.handle.handle = (__int64)v8;
-      if ( v8 == (fileHandle_t *)-1i64 )
+      v4 = _time64(NULL);
+      v5 = (fileHandle_t *)j_va("StreamReadLog-%d.bin", v4);
+      v7 = FS_FOpenFileWrite(v5, v6);
+      v8.handle.handle = (__int64)v7;
+      if ( v7 == (fileHandle_t *)-1i64 )
       {
-        Com_PrintWarning(35, "WARNING: Couldn't flush streamer read log. Couldn't open %s for write!\n", (const char *)v6);
+        Com_PrintWarning(35, "WARNING: Couldn't flush streamer read log. Couldn't open %s for write!\n", (const char *)v5);
       }
       else
       {
-        FS_Write(s_logBuffer, s_logBufferPos, (fileHandle_t)v8);
-        FS_FCloseFile(v9);
+        FS_Write(s_logBuffer, s_logBufferPos, (fileHandle_t)v7);
+        FS_FCloseFile(v8);
       }
       s_logBufferPos = 0i64;
     }
     XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
-    readOffset = blockInfo->readInfo.readOffset;
-    _RCX = s_logBufferPos;
-    __asm { vmovsd  xmm0, [rsp+78h+arg_8] }
-    v13 = s_logBufferPos + 8;
-    __asm { vmovsd  qword ptr [rcx+rbp], xmm0 }
-    *(_DWORD *)&s_logBuffer[v13] = blockInfo->readInfo.readBytes;
-    s_logBuffer[v13 + 4] = *((_BYTE *)XPakEntryInfo + 24);
-    LODWORD(_RCX) = blockInfo->multiBlockReadInfo.blockIndex;
-    s_logBufferPos = v13 + 5;
-    v14 = truncate_cast<unsigned char,unsigned int>(_RCX);
+    v10 = s_logBufferPos + 8;
+    *(double *)&s_logBuffer[s_logBufferPos] = *(double *)&blockInfo->readInfo.readOffset;
+    *(_DWORD *)&s_logBuffer[v10] = blockInfo->readInfo.readBytes;
+    s_logBuffer[v10 + 4] = *((_BYTE *)XPakEntryInfo + 24);
+    blockIndex = blockInfo->multiBlockReadInfo.blockIndex;
+    s_logBufferPos = v10 + 5;
+    v12 = truncate_cast<unsigned char,unsigned int>(blockIndex);
+    v13 = s_logBufferPos;
+    s_logBuffer[s_logBufferPos] = v12;
+    s_logBufferPos = v13 + 1;
+    v14 = truncate_cast<unsigned char,unsigned int>(blockInfo->readInfo.numItems);
     v15 = s_logBufferPos;
+    v16 = 0i64;
     s_logBuffer[s_logBufferPos] = v14;
-    s_logBufferPos = v15 + 1;
-    v16 = truncate_cast<unsigned char,unsigned int>(blockInfo->readInfo.numItems);
-    v17 = s_logBufferPos;
-    v18 = 0i64;
-    s_logBuffer[s_logBufferPos] = v16;
-    v19 = v17 + 1;
-    for ( s_logBufferPos = v19; (unsigned int)v18 < blockInfo->readInfo.numItems; s_logBufferPos = v19 )
+    v17 = v15 + 1;
+    for ( s_logBufferPos = v17; (unsigned int)v16 < blockInfo->readInfo.numItems; s_logBufferPos = v17 )
     {
-      v20 = (char *)blockInfo + 48 * v18;
-      if ( !*((_QWORD *)v20 + 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 107, ASSERT_TYPE_ASSERT, "(item)", (const char *)&queryFormat, "item") )
+      v18 = (char *)blockInfo + 48 * v16;
+      if ( !*((_QWORD *)v18 + 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 107, ASSERT_TYPE_ASSERT, "(item)", (const char *)&queryFormat, "item") )
         __debugbreak();
-      v21 = v20[72];
-      if ( v21 >= 3u )
+      v19 = v18[72];
+      if ( v19 >= 3u )
       {
-        LODWORD(v26) = 3;
-        LODWORD(v25) = v21;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 108, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( STREAM_ITEM_COUNT )", "type doesn't index STREAM_ITEM_COUNT\n\t%i not in [0, %i)", v25, v26) )
+        LODWORD(v23) = 3;
+        LODWORD(v22) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 108, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( STREAM_ITEM_COUNT )", "type doesn't index STREAM_ITEM_COUNT\n\t%i not in [0, %i)", v22, v23) )
           __debugbreak();
       }
-      if ( v20[72] )
+      if ( v18[72] )
       {
-        if ( v20[72] == 1 )
+        if ( v18[72] == 1 )
         {
-          v22 = (__int64 *)(*((_QWORD *)v20 + 7) + 16i64);
+          v20 = (double *)(*((_QWORD *)v18 + 7) + 16i64);
         }
-        else if ( v20[72] == 2 )
+        else if ( v18[72] == 2 )
         {
-          if ( (*(_BYTE *)(*((_QWORD *)v20 + 7) + 61i64) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 117, ASSERT_TYPE_ASSERT, "(!streamKey->Resident())", (const char *)&queryFormat, "!streamKey->Resident()") )
+          if ( (*(_BYTE *)(*((_QWORD *)v18 + 7) + 61i64) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 117, ASSERT_TYPE_ASSERT, "(!streamKey->Resident())", (const char *)&queryFormat, "!streamKey->Resident()") )
             __debugbreak();
-          v22 = (__int64 *)(*((_QWORD *)v20 + 7) + 8i64);
+          v20 = (double *)(*((_QWORD *)v18 + 7) + 8i64);
         }
         else
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 120, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
             __debugbreak();
-          v22 = NULL;
+          v20 = NULL;
         }
       }
       else
       {
-        v22 = (__int64 *)(*((_QWORD *)v20 + 7) + 40i64 * (*((_DWORD *)v20 + 16) & 3) + 56);
+        v20 = (double *)(*((_QWORD *)v18 + 7) + 40i64 * (*((_DWORD *)v18 + 16) & 3) + 56);
       }
-      _RDX = s_logBufferPos;
-      v18 = (unsigned int)(v18 + 1);
-      s_logBuffer[s_logBufferPos] = v20[72];
-      *(_DWORD *)&s_logBuffer[_RDX + 1] = *((_DWORD *)v20 + 16);
-      v28 = *v22;
-      __asm
-      {
-        vmovsd  xmm0, [rsp+78h+arg_8]
-        vmovsd  qword ptr [rdx+rbp+5], xmm0
-      }
-      v19 = _RDX + 13;
+      v21 = s_logBufferPos;
+      v16 = (unsigned int)(v16 + 1);
+      s_logBuffer[s_logBufferPos] = v18[72];
+      *(_DWORD *)&s_logBuffer[v21 + 1] = *((_DWORD *)v18 + 16);
+      *(double *)&s_logBuffer[v21 + 5] = *v20;
+      v17 = v21 + 13;
     }
-    if ( v19 > 0x8000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1500, ASSERT_TYPE_ASSERT, "( s_logBufferPos ) <= ( sizeof( s_logBuffer ) )", "%s <= %s\n\t%zu, %zu", "s_logBufferPos", "sizeof( s_logBuffer )", s_logBufferPos, 0x8000ui64) )
+    if ( v17 > 0x8000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1500, ASSERT_TYPE_ASSERT, "( s_logBufferPos ) <= ( sizeof( s_logBuffer ) )", "%s <= %s\n\t%zu, %zu", "s_logBufferPos", "sizeof( s_logBuffer )", s_logBufferPos, 0x8000ui64) )
       __debugbreak();
   }
 }
@@ -1807,16 +1726,14 @@ void Stream_ProcessFinishedBlock(const StreamSortListFrame *sortList, StreamBuff
   unsigned int blockIndex; 
   StreamItemType type; 
   unsigned int itemPartIndex; 
-  unsigned int v11; 
+  unsigned int v10; 
   unsigned int *p_itemPartIndex; 
-  int v13; 
-  unsigned int v14; 
+  int v12; 
+  unsigned int v13; 
+  __int64 v14; 
   __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  __int128 v18; 
-  __int128 v19; 
-  char v20; 
+  char v17; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_ProcessFinishedBlock");
   if ( *(_DWORD *)blockInfo->status != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2185, ASSERT_TYPE_ASSERT, "(blockInfo->status == StreamReadBlockStatus::FINISHED)", (const char *)&queryFormat, "blockInfo->status == StreamReadBlockStatus::FINISHED") )
@@ -1843,29 +1760,22 @@ void Stream_ProcessFinishedBlock(const StreamSortListFrame *sortList, StreamBuff
   }
   if ( numItems != 1 )
   {
-    LODWORD(v15) = blockInfo->readInfo.numItems;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2213, ASSERT_TYPE_ASSERT, "( ( blockInfo->readInfo.numItems == 1 ) )", "( blockInfo->readInfo.numItems ) = %i", v15) )
+    LODWORD(v14) = blockInfo->readInfo.numItems;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2213, ASSERT_TYPE_ASSERT, "( ( blockInfo->readInfo.numItems == 1 ) )", "( blockInfo->readInfo.numItems ) = %i", v14) )
       __debugbreak();
   }
   numBlocks = blockInfo->multiBlockReadInfo.numBlocks;
   blockIndex = blockInfo->multiBlockReadInfo.blockIndex;
   if ( blockIndex == numBlocks - 1 )
   {
-    v20 = 1;
-    *(_QWORD *)&v18 = blockInfo;
-    *((_QWORD *)&v18 + 1) = &v20;
-    __asm
-    {
-      vmovups xmm0, [rsp+0A8h+var_48]
-      vmovdqa [rsp+0A8h+var_48], xmm0
-    }
+    v17 = 1;
     if ( numBlocks <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1715, ASSERT_TYPE_ASSERT, "(block.multiBlockReadInfo.numBlocks > 1)", (const char *)&queryFormat, "block.multiBlockReadInfo.numBlocks > 1") )
       __debugbreak();
     if ( blockInfo->readInfo.numItems != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1716, ASSERT_TYPE_ASSERT, "(block.readInfo.numItems == 1)", (const char *)&queryFormat, "block.readInfo.numItems == 1") )
       __debugbreak();
     type = blockInfo->readInfo.itemReadInfo[0].pickedItem.type;
     itemPartIndex = blockInfo->readInfo.itemReadInfo[0].pickedItem.itemPartIndex;
-    v11 = blockInfo->multiBlockReadInfo.numBlocks;
+    v10 = blockInfo->multiBlockReadInfo.numBlocks;
     p_itemPartIndex = &s_streamReadGlob.blocks[0].readInfo.itemReadInfo[0].pickedItem.itemPartIndex;
     while ( 1 )
     {
@@ -1873,23 +1783,23 @@ void Stream_ProcessFinishedBlock(const StreamSortListFrame *sortList, StreamBuff
       {
         if ( *(p_itemPartIndex - 7) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1728, ASSERT_TYPE_ASSERT, "(iterBlock.readInfo.numItems == 1)", (const char *)&queryFormat, "iterBlock.readInfo.numItems == 1") )
           __debugbreak();
-        if ( v11 != p_itemPartIndex[763] )
+        if ( v10 != p_itemPartIndex[763] )
         {
-          LODWORD(v17) = p_itemPartIndex[763];
-          LODWORD(v16) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1729, ASSERT_TYPE_ASSERT, "( numBlocks ) == ( iterBlock.multiBlockReadInfo.numBlocks )", "%s == %s\n\t%u, %u", "numBlocks", "iterBlock.multiBlockReadInfo.numBlocks", v16, v17) )
+          LODWORD(v16) = p_itemPartIndex[763];
+          LODWORD(v15) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1729, ASSERT_TYPE_ASSERT, "( numBlocks ) == ( iterBlock.multiBlockReadInfo.numBlocks )", "%s == %s\n\t%u, %u", "numBlocks", "iterBlock.multiBlockReadInfo.numBlocks", v15, v16) )
             __debugbreak();
         }
-        if ( p_itemPartIndex - 16 != (unsigned int *)v19 && *(p_itemPartIndex - 13) )
+        if ( p_itemPartIndex - 16 != (unsigned int *)blockInfo && *(p_itemPartIndex - 13) )
           break;
       }
       p_itemPartIndex += 782;
       if ( p_itemPartIndex - 16 == (unsigned int *)&s_streamReadGlob.decompressor )
         goto LABEL_41;
     }
-    **((_BYTE **)&v19 + 1) = 0;
+    v17 = 0;
 LABEL_41:
-    if ( v20 )
+    if ( v17 )
     {
       Stream_FinishItemPartRead(sortList, blockInfo, blockInfo->readInfo.itemReadInfo);
       ++s_streamReadGlob.readSucceededStats.numItemsRead;
@@ -1905,19 +1815,19 @@ LABEL_13:
       __debugbreak();
     if ( blockInfo->readInfo.numItems != 1 )
     {
-      LODWORD(v15) = blockInfo->readInfo.numItems;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2245, ASSERT_TYPE_ASSERT, "( ( blockInfo->readInfo.numItems == 1 ) )", "( blockInfo->readInfo.numItems ) = %i", v15) )
+      LODWORD(v14) = blockInfo->readInfo.numItems;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2245, ASSERT_TYPE_ASSERT, "( ( blockInfo->readInfo.numItems == 1 ) )", "( blockInfo->readInfo.numItems ) = %i", v14) )
         __debugbreak();
     }
-    v13 = Stream_GetLastBlockBeingRead(blockInfo);
-    v14 = v13 + 1;
-    if ( v13 + 1 <= 0 )
+    v12 = Stream_GetLastBlockBeingRead(blockInfo);
+    v13 = v12 + 1;
+    if ( v12 + 1 <= 0 )
     {
-      LODWORD(v15) = v13 + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2248, ASSERT_TYPE_ASSERT, "( ( blockToRead > 0 ) )", "( blockToRead ) = %i", v15) )
+      LODWORD(v14) = v12 + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2248, ASSERT_TYPE_ASSERT, "( ( blockToRead > 0 ) )", "( blockToRead ) = %i", v14) )
         __debugbreak();
     }
-    if ( v14 >= blockInfo->multiBlockReadInfo.numBlocks )
+    if ( v13 >= blockInfo->multiBlockReadInfo.numBlocks )
       goto LABEL_13;
     if ( !ItemPickInfo::GetData(&blockInfo->readInfo.itemReadInfo[0].pickedItem) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2254, ASSERT_TYPE_ASSERT, "(itemReadInfo.pickedItem.GetData())", (const char *)&queryFormat, "itemReadInfo.pickedItem.GetData()") )
       __debugbreak();
@@ -1925,7 +1835,7 @@ LABEL_13:
       __debugbreak();
     if ( !blockInfo->multiBlockReadInfo.isWriteAddressLocked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2256, ASSERT_TYPE_ASSERT, "(blockInfo->multiBlockReadInfo.isWriteAddressLocked)", (const char *)&queryFormat, "blockInfo->multiBlockReadInfo.isWriteAddressLocked") )
       __debugbreak();
-    Stream_UpdateFileBlock_SetupNextMultiBlockRead(blockInfo, blockInfo->readInfo.itemReadInfo, &blockInfo->multiBlockReadInfo, v14);
+    Stream_UpdateFileBlock_SetupNextMultiBlockRead(blockInfo, blockInfo->readInfo.itemReadInfo, &blockInfo->multiBlockReadInfo, v13);
   }
 LABEL_16:
   Sys_ProfEndNamedEvent();
@@ -2226,80 +2136,68 @@ Stream_ReadVerbosePrint
 */
 void Stream_ReadVerbosePrint(const StreamBufferBlockInfo *blockInfo, const ItemReadInfo *itemInfo, const char *status)
 {
-  const dvar_t *v6; 
-  unsigned int v7; 
+  const dvar_t *v5; 
+  unsigned int v6; 
   unsigned int mValue; 
+  float v8; 
   const char *Name; 
-  int v11; 
+  int v10; 
   unsigned int numItems; 
-  unsigned int v13; 
+  unsigned int v12; 
   unsigned int numBlocks; 
   unsigned int readBytes; 
   __int64 readOffset; 
-  __int64 v17; 
-  const char *v18; 
-  const char *v21; 
-  __int64 v23; 
-  __int64 v24; 
-  double v25; 
-  unsigned int v26; 
-  unsigned int v27; 
+  __int64 v16; 
+  const char *v17; 
+  double v18; 
+  const char *v19; 
+  __int64 v20; 
+  __int64 v21; 
+  unsigned int v22; 
   const XPakEntryInfo *XPakEntryInfo; 
-  char v32; 
+  char v26; 
 
   if ( streamFrontendGlob->loadSync.startTimeMs > 0 || streamFrontendGlob->loadSync.isActiveInFrontend )
   {
-    v32 = 1;
+    v26 = 1;
 LABEL_9:
-    __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
     XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&itemInfo->pickedItem);
-    v7 = truncate_cast<unsigned int,__int64>(((char *)itemInfo - (char *)blockInfo - 40) / 48);
-    v27 = v7;
-    if ( v7 >= 0x40 )
+    v6 = truncate_cast<unsigned int,__int64>(((char *)itemInfo - (char *)blockInfo - 40) / 48);
+    v22 = v6;
+    if ( v6 >= 0x40 )
     {
-      LODWORD(v24) = 64;
-      LODWORD(v23) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1514, ASSERT_TYPE_ASSERT, "(unsigned)( itemInfoIndex ) < (unsigned)( ( sizeof( *array_counter( blockInfo->readInfo.itemReadInfo ) ) + 0 ) )", "itemInfoIndex doesn't index ARRAY_COUNT( blockInfo->readInfo.itemReadInfo )\n\t%i not in [0, %i)", v23, v24) )
+      LODWORD(v21) = 64;
+      LODWORD(v20) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1514, ASSERT_TYPE_ASSERT, "(unsigned)( itemInfoIndex ) < (unsigned)( ( sizeof( *array_counter( blockInfo->readInfo.itemReadInfo ) ) + 0 ) )", "itemInfoIndex doesn't index ARRAY_COUNT( blockInfo->readInfo.itemReadInfo )\n\t%i not in [0, %i)", v20, v21) )
         __debugbreak();
     }
     mValue = itemInfo->pickedItem.distance.mValue;
     if ( mValue == -1 )
-    {
-      __asm { vmovss  xmm6, cs:__real@7f7fff80 }
-    }
+      v8 = FLOAT_3_4027977e38;
     else
-    {
-      v26 = mValue << 7;
-      __asm { vmovss  xmm6, [rsp+0D8h+var_58] }
-    }
+      LODWORD(v8) = mValue << 7;
     Name = ItemPickInfo::GetName(&itemInfo->pickedItem);
-    v11 = Sys_Milliseconds();
+    v10 = Sys_Milliseconds();
     numItems = blockInfo->readInfo.numItems;
-    v13 = blockInfo->multiBlockReadInfo.blockIndex + 1;
+    v12 = blockInfo->multiBlockReadInfo.blockIndex + 1;
     numBlocks = blockInfo->multiBlockReadInfo.numBlocks;
     readBytes = blockInfo->readInfo.readBytes;
     readOffset = blockInfo->readInfo.readOffset;
-    v17 = *((_QWORD *)XPakEntryInfo + 3);
-    v18 = XPak_IndexToName((unsigned __int8)v17);
-    __asm
-    {
-      vsqrtss xmm0, xmm6, xmm6
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0D8h+var_68], xmm1
-    }
-    v21 = "Streamer";
-    if ( v32 )
-      v21 = "Stream load sync";
-    Streamer_StatusPrint("%s - read block %zd %s ( xpakIndex: %s(%u), offset: %zd, size: %u, multi-block: %d/%d, items: %u, timestamp: %d ms, item[%u]: %s, distance: %.2f )\n", v21, blockInfo - s_streamReadGlob.blocks, status, v18, (unsigned __int8)v17, readOffset, readBytes, v13, numBlocks, numItems, v11, v27, Name, v25);
-    __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
+    v16 = *((_QWORD *)XPakEntryInfo + 3);
+    v17 = XPak_IndexToName((unsigned __int8)v16);
+    v18 = fsqrt(v8);
+    v19 = "Streamer";
+    if ( v26 )
+      v19 = "Stream load sync";
+    Streamer_StatusPrint("%s - read block %zd %s ( xpakIndex: %s(%u), offset: %zd, size: %u, multi-block: %d/%d, items: %u, timestamp: %d ms, item[%u]: %s, distance: %.2f )\n", v19, blockInfo - s_streamReadGlob.blocks, status, v17, (unsigned __int8)v16, readOffset, readBytes, v12, numBlocks, numItems, v10, v22, Name, v18);
     return;
   }
-  v6 = DCONST_DVARBOOL_stream_readVerboseLog;
-  v32 = 0;
+  v5 = DCONST_DVARBOOL_stream_readVerboseLog;
+  v26 = 0;
   if ( !DCONST_DVARBOOL_stream_readVerboseLog && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readVerboseLog") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
     goto LABEL_9;
 }
 
@@ -2451,70 +2349,60 @@ char *Stream_Read_GetProfileDebugText()
 Stream_Read_GetStats
 ==============
 */
-
-StreamReadStats *__fastcall Stream_Read_GetStats(StreamReadStats *result, double _XMM1_8, double _XMM2_8)
+StreamReadStats *Stream_Read_GetStats(StreamReadStats *result)
 {
   unsigned int numReads; 
+  float v3; 
+  float v4; 
+  float numItemsRead; 
+  float v6; 
+  unsigned int v7; 
+  float v8; 
+  float v9; 
   signed __int64 totalProcessedCount; 
+  float v11; 
+  float v12; 
+  float totalAddedCount; 
+  float v14; 
 
-  _R8 = result;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm0, xmm0, xmm0
-  }
+  numReads = s_streamReadGlob.readIssuedStats.numReads;
+  v3 = 0.0;
+  v4 = 0.0;
   if ( s_streamReadGlob.readIssuedStats.numReads )
   {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
     result->averageSizePerRead = s_streamReadGlob.readSucceededStats.sizeRead / s_streamReadGlob.readIssuedStats.numReads;
-    __asm
-    {
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm0, xmm1, xmm0
-    }
+    numItemsRead = (float)s_streamReadGlob.readIssuedStats.numItemsRead;
+    v6 = (float)numReads;
+    v4 = numItemsRead / v6;
   }
   else
   {
     result->averageSizePerRead = s_streamReadGlob.readIssuedStats.numReads;
   }
-  numReads = s_streamReadGlob.readSucceededStats.numReads;
-  __asm { vmovss  dword ptr [r8+4], xmm0 }
-  if ( numReads )
+  v7 = s_streamReadGlob.readSucceededStats.numReads;
+  result->packedReadIssuedRatio = v4;
+  if ( v7 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm2, xmm1, xmm0
-    }
+    v8 = (float)s_streamReadGlob.readSucceededStats.numItemsRead;
+    v9 = (float)v7;
+    v3 = v8 / v9;
   }
   totalProcessedCount = s_streamReadGlob.seekOrderItemQueue.totalProcessedCount;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [r8+8], xmm2
-    vmovss  xmm2, cs:__real@5f800000
-    vcvtsi2ss xmm0, xmm0, rax
-  }
+  result->packedReadSucceededRatio = v3;
+  v11 = (float)totalProcessedCount;
   if ( totalProcessedCount < 0 )
-    __asm { vaddss  xmm0, xmm0, xmm2 }
-  __asm
   {
-    vmulss  xmm3, xmm0, cs:__real@42c80000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
+    v12 = (float)totalProcessedCount;
+    v11 = v12 + 1.8446744e19;
   }
+  totalAddedCount = (float)(__int64)s_streamReadGlob.seekOrderItemQueue.totalAddedCount;
   if ( (s_streamReadGlob.seekOrderItemQueue.totalAddedCount & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm1, xmm1, xmm2 }
-  __asm
   {
-    vdivss  xmm0, xmm3, xmm1
-    vmovss  dword ptr [r8+0Ch], xmm0
+    v14 = (float)(__int64)s_streamReadGlob.seekOrderItemQueue.totalAddedCount;
+    totalAddedCount = v14 + 1.8446744e19;
   }
-  return _R8;
+  result->seekOrderItemQueueIssuePercent = (float)(v11 * 100.0) / totalAddedCount;
+  return result;
 }
 
 /*
@@ -2591,20 +2479,8 @@ Stream_Read_ResetStats
 */
 void Stream_Read_ResetStats(void)
 {
-  __int128 v2; 
-
-  v2 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+18h+var_18]
-    vmovups xmmword ptr cs:s_streamReadGlob.readIssuedStats.sizeRead, xmm0
-  }
-  *((_QWORD *)&v2 + 1) = 0i64;
-  __asm
-  {
-    vmovups xmm0, [rsp+18h+var_18]
-    vmovups xmmword ptr cs:s_streamReadGlob.readSucceededStats.sizeRead, xmm0
-  }
+  s_streamReadGlob.readIssuedStats = 0ui64;
+  s_streamReadGlob.readSucceededStats = 0ui64;
   *(_QWORD *)s_streamReadGlob.cumulativeMsReadStatus = 0i64;
   *(_QWORD *)&s_streamReadGlob.cumulativeMsReadStatus[2] = 0i64;
   *(_QWORD *)&s_streamReadGlob.cumulativeMsReadStatus[4] = 0i64;
@@ -2916,22 +2792,21 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestGeneric(ItemPickInfo *result, const 
   unsigned __int64 v11; 
   StreamKey *StreamKeyAtIndex; 
   const char **p_name; 
-  __int128 v17; 
-  __int64 v18; 
-  FastCriticalSectionScopeRead v19; 
+  __int128 v15; 
+  double v16; 
+  FastCriticalSectionScopeRead v17; 
   StreamSortListFrame *sortLista; 
-  int *v21; 
+  int *v19; 
 
-  v21 = sortedIndex;
+  v19 = sortedIndex;
   sortLista = (StreamSortListFrame *)sortList;
-  _R12 = result;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_GetBestGeneric");
-  *(_QWORD *)&v17 = 0i64;
-  *((_QWORD *)&v17 + 1) = 0xFFFFFFFF00000000ui64;
-  LOBYTE(v18) = 3;
+  *(_QWORD *)&v15 = 0i64;
+  *((_QWORD *)&v15 + 1) = 0xFFFFFFFF00000000ui64;
+  LOBYTE(v16) = 3;
   v5 = sortLista;
-  v6 = *v21;
-  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v19, &sortLista->genericSortList.mCS);
+  v6 = *v19;
+  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v17, &sortLista->genericSortList.mCS);
   v7 = v6;
   mSortedRight = v5->genericSortList.mSortedRight;
   if ( v6 >= mSortedRight )
@@ -2940,7 +2815,7 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestGeneric(ItemPickInfo *result, const 
     while ( 1 )
     {
       v10 = v7;
-      --*v21;
+      --*v19;
       v11 = *v9 >> 45;
       StreamKeyAtIndex = DB_GetStreamKeyAtIndex(v11);
       p_name = &StreamKeyAtIndex->name;
@@ -2957,21 +2832,16 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestGeneric(ItemPickInfo *result, const 
       if ( v10 <= mSortedRight )
         goto LABEL_16;
     }
-    *(_QWORD *)&v17 = p_name;
-    *((_QWORD *)&v17 + 1) = (unsigned int)v11 | 0x1000000000000i64;
-    LOBYTE(v18) = 2;
+    *(_QWORD *)&v15 = p_name;
+    *((_QWORD *)&v15 + 1) = (unsigned int)v11 | 0x1000000000000i64;
+    LOBYTE(v16) = 2;
   }
 LABEL_16:
-  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v19);
-  __asm
-  {
-    vmovups xmm0, [rsp+98h+var_60]
-    vmovups xmmword ptr [r12], xmm0
-    vmovsd  xmm1, [rsp+98h+var_50]
-    vmovsd  qword ptr [r12+10h], xmm1
-  }
+  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v17);
+  *(_OWORD *)&result->item = v15;
+  *(double *)&result->type = v16;
   Sys_ProfEndNamedEvent();
-  return _R12;
+  return result;
 }
 
 /*
@@ -2981,6 +2851,7 @@ Stream_UpdateFileBlock_GetBestImage
 */
 ItemPickInfo *Stream_UpdateFileBlock_GetBestImage(ItemPickInfo *result, const StreamSortListFrame *sortList, int *sortedImageIndex, StreamDistance maxDistance)
 {
+  ItemPickInfo *v4; 
   __int64 v5; 
   __int64 v6; 
   __int64 mSortedRight; 
@@ -2990,28 +2861,30 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestImage(ItemPickInfo *result, const St
   GfxImage *GfxImageAtIndex; 
   GfxImage *v12; 
   unsigned int v13; 
-  __int64 v26; 
-  __int64 v27; 
+  float v14; 
+  float v15; 
+  double v16; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned int mValue; 
-  int v29; 
-  FastCriticalSectionScopeRead v30; 
-  __int64 v31; 
-  __int128 v32; 
-  __int64 v33; 
-  int v35; 
+  int v21; 
+  FastCriticalSectionScopeRead v22; 
+  __int64 v23; 
+  __int128 v24; 
+  double v25; 
 
-  v31 = -2i64;
-  _R14 = result;
+  v23 = -2i64;
+  v4 = result;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_GetBestImage");
   mValue = maxDistance.mValue;
   if ( maxDistance.mValue < 0xFEFFFF )
     mValue = maxDistance.mValue + 1;
-  v29 = -1;
-  *(_QWORD *)&v32 = 0i64;
-  *((_QWORD *)&v32 + 1) = 0xFFFFFFFF00000000ui64;
-  LOBYTE(v33) = 3;
+  v21 = -1;
+  *(_QWORD *)&v24 = 0i64;
+  *((_QWORD *)&v24 + 1) = 0xFFFFFFFF00000000ui64;
+  LOBYTE(v25) = 3;
   v5 = *sortedImageIndex;
-  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v30, &sortList->imageSortList.mCS);
+  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v22, &sortList->imageSortList.mCS);
   v6 = v5;
   mSortedRight = sortList->imageSortList.mSortedRight;
   if ( v5 >= mSortedRight )
@@ -3028,13 +2901,13 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestImage(ItemPickInfo *result, const St
         __debugbreak();
       if ( (unsigned int)v10 >= 0x50000 )
       {
-        LODWORD(v27) = 327680;
-        LODWORD(v26) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v26, v27) )
+        LODWORD(v19) = 327680;
+        LODWORD(v18) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
       v13 = sortList->imagePartDistance.mDistances[(unsigned int)v10].mValue;
-      v29 = v13;
+      v21 = v13;
       if ( maxDistance.mValue != v13 )
       {
         if ( mValue < v13 )
@@ -3047,45 +2920,25 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestImage(ItemPickInfo *result, const St
       if ( v9 <= mSortedRight )
         goto LABEL_17;
     }
-    *(_QWORD *)&v32 = v12;
-    *((_QWORD *)&v32 + 1) = __PAIR64__(v13, v10);
-    LOBYTE(v33) = 0;
+    *(_QWORD *)&v24 = v12;
+    *((_QWORD *)&v24 + 1) = __PAIR64__(v13, v10);
+    LOBYTE(v25) = 0;
 LABEL_17:
-    _R14 = result;
+    v4 = result;
   }
-  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v30);
-  if ( v29 == -1 )
-  {
-    __asm { vmovss  xmm0, cs:__real@7f7fff80 }
-  }
+  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v22);
+  if ( v21 == -1 )
+    v14 = FLOAT_3_4027977e38;
   else
-  {
-    v35 = v29 << 7;
-    __asm { vmovss  xmm0, dword ptr [rbp+57h+arg_0] }
-  }
-  _RAX = streamFrontendGlob;
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@3d4ccccd
-    vmovss  xmm0, dword ptr [rax+0B96B3Ch]
-    vmulss  xmm1, xmm0, cs:__real@3f733333
-    vaddss  xmm0, xmm2, xmm1; val
-    vmovss  dword ptr [rax+0B96B3Ch], xmm0
-    vmovss  xmm2, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@3c23d70a; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = streamFrontendGlob;
-  __asm
-  {
-    vmovss  dword ptr [rax+0B96B3Ch], xmm0
-    vmovups xmm0, [rbp+57h+var_68]
-    vmovups xmmword ptr [r14], xmm0
-    vmovsd  xmm1, [rbp+57h+var_58]
-    vmovsd  qword ptr [r14+10h], xmm1
-  }
+    LODWORD(v14) = v21 << 7;
+  v15 = (float)(v14 * 0.050000001) + (float)(streamFrontendGlob->smoothedImageCurrentReadDistanceSq * 0.94999999);
+  streamFrontendGlob->smoothedImageCurrentReadDistanceSq = v15;
+  v16 = I_fclamp(v15, 0.0099999998, 100.0);
+  streamFrontendGlob->smoothedImageCurrentReadDistanceSq = *(float *)&v16;
+  *(_OWORD *)&v4->item = v24;
+  *(double *)&v4->type = v25;
   Sys_ProfEndNamedEvent();
-  return _R14;
+  return v4;
 }
 
 /*
@@ -3104,24 +2957,23 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestMesh(ItemPickInfo *result, const Str
   unsigned __int64 v11; 
   XModelSurfs *XModelSurfsAtIndex; 
   XModelSurfs *v13; 
-  __int64 v17; 
-  __int128 v18; 
-  __int64 v19; 
-  FastCriticalSectionScopeRead v20; 
+  __int64 v15; 
+  __int128 v16; 
+  double v17; 
+  FastCriticalSectionScopeRead v18; 
   StreamSortListFrame *sortLista; 
-  int *v22; 
+  int *v20; 
 
-  v22 = sortedMeshIndex;
+  v20 = sortedMeshIndex;
   sortLista = (StreamSortListFrame *)sortList;
-  v17 = -2i64;
-  _R12 = result;
+  v15 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_GetBestMesh");
-  *(_QWORD *)&v18 = 0i64;
-  *((_QWORD *)&v18 + 1) = 0xFFFFFFFF00000000ui64;
-  LOBYTE(v19) = 3;
+  *(_QWORD *)&v16 = 0i64;
+  *((_QWORD *)&v16 + 1) = 0xFFFFFFFF00000000ui64;
+  LOBYTE(v17) = 3;
   v5 = sortLista;
-  v6 = *v22;
-  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v20, &sortLista->meshSortList.mCS);
+  v6 = *v20;
+  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v18, &sortLista->meshSortList.mCS);
   v7 = v6;
   mSortedRight = v5->meshSortList.mSortedRight;
   if ( v6 >= mSortedRight )
@@ -3130,13 +2982,13 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestMesh(ItemPickInfo *result, const Str
     while ( 1 )
     {
       v10 = v7;
-      --*v22;
+      --*v20;
       v11 = *v9 >> 45;
       XModelSurfsAtIndex = DB_GetXModelSurfsAtIndex(v11);
       v13 = XModelSurfsAtIndex;
       if ( !XModelSurfsAtIndex->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2481, ASSERT_TYPE_ASSERT, "( ( mesh->shared != nullptr ) )", "( mesh->name ) = %s", XModelSurfsAtIndex->name) )
         __debugbreak();
-      if ( !v13->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared", v17) )
+      if ( !v13->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared", v15) )
         __debugbreak();
       if ( (v13->shared->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2482, ASSERT_TYPE_ASSERT, "( ( XModelSurfs_IsStreamed( mesh ) ) )", "( mesh->name ) = %s", v13->name) )
         __debugbreak();
@@ -3147,21 +2999,16 @@ ItemPickInfo *Stream_UpdateFileBlock_GetBestMesh(ItemPickInfo *result, const Str
       if ( v10 <= mSortedRight )
         goto LABEL_16;
     }
-    *(_QWORD *)&v18 = v13;
-    *((_QWORD *)&v18 + 1) = (unsigned int)v11 | 0x1000000000000i64;
-    LOBYTE(v19) = 1;
+    *(_QWORD *)&v16 = v13;
+    *((_QWORD *)&v16 + 1) = (unsigned int)v11 | 0x1000000000000i64;
+    LOBYTE(v17) = 1;
   }
 LABEL_16:
-  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v20);
-  __asm
-  {
-    vmovups xmm0, [rsp+98h+var_60]
-    vmovups xmmword ptr [r12], xmm0
-    vmovsd  xmm1, [rsp+98h+var_50]
-    vmovsd  qword ptr [r12+10h], xmm1
-  }
+  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v18);
+  *(_OWORD *)&result->item = v16;
+  *(double *)&result->type = v17;
   Sys_ProfEndNamedEvent();
-  return _R12;
+  return result;
 }
 
 /*
@@ -3229,341 +3076,323 @@ Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder
 */
 void Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder(const StreamSortListFrame *sortList, StreamDistance maxDistance)
 {
-  const StreamSortListFrame *v4; 
-  const dvar_t *v5; 
-  int v6; 
-  const dvar_t *v7; 
-  int v8; 
-  const dvar_t *v9; 
-  int integer; 
-  bool v11; 
-  bool v12; 
-  unsigned int v21; 
-  unsigned int v22; 
-  const StreamItemType *v23; 
-  __int64 v24; 
-  StreamBufferReadInfo *v29; 
+  const StreamSortListFrame *v3; 
+  const dvar_t *v4; 
+  unsigned int v5; 
+  const dvar_t *v6; 
+  int v7; 
+  const dvar_t *v8; 
+  float v11; 
+  float v12; 
+  unsigned int v13; 
+  unsigned int v14; 
+  const StreamItemType *v15; 
+  __int64 v16; 
+  ItemPickInfo *v17; 
+  __int128 v18; 
+  StreamBufferReadInfo *v19; 
   unsigned int updated; 
   StreamItemType type; 
   StreamableBits *StremableBitsForType; 
   __int64 itemPartIndex; 
   unsigned int *mLoading; 
-  unsigned int v35; 
-  StreamableBits *v36; 
-  unsigned int *v37; 
-  int v38; 
-  __int64 v39; 
-  unsigned int v40; 
+  unsigned int v25; 
+  StreamableBits *v26; 
+  unsigned int *v27; 
+  bool v28; 
+  int v29; 
+  __int64 v30; 
+  unsigned int v31; 
   ItemPickInfo *p_pickedItem; 
-  StreamItemType v42; 
-  __int64 v43; 
-  unsigned __int64 v44; 
+  StreamItemType v33; 
+  __int64 v34; 
+  unsigned __int64 v35; 
   unsigned int nextIndex; 
-  unsigned int v46; 
-  bool v47; 
-  unsigned int v48; 
+  unsigned int v37; 
+  bool v38; 
+  unsigned int v39; 
   unsigned int *p_numItems; 
-  StreamSortListFrame *v50; 
-  unsigned int v51; 
-  StreamableBits *v52; 
-  __int64 v53; 
-  unsigned int *v54; 
-  unsigned int v55; 
-  StreamableBits *v56; 
-  __int64 v57; 
-  unsigned int *v58; 
-  __int64 v59; 
-  __int64 v60; 
-  Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder::__l35::<lambda_38e76eb61c9a4ebc832041ac28d5065a> v61; 
-  unsigned int v62; 
+  StreamSortListFrame *v41; 
+  unsigned int v42; 
+  StreamableBits *v43; 
+  __int64 v44; 
+  unsigned int *v45; 
+  unsigned int v46; 
+  StreamableBits *v47; 
+  __int64 v48; 
+  unsigned int *v49; 
+  __int64 v50; 
+  __int64 v51; 
+  Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder::__l35::<lambda_38e76eb61c9a4ebc832041ac28d5065a> v52; 
+  unsigned int v53; 
   StreamSortListFrame *sortListb; 
   ItemPickInfo pickedItem; 
-  __int64 v66; 
+  __int64 v57; 
   ItemPickInfo result; 
-  int v68; 
-  int v69; 
-  int v70; 
-  __int64 v71; 
-  int v72; 
+  unsigned int v59; 
+  int v60; 
+  int v61; 
+  __int64 v62; 
+  int v63; 
   int sortedIndex[6]; 
 
-  v66 = -2i64;
-  v4 = sortList;
+  v57 = -2i64;
+  v3 = sortList;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder");
-  v5 = DVARINT_stream_readSeekOrderMaxSizeKB_Image;
+  v4 = DVARINT_stream_readSeekOrderMaxSizeKB_Image;
   if ( !DVARINT_stream_readSeekOrderMaxSizeKB_Image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readSeekOrderMaxSizeKB_Image") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  v6 = v5->current.integer << 10;
-  v68 = v6;
-  v7 = DVARINT_stream_readSeekOrderMaxSizeKB_Mesh;
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = v4->current.integer << 10;
+  v59 = v5;
+  v6 = DVARINT_stream_readSeekOrderMaxSizeKB_Mesh;
   if ( !DVARINT_stream_readSeekOrderMaxSizeKB_Mesh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readSeekOrderMaxSizeKB_Mesh") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  v8 = v7->current.integer << 10;
-  v69 = v8;
-  v9 = DVARINT_stream_readSeekOrderMaxSizeKB_Generic;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.integer << 10;
+  v60 = v7;
+  v8 = DVARINT_stream_readSeekOrderMaxSizeKB_Generic;
   if ( !DVARINT_stream_readSeekOrderMaxSizeKB_Generic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readSeekOrderMaxSizeKB_Generic") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  integer = v9->current.integer;
-  v11 = __CFSHL__(integer, 10);
-  integer <<= 10;
-  v12 = v11 || integer == 0;
-  v70 = integer;
-  _RAX = streamFrontendGlob;
-  __asm
+  Dvar_CheckFrontendServerThread(v8);
+  v61 = v8->current.integer << 10;
+  _XMM0 = LODWORD(streamFrontendGlob->meshBoost);
+  __asm { vminss  xmm2, xmm0, cs:__real@3f800000 }
+  if ( *(float *)&_XMM2 > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rax+0B96B34h]
-    vminss  xmm2, xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm2, xmm1
+    v11 = (float)(v5 >> 1);
+    v12 = v11 * *(float *)&_XMM2;
+    v59 = v5 - (int)v12;
+    v60 = (int)v12 + v7;
   }
-  if ( !v12 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm2
-      vcvttss2si eax, xmm1
-    }
-    v68 = v6 - _EAX;
-    v69 = _EAX + v8;
-  }
-  v71 = 0i64;
-  v72 = 0;
-  sortedIndex[0] = v4->imageSortList.mCount - 1;
-  sortedIndex[1] = v4->meshSortList.mCount - 1;
-  sortedIndex[2] = v4->genericSortList.mCount - 1;
+  v62 = 0i64;
+  v63 = 0;
+  sortedIndex[0] = v3->imageSortList.mCount - 1;
+  sortedIndex[1] = v3->meshSortList.mCount - 1;
+  sortedIndex[2] = v3->genericSortList.mCount - 1;
   s_streamReadGlob.seekOrderItemQueue.totalAddedCount += s_streamReadGlob.seekOrderItemQueue.count;
   s_streamReadGlob.seekOrderItemQueue.totalProcessedCount += s_streamReadGlob.seekOrderItemQueue.processedCount;
   *(_QWORD *)&s_streamReadGlob.seekOrderItemQueue.count = 0i64;
   s_streamReadGlob.seekOrderItemQueue.processedCount = 0;
-  v21 = 0;
-  v62 = 0;
+  v13 = 0;
+  v53 = 0;
   do
   {
-    v22 = 0;
-    v23 = pickOrder;
+    v14 = 0;
+    v15 = pickOrder;
     while ( 1 )
     {
-      v24 = *(unsigned __int8 *)v23;
-      if ( *((_DWORD *)&v71 + v24) < (unsigned int)*(&v68 + v24) )
+      v16 = *(unsigned __int8 *)v15;
+      if ( *((_DWORD *)&v62 + v16) < *(&v59 + v16) )
       {
-        _RAX = pickFns[*(unsigned __int8 *)v23](&result, v4, &sortedIndex[*(unsigned __int8 *)v23], maxDistance);
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+0F8h+pickedItem.___u0], xmm1
-          vmovsd  xmm0, qword ptr [rax+10h]
-          vmovsd  qword ptr [rsp+0F8h+pickedItem.type], xmm0
-          vmovq   rbp, xmm1
-        }
-        if ( _RBP )
+        v17 = pickFns[*(unsigned __int8 *)v15](&result, v3, &sortedIndex[*(unsigned __int8 *)v15], maxDistance);
+        v18 = *(_OWORD *)&v17->item;
+        *(_OWORD *)&pickedItem.item = v18;
+        *(_QWORD *)&pickedItem.type = *(_QWORD *)&v17->type;
+        if ( (_QWORD)v18 )
           break;
       }
-      ++v22;
-      ++v23;
-      if ( v22 >= 3 )
+      ++v14;
+      ++v15;
+      if ( v14 >= 3 )
         goto LABEL_56;
     }
-    v29 = &s_streamReadGlob.seekOrderItemQueue.reads[v21];
-    updated = Stream_UpdateFileBlock_SetupItemRead(&pickedItem, v4, v29);
+    v19 = &s_streamReadGlob.seekOrderItemQueue.reads[v13];
+    updated = Stream_UpdateFileBlock_SetupItemRead(&pickedItem, v3, v19);
     type = pickedItem.type;
     StremableBitsForType = Stream_GetStremableBitsForType(pickedItem.type);
     itemPartIndex = (int)pickedItem.itemPartIndex;
     if ( pickedItem.itemPartIndex >= StremableBitsForType->mBitCount )
     {
-      LODWORD(v60) = StremableBitsForType->mBitCount;
-      LODWORD(v59) = pickedItem.itemPartIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v59, v60) )
+      LODWORD(v51) = StremableBitsForType->mBitCount;
+      LODWORD(v50) = pickedItem.itemPartIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
     mLoading = StremableBitsForType->mLoading;
     if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
       __debugbreak();
-    v35 = mLoading[itemPartIndex >> 5];
-    if ( _bittest((const int *)&v35, itemPartIndex & 0x1F) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2632, ASSERT_TYPE_ASSERT, "(!Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex ))", (const char *)&queryFormat, "!Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex )") )
+    v25 = mLoading[itemPartIndex >> 5];
+    if ( _bittest((const int *)&v25, itemPartIndex & 0x1F) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2632, ASSERT_TYPE_ASSERT, "(!Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex ))", (const char *)&queryFormat, "!Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex )") )
       __debugbreak();
-    v36 = Stream_GetStremableBitsForType(type);
+    v26 = Stream_GetStremableBitsForType(type);
     if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 267, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
       __debugbreak();
-    if ( (unsigned int)itemPartIndex >= v36->mBitCount )
+    if ( (unsigned int)itemPartIndex >= v26->mBitCount )
     {
-      LODWORD(v60) = v36->mBitCount;
-      LODWORD(v59) = itemPartIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 268, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v59, v60) )
+      LODWORD(v51) = v26->mBitCount;
+      LODWORD(v50) = itemPartIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 268, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    v37 = v36->mLoading;
-    if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+    v27 = v26->mLoading;
+    if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
       __debugbreak();
-    v37[itemPartIndex >> 5] |= 1 << (itemPartIndex & 0x1F);
-    v11 = updated < 0x100000;
-    v4 = sortList;
-    if ( v11 )
-      Stream_UpdateFileBlock_SetupMultiItemRead(sortList, maxDistance, v29);
+    v27[itemPartIndex >> 5] |= 1 << (itemPartIndex & 0x1F);
+    v28 = updated < 0x100000;
+    v3 = sortList;
+    if ( v28 )
+      Stream_UpdateFileBlock_SetupMultiItemRead(sortList, maxDistance, v19);
     if ( type )
     {
       if ( type == STREAM_ITEM_MESH )
       {
-        v38 = *(_DWORD *)(*(_QWORD *)(_RBP + 48) + 8i64);
+        v29 = *(_DWORD *)(*(_QWORD *)(v18 + 48) + 8i64);
       }
       else if ( type == STREAM_ITEM_GENERIC )
       {
-        v38 = *(_DWORD *)(_RBP + 56);
+        v29 = *(_DWORD *)(v18 + 56);
       }
       else
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 158, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
           __debugbreak();
-        v38 = 0;
+        v29 = 0;
       }
     }
     else
     {
-      v39 = itemPartIndex & 3;
-      if ( (*(_DWORD *)(_RBP + 24) & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
+      v30 = itemPartIndex & 3;
+      if ( (*(_DWORD *)(v18 + 24) & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
         __debugbreak();
-      if ( (unsigned int)v39 >= Image_GetStreamedPartCount((const GfxImage *)_RBP) )
+      if ( (unsigned int)v30 >= Image_GetStreamedPartCount((const GfxImage *)v18) )
       {
-        LODWORD(v60) = Image_GetStreamedPartCount((const GfxImage *)_RBP);
-        LODWORD(v59) = v39;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v59, v60) )
+        LODWORD(v51) = Image_GetStreamedPartCount((const GfxImage *)v18);
+        LODWORD(v50) = v30;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v50, v51) )
           __debugbreak();
       }
-      if ( (_DWORD)v39 )
-        v38 = (*(_DWORD *)(_RBP + 40 * v39 + 88) >> 4) - (*(_DWORD *)(_RBP + 40i64 * (unsigned int)(v39 - 1) + 88) >> 4);
+      if ( (_DWORD)v30 )
+        v29 = (*(_DWORD *)(v18 + 40 * v30 + 88) >> 4) - (*(_DWORD *)(v18 + 40i64 * (unsigned int)(v30 - 1) + 88) >> 4);
       else
-        v38 = *(_DWORD *)(_RBP + 88) >> 4;
+        v29 = *(_DWORD *)(v18 + 88) >> 4;
     }
-    *((_DWORD *)&v71 + (unsigned __int8)v24) += v38;
-    v21 = v62 + 1;
-    v62 = v21;
+    *((_DWORD *)&v62 + (unsigned __int8)v16) += v29;
+    v13 = v53 + 1;
+    v53 = v13;
   }
-  while ( v21 < 0x40 );
+  while ( v13 < 0x40 );
 LABEL_56:
-  if ( v21 > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2654, ASSERT_TYPE_ASSERT, "(pickedItemCount <= ( sizeof( *array_counter( queue.reads ) ) + 0 ))", (const char *)&queryFormat, "pickedItemCount <= ARRAY_COUNT( queue.reads )") )
+  if ( v13 > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2654, ASSERT_TYPE_ASSERT, "(pickedItemCount <= ( sizeof( *array_counter( queue.reads ) ) + 0 ))", (const char *)&queryFormat, "pickedItemCount <= ARRAY_COUNT( queue.reads )") )
     __debugbreak();
-  s_streamReadGlob.seekOrderItemQueue.count = v21;
-  if ( v21 > 1 )
+  s_streamReadGlob.seekOrderItemQueue.count = v13;
+  if ( v13 > 1 )
   {
-    std::_Sort_unchecked_StreamBufferReadInfo____lambda_38e76eb61c9a4ebc832041ac28d5065a___(s_streamReadGlob.seekOrderItemQueue.reads, &s_streamReadGlob.seekOrderItemQueue.reads[v21], 3088i64 * v21 / 3088, v61);
-    v40 = 0;
+    std::_Sort_unchecked_StreamBufferReadInfo____lambda_38e76eb61c9a4ebc832041ac28d5065a___(s_streamReadGlob.seekOrderItemQueue.reads, &s_streamReadGlob.seekOrderItemQueue.reads[v13], 3088i64 * v13 / 3088, v52);
+    v31 = 0;
     p_pickedItem = &s_streamReadGlob.seekOrderItemQueue.reads[0].itemReadInfo[0].pickedItem;
     do
     {
       if ( !p_pickedItem->item && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 107, ASSERT_TYPE_ASSERT, "(item)", (const char *)&queryFormat, "item") )
         __debugbreak();
-      v42 = p_pickedItem->type;
-      if ( (unsigned __int8)v42 >= STREAM_ITEM_COUNT )
+      v33 = p_pickedItem->type;
+      if ( (unsigned __int8)v33 >= STREAM_ITEM_COUNT )
       {
-        LODWORD(v60) = 3;
-        LODWORD(v59) = (unsigned __int8)v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 108, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( STREAM_ITEM_COUNT )", "type doesn't index STREAM_ITEM_COUNT\n\t%i not in [0, %i)", v59, v60) )
+        LODWORD(v51) = 3;
+        LODWORD(v50) = (unsigned __int8)v33;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 108, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( STREAM_ITEM_COUNT )", "type doesn't index STREAM_ITEM_COUNT\n\t%i not in [0, %i)", v50, v51) )
           __debugbreak();
       }
       if ( p_pickedItem->type )
       {
         if ( p_pickedItem->type == STREAM_ITEM_MESH )
         {
-          v43 = (__int64)p_pickedItem->item + 40;
+          v34 = (__int64)p_pickedItem->item + 40;
         }
         else if ( p_pickedItem->type == STREAM_ITEM_GENERIC )
         {
           if ( (*((_BYTE *)p_pickedItem->item + 61) & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 117, ASSERT_TYPE_ASSERT, "(!streamKey->Resident())", (const char *)&queryFormat, "!streamKey->Resident()") )
             __debugbreak();
-          v43 = (__int64)p_pickedItem->item + 32;
+          v34 = (__int64)p_pickedItem->item + 32;
         }
         else
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 120, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
             __debugbreak();
-          v43 = 24i64;
+          v34 = 24i64;
         }
       }
       else
       {
-        v43 = (__int64)p_pickedItem->item + 40 * (p_pickedItem->itemPartIndex & 3) + 80;
+        v34 = (__int64)p_pickedItem->item + 40 * (p_pickedItem->itemPartIndex & 3) + 80;
       }
-      v44 = (unsigned __int8)*(_QWORD *)v43;
-      if ( v44 >= s_streamReadGlob.lastIssuedXPakIndex && (v44 != s_streamReadGlob.lastIssuedXPakIndex || *(_QWORD *)&p_pickedItem[-2].type >= s_streamReadGlob.lastIssuedXPakOffset) )
+      v35 = (unsigned __int8)*(_QWORD *)v34;
+      if ( v35 >= s_streamReadGlob.lastIssuedXPakIndex && (v35 != s_streamReadGlob.lastIssuedXPakIndex || *(_QWORD *)&p_pickedItem[-2].type >= s_streamReadGlob.lastIssuedXPakOffset) )
         break;
       ++s_streamReadGlob.seekOrderItemQueue.nextIndex;
-      ++v40;
+      ++v31;
       p_pickedItem = (ItemPickInfo *)((char *)p_pickedItem + 3088);
     }
-    while ( v40 < v21 );
+    while ( v31 < v13 );
     nextIndex = s_streamReadGlob.seekOrderItemQueue.nextIndex;
-    v46 = s_streamReadGlob.seekOrderItemQueue.nextIndex;
-    v47 = s_streamReadGlob.seekOrderItemQueue.nextIndex == s_streamReadGlob.seekOrderItemQueue.count;
+    v37 = s_streamReadGlob.seekOrderItemQueue.nextIndex;
+    v38 = s_streamReadGlob.seekOrderItemQueue.nextIndex == s_streamReadGlob.seekOrderItemQueue.count;
     if ( s_streamReadGlob.seekOrderItemQueue.nextIndex == s_streamReadGlob.seekOrderItemQueue.count )
-      v46 = 0;
-    s_streamReadGlob.seekOrderItemQueue.nextIndex = v46;
-    v48 = 0;
-    if ( !v47 )
-      v48 = nextIndex;
-    if ( v48 >= s_streamReadGlob.seekOrderItemQueue.count )
+      v37 = 0;
+    s_streamReadGlob.seekOrderItemQueue.nextIndex = v37;
+    v39 = 0;
+    if ( !v38 )
+      v39 = nextIndex;
+    if ( v39 >= s_streamReadGlob.seekOrderItemQueue.count )
     {
-      LODWORD(v60) = s_streamReadGlob.seekOrderItemQueue.count;
-      LODWORD(v59) = v48;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2704, ASSERT_TYPE_ASSERT, "(unsigned)( queue.nextIndex ) < (unsigned)( queue.count )", "queue.nextIndex doesn't index queue.count\n\t%i not in [0, %i)", v59, v60) )
+      LODWORD(v51) = s_streamReadGlob.seekOrderItemQueue.count;
+      LODWORD(v50) = v39;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2704, ASSERT_TYPE_ASSERT, "(unsigned)( queue.nextIndex ) < (unsigned)( queue.count )", "queue.nextIndex doesn't index queue.count\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
   }
-  if ( v21 )
+  if ( v13 )
   {
     p_numItems = &s_streamReadGlob.seekOrderItemQueue.reads[0].numItems;
-    v50 = (StreamSortListFrame *)v21;
-    sortListb = (StreamSortListFrame *)v21;
+    v41 = (StreamSortListFrame *)v13;
+    sortListb = (StreamSortListFrame *)v13;
     do
     {
-      v51 = 0;
+      v42 = 0;
       if ( *p_numItems )
       {
         do
         {
-          v52 = Stream_GetStremableBitsForType((StreamItemType)LOBYTE(p_numItems[12 * v51 + 9]));
-          v53 = (int)p_numItems[12 * v51 + 7];
-          if ( (unsigned int)v53 >= v52->mBitCount )
+          v43 = Stream_GetStremableBitsForType((StreamItemType)LOBYTE(p_numItems[12 * v42 + 9]));
+          v44 = (int)p_numItems[12 * v42 + 7];
+          if ( (unsigned int)v44 >= v43->mBitCount )
           {
-            LODWORD(v60) = v52->mBitCount;
-            LODWORD(v59) = p_numItems[12 * v51 + 7];
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v59, v60) )
+            LODWORD(v51) = v43->mBitCount;
+            LODWORD(v50) = p_numItems[12 * v42 + 7];
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v50, v51) )
               __debugbreak();
           }
-          v54 = v52->mLoading;
-          if ( !v54 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+          v45 = v43->mLoading;
+          if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v55 = v54[v53 >> 5];
-          if ( !_bittest((const int *)&v55, v53 & 0x1F) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2715, ASSERT_TYPE_ASSERT, "(Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex ))", (const char *)&queryFormat, "Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex )") )
+          v46 = v45[v44 >> 5];
+          if ( !_bittest((const int *)&v46, v44 & 0x1F) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2715, ASSERT_TYPE_ASSERT, "(Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex ))", (const char *)&queryFormat, "Stream_GetStremableBitsForType( pickedItem.type ).CheckLoading( pickedItem.itemPartIndex )") )
             __debugbreak();
-          v56 = Stream_GetStremableBitsForType((StreamItemType)LOBYTE(p_numItems[12 * v51 + 9]));
-          v57 = (int)p_numItems[12 * v51 + 7];
+          v47 = Stream_GetStremableBitsForType((StreamItemType)LOBYTE(p_numItems[12 * v42 + 9]));
+          v48 = (int)p_numItems[12 * v42 + 7];
           if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 259, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
             __debugbreak();
-          if ( (unsigned int)v57 >= v56->mBitCount )
+          if ( (unsigned int)v48 >= v47->mBitCount )
           {
-            LODWORD(v60) = v56->mBitCount;
-            LODWORD(v59) = v57;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 260, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v59, v60) )
+            LODWORD(v51) = v47->mBitCount;
+            LODWORD(v50) = v48;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 260, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v50, v51) )
               __debugbreak();
           }
-          v58 = v56->mLoading;
-          if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 28, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+          v49 = v47->mLoading;
+          if ( !v49 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 28, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v58[v57 >> 5] &= ~(1 << (v57 & 0x1F));
-          ++v51;
+          v49[v48 >> 5] &= ~(1 << (v48 & 0x1F));
+          ++v42;
         }
-        while ( v51 < *p_numItems );
-        v50 = sortListb;
+        while ( v42 < *p_numItems );
+        v41 = sortListb;
       }
       p_numItems += 772;
-      v50 = (StreamSortListFrame *)((char *)v50 - 1);
-      sortListb = v50;
+      v41 = (StreamSortListFrame *)((char *)v41 - 1);
+      sortListb = v41;
     }
-    while ( v50 );
+    while ( v41 );
   }
   Sys_ProfEndNamedEvent();
 }
@@ -3637,34 +3466,33 @@ Stream_UpdateFileBlock_RequestItemRead
 */
 char Stream_UpdateFileBlock_RequestItemRead(const StreamSortListFrame *sortList, StreamDistance maxDistance, bool favorSeekOrder, StreamBufferBlockInfo *blockInfo)
 {
-  double v4; 
-  bool v6; 
-  int v8; 
+  bool v5; 
+  int v7; 
   int modifyTimeMs; 
-  __int64 v10; 
-  int *v11; 
-  int v12; 
-  bool v13; 
+  __int64 v9; 
+  int *v10; 
+  int v11; 
+  bool v12; 
+  const dvar_t *v13; 
   const dvar_t *v14; 
-  const dvar_t *v15; 
   int integer; 
-  const dvar_t *v17; 
+  const dvar_t *v16; 
   int priority; 
   const XPakEntryInfo *XPakEntryInfo; 
   __int64 readBytes; 
-  const XPakEntryInfo *v21; 
+  const XPakEntryInfo *v20; 
   __int64 readOffset; 
-  __int64 v23; 
-  const char *v24; 
+  __int64 v22; 
+  const char *v23; 
   const char *Name; 
   unsigned __int8 *readBuffer; 
-  FileStreamFileID v27; 
-  __int64 v28; 
-  unsigned int v29; 
-  __int64 v30; 
+  FileStreamFileID v26; 
+  __int64 v27; 
+  unsigned int v28; 
+  __int64 v29; 
+  const char *v30; 
   const char *v31; 
-  const char *v32; 
-  const XPakEntryInfo *v33; 
+  const XPakEntryInfo *v32; 
   void (__fastcall *callback)(FileStreamRequestID, FileStreamStatus, __int64, void *); 
   int msUntilRequired; 
 
@@ -3678,82 +3506,82 @@ char Stream_UpdateFileBlock_RequestItemRead(const StreamSortListFrame *sortList,
     __debugbreak();
   if ( !Stream_ValidateItemReadXPakEntries(blockInfo) )
     return 0;
-  if ( !(unsigned __int8)Stream_IssueBlockAllocs(blockInfo, v4) )
+  if ( !(unsigned __int8)Stream_IssueBlockAllocs(blockInfo) )
   {
     if ( blockInfo->multiBlockReadInfo.numBlocks == 1 || !blockInfo->multiBlockReadInfo.blockIndex )
       return 0;
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1616, ASSERT_TYPE_ASSERT, "(blockInfo->multiBlockReadInfo.numBlocks == 1 || blockInfo->multiBlockReadInfo.blockIndex == 0)", (const char *)&queryFormat, "blockInfo->multiBlockReadInfo.numBlocks == 1 || blockInfo->multiBlockReadInfo.blockIndex == 0");
+    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1616, ASSERT_TYPE_ASSERT, "(blockInfo->multiBlockReadInfo.numBlocks == 1 || blockInfo->multiBlockReadInfo.blockIndex == 0)", (const char *)&queryFormat, "blockInfo->multiBlockReadInfo.numBlocks == 1 || blockInfo->multiBlockReadInfo.blockIndex == 0");
     goto LABEL_18;
   }
-  v8 = Sys_Milliseconds();
+  v7 = Sys_Milliseconds();
   modifyTimeMs = blockInfo->modifyTimeMs;
-  v10 = 0i64;
-  v12 = 0;
+  v9 = 0i64;
+  v11 = 0;
   if ( modifyTimeMs )
-    v12 = v8 - modifyTimeMs;
-  v11 = &s_streamReadGlob.cumulativeMsReadStatus[*(int *)blockInfo->status];
-  *v11 += v12;
-  v13 = (blockInfo->readInfo.readOffset & 0xFFF) == 0;
-  blockInfo->modifyTimeMs = v8;
+    v11 = v7 - modifyTimeMs;
+  v10 = &s_streamReadGlob.cumulativeMsReadStatus[*(int *)blockInfo->status];
+  *v10 += v11;
+  v12 = (blockInfo->readInfo.readOffset & 0xFFF) == 0;
+  blockInfo->modifyTimeMs = v7;
   *(_DWORD *)blockInfo->status = 2;
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1623, ASSERT_TYPE_ASSERT, "(IsAligned( blockInfo->readInfo.readOffset, 4096 ))", (const char *)&queryFormat, "IsAligned( blockInfo->readInfo.readOffset, FILE_READ_ALIGNMENT )") )
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1623, ASSERT_TYPE_ASSERT, "(IsAligned( blockInfo->readInfo.readOffset, 4096 ))", (const char *)&queryFormat, "IsAligned( blockInfo->readInfo.readOffset, FILE_READ_ALIGNMENT )") )
     __debugbreak();
   if ( (blockInfo->readInfo.readBytes & 0xFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1624, ASSERT_TYPE_ASSERT, "(IsAligned( blockInfo->readInfo.readBytes, 4096 ))", (const char *)&queryFormat, "IsAligned( blockInfo->readInfo.readBytes, FILE_READ_ALIGNMENT )") )
     __debugbreak();
   if ( ((__int64)blockInfo->readBuffer & 0xFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1625, ASSERT_TYPE_ASSERT, "(IsAligned( blockInfo->readBuffer, 4096 ))", (const char *)&queryFormat, "IsAligned( blockInfo->readBuffer, FILE_READ_ALIGNMENT )") )
     __debugbreak();
-  v14 = DCONST_DVARBOOL_stream_readWipeBuffersBeforeRead;
+  v13 = DCONST_DVARBOOL_stream_readWipeBuffersBeforeRead;
   if ( !DCONST_DVARBOOL_stream_readWipeBuffersBeforeRead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readWipeBuffersBeforeRead") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.enabled )
     memset_0(blockInfo->readBuffer, 205, 0x100000ui64);
-  v15 = DCONST_DVARINT_fileStream_readDeadlineMS_XPak;
+  v14 = DCONST_DVARINT_fileStream_readDeadlineMS_XPak;
   if ( !DCONST_DVARINT_fileStream_readDeadlineMS_XPak && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fileStream_readDeadlineMS_XPak") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  integer = v15->current.integer;
-  v17 = DCONST_DVARINT_fileStream_readPriority_XPak;
+  Dvar_CheckFrontendServerThread(v14);
+  integer = v14->current.integer;
+  v16 = DCONST_DVARINT_fileStream_readPriority_XPak;
   msUntilRequired = integer;
   if ( !DCONST_DVARINT_fileStream_readPriority_XPak && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fileStream_readPriority_XPak") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  priority = v17->current.integer;
+  Dvar_CheckFrontendServerThread(v16);
+  priority = v16->current.integer;
   XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
   readBytes = blockInfo->readInfo.readBytes;
-  v21 = XPakEntryInfo;
+  v20 = XPakEntryInfo;
   readOffset = blockInfo->readInfo.readOffset;
   if ( !(_DWORD)readBytes )
   {
-    v23 = *((_QWORD *)XPakEntryInfo + 3);
-    v24 = XPak_IndexToName((unsigned __int8)v23);
+    v22 = *((_QWORD *)XPakEntryInfo + 3);
+    v23 = XPak_IndexToName((unsigned __int8)v22);
     Name = ItemPickInfo::GetName(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
-    Com_PrintError(35, "FileStream_AddRequest failed for item %s xpak %s(%d): offset=%zd. Bytes passed was zero!\n", Name, v24, (unsigned __int8)v23, readOffset);
+    Com_PrintError(35, "FileStream_AddRequest failed for item %s xpak %s(%d): offset=%zd. Bytes passed was zero!\n", Name, v23, (unsigned __int8)v22, readOffset);
     Stream_ReadVerbosePrint(blockInfo, blockInfo->readInfo.itemReadInfo, "ISSUE FAILED");
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1649, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Zero byte read in Stream_UpdateFileBlock_RequestItemRead, see TTY for more details");
+    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1649, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Zero byte read in Stream_UpdateFileBlock_RequestItemRead, see TTY for more details");
 LABEL_18:
-    if ( v6 )
+    if ( v5 )
       __debugbreak();
     return 0;
   }
   readBuffer = blockInfo->readBuffer;
-  v27 = XPak_IndexToFileID(*((unsigned __int8 *)XPakEntryInfo + 24));
-  if ( !FileStream_AddRequest(v27, readOffset, readBytes, readBuffer, msUntilRequired, (FileStreamPriority)priority, (void (__fastcall *)(FileStreamRequestID, FileStreamStatus, __int64, void *))Stream_FileStreamReadCallback, blockInfo, (FileStreamRequestID *)blockInfo->schedulerId, FILE_STREAM_TRACK_STREAM) )
+  v26 = XPak_IndexToFileID(*((unsigned __int8 *)XPakEntryInfo + 24));
+  if ( !FileStream_AddRequest(v26, readOffset, readBytes, readBuffer, msUntilRequired, (FileStreamPriority)priority, (void (__fastcall *)(FileStreamRequestID, FileStreamStatus, __int64, void *))Stream_FileStreamReadCallback, blockInfo, (FileStreamRequestID *)blockInfo->schedulerId, FILE_STREAM_TRACK_STREAM) )
   {
-    v28 = *((_QWORD *)v21 + 3);
-    v29 = blockInfo->readInfo.readBytes;
-    v30 = blockInfo->readInfo.readOffset;
-    v31 = XPak_IndexToName((unsigned __int8)v28);
-    v32 = ItemPickInfo::GetName(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
-    LODWORD(callback) = v29;
-    Com_PrintError(35, "FileStream_AddRequest failed for item %s xpak %s(%d): offset=%zd, bytes=%u\n", v32, v31, (unsigned __int8)v28, v30, callback);
+    v27 = *((_QWORD *)v20 + 3);
+    v28 = blockInfo->readInfo.readBytes;
+    v29 = blockInfo->readInfo.readOffset;
+    v30 = XPak_IndexToName((unsigned __int8)v27);
+    v31 = ItemPickInfo::GetName(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
+    LODWORD(callback) = v28;
+    Com_PrintError(35, "FileStream_AddRequest failed for item %s xpak %s(%d): offset=%zd, bytes=%u\n", v31, v30, (unsigned __int8)v27, v29, callback);
     Stream_ReadVerbosePrint(blockInfo, blockInfo->readInfo.itemReadInfo, "ISSUE FAILED");
     return 0;
   }
   if ( blockInfo->issuedRead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1675, ASSERT_TYPE_ASSERT, "(!blockInfo->issuedRead)", (const char *)&queryFormat, "!blockInfo->issuedRead") )
     __debugbreak();
   blockInfo->issuedRead = 1;
-  s_streamReadGlob.lastIssuedXPakIndex = *((unsigned __int8 *)v21 + 24);
+  s_streamReadGlob.lastIssuedXPakIndex = *((unsigned __int8 *)v20 + 24);
   s_streamReadGlob.lastIssuedXPakOffset = blockInfo->readInfo.readOffset;
   Stream_LogRead(blockInfo);
   Stream_DLogAnalytics(blockInfo);
@@ -3766,11 +3594,11 @@ LABEL_18:
   {
     do
     {
-      v33 = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[v10].pickedItem);
-      Stream_Debug_AddToHeatMap(*((unsigned __int8 *)v33 + 24), blockInfo->readInfo.readOffset, blockInfo->readInfo.readBytes, FILE_STREAM_TRACK_STREAM);
-      v10 = (unsigned int)(v10 + 1);
+      v32 = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[v9].pickedItem);
+      Stream_Debug_AddToHeatMap(*((unsigned __int8 *)v32 + 24), blockInfo->readInfo.readOffset, blockInfo->readInfo.readBytes, FILE_STREAM_TRACK_STREAM);
+      v9 = (unsigned int)(v9 + 1);
     }
-    while ( (unsigned int)v10 < blockInfo->readInfo.numItems );
+    while ( (unsigned int)v9 < blockInfo->readInfo.numItems );
   }
   return 1;
 }
@@ -3784,57 +3612,52 @@ __int64 Stream_UpdateFileBlock_SetupItemRead(const ItemPickInfo *pickedItem, con
 {
   const XPakEntryInfo *XPakEntryInfo; 
   __int64 offset; 
-  unsigned __int64 v8; 
+  __int64 v8; 
   unsigned int v9; 
-  int v12; 
-  const XPakEntryInfo *v13; 
-  __int64 v14; 
+  double v10; 
+  unsigned int v11; 
+  const XPakEntryInfo *v12; 
+  __int64 v13; 
+  unsigned int v14; 
   unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
 
-  _RDI = readInfo;
-  _RBP = (ItemPickInfo *)pickedItem;
   XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo((ItemPickInfo *)pickedItem);
   offset = XPakEntryInfo->offset;
   v8 = offset & 0xFFFFFFFFFFFF8000ui64;
   v9 = truncate_cast<unsigned int,__int64>(((offset + XPakEntryInfo->size + 0x7FFF) & 0xFFFFFFFFFFFF8000ui64) - (offset & 0xFFFFFFFFFFFF8000ui64));
   if ( (v9 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 170, ASSERT_TYPE_ASSERT, "(IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups xmmword ptr [rdi+20h], xmm0
-    vmovsd  xmm1, qword ptr [rbp+10h]
-  }
-  _RDI->readOffset = v8;
-  v12 = v9;
-  _RDI->numItems = 1;
-  __asm { vmovsd  qword ptr [rdi+30h], xmm1 }
+  *(_OWORD *)&readInfo->itemReadInfo[0].pickedItem.item = *(_OWORD *)&pickedItem->item;
+  v10 = *(double *)&pickedItem->type;
+  readInfo->readOffset = v8;
+  v11 = v9;
+  readInfo->numItems = 1;
+  *(double *)&readInfo->itemReadInfo[0].pickedItem.type = v10;
   if ( v9 > 0x100000 )
-    v12 = 0x100000;
-  _RDI->readBytes = v12;
-  v13 = ItemPickInfo::GetXPakEntryInfo(_RBP);
-  v14 = v13->offset;
-  if ( v14 < _RDI->readOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1550, ASSERT_TYPE_ASSERT, "( xpakEntry->offset ) >= ( readInfo.readOffset )", "%s >= %s\n\t%u, %u", "xpakEntry->offset", "readInfo.readOffset", v14, _RDI->readOffset) )
+    v11 = 0x100000;
+  readInfo->readBytes = v11;
+  v12 = ItemPickInfo::GetXPakEntryInfo((ItemPickInfo *)pickedItem);
+  v13 = v12->offset;
+  if ( v13 < readInfo->readOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1550, ASSERT_TYPE_ASSERT, "( xpakEntry->offset ) >= ( readInfo.readOffset )", "%s >= %s\n\t%u, %u", "xpakEntry->offset", "readInfo.readOffset", v13, readInfo->readOffset) )
     __debugbreak();
-  Stream_InitItemReadInfo(sortList, _RBP->type, _RBP->itemPartIndex, _RDI->itemReadInfo);
-  v15 = truncate_cast<unsigned int,__int64>(v13->offset - _RDI->readOffset);
-  _RDI->itemReadInfo[0].decompress.srcOffset = v15;
-  if ( v15 >= 0x100000 )
+  Stream_InitItemReadInfo(sortList, pickedItem->type, pickedItem->itemPartIndex, readInfo->itemReadInfo);
+  v14 = truncate_cast<unsigned int,__int64>(v12->offset - readInfo->readOffset);
+  readInfo->itemReadInfo[0].decompress.srcOffset = v14;
+  if ( v14 >= 0x100000 )
   {
-    LODWORD(v20) = 0x100000;
-    LODWORD(v19) = v15;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1556, ASSERT_TYPE_ASSERT, "(unsigned)( itemReadInfo.decompress.srcOffset ) < (unsigned)( STREAM_FILEBUF_BLOCK_SIZE )", "itemReadInfo.decompress.srcOffset doesn't index STREAM_FILEBUF_BLOCK_SIZE\n\t%i not in [0, %i)", v19, v20) )
+    LODWORD(v19) = 0x100000;
+    LODWORD(v18) = v14;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1556, ASSERT_TYPE_ASSERT, "(unsigned)( itemReadInfo.decompress.srcOffset ) < (unsigned)( STREAM_FILEBUF_BLOCK_SIZE )", "itemReadInfo.decompress.srcOffset doesn't index STREAM_FILEBUF_BLOCK_SIZE\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
-  v16 = 0x100000 - _RDI->itemReadInfo[0].decompress.srcOffset;
-  v17 = truncate_cast<unsigned int,unsigned __int64>(v13->size);
-  if ( v16 > v17 )
-    v16 = v17;
-  _RDI->itemReadInfo[0].decompress.srcBytes = v16;
+  v15 = 0x100000 - readInfo->itemReadInfo[0].decompress.srcOffset;
+  v16 = truncate_cast<unsigned int,unsigned __int64>(v12->size);
+  if ( v15 > v16 )
+    v15 = v16;
+  readInfo->itemReadInfo[0].decompress.srcBytes = v15;
   return v9;
 }
 
@@ -3896,40 +3719,42 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
   __int64 v55; 
   __int64 v56; 
   unsigned int v57; 
+  __int64 v58; 
   __int64 v59; 
   unsigned int v60; 
   __int64 v61; 
-  int v65; 
-  __int16 v66; 
+  __int64 v62; 
+  int v63; 
+  __int16 v64; 
+  __int64 v65; 
+  __int64 v66; 
   __int64 v67; 
   __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
+  unsigned int v69; 
+  unsigned int v70; 
   unsigned int v71; 
   unsigned int v72; 
-  unsigned int v73; 
-  unsigned int v74; 
   StreamDistance result[2]; 
-  StreamBufferReadInfo *v76; 
-  unsigned int v77; 
-  unsigned int v78; 
-  int v79; 
-  _DWORD *v80; 
+  StreamBufferReadInfo *v74; 
+  unsigned int v75; 
+  unsigned int v76; 
+  int v77; 
+  _DWORD *v78; 
   __int64 minOffset; 
-  __int64 v82; 
+  __int64 v80; 
   Stream_UpdateFileBlock_SetupMultiItemRead::__l2::<lambda_df66829bed3e02a437b8219c01dfee38> iterator; 
   ItemReadInfo *itemReadInfo; 
-  __int64 v85; 
-  int v86; 
-  unsigned int v87; 
-  __m256i v88; 
-  __int128 v89; 
-  __int64 v90; 
-  unsigned int v91; 
-  char v92[1028]; 
+  __int64 v83; 
+  int v84; 
+  unsigned int v85; 
+  __m256i v86; 
+  __int128 v87; 
+  __int64 v88; 
+  unsigned int v89; 
+  char v90[1028]; 
 
-  v90 = -2i64;
-  v76 = readInfo;
+  v88 = -2i64;
+  v74 = readInfo;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_SetupMultiItemRead");
   if ( readInfo->numItems != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1029, ASSERT_TYPE_ASSERT, "(readInfo->numItems == 1)", (const char *)&queryFormat, "readInfo->numItems == 1") )
     __debugbreak();
@@ -3972,29 +3797,29 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
       iterator.readBuilder = (MultiReadBuilder *)sortList;
       itemReadInfo = readInfo->itemReadInfo;
       v16 = minOffset;
-      v85 = minOffset;
-      v87 = mValue;
-      v86 = 1;
-      v17 = (__int64)v76;
-      Stream_IterateAdjacentItemParts__lambda_df66829bed3e02a437b8219c01dfee38_(v76->itemReadInfo[0].pickedItem.type, v76->itemReadInfo[0].pickedItem.itemPartIndex, minOffset, v14, (Stream_UpdateFileBlock_SetupMultiItemRead::__l2::<lambda_df66829bed3e02a437b8219c01dfee38>)&iterator);
-      LODWORD(sortList) = v86;
-      v79 = v86;
-      if ( v86 != 1 )
+      v83 = minOffset;
+      v85 = mValue;
+      v84 = 1;
+      v17 = (__int64)v74;
+      Stream_IterateAdjacentItemParts__lambda_df66829bed3e02a437b8219c01dfee38_(v74->itemReadInfo[0].pickedItem.type, v74->itemReadInfo[0].pickedItem.itemPartIndex, minOffset, v14, (Stream_UpdateFileBlock_SetupMultiItemRead::__l2::<lambda_df66829bed3e02a437b8219c01dfee38>)&iterator);
+      LODWORD(sortList) = v84;
+      v77 = v84;
+      if ( v84 != 1 )
       {
         if ( v10 < v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1080, ASSERT_TYPE_ASSERT, "( startOffsetDiskAligned ) >= ( minOffsetDiskAligned )", "%s >= %s\n\t%lli, %lli", "startOffsetDiskAligned", "minOffsetDiskAligned", v10, v16) )
           __debugbreak();
         v18 = truncate_cast<unsigned int,__int64>(v10 - v16);
         v19 = (_DWORD *)(v17 + 24);
-        v80 = (_DWORD *)(v17 + 24);
+        v78 = (_DWORD *)(v17 + 24);
         v20 = v18 + *(_DWORD *)(v17 + 24);
-        v77 = v20;
+        v75 = v20;
         *(_DWORD *)(v17 + 24) = v20;
-        v78 = v20 + *(_DWORD *)(v17 + 28);
+        v76 = v20 + *(_DWORD *)(v17 + 28);
         v21 = 0;
         v22 = 1;
         if ( (unsigned int)sortList > 1 )
         {
-          v23 = v92;
+          v23 = v90;
           v24 = (unsigned int *)(v17 + 72);
           do
           {
@@ -4008,13 +3833,13 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
           }
           while ( v22 < (unsigned int)sortList );
         }
-        *(_DWORD *)&v92[4 * v21 - 4] = 0;
+        *(_DWORD *)&v90[4 * v21 - 4] = 0;
         v26 = (unsigned int)(v21 + 1);
-        v91 = v21 + 1;
+        v89 = v21 + 1;
         v27 = 0;
         if ( (_DWORD)sortList != 1 )
         {
-          v28 = &v91;
+          v28 = &v89;
           v29 = v17;
           do
           {
@@ -4023,16 +3848,16 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
             {
               if ( v27 == (_DWORD)v30 )
               {
-                LODWORD(v70) = *v28;
-                LODWORD(v69) = v27;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1110, ASSERT_TYPE_ASSERT, "( i ) != ( nextIndex )", "%s != %s\n\t%u, %u", "i", "nextIndex", v69, v70) )
+                LODWORD(v68) = *v28;
+                LODWORD(v67) = v27;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1110, ASSERT_TYPE_ASSERT, "( i ) != ( nextIndex )", "%s != %s\n\t%u, %u", "i", "nextIndex", v67, v68) )
                   __debugbreak();
               }
               if ( (unsigned int)v30 >= (unsigned int)sortList )
               {
-                LODWORD(v68) = (_DWORD)sortList;
-                LODWORD(v67) = v30;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1111, ASSERT_TYPE_ASSERT, "(unsigned)( nextIndex ) < (unsigned)( numItemsToRead )", "nextIndex doesn't index numItemsToRead\n\t%i not in [0, %i)", v67, v68) )
+                LODWORD(v66) = (_DWORD)sortList;
+                LODWORD(v65) = v30;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1111, ASSERT_TYPE_ASSERT, "(unsigned)( nextIndex ) < (unsigned)( numItemsToRead )", "nextIndex doesn't index numItemsToRead\n\t%i not in [0, %i)", v65, v66) )
                   __debugbreak();
               }
               if ( *v19 > *(_DWORD *)(v29 + 48 * v30 + 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1115, ASSERT_TYPE_ASSERT, "(curItem->decompress.srcOffset <= nextItem->decompress.srcOffset)", (const char *)&queryFormat, "curItem->decompress.srcOffset <= nextItem->decompress.srcOffset") )
@@ -4044,8 +3869,8 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
           }
           while ( v27 < (int)sortList - 1 );
           v13 = 0;
-          v19 = v80;
-          v26 = v91;
+          v19 = v78;
+          v26 = v89;
         }
         v31 = DVARINT_stream_readPackedMaxGapKB;
         if ( !DVARINT_stream_readPackedMaxGapKB && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readPackedMaxGapKB") )
@@ -4058,31 +3883,31 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
           v34 = 1015808;
           if ( v33 < 1015808 )
             v34 = v33;
-          v71 = v34;
+          v69 = v34;
           if ( v34 >= 0x100000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1127, ASSERT_TYPE_ASSERT, "(maxGapBetweenItems < STREAM_FILEBUF_BLOCK_SIZE)", (const char *)&queryFormat, "maxGapBetweenItems < STREAM_FILEBUF_BLOCK_SIZE") )
             __debugbreak();
         }
         else
         {
-          v71 = 0;
+          v69 = 0;
         }
         if ( (_DWORD)v26 )
         {
           v35 = 0i64;
           *(_QWORD *)&result[0].mValue = 0i64;
-          v82 = v26;
-          v36 = v76;
+          v80 = v26;
+          v36 = v74;
           do
           {
             v37 = *v19 & 0xFFFF8000;
             v38 = v37 + 0x100000;
-            v73 = v37 + 0x100000;
+            v71 = v37 + 0x100000;
             v39 = *v19 + v19[1];
-            *(_DWORD *)&v92[v35 + 764] = v37;
+            *(_DWORD *)&v90[v35 + 764] = v37;
             v40 = (v39 + 0x7FFF) & 0xFFFF8000;
-            *(_DWORD *)&v92[v35 + 252] = v40;
-            *(_DWORD *)&v92[v35 + 508] = 1;
-            v41 = *(_DWORD *)&v92[v35 - 4];
+            *(_DWORD *)&v90[v35 + 252] = v40;
+            *(_DWORD *)&v90[v35 + 508] = 1;
+            v41 = *(_DWORD *)&v90[v35 - 4];
             if ( v41 < (unsigned int)sortList )
             {
               do
@@ -4097,77 +3922,77 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
                     break;
                   if ( v39 > p_decompress->srcOffset )
                   {
-                    LODWORD(v70) = p_decompress->srcOffset;
-                    LODWORD(v69) = v39;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1157, ASSERT_TYPE_ASSERT, "( endOffset ) <= ( nextItem.srcOffset )", "%s <= %s\n\t%u, %u", "endOffset", "nextItem.srcOffset", v69, v70) )
+                    LODWORD(v68) = p_decompress->srcOffset;
+                    LODWORD(v67) = v39;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1157, ASSERT_TYPE_ASSERT, "( endOffset ) <= ( nextItem.srcOffset )", "%s <= %s\n\t%u, %u", "endOffset", "nextItem.srcOffset", v67, v68) )
                     {
                       __debugbreak();
                       v35 = *(_QWORD *)&result[0].mValue;
-                      v40 = *(_DWORD *)&v92[*(_QWORD *)&result[0].mValue + 252];
+                      v40 = *(_DWORD *)&v90[*(_QWORD *)&result[0].mValue + 252];
                     }
                     else
                     {
                       v35 = *(_QWORD *)&result[0].mValue;
                     }
-                    v38 = v73;
+                    v38 = v71;
                   }
-                  if ( v71 + ((v39 + 0x7FFF) & 0xFFFF8000) < (p_decompress->srcOffset & 0xFFFF8000) )
+                  if ( v69 + ((v39 + 0x7FFF) & 0xFFFF8000) < (p_decompress->srcOffset & 0xFFFF8000) )
                     break;
                 }
                 v39 = v45;
                 v40 = (v45 + 0x7FFF) & 0xFFFF8000;
-                *(_DWORD *)&v92[v35 + 252] = v40;
-                ++*(_DWORD *)&v92[v35 + 508];
-                v41 = *(_DWORD *)&v92[4 * v42 - 4];
+                *(_DWORD *)&v90[v35 + 252] = v40;
+                ++*(_DWORD *)&v90[v35 + 508];
+                v41 = *(_DWORD *)&v90[4 * v42 - 4];
               }
               while ( v41 < (unsigned int)sortList );
-              v26 = v82;
-              v19 = v80;
+              v26 = v80;
+              v19 = v78;
             }
-            if ( v40 < *(_DWORD *)&v92[v35 + 764] )
+            if ( v40 < *(_DWORD *)&v90[v35 + 764] )
             {
-              LODWORD(v70) = *(_DWORD *)&v92[v35 + 764];
-              LODWORD(v69) = v40;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1172, ASSERT_TYPE_ASSERT, "( endOffsets[startIndex] ) >= ( beginOffsets[startIndex] )", "%s >= %s\n\t%u, %u", "endOffsets[startIndex]", "beginOffsets[startIndex]", v69, v70) )
+              LODWORD(v68) = *(_DWORD *)&v90[v35 + 764];
+              LODWORD(v67) = v40;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1172, ASSERT_TYPE_ASSERT, "( endOffsets[startIndex] ) >= ( beginOffsets[startIndex] )", "%s >= %s\n\t%u, %u", "endOffsets[startIndex]", "beginOffsets[startIndex]", v67, v68) )
                 __debugbreak();
               v35 = *(_QWORD *)&result[0].mValue;
             }
             v19 += 12;
-            v80 = v19;
+            v78 = v19;
             v35 += 4i64;
             *(_QWORD *)&result[0].mValue = v35;
-            v82 = --v26;
+            v80 = --v26;
           }
           while ( v26 );
           v13 = 0;
         }
         v46 = 0;
+        v70 = 0;
         v72 = 0;
-        v74 = 0;
         result[0].mValue = 0;
         v47 = 0;
-        if ( v91 )
+        if ( v89 )
         {
           v48 = 0i64;
-          v49 = v77;
-          v50 = v78;
+          v49 = v75;
+          v50 = v76;
           while ( 1 )
           {
-            v51 = *(_DWORD *)&v92[v48 + 764];
-            v52 = *(_DWORD *)&v92[v48 + 252];
-            v53 = *(_DWORD *)&v92[v48 + 508];
+            v51 = *(_DWORD *)&v90[v48 + 764];
+            v52 = *(_DWORD *)&v90[v48 + 252];
+            v53 = *(_DWORD *)&v90[v48 + 508];
             if ( v52 < v51 )
             {
-              LODWORD(v70) = *(_DWORD *)&v92[v48 + 764];
-              LODWORD(v69) = *(_DWORD *)&v92[v48 + 252];
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1185, ASSERT_TYPE_ASSERT, "( endOffset ) >= ( beginOffset )", "%s >= %s\n\t%u, %u", "endOffset", "beginOffset", v69, v70) )
+              LODWORD(v68) = *(_DWORD *)&v90[v48 + 764];
+              LODWORD(v67) = *(_DWORD *)&v90[v48 + 252];
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1185, ASSERT_TYPE_ASSERT, "( endOffset ) >= ( beginOffset )", "%s >= %s\n\t%u, %u", "endOffset", "beginOffset", v67, v68) )
                 __debugbreak();
             }
             if ( v51 > v49 )
             {
-              LODWORD(v70) = v49;
-              LODWORD(v69) = v51;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1188, ASSERT_TYPE_ASSERT, "( beginOffset ) <= ( primaryItemBeginOffset )", "%s <= %s\n\t%u, %u", "beginOffset", "primaryItemBeginOffset", v69, v70) )
+              LODWORD(v68) = v49;
+              LODWORD(v67) = v51;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1188, ASSERT_TYPE_ASSERT, "( beginOffset ) <= ( primaryItemBeginOffset )", "%s <= %s\n\t%u, %u", "beginOffset", "primaryItemBeginOffset", v67, v68) )
                 __debugbreak();
             }
             if ( v50 > v52 )
@@ -4175,56 +4000,56 @@ void Stream_UpdateFileBlock_SetupMultiItemRead(const StreamSortListFrame *sortLi
             v54 = v52 - v51;
             if ( v53 <= result[0].mValue )
             {
-              if ( v53 != result[0].mValue || v54 <= v74 )
+              if ( v53 != result[0].mValue || v54 <= v72 )
                 break;
               v46 = v47;
-              v72 = v47;
-              v74 = v54;
+              v70 = v47;
+              v72 = v54;
             }
             else
             {
               v46 = v47;
-              v72 = v47;
+              v70 = v47;
               result[0].mValue = v53;
-              v74 = v54;
+              v72 = v54;
             }
 LABEL_92:
             ++v47;
             v48 += 4i64;
-            if ( v47 >= v91 )
+            if ( v47 >= v89 )
             {
-              LODWORD(sortList) = v79;
+              LODWORD(sortList) = v77;
               v13 = 0;
               goto LABEL_94;
             }
           }
-          v46 = v72;
+          v46 = v70;
           goto LABEL_92;
         }
 LABEL_94:
         if ( v46 >= (unsigned int)sortList )
         {
-          LODWORD(v68) = (_DWORD)sortList;
-          LODWORD(v67) = v46;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1214, ASSERT_TYPE_ASSERT, "(unsigned)( bestStartIndex ) < (unsigned)( numItemsToRead )", "bestStartIndex doesn't index numItemsToRead\n\t%i not in [0, %i)", v67, v68) )
+          LODWORD(v66) = (_DWORD)sortList;
+          LODWORD(v65) = v46;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1214, ASSERT_TYPE_ASSERT, "(unsigned)( bestStartIndex ) < (unsigned)( numItemsToRead )", "bestStartIndex doesn't index numItemsToRead\n\t%i not in [0, %i)", v65, v66) )
             __debugbreak();
         }
         v55 = v46;
-        v56 = *(unsigned int *)&v92[4 * v46 + 764];
-        v57 = *(_DWORD *)&v92[4 * v55 + 252];
+        v56 = *(unsigned int *)&v90[4 * v46 + 764];
+        v57 = *(_DWORD *)&v90[4 * v55 + 252];
         if ( v57 < (unsigned int)v56 )
         {
-          LODWORD(v70) = v56;
-          LODWORD(v69) = *(_DWORD *)&v92[4 * v55 + 252];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1217, ASSERT_TYPE_ASSERT, "( bestEndOffset ) >= ( bestStartOffset )", "%s >= %s\n\t%u, %u", "bestEndOffset", "bestStartOffset", v69, v70) )
+          LODWORD(v68) = v56;
+          LODWORD(v67) = *(_DWORD *)&v90[4 * v55 + 252];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1217, ASSERT_TYPE_ASSERT, "( bestEndOffset ) >= ( bestStartOffset )", "%s >= %s\n\t%u, %u", "bestEndOffset", "bestStartOffset", v67, v68) )
             __debugbreak();
         }
-        _R15 = (__int64)v76;
+        v58 = (__int64)v74;
         if ( (_DWORD)sortList )
         {
           do
           {
-            v59 = _R15 + 48i64 * v13;
+            v59 = v58 + 48i64 * v13;
             v60 = *(_DWORD *)(v59 + 24);
             if ( v60 < (unsigned int)v56 || v60 + *(_DWORD *)(v59 + 28) > v57 )
             {
@@ -4233,25 +4058,17 @@ LABEL_94:
               Stream_ClearItemLoading((const ItemReadInfo *)(v59 + 16));
               v61 = v13 + 1;
               if ( (unsigned int)v61 < (unsigned int)sortList )
-                memmove_0((void *)(v59 + 16), (const void *)(_R15 + 48 * v61 + 16), 48i64 * ((unsigned int)sortList - v13 - 1));
+                memmove_0((void *)(v59 + 16), (const void *)(v58 + 48 * v61 + 16), 48i64 * ((unsigned int)sortList - v13 - 1));
               sortList = (const StreamSortListFrame *)(unsigned int)((_DWORD)sortList - 1);
-              *(_OWORD *)v88.m256i_i8 = 0ui64;
-              __asm
-              {
-                vpxor   xmm0, xmm0, xmm0
-                vmovdqu xmmword ptr [rbp+430h+var_480+10h], xmm0
-              }
-              v88.m256i_i32[7] = -1;
-              LOBYTE(v89) = 3;
-              WORD4(v89) = 0;
-              _RCX = 6i64 * (_QWORD)sortList;
-              __asm
-              {
-                vmovups ymm0, [rbp+430h+var_480]
-                vmovups ymmword ptr [r15+rcx*8+10h], ymm0
-                vmovups xmm1, [rbp+430h+var_460]
-                vmovups xmmword ptr [r15+rcx*8+30h], xmm1
-              }
+              *(_OWORD *)v86.m256i_i8 = 0ui64;
+              __asm { vpxor   xmm0, xmm0, xmm0 }
+              *(_OWORD *)&v86.m256i_u64[2] = _XMM0;
+              v86.m256i_i32[7] = -1;
+              LOBYTE(v87) = 3;
+              WORD4(v87) = 0;
+              v62 = 6i64 * (_QWORD)sortList;
+              *(__m256i *)(v58 + 8 * v62 + 16) = v86;
+              *(_OWORD *)(v58 + 8 * v62 + 48) = v87;
               --v13;
             }
             else
@@ -4262,23 +4079,23 @@ LABEL_94:
           }
           while ( v13 < (unsigned int)sortList );
         }
-        *(_DWORD *)(_R15 + 12) = (_DWORD)sortList;
+        *(_DWORD *)(v58 + 12) = (_DWORD)sortList;
         if ( !(_DWORD)sortList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1249, ASSERT_TYPE_ASSERT, "(numItemsToRead > 0)", (const char *)&queryFormat, "numItemsToRead > 0") )
           __debugbreak();
-        v65 = v57 - v56;
-        *(_DWORD *)(_R15 + 8) = v65;
-        if ( (v65 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1252, ASSERT_TYPE_ASSERT, "(IsAligned( readInfo->readBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( readInfo->readBytes, STREAM_DISK_READ_ALIGNMENT )") )
+        v63 = v57 - v56;
+        *(_DWORD *)(v58 + 8) = v63;
+        if ( (v63 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1252, ASSERT_TYPE_ASSERT, "(IsAligned( readInfo->readBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( readInfo->readBytes, STREAM_DISK_READ_ALIGNMENT )") )
           __debugbreak();
-        if ( *(_DWORD *)(_R15 + 8) > 0x100000u )
+        if ( *(_DWORD *)(v58 + 8) > 0x100000u )
         {
-          LODWORD(v70) = 0x100000;
-          LODWORD(v69) = *(_DWORD *)(_R15 + 8);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1253, ASSERT_TYPE_ASSERT, "( readInfo->readBytes ) <= ( STREAM_FILEBUF_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "readInfo->readBytes", "STREAM_FILEBUF_BLOCK_SIZE", v69, v70) )
+          LODWORD(v68) = 0x100000;
+          LODWORD(v67) = *(_DWORD *)(v58 + 8);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1253, ASSERT_TYPE_ASSERT, "( readInfo->readBytes ) <= ( STREAM_FILEBUF_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "readInfo->readBytes", "STREAM_FILEBUF_BLOCK_SIZE", v67, v68) )
             __debugbreak();
         }
-        v66 = v56 + minOffset;
-        *(_QWORD *)_R15 = v56 + minOffset;
-        if ( (v66 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1256, ASSERT_TYPE_ASSERT, "(IsAligned( readInfo->readOffset, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( readInfo->readOffset, STREAM_DISK_READ_ALIGNMENT )") )
+        v64 = v56 + minOffset;
+        *(_QWORD *)v58 = v56 + minOffset;
+        if ( (v64 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 1256, ASSERT_TYPE_ASSERT, "(IsAligned( readInfo->readOffset, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( readInfo->readOffset, STREAM_DISK_READ_ALIGNMENT )") )
           __debugbreak();
       }
     }
@@ -4293,61 +4110,53 @@ Stream_UpdateFileBlock_SetupNextMultiBlockRead
 */
 void Stream_UpdateFileBlock_SetupNextMultiBlockRead(StreamBufferBlockInfo *blockInfo, const ItemReadInfo *itemReadInfo, const StreamBufferBlockInfo::MultiBlockReadInfo *multiBlockReadInfo, unsigned int blockToRead)
 {
-  StreamBufferBlockInfo *v6; 
   const XPakEntryInfo *XPakEntryInfo; 
-  const XPakEntryInfo *v9; 
-  unsigned __int64 v10; 
+  const XPakEntryInfo *v7; 
+  unsigned __int64 v8; 
+  unsigned int v9; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
+  __int64 v12; 
   unsigned int v13; 
-  __int64 v14; 
-  unsigned int v15; 
-  int v16; 
-  int v17; 
+  int v14; 
+  int v15; 
   int modifyTimeMs; 
-  int *v19; 
+  int *v17; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+28h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+48h], xmm1
-  }
+  blockInfo->readInfo.itemReadInfo[0] = *itemReadInfo;
   blockInfo->readInfo.numItems = 1;
-  v6 = blockInfo;
   blockInfo->multiBlockReadInfo.blockIndex = blockToRead;
   blockInfo->multiBlockReadInfo.numBlocks = multiBlockReadInfo->numBlocks;
   blockInfo->multiBlockReadInfo.isWriteAddressLocked = multiBlockReadInfo->isWriteAddressLocked;
   XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
-  v9 = ItemPickInfo::GetXPakEntryInfo(&v6->readInfo.itemReadInfo[0].pickedItem);
-  v10 = v9->offset & 0xFFFFFFFFFFFF8000ui64;
-  v11 = truncate_cast<unsigned int,__int64>(((v9->offset + v9->size + 0x7FFF) & 0xFFFFFFFFFFFF8000ui64) - v10);
-  if ( (v11 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 170, ASSERT_TYPE_ASSERT, "(IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT )") )
+  v7 = ItemPickInfo::GetXPakEntryInfo(&blockInfo->readInfo.itemReadInfo[0].pickedItem);
+  v8 = v7->offset & 0xFFFFFFFFFFFF8000ui64;
+  v9 = truncate_cast<unsigned int,__int64>(((v7->offset + v7->size + 0x7FFF) & 0xFFFFFFFFFFFF8000ui64) - v8);
+  if ( (v9 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 170, ASSERT_TYPE_ASSERT, "(IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT )") )
     __debugbreak();
-  v12 = blockToRead << 20;
-  v13 = v11 - v12;
-  v14 = v10 + v12;
-  v6->readInfo.readOffset = v14;
+  v10 = blockToRead << 20;
+  v11 = v9 - v10;
+  v12 = v8 + v10;
+  blockInfo->readInfo.readOffset = v12;
+  if ( v11 > 0x100000 )
+    v11 = 0x100000;
+  blockInfo->readInfo.readBytes = v11;
+  v13 = truncate_cast<unsigned int,unsigned __int64>(XPakEntryInfo->offset + XPakEntryInfo->size - v12);
   if ( v13 > 0x100000 )
     v13 = 0x100000;
-  v6->readInfo.readBytes = v13;
-  v15 = truncate_cast<unsigned int,unsigned __int64>(XPakEntryInfo->offset + XPakEntryInfo->size - v14);
-  if ( v15 > 0x100000 )
-    v15 = 0x100000;
-  v16 = 0;
-  v6->readInfo.itemReadInfo[0].decompress.srcOffset = 0;
-  v6->readInfo.itemReadInfo[0].decompress.srcBytes = v15;
-  *(_DWORD *)v6->schedulerId = -1;
-  *(_WORD *)&v6->issuedRead = 0;
-  v17 = Sys_Milliseconds();
-  modifyTimeMs = v6->modifyTimeMs;
+  v14 = 0;
+  blockInfo->readInfo.itemReadInfo[0].decompress.srcOffset = 0;
+  blockInfo->readInfo.itemReadInfo[0].decompress.srcBytes = v13;
+  *(_DWORD *)blockInfo->schedulerId = -1;
+  *(_WORD *)&blockInfo->issuedRead = 0;
+  v15 = Sys_Milliseconds();
+  modifyTimeMs = blockInfo->modifyTimeMs;
   if ( modifyTimeMs )
-    v16 = v17 - modifyTimeMs;
-  v19 = &s_streamReadGlob.cumulativeMsReadStatus[*(int *)v6->status];
-  *v19 += v16;
-  v6->modifyTimeMs = v17;
-  *(_DWORD *)v6->status = 1;
+    v14 = v15 - modifyTimeMs;
+  v17 = &s_streamReadGlob.cumulativeMsReadStatus[*(int *)blockInfo->status];
+  *v17 += v14;
+  blockInfo->modifyTimeMs = v15;
+  *(_DWORD *)blockInfo->status = 1;
 }
 
 /*
@@ -4359,6 +4168,7 @@ char Stream_UpdateFileBlock_SetupNextReadBySeekOrder(StreamBufferBlockInfo *bloc
 {
   unsigned int count; 
   unsigned int nextIndex; 
+  StreamBufferReadInfo *v7; 
   char ImagePartNow; 
   StreamableBits *StremableBitsForType; 
   __int64 itemPartIndex; 
@@ -4370,20 +4180,21 @@ char Stream_UpdateFileBlock_SetupNextReadBySeekOrder(StreamBufferBlockInfo *bloc
   const XPakEntryInfo *XPakEntryInfo; 
   unsigned int v18; 
   __int64 v19; 
-  unsigned int v21; 
+  unsigned int v20; 
+  char *v21; 
   char MeshNow; 
-  StreamableBits *v27; 
-  __int64 v28; 
-  StreamableBits *v29; 
+  StreamableBits *v23; 
+  __int64 v24; 
+  StreamableBits *v25; 
+  unsigned int *v26; 
+  int v27; 
+  bool v28; 
+  __int64 v29; 
   unsigned int *v30; 
-  int v31; 
-  bool v32; 
+  __int64 numItems; 
+  __int64 v32; 
   __int64 v33; 
-  unsigned int *v34; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  int v42; 
+  int v34; 
 
   count = s_streamReadGlob.seekOrderItemQueue.count;
   if ( !s_streamReadGlob.seekOrderItemQueue.count )
@@ -4420,28 +4231,28 @@ LABEL_24:
     nextIndex = s_streamReadGlob.seekOrderItemQueue.nextIndex;
     if ( s_streamReadGlob.seekOrderItemQueue.nextIndex >= count )
     {
-      LODWORD(v40) = count;
-      LODWORD(v39) = s_streamReadGlob.seekOrderItemQueue.nextIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2783, ASSERT_TYPE_ASSERT, "(unsigned)( queue.nextIndex ) < (unsigned)( queue.count )", "queue.nextIndex doesn't index queue.count\n\t%i not in [0, %i)", v39, v40) )
+      LODWORD(v33) = count;
+      LODWORD(v32) = s_streamReadGlob.seekOrderItemQueue.nextIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2783, ASSERT_TYPE_ASSERT, "(unsigned)( queue.nextIndex ) < (unsigned)( queue.count )", "queue.nextIndex doesn't index queue.count\n\t%i not in [0, %i)", v32, v33) )
         __debugbreak();
       count = s_streamReadGlob.seekOrderItemQueue.count;
       nextIndex = s_streamReadGlob.seekOrderItemQueue.nextIndex;
     }
-    _RSI = &s_streamReadGlob.seekOrderItemQueue.reads[nextIndex];
+    v7 = &s_streamReadGlob.seekOrderItemQueue.reads[nextIndex];
     s_streamReadGlob.seekOrderItemQueue.nextIndex = (nextIndex + 1) % count;
-    if ( _RSI->itemReadInfo[0].pickedItem.type == STREAM_ITEM_IMAGE )
+    if ( v7->itemReadInfo[0].pickedItem.type == STREAM_ITEM_IMAGE )
     {
-      ImagePartNow = Stream_ShouldReadImagePartNow(sortList, _RSI->itemReadInfo[0].pickedItem.itemPartIndex);
+      ImagePartNow = Stream_ShouldReadImagePartNow(sortList, v7->itemReadInfo[0].pickedItem.itemPartIndex);
       goto LABEL_22;
     }
-    if ( _RSI->itemReadInfo[0].pickedItem.type == STREAM_ITEM_MESH )
+    if ( v7->itemReadInfo[0].pickedItem.type == STREAM_ITEM_MESH )
     {
-      ImagePartNow = Stream_ShouldReadMeshNow(sortList, _RSI->itemReadInfo[0].pickedItem.itemPartIndex);
+      ImagePartNow = Stream_ShouldReadMeshNow(sortList, v7->itemReadInfo[0].pickedItem.itemPartIndex);
       goto LABEL_22;
     }
-    if ( _RSI->itemReadInfo[0].pickedItem.type != STREAM_ITEM_GENERIC )
+    if ( v7->itemReadInfo[0].pickedItem.type != STREAM_ITEM_GENERIC )
       break;
-    ImagePartNow = Stream_ShouldReadGenericNow(sortList, _RSI->itemReadInfo[0].pickedItem.itemPartIndex);
+    ImagePartNow = Stream_ShouldReadGenericNow(sortList, v7->itemReadInfo[0].pickedItem.itemPartIndex);
 LABEL_22:
     if ( ImagePartNow )
       goto LABEL_28;
@@ -4452,16 +4263,16 @@ LABEL_22:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2753, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
     __debugbreak();
 LABEL_28:
-  StremableBitsForType = Stream_GetStremableBitsForType(_RSI->itemReadInfo[0].pickedItem.type);
-  itemPartIndex = (int)_RSI->itemReadInfo[0].pickedItem.itemPartIndex;
+  StremableBitsForType = Stream_GetStremableBitsForType(v7->itemReadInfo[0].pickedItem.type);
+  itemPartIndex = (int)v7->itemReadInfo[0].pickedItem.itemPartIndex;
   v12 = StremableBitsForType;
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
     __debugbreak();
   if ( (unsigned int)itemPartIndex >= v12->mBitCount )
   {
-    LODWORD(v40) = v12->mBitCount;
-    LODWORD(v39) = itemPartIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v39, v40) )
+    LODWORD(v33) = v12->mBitCount;
+    LODWORD(v32) = itemPartIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v32, v33) )
       __debugbreak();
   }
   mLoading = v12->mLoading;
@@ -4481,97 +4292,83 @@ LABEL_28:
       __debugbreak();
     v16[v15] |= v14;
   }
-  XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&_RSI->itemReadInfo[0].pickedItem);
+  XPakEntryInfo = ItemPickInfo::GetXPakEntryInfo(&v7->itemReadInfo[0].pickedItem);
   v18 = truncate_cast<unsigned int,__int64>(((XPakEntryInfo->offset + XPakEntryInfo->size + 0x7FFF) & 0xFFFFFFFFFFFF8000ui64) - (XPakEntryInfo->offset & 0xFFFFFFFFFFFF8000ui64));
   v19 = v18;
   if ( (v18 & 0x7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 170, ASSERT_TYPE_ASSERT, "(IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( totalAlignedReadBytes, STREAM_DISK_READ_ALIGNMENT )") )
     __debugbreak();
-  _RCX = blockInfo;
-  v41 = 0i64;
-  v21 = 1;
-  __asm { vmovsd  xmm0, [rsp+78h+var_38] }
-  LOBYTE(v42) = 0;
-  __asm { vmovsd  qword ptr [rcx+0C28h], xmm0 }
-  *(_DWORD *)&blockInfo->multiBlockReadInfo.isWriteAddressLocked = v42;
+  v20 = 1;
+  LOBYTE(v34) = 0;
+  *(double *)&blockInfo->multiBlockReadInfo.blockIndex = 0i64;
+  *(_DWORD *)&blockInfo->multiBlockReadInfo.isWriteAddressLocked = v34;
   blockInfo->multiBlockReadInfo.numBlocks = (unsigned __int64)(v19 + 0xFFFFF) >> 20;
-  blockInfo->readInfo.readOffset = _RSI->readOffset;
-  blockInfo->readInfo.readBytes = _RSI->readBytes;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+10h]
-    vmovups ymmword ptr [rcx+28h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+30h]
-    vmovups xmmword ptr [rcx+48h], xmm1
-  }
+  blockInfo->readInfo.readOffset = v7->readOffset;
+  blockInfo->readInfo.readBytes = v7->readBytes;
+  *(__m256i *)&blockInfo->readInfo.itemReadInfo[0].updateId = *(__m256i *)&v7->itemReadInfo[0].updateId;
+  *(_OWORD *)&blockInfo->readInfo.itemReadInfo[0].pickedItem.type = *(_OWORD *)&v7->itemReadInfo[0].pickedItem.type;
   blockInfo->readInfo.numItems = 1;
-  if ( _RSI->numItems > 1 )
+  if ( v7->numItems > 1 )
   {
     while ( 2 )
     {
-      _R13 = (char *)_RSI + 48 * v21;
-      if ( _R13[48] )
+      v21 = (char *)v7 + 48 * v20;
+      if ( v21[48] )
       {
-        if ( _R13[48] == 1 )
+        if ( v21[48] == 1 )
         {
-          MeshNow = Stream_ShouldReadMeshNow(sortList, *((_DWORD *)_R13 + 10));
+          MeshNow = Stream_ShouldReadMeshNow(sortList, *((_DWORD *)v21 + 10));
         }
         else
         {
-          if ( _R13[48] != 2 )
+          if ( v21[48] != 2 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2753, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
               __debugbreak();
 LABEL_57:
-            v27 = Stream_GetStremableBitsForType((StreamItemType)_R13[48]);
-            v28 = *((int *)_R13 + 10);
-            v29 = v27;
+            v23 = Stream_GetStremableBitsForType((StreamItemType)v21[48]);
+            v24 = *((int *)v21 + 10);
+            v25 = v23;
             if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
               __debugbreak();
-            if ( (unsigned int)v28 >= v29->mBitCount )
+            if ( (unsigned int)v24 >= v25->mBitCount )
             {
-              LODWORD(v40) = v29->mBitCount;
-              LODWORD(v39) = v28;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v39, v40) )
+              LODWORD(v33) = v25->mBitCount;
+              LODWORD(v32) = v24;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v32, v33) )
                 __debugbreak();
             }
-            v30 = v29->mLoading;
-            if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+            v26 = v25->mLoading;
+            if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
               __debugbreak();
-            v31 = 1 << (v28 & 0x1F);
-            v32 = (v31 & v30[v28 >> 5]) == 0;
-            v33 = v28 >> 5;
-            if ( v32 )
+            v27 = 1 << (v24 & 0x1F);
+            v28 = (v27 & v26[v24 >> 5]) == 0;
+            v29 = v24 >> 5;
+            if ( v28 )
             {
-              v34 = v29->mLoading;
-              if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+              v30 = v25->mLoading;
+              if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                 __debugbreak();
-              v34[v33] |= v31;
+              v30[v29] |= v27;
             }
             else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2811, ASSERT_TYPE_ASSERT, "(Stream_GetStremableBitsForType( pickedItem.type ).SetLoadingConditional( pickedItem.itemPartIndex ))", (const char *)&queryFormat, "Stream_GetStremableBitsForType( pickedItem.type ).SetLoadingConditional( pickedItem.itemPartIndex )") )
             {
               __debugbreak();
             }
-            _RDX = blockInfo;
-            __asm { vmovups ymm0, ymmword ptr [r13+10h] }
-            _RCX = 6i64 * blockInfo->readInfo.numItems;
-            __asm
-            {
-              vmovups ymmword ptr [rdx+rcx*8+28h], ymm0
-              vmovups xmm1, xmmword ptr [r13+30h]
-              vmovups xmmword ptr [rdx+rcx*8+48h], xmm1
-            }
+            numItems = blockInfo->readInfo.numItems;
+            *(__m256i *)&blockInfo->readInfo.itemReadInfo[numItems].updateId = *(__m256i *)(v21 + 16);
+            *(_OWORD *)&blockInfo->readInfo.itemReadInfo[numItems].pickedItem.type = *((_OWORD *)v21 + 3);
             ++blockInfo->readInfo.numItems;
 LABEL_74:
-            if ( ++v21 >= _RSI->numItems )
+            if ( ++v20 >= v7->numItems )
               return 1;
             continue;
           }
-          MeshNow = Stream_ShouldReadGenericNow(sortList, *((_DWORD *)_R13 + 10));
+          MeshNow = Stream_ShouldReadGenericNow(sortList, *((_DWORD *)v21 + 10));
         }
       }
       else
       {
-        MeshNow = Stream_ShouldReadImagePartNow(sortList, *((_DWORD *)_R13 + 10));
+        MeshNow = Stream_ShouldReadImagePartNow(sortList, *((_DWORD *)v21 + 10));
       }
       break;
     }
@@ -4589,127 +4386,94 @@ Stream_UpdateFileBlock_SetupNextReadByStreamDistance
 */
 __int64 Stream_UpdateFileBlock_SetupNextReadByStreamDistance(StreamBufferBlockInfo *blockInfo, const StreamSortListFrame *sortList, StreamDistance maxDistance, int (*streamablePickIndices)[3])
 {
-  int (*v7)[3]; 
-  char v14; 
-  char v15; 
-  int v16; 
+  int (*v4)[3]; 
+  float meshBoost; 
+  unsigned __int8 v9; 
   StreamItemType lastPickTypeByDistance; 
-  int v20; 
-  StreamItemType v21; 
+  int v11; 
+  StreamItemType v12; 
   StreamableBits *StremableBitsForType; 
   unsigned int *mLoading; 
-  int v28; 
-  __int64 v29; 
-  unsigned __int8 v30; 
-  __int64 v31; 
-  unsigned int *v34; 
+  int v15; 
+  __int64 v16; 
+  unsigned __int8 v17; 
+  unsigned int *v19; 
   unsigned int updated; 
-  unsigned __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
+  unsigned __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
   ItemPickInfo pickedItem; 
   ItemPickInfo result; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v7 = streamablePickIndices;
-  _R13 = blockInfo;
+  v4 = streamablePickIndices;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_UpdateFileBlock_SetupNextReadByStreamDistance");
-  _RAX = streamFrontendGlob;
-  __asm
+  meshBoost = streamFrontendGlob->meshBoost;
+  if ( meshBoost > 0.0 )
   {
-    vmovss  xmm6, dword ptr [rax+0B96B34h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !(v14 | v15) )
-  {
-    v16 = (unsigned __int8)rand();
-    __asm
-    {
-      vmulss  xmm0, xmm6, cs:__real@437f0000
-      vcvttss2si eax, xmm0
-    }
+    v9 = rand();
     lastPickTypeByDistance = s_streamReadGlob.lastPickTypeByDistance;
-    if ( v16 < _EAX )
+    if ( v9 < (int)(float)(meshBoost * 255.0) )
       lastPickTypeByDistance = STREAM_ITEM_MESH;
     s_streamReadGlob.lastPickTypeByDistance = lastPickTypeByDistance;
   }
-  v20 = 0;
+  v11 = 0;
   while ( 1 )
   {
-    v21 = s_streamReadGlob.lastPickTypeByDistance;
-    _RAX = pickFns_0[(unsigned __int8)s_streamReadGlob.lastPickTypeByDistance](&result, sortList, &(*v7)[(unsigned __int8)s_streamReadGlob.lastPickTypeByDistance], maxDistance);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+0B8h+pickedItem.___u0], xmm1
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovsd  qword ptr [rsp+0B8h+pickedItem.type], xmm0
-    }
+    v12 = s_streamReadGlob.lastPickTypeByDistance;
+    pickedItem = *pickFns_0[(unsigned __int8)s_streamReadGlob.lastPickTypeByDistance](&result, sortList, &(*v4)[(unsigned __int8)s_streamReadGlob.lastPickTypeByDistance], maxDistance);
     s_streamReadGlob.lastPickTypeByDistance = ((unsigned int)(unsigned __int8)s_streamReadGlob.lastPickTypeByDistance + 1) % 3;
-    __asm { vmovq   rax, xmm1 }
-    if ( _RAX )
+    if ( pickedItem.item )
       break;
 LABEL_21:
-    if ( (unsigned int)++v20 >= 3 )
+    if ( (unsigned int)++v11 >= 3 )
     {
-      v30 = 0;
+      v17 = 0;
       goto LABEL_23;
     }
   }
-  if ( v21 != pickedItem.type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2857, ASSERT_TYPE_ASSERT, "(pickType == pickedItem.type)", (const char *)&queryFormat, "pickType == pickedItem.type") )
+  if ( v12 != pickedItem.type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2857, ASSERT_TYPE_ASSERT, "(pickType == pickedItem.type)", (const char *)&queryFormat, "pickType == pickedItem.type") )
     __debugbreak();
   StremableBitsForType = Stream_GetStremableBitsForType(pickedItem.type);
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
     __debugbreak();
   if ( pickedItem.itemPartIndex >= StremableBitsForType->mBitCount )
   {
-    LODWORD(v39) = StremableBitsForType->mBitCount;
-    LODWORD(v38) = pickedItem.itemPartIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v38, v39) )
+    LODWORD(v23) = StremableBitsForType->mBitCount;
+    LODWORD(v22) = pickedItem.itemPartIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v22, v23) )
       __debugbreak();
   }
   mLoading = StremableBitsForType->mLoading;
   if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
     __debugbreak();
-  v28 = 1 << (pickedItem.itemPartIndex & 0x1F);
-  v29 = (__int64)(int)pickedItem.itemPartIndex >> 5;
-  if ( (v28 & mLoading[v29]) != 0 )
+  v15 = 1 << (pickedItem.itemPartIndex & 0x1F);
+  v16 = (__int64)(int)pickedItem.itemPartIndex >> 5;
+  if ( (v15 & mLoading[v16]) != 0 )
   {
-    v7 = streamablePickIndices;
+    v4 = streamablePickIndices;
     goto LABEL_21;
   }
-  v34 = StremableBitsForType->mLoading;
-  if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+  v19 = StremableBitsForType->mLoading;
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
     __debugbreak();
-  v34[v29] |= v28;
-  updated = Stream_UpdateFileBlock_SetupItemRead(&pickedItem, sortList, &_R13->readInfo);
+  v19[v16] |= v15;
+  updated = Stream_UpdateFileBlock_SetupItemRead(&pickedItem, sortList, &blockInfo->readInfo);
   pickedItem.item = NULL;
   LOBYTE(pickedItem.itemPartIndex) = 0;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+0B8h+pickedItem.___u0]
-    vmovsd  qword ptr [r13+0C28h], xmm0
-  }
-  *(_DWORD *)&_R13->multiBlockReadInfo.isWriteAddressLocked = pickedItem.itemPartIndex;
-  v37 = ((unsigned __int64)updated + 0xFFFFF) >> 20;
-  _R13->multiBlockReadInfo.numBlocks = v37;
+  *(double *)&blockInfo->multiBlockReadInfo.blockIndex = 0i64;
+  *(_DWORD *)&blockInfo->multiBlockReadInfo.isWriteAddressLocked = pickedItem.itemPartIndex;
+  v21 = ((unsigned __int64)updated + 0xFFFFF) >> 20;
+  blockInfo->multiBlockReadInfo.numBlocks = v21;
   if ( updated < 0x100000 )
   {
-    if ( (_DWORD)v37 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2869, ASSERT_TYPE_ASSERT, "(blockInfo->multiBlockReadInfo.numBlocks == 1)", (const char *)&queryFormat, "blockInfo->multiBlockReadInfo.numBlocks == 1") )
+    if ( (_DWORD)v21 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2869, ASSERT_TYPE_ASSERT, "(blockInfo->multiBlockReadInfo.numBlocks == 1)", (const char *)&queryFormat, "blockInfo->multiBlockReadInfo.numBlocks == 1") )
       __debugbreak();
-    Stream_UpdateFileBlock_SetupMultiItemRead(sortList, maxDistance, &_R13->readInfo);
+    Stream_UpdateFileBlock_SetupMultiItemRead(sortList, maxDistance, &blockInfo->readInfo);
   }
-  v30 = 1;
+  v17 = 1;
 LABEL_23:
   Sys_ProfEndNamedEvent();
-  v31 = v30;
-  _R11 = &v42;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return v31;
+  return v17;
 }
 
 /*
@@ -4719,73 +4483,61 @@ Stream_UpdateFileBlocks
 */
 void Stream_UpdateFileBlocks(const StreamSortListFrame *sortList)
 {
-  const dvar_t *v3; 
+  const dvar_t *v2; 
   bool enabled; 
-  char v8; 
-  char v9; 
-  StreamDistance v10; 
-  unsigned int v11; 
-  __int64 v12; 
-  StreamBufferBlockInfo *v13; 
+  const dvar_t *v4; 
+  float value; 
+  StreamDistance v6; 
+  unsigned int v7; 
+  __int64 v8; 
+  StreamBufferBlockInfo *v9; 
+  int v10; 
+  int v11; 
+  char v12; 
+  char v13; 
   int v14; 
-  int v15; 
-  char v16; 
-  char v17; 
-  int v18; 
-  __int64 v19; 
-  int v20; 
+  __int64 v15; 
+  int v16; 
   int modifyTimeMs; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
   int v22; 
   int v23; 
   int v24; 
   int v25; 
   int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  __int64 v31; 
-  unsigned int v32; 
-  int v33; 
+  __int64 v27; 
   int streamablePickIndices[3]; 
 
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2917, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
-  v3 = DVARBOOL_stream_readFavorSeekOrder;
+  v2 = DVARBOOL_stream_readFavorSeekOrder;
   if ( !DVARBOOL_stream_readFavorSeekOrder && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readFavorSeekOrder") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  enabled = v3->current.enabled;
-  _RBX = DCONST_DVARFLT_stream_readMaxDistance;
+  Dvar_CheckFrontendServerThread(v2);
+  enabled = v2->current.enabled;
+  v4 = DCONST_DVARFLT_stream_readMaxDistance;
   if ( !DCONST_DVARFLT_stream_readMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_readMaxDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  if ( value <= 0.0 )
   {
-    vmovss  xmm1, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v8 | v9 )
-  {
-    v10.mValue = 16711679;
+    v6.mValue = 16711679;
   }
   else
   {
-    __asm
-    {
-      vmovss  [rsp+98h+var_50], xmm1
-      vmovss  [rsp+98h+var_58], xmm1
-    }
-    if ( (v33 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+    if ( (LODWORD(value) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
       __debugbreak();
-    v10.mValue = v32 >> 7;
+    v6.mValue = LODWORD(value) >> 7;
   }
   if ( enabled && Stream_IsEnabled() )
   {
     if ( sortList->sortListBuildIndex != s_streamReadGlob.lastSortListBuildIndex )
     {
-      Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder(sortList, v10);
+      Stream_UpdateFileBlock_PickNextItemsToReadInSeekOrder(sortList, v6);
       s_streamReadGlob.lastSortListBuildIndex = sortList->sortListBuildIndex;
     }
   }
@@ -4797,92 +4549,92 @@ void Stream_UpdateFileBlocks(const StreamSortListFrame *sortList)
     s_streamReadGlob.seekOrderItemQueue.processedCount = 0;
     s_streamReadGlob.lastSortListBuildIndex = 0;
   }
-  v11 = 0;
+  v7 = 0;
   streamablePickIndices[0] = sortList->imageSortList.mCount - 1;
   streamablePickIndices[1] = sortList->meshSortList.mCount - 1;
-  for ( streamablePickIndices[2] = sortList->genericSortList.mCount - 1; v11 < s_streamReadGlob.blockCount; ++v11 )
+  for ( streamablePickIndices[2] = sortList->genericSortList.mCount - 1; v7 < s_streamReadGlob.blockCount; ++v7 )
   {
-    v12 = v11;
-    v13 = &s_streamReadGlob.blocks[v12];
-    if ( !s_streamReadGlob.blocks[v12].readBuffer && (*(_DWORD *)s_streamReadGlob.blocks[v12].status || Stream_IsEnabled()) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2942, ASSERT_TYPE_ASSERT, "(thisBlock->readBuffer || ( thisBlock->status == StreamReadBlockStatus::INVALID && !Stream_IsEnabled() ))", (const char *)&queryFormat, "thisBlock->readBuffer || ( thisBlock->status == StreamReadBlockStatus::INVALID && !Stream_IsEnabled() )") )
+    v8 = v7;
+    v9 = &s_streamReadGlob.blocks[v8];
+    if ( !s_streamReadGlob.blocks[v8].readBuffer && (*(_DWORD *)s_streamReadGlob.blocks[v8].status || Stream_IsEnabled()) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2942, ASSERT_TYPE_ASSERT, "(thisBlock->readBuffer || ( thisBlock->status == StreamReadBlockStatus::INVALID && !Stream_IsEnabled() ))", (const char *)&queryFormat, "thisBlock->readBuffer || ( thisBlock->status == StreamReadBlockStatus::INVALID && !Stream_IsEnabled() )") )
       __debugbreak();
-    v14 = *(_DWORD *)v13->status;
-    v15 = v14;
-    if ( v14 == 5 )
+    v10 = *(_DWORD *)v9->status;
+    v11 = v10;
+    if ( v10 == 5 )
     {
-      Stream_ProcessFinishedBlock(sortList, v13);
-      v14 = *(_DWORD *)v13->status;
-      v15 = v14;
+      Stream_ProcessFinishedBlock(sortList, v9);
+      v10 = *(_DWORD *)v9->status;
+      v11 = v10;
     }
-    switch ( v14 )
+    switch ( v10 )
     {
       case 0:
-        if ( (unsigned __int8)Stream_UpdateFileBlock_PrepareNextMultiBlockRead(v13) )
+        if ( (unsigned __int8)Stream_UpdateFileBlock_PrepareNextMultiBlockRead(v9) )
         {
-          v16 = 1;
+          v12 = 1;
         }
         else if ( Stream_IsEnabled() )
         {
           Stream_UpdateStreamingQuality_Image(sortList);
           if ( Stream_IsYielding() )
           {
-            v16 = 0;
+            v12 = 0;
           }
           else
           {
             if ( enabled )
-              v17 = Stream_UpdateFileBlock_SetupNextReadBySeekOrder(v13, sortList, v10);
+              v13 = Stream_UpdateFileBlock_SetupNextReadBySeekOrder(v9, sortList, v6);
             else
-              v17 = Stream_UpdateFileBlock_SetupNextReadByStreamDistance(v13, sortList, v10, (int (*)[3])streamablePickIndices);
-            v16 = v17;
+              v13 = Stream_UpdateFileBlock_SetupNextReadByStreamDistance(v9, sortList, v6, (int (*)[3])streamablePickIndices);
+            v12 = v13;
           }
         }
         else
         {
-          v16 = 0;
+          v12 = 0;
         }
-        v18 = Sys_Milliseconds();
-        v19 = *(int *)v13->status;
-        v20 = v18;
-        modifyTimeMs = v13->modifyTimeMs;
-        v22 = s_streamReadGlob.cumulativeMsReadStatus[v19];
-        if ( v16 )
+        v14 = Sys_Milliseconds();
+        v15 = *(int *)v9->status;
+        v16 = v14;
+        modifyTimeMs = v9->modifyTimeMs;
+        v18 = s_streamReadGlob.cumulativeMsReadStatus[v15];
+        if ( v12 )
         {
-          v26 = v18 - modifyTimeMs;
-          v27 = 0;
+          v22 = v14 - modifyTimeMs;
+          v23 = 0;
           if ( modifyTimeMs )
-            v27 = v26;
-          s_streamReadGlob.cumulativeMsReadStatus[v19] = v22 + v27;
-          v13->modifyTimeMs = v20;
-          *(_DWORD *)v13->status = 1;
+            v23 = v22;
+          s_streamReadGlob.cumulativeMsReadStatus[v15] = v18 + v23;
+          v9->modifyTimeMs = v16;
+          *(_DWORD *)v9->status = 1;
           goto $LN28_49;
         }
-        v23 = v18;
-        v24 = 0;
-        v25 = v23 - modifyTimeMs;
+        v19 = v14;
+        v20 = 0;
+        v21 = v19 - modifyTimeMs;
         if ( modifyTimeMs )
-          v24 = v25;
-        s_streamReadGlob.cumulativeMsReadStatus[v19] = v22 + v24;
-        v13->modifyTimeMs = v20;
-        *(_DWORD *)v13->status = 0;
+          v20 = v21;
+        s_streamReadGlob.cumulativeMsReadStatus[v15] = v18 + v20;
+        v9->modifyTimeMs = v16;
+        *(_DWORD *)v9->status = 0;
         break;
       case 1:
 $LN28_49:
-        if ( v13->cancelled )
+        if ( v9->cancelled )
         {
-          v28 = Sys_Milliseconds();
-          v29 = v13->modifyTimeMs;
-          v30 = 0;
-          if ( v29 )
-            v30 = v28 - v29;
-          s_streamReadGlob.cumulativeMsReadStatus[*(int *)v13->status] += v30;
-          v13->modifyTimeMs = v28;
-          *(_DWORD *)v13->status = 5;
+          v24 = Sys_Milliseconds();
+          v25 = v9->modifyTimeMs;
+          v26 = 0;
+          if ( v25 )
+            v26 = v24 - v25;
+          s_streamReadGlob.cumulativeMsReadStatus[*(int *)v9->status] += v26;
+          v9->modifyTimeMs = v24;
+          *(_DWORD *)v9->status = 5;
         }
-        else if ( !Stream_UpdateFileBlock_RequestItemRead(sortList, v10, enabled, v13) )
+        else if ( !Stream_UpdateFileBlock_RequestItemRead(sortList, v6, enabled, v9) )
         {
-          v13->cancelled = 1;
-          Stream_SetStatus(v13, 5);
+          v9->cancelled = 1;
+          Stream_SetStatus(v9, 5);
         }
         break;
       case 2:
@@ -4890,12 +4642,12 @@ $LN28_49:
       case 5:
         continue;
       case 3:
-        if ( Stream_UpdateFileBlock_IsAllocDone(v13) )
-          Stream_QueueDecompressCommand(v11);
+        if ( Stream_UpdateFileBlock_IsAllocDone(v9) )
+          Stream_QueueDecompressCommand(v7);
         break;
       default:
-        LODWORD(v31) = v15;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2995, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unexpected imageBufferBlock status: %d\n", v31) )
+        LODWORD(v27) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2995, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unexpected imageBufferBlock status: %d\n", v27) )
           __debugbreak();
         break;
     }
@@ -4968,24 +4720,24 @@ Stream_UpdateStreamingQuality_Image
 void Stream_UpdateStreamingQuality_Image(const StreamSortListFrame *sortList)
 {
   __int64 mCount; 
-  unsigned __int64 v5; 
-  unsigned __int64 v6; 
-  const StreamSortListFrame *v7; 
+  unsigned __int64 v3; 
+  unsigned __int64 v4; 
+  const StreamSortListFrame *v5; 
   unsigned int mValue; 
-  bool v16; 
-  bool v17; 
-  unsigned int v19; 
-  const dvar_t *v23; 
-  const StreamSortListFrame *v37; 
-  const StreamSortListFrame **v38; 
-  FastCriticalSectionScopeRead v39; 
+  __int128 v7; 
+  __int128 v9; 
+  StreamFrontendGlob *v11; 
+  unsigned int v12; 
+  double v13; 
+  const dvar_t *v14; 
+  float value; 
+  const dvar_t *v16; 
+  float v17; 
+  const StreamSortListFrame *v18; 
+  const StreamSortListFrame **v19; 
+  FastCriticalSectionScopeRead v20; 
 
-  v37 = sortList;
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
+  v18 = sortList;
   if ( !sortList->imageSortList.mCount )
   {
     if ( streamFrontendGlob->sortListValid )
@@ -4993,108 +4745,75 @@ void Stream_UpdateStreamingQuality_Image(const StreamSortListFrame *sortList)
       streamFrontendGlob->imageStreamingQuality = 1.8446674e19;
       streamFrontendGlob->imageStreamingQualitySmoothed = 1.8446674e19;
     }
-    goto LABEL_18;
+    return;
   }
-  v38 = &v37;
-  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v39, &sortList->imageSortList.mCS);
+  v19 = &v18;
+  FastCriticalSectionScopeRead::FastCriticalSectionScopeRead(&v20, &sortList->imageSortList.mCS);
   mCount = sortList->imageSortList.mCount;
   if ( mCount > sortList->imageSortList.mSortedRight )
   {
-    v5 = *(_QWORD *)&sortList->imageSortList.mActive[2 * mCount + 10238];
-    v6 = v5 >> 45;
-    if ( (v5 & 0x80000000000i64) != 0 )
+    v3 = *(_QWORD *)&sortList->imageSortList.mActive[2 * mCount + 10238];
+    v4 = v3 >> 45;
+    if ( (v3 & 0x80000000000i64) != 0 )
     {
       streamFrontendGlob->imageStreamingQuality = 1.8446674e19;
     }
     else
     {
-      v7 = v37;
-      if ( (unsigned int)v6 >= 0x50000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v6, 327680) )
+      v5 = v18;
+      if ( (unsigned int)v4 >= 0x50000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v4, 327680) )
         __debugbreak();
-      mValue = v7->imagePartDistance.mDistances[(unsigned int)v6].mValue;
-      LODWORD(v38) = mValue;
+      mValue = v5->imagePartDistance.mDistances[(unsigned int)v4].mValue;
+      LODWORD(v19) = mValue;
       if ( mValue == -1 )
       {
-        __asm { vmovss  xmm0, cs:__real@7f7fff80 }
+        v7 = LODWORD(FLOAT_3_4027977e38);
       }
       else
       {
-        LODWORD(v38) = mValue << 7;
-        __asm { vmovss  xmm0, dword ptr [rsp+88h+arg_8] }
+        LODWORD(v19) = mValue << 7;
+        v7 = mValue << 7;
       }
-      __asm
-      {
-        vsqrtss xmm0, xmm0, xmm0
-        vmaxss  xmm1, xmm0, cs:__real@20000000
-      }
-      _RAX = streamFrontendGlob;
-      __asm { vmovss  dword ptr [rax+0B96B28h], xmm1 }
+      v9 = v7;
+      *(float *)&v9 = fsqrt(*(float *)&v7);
+      _XMM0 = v9;
+      __asm { vmaxss  xmm1, xmm0, cs:__real@20000000 }
+      streamFrontendGlob->imageStreamingQuality = *(float *)&_XMM1;
     }
   }
-  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v39);
+  FastCriticalSectionScopeRead::~FastCriticalSectionScopeRead(&v20);
   if ( !CL_TransientsWorldMP_UseLowAlwaysloadedFlagging() && !CL_TransientsWorldMP_IsBRMode() )
   {
-    _RCX = streamFrontendGlob;
+    v11 = streamFrontendGlob;
 LABEL_17:
-    _RCX->imageStreamingQualitySmoothed = _RCX->imageStreamingQuality;
-    goto LABEL_18;
+    v11->imageStreamingQualitySmoothed = v11->imageStreamingQuality;
+    return;
   }
-  _RCX = streamFrontendGlob;
-  v16 = streamFrontendGlob == NULL;
+  v11 = streamFrontendGlob;
   if ( !streamFrontendGlob )
   {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2307, ASSERT_TYPE_ASSERT, "(streamFrontendGlob)", (const char *)&queryFormat, "streamFrontendGlob");
-    v16 = !v17;
-    if ( v17 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_read.cpp", 2307, ASSERT_TYPE_ASSERT, "(streamFrontendGlob)", (const char *)&queryFormat, "streamFrontendGlob") )
       __debugbreak();
-    _RCX = streamFrontendGlob;
+    v11 = streamFrontendGlob;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+0B96B2Ch]
-    vcomiss xmm0, dword ptr [rcx+0B96B28h]
-  }
-  if ( v16 )
+  if ( v11->imageStreamingQualitySmoothed <= v11->imageStreamingQuality )
     goto LABEL_17;
-  v19 = StreamUpdateScheduler::FrameIndex(&_RCX->globalScheduler);
-  _RCX = streamFrontendGlob;
-  if ( streamFrontendGlob->resetQualitySmoothingFrame >= v19 )
+  v12 = StreamUpdateScheduler::FrameIndex(&v11->globalScheduler);
+  v11 = streamFrontendGlob;
+  if ( streamFrontendGlob->resetQualitySmoothingFrame >= v12 )
     goto LABEL_17;
-  *(double *)&_XMM0 = CL_StreamViews_MaxParametricVelocity();
-  __asm { vmovaps xmm6, xmm0 }
-  _RBX = DVARFLT_stream_smoothingFactorMovingFullSpeed;
+  v13 = CL_StreamViews_MaxParametricVelocity();
+  v14 = DVARFLT_stream_smoothingFactorMovingFullSpeed;
   if ( !DVARFLT_stream_smoothingFactorMovingFullSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_smoothingFactorMovingFullSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  v23 = DVARFLT_stream_smoothingFactorNotMoving;
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  v16 = DVARFLT_stream_smoothingFactorNotMoving;
   if ( !DVARFLT_stream_smoothingFactorNotMoving && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_smoothingFactorNotMoving") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3f800000
-    vsubss  xmm0, xmm4, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm7, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vdivss  xmm3, xmm4, xmm2
-  }
-  _RAX = streamFrontendGlob;
-  __asm
-  {
-    vmulss  xmm2, xmm3, dword ptr [rax+0B96B28h]
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, dword ptr [rax+0B96B2Ch]
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [rax+0B96B2Ch], xmm2
-  }
-LABEL_18:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = 1.0 / (float)((float)((float)(1.0 - *(float *)&v13) * v16->current.value) + (float)(value * *(float *)&v13));
+  streamFrontendGlob->imageStreamingQualitySmoothed = (float)(v17 * streamFrontendGlob->imageStreamingQuality) + (float)((float)(1.0 - v17) * streamFrontendGlob->imageStreamingQualitySmoothed);
 }
 
 /*

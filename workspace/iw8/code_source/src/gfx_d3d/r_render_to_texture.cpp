@@ -196,16 +196,18 @@ R_RT_ColorHandle *RB_RTT_CreateRt(R_RT_ColorHandle *result, LocalClientNum_t cli
   unsigned __int64 v9; 
   bool v10; 
   const char **v11; 
+  GfxRTTSlotBackend *Slot; 
+  R_RT_Handle v13; 
+  unsigned __int16 m_surfaceID; 
   const R_RT_Surface *Surface; 
   char *fmt; 
   __int64 depth; 
   __int64 arraySliceCount; 
-  R_RT_Handle v26; 
-  __m256i v27; 
+  R_RT_Handle v22; 
+  __m256i v23; 
   R_RT_Handle resulta; 
 
   v5 = clientIndex;
-  _RSI = result;
   if ( rttHandle - 1 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 299, ASSERT_TYPE_ASSERT, "(handle > 0 && handle <= 8)", (const char *)&queryFormat, "handle > 0 && handle <= MAX_RENDER_TO_TEXTURE_COUNT") )
     __debugbreak();
   v9 = (unsigned __int64)(rttHandle - 1) << 6;
@@ -213,10 +215,10 @@ R_RT_ColorHandle *RB_RTT_CreateRt(R_RT_ColorHandle *result, LocalClientNum_t cli
   v11 = (const char **)((char *)&context->slots[0].name + v9);
   if ( v10 )
   {
-    _RSI->m_surfaceID = 0;
-    _RSI->m_tracking.m_allocCounter = 0;
-    _RSI->m_tracking.m_name = NULL;
-    _RSI->m_tracking.m_location = NULL;
+    result->m_surfaceID = 0;
+    result->m_tracking.m_allocCounter = 0;
+    result->m_tracking.m_name = NULL;
+    result->m_tracking.m_location = NULL;
   }
   else
   {
@@ -224,30 +226,26 @@ R_RT_ColorHandle *RB_RTT_CreateRt(R_RT_ColorHandle *result, LocalClientNum_t cli
       __debugbreak();
     if ( *((int *)v11 + 14) < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 321, ASSERT_TYPE_ASSERT, "(rtt->status >= RTT_ALLOCATED)", (const char *)&queryFormat, "rtt->status >= RTT_ALLOCATED") )
       __debugbreak();
-    _R14 = RB_RTT_GetSlot(&s_rttContextBackend[v5], rttHandle);
-    _RAX = R_RT_CreateInternal(&resulta, *((_DWORD *)v11 + 2), *((_DWORD *)v11 + 3), *((_DWORD *)v11 + 2), *((_DWORD *)v11 + 3), 1u, 1u, *((_DWORD *)v11 + 4), g_R_RT_renderTargetFmts[43], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, (const vec4_t *)((char *)v11 + 20), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v11, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp(331)");
-    __asm
+    Slot = RB_RTT_GetSlot(&s_rttContextBackend[v5], rttHandle);
+    v13 = *R_RT_CreateInternal(&resulta, *((_DWORD *)v11 + 2), *((_DWORD *)v11 + 3), *((_DWORD *)v11 + 2), *((_DWORD *)v11 + 3), 1u, 1u, *((_DWORD *)v11 + 4), g_R_RT_renderTargetFmts[43], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, (const vec4_t *)((char *)v11 + 20), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v11, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp(331)");
+    m_surfaceID = _XMM0;
+    v23 = (__m256i)v13;
+    v22 = v13;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   ebp, xmm0
-      vmovups [rsp+118h+var_58], ymm0
-      vmovups ymmword ptr [rsp+118h+var_78.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EBP )
-    {
-      R_RT_Handle::GetSurface(&v26);
-      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v22);
+      if ( (R_RT_Handle::GetSurface(&v22)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+118h+var_78.m_surfaceID] }
-        LOWORD(_EBP) = v26.m_surfaceID;
-        __asm { vmovups [rsp+118h+var_58], ymm0 }
+        v13 = v22;
+        m_surfaceID = v22.m_surfaceID;
+        v23 = (__m256i)v22;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+118h+var_78.m_surfaceID] }
-        LOWORD(_EBP) = v26.m_surfaceID;
-        __asm { vmovups [rsp+118h+var_58], ymm0 }
+        v13 = v22;
+        m_surfaceID = v22.m_surfaceID;
+        v23 = (__m256i)v22;
       }
     }
     else
@@ -255,54 +253,39 @@ R_RT_ColorHandle *RB_RTT_CreateRt(R_RT_ColorHandle *result, LocalClientNum_t cli
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        __asm { vmovups ymm0, [rsp+118h+var_58] }
+        v13 = (R_RT_Handle)v23;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+118h+var_78.m_surfaceID], ymm0 }
-    if ( (_EBP & 0x7FFF) != 0 )
+    v22 = v13;
+    if ( (m_surfaceID & 0x7FFF) != 0 )
     {
       LODWORD(arraySliceCount) = *((_DWORD *)v11 + 4);
       LODWORD(depth) = *((_DWORD *)v11 + 3);
       LODWORD(fmt) = *((_DWORD *)v11 + 2);
       Com_Printf(13, "UI RTT(%d): RB_RTT_CreateRt allocate RTT surface %s %dx%d mipCount %d\n", (unsigned int)v5, *v11, fmt, depth, arraySliceCount);
-      __asm
-      {
-        vmovups ymm0, [rsp+118h+var_58]
-        vmovups ymmword ptr [r14+8], ymm0
-      }
-      Surface = R_RT_Handle::GetSurface(&v26);
-      *(_QWORD *)&_R14->status = 1i64;
-      _R14->image = &Surface->m_image.m_base;
+      Slot->colorRt = (R_RT_ColorHandle)v23;
+      Surface = R_RT_Handle::GetSurface(&v22);
+      *(_QWORD *)&Slot->status = 1i64;
+      Slot->image = &Surface->m_image.m_base;
     }
     else
     {
-      _R14->image = NULL;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+118h+var_58+10h], xmm0
-      }
-      v27.m256i_i16[0] = 0;
-      v27.m256i_i32[2] = 0;
-      __asm
-      {
-        vmovups ymm1, [rsp+118h+var_58]
-        vmovups ymmword ptr [r14+8], ymm1
-      }
+      Slot->image = NULL;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v23.m256i_u64[2] = _XMM0;
+      v23.m256i_i16[0] = 0;
+      v23.m256i_i32[2] = 0;
+      Slot->colorRt = (R_RT_ColorHandle)v23;
       LODWORD(arraySliceCount) = *((_DWORD *)v11 + 4);
       LODWORD(depth) = *((_DWORD *)v11 + 3);
       LODWORD(fmt) = *((_DWORD *)v11 + 2);
       Com_Printf(13, "UI RTT(%d): RB_RTT_CreateRt failed to allocate RTT surface %s %dx%d mipCount %d\n", (unsigned int)v5, *v11, fmt, depth, arraySliceCount);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14+8]
-      vmovups ymmword ptr [rsi], ymm0
-    }
+    *result = Slot->colorRt;
   }
-  return _RSI;
+  return result;
 }
 
 /*
@@ -313,50 +296,37 @@ RB_RTT_DeleteRt
 void RB_RTT_DeleteRt(LocalClientNum_t clientIndex, unsigned int rttHandle)
 {
   __int64 v3; 
+  GfxRTTSlotBackend *Slot; 
   const char *Name; 
-  R_RT_Handle v12; 
+  R_RT_Handle colorRt; 
 
   v3 = clientIndex;
   if ( rttHandle - 1 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 370, ASSERT_TYPE_ASSERT, "(rttHandle > 0 && rttHandle <= 8)", (const char *)&queryFormat, "rttHandle > 0 && rttHandle <= MAX_RENDER_TO_TEXTURE_COUNT") )
     __debugbreak();
-  _RBX = RB_RTT_GetSlot(&s_rttContextBackend[v3], rttHandle);
-  if ( _RBX->status <= RTT_UNUSED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 372, ASSERT_TYPE_ASSERT, "(rttBackend->status > RTT_UNUSED)", (const char *)&queryFormat, "rttBackend->status > RTT_UNUSED") )
+  Slot = RB_RTT_GetSlot(&s_rttContextBackend[v3], rttHandle);
+  if ( Slot->status <= RTT_UNUSED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 372, ASSERT_TYPE_ASSERT, "(rttBackend->status > RTT_UNUSED)", (const char *)&queryFormat, "rttBackend->status > RTT_UNUSED") )
     __debugbreak();
   Name = R_RTT_GetName(rttHandle);
   Com_Printf(13, "UI RTT(%d): RB_RTT_DeleteRt RTT %s\n", (unsigned int)v3, Name);
-  __asm
+  colorRt = (R_RT_Handle)Slot->colorRt;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rbx+8]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v12);
-    if ( (R_RT_Handle::GetSurface(&v12)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame") )
+    R_RT_Handle::GetSurface(&colorRt);
+    if ( (R_RT_Handle::GetSurface(&colorRt)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame", *(_QWORD *)&colorRt.m_surfaceID) )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+58h+var_28.m_surfaceID]
-      vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v12);
+    R_RT_DestroyInternal(&colorRt);
   }
-  else if ( v12.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( colorRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&colorRt.m_surfaceID) )
   {
     __debugbreak();
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v12.m_surfaceID = 0;
-  v12.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+58h+var_28.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rsp+58h+var_28.m_surfaceID]
-    vmovups ymmword ptr [rbx+8], ymm1
-  }
-  *(_QWORD *)&_RBX->status = 0i64;
-  _RBX->image = NULL;
+  colorRt.m_surfaceID = 0;
+  colorRt.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&colorRt.m_tracking.m_name = _XMM0;
+  Slot->colorRt = (R_RT_ColorHandle)colorRt;
+  *(_QWORD *)&Slot->status = 0i64;
+  Slot->image = NULL;
 }
 
 /*
@@ -452,8 +422,8 @@ R_RT_ColorHandle *RB_RTT_GetSurface(R_RT_ColorHandle *result, LocalClientNum_t c
   int *Slot; 
   const GfxRTTSlot *Only; 
   int v10; 
+  R_RT_ColorHandle *v11; 
 
-  _RDI = result;
   Slot = (int *)RB_RTT_GetSlot(&s_rttContextBackend[clientIndex], rttHandle);
   if ( *Slot < 1 )
     goto LABEL_13;
@@ -461,22 +431,18 @@ R_RT_ColorHandle *RB_RTT_GetSurface(R_RT_ColorHandle *result, LocalClientNum_t c
   if ( !Only && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 396, ASSERT_TYPE_ASSERT, "(rtt)", (const char *)&queryFormat, "rtt") )
     __debugbreak();
   v10 = Slot[2];
-  _RBX = (R_RT_Handle *)(Slot + 2);
+  v11 = (R_RT_ColorHandle *)(Slot + 2);
   if ( (v10 & 0x7FFF) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 397, ASSERT_TYPE_ASSERT, "(rttBackend->colorRt != R_RT_ColorHandle::Null())", (const char *)&queryFormat, "rttBackend->colorRt != R_RT_ColorHandle::Null()") )
     __debugbreak();
-  if ( R_RT_Handle::GetSurface(_RBX)->m_image.m_base.width != Only->width || R_RT_Handle::GetSurface(_RBX)->m_image.m_base.height != Only->height || R_RT_Handle::GetSurface(_RBX)->m_image.m_base.levelCount != Only->mipCount )
+  if ( R_RT_Handle::GetSurface(v11)->m_image.m_base.width != Only->width || R_RT_Handle::GetSurface(v11)->m_image.m_base.height != Only->height || R_RT_Handle::GetSurface(v11)->m_image.m_base.levelCount != Only->mipCount )
   {
     RB_RTT_DeleteRt(clientIndex, rttHandle);
 LABEL_13:
-    RB_RTT_CreateRt(_RDI, clientIndex, context, rttHandle);
-    return _RDI;
+    RB_RTT_CreateRt(result, clientIndex, context, rttHandle);
+    return result;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-  }
-  return _RDI;
+  *result = *v11;
+  return result;
 }
 
 /*
@@ -595,37 +561,26 @@ R_RTT_CopyContext
 */
 void R_RTT_CopyContext(LocalClientNum_t clientIndex, GfxRTTContext *contextOut)
 {
+  GfxRTTContext *v2; 
   __int64 v3; 
+  __int128 v4; 
 
-  _RAX = &s_rttContext[clientIndex];
+  v2 = &s_rttContext[clientIndex];
   v3 = 4i64;
   do
   {
     contextOut = (GfxRTTContext *)((char *)contextOut + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxRTTContext *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v4 = *(_OWORD *)&v2->allocSlotCount;
+    v2 = (GfxRTTContext *)((char *)v2 + 128);
+    *(_OWORD *)&contextOut[-1].slots[6].name = v4;
+    *(_OWORD *)&contextOut[-1].slots[6].mipCount = *(_OWORD *)&v2[-1].slots[6].mipCount;
+    *(vec4_t *)((char *)&contextOut[-1].slots[6].clearColor + 12) = *(vec4_t *)((char *)&v2[-1].slots[6].clearColor + 12);
+    *(_OWORD *)&contextOut[-1].slots[6].drawListChecksum = *(_OWORD *)&v2[-1].slots[6].drawListChecksum;
+    contextOut[-1].slots[7] = v2[-1].slots[7];
     --v3;
   }
   while ( v3 );
-  *(_QWORD *)&contextOut->allocSlotCount = *(_QWORD *)&_RAX->allocSlotCount;
+  *(_QWORD *)&contextOut->allocSlotCount = *(_QWORD *)&v2->allocSlotCount;
 }
 
 /*
@@ -637,54 +592,55 @@ __int64 R_RTT_Create(LocalClientNum_t clientIndex, const char *name, int width, 
 {
   GfxRTTContext *v9; 
   __int64 result; 
+  GfxRTTSlot *Slot; 
   const char *v13; 
   unsigned int v14; 
+  vec4_t v15; 
   char *fmt; 
-  __int64 v18; 
+  __int64 v17; 
   unsigned int Handle; 
 
   v9 = &s_rttContext[clientIndex];
   Handle = R_RTT_FindHandle(v9, name);
   if ( Handle )
   {
-    _RDI = R_RTT_GetSlot(v9, Handle);
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 118, ASSERT_TYPE_ASSERT, "(rtt)", (const char *)&queryFormat, "rtt") )
+    Slot = R_RTT_GetSlot(v9, Handle);
+    if ( !Slot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_render_to_texture.cpp", 118, ASSERT_TYPE_ASSERT, "(rtt)", (const char *)&queryFormat, "rtt") )
       __debugbreak();
-    if ( _RDI->status < RTT_ALLOCATED )
+    if ( Slot->status < RTT_ALLOCATED )
     {
       v14 = v9->allocPixelCount + height * width;
-      LODWORD(v18) = height;
+      LODWORD(v17) = height;
       LODWORD(fmt) = width;
       if ( v14 <= 0x200000 )
       {
-        Com_Printf(13, "UI RTT(%d): R_RTT_Create RTT %s %dx%d mipCount %d.\n", (unsigned int)clientIndex, name, fmt, v18, mipCount);
-        _RDI->name = R_RTT_GetRTTAlias(Handle - 1);
-        _RAX = clearColor;
-        _RDI->width = width;
-        _RDI->height = height;
-        _RDI->mipCount = mipCount;
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RDI->status = RTT_ALLOCATED;
-        _RDI->drawListChecksum = 0i64;
-        _RDI->drawListBufferSize = 0;
+        Com_Printf(13, "UI RTT(%d): R_RTT_Create RTT %s %dx%d mipCount %d.\n", (unsigned int)clientIndex, name, fmt, v17, mipCount);
+        Slot->name = R_RTT_GetRTTAlias(Handle - 1);
+        Slot->width = width;
+        Slot->height = height;
+        Slot->mipCount = mipCount;
+        v15 = *clearColor;
+        Slot->status = RTT_ALLOCATED;
+        Slot->drawListChecksum = 0i64;
+        Slot->drawListBufferSize = 0;
         result = Handle;
-        __asm { vmovups xmmword ptr [rdi+14h], xmm0 }
+        Slot->clearColor = v15;
         ++v9->allocSlotCount;
         v9->allocPixelCount = v14;
       }
       else
       {
-        Com_Printf(13, "UI RTT(%d): R_RTT_Create can't allocate RTT %s %dx%d. Out of RTT system budget.\n", (unsigned int)clientIndex, name, fmt, v18);
+        Com_Printf(13, "UI RTT(%d): R_RTT_Create can't allocate RTT %s %dx%d. Out of RTT system budget.\n", (unsigned int)clientIndex, name, fmt, v17);
         return 0i64;
       }
     }
     else
     {
-      if ( _RDI->width != width || _RDI->height != height || (v13 = "UI RTT(%d): RTT %s %dx%d mipCount %d is already created\n", _RDI->mipCount != mipCount) )
+      if ( Slot->width != width || Slot->height != height || (v13 = "UI RTT(%d): RTT %s %dx%d mipCount %d is already created\n", Slot->mipCount != mipCount) )
         v13 = "UI RTT(%d): Warning - RTT %s is already created with different setting %dx%d mipCount %d\n";
-      LODWORD(v18) = height;
+      LODWORD(v17) = height;
       LODWORD(fmt) = width;
-      Com_Printf(13, v13, (unsigned int)clientIndex, name, fmt, v18, mipCount);
+      Com_Printf(13, v13, (unsigned int)clientIndex, name, fmt, v17, mipCount);
       return Handle;
     }
   }

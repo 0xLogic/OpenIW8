@@ -377,411 +377,271 @@ Cloth_Debug_Draw
 void Cloth_Debug_Draw(const ScreenPlacement *scrPlace)
 {
   signed __int64 v1; 
-  void *v6; 
-  const dvar_t *v7; 
-  const dvar_t *v12; 
-  const dvar_t *v16; 
-  __int64 v20; 
-  const char *v21; 
-  unsigned int v24; 
-  ClothAsset *v28; 
+  void *v2; 
+  const dvar_t *v3; 
+  float integer; 
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
+  __int64 v9; 
+  const char *v10; 
+  unsigned int v11; 
+  float v12; 
+  ClothAsset *v13; 
+  const char *v14; 
+  const dvar_t *v15; 
+  signed int v16; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  signed int v19; 
+  const dvar_t *v20; 
+  float v21; 
+  unsigned int v22; 
+  const ClothAsset *ClothAsset; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  unsigned int unsignedInt; 
+  const char *v27; 
+  const ClothAsset *v28; 
   const char *v29; 
-  const dvar_t *v34; 
-  signed int integer; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  unsigned int v32; 
+  const char *v33; 
+  const ClothAsset *v34; 
+  const char *v35; 
   const dvar_t *v36; 
   const dvar_t *v37; 
-  signed int v38; 
-  const dvar_t *v39; 
-  unsigned int v45; 
-  const ClothAsset *ClothAsset; 
-  const dvar_t *v48; 
-  const dvar_t *v54; 
-  unsigned int unsignedInt; 
-  const char *v56; 
-  const ClothAsset *v60; 
-  const char *v61; 
-  const dvar_t *v67; 
-  const dvar_t *v73; 
-  unsigned int v74; 
-  const char *v75; 
-  const ClothAsset *v79; 
-  const char *v80; 
-  const dvar_t *v86; 
-  const dvar_t *v87; 
   Cloth_Debug_PerfData *Buffer; 
-  Cloth_Debug_PerfData *v89; 
+  Cloth_Debug_PerfData *v39; 
   unsigned int boneWrittenCount; 
-  const char *v91; 
+  const char *v41; 
   unsigned int particleSimulatedCount; 
-  const char *v93; 
-  unsigned int v94; 
-  const char *v95; 
-  unsigned int v96; 
-  const char *v97; 
+  const char *v43; 
+  unsigned int v44; 
+  const char *v45; 
+  unsigned int v46; 
+  const char *v47; 
   float x; 
   float y; 
   unsigned int numAssets; 
   unsigned int numInstances; 
   ClothAsset *assets[512]; 
   unsigned int instances[1024]; 
-  char v111; 
 
-  v6 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+20B0h+var_30], xmm6
-    vmovaps [rsp+20B0h+var_40], xmm7
-    vmovaps [rsp+20B0h+var_50], xmm8
-  }
-  v7 = DVARINT_cloth_Debug_DisplayOffsetX;
+  v2 = alloca(v1);
+  v3 = DVARINT_cloth_Debug_DisplayOffsetX;
   if ( !DVARINT_cloth_Debug_DisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_DisplayOffsetX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v12 = DVARINT_cloth_Debug_DisplayOffsetY;
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  [rsp+20B0h+x], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  integer = (float)v3->current.integer;
+  v6 = DVARINT_cloth_Debug_DisplayOffsetY;
+  x = integer + 8.0;
   if ( !DVARINT_cloth_Debug_DisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_DisplayOffsetY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v16 = DVARBOOL_cloth_Debug_ListAssets;
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  [rsp+20B0h+y], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = (float)v6->current.integer;
+  v8 = DVARBOOL_cloth_Debug_ListAssets;
+  y = v7 + 8.0;
   if ( !DVARBOOL_cloth_Debug_ListAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_ListAssets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41400000
-    vmovss  xmm7, cs:__real@c1400000
-  }
-  v20 = 0i64;
-  if ( v16->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = 0i64;
+  if ( v8->current.enabled )
   {
     numAssets = 0;
     Cloth_GetAssetList((const ClothAsset **const)assets, &numAssets, Cloth_Debug_DrawAssetListCompare);
-    v21 = j_va("Cloth Assets - %i assets found", numAssets);
-    __asm
-    {
-      vmovss  xmm2, [rsp+20B0h+y]; y
-      vmovss  xmm1, [rsp+20B0h+x]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v21, &colorWhite);
-    v24 = 0;
-    __asm
-    {
-      vmovss  xmm2, [rsp+20B0h+x]
-      vaddss  xmm1, xmm6, [rsp+20B0h+y]
-      vaddss  xmm0, xmm2, xmm8
-      vmovss  [rsp+20B0h+x], xmm0
-      vmovss  [rsp+20B0h+y], xmm1
-    }
+    v10 = j_va("Cloth Assets - %i assets found", numAssets);
+    Cloth_Debug_DrawString(scrPlace, x, y, v10, &colorWhite);
+    v11 = 0;
+    v12 = x + 12.0;
+    x = x + 12.0;
+    y = y + 8.0;
     if ( numAssets )
     {
       do
       {
-        v28 = assets[v24];
-        if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 436, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+        v13 = assets[v11];
+        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 436, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
           __debugbreak();
-        v29 = j_va("%i - %s (Havok memory size %i)", v24, v28->name, v28->havokDataSize);
-        __asm
-        {
-          vmovss  xmm2, [rsp+20B0h+y]; y
-          vmovss  xmm1, [rsp+20B0h+x]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v29, &colorWhite);
-        __asm { vaddss  xmm1, xmm6, [rsp+20B0h+y] }
-        ++v24;
-        __asm { vmovss  [rsp+20B0h+y], xmm1 }
+        v14 = j_va("%i - %s (Havok memory size %i)", v11, v13->name, v13->havokDataSize);
+        Cloth_Debug_DrawString(scrPlace, x, y, v14, &colorWhite);
+        ++v11;
+        y = y + 8.0;
       }
-      while ( v24 < numAssets );
-      __asm { vmovss  xmm0, [rsp+20B0h+x] }
+      while ( v11 < numAssets );
+      v12 = x;
     }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm7
-      vmovss  [rsp+20B0h+x], xmm0
-    }
+    x = v12 + -12.0;
   }
-  v34 = DVARINT_cloth_Debug_ShowAssetDetails;
+  v15 = DVARINT_cloth_Debug_ShowAssetDetails;
   if ( !DVARINT_cloth_Debug_ShowAssetDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_ShowAssetDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  integer = v34->current.integer;
-  if ( integer >= 0 )
-    Cloth_Debug_DrawAssetDetails(scrPlace, &x, &y, integer);
-  v36 = DVARBOOL_cloth_Debug_ListInstances;
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.integer;
+  if ( v16 >= 0 )
+    Cloth_Debug_DrawAssetDetails(scrPlace, &x, &y, v16);
+  v17 = DVARBOOL_cloth_Debug_ListInstances;
   if ( !DVARBOOL_cloth_Debug_ListInstances && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_ListInstances") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  if ( v36->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
     Cloth_Debug_DrawInstanceList(scrPlace, &x, &y);
-  v37 = DVARINT_cloth_Debug_ShowInstanceDetails;
+  v18 = DVARINT_cloth_Debug_ShowInstanceDetails;
   if ( !DVARINT_cloth_Debug_ShowInstanceDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_ShowInstanceDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  v38 = v37->current.integer;
-  if ( v38 >= 0 )
-    Cloth_Debug_DrawInstanceDetails(scrPlace, &x, &y, v38);
-  v39 = DVARBOOL_cloth_debug_displayVectorField;
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v18->current.integer;
+  if ( v19 >= 0 )
+    Cloth_Debug_DrawInstanceDetails(scrPlace, &x, &y, v19);
+  v20 = DVARBOOL_cloth_debug_displayVectorField;
   if ( !DVARBOOL_cloth_debug_displayVectorField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_debug_displayVectorField") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v39);
-  if ( v39->current.enabled )
+  Dvar_CheckFrontendServerThread(v20);
+  if ( v20->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+20B0h+y]; y
-      vmovss  xmm1, [rsp+20B0h+x]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Vector Field Data", &colorWhite);
-    __asm { vaddss  xmm1, xmm6, [rsp+20B0h+y] }
+    Cloth_Debug_DrawString(scrPlace, x, y, "Cloth Vector Field Data", &colorWhite);
     numInstances = 0;
-    __asm { vmovss  [rsp+20B0h+y], xmm1 }
+    y = y + 8.0;
     Cloth_GetInstanceList(0, instances, &numInstances);
-    __asm
-    {
-      vmovss  xmm0, [rsp+20B0h+x]
-      vaddss  xmm1, xmm0, xmm8
-      vmovss  [rsp+20B0h+x], xmm1
-    }
+    v21 = x + 12.0;
+    x = x + 12.0;
     if ( numInstances )
     {
       do
       {
-        v45 = instances[v20];
-        if ( v45 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 787, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
+        v22 = instances[v9];
+        if ( v22 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 787, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
           __debugbreak();
-        ClothAsset = Cloth_GetClothAsset(0, v45);
+        ClothAsset = Cloth_GetClothAsset(0, v22);
         if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 791, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
           __debugbreak();
         if ( ClothAsset->vectorFieldSupport )
-          HavokCloth_Debug_DrawInstanceVectorField(scrPlace, &x, &y, v45);
-        v20 = (unsigned int)(v20 + 1);
+          HavokCloth_Debug_DrawInstanceVectorField(scrPlace, &x, &y, v22);
+        v9 = (unsigned int)(v9 + 1);
       }
-      while ( (unsigned int)v20 < numInstances );
-      __asm { vmovss  xmm1, [rsp+20B0h+x] }
+      while ( (unsigned int)v9 < numInstances );
+      v21 = x;
     }
-    __asm
-    {
-      vaddss  xmm0, xmm1, xmm7
-      vmovss  [rsp+20B0h+x], xmm0
-    }
+    x = v21 + -12.0;
   }
-  v48 = DVARBOOL_cloth_Debug_Speed_ShowSpeeds;
+  v24 = DVARBOOL_cloth_Debug_Speed_ShowSpeeds;
   if ( !DVARBOOL_cloth_Debug_Speed_ShowSpeeds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Speed_ShowSpeeds") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  if ( v48->current.enabled )
+  Dvar_CheckFrontendServerThread(v24);
+  if ( v24->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+20B0h+y]; y
-      vmovss  xmm1, [rsp+20B0h+x]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Speed Summary", &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+20B0h+y]
-      vaddss  xmm0, xmm8, [rsp+20B0h+x]
-      vmovss  [rsp+20B0h+y], xmm1
-      vmovss  [rsp+20B0h+x], xmm0
-    }
+    Cloth_Debug_DrawString(scrPlace, x, y, "Cloth Speed Summary", &colorWhite);
+    y = y + 8.0;
+    x = x + 12.0;
     HavokCloth_Debug_Speed_DrawSummary(scrPlace, &x, &y);
-    __asm
-    {
-      vaddss  xmm1, xmm7, [rsp+20B0h+x]
-      vmovss  [rsp+20B0h+x], xmm1
-    }
+    x = x + -12.0;
   }
-  v54 = DVARINT_cloth_Debug_Speed_ShowInstanceSpeed;
+  v25 = DVARINT_cloth_Debug_Speed_ShowInstanceSpeed;
   if ( !DVARINT_cloth_Debug_Speed_ShowInstanceSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Speed_ShowInstanceSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v54);
-  unsignedInt = v54->current.unsignedInt;
+  Dvar_CheckFrontendServerThread(v25);
+  unsignedInt = v25->current.unsignedInt;
   if ( (unsignedInt & 0x80000000) == 0 )
   {
     if ( Cloth_IsInstanceInUse(0, unsignedInt) )
     {
-      v60 = Cloth_GetClothAsset(0, unsignedInt);
-      if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 834, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+      v28 = Cloth_GetClothAsset(0, unsignedInt);
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 834, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
         __debugbreak();
-      v61 = j_va("Cloth Speed Details for Instance %i %s", unsignedInt, v60->name);
-      __asm
-      {
-        vmovss  xmm2, [rsp+20B0h+y]; y
-        vmovss  xmm1, [rsp+20B0h+x]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v61, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+20B0h+y]
-        vaddss  xmm0, xmm8, [rsp+20B0h+x]
-        vmovss  [rsp+20B0h+y], xmm1
-        vmovss  [rsp+20B0h+x], xmm0
-      }
+      v29 = j_va("Cloth Speed Details for Instance %i %s", unsignedInt, v28->name);
+      Cloth_Debug_DrawString(scrPlace, x, y, v29, &colorWhite);
+      y = y + 8.0;
+      x = x + 12.0;
       HavokCloth_Debug_Speed_DrawInstance(scrPlace, &x, &y, unsignedInt);
-      __asm
-      {
-        vaddss  xmm1, xmm7, [rsp+20B0h+x]
-        vmovss  [rsp+20B0h+x], xmm1
-      }
+      x = x + -12.0;
     }
     else
     {
-      v56 = j_va("Cloth Speed Details for Instance %i - not in use", unsignedInt);
-      __asm
-      {
-        vmovss  xmm2, [rsp+20B0h+y]; y
-        vmovss  xmm1, [rsp+20B0h+x]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v56, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+20B0h+y]
-        vmovss  [rsp+20B0h+y], xmm1
-      }
+      v27 = j_va("Cloth Speed Details for Instance %i - not in use", unsignedInt);
+      Cloth_Debug_DrawString(scrPlace, x, y, v27, &colorWhite);
+      y = y + 8.0;
     }
   }
-  v67 = DVARBOOL_cloth_Debug_Sound_ShowSounds;
+  v30 = DVARBOOL_cloth_Debug_Sound_ShowSounds;
   if ( !DVARBOOL_cloth_Debug_Sound_ShowSounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Sound_ShowSounds") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v67);
-  if ( v67->current.enabled )
+  Dvar_CheckFrontendServerThread(v30);
+  if ( v30->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+20B0h+y]; y
-      vmovss  xmm1, [rsp+20B0h+x]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Sound Summary", &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+20B0h+y]
-      vaddss  xmm0, xmm8, [rsp+20B0h+x]
-      vmovss  [rsp+20B0h+y], xmm1
-      vmovss  [rsp+20B0h+x], xmm0
-    }
+    Cloth_Debug_DrawString(scrPlace, x, y, "Cloth Sound Summary", &colorWhite);
+    y = y + 8.0;
+    x = x + 12.0;
     HavokCloth_Debug_Sound_DrawSummary(scrPlace, &x, &y);
-    __asm
-    {
-      vaddss  xmm1, xmm7, [rsp+20B0h+x]
-      vmovss  [rsp+20B0h+x], xmm1
-    }
+    x = x + -12.0;
   }
-  v73 = DVARINT_cloth_Debug_Sound_ShowInstanceSound;
+  v31 = DVARINT_cloth_Debug_Sound_ShowInstanceSound;
   if ( !DVARINT_cloth_Debug_Sound_ShowInstanceSound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Sound_ShowInstanceSound") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v73);
-  v74 = v73->current.unsignedInt;
-  if ( (v74 & 0x80000000) == 0 )
+  Dvar_CheckFrontendServerThread(v31);
+  v32 = v31->current.unsignedInt;
+  if ( (v32 & 0x80000000) == 0 )
   {
-    if ( Cloth_IsInstanceInUse(0, v74) )
+    if ( Cloth_IsInstanceInUse(0, v32) )
     {
-      v79 = Cloth_GetClothAsset(0, v74);
-      if ( !v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 874, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+      v34 = Cloth_GetClothAsset(0, v32);
+      if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 874, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
         __debugbreak();
-      v80 = j_va("Cloth Sound Details for Instance %i %s", v74, v79->name);
-      __asm
-      {
-        vmovss  xmm2, [rsp+20B0h+y]; y
-        vmovss  xmm1, [rsp+20B0h+x]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v80, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+20B0h+y]
-        vaddss  xmm0, xmm8, [rsp+20B0h+x]
-        vmovss  [rsp+20B0h+y], xmm1
-        vmovss  [rsp+20B0h+x], xmm0
-      }
-      HavokCloth_Debug_Sound_DrawInstance(scrPlace, &x, &y, v74);
-      __asm
-      {
-        vaddss  xmm1, xmm7, [rsp+20B0h+x]
-        vmovss  [rsp+20B0h+x], xmm1
-      }
+      v35 = j_va("Cloth Sound Details for Instance %i %s", v32, v34->name);
+      Cloth_Debug_DrawString(scrPlace, x, y, v35, &colorWhite);
+      y = y + 8.0;
+      x = x + 12.0;
+      HavokCloth_Debug_Sound_DrawInstance(scrPlace, &x, &y, v32);
+      x = x + -12.0;
     }
     else
     {
-      v75 = j_va("Cloth Sound Details for Instance %i - not in use", v74);
-      __asm
-      {
-        vmovss  xmm2, [rsp+20B0h+y]; y
-        vmovss  xmm1, [rsp+20B0h+x]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v75, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+20B0h+y]
-        vmovss  [rsp+20B0h+y], xmm1
-      }
+      v33 = j_va("Cloth Sound Details for Instance %i - not in use", v32);
+      Cloth_Debug_DrawString(scrPlace, x, y, v33, &colorWhite);
+      y = y + 8.0;
     }
   }
-  v86 = DVARBOOL_cloth_Debug_Perf_ShowBudgets;
+  v36 = DVARBOOL_cloth_Debug_Perf_ShowBudgets;
   if ( !DVARBOOL_cloth_Debug_Perf_ShowBudgets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Perf_ShowBudgets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v86);
-  if ( v86->current.enabled )
+  Dvar_CheckFrontendServerThread(v36);
+  if ( v36->current.enabled )
     Cloth_Debug_Perf_DrawBudgets(scrPlace, &x, &y);
-  v87 = DVARBOOL_cloth_Debug_Dump;
+  v37 = DVARBOOL_cloth_Debug_Dump;
   if ( !DVARBOOL_cloth_Debug_Dump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Dump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v87);
-  if ( v87->current.enabled )
+  Dvar_CheckFrontendServerThread(v37);
+  if ( v37->current.enabled )
     Dvar_SetBool_Internal(DVARBOOL_cloth_Debug_Dump, 0);
   Buffer = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Character);
   if ( !Buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 971, ASSERT_TYPE_ASSERT, "(characterBuffer)", (const char *)&queryFormat, "characterBuffer") )
     __debugbreak();
-  v89 = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Environmental);
-  if ( !v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 973, ASSERT_TYPE_ASSERT, "(environmentBuffer)", (const char *)&queryFormat, "environmentBuffer") )
+  v39 = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Environmental);
+  if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 973, ASSERT_TYPE_ASSERT, "(environmentBuffer)", (const char *)&queryFormat, "environmentBuffer") )
     __debugbreak();
   if ( Buffer->boneWrittenCount > 150 )
   {
     boneWrittenCount = Buffer->boneWrittenCount;
-    v91 = j_va("Cloth Character Bones Written %i (Budget %i)", boneWrittenCount, 150i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_WRITTEN_BONES_CHARACTER, 3000, v91, boneWrittenCount);
+    v41 = j_va("Cloth Character Bones Written %i (Budget %i)", boneWrittenCount, 150i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_WRITTEN_BONES_CHARACTER, 3000, v41, boneWrittenCount);
   }
   if ( Buffer->particleSimulatedCount > 300 )
   {
     particleSimulatedCount = Buffer->particleSimulatedCount;
-    v93 = j_va("Cloth Character Particle Simulated Count %i (Budget %i)", particleSimulatedCount, 300i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_SIMULATED_PARTICLES_CHARACTER, 3000, v93, particleSimulatedCount);
+    v43 = j_va("Cloth Character Particle Simulated Count %i (Budget %i)", particleSimulatedCount, 300i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_SIMULATED_PARTICLES_CHARACTER, 3000, v43, particleSimulatedCount);
   }
-  if ( v89->boneWrittenCount > 150 )
+  if ( v39->boneWrittenCount > 150 )
   {
-    v94 = v89->boneWrittenCount;
-    v95 = j_va("Cloth Environment Bone Written %i (Budget %i)", v94, 150i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_WRITTEN_BONES_ENVIRONMENT, 3000, v95, v94);
+    v44 = v39->boneWrittenCount;
+    v45 = j_va("Cloth Environment Bone Written %i (Budget %i)", v44, 150i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_WRITTEN_BONES_ENVIRONMENT, 3000, v45, v44);
   }
-  if ( v89->particleSimulatedCount > 300 )
+  if ( v39->particleSimulatedCount > 300 )
   {
-    v96 = v89->particleSimulatedCount;
-    v97 = j_va("Cloth Environment Particle Simulated Count %i (Budget %i)", v96, 300i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_SIMULATED_PARTICLES_ENVIRONMENT, 3000, v97, v96);
-  }
-  _R11 = &v111;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    v46 = v39->particleSimulatedCount;
+    v47 = j_va("Cloth Environment Particle Simulated Count %i (Budget %i)", v46, 300i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_CLOTH_SIMULATED_PARTICLES_ENVIRONMENT, 3000, v47, v46);
   }
 }
 
@@ -793,342 +653,147 @@ Cloth_Debug_DrawAssetDetails
 void Cloth_Debug_DrawAssetDetails(const ScreenPlacement *scrPlace, float *x, float *y, unsigned int assetIdx)
 {
   signed __int64 v4; 
-  void *v7; 
-  __int64 v9; 
-  unsigned int v12; 
+  void *v5; 
+  __int64 v7; 
+  unsigned int v10; 
+  ClothAsset *v11; 
   const char *name; 
+  const char *v13; 
+  const char *v14; 
   const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  float v18; 
+  unsigned int v19; 
   const char *v20; 
+  const char *v21; 
+  const char *v22; 
   const char *v23; 
-  const char *v27; 
-  const char *v31; 
-  unsigned int v38; 
-  const char *v43; 
-  const char *v48; 
-  const char *v52; 
-  const char *v59; 
-  const char *v66; 
+  const char *v24; 
   unsigned int soundCount; 
-  const char *v77; 
-  const char *v84; 
-  const char *v91; 
-  const char *v102; 
-  const char *v117; 
-  vec4_t *setColor; 
+  const char *v26; 
+  const char *v27; 
+  __int64 v28; 
+  ClothAssetSound *sounds; 
+  const char *v30; 
+  const char *v31; 
+  const char *v32; 
+  float v33; 
+  float v34; 
   unsigned int numAssets[4]; 
   ClothAsset *assets[512]; 
 
-  v7 = alloca(v4);
-  __asm { vmovaps [rsp+10B8h+var_58], xmm6 }
-  _RDI = y;
-  v9 = assetIdx;
-  _RBP = x;
-  v12 = 0;
+  v5 = alloca(v4);
+  v7 = assetIdx;
+  v10 = 0;
   numAssets[0] = 0;
   Cloth_GetAssetList((const ClothAsset **const)assets, numAssets, Cloth_Debug_DrawAssetListCompare);
-  if ( (unsigned int)v9 >= numAssets[0] )
+  if ( (unsigned int)v7 >= numAssets[0] )
   {
-    _RSI = NULL;
+    v11 = NULL;
   }
   else
   {
-    _RSI = assets[v9];
-    if ( _RSI )
+    v11 = assets[v7];
+    if ( v11 )
     {
-      name = _RSI->name;
+      name = v11->name;
       goto LABEL_6;
     }
   }
   name = "Out of Range";
 LABEL_6:
-  v15 = j_va("Cloth Asset %i/%i - %s", (unsigned int)v9, numAssets[0], name);
-  __asm
+  v13 = j_va("Cloth Asset %i/%i - %s", (unsigned int)v7, numAssets[0], name);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  if ( v11 )
   {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vmovss  xmm1, dword ptr [rbp+0]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v15, &colorWhite);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vaddss  xmm0, xmm6, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-  }
-  if ( _RSI )
-  {
-    __asm { vmovaps [rsp+10B8h+var_68], xmm7 }
-    v20 = "Unified-Simulation";
-    __asm
-    {
-      vmovss  xmm7, cs:__real@41400000
-      vaddss  xmm0, xmm7, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm0
-    }
-    if ( _RSI->standAlone )
-      v20 = "Standalone";
-    v23 = j_va((const char *)&queryFormat, v20);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    v27 = j_va("Animation State:%i %s", _RSI->animationStateIdx, _RSI->animationStateName);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v27, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    v31 = j_va("%i Simulation LOD states", _RSI->simulationLodCount);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v31, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rbp+0]
-      vaddss  xmm0, xmm2, xmm7
-    }
-    v38 = 0;
-    __asm { vmovss  dword ptr [rbp+0], xmm0 }
-    if ( _RSI->simulationLodCount )
+    v14 = "Unified-Simulation";
+    *x = *x + 12.0;
+    if ( v11->standAlone )
+      v14 = "Standalone";
+    v15 = j_va((const char *)&queryFormat, v14);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+    *y = *y + 8.0;
+    v16 = j_va("Animation State:%i %s", v11->animationStateIdx, v11->animationStateName);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+    *y = *y + 8.0;
+    v17 = j_va("%i Simulation LOD states", v11->simulationLodCount);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+    *y = *y + 8.0;
+    v18 = *x + 12.0;
+    v19 = 0;
+    *x = v18;
+    if ( v11->simulationLodCount )
     {
       do
       {
-        _RCX = 3i64 * v38;
-        _RAX = _RSI->simulationLods;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rcx*8]
-          vsqrtss xmm0, xmm0, xmm0
-          vcvttss2si edx, xmm0
-        }
-        v43 = j_va("Max Dist:%i State:%i %s", _RDX, _RAX[v38].stateIdx, _RAX[v38].stateName);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rbp+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v43, &colorWhite);
-        __asm { vaddss  xmm1, xmm6, dword ptr [rdi] }
-        ++v38;
-        __asm { vmovss  dword ptr [rdi], xmm1 }
+        v20 = j_va("Max Dist:%i State:%i %s", (unsigned int)(int)fsqrt(v11->simulationLods[v19].maxDistanceSq), v11->simulationLods[v19].stateIdx, v11->simulationLods[v19].stateName);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v20, &colorWhite);
+        ++v19;
+        *y = *y + 8.0;
       }
-      while ( v38 < _RSI->simulationLodCount );
-      __asm { vmovss  xmm0, dword ptr [rbp+0] }
+      while ( v19 < v11->simulationLodCount );
+      v18 = *x;
     }
-    __asm
+    *x = v18 + 12.0;
+    v21 = j_va("Havok Memory Size: %i", v11->havokDataSize);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v21, &colorWhite);
+    *y = *y + 8.0;
+    HavokCloth_Debug_DrawAssetDetails(scrPlace, x, y, v11);
+    v22 = j_va("Surface Type %i %s", v11->surfaceTypeIndex, surfaceTypeNames[v11->surfaceTypeIndex]);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v22, &colorWhite);
+    *y = *y + 8.0;
+    if ( v11->vectorFieldSupport )
     {
-      vaddss  xmm0, xmm0, xmm7
-      vmovss  dword ptr [rbp+0], xmm0
+      v23 = j_va("Vector Fields Supported. Drag = %.2f", v11->vectorFieldDrag);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v23, &colorWhite);
+      *y = *y + 8.0;
     }
-    v48 = j_va("Havok Memory Size: %i", _RSI->havokDataSize);
-    __asm
+    if ( v11->bulletSupport )
     {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
+      v24 = j_va("Bullets Supported.  ProxyRate = %i. Force = %.2f", (unsigned int)v11->bulletProxyUpdateRate, v11->bulletForce);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v24, &colorWhite);
+      *y = *y + 8.0;
     }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v48, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    HavokCloth_Debug_DrawAssetDetails(scrPlace, _RBP, _RDI, _RSI);
-    v52 = j_va("Surface Type %i %s", _RSI->surfaceTypeIndex, surfaceTypeNames[_RSI->surfaceTypeIndex]);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v52, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    if ( _RSI->vectorFieldSupport )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+4Ch]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v59 = j_va("Vector Fields Supported. Drag = %.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v59, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-    }
-    if ( _RSI->bulletSupport )
-    {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+58h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      v66 = j_va("Bullets Supported.  ProxyRate = %i. Force = %.2f", (unsigned int)_RSI->bulletProxyUpdateRate, _R8);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v66, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-    }
-    soundCount = _RSI->soundCount;
+    soundCount = v11->soundCount;
     if ( soundCount )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+60h]
-        vmovss  xmm1, dword ptr [rsi+5Ch]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v77 = j_va("Speed Blending: Default Speed: %.2f. Blend Speed: %.2f", _RDX, _R8);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v77, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  xmm0, dword ptr [rsi+64h]
-        vsqrtss xmm0, xmm0, xmm0
-        vcvttss2si r8d, xmm0
-      }
-      v84 = j_va("Sound Supported.  %i entries up to distance %i", soundCount, _R8);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v84, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-        vaddss  xmm0, xmm7, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm0
-      }
-      _R12 = 0i64;
+      v26 = j_va("Speed Blending: Default Speed: %.2f. Blend Speed: %.2f", v11->defaultSpeed, v11->speedBlendSpeed);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v26, &colorWhite);
+      *y = *y + 8.0;
+      v27 = j_va("Sound Supported.  %i entries up to distance %i", soundCount, (unsigned int)(int)fsqrt(v11->soundIWMaxDistanceSq));
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v27, &colorWhite);
+      *y = *y + 8.0;
+      *x = *x + 12.0;
+      v28 = 0i64;
       do
       {
-        _RBX = _RSI->sounds;
-        v91 = j_va("Sound %i", v12);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rbp+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v91, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vaddss  xmm0, xmm7, dword ptr [rbp+0]
-          vmovss  dword ptr [rbp+0], xmm0
-          vmovss  xmm2, dword ptr [r12+rbx+4]
-          vmovss  xmm1, dword ptr [r12+rbx]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        v102 = j_va("Speed range %.2f %.2f. Sound:%s", _RDX, _R8, _RBX[_R12].soundAlias);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rbp+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v102, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vmovss  xmm3, dword ptr [r12+rbx+10h]
-          vmovss  xmm2, dword ptr [r12+rbx+0Ch]
-          vmovss  xmm1, dword ptr [r12+rbx+8]
-          vmovss  xmm4, dword ptr [r12+rbx+14h]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm4, xmm4, xmm4
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-          vmovsd  [rsp+10B8h+setColor], xmm4
-        }
-        v117 = j_va("Pitch %.2f %.2f. Volume %.2f %.2f", _RDX, _R8, _R9, setColor);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [rbp+0]; x
-        }
-        Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v117, &colorWhite);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vmovss  xmm2, dword ptr [rbp+0]
-        }
-        ++v12;
-        ++_R12;
-        __asm
-        {
-          vsubss  xmm0, xmm2, xmm7
-          vmovss  dword ptr [rbp+0], xmm0
-        }
+        sounds = v11->sounds;
+        v30 = j_va("Sound %i", v10);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v30, &colorWhite);
+        *y = *y + 8.0;
+        *x = *x + 12.0;
+        v31 = j_va("Speed range %.2f %.2f. Sound:%s", sounds[v28].minSpeed, sounds[v28].maxSpeed, sounds[v28].soundAlias);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v31, &colorWhite);
+        *y = *y + 8.0;
+        v32 = j_va("Pitch %.2f %.2f. Volume %.2f %.2f", sounds[v28].pitchMinSpeed, sounds[v28].pitchMaxSpeed, sounds[v28].volumeMinSpeed, sounds[v28].volumeMaxSpeed);
+        Cloth_Debug_DrawString(scrPlace, *x, *y, v32, &colorWhite);
+        *y = *y + 8.0;
+        v33 = *x;
+        ++v10;
+        ++v28;
+        *x = *x - 12.0;
       }
-      while ( v12 < soundCount );
-      __asm { vsubss  xmm0, xmm0, xmm7 }
+      while ( v10 < soundCount );
+      v34 = (float)(v33 - 12.0) - 12.0;
     }
     else
     {
-      __asm { vmovss  xmm0, dword ptr [rbp+0] }
+      v34 = *x;
     }
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm7
-      vmovaps xmm7, [rsp+10B8h+var_68]
-      vmovss  dword ptr [rbp+0], xmm0
-    }
+    *x = v34 - 12.0;
   }
-  __asm { vmovaps xmm6, [rsp+10B8h+var_58] }
 }
 
 /*
@@ -1148,165 +813,85 @@ Cloth_Debug_DrawInstanceDetails
 */
 void Cloth_Debug_DrawInstanceDetails(const ScreenPlacement *scrPlace, float *x, float *y, unsigned int instanceIdx)
 {
-  __int64 v7; 
-  unsigned int v10; 
+  __int128 v4; 
+  __int64 v6; 
+  unsigned int v9; 
+  const ClothAsset *ClothAsset; 
   unsigned int RefId; 
-  int v13; 
+  int v12; 
+  const char *v13; 
   const char *v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v23; 
-  const char *v31; 
-  const char *v38; 
-  bool updated; 
-  const dvar_t *v46; 
-  const char *v50; 
+  const char *v17; 
+  const dvar_t *v18; 
+  const char *v19; 
   unsigned int numInstances; 
   vec3_t position; 
   unsigned int instances[1024]; 
   char dest[256]; 
+  __int128 v24; 
 
-  _RBX = y;
-  v7 = instanceIdx;
-  _RDI = x;
+  v6 = instanceIdx;
   numInstances = 0;
   Cloth_GetInstanceList(0, instances, &numInstances);
-  if ( (unsigned int)v7 >= numInstances || (v10 = instances[v7], v10 == -1) )
+  if ( (unsigned int)v6 >= numInstances || (v9 = instances[v6], v9 == -1) )
   {
-    v50 = j_va("Cloth Instance %i/%i - %s", (unsigned int)v7, numInstances, "Out of Range");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v50, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v19 = j_va("Cloth Instance %i/%i - %s", (unsigned int)v6, numInstances, "Out of Range");
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v19, &colorWhite);
+    *y = *y + 8.0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+11D8h+var_58], xmm6
-      vmovaps [rsp+11D8h+var_68], xmm7
-    }
-    _R14 = Cloth_GetClothAsset(0, v10);
-    if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 707, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
+    v24 = v4;
+    ClothAsset = Cloth_GetClothAsset(0, v9);
+    if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 707, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
       __debugbreak();
-    RefId = Cloth_GetRefId(0, v10);
+    RefId = Cloth_GetRefId(0, v9);
     if ( s_Cloth_Debug_RefDecodeFn )
       s_Cloth_Debug_RefDecodeFn(LOCAL_CLIENT_0, RefId, dest, 0x100u);
     else
       Com_sprintf(dest, 0x100ui64, "No Decode Function Registered - ref = %x", RefId);
     if ( s_Cloth_Debug_RefEntNumDecodeFn )
-      v13 = s_Cloth_Debug_RefEntNumDecodeFn(LOCAL_CLIENT_0, RefId);
+      v12 = s_Cloth_Debug_RefEntNumDecodeFn(LOCAL_CLIENT_0, RefId);
     else
-      v13 = 2047;
-    Cloth_GetInstancePosition(0, v10, &position);
-    v14 = j_va("%i(%i) %s", (unsigned int)v7, numInstances, dest);
-    __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-    CL_AddDebugString(&position, &colorWhite, *(float *)&_XMM2, v14, 0, 0);
-    v16 = j_va("Cloth Instance %i/%i - clothId:%i refId:%s", (unsigned int)v7, numInstances, v10, dest);
-    __asm
+      v12 = 2047;
+    Cloth_GetInstancePosition(0, v9, &position);
+    v13 = j_va("%i(%i) %s", (unsigned int)v6, numInstances, dest);
+    CL_AddDebugString(&position, &colorWhite, 1.0, v13, 0, 0);
+    v14 = j_va("Cloth Instance %i/%i - clothId:%i refId:%s", (unsigned int)v6, numInstances, v9, dest);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
+    v15 = j_va("Using ClothAsset %s", ClothAsset->name);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
+    Cloth_Debug_DrawSurfaceType(scrPlace, x, y, ClothAsset->surfaceTypeIndex);
+    if ( ClothAsset->vectorFieldSupport )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
+      v16 = j_va("Vector Fields Supported. Drag = %.2f", ClothAsset->vectorFieldDrag);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+      *y = *y + 8.0;
     }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v16, &colorWhite);
-    __asm
+    if ( ClothAsset->bulletSupport )
     {
-      vmovss  xmm7, cs:__real@41000000
-      vaddss  xmm0, xmm7, dword ptr [rbx]
-      vmovss  xmm6, cs:__real@41400000
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
+      v17 = j_va("Bullets Supported. ProxyRate = %i. Force = %.2f", (unsigned int)ClothAsset->bulletProxyUpdateRate, ClothAsset->bulletForce);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+      *y = *y + 8.0;
     }
-    v23 = j_va("Using ClothAsset %s", _R14->name);
-    __asm
+    *x = *x - 12.0;
+    if ( Cloth_Update_InstanceUpdatedThisFrame(0, v9) )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm7, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-    }
-    Cloth_Debug_DrawSurfaceType(scrPlace, _RDI, _RBX, _R14->surfaceTypeIndex);
-    if ( _R14->vectorFieldSupport )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14+4Ch]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v31 = j_va("Vector Fields Supported. Drag = %.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [rdi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v31, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
-    }
-    if ( _R14->bulletSupport )
-    {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r14+58h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      v38 = j_va("Bullets Supported. ProxyRate = %i. Force = %.2f", (unsigned int)_R14->bulletProxyUpdateRate, _R8);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovss  xmm1, dword ptr [rdi]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v38, &colorWhite);
-      __asm
-      {
-        vaddss  xmm1, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm1
-    }
-    updated = Cloth_Update_InstanceUpdatedThisFrame(0, v10);
-    __asm { vmovaps xmm7, [rsp+11D8h+var_68] }
-    if ( updated )
-    {
-      v46 = DVARBOOL_cloth_Debug_ShowInstanceSkeleton;
+      v18 = DVARBOOL_cloth_Debug_ShowInstanceSkeleton;
       if ( !DVARBOOL_cloth_Debug_ShowInstanceSkeleton && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_ShowInstanceSkeleton") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v46);
-      if ( v46->current.enabled )
-        CG_DrawDebug_DrawBones(LOCAL_CLIENT_0, 0, CG_DEBUG_DRAW_BONES_SHARED_ONLY, NULL, v13);
+      Dvar_CheckFrontendServerThread(v18);
+      if ( v18->current.enabled )
+        CG_DrawDebug_DrawBones(LOCAL_CLIENT_0, 0, CG_DEBUG_DRAW_BONES_SHARED_ONLY, NULL, v12);
     }
-    HavokCloth_Debug_DrawInstanceDetails(scrPlace, _RDI, _RBX, v10);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+11D8h+var_58]
-      vmovss  dword ptr [rdi], xmm1
-    }
+    HavokCloth_Debug_DrawInstanceDetails(scrPlace, x, y, v9);
+    *x = *x - 12.0;
   }
 }
 
@@ -1318,99 +903,65 @@ Cloth_Debug_DrawInstanceList
 void Cloth_Debug_DrawInstanceList(const ScreenPlacement *scrPlace, float *x, float *y)
 {
   signed __int64 v3; 
-  void *v6; 
-  const char *v10; 
-  __int64 v17; 
-  unsigned int v19; 
+  void *v4; 
+  const char *v8; 
+  float v9; 
+  __int64 v10; 
+  unsigned int v11; 
   unsigned int RefId; 
   unsigned int InstanceRuntimeMemoryRequirements; 
-  const char *v22; 
-  __int64 v26; 
-  const char *v27; 
+  const char *v14; 
+  __int64 v15; 
+  const char *v16; 
   vec4_t *setColor; 
   unsigned int numInstances; 
   vec3_t position; 
   unsigned int instances[1024]; 
   char dest[256]; 
 
-  v6 = alloca(v3);
-  __asm { vmovaps [rsp+11B8h+var_58], xmm8 }
-  _R14 = y;
+  v4 = alloca(v3);
   numInstances = 0;
-  _RBP = x;
   Cloth_GetInstanceList(0, instances, &numInstances);
-  v10 = j_va("Cloth Instances - %i instances found", numInstances);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [rbp+0]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v10, &colorWhite);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41000000
-    vaddss  xmm0, xmm8, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm1, dword ptr [rbp+0]
-    vaddss  xmm0, xmm1, cs:__real@41400000
-  }
-  v17 = 0i64;
-  __asm { vmovss  dword ptr [rbp+0], xmm0 }
+  v8 = j_va("Cloth Instances - %i instances found", numInstances);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v8, &colorWhite);
+  *y = *y + 8.0;
+  v9 = *x + 12.0;
+  v10 = 0i64;
+  *x = v9;
   if ( numInstances )
   {
-    __asm
-    {
-      vmovaps [rsp+11B8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-    }
     do
     {
-      v19 = instances[v17];
-      if ( v19 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 653, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
+      v11 = instances[v10];
+      if ( v11 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 653, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
         __debugbreak();
-      RefId = Cloth_GetRefId(0, v19);
+      RefId = Cloth_GetRefId(0, v11);
       if ( s_Cloth_Debug_RefDecodeFn )
         s_Cloth_Debug_RefDecodeFn(LOCAL_CLIENT_0, RefId, dest, 0x100u);
       else
         Com_sprintf(dest, 0x100ui64, "No Decode Function Registered - ref = %x", RefId);
-      InstanceRuntimeMemoryRequirements = Cloth_GetInstanceRuntimeMemoryRequirements(0, v19);
-      Cloth_GetInstancePosition(0, v19, &position);
+      InstanceRuntimeMemoryRequirements = Cloth_GetInstanceRuntimeMemoryRequirements(0, v11);
+      Cloth_GetInstancePosition(0, v11, &position);
       if ( InstanceRuntimeMemoryRequirements )
       {
         LODWORD(setColor) = InstanceRuntimeMemoryRequirements;
-        v22 = j_va("%i - clothId:%i refId:%s Requires %i runtime bytes", (unsigned int)v17, v19, dest, setColor);
+        v14 = j_va("%i - clothId:%i refId:%s Requires %i runtime bytes", (unsigned int)v10, v11, dest, setColor);
       }
       else
       {
-        v22 = j_va("%i - clothId:%i refId:%s", (unsigned int)v17, v19, dest);
+        v14 = j_va("%i - clothId:%i refId:%s", (unsigned int)v10, v11, dest);
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r14]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorWhite);
-      __asm { vaddss  xmm1, xmm8, dword ptr [r14] }
-      v26 = numInstances;
-      __asm { vmovss  dword ptr [r14], xmm1 }
-      v27 = j_va("%i(%i) %s", (unsigned int)v17, v26, dest);
-      __asm { vmovaps xmm2, xmm7; scale }
-      CL_AddDebugString(&position, &colorWhite, *(float *)&_XMM2, v27, 0, 0);
-      v17 = (unsigned int)(v17 + 1);
+      Cloth_Debug_DrawString(scrPlace, *x, *y, v14, &colorWhite);
+      v15 = numInstances;
+      *y = *y + 8.0;
+      v16 = j_va("%i(%i) %s", (unsigned int)v10, v15, dest);
+      CL_AddDebugString(&position, &colorWhite, 1.0, v16, 0, 0);
+      v10 = (unsigned int)(v10 + 1);
     }
-    while ( (unsigned int)v17 < numInstances );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovaps xmm7, [rsp+11B8h+var_48]
-    }
+    while ( (unsigned int)v10 < numInstances );
+    v9 = *x;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovaps xmm8, [rsp+11B8h+var_58]
-  }
+  *x = v9 - 12.0;
 }
 
 /*
@@ -1419,66 +970,41 @@ Cloth_Debug_DrawString
 ==============
 */
 
-void __fastcall Cloth_Debug_DrawString(const ScreenPlacement *scrPlace, double x, double y, const char *string)
+void __fastcall Cloth_Debug_DrawString(const ScreenPlacement *scrPlace, double x, float y, const char *string, const vec4_t *setColor)
 {
-  const dvar_t *v12; 
-  const dvar_t *v13; 
-  char v17; 
-  char v18; 
+  __int128 v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovss  xmm7, cs:__real@41000000
-    vmovaps xmm6, xmm1
-    vcomiss xmm2, cs:__real@44870000
-  }
-  v12 = DVARBOOL_cloth_Debug_Dump;
+  v6 = *(_OWORD *)&x;
+  if ( y > 0.0 && y < 1080.0 )
+    CG_DrawStringExt(scrPlace, *(float *)&x, y, string, setColor, 0, 1, 8.0, 0);
+  v7 = DVARBOOL_cloth_Debug_Dump;
   if ( !DVARBOOL_cloth_Debug_Dump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_Dump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    v13 = DVARINT_cloth_Debug_DisplayOffsetX;
+    v8 = DVARINT_cloth_Debug_DisplayOffsetX;
     if ( !DVARINT_cloth_Debug_DisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cloth_Debug_DisplayOffsetX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = (float)v8->current.integer + 8.0;
+    if ( *(float *)&x > v9 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vaddss  xmm7, xmm0, xmm7
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v17 | v18) )
-    {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm8
-        vmovss  xmm8, cs:__real@c1400000
-      }
       do
       {
         Com_Printf(14, " ");
-        __asm
-        {
-          vaddss  xmm6, xmm6, xmm8
-          vcomiss xmm6, xmm7
-        }
+        v10 = v6;
+        *(float *)&v10 = *(float *)&v6 + -12.0;
+        v6 = v10;
       }
-      while ( !(v17 | v18) );
-      __asm { vmovaps xmm8, [rsp+88h+var_38] }
+      while ( *(float *)&v10 > v9 );
     }
     Com_Printf(14, (const char *)&queryFormat, string);
     Com_Printf(14, "\n");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
   }
 }
 
@@ -1491,21 +1017,9 @@ void Cloth_Debug_DrawSurfaceType(const ScreenPlacement *scrPlace, float *x, floa
 {
   const char *v7; 
 
-  _RSI = y;
-  _RBX = x;
   v7 = j_va("Surface Type %i %s", (unsigned int)surfaceTypeIndex, surfaceTypeNames[surfaceTypeIndex]);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi]; y
-    vmovss  xmm1, dword ptr [rbx]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v7, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rsi], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v7, &colorWhite);
+  *y = *y + 8.0;
 }
 
 /*
@@ -1515,61 +1029,45 @@ Cloth_Debug_DrawVectorFields
 */
 void Cloth_Debug_DrawVectorFields(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  __int64 v10; 
-  unsigned int v13; 
+  float v6; 
+  __int64 v7; 
+  float v8; 
+  unsigned int v9; 
   const ClothAsset *ClothAsset; 
+  float v11; 
   unsigned int numInstances[4]; 
   unsigned int instances[1024]; 
 
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r8]; y
-    vmovss  xmm1, dword ptr [rdx]; x
-  }
-  _R14 = y;
-  _RBP = x;
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Vector Field Data", &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-  }
-  v10 = 0i64;
+  Cloth_Debug_DrawString(scrPlace, *x, *y, "Cloth Vector Field Data", &colorWhite);
+  v6 = *y;
+  v7 = 0i64;
   numInstances[0] = 0;
-  __asm { vmovss  dword ptr [r14], xmm1 }
+  *y = v6 + 8.0;
   Cloth_GetInstanceList(0, instances, numInstances);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vaddss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  v8 = *x + 12.0;
+  *x = v8;
   if ( numInstances[0] )
   {
     do
     {
-      v13 = instances[v10];
-      if ( v13 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 787, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
+      v9 = instances[v7];
+      if ( v9 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 787, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
         __debugbreak();
-      ClothAsset = Cloth_GetClothAsset(0, v13);
+      ClothAsset = Cloth_GetClothAsset(0, v9);
       if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 791, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
         __debugbreak();
       if ( ClothAsset->vectorFieldSupport )
-        HavokCloth_Debug_DrawInstanceVectorField(scrPlace, _RBP, _R14, v13);
-      v10 = (unsigned int)(v10 + 1);
+        HavokCloth_Debug_DrawInstanceVectorField(scrPlace, x, y, v9);
+      v7 = (unsigned int)(v7 + 1);
     }
-    while ( (unsigned int)v10 < numInstances[0] );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm1, xmm0, cs:__real@41400000
-    }
+    while ( (unsigned int)v7 < numInstances[0] );
+    v11 = *x - 12.0;
   }
   else
   {
-    __asm { vsubss  xmm1, xmm1, cs:__real@41400000 }
+    v11 = v8 - 12.0;
   }
-  __asm { vmovss  dword ptr [rbp+0], xmm1 }
+  *x = v11;
 }
 
 /*
@@ -1852,194 +1350,69 @@ Cloth_Debug_Perf_DrawBudgets
 void Cloth_Debug_Perf_DrawBudgets(const ScreenPlacement *scrPlace, float *x, float *y)
 {
   Cloth_Debug_PerfData *Buffer; 
-  Cloth_Debug_PerfData *v14; 
-  const char *v20; 
-  const char *v24; 
-  const char *v28; 
-  const char *v32; 
-  const char *v36; 
-  const char *v45; 
-  const char *v49; 
-  const char *v53; 
-  const char *v57; 
-  const char *v61; 
-  void *retaddr; 
+  Cloth_Debug_PerfData *v7; 
+  float v8; 
+  const char *v9; 
+  const char *v10; 
+  const char *v11; 
+  const char *v12; 
+  const char *v13; 
+  float v14; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r8]; y
-    vmovss  xmm1, dword ptr [rdx]; x
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBX = y;
-  _RDI = x;
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Performance Budgets", &colorWhite);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vaddss  xmm0, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, "Cloth Performance Budgets", &colorWhite);
+  *y = *y + 8.0;
   Buffer = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Character);
   if ( !Buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 370, ASSERT_TYPE_ASSERT, "(characterBuffer)", (const char *)&queryFormat, "characterBuffer") )
     __debugbreak();
-  v14 = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Environmental);
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 372, ASSERT_TYPE_ASSERT, "(environmentBuffer)", (const char *)&queryFormat, "environmentBuffer") )
+  v7 = Cloth_Debug_Perf_GetReadBuffer(0, Cloth_OwnerType_Environmental);
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 372, ASSERT_TYPE_ASSERT, "(environmentBuffer)", (const char *)&queryFormat, "environmentBuffer") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41400000
-    vaddss  xmm1, xmm6, dword ptr [rdi]; x
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm2, dword ptr [rbx]; y
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Character", &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-    vaddss  xmm0, xmm6, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v20 = j_va("Bones Read: %i", (unsigned int)Buffer->boneReadCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v20, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v24 = j_va("Bones Written: %i - Budget: %i", (unsigned int)Buffer->boneWrittenCount, 150i64);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v24, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v28 = j_va("Particles Simulated: %i - Budget: %i", (unsigned int)Buffer->particleSimulatedCount, 300i64);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v32 = j_va("Particles affected by Vector Fields: %i", (unsigned int)Buffer->particleVectorFieldCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v32, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v36 = j_va("Physics Proxies: %i (of %i) updated with %i triangles", (unsigned int)Buffer->physicsProxyMeshCount, (unsigned int)Buffer->physicsProxyCount, (unsigned int)Buffer->physicsProxyMeshTriCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v36, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm2, dword ptr [rdi]
-    vsubss  xmm1, xmm2, xmm6; x
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm2, dword ptr [rbx]; y
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Environment", &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-    vaddss  xmm0, xmm6, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm0
-  }
-  v45 = j_va("Bones Read: %i", (unsigned int)v14->boneReadCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v45, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v49 = j_va("Bones Written: %i - Budget: %i", (unsigned int)v14->boneWrittenCount, 150i64);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v49, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v53 = j_va("Particles Simulated: %i - Budget: %i", (unsigned int)v14->particleSimulatedCount, 300i64);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v53, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v57 = j_va("Particles affected by Vector Fields: %i", (unsigned int)v14->particleVectorFieldCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v57, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  v61 = j_va("Physics Proxies: %i (of %i) updated with %i triangles", (unsigned int)v14->physicsProxyMeshCount, (unsigned int)v14->physicsProxyCount, (unsigned int)v14->physicsProxyMeshTriCount);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rdi]; x
-  }
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v61, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rbx]
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm2, dword ptr [rdi]
-    vsubss  xmm0, xmm2, cs:__real@41c00000
-    vmovss  dword ptr [rdi], xmm0
-  }
+  v8 = *x + 12.0;
+  *x = v8;
+  Cloth_Debug_DrawString(scrPlace, v8, *y, "Character", &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v9 = j_va("Bones Read: %i", (unsigned int)Buffer->boneReadCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v9, &colorWhite);
+  *y = *y + 8.0;
+  v10 = j_va("Bones Written: %i - Budget: %i", (unsigned int)Buffer->boneWrittenCount, 150i64);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v10, &colorWhite);
+  *y = *y + 8.0;
+  v11 = j_va("Particles Simulated: %i - Budget: %i", (unsigned int)Buffer->particleSimulatedCount, 300i64);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+  *y = *y + 8.0;
+  v12 = j_va("Particles affected by Vector Fields: %i", (unsigned int)Buffer->particleVectorFieldCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v12, &colorWhite);
+  *y = *y + 8.0;
+  v13 = j_va("Physics Proxies: %i (of %i) updated with %i triangles", (unsigned int)Buffer->physicsProxyMeshCount, (unsigned int)Buffer->physicsProxyCount, (unsigned int)Buffer->physicsProxyMeshTriCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+  *y = *y + 8.0;
+  v14 = *x - 12.0;
+  *x = v14;
+  Cloth_Debug_DrawString(scrPlace, v14, *y, "Environment", &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  v15 = j_va("Bones Read: %i", (unsigned int)v7->boneReadCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v15, &colorWhite);
+  *y = *y + 8.0;
+  v16 = j_va("Bones Written: %i - Budget: %i", (unsigned int)v7->boneWrittenCount, 150i64);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v16, &colorWhite);
+  *y = *y + 8.0;
+  v17 = j_va("Particles Simulated: %i - Budget: %i", (unsigned int)v7->particleSimulatedCount, 300i64);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v17, &colorWhite);
+  *y = *y + 8.0;
+  v18 = j_va("Particles affected by Vector Fields: %i", (unsigned int)v7->particleVectorFieldCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v18, &colorWhite);
+  *y = *y + 8.0;
+  v19 = j_va("Physics Proxies: %i (of %i) updated with %i triangles", (unsigned int)v7->physicsProxyMeshCount, (unsigned int)v7->physicsProxyCount, (unsigned int)v7->physicsProxyMeshTriCount);
+  Cloth_Debug_DrawString(scrPlace, *x, *y, v19, &colorWhite);
+  *y = *y + 8.0;
+  *x = *x - 24.0;
 }
 
 /*
@@ -2175,54 +1548,25 @@ void Cloth_Debug_Sound_DrawInstance(const ScreenPlacement *scrPlace, float *x, f
 {
   const char *v8; 
   const ClothAsset *ClothAsset; 
-  const char *v14; 
+  const char *v10; 
 
-  _RSI = x;
-  _RDI = y;
   if ( Cloth_IsInstanceInUse(0, instanceId) )
   {
     ClothAsset = Cloth_GetClothAsset(0, instanceId);
     if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 874, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
       __debugbreak();
-    v14 = j_va("Cloth Sound Details for Instance %i %s", instanceId, ClothAsset->name);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v14, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rsi]
-      vaddss  xmm0, xmm2, cs:__real@41400000
-      vmovss  dword ptr [rsi], xmm0
-    }
-    HavokCloth_Debug_Sound_DrawInstance(scrPlace, _RSI, _RDI, instanceId);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, cs:__real@41400000
-      vmovss  dword ptr [rsi], xmm1
-    }
+    v10 = j_va("Cloth Sound Details for Instance %i %s", instanceId, ClothAsset->name);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v10, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
+    HavokCloth_Debug_Sound_DrawInstance(scrPlace, x, y, instanceId);
+    *x = *x - 12.0;
   }
   else
   {
     v8 = j_va("Cloth Sound Details for Instance %i - not in use", instanceId);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v8, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rdi], xmm1
-    }
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v8, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -2233,30 +1577,11 @@ Cloth_Debug_Sound_DrawSummary
 */
 void Cloth_Debug_Sound_DrawSummary(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r8]; y
-    vmovss  xmm1, dword ptr [rdx]; x
-  }
-  _RBX = y;
-  _RSI = x;
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Sound Summary", &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vaddss  xmm0, xmm2, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
-  HavokCloth_Debug_Sound_DrawSummary(scrPlace, _RSI, _RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, "Cloth Sound Summary", &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  HavokCloth_Debug_Sound_DrawSummary(scrPlace, x, y);
+  *x = *x - 12.0;
 }
 
 /*
@@ -2268,54 +1593,25 @@ void Cloth_Debug_Speed_DrawInstance(const ScreenPlacement *scrPlace, float *x, f
 {
   const char *v8; 
   const ClothAsset *ClothAsset; 
-  const char *v14; 
+  const char *v10; 
 
-  _RSI = x;
-  _RDI = y;
   if ( Cloth_IsInstanceInUse(0, instanceId) )
   {
     ClothAsset = Cloth_GetClothAsset(0, instanceId);
     if ( !ClothAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothdebug.cpp", 834, ASSERT_TYPE_ASSERT, "(clothAsset)", (const char *)&queryFormat, "clothAsset") )
       __debugbreak();
-    v14 = j_va("Cloth Speed Details for Instance %i %s", instanceId, ClothAsset->name);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v14, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rsi]
-      vaddss  xmm0, xmm2, cs:__real@41400000
-      vmovss  dword ptr [rsi], xmm0
-    }
-    HavokCloth_Debug_Speed_DrawInstance(scrPlace, _RSI, _RDI, instanceId);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, cs:__real@41400000
-      vmovss  dword ptr [rsi], xmm1
-    }
+    v10 = j_va("Cloth Speed Details for Instance %i %s", instanceId, ClothAsset->name);
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v10, &colorWhite);
+    *y = *y + 8.0;
+    *x = *x + 12.0;
+    HavokCloth_Debug_Speed_DrawInstance(scrPlace, x, y, instanceId);
+    *x = *x - 12.0;
   }
   else
   {
     v8 = j_va("Cloth Speed Details for Instance %i - not in use", instanceId);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v8, &colorWhite);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rdi], xmm1
-    }
+    Cloth_Debug_DrawString(scrPlace, *x, *y, v8, &colorWhite);
+    *y = *y + 8.0;
   }
 }
 
@@ -2326,29 +1622,10 @@ Cloth_Debug_Speed_DrawSummary
 */
 void Cloth_Debug_Speed_DrawSummary(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r8]; y
-    vmovss  xmm1, dword ptr [rdx]; x
-  }
-  _RBX = y;
-  _RSI = x;
-  Cloth_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Cloth Speed Summary", &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vaddss  xmm0, xmm2, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm0
-  }
-  HavokCloth_Debug_Speed_DrawSummary(scrPlace, _RSI, _RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rsi], xmm1
-  }
+  Cloth_Debug_DrawString(scrPlace, *x, *y, "Cloth Speed Summary", &colorWhite);
+  *y = *y + 8.0;
+  *x = *x + 12.0;
+  HavokCloth_Debug_Speed_DrawSummary(scrPlace, x, y);
+  *x = *x - 12.0;
 }
 

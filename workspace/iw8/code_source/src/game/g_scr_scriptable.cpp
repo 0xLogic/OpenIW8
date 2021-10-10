@@ -391,15 +391,8 @@ GScr_Scriptable_GetEntitylessScriptableArray
 */
 void GScr_Scriptable_GetEntitylessScriptableArray(scrContext_t *scrContext, const int *offset, const scr_string_t name, const vec3_t *fromOrigin, const float radius, const scr_string_t partName)
 {
-  float v11; 
-
   ScriptableCommon_AssertCountsInitialized();
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+radius]
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  GScr_GetScriptableArray(scrContext, 0, g_scriptableWorldCounts.serverInstanceCount, offset, name, fromOrigin, v11, partName);
+  GScr_GetScriptableArray(scrContext, 0, g_scriptableWorldCounts.serverInstanceCount, offset, name, fromOrigin, radius, partName);
 }
 
 /*
@@ -442,18 +435,12 @@ GScr_Scriptable_GetLootScriptableArray
 void GScr_Scriptable_GetLootScriptableArray(scrContext_t *scrContext, const int *offset, const scr_string_t name, const vec3_t *fromOrigin, const float radius, const scr_string_t partName)
 {
   unsigned int runtimeInstanceCount; 
-  float v12; 
 
   ScriptableCommon_AssertCountsInitialized();
   runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
   if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+radius]
-    vmovss  [rsp+48h+var_18], xmm0
-  }
-  GScr_GetScriptableArray(scrContext, 0, runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount, offset, name, fromOrigin, v12, partName);
+  GScr_GetScriptableArray(scrContext, 0, runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount, offset, name, fromOrigin, radius, partName);
 }
 
 /*
@@ -516,7 +503,6 @@ void GScr_Scriptable_SetParentEntity(scrContext_t *scrContext, scr_entref_t entr
   vec3_t deltaAngles; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   entrefa = entref;
   if ( !Com_GameMode_SupportsFeature(WEAPON_LEAP_IN|0x80) )
     Scr_Error(COM_ERR_6252, scrContext, "ScriptableSetParentEntity not supported in game mode");
@@ -528,15 +514,11 @@ void GScr_Scriptable_SetParentEntity(scrContext_t *scrContext, scr_entref_t entr
     __debugbreak();
   if ( !Entity->r.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 550, ASSERT_TYPE_ASSERT, "( ent->r.isInUse )", (const char *)&queryFormat, "ent->r.isInUse") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   if ( Scr_GetNumParam(scrContext) <= 1 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+vectorValue], xmm6
-      vmovss  dword ptr [rsp+98h+vectorValue+4], xmm6
-      vmovss  dword ptr [rsp+98h+vectorValue+8], xmm6
-    }
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
   }
   else
   {
@@ -544,12 +526,9 @@ void GScr_Scriptable_SetParentEntity(scrContext_t *scrContext, scr_entref_t entr
   }
   if ( Scr_GetNumParam(scrContext) <= 2 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+deltaAngles], xmm6
-      vmovss  dword ptr [rsp+98h+deltaAngles+4], xmm6
-      vmovss  dword ptr [rsp+98h+deltaAngles+8], xmm6
-    }
+    deltaAngles.v[0] = 0.0;
+    deltaAngles.v[1] = 0.0;
+    deltaAngles.v[2] = 0.0;
   }
   else
   {
@@ -557,6 +536,5 @@ void GScr_Scriptable_SetParentEntity(scrContext_t *scrContext, scr_entref_t entr
   }
   if ( !ScriptableSv_StandaloneSetParentEntity(StandaloneScriptableIndex, Entity, &vectorValue, &deltaAngles) )
     Scr_Error(COM_ERR_6253, scrContext, "Failed to set parent entity. See log for details.");
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 

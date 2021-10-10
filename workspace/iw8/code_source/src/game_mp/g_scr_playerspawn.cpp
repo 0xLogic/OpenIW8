@@ -210,36 +210,25 @@ void Scr_EnablePlayerSpawnPointByIndex(scrContext_t *scrContext)
 Scr_RegisterSpawnFactor
 ==============
 */
-
-void __fastcall Scr_RegisterSpawnFactor(scrContext_t *scrContext, double _XMM1_8)
+void Scr_RegisterSpawnFactor(scrContext_t *scrContext)
 {
   scr_string_t ConstString; 
-  const char *v5; 
+  const char *v3; 
   SpawnFactors FactorForName; 
-  char v8; 
+  double Float; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
     ConstString = Scr_GetConstString(scrContext, 0);
-    v5 = SL_ConvertToString(ConstString);
-    FactorForName = G_PlayerSpawnPoints_GetFactorForName(v5);
+    v3 = SL_ConvertToString(ConstString);
+    FactorForName = G_PlayerSpawnPoints_GetFactorForName(v3);
     if ( FactorForName != NUM_SPAWN_FACTORS )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
-      }
-      if ( v8 )
-      {
-        Scr_Error(COM_ERR_2632, scrContext, "Spawn factor weights less than 0 are prohibited");
-      }
+      Float = Scr_GetFloat(scrContext, 1u);
+      if ( *(float *)&Float >= 0.0 )
+        G_PlayerSpawnPoints_SetFactorWeight(FactorForName, *(float *)&Float);
       else
-      {
-        __asm { vmovaps xmm1, xmm0; weight }
-        G_PlayerSpawnPoints_SetFactorWeight(FactorForName, *(float *)&_XMM1);
-      }
+        Scr_Error(COM_ERR_2632, scrContext, "Spawn factor weights less than 0 are prohibited");
     }
   }
   else
@@ -332,18 +321,14 @@ void Scr_EnableFrontlineCriticalFactor(scrContext_t *scrContext)
     G_PlayerSpawnPonits_EnableFrontline();
     if ( NumParam == 2 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+58h+vectorValue], xmm0
-        vmovss  dword ptr [rsp+58h+vectorValue+4], xmm0
-        vmovss  dword ptr [rsp+58h+vectorValue+8], xmm0
-        vmovss  dword ptr [rsp+58h+pos], xmm0
-        vmovss  dword ptr [rsp+58h+pos+4], xmm0
-        vmovss  dword ptr [rsp+58h+pos+8], xmm0
-      }
+      vectorValue.v[0] = 0.0;
+      vectorValue.v[1] = 0.0;
+      vectorValue.v[2] = 0.0;
+      pos.v[0] = 0.0;
+      pos.v[1] = 0.0;
+      pos.v[2] = 0.0;
       Scr_GetVector(scrContext, 0, &vectorValue);
-      Scr_GetVector(scrContext, NumParam - 1, &pos);
+      Scr_GetVector(scrContext, 1u, &pos);
       G_PlayerSpawnPoints_EnableFrontlineAnchor(&vectorValue, &pos);
     }
   }
@@ -357,6 +342,9 @@ Scr_EnableGroundWarSpawnLogic
 void Scr_EnableGroundWarSpawnLogic(scrContext_t *scrContext)
 {
   unsigned int NumParam; 
+  double Float; 
+  float v4; 
+  double v5; 
 
   NumParam = Scr_GetNumParam(scrContext);
   if ( (NumParam & 0xFFFFFFFD) != 0 )
@@ -368,17 +356,10 @@ void Scr_EnableGroundWarSpawnLogic(scrContext_t *scrContext)
     G_PlayerSpawnPonits_EnableGroundWar();
     if ( NumParam == 2 )
     {
-      __asm { vmovaps [rsp+38h+var_18], xmm6 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vmovaps xmm1, xmm0; nearbyEnemyOkDist
-        vmovaps xmm0, xmm6; nearbyEnemyBadDist
-      }
-      G_PlayerSpawnPonits_SetGroundWarSpawnVariables(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm { vmovaps xmm6, [rsp+38h+var_18] }
+      Float = Scr_GetFloat(scrContext, 0);
+      v4 = *(float *)&Float;
+      v5 = Scr_GetFloat(scrContext, 1u);
+      G_PlayerSpawnPonits_SetGroundWarSpawnVariables(v4, *(const float *)&v5);
     }
   }
 }
@@ -411,13 +392,16 @@ Scr_CreateSpawnInfluencePoint
 void Scr_CreateSpawnInfluencePoint(scrContext_t *scrContext)
 {
   unsigned int NumParam; 
+  double Float; 
+  float v4; 
+  double v5; 
   scr_string_t ConstString; 
-  const char *v9; 
-  const char *v10; 
-  __int16 v11; 
+  const char *v7; 
+  const char *v8; 
+  __int16 v9; 
   gentity_s *ownerEnt; 
   gentity_s *Entity; 
-  int v16; 
+  int v12; 
   team_t outTeam; 
   vec3_t vectorValue; 
 
@@ -427,52 +411,35 @@ void Scr_CreateSpawnInfluencePoint(scrContext_t *scrContext)
     Com_ScriptError("CreateSpawnInfluencePoint requires exactly 4 or 6 args.");
     return;
   }
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm7, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v4 = *(float *)&Float;
+  v5 = Scr_GetFloat(scrContext, 2u);
   ConstString = Scr_GetConstString(scrContext, 3u);
-  if ( Com_Teams_TeamFromString(ConstString, &outTeam) )
+  if ( !Com_Teams_TeamFromString(ConstString, &outTeam) )
   {
-    v11 = 0;
-    ownerEnt = NULL;
-    if ( NumParam == 6 )
-    {
-      Entity = GScr_GetEntity(4u);
-      ownerEnt = Entity;
-      if ( !Entity->agent && !Entity->client )
-      {
-        Com_ScriptError("CreateSpawnInfluencePoint - InfluencePoint owners must be characters.\n");
-        goto LABEL_13;
-      }
-      if ( Scr_GetInt(scrContext, 5u) )
-        v11 = 2;
-    }
-    __asm
-    {
-      vmovaps xmm2, xmm7; height
-      vmovaps xmm1, xmm6; radius
-    }
-    v16 = G_PlayerSpawns_CreateInfluencePoint(&vectorValue, *(float *)&_XMM1, *(float *)&_XMM2, outTeam, v11 | 1, ownerEnt);
-    if ( v16 != -1 )
-      Scr_AddInt(scrContext, v16);
-    goto LABEL_13;
+    v7 = SL_ConvertToString(ConstString);
+    v8 = j_va("unknown team '%s'", v7);
+    Scr_Error(COM_ERR_2633, scrContext, v8);
+    return;
   }
-  v9 = SL_ConvertToString(ConstString);
-  v10 = j_va("unknown team '%s'", v9);
-  Scr_Error(COM_ERR_2633, scrContext, v10);
-LABEL_13:
-  __asm
+  v9 = 0;
+  ownerEnt = NULL;
+  if ( NumParam == 6 )
   {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
+    Entity = GScr_GetEntity(4u);
+    ownerEnt = Entity;
+    if ( !Entity->agent && !Entity->client )
+    {
+      Com_ScriptError("CreateSpawnInfluencePoint - InfluencePoint owners must be characters.\n");
+      return;
+    }
+    if ( Scr_GetInt(scrContext, 5u) )
+      v9 = 2;
   }
+  v12 = G_PlayerSpawns_CreateInfluencePoint(&vectorValue, v4, *(float *)&v5, outTeam, v9 | 1, ownerEnt);
+  if ( v12 != -1 )
+    Scr_AddInt(scrContext, v12);
 }
 
 /*
@@ -551,7 +518,7 @@ Scr_SpawnInfluencePointSetPosition
 void Scr_SpawnInfluencePointSetPosition(scrContext_t *scrContext)
 {
   unsigned int Int; 
-  vec3_t v4; 
+  vec3_t v3; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
@@ -564,10 +531,8 @@ void Scr_SpawnInfluencePointSetPosition(scrContext_t *scrContext)
     }
     else
     {
-      __asm { vmovsd  xmm0, qword ptr [rsp+58h+vectorValue] }
-      v4.v[2] = vectorValue.v[2];
-      __asm { vmovsd  [rsp+58h+var_38], xmm0 }
-      if ( !G_PlayerSpawns_SetInfluencePointPosition(Int, &v4) )
+      v3 = vectorValue;
+      if ( !G_PlayerSpawns_SetInfluencePointPosition(Int, &v3) )
         Com_ScriptError("SpawnInfluencePointSetPosition - Influence Point %d not in use.\n", Int);
     }
   }
@@ -607,25 +572,25 @@ void GScr_PlayerSpawn_GetSpawnpointForPlayer(scrContext_t *scrContext, scr_entre
 {
   const gentity_s *Entity; 
   int number; 
-  team_t v6; 
+  team_t v5; 
   const SpawnPointInfo *SpawnInfo; 
   unsigned int CanonicalString; 
+  unsigned int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   unsigned int v12; 
   unsigned int v13; 
-  unsigned int v14; 
+  scr_string_t bad; 
   unsigned int v15; 
   unsigned int v16; 
+  unsigned int v17; 
   unsigned int v18; 
-  scr_string_t bad; 
+  unsigned int v19; 
   unsigned int v20; 
-  unsigned int v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  unsigned int v28; 
   int csScoreReason; 
-  unsigned int v30; 
-  __int64 v31; 
+  unsigned int v22; 
+  __int64 v23; 
   spawnSelectionSpec selectionSpec; 
   spawnSelectionResults selectionResults; 
 
@@ -636,46 +601,37 @@ void GScr_PlayerSpawn_GetSpawnpointForPlayer(scrContext_t *scrContext, scr_entre
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v31) = Entity->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 687, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v31, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v23) = Entity->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 687, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v23, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   number = Entity->s.number;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v6 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
+  v5 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
   if ( G_PlayerSpawnPoints_GetUsingTeams() )
   {
-    if ( (unsigned int)v6 > TEAM_SIX )
+    if ( (unsigned int)v5 > TEAM_SIX )
     {
       Scr_AddUndefined(scrContext);
       Com_PrintWarning(16, "RegisterSpawnTeamsMode is true, and GetSpawnpointForPlayer called on a player that is not on team 'axis', 'allies', 'team_three', 'team_four', 'team_five' or 'team_six'\n");
       return;
     }
   }
-  else if ( v6 )
+  else if ( v5 )
   {
     Scr_AddUndefined(scrContext);
     Com_PrintWarning(16, "RegisterSpawnTeamsMode is false, and GetSpawnpointForPlayer called on a player that is not on team 'none'\n");
     return;
   }
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
   selectionSpec.spawningPlayerEntNum = number;
-  selectionSpec.spawningTeam = v6;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rbp+57h+selectionResults.bestSpawnPointScore], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
+  selectionSpec.spawningTeam = v5;
+  selectionResults.bestSpawnPointScore = FLOAT_N1_0;
   memset(&selectionResults, 0, 20);
   memset(&selectionResults.numBadSpawns, 0, 70);
-  __asm
-  {
-    vmovups xmmword ptr [rbp+57h+selectionResults.frontlinePos], xmm0
-    vmovss  dword ptr [rbp+57h+selectionResults.frontlineDir+4], xmm1
-    vmovss  dword ptr [rbp+57h+selectionResults.frontlineDir+8], xmm1
-  }
+  *(_OWORD *)selectionResults.frontlinePos.v = 0i64;
+  selectionResults.frontlineDir.v[1] = 0.0;
+  selectionResults.frontlineDir.v[2] = 0.0;
   *(_WORD *)&selectionSpec.respectFrontline = 0;
   *(_WORD *)&selectionSpec.skipTelefragFactor = 0;
   G_PlayerSpawnPoints_FindBestSpawnPoint(&selectionSpec, &selectionResults);
@@ -687,24 +643,23 @@ void GScr_PlayerSpawn_GetSpawnpointForPlayer(scrContext_t *scrContext, scr_entre
   CanonicalString = SL_GetCanonicalString("classname");
   Scr_AddStructField(scrContext, CanonicalString);
   Scr_AddConstString(scrContext, SpawnInfo->record->target);
-  v12 = SL_GetCanonicalString("target");
-  Scr_AddStructField(scrContext, v12);
+  v8 = SL_GetCanonicalString("target");
+  Scr_AddStructField(scrContext, v8);
   Scr_AddConstString(scrContext, SpawnInfo->record->script_noteworthy);
-  v13 = SL_GetCanonicalString("script_noteworthy");
-  Scr_AddStructField(scrContext, v13);
+  v9 = SL_GetCanonicalString("script_noteworthy");
+  Scr_AddStructField(scrContext, v9);
   Scr_AddVector(scrContext, SpawnInfo->finalGroundPos.v);
-  v14 = SL_GetCanonicalString("origin");
-  Scr_AddStructField(scrContext, v14);
+  v10 = SL_GetCanonicalString("origin");
+  Scr_AddStructField(scrContext, v10);
   Scr_AddVector(scrContext, SpawnInfo->record->angles.v);
-  v15 = SL_GetCanonicalString("angles");
-  Scr_AddStructField(scrContext, v15);
+  v11 = SL_GetCanonicalString("angles");
+  Scr_AddStructField(scrContext, v11);
   Scr_AddInt(scrContext, SpawnInfo->record->index);
-  v16 = SL_GetCanonicalString("index");
-  Scr_AddStructField(scrContext, v16);
-  __asm { vmovss  xmm1, [rbp+57h+selectionResults.bestSpawnPointScore]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v18 = SL_GetCanonicalString("totalscore");
-  Scr_AddStructField(scrContext, v18);
+  v12 = SL_GetCanonicalString("index");
+  Scr_AddStructField(scrContext, v12);
+  Scr_AddFloat(scrContext, selectionResults.bestSpawnPointScore);
+  v13 = SL_GetCanonicalString("totalscore");
+  Scr_AddStructField(scrContext, v13);
   if ( selectionResults.bestSpawnPointCriticalScore == 3 )
   {
     bad = scr_const.bad;
@@ -716,35 +671,29 @@ void GScr_PlayerSpawn_GetSpawnpointForPlayer(scrContext_t *scrContext, scr_entre
       bad = scr_const.good;
   }
   Scr_AddConstString(scrContext, bad);
-  v20 = SL_GetCanonicalString("score");
-  Scr_AddStructField(scrContext, v20);
+  v15 = SL_GetCanonicalString("score");
+  Scr_AddStructField(scrContext, v15);
   Scr_AddBool(scrContext, selectionResults.frontlineEnabled);
-  v21 = SL_GetCanonicalString("frontlineenabled");
-  Scr_AddStructField(scrContext, v21);
+  v16 = SL_GetCanonicalString("frontlineenabled");
+  Scr_AddStructField(scrContext, v16);
   Scr_AddBool(scrContext, selectionResults.frontlineUsed);
-  v22 = SL_GetCanonicalString("frontlineused");
-  Scr_AddStructField(scrContext, v22);
+  v17 = SL_GetCanonicalString("frontlineused");
+  Scr_AddStructField(scrContext, v17);
   Scr_AddVector(scrContext, selectionResults.frontlinePos.v);
-  v23 = SL_GetCanonicalString("frontlinepos");
-  Scr_AddStructField(scrContext, v23);
+  v18 = SL_GetCanonicalString("frontlinepos");
+  Scr_AddStructField(scrContext, v18);
   Scr_AddVector(scrContext, selectionResults.frontlineDir.v);
-  v24 = SL_GetCanonicalString("frontlinedir");
-  Scr_AddStructField(scrContext, v24);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm0, dword ptr [rdi+40h]
-    vmulss  xmm1, xmm1, cs:__real@451f6000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v28 = SL_GetCanonicalString("threatsight");
-  Scr_AddStructField(scrContext, v28);
+  v19 = SL_GetCanonicalString("frontlinedir");
+  Scr_AddStructField(scrContext, v19);
+  Scr_AddFloat(scrContext, (float)(1.0 - SpawnInfo->enemySightData.maxSightValue) * 2550.0);
+  v20 = SL_GetCanonicalString("threatsight");
+  Scr_AddStructField(scrContext, v20);
   csScoreReason = -1;
   if ( (unsigned int)(selectionResults.bestSpawnPointCriticalScore - 2) <= 1 )
     csScoreReason = SpawnInfo->scoreData.csScoreReason;
   Scr_AddInt(scrContext, csScoreReason);
-  v30 = SL_GetCanonicalString("damagemod");
-  Scr_AddStructField(scrContext, v30);
+  v22 = SL_GetCanonicalString("damagemod");
+  Scr_AddStructField(scrContext, v22);
 }
 
 /*
@@ -756,12 +705,12 @@ void GScr_PlayerSpawn_GetSpawnBucketForPlayer(scrContext_t *scrContext, scr_entr
 {
   const gentity_s *Entity; 
   int number; 
-  team_t v6; 
+  team_t v5; 
   int NumParam; 
   scr_string_t bad; 
-  __int64 v13; 
+  __int64 v8; 
   spawnSelectionSpec selectionSpec; 
-  vec3_t v15; 
+  vec3_t v10; 
   vec3_t vectorValue; 
   spawnSelectionResults selectionResults; 
 
@@ -772,46 +721,37 @@ void GScr_PlayerSpawn_GetSpawnBucketForPlayer(scrContext_t *scrContext, scr_entr
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v13) = Entity->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 790, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v13, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v8) = Entity->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 790, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v8, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   number = Entity->s.number;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v6 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
+  v5 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
   if ( G_PlayerSpawnPoints_GetUsingTeams() )
   {
-    if ( (unsigned int)v6 > TEAM_SIX )
+    if ( (unsigned int)v5 > TEAM_SIX )
     {
       Scr_AddUndefined(scrContext);
       Com_PrintWarning(16, "RegisterSpawnTeamsMode is true, and GetSpawnBucketForPlayer called on a player that is not on team 'axis', 'allies', 'team_three', 'team_four', 'team_five' or 'team_six'\n");
       return;
     }
   }
-  else if ( v6 )
+  else if ( v5 )
   {
     Scr_AddUndefined(scrContext);
     Com_PrintWarning(16, "RegisterSpawnTeamsMode is false, and GetSpawnBucketForPlayer called on a player that is not on team 'none'\n");
     return;
   }
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
   selectionSpec.spawningPlayerEntNum = number;
-  selectionSpec.spawningTeam = v6;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rbp+20h+selectionResults.bestSpawnPointScore], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
+  selectionSpec.spawningTeam = v5;
+  selectionResults.bestSpawnPointScore = FLOAT_N1_0;
   memset(&selectionResults, 0, 20);
   memset(&selectionResults.numBadSpawns, 0, 70);
-  __asm
-  {
-    vmovups xmmword ptr [rbp+20h+selectionResults.frontlinePos], xmm0
-    vmovss  dword ptr [rbp+20h+selectionResults.frontlineDir+4], xmm1
-    vmovss  dword ptr [rbp+20h+selectionResults.frontlineDir+8], xmm1
-  }
+  *(_OWORD *)selectionResults.frontlinePos.v = 0i64;
+  selectionResults.frontlineDir.v[1] = 0.0;
+  selectionResults.frontlineDir.v[2] = 0.0;
   *(_WORD *)&selectionSpec.respectFrontline = 0;
   *(_WORD *)&selectionSpec.skipTelefragFactor = 0;
   NumParam = Scr_GetNumParam(scrContext);
@@ -822,11 +762,9 @@ void GScr_PlayerSpawn_GetSpawnBucketForPlayer(scrContext_t *scrContext, scr_entr
   if ( NumParam > 1 )
   {
     Scr_GetVector(scrContext, 1u, &vectorValue);
-    __asm { vmovsd  xmm0, qword ptr [rsp+120h+vectorValue] }
     selectionSpec.singleOriginMode = 1;
-    __asm { vmovsd  [rsp+120h+var_C0], xmm0 }
-    v15.v[2] = vectorValue.v[2];
-    G_PlayerSpawnPoints_EnableSingleOriginSpawn(v6, &v15);
+    v10 = vectorValue;
+    G_PlayerSpawnPoints_EnableSingleOriginSpawn(v5, &v10);
   }
   G_PlayerSpawnPoints_FindBestSpawnBucket(&selectionSpec, &selectionResults);
   if ( NumParam > 1 )
@@ -852,25 +790,22 @@ GScr_PlayerSpawn_FinalizeSpawnpointChoiceForPlayer
 void GScr_PlayerSpawn_FinalizeSpawnpointChoiceForPlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
   const gentity_s *Entity; 
-  team_t v6; 
-  team_t v7; 
+  team_t v4; 
+  team_t v5; 
   int NumParam; 
   int Int; 
+  unsigned int v8; 
+  int v9; 
   unsigned int v10; 
-  int v11; 
-  unsigned int v12; 
+  float v11; 
+  double Float; 
+  unsigned int v13; 
   unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
   const char *String; 
-  const char *v20; 
-  const char *v22; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  __int64 v31; 
+  const char *v17; 
+  const char *v18; 
+  __int64 v19; 
 
   Entity = GetEntity(entref);
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -879,17 +814,17 @@ void GScr_PlayerSpawn_FinalizeSpawnpointChoiceForPlayer(scrContext_t *scrContext
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v31) = Entity->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 885, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v31, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v19) = Entity->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_playerspawn.cpp", 885, ASSERT_TYPE_ASSERT, "(unsigned)( spawningPlayer->s.number ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "spawningPlayer->s.number doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v19, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v6 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
-  v7 = v6;
-  if ( (unsigned int)v6 > TEAM_FOLLOWER )
+  v4 = GUtils::ms_gUtils->GetEntityTeam(GUtils::ms_gUtils, Entity);
+  v5 = v4;
+  if ( (unsigned int)v4 > TEAM_FOLLOWER )
   {
-    Com_PrintWarning(16, "FinalizeSpawnpointChoiceForPlayer called on a player that is outside of the max number of team, requested %i but max is %i\n", (unsigned int)v6, 202i64);
+    Com_PrintWarning(16, "FinalizeSpawnpointChoiceForPlayer called on a player that is outside of the max number of team, requested %i but max is %i\n", (unsigned int)v4, 202i64);
   }
   else
   {
@@ -898,93 +833,66 @@ void GScr_PlayerSpawn_FinalizeSpawnpointChoiceForPlayer(scrContext_t *scrContext
     {
       Int = Scr_GetInt(scrContext, 0);
       if ( Int >= 0 )
-        G_PlayerSpawnPoints_FinalizeLastSpawnUsage(Int, Entity->s.number, v7);
+        G_PlayerSpawnPoints_FinalizeLastSpawnUsage(Int, Entity->s.number, v5);
       if ( NumParam > 1 )
       {
-        v10 = Scr_GetInt(scrContext, 1u);
-        if ( v10 > 4 )
+        v8 = Scr_GetInt(scrContext, 1u);
+        if ( v8 > 4 )
         {
           Com_ScriptError("FinalizeSpawnpointChoiceForPlayer, parameter 2 spawnTypeIdx must be between 0 and 4.");
         }
         else
         {
-          v11 = -1;
-          __asm { vmovaps [rsp+68h+var_28], xmm6 }
-          v12 = -1;
+          v9 = -1;
+          v10 = -1;
           if ( NumParam > 3 )
-            v12 = Scr_GetInt(scrContext, 2u);
-          __asm { vmovss  xmm6, cs:__real@bf800000 }
+            v10 = Scr_GetInt(scrContext, 2u);
+          v11 = FLOAT_N1_0;
           if ( NumParam > 3 )
           {
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-            __asm { vmovaps xmm6, xmm0 }
+            Float = Scr_GetFloat(scrContext, 3u);
+            v11 = *(float *)&Float;
           }
           if ( NumParam > 4 )
-            v11 = Scr_GetInt(scrContext, 4u);
-          if ( v10 )
+            v9 = Scr_GetInt(scrContext, 4u);
+          if ( v8 )
           {
-            v14 = v10 - 1;
-            if ( v14 )
+            v13 = v8 - 1;
+            if ( v13 )
             {
-              v15 = v14 - 1;
-              if ( v15 )
+              v14 = v13 - 1;
+              if ( v14 )
               {
-                v16 = v15 - 1;
-                if ( v16 )
+                v15 = v14 - 1;
+                if ( v15 )
                 {
-                  if ( v16 == 1 )
+                  if ( v15 == 1 )
                   {
-                    String = G_PlayerSpawnPoints_FailedCritReason_GetString(v11);
-                    __asm
-                    {
-                      vcvtss2sd xmm0, xmm6, xmm6
-                      vmovsd  [rsp+68h+fmt], xmm0
-                    }
-                    Com_Printf(131087, "[Spawn] Plyr %d, RANDOM | RejectedBadSpwn FALLBACK %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v12, fmt, String);
+                    String = G_PlayerSpawnPoints_FailedCritReason_GetString(v9);
+                    Com_Printf(131087, "[Spawn] Plyr %d, RANDOM | RejectedBadSpwn FALLBACK %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v10, v11, String);
                   }
                 }
                 else
                 {
-                  v20 = G_PlayerSpawnPoints_FailedCritReason_GetString(v11);
-                  __asm
-                  {
-                    vcvtss2sd xmm0, xmm6, xmm6
-                    vmovsd  [rsp+68h+fmt], xmm0
-                  }
-                  Com_Printf(131087, "[Spawn] Plyr %d, BUDDY | RejectedBadSpwn FALLBACK: %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v12, fmta, v20);
+                  v17 = G_PlayerSpawnPoints_FailedCritReason_GetString(v9);
+                  Com_Printf(131087, "[Spawn] Plyr %d, BUDDY | RejectedBadSpwn FALLBACK: %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v10, v11, v17);
                 }
               }
               else
               {
-                v22 = G_PlayerSpawnPoints_FailedCritReason_GetString(v11);
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm6, xmm6
-                  vmovsd  [rsp+68h+fmt], xmm0
-                }
-                Com_Printf(131087, "[Spawn] Plyr %d, BAD, FALLBACK %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v12, fmtb, v22);
+                v18 = G_PlayerSpawnPoints_FailedCritReason_GetString(v9);
+                Com_Printf(131087, "[Spawn] Plyr %d, BAD, FALLBACK %i, TTLOS %f, CritFail %s\n", (unsigned int)Entity->s.number, v10, v11, v18);
               }
             }
             else
             {
-              __asm
-              {
-                vcvtss2sd xmm0, xmm6, xmm6
-                vmovsd  [rsp+68h+fmt], xmm0
-              }
-              Com_Printf(131087, "[Spawn] Plyr %d, OKAY, FALLBACK %i, TTLOS %f\n", (unsigned int)Entity->s.number, v12, *(double *)&fmtc);
+              Com_Printf(131087, "[Spawn] Plyr %d, OKAY, FALLBACK %i, TTLOS %f\n", (unsigned int)Entity->s.number, v10, v11);
             }
           }
           else
           {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm6, xmm6
-              vmovsd  [rsp+68h+fmt], xmm0
-            }
-            Com_Printf(131087, "[Spawn] Plyr %d, GOOD, FALLBACK %i, TTLOS %f\n", (unsigned int)Entity->s.number, v12, *(double *)&fmtd);
+            Com_Printf(131087, "[Spawn] Plyr %d, GOOD, FALLBACK %i, TTLOS %f\n", (unsigned int)Entity->s.number, v10, v11);
           }
-          __asm { vmovaps xmm6, [rsp+68h+var_28] }
         }
       }
     }
@@ -1083,16 +991,16 @@ void Scr_RegisterScriptedSpawnpoints(scrContext_t *scrContext)
   scr_string_t v4; 
   scr_string_t v5; 
   scr_string_t v6; 
-  int v9; 
+  int v7; 
+  vec3_t v8; 
+  vec3_t v9; 
   vec3_t v10; 
-  vec3_t v11; 
-  vec3_t v12; 
   vec3_t vectorValue; 
 
   NumParam = Scr_GetNumParam(scrContext);
   ConstString = Scr_GetConstString(scrContext, 0);
   Scr_GetVector(scrContext, 1u, &vectorValue);
-  Scr_GetVector(scrContext, 2u, &v12);
+  Scr_GetVector(scrContext, 2u, &v10);
   if ( NumParam <= 3 )
   {
     v5 = scr_const._;
@@ -1106,18 +1014,11 @@ void Scr_RegisterScriptedSpawnpoints(scrContext_t *scrContext)
   }
   if ( NumParam > 4 )
     v5 = Scr_GetConstString(scrContext, 4u);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+88h+var_38]
-    vmovsd  [rsp+88h+var_58], xmm0
-    vmovsd  xmm0, qword ptr [rsp+88h+vectorValue]
-  }
-  v10.v[2] = v12.v[2];
-  __asm { vmovsd  [rsp+88h+var_48], xmm0 }
-  v11.v[2] = vectorValue.v[2];
-  v9 = G_PlayerSpawnPoints_RegisterScriptSpawnpoint(ConstString, &v11, &v10, v6, v5);
-  if ( v9 >= 0 )
-    Scr_AddInt(scrContext, v9);
+  v8 = v10;
+  v9 = vectorValue;
+  v7 = G_PlayerSpawnPoints_RegisterScriptSpawnpoint(ConstString, &v9, &v8, v6, v5);
+  if ( v7 >= 0 )
+    Scr_AddInt(scrContext, v7);
 }
 
 /*

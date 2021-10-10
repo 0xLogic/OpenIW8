@@ -548,60 +548,58 @@ SV_ClientNetPerf_UpdatePlayerState
 */
 void SV_ClientNetPerf_UpdatePlayerState(const int clientNum, playerState_s *ps)
 {
-  __int64 v4; 
-  const dvar_t *v5; 
+  __int64 v3; 
+  const dvar_t *v4; 
+  int ClientPing; 
+  int v6; 
   int highestValue; 
+  int v8; 
+  int v9; 
+  int v10; 
   int v11; 
-  int v12; 
-  int v13; 
-  int v14; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v12; 
+  __int64 v13; 
 
-  v4 = clientNum;
+  v3 = clientNum;
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] )
-    goto LABEL_23;
-  v5 = DVARBOOL_bg_enableClientNetPerf;
+    goto LABEL_25;
+  v4 = DVARBOOL_bg_enableClientNetPerf;
   if ( !DVARBOOL_bg_enableClientNetPerf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_enableClientNetPerf") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.enabled )
   {
-LABEL_23:
+LABEL_25:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_net_perf_mp.cpp", 273, ASSERT_TYPE_ASSERT, "( SV_ClientNetPerf_IsEnabled() )", (const char *)&queryFormat, "SV_ClientNetPerf_IsEnabled()") )
       __debugbreak();
   }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_net_perf_mp.cpp", 274, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (unsigned int)v4 >= SvClient::ms_clientCount )
+  if ( (unsigned int)v3 >= SvClient::ms_clientCount )
   {
-    LODWORD(v16) = SvClient::ms_clientCount;
-    LODWORD(v15) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_net_perf_mp.cpp", 275, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v15, v16) )
+    LODWORD(v13) = SvClient::ms_clientCount;
+    LODWORD(v12) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_net_perf_mp.cpp", 275, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
-  SV_ClientMP_GetClientPing(v4);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, cs:__real@3e828f5c
-    vcvttss2si eax, xmm1
-  }
-  ps->netPerf.pingMs = _EAX;
-  highestValue = s_stats.userCommands[v4].dropped.highestValue;
-  v11 = s_stats.userCommands[v4].burst.highestValue;
-  v12 = 1023;
-  v13 = 1023;
-  if ( s_stats.userCommands[v4].received.highestValue < 1023 )
-    v13 = s_stats.userCommands[v4].received.highestValue;
-  ps->netPerf.maxUserCmdReceivedTime = v13;
-  v14 = 1023;
+  ClientPing = SV_ClientMP_GetClientPing(v3);
+  v6 = 1000;
+  if ( ClientPing < 1000 )
+    v6 = ClientPing;
+  ps->netPerf.pingMs = (int)(float)((float)v6 * 0.255);
+  highestValue = s_stats.userCommands[v3].dropped.highestValue;
+  v8 = s_stats.userCommands[v3].burst.highestValue;
+  v9 = 1023;
+  v10 = 1023;
+  if ( s_stats.userCommands[v3].received.highestValue < 1023 )
+    v10 = s_stats.userCommands[v3].received.highestValue;
+  ps->netPerf.maxUserCmdReceivedTime = v10;
+  v11 = 1023;
   if ( highestValue < 1023 )
-    v14 = highestValue;
-  ps->netPerf.maxUserCmdDroppedCount = v14;
-  if ( v11 < 1023 )
-    v12 = v11;
-  ps->netPerf.maxUserCmdQueuedTime = v12;
+    v11 = highestValue;
+  ps->netPerf.maxUserCmdDroppedCount = v11;
+  if ( v8 < 1023 )
+    v9 = v8;
+  ps->netPerf.maxUserCmdQueuedTime = v9;
 }
 

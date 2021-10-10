@@ -28,88 +28,72 @@ hknpCollisionQueryDispatcher::_getClosestPointsCvxCvxPreScaledImpl<hknpCollision
 char hknpCollisionQueryDispatcher::_getClosestPointsCvxCvxPreScaledImpl<hknpCollisionQueryCollector,hknpClosestPointsQuery,hknpCollisionResult>(hknpCollisionQueryDispatcher *this, const hknpClosestPointsQuery *initialQuery, const hknpConvexVertexShape *query, const hknpQueryFilterData *queryFilterData, const hknpShapeQueryInfo *queryInfo, const hknpConvexVertexShape *target, const hknpQueryFilterData *targetFilterData, const hknpShapeQueryInfo *targetInfo, const hkTransformf *queryToTarget, hknpCollisionQueryCollector *collector)
 {
   __int64 m_type; 
-  unsigned int v17; 
+  __m128 v13; 
+  unsigned int v14; 
   const hknpBody *m_body; 
+  const hkTransformf *m_shapeToWorld; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
   int m_serialAndIndex; 
-  __int128 v39[2]; 
-  int v41; 
+  __int128 v25[2]; 
+  int v26; 
+  int v27; 
   unsigned int m_value; 
-  int v43; 
-  unsigned __int16 v44; 
+  int v29; 
+  unsigned __int16 v30; 
   unsigned int m_collisionFilterInfo; 
   unsigned __int64 m_userData; 
-  unsigned int v47; 
-  unsigned int v48; 
-  int v49; 
-  unsigned __int16 v50; 
-  unsigned int v51; 
-  unsigned __int64 v52; 
-  __int64 v53; 
-  __int128 v54[2]; 
+  unsigned int v33; 
+  unsigned int v34; 
+  int v35; 
+  unsigned __int16 v36; 
+  unsigned int v37; 
+  unsigned __int64 v38; 
+  __int64 v39; 
+  __int128 v40[2]; 
+  hkSimdFloat32 v41; 
 
-  _RBX = collector;
   m_type = query->m_type;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+10h]
-    vmovups [rbp+27h+var_30], xmm0
-  }
-  if ( !((unsigned __int8 (__fastcall *)(const hknpConvexVertexShape *, const hknpConvexVertexShape *, const hkTransformf *, _QWORD, __int128 *))this->m_preScaledCvxClosestPointTable[m_type][target->m_type])(query, target, queryToTarget, collector->m_hints.m_storage, v54) )
+  v41.m_real = (__m128)collector->m_earlyOutThreshold;
+  if ( !((unsigned __int8 (__fastcall *)(const hknpConvexVertexShape *, const hknpConvexVertexShape *, const hkTransformf *, _QWORD, __int128 *))this->m_preScaledCvxClosestPointTable[m_type][target->m_type])(query, target, queryToTarget, collector->m_hints.m_storage, v40) )
     return 0;
-  __asm
-  {
-    vmovups xmm5, [rbp+27h+var_50]
-    vmovups xmm0, [rbp+27h+var_30]
-  }
-  v17 = 0xFFFFFF;
+  v13 = (__m128)v40[0];
+  v14 = 0xFFFFFF;
   m_body = queryInfo->m_body;
-  v53 = 4i64;
-  __asm
-  {
-    vmovss  [rbp+27h+var_A0], xmm0
-    vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-    vshufps xmm1, xmm5, xmm5, 0
-    vmulps  xmm3, xmm0, xmmword ptr [rax+10h]
-    vmulps  xmm2, xmm1, xmmword ptr [rax]
-    vaddps  xmm4, xmm3, xmm2
-    vshufps xmm0, xmm5, xmm5, 0AAh ; 'ª'
-    vmulps  xmm1, xmm0, xmmword ptr [rax+20h]
-    vmovups xmm5, [rbp+27h+var_40]
-    vaddps  xmm2, xmm4, xmm1
-    vaddps  xmm3, xmm2, xmmword ptr [rax+30h]
-    vmovups [rsp+0F0h+var_C0], xmm3
-    vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-    vmulps  xmm3, xmm0, xmmword ptr [rax+10h]
-    vshufps xmm1, xmm5, xmm5, 0
-    vmulps  xmm2, xmm1, xmmword ptr [rax]
-    vshufps xmm0, xmm5, xmm5, 0AAh ; 'ª'
-    vmulps  xmm1, xmm0, xmmword ptr [rax+20h]
-  }
+  v39 = 4i64;
+  v26 = v41.m_real.m128_i32[0];
+  m_shapeToWorld = targetInfo->m_shapeToWorld;
+  v17 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v13, v13, 85), m_shapeToWorld->m_rotation.m_col1.m_quad), _mm128_mul_ps(_mm_shuffle_ps(v13, v13, 0), m_shapeToWorld->m_rotation.m_col0.m_quad));
+  v18 = _mm128_mul_ps(_mm_shuffle_ps(v13, v13, 170), m_shapeToWorld->m_rotation.m_col2.m_quad);
+  v19 = (__m128)v40[1];
+  v25[0] = (__int128)_mm128_add_ps(_mm128_add_ps(v17, v18), m_shapeToWorld->m_translation.m_quad);
+  v20 = _mm128_mul_ps(_mm_shuffle_ps(v19, v19, 85), m_shapeToWorld->m_rotation.m_col1.m_quad);
+  v21 = _mm128_mul_ps(_mm_shuffle_ps(v19, v19, 0), m_shapeToWorld->m_rotation.m_col0.m_quad);
+  v22 = _mm128_mul_ps(_mm_shuffle_ps(v19, v19, 170), m_shapeToWorld->m_rotation.m_col2.m_quad);
   m_value = queryInfo->m_shapeKeyPath.m_key.m_value;
-  v44 = queryFilterData->m_materialId.m_value;
+  v30 = queryFilterData->m_materialId.m_value;
   m_collisionFilterInfo = queryFilterData->m_collisionFilterInfo;
   m_userData = queryFilterData->m_userData;
-  v43 = -1;
-  __asm
-  {
-    vaddps  xmm4, xmm3, xmm2
-    vaddps  xmm2, xmm4, xmm1
-    vmovups [rsp+0F0h+var_B0], xmm2
-  }
+  v29 = -1;
+  v25[1] = (__int128)_mm128_add_ps(_mm128_add_ps(v20, v21), v22);
   if ( m_body )
     m_serialAndIndex = m_body->m_id.m_serialAndIndex;
   else
     m_serialAndIndex = 0xFFFFFF;
-  v41 = m_serialAndIndex;
+  v27 = m_serialAndIndex;
   if ( targetInfo->m_body )
-    v17 = targetInfo->m_body->m_id.m_serialAndIndex;
-  v48 = targetInfo->m_shapeKeyPath.m_key.m_value;
-  v47 = v17;
-  v50 = targetFilterData->m_materialId.m_value;
-  v51 = targetFilterData->m_collisionFilterInfo;
-  v52 = targetFilterData->m_userData;
-  v49 = *(_DWORD *)initialQuery->m_levelOfDetail;
-  collector->addHit(collector, (const hknpCollisionResult *)v39);
+    v14 = targetInfo->m_body->m_id.m_serialAndIndex;
+  v34 = targetInfo->m_shapeKeyPath.m_key.m_value;
+  v33 = v14;
+  v36 = targetFilterData->m_materialId.m_value;
+  v37 = targetFilterData->m_collisionFilterInfo;
+  v38 = targetFilterData->m_userData;
+  v35 = *(_DWORD *)initialQuery->m_levelOfDetail;
+  collector->addHit(collector, (const hknpCollisionResult *)v25);
   return 1;
 }
 

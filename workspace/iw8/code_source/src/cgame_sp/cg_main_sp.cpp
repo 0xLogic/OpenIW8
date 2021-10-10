@@ -1823,265 +1823,52 @@ void CG_MainSP_LoadScriptsAndAnims(LocalClientNum_t localClientNum, HunkUser *hu
 CG_MainSP_RegisterDvars
 ==============
 */
-void CG_MainSP_RegisterDvars()
+void CG_MainSP_RegisterDvars(void)
 {
-  const dvar_t *v16; 
-  const dvar_t *v20; 
-  const dvar_t *v25; 
-  unsigned int v33; 
-  const dvar_t *v40; 
-  const dvar_t *v44; 
-  const dvar_t *v48; 
-  const dvar_t *v52; 
-  const dvar_t *v57; 
-  const dvar_t *v61; 
-  const dvar_t *v73; 
-  const dvar_t *v78; 
-  const dvar_t *v83; 
-  const dvar_t *v90; 
-  const dvar_t *v94; 
-  unsigned int v102; 
-  const dvar_t *v108; 
-  unsigned int v117; 
-  unsigned int v135; 
-  bool v153; 
-  unsigned int v154; 
+  unsigned int v0; 
+  unsigned int v1; 
+  unsigned int flags; 
+  unsigned int v11; 
+  bool v18; 
+  unsigned int v19; 
   char ActiveGameMode; 
-  unsigned int v157; 
-  unsigned int v160; 
-  unsigned int v164; 
-  unsigned int v168; 
-  unsigned int v172; 
-  unsigned int v177; 
-  unsigned int v181; 
-  unsigned int v184; 
-  unsigned int v188; 
-  const dvar_t *v195; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float description; 
-  float descriptiona; 
-  float descriptionb; 
-  char v216; 
-  void *retaddr; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  unsigned int v27; 
+  unsigned int v28; 
+  unsigned int v29; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovss  xmm7, cs:__real@461c4000
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm8, cs:__real@41000000
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovss  xmm9, cs:__real@3c23d70a
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0E8h+var_88], xmm13
-    vmovaps [rsp+0E8h+var_98], xmm14
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-    vmovaps [rsp+0E8h+var_A8], xmm15
-  }
-  v16 = Dvar_RegisterFloat("LORMOTSKST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The diameter of the small, center circle in the pip-on-a-stick reticle");
-  __asm { vmovss  xmm1, cs:__real@42000000; value }
-  DVARFLT_vehHudReticlePipOnAStickCenterCircle = v16;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v20 = Dvar_RegisterFloat("MLMNLMLS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The diameter of the large, moving circle in the pip-on-a-stick reticle");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@c61c4000
-    vmovss  xmm1, cs:__real@3e800000; value
-  }
-  DVARFLT_vehHudReticlePipOnAStickMovingCircle = v20;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  v25 = Dvar_RegisterFloat("LQNMPQRNST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Tweaks how close the stick is drawn to the center circle.  Positive numbers makes the line longer.");
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer = v25;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer = Dvar_RegisterFloat("LMRMSTTOOQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Tweaks how close the stick is drawn to the moving circle.  Positive numbers makes the line longer.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_vehHudLineWidth = Dvar_RegisterFloat("NRTNMNQORP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The width of the line used by code to draw elements on the vehicle HUD");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
+  DVARFLT_vehHudReticlePipOnAStickCenterCircle = Dvar_RegisterFloat("LORMOTSKST", 8.0, 0.0099999998, 10000.0, 0, "The diameter of the small, center circle in the pip-on-a-stick reticle");
+  DVARFLT_vehHudReticlePipOnAStickMovingCircle = Dvar_RegisterFloat("MLMNLMLS", 32.0, 0.0099999998, 10000.0, 0, "The diameter of the large, moving circle in the pip-on-a-stick reticle");
+  DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer = Dvar_RegisterFloat("LQNMPQRNST", 0.25, -10000.0, 10000.0, 0, "Tweaks how close the stick is drawn to the center circle.  Positive numbers makes the line longer.");
+  DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer = Dvar_RegisterFloat("LMRMSTTOOQ", 1.0, -10000.0, 10000.0, 0, "Tweaks how close the stick is drawn to the moving circle.  Positive numbers makes the line longer.");
+  DVARFLT_vehHudLineWidth = Dvar_RegisterFloat("NRTNMNQORP", 8.0, 0.0099999998, 10000.0, 0, "The width of the line used by code to draw elements on the vehicle HUD");
   DVARBOOL_vehHudDrawPipOnStickWhenFreelooking = Dvar_RegisterBool("NSTTRPLOLS", 1, 0, "Set to 0 to not draw the pip-on-a-stick reticle when the player is freelooking");
-  v33 = 64;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  DVARFLT_vehHudTargetSize = Dvar_RegisterFloat("RKMOQPKSR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The width of the enemy target indicator on the hud.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm15, xmm15, xmm15
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v40 = Dvar_RegisterFloat("MTKMSQSRQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_vehHudTargetScreenEdgeClampBufferLeft = v40;
-  v44 = Dvar_RegisterFloat("MKRMTTNMOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_vehHudTargetScreenEdgeClampBufferRight = v44;
-  v48 = Dvar_RegisterFloat("NRKNPNNORN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_vehHudTargetScreenEdgeClampBufferTop = v48;
-  v52 = Dvar_RegisterFloat("MQRSSLSOOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@49742400
-    vmovss  xmm1, cs:__real@41c00000; value
-  }
-  DVARFLT_vehHudTargetScreenEdgeClampBufferBottom = v52;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v57 = Dvar_RegisterFloat("LKPRKLKMLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The size of the bouncing diamond quad.");
-  __asm { vmovss  xmm1, cs:__real@42a00000; value }
-  DVARFLT_vehHudReticleBouncingDiamondSize = v57;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v61 = Dvar_RegisterFloat("MTSOQQPQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The radius of the circle in which the diamond bounces.");
-  __asm { vmovss  xmm1, cs:__real@43960000; value }
-  DVARFLT_vehHudReticleBouncingRadius = v61;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_vehHudReticleBouncingSpeed = Dvar_RegisterFloat("QPNMNRMOL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The rate at which the bouncing diamond moves");
-  __asm
-  {
-    vmovss  xmm14, cs:__real@42c80000
-    vmovss  xmm13, cs:__real@c2c80000
-    vmovss  xmm1, cs:__real@bdcccccd; value
-  }
+  v0 = 64;
+  DVARFLT_vehHudTargetSize = Dvar_RegisterFloat("RKMOQPKSR", 30.0, 0.0099999998, 10000.0, 0x40u, "The width of the enemy target indicator on the hud.");
+  DVARFLT_vehHudTargetScreenEdgeClampBufferLeft = Dvar_RegisterFloat("MTKMSQSRQP", 0.0, -10000.0, 10000.0, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
+  DVARFLT_vehHudTargetScreenEdgeClampBufferRight = Dvar_RegisterFloat("MKRMTTNMOM", 0.0, -10000.0, 10000.0, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
+  DVARFLT_vehHudTargetScreenEdgeClampBufferTop = Dvar_RegisterFloat("NRKNPNNORN", 0.0, -10000.0, 10000.0, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
+  DVARFLT_vehHudTargetScreenEdgeClampBufferBottom = Dvar_RegisterFloat("MQRSSLSOOP", 0.0, -10000.0, 10000.0, 0x40u, "The distance from the edge of the screen at which the enemy targets clamp.");
+  DVARFLT_vehHudReticleBouncingDiamondSize = Dvar_RegisterFloat("LKPRKLKMLP", 24.0, 0.0, 1000000.0, 0x40u, "The size of the bouncing diamond quad.");
+  DVARFLT_vehHudReticleBouncingRadius = Dvar_RegisterFloat("MTSOQQPQQ", 80.0, 0.0, 1000000.0, 0x40u, "The radius of the circle in which the diamond bounces.");
+  DVARFLT_vehHudReticleBouncingSpeed = Dvar_RegisterFloat("QPNMNRMOL", 300.0, 0.0, 1000000.0, 0x40u, "The rate at which the bouncing diamond moves");
   DVARINT_cg_followEnt = Dvar_RegisterInt("MRTMQLSTLM", -1, -1, 2047, 4u, "Entity number to follow when in cg_ufo");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  DVARFLT_cg_helmetViewSwayRate = Dvar_RegisterFloat("NLNPSMOMRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Rate that player-driven camera angle movement influences helmet movement.  Low values will lag behind view changes; high values will lead.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovss  xmm1, cs:__real@be4ccccd; value
-  }
-  v73 = Dvar_RegisterFloat("LQKMLQTQOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Rate that animation-driven camera angle movement influences helmet movement.  Low values will lag behind view changes; high values will lead.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40900000; x
-    vmovss  xmm6, cs:__real@43b40000
-    vmovss  xmm3, cs:__real@40000000; z
-  }
-  DVARFLT_cg_helmetAnimSwayRate = v73;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+description], xmm6
-    vmovaps xmm2, xmm1; y
-    vmovss  [rsp+0E8h+flags], xmm15
-  }
-  v78 = Dvar_RegisterVec3("MPMNSLPMQL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, 0x40u, "Maximum angle that helmet can be offset from player view.  Degrees in Pitch, Yaw, and Roll.");
-  __asm
-  {
-    vmovss  xmm12, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@42200000; value
-  }
-  DVARVEC3_cg_helmetMaxOffsetFromView = v78;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v83 = Dvar_RegisterFloat("MNKOOOPMMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Maximum player view linear velocity that will be converted to angular helmet motion.  Inches per second.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e99999a; x
-    vmovss  xmm3, cs:__real@3f000000; z
-  }
-  DVARFLT_cg_helmetMaxLinearVelocityInfluence = v83;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+description], xmm6
-    vmovaps xmm2, xmm1; y
-    vmovss  [rsp+0E8h+flags], xmm15
-  }
-  DVARVEC3_cg_helmetLinearVelocityToAngleRate = Dvar_RegisterVec3("TSTLRLKQL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, descriptiona, 0x40u, "Rate that angular motion is applied to the helmet given a linear velocity.  (Degrees rotation) per (Inches per second in player X, Y, and Z).");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-  }
-  v90 = Dvar_RegisterFloat("LNQRKQQMNT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "When an objective is closer than this distance (in meters), an \"Objective Nearby\" type of indicator is shown.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@ff7fffff; min
-    vmovss  xmm1, cs:__real@c28c0000; value
-  }
-  DVARFLT_compassObjectiveNearbyDist = v90;
-  __asm { vxorps  xmm3, xmm3, xmm3; max }
-  v94 = Dvar_RegisterFloat("LMPKLRQRSR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The minimum height that an objective is considered to be on this level");
-  __asm { vmovss  xmm1, cs:__real@428c0000; value }
-  DVARFLT_compassObjectiveMinHeight = v94;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_compassObjectiveMaxHeight = Dvar_RegisterFloat("NNLTKTLORR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The maximum height that an objective is considered to be on this level");
+  DVARFLT_cg_helmetViewSwayRate = Dvar_RegisterFloat("NLNPSMOMRM", -0.1, -100.0, 100.0, 0x40u, "Rate that player-driven camera angle movement influences helmet movement.  Low values will lag behind view changes; high values will lead.");
+  DVARFLT_cg_helmetAnimSwayRate = Dvar_RegisterFloat("LQKMLQTQOM", -0.2, -100.0, 100.0, 0x40u, "Rate that animation-driven camera angle movement influences helmet movement.  Low values will lag behind view changes; high values will lead.");
+  DVARVEC3_cg_helmetMaxOffsetFromView = Dvar_RegisterVec3("MPMNSLPMQL", 4.5, 4.5, 2.0, 0.0, 360.0, 0x40u, "Maximum angle that helmet can be offset from player view.  Degrees in Pitch, Yaw, and Roll.");
+  DVARFLT_cg_helmetMaxLinearVelocityInfluence = Dvar_RegisterFloat("MNKOOOPMMO", 40.0, 0.0, 3.4028235e38, 0x40u, "Maximum player view linear velocity that will be converted to angular helmet motion.  Inches per second.");
+  DVARVEC3_cg_helmetLinearVelocityToAngleRate = Dvar_RegisterVec3("TSTLRLKQL", 0.30000001, 0.30000001, 0.5, 0.0, 360.0, 0x40u, "Rate that angular motion is applied to the helmet given a linear velocity.  (Degrees rotation) per (Inches per second in player X, Y, and Z).");
+  DVARFLT_compassObjectiveNearbyDist = Dvar_RegisterFloat("LNQRKQQMNT", 8.0, 0.0099999998, 3.4028235e38, 0x40u, "When an objective is closer than this distance (in meters), an \"Objective Nearby\" type of indicator is shown.");
+  DVARFLT_compassObjectiveMinHeight = Dvar_RegisterFloat("LMPKLRQRSR", -70.0, -3.4028235e38, 0.0, 0x40u, "The minimum height that an objective is considered to be on this level");
+  DVARFLT_compassObjectiveMaxHeight = Dvar_RegisterFloat("NNLTKTLORR", 70.0, 0.0, 3.4028235e38, 0x40u, "The maximum height that an objective is considered to be on this level");
   DVARBOOL_compassObjectiveDrawLines = Dvar_RegisterBool("LRRTMKQONT", 1, 0, "Draw horizontal and vertical lines to the active target, if it is within the minimap boundries");
   DVARINT_compassObjectiveNumRings = Dvar_RegisterInt("LQPOKPQKMT", 10, 0, 20, 0, "The number of rings when a new objective appears");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42a00000; value
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_compassObjectiveRingSize = Dvar_RegisterFloat("OKSQQKQPKT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The maximum objective ring sige when a new objective appears on the compass");
+  DVARFLT_compassObjectiveRingSize = Dvar_RegisterFloat("OKSQQKQPKT", 80.0, 0.0, 3.4028235e38, 0, "The maximum objective ring sige when a new objective appears on the compass");
   DVARINT_compassObjectiveRingTime = Dvar_RegisterInt("NMLRTTSTKL", 10000, 0, 0x7FFFFFFF, 0, "The amount of time between each ring when an objective appears");
   DVARBOOL_compassDebug = Dvar_RegisterBool("NTMMPPTSTM", 0, 0, "Compass Debugging Mode");
   DVARBOOL_cg_drawHUD = Dvar_RegisterBool("MLQRQONTLL", 1, 0, "Draw HUD elements");
@@ -2089,43 +1876,13 @@ void CG_MainSP_RegisterDvars()
   DVARBOOL_cg_debugLookAt = Dvar_RegisterBool("MONSTSRKSP", 0, 4u, "Debug look at information");
   DVARBOOL_cg_drawFriendlyFireCrosshair = Dvar_RegisterBool("NNKSPMPMPR", 0, 4u, "draw the friendly fire crosshair (friendly move)");
   DVARINT_cg_objectiveListWrapCountStandard = Dvar_RegisterInt("MMNNRMPTQR", 260, 100, 640, 0, "The amount of on-screen length to wrap an objective in non wide-screen mode");
-  __asm { vmovss  xmm1, cs:__real@3f19999a; value }
   DVARINT_cg_objectiveListWrapCountWidescreen = Dvar_RegisterInt("NRQNQOQKTL", 340, 100, 640, 0, "The amount of on-screen length to wrap an objective in wide-screen mode");
-  v102 = 68;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_objectiveAlpha = Dvar_RegisterFloat("OLMSOMTOTO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x44u, "Alpha value for objective waypoints.");
+  v1 = 68;
+  DVARFLT_objectiveAlpha = Dvar_RegisterFloat("OLMSOMTOTO", 0.60000002, 0.0, 3.4028235e38, 0x44u, "Alpha value for objective waypoints.");
   DVARBOOL_objectiveAlphaEnabled = Dvar_RegisterBool("MSSTMRNSN", 0, 0x40u, "When true, dvar \"objectiveAlpha\" takes effect.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@00800000; min
-    vmovss  xmm1, cs:__real@42000000; value
-    vmovaps xmm3, xmm12; max
-  }
-  v108 = Dvar_RegisterFloat("NNQRNQTMT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Width of the objective pointer.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@00800000; min
-    vmovss  xmm1, cs:__real@41800000; value
-  }
-  DVARFLT_objectiveArrowWidth = v108;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  DVARFLT_objectiveArrowHeight = Dvar_RegisterFloat("PQLOTTTOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Height of the objective pointer.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; b
-    vmovaps xmm2, xmm7; g
-    vmovaps xmm1, xmm7; r
-    vmovss  [rsp+0E8h+flags], xmm7
-  }
-  DVARCLR_objectiveColor = Dvar_RegisterColor("LNTQQRRQTP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, 0x40u, "Color of the objective pointer and text.");
+  DVARFLT_objectiveArrowWidth = Dvar_RegisterFloat("NNQRNQTMT", 32.0, 1.1754944e-38, 3.4028235e38, 0x40u, "Width of the objective pointer.");
+  DVARFLT_objectiveArrowHeight = Dvar_RegisterFloat("PQLOTTTOS", 16.0, 1.1754944e-38, 3.4028235e38, 0x40u, "Height of the objective pointer.");
+  DVARCLR_objectiveColor = Dvar_RegisterColor("LNTQQRRQTP", 1.0, 1.0, 1.0, 1.0, 0x40u, "Color of the objective pointer and text.");
   DVARBOOL_objectiveHideIcon = Dvar_RegisterBool("LPNQPOTNNR", 0, 0x44u, "When true, hides the objective pointer's icon, but will still show the arrow.");
   DVARBOOL_objectiveDebug = Dvar_RegisterBool("RLPOTTOKN", 0, 4u, (const char *)&queryFormat.fmt + 3);
   DVARINT_cg_testVar = Dvar_RegisterInt("MQNOMKRSKP", 0, 0, 2048, 0, "For random development usage.");
@@ -2133,204 +1890,99 @@ void CG_MainSP_RegisterDvars()
   DVARBOOL_hud_drawHUD = Dvar_RegisterBool("SLTMRTTOM", 1, 0x40u, "Draw HUD elements. Controlled from non-UI script");
   DVARBOOL_hud_missionFailed = Dvar_RegisterBool("LPROPSMNKS", 0, 0x40u, "Intended to be set by script and referenced by hud.menu elements.");
   DVARBOOL_hud_forceMantleHint = Dvar_RegisterBool("OLSMNOSKPS", 0, 0x40u, "When true, forces the display of the mantle hint.  Can still be overridden by, for example, hud drawing being off.");
-  _EBP = 1;
   DVARINT_hud_checkpointBlackScreenDuration = Dvar_RegisterInt("OSNLNKRRQ", 1, 0, 10000, 0x40u, "Duration (ms) of the black screen that appears when we reload last checkpoint in SP.");
   DVARBOOL_missionSelected = Dvar_RegisterBool("RTSKLTPOS", 0, 0x40u, (const char *)&queryFormat.fmt + 3);
-  v117 = 68;
+  flags = 68;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v117 = 20;
+    flags = 20;
+  _XMM9 = LODWORD(FLOAT_110_0);
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovss  xmm10, cs:__real@43200000
-    vmovss  xmm9, cs:__real@42dc0000
-  }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ebp
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm6, xmm9, xmm10, xmm2
-    vmovss  xmm8, cs:__real@3f1745d1
   }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+  _XMM8 = LODWORD(FLOAT_0_59090906);
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ebp
     vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@42820000; value
     vblendvps xmm0, xmm8, xmm7, xmm2
-    vmovaps xmm2, xmm0; min
-    vmovaps xmm3, xmm6; max
-    vmovss  [rsp+0E8h+arg_0], xmm6
-    vmovss  [rsp+0E8h+arg_0], xmm0
   }
-  DVARFLT_cg_fov = Dvar_RegisterFloat("QTSPTNLOL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v117, "The field of view angle in degrees");
-  v135 = 68;
+  DVARFLT_cg_fov = Dvar_RegisterFloat("QTSPTNLOL", 65.0, *(float *)&_XMM0, *(float *)&_XMM6, flags, "The field of view angle in degrees");
+  v11 = 68;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v135 = 20;
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+    v11 = 20;
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ebp
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm6, xmm9, xmm10, xmm2
-    vmovss  xmm1, cs:__real@42820000; value
   }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm2, ebp
     vpcmpeqd xmm3, xmm0, xmm2
-    vmovaps xmm9, xmm7
     vblendvps xmm0, xmm8, xmm9, xmm3
-    vmovaps xmm2, xmm0; min
-    vmovaps xmm3, xmm6; max
-    vmovss  [rsp+0E8h+arg_0], xmm6
-    vmovss  [rsp+0E8h+arg_0], xmm0
   }
-  DVARFLT_cg_fov1 = Dvar_RegisterFloat("LQSSPMSRQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v135, "The field of view angle in degrees for the second local client");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40000000; max
-    vmovss  xmm2, cs:__real@3e4ccccd; min
-  }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v154 = 64;
-  if ( !v153 )
-    v154 = 20;
-  __asm { vmovaps xmm1, xmm9; value }
-  DVARFLT_cg_fovScale = Dvar_RegisterFloat("NSSLSNKPN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v154, "Scale applied to the field of view");
+  DVARFLT_cg_fov1 = Dvar_RegisterFloat("LQSSPMSRQK", 65.0, *(float *)&_XMM0, *(float *)&_XMM6, v11, "The field of view angle in degrees for the second local client");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v19 = 64;
+  if ( !v18 )
+    v19 = 20;
+  DVARFLT_cg_fovScale = Dvar_RegisterFloat("NSSLSNKPN", 1.0, 0.2, 2.0, v19, "Scale applied to the field of view");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v33 = 140;
-  DVARBOOL_cg_drawCrosshair = Dvar_RegisterBool("LOPKSRNTTS", 1, v33, "Turn on weapon crosshair");
+    v0 = 140;
+  DVARBOOL_cg_drawCrosshair = Dvar_RegisterBool("LOPKSRNTTS", 1, v0, "Turn on weapon crosshair");
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
-  v157 = 4;
+  v21 = 4;
   if ( ActiveGameMode != 1 )
-    v157 = 140;
-  DVARBOOL_cg_drawCrosshairNames = Dvar_RegisterBool("LROTSRRQMQ", 1, v157, "Draw the name of an enemy under the crosshair");
+    v21 = 140;
+  DVARBOOL_cg_drawCrosshairNames = Dvar_RegisterBool("LROTSRRQMQ", 1, v21, "Draw the name of an enemy under the crosshair");
   DVARBOOL_cg_drawCrosshairWhileSprinting = Dvar_RegisterBool("MKPOPRMKLL", 1, 4u, "Draws the hip crosshairs while sprinting");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@38d1b717
-    vmovss  xmm1, cs:__real@44bb8000; value
-  }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v160 = 68;
-  if ( !v153 )
-    v160 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassMaxRange = Dvar_RegisterFloat("MKPRSSNNRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v160, "The maximum range from the player in world space that objects will be shown on the compass");
-  __asm { vmovss  xmm1, cs:__real@451c4000; value }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v164 = 68;
-  if ( !v153 )
-    v164 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassExpandedMaxRange = Dvar_RegisterFloat("MROTQQSMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v164, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk");
-  __asm { vmovss  xmm1, cs:__real@459c4000; value }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v168 = 68;
-  if ( !v153 )
-    v168 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassExpandedMaxRangeBR = Dvar_RegisterFloat("NQMONTLKNN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v168, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk in Battle Royale");
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v172 = 68;
-  if ( !v153 )
-    v172 = 140;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+description], xmm9
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm9; x
-    vmovss  [rsp+0E8h+flags], xmm0
-  }
-  DVARVEC3_cg_defaultWindDir = Dvar_RegisterVec3("NTMMTOLQMQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, descriptionb, v172, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly.");
-  __asm { vmovss  xmm3, cs:__real@44160000; max }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v177 = 68;
-  if ( !v153 )
-    v177 = 140;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  DVARFLT_cg_defaultWindStrength = Dvar_RegisterFloat("NQTLPTNSSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v177, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly. Scale of the global wind direction (inches/sec)");
-  __asm { vmovss  xmm1, cs:__real@42480000; value }
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v181 = 68;
-  if ( !v153 )
-    v181 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  DVARFLT_cg_defaultWindAreaScale = Dvar_RegisterFloat("LQLSPQOPKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v181, "Scales distribution of wind motion");
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v184 = 68;
-  if ( !v153 )
-    v184 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm9; value
-  }
-  DVARFLT_cg_defaultWindAmplitudeScale = Dvar_RegisterFloat("MQPQKNPQOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v184, "Scales amplitude of wind wave motion");
-  v153 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v188 = 68;
-  if ( !v153 )
-    v188 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm9; value
-  }
-  DVARFLT_cg_defaultWindFrequencyScale = Dvar_RegisterFloat("MRNRKKOPLN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v188, "Scales frequency of wind wave motion");
-  __asm { vmovss  xmm1, cs:__real@3f333333; value }
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v22 = 68;
+  if ( !v18 )
+    v22 = 140;
+  DVARFLT_compassMaxRange = Dvar_RegisterFloat("MKPRSSNNRO", 1500.0, 0.000099999997, 3.4028235e38, v22, "The maximum range from the player in world space that objects will be shown on the compass");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v23 = 68;
+  if ( !v18 )
+    v23 = 140;
+  DVARFLT_compassExpandedMaxRange = Dvar_RegisterFloat("MROTQQSMP", 2500.0, 0.000099999997, 3.4028235e38, v23, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v24 = 68;
+  if ( !v18 )
+    v24 = 140;
+  DVARFLT_compassExpandedMaxRangeBR = Dvar_RegisterFloat("NQMONTLKNN", 5000.0, 0.000099999997, 3.4028235e38, v24, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk in Battle Royale");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v25 = 68;
+  if ( !v18 )
+    v25 = 140;
+  DVARVEC3_cg_defaultWindDir = Dvar_RegisterVec3("NTMMTOLQMQ", 1.0, 0.0, 0.0, -1.0, 1.0, v25, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly.");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v26 = 68;
+  if ( !v18 )
+    v26 = 140;
+  DVARFLT_cg_defaultWindStrength = Dvar_RegisterFloat("NQTLPTNSSO", 1.0, 0.0, 600.0, v26, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly. Scale of the global wind direction (inches/sec)");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v27 = 68;
+  if ( !v18 )
+    v27 = 140;
+  DVARFLT_cg_defaultWindAreaScale = Dvar_RegisterFloat("LQLSPQOPKM", 50.0, -100.0, 100.0, v27, "Scales distribution of wind motion");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v28 = 68;
+  if ( !v18 )
+    v28 = 140;
+  DVARFLT_cg_defaultWindAmplitudeScale = Dvar_RegisterFloat("MQPQKNPQOK", 1.0, -100.0, 100.0, v28, "Scales amplitude of wind wave motion");
+  v18 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v29 = 68;
+  if ( !v18 )
+    v29 = 140;
+  DVARFLT_cg_defaultWindFrequencyScale = Dvar_RegisterFloat("MRNRKKOPLN", 1.0, -100.0, 100.0, v29, "Scales frequency of wind wave motion");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v102 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v195 = Dvar_RegisterFloat("OLSKLTPPMR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v102, "Scales conic noise of wind wave motion");
-  __asm { vmovaps xmm15, [rsp+0E8h+var_A8] }
-  _R11 = &v216;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-  }
-  DVARFLT_cg_defaultWindNoiseScale = v195;
+    v1 = 140;
+  DVARFLT_cg_defaultWindNoiseScale = Dvar_RegisterFloat("OLSKLTPPMR", 0.69999999, 0.0, 1.0, v1, "Scales conic noise of wind wave motion");
 }
 
 /*
@@ -2341,6 +1993,7 @@ CG_MainSP_RegisterGraphics
 
 void __fastcall CG_MainSP_RegisterGraphics(const char *mapname, double _XMM1_8)
 {
+  __m256i v3; 
   ClConfigStrings *ClConfigStrings; 
   int i; 
   const char *v9; 
@@ -2368,11 +2021,8 @@ void __fastcall CG_MainSP_RegisterGraphics(const char *mapname, double _XMM1_8)
   }
   cgMedia.offscreenObjectivePointer = Material_RegisterHandle("hud_offscreenobjectivepointer", IMAGE_TRACK_HUD);
   cgMedia.objectiveBackgroundMissionTracked = NULL;
-  __asm
-  {
-    vmovdqu ymmword ptr cs:?cgMedia@@3UcgMedia_t@@A.objectiveBackgroundDiamond, ymm0; cgMedia_t cgMedia
-    vmovdqu xmmword ptr cs:?cgMedia@@3UcgMedia_t@@A.objectiveBackgroundPentagon, xmm1; cgMedia_t cgMedia
-  }
+  *(__m256i *)&cgMedia.objectiveBackgroundDiamond = v3;
+  *(_OWORD *)&cgMedia.objectiveBackgroundPentagon = _XMM1;
   cgMedia.leanReticleHint = Material_RegisterHandle("reticle_lean_hint", IMAGE_TRACK_HUD);
   cgMedia.vehCenterCircle = Material_RegisterHandle("veh_centercircle", IMAGE_TRACK_HUD);
   cgMedia.vehMovingCircle = Material_RegisterHandle("veh_movingcircle", IMAGE_TRACK_HUD);
@@ -2455,26 +2105,24 @@ void CG_MainSP_ReloadSpecificClientSideAnimationSystems(void)
 CG_MainSP_Shutdown
 ==============
 */
-
-void __fastcall CG_MainSP_Shutdown(__int64 a1, double _XMM1_8)
+void CG_MainSP_Shutdown(void)
 {
   __int64 OnlyLocalClientNum; 
   cg_t *LocalClientGlobals; 
   CgWeaponSystemSP *WeaponSystemSP; 
   CgCompassSystemSP *CompassSystemSP; 
-  CgPlayer_Asm *v7; 
-  Physics_WorldId v9; 
+  CgPlayer_Asm *v4; 
+  Physics_WorldId v5; 
   Physics_WorldId i; 
-  __int64 v11; 
-  __int64 v12; 
-  int v13; 
-  __int64 v14; 
-  int v15; 
-  int v16; 
+  __int64 v7; 
+  __int64 v8; 
+  int v9; 
+  __int64 v10; 
+  int v11; 
+  int v12; 
 
-  __asm { vmovss  xmm0, cs:__real@3f800000; volume }
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(1.0, 0);
   CG_Rumble_StopAll((LocalClientNum_t)OnlyLocalClientNum);
   Physics_WaitForAllCommandsToFinish();
   CG_Entity_PhysicsClearPostAssetChange((const LocalClientNum_t)OnlyLocalClientNum);
@@ -2490,38 +2138,38 @@ void __fastcall CG_MainSP_Shutdown(__int64 a1, double _XMM1_8)
   cg_t::FreePlayerLegs(LocalClientGlobals);
   if ( (_BYTE)CgClientSideEffectsSystem::ms_allocatedType != HALF )
   {
-    v15 = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
-    v13 = 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 388, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tCgClientSideEffectsSystem::ClearClientSideEffectsSystemCommon: Trying to clear client-side effects system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v13, v15) )
+    v11 = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
+    v9 = 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 388, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tCgClientSideEffectsSystem::ClearClientSideEffectsSystemCommon: Trying to clear client-side effects system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v9, v11) )
       __debugbreak();
   }
   if ( (unsigned int)OnlyLocalClientNum >= CgClientSideEffectsSystem::ms_allocatedCount )
   {
-    LODWORD(v12) = CgClientSideEffectsSystem::ms_allocatedCount;
-    LODWORD(v11) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v8) = CgClientSideEffectsSystem::ms_allocatedCount;
+    LODWORD(v7) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
   CgClientSideEffectsSystem::ClearMemory(CgClientSideEffectsSystem::ms_cseSystemArray[OnlyLocalClientNum]);
   if ( (_BYTE)CgClientSideEffectsSystem::ms_allocatedType != HALF )
   {
-    v16 = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
-    LODWORD(v14) = 1;
-    LODWORD(v12) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 321, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tTrying to access the client-side effects system for localClientNum %d but the client-side effects system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v12, v14, v16) )
+    v12 = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
+    LODWORD(v10) = 1;
+    LODWORD(v8) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 321, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tTrying to access the client-side effects system for localClientNum %d but the client-side effects system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v8, v10, v12) )
       __debugbreak();
   }
   if ( (unsigned int)OnlyLocalClientNum >= CgClientSideEffectsSystem::ms_allocatedCount )
   {
-    LODWORD(v12) = CgClientSideEffectsSystem::ms_allocatedCount;
-    LODWORD(v11) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v8) = CgClientSideEffectsSystem::ms_allocatedCount;
+    LODWORD(v7) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
   if ( !CgClientSideEffectsSystem::ms_cseSystemArray[OnlyLocalClientNum] )
   {
-    LODWORD(v12) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 323, ASSERT_TYPE_ASSERT, "(ms_cseSystemArray[localClientNum])", "%s\n\tTrying to access unallocated client-side effects system for localClientNum %d\n", "ms_cseSystemArray[localClientNum]", v12) )
+    LODWORD(v8) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 323, ASSERT_TYPE_ASSERT, "(ms_cseSystemArray[localClientNum])", "%s\n\tTrying to access unallocated client-side effects system for localClientNum %d\n", "ms_cseSystemArray[localClientNum]", v8) )
       __debugbreak();
   }
   CgClientSideEffectsSystem::Shutdown(CgClientSideEffectsSystem::ms_cseSystemArray[OnlyLocalClientNum]);
@@ -2544,16 +2192,16 @@ void __fastcall CG_MainSP_Shutdown(__int64 a1, double _XMM1_8)
   CG_ClientWeapon_Shutdown();
   if ( (_BYTE)CgPredictedEntitySystem::ms_allocatedType != HALF )
   {
-    LODWORD(v14) = (unsigned __int8)CgPredictedEntitySystem::ms_allocatedType;
-    LODWORD(v12) = 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 297, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgPredictedEntitySystem::ClearSystemCommon: Trying to clear predicted entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v12, v14) )
+    LODWORD(v10) = (unsigned __int8)CgPredictedEntitySystem::ms_allocatedType;
+    LODWORD(v8) = 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 297, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgPredictedEntitySystem::ClearSystemCommon: Trying to clear predicted entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v8, v10) )
       __debugbreak();
   }
   if ( (unsigned int)OnlyLocalClientNum >= CgPredictedEntitySystem::ms_allocatedCount )
   {
-    LODWORD(v12) = CgPredictedEntitySystem::ms_allocatedCount;
-    LODWORD(v11) = OnlyLocalClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 298, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v8) = CgPredictedEntitySystem::ms_allocatedCount;
+    LODWORD(v7) = OnlyLocalClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 298, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
   CgPredictedEntitySystem::Shutdown(CgPredictedEntitySystem::ms_systemsArray[OnlyLocalClientNum]);
@@ -2566,11 +2214,10 @@ void __fastcall CG_MainSP_Shutdown(__int64 a1, double _XMM1_8)
   BG_ShutDownTurretAnims(0);
   if ( PlayerASM_IsEnabled() )
   {
-    v7 = CgPlayer_Asm::Singleton((const LocalClientNum_t)OnlyLocalClientNum);
-    BgPlayer_Asm::Shutdown(v7, 0);
+    v4 = CgPlayer_Asm::Singleton((const LocalClientNum_t)OnlyLocalClientNum);
+    BgPlayer_Asm::Shutdown(v4, 0);
   }
-  __asm { vxorps  xmm1, xmm1, xmm1; fadeTimeSec }
-  SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_GAMECODE, *(float *)&_XMM1);
+  SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_GAMECODE, 0.0);
   LUITraceRunner::Shutdown((LocalClientNum_t)OnlyLocalClientNum);
   CG_ViewMotion_ClearCinematicMotionAssets();
   AnimVisualizer_Terminate();
@@ -2585,8 +2232,8 @@ void __fastcall CG_MainSP_Shutdown(__int64 a1, double _XMM1_8)
     Cloth_DestroyGlobalWorld(OnlyLocalClientNum);
   if ( Physics_AreClientWorldsCreated() )
   {
-    v9 = 3 * OnlyLocalClientNum + 2;
-    for ( i = 3 * OnlyLocalClientNum + 4; i >= v9; --i )
+    v5 = 3 * OnlyLocalClientNum + 2;
+    for ( i = 3 * OnlyLocalClientNum + 4; i >= v5; --i )
     {
       StaticModels_ShutdownCollision(i);
       WorldCollision_ShutdownCollision(i);

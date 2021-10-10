@@ -60,184 +60,98 @@ R_HDRGradingClutImage_GenerateImage
 */
 void R_HDRGradingClutImage_GenerateImage(ImageDesc *clutImageDesc, const GfxPixelFormat pixelFormat, GfxHdrGradingClutInputColorimetry inputColorimetry)
 {
-  int v14; 
-  int v30; 
-  __int64 v94; 
+  int v3; 
+  float v5; 
+  float v6; 
+  float v7; 
+  int i; 
+  __m128 v9; 
+  __m128 v10; 
+  int v11; 
+  __m128 v13; 
+  float v15; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v19; 
+  float v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v25; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int64 v31; 
   vec4_t color; 
-  char v99; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps [rsp+118h+var_A8], xmm13
-    vmovaps [rsp+118h+var_B8], xmm14
-    vmovaps [rsp+118h+var_C8], xmm15
-  }
-  v14 = (unsigned __int8)inputColorimetry;
+  v3 = (unsigned __int8)inputColorimetry;
   R_ImageUtil_SetupDesc(clutImageDesc, pixelFormat, 1024, 32, 1);
-  __asm
+  v5 = FLOAT_0_032258064;
+  v6 = FLOAT_0_012683313;
+  v7 = FLOAT_0_8359375;
+  for ( i = 0; i < 32; ++i )
   {
-    vmovss  xmm12, cs:__real@3f209d49
-    vmovss  xmm13, cs:__real@3ea89a02
-    vmovss  xmm14, cs:__real@3d315b57
-    vmovss  xmm15, cs:__real@3d8d844d
-    vmovss  xmm6, cs:__real@3d042108
-    vmovss  xmm9, cs:__real@3c4fcdac
-    vmovss  xmm10, cs:__real@3f560000
-    vmovss  xmm11, cs:__real@3f800000
-  }
-  _EDI = 0;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  do
-  {
-    __asm
-    {
-      vmovd   xmm0, edi
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm0, xmm0, xmm6; X
-      vmovaps xmm1, xmm9; Y
-    }
-    v30 = 0;
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm10
-      vmulss  xmm0, xmm0, cs:__real@41958000
-      vmaxss  xmm2, xmm1, xmm7
-      vmovss  xmm1, cs:__real@4196d000
-      vsubss  xmm0, xmm1, xmm0
-      vmovss  xmm1, cs:__real@40c8e06b; Y
-      vdivss  xmm0, xmm2, xmm0; X
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmulss  xmm8, xmm0, cs:__real@44800000 }
+    v10 = _mm_cvtepi32_ps((__m128i)(unsigned int)i);
+    v10.m128_f32[0] = v10.m128_f32[0] * v5;
+    v9 = v10;
+    v11 = 0;
+    v9.m128_f32[0] = powf_0(v10.m128_f32[0], v6);
+    v13 = v9;
+    v13.m128_f32[0] = v9.m128_f32[0] - v7;
+    _XMM1 = v13;
+    __asm { vmaxss  xmm2, xmm1, xmm7 }
+    v15 = powf_0(*(float *)&_XMM2 / (float)(18.851562 - (float)(v9.m128_f32[0] * 18.6875)), 6.2773948) * 1024.0;
     do
     {
-      _EAX = v30 & 0x1F;
-      __asm
+      v17 = _mm_cvtepi32_ps((__m128i)(v11 & 0x1F));
+      v17.m128_f32[0] = v17.m128_f32[0] * v5;
+      v16 = v17;
+      v16.m128_f32[0] = powf_0(v17.m128_f32[0], v6);
+      v19 = v16;
+      v19.m128_f32[0] = v16.m128_f32[0] - v7;
+      _XMM1 = v19;
+      __asm { vmaxss  xmm2, xmm1, xmm7 }
+      v21 = powf_0(*(float *)&_XMM2 / (float)(18.851562 - (float)(v16.m128_f32[0] * 18.6875)), 6.2773948) * 1024.0;
+      v23 = _mm_cvtepi32_ps((__m128i)((unsigned int)v11 >> 5));
+      v23.m128_f32[0] = v23.m128_f32[0] * v5;
+      v22 = v23;
+      v22.m128_f32[0] = powf_0(v23.m128_f32[0], v6);
+      v25 = v22;
+      v25.m128_f32[0] = v22.m128_f32[0] - v7;
+      _XMM1 = v25;
+      __asm { vmaxss  xmm2, xmm1, xmm2 }
+      v28 = powf_0(*(float *)&_XMM2 / (float)(18.851562 - (float)(v22.m128_f32[0] * 18.6875)), 6.2773948) * 1024.0;
+      v27 = v28;
+      if ( v3 == 1 )
       {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm0, xmm0, xmm6; X
-        vmovaps xmm1, xmm9; Y
+        v29 = v21;
+        v30 = v15;
       }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
+      else if ( v3 == 2 )
       {
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm0, xmm0, cs:__real@41958000
-        vmaxss  xmm2, xmm1, xmm7
-        vmovss  xmm1, cs:__real@4196d000
-        vsubss  xmm0, xmm1, xmm0
-        vmovss  xmm1, cs:__real@40c8e06b; Y
-        vdivss  xmm0, xmm2, xmm0; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm7, xmm0, cs:__real@44800000 }
-      _EAX = (unsigned int)v30 >> 5;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm0, xmm0, xmm6; X
-        vmovaps xmm1, xmm9; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm0, xmm0, cs:__real@41958000
-        vxorps  xmm2, xmm2, xmm2
-        vmaxss  xmm2, xmm1, xmm2
-        vmovss  xmm1, cs:__real@4196d000
-        vsubss  xmm0, xmm1, xmm0
-        vmovss  xmm1, cs:__real@40c8e06b; Y
-        vdivss  xmm0, xmm2, xmm0; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm6, xmm0, cs:__real@44800000 }
-      if ( v14 == 1 )
-      {
-        __asm
-        {
-          vmovaps xmm9, xmm7
-          vmovaps xmm10, xmm8
-        }
-      }
-      else if ( v14 == 2 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm7, xmm12
-          vmulss  xmm0, xmm8, xmm13
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm0, xmm8, cs:__real@3f6b645a
-          vmulss  xmm1, xmm6, xmm14
-          vaddss  xmm9, xmm2, xmm1
-          vmulss  xmm1, xmm6, cs:__real@3c3ac711
-          vmulss  xmm3, xmm7, xmm15
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm3, xmm8, cs:__real@3db43958
-          vmulss  xmm0, xmm7, cs:__real@3c86594b
-          vaddss  xmm10, xmm2, xmm1
-          vmulss  xmm1, xmm6, cs:__real@3f65460b
-          vaddss  xmm2, xmm3, xmm0
-          vaddss  xmm6, xmm2, xmm1
-        }
+        v29 = (float)((float)(v21 * 0.62739998) + (float)(v15 * 0.32929999)) + (float)(v28 * 0.043299999);
+        v30 = (float)((float)(v21 * 0.0691) + (float)(v15 * 0.91949999)) + (float)(v28 * 0.0114);
+        v27 = (float)((float)(v15 * 0.088) + (float)(v21 * 0.0164)) + (float)(v28 * 0.89560002);
       }
       else
       {
-        LODWORD(v94) = v14;
-        __asm
-        {
-          vmovaps xmm9, xmm7
-          vmovaps xmm10, xmm8
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_grading_clut_image.cpp", 310, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "HDR Grading CLUT image inputColorimetry %d not supported", v94) )
+        LODWORD(v31) = v3;
+        v29 = v21;
+        v30 = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_grading_clut_image.cpp", 310, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "HDR Grading CLUT image inputColorimetry %d not supported", v31) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rsp+118h+color], xmm9
-        vmovss  dword ptr [rsp+118h+color+4], xmm10
-        vmovss  dword ptr [rsp+118h+color+8], xmm6
-        vmovss  dword ptr [rsp+118h+color+0Ch], xmm11
-      }
-      R_ImageUtil_SetPixel(clutImageDesc, v30, _EDI, &color);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3d042108
-        vmovss  xmm9, cs:__real@3c4fcdac
-        vmovss  xmm10, cs:__real@3f560000
-      }
-      ++v30;
-      __asm { vxorps  xmm7, xmm7, xmm7 }
+      color.v[0] = v29;
+      color.v[1] = v30;
+      color.v[2] = v27;
+      color.v[3] = FLOAT_1_0;
+      R_ImageUtil_SetPixel(clutImageDesc, v11, i, &color);
+      v5 = FLOAT_0_032258064;
+      v6 = FLOAT_0_012683313;
+      v7 = FLOAT_0_8359375;
+      ++v11;
     }
-    while ( v30 < 1024 );
-    ++_EDI;
-  }
-  while ( _EDI < 32 );
-  _R11 = &v99;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+118h+var_B8]
-    vmovaps xmm15, [rsp+118h+var_C8]
+    while ( v11 < 1024 );
   }
 }
 
@@ -334,142 +248,47 @@ R_HDRGradingClutImage_GetVersionInfoColors
 */
 void R_HDRGradingClutImage_GetVersionInfoColors(unsigned int version, vec4_t *outClearRGBA, vec4_t *outSetRGBA)
 {
-  char v80; 
-  void *retaddr; 
+  float v5; 
+  float v6; 
+  float v9; 
+  float v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  float v16; 
+  double v17; 
+  double v18; 
+  float v19; 
+  double v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = outSetRGBA;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm9 }
-  _RDI = outClearRGBA;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm10
-    vmovaps xmmword ptr [rax-48h], xmm11
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps xmmword ptr [rax-58h], xmm12
-    vmovaps xmmword ptr [rax-68h], xmm13
-    vmovss  xmm13, cs:__real@40c00000
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm9, xmm0, cs:__real@3f1e377a
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm9, 1
-    vsubss  xmm0, xmm9, xmm2
-    vmulss  xmm6, xmm0, xmm13
-    vmovaps xmm0, xmm6; X
-    vmovaps xmm1, xmm13; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm12, cs:__real@40400000
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm1, xmm0, xmm12
-    vandps  xmm1, xmm1, xmm10
-    vsubss  xmm0, xmm1, xmm11; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm0
-    vaddss  xmm0, xmm6, cs:__real@40800000; X
-    vmovaps xmm1, xmm13; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm12
-    vandps  xmm1, xmm1, xmm10
-    vsubss  xmm0, xmm1, xmm11; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx+4], xmm0
-    vaddss  xmm0, xmm6, cs:__real@40000000; X
-    vmovaps xmm1, xmm13; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm12
-    vandps  xmm1, xmm1, xmm10
-    vsubss  xmm0, xmm1, xmm11; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vaddss  xmm2, xmm9, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm2, 1
-    vmovss  dword ptr [rbx+8], xmm0
-    vsubss  xmm0, xmm2, xmm1
-    vmulss  xmm6, xmm0, xmm13
-    vmovaps xmm0, xmm6; X
-    vmovaps xmm1, xmm13; Y
-  }
-  _RBX->v[3] = 1.0;
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm12
-    vandps  xmm1, xmm1, xmm10
-    vsubss  xmm0, xmm1, xmm11; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm11; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm0
-    vaddss  xmm0, xmm6, cs:__real@40800000; X
-    vmovaps xmm1, xmm13; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm3, xmm0, xmm12
-    vandps  xmm3, xmm3, xmm10
-    vsubss  xmm0, xmm3, xmm11; val
-    vmovaps xmm2, xmm11; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm0
-    vaddss  xmm0, xmm6, cs:__real@40000000; X
-    vmovaps xmm1, xmm13; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm3, xmm0, xmm12
-    vandps  xmm3, xmm3, xmm10
-    vsubss  xmm0, xmm3, xmm11; val
-    vmovaps xmm2, xmm11; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-30h]
-    vmovaps xmm11, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-    vmovss  dword ptr [rdi+8], xmm0
-  }
-  _RDI->v[3] = 1.0;
+  v5 = (float)(unsigned __int16)version;
+  v6 = v5 * 0.61803401;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm9, 1 }
+  v9 = (float)(v6 - *(float *)&_XMM2) * 6.0;
+  v10 = fmodf_0(v9, 6.0);
+  v11 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(v10 - 3.0) & _xmm) - 1.0, 0.0, 1.0);
+  outSetRGBA->v[0] = *(float *)&v11;
+  *(float *)&v11 = fmodf_0(v9 + 4.0, 6.0);
+  v12 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v11 - 3.0) & _xmm) - 1.0, 0.0, 1.0);
+  outSetRGBA->v[1] = *(float *)&v12;
+  *(float *)&v12 = fmodf_0(v9 + 2.0, 6.0);
+  v13 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v12 - 3.0) & _xmm) - 1.0, 0.0, 1.0);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm2, 1 }
+  outSetRGBA->v[2] = *(float *)&v13;
+  v16 = (float)((float)(v6 + 0.5) - *(float *)&_XMM1) * 6.0;
+  outSetRGBA->v[3] = 1.0;
+  *(float *)&v13 = fmodf_0(v16, 6.0);
+  v17 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v13 - 3.0) & _xmm) - 1.0, 0.0, 1.0);
+  outClearRGBA->v[0] = *(float *)&v17;
+  *(float *)&v17 = fmodf_0(v16 + 4.0, 6.0);
+  v18 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v17 - 3.0) & _xmm) - 1.0, 0.0, 1.0);
+  outClearRGBA->v[1] = *(float *)&v18;
+  LODWORD(v19) = COERCE_UNSIGNED_INT(fmodf_0(v16 + 2.0, 6.0) - 3.0) & _xmm;
+  v20 = I_fclamp(v19 - 1.0, 0.0, 1.0);
+  outClearRGBA->v[2] = *(float *)&v20;
+  outClearRGBA->v[3] = 1.0;
 }
 
 /*
@@ -546,57 +365,21 @@ __int64 R_HDRGradingClutImage_GetVersionInfoVisualHashBit(unsigned int seed, int
 R_HDRGradingClutImage_PQFromSource
 ==============
 */
-
-int __fastcall R_HDRGradingClutImage_PQFromSource(double input, GfxHdrGradingClutOutputColorimetry colorimetry)
+__int64 R_HDRGradingClutImage_PQFromSource(float input, GfxHdrGradingClutOutputColorimetry colorimetry)
 {
-  int result; 
+  double v2; 
+  double v3; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( colorimetry != HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_PQ )
   {
     if ( colorimetry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_grading_clut_image.cpp", 94, ASSERT_TYPE_ASSERT, "(colorimetry == GfxHdrGradingClutOutputColorimetry::HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_LINEAR)", (const char *)&queryFormat, "colorimetry == GfxHdrGradingClutOutputColorimetry::HDR_GRADING_CLUT_OUTPUT_COLORIMETRY_BT2020_LINEAR") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm2, cs:__real@44800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm0, xmm6; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3a800000; X
-      vmovss  xmm1, cs:__real@3e232000; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm2, xmm0, cs:__real@4196d000
-      vmulss  xmm0, xmm0, cs:__real@41958000
-      vaddss  xmm0, xmm0, cs:__real@3f800000
-      vaddss  xmm3, xmm2, cs:__real@3f560000
-      vmovss  xmm1, cs:__real@429db000; Y
-      vdivss  xmm0, xmm3, xmm0; X
-    }
-    *(float *)&input = powf_0(*(float *)&input, *(float *)&_XMM1);
+    v2 = I_fclamp(input, 0.0, 1024.0);
+    *(float *)&v2 = powf_0(*(float *)&v2 * 0.0009765625, 0.15930176);
+    input = powf_0((float)((float)(*(float *)&v2 * 18.851562) + 0.8359375) / (float)((float)(*(float *)&v2 * 18.6875) + 1.0), 78.84375);
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  input = I_fclamp(*(float *)&input, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@477fff00
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v3 = I_fclamp(input, 0.0, 1.0);
+  return (unsigned int)(int)(float)(*(float *)&v3 * 65535.0);
 }
 
 /*
@@ -604,45 +387,16 @@ int __fastcall R_HDRGradingClutImage_PQFromSource(double input, GfxHdrGradingClu
 R_HDRGradingClutImage_ProcessPQFromLinear
 ==============
 */
-
-int __fastcall R_HDRGradingClutImage_ProcessPQFromLinear(double inputLinear, double _XMM1_8)
+__int64 R_HDRGradingClutImage_ProcessPQFromLinear(float inputLinear)
 {
-  int result; 
+  double v1; 
+  double v2; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@44800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  inputLinear = I_fclamp(*(float *)&inputLinear, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3a800000; X
-    vmovss  xmm1, cs:__real@3e232000; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@4196d000
-    vmulss  xmm0, xmm0, cs:__real@41958000
-    vaddss  xmm0, xmm0, cs:__real@3f800000
-    vaddss  xmm3, xmm2, cs:__real@3f560000
-    vmovss  xmm1, cs:__real@429db000; Y
-    vdivss  xmm0, xmm3, xmm0; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@477fff00
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v1 = I_fclamp(inputLinear, 0.0, 1024.0);
+  *(float *)&v1 = powf_0(*(float *)&v1 * 0.0009765625, 0.15930176);
+  *(float *)&v1 = powf_0((float)((float)(*(float *)&v1 * 18.851562) + 0.8359375) / (float)((float)(*(float *)&v1 * 18.6875) + 1.0), 78.84375);
+  v2 = I_fclamp(*(float *)&v1, 0.0, 1.0);
+  return (unsigned int)(int)(float)(*(float *)&v2 * 65535.0);
 }
 
 /*
@@ -650,22 +404,11 @@ int __fastcall R_HDRGradingClutImage_ProcessPQFromLinear(double inputLinear, dou
 R_HDRGradingClutImage_ProcessPQFromPQ
 ==============
 */
-
-int __fastcall R_HDRGradingClutImage_ProcessPQFromPQ(double inputPQ, double _XMM1_8)
+__int64 R_HDRGradingClutImage_ProcessPQFromPQ(float inputPQ)
 {
-  int result; 
+  double v1; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  inputPQ = I_fclamp(*(float *)&inputPQ, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@477fff00
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v1 = I_fclamp(inputPQ, 0.0, 1.0);
+  return (unsigned int)(int)(float)(*(float *)&v1 * 65535.0);
 }
 

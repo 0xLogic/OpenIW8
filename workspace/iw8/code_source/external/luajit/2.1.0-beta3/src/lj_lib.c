@@ -68,15 +68,15 @@ lj_lib_checknum
 */
 long double lj_lib_checknum(lua_State *L, int narg)
 {
+  TValue *v4; 
   __int64 v5; 
 
-  _RBX = &L->base[narg - 1];
-  if ( _RBX >= L->top || (v5 = _RBX->it64 >> 47, (unsigned int)v5 > 0xFFFFFFF2) && ((_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(_RBX->u64 & 0x7FFFFFFFFFFFi64), _RBX)) )
+  v4 = &L->base[narg - 1];
+  if ( v4 >= L->top || (v5 = v4->it64 >> 47, (unsigned int)v5 > 0xFFFFFFF2) && ((_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), v4)) )
     j_lj_err_argt(L, narg, 3);
-  if ( (unsigned int)(_RBX->it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_lib.c", 234, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+  if ( (unsigned int)(v4->it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_lib.c", 234, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
     __debugbreak();
-  __asm { vmovsd  xmm0, qword ptr [rbx] }
-  return *(double *)&_XMM0;
+  return v4->n;
 }
 
 /*

@@ -59,10 +59,9 @@ R_InitJpeg
 void R_InitJpeg(const unsigned __int64 imageSize)
 {
   unsigned __int64 v3; 
-  void *heapMem; 
-  __int128 v8; 
-  __int128 v9; 
-  __int128 v10; 
+  char *heapMem; 
+  ntl::solitary_buffer_allocator v6; 
+  ntl::internal::buffer_memory_block<char> v7; 
 
   if ( ((unsigned __int8)&s_jpegGlob & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_jpegGlob) )
     __debugbreak();
@@ -72,22 +71,18 @@ void R_InitJpeg(const unsigned __int64 imageSize)
   if ( s_jpegGlob.heapMem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_jpeg.cpp", 50, ASSERT_TYPE_ASSERT, "(s_jpegGlob.heapMem == nullptr)", (const char *)&queryFormat, "s_jpegGlob.heapMem == nullptr") )
     __debugbreak();
   s_jpegGlob.heapMem = Mem_Virtual_Alloc(v3, "JpegGlobHeap", TRACK_MISC);
-  heapMem = s_jpegGlob.heapMem;
+  heapMem = (char *)s_jpegGlob.heapMem;
   if ( !s_jpegGlob.heapMem )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_jpeg.cpp", 52, ASSERT_TYPE_ASSERT, "(s_jpegGlob.heapMem)", (const char *)&queryFormat, "s_jpegGlob.heapMem") )
       __debugbreak();
-    heapMem = s_jpegGlob.heapMem;
+    heapMem = (char *)s_jpegGlob.heapMem;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+48h+var_18], xmm0
-  }
-  if ( !heapMem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v8) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  if ( !heapMem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
     __debugbreak();
-  *(_QWORD *)&v9 = heapMem;
-  *((_QWORD *)&v9 + 1) = v3;
+  v6.m_data.m_buffer = heapMem;
+  v6.m_data.m_size = v3;
   ntl::nxheap::shutdown(&s_jpegGlob.jpegHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_jpegGlob.jpegHeap.m_region);
   if ( s_jpegGlob.jpegHeap.m_data.m_buffer )
@@ -97,11 +92,7 @@ void R_InitJpeg(const unsigned __int64 imageSize)
     s_jpegGlob.jpegHeap.m_data.m_buffer = NULL;
     s_jpegGlob.jpegHeap.m_data.m_size = 0i64;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_jpegGlob.jpegHeap.m_allocator.m_data.m_buffer, xmm0
-  }
+  s_jpegGlob.jpegHeap.m_allocator = v6;
   ntl::nxheap::shutdown(&s_jpegGlob.jpegHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_jpegGlob.jpegHeap.m_region);
   if ( s_jpegGlob.jpegHeap.m_data.m_buffer )
@@ -113,13 +104,9 @@ void R_InitJpeg(const unsigned __int64 imageSize)
   }
   if ( v3 > s_jpegGlob.jpegHeap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
     __debugbreak();
-  *(_QWORD *)&v10 = s_jpegGlob.jpegHeap.m_allocator.m_data.m_buffer;
-  *((_QWORD *)&v10 + 1) = v3;
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_jpegGlob.jpegHeap.baseclass_0.m_data.m_buffer, xmm0
-  }
+  v7.m_buffer = s_jpegGlob.jpegHeap.m_allocator.m_data.m_buffer;
+  v7.m_size = v3;
+  s_jpegGlob.jpegHeap.m_data = v7;
   if ( s_jpegGlob.jpegHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
     __debugbreak();
   ntl::nxheap_region::init(&s_jpegGlob.jpegHeap.m_region, s_jpegGlob.jpegHeap.m_data.m_buffer, s_jpegGlob.jpegHeap.m_data.m_size);
@@ -311,7 +298,6 @@ R_ShutdownJpeg
 char __fastcall R_ShutdownJpeg(double _XMM0_8)
 {
   signed __int32 v2; 
-  __int128 v4; 
 
   if ( !s_jpegGlob.inUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_jpeg.cpp", 61, ASSERT_TYPE_ASSERT, "(s_jpegGlob.inUse)", (const char *)&queryFormat, "s_jpegGlob.inUse") )
     __debugbreak();
@@ -325,12 +311,8 @@ char __fastcall R_ShutdownJpeg(double _XMM0_8)
     s_jpegGlob.jpegHeap.m_data.m_buffer = NULL;
     s_jpegGlob.jpegHeap.m_data.m_size = 0i64;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+48h+var_18], xmm0
-    vmovups xmmword ptr cs:s_jpegGlob.jpegHeap.m_allocator.m_data.m_buffer, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  s_jpegGlob.jpegHeap.m_allocator = _XMM0;
   Mem_Virtual_Free(s_jpegGlob.heapMem);
   s_jpegGlob.heapMem = NULL;
   if ( ((unsigned __int8)&s_jpegGlob & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_jpegGlob) )
@@ -338,7 +320,7 @@ char __fastcall R_ShutdownJpeg(double _XMM0_8)
   v2 = _InterlockedCompareExchange((volatile signed __int32 *)&s_jpegGlob, 0, 1);
   if ( v2 != 1 )
   {
-    LOBYTE(v2) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_jpeg.cpp", 69, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &s_jpegGlob.inUse, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &s_jpegGlob.inUse, 0, 1 ) == 1", v4);
+    LOBYTE(v2) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_jpeg.cpp", 69, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &s_jpegGlob.inUse, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &s_jpegGlob.inUse, 0, 1 ) == 1", _XMM0);
     if ( (_BYTE)v2 )
       __debugbreak();
   }

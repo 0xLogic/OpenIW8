@@ -61,10 +61,10 @@ Sentient_EnemyTeamFlags
 bitarray<224> *Sentient_EnemyTeamFlags(bitarray<224> *result, team_t eTeam)
 {
   bool v3; 
-  unsigned int v7; 
-  bitarray<224> *v8; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  unsigned int v5; 
+  bitarray<224> *v6; 
 
-  _RBX = result;
   if ( level.teammode == TEAMMODE_FFA )
   {
     *(_QWORD *)result->array = 0i64;
@@ -73,30 +73,25 @@ bitarray<224> *Sentient_EnemyTeamFlags(bitarray<224> *result, team_t eTeam)
     result->array[6] = 0;
     v3 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
-    _RBX->array[6] = _RAX->array[6];
-    _RBX->array[6] &= ~0x100000u;
-    v7 = _RBX->array[6];
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    *(_OWORD *)result->array = *(_OWORD *)AllCombatTeamFlags->array;
+    *(double *)&result->array[4] = *(double *)&AllCombatTeamFlags->array[4];
+    result->array[6] = AllCombatTeamFlags->array[6];
+    result->array[6] &= ~0x100000u;
+    v5 = result->array[6];
     if ( v3 )
-      _RBX->array[0] &= ~0x8000000u;
-    v8 = _RBX;
-    _RBX->array[6] = v7 & 0xFF9FFFFF;
+      result->array[0] &= ~0x8000000u;
+    v6 = result;
+    result->array[6] = v5 & 0xFF9FFFFF;
   }
   else
   {
     Com_Teams_GetEnemyTeamFlags(result, eTeam);
-    return _RBX;
+    return result;
   }
-  return v8;
+  return v6;
 }
 
 /*
@@ -233,6 +228,9 @@ Sentient_IsEnemyTeam
 bool Sentient_IsEnemyTeam(sentient_s *self, sentient_s *other)
 {
   bool v4; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v6; 
+  double v7; 
   unsigned int v8; 
   unsigned __int64 eTeam; 
   __int64 v11; 
@@ -246,20 +244,14 @@ bool Sentient_IsEnemyTeam(sentient_s *self, sentient_s *other)
   {
     v4 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovsd  xmm1, qword ptr [rax+10h]
-    }
-    v8 = _RAX->array[6] & 0xFFEFFFFF;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+78h+result.array], xmm0
-      vmovsd  qword ptr [rsp+78h+result.array+10h], xmm1
-    }
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    v6 = *(_OWORD *)AllCombatTeamFlags->array;
+    v7 = *(double *)&AllCombatTeamFlags->array[4];
+    v8 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+    *(_OWORD *)result.array = v6;
+    *(double *)&result.array[4] = v7;
     if ( v4 )
       result.array[0] &= ~0x8000000u;
     result.array[6] = v8 & 0xFF9FFFFF;

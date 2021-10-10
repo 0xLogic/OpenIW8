@@ -356,166 +356,142 @@ CL_TransientsWorld_SetVisibilityBitArray
 void CL_TransientsWorld_SetVisibilityBitArray(LocalClientNum_t localClientNum, const bitarray<1536> *visible, const bitarray<1536> *visibleHint)
 {
   __int64 v3; 
-  __int64 v8; 
-  unsigned int v22; 
-  int *v23; 
-  int v51[4]; 
-  int v52[44]; 
+  signed __int64 v6; 
+  __int64 v7; 
+  int *v8; 
+  unsigned int v21; 
+  int *v22; 
+  __int64 v23; 
+  bitarray<1536> *v24; 
+  int v25[4]; 
+  int v26[44]; 
 
   v3 = localClientNum;
-  _RDI = visibleHint;
-  _RBX = visible;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_transients_world.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_transientsWorld.visible ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_transientsWorld.visible )\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  v51[0] = _RBX->array[0];
-  v51[1] = _RBX->array[1];
-  v51[2] = _RBX->array[2];
-  v51[3] = _RBX->array[3];
-  v52[0] = _RBX->array[4];
-  v52[1] = _RBX->array[5];
-  v52[2] = _RBX->array[6];
-  v52[3] = _RBX->array[7];
-  v52[4] = _RBX->array[8];
-  v52[5] = _RBX->array[9];
-  v52[6] = _RBX->array[10];
-  v52[7] = _RBX->array[11];
-  v52[8] = _RBX->array[12];
-  v52[9] = _RBX->array[13];
-  v52[10] = _RBX->array[14];
-  v52[11] = _RBX->array[15];
-  v52[12] = _RBX->array[16];
-  v52[13] = _RBX->array[17];
-  v52[14] = _RBX->array[18];
-  v52[15] = _RBX->array[19];
-  v52[16] = _RBX->array[20];
-  v52[17] = _RBX->array[21];
-  v52[18] = _RBX->array[22];
-  v52[19] = _RBX->array[23];
-  v52[20] = _RBX->array[24];
-  v52[21] = _RBX->array[25];
-  v52[22] = _RBX->array[26];
-  v52[23] = _RBX->array[27];
-  v52[24] = _RBX->array[28];
-  v52[25] = _RBX->array[29];
-  v52[26] = _RBX->array[30];
-  v52[27] = _RBX->array[31];
-  v52[28] = _RBX->array[32];
-  v52[29] = _RBX->array[33];
-  v52[30] = _RBX->array[34];
-  v52[31] = _RBX->array[35];
-  v52[32] = _RBX->array[36];
-  v52[33] = _RBX->array[37];
-  v52[34] = _RBX->array[38];
-  v52[35] = _RBX->array[39];
-  __asm { vmovdqu xmm3, cs:__xmm@ffffffffffffffffffffffffffffffff }
-  v52[36] = _RBX->array[40];
-  v52[37] = _RBX->array[41];
-  _RCX = (char *)_RDI - (char *)v52;
-  v8 = 3i64;
-  v52[38] = _RBX->array[42];
-  v52[39] = _RBX->array[43];
-  v52[40] = _RBX->array[44];
-  v52[41] = _RBX->array[45];
-  v52[42] = _RBX->array[46];
-  v52[43] = _RBX->array[47];
-  _RAX = v52;
+  v25[0] = visible->array[0];
+  v25[1] = visible->array[1];
+  v25[2] = visible->array[2];
+  v25[3] = visible->array[3];
+  v26[0] = visible->array[4];
+  v26[1] = visible->array[5];
+  v26[2] = visible->array[6];
+  v26[3] = visible->array[7];
+  v26[4] = visible->array[8];
+  v26[5] = visible->array[9];
+  v26[6] = visible->array[10];
+  v26[7] = visible->array[11];
+  v26[8] = visible->array[12];
+  v26[9] = visible->array[13];
+  v26[10] = visible->array[14];
+  v26[11] = visible->array[15];
+  v26[12] = visible->array[16];
+  v26[13] = visible->array[17];
+  v26[14] = visible->array[18];
+  v26[15] = visible->array[19];
+  v26[16] = visible->array[20];
+  v26[17] = visible->array[21];
+  v26[18] = visible->array[22];
+  v26[19] = visible->array[23];
+  v26[20] = visible->array[24];
+  v26[21] = visible->array[25];
+  v26[22] = visible->array[26];
+  v26[23] = visible->array[27];
+  v26[24] = visible->array[28];
+  v26[25] = visible->array[29];
+  v26[26] = visible->array[30];
+  v26[27] = visible->array[31];
+  v26[28] = visible->array[32];
+  v26[29] = visible->array[33];
+  v26[30] = visible->array[34];
+  v26[31] = visible->array[35];
+  v26[32] = visible->array[36];
+  v26[33] = visible->array[37];
+  v26[34] = visible->array[38];
+  v26[35] = visible->array[39];
+  v26[36] = visible->array[40];
+  v26[37] = visible->array[41];
+  v6 = (char *)visibleHint - (char *)v26;
+  v7 = 3i64;
+  v26[38] = visible->array[42];
+  v26[39] = visible->array[43];
+  v26[40] = visible->array[44];
+  v26[41] = visible->array[45];
+  v26[42] = visible->array[46];
+  v26[43] = visible->array[47];
+  v8 = v26;
   do
   {
-    __asm { vmovdqu xmm0, xmmword ptr [rcx+rax] }
-    _RAX += 16;
+    _XMM0 = *(_OWORD *)((char *)v8 + v6);
+    v8 += 16;
     __asm
     {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rax-50h]
-      vmovdqu xmmword ptr [rax-50h], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+rcx-30h]
+    }
+    *((_OWORD *)v8 - 5) = _XMM0;
+    _XMM0 = *(_OWORD *)((char *)v8 + v6 - 48);
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rax-40h]
-      vmovdqu xmmword ptr [rax-40h], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+rcx-20h]
+    }
+    *((_OWORD *)v8 - 4) = _XMM0;
+    _XMM0 = *(_OWORD *)((char *)v8 + v6 - 32);
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rax-30h]
-      vmovdqu xmmword ptr [rax-30h], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+rcx-10h]
+    }
+    *((_OWORD *)v8 - 3) = _XMM0;
+    _XMM0 = *(_OWORD *)((char *)v8 + v6 - 16);
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, xmmword ptr [rax-20h]
-      vmovdqu xmmword ptr [rax-20h], xmm0
     }
-    --v8;
+    *((_OWORD *)v8 - 2) = _XMM0;
+    --v7;
   }
-  while ( v8 );
-  v22 = 0;
-  v23 = v51;
-  while ( !*v23 )
+  while ( v7 );
+  v21 = 0;
+  v22 = v25;
+  while ( !*v22 )
   {
+    ++v21;
     ++v22;
-    ++v23;
-    if ( v22 >= 0x30 )
+    if ( v21 >= 0x30 )
       goto LABEL_12;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_transients_world.cpp", 72, ASSERT_TYPE_ASSERT, "(!visibleNoHint.anyBitsOn())", (const char *)&queryFormat, "!visibleNoHint.anyBitsOn()") )
     __debugbreak();
 LABEL_12:
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RDX = &s_transientsWorld;
-  _RCX = 192 * v3;
-  __asm
-  {
-    vmovups xmmword ptr [rcx+rdx], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rcx+rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rcx+rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rcx+rdx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rcx+rdx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rcx+rdx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rcx+rdx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [rcx+rdx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rcx+rdx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-  }
-  _RAX = &s_transientsWorld.visible[v3];
-  __asm
-  {
-    vmovups xmmword ptr [rax+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [rax+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0B0h]
-    vmovups xmmword ptr [rax+0B0h], xmm0
-    vmovups xmm0, xmmword ptr [rdi]
-  }
-  _RAX += 2;
-  __asm
-  {
-    vmovups xmmword ptr [rax], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rax+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rax+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+30h]
-    vmovups xmmword ptr [rax+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rax+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+50h]
-    vmovups xmmword ptr [rax+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rax+60h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+70h]
-    vmovups xmmword ptr [rax+70h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rax+80h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+90h]
-    vmovups xmmword ptr [rax+90h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0A0h]
-    vmovups xmmword ptr [rax+0A0h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0B0h]
-    vmovups xmmword ptr [rax+0B0h], xmm1
-  }
+  v23 = v3;
+  *(_OWORD *)s_transientsWorld.visible[v23].array = *(_OWORD *)visible->array;
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[4] = *(_OWORD *)&visible->array[4];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[8] = *(_OWORD *)&visible->array[8];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[12] = *(_OWORD *)&visible->array[12];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[16] = *(_OWORD *)&visible->array[16];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[20] = *(_OWORD *)&visible->array[20];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[24] = *(_OWORD *)&visible->array[24];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[28] = *(_OWORD *)&visible->array[28];
+  *(_OWORD *)&s_transientsWorld.visible[v23].array[32] = *(_OWORD *)&visible->array[32];
+  v24 = &s_transientsWorld.visible[v3];
+  *(_OWORD *)&v24->array[36] = *(_OWORD *)&visible->array[36];
+  *(_OWORD *)&v24->array[40] = *(_OWORD *)&visible->array[40];
+  *(_OWORD *)&v24->array[44] = *(_OWORD *)&visible->array[44];
+  v24 += 2;
+  *(_OWORD *)v24->array = *(_OWORD *)visibleHint->array;
+  *(_OWORD *)&v24->array[4] = *(_OWORD *)&visibleHint->array[4];
+  *(_OWORD *)&v24->array[8] = *(_OWORD *)&visibleHint->array[8];
+  *(_OWORD *)&v24->array[12] = *(_OWORD *)&visibleHint->array[12];
+  *(_OWORD *)&v24->array[16] = *(_OWORD *)&visibleHint->array[16];
+  *(_OWORD *)&v24->array[20] = *(_OWORD *)&visibleHint->array[20];
+  *(_OWORD *)&v24->array[24] = *(_OWORD *)&visibleHint->array[24];
+  *(_OWORD *)&v24->array[28] = *(_OWORD *)&visibleHint->array[28];
+  *(_OWORD *)&v24->array[32] = *(_OWORD *)&visibleHint->array[32];
+  *(_OWORD *)&v24->array[36] = *(_OWORD *)&visibleHint->array[36];
+  *(_OWORD *)&v24->array[40] = *(_OWORD *)&visibleHint->array[40];
+  *(_OWORD *)&v24->array[44] = *(_OWORD *)&visibleHint->array[44];
 }
 

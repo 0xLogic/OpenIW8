@@ -274,41 +274,37 @@ void bdFastArray<bdCommsLocationCount>::pushBack(bdFastArray<bdCommsLocationCoun
 {
   unsigned int m_capacity; 
   int v5; 
+  bdCommsLocationCount *m_data; 
   __int64 v7; 
   __int64 m_size; 
+  __int64 v9; 
 
-  _RBP = value;
   m_capacity = this->m_capacity;
   if ( this->m_size == m_capacity )
   {
     v5 = m_capacity;
     if ( !m_capacity )
       v5 = 1;
-    _RDI = NULL;
+    m_data = NULL;
     v7 = m_capacity + v5;
     if ( (_DWORD)v7 )
     {
-      _RDI = (bdCommsLocationCount *)bdMemory::allocate(40 * v7);
+      m_data = (bdCommsLocationCount *)bdMemory::allocate(40 * v7);
       m_size = this->m_size;
       if ( (_DWORD)m_size )
-        memcpy_0(_RDI, this->m_data, 40 * m_size);
+        memcpy_0(m_data, this->m_data, 40 * m_size);
     }
     bdMemory::deallocate(this->m_data);
     this->m_capacity = v7;
-    this->m_data = _RDI;
+    this->m_data = m_data;
   }
   else
   {
-    _RDI = this->m_data;
+    m_data = this->m_data;
   }
-  __asm { vmovups ymm0, ymmword ptr [rbp+0] }
-  _RCX = 5i64 * this->m_size;
-  __asm
-  {
-    vmovups ymmword ptr [rdi+rcx*8], ymm0
-    vmovsd  xmm1, qword ptr [rbp+20h]
-    vmovsd  qword ptr [rdi+rcx*8+20h], xmm1
-  }
+  v9 = this->m_size;
+  m_data[v9].bdStructBufferSerializable = value->bdStructBufferSerializable;
+  *(double *)m_data[v9].gap20 = *(double *)value->gap20;
   ++this->m_size;
 }
 
@@ -387,40 +383,34 @@ void bdFastArray<bdDataChannelBase::bdDataChannelPacket *>::pushBack(bdFastArray
 {
   unsigned int m_capacity; 
   int v5; 
+  bdDataChannelBase::bdDataChannelPacket **m_data; 
   unsigned int v7; 
   unsigned int m_size; 
 
-  _RBP = value;
   m_capacity = this->m_capacity;
   if ( this->m_size == m_capacity )
   {
     v5 = m_capacity;
     if ( !m_capacity )
       v5 = 1;
-    _RDI = NULL;
+    m_data = NULL;
     v7 = m_capacity + v5;
     if ( v7 )
     {
-      _RDI = (bdDataChannelBase::bdDataChannelPacket **)bdMemory::allocate(8i64 * v7);
+      m_data = (bdDataChannelBase::bdDataChannelPacket **)bdMemory::allocate(8i64 * v7);
       m_size = this->m_size;
       if ( m_size )
-        memcpy_0(_RDI, this->m_data, 8i64 * m_size);
+        memcpy_0(m_data, this->m_data, 8i64 * m_size);
     }
     bdMemory::deallocate(this->m_data);
     this->m_capacity = v7;
-    this->m_data = _RDI;
+    this->m_data = m_data;
   }
   else
   {
-    _RDI = this->m_data;
+    m_data = this->m_data;
   }
-  _RAX = this->m_size;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbp+0]
-    vmovsd  qword ptr [rdi+rax*8], xmm0
-  }
-  ++this->m_size;
+  m_data[this->m_size++] = *value;
 }
 
 /*

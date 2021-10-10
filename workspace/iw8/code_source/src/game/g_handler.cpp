@@ -695,9 +695,9 @@ __int64 GHandler::GetEntityAntilagVelocity(GHandler *this, int entNum, const pla
 {
   GAntiLag *v7; 
   int clientNum; 
+  float v9; 
   BgAntiLagEntityInfo outInfo; 
 
-  _RBX = outVelocity;
   if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
     __debugbreak();
   v7 = GAntiLag::ms_gAntiLagData;
@@ -708,15 +708,10 @@ __int64 GHandler::GetEntityAntilagVelocity(GHandler *this, int entNum, const pla
   outInfo.boneInfo.boneList.m_maxSize = 0;
   if ( !BgAntiLag::GetEntityInfoAtTime(v7, clientNum, entNum, 8u, ps->serverTime, &outInfo) )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_C8.velocity]
-    vmovss  xmm1, dword ptr [rsp+0F8h+var_C8.velocity+4]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm0, dword ptr [rsp+0F8h+var_C8.velocity+8]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+  v9 = outInfo.velocity.v[1];
+  outVelocity->v[0] = outInfo.velocity.v[0];
+  outVelocity->v[2] = outInfo.velocity.v[2];
+  outVelocity->v[1] = v9;
   return 1i64;
 }
 
@@ -727,44 +722,39 @@ GHandler::GetWorldTagMatrix
 */
 _BOOL8 GHandler::GetWorldTagMatrix(GHandler *this, const int entNum, const scr_string_t tagName, tmat33_t<vec3_t> *outTagMat, vec3_t *outOrigin)
 {
-  __int64 v7; 
-  gentity_s *v9; 
+  __int64 v6; 
+  gentity_s *v8; 
   entityType_s eType; 
   int WorldTagMatrix; 
-  bool v12; 
-  __int64 v17; 
+  bool v11; 
+  float v12; 
+  __int64 v14; 
   tmat43_t<vec3_t> outTagMata; 
 
-  _RSI = outOrigin;
-  v7 = entNum;
+  v6 = entNum;
   if ( (unsigned int)entNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 107, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entNum, 2048) )
     __debugbreak();
-  v9 = &g_entities[v7];
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  v8 = &g_entities[v6];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = v9->s.eType;
+  eType = v8->s.eType;
   if ( ((eType - 1) & 0xFFED) == 0 && eType != ET_ITEM )
   {
-    LODWORD(v17) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 111, ASSERT_TYPE_ASSERT, "( !BG_IsCharacterEntity( &ent->s ) )", "BgHandler::GetWorldTagMatrix cannot be used with character entities due to multi-threading concerns. Entity num: %d", v17) )
+    LODWORD(v14) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 111, ASSERT_TYPE_ASSERT, "( !BG_IsCharacterEntity( &ent->s ) )", "BgHandler::GetWorldTagMatrix cannot be used with character entities due to multi-threading concerns. Entity num: %d", v14) )
       __debugbreak();
   }
-  WorldTagMatrix = G_Utils_DObjGetWorldTagMatrix(v9, tagName, &outTagMata);
-  v12 = WorldTagMatrix == 1;
+  WorldTagMatrix = G_Utils_DObjGetWorldTagMatrix(v8, tagName, &outTagMata);
+  v11 = WorldTagMatrix == 1;
   if ( WorldTagMatrix == 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+outTagMat+24h]
-      vmovss  xmm1, dword ptr [rsp+0A8h+outTagMat+28h]
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm0, dword ptr [rsp+0A8h+outTagMat+2Ch]
-      vmovss  dword ptr [rsi+8], xmm0
-      vmovss  dword ptr [rsi+4], xmm1
-    }
+    v12 = outTagMata.m[3].v[1];
+    outOrigin->v[0] = outTagMata.m[3].v[0];
+    outOrigin->v[2] = outTagMata.m[3].v[2];
+    outOrigin->v[1] = v12;
     MatrixCopy33((const tmat33_t<vec3_t> *)&outTagMata, outTagMat);
   }
-  return v12;
+  return v11;
 }
 
 /*
@@ -1168,21 +1158,15 @@ GHandler::GetScriptableDimensions
 void GHandler::GetScriptableDimensions(GHandler *this, unsigned int scriptableIndex, float *outInitialAngle, vec3_t *outOrigin, Bounds *outBounds)
 {
   ScriptableInstanceContext *InstanceCommonContext; 
+  const XModel *ScriptableModel; 
 
   InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(scriptableIndex);
   ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, outOrigin);
   *outInitialAngle = InstanceCommonContext->anglesInitial.v[1];
-  _RAX = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
-  _RCX = outBounds;
-  if ( _RAX )
+  ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
+  if ( ScriptableModel )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+2Ch]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr [rax+3Ch]
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
+    *outBounds = ScriptableModel->bounds;
   }
   else
   {
@@ -1405,61 +1389,45 @@ GHandler::FindBestConeTarget
 __int64 GHandler::FindBestConeTarget(GHandler *this, LocalClientNum_t localClientNum, int attackerentIndex, const vec3_t *origin, const vec3_t *dir, float range, float angle, unsigned int hitMask, int time, int *outentIndex, ConeTargetHitInfo *outHitInfo)
 {
   __int64 v12; 
-  gentity_s *v14; 
+  gentity_s *v13; 
   GTargetEvaluator *TargetEvaluator; 
-  unsigned __int8 v18; 
+  unsigned __int8 v15; 
   ConeTargetHitResults *HitResults; 
+  ConeTargetHitInfo *FirstVisibleHit; 
   gentity_s *Target; 
-  int v25; 
-  int v26; 
   GAssistTarget ptr[20]; 
 
   v12 = attackerentIndex;
-  _RDI = outHitInfo;
   if ( !outentIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 678, ASSERT_TYPE_ASSERT, "( outentIndex )", (const char *)&queryFormat, "outentIndex") )
     __debugbreak();
   if ( !outHitInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 679, ASSERT_TYPE_ASSERT, "( outHitInfo )", (const char *)&queryFormat, "outHitInfo") )
     __debugbreak();
-  v14 = &g_entities[v12];
+  v13 = &g_entities[v12];
   if ( !GBullet::ms_gBulletSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_bullet.h", 188, ASSERT_TYPE_ASSERT, "( ms_gBulletSystem )", (const char *)&queryFormat, "ms_gBulletSystem") )
     __debugbreak();
   TargetEvaluator = GBullet::GetTargetEvaluator(TARGET_ASSISTTYPPE_CONE);
   if ( !TargetEvaluator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 684, ASSERT_TYPE_ASSERT, "( targetEvaluator )", (const char *)&queryFormat, "targetEvaluator") )
     __debugbreak();
   `eh vector constructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))GAssistTarget::GAssistTarget, (void (__fastcall *)(void *))GAssistTarget::~GAssistTarget);
-  __asm
-  {
-    vmovss  xmm0, [rsp+4308h+arg_30]
-    vmovss  [rsp+4308h+var_42D0], xmm0
-    vmovss  xmm1, [rsp+4308h+arg_28]
-    vmovss  [rsp+4308h+var_42D8], xmm1
-  }
-  if ( ((__int64 (__fastcall *)(GTargetEvaluator *, Weapon *, _QWORD, gentity_s *, const vec3_t *, const vec3_t *, int, int, int, _BYTE, unsigned int, int, _BYTE, GAssistTarget *, __int64))TargetEvaluator->FindTargets)(TargetEvaluator, &NULL_WEAPON, 0i64, v14, origin, dir, v25, v26, 1, 0, hitMask, time, 0, ptr, -2i64) > 0 )
+  if ( ((__int64 (__fastcall *)(GTargetEvaluator *, Weapon *, _QWORD, gentity_s *, const vec3_t *, const vec3_t *, _DWORD, _DWORD, int, _BYTE, unsigned int, int, _BYTE, GAssistTarget *, __int64))TargetEvaluator->FindTargets)(TargetEvaluator, &NULL_WEAPON, 0i64, v13, origin, dir, LODWORD(range), LODWORD(angle), 1, 0, hitMask, time, 0, ptr, -2i64) > 0 )
   {
     HitResults = ConeTargetInfo::GetHitResults(ptr);
-    _RBX = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 694, ASSERT_TYPE_ASSERT, "( hitInfo != 0 )", (const char *)&queryFormat, "hitInfo != NULL") )
+    FirstVisibleHit = ConeTargetHitResults::GetFirstVisibleHit(HitResults);
+    if ( !FirstVisibleHit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 694, ASSERT_TYPE_ASSERT, "( hitInfo != 0 )", (const char *)&queryFormat, "hitInfo != NULL") )
       __debugbreak();
     Target = GAssistTarget::GetTarget(ptr);
     if ( !Target && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_handler.cpp", 697, ASSERT_TYPE_ASSERT, "( targetEnt )", (const char *)&queryFormat, "targetEnt") )
       __debugbreak();
     *outentIndex = Target->s.number;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
-    outHitInfo->priority = _RBX->priority;
-    v18 = 1;
+    *outHitInfo = *FirstVisibleHit;
+    v15 = 1;
   }
   else
   {
-    v18 = 0;
+    v15 = 0;
   }
   `eh vector destructor iterator'(ptr, 0x350ui64, 0x14ui64, (void (__fastcall *)(void *))GAssistTarget::~GAssistTarget);
-  return v18;
+  return v15;
 }
 
 /*
@@ -1659,11 +1627,9 @@ void GHandler::DebugLineAll(GHandler *this, const vec3_t *start, const vec3_t *e
 GHandler::DebugSphereAll
 ==============
 */
-
-void __fastcall GHandler::DebugSphereAll(GHandler *this, const vec3_t *center, double radius, const vec4_t *colorServer, const vec4_t *colorClient, int depthTest, int duration)
+void GHandler::DebugSphereAll(GHandler *this, const vec3_t *center, float radius, const vec4_t *colorServer, const vec4_t *colorClient, int depthTest, int duration)
 {
-  __asm { vmovaps xmm1, xmm2; radius }
-  G_DebugSphere(center, *(float *)&_XMM1, colorServer, depthTest, duration);
+  G_DebugSphere(center, radius, colorServer, depthTest, duration);
 }
 
 /*
@@ -1671,11 +1637,9 @@ void __fastcall GHandler::DebugSphereAll(GHandler *this, const vec3_t *center, d
 GHandler::DebugAxisAll
 ==============
 */
-
-void __fastcall GHandler::DebugAxisAll(GHandler *this, const tmat33_t<vec3_t> *axes, const vec3_t *pos, double length, const int depthTest, int duration)
+void GHandler::DebugAxisAll(GHandler *this, const tmat33_t<vec3_t> *axes, const vec3_t *pos, float length, const int depthTest, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; length }
-  G_DebugAxis(axes, pos, *(float *)&_XMM2, depthTest, duration);
+  G_DebugAxis(axes, pos, length, depthTest, duration);
 }
 
 /*
@@ -1683,11 +1647,9 @@ void __fastcall GHandler::DebugAxisAll(GHandler *this, const tmat33_t<vec3_t> *a
 GHandler::DebugStringAll
 ==============
 */
-
-void __fastcall GHandler::DebugStringAll(GHandler *this, const vec3_t *point, const vec4_t *color, double scale, const char *text, int duration)
+void GHandler::DebugStringAll(GHandler *this, const vec3_t *point, const vec4_t *color, float scale, const char *text, int duration)
 {
-  __asm { vmovaps xmm2, xmm3; scale }
-  G_DebugString(point, color, *(float *)&_XMM2, text, duration);
+  G_DebugString(point, color, scale, text, duration);
 }
 
 /*

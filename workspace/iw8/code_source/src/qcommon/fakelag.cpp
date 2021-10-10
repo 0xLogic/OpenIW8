@@ -226,13 +226,12 @@ __int64 FakeLag_GetPacket(bool loopback, netsrc_t sock, netadr_t *net_from, msg_
   int v9; 
   int v10; 
   int v11; 
+  fakedLatencyPackets_t *v12; 
   int integer; 
   __int64 startTime; 
   char *fmt; 
-  __int64 v21; 
-  int v22; 
+  __int64 v17; 
 
-  _R13 = net_from;
   Sys_EnterCriticalSection(CRITSECT_FAKELAG);
   if ( loopback && Com_FrontEndScene_IsActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 748, ASSERT_TYPE_ASSERT, "(!loopback || !Com_FrontEndScene_IsActive())", "%s\n\tShouldn't send lagged loopback packets while the front-end scene is active", "!loopback || !Com_FrontEndScene_IsActive()") )
     __debugbreak();
@@ -241,14 +240,14 @@ __int64 FakeLag_GetPacket(bool loopback, netsrc_t sock, netadr_t *net_from, msg_
   while ( 1 )
   {
     v11 = (v10 + s_nextPacketIndex) % 512;
-    _RBX = &laggedPackets[v11];
-    if ( _RBX->length )
+    v12 = &laggedPackets[v11];
+    if ( v12->length )
     {
-      if ( !_RBX->outbound && _RBX->sock == sock && _RBX->loopback == loopback )
+      if ( !v12->outbound && v12->sock == sock && v12->loopback == loopback )
       {
-        if ( !_RBX->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 764, ASSERT_TYPE_ASSERT, "(r_packet.data)", (const char *)&queryFormat, "r_packet.data") )
+        if ( !v12->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 764, ASSERT_TYPE_ASSERT, "(r_packet.data)", (const char *)&queryFormat, "r_packet.data") )
           __debugbreak();
-        if ( Com_IsGameLocalServerRunning() || Party_AreWeHost(&g_partyData) && Party_IsRunning(&g_partyData) || Lobby_AreWeHost() || _RBX->startTime + fakelag_current->current.integer / 2 <= v9 )
+        if ( Com_IsGameLocalServerRunning() || Party_AreWeHost(&g_partyData) && Party_IsRunning(&g_partyData) || Lobby_AreWeHost() || v12->startTime + fakelag_current->current.integer / 2 <= v9 )
           break;
       }
     }
@@ -259,45 +258,33 @@ __int64 FakeLag_GetPacket(bool loopback, netsrc_t sock, netadr_t *net_from, msg_
     }
   }
   integer = showpackets->current.integer;
-  if ( integer && (integer > 1 || !_RBX->loopback) )
+  if ( integer && (integer > 1 || !v12->loopback) )
   {
-    startTime = (unsigned int)_RBX->startTime;
-    LODWORD(v21) = v9 - startTime;
-    LODWORD(fmt) = _RBX->startTime;
-    Com_Printf(25, "[%i] delivering incoming packet from %i (time: %i) (%ims latency)\n", (unsigned int)v9, startTime, fmt, v21);
+    startTime = (unsigned int)v12->startTime;
+    LODWORD(v17) = v9 - startTime;
+    LODWORD(fmt) = v12->startTime;
+    Com_Printf(25, "[%i] delivering incoming packet from %i (time: %i) (%ims latency)\n", (unsigned int)v9, startTime, fmt, v17);
   }
-  __asm
+  *(_OWORD *)&net_from->type = *(_OWORD *)&v12->addr.type;
+  net_from->addrHandleIndex = v12->addr.addrHandleIndex;
+  *net_info = (NetPingInfo)v12->112;
+  net_message->bit = v12->msg.bit;
+  net_message->cursize = v12->msg.cursize;
+  net_message->maxsize = v12->msg.maxsize;
+  net_message->overflowed = v12->msg.overflowed;
+  net_message->readcount = v12->msg.readcount;
+  if ( v12->msg.targetLocalNetID >= (unsigned int)NS_INVALID_NETSRC )
   {
-    vmovups xmm0, xmmword ptr [rbx+8]
-    vmovups xmmword ptr [r13+0], xmm0
-  }
-  _R13->addrHandleIndex = _RBX->addr.addrHandleIndex;
-  __asm { vmovups xmm0, xmmword ptr [rbx+70h] }
-  _RAX = net_info;
-  __asm
-  {
-    vmovups xmmword ptr [rax], xmm0
-    vmovsd  xmm1, qword ptr [rbx+80h]
-    vmovsd  qword ptr [rax+10h], xmm1
-  }
-  net_message->bit = _RBX->msg.bit;
-  net_message->cursize = _RBX->msg.cursize;
-  net_message->maxsize = _RBX->msg.maxsize;
-  net_message->overflowed = _RBX->msg.overflowed;
-  net_message->readcount = _RBX->msg.readcount;
-  if ( _RBX->msg.targetLocalNetID >= (unsigned int)NS_INVALID_NETSRC )
-  {
-    v22 = 10004;
-    LODWORD(v21) = _RBX->msg.targetLocalNetID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 785, ASSERT_TYPE_ASSERT, "(unsigned)( r_packet.msg.targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "r_packet.msg.targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v21, v22) )
+    LODWORD(v17) = v12->msg.targetLocalNetID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 785, ASSERT_TYPE_ASSERT, "(unsigned)( r_packet.msg.targetLocalNetID ) < (unsigned)( NS_INVALID_NETSRC )", "r_packet.msg.targetLocalNetID doesn't index NS_INVALID_NETSRC\n\t%i not in [0, %i)", v17, 10004) )
       __debugbreak();
   }
-  net_message->targetLocalNetID = _RBX->msg.targetLocalNetID;
-  if ( !_RBX->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 789, ASSERT_TYPE_ASSERT, "(r_packet.data)", (const char *)&queryFormat, "r_packet.data") )
+  net_message->targetLocalNetID = v12->msg.targetLocalNetID;
+  if ( !v12->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 789, ASSERT_TYPE_ASSERT, "(r_packet.data)", (const char *)&queryFormat, "r_packet.data") )
     __debugbreak();
   if ( !net_message->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 790, ASSERT_TYPE_ASSERT, "(net_message->data)", (const char *)&queryFormat, "net_message->data") )
     __debugbreak();
-  memcpy_0(net_message->data, _RBX->data, _RBX->length);
+  memcpy_0(net_message->data, v12->data, v12->length);
   FakeLag_DestroyPacket(v11);
   Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
   return 1i64;
@@ -308,13 +295,12 @@ __int64 FakeLag_GetPacket(bool loopback, netsrc_t sock, netadr_t *net_from, msg_
 FakeLag_Init
 ==============
 */
-
-void __fastcall FakeLag_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
+void FakeLag_Init(void)
 {
+  const char *v0; 
+  int v1; 
+  const char *v2; 
   const char *v3; 
-  int v4; 
-  const char *v5; 
-  const char *v6; 
 
   if ( !fakelagInitialized )
   {
@@ -323,10 +309,10 @@ void __fastcall FakeLag_Init(__int64 a1, double _XMM1_8, double _XMM2_8)
     {
       if ( !s_fakeLagHeap.m_heap.m_used_mem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 138, ASSERT_TYPE_ASSERT, "( m_used_mem != 0 )", (const char *)&queryFormat, "m_used_mem != 0") )
         __debugbreak();
-      v3 = "s_fakeLagHeap.empty()";
-      v4 = 160;
-      v5 = "(s_fakeLagHeap.empty())";
-      v6 = "c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp";
+      v0 = "s_fakeLagHeap.empty()";
+      v1 = 160;
+      v2 = "(s_fakeLagHeap.empty())";
+      v3 = "c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp";
     }
     else
     {
@@ -340,14 +326,8 @@ LABEL_11:
         fakelag_target = Dvar_RegisterInt("MSRTNSTSSO", 0, 0, 999, 0, "Target value for lag debugging");
         fakelag_currentjitter = Dvar_RegisterInt("NPNQNTSNOO", 0, 0, 999, 0, "Current jitter amount for lag debugging");
         fakelag_jitter = Dvar_RegisterInt("LLNSOSRMSL", 0, 0, 999, 0, "Amount of jitter for lag debugging");
-        __asm { vmovss  xmm3, cs:__real@3f800000; max }
         fakelag_jitterinterval = Dvar_RegisterInt("OKNKMPPRLK", 2000, 0, 60000, 0, "jitter interval for lag debugging");
-        __asm
-        {
-          vxorps  xmm2, xmm2, xmm2; min
-          vxorps  xmm1, xmm1, xmm1; value
-        }
-        fakelag_packetloss = Dvar_RegisterFloat("NQLMKKTRLS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Packet loss for lag debugging");
+        fakelag_packetloss = Dvar_RegisterFloat("NQLMKKTRLS", 0.0, 0.0, 1.0, 0, "Packet loss for lag debugging");
         fakelag_burst = Dvar_RegisterInt("NSQNMRRPL", 0, 0, 50, 0, "Enable to simulate packet bursting from client to server (only on sends)");
         fakelag_burstJitter = Dvar_RegisterInt("MNKKMNRQRT", 0, 0, 50, 0, "Jitter around the fakelag_burst that's applied (only on sends)");
         fakelag_outOfOrder = Dvar_RegisterBool("MMPPSKPRTM", 0, 0, "Applies jitter in a way that may cause out of order packets (only on sends)");
@@ -357,12 +337,12 @@ LABEL_11:
         fakelagInitialized = 1;
         return;
       }
-      v3 = "m_used_mem == 0";
-      v4 = 133;
-      v5 = "( m_used_mem == 0 )";
-      v6 = "c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl";
+      v0 = "m_used_mem == 0";
+      v1 = 133;
+      v2 = "( m_used_mem == 0 )";
+      v3 = "c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl";
     }
-    if ( CoreAssert_Handler(v6, v4, ASSERT_TYPE_ASSERT, v5, (const char *)&queryFormat, v3) )
+    if ( CoreAssert_Handler(v3, v1, ASSERT_TYPE_ASSERT, v2, (const char *)&queryFormat, v0) )
       __debugbreak();
     goto LABEL_11;
   }
@@ -375,154 +355,121 @@ FakeLag_QueueIncomingPacket
 */
 __int64 FakeLag_QueueIncomingPacket(bool loopback, netsrc_t sock, netadr_t *from, msg_t *msg, NetPingInfo *info)
 {
-  unsigned int v10; 
+  unsigned int v9; 
   int integer; 
+  int v11; 
   int v12; 
-  unsigned int v13; 
-  bool v14; 
-  int v15; 
-  signed int v16; 
-  int v17; 
-  char v21; 
+  signed int v13; 
+  int v14; 
+  const dvar_t *v15; 
+  double v16; 
   __int64 FreeSlot; 
-  unsigned __int8 *v24; 
+  unsigned __int8 *v19; 
+  __int64 v20; 
   unsigned __int8 *data; 
-  int v35; 
-  int v36; 
-  int v37; 
-  const char *v38; 
-  const char *v39; 
+  int v22; 
+  int v23; 
+  int v24; 
+  const char *v25; 
+  const char *v26; 
 
-  _RBX = msg;
-  _R12 = from;
   if ( msg->cursize <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 591, ASSERT_TYPE_ASSERT, "(msg->cursize > 0)", (const char *)&queryFormat, "msg->cursize > 0") )
     __debugbreak();
-  if ( !_RBX->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 592, ASSERT_TYPE_ASSERT, "(msg->data != 0)", (const char *)&queryFormat, "msg->data != NULL") )
+  if ( !msg->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 592, ASSERT_TYPE_ASSERT, "(msg->data != 0)", (const char *)&queryFormat, "msg->data != NULL") )
     __debugbreak();
   if ( loopback && Com_FrontEndScene_IsActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 594, ASSERT_TYPE_ASSERT, "(!loopback || !Com_FrontEndScene_IsActive())", "%s\n\tShouldn't send lagged loopback packets while the front-end scene is active", "!loopback || !Com_FrontEndScene_IsActive()") )
     __debugbreak();
   Sys_EnterCriticalSection(CRITSECT_FAKELAG);
-  v10 = Sys_Milliseconds();
+  v9 = Sys_Milliseconds();
   integer = fakelag_target->current.integer;
-  v12 = fakelag_current->current.integer;
-  v13 = integer + fakelag_jitter->current.integer;
-  v14 = v13 < v12;
-  if ( v13 != v12 )
+  v11 = fakelag_current->current.integer;
+  if ( integer + fakelag_jitter->current.integer != v11 )
   {
-    v15 = fakelag_currentjitter->current.integer;
-    v16 = abs32(v12 - v15 - integer);
-    if ( (int)(v10 - lastCall_1) < v16 )
-      v16 = v10 - lastCall_1;
-    v17 = -v16;
-    if ( integer + v15 >= v12 )
-      v17 = v16;
-    Dvar_SetInt_Internal(fakelag_current, v12 + v17);
+    v12 = fakelag_currentjitter->current.integer;
+    v13 = abs32(v11 - v12 - integer);
+    if ( (int)(v9 - lastCall_1) < v13 )
+      v13 = v9 - lastCall_1;
+    v14 = -v13;
+    if ( integer + v12 >= v11 )
+      v14 = v13;
+    Dvar_SetInt_Internal(fakelag_current, v11 + v14);
   }
-  _RDI = fakelag_packetloss;
-  __asm
+  v15 = fakelag_packetloss;
+  if ( fakelag_packetloss->current.value <= 0.0 || (v16 = I_flrand(0.0, 1.0), *(float *)&v16 > v15->current.value) )
   {
-    vxorps  xmm0, xmm0, xmm0; min
-    vcomiss xmm0, dword ptr [rdi+28h]
-  }
-  if ( !v14 )
-    goto LABEL_20;
-  __asm { vmovss  xmm1, cs:__real@3f800000; max }
-  *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vcomiss xmm0, dword ptr [rdi+28h] }
-  if ( v14 | v21 )
-  {
-    Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
-    return 0xFFFFFFFFi64;
-  }
-  else
-  {
-LABEL_20:
     FreeSlot = (int)FakeLag_GetFreeSlot();
     if ( !fakelagInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 627, ASSERT_TYPE_ASSERT, "(fakelagInitialized)", (const char *)&queryFormat, "fakelagInitialized") )
       __debugbreak();
-    v24 = (unsigned __int8 *)ntl::nxheap::allocate(&s_fakeLagHeap.m_heap, (unsigned int)_RBX->cursize, 0x10ui64, 0);
-    _RDI = FreeSlot;
-    _R13 = laggedPackets;
-    laggedPackets[FreeSlot].data = v24;
-    if ( v24 )
+    v19 = (unsigned __int8 *)ntl::nxheap::allocate(&s_fakeLagHeap.m_heap, (unsigned int)msg->cursize, 0x10ui64, 0);
+    v20 = FreeSlot;
+    laggedPackets[FreeSlot].data = v19;
+    if ( v19 )
     {
-      memcpy_0(v24, _RBX->data, _RBX->cursize);
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      data = laggedPackets[_RDI].data;
-      __asm
-      {
-        vmovups ymmword ptr [rdi+r13+38h], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rdi+r13+58h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rdi+r13+68h], xmm0
-      }
-      laggedPackets[_RDI].msg.data = data;
-      laggedPackets[_RDI].outbound = 0;
-      laggedPackets[_RDI].loopback = loopback;
-      laggedPackets[_RDI].sock = sock;
-      laggedPackets[_RDI].burstLimited = 0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups xmmword ptr [rdi+r13+8], xmm0
-      }
-      laggedPackets[_RDI].addr.addrHandleIndex = _R12->addrHandleIndex;
-      laggedPackets[_RDI].length = _RBX->cursize;
-      _RAX = info;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rdi+r13+70h], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rdi+r13+80h], xmm1
-      }
-      if ( ((_R12->type - 2) & 0xFFFFFFFD) != 0 )
+      memcpy_0(v19, msg->data, msg->cursize);
+      data = laggedPackets[v20].data;
+      *(__m256i *)&laggedPackets[v20].msg.overflowed = *(__m256i *)&msg->overflowed;
+      *(_OWORD *)&laggedPackets[v20].msg.splitSize = *(_OWORD *)&msg->splitSize;
+      *(double *)&laggedPackets[v20].msg.targetLocalNetID = *(double *)&msg->targetLocalNetID;
+      laggedPackets[v20].msg.data = data;
+      laggedPackets[v20].outbound = 0;
+      laggedPackets[v20].loopback = loopback;
+      laggedPackets[v20].sock = sock;
+      laggedPackets[v20].burstLimited = 0;
+      *(_OWORD *)&laggedPackets[v20].addr.type = *(_OWORD *)&from->type;
+      laggedPackets[v20].addr.addrHandleIndex = from->addrHandleIndex;
+      laggedPackets[v20].length = msg->cursize;
+      laggedPackets[v20].recvInfo = *info;
+      if ( ((from->type - 2) & 0xFFFFFFFD) != 0 )
       {
         if ( fakelag_jitter->current.integer )
         {
-          v35 = I_irand(0, lastCall_1 - v10);
-          v36 = v35 + Sys_Milliseconds();
+          v22 = I_irand(0, lastCall_1 - v9);
+          v23 = v22 + Sys_Milliseconds();
         }
         else
         {
-          v36 = Sys_Milliseconds();
+          v23 = Sys_Milliseconds();
         }
       }
       else
       {
-        v36 = 0;
+        v23 = 0;
       }
-      laggedPackets[_RDI].startTime = v36;
-      v37 = showpackets->current.integer;
-      if ( v37 && (v37 > 1 || !laggedPackets[_RDI].loopback) )
+      laggedPackets[v20].startTime = v23;
+      v24 = showpackets->current.integer;
+      if ( v24 && (v24 > 1 || !laggedPackets[v20].loopback) )
       {
         if ( sock == NS_MAXCLIENTS )
         {
-          v38 = "server";
+          v25 = "server";
         }
         else
         {
-          v38 = (char *)&queryFormat.fmt + 3;
+          v25 = (char *)&queryFormat.fmt + 3;
           if ( sock < NS_MAXCLIENTS )
-            v38 = "client";
+            v25 = "client";
         }
-        v39 = "network";
+        v26 = "network";
         if ( loopback )
-          v39 = "loopback";
-        Com_Printf(25, "[%i] adding incoming %s packet for %s\n", v10, v39, v38);
+          v26 = "loopback";
+        Com_Printf(25, "[%i] adding incoming %s packet for %s\n", v9, v26, v25);
       }
-      lastCall_1 = v10;
+      lastCall_1 = v9;
       Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
       return (unsigned int)FreeSlot;
     }
     else
     {
       Com_PrintWarning(25, "Your fakelag settings are too high - fakelag buffer is full!\n");
-      laggedPackets[_RDI].length = 0;
+      laggedPackets[v20].length = 0;
       Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
       return 0xFFFFFFFFi64;
     }
+  }
+  else
+  {
+    Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
+    return 0xFFFFFFFFi64;
   }
 }
 
@@ -628,135 +575,122 @@ FakeLag_SendPacket
 */
 int FakeLag_SendPacket(netsrc_t sock, int length, const void *data, netadr_t *to, unsigned int flags, NetPingInfo *info)
 {
-  size_t v9; 
-  unsigned int v12; 
-  char v15; 
-  char v17; 
-  int result; 
+  size_t v7; 
+  unsigned int v10; 
+  const dvar_t *v11; 
+  double v12; 
   netadrtype_t type; 
+  __int128 v15; 
   int addrHandleIndex; 
   __int64 FreeSlot; 
-  unsigned __int8 *v23; 
-  bool v27; 
-  const dvar_t *v28; 
-  int v29; 
+  unsigned __int8 *v18; 
+  __int64 v19; 
+  __int128 v20; 
+  bool v21; 
+  const dvar_t *v22; 
+  int v23; 
   int integer; 
-  const char *v31; 
-  const char *v32; 
-  netadr_t v34; 
+  const char *v25; 
+  const char *v26; 
+  netadr_t v27; 
 
-  _RDI = to;
-  v9 = length;
+  v7 = length;
   if ( length <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 488, ASSERT_TYPE_ASSERT, "(length > 0)", (const char *)&queryFormat, "length > 0") )
     __debugbreak();
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 489, ASSERT_TYPE_ASSERT, "(data != 0)", (const char *)&queryFormat, "data != NULL") )
     __debugbreak();
   Sys_EnterCriticalSection(CRITSECT_FAKELAG);
-  v12 = Sys_Milliseconds();
-  FakeLag_UpdateCurrentValues(v12);
-  _RBX = fakelag_packetloss;
-  __asm
+  v10 = Sys_Milliseconds();
+  FakeLag_UpdateCurrentValues(v10);
+  v11 = fakelag_packetloss;
+  if ( fakelag_packetloss->current.value > 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0; min
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( v15 )
-  {
-    __asm { vmovss  xmm1, cs:__real@3f800000; max }
-    *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vcomiss xmm0, dword ptr [rbx+28h] }
-    if ( v15 | v17 )
+    v12 = I_flrand(0.0, 1.0);
+    if ( *(float *)&v12 <= v11->current.value )
     {
       Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
-      return v9;
+      return v7;
     }
   }
-  __asm { vmovaps [rsp+0A8h+var_58], xmm6 }
   if ( !fakelagInitialized || !fakelag_current->current.integer && !fakelag_currentjitter->current.integer && !fakelag_burst->current.integer && !fakelag_outOfOrder->current.enabled )
     goto LABEL_43;
   if ( Com_IsGameLocalServerRunning() || Party_AreWeHost(&g_partyData) && Party_IsRunning(&g_partyData) || Lobby_AreWeHost() )
   {
-    type = _RDI->type;
-    if ( _RDI->type == NA_IP )
+    type = to->type;
+    if ( to->type == NA_IP )
     {
 LABEL_43:
       Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
-      goto LABEL_44;
+      return NET_SendPacket(sock, v7, data, to, flags | 0x40, info);
     }
   }
   else
   {
-    type = _RDI->type;
+    type = to->type;
   }
   if ( ((type - 2) & 0xFFFFFFFD) == 0 )
     goto LABEL_43;
-  __asm { vmovups xmm6, xmmword ptr [rdi] }
-  addrHandleIndex = _RDI->addrHandleIndex;
+  v15 = *(_OWORD *)&to->type;
+  addrHandleIndex = to->addrHandleIndex;
   if ( Com_FrontEndScene_IsActive() )
   {
-    v34.addrHandleIndex = addrHandleIndex;
-    __asm { vmovups [rsp+0A8h+var_78], xmm6 }
-    if ( NET_IsLocalAddress(&v34) )
+    v27.addrHandleIndex = addrHandleIndex;
+    *(_OWORD *)&v27.type = v15;
+    if ( NET_IsLocalAddress(&v27) )
       goto LABEL_43;
   }
   FreeSlot = (int)FakeLag_GetFreeSlot();
   if ( !fakelagInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 533, ASSERT_TYPE_ASSERT, "(fakelagInitialized)", (const char *)&queryFormat, "fakelagInitialized") )
     __debugbreak();
-  v23 = (unsigned __int8 *)ntl::nxheap::allocate(&s_fakeLagHeap.m_heap, (unsigned int)v9, 0x10ui64, 0);
-  _RBX = FreeSlot;
-  _R13 = laggedPackets;
-  laggedPackets[_RBX].data = v23;
-  if ( v23 )
+  v18 = (unsigned __int8 *)ntl::nxheap::allocate(&s_fakeLagHeap.m_heap, (unsigned int)v7, 0x10ui64, 0);
+  v19 = FreeSlot;
+  laggedPackets[v19].data = v18;
+  if ( !v18 )
   {
-    laggedPackets[_RBX].msg.data = v23;
-    memcpy_0(v23, data, v9);
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v27 = _RDI->type == NA_LOOPBACK;
-    laggedPackets[_RBX].length = v9;
-    laggedPackets[_RBX].loopback = v27;
-    __asm { vmovups xmmword ptr [rbx+r13+8], xmm0 }
-    laggedPackets[_RBX].outbound = 1;
-    laggedPackets[_RBX].burstLimited = sock != NS_MAXCLIENTS;
-    laggedPackets[_RBX].addr.addrHandleIndex = _RDI->addrHandleIndex;
-    laggedPackets[_RBX].flags = flags;
-    v28 = fakelag_jitter;
-    laggedPackets[_RBX].sock = sock;
-    laggedPackets[_RBX].sendInfo = info;
-    if ( v28->current.integer )
-      v29 = I_irand(0, lastCall_0 - v12);
-    else
-      v29 = 0;
-    laggedPackets[_RBX].startTime = v29 + Sys_Milliseconds();
-    integer = showpackets->current.integer;
-    if ( integer && (integer > 1 || !laggedPackets[_RBX].loopback) )
-    {
-      if ( sock == NS_MAXCLIENTS )
-      {
-        v31 = "server";
-      }
-      else
-      {
-        v31 = (char *)&queryFormat.fmt + 3;
-        if ( sock < NS_MAXCLIENTS )
-          v31 = "client";
-      }
-      v32 = "network";
-      if ( laggedPackets[_RBX].loopback )
-        v32 = "loopback";
-      Com_Printf(25, "[%i] adding outbound %s packet for %s\n", v12, v32, v31);
-    }
-    lastCall_0 = v12;
     Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
-    result = v9;
-    goto LABEL_45;
+    Com_PrintWarning(25, "Your fakelag settings are too high - fakelag buffer is full!\n");
+    return NET_SendPacket(sock, v7, data, to, flags | 0x40, info);
   }
+  laggedPackets[v19].msg.data = v18;
+  memcpy_0(v18, data, v7);
+  v20 = *(_OWORD *)&to->type;
+  v21 = to->type == NA_LOOPBACK;
+  laggedPackets[v19].length = v7;
+  laggedPackets[v19].loopback = v21;
+  *(_OWORD *)&laggedPackets[v19].addr.type = v20;
+  laggedPackets[v19].outbound = 1;
+  laggedPackets[v19].burstLimited = sock != NS_MAXCLIENTS;
+  laggedPackets[v19].addr.addrHandleIndex = to->addrHandleIndex;
+  laggedPackets[v19].flags = flags;
+  v22 = fakelag_jitter;
+  laggedPackets[v19].sock = sock;
+  laggedPackets[v19].sendInfo = info;
+  if ( v22->current.integer )
+    v23 = I_irand(0, lastCall_0 - v10);
+  else
+    v23 = 0;
+  laggedPackets[v19].startTime = v23 + Sys_Milliseconds();
+  integer = showpackets->current.integer;
+  if ( integer && (integer > 1 || !laggedPackets[v19].loopback) )
+  {
+    if ( sock == NS_MAXCLIENTS )
+    {
+      v25 = "server";
+    }
+    else
+    {
+      v25 = (char *)&queryFormat.fmt + 3;
+      if ( sock < NS_MAXCLIENTS )
+        v25 = "client";
+    }
+    v26 = "network";
+    if ( laggedPackets[v19].loopback )
+      v26 = "loopback";
+    Com_Printf(25, "[%i] adding outbound %s packet for %s\n", v10, v26, v25);
+  }
+  lastCall_0 = v10;
   Sys_LeaveCriticalSection(CRITSECT_FAKELAG);
-  Com_PrintWarning(25, "Your fakelag settings are too high - fakelag buffer is full!\n");
-LABEL_44:
-  result = NET_SendPacket(sock, v9, data, _RDI, flags | 0x40, info);
-LABEL_45:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_58] }
-  return result;
+  return v7;
 }
 
 /*
@@ -816,99 +750,71 @@ void FakeLag_Shutdown(void)
 FakeLag_UpdateCurrentValues
 ==============
 */
-
-void __fastcall FakeLag_UpdateCurrentValues(int now, __int64 a2, double _XMM2_8)
+void FakeLag_UpdateCurrentValues(int now)
 {
-  const dvar_t *v5; 
+  const dvar_t *v2; 
   int integer; 
+  int v4; 
+  int v5; 
+  signed int v6; 
   int v7; 
-  int v8; 
-  signed int v9; 
-  int v10; 
-  int v19; 
-  int v23; 
-  unsigned int unsignedInt; 
-  int v28; 
-  unsigned int v29; 
-  int v30; 
+  double v8; 
+  int v9; 
+  double v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  int v15; 
 
-  v5 = fakelag_jitter;
+  v2 = fakelag_jitter;
   integer = fakelag_target->current.integer;
-  v7 = fakelag_current->current.integer;
-  if ( integer + fakelag_jitter->current.integer != v7 )
+  v4 = fakelag_current->current.integer;
+  if ( integer + fakelag_jitter->current.integer != v4 )
   {
-    v8 = fakelag_currentjitter->current.integer;
-    v9 = abs32(v7 - v8 - integer);
-    if ( now - lastCall < v9 )
-      v9 = now - lastCall;
-    v10 = -v9;
-    if ( integer + v8 >= v7 )
-      v10 = v9;
-    Dvar_SetInt_Internal(fakelag_current, v7 + v10);
-    v5 = fakelag_jitter;
+    v5 = fakelag_currentjitter->current.integer;
+    v6 = abs32(v4 - v5 - integer);
+    if ( now - lastCall < v6 )
+      v6 = now - lastCall;
+    v7 = -v6;
+    if ( integer + v5 >= v4 )
+      v7 = v6;
+    Dvar_SetInt_Internal(fakelag_current, v4 + v7);
+    v2 = fakelag_jitter;
   }
-  if ( (fakelag_currentjitter->current.integer > 0 || v5->current.integer > 0) && now > nextChangeTime )
+  if ( (fakelag_currentjitter->current.integer > 0 || v2->current.integer > 0) && now > nextChangeTime )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000; max
-      vxorps  xmm0, xmm0, xmm0; min
-    }
-    *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [rax+28h]
-      vmulss  xmm3, xmm0, xmm2
-      vcvttss2si edx, xmm3; value
-    }
-    Dvar_SetInt_Internal(fakelag_currentjitter, _EDX);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000; max
-      vxorps  xmm0, xmm0, xmm0; min
-    }
-    v19 = fakelag_jitterinterval->current.integer;
-    *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm0, xmm1
-      vcvttss2si eax, xmm0
-    }
-    nextChangeTime = now + v19 + _EAX;
+    v8 = I_flrand(0.0, 1.0);
+    Dvar_SetInt_Internal(fakelag_currentjitter, (int)(float)(*(float *)&v8 * (float)fakelag_jitter->current.integer));
+    v9 = fakelag_jitterinterval->current.integer;
+    v10 = I_flrand(0.0, 1.0);
+    nextChangeTime = now + v9 + (int)(float)(*(float *)&v10 * (float)(2 * v9));
   }
-  v23 = fakelag_latency_devgui->current.integer;
-  if ( s_fakelag_latency_devgui != v23 )
+  v11 = fakelag_latency_devgui->current.integer;
+  if ( s_fakelag_latency_devgui != v11 )
   {
     s_fakelag_latency_devgui = fakelag_latency_devgui->current.integer;
-    Dvar_SetInt_Internal(fakelag_target, v23);
+    Dvar_SetInt_Internal(fakelag_target, v11);
   }
-  unsignedInt = fakelag_packetloss_devgui->current.unsignedInt;
-  if ( s_fakelag_packetloss_devgui != unsignedInt )
+  v12 = fakelag_packetloss_devgui->current.integer;
+  if ( s_fakelag_packetloss_devgui != v12 )
   {
     s_fakelag_packetloss_devgui = fakelag_packetloss_devgui->current.integer;
-    if ( unsignedInt > 0x64 )
+    if ( (unsigned int)v12 > 0x64 )
     {
-      v30 = 100;
-      v29 = unsignedInt;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 469, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_fakelag_packetloss_devgui ) && ( s_fakelag_packetloss_devgui ) <= ( 100 )", "s_fakelag_packetloss_devgui not in [0, 100]\n\t%i not in [%i, %i]", v29, 0i64, v30) )
+      v15 = 100;
+      v14 = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\fakelag.cpp", 469, ASSERT_TYPE_ASSERT, "( 0 ) <= ( s_fakelag_packetloss_devgui ) && ( s_fakelag_packetloss_devgui ) <= ( 100 )", "s_fakelag_packetloss_devgui not in [0, 100]\n\t%i not in [%i, %i]", v14, 0i64, v15) )
         __debugbreak();
+      v12 = s_fakelag_packetloss_devgui;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm1, xmm0, cs:__real@3c23d70a; value
-    }
-    Dvar_SetFloat_Internal(fakelag_packetloss, *(float *)&_XMM1);
+    Dvar_SetFloat_Internal(fakelag_packetloss, (float)v12 * 0.0099999998);
   }
-  v28 = s_currentFakelagBurstJitter;
+  v13 = s_currentFakelagBurstJitter;
   lastCall = now;
   if ( fakelag_burst->current.integer <= 0 )
-    v28 = 0;
-  s_currentFakelagBurstJitter = v28;
+    v13 = 0;
+  s_currentFakelagBurstJitter = v13;
 }
 
 /*

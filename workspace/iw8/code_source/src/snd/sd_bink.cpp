@@ -337,275 +337,224 @@ SD_WriteBinkDataToVoice
 */
 void SD_WriteBinkDataToVoice(const int numChannels, __int16 *shortBuffer, float *leftBuffer, float *rightBuffer)
 {
+  unsigned __int64 v4; 
+  __int64 v8; 
   __int64 v9; 
+  __m256 *v10; 
   __int64 v11; 
-  __int64 v47; 
-  unsigned int v74; 
-  __int64 v123[4]; 
+  __m256 v12; 
+  __m256i v13; 
+  __m256 v14; 
+  __m256 v15; 
+  __m256 v16; 
+  __m256 v17; 
+  __m256 v18; 
+  __m256 v19; 
+  __m256 v20; 
+  __m256 v21; 
+  __m256 v22; 
+  __m256 v23; 
+  __m256 v24; 
+  __int64 v25; 
+  __m256 *v26; 
+  __m256 v27; 
+  __m256i v28; 
+  __m256 v29; 
+  __m256 v30; 
+  __m256 v31; 
+  __m256 v32; 
+  __m256 v33; 
+  __m256 v34; 
+  __m256 v35; 
+  __m256 v36; 
+  __m256 v37; 
+  __m256 v38; 
+  __m256 v39; 
+  unsigned __int64 v40; 
+  __int64 v41; 
+  __m128 *v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v61; 
+  __m128 v62; 
+  __m128 v63; 
+  __m128 v64; 
+  __m128 v65; 
+  unsigned int v66; 
+  __int64 v67; 
+  __int64 v68; 
+  __int64 v69[4]; 
 
-  _RBP = (unsigned __int64)v123 & 0xFFFFFFFFFFFFFFE0ui64;
-  _RDI = leftBuffer;
-  SND_DspShort8ToFloat4(numChannels << 8, shortBuffer, (float *)(((unsigned __int64)v123 & 0xFFFFFFFFFFFFFFE0ui64) + 2080));
+  v4 = (unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64;
+  SND_DspShort8ToFloat4(numChannels << 8, shortBuffer, (float *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 2080));
   if ( numChannels == 1 )
   {
-    *(_QWORD *)_RBP = ((_BYTE)_RBP + 32) & 0x1F;
-    if ( (((_BYTE)_RBP + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 2080) )
+    *(_QWORD *)v4 = ((_BYTE)v4 + 32) & 0x1F;
+    if ( (((_BYTE)v4 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 2080) )
       __debugbreak();
-    if ( ((unsigned __int8)_RDI & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RDI) )
+    if ( ((unsigned __int8)leftBuffer & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", leftBuffer) )
       __debugbreak();
-    __asm { vmovups ymm2, cs:__ymm@3f0000003f0000003f0000003f0000003f0000003f0000003f0000003f000000 }
-    v9 = 4i64;
-    _RAX = _RDI + 8;
+    v8 = 4i64;
+    v9 = v4 + 2080 - (_QWORD)leftBuffer;
+    v10 = (__m256 *)(leftBuffer + 8);
     v11 = 4i64;
     do
     {
-      __asm
-      {
-        vmulps  ymm0, ymm2, ymmword ptr [rcx+rax-20h]
-        vaddps  ymm1, ymm0, ymmword ptr [rax-20h]
-        vmulps  ymm0, ymm2, ymmword ptr [rcx+rax]
-        vmovups ymmword ptr [rax-20h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax]
-        vmulps  ymm0, ymm2, ymmword ptr [r10+rax]
-        vmovups ymmword ptr [rax], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+20h]
-        vmulps  ymm0, ymm2, ymmword ptr [r11+rax]
-        vmovups ymmword ptr [rax+20h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+40h]
-        vmulps  ymm0, ymm2, ymmword ptr [r14+rax]
-        vmovups ymmword ptr [rax+40h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+60h]
-        vmulps  ymm0, ymm2, ymmword ptr [r15+rax]
-        vmovups ymmword ptr [rax+60h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+80h]
-        vmulps  ymm0, ymm2, ymmword ptr [r12+rax]
-        vmovups ymmword ptr [rax+80h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+0A0h]
-        vmulps  ymm0, ymm2, ymmword ptr [rax+r13]
-        vmovups ymmword ptr [rax+0A0h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+0C0h]
-        vmovups ymmword ptr [rax+0C0h], ymm1
-      }
-      _RAX += 64;
+      v12 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v9));
+      v10[-1] = _mm256_add_ps(_mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v9 - 32)), v10[-1]);
+      v13 = (__m256i)_mm256_add_ps(v12, *v10);
+      v14 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2112 - (_QWORD)leftBuffer));
+      *(__m256i *)v10 = v13;
+      v15 = _mm256_add_ps(v14, v10[1]);
+      v16 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2144 - (_QWORD)leftBuffer));
+      v10[1] = v15;
+      v17 = _mm256_add_ps(v16, v10[2]);
+      v18 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2176 - (_QWORD)leftBuffer));
+      v10[2] = v17;
+      v19 = _mm256_add_ps(v18, v10[3]);
+      v20 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2208 - (_QWORD)leftBuffer));
+      v10[3] = v19;
+      v21 = _mm256_add_ps(v20, v10[4]);
+      v22 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2240 - (_QWORD)leftBuffer));
+      v10[4] = v21;
+      v23 = _mm256_add_ps(v22, v10[5]);
+      v24 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v10 + v4 + 2272 - (_QWORD)leftBuffer));
+      v10[5] = v23;
+      v10[6] = _mm256_add_ps(v24, v10[6]);
+      v10 += 8;
       --v11;
     }
     while ( v11 );
-    if ( *(_QWORD *)_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 2080) )
+    if ( *(_QWORD *)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 2080) )
       __debugbreak();
     if ( ((unsigned __int8)rightBuffer & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", rightBuffer) )
       __debugbreak();
-    __asm { vmovups ymm2, cs:__ymm@3f0000003f0000003f0000003f0000003f0000003f0000003f0000003f000000 }
-    _RAX = rightBuffer + 8;
+    v25 = v4 + 2080 - (_QWORD)rightBuffer;
+    v26 = (__m256 *)(rightBuffer + 8);
     do
     {
-      __asm
-      {
-        vmulps  ymm0, ymm2, ymmword ptr [rax+rcx-20h]
-        vaddps  ymm1, ymm0, ymmword ptr [rax-20h]
-        vmulps  ymm0, ymm2, ymmword ptr [rcx+rax]
-        vmovups ymmword ptr [rax-20h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax]
-        vmulps  ymm0, ymm2, ymmword ptr [rdx+rax]
-        vmovups ymmword ptr [rax], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+20h]
-        vmulps  ymm0, ymm2, ymmword ptr [r8+rax]
-        vmovups ymmword ptr [rax+20h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+40h]
-        vmulps  ymm0, ymm2, ymmword ptr [r9+rax]
-        vmovups ymmword ptr [rax+40h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+60h]
-        vmulps  ymm0, ymm2, ymmword ptr [r10+rax]
-        vmovups ymmword ptr [rax+60h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+80h]
-        vmulps  ymm0, ymm2, ymmword ptr [r11+rax]
-        vmovups ymmword ptr [rax+80h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+0A0h]
-        vmulps  ymm0, ymm2, ymmword ptr [rdi+rax]
-        vmovups ymmword ptr [rax+0A0h], ymm1
-        vaddps  ymm1, ymm0, ymmword ptr [rax+0C0h]
-        vmovups ymmword ptr [rax+0C0h], ymm1
-      }
-      _RAX += 64;
-      --v9;
+      v27 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v25));
+      v26[-1] = _mm256_add_ps(_mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v25 - 32)), v26[-1]);
+      v28 = (__m256i)_mm256_add_ps(v27, *v26);
+      v29 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2112 - (_QWORD)rightBuffer));
+      *(__m256i *)v26 = v28;
+      v30 = _mm256_add_ps(v29, v26[1]);
+      v31 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2144 - (_QWORD)rightBuffer));
+      v26[1] = v30;
+      v32 = _mm256_add_ps(v31, v26[2]);
+      v33 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2176 - (_QWORD)rightBuffer));
+      v26[2] = v32;
+      v34 = _mm256_add_ps(v33, v26[3]);
+      v35 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2208 - (_QWORD)rightBuffer));
+      v26[3] = v34;
+      v36 = _mm256_add_ps(v35, v26[4]);
+      v37 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2240 - (_QWORD)rightBuffer));
+      v26[4] = v36;
+      v38 = _mm256_add_ps(v37, v26[5]);
+      v39 = _mm256_mul_ps(_ymm, *(__m256 *)((char *)v26 + v4 + 2272 - (_QWORD)rightBuffer));
+      v26[5] = v38;
+      v26[6] = _mm256_add_ps(v39, v26[6]);
+      v26 += 8;
+      --v8;
     }
-    while ( v9 );
+    while ( v8 );
   }
   else
   {
-    _RAX = _RBP + 1072;
-    v47 = 8i64;
-    _RCX = _RBP + 2192;
+    v40 = v4 + 1072;
+    v41 = 8i64;
+    v42 = (__m128 *)(v4 + 2192);
     do
     {
-      _RAX += 128i64;
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rcx-70h]
-        vshufps xmm0, xmm2, xmmword ptr [rcx-60h], 88h ; 'ˆ'
-        vshufps xmm1, xmm2, xmmword ptr [rcx-60h], 0DDh ; 'Ý'
-        vmovups xmm3, xmmword ptr [rcx-50h]
-        vmovups xmm4, xmmword ptr [rcx-30h]
-        vmovups xmm2, xmmword ptr [rcx+80h]
-      }
-      _RCX += 256i64;
-      __asm
-      {
-        vmovups xmmword ptr [rax-490h], xmm0
-        vshufps xmm0, xmm3, xmmword ptr [rcx-140h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-90h], xmm1
-        vshufps xmm1, xmm3, xmmword ptr [rcx-140h], 0DDh ; 'Ý'
-        vmovups xmm3, xmmword ptr [rcx-110h]
-        vmovups xmmword ptr [rax-480h], xmm0
-        vshufps xmm0, xmm4, xmmword ptr [rcx-120h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-80h], xmm1
-        vshufps xmm1, xmm4, xmmword ptr [rcx-120h], 0DDh ; 'Ý'
-        vmovups xmm4, xmmword ptr [rcx-0F0h]
-        vmovups xmmword ptr [rax-470h], xmm0
-        vshufps xmm0, xmm3, xmmword ptr [rcx-100h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-70h], xmm1
-        vshufps xmm1, xmm3, xmmword ptr [rcx-100h], 0DDh ; 'Ý'
-        vmovups xmm3, xmmword ptr [rcx-0D0h]
-        vmovups xmmword ptr [rax-460h], xmm0
-        vshufps xmm0, xmm4, xmmword ptr [rcx-0E0h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-60h], xmm1
-        vshufps xmm1, xmm4, xmmword ptr [rcx-0E0h], 0DDh ; 'Ý'
-        vmovups xmm4, xmmword ptr [rcx-0B0h]
-        vmovups xmmword ptr [rax-450h], xmm0
-        vshufps xmm0, xmm3, xmmword ptr [rcx-0C0h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-50h], xmm1
-        vshufps xmm1, xmm3, xmmword ptr [rcx-0C0h], 0DDh ; 'Ý'
-        vmovups xmm3, xmmword ptr [rcx-90h]
-        vmovups xmmword ptr [rax-440h], xmm0
-        vshufps xmm0, xmm4, xmmword ptr [rcx-0A0h], 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-40h], xmm1
-        vshufps xmm1, xmm4, xmmword ptr [rcx-0A0h], 0DDh ; 'Ý'
-        vmovups xmmword ptr [rax-430h], xmm0
-        vmovups xmmword ptr [rax-30h], xmm1
-        vshufps xmm0, xmm3, xmm2, 88h ; 'ˆ'
-        vmovups xmmword ptr [rax-420h], xmm0
-        vshufps xmm1, xmm3, xmm2, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rax-20h], xmm1
-      }
-      --v47;
+      v40 += 128i64;
+      v43 = v42[-7];
+      v44 = _mm_shuffle_ps(v43, v42[-6], 136);
+      v45 = _mm_shuffle_ps(v43, v42[-6], 221);
+      v46 = v42[-5];
+      v47 = v42[-3];
+      v48 = v42[8];
+      v42 += 16;
+      *(__m128 *)(v40 - 1168) = v44;
+      v49 = _mm_shuffle_ps(v46, v42[-20], 136);
+      *(__m128 *)(v40 - 144) = v45;
+      v50 = _mm_shuffle_ps(v46, v42[-20], 221);
+      v51 = v42[-17];
+      *(__m128 *)(v40 - 1152) = v49;
+      v52 = _mm_shuffle_ps(v47, v42[-18], 136);
+      *(__m128 *)(v40 - 128) = v50;
+      v53 = _mm_shuffle_ps(v47, v42[-18], 221);
+      v54 = v42[-15];
+      *(__m128 *)(v40 - 1136) = v52;
+      v55 = _mm_shuffle_ps(v51, v42[-16], 136);
+      *(__m128 *)(v40 - 112) = v53;
+      v56 = _mm_shuffle_ps(v51, v42[-16], 221);
+      v57 = v42[-13];
+      *(__m128 *)(v40 - 1120) = v55;
+      v58 = _mm_shuffle_ps(v54, v42[-14], 136);
+      *(__m128 *)(v40 - 96) = v56;
+      v59 = _mm_shuffle_ps(v54, v42[-14], 221);
+      v60 = v42[-11];
+      *(__m128 *)(v40 - 1104) = v58;
+      v61 = _mm_shuffle_ps(v57, v42[-12], 136);
+      *(__m128 *)(v40 - 80) = v59;
+      v62 = _mm_shuffle_ps(v57, v42[-12], 221);
+      v63 = v42[-9];
+      *(__m128 *)(v40 - 1088) = v61;
+      v64 = _mm_shuffle_ps(v60, v42[-10], 136);
+      *(__m128 *)(v40 - 64) = v62;
+      v65 = _mm_shuffle_ps(v60, v42[-10], 221);
+      *(__m128 *)(v40 - 1072) = v64;
+      *(__m128 *)(v40 - 48) = v65;
+      *(__m128 *)(v40 - 1056) = _mm_shuffle_ps(v63, v48, 136);
+      *(__m128 *)(v40 - 32) = _mm_shuffle_ps(v63, v48, 221);
+      --v41;
     }
-    while ( v47 );
-    if ( (((_BYTE)_RBP + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 576, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", _RBP + 32) )
+    while ( v41 );
+    if ( (((_BYTE)v4 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 576, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v4 + 32) )
       __debugbreak();
-    if ( ((unsigned __int8)_RDI & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 577, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", _RDI) )
+    if ( ((unsigned __int8)leftBuffer & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 577, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", leftBuffer) )
       __debugbreak();
-    v74 = 2;
+    v66 = 2;
     do
     {
-      _RCX = 32i64 * (v74 - 2);
-      _RAX = 32i64 * v74;
-      _RDX = 32i64 * (v74 + 13);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 - 1);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-        vmovups ymm0, [rbp+rax+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rax+rdi]
-        vmovups ymmword ptr [rax+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 1);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 2);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 3);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 4);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 5);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 6);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 7);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 8);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 9);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 10);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 11);
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-      }
-      _RCX = 32i64 * (v74 + 12);
-      v74 += 16;
-      __asm
-      {
-        vmovups ymm0, [rbp+rcx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rcx+rdi]
-        vmovups ymmword ptr [rcx+rdi], ymm0
-        vmovups ymm0, [rbp+rdx+1070h+var_1050]
-        vaddps  ymm0, ymm0, ymmword ptr [rdx+rdi]
-        vmovups ymmword ptr [rdx+rdi], ymm0
-      }
+      v67 = 8i64 * (v66 + 13);
+      *(__m256 *)&leftBuffer[8 * v66 - 16] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 - 2)), *(__m256 *)&leftBuffer[8 * v66 - 16]);
+      *(__m256 *)&leftBuffer[8 * v66 - 8] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 - 1)), *(__m256 *)&leftBuffer[8 * v66 - 8]);
+      *(__m256 *)&leftBuffer[8 * v66] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * v66), *(__m256 *)&leftBuffer[8 * v66]);
+      *(__m256 *)&leftBuffer[8 * v66 + 8] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 1)), *(__m256 *)&leftBuffer[8 * v66 + 8]);
+      *(__m256 *)&leftBuffer[8 * v66 + 16] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 2)), *(__m256 *)&leftBuffer[8 * v66 + 16]);
+      *(__m256 *)&leftBuffer[8 * v66 + 24] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 3)), *(__m256 *)&leftBuffer[8 * v66 + 24]);
+      *(__m256 *)&leftBuffer[8 * v66 + 32] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 4)), *(__m256 *)&leftBuffer[8 * v66 + 32]);
+      *(__m256 *)&leftBuffer[8 * v66 + 40] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 5)), *(__m256 *)&leftBuffer[8 * v66 + 40]);
+      *(__m256 *)&leftBuffer[8 * v66 + 48] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 6)), *(__m256 *)&leftBuffer[8 * v66 + 48]);
+      *(__m256 *)&leftBuffer[8 * v66 + 56] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 7)), *(__m256 *)&leftBuffer[8 * v66 + 56]);
+      *(__m256 *)&leftBuffer[8 * v66 + 64] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 8)), *(__m256 *)&leftBuffer[8 * v66 + 64]);
+      *(__m256 *)&leftBuffer[8 * v66 + 72] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 9)), *(__m256 *)&leftBuffer[8 * v66 + 72]);
+      *(__m256 *)&leftBuffer[8 * v66 + 80] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 10)), *(__m256 *)&leftBuffer[8 * v66 + 80]);
+      *(__m256 *)&leftBuffer[8 * v66 + 88] = _mm256_add_ps(*(__m256 *)(((unsigned __int64)v69 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20 + 32i64 * (v66 + 11)), *(__m256 *)&leftBuffer[8 * v66 + 88]);
+      v68 = 8i64 * (v66 + 12);
+      v66 += 16;
+      *(__m256 *)&leftBuffer[v68] = _mm256_add_ps(*(__m256 *)(v4 + 32 + v68 * 4), *(__m256 *)&leftBuffer[v68]);
+      *(__m256 *)&leftBuffer[v67] = _mm256_add_ps(*(__m256 *)(v4 + 32 + v67 * 4), *(__m256 *)&leftBuffer[v67]);
     }
-    while ( v74 - 2 < 0x20 );
-    SND_DspSum(0x100u, (const float *)(_RBP + 1056), rightBuffer);
+    while ( v66 - 2 < 0x20 );
+    SND_DspSum(0x100u, (const float *)(v4 + 1056), rightBuffer);
   }
 }
 
@@ -629,241 +578,197 @@ __int64 SetOnOff(BINKSND *bs, int status)
 SoundCallback
 ==============
 */
-bool SoundCallback(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> *destination)
+char SoundCallback(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> *destination)
 {
   signed __int64 v1; 
-  void *v6; 
-  int v8; 
-  bool result; 
-  unsigned int v10; 
+  void *v2; 
+  unsigned __int64 v3; 
+  int v4; 
+  unsigned int v6; 
   bool *p_needsReset; 
-  unsigned int v12; 
-  int v15; 
-  SD_DSP::MonoFrame *v16; 
-  __int64 v17; 
-  unsigned __int64 v19; 
+  unsigned int v8; 
+  float *pan; 
+  int v10; 
+  SD_DSP::MonoFrame *v11; 
+  __int64 v12; 
+  float *v13; 
+  __int16 *v14; 
+  __int64 v15; 
+  const float *v16; 
+  const float *v17; 
+  const SD_DSP::ConstSampleBufferRefType<256> *v18; 
+  SD_DSP::StereoFrame *v19; 
   __int64 v20; 
-  const float *v23; 
-  const float *v24; 
-  const SD_DSP::ConstSampleBufferRefType<256> *v25; 
-  SD_DSP::StereoFrame *v26; 
-  __int64 v27; 
+  unsigned int v21; 
+  __int64 *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int128 v25; 
+  unsigned __int64 v26; 
   unsigned int v28; 
-  __int64 *v29; 
-  __int64 v30; 
-  __int64 v31; 
-  unsigned __int64 v33; 
-  unsigned int v36; 
-  __int64 *v37; 
-  unsigned int v41; 
-  __int64 v52; 
-  char v53[4232]; 
-  __int64 v54; 
-  char v58; 
+  __int64 v29; 
+  unsigned int v30; 
+  __int64 *v31; 
+  __int64 v32; 
+  __int64 v35; 
+  char v36[4232]; 
+  __int64 v37; 
 
-  v6 = alloca(v1);
-  v54 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+1138h+var_38], xmm6
-    vmovaps [rsp+1138h+var_48], xmm7
-    vmovaps [rsp+1138h+var_58], xmm8
-  }
-  _RBP = (unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4224) = (unsigned __int64)&v52 ^ _security_cookie;
-  *(_QWORD *)(_RBP + 32) = destination;
-  v8 = 0;
+  v2 = alloca(v1);
+  v37 = -2i64;
+  v3 = (unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v3 + 4224) = (unsigned __int64)&v35 ^ _security_cookie;
+  *(_QWORD *)(v3 + 32) = destination;
+  v4 = 0;
   if ( !s_onOff )
-    goto LABEL_2;
-  v10 = 0;
+    return 0;
+  v6 = 0;
   p_needsReset = &s_binkVoices[0].needsReset;
   do
   {
     if ( *(p_needsReset - 17) && !*(p_needsReset - 1) && !*p_needsReset )
     {
       if ( !*(_DWORD *)(p_needsReset - 5) || (unsigned int)(((unsigned __int64)*(int *)(p_needsReset + 275) >> 1) / *(int *)(p_needsReset - 13)) < 0x100 )
-        goto LABEL_2;
-      ++v8;
+        return 0;
+      ++v4;
     }
-    ++v10;
+    ++v6;
     p_needsReset += 192296;
   }
-  while ( v10 < 5 );
-  if ( v8 )
+  while ( v6 < 5 );
+  if ( !v4 )
+    return 0;
+  v8 = 0;
+  *(_DWORD *)v3 = 0;
+  pan = s_binkVoices[0].pan;
+  *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = s_binkVoices[0].pan;
+  do
   {
-    v12 = 0;
-    *(_DWORD *)_RBP = 0;
-    _R15 = s_binkVoices[0].pan;
-    *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = s_binkVoices[0].pan;
-    __asm { vmovss  xmm6, cs:__real@38000100 }
-    do
+    if ( *((_BYTE *)pan - 156) && ConsumeCircBufData((SDBinkCircularBuffer *)(pan + 32), *((_DWORD *)pan - 38) << 9, (void *)(v3 + 3200)) )
     {
-      if ( *((_BYTE *)_R15 - 156) && ConsumeCircBufData((SDBinkCircularBuffer *)(_R15 + 32), *((_DWORD *)_R15 - 38) << 9, (void *)(_RBP + 3200)) )
+      v10 = *((_DWORD *)pan - 38);
+      if ( v10 == 1 )
       {
-        v15 = *((_DWORD *)_R15 - 38);
-        if ( v15 == 1 )
+        v11 = (SD_DSP::MonoFrame *)(v3 + 128);
+        v12 = 256i64;
+        do
         {
-          v16 = (SD_DSP::MonoFrame *)(_RBP + 128);
-          v17 = 256i64;
-          do
-          {
-            SD_DSP::MonoFrame::MonoFrame(v16++);
-            --v17;
-          }
-          while ( v17 );
-          if ( (((_BYTE)_RBP + 0x80) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 439, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
-            __debugbreak();
-          if ( (((_BYTE)_RBP + 0x80) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 73, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", _RBP + 128) )
-            __debugbreak();
-          if ( (((_BYTE)_RBP + 0x80) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 453, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
-            __debugbreak();
-          _RSI = _RBP + 128;
-          v19 = _RBP + 3200;
-          v20 = 256i64;
-          do
-          {
-            if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 29, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
-              __debugbreak();
-            if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 35, ASSERT_TYPE_ASSERT, "(outChannel != nullptr)", (const char *)&queryFormat, "outChannel != nullptr") )
-              __debugbreak();
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm1, xmm0, xmm6
-              vmovss  dword ptr [rsi], xmm1
-            }
-            _RSI += 4i64;
-            v19 += 2i64;
-            --v20;
-          }
-          while ( v20 );
-          *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = ((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 128;
-          v23 = _R15 - 32;
-          v24 = _R15;
-          v25 = (const SD_DSP::ConstSampleBufferRefType<256> *)(_RBP + 24);
+          SD_DSP::MonoFrame::MonoFrame(v11++);
+          --v12;
         }
-        else
+        while ( v12 );
+        if ( (((_BYTE)v3 + 0x80) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 439, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+          __debugbreak();
+        if ( (((_BYTE)v3 + 0x80) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 73, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v3 + 128) )
+          __debugbreak();
+        if ( (((_BYTE)v3 + 0x80) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 453, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+          __debugbreak();
+        v13 = (float *)(v3 + 128);
+        v14 = (__int16 *)(v3 + 3200);
+        v15 = 256i64;
+        do
         {
-          if ( v15 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_bink.cpp", 238, ASSERT_TYPE_ASSERT, "(voice->numChannels == 2)", (const char *)&queryFormat, "voice->numChannels == 2") )
+          if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 29, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
             __debugbreak();
-          v26 = (SD_DSP::StereoFrame *)(_RBP + 1152);
-          v27 = 256i64;
-          do
-          {
-            SD_DSP::StereoFrame::StereoFrame(v26++);
-            --v27;
-          }
-          while ( v27 );
-          if ( (((_BYTE)_RBP + 0x80) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 439, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+          if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 35, ASSERT_TYPE_ASSERT, "(outChannel != nullptr)", (const char *)&queryFormat, "outChannel != nullptr") )
             __debugbreak();
-          if ( (((_BYTE)_RBP + 0x80) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 73, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", _RBP + 1152) )
+          *v13++ = (float)*v14++ * 0.000030518509;
+          --v15;
+        }
+        while ( v15 );
+        *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = ((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 128;
+        v16 = pan - 32;
+        v17 = pan;
+        v18 = (const SD_DSP::ConstSampleBufferRefType<256> *)(v3 + 24);
+      }
+      else
+      {
+        if ( v10 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_bink.cpp", 238, ASSERT_TYPE_ASSERT, "(voice->numChannels == 2)", (const char *)&queryFormat, "voice->numChannels == 2") )
+          __debugbreak();
+        v19 = (SD_DSP::StereoFrame *)(v3 + 1152);
+        v20 = 256i64;
+        do
+        {
+          SD_DSP::StereoFrame::StereoFrame(v19++);
+          --v20;
+        }
+        while ( v20 );
+        if ( (((_BYTE)v3 + 0x80) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 439, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+          __debugbreak();
+        if ( (((_BYTE)v3 + 0x80) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 73, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v3 + 1152) )
+          __debugbreak();
+        v21 = 0;
+        v22 = (__int64 *)(v3 + 96);
+        do
+        {
+          v23 = v21 << 8;
+          v24 = v3 + 4 * v23 + 1152;
+          if ( v3 + 4 * v23 == -1152i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 452, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
+            __debugbreak();
+          if ( (v24 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 453, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+            __debugbreak();
+          *v22 = v24;
+          ++v21;
+          ++v22;
+        }
+        while ( v21 < 2 );
+        v25 = *(_OWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60);
+        *(_OWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40) = v25;
+        *(_OWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = v25;
+        v26 = v3 + 3200;
+        _XMM8 = _xmm;
+        *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 128i64;
+        do
+        {
+          if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 29, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
             __debugbreak();
           v28 = 0;
-          v29 = (__int64 *)(_RBP + 96);
+          *(_DWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0;
+          v29 = 0i64;
           do
           {
-            v30 = v28 << 8;
-            v31 = _RBP + 4 * v30 + 1152;
-            if ( _RBP + 4 * v30 == -1152i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 452, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
-              __debugbreak();
-            if ( (v31 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 453, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
-              __debugbreak();
-            *v29 = v31;
-            ++v28;
-            ++v29;
-          }
-          while ( v28 < 2 );
-          __asm
-          {
-            vmovups xmm7, xmmword ptr [rbp+60h]
-            vmovdqa xmmword ptr [rbp+40h], xmm7
-            vmovdqu xmmword ptr [rbp+30h], xmm7
-          }
-          v33 = _RBP + 3200;
-          __asm { vmovdqu xmm8, cs:__xmm@00000000000000080000000000000008 }
-          *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 128i64;
-          do
-          {
-            if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 29, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
-              __debugbreak();
-            *(_DWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0;
-            _R14 = 0i64;
+            v30 = 0;
+            v31 = (__int64 *)(v3 + 48);
             do
             {
-              v36 = 0;
-              v37 = (__int64 *)(_RBP + 48);
-              do
-              {
-                _RBX = *v37;
-                if ( !*v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 35, ASSERT_TYPE_ASSERT, "(outChannel != nullptr)", (const char *)&queryFormat, "outChannel != nullptr") )
-                  __debugbreak();
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vmulss  xmm1, xmm0, xmm6
-                  vmovss  dword ptr [r14+rbx], xmm1
-                }
-                ++v36;
-                ++v37;
-              }
-              while ( v36 < 2 );
-              v41 = *(_DWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 8) + 1;
-              *(_DWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v41;
-              _R14 += 4i64;
+              v32 = *v31;
+              if ( !*v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_transpose.h", 35, ASSERT_TYPE_ASSERT, "(outChannel != nullptr)", (const char *)&queryFormat, "outChannel != nullptr") )
+                __debugbreak();
+              *(float *)(v29 + v32) = (float)*(__int16 *)(v26 + 2i64 * (2 * v28 + v30++)) * 0.000030518509;
+              ++v31;
             }
-            while ( v41 < 2 );
-            __asm
-            {
-              vpaddq  xmm7, xmm8, xmm7
-              vmovdqu xmmword ptr [rbp+30h], xmm7
-            }
-            v33 += 8i64;
+            while ( v30 < 2 );
+            v28 = *(_DWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 8) + 1;
+            *(_DWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v28;
+            v29 += 4i64;
           }
-          while ( (*(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10))-- != 1i64 );
-          *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
-          _R15 = *(float **)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-          SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256>::MatrixSum(*(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> **)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20), (const SD_DSP::ConstSampleBufferRefType<256> *)(_RBP + 16), _R15 - 32, _R15);
-          *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
-          v23 = _R15 - 16;
-          v24 = _R15 + 16;
-          v25 = (const SD_DSP::ConstSampleBufferRefType<256> *)(_RBP + 8);
+          while ( v28 < 2 );
+          __asm { vpaddq  xmm7, xmm8, xmm7 }
+          *(_OWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = _XMM7;
+          v26 += 8i64;
         }
-        SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256>::MatrixSum(*(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> **)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20), v25, v23, v24);
-        v12 = *(_DWORD *)_RBP;
+        while ( (*(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10))-- != 1i64 );
+        *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40);
+        pan = *(float **)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+        SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256>::MatrixSum(*(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> **)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20), (const SD_DSP::ConstSampleBufferRefType<256> *)(v3 + 16), pan - 32, pan);
+        *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48);
+        v16 = pan - 16;
+        v17 = pan + 16;
+        v18 = (const SD_DSP::ConstSampleBufferRefType<256> *)(v3 + 8);
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15]
-        vmovups ymmword ptr [r15-80h], ymm0
-        vmovups ymm1, ymmword ptr [r15+20h]
-        vmovups ymmword ptr [r15-60h], ymm1
-        vmovups ymm0, ymmword ptr [r15+40h]
-        vmovups ymmword ptr [r15-40h], ymm0
-        vmovups ymm1, ymmword ptr [r15+60h]
-        vmovups ymmword ptr [r15-20h], ymm1
-      }
-      *(_DWORD *)_RBP = ++v12;
-      _R15 += 48074;
-      *(_QWORD *)(((unsigned __int64)v53 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = _R15;
+      SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256>::MatrixSum(*(SD_DSP::SequentialBufferRefType<SD_DSP::AtmosFrame,256> **)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20), v18, v16, v17);
+      v8 = *(_DWORD *)v3;
     }
-    while ( v12 < 5 );
-    result = 1;
+    *((__m256i *)pan - 4) = *(__m256i *)pan;
+    *((__m256i *)pan - 3) = *(__m256i *)(pan + 8);
+    *((__m256i *)pan - 2) = *(__m256i *)(pan + 16);
+    *((__m256i *)pan - 1) = *(__m256i *)(pan + 24);
+    *(_DWORD *)v3 = ++v8;
+    pan += 48074;
+    *(_QWORD *)(((unsigned __int64)v36 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = pan;
   }
-  else
-  {
-LABEL_2:
-    result = 0;
-  }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  while ( v8 < 5 );
+  return 1;
 }
 
 /*

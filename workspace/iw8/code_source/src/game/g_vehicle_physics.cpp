@@ -1180,69 +1180,14 @@ GVehicles::PhysicsAddAngularImpulse
 */
 void GVehicles::PhysicsAddAngularImpulse(GVehicles *this, unsigned int vehicleId, const vec3_t *impulse, const vec3_t *origin)
 {
-  const vec3_t *v6; 
   BgVehiclePhysics *ObjectById; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  _RBX = origin;
-  v6 = impulse;
-  if ( (v15 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-  {
-LABEL_14:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1240, ASSERT_TYPE_SANITY, "( !IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_15:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1241, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(impulse->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(impulse->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(impulse->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1240, ASSERT_TYPE_SANITY, "( !IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1241, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  BgVehiclePhysics::ApplyAngularImpulse(ObjectById, v6, _RBX);
+  BgVehiclePhysics::ApplyAngularImpulse(ObjectById, impulse, origin);
 }
 
 /*
@@ -1252,69 +1197,14 @@ GVehicles::PhysicsAddImpulse
 */
 void GVehicles::PhysicsAddImpulse(GVehicles *this, unsigned int vehicleId, const vec3_t *impulse, const vec3_t *origin)
 {
-  const vec3_t *v6; 
   BgVehiclePhysics *ObjectById; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  _RBX = origin;
-  v6 = impulse;
-  if ( (v15 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-  {
-LABEL_14:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1228, ASSERT_TYPE_SANITY, "( !IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_15:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1229, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(impulse->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(impulse->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(impulse->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1228, ASSERT_TYPE_SANITY, "( !IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( impulse )[0] ) && !IS_NAN( ( impulse )[1] ) && !IS_NAN( ( impulse )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(origin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1229, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
+    __debugbreak();
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  BgVehiclePhysics::ApplyImpulse(ObjectById, v6, _RBX);
+  BgVehiclePhysics::ApplyImpulse(ObjectById, impulse, origin);
 }
 
 /*
@@ -1324,89 +1214,85 @@ GVehicles::PhysicsAfterWorldStep
 */
 void GVehicles::PhysicsAfterWorldStep(GVehicles *this, Physics_WorldId worldId)
 {
-  unsigned int v8; 
+  unsigned int v4; 
   BgVehiclePhysicsObjectBuffer *m_vehiclePhysicsObjects; 
-  __int64 v11; 
+  __int64 v6; 
+  gentity_s *v7; 
   int trType; 
   unsigned __int16 number; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  int v13; 
+  __int64 v14; 
   __int64 v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
   playerState_s *EntityPlayerState; 
-  int v22; 
+  int v17; 
   GWeaponMap *Instance; 
   GHandler *Handler; 
   unsigned int PhysicsBodyId; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v25; 
+  __int128 v27; 
+  __int128 v29; 
   BGVehicles *vehicleSystem; 
-  __int64 v53; 
+  __int64 v34; 
   vec3_t aabbMin; 
   vec3_t aabbMax; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _R13 = this;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "GVehicles::PhysicsAfterWorldStep");
   if ( worldId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 555, ASSERT_TYPE_ASSERT, "(worldId == G_PHYSICSVEHICLE_WORLD)", (const char *)&queryFormat, "worldId == G_PHYSICSVEHICLE_WORLD") )
     __debugbreak();
-  v8 = 0;
-  m_vehiclePhysicsObjects = _R13->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
-  __asm { vmovss  xmm8, cs:__real@3f000000 }
+  v4 = 0;
+  m_vehiclePhysicsObjects = this->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
   do
   {
     if ( *(_DWORD *)&m_vehiclePhysicsObjects->buffer[8] )
     {
       if ( *(_DWORD *)&m_vehiclePhysicsObjects->buffer[32] != worldId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 566, ASSERT_TYPE_ASSERT, "(vehObj->GetWorldId() == worldId)", (const char *)&queryFormat, "vehObj->GetWorldId() == worldId") )
         __debugbreak();
-      v11 = *(int *)&m_vehiclePhysicsObjects->buffer[48];
-      if ( (unsigned int)v11 >= 0x800 )
+      v6 = *(int *)&m_vehiclePhysicsObjects->buffer[48];
+      if ( (unsigned int)v6 >= 0x800 )
       {
-        LODWORD(v53) = 2048;
+        LODWORD(v34) = 2048;
         LODWORD(vehicleSystem) = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[48];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v53) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v34) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      _RDI = &g_entities[v11];
-      if ( (!_RDI || ((_RDI->s.eType - 12) & 0xFFFD) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 569, ASSERT_TYPE_ASSERT, "(vehEnt && BG_IsVehicleEntity( &vehEnt->s ))", (const char *)&queryFormat, "vehEnt && BG_IsVehicleEntity( &vehEnt->s )") )
+      v7 = &g_entities[v6];
+      if ( (!v7 || ((v7->s.eType - 12) & 0xFFFD) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 569, ASSERT_TYPE_ASSERT, "(vehEnt && BG_IsVehicleEntity( &vehEnt->s ))", (const char *)&queryFormat, "vehEnt && BG_IsVehicleEntity( &vehEnt->s )") )
         __debugbreak();
-      trType = _RDI->s.lerp.pos.trType;
+      trType = v7->s.lerp.pos.trType;
       if ( !m_vehiclePhysicsObjects->buffer[76] )
         goto LABEL_68;
-      number = _RDI->r.ownerNum.number;
+      number = v7->r.ownerNum.number;
       if ( !number )
         goto LABEL_34;
-      v15 = number;
-      v16 = number - 1;
-      if ( v16 >= 0x800 )
+      v10 = number;
+      v11 = number - 1;
+      if ( v11 >= 0x800 )
       {
-        LODWORD(v53) = 2048;
-        LODWORD(vehicleSystem) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v53) )
+        LODWORD(v34) = 2048;
+        LODWORD(vehicleSystem) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v34) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v17 = v15 - 1;
-      if ( g_entities[v17].r.isInUse != g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v12 = v10 - 1;
+      if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v17] )
+      if ( !g_entityIsInUse[v12] )
       {
-        LODWORD(v53) = _RDI->r.ownerNum.number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v53) )
+        LODWORD(v34) = v7->r.ownerNum.number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v34) )
           __debugbreak();
       }
-      if ( !_RDI->r.ownerNum.number )
+      if ( !v7->r.ownerNum.number )
       {
 LABEL_34:
         Com_PrintWarning(20, "GVehicles::PhysicsAfterWorldStep(). Physics vehicle's owner unlinked/changed. Switching to non-controlled vehicle.\n");
@@ -1414,44 +1300,44 @@ LABEL_34:
       }
       if ( m_vehiclePhysicsObjects->buffer[76] )
       {
-        v18 = _RDI->r.ownerNum.number;
-        if ( (unsigned int)(v18 - 1) >= 0x7FF )
+        v13 = v7->r.ownerNum.number;
+        if ( (unsigned int)(v13 - 1) >= 0x7FF )
         {
-          LODWORD(v53) = 2047;
-          LODWORD(vehicleSystem) = v18 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", vehicleSystem, v53) )
+          LODWORD(v34) = 2047;
+          LODWORD(vehicleSystem) = v13 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", vehicleSystem, v34) )
             __debugbreak();
         }
-        v19 = _RDI->r.ownerNum.number;
-        if ( (unsigned int)(v19 - 1) >= 0x800 )
+        v14 = v7->r.ownerNum.number;
+        if ( (unsigned int)(v14 - 1) >= 0x800 )
         {
-          LODWORD(v53) = 2048;
-          LODWORD(vehicleSystem) = v19 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v53) )
+          LODWORD(v34) = 2048;
+          LODWORD(vehicleSystem) = v14 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", vehicleSystem, v34) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v20 = v19 - 1;
-        if ( g_entities[v20].r.isInUse != g_entityIsInUse[v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v15 = v14 - 1;
+        if ( g_entities[v15].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v20] )
+        if ( !g_entityIsInUse[v15] )
         {
-          LODWORD(v53) = _RDI->r.ownerNum.number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v53) )
+          LODWORD(v34) = v7->r.ownerNum.number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v34) )
             __debugbreak();
         }
-        EntityPlayerState = G_GetEntityPlayerState(&g_entities[_RDI->r.ownerNum.number - 1]);
+        EntityPlayerState = G_GetEntityPlayerState(&g_entities[v7->r.ownerNum.number - 1]);
         if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 583, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        v22 = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24];
-        if ( !v22 || v22 == 3 )
+        v17 = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24];
+        if ( !v17 || v17 == 3 )
           BgVehiclePhysics::QueryValuesFromPhysics((BgVehiclePhysics *)m_vehiclePhysicsObjects, EntityPlayerState);
         if ( EntityPlayerState->vehicleState.entity != 2047 )
         {
           Instance = GWeaponMap::GetInstance();
           Handler = GHandler::getHandler();
-          BG_PlayerStateToVehicleState(EntityPlayerState, &_RDI->s, 0, Handler, Instance, _R13);
+          BG_PlayerStateToVehicleState(EntityPlayerState, &v7->s, 0, Handler, Instance, this);
         }
         if ( m_vehiclePhysicsObjects->buffer[676] || BgVehiclePhysics::GetNoClientGeoMode((BgVehiclePhysics *)m_vehiclePhysicsObjects) != NOCLIENTGEO_SWITCH_TO_SERVER_AUTH )
         {
@@ -1469,55 +1355,38 @@ LABEL_68:
         trType = 12;
         PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)m_vehiclePhysicsObjects);
         Physics_GetRigidBodyAABB(*(Physics_WorldId *)&m_vehiclePhysicsObjects->buffer[32], PhysicsBodyId, &aabbMin, &aabbMax);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0C8h+aabbMin]
-          vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+aabbMax]
-          vmulss  xmm2, xmm1, xmm8
-          vmovss  dword ptr [rdi+118h], xmm2
-          vmovss  xmm0, dword ptr [rsp+0C8h+aabbMax+4]
-          vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+aabbMin+4]
-          vmulss  xmm3, xmm1, xmm8
-          vmovss  dword ptr [rdi+11Ch], xmm3
-          vmovss  xmm0, dword ptr [rsp+0C8h+aabbMax+8]
-          vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+aabbMin+8]
-          vmulss  xmm4, xmm1, xmm8
-          vmovss  dword ptr [rdi+120h], xmm4
-          vsubss  xmm5, xmm2, dword ptr [rsp+0C8h+aabbMin]
-          vsubss  xmm6, xmm3, dword ptr [rsp+0C8h+aabbMin+4]
-          vsubss  xmm7, xmm4, dword ptr [rsp+0C8h+aabbMin+8]
-          vmovss  xmm0, dword ptr [rsp+0C8h+aabbMax]
-          vsubss  xmm2, xmm0, xmm2
-          vmovss  xmm1, dword ptr [rsp+0C8h+aabbMax+4]
-          vsubss  xmm3, xmm1, xmm3
-          vmovss  xmm0, dword ptr [rsp+0C8h+aabbMax+8]
-          vsubss  xmm4, xmm0, xmm4
-          vmaxss  xmm1, xmm2, xmm5
-          vmovss  dword ptr [rdi+124h], xmm1
-          vmaxss  xmm0, xmm3, xmm6
-          vmovss  dword ptr [rdi+128h], xmm0
-          vmaxss  xmm1, xmm4, xmm7
-          vmovss  dword ptr [rdi+12Ch], xmm1
-        }
+        v21 = (float)(aabbMin.v[0] + aabbMax.v[0]) * 0.5;
+        v7->r.absBox.midPoint.v[0] = v21;
+        v22 = (float)(aabbMax.v[1] + aabbMin.v[1]) * 0.5;
+        v7->r.absBox.midPoint.v[1] = v22;
+        v23 = (float)(aabbMax.v[2] + aabbMin.v[2]) * 0.5;
+        v7->r.absBox.midPoint.v[2] = v23;
+        v25 = LODWORD(aabbMax.v[0]);
+        *(float *)&v25 = aabbMax.v[0] - v21;
+        _XMM2 = v25;
+        v27 = LODWORD(aabbMax.v[1]);
+        *(float *)&v27 = aabbMax.v[1] - v22;
+        _XMM3 = v27;
+        v29 = LODWORD(aabbMax.v[2]);
+        *(float *)&v29 = aabbMax.v[2] - v23;
+        _XMM4 = v29;
+        __asm { vmaxss  xmm1, xmm2, xmm5 }
+        v7->r.absBox.halfSize.v[0] = *(float *)&_XMM1;
+        __asm { vmaxss  xmm0, xmm3, xmm6 }
+        v7->r.absBox.halfSize.v[1] = *(float *)&_XMM0;
+        __asm { vmaxss  xmm1, xmm4, xmm7 }
+        v7->r.absBox.halfSize.v[2] = *(float *)&_XMM1;
       }
-      _RDI->s.lerp.pos.trType = trType;
-      _RDI->s.lerp.apos.trType = trType;
-      __asm { vmovss  xmm1, dword ptr [r13+109634h] }
+      v7->s.lerp.pos.trType = trType;
+      v7->s.lerp.apos.trType = trType;
       (*(void (__fastcall **)(BgVehiclePhysicsObjectBuffer *))(*(_QWORD *)m_vehiclePhysicsObjects->buffer + 144i64))(m_vehiclePhysicsObjects);
     }
-    ++v8;
+    ++v4;
     ++m_vehiclePhysicsObjects;
   }
-  while ( v8 < 0x80 );
-  GVehicles::PhysicsProcessDeferredEvents(_R13);
+  while ( v4 < 0x80 );
+  GVehicles::PhysicsProcessDeferredEvents(this);
   Sys_ProfEndNamedEvent();
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -1557,107 +1426,60 @@ void GVehicles::PhysicsBeforeWorldStep(GVehicles *this, Physics_WorldId worldId)
 GVehicles::PhysicsCheckForJolt
 ==============
 */
-
-void __fastcall GVehicles::PhysicsCheckForJolt(GVehicles *this, unsigned int vehicleId, double deltaTime)
+void GVehicles::PhysicsCheckForJolt(GVehicles *this, unsigned int vehicleId, float deltaTime)
 {
-  unsigned int v14; 
-  scrContext_t *v43; 
-  BgVehiclePhysicsManager *v44; 
+  GPhysicsVehicleInternal *InternalById; 
+  unsigned int v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const VehicleDef *ServerDef; 
+  float v13; 
+  scrContext_t *v14; 
+  BgVehiclePhysicsManager *v15; 
   BgVehiclePhysics *ObjectById; 
   int m_entityNumber; 
   const gentity_s *GEntity; 
-  __int64 v62; 
-  int v63; 
   float value; 
+  float v20; 
+  float v21; 
   tmat43_t<vec3_t> transform; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm2, xmm6
-    vmovaps xmm8, xmm2
-  }
-  if ( (unsigned __int64)&v62 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1453, ASSERT_TYPE_ASSERT, "(deltaTime > 0.f)", (const char *)&queryFormat, "deltaTime > 0.f") )
+  if ( deltaTime <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1453, ASSERT_TYPE_ASSERT, "(deltaTime > 0.f)", (const char *)&queryFormat, "deltaTime > 0.f") )
     __debugbreak();
-  __asm { vmovss  [rsp+0F8h+var_B8], xmm8 }
-  if ( (v63 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1454, ASSERT_TYPE_SANITY, "( !IS_NAN( deltaTime ) )", (const char *)&queryFormat, "!IS_NAN( deltaTime )") )
+  if ( (LODWORD(deltaTime) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1454, ASSERT_TYPE_SANITY, "( !IS_NAN( deltaTime ) )", (const char *)&queryFormat, "!IS_NAN( deltaTime )") )
     __debugbreak();
   GVehicles::PhysicsGetChassisTransform(this, vehicleId, &transform);
-  __asm { vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  _RSI = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  v14 = 0;
-  __asm
-  {
-    vmovss  [rsp+0F8h+value], xmm6
-    vmovss  [rsp+0F8h+var_AC], xmm6
-    vmovss  [rsp+0F8h+var_A8], xmm6
-  }
+  InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
+  v7 = 0;
+  value = 0.0;
+  v20 = 0.0;
+  v21 = 0.0;
   do
   {
-    __asm { vmovss  xmm1, dword ptr [rsi+84h] }
-    _RDI = 3i64 * (int)v14;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+rdi*4+0F8h+transform+4]
-      vmulss  xmm3, xmm0, dword ptr [rsi+88h]
-      vmulss  xmm2, xmm1, dword ptr [rsp+rdi*4+0F8h+transform]
-      vmovss  xmm0, dword ptr [rsp+rdi*4+0F8h+transform+8]
-      vmulss  xmm1, xmm0, dword ptr [rsi+8Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm7, xmm4, xmm1
-      vmovss  xmm0, dword ptr [rsp+rdi*4+0F8h+transform+4]
-      vmulss  xmm3, xmm0, dword ptr [rsi+7Ch]
-      vmovss  xmm1, dword ptr [rsp+rdi*4+0F8h+transform]
-      vmulss  xmm2, xmm1, dword ptr [rsi+78h]
-      vmovss  xmm0, dword ptr [rsp+rdi*4+0F8h+transform+8]
-      vmulss  xmm1, xmm0, dword ptr [rsi+80h]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm6, xmm4, xmm1
-      vandps  xmm0, xmm6, xmm9
-      vandps  xmm2, xmm7, xmm9
-      vcomiss xmm2, xmm0
-    }
-    ++v14;
+    v8 = (float)((float)(transform.m[v7].v[1] * InternalById->acceleration.v[1]) + (float)(InternalById->acceleration.v[0] * transform.m[v7].v[0])) + (float)(transform.m[v7].v[2] * InternalById->acceleration.v[2]);
+    v9 = (float)((float)(transform.m[v7].v[1] * InternalById->prevAcceleration.v[1]) + (float)(transform.m[v7].v[0] * InternalById->prevAcceleration.v[0])) + (float)(transform.m[v7].v[2] * InternalById->prevAcceleration.v[2]);
+    if ( COERCE_FLOAT(LODWORD(v8) & _xmm) > COERCE_FLOAT(LODWORD(v9) & _xmm) )
+      *(&value + (int)v7) = (float)(v8 - v9) / deltaTime;
+    ++v7;
   }
-  while ( v14 < 2 );
-  __asm
+  while ( v7 < 2 );
+  v10 = InternalById->acceleration.v[2];
+  v11 = InternalById->prevAcceleration.v[2];
+  if ( COERCE_FLOAT(LODWORD(v10) & _xmm) > COERCE_FLOAT(LODWORD(v11) & _xmm) )
+    v21 = (float)(v10 - v11) / deltaTime;
+  ServerDef = G_Vehicle_GetServerDef(InternalById->vehicleDefIndex);
+  if ( ServerDef )
   {
-    vmovss  xmm2, dword ptr [rsi+8Ch]
-    vmovss  xmm3, dword ptr [rsi+80h]
-    vandps  xmm1, xmm2, xmm9
-    vandps  xmm0, xmm3, xmm9
-    vcomiss xmm1, xmm0
-  }
-  if ( v14 > 2 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm2, xmm3
-      vdivss  xmm1, xmm0, xmm8
-      vmovss  [rsp+0F8h+var_A8], xmm1
-    }
-  }
-  if ( G_Vehicle_GetServerDef(_RSI->vehicleDefIndex) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+308h]
-      vmulss  xmm6, xmm0, xmm0
-    }
-    v43 = ScriptContext_Server();
+    v13 = ServerDef->vehiclePhysicsDef.minimumJoltForNotify * ServerDef->vehiclePhysicsDef.minimumJoltForNotify;
+    v14 = ScriptContext_Server();
     if ( BGVehicles::PhysicsIsValid(vehicleId) )
     {
       if ( GVehicles::ms_gVehiclesSystem )
       {
-        v44 = GVehicles::ms_gVehiclesSystem->PhysicsGetVehiclePhysicsManager(GVehicles::ms_gVehiclesSystem);
-        ObjectById = BgVehiclePhysicsManager::GetObjectById(v44, vehicleId);
+        v15 = GVehicles::ms_gVehiclesSystem->PhysicsGetVehiclePhysicsManager(GVehicles::ms_gVehiclesSystem);
+        ObjectById = BgVehiclePhysicsManager::GetObjectById(v15, vehicleId);
         if ( ObjectById )
         {
           m_entityNumber = ObjectById->m_entityNumber;
@@ -1666,29 +1488,16 @@ void __fastcall GVehicles::PhysicsCheckForJolt(GVehicles *this, unsigned int veh
             GEntity = G_GetGEntity(m_entityNumber);
             if ( GEntity )
             {
-              __asm
+              if ( (float)((float)(v20 * v20) + (float)(value * value)) >= v13 )
               {
-                vmovss  xmm0, [rsp+0F8h+var_AC]
-                vmovss  xmm1, [rsp+0F8h+value]
-                vmulss  xmm3, xmm0, xmm0
-                vmulss  xmm2, xmm1, xmm1
-                vaddss  xmm0, xmm3, xmm2
-                vcomiss xmm0, xmm6
-              }
-              if ( Scr_IsSystemActive(v43, 1u) )
-              {
-                __asm
+                if ( Scr_IsSystemActive(v14, 1u) )
                 {
-                  vmovss  xmm3, cs:__real@3d68ba2f
-                  vmulss  xmm1, xmm3, [rsp+0F8h+value]
-                  vmulss  xmm0, xmm3, [rsp+0F8h+var_AC]
-                  vmulss  xmm2, xmm3, [rsp+0F8h+var_A8]
-                  vmovss  [rsp+0F8h+value], xmm1
-                  vmovss  [rsp+0F8h+var_AC], xmm0
-                  vmovss  [rsp+0F8h+var_A8], xmm2
+                  value = 0.056818184 * value;
+                  v20 = 0.056818184 * v20;
+                  v21 = 0.056818184 * v21;
+                  Scr_AddVector(v14, &value);
+                  GScr_Notify(GEntity, scr_const.veh_jolt, 1u);
                 }
-                Scr_AddVector(v43, &value);
-                GScr_Notify(GEntity, scr_const.veh_jolt, 1u);
               }
             }
           }
@@ -1700,14 +1509,6 @@ void __fastcall GVehicles::PhysicsCheckForJolt(GVehicles *this, unsigned int veh
   {
     Com_PrintWarning(20, "GVehicles::PhysicsCheckForJolt() called when vehicleDef is null\n");
   }
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -1717,106 +1518,73 @@ GVehicles::PhysicsCrash
 */
 void GVehicles::PhysicsCrash(GVehicles *this, unsigned int vehicleId)
 {
-  char v20; 
+  __int128 v4; 
+  float v8; 
+  float v9; 
   GPhysicsVehicleInternal *InternalById; 
+  const VehicleDef *ServerDef; 
+  const VehicleDef *v12; 
+  float crashPointOffsetFwd; 
+  float crashImpulseSide; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float crashImpulseUp; 
+  double Mass; 
   vec3_t centerOfMass; 
   vec3_t origin; 
   vec3_t impulse; 
   vec3_t linearVelocity; 
-  char v49; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
   if ( GPhysicsVehicleManager::GetInternalById(vehicleId)->isWrecked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1318, ASSERT_TYPE_ASSERT, "(!PhysicsIsWrecked( vehicleId ))", (const char *)&queryFormat, "!PhysicsIsWrecked( vehicleId )") )
     __debugbreak();
   GPhysicsVehicleManager::GetInternalById(vehicleId)->crashingDisabled = 0;
   GVehicles::PhysicsWreck(this, vehicleId);
   GVehicles::PhysicsGetLinearVelocity(this, vehicleId, &linearVelocity);
   GVehicles::PhysicsGetCenterOfMass(this, vehicleId, &centerOfMass);
+  v4 = LODWORD(linearVelocity.v[0]);
+  *(float *)&v4 = fsqrt((float)(linearVelocity.v[0] * linearVelocity.v[0]) + (float)(linearVelocity.v[1] * linearVelocity.v[1]));
+  _XMM2 = v4;
   __asm
   {
-    vmovss  xmm4, dword ptr [rsp+0B8h+linearVelocity]
-    vmovss  xmm3, dword ptr [rsp+0B8h+linearVelocity+4]
-    vmovss  xmm5, cs:__real@3f800000
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vcomiss xmm2, cs:__real@3a83126f
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm5, xmm0
-    vdivss  xmm1, xmm5, xmm0
-    vmulss  xmm8, xmm4, xmm1
-    vmulss  xmm6, xmm3, xmm1
   }
-  if ( v20 )
+  v8 = linearVelocity.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v9 = linearVelocity.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  if ( *(float *)&v4 < 0.001 )
   {
-    __asm
-    {
-      vmovaps xmm8, xmm5
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v8 = FLOAT_1_0;
+    v9 = 0.0;
   }
   InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  _RAX = G_Vehicle_GetServerDef(InternalById->vehicleDefIndex);
-  _RDI = _RAX;
-  if ( _RAX )
+  ServerDef = G_Vehicle_GetServerDef(InternalById->vehicleDefIndex);
+  v12 = ServerDef;
+  if ( ServerDef )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+31Ch]
-      vmulss  xmm0, xmm8, xmm2
-      vaddss  xmm1, xmm0, dword ptr [rsp+0B8h+centerOfMass]
-      vmulss  xmm2, xmm6, xmm2
-      vaddss  xmm0, xmm2, dword ptr [rsp+0B8h+centerOfMass+4]
-      vmovss  dword ptr [rsp+0B8h+origin], xmm1
-      vmovss  xmm1, dword ptr [rsp+0B8h+centerOfMass+8]
-      vmovss  dword ptr [rsp+0B8h+origin+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rax+320h]
-      vmovss  dword ptr [rsp+0B8h+origin+8], xmm2
-      vmovss  xmm3, dword ptr [rax+324h]
-      vmulss  xmm0, xmm6, xmm3
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+0B8h+var_28], xmm7
-      vxorps  xmm7, xmm0, xmm6
-      vmulss  xmm8, xmm8, xmm3
-    }
+    crashPointOffsetFwd = ServerDef->vehiclePhysicsDef.crashPointOffsetFwd;
+    origin.v[0] = (float)(v8 * crashPointOffsetFwd) + centerOfMass.v[0];
+    origin.v[1] = (float)(v9 * crashPointOffsetFwd) + centerOfMass.v[1];
+    origin.v[2] = centerOfMass.v[2] + ServerDef->vehiclePhysicsDef.crashPointOffsetUp;
+    crashImpulseSide = ServerDef->vehiclePhysicsDef.crashImpulseSide;
+    LODWORD(v15) = COERCE_UNSIGNED_INT(v9 * crashImpulseSide) ^ _xmm;
+    v17 = v8 * crashImpulseSide;
+    v16 = v8 * crashImpulseSide;
     if ( G_rand() % 2 )
     {
-      __asm
-      {
-        vxorps  xmm7, xmm7, xmm6
-        vxorps  xmm8, xmm8, xmm6
-      }
+      v15 = v9 * crashImpulseSide;
+      LODWORD(v16) = LODWORD(v17) ^ _xmm;
     }
-    __asm { vmovss  xmm6, dword ptr [rdi+328h] }
-    *(double *)&_XMM0 = GVehicles::PhysicsGetMass(this, vehicleId);
-    __asm
-    {
-      vmulss  xmm1, xmm7, xmm0
-      vmulss  xmm2, xmm8, xmm0
-      vmulss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rsp+0B8h+impulse+8], xmm0
-      vmovss  dword ptr [rsp+0B8h+impulse], xmm1
-      vmovss  dword ptr [rsp+0B8h+impulse+4], xmm2
-    }
+    crashImpulseUp = v12->vehiclePhysicsDef.crashImpulseUp;
+    Mass = GVehicles::PhysicsGetMass(this, vehicleId);
+    impulse.v[2] = *(float *)&Mass * crashImpulseUp;
+    impulse.v[0] = v15 * *(float *)&Mass;
+    impulse.v[1] = v16 * *(float *)&Mass;
     GVehicles::PhysicsAddImpulse(this, vehicleId, &impulse, &origin);
-    __asm { vmovaps xmm7, [rsp+0B8h+var_28] }
   }
   else
   {
     Com_PrintWarning(20, "GVehicles::PhysicsCrash() called when vehicleDef is null\n");
-  }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -2245,34 +2013,20 @@ GVehicles::PhysicsGetAngularVelocity
 */
 void GVehicles::PhysicsGetAngularVelocity(GVehicles *this, unsigned int vehicleId, vec3_t *angularVelocity)
 {
-  int v8; 
-  int v9; 
-  int v10; 
+  BgVehiclePhysics *ObjectById; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  _RBX = angularVelocity;
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+1B0h]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm2, dword ptr [rax+1B4h]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, dword ptr [rax+1B8h]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v5 = ObjectById->m_angularVelocityWs.v[0];
+  angularVelocity->v[0] = v5;
+  v6 = ObjectById->m_angularVelocityWs.v[1];
+  angularVelocity->v[1] = v6;
+  v7 = ObjectById->m_angularVelocityWs.v[2];
+  angularVelocity->v[2] = v7;
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -2358,34 +2112,20 @@ GVehicles::PhysicsGetCenterOfMass
 */
 void GVehicles::PhysicsGetCenterOfMass(GVehicles *this, unsigned int vehicleId, vec3_t *centerOfMass)
 {
-  int v8; 
-  int v9; 
-  int v10; 
+  BgVehiclePhysics *ObjectById; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  _RBX = centerOfMass;
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+22Ch]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm2, dword ptr [rax+230h]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, dword ptr [rax+234h]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1221, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerOfMass )[0] ) && !IS_NAN( ( centerOfMass )[1] ) && !IS_NAN( ( centerOfMass )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerOfMass )[0] ) && !IS_NAN( ( centerOfMass )[1] ) && !IS_NAN( ( centerOfMass )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v5 = ObjectById->m_centerOfMassWs.v[0];
+  centerOfMass->v[0] = v5;
+  v6 = ObjectById->m_centerOfMassWs.v[1];
+  centerOfMass->v[1] = v6;
+  v7 = ObjectById->m_centerOfMassWs.v[2];
+  centerOfMass->v[2] = v7;
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1221, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerOfMass )[0] ) && !IS_NAN( ( centerOfMass )[1] ) && !IS_NAN( ( centerOfMass )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerOfMass )[0] ) && !IS_NAN( ( centerOfMass )[1] ) && !IS_NAN( ( centerOfMass )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -2395,135 +2135,24 @@ GVehicles::PhysicsGetChassisForwardDir
 */
 void GVehicles::PhysicsGetChassisForwardDir(GVehicles *this, unsigned int vehicleId, vec3_t *dir)
 {
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
+  BgVehiclePhysics *ObjectById; 
+  float *v5; 
+  float v6; 
+  float v7; 
+  float v8; 
 
-  _RDI = dir;
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  _RBX = _RAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+174h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+17Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+180h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+184h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+188h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+190h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+194h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+198h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+19Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1A0h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1003, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+174h]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm2, dword ptr [rbx+178h]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rdi+4], xmm2
-    vmovss  xmm1, dword ptr [rbx+17Ch]
-    vmovss  dword ptr [rdi+8], xmm1
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1006, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v5 = (float *)ObjectById;
+  if ( ((LODWORD(ObjectById->m_transform.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1003, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
+    __debugbreak();
+  v6 = v5[93];
+  dir->v[0] = v6;
+  v7 = v5[94];
+  dir->v[1] = v7;
+  v8 = v5[95];
+  dir->v[2] = v8;
+  if ( ((LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040 || (LODWORD(v8) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1006, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dir )[0] ) && !IS_NAN( ( dir )[1] ) && !IS_NAN( ( dir )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -2534,110 +2163,11 @@ GVehicles::PhysicsGetChassisTransform
 void GVehicles::PhysicsGetChassisTransform(GVehicles *this, unsigned int vehicleId, tmat43_t<vec3_t> *transform)
 {
   BgVehiclePhysics *ObjectById; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
 
-  _RBX = transform;
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  MatrixCopy43(&ObjectById->m_transform, _RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-  {
-LABEL_17:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 993, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( transform )[0] )[0] ) || IS_NAN( ( ( transform )[0] )[1] ) || IS_NAN( ( ( transform )[0] )[2] ) ) || ( IS_NAN( ( ( transform )[1] )[0] ) || IS_NAN( ( ( transform )[1] )[1] ) || IS_NAN( ( ( transform )[1] )[2] ) ) || ( IS_NAN( ( ( transform )[2] )[0] ) || IS_NAN( ( ( transform )[2] )[1] ) || IS_NAN( ( ( transform )[2] )[2] ) ) || ( IS_NAN( ( ( transform )[3] )[0] ) || IS_NAN( ( ( transform )[3] )[1] ) || IS_NAN( ( ( transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( transform )") )
-      __debugbreak();
-  }
+  MatrixCopy43(&ObjectById->m_transform, transform);
+  if ( ((LODWORD(transform->m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(transform->m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 993, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( transform )[0] )[0] ) || IS_NAN( ( ( transform )[0] )[1] ) || IS_NAN( ( ( transform )[0] )[2] ) ) || ( IS_NAN( ( ( transform )[1] )[0] ) || IS_NAN( ( ( transform )[1] )[1] ) || IS_NAN( ( ( transform )[1] )[2] ) ) || ( IS_NAN( ( ( transform )[2] )[0] ) || IS_NAN( ( ( transform )[2] )[1] ) || IS_NAN( ( ( transform )[2] )[2] ) ) || ( IS_NAN( ( ( transform )[3] )[0] ) || IS_NAN( ( ( transform )[3] )[1] ) || IS_NAN( ( ( transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( transform )") )
+    __debugbreak();
 }
 
 /*
@@ -2662,162 +2192,32 @@ GVehicles::PhysicsGetCurrentCoM
 */
 void GVehicles::PhysicsGetCurrentCoM(GVehicles *this, unsigned int vehicleId, vec3_t *com)
 {
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  vec3_t in1; 
+  BgVehiclePhysics *ObjectById; 
+  float v5; 
+  float v6; 
+  __int64 v7; 
+  float v8; 
+  __int128 in1; 
 
-  _RDI = com;
-  _RBX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  *(float *)&in1 = ObjectById->m_centerOfMassWs.v[0];
+  v5 = ObjectById->m_centerOfMassWs.v[1];
+  v8 = *(float *)&in1;
+  *((float *)&in1 + 1) = v5;
+  v6 = ObjectById->m_centerOfMassWs.v[2];
+  *((float *)&in1 + 2) = v6;
+  if ( (in1 & 0x7F800000) == 2139095040 || (v8 = v5, (LODWORD(v5) & 0x7F800000) == 2139095040) || (v8 = v6, (LODWORD(v6) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rax+22Ch]
-    vmovss  dword ptr [rsp+68h+in1], xmm0
-    vmovss  xmm1, dword ptr [rax+230h]
-    vmovss  [rsp+68h+var_38], xmm0
-    vmovss  dword ptr [rsp+68h+in1+4], xmm1
-    vmovss  xmm2, dword ptr [rax+234h]
-    vmovss  dword ptr [rsp+68h+in1+8], xmm2
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm { vmovss  [rsp+68h+var_38], xmm1 }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm { vmovss  [rsp+68h+var_38], xmm2 }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-  {
-LABEL_27:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1119, ASSERT_TYPE_SANITY, "( !IS_NAN( ( comWs )[0] ) && !IS_NAN( ( comWs )[1] ) && !IS_NAN( ( comWs )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( comWs )[0] ) && !IS_NAN( ( comWs )[1] ) && !IS_NAN( ( comWs )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1119, ASSERT_TYPE_SANITY, "( !IS_NAN( ( comWs )[0] ) && !IS_NAN( ( comWs )[1] ) && !IS_NAN( ( comWs )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( comWs )[0] ) && !IS_NAN( ( comWs )[1] ) && !IS_NAN( ( comWs )[2] )", v8, in1) )
       __debugbreak();
   }
-  __asm
+  if ( ((LODWORD(ObjectById->m_transform.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1122, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
+    __debugbreak();
+  MatrixTransposeTransformVector43((const vec3_t *)&in1, &ObjectById->m_transform, com);
+  *(float *)&v7 = com->v[0];
+  if ( (LODWORD(com->v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v7 = com->v[1], (v7 & 0x7F800000) == 2139095040) || (*(float *)&v7 = com->v[2], (v7 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx+174h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+178h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+17Ch]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+180h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+184h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+188h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18Ch]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+190h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+194h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+198h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+19Ch]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1A0h]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-  {
-LABEL_28:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1122, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
-      __debugbreak();
-  }
-  MatrixTransposeTransformVector43(&in1, &_RBX->m_transform, _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-  {
-LABEL_29:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1125, ASSERT_TYPE_SANITY, "( !IS_NAN( ( com )[0] ) && !IS_NAN( ( com )[1] ) && !IS_NAN( ( com )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( com )[0] ) && !IS_NAN( ( com )[1] ) && !IS_NAN( ( com )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1125, ASSERT_TYPE_SANITY, "( !IS_NAN( ( com )[0] ) && !IS_NAN( ( com )[1] ) && !IS_NAN( ( com )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( com )[0] ) && !IS_NAN( ( com )[1] ) && !IS_NAN( ( com )[2] )", v7) )
       __debugbreak();
   }
 }
@@ -2827,43 +2227,23 @@ LABEL_29:
 GVehicles::PhysicsGetDelayToStartDriving
 ==============
 */
-
-float __fastcall GVehicles::PhysicsGetDelayToStartDriving(GVehicles *this, const BgVehiclePhysics *vehObj, int driverEntNum, double defaultTime)
+float GVehicles::PhysicsGetDelayToStartDriving(GVehicles *this, const BgVehiclePhysics *vehObj, int driverEntNum, float defaultTime)
 {
-  __int64 v7; 
+  __int64 v5; 
+  const dvar_t *v6; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( driverEntNum == 2047 )
-    goto LABEL_12;
+    return defaultTime;
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  v7 = (*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)driverEntNum);
-  if ( v7 && *(_DWORD *)(v7 + 4) && *(_DWORD *)(v7 + 2556) )
-  {
-    _RBX = DCONST_DVARFLT_bg_vehDelayFromPassenger;
-    if ( !DCONST_DVARFLT_bg_vehDelayFromPassenger && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehDelayFromPassenger") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  else
-  {
-LABEL_12:
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  return *(float *)&_XMM0;
+  v5 = (*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)driverEntNum);
+  if ( !v5 || !*(_DWORD *)(v5 + 4) || !*(_DWORD *)(v5 + 2556) )
+    return defaultTime;
+  v6 = DCONST_DVARFLT_bg_vehDelayFromPassenger;
+  if ( !DCONST_DVARFLT_bg_vehDelayFromPassenger && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehDelayFromPassenger") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  return v6->current.value;
 }
 
 /*
@@ -2873,9 +2253,7 @@ GVehicles::PhysicsGetFrontAxleOffset
 */
 float GVehicles::PhysicsGetFrontAxleOffset(GVehicles *this, unsigned int vehicleId)
 {
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm { vmovss  xmm0, dword ptr [rax+58h] }
-  return *(float *)&_XMM0;
+  return GPhysicsVehicleManager::GetInternalById(vehicleId)->axleOffsets[0];
 }
 
 /*
@@ -2886,140 +2264,17 @@ GVehicles::PhysicsGetFrontWheelCenterWS
 void GVehicles::PhysicsGetFrontWheelCenterWS(GVehicles *this, unsigned int vehicleId, vec3_t *centerWS)
 {
   GPhysicsVehicleInternal *InternalById; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
+  BgVehiclePhysics *ObjectById; 
+  BgVehiclePhysics *v8; 
 
-  _RSI = centerWS;
   InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  _RBX = _RAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+174h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+17Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+180h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+184h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+188h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+190h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+194h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+198h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+19Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1A0h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-  {
-LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1018, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
-      __debugbreak();
-  }
-  MatrixTransformVector43(InternalById->axleCenters, &_RBX->m_transform, _RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1022, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v8 = ObjectById;
+  if ( ((LODWORD(ObjectById->m_transform.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1018, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
+    __debugbreak();
+  MatrixTransformVector43(InternalById->axleCenters, &v8->m_transform, centerWS);
+  if ( ((LODWORD(centerWS->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(centerWS->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(centerWS->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1022, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3042,34 +2297,20 @@ GVehicles::PhysicsGetLinearVelocity
 */
 void GVehicles::PhysicsGetLinearVelocity(GVehicles *this, unsigned int vehicleId, vec3_t *linearVelocity)
 {
-  int v8; 
-  int v9; 
-  int v10; 
+  BgVehiclePhysics *ObjectById; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  _RBX = linearVelocity;
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+1A4h]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm2, dword ptr [rax+1A8h]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, dword ptr [rax+1ACh]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v5 = ObjectById->m_linearVelocityWs.v[0];
+  linearVelocity->v[0] = v5;
+  v6 = ObjectById->m_linearVelocityWs.v[1];
+  linearVelocity->v[1] = v6;
+  v7 = ObjectById->m_linearVelocityWs.v[2];
+  linearVelocity->v[2] = v7;
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3079,34 +2320,20 @@ GVehicles::PhysicsGetLocalAcceleration
 */
 void GVehicles::PhysicsGetLocalAcceleration(GVehicles *this, unsigned int vehicleId, vec3_t *acceleration)
 {
-  int v8; 
-  int v9; 
-  int v10; 
+  GPhysicsVehicleInternal *InternalById; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  _RBX = acceleration;
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+9Ch]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm2, dword ptr [rax+0A0h]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, dword ptr [rax+0A4h]
-    vmovss  [rsp+38h+arg_10], xmm0
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_10], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_10], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1066, ASSERT_TYPE_SANITY, "( !IS_NAN( ( acceleration )[0] ) && !IS_NAN( ( acceleration )[1] ) && !IS_NAN( ( acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( acceleration )[0] ) && !IS_NAN( ( acceleration )[1] ) && !IS_NAN( ( acceleration )[2] )") )
-      __debugbreak();
-  }
+  InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
+  v5 = InternalById->localAcceleration.v[0];
+  acceleration->v[0] = v5;
+  v6 = InternalById->localAcceleration.v[1];
+  acceleration->v[1] = v6;
+  v7 = InternalById->localAcceleration.v[2];
+  acceleration->v[2] = v7;
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1066, ASSERT_TYPE_SANITY, "( !IS_NAN( ( acceleration )[0] ) && !IS_NAN( ( acceleration )[1] ) && !IS_NAN( ( acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( acceleration )[0] ) && !IS_NAN( ( acceleration )[1] ) && !IS_NAN( ( acceleration )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3116,34 +2343,20 @@ GVehicles::PhysicsGetLocalVelocity
 */
 void GVehicles::PhysicsGetLocalVelocity(GVehicles *this, unsigned int vehicleId, vec3_t *velocity)
 {
-  int v8; 
-  int v9; 
-  int v10; 
+  GPhysicsVehicleInternal *InternalById; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  _RBX = velocity;
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0A8h]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm2, dword ptr [rax+0ACh]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, dword ptr [rax+0B0h]
-    vmovss  [rsp+38h+arg_10], xmm0
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_10], xmm2 }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_10], xmm1 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1056, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] )") )
-      __debugbreak();
-  }
+  InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
+  v5 = InternalById->localVelocity.v[0];
+  velocity->v[0] = v5;
+  v6 = InternalById->localVelocity.v[1];
+  velocity->v[1] = v6;
+  v7 = InternalById->localVelocity.v[2];
+  velocity->v[2] = v7;
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1056, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3153,23 +2366,12 @@ GVehicles::PhysicsGetMass
 */
 float GVehicles::PhysicsGetMass(GVehicles *this, unsigned int vehicleId)
 {
-  int v9; 
+  float m_mass; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rax+260h]
-    vmovss  [rsp+48h+arg_0], xmm6
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1208, ASSERT_TYPE_SANITY, "( !IS_NAN( mass ) )", (const char *)&queryFormat, "!IS_NAN( mass )") )
+  m_mass = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId)->m_mass;
+  if ( (LODWORD(m_mass) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1208, ASSERT_TYPE_SANITY, "( !IS_NAN( mass ) )", (const char *)&queryFormat, "!IS_NAN( mass )") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return m_mass;
 }
 
 /*
@@ -3232,9 +2434,7 @@ GVehicles::PhysicsGetRearAxleOffset
 */
 float GVehicles::PhysicsGetRearAxleOffset(GVehicles *this, unsigned int vehicleId)
 {
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm { vmovss  xmm0, dword ptr [rax+5Ch] }
-  return *(float *)&_XMM0;
+  return GPhysicsVehicleManager::GetInternalById(vehicleId)->axleOffsets[1];
 }
 
 /*
@@ -3245,140 +2445,17 @@ GVehicles::PhysicsGetRearWheelCenterWS
 void GVehicles::PhysicsGetRearWheelCenterWS(GVehicles *this, unsigned int vehicleId, vec3_t *centerWS)
 {
   GPhysicsVehicleInternal *InternalById; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
+  BgVehiclePhysics *ObjectById; 
+  BgVehiclePhysics *v8; 
 
-  _RSI = centerWS;
   InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  _RBX = _RAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+174h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+17Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+180h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+184h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+188h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+190h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+194h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+198h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+19Ch]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1A0h]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-  {
-LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1034, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
-      __debugbreak();
-  }
-  MatrixTransformVector43(&InternalById->axleCenters[1], &_RBX->m_transform, _RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1038, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] )") )
-      __debugbreak();
-  }
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v8 = ObjectById;
+  if ( ((LODWORD(ObjectById->m_transform.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[0].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[1].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[2].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ObjectById->m_transform.m[3].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1034, ASSERT_TYPE_SANITY, "( !( ( IS_NAN( ( ( r_transform )[0] )[0] ) || IS_NAN( ( ( r_transform )[0] )[1] ) || IS_NAN( ( ( r_transform )[0] )[2] ) ) || ( IS_NAN( ( ( r_transform )[1] )[0] ) || IS_NAN( ( ( r_transform )[1] )[1] ) || IS_NAN( ( ( r_transform )[1] )[2] ) ) || ( IS_NAN( ( ( r_transform )[2] )[0] ) || IS_NAN( ( ( r_transform )[2] )[1] ) || IS_NAN( ( ( r_transform )[2] )[2] ) ) || ( IS_NAN( ( ( r_transform )[3] )[0] ) || IS_NAN( ( ( r_transform )[3] )[1] ) || IS_NAN( ( ( r_transform )[3] )[2] ) ) ) )", (const char *)&queryFormat, "!IS_NAN_MAT43( r_transform )") )
+    __debugbreak();
+  MatrixTransformVector43(&InternalById->axleCenters[1], &v8->m_transform, centerWS);
+  if ( ((LODWORD(centerWS->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(centerWS->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(centerWS->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1038, ASSERT_TYPE_SANITY, "( !IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( centerWS )[0] ) && !IS_NAN( ( centerWS )[1] ) && !IS_NAN( ( centerWS )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3398,101 +2475,44 @@ GVehicles::PhysicsGetSpeed
 */
 float GVehicles::PhysicsGetSpeed(GVehicles *this, unsigned int vehicleId)
 {
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
+  float v4; 
+  float v5; 
+  float v6; 
+  BgVehiclePhysics *ObjectById; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int64 v12; 
+  float v13; 
   vec3_t dir; 
-  char v41; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
   GVehicles::PhysicsGetChassisForwardDir(this, vehicleId, &dir);
-  __asm
+  v4 = dir.v[0];
+  v5 = dir.v[2];
+  v6 = dir.v[1];
+  v13 = dir.v[0];
+  if ( (LODWORD(dir.v[0]) & 0x7F800000) == 2139095040 || (v13 = dir.v[1], (LODWORD(dir.v[1]) & 0x7F800000) == 2139095040) || (v13 = dir.v[2], (LODWORD(dir.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm11, dword ptr [rsp+0B8h+dir]
-    vmovss  xmm9, dword ptr [rsp+0B8h+dir+8]
-    vmovss  xmm10, dword ptr [rsp+0B8h+dir+4]
-    vmovss  [rsp+0B8h+var_88], xmm11
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm10 }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm9 }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1165, ASSERT_TYPE_SANITY, "( !IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1165, ASSERT_TYPE_SANITY, "( !IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] )", v13) )
       __debugbreak();
   }
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  v8 = ObjectById->m_linearVelocityWs.v[0];
+  v9 = ObjectById->m_linearVelocityWs.v[1];
+  v10 = ObjectById->m_linearVelocityWs.v[2];
+  *(float *)&v12 = v8;
+  if ( (LODWORD(v8) & 0x7F800000) == 2139095040 || (*(float *)&v12 = ObjectById->m_linearVelocityWs.v[1], (LODWORD(v9) & 0x7F800000) == 2139095040) || (*(float *)&v12 = ObjectById->m_linearVelocityWs.v[2], (LODWORD(v10) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm8, dword ptr [rax+1A4h]
-    vmovss  xmm6, dword ptr [rax+1A8h]
-    vmovss  xmm7, dword ptr [rax+1ACh]
-    vmovss  [rsp+0B8h+var_88], xmm8
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm6 }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm7 }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-  {
-LABEL_21:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v12) )
       __debugbreak();
   }
-  __asm { vmovss  [rsp+0B8h+var_88], xmm8 }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm6 }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_22;
-  __asm { vmovss  [rsp+0B8h+var_88], xmm7 }
-  if ( (v39 & 0x7F800000) == 2139095040 )
+  *(float *)&v12 = v8;
+  if ( (LODWORD(v8) & 0x7F800000) == 2139095040 || (*(float *)&v12 = v9, (LODWORD(v9) & 0x7F800000) == 2139095040) || (*(float *)&v12 = v10, (LODWORD(v10) & 0x7F800000) == 2139095040) )
   {
-LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1170, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1170, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v12) )
       __debugbreak();
   }
-  __asm
-  {
-    vmulss  xmm1, xmm8, xmm11
-    vmulss  xmm0, xmm6, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm7
-    vaddss  xmm0, xmm2, xmm1
-  }
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(v8 * v4) + (float)(v9 * v6)) + (float)(v5 * v10);
 }
 
 /*
@@ -3502,37 +2522,9 @@ GVehicles::PhysicsGetSteeringPointWS
 */
 void GVehicles::PhysicsGetSteeringPointWS(GVehicles *this, unsigned int vehicleId, vec3_t *pointWS)
 {
-  int v7; 
-  int v8; 
-  int v9; 
-
-  _RBX = pointWS;
   GVehicles::PhysicsGetFrontWheelCenterWS(this, vehicleId, pointWS);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v7 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_10], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1046, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pointWS )[0] ) && !IS_NAN( ( pointWS )[1] ) && !IS_NAN( ( pointWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pointWS )[0] ) && !IS_NAN( ( pointWS )[1] ) && !IS_NAN( ( pointWS )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(pointWS->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pointWS->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pointWS->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1046, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pointWS )[0] ) && !IS_NAN( ( pointWS )[1] ) && !IS_NAN( ( pointWS )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pointWS )[0] ) && !IS_NAN( ( pointWS )[1] ) && !IS_NAN( ( pointWS )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3637,9 +2629,7 @@ GVehicles::PhysicsGetWheelBaseLength
 */
 float GVehicles::PhysicsGetWheelBaseLength(GVehicles *this, unsigned int vehicleId)
 {
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm { vmovss  xmm0, dword ptr [rax+70h] }
-  return *(float *)&_XMM0;
+  return GPhysicsVehicleManager::GetInternalById(vehicleId)->wheelbaseLength;
 }
 
 /*
@@ -3649,9 +2639,7 @@ GVehicles::PhysicsGetWheelBaseWidth
 */
 float GVehicles::PhysicsGetWheelBaseWidth(GVehicles *this, unsigned int vehicleId)
 {
-  _RAX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  __asm { vmovss  xmm0, dword ptr [rax+74h] }
-  return *(float *)&_XMM0;
+  return GPhysicsVehicleManager::GetInternalById(vehicleId)->wheelbaseWidth;
 }
 
 /*
@@ -3801,127 +2789,58 @@ _BOOL8 GVehicles::PhysicsIsWrecked(GVehicles *this, unsigned int vehicleId)
 GVehicles::PhysicsLaunch
 ==============
 */
-
-void __fastcall GVehicles::PhysicsLaunch(GVehicles *this, unsigned int vehicleId, const vec3_t *launchVelocity, double spinFactor)
+void GVehicles::PhysicsLaunch(GVehicles *this, unsigned int vehicleId, const vec3_t *launchVelocity, float spinFactor)
 {
-  char v17; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double Mass; 
   vec3_t origin; 
   vec3_t linearVelocity; 
   vec3_t impulse; 
   vec3_t centerOfMass; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  _RBX = launchVelocity;
-  __asm { vmovaps xmm8, xmm3 }
-  if ( (v52 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v53 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v54 & 0x7F800000) == 2139095040 )
-  {
-LABEL_14:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1378, ASSERT_TYPE_SANITY, "( !IS_NAN( ( launchVelocity )[0] ) && !IS_NAN( ( launchVelocity )[1] ) && !IS_NAN( ( launchVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( launchVelocity )[0] ) && !IS_NAN( ( launchVelocity )[1] ) && !IS_NAN( ( launchVelocity )[2] )") )
-      __debugbreak();
-  }
-  __asm { vmovss  [rsp+0C8h+var_98], xmm8 }
-  if ( (v55 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1379, ASSERT_TYPE_SANITY, "( !IS_NAN( spinFactor ) )", (const char *)&queryFormat, "!IS_NAN( spinFactor )") )
+  if ( ((LODWORD(launchVelocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(launchVelocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(launchVelocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1378, ASSERT_TYPE_SANITY, "( !IS_NAN( ( launchVelocity )[0] ) && !IS_NAN( ( launchVelocity )[1] ) && !IS_NAN( ( launchVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( launchVelocity )[0] ) && !IS_NAN( ( launchVelocity )[1] ) && !IS_NAN( ( launchVelocity )[2] )") )
+    __debugbreak();
+  if ( (LODWORD(spinFactor) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1379, ASSERT_TYPE_SANITY, "( !IS_NAN( spinFactor ) )", (const char *)&queryFormat, "!IS_NAN( spinFactor )", spinFactor) )
     __debugbreak();
   GPhysicsVehicleManager::GetInternalById(vehicleId)->crashingDisabled = 0;
   GVehicles::PhysicsWreck(this, vehicleId);
   GVehicles::PhysicsGetLinearVelocity(this, vehicleId, &linearVelocity);
   GVehicles::PhysicsGetCenterOfMass(this, vehicleId, &centerOfMass);
-  __asm
+  origin = centerOfMass;
+  v7 = 0i64;
+  if ( spinFactor != 0.0 )
   {
-    vmovsd  xmm0, qword ptr [rsp+0C8h+centerOfMass]
-    vmovsd  qword ptr [rsp+0C8h+origin], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm8, xmm0
-  }
-  origin.v[2] = centerOfMass.v[2];
-  if ( !v17 )
-  {
-    *(double *)&_XMM0 = G_random();
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = G_random();
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = G_random();
+    *(double *)&v7 = G_random();
+    v8 = *(float *)&v7;
+    *(double *)&v7 = G_random();
+    v9 = *(float *)&v7;
+    *(double *)&v7 = G_random();
+    v10 = v7;
+    *(float *)&v10 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v9 * v9)) + (float)(v8 * v8));
+    _XMM4 = v10;
     __asm
     {
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm7, xmm7
-      vaddss  xmm3, xmm3, xmm2
-      vmovss  xmm2, cs:__real@3f800000
-      vsqrtss xmm4, xmm3, xmm3
       vcmpless xmm1, xmm4, cs:__real@80000000
       vblendvps xmm1, xmm4, xmm2, xmm1
-      vdivss  xmm5, xmm2, xmm1
-      vmulss  xmm0, xmm0, xmm5
-      vmulss  xmm2, xmm0, xmm8
-      vaddss  xmm2, xmm2, dword ptr [rsp+0C8h+origin]
-      vmulss  xmm0, xmm6, xmm5
-      vmulss  xmm3, xmm0, xmm8
-      vmovss  dword ptr [rsp+0C8h+origin], xmm2
-      vaddss  xmm2, xmm3, dword ptr [rsp+0C8h+origin+4]
-      vmulss  xmm0, xmm7, xmm5
-      vmulss  xmm3, xmm0, xmm8
-      vmovss  dword ptr [rsp+0C8h+origin+4], xmm2
-      vaddss  xmm2, xmm3, dword ptr [rsp+0C8h+origin+8]
-      vmovss  dword ptr [rsp+0C8h+origin+8], xmm2
     }
+    origin.v[0] = (float)((float)(*(float *)&v7 * (float)(1.0 / *(float *)&_XMM1)) * spinFactor) + origin.v[0];
+    origin.v[1] = (float)((float)(v9 * (float)(1.0 / *(float *)&_XMM1)) * spinFactor) + origin.v[1];
+    origin.v[2] = (float)((float)(v8 * (float)(1.0 / *(float *)&_XMM1)) * spinFactor) + origin.v[2];
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm7, dword ptr [rbx+4]
-    vmovss  xmm8, dword ptr [rbx+8]
-  }
-  GVehicles::PhysicsGetMass(this, vehicleId);
-  __asm
-  {
-    vsubss  xmm1, xmm6, dword ptr [rsp+0C8h+linearVelocity]
-    vsubss  xmm3, xmm7, dword ptr [rsp+0C8h+linearVelocity+4]
-    vmulss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rsp+0C8h+impulse], xmm2
-    vsubss  xmm2, xmm8, dword ptr [rsp+0C8h+linearVelocity+8]
-    vmulss  xmm0, xmm2, xmm0
-    vmovss  dword ptr [rsp+0C8h+impulse+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+impulse+4], xmm1
-  }
+  v14 = launchVelocity->v[0];
+  v15 = launchVelocity->v[1];
+  v16 = launchVelocity->v[2];
+  Mass = GVehicles::PhysicsGetMass(this, vehicleId);
+  impulse.v[0] = (float)(v14 - linearVelocity.v[0]) * *(float *)&Mass;
+  impulse.v[2] = (float)(v16 - linearVelocity.v[2]) * *(float *)&Mass;
+  impulse.v[1] = (float)(v15 - linearVelocity.v[1]) * *(float *)&Mass;
   GVehicles::PhysicsAddImpulse(this, vehicleId, &impulse, &origin);
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -3994,148 +2913,123 @@ void GVehicles::PhysicsMyChanges(GVehicles *this, unsigned int vehicleId, unsign
 GVehicles::PhysicsOnWorldAction
 ==============
 */
-
-void __fastcall GVehicles::PhysicsOnWorldAction(GVehicles *this, Physics_WorldId worldId, double deltaTime)
+void GVehicles::PhysicsOnWorldAction(GVehicles *this, Physics_WorldId worldId, float deltaTime)
 {
-  Physics_WorldId v8; 
-  unsigned int v10; 
+  Physics_WorldId v3; 
+  unsigned int v5; 
   BgVehiclePhysicsManager *p_m_vehiclePhysicsManager; 
-  __int64 v14; 
-  BgVehiclePhysics *v17; 
+  BgVehiclePhysicsObjectBuffer *m_vehiclePhysicsObjects; 
+  __int64 v8; 
+  gentity_s *v9; 
+  BgVehiclePhysics *ObjectForPmove; 
+  BgVehiclePhysics *v11; 
   VehiclePhysicsNetcodeType NetcodeTypeForOwner; 
   gentity_s *GEntity; 
-  const gentity_s *v20; 
+  const gentity_s *v14; 
   const playerState_s *EntityPlayerStateConst; 
   unsigned int PhysicsBodyId; 
-  int v24; 
-  char *fmt; 
-  __int64 v30; 
-  __int64 v31; 
-  void *retaddr; 
+  int v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmm6, xmm2
-  }
-  v8 = worldId;
-  __asm { vcomiss xmm2, cs:__real@3a83126f }
+  v3 = worldId;
+  if ( deltaTime <= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 452, ASSERT_TYPE_ASSERT, "(deltaTime > 0.001f)", (const char *)&queryFormat, "deltaTime > EQUAL_EPSILON") )
+    __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "GVehicles::PhysicsOnWorldAction");
-  v10 = 0;
+  v5 = 0;
   p_m_vehiclePhysicsManager = &this->m_vehiclePhysicsManager;
-  _RBX = this->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
-  __asm { vmovss  xmm7, cs:__real@41200000 }
+  m_vehiclePhysicsObjects = this->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
   do
   {
-    if ( !*(_DWORD *)&_RBX->buffer[8] )
-      goto LABEL_56;
-    if ( *(_DWORD *)&_RBX->buffer[32] != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 461, ASSERT_TYPE_ASSERT, "(vehObj->GetWorldId() == worldId)", (const char *)&queryFormat, "vehObj->GetWorldId() == worldId") )
-      __debugbreak();
-    if ( _RBX->buffer[612] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 462, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
-      __debugbreak();
-    v14 = *(int *)&_RBX->buffer[48];
-    if ( (unsigned int)v14 >= 0x800 )
+    if ( *(_DWORD *)&m_vehiclePhysicsObjects->buffer[8] )
     {
-      LODWORD(v31) = 2048;
-      LODWORD(v30) = *(_DWORD *)&_RBX->buffer[48];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v30, v31) )
+      if ( *(_DWORD *)&m_vehiclePhysicsObjects->buffer[32] != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 461, ASSERT_TYPE_ASSERT, "(vehObj->GetWorldId() == worldId)", (const char *)&queryFormat, "vehObj->GetWorldId() == worldId") )
         __debugbreak();
-    }
-    if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
-      __debugbreak();
-    _R15 = (EntHandle *)&g_entities[v14];
-    if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 467, ASSERT_TYPE_ASSERT, "( vehEnt )", "Vehicle object must have an associated entity") )
-      __debugbreak();
-    if ( BgVehiclePhysicsManager::ExistsObjectForPmove(p_m_vehiclePhysicsManager, (const BgVehiclePhysics *)_RBX) )
-    {
-      _RAX = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, (const BgVehiclePhysics *)_RBX);
-      v17 = _RAX;
-      if ( _RAX )
+      if ( m_vehiclePhysicsObjects->buffer[612] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 462, ASSERT_TYPE_ASSERT, "(!vehObj->IsPmoveObject())", (const char *)&queryFormat, "!vehObj->IsPmoveObject()") )
+        __debugbreak();
+      v8 = *(int *)&m_vehiclePhysicsObjects->buffer[48];
+      if ( (unsigned int)v8 >= 0x800 )
       {
-        _RBX->buffer[676] = _RAX->m_clientGeoLoaded;
-        __asm
+        LODWORD(v19) = 2048;
+        LODWORD(v18) = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[48];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, v19) )
+          __debugbreak();
+      }
+      if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+        __debugbreak();
+      v9 = &g_entities[v8];
+      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 467, ASSERT_TYPE_ASSERT, "( vehEnt )", "Vehicle object must have an associated entity") )
+        __debugbreak();
+      if ( BgVehiclePhysicsManager::ExistsObjectForPmove(p_m_vehiclePhysicsManager, (const BgVehiclePhysics *)m_vehiclePhysicsObjects) )
+      {
+        ObjectForPmove = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, (const BgVehiclePhysics *)m_vehiclePhysicsObjects);
+        v11 = ObjectForPmove;
+        if ( ObjectForPmove )
         {
-          vmovsd  xmm0, qword ptr [rax+11Ch]
-          vmovsd  qword ptr [rbx+11Ch], xmm0
+          m_vehiclePhysicsObjects->buffer[676] = ObjectForPmove->m_clientGeoLoaded;
+          *(double *)&m_vehiclePhysicsObjects->buffer[284] = *(double *)ObjectForPmove->m_playerViewAngles.v;
+          *(float *)&m_vehiclePhysicsObjects->buffer[292] = ObjectForPmove->m_playerViewAngles.v[2];
         }
-        *(float *)&_RBX->buffer[292] = _RAX->m_playerViewAngles.v[2];
       }
-    }
-    else
-    {
-      v17 = NULL;
-    }
-    NetcodeTypeForOwner = *(_DWORD *)&_RBX->buffer[24];
-    GEntity = G_GetGEntity(*(_DWORD *)&_RBX->buffer[48]);
-    if ( !GEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 420, ASSERT_TYPE_ASSERT, "(vehEnt != nullptr)", (const char *)&queryFormat, "vehEnt != nullptr") )
-      __debugbreak();
-    if ( EntHandle::isDefined(&GEntity->r.ownerNum) )
-    {
-      v20 = EntHandle::ent(&GEntity->r.ownerNum);
-      if ( v20 )
+      else
       {
-        EntityPlayerStateConst = G_GetEntityPlayerStateConst(v20);
-        if ( EntityPlayerStateConst )
-          NetcodeTypeForOwner = G_Vehicle_GetNetcodeTypeForOwner((const BgVehiclePhysics *)_RBX, EntityPlayerStateConst->clientNum);
+        v11 = NULL;
       }
-    }
-    if ( v17 && !v17->m_clientGeoLoaded && BgVehiclePhysics::GetNoClientGeoMode(v17) == NOCLIENTGEO_SWITCH_TO_SERVER_AUTH )
-      NetcodeTypeForOwner = VEH_NETCODE_SERVER_AUTH;
-    if ( !_RBX->buffer[76] || *(_DWORD *)&_RBX->buffer[24] == 1 )
-    {
-      if ( !BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)_RBX) || (PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)_RBX), !Physics_IsRigidBodyActive(*(Physics_WorldId *)&_RBX->buffer[32], PhysicsBodyId)) )
+      NetcodeTypeForOwner = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24];
+      GEntity = G_GetGEntity(*(_DWORD *)&m_vehiclePhysicsObjects->buffer[48]);
+      if ( !GEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 420, ASSERT_TYPE_ASSERT, "(vehEnt != nullptr)", (const char *)&queryFormat, "vehEnt != nullptr") )
+        __debugbreak();
+      if ( EntHandle::isDefined(&GEntity->r.ownerNum) )
       {
-        if ( *(_DWORD *)&_RBX->buffer[24] != 1 )
-          BgVehiclePhysics::SetKeyframed((BgVehiclePhysics *)_RBX, 0);
+        v14 = EntHandle::ent(&GEntity->r.ownerNum);
+        if ( v14 )
+        {
+          EntityPlayerStateConst = G_GetEntityPlayerStateConst(v14);
+          if ( EntityPlayerStateConst )
+            NetcodeTypeForOwner = G_Vehicle_GetNetcodeTypeForOwner((const BgVehiclePhysics *)m_vehiclePhysicsObjects, EntityPlayerStateConst->clientNum);
+        }
       }
-    }
-    else
-    {
-      __asm { vmovaps xmm1, xmm7; minTimeDynamic }
-      BgVehiclePhysics::SetDynamic((BgVehiclePhysics *)_RBX, *(float *)&_XMM1);
-    }
-    G_PhysicsObject_IdentifyRigidBodyType(v14);
-    if ( !_RBX->buffer[76] || (v24 = *(_DWORD *)&_RBX->buffer[24]) != 0 && v24 != 3 || NetcodeTypeForOwner == VEH_NETCODE_SERVER_AUTH )
-    {
-      if ( !BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)_RBX) )
-        goto LABEL_51;
-      fmt = NULL;
-    }
-    else
-    {
-      if ( !EntHandle::isDefined(_R15 + 82) )
+      if ( v11 && !v11->m_clientGeoLoaded && BgVehiclePhysics::GetNoClientGeoMode(v11) == NOCLIENTGEO_SWITCH_TO_SERVER_AUTH )
+        NetcodeTypeForOwner = VEH_NETCODE_SERVER_AUTH;
+      if ( !m_vehiclePhysicsObjects->buffer[76] || *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24] == 1 )
+      {
+        if ( !BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)m_vehiclePhysicsObjects) || (PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId((BgVehiclePhysics *)m_vehiclePhysicsObjects), !Physics_IsRigidBodyActive(*(Physics_WorldId *)&m_vehiclePhysicsObjects->buffer[32], PhysicsBodyId)) )
+        {
+          if ( *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24] != 1 )
+            BgVehiclePhysics::SetKeyframed((BgVehiclePhysics *)m_vehiclePhysicsObjects, 0);
+        }
+      }
+      else
+      {
+        BgVehiclePhysics::SetDynamic((BgVehiclePhysics *)m_vehiclePhysicsObjects, 10.0);
+      }
+      G_PhysicsObject_IdentifyRigidBodyType(v8);
+      if ( !m_vehiclePhysicsObjects->buffer[76] || (v17 = *(_DWORD *)&m_vehiclePhysicsObjects->buffer[24]) != 0 && v17 != 3 || NetcodeTypeForOwner == VEH_NETCODE_SERVER_AUTH )
+      {
+        if ( BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)m_vehiclePhysicsObjects) )
+          BgVehiclePhysics::Simulate((BgVehiclePhysics *)m_vehiclePhysicsObjects, NULL, NULL, deltaTime, NULL);
+      }
+      else if ( EntHandle::isDefined(&v9->r.ownerNum) )
+      {
+        if ( BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)m_vehiclePhysicsObjects) )
+          BgVehiclePhysics::Simulate((BgVehiclePhysics *)m_vehiclePhysicsObjects, NULL, NULL, deltaTime, v11);
+      }
+      else
       {
         Com_PrintWarning(20, "GVehicles::PhysicsOnWorldAction. Physics vehicle's owner unlinked/changed. Switching to non-controlled vehicle.\n");
-        BgVehiclePhysics::SetPlayerControlled((BgVehiclePhysics *)_RBX, 0);
-        goto LABEL_51;
+        BgVehiclePhysics::SetPlayerControlled((BgVehiclePhysics *)m_vehiclePhysicsObjects, 0);
       }
-      if ( !BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)_RBX) )
-        goto LABEL_51;
-      fmt = (char *)v17;
+      if ( (!v9 || ((v9->s.eType - 12) & 0xFFFD) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 518, ASSERT_TYPE_ASSERT, "(vehEnt && BG_IsVehicleEntity( &vehEnt->s ))", (const char *)&queryFormat, "vehEnt && BG_IsVehicleEntity( &vehEnt->s )") )
+        __debugbreak();
+      v9->s.lerp.u.actor.impactVector.v[1] = (*(float (__fastcall **)(BgVehiclePhysicsObjectBuffer *))(*(_QWORD *)m_vehiclePhysicsObjects->buffer + 88i64))(m_vehiclePhysicsObjects);
+      v3 = worldId;
     }
-    __asm { vmovaps xmm3, xmm6; deltaTime }
-    BgVehiclePhysics::Simulate((BgVehiclePhysics *)_RBX, NULL, NULL, *(float *)&_XMM3, (const BgVehiclePhysics *)fmt);
-LABEL_51:
-    if ( (!_R15 || ((_R15[2].number - 12) & 0xFFFD) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 518, ASSERT_TYPE_ASSERT, "(vehEnt && BG_IsVehicleEntity( &vehEnt->s ))", (const char *)&queryFormat, "vehEnt && BG_IsVehicleEntity( &vehEnt->s )") )
-      __debugbreak();
-    *(double *)&_XMM0 = (*(double (__fastcall **)(BgVehiclePhysicsObjectBuffer *))(*(_QWORD *)_RBX->buffer + 88i64))(_RBX);
-    __asm { vmovss  dword ptr [r15+68h], xmm0 }
-    v8 = worldId;
-LABEL_56:
-    ++v10;
-    ++_RBX;
+    ++v5;
+    ++m_vehiclePhysicsObjects;
   }
-  while ( v10 < 0x80 );
-  _RAX = this;
-  __asm { vmovss  dword ptr [rax+109634h], xmm6 }
+  while ( v5 < 0x80 );
+  this->m_lastPhysicsStepTime = deltaTime;
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_58]
-  }
 }
 
 /*
@@ -4143,371 +3037,111 @@ LABEL_56:
 GVehicles::PhysicsPostThinkUpdate
 ==============
 */
-
-void __fastcall GVehicles::PhysicsPostThinkUpdate(GVehicles *this, unsigned int vehicleId, double deltaTime)
+void GVehicles::PhysicsPostThinkUpdate(GVehicles *this, unsigned int vehicleId, float deltaTime)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  GPhysicsVehicleInternal *InternalById; 
+  BgVehiclePhysics *ObjectById; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   gentity_s *VehicleEntityFromId; 
   gentity_s *tagChildren; 
   gclient_s *client; 
-  __int64 v92; 
-  int v93; 
+  __int64 v27; 
   tmat43_t<vec3_t> transform; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
 
-  __asm
-  {
-    vmovaps [rsp+118h+var_78], xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps xmm9, xmm2
-  }
-  if ( (unsigned __int64)&v92 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1648, ASSERT_TYPE_ASSERT, "(deltaTime > 0.f)", (const char *)&queryFormat, "deltaTime > 0.f") )
+  if ( deltaTime <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1648, ASSERT_TYPE_ASSERT, "(deltaTime > 0.f)", (const char *)&queryFormat, "deltaTime > 0.f") )
     __debugbreak();
-  __asm { vmovss  [rsp+118h+var_E8], xmm9 }
-  if ( (v93 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1649, ASSERT_TYPE_SANITY, "( !IS_NAN( deltaTime ) )", (const char *)&queryFormat, "!IS_NAN( deltaTime )") )
+  if ( (LODWORD(deltaTime) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1649, ASSERT_TYPE_SANITY, "( !IS_NAN( deltaTime ) )", (const char *)&queryFormat, "!IS_NAN( deltaTime )", deltaTime) )
     __debugbreak();
-  _RBX = GPhysicsVehicleManager::GetInternalById(vehicleId);
-  if ( _RBX->inUse )
+  InternalById = GPhysicsVehicleManager::GetInternalById(vehicleId);
+  if ( InternalById->inUse )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_48], xmm6
-      vmovaps [rsp+118h+var_58], xmm7
-      vmovaps [rsp+118h+var_68], xmm8
-      vmovaps [rsp+118h+var_88], xmm10
-      vmovaps [rsp+118h+var_98], xmm11
-      vmovaps [rsp+118h+var_A8], xmm12
-    }
+    v34 = v3;
+    v33 = v4;
+    v32 = v5;
+    v31 = v6;
+    v30 = v7;
+    v29 = v8;
     GVehicles::PhysicsGetChassisTransform(this, vehicleId, &transform);
-    _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-    __asm
+    ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+    v14 = ObjectById->m_linearVelocityWs.v[0];
+    v15 = ObjectById->m_linearVelocityWs.v[1];
+    v16 = ObjectById->m_linearVelocityWs.v[2];
+    *(float *)&v27 = v14;
+    if ( (LODWORD(v14) & 0x7F800000) == 2139095040 || (*(float *)&v27 = ObjectById->m_linearVelocityWs.v[1], (LODWORD(v15) & 0x7F800000) == 2139095040) || (*(float *)&v27 = ObjectById->m_linearVelocityWs.v[2], (LODWORD(v16) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm7, dword ptr [rax+1A4h]
-      vmovss  xmm6, dword ptr [rax+1A8h]
-      vmovss  xmm8, dword ptr [rax+1ACh]
-      vmovss  [rsp+118h+var_E8], xmm7
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_71;
-    __asm { vmovss  [rsp+118h+var_E8], xmm6 }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_71;
-    __asm { vmovss  [rsp+118h+var_E8], xmm8 }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_71:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v27) )
         __debugbreak();
     }
-    __asm
-    {
-      vsubss  xmm7, xmm7, dword ptr [rbx+0B4h]
-      vsubss  xmm6, xmm6, dword ptr [rbx+0B8h]
-      vmulss  xmm1, xmm6, dword ptr [rsp+118h+transform+4]
-      vmulss  xmm0, xmm7, dword ptr [rsp+118h+transform]
-      vmulss  xmm4, xmm6, dword ptr [rsp+118h+transform+10h]
-      vmulss  xmm2, xmm8, dword ptr [rsp+118h+transform+8]
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm1, xmm7, dword ptr [rsp+118h+transform+0Ch]
-      vmulss  xmm0, xmm8, dword ptr [rsp+118h+transform+14h]
-      vaddss  xmm10, xmm3, xmm2
-      vaddss  xmm3, xmm4, xmm1
-      vmulss  xmm4, xmm6, dword ptr [rsp+118h+transform+1Ch]
-      vmulss  xmm1, xmm8, dword ptr [rsp+118h+transform+20h]
-      vaddss  xmm11, xmm3, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rsp+118h+transform+18h]
-      vaddss  xmm3, xmm4, xmm0
-      vmovss  xmm0, dword ptr [rbx+78h]
-      vmovss  [rsp+118h+var_E8], xmm0
-      vaddss  xmm12, xmm3, xmm1
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_72;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+7Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_72;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+80h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_72:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1675, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+84h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_73;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+88h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_73;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_73:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1676, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+90h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_74;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+94h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_74;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+98h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_74:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1677, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+9Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_75;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A0h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_75;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A4h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_75:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1678, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A8h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_76;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0ACh]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_76;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0B0h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_76:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1679, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] )") )
-        __debugbreak();
-    }
-    _RBX->prevAcceleration.v[0] = _RBX->acceleration.v[0];
-    _RBX->prevAcceleration.v[1] = _RBX->acceleration.v[1];
-    _RBX->prevAcceleration.v[2] = _RBX->acceleration.v[2];
-    __asm
-    {
-      vsubss  xmm2, xmm7, dword ptr [rbx+90h]
-      vmovss  dword ptr [rbx+84h], xmm2
-      vsubss  xmm0, xmm6, dword ptr [rbx+94h]
-      vmovss  dword ptr [rbx+88h], xmm0
-      vsubss  xmm1, xmm8, dword ptr [rbx+98h]
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rbx+8Ch], xmm1
-      vdivss  xmm3, xmm0, xmm9
-      vmulss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rbx+84h], xmm1
-      vmulss  xmm0, xmm3, dword ptr [rbx+88h]
-      vmovss  dword ptr [rbx+88h], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rbx+8Ch]
-      vmovss  dword ptr [rbx+8Ch], xmm0
-      vmovss  dword ptr [rbx+90h], xmm7
-      vmovaps xmm7, [rsp+118h+var_58]
-      vmovss  dword ptr [rbx+94h], xmm6
-      vmovaps xmm6, [rsp+118h+var_48]
-      vmovss  dword ptr [rbx+98h], xmm8
-      vsubss  xmm2, xmm10, dword ptr [rbx+0A8h]
-      vmovaps xmm8, [rsp+118h+var_68]
-      vmovss  dword ptr [rbx+9Ch], xmm2
-      vsubss  xmm0, xmm11, dword ptr [rbx+0ACh]
-      vmovss  dword ptr [rbx+0A0h], xmm0
-      vsubss  xmm1, xmm12, dword ptr [rbx+0B0h]
-      vmovss  dword ptr [rbx+0A4h], xmm1
-      vmulss  xmm0, xmm2, xmm3
-      vmovss  dword ptr [rbx+9Ch], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rbx+0A0h]
-      vmovss  dword ptr [rbx+0A0h], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rbx+0A4h]
-      vmovss  dword ptr [rbx+0A4h], xmm0
-      vmovss  dword ptr [rbx+0A8h], xmm10
-      vmovaps xmm10, [rsp+118h+var_88]
-      vmovss  dword ptr [rbx+0ACh], xmm11
-      vmovaps xmm11, [rsp+118h+var_98]
-      vmovss  dword ptr [rbx+0B0h], xmm12
-      vmovss  xmm0, dword ptr [rbx+78h]
-      vmovaps xmm12, [rsp+118h+var_A8]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_77;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+7Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_77;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+80h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_77:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1693, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+84h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_78;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+88h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_78;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_78:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1694, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+90h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_79;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+94h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_79;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+98h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_79:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1695, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+9Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_80;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A0h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_80;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A4h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_80:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1696, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A8h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_81;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0ACh]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-      goto LABEL_81;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0B0h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v93 & 0x7F800000) == 2139095040 )
-    {
-LABEL_81:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1697, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] )") )
-        __debugbreak();
-    }
-    __asm { vmovaps xmm2, xmm9; deltaTime }
-    GVehicles::PhysicsCheckForJolt(this, vehicleId, *(float *)&_XMM2);
+    v17 = v14 - InternalById->conveyorVelocity.v[0];
+    v18 = v15 - InternalById->conveyorVelocity.v[1];
+    v19 = (float)((float)(v18 * transform.m[0].v[1]) + (float)(v17 * transform.m[0].v[0])) + (float)(v16 * transform.m[0].v[2]);
+    v20 = (float)((float)(v18 * transform.m[1].v[1]) + (float)(v17 * transform.m[1].v[0])) + (float)(v16 * transform.m[1].v[2]);
+    v21 = (float)((float)(v18 * transform.m[2].v[1]) + (float)(v17 * transform.m[2].v[0])) + (float)(v16 * transform.m[2].v[2]);
+    if ( ((LODWORD(InternalById->prevAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->prevAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->prevAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1675, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->acceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->acceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->acceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1676, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->velocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->velocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->velocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1677, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->localAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1678, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->localVelocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localVelocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localVelocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1679, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] )") )
+      __debugbreak();
+    InternalById->prevAcceleration.v[0] = InternalById->acceleration.v[0];
+    InternalById->prevAcceleration.v[1] = InternalById->acceleration.v[1];
+    InternalById->prevAcceleration.v[2] = InternalById->acceleration.v[2];
+    v22 = v17 - InternalById->velocity.v[0];
+    InternalById->acceleration.v[0] = v22;
+    InternalById->acceleration.v[1] = v18 - InternalById->velocity.v[1];
+    InternalById->acceleration.v[2] = v16 - InternalById->velocity.v[2];
+    InternalById->acceleration.v[0] = (float)(1.0 / deltaTime) * v22;
+    InternalById->acceleration.v[1] = (float)(1.0 / deltaTime) * InternalById->acceleration.v[1];
+    InternalById->acceleration.v[2] = (float)(1.0 / deltaTime) * InternalById->acceleration.v[2];
+    InternalById->velocity.v[0] = v17;
+    InternalById->velocity.v[1] = v18;
+    InternalById->velocity.v[2] = v16;
+    v23 = v19 - InternalById->localVelocity.v[0];
+    InternalById->localAcceleration.v[0] = v23;
+    InternalById->localAcceleration.v[1] = v20 - InternalById->localVelocity.v[1];
+    InternalById->localAcceleration.v[2] = v21 - InternalById->localVelocity.v[2];
+    InternalById->localAcceleration.v[0] = v23 * (float)(1.0 / deltaTime);
+    InternalById->localAcceleration.v[1] = (float)(1.0 / deltaTime) * InternalById->localAcceleration.v[1];
+    InternalById->localAcceleration.v[2] = (float)(1.0 / deltaTime) * InternalById->localAcceleration.v[2];
+    InternalById->localVelocity.v[0] = v19;
+    InternalById->localVelocity.v[1] = v20;
+    InternalById->localVelocity.v[2] = v21;
+    if ( ((LODWORD(InternalById->prevAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->prevAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->prevAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1693, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->prevAcceleration )[0] ) && !IS_NAN( ( vehicle->prevAcceleration )[1] ) && !IS_NAN( ( vehicle->prevAcceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->acceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->acceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->acceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1694, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->acceleration )[0] ) && !IS_NAN( ( vehicle->acceleration )[1] ) && !IS_NAN( ( vehicle->acceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->velocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->velocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->velocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1695, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->velocity )[0] ) && !IS_NAN( ( vehicle->velocity )[1] ) && !IS_NAN( ( vehicle->velocity )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->localAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1696, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localAcceleration )[0] ) && !IS_NAN( ( vehicle->localAcceleration )[1] ) && !IS_NAN( ( vehicle->localAcceleration )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(InternalById->localVelocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localVelocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(InternalById->localVelocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1697, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicle->localVelocity )[0] ) && !IS_NAN( ( vehicle->localVelocity )[1] ) && !IS_NAN( ( vehicle->localVelocity )[2] )") )
+      __debugbreak();
+    GVehicles::PhysicsCheckForJolt(this, vehicleId, deltaTime);
     VehicleEntityFromId = PhysicsGetVehicleEntityFromId(vehicleId);
     if ( VehicleEntityFromId )
     {
@@ -4527,7 +3161,6 @@ LABEL_81:
       }
     }
   }
-  __asm { vmovaps xmm9, [rsp+118h+var_78] }
 }
 
 /*
@@ -4543,9 +3176,10 @@ void GVehicles::PhysicsProcessDeferredEvents(GVehicles *this)
   __int64 vehEntNum; 
   gentity_s *GEntity; 
   Vehicle *vehicle; 
-  int v11; 
-  __int64 v12; 
-  __int64 v13; 
+  const VehicleDef *ServerDef; 
+  int v9; 
+  __int64 v10; 
+  __int64 v11; 
   vec3_t outDmgDir; 
 
   v2 = 0;
@@ -4572,9 +3206,9 @@ void GVehicles::PhysicsProcessDeferredEvents(GVehicles *this)
         if ( (unsigned int)scriptableIndex >= g_scriptableWorldCounts.serverInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(v13) = g_scriptableWorldCounts.serverInstanceCount;
-          LODWORD(v12) = scriptableIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v12, v13) )
+          LODWORD(v11) = g_scriptableWorldCounts.serverInstanceCount;
+          LODWORD(v10) = scriptableIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", v10, v11) )
             __debugbreak();
         }
         if ( g_scriptableSv_instanceContexts[scriptableIndex].commonContext.def )
@@ -4582,9 +3216,9 @@ void GVehicles::PhysicsProcessDeferredEvents(GVehicles *this)
           vehEntNum = p_m_scriptableDamageInfo->m_scriptablesToDamage[0].vehEntNum;
           if ( (unsigned int)vehEntNum >= 0x800 )
           {
-            LODWORD(v13) = 2048;
-            LODWORD(v12) = p_m_scriptableDamageInfo->m_scriptablesToDamage[0].vehEntNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v12, v13) )
+            LODWORD(v11) = 2048;
+            LODWORD(v10) = p_m_scriptableDamageInfo->m_scriptablesToDamage[0].vehEntNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, v11) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -4597,15 +3231,10 @@ void GVehicles::PhysicsProcessDeferredEvents(GVehicles *this)
             vehicle = GEntity->vehicle;
             if ( vehicle )
             {
-              _RAX = G_Vehicle_GetServerDef(vehicle->defIndex);
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rax+0C4h]; collSpeed
-                vmovss  xmm2, dword ptr [rax+0C0h]; collDmg
-              }
-              v11 = G_Vehicle_CalcImpactDamageForScriptable(GEntity->vehicle, p_m_scriptableDamageInfo->m_scriptablesToDamage[0].scriptableIndex, *(float *)&_XMM2, *(float *)&_XMM3, &outDmgDir);
-              if ( v11 > 0 )
-                G_Vehicle_DamageScriptable(GEntity, p_m_scriptableDamageInfo->m_scriptablesToDamage[0].scriptableIndex, v11, &outDmgDir);
+              ServerDef = G_Vehicle_GetServerDef(vehicle->defIndex);
+              v9 = G_Vehicle_CalcImpactDamageForScriptable(GEntity->vehicle, p_m_scriptableDamageInfo->m_scriptablesToDamage[0].scriptableIndex, ServerDef->collisionDamage, ServerDef->collisionSpeed, &outDmgDir);
+              if ( v9 > 0 )
+                G_Vehicle_DamageScriptable(GEntity, p_m_scriptableDamageInfo->m_scriptablesToDamage[0].scriptableIndex, v9, &outDmgDir);
             }
           }
         }
@@ -4638,40 +3267,12 @@ GVehicles::PhysicsSetAngularVelocity
 */
 void GVehicles::PhysicsSetAngularVelocity(GVehicles *this, unsigned int vehicleId, const vec3_t *angularVelocity)
 {
-  const vec3_t *v4; 
   BgVehiclePhysics *ObjectById; 
-  int v10; 
-  int v11; 
-  int v12; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v4 = angularVelocity;
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1152, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(angularVelocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(angularVelocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(angularVelocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1152, ASSERT_TYPE_SANITY, "( !IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( angularVelocity )[0] ) && !IS_NAN( ( angularVelocity )[1] ) && !IS_NAN( ( angularVelocity )[2] )") )
+    __debugbreak();
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  BgVehiclePhysics::SetAngularVelocity(ObjectById, v4, 1);
+  BgVehiclePhysics::SetAngularVelocity(ObjectById, angularVelocity, 1);
 }
 
 /*
@@ -4682,41 +3283,23 @@ GVehicles::PhysicsSetConveyorVelocity
 void GVehicles::PhysicsSetConveyorVelocity(GVehicles *this, unsigned int vehicleId, const vec2_t *velocity)
 {
   BgVehiclePhysics *ObjectById; 
-  int v12; 
-  int v13; 
+  float v7; 
+  float v8; 
   vec3_t surfVel; 
 
-  __asm
+  v8 = velocity->v[0];
+  if ( (LODWORD(velocity->v[0]) & 0x7F800000) == 2139095040 || (v8 = velocity->v[1], (LODWORD(v8) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  _RBX = (vec2_t *)velocity;
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+68h+var_38], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 973, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 973, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] )", v8) )
       __debugbreak();
   }
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+68h+surfVel], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+68h+surfVel+8], xmm0
-    vmovss  dword ptr [rsp+68h+surfVel+4], xmm1
-  }
+  v7 = velocity->v[1];
+  surfVel.v[0] = velocity->v[0];
+  surfVel.v[2] = 0.0;
+  surfVel.v[1] = v7;
   BgVehiclePhysics::SetSurfaceVelocity(ObjectById, &surfVel);
-  GPhysicsVehicleManager::GetInternalById(vehicleId)->conveyorVelocity = *_RBX;
+  GPhysicsVehicleManager::GetInternalById(vehicleId)->conveyorVelocity = *velocity;
 }
 
 /*
@@ -4743,9 +3326,8 @@ void GVehicles::PhysicsSetDefaultMotion(GVehicles *this, unsigned int vehicleId)
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
   if ( !ObjectById->m_playerControlled || (Com_PrintWarning(20, "PhysicsSetDefaultMotion() Won't have any effect on vehicle controlled by player.\n"), !ObjectById->m_playerControlled) )
   {
-    __asm { vmovss  xmm1, cs:__real@41200000; minTimeDynamic }
     ObjectById->m_forcedKeyframe = 0;
-    BgVehiclePhysics::SetDynamic(ObjectById, *(float *)&_XMM1);
+    BgVehiclePhysics::SetDynamic(ObjectById, 10.0);
   }
 }
 
@@ -4754,89 +3336,82 @@ void GVehicles::PhysicsSetDefaultMotion(GVehicles *this, unsigned int vehicleId)
 GVehicles::PhysicsSetInputControl
 ==============
 */
-
-void __fastcall GVehicles::PhysicsSetInputControl(GVehicles *this, unsigned int vehicleId, unsigned int controlIndex, double value)
+void GVehicles::PhysicsSetInputControl(GVehicles *this, unsigned int vehicleId, unsigned int controlIndex, float value)
 {
-  unsigned int v9; 
+  __int64 v5; 
+  unsigned int v7; 
   BgVehiclePhysicsManager *p_m_vehiclePhysicsManager; 
-  const unsigned int *v11; 
-  unsigned int v12; 
-  unsigned int v13; 
+  const unsigned int *v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   VehiclePhysicsComponentId *m_components; 
-  VehiclePhysicsComponentId v15; 
-  __int64 v19; 
-  __int64 v20; 
-  int v22; 
+  VehiclePhysicsComponentId v13; 
+  BgVehiclePhysics *ObjectById; 
+  BgVehicleComponentGoStraightTo *ComponentBy; 
+  __int64 v16; 
+  __int64 v17; 
 
-  __asm
-  {
-    vmovss  [rsp+78h+arg_10], xmm3
-    vmovaps [rsp+78h+var_38], xmm6
-  }
-  _R14 = controlIndex;
-  __asm { vmovaps xmm6, xmm3 }
-  if ( (v22 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1555, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
+  v5 = controlIndex;
+  if ( (LODWORD(value) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1555, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
     __debugbreak();
-  if ( (unsigned int)_R14 >= 8 )
+  if ( (unsigned int)v5 >= 8 )
   {
-    LODWORD(v19) = _R14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1556, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v19, 8) )
+    LODWORD(v16) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1556, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v16, 8) )
       __debugbreak();
   }
-  v9 = 0;
+  v7 = 0;
   p_m_vehiclePhysicsManager = &this->m_vehiclePhysicsManager;
-  v11 = pathCompTypes;
+  v9 = pathCompTypes;
   while ( 2 )
   {
-    v12 = *v11;
-    v13 = 0;
+    v10 = *v9;
+    v11 = 0;
     m_components = BgVehiclePhysicsManager::GetObjectById(p_m_vehiclePhysicsManager, vehicleId)->m_components;
     while ( 1 )
     {
-      v15.id = m_components->id;
+      v13.id = m_components->id;
       if ( m_components->id )
       {
-        if ( (v15.id & 0xFF0000) < 0x20000 && HIBYTE(v15.id) == v12 )
+        if ( (v13.id & 0xFF0000) < 0x20000 && HIBYTE(v13.id) == v10 )
           break;
       }
-      ++v13;
+      ++v11;
       ++m_components;
-      if ( v13 >= 2 )
+      if ( v11 >= 2 )
         goto LABEL_16;
     }
-    if ( v15.id && (v15.id & 0xFF0000) < 0x20000 )
+    if ( v13.id && (v13.id & 0xFF0000) < 0x20000 )
     {
-      _RBX = BgVehiclePhysicsManager::GetComponentById<BgVehicleComponentGoStraightTo>(p_m_vehiclePhysicsManager, v15);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1567, ASSERT_TYPE_ASSERT, "( vehComp )", "GVehicles::PhysicsSetInputControl(): We got the component Id, but there's no component") )
+      ComponentBy = BgVehiclePhysicsManager::GetComponentById<BgVehicleComponentGoStraightTo>(p_m_vehiclePhysicsManager, v13);
+      if ( !ComponentBy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1567, ASSERT_TYPE_ASSERT, "( vehComp )", "GVehicles::PhysicsSetInputControl(): We got the component Id, but there's no component") )
         __debugbreak();
-      if ( (unsigned int)_R14 >= 8 )
+      if ( (unsigned int)v5 >= 8 )
       {
-        LODWORD(v20) = 8;
-        LODWORD(v19) = _R14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v19, v20) )
+        LODWORD(v17) = 8;
+        LODWORD(v16) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_comp.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rbx+r14*4+28h], xmm6 }
-      goto LABEL_21;
+      ComponentBy->m_inputMults[v5] = value;
+      return;
     }
 LABEL_16:
+    ++v7;
     ++v9;
-    ++v11;
-    if ( v9 < 3 )
+    if ( v7 < 3 )
       continue;
     break;
   }
-  _RBX = BgVehiclePhysicsManager::GetObjectById(p_m_vehiclePhysicsManager, vehicleId);
-  if ( (unsigned int)_R14 >= 8 )
+  ObjectById = BgVehiclePhysicsManager::GetObjectById(p_m_vehiclePhysicsManager, vehicleId);
+  if ( (unsigned int)v5 >= 8 )
   {
-    LODWORD(v20) = 8;
-    LODWORD(v19) = _R14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 98, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v19, v20) )
+    LODWORD(v17) = 8;
+    LODWORD(v16) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 98, ASSERT_TYPE_ASSERT, "(unsigned)( controlIndex ) < (unsigned)( VPC_COUNT )", "controlIndex doesn't index VPC_COUNT\n\t%i not in [0, %i)", v16, v17) )
       __debugbreak();
   }
-  __asm { vmovss  dword ptr [rbx+r14*4+0E8h], xmm6 }
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  ObjectById->m_controls.externalValues[v5] = value;
 }
 
 /*
@@ -4859,40 +3434,12 @@ GVehicles::PhysicsSetLinearVelocity
 */
 void GVehicles::PhysicsSetLinearVelocity(GVehicles *this, unsigned int vehicleId, const vec3_t *linearVelocity)
 {
-  const vec3_t *v4; 
   BgVehiclePhysics *ObjectById; 
-  int v10; 
-  int v11; 
-  int v12; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v4 = linearVelocity;
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 925, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(linearVelocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(linearVelocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(linearVelocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 925, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+    __debugbreak();
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  BgVehiclePhysics::SetLinearVelocity(ObjectById, v4, 1);
+  BgVehiclePhysics::SetLinearVelocity(ObjectById, linearVelocity, 1);
 }
 
 /*
@@ -4900,151 +3447,70 @@ LABEL_9:
 GVehicles::PhysicsSetSpeed
 ==============
 */
-
-void __fastcall GVehicles::PhysicsSetSpeed(GVehicles *this, unsigned int vehicleId, double speed)
+void GVehicles::PhysicsSetSpeed(GVehicles *this, unsigned int vehicleId, float speed)
 {
+  float v5; 
+  float v6; 
+  float v7; 
   BgVehiclePhysics *ObjectById; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  vec3_t linVelWs; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  BgVehiclePhysics *v13; 
+  __int64 v14; 
+  __int128 linVelWs; 
   vec3_t dir; 
-  char v53; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovss  [rbp+57h+var_90], xmm2
-    vmovaps xmm10, xmm2
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( speed ) )", (const char *)&queryFormat, "!IS_NAN( speed )") )
+  if ( (LODWORD(speed) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( speed ) )", (const char *)&queryFormat, "!IS_NAN( speed )", speed) )
     __debugbreak();
   GVehicles::PhysicsGetChassisForwardDir(this, vehicleId, &dir);
-  __asm
+  v5 = dir.v[0];
+  v6 = dir.v[2];
+  v7 = dir.v[1];
+  *(float *)&v14 = dir.v[0];
+  if ( (LODWORD(dir.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v14 = dir.v[1], (LODWORD(dir.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&v14 = dir.v[2], (LODWORD(dir.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm9, dword ptr [rbp+57h+dir]
-    vmovss  xmm7, dword ptr [rbp+57h+dir+8]
-    vmovss  xmm8, dword ptr [rbp+57h+dir+4]
-    vmovss  [rbp+57h+var_90], xmm9
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm { vmovss  [rbp+57h+var_90], xmm8 }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm { vmovss  [rbp+57h+var_90], xmm7 }
-  if ( (v41 & 0x7F800000) == 2139095040 )
-  {
-LABEL_29:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1184, ASSERT_TYPE_SANITY, "( !IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] )") )
-      __debugbreak();
-  }
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rax+1A4h]
-    vmovss  dword ptr [rbp+57h+linVelWs], xmm4
-    vmovss  xmm5, dword ptr [rax+1A8h]
-    vmovss  dword ptr [rbp+57h+linVelWs+4], xmm5
-    vmovss  xmm6, dword ptr [rax+1ACh]
-    vmovss  [rbp+57h+var_90], xmm4
-    vmovss  dword ptr [rbp+57h+linVelWs+8], xmm6
-  }
-  if ( (v42 & 0x7F800000) == 2139095040 )
-    goto LABEL_30;
-  __asm { vmovss  [rbp+57h+var_90], xmm5 }
-  if ( (v43 & 0x7F800000) == 2139095040 )
-    goto LABEL_30;
-  __asm { vmovss  [rbp+57h+var_90], xmm6 }
-  if ( (v44 & 0x7F800000) == 2139095040 )
-  {
-LABEL_30:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+57h+linVelWs]
-      vmovss  xmm5, dword ptr [rbp+57h+linVelWs+4]
-      vmovss  xmm6, dword ptr [rbp+57h+linVelWs+8]
-    }
-  }
-  __asm { vmovss  [rbp+57h+var_90], xmm4 }
-  if ( (v45 & 0x7F800000) == 2139095040 )
-    goto LABEL_31;
-  __asm { vmovss  [rbp+57h+var_90], xmm5 }
-  if ( (v46 & 0x7F800000) == 2139095040 )
-    goto LABEL_31;
-  __asm { vmovss  [rbp+57h+var_90], xmm6 }
-  if ( (v47 & 0x7F800000) == 2139095040 )
-  {
-LABEL_31:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1189, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+57h+linVelWs]
-      vmovss  xmm5, dword ptr [rbp+57h+linVelWs+4]
-      vmovss  xmm6, dword ptr [rbp+57h+linVelWs+8]
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm4, xmm9
-    vmulss  xmm1, xmm5, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm3, xmm10, xmm2
-    vmulss  xmm0, xmm9, xmm3
-    vaddss  xmm4, xmm4, xmm0
-    vmulss  xmm1, xmm8, xmm3
-    vaddss  xmm2, xmm5, xmm1
-    vmovss  [rbp+57h+var_90], xmm4
-    vmulss  xmm0, xmm7, xmm3
-    vaddss  xmm1, xmm6, xmm0
-    vmovss  dword ptr [rbp+57h+linVelWs], xmm4
-    vmovss  dword ptr [rbp+57h+linVelWs+4], xmm2
-    vmovss  dword ptr [rbp+57h+linVelWs+8], xmm1
-  }
-  if ( (v48 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm { vmovss  [rbp+57h+var_90], xmm2 }
-  if ( (v49 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm { vmovss  [rbp+57h+var_90], xmm1 }
-  if ( (v50 & 0x7F800000) == 2139095040 )
-  {
-LABEL_32:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 925, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1184, ASSERT_TYPE_SANITY, "( !IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( forward )[0] ) && !IS_NAN( ( forward )[1] ) && !IS_NAN( ( forward )[2] )", v14) )
       __debugbreak();
   }
   ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  BgVehiclePhysics::SetLinearVelocity(ObjectById, &linVelWs, 1);
-  _R11 = &v53;
-  __asm
+  v9 = ObjectById->m_linearVelocityWs.v[0];
+  *(float *)&linVelWs = v9;
+  v10 = ObjectById->m_linearVelocityWs.v[1];
+  *((float *)&linVelWs + 1) = v10;
+  v11 = ObjectById->m_linearVelocityWs.v[2];
+  *(float *)&v14 = v9;
+  *((float *)&linVelWs + 2) = v11;
+  if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (*(float *)&v14 = v10, (LODWORD(v10) & 0x7F800000) == 2139095040) || (*(float *)&v14 = v11, (LODWORD(v11) & 0x7F800000) == 2139095040) )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1135, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v14) )
+      __debugbreak();
+    v9 = *(float *)&linVelWs;
+    v10 = *((float *)&linVelWs + 1);
+    v11 = *((float *)&linVelWs + 2);
   }
+  *(float *)&v14 = v9;
+  if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (*(float *)&v14 = v10, (LODWORD(v10) & 0x7F800000) == 2139095040) || (*(float *)&v14 = v11, (LODWORD(v11) & 0x7F800000) == 2139095040) )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1189, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v14) )
+      __debugbreak();
+    v9 = *(float *)&linVelWs;
+    v10 = *((float *)&linVelWs + 1);
+    v11 = *((float *)&linVelWs + 2);
+  }
+  v12 = speed - (float)((float)((float)(v10 * v7) + (float)(v9 * v5)) + (float)(v11 * v6));
+  *(float *)&v14 = v9 + (float)(v5 * v12);
+  *(float *)&linVelWs = *(float *)&v14;
+  *((float *)&linVelWs + 1) = v10 + (float)(v7 * v12);
+  *((float *)&linVelWs + 2) = v11 + (float)(v6 * v12);
+  if ( (v14 & 0x7F800000) == 2139095040 || (*(float *)&v14 = v10 + (float)(v7 * v12), (v14 & 0x7F800000) == 2139095040) || (*(float *)&v14 = v11 + (float)(v6 * v12), (v14 & 0x7F800000) == 2139095040) )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 925, ASSERT_TYPE_SANITY, "( !IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( linearVelocity )[0] ) && !IS_NAN( ( linearVelocity )[1] ) && !IS_NAN( ( linearVelocity )[2] )", v14, linVelWs) )
+      __debugbreak();
+  }
+  v13 = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+  BgVehiclePhysics::SetLinearVelocity(v13, (const vec3_t *)&linVelWs, 1);
 }
 
 /*
@@ -5052,25 +3518,11 @@ LABEL_32:
 GVehicles::PhysicsSetTopSpeedBwd
 ==============
 */
-
-void __fastcall GVehicles::PhysicsSetTopSpeedBwd(GVehicles *this, unsigned int vehicleId, double topSpeed)
+void GVehicles::PhysicsSetTopSpeedBwd(GVehicles *this, unsigned int vehicleId, float topSpeed)
 {
-  int v10; 
-
-  __asm
-  {
-    vmovss  [rsp+48h+arg_10], xmm2
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 962, ASSERT_TYPE_SANITY, "( !IS_NAN( topSpeed ) )", (const char *)&queryFormat, "!IS_NAN( topSpeed )") )
+  if ( (LODWORD(topSpeed) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 962, ASSERT_TYPE_SANITY, "( !IS_NAN( topSpeed ) )", (const char *)&queryFormat, "!IS_NAN( topSpeed )") )
     __debugbreak();
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  dword ptr [rax+1F8h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId)->m_topSpeedForward.v[1] = topSpeed;
 }
 
 /*
@@ -5078,25 +3530,11 @@ void __fastcall GVehicles::PhysicsSetTopSpeedBwd(GVehicles *this, unsigned int v
 GVehicles::PhysicsSetTopSpeedFwd
 ==============
 */
-
-void __fastcall GVehicles::PhysicsSetTopSpeedFwd(GVehicles *this, unsigned int vehicleId, double topSpeed)
+void GVehicles::PhysicsSetTopSpeedFwd(GVehicles *this, unsigned int vehicleId, float topSpeed)
 {
-  int v10; 
-
-  __asm
-  {
-    vmovss  [rsp+48h+arg_10], xmm2
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 943, ASSERT_TYPE_SANITY, "( !IS_NAN( topSpeed ) )", (const char *)&queryFormat, "!IS_NAN( topSpeed )") )
+  if ( (LODWORD(topSpeed) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 943, ASSERT_TYPE_SANITY, "( !IS_NAN( topSpeed ) )", (const char *)&queryFormat, "!IS_NAN( topSpeed )") )
     __debugbreak();
-  _RAX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-  __asm
-  {
-    vmovss  dword ptr [rax+1F4h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId)->m_topSpeedForward.v[0] = topSpeed;
 }
 
 /*
@@ -5117,248 +3555,191 @@ GVehicles::PhysicsSimulateVehiclePmove
 void GVehicles::PhysicsSimulateVehiclePmove(GVehicles *this, pmove_t *pm, const pml_t *pml)
 {
   gentity_s *GEntity; 
-  gentity_s *v12; 
+  gentity_s *v7; 
   BgVehiclePhysicsManager *p_m_vehiclePhysicsManager; 
+  BgVehiclePhysics *ObjectById; 
   VehiclePhysicsNetcodeType NetcodeTypeForOwner; 
-  __int32 v16; 
-  char v30; 
+  __int32 v11; 
+  float vehOrgX; 
+  int v13; 
+  float v14; 
+  int v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  char v19; 
   vec3_t *p_origin; 
   unsigned int PhysicsBodyId; 
-  bool IsClientGeoLoaded; 
-  unsigned int v35; 
-  float vehOrgX; 
-  int v43; 
-  float v66; 
-  int v70; 
-  float v73; 
-  bool v77; 
-  float v92; 
-  int v94; 
   BgVehiclePhysics *ObjectForPmove; 
+  bool IsClientGeoLoaded; 
+  unsigned int v24; 
+  float v25; 
+  float v26; 
+  vec4_t v27; 
+  float v28; 
+  __int128 vehOrgY_low; 
+  float v30; 
+  __int128 v31; 
+  float v36; 
+  playerState_s *ps; 
+  float v40; 
+  playerState_s *v41; 
+  float v42; 
+  bool v43; 
+  float v44; 
+  int v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  double v49; 
+  float v50; 
+  BgVehiclePhysics *v51; 
   vec3_t position; 
-  int v98; 
+  double v53; 
+  float vehOrgZ; 
   vec4_t orientation; 
 
-  _RDI = pm;
   if ( (!pm || !pm->ps) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 309, ASSERT_TYPE_ASSERT, "(pm && pm->ps)", (const char *)&queryFormat, "pm && pm->ps") )
     __debugbreak();
-  if ( _RDI->ps->vehicleState.entity == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 310, ASSERT_TYPE_ASSERT, "(pm->ps->vehicleState.entity != ENTITYNUM_NONE)", (const char *)&queryFormat, "pm->ps->vehicleState.entity != ENTITYNUM_NONE") )
+  if ( pm->ps->vehicleState.entity == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 310, ASSERT_TYPE_ASSERT, "(pm->ps->vehicleState.entity != ENTITYNUM_NONE)", (const char *)&queryFormat, "pm->ps->vehicleState.entity != ENTITYNUM_NONE") )
     __debugbreak();
-  GEntity = G_GetGEntity(_RDI->ps->vehicleState.entity);
-  v12 = GEntity;
+  GEntity = G_GetGEntity(pm->ps->vehicleState.entity);
+  v7 = GEntity;
   if ( (!GEntity || GEntity->s.eType != ET_VEHICLE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 313, ASSERT_TYPE_ASSERT, "(vehEnt && vehEnt->s.eType == ET_VEHICLE)", (const char *)&queryFormat, "vehEnt && vehEnt->s.eType == ET_VEHICLE") )
     __debugbreak();
   p_m_vehiclePhysicsManager = &this->m_vehiclePhysicsManager;
-  _RSI = (BgVehiclePhysics *)BgVehiclePhysicsManager::GetObjectById(p_m_vehiclePhysicsManager, v12->vehicle->physicsVehicle);
-  NetcodeTypeForOwner = G_Vehicle_GetNetcodeTypeForOwner(_RSI, _RDI->ps->clientNum);
+  ObjectById = (BgVehiclePhysics *)BgVehiclePhysicsManager::GetObjectById(p_m_vehiclePhysicsManager, v7->vehicle->physicsVehicle);
+  NetcodeTypeForOwner = G_Vehicle_GetNetcodeTypeForOwner(ObjectById, pm->ps->clientNum);
   if ( NetcodeTypeForOwner )
   {
-    v16 = NetcodeTypeForOwner - 1;
-    if ( v16 )
+    v11 = NetcodeTypeForOwner - 1;
+    if ( v11 )
     {
-      if ( v16 == 2 )
+      if ( v11 == 2 )
       {
         if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 320, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
           __debugbreak();
-        __asm
+        vehOrgX = pm->cmd.vehOrgX;
+        v13 = pm->cmd.vehAngles[0];
+        HIDWORD(v53) = LODWORD(pm->cmd.vehOrgY);
+        v14 = (float)v13;
+        v15 = pm->cmd.vehAngles[1];
+        *(float *)&v53 = vehOrgX;
+        vehOrgZ = pm->cmd.vehOrgZ;
+        v16 = v14 * 0.0054931641;
+        v17 = (float)v15;
+        v18 = pm->cmd.vehAngles[2];
+        position.v[0] = v16;
+        position.v[1] = v17 * 0.0054931641;
+        position.v[2] = (float)v18 * 0.0054931641;
+        if ( BgVehiclePhysicsManager::ExistsObjectForPmove(p_m_vehiclePhysicsManager, ObjectById) )
         {
-          vmovss  xmm2, cs:__real@3bb40000
-          vmovss  xmm1, dword ptr [rdi+0D4h]
-          vmovss  xmm0, dword ptr [rdi+0D0h]
-          vmovss  dword ptr [rbp+57h+var_90+4], xmm1
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmovss  dword ptr [rbp+57h+var_90], xmm0
-          vmovss  xmm0, dword ptr [rdi+0D8h]
-          vmovss  [rbp+57h+var_88], xmm0
-          vmulss  xmm0, xmm1, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmovss  dword ptr [rbp+57h+position], xmm0
-          vmulss  xmm0, xmm1, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmovss  dword ptr [rbp+57h+position+4], xmm0
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  dword ptr [rbp+57h+position+8], xmm0
-        }
-        if ( BgVehiclePhysicsManager::ExistsObjectForPmove(p_m_vehiclePhysicsManager, _RSI) )
-        {
-          v30 = 0;
+          v19 = 0;
         }
         else
         {
-          p_origin = &_RDI->ps->vehicleState.origin;
-          if ( BgVehiclePhysics::IsPhysicsBodyIdValid(_RSI) )
+          p_origin = &pm->ps->vehicleState.origin;
+          if ( BgVehiclePhysics::IsPhysicsBodyIdValid(ObjectById) )
           {
-            PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(_RSI);
-            Physics_GetRigidBodyTransform((const Physics_WorldId)_RSI->m_worldId, PhysicsBodyId, p_origin, &orientation);
+            PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(ObjectById);
+            Physics_GetRigidBodyTransform((const Physics_WorldId)ObjectById->m_worldId, PhysicsBodyId, p_origin, &orientation);
           }
-          QuatToAngles(&orientation, &_RDI->ps->vehicleState.angles);
-          v30 = 1;
+          QuatToAngles(&orientation, &pm->ps->vehicleState.angles);
+          v19 = 1;
         }
-        _RBX = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, _RSI);
-        BgVehiclePhysics::SetPlayerControlled(_RBX, _RSI->m_playerControlled);
-        IsClientGeoLoaded = BgVehiclePhysics::IsClientGeoLoaded(_RBX, &_RDI->cmd);
+        ObjectForPmove = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, ObjectById);
+        BgVehiclePhysics::SetPlayerControlled(ObjectForPmove, ObjectById->m_playerControlled);
+        IsClientGeoLoaded = BgVehiclePhysics::IsClientGeoLoaded(ObjectForPmove, &pm->cmd);
         if ( IsClientGeoLoaded )
         {
-          if ( v30 )
+          if ( v19 )
           {
-            if ( BgVehiclePhysics::IsPhysicsBodyIdValid(_RSI) )
+            if ( BgVehiclePhysics::IsPhysicsBodyIdValid(ObjectById) )
             {
-              v35 = BgVehiclePhysics::GetPhysicsBodyId(_RSI);
-              Physics_GetRigidBodyTransform((const Physics_WorldId)_RSI->m_worldId, v35, &position, &orientation);
+              v24 = BgVehiclePhysics::GetPhysicsBodyId(ObjectById);
+              Physics_GetRigidBodyTransform((const Physics_WorldId)ObjectById->m_worldId, v24, &position, &orientation);
             }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+position]
-              vmovss  xmm1, dword ptr [rbp+57h+position+4]
-              vmovss  dword ptr [rbx+1D8h], xmm0
-              vmovss  xmm0, dword ptr [rbp+57h+position+8]
-              vmovss  dword ptr [rbx+1DCh], xmm1
-              vmovups xmm1, xmmword ptr [rbp+57h+orientation]
-              vmovss  dword ptr [rbx+1E0h], xmm0
-              vmovups xmmword ptr [rbx+1E4h], xmm1
-            }
+            v25 = position.v[1];
+            ObjectForPmove->m_manualIntegratedPos.v[0] = position.v[0];
+            v26 = position.v[2];
+            ObjectForPmove->m_manualIntegratedPos.v[1] = v25;
+            v27 = orientation;
+            ObjectForPmove->m_manualIntegratedPos.v[2] = v26;
+            ObjectForPmove->m_manualIntegratedOrientation = v27;
           }
-          else if ( _RBX->IsValidUserCmd(_RBX, &_RDI->cmd) )
+          else if ( ObjectForPmove->IsValidUserCmd(ObjectForPmove, &pm->cmd) )
           {
-            _RBX->m_pmoveLastCmdTime = _RDI->cmd.serverTime;
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+0D8h]
-              vmovss  xmm0, dword ptr [rdi+0D4h]
-            }
-            vehOrgX = _RDI->cmd.vehOrgX;
-            __asm
-            {
-              vmovss  dword ptr [rbx+27Ch], xmm0
-              vmovss  dword ptr [rbx+280h], xmm1
-              vmovaps [rsp+0D0h+var_40], xmm6
-            }
-            _RBX->m_pmoveLastCmdPos.v[0] = vehOrgX;
-            v43 = _RDI->cmd.angles.v[0];
-            __asm
-            {
-              vmovaps [rsp+0D0h+var_50], xmm9
-              vmovaps [rsp+0D0h+var_60], xmm11
-            }
-            *(double *)&_XMM0 = BG_UsrCmdUnpackAngle(v43);
-            __asm
-            {
-              vmulss  xmm3, xmm0, cs:__real@3b360b61
-              vaddss  xmm1, xmm3, cs:__real@3f000000
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  xmm1, xmm0, xmm1
-              vxorps  xmm11, xmm11, xmm11
-              vroundss xmm2, xmm11, xmm1, 1
-              vsubss  xmm0, xmm3, xmm2
-              vmulss  xmm9, xmm0, cs:__real@43b40000
-            }
-            *(double *)&_XMM0 = BG_UsrCmdUnpackAngle(_RDI->cmd.angles.v[1]);
-            __asm
-            {
-              vmulss  xmm4, xmm0, cs:__real@3b360b61
-              vaddss  xmm2, xmm4, cs:__real@3f000000
-              vxorps  xmm1, xmm1, xmm1
-              vmovss  xmm0, xmm1, xmm2
-              vroundss xmm3, xmm11, xmm0, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm6, xmm1, cs:__real@43b40000
-            }
-            *(double *)&_XMM0 = BG_UsrCmdUnpackAngle(_RDI->cmd.angles.v[2]);
-            __asm
-            {
-              vmulss  xmm4, xmm0, cs:__real@3b360b61
-              vaddss  xmm2, xmm4, cs:__real@3f000000
-              vxorps  xmm1, xmm1, xmm1
-              vmovss  xmm0, xmm1, xmm2
-              vroundss xmm3, xmm11, xmm0, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm0, xmm1, cs:__real@43b40000
-              vmovss  dword ptr [rbp+57h+orientation+8], xmm0
-            }
-            v66 = orientation.v[2];
-            __asm
-            {
-              vmovsd  xmm0, [rbp+57h+var_90]
-              vunpcklps xmm1, xmm9, xmm6
-              vmovsd  qword ptr [rbx+11Ch], xmm1
-            }
-            _RBX->m_playerViewAngles.v[2] = v66;
-            _RCX = _RDI->ps;
-            v70 = v98;
-            __asm
-            {
-              vmovsd  qword ptr [rcx+12Ch], xmm0
-              vmovsd  xmm0, qword ptr [rbp+57h+position]
-            }
-            LODWORD(_RCX->vehicleState.origin.v[2]) = v70;
-            _RCX = _RDI->ps;
-            v73 = position.v[2];
-            __asm { vmovsd  qword ptr [rcx+138h], xmm0 }
-            _RCX->vehicleState.angles.v[2] = v73;
-            BgVehiclePhysics::Pmove(_RBX, _RDI, pml);
-            __asm
-            {
-              vmovaps xmm11, [rsp+0D0h+var_60]
-              vmovaps xmm9, [rsp+0D0h+var_50]
-              vmovaps xmm6, [rsp+0D0h+var_40]
-            }
+            ObjectForPmove->m_pmoveLastCmdTime = pm->cmd.serverTime;
+            v28 = pm->cmd.vehOrgZ;
+            vehOrgY_low = LODWORD(pm->cmd.vehOrgY);
+            v30 = pm->cmd.vehOrgX;
+            ObjectForPmove->m_pmoveLastCmdPos.v[1] = *(float *)&vehOrgY_low;
+            ObjectForPmove->m_pmoveLastCmdPos.v[2] = v28;
+            ObjectForPmove->m_pmoveLastCmdPos.v[0] = v30;
+            *(double *)&vehOrgY_low = BG_UsrCmdUnpackAngle(pm->cmd.angles.v[0]);
+            v31 = vehOrgY_low;
+            _XMM11 = 0i64;
+            __asm { vroundss xmm2, xmm11, xmm1, 1 }
+            *(float *)&v31 = (float)((float)(*(float *)&vehOrgY_low * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+            _XMM9 = v31;
+            BG_UsrCmdUnpackAngle(pm->cmd.angles.v[1]);
+            __asm { vroundss xmm3, xmm11, xmm0, 1 }
+            *(double *)&vehOrgY_low = BG_UsrCmdUnpackAngle(pm->cmd.angles.v[2]);
+            v36 = *(float *)&vehOrgY_low * 0.0027777778;
+            __asm { vroundss xmm3, xmm11, xmm0, 1 }
+            orientation.v[2] = (float)((float)(*(float *)&vehOrgY_low * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+            *(double *)&vehOrgY_low = v53;
+            __asm { vunpcklps xmm1, xmm9, xmm6 }
+            *(double *)ObjectForPmove->m_playerViewAngles.v = *(double *)&_XMM1;
+            ObjectForPmove->m_playerViewAngles.v[2] = (float)(v36 - *(float *)&_XMM3) * 360.0;
+            ps = pm->ps;
+            v40 = vehOrgZ;
+            *(double *)ps->vehicleState.origin.v = *(double *)&vehOrgY_low;
+            *(_QWORD *)&vehOrgY_low = *(_QWORD *)position.v;
+            ps->vehicleState.origin.v[2] = v40;
+            v41 = pm->ps;
+            v42 = position.v[2];
+            *(double *)v41->vehicleState.angles.v = *(double *)&vehOrgY_low;
+            v41->vehicleState.angles.v[2] = v42;
+            BgVehiclePhysics::Pmove(ObjectForPmove, pm, pml);
           }
         }
-        _RBX->m_clientGeoLoaded = IsClientGeoLoaded;
+        ObjectForPmove->m_clientGeoLoaded = IsClientGeoLoaded;
       }
     }
     else
     {
-      v77 = _RSI->m_netcodeType == VEH_NETCODE_CLIENT_AUTH;
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3bb40000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, xmm2
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [rbp+57h+var_90], xmm0
-        vmulss  xmm0, xmm1, xmm2
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [rbp+57h+var_90+4], xmm0
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  xmm2, dword ptr [rdi+0D0h]
-        vmovss  xmm1, dword ptr [rdi+0D8h]
-        vmovss  [rbp+57h+var_88], xmm0
-        vmovss  xmm0, dword ptr [rdi+0D4h]
-        vmovss  dword ptr [rbp+57h+position+4], xmm0
-        vmovss  dword ptr [rbp+57h+position], xmm2
-        vmovss  dword ptr [rbp+57h+position+8], xmm1
-      }
-      if ( !v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 900, ASSERT_TYPE_ASSERT, "( GetNetcodeType() == VEH_NETCODE_CLIENT_AUTH )", "BgVehiclePhysics::SetClientAuthWarpData(): Vehicle is not Client-Authoritative") )
+      v43 = ObjectById->m_netcodeType == VEH_NETCODE_CLIENT_AUTH;
+      v44 = (float)pm->cmd.vehAngles[1];
+      v45 = pm->cmd.vehAngles[2];
+      *(float *)&v53 = (float)pm->cmd.vehAngles[0] * 0.0054931641;
+      *((float *)&v53 + 1) = v44 * 0.0054931641;
+      v46 = pm->cmd.vehOrgX;
+      v47 = pm->cmd.vehOrgZ;
+      vehOrgZ = (float)v45 * 0.0054931641;
+      position.v[1] = pm->cmd.vehOrgY;
+      position.v[0] = v46;
+      position.v[2] = v47;
+      if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 900, ASSERT_TYPE_ASSERT, "( GetNetcodeType() == VEH_NETCODE_CLIENT_AUTH )", "BgVehiclePhysics::SetClientAuthWarpData(): Vehicle is not Client-Authoritative") )
         __debugbreak();
-      if ( _RSI->m_worldId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 901, ASSERT_TYPE_ASSERT, "( GetWorldId() == PHYSICS_WORLD_ID_SERVER_MAIN )", "BgVehiclePhysics::SetClientAuthWarpData(): Only makes sense in server") )
+      if ( ObjectById->m_worldId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 901, ASSERT_TYPE_ASSERT, "( GetWorldId() == PHYSICS_WORLD_ID_SERVER_MAIN )", "BgVehiclePhysics::SetClientAuthWarpData(): Only makes sense in server") )
         __debugbreak();
-      __asm { vmovsd  xmm0, qword ptr [rbp+57h+position] }
-      v92 = position.v[2];
-      __asm
-      {
-        vmovsd  qword ptr [rsi+284h], xmm0
-        vmovsd  xmm0, [rbp+57h+var_90]
-      }
-      _RSI->m_clientAuthOrg.v[2] = v92;
-      v94 = v98;
-      __asm { vmovsd  qword ptr [rsi+290h], xmm0 }
-      LODWORD(_RSI->m_clientAuthAngles.v[2]) = v94;
+      v48 = position.v[2];
+      *(double *)ObjectById->m_clientAuthOrg.v = *(double *)position.v;
+      v49 = v53;
+      ObjectById->m_clientAuthOrg.v[2] = v48;
+      v50 = vehOrgZ;
+      *(double *)ObjectById->m_clientAuthAngles.v = v49;
+      ObjectById->m_clientAuthAngles.v[2] = v50;
     }
   }
   else
   {
     if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 383, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
       __debugbreak();
-    ObjectForPmove = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, _RSI);
-    BgVehiclePhysics::SetPlayerControlled(ObjectForPmove, _RSI->m_playerControlled);
-    BgVehiclePhysics::Pmove(ObjectForPmove, _RDI, pml);
+    v51 = BgVehiclePhysicsManager::GetObjectForPmove(p_m_vehiclePhysicsManager, ObjectById);
+    BgVehiclePhysics::SetPlayerControlled(v51, ObjectById->m_playerControlled);
+    BgVehiclePhysics::Pmove(v51, pm, pml);
   }
 }
 
@@ -5390,42 +3771,20 @@ void GVehicles::PhysicsUnpackLerpStateValues(GVehicles *this, int entityIndex, f
 GVehicles::PhysicsUpdateCharacterWobbleAnimData
 ==============
 */
-
-void __fastcall GVehicles::PhysicsUpdateCharacterWobbleAnimData(GVehicles *this, const characterInfo_t *ci, unsigned int vehicleId, double frameTime, wobbleAnim_t *outData)
+void GVehicles::PhysicsUpdateCharacterWobbleAnimData(GVehicles *this, const characterInfo_t *ci, unsigned int vehicleId, float frameTime, wobbleAnim_t *outData)
 {
-  bool IsValid; 
-  bool v12; 
-  bool v13; 
   gentity_s *GEntity; 
   VehicleWorldmodelAAnim *p_currentAngles; 
   const BgVehiclePhysics *ObjectById; 
-  float frameTimea; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1716, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   if ( !outData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1717, ASSERT_TYPE_ASSERT, "(outData)", (const char *)&queryFormat, "outData") )
     __debugbreak();
-  IsValid = BGVehicles::PhysicsIsValid(vehicleId);
-  v12 = !IsValid;
-  if ( !IsValid )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1718, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehicleId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehicleId )");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !v12 )
+  if ( !BGVehicles::PhysicsIsValid(vehicleId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_physics.cpp", 1718, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehicleId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehicleId )") )
+    __debugbreak();
+  if ( frameTime > 0.0 )
   {
     GEntity = G_GetGEntity(ci->entityNum);
     p_currentAngles = (VehicleWorldmodelAAnim *)&GEntity->r.currentAngles;
@@ -5433,10 +3792,8 @@ void __fastcall GVehicles::PhysicsUpdateCharacterWobbleAnimData(GVehicles *this,
       p_currentAngles = &ci->vehicleAnimation;
     AnglesToAxis(&p_currentAngles->viewAngles, &axis);
     ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
-    __asm { vmovss  [rsp+0A8h+frameTime], xmm6 }
-    BGVehicles::PhysicsUpdateCharacterWobbleAnimDataCommon(this, ObjectById, &axis, &GEntity->r.currentOrigin, ci, frameTimea, outData);
+    BGVehicles::PhysicsUpdateCharacterWobbleAnimDataCommon(this, ObjectById, &axis, &GEntity->r.currentOrigin, ci, frameTime, outData);
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*

@@ -149,144 +149,144 @@ void R_TG_Barrier_BuildForEnd(const tg::Compiler *compiler, R_TG_TaskInfo *tasks
   R_TG_TaskInfo *v9; 
   unsigned int ResourceInfoCount; 
   unsigned int v11; 
+  unsigned int *p_resourceFlags; 
   unsigned __int64 v13; 
   bool v14; 
-  unsigned int v16; 
-  const tg::ResourceDesc *v17; 
+  unsigned int v15; 
+  const tg::ResourceDesc *v16; 
+  bool v17; 
   bool v18; 
-  bool v19; 
-  unsigned __int64 v20; 
-  unsigned __int64 *v21; 
-  BOOL v22; 
-  __int64 v23; 
-  R_TG_Barrier *v24; 
+  unsigned __int64 v19; 
+  unsigned __int64 *v20; 
+  BOOL v21; 
+  __int64 v22; 
+  R_TG_Barrier *v23; 
   D3D12_RESOURCE_STATES ResourceStateFromTypeStateAndAccess; 
-  R_TG_Attachment *v26; 
-  unsigned int v27; 
+  R_TG_Attachment *v25; 
+  unsigned int v26; 
   __int64 initialState; 
   unsigned int inValue[2]; 
-  unsigned int v30; 
-  const unsigned int *v31; 
-  unsigned __int64 v32; 
-  const ntl::bitset<320,0,unsigned __int64> *v33; 
-  tg::Compiler *v34; 
-  R_TG_TaskInfo *v35; 
-  GfxTaskGraph::Permutation *v36; 
-  R_RT_Handle v37; 
+  unsigned int v29; 
+  const unsigned int *v30; 
+  unsigned __int64 v31; 
+  const ntl::bitset<320,0,unsigned __int64> *v32; 
+  tg::Compiler *v33; 
+  R_TG_TaskInfo *v34; 
+  GfxTaskGraph::Permutation *v35; 
+  R_RT_Handle v36; 
   tg::ResourceGlobalInfo pOut; 
 
   v8 = permutation;
   v9 = tasks;
-  v36 = permutation;
-  v31 = resourceCompressionMasks;
-  v33 = pingPongBits;
-  v35 = tasks;
-  v34 = (tg::Compiler *)compiler;
+  v35 = permutation;
+  v30 = resourceCompressionMasks;
+  v32 = pingPongBits;
+  v34 = tasks;
+  v33 = (tg::Compiler *)compiler;
   ResourceInfoCount = tg::Compiler::GetResourceInfoCount((tg::Compiler *)compiler);
   v11 = 0;
   permutation->barrierCount = taskGraph->taskBarrierCount - taskBarrierCountBegin;
   permutation->endBarrierBegin = taskGraph->endBarrierCount;
-  v30 = ResourceInfoCount;
+  v29 = ResourceInfoCount;
   if ( ResourceInfoCount )
   {
-    _RBP = &taskGraph->resources[0].desc.resourceFlags;
+    p_resourceFlags = &taskGraph->resources[0].desc.resourceFlags;
     v13 = 0i64;
-    v32 = 0i64;
+    v31 = 0i64;
     do
     {
-      v14 = _RBP[11] == 0;
-      __asm { vmovups ymm0, ymmword ptr [rbp+9Ch] }
-      v16 = _RBP[168];
-      __asm { vmovups ymmword ptr [rsp+1F8h+var_180.m_surfaceID], ymm0 }
-      LODWORD(initialState) = v16;
-      if ( !v14 || (conditionDisable & _RBP[12]) == 0 )
+      v14 = p_resourceFlags[11] == 0;
+      v15 = p_resourceFlags[168];
+      v36 = *(R_RT_Handle *)(p_resourceFlags + 39);
+      LODWORD(initialState) = v15;
+      if ( !v14 || (conditionDisable & p_resourceFlags[12]) == 0 )
       {
-        v17 = (const tg::ResourceDesc *)(_RBP - 1);
-        if ( *(_RBP - 1) != 16 )
+        v16 = (const tg::ResourceDesc *)(p_resourceFlags - 1);
+        if ( *(p_resourceFlags - 1) != 16 )
         {
-          if ( v37.m_surfaceID )
+          if ( v36.m_surfaceID )
           {
-            R_RT_Handle::GetSurface(&v37);
-            if ( (R_RT_Handle::GetSurface(&v37)->m_rtFlagsInternal & 0x40) == 0 )
+            R_RT_Handle::GetSurface(&v36);
+            if ( (R_RT_Handle::GetSurface(&v36)->m_rtFlagsInternal & 0x40) == 0 )
             {
-              v18 = (*_RBP & 0x2000) != 0 && (R_RT_Handle::GetSurface(&v37)->m_rtFlagsInternal & 4) != 0;
-              v19 = (*_RBP & 0x1000) != 0 && (R_RT_Handle::GetSurface(&v37)->m_rtFlagsInternal & 4) != 0;
+              v17 = (*p_resourceFlags & 0x2000) != 0 && (R_RT_Handle::GetSurface(&v36)->m_rtFlagsInternal & 4) != 0;
+              v18 = (*p_resourceFlags & 0x1000) != 0 && (R_RT_Handle::GetSurface(&v36)->m_rtFlagsInternal & 4) != 0;
               *(_QWORD *)inValue = -1i64;
-              if ( v18 )
+              if ( v17 )
               {
                 if ( v13 >= 0x140 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 238, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits", initialState, *(_QWORD *)inValue) )
                   __debugbreak();
-                v20 = 0x8000000000000000ui64 >> (v13 & 0x3F);
-                v21 = &v33->m_data[v13 >> 6];
-                v22 = (v20 & *v21) != 0;
-                inValue[0] = v22;
-                if ( !v19 )
+                v19 = 0x8000000000000000ui64 >> (v13 & 0x3F);
+                v20 = &v32->m_data[v13 >> 6];
+                v21 = (v19 & *v20) != 0;
+                inValue[0] = v21;
+                if ( !v18 )
                 {
                   if ( v11 >= 0x140 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 238, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
                     __debugbreak();
-                  v22 = (v20 & *v21) == 0;
+                  v21 = (v19 & *v20) == 0;
                 }
-                v17 = (const tg::ResourceDesc *)(_RBP - 1);
-                inValue[1] = v22;
+                v16 = (const tg::ResourceDesc *)(p_resourceFlags - 1);
+                inValue[1] = v21;
               }
-              v23 = 0i64;
-              if ( _RBP[6] )
+              v22 = 0i64;
+              if ( p_resourceFlags[6] )
               {
                 do
                 {
-                  tg::Compiler::GetResourceInfo(v34, v11, v23, conditionDisable, &pOut);
+                  tg::Compiler::GetResourceInfo(v33, v11, v22, conditionDisable, &pOut);
                   if ( pOut.last.subresourceIndex != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_compile_barriers.cpp.h", 275, ASSERT_TYPE_ASSERT, "(resInfo.last.subresourceIndex == R_TG_Attachment::allSubresources)", (const char *)&queryFormat, "resInfo.last.subresourceIndex == R_TG_Attachment::allSubresources") )
                     __debugbreak();
                   if ( taskGraph->endBarrierCount >= 0x2800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_compile_barriers.cpp.h", 276, ASSERT_TYPE_ASSERT, "(taskGraph.endBarrierCount < taskGraph.endBarrierLimit)", (const char *)&queryFormat, "taskGraph.endBarrierCount < taskGraph.endBarrierLimit") )
                     __debugbreak();
-                  v24 = &taskGraph->endBarriers[taskGraph->endBarrierCount];
-                  v24->stateBefore = R_TG_Barrier_GetResourceStateFromTypeStateAndAccess(pOut.last.type, pOut.last.state, pOut.last.access, v17, (const D3D12_RESOURCE_STATES)initialState, *v31);
-                  ResourceStateFromTypeStateAndAccess = R_TG_Barrier_GetResourceStateFromTypeStateAndAccess(eResourceType_Unknown, eResourceState_Initial, 0, v17, (const D3D12_RESOURCE_STATES)initialState, 0xFFFFFFFF);
-                  v24->stateAfter = ResourceStateFromTypeStateAndAccess;
-                  if ( v24->stateBefore != ResourceStateFromTypeStateAndAccess )
+                  v23 = &taskGraph->endBarriers[taskGraph->endBarrierCount];
+                  v23->stateBefore = R_TG_Barrier_GetResourceStateFromTypeStateAndAccess(pOut.last.type, pOut.last.state, pOut.last.access, v16, (const D3D12_RESOURCE_STATES)initialState, *v30);
+                  ResourceStateFromTypeStateAndAccess = R_TG_Barrier_GetResourceStateFromTypeStateAndAccess(eResourceType_Unknown, eResourceState_Initial, 0, v16, (const D3D12_RESOURCE_STATES)initialState, 0xFFFFFFFF);
+                  v23->stateAfter = ResourceStateFromTypeStateAndAccess;
+                  if ( v23->stateBefore != ResourceStateFromTypeStateAndAccess )
                   {
-                    v26 = &taskGraph->endBarrierAttachments[taskGraph->endBarrierCount];
-                    truncate_store<unsigned short,unsigned int>(&v26->resourceIndex, v11);
-                    v26->subresourceIndex = -1;
-                    v26->flags = R_TG_AttachmentFlag_EndFrame;
+                    v25 = &taskGraph->endBarrierAttachments[taskGraph->endBarrierCount];
+                    truncate_store<unsigned short,unsigned int>(&v25->resourceIndex, v11);
+                    v25->subresourceIndex = -1;
+                    v25->flags = R_TG_AttachmentFlag_EndFrame;
+                    if ( v17 )
+                    {
+                      v26 = inValue[v22];
+                      v25->flags = R_TG_AttachmentFlag_PingPong|R_TG_AttachmentFlag_EndFrame;
+                      truncate_store<unsigned char,unsigned int>(&v25->pingPongIndex, v26);
+                    }
                     if ( v18 )
                     {
-                      v27 = inValue[v23];
-                      v26->flags = R_TG_AttachmentFlag_PingPong|R_TG_AttachmentFlag_EndFrame;
-                      truncate_store<unsigned char,unsigned int>(&v26->pingPongIndex, v27);
+                      v25->flags |= 8u;
+                      truncate_store<unsigned char,unsigned int>(&v25->temporalIndex, v22);
                     }
-                    if ( v19 )
-                    {
-                      v26->flags |= 8u;
-                      truncate_store<unsigned char,unsigned int>(&v26->temporalIndex, v23);
-                    }
-                    v24->subresource = -1;
-                    v17 = (const tg::ResourceDesc *)(_RBP - 1);
-                    v24->flag = taskGraph->allowSplitBarriers ? D3D12_RESOURCE_BARRIER_FLAG_END_ONLY : D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                    v23->subresource = -1;
+                    v16 = (const tg::ResourceDesc *)(p_resourceFlags - 1);
+                    v23->flag = taskGraph->allowSplitBarriers ? D3D12_RESOURCE_BARRIER_FLAG_END_ONLY : D3D12_RESOURCE_BARRIER_FLAG_NONE;
                     ++taskGraph->endBarrierCount;
                   }
-                  v23 = (unsigned int)(v23 + 1);
+                  v22 = (unsigned int)(v22 + 1);
                 }
-                while ( (unsigned int)v23 < _RBP[6] );
-                v13 = v32;
+                while ( (unsigned int)v22 < p_resourceFlags[6] );
+                v13 = v31;
               }
             }
           }
-          else if ( v37.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v37.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", initialState) )
+          else if ( v36.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v36.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", initialState) )
           {
             __debugbreak();
           }
         }
       }
-      ++v31;
+      ++v30;
       ++v13;
       ++v11;
-      v32 = v13;
-      _RBP += 202;
+      v31 = v13;
+      p_resourceFlags += 202;
     }
-    while ( v11 < v30 );
-    v9 = v35;
-    v8 = v36;
+    while ( v11 < v29 );
+    v9 = v34;
+    v8 = v35;
   }
   v8->endBarrierEnd = taskGraph->endBarrierCount;
   *(_QWORD *)v9->lastAliasBarrier = 0i64;

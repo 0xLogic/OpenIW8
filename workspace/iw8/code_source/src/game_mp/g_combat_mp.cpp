@@ -343,137 +343,97 @@ void GCombatMP::GCombatMP(GCombatMP *this)
 GCombatMP::CalcVehicleImpactDamage
 ==============
 */
-int GCombatMP::CalcVehicleImpactDamage(GCombatMP *this, const Vehicle *veh, const VehicleDef *vehDef, gentity_s *vehEnt, const float vehicleSpeed, const gentity_s *receiver)
+__int64 GCombatMP::CalcVehicleImpactDamage(GCombatMP *this, const Vehicle *veh, const VehicleDef *vehDef, gentity_s *vehEnt, const float vehicleSpeed, const gentity_s *receiver, const vec3_t *moveDir)
 {
-  bool v18; 
-  bool v19; 
   int IsAgentScripted; 
-  int v26; 
-  int result; 
-  char v66; 
-  void *retaddr; 
+  double v10; 
+  float v11; 
+  __int128 v13; 
+  float v14; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v26; 
+  const dvar_t *v27; 
+  float v28; 
 
-  _RAX = &retaddr;
-  _RBP = receiver;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = vehDef;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0C8h+var_88], xmm13
-  }
   if ( !vehEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1783, ASSERT_TYPE_ASSERT, "( vehEnt )", (const char *)&queryFormat, "vehEnt") )
     __debugbreak();
-  v18 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1784, ASSERT_TYPE_ASSERT, "( vehDef )", (const char *)&queryFormat, "vehDef");
-    v18 = !v19;
-    if ( v19 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm7, dword ptr [rdi+0C4h]
-  }
-  if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1785, ASSERT_TYPE_ASSERT, "( vehDef->collisionSpeed )", (const char *)&queryFormat, "vehDef->collisionSpeed") )
+  if ( !vehDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1784, ASSERT_TYPE_ASSERT, "( vehDef )", (const char *)&queryFormat, "vehDef") )
+    __debugbreak();
+  if ( vehDef->collisionSpeed == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1785, ASSERT_TYPE_ASSERT, "( vehDef->collisionSpeed )", (const char *)&queryFormat, "vehDef->collisionSpeed") )
     __debugbreak();
   IsAgentScripted = SV_IsAgentScripted(receiver);
-  __asm
+  v10 = I_fclamp(vehDef->dlcFloat[2], 0.0, 1.0);
+  v11 = *(float *)&v10;
+  if ( IsAgentScripted )
   {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rdi+0EF0h]; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  v26 = IsAgentScripted;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm13, xmm0 }
-  if ( v26 )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    _XMM6 = 0i64;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0EECh]
-      vmulss  xmm6, xmm0, cs:__real@418ccccd
-    }
+    v13 = LODWORD(vehDef->dlcFloat[1]);
+    *(float *)&v13 = vehDef->dlcFloat[1] * 17.6;
+    _XMM6 = v13;
   }
+  v14 = vehDef->dlcFloat[0];
+  _XMM0 = LODWORD(vehDef->collisionDamage);
   __asm
   {
-    vmovss  xmm9, dword ptr [rdi+0EE8h]
-    vmovss  xmm0, dword ptr [rdi+0C0h]
     vmaxss  xmm11, xmm6, dword ptr [rdi+0C4h]
     vmaxss  xmm12, xmm0, xmm9
-    vmovaps xmm10, xmm8
   }
-  if ( !_RDI->collisionDamageIgnoresImpactAngle )
+  v18 = FLOAT_1_0;
+  if ( !vehDef->collisionDamageIgnoresImpactAngle )
   {
+    v19 = receiver->r.currentOrigin.v[0] - vehEnt->r.currentOrigin.v[0];
+    v21 = LODWORD(receiver->r.currentOrigin.v[1]);
+    v20 = receiver->r.currentOrigin.v[1] - vehEnt->r.currentOrigin.v[1];
+    *(float *)&v21 = fsqrt((float)(v20 * v20) + (float)(v19 * v19));
+    _XMM3 = v21;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+130h]
-      vsubss  xmm5, xmm0, dword ptr [rsi+130h]
-      vmovss  xmm1, dword ptr [rbp+134h]
-      vsubss  xmm4, xmm1, dword ptr [rsi+134h]
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm2, xmm4, xmm4
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm8, xmm0
-      vdivss  xmm3, xmm8, xmm0
-      vmulss  xmm1, xmm4, xmm3
-      vmulss  xmm2, xmm1, dword ptr [rax+4]
-      vmulss  xmm0, xmm5, xmm3
-      vmulss  xmm1, xmm0, dword ptr [rax]
-      vaddss  xmm10, xmm2, xmm1
-      vandps  xmm10, xmm10, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
     }
+    LODWORD(v18) = COERCE_UNSIGNED_INT((float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * moveDir->v[1]) + (float)((float)(v19 * (float)(1.0 / *(float *)&_XMM0)) * moveDir->v[0])) & _xmm;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+vehicleSpeed]
-    vcomiss xmm0, xmm6
-  }
-  if ( _RDI->collisionDamageIgnoresImpactAngle )
-  {
-    __asm
-    {
-      vcomiss xmm0, xmm11
-      vmulss  xmm0, xmm10, xmm12
-      vcvttss2si eax, xmm0
-    }
-  }
+  if ( vehicleSpeed <= *(float *)&_XMM6 )
+    return (unsigned int)(int)(float)((float)(v14 * v11) * v18);
+  if ( vehicleSpeed >= *(float *)&_XMM11 )
+    return (unsigned int)(int)(float)(v18 * *(float *)&_XMM12);
+  if ( (float)(*(float *)&_XMM11 - *(float *)&_XMM6) <= 0.0 )
+    v26 = FLOAT_1_0;
   else
+    LODWORD(v26) = COERCE_UNSIGNED_INT64(I_fclamp((float)(vehicleSpeed - *(float *)&_XMM6) / (float)(*(float *)&_XMM11 - *(float *)&_XMM6), 0.0, 1.0));
+  v27 = DCONST_DVARINT_vehDmgToPlayersCurve;
+  if ( !DCONST_DVARINT_vehDmgToPlayersCurve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehDmgToPlayersCurve") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v27);
+  switch ( v27->current.integer )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm9, xmm13
-      vmulss  xmm1, xmm0, xmm10
-      vcvttss2si eax, xmm1
-    }
+    case 0:
+      v26 = FLOAT_1_0;
+      break;
+    case 1:
+      v26 = 0.0;
+      break;
+    case 3:
+      v28 = fsqrt(v26);
+      goto LABEL_31;
+    case 4:
+      v26 = v26 * v26;
+      break;
+    case 5:
+      v28 = v26 * v26;
+LABEL_31:
+      v26 = v28 * v26;
+      break;
+    default:
+      return (unsigned int)(int)(float)((float)((float)((float)(*(float *)&_XMM12 - v14) * v26) + v14) * v18);
   }
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)((float)((float)(*(float *)&_XMM12 - v14) * v26) + v14) * v18);
 }
 
 /*
@@ -516,14 +476,9 @@ void G_CombatMP_AgentDespawn(gentity_s *self)
   gentity_s *i; 
   vec3_t vDir; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+88h+var_28], xmm0
-    vmovss  dword ptr [rsp+88h+var_28+4], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsp+88h+var_28+8], xmm0
-  }
+  vDir.v[0] = 0.0;
+  vDir.v[1] = 0.0;
+  vDir.v[2] = FLOAT_1_0;
   G_CombatMP_AgentDieInternal(self, NULL, NULL, 0, 0, 0, &NULL_WEAPON, 0, &vDir, HITLOC_NONE, 0, 1);
   G_EntUnlink(self);
   for ( i = self->tagChildren; i; i = self->tagChildren )
@@ -547,43 +502,43 @@ G_CombatMP_AgentDieInternal
 */
 void G_CombatMP_AgentDieInternal(gentity_s *self, const gentity_s *inflictor, gentity_s *attacker, int damage, int damageFlags, int meansOfDeath, const Weapon *r_weapon, bool isAlternate, const vec3_t *vDir, const hitLocation_t hitLoc, int psTimeOffset, bool despawn)
 {
-  gentity_s *v13; 
+  gentity_s *v12; 
   gagent_s *agent; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
   unsigned int pm_type; 
-  unsigned __int8 v18; 
-  bool v19; 
-  unsigned int v20; 
-  __int64 v21; 
-  int v22; 
-  unsigned int v23; 
-  bool v24; 
-  gentity_s *v25; 
-  const vec3_t *v26; 
+  unsigned __int8 v17; 
+  bool v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  int v21; 
+  unsigned int v22; 
+  bool v23; 
+  gentity_s *v24; 
+  const vec3_t *v25; 
   unsigned int *RandomSeed; 
   GHandler *Handler; 
-  int v29; 
-  playerState_s *p_playerState; 
+  int v28; 
+  gagent_s *v29; 
   ai_agent_t *ScriptedAgentInfo; 
-  AIAgentInterface *v32; 
+  AIAgentInterface *v31; 
+  int v32; 
   int v33; 
-  int v34; 
-  gentity_s *v35; 
-  SvPersistentGlobals *v36; 
+  gentity_s *v34; 
+  SvPersistentGlobals *v35; 
   int number; 
-  unsigned int v38; 
-  char v44; 
-  char v45; 
-  gagent_s *v46; 
-  __int64 v47; 
+  unsigned int v37; 
+  const Bounds *Bounds; 
+  __m128 v39; 
+  gagent_s *v40; 
+  __int64 v41; 
   unsigned int *holdrand; 
   int holdranda; 
-  Weapon *v50; 
-  __int64 v51; 
-  bool v52; 
-  vec3_t *v53; 
-  AIAgentInterface v54; 
-  AIAgentInterface *v55; 
+  Weapon *v44; 
+  __int64 v45; 
+  bool v46; 
+  vec3_t *v47; 
+  AIAgentInterface v48; 
+  AIAgentInterface *v49; 
   int outDuration; 
   gentity_s *inflictora; 
   gentity_s *attackera; 
@@ -592,141 +547,133 @@ void G_CombatMP_AgentDieInternal(gentity_s *self, const gentity_s *inflictor, ge
   damagea = damage;
   attackera = attacker;
   inflictora = (gentity_s *)inflictor;
-  v13 = attacker;
+  v12 = attacker;
   outDuration = 0;
-  _RDI = self;
   SV_InitMP_CheckThread();
-  if ( !_RDI->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1152, ASSERT_TYPE_ASSERT, "(self->agent)", (const char *)&queryFormat, "self->agent") )
+  if ( !self->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1152, ASSERT_TYPE_ASSERT, "(self->agent)", (const char *)&queryFormat, "self->agent") )
     __debugbreak();
-  agent = _RDI->agent;
+  agent = self->agent;
   if ( !Com_GetServerDObjForEntnum(agent->playerState.clientNum) )
   {
-    Agent_Free(_RDI);
+    Agent_Free(self);
     return;
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&agent->playerState.pm_flags, ACTIVE, 0x16u) )
     *(_QWORD *)agent->playerState.velocity.v = 0i64;
-  if ( !SV_IsAgentScripted(_RDI) )
+  if ( !SV_IsAgentScripted(self) )
   {
     p_otherFlags = &agent->playerState.otherFlags;
     if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&agent->playerState.otherFlags, (POtherFlagsMP)33) || agent->playerState.pm_type > 1u && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&agent->playerState.otherFlags, ACTIVE, 0xBu) )
       return;
 LABEL_32:
-    v19 = despawn;
+    v18 = despawn;
     if ( despawn )
-      _RDI->health = 0;
-    SV_BotEntityDied(_RDI);
-    v20 = tls_index;
-    v21 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
-    if ( !v21 )
+      self->health = 0;
+    SV_BotEntityDied(self);
+    v19 = tls_index;
+    v20 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
+    if ( !v20 )
       goto LABEL_113;
     if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
       __debugbreak();
-    if ( v21 != *(_QWORD *)&GStatic::ms_gameStatics )
+    if ( v20 != *(_QWORD *)&GStatic::ms_gameStatics )
     {
 LABEL_113:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1216, ASSERT_TYPE_ASSERT, "(BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics()))", "%s\n\tEntering server game agent processing without a valid client game state", "BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics())") )
         __debugbreak();
     }
-    v22 = meansOfDeath;
-    if ( v19 )
+    v21 = meansOfDeath;
+    if ( v18 )
     {
-      v23 = 0;
+      v22 = 0;
     }
     else
     {
-      if ( v13->s.eType == ET_TURRET && EntHandle::isDefined(&v13->r.ownerNum) )
+      if ( v12->s.eType == ET_TURRET && EntHandle::isDefined(&v12->r.ownerNum) )
       {
-        v13 = EntHandle::ent(&v13->r.ownerNum);
-        attackera = v13;
+        v12 = EntHandle::ent(&v12->r.ownerNum);
+        attackera = v12;
       }
-      G_CombatMP_GrenadeDrop(_RDI, v22, 1);
-      G_PlayerSpawnPoints_LogDeathEvent(_RDI, v13);
-      GScr_AddEntity(v13);
-      v23 = 1;
+      G_CombatMP_GrenadeDrop(self, v21, 1);
+      G_PlayerSpawnPoints_LogDeathEvent(self, v12);
+      GScr_AddEntity(v12);
+      v22 = 1;
     }
-    GScr_Notify(_RDI, scr_const.death, v23);
-    GScr_Notify(_RDI, scr_const.death_or_disconnect, 0);
+    GScr_Notify(self, scr_const.death, v22);
+    GScr_Notify(self, scr_const.death_or_disconnect, 0);
     if ( agent->playerState.pm_type > 1u && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0xBu) )
     {
       LODWORD(holdrand) = agent->playerState.pm_type;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1238, ASSERT_TYPE_SANITY, "( ( (playerState->pm_type == PM_NORMAL_LINKED) || (playerState->pm_type == PM_NORMAL) || playerState->otherFlags.TestFlag( POtherFlagsCommon::LASTSTAND ) ) )", "( playerState->pm_type ) = %i", holdrand) )
         __debugbreak();
     }
-    if ( v19 )
+    if ( v18 )
     {
-      v35 = inflictora;
+      v34 = inflictora;
 LABEL_68:
-      G_Vehicle_ClearPlayerVehicles(_RDI->s.number, &agent->playerState);
+      G_Vehicle_ClearPlayerVehicles(self->s.number, &agent->playerState);
       if ( BYTE1(SvGameGlobals::ms_allocatedType) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_persistent_globals_mp.h", 166, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
         __debugbreak();
       if ( !SvPersistentGlobals::ms_svPersistent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_persistent_globals.h", 72, ASSERT_TYPE_ASSERT, "(ms_svPersistent)", "%s\n\tAttempting to access server static data outside of an active server context", "ms_svPersistent") )
         __debugbreak();
       if ( !BYTE1(SvGameGlobals::ms_allocatedType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_persistent_globals.h", 73, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server static data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
         __debugbreak();
-      v36 = SvPersistentGlobals::ms_svPersistent;
-      number = _RDI->s.number;
+      v35 = SvPersistentGlobals::ms_svPersistent;
+      number = self->s.number;
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
       if ( number < (int)ComCharacterLimits::ms_gameData.m_clientCount )
       {
         if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
           __debugbreak();
-        LODWORD(v53) = ComCharacterLimits::ms_gameData.m_clientCount;
-        LODWORD(v51) = number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 175, ASSERT_TYPE_ASSERT, "( entityIndex ) >= ( ComCharacterLimits::GetAgentEntityIndexOffset() )", "%s >= %s\n\t%i, %i", "entityIndex", "ComCharacterLimits::GetAgentEntityIndexOffset()", v51, v53) )
+        LODWORD(v47) = ComCharacterLimits::ms_gameData.m_clientCount;
+        LODWORD(v45) = number;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 175, ASSERT_TYPE_ASSERT, "( entityIndex ) >= ( ComCharacterLimits::GetAgentEntityIndexOffset() )", "%s >= %s\n\t%i, %i", "entityIndex", "ComCharacterLimits::GetAgentEntityIndexOffset()", v45, v47) )
           __debugbreak();
       }
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      v38 = number - ComCharacterLimits::ms_gameData.m_clientCount;
+      v37 = number - ComCharacterLimits::ms_gameData.m_clientCount;
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      if ( v38 >= ComCharacterLimits::ms_gameData.m_agentCount )
+      if ( v37 >= ComCharacterLimits::ms_gameData.m_agentCount )
       {
         if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
           __debugbreak();
-        LODWORD(v50) = ComCharacterLimits::ms_gameData.m_agentCount;
-        LODWORD(holdrand) = v38;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 178, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", holdrand, v50) )
+        LODWORD(v44) = ComCharacterLimits::ms_gameData.m_agentCount;
+        LODWORD(holdrand) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 178, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", holdrand, v44) )
           __debugbreak();
       }
-      SV_AgentKilled((agent_t *)(*(_QWORD *)&v36[2].m_skelMemSize + 280i64 * (int)v38));
-      if ( !v19 )
+      SV_AgentKilled((agent_t *)(*(_QWORD *)&v35[2].m_skelMemSize + 280i64 * (int)v37));
+      if ( !v18 )
       {
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RDI->s.lerp.eFlags, ACTIVE, 0x10u);
-        _RDI->r.currentAngles.v[2] = 0.0;
-        G_Combat_LookAtKiller(_RDI, v35, v13, &agent->playerState);
-        agent->playerState.viewangles.v[0] = _RDI->r.currentAngles.v[0];
-        agent->playerState.viewangles.v[1] = _RDI->r.currentAngles.v[1];
-        agent->playerState.viewangles.v[2] = _RDI->r.currentAngles.v[2];
-        _RDI->s.loopSound = 0;
-        _RAX = BG_Suit_GetBounds(agent->playerState.suitIndex, PM_EFF_STANCE_PRONE);
-        __asm
-        {
-          vxorps  xmm2, xmm2, xmm2
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rdi+100h], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-          vcomiss xmm2, xmm0
-          vmovsd  qword ptr [rdi+110h], xmm1
-        }
-        if ( !(v44 | v45) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1302, ASSERT_TYPE_ASSERT, "(self->r.box.halfSize[2] >= 0.0f)", (const char *)&queryFormat, "self->r.box.halfSize[2] >= 0.0f") )
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&self->s.lerp.eFlags, ACTIVE, 0x10u);
+        self->r.currentAngles.v[2] = 0.0;
+        G_Combat_LookAtKiller(self, v34, v12, &agent->playerState);
+        agent->playerState.viewangles.v[0] = self->r.currentAngles.v[0];
+        agent->playerState.viewangles.v[1] = self->r.currentAngles.v[1];
+        agent->playerState.viewangles.v[2] = self->r.currentAngles.v[2];
+        self->s.loopSound = 0;
+        Bounds = BG_Suit_GetBounds(agent->playerState.suitIndex, PM_EFF_STANCE_PRONE);
+        *(_OWORD *)self->r.box.midPoint.v = *(_OWORD *)Bounds->midPoint.v;
+        v39 = (__m128)*(unsigned __int64 *)&Bounds->halfSize.y;
+        *(double *)&self->r.box.halfSize.y = *(double *)v39.m128_u64;
+        if ( _mm_shuffle_ps(v39, v39, 85).m128_f32[0] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1302, ASSERT_TYPE_ASSERT, "(self->r.box.halfSize[2] >= 0.0f)", (const char *)&queryFormat, "self->r.box.halfSize[2] >= 0.0f") )
           __debugbreak();
       }
-      SV_LinkEntity(_RDI);
-      v46 = _RDI->agent;
-      _RDI->health = 0;
-      v46->lastDeathTime = level.time;
-      if ( SV_IsAgentScripted(_RDI) )
-        _RDI->handler = 28;
-      v47 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v20) + 272i64);
-      if ( !v47 )
+      SV_LinkEntity(self);
+      v40 = self->agent;
+      self->health = 0;
+      v40->lastDeathTime = level.time;
+      if ( SV_IsAgentScripted(self) )
+        self->handler = 28;
+      v41 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v19) + 272i64);
+      if ( !v41 )
         goto LABEL_114;
       if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
         __debugbreak();
-      if ( v47 != *(_QWORD *)&GStatic::ms_gameStatics )
+      if ( v41 != *(_QWORD *)&GStatic::ms_gameStatics )
       {
 LABEL_114:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1324, ASSERT_TYPE_ASSERT, "(BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics()))", "%s\n\tFinished server game agent processing without a valid client game state", "BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics())") )
@@ -734,68 +681,68 @@ LABEL_114:
       }
       return;
     }
-    v24 = isAlternate;
-    v25 = inflictora;
-    G_CombatMP_SetAnimDamageTypeCondition(agent->playerState.clientNum, _RDI, inflictora, v22, r_weapon, isAlternate);
-    G_CombatMP_SetAnimHitLocationCondition(agent->playerState.clientNum, _RDI, hitLoc);
-    v26 = vDir;
-    G_CombatMP_SetAnimHitDirectionCondition(agent->playerState.clientNum, _RDI, vDir, &agent->playerState, v22);
-    G_CombatMP_SetAnimMoveDirectionCondition(agent->playerState.clientNum, _RDI, &agent->playerState);
-    G_CombatMP_SetVehicleOccupancyConditions(agent->playerState.clientNum, _RDI);
-    if ( v22 == 8 )
+    v23 = isAlternate;
+    v24 = inflictora;
+    G_CombatMP_SetAnimDamageTypeCondition(agent->playerState.clientNum, self, inflictora, v21, r_weapon, isAlternate);
+    G_CombatMP_SetAnimHitLocationCondition(agent->playerState.clientNum, self, hitLoc);
+    v25 = vDir;
+    G_CombatMP_SetAnimHitDirectionCondition(agent->playerState.clientNum, self, vDir, &agent->playerState, v21);
+    G_CombatMP_SetAnimMoveDirectionCondition(agent->playerState.clientNum, self, &agent->playerState);
+    G_CombatMP_SetVehicleOccupancyConditions(agent->playerState.clientNum, self);
+    if ( v21 == 8 )
     {
-      G_CombatMP_SetMeleeReactionConditions(agent->playerState.clientNum, v25);
+      G_CombatMP_SetMeleeReactionConditions(agent->playerState.clientNum, v24);
     }
-    else if ( v22 == 21 )
+    else if ( v21 == 21 )
     {
-      outDuration = G_Execution_GetExecutionAnimDurationRemaining(_RDI, level.time);
+      outDuration = G_Execution_GetExecutionAnimDurationRemaining(self, level.time);
       GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(p_otherFlags, GameModeFlagValues::ms_mpValue, 0x33u);
 LABEL_56:
       agent->playerState.pm_type = (agent->playerState.pm_type == 1) + 7;
       agent->playerState.stats[0] = 0;
-      AIAgentInterface::AIAgentInterface(&v54);
-      v55 = NULL;
-      v54.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-      if ( SV_IsAgentScripted(_RDI) )
+      AIAgentInterface::AIAgentInterface(&v48);
+      v49 = NULL;
+      v48.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+      if ( SV_IsAgentScripted(self) )
       {
-        ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(_RDI);
+        ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(self);
         if ( ScriptedAgentInfo )
         {
-          v55 = &v54;
-          AINewAgentInterface::SetAgent((AINewAgentInterface *)&v54, ScriptedAgentInfo);
+          v49 = &v48;
+          AINewAgentInterface::SetAgent((AINewAgentInterface *)&v48, ScriptedAgentInfo);
         }
       }
-      v32 = v55;
-      v33 = psTimeOffset;
-      v34 = damageFlags;
-      if ( v55 )
+      v31 = v49;
+      v32 = psTimeOffset;
+      v33 = damageFlags;
+      if ( v49 )
       {
-        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1277, ASSERT_TYPE_ASSERT, "(vDir)", (const char *)&queryFormat, "vDir") )
+        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1277, ASSERT_TYPE_ASSERT, "(vDir)", (const char *)&queryFormat, "vDir") )
           __debugbreak();
-        v32->Die(v32, inflictora, attackera, damagea, v34, v22, r_weapon, v24, v26, hitLoc, v33);
+        v31->Die(v31, inflictora, attackera, damagea, v33, v21, r_weapon, v23, v25, hitLoc, v32);
       }
-      v52 = v24;
-      v13 = attackera;
-      holdranda = v22;
-      v35 = inflictora;
-      Scr_AgentKilled(_RDI, inflictora, attackera, damagea, v34, holdranda, r_weapon, v52, v26, hitLoc, v33, outDuration);
-      v19 = despawn;
-      v20 = tls_index;
+      v46 = v23;
+      v12 = attackera;
+      holdranda = v21;
+      v34 = inflictora;
+      Scr_AgentKilled(self, inflictora, attackera, damagea, v33, holdranda, r_weapon, v46, v25, hitLoc, v32, outDuration);
+      v18 = despawn;
+      v19 = tls_index;
       goto LABEL_68;
     }
-    if ( (*(_BYTE *)&_RDI->s.animInfo.selectAnim & 1) == 0 )
+    if ( (*(_BYTE *)&self->s.animInfo.selectAnim & 1) == 0 )
     {
       RandomSeed = G_GetRandomSeed();
       Handler = GHandler::getHandler();
-      v29 = BG_AnimScriptEvent(Handler, &agent->playerState, ANIM_ET_DEATH, 0, 1, RandomSeed);
-      p_playerState = &_RDI->agent->playerState;
-      outDuration = v29;
-      GPlayerASM_ForceUpdateEvent(p_playerState, MOVEMENT, 1, &outDuration);
+      v28 = BG_AnimScriptEvent(Handler, &agent->playerState, ANIM_ET_DEATH, 0, 1, RandomSeed);
+      v29 = self->agent;
+      outDuration = v28;
+      GPlayerASM_ForceUpdateEvent(&v29->playerState, MOVEMENT, 1, &outDuration);
     }
     goto LABEL_56;
   }
   if ( agent->playerState.pm_type > 1u && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&agent->playerState.otherFlags, ACTIVE, 0xBu) )
-    Com_Printf(18, "G_CombatMP_AgentDie: Agent(%d) has unexpected pm_type (%d)!\n", (unsigned int)_RDI->s.number, (unsigned int)agent->playerState.pm_type);
+    Com_Printf(18, "G_CombatMP_AgentDie: Agent(%d) has unexpected pm_type (%d)!\n", (unsigned int)self->s.number, (unsigned int)agent->playerState.pm_type);
   pm_type = agent->playerState.pm_type;
   if ( pm_type - 7 > 1 )
   {
@@ -809,14 +756,14 @@ LABEL_26:
       __debugbreak();
     goto LABEL_32;
   }
-  v18 = _RDI->handler;
-  if ( v18 != 28 )
+  v17 = self->handler;
+  if ( v17 != 28 )
   {
-    Com_Printf(18, "G_CombatMP_AgentDie: Agent(%d) pm_type is PM_DEAD/PM_DEAD_LINKED and handler is incorrect: (%d)!\n", (unsigned int)_RDI->s.number, v18);
-    if ( _RDI->handler != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1196, ASSERT_TYPE_ASSERT, "(self->handler == ENT_HANDLER_AGENT_DEAD)", (const char *)&queryFormat, "self->handler == ENT_HANDLER_AGENT_DEAD") )
+    Com_Printf(18, "G_CombatMP_AgentDie: Agent(%d) pm_type is PM_DEAD/PM_DEAD_LINKED and handler is incorrect: (%d)!\n", (unsigned int)self->s.number, v17);
+    if ( self->handler != 28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1196, ASSERT_TYPE_ASSERT, "(self->handler == ENT_HANDLER_AGENT_DEAD)", (const char *)&queryFormat, "self->handler == ENT_HANDLER_AGENT_DEAD") )
       __debugbreak();
   }
-  if ( _RDI->handler != 28 )
+  if ( self->handler != 28 )
     goto LABEL_26;
 }
 
@@ -837,73 +784,71 @@ G_CombatMP_DamageAgent
 */
 void G_CombatMP_DamageAgent(gentity_s *targ, const gentity_s *inflictor, gentity_s *attacker, const vec3_t *dir, const vec3_t *point, int damage, int dflags, int mod, const Weapon *r_weapon, bool isAlternate, hitLocation_t hitLoc, int timeOffset, unsigned int modelIndex, scr_string_t partName)
 {
-  const gentity_s *v18; 
+  __int16 v14; 
+  const gentity_s *v16; 
+  int v18; 
   gagent_s *agent; 
-  bool v26; 
-  gentity_s *v27; 
-  int v28; 
-  bool v29; 
+  __m256i v20; 
+  __int128 v21; 
+  double v22; 
+  bool v23; 
+  gentity_s *v24; 
+  int v25; 
+  float v26; 
   ai_scripted_t *AIScriptedData; 
   weapType_t WeaponType; 
-  bool v34; 
-  bool v35; 
+  bool v29; 
+  bool v30; 
+  __int64 unitType; 
   unsigned __int16 weaponIdx; 
   __int64 meansOfDeath; 
-  Weapon *v47; 
+  Weapon *v34; 
   unsigned int NumWeapons; 
-  bool v49; 
-  const gentity_s *v50; 
+  bool v36; 
+  const gentity_s *v37; 
   vec3_t *vDir; 
   vec3_t *vPoint; 
   gentity_s *attackera; 
   Weapon weapon; 
 
-  _RBX = r_weapon;
-  v18 = inflictor;
+  v16 = inflictor;
   vPoint = (vec3_t *)point;
   vDir = (vec3_t *)dir;
   attackera = attacker;
-  v50 = inflictor;
+  v37 = inflictor;
   if ( SV_UserMoveWorkersMP_IsInWorkerContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1516, ASSERT_TYPE_ASSERT, "( !SV_UserMoveWorkersMP_IsInWorkerContext() )", (const char *)&queryFormat, "!SV_UserMoveWorkersMP_IsInWorkerContext()") )
     __debugbreak();
   if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&targ->agent->playerState.eFlags, ACTIVE, 0x10u) )
   {
-    _ER14 = damage;
+    v18 = damage;
     if ( damage > 0 && hitLoc != HITLOC_SHIELD )
     {
       agent = targ->agent;
       if ( agent->playerState.pm_type != 7 && (agent->flags & 0x40) == 0 )
       {
-        __asm
-        {
-          vmovups ymm2, ymmword ptr [rbx]
-          vmovups xmm0, xmmword ptr [rbx+20h]
-          vmovsd  xmm1, qword ptr [rbx+30h]
-        }
+        v20 = *(__m256i *)&r_weapon->weaponIdx;
+        v21 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+        v22 = *(double *)&r_weapon->attachmentVariationIndices[21];
         *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
-        __asm { vmovd   eax, xmm2 }
-        v26 = isAlternate;
-        v49 = isAlternate;
-        __asm
-        {
-          vmovups ymmword ptr [rsp+138h+weapon.weaponIdx], ymm2
-          vmovups xmmword ptr [rsp+138h+weapon.attachmentVariationIndices+5], xmm0
-          vmovsd  qword ptr [rsp+138h+weapon.attachmentVariationIndices+15h], xmm1
-        }
-        if ( (_WORD)_EAX )
+        v23 = isAlternate;
+        v36 = isAlternate;
+        *(__m256i *)&weapon.weaponIdx = v20;
+        *(_OWORD *)&weapon.attachmentVariationIndices[5] = v21;
+        *(double *)&weapon.attachmentVariationIndices[21] = v22;
+        if ( v14 )
           goto LABEL_15;
-        if ( v18 )
+        if ( v16 )
         {
-          v27 = (gentity_s *)v18;
+          v24 = (gentity_s *)v16;
         }
         else
         {
           if ( !attacker )
             goto LABEL_15;
-          v27 = attacker;
+          v24 = attacker;
         }
-        G_CombatMP_GetWeaponForEntity(v27, &weapon, &v49);
-        v26 = v49;
+        G_CombatMP_GetWeaponForEntity(v24, &weapon, &v36);
+        v23 = v36;
 LABEL_15:
         if ( weapon.weaponIdx >= BG_GetNumWeapons() )
         {
@@ -914,14 +859,12 @@ LABEL_15:
         }
         if ( (unsigned int)hitLoc > HITLOC_SOFT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1562, ASSERT_TYPE_ASSERT, "((hitLoc >= HITLOC_NONE) && (hitLoc < HITLOC_NUM))", (const char *)&queryFormat, "(hitLoc >= HITLOC_NONE) && (hitLoc < HITLOC_NUM)") )
           __debugbreak();
-        v28 = dflags;
+        v25 = dflags;
         if ( (dflags & 1) != 0 )
           GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&targ->agent->playerState.weapCommon.weapFlags, ACTIVE, 0x10u);
         if ( mod != 8 )
         {
-          v29 = targ->sentient == NULL;
-          __asm { vmovaps [rsp+138h+var_58], xmm6 }
-          if ( v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1573, ASSERT_TYPE_ASSERT, "(targ->sentient)", (const char *)&queryFormat, "targ->sentient") )
+          if ( !targ->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1573, ASSERT_TYPE_ASSERT, "(targ->sentient)", (const char *)&queryFormat, "targ->sentient") )
             __debugbreak();
           if ( !targ->agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1482, ASSERT_TYPE_ASSERT, "(targ->agent)", (const char *)&queryFormat, "targ->agent") )
             __debugbreak();
@@ -931,61 +874,51 @@ LABEL_15:
             if ( AIScriptedData )
             {
               WeaponType = BG_GetWeaponType(&weapon, isAlternate);
-              v34 = BG_GetWeaponType(&weapon, isAlternate) == WEAPTYPE_GRENADE;
-              v35 = BG_GetWeaponType(&weapon, isAlternate) == WEAPTYPE_PROJECTILE;
-              if ( WeaponType == WEAPTYPE_BULLET || v34 || v35 )
+              v29 = BG_GetWeaponType(&weapon, isAlternate) == WEAPTYPE_GRENADE;
+              v30 = BG_GetWeaponType(&weapon, isAlternate) == WEAPTYPE_PROJECTILE;
+              if ( WeaponType == WEAPTYPE_BULLET || v29 || v30 )
               {
-                _RBX = AIScriptedData->unitType;
-                if ( (unsigned int)_RBX >= 7 )
+                unitType = AIScriptedData->unitType;
+                if ( (unsigned int)unitType >= 7 )
                 {
-                  LODWORD(v47) = 7;
+                  LODWORD(v34) = 7;
                   LODWORD(meansOfDeath) = AIScriptedData->unitType;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1500, ASSERT_TYPE_ASSERT, "(unsigned)( unittype ) < (unsigned)( MAX_AI_UNITTYPES )", "unittype doesn't index MAX_AI_UNITTYPES\n\t%i not in [0, %i)", meansOfDeath, v47) )
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1500, ASSERT_TYPE_ASSERT, "(unsigned)( unittype ) < (unsigned)( MAX_AI_UNITTYPES )", "unittype doesn't index MAX_AI_UNITTYPES\n\t%i not in [0, %i)", meansOfDeath, v34) )
                     __debugbreak();
                 }
                 weaponIdx = weapon.weaponIdx;
                 if ( weapon.weaponIdx > bg_lastParsedWeaponIndex )
                 {
-                  LODWORD(v47) = bg_lastParsedWeaponIndex;
+                  LODWORD(v34) = bg_lastParsedWeaponIndex;
                   LODWORD(meansOfDeath) = weapon.weaponIdx;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", meansOfDeath, v47) )
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", meansOfDeath, v34) )
                     __debugbreak();
                 }
                 if ( !bg_weaponDefs[weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
                   __debugbreak();
-                _RAX = bg_weaponDefs[weaponIdx];
-                __asm { vmovss  xmm6, dword ptr [rax+rbx*4+0D38h] }
+                v26 = bg_weaponDefs[weaponIdx]->unittypeMultipliers[unitType];
               }
               else
               {
-                __asm { vmovss  xmm6, cs:__real@3f800000 }
+                v26 = FLOAT_1_0;
               }
-              v28 = dflags;
+              v25 = dflags;
             }
             else
             {
-              __asm { vmovss  xmm6, cs:__real@3f800000 }
+              v26 = FLOAT_1_0;
             }
-            v18 = v50;
+            v16 = v37;
           }
           else
           {
-            __asm { vmovss  xmm6, cs:__real@3f800000 }
+            v26 = FLOAT_1_0;
           }
-          *(float *)&_XMM0 = G_CombatMP_GetWeaponHitLocationMultiplier(hitLoc, &weapon, v26, targ->sentient->locDamageTableIndex);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, r14d
-            vmulss  xmm2, xmm1, xmm6
-            vmovaps xmm6, [rsp+138h+var_58]
-            vmulss  xmm0, xmm0, xmm2
-            vcvttss2si r14d, xmm0
-          }
+          v18 = (int)(float)(G_CombatMP_GetWeaponHitLocationMultiplier(hitLoc, &weapon, v23, targ->sentient->locDamageTableIndex) * (float)((float)damage * v26));
         }
-        if ( _ER14 <= 0 )
-          _ER14 = 1;
-        Scr_AgentDamage(targ, v18, attackera, _ER14, v28, mod, &weapon, v26, vPoint, vDir, hitLoc, timeOffset, modelIndex, partName);
+        if ( v18 <= 0 )
+          v18 = 1;
+        Scr_AgentDamage(targ, v16, attackera, v18, v25, mod, &weapon, v23, vPoint, vDir, hitLoc, timeOffset, modelIndex, partName);
       }
     }
   }
@@ -998,67 +931,58 @@ G_CombatMP_DamageClient
 */
 void G_CombatMP_DamageClient(gentity_s *targ, const gentity_s *inflictor, gentity_s *attacker, const vec3_t *dir, const vec3_t *point, int damage, int dflags, int mod, const Weapon *r_weapon, bool isAlternate, hitLocation_t hitLoc, int timeOffset, int modelIndex, scr_string_t partName, const GExtraDamageParams *extraParams)
 {
+  __int16 v15; 
+  int v19; 
   gclient_s *client; 
-  bool v25; 
-  const gentity_s *v27; 
+  bool v21; 
+  const gentity_s *v22; 
   __int64 meansOfDeath; 
   unsigned int NumWeapons; 
-  bool v33; 
-  GExtraDamageParams *v34; 
+  bool v25; 
+  GExtraDamageParams *v26; 
   vec3_t *vDir; 
   vec3_t *vPoint; 
   gentity_s *attackera; 
-  __int64 v38; 
-  int v39; 
-  __int64 v40; 
+  __int64 v30; 
+  int v31; 
+  __int64 v32; 
   Weapon weapon; 
 
-  v38 = -2i64;
+  v30 = -2i64;
   vDir = (vec3_t *)dir;
   attackera = attacker;
   vPoint = (vec3_t *)point;
-  _RSI = r_weapon;
-  v34 = (GExtraDamageParams *)extraParams;
+  v26 = (GExtraDamageParams *)extraParams;
   if ( SV_UserMoveWorkersMP_IsInWorkerContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1414, ASSERT_TYPE_ASSERT, "( !SV_UserMoveWorkersMP_IsInWorkerContext() )", (const char *)&queryFormat, "!SV_UserMoveWorkersMP_IsInWorkerContext()") )
     __debugbreak();
   if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&targ->client->ps.eFlags, ACTIVE, 0x10u) )
   {
-    _EBX = damage;
+    v19 = damage;
     if ( damage > 0 && hitLoc != HITLOC_SHIELD && !G_Vehicle_IsPlayerProtected(targ) )
     {
       client = targ->client;
       if ( (client->flags & 3) == 0 && !client->mpviewer && client->sess.connected == CON_CONNECTED && client->ps.pm_type != 7 )
       {
-        v39 = 40;
-        v40 = 0i64;
+        v31 = 40;
+        v32 = 0i64;
         SV_Profile_BeginEvent(SVPROF_CLIENT_DAMAGED);
-        __asm
-        {
-          vmovups ymm2, ymmword ptr [rsi]
-          vmovups ymmword ptr [rsp+158h+weapon.weaponIdx], ymm2
-          vmovups xmm0, xmmword ptr [rsi+20h]
-          vmovups xmmword ptr [rsp+158h+weapon.attachmentVariationIndices+5], xmm0
-          vmovsd  xmm1, qword ptr [rsi+30h]
-          vmovsd  qword ptr [rsp+158h+weapon.attachmentVariationIndices+15h], xmm1
-        }
-        *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
+        weapon = *r_weapon;
+        v21 = isAlternate;
         v25 = isAlternate;
-        v33 = isAlternate;
-        __asm { vmovd   eax, xmm2 }
-        if ( (_WORD)_EAX )
+        if ( v15 )
           goto LABEL_18;
         if ( inflictor )
         {
-          v27 = inflictor;
+          v22 = inflictor;
         }
         else
         {
           if ( !attacker )
             goto LABEL_18;
-          v27 = attacker;
+          v22 = attacker;
         }
-        G_CombatMP_GetWeaponForEntity(v27, &weapon, &v33);
-        v25 = v33;
+        G_CombatMP_GetWeaponForEntity(v22, &weapon, &v25);
+        v21 = v25;
 LABEL_18:
         if ( weapon.weaponIdx >= BG_GetNumWeapons() )
         {
@@ -1073,20 +997,13 @@ LABEL_18:
         {
           if ( !targ->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1465, ASSERT_TYPE_ASSERT, "(targ->sentient)", (const char *)&queryFormat, "targ->sentient") )
             __debugbreak();
-          *(float *)&_XMM0 = G_CombatMP_GetWeaponHitLocationMultiplier(hitLoc, &weapon, v25, targ->sentient->locDamageTableIndex);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, ebx
-            vmulss  xmm0, xmm0, xmm1
-            vcvttss2si ebx, xmm0
-          }
+          v19 = (int)(float)(G_CombatMP_GetWeaponHitLocationMultiplier(hitLoc, &weapon, v21, targ->sentient->locDamageTableIndex) * (float)damage);
         }
-        if ( _EBX <= 0 )
-          _EBX = 1;
+        if ( v19 <= 0 )
+          v19 = 1;
         if ( (dflags & 1) != 0 )
           GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&targ->client->ps.weapCommon.weapFlags, ACTIVE, 0x10u);
-        Scr_PlayerDamage(targ, inflictor, attackera, _EBX, dflags, mod, &weapon, v25, vPoint, vDir, hitLoc, timeOffset, modelIndex, partName, v34, damage);
+        Scr_PlayerDamage(targ, inflictor, attackera, v19, dflags, mod, &weapon, v21, vPoint, vDir, hitLoc, timeOffset, modelIndex, partName, v26, damage);
         SV_Profile_EndEvent(SVPROF_CLIENT_DAMAGED);
       }
     }
@@ -1100,89 +1017,64 @@ G_CombatMP_DamageKnockback
 */
 void G_CombatMP_DamageKnockback(const gentity_s *pSelf, const int damage, const vec3_t *direction, playerState_s *ps)
 {
-  const dvar_t *v21; 
-  int v34; 
+  int v11; 
+  const dvar_t *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _RBX = ps;
-  _R14 = direction;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 461, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 462, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 462, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm6, cs:__real@3e99999a }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0) )
   {
-    __asm { vmovss  xmm1, cs:__real@3ca3d70a }
+    *(float *)&_XMM1 = FLOAT_0_02;
   }
   else
   {
-    _EAX = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 1u);
-    _ECX = 0;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovd   xmm0, eax
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3e19999a
-      vblendvps xmm1, xmm1, xmm6, xmm2
-    }
+    _XMM0 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 1u);
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_0_15000001);
+    __asm { vblendvps xmm1, xmm1, xmm6, xmm2 }
   }
-  __asm
+  v11 = (int)(float)((float)damage * *(float *)&_XMM1);
+  if ( v11 <= 60 )
   {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm1, xmm0, xmm1
-    vcvttss2si edi, xmm1
-  }
-  if ( _EDI <= 60 )
-  {
-    if ( !_EDI )
+    if ( !v11 )
       return;
   }
   else
   {
-    _EDI = 60;
+    v11 = 60;
   }
-  if ( !BG_IsTurretActive(_RBX) )
+  if ( !BG_IsTurretActive(ps) )
   {
-    v21 = DVARFLT_g_knockback;
+    v12 = DVARFLT_g_knockback;
     if ( !DVARFLT_g_knockback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_knockback") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    __asm
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = direction->v[1];
+    v14 = direction->v[2];
+    v15 = (float)((float)v11 * v12->current.value) * 0.0040000002;
+    ps->velocity.v[0] = (float)(v15 * direction->v[0]) + ps->velocity.v[0];
+    ps->velocity.v[1] = (float)(v15 * v13) + ps->velocity.v[1];
+    ps->velocity.v[2] = (float)(v15 * v14) + ps->velocity.v[2];
+    if ( !ps->pm_time )
     {
-      vmovss  xmm2, dword ptr [r14+4]
-      vmovss  xmm3, dword ptr [r14+8]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm0, xmm0, dword ptr [rbp+28h]
-      vmulss  xmm4, xmm0, cs:__real@3b83126f
-      vmulss  xmm0, xmm4, dword ptr [r14]
-      vaddss  xmm1, xmm0, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm1
-      vmulss  xmm2, xmm4, xmm2
-      vaddss  xmm0, xmm2, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm0
-      vmulss  xmm1, xmm4, xmm3
-      vaddss  xmm2, xmm1, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm2
-    }
-    if ( !_RBX->pm_time )
-    {
-      v34 = 2 * _EDI;
-      if ( 2 * _EDI >= 50 )
+      v16 = 2 * v11;
+      if ( 2 * v11 >= 50 )
       {
-        if ( v34 > 200 )
-          v34 = 200;
+        if ( v16 > 200 )
+          v16 = 200;
       }
       else
       {
-        v34 = 50;
+        v16 = 50;
       }
-      _RBX->pm_time = v34;
-      _RBX->pm_flags.m_flags[0] |= 0x2000u;
+      ps->pm_time = v16;
+      ps->pm_flags.m_flags[0] |= 0x2000u;
     }
   }
 }
@@ -1194,77 +1086,89 @@ G_CombatMP_Damage_Internal
 */
 __int64 G_CombatMP_Damage_Internal(gentity_s *targ, const gentity_s *inflictor, gentity_s *attacker, const vec3_t *dir, const vec3_t *point, int damage, int dFlags, int mod, const Weapon *r_weapon, bool isAlternate, hitLocation_t hitLoc, unsigned int modelIndex, scr_string_t partName, int timeOffset, const vec3_t *surfaceNormal, const GExtraDamageParams *extraParams)
 {
+  __int16 v16; 
+  __int128 v17; 
   int v19; 
-  GCombat *v24; 
-  bool v29; 
+  GCombat *v23; 
+  __m256i v25; 
+  __int128 v26; 
+  double v27; 
+  bool v28; 
   bool IndexForEntity; 
-  vec3_t *v32; 
-  bool v33; 
+  vec3_t *v30; 
+  bool v31; 
   __int16 EntityIndex; 
-  __int16 v35; 
-  unsigned int v53; 
-  int v54; 
-  unsigned int v55; 
-  const char *v56; 
+  __int16 v33; 
+  float v34; 
+  __int128 v35; 
+  __int128 v36; 
+  float v37; 
+  float v41; 
+  float v42; 
+  unsigned int v43; 
+  int v44; 
+  unsigned int v45; 
+  const char *v46; 
   const char *WeaponBaseName; 
   scr_string_t script_classname; 
-  const char *v59; 
-  const char *v60; 
+  const char *v49; 
+  const char *v50; 
   int health; 
-  const char *v62; 
-  vec3_t *v63; 
-  vec3_t *v64; 
-  int v65; 
-  __int16 v66; 
+  const char *v52; 
+  vec3_t *v53; 
+  vec3_t *v54; 
+  int v55; 
+  __int16 v56; 
   void (__fastcall *pain)(gentity_s *, gentity_s *, int, const vec3_t *, const int, const vec3_t *, const hitLocation_t, const Weapon *, bool); 
   char *fmt; 
-  vec3_t *v69; 
+  vec3_t *v59; 
   unsigned int NumWeapons; 
   int dflags; 
-  __int64 v72; 
-  scr_string_t v73; 
-  bool v74; 
+  __int64 v62; 
+  scr_string_t v63; 
+  bool v64; 
   vec3_t *hitPos; 
-  GExtraDamageParams *v76; 
+  GExtraDamageParams *v66; 
   unsigned int scriptableIndex; 
-  int v78; 
+  int v68; 
   vec3_t *dira; 
-  const char *v80; 
-  const char *v81; 
-  vec3_t *v82; 
-  const char *v83; 
-  int v84; 
+  const char *v70; 
+  const char *v71; 
+  vec3_t *v72; 
+  const char *v73; 
+  float v74; 
+  float v75; 
+  float v76; 
   Weapon weapon; 
+  __int128 v78; 
 
-  _R13 = dir;
   v19 = mod;
-  _RBX = r_weapon;
   hitPos = (vec3_t *)point;
-  v82 = (vec3_t *)surfaceNormal;
-  v76 = (GExtraDamageParams *)extraParams;
+  v72 = (vec3_t *)surfaceNormal;
+  v66 = (GExtraDamageParams *)extraParams;
   dira = (vec3_t *)dir;
-  v78 = mod;
+  v68 = mod;
   if ( SV_UserMoveWorkersMP_IsInWorkerContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1614, ASSERT_TYPE_ASSERT, "( !SV_UserMoveWorkersMP_IsInWorkerContext() )", (const char *)&queryFormat, "!SV_UserMoveWorkersMP_IsInWorkerContext()") )
     __debugbreak();
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  v24 = GCombat::ms_gCombatSystem;
+  v23 = GCombat::ms_gCombatSystem;
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1617, ASSERT_TYPE_ASSERT, "(combatSystem)", (const char *)&queryFormat, "combatSystem") )
     __debugbreak();
-  if ( GCombat::QueuedDamageEnabled(v24) )
+  if ( GCombat::QueuedDamageEnabled(v23) )
   {
-    GCombat::QueueDamageInstance(v24, targ, inflictor, attacker, _R13, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName, v82, v76);
+    GCombat::QueueDamageInstance(v23, targ, inflictor, attacker, dir, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName, v72, v66);
     return 1i64;
   }
   else
   {
     if ( targ->client )
     {
-      G_CombatMP_DamageClient(targ, inflictor, attacker, _R13, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName, v76);
+      G_CombatMP_DamageClient(targ, inflictor, attacker, dir, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName, v66);
     }
     else if ( targ->agent )
     {
-      G_CombatMP_DamageAgent(targ, inflictor, attacker, _R13, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName);
+      G_CombatMP_DamageAgent(targ, inflictor, attacker, dir, hitPos, damage, dFlags, mod, r_weapon, isAlternate, hitLoc, timeOffset, modelIndex, partName);
     }
     else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&targ->s.lerp.eFlags, ACTIVE, 0x10u) && hitLoc != HITLOC_SHIELD )
     {
@@ -1272,155 +1176,138 @@ __int64 G_CombatMP_Damage_Internal(gentity_s *targ, const gentity_s *inflictor, 
         inflictor = g_entities + 2046;
       if ( !attacker )
         attacker = g_entities + 2046;
-      __asm
-      {
-        vmovups ymm2, ymmword ptr [rbx]
-        vmovups xmm0, xmmword ptr [rbx+20h]
-        vmovsd  xmm1, qword ptr [rbx+30h]
-      }
-      v29 = isAlternate;
+      v25 = *(__m256i *)&r_weapon->weaponIdx;
+      v26 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+      v27 = *(double *)&r_weapon->attachmentVariationIndices[21];
+      v28 = isAlternate;
       *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
-      __asm { vmovd   eax, xmm2 }
-      v74 = isAlternate;
-      __asm
+      v64 = isAlternate;
+      *(__m256i *)&weapon.weaponIdx = v25;
+      *(_OWORD *)&weapon.attachmentVariationIndices[5] = v26;
+      *(double *)&weapon.attachmentVariationIndices[21] = v27;
+      if ( !v16 )
       {
-        vmovups ymmword ptr [rbp+70h+weapon.weaponIdx], ymm2
-        vmovups xmmword ptr [rbp+70h+weapon.attachmentVariationIndices+5], xmm0
-        vmovsd  qword ptr [rbp+70h+weapon.attachmentVariationIndices+15h], xmm1
-      }
-      if ( !(_WORD)_EAX )
-      {
-        G_CombatMP_GetWeaponForEntity(inflictor, &weapon, &v74);
-        v29 = v74;
+        G_CombatMP_GetWeaponForEntity(inflictor, &weapon, &v64);
+        v28 = v64;
       }
       if ( weapon.weaponIdx >= BG_GetNumWeapons() )
       {
         NumWeapons = BG_GetNumWeapons();
-        LODWORD(v69) = weapon.weaponIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1665, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.weaponIdx ) < (unsigned)( BG_GetNumWeapons() )", "weapon.weaponIdx doesn't index BG_GetNumWeapons()\n\t%i not in [0, %i)", v69, NumWeapons) )
+        LODWORD(v59) = weapon.weaponIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1665, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.weaponIdx ) < (unsigned)( BG_GetNumWeapons() )", "weapon.weaponIdx doesn't index BG_GetNumWeapons()\n\t%i not in [0, %i)", v59, NumWeapons) )
           __debugbreak();
       }
       if ( (targ->flags.m_flags[0] & 1) == 0 && (!EntHandle::isDefined(&targ->r.ownerNum) || (EntHandle::ent(&targ->r.ownerNum)->flags.m_flags[0] & 1) == 0) )
       {
         IndexForEntity = ScriptableSv_TryGetIndexForEntity(targ, &scriptableIndex);
-        v32 = hitPos;
+        v30 = hitPos;
         if ( IndexForEntity )
-          ScriptableSv_Damage(inflictor, attacker, scriptableIndex, hitPos, _R13, mod, &weapon, v29, partName, damage, dFlags, modelIndex);
+          ScriptableSv_Damage(inflictor, attacker, scriptableIndex, hitPos, dir, mod, &weapon, v28, partName, damage, dFlags, modelIndex);
         if ( targ->vehicle || G_Vehicle_IsSuspended(targ) )
         {
-          G_Vehicle_Damage(targ, inflictor, attacker, _R13, v32, damage, dFlags, mod, &weapon, v29, hitLoc, modelIndex, partName, timeOffset);
+          G_Vehicle_Damage(targ, inflictor, attacker, dir, v30, damage, dFlags, mod, &weapon, v28, hitLoc, modelIndex, partName, timeOffset);
         }
         else
         {
-          v33 = targ->s.eType == ET_COVERWALL;
-          LODWORD(v76) = 0;
-          if ( v33 )
-            G_CoverWall_Damage(targ, inflictor, attacker, _R13, v32, damage, dFlags, mod, &weapon, v29, 0);
+          v31 = targ->s.eType == ET_COVERWALL;
+          LODWORD(v66) = 0;
+          if ( v31 )
+            G_CoverWall_Damage(targ, inflictor, attacker, dir, v30, damage, dFlags, mod, &weapon, v28, 0);
           EntityIndex = G_GetEntityIndex(targ);
           if ( !G_IsEntityInUse(EntityIndex) )
           {
-            LODWORD(v69) = targ->s.number;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1697, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( targ ) ) ) )", "( targ->s.number ) = %i", v69) )
+            LODWORD(v59) = targ->s.number;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1697, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( targ ) ) ) )", "( targ->s.number ) = %i", v59) )
               __debugbreak();
           }
-          v35 = G_GetEntityIndex(attacker);
-          if ( !G_IsEntityInUse(v35) )
+          v33 = G_GetEntityIndex(attacker);
+          if ( !G_IsEntityInUse(v33) )
           {
-            LODWORD(v69) = attacker->s.number;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1698, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( attacker ) ) ) )", "( attacker->s.number ) = %i", v69) )
+            LODWORD(v59) = attacker->s.number;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1698, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( G_GetEntityIndex( attacker ) ) ) )", "( attacker->s.number ) = %i", v59) )
               __debugbreak();
           }
-          if ( _R13 )
+          if ( dir )
           {
+            v34 = dir->v[1];
+            v35 = LODWORD(dir->v[0]);
+            v36 = v35;
+            v78 = v17;
+            v37 = dir->v[2];
+            *(float *)&v36 = fsqrt((float)((float)(*(float *)&v35 * *(float *)&v35) + (float)(v34 * v34)) + (float)(v37 * v37));
+            _XMM3 = v36;
             __asm
             {
-              vmovss  xmm5, dword ptr [r13+4]
-              vmovss  xmm4, dword ptr [r13+0]
-              vmulss  xmm0, xmm5, xmm5
-              vmulss  xmm1, xmm4, xmm4
-              vaddss  xmm2, xmm1, xmm0
-              vmovaps [rsp+180h+var_50], xmm6
-              vmovss  xmm6, dword ptr [r13+8]
-              vmulss  xmm1, xmm6, xmm6
-              vaddss  xmm2, xmm2, xmm1
-              vmovss  xmm1, cs:__real@3f800000
-              vsqrtss xmm3, xmm2, xmm2
               vcmpless xmm0, xmm3, cs:__real@80000000
               vblendvps xmm0, xmm3, xmm1, xmm0
-              vdivss  xmm2, xmm1, xmm0
-              vmulss  xmm0, xmm4, xmm2
-              vmovss  [rbp+70h+var_A8], xmm0
-              vmulss  xmm1, xmm5, xmm2
-              vmulss  xmm0, xmm6, xmm2
-              vmovaps xmm6, [rsp+180h+var_50]
-              vmovss  [rbp+70h+var_A4], xmm1
             }
+            v74 = *(float *)&v35 * (float)(1.0 / *(float *)&_XMM0);
+            v41 = v34 * (float)(1.0 / *(float *)&_XMM0);
+            v42 = v37 * (float)(1.0 / *(float *)&_XMM0);
+            v75 = v41;
           }
           else
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  [rbp+70h+var_A8], xmm0
-              vmovss  [rbp+70h+var_A4], xmm0
-            }
+            v42 = 0.0;
+            v74 = 0.0;
+            v75 = 0.0;
           }
-          v53 = targ->flags.m_flags[0];
-          v54 = 1;
-          __asm { vmovss  [rbp+70h+var_A0], xmm0 }
+          v43 = targ->flags.m_flags[0];
+          v44 = 1;
+          v76 = v42;
           if ( damage >= 1 )
-            v54 = damage;
-          v55 = v54;
-          if ( (v53 & 2) != 0 && targ->health - v54 <= 0 )
-            v55 = targ->health - 1;
+            v44 = damage;
+          v45 = v44;
+          if ( (v43 & 2) != 0 && targ->health - v44 <= 0 )
+            v45 = targ->health - 1;
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_g_debugDamage, "g_debugDamage") )
           {
-            v56 = (char *)&queryFormat.fmt + 3;
+            v46 = (char *)&queryFormat.fmt + 3;
             if ( (targ->flags.m_flags[0] & 2) != 0 )
-              v56 = "demigod";
-            v83 = v56;
+              v46 = "demigod";
+            v73 = v46;
             if ( weapon.weaponIdx )
-              WeaponBaseName = BG_GetWeaponBaseName(&weapon, v29);
+              WeaponBaseName = BG_GetWeaponBaseName(&weapon, v28);
             else
               WeaponBaseName = "none";
-            v80 = WeaponBaseName;
+            v70 = WeaponBaseName;
             if ( attacker )
             {
               script_classname = attacker->script_classname;
-              LODWORD(v76) = attacker->s.number;
-              v59 = SL_ConvertToString(script_classname);
+              LODWORD(v66) = attacker->s.number;
+              v49 = SL_ConvertToString(script_classname);
             }
             else
             {
-              v59 = "null";
+              v49 = "null";
             }
-            v81 = v59;
-            v60 = SL_ConvertToString(*g_combat_modNames[mod]);
+            v71 = v49;
+            v50 = SL_ConvertToString(*g_combat_modNames[mod]);
             health = targ->health;
-            v62 = SL_ConvertToString(targ->script_classname);
-            LODWORD(v72) = (_DWORD)v76;
-            LODWORD(v69) = v55;
+            v52 = SL_ConvertToString(targ->script_classname);
+            LODWORD(v62) = (_DWORD)v66;
+            LODWORD(v59) = v45;
             LODWORD(fmt) = health;
-            Com_Printf(15, "$e%d(%s) take damage: orig_hp(%d) dam(%d)type(%s) attacker(%s$e%d) weapon(%s) %s\n", (unsigned int)targ->s.number, v62, fmt, v69, v60, v81, v72, v80, v83);
-            v19 = v78;
+            Com_Printf(15, "$e%d(%s) take damage: orig_hp(%d) dam(%d)type(%s) attacker(%s$e%d) weapon(%s) %s\n", (unsigned int)targ->s.number, v52, fmt, v59, v50, v71, v62, v70, v73);
+            v19 = v68;
           }
-          v63 = v82;
-          targ->health -= v55;
-          v64 = hitPos;
-          G_Combat_DamageNotify(scr_const.damage, targ, attacker, inflictor, dira, hitPos, v55, v19, dFlags, modelIndex, partName, &weapon, v29, v63);
-          v65 = targ->health;
-          if ( v65 > 0 )
+          v53 = v72;
+          targ->health -= v45;
+          v54 = hitPos;
+          G_Combat_DamageNotify(scr_const.damage, targ, attacker, inflictor, dira, hitPos, v45, v19, dFlags, modelIndex, partName, &weapon, v28, v53);
+          v55 = targ->health;
+          if ( v55 > 0 )
           {
             pain = G_Main_GetEntHandlerList(targ)->pain;
             if ( pain )
             {
-              LOBYTE(v73) = v29;
-              pain(targ, attacker, v55, v64, v19, (const vec3_t *)&v84, hitLoc, &weapon, v73);
+              LOBYTE(v63) = v28;
+              pain(targ, attacker, v45, v54, v19, (const vec3_t *)&v74, hitLoc, &weapon, v63);
             }
           }
           else
           {
-            if ( v65 < -999 )
+            if ( v55 < -999 )
               targ->health = -999;
             GScr_AddEntity(attacker);
             GScr_Notify(targ, scr_const.death, 1u);
@@ -1430,11 +1317,11 @@ __int64 G_CombatMP_Damage_Internal(gentity_s *targ, const gentity_s *inflictor, 
             {
               if ( timeOffset < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1751, ASSERT_TYPE_ASSERT, "(timeOffset >= 0)", (const char *)&queryFormat, "timeOffset >= 0") )
                 __debugbreak();
-              LOBYTE(dflags) = v29;
-              (*(void (__fastcall **)(gentity_s *, const gentity_s *, gentity_s *, _QWORD, int, int, Weapon *, int, int *, hitLocation_t, int))dira[4].v)(targ, inflictor, attacker, v55, dFlags, v19, &weapon, dflags, &v84, hitLoc, timeOffset);
+              LOBYTE(dflags) = v28;
+              (*(void (__fastcall **)(gentity_s *, const gentity_s *, gentity_s *, _QWORD, int, int, Weapon *, int, float *, hitLocation_t, int))dira[4].v)(targ, inflictor, attacker, v45, dFlags, v19, &weapon, dflags, &v74, hitLoc, timeOffset);
             }
-            v66 = G_GetEntityIndex(targ);
-            G_IsEntityInUse(v66);
+            v56 = G_GetEntityIndex(targ);
+            G_IsEntityInUse(v56);
           }
         }
       }
@@ -1716,66 +1603,114 @@ G_CombatMP_GetRadiusDamageFromPos_Internal
 */
 float G_CombatMP_GetRadiusDamageFromPos_Internal(gentity_s *targ, const vec3_t *targetPos, gentity_s *inflictor, const vec3_t *centerPos, float coneAngleCos, const vec3_t *coneDirection, int contentMask, bool useBounds, const Bounds *bounds, bool detailTrace, unsigned __int8 *priorityMap)
 {
-  unsigned __int8 *v25; 
-  int v26; 
-  const dvar_t *v33; 
-  const dvar_t *v38; 
-  const dvar_t *v49; 
+  unsigned __int8 *v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  playerState_s *EntityPlayerState; 
+  const dvar_t *v19; 
+  __int128 v20; 
+  float v21; 
+  __int128 v23; 
+  const dvar_t *v24; 
+  float v26; 
+  __int128 v28; 
+  float v30; 
+  float v31; 
+  const dvar_t *v32; 
+  float v33; 
+  __int128 v34; 
+  float v35; 
+  float v36; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
   vec3_t *p_targetPosa; 
-  __int64 v81; 
-  const dvar_t *v82; 
-  bool v83; 
-  int IsAgentScripted; 
-  int v89; 
-  const dvar_t *v113; 
-  const char *v114; 
-  const dvar_t *v117; 
-  const char *v118; 
-  const dvar_t *v130; 
-  const char *v136; 
+  __int64 v45; 
+  const dvar_t *v46; 
+  int v47; 
+  float *v48; 
+  float v49; 
+  float v50; 
+  __int128 v51; 
+  float v52; 
+  const dvar_t *v56; 
+  const char *v57; 
+  const dvar_t *v59; 
+  const char *v60; 
+  const dvar_t *v61; 
+  const char *v62; 
+  int v63; 
+  __int128 v64; 
+  double v65; 
   const DObj *ServerDObjForEnt; 
-  bool Bool_Internal_DebugName; 
-  char v208; 
-  bool v209; 
-  bool v243; 
-  bool v270; 
-  bool v289; 
-  int *v330; 
-  __int64 v331; 
-  vec3_t *v332; 
-  int *v335; 
-  float fmt; 
-  float fmta; 
-  vec3_t *v363; 
-  vec3_t *v364; 
-  vec3_t *v365; 
-  double v366; 
-  double v367; 
-  double v368; 
-  unsigned __int8 *v369; 
-  unsigned __int8 *v370; 
-  unsigned __int8 *v371; 
-  double v372; 
-  double v373; 
-  double v374; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  __int128 v75; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  __int128 v85; 
+  __int128 v86; 
+  __int128 v87; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  float *v99; 
+  __int64 v100; 
+  vec3_t *v101; 
+  float *v102; 
+  float *i; 
+  float v104; 
+  float v105; 
+  __int128 v106; 
+  float v107; 
   int passEntityNum1; 
   Bounds box; 
   Bounds outOrigin; 
   tmat33_t<vec3_t> axis; 
   vec3_t targetPosa; 
-  int v396; 
-  char v397; 
+  float v117; 
+  float v118; 
+  float v119; 
+  float v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  char v133; 
 
-  __asm { vmovaps [rsp+1F0h+var_D0], xmm15 }
-  _RDI = centerPos;
-  _R15 = bounds;
-  _RSI = targ;
-  v25 = priorityMap;
+  v13 = priorityMap;
   if ( inflictor )
     passEntityNum1 = inflictor->s.number;
   else
     passEntityNum1 = 2047;
-  v26 = 0;
+  v14 = 0;
   if ( detailTrace )
   {
     if ( !priorityMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1911, ASSERT_TYPE_ASSERT, "(priorityMap)", "%s\n\tGetRadiusDamageFromPos_Internal(): detail trace was requested but invalid priority map was provided.", "priorityMap") )
@@ -1783,747 +1718,366 @@ float G_CombatMP_GetRadiusDamageFromPos_Internal(gentity_s *targ, const vec3_t *
   }
   else
   {
-    v25 = NULL;
+    v13 = NULL;
   }
-  __asm
+  if ( G_Utils_IsClientOrAgent(targ) )
   {
-    vmovaps [rsp+1F0h+var_40], xmm6
-    vmovaps [rsp+1F0h+var_50], xmm7
-    vmovaps [rsp+1F0h+var_60], xmm8
-    vmovaps [rsp+1F0h+var_70], xmm9
-    vmovaps [rsp+1F0h+var_80], xmm10
-    vmovaps [rsp+1F0h+var_90], xmm11
-    vmovaps [rsp+1F0h+var_A0], xmm12
-    vmovaps [rsp+1F0h+var_B0], xmm13
-    vmovaps [rsp+1F0h+var_C0], xmm14
-    vmovss  xmm15, cs:__real@3f800000
-  }
-  if ( G_Utils_IsClientOrAgent(_RSI) )
-  {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi+138h]
-      vmovss  xmm9, dword ptr [rsi+130h]
-      vmovss  xmm14, dword ptr [rsi+134h]
-      vmovss  [rbp+0F0h+var_E0], xmm6
-    }
-    _R15 = G_GetEntityPlayerState(_RSI);
-    if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1931, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v15 = targ->r.currentOrigin.v[2];
+    v16 = targ->r.currentOrigin.v[0];
+    v17 = targ->r.currentOrigin.v[1];
+    v132 = v15;
+    EntityPlayerState = G_GetEntityPlayerState(targ);
+    if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1931, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    __asm { vxorps  xmm13, xmm13, xmm13 }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R15->otherFlags, ACTIVE, 0x1Bu) )
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 0x1Bu) )
     {
-      v33 = DCONST_DVARFLT_radius_damage_vehicle_player_top_offset;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rsi+114h]
-        vaddss  xmm9, xmm9, dword ptr [rsi+100h]
-        vaddss  xmm14, xmm14, dword ptr [rsi+104h]
-        vaddss  xmm6, xmm6, dword ptr [rsi+108h]
-      }
+      v19 = DCONST_DVARFLT_radius_damage_vehicle_player_top_offset;
+      v20 = LODWORD(targ->r.box.halfSize.v[2]);
+      v16 = v16 + targ->r.box.midPoint.v[0];
+      v17 = v17 + targ->r.box.midPoint.v[1];
+      v21 = v15 + targ->r.box.midPoint.v[2];
       if ( !DCONST_DVARFLT_radius_damage_vehicle_player_top_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_vehicle_player_top_offset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      __asm { vsubss  xmm0, xmm7, dword ptr [r15+28h] }
-      v38 = DCONST_DVARFLT_radius_damage_vehicle_player_bottom_offset;
-      __asm
-      {
-        vmaxss  xmm0, xmm0, xmm13
-        vaddss  xmm11, xmm6, xmm0
-      }
+      Dvar_CheckFrontendServerThread(v19);
+      v23 = v20;
+      *(float *)&v23 = *(float *)&v20 - v19->current.value;
+      _XMM0 = v23;
+      v24 = DCONST_DVARFLT_radius_damage_vehicle_player_bottom_offset;
+      __asm { vmaxss  xmm0, xmm0, xmm13 }
+      v26 = v21 + *(float *)&_XMM0;
       if ( !DCONST_DVARFLT_radius_damage_vehicle_player_bottom_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_vehicle_player_bottom_offset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v38);
-      __asm
-      {
-        vsubss  xmm0, xmm7, dword ptr [r15+28h]
-        vmaxss  xmm0, xmm0, xmm13
-        vsubss  xmm6, xmm6, xmm0
-        vmovaps xmm7, xmm9
-        vmovss  [rbp+0F0h+var_E0], xmm6
-        vmovss  dword ptr [rsp+1F0h+outOrigin], xmm7
-        vmovss  dword ptr [rsp+1F0h+outOrigin+4], xmm14
-        vmovss  dword ptr [rbp+0F0h+outOrigin+8], xmm11
-        vmovaps xmm12, xmm14
-      }
+      Dvar_CheckFrontendServerThread(v24);
+      v28 = v20;
+      *(float *)&v28 = *(float *)&v20 - v24->current.value;
+      _XMM0 = v28;
+      __asm { vmaxss  xmm0, xmm0, xmm13 }
+      v15 = v21 - *(float *)&_XMM0;
+      v30 = v16;
+      v132 = v15;
+      outOrigin.midPoint.v[0] = v16;
+      outOrigin.midPoint.v[1] = v17;
+      outOrigin.midPoint.v[2] = v26;
+      v31 = v17;
     }
-    else if ( _R15->vehicleState.entity == 2047 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R15->otherFlags, ACTIVE, 1u) )
+    else if ( EntityPlayerState->vehicleState.entity == 2047 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 1u) )
     {
-      G_Client_GetEyePosition(_R15, &outOrigin.midPoint);
-      __asm
-      {
-        vmovss  xmm11, dword ptr [rbp+0F0h+outOrigin+8]
-        vmovss  xmm12, dword ptr [rsp+1F0h+outOrigin+4]
-        vmovss  xmm7, dword ptr [rsp+1F0h+outOrigin]
-      }
+      G_Client_GetEyePosition(EntityPlayerState, &outOrigin.midPoint);
+      v26 = outOrigin.midPoint.v[2];
+      v31 = outOrigin.midPoint.v[1];
+      v30 = outOrigin.midPoint.v[0];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm7, dword ptr [r15+30h]
-        vmovss  dword ptr [rsp+1F0h+outOrigin], xmm7
-        vmovss  xmm12, dword ptr [r15+34h]
-        vmovss  dword ptr [rsp+1F0h+outOrigin+4], xmm12
-        vmovss  xmm11, dword ptr [r15+38h]
-        vmovss  dword ptr [rbp+0F0h+outOrigin+8], xmm11
-      }
+      v30 = EntityPlayerState->origin.v[0];
+      outOrigin.midPoint.v[0] = v30;
+      v31 = EntityPlayerState->origin.v[1];
+      outOrigin.midPoint.v[1] = v31;
+      v26 = EntityPlayerState->origin.v[2];
+      outOrigin.midPoint.v[2] = v26;
     }
-    __asm { vmovss  xmm1, dword ptr [rdi+4] }
-    v49 = DVARBOOL_radius_damage_debug;
+    v32 = DVARBOOL_radius_damage_debug;
+    v34 = LODWORD(centerPos->v[1]);
+    v33 = centerPos->v[1] - v17;
+    v35 = (float)(v26 - v15) * 0.5;
+    v36 = centerPos->v[0] - v16;
+    *(float *)&v34 = fsqrt((float)(v33 * v33) + (float)(v36 * v36));
+    _XMM3 = v34;
     __asm
     {
-      vsubss  xmm5, xmm1, xmm14
-      vsubss  xmm0, xmm11, xmm6
-      vmovss  xmm6, cs:__real@3f000000
-      vmulss  xmm10, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm8, xmm0, xmm9
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm2, xmm5, xmm5
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm15, xmm0
-      vdivss  xmm4, xmm15, xmm0
-      vaddss  xmm0, xmm7, xmm9
-      vmulss  xmm9, xmm0, xmm6
-      vaddss  xmm0, xmm11, [rbp+0F0h+var_E0]
-      vmulss  xmm3, xmm0, xmm6
-      vaddss  xmm1, xmm14, xmm12
-      vmulss  xmm7, xmm1, xmm6
-      vaddss  xmm6, xmm3, xmm10
-      vmulss  xmm1, xmm4, xmm5
-      vmulss  xmm5, xmm1, cs:__real@c1700000
-      vmulss  xmm0, xmm4, xmm8
-      vmulss  xmm4, xmm0, cs:__real@41700000
-      vaddss  xmm1, xmm4, xmm7
-      vaddss  xmm2, xmm9, xmm5
-      vsubss  xmm0, xmm7, xmm4
-      vmovss  [rbp+0F0h+var_120], xmm1
-      vmovss  [rbp+0F0h+var_114], xmm1
-      vsubss  xmm1, xmm9, xmm5
-      vmovss  dword ptr [rbp+0F0h+targetPos+8], xmm3
-      vsubss  xmm3, xmm3, xmm10
-      vmovss  [rbp+0F0h+var_10C], xmm1
-      vmovss  [rbp+0F0h+var_100], xmm1
-      vmovss  dword ptr [rbp+0F0h+targetPos], xmm9
-      vmovss  dword ptr [rbp+0F0h+targetPos+4], xmm7
-      vmovss  [rbp+0F0h+var_124], xmm2
-      vmovss  [rbp+0F0h+var_11C], xmm6
-      vmovss  [rbp+0F0h+var_118], xmm2
-      vmovss  [rbp+0F0h+var_110], xmm3
-      vmovss  [rbp+0F0h+var_108], xmm0
-      vmovss  [rbp+0F0h+var_104], xmm6
-      vmovss  [rbp+0F0h+var_FC], xmm0
-      vmovss  [rbp+0F0h+var_F8], xmm3
-      vmovss  [rbp+0F0h+var_F4], xmm9
-      vmovss  [rbp+0F0h+var_F0], xmm7
-      vmovss  [rbp+0F0h+var_EC], xmm6
     }
+    v40 = (float)(v30 + v16) * 0.5;
+    *(float *)&_XMM3 = (float)(v26 + v132) * 0.5;
+    v41 = (float)(v17 + v31) * 0.5;
+    v42 = (float)((float)(1.0 / *(float *)&_XMM0) * v33) * -15.0;
+    v43 = (float)((float)(1.0 / *(float *)&_XMM0) * v36) * 15.0;
+    v118 = v43 + v41;
+    v121 = v43 + v41;
+    targetPosa.v[2] = *(float *)&_XMM3;
+    v123 = v40 - v42;
+    v126 = v40 - v42;
+    targetPosa.v[0] = v40;
+    targetPosa.v[1] = v41;
+    v117 = v40 + v42;
+    v119 = *(float *)&_XMM3 + v35;
+    v120 = v40 + v42;
+    v122 = *(float *)&_XMM3 - v35;
+    v124 = v41 - v43;
+    v125 = *(float *)&_XMM3 + v35;
+    v127 = v41 - v43;
+    v128 = *(float *)&_XMM3 - v35;
+    v129 = v40;
+    v130 = v41;
+    v131 = *(float *)&_XMM3 + v35;
     if ( !DVARBOOL_radius_damage_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v49);
-    __asm { vmovss  xmm8, [rbp+0F0h+coneAngleCos] }
-    if ( v49->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    if ( v32->current.enabled )
     {
       p_targetPosa = &targetPosa;
-      v81 = 6i64;
+      v45 = 6i64;
       do
       {
-        __asm { vmovss  dword ptr [rsp+1F0h+fmt], xmm8 }
-        G_Debug_VisualizeRadiusDamageTraces(inflictor, _RSI, _RDI, p_targetPosa++, fmt, coneDirection, contentMask, v25);
-        --v81;
+        G_Debug_VisualizeRadiusDamageTraces(inflictor, targ, centerPos, p_targetPosa++, coneAngleCos, coneDirection, contentMask, v13);
+        --v45;
       }
-      while ( v81 );
-      v26 = 0;
+      while ( v45 );
+      v14 = 0;
     }
-    v82 = DVARBOOL_killswitch_agent_radius_damage_fix_enabled;
+    v46 = DVARBOOL_killswitch_agent_radius_damage_fix_enabled;
     if ( !DVARBOOL_killswitch_agent_radius_damage_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_agent_radius_damage_fix_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v82);
-    v83 = !v82->current.enabled;
-    if ( v82->current.enabled )
+    Dvar_CheckFrontendServerThread(v46);
+    if ( v46->current.enabled && SV_IsAgentScripted(targ) )
     {
-      IsAgentScripted = SV_IsAgentScripted(_RSI);
-      v83 = IsAgentScripted == 0;
-      if ( IsAgentScripted )
-      {
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3e000000
-          vaddss  xmm1, xmm3, [rbp+0F0h+var_110]
-          vaddss  xmm0, xmm3, [rbp+0F0h+var_F8]
-          vmovss  [rbp+0F0h+var_110], xmm1
-          vmovss  [rbp+0F0h+var_F8], xmm0
-        }
-      }
+      v122 = v122 + 0.125;
+      v128 = v128 + 0.125;
     }
-    __asm
-    {
-      vmovss  xmm9, cs:__real@bf800000
-      vmovss  xmm10, cs:__real@80000000
-    }
-    v89 = 0;
-    _R12 = &targetPosa.v[2];
+    v47 = 0;
+    v48 = &targetPosa.v[2];
     do
     {
-      __asm { vucomiss xmm8, xmm9 }
-      if ( !v83 && coneDirection )
+      if ( coneAngleCos == -1.0 )
+        goto LABEL_110;
+      if ( !coneDirection )
+        goto LABEL_110;
+      v49 = *(v48 - 2) - centerPos->v[0];
+      v51 = *((unsigned int *)v48 - 1);
+      v50 = *(v48 - 1) - centerPos->v[1];
+      v52 = *v48 - centerPos->v[2];
+      *(float *)&v51 = fsqrt((float)((float)(v50 * v50) + (float)(v49 * v49)) + (float)(v52 * v52));
+      _XMM1 = v51;
+      __asm
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r12-8]
-          vsubss  xmm7, xmm0, dword ptr [rdi]
-          vmovss  xmm1, dword ptr [r12-4]
-          vsubss  xmm4, xmm1, dword ptr [rdi+4]
-          vmovss  xmm0, dword ptr [r12]
-          vsubss  xmm6, xmm0, dword ptr [rdi+8]
-          vmulss  xmm2, xmm4, xmm4
-          vmulss  xmm0, xmm6, xmm6
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vcmpless xmm0, xmm1, xmm10
-          vblendvps xmm0, xmm1, xmm15, xmm0
-          vdivss  xmm5, xmm15, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vmulss  xmm3, xmm0, dword ptr [r14+4]
-          vmulss  xmm1, xmm5, xmm7
-          vmulss  xmm2, xmm1, dword ptr [r14]
-          vmulss  xmm0, xmm5, xmm6
-          vmulss  xmm1, xmm0, dword ptr [r14+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, xmm8
-        }
+        vcmpless xmm0, xmm1, xmm10
+        vblendvps xmm0, xmm1, xmm15, xmm0
       }
-      if ( G_Main_RadiusDamageTracePassed(_RDI, &targetPosa + v89, _RSI->s.number, passEntityNum1, contentMask, v25) )
+      if ( (float)((float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v50) * coneDirection->v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v49) * coneDirection->v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v52) * coneDirection->v[2])) >= coneAngleCos )
       {
-        if ( ++v26 >= 3 )
+LABEL_110:
+        if ( G_Main_RadiusDamageTracePassed(centerPos, &targetPosa + v47, targ->s.number, passEntityNum1, contentMask, v13) )
         {
-          v117 = DVARBOOL_radius_damage_debug;
-          if ( !DVARBOOL_radius_damage_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_debug") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v117);
-          if ( v117->current.enabled )
+          if ( ++v14 >= 3 )
           {
-            v118 = j_va("DamageFromPos: hits >= 3 - full damage scale (1.0).");
-            __asm { vmovss  xmm2, cs:__real@3e4ccccd; scale }
-            G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, *(float *)&_XMM2, v118, 300);
+            v59 = DVARBOOL_radius_damage_debug;
+            if ( !DVARBOOL_radius_damage_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_debug") )
+              __debugbreak();
+            Dvar_CheckFrontendServerThread(v59);
+            if ( v59->current.enabled )
+            {
+              v60 = j_va("DamageFromPos: hits >= 3 - full damage scale (1.0).");
+              G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, 0.2, v60, 300);
+            }
+            return FLOAT_1_0;
           }
-          goto LABEL_56;
         }
       }
-      ++v89;
-      _R12 += 3;
-      v83 = v89 == 6;
+      ++v47;
+      v48 += 3;
     }
-    while ( v89 < 6 );
-    if ( v26 )
+    while ( v47 < 6 );
+    if ( v14 )
     {
-      v130 = DVARBOOL_radius_damage_debug;
+      v61 = DVARBOOL_radius_damage_debug;
       if ( !DVARBOOL_radius_damage_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v130);
-      __asm
+      Dvar_CheckFrontendServerThread(v61);
+      if ( v61->current.enabled )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vmulss  xmm6, xmm0, cs:__real@3eaaaaab
+        v62 = j_va("DamageFromPos: hits (%d) - damage scale (%f).", (unsigned int)v14, (float)((float)v14 * 0.33333334));
+        G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, 0.2, v62, 300);
       }
-      if ( v130->current.enabled )
-      {
-        __asm
-        {
-          vcvtss2sd xmm2, xmm6, xmm6
-          vmovq   r8, xmm2
-        }
-        v136 = j_va("DamageFromPos: hits (%d) - damage scale (%f).", (unsigned int)v26, _R8);
-        __asm { vmovss  xmm2, cs:__real@3e4ccccd; scale }
-        G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, *(float *)&_XMM2, v136, 300);
-      }
-      __asm { vmovaps xmm0, xmm6 }
-      goto LABEL_57;
+      return (float)v14 * 0.33333334;
     }
-    v113 = DVARBOOL_radius_damage_debug;
+    v56 = DVARBOOL_radius_damage_debug;
     if ( !DVARBOOL_radius_damage_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "radius_damage_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v113);
-    if ( v113->current.enabled )
+    Dvar_CheckFrontendServerThread(v56);
+    if ( v56->current.enabled )
     {
-      v114 = j_va("DamageFromPos: hits == 0 - no damage scale (0.0).");
-      __asm { vmovss  xmm2, cs:__real@3e4ccccd; scale }
-      G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, *(float *)&_XMM2, v114, 300);
-      __asm { vmovaps xmm0, xmm13 }
-      goto LABEL_57;
+      v57 = j_va("DamageFromPos: hits == 0 - no damage scale (0.0).");
+      G_Main_AddDebugStringWithDuration(&targetPosa, &colorGreen, 0.2, v57, 300);
+      return 0.0;
     }
-LABEL_108:
-    __asm { vmovaps xmm0, xmm13 }
-    goto LABEL_57;
+    return 0.0;
   }
-  __asm { vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
+  v63 = _xmm;
   if ( useBounds )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovsd  xmm1, qword ptr [r15+10h]
-    }
-LABEL_70:
-    __asm
-    {
-      vmovsd  qword ptr [rsp+1F0h+box.halfSize+4], xmm1
-      vmovups xmmword ptr [rsp+1F0h+box.midPoint], xmm0
-    }
-    goto LABEL_71;
-  }
-  if ( _RSI->classname != scr_const.script_model || !_RSI->model )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+118h]
-      vmovsd  xmm1, qword ptr [rsi+128h]
-    }
+    v64 = *(_OWORD *)bounds->midPoint.v;
+    v65 = *(double *)&bounds->halfSize.y;
+LABEL_69:
+    *(double *)&box.halfSize.y = v65;
+    *(_OWORD *)box.midPoint.v = v64;
     goto LABEL_70;
   }
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RSI);
+  if ( targ->classname != scr_const.script_model || !targ->model )
+  {
+    v64 = *(_OWORD *)targ->r.absBox.midPoint.v;
+    v65 = *(double *)&targ->r.absBox.halfSize.y;
+    goto LABEL_69;
+  }
+  ServerDObjForEnt = Com_GetServerDObjForEnt(targ);
   DObjPhysicsGetBounds(ServerDObjForEnt, &outOrigin);
-  AnglesToAxis(&_RSI->r.currentAngles, &axis);
-  __asm
+  AnglesToAxis(&targ->r.currentAngles, &axis);
+  box.midPoint.v[0] = (float)((float)((float)(outOrigin.midPoint.v[0] * axis.m[0].v[0]) + (float)(outOrigin.midPoint.v[1] * axis.m[1].v[0])) + (float)(outOrigin.midPoint.v[2] * axis.m[2].v[0])) + targ->r.currentOrigin.v[0];
+  box.midPoint.v[1] = (float)((float)((float)(outOrigin.midPoint.v[0] * axis.m[0].v[1]) + (float)(outOrigin.midPoint.v[1] * axis.m[1].v[1])) + (float)(outOrigin.midPoint.v[2] * axis.m[2].v[1])) + targ->r.currentOrigin.v[1];
+  v63 = _xmm;
+  box.midPoint.v[2] = (float)((float)((float)(outOrigin.midPoint.v[0] * axis.m[0].v[2]) + (float)(outOrigin.midPoint.v[1] * axis.m[1].v[2])) + (float)(outOrigin.midPoint.v[2] * axis.m[2].v[2])) + targ->r.currentOrigin.v[2];
+  box.halfSize.v[0] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[1].v[0]) & _xmm) * outOrigin.halfSize.v[1]) + (float)(COERCE_FLOAT(LODWORD(axis.m[0].v[0]) & _xmm) * outOrigin.halfSize.v[0])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[0]) & _xmm) * outOrigin.halfSize.v[2]);
+  box.halfSize.v[1] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[1].v[1]) & _xmm) * outOrigin.halfSize.v[1]) + (float)(COERCE_FLOAT(LODWORD(axis.m[0].v[1]) & _xmm) * outOrigin.halfSize.v[0])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[1]) & _xmm) * outOrigin.halfSize.v[2]);
+  box.halfSize.v[2] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[1].v[2]) & _xmm) * outOrigin.halfSize.v[1]) + (float)(COERCE_FLOAT(LODWORD(axis.m[0].v[2]) & _xmm) * outOrigin.halfSize.v[0])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[2]) & _xmm) * outOrigin.halfSize.v[2]);
+LABEL_70:
+  if ( targ->classname != scr_const.trigger_damage || COERCE_FLOAT(COERCE_UNSIGNED_INT(centerPos->v[0] - box.midPoint.v[0]) & v63) >= box.halfSize.v[0] || COERCE_FLOAT(COERCE_UNSIGNED_INT(centerPos->v[1] - box.midPoint.v[1]) & v63) >= box.halfSize.v[1] || COERCE_FLOAT(COERCE_UNSIGNED_INT(centerPos->v[2] - box.midPoint.v[2]) & v63) >= box.halfSize.v[2] )
   {
-    vmovss  xmm5, dword ptr [rsp+1F0h+outOrigin]
-    vmovss  xmm4, dword ptr [rsp+1F0h+outOrigin+4]
-    vmovss  xmm3, dword ptr [rbp+0F0h+outOrigin+8]
-    vmovss  xmm6, dword ptr [rbp+0F0h+axis+0Ch]
-    vmovss  xmm10, dword ptr [rbp+0F0h+axis]
-    vmovss  xmm8, dword ptr [rbp+0F0h+axis+18h]
-    vmovss  xmm12, dword ptr [rbp+0F0h+axis+4]
-    vmovss  xmm7, dword ptr [rbp+0F0h+axis+10h]
-    vmovss  xmm11, dword ptr [rbp+0F0h+axis+1Ch]
-    vmovss  xmm14, dword ptr [rbp+0F0h+axis+8]
-    vmovss  xmm9, dword ptr [rbp+0F0h+axis+14h]
-    vmovss  xmm13, dword ptr [rbp+0F0h+axis+20h]
-    vmulss  xmm0, xmm4, xmm6
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm1, xmm5, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm3, xmm8
-    vaddss  xmm1, xmm2, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rsi+130h]
-    vmovss  dword ptr [rsp+1F0h+box.midPoint], xmm2
-    vmulss  xmm1, xmm5, xmm12
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm11
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rsi+134h]
-    vmovss  dword ptr [rsp+1F0h+box.midPoint+4], xmm2
-    vmulss  xmm0, xmm4, xmm9
-    vmovss  xmm4, [rbp+0F0h+var_16C]
-    vmulss  xmm1, xmm5, xmm14
-    vmovss  xmm5, [rbp+0F0h+var_168]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm13
-    vmovss  xmm3, [rbp+0F0h+var_164]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rsi+138h]
-    vmulss  xmm1, xmm6, xmm5
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  dword ptr [rsp+1F0h+box.midPoint+8], xmm2
-    vandps  xmm10, xmm10, xmm6
-    vmulss  xmm0, xmm10, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vandps  xmm8, xmm8, xmm6
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+1F0h+box.halfSize], xmm1
-    vandps  xmm7, xmm7, xmm6
-    vmulss  xmm1, xmm7, xmm5
-    vandps  xmm12, xmm12, xmm6
-    vmulss  xmm0, xmm12, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vandps  xmm11, xmm11, xmm6
-    vmulss  xmm0, xmm11, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+1F0h+box.halfSize+4], xmm1
-    vandps  xmm9, xmm9, xmm6
-    vmulss  xmm1, xmm9, xmm5
-    vandps  xmm14, xmm14, xmm6
-    vmulss  xmm0, xmm14, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vandps  xmm13, xmm13, xmm6
-    vmulss  xmm0, xmm13, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rsp+1F0h+box.halfSize+8], xmm1
-  }
-LABEL_71:
-  if ( _RSI->classname != scr_const.trigger_damage )
-    goto LABEL_112;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+box.midPoint]
-    vandps  xmm1, xmm1, xmm6
-    vcomiss xmm1, dword ptr [rsp+1F0h+box.halfSize]
-  }
-  if ( _RSI->classname >= (unsigned int)scr_const.trigger_damage )
-    goto LABEL_112;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+box.midPoint+4]
-    vandps  xmm1, xmm1, xmm6
-    vcomiss xmm1, dword ptr [rsp+1F0h+box.halfSize+4]
-  }
-  if ( _RSI->classname >= (unsigned int)scr_const.trigger_damage )
-    goto LABEL_112;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+1F0h+box.midPoint+8]
-    vandps  xmm1, xmm1, xmm6
-    vcomiss xmm1, dword ptr [rsp+1F0h+box.halfSize+8]
-  }
-  if ( _RSI->classname >= (unsigned int)scr_const.trigger_damage )
-  {
-LABEL_112:
-    Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_radius_damage_debug, "radius_damage_debug");
-    __asm { vxorps  xmm13, xmm13, xmm13 }
-    v208 = 0;
-    v209 = !Bool_Internal_DebugName;
-    if ( Bool_Internal_DebugName )
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_radius_damage_debug, "radius_damage_debug") )
+      G_DebugBox(&vec3_origin, &box, 0.0, &colorMdGrey, 0, 300);
+    v67 = centerPos->v[0] - box.midPoint.v[0];
+    v68 = centerPos->v[2];
+    targetPosa.v[0] = box.midPoint.v[0];
+    v69 = centerPos->v[1] - box.midPoint.v[1];
+    targetPosa.v[1] = box.midPoint.v[1];
+    v70 = v68 - box.midPoint.v[2];
+    targetPosa.v[2] = box.midPoint.v[2];
+    v71 = fsqrt((float)((float)(v69 * v69) + (float)(v67 * v67)) + (float)(v70 * v70));
+    if ( v71 != 0.0 )
     {
-      __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-      G_DebugBox(&vec3_origin, &box, *(float *)&_XMM2, &colorMdGrey, 0, 300);
-    }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+1F0h+box.midPoint]
-      vmovss  xmm2, dword ptr [rsp+1F0h+box.midPoint+4]
-      vmovss  xmm3, dword ptr [rsp+1F0h+box.midPoint+8]
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm4, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+0F0h+targetPos], xmm1
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm5, xmm1, xmm2
-      vmovss  dword ptr [rbp+0F0h+targetPos+4], xmm2
-      vmulss  xmm2, xmm5, xmm5
-      vsubss  xmm9, xmm0, xmm3
-      vmulss  xmm1, xmm4, xmm4
-      vmovss  dword ptr [rbp+0F0h+targetPos+8], xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm9, xmm9
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vucomiss xmm1, xmm13
-    }
-    if ( !v209 )
-    {
+      v75 = LODWORD(FLOAT_1_0);
+      v72 = (float)(1.0 / v71) * v69;
+      v73 = v70 * (float)(1.0 / v71);
+      v74 = (float)(1.0 / v71) * v67;
+      *(float *)&v75 = (float)((float)(v72 * v72) + (float)(v74 * v74)) + (float)(v73 * v73);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v75 - 1.0) & v63) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2119, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( forward ) )", "(%g, %g, %g) len %g", v74, v72, v73, fsqrt(*(float *)&v75)) )
+        __debugbreak();
+      *(float *)&v75 = fsqrt(*(float *)&v75);
+      _XMM1 = v75;
       __asm
       {
-        vmovss  xmm12, cs:__real@3b03126f
-        vdivss  xmm0, xmm15, xmm1
-        vmulss  xmm8, xmm0, xmm5
-        vmulss  xmm9, xmm9, xmm0
-        vmulss  xmm7, xmm0, xmm4
-        vmulss  xmm1, xmm8, xmm8
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, xmm9
-        vaddss  xmm10, xmm2, xmm1
-        vsubss  xmm0, xmm10, xmm15
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm12
-      }
-      if ( !v208 )
-      {
-        __asm
-        {
-          vsqrtss xmm0, xmm10, xmm10
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+1F0h+var_1B0], xmm1
-          vcvtss2sd xmm2, xmm9, xmm9
-          vmovsd  [rsp+1F0h+var_1B8], xmm2
-          vcvtss2sd xmm3, xmm8, xmm8
-          vmovsd  qword ptr [rsp+1F0h+var_1C0], xmm3
-          vcvtss2sd xmm0, xmm7, xmm7
-          vmovsd  [rsp+1F0h+var_1C8], xmm0
-        }
-        v243 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2119, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( forward ) )", "(%g, %g, %g) len %g", *(double *)&v363, v366, *(double *)&v369, v372);
-        v208 = 0;
-        v209 = !v243;
-        if ( v243 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vsqrtss xmm1, xmm10, xmm10
         vcmpless xmm0, xmm1, cs:__real@80000000
         vblendvps xmm0, xmm1, xmm15, xmm0
-        vdivss  xmm1, xmm15, xmm0
-        vmulss  xmm14, xmm8, xmm1
-        vmulss  xmm10, xmm9, xmm1
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm11, xmm1, xmm7
-        vmulss  xmm1, xmm11, xmm11
-        vxorps  xmm2, xmm14, xmm9
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm3, xmm1, xmm1
-        vucomiss xmm3, xmm13
-        vmovaps xmm8, xmm11
       }
-      if ( v209 )
+      v79 = v72 * (float)(1.0 / *(float *)&_XMM0);
+      v80 = v73 * (float)(1.0 / *(float *)&_XMM0);
+      v81 = (float)(1.0 / *(float *)&_XMM0) * v74;
+      LODWORD(v82) = LODWORD(v79) ^ _xmm;
+      v83 = fsqrt((float)(v81 * v81) + (float)(v82 * v82));
+      v84 = v81;
+      if ( v83 == 0.0 )
       {
-        __asm { vmovaps xmm7, xmm15 }
+        v85 = LODWORD(FLOAT_1_0);
       }
       else
       {
-        __asm
-        {
-          vdivss  xmm0, xmm15, xmm3
-          vmulss  xmm8, xmm0, xmm11
-          vmulss  xmm7, xmm0, xmm2
-        }
+        v86 = LODWORD(FLOAT_1_0);
+        v84 = (float)(1.0 / v83) * v81;
+        *(float *)&v86 = (float)(1.0 / v83) * v82;
+        v85 = v86;
       }
-      __asm
+      v87 = v85;
+      *(float *)&v87 = (float)(*(float *)&v85 * *(float *)&v85) + (float)(v84 * v84);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v87 - 1.0) & v63) >= 0.0020000001 )
       {
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm0, xmm8, xmm8
-        vaddss  xmm3, xmm1, xmm0
-        vsubss  xmm2, xmm3, xmm15
-        vandps  xmm2, xmm2, xmm6
-        vcomiss xmm2, xmm12
-      }
-      if ( !v208 )
-      {
-        __asm
-        {
-          vsqrtss xmm0, xmm3, xmm3
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+1F0h+var_1B0], xmm1
-          vxorpd  xmm0, xmm0, xmm0
-          vmovsd  [rsp+1F0h+var_1B8], xmm0
-          vcvtss2sd xmm2, xmm8, xmm8
-          vmovsd  qword ptr [rsp+1F0h+var_1C0], xmm2
-          vcvtss2sd xmm3, xmm7, xmm7
-          vmovsd  [rsp+1F0h+var_1C8], xmm3
-        }
-        v270 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2135, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( right ) )", "(%g, %g, %g) len %g", *(double *)&v364, v367, *(double *)&v370, v373);
-        v208 = 0;
-        v209 = !v270;
-        if ( v270 )
+        *(float *)&v87 = fsqrt(*(float *)&v87);
+        _XMM0 = v87;
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2135, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( right ) )", "(%g, %g, %g) len %g", *(float *)&v85, v84, *(double *)&_XMM0, *(float *)&v87) )
           __debugbreak();
       }
-      __asm
+      LODWORD(v90) = COERCE_UNSIGNED_INT(v84 * v80) ^ _xmm;
+      v91 = (float)(v84 * v81) - (float)(v79 * *(float *)&v85);
+      v92 = v80 * *(float *)&v85;
+      v93 = (float)((float)(v90 * v90) + (float)(v92 * v92)) + (float)(v91 * v91);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v93 - 1.0) & v63) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2138, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( up ) )", "(%g, %g, %g) len %g", v90, v92, v91, fsqrt(v93)) )
+        __debugbreak();
+      v94 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v85 * box.halfSize.v[0]) & v63) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v84 * box.halfSize.v[1]) & v63);
+      v95 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v90 * box.halfSize.v[0]) & v63) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v92 * box.halfSize.v[1]) & v63)) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v91 * box.halfSize.v[2]) & v63);
+      v132 = 2.3694278e-38;
+      v133 = 1;
+      if ( v94 < 32.0 )
       {
-        vmulss  xmm0, xmm8, xmm10
-        vxorps  xmm9, xmm0, xmm9
-        vmulss  xmm0, xmm14, xmm7
-        vmulss  xmm1, xmm8, xmm11
-        vsubss  xmm11, xmm1, xmm0
-        vmulss  xmm10, xmm10, xmm7
-        vmulss  xmm0, xmm10, xmm10
-        vmulss  xmm2, xmm9, xmm9
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm11, xmm11
-        vaddss  xmm4, xmm3, xmm1
-        vsubss  xmm0, xmm4, xmm15
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm12
+        v94 = 0.0;
+        BYTE1(v132) = 0;
+        HIBYTE(v132) = 0;
       }
-      if ( !v208 )
+      if ( (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v90 * box.halfSize.v[0]) & v63) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v92 * box.halfSize.v[1]) & v63)) + COERCE_FLOAT(COERCE_UNSIGNED_INT(v91 * box.halfSize.v[2]) & v63)) < 32.0 )
       {
-        __asm
-        {
-          vsqrtss xmm0, xmm4, xmm4
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+1F0h+var_1B0], xmm1
-          vcvtss2sd xmm2, xmm11, xmm11
-          vmovsd  [rsp+1F0h+var_1B8], xmm2
-          vcvtss2sd xmm3, xmm10, xmm10
-          vmovsd  qword ptr [rsp+1F0h+var_1C0], xmm3
-          vcvtss2sd xmm0, xmm9, xmm9
-          vmovsd  [rsp+1F0h+var_1C8], xmm0
-        }
-        v289 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2138, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( up ) )", "(%g, %g, %g) len %g", *(double *)&v365, v368, *(double *)&v371, v374);
-        v208 = 0;
-        v209 = !v289;
-        if ( v289 )
-          __debugbreak();
+        v95 = 0.0;
+        *(_WORD *)((char *)&v132 + 1) = 0;
+        if ( v94 == 0.0 )
+          v133 = 0;
       }
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rsp+1F0h+box.halfSize]
-        vmulss  xmm0, xmm8, dword ptr [rsp+1F0h+box.halfSize+4]
-        vandps  xmm1, xmm1, xmm6
-        vandps  xmm0, xmm0, xmm6
-        vaddss  xmm5, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [rsp+1F0h+box.halfSize]
-        vmulss  xmm0, xmm10, dword ptr [rsp+1F0h+box.halfSize+4]
-        vandps  xmm1, xmm1, xmm6
-        vandps  xmm0, xmm0, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm11, dword ptr [rsp+1F0h+box.halfSize+8]
-        vmovss  xmm0, cs:__real@42000000
-        vcomiss xmm5, xmm0
-        vandps  xmm1, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm1
-      }
-      v396 = 16843009;
-      v397 = 1;
-      if ( v208 )
-      {
-        __asm { vxorps  xmm5, xmm5, xmm5 }
-        BYTE1(v396) = 0;
-        HIBYTE(v396) = 0;
-      }
-      __asm { vcomiss xmm3, xmm0 }
-      if ( v208 )
-      {
-        __asm
-        {
-          vucomiss xmm5, xmm13
-          vxorps  xmm3, xmm3, xmm3
-        }
-        *(_WORD *)((char *)&v396 + 1) = 0;
-        if ( v209 )
-          v397 = 0;
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0F0h+targetPos+4]
-        vmulss  xmm11, xmm11, xmm3
-        vmulss  xmm4, xmm5, xmm7
-        vmulss  xmm7, xmm8, xmm5
-        vmulss  xmm8, xmm9, xmm3
-        vmulss  xmm9, xmm10, xmm3
-        vmovss  xmm10, dword ptr [rbp+0F0h+targetPos+8]
-        vmovss  xmm3, dword ptr [rbp+0F0h+targetPos]
-        vaddss  xmm6, xmm4, xmm3
-        vsubss  xmm4, xmm3, xmm4
-        vaddss  xmm0, xmm8, xmm6
-        vmovss  [rbp+0F0h+var_124], xmm0
-        vaddss  xmm5, xmm7, xmm2
-        vaddss  xmm0, xmm9, xmm5
-        vmovss  [rbp+0F0h+var_120], xmm0
-        vaddss  xmm0, xmm8, xmm4
-        vmovss  [rbp+0F0h+var_118], xmm0
-        vaddss  xmm1, xmm11, xmm10
-        vmovss  [rbp+0F0h+var_11C], xmm1
-        vsubss  xmm3, xmm2, xmm7
-        vaddss  xmm0, xmm11, xmm10
-        vmovss  [rbp+0F0h+var_110], xmm0
-        vaddss  xmm1, xmm9, xmm3
-        vmovss  [rbp+0F0h+var_114], xmm1
-        vsubss  xmm0, xmm5, xmm9
-        vsubss  xmm1, xmm6, xmm8
-        vmovss  [rbp+0F0h+var_108], xmm0
-        vmovss  [rbp+0F0h+var_10C], xmm1
-        vsubss  xmm0, xmm4, xmm8
-        vsubss  xmm1, xmm10, xmm11
-        vmovss  [rbp+0F0h+var_100], xmm0
-        vmovss  [rbp+0F0h+var_104], xmm1
-        vsubss  xmm0, xmm10, xmm11
-        vsubss  xmm1, xmm3, xmm9
-        vmovss  [rbp+0F0h+var_F8], xmm0
-        vmovss  [rbp+0F0h+var_FC], xmm1
-        vmovss  xmm8, [rbp+0F0h+coneAngleCos]
-      }
+      v96 = v91 * v95;
+      v97 = (float)(v94 * *(float *)&v85) + targetPosa.v[0];
+      v98 = targetPosa.v[0] - (float)(v94 * *(float *)&v85);
+      v117 = (float)(v90 * v95) + v97;
+      v118 = (float)(v92 * v95) + (float)((float)(v84 * v94) + targetPosa.v[1]);
+      v120 = (float)(v90 * v95) + v98;
+      v119 = v96 + targetPosa.v[2];
+      v122 = v96 + targetPosa.v[2];
+      v121 = (float)(v92 * v95) + (float)(targetPosa.v[1] - (float)(v84 * v94));
+      v124 = (float)((float)(v84 * v94) + targetPosa.v[1]) - (float)(v92 * v95);
+      v123 = v97 - (float)(v90 * v95);
+      v126 = v98 - (float)(v90 * v95);
+      v125 = targetPosa.v[2] - v96;
+      v128 = targetPosa.v[2] - v96;
+      v127 = (float)(targetPosa.v[1] - (float)(v84 * v94)) - (float)(v92 * v95);
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_radius_damage_debug, "radius_damage_debug") )
       {
-        v330 = &v396;
-        v331 = 5i64;
-        v332 = &targetPosa;
+        v99 = &v132;
+        v100 = 5i64;
+        v101 = &targetPosa;
         *(_QWORD *)outOrigin.midPoint.v = 5i64;
         do
         {
-          if ( *(_BYTE *)v330 )
+          if ( *(_BYTE *)v99 )
           {
-            __asm { vmovss  dword ptr [rsp+1F0h+fmt], xmm8 }
-            G_Debug_VisualizeRadiusDamageTraces(inflictor, _RSI, _RDI, v332, fmta, coneDirection, contentMask, v25);
-            v331 = *(_QWORD *)outOrigin.midPoint.v;
+            G_Debug_VisualizeRadiusDamageTraces(inflictor, targ, centerPos, v101, coneAngleCos, coneDirection, contentMask, v13);
+            v100 = *(_QWORD *)outOrigin.midPoint.v;
           }
-          ++v332;
-          v330 = (int *)((char *)v330 + 1);
-          *(_QWORD *)outOrigin.midPoint.v = --v331;
+          ++v101;
+          v99 = (float *)((char *)v99 + 1);
+          *(_QWORD *)outOrigin.midPoint.v = --v100;
         }
-        while ( v331 );
-        v26 = 0;
+        while ( v100 );
+        v14 = 0;
       }
-      __asm
+      v102 = &v132;
+      for ( i = &targetPosa.v[2]; ; i += 3 )
       {
-        vmovss  xmm9, cs:__real@bf800000
-        vmovss  xmm10, cs:__real@80000000
-      }
-      v335 = &v396;
-      _R15 = &targetPosa.v[2];
-      while ( 1 )
-      {
-        if ( *(_BYTE *)v335 )
+        if ( *(_BYTE *)v102 )
         {
-          __asm { vucomiss xmm8, xmm9 }
-          if ( *(_BYTE *)v335 && coneDirection )
+          if ( coneAngleCos == -1.0 )
+            goto LABEL_111;
+          if ( !coneDirection )
+            goto LABEL_111;
+          v104 = *(i - 2) - centerPos->v[0];
+          v106 = *((unsigned int *)i - 1);
+          v105 = *(i - 1) - centerPos->v[1];
+          v107 = *i - centerPos->v[2];
+          *(float *)&v106 = fsqrt((float)((float)(v105 * v105) + (float)(v104 * v104)) + (float)(v107 * v107));
+          _XMM1 = v106;
+          __asm
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r15-8]
-              vsubss  xmm7, xmm0, dword ptr [rdi]
-              vmovss  xmm1, dword ptr [r15-4]
-              vsubss  xmm4, xmm1, dword ptr [rdi+4]
-              vmovss  xmm0, dword ptr [r15]
-              vsubss  xmm6, xmm0, dword ptr [rdi+8]
-              vmulss  xmm2, xmm4, xmm4
-              vmulss  xmm0, xmm6, xmm6
-              vmulss  xmm1, xmm7, xmm7
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vcmpless xmm0, xmm1, xmm10
-              vblendvps xmm0, xmm1, xmm15, xmm0
-              vdivss  xmm5, xmm15, xmm0
-              vmulss  xmm0, xmm4, xmm5
-              vmulss  xmm3, xmm0, dword ptr [r14+4]
-              vmulss  xmm1, xmm7, xmm5
-              vmulss  xmm2, xmm1, dword ptr [r14]
-              vmulss  xmm0, xmm6, xmm5
-              vmulss  xmm1, xmm0, dword ptr [r14+8]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vcomiss xmm2, xmm8
-            }
+            vcmpless xmm0, xmm1, xmm10
+            vblendvps xmm0, xmm1, xmm15, xmm0
           }
-          if ( G_Main_RadiusDamageTracePassed(_RDI, &targetPosa + v26, _RSI->s.number, passEntityNum1, contentMask, v25) )
-            break;
+          if ( (float)((float)((float)((float)(v105 * (float)(1.0 / *(float *)&_XMM0)) * coneDirection->v[1]) + (float)((float)(v104 * (float)(1.0 / *(float *)&_XMM0)) * coneDirection->v[0])) + (float)((float)(v107 * (float)(1.0 / *(float *)&_XMM0)) * coneDirection->v[2])) >= coneAngleCos )
+          {
+LABEL_111:
+            if ( G_Main_RadiusDamageTracePassed(centerPos, &targetPosa + v14, targ->s.number, passEntityNum1, contentMask, v13) )
+              break;
+          }
         }
-        ++v26;
-        v335 = (int *)((char *)v335 + 1);
-        _R15 += 3;
-        if ( v26 >= 5 )
-          goto LABEL_108;
+        ++v14;
+        v102 = (float *)((char *)v102 + 1);
+        if ( v14 >= 5 )
+          return 0.0;
       }
     }
   }
-LABEL_56:
-  __asm { vmovaps xmm0, xmm15 }
-LABEL_57:
-  __asm
-  {
-    vmovaps xmm14, [rsp+1F0h+var_C0]
-    vmovaps xmm13, [rsp+1F0h+var_B0]
-    vmovaps xmm12, [rsp+1F0h+var_A0]
-    vmovaps xmm11, [rsp+1F0h+var_90]
-    vmovaps xmm10, [rsp+1F0h+var_80]
-    vmovaps xmm9, [rsp+1F0h+var_70]
-    vmovaps xmm8, [rsp+1F0h+var_60]
-    vmovaps xmm7, [rsp+1F0h+var_50]
-    vmovaps xmm6, [rsp+1F0h+var_40]
-    vmovaps xmm15, [rsp+1F0h+var_D0]
-  }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -2538,10 +2092,9 @@ void G_CombatMP_GetWeaponForEntity(const gentity_s *ent, Weapon *weapon, bool *i
   const BgWeaponMap *v8; 
   bool inAltWeaponMode; 
 
-  _RDI = weapon;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1365, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1366, ASSERT_TYPE_ASSERT, "(weapon)", (const char *)&queryFormat, "weapon") )
+  if ( !weapon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1366, ASSERT_TYPE_ASSERT, "(weapon)", (const char *)&queryFormat, "weapon") )
     __debugbreak();
   if ( !isAlternate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1367, ASSERT_TYPE_ASSERT, "(isAlternate)", (const char *)&queryFormat, "isAlternate") )
     __debugbreak();
@@ -2551,33 +2104,13 @@ void G_CombatMP_GetWeaponForEntity(const gentity_s *ent, Weapon *weapon, bool *i
   v8 = Instance;
   if ( !client )
   {
-    _RAX = BG_GetWeaponForEntity(Instance, &ent->s);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    *weapon = *BG_GetWeaponForEntity(Instance, &ent->s);
     inAltWeaponMode = ent->s.inAltWeaponMode;
     goto LABEL_22;
   }
   if ( !BG_IsTurretActive(&client->ps) && !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&client->ps.eFlags, ACTIVE, 0xBu) )
   {
-    _RAX = BG_GetViewmodelWeapon(v8, &client->ps);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    *weapon = *BG_GetViewmodelWeapon(v8, &client->ps);
     inAltWeaponMode = BG_UsingAlternate(&client->ps);
 LABEL_22:
     *isAlternate = inAltWeaponMode;
@@ -2587,17 +2120,7 @@ LABEL_22:
     __debugbreak();
   if ( client->ps.viewlocked_entNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1385, ASSERT_TYPE_ASSERT, "(ps->viewlocked_entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->viewlocked_entNum != ENTITYNUM_NONE") )
     __debugbreak();
-  _RAX = BG_GetWeaponForEntity(v8, &g_entities[client->ps.viewlocked_entNum].s);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  *weapon = *BG_GetWeaponForEntity(v8, &g_entities[client->ps.viewlocked_entNum].s);
   *isAlternate = 0;
 }
 
@@ -2608,24 +2131,28 @@ G_CombatMP_GetWeaponHitLocationMultiplier
 */
 float G_CombatMP_GetWeaponHitLocationMultiplier(hitLocation_t hitLoc, const Weapon *weapon, bool isAlternate, int locDamageTableIndex)
 {
-  GCombat *v9; 
+  __int64 v4; 
+  GCombat *v8; 
+  const float *LocationDamageMultipliers; 
+  double LocDamageMult; 
 
+  v4 = hitLoc;
   if ( (unsigned int)hitLoc > HITLOC_SOFT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1348, ASSERT_TYPE_ASSERT, "((hitLoc >= HITLOC_NONE) && (hitLoc < HITLOC_NUM))", (const char *)&queryFormat, "(hitLoc >= HITLOC_NONE) && (hitLoc < HITLOC_NUM)") )
     __debugbreak();
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  v9 = GCombat::ms_gCombatSystem;
+  v8 = GCombat::ms_gCombatSystem;
   if ( weapon->weaponIdx && BG_GetWeaponType(weapon, isAlternate) == WEAPTYPE_BULLET && BG_GetWeaponClass(weapon, isAlternate) != WEAPCLASS_TURRET )
   {
-    BG_GetLocationDamageMultipliers(weapon, isAlternate);
-    *(double *)&_XMM0 = GCombat::GetLocDamageMult(v9, hitLoc, locDamageTableIndex);
-    __asm { vmulss  xmm0, xmm0, dword ptr [rdi+rsi*4] }
+    LocationDamageMultipliers = BG_GetLocationDamageMultipliers(weapon, isAlternate);
+    LocDamageMult = GCombat::GetLocDamageMult(v8, (hitLocation_t)v4, locDamageTableIndex);
+    *(float *)&LocDamageMult = *(float *)&LocDamageMult * LocationDamageMultipliers[v4];
   }
   else
   {
-    *(double *)&_XMM0 = GCombat::GetLocDamageMult(v9, hitLoc, locDamageTableIndex);
+    LocDamageMult = GCombat::GetLocDamageMult(v8, (hitLocation_t)v4, locDamageTableIndex);
   }
-  return *(float *)&_XMM0;
+  return *(float *)&LocDamageMult;
 }
 
 /*
@@ -2635,13 +2162,10 @@ G_CombatMP_GetYawForCharacter
 */
 float G_CombatMP_GetYawForCharacter(gentity_s *ent, characterInfo_t *ci)
 {
-  _RBX = ent;
-  _RDI = ci;
-  if ( SV_IsAgent(ent->s.number) && SV_Agent_IsScripted(_RBX->s.number) )
-    __asm { vmovss  xmm0, dword ptr [rbx+140h] }
+  if ( SV_IsAgent(ent->s.number) && SV_Agent_IsScripted(ent->s.number) )
+    return ent->r.currentAngles.v[1];
   else
-    __asm { vmovss  xmm0, dword ptr [rdi+800h] }
-  return *(float *)&_XMM0;
+    return ci->legs.yawAngle;
 }
 
 /*
@@ -2655,25 +2179,33 @@ void G_CombatMP_GrenadeDrop(gentity_s *self, int meansOfDeath, bool applyDamageT
   __int64 v5; 
   __int64 number; 
   __int64 v7; 
+  __int64 v8; 
   int grenadeTimeLeft; 
+  __m256i v10; 
+  __int128 v11; 
   int v12; 
   char v13; 
   char v14; 
   char v15; 
+  double v16; 
   GWeaponMap *Instance; 
   BgWeaponMap *v18; 
   BgWeaponHandle v19; 
   bool HasUnderbarrelAmmo; 
-  int v27; 
-  scrContext_t *v28; 
-  __int64 v29; 
-  scrContext_t *v30; 
-  const dvar_t *v34; 
-  gentity_s *v40; 
-  gentity_s *v41; 
+  int v21; 
+  scrContext_t *v22; 
+  __int64 v23; 
+  scrContext_t *v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  const dvar_t *v28; 
+  float v29; 
+  gentity_s *v30; 
+  gentity_s *v31; 
   __int64 hand; 
   __int64 rotate; 
-  bool v44; 
+  bool v34; 
   int fuseTime; 
   AmmoStore result; 
   vec3_t dir; 
@@ -2681,21 +2213,20 @@ void G_CombatMP_GrenadeDrop(gentity_s *self, int meansOfDeath, bool applyDamageT
   vec3_t start; 
   AmmoStore r_clip2; 
 
-  _R15 = self;
   EntityPlayerState = G_GetEntityPlayerState(self);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 518, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 501, ASSERT_TYPE_ASSERT, "( playerEnt )", (const char *)&queryFormat, "playerEnt") )
+  if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 501, ASSERT_TYPE_ASSERT, "( playerEnt )", (const char *)&queryFormat, "playerEnt") )
     __debugbreak();
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
   v5 = *(_QWORD *)&GStatic::ms_gameStatics;
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 504, ASSERT_TYPE_ASSERT, "( gameStatic )", (const char *)&queryFormat, "gameStatic") )
     __debugbreak();
-  number = _R15->s.number;
+  number = self->s.number;
   if ( (unsigned int)number >= *(_DWORD *)(v5 + 19576) )
   {
-    LODWORD(hand) = _R15->s.number;
+    LODWORD(hand) = self->s.number;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_static_mp.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( m_characterCount )", "entityIndex doesn't index m_characterCount\n\t%i not in [0, %i)", hand, *(_DWORD *)(v5 + 19576)) )
       __debugbreak();
   }
@@ -2704,48 +2235,39 @@ void G_CombatMP_GrenadeDrop(gentity_s *self, int meansOfDeath, bool applyDamageT
     __debugbreak();
   if ( *(_DWORD *)(v7 + 216) != 135 )
   {
-    _RCX = 0i64;
+    v8 = 0i64;
 LABEL_21:
     grenadeTimeLeft = EntityPlayerState->grenadeTimeLeft;
     goto LABEL_22;
   }
-  _RCX = *(_QWORD *)(v7 + 224);
-  if ( !_RCX )
+  v8 = *(_QWORD *)(v7 + 224);
+  if ( !v8 )
     goto LABEL_21;
-  grenadeTimeLeft = *(_DWORD *)(_RCX + 68);
+  grenadeTimeLeft = *(_DWORD *)(v8 + 68);
 LABEL_22:
   if ( grenadeTimeLeft )
   {
-    if ( _RCX )
+    if ( v8 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups xmm1, xmmword ptr [rcx+20h]
-      }
-      v12 = *(_DWORD *)(_RCX + 76);
-      v13 = *(_BYTE *)(_RCX + 82);
-      v14 = *(_BYTE *)(_RCX + 83);
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)(_RCX + 56);
-      fuseTime = *(_DWORD *)(_RCX + 72);
-      v15 = *(_BYTE *)(_RCX + 84);
-      __asm
-      {
-        vmovups ymmword ptr [rbp+70h+r_weapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rcx+30h]
-      }
-      v44 = v15;
-      __asm
-      {
-        vmovups xmmword ptr [rbp+70h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rbp+70h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
+      v10 = *(__m256i *)v8;
+      v11 = *(_OWORD *)(v8 + 32);
+      v12 = *(_DWORD *)(v8 + 76);
+      v13 = *(_BYTE *)(v8 + 82);
+      v14 = *(_BYTE *)(v8 + 83);
+      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)(v8 + 56);
+      fuseTime = *(_DWORD *)(v8 + 72);
+      v15 = *(_BYTE *)(v8 + 84);
+      *(__m256i *)&r_weapon.weaponIdx = v10;
+      v16 = *(double *)(v8 + 48);
+      v34 = v15;
+      *(_OWORD *)&r_weapon.attachmentVariationIndices[5] = v11;
+      *(double *)&r_weapon.attachmentVariationIndices[21] = v16;
     }
     else
     {
       v13 = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&EntityPlayerState->weapCommon.weapFlags, ACTIVE, 1u) || BG_IsUsingOffhandGestureWeapon(EntityPlayerState);
       v14 = BG_UsingAlternate(EntityPlayerState);
-      v44 = BG_ThrowingBackGrenade(EntityPlayerState);
+      v34 = BG_ThrowingBackGrenade(EntityPlayerState);
       Instance = GWeaponMap::GetInstance();
       v18 = Instance;
       if ( v13 )
@@ -2764,43 +2286,26 @@ LABEL_22:
           __debugbreak();
         v19.m_mapEntryId = EntityPlayerState->weapCommon.weaponHandle.m_mapEntryId;
       }
-      _RAX = BgWeaponMap::GetWeapon(v18, v19);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+70h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbp+70h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rbp+70h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      r_weapon = *BgWeaponMap::GetWeapon(v18, v19);
       HasUnderbarrelAmmo = BG_HasUnderbarrelAmmo(&r_weapon);
       fuseTime = BG_GetHeldGrenadeFuse(&r_weapon, HasUnderbarrelAmmo, EntityPlayerState);
-      _RAX = BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+70h+r_clip2.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+70h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-      }
+      r_clip2 = *BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
       BG_HasLadderHand(EntityPlayerState);
-      v27 = 0;
-      while ( !BG_IsClipCompatible(&EntityPlayerState->weapCommon.ammoInClip[v27].clipIndex, &r_clip2) )
+      v21 = 0;
+      while ( !BG_IsClipCompatible(&EntityPlayerState->weapCommon.ammoInClip[v21].clipIndex, &r_clip2) )
       {
-        if ( (unsigned int)++v27 >= 0xF )
+        if ( (unsigned int)++v21 >= 0xF )
         {
           v12 = 0;
           goto LABEL_51;
         }
       }
-      v12 = EntityPlayerState->weapCommon.ammoInClip[v27].ammoCount[0];
+      v12 = EntityPlayerState->weapCommon.ammoInClip[v21].ammoCount[0];
     }
 LABEL_51:
-    v28 = ScriptContext_Server();
-    LOWORD(v29) = r_weapon.weaponIdx;
-    v30 = v28;
+    v22 = ScriptContext_Server();
+    LOWORD(v23) = r_weapon.weaponIdx;
+    v24 = v22;
     if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
     {
       LODWORD(rotate) = bg_lastParsedWeaponIndex;
@@ -2808,59 +2313,47 @@ LABEL_51:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", hand, rotate) )
         __debugbreak();
     }
-    v29 = (unsigned __int16)v29;
-    if ( !bg_weaponDefs[(unsigned __int16)v29] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+    v23 = (unsigned __int16)v23;
+    if ( !bg_weaponDefs[(unsigned __int16)v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
       __debugbreak();
-    if ( bg_weaponDefs[v29]->dropGrenadeHeldOnDeath )
+    if ( bg_weaponDefs[v23]->dropGrenadeHeldOnDeath )
     {
       if ( v13 )
       {
-        GScr_Weapon_AddParam(v30, &r_weapon, v14);
-        GScr_Notify(_R15, scr_const.offhand_fired, 1u);
+        GScr_Weapon_AddParam(v24, &r_weapon, v14);
+        GScr_Notify(self, scr_const.offhand_fired, 1u);
       }
       if ( r_weapon.weaponIdx && BG_GetWeaponType(&r_weapon, 0) == WEAPTYPE_GRENADE )
       {
-        *(double *)&_XMM0 = G_crandom();
-        __asm { vmovss  dword ptr [rbp+70h+dir], xmm0 }
-        *(double *)&_XMM0 = G_crandom();
-        __asm { vmovss  dword ptr [rbp+70h+dir+4], xmm0 }
-        *(double *)&_XMM0 = G_crandom();
-        __asm
-        {
-          vmovss  xmm4, cs:__real@43200000
-          vmulss  xmm1, xmm4, dword ptr [rbp+70h+dir+4]
-          vmulss  xmm2, xmm4, dword ptr [rbp+70h+dir]
-        }
-        v34 = DCONST_DVARBOOL_g_grenadeDropConsumeAmmo;
-        __asm
-        {
-          vmovss  dword ptr [rbp+70h+dir+4], xmm1
-          vmovss  xmm1, dword ptr [r15+130h]
-          vmulss  xmm0, xmm0, xmm4
-          vmovss  dword ptr [rbp+70h+start], xmm1
-          vmovss  xmm1, dword ptr [r15+138h]
-          vmovss  dword ptr [rbp+70h+dir], xmm2
-          vaddss  xmm2, xmm1, cs:__real@42200000
-          vmovss  dword ptr [rbp+70h+dir+8], xmm0
-          vmovss  xmm0, dword ptr [r15+134h]
-          vmovss  dword ptr [rbp+70h+start+8], xmm2
-          vmovss  dword ptr [rbp+70h+start+4], xmm0
-        }
+        v25 = G_crandom();
+        dir.v[0] = *(float *)&v25;
+        v26 = G_crandom();
+        dir.v[1] = *(float *)&v26;
+        v27 = G_crandom();
+        v28 = DCONST_DVARBOOL_g_grenadeDropConsumeAmmo;
+        dir.v[1] = 160.0 * dir.v[1];
+        start.v[0] = self->r.currentOrigin.v[0];
+        v29 = self->r.currentOrigin.v[2];
+        dir.v[0] = 160.0 * dir.v[0];
+        dir.v[2] = *(float *)&v27 * 160.0;
+        *(float *)&v27 = self->r.currentOrigin.v[1];
+        start.v[2] = v29 + 40.0;
+        start.v[1] = *(float *)&v27;
         if ( !DCONST_DVARBOOL_g_grenadeDropConsumeAmmo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_grenadeDropConsumeAmmo") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v34);
-        if ( v34->current.enabled && !v44 && !BG_OffhandDoesNotConsumeAmmo(&r_weapon, 0) && v12 > 0 )
+        Dvar_CheckFrontendServerThread(v28);
+        if ( v28->current.enabled && !v34 && !BG_OffhandDoesNotConsumeAmmo(&r_weapon, 0) && v12 > 0 )
           PM_WeaponUseAmmo(EntityPlayerState, &r_weapon, 0, 1, WEAPON_HAND_DEFAULT);
-        v40 = G_Missile_FireGrenade(_R15, &start, &dir, &r_weapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
-        v41 = v40;
-        if ( !applyDamageToOwner && v40 && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") )
-          v41->c.missile.flags |= 0x8000u;
+        v30 = G_Missile_FireGrenade(self, &start, &dir, &r_weapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
+        v31 = v30;
+        if ( !applyDamageToOwner && v30 && Dvar_GetBool_Internal_DebugName(DVARBOOL_killswitch_laststand_grenade_drop_fix_enabled, "killswitch_laststand_grenade_drop_fix_enabled") )
+          v31->c.missile.flags |= 0x8000u;
       }
     }
     else
     {
-      GScr_Weapon_AddParam(v30, &r_weapon, v14);
-      GScr_Notify(_R15, scr_const.grenade_held_on_death, 1u);
+      GScr_Weapon_AddParam(v24, &r_weapon, v14);
+      GScr_Notify(self, scr_const.grenade_held_on_death, 1u);
     }
   }
 }
@@ -2902,54 +2395,54 @@ G_CombatMP_PlayerDie
 void G_CombatMP_PlayerDie(gentity_s *self, const gentity_s *inflictor, gentity_s *attacker, int damage, int damageFlags, int meansOfDeath, const Weapon *r_weapon, bool isAlternate, const vec3_t *vDir, const hitLocation_t hitLoc, int psTimeOffset)
 {
   gclient_s *client; 
-  __int64 v16; 
-  int v17; 
-  gclient_s *v18; 
-  bool v19; 
-  const Weapon *v20; 
+  __int64 v15; 
+  int v16; 
+  gclient_s *v17; 
+  bool v18; 
+  const Weapon *v19; 
   unsigned int *RandomSeed; 
-  playerState_s *p_ps; 
+  gclient_s *v21; 
   GHandler *Handler; 
   int deathAnimDuration; 
-  const dvar_t *v25; 
-  gclient_s *v26; 
+  const dvar_t *v24; 
+  gclient_s *v25; 
   unsigned int number; 
   SvClientMP *CommonClient; 
-  char v37; 
-  char v38; 
-  gclient_s *v39; 
-  __int64 v40; 
+  gclient_s *v28; 
+  const Bounds *Bounds; 
+  __m128 v30; 
+  gclient_s *v31; 
+  __int64 v32; 
   unsigned int *holdrand; 
   int outDuration; 
   int damagea; 
 
   damagea = damage;
-  _RSI = self;
   SV_InitMP_CheckThread();
-  if ( !_RSI->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1008, ASSERT_TYPE_ASSERT, "(self->client)", (const char *)&queryFormat, "self->client") )
+  if ( !self->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1008, ASSERT_TYPE_ASSERT, "(self->client)", (const char *)&queryFormat, "self->client") )
     __debugbreak();
-  _RSI->client->ps.stats[4] = 0;
-  if ( !Com_GetServerDObjForEntnum(_RSI->client->ps.clientNum) )
+  self->client->ps.stats[4] = 0;
+  if ( !Com_GetServerDObjForEntnum(self->client->ps.clientNum) )
   {
-    Com_Printf(15, "PlayerDie called without a valid Dobj for player %i\n", (unsigned int)_RSI->client->ps.clientNum);
+    Com_Printf(15, "PlayerDie called without a valid Dobj for player %i\n", (unsigned int)self->client->ps.clientNum);
     return;
   }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->client->ps.pm_flags, ACTIVE, 0x16u) )
-    *(_QWORD *)_RSI->client->ps.velocity.v = 0i64;
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_RSI->client->ps.otherFlags, (POtherFlagsMP)33) )
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&self->client->ps.pm_flags, ACTIVE, 0x16u) )
+    *(_QWORD *)self->client->ps.velocity.v = 0i64;
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&self->client->ps.otherFlags, (POtherFlagsMP)33) )
   {
-    client = _RSI->client;
+    client = self->client;
     if ( client->ps.pm_type <= 1u || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&client->ps.otherFlags, ACTIVE, 0xBu) )
     {
       SV_Profile_BeginEvent(SVPROF_CLIENT_KILLED);
       if ( BG_AISystemEnabled() )
-        SV_BotEntityDied(_RSI);
-      v16 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
-      if ( !v16 )
+        SV_BotEntityDied(self);
+      v15 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
+      if ( !v15 )
         goto LABEL_64;
       if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
         __debugbreak();
-      if ( v16 != *(_QWORD *)&GStatic::ms_gameStatics )
+      if ( v15 != *(_QWORD *)&GStatic::ms_gameStatics )
       {
 LABEL_64:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1034, ASSERT_TYPE_ASSERT, "(BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics()))", "%s\n\tEntering server game player processing without a valid client game state", "BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics())") )
@@ -2957,104 +2450,92 @@ LABEL_64:
       }
       if ( attacker->s.eType == ET_TURRET && EntHandle::isDefined(&attacker->r.ownerNum) )
         attacker = EntHandle::ent(&attacker->r.ownerNum);
-      v17 = meansOfDeath;
-      G_CombatMP_GrenadeDrop(_RSI, meansOfDeath, 1);
-      G_PlayerSpawnPoints_LogDeathEvent(_RSI, attacker);
-      _RSI->client->ps.weapCommon.offhandGestureFlags = 0;
+      v16 = meansOfDeath;
+      G_CombatMP_GrenadeDrop(self, meansOfDeath, 1);
+      G_PlayerSpawnPoints_LogDeathEvent(self, attacker);
+      self->client->ps.weapCommon.offhandGestureFlags = 0;
       GScr_AddEntity(attacker);
-      GScr_Notify(_RSI, scr_const.death, 1u);
-      GScr_Notify(_RSI, scr_const.death_or_disconnect, 0);
-      v18 = _RSI->client;
-      if ( v18->ps.pm_type > 1u && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v18->ps.otherFlags, ACTIVE, 0xBu) )
+      GScr_Notify(self, scr_const.death, 1u);
+      GScr_Notify(self, scr_const.death_or_disconnect, 0);
+      v17 = self->client;
+      if ( v17->ps.pm_type > 1u && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v17->ps.otherFlags, ACTIVE, 0xBu) )
       {
-        LODWORD(holdrand) = _RSI->client->ps.pm_type;
+        LODWORD(holdrand) = self->client->ps.pm_type;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1055, ASSERT_TYPE_SANITY, "( ( (self->client->ps.pm_type == PM_NORMAL_LINKED) || (self->client->ps.pm_type == PM_NORMAL) || self->client->ps.otherFlags.TestFlag( POtherFlagsCommon::LASTSTAND ) ) )", "( self->client->ps.pm_type ) = %i", holdrand) )
           __debugbreak();
       }
-      v19 = isAlternate;
-      v20 = r_weapon;
-      G_CombatMP_SetAnimDamageTypeCondition(_RSI->client->ps.clientNum, _RSI, inflictor, v17, r_weapon, isAlternate);
-      G_CombatMP_SetAnimHitLocationCondition(_RSI->client->ps.clientNum, _RSI, hitLoc);
-      G_CombatMP_SetAnimHitDirectionCondition(_RSI->client->ps.clientNum, _RSI, vDir, &_RSI->client->ps, v17);
-      G_CombatMP_SetAnimMoveDirectionCondition(_RSI->client->ps.clientNum, _RSI, &_RSI->client->ps);
-      G_CombatMP_SetVehicleOccupancyConditions(_RSI->client->ps.clientNum, _RSI);
-      if ( v17 == 8 )
+      v18 = isAlternate;
+      v19 = r_weapon;
+      G_CombatMP_SetAnimDamageTypeCondition(self->client->ps.clientNum, self, inflictor, v16, r_weapon, isAlternate);
+      G_CombatMP_SetAnimHitLocationCondition(self->client->ps.clientNum, self, hitLoc);
+      G_CombatMP_SetAnimHitDirectionCondition(self->client->ps.clientNum, self, vDir, &self->client->ps, v16);
+      G_CombatMP_SetAnimMoveDirectionCondition(self->client->ps.clientNum, self, &self->client->ps);
+      G_CombatMP_SetVehicleOccupancyConditions(self->client->ps.clientNum, self);
+      if ( v16 == 8 )
       {
-        G_CombatMP_SetMeleeReactionConditions(_RSI->client->ps.clientNum, inflictor);
+        G_CombatMP_SetMeleeReactionConditions(self->client->ps.clientNum, inflictor);
       }
-      else if ( v17 == 21 )
+      else if ( v16 == 21 )
       {
-        deathAnimDuration = G_Execution_GetExecutionAnimDurationRemaining(_RSI, level.time);
-        GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&_RSI->client->ps.otherFlags, GameModeFlagValues::ms_mpValue, 0x33u);
+        deathAnimDuration = G_Execution_GetExecutionAnimDurationRemaining(self, level.time);
+        GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&self->client->ps.otherFlags, GameModeFlagValues::ms_mpValue, 0x33u);
 LABEL_30:
-        v25 = DVARBOOL_killswitch_execution_death_validation_enabled;
+        v24 = DVARBOOL_killswitch_execution_death_validation_enabled;
         if ( !DVARBOOL_killswitch_execution_death_validation_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_execution_death_validation_enabled") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v25);
-        if ( v25->current.enabled && BG_IsPlayerInExecution(&_RSI->client->ps) )
+        Dvar_CheckFrontendServerThread(v24);
+        if ( v24->current.enabled && BG_IsPlayerInExecution(&self->client->ps) )
         {
-          v26 = _RSI->client;
-          if ( !v26->ps.activeExecutionIsVictim || inflictor->s.number != v26->ps.activeExecutionPartnerEntNum )
-            G_Execution_Cancel(_RSI);
+          v25 = self->client;
+          if ( !v25->ps.activeExecutionIsVictim || inflictor->s.number != v25->ps.activeExecutionPartnerEntNum )
+            G_Execution_Cancel(self);
         }
-        _RSI->client->ps.stats[0] = 0;
-        if ( _RSI->hasSpawnInfluencePoint )
-          G_PlayerSpawnPoints_UnlinkInfluencePointFromEntity(_RSI->influencePointIndex, _RSI);
-        Scr_PlayerKilled(_RSI, inflictor, attacker, damagea, damageFlags, v17, v20, v19, vDir, hitLoc, psTimeOffset, deathAnimDuration);
-        G_Vehicle_ClearPlayerVehicles(_RSI->s.number, &_RSI->client->ps);
-        _RSI->client->ps.pm_type = (_RSI->client->ps.pm_type == 1) + 7;
-        if ( SV_BotIsBotEntClient(_RSI) )
+        self->client->ps.stats[0] = 0;
+        if ( self->hasSpawnInfluencePoint )
+          G_PlayerSpawnPoints_UnlinkInfluencePointFromEntity(self->influencePointIndex, self);
+        Scr_PlayerKilled(self, inflictor, attacker, damagea, damageFlags, v16, v19, v18, vDir, hitLoc, psTimeOffset, deathAnimDuration);
+        G_Vehicle_ClearPlayerVehicles(self->s.number, &self->client->ps);
+        self->client->ps.pm_type = (self->client->ps.pm_type == 1) + 7;
+        if ( SV_BotIsBotEntClient(self) )
         {
-          number = _RSI->s.number;
+          number = self->s.number;
           if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 957, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
             __debugbreak();
           CommonClient = (SvClientMP *)SvClient::GetCommonClient(number);
           SV_BotKilled(CommonClient);
         }
-        AI_DissociateAIFromEnt(_RSI);
-        G_Nav_DestroyPlayerRepulsor(_RSI->s.number);
-        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RSI->client->ps.eFlags, ACTIVE, 0x10u);
-        _RSI->r.currentAngles.v[2] = 0.0;
-        G_Combat_LookAtKiller(_RSI, inflictor, attacker, &_RSI->client->ps);
-        _RCX = _RSI->client;
-        _RCX->ps.viewangles.v[0] = _RSI->r.currentAngles.v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+140h]
-          vmovss  dword ptr [rcx+1DCh], xmm0
-          vmovss  xmm1, dword ptr [rsi+144h]
-          vmovss  dword ptr [rcx+1E0h], xmm1
-        }
-        _RSI->s.loopSound = 0;
-        _RAX = BG_Suit_GetBounds(_RSI->client->ps.suitIndex, PM_EFF_STANCE_PRONE);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsi+100h], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vxorps  xmm2, xmm2, xmm2
-          vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-          vmovsd  qword ptr [rsi+110h], xmm1
-          vcomiss xmm2, xmm0
-        }
-        if ( !(v37 | v38) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1125, ASSERT_TYPE_ASSERT, "(self->r.box.halfSize[2] >= 0.0f)", (const char *)&queryFormat, "self->r.box.halfSize[2] >= 0.0f") )
+        AI_DissociateAIFromEnt(self);
+        G_Nav_DestroyPlayerRepulsor(self->s.number);
+        GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&self->client->ps.eFlags, ACTIVE, 0x10u);
+        self->r.currentAngles.v[2] = 0.0;
+        G_Combat_LookAtKiller(self, inflictor, attacker, &self->client->ps);
+        v28 = self->client;
+        v28->ps.viewangles.v[0] = self->r.currentAngles.v[0];
+        v28->ps.viewangles.v[1] = self->r.currentAngles.v[1];
+        v28->ps.viewangles.v[2] = self->r.currentAngles.v[2];
+        self->s.loopSound = 0;
+        Bounds = BG_Suit_GetBounds(self->client->ps.suitIndex, PM_EFF_STANCE_PRONE);
+        *(_OWORD *)self->r.box.midPoint.v = *(_OWORD *)Bounds->midPoint.v;
+        v30 = (__m128)*(unsigned __int64 *)&Bounds->halfSize.y;
+        *(double *)&self->r.box.halfSize.y = *(double *)v30.m128_u64;
+        if ( _mm_shuffle_ps(v30, v30, 85).m128_f32[0] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1125, ASSERT_TYPE_ASSERT, "(self->r.box.halfSize[2] >= 0.0f)", (const char *)&queryFormat, "self->r.box.halfSize[2] >= 0.0f") )
           __debugbreak();
-        SV_LinkEntity(_RSI);
-        _RSI->health = 0;
-        _RSI->client->sess.lastDeathTime = level.time;
-        _RSI->handler = 16;
-        _RSI->client->sess.eFlags.m_flags[0] = 0;
-        v39 = _RSI->client;
-        if ( v39 == (gclient_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 280, ASSERT_TYPE_ASSERT, "(sourceFlags)", (const char *)&queryFormat, "sourceFlags") )
+        SV_LinkEntity(self);
+        self->health = 0;
+        self->client->sess.lastDeathTime = level.time;
+        self->handler = 16;
+        self->client->sess.eFlags.m_flags[0] = 0;
+        v31 = self->client;
+        if ( v31 == (gclient_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 280, ASSERT_TYPE_ASSERT, "(sourceFlags)", (const char *)&queryFormat, "sourceFlags") )
           __debugbreak();
-        v39->sess.eFlags.m_flags[0] ^= (v39->sess.eFlags.m_flags[0] ^ v39->ps.eFlags.m_flags[0]) & 4;
-        _RSI->client->sess.eFlags.m_flags[0] ^= 4u;
-        v40 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
-        if ( !v40 )
+        v31->sess.eFlags.m_flags[0] ^= (v31->sess.eFlags.m_flags[0] ^ v31->ps.eFlags.m_flags[0]) & 4;
+        self->client->sess.eFlags.m_flags[0] ^= 4u;
+        v32 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
+        if ( !v32 )
           goto LABEL_65;
         if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
           __debugbreak();
-        if ( v40 != *(_QWORD *)&GStatic::ms_gameStatics )
+        if ( v32 != *(_QWORD *)&GStatic::ms_gameStatics )
         {
 LABEL_65:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1140, ASSERT_TYPE_ASSERT, "(BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics()))", "%s\n\tFinished server game player processing without a valid client game state", "BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics())") )
@@ -3064,10 +2545,10 @@ LABEL_65:
         return;
       }
       RandomSeed = G_GetRandomSeed();
-      p_ps = &_RSI->client->ps;
+      v21 = self->client;
       Handler = GHandler::getHandler();
-      outDuration = BG_AnimScriptEvent(Handler, p_ps, ANIM_ET_DEATH, 0, 1, RandomSeed);
-      GPlayerASM_ForceUpdateEvent(&_RSI->client->ps, MOVEMENT, 1, &outDuration);
+      outDuration = BG_AnimScriptEvent(Handler, &v21->ps, ANIM_ET_DEATH, 0, 1, RandomSeed);
+      GPlayerASM_ForceUpdateEvent(&self->client->ps, MOVEMENT, 1, &outDuration);
       deathAnimDuration = outDuration;
       goto LABEL_30;
     }
@@ -3086,23 +2567,25 @@ void G_CombatMP_SendPlayerHitEvent(const gentity_s *body, const gentity_s *victi
   bool v17; 
   int v18; 
   int HitEvent; 
+  gentity_s *v20; 
   GWeaponMap *Instance; 
   unsigned int v22; 
   ClientBits *p_clientMask; 
   unsigned __int64 clientNum; 
   int ClientHitEvent; 
-  GWeaponMap *v28; 
+  gentity_s *v26; 
+  GWeaponMap *v27; 
   __int16 number; 
   unsigned int m_objIndex; 
-  __int64 v32; 
-  bool v33; 
-  GTurret **v34; 
-  GTurret *v35; 
-  __int16 v36; 
-  __int64 v37; 
-  __int64 v38; 
+  __int64 v30; 
+  bool v31; 
+  GTurret **v32; 
+  GTurret *v33; 
+  __int16 v34; 
+  __int64 v35; 
+  __int64 v36; 
   BulletHitBoneInfo outHitInfo[2]; 
-  int v42; 
+  int v40; 
 
   if ( r_weapon->weaponIdx && BG_GetWeaponType(r_weapon, isAlternate) == WEAPTYPE_BULLET )
   {
@@ -3133,39 +2616,35 @@ void G_CombatMP_SendPlayerHitEvent(const gentity_s *body, const gentity_s *victi
           v17 = GBullet::IncrementHitClientEventCount(BulletSystem, victim->client->ps.clientNum);
           if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_g_useHitLocationFix, "g_useHitLocationFix") || !G_Bullet_BoneHitEncode(body, partName, point, outHitInfo) )
           {
-            *(_QWORD *)outHitInfo = 0i64;
-            v42 = 0;
+            *(double *)outHitInfo = 0.0;
+            v40 = 0;
           }
           v18 = v17;
-          v42 = v18;
+          v40 = v18;
           if ( (dflags & 0x200) != 0 )
           {
             v18 |= 2u;
-            v42 = v18;
+            v40 = v18;
           }
           if ( (dflags & 0x400) != 0 )
-            v42 = v18 | 4;
+            v40 = v18 | 4;
           outHitInfo[1] = (BulletHitBoneInfo)GBullet::CalculateHitImpactSoundDelay(BulletSystem, inflictor, victim);
           HitEvent = BG_WeaponBulletFire_GetHitEvent(mod, 1);
           if ( !HitEvent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 327, ASSERT_TYPE_SANITY, "( bulletEvent != EV_NONE )", (const char *)&queryFormat, "bulletEvent != EV_NONE") )
             __debugbreak();
-          _RDI = G_Utils_SpawnEventEntity(point, HitEvent);
+          v20 = G_Utils_SpawnEventEntity(point, HitEvent);
           Instance = GWeaponMap::GetInstance();
-          BG_SetWeaponForEntity(Instance, &_RDI->s, r_weapon);
-          _RDI->s.inAltWeaponMode = isAlternate;
-          _RDI->s.eventParm = DirToByte(localdir);
-          _RDI->s.eventParm2 = 0;
-          _RDI->s.surfType = body->s.surfType;
+          BG_SetWeaponForEntity(Instance, &v20->s, r_weapon);
+          v20->s.inAltWeaponMode = isAlternate;
+          v20->s.eventParm = DirToByte(localdir);
+          v20->s.eventParm2 = 0;
+          v20->s.surfType = body->s.surfType;
           v22 = 0;
-          _RDI->s.otherEntityNum = inflictor->s.number;
-          _RDI->s.groundEntityNum = body->s.number;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsp+0C8h+outHitInfo._bf_0]
-            vmovsd  qword ptr [rdi+58h], xmm0
-          }
-          _RDI->s.lerp.u.anonymous.data[2] = v42;
-          p_clientMask = &_RDI->clientMask;
+          v20->s.otherEntityNum = inflictor->s.number;
+          v20->s.groundEntityNum = body->s.number;
+          *(double *)v20->s.lerp.u.anonymous.data = *(double *)outHitInfo;
+          v20->s.lerp.u.anonymous.data[2] = v40;
+          p_clientMask = &v20->clientMask;
           while ( !p_clientMask->array[0] )
           {
             ++v22;
@@ -3181,84 +2660,80 @@ LABEL_46:
           clientNum = (unsigned int)victim->client->ps.clientNum;
           if ( (unsigned int)clientNum >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", clientNum, 224) )
             __debugbreak();
-          _RDI->clientMask.array[clientNum >> 5] |= 0x80000000 >> (clientNum & 0x1F);
+          v20->clientMask.array[clientNum >> 5] |= 0x80000000 >> (clientNum & 0x1F);
           ClientHitEvent = BG_WeaponBulletFire_GetClientHitEvent(mod, 1);
           if ( !ClientHitEvent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 350, ASSERT_TYPE_SANITY, "( bulletEvent != EV_NONE )", (const char *)&queryFormat, "bulletEvent != EV_NONE") )
             __debugbreak();
-          _RBX = G_Utils_SpawnEventEntity(point, ClientHitEvent);
-          _RBX->s.eventParm2 = 0;
-          v28 = GWeaponMap::GetInstance();
-          BG_SetWeaponForEntity(v28, &_RBX->s, r_weapon);
-          _RBX->s.inAltWeaponMode = isAlternate;
-          _RBX->s.surfType = body->s.surfType;
+          v26 = G_Utils_SpawnEventEntity(point, ClientHitEvent);
+          v26->s.eventParm2 = 0;
+          v27 = GWeaponMap::GetInstance();
+          BG_SetWeaponForEntity(v27, &v26->s, r_weapon);
+          v26->s.inAltWeaponMode = isAlternate;
+          v26->s.surfType = body->s.surfType;
           number = inflictor->s.number;
-          _RBX->s.otherEntityNum = inflictor->s.number;
+          v26->s.otherEntityNum = inflictor->s.number;
           if ( number == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 358, ASSERT_TYPE_ASSERT, "(bulletClientHitEntity->s.otherEntityNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "bulletClientHitEntity->s.otherEntityNum != ENTITYNUM_NONE") )
             __debugbreak();
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsp+0C8h+outHitInfo._bf_0]
-            vmovsd  qword ptr [rbx+58h], xmm0
-          }
-          _RBX->s.lerp.u.anonymous.data[2] = v42;
-          _RBX->s.clientNum = victim->client->ps.clientNum;
-          _RBX->clientMask.array[0] = -1;
-          *(_QWORD *)&_RBX->clientMask.array[1] = -1i64;
-          *(_QWORD *)&_RBX->clientMask.array[3] = -1i64;
-          *(_QWORD *)&_RBX->clientMask.array[5] = -1i64;
-          bitarray_base<bitarray<224>>::resetBit(&_RBX->clientMask, victim->client->ps.clientNum);
+          *(double *)v26->s.lerp.u.anonymous.data = *(double *)outHitInfo;
+          v26->s.lerp.u.anonymous.data[2] = v40;
+          v26->s.clientNum = victim->client->ps.clientNum;
+          v26->clientMask.array[0] = -1;
+          *(_QWORD *)&v26->clientMask.array[1] = -1i64;
+          *(_QWORD *)&v26->clientMask.array[3] = -1i64;
+          *(_QWORD *)&v26->clientMask.array[5] = -1i64;
+          bitarray_base<bitarray<224>>::resetBit(&v26->clientMask, victim->client->ps.clientNum);
           if ( hitLoc == HITLOC_HEAD )
           {
-            _RDI->s.eventParm2 |= 1u;
-            _RBX->s.eventParm2 |= 1u;
+            v20->s.eventParm2 |= 1u;
+            v26->s.eventParm2 |= 1u;
           }
           else if ( hitLoc == HITLOC_HELMET )
           {
-            _RDI->s.eventParm2 |= 0x400u;
-            _RBX->s.eventParm2 |= 0x400u;
+            v20->s.eventParm2 |= 0x400u;
+            v26->s.eventParm2 |= 0x400u;
           }
           else if ( (unsigned int)(hitLoc - 6) <= 0xB )
           {
-            _RDI->s.eventParm2 |= 0x40u;
-            _RBX->s.eventParm2 |= 0x40u;
+            v20->s.eventParm2 |= 0x40u;
+            v26->s.eventParm2 |= 0x40u;
           }
           if ( isFatal )
           {
-            _RDI->s.eventParm2 |= 2u;
-            _RBX->s.eventParm2 |= 2u;
+            v20->s.eventParm2 |= 2u;
+            v26->s.eventParm2 |= 2u;
           }
           m_objIndex = inflictor->turretHandle.m_objIndex;
           if ( m_objIndex )
           {
-            v32 = m_objIndex - 1;
+            v30 = m_objIndex - 1;
             if ( !(_BYTE)GTurret::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 226, ASSERT_TYPE_ASSERT, "( ms_allocatedType != GameModeType::NONE )", (const char *)&queryFormat, "ms_allocatedType != GameModeType::NONE") )
               __debugbreak();
-            if ( (unsigned int)v32 >= 0x80 )
+            if ( (unsigned int)v30 >= 0x80 )
             {
-              LODWORD(v38) = 128;
-              LODWORD(v37) = v32;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 227, ASSERT_TYPE_ASSERT, "(unsigned)( turretIndex ) < (unsigned)( ( sizeof( *array_counter( ms_turretArray ) ) + 0 ) )", "turretIndex doesn't index ARRAY_COUNT( ms_turretArray )\n\t%i not in [0, %i)", v37, v38) )
+              LODWORD(v36) = 128;
+              LODWORD(v35) = v30;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 227, ASSERT_TYPE_ASSERT, "(unsigned)( turretIndex ) < (unsigned)( ( sizeof( *array_counter( ms_turretArray ) ) + 0 ) )", "turretIndex doesn't index ARRAY_COUNT( ms_turretArray )\n\t%i not in [0, %i)", v35, v36) )
                 __debugbreak();
             }
-            v33 = GTurret::ms_turretArray[v32] == NULL;
-            v34 = &GTurret::ms_turretArray[v32];
-            if ( v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
+            v31 = GTurret::ms_turretArray[v30] == NULL;
+            v32 = &GTurret::ms_turretArray[v30];
+            if ( v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
               __debugbreak();
-            v35 = *v34;
-            if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 417, ASSERT_TYPE_ASSERT, "(turret)", (const char *)&queryFormat, "turret") )
+            v33 = *v32;
+            if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 417, ASSERT_TYPE_ASSERT, "(turret)", (const char *)&queryFormat, "turret") )
               __debugbreak();
-            v35->m_data.flags |= 0x10000u;
+            v33->m_data.flags |= 0x10000u;
           }
           if ( (dflags & 8) != 0 )
-            _RDI->s.eventParm2 |= 0x200u;
+            v20->s.eventParm2 |= 0x200u;
           if ( (dflags & 0x1000) != 0 )
           {
-            _RDI->s.eventParm2 |= 0x800u;
-            _RBX->s.eventParm2 |= 0x800u;
+            v20->s.eventParm2 |= 0x800u;
+            v26->s.eventParm2 |= 0x800u;
           }
-          G_BulletMP_MarkPotentialImpactFixup(_RDI, _RDI->s.groundEntityNum, partName);
-          v36 = truncate_cast<short,int>(_RBX->s.clientNum);
-          G_BulletMP_MarkPotentialImpactFixup(_RBX, v36, partName);
+          G_BulletMP_MarkPotentialImpactFixup(v20, v20->s.groundEntityNum, partName);
+          v34 = truncate_cast<short,int>(v26->s.clientNum);
+          G_BulletMP_MarkPotentialImpactFixup(v26, v34, partName);
         }
       }
     }
@@ -3277,12 +2752,14 @@ void G_CombatMP_SetAnimDamageTypeCondition(const int clientNum, const gentity_s 
   AnimDamageType integer; 
   const dvar_t *v13; 
   unsigned __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   weapClass_t WeaponClass; 
-  unsigned int v27; 
-  __int64 v28; 
-  __int64 v29; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int64 v21; 
 
-  _RBP = inflictor;
   v10 = BG_WeaponDef(r_weapon, isAlternate);
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 632, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
@@ -3294,8 +2771,8 @@ void G_CombatMP_SetAnimDamageTypeCondition(const int clientNum, const gentity_s 
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v28) = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 634, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v28, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v20) = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 634, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v20, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
@@ -3319,40 +2796,25 @@ void G_CombatMP_SetAnimDamageTypeCondition(const int clientNum, const gentity_s 
   }
   if ( v10->offhandClass == OFFHAND_CLASS_FRAG_GRENADE )
   {
-    if ( _RBP )
+    if ( !inflictor || (v15 = inflictor->r.currentOrigin.v[0] - self->r.currentOrigin.v[0], v16 = inflictor->r.currentOrigin.v[1] - self->r.currentOrigin.v[1], v17 = inflictor->r.currentOrigin.v[2] - self->r.currentOrigin.v[2], (float)((float)((float)(v16 * v16) + (float)(v15 * v15)) + (float)(v17 * v17)) >= 6400.0) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+130h]
-        vsubss  xmm3, xmm0, dword ptr [r13+130h]
-        vmovss  xmm1, dword ptr [rbp+134h]
-        vsubss  xmm2, xmm1, dword ptr [r13+134h]
-        vmovss  xmm0, dword ptr [rbp+138h]
-        vsubss  xmm4, xmm0, dword ptr [r13+138h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, cs:__real@45c80000
-      }
+      v14 = 1i64;
+      goto LABEL_51;
     }
-    v14 = 1i64;
+LABEL_50:
+    v14 = 2i64;
     goto LABEL_51;
   }
   if ( (unsigned int)meansOfDeath >= 0x19 )
   {
-    LODWORD(v29) = 25;
-    LODWORD(v28) = meansOfDeath;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1133, ASSERT_TYPE_ASSERT, "(unsigned)( mod ) < (unsigned)( MOD_NUM )", "mod doesn't index MOD_NUM\n\t%i not in [0, %i)", v28, v29) )
+    LODWORD(v21) = 25;
+    LODWORD(v20) = meansOfDeath;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1133, ASSERT_TYPE_ASSERT, "(unsigned)( mod ) < (unsigned)( MOD_NUM )", "mod doesn't index MOD_NUM\n\t%i not in [0, %i)", v20, v21) )
       __debugbreak();
   }
   if ( (unsigned int)(meansOfDeath - 3) <= 4 || meansOfDeath == 16 )
-  {
-    v14 = 2i64;
-    goto LABEL_51;
-  }
-  if ( G_Weapon_ShouldPlayMeleeChargeDeathAnim(meansOfDeath, _RBP, clientNum) )
+    goto LABEL_50;
+  if ( G_Weapon_ShouldPlayMeleeChargeDeathAnim(meansOfDeath, inflictor, clientNum) )
   {
 LABEL_40:
     v14 = 3i64;
@@ -3371,10 +2833,10 @@ LABEL_40:
       break;
     default:
       WeaponClass = BG_GetWeaponClass(r_weapon, isAlternate);
-      v27 = 9;
+      v19 = 9;
       if ( WeaponClass == WEAPCLASS_SPREAD )
-        v27 = 1;
-      v14 = v27;
+        v19 = 1;
+      v14 = v19;
       break;
   }
 LABEL_51:
@@ -3388,31 +2850,38 @@ G_CombatMP_SetAnimHitDirectionCondition
 */
 void G_CombatMP_SetAnimHitDirectionCondition(const int clientNum, gentity_s *self, const vec3_t *vDir, const playerState_s *ps, const int meansOfDeath)
 {
-  char v15; 
-  const dvar_t *v18; 
+  characterInfo_t *v9; 
+  char v10; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
   int integer; 
-  const dvar_t *v26; 
-  int v37; 
-  const dvar_t *v52; 
-  const dvar_t *v53; 
-  int v55; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  unsigned __int128 v18; 
+  unsigned __int128 v19; 
+  int v23; 
+  float v28; 
+  __int64 v29; 
+  const dvar_t *v30; 
+  int v31; 
+  int v32; 
+  double v33; 
+  const dvar_t *v34; 
+  int v35; 
   GHandler *Handler; 
-  __int64 v70; 
+  float yawAngle; 
+  double v38; 
+  __int64 v39; 
   vec2_t vec; 
   vec3_t forward; 
   playerState_s *psa; 
-  __int128 v75; 
-  char v80; 
+  float v43; 
+  __int128 v44; 
 
-  __asm { vmovaps [rsp+0F0h+var_70], xmm9 }
   psa = (playerState_s *)ps;
-  _RBX = vDir;
-  _RDI = self;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000001000000030000000200000000
-    vmovdqu [rbp+4Fh+var_88], xmm0
-  }
+  v44 = _xmm;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 846, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -3421,222 +2890,183 @@ void G_CombatMP_SetAnimHitDirectionCondition(const int clientNum, gentity_s *sel
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v70) = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 847, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v70, ComCharacterLimits::ms_gameData.m_characterCount) )
+    LODWORD(v39) = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 847, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v39, ComCharacterLimits::ms_gameData.m_characterCount) )
       __debugbreak();
   }
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  _R13 = (characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)clientNum);
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 851, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  v9 = (characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)clientNum);
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 851, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+0F0h+var_50], xmm7
-    vmovaps [rsp+0F0h+var_60], xmm8
-  }
   AngleVectors(&ps->viewangles, &forward, NULL, NULL);
-  v15 = 0;
-  if ( _RBX )
+  v10 = 0;
+  if ( vDir )
   {
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx]
-      vmovss  xmm8, dword ptr [rbx+4]
-    }
-    v15 = 1;
+    v11 = vDir->v[0];
+    v12 = vDir->v[1];
+    v10 = 1;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rbp+4Fh+vec]
-      vmovss  xmm7, dword ptr [rbp+4Fh+vec]
-    }
+    v12 = vec.v[0];
+    v11 = vec.v[0];
   }
-  v18 = DVARINT_g_debugPlayerDeath_HitDirection;
+  v13 = DVARINT_g_debugPlayerDeath_HitDirection;
   if ( !DVARINT_g_debugPlayerDeath_HitDirection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugPlayerDeath_HitDirection") )
     __debugbreak();
-  __asm { vmovaps [rsp+0F0h+var_40], xmm6 }
-  Dvar_CheckFrontendServerThread(v18);
-  integer = v18->current.integer;
-  __asm { vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000 }
+  Dvar_CheckFrontendServerThread(v13);
+  integer = v13->current.integer;
   if ( integer < 4 )
   {
     switch ( integer )
     {
       case 0:
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-          vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-          vxorps  xmm7, xmm5, xmm9
-          vxorps  xmm8, xmm6, xmm9
-        }
+        v15 = forward.v[0];
+        v16 = forward.v[1];
+        LODWORD(v11) = LODWORD(forward.v[0]) ^ _xmm;
+        LODWORD(v12) = LODWORD(forward.v[1]) ^ _xmm;
         goto LABEL_42;
       case 1:
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-          vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-          vmovaps xmm7, xmm6
-          vxorps  xmm8, xmm5, xmm9
-        }
+        v16 = forward.v[1];
+        v15 = forward.v[0];
+        v11 = forward.v[1];
+        LODWORD(v12) = LODWORD(forward.v[0]) ^ _xmm;
         goto LABEL_42;
       case 2:
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-          vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-          vxorps  xmm7, xmm6, xmm9
-          vmovaps xmm8, xmm5
-        }
+        v16 = forward.v[1];
+        v15 = forward.v[0];
+        LODWORD(v11) = LODWORD(forward.v[1]) ^ _xmm;
+        v12 = forward.v[0];
         goto LABEL_42;
       case 3:
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-          vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-          vmovaps xmm7, xmm5
-          vmovaps xmm8, xmm6
-        }
+        v15 = forward.v[0];
+        v16 = forward.v[1];
+        v11 = forward.v[0];
+        v12 = forward.v[1];
         goto LABEL_42;
     }
-    goto LABEL_41;
-  }
-  if ( v15 )
-  {
 LABEL_41:
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-      vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-    }
+    v16 = forward.v[1];
+    v15 = forward.v[0];
     goto LABEL_42;
   }
-  v26 = DVARBOOL_player_align_death_anim_unknown_direction_update_angles;
+  if ( v10 )
+    goto LABEL_41;
+  v17 = DVARBOOL_player_align_death_anim_unknown_direction_update_angles;
   if ( !DVARBOOL_player_align_death_anim_unknown_direction_update_angles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_align_death_anim_unknown_direction_update_angles") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  if ( !v26->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( !v17->current.enabled )
   {
-    v37 = 0;
-    goto LABEL_60;
+    v23 = 0;
+    goto LABEL_73;
   }
+  v15 = forward.v[0];
+  v16 = forward.v[1];
+  v18 = LODWORD(forward.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+  v19 = v18;
+  *(float *)&v19 = (float)(*(float *)&v18 * *(float *)&v18) + (float)(COERCE_FLOAT(LODWORD(forward.v[0]) ^ _xmm) * COERCE_FLOAT(LODWORD(forward.v[0]) ^ _xmm));
+  _XMM2 = v19;
   __asm
   {
-    vmovss  xmm5, dword ptr [rbp+4Fh+forward]
-    vmovss  xmm6, dword ptr [rbp+4Fh+forward+4]
-    vxorps  xmm4, xmm5, xmm9
-    vxorps  xmm3, xmm6, xmm9
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm1, cs:__real@3f800000
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm1, xmm4
-    vmulss  xmm8, xmm1, xmm3
   }
+  v11 = (float)(1.0 / *(float *)&_XMM0) * COERCE_FLOAT(LODWORD(forward.v[0]) ^ _xmm);
+  v12 = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v18;
 LABEL_42:
+  _XMM0 = (unsigned int)meansOfDeath;
+  _XMM3 = LODWORD(COSINE45);
   __asm
   {
-    vmovd   xmm0, [rbp+4Fh+meansOfDeath]
-    vmovss  xmm3, cs:COSINE45
-  }
-  _EAX = 8;
-  __asm
-  {
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:COSINE_MELEE_ORIENT_ANGLE_459
     vblendvps xmm4, xmm3, xmm1, xmm2
-    vmulss  xmm0, xmm8, xmm6
-    vmulss  xmm2, xmm7, xmm5
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rbp+4Fh+vec], xmm4
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm3, xmm6
   }
-  v52 = DCONST_DVARBOOL_player_align_death_anim;
-  v37 = DWORD2(v75);
+  v28 = (float)(v11 * v15) + (float)(v12 * v16);
+  vec.v[0] = *(float *)&_XMM4;
+  if ( (float)(v28 * v28) >= (float)(*(float *)&_XMM4 * *(float *)&_XMM4) )
+  {
+    v29 = 2i64;
+    if ( v28 < 0.0 )
+      v29 = 0i64;
+  }
+  else
+  {
+    v29 = 3i64;
+    if ( (float)((float)(v12 * v15) - (float)(v11 * v16)) > 0.0 )
+      v29 = 1i64;
+  }
+  v30 = DCONST_DVARBOOL_player_align_death_anim;
+  v23 = *((_DWORD *)&v44 + v29);
   if ( !DCONST_DVARBOOL_player_align_death_anim && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_align_death_anim") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v52);
-  if ( v52->current.enabled && !BG_IsPlayerInExecution(psa) )
+  Dvar_CheckFrontendServerThread(v30);
+  if ( v30->current.enabled && !BG_IsPlayerInExecution(psa) )
   {
-    __asm
+    v31 = v29 - 1;
+    if ( v31 )
     {
-      vmovss  dword ptr [rbp+4Fh+vec], xmm7
-      vmovss  dword ptr [rbp+4Fh+vec+4], xmm8
-    }
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    v53 = DCONST_DVARINT_player_align_death_anim_ms;
-    __asm { vmovaps xmm7, xmm0 }
-    if ( !DCONST_DVARINT_player_align_death_anim_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_align_death_anim_ms") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v53);
-    v55 = v53->current.integer;
-    if ( v55 > 0 )
-    {
-      if ( SV_IsAgent(_RDI->s.number) && SV_Agent_IsScripted(_RDI->s.number) )
-        __asm { vmovss  xmm6, dword ptr [rdi+140h] }
+      v32 = v31 - 1;
+      if ( v32 )
+      {
+        if ( v32 == 1 )
+        {
+          LODWORD(vec.v[0]) = LODWORD(v12) ^ _xmm;
+          vec.v[1] = v11;
+        }
+        else
+        {
+          LODWORD(vec.v[0]) = LODWORD(v11) ^ _xmm;
+          LODWORD(vec.v[1]) = LODWORD(v12) ^ _xmm;
+        }
+      }
       else
-        __asm { vmovss  xmm6, dword ptr [r13+800h] }
-      __asm
       {
-        vmovaps xmm1, xmm6; angle2
-        vmovaps xmm0, xmm7; angle1
+        vec.v[0] = v11;
+        vec.v[1] = v12;
       }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm { vmovss  xmm1, cs:__real@447a0000 }
-      _RDI->s.lerp.apos.trType = TR_LINEAR_STOP;
-      _RDI->s.lerp.apos.trTime = level.time;
-      _RDI->s.lerp.apos.trDuration = v55;
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  dword ptr [rdi+44h], xmm6
-      }
-      _RDI->s.lerp.apos.trBase.v[0] = 0.0;
-      *(_QWORD *)&_RDI->s.lerp.apos.trBase.z = 0i64;
-      __asm
-      {
-        vcvtsi2ss xmm2, xmm2, ebx
-        vdivss  xmm2, xmm1, xmm2
-        vmulss  xmm3, xmm0, xmm2
-        vmovss  dword ptr [rdi+50h], xmm3
-      }
-      _RDI->s.lerp.apos.trDelta.v[2] = 0.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rbp+4Fh+ps], xmm6
-        vmovss  dword ptr [rbp+4Fh+ps+4], xmm7
-        vmovss  [rbp+4Fh+var_90], xmm6
-      }
+      LODWORD(vec.v[1]) = LODWORD(v11) ^ _xmm;
+      vec.v[0] = v12;
+    }
+    v33 = vectoyaw(&vec);
+    v34 = DCONST_DVARINT_player_align_death_anim_ms;
+    if ( !DCONST_DVARINT_player_align_death_anim_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_align_death_anim_ms") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v34);
+    v35 = v34->current.integer;
+    if ( v35 > 0 )
+    {
+      if ( SV_IsAgent(self->s.number) && SV_Agent_IsScripted(self->s.number) )
+        yawAngle = self->r.currentAngles.v[1];
+      else
+        yawAngle = v9->legs.yawAngle;
+      v38 = AngleDelta(*(const float *)&v33, yawAngle);
+      self->s.lerp.apos.trType = TR_LINEAR_STOP;
+      self->s.lerp.apos.trTime = level.time;
+      self->s.lerp.apos.trDuration = v35;
+      self->s.lerp.apos.trBase.v[1] = yawAngle;
+      self->s.lerp.apos.trBase.v[0] = 0.0;
+      *(_QWORD *)&self->s.lerp.apos.trBase.z = 0i64;
+      self->s.lerp.apos.trDelta.v[1] = *(float *)&v38 * (float)(1000.0 / (float)v35);
+      self->s.lerp.apos.trDelta.v[2] = 0.0;
+    }
+    else
+    {
+      *(float *)&psa = 0.0;
+      *((float *)&psa + 1) = *(float *)&v33;
+      v43 = 0.0;
       Handler = GHandler::getHandler();
       if ( !Handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 949, ASSERT_TYPE_ASSERT, "(handler != nullptr)", (const char *)&queryFormat, "handler != nullptr") )
         __debugbreak();
       Handler->SetEntityAngles(Handler, clientNum, (const vec3_t *)&psa);
     }
   }
-LABEL_60:
-  BG_SetConditionValue(_R13, 11, v37);
-  __asm
-  {
-    vmovaps xmm8, [rsp+0F0h+var_60]
-    vmovaps xmm7, [rsp+0F0h+var_50]
-    vmovaps xmm6, [rsp+0F0h+var_40]
-  }
-  _R11 = &v80;
-  __asm { vmovaps xmm9, xmmword ptr [r11-40h] }
+LABEL_73:
+  BG_SetConditionValue(v9, 11, v23);
 }
 
 /*
@@ -3694,122 +3124,78 @@ G_CombatMP_SetAnimMoveDirectionCondition
 */
 void G_CombatMP_SetAnimMoveDirectionCondition(const int clientNum, gentity_s *self, const playerState_s *ps)
 {
-  characterInfo_t *v10; 
-  char v38; 
-  char v40; 
-  unsigned __int64 v41; 
+  characterInfo_t *v5; 
+  float v6; 
+  vec3_t *p_velocity; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  const dvar_t *v11; 
+  float v12; 
+  float v13; 
+  float v17; 
+  float v18; 
+  float value; 
+  unsigned __int64 v20; 
   vec3_t angles; 
   tmat33_t<vec3_t> out; 
-  char v50; 
+  char v23; 
   tmat33_t<vec3_t> axis; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBX = ps;
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 789, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  v10 = (characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)clientNum);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 792, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  v5 = (characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 224i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)clientNum);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 792, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1DCh]
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  dword ptr [rsp+108h+angles], xmm9
-    vmovss  dword ptr [rsp+108h+angles+8], xmm9
-    vmovss  dword ptr [rsp+108h+angles+4], xmm0
-  }
+  v6 = ps->viewangles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
+  angles.v[1] = v6;
   AnglesToAxis(&angles, &axis);
   MatrixTranspose(&axis, &out);
-  _RBX = (char *)&_RBX->velocity;
-  if ( _RBX == &v50 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  p_velocity = &ps->velocity;
+  if ( p_velocity == (vec3_t *)&v23 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
+  v8 = p_velocity->v[2];
+  v9 = p_velocity->v[1];
+  v10 = LODWORD(p_velocity->v[0]);
+  v11 = DCONST_DVARFLT_player_strafeAnimCosAngle;
+  v12 = (float)((float)(*(float *)&v10 * out.m[0].v[0]) + (float)(v9 * out.m[1].v[0])) + (float)(v8 * out.m[2].v[0]);
+  v13 = (float)((float)(*(float *)&v10 * out.m[0].v[1]) + (float)(v9 * out.m[1].v[1])) + (float)(v8 * out.m[2].v[1]);
+  *(float *)&v10 = fsqrt((float)(v12 * v12) + (float)(v13 * v13));
+  _XMM2 = v10;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbx+8]
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vmulss  xmm1, xmm4, dword ptr [rsp+108h+out]
-    vmulss  xmm0, xmm5, dword ptr [rsp+108h+out+0Ch]
-    vmulss  xmm3, xmm4, dword ptr [rsp+108h+out+4]
-  }
-  _RBX = DCONST_DVARFLT_player_strafeAnimCosAngle;
-  __asm
-  {
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+108h+out+18h]
-    vmulss  xmm0, xmm5, dword ptr [rsp+108h+out+10h]
-    vaddss  xmm8, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+108h+out+1Ch]
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm7, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm3, xmm8, xmm8
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm6, xmm8, xmm1
-    vmulss  xmm7, xmm1, xmm7
   }
+  v17 = v12 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = (float)(1.0 / *(float *)&_XMM0) * v13;
   if ( !DCONST_DVARFLT_player_strafeAnimCosAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_strafeAnimCosAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  if ( v17 <= value )
   {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vcomiss xmm6, xmm0
-  }
-  if ( v38 | v40 )
-  {
-    __asm
+    if ( v17 >= COERCE_FLOAT(LODWORD(value) ^ _xmm) )
     {
-      vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-      vcomiss xmm6, xmm0
-    }
-    if ( v38 )
-    {
-      v41 = 3i64;
+      if ( v18 >= 0.0 )
+        v20 = v18 > 0.0;
+      else
+        v20 = 2i64;
     }
     else
     {
-      __asm { vcomiss xmm7, xmm9 }
-      if ( v38 )
-      {
-        v41 = 2i64;
-      }
-      else
-      {
-        v41 = 0i64;
-        __asm { vcomiss xmm7, xmm9 }
-      }
+      v20 = 3i64;
     }
   }
   else
   {
-    v41 = 0i64;
+    v20 = 0i64;
   }
-  BG_SetConditionValue(v10, 10, v41);
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  BG_SetConditionValue(v5, 10, v20);
 }
 
 /*
@@ -3913,45 +3299,41 @@ G_CombatMP_ShieldNotifyAndDamageInternal
 */
 void G_CombatMP_ShieldNotifyAndDamageInternal(gentity_s *targ, const gentity_s *inflictor, gentity_s *attacker, const vec3_t *dir, const vec3_t *point, int damage, int dFlags, int mod, const Weapon *r_weapon, bool isAlternate, int timeOffset)
 {
+  __int16 v11; 
+  __m256i v16; 
+  __int128 v17; 
+  double v18; 
   bool m_isBulletDamage; 
-  const gentity_s *v22; 
+  const gentity_s *v20; 
   __int64 meansOfDeath; 
   unsigned int NumWeapons; 
   GExtraDamageParams extraParams; 
   Weapon weapon; 
 
-  _RBX = r_weapon;
   if ( SV_UserMoveWorkersMP_IsInWorkerContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 1855, ASSERT_TYPE_ASSERT, "( !SV_UserMoveWorkersMP_IsInWorkerContext() )", (const char *)&queryFormat, "!SV_UserMoveWorkersMP_IsInWorkerContext()") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rbx]
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovsd  xmm1, qword ptr [rbx+30h]
-  }
+  v16 = *(__m256i *)&r_weapon->weaponIdx;
+  v17 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  v18 = *(double *)&r_weapon->attachmentVariationIndices[21];
   m_isBulletDamage = isAlternate;
   *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
   extraParams.m_isBulletDamage = isAlternate;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+108h+weapon.weaponIdx], ymm2
-    vmovups xmmword ptr [rsp+108h+weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  qword ptr [rsp+108h+weapon.attachmentVariationIndices+15h], xmm1
-  }
-  if ( !(_WORD)_EAX )
+  *(__m256i *)&weapon.weaponIdx = v16;
+  *(_OWORD *)&weapon.attachmentVariationIndices[5] = v17;
+  *(double *)&weapon.attachmentVariationIndices[21] = v18;
+  if ( !v11 )
   {
     if ( inflictor )
     {
-      v22 = inflictor;
+      v20 = inflictor;
 LABEL_9:
-      G_CombatMP_GetWeaponForEntity(v22, &weapon, &extraParams.m_isBulletDamage);
+      G_CombatMP_GetWeaponForEntity(v20, &weapon, &extraParams.m_isBulletDamage);
       m_isBulletDamage = extraParams.m_isBulletDamage;
       goto LABEL_10;
     }
     if ( attacker )
     {
-      v22 = attacker;
+      v20 = attacker;
       goto LABEL_9;
     }
   }
@@ -3981,14 +3363,7 @@ GCombatMP::GetRadiusDamageFromPos
 */
 float GCombatMP::GetRadiusDamageFromPos(GCombatMP *this, gentity_s *ent, gentity_s *ignoreEnt, const vec3_t *damageOrigin, int contentMask, bool detailTrace, unsigned __int8 *priorityMap)
 {
-  float v9; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+68h+var_48], xmm0
-  }
-  return G_CombatMP_GetRadiusDamageFromPos_Internal(ent, &ent->r.currentOrigin, ignoreEnt, damageOrigin, v9, NULL, contentMask, 0, NULL, detailTrace, priorityMap);
+  return G_CombatMP_GetRadiusDamageFromPos_Internal(ent, &ent->r.currentOrigin, ignoreEnt, damageOrigin, 1.0, NULL, contentMask, 0, NULL, detailTrace, priorityMap);
 }
 
 /*
@@ -4008,84 +3383,76 @@ GCombatMP::RadiusDamage
 */
 void GCombatMP::RadiusDamage(GCombatMP *this, const vec3_t *origin, gentity_s *inflictor, gentity_s *attacker, const BgExplosionDamageRangeInfo *damageRangeInfo, float coneAngleCos, const vec3_t *coneDirection, gentity_s *ignore, meansOfDeath_t mod, const Weapon *r_weapon, bool isAlternate, bool environmentOnly, bool runOcclusionTraces)
 {
-  gentity_s *v25; 
+  const BgExplosionDamageRangeInfo *v13; 
+  gentity_s *v14; 
   gentity_s *parent; 
   const bitarray<224> *AllTeamFlags; 
-  WeaponDef *v42; 
-  const dvar_t *v43; 
+  double v19; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v25; 
+  WeaponDef *v26; 
+  const dvar_t *v27; 
   bool enabled; 
-  __int64 v58; 
+  const dvar_t *v29; 
+  __int128 unsignedInt; 
+  __int64 v33; 
+  gentity_s *v34; 
   entityType_s eType; 
-  entityType_s v61; 
+  entityType_s v36; 
+  double v37; 
+  float ApproxDistSquaredToModel; 
   bool detailTrace; 
   unsigned __int8 *priorityMap; 
+  float v41; 
+  double ExplosionDamageFromRangeInfo; 
+  float v43; 
+  float v44; 
   int RadiusDamageMask; 
-  bool Bool_Internal_DebugName; 
-  bool v76; 
-  bool v77; 
-  bool v78; 
-  const gentity_s *v79; 
-  bool v83; 
-  meansOfDeath_t v97; 
+  float RadiusDamageFromPos_Internal; 
+  double ShieldBlastDamageProtection; 
+  float v48; 
+  const gentity_s *v49; 
+  float v52; 
+  float v53; 
+  float v54; 
+  int v55; 
+  meansOfDeath_t v56; 
   Vehicle *vehicle; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float ignoreEnts; 
-  int *ignoreEntsa; 
-  int ignoreEntsb; 
-  int ignoreEntsc; 
-  float ignoreEntsd; 
-  float ignoreEntse; 
-  vec3_t *impulseVecOverride; 
-  float impulseVecOverridea; 
+  __int128 v58; 
+  int ignoreEnts; 
+  int ignoreEntsa; 
   __int64 randSeed; 
-  double randSeeda; 
-  unsigned int randSeedb; 
-  float removeDuplicatesa; 
   __int64 removeDuplicates; 
-  char v148; 
-  bool v149; 
+  char v66; 
+  bool v67; 
   GExtraDamageParams extraParams; 
-  int v151; 
+  int v69; 
+  float iExplosionRadiusMin; 
   float radius_min; 
   gentity_s *attackera; 
   BgExplosionDamageRangeInfo *damageRangeInfoa; 
   vec3_t *coneDirectiona; 
   PhysicsQuery_Collected<unsigned short> collectedEnts; 
   WeaponDef *weapDef; 
-  vec3_t v159; 
+  vec3_t v77; 
   vec3_t dir; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
   Bounds bounds; 
-  __int16 v164[2048]; 
+  __int16 v82[2048]; 
 
-  _R14 = damageRangeInfo;
-  v25 = attacker;
-  _R15 = origin;
+  v13 = damageRangeInfo;
+  v14 = attacker;
   damageRangeInfoa = (BgExplosionDamageRangeInfo *)damageRangeInfo;
   coneDirectiona = (vec3_t *)coneDirection;
   attackera = attacker;
   if ( attacker )
   {
-    __asm
-    {
-      vmovaps [rsp+1200h+var_40], xmm6
-      vmovaps [rsp+1200h+var_50], xmm7
-      vmovaps [rsp+1200h+var_60], xmm8
-      vmovaps [rsp+1200h+var_70], xmm9
-      vmovaps [rsp+1200h+var_80], xmm10
-      vmovaps [rsp+1200h+var_90], xmm11
-      vmovaps [rsp+1200h+var_A0], xmm12
-      vmovaps [rsp+1200h+var_B0], xmm13
-      vmovaps [rsp+1200h+var_C0], xmm14
-      vmovaps [rsp+1200h+var_D0], xmm15
-    }
     if ( BG_AISystemEnabled() )
     {
-      parent = v25;
+      parent = v14;
       if ( inflictor && inflictor->turretHandle.m_objIndex )
       {
         if ( G_EntIsLinked(inflictor) )
@@ -4097,334 +3464,181 @@ void GCombatMP::RadiusDamage(GCombatMP *this, const vec3_t *origin, gentity_s *i
         AllTeamFlags = Com_TeamsSP_GetAllTeamFlags();
       else
         AllTeamFlags = Com_TeamsMP_GetAllTeamFlags();
-      Actor_BroadcastPointEvent(parent, AI_EV_EXPLOSION, AllTeamFlags, _R15);
+      Actor_BroadcastPointEvent(parent, AI_EV_EXPLOSION, AllTeamFlags, origin);
     }
-    *(double *)&_XMM0 = BG_ExplosionForceScalar(r_weapon, isAlternate);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r14+10h]; innerDamage
-      vmovss  xmm2, dword ptr [r14+0Ch]; radius
-      vmovss  dword ptr [rsp+1200h+removeDuplicates], xmm0
-      vmovss  xmm0, dword ptr [r14+18h]
-      vxorps  xmm10, xmm10, xmm10
-      vmovss  dword ptr [rsp+1200h+ignoreEnts], xmm10
-      vmovss  dword ptr [rsp+1200h+fmt], xmm0
-    }
-    Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, _R15, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, ignoreEnts, &vec3_origin, level.time, removeDuplicatesa);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+0Ch]
-      vmovss  xmm11, cs:__real@3f800000
-      vmovss  xmm7, dword ptr [r15]
-      vmovss  xmm8, dword ptr [r15+4]
-      vmovss  xmm9, dword ptr [r15+8]
-      vmaxss  xmm12, xmm0, xmm11
-      vmulss  xmm6, xmm12, cs:__real@3fb504f3
-      vmulss  xmm15, xmm12, xmm12
-    }
-    v42 = (WeaponDef *)BG_WeaponDef(r_weapon, isAlternate);
-    v43 = DVARBOOL_g_radiusDamageCalcDetailBounds;
-    weapDef = v42;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+6E8h]
-      vmovss  [rbp+1100h+var_1178], xmm0
-    }
+    v19 = BG_ExplosionForceScalar(r_weapon, isAlternate);
+    Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, origin, damageRangeInfo->outerRadius, damageRangeInfo->innerDamage, damageRangeInfo->outerDamage, 0.0, &vec3_origin, level.time, *(float *)&v19);
+    _XMM0 = LODWORD(damageRangeInfo->outerRadius);
+    v21 = origin->v[0];
+    v22 = origin->v[1];
+    v23 = origin->v[2];
+    __asm { vmaxss  xmm12, xmm0, xmm11 }
+    v25 = *(float *)&_XMM12 * 1.4142135;
+    v26 = (WeaponDef *)BG_WeaponDef(r_weapon, isAlternate);
+    v27 = DVARBOOL_g_radiusDamageCalcDetailBounds;
+    weapDef = v26;
+    iExplosionRadiusMin = (float)v26->iExplosionRadiusMin;
     if ( !DVARBOOL_g_radiusDamageCalcDetailBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_radiusDamageCalcDetailBounds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v43);
-    enabled = v43->current.enabled;
-    _RBX = DCONST_DVARFLT_bg_radiusDamageMax;
-    v149 = enabled;
+    Dvar_CheckFrontendServerThread(v27);
+    enabled = v27->current.enabled;
+    v29 = DCONST_DVARFLT_bg_radiusDamageMax;
+    v67 = enabled;
     if ( !DCONST_DVARFLT_bg_radiusDamageMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_radiusDamageMax") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vsubss  xmm0, xmm8, xmm6
-      vmovss  dword ptr [rbp+1100h+aabbMin+4], xmm0
-      vminss  xmm14, xmm1, xmm15
-      vaddss  xmm0, xmm6, xmm7
-      vsubss  xmm1, xmm9, xmm6
-    }
-    collectedEnts.ids = (unsigned __int16 *)v164;
+    Dvar_CheckFrontendServerThread(v29);
+    unsignedInt = v29->current.unsignedInt;
+    *(float *)&unsignedInt = v29->current.value * v29->current.value;
+    _XMM1 = unsignedInt;
+    aabbMin.v[1] = v22 - v25;
+    __asm { vminss  xmm14, xmm1, xmm15 }
+    collectedEnts.ids = (unsigned __int16 *)v82;
     collectedEnts.count = 0;
-    __asm
-    {
-      vmovss  dword ptr [rbp+1100h+aabbMax], xmm0
-      vmovss  dword ptr [rbp+1100h+aabbMin+8], xmm1
-      vaddss  xmm0, xmm6, xmm9
-      vsubss  xmm2, xmm7, xmm6
-      vaddss  xmm1, xmm6, xmm8
-    }
+    aabbMax.v[0] = v25 + v21;
+    aabbMin.v[2] = v23 - v25;
     collectedEnts.countMax = 2048;
-    __asm
-    {
-      vmovss  dword ptr [rbp+1100h+aabbMax+8], xmm0
-      vmovss  dword ptr [rbp+1100h+aabbMin], xmm2
-      vmovss  dword ptr [rbp+1100h+aabbMax+4], xmm1
-    }
+    aabbMax.v[2] = v25 + v23;
+    aabbMin.v[0] = v21 - v25;
+    aabbMax.v[1] = v25 + v22;
     PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, -1, 0, NULL, &collectedEnts, NULL, 1);
-    if ( !inflictor || inflictor->s.eType != ET_MISSILE || (v148 = 1, (inflictor->c.missile.flags & 0x8000) == 0) )
-      v148 = 0;
-    __asm { vmovss  xmm13, [rbp+1100h+arg_28] }
-    v58 = 0i64;
-    v151 = 0;
+    if ( !inflictor || inflictor->s.eType != ET_MISSILE || (v66 = 1, (inflictor->c.missile.flags & 0x8000) == 0) )
+      v66 = 0;
+    v33 = 0i64;
+    v69 = 0;
     if ( collectedEnts.count )
     {
       do
       {
-        _RBX = &g_entities[(unsigned __int16)v164[v58]];
-        if ( _RBX != ignore )
+        v34 = &g_entities[(unsigned __int16)v82[v33]];
+        if ( v34 != ignore )
         {
           if ( !environmentOnly )
             goto LABEL_38;
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+          if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
             __debugbreak();
-          eType = _RBX->s.eType;
+          eType = v34->s.eType;
           if ( ((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM )
           {
 LABEL_38:
-            if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0x10u) && (_RBX->flags.m_flags[0] & 0x10) == 0 && (!_RBX->client || !level.bPlayerIgnoreRadiusDamage) )
+            if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v34->s.lerp.eFlags, ACTIVE, 0x10u) && (v34->flags.m_flags[0] & 0x10) == 0 && (!v34->client || !level.bPlayerIgnoreRadiusDamage) )
             {
-              if ( !v148 )
+              if ( !v66 )
                 goto LABEL_39;
-              v61 = inflictor->s.eType;
-              if ( v61 != ET_MISSILE )
+              v36 = inflictor->s.eType;
+              if ( v36 != ET_MISSILE )
               {
                 LODWORD(removeDuplicates) = 4;
-                LODWORD(randSeed) = v61;
+                LODWORD(randSeed) = v36;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2344, ASSERT_TYPE_ASSERT, "( inflictor->s.eType ) == ( ET_MISSILE )", "%s == %s\n\t%i, %i", "inflictor->s.eType", "ET_MISSILE", randSeed, removeDuplicates) )
                   __debugbreak();
               }
-              if ( inflictor->s.staticState.general.xmodel != _RBX->s.number )
+              if ( inflictor->s.staticState.general.xmodel != v34->s.number )
               {
 LABEL_39:
-                __asm { vmovsd  xmm0, qword ptr [r15] }
-                v159.v[2] = _R15->v[2];
-                __asm { vmovsd  [rbp+1100h+var_1140], xmm0 }
-                *(float *)&_XMM0 = G_Combat_GetApproxDistSquaredToModel(_RBX, &v159, v149, &bounds, (int *)&radius_min);
-                __asm
+                v37 = *(double *)origin->v;
+                v77.v[2] = origin->v[2];
+                *(double *)v77.v = v37;
+                ApproxDistSquaredToModel = G_Combat_GetApproxDistSquaredToModel(v34, &v77, v67, &bounds, (int *)&radius_min);
+                if ( ApproxDistSquaredToModel < (float)(*(float *)&_XMM12 * *(float *)&_XMM12) && (v34->client || ApproxDistSquaredToModel < *(float *)&_XMM14) )
                 {
-                  vcomiss xmm0, xmm15
-                  vmovaps xmm6, xmm0
-                }
-                if ( v76 )
-                {
-                  if ( _RBX->client )
+                  if ( inflictor )
+                    G_Combat_RadiusEffectsEnt(inflictor->s.number, v34, origin, *(float *)&_XMM12, iExplosionRadiusMin, v14, inflictor->c.missile.team, r_weapon, isAlternate);
+                  detailTrace = BG_WeaponRadiusDamageDetailTrace(r_weapon, isAlternate);
+                  priorityMap = BG_GetWeaponPriorityMap(r_weapon, isAlternate);
+                  v41 = fsqrt(ApproxDistSquaredToModel);
+                  ExplosionDamageFromRangeInfo = BG_GetExplosionDamageFromRangeInfo(damageRangeInfoa, v41);
+                  v43 = 1.0 - (float)(v41 / *(float *)&_XMM12);
+                  v44 = *(float *)&ExplosionDamageFromRangeInfo;
+                  if ( runOcclusionTraces )
                   {
-                    if ( inflictor )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, [rbp+1100h+var_1178]
-                        vmovaps xmm3, xmm12; radius_max
-                        vmovss  dword ptr [rsp+1200h+fmt], xmm0
-                      }
-                      G_Combat_RadiusEffectsEnt(inflictor->s.number, _RBX, _R15, *(float *)&_XMM3, fmta, v25, inflictor->c.missile.team, r_weapon, isAlternate);
-                    }
-                    detailTrace = BG_WeaponRadiusDamageDetailTrace(r_weapon, isAlternate);
-                    priorityMap = BG_GetWeaponPriorityMap(r_weapon, isAlternate);
-                    __asm
-                    {
-                      vsqrtss xmm6, xmm6, xmm6
-                      vmovaps xmm1, xmm6; distance
-                    }
-                    *(double *)&_XMM0 = BG_GetExplosionDamageFromRangeInfo(damageRangeInfoa, *(const float *)&_XMM1);
-                    __asm
-                    {
-                      vdivss  xmm1, xmm6, xmm12
-                      vsubss  xmm9, xmm11, xmm1
-                      vmovaps xmm8, xmm0
-                    }
-                    if ( runOcclusionTraces )
-                    {
-                      RadiusDamageMask = G_Combat_GetRadiusDamageMask(weapDef);
-                      __asm { vmovss  dword ptr [rsp+1200h+fmt], xmm13 }
-                      *(float *)&_XMM0 = G_CombatMP_GetRadiusDamageFromPos_Internal(_RBX, &_RBX->r.currentOrigin, inflictor, _R15, fmtb, coneDirectiona, RadiusDamageMask, LODWORD(radius_min) != 0, &bounds, detailTrace, priorityMap);
-                      __asm { vmovaps xmm7, xmm0 }
-                    }
-                    else
-                    {
-                      __asm { vmovaps xmm7, xmm11 }
-                    }
-                    *(double *)&_XMM0 = G_Weapon_GetShieldBlastDamageProtection(_RBX, _R15);
-                    __asm { vmovaps xmm6, xmm0 }
-                    Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_riotshield_ignoreonstick_enabled, "riotshield_ignoreonstick_enabled");
-                    v76 = 0;
-                    v77 = !Bool_Internal_DebugName;
-                    v78 = !Bool_Internal_DebugName;
-                    if ( Bool_Internal_DebugName && (v79 = G_Utils_GetParent(inflictor), v76 = 0, v77 = v79 == NULL, v78 = v79 == NULL, v79) && (v76 = v79 < _RBX, v77 = v79 == _RBX, v78 = v79 <= _RBX, v79 == _RBX) )
-                    {
-                      __asm { vmovaps xmm6, xmm10 }
-                    }
-                    else
-                    {
-                      __asm { vcomiss xmm6, xmm10 }
-                      if ( v76 )
-                        goto LABEL_72;
-                      __asm { vcomiss xmm6, xmm11 }
-                      if ( !v78 )
-                      {
-LABEL_72:
-                        __asm
-                        {
-                          vmovsd  xmm1, cs:__real@3ff0000000000000
-                          vmovsd  qword ptr [rsp+1200h+randSeed], xmm1
-                          vxorpd  xmm1, xmm1, xmm1
-                          vmovsd  [rsp+1200h+impulseVecOverride], xmm1
-                          vcvtss2sd xmm0, xmm6, xmm6
-                          vmovsd  [rsp+1200h+ignoreEnts], xmm0
-                        }
-                        v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2402, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( shieldProtection ) && ( shieldProtection ) <= ( 1.f )", "shieldProtection not in [0.f, 1.f]\n\t%g not in [%g, %g]", *(double *)&ignoreEntsa, *(double *)&impulseVecOverride, randSeeda);
-                        v76 = 0;
-                        v77 = !v83;
-                        v78 = !v83;
-                        if ( v83 )
-                          __debugbreak();
-                      }
-                      __asm { vcomiss xmm6, xmm10 }
-                      if ( !v78 )
-                      {
-                        __asm
-                        {
-                          vmovaps xmm3, xmm6; shieldProtection
-                          vmovaps xmm2, xmm7; originalDamageScale
-                          vmovaps xmm1, xmm8; originalDamageRawPoints
-                        }
-                        G_Weapon_AddShieldSplashDamageEvent(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-                        __asm
-                        {
-                          vsubss  xmm0, xmm11, xmm6
-                          vmulss  xmm7, xmm7, xmm0
-                        }
-                      }
-                    }
-                    __asm { vcomiss xmm7, xmm10 }
-                    if ( v76 || v77 )
-                    {
-                      v25 = attackera;
-                    }
-                    else
-                    {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx+130h]
-                        vsubss  xmm1, xmm0, dword ptr [r15]
-                        vmovss  xmm2, dword ptr [rbx+134h]
-                        vsubss  xmm0, xmm2, dword ptr [r15+4]
-                        vmovss  dword ptr [rbp+1100h+dir], xmm1
-                        vmovss  xmm1, dword ptr [rbx+138h]
-                        vsubss  xmm2, xmm1, dword ptr [r15+8]
-                        vmulss  xmm1, xmm7, xmm8
-                        vcomiss xmm1, xmm10
-                        vmovss  dword ptr [rbp+1100h+dir+4], xmm0
-                        vaddss  xmm0, xmm2, cs:__real@41c00000
-                        vmovss  dword ptr [rbp+1100h+dir+8], xmm0
-                      }
-                      if ( v76 || v77 )
-                        goto LABEL_60;
-                      __asm { vcomiss xmm1, xmm11 }
-                      _EDI = 1;
-                      if ( !v76 )
-LABEL_60:
-                        __asm { vcvttss2si edi, xmm1 }
-                      if ( G_Utils_IsClientOrAgent(_RBX) )
-                      {
-                        __asm { vcomiss xmm6, xmm10 }
-                        v97 = mod;
-                        ignoreEntsb = _EDI;
-                        v25 = attackera;
-                        G_CombatMP_ShieldNotifyAndDamageInternal(_RBX, inflictor, attackera, &dir, _R15, ignoreEntsb, 133, mod, r_weapon, isAlternate, 0);
-                      }
-                      else
-                      {
-                        v97 = mod;
-                        extraParams = 0;
-                        ignoreEntsc = _EDI;
-                        v25 = attackera;
-                        G_CombatMP_Damage_Internal(_RBX, inflictor, attackera, &dir, _R15, ignoreEntsc, 5, mod, r_weapon, isAlternate, HITLOC_NONE, 0, (scr_string_t)0, 0, NULL, &extraParams);
-                      }
-                      vehicle = _RBX->vehicle;
-                      if ( vehicle )
-                      {
-                        __asm
-                        {
-                          vmovss  xmm6, dword ptr [rbp+1100h+dir]
-                          vmovss  xmm7, dword ptr [rbp+1100h+dir+4]
-                          vmovss  xmm5, dword ptr [rbp+1100h+dir+8]
-                          vmulss  xmm1, xmm6, xmm6
-                          vmulss  xmm0, xmm7, xmm7
-                          vaddss  xmm2, xmm1, xmm0
-                          vmulss  xmm1, xmm5, xmm5
-                          vaddss  xmm0, xmm2, xmm1
-                          vsqrtss xmm4, xmm0, xmm0
-                          vcomiss xmm4, cs:__real@3a83126f
-                          vcmpless xmm0, xmm4, cs:__real@80000000
-                          vblendvps xmm0, xmm4, xmm11, xmm0
-                          vdivss  xmm2, xmm11, xmm0
-                          vmulss  xmm0, xmm6, xmm2
-                          vmovss  dword ptr [rbp+1100h+dir], xmm0
-                          vmulss  xmm0, xmm5, xmm2
-                          vmulss  xmm1, xmm7, xmm2
-                          vmovss  dword ptr [rbp+1100h+dir+8], xmm0
-                          vmovss  dword ptr [rbp+1100h+dir+4], xmm1
-                          vmovaps xmm3, xmm9; forceScale
-                        }
-                        G_Vehicle_Knockback(vehicle, &dir, v97, *(float *)&_XMM3, NULL);
-                      }
-                    }
+                    RadiusDamageMask = G_Combat_GetRadiusDamageMask(weapDef);
+                    RadiusDamageFromPos_Internal = G_CombatMP_GetRadiusDamageFromPos_Internal(v34, &v34->r.currentOrigin, inflictor, origin, coneAngleCos, coneDirectiona, RadiusDamageMask, LODWORD(radius_min) != 0, &bounds, detailTrace, priorityMap);
                   }
                   else
                   {
-                    __asm { vcomiss xmm0, xmm14 }
+                    RadiusDamageFromPos_Internal = FLOAT_1_0;
+                  }
+                  ShieldBlastDamageProtection = G_Weapon_GetShieldBlastDamageProtection(v34, origin);
+                  v48 = *(float *)&ShieldBlastDamageProtection;
+                  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_riotshield_ignoreonstick_enabled, "riotshield_ignoreonstick_enabled") && (v49 = G_Utils_GetParent(inflictor)) != NULL && v49 == v34 )
+                  {
+                    v48 = 0.0;
+                  }
+                  else
+                  {
+                    if ( *(float *)&ShieldBlastDamageProtection < 0.0 || *(float *)&ShieldBlastDamageProtection > 1.0 )
+                    {
+                      _XMM1 = *(unsigned __int64 *)&DOUBLE_1_0;
+                      __asm { vxorpd  xmm1, xmm1, xmm1 }
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_combat_mp.cpp", 2402, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( shieldProtection ) && ( shieldProtection ) <= ( 1.f )", "shieldProtection not in [0.f, 1.f]\n\t%g not in [%g, %g]", *(float *)&ShieldBlastDamageProtection, *(double *)&_XMM1, DOUBLE_1_0) )
+                        __debugbreak();
+                    }
+                    if ( *(float *)&ShieldBlastDamageProtection > 0.0 )
+                    {
+                      G_Weapon_AddShieldSplashDamageEvent(v34, v44, RadiusDamageFromPos_Internal, *(float *)&ShieldBlastDamageProtection);
+                      RadiusDamageFromPos_Internal = RadiusDamageFromPos_Internal * (float)(1.0 - *(float *)&ShieldBlastDamageProtection);
+                    }
+                  }
+                  if ( RadiusDamageFromPos_Internal <= 0.0 )
+                  {
+                    v14 = attackera;
+                  }
+                  else
+                  {
+                    v52 = v34->r.currentOrigin.v[1] - origin->v[1];
+                    dir.v[0] = v34->r.currentOrigin.v[0] - origin->v[0];
+                    v53 = v34->r.currentOrigin.v[2] - origin->v[2];
+                    v54 = RadiusDamageFromPos_Internal * v44;
+                    dir.v[1] = v52;
+                    dir.v[2] = v53 + 24.0;
+                    if ( (float)(RadiusDamageFromPos_Internal * v44) <= 0.0 || (v55 = 1, v54 >= 1.0) )
+                      v55 = (int)v54;
+                    if ( G_Utils_IsClientOrAgent(v34) && v48 > 0.0 )
+                    {
+                      v56 = mod;
+                      ignoreEnts = v55;
+                      v14 = attackera;
+                      G_CombatMP_ShieldNotifyAndDamageInternal(v34, inflictor, attackera, &dir, origin, ignoreEnts, 133, mod, r_weapon, isAlternate, 0);
+                    }
+                    else
+                    {
+                      v56 = mod;
+                      extraParams = 0;
+                      ignoreEntsa = v55;
+                      v14 = attackera;
+                      G_CombatMP_Damage_Internal(v34, inflictor, attackera, &dir, origin, ignoreEntsa, 5, mod, r_weapon, isAlternate, HITLOC_NONE, 0, (scr_string_t)0, 0, NULL, &extraParams);
+                    }
+                    vehicle = v34->vehicle;
+                    if ( vehicle )
+                    {
+                      v58 = LODWORD(dir.v[0]);
+                      *(float *)&v58 = fsqrt((float)((float)(*(float *)&v58 * *(float *)&v58) + (float)(dir.v[1] * dir.v[1])) + (float)(dir.v[2] * dir.v[2]));
+                      _XMM4 = v58;
+                      __asm
+                      {
+                        vcmpless xmm0, xmm4, cs:__real@80000000
+                        vblendvps xmm0, xmm4, xmm11, xmm0
+                      }
+                      dir.v[0] = dir.v[0] * (float)(1.0 / *(float *)&_XMM0);
+                      dir.v[2] = dir.v[2] * (float)(1.0 / *(float *)&_XMM0);
+                      dir.v[1] = dir.v[1] * (float)(1.0 / *(float *)&_XMM0);
+                      if ( *(float *)&v58 > 0.001 )
+                        G_Vehicle_Knockback(vehicle, &dir, v56, v43, NULL);
+                    }
                   }
                 }
               }
             }
           }
         }
-        v58 = (unsigned int)(v151 + 1);
-        v151 = v58;
+        v33 = (unsigned int)(v69 + 1);
+        v69 = v33;
       }
-      while ( (unsigned int)v58 < collectedEnts.count );
-      _R14 = damageRangeInfoa;
+      while ( (unsigned int)v33 < collectedEnts.count );
+      v13 = damageRangeInfoa;
     }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r14+10h]
-      vmovss  xmm0, dword ptr [r14+18h]
-      vmovss  dword ptr [rsp+1200h+ignoreEnts], xmm0
-      vmovss  dword ptr [rsp+1200h+fmt], xmm1
-      vmovaps xmm1, xmm12; radius
-      vmovaps xmm2, xmm13; coneAngleCos
-    }
-    G_Glass_RadiusDamage(_R15, *(float *)&_XMM1, *(float *)&_XMM2, coneDirectiona, fmtc, ignoreEntsd);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+18h]
-      vmovss  xmm1, dword ptr [r14+10h]
-      vmovss  [rsp+1200h+randSeed], xmm0
-      vmovss  dword ptr [rsp+1200h+impulseVecOverride], xmm1
-      vmovss  dword ptr [rsp+1200h+ignoreEnts], xmm12
-    }
-    ScriptableSv_RadiusDamage(inflictor, v25, r_weapon, isAlternate, _R15, ignoreEntse, impulseVecOverridea, *(const float *)&randSeedb, mod, runOcclusionTraces);
-    __asm
-    {
-      vmovaps xmm15, [rsp+1200h+var_D0]
-      vmovaps xmm14, [rsp+1200h+var_C0]
-      vmovaps xmm13, [rsp+1200h+var_B0]
-      vmovaps xmm12, [rsp+1200h+var_A0]
-      vmovaps xmm11, [rsp+1200h+var_90]
-      vmovaps xmm10, [rsp+1200h+var_80]
-      vmovaps xmm9, [rsp+1200h+var_70]
-      vmovaps xmm8, [rsp+1200h+var_60]
-      vmovaps xmm7, [rsp+1200h+var_50]
-      vmovaps xmm6, [rsp+1200h+var_40]
-    }
+    G_Glass_RadiusDamage(origin, *(float *)&_XMM12, coneAngleCos, coneDirectiona, v13->innerDamage, v13->outerDamage);
+    ScriptableSv_RadiusDamage(inflictor, v14, r_weapon, isAlternate, origin, *(const float *)&_XMM12, v13->innerDamage, v13->outerDamage, mod, runOcclusionTraces);
   }
 }
 

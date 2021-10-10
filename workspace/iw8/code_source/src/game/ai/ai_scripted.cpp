@@ -574,26 +574,28 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   const dvar_t *v2; 
   ai_scripted_t *m_pAI; 
   gentity_s *ent; 
-  ai_scripted_t *v8; 
+  ai_scripted_t *v5; 
   unsigned __int16 number; 
-  __int64 v10; 
-  unsigned int v11; 
-  __int64 v12; 
-  bool v14; 
-  __int64 v16; 
-  ai_script_goal_t *v18; 
-  bool v19; 
-  ai_scripted_t *v25; 
-  ai_scripted_t *v26; 
-  ai_scripted_t *v27; 
-  const dvar_t *v28; 
-  ai_scripted_t *v29; 
-  ai_scripted_t *v30; 
-  ai_scripted_t *v31; 
-  ai_scripted_t *v32; 
-  ai_scripted_t *v36; 
-  __int64 v37; 
-  __int64 v38; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  bool v10; 
+  __int64 v11; 
+  ai_script_goal_t *v12; 
+  bool v13; 
+  ai_scripted_t *v14; 
+  ai_scripted_t *v15; 
+  ai_scripted_t *v16; 
+  ai_scripted_t *v17; 
+  const dvar_t *v18; 
+  ai_scripted_t *v19; 
+  ai_scripted_t *v20; 
+  ai_scripted_t *v21; 
+  ai_scripted_t *v22; 
+  gentity_s *v23; 
+  ai_scripted_t *v24; 
+  __int64 v25; 
+  __int64 v26; 
 
   if ( !this->m_pAI->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted.cpp", 111, ASSERT_TYPE_ASSERT, "( m_pAI->sentientInfo != nullptr )", (const char *)&queryFormat, "m_pAI->sentientInfo != nullptr") )
     __debugbreak();
@@ -624,16 +626,10 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   this->m_pAI->grenade.grenadeAwareness = 0.33000001;
   this->m_pAI->eAllowedStances = STANCE_ANY;
   AIScriptedInterface::SetCurrentStance(this, STANCE_STAND);
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
   this->m_pAI->shoot.accuracy = 0.2;
   this->m_pAI->shoot.playerSightAccuracy = 1.0;
   this->m_pAI->shoot.debugLastAccuracy = -6969.0;
-  __asm
-  {
-    vdivss  xmm1, xmm0, dword ptr [rcx+430h]
-    vcvttss2si rax, xmm1
-  }
-  this->m_pAI->shoot.missCount = _RAX;
+  this->m_pAI->shoot.missCount = (int)(float)(1.0 / this->m_pAI->shoot.accuracy);
   m_pAI = this->m_pAI;
   ent = m_pAI->ent;
   m_pAI->scriptGoal.pos.v[0] = m_pAI->ent->r.currentOrigin.v[0];
@@ -641,62 +637,53 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   m_pAI->scriptGoal.pos.v[2] = ent->r.currentOrigin.v[2];
   if ( this->m_pAI->scriptGoal.node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted.cpp", 148, ASSERT_TYPE_ASSERT, "( !m_pAI->scriptGoal.node )", (const char *)&queryFormat, "!m_pAI->scriptGoal.node") )
     __debugbreak();
-  v8 = this->m_pAI;
-  number = v8->scriptGoal.hVolume.number;
+  v5 = this->m_pAI;
+  number = v5->scriptGoal.hVolume.number;
   if ( number )
   {
-    v10 = number;
-    v11 = number - 1;
-    if ( v11 >= 0x800 )
+    v7 = number;
+    v8 = number - 1;
+    if ( v8 >= 0x800 )
     {
-      LODWORD(v38) = 2048;
-      LODWORD(v37) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v37, v38) )
+      LODWORD(v26) = 2048;
+      LODWORD(v25) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v12 = v10 - 1;
-    if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    v9 = v7 - 1;
+    if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( !g_entityIsInUse[v12] )
+    if ( !g_entityIsInUse[v9] )
     {
-      LODWORD(v38) = v8->scriptGoal.hVolume.number - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v38) )
+      LODWORD(v26) = v5->scriptGoal.hVolume.number - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v26) )
         __debugbreak();
     }
-    if ( v8->scriptGoal.hVolume.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted.cpp", 149, ASSERT_TYPE_ASSERT, "( !m_pAI->scriptGoal.hVolume.isDefined() )", (const char *)&queryFormat, "!m_pAI->scriptGoal.hVolume.isDefined()") )
+    if ( v5->scriptGoal.hVolume.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted.cpp", 149, ASSERT_TYPE_ASSERT, "( !m_pAI->scriptGoal.hVolume.isDefined() )", (const char *)&queryFormat, "!m_pAI->scriptGoal.hVolume.isDefined()") )
       __debugbreak();
   }
-  __asm { vxorps  xmm1, xmm1, xmm1; radius }
-  AICommonInterface::SetGoalRadius(&this->m_pAI->scriptGoal, *(float *)&_XMM1);
-  v14 = AICommonInterface::Use3DPathing(this);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  AICommonInterface::SetGoalHeight(&this->m_pAI->scriptGoal, *(float *)&_XMM1, !v14);
-  v16 = 2i64;
+  AICommonInterface::SetGoalRadius(&this->m_pAI->scriptGoal, 0.0);
+  v10 = AICommonInterface::Use3DPathing(this);
+  AICommonInterface::SetGoalHeight(&this->m_pAI->scriptGoal, 0.0, !v10);
+  v11 = 2i64;
   this->m_pAI->scriptGoal.entUpdateInterval = 2500;
   this->m_pAI->scriptGoal.bValid = 1;
   do
   {
-    __asm { vxorps  xmm1, xmm1, xmm1; radius }
-    v18 = &this->m_pAI->btGoals[v16];
-    AICommonInterface::SetGoalRadius(v18, *(float *)&_XMM1);
-    v19 = AICommonInterface::Use3DPathing(this);
-    __asm { vxorps  xmm1, xmm1, xmm1; height }
-    AICommonInterface::SetGoalHeight(v18, *(float *)&_XMM1, !v19);
-    --v16;
-    v18->entUpdateInterval = 2500;
-    v18->bValid = 0;
+    v12 = &this->m_pAI->btGoals[v11];
+    AICommonInterface::SetGoalRadius(v12, 0.0);
+    v13 = AICommonInterface::Use3DPathing(this);
+    AICommonInterface::SetGoalHeight(v12, 0.0, !v13);
+    --v11;
+    v12->entUpdateInterval = 2500;
+    v12->bValid = 0;
   }
-  while ( v16 >= 0 );
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+288h]
-    vmovups ymmword ptr [rax+258h], ymm0
-    vmovsd  xmm1, qword ptr [rax+2A8h]
-    vmovsd  qword ptr [rax+278h], xmm1
-  }
+  while ( v11 >= 0 );
+  v14 = this->m_pAI;
+  *(__m256i *)v14->codeGoal.pos.v = *(__m256i *)v14->scriptGoal.pos.v;
+  *(double *)&v14->codeGoal.hVolume.number = *(double *)&v14->scriptGoal.hVolume.number;
   this->m_pAI->nodeSelect.keepClaimedNode = 0;
   this->m_pAI->nodeSelect.keepClaimedNodeIfValid = 0;
   this->m_pAI->nodeSelect.dangerReactGoalTime = 0x7FFFFFFF;
@@ -740,24 +727,19 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   this->m_pAI->avoidance.othersAvoidMe = 1;
   this->m_pAI->avoidance.maxSpeed = 300.0;
   this->m_pAI->avoidance.minSpeed = 30.0;
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?actorBox@@3UBounds@@B.halfSize; Bounds const actorBox
-    vmovss  dword ptr [rax+1C8h], xmm0
-  }
+  this->m_pAI->avoidance.radius = actorBox.halfSize.v[0];
   this->m_pAI->avoidance_maxSpeed = -1.0;
-  v25 = this->m_pAI;
-  v25->avoidance.avoidanceBoundsHalfSize.v[0] = 300.0;
-  v25->avoidance.avoidanceBoundsHalfSize.v[1] = 300.0;
-  v25->avoidance.avoidanceBoundsHalfSize.v[2] = 80.0;
+  v15 = this->m_pAI;
+  v15->avoidance.avoidanceBoundsHalfSize.v[0] = 300.0;
+  v15->avoidance.avoidanceBoundsHalfSize.v[1] = 300.0;
+  v15->avoidance.avoidanceBoundsHalfSize.v[2] = 80.0;
   this->m_pAI->avoidance.lookAheadTime = 1.0;
-  v26 = this->m_pAI;
-  *(_QWORD *)v26->avoidanceBlockedData.storedVelocity.v = 0i64;
-  v26->avoidanceBlockedData.storedVelocity.v[2] = 0.0;
-  v27 = this->m_pAI;
-  *(_QWORD *)v27->avoidanceBlockedData.storedMoveDelta.v = 0i64;
-  v27->avoidanceBlockedData.storedMoveDelta.v[2] = 0.0;
+  v16 = this->m_pAI;
+  *(_QWORD *)v16->avoidanceBlockedData.storedVelocity.v = 0i64;
+  v16->avoidanceBlockedData.storedVelocity.v[2] = 0.0;
+  v17 = this->m_pAI;
+  *(_QWORD *)v17->avoidanceBlockedData.storedMoveDelta.v = 0i64;
+  v17->avoidanceBlockedData.storedMoveDelta.v[2] = 0.0;
   this->m_pAI->avoidanceBlockedData.blocked = 0;
   this->m_pAI->avoidanceBlockedData.enabled = 1;
   this->m_pAI->avoidanceBlockedData.processingBlocking = 0;
@@ -779,11 +761,11 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   this->m_pAI->bAllowSpeedUpWhenCombatHot = 1;
   this->m_pAI->inTightQuarters = 0;
   this->m_pAI->sharpTurnSpeedScalingEnabled = 1;
-  v28 = DCONST_DVARFLT_ai_minCornerSpeedScalingMultiplier;
+  v18 = DCONST_DVARFLT_ai_minCornerSpeedScalingMultiplier;
   if ( !DCONST_DVARFLT_ai_minCornerSpeedScalingMultiplier && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_minCornerSpeedScalingMultiplier") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v28);
-  LODWORD(this->m_pAI->minCornerSpeedScalingMultiplier) = v28->current.integer;
+  Dvar_CheckFrontendServerThread(v18);
+  LODWORD(this->m_pAI->minCornerSpeedScalingMultiplier) = v18->current.integer;
   this->m_pAI->isBlockingOtherAI = 0;
   this->m_pAI->squadNumber = -1;
   this->m_pAI->squadMovementAllowed = 0;
@@ -791,19 +773,19 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   this->m_pAI->lastCoverTime = 0;
   this->m_pAI->bPredictedFaceMotionChanged = 0;
   this->InitBlackboard(this);
-  v29 = this->m_pAI;
-  v29->coverFindTask.entNum = v29->ent->s.number;
-  v29->coverFindTask.status[0] = 0;
-  v30 = this->m_pAI;
-  v30->coverFindTask.pBestNode = NULL;
-  tacpoint_ref_t::SetPoint(&v30->coverFindTask.coverTac, NULL);
-  v30->coverFindTask.status[0] = 0;
-  v31 = this->m_pAI;
-  v31->pathFindTask.entNum = v31->ent->s.number;
-  v31->pathFindTask.status[0] = 0;
-  v32 = this->m_pAI;
-  v32->threatUpdateTask.entNum = v32->ent->s.number;
-  v32->threatUpdateTask.status[0] = 0;
+  v19 = this->m_pAI;
+  v19->coverFindTask.entNum = v19->ent->s.number;
+  v19->coverFindTask.status[0] = 0;
+  v20 = this->m_pAI;
+  v20->coverFindTask.pBestNode = NULL;
+  tacpoint_ref_t::SetPoint(&v20->coverFindTask.coverTac, NULL);
+  v20->coverFindTask.status[0] = 0;
+  v21 = this->m_pAI;
+  v21->pathFindTask.entNum = v21->ent->s.number;
+  v21->pathFindTask.status[0] = 0;
+  v22 = this->m_pAI;
+  v22->threatUpdateTask.entNum = v22->ent->s.number;
+  v22->threatUpdateTask.status[0] = 0;
   AIScriptedInterface::InitProneInfo(this);
   this->m_pAI->prone.fInvProneAnimLowPitch = 0.0;
   this->m_pAI->prone.fInvProneAnimHighPitch = 0.0;
@@ -827,28 +809,23 @@ void AIScriptedInterface::SetDefaults(AIScriptedInterface *this)
   this->m_pAI->orientation.sharpTurnForceUseVelocity = 0;
   LOBYTE(this->m_pAI->postGoldPadding) &= ~1u;
   LOBYTE(this->m_pAI->postGoldPadding) |= 2u;
-  _RDI = this->m_pAI->ent;
+  v23 = this->m_pAI->ent;
   AIScriptedInterface::InitLookAt(this);
-  this->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &_RDI->r.currentAngles, 0);
-  G_SetOriginAndAngle(_RDI, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+140h]; fYaw
-    vmovss  xmm1, dword ptr [rdi+13Ch]; fPitch
-  }
-  AIScriptedInterface::SetLookAngles(this, *(const float *)&_XMM1, *(const float *)&_XMM2);
-  this->m_pAI->orientation.vDesiredAngles.v[1] = _RDI->r.currentAngles.v[1];
+  this->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &v23->r.currentAngles, 0);
+  G_SetOriginAndAngle(v23, &v23->r.currentOrigin, &v23->r.currentAngles, 1, 1);
+  AIScriptedInterface::SetLookAngles(this, v23->r.currentAngles.v[0], v23->r.currentAngles.v[1]);
+  this->m_pAI->orientation.vDesiredAngles.v[1] = v23->r.currentAngles.v[1];
   AIScriptedInterface::ClearMoveHistory(this);
   AICommonInterface::InitThreatUpdateInterval(this);
-  v36 = this->m_pAI;
-  *(_QWORD *)&v36->arrivalInfo.arriving = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.scriptedArrivalEnt.number = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.customData.angles.y = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.customData.bOverrideAngles = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.offsetIncrement.y = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.offsetAdjustCount = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.arrivalPitch = 0i64;
-  *(_QWORD *)v36->arrivalInfo.targetAngles.v = 0i64;
-  *(_QWORD *)&v36->arrivalInfo.targetAngles.z = 0i64;
+  v24 = this->m_pAI;
+  *(_QWORD *)&v24->arrivalInfo.arriving = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.scriptedArrivalEnt.number = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.customData.angles.y = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.customData.bOverrideAngles = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.offsetIncrement.y = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.offsetAdjustCount = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.arrivalPitch = 0i64;
+  *(_QWORD *)v24->arrivalInfo.targetAngles.v = 0i64;
+  *(_QWORD *)&v24->arrivalInfo.targetAngles.z = 0i64;
 }
 

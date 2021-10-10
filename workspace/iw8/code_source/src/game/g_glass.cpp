@@ -406,70 +406,72 @@ void G_Glass_PieceStateChanged(unsigned int pieceIndex, GlassPieceState oldState
 {
   G_GlassPiece *v8; 
   int PieceState; 
-  char v10; 
-  scrContext_t *v24; 
+  double v10; 
+  double v11; 
+  double v12; 
+  const FxGlassSystem *SystemForInitialPiece; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  scrContext_t *v19; 
+  unsigned int outLocalInitialPieceIndex; 
+  vec3_t outCenter; 
+  tmat33_t<vec3_t> outAxis; 
 
-  _RBX = damageDir;
   v8 = G_GlassPieceFromIndex(pieceIndex);
   v8->lastStateChangeTime = level.time;
   PieceState = G_Glass_GetPieceState(pieceIndex);
   if ( PieceState == 1 )
   {
-    *(double *)&_XMM0 = G_random();
-    __asm { vcomiss xmm0, cs:__real@3e99999a }
-    if ( v10 )
+    v10 = G_random();
+    if ( *(float *)&v10 >= 0.30000001 )
     {
-      *(double *)&_XMM0 = G_random();
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@c75ea800
-        vcvttss2si ecx, xmm1
-      }
-      v8->collapseTime = (3000 - _ECX) / 100;
-    }
-    else
-    {
-      __asm { vcomiss xmm0, cs:__real@3f333333 }
-      if ( v10 )
-      {
-        *(double *)&_XMM0 = G_random();
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@c903d600
-          vcvttss2si eax, xmm1
-        }
-        v8->collapseTime = (60000 - _EAX) / 100;
-      }
-      else
+      if ( *(float *)&v10 >= 0.69999999 )
       {
         v8->collapseTime = 0;
       }
+      else
+      {
+        v12 = G_random();
+        v8->collapseTime = (60000 - (int)(float)(*(float *)&v12 * -540000.0)) / 100;
+      }
+    }
+    else
+    {
+      v11 = G_random();
+      v8->collapseTime = (3000 - (int)(float)(*(float *)&v11 * -57000.0)) / 100;
     }
   }
   else if ( PieceState == 2 )
   {
-    __asm
+    if ( (float)((float)((float)(damageDir->v[0] * damageDir->v[0]) + (float)(damageDir->v[1] * damageDir->v[1])) + (float)(damageDir->v[2] * damageDir->v[2])) <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm2, dword ptr [rbx+4]
-      vmovss  xmm3, dword ptr [rbx+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm3, xmm0
+      *(_WORD *)&v8->impactDir = 255;
+      v8->impactPos[1] = 0;
     }
-    *(_WORD *)&v8->impactDir = 255;
-    v8->impactPos[1] = 0;
+    else
+    {
+      v8->impactDir = DirToByte(damageDir);
+      SystemForInitialPiece = Glass_GetSystemForInitialPiece(pieceIndex, &outLocalInitialPieceIndex);
+      Glass_GetInitialPieceCenter(SystemForInitialPiece, outLocalInitialPieceIndex, &outCenter);
+      Glass_GetInitialPieceAxis(SystemForInitialPiece, outLocalInitialPieceIndex, &outAxis);
+      v14 = damagePos->v[0] - outCenter.v[0];
+      v15 = damagePos->v[1] - outCenter.v[1];
+      v16 = damagePos->v[2] - outCenter.v[2];
+      v17 = (float)(v15 * outAxis.m[0].v[1]) + (float)(v14 * outAxis.m[0].v[0]);
+      v18 = (float)((float)(v15 * outAxis.m[1].v[1]) + (float)(v14 * outAxis.m[1].v[0])) + (float)(v16 * outAxis.m[1].v[2]);
+      v8->impactPos[0] = PackFloat(v17 + (float)(v16 * outAxis.m[0].v[2]));
+      v8->impactPos[1] = PackFloat(v18);
+    }
     Nav_DestroyObstacleByGlass(pieceIndex);
   }
   if ( oldState < GLASS_DESTROYED && PieceState >= 2 )
   {
-    v24 = ScriptContext_Server();
-    Scr_AddInt(v24, pieceIndex);
-    Scr_NotifyLevel(v24, scr_const.glass_destroyed, 1u);
+    v19 = ScriptContext_Server();
+    Scr_AddInt(v19, pieceIndex);
+    Scr_NotifyLevel(v19, scr_const.glass_destroyed, 1u);
   }
 }
 
@@ -479,192 +481,129 @@ G_Glass_RadiusDamage
 ==============
 */
 
-void __fastcall G_Glass_RadiusDamage(const vec3_t *origin, double radius, double coneAngleCos, const vec3_t *coneDirection, float innerDamage, float outerDamage)
+void __fastcall G_Glass_RadiusDamage(const vec3_t *origin, double radius, float coneAngleCos, const vec3_t *coneDirection, float innerDamage, float outerDamage)
 {
   signed __int64 v6; 
-  void *v14; 
-  __int64 v21; 
-  unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
+  void *v7; 
+  unsigned __int64 v8; 
+  __int64 v14; 
+  double v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
   FxGlassSystem *SystemForInitialPiece; 
-  char v42; 
-  const dvar_t *v53; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float v29; 
+  float v30; 
   GlassPieceState PieceState; 
-  G_GlassPiece *v61; 
-  unsigned int v62; 
-  __int64 v71; 
-  char v72[4400]; 
-  char v80; 
+  G_GlassPiece *v32; 
+  unsigned int v33; 
+  __int64 v34; 
+  char v35[4400]; 
 
-  v14 = alloca(v6);
-  __asm
-  {
-    vmovaps [rsp+1238h+var_48], xmm6
-    vmovaps [rsp+1238h+var_58], xmm7
-    vmovaps [rsp+1238h+var_68], xmm8
-    vmovaps [rsp+1238h+var_78], xmm9
-    vmovaps [rsp+1238h+var_88], xmm10
-    vmovaps [rsp+1238h+var_98], xmm11
-    vmovaps [rsp+1238h+var_A8], xmm12
-  }
-  _RBP = (unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1120) = (unsigned __int64)&v71 ^ _security_cookie;
-  _R15 = origin;
-  __asm
-  {
-    vmovaps xmm10, xmm2
-    vmovaps xmm6, xmm1
-  }
+  v7 = alloca(v6);
+  v8 = (unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1120) = (unsigned __int64)&v34 ^ _security_cookie;
+  _XMM6 = *(_OWORD *)&radius;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "G_Glass_RadiusDamage");
   __asm { vminss  xmm7, xmm6, cs:__real@43800000 }
-  v21 = *(_QWORD *)&g_glassData;
-  __asm { vmovsd  xmm0, qword ptr [r15] }
-  *(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  *(float *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = _R15->v[2];
-  __asm
+  v14 = *(_QWORD *)&g_glassData;
+  v15 = *(double *)origin->v;
+  *(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = origin->v[2];
+  *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34) = *(float *)&_XMM7;
+  *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = *(float *)&_XMM7;
+  *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3C) = *(float *)&_XMM7;
+  *(double *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) = v15;
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(v8 + 64), *(const SpatialPartition_Tree **)(v14 + 32), (const Bounds *)(v8 + 40));
+  if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 64)) )
   {
-    vmovss  dword ptr [rbp+34h], xmm7
-    vmovss  dword ptr [rbp+38h], xmm7
-    vmovss  dword ptr [rbp+3Ch], xmm7
-    vmovsd  qword ptr [rbp+28h], xmm0
-    vmulss  xmm12, xmm7, xmm7
-  }
-  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 64), *(const SpatialPartition_Tree **)(v21 + 32), (const Bounds *)(_RBP + 40));
-  if ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 64)) )
-  {
-    __asm
-    {
-      vmovss  xmm9, [rsp+1238h+arg_28]
-      vmovss  xmm8, [rsp+1238h+arg_20]
-      vmovss  xmm11, cs:__real@3f800000
-    }
     do
     {
-      if ( !*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+      if ( !*(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
         __debugbreak();
-      v27 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 20i64);
-      v28 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
-      if ( v28 == v27 )
+      v16 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 20i64);
+      v17 = *(_DWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
+      if ( v17 == v16 )
       {
-        if ( !*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+        if ( !*(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
           __debugbreak();
-        if ( (**(_BYTE **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+        if ( (**(_BYTE **)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
           __debugbreak();
-        if ( *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) >= **(unsigned __int8 **)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+        if ( *(_DWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) >= **(unsigned __int8 **)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
           __debugbreak();
-        v29 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) + 4i64 * *(unsigned int *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) + 4);
+        v18 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) + 4i64 * *(unsigned int *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) + 4);
       }
       else
       {
-        if ( v28 >= v27 )
+        if ( v17 >= v16 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
             __debugbreak();
-          v28 = *(_DWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
+          v17 = *(_DWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108);
         }
-        v29 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 8i64) + 4i64 * v28);
+        v18 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) + 8i64) + 4i64 * v17);
       }
-      SystemForInitialPiece = Glass_GetSystemForInitialPiece(v29, (unsigned int *)((unsigned __int64)v72 & 0xFFFFFFFFFFFFFFE0ui64));
+      SystemForInitialPiece = Glass_GetSystemForInitialPiece(v18, (unsigned int *)((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64));
       if ( SystemForInitialPiece )
       {
-        if ( *(_DWORD *)_RBP < SystemForInitialPiece->initPieceCount )
+        if ( *(_DWORD *)v8 < SystemForInitialPiece->initPieceCount )
         {
-          Glass_GetInitialPieceCenter(SystemForInitialPiece, *(_DWORD *)_RBP, (vec3_t *)(_RBP + 24));
-          __asm
+          Glass_GetInitialPieceCenter(SystemForInitialPiece, *(_DWORD *)v8, (vec3_t *)(v8 + 24));
+          v20 = *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) - origin->v[0];
+          v21 = *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) - origin->v[1];
+          v22 = *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) - origin->v[2];
+          *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v21;
+          v23 = (float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22);
+          *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v20;
+          *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v22;
+          if ( v23 < (float)(*(float *)&_XMM7 * *(float *)&_XMM7) && G_Glass_GetPieceState(v18) < GLASS_DESTROYED )
           {
-            vmovss  xmm0, dword ptr [rbp+18h]
-            vsubss  xmm4, xmm0, dword ptr [r15]
-            vmovss  xmm1, dword ptr [rbp+1Ch]
-            vsubss  xmm2, xmm1, dword ptr [r15+4]
-            vmovss  xmm0, dword ptr [rbp+20h]
-            vsubss  xmm3, xmm0, dword ptr [r15+8]
-            vmulss  xmm1, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vmovss  dword ptr [rbp+0Ch], xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm6, xmm2, xmm1
-            vcomiss xmm6, xmm12
-            vmovss  dword ptr [rbp+8], xmm4
-            vmovss  dword ptr [rbp+10h], xmm3
-          }
-          if ( v42 )
-          {
-            if ( G_Glass_GetPieceState(v29) < GLASS_DESTROYED )
+            v24 = fsqrt(v23);
+            v25 = (float)(1.0 / v24) * *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+            v26 = (float)(1.0 / v24) * *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+            v27 = (float)(1.0 / v24) * *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+            *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v25;
+            *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v26;
+            *(float *)(((unsigned __int64)v35 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v27;
+            if ( !coneDirection || (float)((float)((float)(v26 * coneDirection->v[1]) + (float)(v25 * coneDirection->v[0])) + (float)(v27 * coneDirection->v[2])) >= coneAngleCos )
             {
-              __asm
-              {
-                vsqrtss xmm5, xmm6, xmm6
-                vdivss  xmm1, xmm11, xmm5
-                vmulss  xmm2, xmm1, dword ptr [rbp+8]
-                vmulss  xmm3, xmm1, dword ptr [rbp+0Ch]
-                vmulss  xmm4, xmm1, dword ptr [rbp+10h]
-                vmovss  dword ptr [rbp+8], xmm2
-                vmovss  dword ptr [rbp+0Ch], xmm3
-                vmovss  dword ptr [rbp+10h], xmm4
-              }
-              if ( coneDirection )
-              {
-                __asm
-                {
-                  vmulss  xmm1, xmm3, dword ptr [r14+4]
-                  vmulss  xmm0, xmm2, dword ptr [r14]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm4, dword ptr [r14+8]
-                  vaddss  xmm0, xmm2, xmm1
-                  vcomiss xmm0, xmm10
-                }
-              }
-              v53 = DVARFLT_glass_radiusDamageMultiplier;
-              __asm
-              {
-                vdivss  xmm1, xmm5, xmm7
-                vsubss  xmm0, xmm9, xmm8
-                vmulss  xmm1, xmm1, xmm0
-                vaddss  xmm6, xmm1, xmm8
-              }
+              v28 = DVARFLT_glass_radiusDamageMultiplier;
+              v29 = (float)((float)(v24 / *(float *)&_XMM7) * (float)(outerDamage - innerDamage)) + innerDamage;
               if ( !DVARFLT_glass_radiusDamageMultiplier && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "glass_radiusDamageMultiplier") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v53);
-              __asm
+              Dvar_CheckFrontendServerThread(v28);
+              v30 = v29 * v28->current.value;
+              if ( (int)v30 )
               {
-                vmulss  xmm0, xmm6, dword ptr [rdi+28h]
-                vcvttss2si edi, xmm0
-              }
-              if ( _EDI )
-              {
-                PieceState = G_Glass_GetPieceState(v29);
-                v61 = G_GlassPieceFromIndex(v29);
-                v62 = _EDI + v61->damageTaken;
-                if ( v62 > 0xFFFE )
-                  LOWORD(v62) = -2;
-                v61->damageTaken = v62;
-                if ( G_Glass_GetPieceState(v29) != PieceState )
-                  G_Glass_PieceStateChanged(v29, PieceState, (const vec3_t *)(_RBP + 24), (const vec3_t *)(_RBP + 8));
+                PieceState = G_Glass_GetPieceState(v18);
+                v32 = G_GlassPieceFromIndex(v18);
+                v33 = (int)v30 + v32->damageTaken;
+                if ( v33 > 0xFFFE )
+                  LOWORD(v33) = -2;
+                v32->damageTaken = v33;
+                if ( G_Glass_GetPieceState(v18) != PieceState )
+                  G_Glass_PieceStateChanged(v18, PieceState, (const vec3_t *)(v8 + 24), (const vec3_t *)(v8 + 8));
               }
             }
           }
         }
       }
     }
-    while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 64)) );
+    while ( SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v8 + 64)) );
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -935,81 +874,46 @@ G_PhysBreakGlass
 */
 void G_PhysBreakGlass(const vec3_t *origin, const vec3_t *normal)
 {
-  char v14; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
   unsigned __int16 GlassHitId; 
+  float v9; 
   vec3_t start; 
   vec3_t end; 
   vec3_t damageDir; 
   vec3_t damagePos; 
   trace_t results; 
 
-  __asm
-  {
-    vmovaps [rsp+0F0h+var_10], xmm6
-    vmovss  xmm6, dword ptr [rcx]
-    vaddss  xmm0, xmm6, dword ptr [rdx]
-    vmovss  xmm5, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vsubss  xmm1, xmm6, dword ptr [rdx]
-    vmovss  dword ptr [rbp+57h+start], xmm0
-    vaddss  xmm0, xmm5, dword ptr [rdx+4]
-    vmovss  dword ptr [rbp+57h+start+4], xmm0
-    vaddss  xmm0, xmm3, dword ptr [rdx+8]
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-    vsubss  xmm0, xmm5, dword ptr [rdx+4]
-    vmovss  dword ptr [rbp+57h+end], xmm1
-    vsubss  xmm1, xmm3, dword ptr [rdx+8]
-  }
-  _RBX = normal;
-  __asm
-  {
-    vmovss  dword ptr [rbp+57h+end+4], xmm0
-    vmovss  dword ptr [rbp+57h+end+8], xmm1
-  }
+  v2 = origin->v[1];
+  v3 = origin->v[2];
+  v4 = origin->v[0] - normal->v[0];
+  start.v[0] = origin->v[0] + normal->v[0];
+  start.v[1] = v2 + normal->v[1];
+  start.v[2] = v3 + normal->v[2];
+  v5 = v2 - normal->v[1];
+  end.v[0] = v4;
+  v6 = v3 - normal->v[2];
+  end.v[1] = v5;
+  end.v[2] = v6;
   G_Main_TraceCapsule(&results, &start, &end, &bounds_origin, 2047, 16);
-  __asm
-  {
-    vmovss  xmm0, [rbp+57h+results.fraction]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  if ( !v14 && Com_IsSurfaceTypeBreakableGlass(results.surfaceFlags) && Trace_GetEntityHitId(&results) >= 0x7FEu )
+  if ( results.fraction != 1.0 && Com_IsSurfaceTypeBreakableGlass(results.surfaceFlags) && Trace_GetEntityHitId(&results) >= 0x7FEu )
   {
     GlassHitId = Trace_GetGlassHitId(&results);
     if ( GlassHitId )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm1, dword ptr [rbx+4]
-        vmovss  xmm5, [rbp+57h+results.fraction]
-        vmovss  xmm0, dword ptr [rbx]
-        vxorps  xmm2, xmm1, xmm3
-        vxorps  xmm0, xmm0, xmm3
-        vmovss  dword ptr [rbp+57h+damageDir], xmm0
-        vmovss  xmm0, dword ptr [rbx+8]
-        vxorps  xmm1, xmm0, xmm3
-        vmovss  xmm0, dword ptr [rbp+57h+end]
-        vmovss  dword ptr [rbp+57h+damageDir+8], xmm1
-        vsubss  xmm1, xmm0, dword ptr [rbp+57h+start]
-        vmulss  xmm1, xmm1, xmm5
-        vaddss  xmm0, xmm1, dword ptr [rbp+57h+start]
-        vmovss  xmm1, dword ptr [rbp+57h+end+4]
-        vmovss  dword ptr [rbp+57h+damagePos], xmm0
-        vsubss  xmm0, xmm1, dword ptr [rbp+57h+start+4]
-        vmovss  dword ptr [rbp+57h+damageDir+4], xmm2
-        vmulss  xmm2, xmm0, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+4]
-        vmovss  xmm0, dword ptr [rbp+57h+end+8]
-        vsubss  xmm1, xmm0, dword ptr [rbp+57h+start+8]
-        vmulss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rbp+57h+damagePos+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rbp+57h+start+8]
-        vmovss  dword ptr [rbp+57h+damagePos+8], xmm3
-      }
+      LODWORD(v9) = LODWORD(normal->v[1]) ^ _xmm;
+      LODWORD(damageDir.v[0]) = LODWORD(normal->v[0]) ^ _xmm;
+      LODWORD(damageDir.v[2]) = LODWORD(normal->v[2]) ^ _xmm;
+      damagePos.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      damageDir.v[1] = v9;
+      damagePos.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      damagePos.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
       G_Glass_DestroyPiece(GlassHitId - 1, &damagePos, &damageDir);
     }
   }
-  __asm { vmovaps xmm6, [rsp+0F0h+var_10] }
 }
 
 /*
@@ -1084,35 +988,23 @@ void G_ShutdownGlass(void)
 PackFloat
 ==============
 */
-
-unsigned __int8 __fastcall PackFloat(double x, __int64 a2, __int64 a3, double _XMM3_8)
+unsigned __int8 PackFloat(float x)
 {
-  char v4; 
+  int v3; 
 
-  __asm
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  if ( *(float *)&_XMM3 < 64.0 )
   {
-    vmulss  xmm1, xmm0, cs:__real@3dfc0000
-    vaddss  xmm2, xmm1, cs:__real@42000000
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcomiss xmm3, cs:__real@42800000
-  }
-  if ( v4 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm3, xmm0
-    }
-    if ( v4 )
-      LOBYTE(_EAX) = 0;
+    if ( *(float *)&_XMM3 >= 0.0 )
+      return (int)*(float *)&_XMM3;
     else
-      __asm { vcvttss2si eax, xmm3 }
+      LOBYTE(v3) = 0;
   }
   else
   {
-    LOBYTE(_EAX) = 63;
+    LOBYTE(v3) = 63;
   }
-  return _EAX;
+  return v3;
 }
 

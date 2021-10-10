@@ -726,24 +726,26 @@ Image_GetTextureLayout_XB3
 void Image_GetTextureLayout_XB3(const Image_SetupParams *params, XG_RESOURCE_LAYOUT *layout)
 {
   unsigned __int32 v4; 
-  HRESULT v8; 
-  const char *v9; 
-  HRESULT v13; 
-  const char *v14; 
-  HRESULT v19; 
-  const char *v20; 
+  XG_TEXTURE3D_DESC *Texture3DDesc_XB3; 
+  HRESULT v6; 
+  const char *v7; 
+  XG_TEXTURE1D_DESC *Texture1DDesc_XB3; 
+  HRESULT v9; 
+  const char *v10; 
+  HRESULT v11; 
+  const char *v12; 
   unsigned __int64 BaseAlignmentBytes; 
   int height; 
   int depth; 
-  unsigned int v24; 
+  unsigned int v16; 
   unsigned int maxLevelCount; 
   int width; 
-  int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  __int64 v30; 
-  __int64 v31; 
-  struct XG_TEXTURE2D_DESC v32; 
+  int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  __int64 v22; 
+  __int64 v23; 
+  struct XG_TEXTURE2D_DESC v24; 
   XG_TEXTURE2D_DESC result; 
 
   if ( !layout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 217, ASSERT_TYPE_ASSERT, "(layout)", (const char *)&queryFormat, "layout") )
@@ -754,22 +756,12 @@ void Image_GetTextureLayout_XB3(const Image_SetupParams *params, XG_RESOURCE_LAY
     if ( ((v4 - 0x20000) & 0xFFFF7FFF) != 0 )
       goto LABEL_13;
 LABEL_14:
-    _RAX = Image_GetTexture2DDesc_XB3(&result, params);
-    __asm
+    v24 = *Image_GetTexture2DDesc_XB3(&result, params);
+    v11 = XGComputeTexture2DLayout(&v24, layout);
+    if ( v11 < 0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+108h+var_B8.Width], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+108h+var_B8.ESRAMOffsetBytes], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  [rsp+108h+var_88], xmm0
-    }
-    v32.Pitch = _RAX->Pitch;
-    v19 = XGComputeTexture2DLayout(&v32, layout);
-    if ( v19 < 0 )
-    {
-      v20 = R_ErrorDescription(v19);
-      Sys_Error((const ObfuscateErrorText)&stru_144401AA0, 236i64, v20);
+      v12 = R_ErrorDescription(v11);
+      Sys_Error((const ObfuscateErrorText)&stru_144401AA0, 236i64, v12);
     }
     goto LABEL_16;
   }
@@ -779,20 +771,15 @@ LABEL_14:
     {
       if ( v4 == 0x10000 )
       {
-        _RAX = Image_GetTexture3DDesc_XB3((XG_TEXTURE3D_DESC *)&result, params);
-        __asm
+        Texture3DDesc_XB3 = Image_GetTexture3DDesc_XB3((XG_TEXTURE3D_DESC *)&result, params);
+        *(__m256i *)&v24.Width = *(__m256i *)&Texture3DDesc_XB3->Width;
+        *(_OWORD *)&v24.BindFlags = *(_OWORD *)&Texture3DDesc_XB3->MiscFlags;
+        v24.ESRAMUsageBytes = Texture3DDesc_XB3->Pitch;
+        v6 = XGComputeTexture3DLayout((const struct XG_TEXTURE3D_DESC *)&v24, layout);
+        if ( v6 < 0 )
         {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+108h+var_B8.Width], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+108h+var_B8.ESRAMOffsetBytes], xmm1
-        }
-        v32.ESRAMUsageBytes = _RAX->Pitch;
-        v8 = XGComputeTexture3DLayout((const struct XG_TEXTURE3D_DESC *)&v32, layout);
-        if ( v8 < 0 )
-        {
-          v9 = R_ErrorDescription(v8);
-          Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp (%i) XGComputeTexture3DLayout( &desc, layout ) failed: %s\n", 242i64, v9);
+          v7 = R_ErrorDescription(v6);
+          Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp (%i) XGComputeTexture3DLayout( &desc, layout ) failed: %s\n", 242i64, v7);
         }
         goto LABEL_16;
       }
@@ -802,19 +789,14 @@ LABEL_13:
     }
     goto LABEL_14;
   }
-  _RAX = Image_GetTexture1DDesc_XB3((XG_TEXTURE1D_DESC *)&v32, params);
-  __asm
+  Texture1DDesc_XB3 = Image_GetTexture1DDesc_XB3((XG_TEXTURE1D_DESC *)&v24, params);
+  *(__m256i *)&result.Width = *(__m256i *)&Texture1DDesc_XB3->Width;
+  *(_OWORD *)&result.BindFlags = *(_OWORD *)&Texture1DDesc_XB3->ESRAMOffsetBytes;
+  v9 = XGComputeTexture1DLayout((const struct XG_TEXTURE1D_DESC *)&result, layout);
+  if ( v9 < 0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+108h+result.Width], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+108h+result.MiscFlags], xmm1
-  }
-  v13 = XGComputeTexture1DLayout((const struct XG_TEXTURE1D_DESC *)&result, layout);
-  if ( v13 < 0 )
-  {
-    v14 = R_ErrorDescription(v13);
-    Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp (%i) XGComputeTexture1DLayout( &desc, layout ) failed: %s\n", 224i64, v14);
+    v10 = R_ErrorDescription(v9);
+    Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp (%i) XGComputeTexture1DLayout( &desc, layout ) failed: %s\n", 224i64, v10);
   }
 LABEL_16:
   if ( layout->Planes != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 249, ASSERT_TYPE_ASSERT, "(layout->Planes == 1)", (const char *)&queryFormat, "layout->Planes == 1") )
@@ -826,7 +808,7 @@ LABEL_16:
     __debugbreak();
   if ( (params->flags & 2) != 0 || params->maxLevelCount == 1 )
   {
-    v24 = 1;
+    v16 = 1;
   }
   else
   {
@@ -838,35 +820,35 @@ LABEL_16:
       depth = height;
     if ( !depth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
       __debugbreak();
-    v24 = 32 - __lzcnt(depth);
+    v16 = 32 - __lzcnt(depth);
     maxLevelCount = params->maxLevelCount;
-    if ( maxLevelCount && v24 > maxLevelCount )
-      v24 = params->maxLevelCount;
+    if ( maxLevelCount && v16 > maxLevelCount )
+      v16 = params->maxLevelCount;
   }
-  if ( layout->MipLevels != v24 )
+  if ( layout->MipLevels != v16 )
   {
     if ( (params->flags & 2) != 0 || params->maxLevelCount == 1 )
     {
-      v28 = 1;
+      v20 = 1;
     }
     else
     {
       width = params->height;
-      v27 = params->depth;
+      v19 = params->depth;
       if ( params->width > width )
         width = params->width;
-      if ( width > v27 )
-        v27 = width;
-      if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
+      if ( width > v19 )
+        v19 = width;
+      if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 204, ASSERT_TYPE_ASSERT, "(value > 0)", (const char *)&queryFormat, "value > 0") )
         __debugbreak();
-      v28 = 32 - __lzcnt(v27);
-      v29 = params->maxLevelCount;
-      if ( v29 && v28 > v29 )
-        v28 = params->maxLevelCount;
+      v20 = 32 - __lzcnt(v19);
+      v21 = params->maxLevelCount;
+      if ( v21 && v20 > v21 )
+        v20 = params->maxLevelCount;
     }
-    LODWORD(v31) = v28;
-    LODWORD(v30) = layout->MipLevels;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 252, ASSERT_TYPE_ASSERT, "( layout->MipLevels ) == ( params.GetLevelCount() )", "%s == %s\n\t%u, %u", "layout->MipLevels", "params.GetLevelCount()", v30, v31) )
+    LODWORD(v23) = v20;
+    LODWORD(v22) = layout->MipLevels;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 252, ASSERT_TYPE_ASSERT, "( layout->MipLevels ) == ( params.GetLevelCount() )", "%s == %s\n\t%u, %u", "layout->MipLevels", "params.GetLevelCount()", v22, v23) )
       __debugbreak();
   }
 }
@@ -888,16 +870,13 @@ Image_Setup
 */
 void Image_Setup(GfxImage *image, const Image_SetupParams *params)
 {
-  Image_SetupParams v4; 
+  __m256i v2; 
+  Image_SetupParams v3; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups [rsp+68h+var_48], ymm0
-    vmovups [rsp+68h+var_28], ymm1
-  }
-  Image_SetupInternal(image, &v4, NULL);
+  v2 = *(__m256i *)&params->customAllocFunc;
+  *(__m256i *)&v3.width = *(__m256i *)&params->width;
+  *(__m256i *)&v3.customAllocFunc = v2;
+  Image_SetupInternal(image, &v3, NULL);
 }
 
 /*
@@ -914,52 +893,52 @@ void Image_SetupInternal(GfxImage *image, Image_SetupParams *params, const Image
   unsigned int maxLevelCount; 
   unsigned int v11; 
   unsigned int v12; 
-  unsigned __int64 *p_SizeBytes; 
+  const XG_RESOURCE_LAYOUT *customLayout; 
   unsigned __int64 SizeBytes; 
   unsigned int v15; 
   void *(__fastcall *customAllocFunc)(unsigned __int64, unsigned __int64, void *); 
   unsigned __int64 totalSize; 
   const unsigned __int8 *v18; 
   const unsigned __int8 *v19; 
-  GfxTextureId v22; 
+  __m256i v20; 
+  GfxTextureId v21; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
   GfxTexture_CreateParams paramsa; 
   XG_RESOURCE_LAYOUT layout; 
 
-  _RDI = params;
   if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1011, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
     __debugbreak();
   if ( (!image->name || !*image->name) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1014, ASSERT_TYPE_ASSERT, "(!I_strempty( image->name ))", (const char *)&queryFormat, "!I_strempty( image->name )") )
     __debugbreak();
   if ( (image->flags & 0x100) != 0 )
-    _RDI->format = PixelFormat_MakeSRGBFormat(_RDI->format);
-  if ( (unsigned int)(_RDI->format - 33) <= 0xC )
+    params->format = PixelFormat_MakeSRGBFormat(params->format);
+  if ( (unsigned int)(params->format - 33) <= 0xC )
   {
-    if ( (_RDI->width < 4 || (_RDI->width & 3) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1025, ASSERT_TYPE_ASSERT, "(params.width >= 4 && ( params.width & 3 ) == 0)", (const char *)&queryFormat, "params.width >= 4 && ( params.width & 3 ) == 0") )
+    if ( (params->width < 4 || (params->width & 3) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1025, ASSERT_TYPE_ASSERT, "(params.width >= 4 && ( params.width & 3 ) == 0)", (const char *)&queryFormat, "params.width >= 4 && ( params.width & 3 ) == 0") )
       __debugbreak();
-    height = _RDI->height;
+    height = params->height;
     if ( (height < 4 || (height & 3) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1026, ASSERT_TYPE_ASSERT, "(params.height >= 4 && ( params.height & 3 ) == 0)", (const char *)&queryFormat, "params.height >= 4 && ( params.height & 3 ) == 0") )
       __debugbreak();
   }
-  flags = _RDI->flags;
-  width = _RDI->width;
-  image->format = _RDI->format;
+  flags = params->flags;
+  width = params->width;
+  image->format = params->format;
   image->flags = flags;
   truncate_store<unsigned short,int>(&image->width, width);
-  truncate_store<unsigned short,int>(&image->height, _RDI->height);
-  truncate_store<unsigned short,int>(&image->depth, _RDI->depth);
-  numElements = _RDI->numElements;
-  if ( numElements > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)numElements, "unsigned", _RDI->numElements) )
+  truncate_store<unsigned short,int>(&image->height, params->height);
+  truncate_store<unsigned short,int>(&image->depth, params->depth);
+  numElements = params->numElements;
+  if ( numElements > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)numElements, "unsigned", params->numElements) )
     __debugbreak();
   image->numElements = numElements;
-  if ( (flags & 2) != 0 || (maxLevelCount = _RDI->maxLevelCount, maxLevelCount == 1) )
+  if ( (flags & 2) != 0 || (maxLevelCount = params->maxLevelCount, maxLevelCount == 1) )
   {
     v12 = 1;
   }
   else
   {
-    v11 = Image_CountMipmaps(_RDI->width, _RDI->height, _RDI->depth);
+    v11 = Image_CountMipmaps(params->width, params->height, params->depth);
     v12 = v11;
     if ( maxLevelCount && v11 > maxLevelCount )
       v12 = maxLevelCount;
@@ -969,36 +948,36 @@ void Image_SetupInternal(GfxImage *image, Image_SetupParams *params, const Image
   image->levelCount = v12;
   if ( !(_BYTE)v12 )
   {
-    LODWORD(v23) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1036, ASSERT_TYPE_ASSERT, "( image->levelCount ) > ( 0 )", "%s > %s\n\t%u, %u", "image->levelCount", "0", v23, 0i64) )
+    LODWORD(v22) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1036, ASSERT_TYPE_ASSERT, "( image->levelCount ) > ( 0 )", "%s > %s\n\t%u, %u", "image->levelCount", "0", v22, 0i64) )
       __debugbreak();
   }
   if ( image->totalSize )
   {
-    LODWORD(v23) = image->totalSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1038, ASSERT_TYPE_ASSERT, "( image->totalSize ) == ( 0 )", "%s == %s\n\t%u, %u", "image->totalSize", "0", v23, 0i64) )
+    LODWORD(v22) = image->totalSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1038, ASSERT_TYPE_ASSERT, "( image->totalSize ) == ( 0 )", "%s == %s\n\t%u, %u", "image->totalSize", "0", v22, 0i64) )
       __debugbreak();
   }
-  p_SizeBytes = &_RDI->customLayout->SizeBytes;
-  if ( p_SizeBytes )
+  customLayout = params->customLayout;
+  if ( customLayout )
   {
-    if ( p_SizeBytes[1] != 256 )
+    if ( customLayout->BaseAlignmentBytes != 256 )
     {
-      LODWORD(v24) = 256;
-      LODWORD(v23) = p_SizeBytes[1];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 308, ASSERT_TYPE_ASSERT, "( params.customLayout->BaseAlignmentBytes ) == ( R_IMAGE_ALIGNMENT )", "%s == %s\n\t%u, %u", "params.customLayout->BaseAlignmentBytes", "R_IMAGE_ALIGNMENT", v23, v24) )
+      LODWORD(v23) = 256;
+      LODWORD(v22) = customLayout->BaseAlignmentBytes;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 308, ASSERT_TYPE_ASSERT, "( params.customLayout->BaseAlignmentBytes ) == ( R_IMAGE_ALIGNMENT )", "%s == %s\n\t%u, %u", "params.customLayout->BaseAlignmentBytes", "R_IMAGE_ALIGNMENT", v22, v23) )
         __debugbreak();
     }
-    SizeBytes = *p_SizeBytes;
+    SizeBytes = customLayout->SizeBytes;
   }
   else
   {
-    Image_GetTextureLayout_XB3(_RDI, &layout);
+    Image_GetTextureLayout_XB3(params, &layout);
     if ( layout.BaseAlignmentBytes != 256 )
     {
-      LODWORD(v24) = 256;
-      LODWORD(v23) = layout.BaseAlignmentBytes;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 315, ASSERT_TYPE_ASSERT, "( layout.BaseAlignmentBytes ) == ( R_IMAGE_ALIGNMENT )", "%s == %s\n\t%u, %u", "layout.BaseAlignmentBytes", "R_IMAGE_ALIGNMENT", v23, v24) )
+      LODWORD(v23) = 256;
+      LODWORD(v22) = layout.BaseAlignmentBytes;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 315, ASSERT_TYPE_ASSERT, "( layout.BaseAlignmentBytes ) == ( R_IMAGE_ALIGNMENT )", "%s == %s\n\t%u, %u", "layout.BaseAlignmentBytes", "R_IMAGE_ALIGNMENT", v22, v23) )
         __debugbreak();
     }
     SizeBytes = layout.SizeBytes;
@@ -1007,11 +986,11 @@ void Image_SetupInternal(GfxImage *image, Image_SetupParams *params, const Image
   image->totalSize = v15;
   if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 1040, ASSERT_TYPE_ASSERT, "( ( image->totalSize > 0 ) )", "( image->name ) = %s", image->name) )
     __debugbreak();
-  customAllocFunc = _RDI->customAllocFunc;
+  customAllocFunc = params->customAllocFunc;
   totalSize = image->totalSize;
   if ( customAllocFunc )
   {
-    v18 = (const unsigned __int8 *)customAllocFunc(image->totalSize, 256ui64, _RDI->customAllocUserData);
+    v18 = (const unsigned __int8 *)customAllocFunc(image->totalSize, 256ui64, params->customAllocUserData);
   }
   else
   {
@@ -1027,18 +1006,14 @@ void Image_SetupInternal(GfxImage *image, Image_SetupParams *params, const Image
   paramsa.name = image->name;
   image->pixels.streamedDataHandle.data = (unsigned __int64)v19;
   paramsa.pixels = v19;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rsp+1828h+params.params.width], ymm0
-    vmovups ymmword ptr [rsp+1828h+params.params.customAllocFunc], ymm1
-  }
+  v20 = *(__m256i *)&params->customAllocFunc;
+  *(__m256i *)&paramsa.params.width = *(__m256i *)&params->width;
+  *(__m256i *)&paramsa.params.customAllocFunc = v20;
   if ( data )
-    v22 = R_Texture_CreateWithSourceData(&paramsa, data);
+    v21 = R_Texture_CreateWithSourceData(&paramsa, data);
   else
-    v22 = R_Texture_Create(&paramsa);
-  image->textureId = v22;
+    v21 = R_Texture_Create(&paramsa);
+  image->textureId = v21;
   if ( data )
     Image_UploadData(image, data);
 }
@@ -1050,16 +1025,13 @@ Image_SetupWithData
 */
 void Image_SetupWithData(GfxImage *image, const Image_SetupParams *params, const Image_SetupData *data)
 {
-  Image_SetupParams v5; 
+  __m256i v3; 
+  Image_SetupParams v4; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups [rsp+68h+var_48], ymm0
-    vmovups [rsp+68h+var_28], ymm1
-  }
-  Image_SetupInternal(image, &v5, data);
+  v3 = *(__m256i *)&params->customAllocFunc;
+  *(__m256i *)&v4.width = *(__m256i *)&params->width;
+  *(__m256i *)&v4.customAllocFunc = v3;
+  Image_SetupInternal(image, &v4, data);
 }
 
 /*
@@ -1140,7 +1112,195 @@ void Image_Upload1D_CopyData_XB3(const GfxImage *image, unsigned int mipLevel, c
 {
   __int64 v5; 
   char *data; 
-  int v11; 
+  __m256i *v7; 
+  __m256i v8; 
+  struct XG_TEXTURE1D_DESC *Texture1DDesc_XB3; 
+  int v10; 
+  GfxPixelFormat format; 
+  unsigned int v12; 
+  GfxPixelFormat v13; 
+  unsigned int v14; 
+  HRESULT v15; 
+  const char *v16; 
+  HRESULT v17; 
+  const char *v18; 
+  unsigned __int64 v19; 
+  char *v20; 
+  struct XGTextureAddressComputer *v21; 
+  Image_SetupParams params; 
+  XG_TEXTURE1D_DESC v23; 
+  Image_SetupParams result; 
+  struct XG_TEXTURE1D_DESC v25; 
+  char v26[16]; 
+  unsigned int v27; 
+  int v28; 
+  unsigned __int64 sizeInBytes[736]; 
+
+  v5 = mipLevel;
+  if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 559, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
+    __debugbreak();
+  if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 560, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
+    __debugbreak();
+  data = (char *)image->pixels.streamedDataHandle.data;
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 567, ASSERT_TYPE_ASSERT, "(pixels)", (const char *)&queryFormat, "pixels") )
+    __debugbreak();
+  v7 = (__m256i *)Image_SetupParams::FromImage(&result, image);
+  v8 = v7[1];
+  *(__m256i *)&params.width = *v7;
+  *(__m256i *)&params.customAllocFunc = v8;
+  Texture1DDesc_XB3 = Image_GetTexture1DDesc_XB3(&v23, &params);
+  v10 = image->width >> v5;
+  format = image->format;
+  v25 = *Texture1DDesc_XB3;
+  if ( !v10 )
+    v10 = 1;
+  if ( (unsigned int)(format - 33) > 0xC )
+    v12 = v10 * PixelFormat_GetBytesPerPixel(format);
+  else
+    v12 = ((unsigned int)(v10 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
+  v13 = image->format;
+  if ( (unsigned int)(v13 - 33) > 0xC )
+    v14 = v10 * PixelFormat_GetBytesPerPixel(v13);
+  else
+    v14 = ((unsigned int)(v10 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v13);
+  v15 = XGCreateTexture1DComputer(&v25, &v21);
+  if ( v15 < 0 )
+  {
+    v16 = R_ErrorDescription(v15);
+    Sys_Error((const ObfuscateErrorText)&stru_144401EA0, 575i64, v16);
+  }
+  v17 = v21->CopyIntoSubresource(v21, data, 0, v5, src, v12, v14);
+  if ( v17 < 0 )
+  {
+    v18 = R_ErrorDescription(v17);
+    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 576i64, v18);
+  }
+  v21->GetResourceLayout(v21, (XG_RESOURCE_LAYOUT *)v26);
+  if ( v28 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 580, ASSERT_TYPE_ASSERT, "(layout.Planes == 1)", (const char *)&queryFormat, "layout.Planes == 1") )
+    __debugbreak();
+  if ( (unsigned int)v5 >= v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 581, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
+    __debugbreak();
+  v19 = sizeInBytes[12 * v5];
+  v20 = &data[sizeInBytes[12 * v5 + 1]];
+  R_LockGfxImmediateContext();
+  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v20, v19);
+  R_UnlockGfxImmediateContext();
+  v21->Release(v21);
+}
+
+/*
+==============
+Image_Upload2D_CopyData_XB3
+==============
+*/
+void Image_Upload2D_CopyData_XB3(const GfxImage *image, unsigned int arrayElement, unsigned int mipLevel, const unsigned __int8 *src)
+{
+  __int64 v4; 
+  char *data; 
+  __m256i *v8; 
+  __m256i v9; 
+  struct XG_TEXTURE2D_DESC *Texture2DDesc_XB3; 
+  unsigned int width; 
+  unsigned int height; 
+  int v13; 
+  int v14; 
+  GfxPixelFormat format; 
+  unsigned int v16; 
+  GfxPixelFormat v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  HRESULT v20; 
+  const char *v21; 
+  HRESULT v22; 
+  const char *v23; 
+  unsigned __int64 v24; 
+  char *v25; 
+  struct XGTextureAddressComputer *v27; 
+  const unsigned __int8 *v28; 
+  Image_SetupParams params; 
+  XG_TEXTURE2D_DESC v30; 
+  Image_SetupParams result; 
+  struct XG_TEXTURE2D_DESC v32; 
+  char v33[16]; 
+  unsigned int v34; 
+  int v35; 
+  __int64 v36[735]; 
+
+  v4 = mipLevel;
+  v28 = src;
+  if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 600, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
+    __debugbreak();
+  if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 601, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
+    __debugbreak();
+  data = (char *)image->pixels.streamedDataHandle.data;
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 608, ASSERT_TYPE_ASSERT, "(pixels)", (const char *)&queryFormat, "pixels") )
+    __debugbreak();
+  v8 = (__m256i *)Image_SetupParams::FromImage(&result, image);
+  v9 = v8[1];
+  *(__m256i *)&params.width = *v8;
+  *(__m256i *)&params.customAllocFunc = v9;
+  Texture2DDesc_XB3 = Image_GetTexture2DDesc_XB3(&v30, &params);
+  width = image->width;
+  height = image->height;
+  v32 = *Texture2DDesc_XB3;
+  v13 = width >> v4;
+  if ( !v13 )
+    v13 = 1;
+  v14 = height >> v4;
+  format = image->format;
+  if ( !v14 )
+    v14 = 1;
+  if ( (unsigned int)(format - 33) > 0xC )
+    v16 = v13 * PixelFormat_GetBytesPerPixel(format);
+  else
+    v16 = ((unsigned int)(v13 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
+  v17 = image->format;
+  if ( (unsigned int)(v17 - 33) > 0xC )
+    v18 = v13 * v14 * PixelFormat_GetBytesPerPixel(v17);
+  else
+    v18 = ((unsigned int)(v13 + 3) >> 2) * ((unsigned int)(v14 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v17);
+  v19 = v4 + arrayElement * image->levelCount;
+  v20 = XGCreateTexture2DComputer(&v32, &v27);
+  if ( v20 < 0 )
+  {
+    v21 = R_ErrorDescription(v20);
+    Sys_Error((const ObfuscateErrorText)&stru_1444020A0, 617i64, v21);
+  }
+  v22 = v27->CopyIntoSubresource(v27, data, 0, v19, v28, v16, v18);
+  if ( v22 < 0 )
+  {
+    v23 = R_ErrorDescription(v22);
+    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 618i64, v23);
+  }
+  v27->GetResourceLayout(v27, (XG_RESOURCE_LAYOUT *)v33);
+  if ( v35 != 1 && v32.Format != XG_FORMAT_D32_FLOAT_S8X24_UINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 623, ASSERT_TYPE_ASSERT, "(layout.Planes == 1 || desc.Format == XG_FORMAT_D32_FLOAT_S8X24_UINT)", (const char *)&queryFormat, "layout.Planes == 1 || desc.Format == XG_FORMAT_D32_FLOAT_S8X24_UINT") )
+    __debugbreak();
+  if ( (unsigned int)v4 >= v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 627, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
+    __debugbreak();
+  v24 = v36[12 * v4 + 1];
+  v25 = &data[v36[12 * v4] + v4 * v24];
+  R_LockGfxImmediateContext();
+  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v25, v24);
+  R_UnlockGfxImmediateContext();
+  v27->Release(v27);
+}
+
+/*
+==============
+Image_Upload3D_CopyData_XB3
+==============
+*/
+void Image_Upload3D_CopyData_XB3(const GfxImage *image, unsigned int mipLevel, const unsigned __int8 *src)
+{
+  __int64 v5; 
+  char *data; 
+  __m256i *v7; 
+  __m256i v8; 
+  struct XG_TEXTURE3D_DESC *Texture3DDesc_XB3; 
+  unsigned int width; 
+  unsigned int height; 
+  int v12; 
+  int v13; 
   GfxPixelFormat format; 
   unsigned int v15; 
   GfxPixelFormat v16; 
@@ -1153,214 +1313,12 @@ void Image_Upload1D_CopyData_XB3(const GfxImage *image, unsigned int mipLevel, c
   char *v23; 
   struct XGTextureAddressComputer *v24; 
   Image_SetupParams params; 
-  XG_TEXTURE1D_DESC v26; 
+  XG_TEXTURE3D_DESC v26; 
   Image_SetupParams result; 
-  struct XG_TEXTURE1D_DESC v28; 
+  struct XG_TEXTURE3D_DESC v28; 
   char v29[16]; 
   unsigned int v30; 
   int v31; 
-  unsigned __int64 sizeInBytes[736]; 
-
-  v5 = mipLevel;
-  if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 559, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
-    __debugbreak();
-  if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 560, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
-    __debugbreak();
-  data = (char *)image->pixels.streamedDataHandle.data;
-  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 567, ASSERT_TYPE_ASSERT, "(pixels)", (const char *)&queryFormat, "pixels") )
-    __debugbreak();
-  _RAX = Image_SetupParams::FromImage(&result, image);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+18B8h+params.width], ymm0
-    vmovups ymmword ptr [rsp+18B8h+params.customAllocFunc], ymm1
-  }
-  _RAX = Image_GetTexture1DDesc_XB3(&v26, &params);
-  v11 = image->width >> v5;
-  format = image->format;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+18B8h+var_17C0.Width], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+18B8h+var_17C0.ESRAMOffsetBytes], xmm1
-  }
-  if ( !v11 )
-    v11 = 1;
-  if ( (unsigned int)(format - 33) > 0xC )
-    v15 = v11 * PixelFormat_GetBytesPerPixel(format);
-  else
-    v15 = ((unsigned int)(v11 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
-  v16 = image->format;
-  if ( (unsigned int)(v16 - 33) > 0xC )
-    v17 = v11 * PixelFormat_GetBytesPerPixel(v16);
-  else
-    v17 = ((unsigned int)(v11 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v16);
-  v18 = XGCreateTexture1DComputer(&v28, &v24);
-  if ( v18 < 0 )
-  {
-    v19 = R_ErrorDescription(v18);
-    Sys_Error((const ObfuscateErrorText)&stru_144401EA0, 575i64, v19);
-  }
-  v20 = v24->CopyIntoSubresource(v24, data, 0, v5, src, v15, v17);
-  if ( v20 < 0 )
-  {
-    v21 = R_ErrorDescription(v20);
-    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 576i64, v21);
-  }
-  v24->GetResourceLayout(v24, (XG_RESOURCE_LAYOUT *)v29);
-  if ( v31 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 580, ASSERT_TYPE_ASSERT, "(layout.Planes == 1)", (const char *)&queryFormat, "layout.Planes == 1") )
-    __debugbreak();
-  if ( (unsigned int)v5 >= v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 581, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
-    __debugbreak();
-  v22 = sizeInBytes[12 * v5];
-  v23 = &data[sizeInBytes[12 * v5 + 1]];
-  R_LockGfxImmediateContext();
-  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v23, v22);
-  R_UnlockGfxImmediateContext();
-  v24->Release(v24);
-}
-
-/*
-==============
-Image_Upload2D_CopyData_XB3
-==============
-*/
-void Image_Upload2D_CopyData_XB3(const GfxImage *image, unsigned int arrayElement, unsigned int mipLevel, const unsigned __int8 *src)
-{
-  __int64 v4; 
-  char *data; 
-  unsigned int width; 
-  unsigned int height; 
-  int v17; 
-  int v18; 
-  GfxPixelFormat format; 
-  unsigned int v20; 
-  GfxPixelFormat v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  HRESULT v24; 
-  const char *v25; 
-  HRESULT v26; 
-  const char *v27; 
-  unsigned __int64 v28; 
-  char *v29; 
-  struct XGTextureAddressComputer *v31; 
-  const unsigned __int8 *v32; 
-  Image_SetupParams params; 
-  XG_TEXTURE2D_DESC v34; 
-  Image_SetupParams result; 
-  struct XG_TEXTURE2D_DESC v36; 
-  char v37[16]; 
-  unsigned int v38; 
-  int v39; 
-  __int64 v40[735]; 
-
-  v4 = mipLevel;
-  v32 = src;
-  if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 600, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
-    __debugbreak();
-  if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 601, ASSERT_TYPE_ASSERT, "(src)", (const char *)&queryFormat, "src") )
-    __debugbreak();
-  data = (char *)image->pixels.streamedDataHandle.data;
-  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 608, ASSERT_TYPE_ASSERT, "(pixels)", (const char *)&queryFormat, "pixels") )
-    __debugbreak();
-  _RAX = Image_SetupParams::FromImage(&result, image);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+18F8h+params.width], ymm0
-    vmovups ymmword ptr [rsp+18F8h+params.customAllocFunc], ymm1
-  }
-  _RAX = Image_GetTexture2DDesc_XB3(&v34, &params);
-  width = image->width;
-  height = image->height;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+18F8h+var_17E0.Width], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+18F8h+var_17E0.BindFlags], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+18F8h+var_17E0.ESRAMUsageBytes], xmm0
-  }
-  v36.Pitch = _RAX->Pitch;
-  v17 = width >> v4;
-  if ( !v17 )
-    v17 = 1;
-  v18 = height >> v4;
-  format = image->format;
-  if ( !v18 )
-    v18 = 1;
-  if ( (unsigned int)(format - 33) > 0xC )
-    v20 = v17 * PixelFormat_GetBytesPerPixel(format);
-  else
-    v20 = ((unsigned int)(v17 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
-  v21 = image->format;
-  if ( (unsigned int)(v21 - 33) > 0xC )
-    v22 = v17 * v18 * PixelFormat_GetBytesPerPixel(v21);
-  else
-    v22 = ((unsigned int)(v17 + 3) >> 2) * ((unsigned int)(v18 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v21);
-  v23 = v4 + arrayElement * image->levelCount;
-  v24 = XGCreateTexture2DComputer(&v36, &v31);
-  if ( v24 < 0 )
-  {
-    v25 = R_ErrorDescription(v24);
-    Sys_Error((const ObfuscateErrorText)&stru_1444020A0, 617i64, v25);
-  }
-  v26 = v31->CopyIntoSubresource(v31, data, 0, v23, v32, v20, v22);
-  if ( v26 < 0 )
-  {
-    v27 = R_ErrorDescription(v26);
-    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 618i64, v27);
-  }
-  v31->GetResourceLayout(v31, (XG_RESOURCE_LAYOUT *)v37);
-  if ( v39 != 1 && v36.Format != XG_FORMAT_D32_FLOAT_S8X24_UINT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 623, ASSERT_TYPE_ASSERT, "(layout.Planes == 1 || desc.Format == XG_FORMAT_D32_FLOAT_S8X24_UINT)", (const char *)&queryFormat, "layout.Planes == 1 || desc.Format == XG_FORMAT_D32_FLOAT_S8X24_UINT") )
-    __debugbreak();
-  if ( (unsigned int)v4 >= v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 627, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
-    __debugbreak();
-  v28 = v40[12 * v4 + 1];
-  v29 = &data[v40[12 * v4] + v4 * v28];
-  R_LockGfxImmediateContext();
-  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v29, v28);
-  R_UnlockGfxImmediateContext();
-  v31->Release(v31);
-}
-
-/*
-==============
-Image_Upload3D_CopyData_XB3
-==============
-*/
-void Image_Upload3D_CopyData_XB3(const GfxImage *image, unsigned int mipLevel, const unsigned __int8 *src)
-{
-  __int64 v5; 
-  char *data; 
-  unsigned int width; 
-  unsigned int height; 
-  int v15; 
-  int v16; 
-  GfxPixelFormat format; 
-  unsigned int v18; 
-  GfxPixelFormat v19; 
-  unsigned int v20; 
-  HRESULT v21; 
-  const char *v22; 
-  HRESULT v23; 
-  const char *v24; 
-  unsigned __int64 v25; 
-  char *v26; 
-  struct XGTextureAddressComputer *v27; 
-  Image_SetupParams params; 
-  XG_TEXTURE3D_DESC v29; 
-  Image_SetupParams result; 
-  struct XG_TEXTURE3D_DESC v31; 
-  char v32[16]; 
-  unsigned int v33; 
-  int v34; 
   unsigned __int64 sizeInBytes[736]; 
 
   v5 = mipLevel;
@@ -1371,64 +1329,53 @@ void Image_Upload3D_CopyData_XB3(const GfxImage *image, unsigned int mipLevel, c
   data = (char *)image->pixels.streamedDataHandle.data;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 654, ASSERT_TYPE_ASSERT, "(pixels)", (const char *)&queryFormat, "pixels") )
     __debugbreak();
-  _RAX = Image_SetupParams::FromImage(&result, image);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+18C8h+params.width], ymm0
-    vmovups ymmword ptr [rsp+18C8h+params.customAllocFunc], ymm1
-  }
-  _RAX = Image_GetTexture3DDesc_XB3(&v29, &params);
+  v7 = (__m256i *)Image_SetupParams::FromImage(&result, image);
+  v8 = v7[1];
+  *(__m256i *)&params.width = *v7;
+  *(__m256i *)&params.customAllocFunc = v8;
+  Texture3DDesc_XB3 = Image_GetTexture3DDesc_XB3(&v26, &params);
   width = image->width;
   height = image->height;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+18C8h+var_17C8.Width], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+18C8h+var_17C8.MiscFlags], xmm1
-  }
-  v31.Pitch = _RAX->Pitch;
-  v15 = width >> v5;
-  if ( !v15 )
-    v15 = 1;
-  v16 = height >> v5;
+  v28 = *Texture3DDesc_XB3;
+  v12 = width >> v5;
+  if ( !v12 )
+    v12 = 1;
+  v13 = height >> v5;
   format = image->format;
-  if ( !v16 )
-    v16 = 1;
+  if ( !v13 )
+    v13 = 1;
   if ( (unsigned int)(format - 33) > 0xC )
-    v18 = v15 * PixelFormat_GetBytesPerPixel(format);
+    v15 = v12 * PixelFormat_GetBytesPerPixel(format);
   else
-    v18 = ((unsigned int)(v15 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
-  v19 = image->format;
-  if ( (unsigned int)(v19 - 33) > 0xC )
-    v20 = v15 * v16 * PixelFormat_GetBytesPerPixel(v19);
+    v15 = ((unsigned int)(v12 + 3) >> 2) * PixelFormat_GetBytesPerBlock(format);
+  v16 = image->format;
+  if ( (unsigned int)(v16 - 33) > 0xC )
+    v17 = v12 * v13 * PixelFormat_GetBytesPerPixel(v16);
   else
-    v20 = ((unsigned int)(v15 + 3) >> 2) * ((unsigned int)(v16 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v19);
-  v21 = XGCreateTexture3DComputer(&v31, &v27);
-  if ( v21 < 0 )
+    v17 = ((unsigned int)(v12 + 3) >> 2) * ((unsigned int)(v13 + 3) >> 2) * PixelFormat_GetBytesPerBlock(v16);
+  v18 = XGCreateTexture3DComputer(&v28, &v24);
+  if ( v18 < 0 )
   {
-    v22 = R_ErrorDescription(v21);
-    Sys_Error((const ObfuscateErrorText)&stru_144402200, 663i64, v22);
+    v19 = R_ErrorDescription(v18);
+    Sys_Error((const ObfuscateErrorText)&stru_144402200, 663i64, v19);
   }
-  v23 = v27->CopyIntoSubresource(v27, data, 0, v5, src, v18, v20);
-  if ( v23 < 0 )
+  v20 = v24->CopyIntoSubresource(v24, data, 0, v5, src, v15, v17);
+  if ( v20 < 0 )
   {
-    v24 = R_ErrorDescription(v23);
-    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 664i64, v24);
+    v21 = R_ErrorDescription(v20);
+    Sys_Error((const ObfuscateErrorText)&stru_144401F40, 664i64, v21);
   }
-  v27->GetResourceLayout(v27, (XG_RESOURCE_LAYOUT *)v32);
-  if ( v34 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 669, ASSERT_TYPE_ASSERT, "(layout.Planes == 1)", (const char *)&queryFormat, "layout.Planes == 1") )
+  v24->GetResourceLayout(v24, (XG_RESOURCE_LAYOUT *)v29);
+  if ( v31 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 669, ASSERT_TYPE_ASSERT, "(layout.Planes == 1)", (const char *)&queryFormat, "layout.Planes == 1") )
     __debugbreak();
-  if ( (unsigned int)v5 >= v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 670, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
+  if ( (unsigned int)v5 >= v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.cpp", 670, ASSERT_TYPE_ASSERT, "(mipLevel < layout.MipLevels)", (const char *)&queryFormat, "mipLevel < layout.MipLevels") )
     __debugbreak();
-  v25 = sizeInBytes[12 * v5];
-  v26 = &data[sizeInBytes[12 * v5 + 1]];
+  v22 = sizeInBytes[12 * v5];
+  v23 = &data[sizeInBytes[12 * v5 + 1]];
   R_LockGfxImmediateContext();
-  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v26, v25);
+  FlushGpuCacheRange(g_dx.immediateContext, 0xC03000u, v23, v22);
   R_UnlockGfxImmediateContext();
-  v27->Release(v27);
+  v24->Release(v24);
 }
 
 /*

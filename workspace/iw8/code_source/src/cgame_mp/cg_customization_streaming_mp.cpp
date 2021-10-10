@@ -142,11 +142,12 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
   const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v18; 
   __int64 v19; 
   const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v20; 
-  unsigned int v22; 
+  CgDistanceCacheMpKey *keys; 
+  unsigned int index; 
+  __int64 v24; 
   __int64 v25; 
   __int64 v26; 
   __int64 v27; 
-  __int64 v28; 
 
   v4 = requestData;
   v5 = ring;
@@ -173,9 +174,9 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
       {
         if ( Page->meta.nextPageIndex == nextPageIndex )
         {
-          LODWORD(v28) = nextPageIndex;
-          LODWORD(v27) = Page->meta.nextPageIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v27, v28) )
+          LODWORD(v27) = nextPageIndex;
+          LODWORD(v26) = Page->meta.nextPageIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v26, v27) )
             __debugbreak();
         }
         nextPageIndex = v14->meta.nextPageIndex;
@@ -185,9 +186,9 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
         OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::GetPage(v8, v14->meta.nextPageIndex);
         if ( !v14->meta.keyCount )
         {
-          LODWORD(v26) = 0;
           LODWORD(v25) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v25, v26) )
+          LODWORD(v24) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v24, v25) )
             __debugbreak();
         }
         v10 = 1;
@@ -216,9 +217,9 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
     {
       if ( v17->meta.nextPageIndex == nextPageIndex )
       {
-        LODWORD(v28) = nextPageIndex;
-        LODWORD(v27) = v17->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v27, v28) )
+        LODWORD(v27) = nextPageIndex;
+        LODWORD(v26) = v17->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v26, v27) )
           __debugbreak();
       }
       nextPageIndex = v18->meta.nextPageIndex;
@@ -227,9 +228,9 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
       v20 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::GetPage(v8, v18->meta.nextPageIndex);
       if ( !v18->meta.keyCount )
       {
-        LODWORD(v26) = 0;
         LODWORD(v25) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v25, v26) )
+        LODWORD(v24) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
       v10 = 1;
@@ -239,24 +240,23 @@ char CG_CustomizationStreamingMP_CollectCustomizations_LowPriorityCorpses(const 
       v19 = v10++;
       v20 = (const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *)((char *)v17 + 8 * v19);
     }
-    _R14 = (unsigned int *)v20->keys;
-    if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 152, ASSERT_TYPE_ASSERT, "( ( m_key != nullptr ) )", "( m_key ) = %p", NULL) )
+    keys = v20->keys;
+    if ( !keys && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 152, ASSERT_TYPE_ASSERT, "( ( m_key != nullptr ) )", "( m_key ) = %p", NULL) )
       __debugbreak();
-    v22 = *_R14;
-    if ( *_R14 >= 0x800 )
+    index = keys->index;
+    if ( keys->index >= 0x800 )
     {
-      LODWORD(v26) = 2048;
-      LODWORD(v25) = *_R14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 429, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v25) = 2048;
+      LODWORD(v24) = keys->index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 429, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    if ( !CG_CustomizationStreamingMP_LoadPlayerCorpseEntity(v6, LocalClientStaticGlobals, v22, flags, v4) )
+    if ( !CG_CustomizationStreamingMP_LoadPlayerCorpseEntity(v6, LocalClientStaticGlobals, index, flags, v4) )
     {
       Sys_ProfEndNamedEvent();
       return 0;
     }
-    __asm { vmovss  xmm2, dword ptr [r14+4]; distanceSq }
-    CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(v6, v22, *(const float *)&_XMM2);
+    CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(v6, index, keys->distanceSq);
   }
   Sys_ProfEndNamedEvent();
   return 1;
@@ -280,11 +280,12 @@ char CG_CustomizationStreamingMP_CollectCustomizations_HighPriorityCorpses(const
   const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v14; 
   __int64 v15; 
   const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v16; 
-  unsigned int v18; 
+  CgDistanceCacheMpKey *keys; 
+  unsigned int index; 
+  __int64 v20; 
   __int64 v21; 
   __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
 
   v6 = DVARBOOL_cg_customizationStreaming_highPriorityCorpses;
   if ( !DVARBOOL_cg_customizationStreaming_highPriorityCorpses && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_customizationStreaming_highPriorityCorpses") )
@@ -318,9 +319,9 @@ LABEL_31:
     {
       if ( Page->meta.nextPageIndex == nextPageIndex )
       {
-        LODWORD(v24) = nextPageIndex;
-        LODWORD(v23) = Page->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v23, v24) )
+        LODWORD(v23) = nextPageIndex;
+        LODWORD(v22) = Page->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 130, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( m_pageIndex )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "m_pageIndex", v22, v23) )
           __debugbreak();
       }
       nextPageIndex = v14->meta.nextPageIndex;
@@ -329,9 +330,9 @@ LABEL_31:
       v16 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::GetPage(PlayerCorpseCache, v14->meta.nextPageIndex);
       if ( !v14->meta.keyCount )
       {
-        LODWORD(v22) = 0;
         LODWORD(v21) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v20) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 139, ASSERT_TYPE_ASSERT, "(unsigned)( m_keyIndex ) < (unsigned)( page.meta.keyCount )", "m_keyIndex doesn't index page.meta.keyCount\n\t%i not in [0, %i)", v20, v21) )
           __debugbreak();
       }
       v12 = 1;
@@ -341,21 +342,20 @@ LABEL_31:
       v15 = v12++;
       v16 = (const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *)((char *)Page + 8 * v15);
     }
-    _RSI = (unsigned int *)v16->keys;
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 152, ASSERT_TYPE_ASSERT, "( ( m_key != nullptr ) )", "( m_key ) = %p", NULL) )
+    keys = v16->keys;
+    if ( !keys && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 152, ASSERT_TYPE_ASSERT, "( ( m_key != nullptr ) )", "( m_key ) = %p", NULL) )
       __debugbreak();
-    v18 = *_RSI;
-    if ( *_RSI >= 0x800 )
+    index = keys->index;
+    if ( keys->index >= 0x800 )
     {
-      LODWORD(v22) = 2048;
-      LODWORD(v21) = *_RSI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 463, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v21) = 2048;
+      LODWORD(v20) = keys->index;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 463, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
         __debugbreak();
     }
-    if ( !CG_CustomizationStreamingMP_LoadPlayerCorpseEntity(localClientNum, LocalClientStaticGlobals, v18, flags, requestData) )
+    if ( !CG_CustomizationStreamingMP_LoadPlayerCorpseEntity(localClientNum, LocalClientStaticGlobals, index, flags, requestData) )
       break;
-    __asm { vmovss  xmm2, dword ptr [rsi+4]; distanceSq }
-    CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(localClientNum, v18, *(const float *)&_XMM2);
+    CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(localClientNum, index, keys->distanceSq);
     if ( (unsigned int)++v10 >= 2 )
       goto LABEL_31;
   }
@@ -583,67 +583,65 @@ void CG_CustomizationStreamingMP_ConvertViewArmsRequestToClStreamingRequest(cons
 CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry
 ==============
 */
-
-void __fastcall CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(const LocalClientNum_t localClientNum, const unsigned int entnum, double distanceSq)
+void CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(const LocalClientNum_t localClientNum, const unsigned int entnum, const float distanceSq)
 {
+  __int64 v3; 
   __int64 v4; 
-  __int64 v5; 
-  const dvar_t *v7; 
-  CgEntitySystem *v8; 
+  const dvar_t *v6; 
+  CgEntitySystem *v7; 
   const cpose_t *p_pose; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  const char *v26; 
+  __int128 v14; 
+  const char *v23; 
   __int64 duration; 
-  __int64 v30; 
+  __int64 v25; 
   vec3_t xyz; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  v4 = localClientNum;
-  v5 = entnum;
-  __asm { vmovaps xmm6, xmm2 }
+  v3 = localClientNum;
+  v4 = entnum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 129, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( (unsigned int)v5 >= 0x800 )
+  if ( (unsigned int)v4 >= 0x800 )
   {
-    LODWORD(v30) = 2048;
-    LODWORD(duration) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v30) )
+    LODWORD(v25) = 2048;
+    LODWORD(duration) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 130, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v25) )
       __debugbreak();
   }
-  v7 = DCONST_DVARINT_cg_drawCustomizationStreaming;
+  v6 = DCONST_DVARINT_cg_drawCustomizationStreaming;
   if ( !DCONST_DVARINT_cg_drawCustomizationStreaming && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawCustomizationStreaming") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer == 1 )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.integer == 1 )
   {
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v30) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v30) )
+      LODWORD(v25) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v25) )
         __debugbreak();
     }
-    if ( (unsigned int)v4 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v3 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v30) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(v25) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(duration) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v25) )
+        __debugbreak();
+    }
+    if ( !CgEntitySystem::ms_entitySystemArray[v3] )
+    {
+      LODWORD(v25) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v25) )
+        __debugbreak();
+    }
+    v7 = CgEntitySystem::ms_entitySystemArray[v3];
+    if ( (unsigned int)v4 >= 0x800 )
+    {
+      LODWORD(v25) = 2048;
       LODWORD(duration) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v30) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v25) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v4] )
-    {
-      LODWORD(v30) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v30) )
-        __debugbreak();
-    }
-    v8 = CgEntitySystem::ms_entitySystemArray[v4];
-    if ( (unsigned int)v5 >= 0x800 )
-    {
-      LODWORD(v30) = 2048;
-      LODWORD(duration) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v30) )
-        __debugbreak();
-    }
-    p_pose = &v8->m_entities[(int)v5].pose;
+    p_pose = &v7->m_entities[(int)v4].pose;
     if ( !p_pose )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_streaming_mp.cpp", 137, ASSERT_TYPE_ASSERT, "( ( cent != nullptr ) )", "( cent ) = %p", NULL) )
@@ -657,37 +655,38 @@ void __fastcall CG_CustomizationStreamingMP_DebugDrawDistanceCacheEntry(const Lo
     FunctionPointer_origin(&p_pose->origin.origin.origin, &xyz);
     if ( p_pose->isPosePrecise )
     {
+      _XMM0 = LODWORD(xyz.v[0]);
+      _XMM2 = LODWORD(xyz.v[1]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v14 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v14;
       __asm
       {
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vmovd   xmm0, dword ptr [rsp+88h+xyz]
-        vmovd   xmm2, dword ptr [rsp+88h+xyz+4]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm0, xmm0, xmm3
         vcvtsd2ss xmm1, xmm0, xmm0
         vcvtdq2pd xmm2, xmm2
-        vmulsd  xmm0, xmm2, xmm3
-        vmovd   xmm2, dword ptr [rsp+88h+xyz+8]
-        vmovss  dword ptr [rsp+88h+xyz], xmm1
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vcvtdq2pd xmm2, xmm2
-        vmulsd  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rsp+88h+xyz+4], xmm1
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+88h+xyz+8], xmm1
       }
+      *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM2 + 1);
+      *(double *)&v14 = *(double *)&_XMM2 * 0.000244140625;
+      _XMM0 = v14;
+      _XMM2 = LODWORD(xyz.v[2]);
+      xyz.v[0] = *(float *)&_XMM1;
+      __asm
+      {
+        vcvtsd2ss xmm1, xmm0, xmm0
+        vcvtdq2pd xmm2, xmm2
+      }
+      *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM2 + 1);
+      *(double *)&v14 = *(double *)&_XMM2 * 0.000244140625;
+      _XMM0 = v14;
+      xyz.v[1] = *(float *)&_XMM1;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      xyz.v[2] = *(float *)&_XMM1;
     }
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
-    v26 = j_va("[%i]: entity %d, distanceSq %f", s_sortOrderCounter, (unsigned int)v5, _R9);
-    __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-    CL_AddDebugString(&xyz, &colorWhite, *(float *)&_XMM2, v26, 0, 1);
+    v23 = j_va("[%i]: entity %d, distanceSq %f", s_sortOrderCounter, (unsigned int)v4, distanceSq);
+    CL_AddDebugString(&xyz, &colorWhite, 0.5, v23, 0, 1);
   }
-  s_sortOrderLookupTable[v5] = ++s_sortOrderCounter;
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  s_sortOrderLookupTable[v4] = ++s_sortOrderCounter;
 }
 
 /*
@@ -697,31 +696,24 @@ CG_CustomizationStreamingMP_DebugGetHudOutlineInfo
 */
 GfxSceneHudOutlineInfo *CG_CustomizationStreamingMP_DebugGetHudOutlineInfo(GfxSceneHudOutlineInfo *result, unsigned int entNum)
 {
-  GfxSceneHudOutlineInfo *v2; 
   unsigned int HudOutlineColor; 
+  const dvar_t *v4; 
 
-  v2 = result;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO.color
-    vmovups ymmword ptr [rcx], ymm0
-  }
-  result->characterEVOffset = NULL_HUDOUTLINE_INFO.characterEVOffset;
+  *result = NULL_HUDOUTLINE_INFO;
   if ( s_sortOrderLookupTable[entNum] )
   {
     HudOutlineColor = CG_Utils_GetHudOutlineColor(5u);
-    _RDI = DVARFLT_r_hudOutlineWidth;
-    v2->color = HudOutlineColor;
-    *(_WORD *)&v2->drawOccludedPixels = 257;
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
+    v4 = DVARFLT_r_hudOutlineWidth;
+    result->color = HudOutlineColor;
+    *(_WORD *)&result->drawOccludedPixels = 257;
+    if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcvttss2si eax, dword ptr [rdi+28h] }
-    v2->lineWidth = _EAX;
-    v2->renderMode = 0;
-    v2->fill = 1;
+    Dvar_CheckFrontendServerThread(v4);
+    result->lineWidth = (int)v4->current.value;
+    result->renderMode = 0;
+    result->fill = 1;
   }
-  return v2;
+  return result;
 }
 
 /*

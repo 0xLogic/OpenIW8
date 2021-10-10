@@ -1929,22 +1929,9 @@ void __fastcall XAnimClearChildGoalWeightsWithParent(XAnimTree *tree, unsigned i
 XAnimSetCompleteGoalWeightRel
 ==============
 */
-
-int __fastcall XAnimSetCompleteGoalWeightRel(const DObj *obj, unsigned int animIndex, unsigned int rootIndex, double goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart)
+int XAnimSetCompleteGoalWeightRel(const DObj *obj, unsigned int animIndex, unsigned int rootIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart)
 {
-  float v12; 
-  float v13; 
-  float v14; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+rate]
-    vmovss  xmm1, [rsp+78h+goalTime]
-    vmovss  [rsp+78h+var_40], xmm0
-    vmovss  [rsp+78h+var_48], xmm1
-    vmovss  [rsp+78h+var_50], xmm3
-  }
-  return XAnimSetCompleteGoalWeightRel(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, rootIndex, v12, v13, v14, notifyName, notifyType, bRestart, LINEAR, NULL);
+  return XAnimSetCompleteGoalWeightRel(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, rootIndex, goalWeight, goalTime, rate, notifyName, notifyType, bRestart, LINEAR, NULL);
 }
 
 /*
@@ -1954,90 +1941,67 @@ XAnimGetDescendantWithGreatestWeight<1>
 */
 __int64 XAnimGetDescendantWithGreatestWeight<1>(unsigned __int16 infoIndex)
 {
+  XAnimInfo *AnimInfo; 
   unsigned __int16 children; 
-  unsigned int v8; 
-  __int64 v10; 
-  bool v11; 
-  __int64 v13; 
+  unsigned int v4; 
+  float i; 
+  unsigned __int8 *v6; 
+  __int64 v7; 
+  float v8; 
   unsigned int DescendantWithGreatest; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RBX = XAnimGetAnimInfo(infoIndex);
-  if ( !_RBX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7527, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7527, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  if ( _RBX->animToModel )
+  if ( AnimInfo->animToModel )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+38h]
-    }
-    if ( !_RBX->animToModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7532, ASSERT_TYPE_ASSERT, "(useGoalWeight ? info->state.goalWeight : info->state.weight)", (const char *)&queryFormat, "useGoalWeight ? info->state.goalWeight : info->state.weight") )
+    if ( AnimInfo->state.goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7532, ASSERT_TYPE_ASSERT, "(useGoalWeight ? info->state.goalWeight : info->state.weight)", (const char *)&queryFormat, "useGoalWeight ? info->state.goalWeight : info->state.weight") )
       __debugbreak();
-    return _RBX->animIndex;
+    return AnimInfo->animIndex;
   }
   else
   {
-    children = _RBX->children;
-    v8 = 0;
-    __asm
+    children = AnimInfo->children;
+    v4 = 0;
+    for ( i = 0.0; children; children = *((_WORD *)v6 + 5) )
     {
-      vmovaps [rsp+68h+var_28], xmm7
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( children )
-    {
-      __asm { vmovaps [rsp+68h+var_18], xmm6 }
-      do
+      if ( (children & 0x8000u) != 0 )
       {
-        if ( (children & 0x8000u) != 0 )
+        v7 = 32 * (children & 0x7FFFu);
+        if ( (unsigned int)v7 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          v13 = 32 * (children & 0x7FFFu);
-          if ( (unsigned int)v13 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-          {
-            LODWORD(v19) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v18) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v18, v19) )
-              __debugbreak();
-          }
-          v11 = __CFADD__(g_xanimMemoryGlobals.bucketAllocatorBasePointer, v13) || &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13] == NULL;
-          _RBX = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13];
+          LODWORD(v11) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v10) = 32 * (children & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v10, v11) )
+            __debugbreak();
         }
-        else
-        {
-          if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
-          {
-            LODWORD(v19) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v18) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v18, v19) )
-              __debugbreak();
-          }
-          v10 = children;
-          v11 = __CFADD__(g_xanimMemoryGlobals.infoPool, v10 * 96) || &g_xanimMemoryGlobals.infoPool[v10] == NULL;
-          _RBX = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[v10];
-        }
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbx+38h]
-          vcomiss xmm6, xmm7
-        }
-        if ( !v11 )
-        {
-          DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<1>(children);
-          if ( DescendantWithGreatest )
-          {
-            __asm { vmovaps xmm7, xmm6 }
-            v8 = DescendantWithGreatest;
-          }
-        }
-        children = *((_WORD *)_RBX + 5);
+        v6 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v7];
       }
-      while ( children );
-      __asm { vmovaps xmm6, [rsp+68h+var_18] }
+      else
+      {
+        if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v11) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v10) = children;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v10, v11) )
+            __debugbreak();
+        }
+        v6 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+      }
+      v8 = *((float *)v6 + 14);
+      if ( v8 > i )
+      {
+        DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<1>(children);
+        if ( DescendantWithGreatest )
+        {
+          i = v8;
+          v4 = DescendantWithGreatest;
+        }
+      }
     }
-    __asm { vmovaps xmm7, [rsp+68h+var_28] }
-    return v8;
+    return v4;
   }
 }
 
@@ -2048,90 +2012,67 @@ XAnimGetDescendantWithGreatestWeight<0>
 */
 __int64 XAnimGetDescendantWithGreatestWeight<0>(unsigned __int16 infoIndex)
 {
+  XAnimInfo *AnimInfo; 
   unsigned __int16 children; 
-  unsigned int v8; 
-  __int64 v10; 
-  bool v11; 
-  __int64 v13; 
+  unsigned int v4; 
+  float i; 
+  unsigned __int8 *v6; 
+  __int64 v7; 
+  float v8; 
   unsigned int DescendantWithGreatest; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RBX = XAnimGetAnimInfo(infoIndex);
-  if ( !_RBX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7527, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7527, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  if ( _RBX->animToModel )
+  if ( AnimInfo->animToModel )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+3Ch]
-    }
-    if ( !_RBX->animToModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7532, ASSERT_TYPE_ASSERT, "(useGoalWeight ? info->state.goalWeight : info->state.weight)", (const char *)&queryFormat, "useGoalWeight ? info->state.goalWeight : info->state.weight") )
+    if ( AnimInfo->state.weight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7532, ASSERT_TYPE_ASSERT, "(useGoalWeight ? info->state.goalWeight : info->state.weight)", (const char *)&queryFormat, "useGoalWeight ? info->state.goalWeight : info->state.weight") )
       __debugbreak();
-    return _RBX->animIndex;
+    return AnimInfo->animIndex;
   }
   else
   {
-    children = _RBX->children;
-    v8 = 0;
-    __asm
+    children = AnimInfo->children;
+    v4 = 0;
+    for ( i = 0.0; children; children = *((_WORD *)v6 + 5) )
     {
-      vmovaps [rsp+68h+var_28], xmm7
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( children )
-    {
-      __asm { vmovaps [rsp+68h+var_18], xmm6 }
-      do
+      if ( (children & 0x8000u) != 0 )
       {
-        if ( (children & 0x8000u) != 0 )
+        v7 = 32 * (children & 0x7FFFu);
+        if ( (unsigned int)v7 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          v13 = 32 * (children & 0x7FFFu);
-          if ( (unsigned int)v13 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-          {
-            LODWORD(v19) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v18) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v18, v19) )
-              __debugbreak();
-          }
-          v11 = __CFADD__(g_xanimMemoryGlobals.bucketAllocatorBasePointer, v13) || &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13] == NULL;
-          _RBX = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13];
+          LODWORD(v11) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v10) = 32 * (children & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v10, v11) )
+            __debugbreak();
         }
-        else
-        {
-          if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
-          {
-            LODWORD(v19) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v18) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v18, v19) )
-              __debugbreak();
-          }
-          v10 = children;
-          v11 = __CFADD__(g_xanimMemoryGlobals.infoPool, v10 * 96) || &g_xanimMemoryGlobals.infoPool[v10] == NULL;
-          _RBX = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[v10];
-        }
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbx+3Ch]
-          vcomiss xmm6, xmm7
-        }
-        if ( !v11 )
-        {
-          DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<0>(children);
-          if ( DescendantWithGreatest )
-          {
-            __asm { vmovaps xmm7, xmm6 }
-            v8 = DescendantWithGreatest;
-          }
-        }
-        children = *((_WORD *)_RBX + 5);
+        v6 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v7];
       }
-      while ( children );
-      __asm { vmovaps xmm6, [rsp+68h+var_18] }
+      else
+      {
+        if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v11) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v10) = children;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v10, v11) )
+            __debugbreak();
+        }
+        v6 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+      }
+      v8 = *((float *)v6 + 15);
+      if ( v8 > i )
+      {
+        DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<0>(children);
+        if ( DescendantWithGreatest )
+        {
+          i = v8;
+          v4 = DescendantWithGreatest;
+        }
+      }
     }
-    __asm { vmovaps xmm7, [rsp+68h+var_28] }
-    return v8;
+    return v4;
   }
 }
 
@@ -2206,18 +2147,18 @@ __int64 DObjCloneAnimTree_r(DObj *obj, unsigned __int16 fromInfoIndex, unsigned 
   XAnimToXModel *animToModel; 
   bool HasClientOnlyBones; 
   unsigned int ClientBoneOffset; 
-  XModelNameMap *v16; 
-  unsigned __int16 v17; 
+  XModelNameMap *v15; 
+  unsigned __int16 v16; 
   XAnimSubTreeID subTreeID; 
-  XAnimInfo *v19; 
+  XAnimInfo *v18; 
   const XAnim_s *SubTreeAnims; 
-  XAnimInfo *v21; 
+  XAnimInfo *v20; 
   unsigned __int16 children; 
-  unsigned __int16 v23; 
-  char v26; 
+  unsigned __int16 i; 
+  XAnimInfo *v23; 
   unsigned __int16 next; 
-  unsigned __int16 v29; 
-  unsigned __int16 v31; 
+  unsigned __int16 v25; 
+  unsigned __int16 v26; 
   bool fmt; 
 
   tree = obj->tree;
@@ -2231,101 +2172,81 @@ __int64 DObjCloneAnimTree_r(DObj *obj, unsigned __int16 fromInfoIndex, unsigned 
     {
       if ( *modelMapInitialized )
       {
-        v16 = modelMap;
+        v15 = modelMap;
       }
       else
       {
         HasClientOnlyBones = DObjHasClientOnlyBones(obj);
         ClientBoneOffset = DObjGetClientBoneOffset(obj);
         fmt = HasClientOnlyBones;
-        v16 = modelMap;
+        v15 = modelMap;
         XAnimInitModelMap(obj->models, obj->numModels, modelMap, ClientBoneOffset, fmt);
         *modelMapInitialized = 1;
       }
-      animToModel = XAnimGetAnimMap(AnimInfo->parts, v16, NULL);
+      animToModel = XAnimGetAnimMap(AnimInfo->parts, v15, NULL);
     }
-    v17 = XAnimAllocInfoWithParent(tree, (const XAnimSubTreeID)AnimInfo->subTreeID, animToModel, AnimInfo->animIndex, toInfoParentIndex, 0);
+    v16 = XAnimAllocInfoWithParent(tree, (const XAnimSubTreeID)AnimInfo->subTreeID, animToModel, AnimInfo->animIndex, toInfoParentIndex, 0);
     subTreeID = AnimInfo->subTreeID;
-    toInfoIndex = v17;
-    v19 = XAnimGetAnimInfo(v17);
-    *(_QWORD *)&v19->state.currentAnimTime = 0i64;
-    *(_QWORD *)&v19->state.cycleCount = 0i64;
-    *(_QWORD *)&v19->state.goalWeight = 0i64;
-    *(_QWORD *)&v19->state.rate = 0i64;
-    *(_QWORD *)&v19->state.startWeight = 0i64;
-    v19->notifyName = 0;
-    *(_DWORD *)&v19->notifyChild = -65536;
-    v19->notifyType = 0;
-    v19->subTreeID = subTreeID;
+    toInfoIndex = v16;
+    v18 = XAnimGetAnimInfo(v16);
+    *(_QWORD *)&v18->state.currentAnimTime = 0i64;
+    *(_QWORD *)&v18->state.cycleCount = 0i64;
+    *(_QWORD *)&v18->state.goalWeight = 0i64;
+    *(_QWORD *)&v18->state.rate = 0i64;
+    *(_QWORD *)&v18->state.startWeight = 0i64;
+    v18->notifyName = 0;
+    *(_DWORD *)&v18->notifyChild = -65536;
+    v18->notifyType = 0;
+    v18->subTreeID = subTreeID;
     SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    if ( XAnimIsCustomNode(SubTreeAnims, v19) )
-      v19->state.flags |= 8u;
+    if ( XAnimIsCustomNode(SubTreeAnims, v18) )
+      v18->state.flags |= 8u;
   }
-  v21 = XAnimGetAnimInfo(toInfoIndex);
-  XAnimCloneAnimInfo(AnimInfo, v21);
+  v20 = XAnimGetAnimInfo(toInfoIndex);
+  XAnimCloneAnimInfo(AnimInfo, v20);
   children = AnimInfo->children;
-  v23 = v21->children;
-  if ( children )
+  for ( i = v20->children; children; children = v23->next )
   {
-    __asm
+    v23 = XAnimGetAnimInfo(children);
+    if ( v23->state.weight != 0.0 )
     {
-      vmovaps [rsp+68h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    do
-    {
-      _RSI = XAnimGetAnimInfo(children);
-      __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-      if ( !v26 )
+      if ( i )
       {
-        if ( v23 )
+        if ( !XAnimGetAnimInfo(i)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9136, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
+          __debugbreak();
+        while ( XAnimGetAnimInfo(i)->animIndex < v23->animIndex || XAnimGetAnimInfo(i)->state.weight == 0.0 )
         {
-          if ( !XAnimGetAnimInfo(v23)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9136, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
-            __debugbreak();
-          while ( 1 )
-          {
-            if ( XAnimGetAnimInfo(v23)->animIndex >= _RSI->animIndex )
-            {
-              _RAX = XAnimGetAnimInfo(v23);
-              __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-              if ( !v26 )
-                break;
-            }
-            next = XAnimGetAnimInfo(v23)->next;
-            XAnimFreeInfo(tree, v23, obj);
-            v23 = next;
-            if ( !next )
-              goto LABEL_28;
-          }
-          if ( v23 && !XAnimGetAnimInfo(v23)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9145, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
-            __debugbreak();
+          next = XAnimGetAnimInfo(i)->next;
+          XAnimFreeInfo(tree, i, obj);
+          i = next;
+          if ( !next )
+            goto LABEL_27;
         }
-LABEL_28:
-        v29 = DObjCloneAnimTree_r(obj, children, v23, toInfoIndex, modelMapInitialized, modelMap);
-        if ( !XAnimGetAnimInfo(v29)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9151, ASSERT_TYPE_ASSERT, "(XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "XAnimInfoIsInUse( toChildInfoIndex )") )
-          __debugbreak();
-        if ( XAnimGetAnimInfo(v29)->animIndex != _RSI->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9152, ASSERT_TYPE_ASSERT, "(GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex)", (const char *)&queryFormat, "GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex") )
-          __debugbreak();
-        v23 = XAnimGetAnimInfo(v29)->next;
-        if ( v23 && !XAnimGetAnimInfo(v23)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9156, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
+        if ( i && !XAnimGetAnimInfo(i)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9145, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
           __debugbreak();
       }
-      children = _RSI->next;
+LABEL_27:
+      v25 = DObjCloneAnimTree_r(obj, children, i, toInfoIndex, modelMapInitialized, modelMap);
+      if ( !XAnimGetAnimInfo(v25)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9151, ASSERT_TYPE_ASSERT, "(XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "XAnimInfoIsInUse( toChildInfoIndex )") )
+        __debugbreak();
+      if ( XAnimGetAnimInfo(v25)->animIndex != v23->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9152, ASSERT_TYPE_ASSERT, "(GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex)", (const char *)&queryFormat, "GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex") )
+        __debugbreak();
+      i = XAnimGetAnimInfo(v25)->next;
+      if ( i && !XAnimGetAnimInfo(i)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9156, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
+        __debugbreak();
     }
-    while ( children );
-    __asm { vmovaps xmm6, [rsp+68h+var_38] }
   }
-  if ( v23 )
+  if ( i )
   {
-    if ( !XAnimGetAnimInfo(v23)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9162, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
+    if ( !XAnimGetAnimInfo(i)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9162, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
       __debugbreak();
     do
     {
-      v31 = XAnimGetAnimInfo(v23)->next;
-      XAnimFreeInfo(tree, v23, obj);
-      v23 = v31;
+      v26 = XAnimGetAnimInfo(i)->next;
+      XAnimFreeInfo(tree, i, obj);
+      i = v26;
     }
-    while ( v31 );
+    while ( v26 );
   }
   return toInfoIndex;
 }
@@ -2389,14 +2310,15 @@ DObjDisplayAnimToBuffer
 */
 void DObjDisplayAnimToBuffer(const DObj *obj, const char *header, char *buffer, int bufferSize)
 {
-  unsigned __int64 v5; 
+  unsigned __int64 v4; 
   XAnimTree *tree; 
-  const dvar_t *v16; 
+  __int128 v11; 
+  __int128 v13; 
+  const dvar_t *v15; 
   const char *parentColor; 
-  char *fmt; 
   int destPos; 
 
-  v5 = bufferSize;
+  v4 = bufferSize;
   if ( !header && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6255, ASSERT_TYPE_ASSERT, "(header)", (const char *)&queryFormat, "header") )
     __debugbreak();
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6256, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -2409,48 +2331,45 @@ void DObjDisplayAnimToBuffer(const DObj *obj, const char *header, char *buffer, 
       if ( tree->children )
       {
         destPos = 0;
-        Com_sprintfPos_truncate(buffer, v5, &destPos, (const char *)&queryFormat, header);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rax
-        }
+        Com_sprintfPos_truncate(buffer, v4, &destPos, (const char *)&queryFormat, header);
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
         if ( (__int64)(__rdtsc() - g_timerTickAtBoot) < 0 )
-          __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-        __asm
         {
-          vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmulss  xmm2, xmm1, cs:__real@3a83126f
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmovsd  [rsp+68h+fmt], xmm3
+          *((_QWORD *)&v11 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v11 = *(double *)&_XMM0 + 1.844674407370955e19;
+          _XMM0 = v11;
         }
-        Com_sprintfPos_truncate(buffer, v5, &destPos, "gametime: %f\n", *(double *)&fmt);
-        v16 = DCONST_DVARBOOL_xanim_display_tree_parameters;
+        *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v13 = *(double *)&_XMM0 * msecPerRawTimerTick;
+        _XMM0 = v13;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        Com_sprintfPos_truncate(buffer, v4, &destPos, "gametime: %f\n", (float)(*(float *)&_XMM1 * 0.001));
+        v15 = DCONST_DVARBOOL_xanim_display_tree_parameters;
         if ( !DCONST_DVARBOOL_xanim_display_tree_parameters && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_display_tree_parameters") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v16);
-        if ( v16->current.enabled )
-          XAnimDisplayTreeParameters(obj, buffer, v5, &destPos);
+        Dvar_CheckFrontendServerThread(v15);
+        if ( v15->current.enabled )
+          XAnimDisplayTreeParameters(obj, buffer, v4, &destPos);
         parentColor = "^2";
         if ( !r_colorTable->current.integer )
           parentColor = "^3";
-        XAnimDisplay(obj, tree, tree->children, 0, buffer, v5, &destPos, parentColor);
-        Com_sprintfPos_truncate(buffer, v5, &destPos, "\n");
+        XAnimDisplay(obj, tree, tree->children, 0, buffer, v4, &destPos, parentColor);
+        Com_sprintfPos_truncate(buffer, v4, &destPos, "\n");
       }
       else
       {
-        Com_sprintf(buffer, v5, "%sNO ANIM\n", header);
+        Com_sprintf(buffer, v4, "%sNO ANIM\n", header);
       }
     }
     else
     {
-      Com_sprintf(buffer, v5, "%sNO TREE\n", header);
+      Com_sprintf(buffer, v4, "%sNO TREE\n", header);
     }
   }
   else
   {
-    Com_sprintf(buffer, v5, "%sNO DOBJ\n", header);
+    Com_sprintf(buffer, v4, "%sNO DOBJ\n", header);
   }
 }
 
@@ -2531,8 +2450,7 @@ __int64 DObjGetServerNotifyList(XAnimNotifySV **notifyList)
 DObjInitServerTime
 ==============
 */
-
-void __fastcall DObjInitServerTime(DObj *obj, double dtime)
+void DObjInitServerTime(DObj *obj, float dtime)
 {
   XAnimTree *tree; 
   int entnum; 
@@ -2540,11 +2458,6 @@ void __fastcall DObjInitServerTime(DObj *obj, double dtime)
   bool childHasTimeForParent; 
   XAnimState syncState; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   Profile_Begin(413);
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6017, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -2553,16 +2466,10 @@ void __fastcall DObjInitServerTime(DObj *obj, double dtime)
   {
     entnum = obj->entnum - 1;
     syncState.cycleCount = 0;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0A8h+syncState.currentAnimTime], xmm0
-      vmovaps xmm3, xmm6; dtime
-    }
-    XAnimUpdateOldTime(obj, tree->children, &syncState, *(float *)&_XMM3, 1, &childHasTimeForParent, &parentHasSyncGroups, entnum, NULL);
+    syncState.currentAnimTime = 0.0;
+    XAnimUpdateOldTime(obj, tree->children, &syncState, dtime, 1, &childHasTimeForParent, &parentHasSyncGroups, entnum, NULL);
   }
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
 }
 
 /*
@@ -2610,17 +2517,12 @@ void DObjResetClientNotifyList(void)
 DObjTransfer
 ==============
 */
-
-void __fastcall DObjTransfer(const DObj *fromObj, DObj *toObj, double dtime)
+void DObjTransfer(const DObj *fromObj, DObj *toObj, float dtime)
 {
-  unsigned int v7; 
+  unsigned int v5; 
+  DObjTransferInfo *v6; 
   XAnimTree *tree; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( g_dobjInfoCheck != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5923, ASSERT_TYPE_ASSERT, "(g_dobjInfoCheck == 1)", (const char *)&queryFormat, "g_dobjInfoCheck == 1") )
     __debugbreak();
   if ( !fromObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5925, ASSERT_TYPE_ASSERT, "(fromObj)", (const char *)&queryFormat, "fromObj") )
@@ -2630,25 +2532,25 @@ void __fastcall DObjTransfer(const DObj *fromObj, DObj *toObj, double dtime)
   if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5927, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
     __debugbreak();
   Profile_Begin(413);
-  v7 = g_dobjInfoCount;
+  v5 = g_dobjInfoCount;
   if ( g_dobjInfoCount >= 0x400 )
   {
     g_animInfoCount = 0;
     g_dobjInfoCount = 0;
     g_xanimParameterTransferInfo.parameterCount = 0;
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AE0E0, 371i64);
-    v7 = g_dobjInfoCount;
+    v5 = g_dobjInfoCount;
   }
-  g_dobjInfoCount = v7 + 1;
-  _RDI = &g_dobjTransferInfo[v7];
-  _RDI->toObj = toObj;
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&_RDI->hidePartBits, &fromObj->hidePartBits);
+  g_dobjInfoCount = v5 + 1;
+  v6 = &g_dobjTransferInfo[v5];
+  v6->toObj = toObj;
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v6->hidePartBits, &fromObj->hidePartBits);
   tree = fromObj->tree;
-  _RDI->fromObjHasTree = tree != NULL;
+  v6->fromObjHasTree = tree != NULL;
   if ( tree )
   {
-    _RDI->clientNotifyEnabled = tree->clientNotifyEnabled;
-    _RDI->fromObjTreeHasChildren = tree->children != 0;
+    v6->clientNotifyEnabled = tree->clientNotifyEnabled;
+    v6->fromObjTreeHasChildren = tree->children != 0;
     if ( toObj->tree )
     {
       if ( tree->children )
@@ -2660,10 +2562,9 @@ void __fastcall DObjTransfer(const DObj *fromObj, DObj *toObj, double dtime)
         XAnimTransferParametersFromServerTree(&g_xanimParameterTransferInfo, tree);
         XAnimTransferFrom_r(tree, tree->children);
       }
-      __asm { vmovss  dword ptr [rdi+28h], xmm6 }
+      v6->dtime = dtime;
     }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   Profile_EndInternal(NULL);
 }
 
@@ -2739,25 +2640,28 @@ void DObjTransferTo(const DObjTransferInfo *info)
   XAnimTree *tree; 
   unsigned __int16 maxParameters; 
   unsigned __int16 numGameParameters; 
-  XAnimTree *v7; 
+  XAnimTree *v6; 
+  float dtime; 
   unsigned __int16 m_notifyIndex; 
-  unsigned int v12; 
+  unsigned int v9; 
+  const XAnimNotify *ClientNotifyFirst; 
+  __int128 v11; 
+  __int64 v12; 
   unsigned __int16 children; 
-  unsigned __int16 v21; 
+  unsigned __int16 v14; 
   bool *childHasTimeForParent; 
   XAnimNotifyHandle inOutNotifyHead; 
   bool parentHasSyncGroups; 
-  bool v25; 
+  bool v18; 
   XAnimState syncState; 
 
-  _R14 = info;
   if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5839, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
     __debugbreak();
-  toObj = _R14->toObj;
-  if ( !_R14->toObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5842, ASSERT_TYPE_ASSERT, "(toObj)", (const char *)&queryFormat, "toObj") )
+  toObj = info->toObj;
+  if ( !info->toObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5842, ASSERT_TYPE_ASSERT, "(toObj)", (const char *)&queryFormat, "toObj") )
     __debugbreak();
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&toObj->hidePartBits, &_R14->hidePartBits);
-  if ( !_R14->fromObjHasTree )
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&toObj->hidePartBits, &info->hidePartBits);
+  if ( !info->fromObjHasTree )
   {
     tree = toObj->tree;
     if ( toObj->tree )
@@ -2779,21 +2683,16 @@ void DObjTransferTo(const DObjTransferInfo *info)
       DObjSetTree(toObj, NULL);
     }
   }
-  v7 = toObj->tree;
+  v6 = toObj->tree;
   if ( toObj->tree )
   {
-    if ( v7->children )
+    if ( v6->children )
     {
-      __asm { vmovss  xmm3, dword ptr [r14+28h]; dtime }
+      dtime = info->dtime;
       syncState.cycleCount = 0;
       inOutNotifyHead.m_notifyIndex = -1;
-      __asm
-      {
-        vmovaps [rsp+0C8h+var_38], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  [rsp+0C8h+syncState.currentAnimTime], xmm6
-      }
-      XAnimUpdateOldTime(toObj, v7->children, &syncState, *(float *)&_XMM3, 1, &v25, &parentHasSyncGroups, toObj->entnum - 1, NULL);
+      syncState.currentAnimTime = 0.0;
+      XAnimUpdateOldTime(toObj, v6->children, &syncState, dtime, 1, &v18, &parentHasSyncGroups, toObj->entnum - 1, NULL);
       if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6037, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
         __debugbreak();
       if ( s_clientNotifyListHighWatermark < s_clientNotifyListFreeIndex )
@@ -2803,55 +2702,45 @@ void DObjTransferTo(const DObjTransferInfo *info)
       }
       s_clientNotifyListFreeIndex = -1;
       DebugWipe(s_clientNotifyList, 0x30000ui64);
-      __asm { vmovss  xmm2, dword ptr [r14+28h]; dtime }
-      XAnimUpdateTimeAndNotetrack(toObj, v7->children, *(float *)&_XMM2, 1, &inOutNotifyHead);
+      XAnimUpdateTimeAndNotetrack(toObj, v6->children, info->dtime, 1, &inOutNotifyHead);
       if ( !toObj->entnum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5872, ASSERT_TYPE_ASSERT, "(toObj->entnum > 0)", (const char *)&queryFormat, "toObj->entnum > 0") )
         __debugbreak();
       m_notifyIndex = inOutNotifyHead.m_notifyIndex;
-      v12 = toObj->entnum - 1;
+      v9 = toObj->entnum - 1;
       if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5803, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
         __debugbreak();
       if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5804, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
         __debugbreak();
-      _RAX = DObjGetClientNotifyFirst((const XAnimNotifyHandle)m_notifyIndex);
-      if ( _RAX )
+      ClientNotifyFirst = DObjGetClientNotifyFirst((const XAnimNotifyHandle)m_notifyIndex);
+      if ( ClientNotifyFirst )
       {
-        _RBX = s_missedNotifyList;
         while ( (unsigned __int64)s_missedNotifyListSize < 0x80 )
         {
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          _RCX = s_missedNotifyListSize++;
-          __asm
-          {
-            vmovups xmmword ptr [rcx+rbx], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rcx+rbx+10h], xmm1
-          }
-          s_missedNotifyList[_RCX].entityNumber = v12;
-          _RAX = DObjGetClientNotifyNext(_RAX);
-          if ( !_RAX )
-            goto LABEL_41;
+          v11 = *(_OWORD *)&ClientNotifyFirst->notifyName;
+          v12 = s_missedNotifyListSize++;
+          *(_OWORD *)&s_missedNotifyList[v12].notify.notifyName = v11;
+          s_missedNotifyList[v12].notify.animParts = ClientNotifyFirst->animParts;
+          s_missedNotifyList[v12].entityNumber = v9;
+          ClientNotifyFirst = DObjGetClientNotifyNext(ClientNotifyFirst);
+          if ( !ClientNotifyFirst )
+            goto LABEL_40;
         }
         Com_PrintWarning(19, "DObjSaveMissedNotifyList() max number of missed notetracks reached (%d)", 128i64);
       }
-LABEL_41:
-      if ( !_R14->fromObjTreeHasChildren )
+LABEL_40:
+      if ( !info->fromObjTreeHasChildren )
       {
-        children = v7->children;
+        children = v6->children;
         if ( children )
-        {
-          __asm { vmovaps xmm2, xmm6; blendTime }
-          XAnimClearTreeGoalWeightsNode(v7, children, *(float *)&_XMM2, 1, LINEAR);
-        }
+          XAnimClearTreeGoalWeightsNode(v6, children, 0.0, 1, LINEAR);
       }
-      __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
     }
-    v7->clientNotifyEnabled = _R14->clientNotifyEnabled;
-    if ( _R14->fromObjTreeHasChildren )
+    v6->clientNotifyEnabled = info->clientNotifyEnabled;
+    if ( info->fromObjTreeHasChildren )
     {
-      v21 = v7->children;
-      XAnimTransferParametersToClientTree(&g_xanimParameterTransferInfo, v7);
-      XAnimTransferTo_r(toObj, v7, v21, 0);
+      v14 = v6->children;
+      XAnimTransferParametersToClientTree(&g_xanimParameterTransferInfo, v6);
+      XAnimTransferTo_r(toObj, v6, v14, 0);
     }
   }
 }
@@ -2865,116 +2754,80 @@ DObj *DObjUpdateClientInfo(DObj *obj, float dtime, bool notify, int entnum, int 
 {
   signed __int64 v5; 
   DObj *v6; 
-  void *v11; 
-  char v13; 
-  DObj *v15; 
+  float v7; 
+  void *v8; 
+  char v10; 
+  DObj *v11; 
   XAnimTree *tree; 
-  XAnimTree *v20; 
-  __int64 v29; 
-  int v30; 
-  bool v31; 
+  double ModifiedDeltaTime_ToolUseOnly; 
+  float v14; 
+  XAnimTree *v15; 
+  double v16; 
+  const dvar_t *v17; 
+  __int64 v18; 
+  int v19; 
+  bool v20; 
   unsigned __int16 children; 
-  DObj *result; 
   bool parentHasSyncGroups; 
   bool childHasTimeForParent; 
   XAnimState syncState; 
   XModelNameMap modelNameMap; 
 
-  v11 = alloca(v5);
-  __asm
-  {
-    vmovaps [rsp+3108h+var_58], xmm6
-    vmovaps [rsp+3108h+var_68], xmm7
-  }
+  v8 = alloca(v5);
   modelNameMap.initialized = 0;
-  v13 = entnum;
-  __asm { vmovaps xmm6, xmm2 }
-  v15 = v6;
+  v10 = entnum;
+  v11 = v6;
   Profile_Begin(413);
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6066, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6066, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
+  if ( v7 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6067, ASSERT_TYPE_ASSERT, "(dtime >= 0)", (const char *)&queryFormat, "dtime >= 0") )
+    __debugbreak();
   if ( !Sys_IsMainThread() && !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6068, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsMainThreadEntityWorker())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsMainThreadEntityWorker()") )
     __debugbreak();
   LOWORD(obj->tree) = -1;
-  tree = v15->tree;
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  *(double *)&_XMM0 = AnimVisualizer_GetModifiedDeltaTime_ToolUseOnly(v15->entnum, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( DObjHasProceduralBones(v15) )
-  {
-    __asm { vmovaps xmm1, xmm6; deltaTime }
-    XAnimBonePhysicsUpdateTime(v15, *(float *)&_XMM1);
-  }
+  tree = v11->tree;
+  ModifiedDeltaTime_ToolUseOnly = AnimVisualizer_GetModifiedDeltaTime_ToolUseOnly(v11->entnum, v7);
+  v14 = *(float *)&ModifiedDeltaTime_ToolUseOnly;
+  if ( DObjHasProceduralBones(v11) )
+    XAnimBonePhysicsUpdateTime(v11, *(float *)&ModifiedDeltaTime_ToolUseOnly);
   if ( tree && tree->children )
   {
-    v20 = v15->tree;
-    if ( !DObjHasClientFlag(v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9578, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
+    v15 = v11->tree;
+    if ( !DObjHasClientFlag(v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9578, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
       __debugbreak();
-    if ( v20 )
+    if ( v15 && *(float *)&ModifiedDeltaTime_ToolUseOnly != 0.0 )
     {
-      __asm
+      v16 = I_fclamp(*(float *)&ModifiedDeltaTime_ToolUseOnly * 1000.0, 0.0, 32767.0);
+      if ( v15->lodState.blendTimeLeft <= (__int16)(int)*(float *)&v16 )
       {
-        vucomiss xmm6, xmm7
-        vmulss  xmm0, xmm6, cs:__real@447a0000; val
-        vmovss  xmm2, cs:__real@46fffe00; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vcvttss2si r15d, xmm0 }
-      if ( v20->lodState.blendTimeLeft <= (__int16)_ER15 )
-      {
-        v20->lodState.lod = v20->lodState.goalLod;
-        v20->lodState.blendTimeLeft = 0;
+        v15->lodState.lod = v15->lodState.goalLod;
+        v15->lodState.blendTimeLeft = 0;
       }
       else
       {
-        _RBP = DCONST_DVARFLT_xanim_lodLerpFactor;
+        v17 = DCONST_DVARFLT_xanim_lodLerpFactor;
         if ( !DCONST_DVARFLT_xanim_lodLerpFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodLerpFactor") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBP);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+28h]
-          vmulss  xmm1, xmm0, cs:__real@43800000
-          vcvttss2si ecx, xmm1
-        }
-        v29 = (__int16)_ECX * (v20->lodState.goalLod - v20->lodState.lod);
-        v30 = (BYTE4(v29) + (int)v29) >> 8;
-        v31 = (__int16)(v20->lodState.lod + v30) < 0;
-        v20->lodState.lod += v30;
-        if ( v31 )
-          v20->lodState.lod = 0;
-        v20->lodState.blendTimeLeft -= _ER15;
+        Dvar_CheckFrontendServerThread(v17);
+        v18 = (__int16)(int)(float)(v17->current.value * 256.0) * (v15->lodState.goalLod - v15->lodState.lod);
+        v19 = (BYTE4(v18) + (int)v18) >> 8;
+        v20 = (__int16)(v15->lodState.lod + v19) < 0;
+        v15->lodState.lod += v19;
+        if ( v20 )
+          v15->lodState.lod = 0;
+        v15->lodState.blendTimeLeft -= (int)*(float *)&v16;
       }
     }
-    XAnimTreeUpdateParameters(v15);
+    XAnimTreeUpdateParameters(v11);
     syncState.cycleCount = 0;
-    __asm
-    {
-      vmovss  [rsp+3108h+syncState.currentAnimTime], xmm7
-      vmovaps xmm3, xmm6; dtime
-    }
-    XAnimUpdateOldTime(v15, tree->children, &syncState, *(float *)&_XMM3, 1, &childHasTimeForParent, &parentHasSyncGroups, a5, &modelNameMap);
+    syncState.currentAnimTime = 0.0;
+    XAnimUpdateOldTime(v11, tree->children, &syncState, v14, 1, &childHasTimeForParent, &parentHasSyncGroups, a5, &modelNameMap);
     children = tree->children;
     if ( children )
-    {
-      __asm { vmovaps xmm2, xmm6; dtime }
-      XAnimUpdateTimeAndNotetrack(v15, children, *(float *)&_XMM2, v13, (XAnimNotifyHandle *)obj);
-    }
+      XAnimUpdateTimeAndNotetrack(v11, children, v14, v10, (XAnimNotifyHandle *)obj);
   }
   Profile_EndInternal(NULL);
-  result = obj;
-  __asm
-  {
-    vmovaps xmm6, [rsp+3108h+var_58]
-    vmovaps xmm7, [rsp+3108h+var_68]
-  }
-  return result;
+  return obj;
 }
 
 /*
@@ -2985,107 +2838,56 @@ DObjUpdateServerInfo
 
 __int64 __fastcall DObjUpdateServerInfo(DObj *obj, double dtime, int bNotify)
 {
+  __int128 v3; 
+  float v6; 
   XAnimTree *tree; 
-  char v16; 
-  bool v17; 
-  bool v21; 
-  __int64 result; 
-  double v31; 
-  double v32; 
+  float v11; 
   XAnimNotifyHandle inOutNotifyHead; 
   XAnimSyncGroupCalcData syncGroupCalcData; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm6, xmm1
-  }
+  v6 = *(float *)&dtime;
   Profile_Begin(413);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6127, ASSERT_TYPE_ASSERT, "(dtime >= 0)", (const char *)&queryFormat, "dtime >= 0") )
+  if ( *(float *)&dtime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6127, ASSERT_TYPE_ASSERT, "(dtime >= 0)", (const char *)&queryFormat, "dtime >= 0") )
     __debugbreak();
   tree = obj->tree;
   s_notifyListSVSize = 0;
-  if ( !tree || !tree->children )
-    goto LABEL_15;
-  inOutNotifyHead.m_notifyIndex = -1;
-  XAnimTreeUpdateParameters(obj);
-  if ( !bNotify )
+  if ( tree && tree->children )
   {
-    __asm { vmovaps xmm2, xmm6; dtime }
-    XAnimUpdateTimeAndNotetrack(obj, tree->children, *(float *)&_XMM2, 0, &inOutNotifyHead);
-LABEL_15:
-    Profile_EndInternal(NULL);
-    result = 0i64;
-    goto LABEL_16;
-  }
-  __asm { vmovaps [rsp+0F8h+var_38], xmm8 }
-  memset_0(&syncGroupCalcData, 0, sizeof(syncGroupCalcData));
-  __asm { vmovaps xmm1, xmm6; dtime }
-  XAnimUpdateSyncGroups(obj, *(float *)&_XMM1, 1, &syncGroupCalcData);
-  __asm { vmovaps xmm2, xmm6; dtime }
-  *(float *)&_XMM0 = XAnimFindServerNoteTrack(obj, tree->children, *(float *)&_XMM2, &syncGroupCalcData);
-  __asm
-  {
-    vcomiss xmm0, xmm7
-    vmovaps xmm8, xmm0
-  }
-  if ( v16 )
-  {
-    __asm
+    inOutNotifyHead.m_notifyIndex = -1;
+    XAnimTreeUpdateParameters(obj);
+    if ( bNotify )
     {
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0F8h+var_B8], xmm1
-      vcvtss2sd xmm2, xmm8, xmm0
-      vmovsd  [rsp+0F8h+var_C0], xmm2
+      memset_0(&syncGroupCalcData, 0, sizeof(syncGroupCalcData));
+      XAnimUpdateSyncGroups(obj, *(float *)&dtime, 1, &syncGroupCalcData);
+      *(float *)&v3 = XAnimFindServerNoteTrack(obj, tree->children, *(float *)&dtime, &syncGroupCalcData);
+      _XMM8 = v3;
+      if ( *(float *)&v3 < 0.0 )
+      {
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6158, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", *(float *)&v3, *(double *)&_XMM1) )
+          __debugbreak();
+      }
+      __asm { vmaxss  xmm0, xmm8, xmm7 }
+      if ( *(float *)&_XMM0 != 1.0 )
+      {
+        v11 = (float)(v6 * *(float *)&_XMM0) + 0.001;
+        if ( v11 <= v6 )
+        {
+          XAnimUpdateTimeAndNotetrack(obj, tree->children, v11, 1, &inOutNotifyHead);
+          Profile_EndInternal(NULL);
+          return 1i64;
+        }
+      }
+      XAnimUpdateLeadSyncGroupNode(obj, &syncGroupCalcData, &inOutNotifyHead);
+      XAnimUpdateTimeAndNotetrackInternal(obj, tree->children, v6, 1, &syncGroupCalcData, &inOutNotifyHead);
     }
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6158, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v31, v32);
-    v16 = 0;
-    v17 = !v21;
-    if ( v21 )
-      __debugbreak();
+    else
+    {
+      XAnimUpdateTimeAndNotetrack(obj, tree->children, *(float *)&dtime, 0, &inOutNotifyHead);
+    }
   }
-  __asm
-  {
-    vmaxss  xmm0, xmm8, xmm7
-    vucomiss xmm0, cs:__real@3f800000
-    vmovaps xmm8, [rsp+0F8h+var_38]
-  }
-  if ( v17 )
-    goto LABEL_14;
-  __asm
-  {
-    vmulss  xmm0, xmm6, xmm0
-    vaddss  xmm2, xmm0, cs:__real@3a83126f; dtime
-    vcomiss xmm2, xmm6
-  }
-  if ( !(v16 | v17) )
-  {
-LABEL_14:
-    XAnimUpdateLeadSyncGroupNode(obj, &syncGroupCalcData, &inOutNotifyHead);
-    __asm { vmovaps xmm2, xmm6; dtime }
-    XAnimUpdateTimeAndNotetrackInternal(obj, tree->children, *(float *)&_XMM2, 1, &syncGroupCalcData, &inOutNotifyHead);
-    goto LABEL_15;
-  }
-  XAnimUpdateTimeAndNotetrack(obj, tree->children, *(float *)&_XMM2, 1, &inOutNotifyHead);
   Profile_EndInternal(NULL);
-  result = 1i64;
-LABEL_16:
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -3126,121 +2928,117 @@ void XAnimAcquireMemoryLocks(void)
 XAnimAddClientNotify
 ==============
 */
-
-void __fastcall XAnimAddClientNotify(scr_string_t notifyName, scr_string_t notetrackName, double frac, unsigned __int16 notifyType, const XAnimParts *animParts, void *customData, XAnimNotifyHandle *notifyHead)
+void XAnimAddClientNotify(scr_string_t notifyName, scr_string_t notetrackName, float frac, unsigned __int16 notifyType, const XAnimParts *animParts, void *customData, XAnimNotifyHandle *notifyHead)
 {
-  unsigned __int16 v8; 
-  scr_string_t v10; 
-  int v11; 
-  const char *v12; 
-  XAnimNotifyHandle *v13; 
-  int v14; 
+  unsigned __int16 v7; 
+  scr_string_t v8; 
+  int v9; 
+  const char *v10; 
+  XAnimNotifyHandle *v11; 
+  int v12; 
   const XAnimNotify *i; 
   unsigned __int16 m_notifyIndex; 
-  unsigned __int16 v20; 
-  bool v24; 
-  bool v25; 
-  __int64 v30; 
-  __int64 v31; 
-  double v32; 
-  double v33; 
+  __int64 v15; 
+  XAnimNotify *v16; 
+  XAnimNotify *v17; 
+  unsigned __int16 v18; 
+  unsigned __int16 v19; 
+  float v20; 
+  const XAnimNotify *j; 
+  float timeFrac; 
+  __int64 v23; 
+  __int64 v24; 
 
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-  v8 = notifyType;
-  __asm { vmovaps xmm6, xmm2 }
-  v10 = notifyName;
+  v7 = notifyType;
+  v8 = notifyName;
   if ( !Sys_IsMainThread() && !Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2463, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsMainThreadEntityWorker())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsMainThreadEntityWorker()") )
     __debugbreak();
   if ( ((unsigned __int8)&s_clientNotifyListFreeIndex & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_clientNotifyListFreeIndex) )
     __debugbreak();
-  v11 = _InterlockedIncrement(&s_clientNotifyListFreeIndex);
-  if ( (unsigned __int64)v11 < 0x2000 )
-  {
-    v13 = notifyHead;
-    v14 = 1;
-    for ( i = DObjGetClientNotifyFirst((const XAnimNotifyHandle)notifyHead->m_notifyIndex); i; i = DObjGetClientNotifyNext(i) )
-      ++v14;
-    if ( (unsigned int)v11 >= 0x2000 )
-    {
-      LODWORD(v30) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2487, ASSERT_TYPE_ASSERT, "(unsigned)( notifyIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientNotifyList ) ) + 0 ) )", "notifyIndex doesn't index s_clientNotifyList\n\t%i not in [0, %i)", v30, 0x2000) )
-        __debugbreak();
-    }
-    m_notifyIndex = notifyHead->m_notifyIndex;
-    _RSI = v11;
-    if ( notifyHead->m_notifyIndex != 0xFFFF )
-    {
-      _R15 = s_clientNotifyList;
-      if ( m_notifyIndex >= 0x2000u )
-      {
-        LODWORD(v31) = 0x2000;
-        LODWORD(v30) = m_notifyIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2497, ASSERT_TYPE_ASSERT, "(unsigned)( nextHandle.Index() ) < (unsigned)( ( sizeof( *array_counter( s_clientNotifyList ) ) + 0 ) )", "nextHandle.Index() doesn't index s_clientNotifyList\n\t%i not in [0, %i)", v30, v31) )
-          __debugbreak();
-      }
-      _RCX = 3i64 * m_notifyIndex;
-      __asm { vcomiss xmm6, dword ptr [r15+rcx*8+0Ch] }
-      _RSI = v11;
-      v13 = notifyHead;
-      v10 = notifyName;
-      v8 = notifyType;
-    }
-    s_clientNotifyList[_RSI].nextHandle.m_notifyIndex = m_notifyIndex;
-    if ( v13->m_notifyIndex != m_notifyIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2515, ASSERT_TYPE_ASSERT, "(nextHandle.Equals( notifyHead ))", (const char *)&queryFormat, "nextHandle.Equals( notifyHead )") )
-      __debugbreak();
-    v20 = truncate_cast<unsigned short,int>(v11);
-    v13->m_notifyIndex = v20;
-    if ( v20 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 315, ASSERT_TYPE_SANITY, "( IsValid() )", (const char *)&queryFormat, "IsValid()") )
-      __debugbreak();
-    _RCX = s_clientNotifyList;
-    s_clientNotifyList[_RSI].noteName = notetrackName;
-    __asm { vmovss  dword ptr [rcx+rsi*8+0Ch], xmm6 }
-    s_clientNotifyList[_RSI].animParts = animParts;
-    s_clientNotifyList[_RSI].notifyName = v10;
-    s_clientNotifyList[_RSI].notifyType = v8;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    for ( _RBX = DObjGetClientNotifyFirst((const XAnimNotifyHandle)v13->m_notifyIndex); _RBX; _RBX = DObjGetClientNotifyNext(_RBX) )
-    {
-      v24 = v14 == 0;
-      if ( !v14 )
-      {
-        v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2535, ASSERT_TYPE_ASSERT, "( nodeCount > 0 )", "Unexpected numer of nodes after modifying the note track list");
-        v24 = !v25;
-        if ( v25 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vcomiss xmm6, xmm0
-      }
-      if ( !v24 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0A8h+var_68], xmm0
-          vcvtss2sd xmm1, xmm6, xmm6
-          vmovsd  [rsp+0A8h+var_70], xmm1
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2536, ASSERT_TYPE_ASSERT, "( verifyFrac ) <= ( verifyNode->timeFrac )", "%s <= %s\n\t%g, %g", "verifyFrac", "verifyNode->timeFrac", v32, v33) )
-          __debugbreak();
-      }
-      __asm { vmovss  xmm6, dword ptr [rbx+0Ch] }
-      --v14;
-    }
-  }
-  else
+  v9 = _InterlockedIncrement(&s_clientNotifyListFreeIndex);
+  if ( (unsigned __int64)v9 >= 0x2000 )
   {
     if ( ((unsigned __int64)&s_clientNotifyListFreeIndex & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_clientNotifyListFreeIndex) )
       __debugbreak();
     _InterlockedDecrement(&s_clientNotifyListFreeIndex);
-    v12 = SL_ConvertToStringSafe(v10);
-    Com_PrintError(14, "XAnimAddClientNotify: Exceeded limit of %i notifies, ignoring '%s'\n", 0x2000i64, v12);
+    v10 = SL_ConvertToStringSafe(v8);
+    Com_PrintError(14, "XAnimAddClientNotify: Exceeded limit of %i notifies, ignoring '%s'\n", 0x2000i64, v10);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2473, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "XAnimAddClientNotify: Exceeded limit of note tracks per frame, please report to code") )
       __debugbreak();
+    return;
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
+  v11 = notifyHead;
+  v12 = 1;
+  for ( i = DObjGetClientNotifyFirst((const XAnimNotifyHandle)notifyHead->m_notifyIndex); i; i = DObjGetClientNotifyNext(i) )
+    ++v12;
+  if ( (unsigned int)v9 >= 0x2000 )
+  {
+    LODWORD(v23) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2487, ASSERT_TYPE_ASSERT, "(unsigned)( notifyIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientNotifyList ) ) + 0 ) )", "notifyIndex doesn't index s_clientNotifyList\n\t%i not in [0, %i)", v23, 0x2000) )
+      __debugbreak();
+  }
+  m_notifyIndex = notifyHead->m_notifyIndex;
+  v15 = v9;
+  v16 = NULL;
+  if ( notifyHead->m_notifyIndex != 0xFFFF )
+  {
+    do
+    {
+      if ( m_notifyIndex >= 0x2000u )
+      {
+        LODWORD(v24) = 0x2000;
+        LODWORD(v23) = m_notifyIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2497, ASSERT_TYPE_ASSERT, "(unsigned)( nextHandle.Index() ) < (unsigned)( ( sizeof( *array_counter( s_clientNotifyList ) ) + 0 ) )", "nextHandle.Index() doesn't index s_clientNotifyList\n\t%i not in [0, %i)", v23, v24) )
+          __debugbreak();
+      }
+      v17 = &s_clientNotifyList[m_notifyIndex];
+      if ( frac <= v17->timeFrac )
+        break;
+      m_notifyIndex = v17->nextHandle.m_notifyIndex;
+      v16 = v17;
+    }
+    while ( m_notifyIndex != 0xFFFF );
+    v15 = v9;
+    v11 = notifyHead;
+    v8 = notifyName;
+    v7 = notifyType;
+  }
+  s_clientNotifyList[v15].nextHandle.m_notifyIndex = m_notifyIndex;
+  if ( !v16 )
+  {
+    if ( v11->m_notifyIndex != m_notifyIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2515, ASSERT_TYPE_ASSERT, "(nextHandle.Equals( notifyHead ))", (const char *)&queryFormat, "nextHandle.Equals( notifyHead )") )
+      __debugbreak();
+    v18 = truncate_cast<unsigned short,int>(v9);
+    v11->m_notifyIndex = v18;
+    if ( v18 != 0xFFFF )
+      goto LABEL_35;
+    goto LABEL_33;
+  }
+  v19 = truncate_cast<unsigned short,int>(v9);
+  v16->nextHandle.m_notifyIndex = v19;
+  if ( v19 == 0xFFFF )
+  {
+LABEL_33:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 315, ASSERT_TYPE_SANITY, "( IsValid() )", (const char *)&queryFormat, "IsValid()") )
+      __debugbreak();
+  }
+LABEL_35:
+  s_clientNotifyList[v15].noteName = notetrackName;
+  s_clientNotifyList[v15].timeFrac = frac;
+  s_clientNotifyList[v15].animParts = animParts;
+  s_clientNotifyList[v15].notifyName = v8;
+  s_clientNotifyList[v15].notifyType = v7;
+  v20 = 0.0;
+  for ( j = DObjGetClientNotifyFirst((const XAnimNotifyHandle)v11->m_notifyIndex); j; j = DObjGetClientNotifyNext(j) )
+  {
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2535, ASSERT_TYPE_ASSERT, "( nodeCount > 0 )", "Unexpected numer of nodes after modifying the note track list") )
+      __debugbreak();
+    timeFrac = j->timeFrac;
+    if ( v20 > timeFrac && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2536, ASSERT_TYPE_ASSERT, "( verifyFrac ) <= ( verifyNode->timeFrac )", "%s <= %s\n\t%g, %g", "verifyFrac", "verifyNode->timeFrac", v20, timeFrac) )
+      __debugbreak();
+    v20 = j->timeFrac;
+    --v12;
+  }
 }
 
 /*
@@ -3252,26 +3050,26 @@ void XAnimAddNotetrackTimesToScriptArray(scrContext_t *scrContext, const XAnim_s
 {
   XAnimParts *PartsInternal; 
   XAnimParts *v7; 
+  XAnimNotifyInfo *notify; 
   int v9; 
 
   PartsInternal = XAnimGetPartsInternal(&anims->entries[animIndex]);
   v7 = PartsInternal;
-  _RBX = PartsInternal->notify;
-  if ( _RBX )
+  notify = PartsInternal->notify;
+  if ( notify )
   {
     v9 = 0;
     if ( PartsInternal->notifyCount )
     {
       do
       {
-        if ( _RBX->name == name )
+        if ( notify->name == name )
         {
-          __asm { vmovss  xmm1, dword ptr [rbx+4]; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, notify->time);
           Scr_AddArray(scrContext);
         }
         ++v9;
-        ++_RBX;
+        ++notify;
       }
       while ( v9 < v7->notifyCount );
     }
@@ -3405,48 +3203,49 @@ XAnimAllocInfoWithParent
 */
 __int64 XAnimAllocInfoWithParent(XAnimTree *tree, const XAnimSubTreeID subTreeID, XAnimToXModel *animToModel, unsigned int animIndex, unsigned __int16 parentInfoIndex, int after)
 {
-  unsigned __int16 v7; 
-  __int64 v9; 
-  XAnimEntry *v11; 
+  unsigned __int16 v6; 
+  __int64 v8; 
+  XAnimEntry *v10; 
   XAnimParts *parts; 
-  const dvar_t *v13; 
-  bool v16; 
-  bool v17; 
+  const dvar_t *v12; 
+  bool v13; 
+  bool v14; 
   char ActiveGameMode; 
-  XAnimParts *v19; 
-  bool v21; 
+  XAnimParts *v16; 
+  bool v17; 
   const char *name; 
-  bool v23; 
-  bool v28; 
-  XAnimTree *v29; 
+  bool v19; 
+  int v20; 
+  bool v21; 
+  XAnimTree *v22; 
   XAnimInfo *NonRootAnimInfo; 
-  unsigned __int16 v31; 
+  unsigned __int16 v24; 
   unsigned __int16 children; 
-  unsigned __int8 *v33; 
-  __int64 v34; 
-  unsigned __int8 *v35; 
-  __int64 v36; 
-  XAnimParts *v37; 
+  unsigned __int8 *v26; 
+  __int64 v27; 
+  unsigned __int8 *v28; 
+  __int64 v29; 
+  XAnimParts *v30; 
   __int64 result; 
-  __int64 v39; 
-  __int64 v40; 
+  __int64 v32; 
+  __int64 v33; 
   unsigned __int16 outInfoID; 
-  XAnimInfo *v42; 
-  XAnimSubTreeID v43; 
+  XAnimInfo *v35; 
+  XAnimSubTreeID v36; 
   XAnim_s *anims; 
   XAnimTree *treea; 
-  XAnimEntry *v46; 
-  XAnimToXModel *v47; 
+  XAnimEntry *v39; 
+  XAnimToXModel *v40; 
   DLogContext context; 
   char Destination[3]; 
-  char v50[1021]; 
+  char v43[1021]; 
   char buffer[4096]; 
 
-  v7 = parentInfoIndex;
-  v9 = animIndex;
-  LODWORD(v42) = animIndex;
-  v47 = animToModel;
-  v43 = subTreeID;
+  v6 = parentInfoIndex;
+  v8 = animIndex;
+  LODWORD(v35) = animIndex;
+  v40 = animToModel;
+  v36 = subTreeID;
   treea = tree;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6654, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
@@ -3454,50 +3253,37 @@ __int64 XAnimAllocInfoWithParent(XAnimTree *tree, const XAnimSubTreeID subTreeID
   if ( !anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6657, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
   strcpy(Destination, "NA");
-  v11 = &anims->entries[v9];
-  v46 = v11;
-  memset_0(v50, 0, sizeof(v50));
+  v10 = &anims->entries[v8];
+  v39 = v10;
+  memset_0(v43, 0, sizeof(v43));
   if ( cm.name )
     strncpy(Destination, cm.name, 0x400ui64);
-  parts = v11->parts;
-  if ( parts && v11->nodeType == XANIM_NODE_TYPE_ANIMPARTS && parts->name )
+  parts = v10->parts;
+  if ( parts && v10->nodeType == XANIM_NODE_TYPE_ANIMPARTS && parts->name )
   {
-    v13 = DCONST_DVARBOOL_xanim_trackingEnable;
+    v12 = DCONST_DVARBOOL_xanim_trackingEnable;
     if ( !DCONST_DVARBOOL_xanim_trackingEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_trackingEnable") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v13->current.enabled )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled )
     {
-      _RAX = v11->parts;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rax+64h]
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6671, ASSERT_TYPE_ASSERT, "(anim->parts->framerate > 0.0f)", (const char *)&queryFormat, "anim->parts->framerate > 0.0f") )
+      if ( v10->parts->framerate <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6671, ASSERT_TYPE_ASSERT, "(anim->parts->framerate > 0.0f)", (const char *)&queryFormat, "anim->parts->framerate > 0.0f") )
         __debugbreak();
-      v16 = (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF && (unsigned __int8)Com_GameMode_GetActiveGameMode() != LONG;
-      v17 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG;
+      v13 = (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF && (unsigned __int8)Com_GameMode_GetActiveGameMode() != LONG;
+      v14 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG;
       ActiveGameMode = Com_GameMode_GetActiveGameMode();
-      v19 = v11->parts;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v21 = ActiveGameMode == 1;
-      name = v19->name;
-      v23 = v19->flags & 1;
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm0, dword ptr [rcx+64h]
-        vmulss  xmm2, xmm1, cs:__real@447a0000
-        vcvttss2si r14d, xmm2
-      }
+      v16 = v10->parts;
+      v17 = ActiveGameMode == 1;
+      name = v16->name;
+      v19 = v16->flags & 1;
+      v20 = (int)(float)((float)((float)v16->numframes / v16->framerate) * 1000.0);
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) )
       {
         if ( DLog_IsActive() )
         {
-          v28 = DLog_BeginEvent(&context, "xanim_tracking");
+          v21 = DLog_BeginEvent(&context, "xanim_tracking");
           context.autoEndEvent = 1;
-          if ( v28 && DLog_String(&context, "animation_name", name, 0) && DLog_String(&context, "map_name", Destination, 0) && DLog_Int32(&context, "animation_duration", _ER14) && DLog_Bool(&context, "is_loop", v23) && DLog_Bool(&context, "is_sp", v21) && DLog_Bool(&context, "is_cp", v17) && DLog_Bool(&context, "is_mp", v16) )
+          if ( v21 && DLog_String(&context, "animation_name", name, 0) && DLog_String(&context, "map_name", Destination, 0) && DLog_Int32(&context, "animation_duration", v20) && DLog_Bool(&context, "is_loop", v19) && DLog_Bool(&context, "is_sp", v17) && DLog_Bool(&context, "is_cp", v14) && DLog_Bool(&context, "is_mp", v13) )
             DLog_RecordContext(&context);
         }
         else
@@ -3505,19 +3291,19 @@ __int64 XAnimAllocInfoWithParent(XAnimTree *tree, const XAnimSubTreeID subTreeID
           context.error = DLOG_ERROR_NOT_ACTIVE;
         }
       }
-      v7 = parentInfoIndex;
-      LODWORD(v9) = (_DWORD)v42;
+      v6 = parentInfoIndex;
+      LODWORD(v8) = (_DWORD)v35;
     }
   }
-  v29 = treea;
-  if ( !XAnimCreateNode(v11->nodeType, treea, anims, v9, &outInfoID) )
+  v22 = treea;
+  if ( !XAnimCreateNode(v10->nodeType, treea, anims, v8, &outInfoID) )
     Sys_Error((const ObfuscateErrorText)&stru_1441AE860);
   NonRootAnimInfo = GetNonRootAnimInfo(outInfoID);
-  v42 = NonRootAnimInfo;
-  if ( (unsigned int)v9 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6702, ASSERT_TYPE_ASSERT, "( animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "animIndex", "anims->size", v9, anims->size) )
+  v35 = NonRootAnimInfo;
+  if ( (unsigned int)v8 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6702, ASSERT_TYPE_ASSERT, "( animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "animIndex", "anims->size", v8, anims->size) )
     __debugbreak();
-  v31 = 0;
-  children = XAnimGetAnimInfo(v7)->children;
+  v24 = 0;
+  children = XAnimGetAnimInfo(v6)->children;
   if ( after )
   {
     if ( children )
@@ -3526,38 +3312,38 @@ __int64 XAnimAllocInfoWithParent(XAnimTree *tree, const XAnimSubTreeID subTreeID
       {
         if ( (children & 0x8000u) != 0 )
         {
-          v36 = 32 * (children & 0x7FFFu);
-          if ( (unsigned int)v36 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v29 = 32 * (children & 0x7FFFu);
+          if ( (unsigned int)v29 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v40) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v39) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v39, v40) )
+            LODWORD(v33) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v32) = 32 * (children & 0x7FFF);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v32, v33) )
               __debugbreak();
           }
-          v35 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v36];
+          v28 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v29];
         }
         else
         {
           if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v40) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v39) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v39, v40) )
+            LODWORD(v33) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v32) = children;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v32, v33) )
               __debugbreak();
           }
-          v35 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+          v28 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
         }
-        if ( !v35[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6726, ASSERT_TYPE_ASSERT, "(childInfo->inuse)", (const char *)&queryFormat, "childInfo->inuse") )
+        if ( !v28[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6726, ASSERT_TYPE_ASSERT, "(childInfo->inuse)", (const char *)&queryFormat, "childInfo->inuse") )
           __debugbreak();
-        if ( *((unsigned __int16 *)v35 + 3) > (unsigned int)v9 )
+        if ( *((unsigned __int16 *)v28 + 3) > (unsigned int)v8 )
           break;
-        v31 = children;
-        children = *((_WORD *)v35 + 5);
+        v24 = children;
+        children = *((_WORD *)v28 + 5);
       }
       while ( children );
-      NonRootAnimInfo = v42;
-      v11 = v46;
-      goto LABEL_74;
+      NonRootAnimInfo = v35;
+      v10 = v39;
+      goto LABEL_75;
     }
   }
   else if ( children )
@@ -3566,76 +3352,76 @@ __int64 XAnimAllocInfoWithParent(XAnimTree *tree, const XAnimSubTreeID subTreeID
     {
       if ( (children & 0x8000u) != 0 )
       {
-        v34 = 32 * (children & 0x7FFFu);
-        if ( (unsigned int)v34 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        v27 = 32 * (children & 0x7FFFu);
+        if ( (unsigned int)v27 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          LODWORD(v40) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(v39) = 32 * (children & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v39, v40) )
+          LODWORD(v33) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v32) = 32 * (children & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v32, v33) )
             __debugbreak();
         }
-        v33 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v34];
+        v26 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v27];
       }
       else
       {
         if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
         {
-          LODWORD(v40) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(v39) = children;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v33) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v32) = children;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v32, v33) )
             __debugbreak();
         }
-        v33 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+        v26 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
       }
-      if ( !v33[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6713, ASSERT_TYPE_ASSERT, "(childInfo->inuse)", (const char *)&queryFormat, "childInfo->inuse") )
+      if ( !v26[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6713, ASSERT_TYPE_ASSERT, "(childInfo->inuse)", (const char *)&queryFormat, "childInfo->inuse") )
         __debugbreak();
-      if ( *((unsigned __int16 *)v33 + 3) >= (unsigned int)v9 )
+      if ( *((unsigned __int16 *)v26 + 3) >= (unsigned int)v8 )
         break;
-      v31 = children;
-      children = *((_WORD *)v33 + 5);
+      v24 = children;
+      children = *((_WORD *)v26 + 5);
     }
     while ( children );
-LABEL_74:
-    v29 = treea;
-    v7 = parentInfoIndex;
+LABEL_75:
+    v22 = treea;
+    v6 = parentInfoIndex;
   }
-  if ( (unsigned int)v9 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6734, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
+  if ( (unsigned int)v8 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6734, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
     __debugbreak();
-  NonRootAnimInfo->subTreeID = v43;
+  NonRootAnimInfo->subTreeID = v36;
   NonRootAnimInfo->children = 0;
-  NonRootAnimInfo->animToModel = v47;
-  NonRootAnimInfo->prev = v31;
+  NonRootAnimInfo->animToModel = v40;
+  NonRootAnimInfo->prev = v24;
   NonRootAnimInfo->next = children;
-  NonRootAnimInfo->animIndex = v9;
-  NonRootAnimInfo->parent = v7;
-  v37 = v11->parts;
-  NonRootAnimInfo->parts = v37;
-  if ( WORD2(v37) != v11->animParent.children && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6745, ASSERT_TYPE_ASSERT, "(info->animParent.children == anim->animParent.children)", (const char *)&queryFormat, "info->animParent.children == anim->animParent.children") )
+  NonRootAnimInfo->animIndex = v8;
+  NonRootAnimInfo->parent = v6;
+  v30 = v10->parts;
+  NonRootAnimInfo->parts = v30;
+  if ( WORD2(v30) != v10->animParent.children && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6745, ASSERT_TYPE_ASSERT, "(info->animParent.children == anim->animParent.children)", (const char *)&queryFormat, "info->animParent.children == anim->animParent.children") )
     __debugbreak();
-  if ( NonRootAnimInfo->animParent.flags != v11->animParent.flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6746, ASSERT_TYPE_ASSERT, "(info->animParent.flags == anim->animParent.flags)", (const char *)&queryFormat, "info->animParent.flags == anim->animParent.flags") )
+  if ( NonRootAnimInfo->animParent.flags != v10->animParent.flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6746, ASSERT_TYPE_ASSERT, "(info->animParent.flags == anim->animParent.flags)", (const char *)&queryFormat, "info->animParent.flags == anim->animParent.flags") )
     __debugbreak();
-  if ( NonRootAnimInfo->animParent.syncGroup[0] != v11->animParent.syncGroup[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6747, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup == anim->animParent.syncGroup)", (const char *)&queryFormat, "info->animParent.syncGroup == anim->animParent.syncGroup") )
+  if ( NonRootAnimInfo->animParent.syncGroup[0] != v10->animParent.syncGroup[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6747, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup == anim->animParent.syncGroup)", (const char *)&queryFormat, "info->animParent.syncGroup == anim->animParent.syncGroup") )
     __debugbreak();
-  if ( (unsigned int)v9 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6749, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
+  if ( (unsigned int)v8 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6749, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
     __debugbreak();
   NonRootAnimInfo->inuse = 1;
-  NonRootAnimInfo->tree = v29;
+  NonRootAnimInfo->tree = v22;
   if ( children )
     XAnimGetAnimInfo(children)->prev = outInfoID;
-  if ( v31 )
+  if ( v24 )
   {
-    XAnimGetAnimInfo(v31)->next = outInfoID;
+    XAnimGetAnimInfo(v24)->next = outInfoID;
     return outInfoID;
   }
-  else if ( v7 )
+  else if ( v6 )
   {
-    XAnimGetAnimInfo(v7)->children = outInfoID;
+    XAnimGetAnimInfo(v6)->children = outInfoID;
     return outInfoID;
   }
   else
   {
     result = outInfoID;
-    v29->children = outInfoID;
+    v22->children = outInfoID;
   }
   return result;
 }
@@ -3823,11 +3609,12 @@ void XAnimCalcAbsDelta(const DObj *obj, unsigned int graftAnimIndex, const XAnim
 {
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
-  char v29; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   XAnimRotPos rotPos; 
 
-  _RBX = rot;
-  _RDI = trans;
   Profile_Begin(412);
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6468, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -3837,30 +3624,11 @@ void XAnimCalcAbsDelta(const DObj *obj, unsigned int graftAnimIndex, const XAnim
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; weightScale
-      vmovaps [rsp+0B8h+var_48], xmm6
-      vmovaps [rsp+0B8h+var_58], xmm7
-    }
-    XAnimCalcDeltaTree(obj, InfoIndex, *(const float *)&_XMM2, (const XAnimDeltaInfo)16842753, &rotPos, 0);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+0B8h+rotPos.rot]
-      vmovss  xmm5, dword ptr [rsp+0B8h+rotPos.rot+4]
-      vmovss  xmm6, dword ptr [rsp+0B8h+rotPos.rot+8]
-      vmovss  xmm7, dword ptr [rsp+0B8h+rotPos.rot+0Ch]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm2, xmm1
-    }
-    if ( v29 )
+    XAnimCalcDeltaTree(obj, InfoIndex, 1.0, (const XAnimDeltaInfo)16842753, &rotPos, 0);
+    v12 = rotPos.rot.v[1];
+    v13 = rotPos.rot.v[2];
+    v14 = rotPos.rot.v[3];
+    if ( (float)((float)((float)((float)(rotPos.rot.v[0] * rotPos.rot.v[0]) + (float)(v12 * v12)) + (float)(v13 * v13)) + (float)(v14 * v14)) == 0.0 )
     {
       rot->v[3] = 1.0;
       *(_QWORD *)rot->v = 0i64;
@@ -3868,25 +3636,15 @@ void XAnimCalcAbsDelta(const DObj *obj, unsigned int graftAnimIndex, const XAnim
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm4
-        vmovss  dword ptr [rbx+4], xmm5
-        vmovss  dword ptr [rbx+8], xmm6
-        vmovss  dword ptr [rbx+0Ch], xmm7
-      }
+      rot->v[0] = rotPos.rot.v[0];
+      rot->v[1] = v12;
+      rot->v[2] = v13;
+      rot->v[3] = v14;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos]
-      vmovss  xmm1, dword ptr [rsp+0B8h+rotPos.pos+4]
-      vmovaps xmm7, [rsp+0B8h+var_58]
-      vmovaps xmm6, [rsp+0B8h+var_48]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos+8]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  dword ptr [rdi+4], xmm1
-    }
+    v15 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v15;
   }
   else
   {
@@ -3905,65 +3663,42 @@ XAnimCalcAbsDeltaParts
 ==============
 */
 
-void __fastcall XAnimCalcAbsDeltaParts(const XAnimParts *parts, double weightScale, double time, XAnimRotPos *rotPos)
+void __fastcall XAnimCalcAbsDeltaParts(const XAnimParts *parts, double weightScale, const float time, XAnimRotPos *rotPos)
 {
   unsigned __int8 flags; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __m128 v10; 
   vec4_t rotDelta; 
   float4 posDelta; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   flags = parts->flags;
-  _RBX = rotPos;
-  __asm { vmovaps xmm6, xmm1 }
+  v6 = *(float *)&weightScale;
   if ( (flags & 2) != 0 )
   {
-    __asm { vmovaps xmm1, xmm2; time }
-    XAnim_CalcDeltaForTime(parts, *(const float *)&_XMM1, (vec2_t *)&rotDelta.xyz.z, &posDelta);
-    __asm { vmulss  xmm3, xmm6, cs:__real@38000100 }
-LABEL_5:
-    __asm
-    {
-      vmulss  xmm1, xmm3, dword ptr [rsp+68h+rotDelta+8]
-      vaddss  xmm2, xmm1, dword ptr [rbx+8]
-      vmovss  xmm0, dword ptr [rsp+68h+rotDelta+0Ch]
-      vmovss  dword ptr [rbx+8], xmm2
-      vmulss  xmm1, xmm0, xmm3
-      vaddss  xmm2, xmm1, dword ptr [rbx+0Ch]
-      vmovss  dword ptr [rbx+0Ch], xmm2
-      vmovaps xmm0, xmm6
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm1, xmm0, xmmword ptr [rsp+68h+posDelta.v]
-      vaddss  xmm0, xmm6, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vaddss  xmm0, xmm1, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbx+14h], xmm0
-      vshufps xmm3, xmm1, xmm1, 0AAh ; 'ª'
-      vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-      vaddss  xmm1, xmm2, dword ptr [rbx+18h]
-      vmovss  dword ptr [rbx+18h], xmm1
-      vaddss  xmm0, xmm3, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rbx+1Ch], xmm0
-    }
-    goto LABEL_6;
+    XAnim_CalcDeltaForTime(parts, time, (vec2_t *)&rotDelta.xyz.z, &posDelta);
+    v7 = *(float *)&weightScale * 0.000030518509;
   }
-  if ( (flags & 4) != 0 )
+  else
   {
-    __asm { vmovaps xmm1, xmm2; time }
-    XAnim_CalcDelta3DForTime(parts, *(const float *)&_XMM1, &rotDelta, &posDelta);
-    __asm
-    {
-      vmulss  xmm3, xmm6, cs:__real@38000100
-      vmulss  xmm1, xmm3, dword ptr [rsp+68h+rotDelta]
-      vaddss  xmm2, xmm1, dword ptr [rbx]
-      vmulss  xmm1, xmm3, dword ptr [rsp+68h+rotDelta+4]
-      vmovss  dword ptr [rbx], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm2
-    }
-    goto LABEL_5;
+    if ( (flags & 4) == 0 )
+      return;
+    XAnim_CalcDelta3DForTime(parts, time, &rotDelta, &posDelta);
+    v7 = *(float *)&weightScale * 0.000030518509;
+    v8 = (float)(*(float *)&weightScale * 0.000030518509) * rotDelta.v[1];
+    rotPos->rot.v[0] = (float)((float)(*(float *)&weightScale * 0.000030518509) * rotDelta.v[0]) + rotPos->rot.v[0];
+    rotPos->rot.v[1] = v8 + rotPos->rot.v[1];
   }
-LABEL_6:
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  v9 = rotDelta.v[3];
+  rotPos->rot.v[2] = (float)(v7 * rotDelta.v[2]) + rotPos->rot.v[2];
+  rotPos->rot.v[3] = (float)(v9 * v7) + rotPos->rot.v[3];
+  v10 = _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&weightScale, *(__m128 *)&weightScale, 0), posDelta.v);
+  rotPos->posWeight = v6 + rotPos->posWeight;
+  rotPos->pos.v[0] = v10.m128_f32[0] + rotPos->pos.v[0];
+  rotPos->pos.v[1] = _mm_shuffle_ps(v10, v10, 85).m128_f32[0] + rotPos->pos.v[1];
+  rotPos->pos.v[2] = _mm_shuffle_ps(v10, v10, 170).m128_f32[0] + rotPos->pos.v[2];
 }
 
 /*
@@ -3975,12 +3710,13 @@ void XAnimCalcDelta3D(const DObj *obj, unsigned int graftAnimIndex, const XAnimS
 {
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
-  char v30; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   XAnimDeltaInfo deltaInfo; 
   XAnimRotPos rotPos; 
 
-  _RBX = rot;
-  _RDI = trans;
   Profile_Begin(412);
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6414, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -3990,33 +3726,14 @@ void XAnimCalcDelta3D(const DObj *obj, unsigned int graftAnimIndex, const XAnimS
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
   {
-    __asm { vmovss  xmm2, cs:__real@3f800000; weightScale }
     deltaInfo.bUseGoalWeight = bUseGoalWeight;
     *(_WORD *)&deltaInfo.bClear = 1;
     deltaInfo.bAbs = 0;
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_48], xmm6
-      vmovaps [rsp+0B8h+var_58], xmm7
-    }
-    XAnimCalcDeltaTree(obj, InfoIndex, *(const float *)&_XMM2, deltaInfo, &rotPos, 1);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+0B8h+rotPos.rot]
-      vmovss  xmm5, dword ptr [rsp+0B8h+rotPos.rot+4]
-      vmovss  xmm6, dword ptr [rsp+0B8h+rotPos.rot+8]
-      vmovss  xmm7, dword ptr [rsp+0B8h+rotPos.rot+0Ch]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm2, xmm1
-    }
-    if ( v30 )
+    XAnimCalcDeltaTree(obj, InfoIndex, 1.0, deltaInfo, &rotPos, 1);
+    v13 = rotPos.rot.v[1];
+    v14 = rotPos.rot.v[2];
+    v15 = rotPos.rot.v[3];
+    if ( (float)((float)((float)((float)(rotPos.rot.v[0] * rotPos.rot.v[0]) + (float)(v13 * v13)) + (float)(v14 * v14)) + (float)(v15 * v15)) == 0.0 )
     {
       rot->v[3] = 1.0;
       *(_QWORD *)rot->v = 0i64;
@@ -4024,25 +3741,15 @@ void XAnimCalcDelta3D(const DObj *obj, unsigned int graftAnimIndex, const XAnimS
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm4
-        vmovss  dword ptr [rbx+4], xmm5
-        vmovss  dword ptr [rbx+8], xmm6
-        vmovss  dword ptr [rbx+0Ch], xmm7
-      }
+      rot->v[0] = rotPos.rot.v[0];
+      rot->v[1] = v13;
+      rot->v[2] = v14;
+      rot->v[3] = v15;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos]
-      vmovss  xmm1, dword ptr [rsp+0B8h+rotPos.pos+4]
-      vmovaps xmm7, [rsp+0B8h+var_58]
-      vmovaps xmm6, [rsp+0B8h+var_48]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos+8]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  dword ptr [rdi+4], xmm1
-    }
+    v16 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v16;
   }
   else
   {
@@ -4064,14 +3771,12 @@ void XAnimCalcDelta(const DObj *obj, unsigned int graftAnimIndex, const XAnimSub
 {
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
-  bool v17; 
-  bool v20; 
-  bool v22; 
+  float v13; 
+  float v14; 
+  float v15; 
   XAnimDeltaInfo deltaInfo; 
   XAnimRotPos rotPos; 
 
-  _RDI = rot;
-  _RBX = trans;
   Profile_Begin(412);
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6361, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -4081,70 +3786,26 @@ void XAnimCalcDelta(const DObj *obj, unsigned int graftAnimIndex, const XAnimSub
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
   {
-    __asm { vmovss  xmm2, cs:__real@3f800000; weightScale }
     deltaInfo.bUseGoalWeight = bUseGoalWeight;
     *(_WORD *)&deltaInfo.bClear = 1;
     deltaInfo.bAbs = 0;
-    __asm { vmovaps [rsp+0B8h+var_58], xmm6 }
-    XAnimCalcDeltaTree(obj, InfoIndex, *(const float *)&_XMM2, deltaInfo, &rotPos, 0);
-    __asm
+    XAnimCalcDeltaTree(obj, InfoIndex, 1.0, deltaInfo, &rotPos, 0);
+    if ( rotPos.rot.v[0] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6383, ASSERT_TYPE_ASSERT, "(!rotPos.rot[0])", (const char *)&queryFormat, "!rotPos.rot[0]") )
+      __debugbreak();
+    if ( rotPos.rot.v[1] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6384, ASSERT_TYPE_ASSERT, "(!rotPos.rot[1])", (const char *)&queryFormat, "!rotPos.rot[1]") )
+      __debugbreak();
+    v13 = rotPos.rot.v[2];
+    if ( rotPos.rot.v[2] == 0.0 || (v14 = rotPos.rot.v[3], rotPos.rot.v[3] == 0.0) )
     {
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.rot]
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm0, xmm6
+      v14 = FLOAT_1_0;
+      v13 = 0.0;
     }
-    if ( !v17 )
-    {
-      v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6383, ASSERT_TYPE_ASSERT, "(!rotPos.rot[0])", (const char *)&queryFormat, "!rotPos.rot[0]");
-      v17 = !v20;
-      if ( v20 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.rot+4]
-      vucomiss xmm0, xmm6
-    }
-    if ( !v17 )
-    {
-      v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6384, ASSERT_TYPE_ASSERT, "(!rotPos.rot[1])", (const char *)&queryFormat, "!rotPos.rot[1]");
-      v17 = !v22;
-      if ( v22 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.rot+8]
-      vucomiss xmm0, xmm6
-    }
-    if ( v17 )
-      goto LABEL_14;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+0B8h+rotPos.rot+0Ch]
-      vucomiss xmm1, xmm6
-    }
-    if ( v17 )
-    {
-LABEL_14:
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos]
-      vmovss  xmm1, dword ptr [rsp+0B8h+rotPos.pos+4]
-      vmovaps xmm6, [rsp+0B8h+var_58]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm0, dword ptr [rsp+0B8h+rotPos.pos+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    rot->v[0] = v13;
+    rot->v[1] = v14;
+    v15 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v15;
   }
   else
   {
@@ -4161,253 +3822,219 @@ LABEL_14:
 XAnimCalcDeltaTree
 ==============
 */
-
-void __fastcall XAnimCalcDeltaTree(const DObj *obj, const unsigned __int16 infoIndex, double weightScale, const XAnimDeltaInfo deltaInfo, XAnimRotPos *rotPos, bool b3D)
+void XAnimCalcDeltaTree(const DObj *obj, const unsigned __int16 infoIndex, double weightScale, const XAnimDeltaInfo deltaInfo, XAnimRotPos *rotPos, bool b3D)
 {
-  XAnimDeltaInfo v11; 
+  __m128 *v6; 
+  XAnimDeltaInfo v7; 
+  XAnimInfo *NonRootAnimInfo; 
   const XAnimParts *parts; 
+  float currentAnimTime; 
+  float v11; 
+  float oldTime; 
   unsigned __int16 children; 
+  XAnimInfo *AnimInfo; 
+  XAnimInfo *v15; 
+  float goalWeight; 
   unsigned __int16 next; 
-  unsigned __int16 v34; 
-  bool v38; 
-  bool v39; 
-  __int64 v77; 
+  XAnimInfo *v18; 
+  XAnimInfo *v19; 
+  float weight; 
+  XAnimRotPos *v21; 
+  unsigned __int16 v22; 
+  XAnimInfo *v23; 
+  XAnimInfo *v24; 
+  float v25; 
+  float v26; 
+  __m128 v27; 
+  float v28; 
+  __m128 v29; 
+  float v30; 
+  float v31; 
+  double v32; 
+  float posWeight; 
+  __int64 v34; 
   XAnimDeltaInfo deltaInfoa; 
   bool bClear; 
-  char v82; 
+  char v39; 
 
-  __asm { vmovaps [rsp+128h+var_88], xmm9 }
-  _RSI = rotPos;
-  v11 = deltaInfo;
+  v6 = (__m128 *)rotPos;
+  v7 = deltaInfo;
   bClear = deltaInfo.bClear;
-  __asm { vmovaps xmm9, xmm2 }
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  if ( !_RBX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5223, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5223, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  if ( _RBX->animToModel )
+  if ( NonRootAnimInfo->animToModel )
   {
-    if ( v11.bClear )
+    if ( v7.bClear )
     {
       rotPos->rot = 0ui64;
       *(_OWORD *)&rotPos->posWeight = 0ui64;
     }
-    parts = _RBX->parts;
+    parts = NonRootAnimInfo->parts;
     if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5236, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+28h]; time2
-      vmovaps xmm1, xmm9; weightScale
-    }
+    currentAnimTime = NonRootAnimInfo->state.currentAnimTime;
+    v11 = *(float *)&weightScale;
     if ( deltaInfo.bAbs )
     {
-      __asm { vmovaps xmm2, xmm3; time }
-      XAnimCalcAbsDeltaParts(parts, *(double *)&_XMM1, *(double *)&_XMM2, rotPos);
+      XAnimCalcAbsDeltaParts(parts, weightScale, NonRootAnimInfo->state.currentAnimTime, rotPos);
     }
     else
     {
-      __asm { vmovss  xmm2, dword ptr [rbx+2Ch]; time1 }
+      oldTime = NonRootAnimInfo->state.oldTime;
       if ( b3D )
-        XAnimCalcRelDeltaParts3D(parts, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, rotPos, 1);
+        XAnimCalcRelDeltaParts3D(parts, v11, oldTime, currentAnimTime, rotPos, 1);
       else
-        XAnimCalcRelDeltaParts(parts, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, rotPos, 1);
+        XAnimCalcRelDeltaParts(parts, v11, oldTime, currentAnimTime, rotPos, 1);
     }
   }
   else
   {
-    children = _RBX->children;
-    __asm
-    {
-      vmovaps [rsp+128h+var_68], xmm7
-      vmovaps [rsp+128h+var_78], xmm8
-    }
+    children = NonRootAnimInfo->children;
     if ( children )
     {
-      __asm { vxorps  xmm8, xmm8, xmm8 }
       while ( 1 )
       {
         if ( !children )
         {
-          LODWORD(v77) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 285, ASSERT_TYPE_ASSERT, "( infoIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "infoIndex", "0", v77, 0i64) )
+          LODWORD(v34) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 285, ASSERT_TYPE_ASSERT, "( infoIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "infoIndex", "0", v34, 0i64) )
             __debugbreak();
         }
-        _RAX = XAnimGetAnimInfo(children);
+        AnimInfo = XAnimGetAnimInfo(children);
+        v15 = AnimInfo;
         if ( deltaInfo.bUseGoalWeight )
-          __asm { vmovss  xmm7, dword ptr [rax+38h] }
+          goalWeight = AnimInfo->state.goalWeight;
         else
-          __asm { vmovss  xmm7, dword ptr [rax+3Ch] }
-        __asm
-        {
-          vcomiss xmm7, xmm8
-          vucomiss xmm7, xmm8
-        }
-        next = _RAX->next;
-        if ( deltaInfo.bUseGoalWeight )
+          goalWeight = AnimInfo->state.weight;
+        if ( goalWeight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5259, ASSERT_TYPE_ASSERT, "( ( firstWeight >= 0.0f ) )", "( firstWeight ) = %g", goalWeight) )
+          __debugbreak();
+        next = v15->next;
+        if ( goalWeight != 0.0 )
           break;
-        children = _RAX->next;
+        children = v15->next;
         if ( !next )
-          goto LABEL_25;
+          goto LABEL_27;
       }
-      __asm { vmovaps [rsp+128h+var_58], xmm6 }
       if ( next )
       {
-        _R15 = XAnimGetAnimInfo(next);
-        __asm
+        while ( 1 )
         {
-          vmovss  xmm6, dword ptr [rax+38h]
-          vcomiss xmm6, xmm8
-          vucomiss xmm6, xmm8
+          v18 = XAnimGetAnimInfo(next);
+          v19 = v18;
+          if ( deltaInfo.bUseGoalWeight )
+            weight = v18->state.goalWeight;
+          else
+            weight = v18->state.weight;
+          if ( weight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5268, ASSERT_TYPE_ASSERT, "(weight >= 0)", (const char *)&queryFormat, "weight >= 0") )
+            __debugbreak();
+          if ( weight != 0.0 )
+            break;
+          next = v19->next;
+          if ( !next )
+            goto LABEL_38;
         }
-        _R13 = (XAnimRotPos *)&v82;
-        *(_WORD *)&deltaInfoa.bAbs = *(_WORD *)&v11.bAbs;
-        if ( v11.bClear )
-          _R13 = rotPos;
+        v21 = (XAnimRotPos *)&v39;
+        *(_WORD *)&deltaInfoa.bAbs = *(_WORD *)&v7.bAbs;
+        if ( v7.bClear )
+          v21 = rotPos;
         *(_WORD *)&deltaInfoa.bClear = 257;
-        __asm { vmovaps xmm2, xmm7; weightScale }
-        XAnimCalcDeltaTree(obj, children, *(const float *)&_XMM2, deltaInfoa, _R13, b3D);
+        XAnimCalcDeltaTree(obj, children, goalWeight, deltaInfoa, v21, b3D);
         deltaInfoa.bClear = 0;
-        __asm { vmovaps xmm2, xmm6; weightScale }
-        XAnimCalcDeltaTree(obj, next, *(const float *)&_XMM2, deltaInfoa, _R13, b3D);
-        v34 = _R15->next;
-        if ( v34 )
+        XAnimCalcDeltaTree(obj, next, weight, deltaInfoa, v21, b3D);
+        v22 = v19->next;
+        if ( v22 )
         {
           do
           {
-            _R15 = XAnimGetAnimInfo(v34);
-            __asm
-            {
-              vmovss  xmm6, dword ptr [rax+38h]
-              vcomiss xmm6, xmm8
-              vucomiss xmm6, xmm8
-              vmovaps xmm2, xmm6; weightScale
-            }
-            XAnimCalcDeltaTree(obj, v34, *(const float *)&_XMM2, deltaInfoa, _R13, b3D);
-            v34 = _R15->next;
+            v23 = XAnimGetAnimInfo(v22);
+            v24 = v23;
+            if ( deltaInfo.bUseGoalWeight )
+              v25 = v23->state.goalWeight;
+            else
+              v25 = v23->state.weight;
+            if ( v25 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5287, ASSERT_TYPE_ASSERT, "(weight >= 0)", (const char *)&queryFormat, "weight >= 0") )
+              __debugbreak();
+            if ( v25 != 0.0 )
+              XAnimCalcDeltaTree(obj, v22, v25, deltaInfoa, v21, b3D);
+            v22 = v24->next;
           }
-          while ( v34 );
-          v11.bClear = bClear;
-          _RSI = rotPos;
+          while ( v22 );
+          v7.bClear = bClear;
+          v6 = (__m128 *)rotPos;
         }
         if ( deltaInfo.bNormQuat )
         {
-          if ( v11.bClear )
+          if ( v7.bClear )
           {
-            __asm
+            v28 = (float)((float)((float)(v6->m128_f32[0] * v6->m128_f32[0]) + (float)(v6->m128_f32[1] * v6->m128_f32[1])) + (float)(v6->m128_f32[2] * v6->m128_f32[2])) + (float)(v6->m128_f32[3] * v6->m128_f32[3]);
+            v27.m128_u64[1] = 0i64;
+            if ( v28 != 0.0 )
             {
-              vmovss  xmm0, dword ptr [rsi]
-              vmovss  xmm2, dword ptr [rsi+4]
-              vmovss  xmm3, dword ptr [rsi+8]
-              vmovss  xmm4, dword ptr [rsi+0Ch]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm0, xmm3, xmm0; val
-              vucomiss xmm0, xmm8
+              *(double *)v27.m128_u64 = I_rsqrt(v28);
+              v29 = v27;
+              v29.m128_f32[0] = v27.m128_f32[0] * *(float *)&weightScale;
+              *v6 = _mm128_mul_ps(_mm_shuffle_ps(v29, v29, 0), *v6);
             }
-            *(double *)&_XMM0 = I_rsqrt(*(float *)&_XMM0);
-            __asm
+            v30 = v6[1].m128_f32[0];
+            if ( v30 != 0.0 )
             {
-              vmulss  xmm2, xmm0, xmm9
-              vshufps xmm2, xmm2, xmm2, 0
-              vmulps  xmm1, xmm2, xmmword ptr [rsi]
-              vmovups xmmword ptr [rsi], xmm1
-              vmovss  xmm0, dword ptr [rsi+10h]
-              vucomiss xmm0, xmm8
-            }
-            if ( !v38 )
-            {
-              __asm
-              {
-                vdivss  xmm2, xmm9, xmm0
-                vmulss  xmm0, xmm2, dword ptr [rsi+14h]
-                vmovss  dword ptr [rsi+14h], xmm0
-                vmulss  xmm1, xmm2, dword ptr [rsi+18h]
-                vmovss  dword ptr [rsi+18h], xmm1
-                vmulss  xmm0, xmm2, dword ptr [rsi+1Ch]
-                vmovss  dword ptr [rsi+1Ch], xmm0
-                vmovss  dword ptr [rsi+10h], xmm9
-              }
+              v6[1].m128_f32[1] = (float)(*(float *)&weightScale / v30) * v6[1].m128_f32[1];
+              v6[1].m128_f32[2] = (float)(*(float *)&weightScale / v30) * v6[1].m128_f32[2];
+              v6[1].m128_f32[3] = (float)(*(float *)&weightScale / v30) * v6[1].m128_f32[3];
+              v6[1].m128_f32[0] = *(float *)&weightScale;
             }
           }
           else
           {
-            __asm
+            v31 = (float)((float)((float)(v21->rot.v[0] * v21->rot.v[0]) + (float)(v21->rot.v[1] * v21->rot.v[1])) + (float)(v21->rot.v[2] * v21->rot.v[2])) + (float)(v21->rot.v[3] * v21->rot.v[3]);
+            if ( v31 != 0.0 )
             {
-              vmovss  xmm0, dword ptr [r13+0]
-              vmovss  xmm2, dword ptr [r13+4]
-              vmovss  xmm3, dword ptr [r13+8]
-              vmovss  xmm4, dword ptr [r13+0Ch]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm0, xmm3, xmm0; val
-              vucomiss xmm0, xmm8
-              vmovss  xmm0, dword ptr [r13+10h]
-              vucomiss xmm0, xmm8
+              v32 = I_rsqrt(v31);
+              v6->m128_f32[0] = (float)((float)(*(float *)&v32 * *(float *)&weightScale) * v21->rot.v[0]) + v6->m128_f32[0];
+              v6->m128_f32[1] = (float)((float)(*(float *)&v32 * *(float *)&weightScale) * v21->rot.v[1]) + v6->m128_f32[1];
+              v6->m128_f32[2] = (float)((float)(*(float *)&v32 * *(float *)&weightScale) * v21->rot.v[2]) + v6->m128_f32[2];
+              v6->m128_f32[3] = (float)((float)(*(float *)&v32 * *(float *)&weightScale) * v21->rot.v[3]) + v6->m128_f32[3];
+            }
+            posWeight = v21->posWeight;
+            if ( posWeight != 0.0 )
+            {
+              v6[1].m128_f32[1] = (float)((float)(*(float *)&weightScale / posWeight) * v21->pos.v[0]) + v6[1].m128_f32[1];
+              v6[1].m128_f32[2] = (float)((float)(*(float *)&weightScale / posWeight) * v21->pos.v[1]) + v6[1].m128_f32[2];
+              v6[1].m128_f32[3] = (float)((float)(*(float *)&weightScale / posWeight) * v21->pos.v[2]) + v6[1].m128_f32[3];
+              v6[1].m128_f32[0] = *(float *)&weightScale + v6[1].m128_f32[0];
             }
           }
         }
         else
         {
-          v38 = !v11.bClear;
-          if ( !v11.bClear )
+          if ( !v7.bClear && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5296, ASSERT_TYPE_ASSERT, "(deltaInfo.bClear)", (const char *)&queryFormat, "deltaInfo.bClear") )
+            __debugbreak();
+          v26 = v6[1].m128_f32[0];
+          if ( v26 != 0.0 )
           {
-            v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5296, ASSERT_TYPE_ASSERT, "(deltaInfo.bClear)", (const char *)&queryFormat, "deltaInfo.bClear");
-            v38 = !v39;
-            if ( v39 )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsi+10h]
-            vucomiss xmm1, xmm8
-          }
-          if ( !v38 )
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3f800000
-              vdivss  xmm2, xmm0, xmm1
-              vmulss  xmm0, xmm2, dword ptr [rsi+14h]
-              vmovss  dword ptr [rsi+14h], xmm0
-              vmulss  xmm1, xmm2, dword ptr [rsi+18h]
-              vmovss  dword ptr [rsi+18h], xmm1
-              vmulss  xmm0, xmm2, dword ptr [rsi+1Ch]
-              vmovss  dword ptr [rsi+1Ch], xmm0
-            }
+            v6[1].m128_f32[1] = (float)(1.0 / v26) * v6[1].m128_f32[1];
+            v6[1].m128_f32[2] = (float)(1.0 / v26) * v6[1].m128_f32[2];
+            v6[1].m128_f32[3] = (float)(1.0 / v26) * v6[1].m128_f32[3];
           }
         }
       }
       else
       {
-        __asm { vmovaps xmm2, xmm9; weightScale }
-        XAnimCalcDeltaTree(obj, children, *(const float *)&_XMM2, v11, rotPos, b3D);
+LABEL_38:
+        XAnimCalcDeltaTree(obj, children, *(const float *)&weightScale, v7, rotPos, b3D);
       }
-      __asm { vmovaps xmm6, [rsp+128h+var_58] }
     }
     else
     {
-LABEL_25:
-      if ( v11.bClear )
+LABEL_27:
+      if ( v7.bClear )
       {
         rotPos->rot = 0ui64;
         *(_OWORD *)&rotPos->posWeight = 0ui64;
       }
     }
-    __asm
-    {
-      vmovaps xmm7, [rsp+128h+var_68]
-      vmovaps xmm8, [rsp+128h+var_78]
-    }
   }
-  __asm { vmovaps xmm9, [rsp+128h+var_88] }
 }
 
 /*
@@ -4418,111 +4045,91 @@ XAnimCalcNotetrackWeight
 double XAnimCalcNotetrackWeight(const XAnimInfo *info, scr_string_t blendInStartNotetrack, scr_string_t blendInEndNotetrack, scr_string_t blendOutStartNotetrack, scr_string_t blendOutEndNotetrack)
 {
   XAnimParts *parts; 
-  int v15; 
+  XAnimNotifyInfo *notify; 
+  int v10; 
+  float v11; 
+  float time; 
+  float v13; 
+  float v14; 
   scr_string_t name; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
+  const char *v21; 
   const char *v22; 
   const char *v23; 
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
-  const char *v27; 
-  const char *v28; 
-  const char *v29; 
-  float blendOutEndNotetracka; 
+  double result; 
 
   parts = info->parts;
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3239, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  _RDI = parts->notify;
-  if ( _RDI )
+  notify = parts->notify;
+  if ( notify )
   {
-    v15 = 0;
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@bf800000
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vmovaps [rsp+0A8h+var_58], xmm8
-      vmovaps [rsp+0A8h+var_68], xmm9
-      vmovaps [rsp+0A8h+var_78], xmm10
-      vmovaps xmm10, xmm6
-      vmovaps xmm7, xmm6
-      vmovaps xmm8, xmm6
-      vmovaps xmm9, xmm6
-    }
+    v10 = 0;
+    v11 = FLOAT_N1_0;
+    time = FLOAT_N1_0;
+    v13 = FLOAT_N1_0;
+    v14 = FLOAT_N1_0;
     if ( parts->notifyCount )
     {
       do
       {
-        name = _RDI->name;
-        if ( _RDI->name == blendInStartNotetrack )
+        name = notify->name;
+        if ( notify->name == blendInStartNotetrack )
         {
-          __asm { vucomiss xmm7, xmm6 }
-          if ( name != blendInStartNotetrack )
+          if ( time != -1.0 )
           {
-            v22 = parts->name;
-            v23 = SL_ConvertToString(blendInStartNotetrack);
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 364i64, v23, v22);
+            v16 = parts->name;
+            v17 = SL_ConvertToString(blendInStartNotetrack);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 364i64, v17, v16);
           }
-          __asm { vmovss  xmm7, dword ptr [rdi+4] }
+          time = notify->time;
         }
         else if ( name == blendInEndNotetrack )
         {
-          __asm { vucomiss xmm8, xmm6 }
-          if ( name != blendInEndNotetrack )
+          if ( v13 != -1.0 )
           {
-            v24 = parts->name;
-            v25 = SL_ConvertToString(blendInEndNotetrack);
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 365i64, v25, v24);
+            v18 = parts->name;
+            v19 = SL_ConvertToString(blendInEndNotetrack);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 365i64, v19, v18);
           }
-          __asm { vmovss  xmm8, dword ptr [rdi+4] }
+          v13 = notify->time;
         }
         else if ( name == blendOutStartNotetrack )
         {
-          __asm { vucomiss xmm9, xmm6 }
-          if ( name != blendOutStartNotetrack )
+          if ( v14 != -1.0 )
           {
-            v26 = parts->name;
-            v27 = SL_ConvertToString(blendOutStartNotetrack);
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 366i64, v27, v26);
+            v20 = parts->name;
+            v21 = SL_ConvertToString(blendOutStartNotetrack);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 366i64, v21, v20);
           }
-          __asm { vmovss  xmm9, dword ptr [rdi+4] }
+          v14 = notify->time;
         }
         else if ( name == blendOutEndNotetrack )
         {
-          __asm { vucomiss xmm10, xmm6 }
-          if ( name != blendOutEndNotetrack )
+          if ( v11 != -1.0 )
           {
-            v28 = parts->name;
-            v29 = SL_ConvertToString(blendOutEndNotetrack);
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 367i64, v29, v28);
+            v22 = parts->name;
+            v23 = SL_ConvertToString(blendOutEndNotetrack);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC640, 367i64, v23, v22);
           }
-          __asm { vmovss  xmm10, dword ptr [rdi+4] }
+          v11 = notify->time;
         }
-        ++v15;
-        ++_RDI;
+        ++v10;
+        ++notify;
       }
-      while ( v15 < parts->notifyCount );
+      while ( v10 < parts->notifyCount );
     }
-    __asm
-    {
-      vmovaps xmm3, xmm9; notifyOutStartTime
-      vmovaps xmm2, xmm8; notifyInEndTime
-      vmovaps xmm1, xmm7; notifyInStartTime
-      vmovss  [rsp+0A8h+blendOutEndNotetrack], xmm10
-      vmovaps xmm10, [rsp+0A8h+var_78]
-      vmovaps xmm9, [rsp+0A8h+var_68]
-      vmovaps xmm8, [rsp+0A8h+var_58]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
-    *(double *)&_XMM0 = XAnimCalcNotetrackWeigthWithTimeRange(info, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, blendOutEndNotetracka);
+    return XAnimCalcNotetrackWeigthWithTimeRange(info, time, v13, v14, v11);
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    *(_QWORD *)&result = LODWORD(FLOAT_1_0);
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*
@@ -4530,244 +4137,108 @@ double XAnimCalcNotetrackWeight(const XAnimInfo *info, scr_string_t blendInStart
 XAnimCalcNotetrackWeigthWithTimeRange
 ==============
 */
-
-float __fastcall XAnimCalcNotetrackWeigthWithTimeRange(const XAnimInfo *info, double notifyInStartTime, double notifyInEndTime, double notifyOutStartTime, float notifyOutEndTime)
+float XAnimCalcNotetrackWeigthWithTimeRange(const XAnimInfo *info, float notifyInStartTime, float notifyInEndTime, float notifyOutStartTime, float notifyOutEndTime)
 {
   XAnimParts *parts; 
-  char v19; 
-  bool v20; 
-  bool v21; 
-  char v45; 
-  void *retaddr; 
+  float v8; 
+  float currentAnimTime; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = info;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm12, xmm2
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm1
-  }
   if ( !info && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3166, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  parts = _RDI->parts;
+  parts = info->parts;
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3172, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  __asm { vmovss  xmm10, cs:__real@3f800000 }
-  v19 = 0;
-  v20 = parts == NULL;
-  if ( !parts )
+  v8 = FLOAT_1_0;
+  if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3110, ASSERT_TYPE_ASSERT, "(!throwError || (throwError && parts))", (const char *)&queryFormat, "!throwError || (throwError && parts)") )
+    __debugbreak();
+  if ( notifyInStartTime == -1.0 && notifyInEndTime == -1.0 || notifyInStartTime >= 0.0 && notifyInEndTime >= 0.0 )
   {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3110, ASSERT_TYPE_ASSERT, "(!throwError || (throwError && parts))", (const char *)&queryFormat, "!throwError || (throwError && parts)");
-    v19 = 0;
-    v20 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@bf800000
-    vucomiss xmm6, xmm7
-    vmovss  xmm11, [rsp+0A8h+notifyOutEndTime]
-    vxorps  xmm9, xmm9, xmm9
-  }
-  if ( !v20 )
-    goto LABEL_12;
-  __asm { vucomiss xmm12, xmm7 }
-  if ( !v20 )
-  {
-LABEL_12:
-    __asm
+    if ( notifyOutStartTime == -1.0 && notifyOutEndTime == -1.0 || notifyOutStartTime >= 0.0 && notifyOutEndTime >= 0.0 )
     {
-      vcomiss xmm6, xmm9
-      vcomiss xmm12, xmm9
-    }
-  }
-  __asm { vucomiss xmm8, xmm7 }
-  if ( !v20 )
-    goto LABEL_15;
-  __asm { vucomiss xmm11, xmm7 }
-  if ( !v20 )
-  {
-LABEL_15:
-    __asm
-    {
-      vcomiss xmm8, xmm9
-      vcomiss xmm11, xmm9
-    }
-  }
-  __asm { vucomiss xmm6, xmm7 }
-  if ( v20 )
-    goto LABEL_19;
-  __asm { vucomiss xmm6, xmm12 }
-  if ( !v20 )
-  {
-LABEL_19:
-    __asm { vucomiss xmm8, xmm7 }
-    if ( v20 )
-      goto LABEL_22;
-    __asm { vucomiss xmm8, xmm11 }
-    if ( !v20 )
-    {
-LABEL_22:
-      __asm { vucomiss xmm6, xmm7 }
-      if ( !v20 )
-        goto LABEL_24;
-      __asm { vucomiss xmm12, xmm7 }
-      if ( v20 )
+      if ( notifyInStartTime == -1.0 || notifyInStartTime != notifyInEndTime )
       {
-        __asm { vucomiss xmm8, xmm7 }
-        if ( v20 )
+        if ( notifyOutStartTime == -1.0 || notifyOutStartTime != notifyOutEndTime )
         {
-          __asm { vucomiss xmm11, xmm7 }
+          if ( notifyInStartTime == -1.0 && notifyInEndTime == -1.0 || notifyInStartTime < notifyInEndTime )
+          {
+            if ( (notifyOutStartTime != -1.0 || notifyOutEndTime != -1.0) && notifyOutStartTime >= notifyOutEndTime )
+              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC590, 361i64, parts->name);
+          }
+          else
+          {
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC530, 360i64, parts->name);
+          }
         }
         else
         {
-          __asm { vcomiss xmm8, xmm11 }
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC590, 361i64, parts->name);
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC4B0, 359i64, parts->name);
         }
       }
       else
       {
-LABEL_24:
-        __asm { vcomiss xmm6, xmm12 }
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC530, 360i64, parts->name);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC440, 358i64, parts->name);
       }
     }
     else
     {
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC4B0, 359i64, parts->name);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC3C0, 357i64, parts->name);
     }
   }
   else
   {
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC440, 358i64, parts->name);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC350, 356i64, parts->name);
   }
-  __asm { vcomiss xmm8, xmm9 }
-  if ( !v19 )
+  if ( notifyOutStartTime >= 0.0 )
   {
-    __asm
+    currentAnimTime = info->state.currentAnimTime;
+    if ( currentAnimTime >= notifyOutStartTime && currentAnimTime < notifyOutEndTime )
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, xmm8
-      vcomiss xmm0, xmm11
-    }
-    if ( v19 )
-    {
-      __asm
-      {
-        vcomiss xmm6, xmm9
-        vmovaps xmm1, xmm0
-        vcomiss xmm0, xmm6
-        vcomiss xmm0, xmm12
-      }
-      if ( v19 )
+      v10 = info->state.currentAnimTime;
+      if ( notifyInStartTime >= 0.0 && currentAnimTime >= notifyInStartTime && currentAnimTime < notifyInEndTime )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC5F0, 362i64, parts->name);
-        __asm { vmovss  xmm1, dword ptr [rdi+28h] }
+        v10 = info->state.currentAnimTime;
       }
-      __asm
-      {
-        vsubss  xmm1, xmm1, xmm8
-        vsubss  xmm0, xmm11, xmm8
-        vdivss  xmm2, xmm1, xmm0
-        vsubss  xmm10, xmm10, xmm2
-      }
-      goto LABEL_57;
+      return 1.0 - (float)((float)(v10 - notifyOutStartTime) / (float)(notifyOutEndTime - notifyOutStartTime));
     }
   }
-  __asm { vcomiss xmm6, xmm9 }
-  if ( v19 )
-    goto LABEL_44;
-  __asm
+  if ( notifyInStartTime < 0.0 || (v11 = info->state.currentAnimTime, v11 < notifyInStartTime) || v11 >= notifyInEndTime )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vcomiss xmm0, xmm6
-    vcomiss xmm0, xmm12
-  }
-  if ( !v19 )
-  {
-LABEL_44:
-    __asm { vucomiss xmm8, xmm7 }
-    if ( v20 )
+    if ( notifyOutStartTime == -1.0 && notifyInStartTime == -1.0 )
+      return v8;
+    v13 = info->state.currentAnimTime;
+    if ( notifyOutStartTime != -1.0 )
     {
-      __asm { vucomiss xmm6, xmm7 }
-      if ( v20 )
-        goto LABEL_57;
-    }
-    __asm
-    {
-      vucomiss xmm8, xmm7
-      vmovss  xmm0, dword ptr [rdi+28h]
-    }
-    if ( !v20 )
-    {
-      __asm { vucomiss xmm6, xmm7 }
-      if ( v20 )
+      if ( notifyInStartTime == -1.0 )
       {
-        __asm { vcomiss xmm0, xmm11 }
-        if ( v19 | v20 )
-          goto LABEL_57;
-LABEL_56:
-        __asm { vxorps  xmm10, xmm10, xmm10 }
-        goto LABEL_57;
+        if ( v13 <= notifyOutEndTime )
+          return v8;
+        return 0.0;
       }
-      __asm { vcomiss xmm6, xmm8 }
-      if ( v19 | v20 )
+      if ( notifyInStartTime <= notifyOutStartTime )
       {
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v19 )
-          __asm { vcomiss xmm0, xmm11 }
-        goto LABEL_56;
+        if ( v13 >= notifyInStartTime && v13 < notifyOutEndTime )
+          return v8;
+        return 0.0;
       }
-      __asm { vcomiss xmm0, xmm11 }
-      if ( v19 )
-        goto LABEL_57;
+      if ( v13 < notifyOutEndTime )
+        return v8;
     }
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !v19 )
-      goto LABEL_57;
-    goto LABEL_56;
+    if ( v13 >= notifyInStartTime )
+      return v8;
+    return 0.0;
   }
-  __asm
-  {
-    vcomiss xmm8, xmm9
-    vmovaps xmm1, xmm0
-    vcomiss xmm0, xmm8
-    vcomiss xmm0, xmm11
-  }
-  if ( v19 )
+  v12 = info->state.currentAnimTime;
+  if ( notifyOutStartTime >= 0.0 && v11 >= notifyOutStartTime && v11 < notifyOutEndTime )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC5F0, 363i64, parts->name);
-    __asm { vmovss  xmm1, dword ptr [rdi+28h] }
+    v12 = info->state.currentAnimTime;
   }
-  __asm
-  {
-    vsubss  xmm1, xmm1, xmm6
-    vsubss  xmm0, xmm12, xmm6
-    vdivss  xmm10, xmm1, xmm0
-  }
-LABEL_57:
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm0, xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return *(float *)&_XMM0;
+  return (float)(v12 - notifyInStartTime) / (float)(notifyInEndTime - notifyInStartTime);
 }
 
 /*
@@ -4776,166 +4247,133 @@ XAnimCalcRelDeltaParts3D
 ==============
 */
 
-void __fastcall XAnimCalcRelDeltaParts3D(const XAnimParts *parts, double weightScale, double time1, double time2, XAnimRotPos *rotPos, int quatIndex)
+void __fastcall XAnimCalcRelDeltaParts3D(const XAnimParts *parts, double weightScale, const float time1, const float time2, XAnimRotPos *rotPos, int quatIndex)
 {
   unsigned __int8 flags; 
+  __m128 v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  XAnimPartTrans *trans; 
+  unsigned __int16 size; 
+  float v36; 
+  __int128 v40; 
+  __m128 v; 
+  float v49; 
   vec3_t in; 
   vec3_t out; 
+  __int128 v52; 
   vec4_t quat; 
-  float4 v111; 
+  float4 v54; 
   float4 posDelta; 
   vec4_t rotDelta; 
-  vec4_t v114; 
-  char v125; 
+  vec4_t v57; 
 
-  __asm
-  {
-    vmovaps [rsp+180h+var_90], xmm13
-    vmovaps [rsp+180h+var_A0], xmm14
-    vmovaps [rsp+180h+var_B0], xmm15
-  }
   flags = parts->flags;
-  _RBX = rotPos;
-  __asm
-  {
-    vmovaps xmm14, xmm3
-    vmovaps xmm13, xmm2
-    vmovaps xmm15, xmm1
-  }
+  v9 = *(__m128 *)&weightScale;
   if ( (flags & 2) != 0 )
   {
-    XAnimCalcRelDeltaParts(parts, *(const float *)&weightScale, *(const float *)&time1, *(const float *)&time2, rotPos, quatIndex);
+    XAnimCalcRelDeltaParts(parts, *(const float *)&weightScale, time1, time2, rotPos, quatIndex);
   }
   else if ( (flags & 4) != 0 )
   {
-    __asm
+    XAnim_CalcDelta3DForTime(parts, time1, &rotDelta, &posDelta);
+    XAnim_CalcDelta3DForTime(parts, time2, &v57, &v54);
+    v10 = LODWORD(v57.v[3]);
+    v11 = v57.v[0];
+    v12 = v57.v[2];
+    v13 = rotDelta.v[3];
+    v14 = v57.v[1];
+    LODWORD(v15) = LODWORD(rotDelta.v[1]) ^ _xmm;
+    LODWORD(v16) = LODWORD(rotDelta.v[0]) ^ _xmm;
+    LODWORD(v17) = LODWORD(rotDelta.v[2]) ^ _xmm;
+    rotPos->rot.v[0] = (float)((float)((float)((float)((float)(v57.v[3] * COERCE_FLOAT(LODWORD(rotDelta.v[0]) ^ _xmm)) + (float)(v57.v[0] * rotDelta.v[3])) + (float)(v57.v[2] * COERCE_FLOAT(LODWORD(rotDelta.v[1]) ^ _xmm))) - (float)(v57.v[1] * COERCE_FLOAT(LODWORD(rotDelta.v[2]) ^ _xmm))) * (float)(*(float *)&weightScale * 9.3137942e-10)) + rotPos->rot.v[0];
+    rotPos->rot.v[1] = (float)((float)((float)((float)((float)(v14 * v13) - (float)(v12 * v16)) + (float)(*(float *)&v10 * v15)) + (float)(v11 * v17)) * (float)(*(float *)&weightScale * 9.3137942e-10)) + rotPos->rot.v[1];
+    rotPos->rot.v[2] = (float)((float)((float)((float)((float)(v14 * v16) + (float)(v12 * v13)) - (float)(v11 * v15)) + (float)(*(float *)&v10 * v17)) * (float)(*(float *)&weightScale * 9.3137942e-10)) + rotPos->rot.v[2];
+    v18 = v10;
+    *(float *)&v18 = (float)((float)((float)(*(float *)&v10 * v13) - (float)(v11 * v16)) - (float)(v14 * v15)) - (float)(v12 * v17);
+    _XMM2 = v18;
+    rotPos->rot.v[3] = (float)(*(float *)&v18 * (float)(*(float *)&weightScale * 9.3137942e-10)) + rotPos->rot.v[3];
+    if ( (parts->flags & 1) != 0 && time2 < time1 && (trans = parts->deltaPart->trans) != NULL && (size = trans->size) != 0 )
     {
-      vmovaps [rsp+180h+var_20], xmm6
-      vmovaps [rsp+180h+var_30], xmm7
-      vmovaps [rsp+180h+var_40], xmm8
-      vmovaps [rsp+180h+var_50], xmm9
-      vmovaps [rsp+180h+var_60], xmm10
-      vmovaps [rsp+180h+var_70], xmm11
-      vmovaps [rsp+180h+var_80], xmm12
-      vmulss  xmm12, xmm15, cs:__real@30800200
-      vmovaps xmm1, xmm13; time
+      _R8 = trans->u.frames.frames;
+      _RDX = size;
+      __asm { vlddqu  xmm0, xmmword ptr [r8] }
+      if ( trans->smallTrans )
+      {
+        __asm { vpmovzxbd xmm0, xmm0 }
+        _XMM1 = _mm_cvtepi32_ps(_XMM0);
+        _RAX = &(*_R8._1)[2 * size];
+        __asm
+        {
+          vlddqu  xmm0, xmmword ptr [rdx+rax]
+          vinsertps xmm4, xmm1, xmm1, 8
+          vpmovzxbd xmm1, xmm0
+        }
+      }
+      else
+      {
+        __asm
+        {
+          vpxor   xmm2, xmm2, xmm2
+          vpunpcklwd xmm0, xmm0, xmm2
+        }
+        _XMM1 = _mm_cvtepi32_ps(_XMM0);
+        _RAX = 3i64 * size;
+        __asm
+        {
+          vlddqu  xmm0, xmmword ptr [r8+rax*2]
+          vinsertps xmm4, xmm1, xmm1, 8
+          vpunpcklwd xmm1, xmm0, xmm2
+        }
+      }
+      v36 = trans->u.frames.size.v[0];
+      _XMM2 = _mm_cvtepi32_ps(_XMM1);
+      __asm { vinsertps xmm5, xmm2, xmm2, 8 }
+      HIDWORD(v52) = 0;
+      v40 = v52;
+      *(float *)&v40 = v36;
+      _XMM3 = v40;
+      __asm
+      {
+        vinsertps xmm3, xmm3, dword ptr [rcx+18h], 10h
+        vinsertps xmm3, xmm3, dword ptr [rcx+1Ch], 20h ; ' '
+      }
+      v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM5, _XMM4), _XMM3), v54.v);
+      v54.v = v;
     }
-    XAnim_CalcDelta3DForTime(parts, *(const float *)&_XMM1, &rotDelta, &posDelta);
-    __asm { vmovaps xmm1, xmm14; time }
-    XAnim_CalcDelta3DForTime(parts, *(const float *)&_XMM1, &v114, &v111);
-    __asm
+    else
     {
-      vmovss  xmm8, dword ptr [rbp+80h+var_D0+0Ch]
-      vmovss  xmm6, dword ptr [rbp+80h+var_D0]
-      vmovss  xmm7, dword ptr [rbp+80h+var_D0+8]
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm5, dword ptr [rbp+80h+rotDelta+0Ch]
-      vmovss  xmm4, dword ptr [rbp+80h+var_D0+4]
-      vmovss  xmm0, dword ptr [rbp+80h+rotDelta]
-      vmovss  xmm1, dword ptr [rbp+80h+rotDelta+4]
-      vxorps  xmm10, xmm1, xmm2
-      vxorps  xmm9, xmm0, xmm2
-      vmovss  xmm0, dword ptr [rbp+80h+rotDelta+8]
-      vxorps  xmm11, xmm0, xmm2
-      vmulss  xmm1, xmm8, xmm9
-      vmulss  xmm0, xmm6, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm10
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm11
-      vsubss  xmm1, xmm3, xmm0
-      vmulss  xmm2, xmm1, xmm12
-      vaddss  xmm3, xmm2, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm3
-      vmulss  xmm0, xmm7, xmm9
-      vmulss  xmm1, xmm4, xmm5
-      vsubss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, xmm10
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm11
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, xmm12
-      vaddss  xmm3, xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm3
-      vmulss  xmm1, xmm4, xmm9
-      vmulss  xmm0, xmm7, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm10
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm8, xmm11
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, xmm12
-      vaddss  xmm3, xmm1, dword ptr [rbx+8]
-      vmulss  xmm0, xmm6, xmm9
-      vmovaps xmm9, [rsp+180h+var_50]
-      vmovaps xmm6, [rsp+180h+var_20]
-      vmovss  dword ptr [rbx+8], xmm3
-      vmulss  xmm1, xmm8, xmm5
-      vmovaps xmm8, [rsp+180h+var_40]
-      vsubss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm10
-      vmovaps xmm10, [rsp+180h+var_60]
-      vsubss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm11
-      vmovaps xmm11, [rsp+180h+var_70]
-      vmovaps xmm7, [rsp+180h+var_30]
-      vsubss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, xmm12
-      vaddss  xmm3, xmm1, dword ptr [rbx+0Ch]
-      vmovaps xmm12, [rsp+180h+var_80]
-      vmovss  dword ptr [rbx+0Ch], xmm3
+      v = v54.v;
     }
-    if ( (parts->flags & 1) != 0 )
-      __asm { vcomiss xmm14, xmm13 }
+    _XMM2 = _mm128_mul_ps(_mm128_sub_ps(v, posDelta.v), _mm_shuffle_ps(v9, v9, 0));
+    in.v[0] = _XMM2.m128_f32[0];
     __asm
     {
-      vmovups xmm2, xmmword ptr [rbp+80h+var_100.v]
-      vsubps  xmm1, xmm2, xmmword ptr [rbp+80h+posDelta.v]
-      vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps xmm0, xmm15
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm2, xmm1, xmm0
-      vmovss  dword ptr [rsp+180h+in], xmm2
       vextractps dword ptr [rsp+180h+in+4], xmm2, 1
       vextractps dword ptr [rsp+180h+in+8], xmm2, 2
     }
-    _RAX = 2i64 * quatIndex;
+    _XMM4 = LODWORD(rotDelta.v[4 * quatIndex]) ^ (unsigned __int128)(unsigned int)_xmm;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+rax*8+80h+rotDelta]
-      vmovss  xmm1, dword ptr [rbp+rax*8+80h+rotDelta+4]
-      vxorps  xmm4, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rbp+rax*8+80h+rotDelta+8]
-      vxorps  xmm2, xmm1, xmm3
-      vxorps  xmm3, xmm0, xmm3
       vinsertps xmm4, xmm4, xmm2, 10h
       vinsertps xmm4, xmm4, xmm3, 20h ; ' '
       vinsertps xmm4, xmm4, dword ptr [rbp+rax*8+80h+rotDelta+0Ch], 80h+var_50
-      vmulps  xmm0, xmm4, cs:__xmm@38000100380001003800010038000100
-      vmovups xmmword ptr [rsp+180h+quat], xmm0
     }
+    quat = (vec4_t)_mm128_mul_ps(_XMM4, (__m128)_xmm);
     QuatTransform(&quat, &in, &out);
-    __asm
-    {
-      vaddss  xmm0, xmm15, dword ptr [rbx+10h]
-      vmovss  xmm2, dword ptr [rsp+180h+out+4]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vmovss  xmm0, dword ptr [rsp+180h+out]
-      vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbx+14h], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rbx+18h]
-      vmovss  xmm1, dword ptr [rsp+180h+out+8]
-      vmovss  dword ptr [rbx+18h], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rbx+1Ch]
-      vmovss  dword ptr [rbx+1Ch], xmm2
-    }
-  }
-  _R11 = &v125;
-  __asm
-  {
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    _XMM2.m128_i32[0] = LODWORD(out.v[1]);
+    rotPos->posWeight = v9.m128_f32[0] + rotPos->posWeight;
+    rotPos->pos.v[0] = out.v[0] + rotPos->pos.v[0];
+    v49 = out.v[2];
+    rotPos->pos.v[1] = _XMM2.m128_f32[0] + rotPos->pos.v[1];
+    rotPos->pos.v[2] = v49 + rotPos->pos.v[2];
   }
 }
 
@@ -4945,121 +4383,109 @@ XAnimCalcRelDeltaParts
 ==============
 */
 
-void __fastcall XAnimCalcRelDeltaParts(const XAnimParts *parts, double weightScale, double time1, double time2, XAnimRotPos *rotPos, int quatIndex)
+void __fastcall XAnimCalcRelDeltaParts(const XAnimParts *parts, double weightScale, double time1, const float time2, XAnimRotPos *rotPos, int quatIndex)
 {
-  bool v19; 
-  float4 v70; 
+  __m128 v7; 
+  XAnimPartTrans *trans; 
+  unsigned __int16 size; 
+  __int128 v26; 
+  __m128 v; 
+  float v31; 
+  float v32; 
+  __m128 v33; 
+  float v34; 
+  float v35; 
+  __m128 v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  float4 v44; 
   float4 posDelta; 
-  vec2_t v72; 
+  vec2_t v46; 
   vec2_t rotDelta; 
-  char v76; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm10
-  }
-  _RBX = rotPos;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-    vmovaps xmm10, xmm1
-  }
+  v7 = *(__m128 *)&weightScale;
   if ( (parts->flags & 6) != 0 )
   {
-    __asm
+    XAnim_CalcDeltaForTime(parts, *(const float *)&time1, &v46, &posDelta);
+    XAnim_CalcDeltaForTime(parts, time2, &rotDelta, &v44);
+    if ( (parts->flags & 1) != 0 && time2 < *(float *)&time1 && (trans = parts->deltaPart->trans) != NULL && (size = trans->size) != 0 )
     {
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovaps xmmword ptr [r11-48h], xmm9
-      vmovaps xmm1, xmm2; time
-    }
-    XAnim_CalcDeltaForTime(parts, *(const float *)&_XMM1, &v72, &posDelta);
-    __asm { vmovaps xmm1, xmm7; time }
-    XAnim_CalcDeltaForTime(parts, *(const float *)&_XMM1, &rotDelta, &v70);
-    v19 = (parts->flags & 1) == 0;
-    if ( (parts->flags & 1) != 0 )
-      __asm { vcomiss xmm7, xmm6 }
-    __asm
-    {
-      vmovups xmm9, xmmword ptr [rsp+0C8h+var_98.v]
-      vmovss  xmm6, dword ptr [rsp+0C8h+rotDelta]
-      vmovss  xmm5, dword ptr [rsp+0C8h+rotDelta+4]
-      vmulss  xmm1, xmm6, [rsp+0C8h+var_74]
-      vmulss  xmm0, xmm5, [rsp+0C8h+var_78]
-      vmulss  xmm8, xmm10, cs:__real@30800200
-    }
-    _RAX = quatIndex;
-    __asm
-    {
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm5, [rsp+0C8h+var_74]
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, dword ptr [rbx+8]
-      vmulss  xmm1, xmm6, [rsp+0C8h+var_78]
-      vmovss  xmm4, [rsp+rax*8+0C8h+var_74]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm8
-      vsubps  xmm1, xmm9, xmmword ptr [rsp+0C8h+posDelta.v]
-      vmovss  dword ptr [rbx+8], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbx+0Ch]
-      vmovss  xmm2, [rsp+rax*8+0C8h+var_78]
-      vmovaps xmm0, xmm10
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm7, xmm1, xmm0
-      vmulss  xmm5, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm9, xmm0, xmm5
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm9, xmm1
-      vmovss  dword ptr [rbx+0Ch], xmm3
-      vmovaps xmm3, xmm7
-      vshufps xmm6, xmm7, xmm7, 55h ; 'U'
-      vshufps xmm8, xmm7, xmm7, 0AAh ; 'ª'
-    }
-    if ( !v19 )
-    {
+      _R8 = trans->u.frames.frames;
+      _RDX = size;
+      __asm { vlddqu  xmm0, xmmword ptr [r8] }
+      if ( trans->smallTrans )
+      {
+        __asm { vpmovzxbd xmm0, xmm0 }
+        _XMM1 = _mm_cvtepi32_ps(_XMM0);
+        _RAX = &(*_R8._1)[2 * size];
+        __asm
+        {
+          vlddqu  xmm0, xmmword ptr [rdx+rax]
+          vinsertps xmm4, xmm1, xmm1, 8
+          vpmovzxbd xmm1, xmm0
+        }
+      }
+      else
+      {
+        __asm
+        {
+          vpxor   xmm2, xmm2, xmm2
+          vpunpcklwd xmm0, xmm0, xmm2
+        }
+        _XMM1 = _mm_cvtepi32_ps(_XMM0);
+        _RAX = 3i64 * size;
+        __asm
+        {
+          vlddqu  xmm0, xmmword ptr [r8+rax*2]
+          vinsertps xmm4, xmm1, xmm1, 8
+          vpunpcklwd xmm1, xmm0, xmm2
+        }
+      }
+      _XMM2 = _mm_cvtepi32_ps(_XMM1);
+      HIDWORD(v43) = 0;
+      v26 = v43;
+      *(float *)&v26 = trans->u.frames.size.v[0];
+      _XMM3 = v26;
       __asm
       {
-        vmovss  xmm0, cs:__real@40000000
-        vdivss  xmm1, xmm0, xmm9
-        vmulss  xmm0, xmm4, xmm2
-        vmulss  xmm4, xmm0, xmm1
-        vmulss  xmm5, xmm5, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm2, xmm1, xmm5
-        vmulss  xmm0, xmm4, xmm6
-        vmulss  xmm3, xmm2, xmm7
-        vmulss  xmm1, xmm6, xmm5
-        vmulss  xmm2, xmm7, xmm4
-        vaddss  xmm3, xmm3, xmm0
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm6, xmm6, xmm0
+        vinsertps xmm3, xmm3, dword ptr [rcx+18h], 10h
+        vinsertps xmm3, xmm3, dword ptr [rcx+1Ch], 20h ; ' '
+        vinsertps xmm5, xmm2, xmm2, 8
       }
+      v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM5, _XMM4), _XMM3), v44.v);
     }
-    __asm
+    else
     {
-      vaddss  xmm0, xmm10, dword ptr [rbx+10h]
-      vmovaps xmm9, [rsp+0C8h+var_48]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbx+14h], xmm0
-      vaddss  xmm1, xmm6, dword ptr [rbx+18h]
-      vmovss  dword ptr [rbx+18h], xmm1
-      vaddss  xmm0, xmm8, dword ptr [rbx+1Ch]
-      vmovaps xmm8, [rsp+0C8h+var_38]
-      vmovss  dword ptr [rbx+1Ch], xmm0
+      v = v44.v;
     }
-  }
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    v31 = v46.v[2 * quatIndex + 1];
+    v32 = (float)((float)(rotDelta.v[0] * v46.v[0]) + (float)(rotDelta.v[1] * v46.v[1])) * (float)(v7.m128_f32[0] * 9.3137942e-10);
+    v33 = _mm128_sub_ps(v, posDelta.v);
+    rotPos->rot.v[2] = (float)((float)((float)(rotDelta.v[0] * v46.v[1]) - (float)(rotDelta.v[1] * v46.v[0])) * (float)(v7.m128_f32[0] * 9.3137942e-10)) + rotPos->rot.v[2];
+    v34 = v32 + rotPos->rot.v[3];
+    v35 = v46.v[2 * quatIndex];
+    v36 = _mm128_mul_ps(v33, _mm_shuffle_ps(v7, v7, 0));
+    v37 = (float)(v31 * v31) + (float)(v35 * v35);
+    rotPos->rot.v[3] = v34;
+    v38 = v36.m128_f32[0];
+    LODWORD(v39) = _mm_shuffle_ps(v36, v36, 85).m128_u32[0];
+    LODWORD(v40) = _mm_shuffle_ps(v36, v36, 170).m128_u32[0];
+    if ( v37 != 0.0 )
+    {
+      v41 = (float)(v31 * v35) * (float)(2.0 / v37);
+      v42 = (float)(v35 * v35) * (float)(2.0 / v37);
+      v38 = (float)((float)(1.0 - v42) * v36.m128_f32[0]) + (float)(v41 * v39);
+      v39 = v39 - (float)((float)(v36.m128_f32[0] * v41) + (float)(v39 * v42));
+    }
+    rotPos->posWeight = v7.m128_f32[0] + rotPos->posWeight;
+    rotPos->pos.v[0] = v38 + rotPos->pos.v[0];
+    rotPos->pos.v[1] = v39 + rotPos->pos.v[1];
+    rotPos->pos.v[2] = v40 + rotPos->pos.v[2];
   }
 }
 
@@ -5070,66 +4496,61 @@ XAnimCheckFreeInfo
 */
 void XAnimCheckFreeInfo(XAnimTree *tree, unsigned __int16 infoIndex, int hasWeight, const DObj *obj)
 {
-  unsigned __int16 v8; 
+  unsigned __int16 v7; 
+  XAnimInfo *NonRootAnimInfo; 
+  XAnimInfo *v9; 
   unsigned __int16 children; 
-  bool v13; 
-  unsigned __int8 *v14; 
-  unsigned int v15; 
-  unsigned __int16 v16; 
-  __int64 v18; 
-  __int64 v19; 
+  bool v11; 
+  unsigned __int8 *v12; 
+  unsigned int v13; 
+  unsigned __int16 v14; 
+  __int64 v15; 
+  __int64 v16; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  v8 = infoIndex;
-  _RAX = GetNonRootAnimInfo(infoIndex);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  _RBP = _RAX;
-  __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-  if ( v13 )
+  v7 = infoIndex;
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  v9 = NonRootAnimInfo;
+  if ( NonRootAnimInfo->state.weight == 0.0 )
     hasWeight = 0;
-  children = _RAX->children;
-  v13 = children == 0;
+  children = NonRootAnimInfo->children;
+  v11 = children == 0;
   if ( children )
   {
     do
     {
       if ( (children & 0x8000u) != 0 )
       {
-        v15 = 32 * (children & 0x7FFF);
-        if ( v15 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        v13 = 32 * (children & 0x7FFF);
+        if ( v13 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          LODWORD(v19) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(v18) = 32 * (children & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v18, v19) )
+          LODWORD(v16) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v15) = 32 * (children & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v15, v16) )
             __debugbreak();
         }
-        v14 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v15];
+        v12 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13];
       }
       else
       {
         if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
         {
-          LODWORD(v19) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(v18) = children;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v18, v19) )
+          LODWORD(v16) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v15) = children;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v15, v16) )
             __debugbreak();
         }
-        v14 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+        v12 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
       }
-      v16 = *((_WORD *)v14 + 5);
+      v14 = *((_WORD *)v12 + 5);
       XAnimCheckFreeInfo(tree, children, hasWeight, obj);
-      children = v16;
+      children = v14;
     }
-    while ( v16 );
-    v8 = infoIndex;
-    v13 = _RBP->children == 0;
+    while ( v14 );
+    v7 = infoIndex;
+    v11 = v9->children == 0;
   }
-  if ( v13 && !hasWeight )
-  {
-    __asm { vucomiss xmm6, dword ptr [rbp+38h] }
-    XAnimFreeInfo(tree, v8, obj);
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  if ( v11 && !hasWeight && v9->state.goalWeight == 0.0 )
+    XAnimFreeInfo(tree, v7, obj);
 }
 
 /*
@@ -5141,15 +4562,14 @@ void XAnimClearChildGoalWeights(XAnimTree *tree, unsigned int graftAnimIndex, co
 {
   const XAnim_s *SubTreeAnims; 
   unsigned __int16 InfoIndex; 
-  float fmt; 
-  __int64 v14; 
+  __int64 v12; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7463, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    LODWORD(v14) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7464, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v14, 42) )
+    LODWORD(v12) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7464, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v12, 42) )
       __debugbreak();
   }
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
@@ -5159,14 +4579,7 @@ void XAnimClearChildGoalWeights(XAnimTree *tree, unsigned int graftAnimIndex, co
     __debugbreak();
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+blendTime]
-      vmovss  dword ptr [rsp+58h+fmt], xmm0
-    }
-    XAnimClearChildGoalWeightsWithParent(tree, graftAnimIndex, subTreeID, InfoIndex, fmt, curveID);
-  }
+    XAnimClearChildGoalWeightsWithParent(tree, graftAnimIndex, subTreeID, InfoIndex, blendTime, curveID);
 }
 
 /*
@@ -5176,79 +4589,66 @@ XAnimClearChildGoalWeightsWithParent
 */
 void XAnimClearChildGoalWeightsWithParent(XAnimTree *tree, unsigned int graftAnimIndex, XAnimSubTreeID subTreeID, unsigned __int16 parentInfoIndex, float blendTime, const XAnimCurveID curveID)
 {
-  int v9; 
-  unsigned __int16 children; 
+  int v8; 
+  unsigned __int16 i; 
   XAnimInfo *AnimInfo; 
   unsigned __int16 *p_notifyChild; 
-  unsigned __int64 v14; 
-  unsigned __int64 v15; 
+  unsigned __int64 v12; 
+  unsigned __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
   __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  int v24; 
+  int v20; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7433, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    LODWORD(v18) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7434, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v18, 42) )
+    LODWORD(v14) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7434, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v14, 42) )
       __debugbreak();
   }
   if ( !parentInfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7435, ASSERT_TYPE_ASSERT, "(parentInfoIndex)", (const char *)&queryFormat, "parentInfoIndex") )
     __debugbreak();
-  v9 = 0;
-  v22 = 0i64;
-  v23 = 0i64;
-  v24 = 0;
-  children = XAnimGetAnimInfo(parentInfoIndex)->children;
-  if ( children )
+  v8 = 0;
+  v18 = 0i64;
+  v19 = 0i64;
+  v20 = 0;
+  for ( i = XAnimGetAnimInfo(parentInfoIndex)->children; i; i = p_notifyChild[5] )
   {
-    __asm
+    AnimInfo = XAnimGetAnimInfo(i);
+    p_notifyChild = &AnimInfo->notifyChild;
+    if ( AnimInfo->animIndex != v8 )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovss  xmm6, [rsp+0A8h+blendTime]
+      v18 = 0i64;
+      v19 = 0i64;
+      v20 = 0;
     }
-    do
+    v12 = (unsigned __int16)AnimInfo->subTreeID;
+    if ( (unsigned int)v12 >= 0xA0 )
     {
-      AnimInfo = XAnimGetAnimInfo(children);
-      p_notifyChild = &AnimInfo->notifyChild;
-      if ( AnimInfo->animIndex != v9 )
+      LODWORD(v15) = 160;
+      LODWORD(v14) = (unsigned __int16)AnimInfo->subTreeID;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (v12 & 0x1F)) & *((_DWORD *)&v18 + (v12 >> 5))) == 0 || p_notifyChild[3] != v8 )
+    {
+      v13 = p_notifyChild[8];
+      v8 = p_notifyChild[3];
+      if ( (unsigned int)v13 >= 0xA0 )
       {
-        v22 = 0i64;
-        v23 = 0i64;
-        v24 = 0;
-      }
-      v14 = (unsigned __int16)AnimInfo->subTreeID;
-      if ( (unsigned int)v14 >= 0xA0 )
-      {
-        LODWORD(v19) = 160;
-        LODWORD(v18) = (unsigned __int16)AnimInfo->subTreeID;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
+        LODWORD(v17) = 160;
+        LODWORD(v16) = p_notifyChild[8];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
           __debugbreak();
       }
-      if ( ((0x80000000 >> (v14 & 0x1F)) & *((_DWORD *)&v22 + (v14 >> 5))) == 0 || p_notifyChild[3] != v9 )
-      {
-        v15 = p_notifyChild[8];
-        v9 = p_notifyChild[3];
-        if ( (unsigned int)v15 >= 0xA0 )
-        {
-          LODWORD(v21) = 160;
-          LODWORD(v20) = p_notifyChild[8];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v20, v21) )
-            __debugbreak();
-        }
-        __asm { vmovaps xmm2, xmm6; blendTime }
-        *((_DWORD *)&v22 + (v15 >> 5)) |= 0x80000000 >> (v15 & 0x1F);
-        XAnimClearGoalWeightInternal(tree, children, *(float *)&_XMM2, 0, curveID);
-      }
-      children = p_notifyChild[5];
+      *((_DWORD *)&v18 + (v13 >> 5)) |= 0x80000000 >> (v13 & 0x1F);
+      XAnimClearGoalWeightInternal(tree, i, blendTime, 0, curveID);
     }
-    while ( children );
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
   }
 }
 
@@ -5287,23 +4687,20 @@ XAnimClearGoalWeight
 void XAnimClearGoalWeight(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float blendTime, const XAnimCurveID curveID)
 {
   unsigned __int16 InfoIndex; 
+  int v11; 
   int v12; 
-  int v13; 
 
   XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    v13 = 42;
-    v12 = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7083, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v12, v13) )
+    v12 = 42;
+    v11 = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7083, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    __asm { vmovss  xmm2, [rsp+48h+blendTime]; blendTime }
-    XAnimClearGoalWeightInternal(tree, InfoIndex, *(float *)&_XMM2, 0, curveID);
-  }
+    XAnimClearGoalWeightInternal(tree, InfoIndex, blendTime, 0, curveID);
 }
 
 /*
@@ -5314,56 +4711,38 @@ XAnimClearGoalWeightInternal
 
 void __fastcall XAnimClearGoalWeightInternal(XAnimTree *tree, unsigned __int16 infoIndex, double blendTime, int forceBlendTime, const XAnimCurveID curveID)
 {
-  bool v12; 
-  bool v13; 
+  XAnimInfo *NonRootAnimInfo; 
   scr_string_t notifyName; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  _XMM6 = *(_OWORD *)&blendTime;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7048, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7049, ASSERT_TYPE_ASSERT, "(tree->anims)", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  v12 = !_RBX->inuse;
-  if ( !_RBX->inuse )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7052, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm1, dword ptr [rbx+38h]
-  }
-  if ( !v12 || forceBlendTime )
-    __asm { vmovaps xmm0, xmm6 }
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7052, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+    __debugbreak();
+  if ( NonRootAnimInfo->state.goalWeight != 0.0 || forceBlendTime )
+    LODWORD(_XMM0) = LODWORD(blendTime);
   else
     __asm { vminss  xmm0, xmm6, dword ptr [rbx+34h] }
-  __asm
+  NonRootAnimInfo->state.goalTime = *(float *)&_XMM0;
+  NonRootAnimInfo->state.startWeight = NonRootAnimInfo->state.weight;
+  NonRootAnimInfo->state.curveID = curveID;
+  NonRootAnimInfo->state.goalDuration = *(float *)&_XMM0;
+  NonRootAnimInfo->state.goalWeight = 0.0;
+  if ( *(float *)&blendTime == 0.0 )
   {
-    vmovss  dword ptr [rbx+34h], xmm0
-    vucomiss xmm6, xmm1
+    NonRootAnimInfo->state.weight = 0.0;
+    NonRootAnimInfo->state.flags |= 1u;
   }
-  _RBX->state.startWeight = _RBX->state.weight;
-  _RBX->state.curveID = curveID;
-  __asm { vmovss  dword ptr [rbx+44h], xmm0 }
-  _RBX->state.goalWeight = 0.0;
-  _RBX->state.weight = 0.0;
-  _RBX->state.flags |= 1u;
-  notifyName = _RBX->notifyName;
+  notifyName = NonRootAnimInfo->notifyName;
   if ( notifyName )
   {
     SL_RemoveRefToString(notifyName);
-    _RBX->notifyName = 0;
+    NonRootAnimInfo->notifyName = 0;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  _RBX->notifyIndex = -1;
+  NonRootAnimInfo->notifyIndex = -1;
 }
 
 /*
@@ -5372,71 +4751,47 @@ XAnimClearGoalWeightKnobInternal
 ==============
 */
 
-void __fastcall XAnimClearGoalWeightKnobInternal(XAnimTree *tree, unsigned __int16 infoIndex, double goalWeight, double goalTime, const XAnimCurveID curveID)
+void __fastcall XAnimClearGoalWeightKnobInternal(XAnimTree *tree, unsigned __int16 infoIndex, double goalWeight, float goalTime, const XAnimCurveID curveID)
 {
   unsigned __int16 parent; 
   unsigned __int16 children; 
   unsigned __int16 next; 
+  XAnimInfo *AnimInfo; 
+  __int128 v13; 
+  double v14; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm8
-    vmovaps [rsp+0B8h+var_68], xmm9
-    vmovaps xmm9, xmm3
-    vmovaps xmm8, xmm2
-  }
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7158, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7159, ASSERT_TYPE_ASSERT, "(tree->anims)", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  *(_QWORD *)&_XMM6 = 0i64;
   parent = GetNonRootAnimInfo(infoIndex)->parent;
   if ( parent )
     children = XAnimGetAnimInfo(parent)->children;
   else
     children = tree->children;
   next = children;
-  if ( children )
+  while ( next )
   {
-    __asm
+    AnimInfo = XAnimGetAnimInfo(next);
+    _XMM0 = LODWORD(AnimInfo->state.weight);
+    if ( next == infoIndex )
     {
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
+      v13 = *(_OWORD *)&goalWeight;
+      *(float *)&v13 = *(float *)&goalWeight - *(float *)&_XMM0;
+      _XMM0 = v13 & (unsigned int)_xmm;
     }
-    do
-    {
-      _RAX = XAnimGetAnimInfo(next);
-      __asm { vmovss  xmm0, dword ptr [rax+3Ch] }
-      if ( next == infoIndex )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm8, xmm0
-          vandps  xmm0, xmm0, xmm7
-        }
-      }
-      next = _RAX->next;
-      __asm { vmaxss  xmm6, xmm0, xmm6 }
-    }
-    while ( next );
-    __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
+    next = AnimInfo->next;
+    __asm { vmaxss  xmm6, xmm0, xmm6 }
   }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmulss  xmm6, xmm6, xmm9
-    vmovaps xmm9, [rsp+0B8h+var_68]
-  }
-  for ( ; children; children = XAnimGetAnimInfo(children)->next )
+  for ( HIDWORD(v14) = DWORD1(_XMM6); children; children = XAnimGetAnimInfo(children)->next )
   {
     if ( children != infoIndex )
     {
-      __asm { vmovaps xmm2, xmm6; blendTime }
-      XAnimClearGoalWeightInternal(tree, children, *(double *)&_XMM2, 0, curveID);
+      *(float *)&v14 = *(float *)&_XMM6 * goalTime;
+      XAnimClearGoalWeightInternal(tree, children, v14, 0, curveID);
     }
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
 }
 
 /*
@@ -5479,23 +4834,20 @@ XAnimClearTreeGoalWeights
 void XAnimClearTreeGoalWeights(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float blendTime, int forceBlendTime, void *objID, const XAnimCurveID curveID)
 {
   unsigned __int16 InfoIndex; 
+  int v13; 
   int v14; 
-  int v15; 
 
   XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    v15 = 42;
-    v14 = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7117, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v14, v15) )
+    v14 = 42;
+    v13 = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7117, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    __asm { vmovss  xmm2, [rsp+48h+blendTime]; blendTime }
-    XAnimClearTreeGoalWeightsNode(tree, InfoIndex, *(float *)&_XMM2, forceBlendTime, curveID);
-  }
+    XAnimClearTreeGoalWeightsNode(tree, InfoIndex, blendTime, forceBlendTime, curveID);
 }
 
 /*
@@ -5503,55 +4855,47 @@ void XAnimClearTreeGoalWeights(XAnimTree *tree, unsigned int graftAnimIndex, con
 XAnimClearTreeGoalWeightsNode
 ==============
 */
-
-void __fastcall XAnimClearTreeGoalWeightsNode(XAnimTree *tree, unsigned __int16 infoIndex, double blendTime, int forceBlendTime, const XAnimCurveID curveID)
+void XAnimClearTreeGoalWeightsNode(XAnimTree *tree, unsigned __int16 infoIndex, double blendTime, int forceBlendTime, const XAnimCurveID curveID)
 {
-  int v10; 
+  int v8; 
   unsigned __int16 i; 
-  unsigned __int8 *v12; 
+  unsigned __int8 *v10; 
+  __int64 v11; 
+  int v12; 
   __int64 v13; 
-  int v14; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v14; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
   XAnimClearGoalWeightInternal(tree, infoIndex, blendTime, forceBlendTime, curveID);
-  v10 = 0;
-  for ( i = XAnimGetAnimInfo(infoIndex)->children; i; v10 = *((unsigned __int16 *)v12 + 3) )
+  v8 = 0;
+  for ( i = XAnimGetAnimInfo(infoIndex)->children; i; v8 = *((unsigned __int16 *)v10 + 3) )
   {
     if ( (i & 0x8000u) != 0 )
     {
-      v13 = 32 * (i & 0x7FFFu);
-      if ( (unsigned int)v13 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+      v11 = 32 * (i & 0x7FFFu);
+      if ( (unsigned int)v11 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
       {
-        LODWORD(v18) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-        LODWORD(v17) = 32 * (i & 0x7FFF);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v17, v18) )
+        LODWORD(v14) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+        LODWORD(v13) = 32 * (i & 0x7FFF);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v13, v14) )
           __debugbreak();
       }
-      v12 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v13];
+      v10 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v11];
     }
     else
     {
       if ( (unsigned int)i >= g_xanimMemoryGlobals.infoPoolSize )
       {
-        LODWORD(v18) = g_xanimMemoryGlobals.infoPoolSize;
-        LODWORD(v17) = i;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v14) = g_xanimMemoryGlobals.infoPoolSize;
+        LODWORD(v13) = i;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      v12 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
+      v10 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
     }
-    v14 = forceBlendTime && v10 != *((unsigned __int16 *)v12 + 3);
-    __asm { vmovaps xmm2, xmm6; blendTime }
-    XAnimClearTreeGoalWeightsNode(tree, i, *(float *)&_XMM2, v14, curveID);
-    i = *((_WORD *)v12 + 5);
+    v12 = forceBlendTime && v8 != *((unsigned __int16 *)v10 + 3);
+    XAnimClearTreeGoalWeightsNode(tree, i, *(float *)&blendTime, v12, curveID);
+    i = *((_WORD *)v10 + 5);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -5561,17 +4905,17 @@ XAnimClearTreeGoalWeightsStrict
 */
 void XAnimClearTreeGoalWeightsStrict(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float blendTime, void *objID, const XAnimCurveID curveID)
 {
-  __int64 v9; 
+  __int64 v8; 
   const XAnim_s *SubTreeAnims; 
-  XAnimEntry *v13; 
-  int v14; 
+  XAnimEntry *v12; 
+  int v13; 
   int numAnims; 
-  unsigned int v17; 
+  unsigned int v15; 
   unsigned __int16 InfoIndex; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v17; 
+  __int64 v18; 
 
-  v9 = animIndex;
+  v8 = animIndex;
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7133, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", (unsigned __int8)curveID, 42) )
     __debugbreak();
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7134, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -5579,39 +4923,30 @@ void XAnimClearTreeGoalWeightsStrict(XAnimTree *tree, unsigned int graftAnimInde
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
   if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7136, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  if ( (unsigned int)v9 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7137, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
+  if ( (unsigned int)v8 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7137, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
     __debugbreak();
-  v13 = &SubTreeAnims->entries[v9];
-  v14 = 0;
-  numAnims = v13->numAnims;
-  if ( v13->numAnims )
+  v12 = &SubTreeAnims->entries[v8];
+  v13 = 0;
+  numAnims = v12->numAnims;
+  if ( v12->numAnims )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_38], xmm6
-      vmovss  xmm6, [rsp+78h+blendTime]
-    }
     do
     {
-      v17 = v14 + v13->animParent.children;
-      XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v17);
+      v15 = v13 + v12->animParent.children;
+      XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v15);
       if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
       {
-        LODWORD(v22) = 42;
-        LODWORD(v21) = (unsigned __int8)curveID;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7117, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v18) = 42;
+        LODWORD(v17) = (unsigned __int8)curveID;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7117, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v17, v18) )
           __debugbreak();
       }
-      InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v17);
+      InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v15);
       if ( InfoIndex )
-      {
-        __asm { vmovaps xmm2, xmm6; blendTime }
-        XAnimClearTreeGoalWeightsNode(tree, InfoIndex, *(float *)&_XMM2, 1, curveID);
-      }
-      ++v14;
+        XAnimClearTreeGoalWeightsNode(tree, InfoIndex, blendTime, 1, curveID);
+      ++v13;
     }
-    while ( v14 < numAnims );
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
+    while ( v13 < numAnims );
   }
 }
 
@@ -5654,23 +4989,16 @@ void XAnimCloneAnimInfo(const XAnimInfo *from, XAnimInfo *to)
 {
   scr_string_t notifyName; 
 
-  _RBX = to;
-  _RDI = from;
   if ( to->animIndex != from->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8917, ASSERT_TYPE_ASSERT, "(to->animIndex == from->animIndex)", (const char *)&queryFormat, "to->animIndex == from->animIndex") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+28h]
-    vmovups ymmword ptr [rbx+28h], ymm0
-    vmovsd  xmm1, qword ptr [rdi+48h]
-    vmovsd  qword ptr [rbx+48h], xmm1
-  }
-  _RBX->notifyChild = _RDI->notifyChild;
-  _RBX->notifyIndex = _RDI->notifyIndex;
-  notifyName = _RDI->notifyName;
-  _RBX->notifyName = notifyName;
-  _RBX->notifyType = _RDI->notifyType;
-  _RBX->subTreeID = _RDI->subTreeID;
+  *(__m256i *)&to->state.currentAnimTime = *(__m256i *)&from->state.currentAnimTime;
+  *(double *)&to->state.startWeight = *(double *)&from->state.startWeight;
+  to->notifyChild = from->notifyChild;
+  to->notifyIndex = from->notifyIndex;
+  notifyName = from->notifyName;
+  to->notifyName = notifyName;
+  to->notifyType = from->notifyType;
+  to->subTreeID = from->subTreeID;
   if ( notifyName )
     SL_AddRefToString(notifyName);
 }
@@ -5683,42 +5011,36 @@ XAnimCloneAnimTree
 void XAnimCloneAnimTree(const XAnimTree *from, XAnimTree *to)
 {
   unsigned __int16 children; 
-  unsigned __int16 v6; 
+  unsigned __int16 v5; 
 
-  _RBX = from;
-  _RDI = to;
   Profile_Begin(413);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8968, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
+  if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8968, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
     __debugbreak();
-  if ( !_RBX->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8969, ASSERT_TYPE_ASSERT, "(from->anims)", (const char *)&queryFormat, "from->anims") )
+  if ( !from->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8969, ASSERT_TYPE_ASSERT, "(from->anims)", (const char *)&queryFormat, "from->anims") )
     __debugbreak();
-  if ( !_RBX->anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8970, ASSERT_TYPE_ASSERT, "(from->anims->size)", (const char *)&queryFormat, "from->anims->size") )
+  if ( !from->anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8970, ASSERT_TYPE_ASSERT, "(from->anims->size)", (const char *)&queryFormat, "from->anims->size") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8971, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8971, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
-  if ( _RDI->anims != _RBX->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8972, ASSERT_TYPE_ASSERT, "(to->anims == from->anims)", (const char *)&queryFormat, "to->anims == from->anims") )
+  if ( to->anims != from->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8972, ASSERT_TYPE_ASSERT, "(to->anims == from->anims)", (const char *)&queryFormat, "to->anims == from->anims") )
     __debugbreak();
-  _RDI->clientNotifyEnabled = _RBX->clientNotifyEnabled;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx+1Ch]
-    vmovsd  qword ptr [rdi+1Ch], xmm0
-  }
-  _RDI->lodState.distance = _RBX->lodState.distance;
-  children = _RDI->children;
+  to->clientNotifyEnabled = from->clientNotifyEnabled;
+  *(double *)&to->lodState.lod = *(double *)&from->lodState.lod;
+  to->lodState.distance = from->lodState.distance;
+  children = to->children;
   if ( children )
   {
-    XAnimFreeInfo(_RDI, children, NULL);
-    if ( _RDI->children )
+    XAnimFreeInfo(to, children, NULL);
+    if ( to->children )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8981, ASSERT_TYPE_ASSERT, "(!to->children)", (const char *)&queryFormat, "!to->children") )
         __debugbreak();
     }
   }
-  v6 = _RBX->children;
-  if ( v6 )
-    XAnimCloneAnimTree_r(_RBX, _RDI, v6, 0);
-  XAnimCloneParameterValues(_RBX, _RDI);
+  v5 = from->children;
+  if ( v5 )
+    XAnimCloneAnimTree_r(from, to, v5, 0);
+  XAnimCloneParameterValues(from, to);
   Profile_EndInternal(NULL);
 }
 
@@ -5842,14 +5164,16 @@ XAnimCloneClientAnimTree_r
 */
 void XAnimCloneClientAnimTree_r(const XAnimTree *from, XAnimTree *to, unsigned __int16 fromInfoIndex, unsigned __int16 toInfoParentIndex, __int16 noteType)
 {
+  XAnimInfo *NonRootAnimInfo; 
   XAnimToXModel *v10; 
   unsigned __int16 v11; 
+  XAnimInfo *AnimInfo; 
   unsigned __int16 notifyType; 
   unsigned __int16 i; 
-  unsigned __int8 *v17; 
-  __int64 v18; 
+  unsigned __int8 *v15; 
+  __int64 v16; 
   __int64 after; 
-  __int64 v20; 
+  __int64 v18; 
 
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9013, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
     __debugbreak();
@@ -5861,15 +5185,15 @@ void XAnimCloneClientAnimTree_r(const XAnimTree *from, XAnimTree *to, unsigned _
     __debugbreak();
   if ( to->anims != from->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9017, ASSERT_TYPE_ASSERT, "(to->anims == from->anims)", (const char *)&queryFormat, "to->anims == from->anims") )
     __debugbreak();
-  _RBX = GetNonRootAnimInfo(fromInfoIndex);
-  if ( !_RBX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9021, ASSERT_TYPE_ASSERT, "(fromInfo->inuse)", (const char *)&queryFormat, "fromInfo->inuse") )
+  NonRootAnimInfo = GetNonRootAnimInfo(fromInfoIndex);
+  if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9021, ASSERT_TYPE_ASSERT, "(fromInfo->inuse)", (const char *)&queryFormat, "fromInfo->inuse") )
     __debugbreak();
-  v10 = XAnimCloneXAnimToXModel(_RBX->animToModel);
-  v11 = XAnimAllocInfoWithParent(to, (const XAnimSubTreeID)_RBX->subTreeID, v10, _RBX->animIndex, toInfoParentIndex, 1);
-  _RDI = XAnimGetAnimInfo(v11);
+  v10 = XAnimCloneXAnimToXModel(NonRootAnimInfo->animToModel);
+  v11 = XAnimAllocInfoWithParent(to, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID, v10, NonRootAnimInfo->animIndex, toInfoParentIndex, 1);
+  AnimInfo = XAnimGetAnimInfo(v11);
   if ( !from->owner[0] )
   {
-    notifyType = _RBX->notifyType;
+    notifyType = NonRootAnimInfo->notifyType;
     if ( notifyType )
     {
       LODWORD(after) = notifyType;
@@ -5877,45 +5201,40 @@ void XAnimCloneClientAnimTree_r(const XAnimTree *from, XAnimTree *to, unsigned _
         __debugbreak();
     }
   }
-  if ( _RDI->animIndex != _RBX->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8994, ASSERT_TYPE_ASSERT, "(to->animIndex == from->animIndex)", (const char *)&queryFormat, "to->animIndex == from->animIndex") )
+  if ( AnimInfo->animIndex != NonRootAnimInfo->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8994, ASSERT_TYPE_ASSERT, "(to->animIndex == from->animIndex)", (const char *)&queryFormat, "to->animIndex == from->animIndex") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+28h]
-    vmovups ymmword ptr [rdi+28h], ymm0
-    vmovsd  xmm1, qword ptr [rbx+48h]
-    vmovsd  qword ptr [rdi+48h], xmm1
-  }
-  _RDI->notifyType = noteType;
-  *(_DWORD *)&_RDI->notifyChild = -65536;
-  _RDI->notifyName = 0;
-  _RDI->subTreeID = _RBX->subTreeID;
+  *(__m256i *)&AnimInfo->state.currentAnimTime = *(__m256i *)&NonRootAnimInfo->state.currentAnimTime;
+  *(double *)&AnimInfo->state.startWeight = *(double *)&NonRootAnimInfo->state.startWeight;
+  AnimInfo->notifyType = noteType;
+  *(_DWORD *)&AnimInfo->notifyChild = -65536;
+  AnimInfo->notifyName = 0;
+  AnimInfo->subTreeID = NonRootAnimInfo->subTreeID;
   if ( from->owner[0] == 1 )
-    XAnimCloneCustomNodeData(_RBX, _RDI, from, to);
-  for ( i = _RBX->children; i; i = *((_WORD *)v17 + 5) )
+    XAnimCloneCustomNodeData(NonRootAnimInfo, AnimInfo, from, to);
+  for ( i = NonRootAnimInfo->children; i; i = *((_WORD *)v15 + 5) )
   {
     if ( (i & 0x8000u) != 0 )
     {
-      v18 = 32 * (i & 0x7FFFu);
-      if ( (unsigned int)v18 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+      v16 = 32 * (i & 0x7FFFu);
+      if ( (unsigned int)v16 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
       {
-        LODWORD(v20) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+        LODWORD(v18) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
         LODWORD(after) = 32 * (i & 0x7FFF);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v20) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v18) )
           __debugbreak();
       }
-      v17 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v18];
+      v15 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v16];
     }
     else
     {
       if ( (unsigned int)i >= g_xanimMemoryGlobals.infoPoolSize )
       {
-        LODWORD(v20) = g_xanimMemoryGlobals.infoPoolSize;
+        LODWORD(v18) = g_xanimMemoryGlobals.infoPoolSize;
         LODWORD(after) = i;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v20) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v18) )
           __debugbreak();
       }
-      v17 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
+      v15 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
     }
     XAnimCloneClientAnimTree_r(from, to, i, v11, noteType);
   }
@@ -6345,11 +5664,11 @@ XAnimDebugGetCurrentLeafAnims
 */
 void XAnimDebugGetCurrentLeafAnims(const DObj *obj, const XAnimTree *tree, unsigned __int16 infoIndex, char *buffer, int bufferSize, int *bufferPos)
 {
-  char v13; 
+  XAnimInfo *NonRootAnimInfo; 
   unsigned int animIndex; 
   const XAnim_s *SubTreeAnims; 
   const char *AnimDebugName; 
-  const char *v17; 
+  const char *v14; 
   unsigned __int16 i; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4754, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -6358,29 +5677,24 @@ void XAnimDebugGetCurrentLeafAnims(const DObj *obj, const XAnimTree *tree, unsig
     __debugbreak();
   if ( tree->anims->size )
   {
-    _RAX = GetNonRootAnimInfo(infoIndex);
-    __asm
+    NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+    if ( NonRootAnimInfo->state.goalWeight != 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rax+38h]
-    }
-    if ( !v13 )
-    {
-      if ( _RAX->animToModel )
+      if ( NonRootAnimInfo->animToModel )
       {
-        animIndex = _RAX->animIndex;
-        SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RAX->subTreeID);
+        animIndex = NonRootAnimInfo->animIndex;
+        SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID);
         if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4774, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
           __debugbreak();
         AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, animIndex);
-        v17 = (char *)&queryFormat.fmt + 3;
+        v14 = (char *)&queryFormat.fmt + 3;
         if ( *bufferPos )
-          v17 = ",";
-        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, "%s%s", v17, AnimDebugName);
+          v14 = ",";
+        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, "%s%s", v14, AnimDebugName);
       }
       else
       {
-        for ( i = _RAX->children; i; i = XAnimGetAnimInfo(i)->next )
+        for ( i = NonRootAnimInfo->children; i; i = XAnimGetAnimInfo(i)->next )
           XAnimDebugGetCurrentLeafAnims(obj, tree, i, buffer, bufferSize, bufferPos);
       }
     }
@@ -6404,135 +5718,112 @@ XAnimDisplay
 */
 void XAnimDisplay(const DObj *obj, const XAnimTree *tree, unsigned __int16 infoIndex, int depth, char *buffer, int bufferSize, int *bufferPos, const char *parentColor)
 {
-  const ObfuscateErrorText *v13; 
-  const char *v14; 
+  const ObfuscateErrorText *v8; 
+  const char *v9; 
+  XAnimInfo *NonRootAnimInfo; 
   const XAnim_s *SubTreeAnims; 
   XAnimSubTreeID subTreeID; 
-  unsigned int v20; 
-  bool HasLods; 
-  bool v24; 
-  bool v25; 
-  bool v26; 
-  bool v30; 
-  const dvar_t *v32; 
-  unsigned __int16 parent; 
-  int v34; 
-  const char *v35; 
-  const char *v36; 
-  __int64 v37; 
+  unsigned int v15; 
+  float v16; 
+  double ClientLodFloat; 
+  float v18; 
+  const dvar_t *v20; 
+  XAnimInfo *AnimInfo; 
+  int v22; 
+  const char *v23; 
+  const char *v24; 
+  __int64 v25; 
   const char *AnimDebugName; 
-  __int64 v39; 
-  __int64 v40; 
-  int v41; 
-  __int64 v42; 
-  int v43; 
-  DObj *v44; 
-  char v46; 
-  const char *v47; 
+  __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  __int64 v30; 
+  int v31; 
+  DObj *v32; 
+  char v34; 
+  const char *v35; 
   unsigned int flags; 
   const XAnimNodeTypeInfo *CustomNodeTypeInfo; 
-  const char *v50; 
+  const char *v38; 
+  __int64 i; 
   XAnimCurveID curveID; 
-  bool v58; 
-  bool v59; 
+  const char *NameFromID; 
+  XAnimParts *parts; 
+  float frequency; 
+  __int128 currentAnimTime_low; 
+  float oldTime; 
+  __int128 v50; 
   scr_string_t notifyName; 
-  const char *v69; 
-  __int64 v92; 
-  unsigned __int8 v93; 
-  scr_string_t v94; 
+  double v54; 
+  const char *v55; 
+  __int64 v56; 
+  unsigned __int8 v57; 
+  scr_string_t v58; 
   unsigned __int16 notifyChild; 
-  const char *v109; 
-  const char *v110; 
-  bool v111; 
-  XAnimTree *v130; 
+  const char *v61; 
+  bool v62; 
+  double v63; 
+  XAnimTree *v64; 
   unsigned __int16 children; 
-  int v132; 
-  char *fmta; 
+  int v66; 
   char *fmt; 
-  char *fmtb; 
-  char *fmtc; 
   __int64 deptha; 
-  double depthc; 
-  double depthd; 
-  double depthe; 
   double depthb; 
-  double depthf; 
-  __int64 depthg; 
-  int *inoutBufferPosa; 
-  int *inoutBufferPosb; 
-  int *inoutBufferPos; 
-  int *inoutBufferPosc; 
-  int *inoutBufferPosd; 
-  char *v152; 
-  char *v153; 
-  char *v154; 
-  char *v155; 
-  char *v156; 
-  double v157; 
-  double v158; 
-  double v159; 
-  const char *v160; 
-  double v161; 
-  double v162; 
-  double v163; 
-  double v164; 
-  char *v165; 
-  double v166; 
-  double v167; 
-  double v168; 
-  double v169; 
-  char *v170; 
-  double v171; 
-  const char *v172; 
-  int v173; 
+  double inoutBufferPos; 
+  double goalTime; 
+  double v72; 
+  double currentAnimTime; 
+  double rate; 
+  const char *v75; 
+  int v76; 
   unsigned int animIndex; 
-  int v175; 
+  int v78; 
   int destPos; 
-  int v177; 
-  int v178; 
-  int v179; 
+  int v80; 
+  int v81; 
+  int v82; 
   DObj *dobj; 
-  const char *v181; 
+  const char *v84; 
   XAnimTree *treea; 
   float ikWeights[2]; 
-  __int64 v184; 
+  __int64 v87; 
   float animWeights[2]; 
-  __int64 v186; 
+  __int64 v89; 
   char dest[8]; 
-  __int64 v188; 
-  __int64 v189; 
-  __int64 v190; 
-  char v191[8]; 
-  __int64 v192; 
-  __int64 v193; 
-  __int64 v194; 
-  __int64 v195; 
-  __int64 v196; 
-  __int64 v197; 
-  __int64 v198; 
-  char v199[8]; 
-  __int64 v200; 
-  __int64 v201; 
-  __int64 v202; 
-  __int64 v203; 
-  __int64 v204; 
-  __int64 v205; 
-  __int64 v206; 
-  char v207[8]; 
-  __int64 v208; 
-  __int64 v209; 
-  __int64 v210; 
-  __int64 v211; 
-  __int64 v212; 
-  __int64 v213; 
-  __int64 v214; 
+  __int64 v91; 
+  __int64 v92; 
+  __int64 v93; 
+  char v94[8]; 
+  __int64 v95; 
+  __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  __int64 v99; 
+  __int64 v100; 
+  __int64 v101; 
+  char v102[8]; 
+  __int64 v103; 
+  __int64 v104; 
+  __int64 v105; 
+  __int64 v106; 
+  __int64 v107; 
+  __int64 v108; 
+  __int64 v109; 
+  char v110[8]; 
+  __int64 v111; 
+  __int64 v112; 
+  __int64 v113; 
+  __int64 v114; 
+  __int64 v115; 
+  __int64 v116; 
+  __int64 v117; 
 
-  v13 = &queryFormat;
-  v14 = parentColor;
-  v175 = depth;
+  v8 = &queryFormat;
+  v9 = parentColor;
+  v78 = depth;
   treea = (XAnimTree *)tree;
   dobj = (DObj *)obj;
-  v173 = 0;
+  v76 = 0;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4469, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4470, ASSERT_TYPE_ASSERT, "(tree->anims)", (const char *)&queryFormat, "tree->anims") )
@@ -6547,481 +5838,314 @@ void XAnimDisplay(const DObj *obj, const XAnimTree *tree, unsigned __int16 infoI
     __debugbreak();
   if ( tree->anims->size )
   {
-    LOBYTE(v13) = 0;
-    __asm
-    {
-      vmovaps [rsp+240h+var_60], xmm7
-      vmovaps [rsp+240h+var_70], xmm8
-    }
-    v177 = (int)v13;
-    _RDI = GetNonRootAnimInfo(infoIndex);
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RDI->subTreeID);
+    LOBYTE(v8) = 0;
+    v80 = (int)v8;
+    NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+    SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID);
     if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4485, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
       __debugbreak();
-    if ( !_RDI->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4488, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+    if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4488, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
       __debugbreak();
-    subTreeID = _RDI->subTreeID;
-    v20 = _RDI->animIndex;
-    animIndex = v20;
-    XAnimAssertAnimIndex(tree, subTreeID, v20);
-    HasLods = XAnimTreeHasLods(tree);
-    __asm
+    subTreeID = NonRootAnimInfo->subTreeID;
+    v15 = NonRootAnimInfo->animIndex;
+    animIndex = v15;
+    XAnimAssertAnimIndex(tree, subTreeID, v15);
+    v16 = 0.0;
+    if ( XAnimTreeHasLods(tree) )
     {
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm7, xmm7, xmm7
-    }
-    v24 = 0;
-    v25 = !HasLods;
-    v26 = !HasLods;
-    if ( HasLods )
-    {
-      if ( !DObjHasClientFlag(dobj) )
-        goto LABEL_30;
-      *(double *)&_XMM0 = XAnimGetClientLodFloat(dobj);
-      __asm { vucomiss xmm0, xmm7 }
-      if ( v25 )
-LABEL_30:
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+      if ( !DObjHasClientFlag(dobj) || (ClientLodFloat = XAnimGetClientLodFloat(dobj), *(float *)&ClientLodFloat == 0.0) )
+        v18 = 0.0;
       else
-        __asm { vmovaps xmm1, xmm8 }
-      v24 = __CFADD__(animIndex, animIndex);
-      v25 = 2i64 * animIndex == 0;
-      v26 = v24 || v25;
-      LODWORD(v13) = 0;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vcomiss xmm1, xmm0
-      }
-      if ( !v24 && !v25 )
-        LODWORD(v13) = 1;
-      v177 = (int)v13;
+        v18 = FLOAT_1_0;
+      LOBYTE(v8) = v18 > (float)SubTreeAnims->entries[animIndex].lod;
+      v80 = (unsigned __int8)v8;
     }
-    __asm { vcomiss xmm7, dword ptr [rdi+3Ch] }
-    if ( !v26 )
+    if ( NonRootAnimInfo->state.weight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4507, ASSERT_TYPE_ASSERT, "(state->weight >= 0)", (const char *)&queryFormat, "state->weight >= 0") )
+      __debugbreak();
+    _XMM0 = LODWORD(NonRootAnimInfo->state.weight);
+    if ( *(float *)&_XMM0 != 0.0 )
     {
-      v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4507, ASSERT_TYPE_ASSERT, "(state->weight >= 0)", (const char *)&queryFormat, "state->weight >= 0");
-      v24 = 0;
-      v25 = !v30;
-      v26 = !v30;
-      if ( v30 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+3Ch]
-      vucomiss xmm0, xmm7
-    }
-    if ( v25 )
-    {
-      v32 = DCONST_DVARBOOL_xanim_displayblacktext;
-      if ( !DCONST_DVARBOOL_xanim_displayblacktext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_displayblacktext") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      if ( !v32->current.enabled )
-        goto LABEL_152;
-      v14 = "^0";
-    }
-    else
-    {
-      __asm { vcomiss xmm0, dword ptr [rdi+38h] }
-      if ( v24 )
+      if ( *(float *)&_XMM0 >= NonRootAnimInfo->state.goalWeight )
       {
-        v14 = "^4";
-      }
-      else if ( !v26 || (_BYTE)v13 )
-      {
-        v14 = "^1";
-      }
-    }
-    parent = _RDI->parent;
-    __asm { vmovaps [rsp+240h+var_50], xmm6 }
-    v181 = "^5";
-    if ( XAnimGetAnimInfo(parent)->parent )
-    {
-      if ( *v14 == a0_2[0] && v14[1] == a0_2[1] && v14[2] == a0_2[2] )
-      {
-        v14 = "^7";
-      }
-      else if ( *v14 == a4_1[0] && v14[1] == a4_1[1] && v14[2] == a4_1[2] )
-      {
-        v14 = "^5";
-      }
-      else if ( *v14 == a1_0[0] && v14[1] == a1_0[1] && v14[2] == a1_0[2] )
-      {
-        v14 = "^6";
-      }
-      else if ( *v14 == ::parentColor[0] && v14[1] == ::parentColor[1] && v14[2] == ::parentColor[2] )
-      {
-        v14 = "^2";
+        if ( *(float *)&_XMM0 > NonRootAnimInfo->state.goalWeight || (_BYTE)v8 )
+          v9 = "^1";
       }
       else
       {
-        v34 = *(unsigned __int8 *)v14 - (unsigned __int8)a2_0[0];
-        if ( !v34 )
+        v9 = "^4";
+      }
+      goto LABEL_46;
+    }
+    v20 = DCONST_DVARBOOL_xanim_displayblacktext;
+    if ( !DCONST_DVARBOOL_xanim_displayblacktext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_displayblacktext") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v20);
+    if ( v20->current.enabled )
+    {
+      v9 = "^0";
+LABEL_46:
+      AnimInfo = XAnimGetAnimInfo(NonRootAnimInfo->parent);
+      v84 = "^5";
+      if ( AnimInfo->parent )
+      {
+        if ( *v9 == a0_2[0] && v9[1] == a0_2[1] && v9[2] == a0_2[2] )
         {
-          v34 = *((unsigned __int8 *)v14 + 1) - (unsigned __int8)a2_0[1];
-          if ( !v34 )
-            v34 = *((unsigned __int8 *)v14 + 2) - (unsigned __int8)a2_0[2];
+          v9 = "^7";
         }
-        v35 = "^3";
-        if ( v34 )
-          v35 = v14;
-        v14 = v35;
-      }
-    }
-    v36 = "^;";
-    if ( !(_BYTE)v13 )
-      v36 = v14;
-    if ( v175 > 0 )
-    {
-      v37 = (unsigned int)v175;
-      do
-      {
-        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, "  ");
-        --v37;
-      }
-      while ( v37 );
-    }
-    AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, animIndex);
-    Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, (const char *)&queryFormat, v36);
-    v39 = -1i64;
-    do
-      ++v39;
-    while ( AnimDebugName[v39] );
-    v40 = *bufferPos;
-    v41 = v39 - 35;
-    destPos = 0;
-    if ( (int)v39 < 36 )
-      v41 = 0;
-    v42 = v41;
-    v43 = 36;
-    if ( bufferSize - (int)v40 < 36 )
-      v43 = bufferSize - v40;
-    Com_sprintfPos_truncate(&buffer[v40], v43, &destPos, (const char *)&queryFormat, &AnimDebugName[v42]);
-    *bufferPos += destPos;
-    if ( !v175 && XAnimTreeHasLods(treea) )
-    {
-      v44 = dobj;
-      if ( !DObjHasClientFlag(dobj) )
-        goto LABEL_87;
-      *(double *)&_XMM0 = XAnimGetClientLodFloat(v44);
-      __asm { vucomiss xmm0, xmm7 }
-      if ( v25 )
-LABEL_87:
-        __asm { vxorpd  xmm0, xmm0, xmm0 }
-      else
-        __asm { vmovsd  xmm0, cs:__real@3ff0000000000000 }
-      __asm { vmovsd  qword ptr [rsp+240h+depth], xmm0 }
-      Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, " %s(lod %.2f)%s", "^7", depthc, v36);
-    }
-    v46 = v177;
-    if ( (_BYTE)v177 )
-    {
-      LODWORD(deptha) = SubTreeAnims->entries[animIndex].lod;
-      Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, " %s(lod cull %d)%s ", "^7", deptha, v36);
-    }
-    *(_QWORD *)dest = 0i64;
-    v188 = 0i64;
-    v189 = 0i64;
-    v190 = 0i64;
-    if ( !_RDI->animToModel )
-    {
-      __asm { vucomiss xmm7, dword ptr [rdi+3Ch] }
-      if ( !_RDI->animToModel || v46 )
-      {
-        v47 = v36;
-        v181 = v36;
-      }
-      else
-      {
-        v47 = "^5";
-      }
-      flags = _RDI->animParent.flags;
-      if ( (flags & 0x100) != 0 )
-      {
-        Com_sprintfPos_truncate(dest, 0x20ui64, &v173, " %soverlay%s", v47, v36);
-      }
-      else if ( (flags & 0x200) != 0 )
-      {
-        Com_sprintfPos_truncate(dest, 0x20ui64, &v173, " %sadditive mul%s", v47, v36);
-      }
-      else if ( (flags & 0x210) != 0 )
-      {
-        Com_sprintfPos_truncate(dest, 0x20ui64, &v173, " %sadditive%s", v47, v36);
-      }
-      else if ( XAnimIsCustomNode(SubTreeAnims, _RDI) )
-      {
-        CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, _RDI);
-        if ( !CustomNodeTypeInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4598, ASSERT_TYPE_ASSERT, "(nodeTypeInfo)", (const char *)&queryFormat, "nodeTypeInfo") )
-          __debugbreak();
-        v50 = SL_ConvertToString((scr_string_t)*CustomNodeTypeInfo->name);
-        Com_sprintfPos_truncate(dest, 0x20ui64, &v173, " %s%s%s", v181, v50, v36);
-      }
-    }
-    v178 = 0;
-    *(_QWORD *)ikWeights = 0i64;
-    v184 = 0i64;
-    *(_QWORD *)animWeights = 0i64;
-    v186 = 0i64;
-    *(_QWORD *)v191 = 0i64;
-    v192 = 0i64;
-    v193 = 0i64;
-    v194 = 0i64;
-    v195 = 0i64;
-    v196 = 0i64;
-    v197 = 0i64;
-    v198 = 0i64;
-    XAnimIKGetWeights(dobj, _RDI, ikWeights, animWeights);
-    for ( _RBX = 0i64; _RBX < 4; ++_RBX )
-    {
-      __asm
-      {
-        vmovss  xmm0, [rbp+rbx*4+140h+ikWeights]
-        vmaxss  xmm0, xmm0, xmm7
-        vminss  xmm6, xmm0, xmm8
-      }
-      if ( _RBX )
-        Com_sprintfPos_truncate(v191, 0x40ui64, &v178, ", ");
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+240h+fmt], xmm0
-      }
-      Com_sprintfPos_truncate(v191, 0x40ui64, &v178, "%.3f", *(double *)&fmta);
-    }
-    *(_QWORD *)v199 = 0i64;
-    v200 = 0i64;
-    v201 = 0i64;
-    v202 = 0i64;
-    v203 = 0i64;
-    v204 = 0i64;
-    v205 = 0i64;
-    v206 = 0i64;
-    curveID = _RDI->state.curveID;
-    if ( curveID != CURVE_ASSET_END && curveID )
-      __asm { vcomiss xmm7, dword ptr [rdi+34h] }
-    if ( _RDI->animToModel )
-    {
-      _RBX = _RDI->parts;
-      v58 = _RBX == NULL;
-      if ( !_RBX )
-      {
-        v59 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4640, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts");
-        v58 = !v59;
-        if ( v59 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+68h]
-        vucomiss xmm3, xmm7
-        vmovss  xmm4, dword ptr [rdi+28h]
-        vmovss  xmm5, dword ptr [rdi+2Ch]
-        vsubss  xmm2, xmm4, xmm5
-      }
-      if ( !v58 )
-      {
-        __asm
+        else if ( *v9 == a4_1[0] && v9[1] == a4_1[1] && v9[2] == a4_1[2] )
         {
-          vcmpltss xmm0, xmm2, xmm7
-          vaddss  xmm1, xmm2, xmm8
-          vblendvps xmm0, xmm2, xmm1, xmm0
-          vdivss  xmm7, xmm0, xmm3
+          v9 = "^5";
         }
-      }
-      notifyName = _RDI->notifyName;
-      __asm { vcvtss2sd xmm6, xmm7, xmm7 }
-      if ( notifyName )
-      {
-        v69 = SL_ConvertToString(notifyName);
-        __asm
+        else if ( *v9 == a1_0[0] && v9[1] == a1_0[1] && v9[2] == a1_0[2] )
         {
-          vmovss  xmm0, dword ptr [rdi+40h]
-          vmovss  xmm1, dword ptr [rdi+28h]
-          vmovss  xmm2, dword ptr [rdi+2Ch]
-          vmovss  xmm3, dword ptr [rdi+34h]
-          vmovss  xmm4, dword ptr [rdi+38h]
-          vmovss  xmm5, dword ptr [rdi+3Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+240h+var_1F0], xmm0
-          vmovsd  [rsp+240h+var_1F8], xmm6
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+240h+var_200], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+240h+var_208], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+240h+inoutBufferPos], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+240h+depth], xmm4
-          vmovsd  [rsp+240h+fmt], xmm5
+          v9 = "^6";
         }
-        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ": (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (realtimedelta) %.3f, (rate) %.3f ^5(ik)%s %s '%s' %s\n", *(double *)&fmtb, depthd, *(double *)&inoutBufferPosa, *(double *)&v152, v157, v162, v167, v36, v191, v69, v199);
-      }
-      else
-      {
-        __asm
+        else if ( *v9 == ::parentColor[0] && v9[1] == ::parentColor[1] && v9[2] == ::parentColor[2] )
         {
-          vmovss  xmm0, dword ptr [rdi+40h]
-          vmovss  xmm3, dword ptr [rdi+34h]
-          vcvtss2sd xmm1, xmm4, xmm4
-          vmovss  xmm4, dword ptr [rdi+38h]
-          vcvtss2sd xmm2, xmm5, xmm5
-          vmovss  xmm5, dword ptr [rdi+3Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+240h+var_1F0], xmm0
-          vmovsd  [rsp+240h+var_1F8], xmm6
-          vmovsd  [rsp+240h+var_200], xmm1
-          vmovsd  [rsp+240h+var_208], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+240h+inoutBufferPos], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+240h+depth], xmm4
-          vmovsd  [rsp+240h+fmt], xmm5
+          v9 = "^2";
         }
-        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ": (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (realtimedelta) %.3f, (rate) %.3f ^5(ik)%s %s %s\n", *(double *)&fmtc, depthe, *(double *)&inoutBufferPosb, *(double *)&v153, v158, v163, v168, v36, v191, v199);
-      }
-LABEL_151:
-      __asm { vmovaps xmm6, [rsp+240h+var_50] }
-LABEL_152:
-      __asm
-      {
-        vmovaps xmm7, [rsp+240h+var_60]
-        vmovaps xmm8, [rsp+240h+var_70]
-      }
-      return;
-    }
-    v179 = 0;
-    v92 = 16 * (animIndex + 5i64);
-    *(_QWORD *)v207 = 0i64;
-    v208 = 0i64;
-    v209 = 0i64;
-    v210 = 0i64;
-    v211 = 0i64;
-    v212 = 0i64;
-    v213 = 0i64;
-    v214 = 0i64;
-    if ( (!*(_WORD *)((char *)&SubTreeAnims->size + v92 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v92) & 3) != 0) && ((__int64)_RDI->parts & 3) != 0 )
-    {
-      v93 = _RDI->animParent.syncGroup[0];
-      if ( v93 == 4 )
-      {
-        Com_sprintfPos_truncate(v207, 0x40ui64, &v179, "^6(sync)%s", v36);
-      }
-      else
-      {
-        LODWORD(fmt) = v93;
-        Com_sprintfPos_truncate(v207, 0x40ui64, &v179, "^6(sync %d)%s", fmt, v36);
-      }
-    }
-    v94 = _RDI->notifyName;
-    if ( v94 )
-    {
-      if ( !*(_WORD *)((char *)&SubTreeAnims->size + v92 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v92) & 3) != 0 )
-      {
-        notifyChild = _RDI->notifyChild;
-        v172 = SL_ConvertToString(v94);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+40h]
-          vmovss  xmm1, dword ptr [rdi+28h]
-          vmovss  xmm2, dword ptr [rdi+2Ch]
-          vmovss  xmm3, dword ptr [rdi+34h]
-          vmovss  xmm4, dword ptr [rdi+38h]
-          vmovss  xmm5, dword ptr [rdi+3Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+240h+var_1F0], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+240h+var_1F8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+240h+var_200], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+240h+var_208], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vmovsd  [rsp+240h+inoutBufferPos], xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+240h+depth], xmm5
-        }
-        if ( notifyChild )
-          Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s, '%s' %s %s\n", dest, depthb, *(double *)&inoutBufferPos, *(double *)&v154, v159, v164, v169, v36, v191, v172, v199, v207);
         else
-          Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s,'%s' %s %s\n", dest, depthb, *(double *)&inoutBufferPos, *(double *)&v154, v159, v164, v169, v36, v191, v172, v199, v207);
-LABEL_148:
-        v130 = treea;
-        XAnimCustomNodePrintDebugInfo(treea, SubTreeAnims, _RDI, buffer, bufferSize, v175, bufferPos);
-        children = _RDI->children;
+        {
+          v22 = *(unsigned __int8 *)v9 - (unsigned __int8)a2_0[0];
+          if ( !v22 )
+          {
+            v22 = *((unsigned __int8 *)v9 + 1) - (unsigned __int8)a2_0[1];
+            if ( !v22 )
+              v22 = *((unsigned __int8 *)v9 + 2) - (unsigned __int8)a2_0[2];
+          }
+          v23 = "^3";
+          if ( v22 )
+            v23 = v9;
+          v9 = v23;
+        }
+      }
+      v24 = "^;";
+      if ( !(_BYTE)v8 )
+        v24 = v9;
+      if ( v78 > 0 )
+      {
+        v25 = (unsigned int)v78;
+        do
+        {
+          Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, "  ");
+          --v25;
+        }
+        while ( v25 );
+      }
+      AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, animIndex);
+      Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, (const char *)&queryFormat, v24);
+      v27 = -1i64;
+      do
+        ++v27;
+      while ( AnimDebugName[v27] );
+      v28 = *bufferPos;
+      v29 = v27 - 35;
+      destPos = 0;
+      if ( (int)v27 < 36 )
+        v29 = 0;
+      v30 = v29;
+      v31 = 36;
+      if ( bufferSize - (int)v28 < 36 )
+        v31 = bufferSize - v28;
+      Com_sprintfPos_truncate(&buffer[v28], v31, &destPos, (const char *)&queryFormat, &AnimDebugName[v30]);
+      *bufferPos += destPos;
+      if ( !v78 && XAnimTreeHasLods(treea) )
+      {
+        v32 = dobj;
+        if ( !DObjHasClientFlag(dobj) || (*(double *)&_XMM0 = XAnimGetClientLodFloat(v32), *(float *)&_XMM0 == 0.0) )
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+        else
+          *(double *)&_XMM0 = DOUBLE_1_0;
+        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, " %s(lod %.2f)%s", "^7", *(double *)&_XMM0, v24);
+      }
+      v34 = v80;
+      if ( (_BYTE)v80 )
+      {
+        LODWORD(deptha) = SubTreeAnims->entries[animIndex].lod;
+        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, " %s(lod cull %d)%s ", "^7", deptha, v24);
+      }
+      *(_QWORD *)dest = 0i64;
+      v91 = 0i64;
+      v92 = 0i64;
+      v93 = 0i64;
+      if ( !NonRootAnimInfo->animToModel )
+      {
+        if ( NonRootAnimInfo->state.weight == 0.0 || v34 )
+        {
+          v35 = v24;
+          v84 = v24;
+        }
+        else
+        {
+          v35 = "^5";
+        }
+        flags = NonRootAnimInfo->animParent.flags;
+        if ( (flags & 0x100) != 0 )
+        {
+          Com_sprintfPos_truncate(dest, 0x20ui64, &v76, " %soverlay%s", v35, v24);
+        }
+        else if ( (flags & 0x200) != 0 )
+        {
+          Com_sprintfPos_truncate(dest, 0x20ui64, &v76, " %sadditive mul%s", v35, v24);
+        }
+        else if ( (flags & 0x210) != 0 )
+        {
+          Com_sprintfPos_truncate(dest, 0x20ui64, &v76, " %sadditive%s", v35, v24);
+        }
+        else if ( XAnimIsCustomNode(SubTreeAnims, NonRootAnimInfo) )
+        {
+          CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, NonRootAnimInfo);
+          if ( !CustomNodeTypeInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4598, ASSERT_TYPE_ASSERT, "(nodeTypeInfo)", (const char *)&queryFormat, "nodeTypeInfo") )
+            __debugbreak();
+          v38 = SL_ConvertToString((scr_string_t)*CustomNodeTypeInfo->name);
+          Com_sprintfPos_truncate(dest, 0x20ui64, &v76, " %s%s%s", v84, v38, v24);
+        }
+      }
+      v81 = 0;
+      *(_QWORD *)ikWeights = 0i64;
+      v87 = 0i64;
+      *(_QWORD *)animWeights = 0i64;
+      v89 = 0i64;
+      *(_QWORD *)v94 = 0i64;
+      v95 = 0i64;
+      v96 = 0i64;
+      v97 = 0i64;
+      v98 = 0i64;
+      v99 = 0i64;
+      v100 = 0i64;
+      v101 = 0i64;
+      XAnimIKGetWeights(dobj, NonRootAnimInfo, ikWeights, animWeights);
+      for ( i = 0i64; i < 4; ++i )
+      {
+        _XMM0 = LODWORD(ikWeights[i]);
+        __asm
+        {
+          vmaxss  xmm0, xmm0, xmm7
+          vminss  xmm6, xmm0, xmm8
+        }
+        if ( i )
+          Com_sprintfPos_truncate(v94, 0x40ui64, &v81, ", ");
+        Com_sprintfPos_truncate(v94, 0x40ui64, &v81, "%.3f", *(float *)&_XMM6);
+      }
+      *(_QWORD *)v102 = 0i64;
+      v103 = 0i64;
+      v104 = 0i64;
+      v105 = 0i64;
+      v106 = 0i64;
+      v107 = 0i64;
+      v108 = 0i64;
+      v109 = 0i64;
+      curveID = NonRootAnimInfo->state.curveID;
+      if ( curveID != CURVE_ASSET_END && curveID && NonRootAnimInfo->state.goalTime > 0.0 )
+      {
+        NameFromID = XAnimCurve_GetNameFromID(curveID);
+        Com_sprintf(v102, 0x40ui64, " ^5(c) %s%s", v24, NameFromID);
+      }
+      if ( NonRootAnimInfo->animToModel )
+      {
+        parts = NonRootAnimInfo->parts;
+        if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4640, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+          __debugbreak();
+        frequency = parts->frequency;
+        currentAnimTime_low = LODWORD(NonRootAnimInfo->state.currentAnimTime);
+        oldTime = NonRootAnimInfo->state.oldTime;
+        v50 = currentAnimTime_low;
+        *(float *)&v50 = *(float *)&currentAnimTime_low - oldTime;
+        _XMM2 = v50;
+        if ( frequency != 0.0 )
+        {
+          __asm
+          {
+            vcmpltss xmm0, xmm2, xmm7
+            vblendvps xmm0, xmm2, xmm1, xmm0
+          }
+          v16 = *(float *)&_XMM0 / frequency;
+        }
+        notifyName = NonRootAnimInfo->notifyName;
+        v54 = v16;
+        if ( notifyName )
+        {
+          v55 = SL_ConvertToString(notifyName);
+          Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ": (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (realtimedelta) %.3f, (rate) %.3f ^5(ik)%s %s '%s' %s\n", NonRootAnimInfo->state.weight, NonRootAnimInfo->state.goalWeight, NonRootAnimInfo->state.goalTime, NonRootAnimInfo->state.oldTime, NonRootAnimInfo->state.currentAnimTime, v54, NonRootAnimInfo->state.rate, v24, v94, v55, v102);
+        }
+        else
+        {
+          Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ": (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (realtimedelta) %.3f, (rate) %.3f ^5(ik)%s %s %s\n", NonRootAnimInfo->state.weight, NonRootAnimInfo->state.goalWeight, NonRootAnimInfo->state.goalTime, oldTime, *(float *)&currentAnimTime_low, v54, NonRootAnimInfo->state.rate, v24, v94, v102);
+        }
+      }
+      else
+      {
+        v82 = 0;
+        v56 = 16 * (animIndex + 5i64);
+        *(_QWORD *)v110 = 0i64;
+        v111 = 0i64;
+        v112 = 0i64;
+        v113 = 0i64;
+        v114 = 0i64;
+        v115 = 0i64;
+        v116 = 0i64;
+        v117 = 0i64;
+        if ( (!*(_WORD *)((char *)&SubTreeAnims->size + v56 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v56) & 3) != 0) && ((__int64)NonRootAnimInfo->parts & 3) != 0 )
+        {
+          v57 = NonRootAnimInfo->animParent.syncGroup[0];
+          if ( v57 == 4 )
+          {
+            Com_sprintfPos_truncate(v110, 0x40ui64, &v82, "^6(sync)%s", v24);
+          }
+          else
+          {
+            LODWORD(fmt) = v57;
+            Com_sprintfPos_truncate(v110, 0x40ui64, &v82, "^6(sync %d)%s", fmt, v24);
+          }
+        }
+        v58 = NonRootAnimInfo->notifyName;
+        if ( v58 )
+        {
+          if ( !*(_WORD *)((char *)&SubTreeAnims->size + v56 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v56) & 3) != 0 )
+          {
+            notifyChild = NonRootAnimInfo->notifyChild;
+            v75 = SL_ConvertToString(v58);
+            rate = NonRootAnimInfo->state.rate;
+            currentAnimTime = NonRootAnimInfo->state.currentAnimTime;
+            v72 = NonRootAnimInfo->state.oldTime;
+            goalTime = NonRootAnimInfo->state.goalTime;
+            inoutBufferPos = NonRootAnimInfo->state.goalWeight;
+            depthb = NonRootAnimInfo->state.weight;
+            if ( notifyChild )
+              Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s, '%s' %s %s\n", dest, depthb, inoutBufferPos, goalTime, v72, currentAnimTime, rate, v24, v94, v75, v102, v110);
+            else
+              Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s,'%s' %s %s\n", dest, depthb, inoutBufferPos, goalTime, v72, currentAnimTime, rate, v24, v94, v75, v102, v110);
+          }
+          else
+          {
+            v61 = SL_ConvertToString(v58);
+            Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, ^5(ik)%s %s, '%s' %s\n", dest, NonRootAnimInfo->state.weight, NonRootAnimInfo->state.goalWeight, NonRootAnimInfo->state.goalTime, v24, v94, v61, v102);
+          }
+        }
+        else
+        {
+          v62 = !*(_WORD *)((char *)&SubTreeAnims->size + v56 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v56) & 3) != 0;
+          v63 = NonRootAnimInfo->state.rate;
+          if ( v62 )
+            Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s %s %s\n", dest, NonRootAnimInfo->state.weight, NonRootAnimInfo->state.goalWeight, NonRootAnimInfo->state.goalTime, NonRootAnimInfo->state.oldTime, NonRootAnimInfo->state.currentAnimTime, v63, v24, v94, v102, v110);
+          else
+            Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (rate) %.3f ^5(ik)%s %s %s\n", dest, NonRootAnimInfo->state.weight, NonRootAnimInfo->state.goalWeight, NonRootAnimInfo->state.goalTime, v63, v24, v94, v102);
+        }
+        v64 = treea;
+        XAnimCustomNodePrintDebugInfo(treea, SubTreeAnims, NonRootAnimInfo, buffer, bufferSize, v78, bufferPos);
+        children = NonRootAnimInfo->children;
         if ( children )
         {
-          v132 = v175;
+          v66 = v78;
           do
           {
-            XAnimDisplay(dobj, v130, children, v132 + 1, buffer, bufferSize, bufferPos, v36);
+            XAnimDisplay(dobj, v64, children, v66 + 1, buffer, bufferSize, bufferPos, v24);
             children = XAnimGetAnimInfo(children)->next;
           }
           while ( children );
         }
-        goto LABEL_151;
       }
-      v109 = SL_ConvertToString(v94);
-      v110 = ":%s (weight) %.3f -> %.3f over %.3f, ^5(ik)%s %s, '%s' %s\n";
-      v170 = (char *)v109;
-      v165 = v191;
-      v160 = v36;
     }
-    else
-    {
-      v111 = !*(_WORD *)((char *)&SubTreeAnims->size + v92 + 2) || (*((_BYTE *)&SubTreeAnims->debugName + v92) & 3) != 0;
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rdi+40h]
-        vcvtss2sd xmm5, xmm5, xmm5
-      }
-      if ( v111 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vmovss  xmm1, dword ptr [rdi+2Ch]
-          vmovss  xmm2, dword ptr [rdi+34h]
-          vmovss  xmm3, dword ptr [rdi+38h]
-          vmovss  xmm4, dword ptr [rdi+3Ch]
-          vmovsd  [rsp+240h+var_1F0], xmm5
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+240h+var_1F8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+240h+var_200], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+240h+var_208], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  [rsp+240h+inoutBufferPos], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vmovsd  qword ptr [rsp+240h+depth], xmm4
-        }
-        Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, ":%s (weight) %.3f -> %.3f over %.3f, (time) %.3f -> %.3f, (rate) %.3f, ^5(ik)%s %s %s %s\n", dest, depthf, *(double *)&inoutBufferPosc, *(double *)&v155, v161, v166, v171, v36, v191, v199, v207);
-        goto LABEL_148;
-      }
-      v110 = ":%s (weight) %.3f -> %.3f over %.3f, (rate) %.3f ^5(ik)%s %s %s\n";
-      v170 = v191;
-      v165 = (char *)v36;
-      __asm { vmovsd  [rsp+240h+var_200], xmm5 }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+34h]
-      vmovss  xmm1, dword ptr [rdi+38h]
-      vmovss  xmm2, dword ptr [rdi+3Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+240h+var_208], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+240h+inoutBufferPos], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  qword ptr [rsp+240h+depth], xmm2
-    }
-    Com_sprintfPos_truncate(buffer, bufferSize, bufferPos, v110, dest, depthg, inoutBufferPosd, v156, v160, v165, v170, v199);
-    goto LABEL_148;
   }
 }
 
@@ -7038,16 +6162,14 @@ void XAnimDisplayTreeParameters(const DObj *obj, char *buffer, int bufferSize, i
   unsigned int v10; 
   int v11; 
   __int64 v12; 
+  __int64 v13; 
+  XAnimParameterValue *parameterValues; 
   const scr_string_t **gameParameterNames; 
   const char *v16; 
   const char *v17; 
   char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  double v29; 
-  double v30; 
-  __int64 v31; 
-  __int64 v32; 
+  __int64 v19; 
+  __int64 v20; 
   char *substr; 
 
   v4 = bufferSize;
@@ -7071,12 +6193,12 @@ void XAnimDisplayTreeParameters(const DObj *obj, char *buffer, int bufferSize, i
     if ( obj->tree->maxParameters )
     {
       v12 = 0i64;
-      _RBX = 0i64;
-      v32 = 0i64;
-      v31 = 0i64;
+      v13 = 0i64;
+      v20 = 0i64;
+      v19 = 0i64;
       while ( 1 )
       {
-        _RDI = tree->parameterValues;
+        parameterValues = tree->parameterValues;
         gameParameterNames = tree->anims->gameParameterNames;
         if ( !gameParameterNames )
           break;
@@ -7084,22 +6206,22 @@ void XAnimDisplayTreeParameters(const DObj *obj, char *buffer, int bufferSize, i
         if ( !substr || !*substr || I_stristr(v16, substr) )
         {
           Com_sprintfPos_truncate(buffer, v4, bufferPos, "%s%s = %s", "^1", v16, "^7");
-          _RBX = v31;
+          v13 = v19;
 LABEL_23:
-          switch ( *((_BYTE *)&_RDI->type + _RBX) )
+          switch ( *((_BYTE *)&parameterValues->type + v13) )
           {
             case 0:
               Com_sprintfPos_truncate(buffer, v4, bufferPos, (const char *)&EdgeOctree_BucketFlagsMask[2]);
               break;
             case 1:
               v17 = "false";
-              if ( *(&_RDI->boolValue + _RBX) )
+              if ( *(&parameterValues->boolValue + v13) )
                 v17 = "true";
               Com_sprintfPos_truncate(buffer, v4, bufferPos, v17);
               break;
             case 2:
             case 4:
-              LODWORD(fmt) = *(&_RDI->byteValue + _RBX);
+              LODWORD(fmt) = *(&parameterValues->byteValue + v13);
               Com_sprintfPos_truncate(buffer, v4, bufferPos, "%d", fmt);
               break;
             case 3:
@@ -7109,28 +6231,10 @@ LABEL_23:
               Com_sprintfPos_truncate(buffer, v4, bufferPos, "ptr");
               break;
             case 5:
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+rdi+8]; jumptable 000000014193BB95 case 5
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+78h+fmt], xmm0
-              }
-              Com_sprintfPos_truncate(buffer, v4, bufferPos, "%.2f", *(double *)&fmta);
+              Com_sprintfPos_truncate(buffer, v4, bufferPos, "%.2f", *(float *)((char *)&parameterValues->floatValue + v13));
               break;
             case 7:
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+rdi+10h]; jumptable 000000014193BB95 case 7
-                vmovss  xmm1, dword ptr [rbx+rdi+0Ch]
-                vmovss  xmm2, dword ptr [rbx+rdi+8]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+78h+var_48], xmm0
-                vcvtss2sd xmm1, xmm1, xmm1
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovsd  [rsp+78h+var_50], xmm1
-                vmovsd  [rsp+78h+fmt], xmm2
-              }
-              Com_sprintfPos_truncate(buffer, v4, bufferPos, "%.2f,%.2f,%.2f", *(double *)&fmtb, v29, v30);
+              Com_sprintfPos_truncate(buffer, v4, bufferPos, "%.2f,%.2f,%.2f", *(float *)((char *)&parameterValues->floatValue + v13), *(float *)((char *)&parameterValues->vec3Value.v[1] + v13), *(float *)((char *)&parameterValues->vec3Value.v[2] + v13));
               break;
             default:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4865, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unsupported input parameter type") )
@@ -7144,13 +6248,13 @@ LABEL_23:
           ++v10;
           goto LABEL_40;
         }
-        _RBX = v31;
+        v13 = v19;
 LABEL_40:
-        _RBX += 24i64;
-        v12 = v32 + 8;
+        v13 += 24i64;
+        v12 = v20 + 8;
         ++v11;
-        v31 = _RBX;
-        v32 += 8i64;
+        v19 = v13;
+        v20 += 8i64;
         if ( v11 >= tree->maxParameters )
           goto LABEL_41;
       }
@@ -7171,139 +6275,124 @@ XAnimEnsureGoalWeightParent
 __int64 XAnimEnsureGoalWeightParent(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex)
 {
   XAnimTree *tree; 
-  __int64 v7; 
+  __int64 v5; 
   __int64 result; 
-  unsigned __int16 v12; 
-  const dvar_t *v14; 
+  unsigned __int16 v10; 
+  XAnimInfo *AnimInfo; 
+  const dvar_t *v12; 
+  float rate; 
   const char *AnimDebugName; 
   const XAnim_s *SubTreeAnims; 
-  XAnimSubTreeID v20; 
+  XAnimSubTreeID v16; 
   unsigned int parent; 
-  unsigned __int16 v22; 
+  unsigned __int16 v18; 
   unsigned __int16 children; 
-  unsigned __int8 *v24; 
-  __int64 v25; 
-  XAnimInfo *AnimInfo; 
-  const XAnim_s *v27; 
+  unsigned __int8 *v20; 
+  __int64 v21; 
+  XAnimInfo *v22; 
+  const XAnim_s *v23; 
   __int64 after; 
-  __int64 v30; 
-  double v31; 
+  __int64 v25; 
 
   tree = obj->tree;
-  v7 = animIndex;
+  v5 = animIndex;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6803, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  if ( (_DWORD)v7 )
-  {
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6833, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
-      __debugbreak();
-    v20 = subTreeID;
-    parent = SubTreeAnims->entries[v7].parent;
-    if ( !SubTreeAnims->entries[v7].parent && subTreeID )
-    {
-      XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v7);
-      XAnimAssertGraftSyncNode(tree, graftAnimIndex, &SubTreeAnims->entries[v7]);
-      parent = graftAnimIndex;
-      v20 = XANIM_SUBTREE_DEFAULT;
-    }
-    v22 = XAnimEnsureGoalWeightParent(obj, graftAnimIndex, v20, parent);
-    children = XAnimGetAnimInfo(v22)->children;
-    if ( !children )
-    {
-LABEL_35:
-      v12 = XAnimAllocInfoWithParent(tree, subTreeID, NULL, v7, v22, 0);
-      AnimInfo = XAnimGetAnimInfo(v12);
-      *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
-      *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
-      *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
-      *(_QWORD *)&AnimInfo->state.rate = 0i64;
-      *(_QWORD *)&AnimInfo->state.startWeight = 0i64;
-      AnimInfo->notifyName = 0;
-      *(_DWORD *)&AnimInfo->notifyChild = -65536;
-      AnimInfo->notifyType = 0;
-      AnimInfo->subTreeID = subTreeID;
-      v27 = XAnimGetSubTreeAnims(tree, subTreeID);
-      if ( XAnimIsCustomNode(v27, AnimInfo) )
-        AnimInfo->state.flags |= 8u;
-      goto LABEL_37;
-    }
-    while ( 1 )
-    {
-      if ( (children & 0x8000u) != 0 )
-      {
-        v25 = 32 * (children & 0x7FFFu);
-        if ( (unsigned int)v25 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-        {
-          LODWORD(v30) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(after) = 32 * (children & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v30) )
-            __debugbreak();
-        }
-        v24 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v25];
-      }
-      else
-      {
-        if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
-        {
-          LODWORD(v30) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(after) = children;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v30) )
-            __debugbreak();
-        }
-        v24 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
-      }
-      if ( !v24[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6854, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
-        __debugbreak();
-      if ( *((unsigned __int16 *)v24 + 3) == (_DWORD)v7 && *((_WORD *)v24 + 8) == subTreeID )
-        break;
-      children = *((_WORD *)v24 + 5);
-      if ( !children )
-        goto LABEL_35;
-    }
-    result = children;
-  }
-  else
+  if ( !(_DWORD)v5 )
   {
     result = tree->children;
-    if ( !(_WORD)result )
+    if ( (_WORD)result )
+      return result;
+    v10 = XAnimAllocInfoWithParent(tree, subTreeID, NULL, 0, 0, 0);
+    AnimInfo = XAnimGetAnimInfo(v10);
+    XAnimInitInfo(AnimInfo, tree, subTreeID);
+    AnimInfo->state.goalWeight = 1.0;
+    AnimInfo->state.weight = 1.0;
+    AnimInfo->state.goalTime = 0.0;
+    *(_QWORD *)&AnimInfo->state.rate = 1065353216i64;
+    AnimInfo->state.startWeight = 1.0;
+    v12 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
+    if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled && XAnimInfoHasScrubbedNotetracks(AnimInfo) )
     {
-      v12 = XAnimAllocInfoWithParent(tree, subTreeID, NULL, 0, 0, 0);
-      _RBX = XAnimGetAnimInfo(v12);
-      XAnimInitInfo(_RBX, tree, subTreeID);
-      _RBX->state.goalWeight = 1.0;
-      _RBX->state.weight = 1.0;
-      _RBX->state.goalTime = 0.0;
-      *(_QWORD *)&_RBX->state.rate = 1065353216i64;
-      _RBX->state.startWeight = 1.0;
-      v14 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
-      if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v14);
-      if ( v14->current.enabled && XAnimInfoHasScrubbedNotetracks(_RBX) )
+      rate = AnimInfo->state.rate;
+      if ( rate != 0.0 )
       {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rbx+40h]
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm6, xmm0
-        }
-        AnimDebugName = XAnimGetAnimDebugName(tree->anims, _RBX->animIndex);
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+78h+var_40], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6825, ASSERT_TYPE_ASSERT, "(info->state.rate == 0.0f)", "%s\n\tXAnimEnsureGoalWeightParent '%s': info->state.rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "info->state.rate == 0.0f", AnimDebugName, v31) )
+        AnimDebugName = XAnimGetAnimDebugName(tree->anims, AnimInfo->animIndex);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6825, ASSERT_TYPE_ASSERT, "(info->state.rate == 0.0f)", "%s\n\tXAnimEnsureGoalWeightParent '%s': info->state.rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "info->state.rate == 0.0f", AnimDebugName, rate) )
           __debugbreak();
       }
-LABEL_37:
-      result = v12;
     }
+    return v10;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
+  if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6833, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
+    __debugbreak();
+  v16 = subTreeID;
+  parent = SubTreeAnims->entries[v5].parent;
+  if ( !SubTreeAnims->entries[v5].parent && subTreeID )
+  {
+    XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v5);
+    XAnimAssertGraftSyncNode(tree, graftAnimIndex, &SubTreeAnims->entries[v5]);
+    parent = graftAnimIndex;
+    v16 = XANIM_SUBTREE_DEFAULT;
+  }
+  v18 = XAnimEnsureGoalWeightParent(obj, graftAnimIndex, v16, parent);
+  children = XAnimGetAnimInfo(v18)->children;
+  if ( !children )
+  {
+LABEL_36:
+    v10 = XAnimAllocInfoWithParent(tree, subTreeID, NULL, v5, v18, 0);
+    v22 = XAnimGetAnimInfo(v10);
+    *(_QWORD *)&v22->state.currentAnimTime = 0i64;
+    *(_QWORD *)&v22->state.cycleCount = 0i64;
+    *(_QWORD *)&v22->state.goalWeight = 0i64;
+    *(_QWORD *)&v22->state.rate = 0i64;
+    *(_QWORD *)&v22->state.startWeight = 0i64;
+    v22->notifyName = 0;
+    *(_DWORD *)&v22->notifyChild = -65536;
+    v22->notifyType = 0;
+    v22->subTreeID = subTreeID;
+    v23 = XAnimGetSubTreeAnims(tree, subTreeID);
+    if ( XAnimIsCustomNode(v23, v22) )
+      v22->state.flags |= 8u;
+    return v10;
+  }
+  while ( 1 )
+  {
+    if ( (children & 0x8000u) != 0 )
+    {
+      v21 = 32 * (children & 0x7FFFu);
+      if ( (unsigned int)v21 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+      {
+        LODWORD(v25) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+        LODWORD(after) = 32 * (children & 0x7FFF);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v25) )
+          __debugbreak();
+      }
+      v20 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v21];
+    }
+    else
+    {
+      if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
+      {
+        LODWORD(v25) = g_xanimMemoryGlobals.infoPoolSize;
+        LODWORD(after) = children;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v25) )
+          __debugbreak();
+      }
+      v20 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+    }
+    if ( !v20[80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6854, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+      __debugbreak();
+    if ( *((unsigned __int16 *)v20 + 3) == (_DWORD)v5 && *((_WORD *)v20 + 8) == subTreeID )
+      return children;
+    children = *((_WORD *)v20 + 5);
+    if ( !children )
+      goto LABEL_36;
+  }
 }
 
 /*
@@ -7401,131 +6490,64 @@ XAnimParts *XAnimFindData(const char *name)
 XAnimFindServerNoteTrack
 ==============
 */
-
-float __fastcall XAnimFindServerNoteTrack(const DObj *obj, unsigned __int16 infoIndex, double dtime, const XAnimSyncGroupCalcData *syncGroupCalcData)
+float XAnimFindServerNoteTrack(const DObj *obj, unsigned __int16 infoIndex, float dtime, const XAnimSyncGroupCalcData *syncGroupCalcData)
 {
   XAnimTree *tree; 
-  unsigned __int8 v17; 
-  bool v18; 
-  bool v19; 
-  bool v26; 
-  bool v27; 
+  XAnimInfo *NonRootAnimInfo; 
+  XAnimInfo *v10; 
+  unsigned __int8 v12; 
+  float frequency; 
+  float v14; 
+  float oldTime; 
+  float v16; 
   unsigned __int16 children; 
-  double v35; 
 
   tree = obj->tree;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RSI = syncGroupCalcData;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4167, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
+  if ( dtime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4169, ASSERT_TYPE_ASSERT, "( dtime >= 0 )", (const char *)&queryFormat, "dtime >= 0") )
+    __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4170, ASSERT_TYPE_ASSERT, "( tree->anims )", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4171, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
+  if ( !syncGroupCalcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4171, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
     __debugbreak();
-  _RAX = GetNonRootAnimInfo(infoIndex);
-  _RBX = _RAX;
-  __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-  if ( v19 )
-    goto LABEL_34;
-  __asm { vucomiss xmm6, dword ptr [rax+38h] }
-  if ( !_RAX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4180, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse") )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  v10 = NonRootAnimInfo;
+  if ( NonRootAnimInfo->state.weight == 0.0 || NonRootAnimInfo->state.goalWeight == 0.0 )
+    return FLOAT_1_0;
+  if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4180, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  if ( _RBX->animToModel )
+  if ( v10->animToModel )
+    return XAnimFindServerNoteTrackLeafNode(obj, v10, dtime);
+  if ( ((__int64)v10->parts & 3) != 0 )
   {
-    __asm { vmovaps xmm2, xmm7; dtime }
-    *(float *)&_XMM0 = XAnimFindServerNoteTrackLeafNode(obj, _RBX, *(float *)&_XMM2);
-    goto LABEL_35;
-  }
-  if ( ((__int64)_RBX->parts & 3) != 0 )
-  {
-    v17 = _RBX->animParent.syncGroup[0];
-    v18 = v17 < 4u;
-    v19 = v17 == 4;
-    if ( v17 == 4 )
-    {
-      *(float *)&_XMM0 = XAnimGetAverageRateFrequency(tree, infoIndex);
-      __asm { vmulss  xmm0, xmm0, dword ptr [rbx+40h] }
-    }
+    v12 = v10->animParent.syncGroup[0];
+    if ( v12 == 4 )
+      frequency = XAnimGetAverageRateFrequency(tree, infoIndex) * v10->state.rate;
     else
+      frequency = syncGroupCalcData->syncGroupInfo[v12].frequency;
+    v14 = frequency * dtime;
+    if ( (float)(frequency * dtime) != 0.0 )
     {
-      _RCX = 5i64 * v17;
-      __asm { vmovss  xmm0, dword ptr [rsi+rcx*4] }
-    }
-    __asm
-    {
-      vmulss  xmm7, xmm0, xmm7
-      vucomiss xmm7, xmm6
-    }
-    if ( !v19 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+2Ch]
-        vcomiss xmm0, xmm6
-      }
-      if ( v18 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+68h+var_40], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4201, ASSERT_TYPE_ASSERT, "( ( state->oldTime >= 0 ) )", "( state->oldTime ) = %g", v35) )
-          __debugbreak();
-      }
-      __asm { vmovaps xmm2, xmm7; dtime }
-      *(float *)&_XMM0 = XAnimFindServerNoteTrackSyncSubTree(obj, _RBX, *(float *)&_XMM2);
-      goto LABEL_35;
-    }
-LABEL_34:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    goto LABEL_35;
-  }
-  v26 = obj->entnum == 0;
-  if ( obj->entnum )
-  {
-    v26 = _RBX->notifyName == 0;
-    if ( _RBX->notifyName )
-    {
-      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4207, ASSERT_TYPE_ASSERT, "( !(obj->entnum && (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) ) )", (const char *)&queryFormat, "!(obj->entnum && (info->notifyName != NULL_SCR_STRING) )");
-      v26 = !v27;
-      if ( v27 )
+      oldTime = v10->state.oldTime;
+      if ( oldTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4201, ASSERT_TYPE_ASSERT, "( ( state->oldTime >= 0 ) )", "( state->oldTime ) = %g", oldTime) )
         __debugbreak();
+      return XAnimFindServerNoteTrackSyncSubTree(obj, v10, v14);
     }
+    return FLOAT_1_0;
   }
-  __asm
+  if ( obj->entnum && v10->notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4207, ASSERT_TYPE_ASSERT, "( !(obj->entnum && (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) ) )", (const char *)&queryFormat, "!(obj->entnum && (info->notifyName != NULL_SCR_STRING) )") )
+    __debugbreak();
+  v16 = dtime * v10->state.rate;
+  if ( v16 == 0.0 )
+    return FLOAT_1_0;
+  children = v10->children;
+  for ( *(float *)&_XMM6 = FLOAT_1_0; children; children = XAnimGetAnimInfo(children)->next )
   {
-    vmulss  xmm7, xmm7, dword ptr [rbx+40h]
-    vucomiss xmm7, xmm6
-  }
-  if ( v26 )
-    goto LABEL_34;
-  children = _RBX->children;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  for ( ; children; children = XAnimGetAnimInfo(children)->next )
-  {
-    __asm { vmovaps xmm2, xmm7; dtime }
-    *(float *)&_XMM0 = XAnimFindServerNoteTrack(obj, children, *(float *)&_XMM2, _RSI);
+    *(float *)&_XMM0 = XAnimFindServerNoteTrack(obj, children, v16, syncGroupCalcData);
     __asm { vminss  xmm6, xmm0, xmm6 }
   }
-  __asm { vmovaps xmm0, xmm6 }
-LABEL_35:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -7536,122 +6558,98 @@ XAnimFindServerNoteTrackLeafNode
 
 float __fastcall XAnimFindServerNoteTrackLeafNode(const DObj *obj, XAnimInfo *info, double dtime)
 {
-  bool v12; 
-  bool v13; 
+  XAnimParts *parts; 
+  float v6; 
+  __int128 v7; 
   unsigned __int16 oldCycleCount; 
-  float fmt; 
-  double v39; 
+  scr_string_t notifyName; 
+  int notifyType; 
+  const char *v12; 
+  char v13; 
+  __int128 v16; 
+  __int128 v17; 
+  float currentAnimTime; 
   XAnimState nextSyncState; 
-  char v41; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v12 = !info->inuse;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RSI = info;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmm6, xmm2
-  }
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4017, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  if ( !info->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4017, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  _R14 = _RSI->parts;
-  v12 = _R14 == NULL;
-  if ( !_R14 )
+  parts = info->parts;
+  if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4021, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+    __debugbreak();
+  v7 = *(_OWORD *)&dtime;
+  *(float *)&v7 = *(float *)&dtime * (float)(parts->frequency * info->state.rate);
+  v6 = *(float *)&v7;
+  if ( *(float *)&v7 == 0.0 )
+    return FLOAT_1_0;
+  if ( COERCE_FLOAT(v7 & _xmm) >= 32767.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4029, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", *(float *)&v7) )
+    __debugbreak();
+  *(float *)&v7 = *(float *)&v7 + info->state.oldTime;
+  _XMM6 = v7;
+  oldCycleCount = info->state.oldCycleCount;
+  if ( *(float *)&v7 < 0.0 )
   {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4021, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts");
-    v12 = !v13;
+    notifyName = info->notifyName;
+    if ( notifyName || info->notifyType )
+    {
+      notifyType = info->notifyType;
+      v12 = SL_ConvertToString(notifyName);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4034, ASSERT_TYPE_ASSERT, "(!( time < 0.f && ( (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) || info->notifyType ) ))", "%s\n\tAnimation %s playing backwards with active notetrack %s and notifyType %d", "!( time < 0.f && ( (info->notifyName != NULL_SCR_STRING) || info->notifyType ) )", parts->name, v12, notifyType) )
+        __debugbreak();
+    }
+  }
+  v13 = parts->flags & 1;
+  if ( v6 < 0.0 )
+  {
     if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+68h]
-    vmulss  xmm1, xmm0, dword ptr [rsi+40h]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm9, xmm6, xmm1
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm9, xmm8
-  }
-  if ( v12 )
-    goto LABEL_18;
-  __asm
-  {
-    vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@46fffe00
-    vcvtss2sd xmm0, xmm9, xmm9
-    vmovsd  [rsp+0D8h+var_B0], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4029, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", v39) )
-    __debugbreak();
-  __asm
-  {
-    vaddss  xmm6, xmm9, dword ptr [rsi+2Ch]
-    vcomiss xmm6, xmm8
-  }
-  oldCycleCount = _RSI->state.oldCycleCount;
-  __asm
-  {
-    vcomiss xmm9, xmm8
-    vcomiss xmm6, xmm7
-  }
-  if ( (_R14->flags & 1) != 0 )
-  {
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-    while ( 1 )
     {
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      ++oldCycleCount;
-      __asm { vcomiss xmm6, xmm7 }
+      if ( *(float *)&v7 < 0.0 )
+      {
+        do
+        {
+          v17 = _XMM6;
+          *(float *)&v17 = *(float *)&_XMM6 + 1.0;
+          _XMM6 = v17;
+          --oldCycleCount;
+        }
+        while ( *(float *)&v17 < 0.0 );
+      }
+    }
+    else
+    {
+      __asm { vmaxss  xmm6, xmm6, xmm8 }
     }
   }
-  __asm
+  else if ( *(float *)&v7 >= 1.0 )
   {
-    vmovss  xmm1, cs:__real@3f7ffffe
-    vcmpless xmm0, xmm1, dword ptr [rsi+2Ch]
-    vblendvps xmm6, xmm1, xmm7, xmm0
-  }
-  if ( !_RSI->notifyName && !_RSI->notifyType )
-    goto LABEL_17;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vsubss  xmm1, xmm0, xmm6
-    vcomiss xmm2, xmm1
-  }
-  if ( oldCycleCount < _RSI->state.cycleCount )
-  {
-LABEL_18:
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  else
-  {
-LABEL_17:
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    nextSyncState.oldCycleCount = _RSI->state.cycleCount;
-    nextSyncState.cycleCount = oldCycleCount;
-    __asm
+    if ( v13 )
     {
-      vmovss  [rsp+0D8h+nextSyncState.oldTime], xmm0
-      vmovss  [rsp+0D8h+nextSyncState.currentAnimTime], xmm6
-      vmovss  dword ptr [rsp+0D8h+fmt], xmm9
+      do
+      {
+        v16 = _XMM6;
+        *(float *)&v16 = *(float *)&_XMM6 + -1.0;
+        _XMM6 = v16;
+        ++oldCycleCount;
+      }
+      while ( *(float *)&v16 >= 1.0 );
     }
-    *(float *)&_XMM0 = XAnimGetNextServerNotifyFrac(obj, _RSI, &_RSI->state, &nextSyncState, fmt);
+    else
+    {
+      _XMM1 = LODWORD(FLOAT_0_99999988);
+      __asm
+      {
+        vcmpless xmm0, xmm1, dword ptr [rsi+2Ch]
+        vblendvps xmm6, xmm1, xmm7, xmm0
+      }
+    }
   }
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return *(float *)&_XMM0;
+  if ( (info->notifyName || info->notifyType) && (float)(__int16)(oldCycleCount - info->state.cycleCount) < (float)(info->state.currentAnimTime - *(float *)&_XMM6) )
+    return FLOAT_1_0;
+  currentAnimTime = info->state.currentAnimTime;
+  nextSyncState.oldCycleCount = info->state.cycleCount;
+  nextSyncState.cycleCount = oldCycleCount;
+  nextSyncState.oldTime = currentAnimTime;
+  nextSyncState.currentAnimTime = *(float *)&_XMM6;
+  return XAnimGetNextServerNotifyFrac(obj, info, &info->state, &nextSyncState, v6);
 }
 
 /*
@@ -7660,109 +6658,123 @@ XAnimFindServerNoteTrackSyncSubTree
 ==============
 */
 
-float __fastcall XAnimFindServerNoteTrackSyncSubTree(const DObj *obj, XAnimInfo *info, double dtime, double _XMM3_8)
+float __fastcall XAnimFindServerNoteTrackSyncSubTree(const DObj *obj, XAnimInfo *info, double dtime)
 {
+  __int128 v4; 
   unsigned __int16 oldCycleCount; 
-  int v18; 
-  float fmt; 
-  double v35; 
+  scr_string_t notifyName; 
+  int notifyType; 
+  const char *v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  __int128 v15; 
+  int v16; 
+  __int128 v17; 
+  float currentAnimTime; 
   XAnimState nextSyncState; 
-  char v37; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vaddss  xmm6, xmm2, dword ptr [rdx+2Ch]
-  }
+  v4 = *(_OWORD *)&dtime;
+  *(float *)&v4 = *(float *)&dtime + info->state.oldTime;
+  _XMM6 = v4;
   oldCycleCount = info->state.oldCycleCount;
-  _RSI = info;
-  __asm
+  if ( *(float *)&v4 < 0.0 )
   {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm6, xmm8
-    vmovaps xmm9, xmm2
+    notifyName = info->notifyName;
+    if ( notifyName || info->notifyType )
+    {
+      notifyType = info->notifyType;
+      v10 = SL_ConvertToString(notifyName);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4094, ASSERT_TYPE_ASSERT, "(!( time < 0.f && ( (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) || info->notifyType ) ))", "%s\n\tAnimation playing backwards with active notetrack %s and notifyType %d", "!( time < 0.f && ( (info->notifyName != NULL_SCR_STRING) || info->notifyType ) )", v10, notifyType) )
+        __debugbreak();
+    }
   }
   if ( !info->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4097, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  __asm
-  {
-    vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@46fffe00
-    vcvtss2sd xmm0, xmm9, xmm9
-    vmovsd  [rsp+0E8h+var_C0], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4100, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", v35) )
+  if ( COERCE_FLOAT(LODWORD(dtime) & _xmm) >= 32767.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4100, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", *(float *)&dtime) )
     __debugbreak();
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v18 = _RSI->animParent.flags & 1;
-  __asm { vcomiss xmm9, xmm8 }
-  if ( (_RSI->animParent.flags & 2) == 0 )
+  v11 = info->animParent.flags & 2;
+  v12 = info->animParent.flags & 1;
+  if ( *(float *)&dtime < 0.0 )
   {
-    if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4112, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME)", (const char *)&queryFormat, "info->animParent.flags & XANIM_LOOP_SYNC_TIME") )
-      __debugbreak();
-    __asm
+    if ( v11 )
     {
-      vcomiss xmm6, xmm7
-      vmovss  xmm0, cs:__real@bf800000
+      if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4127, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_LOOP_SYNC_TIME))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_LOOP_SYNC_TIME)") )
+        __debugbreak();
+      __asm { vmaxss  xmm6, xmm6, xmm8 }
     }
-    while ( 1 )
+    else
     {
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      ++oldCycleCount;
-      __asm { vcomiss xmm6, xmm7 }
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4133, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME)", (const char *)&queryFormat, "info->animParent.flags & XANIM_LOOP_SYNC_TIME") )
+        __debugbreak();
+      if ( *(float *)&v4 < 0.0 )
+      {
+        do
+        {
+          v17 = _XMM6;
+          *(float *)&v17 = *(float *)&_XMM6 + 1.0;
+          _XMM6 = v17;
+          --oldCycleCount;
+        }
+        while ( *(float *)&v17 < 0.0 );
+      }
+      if ( *(float *)&_XMM6 >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4140, ASSERT_TYPE_ASSERT, "( ( time < 1.f ) )", "( time ) = %g", *(float *)&_XMM6) )
+        __debugbreak();
+      if ( *(float *)&_XMM6 < 0.0 )
+      {
+        v16 = 4141;
+LABEL_44:
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", v16, ASSERT_TYPE_ASSERT, "( ( !(time < 0.f) ) )", "( time ) = %g", *(float *)&_XMM6) )
+          __debugbreak();
+      }
     }
-  }
-  if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4106, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_LOOP_SYNC_TIME))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_LOOP_SYNC_TIME)") )
-    __debugbreak();
-  __asm
-  {
-    vcomiss xmm6, xmm7
-    vmovss  xmm1, cs:__real@3f7ffffe
-    vcmpless xmm0, xmm1, dword ptr [rsi+2Ch]
-    vblendvps xmm6, xmm1, xmm7, xmm0
-  }
-  if ( !_RSI->notifyName && !_RSI->notifyType )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+28h]
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, eax
-    vsubss  xmm2, xmm1, xmm6
-    vcomiss xmm3, xmm2
-  }
-  if ( oldCycleCount < _RSI->state.cycleCount )
-  {
-    __asm { vmovaps xmm0, xmm7 }
   }
   else
   {
-LABEL_20:
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-    nextSyncState.oldCycleCount = _RSI->state.cycleCount;
-    nextSyncState.cycleCount = oldCycleCount;
-    __asm
+    if ( v11 )
     {
-      vmovss  [rsp+0E8h+nextSyncState.oldTime], xmm0
-      vmovss  [rsp+0E8h+nextSyncState.currentAnimTime], xmm6
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm9
+      if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4106, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_LOOP_SYNC_TIME))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_LOOP_SYNC_TIME)") )
+        __debugbreak();
+      if ( *(float *)&v4 >= 1.0 )
+      {
+        _XMM1 = LODWORD(FLOAT_0_99999988);
+        __asm
+        {
+          vcmpless xmm0, xmm1, dword ptr [rsi+2Ch]
+          vblendvps xmm6, xmm1, xmm7, xmm0
+        }
+      }
+      goto LABEL_46;
     }
-    *(float *)&_XMM0 = XAnimGetServerNotifyFracSyncTotal(obj, _RSI, &_RSI->state, &nextSyncState, fmt);
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4112, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME)", (const char *)&queryFormat, "info->animParent.flags & XANIM_LOOP_SYNC_TIME") )
+      __debugbreak();
+    if ( *(float *)&v4 >= 1.0 )
+    {
+      do
+      {
+        v15 = _XMM6;
+        *(float *)&v15 = *(float *)&_XMM6 + -1.0;
+        _XMM6 = v15;
+        ++oldCycleCount;
+      }
+      while ( *(float *)&v15 >= 1.0 );
+    }
+    if ( *(float *)&_XMM6 >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4119, ASSERT_TYPE_ASSERT, "( ( time < 1.f ) )", "( time ) = %g", *(float *)&_XMM6) )
+      __debugbreak();
+    if ( *(float *)&_XMM6 < 0.0 )
+    {
+      v16 = 4120;
+      goto LABEL_44;
+    }
   }
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return *(float *)&_XMM0;
+LABEL_46:
+  if ( (info->notifyName || info->notifyType) && (float)(__int16)(oldCycleCount - info->state.cycleCount) < (float)(info->state.currentAnimTime - *(float *)&_XMM6) )
+    return FLOAT_1_0;
+  currentAnimTime = info->state.currentAnimTime;
+  nextSyncState.oldCycleCount = info->state.cycleCount;
+  nextSyncState.cycleCount = oldCycleCount;
+  nextSyncState.oldTime = currentAnimTime;
+  nextSyncState.currentAnimTime = *(float *)&_XMM6;
+  return XAnimGetServerNotifyFracSyncTotal(obj, info, &info->state, &nextSyncState, *(float *)&dtime);
 }
 
 /*
@@ -8024,84 +7036,51 @@ XAnimGetAbsDelta
 */
 void XAnimGetAbsDelta(const XAnim_s *anims, unsigned int animIndex, vec4_t *rot, vec3_t *trans, float time)
 {
-  __int64 v12; 
-  XAnimEntry *v13; 
+  __int64 v8; 
+  XAnimEntry *v9; 
   const XAnimParts *PartsInternal; 
-  char v30; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   XAnimRotPos rotPos; 
 
-  _R14 = trans;
-  _RSI = rot;
-  v12 = animIndex;
+  v8 = animIndex;
   Profile_Begin(412);
-  v13 = &anims->entries[v12];
-  if ( v13->numAnims )
+  v9 = &anims->entries[v8];
+  if ( v9->numAnims )
   {
-    _RSI->v[3] = 1.0;
-    *(_QWORD *)_RSI->v = 0i64;
-    _RSI->v[2] = 0.0;
-    *(_QWORD *)_R14->v = 0i64;
-    _R14->v[2] = 0.0;
+    rot->v[3] = 1.0;
+    *(_QWORD *)rot->v = 0i64;
+    rot->v[2] = 0.0;
+    *(_QWORD *)trans->v = 0i64;
+    trans->v[2] = 0.0;
   }
   else
   {
-    __asm
+    PartsInternal = XAnimGetPartsInternal(v9);
+    rotPos = (XAnimRotPos)0i64;
+    XAnimCalcAbsDeltaParts(PartsInternal, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), time, &rotPos);
+    v11 = rotPos.rot.v[1];
+    v12 = rotPos.rot.v[2];
+    v13 = rotPos.rot.v[3];
+    if ( (float)((float)((float)((float)(rotPos.rot.v[0] * rotPos.rot.v[0]) + (float)(v11 * v11)) + (float)(v12 * v12)) + (float)(v13 * v13)) == 0.0 )
     {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-    }
-    PartsInternal = XAnimGetPartsInternal(v13);
-    __asm
-    {
-      vmovss  xmm2, [rsp+98h+time]; time
-      vmovss  xmm1, cs:__real@3f800000; weightScale
-      vxorps  xmm0, xmm0, xmm0
-      vmovups ymmword ptr [rsp+98h+rotPos.rot], ymm0
-    }
-    XAnimCalcAbsDeltaParts(PartsInternal, *(double *)&_XMM1, *(double *)&_XMM2, &rotPos);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+98h+rotPos.rot]
-      vmovss  xmm5, dword ptr [rsp+98h+rotPos.rot+4]
-      vmovss  xmm6, dword ptr [rsp+98h+rotPos.rot+8]
-      vmovss  xmm7, dword ptr [rsp+98h+rotPos.rot+0Ch]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm2, xmm1
-    }
-    if ( v30 )
-    {
-      _RSI->v[3] = 1.0;
-      *(_QWORD *)_RSI->v = 0i64;
-      _RSI->v[2] = 0.0;
+      rot->v[3] = 1.0;
+      *(_QWORD *)rot->v = 0i64;
+      rot->v[2] = 0.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rsi], xmm4
-        vmovss  dword ptr [rsi+4], xmm5
-        vmovss  dword ptr [rsi+8], xmm6
-        vmovss  dword ptr [rsi+0Ch], xmm7
-      }
+      rot->v[0] = rotPos.rot.v[0];
+      rot->v[1] = v11;
+      rot->v[2] = v12;
+      rot->v[3] = v13;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+rotPos.pos]
-      vmovss  xmm1, dword ptr [rsp+98h+rotPos.pos+4]
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [rsp+98h+rotPos.pos+8]
-      vmovss  dword ptr [r14+8], xmm0
-      vmovss  dword ptr [r14+4], xmm1
-    }
+    v14 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v14;
   }
   Profile_EndInternal(NULL);
 }
@@ -8439,12 +7418,20 @@ XAnimGetAverageRateFrequency
 */
 float XAnimGetAverageRateFrequency(const XAnimTree *tree, unsigned __int16 infoIndex)
 {
+  __int128 v2; 
   XAnimInfo *AnimInfo; 
+  XAnimParts *parts; 
   unsigned __int16 children; 
-  bool v16; 
-  char v19; 
-  bool v20; 
-  double v27; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  XAnimInfo *v12; 
+  float weight; 
+  __int128 v14; 
+  __int128 v15; 
+  float v16; 
+  __int128 v17; 
+  __int128 v18; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1921, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
@@ -8455,80 +7442,56 @@ float XAnimGetAverageRateFrequency(const XAnimTree *tree, unsigned __int16 infoI
     __debugbreak();
   if ( AnimInfo->animToModel )
   {
-    _RBX = AnimInfo->parts;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1932, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+    parts = AnimInfo->parts;
+    if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1932, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+68h] }
+    return parts->frequency;
   }
   else
   {
     children = AnimInfo->children;
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovaps [rsp+0B8h+var_58], xmm8
-      vmovaps [rsp+0B8h+var_68], xmm9
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm8, xmm8, xmm8
-    }
+    v9 = 0i64;
+    v10 = 0.0;
+    v11 = 0i64;
     if ( children )
     {
-      __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
       do
       {
-        _RDI = XAnimGetAnimInfo(children);
-        __asm
+        v12 = XAnimGetAnimInfo(children);
+        weight = v12->state.weight;
+        if ( weight < 0.0 )
         {
-          vmovss  xmm6, dword ptr [rax+3Ch]
-          vcomiss xmm6, xmm7
-        }
-        if ( v19 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+0B8h+var_90], xmm0
-          }
-          v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1943, ASSERT_TYPE_ASSERT, "( ( weight >= 0.0f ) )", "( weight ) = %g", v27);
-          v16 = !v20;
-          if ( v20 )
+          *((_QWORD *)&v14 + 1) = 0i64;
+          *(double *)&v14 = weight;
+          v2 = v14;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1943, ASSERT_TYPE_ASSERT, "( ( weight >= 0.0f ) )", "( weight ) = %g", weight) )
             __debugbreak();
         }
-        __asm { vucomiss xmm6, xmm7 }
-        if ( !v16 )
+        if ( weight != 0.0 )
         {
-          *(float *)&_XMM0 = XAnimGetAverageRateFrequency(tree, children);
-          __asm { vucomiss xmm0, xmm7 }
-          if ( !v16 )
+          *(float *)&v2 = XAnimGetAverageRateFrequency(tree, children);
+          if ( *(float *)&v2 != 0.0 )
           {
-            __asm
-            {
-              vmulss  xmm0, xmm0, xmm6
-              vmulss  xmm1, xmm0, dword ptr [rdi+40h]
-              vaddss  xmm9, xmm9, xmm1
-              vaddss  xmm8, xmm8, xmm6
-            }
+            v15 = v2;
+            *(float *)&v15 = *(float *)&v2 * weight;
+            v2 = v15;
+            v16 = *(float *)&v15 * v12->state.rate;
+            v17 = v9;
+            *(float *)&v17 = *(float *)&v9 + v16;
+            v9 = v17;
+            v18 = v11;
+            *(float *)&v18 = *(float *)&v11 + weight;
+            v11 = v18;
           }
         }
-        children = _RDI->next;
+        children = v12->next;
       }
       while ( children );
-      __asm
-      {
-        vucomiss xmm8, xmm7
-        vmovaps xmm6, [rsp+0B8h+var_38]
-      }
+      if ( *(float *)&v11 != 0.0 )
+        return *(float *)&v9 / *(float *)&v11;
     }
-    __asm
-    {
-      vmovaps xmm9, [rsp+0B8h+var_68]
-      vmovaps xmm8, [rsp+0B8h+var_58]
-      vmovaps xmm0, xmm7
-      vmovaps xmm7, [rsp+0B8h+var_48]
-    }
+    return v10;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -8567,48 +7530,27 @@ XAnimGetClientLodFloat
 float XAnimGetClientLodFloat(const DObj *obj)
 {
   XAnimTree *tree; 
-  char v6; 
-  char v7; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9712, ASSERT_TYPE_ASSERT, "(obj != nullptr)", (const char *)&queryFormat, "obj != nullptr") )
     __debugbreak();
   if ( !DObjHasClientFlag(obj) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9713, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
     __debugbreak();
   tree = obj->tree;
-  if ( tree && XAnimTreeHasLods(tree) )
-  {
-    _RDI = DCONST_DVARFLT_xanim_lodOverride;
-    if ( !DCONST_DVARFLT_xanim_lodOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodOverride") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+28h]
-    }
-    if ( v6 | v7 )
-    {
-      _RBX = DCONST_DVARFLT_xanim_lodOverride;
-      if ( !DCONST_DVARFLT_xanim_lodOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodOverride") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    }
-    else
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3b800000
-      }
-    }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !tree || !XAnimTreeHasLods(tree) )
+    return 0.0;
+  v3 = DCONST_DVARFLT_xanim_lodOverride;
+  if ( !DCONST_DVARFLT_xanim_lodOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodOverride") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.value < 0.0 )
+    return (float)tree->lodState.lod * 0.00390625;
+  v4 = DCONST_DVARFLT_xanim_lodOverride;
+  if ( !DCONST_DVARFLT_xanim_lodOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodOverride") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v4);
+  return v4->current.value;
 }
 
 /*
@@ -8658,19 +7600,11 @@ XAnimGetDebugVisualAnimWeights
 void XAnimGetDebugVisualAnimWeights(const XAnimTree *tree, unsigned int infoIndex, XAnimTreeDebugNode *dbgNodes)
 {
   unsigned __int16 v5; 
-  float v7; 
-  float v8; 
   int nodeIndexPtr; 
 
   nodeIndexPtr = 0;
   v5 = truncate_cast<unsigned short,unsigned int>(infoIndex);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+58h+var_28], xmm0
-    vmovss  [rsp+58h+var_30], xmm0
-  }
-  XAnimGetDebugVisualAnimWeights_r(tree, tree->anims, v5, &nodeIndexPtr, dbgNodes, v7, v8, 0, 0);
+  XAnimGetDebugVisualAnimWeights_r(tree, tree->anims, v5, &nodeIndexPtr, dbgNodes, 1.0, 1.0, 0, 0);
 }
 
 /*
@@ -8680,276 +7614,236 @@ XAnimGetDebugVisualAnimWeights_r
 */
 __int64 XAnimGetDebugVisualAnimWeights_r(const XAnimTree *tree, const XAnim_s *anims, unsigned __int16 infoIndex, int *nodeIndexPtr, XAnimTreeDebugNode *dbgNodes, float childWeight, float globalWeight, bool underAdditive, bool underOverlay)
 {
-  __int64 v13; 
-  __int64 result; 
-  XAnimTreeDebugNode *v17; 
-  bool v24; 
+  __int64 v9; 
+  XAnimTreeDebugNode *v13; 
+  XAnimInfo *AnimInfo; 
+  XAnimTreeDebugNode *v15; 
+  bool v16; 
   scr_string_t notifyName; 
-  const char *v26; 
+  const char *v18; 
+  float rate; 
   const char *AnimDebugName; 
-  int v29; 
-  bool v30; 
-  bool v31; 
-  char v32; 
-  bool v33; 
+  int v21; 
+  bool v22; 
+  bool v23; 
+  char v24; 
+  bool v25; 
   unsigned __int16 children; 
-  unsigned __int8 *v36; 
-  __int64 v37; 
+  __int128 v27; 
+  unsigned __int8 *v28; 
+  __int64 v29; 
+  __int128 v30; 
   unsigned __int16 next; 
-  char v39; 
-  __int64 v41; 
+  char i; 
+  unsigned __int8 *v33; 
+  __int64 v34; 
+  float v35; 
   const XAnim_s *SubTreeAnims; 
-  bool v44; 
   int DebugVisualAnimWeights_r; 
-  int v47; 
-  __int64 v48; 
-  char v49; 
-  char v50; 
-  char v51; 
-  char v52; 
-  __int64 v57; 
-  double v58; 
-  float v59; 
-  __int64 v60; 
-  float v61; 
-  bool v62; 
+  int v38; 
+  __int64 v39; 
+  char v40; 
+  char v41; 
+  char v42; 
+  char v43; 
+  __int64 v44; 
+  __int64 v45; 
+  bool v46; 
 
-  v13 = *nodeIndexPtr;
-  if ( (_DWORD)v13 == 63 )
+  v9 = *nodeIndexPtr;
+  if ( (_DWORD)v9 == 63 )
     return 0xFFFFFFFFi64;
-  *nodeIndexPtr = v13 + 1;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_68], xmm8
-    vmovaps [rsp+0D8h+var_78], xmm9
-  }
+  *nodeIndexPtr = v9 + 1;
   if ( tree->info_usage && !infoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5060, ASSERT_TYPE_ASSERT, "( ( ( tree->info_usage == 0 ) || infoIndex ) )", "( infoIndex ) = %i", 0) )
     __debugbreak();
-  v17 = dbgNodes;
-  __asm { vmovss  xmm9, [rsp+0D8h+globalWeight] }
-  _RSI = XAnimGetAnimInfo(infoIndex);
-  _RBX = &dbgNodes[v13];
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm9, xmm8
-  }
-  if ( __CFADD__(dbgNodes, 96 * v13) )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm9, xmm9
-      vmovsd  qword ptr [rsp+0D8h+var_B0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5064, ASSERT_TYPE_ASSERT, "( ( globalWeight >= 0.0f ) )", "( globalWeight ) = %g", v58) )
-      __debugbreak();
-  }
-  *((_BYTE *)_RBX + 88) &= ~0x40u;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0D8h+childWeight]
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  dword ptr [rbx+8], xmm9
-  }
-  _RBX->nodeIndex = v13;
-  v24 = !anims->entries[_RSI->animIndex].numAnims || ((__int64)anims->entries[_RSI->animIndex].parts & 3) != 0;
-  _RBX->localWeight = _RSI->state.weight;
-  _RBX->goalWeight = _RSI->state.goalWeight;
-  notifyName = _RSI->notifyName;
+  v13 = dbgNodes;
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  v15 = &dbgNodes[v9];
+  if ( globalWeight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5064, ASSERT_TYPE_ASSERT, "( ( globalWeight >= 0.0f ) )", "( globalWeight ) = %g", globalWeight) )
+    __debugbreak();
+  *((_BYTE *)v15 + 88) &= ~0x40u;
+  v15->relativeChildWeight = childWeight;
+  v15->globalWeight = globalWeight;
+  v15->nodeIndex = v9;
+  v16 = !anims->entries[AnimInfo->animIndex].numAnims || ((__int64)anims->entries[AnimInfo->animIndex].parts & 3) != 0;
+  v15->localWeight = AnimInfo->state.weight;
+  v15->goalWeight = AnimInfo->state.goalWeight;
+  notifyName = AnimInfo->notifyName;
   if ( notifyName )
-    v26 = SL_ConvertToString(notifyName);
+    v18 = SL_ConvertToString(notifyName);
   else
-    v26 = (char *)&queryFormat.fmt + 3;
-  _RBX->notifyName = v26;
-  *((_BYTE *)_RBX + 88) &= ~1u;
-  *((_BYTE *)_RBX + 88) |= v24;
-  if ( v24 )
+    v18 = (char *)&queryFormat.fmt + 3;
+  v15->notifyName = v18;
+  *((_BYTE *)v15 + 88) &= ~1u;
+  *((_BYTE *)v15 + 88) |= v16;
+  if ( v16 )
   {
-    _RBX->goalTime = _RSI->state.goalTime;
-    _RBX->oldTime = _RSI->state.oldTime;
-    _RBX->currentTime = _RSI->state.currentAnimTime;
-    __asm { vmovss  xmm0, dword ptr [rsi+40h] }
+    v15->goalTime = AnimInfo->state.goalTime;
+    v15->oldTime = AnimInfo->state.oldTime;
+    v15->currentTime = AnimInfo->state.currentAnimTime;
+    rate = AnimInfo->state.rate;
   }
   else
   {
-    *(_QWORD *)&_RBX->goalTime = 0i64;
-    _RBX->currentTime = 0.0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    *(_QWORD *)&v15->goalTime = 0i64;
+    v15->currentTime = 0.0;
+    rate = 0.0;
   }
-  __asm { vmovss  dword ptr [rbx+24h], xmm0 }
-  AnimDebugName = XAnimGetAnimDebugName(anims, _RSI->animIndex);
-  *(_QWORD *)&_RBX->numChildren = 0i64;
-  v29 = -1;
-  _RBX->animName = AnimDebugName;
-  *(_QWORD *)&_RBX->firstChildIndex = -1i64;
-  *(_QWORD *)&_RBX->nextSiblingIndex = -1i64;
-  _RBX->nodeId = _RSI;
-  if ( _RSI->animToModel )
+  v15->rate = rate;
+  AnimDebugName = XAnimGetAnimDebugName(anims, AnimInfo->animIndex);
+  *(_QWORD *)&v15->numChildren = 0i64;
+  v21 = -1;
+  v15->animName = AnimDebugName;
+  *(_QWORD *)&v15->firstChildIndex = -1i64;
+  *(_QWORD *)&v15->nextSiblingIndex = -1i64;
+  v15->nodeId = AnimInfo;
+  if ( AnimInfo->animToModel )
   {
-    *((_BYTE *)_RBX + 88) = (8 * underOverlay) | (4 * underAdditive) & 0xF7 | *((_BYTE *)_RBX + 88) & 0xE3 | 0x22;
+    *((_BYTE *)v15 + 88) = (8 * underOverlay) | (4 * underAdditive) & 0xF7 | *((_BYTE *)v15 + 88) & 0xE3 | 0x22;
   }
   else
   {
-    __asm { vmovaps [rsp+0D8h+var_58], xmm7 }
-    if ( XAnimIsCustomNode(anims, _RSI) )
+    if ( XAnimIsCustomNode(anims, AnimInfo) )
     {
-      *((_BYTE *)_RBX + 88) = *((_BYTE *)_RBX + 88) & 0xED | 0x10;
-      v30 = underAdditive || IsInfoAdditive(_RSI);
-      *((_BYTE *)_RBX + 88) &= ~4u;
-      *((_BYTE *)_RBX + 88) |= 4 * v30;
-      v62 = v30;
-      v31 = underOverlay || IsInfoOverlay(_RSI);
-      v32 = *((_BYTE *)_RBX + 88) & 0xF7 | (8 * (v31 | 4));
+      *((_BYTE *)v15 + 88) = *((_BYTE *)v15 + 88) & 0xED | 0x10;
+      v22 = underAdditive || IsInfoAdditive(AnimInfo);
+      *((_BYTE *)v15 + 88) &= ~4u;
+      *((_BYTE *)v15 + 88) |= 4 * v22;
+      v46 = v22;
+      v23 = underOverlay || IsInfoOverlay(AnimInfo);
+      v24 = *((_BYTE *)v15 + 88) & 0xF7 | (8 * (v23 | 4));
     }
     else
     {
-      *((_BYTE *)_RBX + 88) &= 0xEDu;
-      v33 = underAdditive || IsInfoAdditive(_RSI);
-      *((_BYTE *)_RBX + 88) &= ~4u;
-      *((_BYTE *)_RBX + 88) |= 4 * v33;
-      v62 = v33;
-      v31 = underOverlay || IsInfoOverlay(_RSI);
-      v32 = (8 * v31) & 0xDF | *((_BYTE *)_RBX + 88) & 0xD7;
+      *((_BYTE *)v15 + 88) &= 0xEDu;
+      v25 = underAdditive || IsInfoAdditive(AnimInfo);
+      *((_BYTE *)v15 + 88) &= ~4u;
+      *((_BYTE *)v15 + 88) |= 4 * v25;
+      v46 = v25;
+      v23 = underOverlay || IsInfoOverlay(AnimInfo);
+      v24 = (8 * v23) & 0xDF | *((_BYTE *)v15 + 88) & 0xD7;
     }
-    *((_BYTE *)_RBX + 88) = v32;
-    children = _RSI->children;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    *((_BYTE *)v15 + 88) = v24;
+    children = AnimInfo->children;
+    v27 = 0i64;
     if ( children )
     {
       do
       {
         if ( (children & 0x8000u) != 0 )
         {
-          v37 = 32 * (children & 0x7FFFu);
-          if ( (unsigned int)v37 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v29 = 32 * (children & 0x7FFFu);
+          if ( (unsigned int)v29 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v60) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v57) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v57, v60) )
+            LODWORD(v45) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v44) = 32 * (children & 0x7FFF);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v44, v45) )
               __debugbreak();
           }
-          v36 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v37];
+          v28 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v29];
         }
         else
         {
           if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v60) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v57) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v57, v60) )
+            LODWORD(v45) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v44) = children;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v44, v45) )
               __debugbreak();
           }
-          v36 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+          v28 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
         }
-        if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 581, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+        if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 581, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
           __debugbreak();
-        if ( !*((_QWORD *)v36 + 3) && (*((_DWORD *)v36 + 8) & 0x210) != 0 )
+        if ( !*((_QWORD *)v28 + 3) && (*((_DWORD *)v28 + 8) & 0x210) != 0 )
           break;
-        __asm { vaddss  xmm7, xmm7, dword ptr [rdi+3Ch] }
+        v30 = v27;
+        *(float *)&v30 = *(float *)&v27 + *((float *)v28 + 15);
+        v27 = v30;
         children = XAnimGetAnimInfo(children)->next;
       }
       while ( children );
-      _RBX = &dbgNodes[v13];
-      v17 = dbgNodes;
-      v29 = -1;
+      v15 = &dbgNodes[v9];
+      v13 = dbgNodes;
+      v21 = -1;
     }
-    next = _RSI->children;
-    v39 = 1;
-    if ( next )
+    next = AnimInfo->children;
+    for ( i = 1; next; next = XAnimGetAnimInfo(next)->next )
     {
-      __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
-      do
+      if ( (next & 0x8000u) != 0 )
       {
-        if ( (next & 0x8000u) != 0 )
+        v34 = 32 * (next & 0x7FFFu);
+        if ( (unsigned int)v34 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          v41 = 32 * (next & 0x7FFFu);
-          if ( (unsigned int)v41 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-          {
-            LODWORD(v60) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v57) = 32 * (next & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v57, v60) )
-              __debugbreak();
-          }
-          _RDI = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v41];
+          LODWORD(v45) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v44) = 32 * (next & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v44, v45) )
+            __debugbreak();
         }
-        else
-        {
-          if ( (unsigned int)next >= g_xanimMemoryGlobals.infoPoolSize )
-          {
-            LODWORD(v60) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v57) = next;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v57, v60) )
-              __debugbreak();
-          }
-          _RDI = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[next];
-        }
-        __asm { vmovss  xmm6, dword ptr [rdi+3Ch] }
-        SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)*((_WORD *)_RDI + 8));
-        v44 = *((_QWORD *)_RDI + 3) == 0i64;
-        if ( *((_QWORD *)_RDI + 3) || (v44 = (*((_DWORD *)_RDI + 8) & 0x210) == 0) )
-        {
-          __asm { vucomiss xmm7, xmm8 }
-          if ( v44 )
-            __asm { vmovaps xmm6, xmm8 }
-          else
-            __asm { vdivss  xmm6, xmm6, xmm7 }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm9
-          vmovss  [rsp+0D8h+var_A8], xmm0
-          vmovss  [rsp+0D8h+var_B0], xmm6
-        }
-        DebugVisualAnimWeights_r = XAnimGetDebugVisualAnimWeights_r(tree, SubTreeAnims, next, nodeIndexPtr, v17, v59, v61, v62, v31);
-        v47 = DebugVisualAnimWeights_r;
-        if ( v39 )
-        {
-          _RBX->firstChildIndex = DebugVisualAnimWeights_r;
-          v39 = 0;
-        }
-        else
-        {
-          if ( DebugVisualAnimWeights_r != -1 )
-            v17[DebugVisualAnimWeights_r].prevSiblingIndex = v29;
-          if ( v29 != -1 )
-            v17[v29].nextSiblingIndex = DebugVisualAnimWeights_r;
-        }
-        if ( DebugVisualAnimWeights_r == -1 )
-        {
-          *((_BYTE *)_RBX + 88) |= 0x40u;
-        }
-        else
-        {
-          v48 = DebugVisualAnimWeights_r;
-          v17[v48].parentIndex = v13;
-          v49 = *((_BYTE *)_RBX + 88);
-          if ( (v49 & 0x20) != 0 || (*((_BYTE *)&v17[v48] + 88) & 0x20) != 0 )
-            v50 = 32;
-          else
-            v50 = 0;
-          v51 = v50 | v49 & 0xDF;
-          *((_BYTE *)_RBX + 88) = v51;
-          if ( (v51 & 0x40) != 0 || (*((_BYTE *)&v17[v48] + 88) & 0x40) != 0 )
-            v52 = 64;
-          else
-            v52 = 0;
-          ++_RBX->numChildren;
-          *((_BYTE *)_RBX + 88) = v52 | v51 & 0xBF;
-          if ( (*((_BYTE *)&v17[v48] + 88) & 0x20) != 0 )
-            ++_RBX->numChildrenWithLeafOrCustomNodeBelow;
-        }
-        v29 = v47;
-        next = XAnimGetAnimInfo(next)->next;
+        v33 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v34];
       }
-      while ( next );
-      __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
+      else
+      {
+        if ( (unsigned int)next >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v45) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v44) = next;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v44, v45) )
+            __debugbreak();
+        }
+        v33 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[next];
+      }
+      v35 = *((float *)v33 + 15);
+      SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)*((_WORD *)v33 + 8));
+      if ( *((_QWORD *)v33 + 3) || (*((_DWORD *)v33 + 8) & 0x210) == 0 )
+      {
+        if ( *(float *)&v27 == 0.0 )
+          v35 = 0.0;
+        else
+          v35 = v35 / *(float *)&v27;
+      }
+      DebugVisualAnimWeights_r = XAnimGetDebugVisualAnimWeights_r(tree, SubTreeAnims, next, nodeIndexPtr, v13, v35, v35 * globalWeight, v46, v23);
+      v38 = DebugVisualAnimWeights_r;
+      if ( i )
+      {
+        v15->firstChildIndex = DebugVisualAnimWeights_r;
+        i = 0;
+      }
+      else
+      {
+        if ( DebugVisualAnimWeights_r != -1 )
+          v13[DebugVisualAnimWeights_r].prevSiblingIndex = v21;
+        if ( v21 != -1 )
+          v13[v21].nextSiblingIndex = DebugVisualAnimWeights_r;
+      }
+      if ( DebugVisualAnimWeights_r == -1 )
+      {
+        *((_BYTE *)v15 + 88) |= 0x40u;
+      }
+      else
+      {
+        v39 = DebugVisualAnimWeights_r;
+        v13[v39].parentIndex = v9;
+        v40 = *((_BYTE *)v15 + 88);
+        if ( (v40 & 0x20) != 0 || (*((_BYTE *)&v13[v39] + 88) & 0x20) != 0 )
+          v41 = 32;
+        else
+          v41 = 0;
+        v42 = v41 | v40 & 0xDF;
+        *((_BYTE *)v15 + 88) = v42;
+        if ( (v42 & 0x40) != 0 || (*((_BYTE *)&v13[v39] + 88) & 0x40) != 0 )
+          v43 = 64;
+        else
+          v43 = 0;
+        ++v15->numChildren;
+        *((_BYTE *)v15 + 88) = v43 | v42 & 0xBF;
+        if ( (*((_BYTE *)&v13[v39] + 88) & 0x20) != 0 )
+          ++v15->numChildrenWithLeafOrCustomNodeBelow;
+      }
+      v21 = v38;
     }
-    __asm { vmovaps xmm7, [rsp+0D8h+var_58] }
   }
-  __asm { vmovaps xmm8, [rsp+0D8h+var_68] }
-  result = (unsigned int)v13;
-  __asm { vmovaps xmm9, [rsp+0D8h+var_78] }
-  return result;
+  return (unsigned int)v9;
 }
 
 /*
@@ -8967,15 +7861,9 @@ float XAnimGetGoalTime(const XAnimTree *tree, unsigned int graftAnimIndex, const
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+34h] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.goalTime;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -8993,15 +7881,9 @@ float XAnimGetGoalWeight(const XAnimTree *tree, unsigned int graftAnimIndex, con
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+38h] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.goalWeight;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -9144,26 +8026,22 @@ XAnimGetLength
 */
 float XAnimGetLength(const XAnim_s *anims, unsigned int animIndex)
 {
-  __int64 v3; 
-  const XAnimEntry *v5; 
+  __int64 v2; 
+  const XAnimEntry *v4; 
+  XAnimParts *PartsInternal; 
 
-  v3 = animIndex;
+  v2 = animIndex;
   if ( !anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5377, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  if ( (unsigned int)v3 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5378, ASSERT_TYPE_ASSERT, "( animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "animIndex", "anims->size", v3, anims->size) )
+  if ( (unsigned int)v2 >= anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5378, ASSERT_TYPE_ASSERT, "( animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "animIndex", "anims->size", v2, anims->size) )
     __debugbreak();
-  v5 = &anims->entries[v3];
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5381, ASSERT_TYPE_ASSERT, "(entry)", (const char *)&queryFormat, "entry") )
+  v4 = &anims->entries[v2];
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5381, ASSERT_TYPE_ASSERT, "(entry)", (const char *)&queryFormat, "entry") )
     __debugbreak();
-  if ( !XAnimGetPartsInternal(v5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5351, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
+  PartsInternal = XAnimGetPartsInternal(v4);
+  if ( !PartsInternal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5351, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm0, xmm0, dword ptr [rbx+64h]
-  }
-  return *(float *)&_XMM0;
+  return (float)PartsInternal->numframes / PartsInternal->framerate;
 }
 
 /*
@@ -9175,13 +8053,7 @@ float XAnimGetLengthFromParts(const XAnimParts *animParts)
 {
   if ( !animParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5351, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm0, xmm0, dword ptr [rbx+64h]
-  }
-  return *(float *)&_XMM0;
+  return (float)animParts->numframes / animParts->framerate;
 }
 
 /*
@@ -9189,21 +8061,11 @@ float XAnimGetLengthFromParts(const XAnimParts *animParts)
 XAnimGetLengthFromPartsMsec
 ==============
 */
-int XAnimGetLengthFromPartsMsec(const XAnimParts *animParts)
+__int64 XAnimGetLengthFromPartsMsec(const XAnimParts *animParts)
 {
-  int result; 
-
   if ( !animParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5351, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm1, xmm0, dword ptr [rbx+64h]
-    vmulss  xmm2, xmm1, cs:__real@447a0000
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)((float)animParts->numframes / animParts->framerate) * 1000.0);
 }
 
 /*
@@ -9211,17 +8073,12 @@ int XAnimGetLengthFromPartsMsec(const XAnimParts *animParts)
 XAnimGetLengthMsec
 ==============
 */
-int XAnimGetLengthMsec(const XAnim_s *anims, unsigned int anim)
+__int64 XAnimGetLengthMsec(const XAnim_s *anims, unsigned int anim)
 {
-  int result; 
+  double Length; 
 
-  *(double *)&_XMM0 = XAnimGetLength(anims, anim);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  Length = XAnimGetLength(anims, anim);
+  return (unsigned int)(int)(float)(*(float *)&Length * 1000.0);
 }
 
 /*
@@ -9229,125 +8086,81 @@ int XAnimGetLengthMsec(const XAnim_s *anims, unsigned int anim)
 XAnimGetLodForDistance
 ==============
 */
-
-unsigned __int8 __fastcall XAnimGetLodForDistance(const DObj *obj, double distance)
+unsigned __int8 XAnimGetLodForDistance(const DObj *obj, float distance)
 {
   XAnimTree *tree; 
-  unsigned __int8 result; 
-  unsigned __int8 v17; 
+  XAnim_s *anims; 
+  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v11; 
+  float v12; 
+  unsigned __int8 v13; 
   unsigned __int8 numLods; 
-  unsigned __int8 v19; 
-  unsigned __int8 v20; 
-  unsigned int v23; 
-  unsigned int v25; 
-  bool v28; 
+  unsigned __int8 v15; 
+  float v16; 
+  float v18; 
+  __int128 v19; 
+  __int128 v22; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps xmm8, xmm1
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9517, ASSERT_TYPE_ASSERT, "(obj != nullptr)", (const char *)&queryFormat, "obj != nullptr") )
     __debugbreak();
-  __asm
+  if ( distance < 0.0 )
   {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm8, xmm9
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9518, ASSERT_TYPE_ASSERT, "( distance ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "distance", "0.0f", distance, *(double *)&_XMM0) )
+      __debugbreak();
   }
   tree = obj->tree;
-  if ( tree )
+  if ( !tree )
+    return 0;
+  anims = tree->anims;
+  if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9528, ASSERT_TYPE_ASSERT, "(anims != nullptr)", (const char *)&queryFormat, "anims != nullptr") )
+    __debugbreak();
+  v9 = DCONST_DVARFLT_xanim_lodHysteresisMaxPercent;
+  if ( !DCONST_DVARFLT_xanim_lodHysteresisMaxPercent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodHysteresisMaxPercent") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v9);
+  value = v9->current.value;
+  v11 = DCONST_DVARFLT_xanim_lodHysteresisDistance;
+  v12 = value * 0.0099999998;
+  if ( !DCONST_DVARFLT_xanim_lodHysteresisDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodHysteresisDistance") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v11);
+  v13 = truncate_cast<unsigned char,int>(SHIBYTE(tree->lodState.lod));
+  numLods = anims->numLods;
+  v15 = 0;
+  v16 = 0.0;
+  if ( numLods )
   {
-    _RSI = tree->anims;
-    __asm
+    while ( 1 )
     {
-      vmovaps [rsp+98h+var_18], xmm6
-      vmovaps [rsp+98h+var_28], xmm7
-    }
-    if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9528, ASSERT_TYPE_ASSERT, "(anims != nullptr)", (const char *)&queryFormat, "anims != nullptr") )
-      __debugbreak();
-    _RDI = DCONST_DVARFLT_xanim_lodHysteresisMaxPercent;
-    if ( !DCONST_DVARFLT_xanim_lodHysteresisMaxPercent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodHysteresisMaxPercent") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARFLT_xanim_lodHysteresisDistance;
-    __asm { vmulss  xmm7, xmm0, cs:__real@3c23d70a }
-    if ( !DCONST_DVARFLT_xanim_lodHysteresisDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodHysteresisDistance") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    v17 = truncate_cast<unsigned char,int>(SHIBYTE(tree->lodState.lod));
-    numLods = _RSI->numLods;
-    v19 = 0;
-    v20 = v17;
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    if ( numLods )
-    {
-      __asm { vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      v23 = v17;
-      while ( 1 )
+      LODWORD(_XMM0) = 0;
+      v18 = anims->lodDistances[v15];
+      if ( v13 == v15 + 1 )
       {
-        _RCX = v19;
-        v25 = v19 + 1;
-        __asm
-        {
-          vmovaps xmm0, xmm9
-          vmovss  xmm3, dword ptr [rsi+rcx*4+40h]
-        }
-        v28 = v23 < v25;
-        if ( v23 == v25 )
-        {
-          __asm
-          {
-            vsubss  xmm0, xmm3, xmm1
-            vmulss  xmm1, xmm0, xmm7
-            vminss  xmm2, xmm1, xmm6
-            vxorps  xmm0, xmm2, xmm4
-          }
-        }
-        else
-        {
-          v28 = v20 < v19;
-          if ( v20 == v19 )
-          {
-            __asm
-            {
-              vsubss  xmm0, xmm3, xmm1
-              vmulss  xmm1, xmm0, xmm7
-              vminss  xmm0, xmm1, xmm6
-            }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm3
-          vcomiss xmm8, xmm0
-        }
-        if ( v28 )
-          break;
-        ++v19;
-        __asm { vmovaps xmm1, xmm3 }
-        if ( v19 >= numLods )
-          goto LABEL_25;
+        v19 = LODWORD(anims->lodDistances[v15]);
+        *(float *)&v19 = (float)(v18 - v16) * v12;
+        _XMM1 = v19;
+        __asm { vminss  xmm2, xmm1, xmm6 }
+        LODWORD(_XMM0) = _XMM2 ^ _xmm;
       }
-      numLods = v19;
+      else if ( v13 == v15 )
+      {
+        v22 = LODWORD(anims->lodDistances[v15]);
+        *(float *)&v22 = (float)(v18 - v16) * v12;
+        _XMM1 = v22;
+        __asm { vminss  xmm0, xmm1, xmm6 }
+      }
+      if ( distance < (float)(*(float *)&_XMM0 + v18) )
+        break;
+      ++v15;
+      v16 = v18;
+      if ( v15 >= numLods )
+        return numLods;
     }
-LABEL_25:
-    __asm { vmovaps xmm7, [rsp+98h+var_28] }
-    result = numLods;
-    __asm { vmovaps xmm6, [rsp+98h+var_18] }
+    return v15;
   }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
-  return result;
+  return numLods;
 }
 
 /*
@@ -9355,100 +8168,51 @@ LABEL_25:
 XAnimGetNextNotifyIndex
 ==============
 */
-
-__int64 __fastcall XAnimGetNextNotifyIndex(const XAnimParts *parts, double time)
+__int64 XAnimGetNextNotifyIndex(const XAnimParts *parts, float time)
 {
-  unsigned int v14; 
-  bool v15; 
-  bool v17; 
-  unsigned int notifyCount; 
-  double v25; 
-  void *retaddr; 
+  XAnimNotifyInfo *notify; 
+  XAnimNotifyInfo *v4; 
+  float v5; 
+  int v6; 
+  float v7; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmm7, xmm1
-  }
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2220, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm7, xmm9
-    vcomiss xmm7, cs:__real@3f800000
-    vcvtss2sd xmm0, xmm7, xmm7
-    vmovsd  [rsp+88h+var_60], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2223, ASSERT_TYPE_ASSERT, "( ( time < 1.f ) )", "( time ) = %g", v25) )
+  if ( time < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2222, ASSERT_TYPE_ASSERT, "( ( !(time < 0.f) ) )", "( time ) = %g", time) )
     __debugbreak();
-  _RBX = parts->notify;
-  _RDI = NULL;
-  __asm { vmovss  xmm8, cs:__real@40000000 }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2229, ASSERT_TYPE_ASSERT, "(notifyInfo)", (const char *)&queryFormat, "notifyInfo") )
+  if ( time >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2223, ASSERT_TYPE_ASSERT, "( ( time < 1.f ) )", "( time ) = %g", time) )
     __debugbreak();
-  v14 = 0;
-  v15 = 0;
+  notify = parts->notify;
+  v4 = NULL;
+  v5 = FLOAT_2_0;
+  if ( !notify && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2229, ASSERT_TYPE_ASSERT, "(notifyInfo)", (const char *)&queryFormat, "notifyInfo") )
+    __debugbreak();
+  v6 = 0;
   if ( !parts->notifyCount )
-    goto LABEL_28;
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
+    goto LABEL_31;
   do
   {
-    __asm
+    v7 = notify->time;
+    if ( v7 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2233, ASSERT_TYPE_ASSERT, "(testTime >= 0)", (const char *)&queryFormat, "testTime >= 0") )
+      __debugbreak();
+    if ( v7 >= time && v7 < v5 )
     {
-      vmovss  xmm6, dword ptr [rbx+4]
-      vcomiss xmm6, xmm9
+      v5 = v7;
+      v4 = notify;
     }
-    if ( v15 )
-    {
-      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2233, ASSERT_TYPE_ASSERT, "(testTime >= 0)", (const char *)&queryFormat, "testTime >= 0");
-      v15 = 0;
-      if ( v17 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm6, xmm7 }
-    if ( !v15 )
-    {
-      __asm { vcomiss xmm6, xmm8 }
-      if ( v15 )
-      {
-        __asm { vmovaps xmm8, xmm6 }
-        _RDI = _RBX;
-      }
-    }
-    notifyCount = parts->notifyCount;
-    ++v14;
-    ++_RBX;
-    v15 = v14 < notifyCount;
+    ++v6;
+    ++notify;
   }
-  while ( (int)v14 < (int)notifyCount );
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  if ( !_RDI )
+  while ( v6 < parts->notifyCount );
+  if ( !v4 )
   {
-LABEL_28:
+LABEL_31:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2243, ASSERT_TYPE_ASSERT, "(bestNotifyInfo)", (const char *)&queryFormat, "bestNotifyInfo") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm9, [rsp+88h+var_58]
-    vmovaps xmm8, [rsp+88h+var_48]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
-  if ( _RDI != parts->notify )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi-4]
-      vcomiss xmm0, dword ptr [rdi+4]
-    }
-    if ( _RDI >= parts->notify && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2244, ASSERT_TYPE_ASSERT, "(bestNotifyInfo == parts->notify || bestNotifyInfo->time > (bestNotifyInfo - 1)->time)", (const char *)&queryFormat, "bestNotifyInfo == parts->notify || bestNotifyInfo->time > (bestNotifyInfo - 1)->time") )
-      __debugbreak();
-  }
-  return (__int64)(unsigned int)((_DWORD)_RDI - LODWORD(parts->notify)) >> 3;
+  if ( v4 != parts->notify && v4[-1].time >= v4->time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2244, ASSERT_TYPE_ASSERT, "(bestNotifyInfo == parts->notify || bestNotifyInfo->time > (bestNotifyInfo - 1)->time)", (const char *)&queryFormat, "bestNotifyInfo == parts->notify || bestNotifyInfo->time > (bestNotifyInfo - 1)->time") )
+    __debugbreak();
+  return (__int64)(unsigned int)((_DWORD)v4 - LODWORD(parts->notify)) >> 3;
 }
 
 /*
@@ -9458,63 +8222,26 @@ XAnimGetNextServerNotifyFrac
 */
 float XAnimGetNextServerNotifyFrac(const DObj *obj, XAnimInfo *info, const XAnimState *syncState, const XAnimState *nextSyncState, float dtime)
 {
-  XAnimInfo *v10; 
   XAnimTree *tree; 
   const XAnimParts *PartsFromInfo; 
   __int16 notifyIndex; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm7, dword ptr [rdx+38h]
-  }
-  v10 = info;
-  __asm
-  {
-    vmovss  xmm6, [rsp+58h+dtime]
-    vucomiss xmm6, xmm7
-  }
-  if ( obj->entnum && info->notifyName )
-  {
-    if ( !info->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2432, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
-      __debugbreak();
-    tree = obj->tree;
-    if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2436, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
-      __debugbreak();
-    PartsFromInfo = XAnimGetPartsFromInfo(tree, v10);
-    if ( PartsFromInfo && ((notifyIndex = v10->notifyIndex, notifyIndex >= 0) || (XAnimUpdateServerNotifyIndex(v10, PartsFromInfo), notifyIndex = v10->notifyIndex, notifyIndex >= 0)) )
-    {
-      _RCX = notifyIndex;
-      _RAX = PartsFromInfo->notify;
-      __asm
-      {
-        vmovaps xmm3, xmm6; dtime
-        vmovss  xmm2, dword ptr [rax+rcx*8+4]; noteTime
-      }
-      *(float *)&_XMM0 = XAnimGetNotifyFracLeaf(syncState, nextSyncState, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; noteTime
-        vmovaps xmm3, xmm6; dtime
-      }
-      *(float *)&_XMM0 = XAnimGetNotifyFracLeaf(syncState, nextSyncState, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
-  }
+  if ( info->state.goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2425, ASSERT_TYPE_ASSERT, "(info->state.goalWeight)", (const char *)&queryFormat, "info->state.goalWeight") )
+    __debugbreak();
+  if ( dtime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2426, ASSERT_TYPE_ASSERT, "(dtime)", (const char *)&queryFormat, "dtime") )
+    __debugbreak();
+  if ( !obj->entnum || !info->notifyName )
+    return FLOAT_1_0;
+  if ( !info->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2432, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+    __debugbreak();
+  tree = obj->tree;
+  if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2436, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+    __debugbreak();
+  PartsFromInfo = XAnimGetPartsFromInfo(tree, info);
+  if ( PartsFromInfo && ((notifyIndex = info->notifyIndex, notifyIndex >= 0) || (XAnimUpdateServerNotifyIndex(info, PartsFromInfo), notifyIndex = info->notifyIndex, notifyIndex >= 0)) )
+    return XAnimGetNotifyFracLeaf(syncState, nextSyncState, PartsFromInfo->notify[notifyIndex].time, dtime);
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+    return XAnimGetNotifyFracLeaf(syncState, nextSyncState, 1.0, dtime);
 }
 
 /*
@@ -9538,6 +8265,7 @@ XAnimGetNotetrackTimeFromCharString
 float XAnimGetNotetrackTimeFromCharString(const XAnim_s *anims, unsigned int animIndex, const char *notetrackName)
 {
   const XAnimParts *Parts; 
+  XAnimNotifyInfo *notify; 
   int v7; 
   __int64 v8; 
   const char *v9; 
@@ -9552,61 +8280,51 @@ float XAnimGetNotetrackTimeFromCharString(const XAnim_s *anims, unsigned int ani
   Parts = XAnimGetParts(anims, animIndex);
   if ( !Parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8657, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  _R14 = (scr_string_t *)Parts->notify;
-  if ( _R14 )
+  notify = Parts->notify;
+  if ( !notify )
+    return FLOAT_N1_0;
+  v7 = 0;
+  if ( Parts->notifyCount )
   {
-    v7 = 0;
-    if ( Parts->notifyCount )
+    do
     {
-      do
+      v8 = 0x7FFFFFFFi64;
+      v9 = notetrackName;
+      v10 = SL_ConvertToString(notify->name);
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        __debugbreak();
+      if ( !notetrackName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+        __debugbreak();
+      v11 = v10 - notetrackName;
+      while ( 1 )
       {
-        v8 = 0x7FFFFFFFi64;
-        v9 = notetrackName;
-        v10 = SL_ConvertToString(*_R14);
-        if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
-          __debugbreak();
-        if ( !notetrackName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-          __debugbreak();
-        v11 = v10 - notetrackName;
-        while ( 1 )
+        v12 = (unsigned __int8)v9[v11];
+        v13 = v8;
+        v14 = *(unsigned __int8 *)v9++;
+        --v8;
+        if ( !v13 )
+          return notify->time;
+        if ( v12 != v14 )
         {
-          v12 = (unsigned __int8)v9[v11];
-          v13 = v8;
-          v14 = *(unsigned __int8 *)v9++;
-          --v8;
-          if ( !v13 )
-          {
-LABEL_22:
-            __asm { vmovss  xmm0, dword ptr [r14+4] }
-            return *(float *)&_XMM0;
-          }
-          if ( v12 != v14 )
-          {
-            v15 = v12 + 32;
-            if ( (unsigned int)(v12 - 65) > 0x19 )
-              v15 = v12;
-            v12 = v15;
-            v16 = v14 + 32;
-            if ( (unsigned int)(v14 - 65) > 0x19 )
-              v16 = v14;
-            if ( v12 != v16 )
-              break;
-          }
-          if ( !v12 )
-            goto LABEL_22;
+          v15 = v12 + 32;
+          if ( (unsigned int)(v12 - 65) > 0x19 )
+            v15 = v12;
+          v12 = v15;
+          v16 = v14 + 32;
+          if ( (unsigned int)(v14 - 65) > 0x19 )
+            v16 = v14;
+          if ( v12 != v16 )
+            break;
         }
-        ++v7;
-        _R14 += 2;
+        if ( !v12 )
+          return notify->time;
       }
-      while ( v7 < Parts->notifyCount );
+      ++v7;
+      ++notify;
     }
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
+    while ( v7 < Parts->notifyCount );
   }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-  }
-  return *(float *)&_XMM0;
+  return FLOAT_N1_0;
 }
 
 /*
@@ -9616,28 +8334,25 @@ XAnimGetNotetrackTimeFromParts
 */
 float XAnimGetNotetrackTimeFromParts(const XAnimParts *animParts, scr_string_t name)
 {
+  XAnimNotifyInfo *notify; 
   int v5; 
 
   if ( !animParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8633, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  _RAX = animParts->notify;
-  if ( _RAX && (v5 = 0, animParts->notifyCount) )
+  notify = animParts->notify;
+  if ( !notify )
+    return FLOAT_N1_0;
+  v5 = 0;
+  if ( !animParts->notifyCount )
+    return FLOAT_N1_0;
+  while ( notify->name != name )
   {
-    while ( _RAX->name != name )
-    {
-      ++v5;
-      ++_RAX;
-      if ( v5 >= animParts->notifyCount )
-        goto LABEL_8;
-    }
-    __asm { vmovss  xmm0, dword ptr [rax+4] }
+    ++v5;
+    ++notify;
+    if ( v5 >= animParts->notifyCount )
+      return FLOAT_N1_0;
   }
-  else
-  {
-LABEL_8:
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-  }
-  return *(float *)&_XMM0;
+  return notify->time;
 }
 
 /*
@@ -9647,6 +8362,7 @@ XAnimGetNotetrackTimeFromPartsCharString
 */
 float XAnimGetNotetrackTimeFromPartsCharString(const XAnimParts *animParts, const char *notetrackName)
 {
+  XAnimNotifyInfo *notify; 
   int v5; 
   __int64 v6; 
   const char *v7; 
@@ -9660,8 +8376,8 @@ float XAnimGetNotetrackTimeFromPartsCharString(const XAnimParts *animParts, cons
 
   if ( !animParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8657, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
     __debugbreak();
-  _R14 = animParts->notify;
-  if ( _R14 )
+  notify = animParts->notify;
+  if ( notify )
   {
     v5 = 0;
     if ( animParts->notifyCount )
@@ -9670,7 +8386,7 @@ float XAnimGetNotetrackTimeFromPartsCharString(const XAnimParts *animParts, cons
       {
         v6 = 0x7FFFFFFFi64;
         v7 = notetrackName;
-        v8 = SL_ConvertToString(_R14->name);
+        v8 = SL_ConvertToString(notify->name);
         if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
         if ( !notetrackName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
@@ -9683,11 +8399,7 @@ float XAnimGetNotetrackTimeFromPartsCharString(const XAnimParts *animParts, cons
           v12 = *(unsigned __int8 *)v7++;
           --v6;
           if ( !v11 )
-          {
-LABEL_21:
-            __asm { vmovss  xmm0, dword ptr [r14+4] }
-            return *(float *)&_XMM0;
-          }
+            return notify->time;
           if ( v10 != v12 )
           {
             v13 = v10 + 32;
@@ -9701,16 +8413,15 @@ LABEL_21:
               break;
           }
           if ( !v10 )
-            goto LABEL_21;
+            return notify->time;
         }
         ++v5;
-        ++_R14;
+        ++notify;
       }
       while ( v5 < animParts->notifyCount );
     }
   }
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_N1_0;
 }
 
 /*
@@ -9718,156 +8429,85 @@ LABEL_21:
 XAnimGetNotifyFracLeaf
 ==============
 */
-
-float __fastcall XAnimGetNotifyFracLeaf(const XAnimState *state, const XAnimState *nextState, double noteTime, double dtime)
+float XAnimGetNotifyFracLeaf(const XAnimState *state, const XAnimState *nextState, float noteTime, float dtime)
 {
-  unsigned __int16 oldCycleCount; 
-  bool v13; 
-  __int16 v14; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
+  unsigned __int16 v7; 
+  float oldTime; 
+  float v9; 
+  float currentAnimTime; 
+  __int128 v12; 
+  float v13; 
+  float v14; 
+  __int128 v18; 
+  float v19; 
+  __int128 v22; 
+  float v23; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  _RBX = nextState;
-  __asm { vmovaps [rsp+88h+var_28], xmm7 }
-  _RDI = state;
-  __asm
+  if ( dtime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2259, ASSERT_TYPE_ASSERT, "(dtime)", (const char *)&queryFormat, "dtime") )
+    __debugbreak();
+  v7 = nextState->oldCycleCount - state->oldCycleCount;
+  oldTime = nextState->oldTime;
+  v9 = state->oldTime;
+  currentAnimTime = nextState->currentAnimTime;
+  if ( oldTime != 1.0 )
   {
-    vmovaps [rsp+88h+var_38], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm3, xmm8
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
-  oldCycleCount = nextState->oldCycleCount;
-  v13 = oldCycleCount < state->oldCycleCount;
-  v14 = oldCycleCount - state->oldCycleCount;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  xmm2, cs:__real@3f800000
-    vucomiss xmm1, xmm2
-    vmovss  xmm3, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rbx]
-  }
-  if ( !v14 )
-    goto LABEL_18;
-  __asm { vcomiss xmm0, xmm1 }
-  if ( !v13 )
-  {
-    __asm { vcomiss xmm0, xmm6 }
-    if ( v13 || v14 == 0 )
+    if ( currentAnimTime >= oldTime )
     {
-      __asm { vucomiss xmm0, xmm2 }
+      if ( (currentAnimTime > noteTime || currentAnimTime == 1.0) && oldTime <= noteTime )
+      {
+        v22 = 0i64;
+        *(float *)&v22 = (float)v7;
+        _XMM0 = v22;
+        v23 = (float)((float)(noteTime - v9) + *(float *)&v22) / dtime;
+        v13 = v23;
+        if ( v23 < 0.0 )
+        {
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2302, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v23, *(double *)&_XMM0) )
+            goto LABEL_14;
+        }
+        return v13;
+      }
     }
     else
     {
-      __asm { vcomiss xmm1, xmm6 }
-      if ( v13 || v14 == 0 )
+      if ( currentAnimTime > noteTime )
       {
-        __asm
+        v12 = 0i64;
+        *(float *)&v12 = (float)v7;
+        _XMM0 = v12;
+        v14 = (float)((float)((float)(1.0 - v9) + *(float *)&v12) + noteTime) / dtime;
+        v13 = v14;
+        if ( v14 < 0.0 )
         {
-          vsubss  xmm1, xmm6, xmm3
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vaddss  xmm1, xmm1, xmm0
-          vdivss  xmm6, xmm1, xmm7
-          vcomiss xmm6, xmm8
-        }
-        if ( v13 )
-        {
-          __asm
-          {
-            vxorpd  xmm0, xmm0, xmm0
-            vmovsd  [rsp+88h+var_48], xmm0
-            vcvtss2sd xmm1, xmm6, xmm6
-            vmovsd  [rsp+88h+var_50], xmm1
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2302, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v46, v49) )
-          {
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2279, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v14, *(double *)&_XMM0) )
             __debugbreak();
-            __asm { vmovaps xmm0, xmm6 }
-            goto LABEL_19;
+        }
+        return v13;
+      }
+      if ( oldTime <= noteTime )
+      {
+        v18 = 0i64;
+        *(float *)&v18 = (float)v7;
+        _XMM0 = v18;
+        v19 = (float)((float)(noteTime - v9) + *(float *)&v18) / dtime;
+        v13 = v19;
+        if ( v19 < 0.0 )
+        {
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2289, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v19, *(double *)&_XMM0) )
+          {
+LABEL_14:
+            __debugbreak();
+            return v13;
           }
         }
-        goto LABEL_7;
+        return v13;
       }
     }
-    goto LABEL_18;
   }
-  __asm { vcomiss xmm0, xmm6 }
-  if ( !v13 && v14 != 0 )
-  {
-    __asm
-    {
-      vsubss  xmm1, xmm2, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm1, xmm1, xmm0
-      vaddss  xmm2, xmm1, xmm6
-      vdivss  xmm6, xmm2, xmm7
-      vcomiss xmm6, xmm8
-    }
-    if ( v13 )
-    {
-      __asm
-      {
-        vxorpd  xmm0, xmm0, xmm0
-        vmovsd  [rsp+88h+var_48], xmm0
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovsd  [rsp+88h+var_50], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2279, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v44, v47) )
-        __debugbreak();
-    }
-    goto LABEL_7;
-  }
-  __asm { vcomiss xmm1, xmm6 }
-  if ( !v13 && v14 != 0 )
-  {
-LABEL_18:
-    __asm { vmovaps xmm0, xmm2 }
-    goto LABEL_19;
-  }
-  __asm
-  {
-    vsubss  xmm1, xmm6, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm1, xmm1, xmm0
-    vdivss  xmm6, xmm1, xmm7
-    vcomiss xmm6, xmm8
-  }
-  if ( v13 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+88h+var_48], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+88h+var_50], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2289, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v45, v48) )
-    {
-      __debugbreak();
-      __asm { vmovaps xmm0, xmm6 }
-      goto LABEL_19;
-    }
-  }
-LABEL_7:
-  __asm { vmovaps xmm0, xmm6 }
-LABEL_19:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -9954,15 +8594,9 @@ float XAnimGetOldTime(const XAnimTree *tree, unsigned int graftAnimIndex, const 
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+2Ch] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.oldTime;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -10049,15 +8683,9 @@ float XAnimGetRate(const XAnimTree *tree, unsigned int graftAnimIndex, const XAn
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+40h] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.rate;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -10067,85 +8695,51 @@ XAnimGetRelDelta3D
 */
 void XAnimGetRelDelta3D(const XAnim_s *anims, unsigned int animIndex, vec4_t *rot, vec3_t *trans, float time1, float time2)
 {
-  __int64 v12; 
-  XAnimEntry *v14; 
+  __int64 v8; 
+  XAnimEntry *v10; 
   const XAnimParts *PartsInternal; 
-  char v32; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   XAnimRotPos rotPos; 
 
-  _R14 = trans;
-  v12 = animIndex;
-  _RSI = rot;
+  v8 = animIndex;
   Profile_Begin(412);
-  v14 = &anims->entries[v12];
-  if ( v14->numAnims )
+  v10 = &anims->entries[v8];
+  if ( v10->numAnims )
   {
-    _RSI->v[3] = 1.0;
-    *(_QWORD *)_RSI->v = 0i64;
-    _RSI->v[2] = 0.0;
-    *(_QWORD *)_R14->v = 0i64;
-    _R14->v[2] = 0.0;
+    rot->v[3] = 1.0;
+    *(_QWORD *)rot->v = 0i64;
+    rot->v[2] = 0.0;
+    *(_QWORD *)trans->v = 0i64;
+    trans->v[2] = 0.0;
   }
   else
   {
-    __asm
+    PartsInternal = XAnimGetPartsInternal(v10);
+    rotPos = (XAnimRotPos)0i64;
+    XAnimCalcRelDeltaParts3D(PartsInternal, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), time1, time2, &rotPos, 0);
+    v12 = rotPos.rot.v[1];
+    v13 = rotPos.rot.v[2];
+    v14 = rotPos.rot.v[3];
+    if ( (float)((float)((float)((float)(rotPos.rot.v[0] * rotPos.rot.v[0]) + (float)(v12 * v12)) + (float)(v13 * v13)) + (float)(v14 * v14)) == 0.0 )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovaps [rsp+0A8h+var_48], xmm7
-    }
-    PartsInternal = XAnimGetPartsInternal(v14);
-    __asm
-    {
-      vmovss  xmm3, [rsp+0A8h+time2]; time2
-      vmovss  xmm2, [rsp+0A8h+time1]; time1
-      vmovss  xmm1, cs:__real@3f800000; weightScale
-      vxorps  xmm0, xmm0, xmm0
-      vmovups ymmword ptr [rsp+0A8h+var_78.rot], ymm0
-    }
-    XAnimCalcRelDeltaParts3D(PartsInternal, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &rotPos, 0);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+0A8h+var_78.rot]
-      vmovss  xmm5, dword ptr [rsp+0A8h+var_78.rot+4]
-      vmovss  xmm6, dword ptr [rsp+0A8h+var_78.rot+8]
-      vmovss  xmm7, dword ptr [rsp+0A8h+var_78.rot+0Ch]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm2, xmm1
-    }
-    if ( v32 )
-    {
-      *(_QWORD *)_RSI->v = 0i64;
-      _RSI->v[2] = 0.0;
-      _RSI->v[3] = 1.0;
+      *(_QWORD *)rot->v = 0i64;
+      rot->v[2] = 0.0;
+      rot->v[3] = 1.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rsi], xmm4
-        vmovss  dword ptr [rsi+4], xmm5
-        vmovss  dword ptr [rsi+8], xmm6
-        vmovss  dword ptr [rsi+0Ch], xmm7
-      }
+      rot->v[0] = rotPos.rot.v[0];
+      rot->v[1] = v12;
+      rot->v[2] = v13;
+      rot->v[3] = v14;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.pos]
-      vmovss  xmm1, dword ptr [rsp+0A8h+var_78.pos+4]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.pos+8]
-      vmovss  dword ptr [r14+8], xmm0
-      vmovss  dword ptr [r14+4], xmm1
-    }
+    v15 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v15;
   }
   Profile_EndInternal(NULL);
 }
@@ -10157,100 +8751,46 @@ XAnimGetRelDelta
 */
 void XAnimGetRelDelta(const XAnim_s *anims, unsigned int animIndex, vec2_t *rot, vec3_t *trans, float time1, float time2)
 {
-  __int64 v12; 
-  XAnimEntry *v14; 
+  __int64 v8; 
+  XAnimEntry *v10; 
   const XAnimParts *PartsInternal; 
-  bool v21; 
-  bool v24; 
-  bool v26; 
+  float v12; 
+  float v13; 
+  float v14; 
   XAnimRotPos rotPos; 
 
-  _RSI = trans;
-  v12 = animIndex;
-  _R14 = rot;
+  v8 = animIndex;
   Profile_Begin(412);
-  v14 = &anims->entries[v12];
-  if ( v14->numAnims )
+  v10 = &anims->entries[v8];
+  if ( v10->numAnims )
   {
-    _R14->v[1] = 1.0;
-    _R14->v[0] = 0.0;
-    *(_QWORD *)_RSI->v = 0i64;
-    _RSI->v[2] = 0.0;
+    rot->v[1] = 1.0;
+    rot->v[0] = 0.0;
+    *(_QWORD *)trans->v = 0i64;
+    trans->v[2] = 0.0;
   }
   else
   {
-    __asm
+    PartsInternal = XAnimGetPartsInternal(v10);
+    v12 = FLOAT_1_0;
+    rotPos = (XAnimRotPos)0i64;
+    XAnimCalcRelDeltaParts(PartsInternal, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), COERCE_DOUBLE((unsigned __int64)LODWORD(time1)), time2, &rotPos, 0);
+    v13 = 0.0;
+    if ( rotPos.rot.v[0] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6525, ASSERT_TYPE_ASSERT, "(!rotPos.rot[0])", (const char *)&queryFormat, "!rotPos.rot[0]") )
+      __debugbreak();
+    if ( rotPos.rot.v[1] != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6526, ASSERT_TYPE_ASSERT, "(!rotPos.rot[1])", (const char *)&queryFormat, "!rotPos.rot[1]") )
+      __debugbreak();
+    if ( rotPos.rot.v[2] != 0.0 || rotPos.rot.v[3] != 0.0 )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovaps [rsp+0A8h+var_48], xmm7
+      v12 = rotPos.rot.v[3];
+      v13 = rotPos.rot.v[2];
     }
-    PartsInternal = XAnimGetPartsInternal(v14);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  xmm3, [rsp+0A8h+time2]; time2
-      vmovss  xmm2, [rsp+0A8h+time1]; time1
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm1, xmm7; weightScale
-      vmovups ymmword ptr [rsp+0A8h+var_78.rot], ymm0
-    }
-    XAnimCalcRelDeltaParts(PartsInternal, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, &rotPos, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.rot]
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm0, xmm6
-    }
-    if ( !v21 )
-    {
-      v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6525, ASSERT_TYPE_ASSERT, "(!rotPos.rot[0])", (const char *)&queryFormat, "!rotPos.rot[0]");
-      v21 = !v24;
-      if ( v24 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.rot+4]
-      vucomiss xmm0, xmm6
-    }
-    if ( !v21 )
-    {
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 6526, ASSERT_TYPE_ASSERT, "(!rotPos.rot[1])", (const char *)&queryFormat, "!rotPos.rot[1]");
-      v21 = !v26;
-      if ( v26 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+0A8h+var_78.rot+8]
-      vucomiss xmm1, xmm6
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.rot+0Ch]
-    }
-    if ( !v21 )
-      goto LABEL_10;
-    __asm { vucomiss xmm0, xmm6 }
-    if ( !v21 )
-    {
-LABEL_10:
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovaps xmm6, xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [r14], xmm6
-      vmovss  dword ptr [r14+4], xmm7
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.pos]
-      vmovss  xmm1, dword ptr [rsp+0A8h+var_78.pos+4]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm0, dword ptr [rsp+0A8h+var_78.pos+8]
-      vmovss  dword ptr [rsi+8], xmm0
-      vmovss  dword ptr [rsi+4], xmm1
-    }
+    rot->v[0] = v13;
+    rot->v[1] = v12;
+    v14 = rotPos.pos.v[1];
+    trans->v[0] = rotPos.pos.v[0];
+    trans->v[2] = rotPos.pos.v[2];
+    trans->v[1] = v14;
   }
   Profile_EndInternal(NULL);
 }
@@ -10260,66 +8800,74 @@ LABEL_10:
 XAnimGetScrubbedBackwardNotifyFracLeaf
 ==============
 */
-
-float __fastcall XAnimGetScrubbedBackwardNotifyFracLeaf(const XAnimState *state, double noteTime, double dtime, bool hasWrapped)
+float XAnimGetScrubbedBackwardNotifyFracLeaf(const XAnimState *state, float noteTime, float dtime, bool hasWrapped)
 {
-  char v29; 
-  void *retaddr; 
+  float oldTime; 
+  float currentAnimTime; 
+  float v9; 
+  float v10; 
+  float v14; 
+  float v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RBX = state;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vucomiss xmm2, xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-  }
+  if ( dtime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2323, ASSERT_TYPE_ASSERT, "(dtime)", (const char *)&queryFormat, "dtime") )
+    __debugbreak();
   if ( (state->flags & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2324, ASSERT_TYPE_ASSERT, "(state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS)", (const char *)&queryFormat, "state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS") )
     __debugbreak();
-  __asm
+  oldTime = state->oldTime;
+  currentAnimTime = state->currentAnimTime;
+  if ( state->currentAnimTime < oldTime )
   {
-    vmovss  xmm6, dword ptr [rbx+4]
-    vmovss  xmm10, dword ptr [rbx]
-    vcomiss xmm10, xmm6
+    if ( !hasWrapped )
+    {
+      _XMM0 = LODWORD(FLOAT_N1_0);
+      v10 = (float)(noteTime - oldTime) * (float)(-1.0 / dtime);
+      v9 = v10;
+      if ( v10 < 0.0 )
+      {
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2339, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v10, *(double *)&_XMM0) )
+          __debugbreak();
+      }
+      return v9;
+    }
+    return FLOAT_1_0;
   }
   if ( hasWrapped )
   {
-    if ( (_RBX->flags & 0x80u) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2348, ASSERT_TYPE_ASSERT, "(state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS_WRAPPED)", (const char *)&queryFormat, "state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS_WRAPPED") )
+    if ( (state->flags & 0x80u) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2348, ASSERT_TYPE_ASSERT, "(state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS_WRAPPED)", (const char *)&queryFormat, "state->flags & XANIMSTATE_SCRUBBED_NOTETRACKS_WRAPPED") )
       __debugbreak();
-    __asm
+    if ( oldTime >= noteTime )
     {
-      vcomiss xmm6, xmm7
-      vmovss  xmm0, cs:__real@bf800000
-      vdivss  xmm1, xmm0, xmm8
-      vsubss  xmm2, xmm7, xmm6
-      vmulss  xmm6, xmm2, xmm1
-      vcomiss xmm6, xmm9
-      vmovaps xmm0, xmm6
+      _XMM0 = LODWORD(FLOAT_N1_0);
+      v14 = (float)(noteTime - oldTime) * (float)(-1.0 / dtime);
+      v9 = v14;
+      if ( v14 < 0.0 )
+      {
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2358, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v14, *(double *)&_XMM0) )
+        {
+LABEL_20:
+          __debugbreak();
+          return v9;
+        }
+      }
+      return v9;
+    }
+    if ( noteTime >= currentAnimTime )
+    {
+      _XMM0 = LODWORD(FLOAT_1_0);
+      v17 = (float)((float)(1.0 - noteTime) + oldTime) / dtime;
+      v9 = v17;
+      if ( v17 < 0.0 )
+      {
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2367, ASSERT_TYPE_ASSERT, "( frac ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "frac", "0.f", v17, *(double *)&_XMM0) )
+          goto LABEL_20;
+      }
+      return v9;
     }
   }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -10329,59 +8877,31 @@ XAnimGetServerNotifyFracSyncTotal
 */
 float XAnimGetServerNotifyFracSyncTotal(const DObj *obj, XAnimInfo *info, const XAnimState *syncState, const XAnimState *nextSyncState, float dtime)
 {
+  float result; 
   unsigned __int16 children; 
-  XAnimInfo *v18; 
-  char v19; 
-  float fmt; 
-  float fmta; 
+  XAnimInfo *AnimInfo; 
+  XAnimInfo *v14; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovss  xmm8, [rsp+0A8h+dtime]
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-  }
-  *(float *)&_XMM0 = XAnimGetNextServerNotifyFrac(obj, info, syncState, nextSyncState, fmt);
+  result = XAnimGetNextServerNotifyFrac(obj, info, syncState, nextSyncState, dtime);
   children = info->children;
-  __asm { vmovaps xmm7, xmm0 }
+  *(float *)&_XMM7 = result;
   if ( children )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     do
     {
-      _RAX = XAnimGetAnimInfo(children);
-      v18 = _RAX;
-      __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-      if ( !v19 )
+      AnimInfo = XAnimGetAnimInfo(children);
+      v14 = AnimInfo;
+      if ( AnimInfo->state.weight != 0.0 && AnimInfo->state.goalWeight != 0.0 )
       {
-        __asm
-        {
-          vucomiss xmm6, dword ptr [rax+38h]
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-        }
-        *(float *)&_XMM0 = XAnimGetServerNotifyFracSyncTotal(obj, _RAX, syncState, nextSyncState, fmta);
+        *(float *)&_XMM0 = XAnimGetServerNotifyFracSyncTotal(obj, AnimInfo, syncState, nextSyncState, dtime);
         __asm { vminss  xmm7, xmm0, xmm7 }
       }
-      children = v18->next;
+      children = v14->next;
     }
     while ( children );
-    __asm
-    {
-      vmovaps xmm6, [rsp+0A8h+var_38]
-      vmovaps xmm0, xmm7
-    }
+    return *(float *)&_XMM7;
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -10494,260 +9014,188 @@ XAnimGetSyncGroupData_r
 */
 void XAnimGetSyncGroupData_r(const XAnimTree *tree, unsigned __int16 infoIndex, XAnimSyncGroupCalcData *syncGroupCalcData, float *frequencies, float accumWeight, float parentAccumTime, bool bNotify)
 {
-  bool v21; 
-  XAnimParts *parts; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float *v14; 
   XAnimInfo *AnimInfo; 
-  bool v25; 
+  XAnimParts *parts; 
+  XAnimInfo *v19; 
+  bool v20; 
   unsigned __int16 children; 
-  bool v36; 
-  char v39; 
-  bool v41; 
-  char v46; 
-  bool v67; 
-  __int64 v69; 
-  bool v73; 
-  bool v74; 
-  float fmt; 
-  double v80; 
-  float v81; 
-  __int64 v85; 
-  __int64 v86; 
-  __int64 v87; 
-  __int64 v88; 
+  __int64 v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  XAnimInfo *v30; 
+  float weight; 
+  float v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  float *p_leadWeight; 
+  __int64 v42; 
+  float v43; 
+  float v44; 
+  __int64 v48; 
+  __int64 v49; 
+  __int64 v50; 
+  __int64 v51; 
   float frequenciesa[2]; 
-  __int64 v90; 
+  __int64 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
 
-  _R12 = frequencies;
+  v14 = frequencies;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1970, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1971, ASSERT_TYPE_ASSERT, "(tree->anims)", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1972, ASSERT_TYPE_ASSERT, "(frequencies)", (const char *)&queryFormat, "frequencies") )
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1972, ASSERT_TYPE_ASSERT, "(frequencies)", (const char *)&queryFormat, "frequencies") )
     __debugbreak();
-  _R14 = XAnimGetAnimInfo(infoIndex);
-  if ( !_R14->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1976, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1976, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  v21 = _R14->animToModel == NULL;
-  if ( _R14->animToModel )
+  if ( AnimInfo->animToModel )
   {
-    parts = _R14->parts;
+    parts = AnimInfo->parts;
     if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1983, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
       __debugbreak();
-    AnimInfo = XAnimGetAnimInfo(_R14->parent);
-    if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1986, ASSERT_TYPE_ASSERT, "(parentInfo)", (const char *)&queryFormat, "parentInfo") )
+    v19 = XAnimGetAnimInfo(AnimInfo->parent);
+    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1986, ASSERT_TYPE_ASSERT, "(parentInfo)", (const char *)&queryFormat, "parentInfo") )
       __debugbreak();
-    if ( AnimInfo->animParent.syncGroup[0] >= 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1987, ASSERT_TYPE_ASSERT, "(parentInfo->animParent.syncGroup < XAnimSyncGroupID::COUNT)", (const char *)&queryFormat, "parentInfo->animParent.syncGroup < XAnimSyncGroupID::COUNT") )
+    if ( v19->animParent.syncGroup[0] >= 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1987, ASSERT_TYPE_ASSERT, "(parentInfo->animParent.syncGroup < XAnimSyncGroupID::COUNT)", (const char *)&queryFormat, "parentInfo->animParent.syncGroup < XAnimSyncGroupID::COUNT") )
       __debugbreak();
-    _R12[(unsigned __int8)AnimInfo->animParent.syncGroup[0]] = parts->frequency;
+    v14[(unsigned __int8)v19->animParent.syncGroup[0]] = parts->frequency;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+180h+var_60], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vucomiss xmm7, dword ptr [r14+38h]
-      vmovaps [rsp+180h+var_70], xmm8
-    }
-    v25 = !v21 && bNotify;
-    children = _R14->children;
-    __asm { vmovss  xmm8, [rbp+80h+accumWeight] }
-    _RDI = 0i64;
-    __asm { vmovaps [rsp+180h+var_50], xmm6 }
-    v87 = 0i64;
-    v88 = 0i64;
-    v85 = 0i64;
-    v86 = 0i64;
+    v20 = AnimInfo->state.goalWeight != 0.0 && bNotify;
+    children = AnimInfo->children;
+    v22 = 0i64;
+    v50 = 0i64;
+    v51 = 0i64;
+    v48 = 0i64;
+    v49 = 0i64;
     if ( children )
     {
-      __asm
-      {
-        vmovaps [rsp+180h+var_80], xmm9
-        vmovss  xmm9, dword ptr [rbp+80h+var_100+4]
-        vmovaps [rsp+180h+var_90], xmm10
-        vmovss  xmm10, dword ptr [rbp+80h+var_100]
-        vmovaps [rsp+180h+var_A0], xmm11
-        vmovss  xmm11, dword ptr [rsp+180h+var_108+4]
-        vmovaps [rsp+180h+var_B0], xmm12
-        vmovss  xmm12, dword ptr [rsp+180h+var_108]
-        vmovaps [rsp+180h+var_C0], xmm13
-        vmovss  xmm13, dword ptr [rsp+180h+var_110+4]
-        vmovaps [rsp+180h+var_D0], xmm14
-        vmovss  xmm14, dword ptr [rsp+180h+var_110]
-        vmovaps [rsp+180h+var_E0], xmm15
-        vmovss  xmm15, dword ptr [rsp+180h+var_118+4]
-      }
+      v60 = v7;
+      v23 = HIDWORD(v51);
+      v59 = v8;
+      v24 = (unsigned int)v51;
+      v58 = v9;
+      v25 = HIDWORD(v50);
+      v57 = v10;
+      v26 = (unsigned int)v50;
+      v56 = v11;
+      v27 = HIDWORD(v49);
+      v55 = v12;
+      v28 = (unsigned int)v49;
+      v54 = v13;
+      v29 = HIDWORD(v48);
       do
       {
-        _RBX = XAnimGetAnimInfo(children);
-        __asm
+        v30 = XAnimGetAnimInfo(children);
+        weight = v30->state.weight;
+        if ( weight < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2007, ASSERT_TYPE_ASSERT, "( ( childWeight >= 0.0f ) )", "( childWeight ) = %g", weight) )
+          __debugbreak();
+        if ( weight != 0.0 && (((__int64)v30->parts & 4) == 0 || v30->animParent.syncGroup[0] != 4) && !(v30->animToModel ? AnimInfo->animParent.syncGroup[0] == 4 : !XAnimInfoHasSyncGroups(v30)) )
         {
-          vmovss  xmm6, dword ptr [rax+3Ch]
-          vcomiss xmm6, xmm7
-        }
-        if ( v39 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  qword ptr [rsp+180h+var_158], xmm0
-          }
-          v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2007, ASSERT_TYPE_ASSERT, "( ( childWeight >= 0.0f ) )", "( childWeight ) = %g", v80);
-          v36 = !v41;
-          if ( v41 )
-            __debugbreak();
-        }
-        __asm { vucomiss xmm6, xmm7 }
-        if ( !v36 && (((__int64)_RBX->parts & 4) == 0 || _RBX->animParent.syncGroup[0] != 4) && !(_RBX->animToModel ? _R14->animParent.syncGroup[0] == 4 : !XAnimInfoHasSyncGroups(_RBX)) )
-        {
-          __asm { vmovss  xmm0, [rbp+80h+parentAccumTime] }
           *(_QWORD *)frequenciesa = 0i64;
-          v90 = 0i64;
-          __asm
+          v53 = 0i64;
+          XAnimGetSyncGroupData_r(tree, children, syncGroupCalcData, frequenciesa, weight * accumWeight, parentAccumTime * AnimInfo->state.rate, v20);
+          if ( frequenciesa[0] != 0.0 )
           {
-            vmulss  xmm0, xmm0, dword ptr [r14+40h]
-            vmulss  xmm1, xmm6, xmm8
-            vmovss  [rsp+180h+var_158], xmm0
-            vmovss  dword ptr [rsp+180h+fmt], xmm1
+            v33 = (float)(frequenciesa[0] * weight) * v30->state.rate;
+            *(float *)&v48 = weight + *(float *)&v48;
+            v34 = v26;
+            *(float *)&v34 = *(float *)&v26 + v33;
+            v26 = v34;
           }
-          XAnimGetSyncGroupData_r(tree, children, syncGroupCalcData, frequenciesa, fmt, v81, v25);
-          __asm
+          if ( frequenciesa[1] != 0.0 )
           {
-            vmovss  xmm0, [rbp+80h+frequencies]
-            vucomiss xmm0, xmm7
+            v35 = v25;
+            *(float *)&v35 = *(float *)&v25 + (float)((float)(frequenciesa[1] * weight) * v30->state.rate);
+            v25 = v35;
+            v36 = v29;
+            *(float *)&v36 = *(float *)&v29 + weight;
+            v29 = v36;
           }
-          if ( !v46 )
+          if ( *(float *)&v53 != 0.0 )
           {
-            __asm
-            {
-              vmulss  xmm0, xmm0, xmm6
-              vmulss  xmm1, xmm0, dword ptr [rbx+40h]
-              vaddss  xmm0, xmm6, dword ptr [rsp+180h+var_118]
-              vmovss  dword ptr [rsp+180h+var_118], xmm0
-              vaddss  xmm12, xmm12, xmm1
-            }
+            v37 = v24;
+            *(float *)&v37 = *(float *)&v24 + (float)((float)(*(float *)&v53 * weight) * v30->state.rate);
+            v24 = v37;
+            v38 = v28;
+            *(float *)&v38 = *(float *)&v28 + weight;
+            v28 = v38;
           }
-          __asm
+          if ( *((float *)&v53 + 1) != 0.0 )
           {
-            vmovss  xmm0, [rbp+80h+frequencies+4]
-            vucomiss xmm0, xmm7
-          }
-          if ( !v46 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm0, xmm6
-              vmulss  xmm1, xmm0, dword ptr [rbx+40h]
-              vaddss  xmm11, xmm11, xmm1
-              vaddss  xmm15, xmm15, xmm6
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+80h+var_F0]
-            vucomiss xmm0, xmm7
-          }
-          if ( !v46 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm0, xmm6
-              vmulss  xmm1, xmm0, dword ptr [rbx+40h]
-              vaddss  xmm10, xmm10, xmm1
-              vaddss  xmm14, xmm14, xmm6
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+80h+var_F0+4]
-            vucomiss xmm0, xmm7
-          }
-          if ( !v46 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm0, xmm6
-              vmulss  xmm1, xmm0, dword ptr [rbx+40h]
-              vaddss  xmm9, xmm9, xmm1
-              vaddss  xmm13, xmm13, xmm6
-            }
+            v39 = v23;
+            *(float *)&v39 = *(float *)&v23 + (float)((float)(*((float *)&v53 + 1) * weight) * v30->state.rate);
+            v23 = v39;
+            v40 = v27;
+            *(float *)&v40 = *(float *)&v27 + weight;
+            v27 = v40;
           }
         }
-        children = _RBX->next;
+        children = v30->next;
       }
       while ( children );
-      _R12 = frequencies;
-      __asm
-      {
-        vmovss  dword ptr [rbp+80h+var_100+4], xmm9
-        vmovaps xmm9, [rsp+180h+var_80]
-        vmovss  dword ptr [rbp+80h+var_100], xmm10
-        vmovaps xmm10, [rsp+180h+var_90]
-        vmovss  dword ptr [rsp+180h+var_108+4], xmm11
-        vmovaps xmm11, [rsp+180h+var_A0]
-        vmovss  dword ptr [rsp+180h+var_108], xmm12
-        vmovaps xmm12, [rsp+180h+var_B0]
-        vmovss  dword ptr [rsp+180h+var_110+4], xmm13
-        vmovaps xmm13, [rsp+180h+var_C0]
-        vmovss  dword ptr [rsp+180h+var_110], xmm14
-        vmovaps xmm14, [rsp+180h+var_D0]
-        vmovss  dword ptr [rsp+180h+var_118+4], xmm15
-        vmovaps xmm15, [rsp+180h+var_E0]
-      }
+      v14 = frequencies;
+      *((float *)&v51 + 1) = *(float *)&v23;
+      *(float *)&v51 = *(float *)&v24;
+      *((float *)&v50 + 1) = *(float *)&v25;
+      *(float *)&v50 = *(float *)&v26;
+      *((float *)&v49 + 1) = *(float *)&v27;
+      *(float *)&v49 = *(float *)&v28;
+      *((float *)&v48 + 1) = *(float *)&v29;
     }
-    v67 = (XAnimSyncGroupCalcData *)&syncGroupCalcData->syncGroupInfo[0].leadWeight == NULL;
-    _RBX = &syncGroupCalcData->syncGroupInfo[0].leadWeight;
-    v69 = 4i64;
+    p_leadWeight = &syncGroupCalcData->syncGroupInfo[0].leadWeight;
+    v42 = 4i64;
     do
     {
-      __asm
+      v43 = *(float *)((char *)&v48 + v22 * 4);
+      if ( v43 != 0.0 )
       {
-        vmovss  xmm1, dword ptr [rsp+rdi+180h+var_118]
-        vucomiss xmm1, xmm7
-      }
-      if ( !v67 )
-      {
-        __asm
+        v44 = *(float *)((char *)&v50 + v22 * 4) / v43;
+        if ( ((__int64)AnimInfo->parts & 4) != 0 )
         {
-          vmovss  xmm0, dword ptr [rsp+rdi+180h+var_108]
-          vdivss  xmm6, xmm0, xmm1
-        }
-        if ( ((__int64)_R14->parts & 4) != 0 )
-        {
-          v73 = _R14->animParent.syncGroup[0] <= 4u;
-          if ( _R14->animParent.syncGroup[0] == 4 )
+          if ( AnimInfo->animParent.syncGroup[0] == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2061, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup != XAnimSyncGroupID::NONE)", (const char *)&queryFormat, "info->animParent.syncGroup != XAnimSyncGroupID::NONE") )
+            __debugbreak();
+          if ( accumWeight > *p_leadWeight )
           {
-            v74 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2061, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup != XAnimSyncGroupID::NONE)", (const char *)&queryFormat, "info->animParent.syncGroup != XAnimSyncGroupID::NONE");
-            v73 = !v74;
-            if ( v74 )
-              __debugbreak();
-          }
-          __asm { vcomiss xmm8, dword ptr [rbx] }
-          if ( !v73 )
-          {
-            __asm
-            {
-              vmovss  xmm0, [rbp+80h+parentAccumTime]
-              vmovss  dword ptr [rbx+4], xmm0
-              vmovss  dword ptr [rbx], xmm8
-            }
-            *((_WORD *)_RBX - 2) = infoIndex;
-            *((_BYTE *)_RBX + 8) = v25;
+            p_leadWeight[1] = parentAccumTime;
+            *p_leadWeight = accumWeight;
+            *((_WORD *)p_leadWeight - 2) = infoIndex;
+            *((_BYTE *)p_leadWeight + 8) = v20;
           }
         }
-        __asm { vmovss  dword ptr [rdi+r12], xmm6 }
+        v14[v22] = v44;
       }
-      _RBX += 5;
-      _RDI += 4i64;
-      v67 = --v69 == 0;
+      p_leadWeight += 5;
+      ++v22;
+      --v42;
     }
-    while ( v69 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+180h+var_70]
-      vmovaps xmm7, [rsp+180h+var_60]
-      vmovaps xmm6, [rsp+180h+var_50]
-    }
+    while ( v42 );
   }
 }
 
@@ -10766,15 +9214,9 @@ float XAnimGetTime(const XAnimTree *tree, unsigned int graftAnimIndex, const XAn
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.currentAnimTime;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -10833,15 +9275,9 @@ float XAnimGetWeight(const XAnimTree *tree, unsigned int graftAnimIndex, const X
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    _RAX = XAnimGetAnimInfo(InfoIndex);
-    __asm { vmovss  xmm0, dword ptr [rax+3Ch] }
-  }
+    return XAnimGetAnimInfo(InfoIndex)->state.weight;
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -10852,9 +9288,10 @@ XAnimHasFinished
 bool XAnimHasFinished(const XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex)
 {
   unsigned __int16 InfoIndex; 
-  char v10; 
-  char v11; 
-  __int16 v16; 
+  XAnimInfo *NonRootAnimInfo; 
+  float currentAnimTime; 
+  float oldTime; 
+  __int16 v12; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5659, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
@@ -10863,35 +9300,22 @@ bool XAnimHasFinished(const XAnimTree *tree, unsigned int graftAnimIndex, const 
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( !InfoIndex )
     return 1;
-  _RAX = GetNonRootAnimInfo(InfoIndex);
-  __asm
+  NonRootAnimInfo = GetNonRootAnimInfo(InfoIndex);
+  currentAnimTime = NonRootAnimInfo->state.currentAnimTime;
+  oldTime = NonRootAnimInfo->state.oldTime;
+  if ( NonRootAnimInfo->state.rate < 0.0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vcomiss xmm2, dword ptr [rax+40h]
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  xmm1, dword ptr [rax+2Ch]
-  }
-  if ( v10 | v11 )
-  {
-    __asm { vcomiss xmm0, xmm1 }
-    if ( v10 )
+    if ( currentAnimTime > oldTime || currentAnimTime == 0.0 )
       return 1;
-    __asm { vucomiss xmm0, cs:__real@3f800000 }
-    if ( v11 )
-      return 1;
-    v16 = _RAX->state.cycleCount - _RAX->state.oldCycleCount;
+    v12 = NonRootAnimInfo->state.oldCycleCount - NonRootAnimInfo->state.cycleCount;
   }
   else
   {
-    __asm { vcomiss xmm0, xmm1 }
-    if ( !(v10 | v11) )
+    if ( currentAnimTime < oldTime || currentAnimTime == 1.0 )
       return 1;
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v11 )
-      return 1;
-    v16 = _RAX->state.oldCycleCount - _RAX->state.cycleCount;
+    v12 = NonRootAnimInfo->state.cycleCount - NonRootAnimInfo->state.oldCycleCount;
   }
-  return v16 > 0;
+  return v12 > 0;
 }
 
 /*
@@ -11160,50 +9584,23 @@ LABEL_54:
 XAnimInitTime
 ==============
 */
-
-__int64 __fastcall XAnimInitTime(XAnimTree *tree, unsigned __int16 infoIndex, double goalTime)
+__int64 XAnimInitTime(XAnimTree *tree, unsigned __int16 infoIndex, float goalTime)
 {
-  char v10; 
-  unsigned __int16 oldCycleCount; 
+  XAnimInfo *NonRootAnimInfo; 
   unsigned __int16 inited; 
-  __int64 result; 
 
-  __asm
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( (NonRootAnimInfo->state.currentAnimTime != 0.0 || NonRootAnimInfo->state.cycleCount) && NonRootAnimInfo->state.cycleCount == NonRootAnimInfo->state.oldCycleCount )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RAX = GetNonRootAnimInfo(infoIndex);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+28h]
-  }
-  if ( !v10 || _RAX->state.cycleCount )
-  {
-    oldCycleCount = _RAX->state.oldCycleCount;
-    if ( _RAX->state.cycleCount == oldCycleCount )
+    if ( goalTime != 0.0 && NonRootAnimInfo->state.weight != 0.0 )
     {
-      __asm { vucomiss xmm6, xmm0 }
-      if ( _RAX->state.cycleCount != oldCycleCount )
-      {
-        __asm { vucomiss xmm0, dword ptr [rax+3Ch] }
-        if ( _RAX->state.cycleCount != oldCycleCount )
-        {
-          __asm { vmovaps xmm2, xmm6; blendTime }
-          inited = XAnimCloneInitTime(tree, infoIndex, _RAX->parent);
-          XAnimClearTreeGoalWeightsNode(tree, infoIndex, *(float *)&_XMM2, 1, LINEAR);
-          result = inited;
-          __asm { vmovaps xmm6, [rsp+48h+var_18] }
-          return result;
-        }
-      }
-      XAnimResetTime(infoIndex);
+      inited = XAnimCloneInitTime(tree, infoIndex, NonRootAnimInfo->parent);
+      XAnimClearTreeGoalWeightsNode(tree, infoIndex, goalTime, 1, LINEAR);
+      return inited;
     }
+    XAnimResetTime(infoIndex);
   }
-  result = infoIndex;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return infoIndex;
 }
 
 /*
@@ -11211,77 +9608,49 @@ __int64 __fastcall XAnimInitTime(XAnimTree *tree, unsigned __int16 infoIndex, do
 XAnimInitTimeFullRestart
 ==============
 */
-
-__int64 __fastcall XAnimInitTimeFullRestart(XAnimTree *tree, unsigned __int16 infoIndex, double goalTime)
+__int64 XAnimInitTimeFullRestart(XAnimTree *tree, unsigned __int16 infoIndex, float goalTime)
 {
-  bool v9; 
-  bool v10; 
-  unsigned __int16 inited; 
-  XAnimInfo *v14; 
-  __int64 result; 
   XAnimInfo *NonRootAnimInfo; 
+  unsigned __int16 inited; 
+  XAnimInfo *v7; 
+  XAnimInfo *v9; 
   unsigned __int16 i; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps [rsp+68h+var_38], xmm7
-    vmovaps xmm7, xmm2
-  }
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 611, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 611, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  if ( (_RBX->animToModel || (_RBX->animParent.flags & 0x1000) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3839, ASSERT_TYPE_ASSERT, "(IsInfoInstantFullRestart( info ))", (const char *)&queryFormat, "IsInfoInstantFullRestart( info )") )
+  if ( (NonRootAnimInfo->animToModel || (NonRootAnimInfo->animParent.flags & 0x1000) == 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3839, ASSERT_TYPE_ASSERT, "(IsInfoInstantFullRestart( info ))", (const char *)&queryFormat, "IsInfoInstantFullRestart( info )") )
     __debugbreak();
-  v9 = _RBX->animToModel == NULL;
-  if ( _RBX->animToModel )
+  if ( NonRootAnimInfo->animToModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3840, ASSERT_TYPE_ASSERT, "(!IsLeafInfo( info ))", (const char *)&queryFormat, "!IsLeafInfo( info )") )
+    __debugbreak();
+  if ( NonRootAnimInfo->state.weight == 0.0 )
   {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3840, ASSERT_TYPE_ASSERT, "(!IsLeafInfo( info ))", (const char *)&queryFormat, "!IsLeafInfo( info )");
-    v9 = !v10;
-    if ( v10 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rbx+3Ch]
-  }
-  if ( v9 )
-  {
-    NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
-    *(_QWORD *)&NonRootAnimInfo->state.currentAnimTime = 0i64;
-    *(_DWORD *)&NonRootAnimInfo->state.cycleCount = 0;
-    NonRootAnimInfo->notifyIndex = -1;
+    v9 = GetNonRootAnimInfo(infoIndex);
+    *(_QWORD *)&v9->state.currentAnimTime = 0i64;
+    *(_DWORD *)&v9->state.cycleCount = 0;
+    v9->notifyIndex = -1;
     for ( i = XAnimGetAnimInfo(infoIndex)->children; i; i = XAnimGetAnimInfo(i)->next )
       XAnimResetTime(i);
-    result = infoIndex;
+    return infoIndex;
   }
   else
   {
-    __asm { vmovaps xmm2, xmm7; blendTime }
-    inited = XAnimCloneInitTime(tree, infoIndex, _RBX->parent);
-    XAnimClearTreeGoalWeightsNode(tree, infoIndex, *(float *)&_XMM2, 1, LINEAR);
-    __asm { vucomiss xmm7, xmm6 }
-    if ( v9 )
+    inited = XAnimCloneInitTime(tree, infoIndex, NonRootAnimInfo->parent);
+    XAnimClearTreeGoalWeightsNode(tree, infoIndex, goalTime, 1, LINEAR);
+    if ( goalTime == 0.0 )
     {
-      v14 = GetNonRootAnimInfo(inited);
-      if ( !v14 )
+      v7 = GetNonRootAnimInfo(inited);
+      if ( !v7 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3850, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
           __debugbreak();
       }
-      v14->state.flags |= 4u;
+      v7->state.flags |= 4u;
     }
-    result = inited;
+    return inited;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
-  return result;
 }
 
 /*
@@ -11363,74 +9732,59 @@ XAnimIsPlayingNonAdditiveAnimHavingBoneInternal
 */
 __int64 XAnimIsPlayingNonAdditiveAnimHavingBoneInternal(unsigned __int16 infoIndex, scr_string_t boneName, int printBoneNames)
 {
-  bool v7; 
-  bool v8; 
-  XAnimParts *parts; 
-  unsigned int v11; 
-  scr_string_t *names; 
-  unsigned int v13; 
-  unsigned int i; 
-  const char *v15; 
-  unsigned __int16 children; 
   XAnimInfo *AnimInfo; 
+  XAnimParts *parts; 
+  unsigned int v7; 
+  scr_string_t *names; 
+  unsigned int v9; 
+  unsigned int i; 
+  const char *v11; 
+  unsigned __int16 children; 
+  XAnimInfo *v14; 
   unsigned __int16 next; 
 
-  _RBX = XAnimGetAnimInfo(infoIndex);
-  v7 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8184, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+3Ch]
-  }
-  if ( v7 )
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8184, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+    __debugbreak();
+  if ( AnimInfo->state.weight == 0.0 || AnimInfo->state.goalWeight == 0.0 || IsInfoAdditive(AnimInfo) )
     return 0i64;
-  __asm { vucomiss xmm0, dword ptr [rbx+38h] }
-  if ( IsInfoAdditive(_RBX) )
-    return 0i64;
-  if ( _RBX->animToModel )
+  if ( AnimInfo->animToModel )
   {
-    parts = _RBX->parts;
+    parts = AnimInfo->parts;
     if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8204, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
       __debugbreak();
-    v11 = parts->boneCount[9];
+    v7 = parts->boneCount[9];
     names = parts->names;
     if ( printBoneNames )
       Com_Printf(19, "Printing bone names for anim: %s\n", parts->name);
-    v13 = 0;
-    for ( i = 0; i < v11; ++names )
+    v9 = 0;
+    for ( i = 0; i < v7; ++names )
     {
       if ( *names == boneName )
       {
         if ( !printBoneNames )
           return 1i64;
         Com_Printf(19, "Found bone at index %d\n", i);
-        v13 = 1;
+        v9 = 1;
       }
       if ( printBoneNames )
       {
-        v15 = SL_ConvertToString(*names);
-        Com_Printf(19, "Bone %d: %s\n", i, v15);
+        v11 = SL_ConvertToString(*names);
+        Com_Printf(19, "Bone %d: %s\n", i, v11);
       }
       ++i;
     }
-    return v13;
+    return v9;
   }
-  children = _RBX->children;
+  children = AnimInfo->children;
   if ( !children )
     return 0i64;
   while ( 1 )
   {
-    AnimInfo = XAnimGetAnimInfo(children);
-    if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8236, ASSERT_TYPE_ASSERT, "(nextInfo)", (const char *)&queryFormat, "nextInfo") )
+    v14 = XAnimGetAnimInfo(children);
+    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8236, ASSERT_TYPE_ASSERT, "(nextInfo)", (const char *)&queryFormat, "nextInfo") )
       __debugbreak();
-    next = AnimInfo->next;
+    next = v14->next;
     if ( XAnimIsPlayingNonAdditiveAnimHavingBoneInternal(children, boneName, printBoneNames) )
       break;
     children = next;
@@ -11507,16 +9861,10 @@ XAnimMarkDebugVisualShow
 */
 void XAnimMarkDebugVisualShow(const XAnimTree *tree, const XAnim_s *anims, unsigned __int16 infoIndex, unsigned __int64 nodeIndexShowMask)
 {
-  float v5; 
   int nodeIndexPtr[6]; 
 
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+58h+var_30], xmm0
-  }
   nodeIndexPtr[0] = 0;
-  XAnimMarkDebugVisualShow_r(tree, anims, infoIndex, nodeIndexPtr, nodeIndexShowMask, v5, 0);
+  XAnimMarkDebugVisualShow_r(tree, anims, infoIndex, nodeIndexPtr, nodeIndexShowMask, 1.0, 0);
 }
 
 /*
@@ -11526,110 +9874,82 @@ XAnimMarkDebugVisualShow_r
 */
 void XAnimMarkDebugVisualShow_r(const XAnimTree *tree, const XAnim_s *anims, unsigned __int16 infoIndex, int *nodeIndexPtr, unsigned __int64 nodeIndexShowMask, float globalWeight, bool showSubTree)
 {
-  int *v11; 
-  const XAnimTree *v14; 
-  unsigned __int64 v15; 
-  bool v17; 
-  bool v18; 
-  unsigned __int64 v20; 
-  unsigned __int64 v21; 
+  int *v7; 
+  const XAnimTree *v10; 
+  unsigned __int64 v11; 
+  XAnimInfo *NonRootAnimInfo; 
+  unsigned __int64 v13; 
   XAnimToXModel *animToModel; 
+  bool v16; 
   bool IsCustomNode; 
+  __int128 v21; 
   bool ShouldNormalizeChildren; 
   unsigned __int16 children; 
   XAnimInfo *AnimInfo; 
+  __int128 v25; 
   unsigned __int16 i; 
+  XAnimInfo *v27; 
   const XAnim_s *SubTreeAnims; 
-  __int64 v44; 
-  float v45; 
-  int v46; 
-  char v48; 
-  void *retaddr; 
+  float weight; 
+  __int64 v30; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v11 = nodeIndexPtr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RSI = anims;
-  v14 = tree;
+  v7 = nodeIndexPtr;
+  v10 = tree;
   if ( !nodeIndexPtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4898, ASSERT_TYPE_ASSERT, "(nodeIndexPtr)", (const char *)&queryFormat, "nodeIndexPtr") )
     __debugbreak();
-  v15 = (unsigned int)*v11;
-  *v11 = v15 + 1;
-  if ( (unsigned int)v15 >= 0x40 )
+  v11 = (unsigned int)*v7;
+  *v7 = v11 + 1;
+  if ( (unsigned int)v11 >= 0x40 )
   {
-    LODWORD(v44) = v15;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4900, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( 64 )", "nodeIndex doesn't index MAX_ANIM_DEBUG_VISUAL_NODES\n\t%i not in [0, %i)", v44, 64) )
+    LODWORD(v30) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4900, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( 64 )", "nodeIndex doesn't index MAX_ANIM_DEBUG_VISUAL_NODES\n\t%i not in [0, %i)", v30, 64) )
       __debugbreak();
   }
-  _RDI = GetNonRootAnimInfo(infoIndex);
-  v17 = _RDI == NULL;
-  if ( !_RDI )
-  {
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4903, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info");
-    v17 = !v18;
-    if ( v18 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm7, dword ptr [rdi+3Ch]
-  }
-  if ( v17 )
-    _RDI->state.weight = 1.0;
-  v20 = nodeIndexShowMask;
-  v21 = v15;
-  animToModel = _RDI->animToModel;
-  _EBX = 0;
-  __asm { vmovss  xmm8, [rsp+0C8h+globalWeight] }
-  if ( _bittest64((const __int64 *)&v20, v21) )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4903, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+    __debugbreak();
+  if ( NonRootAnimInfo->state.weight == 0.0 )
+    NonRootAnimInfo->state.weight = 1.0;
+  v13 = nodeIndexShowMask;
+  animToModel = NonRootAnimInfo->animToModel;
+  _XMM8 = LODWORD(globalWeight);
+  if ( _bittest64((const __int64 *)&v13, v11) )
   {
     if ( animToModel )
     {
-      LOBYTE(_RSI) = showSubTree;
-      _RDI->state.weight = 1.0;
+      v16 = showSubTree;
+      NonRootAnimInfo->state.weight = 1.0;
     }
     else
     {
-      IsCustomNode = XAnimIsCustomNode(_RSI, _RDI);
-      LOBYTE(_RSI) = 1;
+      IsCustomNode = XAnimIsCustomNode(anims, NonRootAnimInfo);
+      v16 = 1;
       if ( IsCustomNode )
-        _RDI->state.weight = 1.0;
+        NonRootAnimInfo->state.weight = 1.0;
     }
   }
-  else if ( animToModel || XAnimIsCustomNode(_RSI, _RDI) )
+  else if ( animToModel || XAnimIsCustomNode(anims, NonRootAnimInfo) )
   {
-    LODWORD(_RSI) = showSubTree;
+    v16 = showSubTree;
+    _XMM0 = showSubTree;
     __asm
     {
-      vmovd   xmm0, esi
-      vmovd   xmm1, ebx
       vpcmpeqd xmm1, xmm0, xmm1
       vblendvps xmm0, xmm8, xmm7, xmm1
-      vmovss  dword ptr [rdi+3Ch], xmm0
     }
+    NonRootAnimInfo->state.weight = *(float *)&_XMM0;
   }
   else
   {
-    LOBYTE(_RSI) = showSubTree;
+    v16 = showSubTree;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vmovss  [rsp+0C8h+var_74], xmm0
-  }
-  if ( (v46 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4943, ASSERT_TYPE_ASSERT, "(!IS_NAN( state->weight ))", (const char *)&queryFormat, "!IS_NAN( state->weight )") )
+  if ( (LODWORD(NonRootAnimInfo->state.weight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4943, ASSERT_TYPE_ASSERT, "(!IS_NAN( state->weight ))", (const char *)&queryFormat, "!IS_NAN( state->weight )") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  ShouldNormalizeChildren = XAnim_ShouldNormalizeChildren(_RDI);
+  v21 = 0i64;
+  ShouldNormalizeChildren = XAnim_ShouldNormalizeChildren(NonRootAnimInfo);
   if ( ShouldNormalizeChildren )
   {
-    children = _RDI->children;
+    children = NonRootAnimInfo->children;
     if ( children )
     {
       do
@@ -11642,42 +9962,33 @@ void XAnimMarkDebugVisualShow_r(const XAnimTree *tree, const XAnim_s *anims, uns
         if ( (AnimInfo->animParent.flags & 0x210) != 0 )
           break;
         if ( (AnimInfo->animParent.flags & 0x100) == 0 )
+        {
 LABEL_32:
-          __asm { vaddss  xmm6, xmm6, dword ptr [rbx+3Ch] }
+          v25 = v21;
+          *(float *)&v25 = *(float *)&v21 + AnimInfo->state.weight;
+          v21 = v25;
+        }
         children = AnimInfo->next;
       }
       while ( children );
-      v11 = nodeIndexPtr;
-      v14 = tree;
-      v20 = nodeIndexShowMask;
+      v7 = nodeIndexPtr;
+      v10 = tree;
+      v13 = nodeIndexShowMask;
     }
   }
-  for ( i = _RDI->children; i; i = _RBX->next )
+  for ( i = NonRootAnimInfo->children; i; i = v27->next )
   {
-    _RBX = XAnimGetAnimInfo(i);
-    SubTreeAnims = XAnimGetSubTreeAnims(v14, (const XAnimSubTreeID)_RBX->subTreeID);
-    __asm { vmovss  xmm0, dword ptr [rbx+3Ch] }
-    if ( (_RBX->animToModel || (_RBX->animParent.flags & 0x210) == 0 && (_RBX->animParent.flags & 0x100) == 0) && ShouldNormalizeChildren )
+    v27 = XAnimGetAnimInfo(i);
+    SubTreeAnims = XAnimGetSubTreeAnims(v10, (const XAnimSubTreeID)v27->subTreeID);
+    weight = v27->state.weight;
+    if ( (v27->animToModel || (v27->animParent.flags & 0x210) == 0 && (v27->animParent.flags & 0x100) == 0) && ShouldNormalizeChildren )
     {
-      __asm
-      {
-        vcomiss xmm6, xmm7
-        vdivss  xmm0, xmm0, xmm6
-      }
+      if ( *(float *)&v21 <= 0.0 )
+        weight = 0.0;
+      else
+        weight = weight / *(float *)&v21;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm8
-      vmovss  [rsp+0C8h+var_A0], xmm0
-    }
-    XAnimMarkDebugVisualShow_r(v14, SubTreeAnims, i, v11, v20, v45, (bool)_RSI);
-  }
-  __asm { vmovaps xmm7, [rsp+0C8h+var_58] }
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    XAnimMarkDebugVisualShow_r(v10, SubTreeAnims, i, v7, v13, weight * globalWeight, v16);
   }
 }
 
@@ -11776,16 +10087,11 @@ XAnimNotetrackExists
 bool XAnimNotetrackExists(const XAnim_s *anims, unsigned int animIndex, scr_string_t name)
 {
   const XAnimParts *Parts; 
-  char v8; 
+  double NotetrackTimeFromParts; 
 
   Parts = XAnimGetParts(anims, animIndex);
-  *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, name);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  return !v8;
+  NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(Parts, name);
+  return *(float *)&NotetrackTimeFromParts >= 0.0;
 }
 
 /*
@@ -11812,7 +10118,7 @@ bool XAnimNotetrackExistsInTree_r(const XAnimTree *tree, unsigned __int16 infoIn
   XAnimInfo *AnimInfo; 
   const XAnim_s *SubTreeAnims; 
   const XAnimParts *Parts; 
-  char v11; 
+  double NotetrackTimeFromParts; 
   unsigned __int16 children; 
   XAnimInfo *NonRootAnimInfo; 
 
@@ -11823,13 +10129,8 @@ bool XAnimNotetrackExistsInTree_r(const XAnimTree *tree, unsigned __int16 infoIn
   if ( AnimInfo->animToModel )
   {
     Parts = XAnimGetParts(SubTreeAnims, AnimInfo->animIndex);
-    *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(Parts, name);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    return !v11;
+    NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(Parts, name);
+    return *(float *)&NotetrackTimeFromParts >= 0.0;
   }
   children = AnimInfo->children;
   if ( !children )
@@ -11869,41 +10170,17 @@ __int64 XAnimParameterBindingCompareFunc(const void *e0, const void *e1)
 XAnimPlaySimpleBlendTreeAnim
 ==============
 */
-
-void __fastcall XAnimPlaySimpleBlendTreeAnim(const DObj *obj, double oldAnimTime, double oldPlaybackRate, double newAnimTime, float newPlaybackRate, float blendTime, scr_string_t notifyName, unsigned int notifyType)
+void XAnimPlaySimpleBlendTreeAnim(const DObj *obj, float oldAnimTime, float oldPlaybackRate, float newAnimTime, float newPlaybackRate, float blendTime, scr_string_t notifyName, unsigned int notifyType)
 {
   XAnimTree *tree; 
-  XAnimTree *v23; 
+  XAnimTree *v12; 
   unsigned __int16 children; 
   unsigned __int16 InfoIndex_r; 
-  char v29; 
-  char v30; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float v57; 
-  float v58; 
-  char v60; 
-  void *retaddr; 
-  float newPlaybackRatea; 
+  double Length; 
+  __int128 v17; 
+  double v20; 
+  __int128 v21; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0E8h+var_88], xmm11
-    vmovaps xmm11, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm10, xmm1
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1147, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   tree = obj->tree;
@@ -11919,128 +10196,70 @@ void __fastcall XAnimPlaySimpleBlendTreeAnim(const DObj *obj, double oldAnimTime
     __debugbreak();
   if ( !*(_QWORD *)&tree->anims[1].numGameParameters && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1156, ASSERT_TYPE_ASSERT, "(tree->anims->entries[2].parts)", (const char *)&queryFormat, "tree->anims->entries[2].parts") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm10, xmm6
-    vcomiss xmm11, xmm6
-    vmovss  xmm7, [rsp+0E8h+blendTime]
-    vcomiss xmm7, xmm6
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  [rsp+0E8h+var_B8], xmm8
-    vmovss  [rsp+0E8h+goalTime], xmm6
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm9
-  }
-  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 1u, fmt, goalTime, v57, notifyName, notifyType, 0, LINEAR, NULL);
+  _XMM6 = 0i64;
+  if ( oldAnimTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1157, ASSERT_TYPE_ASSERT, "( ( (oldAnimTime >= 0.0f) ) )", "( oldAnimTime ) = %g", oldAnimTime) )
+    __debugbreak();
+  if ( newAnimTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1158, ASSERT_TYPE_ASSERT, "( ( (newAnimTime >= 0.0f) ) )", "( newAnimTime ) = %g", newAnimTime) )
+    __debugbreak();
+  if ( blendTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1159, ASSERT_TYPE_ASSERT, "( ( (blendTime >= 0.0f) ) )", "( blendTime ) = %g", blendTime) )
+    __debugbreak();
+  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 1u, 1.0, 0.0, oldPlaybackRate, notifyName, notifyType, 0, LINEAR, NULL);
   Profile_Begin(456);
-  v23 = obj->tree;
+  v12 = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8386, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  XAnimAssertGraftAnimIndex(v23, 0, XANIM_SUBTREE_DEFAULT, 1u);
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5456, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+  XAnimAssertGraftAnimIndex(v12, 0, XANIM_SUBTREE_DEFAULT, 1u);
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5456, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  children = v23->children;
+  children = v12->children;
   if ( children )
   {
     InfoIndex_r = XAnimGetInfoIndex_r(XANIM_SUBTREE_DEFAULT, 1u, children);
     if ( InfoIndex_r )
-    {
-      __asm
-      {
-        vmovss  [rsp+0E8h+goalTime], xmm8
-        vxorps  xmm3, xmm3, xmm3; goalWeight
-        vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-      }
-      XAnimSetGoalWeightNode(obj, v23, InfoIndex_r, *(float *)&_XMM3, fmta, goalTimea, (scr_string_t)0, 0, LINEAR, NULL);
-    }
+      XAnimSetGoalWeightNode(obj, v12, InfoIndex_r, 0.0, blendTime, oldPlaybackRate, (scr_string_t)0, 0, LINEAR, NULL);
   }
   Profile_EndInternal(NULL);
-  __asm
+  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 2u, 1.0, blendTime, newPlaybackRate, notifyName, notifyType, 1, LINEAR, NULL);
+  Length = XAnimGetLength(tree->anims, 1u);
+  if ( *(float *)&Length > 0.0 )
   {
-    vmovss  xmm0, [rsp+0E8h+newPlaybackRate]
-    vmovss  [rsp+0E8h+var_B8], xmm0
-    vmovss  [rsp+0E8h+goalTime], xmm7
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm9
-  }
-  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 2u, fmtb, goalTimeb, v58, notifyName, notifyType, 1, LINEAR, NULL);
-  *(double *)&_XMM0 = XAnimGetLength(tree->anims, 1u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( v29 | v30 )
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+    v17 = LODWORD(FLOAT_1_0);
+    *(float *)&v17 = 1.0 / *(float *)&Length;
+    if ( XAnimIsLooped(tree->anims, 1u) )
+    {
+      *(float *)&_XMM1 = fmodf_0(oldAnimTime, *(float *)&Length) * *(float *)&v17;
+    }
+    else
+    {
+      __asm { vcmpless xmm1, xmm6, xmm0 }
+      *(float *)&v17 = *(float *)&v17 * oldAnimTime;
+      _XMM2 = v17;
+      __asm { vblendvps xmm1, xmm2, xmm9, xmm1 }
+    }
   }
   else
   {
-    __asm { vdivss  xmm8, xmm9, xmm7 }
-    if ( XAnimIsLooped(tree->anims, 1u) )
-    {
-      __asm
-      {
-        vmovaps xmm1, xmm7; Y
-        vmovaps xmm0, xmm10; X
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm1, xmm0, xmm8 }
-    }
-    else
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm10, xmm7
-        vcmpless xmm1, xmm6, xmm0
-        vmulss  xmm2, xmm8, xmm10
-        vblendvps xmm1, xmm2, xmm9, xmm1
-      }
-    }
+    LODWORD(_XMM1) = 0;
   }
-  __asm { vmovss  dword ptr [rsp+0E8h+fmt], xmm1 }
-  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 1u, fmtc);
-  *(double *)&_XMM0 = XAnimGetLength(tree->anims, 2u);
-  __asm
+  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 1u, *(float *)&_XMM1);
+  v20 = XAnimGetLength(tree->anims, 2u);
+  if ( *(float *)&v20 > 0.0 )
   {
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( !(v29 | v30) )
-  {
-    __asm { vdivss  xmm8, xmm9, xmm0 }
+    v21 = LODWORD(FLOAT_1_0);
+    *(float *)&v21 = 1.0 / *(float *)&v20;
     if ( XAnimIsLooped(tree->anims, 2u) )
     {
-      __asm
-      {
-        vmovaps xmm1, xmm7; Y
-        vmovaps xmm0, xmm11; X
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm6, xmm0, xmm8 }
+      *(float *)&_XMM6 = fmodf_0(newAnimTime, *(float *)&v20) * *(float *)&v21;
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm0, xmm11, xmm7
-        vcmpless xmm1, xmm6, xmm0
-        vmulss  xmm2, xmm8, xmm11
-        vblendvps xmm6, xmm2, xmm9, xmm1
-      }
+      __asm { vcmpless xmm1, xmm6, xmm0 }
+      *(float *)&v21 = *(float *)&v21 * newAnimTime;
+      _XMM2 = v21;
+      __asm { vblendvps xmm6, xmm2, xmm9, xmm1 }
     }
   }
-  __asm { vmovss  [rsp+0E8h+newPlaybackRate], xmm6 }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 2u, newPlaybackRatea);
+  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 2u, *(float *)&_XMM6);
 }
 
 /*
@@ -12048,30 +10267,12 @@ void __fastcall XAnimPlaySimpleBlendTreeAnim(const DObj *obj, double oldAnimTime
 XAnimPlaySimpleTreeAnim
 ==============
 */
-
-void __fastcall XAnimPlaySimpleTreeAnim(const DObj *obj, double animTime, double playbackRate, scr_string_t notifyName, unsigned int notifyType)
+void XAnimPlaySimpleTreeAnim(const DObj *obj, float animTime, float playbackRate, scr_string_t notifyName, unsigned int notifyType)
 {
   XAnimTree *tree; 
-  char v20; 
-  char v21; 
-  const XAnim_s *anims; 
-  float fmt; 
-  float goalTime; 
-  float v37; 
-  char v39; 
-  void *retaddr; 
-  float notifyTypea; 
+  double Length; 
+  __int128 v11; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1029, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   tree = obj->tree;
@@ -12085,62 +10286,28 @@ void __fastcall XAnimPlaySimpleTreeAnim(const DObj *obj, double animTime, double
     __debugbreak();
   if ( !tree->anims[1].debugName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1037, ASSERT_TYPE_ASSERT, "(tree->anims->entries[1].parts)", (const char *)&queryFormat, "tree->anims->entries[1].parts") )
     __debugbreak();
-  __asm
+  _XMM6 = 0i64;
+  if ( animTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 1038, ASSERT_TYPE_ASSERT, "( ( !(animTime < 0.0f) ) )", "( animTime ) = %g", animTime) )
+    __debugbreak();
+  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 1u, 1.0, 1.0, playbackRate, notifyName, notifyType, 1, LINEAR, NULL);
+  Length = XAnimGetLength(tree->anims, 1u);
+  if ( *(float *)&Length > 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  [rsp+0B8h+var_88], xmm8
-    vmovss  [rsp+0B8h+goalTime], xmm10
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm10
-  }
-  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, 1u, fmt, goalTime, v37, notifyName, notifyType, 1, LINEAR, NULL);
-  *(double *)&_XMM0 = XAnimGetLength(tree->anims, 1u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm8, xmm0
-  }
-  if ( !(v20 | v21) )
-  {
-    anims = tree->anims;
-    __asm
+    v11 = LODWORD(FLOAT_1_0);
+    *(float *)&v11 = 1.0 / *(float *)&Length;
+    if ( XAnimIsLooped(tree->anims, 1u) )
     {
-      vmovaps [rsp+0B8h+var_48], xmm9
-      vdivss  xmm9, xmm10, xmm0
-    }
-    if ( XAnimIsLooped(anims, 1u) )
-    {
-      __asm
-      {
-        vmovaps xmm1, xmm8; Y
-        vmovaps xmm0, xmm7; X
-      }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm6, xmm0, xmm9 }
+      *(float *)&_XMM6 = fmodf_0(animTime, *(float *)&Length) * *(float *)&v11;
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm8
-        vcmpless xmm1, xmm6, xmm0
-        vmulss  xmm2, xmm9, xmm7
-        vblendvps xmm6, xmm2, xmm10, xmm1
-      }
+      __asm { vcmpless xmm1, xmm6, xmm0 }
+      *(float *)&v11 = *(float *)&v11 * animTime;
+      _XMM2 = v11;
+      __asm { vblendvps xmm6, xmm2, xmm10, xmm1 }
     }
-    __asm { vmovaps xmm9, [rsp+0B8h+var_48] }
   }
-  __asm { vmovss  [rsp+0B8h+notifyType], xmm6 }
-  _R11 = &v39;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 1u, notifyTypea);
+  XAnimSetTime(tree, 0, XANIM_SUBTREE_DEFAULT, 1u, *(float *)&_XMM6);
 }
 
 /*
@@ -12176,106 +10343,46 @@ _BOOL8 XAnimPopCheckFatalErrorFlag()
 XAnimProcessClientNotify
 ==============
 */
-
-void __fastcall XAnimProcessClientNotify(const DObj *obj, const XAnimInfo *info, double dtime, XAnimNotifyHandle *inOutNotifyHead)
+void XAnimProcessClientNotify(const DObj *obj, const XAnimInfo *info, float dtime, XAnimNotifyHandle *inOutNotifyHead)
 {
-  bool HasClientFlag; 
-  bool v12; 
-  bool v13; 
   unsigned __int16 notifyType; 
-  bool v16; 
-  unsigned __int16 cycleCount; 
-  bool v18; 
+  float oldTime; 
+  float currentAnimTime; 
+  float NotifyFracLeaf; 
   XAnimParts *PartsFromInfo; 
-  float fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
-  _RDI = info;
-  __asm { vmovaps xmm7, xmm2 }
-  HasClientFlag = DObjHasClientFlag(obj);
-  v12 = !HasClientFlag;
-  if ( !HasClientFlag )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2681, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm7, xmm6
-  }
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2685, ASSERT_TYPE_ASSERT, "(dtime)", (const char *)&queryFormat, "dtime") )
+  if ( !DObjHasClientFlag(obj) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2681, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
     __debugbreak();
-  notifyType = _RDI->notifyType;
-  if ( notifyType || obj->tree->clientNotifyEnabled )
+  if ( dtime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2685, ASSERT_TYPE_ASSERT, "(dtime)", (const char *)&queryFormat, "dtime") )
+    __debugbreak();
+  notifyType = info->notifyType;
+  if ( (notifyType || obj->tree->clientNotifyEnabled) && (!obj->tree->clientNotifyEnabled || info->state.oldCycleCount < info->state.cycleCount || dtime >= 0.0) )
   {
-    v16 = !obj->tree->clientNotifyEnabled;
-    if ( !obj->tree->clientNotifyEnabled )
-      goto LABEL_12;
-    cycleCount = _RDI->state.cycleCount;
-    v16 = _RDI->state.oldCycleCount == cycleCount;
-    if ( _RDI->state.oldCycleCount < cycleCount )
-      goto LABEL_12;
-    __asm { vcomiss xmm7, xmm6 }
-    if ( _RDI->state.oldCycleCount >= cycleCount )
+    if ( info->state.goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2701, ASSERT_TYPE_ASSERT, "(state->goalWeight)", (const char *)&queryFormat, "state->goalWeight") )
+      __debugbreak();
+    oldTime = info->state.oldTime;
+    if ( oldTime == 1.0 )
+      goto LABEL_19;
+    if ( info->animToModel )
     {
-LABEL_12:
-      __asm { vucomiss xmm6, dword ptr [rdi+38h] }
-      if ( v16 )
-      {
-        v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2701, ASSERT_TYPE_ASSERT, "(state->goalWeight)", (const char *)&queryFormat, "state->goalWeight");
-        v16 = !v18;
-        if ( v18 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+2Ch]
-        vmovss  xmm2, cs:__real@3f800000; noteTime
-        vucomiss xmm1, xmm2
-      }
-      if ( v16 )
-        goto LABEL_18;
-      if ( _RDI->animToModel )
-      {
-        if ( _RDI->notifyName )
-          PartsFromInfo = XAnimGetPartsFromInfo(obj->tree, _RDI);
-        else
-          PartsFromInfo = _RDI->parts;
-        if ( !PartsFromInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2726, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
-          __debugbreak();
-        __asm { vmovss  dword ptr [rsp+78h+fmt], xmm7 }
-        XAnimProcessNotify(PartsFromInfo, &_RDI->state, _RDI->notifyName, notifyType, fmt, NULL, (void (__fastcall *)(scr_string_t, scr_string_t, float, unsigned __int16, const XAnimParts *, void *, XAnimNotifyHandle *))XAnimAddClientNotify, inOutNotifyHead);
-      }
+      if ( info->notifyName )
+        PartsFromInfo = XAnimGetPartsFromInfo(obj->tree, info);
       else
+        PartsFromInfo = info->parts;
+      if ( !PartsFromInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2726, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+        __debugbreak();
+      XAnimProcessNotify(PartsFromInfo, &info->state, info->notifyName, notifyType, dtime, NULL, XAnimAddClientNotify, inOutNotifyHead);
+    }
+    else
+    {
+      currentAnimTime = info->state.currentAnimTime;
+      if ( currentAnimTime < oldTime || currentAnimTime == 1.0 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vcomiss xmm0, xmm1
-          vucomiss xmm0, xmm2
-        }
-        if ( !_RDI->animToModel )
-        {
-LABEL_18:
-          __asm { vmovaps xmm3, xmm7; dtime }
-          *(float *)&_XMM0 = XAnimGetNotifyFracLeaf(&_RDI->state, &_RDI->state, *(double *)&_XMM2, *(double *)&_XMM3);
-          __asm { vmovaps xmm2, xmm0; frac }
-          XAnimAddClientNotify(_RDI->notifyName, g_endNotetrackName, *(double *)&_XMM2, notifyType, NULL, NULL, inOutNotifyHead);
-        }
+LABEL_19:
+        NotifyFracLeaf = XAnimGetNotifyFracLeaf(&info->state, &info->state, 1.0, dtime);
+        XAnimAddClientNotify(info->notifyName, g_endNotetrackName, NotifyFracLeaf, notifyType, NULL, NULL, inOutNotifyHead);
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
   }
 }
 
@@ -12287,80 +10394,165 @@ XAnimProcessNotify
 void XAnimProcessNotify(const XAnimParts *parts, const XAnimState *state, scr_string_t notifyName, unsigned __int16 notifyType, float dtime, void *customData, void (*notifyFunc)(scr_string_t, scr_string_t, float, unsigned __int16, const XAnimParts *, void *, XAnimNotifyHandle *), XAnimNotifyHandle *inOutNotifyHead)
 {
   unsigned __int16 NextNotifyIndex; 
+  XAnimNotifyInfo *notify; 
+  signed __int8 flags; 
+  float *v14; 
   char v15; 
-  bool v20; 
+  bool v16; 
+  float v17; 
+  float currentAnimTime; 
+  float oldTime; 
+  unsigned __int16 v20; 
+  XAnimNotifyInfo *k; 
+  float v22; 
+  __int64 v23; 
+  float v24; 
+  __int64 v25; 
   __int64 v26; 
-  unsigned __int16 notifyCount; 
+  XAnimNotifyInfo *v27; 
+  __int16 v28; 
+  float j; 
+  __int64 v30; 
+  float v31; 
+  float *v32; 
+  __int64 v33; 
+  float v34; 
+  unsigned __int16 i; 
+  float time; 
+  __int64 v37; 
+  __int64 v38; 
 
-  _RBX = state;
   if ( !notifyFunc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2549, ASSERT_TYPE_ASSERT, "(notifyFunc)", (const char *)&queryFormat, "notifyFunc") )
     __debugbreak();
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2550, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  __asm { vmovss  xmm1, dword ptr [rbx+4]; time }
-  NextNotifyIndex = XAnimGetNextNotifyIndex(parts, *(double *)&_XMM1);
+  NextNotifyIndex = XAnimGetNextNotifyIndex(parts, state->oldTime);
   if ( NextNotifyIndex >= parts->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2553, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
     __debugbreak();
-  _RSI = &parts->notify[NextNotifyIndex];
-  v15 = _RBX->flags & 0x10;
-  __asm
-  {
-    vmovaps [rsp+88h+var_48], xmm6
-    vmovss  xmm6, [rsp+88h+dtime]
-  }
+  notify = parts->notify;
+  flags = state->flags;
+  v14 = (float *)&notify[NextNotifyIndex];
+  v15 = flags & 0x10;
+  v16 = (flags & 0x10) != 0 && flags < 0;
+  v17 = dtime;
   if ( v15 )
-    __asm { vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  __asm
+    LODWORD(v17) = LODWORD(dtime) & _xmm;
+  currentAnimTime = state->currentAnimTime;
+  oldTime = state->oldTime;
+  if ( state->currentAnimTime >= oldTime )
   {
-    vmovss  xmm1, dword ptr [rbx]; time
-    vmovss  xmm2, dword ptr [rbx+4]
-    vcomiss xmm1, xmm2
-    vucomiss xmm1, cs:__real@3f800000
-  }
-  if ( v15 )
-  {
-    __asm
+    if ( currentAnimTime == 1.0 )
     {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vcomiss xmm1, xmm0
-      vcomiss xmm2, xmm0
+      if ( (parts->flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2627, ASSERT_TYPE_ASSERT, "(!(parts->flags & ANIM_LOOP))", (const char *)&queryFormat, "!(parts->flags & ANIM_LOOP)") )
+        __debugbreak();
+      v31 = v14[1];
+      v32 = v14 + 1;
+      if ( v31 >= state->oldTime )
+      {
+        do
+        {
+          if ( *v32 < state->oldTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2634, ASSERT_TYPE_ASSERT, "(state->oldTime <= notifyInfo->time)", (const char *)&queryFormat, "state->oldTime <= notifyInfo->time") )
+            __debugbreak();
+          XAnimGetNotifyFracLeaf(state, state, *v32, v17);
+          ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, *((unsigned int *)v32 - 1), v33, notifyType, parts, customData, inOutNotifyHead);
+          v32 += 2;
+          ++NextNotifyIndex;
+        }
+        while ( NextNotifyIndex < parts->notifyCount );
+      }
+    }
+    else
+    {
+      v34 = v14[1];
+      if ( currentAnimTime > v34 && oldTime <= v34 )
+      {
+        if ( v16 )
+        {
+          for ( i = 0; i < parts->notifyCount; ++notify )
+          {
+            time = notify->time;
+            if ( time >= state->currentAnimTime || time < state->oldTime )
+            {
+              XAnimGetScrubbedBackwardNotifyFracLeaf(state, time, v17, v16);
+              ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, (unsigned int)notify->name, v37, notifyType, parts, customData, inOutNotifyHead);
+            }
+            ++i;
+          }
+        }
+        else
+        {
+          do
+          {
+            if ( v34 < state->oldTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2668, ASSERT_TYPE_ASSERT, "(state->oldTime <= notifyInfo->time)", (const char *)&queryFormat, "state->oldTime <= notifyInfo->time") )
+              __debugbreak();
+            XAnimGetNotifyFracLeaf(state, state, v14[1], v17);
+            ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, *(unsigned int *)v14, v38, notifyType, parts, customData, inOutNotifyHead);
+            v14 += 2;
+            if ( ++NextNotifyIndex >= parts->notifyCount )
+              break;
+            v34 = v14[1];
+          }
+          while ( v34 < state->currentAnimTime );
+        }
+      }
+    }
+  }
+  else if ( !v15 || v16 )
+  {
+    v24 = v14[1];
+    if ( currentAnimTime <= v24 )
+    {
+      if ( oldTime <= v24 )
+      {
+        do
+        {
+          if ( v14[1] < state->oldTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2604, ASSERT_TYPE_ASSERT, "(state->oldTime <= notifyInfo->time)", (const char *)&queryFormat, "state->oldTime <= notifyInfo->time") )
+            __debugbreak();
+          XAnimGetNotifyFracLeaf(state, state, v14[1], v17);
+          ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, *(unsigned int *)v14, v26, notifyType, parts, customData, inOutNotifyHead);
+          v14 += 2;
+          ++NextNotifyIndex;
+        }
+        while ( NextNotifyIndex < parts->notifyCount );
+        v27 = parts->notify;
+        v28 = 0;
+        for ( j = v27->time; j < state->currentAnimTime; ++v27 )
+        {
+          XAnimGetNotifyFracLeaf(state, state, j, v17);
+          ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, (unsigned int)v27->name, v30, notifyType, parts, customData, inOutNotifyHead);
+          if ( (unsigned __int16)++v28 >= parts->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2618, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+            __debugbreak();
+          j = v27[1].time;
+        }
+      }
+    }
+    else
+    {
+      do
+      {
+        XAnimGetNotifyFracLeaf(state, state, v24, v17);
+        ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, *(unsigned int *)v14, v25, notifyType, parts, customData, inOutNotifyHead);
+        v14 += 2;
+        if ( ++NextNotifyIndex >= parts->notifyCount )
+          break;
+        v24 = v14[1];
+      }
+      while ( v24 < state->currentAnimTime );
     }
   }
   else
   {
-    if ( (parts->flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2627, ASSERT_TYPE_ASSERT, "(!(parts->flags & ANIM_LOOP))", (const char *)&queryFormat, "!(parts->flags & ANIM_LOOP)") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rsi+4] }
-    v20 = __CFADD__(_RSI, 4i64);
-    _RSI = &_RSI->time;
-    __asm { vcomiss xmm0, dword ptr [rbx+4] }
-    if ( !v20 )
+    v20 = XAnimGetNextNotifyIndex(parts, currentAnimTime);
+    for ( k = &parts->notify[v20]; v20 < parts->notifyCount; ++v20 )
     {
-      do
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vcomiss xmm0, dword ptr [rbx+4]
-        }
-        if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2634, ASSERT_TYPE_ASSERT, "(state->oldTime <= notifyInfo->time)", (const char *)&queryFormat, "state->oldTime <= notifyInfo->time") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; noteTime
-          vmovaps xmm3, xmm6; dtime
-        }
-        *(float *)&_XMM0 = XAnimGetNotifyFracLeaf(_RBX, _RBX, *(double *)&_XMM2, *(double *)&_XMM3);
-        __asm { vmovaps xmm2, xmm0 }
-        ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, *((unsigned int *)_RSI - 1), v26, notifyType, parts, customData, inOutNotifyHead);
-        notifyCount = parts->notifyCount;
-        _RSI += 2;
-        v20 = ++NextNotifyIndex < notifyCount;
-      }
-      while ( NextNotifyIndex < notifyCount );
+      v22 = k->time;
+      if ( v22 >= state->oldTime )
+        break;
+      XAnimGetScrubbedBackwardNotifyFracLeaf(state, v22, v17, 0);
+      ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, const XAnimParts *, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, (unsigned int)k->name, v23, notifyType, parts, customData, inOutNotifyHead);
+      ++k;
     }
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
 }
 
 /*
@@ -12368,40 +10560,26 @@ void XAnimProcessNotify(const XAnimParts *parts, const XAnimState *state, scr_st
 XAnimProcessNotifyFromParts
 ==============
 */
-
-void __fastcall XAnimProcessNotifyFromParts(const XAnimParts *parts, double oldTime, double currentTime, unsigned __int16 cycleCount, scr_string_t notifyName, unsigned __int16 notifyType, float dtime, void *customData, void (__fastcall *notifyFunc)(scr_string_t, scr_string_t, float, unsigned __int16, const XAnimParts *, void *, XAnimNotifyHandle *), XAnimNotifyHandle *inOutNotifyHead)
+void XAnimProcessNotifyFromParts(const XAnimParts *parts, float oldTime, float currentTime, unsigned __int16 cycleCount, scr_string_t notifyName, unsigned __int16 notifyType, float dtime, void *customData, void (*notifyFunc)(scr_string_t, scr_string_t, float, unsigned __int16, const XAnimParts *, void *, XAnimNotifyHandle *), XAnimNotifyHandle *inOutNotifyHead)
 {
-  __int64 v20; 
+  __int64 v12; 
   XAnimState state; 
-  char v26; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !notifyFunc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2735, ASSERT_TYPE_ASSERT, "(notifyFunc)", (const char *)&queryFormat, "notifyFunc") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; noteTime
-    vucomiss xmm6, xmm2
-    vmovss  [rsp+98h+state.oldTime], xmm6
-    vmovss  [rsp+98h+state.currentAnimTime], xmm7
-  }
+  state.oldTime = oldTime;
+  state.currentAnimTime = currentTime;
   *(_QWORD *)&state.cycleCount = cycleCount;
   memset(&state.goalWeight, 0, 24);
-  __asm { vmovss  xmm3, [rsp+98h+dtime]; dtime }
-  *(float *)&_XMM0 = XAnimGetNotifyFracLeaf(&state, &state, *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm { vmovaps xmm2, xmm0 }
-  ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, _QWORD, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, (unsigned int)g_endNotetrackName, v20, notifyType, 0i64, customData, inOutNotifyHead);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v26;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  if ( oldTime == 1.0 )
+  {
+    XAnimGetNotifyFracLeaf(&state, &state, 1.0, dtime);
+    ((void (__fastcall *)(_QWORD, _QWORD, __int64, _QWORD, _QWORD, void *, XAnimNotifyHandle *))notifyFunc)((unsigned int)notifyName, (unsigned int)g_endNotetrackName, v12, notifyType, 0i64, customData, inOutNotifyHead);
+  }
+  else
+  {
+    XAnimProcessNotify(parts, &state, notifyName, notifyType, dtime, customData, notifyFunc, inOutNotifyHead);
+  }
 }
 
 /*
@@ -12409,251 +10587,165 @@ void __fastcall XAnimProcessNotifyFromParts(const XAnimParts *parts, double oldT
 XAnimProcessServerNotify
 ==============
 */
-
-void __fastcall XAnimProcessServerNotify(const DObj *obj, XAnimInfo *info, double time)
+void XAnimProcessServerNotify(const DObj *obj, XAnimInfo *info, float time)
 {
-  scrContext_t *v12; 
-  scrContext_t *v13; 
+  scrContext_t *v5; 
+  scrContext_t *v6; 
   XAnimTree *tree; 
   XAnimParts *PartsFromInfo; 
-  XAnimParts *v16; 
-  bool v17; 
+  XAnimParts *v9; 
   __int64 notifyIndex; 
-  unsigned int notifyCount; 
-  bool v21; 
-  bool v22; 
-  bool v23; 
-  bool v24; 
-  int v28; 
-  bool v29; 
-  int v31; 
-  bool v33; 
-  int v35; 
-  bool v37; 
-  unsigned int v39; 
-  double localClientNum; 
+  float currentAnimTime; 
+  __int64 v12; 
+  float v13; 
+  XAnimNotifyInfo *notify; 
+  int i; 
+  float v16; 
+  float v17; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rdx+38h]
-    vmovaps [rsp+78h+var_48], xmm7
-  }
-  _RDI = info;
-  __asm
-  {
-    vmovaps xmm6, xmm2
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm6, xmm7
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovsd  qword ptr [rsp+78h+localClientNum], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4245, ASSERT_TYPE_ASSERT, "( ( time <= 1.f ) )", "( time ) = %g", localClientNum) )
+  if ( info->state.goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4244, ASSERT_TYPE_ASSERT, "(info->state.goalWeight)", (const char *)&queryFormat, "info->state.goalWeight") )
+    __debugbreak();
+  if ( time > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4245, ASSERT_TYPE_ASSERT, "( ( time <= 1.f ) )", "( time ) = %g", time) )
     __debugbreak();
   if ( obj->tree && obj->tree->owner[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4246, ASSERT_TYPE_ASSERT, "(!obj->tree || obj->tree->owner == XAnimOwner::SERVER)", (const char *)&queryFormat, "!obj->tree || obj->tree->owner == XAnimOwner::SERVER") )
     __debugbreak();
-  if ( obj->entnum && _RDI->notifyName )
+  if ( obj->entnum && info->notifyName )
   {
-    v12 = ScriptContext_Server();
-    __asm { vucomiss xmm7, dword ptr [rdi+28h] }
-    v13 = v12;
-    if ( v17 )
+    v5 = ScriptContext_Server();
+    v6 = v5;
+    if ( 1.0 == info->state.currentAnimTime )
     {
-      Scr_AddConstString(v12, g_endNotetrackName);
-      Scr_NotifyNum(v13, obj->entnum - 1, ENTITY_CLASS_GENTITY, _RDI->notifyName, 1u, LOCAL_CLIENT_0);
-      XAnimAddServerNotify(_RDI->notifyName, g_endNotetrackName);
-      goto LABEL_77;
+      Scr_AddConstString(v5, g_endNotetrackName);
+      Scr_NotifyNum(v6, obj->entnum - 1, ENTITY_CLASS_GENTITY, info->notifyName, 1u, LOCAL_CLIENT_0);
+      XAnimAddServerNotify(info->notifyName, g_endNotetrackName);
+      return;
     }
     tree = obj->tree;
     if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4264, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
       __debugbreak();
-    PartsFromInfo = XAnimGetPartsFromInfo(tree, _RDI);
-    v16 = PartsFromInfo;
-    v17 = PartsFromInfo == NULL;
+    PartsFromInfo = XAnimGetPartsFromInfo(tree, info);
+    v9 = PartsFromInfo;
     if ( PartsFromInfo )
     {
-      v17 = _RDI->notifyIndex == 0;
-      if ( _RDI->notifyIndex >= 0 || (XAnimUpdateServerNotifyIndex(_RDI, PartsFromInfo), v17 = _RDI->notifyIndex == 0, _RDI->notifyIndex >= 0) )
+      if ( info->notifyIndex >= 0 || (XAnimUpdateServerNotifyIndex(info, PartsFromInfo), info->notifyIndex >= 0) )
       {
-        __asm { vcomiss xmm7, dword ptr [rdi+28h] }
-        if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4293, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime < 1.f)", (const char *)&queryFormat, "info->state.currentAnimTime < 1.f") )
+        if ( info->state.currentAnimTime >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4293, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime < 1.f)", (const char *)&queryFormat, "info->state.currentAnimTime < 1.f") )
           __debugbreak();
-        if ( !v16->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4294, ASSERT_TYPE_ASSERT, "(parts->notifyCount > 0)", (const char *)&queryFormat, "parts->notifyCount > 0") )
+        if ( !v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4294, ASSERT_TYPE_ASSERT, "(parts->notifyCount > 0)", (const char *)&queryFormat, "parts->notifyCount > 0") )
           __debugbreak();
-        _RAX = v16->notify;
-        __asm { vcomiss xmm7, dword ptr [rax+4] }
-        notifyIndex = _RDI->notifyIndex;
+        if ( v9->notify->time > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4295, ASSERT_TYPE_ASSERT, "(parts->notify[0].time <= 1.f)", (const char *)&queryFormat, "parts->notify[0].time <= 1.f") )
+          __debugbreak();
+        notifyIndex = info->notifyIndex;
         if ( (int)notifyIndex < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4298, ASSERT_TYPE_ASSERT, "(notifyIndex >= 0)", (const char *)&queryFormat, "notifyIndex >= 0") )
           __debugbreak();
-        notifyCount = v16->notifyCount;
-        v21 = (unsigned int)notifyIndex < notifyCount;
-        v22 = (_DWORD)notifyIndex == notifyCount;
-        v23 = (unsigned int)notifyIndex <= notifyCount;
-        if ( (int)notifyIndex >= (int)notifyCount )
+        if ( (int)notifyIndex >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4299, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+          __debugbreak();
+        currentAnimTime = info->state.currentAnimTime;
+        v12 = (__int64)&v9->notify[notifyIndex];
+        if ( time >= currentAnimTime )
         {
-          v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4299, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount");
-          v21 = 0;
-          v22 = !v24;
-          v23 = !v24;
-          if ( v24 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vcomiss xmm6, xmm0
-        }
-        _RBX = (scr_string_t *)&v16->notify[notifyIndex];
-        if ( v21 )
-        {
-          __asm
+          if ( time == 1.0 && currentAnimTime <= *(float *)(v12 + 4) )
           {
-            vmovss  xmm1, dword ptr [rbx+4]
-            vcomiss xmm6, xmm1
-          }
-          if ( v23 )
-          {
-            __asm { vcomiss xmm0, xmm1 }
-            if ( !v23 )
-              goto LABEL_77;
-            if ( (int)notifyIndex >= v16->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4320, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+            if ( (v9->flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4350, ASSERT_TYPE_ASSERT, "(!(parts->flags & ANIM_LOOP))", (const char *)&queryFormat, "!(parts->flags & ANIM_LOOP)") )
               __debugbreak();
-            Scr_MakeArray(v13);
+            if ( (int)notifyIndex >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4351, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+              __debugbreak();
+            Scr_MakeArray(v6);
             do
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+4]
-                vcomiss xmm0, dword ptr [rdi+28h]
-              }
-              if ( v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4324, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
+              if ( *(float *)(v12 + 4) < info->state.currentAnimTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4355, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
                 __debugbreak();
-              Scr_AddConstString(v13, *_RBX);
-              Scr_AddArray(v13);
-              XAnimAddServerNotify(_RDI->notifyName, *_RBX);
-              v31 = v16->notifyCount;
-              _RBX += 2;
+              Scr_AddConstString(v6, *(scr_string_t *)v12);
+              Scr_AddArray(v6);
+              XAnimAddServerNotify(info->notifyName, *(scr_string_t *)v12);
+              v12 += 8i64;
               LODWORD(notifyIndex) = notifyIndex + 1;
-              v29 = (unsigned int)notifyIndex < v31;
             }
-            while ( (int)notifyIndex < v31 );
-            _RBX = v16->notify;
-            __asm { vcomiss xmm6, dword ptr [rbx+4] }
+            while ( (int)notifyIndex < v9->notifyCount );
           }
           else
           {
-            if ( (int)notifyIndex >= v16->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4306, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+            v16 = *(float *)(v12 + 4);
+            if ( time <= v16 || currentAnimTime > v16 )
+              return;
+            if ( (int)notifyIndex >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4366, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
               __debugbreak();
-            Scr_MakeArray(v13);
+            Scr_MakeArray(v6);
+            v17 = *(float *)(v12 + 4);
             do
             {
-              Scr_AddConstString(v13, *_RBX);
-              Scr_AddArray(v13);
-              XAnimAddServerNotify(_RDI->notifyName, *_RBX);
-              v28 = v16->notifyCount;
-              _RBX += 2;
+              if ( v17 < info->state.currentAnimTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4370, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
+                __debugbreak();
+              Scr_AddConstString(v6, *(scr_string_t *)v12);
+              Scr_AddArray(v6);
+              XAnimAddServerNotify(info->notifyName, *(scr_string_t *)v12);
+              v12 += 8i64;
               LODWORD(notifyIndex) = notifyIndex + 1;
-              if ( (int)notifyIndex >= v28 )
+              if ( (int)notifyIndex >= v9->notifyCount )
                 break;
-              __asm { vcomiss xmm6, dword ptr [rbx+4] }
+              v17 = *(float *)(v12 + 4);
             }
-            while ( (unsigned int)notifyIndex > v28 );
+            while ( time > v17 );
           }
         }
         else
         {
-          __asm { vucomiss xmm6, xmm7 }
-          if ( !v22 )
-            goto LABEL_65;
-          __asm { vcomiss xmm0, dword ptr [rbx+4] }
-          if ( v23 )
+          v13 = *(float *)(v12 + 4);
+          if ( time <= v13 )
           {
-            if ( (v16->flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4350, ASSERT_TYPE_ASSERT, "(!(parts->flags & ANIM_LOOP))", (const char *)&queryFormat, "!(parts->flags & ANIM_LOOP)") )
+            if ( currentAnimTime > v13 )
+              return;
+            if ( (int)notifyIndex >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4320, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
               __debugbreak();
-            if ( (int)notifyIndex >= v16->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4351, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
-              __debugbreak();
-            Scr_MakeArray(v13);
+            Scr_MakeArray(v6);
             do
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+4]
-                vcomiss xmm0, dword ptr [rdi+28h]
-              }
-              if ( v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4355, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
+              if ( *(float *)(v12 + 4) < info->state.currentAnimTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4324, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
                 __debugbreak();
-              Scr_AddConstString(v13, *_RBX);
-              Scr_AddArray(v13);
-              XAnimAddServerNotify(_RDI->notifyName, *_RBX);
-              v35 = v16->notifyCount;
-              _RBX += 2;
+              Scr_AddConstString(v6, *(scr_string_t *)v12);
+              Scr_AddArray(v6);
+              XAnimAddServerNotify(info->notifyName, *(scr_string_t *)v12);
+              v12 += 8i64;
               LODWORD(notifyIndex) = notifyIndex + 1;
-              v33 = (unsigned int)notifyIndex < v35;
             }
-            while ( (int)notifyIndex < v35 );
+            while ( (int)notifyIndex < v9->notifyCount );
+            notify = v9->notify;
+            for ( i = 0; time > notify->time; ++i )
+            {
+              if ( i >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4337, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+                __debugbreak();
+              Scr_AddConstString(v6, notify->name);
+              Scr_AddArray(v6);
+              XAnimAddServerNotify(info->notifyName, notify->name);
+              ++notify;
+            }
           }
           else
           {
-LABEL_65:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbx+4]
-              vcomiss xmm6, xmm1
-            }
-            if ( v23 )
-              goto LABEL_77;
-            __asm { vcomiss xmm0, xmm1 }
-            if ( !v23 )
-              goto LABEL_77;
-            if ( (int)notifyIndex >= v16->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4366, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
+            if ( (int)notifyIndex >= v9->notifyCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4306, ASSERT_TYPE_ASSERT, "(notifyIndex < parts->notifyCount)", (const char *)&queryFormat, "notifyIndex < parts->notifyCount") )
               __debugbreak();
-            Scr_MakeArray(v13);
-            __asm { vmovss  xmm0, dword ptr [rbx+4] }
+            Scr_MakeArray(v6);
             do
             {
-              __asm { vcomiss xmm0, dword ptr [rdi+28h] }
-              if ( v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 4370, ASSERT_TYPE_ASSERT, "(info->state.currentAnimTime <= notifyInfo->time)", (const char *)&queryFormat, "info->state.currentAnimTime <= notifyInfo->time") )
-                __debugbreak();
-              Scr_AddConstString(v13, *_RBX);
-              Scr_AddArray(v13);
-              XAnimAddServerNotify(_RDI->notifyName, *_RBX);
-              v39 = v16->notifyCount;
-              _RBX += 2;
+              Scr_AddConstString(v6, *(scr_string_t *)v12);
+              Scr_AddArray(v6);
+              XAnimAddServerNotify(info->notifyName, *(scr_string_t *)v12);
+              v12 += 8i64;
               LODWORD(notifyIndex) = notifyIndex + 1;
-              v37 = (unsigned int)notifyIndex < v39;
-              if ( (int)notifyIndex >= (int)v39 )
-                break;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+4]
-                vcomiss xmm6, xmm0
-              }
             }
-            while ( (unsigned int)notifyIndex > v39 );
+            while ( (int)notifyIndex < v9->notifyCount && time > *(float *)(v12 + 4) );
           }
         }
-        Scr_NotifyNum(v13, obj->entnum - 1, ENTITY_CLASS_GENTITY, _RDI->notifyName, 1u, LOCAL_CLIENT_0);
-        goto LABEL_77;
+        Scr_NotifyNum(v6, obj->entnum - 1, ENTITY_CLASS_GENTITY, info->notifyName, 1u, LOCAL_CLIENT_0);
+        return;
       }
     }
-    __asm
+    if ( time < info->state.currentAnimTime || time == 1.0 )
     {
-      vcomiss xmm6, dword ptr [rdi+28h]
-      vucomiss xmm6, xmm7
+      Scr_AddConstString(v6, g_endNotetrackName);
+      Scr_NotifyNum(v6, obj->entnum - 1, ENTITY_CLASS_GENTITY, info->notifyName, 1u, LOCAL_CLIENT_0);
+      XAnimAddServerNotify(info->notifyName, g_endNotetrackName);
     }
-    if ( v17 )
-    {
-      Scr_AddConstString(v13, g_endNotetrackName);
-      Scr_NotifyNum(v13, obj->entnum - 1, ENTITY_CLASS_GENTITY, _RDI->notifyName, 1u, LOCAL_CLIENT_0);
-      XAnimAddServerNotify(_RDI->notifyName, g_endNotetrackName);
-    }
-  }
-LABEL_77:
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
   }
 }
 
@@ -12764,72 +10856,8 @@ LABEL_4:
 XAnimRegisterDvars
 ==============
 */
-
-void __fastcall XAnimRegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void XAnimRegisterDvars(void)
 {
-  const dvar_t *v15; 
-  const dvar_t *v23; 
-  const dvar_t *v30; 
-  const dvar_t *v40; 
-  const dvar_t *v44; 
-  const dvar_t *v48; 
-  const dvar_t *v52; 
-  const dvar_t *v56; 
-  const dvar_t *v60; 
-  const dvar_t *v64; 
-  const dvar_t *v71; 
-  const dvar_t *v82; 
-  const dvar_t *v93; 
-  const dvar_t *v97; 
-  const dvar_t *v102; 
-  const dvar_t *v109; 
-  const dvar_t *v113; 
-  const dvar_t *v117; 
-  const dvar_t *v121; 
-  const dvar_t *v125; 
-  const dvar_t *v136; 
-  const dvar_t *v143; 
-  const dvar_t *v147; 
-  const dvar_t *v157; 
-  const dvar_t *v176; 
-  const dvar_t *v181; 
-  const dvar_t *v185; 
-  const dvar_t *v189; 
-  const dvar_t *v193; 
-  const dvar_t *v197; 
-  const dvar_t *v201; 
-  const dvar_t *v205; 
-  const dvar_t *v212; 
-  const dvar_t *v216; 
-  const dvar_t *v223; 
-  const dvar_t *v227; 
-  const dvar_t *v241; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float flagsd; 
-  float description; 
-  float descriptiona; 
-  float descriptionb; 
-  float descriptionc; 
-  float descriptiond; 
-  float max; 
-  float maxa; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm14
-    vmovaps [rsp+0D8h+var_88], xmm15
-  }
   Dvar_BeginPermanentRegistration();
   DCONST_DVARBOOL_xanim_nonAnimatedBonesWarning = Dvar_RegisterBool("xanim_nonAnimatedBonesWarning", 0, 0x40004u, "Enable warnings about non-animated bones affected by additive animations");
   DCONST_DVARBOOL_xanim_displayblacktext = Dvar_RegisterBool("xanim_displayblacktext", 0, 0x40004u, "Displays black text with animation text output.");
@@ -12855,579 +10883,106 @@ void __fastcall XAnimRegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARBOOL_xanim_disableLookAtNodes = Dvar_RegisterBool("xanim_disableLookAtNodes", 0, 0x40004u, "Disable Look At animation tree nodes");
   DCONST_DVARBOOL_xanim_disableWobbleNodes = Dvar_RegisterBool("xanim_disableWobbleNodes", 0, 0x40004u, "Disable Wobble animation tree nodes");
   DCONST_DVARBOOL_xanim_disableAnalogClockNodes = Dvar_RegisterBool("xanim_disableAnalogClockNodes", 0, 0x40004u, "Disable Analog Clock animation tree nodes");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@44870000; max
-    vmovss  xmm1, cs:__real@43340000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v15 = Dvar_RegisterFloat("xanim_analogClock_balanceWheelMaxHalfAngleDeg", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum angular displacement of a clock's balance wheel from center.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@3e800000; value
-  }
-  DCONST_DVARFLT_xanim_analogClock_balanceWheelMaxHalfAngleDeg = v15;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DCONST_DVARFLT_xanim_analogClock_springScaleFactor = Dvar_RegisterFloat("xanim_analogClock_springScaleFactor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scale factor to apply to bones in the spring rig.");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@7f7fffff; max
-  }
+  DCONST_DVARFLT_xanim_analogClock_balanceWheelMaxHalfAngleDeg = Dvar_RegisterFloat("xanim_analogClock_balanceWheelMaxHalfAngleDeg", 180.0, 0.0, 1080.0, 0x40004u, "Maximum angular displacement of a clock's balance wheel from center.");
+  DCONST_DVARFLT_xanim_analogClock_springScaleFactor = Dvar_RegisterFloat("xanim_analogClock_springScaleFactor", 0.25, 0.0, 3.4028235e38, 0x40004u, "Scale factor to apply to bones in the spring rig.");
   DCONST_DVARBOOL_xanim_disableMountNodes = Dvar_RegisterBool("xanim_disableMountNodes", 0, 0x40004u, "Disable Mount animation tree nodes");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v23 = Dvar_RegisterFloat("xanim_lookatSpeedMultiplier", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Speed multiplier for the lookat catching up");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43340000; max
-    vmovss  xmm2, cs:__real@c3340000; min
-    vmovss  xmm1, cs:__real@41400000; value
-  }
-  DCONST_DVARFLT_xanim_lookatSpeedMultiplier = v23;
-  DCONST_DVARFLT_xanim_lookatRollMax = Dvar_RegisterFloat("xanim_lookatRollMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max roll applied at max yaw");
+  DCONST_DVARFLT_xanim_lookatSpeedMultiplier = Dvar_RegisterFloat("xanim_lookatSpeedMultiplier", 1.0, 0.0, 3.4028235e38, 0x40004u, "Speed multiplier for the lookat catching up");
+  DCONST_DVARFLT_xanim_lookatRollMax = Dvar_RegisterFloat("xanim_lookatRollMax", 12.0, -180.0, 180.0, 0x40004u, "Max roll applied at max yaw");
   DCONST_DVARBOOL_xanim_lookatDrawChain = Dvar_RegisterBool("xanim_lookatDrawChain", 0, 0x40004u, "Enable drawing the spine - neck - head chain pre and post lookat");
   DCONST_DVARBOOL_xanim_lookatExtendedAnimInfo = Dvar_RegisterBool("xanim_lookatExtendedAnimInfo", 0, 0x40004u, "Add more info to the the anim tree display");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3ecccccd; value
-  }
   DCONST_DVARBOOL_xanim_ladder_climb_enable_grabs = Dvar_RegisterBool("xanim_ladder_climb_enable_grabs", 1, 0x40004u, "Enables grabbing from mid-rungs when climbing.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v30 = Dvar_RegisterFloat("xanim_ladder_climb_grab_time", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max time a grab from one mid-rung to another rung will take.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3e4ccccd
-    vmovss  xmm3, cs:__real@41200000; max
-  }
-  DCONST_DVARFLT_xanim_ladder_climb_grab_time = v30;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DCONST_DVARFLT_xanim_ladder_climb_grab_begin_percent = Dvar_RegisterFloat("xanim_ladder_climb_grab_begin_percent", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The percentage of the grab from one rung to the next that the grab animation begins playing.");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@42c80000
-    vmovss  xmm7, cs:__real@c2c80000
-    vmovss  xmm3, cs:__real@40666666; z
-    vmovss  xmm1, cs:__real@40b33333; x
-    vmovss  dword ptr [rsp+0D8h+description], xmm8
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovss  [rsp+0D8h+flags], xmm7
-  }
-  v40 = Dvar_RegisterVec3("xanim_ladder_rung_ankle_ik_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, 0x40004u, "The offset the ankle joint will be from the ladder rung when fully seated.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@c0000000; z
-    vmovss  xmm1, cs:__real@3fb33333; x
-  }
-  DCONST_DVARVEC3_xanim_ladder_rung_ankle_ik_offset = v40;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0D8h+description], xmm8
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovss  [rsp+0D8h+flags], xmm7
-  }
-  v44 = Dvar_RegisterVec3("xanim_ladder_rung_wrist_ik_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, descriptiona, 0x40004u, "The offset the wrist joint will be from the ladder rung when fully seated.");
-  __asm { vmovss  xmm1, cs:__real@3e99999a; value }
-  DCONST_DVARVEC3_xanim_ladder_rung_wrist_ik_offset = v44;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v48 = Dvar_RegisterFloat("xanim_ladder_ik_dist_ratio", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The percent of the total rung distance (currently 12) the hand must be to a rung before it becomes a valid IK target.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41a00000; max
-    vmovss  xmm1, cs:__real@40400000; value
-  }
-  DCONST_DVARFLT_xanim_ladder_ik_dist_ratio = v48;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v52 = Dvar_RegisterFloat("xanim_ladder_wrist_query_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The distance from the wrist joint to the middle finger joint.  Allows for more accurate IK targeting.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41a00000; max
-    vmovss  xmm1, cs:__real@40f9999a; value
-  }
-  DCONST_DVARFLT_xanim_ladder_wrist_query_offset = v52;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v56 = Dvar_RegisterFloat("xanim_ladder_ankle_query_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The distance from the ankle joint to the ball joint.  Allows for more accurate IK targeting.");
-  __asm { vmovss  xmm1, cs:__real@3eb33333; value }
-  DCONST_DVARFLT_xanim_ladder_ankle_query_offset = v56;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v60 = Dvar_RegisterFloat("xanim_ladder_aim_rung_one_time", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "If the climb animation time is below this threshold, grab the 1st rung.");
-  __asm { vmovss  xmm1, cs:__real@3f0e147b; value }
-  DCONST_DVARFLT_xanim_ladder_aim_rung_one_time = v60;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v64 = Dvar_RegisterFloat("xanim_ladder_aim_rung_two_time", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "If the climb animation time is below this threshold, grab the 2nd rung.");
-  __asm { vmovss  xmm1, cs:__real@3f6147ae; value }
-  DCONST_DVARFLT_xanim_ladder_aim_rung_two_time = v64;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_ladder_aim_rung_three_time = Dvar_RegisterFloat("xanim_ladder_aim_rung_three_time", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "If the climb animation time is below this threshold, grab the 3rd rung.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v71 = Dvar_RegisterFloat("xanim_ladder_aim_rung_four_time", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "If the climb animation time is below this threshold, grab the 4th rung.  Any time above this grabs the 5th rung.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42f00000; max
-    vmovss  xmm2, cs:__real@40a00000; min
-    vmovss  xmm1, cs:__real@42700000; value
-  }
-  DCONST_DVARFLT_xanim_ladder_aim_rung_four_time = v71;
-  DCONST_DVARFLT_xanim_physicsBonesUpdateRate = Dvar_RegisterFloat("xanim_physicsBonesUpdateRate", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Number of physics bones updates to run per second");
+  DCONST_DVARFLT_xanim_ladder_climb_grab_time = Dvar_RegisterFloat("xanim_ladder_climb_grab_time", 0.40000001, 0.0, 10.0, 0x40004u, "Max time a grab from one mid-rung to another rung will take.");
+  DCONST_DVARFLT_xanim_ladder_climb_grab_begin_percent = Dvar_RegisterFloat("xanim_ladder_climb_grab_begin_percent", 0.2, 0.0, 10.0, 0x40004u, "The percentage of the grab from one rung to the next that the grab animation begins playing.");
+  DCONST_DVARVEC3_xanim_ladder_rung_ankle_ik_offset = Dvar_RegisterVec3("xanim_ladder_rung_ankle_ik_offset", 5.5999999, 0.0, 3.5999999, -100.0, 100.0, 0x40004u, "The offset the ankle joint will be from the ladder rung when fully seated.");
+  DCONST_DVARVEC3_xanim_ladder_rung_wrist_ik_offset = Dvar_RegisterVec3("xanim_ladder_rung_wrist_ik_offset", 1.4, 0.0, -2.0, -100.0, 100.0, 0x40004u, "The offset the wrist joint will be from the ladder rung when fully seated.");
+  DCONST_DVARFLT_xanim_ladder_ik_dist_ratio = Dvar_RegisterFloat("xanim_ladder_ik_dist_ratio", 0.30000001, 0.0, 1.0, 0x40004u, "The percent of the total rung distance (currently 12) the hand must be to a rung before it becomes a valid IK target.");
+  DCONST_DVARFLT_xanim_ladder_wrist_query_offset = Dvar_RegisterFloat("xanim_ladder_wrist_query_offset", 3.0, 0.0, 20.0, 0x40004u, "The distance from the wrist joint to the middle finger joint.  Allows for more accurate IK targeting.");
+  DCONST_DVARFLT_xanim_ladder_ankle_query_offset = Dvar_RegisterFloat("xanim_ladder_ankle_query_offset", 7.8000002, 0.0, 20.0, 0x40004u, "The distance from the ankle joint to the ball joint.  Allows for more accurate IK targeting.");
+  DCONST_DVARFLT_xanim_ladder_aim_rung_one_time = Dvar_RegisterFloat("xanim_ladder_aim_rung_one_time", 0.34999999, 0.0, 1.0, 0x40004u, "If the climb animation time is below this threshold, grab the 1st rung.");
+  DCONST_DVARFLT_xanim_ladder_aim_rung_two_time = Dvar_RegisterFloat("xanim_ladder_aim_rung_two_time", 0.55500001, 0.0, 1.0, 0x40004u, "If the climb animation time is below this threshold, grab the 2nd rung.");
+  DCONST_DVARFLT_xanim_ladder_aim_rung_three_time = Dvar_RegisterFloat("xanim_ladder_aim_rung_three_time", 0.88, 0.0, 1.0, 0x40004u, "If the climb animation time is below this threshold, grab the 3rd rung.");
+  DCONST_DVARFLT_xanim_ladder_aim_rung_four_time = Dvar_RegisterFloat("xanim_ladder_aim_rung_four_time", 1.0, 0.0, 1.0, 0x40004u, "If the climb animation time is below this threshold, grab the 4th rung.  Any time above this grabs the 5th rung.");
+  DCONST_DVARFLT_xanim_physicsBonesUpdateRate = Dvar_RegisterFloat("xanim_physicsBonesUpdateRate", 60.0, 5.0, 120.0, 0x40004u, "Number of physics bones updates to run per second");
   DCONST_DVARINT_xanim_physicsMaxPositionSolverIterations = Dvar_RegisterInt("xanim_physicsMaxPositionSolverIterations", 5, 0, 100, 0x40004u, "Maximum number of physics position solver iterations to run per update");
   DCONST_DVARINT_xanim_physicsMaxSettlePositionSolverIterations = Dvar_RegisterInt("xanim_physicsMaxSettlePositionSolverIterations", 4, 0, 100, 0x40004u, "Maximum number of physics position solver iterations to run per settle update");
   DCONST_DVARINT_xanim_physicsMaxVelocitySolverIterations = Dvar_RegisterInt("xanim_physicsMaxVelocitySolverIterations", 3, 0, 100, 0x40004u, "Maximum number of physics velocity solver iterations to run per update");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
   DCONST_DVARINT_xanim_physicsMaxSettleIterations = Dvar_RegisterInt("xanim_physicsMaxSettleIterations", 15, 0, 100, 0x40004u, "Maximum number of physics simulation updates used to settle physics bones when first created");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm11, cs:__real@3d4ccccd
-  }
-  DCONST_DVARFLT_xanim_physicsVelocityDamping = Dvar_RegisterFloat("xanim_physicsVelocityDamping", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Linear velocity damping factor applied per update");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  v82 = Dvar_RegisterFloat("xanim_physicsAngularVelocityDamping", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Angular velocity damping factor applied per update");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@47c35000; max
-    vmovss  xmm1, cs:__real@44480000; value
-  }
-  DCONST_DVARFLT_xanim_physicsAngularVelocityDamping = v82;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_xanim_physicsGravity = Dvar_RegisterFloat("NRKSORMLRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "Gravity");
+  DCONST_DVARFLT_xanim_physicsVelocityDamping = Dvar_RegisterFloat("xanim_physicsVelocityDamping", 0.0099999998, 0.0, 0.2, 0x40004u, "Linear velocity damping factor applied per update");
+  DCONST_DVARFLT_xanim_physicsAngularVelocityDamping = Dvar_RegisterFloat("xanim_physicsAngularVelocityDamping", 0.050000001, 0.0, 0.2, 0x40004u, "Angular velocity damping factor applied per update");
+  DVARFLT_xanim_physicsGravity = Dvar_RegisterFloat("NRKSORMLRM", 800.0, 0.0, 100000.0, 0x40u, "Gravity");
   DCONST_DVARBOOL_xanim_silenceParamWarn = Dvar_RegisterBool("xanim_silenceParamWarn", 1, 0x40004u, "Dvar to Disable Animation tree game parameter x has not been set.");
   DCONST_DVARBOOL_xanim_physicsForceSettle = Dvar_RegisterBool("xanim_physicsForceSettle", 0, 0x40004u, "Force settle every update (for performance debug)");
-  __asm { vmovss  xmm1, cs:__real@3f59999a; value }
   DCONST_DVARBOOL_xanim_physicsNoiseEnable = Dvar_RegisterBool("xanim_physicsNoiseEnable", 1, 0x40004u, "Enable noise on physics bones.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm14, cs:__real@3f733333
-  }
-  DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing = Dvar_RegisterFloat("xanim_physicsNoiseAccelSmoothing", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Noise acceleration smoothing.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  v93 = Dvar_RegisterFloat("xanim_physicsAccelSmoothing", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "World acceleration smoothing");
-  __asm { vmovss  xmm3, cs:__real@461c4000; max }
-  DCONST_DVARFLT_xanim_physicsAccelSmoothing = v93;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v97 = Dvar_RegisterFloat("xanim_physicsAccelScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "World acceleration scale (non gravity)");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@42480000
-    vmovss  xmm3, cs:__real@461c4000; max
-  }
-  DCONST_DVARFLT_xanim_physicsAccelScale = v97;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v102 = Dvar_RegisterFloat("xanim_physicsMaxWorldAccel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum acceleration inherited from world movement");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  DCONST_DVARFLT_xanim_physicsMaxWorldAccel = v102;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_physicsWorldAccelDeadZone = Dvar_RegisterFloat("xanim_physicsWorldAccelDeadZone", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Minimum acceleration threshold for world movement");
+  DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing = Dvar_RegisterFloat("xanim_physicsNoiseAccelSmoothing", 0.85000002, 0.0, 1.0, 0x40004u, "Noise acceleration smoothing.");
+  DCONST_DVARFLT_xanim_physicsAccelSmoothing = Dvar_RegisterFloat("xanim_physicsAccelSmoothing", 0.94999999, 0.0, 1.0, 0x40004u, "World acceleration smoothing");
+  DCONST_DVARFLT_xanim_physicsAccelScale = Dvar_RegisterFloat("xanim_physicsAccelScale", 1.0, 0.0, 10000.0, 0x40004u, "World acceleration scale (non gravity)");
+  DCONST_DVARFLT_xanim_physicsMaxWorldAccel = Dvar_RegisterFloat("xanim_physicsMaxWorldAccel", 50.0, 0.0, 10000.0, 0x40004u, "Maximum acceleration inherited from world movement");
+  DCONST_DVARFLT_xanim_physicsWorldAccelDeadZone = Dvar_RegisterFloat("xanim_physicsWorldAccelDeadZone", 0.1, 0.0, 100.0, 0x40004u, "Minimum acceleration threshold for world movement");
   DCONST_DVARBOOL_xanim_physicsEnableCollisions = Dvar_RegisterBool("xanim_physicsEnableCollisions", 1, 0x40004u, "Enable collision detection");
   DCONST_DVARBOOL_xanim_physicsEnableSwingLimits = Dvar_RegisterBool("xanim_physicsEnableSwingLimits", 1, 0x40004u, "Enable joint swing limits");
   DCONST_DVARBOOL_xanim_physicsEnableTwistLimits = Dvar_RegisterBool("xanim_physicsEnableTwistLimits", 1, 0x40004u, "Enable joint twist limits");
   DCONST_DVARBOOL_xanim_physicsEnableSprings = Dvar_RegisterBool("xanim_physicsEnableSprings", 1, 0x40004u, "Enable joint springs");
   DCONST_DVARBOOL_xanim_physicsEnableMaxDistanceConstraint = Dvar_RegisterBool("xanim_physicsEnableMaxDistanceConstraint", 1, 0x40004u, "Enable max distance constraint");
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
   DCONST_DVARBOOL_xanim_physicsEnableInterpolation = Dvar_RegisterBool("xanim_physicsEnableInterpolation", 1, 0x40004u, "Enable interpolation of physics bone transorms");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm3; value
-  }
-  v109 = Dvar_RegisterFloat("xanim_physicsTwistStiffness", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Stiffness of joint twist constraint");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@404ccccd; max
-    vmovss  xmm1, cs:__real@40490fd8; value
-  }
-  DCONST_DVARFLT_xanim_physicsTwistStiffness = v109;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v113 = Dvar_RegisterFloat("xanim_physicsMaxTwistAdjustment", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max adjustment applied by joint twist constraint");
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
-  DCONST_DVARFLT_xanim_physicsMaxTwistAdjustment = v113;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm3; value
-  }
-  v117 = Dvar_RegisterFloat("xanim_physicsSwingStiffness", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Stiffness of joint swing constraint");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@404ccccd; max
-    vmovss  xmm1, cs:__real@40490fd8; value
-  }
-  DCONST_DVARFLT_xanim_physicsSwingStiffness = v117;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v121 = Dvar_RegisterFloat("xanim_physicsMaxSwingAdjustment", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max adjustment applied by joint swing constraint");
-  __asm { vmovss  xmm3, cs:__real@447a0000; max }
-  DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment = v121;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v125 = Dvar_RegisterFloat("xanim_physicsMaxVelocity", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum physics bone velocity");
-  __asm { vmovss  xmm1, cs:__real@41000000; value }
-  DCONST_DVARFLT_xanim_physicsMaxVelocity = v125;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_physicsMaxAngularVelocity = Dvar_RegisterFloat("xanim_physicsMaxAngularVelocity", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum physics bone angular velocity");
+  DCONST_DVARFLT_xanim_physicsTwistStiffness = Dvar_RegisterFloat("xanim_physicsTwistStiffness", 1.0, 0.0, 1.0, 0x40004u, "Stiffness of joint twist constraint");
+  DCONST_DVARFLT_xanim_physicsMaxTwistAdjustment = Dvar_RegisterFloat("xanim_physicsMaxTwistAdjustment", 3.141592, 0.0, 3.2, 0x40004u, "Max adjustment applied by joint twist constraint");
+  DCONST_DVARFLT_xanim_physicsSwingStiffness = Dvar_RegisterFloat("xanim_physicsSwingStiffness", 1.0, 0.0, 1.0, 0x40004u, "Stiffness of joint swing constraint");
+  DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment = Dvar_RegisterFloat("xanim_physicsMaxSwingAdjustment", 3.141592, 0.0, 3.2, 0x40004u, "Max adjustment applied by joint swing constraint");
+  DCONST_DVARFLT_xanim_physicsMaxVelocity = Dvar_RegisterFloat("xanim_physicsMaxVelocity", 50.0, 0.0, 1000.0, 0x40004u, "Maximum physics bone velocity");
+  DCONST_DVARFLT_xanim_physicsMaxAngularVelocity = Dvar_RegisterFloat("xanim_physicsMaxAngularVelocity", 8.0, 0.0, 100.0, 0x40004u, "Maximum physics bone angular velocity");
   DCONST_DVARBOOL_xanim_physicsMaintainBindPoseTranslation = Dvar_RegisterBool("xanim_physicsMaintainBindPoseTranslation", 1, 0x40004u, "Ensure each physics bone maintains its local bind pose translation (prevents joints drifting apart)");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovss  xmm1, cs:__real@3dcccccd; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_physicsSettleVelocityThreshold = Dvar_RegisterFloat("xanim_physicsSettleVelocityThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Settle velocity threshold");
+  DCONST_DVARFLT_xanim_physicsSettleVelocityThreshold = Dvar_RegisterFloat("xanim_physicsSettleVelocityThreshold", 0.1, 0.0, 100.0, 0x40004u, "Settle velocity threshold");
   DCONST_DVARBOOL_xanim_physicsDebugCollisions = Dvar_RegisterBool("xanim_physicsDebugCollisions", 0, 0x40004u, "Enable collision detection debug rendering");
   DCONST_DVARBOOL_xanim_physicsDebugCustomPinConstraints = Dvar_RegisterBool("xanim_physicsDebugCustomPinConstraints", 1, 0x40004u, "Enable debug render of custom pin constraints");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41200000
-    vmovss  xmm1, cs:__real@3c23d70a; value
-  }
   DCONST_DVARINT_xanim_physicsAudioEventWaitTime = Dvar_RegisterInt("xanim_physicsAudioEventWaitTime", 3, 1, 100, 0x40004u, "Number of physics updates to wait before retriggering audio events");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v136 = Dvar_RegisterFloat("xanim_physicsAudioMinHitDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Minimum intersection depth required to generate audio event");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
-  DCONST_DVARFLT_xanim_physicsAudioMinHitDistance = v136;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DCONST_DVARFLT_xanim_physicsIdleVelocityScale = Dvar_RegisterFloat("xanim_physicsIdleVelocityScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Idle velocity scale (increases effect of idle weapon bob)");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  v143 = Dvar_RegisterFloat("xanim_physicsIdleAngularVelocityThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Idle angular velocity threshold");
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
-  DCONST_DVARFLT_xanim_physicsIdleAngularVelocityThreshold = v143;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  v147 = Dvar_RegisterFloat("xanim_physicsIdleVelocitySmoothing", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Idle angular velocity smoothing");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@42c80000
-    vmovss  xmm1, cs:__real@3ecccccd; value
-  }
-  DCONST_DVARFLT_xanim_physicsIdleVelocitySmoothing = v147;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm7, cs:__real@41a00000
-  }
-  DCONST_DVARFLT_xanim_physicsExtAngularAccelScale = Dvar_RegisterFloat("xanim_physicsExtAngularAccelScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scale factor applied to external angular acceleration after cap applied");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm15, xmm15, xmm15
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  v157 = Dvar_RegisterFloat("xanim_physicsExtAngularAccelCap", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum external angular acceleration to apply to dynamic bones");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm1, cs:__real@3e99999a; value
-  }
-  DCONST_DVARFLT_xanim_physicsExtAngularAccelCap = v157;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm11, cs:__real@3f800000
-  }
-  DCONST_DVARFLT_xanim_physicsExtVelocityScale = Dvar_RegisterFloat("xanim_physicsExtVelocityScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scale factor applied to external velocity after cap applied");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  DCONST_DVARFLT_xanim_physicsExtVelocitySmoothing = Dvar_RegisterFloat("xanim_physicsExtVelocitySmoothing", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "External velocity smoothing");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  DCONST_DVARFLT_xanim_physicsExtVelocityCap = Dvar_RegisterFloat("xanim_physicsExtVelocityCap", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum external velocity to apply to dynamic bones");
+  DCONST_DVARFLT_xanim_physicsAudioMinHitDistance = Dvar_RegisterFloat("xanim_physicsAudioMinHitDistance", 0.0099999998, 0.0, 10.0, 0x40004u, "Minimum intersection depth required to generate audio event");
+  DCONST_DVARFLT_xanim_physicsIdleVelocityScale = Dvar_RegisterFloat("xanim_physicsIdleVelocityScale", 1.0, 0.0, 5.0, 0x40004u, "Idle velocity scale (increases effect of idle weapon bob)");
+  DCONST_DVARFLT_xanim_physicsIdleAngularVelocityThreshold = Dvar_RegisterFloat("xanim_physicsIdleAngularVelocityThreshold", 0.050000001, 0.0, 0.2, 0x40004u, "Idle angular velocity threshold");
+  DCONST_DVARFLT_xanim_physicsIdleVelocitySmoothing = Dvar_RegisterFloat("xanim_physicsIdleVelocitySmoothing", 0.050000001, 0.0, 1.0, 0x40004u, "Idle angular velocity smoothing");
+  DCONST_DVARFLT_xanim_physicsExtAngularAccelScale = Dvar_RegisterFloat("xanim_physicsExtAngularAccelScale", 0.40000001, 0.0, 100.0, 0x40004u, "Scale factor applied to external angular acceleration after cap applied");
+  DCONST_DVARFLT_xanim_physicsExtAngularAccelCap = Dvar_RegisterFloat("xanim_physicsExtAngularAccelCap", 10.0, 0.0, 20.0, 0x40004u, "Maximum external angular acceleration to apply to dynamic bones");
+  DCONST_DVARFLT_xanim_physicsExtVelocityScale = Dvar_RegisterFloat("xanim_physicsExtVelocityScale", 0.30000001, 0.0, 5.0, 0x40004u, "Scale factor applied to external velocity after cap applied");
+  DCONST_DVARFLT_xanim_physicsExtVelocitySmoothing = Dvar_RegisterFloat("xanim_physicsExtVelocitySmoothing", 0.94999999, 0.0, 1.0, 0x40004u, "External velocity smoothing");
+  DCONST_DVARFLT_xanim_physicsExtVelocityCap = Dvar_RegisterFloat("xanim_physicsExtVelocityCap", 1.0, 0.0, 50.0, 0x40004u, "Maximum external velocity to apply to dynamic bones");
   DCONST_DVARBOOL_xanim_physicsEnable = Dvar_RegisterBool("xanim_physicsEnable", 1, 0x40004u, "Enable bone physics");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DCONST_DVARFLT_xanim_physicsGroundPlaneFriction = Dvar_RegisterFloat("xanim_physicsGroundPlaneFriction", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Strength of ground plane friction");
+  DCONST_DVARFLT_xanim_physicsGroundPlaneFriction = Dvar_RegisterFloat("xanim_physicsGroundPlaneFriction", 0.2, 0.0, 1.0, 0x40004u, "Strength of ground plane friction");
   DCONST_DVARBOOL_xanim_physicsDebugDrawGroundPlane = Dvar_RegisterBool("xanim_physicsDebugDrawGroundPlane", 1, 0x40004u, "Show ground plane when drawing dynamic bones");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@c2c80000
-    vmovss  xmm1, cs:__real@40666666; x
-    vmovss  xmm3, cs:__real@40733333; z
-  }
   DCONST_DVARBOOL_xanim_trackingEnable = Dvar_RegisterBool("xanim_trackingEnable", 0, 0x40004u, "Dvar to enable BlackBox tracking of xanim plays.");
-  __asm
-  {
-    vmovss  [rsp+0D8h+max], xmm10
-    vmovss  dword ptr [rsp+0D8h+description], xmm0
-    vmovss  xmm0, cs:__real@40866666
-    vmovaps xmm2, xmm1; y
-    vmovss  [rsp+0D8h+flags], xmm0
-  }
-  v176 = Dvar_RegisterVec4("xanim_ik_antislide_height_thresholds", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, descriptionb, max, 0x40004u, "IK anti-slide height thresholds for walk, run, and sprint states");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@44fa0000
-    vmovss  xmm3, cs:__real@43160000; z
-    vmovss  xmm2, cs:__real@43960000; y
-  }
-  DCONST_DVARVEC4_xanim_ik_antislide_height_thresholds = v176;
-  __asm
-  {
-    vmovss  [rsp+0D8h+max], xmm6
-    vmovss  dword ptr [rsp+0D8h+description], xmm15
-    vmovss  [rsp+0D8h+flags], xmm10
-    vmovss  xmm1, cs:__real@43fa0000; x
-  }
-  v181 = Dvar_RegisterVec4("xanim_ik_antislide_blendoutTimes", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, descriptionc, maxa, 0x40004u, "IK anti-slide blendout times for walk, run, and sprint states");
-  __asm { vmovss  xmm1, cs:__real@40f00000; value }
-  DCONST_DVARVEC4_xanim_ik_antislide_blendoutTimes = v181;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v185 = Dvar_RegisterFloat("xanim_ik_antislide_max_distance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide max absolute distance separating anim target position vs world-locked target position.");
-  __asm { vmovss  xmm1, cs:__real@40900000; value }
-  DCONST_DVARFLT_xanim_ik_antislide_max_distance = v185;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v189 = Dvar_RegisterFloat("xanim_ik_antislide_max_distance_crouch", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide max absolute distance separating anim target position vs world-locked target position when crouched.");
-  __asm { vmovss  xmm1, cs:__real@41980000; value }
-  DCONST_DVARFLT_xanim_ik_antislide_max_distance_crouch = v189;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v193 = Dvar_RegisterFloat("xanim_ik_antislide_max_distance_knee_target", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide max distance between knee and world-locked target position.");
-  __asm { vmovss  xmm1, cs:__real@40400000; value }
-  DCONST_DVARFLT_xanim_ik_antislide_max_distance_knee_target = v193;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v197 = Dvar_RegisterFloat("xanim_ik_antislide_max_angle_knee_target", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide max angle between knee and world-locked target position.");
-  __asm { vmovss  xmm1, cs:__real@41700000; value }
-  DCONST_DVARFLT_xanim_ik_antislide_max_angle_knee_target = v197;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v201 = Dvar_RegisterFloat("xanim_ik_antislide_adjust_angle_knee_target", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide max angle to rotate the hip to align it with the knee and the world-locked target.");
-  __asm { vmovss  xmm1, cs:__real@3ca3d70a; value }
-  DCONST_DVARFLT_xanim_ik_antislide_adjust_angle_knee_target = v201;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v205 = Dvar_RegisterFloat("xanim_ik_antislide_slope_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide threshold to blendout the world-locked targetif the player is on a slope.");
-  __asm { vmovss  xmm1, cs:__real@41e00000; value }
-  DCONST_DVARFLT_xanim_ik_antislide_slope_threshold = v205;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_ik_antislide_crouch_threshold = Dvar_RegisterFloat("xanim_ik_antislide_crouch_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide height threshold when the character is crouched.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v212 = Dvar_RegisterFloat("xanim_ik_antislide_move_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide distance threshold to keep the system running even tough the character stopped moving.");
-  __asm { vmovss  xmm3, cs:__real@42b40000; max }
-  DCONST_DVARFLT_xanim_ik_antislide_move_threshold = v212;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm1, cs:__real@3f350481; value
-  }
-  v216 = Dvar_RegisterFloat("xanim_ik_antislide_strafe_cosine_angle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide strafe cosine angle to decide which foot to unlock when start moving.");
-  __asm { vmovss  xmm1, cs:__real@402ccccd; value }
-  DCONST_DVARFLT_xanim_ik_antislide_strafe_cosine_angle = v216;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_ik_antislide_capsule_radius = Dvar_RegisterFloat("xanim_ik_antislide_capsule_radius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "IK anti-slide leg capsule radius to test for collision between the legs.");
+  DCONST_DVARVEC4_xanim_ik_antislide_height_thresholds = Dvar_RegisterVec4("xanim_ik_antislide_height_thresholds", 3.5999999, 3.5999999, 3.8, 4.1999998, -100.0, 100.0, 0x40004u, "IK anti-slide height thresholds for walk, run, and sprint states");
+  DCONST_DVARVEC4_xanim_ik_antislide_blendoutTimes = Dvar_RegisterVec4("xanim_ik_antislide_blendoutTimes", 500.0, 300.0, 150.0, 100.0, 0.0, 2000.0, 0x40004u, "IK anti-slide blendout times for walk, run, and sprint states");
+  DCONST_DVARFLT_xanim_ik_antislide_max_distance = Dvar_RegisterFloat("xanim_ik_antislide_max_distance", 7.5, 0.0, 100.0, 0x40004u, "IK anti-slide max absolute distance separating anim target position vs world-locked target position.");
+  DCONST_DVARFLT_xanim_ik_antislide_max_distance_crouch = Dvar_RegisterFloat("xanim_ik_antislide_max_distance_crouch", 4.5, 0.0, 100.0, 0x40004u, "IK anti-slide max absolute distance separating anim target position vs world-locked target position when crouched.");
+  DCONST_DVARFLT_xanim_ik_antislide_max_distance_knee_target = Dvar_RegisterFloat("xanim_ik_antislide_max_distance_knee_target", 19.0, 0.0, 100.0, 0x40004u, "IK anti-slide max distance between knee and world-locked target position.");
+  DCONST_DVARFLT_xanim_ik_antislide_max_angle_knee_target = Dvar_RegisterFloat("xanim_ik_antislide_max_angle_knee_target", 3.0, 0.0, 100.0, 0x40004u, "IK anti-slide max angle between knee and world-locked target position.");
+  DCONST_DVARFLT_xanim_ik_antislide_adjust_angle_knee_target = Dvar_RegisterFloat("xanim_ik_antislide_adjust_angle_knee_target", 15.0, 0.0, 100.0, 0x40004u, "IK anti-slide max angle to rotate the hip to align it with the knee and the world-locked target.");
+  DCONST_DVARFLT_xanim_ik_antislide_slope_threshold = Dvar_RegisterFloat("xanim_ik_antislide_slope_threshold", 0.02, 0.0, 100.0, 0x40004u, "IK anti-slide threshold to blendout the world-locked targetif the player is on a slope.");
+  DCONST_DVARFLT_xanim_ik_antislide_crouch_threshold = Dvar_RegisterFloat("xanim_ik_antislide_crouch_threshold", 28.0, 0.0, 100.0, 0x40004u, "IK anti-slide height threshold when the character is crouched.");
+  DCONST_DVARFLT_xanim_ik_antislide_move_threshold = Dvar_RegisterFloat("xanim_ik_antislide_move_threshold", 0.0, 0.0, 100.0, 0x40004u, "IK anti-slide distance threshold to keep the system running even tough the character stopped moving.");
+  DCONST_DVARFLT_xanim_ik_antislide_strafe_cosine_angle = Dvar_RegisterFloat("xanim_ik_antislide_strafe_cosine_angle", 0.70709997, 0.0, 90.0, 0x40004u, "IK anti-slide strafe cosine angle to decide which foot to unlock when start moving.");
+  DCONST_DVARFLT_xanim_ik_antislide_capsule_radius = Dvar_RegisterFloat("xanim_ik_antislide_capsule_radius", 2.7, 0.0, 10.0, 0x40004u, "IK anti-slide leg capsule radius to test for collision between the legs.");
   DCONST_DVARINT_xanim_ik_antislide_collision_blendout_time = Dvar_RegisterInt("xanim_ik_antislide_collision_blendout_time", 400, 0, 1000, 0x40004u, "IK anti-slide blendout to unlock the foot when legs are colliding between each other.");
   DCONST_DVARBOOL_xanim_ik_antislide_collision_show_capsules = Dvar_RegisterBool("xanim_ik_antislide_collision_show_capsules", 0, 0x40004u, "Show IK anti-slide collision capsules for legs.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  v223 = Dvar_RegisterFloat("xanim_ik_antislide_floatTrackThresholdFraction", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Normalized translation threshold after which a foot is considered to be locked.");
-  __asm { vmovss  xmm3, cs:__real@41f00000; max }
-  DCONST_DVARFLT_xanim_ik_antislide_floatTrackThresholdFraction = v223;
-  __asm
-  {
-    vmovaps xmm2, xmm11; min
-    vmovaps xmm1, xmm8; value
-  }
-  v227 = Dvar_RegisterFloat("xanim_ik_antislide_floatTrackRange", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Range of antislide bone translation along positive X and Y axes.");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@c1a00000
-    vmovss  xmm1, cs:__real@40c00000; x
-  }
-  DCONST_DVARFLT_xanim_ik_antislide_floatTrackRange = v227;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0D8h+description], xmm7
-    vxorps  xmm3, xmm3, xmm3; z
-    vmovaps xmm2, xmm11; y
-    vmovss  [rsp+0D8h+flags], xmm0
-  }
-  DCONST_DVARVEC3_xanim_ik_antislide_foot_pin_offset = Dvar_RegisterVec3("xanim_ik_antislide_foot_pin_offset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsd, descriptiond, 0x40004u, "Location of antislide pin point relative to ankle bone (e.g. ball of foot)");
+  DCONST_DVARFLT_xanim_ik_antislide_floatTrackThresholdFraction = Dvar_RegisterFloat("xanim_ik_antislide_floatTrackThresholdFraction", 0.94999999, 0.0, 1.0, 0x40004u, "Normalized translation threshold after which a foot is considered to be locked.");
+  DCONST_DVARFLT_xanim_ik_antislide_floatTrackRange = Dvar_RegisterFloat("xanim_ik_antislide_floatTrackRange", 10.0, 1.0, 30.0, 0x40004u, "Range of antislide bone translation along positive X and Y axes.");
+  DCONST_DVARVEC3_xanim_ik_antislide_foot_pin_offset = Dvar_RegisterVec3("xanim_ik_antislide_foot_pin_offset", 6.0, 1.0, 0.0, -20.0, 20.0, 0x40004u, "Location of antislide pin point relative to ankle bone (e.g. ball of foot)");
   DCONST_DVARBOOL_xanim_ik_antislide_enable_foot_pin_offset = Dvar_RegisterBool("xanim_ik_antislide_enable_foot_pin_offset", 1, 0x40004u, "Enable antislide foot pin offset adjustment when using float tracks");
-  __asm { vmovss  xmm1, cs:__real@40000000; value }
   DCONST_DVARBOOL_xanim_ik_antislide_fast_blendout_enabled = Dvar_RegisterBool("xanim_ik_antislide_fast_blendout_enabled", 1, 0x40004u, "Enable faster blend out if distance between world locked target position and anim target position exceeds threshold.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_ik_antislide_fast_blendout_threshold = Dvar_RegisterFloat("xanim_ik_antislide_fast_blendout_threshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance threshold used to trigger faster blend out, relative to current anti-slide max distance.");
+  DCONST_DVARFLT_xanim_ik_antislide_fast_blendout_threshold = Dvar_RegisterFloat("xanim_ik_antislide_fast_blendout_threshold", 2.0, 0.0, 100.0, 0x40004u, "Distance threshold used to trigger faster blend out, relative to current anti-slide max distance.");
   DCONST_DVARINT_xanim_ik_antislide_fast_blendout_time = Dvar_RegisterInt("xanim_ik_antislide_fast_blendout_time", 200, 0, 2000, 0x40004u, "Reduced blend out time to use for locked foot that has exceeded max distance.");
   DVARBOOL_xanim_ik_antislide_enable = Dvar_RegisterBool("TMTPTQNMN", 1, 0x40u, "Enable IK anti-slide anim node.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@bf800000; value
-    vmovss  xmm3, cs:__real@40800000; max
-  }
   DCONST_DVARBOOL_xanim_custom_node_instant_update = Dvar_RegisterBool("xanim_custom_node_instant_update", 1, 0x40004u, "Enable immediate update/initialization of custom anim nodes when they are created.");
-  __asm { vmovaps xmm2, xmm1; min }
-  DCONST_DVARFLT_xanim_lodOverride = Dvar_RegisterFloat("xanim_lodOverride", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Force xanim LOD level for all entities.");
-  __asm { vmovss  xmm1, cs:__real@42700000; value }
+  DCONST_DVARFLT_xanim_lodOverride = Dvar_RegisterFloat("xanim_lodOverride", -1.0, -1.0, 4.0, 0x40004u, "Force xanim LOD level for all entities.");
   DCONST_DVARBOOL_xanim_lodEnable = Dvar_RegisterBool("xanim_lodEnable", 1, 0x40004u, "Enable xanim LOD culling for client entities.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v241 = Dvar_RegisterFloat("xanim_lodHysteresisMaxPercent", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum LOD distance change as fraction of distance between adjacent LOD levels.");
-  __asm { vmovss  xmm1, cs:__real@43480000; value }
-  DCONST_DVARFLT_xanim_lodHysteresisMaxPercent = v241;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_lodHysteresisDistance = Dvar_RegisterFloat("xanim_lodHysteresisDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Minimum LOD distance change before transitioning to an adjacent LOD level.");
-  __asm { vmovss  xmm1, cs:__real@3e8f5c29; value }
+  DCONST_DVARFLT_xanim_lodHysteresisMaxPercent = Dvar_RegisterFloat("xanim_lodHysteresisMaxPercent", 60.0, 0.0, 100.0, 0x40004u, "Maximum LOD distance change as fraction of distance between adjacent LOD levels.");
+  DCONST_DVARFLT_xanim_lodHysteresisDistance = Dvar_RegisterFloat("xanim_lodHysteresisDistance", 200.0, 0.0, 2000.0, 0x40004u, "Minimum LOD distance change before transitioning to an adjacent LOD level.");
   DCONST_DVARINT_xanim_lodBlendTime = Dvar_RegisterInt("xanim_lodBlendTime", 120, 0, 3000, 0x40004u, "Duration of blends between xanim LOD transitions, in milliseconds.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_xanim_lodLerpFactor = Dvar_RegisterFloat("xanim_lodLerpFactor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Lerp factor to use when transitioning between LODS.");
+  DCONST_DVARFLT_xanim_lodLerpFactor = Dvar_RegisterFloat("xanim_lodLerpFactor", 0.28, 0.0, 1.0, 0x40004u, "Lerp factor to use when transitioning between LODS.");
   DCONST_DVARINT_xanim_proceduralBonesDebugMemoryBudget = Dvar_RegisterInt("xanim_proceduralBonesDebugMemoryBudget", -1, -1, 512, 0x40004u, "Debug memory budget for procedural bones allocator");
   DVARBOOL_dobj_assert_on_root_meld_failure = Dvar_RegisterBool("LPMMPQNMLQ", 0, 0x40u, "Asserts if dobj root meld operation fails for a model when this dvar is set to true. Otherwise a warning message is added to the log.");
   DVARBOOL_dobj_hide_models_with_root_meld_failure = Dvar_RegisterBool("NTTPTKNNKM", 0, 0, "Hide models where the root meld operation fails. Note that in non-cheats builds, the model is always hidden when the root meld operation fails.");
   DVARBOOL_dobj_assert_on_free_submitted = Dvar_RegisterBool("MPNNKNTRMK", 1, 0x40u, "Asserts if dobj is freed while the renderer frontend is holding a reference.");
   DVARBOOL_dobj_assert_on_free_submitted_dump = Dvar_RegisterBool("NQRTQPSKRT", 0, 0x40u, "Asserts if dobj is freed while the renderer frontend is holding a reference, even in non-development builds.");
   DCONST_DVARBOOL_xanim_silence_parse_parameter_validation = Dvar_RegisterBool("xanim_silence_parse_parameter_validation", 0, 0x40004u, "Silence error when the number of parameters does not match the registered list for AI( after gold build. )");
-  __asm { vmovaps xmm15, [rsp+0D8h+var_88] }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm14, xmmword ptr [r11-78h]
-  }
   Dvar_EndPermanentRegistration();
 }
 
@@ -13557,26 +11112,19 @@ void XAnimResetTime(unsigned __int16 infoIndex)
 XAnimRestart
 ==============
 */
-
-__int64 __fastcall XAnimRestart(XAnimTree *tree, unsigned int graftAnimIndex, unsigned __int16 infoIndex, double goalTime)
+__int64 XAnimRestart(XAnimTree *tree, unsigned int graftAnimIndex, unsigned __int16 infoIndex, float goalTime)
 {
   unsigned __int16 parent; 
   bool i; 
   XAnimInfo *AnimInfo; 
   __int64 animIndex; 
   const XAnim_s *SubTreeAnims; 
-  XAnimInfo *v15; 
-  unsigned __int16 v16; 
-  XAnimInfo *v17; 
-  __int64 result; 
-  XAnimInfo *v19; 
-  __int64 v23; 
+  XAnimInfo *v12; 
+  unsigned __int16 v13; 
+  XAnimInfo *v14; 
+  XAnimInfo *v16; 
+  __int64 v17; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8314, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !infoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8315, ASSERT_TYPE_ASSERT, "(infoIndex != 0)", (const char *)&queryFormat, "infoIndex != 0") )
@@ -13586,8 +11134,8 @@ __int64 __fastcall XAnimRestart(XAnimTree *tree, unsigned int graftAnimIndex, un
   {
     if ( !parent )
     {
-      LODWORD(v23) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 285, ASSERT_TYPE_ASSERT, "( infoIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "infoIndex", "0", v23, 0i64) )
+      LODWORD(v17) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 285, ASSERT_TYPE_ASSERT, "( infoIndex ) != ( 0 )", "%s != %s\n\t%i, %i", "infoIndex", "0", v17, 0i64) )
         __debugbreak();
     }
     AnimInfo = XAnimGetAnimInfo(parent);
@@ -13601,40 +11149,26 @@ __int64 __fastcall XAnimRestart(XAnimTree *tree, unsigned int graftAnimIndex, un
       __debugbreak();
     if ( SubTreeAnims->entries[animIndex].numAnims && ((__int64)SubTreeAnims->entries[animIndex].parts & 4) != 0 )
     {
-      __asm { vmovaps xmm2, xmm6; goalTime }
-      XAnimInitTime(tree, parent, *(double *)&_XMM2);
-      v15 = XAnimGetAnimInfo(infoIndex);
-      v16 = XAnimGetInfoIndex(tree, graftAnimIndex, (const XAnimSubTreeID)v15->subTreeID, v15->animIndex);
-      if ( v16 )
-        infoIndex = v16;
-      v17 = XAnimGetAnimInfo(infoIndex);
-      XAnimCustomNodeRestart(tree, v17);
-      result = infoIndex;
-      goto LABEL_35;
+      XAnimInitTime(tree, parent, goalTime);
+      v12 = XAnimGetAnimInfo(infoIndex);
+      v13 = XAnimGetInfoIndex(tree, graftAnimIndex, (const XAnimSubTreeID)v12->subTreeID, v12->animIndex);
+      if ( v13 )
+        infoIndex = v13;
+      v14 = XAnimGetAnimInfo(infoIndex);
+      XAnimCustomNodeRestart(tree, v14);
+      return infoIndex;
     }
     parent = AnimInfo->parent;
   }
-  v19 = XAnimGetAnimInfo(infoIndex);
-  if ( !v19->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8350, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  v16 = XAnimGetAnimInfo(infoIndex);
+  if ( !v16->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8350, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  if ( IsInfoInstantFullRestart(v19) )
-  {
-    __asm { vmovaps xmm2, xmm6; goalTime }
-    result = XAnimInitTimeFullRestart(tree, infoIndex, *(double *)&_XMM2);
-  }
-  else if ( v19->animToModel )
-  {
-    __asm { vmovaps xmm2, xmm6; goalTime }
-    result = XAnimInitTime(tree, infoIndex, *(double *)&_XMM2);
-  }
-  else
-  {
-    XAnimCustomNodeRestart(tree, v19);
-    result = infoIndex;
-  }
-LABEL_35:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+  if ( IsInfoInstantFullRestart(v16) )
+    return XAnimInitTimeFullRestart(tree, infoIndex, goalTime);
+  if ( v16->animToModel )
+    return XAnimInitTime(tree, infoIndex, goalTime);
+  XAnimCustomNodeRestart(tree, v16);
+  return infoIndex;
 }
 
 /*
@@ -13677,10 +11211,7 @@ void XAnimSetAnimRate(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimS
   XAnimAssertAnimIndex(tree, subTreeID, animIndex);
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    __asm { vmovss  xmm2, [rsp+38h+rate]; rate }
-    XAnimSetAnimRateNode(tree, InfoIndex, *(float *)&_XMM2);
-  }
+    XAnimSetAnimRateNode(tree, InfoIndex, rate);
 }
 
 /*
@@ -13688,53 +11219,34 @@ void XAnimSetAnimRate(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimS
 XAnimSetAnimRateNode
 ==============
 */
-
-void __fastcall XAnimSetAnimRateNode(XAnimTree *tree, unsigned __int16 infoIndex, double rate)
+void XAnimSetAnimRateNode(XAnimTree *tree, unsigned __int16 infoIndex, float rate)
 {
-  const dvar_t *v10; 
+  XAnimInfo *NonRootAnimInfo; 
+  const dvar_t *v6; 
   const char *AnimDebugName; 
-  double v15; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( !infoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8531, ASSERT_TYPE_ASSERT, "(infoIndex)", (const char *)&queryFormat, "infoIndex") )
     __debugbreak();
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8534, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8534, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8535, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( _RBX->notifyName )
-    __asm { vcomiss xmm7, xmm6 }
-  if ( _RBX->notifyType )
-    __asm { vcomiss xmm7, xmm6 }
-  v10 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
+  if ( NonRootAnimInfo->notifyName && rate < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8537, ASSERT_TYPE_ASSERT, "((info->notifyName == ( static_cast< scr_string_t >( 0 ) )) || rate >= 0)", (const char *)&queryFormat, "(info->notifyName == NULL_SCR_STRING) || rate >= 0") )
+    __debugbreak();
+  if ( NonRootAnimInfo->notifyType && rate < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8538, ASSERT_TYPE_ASSERT, "(!info->notifyType || rate >= 0)", (const char *)&queryFormat, "!info->notifyType || rate >= 0") )
+    __debugbreak();
+  v6 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
   if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled && (_RBX->state.flags & 0x10) != 0 )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled && (NonRootAnimInfo->state.flags & 0x10) != 0 && rate != 0.0 )
   {
-    __asm { vucomiss xmm7, xmm6 }
-    if ( (_RBX->state.flags & 0x10) != 0 )
-    {
-      __asm { vcvtss2sd xmm6, xmm7, xmm7 }
-      AnimDebugName = XAnimGetAnimDebugName(tree->anims, _RBX->animIndex);
-      __asm { vmovsd  [rsp+68h+var_30], xmm6 }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8543, ASSERT_TYPE_ASSERT, "(rate == 0.0f)", "%s\n\tXAnimSetAnimRate '%s': rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "rate == 0.0f", AnimDebugName, v15) )
-        __debugbreak();
-    }
+    AnimDebugName = XAnimGetAnimDebugName(tree->anims, NonRootAnimInfo->animIndex);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8543, ASSERT_TYPE_ASSERT, "(rate == 0.0f)", "%s\n\tXAnimSetAnimRate '%s': rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "rate == 0.0f", AnimDebugName, rate) )
+      __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovss  dword ptr [rbx+40h], xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  NonRootAnimInfo->state.rate = rate;
 }
 
 /*
@@ -13744,36 +11256,28 @@ XAnimSetChildGoalWeights
 */
 void XAnimSetChildGoalWeights(const DObj *obj, XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
 {
+  float v15; 
   const XAnim_s *SubTreeAnims; 
   unsigned __int16 InfoIndex; 
-  unsigned __int16 children; 
-  unsigned __int8 *v26; 
-  __int64 v27; 
-  float fmt; 
-  __int64 v33; 
-  float v34; 
-  __int64 v35; 
+  unsigned __int16 i; 
+  unsigned __int8 *v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-  }
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8024, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm
+  v15 = goalWeight;
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8025, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8026, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
+  if ( goalWeight < 0.001 )
   {
-    vmovss  xmm7, [rsp+0A8h+goalWeight]
-    vxorps  xmm6, xmm6, xmm6
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm7, xmm6 }
-  if ( notifyType )
-    __asm { vucomiss xmm7, xmm6 }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm7, xmm0
+    if ( notifyName || notifyType )
+      v15 = FLOAT_0_001;
+    else
+      v15 = 0.0;
   }
   XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
@@ -13783,64 +11287,40 @@ void XAnimSetChildGoalWeights(const DObj *obj, XAnimTree *tree, unsigned int gra
     __debugbreak();
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    LODWORD(v33) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8038, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v33, 42) )
+    LODWORD(v21) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8038, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v21, 42) )
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
   {
-    children = GetNonRootAnimInfo(InfoIndex)->children;
-    if ( children )
+    for ( i = GetNonRootAnimInfo(InfoIndex)->children; i; i = *((_WORD *)v19 + 5) )
     {
-      __asm
+      if ( (i & 0x8000u) != 0 )
       {
-        vmovss  xmm6, [rsp+0A8h+rate]
-        vmovaps [rsp+0A8h+var_58], xmm8
-        vmovss  xmm8, [rsp+0A8h+goalTime]
+        v20 = 32 * (i & 0x7FFFu);
+        if ( (unsigned int)v20 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        {
+          LODWORD(v22) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v21) = 32 * (i & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v21, v22) )
+            __debugbreak();
+        }
+        v19 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v20];
       }
-      do
+      else
       {
-        if ( (children & 0x8000u) != 0 )
+        if ( (unsigned int)i >= g_xanimMemoryGlobals.infoPoolSize )
         {
-          v27 = 32 * (children & 0x7FFFu);
-          if ( (unsigned int)v27 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-          {
-            LODWORD(v35) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v33) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v33, v35) )
-              __debugbreak();
-          }
-          v26 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v27];
+          LODWORD(v22) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v21) = i;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v21, v22) )
+            __debugbreak();
         }
-        else
-        {
-          if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
-          {
-            LODWORD(v35) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v33) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v33, v35) )
-              __debugbreak();
-          }
-          v26 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
-        }
-        __asm
-        {
-          vmovss  [rsp+0A8h+var_80], xmm6
-          vmovaps xmm3, xmm7; goalWeight
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-        }
-        XAnimSetGoalWeightNode(obj, tree, children, *(float *)&_XMM3, fmt, v34, notifyName, notifyType, curveID, cachedModelNameMap);
-        children = *((_WORD *)v26 + 5);
+        v19 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
       }
-      while ( children );
-      __asm { vmovaps xmm8, [rsp+0A8h+var_58] }
+      XAnimSetGoalWeightNode(obj, tree, i, v15, goalTime, rate, notifyName, notifyType, curveID, cachedModelNameMap);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 
@@ -13851,176 +11331,119 @@ XAnimSetChildTimes
 */
 void XAnimSetChildTimes(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float time)
 {
-  __int64 v9; 
+  __int64 v5; 
   const XAnim_s *SubTreeAnims; 
   unsigned __int16 InfoIndex; 
-  bool v15; 
-  bool v16; 
   XAnimInfo *NonRootAnimInfo; 
-  unsigned __int16 children; 
-  unsigned int v24; 
-  const XAnim_s *v25; 
-  XAnimEntry *v26; 
+  unsigned __int16 i; 
+  unsigned __int8 *v13; 
+  unsigned int v14; 
+  const XAnim_s *v15; 
+  XAnimEntry *v16; 
   const char *AnimDebugName; 
   XAnimParts *parts; 
-  int v30; 
-  XAnimParts *v31; 
-  int v32; 
-  const char *v33; 
+  int v19; 
+  XAnimParts *v20; 
+  int v21; 
+  const char *v22; 
   unsigned __int8 flags; 
-  __int64 v39; 
-  double v40; 
-  __int64 v41; 
-  double v42; 
-  double v43; 
-  __int64 v44; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
 
-  v9 = animIndex;
+  v5 = animIndex;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8068, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v9);
+  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v5);
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
   if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8072, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  if ( (unsigned int)v9 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8073, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
+  if ( (unsigned int)v5 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8073, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
     __debugbreak();
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v9);
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v5);
   if ( InfoIndex )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vmovaps [rsp+0A8h+var_58], xmm8
-    }
-    v15 = SubTreeAnims->entries[v9].numAnims == 0;
-    if ( !SubTreeAnims->entries[v9].numAnims )
-    {
-      v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8082, ASSERT_TYPE_ASSERT, "(!IsLeafNode( anim ))", (const char *)&queryFormat, "!IsLeafNode( anim )");
-      v15 = !v16;
-      if ( v16 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm7, [rsp+0A8h+time]
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm7, xmm0
-      vcomiss xmm7, xmm8
-    }
-    if ( !v15 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+0A8h+var_80], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8084, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", v40) )
-        __debugbreak();
-    }
+    if ( !SubTreeAnims->entries[v5].numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8082, ASSERT_TYPE_ASSERT, "(!IsLeafNode( anim ))", (const char *)&queryFormat, "!IsLeafNode( anim )") )
+      __debugbreak();
+    if ( (time < 0.0 || time > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8084, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", time) )
+      __debugbreak();
     NonRootAnimInfo = GetNonRootAnimInfo(InfoIndex);
-    children = NonRootAnimInfo->children;
-    if ( children )
+    for ( i = NonRootAnimInfo->children; i; i = *((_WORD *)v13 + 5) )
     {
-      __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-      do
+      if ( (i & 0x8000u) != 0 )
       {
-        if ( (children & 0x8000u) != 0 )
+        v14 = 32 * (i & 0x7FFF);
+        if ( v14 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          v24 = 32 * (children & 0x7FFF);
-          if ( v24 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-          {
-            LODWORD(v41) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v39) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v39, v41) )
-              __debugbreak();
-          }
-          _RDI = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v24];
-        }
-        else
-        {
-          if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
-          {
-            LODWORD(v41) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v39) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v39, v41) )
-              __debugbreak();
-          }
-          _RDI = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
-        }
-        v25 = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)*((_WORD *)_RDI + 8));
-        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8095, ASSERT_TYPE_ASSERT, "(childAnims)", (const char *)&queryFormat, "childAnims") )
-          __debugbreak();
-        v26 = &v25->entries[*((unsigned __int16 *)_RDI + 3)];
-        if ( v26->numAnims )
-        {
-          __asm { vcvtss2sd xmm6, xmm7, xmm7 }
-          AnimDebugName = XAnimGetAnimDebugName(v25, *((unsigned __int16 *)_RDI + 3));
-          __asm { vmovsd  [rsp+0A8h+var_70], xmm6 }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8098, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", "%s\n\tAnim name: '%s', time: %f", "IsLeafNode( anim )", AnimDebugName, v42) )
-            __debugbreak();
-          if ( v26->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
+          LODWORD(v25) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v24) = 32 * (i & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v24, v25) )
             __debugbreak();
         }
-        parts = v26->parts;
-        if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
-          __debugbreak();
-        v30 = 0;
-        if ( (parts->flags & 1) != 0 )
-        {
-          __asm { vcomiss xmm7, xmm8 }
-          LOBYTE(v30) = 0;
-        }
-        else
-        {
-          __asm { vcomiss xmm7, xmm8 }
-          LOBYTE(v30) = (parts->flags & 1) == 0;
-        }
-        if ( !v30 )
-        {
-          if ( v26->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
-            __debugbreak();
-          v31 = v26->parts;
-          if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
-            __debugbreak();
-          v32 = v31->flags & 1;
-          v33 = XAnimGetAnimDebugName(v25, *((unsigned __int16 *)_RDI + 3));
-          LODWORD(v44) = v32;
-          __asm
-          {
-            vcvtss2sd xmm0, xmm7, xmm7
-            vmovsd  [rsp+0A8h+var_70], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8099, ASSERT_TYPE_ASSERT, "((XAnimGetPartsInternal( anim )->flags & ANIM_LOOP) ? (time < 1.0f) : (time <= 1.0f))", "%s\n\tname: '%s', time: %f, loop: %d", "(XAnimGetPartsInternal( anim )->flags & ANIM_LOOP) ? (time < 1.0f) : (time <= 1.0f)", v33, v43, v44) )
-            __debugbreak();
-        }
-        __asm { vmovss  dword ptr [rdi+28h], xmm7 }
-        *((_WORD *)_RDI + 24) = 0;
-        flags = NonRootAnimInfo->state.flags;
-        if ( (flags & 0x10) != 0 )
-        {
-          if ( (flags & 0x40) == 0 )
-          {
-            __asm { vmovss  dword ptr [rdi+2Ch], xmm7 }
-            *((_WORD *)_RDI + 25) = 0;
-            NonRootAnimInfo->state.flags |= 0x40u;
-          }
-        }
-        else
-        {
-          __asm { vmovss  dword ptr [rdi+2Ch], xmm7 }
-          *((_WORD *)_RDI + 25) = 0;
-        }
-        *((_WORD *)_RDI + 1) = -1;
-        children = *((_WORD *)_RDI + 5);
+        v13 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v14];
       }
-      while ( children );
-      __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm8, [rsp+0A8h+var_58]
+      else
+      {
+        if ( (unsigned int)i >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v25) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v24) = i;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v24, v25) )
+            __debugbreak();
+        }
+        v13 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
+      }
+      v15 = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)*((_WORD *)v13 + 8));
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8095, ASSERT_TYPE_ASSERT, "(childAnims)", (const char *)&queryFormat, "childAnims") )
+        __debugbreak();
+      v16 = &v15->entries[*((unsigned __int16 *)v13 + 3)];
+      if ( v16->numAnims )
+      {
+        AnimDebugName = XAnimGetAnimDebugName(v15, *((unsigned __int16 *)v13 + 3));
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8098, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", "%s\n\tAnim name: '%s', time: %f", "IsLeafNode( anim )", AnimDebugName, time) )
+          __debugbreak();
+        if ( v16->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
+          __debugbreak();
+      }
+      parts = v16->parts;
+      if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+        __debugbreak();
+      v19 = 0;
+      if ( (parts->flags & 1) != 0 )
+        LOBYTE(v19) = time < 1.0;
+      else
+        LOBYTE(v19) = time <= 1.0;
+      if ( !v19 )
+      {
+        if ( v16->numAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
+          __debugbreak();
+        v20 = v16->parts;
+        if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+          __debugbreak();
+        v21 = v20->flags & 1;
+        v22 = XAnimGetAnimDebugName(v15, *((unsigned __int16 *)v13 + 3));
+        LODWORD(v26) = v21;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8099, ASSERT_TYPE_ASSERT, "((XAnimGetPartsInternal( anim )->flags & ANIM_LOOP) ? (time < 1.0f) : (time <= 1.0f))", "%s\n\tname: '%s', time: %f, loop: %d", "(XAnimGetPartsInternal( anim )->flags & ANIM_LOOP) ? (time < 1.0f) : (time <= 1.0f)", v22, time, v26) )
+          __debugbreak();
+      }
+      *((float *)v13 + 10) = time;
+      *((_WORD *)v13 + 24) = 0;
+      flags = NonRootAnimInfo->state.flags;
+      if ( (flags & 0x10) != 0 )
+      {
+        if ( (flags & 0x40) == 0 )
+        {
+          *((float *)v13 + 11) = time;
+          *((_WORD *)v13 + 25) = 0;
+          NonRootAnimInfo->state.flags |= 0x40u;
+        }
+      }
+      else
+      {
+        *((float *)v13 + 11) = time;
+        *((_WORD *)v13 + 25) = 0;
+      }
+      *((_WORD *)v13 + 1) = -1;
     }
   }
 }
@@ -14055,19 +11478,14 @@ void XAnimSetClientLod(const DObj *obj, unsigned __int8 lod)
 XAnimSetClientLodByDistance
 ==============
 */
-
-void __fastcall XAnimSetClientLodByDistance(const DObj *obj, double distance)
+void XAnimSetClientLodByDistance(const DObj *obj, float distance)
 {
   unsigned __int8 LodForDistance; 
   XAnimTree *tree; 
-  const dvar_t *v7; 
+  const dvar_t *v5; 
+  double v6; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  LodForDistance = XAnimGetLodForDistance(obj, *(float *)&distance);
+  LodForDistance = XAnimGetLodForDistance(obj, distance);
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9686, ASSERT_TYPE_ASSERT, "(obj != nullptr)", (const char *)&queryFormat, "obj != nullptr") )
     __debugbreak();
   if ( !DObjHasClientFlag(obj) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9687, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
@@ -14075,26 +11493,18 @@ void __fastcall XAnimSetClientLodByDistance(const DObj *obj, double distance)
   tree = obj->tree;
   if ( obj->tree )
   {
-    v7 = DCONST_DVARINT_xanim_lodBlendTime;
+    v5 = DCONST_DVARINT_xanim_lodBlendTime;
     if ( !DCONST_DVARINT_xanim_lodBlendTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodBlendTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    XAnimTreeSetGoalLod(tree, LodForDistance, v7->current.integer);
+    Dvar_CheckFrontendServerThread(v5);
+    XAnimTreeSetGoalLod(tree, LodForDistance, v5->current.integer);
     tree = obj->tree;
   }
   if ( tree )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@477fff00; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm0, xmm6; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvttss2si eax, xmm0 }
-    tree->lodState.distance = _EAX;
+    v6 = I_fclamp(distance, 0.0, 65535.0);
+    tree->lodState.distance = (int)*(float *)&v6;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -14123,38 +11533,29 @@ XAnimSetCompleteGoalWeight
 */
 __int64 XAnimSetCompleteGoalWeight(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
 {
+  float v16; 
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
-  unsigned __int16 v23; 
+  unsigned __int16 v19; 
   XAnimInfo *AnimInfo; 
   const XAnim_s *SubTreeAnims; 
-  unsigned int v30; 
-  __int64 result; 
-  float fmt; 
+  unsigned int v22; 
   XModelNameMap *modelNameMap; 
-  float modelNameMapa; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
   Profile_Begin(456);
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8799, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm
+  v16 = goalWeight;
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8800, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8801, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
+  if ( goalWeight < 0.001 )
   {
-    vmovss  xmm6, [rsp+98h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  if ( notifyType )
-    __asm { vucomiss xmm6, xmm7 }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm6, xmm0
+    if ( notifyName || notifyType )
+      v16 = FLOAT_0_001;
+    else
+      v16 = 0.0;
   }
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8807, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -14167,20 +11568,16 @@ __int64 XAnimSetCompleteGoalWeight(const DObj *obj, unsigned int graftAnimIndex,
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  v23 = InfoIndex;
-  __asm { vmovss  xmm7, [rsp+98h+goalTime] }
+  v19 = InfoIndex;
   if ( InfoIndex )
   {
     if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm7; goalTime }
-      v23 = XAnimRestart(tree, graftAnimIndex, InfoIndex, *(double *)&_XMM3);
-    }
+      v19 = XAnimRestart(tree, graftAnimIndex, InfoIndex, goalTime);
   }
   else
   {
-    v23 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, cachedModelNameMap);
-    AnimInfo = XAnimGetAnimInfo(v23);
+    v19 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, cachedModelNameMap);
+    AnimInfo = XAnimGetAnimInfo(v19);
     *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
     *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
     *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
@@ -14194,19 +11591,9 @@ __int64 XAnimSetCompleteGoalWeight(const DObj *obj, unsigned int graftAnimIndex,
     if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
       AnimInfo->state.flags |= 8u;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+rate]
-    vmovss  dword ptr [rsp+98h+modelNameMap], xmm0
-    vmovaps xmm3, xmm6; goalWeight
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
-  }
-  v30 = XAnimSetCompleteGoalWeightNode(obj, tree, v23, *(float *)&_XMM3, fmt, modelNameMapa, notifyName, notifyType, curveID, cachedModelNameMap);
+  v22 = XAnimSetCompleteGoalWeightNode(obj, tree, v19, v16, goalTime, rate, notifyName, notifyType, curveID, cachedModelNameMap);
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  result = v30;
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
-  return result;
+  return v22;
 }
 
 /*
@@ -14218,31 +11605,25 @@ int XAnimSetCompleteGoalWeightKnob(const DObj *obj, unsigned int graftAnimIndex,
 {
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
-  unsigned __int16 v22; 
+  unsigned __int16 v21; 
   XAnimInfo *AnimInfo; 
   const XAnim_s *SubTreeAnims; 
   XModelNameMap *modelNameMap; 
-  float goalWeighta; 
-  float goalTimea; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7245, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm
+  *(_QWORD *)&_XMM6 = LODWORD(goalWeight);
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7246, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  _XMM3 = LODWORD(FLOAT_0_001);
+  if ( goalWeight < 0.001 )
   {
-    vmovss  xmm6, [rsp+98h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3a83126f
-    vcomiss xmm6, xmm3
+    _XMM0 = (unsigned int)notifyName;
+    __asm
+    {
+      vpcmpeqd xmm2, xmm0, xmm1
+      vblendvps xmm6, xmm3, xmm7, xmm2
+    }
   }
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7252, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -14255,573 +11636,11 @@ int XAnimSetCompleteGoalWeightKnob(const DObj *obj, unsigned int graftAnimIndex,
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  v22 = InfoIndex;
-  __asm { vmovss  xmm7, [rsp+98h+goalTime] }
-  if ( InfoIndex )
-  {
-    if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm7; goalTime }
-      v22 = XAnimRestart(tree, graftAnimIndex, InfoIndex, *(double *)&_XMM3);
-    }
-  }
-  else
-  {
-    v22 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, NULL);
-    AnimInfo = XAnimGetAnimInfo(v22);
-    *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
-    *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
-    *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
-    *(_QWORD *)&AnimInfo->state.rate = 0i64;
-    *(_QWORD *)&AnimInfo->state.startWeight = 0i64;
-    AnimInfo->notifyName = 0;
-    AnimInfo->notifyType = 0;
-    *(_DWORD *)&AnimInfo->notifyChild = -65536;
-    AnimInfo->subTreeID = subTreeID;
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
-      AnimInfo->state.flags |= 8u;
-  }
-  __asm
-  {
-    vmovaps xmm3, xmm7; goalTime
-    vmovaps xmm2, xmm6; goalWeight
-  }
-  XAnimClearGoalWeightKnobInternal(tree, v22, *(double *)&_XMM2, *(double *)&_XMM3, curveID);
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+rate]
-    vmovss  [rsp+98h+goalTime], xmm0
-    vmovaps xmm3, xmm6
-    vmovss  [rsp+98h+goalWeight], xmm7
-    vmovaps xmm6, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_48]
-  }
-  return XAnimSetCompleteGoalWeightNode(obj, tree, v22, *(float *)&_XMM3, goalWeighta, goalTimea, notifyName, 0, curveID, NULL);
-}
-
-/*
-==============
-XAnimSetCompleteGoalWeightKnobAll
-==============
-*/
-__int64 XAnimSetCompleteGoalWeightKnobAll(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, const XAnimSubTreeID rootSubTreeID, unsigned int rootIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, int bRestart, const XAnimCurveID curveID)
-{
-  XAnimTree *tree; 
-  unsigned __int16 InfoIndex; 
-  unsigned __int16 parent; 
-  unsigned __int8 *v26; 
-  unsigned int v27; 
-  __int64 result; 
-  float fmt; 
-  float fmta; 
-  float v37; 
-  __int64 v38; 
-  float v39; 
-  float v40; 
-  __int64 v41; 
-  unsigned int curveIDa; 
-
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  if ( !graftAnimIndex && animIndex == rootIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7335, ASSERT_TYPE_ASSERT, "((graftAnimIndex != 0) || (animIndex != rootIndex))", (const char *)&queryFormat, "(graftAnimIndex != XANIM_DEFAULT_GRAFT_ANIM_INDEX) || (animIndex != rootIndex)") )
-    __debugbreak();
-  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7336, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+rate]
-    vmovss  xmm6, [rsp+98h+goalTime]
-    vmovss  dword ptr [rsp+98h+var_68], xmm0
-    vmovss  xmm0, [rsp+98h+goalWeight]
-    vmovss  [rsp+98h+var_70], xmm6
-    vmovss  dword ptr [rsp+98h+fmt], xmm0
-  }
-  curveIDa = XAnimSetGoalWeightKnob(obj, graftAnimIndex, subTreeID, animIndex, fmt, v37, v40, notifyName, bRestart, curveID);
-  Profile_Begin(456);
-  tree = obj->tree;
-  XAnimAssertGraftAnimIndex(obj->tree, graftAnimIndex, subTreeID, animIndex);
-  XAnimAssertAnimIndex(tree, rootSubTreeID, rootIndex);
-  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
-  {
-    LODWORD(v41) = 42;
-    LODWORD(v38) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7347, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v38, v41) )
-      __debugbreak();
-  }
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  if ( !InfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7351, ASSERT_TYPE_ASSERT, "(infoIndex)", (const char *)&queryFormat, "infoIndex") )
-    __debugbreak();
-  __asm { vmovaps [rsp+98h+var_48], xmm7 }
-  parent = XAnimGetAnimInfo(InfoIndex)->parent;
-  if ( parent )
-  {
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    while ( 1 )
-    {
-      if ( (parent & 0x8000u) != 0 )
-      {
-        v27 = 32 * (parent & 0x7FFF);
-        if ( v27 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-        {
-          LODWORD(v41) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(v38) = 32 * (parent & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v38, v41) )
-            __debugbreak();
-        }
-        v26 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v27];
-      }
-      else
-      {
-        if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
-        {
-          LODWORD(v41) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(v38) = parent;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v38, v41) )
-            __debugbreak();
-        }
-        v26 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
-      }
-      if ( *((unsigned __int16 *)v26 + 3) == rootIndex && *((_WORD *)v26 + 8) == rootSubTreeID )
-        break;
-      if ( bRestart )
-      {
-        __asm { vmovaps xmm3, xmm6; goalTime }
-        parent = XAnimRestart(tree, graftAnimIndex, parent, *(double *)&_XMM3);
-      }
-      __asm
-      {
-        vmovaps xmm3, xmm6; goalTime
-        vmovaps xmm2, xmm7; goalWeight
-      }
-      XAnimClearGoalWeightKnobInternal(tree, parent, *(double *)&_XMM2, *(double *)&_XMM3, curveID);
-      __asm
-      {
-        vmovss  [rsp+98h+var_70], xmm7
-        vmovaps xmm3, xmm7; goalWeight
-        vmovss  dword ptr [rsp+98h+fmt], xmm6
-      }
-      XAnimSetCompleteGoalWeightNode(obj, tree, parent, *(float *)&_XMM3, fmta, v39, (scr_string_t)0, 0, curveID, NULL);
-      parent = XAnimGetAnimInfo(parent)->parent;
-      if ( !parent )
-        goto LABEL_30;
-    }
-    Profile_EndInternal(NULL);
-    result = curveIDa;
-  }
-  else
-  {
-LABEL_30:
-    Profile_EndInternal(NULL);
-    result = 1i64;
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_48]
-    vmovaps xmm6, [rsp+98h+var_38]
-  }
-  return result;
-}
-
-/*
-==============
-XAnimSetCompleteGoalWeightNode
-==============
-*/
-__int64 XAnimSetCompleteGoalWeightNode(const DObj *obj, XAnimTree *tree, unsigned __int16 infoIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, const XAnimCurveID curveID, XModelNameMap *modelNameMap)
-{
-  unsigned __int16 parent; 
-  __int64 v21; 
-  bool v22; 
-  unsigned int v24; 
-  __int64 result; 
-  float fmt; 
-  float fmta; 
-  float v33; 
-  __int64 v34; 
-  float v35; 
-  __int64 v36; 
-  char v40; 
-  unsigned int v41; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+0A8h+rate]
-    vmovss  [rsp+0A8h+var_80], xmm0
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovss  xmm8, [rsp+0A8h+goalTime]
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-  }
-  v41 = XAnimSetGoalWeightNode(obj, tree, infoIndex, goalWeight, fmt, v33, notifyName, notifyType, curveID, modelNameMap);
-  parent = XAnimGetAnimInfo(infoIndex)->parent;
-  if ( parent )
-  {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vxorps  xmm7, xmm7, xmm7
-    }
-    do
-    {
-      if ( (parent & 0x8000u) != 0 )
-      {
-        v24 = 32 * (parent & 0x7FFF);
-        if ( v24 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-        {
-          LODWORD(v36) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(v34) = 32 * (parent & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v34, v36) )
-            __debugbreak();
-        }
-        v22 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v24] == NULL;
-        _RCX = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v24];
-      }
-      else
-      {
-        if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
-        {
-          LODWORD(v36) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(v34) = parent;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v34, v36) )
-            __debugbreak();
-        }
-        v21 = parent;
-        v22 = &g_xanimMemoryGlobals.infoPool[v21] == NULL;
-        _RCX = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[v21];
-      }
-      __asm { vucomiss xmm7, dword ptr [rcx+38h] }
-      if ( v22 )
-      {
-        __asm
-        {
-          vmovss  [rsp+0A8h+var_80], xmm6
-          vmovaps xmm3, xmm6; goalWeight
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-        }
-        XAnimSetGoalWeightNode(obj, tree, parent, *(float *)&_XMM3, fmta, v35, (scr_string_t)0, 0, curveID, modelNameMap);
-      }
-      parent = XAnimGetAnimInfo(parent)->parent;
-    }
-    while ( parent );
-    result = v41;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
-  }
-  else
-  {
-    result = v41;
-  }
-  _R11 = &v40;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
-  return result;
-}
-
-/*
-==============
-XAnimSetCompleteGoalWeightRel
-==============
-*/
-__int64 XAnimSetCompleteGoalWeightRel(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, unsigned int rootIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
-{
-  XAnimTree *tree; 
-  unsigned __int16 InfoIndex; 
-  unsigned __int16 v27; 
-  XAnimInfo *AnimInfo; 
-  const XAnim_s *SubTreeAnims; 
-  unsigned int v34; 
-  unsigned __int16 parent; 
-  unsigned int v38; 
-  int v39; 
-  __int64 result; 
-  float fmt; 
-  float fmta; 
-  XModelNameMap *modelNameMap; 
-  float modelNameMapb; 
-  XModelNameMap *modelNameMapa; 
-  float modelNameMapc; 
-  __int64 v52; 
-  char v55; 
-  void *retaddr; 
-  int curveIDa; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  Profile_Begin(456);
-  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8841, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+0A8h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  if ( notifyType )
-    __asm { vucomiss xmm6, xmm7 }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm6, xmm0
-  }
-  tree = obj->tree;
-  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8849, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
-    __debugbreak();
-  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
-  {
-    LODWORD(modelNameMap) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8853, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
-      __debugbreak();
-  }
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  v27 = InfoIndex;
-  __asm { vmovss  xmm8, [rsp+0A8h+goalTime] }
-  if ( InfoIndex )
-  {
-    if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm8; goalTime }
-      v27 = XAnimRestart(tree, graftAnimIndex, InfoIndex, *(double *)&_XMM3);
-    }
-  }
-  else
-  {
-    v27 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, cachedModelNameMap);
-    AnimInfo = XAnimGetAnimInfo(v27);
-    *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
-    *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
-    *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
-    *(_QWORD *)&AnimInfo->state.rate = 0i64;
-    *(_QWORD *)&AnimInfo->state.startWeight = 0i64;
-    AnimInfo->notifyName = 0;
-    AnimInfo->notifyType = 0;
-    *(_DWORD *)&AnimInfo->notifyChild = -65536;
-    AnimInfo->subTreeID = subTreeID;
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-    if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
-      AnimInfo->state.flags |= 8u;
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0A8h+rate]
-    vmovss  dword ptr [rsp+0A8h+modelNameMap], xmm0
-    vmovaps xmm3, xmm6; goalWeight
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-  }
-  curveIDa = XAnimSetGoalWeightNode(obj, tree, v27, *(float *)&_XMM3, fmt, modelNameMapb, notifyName, notifyType, curveID, cachedModelNameMap);
-  v34 = curveIDa;
-  parent = XAnimGetAnimInfo(v27)->parent;
-  if ( parent )
-  {
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    do
-    {
-      if ( (parent & 0x8000u) != 0 )
-      {
-        v38 = 32 * (parent & 0x7FFF);
-        if ( v38 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
-        {
-          LODWORD(v52) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(modelNameMapa) = 32 * (parent & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", modelNameMapa, v52) )
-            __debugbreak();
-        }
-        _RCX = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v38];
-      }
-      else
-      {
-        if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
-        {
-          LODWORD(v52) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(modelNameMapa) = parent;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", modelNameMapa, v52) )
-            __debugbreak();
-        }
-        _RCX = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
-      }
-      v39 = *((unsigned __int16 *)_RCX + 3);
-      if ( v39 == rootIndex )
-        break;
-      __asm { vucomiss xmm7, dword ptr [rcx+38h] }
-      if ( v39 == rootIndex )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+0A8h+modelNameMap], xmm6
-          vmovaps xmm3, xmm6; goalWeight
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-        }
-        XAnimSetGoalWeightNode(obj, tree, parent, *(float *)&_XMM3, fmta, modelNameMapc, (scr_string_t)0, 0, curveID, cachedModelNameMap);
-      }
-      parent = XAnimGetAnimInfo(parent)->parent;
-    }
-    while ( parent );
-    v34 = curveIDa;
-  }
-  Profile_EndInternal(NULL);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v55;
-  result = v34;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
-  return result;
-}
-
-/*
-==============
-XAnimSetGoalWeight
-==============
-*/
-__int64 XAnimSetGoalWeight(const DObj *obj, unsigned int graftAnimIndex, XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
-{
-  XAnimTree *tree; 
-  unsigned __int16 InfoIndex; 
-  unsigned __int16 v24; 
-  __int64 result; 
-  unsigned int v30; 
-  float fmt; 
-  XModelNameMap *modelNameMap; 
-  float modelNameMapa; 
-
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm7
-    vmovaps [rsp+0B8h+var_68], xmm8
-  }
-  Profile_Begin(456);
-  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8378, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+0B8h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  if ( notifyType )
-    __asm { vucomiss xmm6, xmm7 }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm6, xmm0
-  }
-  tree = obj->tree;
-  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8386, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
-    __debugbreak();
-  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
-  {
-    LODWORD(modelNameMap) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8390, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
-      __debugbreak();
-  }
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  v24 = InfoIndex;
-  __asm { vmovss  xmm8, [rsp+0B8h+goalTime] }
-  if ( InfoIndex )
-  {
-    if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm8; goalTime }
-      v24 = XAnimRestart(tree, graftAnimIndex, InfoIndex, *(double *)&_XMM3);
-    }
-    __asm
-    {
-      vmovss  xmm0, [rsp+0B8h+rate]
-      vmovss  dword ptr [rsp+0B8h+modelNameMap], xmm0
-      vmovaps xmm3, xmm6; goalWeight
-      vmovss  dword ptr [rsp+0B8h+fmt], xmm8
-    }
-    v30 = XAnimSetGoalWeightNode(obj, tree, v24, *(float *)&_XMM3, fmt, modelNameMapa, notifyName, notifyType, curveID, cachedModelNameMap);
-    Profile_EndInternal(NULL);
-    result = v30;
-  }
-  else
-  {
-    __asm { vucomiss xmm6, xmm7 }
-    Profile_EndInternal(NULL);
-    result = 0i64;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_68]
-  }
-  return result;
-}
-
-/*
-==============
-XAnimSetGoalWeightKnob
-==============
-*/
-__int64 XAnimSetGoalWeightKnob(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, int bRestart, const XAnimCurveID curveID)
-{
-  XAnimTree *tree; 
-  unsigned __int16 InfoIndex; 
-  unsigned __int16 v21; 
-  XAnimInfo *AnimInfo; 
-  const XAnim_s *SubTreeAnims; 
-  unsigned int v30; 
-  __int64 result; 
-  float fmt; 
-  XModelNameMap *modelNameMap; 
-  float modelNameMapa; 
-
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
-  Profile_Begin(456);
-  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7391, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+98h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3a83126f
-    vcomiss xmm6, xmm3
-  }
-  tree = obj->tree;
-  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7398, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
-    __debugbreak();
-  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
-  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
-  {
-    LODWORD(modelNameMap) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7402, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
-      __debugbreak();
-  }
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   v21 = InfoIndex;
-  __asm { vmovss  xmm7, [rsp+98h+goalTime] }
   if ( InfoIndex )
   {
     if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm7; goalTime }
-      v21 = XAnimRestart(tree, graftAnimIndex, InfoIndex, *(double *)&_XMM3);
-    }
+      v21 = XAnimRestart(tree, graftAnimIndex, InfoIndex, goalTime);
   }
   else
   {
@@ -14840,25 +11659,391 @@ __int64 XAnimSetGoalWeightKnob(const DObj *obj, unsigned int graftAnimIndex, con
     if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
       AnimInfo->state.flags |= 8u;
   }
-  __asm
+  XAnimClearGoalWeightKnobInternal(tree, v21, *(double *)&_XMM6, goalTime, curveID);
+  return XAnimSetCompleteGoalWeightNode(obj, tree, v21, *(float *)&_XMM6, goalTime, rate, notifyName, 0, curveID, NULL);
+}
+
+/*
+==============
+XAnimSetCompleteGoalWeightKnobAll
+==============
+*/
+__int64 XAnimSetCompleteGoalWeightKnobAll(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, const XAnimSubTreeID rootSubTreeID, unsigned int rootIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, int bRestart, const XAnimCurveID curveID)
+{
+  XAnimTree *tree; 
+  unsigned __int16 InfoIndex; 
+  unsigned __int16 parent; 
+  unsigned __int8 *v20; 
+  unsigned int v21; 
+  __int64 v23; 
+  __int64 v24; 
+  unsigned int curveIDa; 
+
+  if ( !graftAnimIndex && animIndex == rootIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7335, ASSERT_TYPE_ASSERT, "((graftAnimIndex != 0) || (animIndex != rootIndex))", (const char *)&queryFormat, "(graftAnimIndex != XANIM_DEFAULT_GRAFT_ANIM_INDEX) || (animIndex != rootIndex)") )
+    __debugbreak();
+  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7336, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    __debugbreak();
+  curveIDa = XAnimSetGoalWeightKnob(obj, graftAnimIndex, subTreeID, animIndex, goalWeight, goalTime, rate, notifyName, bRestart, curveID);
+  Profile_Begin(456);
+  tree = obj->tree;
+  XAnimAssertGraftAnimIndex(obj->tree, graftAnimIndex, subTreeID, animIndex);
+  XAnimAssertAnimIndex(tree, rootSubTreeID, rootIndex);
+  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    vmovaps xmm3, xmm7; goalTime
-    vmovaps xmm2, xmm6; goalWeight
+    LODWORD(v24) = 42;
+    LODWORD(v23) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7347, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v23, v24) )
+      __debugbreak();
   }
-  XAnimClearGoalWeightKnobInternal(tree, v21, *(double *)&_XMM2, *(double *)&_XMM3, curveID);
-  __asm
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  if ( !InfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7351, ASSERT_TYPE_ASSERT, "(infoIndex)", (const char *)&queryFormat, "infoIndex") )
+    __debugbreak();
+  parent = XAnimGetAnimInfo(InfoIndex)->parent;
+  if ( parent )
   {
-    vmovss  xmm0, [rsp+98h+rate]
-    vmovss  dword ptr [rsp+98h+modelNameMap], xmm0
-    vmovaps xmm3, xmm6; goalWeight
-    vmovss  dword ptr [rsp+98h+fmt], xmm7
+    while ( 1 )
+    {
+      if ( (parent & 0x8000u) != 0 )
+      {
+        v21 = 32 * (parent & 0x7FFF);
+        if ( v21 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        {
+          LODWORD(v24) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v23) = 32 * (parent & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v23, v24) )
+            __debugbreak();
+        }
+        v20 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v21];
+      }
+      else
+      {
+        if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v24) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v23) = parent;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v23, v24) )
+            __debugbreak();
+        }
+        v20 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
+      }
+      if ( *((unsigned __int16 *)v20 + 3) == rootIndex && *((_WORD *)v20 + 8) == rootSubTreeID )
+        break;
+      if ( bRestart )
+        parent = XAnimRestart(tree, graftAnimIndex, parent, goalTime);
+      XAnimClearGoalWeightKnobInternal(tree, parent, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), goalTime, curveID);
+      XAnimSetCompleteGoalWeightNode(obj, tree, parent, 1.0, goalTime, 1.0, (scr_string_t)0, 0, curveID, NULL);
+      parent = XAnimGetAnimInfo(parent)->parent;
+      if ( !parent )
+        goto LABEL_29;
+    }
+    Profile_EndInternal(NULL);
+    return curveIDa;
   }
-  v30 = XAnimSetGoalWeightNode(obj, tree, v21, *(float *)&_XMM3, fmt, modelNameMapa, notifyName, 0, curveID, NULL);
+  else
+  {
+LABEL_29:
+    Profile_EndInternal(NULL);
+    return 1i64;
+  }
+}
+
+/*
+==============
+XAnimSetCompleteGoalWeightNode
+==============
+*/
+__int64 XAnimSetCompleteGoalWeightNode(const DObj *obj, XAnimTree *tree, unsigned __int16 infoIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, const XAnimCurveID curveID, XModelNameMap *modelNameMap)
+{
+  unsigned __int16 parent; 
+  unsigned __int8 *v14; 
+  unsigned int v15; 
+  __int64 v17; 
+  __int64 v18; 
+  unsigned int v19; 
+
+  v19 = XAnimSetGoalWeightNode(obj, tree, infoIndex, goalWeight, goalTime, rate, notifyName, notifyType, curveID, modelNameMap);
+  parent = XAnimGetAnimInfo(infoIndex)->parent;
+  if ( !parent )
+    return v19;
+  do
+  {
+    if ( (parent & 0x8000u) != 0 )
+    {
+      v15 = 32 * (parent & 0x7FFF);
+      if ( v15 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+      {
+        LODWORD(v18) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+        LODWORD(v17) = 32 * (parent & 0x7FFF);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v17, v18) )
+          __debugbreak();
+      }
+      v14 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v15];
+    }
+    else
+    {
+      if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
+      {
+        LODWORD(v18) = g_xanimMemoryGlobals.infoPoolSize;
+        LODWORD(v17) = parent;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v17, v18) )
+          __debugbreak();
+      }
+      v14 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
+    }
+    if ( *((float *)v14 + 14) == 0.0 )
+      XAnimSetGoalWeightNode(obj, tree, parent, 1.0, goalTime, 1.0, (scr_string_t)0, 0, curveID, modelNameMap);
+    parent = XAnimGetAnimInfo(parent)->parent;
+  }
+  while ( parent );
+  return v19;
+}
+
+/*
+==============
+XAnimSetCompleteGoalWeightRel
+==============
+*/
+__int64 XAnimSetCompleteGoalWeightRel(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, unsigned int rootIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
+{
+  float v17; 
+  XAnimTree *tree; 
+  unsigned __int16 InfoIndex; 
+  unsigned __int16 v21; 
+  XAnimInfo *AnimInfo; 
+  const XAnim_s *SubTreeAnims; 
+  unsigned int v24; 
+  unsigned __int16 parent; 
+  unsigned __int8 *v26; 
+  unsigned int v27; 
+  XModelNameMap *modelNameMap; 
+  XModelNameMap *modelNameMapa; 
+  __int64 v31; 
+  int curveIDa; 
+
+  Profile_Begin(456);
+  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8841, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    __debugbreak();
+  v17 = goalWeight;
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8842, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8843, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
+  if ( goalWeight < 0.001 )
+  {
+    if ( notifyName || notifyType )
+      v17 = FLOAT_0_001;
+    else
+      v17 = 0.0;
+  }
+  tree = obj->tree;
+  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8849, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+    __debugbreak();
+  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
+  {
+    LODWORD(modelNameMap) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8853, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
+      __debugbreak();
+  }
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  v21 = InfoIndex;
+  if ( InfoIndex )
+  {
+    if ( bRestart )
+      v21 = XAnimRestart(tree, graftAnimIndex, InfoIndex, goalTime);
+  }
+  else
+  {
+    v21 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, cachedModelNameMap);
+    AnimInfo = XAnimGetAnimInfo(v21);
+    *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
+    *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
+    *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
+    *(_QWORD *)&AnimInfo->state.rate = 0i64;
+    *(_QWORD *)&AnimInfo->state.startWeight = 0i64;
+    AnimInfo->notifyName = 0;
+    AnimInfo->notifyType = 0;
+    *(_DWORD *)&AnimInfo->notifyChild = -65536;
+    AnimInfo->subTreeID = subTreeID;
+    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
+    if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
+      AnimInfo->state.flags |= 8u;
+  }
+  curveIDa = XAnimSetGoalWeightNode(obj, tree, v21, v17, goalTime, rate, notifyName, notifyType, curveID, cachedModelNameMap);
+  v24 = curveIDa;
+  parent = XAnimGetAnimInfo(v21)->parent;
+  if ( parent )
+  {
+    do
+    {
+      if ( (parent & 0x8000u) != 0 )
+      {
+        v27 = 32 * (parent & 0x7FFF);
+        if ( v27 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        {
+          LODWORD(v31) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(modelNameMapa) = 32 * (parent & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", modelNameMapa, v31) )
+            __debugbreak();
+        }
+        v26 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v27];
+      }
+      else
+      {
+        if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
+        {
+          LODWORD(v31) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(modelNameMapa) = parent;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", modelNameMapa, v31) )
+            __debugbreak();
+        }
+        v26 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
+      }
+      if ( *((unsigned __int16 *)v26 + 3) == rootIndex )
+        break;
+      if ( *((float *)v26 + 14) == 0.0 )
+        XAnimSetGoalWeightNode(obj, tree, parent, 1.0, goalTime, 1.0, (scr_string_t)0, 0, curveID, cachedModelNameMap);
+      parent = XAnimGetAnimInfo(parent)->parent;
+    }
+    while ( parent );
+    v24 = curveIDa;
+  }
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  result = v30;
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
-  return result;
+  return v24;
+}
+
+/*
+==============
+XAnimSetGoalWeight
+==============
+*/
+__int64 XAnimSetGoalWeight(const DObj *obj, unsigned int graftAnimIndex, XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
+{
+  float v16; 
+  XAnimTree *tree; 
+  unsigned __int16 InfoIndex; 
+  unsigned __int16 v19; 
+  XAnimInfo *AnimInfo; 
+  unsigned int v22; 
+  XModelNameMap *modelNameMap; 
+
+  Profile_Begin(456);
+  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8378, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    __debugbreak();
+  v16 = goalWeight;
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8379, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8380, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
+  if ( goalWeight < 0.001 )
+  {
+    if ( notifyName || notifyType )
+      v16 = FLOAT_0_001;
+    else
+      v16 = 0.0;
+  }
+  tree = obj->tree;
+  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8386, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+    __debugbreak();
+  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
+  {
+    LODWORD(modelNameMap) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8390, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
+      __debugbreak();
+  }
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  v19 = InfoIndex;
+  if ( InfoIndex )
+  {
+    if ( bRestart )
+      v19 = XAnimRestart(tree, graftAnimIndex, InfoIndex, goalTime);
+  }
+  else
+  {
+    if ( v16 == 0.0 )
+    {
+      Profile_EndInternal(NULL);
+      return 0i64;
+    }
+    v19 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, cachedModelNameMap);
+    AnimInfo = XAnimGetAnimInfo(v19);
+    XAnimInitInfo(AnimInfo, tree, subTreeID);
+  }
+  v22 = XAnimSetGoalWeightNode(obj, tree, v19, v16, goalTime, rate, notifyName, notifyType, curveID, cachedModelNameMap);
+  Profile_EndInternal(NULL);
+  return v22;
+}
+
+/*
+==============
+XAnimSetGoalWeightKnob
+==============
+*/
+__int64 XAnimSetGoalWeightKnob(const DObj *obj, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, int bRestart, const XAnimCurveID curveID)
+{
+  XAnimTree *tree; 
+  unsigned __int16 InfoIndex; 
+  unsigned __int16 v20; 
+  XAnimInfo *AnimInfo; 
+  const XAnim_s *SubTreeAnims; 
+  unsigned int v23; 
+  XModelNameMap *modelNameMap; 
+
+  Profile_Begin(456);
+  if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7391, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    __debugbreak();
+  *(_QWORD *)&_XMM6 = LODWORD(goalWeight);
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7392, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  _XMM3 = LODWORD(FLOAT_0_001);
+  if ( goalWeight < 0.001 )
+  {
+    _XMM0 = (unsigned int)notifyName;
+    __asm
+    {
+      vpcmpeqd xmm2, xmm0, xmm1
+      vblendvps xmm6, xmm3, xmm7, xmm2
+    }
+  }
+  tree = obj->tree;
+  if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7398, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+    __debugbreak();
+  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
+  {
+    LODWORD(modelNameMap) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7402, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", modelNameMap, 42) )
+      __debugbreak();
+  }
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
+  v20 = InfoIndex;
+  if ( InfoIndex )
+  {
+    if ( bRestart )
+      v20 = XAnimRestart(tree, graftAnimIndex, InfoIndex, goalTime);
+  }
+  else
+  {
+    v20 = XAnimAllocInfoIndex(obj, graftAnimIndex, subTreeID, animIndex, 0, NULL);
+    AnimInfo = XAnimGetAnimInfo(v20);
+    *(_QWORD *)&AnimInfo->state.currentAnimTime = 0i64;
+    *(_QWORD *)&AnimInfo->state.cycleCount = 0i64;
+    *(_QWORD *)&AnimInfo->state.goalWeight = 0i64;
+    *(_QWORD *)&AnimInfo->state.rate = 0i64;
+    *(_QWORD *)&AnimInfo->state.startWeight = 0i64;
+    AnimInfo->notifyName = 0;
+    AnimInfo->notifyType = 0;
+    *(_DWORD *)&AnimInfo->notifyChild = -65536;
+    AnimInfo->subTreeID = subTreeID;
+    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
+    if ( XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
+      AnimInfo->state.flags |= 8u;
+  }
+  XAnimClearGoalWeightKnobInternal(tree, v20, *(double *)&_XMM6, goalTime, curveID);
+  v23 = XAnimSetGoalWeightNode(obj, tree, v20, *(float *)&_XMM6, goalTime, rate, notifyName, 0, curveID, NULL);
+  Profile_EndInternal(NULL);
+  return v23;
 }
 
 /*
@@ -14871,116 +12056,78 @@ __int64 XAnimSetGoalWeightKnobAll(const DObj *obj, unsigned int graftAnimIndex, 
   XAnimTree *tree; 
   unsigned __int16 InfoIndex; 
   unsigned __int16 parent; 
-  unsigned __int8 *v26; 
-  unsigned int v27; 
-  __int64 result; 
-  float fmt; 
-  float fmta; 
-  float v37; 
-  __int64 v38; 
-  float v39; 
-  float v40; 
-  __int64 v41; 
+  unsigned __int8 *v20; 
+  unsigned int v21; 
+  __int64 v23; 
+  __int64 v24; 
   unsigned int curveIDa; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
   if ( !graftAnimIndex && animIndex == rootIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7282, ASSERT_TYPE_ASSERT, "((graftAnimIndex != 0) || (animIndex != rootIndex))", (const char *)&queryFormat, "(graftAnimIndex != XANIM_DEFAULT_GRAFT_ANIM_INDEX) || (animIndex != rootIndex)") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7283, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+rate]
-    vmovss  xmm6, [rsp+98h+goalTime]
-    vmovss  dword ptr [rsp+98h+var_68], xmm0
-    vmovss  xmm0, [rsp+98h+goalWeight]
-    vmovss  [rsp+98h+var_70], xmm6
-    vmovss  dword ptr [rsp+98h+fmt], xmm0
-  }
-  curveIDa = XAnimSetGoalWeightKnob(obj, graftAnimIndex, subTreeID, animIndex, fmt, v37, v40, notifyName, bRestart, curveID);
+  curveIDa = XAnimSetGoalWeightKnob(obj, graftAnimIndex, subTreeID, animIndex, goalWeight, goalTime, rate, notifyName, bRestart, curveID);
   Profile_Begin(456);
   tree = obj->tree;
   XAnimAssertGraftAnimIndex(obj->tree, graftAnimIndex, subTreeID, animIndex);
   XAnimAssertAnimIndex(tree, rootSubTreeID, rootIndex);
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END )
   {
-    LODWORD(v41) = 42;
-    LODWORD(v38) = (unsigned __int8)curveID;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7294, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v38, v41) )
+    LODWORD(v24) = 42;
+    LODWORD(v23) = (unsigned __int8)curveID;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7294, ASSERT_TYPE_ASSERT, "(unsigned)( curveID ) < (unsigned)( XAnimCurveID::MAX )", "curveID doesn't index XAnimCurveID::MAX\n\t%i not in [0, %i)", v23, v24) )
       __debugbreak();
   }
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( !InfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7298, ASSERT_TYPE_ASSERT, "(infoIndex)", (const char *)&queryFormat, "infoIndex") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_48], xmm7 }
   parent = XAnimGetAnimInfo(InfoIndex)->parent;
   if ( parent )
   {
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
     while ( 1 )
     {
       if ( (parent & 0x8000u) != 0 )
       {
-        v27 = 32 * (parent & 0x7FFF);
-        if ( v27 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+        v21 = 32 * (parent & 0x7FFF);
+        if ( v21 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
         {
-          LODWORD(v41) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-          LODWORD(v38) = 32 * (parent & 0x7FFF);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v38, v41) )
+          LODWORD(v24) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+          LODWORD(v23) = 32 * (parent & 0x7FFF);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v23, v24) )
             __debugbreak();
         }
-        v26 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v27];
+        v20 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v21];
       }
       else
       {
         if ( (unsigned int)parent >= g_xanimMemoryGlobals.infoPoolSize )
         {
-          LODWORD(v41) = g_xanimMemoryGlobals.infoPoolSize;
-          LODWORD(v38) = parent;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v38, v41) )
+          LODWORD(v24) = g_xanimMemoryGlobals.infoPoolSize;
+          LODWORD(v23) = parent;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v23, v24) )
             __debugbreak();
         }
-        v26 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
+        v20 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[parent];
       }
-      if ( *((unsigned __int16 *)v26 + 3) == rootIndex && *((_WORD *)v26 + 8) == rootSubTreeID )
+      if ( *((unsigned __int16 *)v20 + 3) == rootIndex && *((_WORD *)v20 + 8) == rootSubTreeID )
         break;
       if ( bRestart )
-      {
-        __asm { vmovaps xmm3, xmm6; goalTime }
-        parent = XAnimRestart(tree, graftAnimIndex, parent, *(double *)&_XMM3);
-      }
-      __asm
-      {
-        vmovaps xmm3, xmm6; goalTime
-        vmovaps xmm2, xmm7; goalWeight
-      }
-      XAnimClearGoalWeightKnobInternal(tree, parent, *(double *)&_XMM2, *(double *)&_XMM3, curveID);
-      __asm
-      {
-        vmovss  [rsp+98h+var_70], xmm7
-        vmovaps xmm3, xmm7; goalWeight
-        vmovss  dword ptr [rsp+98h+fmt], xmm6
-      }
-      XAnimSetGoalWeightNode(obj, tree, parent, *(float *)&_XMM3, fmta, v39, (scr_string_t)0, 0, curveID, NULL);
+        parent = XAnimRestart(tree, graftAnimIndex, parent, goalTime);
+      XAnimClearGoalWeightKnobInternal(tree, parent, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), goalTime, curveID);
+      XAnimSetGoalWeightNode(obj, tree, parent, 1.0, goalTime, 1.0, (scr_string_t)0, 0, curveID, NULL);
       parent = XAnimGetAnimInfo(parent)->parent;
       if ( !parent )
-        goto LABEL_30;
+        goto LABEL_29;
     }
     Profile_EndInternal(NULL);
-    result = curveIDa;
+    return curveIDa;
   }
   else
   {
-LABEL_30:
+LABEL_29:
     Profile_EndInternal(NULL);
-    result = 1i64;
+    return 1i64;
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_48]
-    vmovaps xmm6, [rsp+98h+var_38]
-  }
-  return result;
 }
 
 /*
@@ -14991,156 +12138,142 @@ XAnimSetGoalWeightNode
 
 __int64 __fastcall XAnimSetGoalWeightNode(const DObj *obj, XAnimTree *tree, unsigned __int16 infoIndex, double goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, const XAnimCurveID curveID, XModelNameMap *modelNameMap)
 {
-  bool v20; 
-  bool v21; 
-  scr_string_t v27; 
-  const dvar_t *v45; 
+  XAnimInfo *NonRootAnimInfo; 
+  scr_string_t v17; 
+  unsigned int animIndex; 
+  float weight; 
+  float v29; 
+  float v31; 
+  __int128 v33; 
+  const dvar_t *v35; 
   const char *AnimDebugName; 
-  unsigned __int16 v49; 
+  unsigned __int16 v37; 
+  bool v38; 
   const XAnim_s *SubTreeAnims; 
   unsigned __int16 DescendantWithGreatest; 
-  __int64 result; 
-  double v59; 
-  char v60; 
-  void *retaddr; 
+  float goalTimea; 
+  float ratea; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmm6, xmm3
-  }
-  v20 = tree == NULL;
-  if ( !tree )
-  {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7565, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree");
-    v20 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3a83126f
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm6, xmm7
-  }
-  if ( !v20 )
-    __asm { vcomiss xmm6, xmm9 }
-  __asm
-  {
-    vmovss  xmm10, [rsp+0C8h+goalTime]
-    vcomiss xmm10, xmm7
-    vmovss  xmm8, [rsp+0C8h+rate]
-  }
-  if ( notifyName )
-    __asm { vcomiss xmm8, xmm7 }
-  if ( notifyType )
-    __asm { vcomiss xmm8, xmm7 }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  if ( notifyType )
-    __asm { vucomiss xmm6, xmm7 }
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  v27 = _RBX->notifyName;
-  if ( v27 )
-  {
-    SL_RemoveRefToString(v27);
-    _RBX->notifyName = 0;
-  }
-  _RBX->notifyIndex = -1;
-  if ( !_RBX->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7579, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  _XMM6 = *(_OWORD *)&goalWeight;
+  if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7565, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  _ER12 = _RBX->animIndex;
-  XAnimAssertAnimIndex(tree, (const XAnimSubTreeID)_RBX->subTreeID, _ER12);
-  __asm { vmovss  xmm3, cs:__real@3f800000 }
-  _EAX = 0;
+  if ( *(float *)&goalWeight != 0.0 && *(float *)&goalWeight < 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7567, ASSERT_TYPE_ASSERT, "(!goalWeight || goalWeight >= 0.001f)", (const char *)&queryFormat, "!goalWeight || goalWeight >= WEIGHT_EPSILON") )
+    __debugbreak();
+  _XMM10 = LODWORD(goalTime);
+  if ( goalTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7568, ASSERT_TYPE_ASSERT, "(goalTime >= 0)", (const char *)&queryFormat, "goalTime >= 0") )
+    __debugbreak();
+  _XMM8 = LODWORD(rate);
+  if ( notifyName && rate < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7569, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || rate >= 0)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || rate >= 0") )
+    __debugbreak();
+  if ( notifyType && rate < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7570, ASSERT_TYPE_ASSERT, "(!notifyType || rate >= 0)", (const char *)&queryFormat, "!notifyType || rate >= 0") )
+    __debugbreak();
+  if ( notifyName && *(float *)&goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7571, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && *(float *)&goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7572, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  v17 = NonRootAnimInfo->notifyName;
+  if ( v17 )
+  {
+    SL_RemoveRefToString(v17);
+    NonRootAnimInfo->notifyName = 0;
+  }
+  NonRootAnimInfo->notifyIndex = -1;
+  if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7579, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+    __debugbreak();
+  animIndex = NonRootAnimInfo->animIndex;
+  XAnimAssertAnimIndex(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID, animIndex);
+  _XMM0 = animIndex;
   __asm
   {
-    vmovd   xmm0, r12d
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm6, xmm3, xmm2
-    vmovss  [rsp+0C8h+goalTime], xmm0
-    vmovd   xmm0, r12d
-    vmovd   xmm1, eax
+  }
+  goalTimea = *(float *)&_XMM0;
+  _XMM0 = animIndex;
+  __asm
+  {
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm5, xmm10, xmm7, xmm2
-    vucomiss xmm5, xmm7
-    vmovd   xmm0, r12d
-    vmovd   xmm1, eax
+  }
+  _XMM0 = animIndex;
+  __asm
+  {
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm8, xmm3, xmm2
-    vmovss  xmm8, [rsp+0C8h+goalTime]
-    vmovss  [rsp+0C8h+rate], xmm5
-    vmovss  [rsp+0C8h+rate], xmm0
-    vmovss  dword ptr [rbx+3Ch], xmm8
   }
-  _RBX->state.goalTime = 0.0;
-  _RBX->state.flags |= 1u;
-  v45 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
-  if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  __asm { vmovss  xmm9, [rsp+0C8h+rate] }
-  if ( v45->current.enabled && (_RBX->state.flags & 0x10) != 0 )
+  ratea = *(float *)&_XMM0;
+  if ( *(float *)&_XMM5 == 0.0 )
   {
-    __asm { vucomiss xmm9, xmm7 }
-    if ( (_RBX->state.flags & 0x10) != 0 )
+    NonRootAnimInfo->state.weight = goalTimea;
+    NonRootAnimInfo->state.goalTime = 0.0;
+    NonRootAnimInfo->state.flags |= 1u;
+  }
+  else
+  {
+    weight = NonRootAnimInfo->state.weight;
+    if ( weight == 0.0 )
     {
-      __asm { vcvtss2sd xmm6, xmm9, xmm9 }
-      AnimDebugName = XAnimGetAnimDebugName(tree->anims, _ER12);
-      __asm { vmovsd  [rsp+0C8h+var_88], xmm6 }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7627, ASSERT_TYPE_ASSERT, "(rate == 0.0f)", "%s\n\tXAnimSetGoalWeightNode '%s', animIndex %i: rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "rate == 0.0f", AnimDebugName, _ER12, v59) )
-        __debugbreak();
+      weight = goalTimea * 0.001;
+      NonRootAnimInfo->state.weight = goalTimea * 0.001;
+    }
+    v29 = weight - goalTimea;
+    if ( (float)(weight - goalTimea) == 0.0 || (float)((float)(NonRootAnimInfo->state.goalWeight - goalTimea) * v29) > 0.0 )
+      LODWORD(_XMM1) = _XMM5;
+    else
+      __asm { vminss  xmm1, xmm5, dword ptr [rbx+34h] }
+    NonRootAnimInfo->state.goalTime = *(float *)&_XMM1;
+    if ( goalTimea != 0.0 )
+    {
+      if ( goalTimea < weight )
+        v31 = v29 / weight;
+      else
+        v31 = (float)(goalTimea - weight) / goalTimea;
+      v33 = _XMM5;
+      *(float *)&v33 = *(float *)&_XMM5 * v31;
+      _XMM0 = v33;
+      __asm { vmaxss  xmm1, xmm0, xmm1 }
+      NonRootAnimInfo->state.goalTime = *(float *)&_XMM1;
     }
   }
-  _RBX->state.goalDuration = _RBX->state.goalTime;
-  _RBX->state.startWeight = _RBX->state.weight;
-  _RBX->state.curveID = curveID;
-  __asm
+  v35 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
+  if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v35);
+  if ( v35->current.enabled && (NonRootAnimInfo->state.flags & 0x10) != 0 && ratea != 0.0 )
   {
-    vmovss  dword ptr [rbx+38h], xmm8
-    vmovss  dword ptr [rbx+40h], xmm9
+    AnimDebugName = XAnimGetAnimDebugName(tree->anims, animIndex);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7627, ASSERT_TYPE_ASSERT, "(rate == 0.0f)", "%s\n\tXAnimSetGoalWeightNode '%s', animIndex %i: rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "rate == 0.0f", AnimDebugName, animIndex, ratea) )
+      __debugbreak();
   }
-  _RBX->notifyName = notifyName;
+  NonRootAnimInfo->state.goalDuration = NonRootAnimInfo->state.goalTime;
+  NonRootAnimInfo->state.startWeight = NonRootAnimInfo->state.weight;
+  NonRootAnimInfo->state.curveID = curveID;
+  NonRootAnimInfo->state.goalWeight = goalTimea;
+  NonRootAnimInfo->state.rate = ratea;
+  NonRootAnimInfo->notifyName = notifyName;
   if ( notifyName )
     SL_AddRefToString(notifyName);
-  v49 = truncate_cast<unsigned short,unsigned int>(notifyType);
-  v20 = _RBX->notifyIndex == -1;
-  _RBX->notifyType = v49;
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7644, ASSERT_TYPE_ASSERT, "(info->notifyIndex == -1)", (const char *)&queryFormat, "info->notifyIndex == -1") )
+  v37 = truncate_cast<unsigned short,unsigned int>(notifyType);
+  v38 = NonRootAnimInfo->notifyIndex == -1;
+  NonRootAnimInfo->notifyType = v37;
+  if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7644, ASSERT_TYPE_ASSERT, "(info->notifyIndex == -1)", (const char *)&queryFormat, "info->notifyIndex == -1") )
     __debugbreak();
-  XAnimCustomNodeInstantInit(obj, tree, _RBX, infoIndex, modelNameMap);
-  if ( !notifyName || _RBX->animToModel || ((__int64)_RBX->parts & 3) == 0 || (SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RBX->subTreeID), XAnimIsCustomNode(SubTreeAnims, _RBX)) )
+  XAnimCustomNodeInstantInit(obj, tree, NonRootAnimInfo, infoIndex, modelNameMap);
+  if ( !notifyName || NonRootAnimInfo->animToModel || ((__int64)NonRootAnimInfo->parts & 3) == 0 || (SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID), XAnimIsCustomNode(SubTreeAnims, NonRootAnimInfo)) )
   {
-    _RBX->notifyChild = 0;
-LABEL_42:
-    result = 0i64;
-    goto LABEL_43;
+    NonRootAnimInfo->notifyChild = 0;
   }
-  __asm { vucomiss xmm8, xmm7 }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7650, ASSERT_TYPE_ASSERT, "(goalWeight)", (const char *)&queryFormat, "goalWeight") )
-    __debugbreak();
-  DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<1>(infoIndex);
-  _RBX->notifyChild = DescendantWithGreatest;
-  if ( DescendantWithGreatest )
-    goto LABEL_42;
-  result = 2i64;
-LABEL_43:
-  _R11 = &v60;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    if ( goalTimea == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7650, ASSERT_TYPE_ASSERT, "(goalWeight)", (const char *)&queryFormat, "goalWeight") )
+      __debugbreak();
+    DescendantWithGreatest = XAnimGetDescendantWithGreatestWeight<1>(infoIndex);
+    NonRootAnimInfo->notifyChild = DescendantWithGreatest;
+    if ( !DescendantWithGreatest )
+      return 2i64;
   }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -15150,43 +12283,34 @@ XAnimSetGoalWeightWithParent
 */
 __int64 XAnimSetGoalWeightWithParent(const DObj *obj, unsigned int graftAnimIndex, XAnimSubTreeID subTreeID, unsigned __int16 parentInfoIndex, unsigned int animIndex, float goalWeight, float goalTime, float rate, scr_string_t notifyName, unsigned int notifyType, int bRestart, const XAnimCurveID curveID, XModelNameMap *cachedModelNameMap)
 {
+  float v16; 
   XAnimTree *tree; 
   unsigned __int16 InfoIndex_r; 
-  unsigned __int16 v25; 
+  unsigned __int16 v19; 
   XAnimInfo *AnimInfo; 
-  unsigned int v29; 
-  __int64 result; 
-  float fmt; 
+  unsigned int v21; 
+  const XAnim_s *SubTreeAnims; 
+  XAnimToXModel *AnimToModel; 
+  XAnimInfo *v24; 
   __int64 after; 
-  int aftera; 
-  char v41; 
-  void *retaddr; 
+  __int64 v27; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
   Sys_ProfBeginNamedEvent(0xFF44CCFF, "XAnimSetGoalWeightWithParent");
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8468, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, [rsp+0C8h+goalWeight]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( notifyName )
-    __asm { vucomiss xmm6, xmm7 }
-  if ( notifyType )
-    __asm { vucomiss xmm6, xmm7 }
+  v16 = goalWeight;
+  if ( notifyName && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8469, ASSERT_TYPE_ASSERT, "((notifyName == ( static_cast< scr_string_t >( 0 ) )) || goalWeight)", (const char *)&queryFormat, "(notifyName == NULL_SCR_STRING) || goalWeight") )
+    __debugbreak();
+  if ( notifyType && goalWeight == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8470, ASSERT_TYPE_ASSERT, "(!notifyType || goalWeight)", (const char *)&queryFormat, "!notifyType || goalWeight") )
+    __debugbreak();
   if ( !animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8471, ASSERT_TYPE_ASSERT, "(animIndex)", (const char *)&queryFormat, "animIndex") )
     __debugbreak();
-  __asm
+  if ( goalWeight < 0.001 )
   {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm6, xmm0
+    if ( notifyName || notifyType )
+      v16 = FLOAT_0_001;
+    else
+      v16 = 0.0;
   }
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8479, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
@@ -15201,8 +12325,7 @@ __int64 XAnimSetGoalWeightWithParent(const DObj *obj, unsigned int graftAnimInde
   if ( !parentInfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 5476, ASSERT_TYPE_ASSERT, "(rootInfoID)", (const char *)&queryFormat, "rootInfoID") )
     __debugbreak();
   InfoIndex_r = XAnimGetInfoIndex_r(subTreeID, animIndex, parentInfoIndex);
-  v25 = InfoIndex_r;
-  __asm { vmovss  xmm8, [rsp+0C8h+goalTime] }
+  v19 = InfoIndex_r;
   if ( InfoIndex_r )
   {
     AnimInfo = XAnimGetAnimInfo(InfoIndex_r);
@@ -15211,34 +12334,33 @@ __int64 XAnimSetGoalWeightWithParent(const DObj *obj, unsigned int graftAnimInde
     if ( AnimInfo->subTreeID != subTreeID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8494, ASSERT_TYPE_ASSERT, "(animInfo->subTreeID == subTreeID)", "%s\n\tParent and child nodes must be in the same subtree.", "animInfo->subTreeID == subTreeID") )
       __debugbreak();
     if ( bRestart )
-    {
-      __asm { vmovaps xmm3, xmm8; goalTime }
-      v25 = XAnimRestart(tree, graftAnimIndex, v25, *(double *)&_XMM3);
-    }
-    __asm
-    {
-      vmovss  xmm0, [rsp+0C8h+rate]
-      vmovss  [rsp+0C8h+after], xmm0
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-      vmovaps xmm3, xmm6; goalWeight
-    }
-    v29 = XAnimSetGoalWeightNode(obj, tree, v25, *(float *)&_XMM3, fmt, *(float *)&aftera, notifyName, notifyType, curveID, cachedModelNameMap);
+      v19 = XAnimRestart(tree, graftAnimIndex, v19, goalTime);
+LABEL_47:
+    v21 = XAnimSetGoalWeightNode(obj, tree, v19, v16, goalTime, rate, notifyName, notifyType, curveID, cachedModelNameMap);
+    goto LABEL_48;
   }
-  else
+  if ( v16 != 0.0 )
   {
-    __asm { vucomiss xmm6, xmm7 }
-    v29 = 0;
+    SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
+    if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8512, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
+      __debugbreak();
+    if ( animIndex >= SubTreeAnims->size )
+    {
+      LODWORD(v27) = SubTreeAnims->size;
+      LODWORD(after) = animIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8513, ASSERT_TYPE_ASSERT, "(unsigned)( animIndex ) < (unsigned)( anims->size )", "animIndex doesn't index anims->size\n\t%i not in [0, %i)", after, v27) )
+        __debugbreak();
+    }
+    AnimToModel = XAnimGetAnimToModel(obj, &SubTreeAnims->entries[animIndex], cachedModelNameMap);
+    v19 = XAnimAllocInfoWithParent(tree, subTreeID, AnimToModel, animIndex, parentInfoIndex, 0);
+    v24 = XAnimGetAnimInfo(v19);
+    XAnimInitInfo(v24, tree, subTreeID);
+    goto LABEL_47;
   }
+  v21 = 0;
+LABEL_48:
   Sys_ProfEndNamedEvent();
-  result = v29;
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0C8h+var_58]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return v21;
 }
 
 /*
@@ -15338,10 +12460,7 @@ void XAnimSetTime(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTr
     __debugbreak();
   InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, animIndex);
   if ( InfoIndex )
-  {
-    __asm { vmovss  xmm2, [rsp+48h+time]; time }
-    XAnimSetTimeNode(tree, InfoIndex, *(float *)&_XMM2);
-  }
+    XAnimSetTimeNode(tree, InfoIndex, time);
 }
 
 /*
@@ -15351,61 +12470,28 @@ XAnimSetTimeInSeconds
 */
 void XAnimSetTimeInSeconds(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float timeSeconds)
 {
-  char v16; 
-  char v17; 
-  float timeSecondsa; 
+  double Length; 
+  __int128 v11; 
 
-  __asm
+  Length = XAnimGetLength(tree->anims, animIndex);
+  _XMM6 = 0i64;
+  if ( *(float *)&Length > 0.0 )
   {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = XAnimGetLength(tree->anims, animIndex);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( !(v16 | v17) )
-  {
-    __asm
-    {
-      vmovaps [rsp+78h+var_38], xmm8
-      vmovaps [rsp+78h+var_48], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vdivss  xmm8, xmm9, xmm0
-      vmovss  xmm0, [rsp+78h+timeSeconds]; X
-    }
+    v11 = LODWORD(FLOAT_1_0);
+    *(float *)&v11 = 1.0 / *(float *)&Length;
     if ( XAnimIsLooped(tree->anims, animIndex) )
     {
-      __asm { vmovaps xmm1, xmm7; Y }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmulss  xmm6, xmm0, xmm8 }
+      *(float *)&_XMM6 = fmodf_0(timeSeconds, *(float *)&Length) * *(float *)&v11;
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm7
-        vcmpless xmm2, xmm6, xmm1
-        vmulss  xmm3, xmm8, xmm0
-        vblendvps xmm6, xmm3, xmm9, xmm2
-      }
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+78h+var_38]
-      vmovaps xmm9, [rsp+78h+var_48]
+      __asm { vcmpless xmm2, xmm6, xmm1 }
+      *(float *)&v11 = *(float *)&v11 * timeSeconds;
+      _XMM3 = v11;
+      __asm { vblendvps xmm6, xmm3, xmm9, xmm2 }
     }
   }
-  __asm
-  {
-    vmovss  [rsp+78h+timeSeconds], xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  XAnimSetTime(tree, graftAnimIndex, subTreeID, animIndex, timeSecondsa);
+  XAnimSetTime(tree, graftAnimIndex, subTreeID, animIndex, *(float *)&_XMM6);
 }
 
 /*
@@ -15413,132 +12499,83 @@ void XAnimSetTimeInSeconds(XAnimTree *tree, unsigned int graftAnimIndex, const X
 XAnimSetTimeNode
 ==============
 */
-
-void __fastcall XAnimSetTimeNode(XAnimTree *tree, unsigned __int16 infoIndex, double time)
+void XAnimSetTimeNode(XAnimTree *tree, unsigned __int16 infoIndex, float time)
 {
+  XAnimInfo *NonRootAnimInfo; 
   const XAnim_s *SubTreeAnims; 
   __int64 animIndex; 
-  __int64 v13; 
-  bool v14; 
+  __int64 v8; 
   const char *AnimDebugName; 
-  bool v17; 
-  __int64 v21; 
-  bool v23; 
+  __int64 v10; 
+  bool v11; 
   unsigned __int8 flags; 
-  double v28; 
-  const char *v29; 
-  const char *v30; 
-  double v31; 
-  __int64 v32; 
-  __int64 v33; 
-  void *retaddr; 
+  const char *v13; 
+  const char *v14; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7892, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !infoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7893, ASSERT_TYPE_ASSERT, "(infoIndex)", (const char *)&queryFormat, "infoIndex") )
     __debugbreak();
-  _RBX = GetNonRootAnimInfo(infoIndex);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7896, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  if ( !NonRootAnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7896, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7901, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RBX->subTreeID);
+  SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID);
   if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7903, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  if ( _RBX->animIndex >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7905, ASSERT_TYPE_ASSERT, "(info->animIndex < anims->size)", (const char *)&queryFormat, "info->animIndex < anims->size") )
+  if ( NonRootAnimInfo->animIndex >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7905, ASSERT_TYPE_ASSERT, "(info->animIndex < anims->size)", (const char *)&queryFormat, "info->animIndex < anims->size") )
     __debugbreak();
-  animIndex = _RBX->animIndex;
-  v13 = 2 * (animIndex + 5);
-  v14 = SubTreeAnims->entries[animIndex].numAnims == 0;
+  animIndex = NonRootAnimInfo->animIndex;
+  v8 = 2 * (animIndex + 5);
   if ( SubTreeAnims->entries[animIndex].numAnims )
   {
-    __asm { vcvtss2sd xmm6, xmm7, xmm7 }
-    AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, _RBX->animIndex);
-    __asm { vmovsd  [rsp+68h+var_30], xmm6 }
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7907, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", "%s\n\tAnim name: '%s', time: %f", "IsLeafNode( anim )", AnimDebugName, v31);
-    v14 = !v17;
-    if ( v17 )
+    AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, NonRootAnimInfo->animIndex);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7907, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", "%s\n\tAnim name: '%s', time: %f", "IsLeafNode( anim )", AnimDebugName, time) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-    vcomiss xmm7, xmm6
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+68h+var_40], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7909, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", v28) )
-      __debugbreak();
-  }
-  if ( *((_WORD *)&SubTreeAnims->size + 4 * v13 + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
+  if ( (time < 0.0 || time > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7909, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", time) )
     __debugbreak();
-  v21 = *((_QWORD *)&SubTreeAnims->debugName + v13);
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+  if ( *((_WORD *)&SubTreeAnims->size + 4 * v8 + 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2380, ASSERT_TYPE_ASSERT, "(IsLeafNode( anim ))", (const char *)&queryFormat, "IsLeafNode( anim )") )
     __debugbreak();
-  if ( (*(_BYTE *)(v21 + 120) & 1) != 0 )
+  v10 = *((_QWORD *)&SubTreeAnims->debugName + v8);
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2384, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+    __debugbreak();
+  if ( (*(_BYTE *)(v10 + 120) & 1) != 0 )
   {
-    __asm
-    {
-      vcomiss xmm7, xmm6
-      vcvtss2sd xmm6, xmm7, xmm7
-      vmovsd  [rsp+68h+var_30], xmm6
-    }
-    v29 = XAnimGetAnimDebugName(SubTreeAnims, _RBX->animIndex);
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7913, ASSERT_TYPE_ASSERT, "(time < 1.0f)", "%s\n\tLooping anim '%s' needs time < 1.0 (time: %f)", "time < 1.0f", v29, v32);
+    if ( time < 1.0 )
+      goto LABEL_39;
+    v13 = XAnimGetAnimDebugName(SubTreeAnims, NonRootAnimInfo->animIndex);
+    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7913, ASSERT_TYPE_ASSERT, "(time < 1.0f)", "%s\n\tLooping anim '%s' needs time < 1.0 (time: %f)", "time < 1.0f", v13, time);
   }
   else
   {
-    __asm { vcomiss xmm7, xmm6 }
-    if ( (*(_BYTE *)(v21 + 120) & 1) == 0 )
-      goto LABEL_37;
-    __asm
-    {
-      vcvtss2sd xmm6, xmm7, xmm7
-      vmovsd  [rsp+68h+var_30], xmm6
-    }
-    v30 = XAnimGetAnimDebugName(SubTreeAnims, _RBX->animIndex);
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7917, ASSERT_TYPE_ASSERT, "(time <= 1.0f)", "%s\n\tNon-looping anim '%s' needs time <= 1.0 (time: %f)", "time <= 1.0f", v30, v33);
+    if ( time <= 1.0 )
+      goto LABEL_39;
+    v14 = XAnimGetAnimDebugName(SubTreeAnims, NonRootAnimInfo->animIndex);
+    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7917, ASSERT_TYPE_ASSERT, "(time <= 1.0f)", "%s\n\tNon-looping anim '%s' needs time <= 1.0 (time: %f)", "time <= 1.0f", v14, time);
   }
-  if ( v23 )
+  if ( v11 )
     __debugbreak();
-LABEL_37:
-  flags = _RBX->state.flags;
+LABEL_39:
+  flags = NonRootAnimInfo->state.flags;
   if ( (flags & 0x10) != 0 )
   {
     if ( (flags & 0x40) == 0 )
     {
-      _RBX->state.oldTime = _RBX->state.currentAnimTime;
-      _RBX->state.oldCycleCount = 0;
-      _RBX->state.flags |= 0x40u;
+      NonRootAnimInfo->state.oldTime = NonRootAnimInfo->state.currentAnimTime;
+      NonRootAnimInfo->state.oldCycleCount = 0;
+      NonRootAnimInfo->state.flags |= 0x40u;
     }
   }
   else
   {
-    _RBX->state.oldCycleCount = 0;
-    __asm { vmovss  dword ptr [rbx+2Ch], xmm7 }
-    _RBX->notifyIndex = -1;
+    NonRootAnimInfo->state.oldCycleCount = 0;
+    NonRootAnimInfo->state.oldTime = time;
+    NonRootAnimInfo->notifyIndex = -1;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovss  dword ptr [rbx+28h], xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  _RBX->state.cycleCount = 0;
+  NonRootAnimInfo->state.currentAnimTime = time;
+  NonRootAnimInfo->state.cycleCount = 0;
 }
 
 /*
@@ -15548,78 +12585,60 @@ XAnimSetTreeChildTimes
 */
 void XAnimSetTreeChildTimes(XAnimTree *tree, unsigned int graftAnimIndex, const XAnimSubTreeID subTreeID, unsigned int animIndex, float time)
 {
-  __int64 v7; 
+  __int64 v5; 
   const XAnim_s *SubTreeAnims; 
   unsigned __int16 InfoIndex; 
-  unsigned __int16 v13; 
+  unsigned __int16 v11; 
   unsigned __int16 i; 
-  unsigned __int8 *v19; 
-  __int64 v20; 
+  unsigned __int8 *v13; 
+  __int64 v14; 
   XAnimInfo *AnimInfo; 
-  unsigned __int16 *v22; 
-  unsigned int v23; 
-  float fmt; 
-  __int64 v26; 
-  double v27; 
-  __int64 v28; 
+  unsigned __int16 *v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  __int64 v19; 
 
-  v7 = animIndex;
+  v5 = animIndex;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8135, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   SubTreeAnims = XAnimGetSubTreeAnims(tree, subTreeID);
-  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v7);
+  XAnimAssertGraftAnimIndex(tree, graftAnimIndex, subTreeID, v5);
   if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8140, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  if ( (unsigned int)v7 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8141, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
+  if ( (unsigned int)v5 >= SubTreeAnims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8141, ASSERT_TYPE_ASSERT, "(animIndex < anims->size)", (const char *)&queryFormat, "animIndex < anims->size") )
     __debugbreak();
-  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v7);
-  v13 = InfoIndex;
+  InfoIndex = XAnimGetInfoIndex(tree, graftAnimIndex, subTreeID, v5);
+  v11 = InfoIndex;
   if ( InfoIndex )
   {
-    if ( SubTreeAnims->entries[v7].numAnims )
+    if ( SubTreeAnims->entries[v5].numAnims )
     {
-      __asm
-      {
-        vmovaps [rsp+78h+var_38], xmm6
-        vmovss  xmm6, [rsp+78h+time]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-        vcomiss xmm6, cs:__real@3f800000
-      }
-      if ( SubTreeAnims->entries[v7].numAnims )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+78h+var_50], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8160, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", v27) )
-          __debugbreak();
-      }
-      for ( i = GetNonRootAnimInfo(v13)->children; i; i = *((_WORD *)v19 + 5) )
+      if ( (time < 0.0 || time > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8160, ASSERT_TYPE_ASSERT, "( ( !(time < 0.0f) && time <= 1.0f ) )", "( time ) = %g", time) )
+        __debugbreak();
+      for ( i = GetNonRootAnimInfo(v11)->children; i; i = *((_WORD *)v13 + 5) )
       {
         if ( (i & 0x8000u) != 0 )
         {
-          v20 = 32 * (i & 0x7FFFu);
-          if ( (unsigned int)v20 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v14 = 32 * (i & 0x7FFFu);
+          if ( (unsigned int)v14 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v28) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v26) = 32 * (i & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v26, v28) )
+            LODWORD(v19) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v18) = 32 * (i & 0x7FFF);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v18, v19) )
               __debugbreak();
           }
-          v19 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v20];
+          v13 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v14];
         }
         else
         {
           if ( (unsigned int)i >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v28) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v26) = i;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v26, v28) )
+            LODWORD(v19) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v18) = i;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
           }
-          v19 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
+          v13 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[i];
         }
         AnimInfo = XAnimGetAnimInfo(i);
         if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9295, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
@@ -15628,29 +12647,26 @@ void XAnimSetTreeChildTimes(XAnimTree *tree, unsigned int graftAnimIndex, const 
         {
           while ( 1 )
           {
-            v22 = (unsigned __int16 *)XAnimGetAnimInfo(i);
-            if ( v22[8] != AnimInfo->subTreeID )
+            v16 = (unsigned __int16 *)XAnimGetAnimInfo(i);
+            if ( v16[8] != AnimInfo->subTreeID )
               break;
-            i = v22[7];
+            i = v16[7];
             if ( !i )
-              goto LABEL_32;
+              goto LABEL_33;
           }
-          v23 = v22[3];
+          v17 = v16[3];
         }
         else
         {
-LABEL_32:
-          v23 = 0;
+LABEL_33:
+          v17 = 0;
         }
-        __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-        XAnimSetTreeChildTimes(tree, v23, *((const XAnimSubTreeID *)v19 + 8), *((unsigned __int16 *)v19 + 3), fmt);
+        XAnimSetTreeChildTimes(tree, v17, *((const XAnimSubTreeID *)v13 + 8), *((unsigned __int16 *)v13 + 3), time);
       }
-      __asm { vmovaps xmm6, [rsp+78h+var_38] }
     }
     else
     {
-      __asm { vmovss  xmm2, [rsp+78h+time]; time }
-      XAnimSetTimeNode(tree, InfoIndex, *(float *)&_XMM2);
+      XAnimSetTimeNode(tree, InfoIndex, time);
     }
   }
 }
@@ -15689,8 +12705,7 @@ void XAnimSetWrappedTime(XAnimTree *tree, unsigned int graftAnimIndex, const XAn
     }
     if ( (NonRootAnimInfo->state.flags & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 7992, ASSERT_TYPE_ASSERT, "(XAnimInfoHasScrubbedNotetracks( info ))", "%s\n\tXAnimSetWrappedTime() can be used with scrubbed notetrack nodes only.", "XAnimInfoHasScrubbedNotetracks( info )") )
       __debugbreak();
-    __asm { vmovss  xmm2, [rsp+48h+time]; time }
-    XAnimSetTimeNode(tree, v12, *(float *)&_XMM2);
+    XAnimSetTimeNode(tree, v12, time);
     InfoSetStateFlag(NonRootAnimInfo, XANIMSTATE_SCRUBBED_NOTETRACKS_WRAPPED, timeWrapped);
   }
 }
@@ -16058,9 +13073,12 @@ XAnimTransferFrom_r
 */
 void XAnimTransferFrom_r(const XAnimTree *from, unsigned __int16 fromInfoIndex)
 {
+  XAnimInfo *NonRootAnimInfo; 
   unsigned int v5; 
   unsigned __int16 children; 
+  XAnimTransferInfo *v7; 
   XAnimToXModel *v8; 
+  float weight; 
   unsigned __int8 transferStatus; 
   unsigned __int8 *v11; 
   __int64 v12; 
@@ -16073,7 +13091,7 @@ void XAnimTransferFrom_r(const XAnimTree *from, unsigned __int16 fromInfoIndex)
     __debugbreak();
   if ( !from->anims->size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3599, ASSERT_TYPE_ASSERT, "( from->anims->size )", (const char *)&queryFormat, "from->anims->size") )
     __debugbreak();
-  _RSI = GetNonRootAnimInfo(fromInfoIndex);
+  NonRootAnimInfo = GetNonRootAnimInfo(fromInfoIndex);
   if ( !XAnimGetAnimInfo(fromInfoIndex)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3602, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( fromInfoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( fromInfoIndex )") )
     __debugbreak();
   v5 = g_animInfoCount;
@@ -16085,34 +13103,34 @@ void XAnimTransferFrom_r(const XAnimTree *from, unsigned __int16 fromInfoIndex)
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441ACEF8, 369i64);
     v5 = g_animInfoCount;
   }
-  children = _RSI->children;
+  children = NonRootAnimInfo->children;
   g_animInfoCount = v5 + 1;
-  _RDI = &g_xanimTransferInfo[v5];
-  v8 = XAnimCloneXAnimToXModel(_RSI->animToModel);
-  _RDI->hasChildren = children != 0;
-  _RDI->hasNext = _RSI->prev != 0;
-  _RDI->animIndex = _RSI->animIndex;
-  _RDI->subTreeID = _RSI->subTreeID;
-  _RDI->animToModel = v8;
-  _RDI->oldCycleCount = _RSI->state.oldCycleCount;
-  _RDI->oldTime = _RSI->state.oldTime;
-  _RDI->goalTime = _RSI->state.goalTime;
-  _RDI->goalWeight = _RSI->state.goalWeight;
-  if ( (_RSI->state.flags & 1) != 0 )
-    __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
+  v7 = &g_xanimTransferInfo[v5];
+  v8 = XAnimCloneXAnimToXModel(NonRootAnimInfo->animToModel);
+  v7->hasChildren = children != 0;
+  v7->hasNext = NonRootAnimInfo->prev != 0;
+  v7->animIndex = NonRootAnimInfo->animIndex;
+  v7->subTreeID = NonRootAnimInfo->subTreeID;
+  v7->animToModel = v8;
+  v7->oldCycleCount = NonRootAnimInfo->state.oldCycleCount;
+  v7->oldTime = NonRootAnimInfo->state.oldTime;
+  v7->goalTime = NonRootAnimInfo->state.goalTime;
+  v7->goalWeight = NonRootAnimInfo->state.goalWeight;
+  if ( (NonRootAnimInfo->state.flags & 1) != 0 )
+    weight = NonRootAnimInfo->state.weight;
   else
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
-  _RDI->rate = _RSI->state.rate;
-  _RDI->hasSyncGroups = (_RSI->state.flags & 2) != 0;
-  _RDI->startWeight = _RSI->state.startWeight;
-  _RDI->goalDuration = _RSI->state.goalDuration;
-  _RDI->curveID = _RSI->state.curveID;
-  _RDI->isInstantFullRestart = (_RSI->state.flags & 4) != 0;
-  transferStatus = _RDI->transferStatus;
+    weight = FLOAT_N1_0;
+  v7->weight = weight;
+  v7->rate = NonRootAnimInfo->state.rate;
+  v7->hasSyncGroups = (NonRootAnimInfo->state.flags & 2) != 0;
+  v7->startWeight = NonRootAnimInfo->state.startWeight;
+  v7->goalDuration = NonRootAnimInfo->state.goalDuration;
+  v7->curveID = NonRootAnimInfo->state.curveID;
+  v7->isInstantFullRestart = (NonRootAnimInfo->state.flags & 4) != 0;
+  transferStatus = v7->transferStatus;
   if ( transferStatus && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3637, ASSERT_TYPE_ASSERT, "( toInfo->transferStatus ) == ( INVALID_XANIM_TRANSFER_DATA )", "%s == %s\n\t%u, %u", "toInfo->transferStatus", "INVALID_XANIM_TRANSFER_DATA", transferStatus, 0i64) )
     __debugbreak();
-  _RDI->transferStatus = 1;
+  v7->transferStatus = 1;
   if ( children )
   {
     for ( ; XAnimGetAnimInfo(children)->next; children = XAnimGetAnimInfo(children)->next )
@@ -16166,13 +13184,14 @@ void XAnimTransferParametersFromServerTree(XAnimParameterTransferInfo *transferI
   int v7; 
   __int64 v8; 
   __int64 v9; 
+  XAnimParameterValue *v10; 
+  __int64 validParameterCount; 
   unsigned __int64 dobjCount; 
+  __int64 v13; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  int v18; 
+  int v16; 
 
-  _RDI = transferInfo;
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3664, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
     __debugbreak();
   if ( !from->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3665, ASSERT_TYPE_ASSERT, "(from->anims)", (const char *)&queryFormat, "from->anims") )
@@ -16180,22 +13199,22 @@ void XAnimTransferParametersFromServerTree(XAnimParameterTransferInfo *transferI
   if ( from->owner[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3666, ASSERT_TYPE_ASSERT, "(from->owner == XAnimOwner::SERVER)", (const char *)&queryFormat, "from->owner == XAnimOwner::SERVER") )
     __debugbreak();
   numGameParameters = from->anims->numGameParameters;
-  v18 = from->anims->numGameParameters;
+  v16 = from->anims->numGameParameters;
   if ( from->anims->numGameParameters )
   {
-    parameterCount = _RDI->parameterCount;
+    parameterCount = transferInfo->parameterCount;
     v6 = 0;
     if ( parameterCount + (unsigned int)numGameParameters >= 0xA80 )
     {
       g_animInfoCount = 0;
       g_dobjInfoCount = 0;
-      _RDI->parameterCount = 0;
+      transferInfo->parameterCount = 0;
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441ACCE0, 370i64);
     }
     if ( (unsigned int)numGameParameters >= (unsigned int)from->maxParameters + 1 )
     {
-      LODWORD(v15) = numGameParameters;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3688, ASSERT_TYPE_ASSERT, "(unsigned)( numParameters ) < (unsigned)( from->maxParameters + 1 )", "numParameters doesn't index from->maxParameters + 1\n\t%i not in [0, %i)", v15, from->maxParameters + 1) )
+      LODWORD(v13) = numGameParameters;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3688, ASSERT_TYPE_ASSERT, "(unsigned)( numParameters ) < (unsigned)( from->maxParameters + 1 )", "numParameters doesn't index from->maxParameters + 1\n\t%i not in [0, %i)", v13, from->maxParameters + 1) )
         __debugbreak();
     }
     if ( (_DWORD)numGameParameters )
@@ -16205,38 +13224,33 @@ void XAnimTransferParametersFromServerTree(XAnimParameterTransferInfo *transferI
       v9 = 0i64;
       do
       {
-        _RDX = &from->parameterValues[v9];
-        if ( _RDX->type <= STRUCT_POINTER && _bittest(&v7, (unsigned __int8)_RDX->type) )
+        v10 = &from->parameterValues[v9];
+        if ( v10->type <= STRUCT_POINTER && _bittest(&v7, (unsigned __int8)v10->type) )
         {
           if ( parameterCount >= 0xA80 )
           {
-            LODWORD(v17) = 2688;
-            LODWORD(v16) = parameterCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
+            LODWORD(v15) = 2688;
+            LODWORD(v14) = parameterCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
               __debugbreak();
           }
-          _RDI->validParameterBits.array[(unsigned __int64)parameterCount >> 5] &= ~(0x80000000 >> (parameterCount & 0x1F));
+          transferInfo->validParameterBits.array[(unsigned __int64)parameterCount >> 5] &= ~(0x80000000 >> (parameterCount & 0x1F));
         }
         else
         {
           ++v6;
-          __asm { vmovups xmm0, xmmword ptr [rdx] }
-          _RCX = 3i64 * _RDI->validParameterCount;
-          __asm
-          {
-            vmovups xmmword ptr [rdi+rcx*8], xmm0
-            vmovsd  xmm1, qword ptr [rdx+10h]
-            vmovsd  qword ptr [rdi+rcx*8+10h], xmm1
-          }
-          ++_RDI->validParameterCount;
+          validParameterCount = transferInfo->validParameterCount;
+          *(_OWORD *)&transferInfo->parameters[validParameterCount].type = *(_OWORD *)&v10->type;
+          *((double *)&transferInfo->parameters[validParameterCount].intValue + 1) = *((double *)&v10->intValue + 1);
+          ++transferInfo->validParameterCount;
           if ( parameterCount >= 0xA80 )
           {
-            LODWORD(v17) = 2688;
-            LODWORD(v16) = parameterCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
+            LODWORD(v15) = 2688;
+            LODWORD(v14) = parameterCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
               __debugbreak();
           }
-          _RDI->validParameterBits.array[(unsigned __int64)parameterCount >> 5] |= 0x80000000 >> (parameterCount & 0x1F);
+          transferInfo->validParameterBits.array[(unsigned __int64)parameterCount >> 5] |= 0x80000000 >> (parameterCount & 0x1F);
         }
         ++parameterCount;
         ++v9;
@@ -16244,33 +13258,33 @@ void XAnimTransferParametersFromServerTree(XAnimParameterTransferInfo *transferI
         --v8;
       }
       while ( v8 );
-      LODWORD(numGameParameters) = v18;
+      LODWORD(numGameParameters) = v16;
     }
-    dobjCount = _RDI->dobjCount;
+    dobjCount = transferInfo->dobjCount;
     if ( v6 )
     {
       if ( (unsigned int)dobjCount >= 0x400 )
       {
-        LODWORD(v17) = 1024;
-        LODWORD(v16) = _RDI->dobjCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
+        LODWORD(v15) = 1024;
+        LODWORD(v14) = transferInfo->dobjCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
           __debugbreak();
       }
-      _RDI->dobjHasValidParametersBits.array[dobjCount >> 5] |= 0x80000000 >> (dobjCount & 0x1F);
-      _RDI->parameterCount += numGameParameters;
+      transferInfo->dobjHasValidParametersBits.array[dobjCount >> 5] |= 0x80000000 >> (dobjCount & 0x1F);
+      transferInfo->parameterCount += numGameParameters;
     }
     else
     {
       if ( (unsigned int)dobjCount >= 0x400 )
       {
-        LODWORD(v17) = 1024;
-        LODWORD(v16) = _RDI->dobjCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
+        LODWORD(v15) = 1024;
+        LODWORD(v14) = transferInfo->dobjCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v14, v15) )
           __debugbreak();
       }
-      _RDI->dobjHasValidParametersBits.array[dobjCount >> 5] &= ~(0x80000000 >> (dobjCount & 0x1F));
+      transferInfo->dobjHasValidParametersBits.array[dobjCount >> 5] &= ~(0x80000000 >> (dobjCount & 0x1F));
     }
-    ++_RDI->dobjCount;
+    ++transferInfo->dobjCount;
   }
 }
 
@@ -16284,11 +13298,13 @@ void XAnimTransferParametersToClientTree(XAnimParameterTransferInfo *transferInf
   __int64 numGameParameters; 
   unsigned __int64 transferredDObjCount; 
   unsigned int transferredParameterCount; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v13; 
-  __int64 v14; 
+  __int64 transferredValidParameterCount; 
+  XAnimParameterValue *parameterValues; 
+  __int64 v11; 
+  __int64 v12; 
 
-  _RBX = transferInfo;
   if ( !toTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3534, ASSERT_TYPE_ASSERT, "(toTree)", (const char *)&queryFormat, "toTree") )
     __debugbreak();
   if ( !toTree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3535, ASSERT_TYPE_ASSERT, "(toTree->anims)", (const char *)&queryFormat, "toTree->anims") )
@@ -16296,27 +13312,27 @@ void XAnimTransferParametersToClientTree(XAnimParameterTransferInfo *transferInf
   numGameParameters = toTree->anims->numGameParameters;
   if ( toTree->anims->numGameParameters )
   {
-    transferredDObjCount = _RBX->transferredDObjCount;
-    _RBX->transferredDObjCount = transferredDObjCount + 1;
+    transferredDObjCount = transferInfo->transferredDObjCount;
+    transferInfo->transferredDObjCount = transferredDObjCount + 1;
     if ( (unsigned int)transferredDObjCount >= 0x400 )
     {
-      LODWORD(v13) = transferredDObjCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, 1024) )
+      LODWORD(v11) = transferredDObjCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v11, 1024) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> (transferredDObjCount & 0x1F)) & _RBX->dobjHasValidParametersBits.array[transferredDObjCount >> 5]) != 0 )
+    if ( ((0x80000000 >> (transferredDObjCount & 0x1F)) & transferInfo->dobjHasValidParametersBits.array[transferredDObjCount >> 5]) != 0 )
     {
-      if ( (unsigned int)(numGameParameters + _RBX->transferredParameterCount) > _RBX->parameterCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3552, ASSERT_TYPE_ASSERT, "( transferInfo->transferredParameterCount + numParameters ) <= ( transferInfo->parameterCount )", "%s <= %s\n\t%i, %i", "transferInfo->transferredParameterCount + numParameters", "transferInfo->parameterCount", numGameParameters + _RBX->transferredParameterCount, _RBX->parameterCount) )
+      if ( (unsigned int)(numGameParameters + transferInfo->transferredParameterCount) > transferInfo->parameterCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3552, ASSERT_TYPE_ASSERT, "( transferInfo->transferredParameterCount + numParameters ) <= ( transferInfo->parameterCount )", "%s <= %s\n\t%i, %i", "transferInfo->transferredParameterCount + numParameters", "transferInfo->parameterCount", numGameParameters + transferInfo->transferredParameterCount, transferInfo->parameterCount) )
         __debugbreak();
-      transferredParameterCount = _RBX->transferredParameterCount;
-      _RSI = 0i64;
-      if ( transferredParameterCount + (unsigned int)numGameParameters > _RBX->parameterCount )
+      transferredParameterCount = transferInfo->transferredParameterCount;
+      v7 = 0i64;
+      if ( transferredParameterCount + (unsigned int)numGameParameters > transferInfo->parameterCount )
       {
         g_animInfoCount = 0;
         g_dobjInfoCount = 0;
-        _RBX->transferredParameterCount = 0;
+        transferInfo->transferredParameterCount = 0;
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441ACCE0, 368i64);
-        transferredParameterCount = _RBX->transferredParameterCount;
+        transferredParameterCount = transferInfo->transferredParameterCount;
       }
       if ( (_DWORD)numGameParameters )
       {
@@ -16325,39 +13341,34 @@ void XAnimTransferParametersToClientTree(XAnimParameterTransferInfo *transferInf
         {
           if ( transferredParameterCount >= 0xA80 )
           {
-            LODWORD(v14) = 2688;
-            LODWORD(v13) = transferredParameterCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, v14) )
+            LODWORD(v12) = 2688;
+            LODWORD(v11) = transferredParameterCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v11, v12) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (transferredParameterCount & 0x1F)) & _RBX->validParameterBits.array[(unsigned __int64)transferredParameterCount >> 5]) != 0 )
+          if ( ((0x80000000 >> (transferredParameterCount & 0x1F)) & transferInfo->validParameterBits.array[(unsigned __int64)transferredParameterCount >> 5]) != 0 )
           {
-            if ( _RBX->transferredValidParameterCount > _RBX->validParameterCount )
+            if ( transferInfo->transferredValidParameterCount > transferInfo->validParameterCount )
             {
-              LODWORD(v14) = _RBX->validParameterCount;
-              LODWORD(v13) = _RBX->transferredValidParameterCount;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3568, ASSERT_TYPE_ASSERT, "( transferInfo->transferredValidParameterCount ) <= ( transferInfo->validParameterCount )", "transferInfo->transferredValidParameterCount not in [0, transferInfo->validParameterCount]\n\t%u not in [0, %u]", v13, v14) )
+              LODWORD(v12) = transferInfo->validParameterCount;
+              LODWORD(v11) = transferInfo->transferredValidParameterCount;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3568, ASSERT_TYPE_ASSERT, "( transferInfo->transferredValidParameterCount ) <= ( transferInfo->validParameterCount )", "transferInfo->transferredValidParameterCount not in [0, transferInfo->validParameterCount]\n\t%u not in [0, %u]", v11, v12) )
                 __debugbreak();
             }
-            _RCX = 3i64 * _RBX->transferredValidParameterCount;
-            _RAX = toTree->parameterValues;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbx+rcx*8]
-              vmovups xmmword ptr [rax+rsi], xmm0
-              vmovsd  xmm1, qword ptr [rbx+rcx*8+10h]
-              vmovsd  qword ptr [rax+rsi+10h], xmm1
-            }
-            ++_RBX->transferredValidParameterCount;
+            transferredValidParameterCount = transferInfo->transferredValidParameterCount;
+            parameterValues = toTree->parameterValues;
+            *(_OWORD *)&parameterValues[v7].type = *(_OWORD *)&transferInfo->parameters[transferInfo->transferredValidParameterCount].type;
+            *((double *)&parameterValues[v7].intValue + 1) = *((double *)&transferInfo->parameters[transferredValidParameterCount].intValue + 1);
+            ++transferInfo->transferredValidParameterCount;
           }
           ++transferredParameterCount;
-          _RSI += 24i64;
+          ++v7;
           --v8;
         }
         while ( v8 );
-        transferredParameterCount = _RBX->transferredParameterCount;
+        transferredParameterCount = transferInfo->transferredParameterCount;
       }
-      _RBX->transferredParameterCount = transferredParameterCount + numGameParameters;
+      transferInfo->transferredParameterCount = transferredParameterCount + numGameParameters;
     }
   }
 }
@@ -16369,76 +13380,75 @@ XAnimTransferTo_r
 */
 __int64 XAnimTransferTo_r(DObj *obj, XAnimTree *to, unsigned __int16 toInfoIndex, unsigned __int16 toInfoParentIndex)
 {
-  unsigned __int16 v9; 
-  unsigned int v11; 
+  unsigned __int16 v6; 
+  unsigned int v8; 
+  XAnimTransferInfo *v9; 
   unsigned __int8 transferStatus; 
   XAnimInfo *AnimInfo; 
-  bool v16; 
-  unsigned __int8 v18; 
+  bool v12; 
+  unsigned __int8 v13; 
   XAnimToXModel *animToModel; 
   const XAnim_s *SubTreeAnims; 
-  unsigned __int16 v21; 
+  unsigned __int16 v16; 
   XAnimSubTreeID subTreeID; 
-  XAnimInfo *v23; 
-  const XAnim_s *v24; 
+  XAnimInfo *v18; 
+  const XAnim_s *v19; 
+  XAnimInfo *v20; 
   __int16 notifyIndex; 
-  const dvar_t *v27; 
+  const dvar_t *v22; 
+  float rate; 
   const char *AnimDebugName; 
+  float weight; 
   bool hasChildren; 
   unsigned __int16 children; 
-  __int64 v35; 
-  char v37; 
-  XAnimInfo *v38; 
-  const XAnimInfo *v39; 
-  unsigned int v40; 
-  unsigned __int16 v42; 
-  const XAnimInfo *v43; 
-  unsigned int v44; 
+  __int64 v28; 
+  XAnimInfo *v29; 
+  const XAnimInfo *v30; 
+  unsigned int v31; 
+  unsigned __int16 v32; 
+  const XAnimInfo *v33; 
+  unsigned int v34; 
   __int64 after; 
-  __int64 v49; 
-  __int64 v50; 
-  double v51; 
-  __int64 v52; 
-  unsigned __int16 v55; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  unsigned __int16 v40; 
 
-  v55 = toInfoIndex;
-  __asm { vmovaps [rsp+98h+var_48], xmm7 }
-  v9 = toInfoIndex;
+  v40 = toInfoIndex;
+  v6 = toInfoIndex;
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3403, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
-  v11 = g_animInfoCount;
+  v8 = g_animInfoCount;
   if ( g_animInfoCount >= 0x800 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3405, ASSERT_TYPE_ASSERT, "(g_animInfoCount < ( sizeof( *array_counter( g_xanimTransferInfo ) ) + 0 ))", (const char *)&queryFormat, "g_animInfoCount < ARRAY_COUNT( g_xanimTransferInfo )") )
       __debugbreak();
-    v11 = g_animInfoCount;
+    v8 = g_animInfoCount;
   }
-  g_animInfoCount = v11 + 1;
-  _RDI = &g_xanimTransferInfo[v11];
-  transferStatus = _RDI->transferStatus;
+  g_animInfoCount = v8 + 1;
+  v9 = &g_xanimTransferInfo[v8];
+  transferStatus = v9->transferStatus;
   if ( transferStatus != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3409, ASSERT_TYPE_ASSERT, "( fromInfo->transferStatus ) == ( XANIM_READY_FOR_TRANSFER )", "%s == %s\n\t%u, %u", "fromInfo->transferStatus", "XANIM_READY_FOR_TRANSFER", transferStatus, 1) )
     __debugbreak();
-  _RDI->transferStatus = 2;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( v9 )
+  v9->transferStatus = 2;
+  if ( v6 )
   {
-    AnimInfo = XAnimGetAnimInfo(v9);
-    v16 = AnimInfo->animIndex == _RDI->animIndex && AnimInfo->subTreeID != _RDI->subTreeID;
-    if ( XAnimGetAnimInfo(v9)->animIndex >= _RDI->animIndex )
+    AnimInfo = XAnimGetAnimInfo(v6);
+    v12 = AnimInfo->animIndex == v9->animIndex && AnimInfo->subTreeID != v9->subTreeID;
+    if ( XAnimGetAnimInfo(v6)->animIndex >= v9->animIndex )
     {
-      if ( _RDI->isInstantFullRestart )
+      if ( v9->isInstantFullRestart )
       {
 LABEL_24:
-        __asm { vxorps  xmm2, xmm2, xmm2; blendTime }
-        XAnimClearTreeGoalWeightsNode(to, v9, *(float *)&_XMM2, 1, LINEAR);
+        XAnimClearTreeGoalWeightsNode(to, v6, 0.0, 1, LINEAR);
         goto LABEL_25;
       }
-      if ( !v16 )
+      if ( !v12 )
       {
-        if ( _RDI->animToModel )
+        if ( v9->animToModel )
         {
-          XAnimFreeXAnimToXModel(&_RDI->animToModel);
-          if ( _RDI->animToModel )
+          XAnimFreeXAnimToXModel(&v9->animToModel);
+          if ( v9->animToModel )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3437, ASSERT_TYPE_ASSERT, "(fromInfo->animToModel == nullptr)", (const char *)&queryFormat, "fromInfo->animToModel == nullptr") )
               __debugbreak();
@@ -16447,20 +13457,20 @@ LABEL_24:
         goto LABEL_42;
       }
     }
-    if ( _RDI->isInstantFullRestart )
+    if ( v9->isInstantFullRestart )
       goto LABEL_24;
   }
 LABEL_25:
-  v18 = _RDI->transferStatus;
-  if ( v18 != 2 )
+  v13 = v9->transferStatus;
+  if ( v13 != 2 )
   {
-    LODWORD(v52) = 2;
-    LODWORD(v50) = v18;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3332, ASSERT_TYPE_ASSERT, "( fromInfo->transferStatus ) == ( XANIM_TRANSFER_IN_PROGRESS )", "%s == %s\n\t%u, %u", "fromInfo->transferStatus", "XANIM_TRANSFER_IN_PROGRESS", v50, v52) )
+    LODWORD(v39) = 2;
+    LODWORD(v38) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3332, ASSERT_TYPE_ASSERT, "( fromInfo->transferStatus ) == ( XANIM_TRANSFER_IN_PROGRESS )", "%s == %s\n\t%u, %u", "fromInfo->transferStatus", "XANIM_TRANSFER_IN_PROGRESS", v38, v39) )
       __debugbreak();
   }
-  animToModel = _RDI->animToModel;
-  _RDI->animToModel = NULL;
+  animToModel = v9->animToModel;
+  v9->animToModel = NULL;
   if ( !DObjHasClientOnlyBones(obj) )
     goto LABEL_40;
   if ( !animToModel )
@@ -16470,95 +13480,84 @@ LABEL_25:
     MT_Free(animToModel, 2 * (animToModel->boneCount + (unsigned __int64)animToModel->blendShapeWeightCount) + 36);
     animToModel = NULL;
 LABEL_32:
-    if ( _RDI->animIndex )
+    if ( v9->animIndex )
     {
-      SubTreeAnims = XAnimGetSubTreeAnims(to, (const XAnimSubTreeID)_RDI->subTreeID);
+      SubTreeAnims = XAnimGetSubTreeAnims(to, (const XAnimSubTreeID)v9->subTreeID);
       if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3366, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
         __debugbreak();
-      if ( _RDI->animIndex >= SubTreeAnims->size )
+      if ( v9->animIndex >= SubTreeAnims->size )
       {
-        LODWORD(v52) = SubTreeAnims->size;
-        LODWORD(v50) = _RDI->animIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3367, ASSERT_TYPE_ASSERT, "( fromInfo->animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "fromInfo->animIndex", "anims->size", v50, v52) )
+        LODWORD(v39) = SubTreeAnims->size;
+        LODWORD(v38) = v9->animIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3367, ASSERT_TYPE_ASSERT, "( fromInfo->animIndex ) < ( anims->size )", "%s < %s\n\t%i, %i", "fromInfo->animIndex", "anims->size", v38, v39) )
           __debugbreak();
       }
-      animToModel = XAnimGetAnimToModel(obj, &SubTreeAnims->entries[_RDI->animIndex], NULL);
+      animToModel = XAnimGetAnimToModel(obj, &SubTreeAnims->entries[v9->animIndex], NULL);
     }
   }
 LABEL_40:
-  v21 = XAnimAllocInfoWithParent(to, (const XAnimSubTreeID)_RDI->subTreeID, animToModel, _RDI->animIndex, toInfoParentIndex, 0);
-  subTreeID = _RDI->subTreeID;
-  v9 = v21;
-  v55 = v21;
-  v23 = XAnimGetAnimInfo(v21);
-  *(_QWORD *)&v23->state.currentAnimTime = 0i64;
-  *(_QWORD *)&v23->state.cycleCount = 0i64;
-  *(_QWORD *)&v23->state.goalWeight = 0i64;
-  *(_QWORD *)&v23->state.rate = 0i64;
-  *(_QWORD *)&v23->state.startWeight = 0i64;
-  v23->notifyName = 0;
-  *(_DWORD *)&v23->notifyChild = -65536;
-  v23->notifyType = 0;
-  v23->subTreeID = subTreeID;
-  v24 = XAnimGetSubTreeAnims(to, subTreeID);
-  if ( XAnimIsCustomNode(v24, v23) )
-    v23->state.flags |= 8u;
+  v16 = XAnimAllocInfoWithParent(to, (const XAnimSubTreeID)v9->subTreeID, animToModel, v9->animIndex, toInfoParentIndex, 0);
+  subTreeID = v9->subTreeID;
+  v6 = v16;
+  v40 = v16;
+  v18 = XAnimGetAnimInfo(v16);
+  *(_QWORD *)&v18->state.currentAnimTime = 0i64;
+  *(_QWORD *)&v18->state.cycleCount = 0i64;
+  *(_QWORD *)&v18->state.goalWeight = 0i64;
+  *(_QWORD *)&v18->state.rate = 0i64;
+  *(_QWORD *)&v18->state.startWeight = 0i64;
+  v18->notifyName = 0;
+  *(_DWORD *)&v18->notifyChild = -65536;
+  v18->notifyType = 0;
+  v18->subTreeID = subTreeID;
+  v19 = XAnimGetSubTreeAnims(to, subTreeID);
+  if ( XAnimIsCustomNode(v19, v18) )
+    v18->state.flags |= 8u;
 LABEL_42:
-  _RBX = XAnimGetAnimInfo(v9);
-  if ( XAnimIsClientAuthNode(_RBX) )
+  v20 = XAnimGetAnimInfo(v6);
+  if ( XAnimIsClientAuthNode(v20) )
   {
-    _RDI->transferStatus = 3;
+    v9->transferStatus = 3;
   }
   else
   {
-    notifyIndex = _RBX->notifyIndex;
+    notifyIndex = v20->notifyIndex;
     if ( notifyIndex != -1 )
     {
       LODWORD(after) = notifyIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3449, ASSERT_TYPE_ASSERT, "( ( toInfo->notifyIndex == -1 ) )", "( toInfo->notifyIndex ) = %i", after) )
         __debugbreak();
     }
-    v27 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
+    v22 = DCONST_DVARBOOL_xanim_debugScrubbedNotetracks;
     if ( !DCONST_DVARBOOL_xanim_debugScrubbedNotetracks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_debugScrubbedNotetracks") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    if ( v27->current.enabled && XAnimInfoHasScrubbedNotetracks(_RBX) )
+    Dvar_CheckFrontendServerThread(v22);
+    if ( v22->current.enabled && XAnimInfoHasScrubbedNotetracks(v20) )
     {
-      __asm
+      rate = v9->rate;
+      if ( rate != 0.0 )
       {
-        vmovaps [rsp+98h+var_38], xmm6
-        vmovss  xmm6, dword ptr [rdi+1Ch]
-        vucomiss xmm6, xmm7
+        AnimDebugName = XAnimGetAnimDebugName(to->anims, v20->animIndex);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3454, ASSERT_TYPE_ASSERT, "(fromInfo->rate == 0.0f)", "%s\n\tXAnimTransferTo_r '%s': fromInfo->rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "fromInfo->rate == 0.0f", AnimDebugName, rate) )
+          __debugbreak();
       }
-      AnimDebugName = XAnimGetAnimDebugName(to->anims, _RBX->animIndex);
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+98h+var_60], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3454, ASSERT_TYPE_ASSERT, "(fromInfo->rate == 0.0f)", "%s\n\tXAnimTransferTo_r '%s': fromInfo->rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "fromInfo->rate == 0.0f", AnimDebugName, v51) )
-        __debugbreak();
-      __asm { vmovaps xmm6, [rsp+98h+var_38] }
     }
-    _RBX->state.currentAnimTime = _RDI->oldTime;
-    _RBX->state.cycleCount = _RDI->oldCycleCount;
-    _RBX->state.goalWeight = _RDI->goalWeight;
-    _RBX->state.rate = _RDI->rate;
-    _RBX->state.goalTime = _RDI->goalTime;
-    _RBX->state.startWeight = _RDI->startWeight;
-    _RBX->state.goalDuration = _RDI->goalDuration;
-    _RBX->state.curveID = _RDI->curveID;
-    InfoSetStateFlag(_RBX, XANIMSTATE_HAS_SYNC_GROUPS, _RDI->hasSyncGroups);
-    _RBX->state.flags &= ~4u;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vcomiss xmm0, xmm7
-      vmovss  dword ptr [rbx+3Ch], xmm0
-    }
-    hasChildren = _RDI->hasChildren;
-    _RDI->transferStatus = 3;
-    children = _RBX->children;
+    v20->state.currentAnimTime = v9->oldTime;
+    v20->state.cycleCount = v9->oldCycleCount;
+    v20->state.goalWeight = v9->goalWeight;
+    v20->state.rate = v9->rate;
+    v20->state.goalTime = v9->goalTime;
+    v20->state.startWeight = v9->startWeight;
+    v20->state.goalDuration = v9->goalDuration;
+    v20->state.curveID = v9->curveID;
+    InfoSetStateFlag(v20, XANIMSTATE_HAS_SYNC_GROUPS, v9->hasSyncGroups);
+    v20->state.flags &= ~4u;
+    weight = v9->weight;
+    if ( weight >= 0.0 )
+      v20->state.weight = weight;
+    hasChildren = v9->hasChildren;
+    v9->transferStatus = 3;
+    children = v20->children;
     if ( children && XAnimGetAnimInfo(children)->next )
     {
       do
@@ -16569,70 +13568,62 @@ LABEL_42:
     {
       do
       {
-        v35 = g_animInfoCount;
+        v28 = g_animInfoCount;
         if ( children )
         {
           if ( !XAnimGetAnimInfo(children)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3490, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
             __debugbreak();
           while ( 1 )
           {
-            if ( XAnimGetAnimInfo(children)->animIndex <= g_xanimTransferInfo[v35].animIndex )
+            if ( XAnimGetAnimInfo(children)->animIndex <= g_xanimTransferInfo[v28].animIndex && XAnimGetAnimInfo(children)->state.weight != 0.0 )
             {
-              _RAX = XAnimGetAnimInfo(children);
-              __asm { vucomiss xmm7, dword ptr [rax+3Ch] }
-              if ( !v37 )
-              {
-                v38 = XAnimGetAnimInfo(children);
-                if ( v38->animIndex != g_xanimTransferInfo[v35].animIndex || v38->subTreeID == g_xanimTransferInfo[v35].subTreeID )
-                  break;
-              }
+              v29 = XAnimGetAnimInfo(children);
+              if ( v29->animIndex != g_xanimTransferInfo[v28].animIndex || v29->subTreeID == g_xanimTransferInfo[v28].subTreeID )
+                break;
             }
             if ( (children & 0x8000u) != 0 )
             {
-              v40 = 32 * (children & 0x7FFF);
-              if ( v40 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+              v31 = 32 * (children & 0x7FFF);
+              if ( v31 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
               {
-                LODWORD(v49) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+                LODWORD(v37) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
                 LODWORD(after) = 32 * (children & 0x7FFF);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v49) )
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v37) )
                   __debugbreak();
               }
-              v39 = (const XAnimInfo *)&g_xanimMemoryGlobals.bucketAllocatorBasePointer[v40];
+              v30 = (const XAnimInfo *)&g_xanimMemoryGlobals.bucketAllocatorBasePointer[v31];
             }
             else
             {
               if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
               {
-                LODWORD(v49) = g_xanimMemoryGlobals.infoPoolSize;
+                LODWORD(v37) = g_xanimMemoryGlobals.infoPoolSize;
                 LODWORD(after) = children;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v49) )
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v37) )
                   __debugbreak();
               }
-              v39 = &g_xanimMemoryGlobals.infoPool[children];
+              v30 = &g_xanimMemoryGlobals.infoPool[children];
             }
-            if ( !XAnimIsClientAuthNode(v39) )
-            {
-              __asm { vmovaps xmm2, xmm7; blendTime }
-              XAnimClearTreeGoalWeightsNode(to, children, *(float *)&_XMM2, 1, LINEAR);
-            }
+            if ( !XAnimIsClientAuthNode(v30) )
+              XAnimClearTreeGoalWeightsNode(to, children, 0.0, 1, LINEAR);
             children = XAnimGetAnimInfo(children)->prev;
             if ( !children )
-              goto LABEL_83;
+              goto LABEL_85;
           }
           if ( !XAnimGetAnimInfo(children)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3502, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
             __debugbreak();
         }
-LABEL_83:
-        v42 = XAnimTransferTo_r(obj, to, children, v9);
-        if ( !XAnimGetAnimInfo(v42)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3506, ASSERT_TYPE_ASSERT, "(XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "XAnimInfoIsInUse( toChildInfoIndex )") )
+LABEL_85:
+        v32 = XAnimTransferTo_r(obj, to, children, v6);
+        if ( !XAnimGetAnimInfo(v32)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3506, ASSERT_TYPE_ASSERT, "(XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "XAnimInfoIsInUse( toChildInfoIndex )") )
           __debugbreak();
-        if ( XAnimGetAnimInfo(v42)->animIndex != g_xanimTransferInfo[v35].animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3507, ASSERT_TYPE_ASSERT, "(GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex)", (const char *)&queryFormat, "GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex") )
+        if ( XAnimGetAnimInfo(v32)->animIndex != g_xanimTransferInfo[v28].animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3507, ASSERT_TYPE_ASSERT, "(GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex)", (const char *)&queryFormat, "GetInfoAnimIndex( toChildInfoIndex ) == fromInfo->animIndex") )
           __debugbreak();
-        children = XAnimGetAnimInfo(v42)->prev;
+        children = XAnimGetAnimInfo(v32)->prev;
         if ( children && !XAnimGetAnimInfo(children)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3511, ASSERT_TYPE_ASSERT, "(!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex ))", (const char *)&queryFormat, "!toChildInfoIndex || XAnimInfoIsInUse( toChildInfoIndex )") )
           __debugbreak();
       }
-      while ( g_xanimTransferInfo[v35].hasNext );
+      while ( g_xanimTransferInfo[v28].hasNext );
     }
     if ( children )
     {
@@ -16642,40 +13633,36 @@ LABEL_83:
       {
         if ( (children & 0x8000u) != 0 )
         {
-          v44 = 32 * (children & 0x7FFF);
-          if ( v44 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v34 = 32 * (children & 0x7FFF);
+          if ( v34 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v49) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v37) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
             LODWORD(after) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v49) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", after, v37) )
               __debugbreak();
           }
-          v43 = (const XAnimInfo *)&g_xanimMemoryGlobals.bucketAllocatorBasePointer[v44];
+          v33 = (const XAnimInfo *)&g_xanimMemoryGlobals.bucketAllocatorBasePointer[v34];
         }
         else
         {
           if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v49) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v37) = g_xanimMemoryGlobals.infoPoolSize;
             LODWORD(after) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v49) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", after, v37) )
               __debugbreak();
           }
-          v43 = &g_xanimMemoryGlobals.infoPool[children];
+          v33 = &g_xanimMemoryGlobals.infoPool[children];
         }
-        if ( !XAnimIsClientAuthNode(v43) )
-        {
-          __asm { vmovaps xmm2, xmm7; blendTime }
-          XAnimClearTreeGoalWeightsNode(to, children, *(float *)&_XMM2, 1, LINEAR);
-        }
+        if ( !XAnimIsClientAuthNode(v33) )
+          XAnimClearTreeGoalWeightsNode(to, children, 0.0, 1, LINEAR);
         children = XAnimGetAnimInfo(children)->prev;
       }
       while ( children );
-      v9 = v55;
+      return v40;
     }
   }
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
-  return v9;
+  return v6;
 }
 
 /*
@@ -16699,29 +13686,32 @@ XAnimTreeSetGoalLod
 */
 void XAnimTreeSetGoalLod(XAnimTree *tree, unsigned __int8 lod, __int16 goalTimeMsec)
 {
+  XAnim_s *anims; 
   unsigned __int8 numLods; 
-  __int16 v9; 
+  __int16 v8; 
   __int16 blendTimeLeft; 
+  __int64 v10; 
+  double v11; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9621, ASSERT_TYPE_ASSERT, "(tree != nullptr)", (const char *)&queryFormat, "tree != nullptr") )
     __debugbreak();
-  _RSI = tree->anims;
+  anims = tree->anims;
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9624, ASSERT_TYPE_ASSERT, "(anims != nullptr)", (const char *)&queryFormat, "anims != nullptr") )
     __debugbreak();
   numLods = lod;
-  if ( _RSI->numLods < lod )
-    numLods = _RSI->numLods;
-  v9 = numLods << 8;
-  if ( tree->lodState.lod == v9 )
+  if ( anims->numLods < lod )
+    numLods = anims->numLods;
+  v8 = numLods << 8;
+  if ( tree->lodState.lod == v8 )
   {
-    tree->lodState.lod = v9;
+    tree->lodState.lod = v8;
     tree->lodState.blendTimeLeft = 0;
-    tree->lodState.goalLod = v9;
+    tree->lodState.goalLod = v8;
   }
   else
   {
     blendTimeLeft = tree->lodState.blendTimeLeft;
-    if ( tree->lodState.goalLod == v9 )
+    if ( tree->lodState.goalLod == v8 )
     {
       if ( goalTimeMsec < blendTimeLeft )
         blendTimeLeft = goalTimeMsec;
@@ -16736,17 +13726,13 @@ void XAnimTreeSetGoalLod(XAnimTree *tree, unsigned __int8 lod, __int16 goalTimeM
         goalTimeMsec = blendTimeLeft;
       }
       tree->lodState.blendTimeLeft = goalTimeMsec;
-      tree->lodState.goalLod = v9;
+      tree->lodState.goalLod = v8;
     }
-    __asm { vmovss  xmm2, cs:__real@477fff00; max }
-    _RCX = (unsigned int)_RSI->numLods - 1;
-    __asm { vxorps  xmm1, xmm1, xmm1; min }
-    if ( numLods < (unsigned int)_RCX )
-      _RCX = numLods;
-    __asm { vmovss  xmm0, dword ptr [rsi+rcx*4+40h]; val }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvttss2si eax, xmm0 }
-    tree->lodState.distance = _EAX;
+    v10 = (unsigned int)anims->numLods - 1;
+    if ( numLods < (unsigned int)v10 )
+      v10 = numLods;
+    v11 = I_fclamp(anims->lodDistances[v10], 0.0, 65535.0);
+    tree->lodState.distance = (int)*(float *)&v11;
   }
 }
 
@@ -16755,62 +13741,43 @@ void XAnimTreeSetGoalLod(XAnimTree *tree, unsigned __int8 lod, __int16 goalTimeM
 XAnimUpdateClientLodBlending
 ==============
 */
-
-void __fastcall XAnimUpdateClientLodBlending(const DObj *obj, double deltaTime)
+void XAnimUpdateClientLodBlending(const DObj *obj, float deltaTime)
 {
   XAnimTree *tree; 
-  __int64 v14; 
-  int v15; 
-  bool v16; 
+  double v4; 
+  const dvar_t *v5; 
+  __int64 v6; 
+  int v7; 
+  bool v8; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9576, ASSERT_TYPE_ASSERT, "(obj != nullptr)", (const char *)&queryFormat, "obj != nullptr") )
     __debugbreak();
   tree = obj->tree;
   if ( !DObjHasClientFlag(obj) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9578, ASSERT_TYPE_ASSERT, "(DObjHasClientFlag( obj ))", (const char *)&queryFormat, "DObjHasClientFlag( obj )") )
     __debugbreak();
-  if ( tree )
+  if ( tree && deltaTime != 0.0 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1; min
-      vucomiss xmm6, xmm1
-      vmulss  xmm0, xmm6, cs:__real@447a0000; val
-      vmovss  xmm2, cs:__real@46fffe00; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvttss2si esi, xmm0 }
-    if ( tree->lodState.blendTimeLeft <= (__int16)_ESI )
+    v4 = I_fclamp(deltaTime * 1000.0, 0.0, 32767.0);
+    if ( tree->lodState.blendTimeLeft <= (__int16)(int)*(float *)&v4 )
     {
       tree->lodState.lod = tree->lodState.goalLod;
       tree->lodState.blendTimeLeft = 0;
     }
     else
     {
-      _RDI = DCONST_DVARFLT_xanim_lodLerpFactor;
+      v5 = DCONST_DVARFLT_xanim_lodLerpFactor;
       if ( !DCONST_DVARFLT_xanim_lodLerpFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodLerpFactor") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm1, xmm0, cs:__real@43800000
-        vcvttss2si ecx, xmm1
-      }
-      v14 = (__int16)_ECX * (tree->lodState.goalLod - tree->lodState.lod);
-      v15 = (BYTE4(v14) + (int)v14) >> 8;
-      v16 = (__int16)(tree->lodState.lod + v15) < 0;
-      tree->lodState.lod += v15;
-      if ( v16 )
+      Dvar_CheckFrontendServerThread(v5);
+      v6 = (__int16)(int)(float)(v5->current.value * 256.0) * (tree->lodState.goalLod - tree->lodState.lod);
+      v7 = (BYTE4(v6) + (int)v6) >> 8;
+      v8 = (__int16)(tree->lodState.lod + v7) < 0;
+      tree->lodState.lod += v7;
+      if ( v8 )
         tree->lodState.lod = 0;
-      tree->lodState.blendTimeLeft -= _ESI;
+      tree->lodState.blendTimeLeft -= (int)*(float *)&v4;
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -16818,68 +13785,48 @@ void __fastcall XAnimUpdateClientLodBlending(const DObj *obj, double deltaTime)
 XAnimUpdateDirtyCustomNodes
 ==============
 */
-
-char __fastcall XAnimUpdateDirtyCustomNodes(const DObj *obj, unsigned __int16 infoIndex, double dtime)
+char XAnimUpdateDirtyCustomNodes(const DObj *obj, unsigned __int16 infoIndex, float dtime)
 {
   XAnimTree *tree; 
   XAnimInfo *NonRootAnimInfo; 
-  char v11; 
+  char v7; 
   unsigned __int16 children; 
   unsigned __int16 next; 
   const XAnim_s *SubTreeAnims; 
-  char result; 
 
   tree = obj->tree;
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9423, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9424, ASSERT_TYPE_ASSERT, "( tree->anims )", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
+  if ( dtime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9425, ASSERT_TYPE_ASSERT, "( ( dtime >= 0 ) )", "%s\n\t( dtime ) = %g", "( dtime >= 0 )", dtime) )
+    __debugbreak();
   if ( !infoIndex )
-    goto LABEL_18;
+    return 0;
   NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
-  v11 = 0;
+  v7 = 0;
   if ( !XAnimGetAnimInfo(infoIndex)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 9435, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( infoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( infoIndex )") )
     __debugbreak();
   if ( NonRootAnimInfo->animToModel )
+    return 0;
+  children = NonRootAnimInfo->children;
+  if ( children )
   {
-LABEL_18:
-    result = 0;
+    do
+    {
+      next = XAnimGetAnimInfo(children)->next;
+      v7 |= XAnimUpdateDirtyCustomNodes(obj, children, dtime);
+      children = next;
+    }
+    while ( next );
   }
-  else
+  SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID);
+  if ( XAnimIsCustomNode(SubTreeAnims, NonRootAnimInfo) && (NonRootAnimInfo->state.flags & 8) != 0 )
   {
-    children = NonRootAnimInfo->children;
-    if ( children )
-    {
-      do
-      {
-        __asm { vmovaps xmm2, xmm6; dtime }
-        next = XAnimGetAnimInfo(children)->next;
-        v11 |= XAnimUpdateDirtyCustomNodes(obj, children, *(float *)&_XMM2);
-        children = next;
-      }
-      while ( next );
-    }
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)NonRootAnimInfo->subTreeID);
-    if ( XAnimIsCustomNode(SubTreeAnims, NonRootAnimInfo) && (NonRootAnimInfo->state.flags & 8) != 0 )
-    {
-      __asm { vmovaps xmm3, xmm6; dtime }
-      XAnimCustomNodeUpdate(obj, NonRootAnimInfo, infoIndex, *(float *)&_XMM3, 0, NULL);
-      v11 = 1;
-    }
-    result = v11;
+    XAnimCustomNodeUpdate(obj, NonRootAnimInfo, infoIndex, dtime, 0, NULL);
+    return 1;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  return v7;
 }
 
 /*
@@ -16889,115 +13836,80 @@ XAnimUpdateInfoSync
 */
 void XAnimUpdateInfoSync(const DObj *obj, unsigned __int16 infoIndex, bool bNotify, const XAnimState *syncState, float dtime, XAnimNotifyHandle *inOutNotifyHead)
 {
-  char v14; 
-  bool v17; 
-  bool v18; 
+  XAnimInfo *NonRootAnimInfo; 
+  XAnimInfo *v11; 
+  float oldTime; 
   unsigned __int16 children; 
-  unsigned __int8 *v23; 
-  unsigned int v24; 
-  unsigned __int16 v25; 
-  float fmt; 
-  XAnimNotifyHandle *v29; 
-  __int64 v30; 
+  unsigned __int8 *v14; 
+  unsigned int v15; 
+  unsigned __int16 v16; 
+  XAnimNotifyHandle *v17; 
+  __int64 v18; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-  }
-  _RSI = syncState;
-  __asm
-  {
-    vmovss  xmm7, [rsp+88h+dtime]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  _RAX = GetNonRootAnimInfo(infoIndex);
-  _RBX = _RAX;
-  __asm { vucomiss xmm6, dword ptr [rax+3Ch] }
-  if ( v14 )
+  if ( dtime <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2759, ASSERT_TYPE_ASSERT, "(dtime > 0)", (const char *)&queryFormat, "dtime > 0") )
+    __debugbreak();
+  NonRootAnimInfo = GetNonRootAnimInfo(infoIndex);
+  v11 = NonRootAnimInfo;
+  if ( NonRootAnimInfo->state.weight == 0.0 )
   {
     XAnimCheckFreeInfo(obj->tree, infoIndex, 0, obj);
   }
   else
   {
-    __asm { vucomiss xmm6, dword ptr [rax+38h] }
-    if ( v14 )
+    if ( NonRootAnimInfo->state.goalWeight == 0.0 )
       bNotify = 0;
-    v17 = !_RAX->inuse;
-    if ( !_RAX->inuse )
+    if ( !NonRootAnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2773, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+      __debugbreak();
+    oldTime = syncState->oldTime;
+    if ( oldTime != v11->state.oldTime || v11->state.oldCycleCount != syncState->oldCycleCount )
     {
-      v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2773, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse");
-      v17 = !v18;
-      if ( v18 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vucomiss xmm0, dword ptr [rbx+2Ch]
-    }
-    if ( !v17 || _RBX->state.oldCycleCount != _RSI->oldCycleCount )
-    {
-      __asm { vmovss  dword ptr [rbx+28h], xmm0 }
-      _RBX->state.cycleCount = _RSI->oldCycleCount;
-      _RBX->state.oldTime = _RSI->oldTime;
-      _RBX->state.oldCycleCount = _RSI->oldCycleCount;
-      _RBX->notifyIndex = -1;
+      v11->state.currentAnimTime = oldTime;
+      v11->state.cycleCount = syncState->oldCycleCount;
+      v11->state.oldTime = syncState->oldTime;
+      v11->state.oldCycleCount = syncState->oldCycleCount;
+      v11->notifyIndex = -1;
     }
     if ( bNotify && (!obj->tree || !obj->tree->owner[0]) )
-    {
-      __asm { vmovss  xmm2, dword ptr [rsi]; time }
-      XAnimProcessServerNotify(obj, _RBX, *(double *)&_XMM2);
-    }
-    _RBX->state.currentAnimTime = _RSI->currentAnimTime;
-    _RBX->state.cycleCount = _RSI->cycleCount;
-    _RBX->notifyIndex = -1;
+      XAnimProcessServerNotify(obj, v11, syncState->currentAnimTime);
+    v11->state.currentAnimTime = syncState->currentAnimTime;
+    v11->state.cycleCount = syncState->cycleCount;
+    v11->notifyIndex = -1;
     if ( bNotify && DObjHasClientFlag(obj) )
-    {
-      __asm { vmovaps xmm2, xmm7; dtime }
-      XAnimProcessClientNotify(obj, _RBX, *(double *)&_XMM2, inOutNotifyHead);
-    }
-    children = _RBX->children;
+      XAnimProcessClientNotify(obj, v11, dtime, inOutNotifyHead);
+    children = v11->children;
     if ( children )
     {
       do
       {
         if ( (children & 0x8000u) != 0 )
         {
-          v24 = 32 * (children & 0x7FFF);
-          if ( v24 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v15 = 32 * (children & 0x7FFF);
+          if ( v15 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v30) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v29) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v29, v30) )
+            LODWORD(v18) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v17) = 32 * (children & 0x7FFF);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v17, v18) )
               __debugbreak();
           }
-          v23 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v24];
+          v14 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v15];
         }
         else
         {
           if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v30) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v29) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v29, v30) )
+            LODWORD(v18) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v17) = children;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v17, v18) )
               __debugbreak();
           }
-          v23 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+          v14 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
         }
-        v25 = *((_WORD *)v23 + 5);
-        __asm { vmovss  dword ptr [rsp+88h+fmt], xmm7 }
-        XAnimUpdateInfoSync(obj, children, bNotify, _RSI, fmt, inOutNotifyHead);
-        children = v25;
+        v16 = *((_WORD *)v14 + 5);
+        XAnimUpdateInfoSync(obj, children, bNotify, syncState, dtime, inOutNotifyHead);
+        children = v16;
       }
-      while ( v25 );
+      while ( v16 );
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
   }
 }
 
@@ -17008,48 +13920,36 @@ XAnimUpdateLeadSyncGroupNode
 */
 void XAnimUpdateLeadSyncGroupNode(const DObj *obj, const XAnimSyncGroupCalcData *syncGroupCalcData, XAnimNotifyHandle *inOutNotifyHead)
 {
-  unsigned int v7; 
-  bool v8; 
-  unsigned __int16 v12; 
+  XAnimTree *tree; 
+  int v7; 
+  float *i; 
+  float v9; 
+  unsigned __int16 v10; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2116, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !syncGroupCalcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2117, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
     __debugbreak();
+  tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2120, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   v7 = 0;
-  v8 = (const XAnimSyncGroupCalcData *)&syncGroupCalcData->syncGroupInfo[0].leadAccumDeltaTime == NULL;
-  _RBX = &syncGroupCalcData->syncGroupInfo[0].leadAccumDeltaTime;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  do
+  for ( i = &syncGroupCalcData->syncGroupInfo[0].leadAccumDeltaTime; ; i += 5 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx-0Ch]
-      vucomiss xmm0, xmm6
-    }
-    if ( !v8 )
-    {
-      v12 = *((_WORD *)_RBX - 4);
-      if ( v12 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx]
-          vucomiss xmm1, xmm6
-          vmulss  xmm2, xmm0, xmm1; dtime
-        }
-        XAnimUpdateTimeAndNotetrackSyncSubTree(obj, v12, *(float *)&_XMM2, *((_BYTE *)_RBX + 4), inOutNotifyHead);
-      }
-    }
-    ++v7;
-    _RBX += 5;
-    v8 = v7 == 4;
+    v9 = *(i - 3);
+    if ( v9 == 0.0 )
+      goto LABEL_15;
+    v10 = *((_WORD *)i - 4);
+    if ( !v10 )
+      goto LABEL_15;
+    if ( *i == 0.0 )
+      break;
+    XAnimUpdateTimeAndNotetrackSyncSubTree(obj, v10, v9 * *i, *((_BYTE *)i + 4), inOutNotifyHead);
+LABEL_15:
+    if ( (unsigned int)++v7 >= 4 )
+      return;
   }
-  while ( v7 < 4 );
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  XAnimCheckFreeInfo(tree, v10, 1, obj);
 }
 
 /*
@@ -17057,228 +13957,162 @@ void XAnimUpdateLeadSyncGroupNode(const DObj *obj, const XAnimSyncGroupCalcData 
 XAnimUpdateOldTime
 ==============
 */
-
-void __fastcall XAnimUpdateOldTime(DObj *obj, unsigned __int16 infoIndex, XAnimState *syncState, double dtime, bool parentHasWeight, bool *childHasTimeForParent, bool *parentHasSyncGroups, int entnum, XModelNameMap *modelNameMap)
+void XAnimUpdateOldTime(DObj *obj, unsigned __int16 infoIndex, XAnimState *syncState, float dtime, bool parentHasWeight, bool *childHasTimeForParent, bool *parentHasSyncGroups, int entnum, XModelNameMap *modelNameMap)
 {
-  bool *v12; 
+  bool *v9; 
   XAnimTree *tree; 
-  unsigned __int16 v15; 
-  bool v19; 
-  char v29; 
-  char v35; 
-  bool v37; 
-  bool v38; 
-  bool v39; 
-  int v40; 
-  unsigned __int16 v41; 
-  XModelNameMap *v42; 
-  int v43; 
-  bool v44; 
+  unsigned __int16 v12; 
+  __int64 v13; 
+  bool v14; 
+  float *p_currentAnimTime; 
+  float goalTime; 
+  double Value; 
+  float *p_weight; 
+  float goalWeight; 
+  bool v20; 
+  char v21; 
+  __int64 v22; 
+  bool v23; 
+  int v24; 
+  unsigned __int16 v25; 
+  XModelNameMap *v26; 
+  int v27; 
+  bool v28; 
   unsigned __int16 next; 
-  bool v48; 
-  char v51; 
-  char v52; 
-  float fmt; 
-  bool v56; 
+  char v30; 
+  char v31; 
+  bool v32; 
   XAnimInfo *NonRootAnimInfo; 
-  XAnimTree *v58; 
-  void *retaddr; 
-  bool v64; 
+  XAnimTree *v34; 
+  bool v37; 
 
-  _RAX = &retaddr;
-  v12 = parentHasSyncGroups;
+  v9 = parentHasSyncGroups;
   tree = obj->tree;
-  _R13 = syncState;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v15 = infoIndex;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  v58 = tree;
-  __asm { vmovaps xmm6, xmm3 }
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3876, ASSERT_TYPE_ASSERT, "(parentHasSyncGroups)", (const char *)&queryFormat, "parentHasSyncGroups") )
+  v12 = infoIndex;
+  v34 = obj->tree;
+  if ( !parentHasSyncGroups && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3876, ASSERT_TYPE_ASSERT, "(parentHasSyncGroups)", (const char *)&queryFormat, "parentHasSyncGroups") )
     __debugbreak();
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3877, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3878, ASSERT_TYPE_ASSERT, "( tree->anims )", (const char *)&queryFormat, "tree->anims") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  NonRootAnimInfo = GetNonRootAnimInfo(v15);
-  _RDI = (__int64)NonRootAnimInfo;
-  if ( !XAnimGetAnimInfo(v15)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3883, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( infoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( infoIndex )") )
+  if ( dtime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3879, ASSERT_TYPE_ASSERT, "( ( dtime >= 0 ) )", "%s\n\t( dtime ) = %g", "( dtime >= 0 )", dtime) )
     __debugbreak();
-  v19 = parentHasWeight;
-  _R14 = (_DWORD *)&NonRootAnimInfo->state.currentAnimTime;
-  if ( parentHasWeight )
+  NonRootAnimInfo = GetNonRootAnimInfo(v12);
+  v13 = (__int64)NonRootAnimInfo;
+  if ( !XAnimGetAnimInfo(v12)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3883, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( infoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( infoIndex )") )
+    __debugbreak();
+  v14 = parentHasWeight;
+  p_currentAnimTime = &NonRootAnimInfo->state.currentAnimTime;
+  if ( parentHasWeight && (goalTime = NonRootAnimInfo->state.goalTime, goalTime > dtime) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+0Ch]
-      vcomiss xmm0, xmm6
-      vmovss  xmm4, dword ptr [r14+1Ch]
-      vmovss  xmm2, dword ptr [r14+10h]
-      vmovss  xmm3, dword ptr [r14+20h]; start
-      vsubss  xmm0, xmm4, xmm0
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm2
-      vaddss  xmm1, xmm0, xmm6; time
-      vmovaps xmm2, xmm4; goalTime
-    }
-    *(double *)&_XMM0 = XAnimCurve_GetValue((const XAnimCurveID)NonRootAnimInfo->state.curveID, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-    __asm { vcomiss xmm0, cs:__real@358637be }
-    _RAX = &NonRootAnimInfo->state.weight;
-    __asm { vmovss  dword ptr [rax], xmm0 }
-    if ( v29 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+10h]
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vmovss  dword ptr [rax], xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+0Ch]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [r14+0Ch], xmm1
-    }
+    Value = XAnimCurve_GetValue((const XAnimCurveID)NonRootAnimInfo->state.curveID, (float)(NonRootAnimInfo->state.goalDuration - goalTime) + dtime, NonRootAnimInfo->state.goalDuration, NonRootAnimInfo->state.startWeight, NonRootAnimInfo->state.goalWeight);
+    p_weight = &NonRootAnimInfo->state.weight;
+    NonRootAnimInfo->state.weight = *(float *)&Value;
+    if ( *(float *)&Value < 0.0000010000001 )
+      *p_weight = *(float *)(v13 + 56) * 0.001;
+    *(float *)(v13 + 52) = *(float *)(v13 + 52) - dtime;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+38h] }
-    _RAX = &NonRootAnimInfo->state.weight;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmovss  dword ptr [rdi+48h], xmm0
-    }
-    *(_DWORD *)(_RDI + 52) = 0;
-    *(_DWORD *)(_RDI + 68) = 0;
+    goalWeight = NonRootAnimInfo->state.goalWeight;
+    p_weight = &NonRootAnimInfo->state.weight;
+    NonRootAnimInfo->state.weight = goalWeight;
+    *(float *)(v13 + 72) = goalWeight;
+    *(_DWORD *)(v13 + 52) = 0;
+    *(_DWORD *)(v13 + 68) = 0;
   }
-  if ( v19 )
-  {
-    __asm { vucomiss xmm7, dword ptr [rax] }
-    parentHasWeight = 1;
-  }
-  else
-  {
+  if ( !v14 || (v20 = *p_weight == 0.0, parentHasWeight = 1, v20) )
     parentHasWeight = 0;
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  *(_BYTE *)(_RDI + 77) &= ~1u;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  *(_BYTE *)(v13 + 77) &= ~1u;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  *(_BYTE *)(_RDI + 77) &= ~4u;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  *(_BYTE *)(v13 + 77) &= ~4u;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  *(_BYTE *)(_RDI + 77) &= ~0x20u;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  *(_BYTE *)(v13 + 77) &= ~0x20u;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 666, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  *(_BYTE *)(_RDI + 77) &= ~0x80u;
-  if ( !XAnimGetAnimInfo(v15)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3912, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( infoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( infoIndex )") )
+  *(_BYTE *)(v13 + 77) &= ~0x80u;
+  if ( !XAnimGetAnimInfo(v12)->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3912, ASSERT_TYPE_ASSERT, "( XAnimInfoIsInUse( infoIndex ) )", (const char *)&queryFormat, "XAnimInfoIsInUse( infoIndex )") )
     __debugbreak();
-  v35 = 0;
-  if ( *(_QWORD *)(_RDI + 24) )
+  v21 = 0;
+  if ( *(_QWORD *)(v13 + 24) )
   {
-    _RBX = *(_QWORD *)(_RDI + 32);
-    v37 = _RBX == 0;
-    if ( !_RBX )
+    v22 = *(_QWORD *)(v13 + 32);
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3919, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
+      __debugbreak();
+    if ( *(float *)(v22 + 104) == 0.0 )
     {
-      v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3919, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts");
-      v37 = !v38;
-      if ( v38 )
-        __debugbreak();
-    }
-    __asm { vucomiss xmm7, dword ptr [rbx+68h] }
-    if ( v37 )
-    {
-      v39 = 0;
-      v64 = 0;
+      v23 = 0;
+      v37 = 0;
     }
     else
     {
-      v39 = 1;
-      v64 = 1;
+      v23 = 1;
+      v37 = 1;
     }
   }
   else
   {
-    v64 = 0;
-    v40 = *(_DWORD *)(_RDI + 32);
-    if ( (v40 & 4) != 0 )
-      _R13 = (XAnimState *)(_RDI + 40);
-    if ( (v40 & 3) != 0 )
-      v35 = *(_BYTE *)(_RDI + 38) != 4;
-    v41 = *(_WORD *)(_RDI + 12);
-    v42 = modelNameMap;
-    if ( v41 )
+    v37 = 0;
+    v24 = *(_DWORD *)(v13 + 32);
+    if ( (v24 & 4) != 0 )
+      syncState = (XAnimState *)(v13 + 40);
+    if ( (v24 & 3) != 0 )
+      v21 = *(_BYTE *)(v13 + 38) != 4;
+    v25 = *(_WORD *)(v13 + 12);
+    v26 = modelNameMap;
+    if ( v25 )
     {
-      v43 = entnum;
-      v44 = parentHasWeight;
+      v27 = entnum;
+      v28 = parentHasWeight;
       do
       {
-        __asm { vmovaps xmm3, xmm6; dtime }
-        next = XAnimGetAnimInfo(v41)->next;
-        XAnimUpdateOldTime(obj, v41, _R13, *(float *)&_XMM3, v44, &v64, &v56, v43, v42);
-        v35 |= v56;
-        v41 = next;
+        next = XAnimGetAnimInfo(v25)->next;
+        XAnimUpdateOldTime(obj, v25, syncState, dtime, v28, &v37, &v32, v27, v26);
+        v21 |= v32;
+        v25 = next;
       }
       while ( next );
-      _RDI = (__int64)NonRootAnimInfo;
-      v12 = parentHasSyncGroups;
-      _R14 = (_DWORD *)&NonRootAnimInfo->state.currentAnimTime;
+      v13 = (__int64)NonRootAnimInfo;
+      v9 = parentHasSyncGroups;
+      p_currentAnimTime = &NonRootAnimInfo->state.currentAnimTime;
     }
-    v15 = infoIndex;
-    __asm { vmovaps xmm3, xmm6; dtime }
-    XAnimCustomNodeUpdate(obj, (XAnimInfo *)_RDI, infoIndex, *(float *)&_XMM3, 0, v42);
-    v39 = v64;
-    tree = v58;
+    v12 = infoIndex;
+    XAnimCustomNodeUpdate(obj, (XAnimInfo *)v13, infoIndex, dtime, 0, v26);
+    v23 = v37;
+    tree = v34;
   }
-  if ( parentHasWeight && v39 )
+  if ( parentHasWeight && v23 )
   {
     *childHasTimeForParent = 1;
   }
+  else if ( *(_QWORD *)(v13 + 24) || (*(_BYTE *)(v13 + 32) & 4) == 0 )
+  {
+    if ( syncState->currentAnimTime != *p_currentAnimTime || *(_WORD *)(v13 + 48) != syncState->cycleCount )
+    {
+      *p_currentAnimTime = syncState->currentAnimTime;
+      *(_WORD *)(v13 + 48) = syncState->cycleCount;
+      *(_WORD *)(v13 + 2) = -1;
+    }
+  }
   else
   {
-    v48 = *(_QWORD *)(_RDI + 24) == 0i64;
-    if ( *(_QWORD *)(_RDI + 24) || (v48 = (*(_BYTE *)(_RDI + 32) & 4) == 0) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+0]
-        vucomiss xmm0, dword ptr [r14]
-      }
-      if ( !v48 || *(_WORD *)(_RDI + 48) != _R13->cycleCount )
-      {
-        __asm { vmovss  dword ptr [r14], xmm0 }
-        *(_WORD *)(_RDI + 48) = _R13->cycleCount;
-        *(_WORD *)(_RDI + 2) = -1;
-      }
-    }
-    else
-    {
-      __asm { vmovaps xmm2, xmm7; goalTime }
-      XAnimInitTime(tree, v15, *(double *)&_XMM2);
-    }
+    XAnimInitTime(tree, v12, 0.0);
   }
-  v51 = *(_BYTE *)(_RDI + 77);
-  if ( (v51 & 0x10) == 0 || (v52 = *(_BYTE *)(_RDI + 77), *(_QWORD *)(_RDI + 24)) && (v51 & 0x40) == 0 )
+  v30 = *(_BYTE *)(v13 + 77);
+  if ( (v30 & 0x10) == 0 || (v31 = *(_BYTE *)(v13 + 77), *(_QWORD *)(v13 + 24)) && (v30 & 0x40) == 0 )
   {
-    *(_DWORD *)(_RDI + 44) = *_R14;
-    *(_WORD *)(_RDI + 50) = *(_WORD *)(_RDI + 48);
-    v52 = *(_BYTE *)(_RDI + 77);
+    *(float *)(v13 + 44) = *p_currentAnimTime;
+    *(_WORD *)(v13 + 50) = *(_WORD *)(v13 + 48);
+    v31 = *(_BYTE *)(v13 + 77);
   }
-  *(_BYTE *)(_RDI + 77) = v52 & 0xBF;
-  InfoSetStateFlag((XAnimInfo *)_RDI, XANIMSTATE_HAS_SYNC_GROUPS, v35);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_48]
-    vmovaps xmm7, [rsp+0C8h+var_58]
-  }
-  *v12 = v35;
+  *(_BYTE *)(v13 + 77) = v31 & 0xBF;
+  InfoSetStateFlag((XAnimInfo *)v13, XANIMSTATE_HAS_SYNC_GROUPS, v21);
+  *v9 = v21;
 }
 
 /*
@@ -17288,29 +14122,17 @@ XAnimUpdateServerNotifyIndex
 */
 void XAnimUpdateServerNotifyIndex(XAnimInfo *info, const XAnimParts *parts)
 {
-  bool v4; 
-  bool v5; 
+  float currentAnimTime; 
 
-  _RBX = info;
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8295, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  if ( !_RBX->notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8296, ASSERT_TYPE_ASSERT, "(info->notifyName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "info->notifyName != NULL_SCR_STRING") )
+  if ( !info->notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8296, ASSERT_TYPE_ASSERT, "(info->notifyName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "info->notifyName != NULL_SCR_STRING") )
     __debugbreak();
-  v4 = _RBX->notifyIndex == -1;
-  if ( _RBX->notifyIndex != -1 )
-  {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8297, ASSERT_TYPE_ASSERT, "(info->notifyIndex == -1)", (const char *)&queryFormat, "info->notifyIndex == -1");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+28h]; time
-    vucomiss xmm1, cs:__real@3f800000
-  }
-  if ( !v4 )
-    _RBX->notifyIndex = XAnimGetNextNotifyIndex(parts, *(double *)&_XMM1);
+  if ( info->notifyIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 8297, ASSERT_TYPE_ASSERT, "(info->notifyIndex == -1)", (const char *)&queryFormat, "info->notifyIndex == -1") )
+    __debugbreak();
+  currentAnimTime = info->state.currentAnimTime;
+  if ( currentAnimTime != 1.0 )
+    info->notifyIndex = XAnimGetNextNotifyIndex(parts, currentAnimTime);
 }
 
 /*
@@ -17318,48 +14140,40 @@ void XAnimUpdateServerNotifyIndex(XAnimInfo *info, const XAnimParts *parts)
 XAnimUpdateSyncGroups
 ==============
 */
-
-void __fastcall XAnimUpdateSyncGroups(const DObj *obj, double dtime, bool bNotify, XAnimSyncGroupCalcData *syncGroupCalcData)
+void XAnimUpdateSyncGroups(const DObj *obj, float dtime, bool bNotify, XAnimSyncGroupCalcData *syncGroupCalcData)
 {
   XAnimTree *tree; 
+  XAnimInfo *AnimInfo; 
+  float weight; 
   unsigned __int16 children; 
-  float fmt; 
-  float parentAccumTime; 
+  float v11; 
+  float v12; 
+  float v13; 
   float frequencies[2]; 
-  __int64 v21; 
+  __int64 v15; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  _RDI = syncGroupCalcData;
-  __asm { vmovaps xmm6, xmm1 }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2086, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2087, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
+  if ( !syncGroupCalcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2087, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
     __debugbreak();
   tree = obj->tree;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2090, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  _RSI = XAnimGetAnimInfo(tree->children);
-  if ( !_RSI->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2094, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
+  AnimInfo = XAnimGetAnimInfo(tree->children);
+  if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2094, ASSERT_TYPE_ASSERT, "(info->inuse)", (const char *)&queryFormat, "info->inuse") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
+  weight = AnimInfo->state.weight;
   children = tree->children;
-  __asm { vmovss  [rsp+88h+parentAccumTime], xmm6 }
   *(_QWORD *)frequencies = 0i64;
-  v21 = 0i64;
-  __asm { vmovss  dword ptr [rsp+88h+fmt], xmm0 }
-  XAnimGetSyncGroupData_r(tree, children, _RDI, frequencies, fmt, parentAccumTime, bNotify);
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+frequencies]
-    vmovss  xmm1, [rsp+88h+frequencies+4]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rsp+88h+var_40]
-    vmovss  dword ptr [rdi+14h], xmm1
-    vmovss  xmm1, dword ptr [rsp+88h+var_40+4]
-    vmovss  dword ptr [rdi+28h], xmm0
-    vmovss  dword ptr [rdi+3Ch], xmm1
-    vmovaps xmm6, [rsp+88h+var_28]
-  }
+  v15 = 0i64;
+  XAnimGetSyncGroupData_r(tree, children, syncGroupCalcData, frequencies, weight, dtime, bNotify);
+  v11 = frequencies[1];
+  syncGroupCalcData->syncGroupInfo[0].frequency = frequencies[0];
+  v12 = *(float *)&v15;
+  syncGroupCalcData->syncGroupInfo[1].frequency = v11;
+  v13 = *((float *)&v15 + 1);
+  syncGroupCalcData->syncGroupInfo[2].frequency = v12;
+  syncGroupCalcData->syncGroupInfo[3].frequency = v13;
 }
 
 /*
@@ -17367,23 +14181,14 @@ void __fastcall XAnimUpdateSyncGroups(const DObj *obj, double dtime, bool bNotif
 XAnimUpdateTimeAndNotetrack
 ==============
 */
-
-void __fastcall XAnimUpdateTimeAndNotetrack(const DObj *obj, unsigned __int16 infoIndex, double dtime, bool bNotify, XAnimNotifyHandle *inOutNotifyHead)
+void XAnimUpdateTimeAndNotetrack(const DObj *obj, unsigned __int16 infoIndex, float dtime, bool bNotify, XAnimNotifyHandle *inOutNotifyHead)
 {
   XAnimSyncGroupCalcData syncGroupCalcData; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
   memset_0(&syncGroupCalcData, 0, sizeof(syncGroupCalcData));
-  __asm { vmovaps xmm1, xmm6; dtime }
-  XAnimUpdateSyncGroups(obj, *(double *)&_XMM1, bNotify, &syncGroupCalcData);
+  XAnimUpdateSyncGroups(obj, dtime, bNotify, &syncGroupCalcData);
   XAnimUpdateLeadSyncGroupNode(obj, &syncGroupCalcData, inOutNotifyHead);
-  __asm { vmovaps xmm2, xmm6; dtime }
-  XAnimUpdateTimeAndNotetrackInternal(obj, infoIndex, *(float *)&_XMM2, bNotify, &syncGroupCalcData, inOutNotifyHead);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
+  XAnimUpdateTimeAndNotetrackInternal(obj, infoIndex, dtime, bNotify, &syncGroupCalcData, inOutNotifyHead);
 }
 
 /*
@@ -17391,115 +14196,88 @@ void __fastcall XAnimUpdateTimeAndNotetrack(const DObj *obj, unsigned __int16 in
 XAnimUpdateTimeAndNotetrackInternal
 ==============
 */
-
-void __fastcall XAnimUpdateTimeAndNotetrackInternal(const DObj *obj, unsigned __int16 infoIndex, double dtime, bool bNotify, const XAnimSyncGroupCalcData *syncGroupCalcData, XAnimNotifyHandle *inOutNotifyHead)
+void XAnimUpdateTimeAndNotetrackInternal(const DObj *obj, unsigned __int16 infoIndex, float dtime, bool bNotify, const XAnimSyncGroupCalcData *syncGroupCalcData, XAnimNotifyHandle *inOutNotifyHead)
 {
   XAnimTree *tree; 
-  bool v16; 
-  bool v17; 
-  unsigned int flags; 
-  unsigned __int8 v20; 
-  unsigned __int16 leadInfoIndex; 
   XAnimInfo *AnimInfo; 
+  unsigned int flags; 
+  unsigned __int8 v13; 
+  __int64 v14; 
+  unsigned __int16 leadInfoIndex; 
+  float v16; 
+  XAnimInfo *v17; 
   const XAnimState *p_state; 
   const char *AnimDebugName; 
-  const char *v26; 
-  bool v29; 
-  bool v30; 
+  const char *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   unsigned __int16 children; 
   unsigned __int16 next; 
-  float fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-    vmovaps xmm6, xmm2
-  }
   if ( !syncGroupCalcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3001, ASSERT_TYPE_ASSERT, "(syncGroupCalcData)", (const char *)&queryFormat, "syncGroupCalcData") )
     __debugbreak();
   tree = obj->tree;
   if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3004, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  _RSI = XAnimGetAnimInfo(infoIndex);
-  v16 = !_RSI->inuse;
-  if ( !_RSI->inuse )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3009, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm { vucomiss xmm7, dword ptr [rsi+3Ch] }
-  if ( v16 )
+  if ( dtime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3006, ASSERT_TYPE_ASSERT, "( ( dtime >= 0 ) )", "%s\n\t( dtime ) = %g", "( dtime >= 0 )", dtime) )
+    __debugbreak();
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3009, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse") )
+    __debugbreak();
+  if ( AnimInfo->state.weight == 0.0 )
   {
     XAnimCheckFreeInfo(obj->tree, infoIndex, 0, obj);
-    goto LABEL_48;
+    return;
   }
-  __asm { vucomiss xmm7, dword ptr [rsi+38h] }
-  if ( v16 )
+  if ( AnimInfo->state.goalWeight == 0.0 )
     bNotify = 0;
-  if ( _RSI->animToModel )
+  if ( AnimInfo->animToModel )
   {
-    __asm { vmovaps xmm3, xmm6; dtime }
-    XAnimUpdateTimeAndNotetrackLeaf(obj, _RSI->parts, infoIndex, *(float *)&_XMM3, bNotify, inOutNotifyHead);
-    goto LABEL_48;
+    XAnimUpdateTimeAndNotetrackLeaf(obj, AnimInfo->parts, infoIndex, dtime, bNotify, inOutNotifyHead);
+    return;
   }
-  flags = _RSI->animParent.flags;
+  flags = AnimInfo->animParent.flags;
   if ( (flags & 3) != 0 )
   {
-    v20 = _RSI->animParent.syncGroup[0];
-    if ( v20 == 4 )
+    v13 = AnimInfo->animParent.syncGroup[0];
+    if ( v13 == 4 )
     {
-      *(float *)&_XMM0 = XAnimGetAverageRateFrequency(tree, infoIndex);
-      __asm
+      v21 = XAnimGetAverageRateFrequency(tree, infoIndex) * AnimInfo->state.rate;
+      v22 = dtime * v21;
+      if ( (float)(dtime * v21) != 0.0 )
       {
-        vmulss  xmm1, xmm0, dword ptr [rsi+40h]
-        vmulss  xmm2, xmm6, xmm1; dtime
-        vucomiss xmm2, xmm7
+        XAnimUpdateTimeAndNotetrackSyncSubTree(obj, infoIndex, v22, bNotify, inOutNotifyHead);
+        return;
       }
-      if ( !v16 )
-      {
-        XAnimUpdateTimeAndNotetrackSyncSubTree(obj, infoIndex, *(float *)&_XMM2, bNotify, inOutNotifyHead);
-        goto LABEL_48;
-      }
-      goto LABEL_34;
+      goto LABEL_37;
     }
-    if ( v20 >= 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3032, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup < XAnimSyncGroupID::COUNT)", (const char *)&queryFormat, "info->animParent.syncGroup < XAnimSyncGroupID::COUNT") )
+    if ( v13 >= 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3032, ASSERT_TYPE_ASSERT, "(info->animParent.syncGroup < XAnimSyncGroupID::COUNT)", (const char *)&queryFormat, "info->animParent.syncGroup < XAnimSyncGroupID::COUNT") )
       __debugbreak();
-    leadInfoIndex = syncGroupCalcData->syncGroupInfo[(unsigned __int8)_RSI->animParent.syncGroup[0]].leadInfoIndex;
+    v14 = (unsigned __int8)AnimInfo->animParent.syncGroup[0];
+    leadInfoIndex = syncGroupCalcData->syncGroupInfo[v14].leadInfoIndex;
     if ( infoIndex != leadInfoIndex )
     {
-      __asm
-      {
-        vmulss  xmm6, xmm6, dword ptr [r15+rcx*4]
-        vucomiss xmm6, xmm7
-      }
-      if ( infoIndex != leadInfoIndex )
+      v16 = dtime * syncGroupCalcData->syncGroupInfo[v14].frequency;
+      if ( v16 != 0.0 )
       {
         if ( !leadInfoIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3051, ASSERT_TYPE_ASSERT, "(leadInfoIndex)", (const char *)&queryFormat, "leadInfoIndex") )
           __debugbreak();
-        AnimInfo = XAnimGetAnimInfo(leadInfoIndex);
-        if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3053, ASSERT_TYPE_ASSERT, "(leadInfo)", (const char *)&queryFormat, "leadInfo") )
+        v17 = XAnimGetAnimInfo(leadInfoIndex);
+        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3053, ASSERT_TYPE_ASSERT, "(leadInfo)", (const char *)&queryFormat, "leadInfo") )
           __debugbreak();
-        p_state = &AnimInfo->state;
-        if ( ((LOBYTE(_RSI->parts) ^ LOBYTE(AnimInfo->parts)) & 1) != 0 )
+        p_state = &v17->state;
+        if ( ((LOBYTE(AnimInfo->parts) ^ LOBYTE(v17->parts)) & 1) != 0 )
         {
-          AnimDebugName = XAnimGetAnimDebugName(tree->anims, AnimInfo->animIndex);
-          v26 = XAnimGetAnimDebugName(tree->anims, _RSI->animIndex);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3057, ASSERT_TYPE_ASSERT, "((leadInfo->animParent.flags & XANIM_LOOP_SYNC_TIME) == (info->animParent.flags & XANIM_LOOP_SYNC_TIME))", "%s\n\tNodes ( '%s','%s' ) share the same sync group number but they use different loopsync/nonloopsync keywords.", "(leadInfo->animParent.flags & XANIM_LOOP_SYNC_TIME) == (info->animParent.flags & XANIM_LOOP_SYNC_TIME)", v26, AnimDebugName) )
+          AnimDebugName = XAnimGetAnimDebugName(tree->anims, v17->animIndex);
+          v20 = XAnimGetAnimDebugName(tree->anims, AnimInfo->animIndex);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3057, ASSERT_TYPE_ASSERT, "((leadInfo->animParent.flags & XANIM_LOOP_SYNC_TIME) == (info->animParent.flags & XANIM_LOOP_SYNC_TIME))", "%s\n\tNodes ( '%s','%s' ) share the same sync group number but they use different loopsync/nonloopsync keywords.", "(leadInfo->animParent.flags & XANIM_LOOP_SYNC_TIME) == (info->animParent.flags & XANIM_LOOP_SYNC_TIME)", v20, AnimDebugName) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rsp+88h+fmt], xmm6 }
-        XAnimUpdateInfoSync(obj, infoIndex, bNotify, p_state, fmt, inOutNotifyHead);
-        goto LABEL_48;
+        XAnimUpdateInfoSync(obj, infoIndex, bNotify, p_state, v16, inOutNotifyHead);
+        return;
       }
-LABEL_34:
+LABEL_37:
       XAnimCheckFreeInfo(obj->tree, infoIndex, 1, obj);
     }
   }
@@ -17507,47 +14285,22 @@ LABEL_34:
   {
     if ( (flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3077, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_SYNC_ROOT))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_SYNC_ROOT)") )
       __debugbreak();
-    v29 = obj->entnum == 0;
-    if ( obj->entnum )
-    {
-      v29 = tree->owner[0] == 0;
-      if ( !tree->owner[0] )
-      {
-        v29 = _RSI->notifyName == 0;
-        if ( _RSI->notifyName )
-        {
-          v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3078, ASSERT_TYPE_ASSERT, "(!obj->entnum || !(tree->owner == XAnimOwner::SERVER && (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) ))", (const char *)&queryFormat, "!obj->entnum || !(tree->owner == XAnimOwner::SERVER && (info->notifyName != NULL_SCR_STRING) )");
-          v29 = !v30;
-          if ( v30 )
-            __debugbreak();
-        }
-      }
-    }
-    __asm
-    {
-      vmulss  xmm6, xmm6, dword ptr [rsi+40h]
-      vucomiss xmm6, xmm7
-    }
-    if ( v29 )
-      goto LABEL_34;
-    children = _RSI->children;
+    if ( obj->entnum && !tree->owner[0] && AnimInfo->notifyName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3078, ASSERT_TYPE_ASSERT, "(!obj->entnum || !(tree->owner == XAnimOwner::SERVER && (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) ))", (const char *)&queryFormat, "!obj->entnum || !(tree->owner == XAnimOwner::SERVER && (info->notifyName != NULL_SCR_STRING) )") )
+      __debugbreak();
+    v23 = dtime * AnimInfo->state.rate;
+    if ( v23 == 0.0 )
+      goto LABEL_37;
+    children = AnimInfo->children;
     if ( children )
     {
       do
       {
-        __asm { vmovaps xmm2, xmm6; dtime }
         next = XAnimGetAnimInfo(children)->next;
-        XAnimUpdateTimeAndNotetrackInternal(obj, children, *(float *)&_XMM2, bNotify, syncGroupCalcData, inOutNotifyHead);
+        XAnimUpdateTimeAndNotetrackInternal(obj, children, v23, bNotify, syncGroupCalcData, inOutNotifyHead);
         children = next;
       }
       while ( next );
     }
-  }
-LABEL_48:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
   }
 }
 
@@ -17559,233 +14312,188 @@ XAnimUpdateTimeAndNotetrackLeaf
 
 void __fastcall XAnimUpdateTimeAndNotetrackLeaf(const DObj *obj, const XAnimParts *parts, unsigned __int16 infoIndex, double dtime, bool bNotify, XAnimNotifyHandle *inOutNotifyHead)
 {
-  bool v21; 
+  XAnimInfo *AnimInfo; 
+  __int128 v10; 
+  __int128 v11; 
+  float currentAnimTime; 
   const char *AnimDebugName; 
-  const char *v26; 
-  bool v27; 
+  float rate; 
+  const char *v15; 
+  const char *v16; 
+  __int128 currentAnimTime_low; 
+  __int128 v19; 
   unsigned __int16 cycleCount; 
+  scr_string_t notifyName; 
+  int notifyType; 
+  const char *v23; 
+  __int128 v26; 
+  int v27; 
+  bool v29; 
+  __int128 v30; 
   unsigned __int8 flags; 
-  int v39; 
-  int v40; 
-  char v47; 
-  bool HasClientFlag; 
-  unsigned __int8 v52; 
-  double v60; 
-  double v61; 
-  double v62; 
-  double v63; 
-  __int64 v64; 
-  double v65; 
-  char v67; 
-  void *retaddr; 
+  int v34; 
+  int v35; 
+  float v36; 
+  unsigned __int8 v37; 
+  float v38; 
+  __int64 v39; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _R14 = parts;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmm6, xmm3
-  }
   if ( !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2821, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  _RDI = XAnimGetAnimInfo(infoIndex);
-  __asm { vcomiss xmm8, dword ptr [rax+2Ch] }
-  if ( !(v47 | v21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2826, ASSERT_TYPE_ASSERT, "(state->oldTime >= 0)", (const char *)&queryFormat, "state->oldTime >= 0") )
+  AnimInfo = XAnimGetAnimInfo(infoIndex);
+  if ( AnimInfo->state.oldTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2826, ASSERT_TYPE_ASSERT, "(state->oldTime >= 0)", (const char *)&queryFormat, "state->oldTime >= 0") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+68h]
-    vmulss  xmm1, xmm0, dword ptr [rdi+40h]
-    vmulss  xmm9, xmm6, xmm1
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 653, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  v11 = *(_OWORD *)&dtime;
+  *(float *)&v11 = *(float *)&dtime * (float)(parts->frequency * AnimInfo->state.rate);
+  v10 = v11;
+  if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_local.h", 653, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  v21 = (_RDI->state.flags & 0x10) == 0;
-  if ( (_RDI->state.flags & 0x10) != 0 )
+  if ( (AnimInfo->state.flags & 0x10) != 0 )
   {
-    __asm
+    currentAnimTime = AnimInfo->state.currentAnimTime;
+    if ( currentAnimTime < 0.0 )
     {
-      vmovss  xmm6, dword ptr [rdi+28h]
-      vcomiss xmm6, xmm8
-      vmovss  xmm6, dword ptr [rdi+40h]
-      vucomiss xmm6, xmm8
+      AnimDebugName = XAnimGetAnimDebugName(obj->tree->anims, AnimInfo->animIndex);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2832, ASSERT_TYPE_ASSERT, "(0.0f <= state->currentAnimTime)", "%s\n\tXAnimUpdateTimeAndNotetrackLeaf '%s': state->currentAnimTime (%.2f) must be non-negative.", "0.0f <= state->currentAnimTime", AnimDebugName, currentAnimTime) )
+        __debugbreak();
     }
-    if ( (_RDI->state.flags & 0x10) != 0 )
+    rate = AnimInfo->state.rate;
+    if ( rate != 0.0 )
     {
-      AnimDebugName = XAnimGetAnimDebugName(obj->tree->anims, _RDI->animIndex);
+      v15 = XAnimGetAnimDebugName(obj->tree->anims, AnimInfo->animIndex);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2833, ASSERT_TYPE_ASSERT, "(state->rate == 0.0f)", "%s\n\tXAnimUpdateTimeAndNotetrackLeaf '%s': state->rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "state->rate == 0.0f", v15, rate) )
+        __debugbreak();
+    }
+    if ( (parts->flags & 1) != 0 )
+    {
+      v16 = XAnimGetAnimDebugName(obj->tree->anims, AnimInfo->animIndex);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2834, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) == 0)", "%s\n\tXAnimUpdateTimeAndNotetrackLeaf '%s': (parts->flags & ANIM_LOOP) must be false if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "(parts->flags & ANIM_LOOP) == 0", v16) )
+        __debugbreak();
+    }
+    currentAnimTime_low = LODWORD(AnimInfo->state.currentAnimTime);
+    *(float *)&currentAnimTime_low = AnimInfo->state.currentAnimTime - AnimInfo->state.oldTime;
+    v10 = currentAnimTime_low;
+  }
+  if ( *(float *)&v10 != 0.0 )
+  {
+    if ( COERCE_FLOAT(v10 & _xmm) >= 32767.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2841, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", *(float *)&v10) )
+      __debugbreak();
+    v19 = v10;
+    *(float *)&v19 = *(float *)&v10 + AnimInfo->state.oldTime;
+    _XMM6 = v19;
+    cycleCount = AnimInfo->state.cycleCount;
+    if ( *(float *)&v19 < 0.0 )
+    {
+      notifyName = AnimInfo->notifyName;
+      if ( notifyName || AnimInfo->notifyType )
+      {
+        notifyType = AnimInfo->notifyType;
+        v23 = SL_ConvertToString(notifyName);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2846, ASSERT_TYPE_ASSERT, "(!( time < 0.f && ( (info->notifyName != ( static_cast< scr_string_t >( 0 ) )) || info->notifyType ) ))", "%s\n\tAnimation %s playing backwards with active notetrack %s and notifyType %d", "!( time < 0.f && ( (info->notifyName != NULL_SCR_STRING) || info->notifyType ) )", parts->name, v23, notifyType) )
+          __debugbreak();
+      }
+    }
+    if ( *(float *)&v10 < 0.0 )
+    {
+      if ( *(float *)&v19 >= 0.0 )
+        goto LABEL_48;
+      if ( (parts->flags & 1) == 0 )
+      {
+        LODWORD(_XMM6) = 0;
+        goto LABEL_48;
+      }
+      do
+      {
+        _XMM0 = _XMM6;
+        --cycleCount;
+        v29 = *(float *)&_XMM6 <= -1.0;
+        v30 = _XMM6;
+        *(float *)&v30 = *(float *)&_XMM6 + 1.0;
+        _XMM6 = v30;
+      }
+      while ( v29 );
       __asm
       {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0A8h+var_70], xmm0
+        vcmpeqss xmm0, xmm0, xmm8
+        vblendvps xmm1, xmm6, xmm1, xmm0
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2833, ASSERT_TYPE_ASSERT, "(state->rate == 0.0f)", "%s\n\tXAnimUpdateTimeAndNotetrackLeaf '%s': state->rate (%.2f) must be 0.0f if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "state->rate == 0.0f", AnimDebugName, v65) )
+      LODWORD(_XMM6) = _XMM1;
+      if ( *(float *)&_XMM1 >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2888, ASSERT_TYPE_ASSERT, "( ( time < 1.f ) )", "( time ) = %g", *(float *)&_XMM1) )
         __debugbreak();
-    }
-    v21 = (_R14->flags & 1) == 0;
-    if ( (_R14->flags & 1) != 0 )
-    {
-      v26 = XAnimGetAnimDebugName(obj->tree->anims, _RDI->animIndex);
-      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2834, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) == 0)", "%s\n\tXAnimUpdateTimeAndNotetrackLeaf '%s': (parts->flags & ANIM_LOOP) must be false if XANIMSTATE_SCRUBBED_NOTETRACKS is set.", "(parts->flags & ANIM_LOOP) == 0", v26);
-      v21 = !v27;
-      if ( v27 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vsubss  xmm9, xmm0, dword ptr [rdi+2Ch]
-    }
-  }
-  __asm { vucomiss xmm9, xmm8 }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@46fffe00
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vcvtss2sd xmm0, xmm9, xmm9
-      vmovsd  [rsp+0A8h+var_80], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2841, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", v60) )
-      __debugbreak();
-    __asm
-    {
-      vaddss  xmm6, xmm9, dword ptr [rdi+2Ch]
-      vcomiss xmm6, xmm8
-    }
-    cycleCount = _RDI->state.cycleCount;
-    __asm
-    {
-      vcomiss xmm9, xmm8
-      vmovss  xmm7, cs:__real@3f800000
-      vcomiss xmm6, xmm7
-    }
-    if ( (_R14->flags & 1) != 0 )
-    {
-      __asm { vmovss  xmm0, cs:__real@bf800000 }
-      while ( 1 )
-      {
-        __asm { vaddss  xmm6, xmm6, xmm0 }
-        ++cycleCount;
-        __asm { vcomiss xmm6, xmm7 }
-      }
-    }
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f7ffffe
-      vcmpless xmm0, xmm1, dword ptr [rdi+2Ch]
-      vblendvps xmm6, xmm1, xmm7, xmm0
-    }
-    flags = _R14->flags;
-    v39 = 0;
-    v40 = 0;
-    if ( (flags & 1) != 0 )
-    {
-      __asm { vcomiss xmm6, xmm7 }
-      LOBYTE(v40) = 0;
+      if ( *(float *)&_XMM1 >= 0.0 )
+        goto LABEL_48;
+      v27 = 2889;
     }
     else
     {
-      __asm { vcomiss xmm6, xmm7 }
-      LOBYTE(v40) = (flags & 1) == 0;
-    }
-    if ( !v40 )
-    {
-      LODWORD(v64) = flags & 1;
-      __asm
+      if ( *(float *)&v19 < 1.0 )
       {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0A8h+var_78], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2894, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) ? (time < 1.f) : (time <= 1.f))", "%s\n\ttime: %f, loop: %d", "(parts->flags & ANIM_LOOP) ? (time < 1.f) : (time <= 1.f)", v62, v64) )
-        __debugbreak();
-    }
-    if ( !_RDI->notifyName && !_RDI->notifyType )
-      goto LABEL_54;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, eax
-      vsubss  xmm1, xmm0, xmm6
-      vcomiss xmm2, xmm1
-    }
-    if ( cycleCount >= _RDI->state.cycleCount )
-    {
-LABEL_54:
-      if ( bNotify && (!obj->tree || !obj->tree->owner[0]) )
-      {
-        __asm { vmovaps xmm2, xmm6; time }
-        XAnimProcessServerNotify(obj, _RDI, *(double *)&_XMM2);
-      }
-      v47 = 0;
-      __asm { vmovss  dword ptr [rdi+28h], xmm6 }
-      _RDI->state.cycleCount = cycleCount;
-      _RDI->notifyIndex = -1;
-      if ( bNotify )
-      {
-        HasClientFlag = DObjHasClientFlag(obj);
-        v47 = 0;
-        if ( HasClientFlag )
+LABEL_48:
+        flags = parts->flags;
+        v34 = 0;
+        v35 = 0;
+        if ( (flags & 1) != 0 )
+          LOBYTE(v35) = *(float *)&_XMM6 < 1.0;
+        else
+          LOBYTE(v35) = *(float *)&_XMM6 <= 1.0;
+        if ( !v35 )
         {
-          __asm { vmovaps xmm2, xmm9; dtime }
-          XAnimProcessClientNotify(obj, _RDI, *(double *)&_XMM2, inOutNotifyHead);
+          LODWORD(v39) = flags & 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2894, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) ? (time < 1.f) : (time <= 1.f))", "%s\n\ttime: %f, loop: %d", "(parts->flags & ANIM_LOOP) ? (time < 1.f) : (time <= 1.f)", *(float *)&_XMM6, v39) )
+            __debugbreak();
         }
+        if ( !AnimInfo->notifyName && !AnimInfo->notifyType || (float)(__int16)(cycleCount - AnimInfo->state.cycleCount) >= (float)(AnimInfo->state.currentAnimTime - *(float *)&_XMM6) )
+        {
+          if ( bNotify && (!obj->tree || !obj->tree->owner[0]) )
+            XAnimProcessServerNotify(obj, AnimInfo, *(float *)&_XMM6);
+          AnimInfo->state.currentAnimTime = *(float *)&_XMM6;
+          AnimInfo->state.cycleCount = cycleCount;
+          AnimInfo->notifyIndex = -1;
+          if ( bNotify && DObjHasClientFlag(obj) )
+            XAnimProcessClientNotify(obj, AnimInfo, *(float *)&v10, inOutNotifyHead);
+          v36 = AnimInfo->state.currentAnimTime;
+          if ( v36 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2914, ASSERT_TYPE_ASSERT, "( ( state->currentAnimTime >= 0 ) )", "( state->currentAnimTime ) = %g", v36) )
+            __debugbreak();
+          v37 = parts->flags;
+          v38 = AnimInfo->state.currentAnimTime;
+          if ( (v37 & 1) != 0 )
+            LOBYTE(v34) = v38 < 1.0;
+          else
+            LOBYTE(v34) = v38 <= 1.0;
+          if ( !v34 )
+          {
+            LODWORD(v39) = v37 & 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2915, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f))", "%s\n\ttime: %f, loop: %d", "(parts->flags & ANIM_LOOP) ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f)", v38, v39) )
+              __debugbreak();
+          }
+        }
+        return;
       }
-      __asm
+      if ( (parts->flags & 1) == 0 )
       {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vcomiss xmm0, xmm8
-      }
-      if ( v47 )
-      {
+        _XMM1 = LODWORD(FLOAT_0_99999988);
         __asm
         {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0A8h+var_80], xmm0
+          vcmpless xmm0, xmm1, dword ptr [rdi+2Ch]
+          vblendvps xmm6, xmm1, xmm7, xmm0
         }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2914, ASSERT_TYPE_ASSERT, "( ( state->currentAnimTime >= 0 ) )", "( state->currentAnimTime ) = %g", v61) )
-          __debugbreak();
+        goto LABEL_48;
       }
-      v52 = _R14->flags;
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-      if ( (v52 & 1) != 0 )
+      do
       {
-        __asm { vcomiss xmm0, xmm7 }
-        LOBYTE(v39) = 0;
+        v26 = _XMM6;
+        *(float *)&v26 = *(float *)&_XMM6 + -1.0;
+        _XMM6 = v26;
+        ++cycleCount;
       }
-      else
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        LOBYTE(v39) = (v52 & 1) == 0;
-      }
-      if ( !v39 )
-      {
-        LODWORD(v64) = v52 & 1;
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0A8h+var_78], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2915, ASSERT_TYPE_ASSERT, "((parts->flags & ANIM_LOOP) ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f))", "%s\n\ttime: %f, loop: %d", "(parts->flags & ANIM_LOOP) ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f)", v63, v64) )
-          __debugbreak();
-      }
+      while ( *(float *)&v26 >= 1.0 );
+      if ( *(float *)&v26 >= 0.0 )
+        goto LABEL_48;
+      v27 = 2865;
     }
-    __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", v27, ASSERT_TYPE_ASSERT, "( ( !(time < 0.f) ) )", "( time ) = %g", *(float *)&_XMM6) )
+      __debugbreak();
+    goto LABEL_48;
   }
 }
 
@@ -17798,199 +14506,103 @@ XAnimUpdateTimeAndNotetrackSyncSubTree
 void __fastcall XAnimUpdateTimeAndNotetrackSyncSubTree(const DObj *obj, unsigned __int16 infoIndex, double dtime, bool bNotify, XAnimNotifyHandle *inOutNotifyHead)
 {
   XAnimInfo *AnimInfo; 
-  bool v15; 
-  bool v17; 
+  XAnimState *p_state; 
+  float oldTime; 
+  __int128 v13; 
   unsigned __int16 oldCycleCount; 
-  int v27; 
-  int v32; 
-  int v33; 
-  char v40; 
-  bool HasClientFlag; 
+  int v15; 
+  __int128 v18; 
+  int v19; 
+  BOOL v20; 
+  float currentAnimTime; 
   unsigned __int16 children; 
-  unsigned __int8 *v48; 
-  unsigned int v49; 
-  unsigned __int16 v50; 
-  float fmt; 
-  XAnimNotifyHandle *v57; 
-  XAnimNotifyHandle *v58; 
-  XAnimNotifyHandle *v59; 
-  XAnimNotifyHandle *v60; 
-  __int64 v61; 
-  double v62; 
-  double v63; 
-  double v64; 
-  __int64 v65; 
-  double v66; 
-  char v69; 
-  void *retaddr; 
+  unsigned __int8 *v23; 
+  unsigned int v24; 
+  unsigned __int16 v25; 
+  XAnimNotifyHandle *v26; 
+  __int64 v27; 
+  __int64 v28; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmm9, xmm2
-  }
   AnimInfo = XAnimGetAnimInfo(infoIndex);
-  v15 = ((__int64)AnimInfo->parts & 4) == 0;
-  _RBP = &AnimInfo->state;
-  if ( ((__int64)AnimInfo->parts & 4) == 0 )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2930, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_SYNC_ROOT)", (const char *)&queryFormat, "info->animParent.flags & XANIM_SYNC_ROOT");
-    v15 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm0, xmm8
-    vcomiss xmm0, xmm7
-  }
-  if ( !v15 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+0A8h+var_70], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0A8h+var_78], xmm1
-      vmovsd  [rsp+0A8h+var_80], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2932, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( state->oldTime ) && ( state->oldTime ) <= ( 1.0f )", "state->oldTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&v57, v62, v66) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@46fffe00
-    vcvtss2sd xmm0, xmm9, xmm9
-    vmovsd  [rsp+0A8h+var_80], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2934, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", *(double *)&v58) )
+  p_state = &AnimInfo->state;
+  if ( ((__int64)AnimInfo->parts & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2930, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_SYNC_ROOT)", (const char *)&queryFormat, "info->animParent.flags & XANIM_SYNC_ROOT") )
     __debugbreak();
-  __asm
+  oldTime = AnimInfo->state.oldTime;
+  if ( oldTime < 0.0 || oldTime > 1.0 )
   {
-    vaddss  xmm6, xmm9, dword ptr [rbp+4]
-    vcomiss xmm6, xmm8
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2932, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( state->oldTime ) && ( state->oldTime ) <= ( 1.0f )", "state->oldTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", oldTime, *(double *)&_XMM1, DOUBLE_1_0) )
+      __debugbreak();
   }
+  if ( COERCE_FLOAT(LODWORD(dtime) & _xmm) >= 32767.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2934, ASSERT_TYPE_ASSERT, "( ( I_fabs( dtime ) < 32767.0f ) )", "( dtime ) = %g", *(float *)&dtime) )
+    __debugbreak();
+  v13 = *(_OWORD *)&dtime;
+  *(float *)&v13 = *(float *)&dtime + AnimInfo->state.oldTime;
+  _XMM6 = v13;
   oldCycleCount = AnimInfo->state.oldCycleCount;
-  __asm { vcomiss xmm6, xmm7 }
-  v27 = AnimInfo->animParent.flags & 1;
-  if ( (AnimInfo->animParent.flags & 2) == 0 )
-  {
-    if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2950, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME)", (const char *)&queryFormat, "info->animParent.flags & XANIM_LOOP_SYNC_TIME") )
-      __debugbreak();
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-    while ( 1 )
-    {
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      ++oldCycleCount;
-      __asm { vcomiss xmm6, xmm7 }
-    }
-  }
-  if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2945, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_LOOP_SYNC_TIME))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_LOOP_SYNC_TIME)") )
+  if ( *(float *)&v13 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2939, ASSERT_TYPE_ASSERT, "( ( !(time < 0.f) ) )", "( time ) = %g", *(float *)&v13) )
     __debugbreak();
-  __asm
+  if ( *(float *)&v13 >= 1.0 )
   {
-    vmovss  xmm1, cs:__real@3f7ffffe
-    vcmpless xmm0, xmm1, dword ptr [rbp+4]
-    vblendvps xmm6, xmm1, xmm7, xmm0
-  }
-  v32 = 0;
-  if ( (AnimInfo->animParent.flags & 1) != 0 )
-  {
-    __asm { vcomiss xmm6, xmm7 }
-    v33 = 0;
-  }
-  else
-  {
-    __asm { vcomiss xmm6, xmm7 }
-    v33 = 1;
-  }
-  if ( !v33 )
-  {
-    LODWORD(v65) = AnimInfo->animParent.flags & 1;
-    __asm
+    v15 = AnimInfo->animParent.flags & 1;
+    if ( (AnimInfo->animParent.flags & 2) != 0 )
     {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0A8h+var_78], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2962, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (time < 1.f) : (time <= 1.f))", "%s\n\ttime: %f, info->animParent.flags & XANIM_LOOP_SYNC_TIME: %d", "info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (time < 1.f) : (time <= 1.f)", v63, v65) )
-      __debugbreak();
-  }
-  if ( !AnimInfo->notifyName && !AnimInfo->notifyType )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vsubss  xmm1, xmm0, xmm6
-    vcomiss xmm2, xmm1
-  }
-  if ( oldCycleCount >= AnimInfo->state.cycleCount )
-  {
-LABEL_58:
-    if ( bNotify && (!obj->tree || !obj->tree->owner[0]) )
-    {
-      __asm { vmovaps xmm2, xmm6; time }
-      XAnimProcessServerNotify(obj, AnimInfo, *(double *)&_XMM2);
-    }
-    AnimInfo->state.cycleCount = oldCycleCount;
-    __asm { vmovss  dword ptr [rbp+0], xmm6 }
-    AnimInfo->notifyIndex = -1;
-    v40 = 0;
-    if ( bNotify )
-    {
-      HasClientFlag = DObjHasClientFlag(obj);
-      v40 = 0;
-      if ( HasClientFlag )
-      {
-        __asm { vmovaps xmm2, xmm9; dtime }
-        XAnimProcessClientNotify(obj, AnimInfo, *(double *)&_XMM2, inOutNotifyHead);
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vcomiss xmm0, xmm8
-    }
-    if ( v40 )
-    {
+      if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2945, ASSERT_TYPE_ASSERT, "(!(info->animParent.flags & XANIM_LOOP_SYNC_TIME))", (const char *)&queryFormat, "!(info->animParent.flags & XANIM_LOOP_SYNC_TIME)") )
+        __debugbreak();
+      _XMM1 = LODWORD(FLOAT_0_99999988);
       __asm
       {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0A8h+var_80], xmm0
+        vcmpless xmm0, xmm1, dword ptr [rbp+4]
+        vblendvps xmm6, xmm1, xmm7, xmm0
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2982, ASSERT_TYPE_ASSERT, "( ( state->currentAnimTime >= 0 ) )", "( state->currentAnimTime ) = %g", *(double *)&v60) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm0, dword ptr [rbp+0] }
-    if ( (AnimInfo->animParent.flags & 1) != 0 )
-    {
-      __asm { vcomiss xmm0, xmm7 }
-      LOBYTE(v32) = 0;
     }
     else
     {
-      __asm { vcomiss xmm0, xmm7 }
-      LOBYTE(v32) = (AnimInfo->animParent.flags & 1) == 0;
-    }
-    if ( !v32 )
-    {
-      LODWORD(v65) = AnimInfo->animParent.flags & 1;
-      __asm
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2950, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME)", (const char *)&queryFormat, "info->animParent.flags & XANIM_LOOP_SYNC_TIME") )
+        __debugbreak();
+      do
       {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0A8h+var_78], xmm0
+        v18 = _XMM6;
+        *(float *)&v18 = *(float *)&_XMM6 + -1.0;
+        _XMM6 = v18;
+        ++oldCycleCount;
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2983, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f))", "%s\n\ttime: %f, info->animParent.flags & XANIM_LOOP_SYNC_TIME: %d", "info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f)", v64, v65) )
+      while ( *(float *)&v18 >= 1.0 );
+      if ( *(float *)&v18 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2958, ASSERT_TYPE_ASSERT, "( ( !(time < 0.f) ) )", "( time ) = %g", *(float *)&v18) )
+        __debugbreak();
+    }
+  }
+  v19 = 0;
+  if ( (AnimInfo->animParent.flags & 1) != 0 )
+    v20 = *(float *)&_XMM6 < 1.0;
+  else
+    v20 = *(float *)&_XMM6 <= 1.0;
+  if ( !v20 )
+  {
+    LODWORD(v28) = AnimInfo->animParent.flags & 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2962, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (time < 1.f) : (time <= 1.f))", "%s\n\ttime: %f, info->animParent.flags & XANIM_LOOP_SYNC_TIME: %d", "info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (time < 1.f) : (time <= 1.f)", *(float *)&_XMM6, v28) )
+      __debugbreak();
+  }
+  if ( !AnimInfo->notifyName && !AnimInfo->notifyType || (float)(__int16)(oldCycleCount - AnimInfo->state.cycleCount) >= (float)(AnimInfo->state.currentAnimTime - *(float *)&_XMM6) )
+  {
+    if ( bNotify && (!obj->tree || !obj->tree->owner[0]) )
+      XAnimProcessServerNotify(obj, AnimInfo, *(float *)&_XMM6);
+    AnimInfo->state.cycleCount = oldCycleCount;
+    p_state->currentAnimTime = *(float *)&_XMM6;
+    AnimInfo->notifyIndex = -1;
+    if ( bNotify && DObjHasClientFlag(obj) )
+      XAnimProcessClientNotify(obj, AnimInfo, *(float *)&dtime, inOutNotifyHead);
+    if ( p_state->currentAnimTime < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2982, ASSERT_TYPE_ASSERT, "( ( state->currentAnimTime >= 0 ) )", "( state->currentAnimTime ) = %g", p_state->currentAnimTime) )
+      __debugbreak();
+    currentAnimTime = p_state->currentAnimTime;
+    if ( (AnimInfo->animParent.flags & 1) != 0 )
+      LOBYTE(v19) = currentAnimTime < 1.0;
+    else
+      LOBYTE(v19) = currentAnimTime <= 1.0;
+    if ( !v19 )
+    {
+      LODWORD(v28) = AnimInfo->animParent.flags & 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 2983, ASSERT_TYPE_ASSERT, "(info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f))", "%s\n\ttime: %f, info->animParent.flags & XANIM_LOOP_SYNC_TIME: %d", "info->animParent.flags & XANIM_LOOP_SYNC_TIME ? (state->currentAnimTime < 1.f) : (state->currentAnimTime <= 1.f)", currentAnimTime, v28) )
         __debugbreak();
     }
     children = AnimInfo->children;
@@ -18000,42 +14612,33 @@ LABEL_58:
       {
         if ( (children & 0x8000u) != 0 )
         {
-          v49 = 32 * (children & 0x7FFF);
-          if ( v49 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
+          v24 = 32 * (children & 0x7FFF);
+          if ( v24 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
           {
-            LODWORD(v61) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
-            LODWORD(v59) = 32 * (children & 0x7FFF);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v59, v61) )
+            LODWORD(v27) = g_xanimMemoryGlobals.bucketAllocatorMaxOffset;
+            LODWORD(v26) = 32 * (children & 0x7FFF);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v26, v27) )
               __debugbreak();
           }
-          v48 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v49];
+          v23 = &g_xanimMemoryGlobals.bucketAllocatorBasePointer[v24];
         }
         else
         {
           if ( (unsigned int)children >= g_xanimMemoryGlobals.infoPoolSize )
           {
-            LODWORD(v61) = g_xanimMemoryGlobals.infoPoolSize;
-            LODWORD(v59) = children;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v59, v61) )
+            LODWORD(v27) = g_xanimMemoryGlobals.infoPoolSize;
+            LODWORD(v26) = children;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v26, v27) )
               __debugbreak();
           }
-          v48 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
+          v23 = (unsigned __int8 *)&g_xanimMemoryGlobals.infoPool[children];
         }
-        v50 = *((_WORD *)v48 + 5);
-        __asm { vmovss  dword ptr [rsp+0A8h+fmt], xmm9 }
-        XAnimUpdateInfoSync(obj, children, bNotify, _RBP, fmt, inOutNotifyHead);
-        children = v50;
+        v25 = *((_WORD *)v23 + 5);
+        XAnimUpdateInfoSync(obj, children, bNotify, p_state, *(float *)&dtime, inOutNotifyHead);
+        children = v25;
       }
-      while ( v50 );
+      while ( v25 );
     }
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 
@@ -18044,123 +14647,50 @@ LABEL_58:
 XAnimValidateNotetrackTimes
 ==============
 */
-
-bool __fastcall XAnimValidateNotetrackTimes(const XAnimParts *parts, double notifyInStartTime, double notifyInEndTime, double notifyOutStartTime, float notifyOutEndTime, bool throwError)
+char XAnimValidateNotetrackTimes(const XAnimParts *parts, float notifyInStartTime, float notifyInEndTime, float notifyOutStartTime, float notifyOutEndTime, bool throwError)
 {
-  bool v13; 
-  bool v14; 
-  bool result; 
-
-  __asm
+  if ( throwError && !parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3110, ASSERT_TYPE_ASSERT, "(!throwError || (throwError && parts))", (const char *)&queryFormat, "!throwError || (throwError && parts)") )
+    __debugbreak();
+  if ( notifyInStartTime == -1.0 && notifyInEndTime == -1.0 || notifyInStartTime >= 0.0 && notifyInEndTime >= 0.0 )
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm1
-  }
-  v13 = !throwError;
-  if ( throwError )
-  {
-    v13 = parts == NULL;
-    if ( !parts )
+    if ( notifyOutStartTime == -1.0 && notifyOutEndTime == -1.0 || notifyOutStartTime >= 0.0 && notifyOutEndTime >= 0.0 )
     {
-      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim.cpp", 3110, ASSERT_TYPE_ASSERT, "(!throwError || (throwError && parts))", (const char *)&queryFormat, "!throwError || (throwError && parts)");
-      v13 = !v14;
-      if ( v14 )
-        __debugbreak();
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bf800000
-    vucomiss xmm7, xmm0
-    vxorps  xmm2, xmm2, xmm2
-  }
-  if ( !v13 )
-    goto LABEL_7;
-  __asm { vucomiss xmm8, xmm0 }
-  if ( !v13 )
-  {
-LABEL_7:
-    __asm
-    {
-      vcomiss xmm7, xmm2
-      vcomiss xmm8, xmm2
-    }
-  }
-  __asm
-  {
-    vucomiss xmm6, xmm0
-    vmovss  xmm1, [rsp+68h+notifyOutEndTime]
-  }
-  if ( !v13 )
-    goto LABEL_10;
-  __asm { vucomiss xmm1, xmm0 }
-  if ( !v13 )
-  {
-LABEL_10:
-    __asm
-    {
-      vcomiss xmm6, xmm2
-      vcomiss xmm1, xmm2
-    }
-  }
-  __asm { vucomiss xmm7, xmm0 }
-  if ( !v13 )
-  {
-    __asm { vucomiss xmm7, xmm8 }
-    if ( v13 )
-    {
-      if ( throwError )
+      if ( notifyInStartTime == -1.0 || notifyInStartTime != notifyInEndTime )
+      {
+        if ( notifyOutStartTime == -1.0 || notifyOutStartTime != notifyOutEndTime )
+        {
+          if ( notifyInStartTime == -1.0 && notifyInEndTime == -1.0 || notifyInStartTime < notifyInEndTime )
+          {
+            if ( notifyOutStartTime == -1.0 && notifyOutEndTime == -1.0 || notifyOutStartTime < notifyOutEndTime )
+              return 1;
+            if ( throwError )
+              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC590, 361i64, parts->name);
+          }
+          else if ( throwError )
+          {
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC530, 360i64, parts->name);
+          }
+        }
+        else if ( throwError )
+        {
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC4B0, 359i64, parts->name);
+        }
+      }
+      else if ( throwError )
+      {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC440, 358i64, parts->name);
-LABEL_28:
-      result = 0;
-      goto LABEL_29;
+      }
     }
-  }
-  __asm { vucomiss xmm6, xmm0 }
-  if ( !v13 )
-  {
-    __asm { vucomiss xmm6, xmm1 }
-    if ( v13 )
+    else if ( throwError )
     {
-      if ( throwError )
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC4B0, 359i64, parts->name);
-      goto LABEL_28;
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC3C0, 357i64, parts->name);
     }
   }
-  __asm { vucomiss xmm7, xmm0 }
-  if ( !v13 )
-    goto LABEL_21;
-  __asm { vucomiss xmm8, xmm0 }
-  if ( !v13 )
+  else if ( throwError )
   {
-LABEL_21:
-    __asm { vcomiss xmm7, xmm8 }
-    if ( throwError )
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC530, 360i64, parts->name);
-    goto LABEL_28;
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441AC350, 356i64, parts->name);
   }
-  __asm { vucomiss xmm6, xmm0 }
-  if ( !v13 )
-  {
-    __asm { vcomiss xmm6, xmm1 }
-    if ( throwError )
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&unk_1441AC590, 361i64, parts->name);
-    goto LABEL_28;
-  }
-  __asm { vucomiss xmm1, xmm0 }
-  result = 1;
-LABEL_29:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -18171,10 +14701,11 @@ XAnimWillBeLodCulled
 bool XAnimWillBeLodCulled(const XAnimTree *tree, unsigned __int16 animIndex)
 {
   __int16 calcLod; 
+  unsigned __int8 v5; 
+  const dvar_t *v6; 
   unsigned __int8 v7; 
-  const dvar_t *v8; 
-  unsigned __int8 v9; 
-  char v11; 
+  double Float_Internal_DebugName; 
+  double v9; 
 
   if ( !tree )
     return 0;
@@ -18183,27 +14714,21 @@ bool XAnimWillBeLodCulled(const XAnimTree *tree, unsigned __int16 animIndex)
   calcLod = tree->lodState.calcLod;
   if ( !calcLod )
     return 0;
-  v7 = truncate_cast<unsigned char,int>(calcLod / 256);
-  v8 = DCONST_DVARBOOL_xanim_lodEnable;
-  v9 = v7;
+  v5 = truncate_cast<unsigned char,int>(calcLod / 256);
+  v6 = DCONST_DVARBOOL_xanim_lodEnable;
+  v7 = v5;
   if ( !DCONST_DVARBOOL_xanim_lodEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_lodEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( !v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( !v6->current.enabled )
     return 0;
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_lodOverride, "xanim_lodOverride");
-  __asm
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_lodOverride, "xanim_lodOverride");
+  if ( *(float *)&Float_Internal_DebugName >= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
+    v9 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_lodOverride, "xanim_lodOverride");
+    v7 = truncate_cast<unsigned char,int>((int)*(float *)&v9);
   }
-  if ( !v11 )
-  {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_lodOverride, "xanim_lodOverride");
-    __asm { vcvttss2si ecx, xmm0; val }
-    v9 = truncate_cast<unsigned char,int>(_ECX);
-  }
-  return v9 && tree->anims->entries[animIndex].lod < v9;
+  return v7 && tree->anims->entries[animIndex].lod < v7;
 }
 
 /*

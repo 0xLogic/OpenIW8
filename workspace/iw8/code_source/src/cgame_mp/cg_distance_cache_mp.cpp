@@ -207,63 +207,46 @@ CgDistanceCacheClientData::AddOrigin
 */
 void CgDistanceCacheClientData::AddOrigin(CgDistanceCacheClientData *this, const vec3_t *newOrigin)
 {
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  __int64 v8; 
-  vec3_t *v9; 
-  unsigned int v12; 
-  unsigned int v13; 
-  unsigned int v14; 
-  int v15; 
+  __int64 v7; 
+  vec3_t *v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  int v12; 
   unsigned int secureOriginCount; 
-  int v17; 
-  __int64 v18; 
+  int v14; 
+  __int64 v15; 
 
-  _RDI = newOrigin;
   if ( this->secureOriginCount >= 5 )
   {
-    v17 = 5;
+    v14 = 5;
     secureOriginCount = this->secureOriginCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 80, ASSERT_TYPE_ASSERT, "(unsigned)( this->secureOriginCount ) < (unsigned)( ( sizeof( *array_counter( this->secureOrigins ) ) + 0 ) )", "this->secureOriginCount doesn't index ARRAY_COUNT( this->secureOrigins )\n\t%i not in [0, %i)", secureOriginCount, v17) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 80, ASSERT_TYPE_ASSERT, "(unsigned)( this->secureOriginCount ) < (unsigned)( ( sizeof( *array_counter( this->secureOrigins ) ) + 0 ) )", "this->secureOriginCount doesn't index ARRAY_COUNT( this->secureOrigins )\n\t%i not in [0, %i)", secureOriginCount, v14) )
       __debugbreak();
   }
-  __asm { vmovss  xmm0, dword ptr [rdi] }
-  v5 = s_cgdistancecache_aab_Z;
-  v6 = s_cgdistancecache_aab_Y;
-  v7 = s_cgdistancecache_aab_X;
-  v8 = this->secureOriginCount;
-  __asm { vmovss  dword ptr [rsp+58h+arg_0], xmm0 }
-  v9 = &this->secureOrigins[v8];
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
+  v4 = s_cgdistancecache_aab_Z;
+  v5 = s_cgdistancecache_aab_Y;
+  v6 = s_cgdistancecache_aab_X;
+  v7 = this->secureOriginCount;
+  *(float *)&v15 = newOrigin->v[0];
+  v8 = &this->secureOrigins[v7];
+  if ( (v15 & 0x7F800000) == 2139095040 || (*(float *)&v15 = newOrigin->v[1], (v15 & 0x7F800000) == 2139095040) || (*(float *)&v15 = newOrigin->v[2], (v15 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+58h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+58h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v12 = (unsigned int)v9 ^ LODWORD(_RDI->v[2]);
-  v13 = LODWORD(_RDI->v[0]) ^ (unsigned int)v9 ^ ~v7;
-  v14 = v13 ^ (unsigned int)v9 ^ LODWORD(_RDI->v[1]);
-  LODWORD(v9->v[0]) = v13;
-  v15 = v6 ^ v14;
-  LODWORD(v9->v[1]) = v15;
-  LODWORD(v9->v[2]) = v5 ^ v15 ^ v12;
+  v9 = (unsigned int)v8 ^ LODWORD(newOrigin->v[2]);
+  v10 = LODWORD(newOrigin->v[0]) ^ (unsigned int)v8 ^ ~v6;
+  v11 = v10 ^ (unsigned int)v8 ^ LODWORD(newOrigin->v[1]);
+  LODWORD(v8->v[0]) = v10;
+  v12 = v5 ^ v11;
+  LODWORD(v8->v[1]) = v12;
+  LODWORD(v8->v[2]) = v4 ^ v12 ^ v9;
   ++this->secureOriginCount;
-  memset(&v18, 0, sizeof(v18));
+  memset(&v15, 0, sizeof(v15));
 }
 
 /*
@@ -271,75 +254,65 @@ LABEL_12:
 CG_DistanceCacheMP_AddAgent
 ==============
 */
-
-float __fastcall CG_DistanceCacheMP_AddAgent(const LocalClientNum_t localClientNum, const unsigned int entNum, double distanceSqMultiplier)
+float CG_DistanceCacheMP_AddAgent(const LocalClientNum_t localClientNum, const unsigned int entNum, const float distanceSqMultiplier)
 {
-  __int64 v7; 
-  unsigned int v8; 
+  __int64 v4; 
+  unsigned int v5; 
   centity_t *Entity; 
-  bool v11; 
+  bool v7; 
   OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey> *friendlyAgentDistanceCache; 
   float result; 
-  __int64 v15; 
-  __int64 v17; 
-  int v18; 
-  char v19[12]; 
-  void *retaddr; 
+  __int64 v10; 
+  __int64 v12; 
+  int v13; 
+  char v14[12]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v7 = localClientNum;
+  v4 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v18 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 327, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v18) )
+    v13 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 327, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v13) )
       __debugbreak();
   }
   if ( entNum >= 0xF8 )
   {
-    LODWORD(v17) = 248;
-    LODWORD(v15) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 328, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "entNum doesn't index MAX_CHARACTERS_STATIC\n\t%i not in [0, %i)", v15, v17) )
+    LODWORD(v12) = 248;
+    LODWORD(v10) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 328, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (((1) >= (200 + 48)) ? (1) : (200 + 48)) )", "entNum doesn't index MAX_CHARACTERS_STATIC\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  v8 = entNum - ComCharacterLimits::ms_gameData.m_clientCount;
+  v5 = entNum - ComCharacterLimits::ms_gameData.m_clientCount;
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  if ( v8 >= ComCharacterLimits::ms_gameData.m_agentCount )
+  if ( v5 >= ComCharacterLimits::ms_gameData.m_agentCount )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 116, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v17) = ComCharacterLimits::ms_gameData.m_agentCount;
-    LODWORD(v15) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v15, v17) )
+    LODWORD(v12) = ComCharacterLimits::ms_gameData.m_agentCount;
+    LODWORD(v10) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( agentIndex ) < (unsigned)( ComCharacterLimits::GetAgentMaxCount() )", "agentIndex doesn't index ComCharacterLimits::GetAgentMaxCount()\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  Entity = CG_GetEntity((const LocalClientNum_t)v7, entNum);
+  Entity = CG_GetEntity((const LocalClientNum_t)v4, entNum);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 335, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   if ( Entity->nextState.eType != ET_AGENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 336, ASSERT_TYPE_ASSERT, "(cent->nextState.eType == ET_AGENT)", (const char *)&queryFormat, "cent->nextState.eType == ET_AGENT") )
     __debugbreak();
-  if ( (unsigned int)v7 >= 2 )
+  if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v17) = 2;
-    LODWORD(v15) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", v15, v17) )
+    LODWORD(v12) = 2;
+    LODWORD(v10) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  __asm { vmovaps xmm2, xmm6; distanceSqMultiplier }
-  v11 = *CG_DistanceCacheMP_GetTeamForEntity((const LocalClientNum_t)v7, entNum) == s_cgDistanceCacheMP.localClientData[v7].team;
+  v7 = *CG_DistanceCacheMP_GetTeamForEntity((const LocalClientNum_t)v4, entNum) == s_cgDistanceCacheMP.localClientData[v4].team;
   friendlyAgentDistanceCache = s_cgDistanceCacheMP.friendlyAgentDistanceCache;
-  if ( !v11 )
+  if ( !v7 )
     friendlyAgentDistanceCache = s_cgDistanceCacheMP.enemyAgentDistanceCache;
-  result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v7, entNum, *(const float *)&_XMM2, &friendlyAgentDistanceCache[v7]);
-  memset(v19, 0, sizeof(v19));
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v4, entNum, distanceSqMultiplier, &friendlyAgentDistanceCache[v4]);
+  memset(v14, 0, sizeof(v14));
   return result;
 }
 
@@ -348,46 +321,35 @@ float __fastcall CG_DistanceCacheMP_AddAgent(const LocalClientNum_t localClientN
 CG_DistanceCacheMP_AddItem
 ==============
 */
-
-double __fastcall CG_DistanceCacheMP_AddItem(const LocalClientNum_t localClientNum, const unsigned int entNum, double distanceSqMultiplier)
+double CG_DistanceCacheMP_AddItem(const LocalClientNum_t localClientNum, const unsigned int entNum, const float distanceSqMultiplier)
 {
-  __int64 v4; 
+  __int64 v3; 
   centity_t *Entity; 
   double result; 
-  __int64 v11; 
-  __int64 v13; 
-  int v14; 
+  __int64 v7; 
+  __int64 v9; 
+  int v10; 
 
-  v4 = localClientNum;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v14 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 406, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v14) )
+    v10 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 406, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v10) )
       __debugbreak();
   }
   if ( entNum >= 0x800 )
   {
-    LODWORD(v13) = 2048;
-    LODWORD(v11) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, v13) )
+    LODWORD(v9) = 2048;
+    LODWORD(v7) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v9) )
       __debugbreak();
   }
-  Entity = CG_GetEntity((const LocalClientNum_t)v4, entNum);
+  Entity = CG_GetEntity((const LocalClientNum_t)v3, entNum);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 411, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   if ( Entity->nextState.eType != ET_ITEM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 412, ASSERT_TYPE_ASSERT, "(cent->nextState.eType == ET_ITEM)", (const char *)&queryFormat, "cent->nextState.eType == ET_ITEM") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  *(float *)&result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_1800_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v4, entNum, *(const float *)&_XMM2, &s_cgDistanceCacheMP.itemDistanceCache[v4]);
+  *(float *)&result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_1800_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v3, entNum, distanceSqMultiplier, &s_cgDistanceCacheMP.itemDistanceCache[v3]);
   return result;
 }
 
@@ -396,38 +358,30 @@ double __fastcall CG_DistanceCacheMP_AddItem(const LocalClientNum_t localClientN
 CG_DistanceCacheMP_AddPlayer
 ==============
 */
-
-float __fastcall CG_DistanceCacheMP_AddPlayer(const LocalClientNum_t localClientNum, const unsigned int entNum, double distanceSqMultiplier)
+float CG_DistanceCacheMP_AddPlayer(const LocalClientNum_t localClientNum, const unsigned int entNum, const float distanceSqMultiplier)
 {
-  __int64 v7; 
+  __int64 v4; 
   centity_t *Entity; 
-  bool v10; 
+  bool v6; 
   OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey> *friendlyPlayerDistanceCache; 
   float result; 
-  __int64 v14; 
-  __int64 v16; 
-  int v17; 
-  char v18[12]; 
-  void *retaddr; 
+  __int64 v9; 
+  __int64 v11; 
+  int v12; 
+  char v13[12]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v7 = localClientNum;
+  v4 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v17 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 360, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v17) )
+    v12 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 360, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v12) )
       __debugbreak();
   }
   if ( entNum >= 0xC8 )
   {
-    LODWORD(v16) = 200;
-    LODWORD(v14) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 361, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ((1 >= 200) ? 1 : 200) )", "entNum doesn't index MAX_CLIENTS_STATIC\n\t%i not in [0, %i)", v14, v16) )
+    LODWORD(v11) = 200;
+    LODWORD(v9) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 361, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ((1 >= 200) ? 1 : 200) )", "entNum doesn't index MAX_CLIENTS_STATIC\n\t%i not in [0, %i)", v9, v11) )
       __debugbreak();
   }
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -436,31 +390,29 @@ float __fastcall CG_DistanceCacheMP_AddPlayer(const LocalClientNum_t localClient
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
-    LODWORD(v16) = ComCharacterLimits::ms_gameData.m_clientCount;
-    LODWORD(v14) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 362, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "entNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v14, v16) )
+    LODWORD(v11) = ComCharacterLimits::ms_gameData.m_clientCount;
+    LODWORD(v9) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 362, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "entNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", v9, v11) )
       __debugbreak();
   }
-  Entity = CG_GetEntity((const LocalClientNum_t)v7, entNum);
+  Entity = CG_GetEntity((const LocalClientNum_t)v4, entNum);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 366, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   if ( Entity->nextState.eType != ET_PLAYER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 367, ASSERT_TYPE_ASSERT, "(cent->nextState.eType == ET_PLAYER)", (const char *)&queryFormat, "cent->nextState.eType == ET_PLAYER") )
     __debugbreak();
-  if ( (unsigned int)v7 >= 2 )
+  if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v16) = 2;
-    LODWORD(v14) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", v14, v16) )
+    LODWORD(v11) = 2;
+    LODWORD(v9) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", v9, v11) )
       __debugbreak();
   }
-  __asm { vmovaps xmm2, xmm6; distanceSqMultiplier }
-  v10 = *CG_DistanceCacheMP_GetTeamForEntity((const LocalClientNum_t)v7, entNum) == s_cgDistanceCacheMP.localClientData[v7].team;
+  v6 = *CG_DistanceCacheMP_GetTeamForEntity((const LocalClientNum_t)v4, entNum) == s_cgDistanceCacheMP.localClientData[v4].team;
   friendlyPlayerDistanceCache = s_cgDistanceCacheMP.friendlyPlayerDistanceCache;
-  if ( !v10 )
+  if ( !v6 )
     friendlyPlayerDistanceCache = s_cgDistanceCacheMP.enemyPlayerDistanceCache;
-  result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_200_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v7, entNum, *(const float *)&_XMM2, &friendlyPlayerDistanceCache[v7]);
-  memset(v18, 0, sizeof(v18));
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_200_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v4, entNum, distanceSqMultiplier, &friendlyPlayerDistanceCache[v4]);
+  memset(v13, 0, sizeof(v13));
   return result;
 }
 
@@ -469,46 +421,35 @@ float __fastcall CG_DistanceCacheMP_AddPlayer(const LocalClientNum_t localClient
 CG_DistanceCacheMP_AddPlayerCorpse
 ==============
 */
-
-double __fastcall CG_DistanceCacheMP_AddPlayerCorpse(const LocalClientNum_t localClientNum, const unsigned int entNum, double distanceSqMultiplier)
+double CG_DistanceCacheMP_AddPlayerCorpse(const LocalClientNum_t localClientNum, const unsigned int entNum, const float distanceSqMultiplier)
 {
-  __int64 v4; 
+  __int64 v3; 
   centity_t *Entity; 
   double result; 
-  __int64 v11; 
-  __int64 v13; 
-  int v14; 
+  __int64 v7; 
+  __int64 v9; 
+  int v10; 
 
-  v4 = localClientNum;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v14 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v14) )
+    v10 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v10) )
       __debugbreak();
   }
   if ( entNum >= 0x800 )
   {
-    LODWORD(v13) = 2048;
-    LODWORD(v11) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 390, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, v13) )
+    LODWORD(v9) = 2048;
+    LODWORD(v7) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 390, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v9) )
       __debugbreak();
   }
-  Entity = CG_GetEntity((const LocalClientNum_t)v4, entNum);
+  Entity = CG_GetEntity((const LocalClientNum_t)v3, entNum);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 394, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   if ( Entity->nextState.eType != ET_PLAYER_CORPSE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 395, ASSERT_TYPE_ASSERT, "(cent->nextState.eType == ET_PLAYER_CORPSE)", (const char *)&queryFormat, "cent->nextState.eType == ET_PLAYER_CORPSE") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  *(float *)&result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_8_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v4, entNum, *(const float *)&_XMM2, &s_cgDistanceCacheMP.playerCorpseDistanceCache[v4]);
+  *(float *)&result = CG_DistanceCacheMP_AddEntityInternal_OneLevelSkipList_CgDistanceCacheMpKey_5_8_CgDistanceCacheMpCompareKey___((const LocalClientNum_t)v3, entNum, distanceSqMultiplier, &s_cgDistanceCacheMP.playerCorpseDistanceCache[v3]);
   return result;
 }
 
@@ -729,27 +670,24 @@ CG_DistanceCacheMP_GetRingRadiusSq
 float CG_DistanceCacheMP_GetRingRadiusSq(const CgDistanceCacheMpRing ring)
 {
   int v2; 
-  int v7; 
-  __int64 v8; 
-  int v9; 
-  __int64 v10; 
+  int v4; 
+  __int64 v5; 
+  int v6; 
+  __int64 v7; 
 
   if ( (unsigned __int16)ring >= CG_DISTANCE_CACHE_RING_COUNT )
   {
-    v9 = 5;
+    v6 = 5;
     v2 = (unsigned __int16)ring;
-    v7 = (unsigned __int16)ring;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 286, ASSERT_TYPE_ASSERT, "(unsigned)( ring ) < (unsigned)( CG_DISTANCE_CACHE_RING_COUNT )", "ring doesn't index CG_DISTANCE_CACHE_RING_COUNT\n\t%i not in [0, %i)", v7, v9) )
+    v4 = (unsigned __int16)ring;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 286, ASSERT_TYPE_ASSERT, "(unsigned)( ring ) < (unsigned)( CG_DISTANCE_CACHE_RING_COUNT )", "ring doesn't index CG_DISTANCE_CACHE_RING_COUNT\n\t%i not in [0, %i)", v4, v6) )
       __debugbreak();
-    LODWORD(v10) = 5;
-    LODWORD(v8) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 287, ASSERT_TYPE_ASSERT, "(unsigned)( ring ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.ringRadiiSq ) ) + 0 ) )", "ring doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.ringRadiiSq )\n\t%i not in [0, %i)", v8, v10) )
+    LODWORD(v7) = 5;
+    LODWORD(v5) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 287, ASSERT_TYPE_ASSERT, "(unsigned)( ring ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.ringRadiiSq ) ) + 0 ) )", "ring doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.ringRadiiSq )\n\t%i not in [0, %i)", v5, v7) )
       __debugbreak();
   }
-  _RAX = (unsigned __int16)ring;
-  _RCX = s_cgDistanceCacheMP.ringRadiiSq;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax*4] }
-  return *(float *)&_XMM0;
+  return s_cgDistanceCacheMP.ringRadiiSq[(unsigned __int16)ring];
 }
 
 /*
@@ -782,244 +720,184 @@ CG_DistanceCacheMP_Reset
 */
 void CG_DistanceCacheMP_Reset(const LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey> *v20; 
-  unsigned int v22; 
-  bool v25; 
+  __int64 v2; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  const dvar_t *v11; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey> *v12; 
+  float *ringRadiiSq; 
+  unsigned int v14; 
+  float v16; 
   unsigned __int16 *m_linkPageIndices; 
-  unsigned int v29; 
-  __int64 v30; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey> *v32; 
-  unsigned int v33; 
-  bool v34; 
-  unsigned __int16 *v37; 
-  unsigned int v38; 
-  __int64 v39; 
-  __int64 v43; 
-  __int64 v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  CgDistanceCacheMpKey v53; 
-  CgDistanceCacheMpKey v54; 
+  unsigned int v18; 
+  __int64 v19; 
+  float *v20; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey> *v21; 
+  unsigned int v22; 
+  float v23; 
+  unsigned __int16 *v24; 
+  unsigned int v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  CgDistanceCacheMpKey v30; 
+  CgDistanceCacheMpKey v31; 
 
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  v4 = localClientNum;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_58], xmm7
-    vmovaps [rsp+0B8h+var_68], xmm8
-  }
+  v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 221, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_cg_distanceCache_ringRadius0;
+  v3 = DCONST_DVARFLT_cg_distanceCache_ringRadius0;
   if ( !DCONST_DVARFLT_cg_distanceCache_ringRadius0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_distanceCache_ringRadius0") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_cg_distanceCache_ringRadius1;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_cgDistanceCacheMP.ringRadiiSq, xmm1
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_cg_distanceCache_ringRadius1;
+  s_cgDistanceCacheMP.ringRadiiSq[0] = value * value;
   if ( !DCONST_DVARFLT_cg_distanceCache_ringRadius1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_distanceCache_ringRadius1") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_cg_distanceCache_ringRadius2;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_cgDistanceCacheMP.ringRadiiSq+4, xmm1
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  v7 = DCONST_DVARFLT_cg_distanceCache_ringRadius2;
+  s_cgDistanceCacheMP.ringRadiiSq[1] = v6 * v6;
   if ( !DCONST_DVARFLT_cg_distanceCache_ringRadius2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_distanceCache_ringRadius2") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_cg_distanceCache_ringRadius3;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_cgDistanceCacheMP.ringRadiiSq+8, xmm1
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  v8 = v7->current.value;
+  v9 = DCONST_DVARFLT_cg_distanceCache_ringRadius3;
+  s_cgDistanceCacheMP.ringRadiiSq[2] = v8 * v8;
   if ( !DCONST_DVARFLT_cg_distanceCache_ringRadius3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_distanceCache_ringRadius3") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_cg_distanceCache_ringRadius4;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_cgDistanceCacheMP.ringRadiiSq+0Ch, xmm1
-  }
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.value;
+  v11 = DCONST_DVARFLT_cg_distanceCache_ringRadius4;
+  s_cgDistanceCacheMP.ringRadiiSq[3] = v10 * v10;
   if ( !DCONST_DVARFLT_cg_distanceCache_ringRadius4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_distanceCache_ringRadius4") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v11);
+  s_cgDistanceCacheMP.ringRadiiSq[4] = v11->current.value * v11->current.value;
+  if ( (unsigned int)v2 >= 2 )
   {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_cgDistanceCacheMP.ringRadiiSq+10h, xmm1
-  }
-  if ( (unsigned int)v4 >= 2 )
-  {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 225, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.enemyAgentDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.enemyAgentDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 225, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.enemyAgentDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.enemyAgentDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
-  CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.enemyAgentDistanceCache[v4]);
-  if ( (unsigned int)v4 >= 2 )
+  CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.enemyAgentDistanceCache[v2]);
+  if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 228, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.friendlyAgentDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.friendlyAgentDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 228, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.friendlyAgentDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.friendlyAgentDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
-  CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.friendlyAgentDistanceCache[v4]);
-  if ( (unsigned int)v4 >= 2 )
+  CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_48_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.friendlyAgentDistanceCache[v2]);
+  if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 231, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.playerCorpseDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.playerCorpseDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 231, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.playerCorpseDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.playerCorpseDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
-  v20 = &s_cgDistanceCacheMP.playerCorpseDistanceCache[v4];
-  memset_0(v20, 0, sizeof(OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>));
-  v20->m_nextFreePage = 0;
-  _RBP = s_cgDistanceCacheMP.ringRadiiSq;
-  *(_DWORD *)v20->m_linkPageIndices = 393222;
-  v22 = 0;
-  v20->m_linkPageIndices[4] = 6;
-  *(_DWORD *)&v20->m_linkPageIndices[2] = 393222;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vxorpd  xmm8, xmm8, xmm8
-  }
-  v25 = 1;
+  v12 = &s_cgDistanceCacheMP.playerCorpseDistanceCache[v2];
+  memset_0(v12, 0, sizeof(OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>));
+  v12->m_nextFreePage = 0;
+  ringRadiiSq = s_cgDistanceCacheMP.ringRadiiSq;
+  *(_DWORD *)v12->m_linkPageIndices = 393222;
+  v14 = 0;
+  v12->m_linkPageIndices[4] = 6;
+  *(_DWORD *)&v12->m_linkPageIndices[2] = 393222;
+  __asm { vxorpd  xmm8, xmm8, xmm8 }
   do
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+0]
-      vcomiss xmm6, xmm7
-    }
-    if ( v25 )
-    {
-      __asm
-      {
-        vmovsd  [rsp+0B8h+var_78], xmm8
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0B8h+var_80], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 142, ASSERT_TYPE_ASSERT, "( ringDistanceSq ) > ( 0.f )", "%s > %s\n\t%g, %g", "ringDistanceSq", "0.f", v45, v47) )
-        __debugbreak();
-    }
-    __asm { vmovss  dword ptr [rsp+0B8h+arg_8+4], xmm6 }
-    v53.index = -1;
-    m_linkPageIndices = v20->m_linkPageIndices;
-    v29 = 0;
+    v16 = *ringRadiiSq;
+    if ( *ringRadiiSq <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 142, ASSERT_TYPE_ASSERT, "( ringDistanceSq ) > ( 0.f )", "%s > %s\n\t%g, %g", "ringDistanceSq", "0.f", v16, *(double *)&_XMM8) )
+      __debugbreak();
+    v30.distanceSq = v16;
+    v30.index = -1;
+    m_linkPageIndices = v12->m_linkPageIndices;
+    v18 = 0;
     while ( *m_linkPageIndices != 6 )
     {
-      ++v29;
+      ++v18;
       ++m_linkPageIndices;
-      if ( v29 >= 5 )
+      if ( v18 >= 5 )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEAA0, 5844i64);
         goto LABEL_37;
       }
     }
-    v30 = v29;
-    v20->m_linkPageIndices[v29] = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AllocPage(v20);
-    v20->m_linkKeys[v30] = v53;
+    v19 = v18;
+    v12->m_linkPageIndices[v18] = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AllocPage(v12);
+    v12->m_linkKeys[v19] = v30;
 LABEL_37:
-    ++v22;
-    ++_RBP;
-    v25 = v22 <= 5;
+    ++v14;
+    ++ringRadiiSq;
   }
-  while ( v22 < 5 );
-  _R13 = s_cgDistanceCacheMP.ringRadiiSq;
+  while ( v14 < 5 );
+  v20 = s_cgDistanceCacheMP.ringRadiiSq;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 234, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.enemyPlayerDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.enemyPlayerDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 234, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.enemyPlayerDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.enemyPlayerDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
   CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_200_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.enemyPlayerDistanceCache[localClientNum]);
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 237, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.friendlyPlayerDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.friendlyPlayerDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 237, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.friendlyPlayerDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.friendlyPlayerDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
   CG_DistanceCacheMP_Init_CgDistanceCacheMpKey_5_200_CgDistanceCacheMpCompareKey_(&s_cgDistanceCacheMP.friendlyPlayerDistanceCache[localClientNum]);
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v44) = 2;
-    LODWORD(v43) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.itemDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.itemDistanceCache )\n\t%i not in [0, %i)", v43, v44) )
+    LODWORD(v28) = 2;
+    LODWORD(v27) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.itemDistanceCache ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.itemDistanceCache )\n\t%i not in [0, %i)", v27, v28) )
       __debugbreak();
   }
-  v32 = &s_cgDistanceCacheMP.itemDistanceCache[localClientNum];
-  memset_0(v32, 0, sizeof(OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>));
-  v32->m_nextFreePage = 0;
-  v33 = 0;
-  *(_DWORD *)v32->m_linkPageIndices = 17170694;
-  *(_DWORD *)&v32->m_linkPageIndices[2] = 17170694;
-  v32->m_linkPageIndices[4] = 262;
-  v34 = 1;
+  v21 = &s_cgDistanceCacheMP.itemDistanceCache[localClientNum];
+  memset_0(v21, 0, sizeof(OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>));
+  v21->m_nextFreePage = 0;
+  v22 = 0;
+  *(_DWORD *)v21->m_linkPageIndices = 17170694;
+  *(_DWORD *)&v21->m_linkPageIndices[2] = 17170694;
+  v21->m_linkPageIndices[4] = 262;
   do
   {
-    __asm
+    v23 = *v20;
+    if ( *v20 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 142, ASSERT_TYPE_ASSERT, "( ringDistanceSq ) > ( 0.f )", "%s > %s\n\t%g, %g", "ringDistanceSq", "0.f", v23, *(double *)&_XMM8) )
+      __debugbreak();
+    v31.distanceSq = v23;
+    v31.index = -1;
+    v24 = v21->m_linkPageIndices;
+    v25 = 0;
+    while ( *v24 != 262 )
     {
-      vmovss  xmm6, dword ptr [r13+0]
-      vcomiss xmm6, xmm7
-    }
-    if ( v34 )
-    {
-      __asm
-      {
-        vmovsd  [rsp+0B8h+var_78], xmm8
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0B8h+var_80], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 142, ASSERT_TYPE_ASSERT, "( ringDistanceSq ) > ( 0.f )", "%s > %s\n\t%g, %g", "ringDistanceSq", "0.f", v46, v48) )
-        __debugbreak();
-    }
-    __asm { vmovss  dword ptr [rsp+0B8h+arg_8+4], xmm6 }
-    v54.index = -1;
-    v37 = v32->m_linkPageIndices;
-    v38 = 0;
-    while ( *v37 != 262 )
-    {
-      ++v38;
-      ++v37;
-      if ( v38 >= 5 )
+      ++v25;
+      ++v24;
+      if ( v25 >= 5 )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEAA0, 5844i64);
         goto LABEL_56;
       }
     }
-    v39 = v38;
-    v32->m_linkPageIndices[v38] = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AllocPage(v32);
-    v32->m_linkKeys[v39] = v54;
+    v26 = v25;
+    v21->m_linkPageIndices[v25] = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AllocPage(v21);
+    v21->m_linkKeys[v26] = v31;
 LABEL_56:
-    ++v33;
-    ++_R13;
-    v34 = v33 <= 5;
+    ++v22;
+    ++v20;
   }
-  while ( v33 < 5 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_68]
-  }
+  while ( v22 < 5 );
 }
 
 /*
@@ -1032,27 +910,25 @@ void CG_DistanceCacheMP_SetClientStreamManualViews(const LocalClientNum_t localC
   __int64 v1; 
   CgDistanceCacheClientData *v2; 
   StreamManualViewType v3; 
+  const vec3_t *ManualViewOrigin; 
+  unsigned int v5; 
   unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
-  __int64 v9; 
-  float v12; 
-  int v13; 
-  int v14; 
-  int v15; 
-  __int64 v16; 
-  __int64 v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
+  __int64 v8; 
+  float v9; 
+  int v10; 
+  int v11; 
+  int v12; 
+  __int64 v13; 
+  __int64 v15; 
+  int v16; 
+  __int64 v17; 
 
   v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v19 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", localClientNum, v19) )
+    v16 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgDistanceCacheMP.localClientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgDistanceCacheMP.localClientData )\n\t%i not in [0, %i)", localClientNum, v16) )
       __debugbreak();
   }
   v2 = &s_cgDistanceCacheMP.localClientData[v1];
@@ -1062,49 +938,29 @@ void CG_DistanceCacheMP_SetClientStreamManualViews(const LocalClientNum_t localC
   {
     if ( CL_StreamViews_IsManualViewSet(v3, (LocalClientNum_t)v1) )
     {
-      _RDI = CL_StreamViews_GetManualViewOrigin(v3, (LocalClientNum_t)v1);
+      ManualViewOrigin = CL_StreamViews_GetManualViewOrigin(v3, (LocalClientNum_t)v1);
       if ( v2->secureOriginCount >= 5 )
       {
-        LODWORD(v18) = 5;
-        LODWORD(v16) = v2->secureOriginCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 80, ASSERT_TYPE_ASSERT, "(unsigned)( this->secureOriginCount ) < (unsigned)( ( sizeof( *array_counter( this->secureOrigins ) ) + 0 ) )", "this->secureOriginCount doesn't index ARRAY_COUNT( this->secureOrigins )\n\t%i not in [0, %i)", v16, v18) )
+        LODWORD(v15) = 5;
+        LODWORD(v13) = v2->secureOriginCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 80, ASSERT_TYPE_ASSERT, "(unsigned)( this->secureOriginCount ) < (unsigned)( ( sizeof( *array_counter( this->secureOrigins ) ) + 0 ) )", "this->secureOriginCount doesn't index ARRAY_COUNT( this->secureOrigins )\n\t%i not in [0, %i)", v13, v15) )
           __debugbreak();
       }
-      __asm { vmovss  xmm0, dword ptr [rdi] }
-      v6 = s_cgdistancecache_aab_Z;
-      v7 = s_cgdistancecache_aab_Y;
-      v8 = s_cgdistancecache_aab_X;
-      __asm { vmovss  [rsp+78h+arg_0], xmm0 }
-      v9 = (__int64)&v2->secureOrigins[v2->secureOriginCount];
-      if ( (v20 & 0x7F800000) == 2139095040 )
-        goto LABEL_18;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmovss  [rsp+78h+arg_0], xmm0
-      }
-      if ( (v21 & 0x7F800000) == 2139095040 )
-        goto LABEL_18;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+8]
-        vmovss  [rsp+78h+arg_0], xmm0
-      }
-      if ( (v22 & 0x7F800000) == 2139095040 )
-      {
-LABEL_18:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-          __debugbreak();
-      }
-      v12 = _RDI->v[2];
-      v13 = v9 ^ LODWORD(_RDI->v[0]) ^ ~v8;
-      v14 = v13 ^ v9 ^ LODWORD(_RDI->v[1]);
-      *(_DWORD *)v9 = v13;
-      v15 = v7 ^ v14;
-      *(_DWORD *)(v9 + 4) = v15;
-      *(_DWORD *)(v9 + 8) = v6 ^ v15 ^ v9 ^ LODWORD(v12);
+      v5 = s_cgdistancecache_aab_Z;
+      v6 = s_cgdistancecache_aab_Y;
+      v7 = s_cgdistancecache_aab_X;
+      v8 = (__int64)&v2->secureOrigins[v2->secureOriginCount];
+      if ( ((LODWORD(ManualViewOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(ManualViewOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(ManualViewOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+        __debugbreak();
+      v9 = ManualViewOrigin->v[2];
+      v10 = v8 ^ LODWORD(ManualViewOrigin->v[0]) ^ ~v7;
+      v11 = v10 ^ v8 ^ LODWORD(ManualViewOrigin->v[1]);
+      *(_DWORD *)v8 = v10;
+      v12 = v6 ^ v11;
+      *(_DWORD *)(v8 + 4) = v12;
+      *(_DWORD *)(v8 + 8) = v5 ^ v12 ^ v8 ^ LODWORD(v9);
       ++v2->secureOriginCount;
-      memset(&v23, 0, sizeof(v23));
+      memset(&v17, 0, sizeof(v17));
     }
     ++v3;
   }
@@ -1155,20 +1011,19 @@ void CgDistanceCacheClientData::GetOrigin(CgDistanceCacheClientData *this, const
   int v8; 
   float v9; 
   unsigned int v10; 
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
-  int v17; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  float v14; 
 
   v3 = viewIndex;
-  _RSI = outOrigin;
   if ( viewIndex >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 92, ASSERT_TYPE_ASSERT, "(unsigned)( viewIndex ) < (unsigned)( ( sizeof( *array_counter( this->secureOrigins ) ) + 0 ) )", "viewIndex doesn't index ARRAY_COUNT( this->secureOrigins )\n\t%i not in [0, %i)", viewIndex, 5) )
     __debugbreak();
   if ( (unsigned int)v3 >= this->secureOriginCount )
   {
-    LODWORD(v15) = this->secureOriginCount;
-    LODWORD(v14) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( viewIndex ) < (unsigned)( this->secureOriginCount )", "viewIndex doesn't index this->secureOriginCount\n\t%i not in [0, %i)", v14, v15) )
+    LODWORD(v12) = this->secureOriginCount;
+    LODWORD(v11) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_distance_cache_mp.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( viewIndex ) < (unsigned)( this->secureOriginCount )", "viewIndex doesn't index this->secureOriginCount\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   v6 = s_cgdistancecache_aab_Y;
@@ -1176,32 +1031,13 @@ void CgDistanceCacheClientData::GetOrigin(CgDistanceCacheClientData *this, const
   v8 = (_DWORD)this + 12 * v3 + 8;
   v9 = this->secureOrigins[v3].v[1];
   v10 = v8 ^ ~s_cgdistancecache_aab_X;
-  LODWORD(_RSI->v[2]) = LODWORD(v9) ^ s_cgdistancecache_aab_Z ^ v8 ^ LODWORD(this->secureOrigins[v3].v[2]);
-  LODWORD(_RSI->v[1]) = v6 ^ LODWORD(v7) ^ LODWORD(v9) ^ v8;
-  memset(&v16, 0, sizeof(v16));
-  LODWORD(_RSI->v[0]) = LODWORD(v7) ^ v10;
-  __asm
+  LODWORD(outOrigin->v[2]) = LODWORD(v9) ^ s_cgdistancecache_aab_Z ^ v8 ^ LODWORD(this->secureOrigins[v3].v[2]);
+  LODWORD(outOrigin->v[1]) = v6 ^ LODWORD(v7) ^ LODWORD(v9) ^ v8;
+  memset(&v13, 0, sizeof(v13));
+  LODWORD(outOrigin->v[0]) = LODWORD(v7) ^ v10;
+  v14 = outOrigin->v[0];
+  if ( (LODWORD(v14) & 0x7F800000) == 2139095040 || (v14 = outOrigin->v[1], (LODWORD(v14) & 0x7F800000) == 2139095040) || (v14 = outOrigin->v[2], (LODWORD(v14) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+58h+arg_8], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+58h+arg_8], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+58h+arg_8], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-  {
-LABEL_14:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
       __debugbreak();
   }

@@ -278,24 +278,12 @@ void __fastcall R_ImageUtil_FlipVertically(ImageDesc *image)
 Image_PackAlbedoMapScaleBias
 ==============
 */
-
-__int64 __fastcall Image_PackAlbedoMapScaleBias(double metalnessScale, double metalnessBias)
+__int64 Image_PackAlbedoMapScaleBias(const float metalnessScale, const float metalnessBias)
 {
-  unsigned int v5; 
+  unsigned int v2; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vmovaps xmm0, xmm1; bias
-  }
-  v5 = Image_PackBiasToByte(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm0, xmm6; scale
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return (v5 << 8) | Image_PackScaleToByte(*(const float *)&_XMM0);
+  v2 = Image_PackBiasToByte(metalnessBias) << 8;
+  return v2 | Image_PackScaleToByte(metalnessScale);
 }
 
 /*
@@ -303,22 +291,16 @@ __int64 __fastcall Image_PackAlbedoMapScaleBias(double metalnessScale, double me
 Image_PackBiasToByte
 ==============
 */
-
-__int64 __fastcall Image_PackBiasToByte(double bias)
+__int64 Image_PackBiasToByte(const float bias)
 {
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@43800000
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm3, xmm0, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm3, 1
-    vcvttss2si ebx, xmm4
-  }
-  if ( _EBX >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1547, ASSERT_TYPE_ASSERT, "(b < 256)", (const char *)&queryFormat, "b < 256") )
+  int v3; 
+
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm3, 1 }
+  v3 = (int)*(float *)&_XMM4;
+  if ( (unsigned int)(int)*(float *)&_XMM4 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1547, ASSERT_TYPE_ASSERT, "(b < 256)", (const char *)&queryFormat, "b < 256") )
     __debugbreak();
-  return (unsigned __int8)_EBX;
+  return (unsigned __int8)v3;
 }
 
 /*
@@ -326,34 +308,14 @@ __int64 __fastcall Image_PackBiasToByte(double bias)
 Image_PackNormalMapScaleBias
 ==============
 */
-
-__int64 __fastcall Image_PackNormalMapScaleBias(double glossScale, double glossBias, double normalScale)
+__int64 Image_PackNormalMapScaleBias(const float glossScale, const float glossBias, const float normalScale)
 {
-  unsigned int v8; 
-  unsigned int v10; 
-  int v11; 
-  __int64 result; 
+  unsigned int v3; 
+  unsigned int v4; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm0
-    vmovaps xmm0, xmm2; scale
-    vmovaps xmm6, xmm1
-  }
-  v8 = Image_PackScaleToByte(*(const float *)&_XMM0);
-  __asm { vmovaps xmm0, xmm6; bias }
-  v10 = v8 << 8;
-  v11 = Image_PackBiasToByte(*(double *)&_XMM0);
-  __asm { vmovaps xmm0, xmm7; scale }
-  result = ((v10 | v11) << 8) | Image_PackScaleToByte(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  return result;
+  v3 = Image_PackScaleToByte(normalScale) << 8;
+  v4 = (v3 | (unsigned int)Image_PackBiasToByte(glossBias)) << 8;
+  return v4 | Image_PackScaleToByte(glossScale);
 }
 
 /*
@@ -361,24 +323,18 @@ __int64 __fastcall Image_PackNormalMapScaleBias(double glossScale, double glossB
 Image_PackScaleToByte
 ==============
 */
-
-__int64 __fastcall Image_PackScaleToByte(double scale)
+__int64 Image_PackScaleToByte(const float scale)
 {
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@43800000
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm3, xmm0, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm3, 1
-    vcvttss2si ebx, xmm4
-  }
-  if ( !_EBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1537, ASSERT_TYPE_ASSERT, "(s > 0)", (const char *)&queryFormat, "s > 0") )
+  unsigned int v3; 
+
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm3, 1 }
+  v3 = (int)*(float *)&_XMM4;
+  if ( !(int)*(float *)&_XMM4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1537, ASSERT_TYPE_ASSERT, "(s > 0)", (const char *)&queryFormat, "s > 0") )
     __debugbreak();
-  if ( _EBX > 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1538, ASSERT_TYPE_ASSERT, "(s <= 256)", (const char *)&queryFormat, "s <= 256") )
+  if ( v3 > 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 1538, ASSERT_TYPE_ASSERT, "(s <= 256)", (const char *)&queryFormat, "s <= 256") )
     __debugbreak();
-  return (unsigned __int8)(_EBX - 1);
+  return (unsigned __int8)(v3 - 1);
 }
 
 /*
@@ -924,9 +880,15 @@ R_ImageUtil_GetPixel
 void R_ImageUtil_GetPixel(const ImageDesc *image, int x, int y, vec4_t *color)
 {
   float *BlockAddress; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   vec3_t vec; 
 
-  _RBX = color;
   if ( image->blockWidth != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 284, ASSERT_TYPE_ASSERT, "(image->blockWidth == 1)", (const char *)&queryFormat, "image->blockWidth == 1") )
     __debugbreak();
   if ( image->blockHeight != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_utils.cpp", 285, ASSERT_TYPE_ASSERT, "(image->blockHeight == 1)", (const char *)&queryFormat, "image->blockHeight == 1") )
@@ -936,87 +898,53 @@ void R_ImageUtil_GetPixel(const ImageDesc *image, int x, int y, vec4_t *color)
   {
     case GFX_PF_R8:
     case GFX_PF_L8:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, cs:__real@3b808081
-      }
-      _RBX->v[3] = 1.0;
-      __asm { vmovss  dword ptr [rbx], xmm1 }
-      *(_QWORD *)&_RBX->xyz.y = 0i64;
+      v14 = (float)*(unsigned __int8 *)BlockAddress;
+      color->v[3] = 1.0;
+      color->v[0] = v14 * 0.0039215689;
+      *(_QWORD *)&color->xyz.y = 0i64;
       break;
     case GFX_PF_R8G8:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3b808081
-        vmovss  dword ptr [rbx], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, cs:__real@3b808081
-      }
-      _RBX->v[3] = 1.0;
-      __asm { vmovss  dword ptr [rbx+4], xmm0 }
-      _RBX->v[2] = 0.0;
+      color->v[0] = (float)*(unsigned __int8 *)BlockAddress * 0.0039215689;
+      v15 = (float)*((unsigned __int8 *)BlockAddress + 1) * 0.0039215689;
+      color->v[3] = 1.0;
+      color->v[1] = v15;
+      color->v[2] = 0.0;
       break;
     case GFX_PF_R8G8B8A8:
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3b808081
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rbx], xmm0
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rbx+4], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rbx+8], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rbx+0Ch], xmm0
-      }
+      color->v[0] = (float)*(unsigned __int8 *)BlockAddress * 0.0039215689;
+      color->v[1] = (float)*((unsigned __int8 *)BlockAddress + 1) * 0.0039215689;
+      color->v[2] = (float)*((unsigned __int8 *)BlockAddress + 2) * 0.0039215689;
+      color->v[3] = (float)*((unsigned __int8 *)BlockAddress + 3) * 0.0039215689;
       break;
     case GFX_PF_R16G16B16A16F:
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*(unsigned __int16 *)BlockAddress);
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 1));
-      __asm { vmovss  dword ptr [rbx+4], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 2));
-      __asm { vmovss  dword ptr [rbx+8], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 3));
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
+      v9 = FloatUnpackFloat16HQ(*(unsigned __int16 *)BlockAddress);
+      color->v[0] = *(float *)&v9;
+      v10 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 1));
+      color->v[1] = *(float *)&v10;
+      v11 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 2));
+      color->v[2] = *(float *)&v11;
+      v12 = FloatUnpackFloat16HQ(*((unsigned __int16 *)BlockAddress + 3));
+      color->v[3] = *(float *)&v12;
       break;
     case GFX_PF_R32F:
     case GFX_PF_D32F_S8:
-      _RBX->v[0] = *BlockAddress;
-      *(_QWORD *)&_RBX->xyz.y = 0i64;
-      _RBX->v[3] = 1.0;
+      color->v[0] = *BlockAddress;
+      *(_QWORD *)&color->xyz.y = 0i64;
+      color->v[3] = 1.0;
       break;
     case GFX_PF_R32G32B32A32F:
-      _RBX->v[0] = *BlockAddress;
-      _RBX->v[1] = BlockAddress[1];
-      _RBX->v[2] = BlockAddress[2];
-      _RBX->v[3] = BlockAddress[3];
+      color->v[0] = *BlockAddress;
+      color->v[1] = BlockAddress[1];
+      color->v[2] = BlockAddress[2];
+      color->v[3] = BlockAddress[3];
       break;
     case GFX_PF_R11G11B10F:
       Vec3UnpackR11G11B10F(*(_DWORD *)BlockAddress, &vec);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+78h+vec]
-        vmovss  xmm1, dword ptr [rsp+78h+vec+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rsp+78h+vec+8]
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
-      _RBX->v[3] = 1.0;
+      v13 = vec.v[1];
+      color->v[0] = vec.v[0];
+      color->v[2] = vec.v[2];
+      color->v[1] = v13;
+      color->v[3] = 1.0;
       break;
     default:
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144402960, 447i64);
@@ -1031,79 +959,32 @@ R_ImageUtil_GetPixelLinearColor
 */
 void R_ImageUtil_GetPixelLinearColor(const ImageDesc *image, int x, int y, vec4_t *color)
 {
-  bool v6; 
-  bool v7; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
 
-  _RDI = color;
   R_ImageUtil_GetPixel(image, x, y, color);
-  v6 = image->pixelFormat < (unsigned int)GFX_PF_R8G8B8A8;
-  v7 = image->pixelFormat == GFX_PF_R8G8B8A8;
   if ( image->pixelFormat == GFX_PF_R8G8B8A8 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vcomiss xmm0, cs:__real@3d20e411
-    }
-    if ( image->pixelFormat > (unsigned int)GFX_PF_R8G8B8A8 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3f72a76f
-        vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-        vmovss  xmm1, cs:__real@4019999a; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    }
+    v6 = color->v[0];
+    if ( color->v[0] > 0.039280001 )
+      v7 = powf_0((float)(v6 * 0.94786733) + 0.052132703, 2.4000001);
     else
-    {
-      __asm { vmulss  xmm0, xmm0, cs:__real@3d9e8391 }
-    }
-    __asm
-    {
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rdi+4]
-      vcomiss xmm0, cs:__real@3d20e411
-    }
-    if ( v6 || v7 )
-    {
-      __asm { vmulss  xmm0, xmm0, cs:__real@3d9e8391 }
-    }
+      v7 = v6 * 0.077399381;
+    color->v[0] = v7;
+    v8 = color->v[1];
+    if ( v8 > 0.039280001 )
+      v9 = powf_0((float)(v8 * 0.94786733) + 0.052132703, 2.4000001);
     else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3f72a76f
-        vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-        vmovss  xmm1, cs:__real@4019999a; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    }
-    __asm
-    {
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vcomiss xmm0, cs:__real@3d20e411
-    }
-    if ( v6 || v7 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3d9e8391
-        vmovss  dword ptr [rdi+8], xmm0
-      }
-    }
+      v9 = v8 * 0.077399381;
+    color->v[1] = v9;
+    v10 = color->v[2];
+    if ( v10 > 0.039280001 )
+      color->v[2] = powf_0((float)(v10 * 0.94786733) + 0.052132703, 2.4000001);
     else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3f72a76f
-        vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-        vmovss  xmm1, cs:__real@4019999a; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmovss  dword ptr [rdi+8], xmm0 }
-    }
+      color->v[2] = v10 * 0.077399381;
   }
 }
 
@@ -1114,98 +995,40 @@ R_ImageUtil_PackPixel
 */
 void R_ImageUtil_PackPixel(void *pixelBuffer, GfxPixelFormat pixelFormat, const vec4_t *color)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RBX = color;
-  __asm { vmovaps [rsp+58h+var_38], xmm8 }
   switch ( pixelFormat )
   {
     case GFX_PF_R8:
     case GFX_PF_L8:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8]; jumptable 00000001422CE706 cases 1,3
-        vmulss  xmm1, xmm0, cs:__real@437f0000
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm3, 1
-        vcvttss2si ecx, xmm1; val
-      }
-      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>(_ECX);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm3, 1 }
+      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
       break;
     case GFX_PF_R8G8:
-      __asm
-      {
-        vmovss  xmm7, cs:__real@437f0000; jumptable 00000001422CE706 case 4
-        vmulss  xmm1, xmm7, dword ptr [r8]
-        vaddss  xmm2, xmm1, cs:__real@3f000000
-        vxorps  xmm8, xmm8, xmm8
-        vroundss xmm3, xmm8, xmm2, 1
-        vcvttss2si ecx, xmm3; val
-      }
-      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>(_ECX);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+4]
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vroundss xmm1, xmm8, xmm3, 1
-        vcvttss2si ecx, xmm1; val
-      }
-      *((_BYTE *)pixelBuffer + 1) = truncate_cast<unsigned char,int>(_ECX);
+      _XMM8 = 0i64;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>((int)*(float *)&_XMM3);
+      __asm { vroundss xmm1, xmm8, xmm3, 1 }
+      *((_BYTE *)pixelBuffer + 1) = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
       break;
     case GFX_PF_R8G8B8A8:
-      __asm
-      {
-        vmovss  xmm7, cs:__real@437f0000; jumptable 00000001422CE706 case 6
-        vmulss  xmm1, xmm7, dword ptr [r8]
-        vmovss  xmm6, cs:__real@3f000000
-        vaddss  xmm2, xmm1, xmm6
-        vxorps  xmm8, xmm8, xmm8
-        vroundss xmm3, xmm8, xmm2, 1
-        vcvttss2si ecx, xmm3; val
-      }
-      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>(_ECX);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+4]
-        vaddss  xmm3, xmm1, xmm6
-        vroundss xmm1, xmm8, xmm3, 1
-        vcvttss2si ecx, xmm1; val
-      }
-      *((_BYTE *)pixelBuffer + 1) = truncate_cast<unsigned char,int>(_ECX);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+8]
-        vaddss  xmm3, xmm1, xmm6
-        vroundss xmm1, xmm8, xmm3, 1
-        vcvttss2si ecx, xmm1; val
-      }
-      *((_BYTE *)pixelBuffer + 2) = truncate_cast<unsigned char,int>(_ECX);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+0Ch]
-        vaddss  xmm3, xmm1, xmm6
-        vroundss xmm1, xmm8, xmm3, 1
-        vcvttss2si ecx, xmm1; val
-      }
-      *((_BYTE *)pixelBuffer + 3) = truncate_cast<unsigned char,int>(_ECX);
+      _XMM8 = 0i64;
+      __asm { vroundss xmm3, xmm8, xmm2, 1 }
+      *(_BYTE *)pixelBuffer = truncate_cast<unsigned char,int>((int)*(float *)&_XMM3);
+      __asm { vroundss xmm1, xmm8, xmm3, 1 }
+      *((_BYTE *)pixelBuffer + 1) = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
+      __asm { vroundss xmm1, xmm8, xmm3, 1 }
+      *((_BYTE *)pixelBuffer + 2) = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
+      __asm { vroundss xmm1, xmm8, xmm3, 1 }
+      *((_BYTE *)pixelBuffer + 3) = truncate_cast<unsigned char,int>((int)*(float *)&_XMM1);
       break;
     case GFX_PF_R16F:
-      __asm { vmovss  xmm0, dword ptr [r8]; jumptable 00000001422CE706 case 14 }
-      *(_WORD *)pixelBuffer = FloatPackFloat16HQ(*(const float *)&_XMM0);
+      *(_WORD *)pixelBuffer = FloatPackFloat16HQ(color->v[0]);
       break;
     case GFX_PF_R16G16B16A16F:
-      __asm { vmovss  xmm0, dword ptr [r8]; jumptable 00000001422CE706 case 16 }
-      *(_WORD *)pixelBuffer = FloatPackFloat16HQ(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rbx+4]; v }
-      *((_WORD *)pixelBuffer + 1) = FloatPackFloat16HQ(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rbx+8]; v }
-      *((_WORD *)pixelBuffer + 2) = FloatPackFloat16HQ(*(const float *)&_XMM0);
-      __asm { vmovss  xmm0, dword ptr [rbx+0Ch]; v }
-      *((_WORD *)pixelBuffer + 3) = FloatPackFloat16HQ(*(const float *)&_XMM0);
+      *(_WORD *)pixelBuffer = FloatPackFloat16HQ(color->v[0]);
+      *((_WORD *)pixelBuffer + 1) = FloatPackFloat16HQ(color->v[1]);
+      *((_WORD *)pixelBuffer + 2) = FloatPackFloat16HQ(color->v[2]);
+      *((_WORD *)pixelBuffer + 3) = FloatPackFloat16HQ(color->v[3]);
       break;
     case GFX_PF_R32F:
       *(float *)pixelBuffer = color->v[0];
@@ -1222,12 +1045,6 @@ void R_ImageUtil_PackPixel(void *pixelBuffer, GfxPixelFormat pixelFormat, const 
     default:
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144402960, 448i64);
       break;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
   }
 }
 
@@ -1448,111 +1265,43 @@ R_ImageUtil_SetPixelLinearColor
 */
 void R_ImageUtil_SetPixelLinearColor(ImageDesc *image, int x, int y, const vec4_t *color)
 {
-  bool v6; 
-  bool v7; 
-  bool v8; 
+  bool v4; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v11; 
+  float v12; 
   vec4_t colora; 
 
-  __asm
+  v4 = image->pixelFormat == GFX_PF_R8G8B8A8;
+  v6 = color->v[0];
+  v7 = color->v[1];
+  v8 = color->v[2];
+  colora.v[3] = color->v[3];
+  if ( v4 )
   {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
-  v6 = image->pixelFormat < (unsigned int)GFX_PF_R8G8B8A8;
-  v7 = image->pixelFormat == GFX_PF_R8G8B8A8;
-  v8 = image->pixelFormat <= (unsigned int)GFX_PF_R8G8B8A8;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r9+0Ch]
-    vmovss  xmm0, dword ptr [r9]; X
-    vmovss  xmm7, dword ptr [r9+4]
-    vmovss  xmm6, dword ptr [r9+8]
-    vmovss  dword ptr [rsp+78h+color+0Ch], xmm1
-  }
-  if ( v7 )
-  {
-    __asm { vcomiss xmm0, cs:__real@3b4d2e1c }
-    if ( v8 )
-    {
-      __asm { vmulss  xmm1, xmm0, cs:__real@414eb852 }
-    }
+    if ( v6 > 0.0031308001 )
+      v11 = (float)(powf_0(v6, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm { vmovss  xmm1, cs:__real@3ed55555; Y }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm1, xmm1, cs:__real@3d6147ae
-      }
-    }
-    __asm
-    {
-      vcomiss xmm7, cs:__real@3b4d2e1c
-      vmovss  dword ptr [rsp+78h+color], xmm1
-    }
-    if ( v6 || v7 )
-    {
-      __asm { vmulss  xmm0, xmm7, cs:__real@414eb852 }
-    }
+      v11 = v6 * 12.92;
+    colora.v[0] = v11;
+    if ( v7 > 0.0031308001 )
+      v12 = (float)(powf_0(v7, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3ed55555; Y
-        vmovaps xmm0, xmm7; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm0, xmm1, cs:__real@3d6147ae
-      }
-    }
-    __asm
-    {
-      vcomiss xmm6, cs:__real@3b4d2e1c
-      vmovss  dword ptr [rsp+78h+color+4], xmm0
-    }
-    if ( v6 || v7 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@414eb852
-        vmovss  dword ptr [rsp+78h+color+8], xmm0
-      }
-    }
+      v12 = v7 * 12.92;
+    colora.v[1] = v12;
+    if ( v8 > 0.0031308001 )
+      colora.v[2] = (float)(powf_0(v8, 0.41666666) * 1.0549999) - 0.055;
     else
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3ed55555; Y
-        vmovaps xmm0, xmm6; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@3f870a3d
-        vsubss  xmm0, xmm1, cs:__real@3d6147ae
-        vmovss  dword ptr [rsp+78h+color+8], xmm0
-      }
-    }
+      colora.v[2] = v8 * 12.92;
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+78h+color], xmm0
-      vmovss  dword ptr [rsp+78h+color+4], xmm7
-      vmovss  dword ptr [rsp+78h+color+8], xmm6
-    }
+    colora.v[0] = v6;
+    colora.v[1] = v7;
+    colora.v[2] = v8;
   }
   R_ImageUtil_SetPixel(image, x, y, &colora);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
 }
 
 /*
@@ -1675,69 +1424,46 @@ R_ImageUtil_UnpackPixel
 */
 void R_ImageUtil_UnpackPixel(const void *pixelBuffer, GfxPixelFormat pixelFormat, vec4_t *outColor)
 {
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t vec; 
 
-  _RBX = outColor;
   switch ( pixelFormat )
   {
     case GFX_PF_R8:
     case GFX_PF_L8:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, cs:__real@3b808081
-      }
+      v10 = (float)*(unsigned __int8 *)pixelBuffer;
       outColor->v[3] = 1.0;
-      __asm { vmovss  dword ptr [r8], xmm1 }
+      outColor->v[0] = v10 * 0.0039215689;
       *(_QWORD *)&outColor->xyz.y = 0i64;
       break;
     case GFX_PF_R8G8:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3b808081
-        vmovss  dword ptr [r8], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, cs:__real@3b808081
-      }
+      outColor->v[0] = (float)*(unsigned __int8 *)pixelBuffer * 0.0039215689;
+      v11 = (float)*((unsigned __int8 *)pixelBuffer + 1) * 0.0039215689;
       outColor->v[3] = 1.0;
-      __asm { vmovss  dword ptr [r8+4], xmm0 }
+      outColor->v[1] = v11;
       outColor->v[2] = 0.0;
       break;
     case GFX_PF_R8G8B8A8:
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3b808081
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vmulss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [r8], xmm0
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [r8+4], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [r8+8], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  dword ptr [r8+0Ch], xmm0
-      }
+      outColor->v[0] = (float)*(unsigned __int8 *)pixelBuffer * 0.0039215689;
+      outColor->v[1] = (float)*((unsigned __int8 *)pixelBuffer + 1) * 0.0039215689;
+      outColor->v[2] = (float)*((unsigned __int8 *)pixelBuffer + 2) * 0.0039215689;
+      outColor->v[3] = (float)*((unsigned __int8 *)pixelBuffer + 3) * 0.0039215689;
       break;
     case GFX_PF_R16G16B16A16F:
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*(unsigned __int16 *)pixelBuffer);
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 1));
-      __asm { vmovss  dword ptr [rbx+4], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 2));
-      __asm { vmovss  dword ptr [rbx+8], xmm0 }
-      *(double *)&_XMM0 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 3));
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
+      v5 = FloatUnpackFloat16HQ(*(unsigned __int16 *)pixelBuffer);
+      outColor->v[0] = *(float *)&v5;
+      v6 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 1));
+      outColor->v[1] = *(float *)&v6;
+      v7 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 2));
+      outColor->v[2] = *(float *)&v7;
+      v8 = FloatUnpackFloat16HQ(*((unsigned __int16 *)pixelBuffer + 3));
+      outColor->v[3] = *(float *)&v8;
       break;
     case GFX_PF_R32F:
     case GFX_PF_D32F_S8:
@@ -1750,16 +1476,11 @@ void R_ImageUtil_UnpackPixel(const void *pixelBuffer, GfxPixelFormat pixelFormat
       break;
     case GFX_PF_R11G11B10F:
       Vec3UnpackR11G11B10F(*(_DWORD *)pixelBuffer, &vec);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+48h+vec]
-        vmovss  xmm1, dword ptr [rsp+48h+vec+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rsp+48h+vec+8]
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
-      _RBX->v[3] = 1.0;
+      v9 = vec.v[1];
+      outColor->v[0] = vec.v[0];
+      outColor->v[2] = vec.v[2];
+      outColor->v[1] = v9;
+      outColor->v[3] = 1.0;
       break;
     default:
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144402960, 447i64);

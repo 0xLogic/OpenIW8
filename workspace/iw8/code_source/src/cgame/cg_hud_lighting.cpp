@@ -71,85 +71,66 @@ CG_HudLighting_ApplyColorScaleOffset
 */
 void CG_HudLighting_ApplyColorScaleOffset(vec3_t *outColor, const vec3_t *inColor, GfxLit2DShaderMode mode, CG_HudLighting_LightType lightType)
 {
+  __int64 v5; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v10; 
-  __int64 v11; 
-  unsigned int v12; 
-  bool v13; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  char v37; 
-  void *retaddr; 
+  signed int v9; 
+  bool v10; 
+  float value; 
+  float v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  v8 = mode;
-  _RSI = outColor;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  v10 = lightType;
+  v5 = mode;
+  v7 = lightType;
   if ( mode >= GFXLIT2DSHADERMODE_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 174, ASSERT_TYPE_ASSERT, "(mode < GFXLIT2DSHADERMODE_COUNT)", (const char *)&queryFormat, "mode < GFXLIT2DSHADERMODE_COUNT") )
     __debugbreak();
-  v11 = 136 * v8;
-  v12 = 0;
-  v13 = 1;
-  _RAX = *(__int64 *)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v10].lum.scale + v11);
-  __asm { vmovss  xmm7, dword ptr [rax+28h] }
-  _RAX = *(__int64 *)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v10].lum.offset + v11);
-  __asm { vmovss  xmm8, dword ptr [rax+28h] }
-  _R14 = *(__int64 *)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v10].color.scale + v11);
+  v8 = 136 * v5;
+  v9 = 0;
+  v10 = 1;
+  value = (*(const dvar_t **)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v7].lum.scale + v8))->current.value;
+  v12 = (*(const dvar_t **)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v7].lum.offset + v8))->current.value;
+  v13 = *(__int64 *)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v7].color.scale + v8);
+  v14 = *(__int64 *)((char *)&g_CG_HudLighting_Dvars.modes[0].lights[v7].color.offset + v8);
   do
   {
-    if ( !v13 )
+    if ( !v10 )
     {
-      LODWORD(v32) = 3;
-      LODWORD(v29) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v32) )
+      LODWORD(v20) = 3;
+      LODWORD(v17) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v20) )
         __debugbreak();
-      LODWORD(v33) = 3;
-      LODWORD(v30) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v33) )
+      LODWORD(v21) = 3;
+      LODWORD(v18) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v21) )
         __debugbreak();
-      LODWORD(v34) = 3;
-      LODWORD(v31) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v31, v34) )
+      LODWORD(v22) = 3;
+      LODWORD(v19) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v22) )
         __debugbreak();
     }
-    _RDI = (int)v12;
-    __asm
+    v15 = v9;
+    v16 = (float)((float)((float)(*(float *)(v13 + 4i64 * v9 + 40) * inColor->v[v9]) * value) + *(float *)(v14 + 4i64 * v9 + 40)) + v12;
+    if ( (unsigned int)v9 >= 3 )
     {
-      vmovss  xmm0, dword ptr [r14+rdi*4+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbp+rdi*4+0]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm3, xmm2, dword ptr [r15+rdi*4+28h]
-      vaddss  xmm6, xmm3, xmm8
-    }
-    if ( v12 >= 3 )
-    {
-      LODWORD(v32) = 3;
-      LODWORD(v29) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v29, v32) )
+      LODWORD(v20) = 3;
+      LODWORD(v17) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v20) )
         __debugbreak();
     }
-    ++v12;
-    __asm { vmovss  dword ptr [rsi+rdi*4], xmm6 }
-    v13 = v12 < 3;
+    ++v9;
+    outColor->v[v15] = v16;
+    v10 = (unsigned int)v9 < 3;
   }
-  while ( v12 != 3 );
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  while ( v9 != 3 );
 }
 
 /*
@@ -190,154 +171,125 @@ CG_HudLighting_CalcLight
 */
 void CG_HudLighting_CalcLight(vec3_t *outDiffuseColor, vec3_t *outLightDir, vec3_t *outSpecHalfAngleDir, const vec3_t *cameraOrigin, const tmat33_t<vec3_t> *worldToViewAxis, const GfxLight *light)
 {
+  float v10; 
   unsigned __int8 type; 
+  __int128 v12; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  float v20; 
+  __int128 v24; 
+  float cosHalfFovOuter; 
+  __int128 v28; 
+  float v30; 
+  __int128 v33; 
+  __int128 v36; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
   vec3_t out; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm10
-  }
-  _RBX = light;
-  _RDI = outDiffuseColor;
-  _RSI = cameraOrigin;
-  __asm { vmovss  xmm10, cs:__real@80000000 }
-  _R14 = outSpecHalfAngleDir;
-  _RBP = outLightDir;
   if ( light->type )
   {
     AxisTransformVec3(worldToViewAxis, &light->dir, &out);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+0B8h+out+4]
-      vmovss  xmm5, dword ptr [rsp+0B8h+out]
-      vmovss  xmm4, dword ptr [rsp+0B8h+out+8]
-      vmovss  xmm8, cs:__real@3f800000
-    }
+    v10 = FLOAT_1_0;
     type = light->type;
+    v12 = LODWORD(out.v[0]);
+    *(float *)&v12 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(out.v[1] * out.v[1])) + (float)(out.v[2] * out.v[2]));
+    _XMM3 = v12;
     __asm
     {
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm8, xmm0
-      vdivss  xmm2, xmm8, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmulss  xmm1, xmm6, xmm2
-      vmovss  dword ptr [rsp+0B8h+out], xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rsp+0B8h+out+8], xmm0
-      vmovss  dword ptr [rsp+0B8h+out+4], xmm1
-      vmovaps xmm6, xmm8
     }
+    out.v[0] = out.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    out.v[2] = out.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    out.v[1] = out.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    *(float *)&_XMM6 = FLOAT_1_0;
     if ( (unsigned __int8)(type - 2) <= 1u )
     {
-      __asm
-      {
-        vmovaps [rsp+0B8h+var_68], xmm9
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm4, xmm0, dword ptr [rbx+38h]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vsubss  xmm7, xmm1, dword ptr [rbx+3Ch]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vsubss  xmm9, xmm0, dword ptr [rbx+40h]
-        vmulss  xmm2, xmm7, xmm7
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm9, xmm9
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm5, xmm2, xmm2
-        vdivss  xmm1, xmm5, dword ptr [rbx+44h]
-        vminss  xmm0, xmm1, xmm8
-        vsubss  xmm6, xmm8, xmm0
-      }
+      v17 = cameraOrigin->v[0] - light->origin.v[0];
+      v19 = LODWORD(cameraOrigin->v[1]);
+      *(float *)&v19 = cameraOrigin->v[1] - light->origin.v[1];
+      v18 = v19;
+      v20 = cameraOrigin->v[2] - light->origin.v[2];
+      *(float *)&v19 = fsqrt((float)((float)(*(float *)&v19 * *(float *)&v19) + (float)(v17 * v17)) + (float)(v20 * v20));
+      _XMM5 = v19;
+      *(float *)&v19 = *(float *)&v19 / light->radius;
+      _XMM1 = v19;
+      __asm { vminss  xmm0, xmm1, xmm8 }
+      v24 = LODWORD(FLOAT_1_0);
+      *(float *)&v24 = 1.0 - *(float *)&_XMM0;
+      _XMM6 = v24;
       if ( type == 2 )
       {
         __asm
         {
           vcmpless xmm0, xmm5, xmm10
           vblendvps xmm0, xmm5, xmm8, xmm0
-          vdivss  xmm5, xmm8, xmm0
-          vmulss  xmm1, xmm4, xmm5
-          vmulss  xmm2, xmm1, dword ptr [rbx+20h]
-          vmulss  xmm0, xmm7, xmm5
-          vmulss  xmm3, xmm0, dword ptr [rbx+24h]
-          vmulss  xmm0, xmm9, xmm5
-          vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-          vmovss  xmm0, dword ptr [rbx+64h]
-          vaddss  xmm4, xmm3, xmm2
-          vmovss  xmm3, dword ptr [rbx+60h]
-          vaddss  xmm2, xmm4, xmm1
-          vxorps  xmm5, xmm2, cs:__xmm@80000000800000008000000080000000
-          vsubss  xmm2, xmm0, xmm3
-          vxorps  xmm1, xmm1, xmm1
-          vucomiss xmm2, xmm1
-          vcmpltss xmm0, xmm5, xmm3
-          vblendvps xmm6, xmm6, xmm1, xmm0
+        }
+        v28 = v18;
+        cosHalfFovOuter = light->cosHalfFovOuter;
+        *(float *)&v28 = (float)((float)((float)(*(float *)&v18 * (float)(1.0 / *(float *)&_XMM0)) * light->dir.v[1]) + (float)((float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * light->dir.v[0])) + (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * light->dir.v[2]);
+        _XMM5 = v28 ^ _xmm;
+        v30 = light->cosHalfFovInner - cosHalfFovOuter;
+        if ( v30 == 0.0 )
+        {
+          __asm
+          {
+            vcmpltss xmm0, xmm5, xmm3
+            vblendvps xmm6, xmm6, xmm1, xmm0
+          }
+        }
+        else
+        {
+          v33 = v28 ^ _xmm;
+          *(float *)&v33 = *(float *)&_XMM5 - cosHalfFovOuter;
+          _XMM0 = v33;
+          __asm { vmaxss  xmm0, xmm0, xmm1 }
+          v36 = _XMM0;
+          *(float *)&v36 = *(float *)&_XMM0 / v30;
+          _XMM1 = v36;
+          __asm { vminss  xmm2, xmm1, xmm8 }
+          *(float *)&_XMM6 = *(float *)&_XMM6 * *(float *)&_XMM2;
         }
       }
-      __asm { vmovaps xmm9, [rsp+0B8h+var_68] }
     }
-    __asm
-    {
-      vmulss  xmm2, xmm6, dword ptr [rbx+10h]
-      vmulss  xmm0, xmm2, dword ptr [rbx+14h]
-      vmovss  dword ptr [rdi], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx+18h]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-    }
+    v38 = *(float *)&_XMM6 * light->intensity;
+    outDiffuseColor->v[0] = v38 * light->colorLinearSrgb.v[0];
+    outDiffuseColor->v[1] = v38 * light->colorLinearSrgb.v[1];
+    v39 = v38 * light->colorLinearSrgb.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0B8h+out], xmm0
-      vmovss  dword ptr [rsp+0B8h+out+4], xmm0
-      vmovss  dword ptr [rsp+0B8h+out+8], xmm8
-    }
+    v10 = FLOAT_1_0;
+    v39 = 0.0;
+    out.v[0] = 0.0;
+    out.v[1] = 0.0;
+    out.v[2] = FLOAT_1_0;
     *(_QWORD *)outDiffuseColor->v = 0i64;
   }
+  outDiffuseColor->v[2] = v39;
+  v40 = LODWORD(out.v[1]);
+  v41 = out.v[2];
+  v42 = out.v[0];
+  v43 = v40;
+  *(float *)&v43 = fsqrt((float)((float)(*(float *)&v40 * *(float *)&v40) + (float)((float)(v10 + out.v[0]) * (float)(v10 + out.v[0]))) + (float)(v41 * v41));
+  _XMM3 = v43;
   __asm
   {
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  xmm6, dword ptr [rsp+0B8h+out+4]
-    vmovss  xmm5, dword ptr [rsp+0B8h+out+8]
-    vmovss  xmm7, dword ptr [rsp+0B8h+out]
-    vaddss  xmm4, xmm8, xmm7
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm10
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm2, xmm8, xmm0
-    vmulss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [r14+8], xmm3
-    vmulss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [r14], xmm1
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  dword ptr [rbp+0], xmm6
-    vmovss  dword ptr [rbp+4], xmm5
-    vmovss  dword ptr [rbp+8], xmm7
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm10, [rsp+0B8h+var_78]
   }
+  outSpecHalfAngleDir->v[2] = (float)(v10 / *(float *)&_XMM0) * (float)(v10 + out.v[0]);
+  outSpecHalfAngleDir->v[0] = (float)(v10 / *(float *)&_XMM0) * *(float *)&v40;
+  outSpecHalfAngleDir->v[1] = (float)(v10 / *(float *)&_XMM0) * v41;
+  outLightDir->v[0] = *(float *)&v40;
+  outLightDir->v[1] = v41;
+  outLightDir->v[2] = v42;
 }
 
 /*
@@ -358,8 +310,6 @@ CG_HudLighting_DrawBegin
 */
 void CG_HudLighting_DrawBegin(LocalClientNum_t localClientIndex, const vec3_t *cameraOrigin, const tmat33_t<vec3_t> *cameraAxis)
 {
-  _RBX = cameraAxis;
-  _RDI = cameraOrigin;
   if ( s_CG_HudLighting_Private.drawContext.began && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 189, ASSERT_TYPE_ASSERT, "(!s_CG_HudLighting_Private.drawContext.began)", (const char *)&queryFormat, "!s_CG_HudLighting_Private.drawContext.began") )
     __debugbreak();
   DebugWipe(&s_CG_HudLighting_Private, 0xBCui64);
@@ -368,18 +318,8 @@ void CG_HudLighting_DrawBegin(LocalClientNum_t localClientIndex, const vec3_t *c
     __debugbreak();
   s_CG_HudLighting_Private.drawContext.localClientIndex = localClientIndex;
   g_CG_HudLighting_Public.enable = 1;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi]
-    vmovsd  qword ptr cs:s_CG_HudLighting_Private.drawContext.cameraOrigin, xmm0
-  }
-  s_CG_HudLighting_Private.drawContext.cameraOrigin.v[2] = _RDI->v[2];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr cs:s_CG_HudLighting_Private.drawContext.cameraAxis, ymm0
-  }
-  s_CG_HudLighting_Private.drawContext.cameraAxis.m[2].v[2] = _RBX->m[2].v[2];
+  s_CG_HudLighting_Private.drawContext.cameraOrigin = *cameraOrigin;
+  s_CG_HudLighting_Private.drawContext.cameraAxis = *cameraAxis;
 }
 
 /*
@@ -405,25 +345,66 @@ CG_HudLighting_DrawRequest
 */
 void CG_HudLighting_DrawRequest()
 {
+  __int128 v0; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
   __int64 localClientIndex; 
+  cg_t *v10; 
   int frametime; 
   GfxLight *primaryLights; 
-  GfxLit2DShaderMode v20; 
-  int v21; 
+  GfxLit2DShaderMode v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v26; 
+  float v27; 
+  float v28; 
+  __int128 v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v36; 
   int forceAdditiveChangeTime; 
-  int v99; 
-  int v100; 
-  GfxLit2DShaderState::ModeState *v134; 
+  vec3_t *p_forceAdditiveColor; 
+  float forceAdditiveChangeDuration; 
+  int v40; 
+  int v41; 
+  float v42; 
+  GfxLit2DShaderState::ModeState *v43; 
   GfxLight *light; 
-  __int64 v136; 
+  __int64 v45; 
   vec3_t outSpecHalfAngleDir; 
   vec3_t outLightDir; 
   vec3_t outDiffuseColor; 
   vec3_t inColor; 
-  vec3_t v147; 
-  vec3_t v148; 
-  vec3_t v149; 
+  float v50; 
+  float v51; 
+  float v52; 
+  vec3_t v53; 
+  vec3_t v54; 
+  vec3_t v55; 
   tmat33_t<vec3_t> out; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v64; 
+  __int128 v65; 
 
   if ( !g_CG_HudLighting_Public.enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 234, ASSERT_TYPE_ASSERT, "(g_CG_HudLighting_Public.enable)", (const char *)&queryFormat, "g_CG_HudLighting_Public.enable") )
     __debugbreak();
@@ -433,22 +414,16 @@ void CG_HudLighting_DrawRequest()
     __debugbreak();
   if ( !frontEndDataOut->hudLightingRequested )
   {
-    __asm
-    {
-      vmovaps [rsp+1B0h+var_30], xmm6
-      vmovaps [rsp+1B0h+var_40], xmm7
-      vmovaps [rsp+1B0h+var_50], xmm8
-      vmovaps [rsp+1B0h+var_60], xmm9
-      vmovaps [rsp+1B0h+var_70], xmm10
-    }
+    v65 = v0;
+    v64 = v1;
+    v63 = v2;
+    v62 = v3;
+    v61 = v4;
     frontEndDataOut->hudLightingRequested = 1;
     localClientIndex = s_CG_HudLighting_Private.drawContext.localClientIndex;
-    __asm
-    {
-      vmovaps [rsp+1B0h+var_80], xmm11
-      vmovaps [rsp+1B0h+var_90], xmm12
-      vmovaps [rsp+1B0h+var_A0], xmm13
-    }
+    v60 = v5;
+    v59 = v6;
+    v58 = v7;
     if ( s_CG_HudLighting_Private.drawContext.localClientIndex >= (unsigned int)cg_t::ms_allocatedCount )
     {
       LODWORD(light) = s_CG_HudLighting_Private.drawContext.localClientIndex;
@@ -457,41 +432,26 @@ void CG_HudLighting_DrawRequest()
     }
     if ( !cg_t::ms_cgArray[localClientIndex] )
     {
-      LODWORD(v136) = localClientIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v136) )
+      LODWORD(v45) = localClientIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v45) )
         __debugbreak();
     }
     if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
     {
-      LODWORD(v136) = localClientIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v136) )
+      LODWORD(v45) = localClientIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v45) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_CG_HudLighting_Private.drawContext.cameraOrigin
-      vmovss  xmm1, dword ptr cs:s_CG_HudLighting_Private.drawContext.cameraOrigin+4
-      vmovss  xmm6, cs:__real@3f000000
-    }
-    _RDI = cg_t::ms_cgArray[localClientIndex];
-    __asm
-    {
-      vmovss  dword ptr [rbp+0B0h+inColor], xmm0
-      vmovss  xmm0, dword ptr cs:s_CG_HudLighting_Private.drawContext.cameraOrigin+8
-      vmovss  dword ptr [rbp+0B0h+inColor+4], xmm1
-      vmovss  xmm1, cs:__real@41c00000
-    }
-    frametime = _RDI->frametime;
-    __asm
-    {
-      vmovss  dword ptr [rbp+0B0h+inColor+8], xmm0
-      vmovss  dword ptr [rbp+0B0h+inColor+8], xmm6
-      vmovss  [rbp+0B0h+var_124], xmm1
-      vmovss  [rbp+0B0h+var_120], xmm1
-      vmovss  [rbp+0B0h+var_11C], xmm1
-      vmovss  dword ptr [rbp+0B0h+inColor], xmm6
-      vmovss  dword ptr [rbp+0B0h+inColor+4], xmm6
-    }
+    v10 = cg_t::ms_cgArray[localClientIndex];
+    inColor.v[0] = s_CG_HudLighting_Private.drawContext.cameraOrigin.v[0];
+    inColor.v[1] = s_CG_HudLighting_Private.drawContext.cameraOrigin.v[1];
+    frametime = v10->frametime;
+    inColor.v[2] = FLOAT_0_5;
+    v50 = FLOAT_24_0;
+    v51 = FLOAT_24_0;
+    v52 = FLOAT_24_0;
+    inColor.v[0] = FLOAT_0_5;
+    inColor.v[1] = FLOAT_0_5;
     AxisTranspose(&s_CG_HudLighting_Private.drawContext.cameraAxis, &out);
     if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 259, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
       __debugbreak();
@@ -501,199 +461,119 @@ void CG_HudLighting_DrawRequest()
     if ( !comWorld.primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 261, ASSERT_TYPE_ASSERT, "(primaryLightIndex < Com_GetPrimaryLightCount())", (const char *)&queryFormat, "primaryLightIndex < Com_GetPrimaryLightCount()") )
       __debugbreak();
     CG_HudLighting_CalcLight(&outDiffuseColor, &outLightDir, &outSpecHalfAngleDir, &s_CG_HudLighting_Private.drawContext.cameraOrigin, &out, primaryLights);
-    __asm { vmovss  xmm7, cs:__real@40000000 }
-    v20 = GFXLIT2DSHADERMODE_BASIC;
-    if ( _RDI->hudLightingState.lightChangeTime <= 0 )
+    v13 = GFXLIT2DSHADERMODE_BASIC;
+    if ( v10->hudLightingState.lightChangeTime <= 0 )
     {
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rsp+1B0h+outSpecHalfAngleDir+8]
-        vmovss  xmm9, dword ptr [rsp+1B0h+outSpecHalfAngleDir+4]
-        vmovss  xmm10, dword ptr [rsp+1B0h+outSpecHalfAngleDir]
-        vmovss  xmm11, dword ptr [rsp+1B0h+outLightDir+8]
-        vmovss  xmm12, dword ptr [rsp+1B0h+outLightDir+4]
-        vmovss  xmm13, dword ptr [rsp+1B0h+outLightDir]
-      }
+      v31 = outSpecHalfAngleDir.v[2];
+      v32 = outSpecHalfAngleDir.v[1];
+      v30 = outSpecHalfAngleDir.v[0];
+      v21 = outLightDir.v[2];
+      v22 = outLightDir.v[1];
+      v20 = outLightDir.v[0];
     }
     else
     {
-      __asm { vmovaps [rsp+1B0h+var_B0], xmm14 }
+      v57 = v8;
       if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 21, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
         __debugbreak();
       if ( !comWorld.primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 270, ASSERT_TYPE_ASSERT, "(previousPrimaryLightIndex < Com_GetPrimaryLightCount())", (const char *)&queryFormat, "previousPrimaryLightIndex < Com_GetPrimaryLightCount()") )
         __debugbreak();
-      CG_HudLighting_CalcLight(&v147, &v148, &v149, &s_CG_HudLighting_Private.drawContext.cameraOrigin, &out, primaryLights);
-      v21 = 0;
-      __asm
+      CG_HudLighting_CalcLight(&v53, &v54, &v55, &s_CG_HudLighting_Private.drawContext.cameraOrigin, &out, primaryLights);
+      v14 = 0;
+      if ( v10->hudLightingState.lightChangeTime - frametime > 0 )
+        v14 = v10->hudLightingState.lightChangeTime - frametime;
+      v10->hudLightingState.lightChangeTime = v14;
+      v15 = (float)v14 / (float)s_CG_HudLighting_interpTime;
+      v19 = LODWORD(v54.v[1]);
+      v16 = (float)((float)(v54.v[0] - outLightDir.v[0]) * v15) + outLightDir.v[0];
+      v17 = (float)((float)(v54.v[1] - outLightDir.v[1]) * v15) + outLightDir.v[1];
+      v18 = (float)((float)(v54.v[2] - outLightDir.v[2]) * v15) + outLightDir.v[2];
+      *(float *)&v19 = (float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v18 * v18);
+      if ( *(float *)&v19 >= 0.001 )
       {
-        vmovss  xmm8, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
+        *(float *)&v19 = fsqrt(*(float *)&v19);
+        _XMM1 = v19;
+        __asm
+        {
+          vcmpless xmm0, xmm1, cs:__real@80000000
+          vblendvps xmm0, xmm1, xmm8, xmm0
+        }
+        v22 = v17 * (float)(1.0 / *(float *)&_XMM0);
+        v21 = v18 * (float)(1.0 / *(float *)&_XMM0);
+        v20 = v16 * (float)(1.0 / *(float *)&_XMM0);
       }
-      if ( _RDI->hudLightingState.lightChangeTime - frametime > 0 )
-        v21 = _RDI->hudLightingState.lightChangeTime - frametime;
-      __asm { vcvtsi2ss xmm1, xmm1, ecx }
-      _RDI->hudLightingState.lightChangeTime = v21;
-      __asm
+      else
       {
-        vcvtsi2ss xmm0, xmm0, cs:?s_CG_HudLighting_interpTime@@3HA; int s_CG_HudLighting_interpTime
-        vmovsd  xmm10, qword ptr cs:?s_CG_HudLighting_fallbackLightDir@@3Tvec3_t@@A; vec3_t s_CG_HudLighting_fallbackLightDir
-        vdivss  xmm5, xmm1, xmm0
-        vmovss  xmm1, dword ptr [rbp+0B0h+var_118]
-        vsubss  xmm0, xmm1, dword ptr [rsp+1B0h+outDiffuseColor]
-        vmulss  xmm2, xmm0, xmm5
-        vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+outDiffuseColor]
-        vmovss  [rsp+1B0h+var_170], xmm0
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_118+4]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outDiffuseColor+4]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+outDiffuseColor+4]
-        vmovss  [rsp+1B0h+var_16C], xmm0
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_118+8]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outDiffuseColor+8]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm0, xmm2, dword ptr [rsp+1B0h+outDiffuseColor+8]
-        vmovss  [rsp+1B0h+var_168], xmm0
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_108]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outLightDir]
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_108+4]
-        vmulss  xmm2, xmm1, xmm5
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outLightDir+4]
-        vaddss  xmm9, xmm2, dword ptr [rsp+1B0h+outLightDir]
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_108+8]
-        vmulss  xmm2, xmm1, xmm5
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outLightDir+8]
-        vaddss  xmm11, xmm2, dword ptr [rsp+1B0h+outLightDir+4]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm4, xmm2, dword ptr [rsp+1B0h+outLightDir+8]
-        vmulss  xmm0, xmm9, xmm9
-        vmulss  xmm3, xmm11, xmm11
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vaddss  xmm0, xmm2, xmm1
-        vcomiss xmm0, cs:__real@3a83126f
-        vsqrtss xmm1, xmm0, xmm0
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vblendvps xmm0, xmm1, xmm8, xmm0
-        vdivss  xmm1, xmm8, xmm0
-        vmulss  xmm12, xmm11, xmm1
-        vmulss  xmm11, xmm4, xmm1
-        vmulss  xmm13, xmm9, xmm1
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_F8]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outSpecHalfAngleDir]
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_F8+4]
-        vmulss  xmm2, xmm1, xmm5
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outSpecHalfAngleDir+4]
-        vaddss  xmm9, xmm2, dword ptr [rsp+1B0h+outSpecHalfAngleDir]
-        vmovss  xmm0, dword ptr [rbp+0B0h+var_F8+8]
-        vmulss  xmm2, xmm1, xmm5
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+outSpecHalfAngleDir+8]
-        vaddss  xmm4, xmm2, dword ptr [rsp+1B0h+outSpecHalfAngleDir+4]
-        vmulss  xmm2, xmm1, xmm5
-        vaddss  xmm14, xmm2, dword ptr [rsp+1B0h+outSpecHalfAngleDir+8]
-        vmulss  xmm0, xmm9, xmm9
-        vmulss  xmm3, xmm4, xmm4
-        vmulss  xmm1, xmm14, xmm14
-        vaddss  xmm2, xmm3, xmm0
-        vaddss  xmm0, xmm2, xmm1
-        vcomiss xmm0, cs:__real@3a83126f
-        vsqrtss xmm1, xmm0, xmm0
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vblendvps xmm0, xmm1, xmm8, xmm0
-        vdivss  xmm1, xmm8, xmm0
-        vmulss  xmm10, xmm9, xmm1
-        vmulss  xmm9, xmm4, xmm1
-        vmulss  xmm8, xmm14, xmm1
-        vmovaps xmm14, [rsp+1B0h+var_B0]
-        vsubss  xmm0, xmm5, xmm6
-        vmulss  xmm2, xmm0, xmm7
-        vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmulss  xmm0, xmm2, [rsp+1B0h+var_170]
-        vmulss  xmm1, xmm2, [rsp+1B0h+var_16C]
-        vmovss  dword ptr [rsp+1B0h+outDiffuseColor], xmm0
-        vmulss  xmm0, xmm2, [rsp+1B0h+var_168]
-        vmovss  dword ptr [rsp+1B0h+outDiffuseColor+8], xmm0
-        vmovss  dword ptr [rsp+1B0h+outDiffuseColor+4], xmm1
+        outLightDir = s_CG_HudLighting_fallbackLightDir;
+        v20 = outLightDir.v[0];
+        v21 = s_CG_HudLighting_fallbackLightDir.v[2];
+        LODWORD(v22) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)s_CG_HudLighting_fallbackLightDir.v, (__m128)*(unsigned __int64 *)s_CG_HudLighting_fallbackLightDir.v, 85).m128_u32[0];
       }
+      v29 = LODWORD(v55.v[1]);
+      v26 = (float)((float)(v55.v[0] - outSpecHalfAngleDir.v[0]) * v15) + outSpecHalfAngleDir.v[0];
+      v27 = (float)((float)(v55.v[1] - outSpecHalfAngleDir.v[1]) * v15) + outSpecHalfAngleDir.v[1];
+      v28 = (float)((float)(v55.v[2] - outSpecHalfAngleDir.v[2]) * v15) + outSpecHalfAngleDir.v[2];
+      *(float *)&v29 = (float)((float)(v27 * v27) + (float)(v26 * v26)) + (float)(v28 * v28);
+      if ( *(float *)&v29 >= 0.001 )
+      {
+        *(float *)&v29 = fsqrt(*(float *)&v29);
+        _XMM1 = v29;
+        __asm
+        {
+          vcmpless xmm0, xmm1, cs:__real@80000000
+          vblendvps xmm0, xmm1, xmm8, xmm0
+        }
+        v30 = v26 * (float)(1.0 / *(float *)&_XMM0);
+        v32 = v27 * (float)(1.0 / *(float *)&_XMM0);
+        v31 = v28 * (float)(1.0 / *(float *)&_XMM0);
+      }
+      else
+      {
+        outSpecHalfAngleDir = s_CG_HudLighting_fallbackLightDir;
+        v30 = outSpecHalfAngleDir.v[0];
+        v31 = s_CG_HudLighting_fallbackLightDir.v[2];
+        LODWORD(v32) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)s_CG_HudLighting_fallbackLightDir.v, (__m128)*(unsigned __int64 *)s_CG_HudLighting_fallbackLightDir.v, 85).m128_u32[0];
+      }
+      v36 = (float)(v15 - 0.5) * 2.0;
+      outDiffuseColor.v[0] = COERCE_FLOAT(LODWORD(v36) & _xmm) * (float)((float)((float)(v53.v[0] - outDiffuseColor.v[0]) * v15) + outDiffuseColor.v[0]);
+      outDiffuseColor.v[2] = COERCE_FLOAT(LODWORD(v36) & _xmm) * (float)((float)((float)(v53.v[2] - outDiffuseColor.v[2]) * v15) + outDiffuseColor.v[2]);
+      outDiffuseColor.v[1] = COERCE_FLOAT(LODWORD(v36) & _xmm) * (float)((float)((float)(v53.v[1] - outDiffuseColor.v[1]) * v15) + outDiffuseColor.v[1]);
     }
-    forceAdditiveChangeTime = _RDI->hudLightingState.forceAdditiveChangeTime;
-    _RSI = &_RDI->hudLightingState.forceAdditiveColor;
+    forceAdditiveChangeTime = v10->hudLightingState.forceAdditiveChangeTime;
+    p_forceAdditiveColor = &v10->hudLightingState.forceAdditiveColor;
     if ( forceAdditiveChangeTime > 0 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+59F20h]
-      }
-      v99 = forceAdditiveChangeTime - frametime;
-      v100 = 0;
-      if ( v99 > 0 )
-        v100 = v99;
-      _RDI->hudLightingState.forceAdditiveChangeTime = v100;
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+59F10h]
-        vcvtsi2ss xmm1, xmm1, eax
-        vdivss  xmm6, xmm1, xmm0
-        vmovss  xmm0, dword ptr [rdi+59F04h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rsi], xmm3
-        vmovss  xmm4, dword ptr [rdi+59F14h]
-        vmovss  xmm0, dword ptr [rdi+59F08h]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rdi+59EFCh], xmm3
-        vmovss  xmm5, dword ptr [rdi+59F18h]
-        vmovss  xmm0, dword ptr [rdi+59F0Ch]
-        vsubss  xmm1, xmm0, xmm5
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm5
-        vmovss  dword ptr [rdi+59F00h], xmm3
-      }
+      forceAdditiveChangeDuration = (float)v10->hudLightingState.forceAdditiveChangeDuration;
+      v40 = forceAdditiveChangeTime - frametime;
+      v41 = 0;
+      if ( v40 > 0 )
+        v41 = v40;
+      v10->hudLightingState.forceAdditiveChangeTime = v41;
+      v42 = (float)v41 / forceAdditiveChangeDuration;
+      p_forceAdditiveColor->v[0] = (float)((float)(v10->hudLightingState.forceAdditiveColorStart.v[0] - v10->hudLightingState.forceAdditiveColorEnd.v[0]) * v42) + v10->hudLightingState.forceAdditiveColorEnd.v[0];
+      v10->hudLightingState.forceAdditiveColor.v[1] = (float)((float)(v10->hudLightingState.forceAdditiveColorStart.v[1] - v10->hudLightingState.forceAdditiveColorEnd.v[1]) * v42) + v10->hudLightingState.forceAdditiveColorEnd.v[1];
+      v10->hudLightingState.forceAdditiveColor.v[2] = (float)((float)(v10->hudLightingState.forceAdditiveColorStart.v[2] - v10->hudLightingState.forceAdditiveColorEnd.v[2]) * v42) + v10->hudLightingState.forceAdditiveColorEnd.v[2];
     }
     DebugWipe(&s_CG_HudLighting_Private.drawContext.shaderState, 0x84ui64);
-    _RAX = g_CG_HudLighting_Dvars.fadeSharpness;
-    __asm
-    {
-      vmovaps xmm6, [rsp+1B0h+var_30]
-      vmulss  xmm1, xmm13, xmm7
-      vmovaps xmm13, [rsp+1B0h+var_A0]
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  cs:s_CG_HudLighting_Private.drawContext.shaderState.fadeSharpness, xmm0
-      vmulss  xmm0, xmm12, xmm7
-      vmovaps xmm12, [rsp+1B0h+var_90]
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2+4, xmm0
-      vmulss  xmm0, xmm10, xmm7
-      vmovaps xmm10, [rsp+1B0h+var_70]
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2, xmm1
-      vmulss  xmm1, xmm11, xmm7
-      vmovaps xmm11, [rsp+1B0h+var_80]
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2, xmm0
-      vmulss  xmm0, xmm8, xmm7
-      vmovaps xmm8, [rsp+1B0h+var_50]
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2+8, xmm1
-      vmulss  xmm1, xmm9, xmm7
-      vmovaps xmm9, [rsp+1B0h+var_60]
-      vmovaps xmm7, [rsp+1B0h+var_40]
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2+8, xmm0
-      vmovss  dword ptr cs:s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2+4, xmm1
-    }
+    LODWORD(s_CG_HudLighting_Private.drawContext.shaderState.fadeSharpness) = g_CG_HudLighting_Dvars.fadeSharpness->current.integer;
+    s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2.v[1] = v22 * 2.0;
+    s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2.v[0] = v20 * 2.0;
+    s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2.v[0] = v30 * 2.0;
+    s_CG_HudLighting_Private.drawContext.shaderState.lightDirX2.v[2] = v21 * 2.0;
+    s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2.v[2] = v31 * 2.0;
+    s_CG_HudLighting_Private.drawContext.shaderState.specHalfAngleDirX2.v[1] = v32 * 2.0;
     do
     {
-      v134 = &s_CG_HudLighting_Private.drawContext.shaderState.modes[v20];
-      if ( (unsigned int)v20 >= GFXLIT2DSHADERMODE_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 90, ASSERT_TYPE_ASSERT, "(mode < ( sizeof( *array_counter( g_CG_HudLighting_Dvars.modes ) ) + 0 ))", (const char *)&queryFormat, "mode < ARRAY_COUNT( g_CG_HudLighting_Dvars.modes )") )
+      v43 = &s_CG_HudLighting_Private.drawContext.shaderState.modes[v13];
+      if ( (unsigned int)v13 >= GFXLIT2DSHADERMODE_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_hud_lighting.cpp", 90, ASSERT_TYPE_ASSERT, "(mode < ( sizeof( *array_counter( g_CG_HudLighting_Dvars.modes ) ) + 0 ))", (const char *)&queryFormat, "mode < ARRAY_COUNT( g_CG_HudLighting_Dvars.modes )") )
         __debugbreak();
-      LODWORD(v134->specExponent) = g_CG_HudLighting_Dvars.modes[v20].specExponent->current.integer;
-      CG_HudLighting_ApplyColorScaleOffset(&s_CG_HudLighting_Private.drawContext.shaderState.modes[v20].ambientColor, &inColor, v20, CG_HUDLIGHTING_LIGHTTYPE_AMBIENT);
-      CG_HudLighting_ApplyColorScaleOffset(&v134->diffuseColor, &outDiffuseColor, v20, CG_HUDLIGHTING_LIGHTTYPE_DIFFUSE);
-      CG_HudLighting_ApplyColorScaleOffset(&v134->specColor, &outDiffuseColor, v20, CG_HUDLIGHTING_LIGHTTYPE_SPEC);
-      CG_HudLighting_ApplyColorScaleOffset(&v134->additiveColor, _RSI, v20++, CG_HUDLIGHTING_LIGHTTYPE_ADDITIVE);
+      LODWORD(v43->specExponent) = g_CG_HudLighting_Dvars.modes[v13].specExponent->current.integer;
+      CG_HudLighting_ApplyColorScaleOffset(&s_CG_HudLighting_Private.drawContext.shaderState.modes[v13].ambientColor, &inColor, v13, CG_HUDLIGHTING_LIGHTTYPE_AMBIENT);
+      CG_HudLighting_ApplyColorScaleOffset(&v43->diffuseColor, &outDiffuseColor, v13, CG_HUDLIGHTING_LIGHTTYPE_DIFFUSE);
+      CG_HudLighting_ApplyColorScaleOffset(&v43->specColor, &outDiffuseColor, v13, CG_HUDLIGHTING_LIGHTTYPE_SPEC);
+      CG_HudLighting_ApplyColorScaleOffset(&v43->additiveColor, p_forceAdditiveColor, v13++, CG_HUDLIGHTING_LIGHTTYPE_ADDITIVE);
     }
-    while ( v20 != GFXLIT2DSHADERMODE_COUNT );
+    while ( v13 != GFXLIT2DSHADERMODE_COUNT );
   }
 }
 

@@ -555,17 +555,8 @@ bdSockAddr::bdSockAddr
 */
 void bdSockAddr::bdSockAddr(bdSockAddr *this, const sockaddr_in6 *addr)
 {
-  _RBX = addr;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  xmm1, qword ptr [rbx+10h]
-    vmovsd  qword ptr [rdi+10h], xmm1
-  }
-  _RDI->inUn.m_ipv6Sockaddr.sin6_scope_id = _RBX->sin6_scope_id;
+  this->inUn.m_ipv6Sockaddr = *addr;
 }
 
 /*
@@ -575,14 +566,8 @@ bdSockAddr::bdSockAddr
 */
 void bdSockAddr::bdSockAddr(bdSockAddr *this, const sockaddr_in *addr)
 {
-  _RBX = addr;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  this->inUn.m_ipv4Sockaddr = *addr;
 }
 
 /*
@@ -592,20 +577,8 @@ bdSockAddr::bdSockAddr
 */
 void bdSockAddr::bdSockAddr(bdSockAddr *this, const bdSockAddr *other)
 {
-  _RBX = other;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rdi+60h], ymm1
-  }
+  *this = *other;
 }
 
 /*
@@ -709,17 +682,8 @@ bdSockAddr::bdSockAddr
 */
 void bdSockAddr::bdSockAddr(bdSockAddr *this, const sockaddr_in6 *addrPtr)
 {
-  _RBX = addrPtr;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  xmm1, qword ptr [rbx+10h]
-    vmovsd  qword ptr [rdi+10h], xmm1
-  }
-  _RDI->inUn.m_ipv6Sockaddr.sin6_scope_id = _RBX->sin6_scope_id;
+  this->inUn.m_ipv6Sockaddr = *addrPtr;
 }
 
 /*
@@ -729,14 +693,8 @@ bdSockAddr::bdSockAddr
 */
 void bdSockAddr::bdSockAddr(bdSockAddr *this, const sockaddr_in *addrPtr)
 {
-  _RBX = addrPtr;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  this->inUn.m_ipv4Sockaddr = *addrPtr;
 }
 
 /*
@@ -1183,20 +1141,8 @@ bdSockAddr::set
 */
 void bdSockAddr::set(bdSockAddr *this, const bdSockAddr *other)
 {
-  _RBX = other;
-  _RDI = this;
   memset_0(this, 0, sizeof(bdSockAddr));
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rdi+60h], ymm1
-  }
+  *this = *other;
 }
 
 /*

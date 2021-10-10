@@ -377,29 +377,19 @@ TaskBreaker_ShouldHandleCall
 */
 bool TaskBreaker_ShouldHandleCall(TaskType taskType)
 {
-  char v8; 
-  char v9; 
+  const dvar_t *v1; 
+  float value; 
+  double v3; 
 
   if ( (s_taskBreakerFlags[taskType / 8] & (unsigned __int8)(1 << (taskType % 8))) == 0 )
     return 0;
-  _RBX = DVARFLT_taskbreaker_break_percentage;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v1 = DVARFLT_taskbreaker_break_percentage;
   if ( !DVARFLT_taskbreaker_break_percentage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "taskbreaker_break_percentage") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000; max
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vcomiss xmm6, xmm0
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return !(v8 | v9);
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v3 = I_flrand(0.0, 1.0);
+  return value > *(float *)&v3;
 }
 
 /*

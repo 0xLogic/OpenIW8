@@ -569,14 +569,26 @@ DynEnt_SetupPhysics
 */
 void DynEnt_SetupPhysics(LocalClientNum_t localClientNum, unsigned int dynEntId, DynEntityBasis basis, const XModel *baseModel, const PhysicsAsset *physicsAsset, int physicsShapeOverride, const XModel *detailModel, const bool useInitialPose, const bool matchPose, const bool forceAddImmediate)
 {
-  PhysicsAsset *v12; 
-  unsigned __int16 v15; 
+  PhysicsAsset *v11; 
+  const DynEntityDef *Def; 
+  unsigned __int16 v14; 
   DynEntityClient *ClientFromClientId; 
-  unsigned __int8 v30; 
+  DynEntityPose *PoseFromClientId; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  vec4_t quat; 
+  unsigned __int8 v27; 
   int physicsRef; 
   bool *outMakePhysics; 
-  bool v33; 
-  unsigned __int16 v34; 
+  bool v30; 
+  unsigned __int16 v31; 
   LocalClientNum_t localClientNuma; 
   Physics_InstantiationForceType outForceType; 
   PhysicsAsset *inOutPhysicsAsset; 
@@ -585,7 +597,7 @@ void DynEnt_SetupPhysics(LocalClientNum_t localClientNum, unsigned int dynEntId,
   vec3_t initialPos; 
   vec4_t initialQuat; 
 
-  v12 = (PhysicsAsset *)(int)localClientNum;
+  v11 = (PhysicsAsset *)(int)localClientNum;
   inOutPhysicsAsset = (PhysicsAsset *)physicsAsset;
   inOutDetailModel = (XModel *)detailModel;
   baseModela = (XModel *)baseModel;
@@ -595,80 +607,71 @@ void DynEnt_SetupPhysics(LocalClientNum_t localClientNum, unsigned int dynEntId,
     __debugbreak();
   if ( dynEntId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 369, ASSERT_TYPE_ASSERT, "(dynEntId != 0xffffffffui32)", (const char *)&queryFormat, "dynEntId != DYNENT_INVALID_ID") )
     __debugbreak();
-  _R15 = DynEnt_GetDef(dynEntId, basis);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 373, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
+  Def = DynEnt_GetDef(dynEntId, basis);
+  if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 373, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
     __debugbreak();
-  v15 = _R15->clientId[(_QWORD)v12];
-  v34 = v15;
-  if ( v15 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 375, ASSERT_TYPE_ASSERT, "(clientId != 0xFFFF)", (const char *)&queryFormat, "clientId != DYNENT_INVALID_CLIENT_ID") )
+  v14 = Def->clientId[(_QWORD)v11];
+  v31 = v14;
+  if ( v14 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 375, ASSERT_TYPE_ASSERT, "(clientId != 0xFFFF)", (const char *)&queryFormat, "clientId != DYNENT_INVALID_CLIENT_ID") )
     __debugbreak();
-  ClientFromClientId = DynEnt_GetClientFromClientId((LocalClientNum_t)v12, v15, basis);
-  _R14 = DynEnt_GetPoseFromClientId((LocalClientNum_t)v12, v15, basis);
+  ClientFromClientId = DynEnt_GetClientFromClientId((LocalClientNum_t)v11, v14, basis);
+  PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)v11, v14, basis);
   if ( !ClientFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 378, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 379, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
+  if ( !PoseFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 379, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
-  DynEnt_SetupPhysics_GetInputOverrides((const LocalClientNum_t)v12, _R15, ClientFromClientId, (const PhysicsAsset **)&inOutPhysicsAsset, (const XModel **)&inOutDetailModel, &v33, &outForceType);
-  if ( v33 )
+  DynEnt_SetupPhysics_GetInputOverrides((const LocalClientNum_t)v11, Def, ClientFromClientId, (const PhysicsAsset **)&inOutPhysicsAsset, (const XModel **)&inOutDetailModel, &v30, &outForceType);
+  if ( v30 )
   {
     if ( useInitialPose )
     {
-      __asm
-      {
-        vmovss  xmm5, dword ptr [r15+24h]
-        vmovss  xmm4, dword ptr [r15+28h]
-        vmovss  xmm3, dword ptr [r15+10h]
-        vmovss  xmm2, dword ptr [r15+14h]
-        vmovss  xmm1, dword ptr [r15+18h]
-        vmovss  xmm0, dword ptr [r15+1Ch]
-        vmovaps [rsp+110h+var_50], xmm6
-        vmovss  xmm6, dword ptr [r15+20h]
-        vmovss  dword ptr [r14+10h], xmm6
-        vmovss  dword ptr [r14+14h], xmm5
-        vmovss  dword ptr [r14+18h], xmm4
-        vmovss  dword ptr [r14], xmm3
-        vmovss  dword ptr [r14+4], xmm2
-        vmovss  dword ptr [r14+8], xmm1
-        vmovss  dword ptr [rbp+3Fh+var_78], xmm6
-        vmovaps xmm6, [rsp+110h+var_50]
-        vmovss  dword ptr [r14+0Ch], xmm0
-        vmovss  dword ptr [rbp+3Fh+var_78+4], xmm5
-        vmovss  dword ptr [rbp+3Fh+var_78+8], xmm4
-        vmovss  dword ptr [rbp+3Fh+var_68], xmm3
-        vmovss  dword ptr [rbp+3Fh+var_68+4], xmm2
-        vmovss  dword ptr [rbp+3Fh+var_68+8], xmm1
-        vmovss  dword ptr [rbp+3Fh+var_68+0Ch], xmm0
-      }
+      v17 = Def->initialPose.origin.v[1];
+      v18 = Def->initialPose.origin.v[2];
+      v19 = Def->initialPose.quat.v[0];
+      v20 = Def->initialPose.quat.v[1];
+      v21 = Def->initialPose.quat.v[2];
+      v22 = Def->initialPose.quat.v[3];
+      v23 = Def->initialPose.origin.v[0];
+      PoseFromClientId->posePart0.origin.v[0] = v23;
+      PoseFromClientId->posePart0.origin.v[1] = v17;
+      PoseFromClientId->posePart0.origin.v[2] = v18;
+      PoseFromClientId->posePart0.quat.v[0] = v19;
+      PoseFromClientId->posePart0.quat.v[1] = v20;
+      PoseFromClientId->posePart0.quat.v[2] = v21;
+      initialPos.v[0] = v23;
+      PoseFromClientId->posePart0.quat.v[3] = v22;
+      initialPos.v[1] = v17;
+      initialPos.v[2] = v18;
+      initialQuat.v[0] = v19;
+      initialQuat.v[1] = v20;
+      initialQuat.v[2] = v21;
+      initialQuat.v[3] = v22;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+10h]
-        vmovss  xmm1, dword ptr [r14+14h]
-        vmovss  dword ptr [rbp+3Fh+var_78], xmm0
-        vmovss  xmm0, dword ptr [r14+18h]
-        vmovss  dword ptr [rbp+3Fh+var_78+4], xmm1
-        vmovups xmm1, xmmword ptr [r14]
-        vmovss  dword ptr [rbp+3Fh+var_78+8], xmm0
-        vmovups xmmword ptr [rbp+3Fh+var_68], xmm1
-      }
+      v24 = PoseFromClientId->posePart0.origin.v[1];
+      initialPos.v[0] = PoseFromClientId->posePart0.origin.v[0];
+      v25 = PoseFromClientId->posePart0.origin.v[2];
+      initialPos.v[1] = v24;
+      quat = PoseFromClientId->posePart0.quat;
+      initialPos.v[2] = v25;
+      initialQuat = quat;
     }
-    v30 = truncate_cast<unsigned char,int>((unsigned __int8)basis | (2 * (unsigned __int8)_R15->type));
-    physicsRef = Physics_MakeRef(Physics_RefSystem_DynEnts, Physics_RelationshipSystem_None, v30, v15);
-    v12 = inOutPhysicsAsset;
-    DynEnt_SetupPhysics_PhysicsWorld(localClientNuma, _R15, ClientFromClientId, _R14, baseModela, inOutPhysicsAsset, physicsShapeOverride, physicsRef, outForceType, &initialPos, &initialQuat, matchPose, forceAddImmediate);
-    outMakePhysics = (bool *)v12;
-    LODWORD(v12) = localClientNuma;
-    DynEnt_SetupPhysics_DetailWorld(localClientNuma, _R15, ClientFromClientId, _R14, baseModela, (const PhysicsAsset *)outMakePhysics, physicsShapeOverride, inOutDetailModel, physicsRef, &initialPos, &initialQuat);
-    v15 = v34;
+    v27 = truncate_cast<unsigned char,int>((unsigned __int8)basis | (2 * (unsigned __int8)Def->type));
+    physicsRef = Physics_MakeRef(Physics_RefSystem_DynEnts, Physics_RelationshipSystem_None, v27, v14);
+    v11 = inOutPhysicsAsset;
+    DynEnt_SetupPhysics_PhysicsWorld(localClientNuma, Def, ClientFromClientId, PoseFromClientId, baseModela, inOutPhysicsAsset, physicsShapeOverride, physicsRef, outForceType, &initialPos, &initialQuat, matchPose, forceAddImmediate);
+    outMakePhysics = (bool *)v11;
+    LODWORD(v11) = localClientNuma;
+    DynEnt_SetupPhysics_DetailWorld(localClientNuma, Def, ClientFromClientId, PoseFromClientId, baseModela, (const PhysicsAsset *)outMakePhysics, physicsShapeOverride, inOutDetailModel, physicsRef, &initialPos, &initialQuat);
+    v14 = v31;
   }
   else
   {
     ClientFromClientId->flags &= ~0x4000u;
   }
   ClientFromClientId->flags |= 2u;
-  DynEnt_AddToPhysicsSetupList((LocalClientNum_t)v12, v15, basis);
+  DynEnt_AddToPhysicsSetupList((LocalClientNum_t)v11, v14, basis);
   Profile_EndInternal(NULL);
 }
 
@@ -810,7 +813,8 @@ DynEnt_SetupPhysics_PhysicsWorld
 */
 void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, const DynEntityDef *const dynEntDef, DynEntityClient *const dynEntClient, DynEntityPose *const dynEntPose, const XModel *baseModel, const PhysicsAsset *physicsAsset, int physicsShapeOverride, int physicsRef, const Physics_InstantiationForceType forceType, const vec3_t *initialPos, const vec4_t *initialQuat, hknpBodyId matchPose, const bool forceAddImmediate)
 {
-  const dvar_t *v18; 
+  const dvar_t *v17; 
+  double InstantiatiationPenetrationDepthForAsset; 
   bool tryStartDeactivated; 
   __int32 v20; 
   unsigned int NumRigidBodys; 
@@ -839,17 +843,16 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
   Physics_InstantiateShapeOverride shapeOverride; 
   char physicsShapeOverridea; 
 
-  _R13 = dynEntClient;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DynEnt_SetupPhysics_PhysicsWorld");
   if ( !dynEntDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 250, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 251, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
+  if ( !dynEntClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 251, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
     __debugbreak();
   if ( !dynEntPose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 252, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
   if ( !physicsAsset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 253, ASSERT_TYPE_ASSERT, "(physicsAsset)", (const char *)&queryFormat, "physicsAsset") )
     __debugbreak();
-  if ( _R13->physicsSystemId != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 256, ASSERT_TYPE_ASSERT, "(dynEntClient->physicsSystemId == 0xFFFFFFFF)", (const char *)&queryFormat, "dynEntClient->physicsSystemId == PHYSICSINSTANCEID_INVALID") )
+  if ( dynEntClient->physicsSystemId != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 256, ASSERT_TYPE_ASSERT, "(dynEntClient->physicsSystemId == 0xFFFFFFFF)", (const char *)&queryFormat, "dynEntClient->physicsSystemId == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
   shapeOverride.customShape = NULL;
   shapeOverride.physicsAssetAddendum = NULL;
@@ -861,38 +864,38 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
   if ( physicsAsset->containsDynamicBodies && ((forceType - 1) & 0xFFFFFFFD) != 0 )
   {
     physicsShapeOverridea = 1;
-    _R13->flags |= 0x4000u;
+    dynEntClient->flags |= 0x4000u;
   }
   else
   {
     physicsShapeOverridea = 0;
-    _R13->flags &= ~0x4000u;
+    dynEntClient->flags &= ~0x4000u;
   }
-  v18 = DVARBOOL_dynEnt_debugSpawnDepth;
+  v17 = DVARBOOL_dynEnt_debugSpawnDepth;
   if ( !DVARBOOL_dynEnt_debugSpawnDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_debugSpawnDepth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( v18->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
   {
     if ( forceType )
     {
-      _R13->spawnPenetrationDepth = 0.0;
+      dynEntClient->spawnPenetrationDepth = 0.0;
     }
     else
     {
-      *(double *)&_XMM0 = Physics_GetInstantiatiationPenetrationDepthForAsset((Physics_WorldId)(3 * localClientNum + 3), physicsAsset, initialPos, initialQuat, &shapeOverride, 0);
-      __asm { vmovss  dword ptr [r13+2Ch], xmm0 }
+      InstantiatiationPenetrationDepthForAsset = Physics_GetInstantiatiationPenetrationDepthForAsset((Physics_WorldId)(3 * localClientNum + 3), physicsAsset, initialPos, initialQuat, &shapeOverride, 0);
+      dynEntClient->spawnPenetrationDepth = *(float *)&InstantiatiationPenetrationDepthForAsset;
     }
   }
   tryStartDeactivated = !dynEntPose->cachedActive && !dynEntDef->spawnActive;
   v20 = 3 * localClientNum + 3;
-  _R13->physicsSystemId = Physics_InstantiateAsset((Physics_WorldId)v20, baseModel, physicsAsset, physicsRef, initialPos, initialQuat, 1, forceAddImmediate, tryStartDeactivated, &shapeOverride, forceType, Physics_InstantiationFilterTypeNone, 0);
+  dynEntClient->physicsSystemId = Physics_InstantiateAsset((Physics_WorldId)v20, baseModel, physicsAsset, physicsRef, initialPos, initialQuat, 1, forceAddImmediate, tryStartDeactivated, &shapeOverride, forceType, Physics_InstantiationFilterTypeNone, 0);
   ++physicsAsset->usageCounter.dynEnt;
-  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v20, _R13->physicsSystemId);
-  _R13->numPhysicsBodies = truncate_cast<unsigned char,unsigned int>(NumRigidBodys);
-  _R13->singlePhysicsBody = Physics_GetRigidBodyID((const Physics_WorldId)v20, _R13->physicsSystemId, 0);
-  _R13->physicsForceType = truncate_cast<unsigned char,enum Physics_InstantiationForceType>(forceType);
-  v22 = Physics_GetNumRigidBodys((const Physics_WorldId)v20, _R13->physicsSystemId);
+  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v20, dynEntClient->physicsSystemId);
+  dynEntClient->numPhysicsBodies = truncate_cast<unsigned char,unsigned int>(NumRigidBodys);
+  dynEntClient->singlePhysicsBody = Physics_GetRigidBodyID((const Physics_WorldId)v20, dynEntClient->physicsSystemId, 0);
+  dynEntClient->physicsForceType = truncate_cast<unsigned char,enum Physics_InstantiationForceType>(forceType);
+  v22 = Physics_GetNumRigidBodys((const Physics_WorldId)v20, dynEntClient->physicsSystemId);
   v23 = truncate_cast<unsigned char,unsigned int>(v22);
   v24 = v23;
   if ( LOBYTE(matchPose.m_serialAndIndex) )
@@ -902,7 +905,7 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
     {
       do
       {
-        physicsSystemId = _R13->physicsSystemId;
+        physicsSystemId = dynEntClient->physicsSystemId;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v20 > 7 )
@@ -965,7 +968,7 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
   {
     do
     {
-      v32 = _R13->physicsSystemId;
+      v32 = dynEntClient->physicsSystemId;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)v20 > 7 )
@@ -1004,7 +1007,7 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
   {
     do
     {
-      v35 = _R13->physicsSystemId;
+      v35 = dynEntClient->physicsSystemId;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)v20 > 7 )
@@ -1049,9 +1052,9 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 325, ASSERT_TYPE_ASSERT, "(foundDynamicRigidBody == hasDynamicBodies)", "%s\n\tDynent trying to use physicsasset %s expected to %s dynamic bodies, but %s.", "foundDynamicRigidBody == hasDynamicBodies", physicsAsset->name, v38, v37) )
       __debugbreak();
   }
-  if ( (_R13->flags & 4) != 0 )
+  if ( (dynEntClient->flags & 4) != 0 )
   {
-    v39 = _R13->physicsSystemId;
+    v39 = dynEntClient->physicsSystemId;
     if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
       __debugbreak();
     if ( (unsigned int)v20 > 7 )
@@ -1081,7 +1084,7 @@ void DynEnt_SetupPhysics_PhysicsWorld(const LocalClientNum_t localClientNum, con
     v40 = HavokPhysics_GetRigidBodyID(&matchPose, (const Physics_WorldId)v20, v39, 0);
     if ( !Physics_IsRigidBodyKeyframed((Physics_WorldId)v20, v40->m_serialAndIndex) )
     {
-      LODWORD(v43) = _R13->dynEntDefId;
+      LODWORD(v43) = dynEntClient->dynEntDefId;
       LODWORD(add) = (unsigned __int8)dynEntDef->basis;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_coll.cpp", 328, ASSERT_TYPE_ASSERT, "(((dynEntClient->flags & (1 << 2)) == 0) || Physics_IsRigidBodyKeyframed( Physics_GetClientAuthoritativeWorldId( localClientNum ), Physics_GetRigidBodyID( Physics_GetClientAuthoritativeWorldId( localClientNum ), dynEntClient->physicsSystemId, 0 ) ))", "%s\n\tLinked DynEnt %i %i using physics asset %s where the first body is not keyframed", "((dynEntClient->flags & DYNENT_CL_LINKEDTOENTITY) == 0) || Physics_IsRigidBodyKeyframed( DYNENT_PHYSICS_WORLD( localClientNum ), Physics_GetRigidBodyID( DYNENT_PHYSICS_WORLD( localClientNum ), dynEntClient->physicsSystemId, 0 ) )", add, v43, physicsAsset->name) )
         __debugbreak();

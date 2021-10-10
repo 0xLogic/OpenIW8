@@ -61,6 +61,7 @@ ATClient_StateMachineBRSkydiveEnter
 void ATClient_StateMachineBRSkydiveEnter(LocalClientNum_t localClientNum)
 {
   const dvar_t *v1; 
+  __int64 v2; 
   __int64 integer64; 
   const char *v4; 
   __int64 v5; 
@@ -71,12 +72,13 @@ void ATClient_StateMachineBRSkydiveEnter(LocalClientNum_t localClientNum)
   const clientState_t *LocalClientState; 
   unsigned int TimeAsSeconds; 
   int clientIndex; 
-  __int64 v16; 
-  __int64 v17; 
+  double v13; 
+  __int64 v14; 
+  __int64 v15; 
   unsigned int pHoldrand; 
 
   v1 = DVARSTR_ui_gametype;
-  _RBP = localClientNum;
+  v2 = localClientNum;
   if ( !DVARSTR_ui_gametype && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ui_gametype") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v1);
@@ -102,15 +104,14 @@ void ATClient_StateMachineBRSkydiveEnter(LocalClientNum_t localClientNum)
     }
   }
   while ( v7 );
-  if ( (unsigned int)_RBP >= 2 )
+  if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v17) = 2;
-    LODWORD(v16) = _RBP;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrskydive.cpp", 39, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
+    LODWORD(v15) = 2;
+    LODWORD(v14) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrskydive.cpp", 39, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
       __debugbreak();
   }
-  _RSI = s_brSkydiveClientData;
-  LocalClientState = ATClient_GetLocalClientState((const LocalClientNum_t)_RBP);
+  LocalClientState = ATClient_GetLocalClientState((const LocalClientNum_t)v2);
   TimeAsSeconds = Sys_GetTimeAsSeconds();
   pHoldrand = TimeAsSeconds;
   if ( LocalClientState )
@@ -119,14 +120,9 @@ void ATClient_StateMachineBRSkydiveEnter(LocalClientNum_t localClientNum)
     clientIndex = 0;
   pHoldrand = clientIndex + TimeAsSeconds;
   BG_srand(&pHoldrand);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43340000; max
-    vmovss  xmm0, cs:__real@c3340000; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, &pHoldrand);
-  __asm { vmovss  dword ptr [rsi+rbp*8], xmm0 }
-  s_brSkydiveClientData[_RBP].m_fwd = 0.0;
+  v13 = BG_flrand(-180.0, 180.0, &pHoldrand);
+  s_brSkydiveClientData[v2].m_yaw = *(float *)&v13;
+  s_brSkydiveClientData[v2].m_fwd = 0.0;
 }
 
 /*
@@ -197,55 +193,32 @@ ATClient_StateMachineBRSkydiveUpdate
 */
 void ATClient_StateMachineBRSkydiveUpdate(LocalClientNum_t localClientNum, int msec)
 {
+  __int64 v2; 
+  vec3_t *PlayerAngles; 
+  float v7; 
+  double v8; 
   AutomatedInput_Record records; 
   vec3_t result; 
 
-  __asm { vmovaps [rsp+0A8h+var_18], xmm6 }
-  _RBX = localClientNum;
+  v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinebrskydive.cpp", 66, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  ATClient_GetPlayerAngles(&result, (const LocalClientNum_t)_RBX);
-  _RCX = s_brSkydiveClientData;
+  PlayerAngles = ATClient_GetPlayerAngles(&result, (const LocalClientNum_t)v2);
+  _XMM6 = 0i64;
   __asm
   {
-    vmovss  xmm1, dword ptr [rcx+rbx*8]
-    vxorps  xmm6, xmm6, xmm6
-    vsubss  xmm0, xmm1, dword ptr [rax+4]
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, cs:__real@3f000000
     vroundss xmm2, xmm6, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, cs:__real@3f800000
-    vsubss  xmm4, xmm1, cs:__real@3e800000
-    vaddss  xmm2, xmm4, cs:__real@3f000000
     vroundss xmm3, xmm6, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm0, xmm0, cs:__real@40c90fdb; X
   }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@c1a00000; val
-    vmovss  xmm2, cs:__real@3f666666; max
-    vmovss  xmm1, cs:__real@bf666666; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3c23d70a
-    vxorps  xmm2, xmm2, xmm2
-  }
+  v7 = cosf_0((float)((float)((float)((float)((float)((float)(s_brSkydiveClientData[v2].m_yaw - PlayerAngles->v[1]) * 0.0027777778) - *(float *)&_XMM2) * 1.0) - 0.25) - *(float *)&_XMM3) * 6.2831855);
+  v8 = I_fclamp(v7 * -20.0, -0.89999998, 0.89999998);
   memset(&records.keys, 0, sizeof(records.keys));
-  __asm
-  {
-    vmovss  [rsp+0A8h+records.deferTimeSeconds], xmm2
-    vmovss  [rsp+0A8h+records.holdTimeSeconds], xmm1
-    vmovss  dword ptr [rsp+0A8h+records.moveStick], xmm2
-    vmovss  dword ptr [rsp+0A8h+records.moveStick+4], xmm2
-    vmovss  dword ptr [rsp+0A8h+records.lookStick], xmm2
-    vmovss  dword ptr [rsp+0A8h+records.lookStick+4], xmm0
-  }
-  CL_Input_AddAutomatedSequence((LocalClientNum_t)_RBX, &records, 1);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
+  records.deferTimeSeconds = 0.0;
+  records.holdTimeSeconds = FLOAT_0_0099999998;
+  records.moveStick.v[0] = 0.0;
+  records.moveStick.v[1] = 0.0;
+  records.lookStick.v[0] = 0.0;
+  records.lookStick.v[1] = *(float *)&v8;
+  CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
 }
 

@@ -260,55 +260,53 @@ void master_selection(jpeg_decompress_struct *cinfo)
 {
   jpeg_decomp_master *master; 
   unsigned __int8 *v3; 
+  __m256i *v4; 
   int v5; 
-  unsigned __int8 *v6; 
+  __m256i *v6; 
   int i; 
-  _QWORD *v8; 
+  __m256i *v8; 
   __int64 v9; 
+  __m256i *sample_range_limit; 
   unsigned __int8 quantize_colors; 
-  bool v16; 
+  bool v12; 
   jpeg_progress_mgr *progress; 
   int num_components; 
 
   master = cinfo->master;
   j_jpeg_calc_output_dimensions(cinfo);
   v3 = (unsigned __int8 *)cinfo->mem->alloc_small((jpeg_common_struct *)cinfo, 1i64, 1408i64);
-  _RBP = v3 + 256;
+  v4 = (__m256i *)(v3 + 256);
   cinfo->sample_range_limit = v3 + 256;
   memset_0(v3, 0, 0x100ui64);
   v5 = 0;
-  v6 = _RBP;
+  v6 = v4;
   for ( i = 0; i <= 255; ++i )
-    *v6++ = i;
-  v8 = _RBP + 256;
+  {
+    v6->m256i_i8[0] = i;
+    v6 = (__m256i *)((char *)v6 + 1);
+  }
+  v8 = v4 + 8;
   v9 = 6i64;
   do
   {
-    *v8 = -1i64;
-    v8[1] = -1i64;
-    v8[2] = -1i64;
-    v8 += 8;
-    *(v8 - 5) = -1i64;
-    *(v8 - 4) = -1i64;
-    *(v8 - 3) = -1i64;
-    *(v8 - 2) = -1i64;
-    *(v8 - 1) = -1i64;
+    v8->m256i_i64[0] = -1i64;
+    v8->m256i_i64[1] = -1i64;
+    v8->m256i_i64[2] = -1i64;
+    v8 += 2;
+    v8[-2].m256i_i64[3] = -1i64;
+    v8[-1].m256i_i64[0] = -1i64;
+    v8[-1].m256i_i64[1] = -1i64;
+    v8[-1].m256i_i64[2] = -1i64;
+    v8[-1].m256i_i64[3] = -1i64;
     --v9;
   }
   while ( v9 );
-  memset_0(_RBP + 640, 0, 0x180ui64);
-  _RAX = cinfo->sample_range_limit;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+400h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+420h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+440h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbp+460h], ymm1
-  }
+  memset_0(&v4[20], 0, 0x180ui64);
+  sample_range_limit = (__m256i *)cinfo->sample_range_limit;
+  v4[32] = *sample_range_limit;
+  v4[33] = sample_range_limit[1];
+  v4[34] = sample_range_limit[2];
+  v4[35] = sample_range_limit[3];
   LODWORD(master[1].prepare_for_output_pass) = 0;
   BYTE4(master[1].prepare_for_output_pass) = use_merged_upsample(cinfo);
   master[1].finish_output_pass = NULL;
@@ -385,8 +383,8 @@ void master_selection(jpeg_decompress_struct *cinfo)
   {
     j_jinit_huff_decoder(cinfo);
   }
-  v16 = cinfo->inputctl->has_multiple_scans || cinfo->buffered_image;
-  j_jinit_d_coef_controller(cinfo, v16);
+  v12 = cinfo->inputctl->has_multiple_scans || cinfo->buffered_image;
+  j_jinit_d_coef_controller(cinfo, v12);
   if ( !cinfo->raw_data_out )
     j_jinit_d_main_controller(cinfo, 0);
   cinfo->mem->realize_virt_arrays((jpeg_common_struct *)cinfo);

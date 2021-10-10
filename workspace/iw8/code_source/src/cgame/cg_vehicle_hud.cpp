@@ -102,37 +102,24 @@ void __fastcall CG_DrawVehicleTargets(LocalClientNum_t localClientNum, rectDef_s
 Bounds_ScaleToMinEdgeSize2D
 ==============
 */
-
-void __fastcall Bounds_ScaleToMinEdgeSize2D(Bounds *bounds, double minSize)
+void Bounds_ScaleToMinEdgeSize2D(Bounds *bounds, float minSize)
 {
-  char v2; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm
+  v2 = minSize * 0.5;
+  v3 = bounds->halfSize.v[1];
+  v4 = bounds->halfSize.v[0];
+  if ( v4 >= v3 )
   {
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vmovss  xmm1, dword ptr [rcx+10h]
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vcomiss xmm0, xmm1
-  }
-  if ( v2 )
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm1, xmm0
-      vmulss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rcx+10h], xmm1
-      vmovss  dword ptr [rcx+0Ch], xmm2
-    }
+    bounds->halfSize.v[0] = (float)(v4 / v3) * v2;
+    bounds->halfSize.v[1] = v2;
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm0, xmm1
-      vmulss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rcx+0Ch], xmm1
-      vmovss  dword ptr [rcx+10h], xmm2
-    }
+    bounds->halfSize.v[1] = (float)(v3 / v4) * v2;
+    bounds->halfSize.v[0] = v2;
   }
 }
 
@@ -141,302 +128,155 @@ void __fastcall Bounds_ScaleToMinEdgeSize2D(Bounds *bounds, double minSize)
 CG_DrawBouncingDiamond
 ==============
 */
-
-void __fastcall CG_DrawBouncingDiamond(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color, double _XMM3_8)
+void CG_DrawBouncingDiamond(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color)
 {
-  unsigned int vehReticleLockOnEntNum; 
-  bool v19; 
-  bool v20; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v7; 
+  float value; 
+  int vehReticleLockOnEntNum; 
   centity_t *Entity; 
-  char v49; 
-  char v63; 
+  int vehReticleLockOnDuration; 
+  float v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  float v16; 
+  bool v17; 
+  float v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  const dvar_t *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
   Material *material; 
   int vertAlign; 
   int horzAlign; 
+  float v35; 
+  float v36; 
   const ScreenPlacement *ActivePlacement; 
-  float fmt; 
-  float v110; 
-  float v111; 
-  float v112; 
-  float v113; 
   vec3_t outPos; 
   float c; 
   float s; 
   vec3_t outOrg; 
-  __int64 v118; 
+  __int64 v42; 
   vec2_t outScreenPos; 
-  char v120; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v118 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _RBP = CG_GetLocalClientGlobals(localClientNum);
-  _RDI = DVARFLT_vehHudReticleBouncingRadius;
+  v42 = -2i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v7 = DVARFLT_vehHudReticleBouncingRadius;
   if ( !DVARFLT_vehHudReticleBouncingRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudReticleBouncingRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  vehReticleLockOnEntNum = _RBP->vehReticleLockOnEntNum;
-  __asm { vmovss  xmm10, cs:__real@3f800000 }
-  v19 = vehReticleLockOnEntNum < 0x7FF;
-  v20 = vehReticleLockOnEntNum == 2047;
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  vehReticleLockOnEntNum = LocalClientGlobals->vehReticleLockOnEntNum;
   if ( vehReticleLockOnEntNum == 2047 )
   {
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm3, xmm3, xmm3
-      vxorps  xmm4, xmm4, xmm4
-    }
+    v15 = 0.0;
+    v16 = 0.0;
   }
   else
   {
     if ( !CG_GetTargetPos(localClientNum, vehReticleLockOnEntNum, &outPos) )
     {
-      Entity = CG_GetEntity(localClientNum, _RBP->vehReticleLockOnEntNum);
+      Entity = CG_GetEntity(localClientNum, LocalClientGlobals->vehReticleLockOnEntNum);
       if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 890, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
         __debugbreak();
       CG_GetPoseOrigin(&Entity->pose, &outPos);
     }
-    RefdefView_GetOrg(&_RBP->refdef.view, &outOrg);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+138h+outPos]
-      vsubss  xmm1, xmm0, dword ptr [rsp+138h+outOrg]
-      vmovss  dword ptr [rsp+138h+outPos], xmm1
-      vmovss  xmm2, dword ptr [rsp+138h+outPos+4]
-      vsubss  xmm0, xmm2, dword ptr [rsp+138h+outOrg+4]
-      vmovss  dword ptr [rsp+138h+outPos+4], xmm0
-      vmovss  xmm1, dword ptr [rsp+138h+outPos+8]
-      vsubss  xmm2, xmm1, dword ptr [rsp+138h+outOrg+8]
-      vmovss  dword ptr [rsp+138h+outPos+8], xmm2
-    }
+    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
+    outPos.v[0] = outPos.v[0] - outOrg.v[0];
+    outPos.v[1] = outPos.v[1] - outOrg.v[1];
+    outPos.v[2] = outPos.v[2] - outOrg.v[2];
     CG_WorldDirToScreenPosVirtualCentered(localClientNum, &outPos, &outScreenPos);
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    if ( _RBP->vehReticleLockOnDuration )
+    vehReticleLockOnDuration = LocalClientGlobals->vehReticleLockOnDuration;
+    if ( vehReticleLockOnDuration )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm0, xmm1, xmm0; val
-        vmovaps xmm2, xmm10; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm1, xmm0 }
+      v12 = (float)(LocalClientGlobals->time - LocalClientGlobals->vehReticleLockOnStartTime) / (float)vehReticleLockOnDuration;
+      I_fclamp(v12, 0.0, 1.0);
+      v13 = v12;
     }
     else
     {
-      __asm { vmovaps xmm1, xmm10 }
+      v13 = FLOAT_1_0;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm6
-      vsubss  xmm6, xmm6, xmm0
-      vmulss  xmm0, xmm1, cs:__real@40000000; val
-      vmovaps xmm2, xmm10; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+138h+outScreenPos]
-      vsubss  xmm2, xmm1, dword ptr cs:?vec2_origin@@3Tvec2_t@@B; vec2_t const vec2_origin
-      vmulss  xmm3, xmm2, xmm0
-      vaddss  xmm3, xmm3, dword ptr cs:?vec2_origin@@3Tvec2_t@@B; vec2_t const vec2_origin
-      vmovss  xmm1, dword ptr [rsp+138h+outScreenPos+4]
-      vsubss  xmm2, xmm1, dword ptr cs:?vec2_origin@@3Tvec2_t@@B+4; vec2_t const vec2_origin
-      vmulss  xmm0, xmm2, xmm0
-      vaddss  xmm4, xmm0, dword ptr cs:?vec2_origin@@3Tvec2_t@@B+4; vec2_t const vec2_origin
-    }
-    v19 = 0;
-    v20 = 1;
+    value = value - (float)(v13 * value);
+    v14 = I_fclamp(v13 * 2.0, 0.0, 1.0);
+    v15 = (float)((float)(outScreenPos.v[0] - 0.0) * *(float *)&v14) + 0.0;
+    v16 = (float)((float)(outScreenPos.v[1] - 0.0) * *(float *)&v14) + 0.0;
     memset(&outOrg, 0, sizeof(outOrg));
   }
-  __asm { vucomiss xmm6, xmm9 }
-  if ( v20 )
+  if ( value == 0.0 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+66A38h], xmm3
-      vmovss  dword ptr [rbp+66A3Ch], xmm4
-    }
+    LocalClientGlobals->vehReticleOffset.v[0] = v15;
+    LocalClientGlobals->vehReticleOffset.v[1] = v16;
   }
   else
   {
-    __asm { vucomiss xmm9, dword ptr [rbp+66A40h] }
-    if ( !v20 )
-      goto LABEL_20;
-    __asm { vucomiss xmm9, dword ptr [rbp+66A44h] }
-    if ( v20 )
+    v17 = LocalClientGlobals->vehReticleVel.v[0] == 0.0 && LocalClientGlobals->vehReticleVel.v[1] == 0.0;
+    v18 = LocalClientGlobals->vehReticleOffset.v[0] - v15;
+    v19 = LocalClientGlobals->vehReticleOffset.v[1] - v16;
+    if ( v17 || (float)((float)(v18 * v18) + (float)((float)(LocalClientGlobals->vehReticleOffset.v[1] - v16) * (float)(LocalClientGlobals->vehReticleOffset.v[1] - v16))) > (float)(value * value) )
     {
-      v49 = 1;
-    }
-    else
-    {
-LABEL_20:
-      v49 = 0;
-      v19 = 0;
-      v20 = 1;
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+66A38h]
-      vsubss  xmm7, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rbp+66A3Ch]
-      vsubss  xmm8, xmm0, xmm4
-      vmulss  xmm1, xmm7, xmm7
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm2, xmm1
-    }
-    if ( v49 || !v19 && !v20 )
-    {
-      *(double *)&_XMM0 = I_random();
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm
-      {
-        vmovss  xmm1, [rsp+138h+c]
-        vmovss  xmm0, [rsp+138h+s]
-        vmovss  dword ptr [rbp+66A40h], xmm0
-        vmovss  dword ptr [rbp+66A44h], xmm1
-      }
-      _RDI = DVARFLT_vehHudReticleBouncingSpeed;
+      v20 = I_random();
+      FastSinCos((float)(*(float *)&v20 * 360.0) * 0.017453292, &s, &c);
+      v21 = c;
+      LocalClientGlobals->vehReticleVel.v[0] = s;
+      LocalClientGlobals->vehReticleVel.v[1] = v21;
+      v22 = DVARFLT_vehHudReticleBouncingSpeed;
       if ( !DVARFLT_vehHudReticleBouncingSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudReticleBouncingSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
+      Dvar_CheckFrontendServerThread(v22);
+      v23 = v22->current.value;
+      v24 = v23 * LocalClientGlobals->vehReticleVel.v[0];
+      LocalClientGlobals->vehReticleVel.v[0] = v24;
+      v25 = v23 * LocalClientGlobals->vehReticleVel.v[1];
+      LocalClientGlobals->vehReticleVel.v[1] = v25;
+      v26 = (float)(v19 * v25) + (float)(v18 * v24);
+      LODWORD(v27) = LODWORD(v25) ^ _xmm;
+      if ( (float)((float)(v24 * v19) + (float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * v18)) < v26 )
       {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm5, xmm0, dword ptr [rbp+66A40h]
-        vmovss  dword ptr [rbp+66A40h], xmm5
-        vmulss  xmm2, xmm0, dword ptr [rbp+66A44h]
-        vmovss  dword ptr [rbp+66A44h], xmm2
-        vmulss  xmm1, xmm8, xmm2
-        vmulss  xmm0, xmm7, xmm5
-        vaddss  xmm3, xmm1, xmm0
-        vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm4, xmm2, xmm6
-        vmulss  xmm1, xmm5, xmm8
-        vmulss  xmm0, xmm4, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vcomiss xmm2, xmm3
+        v26 = (float)(v24 * v19) + (float)(v27 * v18);
+        LocalClientGlobals->vehReticleVel.v[0] = v27;
+        LocalClientGlobals->vehReticleVel.v[1] = v24;
       }
-      if ( v63 )
+      LODWORD(v28) = LODWORD(v24) ^ _xmm;
+      if ( (float)((float)(v27 * v19) + (float)(v18 * COERCE_FLOAT(LODWORD(v24) ^ _xmm))) < v26 )
       {
-        __asm
-        {
-          vmovaps xmm3, xmm2
-          vmovss  dword ptr [rbp+66A40h], xmm4
-          vmovss  dword ptr [rbp+66A44h], xmm5
-        }
+        v26 = (float)(v27 * v19) + (float)(v18 * COERCE_FLOAT(LODWORD(v24) ^ _xmm));
+        LocalClientGlobals->vehReticleVel.v[0] = v28;
+        LocalClientGlobals->vehReticleVel.v[1] = v27;
       }
-      __asm
+      if ( (float)((float)(v28 * v19) + (float)(v18 * v25)) < v26 )
       {
-        vxorps  xmm2, xmm5, xmm6
-        vmulss  xmm1, xmm4, xmm8
-        vmulss  xmm0, xmm7, xmm2
-        vaddss  xmm5, xmm1, xmm0
-        vcomiss xmm5, xmm3
-      }
-      if ( v63 )
-      {
-        __asm
-        {
-          vmovaps xmm3, xmm5
-          vmovss  dword ptr [rbp+66A40h], xmm2
-          vmovss  dword ptr [rbp+66A44h], xmm4
-        }
-      }
-      __asm
-      {
-        vxorps  xmm5, xmm4, xmm6
-        vmulss  xmm1, xmm2, xmm8
-        vmulss  xmm0, xmm7, xmm5
-        vaddss  xmm1, xmm1, xmm0
-        vcomiss xmm1, xmm3
-      }
-      if ( v63 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rbp+66A40h], xmm5
-          vmovss  dword ptr [rbp+66A44h], xmm2
-        }
+        LocalClientGlobals->vehReticleVel.v[0] = v25;
+        LocalClientGlobals->vehReticleVel.v[1] = v28;
       }
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbp+65E4h]
-      vmulss  xmm2, xmm0, cs:__real@3a83126f
-      vmulss  xmm1, xmm2, dword ptr [rbp+66A40h]
-      vaddss  xmm0, xmm1, dword ptr [rbp+66A38h]
-      vmovss  dword ptr [rbp+66A38h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+66A44h]
-      vaddss  xmm0, xmm1, dword ptr [rbp+66A3Ch]
-      vmovss  dword ptr [rbp+66A3Ch], xmm0
-    }
+    v29 = (float)LocalClientGlobals->frametime * 0.001;
+    LocalClientGlobals->vehReticleOffset.v[0] = (float)(v29 * LocalClientGlobals->vehReticleVel.v[0]) + LocalClientGlobals->vehReticleOffset.v[0];
+    LocalClientGlobals->vehReticleOffset.v[1] = (float)(v29 * LocalClientGlobals->vehReticleVel.v[1]) + LocalClientGlobals->vehReticleOffset.v[1];
   }
-  _RDI = DVARFLT_vehHudReticleBouncingDiamondSize;
+  v30 = DVARFLT_vehHudReticleBouncingDiamondSize;
   if ( !DVARFLT_vehHudReticleBouncingDiamondSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudReticleBouncingDiamondSize") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm8, cs:__real@3f000000
-  }
+  Dvar_CheckFrontendServerThread(v30);
+  v31 = v30->current.value;
   material = cgMedia.vehBouncingDiamondReticle;
   vertAlign = rect->vertAlign;
   horzAlign = rect->horzAlign;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+66A3Ch]
-    vsubss  xmm7, xmm0, xmm2
-    vmovss  xmm1, dword ptr [rbp+66A38h]
-    vsubss  xmm6, xmm1, xmm2
-  }
+  v35 = LocalClientGlobals->vehReticleOffset.v[1] - (float)(v31 * 0.5);
+  v36 = LocalClientGlobals->vehReticleOffset.v[0] - (float)(v31 * 0.5);
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vmovss  [rsp+138h+var_E8], xmm10
-    vmovss  [rsp+138h+var_F0], xmm10
-    vmovss  [rsp+138h+var_F8], xmm9
-    vmovss  [rsp+138h+var_100], xmm9
-    vmovss  dword ptr [rsp+138h+fmt], xmm8
-    vmovaps xmm3, xmm8; w
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm6; x
-  }
-  CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, horzAlign, vertAlign, v110, v111, v112, v113, color, material);
+  CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, v36, v35, v31, v31, horzAlign, vertAlign, 0.0, 0.0, 1.0, 1.0, color, material);
   memset(&outPos, 0, sizeof(outPos));
-  _R11 = &v120;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -446,224 +286,125 @@ CG_DrawPipOnAStickReticle
 */
 void CG_DrawPipOnAStickReticle(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color)
 {
-  __int64 v13; 
+  __int64 v3; 
   cg_t *LocalClientGlobals; 
+  centity_t *Entity; 
   const DObj *ClientDObj; 
   const Weapon *WeaponForEntity; 
-  const dvar_t *v19; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v16; 
+  float v17; 
   const ScreenPlacement *ActivePlacement; 
-  char v50; 
-  char v51; 
+  float v19; 
+  float v20; 
+  float v21; 
+  double Float_Internal_DebugName; 
+  float v23; 
+  float v24; 
+  double v25; 
   Material *vehHudLine; 
-  int v58; 
-  int horzAlign; 
-  vec4_t *v63; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float lineWidth; 
   int vertAlign; 
-  int vertAligna; 
-  float colora; 
-  float colorb; 
+  int horzAlign; 
+  float v29; 
+  float v30; 
+  double lineWidth; 
+  vec4_t *v32; 
+  double v33; 
+  double v34; 
   Material *material; 
-  float materiala; 
-  float materialb; 
-  float v98; 
-  float v99; 
   int projectileSpeed; 
-  vec4_t *v101; 
+  vec4_t *v37; 
   int projectileSpeedUp; 
   vec2_t outScreenPos; 
-  vec2_t v104; 
+  vec2_t v40; 
   vec3_t worldDir; 
   tmat33_t<vec3_t> outTagMat; 
   vec3_t outOrigin; 
 
-  v13 = localClientNum;
-  v101 = (vec4_t *)color;
+  v3 = localClientNum;
+  v37 = (vec4_t *)color;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RDI = CG_GetEntity((const LocalClientNum_t)v13, LocalClientGlobals->predictedPlayerState.viewlocked_entNum);
-  if ( (_RDI->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 751, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
+  Entity = CG_GetEntity((const LocalClientNum_t)v3, LocalClientGlobals->predictedPlayerState.viewlocked_entNum);
+  if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 751, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  ClientDObj = Com_GetClientDObj(_RDI->nextState.number, (LocalClientNum_t)v13);
-  if ( !CgWeaponMap::ms_instance[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  ClientDObj = Com_GetClientDObj(Entity->nextState.number, (LocalClientNum_t)v3);
+  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v13], &_RDI->nextState);
+  WeaponForEntity = BG_GetWeaponForEntity(CgWeaponMap::ms_instance[v3], &Entity->nextState);
   BG_GetProjectileSpeed(WeaponForEntity, 0, &projectileSpeed, &projectileSpeedUp);
   if ( ClientDObj )
   {
-    v19 = DVARBOOL_vehHudDrawPipOnStickWhenFreelooking;
+    v9 = DVARBOOL_vehHudDrawPipOnStickWhenFreelooking;
     if ( !DVARBOOL_vehHudDrawPipOnStickWhenFreelooking && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudDrawPipOnStickWhenFreelooking") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    if ( v19->current.enabled || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu) )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v9->current.enabled || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu) )
     {
-      if ( CG_DObjGetWorldTagMatrix(&_RDI->pose, ClientDObj, scr_const.tag_body, &outTagMat, &outOrigin) )
+      if ( CG_DObjGetWorldTagMatrix(&Entity->pose, ClientDObj, scr_const.tag_body, &outTagMat, &outOrigin) )
       {
-        CG_WorldDirToScreenPosVirtualCentered((LocalClientNum_t)v13, outTagMat.m, &outScreenPos);
-        __asm
+        CG_WorldDirToScreenPosVirtualCentered((LocalClientNum_t)v3, outTagMat.m, &outScreenPos);
+        worldDir.v[0] = (float)projectileSpeed * outTagMat.m[0].v[0];
+        worldDir.v[1] = (float)projectileSpeed * outTagMat.m[0].v[1];
+        worldDir.v[2] = (float)projectileSpeed * outTagMat.m[0].v[2];
+        v10 = Entity->prevState.pos.trDelta.v[1];
+        v11 = Entity->prevState.pos.trDelta.v[2];
+        worldDir.v[0] = worldDir.v[0] + Entity->prevState.pos.trDelta.v[0];
+        worldDir.v[2] = worldDir.v[2] + v11;
+        worldDir.v[1] = worldDir.v[1] + v10;
+        if ( CG_WorldDirToScreenPosVirtualCentered((LocalClientNum_t)v3, &worldDir, &v40) )
         {
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, [rsp+1A0h+projectileSpeed]
-          vmulss  xmm5, xmm2, dword ptr [rbp+0A0h+outTagMat]
-          vmulss  xmm4, xmm2, dword ptr [rbp+0A0h+outTagMat+4]
-          vmulss  xmm3, xmm2, dword ptr [rbp+0A0h+outTagMat+8]
-          vmovss  dword ptr [rbp+0A0h+worldDir], xmm5
-          vmovss  dword ptr [rbp+0A0h+worldDir+4], xmm4
-          vmovss  dword ptr [rbp+0A0h+worldDir+8], xmm3
-          vaddss  xmm0, xmm5, dword ptr [rdi+13Ch]
-          vmovss  xmm1, dword ptr [rdi+140h]
-          vmovss  xmm2, dword ptr [rdi+144h]
-          vmovss  dword ptr [rbp+0A0h+worldDir], xmm0
-          vaddss  xmm0, xmm3, xmm2
-          vaddss  xmm1, xmm4, xmm1
-          vmovss  dword ptr [rbp+0A0h+worldDir+8], xmm0
-          vmovss  dword ptr [rbp+0A0h+worldDir+4], xmm1
-        }
-        if ( CG_WorldDirToScreenPosVirtualCentered((LocalClientNum_t)v13, &worldDir, &v104) )
-        {
-          __asm
-          {
-            vmovaps [rsp+1A0h+var_40], xmm6
-            vmovaps [rsp+1A0h+var_50], xmm7
-            vmovaps [rsp+1A0h+var_80], xmm10
-            vmovaps [rsp+1A0h+var_90], xmm11
-            vmovaps [rsp+1A0h+var_A0], xmm12
-            vmovaps [rsp+1A0h+var_B0], xmm13
-            vmovaps [rsp+1A0h+var_C0], xmm14
-          }
           if ( !cgMedia.vehCenterCircle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 774, ASSERT_TYPE_ASSERT, "(cgMedia.vehCenterCircle)", (const char *)&queryFormat, "cgMedia.vehCenterCircle") )
             __debugbreak();
           if ( !cgMedia.vehMovingCircle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 775, ASSERT_TYPE_ASSERT, "(cgMedia.vehMovingCircle)", (const char *)&queryFormat, "cgMedia.vehMovingCircle") )
             __debugbreak();
           if ( !cgMedia.vehHudLine && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 776, ASSERT_TYPE_ASSERT, "(cgMedia.vehHudLine)", (const char *)&queryFormat, "cgMedia.vehHudLine") )
             __debugbreak();
+          v12 = LODWORD(v40.v[1]);
+          *(float *)&v12 = fsqrt((float)((float)(v40.v[1] - outScreenPos.v[1]) * (float)(v40.v[1] - outScreenPos.v[1])) + (float)((float)(v40.v[0] - outScreenPos.v[0]) * (float)(v40.v[0] - outScreenPos.v[0])));
+          _XMM7 = v12;
           __asm
           {
-            vmovss  xmm0, dword ptr [rbp+0A0h+var_110]
-            vsubss  xmm4, xmm0, dword ptr [rbp+0A0h+outScreenPos]
-            vmovss  xmm1, dword ptr [rbp+0A0h+var_110+4]
-            vsubss  xmm3, xmm1, dword ptr [rbp+0A0h+outScreenPos+4]
-            vmovss  xmm10, cs:__real@3f800000
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm3, xmm3
-            vaddss  xmm1, xmm2, xmm0
-            vsqrtss xmm7, xmm1, xmm1
             vcmpless xmm0, xmm7, cs:__real@80000000
             vblendvps xmm0, xmm7, xmm10, xmm0
-            vdivss  xmm1, xmm10, xmm0
-            vmulss  xmm13, xmm4, xmm1
-            vmulss  xmm14, xmm3, xmm1
           }
-          ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v13);
+          v16 = (float)(v40.v[0] - outScreenPos.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+          v17 = (float)(v40.v[1] - outScreenPos.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+          ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v3);
           *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircle, "vehHudReticlePipOnAStickMovingCircle");
-          __asm { vmulss  xmm11, xmm0, cs:__real@3f000000 }
+          v19 = *(float *)&_XMM0 * 0.5;
           *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircle, "vehHudReticlePipOnAStickCenterCircle");
-          __asm
+          v20 = *(float *)&_XMM0 * 0.5;
+          *(float *)&v12 = (float)(*(float *)&_XMM0 * 0.5) + v19;
+          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer, "vehHudReticlePipOnAStickCenterCircleBuffer");
+          v21 = *(float *)&v12 - *(float *)&_XMM0;
+          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer, "vehHudReticlePipOnAStickMovingCircleBuffer");
+          if ( *(float *)&_XMM7 <= (float)(v21 - *(float *)&_XMM0) )
           {
-            vmulss  xmm12, xmm0, cs:__real@3f000000
-            vaddss  xmm6, xmm12, xmm11
-          }
-          Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer, "vehHudReticlePipOnAStickCenterCircleBuffer");
-          __asm { vsubss  xmm6, xmm6, xmm0 }
-          Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer, "vehHudReticlePipOnAStickMovingCircleBuffer");
-          __asm
-          {
-            vsubss  xmm1, xmm6, xmm0
-            vcomiss xmm7, xmm1
-          }
-          if ( v50 | v51 )
-          {
-            v63 = v101;
+            v32 = v37;
           }
           else
           {
-            __asm
-            {
-              vmovaps [rsp+1A0h+var_60], xmm8
-              vmovaps [rsp+1A0h+var_70], xmm9
-            }
-            Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer, "vehHudReticlePipOnAStickCenterCircleBuffer");
-            __asm
-            {
-              vsubss  xmm2, xmm12, xmm0
-              vmulss  xmm1, xmm2, xmm13
-              vaddss  xmm9, xmm1, dword ptr [rbp+0A0h+outScreenPos]
-              vmulss  xmm0, xmm2, xmm14
-              vaddss  xmm8, xmm0, dword ptr [rbp+0A0h+outScreenPos+4]
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer, "vehHudReticlePipOnAStickMovingCircleBuffer");
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircleBuffer, "vehHudReticlePipOnAStickCenterCircleBuffer");
+            v23 = (float)((float)(v20 - *(float *)&Float_Internal_DebugName) * v16) + outScreenPos.v[0];
+            v24 = (float)((float)(v20 - *(float *)&Float_Internal_DebugName) * v17) + outScreenPos.v[1];
+            v25 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircleBuffer, "vehHudReticlePipOnAStickMovingCircleBuffer");
             vehHudLine = cgMedia.vehHudLine;
-            v58 = rect->vertAlign;
+            vertAlign = rect->vertAlign;
             horzAlign = rect->horzAlign;
-            __asm
-            {
-              vsubss  xmm2, xmm0, xmm11
-              vmulss  xmm1, xmm2, xmm13
-              vaddss  xmm7, xmm1, dword ptr [rbp+0A0h+var_110]
-              vmulss  xmm0, xmm2, xmm14
-              vaddss  xmm6, xmm0, dword ptr [rbp+0A0h+var_110+4]
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudLineWidth, "vehHudLineWidth");
+            v29 = (float)((float)(*(float *)&v25 - v19) * v16) + v40.v[0];
+            v30 = (float)((float)(*(float *)&v25 - v19) * v17) + v40.v[1];
+            lineWidth = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudLineWidth, "vehHudLineWidth");
             material = vehHudLine;
-            v63 = v101;
-            __asm
-            {
-              vmovss  [rsp+1A0h+lineWidth], xmm0
-              vmovaps xmm3, xmm7; p2x
-              vmovaps xmm2, xmm8; p1y
-              vmovaps xmm1, xmm9; p1x
-              vmovss  dword ptr [rsp+1A0h+fmt], xmm6
-            }
-            CG_Draw2DLine(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, lineWidth, horzAlign, v58, v101, material);
-            __asm
-            {
-              vmovaps xmm9, [rsp+1A0h+var_70]
-              vmovaps xmm8, [rsp+1A0h+var_60]
-            }
+            v32 = v37;
+            CG_Draw2DLine(ActivePlacement, v23, v24, v29, v30, *(float *)&lineWidth, horzAlign, vertAlign, v37, material);
           }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircle, "vehHudReticlePipOnAStickCenterCircle");
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbp+0A0h+outScreenPos+4]
-            vmovss  xmm3, dword ptr [rbp+0A0h+outScreenPos]
-            vmovss  [rsp+1A0h+var_150], xmm10
-            vmovss  dword ptr [rsp+1A0h+material], xmm10
-            vxorps  xmm6, xmm6, xmm6
-            vmovss  dword ptr [rsp+1A0h+color], xmm6
-            vmovss  [rsp+1A0h+vertAlign], xmm6
-            vsubss  xmm2, xmm1, xmm12; y
-            vsubss  xmm1, xmm3, xmm12; x
-            vmovaps xmm3, xmm0; w
-            vmovss  dword ptr [rsp+1A0h+fmt], xmm0
-          }
-          CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, rect->horzAlign, rect->vertAlign, *(float *)&vertAlign, colora, materiala, v98, v63, cgMedia.vehCenterCircle);
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircle, "vehHudReticlePipOnAStickMovingCircle");
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbp+0A0h+var_110+4]
-            vmovss  xmm3, dword ptr [rbp+0A0h+var_110]
-            vmovss  [rsp+1A0h+var_150], xmm10
-            vmovss  dword ptr [rsp+1A0h+material], xmm10
-            vmovss  dword ptr [rsp+1A0h+color], xmm6
-            vmovss  [rsp+1A0h+vertAlign], xmm6
-            vsubss  xmm2, xmm1, xmm11; y
-            vsubss  xmm1, xmm3, xmm11; x
-            vmovaps xmm3, xmm0; w
-            vmovss  dword ptr [rsp+1A0h+fmt], xmm0
-          }
-          CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, rect->horzAlign, rect->vertAlign, *(float *)&vertAligna, colorb, materialb, v99, v63, cgMedia.vehMovingCircle);
-          __asm
-          {
-            vmovaps xmm14, [rsp+1A0h+var_C0]
-            vmovaps xmm13, [rsp+1A0h+var_B0]
-            vmovaps xmm12, [rsp+1A0h+var_A0]
-            vmovaps xmm11, [rsp+1A0h+var_90]
-            vmovaps xmm10, [rsp+1A0h+var_80]
-            vmovaps xmm7, [rsp+1A0h+var_50]
-            vmovaps xmm6, [rsp+1A0h+var_40]
-          }
+          v33 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickCenterCircle, "vehHudReticlePipOnAStickCenterCircle");
+          CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, outScreenPos.v[0] - v20, outScreenPos.v[1] - v20, *(float *)&v33, *(float *)&v33, rect->horzAlign, rect->vertAlign, 0.0, 0.0, 1.0, 1.0, v32, cgMedia.vehCenterCircle);
+          v34 = Dvar_GetFloat_Internal_DebugName(DVARFLT_vehHudReticlePipOnAStickMovingCircle, "vehHudReticlePipOnAStickMovingCircle");
+          CL_DrawStretchPicWithoutSplitScreenScaling(ActivePlacement, v40.v[0] - v19, v40.v[1] - v19, *(float *)&v34, *(float *)&v34, rect->horzAlign, rect->vertAlign, 0.0, 0.0, 1.0, 1.0, v32, cgMedia.vehMovingCircle);
         }
       }
     }
@@ -677,112 +418,184 @@ CG_DrawScaledRect
 */
 void CG_DrawScaledRect(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color, Material *material, const Bounds *screenBounds, const targetInfo_t *targ, float size, float yaw, int time, PipRect *pipRect)
 {
+  int v12; 
+  float v13; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float h; 
+  int v21; 
+  int v22; 
+  int v23; 
+  __int128 popRadiusOuter_low; 
+  float v25; 
+  float prevPopRadiusInnerWaitTime; 
+  __int128 prevPopRadiusInnerWaitTime_low; 
+  bool v32; 
+  vec4_t v33; 
   int flags; 
   int vertAlign; 
   int horzAlign; 
   const ScreenPlacement *ActivePlacement; 
-  bool v64; 
-  __int64 v69; 
-  __int64 v71; 
-  int v85; 
-  int v86; 
-  bool v92; 
-  const ScreenPlacement *v93; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float h; 
-  float inOutColor; 
-  float inOutColora; 
-  float colora; 
-  float materiala; 
-  float v115; 
-  float v116; 
+  float *v38; 
+  __int64 v39; 
+  __int64 v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  int v45; 
+  int v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  bool v52; 
+  const ScreenPlacement *v53; 
   float c; 
   float s; 
-  Material *v119; 
-  __int64 v120; 
-  vec4_t v121; 
-  __int128 v126; 
-  char v165; 
-  void *retaddr; 
+  Material *v56; 
+  __int64 v57; 
+  vec4_t inOutColor; 
+  int v59; 
+  int v60; 
+  float v61; 
+  float v62; 
+  __int128 v63; 
+  int v64; 
+  int v65; 
+  float v66; 
+  float v67; 
+  __int128 v68; 
+  int v69; 
+  int v70; 
+  float v71; 
+  float v72; 
+  __int128 v73; 
+  int v74; 
+  int v75; 
+  float v76; 
+  float v77; 
+  __int128 v78; 
+  float v79; 
+  int v80; 
+  float v81; 
+  float v82; 
+  __int128 v83; 
+  float v84; 
+  int v85; 
+  float v86; 
+  float v87; 
+  __int128 v88; 
+  int v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  __int128 v93; 
+  int v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  __int128 v98; 
 
-  _RAX = &retaddr;
-  __asm
+  v12 = 1;
+  v13 = screenBounds->midPoint.v[1];
+  _XMM4 = LODWORD(targ->delay);
+  v15 = screenBounds->midPoint.v[0] - screenBounds->halfSize.v[0];
+  v16 = v13 - screenBounds->halfSize.v[1];
+  v17 = screenBounds->midPoint.v[0] + screenBounds->halfSize.v[0];
+  v18 = v13 + screenBounds->halfSize.v[1];
+  s = *(float *)&localClientNum;
+  v19 = v17 - v15;
+  h = v18 - v16;
+  v56 = material;
+  v57 = 0i64;
+  if ( *(float *)&_XMM4 > 0.0 || (*(float *)&v21 = v15, *(float *)&v22 = v16, targ->popRadiusOuter != 0.0) )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
+    v23 = time - targ->prevTime;
+    *(float *)&v21 = v15;
+    *(float *)&v22 = v16;
+    if ( v23 < 100 )
+    {
+      popRadiusOuter_low = LODWORD(targ->popRadiusOuter);
+      if ( *(float *)&popRadiusOuter_low != 0.0 )
+      {
+        v25 = fsqrt((float)((float)(v16 - targ->prevY) * (float)(v16 - targ->prevY)) + (float)((float)(v15 - targ->prevX) * (float)(v15 - targ->prevX)));
+        if ( v25 >= COERCE_FLOAT(popRadiusOuter_low & _xmm) )
+        {
+          targ->popRadiusOuter = COERCE_FLOAT(popRadiusOuter_low & _xmm);
+        }
+        else
+        {
+          _XMM1 = LODWORD(targ->popRadiusOuter);
+          if ( v25 < targ->popRadiusInner && *(float *)&popRadiusOuter_low > 0.0 )
+          {
+            *(float *)&_XMM0 = targ->popRadiusInnerWaitTime;
+            if ( *(float *)&_XMM0 > 0.0 )
+            {
+              prevPopRadiusInnerWaitTime = targ->prevPopRadiusInnerWaitTime;
+              if ( prevPopRadiusInnerWaitTime > 0.0 )
+              {
+                prevPopRadiusInnerWaitTime_low = LODWORD(targ->prevPopRadiusInnerWaitTime);
+                *(float *)&prevPopRadiusInnerWaitTime_low = prevPopRadiusInnerWaitTime - (float)((float)v23 * 0.001);
+                _XMM2 = prevPopRadiusInnerWaitTime_low;
+                __asm { vmaxss  xmm0, xmm2, xmm11 }
+              }
+              targ->prevPopRadiusInnerWaitTime = *(float *)&_XMM0;
+            }
+            _XMM1 = popRadiusOuter_low;
+            if ( targ->prevPopRadiusInnerWaitTime == 0.0 )
+            {
+              _XMM1 = popRadiusOuter_low ^ _xmm;
+              targ->popRadiusOuter = COERCE_FLOAT(popRadiusOuter_low ^ _xmm);
+            }
+          }
+          __asm
+          {
+            vcmpltss xmm0, xmm1, xmm11
+            vblendvps xmm4, xmm4, xmm7, xmm0
+          }
+          v12 = 0;
+          c = *(float *)&_XMM4;
+          LOBYTE(v12) = *(float *)&_XMM1 >= 0.0;
+        }
+      }
+      *(float *)&v21 = (float)(*(float *)&_XMM4 * targ->prevX) + (float)((float)(1.0 - *(float *)&_XMM4) * v15);
+      *(float *)&v22 = (float)(*(float *)&_XMM4 * targ->prevY) + (float)((float)(1.0 - *(float *)&_XMM4) * v16);
+      v19 = (float)(*(float *)&_XMM4 * targ->prevW) + (float)((float)(1.0 - *(float *)&_XMM4) * v19);
+      h = (float)(*(float *)&_XMM4 * targ->prevH) + (float)((float)(1.0 - *(float *)&_XMM4) * h);
+    }
   }
-  _R13 = screenBounds;
-  _RDI = color;
-  _RBX = targ;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r13+0]
-    vmovss  xmm2, dword ptr [r13+4]
-    vmovss  xmm4, dword ptr [rbx+24h]
-    vsubss  xmm5, xmm3, dword ptr [r13+0Ch]
-    vsubss  xmm6, xmm2, dword ptr [r13+10h]
-    vaddss  xmm0, xmm3, dword ptr [r13+0Ch]
-    vaddss  xmm1, xmm2, dword ptr [r13+10h]
-  }
-  LODWORD(s) = localClientNum;
-  __asm
-  {
-    vxorps  xmm11, xmm11, xmm11
-    vcomiss xmm4, xmm11
-    vsubss  xmm9, xmm0, xmm5
-    vsubss  xmm10, xmm1, xmm6
-  }
-  v119 = material;
-  v120 = 0i64;
-  __asm
-  {
-    vucomiss xmm11, dword ptr [rbx+30h]
-    vmovaps xmm7, xmm5
-    vmovaps xmm8, xmm6
-    vmovss  [rbp+180h+c], xmm7
-  }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 277, ASSERT_TYPE_SANITY, "( !IS_NAN( x0 ) )", (const char *)&queryFormat, "!IS_NAN( x0 )") )
+  c = *(float *)&v21;
+  if ( (v21 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 277, ASSERT_TYPE_SANITY, "( !IS_NAN( x0 ) )", (const char *)&queryFormat, "!IS_NAN( x0 )") )
     __debugbreak();
-  __asm { vmovss  [rbp+180h+c], xmm8 }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 278, ASSERT_TYPE_SANITY, "( !IS_NAN( y0 ) )", (const char *)&queryFormat, "!IS_NAN( y0 )") )
+  c = *(float *)&v22;
+  if ( (v22 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 278, ASSERT_TYPE_SANITY, "( !IS_NAN( y0 ) )", (const char *)&queryFormat, "!IS_NAN( y0 )") )
     __debugbreak();
-  __asm { vmovss  [rbp+180h+c], xmm9 }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 279, ASSERT_TYPE_SANITY, "( !IS_NAN( w ) )", (const char *)&queryFormat, "!IS_NAN( w )") )
+  c = v19;
+  if ( (LODWORD(v19) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 279, ASSERT_TYPE_SANITY, "( !IS_NAN( w ) )", (const char *)&queryFormat, "!IS_NAN( w )") )
     __debugbreak();
-  __asm { vmovss  [rbp+180h+c], xmm10 }
-  if ( (LODWORD(c) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 280, ASSERT_TYPE_SANITY, "( !IS_NAN( h ) )", (const char *)&queryFormat, "!IS_NAN( h )") )
+  c = h;
+  if ( (LODWORD(h) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 280, ASSERT_TYPE_SANITY, "( !IS_NAN( h ) )", (const char *)&queryFormat, "!IS_NAN( h )") )
     __debugbreak();
   targ->prevTime = time;
-  __asm
+  if ( v12 )
   {
-    vmovss  dword ptr [rbx+68h], xmm7
-    vmovss  dword ptr [rbx+6Ch], xmm8
+    targ->prevX = *(float *)&v21;
+    targ->prevY = *(float *)&v22;
   }
-  v64 = (targ->flags & 0x200) == 0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+70h], xmm9
-    vmovss  dword ptr [rbx+74h], xmm10
-  }
-  if ( v64 )
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
+  v32 = (targ->flags & 0x200) == 0;
+  targ->prevW = v19;
+  targ->prevH = h;
+  if ( v32 )
+    v33 = *color;
   else
-    __asm { vmovups xmm0, xmmword ptr [rbx+34h] }
-  __asm
-  {
-    vmovss  [rsp+280h+h], xmm10
-    vmovaps xmm3, xmm8; y0
-    vmovaps xmm2, xmm7; x0
-    vmovss  dword ptr [rsp+280h+fmt], xmm9
-    vmovups xmmword ptr [rbp+180h+var_1E8], xmm0
-  }
-  if ( PipRect::CalcOverlap(pipRect, SLODWORD(s), *(float *)&_XMM2, *(float *)&_XMM3, fmt, h, rect, &v121) )
+    v33 = targ->color;
+  inOutColor = v33;
+  if ( PipRect::CalcOverlap(pipRect, SLODWORD(s), *(float *)&v21, *(float *)&v22, v19, h, rect, &inOutColor) )
   {
     flags = targ->flags;
     if ( (flags & 0x800) != 0 )
@@ -790,192 +603,98 @@ void CG_DrawScaledRect(LocalClientNum_t localClientNum, rectDef_s *rect, const v
       vertAlign = rect->vertAlign;
       horzAlign = rect->horzAlign;
       ActivePlacement = ScrPlace_GetActivePlacement(SLODWORD(s));
-      __asm
-      {
-        vmovss  xmm0, [rbp+180h+yaw]
-        vmovss  dword ptr [rsp+280h+inOutColor], xmm0
-        vmovaps xmm3, xmm9; width
-        vmovaps xmm2, xmm8; y
-        vmovaps xmm1, xmm7; x
-        vmovss  dword ptr [rsp+280h+fmt], xmm10
-      }
-      CG_DrawRotatedPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, horzAlign, vertAlign, inOutColor, &v121, v119);
-      goto LABEL_36;
+      CG_DrawRotatedPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&v21, *(float *)&v22, v19, h, horzAlign, vertAlign, yaw, &inOutColor, v56);
+      return;
     }
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3eaaaaab3eaaaaab0000000000000000
-      vmovss  xmm3, [rbp+180h+size]
-      vmulss  xmm6, xmm3, cs:__real@3eaaaaab
-      vmulss  xmm3, xmm3, cs:__real@3f2aaaab
-      vmovups [rbp+180h+var_1C0], xmm0
-      vmovups xmm0, cs:__xmm@3eaaaaab3f800000000000003f2aaaab
-      vmovups [rbp+180h+var_1A0], xmm0
-      vmovups xmm0, cs:__xmm@3f8000003eaaaaab3f2aaaab00000000
-      vmovups [rbp+180h+var_180], xmm0
-      vmovups xmm0, cs:__xmm@3f8000003f8000003f2aaaab3f2aaaab
-      vmovups [rbp+180h+var_160], xmm0
-      vmovups xmm0, cs:__xmm@3eaaaaab3f2aaaab000000003eaaaaab
-      vmovups [rbp+180h+var_140], xmm0
-      vmovups xmm0, cs:__xmm@3f8000003f2aaaab3f2aaaab3eaaaaab
-      vaddss  xmm2, xmm6, xmm7
-      vaddss  xmm1, xmm9, xmm7
-      vsubss  xmm5, xmm1, xmm6
-      vaddss  xmm1, xmm10, xmm8
-      vsubss  xmm4, xmm1, xmm6
-      vsubss  xmm1, xmm9, xmm3
-      vmovups [rbp+180h+var_120], xmm0
-      vmovups xmm0, cs:__xmm@3f2aaaab3eaaaaab3eaaaaab00000000
-      vmovaps xmmword ptr [rsp+280h+var_A8+8], xmm12
-    }
-    _RBX = (char *)&v126 + 8;
-    v64 = (flags & 0x80u) == 0;
-    __asm
-    {
-      vmovaps [rsp+280h+var_B8+8], xmm13
-      vmovups [rbp+180h+var_100], xmm0
-      vmovups xmm0, cs:__xmm@3f2aaaab3f8000003eaaaaab3f2aaaab
-      vmovss  [rbp+180h+var_150], xmm2
-      vmovss  [rbp+180h+var_148], xmm1
-      vmovss  [rbp+180h+var_130], xmm2
-      vaddss  xmm2, xmm6, xmm8
-      vmovss  [rbp+180h+var_128], xmm1
-      vsubss  xmm1, xmm10, xmm3
-      vmovaps [rsp+280h+var_C8+8], xmm14
-      vmovss  xmm14, cs:__real@3c8efa35
-    }
-    v69 = 4i64;
-    __asm
-    {
-      vmovss  [rbp+180h+var_1CC], xmm8
-      vmovss  [rbp+180h+var_1AC], xmm8
-      vmovss  [rbp+180h+var_14C], xmm8
-      vmovss  xmm8, [rbp+180h+yaw]
-      vmovups [rbp+180h+var_E0], xmm0
-      vmovss  [rbp+180h+var_1D0], xmm7
-      vmovss  [rbp+180h+var_1C8], xmm6
-      vmovss  [rbp+180h+var_1C4], xmm6
-      vmovss  [rbp+180h+var_1B0], xmm5
-      vmovss  [rbp+180h+var_1A8], xmm6
-      vmovss  [rbp+180h+var_1A4], xmm6
-      vmovss  [rbp+180h+var_190], xmm7
-      vmovss  [rbp+180h+var_18C], xmm4
-      vmovss  [rbp+180h+var_188], xmm6
-      vmovss  [rbp+180h+var_184], xmm6
-      vmovss  [rbp+180h+var_170], xmm5
-      vmovss  [rbp+180h+var_16C], xmm4
-      vmovss  [rbp+180h+var_168], xmm6
-      vmovss  [rbp+180h+var_164], xmm6
-      vmovss  [rbp+180h+var_144], xmm6
-      vmovss  [rbp+180h+var_12C], xmm4
-      vmovss  [rbp+180h+var_124], xmm6
-      vmovss  [rbp+180h+var_110], xmm7
-      vmovss  [rbp+180h+var_10C], xmm2
-      vmovss  [rbp+180h+var_108], xmm6
-      vmovss  [rbp+180h+var_104], xmm1
-      vmovss  [rbp+180h+var_F0], xmm5
-      vmovss  [rbp+180h+var_EC], xmm2
-      vmovss  [rbp+180h+var_E8], xmm6
-      vmovss  [rbp+180h+var_E4], xmm1
-    }
+    v63 = _xmm;
+    v68 = _xmm;
+    v73 = _xmm;
+    v78 = _xmm;
+    v83 = _xmm;
+    v88 = _xmm;
+    v38 = (float *)&v63 + 2;
+    v93 = _xmm;
+    v79 = (float)(size * 0.33333334) + *(float *)&v21;
+    v81 = v19 - (float)(size * 0.66666669);
+    v84 = v79;
+    v86 = v81;
+    v39 = 4i64;
+    v60 = v22;
+    v65 = v22;
+    v80 = v22;
+    v98 = _xmm;
+    v59 = v21;
+    v61 = size * 0.33333334;
+    v62 = size * 0.33333334;
+    *(float *)&v64 = (float)(v19 + *(float *)&v21) - (float)(size * 0.33333334);
+    v66 = size * 0.33333334;
+    v67 = size * 0.33333334;
+    v69 = v21;
+    *(float *)&v70 = (float)(h + *(float *)&v22) - (float)(size * 0.33333334);
+    v71 = size * 0.33333334;
+    v72 = size * 0.33333334;
+    v74 = v64;
+    v75 = v70;
+    v76 = size * 0.33333334;
+    v77 = size * 0.33333334;
+    v82 = size * 0.33333334;
+    v85 = v70;
+    v87 = size * 0.33333334;
+    v89 = v21;
+    v90 = (float)(size * 0.33333334) + *(float *)&v22;
+    v91 = size * 0.33333334;
+    v92 = h - (float)(size * 0.66666669);
+    v94 = v64;
+    v95 = v90;
+    v96 = size * 0.33333334;
+    v97 = v92;
     if ( (flags & 0x80u) == 0 )
-      v69 = 8i64;
-    v71 = SLODWORD(s);
-    while ( 1 )
+      v39 = 8i64;
+    v40 = SLODWORD(s);
+    do
     {
-      __asm { vucomiss xmm8, xmm11 }
-      if ( v64 )
+      if ( yaw == 0.0 )
       {
-        __asm { vmovss  xmm6, dword ptr [rbx-14h] }
+        v44 = *(v38 - 5);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx-18h]
-          vsubss  xmm7, xmm0, dword ptr [r13+0]
-          vmovss  xmm1, dword ptr [rbx-14h]
-          vsubss  xmm6, xmm1, dword ptr [r13+4]
-          vmulss  xmm0, xmm8, xmm14; radians
-        }
-        FastSinCos(*(const float *)&_XMM0, &s, &c);
-        __asm
-        {
-          vmulss  xmm0, xmm6, [rbp+180h+s]
-          vmulss  xmm1, xmm7, [rbp+180h+c]
-          vmulss  xmm2, xmm6, [rbp+180h+c]
-          vsubss  xmm1, xmm1, xmm0
-          vaddss  xmm4, xmm1, dword ptr [r13+0]
-          vmulss  xmm0, xmm7, [rbp+180h+s]
-          vaddss  xmm1, xmm2, xmm0
-          vaddss  xmm6, xmm1, dword ptr [r13+4]
-          vmovss  dword ptr [rbx-14h], xmm6
-          vmovss  dword ptr [rbx-18h], xmm4
-        }
+        v41 = *(v38 - 6) - screenBounds->midPoint.v[0];
+        v42 = *(v38 - 5) - screenBounds->midPoint.v[1];
+        FastSinCos(yaw * 0.017453292, &s, &c);
+        v43 = (float)((float)(v41 * c) - (float)(v42 * s)) + screenBounds->midPoint.v[0];
+        v44 = (float)((float)(v42 * c) + (float)(v41 * s)) + screenBounds->midPoint.v[1];
+        *(v38 - 5) = v44;
+        *(v38 - 6) = v43;
       }
-      v85 = rect->vertAlign;
-      v86 = rect->horzAlign;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rbx+4]
-        vmovss  xmm9, dword ptr [rbx]
-        vmovss  xmm10, dword ptr [rbx-4]
-        vmovss  xmm12, dword ptr [rbx-8]
-        vmovss  xmm13, dword ptr [rbx-0Ch]
-      }
+      v45 = rect->vertAlign;
+      v46 = rect->horzAlign;
+      v47 = v38[1];
+      v48 = *v38;
+      v49 = *(v38 - 1);
+      v50 = *(v38 - 2);
+      v51 = *(v38 - 3);
       if ( activeScreenPlacementMode )
       {
         if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
         {
-          v93 = &scrPlaceViewDisplay[v71];
-          goto LABEL_34;
+          v53 = &scrPlaceViewDisplay[v40];
+          goto LABEL_50;
         }
         if ( activeScreenPlacementMode == SCRMODE_INVALID )
-          v92 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+          v52 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
         else
-          v92 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-        if ( v92 )
+          v52 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+        if ( v52 )
           __debugbreak();
       }
-      v93 = &scrPlaceFull;
-LABEL_34:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx-10h]; w
-        vmovss  xmm1, dword ptr [rbx-18h]; x
-        vmovss  dword ptr [rsp+280h+var_228], xmm8
-        vmovss  [rsp+280h+var_230], xmm7
-        vmovss  dword ptr [rsp+280h+material], xmm9
-        vmovss  dword ptr [rsp+280h+color], xmm10
-        vmovss  dword ptr [rsp+280h+inOutColor], xmm12
-        vmovaps xmm2, xmm6; y
-        vmovss  dword ptr [rsp+280h+fmt], xmm13
-      }
-      CL_DrawRotatedStretchPicWithoutSplitScreenScaling(v93, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v86, v85, inOutColora, colora, materiala, v115, v116, 1, &v121, v119);
-      _RBX += 32;
-      v64 = ++v120 == v69;
-      if ( v120 >= v69 )
-      {
-        __asm
-        {
-          vmovaps xmm14, [rsp+280h+var_C8+8]
-          vmovaps xmm13, [rsp+280h+var_B8+8]
-          vmovaps xmm12, xmmword ptr [rsp+280h+var_A8+8]
-        }
-        break;
-      }
+      v53 = &scrPlaceFull;
+LABEL_50:
+      CL_DrawRotatedStretchPicWithoutSplitScreenScaling(v53, *(v38 - 6), v44, *(v38 - 4), v51, v46, v45, v50, v49, v48, v47, yaw, 1, &inOutColor, v56);
+      v38 += 8;
+      ++v57;
     }
-  }
-LABEL_36:
-  _R11 = &v165;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    while ( v57 < v39 );
   }
 }
 
@@ -986,97 +705,107 @@ CG_DrawTargets_ClampScreenPosToEdges
 */
 __int64 CG_DrawTargets_ClampScreenPosToEdges(LocalClientNum_t localClientNum, vec2_t *inOutPoint)
 {
+  const ScreenPlacement *ActivePlacement; 
+  const dvar_t *v4; 
+  const ScreenPlacement *v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v13; 
+  __int128 v14; 
+  __int128 v17; 
+  float v20; 
+  float v23; 
+  float v25; 
+  float v27; 
   __int64 result; 
-  char v53; 
-  void *retaddr; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RBX = inOutPoint;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RAX = ScrPlace_GetActivePlacement(localClientNum);
-  _RSI = DVARFLT_vehHudTargetScreenEdgeClampBufferLeft;
-  _RDI = _RAX;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+20h]
-    vmulss  xmm1, xmm0, dword ptr [rax+10h]
-    vmovss  xmm0, dword ptr [rax+24h]
-    vmulss  xmm9, xmm1, cs:__real@3f000000
-    vmulss  xmm1, xmm0, dword ptr [rax+14h]
-    vmulss  xmm10, xmm1, cs:__real@3f000000
-  }
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  v4 = DVARFLT_vehHudTargetScreenEdgeClampBufferLeft;
+  v5 = ActivePlacement;
+  v6 = LODWORD(ActivePlacement->realViewportSize.v[0]);
+  *(float *)&v6 = (float)(ActivePlacement->realViewportSize.v[0] * ActivePlacement->scaleRealToVirtual.v[0]) * 0.5;
+  v7 = v6;
+  v8 = LODWORD(ActivePlacement->realViewportSize.v[1]);
+  *(float *)&v8 = (float)(ActivePlacement->realViewportSize.v[1] * ActivePlacement->scaleRealToVirtual.v[1]) * 0.5;
+  v9 = v8;
   if ( !DVARFLT_vehHudTargetScreenEdgeClampBufferLeft && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudTargetScreenEdgeClampBufferLeft") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm7, dword ptr [rsi+28h] }
-  _RSI = DVARFLT_vehHudTargetScreenEdgeClampBufferRight;
+  Dvar_CheckFrontendServerThread(v4);
+  v10 = DVARFLT_vehHudTargetScreenEdgeClampBufferRight;
   if ( !DVARFLT_vehHudTargetScreenEdgeClampBufferRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudTargetScreenEdgeClampBufferRight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( !CL_IsRenderingSplitScreen() )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+68h]
-      vmulss  xmm1, xmm0, dword ptr [rdi+10h]
-      vaddss  xmm7, xmm7, xmm1
-      vaddss  xmm6, xmm6, xmm1
-    }
-  }
-  _RSI = DVARFLT_vehHudTargetScreenEdgeClampBufferTop;
+  Dvar_CheckFrontendServerThread(v10);
+  CL_IsRenderingSplitScreen();
+  v11 = DVARFLT_vehHudTargetScreenEdgeClampBufferTop;
   if ( !DVARFLT_vehHudTargetScreenEdgeClampBufferTop && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudTargetScreenEdgeClampBufferTop") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-  _RSI = DVARFLT_vehHudTargetScreenEdgeClampBufferBottom;
+  Dvar_CheckFrontendServerThread(v11);
+  _XMM8 = v11->current.unsignedInt;
+  v13 = DVARFLT_vehHudTargetScreenEdgeClampBufferBottom;
   if ( !DVARFLT_vehHudTargetScreenEdgeClampBufferBottom && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudTargetScreenEdgeClampBufferBottom") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = v7;
+  *(float *)&v14 = (float)(*(float *)&v7 * 2.0) - v5->virtualViewableMax.v[0];
+  _XMM1 = v14;
+  __asm { vmaxss  xmm3, xmm1, dword ptr [rdi+28h] }
+  v17 = v9;
+  *(float *)&v17 = (float)(*(float *)&v9 * 2.0) - v5->virtualViewableMax.v[1];
+  _XMM0 = v17;
+  __asm { vmaxss  xmm4, xmm0, dword ptr [rdi+2Ch] }
+  v20 = inOutPoint->v[0];
   __asm
   {
-    vmulss  xmm0, xmm9, cs:__real@40000000
-    vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-    vmaxss  xmm3, xmm1, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm10, cs:__real@40000000
-    vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-    vmaxss  xmm4, xmm0, dword ptr [rdi+2Ch]
-    vmovss  xmm2, dword ptr [rbx]
     vmaxss  xmm1, xmm3, xmm7
     vmaxss  xmm0, xmm3, xmm6
-    vsubss  xmm7, xmm1, xmm9
-    vmaxss  xmm1, xmm8, xmm4
-    vsubss  xmm3, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vsubss  xmm6, xmm1, xmm10
   }
+  v23 = *(float *)&_XMM1 - *(float *)&v7;
+  __asm { vmaxss  xmm1, xmm8, xmm4 }
+  v25 = *(float *)&v7 - *(float *)&_XMM0;
+  _XMM0 = v13->current.unsignedInt;
+  v27 = *(float *)&_XMM1 - *(float *)&v9;
   result = 0i64;
-  __asm
+  __asm { vmaxss  xmm1, xmm0, xmm4 }
+  v30 = *(float *)&v9 - *(float *)&_XMM1;
+  if ( inOutPoint->v[0] >= v23 )
   {
-    vcomiss xmm2, xmm7
-    vmaxss  xmm1, xmm0, xmm4
-    vsubss  xmm5, xmm10, xmm1
-    vcomiss xmm2, xmm3
-    vmovss  xmm3, dword ptr [rbx+4]
-    vcomiss xmm3, xmm6
-    vcomiss xmm3, xmm5
-    vmovaps xmm7, [rsp+0A8h+var_38]
+    if ( v20 <= v25 )
+      goto LABEL_18;
+    v31 = v25 / v20;
+    result = 3i64;
   }
-  _R11 = &v53;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    v31 = v23 / v20;
+    result = 4i64;
   }
+  v20 = v20 * v31;
+  inOutPoint->v[1] = v31 * inOutPoint->v[1];
+  inOutPoint->v[0] = v20;
+LABEL_18:
+  v32 = inOutPoint->v[1];
+  if ( v32 >= v27 )
+  {
+    if ( v32 <= v30 )
+      return result;
+    v33 = v30 / v32;
+    result = 2i64;
+  }
+  else
+  {
+    v33 = v27 / v32;
+    result = 1i64;
+  }
+  inOutPoint->v[1] = v32 * v33;
+  inOutPoint->v[0] = v20 * v33;
   return result;
 }
 
@@ -1087,107 +816,56 @@ CG_DrawVehicleDebug
 */
 void CG_DrawVehicleDebug(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
-  __int64 v4; 
+  const dvar_t *v1; 
+  __int64 v2; 
   cg_t *LocalClientGlobals; 
-  CgVehicleSystem *v6; 
+  CgVehicleSystem *v4; 
   const centity_t *Entity; 
+  VehicleClient *Client; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  GfxFont *v17; 
-  float fmt; 
-  float fmta; 
   __int64 y; 
-  float ya; 
-  float yb; 
   __int64 horzAlign; 
-  float v33; 
-  float v34; 
   char dest[112]; 
 
-  v3 = DCONST_DVARINT_bg_vehicleDebug;
-  v4 = localClientNum;
+  v1 = DCONST_DVARINT_bg_vehicleDebug;
+  v2 = localClientNum;
   if ( !DCONST_DVARINT_bg_vehicleDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.integer )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.integer )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
     if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, ACTIVE, 0xBu) && LocalClientGlobals->predictedPlayerState.viewlocked_entNum != 2047 )
     {
-      __asm
-      {
-        vmovaps [rsp+118h+var_28], xmm6
-        vmovaps [rsp+118h+var_38], xmm8
-      }
       if ( !(_BYTE)CgVehicleSystem::ms_allocatedType )
       {
-        LODWORD(horzAlign) = v4;
+        LODWORD(horzAlign) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", horzAlign) )
           __debugbreak();
       }
-      if ( (unsigned int)v4 >= CgVehicleSystem::ms_allocatedCount )
+      if ( (unsigned int)v2 >= CgVehicleSystem::ms_allocatedCount )
       {
         LODWORD(horzAlign) = CgVehicleSystem::ms_allocatedCount;
-        LODWORD(y) = v4;
+        LODWORD(y) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", y, horzAlign) )
           __debugbreak();
       }
-      if ( !CgVehicleSystem::ms_vehicleSystemArray[v4] )
+      if ( !CgVehicleSystem::ms_vehicleSystemArray[v2] )
       {
-        LODWORD(horzAlign) = v4;
+        LODWORD(horzAlign) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", horzAlign) )
           __debugbreak();
       }
-      v6 = CgVehicleSystem::ms_vehicleSystemArray[v4];
-      Entity = CG_GetEntity((const LocalClientNum_t)v4, LocalClientGlobals->predictedPlayerState.viewlocked_entNum);
-      _RBX = CgVehicleSystem::GetClient(v6, Entity);
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3e99999a
-        vmovaps xmm2, xmm8; scale
-      }
-      ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v4);
-      FontHandle = UI_GetFontHandle(ActivePlacement, 6, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vmulss  xmm0, xmm0, cs:__real@3d68ba2f
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      v17 = FontHandle;
-      Com_sprintf(dest, 0x64ui64, "Speed: %f MPH", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@438c0000
-        vmovss  xmm6, cs:__real@42200000
-        vmovss  [rsp+118h+var_D8], xmm8
-        vmovss  [rsp+118h+y], xmm0
-        vmovss  dword ptr [rsp+118h+fmt], xmm6
-      }
-      UI_DrawText(ActivePlacement, dest, 100, v17, fmt, ya, 1, 1, v33, &colorGreen, 3);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+34h]
-        vmulss  xmm1, xmm0, cs:__real@3d68ba2f
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x64ui64, "Slide: %f MPH", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@43920000
-        vmovss  [rsp+118h+var_D8], xmm8
-        vmovss  [rsp+118h+y], xmm0
-        vmovss  dword ptr [rsp+118h+fmt], xmm6
-      }
-      UI_DrawText(ActivePlacement, dest, 100, v17, fmta, yb, 1, 1, v34, &colorGreen, 3);
-      __asm
-      {
-        vmovaps xmm8, [rsp+118h+var_38]
-        vmovaps xmm6, [rsp+118h+var_28]
-      }
+      v4 = CgVehicleSystem::ms_vehicleSystemArray[v2];
+      Entity = CG_GetEntity((const LocalClientNum_t)v2, LocalClientGlobals->predictedPlayerState.viewlocked_entNum);
+      Client = CgVehicleSystem::GetClient(v4, Entity);
+      ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)v2);
+      FontHandle = UI_GetFontHandle(ActivePlacement, 6, 0.30000001);
+      Com_sprintf(dest, 0x64ui64, "Speed: %f MPH", (float)(Client->localSpeed.v[0] * 0.056818184));
+      UI_DrawText(ActivePlacement, dest, 100, FontHandle, 40.0, 280.0, 1, 1, 0.30000001, &colorGreen, 3);
+      Com_sprintf(dest, 0x64ui64, "Slide: %f MPH", (float)(Client->localSpeed.v[1] * 0.056818184));
+      UI_DrawText(ActivePlacement, dest, 100, FontHandle, 40.0, 292.0, 1, 1, 0.30000001, &colorGreen, 3);
     }
   }
 }
@@ -1197,18 +875,18 @@ void CG_DrawVehicleDebug(LocalClientNum_t localClientNum)
 CG_DrawVehicleReticle
 ==============
 */
-void CG_DrawVehicleReticle(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color, double a4)
+void CG_DrawVehicleReticle(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color)
 {
   cg_t *LocalClientGlobals; 
   __int16 viewlocked_entNum; 
   centity_t *Entity; 
   CgWeaponMap *Instance; 
   unsigned __int16 weaponIdx; 
-  bool v12; 
-  WeaponDef **v13; 
-  WeaponDef *v14; 
-  __int64 v15; 
-  unsigned int v16; 
+  bool v11; 
+  WeaponDef **v12; 
+  WeaponDef *v13; 
+  __int64 v14; 
+  unsigned int v15; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.eFlags, ACTIVE, 0xBu) )
@@ -1225,24 +903,24 @@ void CG_DrawVehicleReticle(LocalClientNum_t localClientNum, rectDef_s *rect, con
       {
         if ( weaponIdx > bg_lastParsedWeaponIndex )
         {
-          v16 = bg_lastParsedWeaponIndex;
-          LODWORD(v15) = weaponIdx;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v15, v16) )
+          v15 = bg_lastParsedWeaponIndex;
+          LODWORD(v14) = weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v14, v15) )
             __debugbreak();
         }
-        v12 = bg_weaponDefs[weaponIdx] == NULL;
-        v13 = &bg_weaponDefs[weaponIdx];
-        if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+        v11 = bg_weaponDefs[weaponIdx] == NULL;
+        v12 = &bg_weaponDefs[weaponIdx];
+        if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        v14 = *v13;
+        v13 = *v12;
         *(_WORD *)&rect->horzAlign = 514;
-        if ( v14->activeReticleType == VEH_ACTIVE_RETICLE_PIP_ON_A_STICK )
+        if ( v13->activeReticleType == VEH_ACTIVE_RETICLE_PIP_ON_A_STICK )
         {
           CG_DrawPipOnAStickReticle(localClientNum, rect, color);
         }
-        else if ( v14->activeReticleType == VEH_ACTIVE_RETICLE_BOUNCING_DIAMOND )
+        else if ( v13->activeReticleType == VEH_ACTIVE_RETICLE_BOUNCING_DIAMOND )
         {
-          CG_DrawBouncingDiamond(localClientNum, rect, color, a4);
+          CG_DrawBouncingDiamond(localClientNum, rect, color);
         }
       }
     }
@@ -1257,670 +935,446 @@ CG_DrawVehicleTargets
 void CG_DrawVehicleTargets(LocalClientNum_t localClientNum, rectDef_s *rect, const vec4_t *color)
 {
   cg_t *LocalClientGlobals; 
-  int v19; 
-  __int64 v20; 
-  __int64 v25; 
+  int v6; 
+  __int64 v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int64 v12; 
+  __int64 v13; 
   int clientNum; 
   centity_t *Entity; 
-  int flags; 
-  int materialIndex; 
-  Material *v95; 
-  int v102; 
-  int v103; 
+  int v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  cg_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  int v43; 
+  Material *v44; 
+  const dvar_t *v45; 
+  float h; 
+  float v47; 
+  float v48; 
+  int v49; 
+  int v50; 
   int vertAlign; 
   int horzAlign; 
+  float v53; 
+  float v54; 
   const ScreenPlacement *ActivePlacement; 
   const DObj *ClientDObj; 
-  char v118; 
-  char v119; 
-  int v120; 
-  int v128; 
-  char v187; 
-  bool v188; 
+  int v57; 
+  int v58; 
+  float v63; 
+  float v68; 
+  float v73; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  __int128 v79; 
+  float v81; 
+  int v82; 
   const char **p_name; 
-  int maxSize; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float h; 
-  float ha; 
-  float recta; 
+  unsigned int v84; 
+  int v85; 
+  int v86; 
+  __int128 v87; 
+  __int128 v88; 
+  int v89; 
+  __int128 v90; 
+  __int128 v91; 
+  __int128 v92; 
+  __int128 v96; 
   float inOutColor; 
-  float inOutColora; 
   Material *pipRect; 
-  cg_t *v269; 
+  float *v100; 
   vec3_t outOrigin; 
   vec3_t outOrg; 
   vec4_t *colora; 
-  __int64 v273; 
-  PipRect v274; 
-  __int64 v275; 
+  __int64 v104; 
+  PipRect v105; 
+  __int64 v106; 
   vec3_t outScreenPos; 
   Bounds bounds; 
-  vec3_t v278; 
+  vec3_t v109; 
   vec3_t worldDir; 
   vec3_t out; 
-  vec4_t v281; 
-  vec2_t v282; 
+  vec4_t v112; 
+  vec2_t v113; 
   tmat33_t<vec3_t> axis; 
   vec2_t in; 
-  vec2_t v285; 
-  vec3_t v286; 
-  vec3_t v287; 
-  vec2_t v288; 
-  char v289; 
-  void *retaddr; 
+  vec2_t v116; 
+  vec3_t v117; 
+  vec3_t v118; 
+  vec2_t v119; 
 
-  _RAX = &retaddr;
-  v275 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
+  v106 = -2i64;
   colora = (vec4_t *)color;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rbp+170h+var_1E0.pipX0], xmm0
-  }
-  v274.pipRectValid = 0;
+  memset(&v105, 0, 17);
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v269 = LocalClientGlobals;
+  v100 = (float *)LocalClientGlobals;
   *(_WORD *)&rect->horzAlign = 514;
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  v19 = 0;
-  v20 = 0i64;
-  v273 = 0i64;
-  __asm
-  {
-    vmovss  xmm15, dword ptr [rsp+270h+outOrg+8]
-    vmovss  xmm7, dword ptr [rsp+270h+outOrg+4]
-    vmovss  xmm9, dword ptr [rsp+270h+outOrg]
-    vxorps  xmm14, xmm14, xmm14
-  }
+  v6 = 0;
+  v7 = 0i64;
+  v104 = 0i64;
+  v8 = outOrg.v[2];
+  v9 = outOrg.v[1];
+  v10 = outOrg.v[0];
+  _XMM14 = 0i64;
   do
   {
-    v25 = v20;
-    _RBX = &LocalClientGlobals->targets[v25];
-    if ( _RBX->entNum != 2047 && ((LocalClientGlobals->targets[v25].flags & 2) == 0 || CG_JavelinADS(localClientNum)) )
+    v12 = v7;
+    v13 = (__int64)&LocalClientGlobals->targets[v12];
+    if ( *(_DWORD *)v13 != 2047 && ((LocalClientGlobals->targets[v12].flags & 2) == 0 || CG_JavelinADS(localClientNum)) )
     {
       clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-      if ( (clientNum || (_RBX->flags & 4) == 0) && (clientNum != 1 || (_RBX->flags & 8) == 0) && (clientNum != 2 || (_RBX->flags & 0x10) == 0) && (clientNum != 3 || (_RBX->flags & 0x20) == 0) )
+      if ( (clientNum || (*(_BYTE *)(v13 + 92) & 4) == 0) && (clientNum != 1 || (*(_BYTE *)(v13 + 92) & 8) == 0) && (clientNum != 2 || (*(_BYTE *)(v13 + 92) & 0x10) == 0) && (clientNum != 3 || (*(_BYTE *)(v13 + 92) & 0x20) == 0) )
       {
-        Entity = CG_GetEntity(localClientNum, _RBX->entNum);
+        Entity = CG_GetEntity(localClientNum, *(_DWORD *)v13);
         if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 466, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
           __debugbreak();
         if ( (Entity->flags & 1) != 0 )
         {
-          flags = _RBX->flags;
-          if ( (flags & 0xC040) != 0 )
+          v16 = *(_DWORD *)(v13 + 92);
+          if ( (v16 & 0xC040) != 0 )
           {
             AnglesToAxis(&Entity->pose.angles, &axis);
-            flags = _RBX->flags;
+            v16 = *(_DWORD *)(v13 + 92);
           }
-          if ( (flags & 0x4000) != 0 )
+          if ( (v16 & 0x4000) != 0 )
           {
-            MatrixTransformVector(&_RBX->offset, &axis, &out);
-            flags = _RBX->flags;
-            __asm
-            {
-              vmovss  xmm10, dword ptr [rbp+170h+out+8]
-              vmovss  xmm11, dword ptr [rbp+170h+out+4]
-              vmovss  xmm12, dword ptr [rbp+170h+out]
-            }
+            MatrixTransformVector((const vec3_t *)(v13 + 4), &axis, &out);
+            v16 = *(_DWORD *)(v13 + 92);
+            v17 = out.v[2];
+            v18 = out.v[1];
+            v19 = out.v[0];
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm12, dword ptr [rbx+4]
-              vmovss  dword ptr [rbp+170h+out], xmm12
-              vmovss  xmm11, dword ptr [rbx+8]
-              vmovss  dword ptr [rbp+170h+out+4], xmm11
-              vmovss  xmm10, dword ptr [rbx+0Ch]
-              vmovss  dword ptr [rbp+170h+out+8], xmm10
-            }
+            v19 = *(float *)(v13 + 4);
+            out.v[0] = v19;
+            v18 = *(float *)(v13 + 8);
+            out.v[1] = v18;
+            v17 = *(float *)(v13 + 12);
+            out.v[2] = v17;
           }
-          if ( (flags & 0x8000) != 0 )
+          if ( (v16 & 0x8000) != 0 )
           {
-            _RAX = CG_GetLocalClientGlobals(localClientNum);
+            v20 = CG_GetLocalClientGlobals(localClientNum);
+            v21 = v20->refdef.view.axis.m[0].v[1];
+            v22 = v20->refdef.view.axis.m[0].v[0];
+            v23 = v20->refdef.view.axis.m[0].v[2];
+            v24 = (float)((float)(v22 * axis.m[2].v[0]) + (float)(v21 * axis.m[2].v[1])) + (float)(v23 * axis.m[2].v[2]);
+            v25 = v23 * v24;
+            v26 = axis.m[2].v[0] - (float)(v22 * v24);
+            v28 = LODWORD(axis.m[2].v[1]);
+            v27 = axis.m[2].v[1] - (float)(v21 * v24);
+            v29 = axis.m[2].v[2] - v25;
+            *(float *)&v28 = fsqrt((float)((float)(v27 * v27) + (float)(v26 * v26)) + (float)(v29 * v29));
+            _XMM3 = v28;
             __asm
             {
-              vmovss  xmm4, dword ptr [rax+6948h]
-              vmovss  xmm3, dword ptr [rax+6944h]
-              vmovss  xmm7, dword ptr [rax+694Ch]
-              vmovss  xmm8, dword ptr [rbp+170h+axis+18h]
-              vmulss  xmm1, xmm3, xmm8
-              vmovss  xmm6, dword ptr [rbp+170h+axis+1Ch]
-              vmulss  xmm0, xmm4, xmm6
-              vaddss  xmm2, xmm1, xmm0
-              vmovss  xmm5, dword ptr [rbp+170h+axis+20h]
-              vmulss  xmm1, xmm7, xmm5
-              vaddss  xmm0, xmm2, xmm1
-              vmulss  xmm3, xmm3, xmm0
-              vmulss  xmm4, xmm4, xmm0
-              vmulss  xmm1, xmm7, xmm0
-              vsubss  xmm7, xmm8, xmm3
-              vsubss  xmm4, xmm6, xmm4
-              vsubss  xmm5, xmm5, xmm1
-              vmulss  xmm1, xmm4, xmm4
-              vmulss  xmm0, xmm7, xmm7
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm5, xmm5
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm3, xmm2, xmm2
               vcmpless xmm0, xmm3, cs:__real@80000000
-              vmovss  xmm13, cs:__real@3f800000
               vblendvps xmm1, xmm3, xmm13, xmm0
-              vdivss  xmm0, xmm13, xmm1
-              vmulss  xmm8, xmm0, xmm7
-              vmulss  xmm6, xmm0, xmm4
-              vmulss  xmm9, xmm0, xmm5
-              vmulss  xmm1, xmm6, dword ptr [rax+6960h]
-              vmulss  xmm0, xmm8, dword ptr [rax+695Ch]
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm9, dword ptr [rax+6964h]
-              vaddss  xmm0, xmm2, xmm1; val
-              vmovaps xmm2, xmm13; max
-              vmovss  xmm1, cs:__real@bf800000; min
             }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+            v33 = (float)(1.0 / *(float *)&_XMM1) * v26;
+            *(float *)&v28 = (float)(1.0 / *(float *)&_XMM1) * v27;
+            v34 = (float)(1.0 / *(float *)&_XMM1) * v29;
+            LODWORD(v35) = COERCE_UNSIGNED_INT64(I_fclamp((float)((float)(*(float *)&v28 * v20->refdef.view.axis.m[2].v[1]) + (float)(v33 * v20->refdef.view.axis.m[2].v[0])) + (float)(v34 * v20->refdef.view.axis.m[2].v[2]), -1.0, 1.0));
+            *(float *)&v28 = (float)(*(float *)&v28 * v20->refdef.view.axis.m[1].v[1]) + (float)(v33 * v20->refdef.view.axis.m[1].v[0]);
+            _XMM8 = LODWORD(FLOAT_N1_0);
+            I_fclamp(*(float *)&v28 + (float)(v34 * v20->refdef.view.axis.m[1].v[2]), -1.0, 1.0);
+            *(float *)&v28 = acosf_0(v35) * -57.295776;
             __asm
             {
-              vmovaps xmm7, xmm0
-              vmulss  xmm2, xmm6, dword ptr [rdi+6954h]
-              vmulss  xmm1, xmm8, dword ptr [rdi+6950h]
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm2, xmm9, dword ptr [rdi+6958h]
-              vaddss  xmm0, xmm3, xmm2; val
-              vmovaps xmm2, xmm13; max
-              vmovss  xmm8, cs:__real@bf800000
-              vmovaps xmm1, xmm8; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vmovaps xmm6, xmm0
-              vmovaps xmm0, xmm7; X
-            }
-            *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-            __asm
-            {
-              vmulss  xmm1, xmm0, cs:__real@c2652ee0
               vcmpless xmm0, xmm14, xmm6
               vblendvps xmm0, xmm8, xmm13, xmm0
-              vmulss  xmm13, xmm1, xmm0
-              vmovss  xmm7, dword ptr [rsp+270h+outOrg+4]
-              vmovss  xmm9, dword ptr [rsp+270h+outOrg]
             }
-            v19 = 0;
+            v39 = *(float *)&v28 * *(float *)&_XMM0;
+            v9 = outOrg.v[1];
+            v10 = outOrg.v[0];
+            v6 = 0;
           }
           else
           {
-            __asm { vmovaps xmm13, xmm14 }
+            v39 = 0.0;
           }
           CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-          __asm
-          {
-            vaddss  xmm12, xmm12, dword ptr [rsp+270h+outOrigin]
-            vaddss  xmm11, xmm11, dword ptr [rsp+270h+outOrigin+4]
-            vaddss  xmm10, xmm10, dword ptr [rsp+270h+outOrigin+8]
-            vsubss  xmm1, xmm12, xmm9
-            vmovss  dword ptr [rbp+170h+worldDir], xmm1
-            vsubss  xmm0, xmm11, xmm7
-            vmovss  dword ptr [rbp+170h+worldDir+4], xmm0
-            vsubss  xmm1, xmm10, xmm15
-            vmovss  dword ptr [rbp+170h+worldDir+8], xmm1
-          }
+          v40 = v19 + outOrigin.v[0];
+          v41 = v18 + outOrigin.v[1];
+          v42 = v17 + outOrigin.v[2];
+          worldDir.v[0] = v40 - v10;
+          worldDir.v[1] = v41 - v9;
+          worldDir.v[2] = (float)(v17 + outOrigin.v[2]) - v8;
           CG_WorldDirToScreenPosVirtualCentered(localClientNum, &worldDir, (vec2_t *)&outScreenPos);
-          if ( _RBX->offscreenMaterialIndex == -1 || (v19 = CG_DrawTargets_ClampScreenPosToEdges(localClientNum, (vec2_t *)&outScreenPos)) == 0 || (materialIndex = _RBX->offscreenMaterialIndex, materialIndex == -1) )
+          if ( *(_DWORD *)(v13 + 20) == -1 || (v6 = CG_DrawTargets_ClampScreenPosToEdges(localClientNum, (vec2_t *)&outScreenPos)) == 0 || (v43 = *(_DWORD *)(v13 + 20), v43 == -1) )
           {
-            materialIndex = _RBX->materialIndex;
-            if ( materialIndex == -1 )
-              goto LABEL_95;
+            v43 = *(_DWORD *)(v13 + 16);
+            if ( v43 == -1 )
+              goto LABEL_100;
           }
-          v95 = CG_Draw_MaterialHandleForIndex(localClientNum, materialIndex);
-          if ( !v95 )
-            goto LABEL_95;
-          _RSI = DVARFLT_vehHudTargetSize;
+          v44 = CG_Draw_MaterialHandleForIndex(localClientNum, v43);
+          if ( !v44 )
+            goto LABEL_100;
+          v45 = DVARFLT_vehHudTargetSize;
           if ( !DVARFLT_vehHudTargetSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHudTargetSize") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm
+          Dvar_CheckFrontendServerThread(v45);
+          h = v45->current.value;
+          v47 = h * 0.5;
+          v112 = *colora;
+          if ( !v6 || *(_DWORD *)(v13 + 20) == -1 )
           {
-            vmovss  xmm8, dword ptr [rsi+28h]
-            vmulss  xmm6, xmm8, cs:__real@3f000000
-          }
-          _RAX = colora;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rbp+170h+var_168], xmm0
-          }
-          if ( !v19 || _RBX->offscreenMaterialIndex == -1 )
-          {
-            if ( (_RBX->flags & 0x440) != 0 )
+            if ( (*(_DWORD *)(v13 + 92) & 0x440) != 0 )
             {
-              __asm
-              {
-                vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-                vmovups xmmword ptr [rbp+170h+bounds.midPoint], xmm0
-                vmovss  xmm0, cs:__real@ff7fffff
-                vmovss  dword ptr [rbp+170h+bounds.halfSize+4], xmm0
-                vmovss  dword ptr [rbp+170h+bounds.halfSize+8], xmm0
-              }
+              *(_OWORD *)bounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+              bounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+              bounds.halfSize.v[2] = FLOAT_N3_4028235e38;
               ClientDObj = Com_GetClientDObj(Entity->nextState.number, localClientNum);
-              __asm { vcomiss xmm14, dword ptr [rbx+50h] }
-              if ( !(v119 | v118) )
+              if ( *(float *)(v13 + 80) < 0.0 )
               {
-                DObjGetVisibleBounds(ClientDObj, &_RBX->lBounds);
-                __asm { vcomiss xmm14, dword ptr [rbx+50h] }
-                if ( !(v119 | v118) )
+                DObjGetVisibleBounds(ClientDObj, (Bounds *)(v13 + 68));
+                if ( *(float *)(v13 + 80) < 0.0 )
                 {
-                  __asm { vcomiss xmm14, dword ptr [rbx+18h] }
-                  if ( !v119 )
+                  if ( *(float *)(v13 + 24) <= 0.0 )
                   {
 LABEL_42:
-                    LocalClientGlobals = v269;
-LABEL_95:
+                    LocalClientGlobals = (cg_t *)v100;
+LABEL_100:
                     memset(&outOrigin, 0, sizeof(outOrigin));
-                    v19 = 0;
-                    goto LABEL_96;
+                    v6 = 0;
+                    goto LABEL_101;
                   }
-                  if ( (_RBX->flags & 0x400) == 0 )
+                  if ( (*(_DWORD *)(v13 + 92) & 0x400) == 0 )
                   {
-                    LocalClientGlobals = v269;
-                    goto LABEL_95;
+                    LocalClientGlobals = (cg_t *)v100;
+                    goto LABEL_100;
                   }
                 }
               }
-              v120 = _RBX->flags;
-              if ( (v120 & 0x40) != 0 )
+              v57 = *(_DWORD *)(v13 + 92);
+              if ( (v57 & 0x40) != 0 )
               {
-                __asm { vucomiss xmm13, xmm14 }
-                if ( (v120 & 0x40) != 0 )
+                if ( v39 != 0.0 )
                 {
-                  MatrixTransformVector(&_RBX->lBounds.midPoint, &axis, &v278);
-                  __asm
+                  MatrixTransformVector((const vec3_t *)(v13 + 68), &axis, &v109);
+                  v109.v[0] = (float)(v40 + v109.v[0]) - v10;
+                  v109.v[1] = (float)(v41 + v109.v[1]) - v9;
+                  v109.v[2] = (float)(v42 + v109.v[2]) - v8;
+                  if ( !CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v109, &v113) )
                   {
-                    vaddss  xmm2, xmm12, dword ptr [rbp+170h+var_198]
-                    vaddss  xmm3, xmm11, dword ptr [rbp+170h+var_198+4]
-                    vaddss  xmm4, xmm10, dword ptr [rbp+170h+var_198+8]
-                    vsubss  xmm1, xmm2, xmm9
-                    vmovss  dword ptr [rbp+170h+var_198], xmm1
-                    vsubss  xmm0, xmm3, xmm7
-                    vmovss  dword ptr [rbp+170h+var_198+4], xmm0
-                    vsubss  xmm1, xmm4, xmm15
-                    vmovss  dword ptr [rbp+170h+var_198+8], xmm1
-                  }
-                  if ( !CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v278, &v282) )
-                  {
-                    LocalClientGlobals = v269;
-                    goto LABEL_95;
+                    LocalClientGlobals = (cg_t *)v100;
+                    goto LABEL_100;
                   }
                 }
-                _ER14 = 0;
-                v128 = 0;
+                v58 = 0;
                 while ( 1 )
                 {
-                  __asm { vmovss  xmm4, dword ptr [rbx+50h] }
-                  _EAX = v128 & 1;
+                  _XMM4 = *(unsigned int *)(v13 + 80);
+                  _XMM0 = v58 & 1;
                   __asm
                   {
-                    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-                    vxorps  xmm3, xmm4, xmm6
-                    vmovd   xmm1, r14d
-                    vmovd   xmm0, eax
                     vpcmpeqd xmm2, xmm0, xmm1
                     vblendvps xmm1, xmm4, xmm3, xmm2
-                    vaddss  xmm9, xmm1, dword ptr [rbx+44h]
-                    vmovss  xmm5, dword ptr [rbx+54h]
                   }
-                  _EAX = v128 & 2;
+                  v63 = *(float *)&_XMM1 + *(float *)(v13 + 68);
+                  _XMM5 = *(unsigned int *)(v13 + 84);
+                  _XMM0 = v58 & 2;
                   __asm
                   {
-                    vxorps  xmm3, xmm5, xmm6
-                    vmovd   xmm1, r14d
-                    vmovd   xmm0, eax
                     vpcmpeqd xmm2, xmm0, xmm1
                     vblendvps xmm1, xmm5, xmm3, xmm2
-                    vaddss  xmm8, xmm1, dword ptr [rbx+48h]
-                    vmovss  xmm4, dword ptr [rbx+58h]
                   }
-                  _EAX = v128 & 4;
+                  v68 = *(float *)&_XMM1 + *(float *)(v13 + 72);
+                  _XMM4 = *(unsigned int *)(v13 + 88);
+                  _XMM0 = v58 & 4;
                   __asm
                   {
-                    vxorps  xmm3, xmm4, xmm6
-                    vmovd   xmm1, r14d
-                    vmovd   xmm0, eax
                     vpcmpeqd xmm2, xmm0, xmm1
                     vblendvps xmm1, xmm4, xmm3, xmm2
-                    vaddss  xmm7, xmm1, dword ptr [rbx+4Ch]
-                    vmulss  xmm3, xmm9, dword ptr [rbp+170h+axis]
-                    vmulss  xmm2, xmm8, dword ptr [rbp+170h+axis+0Ch]
-                    vaddss  xmm4, xmm3, xmm2
-                    vmulss  xmm1, xmm7, dword ptr [rbp+170h+axis+18h]
-                    vaddss  xmm6, xmm4, xmm1
-                    vmulss  xmm3, xmm9, dword ptr [rbp+170h+axis+4]
-                    vmulss  xmm1, xmm8, dword ptr [rbp+170h+axis+10h]
-                    vaddss  xmm4, xmm3, xmm1
-                    vmulss  xmm0, xmm7, dword ptr [rbp+170h+axis+1Ch]
-                    vaddss  xmm5, xmm4, xmm0
-                    vmulss  xmm3, xmm9, dword ptr [rbp+170h+axis+8]
-                    vmulss  xmm2, xmm8, dword ptr [rbp+170h+axis+14h]
-                    vaddss  xmm4, xmm3, xmm2
-                    vmulss  xmm0, xmm7, dword ptr [rbp+170h+axis+20h]
-                    vaddss  xmm2, xmm4, xmm0
-                    vaddss  xmm3, xmm6, xmm12
-                    vaddss  xmm1, xmm5, xmm11
-                    vaddss  xmm4, xmm2, xmm10
-                    vsubss  xmm0, xmm3, dword ptr [rsp+270h+outOrg]
-                    vmovss  dword ptr [rbp+170h+var_110], xmm0
-                    vmovss  xmm7, dword ptr [rsp+270h+outOrg+4]
-                    vsubss  xmm1, xmm1, xmm7
-                    vmovss  dword ptr [rbp+170h+var_110+4], xmm1
-                    vsubss  xmm0, xmm4, xmm15
-                    vmovss  dword ptr [rbp+170h+var_110+8], xmm0
                   }
-                  if ( !CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v286, (vec2_t *)&outScreenPos) )
+                  v73 = *(float *)&_XMM1 + *(float *)(v13 + 76);
+                  *(float *)&_XMM1 = (float)((float)((float)(v63 * axis.m[0].v[1]) + (float)(v68 * axis.m[1].v[1])) + (float)(v73 * axis.m[2].v[1])) + v41;
+                  *(float *)&_XMM4 = (float)((float)((float)(v63 * axis.m[0].v[2]) + (float)(v68 * axis.m[1].v[2])) + (float)(v73 * axis.m[2].v[2])) + v42;
+                  v117.v[0] = (float)((float)((float)((float)(v63 * axis.m[0].v[0]) + (float)(v68 * axis.m[1].v[0])) + (float)(v73 * axis.m[2].v[0])) + v40) - outOrg.v[0];
+                  v9 = outOrg.v[1];
+                  v117.v[1] = *(float *)&_XMM1 - outOrg.v[1];
+                  v117.v[2] = *(float *)&_XMM4 - v8;
+                  if ( !CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v117, (vec2_t *)&outScreenPos) )
                     goto LABEL_42;
-                  __asm
+                  if ( v39 != 0.0 )
                   {
-                    vucomiss xmm13, xmm14
-                    vmovss  xmm0, dword ptr [rbp+170h+outScreenPos]
-                    vsubss  xmm1, xmm0, dword ptr [rbp+170h+var_158]
-                    vmovss  dword ptr [rbp+170h+in], xmm1
-                    vmovss  xmm2, dword ptr [rbp+170h+outScreenPos+4]
-                    vsubss  xmm0, xmm2, dword ptr [rbp+170h+var_158+4]
-                    vmovss  dword ptr [rbp+170h+in+4], xmm0
-                    vmulss  xmm1, xmm13, cs:__real@bc8efa35; radians
-                  }
-                  Vec2Rotate(&in, *(float *)&_XMM1, &v285);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbp+170h+var_118]
-                    vaddss  xmm1, xmm0, dword ptr [rbp+170h+var_158]
-                    vmovss  dword ptr [rbp+170h+outScreenPos], xmm1
-                    vmovss  xmm2, dword ptr [rbp+170h+var_118+4]
-                    vaddss  xmm0, xmm2, dword ptr [rbp+170h+var_158+4]
-                    vmovss  dword ptr [rbp+170h+outScreenPos+4], xmm0
+                    in.v[0] = outScreenPos.v[0] - v113.v[0];
+                    in.v[1] = outScreenPos.v[1] - v113.v[1];
+                    Vec2Rotate(&in, v39 * -0.017453292, &v116);
+                    outScreenPos.v[0] = v116.v[0] + v113.v[0];
+                    outScreenPos.v[1] = v116.v[1] + v113.v[1];
                   }
                   Bounds_AddPoint(&bounds, &outScreenPos);
-                  if ( ++v128 >= 8 )
+                  if ( ++v58 >= 8 )
                   {
-                    __asm
-                    {
-                      vmovss  xmm6, dword ptr [rbp+170h+bounds.halfSize+4]
-                      vmovss  xmm7, dword ptr [rbp+170h+bounds.halfSize]
-                    }
-                    LocalClientGlobals = v269;
+                    _XMM6 = LODWORD(bounds.halfSize.v[1]);
+                    v75 = bounds.halfSize.v[0];
+                    LocalClientGlobals = (cg_t *)v100;
                     goto LABEL_66;
                   }
                 }
               }
-              v187 = ((_RBX->flags & 0x400) != 0) | v118;
-              if ( (v120 & 0x400) == 0 )
-              {
-                v188 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 614, ASSERT_TYPE_ASSERT, "(targ->flags & TARGETFLAG_DRAW_RECT)", (const char *)&queryFormat, "targ->flags & TARGETFLAG_DRAW_RECT");
-                v187 = !v188;
-                if ( v188 )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vmovss  xmm6, dword ptr [rbx+18h]
-                vcomiss xmm6, xmm14
-              }
-              if ( v187 )
-              {
-                __asm
-                {
-                  vmovss  xmm2, dword ptr [rbx+54h]
-                  vmovss  xmm0, dword ptr [rbx+50h]
-                  vmovss  xmm3, dword ptr [rbx+58h]
-                  vmulss  xmm1, xmm0, xmm0
-                  vmulss  xmm0, xmm2, xmm2
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm3, xmm3
-                  vaddss  xmm2, xmm2, xmm1
-                  vsqrtss xmm6, xmm2, xmm2
-                }
-              }
-              __asm
-              {
-                vsubss  xmm0, xmm12, xmm9
-                vmovss  dword ptr [rbp+170h+worldDir], xmm0
-                vsubss  xmm1, xmm11, xmm7
-                vmovss  dword ptr [rbp+170h+worldDir+4], xmm1
-                vsubss  xmm0, xmm10, xmm15
-                vmovss  dword ptr [rbp+170h+worldDir+8], xmm0
-              }
-              CG_WorldDirToScreenPosVirtualCentered(localClientNum, &worldDir, (vec2_t *)&outScreenPos);
-              LocalClientGlobals = v269;
-              __asm
-              {
-                vmulss  xmm0, xmm6, dword ptr [rsi+6950h]
-                vaddss  xmm4, xmm0, xmm12
-                vmulss  xmm1, xmm6, dword ptr [rsi+6954h]
-                vaddss  xmm3, xmm1, xmm11
-                vmulss  xmm0, xmm6, dword ptr [rsi+6958h]
-                vaddss  xmm2, xmm0, xmm10
-                vsubss  xmm1, xmm4, xmm9
-                vmovss  dword ptr [rbp+170h+var_100], xmm1
-                vsubss  xmm0, xmm3, xmm7
-                vmovss  dword ptr [rbp+170h+var_100+4], xmm0
-                vsubss  xmm1, xmm2, xmm15
-                vmovss  dword ptr [rbp+170h+var_100+8], xmm1
-              }
-              CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v287, &v288);
-              __asm
-              {
-                vmovss  xmm5, dword ptr [rbp+170h+outScreenPos]
-                vmovss  xmm0, dword ptr [rbp+170h+var_F0]
-                vsubss  xmm2, xmm0, xmm5
-                vmovss  xmm4, dword ptr [rbp+170h+outScreenPos+4]
-                vmovss  xmm1, dword ptr [rbp+170h+var_F0+4]
-                vsubss  xmm0, xmm1, xmm4
-                vmulss  xmm3, xmm0, xmm0
-                vmulss  xmm2, xmm2, xmm2
-                vaddss  xmm1, xmm3, xmm2
-                vsqrtss xmm6, xmm1, xmm1
-                vmovss  dword ptr [rbp+170h+bounds.midPoint], xmm5
-                vmovss  dword ptr [rbp+170h+bounds.midPoint+4], xmm4
-                vmovss  xmm0, [rbp+170h+var_1B8]
-                vmovss  dword ptr [rbp+170h+bounds.midPoint+8], xmm0
-                vmovaps xmm7, xmm6
-                vmovss  dword ptr [rbp+170h+bounds.halfSize], xmm6
-                vmovss  dword ptr [rbp+170h+bounds.halfSize+4], xmm6
-                vmovss  dword ptr [rbp+170h+bounds.halfSize+8], xmm6
-              }
-LABEL_66:
-              __asm
-              {
-                vminss  xmm0, xmm6, xmm7
-                vmovss  xmm10, cs:__real@40000000
-                vmulss  xmm8, xmm0, xmm10
-              }
-              if ( _RBX->minSize > 0 )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vcomiss xmm0, xmm8
-                }
-                if ( (_RBX->flags & 0x100) != 0 )
-                {
-                  __asm { vmovss  xmm7, dword ptr [rsp+270h+outOrg+4] }
-                  goto LABEL_95;
-                }
-              }
-              if ( v95->textureCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 639, ASSERT_TYPE_ASSERT, "( ( material->textureCount == 1 ) )", "( material->name ) = %s", v95->name) )
+              if ( (v57 & 0x400) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 614, ASSERT_TYPE_ASSERT, "(targ->flags & TARGETFLAG_DRAW_RECT)", (const char *)&queryFormat, "targ->flags & TARGETFLAG_DRAW_RECT") )
                 __debugbreak();
-              p_name = &v95->textureTable->image->name;
+              v76 = *(float *)(v13 + 24);
+              if ( v76 <= 0.0 )
+                v76 = fsqrt((float)((float)(*(float *)(v13 + 80) * *(float *)(v13 + 80)) + (float)(*(float *)(v13 + 84) * *(float *)(v13 + 84))) + (float)(*(float *)(v13 + 88) * *(float *)(v13 + 88)));
+              worldDir.v[0] = v40 - v10;
+              worldDir.v[1] = v41 - v9;
+              worldDir.v[2] = v42 - v8;
+              CG_WorldDirToScreenPosVirtualCentered(localClientNum, &worldDir, (vec2_t *)&outScreenPos);
+              LocalClientGlobals = (cg_t *)v100;
+              v77 = (float)(v76 * v100[6741]) + v41;
+              v78 = (float)(v76 * v100[6742]) + v42;
+              v118.v[0] = (float)((float)(v76 * v100[6740]) + v40) - v10;
+              v118.v[1] = v77 - v9;
+              v118.v[2] = v78 - v8;
+              CG_WorldDirToScreenPosVirtualCentered(localClientNum, &v118, &v119);
+              v79 = LODWORD(v119.v[1]);
+              *(float *)&v79 = fsqrt((float)((float)(v119.v[1] - outScreenPos.v[1]) * (float)(v119.v[1] - outScreenPos.v[1])) + (float)((float)(v119.v[0] - outScreenPos.v[0]) * (float)(v119.v[0] - outScreenPos.v[0])));
+              _XMM6 = v79;
+              bounds.midPoint = outScreenPos;
+              v75 = *(float *)&v79;
+              bounds.halfSize.v[0] = *(float *)&v79;
+              bounds.halfSize.v[1] = *(float *)&v79;
+              bounds.halfSize.v[2] = *(float *)&v79;
+LABEL_66:
+              __asm { vminss  xmm0, xmm6, xmm7 }
+              v81 = *(float *)&_XMM0 * 2.0;
+              v82 = *(_DWORD *)(v13 + 28);
+              if ( v82 > 0 && (float)v82 > v81 && (*(_DWORD *)(v13 + 92) & 0x100) != 0 )
+              {
+                v9 = outOrg.v[1];
+                goto LABEL_100;
+              }
+              if ( v44->textureCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 639, ASSERT_TYPE_ASSERT, "( ( material->textureCount == 1 ) )", "( material->name ) = %s", v44->name) )
+                __debugbreak();
+              p_name = &v44->textureTable->image->name;
               if ( !p_name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 641, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
                 __debugbreak();
               if ( *((_BYTE *)p_name + 46) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 642, ASSERT_TYPE_ASSERT, "( ( image->semantic == TS_2D ) )", "( image->name ) = %s", *p_name) )
                 __debugbreak();
               if ( *((_BYTE *)p_name + 48) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 643, ASSERT_TYPE_ASSERT, "( ( image->levelCount == 1 ) )", "( image->name ) = %s", *p_name) )
                 __debugbreak();
-              if ( _RBX->minSize > 0 )
+              v84 = *((unsigned __int16 *)p_name + 18);
+              v85 = *((unsigned __int16 *)p_name + 19);
+              v86 = *(_DWORD *)(v13 + 28);
+              if ( v86 > 0 && (v88 = 0i64, *(float *)&v88 = (float)v86, v87 = v88, v81 < *(float *)&v88) || (v89 = *(_DWORD *)(v13 + 32), v89 > 0) && (v90 = 0i64, *(float *)&v90 = (float)v89, v87 = v90, v81 > *(float *)&v90) )
               {
-                __asm
+                if ( *(float *)&_XMM6 == 0.0 )
                 {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ecx
-                  vcomiss xmm8, xmm0
-                }
-              }
-              maxSize = _RBX->maxSize;
-              if ( maxSize > 0 )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ecx
-                  vcomiss xmm8, xmm0
-                  vucomiss xmm6, xmm14
-                  vmulss  xmm1, xmm0, cs:__real@3f000000
-                  vcomiss xmm7, xmm6
-                  vdivss  xmm0, xmm7, xmm6
-                  vmulss  xmm3, xmm0, xmm1
-                  vmovss  dword ptr [rbp+170h+bounds.halfSize], xmm3
-                  vmovss  dword ptr [rbp+170h+bounds.halfSize+4], xmm1
-                  vmovaps xmm2, xmm1
-                  vminss  xmm0, xmm2, xmm3
-                  vmulss  xmm8, xmm0, xmm10
-                }
-              }
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vminss  xmm1, xmm0, xmm8
-                vmovss  dword ptr [rsp+270h+inOutColor], xmm13
-                vmovss  dword ptr [rsp+270h+rect], xmm1
-              }
-              CG_DrawScaledRect(localClientNum, rect, colora, v95, &bounds, _RBX, recta, inOutColora, LocalClientGlobals->time, &v274);
 LABEL_85:
-              __asm { vmovss  xmm7, dword ptr [rsp+270h+outOrg+4] }
-              goto LABEL_95;
+                  v9 = outOrg.v[1];
+                  goto LABEL_100;
+                }
+                v91 = v87;
+                *(float *)&v91 = *(float *)&v87 * 0.5;
+                if ( v75 >= *(float *)&_XMM6 )
+                {
+                  bounds.halfSize.v[0] = (float)(v75 / *(float *)&_XMM6) * *(float *)&v91;
+                  bounds.halfSize.v[1] = *(float *)&v87 * 0.5;
+                  _XMM2 = v91;
+                }
+                else
+                {
+                  v92 = _XMM6;
+                  *(float *)&v92 = (float)(*(float *)&_XMM6 / v75) * (float)(*(float *)&v87 * 0.5);
+                  _XMM2 = v92;
+                  bounds.halfSize.v[1] = *(float *)&v92;
+                  bounds.halfSize.v[0] = *(float *)&v87 * 0.5;
+                }
+                __asm { vminss  xmm0, xmm2, xmm3 }
+              }
+              if ( v84 < v85 )
+                v85 = v84;
+              v96 = 0i64;
+              *(float *)&v96 = (float)v85;
+              _XMM0 = v96;
+              __asm { vminss  xmm1, xmm0, xmm8 }
+              CG_DrawScaledRect(localClientNum, rect, colora, v44, &bounds, (const targetInfo_t *)v13, *(float *)&_XMM1, v39, LocalClientGlobals->time, &v105);
+              goto LABEL_85;
             }
-            __asm
+            if ( !PipRect::CalcOverlap(&v105, localClientNum, outScreenPos.v[0] - v47, outScreenPos.v[1] - v47, h, h, rect, &v112) )
             {
-              vmovss  xmm0, dword ptr [rbp+170h+outScreenPos+4]
-              vsubss  xmm3, xmm0, xmm6; y0
-              vmovss  xmm1, dword ptr [rbp+170h+outScreenPos]
-              vsubss  xmm2, xmm1, xmm6; x0
-              vmovss  [rsp+270h+h], xmm8
-              vmovss  dword ptr [rsp+270h+fmt], xmm8
-            }
-            if ( !PipRect::CalcOverlap(&v274, localClientNum, *(float *)&_XMM2, *(float *)&_XMM3, fmta, ha, rect, &v281) )
-            {
-              LocalClientGlobals = v269;
-              goto LABEL_95;
+              LocalClientGlobals = (cg_t *)v100;
+              goto LABEL_100;
             }
             vertAlign = rect->vertAlign;
             horzAlign = rect->horzAlign;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+170h+outScreenPos+4]
-              vsubss  xmm7, xmm0, xmm6
-              vmovss  xmm1, dword ptr [rbp+170h+outScreenPos]
-              vsubss  xmm6, xmm1, xmm6
-            }
+            v53 = outScreenPos.v[1] - v47;
+            v54 = outScreenPos.v[0] - v47;
             ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-            pipRect = v95;
-            __asm { vmovss  dword ptr [rsp+270h+inOutColor], xmm13 }
+            pipRect = v44;
+            inOutColor = v39;
           }
           else
           {
-            __asm { vmovaps xmm9, xmm14 }
-            v102 = v19 - 2;
-            if ( v102 )
+            v48 = 0.0;
+            v49 = v6 - 2;
+            if ( v49 )
             {
-              v103 = v102 - 1;
-              if ( v103 )
+              v50 = v49 - 1;
+              if ( v50 )
               {
-                if ( v103 == 1 )
-                  __asm { vmovss  xmm9, cs:__real@43870000 }
+                if ( v50 == 1 )
+                  v48 = FLOAT_270_0;
               }
               else
               {
-                __asm { vmovss  xmm9, cs:__real@42b40000 }
+                v48 = FLOAT_90_0;
               }
             }
             else
             {
-              __asm { vmovss  xmm9, cs:__real@43340000 }
+              v48 = FLOAT_180_0;
             }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+170h+outScreenPos+4]
-              vsubss  xmm3, xmm0, xmm6; y0
-              vmovss  xmm1, dword ptr [rbp+170h+outScreenPos]
-              vsubss  xmm2, xmm1, xmm6; x0
-              vmovss  [rsp+270h+h], xmm8
-              vmovss  dword ptr [rsp+270h+fmt], xmm8
-            }
-            if ( !PipRect::CalcOverlap(&v274, localClientNum, *(float *)&_XMM2, *(float *)&_XMM3, fmt, h, rect, &v281) )
+            if ( !PipRect::CalcOverlap(&v105, localClientNum, outScreenPos.v[0] - v47, outScreenPos.v[1] - v47, h, h, rect, &v112) )
               goto LABEL_42;
             vertAlign = rect->vertAlign;
             horzAlign = rect->horzAlign;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+170h+outScreenPos+4]
-              vsubss  xmm7, xmm0, xmm6
-              vmovss  xmm1, dword ptr [rbp+170h+outScreenPos]
-              vsubss  xmm6, xmm1, xmm6
-            }
+            v53 = outScreenPos.v[1] - v47;
+            v54 = outScreenPos.v[0] - v47;
             ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-            pipRect = v95;
-            __asm { vmovss  dword ptr [rsp+270h+inOutColor], xmm9 }
+            pipRect = v44;
+            inOutColor = v48;
           }
-          __asm
-          {
-            vmovss  dword ptr [rsp+270h+fmt], xmm8
-            vmovaps xmm3, xmm8; width
-            vmovaps xmm2, xmm7; y
-            vmovaps xmm1, xmm6; x
-          }
-          CG_DrawRotatedPicWithoutSplitScreenScaling(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, horzAlign, vertAlign, inOutColor, &v281, pipRect);
-          LocalClientGlobals = v269;
+          CG_DrawRotatedPicWithoutSplitScreenScaling(ActivePlacement, v54, v53, h, h, horzAlign, vertAlign, inOutColor, &v112, pipRect);
+          LocalClientGlobals = (cg_t *)v100;
           goto LABEL_85;
         }
       }
     }
-LABEL_96:
-    v20 = v273 + 1;
-    v273 = v20;
-    __asm { vmovss  xmm9, dword ptr [rsp+270h+outOrg] }
+LABEL_101:
+    v7 = v104 + 1;
+    v104 = v7;
+    v10 = outOrg.v[0];
   }
-  while ( v20 < 64 );
+  while ( v7 < 64 );
   memset(&outOrg, 0, sizeof(outOrg));
-  _R11 = &v289;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -1930,103 +1384,62 @@ CG_GetTargetPos
 */
 bool CG_GetTargetPos(LocalClientNum_t localClientNum, int targetEntNum, vec3_t *outPos)
 {
-  int v11; 
-  __int64 v12; 
-  targetInfo_t *targets; 
+  cg_t *LocalClientGlobals; 
+  int v7; 
+  __int64 v8; 
+  targetInfo_t *i; 
   bool result; 
   centity_t *Entity; 
+  __int64 v12; 
+  __int64 p_offset; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   vec3_t outOrigin; 
-  __int64 v44; 
+  __int64 v20; 
   tmat33_t<vec3_t> axis; 
-  char v46; 
-  char v47; 
-  void *retaddr; 
+  char v22; 
 
-  _RAX = &retaddr;
-  v44 = -2i64;
-  __asm
+  v20 = -2i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v7 = 0;
+  v8 = 0i64;
+  for ( i = LocalClientGlobals->targets; i->entNum != targetEntNum; ++i )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _R14 = outPos;
-  _RSI = CG_GetLocalClientGlobals(localClientNum);
-  v11 = 0;
-  v12 = 0i64;
-  targets = _RSI->targets;
-  while ( targets->entNum != targetEntNum )
-  {
-    ++v11;
-    ++v12;
-    ++targets;
-    if ( v12 >= 64 )
-    {
-      result = 0;
-      goto LABEL_15;
-    }
+    ++v7;
+    if ( ++v8 >= 64 )
+      return 0;
   }
   Entity = CG_GetEntity(localClientNum, targetEntNum);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 839, ASSERT_TYPE_ASSERT, "(targetEnt)", (const char *)&queryFormat, "targetEnt") )
     __debugbreak();
-  _RDI = v11;
-  if ( (_RSI->targets[_RDI].flags & 0x4000) != 0 )
+  v12 = v7;
+  if ( (LocalClientGlobals->targets[v12].flags & 0x4000) != 0 )
   {
     AnglesToAxis(&Entity->pose.angles, &axis);
-    _RDI = (char *)&_RSI->targets[_RDI].offset;
-    if ( _RDI == &v46 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    p_offset = (__int64)&LocalClientGlobals->targets[v12].offset;
+    if ( (char *)p_offset == &v22 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rdi+4]
-      vmovss  xmm4, dword ptr [rdi]
-      vmovss  xmm6, dword ptr [rdi+8]
-      vmulss  xmm1, xmm4, dword ptr [rsp+0E8h+axis]
-      vmulss  xmm0, xmm5, dword ptr [rsp+0E8h+axis+0Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rsp+0E8h+axis+18h]
-      vaddss  xmm7, xmm2, xmm1
-      vmulss  xmm3, xmm4, dword ptr [rsp+0E8h+axis+4]
-      vmulss  xmm0, xmm5, dword ptr [rsp+0E8h+axis+10h]
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rsp+0E8h+axis+1Ch]
-      vaddss  xmm8, xmm2, xmm1
-      vmulss  xmm3, xmm4, dword ptr [rsp+0E8h+axis+8]
-      vmulss  xmm0, xmm5, dword ptr [rsp+0E8h+axis+14h]
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rsp+0E8h+axis+20h]
-      vaddss  xmm6, xmm2, xmm1
-    }
+    v14 = *(float *)(p_offset + 4);
+    v15 = *(float *)(p_offset + 8);
+    v16 = (float)((float)(*(float *)p_offset * axis.m[0].v[0]) + (float)(v14 * axis.m[1].v[0])) + (float)(v15 * axis.m[2].v[0]);
+    v17 = (float)((float)(*(float *)p_offset * axis.m[0].v[1]) + (float)(v14 * axis.m[1].v[1])) + (float)(v15 * axis.m[2].v[1]);
+    v18 = (float)((float)(*(float *)p_offset * axis.m[0].v[2]) + (float)(v14 * axis.m[1].v[2])) + (float)(v15 * axis.m[2].v[2]);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rdi+rsi+64C3Ch]
-      vmovss  xmm8, dword ptr [rdi+rsi+64C40h]
-      vmovss  xmm6, dword ptr [rdi+rsi+64C44h]
-    }
+    v16 = LocalClientGlobals->targets[v12].offset.v[0];
+    v17 = LocalClientGlobals->targets[v12].offset.v[1];
+    v18 = LocalClientGlobals->targets[v12].offset.v[2];
   }
   CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-  __asm
-  {
-    vaddss  xmm1, xmm7, dword ptr [rsp+0E8h+outOrigin]
-    vmovss  dword ptr [r14], xmm1
-    vaddss  xmm0, xmm8, dword ptr [rsp+0E8h+outOrigin+4]
-    vmovss  dword ptr [r14+4], xmm0
-    vaddss  xmm2, xmm6, dword ptr [rsp+0E8h+outOrigin+8]
-    vmovss  dword ptr [r14+8], xmm2
-  }
+  outPos->v[0] = v16 + outOrigin.v[0];
+  outPos->v[1] = v17 + outOrigin.v[1];
+  outPos->v[2] = v18 + outOrigin.v[2];
   result = 1;
   memset(&outOrigin, 0, sizeof(outOrigin));
-LABEL_15:
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
   return result;
 }
 
@@ -2067,182 +1480,159 @@ void CG_ReticleStartLockOn(LocalClientNum_t localClientNum, int targetEntNum, in
 CG_TargetsChanged
 ==============
 */
-
-void __fastcall CG_TargetsChanged(LocalClientNum_t localClientNum, int num, double _XMM2_8, double _XMM3_8)
+void CG_TargetsChanged(LocalClientNum_t localClientNum, int num)
 {
-  __int64 v6; 
+  __int128 v3; 
+  __int64 v4; 
+  cg_t *LocalClientGlobals; 
   const char *ConfigString; 
+  __int64 v7; 
+  int v8; 
+  const char *v9; 
   int v10; 
-  const char *v11; 
+  int v11; 
   int v12; 
-  int v13; 
-  int v14; 
+  const char *v13; 
+  __int64 v14; 
   const char *v15; 
-  __int64 v16; 
+  int v16; 
   const char *v17; 
   int v18; 
   const char *v19; 
-  int v20; 
-  const char *v21; 
+  float v20; 
+  const char *v22; 
+  int v23; 
   const char *v24; 
-  int v25; 
-  const char *v26; 
-  const char *v27; 
-  const char *v38; 
-  const char *v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
+  const char *v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  const char *v29; 
+  float v30; 
+  const char *v31; 
+  int v32; 
+  int v33; 
+  int v34; 
+  int v35; 
+  int v36; 
+  int v37; 
+  int v38; 
+  int v39; 
+  int v40; 
+  int v41; 
+  __int128 v42; 
 
-  v6 = num;
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  ConfigString = CL_GetConfigString(v6);
-  if ( (unsigned int)(v6 - 4014) >= 0x40 )
+  v4 = num;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  ConfigString = CL_GetConfigString(v4);
+  if ( (unsigned int)(v4 - 4014) >= 0x40 )
   {
-    v55 = 64;
-    v54 = v6 - 4014;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 1010, ASSERT_TYPE_ASSERT, "(unsigned)( targetIndex ) < (unsigned)( 64 )", "targetIndex doesn't index IW_MAX_TARGETS\n\t%i not in [0, %i)", v54, v55) )
+    v33 = 64;
+    v32 = v4 - 4014;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_hud.cpp", 1010, ASSERT_TYPE_ASSERT, "(unsigned)( targetIndex ) < (unsigned)( 64 )", "targetIndex doesn't index IW_MAX_TARGETS\n\t%i not in [0, %i)", v32, v33) )
       __debugbreak();
   }
-  _RBX = 120 * v6;
+  v7 = 120 * v4;
   if ( *ConfigString )
   {
-    v10 = *(_DWORD *)((char *)_RDI + _RBX - 68952);
-    __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-    v11 = Info_ValueForKey(ConfigString, "ent");
-    if ( *v11 )
-      v12 = atoi(v11);
+    v8 = *(_DWORD *)((char *)LocalClientGlobals + v7 - 68952);
+    v42 = v3;
+    v9 = Info_ValueForKey(ConfigString, "ent");
+    if ( *v9 )
+      v10 = atoi(v9);
     else
-      v12 = 2047;
-    v13 = 0;
-    *(_DWORD *)((char *)_RDI + _RBX - 68952) = v12;
-    v14 = -1;
-    if ( v12 != v10 )
+      v10 = 2047;
+    v11 = 0;
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68952) = v10;
+    v12 = -1;
+    if ( v10 != v8 )
     {
-      *(_DWORD *)((char *)_RDI + _RBX - 68856) = -1;
-      *(_QWORD *)((char *)_RDI + _RBX - 68884) = 0i64;
-      *(_DWORD *)((char *)_RDI + _RBX - 68876) = 0;
-      *(_DWORD *)((char *)_RDI + _RBX - 68872) = -8388609;
-      *(_DWORD *)((char *)_RDI + _RBX - 68868) = -8388609;
-      *(_DWORD *)((char *)_RDI + _RBX - 68864) = -8388609;
+      *(_DWORD *)((char *)LocalClientGlobals + v7 - 68856) = -1;
+      *(_QWORD *)((char *)LocalClientGlobals + v7 - 68884) = 0i64;
+      *(_DWORD *)((char *)LocalClientGlobals + v7 - 68876) = 0;
+      *(_DWORD *)((char *)LocalClientGlobals + v7 - 68872) = -8388609;
+      *(_DWORD *)((char *)LocalClientGlobals + v7 - 68868) = -8388609;
+      *(_DWORD *)((char *)LocalClientGlobals + v7 - 68864) = -8388609;
     }
-    v15 = Info_ValueForKey(ConfigString, "offs");
-    v16 = (__int64)_RDI + _RBX - 68948;
-    *(_QWORD *)v16 = 0i64;
-    *(_DWORD *)(v16 + 8) = 0;
+    v13 = Info_ValueForKey(ConfigString, "offs");
+    v14 = (__int64)LocalClientGlobals + v7 - 68948;
+    *(_QWORD *)v14 = 0i64;
+    *(_DWORD *)(v14 + 8) = 0;
+    if ( *v13 )
+      j_sscanf(v13, "%f %f %f", v14, (char *)LocalClientGlobals + v7 - 68944, (char *)LocalClientGlobals + v7 - 68940);
+    v15 = Info_ValueForKey(ConfigString, "mat");
     if ( *v15 )
-      j_sscanf(v15, "%f %f %f", v16, (char *)_RDI + _RBX - 68944, (char *)_RDI + _RBX - 68940);
-    v17 = Info_ValueForKey(ConfigString, "mat");
+      v16 = atoi(v15);
+    else
+      v16 = -1;
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68936) = v16;
+    v17 = Info_ValueForKey(ConfigString, "offmat");
     if ( *v17 )
       v18 = atoi(v17);
     else
       v18 = -1;
-    *(_DWORD *)((char *)_RDI + _RBX - 68936) = v18;
-    v19 = Info_ValueForKey(ConfigString, "offmat");
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68932) = v18;
+    v19 = Info_ValueForKey(ConfigString, "entradius");
+    v20 = FLOAT_N1_0;
     if ( *v19 )
-      v20 = atoi(v19);
-    else
-      v20 = -1;
-    *(_DWORD *)((char *)_RDI + _RBX - 68932) = v20;
-    v21 = Info_ValueForKey(ConfigString, "entradius");
-    __asm { vmovss  xmm6, cs:__real@bf800000 }
-    if ( *v21 )
     {
-      *(double *)&_XMM0 = atof(v21);
+      *(double *)&_XMM0 = atof(v19);
       __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
     }
     else
     {
-      __asm { vmovaps xmm1, xmm6 }
+      *(float *)&_XMM1 = FLOAT_N1_0;
     }
-    __asm { vmovss  dword ptr [rbx+rdi-10D40h], xmm1 }
-    v24 = Info_ValueForKey(ConfigString, "minsize");
+    *(float *)((char *)LocalClientGlobals + v7 - 68928) = *(float *)&_XMM1;
+    v22 = Info_ValueForKey(ConfigString, "minsize");
+    if ( *v22 )
+      v23 = atoi(v22);
+    else
+      v23 = -1;
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68924) = v23;
+    v24 = Info_ValueForKey(ConfigString, "maxsize");
     if ( *v24 )
-      v25 = atoi(v24);
-    else
-      v25 = -1;
-    *(_DWORD *)((char *)_RDI + _RBX - 68924) = v25;
-    v26 = Info_ValueForKey(ConfigString, "maxsize");
-    if ( *v26 )
-      v14 = atoi(v26);
-    *(_DWORD *)((char *)_RDI + _RBX - 68920) = v14;
-    v27 = Info_ValueForKey(ConfigString, "delay");
-    if ( *v27 )
+      v12 = atoi(v24);
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68920) = v12;
+    v25 = Info_ValueForKey(ConfigString, "delay");
+    if ( *v25 )
     {
-      j_sscanf(v27, "%i %i %i %i", &v59, &v58, &v57, &v56);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, [rsp+0A8h+var_68]
-        vmulss  xmm2, xmm0, cs:__real@3a83126f
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, [rsp+0A8h+var_5C]
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-        vxorps  xmm3, xmm3, xmm3
-        vcvtsi2ss xmm3, xmm3, [rsp+0A8h+var_64]
-        vxorps  xmm4, xmm4, xmm4
-        vcvtsi2ss xmm4, xmm4, [rsp+0A8h+var_60]
-      }
+      j_sscanf(v25, "%i %i %i %i", &v37, &v36, &v35, &v34);
+      v26 = (float)v34 * 0.001;
+      v20 = (float)v37 * 0.001;
+      v27 = (float)v35;
+      v28 = (float)v36;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm3, xmm3, xmm3
-        vxorps  xmm4, xmm4, xmm4
-      }
+      v26 = 0.0;
+      v27 = 0.0;
+      v28 = 0.0;
     }
-    __asm
+    *(float *)((char *)LocalClientGlobals + v7 - 68916) = v20;
+    *(float *)((char *)LocalClientGlobals + v7 - 68908) = v28;
+    *(float *)((char *)LocalClientGlobals + v7 - 68904) = v27;
+    *(float *)((char *)LocalClientGlobals + v7 - 68912) = v26;
+    v29 = Info_ValueForKey(ConfigString, "color");
+    *(_QWORD *)((char *)LocalClientGlobals + v7 - 68900) = 0i64;
+    *(_QWORD *)((char *)LocalClientGlobals + v7 - 68892) = 0i64;
+    if ( *v29 )
     {
-      vmovss  dword ptr [rbx+rdi-10D34h], xmm6
-      vmovss  dword ptr [rbx+rdi-10D2Ch], xmm4
-      vmovss  dword ptr [rbx+rdi-10D28h], xmm3
-      vmovss  dword ptr [rbx+rdi-10D30h], xmm2
+      j_sscanf(v29, "%d %d %d %d", &v38, &v39, &v40, &v41);
+      *(float *)((char *)LocalClientGlobals + v7 - 68900) = (float)v38 * 0.0039215689;
+      *(float *)((char *)LocalClientGlobals + v7 - 68896) = (float)v39 * 0.0039215689;
+      v30 = (float)v41 * 0.0039215689;
+      *(float *)((char *)LocalClientGlobals + v7 - 68892) = (float)v40 * 0.0039215689;
+      *(float *)((char *)LocalClientGlobals + v7 - 68888) = v30;
     }
-    v38 = Info_ValueForKey(ConfigString, "color");
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-    *(_QWORD *)((char *)_RDI + _RBX - 68900) = 0i64;
-    *(_QWORD *)((char *)_RDI + _RBX - 68892) = 0i64;
-    if ( *v38 )
-    {
-      j_sscanf(v38, "%d %d %d %d", &v60, &v61, &v62, &v63);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3b808081
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, [rsp+0A8h+var_58]
-        vmulss  xmm0, xmm0, xmm3
-        vmovss  dword ptr [rbx+rdi-10D24h], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rsp+0A8h+var_54]
-        vmulss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [rbx+rdi-10D20h], xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, [rsp+0A8h+var_50]
-        vmulss  xmm1, xmm0, xmm3
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, [rsp+0A8h+var_4C]
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rbx+rdi-10D1Ch], xmm1
-        vmovss  dword ptr [rbx+rdi-10D18h], xmm0
-      }
-    }
-    v53 = Info_ValueForKey(ConfigString, "flags");
-    if ( *v53 )
-      v13 = atoi(v53);
-    *(_DWORD *)((char *)_RDI + _RBX - 68860) = v13;
+    v31 = Info_ValueForKey(ConfigString, "flags");
+    if ( *v31 )
+      v11 = atoi(v31);
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68860) = v11;
   }
   else
   {
-    *(_DWORD *)((char *)_RDI + _RBX - 68952) = 2047;
+    *(_DWORD *)((char *)LocalClientGlobals + v7 - 68952) = 2047;
   }
 }
 
@@ -2251,129 +1641,80 @@ void __fastcall CG_TargetsChanged(LocalClientNum_t localClientNum, int num, doub
 PipRect::CalcOverlap
 ==============
 */
-
-bool __fastcall PipRect::CalcOverlap(PipRect *this, LocalClientNum_t localClientNum, double x0, double y0, float w, float h, rectDef_s *rect, vec4_t *inOutColor)
+char PipRect::CalcOverlap(PipRect *this, LocalClientNum_t localClientNum, float x0, float y0, float w, float h, rectDef_s *rect, vec4_t *inOutColor)
 {
   cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
+  float v12; 
+  float v13; 
   int vertAlign; 
   int horzAlign; 
-  const ScreenPlacement *v21; 
-  char v22; 
-  char v23; 
-  bool result; 
+  const ScreenPlacement *v16; 
+  float v23; 
+  float v26; 
+  __m128 v28; 
   float x; 
   float wa; 
   float y; 
-  float v54; 
-  float v58; 
-  float v59; 
+  float v32; 
+  float v33; 
+  float v34; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_18], xmm3
-    vmovss  [rsp+arg_10], xmm2
-    vmovaps [rsp+98h+var_28], xmm6
-  }
-  _RSI = this;
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps [rsp+98h+var_48], xmm9
-  }
+  v34 = y0;
+  v33 = x0;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( !LocalClientGlobals->GetPIPScreenCoordinates(LocalClientGlobals, &x, &y, &wa, &v54) )
-    goto LABEL_11;
-  if ( !_RSI->pipRectValid )
+  if ( LocalClientGlobals->GetPIPScreenCoordinates(LocalClientGlobals, &x, &y, &wa, &v32) )
   {
-    _RSI->pipRectValid = 1;
-    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    ScrPlace_ApplyRectWithoutSplitScreenScaling(ActivePlacement, &x, &y, &wa, &v54, 0, 0);
-    __asm
+    if ( !this->pipRectValid )
     {
-      vmovss  xmm0, [rsp+98h+x]
-      vmovss  xmm1, [rsp+98h+y]
-      vmovss  dword ptr [rsi], xmm0
-      vaddss  xmm0, xmm0, [rsp+98h+w]
-      vmovss  dword ptr [rsi+4], xmm0
-      vaddss  xmm0, xmm1, [rsp+98h+var_4C]
-      vmovss  dword ptr [rsi+0Ch], xmm0
-      vmovss  dword ptr [rsi+8], xmm1
+      this->pipRectValid = 1;
+      ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+      ScrPlace_ApplyRectWithoutSplitScreenScaling(ActivePlacement, &x, &y, &wa, &v32, 0, 0);
+      v12 = x;
+      v13 = y;
+      this->pipX0 = x;
+      this->pipX1 = v12 + wa;
+      this->pipY1 = v13 + v32;
+      this->pipY0 = v13;
+    }
+    vertAlign = rect->vertAlign;
+    horzAlign = rect->horzAlign;
+    v16 = ScrPlace_GetActivePlacement(localClientNum);
+    ScrPlace_ApplyRectWithoutSplitScreenScaling(v16, &v33, &v34, &w, &h, horzAlign, vertAlign);
+    _XMM9 = LODWORD(this->pipX0);
+    if ( (float)(v33 + w) > *(float *)&_XMM9 )
+    {
+      _XMM2 = LODWORD(this->pipX1);
+      if ( v33 < *(float *)&_XMM2 )
+      {
+        _XMM0 = LODWORD(this->pipY0);
+        if ( (float)(v34 + h) > *(float *)&_XMM0 )
+        {
+          _XMM1 = LODWORD(this->pipY1);
+          if ( v34 < *(float *)&_XMM1 )
+          {
+            __asm
+            {
+              vminss  xmm1, xmm1, xmm5
+              vmaxss  xmm0, xmm0, xmm3
+            }
+            v23 = *(float *)&_XMM1 - *(float *)&_XMM0;
+            __asm
+            {
+              vmaxss  xmm1, xmm9, xmm4
+              vminss  xmm2, xmm2, xmm7
+            }
+            v26 = (float)(v23 * (float)(*(float *)&_XMM2 - *(float *)&_XMM1)) / (float)(w * h);
+            if ( v26 > 0.99000001 )
+              return 0;
+            v28 = (__m128)LODWORD(FLOAT_1_0);
+            v28.m128_f32[0] = 1.0 - v26;
+            *(__m128 *)inOutColor = _mm128_mul_ps(_mm_shuffle_ps(v28, v28, 0), *(__m128 *)inOutColor);
+          }
+        }
+      }
     }
   }
-  vertAlign = rect->vertAlign;
-  horzAlign = rect->horzAlign;
-  v21 = ScrPlace_GetActivePlacement(localClientNum);
-  ScrPlace_ApplyRectWithoutSplitScreenScaling(v21, &v58, &v59, &w, &h, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm4, [rsp+98h+arg_10]
-    vmovss  xmm6, [rsp+98h+arg_20]
-    vmovss  xmm9, dword ptr [rsi]
-    vmovss  xmm3, [rsp+98h+arg_18]
-    vaddss  xmm5, xmm3, [rsp+98h+arg_28]
-    vaddss  xmm7, xmm4, xmm6
-    vcomiss xmm7, xmm9
-  }
-  if ( v22 | v23 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+4]
-    vcomiss xmm4, xmm2
-  }
-  if ( !v22 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vcomiss xmm5, xmm0
-  }
-  if ( v22 | v23 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+0Ch]
-    vcomiss xmm3, xmm1
-  }
-  if ( !v22 )
-    goto LABEL_11;
-  __asm
-  {
-    vminss  xmm1, xmm1, xmm5
-    vmaxss  xmm0, xmm0, xmm3
-    vsubss  xmm3, xmm1, xmm0
-    vmaxss  xmm1, xmm9, xmm4
-    vminss  xmm2, xmm2, xmm7
-    vsubss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm6, [rsp+98h+arg_28]
-    vmulss  xmm3, xmm3, xmm0
-    vdivss  xmm1, xmm3, xmm2
-    vcomiss xmm1, cs:__real@3f7d70a4
-  }
-  if ( v22 | v23 )
-  {
-    _RAX = inOutColor;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm2, xmm0, xmm1
-      vshufps xmm2, xmm2, xmm2, 0
-      vmulps  xmm1, xmm2, xmmword ptr [rax]
-      vmovups xmmword ptr [rax], xmm1
-    }
-LABEL_11:
-    result = 1;
-    goto LABEL_12;
-  }
-  result = 0;
-LABEL_12:
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
-  return result;
+  return 1;
 }
 

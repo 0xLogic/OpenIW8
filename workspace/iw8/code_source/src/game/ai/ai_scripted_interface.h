@@ -553,9 +553,7 @@ AIScriptedInterface::GetPathEnemyFightDist
 */
 float AIScriptedInterface::GetPathEnemyFightDist(AIScriptedInterface *this)
 {
-  _RAX = this->m_pAI;
-  __asm { vmovss  xmm0, dword ptr [rax+6E0h] }
-  return *(float *)&_XMM0;
+  return this->m_pAI->pathEnemyFightDist;
 }
 
 /*

@@ -105,26 +105,27 @@ CompareAvgSelfTimes
 
 __int64 __fastcall CompareAvgSelfTimes(const void *e0, const void *e1, __int64 a3, double _XMM3_8)
 {
-  unsigned __int64 v5; 
-  char v7; 
+  __int64 v4; 
+  __int64 v5; 
+  double v9; 
+  double v12; 
 
+  v4 = *(int *)e0;
   v5 = *(int *)e1;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vcvtsi2sd xmm0, xmm0, dword ptr [rdx+rax+58C8h]
     vxorpd  xmm3, xmm3, xmm3
-    vmulsd  xmm1, xmm0, qword ptr [rcx+rax+58D8h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, dword ptr [rcx+rax+58C8h]
-    vmulsd  xmm0, xmm0, qword ptr [rdx+rax+58D8h]
-    vsubsd  xmm2, xmm1, xmm0
-    vcomisd xmm2, xmm3
   }
-  if ( !is_mul_ok(0x38ui64, v5) )
+  v9 = *(double *)&_XMM0 * drawProfGlob.global[v5].selfClks;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, dword ptr [rcx+rax+58C8h] }
+  v12 = *(double *)&_XMM0 * drawProfGlob.global[v4].selfClks;
+  if ( v9 - v12 < *(double *)&_XMM3 )
     return 0xFFFFFFFFi64;
-  if ( ((unsigned __int128)(56 * (__int128)*(int *)e1) >> 64 != 0) | v7 )
-    return (unsigned int)(v5 - *(_DWORD *)e0);
+  if ( v9 - v12 <= *(double *)&_XMM3 )
+    return (unsigned int)(v5 - v4);
   return 1i64;
 }
 
@@ -136,26 +137,27 @@ CompareAvgTotalTimes
 
 __int64 __fastcall CompareAvgTotalTimes(const void *e0, const void *e1, __int64 a3, double _XMM3_8)
 {
-  unsigned __int64 v5; 
-  char v7; 
+  __int64 v4; 
+  __int64 v5; 
+  double v9; 
+  double v12; 
 
+  v4 = *(int *)e0;
   v5 = *(int *)e1;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vcvtsi2sd xmm0, xmm0, dword ptr [rdx+rax+58C8h]
     vxorpd  xmm3, xmm3, xmm3
-    vmulsd  xmm1, xmm0, qword ptr [rcx+rax+58D0h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, dword ptr [rcx+rax+58C8h]
-    vmulsd  xmm0, xmm0, qword ptr [rdx+rax+58D0h]
-    vsubsd  xmm2, xmm1, xmm0
-    vcomisd xmm2, xmm3
   }
-  if ( !is_mul_ok(0x38ui64, v5) )
+  v9 = *(double *)&_XMM0 * drawProfGlob.global[v5].totalClks;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, dword ptr [rcx+rax+58C8h] }
+  v12 = *(double *)&_XMM0 * drawProfGlob.global[v4].totalClks;
+  if ( v9 - v12 < *(double *)&_XMM3 )
     return 0xFFFFFFFFi64;
-  if ( ((unsigned __int128)(56 * (__int128)*(int *)e1) >> 64 != 0) | v7 )
-    return (unsigned int)(v5 - *(_DWORD *)e0);
+  if ( v9 - v12 <= *(double *)&_XMM3 )
+    return (unsigned int)(v5 - v4);
   return 1i64;
 }
 
@@ -166,31 +168,16 @@ CompareMaxSelfTimes
 */
 __int64 CompareMaxSelfTimes(const void *e0, const void *e1)
 {
-  __int64 v4; 
-  __int64 v5; 
-  unsigned int v6; 
-  bool v9; 
-  unsigned int v10; 
-
-  v4 = *(int *)e1;
-  v5 = *(int *)e0;
-  v6 = drawProfGlob.global[v4].maxSelf.value[0];
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vxorpd  xmm1, xmm1, xmm1
-  }
-  v9 = v6 < drawProfGlob.global[v5].maxSelf.value[0];
-  v10 = v6 - drawProfGlob.global[v5].maxSelf.value[0];
-  __asm
-  {
     vcvtsi2sd xmm0, xmm0, eax
-    vcomisd xmm0, xmm1
   }
-  if ( v9 )
+  if ( *(double *)&_XMM0 < *(double *)&_XMM1 )
     return 0xFFFFFFFFi64;
-  if ( v9 || v10 == 0 )
-    return (unsigned int)(v4 - v5);
+  if ( *(double *)&_XMM0 <= *(double *)&_XMM1 )
+    return (unsigned int)(*(_DWORD *)e1 - *(_DWORD *)e0);
   return 1i64;
 }
 
@@ -201,31 +188,16 @@ CompareMaxTimes
 */
 __int64 CompareMaxTimes(const void *e0, const void *e1)
 {
-  __int64 v4; 
-  __int64 v5; 
-  unsigned int v6; 
-  bool v9; 
-  unsigned int v10; 
-
-  v4 = *(int *)e1;
-  v5 = *(int *)e0;
-  v6 = drawProfGlob.global[v4].max.value[0];
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vxorpd  xmm1, xmm1, xmm1
-  }
-  v9 = v6 < drawProfGlob.global[v5].max.value[0];
-  v10 = v6 - drawProfGlob.global[v5].max.value[0];
-  __asm
-  {
     vcvtsi2sd xmm0, xmm0, eax
-    vcomisd xmm0, xmm1
   }
-  if ( v9 )
+  if ( *(double *)&_XMM0 < *(double *)&_XMM1 )
     return 0xFFFFFFFFi64;
-  if ( v9 || v10 == 0 )
-    return (unsigned int)(v4 - v5);
+  if ( *(double *)&_XMM0 <= *(double *)&_XMM1 )
+    return (unsigned int)(*(_DWORD *)e1 - *(_DWORD *)e0);
   return 1i64;
 }
 
@@ -275,34 +247,30 @@ RB_AddProfileThread
 void RB_AddProfileThread(int threadContext)
 {
   ProfileStack *StackForContext; 
+  ProfileAtom *p_self; 
   ProfileAtom *p_total; 
-  unsigned int v5; 
+  unsigned int v4; 
 
   StackForContext = Profile_GetStackForContext(threadContext);
-  _RDX = &drawProfGlob.global[0].read.self;
+  p_self = &drawProfGlob.global[0].read.self;
   p_total = &StackForContext->prof_array[0].read.total;
   do
   {
-    v5 = p_total[-1].value[0];
+    v4 = p_total[-1].value[0];
     p_total += 10;
-    _RDX[-11].value[0] += v5;
-    _RDX->value[0] += p_total[-9].value[0];
-    _RDX[-1].value[0] += p_total[-10].value[0];
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vaddsd  xmm0, xmm0, qword ptr [rdx-20h]
-      vmovsd  qword ptr [rdx-20h], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vaddsd  xmm0, xmm0, qword ptr [rdx-28h]
-      vmovsd  qword ptr [rdx-28h], xmm0
-    }
-    _RDX[-2].value[0] += p_total[-11].value[0];
-    _RDX += 14;
+    p_self[-11].value[0] += v4;
+    p_self->value[0] += p_total[-9].value[0];
+    p_self[-1].value[0] += p_total[-10].value[0];
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *(double *)p_self[-8].value = *(double *)&_XMM0 + *(double *)p_self[-8].value;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *(double *)p_self[-10].value = *(double *)&_XMM0 + *(double *)p_self[-10].value;
+    p_self[-2].value[0] += p_total[-11].value[0];
+    p_self += 14;
   }
-  while ( (__int64)_RDX < (__int64)&unk_1544A76E8 );
+  while ( (__int64)p_self < (__int64)&unk_1544A76E8 );
 }
 
 /*
@@ -312,110 +280,43 @@ RB_DrawAllProfileBackgrounds
 */
 void RB_DrawAllProfileBackgrounds(GfxCmdBufContext *gfxContext, const ProfileSettings *profSettings, int rowCount)
 {
-  int v25; 
-  __int64 v27; 
-  int v32; 
-  float fmt; 
-  float fmta; 
-  float v43; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  GfxCmdBufContext v53[7]; 
-  char v54; 
-  void *retaddr; 
+  __int128 v6; 
+  __int128 fontHeight_low; 
+  int v8; 
+  float fontHeight; 
+  __int64 v10; 
+  __int128 v11; 
+  int v12; 
+  GfxCmdBufContext v13[7]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _R14 = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
   if ( profSettings && profSettings->infoCount != rowCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 376, ASSERT_TYPE_ASSERT, "(profSettings == 0 || profSettings->infoCount == rowCount)", (const char *)&queryFormat, "profSettings == NULL || profSettings->infoCount == rowCount") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:drawProfGlob.fontHeight
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm6, xmm1, cs:__real@40a00000
-    vmovups xmm0, xmmword ptr [r14]
-    vmovss  xmm9, cs:__real@40000000
-    vmovss  xmm10, cs:__real@42e40000
-    vmovss  xmm11, cs:__real@41680000
-    vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-    vmovss  [rsp+0D8h+var_90], xmm7
-    vmovss  [rsp+0D8h+var_98], xmm7
-    vsubss  xmm4, xmm1, xmm9
-    vmulss  xmm1, xmm10, cs:drawProfGlob.fontWidth
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  [rsp+0D8h+var_A0], xmm8
-    vmovss  [rsp+0D8h+var_A8], xmm8
-    vmovss  dword ptr [rsp+0D8h+var_B0], xmm4
-    vaddss  xmm3, xmm6, xmm7
-    vmovss  dword ptr [rsp+0D8h+fmt], xmm1
-    vmovups [rsp+0D8h+var_78], xmm0
-  }
-  RB_DrawStretchPic(v53, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v43, v45, v47, v49, v51, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-  v25 = 0;
+  fontHeight_low = LODWORD(drawProfGlob.fontHeight);
+  *(float *)&fontHeight_low = drawProfGlob.fontHeight * 5.0;
+  v6 = fontHeight_low;
+  v13[0] = *gfxContext;
+  RB_DrawStretchPic(v13, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, (float)(drawProfGlob.fontHeight * 5.0) + 1.0, 114.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+  v8 = 0;
   if ( rowCount > 0 )
   {
-    __asm { vmovss  xmm1, cs:drawProfGlob.fontHeight }
-    v27 = 0i64;
+    fontHeight = drawProfGlob.fontHeight;
+    v10 = 0i64;
     do
     {
-      __asm { vaddss  xmm6, xmm6, xmm1 }
-      if ( !profSettings || profSettings->profDrawInfo[v27].probeIndex )
+      v11 = v6;
+      *(float *)&v11 = *(float *)&v6 + fontHeight;
+      v6 = v11;
+      if ( !profSettings || profSettings->profDrawInfo[v10].probeIndex )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14]
-          vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-          vsubss  xmm4, xmm1, xmm9
-          vmulss  xmm1, xmm10, cs:drawProfGlob.fontWidth
-        }
-        v32 = (v25 & 1) != 0 ? 0x28 : 0;
-        __asm
-        {
-          vmovss  [rsp+0D8h+var_90], xmm7
-          vmovss  [rsp+0D8h+var_98], xmm7
-          vmovss  [rsp+0D8h+var_A0], xmm8
-          vmovss  [rsp+0D8h+var_A8], xmm8
-          vmovss  dword ptr [rsp+0D8h+var_B0], xmm4
-          vaddss  xmm3, xmm6, xmm7
-          vmovss  dword ptr [rsp+0D8h+fmt], xmm1
-          vmovups [rsp+0D8h+var_78], xmm0
-        }
-        RB_DrawStretchPic(v53, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v44, v46, v48, v50, v52, v32 | ((v32 | ((((v25 & 1) != 0 ? 0x28 : 0) | 0xFFFFA500) << 8)) << 8), GFX_PRIM_STATS_DEBUG);
-        __asm { vmovss  xmm1, cs:drawProfGlob.fontHeight }
+        v12 = (v8 & 1) != 0 ? 0x28 : 0;
+        v13[0] = *gfxContext;
+        RB_DrawStretchPic(v13, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, *(float *)&v11 + 1.0, 114.0 * drawProfGlob.fontWidth, fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, v12 | ((v12 | ((((v8 & 1) != 0 ? 0x28 : 0) | 0xFFFFA500) << 8)) << 8), GFX_PRIM_STATS_DEBUG);
+        fontHeight = drawProfGlob.fontHeight;
       }
-      ++v25;
-      ++v27;
+      ++v8;
+      ++v10;
     }
-    while ( v25 < rowCount );
-  }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    while ( v8 < rowCount );
   }
 }
 
@@ -426,16 +327,12 @@ RB_DrawProfile2
 */
 void RB_DrawProfile2(GfxCmdBufContext *gfxContext)
 {
-  GfxCmdBufContext v2; 
+  GfxCmdBufContext v1; 
 
   if ( profile2->current.integer )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-    }
-    RB_DrawProfile2Overlay(&v2);
+    v1 = *gfxContext;
+    RB_DrawProfile2Overlay(&v1);
   }
 }
 
@@ -446,144 +343,78 @@ RB_DrawProfile2Overlay
 */
 void RB_DrawProfile2Overlay(GfxCmdBufContext *gfxContext)
 {
+  int v2; 
   int v3; 
   int v4; 
   int v5; 
   int v6; 
   int v7; 
-  int v8; 
+  float v8; 
   __int64 integer; 
-  const ProfileSettings *v20; 
-  int v31; 
-  __int64 v32; 
-  const ProfileDrawInfo *v34; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float v43; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  GfxCmdBufContext v48; 
+  const ProfileSettings *v10; 
+  float v11; 
+  int v12; 
+  __int64 v13; 
+  const ProfileDrawInfo *v14; 
+  float v15; 
+  GfxCmdBufContext v16; 
 
-  _RBP = gfxContext;
-  v3 = (backEndData->prof_index + 4) % 5u;
-  v4 = g_prof2_history_update_times[(v3 + 4) % 5u];
-  v5 = g_prof2_history_update_times[v3] - v4;
-  if ( v5 )
+  v2 = (backEndData->prof_index + 4) % 5u;
+  v3 = g_prof2_history_update_times[(v2 + 4) % 5u];
+  v4 = g_prof2_history_update_times[v2] - v3;
+  if ( v4 )
   {
-    if ( v4 )
+    if ( v3 )
     {
-      v6 = (g_prof2_history_update_server_index[v3] + 4) % 5u;
-      v7 = g_prof2_history_server_update_times[(v6 + 4) % 5u];
-      v8 = g_prof2_history_server_update_times[v6] - v7;
-      if ( v8 )
+      v5 = (g_prof2_history_update_server_index[v2] + 4) % 5u;
+      v6 = g_prof2_history_server_update_times[(v5 + 4) % 5u];
+      v7 = g_prof2_history_server_update_times[v5] - v6;
+      if ( v7 )
       {
-        if ( v7 )
+        if ( v6 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovups [rsp+0A8h+var_48], xmm0
-            vmovaps [rsp+0A8h+var_38], xmm6
-          }
-          RB_EndSurfaceIfNeeded(&v48);
-          __asm
-          {
-            vmovss  xmm1, cs:drawProfGlob.fontWidth
-            vmulss  xmm3, xmm1, cs:__real@42280000
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovss  xmm4, cs:drawProfGlob.fontHeight
-            vmulss  xmm2, xmm1, cs:__real@41180000
-            vmulss  xmm6, xmm4, cs:__real@40a00000
-          }
+          v16 = *gfxContext;
+          RB_EndSurfaceIfNeeded(&v16);
+          v8 = drawProfGlob.fontHeight * 5.0;
           integer = profile2->current.integer;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vmovups [rsp+0A8h+var_48], xmm0
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  [rsp+0A8h+var_60], xmm0
-            vmovss  [rsp+0A8h+var_68], xmm0
-            vmovss  [rsp+0A8h+var_70], xmm1
-            vmovss  [rsp+0A8h+var_78], xmm1
-            vmovss  dword ptr [rsp+0A8h+var_80], xmm4
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm3
-            vmovaps xmm3, xmm6
-          }
-          v20 = (const ProfileSettings *)&s_profileArrays[integer + 42].defaultProbeIndex[1];
-          RB_DrawStretchPic(&v48, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v43, v44, v45, v46, v47, 0xAF000000, GFX_PRIM_STATS_DEBUG);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-            vmovups [rsp+0A8h+var_48], xmm0
-            vmovss  xmm0, cs:drawProfGlob.fontWidth
-            vmulss  xmm3, xmm0, cs:__real@41200000
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm2
-          }
-          RB_DrawText(&v48, "Probe Name", drawProfGlob.font, *(float *)&_XMM3, fmta, drawProfGlob.labelColor);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-            vmovups [rsp+0A8h+var_48], xmm0
-            vmovss  xmm0, cs:drawProfGlob.fontWidth
-            vmulss  xmm3, xmm0, cs:__real@42340000
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm2
-          }
-          RB_DrawText(&v48, " Total", drawProfGlob.font, *(float *)&_XMM3, fmtb, drawProfGlob.labelColor);
-          __asm
-          {
-            vmovss  xmm0, cs:drawProfGlob.fontHeight
-            vaddss  xmm6, xmm0, xmm6
-          }
+          v16 = *gfxContext;
+          v10 = (const ProfileSettings *)&s_profileArrays[integer + 42].defaultProbeIndex[1];
+          RB_DrawStretchPic(&v16, rgp.whiteMaterial, drawProfGlob.fontWidth * 9.5, drawProfGlob.fontHeight * 5.0, drawProfGlob.fontWidth * 42.0, drawProfGlob.fontHeight, 0.0, 0.0, 1.0, 1.0, 0xAF000000, GFX_PRIM_STATS_DEBUG);
+          v16 = *gfxContext;
+          RB_DrawText(&v16, "Probe Name", drawProfGlob.font, drawProfGlob.fontWidth * 10.0, v8 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+          v16 = *gfxContext;
+          RB_DrawText(&v16, " Total", drawProfGlob.font, drawProfGlob.fontWidth * 45.0, v8 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+          v11 = drawProfGlob.fontHeight + v8;
           if ( profile2->current.integer != 2 )
           {
-            v31 = 0;
-            if ( v20->infoCount > 0 )
+            v12 = 0;
+            if ( v10->infoCount > 0 )
             {
-              v32 = 0i64;
+              v13 = 0i64;
               do
               {
-                __asm { vmovups xmm0, xmmword ptr [rbp+0] }
-                v34 = &v20->profDrawInfo[v32];
-                __asm
-                {
-                  vmovaps xmm2, xmm6
-                  vmovups [rsp+0A8h+var_48], xmm0
-                }
-                if ( v34->probeIndex <= 100 )
-                  *(float *)&_XMM0 = RB_DrawProfile2Row(&v48, v34, *(float *)&_XMM2, v5, NULL, v3);
+                v14 = &v10->profDrawInfo[v13];
+                v16 = *gfxContext;
+                if ( v14->probeIndex <= 100 )
+                  v15 = RB_DrawProfile2Row(&v16, v14, v11, v4, NULL, v2);
                 else
-                  *(float *)&_XMM0 = RB_DrawProfile2Row(&v48, v34, *(float *)&_XMM2, v8, NULL, v6);
-                ++v31;
-                ++v32;
-                __asm { vmovaps xmm6, xmm0 }
+                  v15 = RB_DrawProfile2Row(&v16, v14, v11, v7, NULL, v5);
+                ++v12;
+                ++v13;
+                v11 = v15;
               }
-              while ( v31 < v20->infoCount );
+              while ( v12 < v10->infoCount );
             }
           }
-          if ( v20->infoCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 790, ASSERT_TYPE_ASSERT, "(profSettings->infoCount > 0)", (const char *)&queryFormat, "profSettings->infoCount > 0") )
+          if ( v10->infoCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 790, ASSERT_TYPE_ASSERT, "(profSettings->infoCount > 0)", (const char *)&queryFormat, "profSettings->infoCount > 0") )
             __debugbreak();
           if ( profile2->current.integer == 2 )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbp+0]
-              vmovaps xmm2, xmm6
-              vmovups [rsp+0A8h+var_48], xmm0
-            }
-            RB_DrawProfile2_FX(&v48, v20, *(float *)&_XMM2, v5, v3);
+            v16 = *gfxContext;
+            RB_DrawProfile2_FX(&v16, v10, v11, v4, v2);
           }
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovups [rsp+0A8h+var_48], xmm0
-          }
-          RB_EndSurfaceIfNeeded(&v48);
-          __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+          v16 = *gfxContext;
+          RB_EndSurfaceIfNeeded(&v16);
         }
       }
     }
@@ -595,118 +426,67 @@ void RB_DrawProfile2Overlay(GfxCmdBufContext *gfxContext)
 RB_DrawProfile2Row
 ==============
 */
-
-float __fastcall RB_DrawProfile2Row(GfxCmdBufContext *gfxContext, const ProfileDrawInfo *drawInfo, double y, int time_delta, const float *timeBudgetMS, int history_index)
+float RB_DrawProfile2Row(GfxCmdBufContext *gfxContext, const ProfileDrawInfo *drawInfo, float y, int time_delta, const float *timeBudgetMS, int history_index)
 {
   __int64 probeIndex; 
-  __int64 v23; 
-  const char *v37; 
-  int indentation; 
-  const char *v40; 
+  float v12; 
+  float v13; 
+  float v16; 
   int colorIndex; 
-  int v42; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  GfxCmdBufContext v56; 
-  char v59; 
+  const char *v18; 
+  int indentation; 
+  const char *v20; 
+  int v21; 
+  int v22; 
+  GfxCmdBufContext v23; 
 
   probeIndex = drawInfo->probeIndex;
-  __asm { vmovaps [rsp+98h+var_18], xmm6 }
-  _RSI = gfxContext;
-  __asm { vmovaps xmm6, xmm2 }
   if ( (_DWORD)probeIndex )
   {
-    v23 = probeIndex;
-    __asm
+    v12 = (float)g_prof2_history[history_index][probeIndex];
+    if ( v12 != 0.0 || *prof2_enumNames[probeIndex] == 95 )
     {
-      vmovaps [rsp+98h+var_28], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm7, xmm7, rva ?g_prof2_history@@3PAY0GM@HA[r9+rcx*4]; int (near * g_prof2_history)[108]
-      vucomiss xmm7, xmm0
-    }
-    if ( probeIndex + 108i64 * history_index || *prof2_enumNames[probeIndex] == 95 )
-    {
-      _RAX = timeBudgetMS;
       if ( timeBudgetMS )
       {
-        __asm
+        v13 = *timeBudgetMS;
+        _XMM1 = *(unsigned __int64 *)&msecPerRawTimerTick;
+        __asm { vcvtpd2ps xmm1, xmm1 }
+        v16 = (float)(*(float *)&_XMM1 / (float)profile2_frames->current.integer) * v12;
+        colorIndex = drawInfo->colorIndex;
+        if ( v16 <= *timeBudgetMS )
         {
-          vmovss  xmm2, dword ptr [rax]
-          vmovsd  xmm1, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-          vxorps  xmm0, xmm0, xmm0
-          vcvtpd2ps xmm1, xmm1
-          vcvtsi2ss xmm0, xmm0, dword ptr [rax+28h]
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm3, xmm1, xmm7
-          vcomiss xmm3, xmm2
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovq   r8, xmm2
+          if ( v16 > (float)(v13 * 0.80000001) )
+            colorIndex = 12;
         }
-        v37 = j_va("%s (%.2f ms)", prof2_enumNames[v23], _R8);
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
+        else
+        {
+          colorIndex = 4;
+        }
+        v18 = j_va("%s (%.2f ms)", prof2_enumNames[probeIndex], v13);
         indentation = drawInfo->indentation;
-        __asm
-        {
-          vmovss  [rsp+98h+var_70], xmm7
-          vmovaps xmm3, xmm6
-          vmovups [rsp+98h+var_38], xmm0
-        }
-        *(float *)&_XMM0 = RB_DrawProfile2Value(&v56, indentation, 4, *(float *)&_XMM3, time_delta, v50, v37, 0, 0);
+        v23 = *gfxContext;
+        return RB_DrawProfile2Value(&v23, indentation, colorIndex, y, time_delta, v12, v18, 0, 0);
       }
       else
       {
-        v40 = prof2_enumNames[v23];
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        colorIndex = drawInfo->colorIndex;
-        v42 = drawInfo->indentation;
-        __asm
-        {
-          vmovss  [rsp+98h+var_70], xmm7
-          vmovaps xmm3, xmm6
-          vmovups [rsp+98h+var_38], xmm0
-        }
-        *(float *)&_XMM0 = RB_DrawProfile2Value(&v56, v42, colorIndex, *(float *)&_XMM3, time_delta, v51, v40, 0, 0);
+        v20 = prof2_enumNames[probeIndex];
+        v21 = drawInfo->colorIndex;
+        v22 = drawInfo->indentation;
+        v23 = *gfxContext;
+        return RB_DrawProfile2Value(&v23, v22, v21, y, time_delta, v12, v20, 0, 0);
       }
     }
     else
     {
-      __asm { vmovaps xmm0, xmm6 }
+      return y;
     }
-    __asm { vmovaps xmm7, [rsp+98h+var_28] }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm1, cs:__real@42280000
-      vmulss  xmm2, xmm1, cs:__real@41180000
-      vmovups [rsp+98h+var_38], xmm0
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+98h+var_50], xmm0
-      vmovss  [rsp+98h+var_58], xmm0
-      vmovss  xmm0, cs:drawProfGlob.fontHeight
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  [rsp+98h+var_60], xmm1
-      vmovss  dword ptr [rsp+98h+var_68], xmm1
-      vmovss  [rsp+98h+var_70], xmm0
-      vmovss  [rsp+98h+var_78], xmm3
-      vmovaps xmm3, xmm6
-    }
-    RB_DrawStretchPic(&v56, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, v48, v49, v52, v53, v54, v55, 0xAF000000, GFX_PRIM_STATS_DEBUG);
-    __asm { vaddss  xmm0, xmm6, cs:drawProfGlob.fontHeight }
+    v23 = *gfxContext;
+    RB_DrawStretchPic(&v23, rgp.whiteMaterial, drawProfGlob.fontWidth * 9.5, y, drawProfGlob.fontWidth * 42.0, drawProfGlob.fontHeight, 0.0, 0.0, 1.0, 1.0, 0xAF000000, GFX_PRIM_STATS_DEBUG);
+    return y + drawProfGlob.fontHeight;
   }
-  _R11 = &v59;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -714,167 +494,78 @@ float __fastcall RB_DrawProfile2Row(GfxCmdBufContext *gfxContext, const ProfileD
 RB_DrawProfile2Total_FX
 ==============
 */
-
-float __fastcall RB_DrawProfile2Total_FX(GfxCmdBufContext *gfxContext, int indentation, double y, int time_delta)
+float RB_DrawProfile2Total_FX(GfxCmdBufContext *gfxContext, int indentation, float y, int time_delta, int history_index)
 {
-  const char *v34; 
-  int v41; 
-  char v52; 
-  char v53; 
-  const char *v54; 
-  int v61; 
-  char v68; 
-  char v69; 
-  const char *v70; 
-  float v82; 
-  float v83; 
-  float v84; 
-  GfxCmdBufContext v85; 
+  __int64 v5; 
+  float v9; 
+  float v10; 
+  const char *v12; 
+  float v15; 
+  int v16; 
+  int v17; 
+  float v18; 
+  float v19; 
+  const char *v20; 
+  float v23; 
+  int v24; 
+  float v25; 
+  float v26; 
+  const char *v27; 
+  float v30; 
+  GfxCmdBufContext v31; 
 
-  __asm
+  v5 = history_index;
+  v10 = (float)((float)((float)((float)((float)g_prof2_history[v5][71] + (float)g_prof2_history[v5][77]) + (float)g_prof2_history[v5][78]) + (float)g_prof2_history[v5][83]) + (float)g_prof2_history[v5][84]) + (float)g_prof2_history[v5][89];
+  v9 = v10;
+  if ( v10 == 0.0 )
+    return y;
+  v12 = j_va("FX UPDATE CPU TOTAL (%.2f ms)", DOUBLE_6_875);
+  _XMM1 = *(unsigned __int64 *)&msecPerRawTimerTick;
+  __asm { vcvtpd2ps xmm1, xmm1 }
+  v15 = (float)(*(float *)&_XMM1 / (float)profile2_frames->current.integer) * v10;
+  v16 = 4;
+  if ( v15 <= 6.875 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vxorps  xmm1, xmm1, xmm1
-    vmovaps xmm6, xmm2
-  }
-  _R14 = gfxContext;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+r13+134h]
-    vcvtsi2ss xmm1, xmm1, dword ptr [rdi+r13+11Ch]
-    vaddss  xmm3, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+r13+138h]
-    vaddss  xmm1, xmm3, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+r13+14Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+r13+150h]
-    vaddss  xmm1, xmm2, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+r13+164h]
-    vaddss  xmm7, xmm1, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-  }
-  if ( v53 )
-  {
-    __asm { vmovaps xmm0, xmm6 }
+    v17 = 0;
+    if ( v15 > 5.5 )
+      v17 = 12;
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm1, cs:__real@401b800000000000
-      vmovq   rdx, xmm1
-      vmovaps [rsp+0B8h+var_58], xmm8
-    }
-    v34 = j_va("FX UPDATE CPU TOTAL (%.2f ms)", *(double *)&_XMM1);
-    __asm
-    {
-      vmovsd  xmm1, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vxorps  xmm0, xmm0, xmm0
-      vcvtpd2ps xmm1, xmm1
-      vcvtsi2ss xmm0, xmm0, dword ptr [rcx+28h]
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vcomiss xmm2, cs:__real@40dc0000
-    }
-    v41 = 4;
-    __asm
-    {
-      vcomiss xmm2, cs:__real@40b00000
-      vmovups xmm0, xmmword ptr [r14]
-      vmovss  [rsp+0B8h+var_90], xmm7
-      vmovaps xmm3, xmm6
-      vmovups [rsp+0B8h+var_68], xmm0
-    }
-    *(float *)&_XMM0 = RB_DrawProfile2Value(&v85, indentation, 0, *(float *)&_XMM3, time_delta, v82, v34, 0, 0);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+r13+15Ch]
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [rdi+r13+154h]
-      vaddss  xmm6, xmm2, xmm1
-      vmovsd  xmm1, cs:__real@4009000000000000
-      vmovq   rdx, xmm1
-      vmovaps xmm8, xmm0
-    }
-    v54 = j_va("FX DRAW CPU TOTAL (%.2f ms)", _RDX);
-    __asm
-    {
-      vmovsd  xmm1, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vxorps  xmm0, xmm0, xmm0
-      vcvtpd2ps xmm1, xmm1
-      vcvtsi2ss xmm0, xmm0, dword ptr [rcx+28h]
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm6
-      vcomiss xmm2, cs:__real@40480000
-    }
-    if ( v52 | v53 )
-    {
-      __asm { vcomiss xmm2, cs:__real@40200000 }
-      v61 = 0;
-      if ( !(v52 | v53) )
-        v61 = 12;
-    }
-    else
-    {
-      v61 = 4;
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovss  [rsp+0B8h+var_90], xmm6
-      vmovaps xmm3, xmm8
-      vmovups [rsp+0B8h+var_68], xmm0
-    }
-    *(float *)&_XMM0 = RB_DrawProfile2Value(&v85, indentation, v61, *(float *)&_XMM3, time_delta, v83, v54, 0, 0);
-    __asm
-    {
-      vmovsd  xmm1, cs:__real@4024000000000000
-      vmovq   rdx, xmm1
-      vmovaps xmm8, xmm0
-      vaddss  xmm6, xmm6, xmm7
-    }
-    v70 = j_va("FX CPU TOTAL (%.2f ms)", _RDX);
-    __asm
-    {
-      vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vxorps  xmm1, xmm1, xmm1
-      vcvtpd2ps xmm2, xmm2
-      vcvtsi2ss xmm1, xmm1, dword ptr [rcx+28h]
-      vdivss  xmm2, xmm2, xmm1
-      vmulss  xmm3, xmm2, xmm6
-      vcomiss xmm3, cs:__real@41200000
-    }
-    if ( v68 | v69 )
-    {
-      __asm { vcomiss xmm3, cs:__real@41000000 }
-      v41 = 0;
-      if ( !(v68 | v69) )
-        v41 = 12;
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovss  [rsp+0B8h+var_90], xmm6
-      vmovaps xmm3, xmm8
-      vmovups [rsp+0B8h+var_68], xmm0
-    }
-    *(float *)&_XMM0 = RB_DrawProfile2Value(&v85, indentation, v41, *(float *)&_XMM3, time_delta, v84, v70, 0, 0);
-    __asm { vmovaps xmm8, [rsp+0B8h+var_58] }
+    v17 = 4;
   }
-  __asm
+  v31 = *gfxContext;
+  v18 = RB_DrawProfile2Value(&v31, indentation, v17, y, time_delta, v9, v12, 0, 0);
+  v19 = (float)g_prof2_history[v5][85] + (float)g_prof2_history[v5][87];
+  v20 = j_va("FX DRAW CPU TOTAL (%.2f ms)", DOUBLE_3_125);
+  _XMM1 = *(unsigned __int64 *)&msecPerRawTimerTick;
+  __asm { vcvtpd2ps xmm1, xmm1 }
+  v23 = (float)(*(float *)&_XMM1 / (float)profile2_frames->current.integer) * v19;
+  if ( v23 <= 3.125 )
   {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
+    v24 = 0;
+    if ( v23 > 2.5 )
+      v24 = 12;
   }
-  return *(float *)&_XMM0;
+  else
+  {
+    v24 = 4;
+  }
+  v31 = *gfxContext;
+  v25 = RB_DrawProfile2Value(&v31, indentation, v24, v18, time_delta, v19, v20, 0, 0);
+  v26 = v19 + v9;
+  v27 = j_va("FX CPU TOTAL (%.2f ms)", DOUBLE_10_0);
+  _XMM2 = *(unsigned __int64 *)&msecPerRawTimerTick;
+  __asm { vcvtpd2ps xmm2, xmm2 }
+  v30 = (float)(*(float *)&_XMM2 / (float)profile2_frames->current.integer) * v26;
+  if ( v30 <= 10.0 )
+  {
+    v16 = 0;
+    if ( v30 > 8.0 )
+      v16 = 12;
+  }
+  v31 = *gfxContext;
+  return RB_DrawProfile2Value(&v31, indentation, v16, v25, time_delta, v26, v27, 0, 0);
 }
 
 /*
@@ -882,165 +573,62 @@ float __fastcall RB_DrawProfile2Total_FX(GfxCmdBufContext *gfxContext, int inden
 RB_DrawProfile2Value
 ==============
 */
-
-float __fastcall RB_DrawProfile2Value(GfxCmdBufContext *gfxContext, int indentation, int colorIndex, double y, int time_delta, float value, const char *name, int dmaMax, int stackMin)
+float RB_DrawProfile2Value(GfxCmdBufContext *gfxContext, int indentation, int colorIndex, float y, int time_delta, float value, const char *name, int dmaMax, int stackMin)
 {
-  unsigned __int64 v15; 
-  unsigned __int64 v28; 
-  char v31; 
-  GfxColor v32; 
-  const char *v33; 
-  const char *v46; 
-  GfxColor v51; 
-  const char *v52; 
-  GfxColor v57; 
-  const char *v58; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  GfxCmdBufContext v79; 
+  unsigned __int64 v11; 
+  unsigned __int64 v12; 
+  GfxColor v13; 
+  const char *v14; 
+  float v17; 
+  const char *v18; 
+  GfxColor v19; 
+  const char *v20; 
+  GfxColor v21; 
+  const char *v22; 
+  GfxCmdBufContext v24; 
   char dest[48]; 
-  char v81; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _RSI = gfxContext;
-  __asm { vmovss  xmm8, [rsp+128h+arg_28] }
-  v15 = colorIndex;
-  __asm { vmovaps xmm7, xmm3 }
+  v11 = colorIndex;
   Core_strncpy_truncate(dest, 0x2Fui64, name, 46i64 - indentation);
-  __asm
+  v24 = *gfxContext;
+  RB_DrawStretchPic(&v24, rgp.whiteMaterial, drawProfGlob.fontWidth * 9.5, y, drawProfGlob.fontWidth * 42.0, drawProfGlob.fontHeight, 0.0, 0.0, 1.0, 1.0, 0xAF000000, GFX_PRIM_STATS_DEBUG);
+  v24 = *gfxContext;
+  v12 = v11 % 0xE;
+  RB_DrawText(&v24, dest, drawProfGlob.font, (float)(indentation + 10) * drawProfGlob.fontWidth, y + drawProfGlob.fontHeight, drawProfGlob.textColorList[v12]);
+  if ( value != 0.0 || *name != 95 )
   {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovss  xmm1, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm1, cs:__real@42280000
-    vmulss  xmm2, xmm1, cs:__real@41180000
-    vmovups [rsp+128h+var_C8], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+128h+var_E0], xmm0
-    vmovss  [rsp+128h+var_E8], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontHeight
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+128h+var_F0], xmm6
-    vmovss  [rsp+128h+var_F8], xmm6
-    vmovss  [rsp+128h+var_100], xmm0
-    vmovss  [rsp+128h+var_108], xmm3
-    vmovaps xmm3, xmm7
-  }
-  RB_DrawStretchPic(&v79, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, v69, v74, v75, v76, v77, v78, 0xAF000000, GFX_PRIM_STATS_DEBUG);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vaddss  xmm1, xmm7, cs:drawProfGlob.fontHeight
-    vmovups [rsp+128h+var_C8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
-  v28 = v15 % 0xE;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.fontWidth
-    vmovss  [rsp+128h+var_108], xmm1
-  }
-  RB_DrawText(&v79, dest, drawProfGlob.font, *(float *)&_XMM3, v70, drawProfGlob.textColorList[v28]);
-  __asm { vucomiss xmm8, xmm6 }
-  if ( !v31 || *name != 95 )
-  {
-    v32 = drawProfGlob.textColorList[v28];
+    v13 = drawProfGlob.textColorList[v12];
     if ( profile2_mode->current.integer == 1 )
     {
-      v33 = "%5.2f";
-      __asm
-      {
-        vmovsd  xmm1, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vxorps  xmm0, xmm0, xmm0
-        vcvtpd2ps xmm1, xmm1
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+28h]
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm8, xmm1
-      }
+      v14 = "%5.2f";
+      _XMM1 = *(unsigned __int64 *)&msecPerRawTimerTick;
+      __asm { vcvtpd2ps xmm1, xmm1 }
+      v17 = value * (float)(*(float *)&_XMM1 / (float)profile2_frames->current.integer);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@42c80000
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rsp+128h+arg_20]
-        vdivss  xmm1, xmm0, xmm1
-        vmulss  xmm2, xmm1, xmm8
-      }
-      v33 = "%5.2f%%";
+      v17 = (float)(100.0 / (float)time_delta) * value;
+      v14 = "%5.2f%%";
     }
-    __asm
-    {
-      vcvtss2sd xmm1, xmm2, xmm2
-      vmovq   rdx, xmm1
-    }
-    v46 = j_va(v33, _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmovups xmm0, xmmword ptr [rsi]
-      vmulss  xmm3, xmm1, cs:__real@42340000
-      vmovss  [rsp+128h+var_108], xmm2
-      vmovups [rsp+128h+var_C8], xmm0
-    }
-    RB_DrawText(&v79, v46, drawProfGlob.font, *(float *)&_XMM3, v71, v32);
+    v18 = j_va(v14, v17);
+    v24 = *gfxContext;
+    RB_DrawText(&v24, v18, drawProfGlob.font, drawProfGlob.fontWidth * 45.0, y + drawProfGlob.fontHeight, v13);
     if ( dmaMax )
     {
-      v51 = drawProfGlob.textColorList[v28];
-      v52 = j_va("% 5d", (unsigned int)dmaMax);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontWidth
-        vmovups xmm0, xmmword ptr [rsi]
-        vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-        vmulss  xmm3, xmm1, cs:__real@42b40000
-        vmovss  [rsp+128h+var_108], xmm2
-        vmovups [rsp+128h+var_C8], xmm0
-      }
-      RB_DrawText(&v79, v52, drawProfGlob.font, *(float *)&_XMM3, v72, v51);
+      v19 = drawProfGlob.textColorList[v12];
+      v20 = j_va("% 5d", (unsigned int)dmaMax);
+      v24 = *gfxContext;
+      RB_DrawText(&v24, v20, drawProfGlob.font, drawProfGlob.fontWidth * 90.0, y + drawProfGlob.fontHeight, v19);
     }
     if ( stackMin )
     {
-      v57 = drawProfGlob.textColorList[v28];
-      v58 = j_va("% 5d", (unsigned int)stackMin);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontWidth
-        vmovups xmm0, xmmword ptr [rsi]
-        vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-        vmulss  xmm3, xmm1, cs:__real@42c00000
-        vmovss  [rsp+128h+var_108], xmm2
-        vmovups [rsp+128h+var_C8], xmm0
-      }
-      RB_DrawText(&v79, v58, drawProfGlob.font, *(float *)&_XMM3, v73, v57);
+      v21 = drawProfGlob.textColorList[v12];
+      v22 = j_va("% 5d", (unsigned int)stackMin);
+      v24 = *gfxContext;
+      RB_DrawText(&v24, v22, drawProfGlob.font, drawProfGlob.fontWidth * 96.0, y + drawProfGlob.fontHeight, v21);
     }
   }
-  __asm { vaddss  xmm0, xmm7, cs:drawProfGlob.fontHeight }
-  _R11 = &v81;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
-  return *(float *)&_XMM0;
+  return y + drawProfGlob.fontHeight;
 }
 
 /*
@@ -1048,116 +636,86 @@ float __fastcall RB_DrawProfile2Value(GfxCmdBufContext *gfxContext, int indentat
 RB_DrawProfile2_FX
 ==============
 */
-
-float __fastcall RB_DrawProfile2_FX(GfxCmdBufContext *gfxContext, const ProfileSettings *profSettings, double y, int time_delta, int history_index)
+float RB_DrawProfile2_FX(GfxCmdBufContext *gfxContext, const ProfileSettings *profSettings, float y, int time_delta, int history_index)
 {
+  GfxCmdBufContext v5; 
+  GfxCmdBufContext v6; 
+  GfxCmdBufContext v7; 
+  GfxCmdBufContext v8; 
   int infoCount; 
-  int v16; 
-  int v17; 
-  __int64 v18; 
-  const ProfileDrawInfo *v23; 
+  int v14; 
+  int v15; 
+  __int64 v16; 
+  const ProfileDrawInfo *v17; 
+  float v18; 
   const ProfileDrawInfo *profDrawInfo; 
-  __int64 v31; 
+  __int64 v20; 
   int indentation; 
-  float result; 
-  char *fmt; 
-  int v39; 
-  GfxCmdBufContext v40; 
-  char v45; 
-  void *retaddr; 
-  int v47; 
+  const float *fmt; 
+  int v24; 
+  GfxCmdBufContext v25[6]; 
+  float v26; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _R12 = gfxContext;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !profSettings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 643, ASSERT_TYPE_ASSERT, "(profSettings)", (const char *)&queryFormat, "profSettings") )
     __debugbreak();
   infoCount = profSettings->infoCount;
-  v16 = 0;
-  v17 = history_index;
+  v14 = 0;
+  v15 = history_index;
   if ( infoCount > 0 )
   {
-    v18 = 0i64;
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+0B0h+var_48+8], xmm7
-      vmovss  xmm7, cs:__real@3fa00000
-      vmovaps [rsp+0B0h+var_58+8], xmm8
-      vmovss  xmm8, cs:__real@3f200000
-      vmovaps [rsp+0B0h+var_68+8], xmm9
-      vmovss  xmm9, cs:__real@40700000
-      vmovaps xmmword ptr [rsp+40h], xmm10
-      vmovss  xmm10, cs:__real@40200000
-    }
+    v16 = 0i64;
+    v25[4] = v5;
+    v25[3] = v6;
+    v25[2] = v7;
+    v25[1] = v8;
     do
     {
-      v23 = &profSettings->profDrawInfo[v18];
-      switch ( v23->probeIndex )
+      v17 = &profSettings->profDrawInfo[v16];
+      switch ( v17->probeIndex )
       {
         case 'G':
-          v39 = v17;
-          fmt = (char *)&v47;
-          __asm { vmovss  [rbp+4Fh+arg_0], xmm9 }
+          v24 = v15;
+          fmt = &v26;
+          v26 = FLOAT_3_75;
           break;
         case 'N':
         case 'Y':
-          v39 = v17;
-          fmt = (char *)&v47;
-          __asm { vmovss  [rbp+4Fh+arg_0], xmm7 }
+          v24 = v15;
+          fmt = &v26;
+          v26 = FLOAT_1_25;
           break;
         case 'T':
         case 'U':
-          v39 = v17;
-          fmt = (char *)&v47;
-          __asm { vmovss  [rbp+4Fh+arg_0], xmm8 }
+          v24 = v15;
+          fmt = &v26;
+          v26 = FLOAT_0_625;
           break;
         case 'W':
-          v39 = v17;
-          fmt = (char *)&v47;
-          __asm { vmovss  [rbp+4Fh+arg_0], xmm10 }
+          v24 = v15;
+          fmt = &v26;
+          v26 = FLOAT_2_5;
           break;
         default:
-          v39 = v17;
+          v24 = v15;
           fmt = NULL;
           break;
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovaps xmm2, xmm6
-        vmovups [rbp+4Fh+var_80], xmm0
-      }
-      *(float *)&_XMM0 = RB_DrawProfile2Row(&v40, v23, *(double *)&_XMM2, time_delta, (const float *)fmt, v39);
+      v25[0] = *gfxContext;
+      v18 = RB_DrawProfile2Row(v25, v17, y, time_delta, fmt, v24);
       infoCount = profSettings->infoCount;
+      ++v14;
       ++v16;
-      ++v18;
-      __asm { vmovaps xmm6, xmm0 }
+      y = v18;
     }
-    while ( v16 < infoCount );
-    __asm
-    {
-      vmovaps xmm10, xmmword ptr [rsp+40h]
-      vmovaps xmm9, [rsp+0B0h+var_68+8]
-      vmovaps xmm8, [rsp+0B0h+var_58+8]
-      vmovaps xmm7, xmmword ptr [rsp+0B0h+var_48+8]
-    }
+    while ( v14 < infoCount );
   }
   profDrawInfo = profSettings->profDrawInfo;
-  v31 = infoCount;
+  v20 = infoCount;
   if ( profDrawInfo[infoCount - 1].probeIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 703, ASSERT_TYPE_ASSERT, "(profDrawInfo->probeIndex == PROF2_BLANK)", (const char *)&queryFormat, "profDrawInfo->probeIndex == PROF2_BLANK") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [r12] }
-  indentation = profDrawInfo[v31 - 1].indentation;
-  __asm
-  {
-    vmovaps xmm2, xmm6
-    vmovups [rbp+4Fh+var_80], xmm0
-  }
-  result = RB_DrawProfile2Total_FX(&v40, indentation, *(double *)&_XMM2, time_delta);
-  _R11 = &v45;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  indentation = profDrawInfo[v20 - 1].indentation;
+  v25[0] = *gfxContext;
+  return RB_DrawProfile2Total_FX(v25, indentation, y, time_delta, v15);
 }
 
 /*
@@ -1165,42 +723,1096 @@ float __fastcall RB_DrawProfile2_FX(GfxCmdBufContext *gfxContext, const ProfileS
 RB_DrawProfile
 ==============
 */
-
-void __fastcall RB_DrawProfile(GfxCmdBufContext *gfxContext, double _XMM1_8)
+void RB_DrawProfile(GfxCmdBufContext *gfxContext)
 {
-  const dvar_t *v9; 
+  const dvar_t *v1; 
+  GfxCmdBufContext *v2; 
   int integer; 
-  int v12; 
-  int v13; 
+  int v4; 
+  int v5; 
   const dvar_t **i; 
   ProfileReadable *p_read; 
-  __int64 v16; 
+  __int64 v8; 
   ProfileAtom *p_min; 
-  __int64 v18; 
+  __int64 v10; 
   int DisplayThread; 
   int j; 
   ProfileStack *StackForContext; 
+  ProfileAtom *p_self; 
   ProfileAtom *p_total; 
-  unsigned int v24; 
+  unsigned int v16; 
   unsigned int *p_maxHits; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  int v35; 
-  int *v43; 
-  __int64 v50; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  int v25; 
+  GfxCmdBufContext v26; 
+  int *v27; 
+  __int128 v28; 
+  __int128 fontWidth_low; 
+  float v30; 
+  __int64 v31; 
   int EnumParity; 
-  int *v52; 
-  __int64 v59; 
-  __int64 v60; 
-  const char *v61; 
-  unsigned __int64 v68; 
-  const ProfileSettings *v78; 
-  __int64 v83; 
+  __int128 v33; 
+  int *v34; 
+  __int128 v35; 
+  __int128 v36; 
+  float v37; 
+  __int64 v38; 
+  __int64 v39; 
+  const char *v40; 
+  unsigned __int64 v43; 
+  __int128 v44; 
+  const ProfileSettings *v45; 
+  float v46; 
+  float v47; 
+  __int64 v48; 
   const ProfileDrawInfo *profDrawInfo; 
-  float fmt; 
-  float fmta; 
-  float v89; 
+  float v50; 
+  GfxCmdBufContext v52; 
+  GfxCmdBufContext v53; 
+  GfxCmdBufContext v54; 
+  GfxCmdBufContext v55; 
+  GfxCmdBufContext v56; 
+  GfxCmdBufContext v57; 
+  GfxCmdBufContext v58; 
+  GfxCmdBufContext v59; 
+  GfxCmdBufContext v60; 
+  GfxCmdBufContext v61; 
+  GfxCmdBufContext v62; 
+  GfxCmdBufContext v63; 
+  GfxCmdBufContext v64; 
+  GfxCmdBufContext v65; 
+  GfxCmdBufContext v66; 
+  GfxCmdBufContext v67; 
+  int v68[16]; 
+  char dest[112]; 
+
+  v1 = profile;
+  v2 = gfxContext;
+  integer = profile->current.integer;
+  if ( integer )
+  {
+    v4 = 0;
+    if ( integer == 1 )
+    {
+      v5 = 0;
+      for ( i = prof_probe; !(*i)->current.integer; ++i )
+      {
+        if ( (unsigned int)++v5 >= 0x10 )
+          return;
+      }
+    }
+    if ( profile_thread->modified || profile->modified )
+    {
+      memset_0(drawProfGlob.global, 0, sizeof(drawProfGlob.global));
+      p_min = &drawProfGlob.global[0].min;
+      v10 = 826i64;
+      do
+      {
+        p_min->value[0] = -1;
+        p_min += 14;
+        --v10;
+      }
+      while ( v10 );
+      Dvar_ClearModified(v1);
+      Dvar_ClearModified(profile_thread);
+    }
+    else
+    {
+      p_read = &drawProfGlob.global[0].read;
+      v8 = 826i64;
+      do
+      {
+        *(_QWORD *)&p_read->hits = 0i64;
+        p_read->self.value[0] = 0;
+        p_read = (ProfileReadable *)((char *)p_read + 56);
+        --v8;
+      }
+      while ( v8 );
+    }
+    DisplayThread = Profile_GetDisplayThread();
+    if ( DisplayThread >= gfxCfg.threadContextCount )
+    {
+      for ( j = 0; j < gfxCfg.threadContextCount; ++j )
+      {
+        StackForContext = Profile_GetStackForContext(j);
+        p_self = &drawProfGlob.global[0].read.self;
+        p_total = &StackForContext->prof_array[0].read.total;
+        do
+        {
+          v16 = p_total[-1].value[0];
+          p_total += 10;
+          p_self[-11].value[0] += v16;
+          p_self->value[0] += p_total[-9].value[0];
+          p_self[-1].value[0] += p_total[-10].value[0];
+          _XMM0 = 0i64;
+          __asm { vcvtsi2sd xmm0, xmm0, rax }
+          *(double *)p_self[-8].value = *(double *)&_XMM0 + *(double *)p_self[-8].value;
+          _XMM0 = 0i64;
+          __asm { vcvtsi2sd xmm0, xmm0, rax }
+          *(double *)p_self[-10].value = *(double *)&_XMM0 + *(double *)p_self[-10].value;
+          p_self[-2].value[0] += p_total[-11].value[0];
+          p_self += 14;
+        }
+        while ( (__int64)p_self < (__int64)&unk_1544A76E8 );
+      }
+    }
+    else
+    {
+      RB_AddProfileThread(DisplayThread);
+    }
+    p_maxHits = &drawProfGlob.global[0].maxHits;
+    do
+    {
+      ++*(p_maxHits - 7);
+      v22 = p_maxHits[4];
+      if ( p_maxHits[2] < v22 )
+        p_maxHits[2] = v22;
+      if ( p_maxHits[1] > v22 )
+        p_maxHits[1] = v22;
+      v23 = p_maxHits[3];
+      if ( v23 > *p_maxHits )
+        *p_maxHits = v23;
+      v24 = p_maxHits[5];
+      if ( *(p_maxHits - 1) < v24 )
+        *(p_maxHits - 1) = v24;
+      p_maxHits += 14;
+    }
+    while ( (__int64)p_maxHits < (__int64)&unk_1544A76D4 );
+    v52 = *v2;
+    RB_EndSurfaceIfNeeded(&v52);
+    v25 = profile->current.integer;
+    switch ( v25 )
+    {
+      case 1:
+        v26 = *v2;
+        v59 = *v2;
+        RB_EndSurfaceIfNeeded(&v59);
+        v27 = v68;
+        v68[0] = prof_probe[0]->current.integer;
+        fontWidth_low = LODWORD(drawProfGlob.fontWidth);
+        *(float *)&fontWidth_low = drawProfGlob.fontWidth * 14.5;
+        v28 = fontWidth_low;
+        v68[1] = prof_probe[1]->current.integer;
+        v68[2] = prof_probe[2]->current.integer;
+        v68[3] = prof_probe[3]->current.integer;
+        v68[4] = prof_probe[4]->current.integer;
+        v68[5] = prof_probe[5]->current.integer;
+        v68[6] = prof_probe[6]->current.integer;
+        v68[7] = prof_probe[7]->current.integer;
+        v68[8] = prof_probe[8]->current.integer;
+        v68[9] = prof_probe[9]->current.integer;
+        v68[10] = prof_probe[10]->current.integer;
+        v68[11] = prof_probe[11]->current.integer;
+        v68[12] = prof_probe[12]->current.integer;
+        v68[13] = prof_probe[13]->current.integer;
+        v68[14] = prof_probe[14]->current.integer;
+        v68[15] = prof_probe[15]->current.integer;
+        v30 = (float)(vidConfig.displayHeight - 98);
+        do
+        {
+          v31 = *v27;
+          if ( (_DWORD)v31 )
+          {
+            EnumParity = Profile_GetEnumParity(v31);
+            v60 = v26;
+            RB_DrawProfileHistoryGraph(&v60, &drawProfGlob.global[v31].read, EnumParity, v4, *(float *)&v28, v30);
+            v33 = v28;
+            *(float *)&v33 = *(float *)&v28 + 104.0;
+            v28 = v33;
+          }
+          ++v4;
+          ++v27;
+        }
+        while ( v4 < 16 );
+        v34 = v68;
+        v36 = LODWORD(drawProfGlob.fontWidth);
+        *(float *)&v36 = drawProfGlob.fontWidth * 14.5;
+        v35 = v36;
+        v37 = (float)(vidConfig.displayHeight - 98);
+        v38 = 16i64;
+        do
+        {
+          v39 = *v34;
+          if ( (_DWORD)v39 )
+          {
+            v40 = prof_enumNames[v39];
+            _XMM0 = 0i64;
+            __asm { vroundss xmm4, xmm0, xmm3, 1 }
+            v43 = (int)*(float *)&_XMM4 + 1;
+            if ( v43 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
+              __debugbreak();
+            Core_strncpy_truncate(dest, 0x64ui64, v40, v43);
+            v61 = v26;
+            RB_DrawText(&v61, dest, drawProfGlob.font, *(float *)&v35, v37, drawProfGlob.textColorList[0]);
+            v44 = v35;
+            *(float *)&v44 = *(float *)&v35 + 104.0;
+            v35 = v44;
+          }
+          ++v34;
+          --v38;
+        }
+        while ( v38 );
+        v62 = v26;
+        RB_EndSurfaceIfNeeded(&v62);
+        v2 = gfxContext;
+        break;
+      case 2:
+        v53 = *v2;
+        RB_DrawSlowProfileOverlay(&v53, (int (__fastcall *)(const void *, const void *))CompareSelfTimes);
+        break;
+      case 3:
+        v54 = *v2;
+        RB_DrawSlowProfileOverlay(&v54, (int (__fastcall *)(const void *, const void *))CompareTotalTimes);
+        break;
+      case 4:
+        v55 = *v2;
+        RB_DrawSlowProfileOverlay(&v55, (int (__fastcall *)(const void *, const void *))CompareAvgSelfTimes);
+        break;
+      case 5:
+        v56 = *v2;
+        RB_DrawSlowProfileOverlay(&v56, (int (__fastcall *)(const void *, const void *))CompareAvgTotalTimes);
+        break;
+      case 6:
+        v57 = *v2;
+        RB_DrawSlowProfileOverlay(&v57, (int (__fastcall *)(const void *, const void *))CompareMaxTimes);
+        break;
+      case 7:
+        v58 = *v2;
+        RB_DrawSlowProfileOverlay(&v58, (int (__fastcall *)(const void *, const void *))CompareMaxSelfTimes);
+        break;
+      default:
+        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1083, ASSERT_TYPE_ASSERT, "(profile->current.integer != PROFPAGE_DISABLED)", (const char *)&queryFormat, "profile->current.integer != PROFPAGE_DISABLED") )
+          __debugbreak();
+        v63 = *v2;
+        v45 = &s_profileArrays[profile->current.integer - 8];
+        RB_DrawAllProfileBackgrounds(&v63, v45, v45->infoCount);
+        v64 = *v2;
+        RB_DrawProfileHistory(&v64, v45);
+        v65 = *v2;
+        v46 = RB_DrawProfileLabels(&v65);
+        g_tally = 0.0;
+        v47 = v46;
+        if ( v45->infoCount > 0 )
+        {
+          v48 = 0i64;
+          do
+          {
+            profDrawInfo = v45->profDrawInfo;
+            v66 = *v2;
+            v50 = RB_DrawProfileRow(&v66, profDrawInfo[v48].probeIndex, profDrawInfo[v48].indentation, v47);
+            ++v4;
+            ++v48;
+            v47 = v50;
+          }
+          while ( v4 < v45->infoCount );
+        }
+        break;
+    }
+    v67 = *v2;
+    RB_EndSurfaceIfNeeded(&v67);
+  }
+}
+
+/*
+==============
+RB_DrawProfileGraphData
+==============
+*/
+void RB_DrawProfileGraphData(GfxCmdBufContext *gfxContext, int column, float y, float width, unsigned int min, unsigned int max, float avg, const volatile unsigned int *data, unsigned int numDataEntries, unsigned int dataStartIdx)
+{
+  const volatile unsigned int *v11; 
+  __int128 v12; 
+  __int128 largeFontHeight_low; 
+  float v14; 
+  unsigned int v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  unsigned int v19; 
+  float v20; 
+  __int64 v22; 
+  __int64 v23; 
+  __int128 v24; 
+  __int64 v26; 
+  __int128 v28; 
+  float v33; 
+  __int128 v34; 
+  __int128 v37; 
+  float v41; 
+  __int128 v42; 
+  __int128 v45; 
+  float v49; 
+  float v50; 
+  int v52; 
+  int v54; 
+  unsigned int v55; 
+  int v57; 
+  int v59; 
+  GfxCmdBufContext v60; 
+  float v61; 
+  float v62; 
+  float v65; 
+  GfxCmdBufContext v66; 
+  GfxPointVertex v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  unsigned int v71; 
+
+  v11 = data;
+  largeFontHeight_low = LODWORD(drawProfGlob.largeFontHeight);
+  *(float *)&largeFontHeight_low = drawProfGlob.largeFontHeight - 2.0;
+  v12 = largeFontHeight_low;
+  v62 = (float)column * drawProfGlob.largeFontWidth;
+  v14 = width;
+  if ( numDataEntries < 2 )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 201, ASSERT_TYPE_ASSERT, "(numDataEntries >= 2)", (const char *)&queryFormat, "numDataEntries >= 2") )
+      __debugbreak();
+    v11 = data;
+  }
+  v15 = 0;
+  if ( numDataEntries != 1 )
+  {
+    v16 = avg;
+    v17 = (float)max;
+    v18 = (float)numDataEntries;
+    v19 = max - min;
+    v65 = 1.0 / v18;
+    v61 = v17;
+    v20 = 1.0 / v17;
+    _XMM14 = 0i64;
+    do
+    {
+      v22 = (v15 + dataStartIdx) % numDataEntries;
+      v23 = v11[v22];
+      v24 = 0i64;
+      *(float *)&v24 = (float)v23;
+      *(float *)&v24 = (float)(*(float *)&v24 - v16) * v20;
+      _XMM2 = v24;
+      v26 = v11[((int)v22 + 1) % numDataEntries];
+      __asm { vmaxss  xmm0, xmm2, xmm6 }
+      v28 = 0i64;
+      *(float *)&v28 = (float)v26;
+      __asm { vminss  xmm11, xmm0, xmm12 }
+      *(float *)&v28 = (float)(*(float *)&v28 - v16) * v20;
+      _XMM2 = v28;
+      __asm
+      {
+        vmaxss  xmm1, xmm2, xmm6
+        vminss  xmm13, xmm1, xmm12
+      }
+      if ( v17 <= 0.0 )
+      {
+        LODWORD(_XMM8) = 0;
+      }
+      else
+      {
+        v33 = (float)(((unsigned int)v23 - min) / v19);
+        v34 = LODWORD(FLOAT_1_0);
+        *(float *)&v34 = (float)(1.0 - v33) * *(float *)&v12;
+        _XMM7 = v34;
+        if ( *(float *)&v12 < 0.0 )
+        {
+          *((_QWORD *)&v37 + 1) = *((_QWORD *)&v12 + 1);
+          *(double *)&v37 = *(float *)&v12;
+          _XMM0 = v37;
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM0, *(float *)&v12) )
+            __debugbreak();
+          v17 = v61;
+        }
+        __asm
+        {
+          vmaxss  xmm0, xmm7, xmm6
+          vminss  xmm8, xmm0, xmm9
+        }
+      }
+      if ( v17 <= 0.0 )
+      {
+        LODWORD(_XMM7) = 0;
+      }
+      else
+      {
+        v41 = (float)(((unsigned int)v26 - min) / v19);
+        v42 = LODWORD(FLOAT_1_0);
+        *(float *)&v42 = (float)(1.0 - v41) * *(float *)&v12;
+        _XMM7 = v42;
+        if ( *(float *)&v12 < 0.0 )
+        {
+          *((_QWORD *)&v45 + 1) = *((_QWORD *)&v12 + 1);
+          *(double *)&v45 = *(float *)&v12;
+          _XMM0 = v45;
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM0, *(float *)&v12) )
+            __debugbreak();
+        }
+        __asm
+        {
+          vmaxss  xmm0, xmm7, xmm6
+          vminss  xmm7, xmm0, xmm9
+        }
+      }
+      v49 = (float)v15;
+      v50 = (float)((float)(v49 + 1.0) * v65) * v14;
+      v67.xyz.v[0] = (float)((float)(v49 * v65) * width) + v62;
+      v67.xyz.v[1] = *(float *)&_XMM8 + y;
+      __asm { vroundss xmm1, xmm14, xmm0, 1 }
+      v52 = (int)*(float *)&_XMM1;
+      v67.xyz.v[2] = 0.0;
+      if ( (int)*(float *)&_XMM1 > 255 )
+        v52 = 255;
+      if ( v52 < 0 )
+        LOBYTE(v52) = 0;
+      __asm { vroundss xmm0, xmm14, xmm2, 1 }
+      v54 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v54 = 255;
+      if ( v54 < 0 )
+        LOBYTE(v54) = 0;
+      v55 = (unsigned __int8)v54 | (((unsigned __int8)v52 | 0xFFFF0000) << 8);
+      v68 = v50 + v62;
+      v69 = *(float *)&_XMM7 + y;
+      __asm { vroundss xmm1, xmm14, xmm0, 1 }
+      v57 = (int)*(float *)&_XMM1;
+      *(_DWORD *)v67.color = v55;
+      v70 = 0.0;
+      if ( (int)*(float *)&_XMM1 > 255 )
+        v57 = 255;
+      if ( v57 < 0 )
+        LOBYTE(v57) = 0;
+      __asm { vroundss xmm0, xmm14, xmm2, 1 }
+      v59 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v59 = 255;
+      if ( v59 < 0 )
+        LOBYTE(v59) = 0;
+      v60 = *gfxContext;
+      v71 = (unsigned __int8)v59 | (((unsigned __int8)v57 | 0xFFFF0000) << 8);
+      v66 = v60;
+      RB_DrawLines2D(&v66, 2, 2, &v67);
+      v17 = v61;
+      v14 = width;
+      v16 = avg;
+      v11 = data;
+      ++v15;
+      v20 = 1.0 / v61;
+    }
+    while ( v15 < numDataEntries - 1 );
+  }
+}
+
+/*
+==============
+RB_DrawProfileHistory
+==============
+*/
+void RB_DrawProfileHistory(GfxCmdBufContext *gfxContext, const ProfileSettings *profSettings)
+{
+  int v4; 
+  int integer; 
+  int v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int *v21; 
+  float v22; 
+  __int128 v23; 
+  __int128 fontWidth_low; 
+  __int64 v25; 
+  int EnumParity; 
+  __int128 v27; 
+  int *v28; 
+  __int128 v29; 
+  __int128 v30; 
+  float v31; 
+  __int64 v32; 
+  __int64 v33; 
+  const char *v34; 
+  GfxCmdBufContext v35; 
+  unsigned __int64 v38; 
+  __int128 v39; 
+  GfxCmdBufContext v40; 
+  int v41[16]; 
+  char dest[112]; 
+
+  v40 = *gfxContext;
+  RB_EndSurfaceIfNeeded(&v40);
+  v4 = 0;
+  integer = prof_probe[0]->current.integer;
+  if ( !integer )
+  {
+    if ( profSettings )
+      integer = profSettings->defaultProbeIndex[0];
+    else
+      integer = 0;
+  }
+  v41[0] = integer;
+  v6 = prof_probe[1]->current.integer;
+  if ( !v6 )
+  {
+    if ( profSettings )
+      v6 = profSettings->defaultProbeIndex[1];
+    else
+      v6 = 0;
+  }
+  v41[1] = v6;
+  v7 = prof_probe[2]->current.integer;
+  if ( !v7 )
+  {
+    if ( profSettings )
+      v7 = profSettings->defaultProbeIndex[2];
+    else
+      v7 = 0;
+  }
+  v41[2] = v7;
+  v8 = prof_probe[3]->current.integer;
+  if ( !v8 )
+  {
+    if ( profSettings )
+      v8 = profSettings->defaultProbeIndex[3];
+    else
+      v8 = 0;
+  }
+  v41[3] = v8;
+  v9 = prof_probe[4]->current.integer;
+  if ( !v9 )
+  {
+    if ( profSettings )
+      v9 = profSettings->defaultProbeIndex[4];
+    else
+      v9 = 0;
+  }
+  v41[4] = v9;
+  v10 = prof_probe[5]->current.integer;
+  if ( !v10 )
+  {
+    if ( profSettings )
+      v10 = profSettings->defaultProbeIndex[5];
+    else
+      v10 = 0;
+  }
+  v41[5] = v10;
+  v11 = prof_probe[6]->current.integer;
+  if ( !v11 )
+  {
+    if ( profSettings )
+      v11 = profSettings->defaultProbeIndex[6];
+    else
+      v11 = 0;
+  }
+  v41[6] = v11;
+  v12 = prof_probe[7]->current.integer;
+  if ( !v12 )
+  {
+    if ( profSettings )
+      v12 = profSettings->defaultProbeIndex[7];
+    else
+      v12 = 0;
+  }
+  v41[7] = v12;
+  v13 = prof_probe[8]->current.integer;
+  if ( !v13 )
+  {
+    if ( profSettings )
+      v13 = profSettings->defaultProbeIndex[8];
+    else
+      v13 = 0;
+  }
+  v41[8] = v13;
+  v14 = prof_probe[9]->current.integer;
+  if ( !v14 )
+  {
+    if ( profSettings )
+      v14 = profSettings->defaultProbeIndex[9];
+    else
+      v14 = 0;
+  }
+  v41[9] = v14;
+  v15 = prof_probe[10]->current.integer;
+  if ( !v15 )
+  {
+    if ( profSettings )
+      v15 = profSettings->defaultProbeIndex[10];
+    else
+      v15 = 0;
+  }
+  v41[10] = v15;
+  v16 = prof_probe[11]->current.integer;
+  if ( !v16 )
+  {
+    if ( profSettings )
+      v16 = profSettings->defaultProbeIndex[11];
+    else
+      v16 = 0;
+  }
+  v41[11] = v16;
+  v17 = prof_probe[12]->current.integer;
+  if ( !v17 )
+  {
+    if ( profSettings )
+      v17 = profSettings->defaultProbeIndex[12];
+    else
+      v17 = 0;
+  }
+  v41[12] = v17;
+  v18 = prof_probe[13]->current.integer;
+  if ( !v18 )
+  {
+    if ( profSettings )
+      v18 = profSettings->defaultProbeIndex[13];
+    else
+      v18 = 0;
+  }
+  v41[13] = v18;
+  v19 = prof_probe[14]->current.integer;
+  if ( !v19 )
+  {
+    if ( profSettings )
+      v19 = profSettings->defaultProbeIndex[14];
+    else
+      v19 = 0;
+  }
+  v41[14] = v19;
+  v20 = prof_probe[15]->current.integer;
+  if ( !v20 )
+  {
+    if ( profSettings )
+      v20 = profSettings->defaultProbeIndex[15];
+    else
+      v20 = 0;
+  }
+  v41[15] = v20;
+  v21 = v41;
+  v22 = (float)(vidConfig.displayHeight - 98);
+  fontWidth_low = LODWORD(drawProfGlob.fontWidth);
+  *(float *)&fontWidth_low = drawProfGlob.fontWidth * 14.5;
+  v23 = fontWidth_low;
+  do
+  {
+    v25 = *v21;
+    if ( (_DWORD)v25 )
+    {
+      EnumParity = Profile_GetEnumParity(v25);
+      v40 = *gfxContext;
+      RB_DrawProfileHistoryGraph(&v40, &drawProfGlob.global[v25].read, EnumParity, v4, *(float *)&v23, v22);
+      v27 = v23;
+      *(float *)&v27 = *(float *)&v23 + 104.0;
+      v23 = v27;
+    }
+    ++v4;
+    ++v21;
+  }
+  while ( v4 < 16 );
+  v28 = v41;
+  v30 = LODWORD(drawProfGlob.fontWidth);
+  *(float *)&v30 = drawProfGlob.fontWidth * 14.5;
+  v29 = v30;
+  v31 = (float)(vidConfig.displayHeight - 98);
+  v32 = 16i64;
+  do
+  {
+    v33 = *v28;
+    if ( (_DWORD)v33 )
+    {
+      v34 = prof_enumNames[v33];
+      v35 = *gfxContext;
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm3, 1 }
+      v38 = (int)*(float *)&_XMM4 + 1;
+      if ( v38 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
+        __debugbreak();
+      Core_strncpy_truncate(dest, 0x64ui64, v34, v38);
+      v40 = v35;
+      RB_DrawText(&v40, dest, drawProfGlob.font, *(float *)&v29, v31, drawProfGlob.textColorList[0]);
+      v39 = v29;
+      *(float *)&v39 = *(float *)&v29 + 104.0;
+      v29 = v39;
+    }
+    ++v28;
+    --v32;
+  }
+  while ( v32 );
+  v40 = *gfxContext;
+  RB_EndSurfaceIfNeeded(&v40);
+}
+
+/*
+==============
+RB_DrawProfileHistoryGraph
+==============
+*/
+void RB_DrawProfileHistoryGraph(GfxCmdBufContext *gfxContext, const ProfileReadable *read, int parity, int probeIndex, float x, float y)
+{
+  __int64 v9; 
+  unsigned __int64 v10; 
+  unsigned __int64 historyCount; 
+  unsigned __int64 v12; 
+  int integer; 
+  float *Value; 
+  int v15; 
+  float v16; 
+  int v17; 
+  float v18; 
+  int i; 
+  __int128 v20; 
+  __int128 v23; 
+  GfxCmdBufContext v26; 
+
+  v9 = probeIndex;
+  if ( !read && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 265, ASSERT_TYPE_ASSERT, "(read)", (const char *)&queryFormat, "read") )
+    __debugbreak();
+  v10 = 1208 * v9;
+  if ( drawProfGlob.log[v10 / 0x4B8].parity != parity )
+  {
+    historyCount = drawProfGlob.log[v10 / 0x4B8].historyCount;
+    drawProfGlob.log[v10 / 0x4B8].historyCount = historyCount + 1;
+    v12 = v10 + 12 * (historyCount % 0x64);
+    *(double *)((char *)&drawProfGlob.log[0].history[0].hits + v12) = *(double *)&read->hits;
+    *(unsigned int *)((char *)drawProfGlob.log[0].history[0].self.value + v12) = read->self.value[0];
+    drawProfGlob.log[v10 / 0x4B8].parity = parity;
+  }
+  v26 = *gfxContext;
+  RB_DrawStretchPic(&v26, rgp.whiteMaterial, x, y - drawProfGlob.fontHeight, 100.0, drawProfGlob.fontHeight + 64.0, 0.0, 0.0, 1.0, 1.0, 0x55000000u, GFX_PRIM_STATS_DEBUG);
+  integer = prof_probeMaxMsec->current.integer;
+  if ( integer < 1 )
+    integer = 1;
+  Value = (float *)Sys_GetValue(0);
+  v15 = drawProfGlob.log[v10 / 0x4B8].historyCount;
+  v16 = (float)integer;
+  v17 = 0;
+  v18 = (float)(64.0 * Value[8915]) / v16;
+  if ( v15 - 100 >= 0 )
+    v17 = v15 - 100;
+  for ( i = v17; i < v15; ++i )
+  {
+    v20 = 0i64;
+    *(float *)&v20 = (float)drawProfGlob.log[0].history[i % 100].total.value[v10 / 4];
+    *(float *)&v20 = *(float *)&v20 * v18;
+    _XMM1 = v20;
+    if ( *(float *)&v20 >= 1.0 )
+      __asm { vminss  xmm1, xmm1, xmm8 }
+    else
+      *(float *)&_XMM1 = FLOAT_1_0;
+    v26 = *gfxContext;
+    RB_DrawStretchPic(&v26, rgp.whiteMaterial, (float)(x + 99.0) - (float)(v15 - i), (float)(y + 64.0) - *(float *)&_XMM1, 1.0, *(float *)&_XMM1, 0.0, 0.0, 1.0, 1.0, 0xFF00FFFF, GFX_PRIM_STATS_DEBUG);
+    v15 = drawProfGlob.log[v10 / 0x4B8].historyCount;
+  }
+  for ( ; v17 < v15; ++v17 )
+  {
+    v23 = 0i64;
+    *(float *)&v23 = (float)drawProfGlob.log[0].history[v17 % 100].self.value[v10 / 4];
+    *(float *)&v23 = *(float *)&v23 * v18;
+    _XMM1 = v23;
+    if ( *(float *)&v23 >= 1.0 )
+      __asm { vminss  xmm1, xmm1, xmm8 }
+    else
+      *(float *)&_XMM1 = FLOAT_1_0;
+    v26 = *gfxContext;
+    RB_DrawStretchPic(&v26, rgp.whiteMaterial, (float)(x + 99.0) - (float)(v15 - v17), (float)(y + 64.0) - *(float *)&_XMM1, 1.0, *(float *)&_XMM1, 0.0, 0.0, 1.0, 1.0, 0xFF0000FF, GFX_PRIM_STATS_DEBUG);
+    v15 = drawProfGlob.log[v10 / 0x4B8].historyCount;
+  }
+}
+
+/*
+==============
+RB_DrawProfileLabels
+==============
+*/
+float RB_DrawProfileLabels(GfxCmdBufContext *gfxContext)
+{
+  float v2; 
+  GfxCmdBufContext v4; 
+
+  v2 = drawProfGlob.fontHeight * 5.0;
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "Probe Name", drawProfGlob.font, drawProfGlob.fontWidth * 15.0, drawProfGlob.fontHeight + (float)(drawProfGlob.fontHeight * 5.0), drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "  Self", drawProfGlob.font, drawProfGlob.fontWidth * 55.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, " Total", drawProfGlob.font, drawProfGlob.fontWidth * 61.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, " AvSlf", drawProfGlob.font, drawProfGlob.fontWidth * 67.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, " MaxSlf", drawProfGlob.font, drawProfGlob.fontWidth * 73.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "  Tally", drawProfGlob.font, drawProfGlob.fontWidth * 80.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, " AvTot", drawProfGlob.font, drawProfGlob.fontWidth * 87.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "   Min", drawProfGlob.font, drawProfGlob.fontWidth * 93.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "    Max", drawProfGlob.font, drawProfGlob.fontWidth * 99.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "  Hit", drawProfGlob.font, drawProfGlob.fontWidth * 106.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "  AvH", drawProfGlob.font, drawProfGlob.fontWidth * 111.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "   ApH", drawProfGlob.font, drawProfGlob.fontWidth * 116.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  v4 = *gfxContext;
+  RB_DrawText(&v4, "  MaxH", drawProfGlob.font, drawProfGlob.fontWidth * 122.0, v2 + drawProfGlob.fontHeight, drawProfGlob.labelColor);
+  return v2 + drawProfGlob.fontHeight;
+}
+
+/*
+==============
+RB_DrawProfileRow
+==============
+*/
+float RB_DrawProfileRow(GfxCmdBufContext *gfxContext, int probeIndex, int indentation, float y)
+{
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int64 v8; 
+  int v10; 
+  __int64 v11; 
+  ProfileReadableGlobal *v12; 
+  float *Value; 
+  float *v18; 
+  __int64 v19; 
+  float hits; 
+  float v24; 
+  float v26; 
+  int v27; 
+  unsigned int v28; 
+  float *v29; 
+  float v30; 
+  const char *v31; 
+  float *v32; 
+  float v33; 
+  const char *v34; 
+  const char *v38; 
+  float *v39; 
+  float v40; 
+  const char *v41; 
+  const char *v42; 
+  const char *v43; 
+  float v44; 
+  double v45; 
+  const char *v46; 
+  float *v47; 
+  const char *v48; 
+  const char *v49; 
+  const char *v50; 
+  const char *v51; 
+  const char *v52; 
+  const char *v53; 
+  GfxCmdBufContext v55; 
+  char dest[48]; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+
+  v8 = indentation;
+  if ( probeIndex )
+  {
+    v10 = indentation + 15;
+    v60 = v4;
+    v59 = v5;
+    v11 = probeIndex;
+    v58 = v6;
+    v57 = v7;
+    v12 = &drawProfGlob.global[probeIndex];
+    if ( !v12->sequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 449, ASSERT_TYPE_ASSERT, "(global->sequence)", (const char *)&queryFormat, "global->sequence") )
+      __debugbreak();
+    Value = (float *)Sys_GetValue(0);
+    _XMM1 = (unsigned int)v12->sequence;
+    __asm { vcvtdq2pd xmm1, xmm1 }
+    _XMM2 = COERCE_UNSIGNED_INT64(Value[8915] * v12->selfClks / *(double *)&_XMM1);
+    __asm { vcvtsd2ss xmm6, xmm2, xmm2 }
+    v18 = (float *)Sys_GetValue(0);
+    v19 = v12->min.value[0];
+    _XMM1 = (unsigned int)v12->sequence;
+    __asm { vcvtdq2pd xmm1, xmm1 }
+    _XMM2 = COERCE_UNSIGNED_INT64(v18[8915] * v12->totalClks / *(double *)&_XMM1);
+    hits = (float)v12->hits;
+    v24 = hits / _mm_cvtepi32_ps((__m128i)(unsigned int)v12->sequence).m128_f32[0];
+    __asm { vcvtsd2ss xmm11, xmm2, xmm2 }
+    if ( v24 == 0.0 )
+      v26 = 0.0;
+    else
+      v26 = *(float *)&_XMM11 / v24;
+    Core_strncpy_truncate(dest, 0x29ui64, prof_enumNames[v11], 40 - v8);
+    v27 = 192;
+    if ( !(_DWORD)v8 )
+      v27 = 255;
+    v28 = v27 | ((v27 | ((v27 | 0xFFFFFF00) << 8)) << 8);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, dest, drawProfGlob.font, (float)v10 * drawProfGlob.fontWidth, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v29 = (float *)Sys_GetValue(0);
+    v30 = (float)v12->read.self.value[0];
+    v31 = j_va("%6.2f", (float)(v30 * v29[8915]));
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v31, drawProfGlob.font, drawProfGlob.fontWidth * 55.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v32 = (float *)Sys_GetValue(0);
+    v33 = (float)v12->read.total.value[0];
+    v34 = j_va("%6.2f", (float)(v33 * v32[8915]));
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v34, drawProfGlob.font, drawProfGlob.fontWidth * 61.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    _XMM0 = LODWORD(FLOAT_30_0);
+    __asm
+    {
+      vcmpltss xmm1, xmm0, xmm6
+      vblendvps xmm6, xmm6, xmm9, xmm1
+    }
+    v38 = j_va("%6.2f", *(float *)&_XMM6);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v38, drawProfGlob.font, drawProfGlob.fontWidth * 67.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v39 = (float *)Sys_GetValue(0);
+    v40 = (float)v12->maxSelf.value[0];
+    v41 = j_va("%7.2f", (float)(v40 * v39[8915]));
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v41, drawProfGlob.font, drawProfGlob.fontWidth * 73.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    g_tally = g_tally + *(float *)&_XMM6;
+    v42 = j_va("%6.2f", g_tally);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v42, drawProfGlob.font, drawProfGlob.fontWidth * 80.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v43 = j_va("%6.2f", *(float *)&_XMM11);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v43, drawProfGlob.font, drawProfGlob.fontWidth * 87.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v44 = (float)v19;
+    v45 = (float)(v44 * *((float *)Sys_GetValue(0) + 8915));
+    v46 = j_va("%6.2f", v45);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v46, drawProfGlob.font, drawProfGlob.fontWidth * 93.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v47 = (float *)Sys_GetValue(0);
+    *(float *)&v45 = (float)v12->max.value[0];
+    v48 = j_va("%7.2f", (float)(*(float *)&v45 * v47[8915]));
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v48, drawProfGlob.font, drawProfGlob.fontWidth * 99.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v49 = j_va("%5u", v12->read.hits);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v49, drawProfGlob.font, drawProfGlob.fontWidth * 106.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    if ( v24 == 0.0 || (v50 = "%5.1f", v24 >= 10.0) )
+      v50 = "%5.0f";
+    v51 = j_va(v50, v24);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v51, drawProfGlob.font, drawProfGlob.fontWidth * 111.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    if ( v24 == 0.0 )
+      v52 = "      ";
+    else
+      v52 = j_va("%6.2f", v26);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v52, drawProfGlob.font, drawProfGlob.fontWidth * 116.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+    v53 = j_va("%5u", v12->maxHits);
+    v55 = *gfxContext;
+    RB_DrawText(&v55, v53, drawProfGlob.font, drawProfGlob.fontWidth * 122.0, y + drawProfGlob.fontHeight, (const GfxColor)v28);
+  }
+  return y + drawProfGlob.fontHeight;
+}
+
+/*
+==============
+RB_DrawProfileScript
+==============
+*/
+void RB_DrawProfileScript(GfxCmdBufContext *gfxContext)
+{
+  GfxCmdBufContext v1; 
+  GfxCmdBufContext v2; 
+  const scrContext_t *ScriptContext; 
+  SourceBufferInfo *SourceBufferLookup; 
+  const ProfileScript *v6; 
+  GfxCmdBufContext v7; 
+  const ProfileScript *v8; 
+  float fontHeight; 
+  float v10; 
+  int *scriptSrcBufferIndex; 
+  __int64 v12; 
+  SourceBufferInfo *v13; 
+  const char *buf; 
+  unsigned __int64 v15; 
+  GfxColor v16; 
+  char *v17; 
+  GfxCmdBufContext *v18; 
+  GfxColor v19; 
+  double v20; 
+  const char *v21; 
+  GfxColor v22; 
+  double v23; 
+  const char *v24; 
+  GfxColor v25; 
+  double v26; 
+  const char *v27; 
+  GfxColor v28; 
+  const char *v29; 
+  GfxColor v30; 
+  const char *v31; 
+  GfxColor v32; 
+  const char *v33; 
+  GfxColor v34; 
+  float *Value; 
+  __int64 srcTotal; 
+  float v37; 
+  float v38; 
+  const char *v39; 
+  GfxColor v40; 
+  float *v41; 
+  __int64 srcAvgTime; 
+  float v43; 
+  float v44; 
+  const char *v45; 
+  GfxColor v46; 
+  float *v47; 
+  __int64 srcMaxTime; 
+  float v49; 
+  float v50; 
+  const char *v51; 
+  const scrContext_t *v52; 
+  const ProfileScript *v53; 
+  GfxCmdBufContext v54; 
+  const ProfileScript *v55; 
+  __int128 v56; 
+  int v57; 
+  float v58; 
+  __int64 integer; 
+  __int64 v60; 
+  volatile unsigned int *v61; 
+  char *v62; 
+  float v63; 
+  __int128 v64; 
+  bool enabled; 
+  const ProfileScript *ProfileConst; 
+  GfxCmdBufContext v67; 
+  __int64 v68; 
+  float v69; 
+  volatile unsigned int *totalTime; 
+  int v71; 
+  char *v72; 
+  __int64 v73; 
+  __int128 v74; 
+  float v75; 
+  __int128 v76; 
+  GfxColor v77; 
+  float v78; 
+  const char *v79; 
+  GfxColor v80; 
+  GfxCmdBufContext v81; 
+  GfxCmdBufContext v82; 
+  GfxCmdBufContext v83; 
+  GfxCmdBufContext v84; 
+  GfxCmdBufContext v85; 
+  GfxCmdBufContext v86; 
+  GfxCmdBufContext v87; 
+  GfxCmdBufContext v88; 
+  GfxCmdBufContext v89; 
+  GfxCmdBufContext v90; 
   GfxCmdBufContext v91; 
   GfxCmdBufContext v92; 
   GfxCmdBufContext v93; 
@@ -1217,2007 +1829,95 @@ void __fastcall RB_DrawProfile(GfxCmdBufContext *gfxContext, double _XMM1_8)
   GfxCmdBufContext v104; 
   GfxCmdBufContext v105; 
   GfxCmdBufContext v106; 
-  int v107[16]; 
-  char dest[112]; 
+  GfxCmdBufContext v107; 
+  GfxCmdBufContext v108; 
+  GfxCmdBufContext v109; 
+  GfxCmdBufContext v110; 
+  GfxCmdBufContext v111; 
+  GfxCmdBufContext v112; 
+  GfxCmdBufContext v113; 
+  GfxCmdBufContext v114; 
+  GfxCmdBufContext v115; 
+  GfxCmdBufContext v116; 
+  GfxCmdBufContext v117; 
+  GfxCmdBufContext v118; 
+  GfxCmdBufContext v119; 
+  GfxCmdBufContext v120; 
+  GfxCmdBufContext v121[11]; 
+  float v122; 
+  const scrContext_t *v123; 
+  const ProfileScript *v124; 
 
-  v9 = profile;
-  _RSI = gfxContext;
-  integer = profile->current.integer;
-  if ( integer )
-  {
-    v12 = 0;
-    if ( integer == 1 )
-    {
-      v13 = 0;
-      for ( i = prof_probe; !(*i)->current.integer; ++i )
-      {
-        if ( (unsigned int)++v13 >= 0x10 )
-          return;
-      }
-    }
-    if ( profile_thread->modified || profile->modified )
-    {
-      memset_0(drawProfGlob.global, 0, sizeof(drawProfGlob.global));
-      p_min = &drawProfGlob.global[0].min;
-      v18 = 826i64;
-      do
-      {
-        p_min->value[0] = -1;
-        p_min += 14;
-        --v18;
-      }
-      while ( v18 );
-      Dvar_ClearModified(v9);
-      Dvar_ClearModified(profile_thread);
-    }
-    else
-    {
-      p_read = &drawProfGlob.global[0].read;
-      v16 = 826i64;
-      do
-      {
-        *(_QWORD *)&p_read->hits = 0i64;
-        p_read->self.value[0] = 0;
-        p_read = (ProfileReadable *)((char *)p_read + 56);
-        --v16;
-      }
-      while ( v16 );
-    }
-    DisplayThread = Profile_GetDisplayThread();
-    if ( DisplayThread >= gfxCfg.threadContextCount )
-    {
-      for ( j = 0; j < gfxCfg.threadContextCount; ++j )
-      {
-        StackForContext = Profile_GetStackForContext(j);
-        _RDX = &drawProfGlob.global[0].read.self;
-        p_total = &StackForContext->prof_array[0].read.total;
-        do
-        {
-          v24 = p_total[-1].value[0];
-          p_total += 10;
-          _RDX[-11].value[0] += v24;
-          _RDX->value[0] += p_total[-9].value[0];
-          _RDX[-1].value[0] += p_total[-10].value[0];
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, rax
-            vaddsd  xmm0, xmm0, qword ptr [rdx-20h]
-            vmovsd  qword ptr [rdx-20h], xmm0
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, rax
-            vaddsd  xmm0, xmm0, qword ptr [rdx-28h]
-            vmovsd  qword ptr [rdx-28h], xmm0
-          }
-          _RDX[-2].value[0] += p_total[-11].value[0];
-          _RDX += 14;
-        }
-        while ( (__int64)_RDX < (__int64)&unk_1544A76E8 );
-      }
-    }
-    else
-    {
-      RB_AddProfileThread(DisplayThread);
-    }
-    p_maxHits = &drawProfGlob.global[0].maxHits;
-    do
-    {
-      ++*(p_maxHits - 7);
-      v31 = p_maxHits[4];
-      if ( p_maxHits[2] < v31 )
-        p_maxHits[2] = v31;
-      if ( p_maxHits[1] > v31 )
-        p_maxHits[1] = v31;
-      v32 = p_maxHits[3];
-      if ( v32 > *p_maxHits )
-        *p_maxHits = v32;
-      v33 = p_maxHits[5];
-      if ( *(p_maxHits - 1) < v33 )
-        *(p_maxHits - 1) = v33;
-      p_maxHits += 14;
-    }
-    while ( (__int64)p_maxHits < (__int64)&unk_1544A76D4 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+280h+var_240], xmm0
-    }
-    RB_EndSurfaceIfNeeded(&v91);
-    v35 = profile->current.integer;
-    switch ( v35 )
-    {
-      case 1:
-        __asm
-        {
-          vmovaps [rsp+280h+var_30], xmm6; jumptable 00000001423E94FB case 1
-          vmovaps [rsp+280h+var_40], xmm7
-          vmovaps [rsp+280h+var_50], xmm8
-          vmovaps [rsp+280h+var_60], xmm9
-          vmovups xmm9, xmmword ptr [rsi]
-          vmovaps [rsp+280h+var_70], xmm10
-          vmovups [rbp+180h+var_1D0], xmm9
-          vmovaps [rsp+280h+var_80], xmm11
-        }
-        RB_EndSurfaceIfNeeded(&v98);
-        v43 = v107;
-        __asm
-        {
-          vmovss  xmm10, cs:__real@41680000
-          vmovss  xmm0, cs:drawProfGlob.fontWidth
-          vmovss  xmm7, cs:__real@42d00000
-        }
-        v107[0] = prof_probe[0]->current.integer;
-        __asm
-        {
-          vxorps  xmm8, xmm8, xmm8
-          vmulss  xmm6, xmm0, xmm10
-        }
-        v107[1] = prof_probe[1]->current.integer;
-        v107[2] = prof_probe[2]->current.integer;
-        v107[3] = prof_probe[3]->current.integer;
-        v107[4] = prof_probe[4]->current.integer;
-        v107[5] = prof_probe[5]->current.integer;
-        v107[6] = prof_probe[6]->current.integer;
-        v107[7] = prof_probe[7]->current.integer;
-        v107[8] = prof_probe[8]->current.integer;
-        v107[9] = prof_probe[9]->current.integer;
-        v107[10] = prof_probe[10]->current.integer;
-        v107[11] = prof_probe[11]->current.integer;
-        v107[12] = prof_probe[12]->current.integer;
-        v107[13] = prof_probe[13]->current.integer;
-        v107[14] = prof_probe[14]->current.integer;
-        v107[15] = prof_probe[15]->current.integer;
-        __asm { vcvtsi2ss xmm8, xmm8, rcx }
-        do
-        {
-          v50 = *v43;
-          if ( (_DWORD)v50 )
-          {
-            EnumParity = Profile_GetEnumParity(v50);
-            __asm
-            {
-              vmovss  dword ptr [rsp+280h+var_258], xmm8
-              vmovss  dword ptr [rsp+280h+fmt], xmm6
-              vmovups [rbp+180h+var_1C0], xmm9
-            }
-            RB_DrawProfileHistoryGraph(&v99, &drawProfGlob.global[v50].read, EnumParity, v12, fmt, v89);
-            __asm { vaddss  xmm6, xmm6, xmm7 }
-          }
-          ++v12;
-          ++v43;
-        }
-        while ( v12 < 16 );
-        v52 = v107;
-        __asm
-        {
-          vmovss  xmm0, cs:drawProfGlob.fontWidth
-          vmovss  xmm11, cs:__real@3f000000
-          vxorps  xmm8, xmm8, xmm8
-          vmulss  xmm6, xmm0, xmm10
-          vmovss  xmm10, cs:__real@42c80000
-          vcvtsi2ss xmm8, xmm8, rcx
-        }
-        v59 = 16i64;
-        do
-        {
-          v60 = *v52;
-          if ( (_DWORD)v60 )
-          {
-            v61 = prof_enumNames[v60];
-            __asm
-            {
-              vdivss  xmm0, xmm10, xmm0
-              vaddss  xmm2, xmm0, xmm11
-              vxorps  xmm1, xmm1, xmm1
-              vmovss  xmm3, xmm1, xmm2
-              vxorps  xmm0, xmm0, xmm0
-              vroundss xmm4, xmm0, xmm3, 1
-              vcvttss2si eax, xmm4
-            }
-            v68 = _EAX + 1;
-            if ( v68 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
-              __debugbreak();
-            Core_strncpy_truncate(dest, 0x64ui64, v61, v68);
-            __asm
-            {
-              vmovaps xmm3, xmm6
-              vmovss  dword ptr [rsp+280h+fmt], xmm8
-              vmovdqa [rbp+180h+var_1B0], xmm9
-            }
-            RB_DrawText(&v100, dest, drawProfGlob.font, *(float *)&_XMM3, fmta, drawProfGlob.textColorList[0]);
-            __asm
-            {
-              vmovss  xmm0, cs:drawProfGlob.fontWidth
-              vaddss  xmm6, xmm6, xmm7
-            }
-          }
-          ++v52;
-          --v59;
-        }
-        while ( v59 );
-        __asm { vmovdqa [rbp+180h+var_1A0], xmm9 }
-        RB_EndSurfaceIfNeeded(&v101);
-        _RSI = gfxContext;
-        __asm
-        {
-          vmovaps xmm11, [rsp+280h+var_80]
-          vmovaps xmm10, [rsp+280h+var_70]
-          vmovaps xmm9, [rsp+280h+var_60]
-          vmovaps xmm8, [rsp+280h+var_50]
-          vmovaps xmm7, [rsp+280h+var_40]
-          vmovaps xmm6, [rsp+280h+var_30]
-        }
-        break;
-      case 2:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 2
-          vmovups [rsp+280h+var_230], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v92, (int (__fastcall *)(const void *, const void *))CompareSelfTimes);
-        break;
-      case 3:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 3
-          vmovups [rsp+280h+var_220], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v93, (int (__fastcall *)(const void *, const void *))CompareTotalTimes);
-        break;
-      case 4:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 4
-          vmovups [rsp+280h+var_210], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v94, (int (__fastcall *)(const void *, const void *))CompareAvgSelfTimes);
-        break;
-      case 5:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 5
-          vmovups [rbp+180h+var_200], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v95, (int (__fastcall *)(const void *, const void *))CompareAvgTotalTimes);
-        break;
-      case 6:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 6
-          vmovups [rbp+180h+var_1F0], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v96, (int (__fastcall *)(const void *, const void *))CompareMaxTimes);
-        break;
-      case 7:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001423E94FB case 7
-          vmovups [rbp+180h+var_1E0], xmm0
-        }
-        RB_DrawSlowProfileOverlay(&v97, (int (__fastcall *)(const void *, const void *))CompareMaxSelfTimes);
-        break;
-      default:
-        if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1083, ASSERT_TYPE_ASSERT, "(profile->current.integer != PROFPAGE_DISABLED)", (const char *)&queryFormat, "profile->current.integer != PROFPAGE_DISABLED") )
-          __debugbreak();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+180h+var_190], xmm0
-        }
-        v78 = &s_profileArrays[profile->current.integer - 8];
-        RB_DrawAllProfileBackgrounds(&v102, v78, v78->infoCount);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+180h+var_180], xmm0
-        }
-        RB_DrawProfileHistory(&v103, v78);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+180h+var_170], xmm0
-        }
-        *(float *)&_XMM0 = RB_DrawProfileLabels(&v104);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  cs:g_tally, xmm1
-          vmovaps xmm3, xmm0
-        }
-        if ( v78->infoCount > 0 )
-        {
-          v83 = 0i64;
-          do
-          {
-            profDrawInfo = v78->profDrawInfo;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsi]
-              vmovups [rbp+180h+var_160], xmm0
-            }
-            *(float *)&_XMM0 = RB_DrawProfileRow(&v105, profDrawInfo[v83].probeIndex, profDrawInfo[v83].indentation, *(float *)&_XMM3);
-            ++v12;
-            ++v83;
-            __asm { vmovaps xmm3, xmm0 }
-          }
-          while ( v12 < v78->infoCount );
-        }
-        break;
-    }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+180h+var_150], xmm0
-    }
-    RB_EndSurfaceIfNeeded(&v106);
-  }
-}
-
-/*
-==============
-RB_DrawProfileGraphData
-==============
-*/
-
-void __fastcall RB_DrawProfileGraphData(GfxCmdBufContext *gfxContext, int column, double y, double width, unsigned int min, unsigned int max, float avg, const volatile unsigned int *data, unsigned int numDataEntries)
-{
-  unsigned int v28; 
-  char v41; 
-  char v42; 
-  char v43; 
-  bool v61; 
-  unsigned int v94; 
-  double v120; 
-  double v121; 
-  double v122; 
-  double v123; 
-  GfxCmdBufContext v129; 
-  GfxPointVertex v130; 
-  unsigned int v134; 
-  char v143; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _R13 = gfxContext;
-  __asm
-  {
-    vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-    vsubss  xmm9, xmm1, cs:__real@40000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vmulss  xmm0, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  [rsp+178h+var_124], xmm0
-    vmovss  [rsp+178h+var_11C], xmm3
-    vmovss  [rsp+178h+var_120], xmm2
-    vmovaps xmm10, xmm3
-  }
-  if ( numDataEntries < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 201, ASSERT_TYPE_ASSERT, "(numDataEntries >= 2)", (const char *)&queryFormat, "numDataEntries >= 2") )
-    __debugbreak();
-  v28 = 0;
-  if ( numDataEntries != 1 )
-  {
-    __asm
-    {
-      vmovss  xmm5, [rsp+178h+arg_30]
-      vmovaps [rsp+178h+var_38], xmm6
-      vmovaps [rsp+178h+var_48], xmm7
-      vmovaps [rsp+178h+var_58], xmm8
-      vmovaps [rsp+178h+var_88], xmm11
-      vmovaps [rsp+178h+var_98], xmm12
-      vmovss  xmm12, cs:__real@3f800000
-      vmovaps [rsp+178h+var_A8], xmm13
-      vmovaps [rsp+178h+var_B8], xmm14
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rbp
-      vcvtsi2ss xmm0, xmm0, r14
-      vdivss  xmm1, xmm12, xmm0
-      vmovaps [rsp+178h+var_C8], xmm15
-      vmovss  xmm15, cs:__real@437f0000
-      vmovss  [rsp+178h+var_118], xmm1
-      vmovss  [rsp+178h+var_128], xmm3
-      vdivss  xmm4, xmm12, xmm3
-      vxorps  xmm14, xmm14, xmm14
-      vxorps  xmm6, xmm6, xmm6
-    }
-    do
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v43 = v41 | v42;
-      __asm
-      {
-        vcomiss xmm3, xmm6
-        vcvtsi2ss xmm0, xmm0, r8
-        vsubss  xmm1, xmm0, xmm5
-        vmulss  xmm2, xmm1, xmm4
-        vmaxss  xmm0, xmm2, xmm6
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rbx
-        vminss  xmm11, xmm0, xmm12
-        vsubss  xmm0, xmm1, xmm5
-        vmulss  xmm2, xmm0, xmm4
-        vmaxss  xmm1, xmm2, xmm6
-        vminss  xmm13, xmm1, xmm12
-      }
-      if ( v41 | v42 )
-      {
-        __asm { vmovaps xmm8, xmm6 }
-      }
-      else
-      {
-        v43 = v41 | v42;
-        __asm
-        {
-          vcomiss xmm9, xmm6
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vsubss  xmm0, xmm12, xmm0
-          vmulss  xmm7, xmm0, xmm9
-        }
-        if ( v41 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm9, xmm9
-            vmovsd  [rsp+178h+var_148], xmm0
-            vxorpd  xmm0, xmm0, xmm0
-            vmovsd  [rsp+178h+var_150], xmm0
-          }
-          v61 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v120, v122);
-          v43 = !v61;
-          if ( v61 )
-            __debugbreak();
-          __asm { vmovss  xmm3, [rsp+178h+var_128] }
-        }
-        __asm
-        {
-          vmaxss  xmm0, xmm7, xmm6
-          vminss  xmm8, xmm0, xmm9
-        }
-      }
-      __asm { vcomiss xmm3, xmm6 }
-      if ( v43 )
-      {
-        __asm { vmovaps xmm7, xmm6 }
-      }
-      else
-      {
-        __asm
-        {
-          vcomiss xmm9, xmm6
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vsubss  xmm0, xmm12, xmm0
-          vmulss  xmm7, xmm0, xmm9
-        }
-        if ( v41 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm9, xmm9
-            vmovsd  [rsp+178h+var_148], xmm0
-            vxorpd  xmm0, xmm0, xmm0
-            vmovsd  [rsp+178h+var_150], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v121, v123) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmaxss  xmm0, xmm7, xmm6
-          vminss  xmm7, xmm0, xmm9
-        }
-      }
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, rax
-        vaddss  xmm0, xmm2, xmm12
-        vmulss  xmm1, xmm0, [rsp+178h+var_118]
-        vmulss  xmm2, xmm2, [rsp+178h+var_118]
-        vmulss  xmm0, xmm2, [rsp+178h+var_11C]
-        vaddss  xmm2, xmm8, [rsp+178h+var_120]
-        vmovss  xmm8, cs:__real@3f000000
-        vmulss  xmm10, xmm1, xmm10
-        vaddss  xmm1, xmm0, [rsp+178h+var_124]
-        vsubss  xmm0, xmm12, xmm11
-        vmovss  [rsp+178h+var_F8], xmm1
-        vmulss  xmm1, xmm0, xmm15
-        vaddss  xmm3, xmm1, xmm8
-        vmovss  [rsp+178h+var_F4], xmm2
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm0, xmm2, xmm3
-        vroundss xmm1, xmm14, xmm0, 1
-        vcvttss2si edi, xmm1
-        vmovss  [rsp+178h+var_F0], xmm6
-      }
-      if ( _EDI > 255 )
-        _EDI = 255;
-      if ( _EDI < 0 )
-        LOBYTE(_EDI) = 0;
-      __asm
-      {
-        vmulss  xmm0, xmm11, xmm15
-        vaddss  xmm2, xmm0, xmm8
-        vroundss xmm0, xmm14, xmm2, 1
-        vcvttss2si ebx, xmm0
-      }
-      if ( _EBX > 255 )
-        _EBX = 255;
-      if ( _EBX < 0 )
-        LOBYTE(_EBX) = 0;
-      __asm
-      {
-        vaddss  xmm0, xmm10, [rsp+178h+var_124]
-        vaddss  xmm1, xmm7, [rsp+178h+var_120]
-      }
-      v94 = (unsigned __int8)_EBX | (((unsigned __int8)_EDI | 0xFFFF0000) << 8);
-      __asm
-      {
-        vmovss  [rsp+178h+var_E8], xmm0
-        vsubss  xmm0, xmm12, xmm13
-        vmovss  [rsp+178h+var_E4], xmm1
-        vmulss  xmm1, xmm0, xmm15
-        vaddss  xmm3, xmm1, xmm8
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm0, xmm2, xmm3
-        vroundss xmm1, xmm14, xmm0, 1
-        vcvttss2si edi, xmm1
-      }
-      *(_DWORD *)v130.color = v94;
-      __asm { vmovss  [rsp+178h+var_E0], xmm6 }
-      if ( _EDI > 255 )
-        _EDI = 255;
-      if ( _EDI < 0 )
-        LOBYTE(_EDI) = 0;
-      __asm
-      {
-        vmulss  xmm0, xmm13, xmm15
-        vaddss  xmm2, xmm0, xmm8
-        vroundss xmm0, xmm14, xmm2, 1
-        vcvttss2si ebx, xmm0
-      }
-      if ( _EBX > 255 )
-        _EBX = 255;
-      if ( _EBX < 0 )
-        LOBYTE(_EBX) = 0;
-      __asm { vmovups xmm0, xmmword ptr [r13+0] }
-      v134 = (unsigned __int8)_EBX | (((unsigned __int8)_EDI | 0xFFFF0000) << 8);
-      __asm { vmovups [rsp+178h+var_108], xmm0 }
-      RB_DrawLines2D(&v129, 2, 2, &v130);
-      __asm
-      {
-        vmovss  xmm3, [rsp+178h+var_128]
-        vmovss  xmm10, [rsp+178h+var_11C]
-        vmovss  xmm5, [rsp+178h+arg_30]
-      }
-      ++v28;
-      __asm { vdivss  xmm4, xmm12, xmm3 }
-    }
-    while ( v28 < numDataEntries - 1 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+178h+var_C8]
-      vmovaps xmm14, [rsp+178h+var_B8]
-      vmovaps xmm13, [rsp+178h+var_A8]
-      vmovaps xmm12, [rsp+178h+var_98]
-      vmovaps xmm11, [rsp+178h+var_88]
-      vmovaps xmm8, [rsp+178h+var_58]
-      vmovaps xmm7, [rsp+178h+var_48]
-      vmovaps xmm6, [rsp+178h+var_38]
-    }
-  }
-  _R11 = &v143;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-  }
-}
-
-/*
-==============
-RB_DrawProfileHistory
-==============
-*/
-void RB_DrawProfileHistory(GfxCmdBufContext *gfxContext, const ProfileSettings *profSettings)
-{
-  int v13; 
-  int integer; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int *v33; 
-  __int64 v37; 
-  int EnumParity; 
-  int *v40; 
-  __int64 v47; 
-  __int64 v48; 
-  const char *v49; 
-  unsigned __int64 v57; 
-  float fmt; 
-  float fmta; 
-  float v70; 
-  GfxCmdBufContext v71; 
-  int v72[16]; 
-  char dest[112]; 
-  char v74; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovups xmm0, xmmword ptr [rcx]
-  }
-  _R14 = gfxContext;
-  __asm { vmovups [rsp+180h+var_150], xmm0 }
-  RB_EndSurfaceIfNeeded(&v71);
-  v13 = 0;
-  integer = prof_probe[0]->current.integer;
-  if ( !integer )
-  {
-    if ( profSettings )
-      integer = profSettings->defaultProbeIndex[0];
-    else
-      integer = 0;
-  }
-  v72[0] = integer;
-  v15 = prof_probe[1]->current.integer;
-  if ( !v15 )
-  {
-    if ( profSettings )
-      v15 = profSettings->defaultProbeIndex[1];
-    else
-      v15 = 0;
-  }
-  v72[1] = v15;
-  v16 = prof_probe[2]->current.integer;
-  if ( !v16 )
-  {
-    if ( profSettings )
-      v16 = profSettings->defaultProbeIndex[2];
-    else
-      v16 = 0;
-  }
-  v72[2] = v16;
-  v17 = prof_probe[3]->current.integer;
-  if ( !v17 )
-  {
-    if ( profSettings )
-      v17 = profSettings->defaultProbeIndex[3];
-    else
-      v17 = 0;
-  }
-  v72[3] = v17;
-  v18 = prof_probe[4]->current.integer;
-  if ( !v18 )
-  {
-    if ( profSettings )
-      v18 = profSettings->defaultProbeIndex[4];
-    else
-      v18 = 0;
-  }
-  v72[4] = v18;
-  v19 = prof_probe[5]->current.integer;
-  if ( !v19 )
-  {
-    if ( profSettings )
-      v19 = profSettings->defaultProbeIndex[5];
-    else
-      v19 = 0;
-  }
-  v72[5] = v19;
-  v20 = prof_probe[6]->current.integer;
-  if ( !v20 )
-  {
-    if ( profSettings )
-      v20 = profSettings->defaultProbeIndex[6];
-    else
-      v20 = 0;
-  }
-  v72[6] = v20;
-  v21 = prof_probe[7]->current.integer;
-  if ( !v21 )
-  {
-    if ( profSettings )
-      v21 = profSettings->defaultProbeIndex[7];
-    else
-      v21 = 0;
-  }
-  v72[7] = v21;
-  v22 = prof_probe[8]->current.integer;
-  if ( !v22 )
-  {
-    if ( profSettings )
-      v22 = profSettings->defaultProbeIndex[8];
-    else
-      v22 = 0;
-  }
-  v72[8] = v22;
-  v23 = prof_probe[9]->current.integer;
-  if ( !v23 )
-  {
-    if ( profSettings )
-      v23 = profSettings->defaultProbeIndex[9];
-    else
-      v23 = 0;
-  }
-  v72[9] = v23;
-  v24 = prof_probe[10]->current.integer;
-  if ( !v24 )
-  {
-    if ( profSettings )
-      v24 = profSettings->defaultProbeIndex[10];
-    else
-      v24 = 0;
-  }
-  v72[10] = v24;
-  v25 = prof_probe[11]->current.integer;
-  if ( !v25 )
-  {
-    if ( profSettings )
-      v25 = profSettings->defaultProbeIndex[11];
-    else
-      v25 = 0;
-  }
-  v72[11] = v25;
-  v26 = prof_probe[12]->current.integer;
-  if ( !v26 )
-  {
-    if ( profSettings )
-      v26 = profSettings->defaultProbeIndex[12];
-    else
-      v26 = 0;
-  }
-  v72[12] = v26;
-  v27 = prof_probe[13]->current.integer;
-  if ( !v27 )
-  {
-    if ( profSettings )
-      v27 = profSettings->defaultProbeIndex[13];
-    else
-      v27 = 0;
-  }
-  v72[13] = v27;
-  v28 = prof_probe[14]->current.integer;
-  if ( !v28 )
-  {
-    if ( profSettings )
-      v28 = profSettings->defaultProbeIndex[14];
-    else
-      v28 = 0;
-  }
-  v72[14] = v28;
-  v29 = prof_probe[15]->current.integer;
-  if ( !v29 )
-  {
-    if ( profSettings )
-      v29 = profSettings->defaultProbeIndex[15];
-    else
-      v29 = 0;
-  }
-  __asm
-  {
-    vmovss  xmm9, cs:__real@41680000
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmovss  xmm8, cs:__real@42d00000
-  }
-  v72[15] = v29;
-  v33 = v72;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, rcx
-    vmulss  xmm6, xmm0, xmm9
-  }
-  do
-  {
-    v37 = *v33;
-    if ( (_DWORD)v37 )
-    {
-      EnumParity = Profile_GetEnumParity(v37);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovss  dword ptr [rsp+180h+var_158], xmm7
-        vmovss  dword ptr [rsp+180h+fmt], xmm6
-        vmovups [rsp+180h+var_150], xmm0
-      }
-      RB_DrawProfileHistoryGraph(&v71, &drawProfGlob.global[v37].read, EnumParity, v13, fmt, v70);
-      __asm { vaddss  xmm6, xmm6, xmm8 }
-    }
-    ++v13;
-    ++v33;
-  }
-  while ( v13 < 16 );
-  v40 = v72;
-  __asm
-  {
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmovss  xmm10, cs:__real@42c80000
-    vmovss  xmm11, cs:__real@3f000000
-    vmulss  xmm6, xmm0, xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, rcx
-  }
-  v47 = 16i64;
-  do
-  {
-    v48 = *v40;
-    if ( (_DWORD)v48 )
-    {
-      v49 = prof_enumNames[v48];
-      __asm
-      {
-        vmovups xmm7, xmmword ptr [r14]
-        vdivss  xmm0, xmm10, xmm0
-        vaddss  xmm2, xmm0, xmm11
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm3, xmm1, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm3, 1
-        vcvttss2si eax, xmm4
-      }
-      v57 = _EAX + 1;
-      if ( v57 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
-        __debugbreak();
-      Core_strncpy_truncate(dest, 0x64ui64, v49, v57);
-      __asm
-      {
-        vmovaps xmm3, xmm6
-        vmovss  dword ptr [rsp+180h+fmt], xmm9
-        vmovdqa [rsp+180h+var_150], xmm7
-      }
-      RB_DrawText(&v71, dest, drawProfGlob.font, *(float *)&_XMM3, fmta, drawProfGlob.textColorList[0]);
-      __asm
-      {
-        vmovss  xmm0, cs:drawProfGlob.fontWidth
-        vaddss  xmm6, xmm6, xmm8
-      }
-    }
-    ++v40;
-    --v47;
-  }
-  while ( v47 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups [rsp+180h+var_150], xmm0
-  }
-  RB_EndSurfaceIfNeeded(&v71);
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-}
-
-/*
-==============
-RB_DrawProfileHistoryGraph
-==============
-*/
-void RB_DrawProfileHistoryGraph(GfxCmdBufContext *gfxContext, const ProfileReadable *read, int parity, int probeIndex, float x, float y)
-{
-  __int64 v19; 
-  __int64 v20; 
-  unsigned __int64 historyCount; 
-  int v35; 
-  int v39; 
-  signed int v41; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
-  float v86; 
-  float v87; 
-  float v88; 
-  GfxCmdBufContext v89[4]; 
-  char v92; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = read;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RBP = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-  }
-  v19 = probeIndex;
-  if ( !read && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 265, ASSERT_TYPE_ASSERT, "(read)", (const char *)&queryFormat, "read") )
-    __debugbreak();
-  v20 = v19;
-  _R14 = &drawProfGlob;
-  if ( drawProfGlob.log[v20].parity != parity )
-  {
-    historyCount = drawProfGlob.log[v20].historyCount;
-    drawProfGlob.log[v20].historyCount = historyCount + 1;
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
-    _RDX = v20 * 1208 + 12 * (historyCount % 0x64);
-    __asm { vmovsd  qword ptr [rdx+r14+64h], xmm0 }
-    *(unsigned int *)((char *)drawProfGlob.log[0].history[0].self.value + _RDX) = _RBX->self.value[0];
-    drawProfGlob.log[v20].parity = parity;
-  }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@42800000
-    vmovss  xmm12, [rsp+0F8h+arg_28]
-    vmovss  xmm13, [rsp+0F8h+arg_20]
-    vsubss  xmm3, xmm12, cs:drawProfGlob.fontHeight
-    vmovss  [rsp+0F8h+var_B0], xmm6
-    vmovss  [rsp+0F8h+var_B8], xmm6
-    vmovups [rsp+0F8h+var_98], xmm0
-    vaddss  xmm0, xmm8, cs:drawProfGlob.fontHeight
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovss  [rsp+0F8h+var_C8], xmm7
-    vmovss  dword ptr [rsp+0F8h+var_D0], xmm0
-    vmovss  xmm0, cs:__real@42c80000
-    vmovaps [rsp+0F8h+var_48], xmm9
-    vmovaps xmm2, xmm13
-    vmovss  dword ptr [rsp+0F8h+fmt], xmm0
-    vmovaps [rsp+0F8h+var_58], xmm10
-  }
-  RB_DrawStretchPic(v89, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v74, v77, v80, v83, v86, 0x55000000u, GFX_PRIM_STATS_DEBUG);
-  Sys_GetValue(0);
-  v35 = drawProfGlob.log[v20].historyCount;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebx
-    vmulss  xmm2, xmm8, dword ptr [rax+8B4Ch]
-  }
-  v39 = 0;
-  __asm { vdivss  xmm11, xmm2, xmm1 }
-  if ( v35 - 100 >= 0 )
-    v39 = v35 - 100;
-  v41 = v39;
-  if ( v39 < v35 )
-  {
-    __asm
-    {
-      vaddss  xmm10, xmm13, cs:__real@42c60000
-      vaddss  xmm9, xmm12, xmm8
-    }
-    do
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vsubss  xmm2, xmm10, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm11
-        vcomiss xmm1, xmm6
-      }
-      if ( v41 >= (unsigned int)(100 * (v41 / 100)) )
-        __asm { vminss  xmm1, xmm1, xmm8 }
-      else
-        __asm { vmovaps xmm1, xmm6 }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovss  [rsp+0F8h+var_B0], xmm6
-        vmovss  [rsp+0F8h+var_B8], xmm6
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovss  [rsp+0F8h+var_C8], xmm7
-        vmovss  dword ptr [rsp+0F8h+var_D0], xmm1
-        vsubss  xmm3, xmm9, xmm1
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm6
-        vmovups [rsp+0F8h+var_98], xmm0
-      }
-      RB_DrawStretchPic(v89, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v75, v78, v81, v84, v87, 0xFF00FFFF, GFX_PRIM_STATS_DEBUG);
-      v35 = drawProfGlob.log[v20].historyCount;
-      ++v41;
-    }
-    while ( v41 < v35 );
-  }
-  if ( v39 < v35 )
-  {
-    __asm
-    {
-      vaddss  xmm10, xmm13, cs:__real@42c60000
-      vaddss  xmm9, xmm12, xmm8
-    }
-    do
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vsubss  xmm2, xmm10, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm11
-        vcomiss xmm1, xmm6
-      }
-      if ( v39 >= (unsigned int)(100 * (v39 / 100)) )
-        __asm { vminss  xmm1, xmm1, xmm8 }
-      else
-        __asm { vmovaps xmm1, xmm6 }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovss  [rsp+0F8h+var_B0], xmm6
-        vmovss  [rsp+0F8h+var_B8], xmm6
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovss  [rsp+0F8h+var_C8], xmm7
-        vmovss  dword ptr [rsp+0F8h+var_D0], xmm1
-        vsubss  xmm3, xmm9, xmm1
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm6
-        vmovups [rsp+0F8h+var_98], xmm0
-      }
-      RB_DrawStretchPic(v89, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v76, v79, v82, v85, v88, 0xFF0000FF, GFX_PRIM_STATS_DEBUG);
-      ++v39;
-    }
-    while ( v39 < drawProfGlob.log[v20].historyCount );
-  }
-  __asm { vmovaps xmm10, [rsp+0F8h+var_58] }
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm9, [rsp+0F8h+var_48]
-  }
-}
-
-/*
-==============
-RB_DrawProfileLabels
-==============
-*/
-float RB_DrawProfileLabels(GfxCmdBufContext *gfxContext)
-{
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  GfxCmdBufContext v73; 
-
-  __asm
-  {
-    vmovss  xmm1, cs:drawProfGlob.fontHeight
-    vmovups xmm0, xmmword ptr [rcx]
-  }
-  _RBX = gfxContext;
-  __asm
-  {
-    vmovaps [rsp+50h+var_10], xmm6
-    vmulss  xmm6, xmm1, cs:__real@40a00000
-    vaddss  xmm2, xmm1, xmm6
-    vmovss  xmm1, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm1, cs:__real@41700000
-    vmovss  [rsp+50h+var_30], xmm2
-    vmovups [rbp+var_20], xmm0
-  }
-  RB_DrawText(&v73, "Probe Name", drawProfGlob.font, *(float *)&_XMM3, v60, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@425c0000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "  Self", drawProfGlob.font, *(float *)&_XMM3, v61, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42740000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, " Total", drawProfGlob.font, *(float *)&_XMM3, v62, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42860000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, " AvSlf", drawProfGlob.font, *(float *)&_XMM3, v63, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42920000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, " MaxSlf", drawProfGlob.font, *(float *)&_XMM3, v64, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42a00000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "  Tally", drawProfGlob.font, *(float *)&_XMM3, v65, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42ae0000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, " AvTot", drawProfGlob.font, *(float *)&_XMM3, v66, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42ba0000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "   Min", drawProfGlob.font, *(float *)&_XMM3, v67, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42c60000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "    Max", drawProfGlob.font, *(float *)&_XMM3, v68, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42d40000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "  Hit", drawProfGlob.font, *(float *)&_XMM3, v69, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42de0000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "  AvH", drawProfGlob.font, *(float *)&_XMM3, v70, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42e80000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "   ApH", drawProfGlob.font, *(float *)&_XMM3, v71, drawProfGlob.labelColor);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.fontHeight
-    vmovups [rbp+var_20], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42f40000
-    vmovss  [rsp+50h+var_30], xmm2
-  }
-  RB_DrawText(&v73, "  MaxH", drawProfGlob.font, *(float *)&_XMM3, v72, drawProfGlob.labelColor);
-  __asm
-  {
-    vaddss  xmm0, xmm6, cs:drawProfGlob.fontHeight
-    vmovaps xmm6, [rsp+50h+var_10]
-  }
-  return *(float *)&_XMM0;
-}
-
-/*
-==============
-RB_DrawProfileRow
-==============
-*/
-
-float __fastcall RB_DrawProfileRow(GfxCmdBufContext *gfxContext, int probeIndex, int indentation, double y)
-{
-  __int64 v11; 
-  __int64 v14; 
-  char v39; 
-  int v43; 
-  unsigned int v47; 
-  const char *v53; 
-  const char *v63; 
-  const char *v73; 
-  const char *v83; 
-  const char *v92; 
-  const char *v99; 
-  const char *v109; 
-  const char *v119; 
-  const char *v124; 
-  char v129; 
-  const char *v133; 
-  const char *v135; 
-  const char *v144; 
-  const char *v149; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  GfxCmdBufContext v171; 
-  char dest[48]; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm7 }
-  v11 = indentation;
-  _RSI = gfxContext;
-  __asm { vmovaps xmm7, xmm3 }
-  if ( probeIndex )
-  {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-68h], xmm8
-    }
-    v14 = probeIndex;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-98h], xmm11
-    }
-    _RDI = &drawProfGlob.global[probeIndex];
-    if ( !_RDI->sequence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 449, ASSERT_TYPE_ASSERT, "(global->sequence)", (const char *)&queryFormat, "global->sequence") )
-      __debugbreak();
-    __asm { vmovaps [rsp+110h+var_88+8], xmm10 }
-    _RAX = Sys_GetValue(0);
-    __asm
-    {
-      vmovd   xmm1, dword ptr [rdi]
-      vcvtdq2pd xmm1, xmm1
-      vmovss  xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmulsd  xmm2, xmm0, qword ptr [rdi+10h]
-      vdivsd  xmm2, xmm2, xmm1
-      vcvtsd2ss xmm6, xmm2, xmm2
-    }
-    _RAX = Sys_GetValue(0);
-    _ECX = _RDI->sequence;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vmovss  xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmulsd  xmm2, xmm0, qword ptr [rdi+8]
-      vcvtdq2pd xmm1, xmm1
-      vdivsd  xmm2, xmm2, xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vmovd   xmm0, ecx
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtdq2ps xmm0, xmm0
-      vdivss  xmm8, xmm1, xmm0
-      vxorps  xmm9, xmm9, xmm9
-      vucomiss xmm8, xmm9
-      vcvtsd2ss xmm11, xmm2, xmm2
-    }
-    if ( v39 )
-      __asm { vxorps  xmm10, xmm10, xmm10 }
-    else
-      __asm { vdivss  xmm10, xmm11, xmm8 }
-    Core_strncpy_truncate(dest, 0x29ui64, prof_enumNames[v14], 40 - v11);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-    }
-    v43 = 192;
-    if ( !(_DWORD)v11 )
-      v43 = 255;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r15d
-      vmulss  xmm3, xmm1, cs:drawProfGlob.fontWidth
-    }
-    v47 = v43 | ((v43 | ((v43 | 0xFFFFFF00) << 8)) << 8);
-    __asm
-    {
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, dest, drawProfGlob.font, *(float *)&_XMM3, fmt, (const GfxColor)v47);
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v53 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@425c0000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v53, drawProfGlob.font, *(float *)&_XMM3, fmta, (const GfxColor)v47);
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v63 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42740000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v63, drawProfGlob.font, *(float *)&_XMM3, fmtb, (const GfxColor)v47);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41f00000
-      vcmpltss xmm1, xmm0, xmm6
-      vblendvps xmm6, xmm6, xmm9, xmm1
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v73 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm1, cs:__real@42860000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-    }
-    RB_DrawText(&v171, v73, drawProfGlob.font, *(float *)&_XMM3, fmtc, (const GfxColor)v47);
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v83 = j_va("%7.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42920000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v83, drawProfGlob.font, *(float *)&_XMM3, fmtd, (const GfxColor)v47);
-    __asm
-    {
-      vmovss  xmm0, cs:g_tally
-      vaddss  xmm1, xmm0, xmm6
-      vmovss  cs:g_tally, xmm1
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v92 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42a00000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v92, drawProfGlob.font, *(float *)&_XMM3, fmte, (const GfxColor)v47);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm11, xmm11
-      vmovq   rdx, xmm1
-    }
-    v99 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42ae0000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v99, drawProfGlob.font, *(float *)&_XMM3, fmtf, (const GfxColor)v47);
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r12
-      vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v109 = j_va("%6.2f", _RDX);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm1, cs:__real@42ba0000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v109, drawProfGlob.font, *(float *)&_XMM3, fmtg, (const GfxColor)v47);
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v119 = j_va("%7.2f", _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42c60000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v119, drawProfGlob.font, *(float *)&_XMM3, fmth, (const GfxColor)v47);
-    v124 = j_va("%5u", _RDI->read.hits);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42d40000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v124, drawProfGlob.font, *(float *)&_XMM3, fmti, (const GfxColor)v47);
-    __asm
-    {
-      vucomiss xmm8, xmm9
-      vmovaps xmm11, [rsp+110h+var_98+8]
-      vmovaps xmm6, [rsp+110h+var_48+8]
-      vcvtss2sd xmm1, xmm8, xmm8
-    }
-    if ( v39 )
-      goto LABEL_12;
-    __asm { vcomiss xmm8, cs:__real@41200000 }
-    v133 = "%5.1f";
-    if ( !v129 )
-LABEL_12:
-      v133 = "%5.0f";
-    __asm { vmovq   rdx, xmm1 }
-    v135 = j_va(v133, _RDX);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42de0000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v135, drawProfGlob.font, *(float *)&_XMM3, fmtj, (const GfxColor)v47);
-    __asm
-    {
-      vucomiss xmm8, xmm9
-      vmovaps xmm9, [rsp+110h+var_78+8]
-      vmovaps xmm8, [rsp+110h+var_68+8]
-    }
-    if ( v39 )
-    {
-      v144 = "      ";
-    }
-    else
-    {
-      __asm
-      {
-        vcvtss2sd xmm1, xmm10, xmm10
-        vmovq   rdx, xmm1
-      }
-      v144 = j_va("%6.2f", _RDX);
-    }
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42e80000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v144, drawProfGlob.font, *(float *)&_XMM3, fmtk, (const GfxColor)v47);
-    v149 = j_va("%5u", _RDI->maxHits);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontWidth
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm7, cs:drawProfGlob.fontHeight
-      vmulss  xmm3, xmm1, cs:__real@42f40000
-      vmovss  dword ptr [rsp+110h+fmt], xmm2
-      vmovups xmmword ptr [rsp+110h+var_E8.state], xmm0
-    }
-    RB_DrawText(&v171, v149, drawProfGlob.font, *(float *)&_XMM3, fmtl, (const GfxColor)v47);
-    __asm { vmovaps xmm10, [rsp+110h+var_88+8] }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm7, cs:drawProfGlob.fontHeight
-    vmovaps xmm7, [rsp+110h+var_58+8]
-  }
-  return *(float *)&_XMM0;
-}
-
-/*
-==============
-RB_DrawProfileScript
-==============
-*/
-void RB_DrawProfileScript(GfxCmdBufContext *gfxContext)
-{
-  const scrContext_t *ScriptContext; 
-  SourceBufferInfo *SourceBufferLookup; 
-  const ProfileScript *v15; 
-  __int64 *v23; 
-  int *v67; 
-  __int64 v68; 
-  const char *buf; 
-  unsigned __int64 v76; 
-  GfxColor v77; 
-  char *v78; 
-  __int128 *v80; 
-  GfxColor v84; 
-  const char *v90; 
-  GfxColor v95; 
-  const char *v101; 
-  GfxColor v106; 
-  const char *v112; 
-  GfxColor v118; 
-  const char *v121; 
-  GfxColor v128; 
-  const char *v131; 
-  GfxColor v138; 
-  const char *v141; 
-  GfxColor v158; 
-  const char *v166; 
-  GfxColor v171; 
-  const char *v177; 
-  GfxColor v182; 
-  const char *v189; 
-  const scrContext_t *v194; 
-  const ProfileScript *v195; 
-  const ProfileScript *v198; 
-  int v233; 
-  __int64 integer; 
-  __int64 v236; 
-  __int64 v237; 
-  char *v238; 
-  bool enabled; 
-  const ProfileScript *ProfileConst; 
-  __int64 v283; 
-  volatile unsigned int *totalTime; 
-  int v287; 
-  char *v288; 
-  __int64 v289; 
-  GfxColor v307; 
-  const char *v313; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  float fmto; 
-  float fmtp; 
-  float fmtq; 
-  float fmtr; 
-  float fmts; 
-  float fmtt; 
-  float fmtu; 
-  float fmtv; 
-  float fmtw; 
-  float fmtx; 
-  float fmty; 
-  float fmtz; 
-  float fmtba; 
-  float fmtbb; 
-  float fmtbc; 
-  float fmtbd; 
-  float fmtbe; 
-  float fmtbf; 
-  float fmtbg; 
-  float fmtbh; 
-  float fmtbi; 
-  float fmtbj; 
-  float v367; 
-  float v368; 
-  GfxColor v369; 
-  float v370; 
-  float v371; 
-  float v372; 
-  float v373; 
-  float v374; 
-  float v375; 
-  float v376; 
-  float v377; 
-  float v378; 
-  float v379; 
-  float v380; 
-  float v381; 
-  float v382; 
-  float v383; 
-  float v384; 
-  float v385; 
-  float v386; 
-  float v387; 
-  float v388; 
-  float v389; 
-  float v390; 
-  float v391; 
-  float v392; 
-  float v393; 
-  float v394; 
-  float v395; 
-  float v396; 
-  float v397; 
-  GfxCmdBufContext v398; 
-  GfxCmdBufContext v399; 
-  GfxCmdBufContext v400; 
-  GfxCmdBufContext v401; 
-  GfxCmdBufContext v402; 
-  GfxCmdBufContext v403; 
-  GfxCmdBufContext v404; 
-  GfxCmdBufContext v405; 
-  GfxCmdBufContext v406; 
-  __int128 v407; 
-  __int128 v408; 
-  GfxCmdBufContext v409; 
-  GfxCmdBufContext v410; 
-  GfxCmdBufContext v411; 
-  GfxCmdBufContext v412; 
-  GfxCmdBufContext v413; 
-  GfxCmdBufContext v414; 
-  GfxCmdBufContext v415; 
-  GfxCmdBufContext v416; 
-  GfxCmdBufContext v417; 
-  GfxCmdBufContext v418; 
-  GfxCmdBufContext v419; 
-  GfxCmdBufContext v420; 
-  GfxCmdBufContext v421; 
-  GfxCmdBufContext v422; 
-  GfxCmdBufContext v423; 
-  GfxCmdBufContext v424; 
-  GfxCmdBufContext v425; 
-  GfxCmdBufContext v426; 
-  GfxCmdBufContext v427; 
-  GfxCmdBufContext v428; 
-  GfxCmdBufContext v429; 
-  GfxCmdBufContext v430; 
-  GfxCmdBufContext v431; 
-  GfxCmdBufContext v432; 
-  GfxCmdBufContext v433; 
-  GfxCmdBufContext v434; 
-  GfxCmdBufContext v435; 
-  GfxCmdBufContext v436; 
-  GfxCmdBufContext v437; 
-  GfxCmdBufContext v438; 
-  char v441; 
-  void *retaddr; 
-  int v443; 
-  const scrContext_t *v444; 
-  const ProfileScript *v445; 
-
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RDI = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
   if ( profile_script->current.enabled || profile_script_hierarchical->current.enabled )
   {
     if ( profile_script_instance->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1232, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "RB_DrawProfileScript_GetScriptContext: Invalid script instance.") )
       __debugbreak();
-    v444 = ScriptContext_GetFromInstance(SCRIPTINSTANCE_SERVER);
+    v123 = ScriptContext_GetFromInstance(SCRIPTINSTANCE_SERVER);
     enabled = profile_script_hierarchical->current.enabled;
-    ProfileConst = ScriptContext_GetProfileConst(v444);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41f00000
-      vmovss  xmm7, cs:__real@3f800000
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovss  xmm9, cs:__real@40000000
-      vmovss  xmm10, cs:__real@42e40000
-      vmovss  xmm11, cs:__real@41680000
-      vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-      vmovss  [rsp+3C0h+var_378], xmm7
-      vmovss  [rsp+3C0h+var_380], xmm7
-      vmovss  [rbp+2C0h+arg_0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.fontHeight
-      vsubss  xmm3, xmm0, xmm9
-      vmulss  xmm0, xmm10, cs:drawProfGlob.fontWidth
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  [rsp+3C0h+var_388], xmm8
-      vmovss  [rsp+3C0h+var_390], xmm8
-      vmovss  [rsp+3C0h+var_398], xmm3
-      vmovss  xmm3, cs:__real@41f80000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm0
-    }
-    v445 = ProfileConst;
-    __asm { vmovups [rbp+2C0h+var_190], xmm1 }
-    RB_DrawStretchPic(&v427, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtbb, v372, v378, v384, v390, v396, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm12, cs:__real@41980000
-      vmulss  xmm3, xmm12, cs:drawProfGlob.fontWidth
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-      vmovups [rbp+2C0h+var_180], xmm0
-    }
-    RB_DrawText(&v428, "Probe Name", drawProfGlob.font, *(float *)&_XMM3, fmtbc, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm13, cs:__real@425c0000
-      vmulss  xmm3, xmm13, cs:drawProfGlob.fontWidth
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-      vmovups [rbp+2C0h+var_170], xmm0
-    }
-    RB_DrawText(&v429, " Current", drawProfGlob.font, *(float *)&_XMM3, fmtbd, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_160], xmm0
-      vmovss  xmm0, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm0, cs:__real@42820000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v430, " Avg", drawProfGlob.font, *(float *)&_XMM3, fmtbe, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_150], xmm0
-      vmovss  xmm0, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm0, cs:__real@42960000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v431, " Max", drawProfGlob.font, *(float *)&_XMM3, fmtbf, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_140], xmm0
-      vmovss  xmm0, cs:drawProfGlob.fontWidth
-      vmulss  xmm3, xmm0, cs:__real@42aa0000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v432, "  Total", drawProfGlob.font, *(float *)&_XMM3, fmtbg, drawProfGlob.labelColor);
-    v283 = (__int64)v445;
-    __asm
-    {
-      vmovss  xmm0, [rbp+2C0h+arg_0]
-      vaddss  xmm2, xmm0, cs:drawProfGlob.fontHeight
-      vmovss  [rbp+2C0h+arg_0], xmm2
-    }
-    totalTime = v445->totalTime;
-    v287 = 0;
-    v288 = v445->profileScriptNames[0];
-    v289 = 0i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    ProfileConst = ScriptContext_GetProfileConst(v123);
+    v67 = *gfxContext;
+    v122 = FLOAT_30_0;
+    v124 = ProfileConst;
+    v110 = v67;
+    RB_DrawStretchPic(&v110, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, 31.0, 114.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+    v111 = *gfxContext;
+    RB_DrawText(&v111, "Probe Name", drawProfGlob.font, 19.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+    v112 = *gfxContext;
+    RB_DrawText(&v112, " Current", drawProfGlob.font, 55.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+    v113 = *gfxContext;
+    RB_DrawText(&v113, " Avg", drawProfGlob.font, drawProfGlob.fontWidth * 65.0, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+    v114 = *gfxContext;
+    RB_DrawText(&v114, " Max", drawProfGlob.font, drawProfGlob.fontWidth * 75.0, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+    v115 = *gfxContext;
+    RB_DrawText(&v115, "  Total", drawProfGlob.font, drawProfGlob.fontWidth * 85.0, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+    v68 = (__int64)v124;
+    v69 = v122 + drawProfGlob.fontHeight;
+    v122 = v122 + drawProfGlob.fontHeight;
+    totalTime = v124->totalTime;
+    v71 = 0;
+    v72 = v124->profileScriptNames[0];
+    v73 = 0i64;
+    v74 = 0i64;
     do
     {
-      if ( (!enabled || *(_BYTE *)(v289 + v283 + 39428) == 0xFF) && *v288 )
+      if ( (!enabled || *(_BYTE *)(v73 + v68 + 39428) == 0xFF) && *v72 )
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
         if ( enabled )
         {
-          __asm { vmovups [rbp+2C0h+var_130], xmm0 }
-          RB_DrawProfileScriptLineAndChildren(&v433, v444, v287, (float *)&v443, 0);
+          v116 = *gfxContext;
+          RB_DrawProfileScriptLineAndChildren(&v116, v123, v71, &v122, 0);
         }
         else
         {
-          __asm
-          {
-            vmovaps xmm3, xmm2
-            vmovups [rbp+2C0h+var_120], xmm0
-          }
-          RB_DrawProfileScriptLine(&v434, v444, v287, *(float *)&_XMM3, 0);
+          v117 = *gfxContext;
+          RB_DrawProfileScriptLine(&v117, v123, v71, v69, 0);
         }
-        __asm
-        {
-          vmovss  xmm0, [rbp+2C0h+arg_0]
-          vaddss  xmm1, xmm0, cs:drawProfGlob.fontHeight
-        }
-        v283 = (__int64)v445;
-        __asm
-        {
-          vmovss  [rbp+2C0h+arg_0], xmm1
-          vmovss  xmm2, [rbp+2C0h+arg_0]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vaddss  xmm6, xmm6, xmm0
-        }
+        v68 = (__int64)v124;
+        v122 = v122 + drawProfGlob.fontHeight;
+        v69 = v122;
+        v75 = (float)*(unsigned int *)totalTime;
+        v76 = v74;
+        *(float *)&v76 = *(float *)&v74 + v75;
+        v74 = v76;
       }
-      ++v287;
-      ++v289;
+      ++v71;
+      ++v73;
       ++totalTime;
-      v288 += 20;
+      v72 += 20;
     }
-    while ( v287 < 128 );
-    __asm
-    {
-      vmovss  xmm1, cs:drawProfGlob.fontHeight
-      vmovups xmm0, xmmword ptr [rdi]
-      vmulss  xmm4, xmm10, cs:drawProfGlob.fontWidth
-      vmovss  [rsp+3C0h+var_378], xmm7
-      vmovss  [rsp+3C0h+var_380], xmm7
-      vmovss  [rsp+3C0h+var_388], xmm8
-      vsubss  xmm5, xmm1, xmm9
-      vmovss  [rsp+3C0h+var_390], xmm8
-      vaddss  xmm3, xmm2, xmm7
-      vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-      vmovss  [rsp+3C0h+var_398], xmm5
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm4
-      vmovups [rbp+2C0h+var_110], xmm0
-    }
-    RB_DrawStretchPic(&v435, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtbh, v373, v379, v385, v391, v397, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+    while ( v71 < 128 );
+    v118 = *gfxContext;
+    RB_DrawStretchPic(&v118, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, v69 + 1.0, 114.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
     if ( enabled )
     {
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm12, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_100], xmm0
-      }
-      RB_DrawText(&v436, "TOTAL", drawProfGlob.font, *(float *)&_XMM3, fmtbi, drawProfGlob.textColorList[0]);
-      v307 = drawProfGlob.textColorList[0];
-      _RAX = Sys_GetValue(0);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+8B4Ch]
-        vmulss  xmm1, xmm0, xmm6
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v313 = j_va("%6.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm13, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_F0], xmm0
-      }
-      RB_DrawText(&v437, v313, drawProfGlob.font, *(float *)&_XMM3, fmtbj, v307);
-      __asm
-      {
-        vmovss  xmm0, [rbp+2C0h+arg_0]
-        vaddss  xmm1, xmm0, cs:drawProfGlob.fontHeight
-        vmovss  [rbp+2C0h+arg_0], xmm1
-      }
+      v119 = *gfxContext;
+      RB_DrawText(&v119, "TOTAL", drawProfGlob.font, 19.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.textColorList[0]);
+      v77 = drawProfGlob.textColorList[0];
+      v78 = *((float *)Sys_GetValue(0) + 8915);
+      v79 = j_va("%6.2f", (float)(v78 * *(float *)&v74));
+      v120 = *gfxContext;
+      RB_DrawText(&v120, v79, drawProfGlob.font, 55.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v77);
+      v122 = v122 + drawProfGlob.fontHeight;
     }
   }
   else if ( profile_script_by_file->current.enabled )
@@ -3226,575 +1926,193 @@ void RB_DrawProfileScript(GfxCmdBufContext *gfxContext)
     SourceBufferLookup = Scr_GetSourceBufferLookup(ScriptContext);
     if ( SourceBufferLookup )
     {
-      __asm
-      {
-        vmovaps xmmword ptr [rsp+3C0h+var_C8+8], xmm14
-        vmovaps xmmword ptr [rsp+2F0h], xmm15
-      }
-      v15 = ScriptContext_GetProfileConst(ScriptContext);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@41f00000
-        vmovss  xmm6, cs:__real@3f800000
-        vmovups xmm1, xmmword ptr [rdi]
-        vmovss  xmm9, cs:__real@40000000
-        vmovss  xmm10, cs:__real@42e40000
-        vmovss  xmm11, cs:__real@41680000
-        vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-      }
-      v23 = (__int64 *)v15;
-      __asm
-      {
-        vmovss  [rsp+3C0h+var_378], xmm6
-        vmovss  [rsp+3C0h+var_380], xmm6
-        vmovss  [rbp+2C0h+arg_0], xmm0
-        vmovss  xmm0, cs:drawProfGlob.fontHeight
-        vsubss  xmm3, xmm0, xmm9
-        vmulss  xmm0, xmm10, cs:drawProfGlob.fontWidth
-        vxorps  xmm7, xmm7, xmm7
-        vmovss  [rsp+3C0h+var_388], xmm7
-        vmovss  [rsp+3C0h+var_390], xmm7
-        vmovss  [rsp+3C0h+var_398], xmm3
-        vmovss  xmm3, cs:__real@41f80000
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm0
-        vmovups [rsp+3C0h+var_368+8], xmm1
-      }
-      RB_DrawStretchPic(&v398, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v367, v374, v380, v386, v392, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm8, cs:__real@41700000
-        vmulss  xmm3, xmm8, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups xmmword ptr [rsp+3C0h+var_358+8], xmm0
-      }
-      RB_DrawText(&v399, " File", drawProfGlob.font, *(float *)&_XMM3, fmta, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm13, cs:__real@423c0000
-        vmulss  xmm3, xmm13, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_340], xmm0
-      }
-      RB_DrawText(&v400, "Current", drawProfGlob.font, *(float *)&_XMM3, fmtb, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm14, cs:__real@426c0000
-        vmulss  xmm3, xmm14, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_330], xmm0
-      }
-      RB_DrawText(&v401, "Avg", drawProfGlob.font, *(float *)&_XMM3, fmtc, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm12, cs:__real@428e0000
-        vmulss  xmm3, xmm12, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_320], xmm0
-      }
-      RB_DrawText(&v402, "Max", drawProfGlob.font, *(float *)&_XMM3, fmtd, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm15, cs:__real@42a60000
-        vmulss  xmm3, xmm15, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_310], xmm0
-      }
-      RB_DrawText(&v403, "BuiltIn", drawProfGlob.font, *(float *)&_XMM3, fmte, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups [rbp+2C0h+var_300], xmm0
-        vmovss  xmm0, cs:drawProfGlob.fontWidth
-        vmulss  xmm3, xmm0, cs:__real@42be0000
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-      }
-      RB_DrawText(&v404, "NonBuiltIn", drawProfGlob.font, *(float *)&_XMM3, fmtf, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups [rbp+2C0h+var_2F0], xmm0
-        vmovss  xmm0, cs:drawProfGlob.fontWidth
-        vmulss  xmm3, xmm0, cs:__real@42d60000
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-      }
-      RB_DrawText(&v405, "Total", drawProfGlob.font, *(float *)&_XMM3, fmtg, drawProfGlob.labelColor);
-      __asm
-      {
-        vmovss  xmm0, [rbp+2C0h+arg_0]
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm0, xmm1
-        vmovss  [rbp+2C0h+arg_0], xmm2
-      }
-      v67 = (int *)v23 + 9921;
-      v68 = 32i64;
+      v121[2] = v1;
+      v121[1] = v2;
+      v6 = ScriptContext_GetProfileConst(ScriptContext);
+      v7 = *gfxContext;
+      v8 = v6;
+      v122 = FLOAT_30_0;
+      v81 = v7;
+      RB_DrawStretchPic(&v81, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, 31.0, 114.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+      v82 = *gfxContext;
+      RB_DrawText(&v82, " File", drawProfGlob.font, 15.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v83 = *gfxContext;
+      RB_DrawText(&v83, "Current", drawProfGlob.font, 47.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v84 = *gfxContext;
+      RB_DrawText(&v84, "Avg", drawProfGlob.font, 59.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v85 = *gfxContext;
+      RB_DrawText(&v85, "Max", drawProfGlob.font, 71.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v86 = *gfxContext;
+      RB_DrawText(&v86, "BuiltIn", drawProfGlob.font, 83.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v87 = *gfxContext;
+      RB_DrawText(&v87, "NonBuiltIn", drawProfGlob.font, drawProfGlob.fontWidth * 95.0, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      v88 = *gfxContext;
+      RB_DrawText(&v88, "Total", drawProfGlob.font, drawProfGlob.fontWidth * 107.0, drawProfGlob.fontHeight + v122, drawProfGlob.labelColor);
+      fontHeight = drawProfGlob.fontHeight;
+      v10 = v122 + drawProfGlob.fontHeight;
+      v122 = v122 + drawProfGlob.fontHeight;
+      scriptSrcBufferIndex = v8->scriptSrcBufferIndex;
+      v12 = 32i64;
       do
       {
-        _RSI = &SourceBufferLookup[*v67];
-        __asm { vucomiss xmm7, dword ptr [rsi+6Ch] }
-        if ( _RSI )
+        v13 = &SourceBufferLookup[*scriptSrcBufferIndex];
+        if ( v13->totalTime != 0.0 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovss  [rsp+3C0h+var_378], xmm6
-            vmovss  [rsp+3C0h+var_380], xmm6
-            vmovss  [rsp+3C0h+var_388], xmm7
-            vmovups [rbp+2C0h+var_2E0], xmm0
-            vmulss  xmm0, xmm10, cs:drawProfGlob.fontWidth
-            vsubss  xmm4, xmm1, xmm9
-            vmovss  [rsp+3C0h+var_390], xmm7
-            vaddss  xmm3, xmm2, xmm6
-            vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-            vmovss  [rsp+3C0h+var_398], xmm4
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm0
-          }
-          RB_DrawStretchPic(&v406, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmth, v368, v375, v381, v387, v393, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-          buf = _RSI->buf;
-          v76 = -1i64;
+          v89 = *gfxContext;
+          RB_DrawStretchPic(&v89, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, v10 + 1.0, 114.0 * drawProfGlob.fontWidth, fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+          buf = v13->buf;
+          v15 = -1i64;
           do
-            ++v76;
-          while ( buf[v76] );
-          if ( v76 <= 0x21 )
+            ++v15;
+          while ( buf[v15] );
+          if ( v15 <= 0x21 )
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v80 = &v408;
-            __asm { vmovups [rbp+2C0h+var_2C0], xmm0 }
-            v369 = drawProfGlob.textColorList[0];
+            v18 = &v91;
+            v91 = *gfxContext;
+            v80 = drawProfGlob.textColorList[0];
           }
           else
           {
-            v77 = drawProfGlob.textColorList[0];
-            v78 = j_va("...%s", &buf[v76 - 30]);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdi]
-              vmovups [rbp+2C0h+var_2D0], xmm0
-            }
-            v369 = v77;
-            v80 = &v407;
-            buf = v78;
+            v16 = drawProfGlob.textColorList[0];
+            v17 = j_va("...%s", &buf[v15 - 30]);
+            v90 = *gfxContext;
+            v80 = v16;
+            v18 = &v90;
+            buf = v17;
           }
-          __asm
-          {
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmulss  xmm3, xmm8, cs:drawProfGlob.fontWidth
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-          }
-          RB_DrawText((GfxCmdBufContext *)v80, buf, drawProfGlob.font, *(float *)&_XMM3, fmti, v369);
-          v84 = drawProfGlob.textColorList[0];
-          Sys_GetValue(0);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rsi+60h]
-            vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v90 = j_va("%6.2f", _RDX);
-          __asm
-          {
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmovups xmm0, xmmword ptr [rdi]
-            vmulss  xmm3, xmm13, cs:drawProfGlob.fontWidth
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-            vmovups [rbp+2C0h+var_2B0], xmm0
-          }
-          RB_DrawText(&v409, v90, drawProfGlob.font, *(float *)&_XMM3, fmtj, v84);
-          v95 = drawProfGlob.textColorList[0];
-          Sys_GetValue(0);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rsi+64h]
-            vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v101 = j_va("%6.2f", _RDX);
-          __asm
-          {
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmovups xmm0, xmmword ptr [rdi]
-            vmulss  xmm3, xmm14, cs:drawProfGlob.fontWidth
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-            vmovups [rbp+2C0h+var_2A0], xmm0
-          }
-          RB_DrawText(&v410, v101, drawProfGlob.font, *(float *)&_XMM3, fmtk, v95);
-          v106 = drawProfGlob.textColorList[0];
-          Sys_GetValue(0);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rsi+68h]
-            vmulss  xmm1, xmm0, dword ptr [rax+8B4Ch]
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v112 = j_va("%6.2f", _RDX);
-          __asm
-          {
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmovups xmm0, xmmword ptr [rdi]
-            vmulss  xmm3, xmm12, cs:drawProfGlob.fontWidth
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-            vmovups [rbp+2C0h+var_290], xmm0
-          }
-          RB_DrawText(&v411, v112, drawProfGlob.font, *(float *)&_XMM3, fmtl, v106);
-          __asm { vmovss  xmm1, dword ptr [rsi+70h] }
-          v118 = drawProfGlob.textColorList[0];
-          __asm
-          {
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v121 = j_va("%8.0f", _RDX);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmulss  xmm3, xmm15, cs:drawProfGlob.fontWidth
-            vmovups [rbp+2C0h+var_280], xmm0
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-          }
-          RB_DrawText(&v412, v121, drawProfGlob.font, *(float *)&_XMM3, fmtm, v118);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+6Ch]
-            vsubss  xmm1, xmm0, dword ptr [rsi+70h]
-          }
-          v128 = drawProfGlob.textColorList[0];
-          __asm
-          {
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v131 = j_va("%8.0f", _RDX);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmovups [rbp+2C0h+var_270], xmm0
-            vmovss  xmm0, cs:drawProfGlob.fontWidth
-            vmulss  xmm3, xmm0, cs:__real@42be0000
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-          }
-          RB_DrawText(&v413, v131, drawProfGlob.font, *(float *)&_XMM3, fmtn, v128);
-          __asm { vmovss  xmm1, dword ptr [rsi+6Ch] }
-          v138 = drawProfGlob.textColorList[0];
-          __asm
-          {
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   rdx, xmm1
-          }
-          v141 = j_va("%8.0f", _RDX);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-            vmovups [rbp+2C0h+var_260], xmm0
-            vmovss  xmm0, cs:drawProfGlob.fontWidth
-            vmulss  xmm3, xmm0, cs:__real@42d60000
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-          }
-          RB_DrawText(&v414, v141, drawProfGlob.font, *(float *)&_XMM3, fmto, v138);
-          __asm
-          {
-            vmovss  xmm0, [rbp+2C0h+arg_0]
-            vmovss  xmm1, cs:drawProfGlob.fontHeight
-            vaddss  xmm2, xmm0, xmm1
-            vmovss  [rbp+2C0h+arg_0], xmm2
-          }
+          RB_DrawText(v18, buf, drawProfGlob.font, 15.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v80);
+          v19 = drawProfGlob.textColorList[0];
+          v20 = (float)((float)v13->time * *((float *)Sys_GetValue(0) + 8915));
+          v21 = j_va("%6.2f", v20);
+          v92 = *gfxContext;
+          RB_DrawText(&v92, v21, drawProfGlob.font, 47.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v19);
+          v22 = drawProfGlob.textColorList[0];
+          v23 = (float)((float)v13->avgTime * *((float *)Sys_GetValue(0) + 8915));
+          v24 = j_va("%6.2f", v23);
+          v93 = *gfxContext;
+          RB_DrawText(&v93, v24, drawProfGlob.font, 59.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v22);
+          v25 = drawProfGlob.textColorList[0];
+          v26 = (float)((float)v13->maxTime * *((float *)Sys_GetValue(0) + 8915));
+          v27 = j_va("%6.2f", v26);
+          v94 = *gfxContext;
+          RB_DrawText(&v94, v27, drawProfGlob.font, 71.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v25);
+          v28 = drawProfGlob.textColorList[0];
+          v29 = j_va("%8.0f", v13->totalBuiltIn);
+          v95 = *gfxContext;
+          RB_DrawText(&v95, v29, drawProfGlob.font, 83.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v28);
+          v30 = drawProfGlob.textColorList[0];
+          v31 = j_va("%8.0f", (float)(v13->totalTime - v13->totalBuiltIn));
+          v96 = *gfxContext;
+          RB_DrawText(&v96, v31, drawProfGlob.font, drawProfGlob.fontWidth * 95.0, drawProfGlob.fontHeight + v122, v30);
+          v32 = drawProfGlob.textColorList[0];
+          v33 = j_va("%8.0f", v13->totalTime);
+          v97 = *gfxContext;
+          RB_DrawText(&v97, v33, drawProfGlob.font, drawProfGlob.fontWidth * 107.0, drawProfGlob.fontHeight + v122, v32);
+          fontHeight = drawProfGlob.fontHeight;
+          v10 = v122 + drawProfGlob.fontHeight;
+          v122 = v122 + drawProfGlob.fontHeight;
         }
-        ++v67;
-        --v68;
+        ++scriptSrcBufferIndex;
+        --v12;
       }
-      while ( v68 );
-      __asm
+      while ( v12 );
+      v98 = *gfxContext;
+      v122 = v10 + fontHeight;
+      RB_DrawStretchPic(&v98, rgp.whiteMaterial, 14.5 * drawProfGlob.fontWidth, (float)(v10 + fontHeight) + 1.0, 114.0 * drawProfGlob.fontWidth, fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+      v99 = *gfxContext;
+      RB_DrawText(&v99, "Total", drawProfGlob.font, 15.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, drawProfGlob.textColorList[0]);
+      v34 = drawProfGlob.textColorList[0];
+      Value = (float *)Sys_GetValue(0);
+      srcTotal = v8->srcTotal;
+      v37 = (float)srcTotal;
+      if ( srcTotal < 0 )
       {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  [rsp+3C0h+var_378], xmm6
-        vmovss  [rsp+3C0h+var_380], xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  [rsp+3C0h+var_388], xmm7
-        vmovups [rbp+2C0h+var_250], xmm0
-        vmulss  xmm0, xmm10, cs:drawProfGlob.fontWidth
-        vsubss  xmm4, xmm1, xmm9
-        vmovss  [rsp+3C0h+var_390], xmm7
-        vmovss  [rbp+2C0h+arg_0], xmm2
-        vaddss  xmm3, xmm2, xmm6
-        vmulss  xmm2, xmm11, cs:drawProfGlob.fontWidth
-        vmovss  [rsp+3C0h+var_398], xmm4
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm0
+        v38 = (float)srcTotal;
+        v37 = v38 + 1.8446744e19;
       }
-      RB_DrawStretchPic(&v415, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtp, v370, v376, v382, v388, v394, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-      __asm
+      v39 = j_va("%6.2f", (float)(v37 * Value[8915]));
+      v100 = *gfxContext;
+      RB_DrawText(&v100, v39, drawProfGlob.font, 47.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v34);
+      v40 = drawProfGlob.textColorList[0];
+      v41 = (float *)Sys_GetValue(0);
+      srcAvgTime = v8->srcAvgTime;
+      v43 = (float)srcAvgTime;
+      if ( srcAvgTime < 0 )
       {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm8, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_240], xmm0
+        v44 = (float)srcAvgTime;
+        v43 = v44 + 1.8446744e19;
       }
-      RB_DrawText(&v416, "Total", drawProfGlob.font, *(float *)&_XMM3, fmtq, drawProfGlob.textColorList[0]);
-      v158 = drawProfGlob.textColorList[0];
-      Sys_GetValue(0);
-      __asm
+      v45 = j_va("%6.2f", (float)(v43 * v41[8915]));
+      v101 = *gfxContext;
+      RB_DrawText(&v101, v45, drawProfGlob.font, 59.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v40);
+      v46 = drawProfGlob.textColorList[0];
+      v47 = (float *)Sys_GetValue(0);
+      srcMaxTime = v8->srcMaxTime;
+      v49 = (float)srcMaxTime;
+      if ( srcMaxTime < 0 )
       {
-        vmovaps xmm15, xmmword ptr [rsp+2F0h]
-        vmovss  xmm6, cs:__real@5f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
+        v50 = (float)srcMaxTime;
+        v49 = v50 + 1.8446744e19;
       }
-      if ( v23[77943] < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovq   rdx, xmm1
-      }
-      v166 = j_va("%6.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm13, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_230], xmm0
-      }
-      RB_DrawText(&v417, v166, drawProfGlob.font, *(float *)&_XMM3, fmtr, v158);
-      v171 = drawProfGlob.textColorList[0];
-      Sys_GetValue(0);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-      }
-      if ( v23[77944] < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovq   rdx, xmm1
-      }
-      v177 = j_va("%6.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm14, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_220], xmm0
-      }
-      RB_DrawText(&v418, v177, drawProfGlob.font, *(float *)&_XMM3, fmts, v171);
-      v182 = drawProfGlob.textColorList[0];
-      Sys_GetValue(0);
-      __asm
-      {
-        vmovaps xmm14, xmmword ptr [rsp+3C0h+var_C8+8]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rdx
-      }
-      if ( v23[77945] < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovq   rdx, xmm1
-      }
-      v189 = j_va("%6.2f", _RDX);
-      __asm
-      {
-        vmovss  xmm1, cs:drawProfGlob.fontHeight
-        vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmulss  xmm3, xmm12, cs:drawProfGlob.fontWidth
-        vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-        vmovups [rbp+2C0h+var_210], xmm0
-      }
-      RB_DrawText(&v419, v189, drawProfGlob.font, *(float *)&_XMM3, fmtt, v182);
+      v51 = j_va("%6.2f", (float)(v49 * v47[8915]));
+      v102 = *gfxContext;
+      RB_DrawText(&v102, v51, drawProfGlob.font, 71.0 * drawProfGlob.fontWidth, drawProfGlob.fontHeight + v122, v46);
     }
   }
   else if ( profile_script_graph->current.enabled )
   {
-    v194 = RB_DrawProfileScript_GetScriptContext();
-    v195 = ScriptContext_GetProfileConst(v194);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@42200000
-      vmovups xmm1, xmmword ptr [rdi]
-    }
-    v198 = v195;
-    __asm
-    {
-      vmovss  [rbp+2C0h+arg_0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontHeight
-      vsubss  xmm4, xmm0, cs:__real@40000000
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+3C0h+var_378], xmm0
-      vmovss  [rsp+3C0h+var_380], xmm0
-      vmovups [rbp+2C0h+var_200], xmm1
-      vmovss  xmm1, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm1, cs:__real@42e40000
-      vmulss  xmm2, xmm1, cs:__real@41680000
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rsp+3C0h+var_388], xmm6
-      vmovss  [rsp+3C0h+var_390], xmm6
-      vmovss  [rsp+3C0h+var_398], xmm4
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm3
-      vmovss  xmm3, cs:__real@42240000
-    }
-    RB_DrawStretchPic(&v420, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtu, v371, v377, v383, v389, v395, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_1F0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v421, "Probe Name", drawProfGlob.largeFont, *(float *)&_XMM3, fmtv, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_1E0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm0, cs:__real@42300000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v422, " Current", drawProfGlob.largeFont, *(float *)&_XMM3, fmtw, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_1D0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm0, cs:__real@42580000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v423, " Avg", drawProfGlob.largeFont, *(float *)&_XMM3, fmtx, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_1C0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm0, cs:__real@42800000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v424, " Max", drawProfGlob.largeFont, *(float *)&_XMM3, fmty, drawProfGlob.labelColor);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-      vaddss  xmm2, xmm1, [rbp+2C0h+arg_0]
-      vmovups [rbp+2C0h+var_1B0], xmm0
-      vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-      vmulss  xmm3, xmm0, cs:__real@42940000
-      vmovss  dword ptr [rsp+3C0h+fmt], xmm2
-    }
-    RB_DrawText(&v425, "  Total", drawProfGlob.largeFont, *(float *)&_XMM3, fmtz, drawProfGlob.labelColor);
-    __asm { vmovss  xmm0, [rbp+2C0h+arg_0] }
-    v233 = 128;
-    __asm
-    {
-      vaddss  xmm1, xmm0, cs:drawProfGlob.largeFontHeight
-      vmovss  [rbp+2C0h+arg_0], xmm1
-    }
+    v52 = RB_DrawProfileScript_GetScriptContext();
+    v53 = ScriptContext_GetProfileConst(v52);
+    v54 = *gfxContext;
+    v55 = v53;
+    v122 = FLOAT_40_0;
+    v103 = v54;
+    v56 = 0i64;
+    RB_DrawStretchPic(&v103, rgp.whiteMaterial, drawProfGlob.largeFontWidth * 14.5, 41.0, drawProfGlob.largeFontWidth * 114.0, drawProfGlob.largeFontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+    v104 = *gfxContext;
+    RB_DrawText(&v104, "Probe Name", drawProfGlob.largeFont, drawProfGlob.largeFontWidth * 8.0, drawProfGlob.largeFontHeight + v122, drawProfGlob.labelColor);
+    v105 = *gfxContext;
+    RB_DrawText(&v105, " Current", drawProfGlob.largeFont, drawProfGlob.largeFontWidth * 44.0, drawProfGlob.largeFontHeight + v122, drawProfGlob.labelColor);
+    v106 = *gfxContext;
+    RB_DrawText(&v106, " Avg", drawProfGlob.largeFont, drawProfGlob.largeFontWidth * 54.0, drawProfGlob.largeFontHeight + v122, drawProfGlob.labelColor);
+    v107 = *gfxContext;
+    RB_DrawText(&v107, " Max", drawProfGlob.largeFont, drawProfGlob.largeFontWidth * 64.0, drawProfGlob.largeFontHeight + v122, drawProfGlob.labelColor);
+    v108 = *gfxContext;
+    RB_DrawText(&v108, "  Total", drawProfGlob.largeFont, drawProfGlob.largeFontWidth * 74.0, drawProfGlob.largeFontHeight + v122, drawProfGlob.labelColor);
+    v57 = 128;
+    v58 = v122 + drawProfGlob.largeFontHeight;
+    v122 = v122 + drawProfGlob.largeFontHeight;
     integer = profile_script_graph_row->current.integer;
     if ( (int)integer + 25 < 128 )
-      v233 = integer + 25;
-    if ( integer < v233 )
+      v57 = integer + 25;
+    if ( integer < v57 )
     {
-      v236 = v233 - integer;
-      v237 = (__int64)&v198->totalTime[integer];
-      v238 = v198->profileScriptNames[integer];
+      v60 = v57 - integer;
+      v61 = &v55->totalTime[integer];
+      v62 = v55->profileScriptNames[integer];
       do
       {
-        if ( *v238 )
+        if ( *v62 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups [rbp+2C0h+var_1A0], xmm0
-            vmovss  dword ptr [rsp+3C0h+fmt], xmm1
-          }
-          RB_DrawProfileScriptLineWithGraph(&v426, v194, integer, 4, fmtba, 0);
-          __asm
-          {
-            vmovss  xmm0, [rbp+2C0h+arg_0]
-            vaddss  xmm1, xmm0, cs:drawProfGlob.largeFontHeight
-            vmovss  [rbp+2C0h+arg_0], xmm1
-            vmovss  xmm1, [rbp+2C0h+arg_0]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vaddss  xmm6, xmm6, xmm0
-          }
+          v109 = *gfxContext;
+          RB_DrawProfileScriptLineWithGraph(&v109, v52, integer, 4, v58, 0);
+          v122 = v122 + drawProfGlob.largeFontHeight;
+          v58 = v122;
+          v63 = (float)*(unsigned int *)v61;
+          v64 = v56;
+          *(float *)&v64 = *(float *)&v56 + v63;
+          v56 = v64;
         }
         LODWORD(integer) = integer + 1;
-        v237 += 4i64;
-        v238 += 20;
-        --v236;
+        ++v61;
+        v62 += 20;
+        --v60;
       }
-      while ( v236 );
+      while ( v60 );
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rbp+2C0h+var_E0], xmm0
-  }
-  RB_EndSurfaceIfNeeded(&v438);
-  _R11 = &v441;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  v121[0] = *gfxContext;
+  RB_EndSurfaceIfNeeded(v121);
 }
 
 /*
@@ -3802,217 +2120,81 @@ void RB_DrawProfileScript(GfxCmdBufContext *gfxContext)
 RB_DrawProfileScriptLine
 ==============
 */
-
-void __fastcall RB_DrawProfileScriptLine(GfxCmdBufContext *gfxContext, const scrContext_t *scrContext, int profileIndex, double y)
+void RB_DrawProfileScriptLine(GfxCmdBufContext *gfxContext, const scrContext_t *scrContext, int profileIndex, float y, int tab)
 {
+  __int64 v6; 
+  const ProfileScript *ProfileConst; 
+  const char *v8; 
+  float v9; 
+  float v10; 
+  GfxColor v11; 
   const char *v12; 
-  bool v13; 
-  bool v14; 
-  GfxColor v30; 
-  const char *v31; 
-  GfxColor v41; 
-  const char *v49; 
-  GfxColor v54; 
-  const char *v60; 
-  GfxColor v65; 
-  const char *v73; 
-  GfxColor v78; 
-  const char *v84; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float v100; 
-  float v101; 
-  float v102; 
-  float v103; 
-  float v104; 
-  GfxCmdBufContext v105; 
-  GfxCmdBufContext v106; 
-  GfxCmdBufContext v107; 
-  GfxCmdBufContext v108; 
-  GfxCmdBufContext v109; 
-  GfxCmdBufContext v110; 
-  GfxCmdBufContext v111; 
-  char v112; 
-  void *retaddr; 
+  GfxColor v13; 
+  float *Value; 
+  float v15; 
+  const char *v16; 
+  GfxColor v17; 
+  float v18; 
+  const char *v19; 
+  GfxColor v20; 
+  float *v21; 
+  float v22; 
+  const char *v23; 
+  GfxColor v24; 
+  double v25; 
+  const char *v26; 
+  GfxCmdBufContext v27; 
+  GfxCmdBufContext v28; 
+  GfxCmdBufContext v29; 
+  GfxCmdBufContext v30; 
+  GfxCmdBufContext v31; 
+  GfxCmdBufContext v32; 
+  GfxCmdBufContext v33; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _R15 = gfxContext;
-  __asm
+  v6 = profileIndex;
+  ProfileConst = ScriptContext_GetProfileConst(scrContext);
+  v8 = ProfileConst->profileScriptNames[v6];
+  if ( !*v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1120, ASSERT_TYPE_ASSERT, "(name[0])", (const char *)&queryFormat, "name[0]") )
+    __debugbreak();
+  if ( ProfileConst->cumulative[v6] <= 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm8, xmm3
-  }
-  _RBP = profileIndex;
-  _RSI = ScriptContext_GetProfileConst(scrContext);
-  v12 = _RSI->profileScriptNames[_RBP];
-  v13 = *v12 == 0;
-  if ( !*v12 )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1120, ASSERT_TYPE_ASSERT, "(name[0])", (const char *)&queryFormat, "name[0]");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+rbp*4+0E00h]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v13 )
-  {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v10 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+rbp*4+0E00h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm7, xmm1, xmm0
-    }
+    v9 = (float)ProfileConst->totalCount[v6];
+    v10 = (float)ProfileConst->cumulative[v6] / v9;
   }
-  __asm
-  {
-    vmovss  xmm1, cs:drawProfGlob.fontHeight
-    vsubss  xmm5, xmm1, cs:__real@40000000
-    vmovss  xmm1, cs:__real@3f800000
-    vmovups xmm0, xmmword ptr [r15]
-    vmovss  [rsp+118h+var_D0], xmm1
-    vmovss  [rsp+118h+var_D8], xmm1
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovups [rsp+118h+var_B8], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm4, xmm0, cs:__real@42e40000
-    vmulss  xmm2, xmm0, cs:__real@41680000
-    vmovss  [rsp+118h+var_E8], xmm6
-    vmovss  dword ptr [rsp+118h+var_F0], xmm5
-    vaddss  xmm3, xmm8, xmm1
-    vmovss  dword ptr [rsp+118h+fmt], xmm4
-  }
-  RB_DrawStretchPic(&v105, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v100, v101, v102, v103, v104, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-  v30 = drawProfGlob.textColorList[0];
-  v31 = j_va("%02d", (unsigned int)_RBP);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_A8], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@41700000
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v106, v31, drawProfGlob.font, *(float *)&_XMM3, fmta, v30);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_98], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm3, xmm0, cs:drawProfGlob.fontWidth
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v107, v12, drawProfGlob.font, *(float *)&_XMM3, fmtb, drawProfGlob.textColorList[0]);
-  v41 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+8B4Ch]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm1
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v49 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_88], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@425c0000
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v108, v49, drawProfGlob.font, *(float *)&_XMM3, fmtc, v41);
-  v54 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+8B4Ch]
-    vmulss  xmm1, xmm0, xmm7
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v60 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_78], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42820000
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v109, v60, drawProfGlob.font, *(float *)&_XMM3, fmtd, v54);
-  v65 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+8B4Ch]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm1
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v73 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_68], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42960000
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v110, v73, drawProfGlob.font, *(float *)&_XMM3, fmte, v65);
-  v78 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+8B4Ch]
-    vmulss  xmm0, xmm0, dword ptr [rsi+rbp*4+0E00h]
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovq   rdx, xmm1
-  }
-  v84 = j_va("%8.0f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm8, cs:drawProfGlob.fontHeight
-    vmovups [rsp+118h+var_58], xmm0
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmulss  xmm3, xmm0, cs:__real@42aa0000
-    vmovss  dword ptr [rsp+118h+fmt], xmm2
-  }
-  RB_DrawText(&v111, v84, drawProfGlob.font, *(float *)&_XMM3, fmtf, v78);
-  _R11 = &v112;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v27 = *gfxContext;
+  RB_DrawStretchPic(&v27, rgp.whiteMaterial, drawProfGlob.fontWidth * 14.5, y + 1.0, drawProfGlob.fontWidth * 114.0, drawProfGlob.fontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+  v11 = drawProfGlob.textColorList[0];
+  v12 = j_va("%02d", (unsigned int)v6);
+  v28 = *gfxContext;
+  RB_DrawText(&v28, v12, drawProfGlob.font, drawProfGlob.fontWidth * 15.0, y + drawProfGlob.fontHeight, v11);
+  v29 = *gfxContext;
+  RB_DrawText(&v29, v8, drawProfGlob.font, (float)(tab + 19) * drawProfGlob.fontWidth, y + drawProfGlob.fontHeight, drawProfGlob.textColorList[0]);
+  v13 = drawProfGlob.textColorList[0];
+  Value = (float *)Sys_GetValue(0);
+  v15 = (float)ProfileConst->totalTime[v6];
+  v16 = j_va("%6.2f", (float)(v15 * Value[8915]));
+  v30 = *gfxContext;
+  RB_DrawText(&v30, v16, drawProfGlob.font, drawProfGlob.fontWidth * 55.0, y + drawProfGlob.fontHeight, v13);
+  v17 = drawProfGlob.textColorList[0];
+  v18 = *((float *)Sys_GetValue(0) + 8915);
+  v19 = j_va("%6.2f", (float)(v18 * v10));
+  v31 = *gfxContext;
+  RB_DrawText(&v31, v19, drawProfGlob.font, drawProfGlob.fontWidth * 65.0, y + drawProfGlob.fontHeight, v17);
+  v20 = drawProfGlob.textColorList[0];
+  v21 = (float *)Sys_GetValue(0);
+  v22 = (float)ProfileConst->maxTime[v6];
+  v23 = j_va("%6.2f", (float)(v22 * v21[8915]));
+  v32 = *gfxContext;
+  RB_DrawText(&v32, v23, drawProfGlob.font, drawProfGlob.fontWidth * 75.0, y + drawProfGlob.fontHeight, v20);
+  v24 = drawProfGlob.textColorList[0];
+  v25 = (float)(*((float *)Sys_GetValue(0) + 8915) * (float)ProfileConst->cumulative[v6]);
+  v26 = j_va("%8.0f", v25);
+  v33 = *gfxContext;
+  RB_DrawText(&v33, v26, drawProfGlob.font, drawProfGlob.fontWidth * 85.0, y + drawProfGlob.fontHeight, v24);
 }
 
 /*
@@ -4023,57 +2205,48 @@ RB_DrawProfileScriptLineAndChildren
 void RB_DrawProfileScriptLineAndChildren(GfxCmdBufContext *gfxContext, const scrContext_t *scrContext, int profileIndex, float *y, int depth)
 {
   __int64 v5; 
-  unsigned int v11; 
+  float v9; 
+  unsigned int v10; 
   const ProfileScript *ProfileConst; 
-  unsigned int v13; 
-  int v14; 
-  __int64 v15; 
+  unsigned int v12; 
+  int v13; 
+  __int64 v14; 
   char *i; 
-  GfxCmdBufContext v20[3]; 
+  float v16; 
+  GfxCmdBufContext v17[3]; 
 
   v5 = profileIndex;
-  _R14 = y;
-  _R12 = gfxContext;
   if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1189, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r12]
-    vmovss  xmm3, dword ptr [r14]
-    vmovups [rsp+68h+var_38], xmm0
-  }
-  RB_DrawProfileScriptLine(v20, scrContext, v5, *(float *)&_XMM3, 2 * depth);
-  v11 = -1;
+  v9 = *y;
+  v17[0] = *gfxContext;
+  RB_DrawProfileScriptLine(v17, scrContext, v5, v9, 2 * depth);
+  v10 = -1;
   while ( 2 )
   {
     ProfileConst = ScriptContext_GetProfileConst(scrContext);
-    v13 = v11 >> 31;
-    v14 = 0;
-    v15 = 0i64;
+    v12 = v10 >> 31;
+    v13 = 0;
+    v14 = 0i64;
     for ( i = ProfileConst->profileScriptNames[0]; ; i += 20 )
     {
-      if ( !*i || v15 == v5 || ProfileConst->parentIndex[v15] != (_DWORD)v5 )
+      if ( !*i || v14 == v5 || ProfileConst->parentIndex[v14] != (_DWORD)v5 )
         goto LABEL_11;
-      if ( (_BYTE)v13 )
+      if ( (_BYTE)v12 )
         break;
-      LOBYTE(v13) = v15 == v11;
+      LOBYTE(v12) = v14 == v10;
 LABEL_11:
-      ++v14;
-      if ( ++v15 >= 128 )
+      ++v13;
+      if ( ++v14 >= 128 )
         return;
     }
-    if ( v14 >= 0 )
+    if ( v13 >= 0 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:drawProfGlob.fontHeight
-        vaddss  xmm1, xmm0, dword ptr [r14]
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups [rsp+68h+var_38], xmm0
-        vmovss  dword ptr [r14], xmm1
-      }
-      RB_DrawProfileScriptLineAndChildren(v20, scrContext, v14, _R14, depth + 1);
-      v11 = v14;
+      v16 = drawProfGlob.fontHeight + *y;
+      v17[0] = *gfxContext;
+      *y = v16;
+      RB_DrawProfileScriptLineAndChildren(v17, scrContext, v13, y, depth + 1);
+      v10 = v13;
       continue;
     }
     break;
@@ -4085,237 +2258,88 @@ LABEL_11:
 RB_DrawProfileScriptLineWithGraph
 ==============
 */
-void RB_DrawProfileScriptLineWithGraph(GfxCmdBufContext *gfxContext, const scrContext_t *scrContext, int profileIndex, int column, float y)
+void RB_DrawProfileScriptLineWithGraph(GfxCmdBufContext *gfxContext, const scrContext_t *scrContext, int profileIndex, int column, float y, int tab)
 {
-  const char *v13; 
-  bool v14; 
-  bool v15; 
-  GfxColor v31; 
-  const char *v32; 
-  GfxColor v43; 
-  const char *v51; 
-  GfxColor v57; 
-  const char *v63; 
-  GfxColor v69; 
-  const char *v77; 
-  GfxColor v83; 
-  const char *v89; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float v109; 
-  unsigned int v110; 
-  float v111; 
-  float v112; 
-  float v113; 
-  float v114; 
-  float v115; 
-  GfxCmdBufContext v116; 
-  GfxCmdBufContext v117; 
-  GfxCmdBufContext v118; 
-  GfxCmdBufContext v119; 
-  GfxCmdBufContext v120; 
-  GfxCmdBufContext v121; 
-  GfxCmdBufContext v122; 
-  GfxCmdBufContext v123; 
-  char v124; 
-  void *retaddr; 
+  __int64 v8; 
+  const ProfileScript *ProfileConst; 
+  const char *v10; 
+  float v11; 
+  float v12; 
+  GfxColor v13; 
+  const char *v14; 
+  GfxColor v15; 
+  float *Value; 
+  float v17; 
+  const char *v18; 
+  GfxColor v19; 
+  float v20; 
+  const char *v21; 
+  GfxColor v22; 
+  float *v23; 
+  float v24; 
+  const char *v25; 
+  GfxColor v26; 
+  double v27; 
+  const char *v28; 
+  unsigned int v29; 
+  unsigned int historyIndex; 
+  GfxCmdBufContext v31; 
+  GfxCmdBufContext v32; 
+  GfxCmdBufContext v33; 
+  GfxCmdBufContext v34; 
+  GfxCmdBufContext v35; 
+  GfxCmdBufContext v36; 
+  GfxCmdBufContext v37; 
+  GfxCmdBufContext v38; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _R15 = gfxContext;
-  __asm
+  v8 = profileIndex;
+  ProfileConst = ScriptContext_GetProfileConst(scrContext);
+  v10 = ProfileConst->profileScriptNames[v8];
+  if ( !*v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1142, ASSERT_TYPE_ASSERT, "(name[0])", (const char *)&queryFormat, "name[0]") )
+    __debugbreak();
+  if ( ProfileConst->cumulative[v8] <= 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBP = profileIndex;
-  _RSI = ScriptContext_GetProfileConst(scrContext);
-  v13 = _RSI->profileScriptNames[_RBP];
-  v14 = *v13 == 0;
-  if ( !*v13 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 1142, ASSERT_TYPE_ASSERT, "(name[0])", (const char *)&queryFormat, "name[0]");
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+rbp*4+0E00h]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-  }
-  if ( v14 )
-  {
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v12 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+rbp*4+0E00h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm8, xmm1, xmm0
-    }
+    v11 = (float)ProfileConst->totalCount[v8];
+    v12 = (float)ProfileConst->cumulative[v8] / v11;
   }
-  __asm
-  {
-    vmovss  xmm1, cs:drawProfGlob.largeFontHeight
-    vsubss  xmm5, xmm1, cs:__real@40000000
-    vmovss  xmm1, cs:__real@3f800000
-    vmovups xmm0, xmmword ptr [r15]
-    vmovss  xmm6, [rsp+128h+arg_20]
-    vmovss  [rsp+128h+var_E0], xmm1
-    vmovss  [rsp+128h+var_E8], xmm1
-    vmovss  dword ptr [rsp+128h+var_F0], xmm7
-    vmovups [rsp+128h+var_C8], xmm0
-    vmovss  xmm0, cs:drawProfGlob.largeFontWidth
-    vmulss  xmm4, xmm0, cs:__real@42e40000
-    vmulss  xmm2, xmm0, cs:__real@41680000
-    vmovss  [rsp+128h+var_F8], xmm7
-    vmovss  dword ptr [rsp+128h+var_100], xmm5
-    vaddss  xmm3, xmm6, xmm1
-    vmovss  dword ptr [rsp+128h+fmt], xmm4
-  }
-  RB_DrawStretchPic(&v116, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v109, v111, v113, v114, v115, 0xA5000000, GFX_PRIM_STATS_DEBUG);
-  v31 = drawProfGlob.textColorList[0];
-  v32 = j_va("%02d", (unsigned int)_RBP);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_B8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r13d
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v117, v32, drawProfGlob.largeFont, *(float *)&_XMM3, fmta, v31);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_A8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v118, v13, drawProfGlob.largeFont, *(float *)&_XMM3, fmtb, drawProfGlob.textColorList[0]);
-  v43 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+8B4Ch]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm1
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v51 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_98], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v119, v51, drawProfGlob.largeFont, *(float *)&_XMM3, fmtc, v43);
-  v57 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+8B4Ch]
-    vmulss  xmm1, xmm0, xmm8
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v63 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_88], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v120, v63, drawProfGlob.largeFont, *(float *)&_XMM3, fmtd, v57);
-  v69 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [rax+8B4Ch]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm1
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v77 = j_va("%6.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_78], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v121, v77, drawProfGlob.largeFont, *(float *)&_XMM3, fmte, v69);
-  v83 = drawProfGlob.textColorList[0];
-  _RAX = Sys_GetValue(0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+8B4Ch]
-    vmulss  xmm0, xmm0, dword ptr [rsi+rbp*4+0E00h]
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovq   rdx, xmm1
-  }
-  v89 = j_va("%8.0f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vaddss  xmm2, xmm6, cs:drawProfGlob.largeFontHeight
-    vmovups [rsp+128h+var_68], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:drawProfGlob.largeFontWidth
-    vmovss  dword ptr [rsp+128h+fmt], xmm2
-  }
-  RB_DrawText(&v122, v89, drawProfGlob.largeFont, *(float *)&_XMM3, fmtf, v83);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovss  xmm3, cs:__real@43c80000
-    vmovss  [rsp+128h+var_F8], xmm8
-  }
-  v110 = _RSI->maxTime[_RBP];
-  __asm
-  {
-    vmovups [rsp+128h+var_58], xmm0
-    vmovaps xmm2, xmm6
-  }
-  RB_DrawProfileGraphData(&v123, column + 80, *(double *)&_XMM2, *(double *)&_XMM3, 0, v110, v112, _RSI->history[_RBP], 0x40u);
-  _R11 = &v124;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v31 = *gfxContext;
+  RB_DrawStretchPic(&v31, rgp.whiteMaterial, drawProfGlob.largeFontWidth * 14.5, y + 1.0, drawProfGlob.largeFontWidth * 114.0, drawProfGlob.largeFontHeight - 2.0, 0.0, 0.0, 1.0, 1.0, 0xA5000000, GFX_PRIM_STATS_DEBUG);
+  v13 = drawProfGlob.textColorList[0];
+  v14 = j_va("%02d", (unsigned int)v8);
+  v32 = *gfxContext;
+  RB_DrawText(&v32, v14, drawProfGlob.largeFont, (float)column * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, v13);
+  v33 = *gfxContext;
+  RB_DrawText(&v33, v10, drawProfGlob.largeFont, (float)(column + tab + 4) * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, drawProfGlob.textColorList[0]);
+  v15 = drawProfGlob.textColorList[0];
+  Value = (float *)Sys_GetValue(0);
+  v17 = (float)ProfileConst->totalTime[v8];
+  v18 = j_va("%6.2f", (float)(v17 * Value[8915]));
+  v34 = *gfxContext;
+  RB_DrawText(&v34, v18, drawProfGlob.largeFont, (float)(column + 40) * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, v15);
+  v19 = drawProfGlob.textColorList[0];
+  v20 = *((float *)Sys_GetValue(0) + 8915);
+  v21 = j_va("%6.2f", (float)(v20 * v12));
+  v35 = *gfxContext;
+  RB_DrawText(&v35, v21, drawProfGlob.largeFont, (float)(column + 50) * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, v19);
+  v22 = drawProfGlob.textColorList[0];
+  v23 = (float *)Sys_GetValue(0);
+  v24 = (float)ProfileConst->maxTime[v8];
+  v25 = j_va("%6.2f", (float)(v24 * v23[8915]));
+  v36 = *gfxContext;
+  RB_DrawText(&v36, v25, drawProfGlob.largeFont, (float)(column + 60) * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, v22);
+  v26 = drawProfGlob.textColorList[0];
+  v27 = (float)(*((float *)Sys_GetValue(0) + 8915) * (float)ProfileConst->cumulative[v8]);
+  v28 = j_va("%8.0f", v27);
+  v37 = *gfxContext;
+  RB_DrawText(&v37, v28, drawProfGlob.largeFont, (float)(column + 70) * drawProfGlob.largeFontWidth, y + drawProfGlob.largeFontHeight, v26);
+  historyIndex = ProfileConst->historyIndex;
+  v29 = ProfileConst->maxTime[v8];
+  v38 = *gfxContext;
+  RB_DrawProfileGraphData(&v38, column + 80, y, 400.0, 0, v29, v12, ProfileConst->history[v8], 0x40u, historyIndex);
 }
 
 /*
@@ -4335,239 +2359,170 @@ scrContext_t *RB_DrawProfileScript_GetScriptContext()
 RB_DrawSlowProfileOverlay
 ==============
 */
-
-void __fastcall RB_DrawSlowProfileOverlay(GfxCmdBufContext *gfxContext, int (__fastcall *compare)(const void *, const void *), double _XMM2_8)
+void RB_DrawSlowProfileOverlay(GfxCmdBufContext *gfxContext, int (*compare)(const void *, const void *))
 {
-  unsigned int v12; 
-  int *v35; 
-  int *v38; 
-  int v42; 
-  __int64 v46; 
-  int EnumParity; 
-  int *v48; 
-  __int64 v55; 
-  __int64 v56; 
-  const char *v57; 
-  unsigned __int64 v64; 
-  int *sortedProbeIndices; 
+  int v4; 
+  int *v5; 
+  int v6; 
   int i; 
-  int v69; 
-  float fmt; 
-  float fmta; 
-  float v80; 
-  GfxCmdBufContext v81; 
-  int v82[16]; 
+  int *v20; 
+  GfxCmdBufContext v21; 
+  int *v22; 
+  int v23; 
+  __int128 v24; 
+  __int128 fontWidth_low; 
+  float v26; 
+  __int64 v27; 
+  int EnumParity; 
+  __int128 v29; 
+  int *v30; 
+  float v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int64 v34; 
+  __int64 v35; 
+  const char *v36; 
+  unsigned __int64 v39; 
+  __int128 v40; 
+  float v41; 
+  int *sortedProbeIndices; 
+  int j; 
+  int v44; 
+  GfxCmdBufContext v45; 
+  int v46[16]; 
   char dest[112]; 
-  char v84; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = Sys_Milliseconds();
+  if ( (float)(v4 - drawProfGlob.lastSortTime) >= (float)(prof_sortTime->current.value * 1000.0) || v4 - drawProfGlob.lastSortTime < 0 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _R12 = gfxContext;
-  v12 = Sys_Milliseconds();
-  _RDX = prof_sortTime;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, dword ptr [rdx+28h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvtsi2ss xmm2, xmm2, ecx
-    vcomiss xmm2, xmm1
-  }
-  if ( v12 >= drawProfGlob.lastSortTime || (int)(v12 - drawProfGlob.lastSortTime) < 0 )
-  {
-    __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-    drawProfGlob.lastSortTime = v12;
-    _R8 = &drawProfGlob.sortedProbeIndices[8];
-    _ECX = 0;
-    _EDX = 8;
-    do
+    drawProfGlob.lastSortTime = v4;
+    v5 = &drawProfGlob.sortedProbeIndices[8];
+    v6 = 0;
+    for ( i = 8; i < 824; i += 16 )
     {
-      _EAX = _EDX - 4;
+      _XMM0 = (unsigned int)v6;
       __asm
       {
-        vmovd   xmm0, ecx
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8-20h], xmm1
-        vmovd   xmm0, eax
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8-10h], xmm1
-        vmovd   xmm0, edx
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8], xmm1
-      }
-      _EAX = _EDX + 4;
-      _ECX += 16;
-      __asm
-      {
-        vmovd   xmm0, eax
         vpshufd xmm0, xmm0, 0
         vpaddd  xmm1, xmm0, xmm2
       }
-      _EDX += 16;
-      __asm { vmovdqu xmmword ptr [r8+10h], xmm1 }
-      _R8 += 16;
+      *((_OWORD *)v5 - 2) = _XMM1;
+      _XMM0 = (unsigned int)(i - 4);
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      *((_OWORD *)v5 - 1) = _XMM1;
+      _XMM0 = (unsigned int)i;
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      *(_OWORD *)v5 = _XMM1;
+      v6 += 16;
+      _XMM0 = (unsigned int)(i + 4);
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      *((_OWORD *)v5 + 1) = _XMM1;
+      v5 += 16;
     }
-    while ( _EDX < 824 );
-    if ( _ECX < 826 )
+    if ( v6 < 826 )
     {
-      v35 = &drawProfGlob.sortedProbeIndices[_ECX];
+      v20 = &drawProfGlob.sortedProbeIndices[v6];
       do
-        *v35++ = _ECX++;
-      while ( _ECX < 826 );
+        *v20++ = v6++;
+      while ( v6 < 826 );
     }
     qsort(drawProfGlob.sortedProbeIndices, 0x33Aui64, 4ui64, (_CoreCrtNonSecureSearchSortCompareFunction)compare);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r12]
-    vmovups [rsp+190h+var_160], xmm0
-  }
-  RB_DrawAllProfileBackgrounds(&v81, NULL, profile_rowcount->current.integer);
-  __asm
-  {
-    vmovups xmm11, xmmword ptr [r12]
-    vmovups [rsp+190h+var_160], xmm11
-  }
-  RB_EndSurfaceIfNeeded(&v81);
-  v38 = v82;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@41680000
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmovss  xmm7, cs:__real@42d00000
-  }
-  v42 = 0;
-  v82[0] = prof_probe[0]->current.integer;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vmulss  xmm6, xmm0, xmm9
-  }
-  v82[1] = prof_probe[1]->current.integer;
-  v82[2] = prof_probe[2]->current.integer;
-  v82[3] = prof_probe[3]->current.integer;
-  v82[4] = prof_probe[4]->current.integer;
-  v82[5] = prof_probe[5]->current.integer;
-  v82[6] = prof_probe[6]->current.integer;
-  v82[7] = prof_probe[7]->current.integer;
-  v82[8] = prof_probe[8]->current.integer;
-  v82[9] = prof_probe[9]->current.integer;
-  v82[10] = prof_probe[10]->current.integer;
-  v82[11] = prof_probe[11]->current.integer;
-  v82[12] = prof_probe[12]->current.integer;
-  v82[13] = prof_probe[13]->current.integer;
-  v82[14] = prof_probe[14]->current.integer;
-  v82[15] = prof_probe[15]->current.integer;
-  __asm { vcvtsi2ss xmm8, xmm8, rcx }
+  v45 = *gfxContext;
+  RB_DrawAllProfileBackgrounds(&v45, NULL, profile_rowcount->current.integer);
+  v21 = *gfxContext;
+  v45 = *gfxContext;
+  RB_EndSurfaceIfNeeded(&v45);
+  v22 = v46;
+  v23 = 0;
+  v46[0] = prof_probe[0]->current.integer;
+  fontWidth_low = LODWORD(drawProfGlob.fontWidth);
+  *(float *)&fontWidth_low = drawProfGlob.fontWidth * 14.5;
+  v24 = fontWidth_low;
+  v46[1] = prof_probe[1]->current.integer;
+  v46[2] = prof_probe[2]->current.integer;
+  v46[3] = prof_probe[3]->current.integer;
+  v46[4] = prof_probe[4]->current.integer;
+  v46[5] = prof_probe[5]->current.integer;
+  v46[6] = prof_probe[6]->current.integer;
+  v46[7] = prof_probe[7]->current.integer;
+  v46[8] = prof_probe[8]->current.integer;
+  v46[9] = prof_probe[9]->current.integer;
+  v46[10] = prof_probe[10]->current.integer;
+  v46[11] = prof_probe[11]->current.integer;
+  v46[12] = prof_probe[12]->current.integer;
+  v46[13] = prof_probe[13]->current.integer;
+  v46[14] = prof_probe[14]->current.integer;
+  v46[15] = prof_probe[15]->current.integer;
+  v26 = (float)(vidConfig.displayHeight - 98);
   do
   {
-    v46 = *v38;
-    if ( (_DWORD)v46 )
+    v27 = *v22;
+    if ( (_DWORD)v27 )
     {
-      EnumParity = Profile_GetEnumParity(v46);
-      __asm
-      {
-        vmovss  dword ptr [rsp+190h+var_168], xmm8
-        vmovss  dword ptr [rsp+190h+fmt], xmm6
-        vmovups [rsp+190h+var_160], xmm11
-      }
-      RB_DrawProfileHistoryGraph(&v81, &drawProfGlob.global[v46].read, EnumParity, v42, fmt, v80);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
+      EnumParity = Profile_GetEnumParity(v27);
+      v45 = v21;
+      RB_DrawProfileHistoryGraph(&v45, &drawProfGlob.global[v27].read, EnumParity, v23, *(float *)&v24, v26);
+      v29 = v24;
+      *(float *)&v29 = *(float *)&v24 + 104.0;
+      v24 = v29;
     }
-    ++v42;
-    ++v38;
+    ++v23;
+    ++v22;
   }
-  while ( v42 < 16 );
-  v48 = v82;
-  __asm
-  {
-    vmovss  xmm0, cs:drawProfGlob.fontWidth
-    vmovss  xmm10, cs:__real@3f000000
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, rcx
-    vmulss  xmm6, xmm0, xmm9
-    vmovss  xmm9, cs:__real@42c80000
-  }
-  v55 = 16i64;
+  while ( v23 < 16 );
+  v30 = v46;
+  v31 = (float)(vidConfig.displayHeight - 98);
+  v33 = LODWORD(drawProfGlob.fontWidth);
+  *(float *)&v33 = drawProfGlob.fontWidth * 14.5;
+  v32 = v33;
+  v34 = 16i64;
   do
   {
-    v56 = *v48;
-    if ( (_DWORD)v56 )
+    v35 = *v30;
+    if ( (_DWORD)v35 )
     {
-      v57 = prof_enumNames[v56];
-      __asm
-      {
-        vdivss  xmm0, xmm9, xmm0
-        vaddss  xmm2, xmm0, xmm10
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm3, xmm1, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm3, 1
-        vcvttss2si eax, xmm4
-      }
-      v64 = _EAX + 1;
-      if ( v64 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
+      v36 = prof_enumNames[v35];
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm3, 1 }
+      v39 = (int)*(float *)&_XMM4 + 1;
+      if ( v39 > 0x64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_drawprofile.cpp", 312, ASSERT_TYPE_ASSERT, "(charLimit <= ( sizeof( *array_counter( label ) ) + 0 ))", (const char *)&queryFormat, "charLimit <= ARRAY_COUNT( label )") )
         __debugbreak();
-      Core_strncpy_truncate(dest, 0x64ui64, v57, v64);
-      __asm
-      {
-        vmovaps xmm3, xmm6
-        vmovss  dword ptr [rsp+190h+fmt], xmm8
-        vmovdqa [rsp+190h+var_160], xmm11
-      }
-      RB_DrawText(&v81, dest, drawProfGlob.font, *(float *)&_XMM3, fmta, drawProfGlob.textColorList[0]);
-      __asm
-      {
-        vmovss  xmm0, cs:drawProfGlob.fontWidth
-        vaddss  xmm6, xmm6, xmm7
-      }
+      Core_strncpy_truncate(dest, 0x64ui64, v36, v39);
+      v45 = v21;
+      RB_DrawText(&v45, dest, drawProfGlob.font, *(float *)&v32, v31, drawProfGlob.textColorList[0]);
+      v40 = v32;
+      *(float *)&v40 = *(float *)&v32 + 104.0;
+      v32 = v40;
     }
-    ++v48;
-    --v55;
+    ++v30;
+    --v34;
   }
-  while ( v55 );
-  __asm { vmovdqa [rsp+190h+var_160], xmm11 }
-  RB_EndSurfaceIfNeeded(&v81);
-  __asm { vmovups [rsp+190h+var_160], xmm11 }
-  *(float *)&_XMM0 = RB_DrawProfileLabels(&v81);
+  while ( v34 );
+  v45 = v21;
+  RB_EndSurfaceIfNeeded(&v45);
+  v45 = v21;
+  v41 = RB_DrawProfileLabels(&v45);
   sortedProbeIndices = drawProfGlob.sortedProbeIndices;
-  __asm
+  g_tally = 0.0;
+  for ( j = 0; j < profile_rowcount->current.integer; ++j )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  cs:g_tally, xmm1
-  }
-  for ( i = 0; i < profile_rowcount->current.integer; ++i )
-  {
-    v69 = *sortedProbeIndices;
-    __asm
-    {
-      vmovaps xmm3, xmm0
-      vmovups [rsp+190h+var_160], xmm11
-    }
-    *(float *)&_XMM0 = RB_DrawProfileRow(&v81, v69, 0, *(double *)&_XMM3);
+    v44 = *sortedProbeIndices;
+    v45 = v21;
+    v41 = RB_DrawProfileRow(&v45, v44, 0, v41);
     ++sortedProbeIndices;
-  }
-  _R11 = &v84;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
 }
 
@@ -4648,42 +2603,20 @@ void RB_ProfileDevGui(void)
 RB_ProfileInit
 ==============
 */
-
-void __fastcall RB_ProfileInit(double _XMM0_8)
+void RB_ProfileInit(void)
 {
+  float v0; 
+
   drawProfGlob.font = R_RegisterFont("fonts/fira_mono_regular.ttf", 16);
-  R_TextWidth("#", 1, drawProfGlob.font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  cs:drawProfGlob.fontWidth, xmm0
-  }
-  R_TextHeight(drawProfGlob.font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  cs:drawProfGlob.fontHeight, xmm0
-  }
+  drawProfGlob.fontWidth = (float)R_TextWidth("#", 1, drawProfGlob.font);
+  drawProfGlob.fontHeight = (float)R_TextHeight(drawProfGlob.font);
   drawProfGlob.largeFont = R_RegisterFont("fonts/fira_mono_regular.ttf", 32);
-  R_TextWidth("#", 1, drawProfGlob.largeFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  cs:drawProfGlob.largeFontWidth, xmm0
-  }
-  R_TextHeight(drawProfGlob.largeFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
+  drawProfGlob.largeFontWidth = (float)R_TextWidth("#", 1, drawProfGlob.largeFont);
+  v0 = (float)R_TextHeight(drawProfGlob.largeFont);
   drawProfGlob.textColorList[0].packed = -1;
   drawProfGlob.textColorList[1].packed = -10053172;
   drawProfGlob.textColorList[2].packed = -39271;
-  __asm { vmovss  cs:drawProfGlob.largeFontHeight, xmm0 }
+  drawProfGlob.largeFontHeight = v0;
   drawProfGlob.textColorList[3].packed = -6697780;
   drawProfGlob.textColorList[4].packed = -16776961;
   drawProfGlob.textColorList[5].packed = -6697729;

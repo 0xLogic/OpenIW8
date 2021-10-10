@@ -156,11 +156,8 @@ char Online_BlockList::ProcessPlatformBlockList(Online_BlockList *this, const in
   v17._M_CancellationToken._M_Impl = NULL;
   v17._M_ContinuationContext._M_context._M_captureMethod = 1i64;
   v17._M_ContinuationContext._M_RunInline = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+128h+var_98], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v17._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myfirst = _XMM0;
   v17._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
   v17._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
   v17._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;

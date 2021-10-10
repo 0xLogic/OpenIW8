@@ -60,79 +60,82 @@ FindNearestPointOnAlignedBoxFace
 */
 float FindNearestPointOnAlignedBoxFace(const vec3_t *p, const vec3_t *extents, vec3_t *outFaceNormal, vec3_t *outContactPoint)
 {
-  vec3_t v48; 
-  void *retaddr; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int64 v20; 
+  int *v21; 
+  int v26[4]; 
+  int v27[3]; 
+  int v28[3]; 
+  int v29[4]; 
 
-  _R11 = &retaddr;
+  _XMM6 = LODWORD(p->v[0]);
+  _XMM5 = LODWORD(extents->v[0]);
+  _XMM7 = LODWORD(p->v[1]);
+  _XMM8 = LODWORD(p->v[2]);
+  _XMM4 = LODWORD(extents->v[1]);
+  _XMM2 = LODWORD(extents->v[2]);
+  _XMM9 = 0i64;
   __asm
   {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovss  xmm6, dword ptr [rcx]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm7, dword ptr [rcx+4]
-    vmovss  xmm8, dword ptr [rcx+8]
-    vmovss  xmm4, dword ptr [rdx+4]
-    vmovss  xmm2, dword ptr [rdx+8]
-    vxorps  xmm1, xmm5, xmm3
-    vxorps  xmm9, xmm9, xmm9
     vcmpltss xmm0, xmm6, xmm9
     vblendvps xmm0, xmm5, xmm1, xmm0
-    vmovss  [rsp+98h+var_80], xmm0
-    vxorps  xmm1, xmm4, xmm3
-    vcmpltss xmm0, xmm7, xmm9
-    vblendvps xmm0, xmm4, xmm1, xmm0
-    vxorps  xmm1, xmm2, xmm3
-    vmovss  [rsp+98h+var_7C], xmm7
-    vmovss  dword ptr [r11-78h], xmm8
-    vmovss  [rsp+98h+var_70], xmm0
-    vcmpltss xmm0, xmm8, xmm9
-    vblendvps xmm0, xmm2, xmm1, xmm0
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  [rsp+98h+var_74], xmm6
-    vmovss  dword ptr [r11-6Ch], xmm8
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  [rsp+98h+var_68], xmm6
-    vandps  xmm6, xmm6, xmm1
-    vsubss  xmm3, xmm5, xmm6
-    vandps  xmm3, xmm3, xmm1
-    vmovss  [rsp+98h+var_64], xmm7
-    vandps  xmm7, xmm7, xmm1
-    vandps  xmm8, xmm8, xmm1
-    vsubss  xmm5, xmm4, xmm7
-    vandps  xmm5, xmm5, xmm1
-    vsubss  xmm0, xmm2, xmm8
-    vcomiss xmm3, xmm5
-    vandps  xmm0, xmm0, xmm1
-    vmovss  [rsp+98h+var_90], xmm3
-    vmovss  [rsp+98h+var_8C], xmm5
-    vmovss  [rsp+98h+var_88], xmm0
-    vcomiss xmm5, xmm0
   }
-  _RCX = 8i64;
+  v27[0] = _XMM0;
   __asm
   {
-    vmovss  xmm2, cs:__real@bf800000
-    vmovss  xmm1, cs:__real@3f800000
+    vcmpltss xmm0, xmm7, xmm9
+    vblendvps xmm0, xmm4, xmm1, xmm0
   }
-  *outContactPoint = v48;
+  v27[1] = _XMM7;
+  v27[2] = _XMM8;
+  v28[1] = _XMM0;
+  __asm
+  {
+    vcmpltss xmm0, xmm8, xmm9
+    vblendvps xmm0, xmm2, xmm1, xmm0
+  }
+  v28[0] = _XMM6;
+  v28[2] = _XMM8;
+  v29[2] = _XMM0;
+  v29[0] = _XMM6;
+  LODWORD(v17) = COERCE_UNSIGNED_INT(*(float *)&_XMM5 - COERCE_FLOAT(_XMM6 & _xmm)) & _xmm;
+  v29[1] = _XMM7;
+  LODWORD(v18) = COERCE_UNSIGNED_INT(*(float *)&_XMM4 - COERCE_FLOAT(_XMM7 & _xmm)) & _xmm;
+  LODWORD(v19) = COERCE_UNSIGNED_INT(*(float *)&_XMM2 - COERCE_FLOAT(_XMM8 & _xmm)) & _xmm;
+  *(float *)v26 = v17;
+  *(float *)&v26[1] = v18;
+  *(float *)&v26[2] = v19;
+  if ( v17 >= v18 || v17 >= v19 )
+  {
+    if ( v18 >= v19 )
+    {
+      v20 = 2i64;
+      v21 = v29;
+    }
+    else
+    {
+      v20 = 1i64;
+      v21 = v28;
+    }
+  }
+  else
+  {
+    v20 = 0i64;
+    v21 = v27;
+  }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  *outContactPoint = *(vec3_t *)v21;
   *(_QWORD *)outFaceNormal->v = 0i64;
   outFaceNormal->v[2] = 0.0;
   __asm
   {
     vcmpless xmm3, xmm9, dword ptr [rcx+r9]
     vblendvps xmm4, xmm1, xmm2, xmm3
-    vmovss  dword ptr [r8+rcx], xmm4
-    vmovss  xmm0, [rsp+rcx+98h+var_90]
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
   }
-  return *(float *)&_XMM0;
+  outFaceNormal->v[v20] = *(float *)&_XMM4;
+  return *(float *)&v26[v20];
 }
 
 /*
@@ -142,375 +145,196 @@ FindNearestPointSegmentAlignedBoxEdge
 */
 float FindNearestPointSegmentAlignedBoxEdge(const vec3_t *segStart, const vec3_t *segEnd, const vec3_t *segMidPoint, const vec3_t *extents, vec3_t *outNormal, vec3_t *outContactPointSeg, vec3_t *outContactPointBox)
 {
-  char v97; 
-  char v98; 
-  float v223; 
-  float v224; 
-  float v225; 
-  float v226; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  __int128 v35; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
   float t1; 
   float t0; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
   vec3_t s00; 
   vec3_t s01; 
-  vec3_t v238; 
-  vec3_t v239; 
-  char v240; 
-  void *retaddr; 
+  vec3_t v67; 
+  vec3_t v68; 
 
-  _RAX = &retaddr;
+  _XMM2 = LODWORD(extents->v[0]);
+  _XMM0 = LODWORD(segMidPoint->v[0]);
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm2, dword ptr [r9]
-    vmovss  xmm0, dword ptr [r8]
-  }
-  _R14 = outContactPointSeg;
-  _R15 = outContactPointBox;
-  _RDI = segEnd;
-  _RSI = outNormal;
-  __asm
-  {
-    vxorps  xmm1, xmm2, xmm6
-    vxorps  xmm9, xmm9, xmm9
     vcmpltss xmm0, xmm0, xmm9
     vblendvps xmm5, xmm2, xmm1, xmm0
-    vmovss  xmm2, dword ptr [r9+4]
-    vmovss  xmm0, dword ptr [r8+4]
+  }
+  _XMM2 = LODWORD(extents->v[1]);
+  _XMM0 = LODWORD(segMidPoint->v[1]);
+  __asm
+  {
     vcmpltss xmm0, xmm0, xmm9
-    vxorps  xmm1, xmm2, xmm6
     vblendvps xmm4, xmm2, xmm1, xmm0
-    vmovss  xmm2, dword ptr [r9+8]
-    vmovss  xmm0, dword ptr [r8+8]
+  }
+  _XMM2 = LODWORD(extents->v[2]);
+  _XMM0 = LODWORD(segMidPoint->v[2]);
+  __asm
+  {
     vcmpltss xmm0, xmm0, xmm9
-    vxorps  xmm1, xmm2, xmm6
     vblendvps xmm3, xmm2, xmm1, xmm0
-    vxorps  xmm0, xmm5, xmm6
-    vmovss  dword ptr [rsp+170h+s01], xmm0
-    vxorps  xmm0, xmm4, xmm6
-    vmovss  dword ptr [rbp+70h+var_E8+4], xmm0
-    vxorps  xmm0, xmm3, xmm6
-    vmovss  [rsp+170h+var_140], xmm5
-    vmovss  [rsp+170h+var_140], xmm4
-    vmovss  dword ptr [rbp+70h+var_D8+8], xmm0
-    vmovss  dword ptr [rsp+170h+s00], xmm5
-    vmovss  dword ptr [rsp+170h+s00+4], xmm4
-    vmovss  dword ptr [rsp+170h+s00+8], xmm3
-    vmovss  dword ptr [rsp+170h+s01+4], xmm4
-    vmovss  dword ptr [rbp+70h+s01+8], xmm3
-    vmovss  dword ptr [rbp+70h+var_E8], xmm5
-    vmovss  dword ptr [rbp+70h+var_E8+8], xmm3
-    vmovss  dword ptr [rbp+70h+var_D8], xmm5
-    vmovss  dword ptr [rbp+70h+var_D8+4], xmm4
-    vmovss  [rsp+170h+var_140], xmm3
   }
+  LODWORD(s01.v[0]) = _XMM5 ^ _xmm;
+  LODWORD(v67.v[1]) = _XMM4 ^ _xmm;
+  LODWORD(v68.v[2]) = _XMM3 ^ _xmm;
+  s00.v[0] = *(float *)&_XMM5;
+  s00.v[1] = *(float *)&_XMM4;
+  s00.v[2] = *(float *)&_XMM3;
+  s01.v[1] = *(float *)&_XMM4;
+  s01.v[2] = *(float *)&_XMM3;
+  v67.v[0] = *(float *)&_XMM5;
+  v67.v[2] = *(float *)&_XMM3;
+  v68.v[0] = *(float *)&_XMM5;
+  v68.v[1] = *(float *)&_XMM4;
+  v52 = *(float *)&_XMM3;
   ClosestPointsTwoSegs(&s00, &s01, segStart, segEnd, &t0, &t1);
-  __asm
+  v21 = (float)((float)(s01.v[0] - s00.v[0]) * t0) + s00.v[0];
+  v22 = (float)((float)(s01.v[1] - s00.v[1]) * t0) + s00.v[1];
+  v23 = (float)((float)(s01.v[2] - s00.v[2]) * t0) + s00.v[2];
+  v24 = (float)((float)(segEnd->v[0] - segStart->v[0]) * t1) + segStart->v[0];
+  v25 = (float)((float)(segEnd->v[1] - segStart->v[1]) * t1) + segStart->v[1];
+  v26 = (float)((float)(segEnd->v[2] - segStart->v[2]) * t1) + segStart->v[2];
+  ClosestPointsTwoSegs(&s00, &v67, segStart, segEnd, &v55, &v54);
+  v27 = (float)((float)(v67.v[0] - s00.v[0]) * v55) + s00.v[0];
+  v59 = (float)((float)(v67.v[1] - s00.v[1]) * v55) + s00.v[1];
+  v58 = (float)((float)(v67.v[2] - s00.v[2]) * v55) + s00.v[2];
+  v62 = (float)((float)(segEnd->v[0] - segStart->v[0]) * v54) + segStart->v[0];
+  v61 = (float)((float)(segEnd->v[1] - segStart->v[1]) * v54) + segStart->v[1];
+  v60 = (float)((float)(segEnd->v[2] - segStart->v[2]) * v54) + segStart->v[2];
+  v63 = v27;
+  ClosestPointsTwoSegs(&s00, &v68, segStart, segEnd, &v53, &v52);
+  v28 = s00.v[1];
+  v29 = s00.v[2];
+  v64 = (float)((float)(v68.v[0] - s00.v[0]) * v53) + s00.v[0];
+  v54 = (float)((float)(v68.v[1] - s00.v[1]) * v53) + s00.v[1];
+  t1 = (float)((float)(v68.v[2] - s00.v[2]) * v53) + s00.v[2];
+  v53 = (float)((float)(segEnd->v[0] - segStart->v[0]) * v52) + segStart->v[0];
+  v55 = (float)((float)(segEnd->v[1] - segStart->v[1]) * v52) + segStart->v[1];
+  t0 = (float)((float)(segEnd->v[2] - segStart->v[2]) * v52) + segStart->v[2];
+  v52 = (float)((float)((float)(v22 - v25) * (float)(v22 - v25)) + (float)((float)(v21 - v24) * (float)(v21 - v24))) + (float)((float)(v23 - v26) * (float)(v23 - v26));
+  v30 = (float)((float)((float)(v59 - v61) * (float)(v59 - v61)) + (float)((float)(v27 - v62) * (float)(v27 - v62))) + (float)((float)(v58 - v60) * (float)(v58 - v60));
+  v31 = t1 - t0;
+  v32 = (float)((float)((float)(v54 - v55) * (float)(v54 - v55)) + (float)((float)(v64 - v53) * (float)(v64 - v53))) + (float)(v31 * v31);
+  if ( v52 >= v30 || (float)((float)((float)((float)(v22 - v25) * (float)(v22 - v25)) + (float)((float)(v21 - v24) * (float)(v21 - v24))) + (float)((float)(v23 - v26) * (float)(v23 - v26))) >= v32 )
   {
-    vmovss  xmm5, [rsp+170h+var_12C]
-    vmovss  xmm4, [rsp+170h+var_130]
-    vmovss  xmm0, dword ptr [rsp+170h+s01]
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00]
-    vmovss  xmm0, dword ptr [rsp+170h+s01+4]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm12, xmm1, dword ptr [rsp+170h+s00]
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00+4]
-    vmovss  xmm0, dword ptr [rbp+70h+s01+8]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00+8]
-    vaddss  xmm11, xmm2, dword ptr [rsp+170h+s00+4]
-    vmovss  xmm0, dword ptr [rdi]
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rdi+4]
-    vaddss  xmm10, xmm2, dword ptr [rsp+170h+s00+8]
-    vmulss  xmm1, xmm1, xmm4
-    vaddss  xmm15, xmm1, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmulss  xmm2, xmm1, xmm4
-    vsubss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm14, xmm2, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, xmm4
-    vaddss  xmm13, xmm2, dword ptr [rbx+8]
-  }
-  ClosestPointsTwoSegs(&s00, &v238, segStart, _RDI, &v226, &v225);
-  __asm
-  {
-    vmovss  xmm5, [rsp+170h+var_134]
-    vmovss  xmm0, dword ptr [rbp+70h+var_E8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00]
-    vmovss  xmm0, dword ptr [rbp+70h+var_E8+4]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm9, xmm1, dword ptr [rsp+170h+s00]
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rsp+170h+s00+4]
-    vmovss  [rsp+170h+var_124], xmm0
-    vmovss  xmm0, dword ptr [rbp+70h+var_E8+8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+170h+s00+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rsp+170h+s00+8]
-    vmovss  xmm5, [rsp+170h+var_138]
-    vmovss  [rsp+170h+var_128], xmm0
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rbx]
-    vmovss  [rsp+170h+var_118], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  [rsp+170h+var_11C], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  [rsp+170h+var_120], xmm0
-    vmovss  [rsp+170h+var_114], xmm9
-  }
-  ClosestPointsTwoSegs(&s00, &v239, segStart, _RDI, &v224, &v223);
-  __asm
-  {
-    vmovss  xmm3, [rsp+170h+var_13C]
-    vmovss  xmm5, [rsp+170h+var_140]
-    vmovss  xmm0, dword ptr [rbp+70h+var_D8]
-    vmovss  xmm6, dword ptr [rsp+170h+s00]
-    vmovss  xmm7, dword ptr [rsp+170h+s00+4]
-    vmovss  xmm8, dword ptr [rsp+170h+s00+8]
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm1, xmm1, xmm3
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  [rsp+170h+var_110], xmm0
-    vmovss  xmm0, dword ptr [rbp+70h+var_D8+4]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm2, xmm1, xmm3
-    vaddss  xmm0, xmm2, xmm7
-    vmovss  [rsp+170h+var_138], xmm0
-    vmovss  xmm0, dword ptr [rbp+70h+var_D8+8]
-    vsubss  xmm1, xmm0, xmm8
-    vmulss  xmm2, xmm1, xmm3
-    vaddss  xmm0, xmm2, xmm8
-    vmovss  [rsp+170h+var_130], xmm0
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rbx]
-    vmovss  [rsp+170h+var_13C], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  [rsp+170h+var_134], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  [rsp+170h+var_12C], xmm0
-    vsubss  xmm0, xmm12, xmm15
-    vsubss  xmm1, xmm11, xmm14
-    vsubss  xmm4, xmm9, [rsp+170h+var_118]
-    vmovss  xmm2, [rsp+170h+var_124]
-    vsubss  xmm5, xmm2, [rsp+170h+var_11C]
-    vmovss  xmm9, [rsp+170h+var_138]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm4
-    vsubss  xmm3, xmm10, xmm13
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, [rsp+170h+var_128]
-    vmovss  [rsp+170h+var_140], xmm3
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm0, xmm1, [rsp+170h+var_120]
-    vmulss  xmm1, xmm0, xmm0
-    vsubss  xmm0, xmm9, [rsp+170h+var_134]
-    vmulss  xmm3, xmm0, xmm0
-    vaddss  xmm5, xmm2, xmm1
-    vmovss  xmm1, [rsp+170h+var_110]
-    vsubss  xmm0, xmm1, [rsp+170h+var_13C]
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm0, [rsp+170h+var_130]
-    vsubss  xmm3, xmm0, [rsp+170h+var_12C]
-    vmovss  xmm0, [rsp+170h+var_140]
-    vcomiss xmm0, xmm5
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vxorps  xmm9, xmm9, xmm9
-  }
-  if ( !v97 )
-    goto LABEL_6;
-  __asm { vcomiss xmm0, xmm4 }
-  if ( v97 )
-  {
-    __asm
+    if ( v30 >= v32 )
     {
-      vsqrtss xmm4, xmm0, xmm0
-      vcomiss xmm4, xmm9
-    }
-    if ( v97 | v98 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm8, xmm8
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm2, xmm2
-        vcmpless xmm0, xmm3, cs:__real@80000000
-        vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm6, xmm1
-        vmovss  dword ptr [rsi], xmm0
-        vmulss  xmm3, xmm7, xmm1
-        vmulss  xmm2, xmm8, xmm1
-        vmovss  dword ptr [rsi+4], xmm3
-        vmovss  dword ptr [rsi+8], xmm2
-      }
+      v48 = v64;
+      v49 = v54;
+      v50 = v54 - v55;
+      v23 = t1;
+      v26 = t0;
+      v25 = v55;
+      v24 = v53;
+      v33 = fsqrt(v32);
+      outNormal->v[0] = (float)(v64 - v53) * (float)(1.0 / v33);
+      outNormal->v[2] = v31 * (float)(1.0 / v33);
+      outNormal->v[1] = v50 * (float)(1.0 / v33);
+      v22 = v49;
+      v21 = v48;
     }
     else
     {
-      __asm
+      v21 = v63;
+      v39 = fsqrt(v30);
+      v33 = v39;
+      if ( v39 <= 0.0 )
       {
-        vmovss  xmm0, cs:__real@3f800000
-        vdivss  xmm1, xmm0, xmm4
-        vsubss  xmm0, xmm12, xmm15
-        vsubss  xmm3, xmm11, xmm14
-        vmulss  xmm0, xmm1, xmm0
-        vmovss  dword ptr [rsi], xmm0
-        vsubss  xmm2, xmm10, xmm13
-        vmulss  xmm3, xmm1, xmm3
-        vmulss  xmm2, xmm1, xmm2
-        vmovss  dword ptr [rsi+4], xmm3
-        vmovss  dword ptr [rsi+8], xmm2
+        v43 = LODWORD(s00.v[1]);
+        *(float *)&v43 = fsqrt((float)((float)(s00.v[1] * s00.v[1]) + (float)(s00.v[0] * s00.v[0])) + (float)(s00.v[2] * s00.v[2]));
+        _XMM3 = v43;
+        __asm
+        {
+          vcmpless xmm0, xmm3, cs:__real@80000000
+          vblendvps xmm0, xmm3, xmm1, xmm0
+        }
+        v47 = 1.0 / *(float *)&_XMM0;
+        v41 = s00.v[2] * (float)(1.0 / *(float *)&_XMM0);
+        v42 = s00.v[1] * (float)(1.0 / *(float *)&_XMM0);
+        v40 = s00.v[0] * v47;
       }
+      else
+      {
+        v40 = (float)(1.0 / v39) * (float)(v63 - v62);
+        v41 = (float)(1.0 / v39) * (float)(v58 - v60);
+        v42 = (float)(1.0 / v39) * (float)(v59 - v61);
+      }
+      v23 = v58;
+      v22 = v59;
+      v26 = v60;
+      v25 = v61;
+      v24 = v62;
+      outNormal->v[0] = v40;
+      outNormal->v[1] = v42;
+      outNormal->v[2] = v41;
     }
   }
   else
   {
-LABEL_6:
-    __asm { vcomiss xmm5, xmm4 }
-    if ( v97 )
+    v34 = fsqrt(v52);
+    v33 = v34;
+    if ( v34 <= 0.0 )
     {
+      v35 = LODWORD(s00.v[1]);
+      *(float *)&v35 = fsqrt((float)((float)(s00.v[1] * s00.v[1]) + (float)(s00.v[0] * s00.v[0])) + (float)(s00.v[2] * s00.v[2]));
+      _XMM3 = v35;
       __asm
       {
-        vmovss  xmm12, [rsp+170h+var_114]
-        vsqrtss xmm4, xmm5, xmm5
-        vcomiss xmm4, xmm9
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm0, xmm3, xmm1, xmm0
       }
-      if ( v97 | v98 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm6
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm8, xmm8
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vsqrtss xmm3, xmm2, xmm2
-          vcmpless xmm0, xmm3, cs:__real@80000000
-          vblendvps xmm0, xmm3, xmm1, xmm0
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm8, xmm1
-          vmulss  xmm0, xmm7, xmm1
-          vmulss  xmm3, xmm6, xmm1
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  xmm3, [rsp+170h+var_124]
-          vdivss  xmm1, xmm0, xmm4
-          vmovss  xmm0, [rsp+170h+var_128]
-          vsubss  xmm2, xmm0, [rsp+170h+var_120]
-          vsubss  xmm0, xmm3, [rsp+170h+var_11C]
-          vsubss  xmm3, xmm12, [rsp+170h+var_118]
-          vmulss  xmm3, xmm1, xmm3
-          vmulss  xmm2, xmm1, xmm2
-          vmulss  xmm0, xmm1, xmm0
-        }
-      }
-      __asm
-      {
-        vmovss  xmm10, [rsp+170h+var_128]
-        vmovss  xmm11, [rsp+170h+var_124]
-        vmovss  xmm13, [rsp+170h+var_120]
-        vmovss  xmm14, [rsp+170h+var_11C]
-        vmovss  xmm15, [rsp+170h+var_118]
-        vmovss  dword ptr [rsi], xmm3
-        vmovss  dword ptr [rsi+4], xmm0
-        vmovss  dword ptr [rsi+8], xmm2
-      }
+      outNormal->v[0] = s00.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      outNormal->v[1] = v28 * (float)(1.0 / *(float *)&_XMM0);
+      outNormal->v[2] = v29 * (float)(1.0 / *(float *)&_XMM0);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm5, [rsp+170h+var_110]
-        vmovss  xmm6, [rsp+170h+var_138]
-        vsubss  xmm1, xmm6, [rsp+170h+var_134]
-        vmovss  xmm10, [rsp+170h+var_130]
-        vmovss  xmm13, [rsp+170h+var_12C]
-        vmovss  xmm14, [rsp+170h+var_134]
-        vmovss  xmm15, [rsp+170h+var_13C]
-        vsqrtss xmm4, xmm4, xmm4
-        vdivss  xmm2, xmm0, xmm4
-        vsubss  xmm0, xmm5, [rsp+170h+var_13C]
-        vmulss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rsi], xmm0
-        vmulss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm1, xmm2
-        vmovss  dword ptr [rsi+8], xmm0
-        vmovss  dword ptr [rsi+4], xmm1
-        vmovaps xmm11, xmm6
-        vmovaps xmm12, xmm5
-      }
+      outNormal->v[0] = (float)(1.0 / v34) * (float)(v21 - v24);
+      outNormal->v[1] = (float)(1.0 / v34) * (float)(v22 - v25);
+      outNormal->v[2] = (float)(1.0 / v34) * (float)(v23 - v26);
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [r14], xmm15
-    vmovss  dword ptr [r14+4], xmm14
-    vmovss  dword ptr [r14+8], xmm13
-    vmovss  dword ptr [r15], xmm12
-    vmovss  dword ptr [r15+4], xmm11
-    vmovss  dword ptr [r15+8], xmm10
-    vmovaps xmm0, xmm4
-  }
-  _R11 = &v240;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return *(float *)&_XMM0;
+  outContactPointSeg->v[0] = v24;
+  outContactPointSeg->v[1] = v25;
+  outContactPointSeg->v[2] = v26;
+  outContactPointBox->v[0] = v21;
+  outContactPointBox->v[1] = v22;
+  outContactPointBox->v[2] = v23;
+  return v33;
 }
 
 /*
@@ -520,148 +344,56 @@ TestSegmentAlignedBoxAtOrigin
 */
 bool TestSegmentAlignedBoxAtOrigin(const vec3_t *segStart, const vec3_t *segEnd, const vec3_t *boxExtents)
 {
-  char v57; 
-  char v58; 
-  bool result; 
-  _BYTE v86[32]; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   vec3_t v1; 
   vec3_t cross; 
-  char v92; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-    vmovaps [rsp+0F8h+var_98], xmm14
-    vmovaps [rsp+0F8h+var_A8], xmm15
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm5, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm6, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, xmm6
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmulss  xmm1, xmm1, xmm4
-    vaddss  xmm13, xmm1, xmm6
-    vsubss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmulss  xmm2, xmm1, xmm4
-    vaddss  xmm8, xmm2, xmm5
-    vsubss  xmm1, xmm0, xmm3
-    vmulss  xmm2, xmm1, xmm4
-    vaddss  xmm4, xmm2, xmm3
-    vsubss  xmm15, xmm8, xmm5
-    vsubss  xmm14, xmm13, xmm6
-    vandps  xmm5, xmm14, xmm7
-    vaddss  xmm0, xmm5, dword ptr [r8]
-    vandps  xmm1, xmm13, xmm7
-    vcomiss xmm1, xmm0
-    vsubss  xmm9, xmm4, xmm3
-  }
-  _RBX = boxExtents;
-  __asm
-  {
-    vandps  xmm2, xmm15, xmm7
-    vandps  xmm3, xmm9, xmm7
-  }
-  if ( (unsigned __int64)v86 != _security_cookie )
-    goto LABEL_8;
-  __asm
-  {
-    vaddss  xmm0, xmm2, dword ptr [r8+4]
-    vandps  xmm1, xmm8, xmm7
-    vcomiss xmm1, xmm0
-  }
-  if ( (unsigned __int64)v86 != _security_cookie )
-    goto LABEL_8;
-  __asm
-  {
-    vaddss  xmm0, xmm3, dword ptr [r8+8]
-    vandps  xmm1, xmm4, xmm7
-    vcomiss xmm1, xmm0
-  }
-  if ( (unsigned __int64)v86 != _security_cookie )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vaddss  xmm11, xmm2, xmm0
-    vaddss  xmm12, xmm3, xmm0
-    vmulss  xmm1, xmm9, xmm8
-    vaddss  xmm10, xmm5, xmm0
-    vmulss  xmm0, xmm15, xmm4
-    vsubss  xmm6, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm13
-    vmulss  xmm0, xmm8, xmm14
-    vmulss  xmm2, xmm14, xmm4
-    vmulss  xmm3, xmm13, xmm15
-    vsubss  xmm9, xmm2, xmm1
-    vsubss  xmm8, xmm3, xmm0
-    vmovss  dword ptr [rsp+0F8h+v1], xmm10
-    vmovss  dword ptr [rsp+0F8h+v1+4], xmm11
-    vmovss  dword ptr [rsp+0F8h+v1+8], xmm12
-  }
+  v3 = segStart->v[1];
+  v4 = segStart->v[2];
+  v5 = (float)((float)(segEnd->v[0] - segStart->v[0]) * 0.5) + segStart->v[0];
+  v6 = (float)((float)(segEnd->v[1] - v3) * 0.5) + v3;
+  v7 = (float)((float)(segEnd->v[2] - v4) * 0.5) + v4;
+  v8 = v6 - v3;
+  v9 = v5 - segStart->v[0];
+  LODWORD(v10) = LODWORD(v9) & _xmm;
+  v11 = v7 - v4;
+  LODWORD(v13) = LODWORD(v8) & _xmm;
+  LODWORD(v14) = COERCE_UNSIGNED_INT(v7 - v4) & _xmm;
+  if ( COERCE_FLOAT(LODWORD(v5) & _xmm) > (float)(COERCE_FLOAT(LODWORD(v9) & _xmm) + boxExtents->v[0]) )
+    return 0;
+  if ( COERCE_FLOAT(LODWORD(v6) & _xmm) > (float)(v13 + boxExtents->v[1]) )
+    return 0;
+  if ( COERCE_FLOAT(LODWORD(v7) & _xmm) > (float)(v14 + boxExtents->v[2]) )
+    return 0;
+  v15 = v14 + 0.001;
+  v16 = v10 + 0.001;
+  v17 = (float)(v11 * v6) - (float)(v8 * v7);
+  v18 = (float)(v9 * v7) - (float)(v11 * v5);
+  v19 = (float)(v5 * v8) - (float)(v6 * v9);
+  v1.v[0] = v10 + 0.001;
+  v1.v[1] = v13 + 0.001;
+  v1.v[2] = v14 + 0.001;
   Vec3Cross(boxExtents, &v1, &cross);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx+8]
-    vmulss  xmm1, xmm4, xmm11
-    vmulss  xmm0, xmm3, xmm12
-    vaddss  xmm1, xmm1, xmm0
-    vandps  xmm6, xmm6, xmm7
-    vcomiss xmm6, xmm1
-  }
-  if ( !(v57 | v58) )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]
-    vmulss  xmm1, xmm12, xmm2
-    vmulss  xmm0, xmm4, xmm10
-    vaddss  xmm1, xmm1, xmm0
-    vandps  xmm9, xmm9, xmm7
-    vcomiss xmm9, xmm1
-  }
-  if ( !(v57 | v58) )
-    goto LABEL_8;
-  __asm
-  {
-    vmulss  xmm1, xmm10, xmm3
-    vmulss  xmm0, xmm11, xmm2
-    vaddss  xmm1, xmm1, xmm0
-    vandps  xmm8, xmm8, xmm7
-    vcomiss xmm8, xmm1
-  }
-  if ( !(v57 | v58) )
-LABEL_8:
-    result = 0;
-  else
-    result = 1;
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+0F8h+var_98]
-    vmovaps xmm15, [rsp+0F8h+var_A8]
-  }
-  return result;
+  v20 = boxExtents->v[1];
+  v21 = boxExtents->v[2];
+  return COERCE_FLOAT(LODWORD(v17) & _xmm) <= (float)((float)(v21 * (float)(v13 + 0.001)) + (float)(v20 * v15)) && COERCE_FLOAT(LODWORD(v18) & _xmm) <= (float)((float)(v15 * boxExtents->v[0]) + (float)(v21 * v16)) && COERCE_FLOAT(LODWORD(v19) & _xmm) <= (float)((float)(v16 * v20) + (float)((float)(v13 + 0.001) * boxExtents->v[0]));
 }
 
 /*
@@ -671,547 +403,466 @@ XAnimBonePhysics_FindCollisions
 */
 __int64 XAnimBonePhysics_FindCollisions(const DObjProceduralBones *procBones, unsigned int firstPhysicsBoneIndex, unsigned int endPhysicsBoneIndex, const XAnimCollisionShape *collidableBoneCollisionShapes, const DObjAnimMat *collidableBoneTransforms, XAnimCollisionContact *outContacts, const int maxContacts)
 {
-  const DObjProceduralBones *v14; 
+  const DObjProceduralBones *v8; 
   unsigned int numModels; 
-  unsigned int v16; 
-  int v17; 
-  unsigned int v21; 
-  unsigned int v22; 
-  __int64 v23; 
+  unsigned int v10; 
+  int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  __int64 v14; 
   DObjProceduralBonesModelInfo *modelInfo; 
-  unsigned int v26; 
-  unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
-  XAnimPhysicsBone *v32; 
-  const XAnimDynamicBoneProperties *properties; 
-  unsigned int v48; 
-  XAnimCollisionContact *v54; 
-  __int64 v56; 
-  unsigned int v94; 
-  const DObjProceduralBones *v95; 
-  __int64 v96; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  float *p_boneIndex; 
+  const vec4_t *v23; 
+  __int64 v24; 
+  unsigned int v25; 
+  XAnimCollisionShape *v26; 
+  XAnimCollisionContact *v27; 
+  XAnimCollisionContact *v28; 
+  __int64 v29; 
+  float v30; 
+  float v31; 
+  float *v32; 
+  float v33; 
+  unsigned int v34; 
+  const DObjProceduralBones *v35; 
+  __int64 v36; 
   XAnimCollidableBoneInfo *collidableBoneInfo; 
-  unsigned int v98; 
-  const DObjAnimMat *v99; 
-  unsigned int v100; 
-  XAnimCollisionContact *v102; 
-  int v103; 
-  __int64 v121; 
-  char v123; 
-  __int64 result; 
-  XAnimCollisionContact *v138; 
+  unsigned int v38; 
+  const DObjAnimMat *v39; 
+  unsigned int v40; 
+  const XAnimCollisionShape *v41; 
+  XAnimCollisionContact *v42; 
+  int v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int128 v47; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float *v54; 
+  char v55; 
+  float v56; 
+  XAnimCollisionContact *v58; 
   vec3_t *outPointB; 
   vec3_t *outNormal; 
-  __int64 v141; 
+  __int64 v61; 
   bool groundPlaneEnabled; 
-  unsigned int v143; 
-  unsigned int v144; 
-  unsigned int v145; 
-  unsigned int v146; 
+  unsigned int v63; 
+  unsigned int v64; 
+  unsigned int v65; 
+  unsigned int v66; 
   unsigned int numCollidableBones; 
-  unsigned int v149; 
-  unsigned int v150; 
-  unsigned int v151; 
+  unsigned int v69; 
+  unsigned int v70; 
+  unsigned int v71; 
   vec4_t *boxQuat; 
-  XAnimCollidableBoneInfo *v155; 
-  XAnimPhysicsBone *v156; 
-  __int64 v157; 
+  XAnimCollidableBoneInfo *v75; 
+  float *v76; 
+  __int64 v77; 
   XAnimPhysicsBone *physicsBones; 
   XAnimCollisionShape *collisionShapes; 
-  __int64 v161; 
-  DObjProceduralBonesModelInfo *v162; 
+  __int64 v81; 
+  DObjProceduralBonesModelInfo *v82; 
   XAnimCollisionShapeType type; 
   XAnimCapsuleCollisionShape capsule; 
   vec3_t out; 
   vec4_t outModelGroundPlane; 
   vec4_t quat; 
   vec3_t in; 
-  vec3_t v169; 
+  vec3_t v89; 
 
-  v14 = procBones;
+  v8 = procBones;
   if ( outContacts && maxContacts && endPhysicsBoneIndex >= firstPhysicsBoneIndex )
   {
     if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1067, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
       __debugbreak();
-    numModels = v14->numModels;
-    physicsBones = v14->physicsBones;
-    numCollidableBones = v14->numCollidableBones;
-    v145 = numModels;
-    groundPlaneEnabled = v14->physicsState.groundPlaneEnabled;
+    numModels = v8->numModels;
+    physicsBones = v8->physicsBones;
+    numCollidableBones = v8->numCollidableBones;
+    v65 = numModels;
+    groundPlaneEnabled = v8->physicsState.groundPlaneEnabled;
     if ( groundPlaneEnabled )
-      XAnimBonePhysics_GetModelSpaceGroundPlane(v14, &outModelGroundPlane);
-    if ( firstPhysicsBoneIndex >= v14->numPhysicsBones )
+      XAnimBonePhysics_GetModelSpaceGroundPlane(v8, &outModelGroundPlane);
+    if ( firstPhysicsBoneIndex >= v8->numPhysicsBones )
     {
-      LODWORD(v138) = firstPhysicsBoneIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1079, ASSERT_TYPE_ASSERT, "(unsigned)( firstPhysicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "firstPhysicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v138, v14->numPhysicsBones) )
+      LODWORD(v58) = firstPhysicsBoneIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1079, ASSERT_TYPE_ASSERT, "(unsigned)( firstPhysicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "firstPhysicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v58, v8->numPhysicsBones) )
         __debugbreak();
     }
-    if ( endPhysicsBoneIndex > v14->numPhysicsBones )
+    if ( endPhysicsBoneIndex > v8->numPhysicsBones )
     {
-      LODWORD(outPointB) = v14->numPhysicsBones;
-      LODWORD(v138) = endPhysicsBoneIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1080, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", v138, outPointB) )
+      LODWORD(outPointB) = v8->numPhysicsBones;
+      LODWORD(v58) = endPhysicsBoneIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1080, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", v58, outPointB) )
         __debugbreak();
     }
-    v16 = 0;
-    v17 = 0;
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+200h+var_58+8], xmm6
-      vmovaps [rsp+200h+var_68+8], xmm7
-      vmovaps [rsp+200h+var_78+8], xmm8
-      vmovaps [rsp+200h+var_88+8], xmm9
-      vmovaps [rsp+200h+var_98+8], xmm10
-      vmovaps [rsp+200h+var_A8+8], xmm11
-    }
-    v144 = 0;
+    v10 = 0;
+    v11 = 0;
+    v64 = 0;
     if ( !numModels )
-      goto LABEL_112;
-    __asm
-    {
-      vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm11, cs:__real@80000000
-      vmovss  xmm10, cs:__real@3f800000
-    }
-    v21 = numCollidableBones;
-    v22 = numModels;
-    v23 = 0i64;
-    v157 = 0i64;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+      return (unsigned int)v11;
+    v12 = numCollidableBones;
+    v13 = numModels;
+    v14 = 0i64;
+    v77 = 0i64;
     while ( 1 )
     {
-      modelInfo = v14->modelInfo;
-      v162 = modelInfo;
-      v26 = *(&modelInfo->numPhysicsBones + v23);
-      if ( (_BYTE)v26 )
+      modelInfo = v8->modelInfo;
+      v82 = modelInfo;
+      v16 = *(&modelInfo->numPhysicsBones + v14);
+      if ( (_BYTE)v16 )
         break;
-LABEL_111:
-      ++v16;
-      v23 += 32i64;
-      v144 = v16;
-      v157 = v23;
-      if ( v16 >= v22 )
-      {
 LABEL_112:
-        __asm { vmovaps xmm10, [rsp+200h+var_98+8] }
-        result = (unsigned int)v17;
-        __asm
-        {
-          vmovaps xmm9, [rsp+200h+var_88+8]
-          vmovaps xmm8, [rsp+200h+var_78+8]
-          vmovaps xmm7, [rsp+200h+var_68+8]
-          vmovaps xmm6, xmmword ptr [rsp+200h+var_58+8]
-          vmovaps xmm11, [rsp+200h+var_A8+8]
-        }
-        return result;
-      }
+      ++v10;
+      v14 += 32i64;
+      v64 = v10;
+      v77 = v14;
+      if ( v10 >= v13 )
+        return (unsigned int)v11;
     }
-    if ( !*(const XAnimDynamicBones **)((char *)&modelInfo->dynamicBonesAsset + v23) )
+    if ( !*(const XAnimDynamicBones **)((char *)&modelInfo->dynamicBonesAsset + v14) )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1093, ASSERT_TYPE_ASSERT, "(modelInfo->dynamicBonesAsset != 0)", (const char *)&queryFormat, "modelInfo->dynamicBonesAsset != NULL") )
         __debugbreak();
-      v16 = v144;
+      v10 = v64;
     }
-    v27 = *(&modelInfo->firstPhysicsBoneIndex + v23);
-    v28 = v27 + *(&modelInfo->numPhysicsBones + v23);
-    collisionShapes = (*(const XAnimDynamicBones **)((char *)&modelInfo->dynamicBonesAsset + v23))->collisionShapes;
-    if ( v28 <= firstPhysicsBoneIndex )
+    v17 = *(&modelInfo->firstPhysicsBoneIndex + v14);
+    v18 = v17 + *(&modelInfo->numPhysicsBones + v14);
+    collisionShapes = (*(const XAnimDynamicBones **)((char *)&modelInfo->dynamicBonesAsset + v14))->collisionShapes;
+    if ( v18 <= firstPhysicsBoneIndex )
+    {
+LABEL_111:
+      v13 = v65;
+      goto LABEL_112;
+    }
+    if ( v17 >= endPhysicsBoneIndex )
+      return (unsigned int)v11;
+    v19 = endPhysicsBoneIndex - v17;
+    if ( endPhysicsBoneIndex >= v18 )
+      v19 = v16;
+    v20 = firstPhysicsBoneIndex - v17;
+    v63 = v19;
+    if ( firstPhysicsBoneIndex <= v17 )
+      v20 = 0;
+    v71 = v20;
+    if ( v20 >= v19 )
     {
 LABEL_110:
-      v22 = v145;
+      v10 = v64;
       goto LABEL_111;
     }
-    if ( v27 >= endPhysicsBoneIndex )
-      goto LABEL_112;
-    v29 = endPhysicsBoneIndex - v27;
-    if ( endPhysicsBoneIndex >= v28 )
-      v29 = v26;
-    v30 = firstPhysicsBoneIndex - v27;
-    v143 = v29;
-    if ( firstPhysicsBoneIndex <= v27 )
-      v30 = 0;
-    v151 = v30;
-    if ( v30 >= v29 )
-    {
-LABEL_109:
-      v16 = v144;
-      goto LABEL_110;
-    }
     while ( 1 )
     {
-      v31 = v30 + *(&modelInfo->firstPhysicsBoneIndex + v23);
-      v146 = v31;
-      if ( !v31 )
+      v21 = v20 + *(&modelInfo->firstPhysicsBoneIndex + v14);
+      v66 = v21;
+      if ( !v21 )
       {
-        LODWORD(v141) = 1;
+        LODWORD(v61) = 1;
         LODWORD(outNormal) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1120, ASSERT_TYPE_ASSERT, "( physicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "physicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", outNormal, v141) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1120, ASSERT_TYPE_ASSERT, "( physicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "physicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", outNormal, v61) )
           __debugbreak();
-        v29 = v143;
+        v19 = v63;
       }
-      v161 = v31;
-      v32 = &physicsBones[v31];
-      v156 = v32;
-      if ( v32->boneIndex == 255 )
-        goto LABEL_107;
-      if ( (v32->flags & 4) == 0 )
+      v81 = v21;
+      p_boneIndex = (float *)&physicsBones[v21].boneIndex;
+      v76 = p_boneIndex;
+      if ( *(_WORD *)p_boneIndex == 255 )
+        goto LABEL_108;
+      if ( ((_BYTE)p_boneIndex[4] & 4) == 0 )
         break;
-      if ( v32->properties->numCollisionShapes )
+      if ( *(_DWORD *)(*((_QWORD *)p_boneIndex + 1) + 100i64) )
       {
-        LODWORD(v138) = v32->properties->numCollisionShapes;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1131, ASSERT_TYPE_ASSERT, "( ( pb->properties->numCollisionShapes == 0 ) )", "( pb->properties->numCollisionShapes ) = %i", v138) )
+        LODWORD(v58) = *(_DWORD *)(*((_QWORD *)p_boneIndex + 1) + 100i64);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1131, ASSERT_TYPE_ASSERT, "( ( pb->properties->numCollisionShapes == 0 ) )", "( pb->properties->numCollisionShapes ) = %i", v58) )
           __debugbreak();
-        goto LABEL_106;
+        goto LABEL_107;
       }
-LABEL_107:
-      v23 = v157;
-      v30 = v151 + 1;
-      modelInfo = v162;
-      v151 = v30;
-      if ( v30 >= v29 )
+LABEL_108:
+      v14 = v77;
+      v20 = v71 + 1;
+      modelInfo = v82;
+      v71 = v20;
+      if ( v20 >= v19 )
       {
-        v14 = procBones;
-        goto LABEL_109;
+        v8 = procBones;
+        goto LABEL_110;
       }
     }
-    _RDI = &v32->state.rotationQuat;
-    __asm
+    v23 = (const vec4_t *)(p_boneIndex + 7);
+    LODWORD(quat.v[0]) = *((_DWORD *)p_boneIndex + 7) ^ _xmm;
+    LODWORD(quat.v[1]) = *((_DWORD *)p_boneIndex + 8) ^ _xmm;
+    LODWORD(quat.v[2]) = *((_DWORD *)p_boneIndex + 9) ^ _xmm;
+    boxQuat = (vec4_t *)(p_boneIndex + 7);
+    quat.v[3] = p_boneIndex[10];
+    QuatTransform((const vec4_t *)(p_boneIndex + 7), (const vec3_t *)(p_boneIndex + 46), &out);
+    out.v[0] = out.v[0] + p_boneIndex[11];
+    out.v[1] = out.v[1] + p_boneIndex[12];
+    out.v[2] = out.v[2] + p_boneIndex[13];
+    v24 = *((_QWORD *)p_boneIndex + 1);
+    v25 = 0;
+    v70 = 0;
+    if ( !*(_DWORD *)(v24 + 100) )
     {
-      vmovss  xmm0, dword ptr [rdi]
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rbp+100h+quat], xmm1
-      vmovss  xmm2, dword ptr [rdi+4]
-      vxorps  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rbp+100h+quat+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vxorps  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rbp+100h+quat+8], xmm2
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-    }
-    boxQuat = &v32->state.rotationQuat;
-    __asm { vmovss  dword ptr [rbp+100h+quat+0Ch], xmm0 }
-    QuatTransform(&v32->state.rotationQuat, &v32->jointOffset, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+100h+out]
-      vaddss  xmm1, xmm0, dword ptr [r13+2Ch]
-      vmovss  xmm2, dword ptr [rbp+100h+out+4]
-      vmovss  dword ptr [rbp+100h+out], xmm1
-      vaddss  xmm0, xmm2, dword ptr [r13+30h]
-      vmovss  xmm1, dword ptr [rbp+100h+out+8]
-      vmovss  dword ptr [rbp+100h+out+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [r13+34h]
-      vmovss  dword ptr [rbp+100h+out+8], xmm2
-    }
-    properties = v32->properties;
-    v48 = 0;
-    v150 = 0;
-    if ( !properties->numCollisionShapes )
-    {
-LABEL_106:
-      v29 = v143;
-      goto LABEL_107;
+LABEL_107:
+      v19 = v63;
+      goto LABEL_108;
     }
     while ( 1 )
     {
-      _RBX = &collisionShapes[v48 + properties->firstCollisionShapeIndex];
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 852, ASSERT_TYPE_ASSERT, "(srcShape != 0)", (const char *)&queryFormat, "srcShape != NULL") )
+      v26 = &collisionShapes[v25 + *(_DWORD *)(v24 + 96)];
+      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 852, ASSERT_TYPE_ASSERT, "(srcShape != 0)", (const char *)&queryFormat, "srcShape != NULL") )
         __debugbreak();
-      type = _RBX->type;
-      if ( _RBX->type )
+      type = v26->type;
+      if ( v26->type )
       {
-        if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+        if ( v26->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
         {
-          QuatTrans_TransformPoint(_RDI, &out, &_RBX->u.sphere.center, &capsule.start);
-          QuatTrans_TransformPoint(_RDI, &out, &_RBX->u.capsule.end, &capsule.end);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+1Ch]
-            vmovss  [rbp+100h+capsule.radius], xmm0
-          }
+          QuatTrans_TransformPoint(v23, &out, &v26->u.sphere.center, &capsule.start);
+          QuatTrans_TransformPoint(v23, &out, &v26->u.capsule.end, &capsule.end);
+          capsule.radius = v26->u.capsule.radius;
         }
-        else if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_BOX )
+        else if ( v26->type == XANIM_COLLISION_SHAPE_TYPE_BOX )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx+4]
-            vmovups xmmword ptr [rbp+100h+capsule.start], xmm0
-            vmovsd  xmm1, qword ptr [rbx+14h]
-            vmovsd  qword ptr [rbp+100h+capsule.end+4], xmm1
-          }
+          *(XAnimSphereCollisionShape *)capsule.start.v = v26->u.sphere;
+          *(_QWORD *)&capsule.end.y = *(_QWORD *)&v26->u.box.extents.y;
         }
       }
       else
       {
-        QuatTrans_TransformPoint(_RDI, &out, &_RBX->u.sphere.center, &capsule.start);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+10h]
-          vmovss  dword ptr [rbp+100h+capsule.end], xmm0
-        }
+        QuatTrans_TransformPoint(v23, &out, &v26->u.sphere.center, &capsule.start);
+        capsule.end.v[0] = v26->u.sphere.radius;
       }
-      v54 = outContacts;
+      v27 = outContacts;
       if ( groundPlaneEnabled )
         break;
 LABEL_63:
-      v149 = 0;
-      v94 = 0;
-      if ( v21 )
+      v69 = 0;
+      v34 = 0;
+      if ( v12 )
       {
-        v95 = procBones;
-        v96 = 0i64;
+        v35 = procBones;
+        v36 = 0i64;
         do
         {
-          collidableBoneInfo = v95->collidableBoneInfo;
-          v155 = collidableBoneInfo;
-          if ( collidableBoneInfo[v96].boneIndex != 255 )
+          collidableBoneInfo = v35->collidableBoneInfo;
+          v75 = collidableBoneInfo;
+          if ( collidableBoneInfo[v36].boneIndex != 255 )
           {
-            v98 = 0;
-            v99 = &collidableBoneTransforms[v94];
-            if ( collidableBoneInfo[v96].numCollisionShapes )
+            v38 = 0;
+            v39 = &collidableBoneTransforms[v34];
+            if ( collidableBoneInfo[v36].numCollisionShapes )
             {
               while ( 1 )
               {
-                v100 = v98 + collidableBoneInfo[v96].firstCollisionShapeIndex;
-                _RBX = &collidableBoneCollisionShapes[v100];
-                if ( v100 >= v95->numCollidableBoneCollisionShapes )
+                v40 = v38 + collidableBoneInfo[v36].firstCollisionShapeIndex;
+                v41 = &collidableBoneCollisionShapes[v40];
+                if ( v40 >= v35->numCollidableBoneCollisionShapes )
                 {
-                  LODWORD(outPointB) = v95->numCollidableBoneCollisionShapes;
-                  LODWORD(v138) = v98 + collidableBoneInfo[v96].firstCollisionShapeIndex;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1215, ASSERT_TYPE_ASSERT, "(unsigned)( collidableBoneInfo->firstCollisionShapeIndex + collisionShapeIndex ) < (unsigned)( procBones->numCollidableBoneCollisionShapes )", "collidableBoneInfo->firstCollisionShapeIndex + collisionShapeIndex doesn't index procBones->numCollidableBoneCollisionShapes\n\t%i not in [0, %i)", v138, outPointB) )
+                  LODWORD(outPointB) = v35->numCollidableBoneCollisionShapes;
+                  LODWORD(v58) = v38 + collidableBoneInfo[v36].firstCollisionShapeIndex;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1215, ASSERT_TYPE_ASSERT, "(unsigned)( collidableBoneInfo->firstCollisionShapeIndex + collisionShapeIndex ) < (unsigned)( procBones->numCollidableBoneCollisionShapes )", "collidableBoneInfo->firstCollisionShapeIndex + collisionShapeIndex doesn't index procBones->numCollidableBoneCollisionShapes\n\t%i not in [0, %i)", v58, outPointB) )
                     __debugbreak();
                 }
-                v102 = &v54[v17];
+                v42 = &v27[v11];
                 if ( type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
                 {
-                  switch ( _RBX->type )
+                  if ( v41->type )
                   {
-                    case XANIM_COLLISION_SHAPE_TYPE_SPHERE:
-                      v103 = XAnimBonePhysics_TestCapsuleSphere(&capsule, &_RBX->u.sphere, 0, &v102->pointA, &v102->pointB, &v102->normal);
-                      goto LABEL_89;
-                    case XANIM_COLLISION_SHAPE_TYPE_CAPSULE:
-                      v103 = XAnimBonePhysics_TestCapsuleCapsule(&capsule, (const XAnimCapsuleCollisionShape *)&_RBX->u, v102, maxContacts - v17);
-                      goto LABEL_89;
-                    case XANIM_COLLISION_SHAPE_TYPE_BOX:
-                      v103 = XAnimBonePhysics_TestCapsuleOrientedBox(&capsule, (const XAnimBoxCollisionShape *)&_RBX->u, &v99->quat, &v99->trans, 0, v102, maxContacts - v17);
-LABEL_89:
-                      LODWORD(v121) = v103;
-                      if ( v103 > 0 )
-                      {
-                        v17 += v103;
-                        if ( v17 > maxContacts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1275, ASSERT_TYPE_ASSERT, "(numShapeContacts + numContacts <= maxContacts)", (const char *)&queryFormat, "numShapeContacts + numContacts <= maxContacts") )
-                          __debugbreak();
-                        v121 = (int)v121;
-                        if ( (int)v121 > 0 )
-                        {
-                          _RDI = &v102->pointA.v[2];
-                          do
-                          {
-                            v123 = v146;
-                            if ( v146 > 0xFF )
-                            {
-                              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v146, "unsigned", v161) )
-                                __debugbreak();
-                              v123 = v146;
-                            }
-                            *((_BYTE *)_RDI - 12) = v123;
-                            _R8 = _RDI - 2;
-                            *((_BYTE *)_RDI - 11) = 0;
-                            __asm
-                            {
-                              vmovss  xmm0, dword ptr [r8]
-                              vmovss  xmm2, dword ptr [rdi-4]
-                              vsubss  xmm1, xmm0, dword ptr [rax+2Ch]
-                              vsubss  xmm0, xmm2, dword ptr [rax+30h]
-                              vmovss  dword ptr [rbp+100h+var_C0], xmm1
-                              vmovss  xmm1, dword ptr [rdi]
-                              vsubss  xmm2, xmm1, dword ptr [rax+34h]
-                              vmovss  dword ptr [rbp+100h+var_C0+8], xmm2
-                              vmovss  dword ptr [rbp+100h+var_C0+4], xmm0
-                            }
-                            QuatTransform(&quat, &v169, (vec3_t *)(_RDI - 2));
-                            _RDI += 10;
-                            --v121;
-                          }
-                          while ( v121 );
-                        }
-                        if ( v17 >= maxContacts )
-                          goto LABEL_112;
-                      }
-                      break;
-                  }
-                }
-                else if ( type )
-                {
-                  if ( type == XANIM_COLLISION_SHAPE_TYPE_BOX )
-                  {
-                    if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_SPHERE )
+                    if ( v41->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
                     {
-                      v103 = XAnimBonePhysics_TestSphereOrientedBox(&_RBX->u.sphere, (const XAnimBoxCollisionShape *)&capsule, boxQuat, &out, 1, &v102->pointA, &v102->pointB, &v102->normal);
-                      goto LABEL_89;
+                      v43 = XAnimBonePhysics_TestCapsuleCapsule(&capsule, (const XAnimCapsuleCollisionShape *)&v41->u, v42, maxContacts - v11);
                     }
-                    if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+                    else
                     {
-                      v103 = XAnimBonePhysics_TestCapsuleOrientedBox((const XAnimCapsuleCollisionShape *)&_RBX->u, (const XAnimBoxCollisionShape *)&capsule, boxQuat, &out, 1, v102, maxContacts - v17);
-                      goto LABEL_89;
+                      if ( v41->type != XANIM_COLLISION_SHAPE_TYPE_BOX )
+                        goto LABEL_102;
+                      v43 = XAnimBonePhysics_TestCapsuleOrientedBox(&capsule, (const XAnimBoxCollisionShape *)&v41->u, &v39->quat, &v39->trans, 0, v42, maxContacts - v11);
                     }
                   }
-                }
-                else if ( _RBX->type )
-                {
-                  if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+                  else
                   {
-                    v103 = XAnimBonePhysics_TestCapsuleSphere((const XAnimCapsuleCollisionShape *)&_RBX->u, (const XAnimSphereCollisionShape *)&capsule, 1, &v102->pointB, &v102->pointA, &v102->normal);
-                    goto LABEL_89;
+                    v43 = XAnimBonePhysics_TestCapsuleSphere(&capsule, &v41->u.sphere, 0, &v42->pointA, &v42->pointB, &v42->normal);
                   }
-                  if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_BOX )
-                  {
-                    v103 = XAnimBonePhysics_TestSphereOrientedBox((const XAnimSphereCollisionShape *)&capsule, (const XAnimBoxCollisionShape *)&_RBX->u, &v99->quat, &v99->trans, 0, &v102->pointA, &v102->pointB, &v102->normal);
-                    goto LABEL_89;
-                  }
+                  goto LABEL_90;
                 }
-                else
+                if ( type )
+                  break;
+                if ( v41->type )
                 {
+                  if ( v41->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+                  {
+                    v43 = XAnimBonePhysics_TestCapsuleSphere((const XAnimCapsuleCollisionShape *)&v41->u, (const XAnimSphereCollisionShape *)&capsule, 1, &v42->pointB, &v42->pointA, &v42->normal);
+                  }
+                  else
+                  {
+                    if ( v41->type != XANIM_COLLISION_SHAPE_TYPE_BOX )
+                      goto LABEL_102;
+                    v43 = XAnimBonePhysics_TestSphereOrientedBox((const XAnimSphereCollisionShape *)&capsule, (const XAnimBoxCollisionShape *)&v41->u, &v39->quat, &v39->trans, 0, &v42->pointA, &v42->pointB, &v42->normal);
+                  }
+                  goto LABEL_90;
+                }
+                v44 = v41->u.sphere.center.v[0] - capsule.start.v[0];
+                v47 = LODWORD(v41->u.sphere.center.v[1]);
+                v45 = v41->u.sphere.center.v[1] - capsule.start.v[1];
+                v46 = v41->u.sphere.center.v[2] - capsule.start.v[2];
+                *(float *)&v47 = (float)((float)(v45 * v45) + (float)(v44 * v44)) + (float)(v46 * v46);
+                if ( (float)(*(float *)&v47 - (float)((float)(v41->u.sphere.radius * v41->u.sphere.radius) + (float)(capsule.end.v[0] * capsule.end.v[0]))) < 0.0 )
+                {
+                  *(float *)&v47 = fsqrt(*(float *)&v47);
+                  _XMM1 = v47;
                   __asm
                   {
-                    vmovss  xmm0, dword ptr [rbx+4]
-                    vsubss  xmm4, xmm0, dword ptr [rbp+100h+capsule.start]
-                    vmovss  xmm0, dword ptr [rbx+8]
-                    vsubss  xmm5, xmm0, dword ptr [rbp+100h+capsule.start+4]
-                    vmovss  xmm0, dword ptr [rbx+0Ch]
-                    vsubss  xmm6, xmm0, dword ptr [rbp+100h+capsule.start+8]
-                    vmulss  xmm0, xmm4, xmm4
-                    vmulss  xmm1, xmm5, xmm5
-                    vaddss  xmm2, xmm1, xmm0
-                    vmovss  xmm0, dword ptr [rbx+10h]
-                    vmulss  xmm1, xmm6, xmm6
-                    vaddss  xmm7, xmm2, xmm1
-                    vmovss  xmm1, dword ptr [rbp+100h+capsule.end]
-                    vmulss  xmm3, xmm0, xmm0
-                    vmulss  xmm2, xmm1, xmm1
-                    vaddss  xmm0, xmm3, xmm2
-                    vsubss  xmm3, xmm7, xmm0
-                    vcomiss xmm3, xmm9
+                    vcmpless xmm0, xmm1, xmm11
+                    vblendvps xmm0, xmm1, xmm10, xmm0
                   }
+                  v51 = (float)(1.0 / *(float *)&_XMM0) * v44;
+                  v42->normal.v[0] = v51;
+                  v42->normal.v[1] = (float)(1.0 / *(float *)&_XMM0) * v45;
+                  v42->normal.v[2] = (float)(1.0 / *(float *)&_XMM0) * v46;
+                  v52 = capsule.end.v[0];
+                  v42->pointA.v[0] = (float)(v51 * capsule.end.v[0]) + capsule.start.v[0];
+                  v42->pointA.v[1] = (float)(v52 * v42->normal.v[1]) + capsule.start.v[1];
+                  v42->pointA.v[2] = (float)(v52 * v42->normal.v[2]) + capsule.start.v[2];
+                  LODWORD(v53) = LODWORD(v41->u.sphere.radius) ^ _xmm;
+                  v42->pointB.v[0] = (float)(v53 * v42->normal.v[0]) + v41->u.sphere.center.v[0];
+                  v42->pointB.v[1] = (float)(v53 * v42->normal.v[1]) + v41->u.sphere.center.v[1];
+                  v42->pointB.v[2] = (float)(v53 * v42->normal.v[2]) + v41->u.sphere.center.v[2];
+                  LODWORD(v41) = 1;
+LABEL_91:
+                  v11 += (int)v41;
+                  if ( v11 > maxContacts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1275, ASSERT_TYPE_ASSERT, "(numShapeContacts + numContacts <= maxContacts)", (const char *)&queryFormat, "numShapeContacts + numContacts <= maxContacts") )
+                    __debugbreak();
+                  v41 = (const XAnimCollisionShape *)(int)v41;
+                  if ( (int)v41 > 0 )
+                  {
+                    v54 = &v42->pointA.v[2];
+                    do
+                    {
+                      v55 = v66;
+                      if ( v66 > 0xFF )
+                      {
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v66, "unsigned", v81) )
+                          __debugbreak();
+                        v55 = v66;
+                      }
+                      *((_BYTE *)v54 - 12) = v55;
+                      *((_BYTE *)v54 - 11) = 0;
+                      v56 = *(v54 - 1) - v76[12];
+                      v89.v[0] = *(v54 - 2) - v76[11];
+                      v89.v[2] = *v54 - v76[13];
+                      v89.v[1] = v56;
+                      QuatTransform(&quat, &v89, (vec3_t *)(v54 - 2));
+                      v54 += 10;
+                      v41 = (const XAnimCollisionShape *)((char *)v41 - 1);
+                    }
+                    while ( v41 );
+                  }
+                  if ( v11 >= maxContacts )
+                    return (unsigned int)v11;
                 }
-                ++v98;
-                v95 = procBones;
-                v54 = outContacts;
-                collidableBoneInfo = v155;
-                if ( v98 >= v155[v96].numCollisionShapes )
+LABEL_102:
+                ++v38;
+                v35 = procBones;
+                v27 = outContacts;
+                collidableBoneInfo = v75;
+                if ( v38 >= v75[v36].numCollisionShapes )
                 {
-                  v94 = v149;
-                  break;
+                  v34 = v69;
+                  goto LABEL_104;
                 }
               }
+              if ( type != XANIM_COLLISION_SHAPE_TYPE_BOX )
+                goto LABEL_102;
+              if ( v41->type )
+              {
+                if ( v41->type != XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+                  goto LABEL_102;
+                v43 = XAnimBonePhysics_TestCapsuleOrientedBox((const XAnimCapsuleCollisionShape *)&v41->u, (const XAnimBoxCollisionShape *)&capsule, boxQuat, &out, 1, v42, maxContacts - v11);
+              }
+              else
+              {
+                v43 = XAnimBonePhysics_TestSphereOrientedBox(&v41->u.sphere, (const XAnimBoxCollisionShape *)&capsule, boxQuat, &out, 1, &v42->pointA, &v42->pointB, &v42->normal);
+              }
+LABEL_90:
+              LODWORD(v41) = v43;
+              if ( v43 > 0 )
+                goto LABEL_91;
+              goto LABEL_102;
             }
           }
-          v54 = outContacts;
-          ++v94;
-          ++v96;
-          v149 = v94;
+LABEL_104:
+          v27 = outContacts;
+          ++v34;
+          ++v36;
+          v69 = v34;
         }
-        while ( v94 < numCollidableBones );
-        v31 = v146;
-        v32 = v156;
-        v21 = numCollidableBones;
+        while ( v34 < numCollidableBones );
+        v21 = v66;
+        p_boneIndex = v76;
+        v12 = numCollidableBones;
       }
-      _RDI = &v32->state.rotationQuat;
-      properties = v32->properties;
-      v48 = v150 + 1;
-      v150 = v48;
-      if ( v48 >= properties->numCollisionShapes )
-        goto LABEL_106;
+      v23 = (const vec4_t *)(p_boneIndex + 7);
+      v24 = *((_QWORD *)p_boneIndex + 1);
+      v25 = v70 + 1;
+      v70 = v25;
+      if ( v25 >= *(_DWORD *)(v24 + 100) )
+        goto LABEL_107;
     }
-    _RBX = &outContacts[v17];
+    v28 = &outContacts[v11];
     if ( type )
     {
       if ( type != XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
         goto LABEL_63;
-      LODWORD(v56) = XAnimBonePhysics_TestCapsulePlane(&capsule, &outModelGroundPlane, &outContacts[v17], maxContacts - v17);
-      if ( (int)v56 <= 0 )
+      LODWORD(v29) = XAnimBonePhysics_TestCapsulePlane(&capsule, &outModelGroundPlane, &outContacts[v11], maxContacts - v11);
+      if ( (int)v29 <= 0 )
         goto LABEL_62;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+100h+outModelGroundPlane+4]
-        vmulss  xmm1, xmm0, dword ptr [rbp+100h+capsule.start+4]
-        vmovss  xmm4, dword ptr [rbp+100h+outModelGroundPlane]
-        vmulss  xmm2, xmm4, dword ptr [rbp+100h+capsule.start]
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm2, dword ptr [rbp+100h+outModelGroundPlane+8]
-        vmulss  xmm0, xmm2, dword ptr [rbp+100h+capsule.start+8]
-        vaddss  xmm1, xmm3, xmm0
-        vsubss  xmm5, xmm1, dword ptr [rbp+100h+outModelGroundPlane+0Ch]
-        vcomiss xmm5, dword ptr [rbp+100h+capsule.end]
-        vxorps  xmm0, xmm4, xmm8
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  xmm1, dword ptr [rbp+100h+outModelGroundPlane+4]
-        vxorps  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rbx+20h], xmm2
-        vmovss  xmm0, dword ptr [rbp+100h+outModelGroundPlane+8]
-        vxorps  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbx+24h], xmm1
-        vmovss  xmm2, dword ptr [rbp+100h+capsule.end]
-        vxorps  xmm3, xmm2, xmm8
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start]
-        vmovss  dword ptr [rbx+4], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane+4]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start+4]
-        vmovss  dword ptr [rbx+8], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane+8]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start+8]
-        vmovss  dword ptr [rbx+0Ch], xmm2
-        vxorps  xmm3, xmm5, xmm8
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start]
-        vmovss  dword ptr [rbx+10h], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane+4]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start+4]
-        vmovss  dword ptr [rbx+14h], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+100h+outModelGroundPlane+8]
-        vaddss  xmm2, xmm1, dword ptr [rbp+100h+capsule.start+8]
-        vmovss  dword ptr [rbx+18h], xmm2
-      }
-      LODWORD(v56) = 1;
+      v30 = (float)((float)((float)(outModelGroundPlane.v[0] * capsule.start.v[0]) + (float)(outModelGroundPlane.v[1] * capsule.start.v[1])) + (float)(outModelGroundPlane.v[2] * capsule.start.v[2])) - outModelGroundPlane.v[3];
+      if ( v30 > capsule.end.v[0] )
+        goto LABEL_63;
+      v28->normal.v[0] = COERCE_FLOAT(LODWORD(outModelGroundPlane.v[0]) ^ _xmm);
+      v28->normal.v[1] = COERCE_FLOAT(LODWORD(outModelGroundPlane.v[1]) ^ _xmm);
+      v28->normal.v[2] = COERCE_FLOAT(LODWORD(outModelGroundPlane.v[2]) ^ _xmm);
+      LODWORD(v31) = LODWORD(capsule.end.v[0]) ^ _xmm;
+      v28->pointA.v[0] = (float)(COERCE_FLOAT(LODWORD(capsule.end.v[0]) ^ _xmm) * outModelGroundPlane.v[0]) + capsule.start.v[0];
+      v28->pointA.v[1] = (float)(v31 * outModelGroundPlane.v[1]) + capsule.start.v[1];
+      v28->pointA.v[2] = (float)(v31 * outModelGroundPlane.v[2]) + capsule.start.v[2];
+      v28->pointB.v[0] = (float)(COERCE_FLOAT(LODWORD(v30) ^ _xmm) * outModelGroundPlane.v[0]) + capsule.start.v[0];
+      v28->pointB.v[1] = (float)(COERCE_FLOAT(LODWORD(v30) ^ _xmm) * outModelGroundPlane.v[1]) + capsule.start.v[1];
+      v28->pointB.v[2] = (float)(COERCE_FLOAT(LODWORD(v30) ^ _xmm) * outModelGroundPlane.v[2]) + capsule.start.v[2];
+      LODWORD(v29) = 1;
     }
-    v17 += v56;
-    if ( v17 > maxContacts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1174, ASSERT_TYPE_ASSERT, "(numShapeContacts + numContacts <= maxContacts)", (const char *)&queryFormat, "numShapeContacts + numContacts <= maxContacts") )
+    v11 += v29;
+    if ( v11 > maxContacts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 1174, ASSERT_TYPE_ASSERT, "(numShapeContacts + numContacts <= maxContacts)", (const char *)&queryFormat, "numShapeContacts + numContacts <= maxContacts") )
       __debugbreak();
-    v56 = (int)v56;
-    _RBX = &_RBX->pointA.v[2];
+    v29 = (int)v29;
+    v32 = &v28->pointA.v[2];
     do
     {
-      *((_BYTE *)_RBX - 12) = truncate_cast<unsigned char,unsigned int>(v31);
-      _R8 = _RBX - 2;
-      *((_BYTE *)_RBX - 11) = 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8]
-        vsubss  xmm1, xmm0, dword ptr [r13+2Ch]
-        vmovss  xmm2, dword ptr [rbx-4]
-        vsubss  xmm0, xmm2, dword ptr [r13+30h]
-        vmovss  dword ptr [rbp+100h+in], xmm1
-        vmovss  xmm1, dword ptr [rbx]
-        vsubss  xmm2, xmm1, dword ptr [r13+34h]
-        vmovss  dword ptr [rbp+100h+in+8], xmm2
-        vmovss  dword ptr [rbp+100h+in+4], xmm0
-      }
-      QuatTransform(&quat, &in, (vec3_t *)(_RBX - 2));
-      _RBX += 10;
-      --v56;
+      *((_BYTE *)v32 - 12) = truncate_cast<unsigned char,unsigned int>(v21);
+      *((_BYTE *)v32 - 11) = 1;
+      v33 = *(v32 - 1) - p_boneIndex[12];
+      in.v[0] = *(v32 - 2) - p_boneIndex[11];
+      in.v[2] = *v32 - p_boneIndex[13];
+      in.v[1] = v33;
+      QuatTransform(&quat, &in, (vec3_t *)(v32 - 2));
+      v32 += 10;
+      --v29;
     }
-    while ( v56 );
-    if ( v17 >= maxContacts )
-      goto LABEL_112;
+    while ( v29 );
+    if ( v11 >= maxContacts )
+      return (unsigned int)v11;
 LABEL_62:
-    v54 = outContacts;
+    v27 = outContacts;
     goto LABEL_63;
   }
   return 0i64;
@@ -1353,233 +1004,129 @@ XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseDobj
 */
 void XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseDobj(const DObj *dobj, const DObjProceduralBones *procBones, DObjAnimMat *outTransforms, const unsigned int maxTransforms)
 {
-  unsigned int v12; 
+  unsigned int v4; 
   unsigned int numCollidableBones; 
-  const DObjProceduralBones *v15; 
-  bool v18; 
-  __int64 v48; 
+  const DObjProceduralBones *v7; 
+  DObjAnimMat *RotTransArray; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  vec3_t *v16; 
+  __int64 v17; 
   unsigned __int16 boneIndex; 
-  int v50; 
+  int v19; 
   DObjAnimMat *SkelBoneMatrix; 
-  DObjAnimMat *v53; 
-  bool v54; 
-  bool v55; 
-  __int64 v115; 
+  vec4_t *p_z; 
+  DObjAnimMat *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int64 v34; 
   vec3_t out; 
   vec4_t quat; 
   vec3_t in; 
-  char v121; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-  }
-  v12 = 0;
+  v4 = 0;
   numCollidableBones = maxTransforms;
-  v15 = procBones;
+  v7 = procBones;
   if ( procBones->numCollidableBones > maxTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 945, ASSERT_TYPE_ASSERT, "( 0 ) <= ( procBones->numCollidableBones ) && ( procBones->numCollidableBones ) <= ( maxTransforms )", "procBones->numCollidableBones not in [0, maxTransforms]\n\t%i not in [%i, %i]", procBones->numCollidableBones, 0i64, maxTransforms) )
     __debugbreak();
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 946, ASSERT_TYPE_ASSERT, "(dobj != 0)", (const char *)&queryFormat, "dobj != NULL") )
     __debugbreak();
   if ( !outTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 948, ASSERT_TYPE_ASSERT, "(outTransforms != 0)", (const char *)&queryFormat, "outTransforms != NULL") )
     __debugbreak();
-  _RAX = DObjGetRotTransArray(dobj);
-  v18 = v15->numCollidableBones == numCollidableBones;
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  if ( v15->numCollidableBones <= numCollidableBones )
-    numCollidableBones = v15->numCollidableBones;
-  __asm
+  RotTransArray = DObjGetRotTransArray(dobj);
+  if ( v7->numCollidableBones <= numCollidableBones )
+    numCollidableBones = v7->numCollidableBones;
+  v10 = RotTransArray->quat.v[0];
+  v11 = RotTransArray->quat.v[1];
+  v12 = RotTransArray->quat.v[2];
+  v13 = RotTransArray->quat.v[3];
+  in = RotTransArray->trans;
+  v14 = fsqrt((float)((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v12 * v12)) + (float)(v13 * v13));
+  if ( v14 != 0.0 )
   {
-    vmovss  xmm0, dword ptr [rax+10h]
-    vmovss  xmm5, dword ptr [rax]
-    vmovss  xmm7, dword ptr [rax+4]
-    vmovss  xmm8, dword ptr [rax+8]
-    vmovss  xmm9, dword ptr [rax+0Ch]
-    vmovss  dword ptr [rsp+130h+in], xmm0
-    vmovss  xmm1, dword ptr [rax+14h]
-    vmovss  dword ptr [rsp+130h+in+4], xmm1
-    vmovss  xmm0, dword ptr [rax+18h]
-    vmulss  xmm2, xmm7, xmm7
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  dword ptr [rsp+130h+in+8], xmm0
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm4, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vxorps  xmm12, xmm12, xmm12
-    vucomiss xmm0, xmm12
+    v15 = 1.0 / v14;
+    v10 = v15 * v10;
+    v11 = v15 * v11;
+    v12 = v15 * v12;
+    v13 = v13 * v15;
   }
-  if ( !v18 )
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm11, xmm0
-      vmulss  xmm5, xmm0, xmm5
-      vmulss  xmm7, xmm0, xmm7
-      vmulss  xmm8, xmm0, xmm8
-      vmulss  xmm9, xmm9, xmm0
-    }
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm5, xmm6
-    vmovss  dword ptr [rsp+130h+quat], xmm0
-    vxorps  xmm0, xmm8, xmm6
-    vxorps  xmm1, xmm7, xmm6
-    vmovss  dword ptr [rsp+130h+quat+8], xmm0
-    vmovss  dword ptr [rsp+130h+quat+4], xmm1
-    vmovss  dword ptr [rsp+130h+quat+0Ch], xmm9
-  }
+  LODWORD(quat.v[0]) = LODWORD(v10) ^ _xmm;
+  LODWORD(quat.v[2]) = LODWORD(v12) ^ _xmm;
+  LODWORD(quat.v[1]) = LODWORD(v11) ^ _xmm;
+  quat.v[3] = v13;
   QuatTransform(&quat, &in, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+130h+out]
-    vmovss  xmm2, dword ptr [rsp+130h+out+4]
-    vxorps  xmm1, xmm0, xmm6
-    vxorps  xmm0, xmm2, xmm6
-    vmovss  dword ptr [rsp+130h+out], xmm1
-    vmovss  xmm1, dword ptr [rsp+130h+out+8]
-    vxorps  xmm2, xmm1, xmm6
-    vmovss  dword ptr [rsp+130h+out+8], xmm2
-    vmovss  dword ptr [rsp+130h+out+4], xmm0
-  }
+  LODWORD(out.v[0]) ^= _xmm;
+  LODWORD(out.v[2]) ^= _xmm;
+  LODWORD(out.v[1]) ^= _xmm;
   if ( numCollidableBones )
   {
-    _RDI = (vec3_t *)&outTransforms->quat.xyz.v[1];
-    v48 = 0i64;
-    __asm { vmovaps xmmword ptr [rsp+130h+var_98+8], xmm10 }
+    v16 = (vec3_t *)&outTransforms->quat.xyz.v[1];
+    v17 = 0i64;
     do
     {
-      boneIndex = v15->collidableBoneInfo[v48].boneIndex;
+      boneIndex = v7->collidableBoneInfo[v17].boneIndex;
       if ( boneIndex != 255 )
       {
-        v50 = boneIndex;
+        v19 = boneIndex;
         if ( !DObjIsValidBoneIndex(dobj, boneIndex) )
         {
-          LODWORD(v115) = v50;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 979, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( dobj, boneIndex ) ) )", "( boneIndex ) = %i", v115) )
+          LODWORD(v34) = v19;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 979, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( dobj, boneIndex ) ) )", "( boneIndex ) = %i", v34) )
             __debugbreak();
         }
-        SkelBoneMatrix = DObjGetSkelBoneMatrix(dobj, v50);
-        _RBX = (vec4_t *)&_RDI[-1].z;
-        v53 = SkelBoneMatrix;
-        if ( SkelBoneMatrix == (DObjAnimMat *)&_RDI[-1].z && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+        SkelBoneMatrix = DObjGetSkelBoneMatrix(dobj, v19);
+        p_z = (vec4_t *)&v16[-1].z;
+        v22 = SkelBoneMatrix;
+        if ( SkelBoneMatrix == (DObjAnimMat *)&v16[-1].z && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
           __debugbreak();
-        v54 = &quat == _RBX;
-        if ( &quat == _RBX )
+        if ( &quat == p_z && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
+          __debugbreak();
+        v23 = quat.v[1];
+        v24 = quat.v[3];
+        v25 = quat.v[0];
+        v26 = quat.v[2];
+        v27 = (float)((float)((float)(quat.v[3] * v22->quat.v[0]) + (float)(quat.v[0] * v22->quat.v[3])) + (float)(quat.v[1] * v22->quat.v[2])) - (float)(quat.v[2] * v22->quat.v[1]);
+        p_z->v[0] = v27;
+        v28 = (float)((float)((float)(v24 * v22->quat.v[1]) - (float)(v25 * v22->quat.v[2])) + (float)(v23 * v22->quat.v[3])) + (float)(v26 * v22->quat.v[0]);
+        v16->v[0] = v28;
+        v29 = (float)((float)((float)(v25 * v22->quat.v[1]) + (float)(v24 * v22->quat.v[2])) - (float)(v23 * v22->quat.v[0])) + (float)(v26 * v22->quat.v[3]);
+        v16->v[1] = v29;
+        v30 = (float)((float)((float)(v24 * v22->quat.v[3]) - (float)(v25 * v22->quat.v[0])) - (float)(v23 * v22->quat.v[1])) - (float)(v26 * v22->quat.v[2]);
+        v31 = fsqrt((float)((float)((float)(v28 * v28) + (float)(v27 * v27)) + (float)(v29 * v29)) + (float)(v30 * v30));
+        v16->v[2] = v30;
+        if ( v31 != 0.0 )
         {
-          v55 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out");
-          v54 = !v55;
-          if ( v55 )
-            __debugbreak();
+          p_z->v[0] = v27 * (float)(1.0 / v31);
+          v16->v[0] = v28 * (float)(1.0 / v31);
+          v16->v[1] = v29 * (float)(1.0 / v31);
+          v16->v[2] = v30 * (float)(1.0 / v31);
         }
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rsp+130h+quat+4]
-          vmovss  xmm7, dword ptr [rsp+130h+quat+0Ch]
-          vmulss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  xmm6, dword ptr [rsp+130h+quat]
-          vmulss  xmm0, xmm6, dword ptr [rsi+0Ch]
-          vmovss  xmm4, dword ptr [rsp+130h+quat+8]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rsi+8]
-          vmulss  xmm1, xmm4, dword ptr [rsi+4]
-          vaddss  xmm2, xmm2, xmm0
-          vsubss  xmm8, xmm2, xmm1
-          vmovss  dword ptr [rbx], xmm8
-          vmulss  xmm1, xmm7, dword ptr [rsi+4]
-          vmulss  xmm0, xmm6, dword ptr [rsi+8]
-          vsubss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rsi+0Ch]
-          vmulss  xmm0, xmm4, dword ptr [rsi]
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm9, xmm3, xmm0
-          vmovss  dword ptr [rdi], xmm9
-          vmulss  xmm1, xmm6, dword ptr [rsi+4]
-          vmulss  xmm0, xmm7, dword ptr [rsi+8]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rsi]
-          vmulss  xmm0, xmm4, dword ptr [rsi+0Ch]
-          vsubss  xmm3, xmm2, xmm1
-          vaddss  xmm10, xmm3, xmm0
-          vmovss  dword ptr [rdi+4], xmm10
-          vmulss  xmm1, xmm7, dword ptr [rsi+0Ch]
-          vmulss  xmm0, xmm6, dword ptr [rsi]
-          vsubss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rsi+4]
-          vmulss  xmm0, xmm4, dword ptr [rsi+8]
-          vsubss  xmm3, xmm2, xmm1
-          vsubss  xmm5, xmm3, xmm0
-          vmulss  xmm0, xmm8, xmm8
-          vmulss  xmm1, xmm9, xmm9
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm10, xmm10
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vucomiss xmm1, xmm12
-          vmovss  dword ptr [rdi+8], xmm5
-        }
-        if ( !v54 )
-        {
-          __asm
-          {
-            vdivss  xmm2, xmm11, xmm1
-            vmulss  xmm0, xmm8, xmm2
-            vmulss  xmm1, xmm9, xmm2
-            vmovss  dword ptr [rbx], xmm0
-            vmovss  dword ptr [rdi], xmm1
-            vmulss  xmm0, xmm10, xmm2
-            vmulss  xmm1, xmm5, xmm2
-            vmovss  dword ptr [rdi+4], xmm0
-            vmovss  dword ptr [rdi+8], xmm1
-          }
-        }
-        QuatTransform(&quat, &v53->trans, _RDI + 1);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+130h+out]
-          vaddss  xmm1, xmm0, dword ptr [rdi+0Ch]
-          vmovss  xmm0, dword ptr [rsp+130h+out+4]
-          vmovss  xmm2, dword ptr [rsp+130h+out+8]
-        }
-        v15 = procBones;
-        __asm
-        {
-          vmovss  dword ptr [rdi+0Ch], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-          vmovss  dword ptr [rdi+10h], xmm1
-          vaddss  xmm0, xmm2, dword ptr [rdi+14h]
-          vmovss  dword ptr [rdi+14h], xmm0
-        }
+        QuatTransform(&quat, &v22->trans, v16 + 1);
+        v32 = out.v[1];
+        v33 = out.v[2];
+        v7 = procBones;
+        v16[1].v[0] = out.v[0] + v16[1].v[0];
+        v16[1].v[1] = v32 + v16[1].v[1];
+        v16[1].v[2] = v33 + v16[1].v[2];
       }
-      ++v12;
-      ++v48;
-      _RDI = (vec3_t *)((char *)_RDI + 32);
+      ++v4;
+      ++v17;
+      v16 = (vec3_t *)((char *)v16 + 32);
     }
-    while ( v12 < numCollidableBones );
-    __asm { vmovaps xmm10, xmmword ptr [rsp+130h+var_98+8] }
-  }
-  _R11 = &v121;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-78h]
-    vmovaps xmm12, xmmword ptr [r11-88h]
+    while ( v4 < numCollidableBones );
   }
 }
 
@@ -1590,26 +1137,33 @@ XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseProcNodeParams
 */
 void XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseProcNodeParams(XAnimProcNodeCalcParams *params, const DObjProceduralBones *procBones, DObjAnimMat *outTransforms, const unsigned int maxTransforms)
 {
-  unsigned int v14; 
+  unsigned int v4; 
   unsigned int numCollidableBones; 
-  __int64 v22; 
+  float *v10; 
+  __int64 v11; 
   unsigned __int16 boneIndex; 
-  int v25; 
-  bool v29; 
-  bool v30; 
+  int v13; 
+  vec4_t *v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   float4 *outModelTranslation; 
   vec4_t outInvQuat; 
-  __int128 v99; 
+  __m128 v; 
   vec3_t trans; 
   vec3_t in; 
   vec3_t outInvTrans; 
   float4 outModelQuat; 
-  float4 v104; 
+  float4 v30; 
   vec4_t quat; 
-  float4 v106; 
-  float4 v107; 
+  float4 v32; 
+  float4 v33; 
 
-  v14 = 0;
+  v4 = 0;
   numCollidableBones = maxTransforms;
   if ( procBones->numCollidableBones > maxTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 885, ASSERT_TYPE_ASSERT, "( 0 ) <= ( procBones->numCollidableBones ) && ( procBones->numCollidableBones ) <= ( maxTransforms )", "procBones->numCollidableBones not in [0, maxTransforms]\n\t%i not in [%i, %i]", procBones->numCollidableBones, 0i64, maxTransforms) )
     __debugbreak();
@@ -1619,171 +1173,74 @@ void XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseProcNodeParams(XAnimPr
     __debugbreak();
   if ( procBones->numCollidableBones <= numCollidableBones )
     numCollidableBones = procBones->numCollidableBones;
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, 0, &outModelQuat, &v104);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, 0, &outModelQuat, &v30);
+  _XMM1 = v30.v;
+  trans.v[0] = v30.v.m128_f32[0];
   __asm
   {
-    vmovups xmm1, xmmword ptr [rbp+0D0h+var_130.v]
-    vmovups xmm0, xmmword ptr [rbp+0D0h+outModelQuat.v]
-    vmovss  dword ptr [rsp+1D0h+trans], xmm1
     vextractps dword ptr [rsp+1D0h+trans+4], xmm1, 1
     vextractps dword ptr [rsp+1D0h+trans+8], xmm1, 2
-    vmovups xmmword ptr [rbp+0D0h+quat], xmm0
   }
+  quat = (vec4_t)outModelQuat.v;
   QuatTrans_Inverse(&quat, &trans, &outInvQuat, &outInvTrans);
   if ( numCollidableBones )
   {
-    _RDI = &outTransforms->trans.v[2];
-    __asm { vmovaps [rsp+1D0h+var_E0], xmm15 }
-    v22 = 0i64;
-    __asm
-    {
-      vmovss  xmm15, cs:__real@3f800000
-      vmovaps [rsp+1D0h+var_50], xmm6
-      vmovaps [rsp+1D0h+var_60], xmm7
-      vmovaps [rsp+1D0h+var_70], xmm8
-      vmovaps [rsp+1D0h+var_80], xmm9
-      vmovaps [rsp+1D0h+var_90], xmm10
-      vmovaps [rsp+1D0h+var_A0], xmm11
-      vmovaps [rsp+1D0h+var_B0], xmm12
-      vmovaps [rsp+1D0h+var_C0], xmm13
-      vmovaps [rsp+1D0h+var_D0], xmm14
-    }
+    v10 = &outTransforms->trans.v[2];
+    v11 = 0i64;
     do
     {
-      boneIndex = procBones->collidableBoneInfo[v22].boneIndex;
+      boneIndex = procBones->collidableBoneInfo[v11].boneIndex;
       if ( boneIndex != 255 )
       {
-        v25 = boneIndex;
+        v13 = boneIndex;
         if ( !DObjIsValidBoneIndex(params->obj, boneIndex) )
         {
-          LODWORD(outModelTranslation) = v25;
+          LODWORD(outModelTranslation) = v13;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 923, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( params->obj, boneIndex ) ) )", "( boneIndex ) = %i", outModelTranslation) )
             __debugbreak();
         }
-        XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v25, &v106, &v107);
+        XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v13, &v32, &v33);
+        _XMM1 = v33.v;
+        v15 = (vec4_t *)(v10 - 6);
+        in.v[0] = v33.v.m128_f32[0];
         __asm
         {
-          vmovups xmm1, xmmword ptr [rbp+0D0h+var_100.v]
-          vmovups xmm0, xmmword ptr [rbp+0D0h+var_110.v]
-        }
-        _RBX = (vec4_t *)(_RDI - 6);
-        __asm
-        {
-          vmovss  dword ptr [rsp+1D0h+in], xmm1
           vextractps dword ptr [rsp+1D0h+in+4], xmm1, 1
           vextractps dword ptr [rsp+1D0h+in+8], xmm1, 2
-          vmovups [rsp+1D0h+var_180], xmm0
         }
-        if ( &v99 == (__int128 *)(_RDI - 6) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+        v = v32.v;
+        if ( &v == (__m128 *)(v10 - 6) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
           __debugbreak();
-        v29 = &outInvQuat == _RBX;
-        if ( &outInvQuat == _RBX )
+        if ( &outInvQuat == v15 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
+          __debugbreak();
+        v16 = (float)((float)((float)(outInvQuat.v[0] * v.m128_f32[3]) + (float)(outInvQuat.v[3] * v.m128_f32[0])) + (float)(outInvQuat.v[1] * v.m128_f32[2])) - (float)(outInvQuat.v[2] * v.m128_f32[1]);
+        v17 = (float)((float)((float)(v.m128_f32[1] * outInvQuat.v[3]) - (float)(v.m128_f32[2] * outInvQuat.v[0])) + (float)(outInvQuat.v[1] * v.m128_f32[3])) + (float)(outInvQuat.v[2] * v.m128_f32[0]);
+        v18 = (float)((float)((float)(v.m128_f32[1] * outInvQuat.v[0]) + (float)(v.m128_f32[2] * outInvQuat.v[3])) - (float)(outInvQuat.v[1] * v.m128_f32[0])) + (float)(outInvQuat.v[2] * v.m128_f32[3]);
+        v19 = (float)((float)((float)(v.m128_f32[3] * outInvQuat.v[3]) - (float)(outInvQuat.v[0] * v.m128_f32[0])) - (float)(v.m128_f32[1] * outInvQuat.v[1])) - (float)(outInvQuat.v[2] * v.m128_f32[2]);
+        v20 = fsqrt((float)((float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v18 * v18)) + (float)(v19 * v19));
+        v15->v[0] = v16;
+        *(v10 - 5) = v17;
+        *(v10 - 4) = v18;
+        *(v10 - 3) = v19;
+        if ( v20 != 0.0 )
         {
-          v30 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out");
-          v29 = !v30;
-          if ( v30 )
-            __debugbreak();
+          v15->v[0] = (float)(1.0 / v20) * v16;
+          *(v10 - 5) = (float)(1.0 / v20) * v17;
+          *(v10 - 4) = (float)(1.0 / v20) * v18;
+          *(v10 - 3) = (float)(1.0 / v20) * v19;
         }
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+1D0h+var_180+4]
-          vmovss  xmm11, dword ptr [rsp+1D0h+outInvQuat]
-          vmovss  xmm10, dword ptr [rsp+1D0h+var_180+0Ch]
-          vmovss  xmm7, dword ptr [rsp+1D0h+outInvQuat+0Ch]
-          vmovss  xmm8, dword ptr [rsp+1D0h+var_180]
-          vmovss  xmm6, dword ptr [rsp+1D0h+outInvQuat+4]
-          vmovss  xmm9, dword ptr [rsp+1D0h+var_180+8]
-          vmovss  xmm5, dword ptr [rsp+1D0h+outInvQuat+8]
-          vmulss  xmm1, xmm11, xmm10
-          vmulss  xmm0, xmm7, xmm8
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm0, xmm6, xmm9
-          vaddss  xmm1, xmm2, xmm0
-          vmulss  xmm0, xmm5, xmm4
-          vsubss  xmm12, xmm1, xmm0
-          vmulss  xmm1, xmm4, xmm7
-          vmulss  xmm0, xmm9, xmm11
-          vsubss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm10
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm1, xmm4, xmm11
-          vmulss  xmm0, xmm5, xmm8
-          vaddss  xmm13, xmm3, xmm0
-          vmulss  xmm0, xmm9, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm8
-          vsubss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm5, xmm10
-          vaddss  xmm14, xmm3, xmm0
-          vmulss  xmm0, xmm11, xmm8
-          vmulss  xmm1, xmm10, xmm7
-          vsubss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm4, xmm6
-          vsubss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm5, xmm9
-          vsubss  xmm4, xmm3, xmm0
-          vmulss  xmm0, xmm12, xmm12
-          vmulss  xmm1, xmm13, xmm13
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm14, xmm14
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm1, xmm0
-          vmovss  dword ptr [rbx], xmm12
-          vmovss  dword ptr [rdi-14h], xmm13
-          vmovss  dword ptr [rdi-10h], xmm14
-          vmovss  dword ptr [rdi-0Ch], xmm4
-        }
-        if ( !v29 )
-        {
-          __asm
-          {
-            vdivss  xmm2, xmm15, xmm1
-            vmulss  xmm0, xmm2, xmm12
-            vmulss  xmm1, xmm2, xmm13
-            vmovss  dword ptr [rbx], xmm0
-            vmovss  dword ptr [rdi-14h], xmm1
-            vmulss  xmm0, xmm2, xmm14
-            vmulss  xmm1, xmm2, xmm4
-            vmovss  dword ptr [rdi-10h], xmm0
-            vmovss  dword ptr [rdi-0Ch], xmm1
-          }
-        }
-        QuatTransform(&outInvQuat, &in, (vec3_t *)(_RDI - 2));
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0D0h+outInvTrans]
-          vaddss  xmm1, xmm0, dword ptr [rdi-8]
-          vmovss  xmm0, dword ptr [rbp+0D0h+outInvTrans+4]
-          vmovss  xmm2, dword ptr [rbp+0D0h+outInvTrans+8]
-          vmovss  dword ptr [rdi-8], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rdi-4]
-          vmovss  dword ptr [rdi-4], xmm1
-          vaddss  xmm0, xmm2, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm0
-        }
+        QuatTransform(&outInvQuat, &in, (vec3_t *)(v10 - 2));
+        v21 = outInvTrans.v[1];
+        v22 = outInvTrans.v[2];
+        *(v10 - 2) = outInvTrans.v[0] + *(v10 - 2);
+        *(v10 - 1) = v21 + *(v10 - 1);
+        *v10 = v22 + *v10;
       }
-      ++v14;
-      ++v22;
-      _RDI += 8;
+      ++v4;
+      ++v11;
+      v10 += 8;
     }
-    while ( v14 < numCollidableBones );
-    __asm
-    {
-      vmovaps xmm15, [rsp+1D0h+var_E0]
-      vmovaps xmm14, [rsp+1D0h+var_D0]
-      vmovaps xmm13, [rsp+1D0h+var_C0]
-      vmovaps xmm12, [rsp+1D0h+var_B0]
-      vmovaps xmm11, [rsp+1D0h+var_A0]
-      vmovaps xmm10, [rsp+1D0h+var_90]
-      vmovaps xmm9, [rsp+1D0h+var_80]
-      vmovaps xmm8, [rsp+1D0h+var_70]
-      vmovaps xmm7, [rsp+1D0h+var_60]
-      vmovaps xmm6, [rsp+1D0h+var_50]
-    }
+    while ( v4 < numCollidableBones );
   }
 }
 
@@ -1794,23 +1251,71 @@ XAnimBonePhysics_TestCapsuleAxisAlignedBoxAtOrigin
 */
 __int64 XAnimBonePhysics_TestCapsuleAxisAlignedBoxAtOrigin(const XAnimCapsuleCollisionShape *capsule, const vec3_t *boxExtents, XAnimCollisionContact *outContacts, const int maxContacts)
 {
-  int v74; 
-  char v76; 
-  unsigned int v78; 
-  bool v80; 
-  bool v81; 
-  bool v82; 
-  bool v84; 
-  bool v85; 
-  bool v87; 
-  bool v88; 
-  bool v90; 
-  bool v91; 
-  int v93; 
-  bool v95; 
-  bool v96; 
-  __int64 result; 
-  bool v121; 
+  float v16; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  __int128 v28; 
+  float v29; 
+  int v30; 
+  char v31; 
+  unsigned int v33; 
+  unsigned int v34; 
+  __int64 v35; 
+  bool v36; 
+  int v37; 
+  const vec3_t *v38; 
+  bool v39; 
+  float *v40; 
+  float v41; 
+  __int128 v43; 
+  float v47; 
+  float v48; 
+  __int128 v49; 
+  float v53; 
+  __int128 v55; 
+  float v59; 
+  __int128 v60; 
+  bool v64; 
+  float NearestPointSegmentAlignedBoxEdge; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float NearestPointOnAlignedBoxFace; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  float v99; 
+  float v100; 
+  float v101; 
+  float v102; 
   vec3_t *outContactPointSeg; 
   vec3_t *outContactPointSega; 
   vec3_t *outContactPointSegb; 
@@ -1821,484 +1326,413 @@ __int64 XAnimBonePhysics_TestCapsuleAxisAlignedBoxAtOrigin(const XAnimCapsuleCol
   vec3_t *outContactPointBoxb; 
   vec3_t *outContactPointBoxc; 
   vec3_t *outContactPointBoxd; 
-  int v218; 
+  int v113; 
+  float v114; 
+  float v115; 
+  float v116; 
+  float v117; 
+  float v118; 
+  float v119; 
+  float v120; 
   vec3_t p; 
-  vec3_t v228; 
+  vec3_t v123; 
   vec3_t segStart; 
-  vec3_t v230; 
-  vec3_t v231; 
-  vec3_t v232; 
+  vec3_t v125; 
+  vec3_t v126; 
+  vec3_t v127; 
   vec3_t outNormal; 
-  vec3_t v234; 
-  vec3_t v235; 
+  vec3_t v129; 
+  vec3_t v130; 
+  int v131[4]; 
   vec3_t segMidPoint; 
+  int v133[4]; 
   vec3_t outFaceNormal; 
   vec3_t outContactPoint; 
-  char v241; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  *(_QWORD *)v228.v = outContacts;
-  _R15 = boxExtents;
+  *(_QWORD *)v123.v = outContacts;
   *(_QWORD *)segStart.v = capsule;
   if ( maxContacts <= 0 )
-    goto LABEL_48;
+    return 0i64;
+  _XMM2 = LODWORD(boxExtents->v[0]);
+  __asm { vminss  xmm0, xmm2, dword ptr [rcx] }
+  _XMM3 = LODWORD(boxExtents->v[1]);
+  _XMM5 = LODWORD(boxExtents->v[2]);
+  _XMM7 = LODWORD(capsule->end.v[0]);
+  _XMM9 = LODWORD(capsule->end.v[2]);
   __asm
   {
-    vmovss  xmm2, dword ptr [rdx]
-    vminss  xmm0, xmm2, dword ptr [rcx]
-    vmovss  xmm3, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx+8]
-    vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm7, dword ptr [rcx+0Ch]
-    vmovss  xmm9, dword ptr [rcx+14h]
-    vxorps  xmm1, xmm2, xmm13
     vmaxss  xmm8, xmm0, xmm1
     vminss  xmm0, xmm3, dword ptr [rcx+4]
-    vxorps  xmm4, xmm3, xmm13
     vmaxss  xmm0, xmm0, xmm4
-    vmovss  dword ptr [rsp+220h+p+4], xmm0
-    vminss  xmm0, xmm5, dword ptr [rcx+8]
-    vxorps  xmm6, xmm5, xmm13
-    vmaxss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsp+220h+p+8], xmm0
-    vmovss  xmm11, dword ptr [rsp+220h+p+8]
-    vminss  xmm0, xmm7, xmm2
-    vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmaxss  xmm14, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rsp+220h+p+8]
-    vandps  xmm1, xmm1, xmm2
-    vmovss  [rbp+120h+var_120], xmm1
-    vmovss  dword ptr [rsp+220h+p], xmm8
-    vmovss  xmm8, dword ptr [rcx+10h]
-    vminss  xmm0, xmm8, xmm3
-    vmovss  xmm3, cs:__real@3f000000
-    vmaxss  xmm15, xmm0, xmm4
-    vandps  xmm1, xmm15, xmm2
-    vmovss  [rbp+120h+var_104], xmm1
-    vminss  xmm0, xmm9, xmm5
-    vmovss  xmm5, dword ptr [rsp+220h+p]
-    vmaxss  xmm4, xmm0, xmm6
-    vmovss  xmm6, dword ptr [rsp+220h+p+4]
-    vandps  xmm0, xmm5, xmm2
-    vmovss  [rbp+120h+var_128], xmm0
-    vandps  xmm0, xmm6, xmm2
-    vmovss  [rbp+120h+var_124], xmm0
-    vandps  xmm0, xmm14, xmm2
-    vmovss  [rbp+120h+var_108], xmm0
-    vandps  xmm0, xmm4, xmm2
-    vmovss  [rbp+120h+var_100], xmm0
-    vsubss  xmm2, xmm15, xmm6
-    vsubss  xmm1, xmm14, xmm5
-    vmulss  xmm0, xmm1, xmm3
-    vaddss  xmm1, xmm0, xmm5
-    vmulss  xmm0, xmm2, xmm3
-    vsubss  xmm2, xmm4, dword ptr [rsp+220h+p+8]
-    vmovss  dword ptr [rbp+120h+segMidPoint], xmm1
-    vaddss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm2, xmm3
-    vsubss  xmm3, xmm11, dword ptr [rcx+8]
-    vmovss  dword ptr [rbp+120h+segMidPoint+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsp+220h+p+8]
-    vsubss  xmm0, xmm5, dword ptr [rcx]
-    vmovss  [rsp+220h+var_1D0], xmm0
-    vmulss  xmm0, xmm0, xmm0
-    vmovaps xmm10, xmm6
-    vsubss  xmm2, xmm10, dword ptr [rcx+4]
-    vmovss  [rsp+220h+var_1CC], xmm2
-    vmulss  xmm2, xmm2, xmm2
-    vmovss  [rsp+220h+var_1DC], xmm0
-    vaddss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rbp+120h+segMidPoint+8], xmm1
-    vsubss  xmm1, xmm15, xmm8
-    vmovss  [rsp+220h+var_1C8], xmm3
-    vmulss  xmm3, xmm3, xmm3
-    vaddss  xmm6, xmm0, xmm3
-    vmulss  xmm0, xmm1, xmm1
-    vsubss  xmm12, xmm14, xmm7
-    vsubss  xmm9, xmm4, xmm9
-    vmovss  [rsp+220h+var_1C0], xmm1
-    vmovss  [rsp+220h+var_1D8], xmm2
-    vmovss  [rsp+220h+var_1C4], xmm0
-    vmovss  dword ptr [rbp+120h+var_168], xmm14
-    vmovss  dword ptr [rbp+120h+var_168+4], xmm15
-    vmovss  dword ptr [rbp+120h+var_168+8], xmm4
-    vmovss  [rsp+220h+var_1D4], xmm3
-    vmulss  xmm1, xmm12, xmm12
-    vmulss  xmm2, xmm9, xmm9
   }
-  v74 = 0;
-  __asm { vaddss  xmm0, xmm1, xmm0 }
-  v76 = 0;
-  v218 = 0;
-  __asm { vaddss  xmm7, xmm0, xmm2 }
-  v78 = 0;
-  _RSI = 0i64;
-  v80 = 1;
-  v81 = 0;
+  p.v[1] = *(float *)&_XMM0;
+  __asm
+  {
+    vminss  xmm0, xmm5, dword ptr [rcx+8]
+    vmaxss  xmm0, xmm0, xmm6
+  }
+  p.v[2] = *(float *)&_XMM0;
+  v16 = *(float *)&_XMM0;
+  __asm
+  {
+    vminss  xmm0, xmm7, xmm2
+    vmaxss  xmm14, xmm0, xmm1
+  }
+  v131[2] = LODWORD(p.v[2]) & _xmm;
+  p.v[0] = *(float *)&_XMM8;
+  _XMM8 = LODWORD(capsule->end.v[1]);
+  __asm
+  {
+    vminss  xmm0, xmm8, xmm3
+    vmaxss  xmm15, xmm0, xmm4
+  }
+  v133[1] = _XMM15 & _xmm;
+  __asm
+  {
+    vminss  xmm0, xmm9, xmm5
+    vmaxss  xmm4, xmm0, xmm6
+  }
+  v131[0] = LODWORD(p.v[0]) & _xmm;
+  v131[1] = LODWORD(p.v[1]) & _xmm;
+  v133[0] = _XMM14 & _xmm;
+  v133[2] = _XMM4 & _xmm;
+  segMidPoint.v[0] = (float)((float)(*(float *)&_XMM14 - p.v[0]) * 0.5) + p.v[0];
+  *(float *)&_XMM3 = v16 - capsule->start.v[2];
+  segMidPoint.v[1] = (float)((float)(*(float *)&_XMM15 - p.v[1]) * 0.5) + p.v[1];
+  v116 = p.v[0] - capsule->start.v[0];
+  v24 = p.v[1];
+  v117 = p.v[1] - capsule->start.v[1];
+  v114 = v116 * v116;
+  segMidPoint.v[2] = (float)((float)(*(float *)&_XMM4 - p.v[2]) * 0.5) + p.v[2];
+  v118 = *(float *)&_XMM3;
+  v25 = *(float *)&_XMM3 * *(float *)&_XMM3;
+  v26 = (float)((float)(v116 * v116) + (float)(v117 * v117)) + v25;
+  v28 = _XMM14;
+  *(float *)&v28 = *(float *)&_XMM14 - *(float *)&_XMM7;
+  v27 = v28;
+  v29 = *(float *)&_XMM4 - *(float *)&_XMM9;
+  v120 = *(float *)&_XMM15 - *(float *)&_XMM8;
+  v115 = v117 * v117;
+  v119 = (float)(*(float *)&_XMM15 - *(float *)&_XMM8) * (float)(*(float *)&_XMM15 - *(float *)&_XMM8);
+  v127.v[0] = *(float *)&_XMM14;
+  v127.v[1] = *(float *)&_XMM15;
+  v127.v[2] = *(float *)&_XMM4;
+  v30 = 0;
+  v31 = 0;
+  v113 = 0;
+  *(float *)&v28 = (float)((float)(*(float *)&v28 * *(float *)&v28) + v119) + (float)(v29 * v29);
+  _XMM7 = v28;
+  v33 = 1;
+  v34 = 0;
+  v35 = 0i64;
+  v36 = 1;
   do
   {
-    if ( !v80 )
+    if ( !v36 )
     {
       LODWORD(outContactPointBox) = 3;
-      LODWORD(outContactPointSeg) = v78;
+      LODWORD(outContactPointSeg) = v34;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSeg, outContactPointBox) )
         __debugbreak();
       LODWORD(outContactPointBoxa) = 3;
-      LODWORD(outContactPointSega) = v78;
-      v82 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSega, outContactPointBoxa);
-      v81 = !v82;
-      if ( v82 )
+      LODWORD(outContactPointSega) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSega, outContactPointBoxa) )
         __debugbreak();
     }
-    __asm
+    if ( v127.v[v35] == p.v[v35] )
     {
-      vmovss  xmm0, dword ptr [rbp+rsi+120h+var_168]
-      vucomiss xmm0, dword ptr [rsp+rsi+220h+p]
-    }
-    if ( v81 )
-    {
-      v84 = v78 == 3;
-      if ( v78 >= 3 )
+      if ( v34 >= 3 )
       {
         LODWORD(outContactPointBox) = 3;
-        LODWORD(outContactPointSeg) = v78;
+        LODWORD(outContactPointSeg) = v34;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSeg, outContactPointBox) )
           __debugbreak();
         LODWORD(outContactPointBoxb) = 3;
-        LODWORD(outContactPointSegb) = v78;
-        v85 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegb, outContactPointBoxb);
-        v84 = !v85;
-        if ( v85 )
+        LODWORD(outContactPointSegb) = v34;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegb, outContactPointBoxb) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+rsi]
-        vucomiss xmm0, [rbp+rsi+120h+var_128]
-      }
-      if ( v84 )
-        v76 = 1;
+      if ( boxExtents->v[v35] == *(float *)&v131[v35] )
+        v31 = 1;
     }
-    v87 = v78 == 3;
-    if ( v78 >= 3 )
+    if ( v34 >= 3 )
     {
       LODWORD(outContactPointBox) = 3;
-      LODWORD(outContactPointSeg) = v78;
+      LODWORD(outContactPointSeg) = v34;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSeg, outContactPointBox) )
         __debugbreak();
       LODWORD(outContactPointBoxc) = 3;
-      LODWORD(outContactPointSegc) = v78;
-      v88 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegc, outContactPointBoxc);
-      v87 = !v88;
-      if ( v88 )
+      LODWORD(outContactPointSegc) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegc, outContactPointBoxc) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rsi]
-      vucomiss xmm0, [rbp+rsi+120h+var_128]
-    }
-    if ( v87 )
-      ++v74;
-    v90 = v78 == 3;
-    if ( v78 >= 3 )
+    if ( boxExtents->v[v35] == *(float *)&v131[v35] )
+      ++v30;
+    if ( v34 >= 3 )
     {
       LODWORD(outContactPointBox) = 3;
-      LODWORD(outContactPointSeg) = v78;
+      LODWORD(outContactPointSeg) = v34;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSeg, outContactPointBox) )
         __debugbreak();
       LODWORD(outContactPointBoxd) = 3;
-      LODWORD(outContactPointSegd) = v78;
-      v91 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegd, outContactPointBoxd);
-      v90 = !v91;
-      if ( v91 )
+      LODWORD(outContactPointSegd) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", outContactPointSegd, outContactPointBoxd) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rsi]
-      vucomiss xmm0, [rbp+rsi+120h+var_108]
-    }
-    v93 = v218;
-    if ( v90 )
-      v93 = ++v218;
-    ++v78;
-    _RSI += 4i64;
-    v80 = v78 < 3;
-    v81 = v78 == 3;
+    v37 = v113;
+    if ( boxExtents->v[v35] == *(float *)&v133[v35] )
+      v37 = ++v113;
+    ++v34;
+    ++v35;
+    v36 = v34 < 3;
   }
-  while ( (int)v78 < 3 );
-  _R13 = *(const vec3_t **)segStart.v;
-  v95 = 0;
-  v96 = v76 == 0;
-  _RBX = *(_QWORD *)v228.v;
-  if ( !v96 )
+  while ( (int)v34 < 3 );
+  v38 = *(const vec3_t **)segStart.v;
+  v39 = v31 == 0;
+  v40 = *(float **)v123.v;
+  if ( !v39 )
   {
-    __asm
+    v41 = *(float *)(*(_QWORD *)segStart.v + 24i64) * *(float *)(*(_QWORD *)segStart.v + 24i64);
+    __asm { vminss  xmm1, xmm7, xmm6 }
+    if ( *(float *)&_XMM1 <= v41 )
     {
-      vmovss  xmm0, dword ptr [r13+18h]
-      vmulss  xmm2, xmm0, xmm0
-      vminss  xmm1, xmm7, xmm6
-      vcomiss xmm1, xmm2
-    }
-    if ( v96 )
-    {
-      __asm
+      if ( v26 >= v41 || *(float *)&_XMM7 >= v41 )
       {
-        vcomiss xmm6, xmm2
-        vcomiss xmm6, xmm7
-        vmovss  xmm8, dword ptr [rbp+120h+var_168+8]
-        vmovss  dword ptr [rbx+10h], xmm14
-        vmovss  dword ptr [rbx+14h], xmm15
-        vmovss  dword ptr [rbx+18h], xmm8
-        vmulss  xmm0, xmm12, xmm12
-        vaddss  xmm0, xmm0, [rsp+220h+var_1C4]
-        vmulss  xmm1, xmm9, xmm9
-        vaddss  xmm1, xmm0, xmm1
-        vsqrtss xmm2, xmm1, xmm1
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vmovss  xmm1, cs:__real@3f800000
-        vblendvps xmm0, xmm2, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm2, [rsp+220h+var_1C0]
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmulss  xmm3, xmm12, xmm2
-        vmovss  dword ptr [rbx+1Ch], xmm3
-        vmulss  xmm1, xmm2, xmm9
-        vmovss  dword ptr [rbx+24h], xmm1
-        vmovss  xmm2, dword ptr [r13+18h]
-        vmulss  xmm0, xmm2, xmm3
-        vaddss  xmm1, xmm0, dword ptr [r13+0Ch]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-        vaddss  xmm1, xmm0, dword ptr [r13+10h]
-        vmovss  dword ptr [rbx+8], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-        vaddss  xmm1, xmm0, dword ptr [r13+14h]
-        vmovss  dword ptr [rbx+0Ch], xmm1
-      }
-      result = 1i64;
-      goto LABEL_49;
-    }
-    v95 = v93 == 0;
-    if ( v93 == 1 )
-    {
-      v95 = v74 == 0;
-      if ( v74 == 1 )
-      {
-LABEL_48:
-        result = 0i64;
-        goto LABEL_49;
-      }
-    }
-  }
-  __asm { vcomiss xmm6, cs:__real@3a83126f }
-  v121 = v95;
-  __asm { vcomiss xmm7, cs:__real@3a83126f }
-  if ( v95 )
-  {
-    *(float *)&_XMM0 = FindNearestPointOnAlignedBoxFace(&p, _R15, &v228, &segStart);
-    __asm { vmovaps xmm6, xmm0 }
-    *(float *)&_XMM0 = FindNearestPointOnAlignedBoxFace(&v232, _R15, &v230, &v231);
-    __asm { vmovaps xmm4, xmm0 }
-    if ( v121 )
-    {
-      __asm
-      {
-        vcomiss xmm6, xmm0
-        vmovss  xmm0, dword ptr [rsp+220h+var_1A8]
-        vmovss  xmm1, dword ptr [rsp+220h+var_1A8+4]
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+var_1A8+8]
-        vmovss  dword ptr [rbx+20h], xmm1
-        vmovss  xmm1, dword ptr [rbp+120h+segStart]
-        vmovss  dword ptr [rbx+24h], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+segStart+4]
-        vmovss  dword ptr [rbx+10h], xmm1
-        vmovss  xmm1, [rbp+120h+var_190]
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm15, dword ptr [rbp+120h+segStart+4]
-        vsubss  xmm1, xmm14, dword ptr [rbp+120h+segStart]
-        vmovss  xmm5, dword ptr [rsp+220h+var_1A8+4]
-        vmovss  xmm7, dword ptr [rsp+220h+var_1A8]
-        vmovss  xmm8, dword ptr [rbp+120h+var_168+8]
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm0, xmm1, xmm7
-        vmovss  xmm1, dword ptr [rbp+120h+var_1A8+8]
-        vaddss  xmm3, xmm2, xmm0
-        vsubss  xmm2, xmm8, [rbp+120h+var_190]
-        vmulss  xmm0, xmm2, xmm1
-        vaddss  xmm6, xmm3, xmm0
-        vcomiss xmm6, xmm4
-        vmovss  xmm0, dword ptr [rbp+120h+var_188]
-        vmovss  xmm1, dword ptr [rbp+120h+var_188+4]
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+var_188+8]
-        vmovss  dword ptr [rbx+20h], xmm1
-        vmovss  xmm1, dword ptr [rbp+120h+var_178]
-        vmovss  dword ptr [rbx+24h], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+var_178+4]
-        vmovss  dword ptr [rbx+10h], xmm1
-        vmovss  xmm1, dword ptr [rbp+120h+var_178+8]
-        vmovaps xmm6, xmm4
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [rbx+18h], xmm1
-      vmovss  dword ptr [rbx+14h], xmm0
-      vaddss  xmm2, xmm6, dword ptr [r13+18h]
-      vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbx+8], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+18h]
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
-    result = 1i64;
-  }
-  else
-  {
-    *(float *)&_XMM0 = FindNearestPointSegmentAlignedBoxEdge(*(const vec3_t **)segStart.v, (const vec3_t *)(*(_QWORD *)segStart.v + 12i64), &segMidPoint, _R15, &outNormal, &v234, &v235);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( TestSegmentAlignedBoxAtOrigin(_R13, _R13 + 1, _R15) )
-    {
-      *(float *)&_XMM0 = FindNearestPointOnAlignedBoxFace(&segMidPoint, _R15, &outFaceNormal, &outContactPoint);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm3, xmm0
-      }
-      if ( v80 )
-      {
-        __asm
+        if ( v26 >= *(float *)&_XMM7 )
         {
-          vmovss  xmm1, dword ptr [rbp+120h+outFaceNormal]
-          vmovss  xmm2, dword ptr [rbp+120h+outFaceNormal+4]
-          vmovss  xmm0, dword ptr [rbp+120h+outContactPoint]
-          vmovss  dword ptr [rbx+1Ch], xmm1
-          vmovss  xmm1, dword ptr [rbp+120h+outFaceNormal+8]
-          vmovss  dword ptr [rbx+24h], xmm1
-          vmovss  xmm1, dword ptr [rbp+120h+outContactPoint+4]
-          vmovss  dword ptr [rbx+20h], xmm2
-          vmovss  dword ptr [rbx+10h], xmm0
-          vmovss  xmm0, dword ptr [rbp+120h+outContactPoint+8]
-          vmovss  dword ptr [rbx+18h], xmm0
-          vmovss  dword ptr [rbx+14h], xmm1
-          vaddss  xmm2, xmm3, dword ptr [r13+18h]
-          vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbx+10h]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-          vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-          vmovss  dword ptr [rbx+8], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-          vaddss  xmm1, xmm0, dword ptr [rbx+18h]
-          vmovss  dword ptr [rbx+0Ch], xmm1
+          v59 = v127.v[2];
+          *(float *)(*(_QWORD *)v123.v + 16i64) = *(float *)&_XMM14;
+          v40[5] = *(float *)&_XMM15;
+          v40[6] = v59;
+          v60 = v27;
+          *(float *)&v60 = fsqrt((float)((float)(*(float *)&v27 * *(float *)&v27) + v119) + (float)(v29 * v29));
+          _XMM2 = v60;
+          __asm
+          {
+            vcmpless xmm0, xmm2, cs:__real@80000000
+            vblendvps xmm0, xmm2, xmm1, xmm0
+          }
+          v40[8] = (float)(1.0 / *(float *)&_XMM0) * v120;
+          *(float *)&v60 = *(float *)&v27 * (float)(1.0 / *(float *)&_XMM0);
+          v40[7] = *(float *)&v60;
+          v40[9] = (float)(1.0 / *(float *)&_XMM0) * v29;
+          *(float *)&_XMM2 = v38[2].v[0];
+          v40[1] = (float)(*(float *)&_XMM2 * *(float *)&v60) + v38[1].v[0];
+          v40[2] = (float)(*(float *)&_XMM2 * v40[8]) + v38[1].v[1];
+          v40[3] = (float)(*(float *)&_XMM2 * v40[9]) + v38[1].v[2];
         }
+        else
+        {
+          v55 = LODWORD(v114);
+          *(float *)(*(_QWORD *)v123.v + 16i64) = p.v[0];
+          v40[5] = v24;
+          v40[6] = v16;
+          *(float *)&v55 = fsqrt((float)(v114 + v115) + v25);
+          _XMM2 = v55;
+          __asm
+          {
+            vcmpless xmm0, xmm2, cs:__real@80000000
+            vblendvps xmm0, xmm2, xmm1, xmm0
+          }
+          *(float *)&v55 = (float)(1.0 / *(float *)&_XMM0) * v116;
+          v40[8] = (float)(1.0 / *(float *)&_XMM0) * v117;
+          v40[7] = *(float *)&v55;
+          v40[9] = (float)(1.0 / *(float *)&_XMM0) * v118;
+          *(float *)&_XMM2 = v38[2].v[0];
+          v40[1] = (float)(*(float *)&_XMM2 * *(float *)&v55) + v38->v[0];
+          v40[2] = (float)(*(float *)&_XMM2 * v40[8]) + v38->v[1];
+          v40[3] = (float)(*(float *)&_XMM2 * v40[9]) + v38->v[2];
+        }
+        return 1i64;
       }
       else
       {
+        v43 = LODWORD(v114);
+        *(float *)(*(_QWORD *)v123.v + 16i64) = p.v[0];
+        v40[5] = v24;
+        v40[6] = v16;
+        *(float *)&v43 = fsqrt((float)(v114 + v115) + v25);
+        _XMM2 = v43;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbp+120h+outNormal]
-          vmovss  xmm2, dword ptr [rbp+120h+outNormal+4]
-          vxorps  xmm1, xmm0, xmm13
-          vmovss  dword ptr [rbx+1Ch], xmm1
-          vmovss  xmm1, dword ptr [rbp+120h+outNormal+8]
-          vxorps  xmm0, xmm2, xmm13
-          vmovss  dword ptr [rbx+20h], xmm0
-          vmovss  xmm0, dword ptr [rbp+120h+var_138]
-          vxorps  xmm2, xmm1, xmm13
-          vmovss  xmm1, dword ptr [rbp+120h+var_138+4]
-          vmovss  dword ptr [rbx+24h], xmm2
-          vmovss  dword ptr [rbx+14h], xmm1
-          vmovss  dword ptr [rbx+10h], xmm0
-          vmovss  xmm0, dword ptr [rbp+120h+var_138+8]
-          vmovss  dword ptr [rbx+18h], xmm0
-          vmovss  xmm2, dword ptr [r13+18h]
-          vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbp+120h+var_148]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-          vaddss  xmm1, xmm0, dword ptr [rbp+120h+var_148+4]
-          vmovss  dword ptr [rbx+8], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-          vaddss  xmm1, xmm0, dword ptr [rbp+120h+var_148+8]
-          vmovss  dword ptr [rbx+0Ch], xmm1
+          vcmpless xmm0, xmm2, xmm5
+          vblendvps xmm0, xmm2, xmm4, xmm0
         }
+        *(float *)&v43 = (float)(1.0 / *(float *)&_XMM0) * v116;
+        v40[8] = (float)(1.0 / *(float *)&_XMM0) * v117;
+        v40[9] = (float)(1.0 / *(float *)&_XMM0) * v118;
+        v40[7] = *(float *)&v43;
+        v47 = v38[2].v[0];
+        v40[1] = (float)(v47 * *(float *)&v43) + v38->v[0];
+        v40[2] = (float)(v47 * v40[8]) + v38->v[1];
+        v40[3] = (float)(v47 * v40[9]) + v38->v[2];
+        if ( maxContacts > 1 )
+        {
+          v48 = v127.v[2];
+          v40[14] = *(float *)&_XMM14;
+          v40[15] = *(float *)&_XMM15;
+          v40[16] = v48;
+          v49 = v27;
+          *(float *)&v49 = fsqrt((float)((float)(*(float *)&v27 * *(float *)&v27) + v119) + (float)(v29 * v29));
+          _XMM2 = v49;
+          __asm
+          {
+            vcmpless xmm0, xmm2, xmm5
+            vblendvps xmm0, xmm2, xmm4, xmm0
+          }
+          v40[18] = (float)(1.0 / *(float *)&_XMM0) * v120;
+          *(float *)&v49 = *(float *)&v27 * (float)(1.0 / *(float *)&_XMM0);
+          v40[17] = *(float *)&v49;
+          v40[19] = (float)(1.0 / *(float *)&_XMM0) * v29;
+          v53 = v38[2].v[0];
+          v40[11] = (float)(v53 * *(float *)&v49) + v38[1].v[0];
+          v40[12] = (float)(v53 * v40[18]) + v38[1].v[1];
+          v40[13] = (float)(v53 * v40[19]) + v38[1].v[2];
+          return 2;
+        }
+        return v33;
       }
-      result = 1i64;
+    }
+    if ( v37 == 1 && v30 == 1 )
+      return 0i64;
+  }
+  v64 = v26 < 0.001;
+  if ( v26 < 0.001 || *(float *)&_XMM7 < 0.001 )
+  {
+    NearestPointOnAlignedBoxFace = FindNearestPointOnAlignedBoxFace(&p, boxExtents, &v123, &segStart);
+    v84 = FindNearestPointOnAlignedBoxFace(&v127, boxExtents, &v125, &v126);
+    v85 = v84;
+    if ( v64 )
+    {
+      if ( *(float *)&_XMM7 < 0.001 )
+      {
+        if ( NearestPointOnAlignedBoxFace > v84 )
+        {
+LABEL_56:
+          v86 = v123.v[1];
+          v40[7] = v123.v[0];
+          v87 = v123.v[2];
+          v40[8] = v86;
+          v88 = segStart.v[0];
+          v40[9] = v87;
+          v89 = segStart.v[1];
+          v40[4] = v88;
+          v90 = segStart.v[2];
+LABEL_62:
+          v40[6] = v90;
+          v40[5] = v89;
+          goto LABEL_63;
+        }
+LABEL_61:
+        v99 = v125.v[1];
+        v40[7] = v125.v[0];
+        v100 = v125.v[2];
+        v40[8] = v99;
+        v101 = v126.v[0];
+        v40[9] = v100;
+        v89 = v126.v[1];
+        v40[4] = v101;
+        v90 = v126.v[2];
+        NearestPointOnAlignedBoxFace = v85;
+        goto LABEL_62;
+      }
+      v91 = p.v[0];
+      v92 = v125.v[1];
+      v93 = v125.v[0];
+      v94 = (float)((float)((float)(v24 - v126.v[1]) * v125.v[1]) + (float)((float)(p.v[0] - v126.v[0]) * v125.v[0])) + (float)((float)(v16 - v126.v[2]) * v125.v[2]);
+      if ( v94 >= NearestPointOnAlignedBoxFace )
+        goto LABEL_56;
+      v40[9] = v125.v[2];
+      v40[7] = v93;
+      v40[8] = v92;
+      v40[4] = (float)(COERCE_FLOAT(LODWORD(v94) ^ _xmm) * v93) + v91;
+      v40[5] = (float)(COERCE_FLOAT(LODWORD(v94) ^ _xmm) * v40[8]) + v24;
+      v40[6] = (float)(COERCE_FLOAT(LODWORD(v94) ^ _xmm) * v40[9]) + v16;
+      NearestPointOnAlignedBoxFace = v94;
     }
     else
     {
-      __asm
-      {
-        vcomiss xmm6, dword ptr [r13+18h]
-        vmovss  xmm0, dword ptr [rbp+120h+outNormal]
-        vmovss  xmm2, dword ptr [rbp+120h+outNormal+4]
-        vmovss  xmm4, dword ptr [rbp+120h+outNormal+8]
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  dword ptr [rbx+20h], xmm2
-        vmovss  dword ptr [rbx+24h], xmm4
-        vmovss  xmm3, dword ptr [r13+18h]
-        vmulss  xmm0, xmm0, xmm3
-        vaddss  xmm1, xmm0, dword ptr [rbp+120h+var_148]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm2, xmm2, xmm3
-        vaddss  xmm0, xmm2, dword ptr [rbp+120h+var_148+4]
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+var_138]
-        vmulss  xmm1, xmm4, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rbp+120h+var_148+8]
-        vmovss  xmm1, dword ptr [rbp+120h+var_138+4]
-        vmovss  dword ptr [rbx+0Ch], xmm2
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  xmm0, dword ptr [rbp+120h+var_138+8]
-        vmovss  dword ptr [rbx+18h], xmm0
-        vmovss  dword ptr [rbx+14h], xmm1
-      }
-      result = 1i64;
+      v95 = v123.v[1];
+      v96 = v123.v[0];
+      v97 = v127.v[2];
+      v98 = (float)((float)((float)(*(float *)&_XMM15 - segStart.v[1]) * v123.v[1]) + (float)((float)(*(float *)&_XMM14 - segStart.v[0]) * v123.v[0])) + (float)((float)(v127.v[2] - segStart.v[2]) * v123.v[2]);
+      NearestPointOnAlignedBoxFace = v98;
+      if ( v98 >= v84 )
+        goto LABEL_61;
+      v40[9] = v123.v[2];
+      v40[7] = v96;
+      v40[8] = v95;
+      v40[4] = (float)(COERCE_FLOAT(LODWORD(v98) ^ _xmm) * v96) + *(float *)&_XMM14;
+      v40[5] = (float)(COERCE_FLOAT(LODWORD(v98) ^ _xmm) * v40[8]) + *(float *)&_XMM15;
+      v40[6] = (float)(COERCE_FLOAT(LODWORD(v98) ^ _xmm) * v40[9]) + v97;
     }
+LABEL_63:
+    v102 = NearestPointOnAlignedBoxFace + v38[2].v[0];
+    v40[1] = (float)(v102 * v40[7]) + v40[4];
+    v40[2] = (float)(v102 * v40[8]) + v40[5];
+    v40[3] = (float)(v102 * v40[9]) + v40[6];
+    return 1i64;
   }
-LABEL_49:
-  _R11 = &v241;
-  __asm
+  NearestPointSegmentAlignedBoxEdge = FindNearestPointSegmentAlignedBoxEdge(*(const vec3_t **)segStart.v, (const vec3_t *)(*(_QWORD *)segStart.v + 12i64), &segMidPoint, boxExtents, &outNormal, &v129, &v130);
+  if ( !TestSegmentAlignedBoxAtOrigin(v38, v38 + 1, boxExtents) )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    if ( NearestPointSegmentAlignedBoxEdge <= v38[2].v[0] )
+    {
+      v77 = outNormal.v[0];
+      v78 = outNormal.v[1];
+      v79 = outNormal.v[2];
+      v40[7] = outNormal.v[0];
+      v40[8] = v78;
+      v40[9] = v79;
+      v80 = v38[2].v[0];
+      v40[1] = (float)(v77 * v80) + v129.v[0];
+      v40[2] = (float)(v78 * v80) + v129.v[1];
+      v81 = v130.v[0];
+      v82 = v130.v[1];
+      v40[3] = (float)(v79 * v80) + v129.v[2];
+      v40[4] = v81;
+      v40[6] = v130.v[2];
+      v40[5] = v82;
+      return 1i64;
+    }
+    return 0i64;
   }
-  return result;
+  v66 = FindNearestPointOnAlignedBoxFace(&segMidPoint, boxExtents, &outFaceNormal, &outContactPoint);
+  if ( v66 >= NearestPointSegmentAlignedBoxEdge )
+  {
+    v71 = outNormal.v[1];
+    v40[7] = COERCE_FLOAT(LODWORD(outNormal.v[0]) ^ _xmm);
+    v72 = outNormal.v[2];
+    v40[8] = COERCE_FLOAT(LODWORD(v71) ^ _xmm);
+    v73 = v130.v[0];
+    LODWORD(v74) = LODWORD(v72) ^ _xmm;
+    v75 = v130.v[1];
+    v40[9] = v74;
+    v40[5] = v75;
+    v40[4] = v73;
+    v40[6] = v130.v[2];
+    v76 = v38[2].v[0];
+    v40[1] = (float)(v76 * v40[7]) + v129.v[0];
+    v40[2] = (float)(v76 * v40[8]) + v129.v[1];
+    v40[3] = (float)(v76 * v40[9]) + v129.v[2];
+  }
+  else
+  {
+    v67 = outFaceNormal.v[1];
+    v68 = outContactPoint.v[0];
+    v40[7] = outFaceNormal.v[0];
+    v40[9] = outFaceNormal.v[2];
+    v69 = outContactPoint.v[1];
+    v40[8] = v67;
+    v40[4] = v68;
+    v40[6] = outContactPoint.v[2];
+    v40[5] = v69;
+    v70 = v66 + v38[2].v[0];
+    v40[1] = (float)(v70 * v40[7]) + v40[4];
+    v40[2] = (float)(v70 * v40[8]) + v40[5];
+    v40[3] = (float)(v70 * v40[9]) + v40[6];
+  }
+  return 1i64;
 }
 
 /*
@@ -2308,341 +1742,231 @@ XAnimBonePhysics_TestCapsuleCapsule
 */
 __int64 XAnimBonePhysics_TestCapsuleCapsule(const XAnimCapsuleCollisionShape *capsuleA, const XAnimCapsuleCollisionShape *capsuleB, XAnimCollisionContact *outContacts, const int maxContacts)
 {
-  char v70; 
-  char v71; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v43; 
+  float v44; 
   __int64 result; 
+  float v46; 
+  float v47; 
+  float v48; 
+  __int128 v49; 
+  float v50; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  __int128 v60; 
+  float v63; 
+  float radius; 
+  float v65; 
   float t0; 
-  float t1[9]; 
-  vec3_t v188; 
+  float t1; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  vec3_t v76; 
   vec3_t pointOut; 
   vec3_t segHalfDir; 
   vec3_t segMidPoint; 
-  char v192; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RBX = outContacts;
-  _R14 = capsuleB;
-  _RDI = capsuleA;
   if ( maxContacts <= 0 )
-    goto LABEL_14;
-  __asm
+    return 0i64;
+  v8 = capsuleA->end.v[0];
+  v9 = capsuleA->start.v[0];
+  v10 = capsuleA->end.v[1];
+  v11 = capsuleA->start.v[1];
+  v12 = capsuleA->end.v[2];
+  v13 = capsuleA->start.v[2];
+  v14 = capsuleB->end.v[0] - capsuleB->start.v[0];
+  v16 = LODWORD(capsuleB->end.v[1]);
+  *(float *)&v16 = capsuleB->end.v[1] - capsuleB->start.v[1];
+  v69 = capsuleB->end.v[2] - capsuleB->start.v[2];
+  v15 = v69;
+  v68 = *(float *)&v16;
+  ClosestPointsTwoSegs(&capsuleA->start, &capsuleA->end, &capsuleB->start, &capsuleB->end, &t0, &t1);
+  v17 = capsuleB->start.v[0];
+  v18 = capsuleB->start.v[1];
+  v19 = v8 - v9;
+  v20 = capsuleB->start.v[2];
+  v21 = (float)(v19 * t0) + capsuleA->start.v[0];
+  v22 = (float)((float)(v10 - v11) * t0) + capsuleA->start.v[1];
+  v23 = (float)((float)(v12 - v13) * t0) + capsuleA->start.v[2];
+  v24 = (float)(v14 * t1) + capsuleB->start.v[0];
+  v25 = (float)((float)(v15 * t1) + v20) - v23;
+  v26 = v24 - v21;
+  v75 = (float)(v15 * t1) + v20;
+  v27 = capsuleA->radius + capsuleB->radius;
+  v28 = (float)((float)(*(float *)&v16 * t1) + v18) - v22;
+  v72 = v23;
+  v74 = (float)(*(float *)&v16 * t1) + v18;
+  v29 = v27 * v27;
+  v70 = v21;
+  v73 = v24;
+  *(float *)&v16 = (float)((float)(v28 * v28) + (float)(v26 * v26)) + (float)(v25 * v25);
+  v30 = v16;
+  v71 = v22;
+  if ( *(float *)&v16 > (float)(v27 * v27) )
+    return 0i64;
+  segMidPoint.v[0] = (float)(v14 * 0.5) + v17;
+  segHalfDir.v[0] = v14 * 0.5;
+  segMidPoint.v[2] = (float)(0.5 * v69) + v20;
+  segHalfDir.v[1] = 0.5 * v68;
+  segHalfDir.v[2] = 0.5 * v69;
+  segMidPoint.v[1] = (float)(0.5 * v68) + v18;
+  SegmentPointClosestToPoint(&capsuleA->start, &segMidPoint, &segHalfDir, &pointOut);
+  SegmentPointClosestToPoint(&capsuleA->end, &segMidPoint, &segHalfDir, &v76);
+  v31 = pointOut.v[0] - capsuleA->start.v[0];
+  v34 = LODWORD(pointOut.v[1]);
+  v32 = pointOut.v[1] - capsuleA->start.v[1];
+  v33 = pointOut.v[2] - capsuleA->start.v[2];
+  *(float *)&v34 = (float)((float)(v32 * v32) + (float)(v31 * v31)) + (float)(v33 * v33);
+  if ( *(float *)&v34 > v29 || (float)((float)((float)((float)(v76.v[1] - capsuleA->end.v[1]) * (float)(v76.v[1] - capsuleA->end.v[1])) + (float)((float)(v76.v[0] - capsuleA->end.v[0]) * (float)(v76.v[0] - capsuleA->end.v[0]))) + (float)((float)(v76.v[2] - capsuleA->end.v[2]) * (float)(v76.v[2] - capsuleA->end.v[2]))) > v29 )
   {
-    vmovss  xmm7, dword ptr [rcx+0Ch]
-    vmovss  xmm6, dword ptr [rcx]
-    vmovss  xmm9, dword ptr [rcx+10h]
-    vmovss  xmm8, dword ptr [rcx+4]
-    vmovss  xmm11, dword ptr [rcx+14h]
-    vmovss  xmm10, dword ptr [rcx+8]
-  }
-  _R9 = &capsuleB->end;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm12, xmm0, dword ptr [rdx]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm14, xmm0, dword ptr [rdx+8]
-    vmovss  xmm1, dword ptr [r9+4]
-    vsubss  xmm13, xmm1, dword ptr [rdx+4]
-    vmovss  [rsp+160h+var_124], xmm14
-    vmovss  [rsp+160h+var_128], xmm13
-  }
-  ClosestPointsTwoSegs(&capsuleA->start, &capsuleA->end, &capsuleB->start, &capsuleB->end, &t0, t1);
-  __asm
-  {
-    vmovss  xmm2, [rsp+160h+var_130]
-    vmovss  xmm4, dword ptr [r14]
-    vmovss  xmm5, dword ptr [r14+4]
-    vsubss  xmm1, xmm9, xmm8
-    vsubss  xmm0, xmm7, xmm6
-    vmovss  xmm6, dword ptr [r14+8]
-    vmulss  xmm0, xmm0, xmm2
-    vaddss  xmm3, xmm0, dword ptr [rdi]
-    vmulss  xmm0, xmm1, xmm2
-    vaddss  xmm7, xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm11, xmm10
-    vmulss  xmm0, xmm1, xmm2
-    vaddss  xmm2, xmm0, dword ptr [rdi+8]
-    vmovss  xmm1, [rsp+160h+var_12C]
-    vmulss  xmm0, xmm12, xmm1
-    vaddss  xmm8, xmm0, xmm4
-    vmulss  xmm0, xmm13, xmm1
-    vaddss  xmm9, xmm0, xmm5
-    vmulss  xmm0, xmm14, xmm1
-    vaddss  xmm0, xmm0, xmm6
-    vsubss  xmm15, xmm0, xmm2
-    vsubss  xmm13, xmm8, xmm3
-    vmovss  [rsp+160h+var_10C], xmm0
-    vmovss  xmm0, dword ptr [rdi+18h]
-    vaddss  xmm1, xmm0, dword ptr [r14+18h]
-    vsubss  xmm14, xmm9, xmm7
-    vmovss  [rsp+160h+var_118], xmm2
-    vmulss  xmm0, xmm13, xmm13
-    vmovss  [rsp+160h+var_110], xmm9
-    vmulss  xmm9, xmm1, xmm1
-    vmulss  xmm2, xmm14, xmm14
-    vmovss  [rsp+160h+var_120], xmm3
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm15, xmm15
-    vmovss  [rsp+160h+var_114], xmm8
-    vaddss  xmm8, xmm3, xmm1
-    vcomiss xmm8, xmm9
-    vmovss  [rsp+160h+var_11C], xmm7
-  }
-  if ( v70 | v71 )
-  {
-    __asm
+    v56 = FLOAT_1_0;
+    if ( *(float *)&v30 >= 0.001 )
     {
-      vmovss  xmm0, cs:__real@3f000000
-      vmulss  xmm2, xmm0, [rsp+160h+var_128]
-      vmulss  xmm3, xmm0, [rsp+160h+var_124]
-      vmulss  xmm1, xmm12, xmm0
-      vaddss  xmm0, xmm1, xmm4
-      vmovss  dword ptr [rbp+60h+segMidPoint], xmm0
-      vmovss  dword ptr [rsp+160h+segHalfDir], xmm1
-      vaddss  xmm0, xmm3, xmm6
-      vaddss  xmm1, xmm2, xmm5
-      vmovss  dword ptr [rbp+60h+segMidPoint+8], xmm0
-      vmovss  dword ptr [rsp+160h+segHalfDir+4], xmm2
-      vmovss  dword ptr [rbp+60h+segHalfDir+8], xmm3
-      vmovss  dword ptr [rbp+60h+segMidPoint+4], xmm1
-    }
-    SegmentPointClosestToPoint(&_RDI->start, &segMidPoint, &segHalfDir, &pointOut);
-    SegmentPointClosestToPoint(&_RDI->end, &segMidPoint, &segHalfDir, &v188);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+160h+pointOut]
-      vsubss  xmm10, xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rsp+160h+pointOut+4]
-      vsubss  xmm11, xmm1, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rsp+160h+pointOut+8]
-      vsubss  xmm12, xmm0, dword ptr [rdi+8]
-      vmovss  xmm1, dword ptr [rsp+160h+var_108]
-      vmovss  xmm0, dword ptr [rsp+160h+var_108+4]
-      vsubss  xmm4, xmm1, dword ptr [rdi+0Ch]
-      vmovss  xmm1, dword ptr [rsp+160h+var_108+8]
-      vsubss  xmm6, xmm0, dword ptr [rdi+10h]
-      vsubss  xmm7, xmm1, dword ptr [rdi+14h]
-      vmulss  xmm0, xmm10, xmm10
-      vmulss  xmm2, xmm11, xmm11
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm12, xmm12
-      vaddss  xmm5, xmm3, xmm1
-      vcomiss xmm5, xmm9
-    }
-    if ( !(v70 | v71) )
-      goto LABEL_10;
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, xmm9
-    }
-    if ( v70 | v71 )
-    {
+      v60 = v30;
+      *(float *)&v60 = fsqrt(*(float *)&v30);
+      _XMM2 = v60;
       __asm
       {
-        vmovss  xmm8, cs:__real@3a83126f
-        vcomiss xmm5, xmm8
-        vmovss  xmm9, cs:__real@80000000
-        vmovss  xmm3, cs:__real@3f800000
-        vxorps  xmm4, xmm4, xmm4
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm0, xmm2, xmm1, xmm0
       }
-      if ( v70 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm2, xmm2, xmm2
-          vmovaps xmm1, xmm3
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vsqrtss xmm1, xmm5, xmm5
-          vcmpless xmm0, xmm1, xmm9
-          vblendvps xmm0, xmm1, xmm3, xmm0
-          vdivss  xmm1, xmm3, xmm0
-          vmulss  xmm0, xmm12, xmm1
-          vmulss  xmm2, xmm1, xmm11
-          vmulss  xmm1, xmm1, xmm10
-        }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rbx+1Ch], xmm1
-        vmovss  dword ptr [rbx+20h], xmm2
-        vmovss  dword ptr [rbx+24h], xmm0
-        vmovss  xmm2, dword ptr [rdi+18h]
-        vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-        vaddss  xmm1, xmm0, dword ptr [rdi+4]
-        vmovss  dword ptr [rbx+8], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-        vaddss  xmm1, xmm0, dword ptr [rdi+8]
-        vmovss  dword ptr [rbx+0Ch], xmm1
-        vmovss  xmm0, dword ptr [r14+18h]
-        vxorps  xmm2, xmm0, xmm10
-        vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-        vaddss  xmm1, xmm0, dword ptr [rsp+160h+pointOut]
-        vmovss  dword ptr [rbx+10h], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-        vaddss  xmm1, xmm0, dword ptr [rsp+160h+pointOut+4]
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-        vaddss  xmm1, xmm0, dword ptr [rsp+160h+pointOut+8]
-      }
-      result = 1i64;
-      __asm { vmovss  dword ptr [rbx+18h], xmm1 }
-      if ( maxContacts > 1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+160h+var_108]
-          vsubss  xmm5, xmm0, dword ptr [rdi+0Ch]
-          vmovss  xmm1, dword ptr [rsp+160h+var_108+4]
-          vmovss  xmm0, dword ptr [rsp+160h+var_108+8]
-          vsubss  xmm7, xmm0, dword ptr [rdi+14h]
-          vsubss  xmm6, xmm1, dword ptr [rdi+10h]
-          vmulss  xmm0, xmm5, xmm5
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm0, xmm2, xmm1
-          vcomiss xmm0, xmm8
-          vsqrtss xmm1, xmm0, xmm0
-          vcmpless xmm0, xmm1, xmm9
-          vblendvps xmm0, xmm1, xmm3, xmm0
-          vdivss  xmm1, xmm3, xmm0
-          vmulss  xmm4, xmm1, xmm7
-          vmulss  xmm0, xmm6, xmm1
-          vmulss  xmm3, xmm5, xmm1
-          vmovss  dword ptr [rbx+44h], xmm3
-          vmovss  dword ptr [rbx+48h], xmm0
-          vmovss  dword ptr [rbx+4Ch], xmm4
-          vmovss  xmm2, dword ptr [rdi+18h]
-          vmulss  xmm0, xmm2, dword ptr [rbx+44h]
-          vaddss  xmm1, xmm0, dword ptr [rdi+0Ch]
-          vmovss  dword ptr [rbx+2Ch], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+48h]
-          vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-          vmovss  dword ptr [rbx+30h], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+4Ch]
-          vaddss  xmm1, xmm0, dword ptr [rdi+14h]
-          vmovss  dword ptr [rbx+34h], xmm1
-          vmovss  xmm0, dword ptr [r14+18h]
-          vxorps  xmm2, xmm0, xmm10
-          vmulss  xmm1, xmm2, dword ptr [rbx+44h]
-          vaddss  xmm0, xmm1, dword ptr [rsp+160h+var_108]
-          vmovss  dword ptr [rbx+38h], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+48h]
-          vaddss  xmm0, xmm1, dword ptr [rsp+160h+var_108+4]
-          vmovss  dword ptr [rbx+3Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+4Ch]
-          vaddss  xmm0, xmm1, dword ptr [rsp+160h+var_108+8]
-          vmovss  dword ptr [rbx+40h], xmm0
-        }
-        result = 2i64;
-      }
+      v63 = 1.0 / *(float *)&_XMM0;
+      v57 = (float)(1.0 / *(float *)&_XMM0) * v25;
+      v58 = v63 * v28;
+      v56 = v63 * v26;
     }
     else
     {
-LABEL_10:
-      __asm
-      {
-        vcomiss xmm8, cs:__real@3a83126f
-        vmovss  xmm1, cs:__real@3f800000
-      }
-      if ( v70 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm2, xmm2, xmm2
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vsqrtss xmm2, xmm8, xmm8
-          vcmpless xmm0, xmm2, cs:__real@80000000
-          vblendvps xmm0, xmm2, xmm1, xmm0
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm0, xmm1, xmm15
-          vmulss  xmm2, xmm1, xmm14
-          vmulss  xmm1, xmm1, xmm13
-        }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rbx+1Ch], xmm1
-        vmovss  dword ptr [rbx+20h], xmm2
-        vmovss  dword ptr [rbx+24h], xmm0
-        vmovss  xmm2, dword ptr [rdi+18h]
-        vmulss  xmm0, xmm2, dword ptr [rbx+1Ch]
-        vaddss  xmm1, xmm0, [rsp+160h+var_120]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-        vaddss  xmm1, xmm0, [rsp+160h+var_11C]
-        vmovss  dword ptr [rbx+8], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+24h]
-        vaddss  xmm1, xmm0, [rsp+160h+var_118]
-        vmovss  dword ptr [rbx+0Ch], xmm1
-        vmovss  xmm0, dword ptr [r14+18h]
-        vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm1, xmm3, dword ptr [rbx+1Ch]
-        vaddss  xmm2, xmm1, [rsp+160h+var_114]
-        vmovss  dword ptr [rbx+10h], xmm2
-        vmulss  xmm0, xmm3, dword ptr [rbx+20h]
-        vaddss  xmm1, xmm0, [rsp+160h+var_110]
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rbx+24h]
-        vaddss  xmm1, xmm0, [rsp+160h+var_10C]
-        vmovss  dword ptr [rbx+18h], xmm1
-      }
-      result = 1i64;
+      v57 = 0.0;
+      v58 = 0.0;
     }
+    outContacts->normal.v[0] = v56;
+    outContacts->normal.v[1] = v58;
+    outContacts->normal.v[2] = v57;
+    radius = capsuleA->radius;
+    outContacts->pointA.v[0] = (float)(radius * outContacts->normal.v[0]) + v70;
+    outContacts->pointA.v[1] = (float)(radius * outContacts->normal.v[1]) + v71;
+    outContacts->pointA.v[2] = (float)(radius * outContacts->normal.v[2]) + v72;
+    LODWORD(v65) = LODWORD(capsuleB->radius) ^ _xmm;
+    outContacts->pointB.v[0] = (float)(v65 * outContacts->normal.v[0]) + v73;
+    outContacts->pointB.v[1] = (float)(v65 * outContacts->normal.v[1]) + v74;
+    outContacts->pointB.v[2] = (float)(v65 * outContacts->normal.v[2]) + v75;
+    return 1i64;
   }
   else
   {
-LABEL_14:
-    result = 0i64;
-  }
-  _R11 = &v192;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    v35 = FLOAT_1_0;
+    v36 = 0.0;
+    if ( *(float *)&v34 >= 0.001 )
+    {
+      *(float *)&v34 = fsqrt(*(float *)&v34);
+      _XMM1 = v34;
+      __asm
+      {
+        vcmpless xmm0, xmm1, xmm9
+        vblendvps xmm0, xmm1, xmm3, xmm0
+      }
+      *(float *)&_XMM1 = 1.0 / *(float *)&_XMM0;
+      v37 = v33 * (float)(1.0 / *(float *)&_XMM0);
+      v38 = *(float *)&_XMM1 * v32;
+      v39 = *(float *)&_XMM1 * v31;
+    }
+    else
+    {
+      v37 = 0.0;
+      v38 = 0.0;
+      v39 = FLOAT_1_0;
+    }
+    outContacts->normal.v[0] = v39;
+    outContacts->normal.v[1] = v38;
+    outContacts->normal.v[2] = v37;
+    v43 = capsuleA->radius;
+    outContacts->pointA.v[0] = (float)(v43 * outContacts->normal.v[0]) + capsuleA->start.v[0];
+    outContacts->pointA.v[1] = (float)(v43 * outContacts->normal.v[1]) + capsuleA->start.v[1];
+    outContacts->pointA.v[2] = (float)(v43 * outContacts->normal.v[2]) + capsuleA->start.v[2];
+    LODWORD(v44) = LODWORD(capsuleB->radius) ^ _xmm;
+    outContacts->pointB.v[0] = (float)(v44 * outContacts->normal.v[0]) + pointOut.v[0];
+    outContacts->pointB.v[1] = (float)(v44 * outContacts->normal.v[1]) + pointOut.v[1];
+    result = 1i64;
+    outContacts->pointB.v[2] = (float)(v44 * outContacts->normal.v[2]) + pointOut.v[2];
+    if ( maxContacts > 1 )
+    {
+      v46 = v76.v[0] - capsuleA->end.v[0];
+      v47 = v76.v[2] - capsuleA->end.v[2];
+      v49 = LODWORD(v76.v[1]);
+      v48 = v76.v[1] - capsuleA->end.v[1];
+      *(float *)&v49 = (float)((float)(v48 * v48) + (float)(v46 * v46)) + (float)(v47 * v47);
+      if ( *(float *)&v49 >= 0.001 )
+      {
+        *(float *)&v49 = fsqrt(*(float *)&v49);
+        _XMM1 = v49;
+        __asm
+        {
+          vcmpless xmm0, xmm1, xmm9
+          vblendvps xmm0, xmm1, xmm3, xmm0
+        }
+        *(float *)&_XMM1 = 1.0 / *(float *)&_XMM0;
+        v36 = (float)(1.0 / *(float *)&_XMM0) * v47;
+        v50 = v48 * (float)(1.0 / *(float *)&_XMM0);
+        v35 = v46 * *(float *)&_XMM1;
+      }
+      else
+      {
+        v50 = 0.0;
+      }
+      outContacts[1].normal.v[0] = v35;
+      outContacts[1].normal.v[1] = v50;
+      outContacts[1].normal.v[2] = v36;
+      v54 = capsuleA->radius;
+      outContacts[1].pointA.v[0] = (float)(v54 * outContacts[1].normal.v[0]) + capsuleA->end.v[0];
+      outContacts[1].pointA.v[1] = (float)(v54 * outContacts[1].normal.v[1]) + capsuleA->end.v[1];
+      outContacts[1].pointA.v[2] = (float)(v54 * outContacts[1].normal.v[2]) + capsuleA->end.v[2];
+      LODWORD(v55) = LODWORD(capsuleB->radius) ^ _xmm;
+      outContacts[1].pointB.v[0] = (float)(v55 * outContacts[1].normal.v[0]) + v76.v[0];
+      outContacts[1].pointB.v[1] = (float)(v55 * outContacts[1].normal.v[1]) + v76.v[1];
+      outContacts[1].pointB.v[2] = (float)(v55 * outContacts[1].normal.v[2]) + v76.v[2];
+      return 2i64;
+    }
   }
   return result;
 }
@@ -2654,73 +1978,53 @@ XAnimBonePhysics_TestCapsuleOrientedBox
 */
 __int64 XAnimBonePhysics_TestCapsuleOrientedBox(const XAnimCapsuleCollisionShape *capsule, const XAnimBoxCollisionShape *box, const vec4_t *boxQuat, const vec3_t *boxTrans, bool flipNormalSign, XAnimCollisionContact *outContacts, const int maxContacts)
 {
-  const XAnimCapsuleCollisionShape *v10; 
-  int v13; 
+  int v11; 
   vec3_t *p_extents; 
-  int v15; 
-  int v16; 
-  __int64 v17; 
+  int v13; 
+  int v14; 
+  __int64 v15; 
+  float *v16; 
   vec3_t outTransformedPoint; 
   vec3_t outInvTrans; 
   vec4_t outInvQuat; 
-  XAnimCapsuleCollisionShape v30; 
-  XAnimCollisionContact v31[2]; 
+  XAnimCapsuleCollisionShape v20; 
+  XAnimCollisionContact v21[2]; 
 
-  v10 = capsule;
   if ( maxContacts <= 0 )
     return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vmovss  [rsp+128h+var_C0], xmm0
-  }
+  v20.radius = capsule->radius;
   QuatTrans_TransformPoint(boxQuat, boxTrans, &box->center, &outTransformedPoint);
   QuatTrans_Inverse(boxQuat, &outTransformedPoint, &outInvQuat, &outInvTrans);
-  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &v10->start, &v30.start);
-  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &v10->end, &v30.end);
-  v13 = 2;
+  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &capsule->start, &v20.start);
+  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &capsule->end, &v20.end);
+  v11 = 2;
   p_extents = &box->extents;
   if ( maxContacts < 2 )
-    v13 = maxContacts;
-  v15 = 0;
-  v16 = XAnimBonePhysics_TestCapsuleAxisAlignedBoxAtOrigin(&v30, p_extents, v31, v13);
-  v17 = v16;
-  if ( v16 > 0 )
+    v11 = maxContacts;
+  v13 = 0;
+  v14 = XAnimBonePhysics_TestCapsuleAxisAlignedBoxAtOrigin(&v20, p_extents, v21, v11);
+  v15 = v14;
+  if ( v14 > 0 )
   {
-    _RDI = &outContacts->normal.v[2];
-    __asm
-    {
-      vmovaps [rsp+128h+var_58], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
+    v16 = &outContacts->normal.v[2];
     do
     {
-      QuatTrans_TransformPoint(boxQuat, &outTransformedPoint, &v31[v15].pointA, &outContacts[v15].pointA);
-      QuatTrans_TransformPoint(boxQuat, &outTransformedPoint, &v31[v15].pointB, &outContacts[v15].pointB);
-      QuatTransform(boxQuat, &v31[v15].normal, &outContacts[v15].normal);
+      QuatTrans_TransformPoint(boxQuat, &outTransformedPoint, &v21[v13].pointA, &outContacts[v13].pointA);
+      QuatTrans_TransformPoint(boxQuat, &outTransformedPoint, &v21[v13].pointB, &outContacts[v13].pointB);
+      QuatTransform(boxQuat, &v21[v13].normal, &outContacts[v13].normal);
       if ( flipNormalSign )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi-8]
-          vxorps  xmm1, xmm0, xmm6
-          vmovss  dword ptr [rdi-8], xmm1
-          vmovss  xmm0, dword ptr [rdi-4]
-          vxorps  xmm1, xmm0, xmm6
-          vmovss  dword ptr [rdi-4], xmm1
-          vmovss  xmm2, dword ptr [rdi]
-          vxorps  xmm0, xmm2, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *(v16 - 2) = COERCE_FLOAT(*((_DWORD *)v16 - 2) ^ _xmm);
+        *(v16 - 1) = COERCE_FLOAT(*((_DWORD *)v16 - 1) ^ _xmm);
+        *v16 = COERCE_FLOAT(*(_DWORD *)v16 ^ _xmm);
       }
-      ++v15;
-      _RDI += 10;
-      --v17;
+      ++v13;
+      v16 += 10;
+      --v15;
     }
-    while ( v17 );
-    __asm { vmovaps xmm6, [rsp+128h+var_58] }
+    while ( v15 );
   }
-  return (unsigned int)v16;
+  return (unsigned int)v14;
 }
 
 /*
@@ -2731,124 +2035,84 @@ XAnimBonePhysics_TestCapsulePlane
 __int64 XAnimBonePhysics_TestCapsulePlane(const XAnimCapsuleCollisionShape *capsule, const vec4_t *planeNormalDistance, XAnimCollisionContact *outContacts, int maxContacts)
 {
   __int64 result; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float radius; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
 
-  _R10 = capsule;
   if ( maxContacts <= 0 )
     return 0i64;
-  __asm
+  v5 = planeNormalDistance->v[1];
+  v6 = planeNormalDistance->v[2];
+  v7 = (float)((float)((float)(planeNormalDistance->v[0] * capsule->start.v[0]) + (float)(v5 * capsule->start.v[1])) + (float)(v6 * capsule->start.v[2])) - planeNormalDistance->v[3];
+  v9 = (float)((float)((float)(v5 * capsule->end.v[1]) + (float)(planeNormalDistance->v[0] * capsule->end.v[0])) + (float)(v6 * capsule->end.v[2])) - planeNormalDistance->v[3];
+  v8 = v9;
+  radius = capsule->radius;
+  if ( v7 < 0.0 == v9 < 0.0 && radius < v7 && radius < v9 )
+    return 0i64;
+  outContacts->normal.v[0] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[0]) ^ _xmm);
+  outContacts->normal.v[1] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[1]) ^ _xmm);
+  outContacts->normal.v[2] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[2]) ^ _xmm);
+  if ( radius < v7 || radius < v9 )
   {
-    vmovss  xmm3, dword ptr [rdx+4]
-    vmulss  xmm0, xmm3, dword ptr [rcx+4]
-    vmovss  xmm4, dword ptr [rdx+8]
-    vmovaps [rsp+28h+var_18], xmm6
-    vmovaps [rsp+28h+var_28], xmm7
-    vmovss  xmm7, dword ptr [rdx]
-    vmulss  xmm1, xmm7, dword ptr [rcx]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, dword ptr [rcx+8]
-    vmulss  xmm0, xmm7, dword ptr [rcx+0Ch]
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rcx+10h]
-    vsubss  xmm6, xmm2, dword ptr [rdx+0Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, dword ptr [rcx+14h]
-    vaddss  xmm0, xmm2, xmm1
-    vsubss  xmm5, xmm0, dword ptr [rdx+0Ch]
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vcomiss xmm0, xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm5
-    vcomiss xmm5, xmm1
-    vcomiss xmm6, xmm1
-    vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm7, xmm4
-    vmovss  dword ptr [r8+1Ch], xmm0
-    vmovss  xmm1, dword ptr [rdx+4]
-    vxorps  xmm2, xmm1, xmm4
-    vmovss  dword ptr [r8+20h], xmm2
-    vmovss  xmm0, dword ptr [rdx+8]
-    vxorps  xmm1, xmm0, xmm4
-    vmovss  dword ptr [r8+24h], xmm1
-    vmovss  xmm0, dword ptr [rdx]
-    vxorps  xmm1, xmm0, xmm4
-    vmovss  dword ptr [r8+1Ch], xmm1
-    vmovss  xmm2, dword ptr [rdx+4]
-    vxorps  xmm0, xmm2, xmm4
-    vmovss  dword ptr [r8+20h], xmm0
-    vmovss  xmm1, dword ptr [rdx+8]
-    vxorps  xmm2, xmm1, xmm4
-    vmovss  dword ptr [r8+24h], xmm2
-    vmovss  xmm0, dword ptr [r10+18h]
-    vxorps  xmm3, xmm0, xmm4
-    vmulss  xmm1, xmm3, dword ptr [rdx]
-    vaddss  xmm0, xmm1, dword ptr [r10]
-    vmovss  dword ptr [r8+4], xmm0
-    vmulss  xmm2, xmm3, dword ptr [rdx+4]
-    vaddss  xmm1, xmm2, dword ptr [r10+4]
-    vmovss  dword ptr [r8+8], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rdx+8]
-    vaddss  xmm1, xmm0, dword ptr [r10+8]
-    vmovss  dword ptr [r8+0Ch], xmm1
-    vxorps  xmm3, xmm6, xmm4
-    vmulss  xmm0, xmm3, dword ptr [rdx]
-    vaddss  xmm1, xmm0, dword ptr [r10]
-    vmovss  dword ptr [r8+10h], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rdx+4]
-    vaddss  xmm0, xmm2, dword ptr [r10+4]
-    vmovss  dword ptr [r8+14h], xmm0
-    vmulss  xmm1, xmm3, dword ptr [rdx+8]
-    vaddss  xmm0, xmm1, dword ptr [r10+8]
-    vmovss  dword ptr [r8+18h], xmm0
-  }
-  if ( maxContacts == 1 )
-  {
-    __asm { vmovaps xmm6, [rsp+28h+var_18] }
-    result = 1i64;
-    __asm { vmovaps xmm7, [rsp+28h+var_28] }
+    LODWORD(v13) = LODWORD(capsule->radius) ^ _xmm;
+    v14 = planeNormalDistance->v[0] * v13;
+    if ( v7 >= v8 )
+    {
+      outContacts->pointA.v[0] = v14 + capsule->end.v[0];
+      outContacts->pointA.v[1] = (float)(v13 * planeNormalDistance->v[1]) + capsule->end.v[1];
+      outContacts->pointA.v[2] = (float)(v13 * planeNormalDistance->v[2]) + capsule->end.v[2];
+      outContacts->pointB.v[0] = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * planeNormalDistance->v[0]) + capsule->end.v[0];
+      outContacts->pointB.v[1] = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * planeNormalDistance->v[1]) + capsule->end.v[1];
+      v15 = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * planeNormalDistance->v[2]) + capsule->end.v[2];
+    }
+    else
+    {
+      outContacts->pointA.v[0] = v14 + capsule->start.v[0];
+      outContacts->pointA.v[1] = (float)(v13 * planeNormalDistance->v[1]) + capsule->start.v[1];
+      outContacts->pointA.v[2] = (float)(v13 * planeNormalDistance->v[2]) + capsule->start.v[2];
+      outContacts->pointB.v[0] = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[0]) + capsule->start.v[0];
+      outContacts->pointB.v[1] = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[1]) + capsule->start.v[1];
+      v15 = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[2]) + capsule->start.v[2];
+    }
+    outContacts->pointB.v[2] = v15;
   }
   else
   {
-    __asm
+    outContacts->normal.v[0] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[0]) ^ _xmm);
+    outContacts->normal.v[1] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[1]) ^ _xmm);
+    outContacts->normal.v[2] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[2]) ^ _xmm);
+    LODWORD(v11) = LODWORD(capsule->radius) ^ _xmm;
+    outContacts->pointA.v[0] = (float)(v11 * planeNormalDistance->v[0]) + capsule->start.v[0];
+    outContacts->pointA.v[1] = (float)(v11 * planeNormalDistance->v[1]) + capsule->start.v[1];
+    outContacts->pointA.v[2] = (float)(v11 * planeNormalDistance->v[2]) + capsule->start.v[2];
+    outContacts->pointB.v[0] = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[0]) + capsule->start.v[0];
+    outContacts->pointB.v[1] = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[1]) + capsule->start.v[1];
+    outContacts->pointB.v[2] = (float)(COERCE_FLOAT(LODWORD(v7) ^ _xmm) * planeNormalDistance->v[2]) + capsule->start.v[2];
+    if ( maxContacts != 1 )
     {
-      vmovss  xmm0, dword ptr [rdx]
-      vmovaps xmm6, [rsp+28h+var_18]
-    }
-    result = 2i64;
-    __asm
-    {
-      vmovaps xmm7, [rsp+28h+var_28]
-      vxorps  xmm1, xmm0, xmm4
-      vmovss  dword ptr [r8+44h], xmm1
-      vmovss  xmm2, dword ptr [rdx+4]
-      vxorps  xmm0, xmm2, xmm4
-      vmovss  dword ptr [r8+48h], xmm0
-      vmovss  xmm1, dword ptr [rdx+8]
-      vxorps  xmm2, xmm1, xmm4
-      vmovss  dword ptr [r8+4Ch], xmm2
-      vmovss  xmm0, dword ptr [r10+18h]
-      vxorps  xmm3, xmm0, xmm4
-      vmulss  xmm1, xmm3, dword ptr [rdx]
-      vaddss  xmm0, xmm1, dword ptr [r10+0Ch]
-      vmovss  dword ptr [r8+2Ch], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rdx+4]
-      vaddss  xmm1, xmm2, dword ptr [r10+10h]
-      vmovss  dword ptr [r8+30h], xmm1
-      vmulss  xmm0, xmm3, dword ptr [rdx+8]
-      vaddss  xmm1, xmm0, dword ptr [r10+14h]
-      vmovss  dword ptr [r8+34h], xmm1
-      vxorps  xmm3, xmm5, xmm4
-      vmulss  xmm0, xmm3, dword ptr [rdx]
-      vaddss  xmm1, xmm0, dword ptr [r10+0Ch]
-      vmovss  dword ptr [r8+38h], xmm1
-      vmulss  xmm2, xmm3, dword ptr [rdx+4]
-      vaddss  xmm0, xmm2, dword ptr [r10+10h]
-      vmovss  dword ptr [r8+3Ch], xmm0
-      vmulss  xmm1, xmm3, dword ptr [rdx+8]
-      vaddss  xmm0, xmm1, dword ptr [r10+14h]
-      vmovss  dword ptr [r8+40h], xmm0
+      result = 2i64;
+      outContacts[1].normal.v[0] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[0]) ^ _xmm);
+      outContacts[1].normal.v[1] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[1]) ^ _xmm);
+      outContacts[1].normal.v[2] = COERCE_FLOAT(LODWORD(planeNormalDistance->v[2]) ^ _xmm);
+      LODWORD(v12) = LODWORD(capsule->radius) ^ _xmm;
+      outContacts[1].pointA.v[0] = (float)(v12 * planeNormalDistance->v[0]) + capsule->end.v[0];
+      outContacts[1].pointA.v[1] = (float)(v12 * planeNormalDistance->v[1]) + capsule->end.v[1];
+      outContacts[1].pointA.v[2] = (float)(v12 * planeNormalDistance->v[2]) + capsule->end.v[2];
+      outContacts[1].pointB.v[0] = (float)(COERCE_FLOAT(LODWORD(v9) ^ _xmm) * planeNormalDistance->v[0]) + capsule->end.v[0];
+      outContacts[1].pointB.v[1] = (float)(COERCE_FLOAT(LODWORD(v9) ^ _xmm) * planeNormalDistance->v[1]) + capsule->end.v[1];
+      outContacts[1].pointB.v[2] = (float)(COERCE_FLOAT(LODWORD(v9) ^ _xmm) * planeNormalDistance->v[2]) + capsule->end.v[2];
+      return result;
     }
   }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -2858,156 +2122,84 @@ XAnimBonePhysics_TestCapsuleSphere
 */
 __int64 XAnimBonePhysics_TestCapsuleSphere(const XAnimCapsuleCollisionShape *capsule, const XAnimSphereCollisionShape *sphere, bool flipNormalSign, vec3_t *outPointA, vec3_t *outPointB, vec3_t *outNormal)
 {
-  char v29; 
-  char v44; 
-  __int64 result; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v26; 
+  float radius; 
+  float v28; 
+  float v29; 
   vec3_t pointOut; 
   vec3_t segHalfDir; 
   vec3_t segMidPoint; 
-  char v86; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmovss  xmm2, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rcx+10h]
-  }
-  _RBP = outPointB;
-  _RDI = sphere;
-  _RBX = outNormal;
-  __asm
-  {
-    vmulss  xmm4, xmm1, xmm2
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rcx+14h]
-    vmulss  xmm3, xmm1, xmm2
-    vsubss  xmm1, xmm0, dword ptr [rcx+8]
-    vaddss  xmm0, xmm4, dword ptr [rcx]
-    vmulss  xmm2, xmm1, xmm2
-    vaddss  xmm1, xmm3, dword ptr [rcx+4]
-    vmovss  dword ptr [rsp+0B8h+segMidPoint], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rcx+8]
-  }
-  _RSI = outPointA;
-  _R14 = capsule;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+segMidPoint+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+segHalfDir], xmm4
-    vmovss  dword ptr [rsp+0B8h+segHalfDir+4], xmm3
-    vmovss  dword ptr [rsp+0B8h+segHalfDir+8], xmm2
-    vmovss  dword ptr [rsp+0B8h+segMidPoint+4], xmm1
-  }
+  v7 = (float)(capsule->end.v[0] - capsule->start.v[0]) * 0.5;
+  v8 = (float)(capsule->end.v[1] - capsule->start.v[1]) * 0.5;
+  v9 = (float)(capsule->end.v[2] - capsule->start.v[2]) * 0.5;
+  v10 = v8 + capsule->start.v[1];
+  segMidPoint.v[0] = v7 + capsule->start.v[0];
+  segMidPoint.v[2] = v9 + capsule->start.v[2];
+  segHalfDir.v[0] = v7;
+  segHalfDir.v[1] = v8;
+  segHalfDir.v[2] = v9;
+  segMidPoint.v[1] = v10;
   SegmentPointClosestToPoint(&sphere->center, &segMidPoint, &segHalfDir, &pointOut);
-  __asm
+  v14 = sphere->center.v[0] - pointOut.v[0];
+  v18 = LODWORD(sphere->center.v[1]);
+  v15 = sphere->center.v[1] - pointOut.v[1];
+  v16 = sphere->center.v[2] - pointOut.v[2];
+  v17 = capsule->radius + sphere->radius;
+  *(float *)&v18 = (float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16);
+  if ( *(float *)&v18 > (float)(v17 * v17) )
+    return 0i64;
+  if ( *(float *)&v18 >= 0.001 )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm6, xmm0, dword ptr [rsp+0B8h+pointOut]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm7, xmm1, dword ptr [rsp+0B8h+pointOut+4]
-    vsubss  xmm8, xmm0, dword ptr [rsp+0B8h+pointOut+8]
-    vmovss  xmm0, dword ptr [r14+18h]
-    vaddss  xmm4, xmm0, dword ptr [rdi+0Ch]
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm2, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm5, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vcomiss xmm5, xmm1
-  }
-  if ( v29 | v44 )
-  {
-    __asm { vcomiss xmm5, cs:__real@3a83126f }
-    _RAX = outNormal;
-    if ( v29 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm1, xmm1, xmm1
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm2, xmm5, xmm5
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vblendvps xmm0, xmm2, xmm1, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm1, xmm6
-        vmulss  xmm2, xmm8, xmm1
-        vmulss  xmm1, xmm7, xmm1
-      }
-    }
+    *(float *)&v18 = fsqrt(*(float *)&v18);
+    _XMM2 = v18;
     __asm
     {
-      vmovss  dword ptr [rax], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  dword ptr [rbx+8], xmm2
-      vmovss  xmm2, dword ptr [r14+18h]
-      vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps xmm3, xmm0
-      vmulss  xmm0, xmm0, xmm2
-      vaddss  xmm1, xmm0, dword ptr [rsp+0B8h+pointOut]
-      vmovss  dword ptr [rsi], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+4]
-      vaddss  xmm1, xmm0, dword ptr [rsp+0B8h+pointOut+4]
-      vmovss  dword ptr [rsi+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+8]
-      vaddss  xmm1, xmm0, dword ptr [rsp+0B8h+pointOut+8]
-      vmovss  dword ptr [rsi+8], xmm1
-      vmovss  xmm2, dword ptr [rdi+0Ch]
-      vxorps  xmm3, xmm2, xmm4
-      vmulss  xmm0, xmm3, dword ptr [rbx]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rbp+0], xmm1
-      vmulss  xmm0, xmm3, dword ptr [rbx+4]
-      vaddss  xmm1, xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rbp+4], xmm1
-      vmulss  xmm0, xmm3, dword ptr [rbx+8]
-      vaddss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rbp+8], xmm1
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm1, xmm0
     }
-    if ( flipNormalSign )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm2, dword ptr [rbx+4]
-        vxorps  xmm1, xmm0, xmm4
-        vxorps  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rbx], xmm1
-        vmovss  xmm1, dword ptr [rbx+8]
-        vxorps  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rbx+8], xmm2
-        vmovss  dword ptr [rbx+4], xmm0
-      }
-    }
-    result = 1i64;
+    v26 = 1.0 / *(float *)&_XMM0;
+    v20 = (float)(1.0 / *(float *)&_XMM0) * v14;
+    v21 = v16 * v26;
+    v22 = v15 * v26;
   }
   else
   {
-    result = 0i64;
+    v20 = FLOAT_1_0;
+    v21 = 0.0;
+    v22 = 0.0;
   }
-  _R11 = &v86;
-  __asm
+  outNormal->v[0] = v20;
+  outNormal->v[1] = v22;
+  outNormal->v[2] = v21;
+  radius = capsule->radius;
+  outPointA->v[0] = (float)(v20 * radius) + pointOut.v[0];
+  outPointA->v[1] = (float)(radius * outNormal->v[1]) + pointOut.v[1];
+  outPointA->v[2] = (float)(radius * outNormal->v[2]) + pointOut.v[2];
+  LODWORD(v28) = LODWORD(sphere->radius) ^ _xmm;
+  outPointB->v[0] = (float)(v28 * outNormal->v[0]) + sphere->center.v[0];
+  outPointB->v[1] = (float)(v28 * outNormal->v[1]) + sphere->center.v[1];
+  outPointB->v[2] = (float)(v28 * outNormal->v[2]) + sphere->center.v[2];
+  if ( flipNormalSign )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    LODWORD(v29) = LODWORD(outNormal->v[1]) ^ _xmm;
+    outNormal->v[0] = COERCE_FLOAT(LODWORD(outNormal->v[0]) ^ _xmm);
+    outNormal->v[2] = COERCE_FLOAT(LODWORD(outNormal->v[2]) ^ _xmm);
+    outNormal->v[1] = v29;
   }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -3015,272 +2207,200 @@ __int64 XAnimBonePhysics_TestCapsuleSphere(const XAnimCapsuleCollisionShape *cap
 XAnimBonePhysics_TestSphereAxisAlignedBox
 ==============
 */
-bool XAnimBonePhysics_TestSphereAxisAlignedBox(const XAnimSphereCollisionShape *sphere, const XAnimBoxCollisionShape *box, bool flipNormalSign, vec3_t *outPointA, vec3_t *outPointB, vec3_t *outNormal)
+char XAnimBonePhysics_TestSphereAxisAlignedBox(const XAnimSphereCollisionShape *sphere, const XAnimBoxCollisionShape *box, bool flipNormalSign, vec3_t *outPointA, vec3_t *outPointB, vec3_t *outNormal)
 {
-  int v16; 
-  unsigned int v19; 
-  unsigned int v20; 
-  bool v26; 
-  char v27; 
-  bool v28; 
-  int v32; 
-  int v39; 
-  bool result; 
-  int v50; 
-  __int64 v81; 
-  __int64 v82; 
-  signed __int64 v85; 
-  vec3_t *v86; 
-  const XAnimSphereCollisionShape *v87; 
-  char v89; 
-  void *retaddr; 
+  vec3_t *p_extents; 
+  int v8; 
+  signed __int64 v9; 
+  int v10; 
+  unsigned int v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v19; 
+  int v21; 
+  float v23; 
+  __int128 v24; 
+  __int128 v28; 
+  int v29; 
+  float v30; 
+  __int128 v31; 
+  float *v34; 
+  int v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  float v44; 
+  float v45; 
+  float *v46; 
+  float v47; 
+  __int64 v48; 
+  __int64 v49; 
+  signed __int64 v50; 
+  vec3_t *v51; 
+  const XAnimSphereCollisionShape *v52; 
+  float v53; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  _RDI = &box->extents;
-  __asm
-  {
-    vmovss  xmm10, cs:__real@7f7fffff
-    vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v16 = 0;
-  v86 = outPointA;
-  _R15 = (char *)sphere - (char *)&box->extents;
-  v87 = sphere;
-  _R13 = -12i64;
-  v19 = 0;
-  v20 = 0;
-  v85 = (char *)outPointB - (char *)&box->extents;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm7, xmm7, xmm7
-  }
+  p_extents = &box->extents;
+  *(float *)&_XMM10 = FLOAT_3_4028235e38;
+  v8 = 0;
+  v51 = outPointA;
+  v9 = (char *)sphere - (char *)&box->extents;
+  v52 = sphere;
+  v10 = 0;
+  v11 = 0;
+  v50 = (char *)outPointB - (char *)&box->extents;
+  v12 = 0i64;
   do
   {
-    if ( v20 >= 3 )
+    if ( v11 >= 3 )
     {
-      LODWORD(v82) = 3;
-      LODWORD(v81) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82) )
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, dword ptr [rdi+r13] }
-    if ( v20 >= 3 )
+    v13 = LODWORD(p_extents[-1].v[0]);
+    if ( v11 >= 3 )
     {
-      LODWORD(v82) = 3;
-      LODWORD(v81) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82) )
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
         __debugbreak();
     }
-    __asm
+    v14 = *(float *)&v13 - p_extents->v[0];
+    v16 = v13;
+    *(float *)&v16 = *(float *)&v13 + p_extents->v[0];
+    v15 = v16;
+    if ( v11 >= 3 )
     {
-      vsubss  xmm8, xmm6, dword ptr [rdi]
-      vaddss  xmm6, xmm6, dword ptr [rdi]
-    }
-    v26 = v20 < 3;
-    v27 = v20 <= 3;
-    if ( v20 >= 3 )
-    {
-      LODWORD(v82) = 3;
-      LODWORD(v81) = v20;
-      v28 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82);
-      v26 = 0;
-      v27 = !v28;
-      if ( v28 )
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
         __debugbreak();
     }
-    __asm
+    _XMM2 = *(unsigned int *)((char *)p_extents->v + v9);
+    v19 = _XMM2;
+    *(float *)&v19 = *(float *)&_XMM2 - v14;
+    _XMM1 = v19;
+    _XMM0 = v19 & (unsigned int)_xmm;
+    v21 = ~v11;
+    if ( *(float *)&_XMM10 <= COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM2 - v14) & _xmm) )
+      v21 = v8;
+    __asm { vminss  xmm3, xmm0, xmm10 }
+    if ( *(float *)&v19 >= 0.0 )
     {
-      vmovss  xmm2, dword ptr [r15+rdi]
-      vsubss  xmm1, xmm2, xmm8
-      vandps  xmm0, xmm1, xmm11
-      vcomiss xmm10, xmm0
-    }
-    v32 = ~v20;
-    if ( v27 )
-      v32 = v16;
-    __asm
-    {
-      vcomiss xmm1, xmm9
-      vminss  xmm3, xmm0, xmm10
-    }
-    if ( v26 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm1
-        vaddss  xmm7, xmm7, xmm0
-      }
+      ++v10;
     }
     else
     {
-      v27 = v26 | (++v19 == 0);
+      v23 = *(float *)&v19 * *(float *)&v19;
+      v24 = v12;
+      *(float *)&v24 = *(float *)&v12 + v23;
+      v12 = v24;
     }
     __asm
     {
       vcmpltss xmm0, xmm1, xmm9
       vblendvps xmm2, xmm2, xmm8, xmm0
-      vsubss  xmm1, xmm6, xmm2
-      vandps  xmm0, xmm1, xmm11
-      vcomiss xmm3, xmm0
     }
-    v39 = v20 + 1;
-    v16 = v20 + 1;
-    if ( v27 )
-      v16 = v32;
-    __asm
+    v28 = v15;
+    *(float *)&v28 = *(float *)&v15 - *(float *)&_XMM2;
+    _XMM1 = v28;
+    v29 = v11 + 1;
+    v8 = v11 + 1;
+    if ( *(float *)&_XMM3 <= COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v15 - *(float *)&_XMM2) & _xmm) )
+      v8 = v21;
+    __asm { vminss  xmm10, xmm3, xmm0 }
+    if ( *(float *)&v28 >= 0.0 )
     {
-      vcomiss xmm1, xmm9
-      vmovss  [rsp+108h+var_C8], xmm2
-      vminss  xmm10, xmm3, xmm0
-    }
-    if ( v26 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm1
-        vaddss  xmm7, xmm7, xmm0
-      }
+      ++v10;
     }
     else
     {
-      ++v19;
+      v30 = *(float *)&v28 * *(float *)&v28;
+      v31 = v12;
+      *(float *)&v31 = *(float *)&v12 + v30;
+      v12 = v31;
     }
     __asm
     {
       vcmpltss xmm0, xmm1, xmm9
       vblendvps xmm0, xmm2, xmm6, xmm0
-      vmovss  [rsp+108h+var_C8], xmm0
     }
-    if ( v20 >= 3 )
+    if ( v11 >= 3 )
     {
-      LODWORD(v82) = 3;
-      LODWORD(v81) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82) )
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
         __debugbreak();
     }
-    _RAX = v85;
-    ++v20;
-    __asm
-    {
-      vmovss  xmm0, [rsp+108h+var_C8]
-      vmovss  dword ptr [rax+rdi], xmm0
-    }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
+    ++v11;
+    *(float *)((char *)p_extents->v + v50) = *(float *)&_XMM0;
+    p_extents = (vec3_t *)((char *)p_extents + 4);
   }
-  while ( v39 < 3 );
-  _R15 = outNormal;
-  _R12 = v87;
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 677, ASSERT_TYPE_ASSERT, "(normalAxis != 0)", (const char *)&queryFormat, "normalAxis != 0") )
+  while ( v29 < 3 );
+  v34 = (float *)v52;
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 677, ASSERT_TYPE_ASSERT, "(normalAxis != 0)", (const char *)&queryFormat, "normalAxis != 0") )
     __debugbreak();
-  if ( v19 == 6 )
-    goto LABEL_31;
-  __asm
+  if ( v10 != 6 && *(float *)&v12 > (float)(v52->radius * v52->radius) )
+    return 0;
+  v52 = NULL;
+  v53 = 0.0;
+  if ( v8 <= 0 )
   {
-    vmovss  xmm0, dword ptr [r12+0Ch]
-    vmulss  xmm1, xmm0, xmm0
-    vcomiss xmm7, xmm1
-  }
-  if ( v19 <= 6 )
-  {
-LABEL_31:
-    __asm
+    v36 = ~v8;
+    if ( (unsigned int)v36 >= 3 )
     {
-      vmovss  dword ptr [rsp+108h+var_A0], xmm9
-      vmovss  dword ptr [rsp+108h+var_A0+4], xmm9
-      vmovss  [rsp+108h+var_98], xmm9
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v36;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
+        __debugbreak();
     }
-    if ( v16 <= 0 )
-    {
-      v50 = ~v16;
-      if ( (unsigned int)v50 >= 3 )
-      {
-        LODWORD(v82) = 3;
-        LODWORD(v81) = v50;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82) )
-          __debugbreak();
-      }
-      *((_DWORD *)&v87 + v50) = 1065353216;
-    }
-    else
-    {
-      if ( (unsigned int)(v16 - 1) >= 3 )
-      {
-        LODWORD(v82) = 3;
-        LODWORD(v81) = v16 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v81, v82) )
-          __debugbreak();
-      }
-      *((_DWORD *)&v86 + v16 + 1) = -1082130432;
-    }
-    if ( v19 != 6 )
-    {
-      _RAX = outPointB;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vsubss  xmm3, xmm0, dword ptr [r12]
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  xmm0, dword ptr [rax+8]
-        vsubss  xmm5, xmm0, dword ptr [r12+8]
-        vsubss  xmm4, xmm1, dword ptr [r12+4]
-        vmulss  xmm0, xmm3, xmm3
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm0, xmm2, xmm1
-        vcomiss xmm0, cs:__real@3a83126f
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+108h+var_A0]
-      vmovss  xmm1, dword ptr [rsp+108h+var_A0+4]
-      vmovss  dword ptr [r15], xmm0
-      vmovss  xmm0, [rsp+108h+var_98]
-    }
-    _RAX = v86;
-    __asm
-    {
-      vmovss  dword ptr [r15+8], xmm0
-      vmovss  dword ptr [r15+4], xmm1
-      vmovss  xmm2, dword ptr [r12+0Ch]
-      vmulss  xmm0, xmm2, dword ptr [r15]
-      vaddss  xmm1, xmm0, dword ptr [r12]
-      vmovss  dword ptr [rax], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r15+4]
-      vaddss  xmm1, xmm0, dword ptr [r12+4]
-      vmovss  dword ptr [rax+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [r15+8]
-      vaddss  xmm1, xmm0, dword ptr [r12+8]
-      vmovss  dword ptr [rax+8], xmm1
-    }
-    result = 1;
+    *((_DWORD *)&v52 + v36) = 1065353216;
   }
   else
   {
-    result = 0;
+    if ( (unsigned int)(v8 - 1) >= 3 )
+    {
+      LODWORD(v49) = 3;
+      LODWORD(v48) = v8 - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v48, v49) )
+        __debugbreak();
+    }
+    *((_DWORD *)&v51 + v8 + 1) = -1082130432;
   }
-  _R11 = &v89;
-  __asm
+  if ( v10 == 6 || (v37 = outPointB->v[0] - *v34, v38 = outPointB->v[2] - v34[2], v40 = LODWORD(outPointB->v[1]), v39 = outPointB->v[1] - v34[1], *(float *)&v40 = (float)((float)(v39 * v39) + (float)(v37 * v37)) + (float)(v38 * v38), *(float *)&v40 < 0.001) )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    v45 = *((float *)&v52 + 1);
+    outNormal->v[0] = *(float *)&v52;
+    v44 = v53;
   }
-  return result;
+  else
+  {
+    *(float *)&v40 = fsqrt(*(float *)&v40);
+    _XMM2 = v40;
+    __asm
+    {
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm1, xmm0
+    }
+    *(float *)&_XMM2 = 1.0 / *(float *)&_XMM0;
+    outNormal->v[0] = (float)(1.0 / *(float *)&_XMM0) * v37;
+    v44 = (float)(1.0 / *(float *)&_XMM0) * v38;
+    v45 = v39 * *(float *)&_XMM2;
+  }
+  v46 = (float *)v51;
+  outNormal->v[2] = v44;
+  outNormal->v[1] = v45;
+  v47 = v34[3];
+  *v46 = (float)(v47 * outNormal->v[0]) + *v34;
+  v46[1] = (float)(v47 * outNormal->v[1]) + v34[1];
+  v46[2] = (float)(v47 * outNormal->v[2]) + v34[2];
+  return 1;
 }
 
 /*
@@ -3290,23 +2410,20 @@ XAnimBonePhysics_TestSphereOrientedBox
 */
 __int64 XAnimBonePhysics_TestSphereOrientedBox(const XAnimSphereCollisionShape *sphere, const XAnimBoxCollisionShape *box, const vec4_t *boxQuat, const vec3_t *boxTrans, bool flipNormalSign, vec3_t *outPointA, vec3_t *outPointB, vec3_t *outNormal)
 {
-  const XAnimSphereCollisionShape *v12; 
   XAnimSphereCollisionShape outTransformedPoint; 
   vec3_t outInvTrans; 
   vec3_t point; 
-  vec3_t v17; 
+  vec3_t v16; 
   vec3_t in; 
   vec4_t outInvQuat; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx+0Ch] }
-  v12 = sphere;
-  __asm { vmovss  [rsp+0D8h+var_9C], xmm0 }
+  outTransformedPoint.radius = sphere->radius;
   QuatTrans_Inverse(boxQuat, boxTrans, &outInvQuat, &outInvTrans);
-  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &v12->center, &outTransformedPoint.center);
-  if ( !XAnimBonePhysics_TestSphereAxisAlignedBox(&outTransformedPoint, box, flipNormalSign, &point, &v17, &in) )
+  QuatTrans_TransformPoint(&outInvQuat, &outInvTrans, &sphere->center, &outTransformedPoint.center);
+  if ( !XAnimBonePhysics_TestSphereAxisAlignedBox(&outTransformedPoint, box, flipNormalSign, &point, &v16, &in) )
     return 0i64;
   QuatTrans_TransformPoint(boxQuat, boxTrans, &point, outPointA);
-  QuatTrans_TransformPoint(boxQuat, boxTrans, &v17, outPointB);
+  QuatTrans_TransformPoint(boxQuat, boxTrans, &v16, outPointB);
   QuatTransform(boxQuat, &in, outNormal);
   return 1i64;
 }
@@ -3318,36 +2435,29 @@ XAnimBonePhysics_TransformCollisionShape
 */
 void XAnimBonePhysics_TransformCollisionShape(const XAnimCollisionShape *srcShape, const vec4_t *quat, const vec3_t *trans, XAnimCollisionShape *outShape)
 {
-  _RDI = outShape;
-  _RBX = srcShape;
   if ( !srcShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 852, ASSERT_TYPE_ASSERT, "(srcShape != 0)", (const char *)&queryFormat, "srcShape != NULL") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 853, ASSERT_TYPE_ASSERT, "(outShape != 0)", (const char *)&queryFormat, "outShape != NULL") )
+  if ( !outShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics_collision.cpp", 853, ASSERT_TYPE_ASSERT, "(outShape != 0)", (const char *)&queryFormat, "outShape != NULL") )
     __debugbreak();
-  _RDI->type = _RBX->type;
-  if ( _RBX->type )
+  outShape->type = srcShape->type;
+  if ( srcShape->type )
   {
-    if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
+    if ( srcShape->type == XANIM_COLLISION_SHAPE_TYPE_CAPSULE )
     {
-      QuatTrans_TransformPoint(quat, trans, &_RBX->u.sphere.center, &_RDI->u.sphere.center);
-      QuatTrans_TransformPoint(quat, trans, &_RBX->u.capsule.end, &_RDI->u.capsule.end);
-      _RDI->u.capsule.radius = _RBX->u.capsule.radius;
+      QuatTrans_TransformPoint(quat, trans, &srcShape->u.sphere.center, &outShape->u.sphere.center);
+      QuatTrans_TransformPoint(quat, trans, &srcShape->u.capsule.end, &outShape->u.capsule.end);
+      outShape->u.capsule.radius = srcShape->u.capsule.radius;
     }
-    else if ( _RBX->type == XANIM_COLLISION_SHAPE_TYPE_BOX )
+    else if ( srcShape->type == XANIM_COLLISION_SHAPE_TYPE_BOX )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+4]
-        vmovups xmmword ptr [rdi+4], xmm0
-        vmovsd  xmm1, qword ptr [rbx+14h]
-        vmovsd  qword ptr [rdi+14h], xmm1
-      }
+      outShape->u.sphere = srcShape->u.sphere;
+      *(double *)&outShape->u.box.extents.y = *(double *)&srcShape->u.box.extents.y;
     }
   }
   else
   {
-    QuatTrans_TransformPoint(quat, trans, &_RBX->u.sphere.center, &_RDI->u.sphere.center);
-    _RDI->u.sphere.radius = _RBX->u.sphere.radius;
+    QuatTrans_TransformPoint(quat, trans, &srcShape->u.sphere.center, &outShape->u.sphere.center);
+    outShape->u.sphere.radius = srcShape->u.sphere.radius;
   }
 }
 

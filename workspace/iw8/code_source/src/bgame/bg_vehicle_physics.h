@@ -328,8 +328,7 @@ BgVehiclePhysics::GetCameraFovDelta
 */
 float BgVehiclePhysics::GetCameraFovDelta(BgVehiclePhysics *this)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -339,8 +338,7 @@ BgVehiclePhysics::GetCameraPitchAddition
 */
 float BgVehiclePhysics::GetCameraPitchAddition(BgVehiclePhysics *this)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -350,8 +348,7 @@ BgVehiclePhysics::GetCameraRangeAddition
 */
 float BgVehiclePhysics::GetCameraRangeAddition(BgVehiclePhysics *this)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -361,8 +358,7 @@ BgVehiclePhysics::GetCameraReturnFactor
 */
 float BgVehiclePhysics::GetCameraReturnFactor(BgVehiclePhysics *this)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -402,8 +398,7 @@ BgVehiclePhysics::GetSteeringAngle
 */
 float BgVehiclePhysics::GetSteeringAngle(BgVehiclePhysics *this)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*

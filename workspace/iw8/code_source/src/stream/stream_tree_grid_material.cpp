@@ -150,108 +150,82 @@ void MaterialStreamTreeGridCell::Print(MaterialStreamTreeGridCell *this)
   int v4; 
   unsigned __int64 largeMaterialInstanceGroupCount; 
   int instanceCount; 
-  unsigned __int64 v21; 
-  __int64 p_instanceCount; 
-  unsigned __int64 v23; 
-  int v24; 
+  unsigned __int64 v7; 
+  char *p_instanceCount; 
+  unsigned __int64 v9; 
+  int v10; 
   unsigned __int64 largeImageInstanceGroupCount; 
-  int v26; 
-  __int64 v27; 
-  int v28; 
-  unsigned __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  double v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  double v38; 
-  double v39; 
-  double v40; 
+  int v12; 
+  __int64 v13; 
+  int v14; 
+  unsigned __int64 v15; 
+  unsigned __int16 *v16; 
+  int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  _RBP = this;
   v2 = 0;
   v3 = 0;
   v4 = 0;
   Com_Printf(0, "MaterialStreamTreeGridCell [%u]\n", this->transientZone);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+14h]
-    vmovss  xmm1, dword ptr [rbp+10h]
-    vmovss  xmm4, dword ptr [rbp+0Ch]
-    vmovss  xmm3, dword ptr [rbp+4]
-    vmovss  xmm2, dword ptr [rbp+0]
-    vmovss  xmm5, dword ptr [rbp+8]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+48h+var_18], xmm1
-    vcvtss2sd xmm4, xmm4, xmm4
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+48h+var_20], xmm4
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+48h+var_28], xmm5
-  }
-  Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", *(double *)&_XMM2, *(double *)&_XMM3, v34, v38, v39, v40);
-  Com_Printf(0, "  Total InstanceGroupCount: %u\n", _RBP->instanceGroupCount);
-  largeMaterialInstanceGroupCount = _RBP->largeMaterialInstanceGroupCount;
+  Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", this->bounds.mins.v[0], this->bounds.mins.v[1], this->bounds.mins.v[2], this->bounds.maxs.v[0], this->bounds.maxs.v[1], this->bounds.maxs.v[2]);
+  Com_Printf(0, "  Total InstanceGroupCount: %u\n", this->instanceGroupCount);
+  largeMaterialInstanceGroupCount = this->largeMaterialInstanceGroupCount;
   instanceCount = 0;
-  v21 = 0i64;
+  v7 = 0i64;
   if ( largeMaterialInstanceGroupCount >= 2 )
   {
-    p_instanceCount = (__int64)&_RBP->instanceGroups[1].instanceCount;
-    v23 = ((largeMaterialInstanceGroupCount - 2) >> 1) + 1;
-    v21 = 2 * v23;
+    p_instanceCount = (char *)&this->instanceGroups[1].instanceCount;
+    v9 = ((largeMaterialInstanceGroupCount - 2) >> 1) + 1;
+    v7 = 2 * v9;
     do
     {
-      v24 = *(unsigned __int16 *)(p_instanceCount - 8);
-      p_instanceCount += 16i64;
-      v3 += v24;
-      v4 += *(unsigned __int16 *)(p_instanceCount - 16);
-      --v23;
+      v10 = *((unsigned __int16 *)p_instanceCount - 4);
+      p_instanceCount += 16;
+      v3 += v10;
+      v4 += *((unsigned __int16 *)p_instanceCount - 8);
+      --v9;
     }
-    while ( v23 );
+    while ( v9 );
   }
-  if ( v21 < largeMaterialInstanceGroupCount )
-    instanceCount = _RBP->instanceGroups[v21].instanceCount;
-  largeImageInstanceGroupCount = _RBP->largeImageInstanceGroupCount;
-  v26 = v4 + v3 + instanceCount;
-  v27 = 0i64;
-  v28 = 0;
+  if ( v7 < largeMaterialInstanceGroupCount )
+    instanceCount = this->instanceGroups[v7].instanceCount;
+  largeImageInstanceGroupCount = this->largeImageInstanceGroupCount;
+  v12 = v4 + v3 + instanceCount;
+  v13 = 0i64;
+  v14 = 0;
   if ( largeMaterialInstanceGroupCount < largeImageInstanceGroupCount )
   {
     if ( (unsigned int)largeImageInstanceGroupCount - largeMaterialInstanceGroupCount >= 2 )
     {
-      v29 = (((unsigned int)largeImageInstanceGroupCount - largeMaterialInstanceGroupCount - 2) >> 1) + 1;
-      v30 = (__int64)&_RBP->instanceGroups[largeMaterialInstanceGroupCount + 1].instanceCount;
-      largeMaterialInstanceGroupCount += 2 * v29;
+      v15 = (((unsigned int)largeImageInstanceGroupCount - largeMaterialInstanceGroupCount - 2) >> 1) + 1;
+      v16 = &this->instanceGroups[largeMaterialInstanceGroupCount + 1].instanceCount;
+      largeMaterialInstanceGroupCount += 2 * v15;
       do
       {
-        v31 = *(unsigned __int16 *)(v30 - 8);
-        v30 += 16i64;
-        v2 += v31;
-        v27 = *(unsigned __int16 *)(v30 - 16) + (unsigned int)v27;
-        --v29;
+        v17 = *(v16 - 4);
+        v16 += 8;
+        v2 += v17;
+        v13 = *(v16 - 8) + (unsigned int)v13;
+        --v15;
       }
-      while ( v29 );
+      while ( v15 );
     }
     if ( largeMaterialInstanceGroupCount < largeImageInstanceGroupCount )
-      v28 = _RBP->instanceGroups[largeMaterialInstanceGroupCount].instanceCount;
-    v28 += v27 + v2;
+      v14 = this->instanceGroups[largeMaterialInstanceGroupCount].instanceCount;
+    v14 += v13 + v2;
   }
-  v32 = _RBP->materialInstanceCount - v26;
-  v33 = _RBP->imageInstanceCount - v28;
-  Com_Printf(0, "  Instances:\n", v27);
-  LODWORD(v35) = v26;
-  Com_Printf(0, "    Material Inst Count:    %8u   N:%8u   L:%8u\n", _RBP->materialInstanceCount, v32, v35);
-  LODWORD(v36) = v28;
-  Com_Printf(0, "    Image Inst Count:       %8u   N:%8u   L:%8u\n", _RBP->imageInstanceCount, v33, v36);
-  LODWORD(v37) = v28 + v26;
-  Com_Printf(0, "    Total Inst Count:       %8u   N:%8u   L:%8u\n", _RBP->materialInstanceCount + _RBP->imageInstanceCount, v33 + v32, v37);
+  v18 = this->materialInstanceCount - v12;
+  v19 = this->imageInstanceCount - v14;
+  Com_Printf(0, "  Instances:\n", v13);
+  LODWORD(v20) = v12;
+  Com_Printf(0, "    Material Inst Count:    %8u   N:%8u   L:%8u\n", this->materialInstanceCount, v18, v20);
+  LODWORD(v21) = v14;
+  Com_Printf(0, "    Image Inst Count:       %8u   N:%8u   L:%8u\n", this->imageInstanceCount, v19, v21);
+  LODWORD(v22) = v14 + v12;
+  Com_Printf(0, "    Total Inst Count:       %8u   N:%8u   L:%8u\n", this->materialInstanceCount + this->imageInstanceCount, v19 + v18, v22);
 }
 

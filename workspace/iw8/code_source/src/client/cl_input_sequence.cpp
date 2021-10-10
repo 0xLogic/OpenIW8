@@ -239,127 +239,97 @@ void Sequence_DoubleAds_Activate(const LocalClientNum_t localClientNum)
 Sequence_SuperSprint_IsValid
 ==============
 */
-bool Sequence_SuperSprint_IsValid(const LocalClientNum_t localClientNum, int seqIndex)
+char Sequence_SuperSprint_IsValid(const LocalClientNum_t localClientNum, int seqIndex)
 {
+  const dvar_t *v2; 
+  __int64 v3; 
   const dvar_t *v5; 
-  __int64 v6; 
-  const dvar_t *v8; 
   ClActiveClient *Client; 
-  ClActiveClient *v10; 
-  const playerState_s *v11; 
-  const dvar_t *v12; 
+  ClActiveClient *v7; 
+  const playerState_s *v8; 
+  const dvar_t *v9; 
   unsigned int nextCommand; 
-  const ClActiveClient *v14; 
+  const ClActiveClient *v11; 
   int CmdNumber; 
-  bool v16; 
+  bool v13; 
   int commandTime; 
-  char v20; 
-  char v21; 
-  bool result; 
-  __int64 v29; 
-  __int64 v30; 
+  double Float_Internal_DebugName; 
+  double v16; 
+  __int64 v18; 
+  __int64 v19; 
   vec3_t outMove; 
   usercmd_s ucmd; 
 
-  v5 = DCONST_DVARMPBOOL_enableGamepadSingleTapSuperSprint;
-  v6 = seqIndex;
+  v2 = DCONST_DVARMPBOOL_enableGamepadSingleTapSuperSprint;
+  v3 = seqIndex;
   if ( !DCONST_DVARMPBOOL_enableGamepadSingleTapSuperSprint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "enableGamepadSingleTapSuperSprint") )
     __debugbreak();
-  __asm
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled )
   {
-    vmovaps [rsp+1C8h+var_48], xmm6
-    vmovaps [rsp+1C8h+var_58], xmm7
-  }
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
-  {
-    v8 = DCONST_DVARINT_superSprintControlType;
+    v5 = DCONST_DVARINT_superSprintControlType;
     if ( !DCONST_DVARINT_superSprintControlType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintControlType") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( v8->current.integer == 1 )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( v5->current.integer == 1 )
     {
       Client = ClActiveClient::GetClient(localClientNum);
-      v10 = Client;
+      v7 = Client;
       if ( Client )
       {
-        v11 = Client->GetPlayerState(Client);
-        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 557, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+        v8 = Client->GetPlayerState(Client);
+        if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 557, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        v12 = DCONST_DVARMPBOOL_superSprintEnable;
+        v9 = DCONST_DVARMPBOOL_superSprintEnable;
         if ( !DCONST_DVARMPBOOL_superSprintEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintEnable") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v12);
-        if ( v12->current.enabled && !BG_IsSuperSprinting(v11) )
+        Dvar_CheckFrontendServerThread(v9);
+        if ( v9->current.enabled && !BG_IsSuperSprinting(v8) )
         {
-          if ( v10->cmdSequenceState[v6].nextCommand >= 0x10u )
+          if ( v7->cmdSequenceState[v3].nextCommand >= 0x10u )
           {
-            LODWORD(v30) = 16;
-            LODWORD(v29) = v10->cmdSequenceState[v6].nextCommand;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 571, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v29, v30) )
+            LODWORD(v19) = 16;
+            LODWORD(v18) = v7->cmdSequenceState[v3].nextCommand;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 571, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v18, v19) )
               __debugbreak();
           }
-          nextCommand = v10->cmdSequenceState[v6].nextCommand;
+          nextCommand = v7->cmdSequenceState[v3].nextCommand;
           if ( nextCommand > 1 )
           {
 LABEL_39:
-            if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_superSprintFromWalk, "superSprintFromWalk") || nextCommand != 1 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v11->pm_flags, ACTIVE, 0x14u) || v11->serverTime - v11->sprintState.lastSprintEnd < SUPER_SPRINT_FROM_SPRINT_TIME_THRESHOLD_MS )
-            {
-              result = 1;
-              goto LABEL_38;
-            }
+            if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_superSprintFromWalk, "superSprintFromWalk") || nextCommand != 1 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v8->pm_flags, ACTIVE, 0x14u) || v8->serverTime - v8->sprintState.lastSprintEnd < SUPER_SPRINT_FROM_SPRINT_TIME_THRESHOLD_MS )
+              return 1;
           }
           else
           {
-            v14 = ClActiveClient::GetClient(localClientNum);
-            CmdNumber = ClActiveClient_GetCmdNumber(v14);
+            v11 = ClActiveClient::GetClient(localClientNum);
+            CmdNumber = ClActiveClient_GetCmdNumber(v11);
             if ( CL_GetUserCmd(localClientNum, CmdNumber, &ucmd) )
             {
-              v16 = CmdNumber == 0;
+              v13 = CmdNumber == 0;
               if ( CmdNumber < 0 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 584, ASSERT_TYPE_ASSERT, "(current >= 0)", (const char *)&queryFormat, "current >= 0") )
                   __debugbreak();
-                v16 = CmdNumber == 0;
+                v13 = CmdNumber == 0;
               }
-              if ( !v16 )
+              if ( !v13 )
               {
                 commandTime = ucmd.commandTime;
-                __asm
-                {
-                  vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-                  vmovss  xmm7, cs:__real@447a0000
-                }
                 do
                 {
                   if ( !CL_GetUserCmd(localClientNum, CmdNumber, &ucmd) )
                     break;
                   BG_GetNormalizedMovementCmd(&ucmd, &outMove);
-                  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_superSprintControlMaxRightDeflection, "superSprintControlMaxRightDeflection");
-                  __asm
-                  {
-                    vmovss  xmm1, dword ptr [rsp+1C8h+outMove+4]
-                    vandps  xmm1, xmm1, xmm6
-                    vcomiss xmm1, xmm0
-                  }
-                  if ( !(v20 | v21) )
+                  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_superSprintControlMaxRightDeflection, "superSprintControlMaxRightDeflection");
+                  if ( COERCE_FLOAT(LODWORD(outMove.v[1]) & _xmm) > *(float *)&Float_Internal_DebugName )
                     break;
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+1C8h+outMove]
-                    vcomiss xmm0, cs:?SUPER_SPRINT_FORWARD_THRESHOLD@@3MA; float SUPER_SPRINT_FORWARD_THRESHOLD
-                  }
-                  if ( !(v20 | v21) )
+                  if ( outMove.v[0] > SUPER_SPRINT_FORWARD_THRESHOLD )
                     goto LABEL_39;
                   if ( ucmd.commandTime > commandTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 611, ASSERT_TYPE_ASSERT, "(cmd.commandTime <= currCmd.commandTime)", (const char *)&queryFormat, "cmd.commandTime <= currCmd.commandTime") )
                     __debugbreak();
-                  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_superSprintControlMaxInputTime, "superSprintControlMaxInputTime");
-                  __asm
-                  {
-                    vmulss  xmm1, xmm0, xmm7
-                    vcvttss2si ecx, xmm1
-                  }
-                  if ( commandTime - ucmd.commandTime > _ECX )
+                  v16 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_superSprintControlMaxInputTime, "superSprintControlMaxInputTime");
+                  if ( commandTime - ucmd.commandTime > (int)(float)(*(float *)&v16 * 1000.0) )
                     break;
                   --CmdNumber;
                 }
@@ -371,14 +341,7 @@ LABEL_39:
       }
     }
   }
-  result = 0;
-LABEL_38:
-  __asm
-  {
-    vmovaps xmm7, [rsp+1C8h+var_58]
-    vmovaps xmm6, [rsp+1C8h+var_48]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -441,21 +404,15 @@ bool Sequence_SuperSprint_IsValid_DoubleClick(const LocalClientNum_t localClient
 Sequence_SuperSprint_EndTime
 ==============
 */
-int Sequence_SuperSprint_EndTime()
+__int64 Sequence_SuperSprint_EndTime()
 {
-  int result; 
+  const dvar_t *v0; 
 
-  _RBX = DCONST_DVARFLT_superSprintDoubleClickInputTime;
+  v0 = DCONST_DVARFLT_superSprintDoubleClickInputTime;
   if ( !DCONST_DVARFLT_superSprintDoubleClickInputTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintDoubleClickInputTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v0);
+  return (unsigned int)(int)(float)(v0->current.value * 1000.0);
 }
 
 /*
@@ -493,21 +450,15 @@ __int64 Sequence_OffhandPrimaryDetonate_IsValid_DoubleClick(const LocalClientNum
 Sequence_OffhandPrimaryDetonate_EndTime
 ==============
 */
-int Sequence_OffhandPrimaryDetonate_EndTime()
+__int64 Sequence_OffhandPrimaryDetonate_EndTime()
 {
-  int result; 
+  const dvar_t *v0; 
 
-  _RBX = DCONST_DVARFLT_offhandDetonateDoubleClickInputTime;
+  v0 = DCONST_DVARFLT_offhandDetonateDoubleClickInputTime;
   if ( !DCONST_DVARFLT_offhandDetonateDoubleClickInputTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "offhandDetonateDoubleClickInputTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v0);
+  return (unsigned int)(int)(float)(v0->current.value * 1000.0);
 }
 
 /*
@@ -545,21 +496,15 @@ __int64 Sequence_OffhandSecondaryDetonate_IsValid_DoubleClick(const LocalClientN
 Sequence_OffhandSecondaryDetonate_EndTime
 ==============
 */
-int Sequence_OffhandSecondaryDetonate_EndTime()
+__int64 Sequence_OffhandSecondaryDetonate_EndTime()
 {
-  int result; 
+  const dvar_t *v0; 
 
-  _RBX = DCONST_DVARFLT_offhandDetonateDoubleClickInputTime;
+  v0 = DCONST_DVARFLT_offhandDetonateDoubleClickInputTime;
   if ( !DCONST_DVARFLT_offhandDetonateDoubleClickInputTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "offhandDetonateDoubleClickInputTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v0);
+  return (unsigned int)(int)(float)(v0->current.value * 1000.0);
 }
 
 /*
@@ -567,90 +512,73 @@ int Sequence_OffhandSecondaryDetonate_EndTime()
 Sequence_AutoForward_IsValid
 ==============
 */
-bool Sequence_AutoForward_IsValid(const LocalClientNum_t localClientNum, int seqIndex)
+char Sequence_AutoForward_IsValid(const LocalClientNum_t localClientNum, int seqIndex)
 {
-  const dvar_t *v3; 
-  __int64 v4; 
+  const dvar_t *v2; 
+  __int64 v3; 
   int ControllerFromClient; 
   ClActiveClient *Client; 
-  const ClActiveClient *v8; 
+  const ClActiveClient *v7; 
   int CmdNumber; 
-  bool v10; 
+  bool v9; 
   int commandTime; 
-  char v16; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
   int Int_Internal_DebugName; 
-  bool result; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v15; 
+  __int64 v16; 
   vec3_t outMove; 
   usercmd_s ucmd; 
 
-  v3 = DVARBOOL_autoForwardEnable;
-  v4 = seqIndex;
+  v2 = DVARBOOL_autoForwardEnable;
+  v3 = seqIndex;
   if ( !DVARBOOL_autoForwardEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "autoForwardEnable") )
     __debugbreak();
-  __asm { vmovaps [rsp+1B8h+var_48], xmm6 }
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
     ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
     if ( GamerProfile_GetAutoForwardInputSequenceEnable(ControllerFromClient) )
     {
       Client = ClActiveClient::GetClient(localClientNum);
-      if ( Client->cmdSequenceState[v4].nextCommand >= 0x10u )
+      if ( Client->cmdSequenceState[v3].nextCommand >= 0x10u )
       {
-        LODWORD(v23) = 16;
-        LODWORD(v22) = Client->cmdSequenceState[v4].nextCommand;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 690, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v22, v23) )
+        LODWORD(v16) = 16;
+        LODWORD(v15) = Client->cmdSequenceState[v3].nextCommand;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 690, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      if ( Client->cmdSequenceState[v4].nextCommand > 1u )
-      {
-LABEL_33:
-        result = 1;
-        goto LABEL_32;
-      }
-      v8 = ClActiveClient::GetClient(localClientNum);
-      CmdNumber = ClActiveClient_GetCmdNumber(v8);
+      if ( Client->cmdSequenceState[v3].nextCommand > 1u )
+        return 1;
+      v7 = ClActiveClient::GetClient(localClientNum);
+      CmdNumber = ClActiveClient_GetCmdNumber(v7);
       if ( CL_GetUserCmd(localClientNum, CmdNumber, &ucmd) )
       {
-        v10 = CmdNumber == 0;
+        v9 = CmdNumber == 0;
         if ( CmdNumber < 0 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 703, ASSERT_TYPE_ASSERT, "(current >= 0)", (const char *)&queryFormat, "current >= 0") )
             __debugbreak();
-          v10 = CmdNumber == 0;
+          v9 = CmdNumber == 0;
         }
-        if ( !v10 )
+        if ( !v9 )
         {
           commandTime = ucmd.commandTime;
-          __asm { vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
           while ( CL_GetUserCmd(localClientNum, CmdNumber, &ucmd) )
           {
             BG_GetNormalizedMovementCmd(&ucmd, &outMove);
-            _RBX = DCONST_DVARFLT_cl_autoForwardControlMaxRightDeflection;
+            v11 = DCONST_DVARFLT_cl_autoForwardControlMaxRightDeflection;
             if ( !DCONST_DVARFLT_cl_autoForwardControlMaxRightDeflection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_autoForwardControlMaxRightDeflection") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(_RBX);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+1B8h+outMove+4]
-              vandps  xmm0, xmm0, xmm6
-              vcomiss xmm0, dword ptr [rbx+28h]
-            }
-            if ( !(v16 | v10) )
+            Dvar_CheckFrontendServerThread(v11);
+            if ( COERCE_FLOAT(LODWORD(outMove.v[1]) & _xmm) > v11->current.value )
               break;
-            _RBX = DCONST_DVARFLT_cl_autoForwardControlMinForwardDeflection;
+            v12 = DCONST_DVARFLT_cl_autoForwardControlMinForwardDeflection;
             if ( !DCONST_DVARFLT_cl_autoForwardControlMinForwardDeflection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_autoForwardControlMinForwardDeflection") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(_RBX);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+1B8h+outMove]
-              vcomiss xmm0, dword ptr [rbx+28h]
-            }
-            if ( !(v16 | v10) )
-              goto LABEL_33;
+            Dvar_CheckFrontendServerThread(v12);
+            if ( outMove.v[0] > v12->current.value )
+              return 1;
             if ( ucmd.commandTime > commandTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 730, ASSERT_TYPE_ASSERT, "(cmd.commandTime <= currCmd.commandTime)", (const char *)&queryFormat, "cmd.commandTime <= currCmd.commandTime") )
               __debugbreak();
             Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cl_autoForwardDoubleForwardInputTime, "cl_autoForwardDoubleForwardInputTime");
@@ -659,16 +587,13 @@ LABEL_33:
               if ( --CmdNumber )
                 continue;
             }
-            break;
+            return 0;
           }
         }
       }
     }
   }
-  result = 0;
-LABEL_32:
-  __asm { vmovaps xmm6, [rsp+1B8h+var_48] }
-  return result;
+  return 0;
 }
 
 /*
@@ -744,252 +669,207 @@ CL_Input_SequenceUpdate
 */
 void CL_Input_SequenceUpdate(const LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v12; 
+  __int128 v1; 
+  LocalClientNum_t v3; 
   ClActiveClient *Client; 
-  ClActiveClient *v14; 
-  int v22; 
-  bool v26; 
-  char v27; 
-  bool v28; 
-  const dvar_t *v29; 
-  bool v38; 
-  __int64 v49; 
+  ClActiveClient *v5; 
+  ClInputSequenceVirtualAxisKeyState *cmdSequenceAxisKeys; 
+  double v8; 
+  float v9; 
+  int v10; 
+  float v13; 
+  const dvar_t *v14; 
+  float v17; 
+  double v18; 
+  __int64 v19; 
   unsigned int *cmdSequenceState; 
   void (__fastcall **p_activate)(const LocalClientNum_t); 
-  __int64 v52; 
-  signed int v53; 
-  void (__fastcall *v54)(const LocalClientNum_t); 
-  int v55; 
-  signed int v56; 
-  __int64 v57; 
-  signed int v58; 
-  ClActiveClient *v59; 
+  __int64 v22; 
+  signed int v23; 
+  void (__fastcall *v24)(const LocalClientNum_t); 
+  int v25; 
+  signed int v26; 
+  __int64 v27; 
+  signed int v28; 
+  ClActiveClient *v29; 
   unsigned __int64 i; 
-  __int64 v61; 
+  __int64 v31; 
   signed int downtime; 
-  unsigned __int8 (__fastcall *v63)(_QWORD, _QWORD); 
-  unsigned int v64; 
-  bool v65; 
-  bool v66; 
-  __int64 v67; 
-  double v68; 
-  __int64 v69; 
-  double v70; 
-  double v71; 
-  unsigned int *v72; 
-  void (__fastcall **v73)(const LocalClientNum_t); 
-  __int64 v74; 
-  signed int v87; 
-  signed int v88; 
-  __int64 v89; 
+  unsigned __int8 (__fastcall *v33)(_QWORD, _QWORD); 
+  unsigned int v34; 
+  bool v35; 
+  bool v36; 
+  bool v37; 
+  __int64 v38; 
+  __int64 v39; 
+  unsigned int *v40; 
+  void (__fastcall **v41)(const LocalClientNum_t); 
+  __int64 v42; 
+  signed int v44; 
+  signed int v45; 
+  __int64 v46; 
 
-  v12 = localClientNum;
+  v3 = localClientNum;
   Client = ClActiveClient::GetClient(localClientNum);
   if ( Client )
   {
-    v14 = ClActiveClient::GetClient(v12);
-    if ( !v14 )
+    v5 = ClActiveClient::GetClient(v3);
+    if ( !v5 )
       goto LABEL_28;
-    __asm { vmovaps [rsp+148h+var_68], xmm7 }
-    _RSI = v14->cmdSequenceAxisKeys;
-    __asm
-    {
-      vmovaps [rsp+148h+var_78], xmm8
-      vmovaps [rsp+148h+var_88], xmm9
-      vmovaps [rsp+148h+var_98], xmm10
-      vmovaps [rsp+148h+var_A8], xmm11
-      vmovaps [rsp+148h+var_B8], xmm12
-      vmovaps [rsp+148h+var_C8], xmm13
-      vmovaps [rsp+148h+var_D8], xmm14
-      vmovaps [rsp+148h+var_E8], xmm15
-    }
-    *(double *)&_XMM0 = CL_GamepadAxisValue(v12, 1);
-    __asm { vmovaps xmm10, xmm0 }
-    *(double *)&_XMM0 = CL_GamepadAxisValue(v12, 0);
-    __asm
-    {
-      vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm9, cs:__real@3f800000
-      vmovsd  xmm14, cs:__real@3ff0000000000000
-      vmovss  xmm13, cs:__real@3f4ccccd
-      vmovaps xmm11, xmm0
-    }
-    v22 = 68;
-    __asm
-    {
-      vmovaps [rsp+148h+var_58], xmm6
-      vxorps  xmm8, xmm8, xmm8
-      vxorpd  xmm15, xmm15, xmm15
-    }
+    cmdSequenceAxisKeys = v5->cmdSequenceAxisKeys;
+    *(double *)&v1 = CL_GamepadAxisValue(v3, 1);
+    _XMM10 = v1;
+    v8 = CL_GamepadAxisValue(v3, 0);
+    v9 = *(float *)&v8;
+    v10 = 68;
+    _XMM8 = 0i64;
+    __asm { vxorpd  xmm15, xmm15, xmm15 }
     while ( 1 )
     {
-      __asm { vmovaps xmm7, xmm8 }
-      if ( v22 == 68 )
+      v13 = 0.0;
+      if ( v10 == 68 )
         break;
-      switch ( v22 )
+      switch ( v10 )
       {
         case 'E':
-          __asm { vxorps  xmm0, xmm10, xmm12 }
+          LODWORD(v17) = _XMM10 ^ _xmm;
           goto LABEL_19;
         case 'F':
-          __asm { vxorps  xmm0, xmm11, xmm12 }
+          LODWORD(v17) = LODWORD(v9) ^ _xmm;
           goto LABEL_19;
         case 'G':
-          __asm { vmovaps xmm0, xmm11 }
+          v17 = v9;
           goto LABEL_19;
         case 'H':
-          v29 = DCONST_DVARFLT_superSprintControlForwardDeflection;
+          v14 = DCONST_DVARFLT_superSprintControlForwardDeflection;
           if ( !DCONST_DVARFLT_superSprintControlForwardDeflection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprintControlForwardDeflection") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v29);
+          Dvar_CheckFrontendServerThread(v14);
           __asm
           {
-            vsubss  xmm0, xmm9, dword ptr [rbx+28h]
             vcmpltss xmm1, xmm10, xmm0
             vblendvps xmm0, xmm8, xmm9, xmm1
-            vmovaps xmm7, xmm0
-            vmovss  [rsp+148h+arg_8], xmm0
           }
+          v13 = *(float *)&_XMM0;
           goto LABEL_23;
       }
-      LODWORD(v67) = v22;
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 291, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Encountered unexpected virtAxisKb: %i", v67);
-      v27 = 0;
-      v28 = !v26;
-      if ( v26 )
+      LODWORD(v38) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 291, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Encountered unexpected virtAxisKb: %i", v38) )
         goto LABEL_22;
 LABEL_23:
-      __asm { vcomiss xmm13, dword ptr [rsi] }
-      if ( !(v27 | v28) )
+      if ( cmdSequenceAxisKeys->value < 0.80000001 && v13 >= 0.80000001 )
+        cmdSequenceAxisKeys->downtime = com_frameTime;
+      cmdSequenceAxisKeys->value = v13;
+      ++cmdSequenceAxisKeys;
+      if ( ++v10 >= 73 )
       {
-        __asm { vcomiss xmm7, xmm13 }
-        if ( !v27 )
-          _RSI->downtime = com_frameTime;
-      }
-      __asm { vmovss  dword ptr [rsi], xmm7 }
-      ++_RSI;
-      if ( ++v22 >= 73 )
-      {
-        v12 = localClientNum;
-        __asm
-        {
-          vmovaps xmm15, [rsp+148h+var_E8]
-          vmovaps xmm14, [rsp+148h+var_D8]
-          vmovaps xmm13, [rsp+148h+var_C8]
-          vmovaps xmm12, [rsp+148h+var_B8]
-          vmovaps xmm11, [rsp+148h+var_A8]
-          vmovaps xmm10, [rsp+148h+var_98]
-          vmovaps xmm9, [rsp+148h+var_88]
-          vmovaps xmm8, [rsp+148h+var_78]
-          vmovaps xmm7, [rsp+148h+var_68]
-          vmovaps xmm6, [rsp+148h+var_58]
-        }
+        v3 = localClientNum;
 LABEL_28:
-        v49 = 0i64;
-        v74 = 7i64;
+        v19 = 0i64;
+        v42 = 7i64;
         cmdSequenceState = (unsigned int *)Client->cmdSequenceState;
-        v89 = 0i64;
+        v46 = 0i64;
         p_activate = &g_inputSequences[0].activate;
-        v72 = cmdSequenceState;
-        v73 = &g_inputSequences[0].activate;
+        v40 = cmdSequenceState;
+        v41 = &g_inputSequences[0].activate;
         while ( 2 )
         {
-          v52 = cmdSequenceState[1];
-          v53 = v52 + *((_DWORD *)p_activate - 4);
-          v54 = p_activate[1];
-          v88 = v53;
-          if ( v54 )
+          v22 = cmdSequenceState[1];
+          v23 = v22 + *((_DWORD *)p_activate - 4);
+          v24 = p_activate[1];
+          v45 = v23;
+          if ( v24 )
           {
-            v55 = ((__int64 (__fastcall *)(__int64, const char *))v54)(v52, "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)");
-            LODWORD(v52) = cmdSequenceState[1];
+            v25 = ((__int64 (__fastcall *)(__int64, const char *))v24)(v22, "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)");
+            LODWORD(v22) = cmdSequenceState[1];
           }
           else
           {
-            v55 = *((_DWORD *)p_activate - 3);
+            v25 = *((_DWORD *)p_activate - 3);
           }
-          v56 = v52 + v55;
-          v87 = v52 + v55;
+          v26 = v22 + v25;
+          v44 = v22 + v25;
           if ( *cmdSequenceState >= 0x10 )
           {
-            LODWORD(v69) = 16;
-            LODWORD(v67) = *cmdSequenceState;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 364, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v67, v69) )
+            LODWORD(v39) = 16;
+            LODWORD(v38) = *cmdSequenceState;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 364, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v38, v39) )
               __debugbreak();
           }
-          v57 = (__int64)&p_activate[2 * (int)*cmdSequenceState + 2];
-          v58 = 0;
-          v59 = ClActiveClient::GetClient(v12);
-          if ( v59 )
+          v27 = (__int64)&p_activate[2 * (int)*cmdSequenceState + 2];
+          v28 = 0;
+          v29 = ClActiveClient::GetClient(v3);
+          if ( v29 )
           {
             for ( i = 0i64; i < 4; ++i )
             {
-              v61 = *(int *)(v57 + 4 * i);
-              if ( (int)v61 < 0 )
+              v31 = *(int *)(v27 + 4 * i);
+              if ( (int)v31 < 0 )
                 break;
-              if ( (unsigned int)v61 >= 0x49 )
+              if ( (unsigned int)v31 >= 0x49 )
               {
-                LODWORD(v69) = 73;
-                LODWORD(v67) = *(_DWORD *)(v57 + 4 * i);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 321, ASSERT_TYPE_ASSERT, "(unsigned)( key ) < (unsigned)( NUM_EXTENDED_BUTTONS )", "key doesn't index NUM_EXTENDED_BUTTONS\n\t%i not in [0, %i)", v67, v69) )
+                LODWORD(v39) = 73;
+                LODWORD(v38) = *(_DWORD *)(v27 + 4 * i);
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 321, ASSERT_TYPE_ASSERT, "(unsigned)( key ) < (unsigned)( NUM_EXTENDED_BUTTONS )", "key doesn't index NUM_EXTENDED_BUTTONS\n\t%i not in [0, %i)", v38, v39) )
                   __debugbreak();
               }
-              if ( (int)v61 < 68 )
+              if ( (int)v31 < 68 )
               {
-                if ( (unsigned int)v61 >= 0x44 )
+                if ( (unsigned int)v31 >= 0x44 )
                 {
-                  LODWORD(v69) = 68;
-                  LODWORD(v67) = v61;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( key ) < (unsigned)( NUM_BUTTONS )", "key doesn't index NUM_BUTTONS\n\t%i not in [0, %i)", v67, v69) )
+                  LODWORD(v39) = 68;
+                  LODWORD(v38) = v31;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( key ) < (unsigned)( NUM_BUTTONS )", "key doesn't index NUM_BUTTONS\n\t%i not in [0, %i)", v38, v39) )
                     __debugbreak();
                 }
-                downtime = g_playersKb[localClientNum][v61].downtime;
+                downtime = g_playersKb[localClientNum][v31].downtime;
               }
               else
               {
-                if ( (unsigned int)(v61 - 68) >= 5 )
+                if ( (unsigned int)(v31 - 68) >= 5 )
                 {
-                  LODWORD(v69) = 5;
-                  LODWORD(v67) = v61 - 68;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 327, ASSERT_TYPE_ASSERT, "(unsigned)( axisKey ) < (unsigned)( (5) )", "axisKey doesn't index INPUT_SEQUENCE_VIRTUAL_AXIS_KEYS\n\t%i not in [0, %i)", v67, v69) )
+                  LODWORD(v39) = 5;
+                  LODWORD(v38) = v31 - 68;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 327, ASSERT_TYPE_ASSERT, "(unsigned)( axisKey ) < (unsigned)( (5) )", "axisKey doesn't index INPUT_SEQUENCE_VIRTUAL_AXIS_KEYS\n\t%i not in [0, %i)", v38, v39) )
                     __debugbreak();
                 }
-                downtime = *((_DWORD *)v59 + 2 * v61 - 39);
+                downtime = *((_DWORD *)v29 + 2 * v31 - 39);
               }
-              if ( v58 >= downtime )
-                downtime = v58;
-              v58 = downtime;
+              if ( v28 >= downtime )
+                downtime = v28;
+              v28 = downtime;
             }
-            cmdSequenceState = v72;
-            p_activate = v73;
-            v56 = v87;
-            v53 = v88;
-            v49 = v89;
+            cmdSequenceState = v40;
+            p_activate = v41;
+            v26 = v44;
+            v23 = v45;
+            v19 = v46;
           }
-          v63 = (unsigned __int8 (__fastcall *)(_QWORD, _QWORD))*(p_activate - 1);
-          v12 = localClientNum;
-          if ( !v63 || v63((unsigned int)localClientNum, (unsigned int)v49) )
+          v33 = (unsigned __int8 (__fastcall *)(_QWORD, _QWORD))*(p_activate - 1);
+          v3 = localClientNum;
+          if ( !v33 || v33((unsigned int)localClientNum, (unsigned int)v19) )
           {
-            v64 = *cmdSequenceState;
-            v65 = *cmdSequenceState && v56 < (int)com_frameTime;
+            v34 = *cmdSequenceState;
+            v35 = *cmdSequenceState && v26 < (int)com_frameTime;
           }
           else
           {
-            v64 = *cmdSequenceState;
-            v65 = 1;
+            v34 = *cmdSequenceState;
+            v35 = 1;
           }
-          v66 = v53 < v58 && (!v64 || v58 <= v56);
-          if ( v65 )
+          v36 = v23 < v28 && (!v34 || v28 <= v26);
+          if ( v35 )
           {
             *cmdSequenceState = 0;
             goto LABEL_75;
           }
-          if ( v66 )
+          if ( v36 )
           {
-            *cmdSequenceState = v64 + 1;
+            *cmdSequenceState = v34 + 1;
             cmdSequenceState[1] = com_frameTime;
-            if ( (int)(v64 + 1) < 16 && SLODWORD(p_activate[2 * (int)v64 + 4]) >= 0 )
+            if ( (int)(v34 + 1) < 16 && SLODWORD(p_activate[2 * (int)v34 + 4]) >= 0 )
             {
-              ++v64;
+              ++v34;
               goto LABEL_72;
             }
             (*p_activate)(localClientNum);
@@ -998,63 +878,39 @@ LABEL_28:
           else
           {
 LABEL_72:
-            if ( v64 >= 0x10 )
+            if ( v34 >= 0x10 )
             {
-              LODWORD(v69) = 16;
-              LODWORD(v67) = v64;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 386, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v67, v69) )
+              LODWORD(v39) = 16;
+              LODWORD(v38) = v34;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 386, ASSERT_TYPE_ASSERT, "(unsigned)( state->nextCommand ) < (unsigned)( (16) )", "state->nextCommand doesn't index INPUT_SEQUENCE_MAX_COMMANDS_PER_SEQUENCE\n\t%i not in [0, %i)", v38, v39) )
                 __debugbreak();
             }
           }
 LABEL_75:
-          ++v49;
+          ++v19;
           cmdSequenceState += 2;
-          v89 = v49;
+          v46 = v19;
           p_activate += 37;
-          v72 = cmdSequenceState;
-          v28 = v74-- == 1;
-          v73 = p_activate;
-          if ( v28 )
+          v40 = cmdSequenceState;
+          v37 = v42-- == 1;
+          v41 = p_activate;
+          if ( v37 )
             return;
           continue;
         }
       }
     }
-    __asm { vmovaps xmm0, xmm10; val }
+    v17 = *(float *)&_XMM10;
 LABEL_19:
-    __asm
+    v18 = I_fclamp(v17, 0.0, 1.0);
+    if ( *(float *)&v18 >= 0.0 )
     {
-      vmovaps xmm2, xmm9; max
-      vmovaps xmm1, xmm8; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vcomiss xmm0, xmm8
-      vmovaps xmm6, xmm0
-    }
-    if ( !v27 )
-    {
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v27 | v28 )
+      v13 = *(float *)&v18;
+      if ( *(float *)&v18 <= 1.0 )
         goto LABEL_23;
     }
-    __asm
-    {
-      vmovsd  [rsp+148h+var_110], xmm14
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+148h+var_118], xmm15
-      vmovsd  [rsp+148h+var_120], xmm1
-      vmovaps xmm7, xmm6
-    }
-    v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 236, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( value ) && ( value ) <= ( 1.0f )", "value not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v68, v70, v71);
-    v27 = 0;
-    v28 = !v38;
-    if ( !v38 )
+    v13 = *(float *)&v18;
+    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_input_sequence.cpp", 236, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( value ) && ( value ) <= ( 1.0f )", "value not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v18, *(double *)&_XMM15, DOUBLE_1_0) )
       goto LABEL_23;
 LABEL_22:
     __debugbreak();

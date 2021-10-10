@@ -27,182 +27,177 @@ R_AddAabbTreeSurfacesInFrustum_r
 */
 void R_AddAabbTreeSurfacesInFrustum_r(const GfxAabbTree *tree, const DpvsClipPlaneSet *clipSet)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  float v5; 
   unsigned int count; 
-  int v10; 
-  bool v23; 
-  __int64 v25; 
-  const DpvsClipPlane *v26; 
-  bool v39; 
-  __int64 v44; 
+  int v9; 
+  __int128 v11; 
+  __m128 v14; 
+  float v15; 
+  __int128 v17; 
+  __m128 v20; 
+  __m128 v; 
+  __int64 v22; 
+  const DpvsClipPlane *v23; 
+  __int64 v33; 
   unsigned __int16 smodelIndexCount; 
   unsigned __int16 *smodelIndexes; 
-  __int64 v47; 
-  unsigned int v48; 
-  unsigned __int64 v49; 
-  __int64 v50; 
-  volatile signed __int32 *v51; 
+  __int64 v36; 
+  unsigned int v37; 
+  unsigned __int64 v38; 
+  __int64 v39; 
+  volatile signed __int32 *v40; 
   unsigned int surfaceCount; 
-  __int64 v53; 
-  unsigned int *v54; 
-  unsigned int v55; 
-  unsigned __int64 v56; 
-  __int64 v57; 
-  volatile signed __int32 *v58; 
+  __int64 v42; 
+  unsigned int *v43; 
+  unsigned int v44; 
+  unsigned __int64 v45; 
+  __int64 v46; 
+  volatile signed __int32 *v47; 
   unsigned __int16 childCount; 
-  const GfxAabbTree *v60; 
-  __int64 v61; 
+  const GfxAabbTree *v49; 
+  __int64 v50; 
   DpvsClipPlaneSet clipSeta; 
-  __int128 v63; 
-  int v64; 
-  void *retaddr; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
 
-  _R11 = &retaddr;
-  __asm { vmovss  xmm0, dword ptr [rcx] }
+  v5 = tree->bounds.midPoint.v[0];
   count = clipSet->count;
-  _RSI = tree;
-  __asm
-  {
-    vmovdqa xmm4, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmovaps xmmword ptr [r11-38h], xmm6
-  }
-  HIDWORD(v63) = 0;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm7 }
-  v10 = 0;
-  v64 = 0;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm8 }
+  _XMM4 = g_one.v;
+  v56 = v2;
+  HIDWORD(v52) = 0;
+  v55 = v3;
+  v9 = 0;
+  HIDWORD(v53) = 0;
+  v54 = v4;
   clipSeta.count = 0;
+  v11 = v52;
+  *(float *)&v11 = v5;
+  _XMM3 = v11;
   __asm
   {
-    vmovups xmm3, [rsp+148h+var_88]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsi+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rsi+8], 20h ; ' '
-    vaddps  xmm7, xmm3, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovups [rsp+148h+var_88], xmm3
-    vmovups xmm3, xmmword ptr [r11-78h]
-    vmovss  xmm3, xmm3, xmm0
+  }
+  v14 = _mm128_add_ps(_XMM3, g_unit.v);
+  v15 = tree->bounds.halfSize.v[0];
+  v52 = (__int128)_XMM3;
+  v17 = v53;
+  *(float *)&v17 = v15;
+  _XMM3 = v17;
+  __asm
+  {
     vinsertps xmm3, xmm3, dword ptr [rsi+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rsi+14h], 20h ; ' '
-    vxorps  xmm6, xmm6, xmm6
-    vmovups xmmword ptr [r11-78h], xmm3
-    vsubps  xmm8, xmm6, xmm3
   }
-  v23 = count == 0;
+  v53 = (__int128)_XMM3;
+  v20 = _mm128_sub_ps((__m128)0i64, _XMM3);
   if ( count )
   {
-    __asm { vmovups xmm5, xmmword ptr cs:?g_inc@@3Ufloat4@@B.v; float4 const g_inc }
-    v25 = count;
+    v = g_inc.v;
+    v22 = count;
     do
     {
-      v26 = clipSet->planes[0];
+      v23 = clipSet->planes[0];
       clipSet = (const DpvsClipPlaneSet *)((char *)clipSet + 8);
-      __asm
-      {
-        vmulps  xmm0, xmm3, xmmword ptr [rcx+10h]
-        vaddps  xmm1, xmm0, xmm7
-        vmulps  xmm2, xmm1, xmmword ptr [rcx]
-      }
-      clipSeta.planes[v10] = v26;
+      _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_XMM3, v23->signs.v), v14), v23->coeffs.v);
+      clipSeta.planes[v9] = v23;
       __asm
       {
         vhaddps xmm0, xmm2, xmm2
         vhaddps xmm0, xmm0, xmm0
         vminps  xmm4, xmm4, xmm0
-        vmulps  xmm0, xmm8, xmmword ptr [rcx+10h]
-        vaddps  xmm1, xmm0, xmm7
-        vmulps  xmm2, xmm1, xmmword ptr [rcx]
+      }
+      _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(v20, v23->signs.v), v14), v23->coeffs.v);
+      __asm
+      {
         vhaddps xmm0, xmm2, xmm2
         vhaddps xmm1, xmm0, xmm0
         vcmpltps xmm0, xmm1, xmm6
-        vandps  xmm1, xmm0, xmm5
-        vpextrd rax, xmm1, 0
       }
-      v10 = _RAX + clipSeta.count;
+      _XMM1 = _XMM0 & *(_OWORD *)&v;
+      __asm { vpextrd rax, xmm1, 0 }
+      v9 = _RAX + clipSeta.count;
       clipSeta.count += _RAX;
-      v39 = v25-- == 0;
-      v23 = v39 || v25 == 0;
+      --v22;
     }
-    while ( v25 );
+    while ( v22 );
   }
-  __asm
+  if ( _XMM4.m128_f32[0] > 0.0 )
   {
-    vmovaps xmm8, [rsp+148h+var_58]
-    vmovaps xmm7, [rsp+148h+var_48]
-    vmovaps xmm6, [rsp+148h+var_38]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm4, xmm0
-  }
-  if ( !v23 )
-  {
-    if ( v10 )
+    if ( v9 )
     {
-      childCount = _RSI->childCount;
+      childCount = tree->childCount;
       if ( childCount )
       {
-        v60 = (const GfxAabbTree *)((char *)_RSI + _RSI->childrenOffset);
-        v61 = childCount;
+        v49 = (const GfxAabbTree *)((char *)tree + tree->childrenOffset);
+        v50 = childCount;
         do
         {
-          R_AddAabbTreeSurfacesInFrustum_r(v60++, &clipSeta);
-          --v61;
+          R_AddAabbTreeSurfacesInFrustum_r(v49++, &clipSeta);
+          --v50;
         }
-        while ( v61 );
+        while ( v50 );
       }
       else
       {
         if ( (r_showAabbTrees->current.enabled & 2) != 0 )
-          R_AddDebugBox(&frontEndDataOut->debugGlobals, &_RSI->bounds, &colorOrange, r_showCullMode->current.integer != 0);
-        R_AddLeafSurfacesInFrustum(_RSI, &clipSeta);
+          R_AddDebugBox(&frontEndDataOut->debugGlobals, &tree->bounds, &colorOrange, r_showCullMode->current.integer != 0);
+        R_AddLeafSurfacesInFrustum(tree, &clipSeta);
       }
     }
     else
     {
       if ( r_showAabbTrees->current.enabled )
-        R_AddDebugBox(&frontEndDataOut->debugGlobals, &_RSI->bounds, &colorYellow, r_showCullMode->current.integer != 0);
-      v44 = tls_index;
+        R_AddDebugBox(&frontEndDataOut->debugGlobals, &tree->bounds, &colorYellow, r_showCullMode->current.integer != 0);
+      v33 = tls_index;
       if ( rg.drawSModels )
       {
-        smodelIndexCount = _RSI->smodelIndexCount;
+        smodelIndexCount = tree->smodelIndexCount;
         if ( smodelIndexCount )
         {
-          smodelIndexes = _RSI->smodelIndexes;
-          v47 = smodelIndexCount;
+          smodelIndexes = tree->smodelIndexes;
+          v36 = smodelIndexCount;
           do
           {
-            v48 = 0x80000000 >> (*smodelIndexes & 0x1F);
-            v49 = (unsigned __int64)*smodelIndexes >> 5;
-            v50 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v44) + 1712i64);
-            v51 = (volatile signed __int32 *)(v50 + 4 * v49);
-            if ( ((unsigned __int8)v51 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)(v50 + 4 * v49)) )
+            v37 = 0x80000000 >> (*smodelIndexes & 0x1F);
+            v38 = (unsigned __int64)*smodelIndexes >> 5;
+            v39 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v33) + 1712i64);
+            v40 = (volatile signed __int32 *)(v39 + 4 * v38);
+            if ( ((unsigned __int8)v40 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)(v39 + 4 * v38)) )
               __debugbreak();
-            _InterlockedOr(v51, v48);
+            _InterlockedOr(v40, v37);
             ++smodelIndexes;
-            --v47;
+            --v36;
           }
-          while ( v47 );
+          while ( v36 );
         }
       }
       if ( rg.drawWorld )
       {
-        surfaceCount = _RSI->surfaceCount;
+        surfaceCount = tree->surfaceCount;
         if ( surfaceCount )
         {
-          v53 = surfaceCount;
-          v54 = &g_worldDpvs->sortedSurfIndex[_RSI->startSurfIndex];
+          v42 = surfaceCount;
+          v43 = &g_worldDpvs->sortedSurfIndex[tree->startSurfIndex];
           do
           {
-            v55 = 0x80000000 >> (*v54 & 0x1F);
-            v56 = (unsigned __int64)*v54 >> 5;
-            v57 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v44) + 1704i64);
-            v58 = (volatile signed __int32 *)(v57 + 4 * v56);
-            if ( ((unsigned __int8)v58 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)(v57 + 4 * v56)) )
+            v44 = 0x80000000 >> (*v43 & 0x1F);
+            v45 = (unsigned __int64)*v43 >> 5;
+            v46 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v33) + 1704i64);
+            v47 = (volatile signed __int32 *)(v46 + 4 * v45);
+            if ( ((unsigned __int8)v47 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)(v46 + 4 * v45)) )
               __debugbreak();
-            _InterlockedOr(v58, v55);
-            ++v54;
-            --v53;
+            _InterlockedOr(v47, v44);
+            ++v43;
+            --v42;
           }
-          while ( v53 );
+          while ( v42 );
         }
       }
     }
@@ -216,93 +211,75 @@ R_AddCellStaticSurfacesInFrustumCmd
 */
 void R_AddCellStaticSurfacesInFrustumCmd(const void *const data)
 {
+  __int64 v1; 
+  const GfxAabbTree *v3; 
   __int64 v4; 
-  const GfxAabbTree *v6; 
-  __int64 v7; 
-  GfxWorldDpvsStatic *v8; 
+  GfxWorldDpvsStatic *v5; 
+  __int64 v6; 
+  _OWORD *v7; 
+  char *v8; 
   __int64 v9; 
-  __int64 v12; 
   DpvsClipPlaneSet *p_clipSet; 
-  unsigned int v18; 
-  const GfxAabbTree *v27; 
+  unsigned int v13; 
+  float *v14; 
+  const GfxAabbTree *v19; 
   DpvsClipPlaneSet clipSet; 
-  __int128 v29; 
-  char v30; 
+  __int128 v21; 
+  char v22; 
 
-  v4 = *((unsigned __int16 *)data + 9);
-  v27 = (const GfxAabbTree *)*((_QWORD *)data + 1);
-  v6 = v27;
-  v7 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-  v8 = g_worldDpvs;
-  *(_QWORD *)(v7 + 1712) = g_worldDpvs->smodelVisData[v4];
-  *(_QWORD *)(v7 + 1704) = v8->surfaceVisData[v4];
-  if ( v27 )
+  v1 = *((unsigned __int16 *)data + 9);
+  v19 = (const GfxAabbTree *)*((_QWORD *)data + 1);
+  v3 = v19;
+  v4 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+  v5 = g_worldDpvs;
+  *(_QWORD *)(v4 + 1712) = g_worldDpvs->smodelVisData[v1];
+  *(_QWORD *)(v4 + 1704) = v5->surfaceVisData[v1];
+  if ( v19 )
   {
-    v9 = *((unsigned __int8 *)data + 16);
-    if ( (unsigned int)v9 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_static.cpp", 434, ASSERT_TYPE_ASSERT, "( ( planes.count <= (10 + 4 + 2) ) )", "( planes.count ) = %i", *((unsigned __int8 *)data + 16)) )
+    v6 = *((unsigned __int8 *)data + 16);
+    if ( (unsigned int)v6 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_static.cpp", 434, ASSERT_TYPE_ASSERT, "( ( planes.count <= (10 + 4 + 2) ) )", "( planes.count ) = %i", *((unsigned __int8 *)data + 16)) )
       __debugbreak();
-    if ( !(_DWORD)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_static.cpp", 435, ASSERT_TYPE_ASSERT, "(planes.count)", (const char *)&queryFormat, "planes.count") )
+    if ( !(_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_static.cpp", 435, ASSERT_TYPE_ASSERT, "(planes.count)", (const char *)&queryFormat, "planes.count") )
       __debugbreak();
-    _RSI = *(_QWORD *)data;
-    if ( (_DWORD)v9 )
+    v7 = *(_OWORD **)data;
+    if ( (_DWORD)v6 )
     {
-      _RBP = &v30;
-      v12 = v9;
+      v8 = &v22;
+      v9 = v6;
       p_clipSet = &clipSet;
-      __asm
-      {
-        vmovaps [rsp+358h+var_38], xmm6
-        vmovaps [rsp+358h+var_48], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmovaps [rsp+358h+var_58], xmm8
-        vmovss  xmm8, cs:__real@bf800000
-        vxorps  xmm6, xmm6, xmm6
-      }
+      _XMM8 = LODWORD(FLOAT_N1_0);
+      _XMM6 = 0i64;
       do
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rbp+0], xmm0
-        }
-        v18 = 0;
-        _RDI = &v29;
+        *(_OWORD *)v8 = *v7;
+        v13 = 0;
+        v14 = (float *)&v21;
         do
         {
-          ++v18;
+          ++v13;
           __asm
           {
             vcmpless xmm0, xmm6, dword ptr [rsi+rax*4]
             vblendvps xmm0, xmm8, xmm7, xmm0
-            vmovss  dword ptr [rdi], xmm0
           }
-          _RDI = (__int128 *)((char *)_RDI + 4);
+          *v14++ = *(float *)&_XMM0;
         }
-        while ( v18 < 3 );
-        __asm
-        {
-          vmovups xmm0, [rsp+358h+var_278]
-          vinsertps xmm0, xmm0, xmm6, 30h ; '0'
-        }
-        p_clipSet->planes[0] = (const DpvsClipPlane *)_RBP;
-        _RSI += 16i64;
-        __asm { vmovups xmmword ptr [rbp+10h], xmm0 }
-        _RBP += 32;
+        while ( v13 < 3 );
+        _XMM0 = v21;
+        __asm { vinsertps xmm0, xmm0, xmm6, 30h ; '0' }
+        p_clipSet->planes[0] = (const DpvsClipPlane *)v8;
+        ++v7;
+        *((_OWORD *)v8 + 1) = _XMM0;
+        v8 += 32;
         p_clipSet = (DpvsClipPlaneSet *)((char *)p_clipSet + 8);
-        __asm { vmovups [rsp+358h+var_278], xmm0 }
-        --v12;
+        v21 = _XMM0;
+        --v9;
       }
-      while ( v12 );
-      v6 = v27;
-      __asm
-      {
-        vmovaps xmm8, [rsp+358h+var_58]
-        vmovaps xmm7, [rsp+358h+var_48]
-        vmovaps xmm6, [rsp+358h+var_38]
-      }
+      while ( v9 );
+      v3 = v19;
     }
-    clipSet.count = v9;
-    R_AddAabbTreeSurfacesInFrustum_r(v6, &clipSet);
+    clipSet.count = v6;
+    R_AddAabbTreeSurfacesInFrustum_r(v3, &clipSet);
   }
 }
 
@@ -319,22 +296,32 @@ void R_AddLeafSurfacesInFrustum(const GfxAabbTree *tree, const DpvsClipPlaneSet 
   __int64 v7; 
   int v8; 
   volatile int *v9; 
+  Bounds *collectionBounds; 
   unsigned int count; 
-  const DpvsClipPlaneSet *v25; 
-  __int64 v26; 
+  __m128 v13; 
+  __m128 v16; 
+  __m128 v18; 
+  const DpvsClipPlaneSet *v22; 
+  __int64 v23; 
+  __m128 *p_v; 
   unsigned int surfaceCount; 
-  __int64 v35; 
-  unsigned int *v36; 
-  unsigned __int64 v37; 
-  unsigned int v38; 
-  __int64 v39; 
-  unsigned int v51; 
-  const DpvsClipPlaneSet *v56; 
-  __int64 v57; 
-  __int128 v65; 
-  __int128 v66; 
-  __int128 v67; 
-  __int128 v68; 
+  __int64 v32; 
+  unsigned int *v33; 
+  unsigned __int64 v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  GfxSurfaceBounds *v37; 
+  __m128 v39; 
+  __m128 v42; 
+  unsigned int v43; 
+  __m128 v45; 
+  const DpvsClipPlaneSet *v49; 
+  __int64 v50; 
+  __m128 *v51; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v61; 
 
   v3 = tls_index;
   if ( rg.drawSModels )
@@ -350,54 +337,52 @@ void R_AddLeafSurfacesInFrustum(const GfxAabbTree *tree, const DpvsClipPlaneSet 
         v9 = (volatile int *)(*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1712i64) + 4 * ((unsigned __int64)*smodelIndexes >> 5));
         if ( (v8 & *v9) == 0 )
         {
-          _RDX = 3i64 * *smodelIndexes;
-          _RCX = rgp.world->smodels.collectionBounds;
-          HIDWORD(v65) = 0;
-          __asm { vmovups xmm3, xmmword ptr [rsp+30h] }
-          HIDWORD(v66) = 0;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+rdx*8]
-            vmovups xmm4, xmmword ptr [rsp+40h]
-          }
+          collectionBounds = rgp.world->smodels.collectionBounds;
+          v58.m128_i32[3] = 0;
+          v59.m128_i32[3] = 0;
           count = clipSet->count;
+          v13 = v58;
+          v13.m128_f32[0] = collectionBounds[*smodelIndexes].midPoint.v[0];
+          _XMM3 = v13;
           __asm
           {
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [rcx+rdx*8+4], 10h
             vinsertps xmm3, xmm3, dword ptr [rcx+rdx*8+8], 20h ; ' '
-            vmovss  xmm0, dword ptr [rcx+rdx*8+0Ch]
-            vaddps  xmm5, xmm3, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-            vmovss  xmm4, xmm4, xmm0
+          }
+          v16 = _mm128_add_ps(_XMM3, g_unit.v);
+          v18 = v59;
+          v18.m128_f32[0] = collectionBounds[*smodelIndexes].halfSize.v[0];
+          _XMM4 = v18;
+          __asm
+          {
             vinsertps xmm4, xmm4, dword ptr [rcx+rdx*8+10h], 10h
             vinsertps xmm4, xmm4, dword ptr [rcx+rdx*8+14h], 20h ; ' '
-            vmovups xmmword ptr [rsp+30h], xmm3
-            vmovdqa xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-            vmovups xmmword ptr [rsp+40h], xmm4
           }
+          v58 = _XMM3;
+          _XMM3 = g_one.v;
+          v59 = _XMM4;
           if ( count )
           {
-            v25 = clipSet;
-            v26 = count;
+            v22 = clipSet;
+            v23 = count;
             do
             {
-              v25 = (const DpvsClipPlaneSet *)((char *)v25 + 8);
+              p_v = &v22->planes[0]->coeffs.v;
+              v22 = (const DpvsClipPlaneSet *)((char *)v22 + 8);
+              _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_XMM4, p_v[1]), v16), *p_v);
               __asm
               {
-                vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-                vaddps  xmm1, xmm0, xmm5
-                vmulps  xmm2, xmm1, xmmword ptr [rax]
                 vhaddps xmm0, xmm2, xmm2
                 vhaddps xmm0, xmm0, xmm0
                 vminps  xmm3, xmm3, xmm0
               }
-              --v26;
+              --v23;
             }
-            while ( v26 );
+            while ( v23 );
           }
+          _XMM0 = 0i64;
           __asm
           {
-            vxorps  xmm0, xmm0, xmm0
             vcmpltps xmm1, xmm0, xmm3
             vpextrd rax, xmm1, 0
           }
@@ -415,80 +400,77 @@ void R_AddLeafSurfacesInFrustum(const GfxAabbTree *tree, const DpvsClipPlaneSet 
     surfaceCount = tree->surfaceCount;
     if ( surfaceCount )
     {
-      v35 = surfaceCount;
-      v36 = &g_worldDpvs->sortedSurfIndex[tree->startSurfIndex];
+      v32 = surfaceCount;
+      v33 = &g_worldDpvs->sortedSurfIndex[tree->startSurfIndex];
       do
       {
-        v37 = *v36;
-        v38 = 0x80000000 >> (v37 & 0x1F);
-        v39 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1704i64) + 4 * (v37 >> 5);
-        if ( (v38 & *(_DWORD *)v39) == 0 )
+        v34 = *v33;
+        v35 = 0x80000000 >> (v34 & 0x1F);
+        v36 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1704i64) + 4 * (v34 >> 5);
+        if ( (v35 & *(_DWORD *)v36) == 0 )
         {
-          _RDX = 3 * v37;
-          _RCX = rgp.world->surfaces.surfaceBounds;
-          __asm { vmovss  xmm0, dword ptr [rcx+rdx*8] }
-          _R10 = &_RCX[v37].bounds;
-          HIDWORD(v67) = 0;
+          v37 = &rgp.world->surfaces.surfaceBounds[v34];
+          v60.m128_i32[3] = 0;
+          v39 = v60;
+          v39.m128_f32[0] = v37->bounds.midPoint.v[0];
+          _XMM3 = v39;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rsp+50h]
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [r10+4], 10h
             vinsertps xmm3, xmm3, dword ptr [r10+8], 20h ; ' '
-            vmovss  xmm0, dword ptr [r10+0Ch]
-            vaddps  xmm5, xmm3, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
           }
-          HIDWORD(v68) = 0;
-          __asm { vmovups xmm4, xmmword ptr [rsp+60h] }
-          v51 = clipSet->count;
+          v42 = _mm128_add_ps(_XMM3, g_unit.v);
+          v61.m128_i32[3] = 0;
+          v43 = clipSet->count;
+          v45 = v61;
+          v45.m128_f32[0] = v37->bounds.halfSize.v[0];
+          _XMM4 = v45;
           __asm
           {
-            vmovss  xmm4, xmm4, xmm0
             vinsertps xmm4, xmm4, dword ptr [r10+10h], 10h
             vinsertps xmm4, xmm4, dword ptr [r10+14h], 20h ; ' '
-            vmovups xmmword ptr [rsp+50h], xmm3
-            vmovdqa xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-            vmovups xmmword ptr [rsp+60h], xmm4
           }
-          if ( v51 )
+          v60 = _XMM3;
+          _XMM3 = g_one.v;
+          v61 = _XMM4;
+          if ( v43 )
           {
-            v56 = clipSet;
-            v57 = v51;
+            v49 = clipSet;
+            v50 = v43;
             do
             {
-              v56 = (const DpvsClipPlaneSet *)((char *)v56 + 8);
+              v51 = &v49->planes[0]->coeffs.v;
+              v49 = (const DpvsClipPlaneSet *)((char *)v49 + 8);
+              _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_XMM4, v51[1]), v42), *v51);
               __asm
               {
-                vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-                vaddps  xmm1, xmm0, xmm5
-                vmulps  xmm2, xmm1, xmmword ptr [rax]
                 vhaddps xmm0, xmm2, xmm2
                 vhaddps xmm0, xmm0, xmm0
                 vminps  xmm3, xmm3, xmm0
               }
-              --v57;
+              --v50;
             }
-            while ( v57 );
+            while ( v50 );
           }
+          _XMM0 = 0i64;
           __asm
           {
-            vxorps  xmm0, xmm0, xmm0
             vcmpltps xmm1, xmm0, xmm3
             vpextrd rax, xmm1, 0
           }
           if ( (_DWORD)_RAX )
           {
             if ( (r_showAabbTrees->current.enabled & 2) != 0 )
-              R_AddDebugBox(&frontEndDataOut->debugGlobals, _R10, &colorGreen, r_showCullMode->current.integer != 0);
-            if ( (v39 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v39) )
+              R_AddDebugBox(&frontEndDataOut->debugGlobals, &v37->bounds, &colorGreen, r_showCullMode->current.integer != 0);
+            if ( (v36 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 65, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)v36) )
               __debugbreak();
-            _InterlockedOr((volatile signed __int32 *)v39, v38);
+            _InterlockedOr((volatile signed __int32 *)v36, v35);
           }
         }
-        ++v36;
-        --v35;
+        ++v33;
+        --v32;
       }
-      while ( v35 );
+      while ( v32 );
     }
   }
 }

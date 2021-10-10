@@ -238,136 +238,128 @@ void LUITraceRunner::CompleteRequests(LUITraceRunner *this)
 {
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_node_base *mp_prev; 
-  ntl::internal::list_node<LUITraceRequest *> *v7; 
+  ntl::internal::list_node<LUITraceRequest *> *v4; 
   LUIPool<LUITraceRequest,200,1> *p_m_requestPool; 
-  unsigned __int64 v9; 
-  __int64 v10; 
-  char v11; 
+  unsigned __int64 v6; 
+  __int64 v7; 
+  char v8; 
   LUIPool<LUITraceQueryResource,8,0> *p_m_physicsDetailResourcePool; 
   LocalClientNum_t m_localClientNum; 
-  unsigned int v14; 
-  __int64 v15; 
+  unsigned int v11; 
+  __int64 v12; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  char v19; 
-  __int64 v21; 
-  __int64 v22; 
+  double ClientVisibility; 
+  __int64 v17; 
+  __int64 v18; 
   vec3_t start; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
   if ( !this->m_initialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 179, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
     __debugbreak();
   mp_next = this->m_activeRequests.m_listHead.m_sentinel.mp_next;
-  if ( mp_next != (ntl::internal::list_node_base *)&this->m_activeRequests.m_listHead )
+  while ( mp_next != (ntl::internal::list_node_base *)&this->m_activeRequests.m_listHead )
   {
-    __asm { vmovss  xmm6, cs:__real@38d1b717 }
-    do
+    if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      __debugbreak();
+    mp_prev = mp_next[1].mp_prev;
+    if ( HIBYTE(mp_prev[6].mp_next) )
     {
-      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      v4 = (ntl::internal::list_node<LUITraceRequest *> *)mp_next;
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 439, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
         __debugbreak();
-      mp_prev = mp_next[1].mp_prev;
-      if ( HIBYTE(mp_prev[6].mp_next) )
+      mp_next = mp_next->mp_next;
+      ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::remove(&this->m_activeRequests.m_listHead, v4);
+      v4->mp_prev = (ntl::internal::list_node_base *)this->m_activeRequests.m_freelist.m_head.mp_next;
+      this->m_activeRequests.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v4;
+      p_m_requestPool = &this->m_requestPool;
+      v6 = ((char *)mp_prev - (char *)&this->m_requestPool) / 136;
+      if ( v6 <= 0xC7 )
       {
-        v7 = (ntl::internal::list_node<LUITraceRequest *> *)mp_next;
-        if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 439, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
+        v7 = (unsigned __int16)v6;
+        if ( (unsigned __int16)v6 >= 0xC8ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 93, ASSERT_TYPE_ASSERT, "(poolIndex < PoolSize)", (const char *)&queryFormat, "poolIndex < PoolSize") )
           __debugbreak();
-        mp_next = mp_next->mp_next;
-        ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::remove(&this->m_activeRequests.m_listHead, v7);
-        v7->mp_prev = (ntl::internal::list_node_base *)this->m_activeRequests.m_freelist.m_head.mp_next;
-        this->m_activeRequests.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v7;
-        p_m_requestPool = &this->m_requestPool;
-        v9 = ((char *)mp_prev - (char *)&this->m_requestPool) / 136;
-        if ( v9 <= 0xC7 )
-        {
-          v10 = (unsigned __int16)v9;
-          if ( (unsigned __int16)v9 >= 0xC8ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 93, ASSERT_TYPE_ASSERT, "(poolIndex < PoolSize)", (const char *)&queryFormat, "poolIndex < PoolSize") )
-            __debugbreak();
-          if ( p_m_requestPool->m_poolData[v10] <= 0xC8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 94, ASSERT_TYPE_ASSERT, "(m_poolData[poolIndex] > PoolSize)", (const char *)&queryFormat, "m_poolData[poolIndex] > PoolSize") )
-            __debugbreak();
-          p_m_requestPool->m_poolData[v10] = this->m_requestPool.m_firstFree;
-          this->m_requestPool.m_firstFree = v10;
-          memset_0(mp_prev, 0, 0x88ui64);
-        }
-      }
-      else
-      {
-        v11 = BYTE5(mp_prev[6].mp_next);
-        if ( v11 || mp_prev[8].mp_prev->mp_prev )
-        {
-          HIBYTE(mp_prev[6].mp_next) = 1;
-          if ( !v11 )
-          {
-            BYTE5(mp_prev[6].mp_next) = 1;
-            BYTE6(mp_prev[6].mp_next) = HavokPhysics_CollisionQueryResult::HasHit((HavokPhysics_CollisionQueryResult *)mp_prev[8].mp_prev->mp_next);
-            p_m_physicsDetailResourcePool = &this->m_physicsDetailResourcePool;
-            if ( !BYTE4(mp_prev[6].mp_next) )
-              p_m_physicsDetailResourcePool = &this->m_physicsPredictiveResourcePool;
-            LUIPool<LUITraceQueryResource,8,0>::Free(p_m_physicsDetailResourcePool, (LUITraceQueryResource *)mp_prev[8].mp_prev);
-            mp_prev[8].mp_prev = NULL;
-            --this->m_numActiveRequests;
-          }
-          if ( !BYTE6(mp_prev[6].mp_next) )
-          {
-            m_localClientNum = this->m_localClientNum;
-            if ( this->m_localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
-            {
-              LODWORD(v22) = 2;
-              LODWORD(v21) = this->m_localClientNum;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v21, v22) )
-                __debugbreak();
-            }
-            v14 = cg_t::ms_allocatedCount;
-            if ( m_localClientNum >= cg_t::ms_allocatedCount )
-            {
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 215, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( m_localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( m_localClientNum )") )
-                __debugbreak();
-              v14 = cg_t::ms_allocatedCount;
-            }
-            v15 = this->m_localClientNum;
-            if ( (unsigned int)v15 >= v14 )
-            {
-              LODWORD(v22) = v14;
-              LODWORD(v21) = this->m_localClientNum;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v21, v22) )
-                __debugbreak();
-            }
-            if ( !cg_t::ms_cgArray[v15] )
-            {
-              LODWORD(v22) = v15;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v22) )
-                __debugbreak();
-            }
-            if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
-            {
-              LODWORD(v22) = v15;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v22) )
-                __debugbreak();
-            }
-            p_view = &cg_t::ms_cgArray[v15]->refdef.view;
-            if ( !p_view && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
-              __debugbreak();
-            refdefViewOrg_aab = p_view->refdefViewOrg_aab;
-            v = (_DWORD *)p_view->org.org.v;
-            if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
-              __debugbreak();
-            LODWORD(start.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-            LODWORD(start.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-            LODWORD(start.v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
-            *(double *)&_XMM0 = FX_GetClientVisibility(this->m_localClientNum, &start, (const vec3_t *)&mp_prev[7]);
-            __asm { vcomiss xmm0, xmm6 }
-            BYTE6(mp_prev[6].mp_next) = v19;
-            memset(&start, 0, sizeof(start));
-          }
-        }
-        if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 116, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( p_m_requestPool->m_poolData[v7] <= 0xC8u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_pool.h", 94, ASSERT_TYPE_ASSERT, "(m_poolData[poolIndex] > PoolSize)", (const char *)&queryFormat, "m_poolData[poolIndex] > PoolSize") )
           __debugbreak();
-        mp_next = mp_next->mp_next;
+        p_m_requestPool->m_poolData[v7] = this->m_requestPool.m_firstFree;
+        this->m_requestPool.m_firstFree = v7;
+        memset_0(mp_prev, 0, 0x88ui64);
       }
     }
-    while ( mp_next != (ntl::internal::list_node_base *)&this->m_activeRequests.m_listHead );
+    else
+    {
+      v8 = BYTE5(mp_prev[6].mp_next);
+      if ( v8 || mp_prev[8].mp_prev->mp_prev )
+      {
+        HIBYTE(mp_prev[6].mp_next) = 1;
+        if ( !v8 )
+        {
+          BYTE5(mp_prev[6].mp_next) = 1;
+          BYTE6(mp_prev[6].mp_next) = HavokPhysics_CollisionQueryResult::HasHit((HavokPhysics_CollisionQueryResult *)mp_prev[8].mp_prev->mp_next);
+          p_m_physicsDetailResourcePool = &this->m_physicsDetailResourcePool;
+          if ( !BYTE4(mp_prev[6].mp_next) )
+            p_m_physicsDetailResourcePool = &this->m_physicsPredictiveResourcePool;
+          LUIPool<LUITraceQueryResource,8,0>::Free(p_m_physicsDetailResourcePool, (LUITraceQueryResource *)mp_prev[8].mp_prev);
+          mp_prev[8].mp_prev = NULL;
+          --this->m_numActiveRequests;
+        }
+        if ( !BYTE6(mp_prev[6].mp_next) )
+        {
+          m_localClientNum = this->m_localClientNum;
+          if ( this->m_localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
+          {
+            LODWORD(v18) = 2;
+            LODWORD(v17) = this->m_localClientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, v18) )
+              __debugbreak();
+          }
+          v11 = cg_t::ms_allocatedCount;
+          if ( m_localClientNum >= cg_t::ms_allocatedCount )
+          {
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 215, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( m_localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( m_localClientNum )") )
+              __debugbreak();
+            v11 = cg_t::ms_allocatedCount;
+          }
+          v12 = this->m_localClientNum;
+          if ( (unsigned int)v12 >= v11 )
+          {
+            LODWORD(v18) = v11;
+            LODWORD(v17) = this->m_localClientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v17, v18) )
+              __debugbreak();
+          }
+          if ( !cg_t::ms_cgArray[v12] )
+          {
+            LODWORD(v18) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v18) )
+              __debugbreak();
+          }
+          if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
+          {
+            LODWORD(v18) = v12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v18) )
+              __debugbreak();
+          }
+          p_view = &cg_t::ms_cgArray[v12]->refdef.view;
+          if ( !p_view && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+            __debugbreak();
+          refdefViewOrg_aab = p_view->refdefViewOrg_aab;
+          v = (_DWORD *)p_view->org.org.v;
+          if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+            __debugbreak();
+          LODWORD(start.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+          LODWORD(start.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+          LODWORD(start.v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
+          ClientVisibility = FX_GetClientVisibility(this->m_localClientNum, &start, (const vec3_t *)&mp_prev[7]);
+          BYTE6(mp_prev[6].mp_next) = *(float *)&ClientVisibility < 0.000099999997;
+          memset(&start, 0, sizeof(start));
+        }
+      }
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 116, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        __debugbreak();
+      mp_next = mp_next->mp_next;
+    }
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -495,6 +487,7 @@ void LUITraceRunner::GetTraceTargetPosition(LUITraceRunner *this, const LUITrace
   LocalClientNum_t m_localClientNum; 
   centity_t *Entity; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v12; 
   scr_string_t String; 
   unsigned int number; 
   LocalClientNum_t v24; 
@@ -502,12 +495,14 @@ void LUITraceRunner::GetTraceTargetPosition(LUITraceRunner *this, const LUITrace
   unsigned int v26; 
   unsigned int v27; 
   const DObj *v28; 
+  float v29; 
+  float v30; 
+  float v31; 
   vec3_t *worldOffset; 
   vec3_t *outOffset; 
-  vec3_t v37; 
+  vec3_t v34; 
   tmat33_t<vec3_t> dst; 
 
-  _RSI = outTargetPosition;
   if ( !traceRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 336, ASSERT_TYPE_ASSERT, "(traceRequest)", (const char *)&queryFormat, "traceRequest") )
     __debugbreak();
   m_localClientNum = this->m_localClientNum;
@@ -526,28 +521,33 @@ void LUITraceRunner::GetTraceTargetPosition(LUITraceRunner *this, const LUITrace
   if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(Entity->pose.origin.Get_origin, &Entity->pose);
-  FunctionPointer_origin(&Entity->pose.origin.origin.origin, _RSI);
+  FunctionPointer_origin(&Entity->pose.origin.origin.origin, outTargetPosition);
   if ( Entity->pose.isPosePrecise )
   {
+    _XMM0 = LODWORD(outTargetPosition->v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v12;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    _XMM0 = LODWORD(outTargetPosition->v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    outTargetPosition->v[0] = *(float *)&_XMM1;
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v12;
+    _XMM0 = LODWORD(outTargetPosition->v[2]);
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, dword ptr [rsi]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovd   xmm0, dword ptr [rsi+4]
-      vcvtdq2pd xmm0, xmm0
-      vmovss  dword ptr [rsi], xmm1
-      vmulsd  xmm1, xmm0, xmm3
-      vmovd   xmm0, dword ptr [rsi+8]
       vcvtsd2ss xmm2, xmm1, xmm1
       vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsi+4], xmm2
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmovss  dword ptr [rsi+8], xmm2
     }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v12;
+    outTargetPosition->v[1] = *(float *)&_XMM2;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    outTargetPosition->v[2] = *(float *)&_XMM2;
   }
   if ( traceRequest->tagName[0] )
   {
@@ -586,23 +586,17 @@ void LUITraceRunner::GetTraceTargetPosition(LUITraceRunner *this, const LUITrace
       }
       v28 = (const DObj *)s_objBuf[v27];
       if ( v28 )
-        CG_DObjGetWorldTagMatrix(&Entity->pose, v28, v25, &dst, _RSI);
+        CG_DObjGetWorldTagMatrix(&Entity->pose, v28, v25, &dst, outTargetPosition);
     }
     SL_RemoveRefToString(v25);
   }
-  LUI_ComputeWorldOffset((const LocalClientNum_t)this->m_localClientNum, traceRequest->entityNum, &dst, &traceRequest->tagOffset, &traceRequest->entityOffset, &traceRequest->worldOffset, &v37);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0B8h+var_78]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rsp+0B8h+var_78+4]
-    vmovss  dword ptr [rsi], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+var_78+8]
-    vmovss  dword ptr [rsi+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  LUI_ComputeWorldOffset((const LocalClientNum_t)this->m_localClientNum, traceRequest->entityNum, &dst, &traceRequest->tagOffset, &traceRequest->entityOffset, &traceRequest->worldOffset, &v34);
+  v29 = v34.v[1];
+  outTargetPosition->v[0] = v34.v[0] + outTargetPosition->v[0];
+  v30 = v29 + outTargetPosition->v[1];
+  v31 = v34.v[2];
+  outTargetPosition->v[1] = v30;
+  outTargetPosition->v[2] = v31 + outTargetPosition->v[2];
 }
 
 /*
@@ -929,86 +923,38 @@ LUITraceRunner::IsTargetInFOV
 */
 _BOOL8 LUITraceRunner::IsTargetInFOV(LUITraceRunner *this, const LUITraceRequest *traceRequest)
 {
-  char v40; 
-  _BOOL8 result; 
+  RefdefView *p_view; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  float v7; 
+  cg_t *LocalClientGlobals; 
+  float v12; 
   vec3_t outOrg; 
-  __int64 v49; 
+  __int64 v15; 
   vec3_t outTargetPosition; 
-  char v51; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v49 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
+  v15 = -2i64;
   LUITraceRunner::GetTraceTargetPosition(this, traceRequest, &outTargetPosition);
-  _RBX = &CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RBX, &outOrg);
+  p_view = &CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v4 = outTargetPosition.v[0] - outOrg.v[0];
+  v6 = LODWORD(outTargetPosition.v[1]);
+  v5 = outTargetPosition.v[1] - outOrg.v[1];
+  v7 = outTargetPosition.v[2] - outOrg.v[2];
+  *(float *)&v6 = fsqrt((float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v7 * v7));
+  _XMM1 = v6;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+0B8h+outTargetPosition]
-    vsubss  xmm10, xmm0, dword ptr [rsp+0B8h+outOrg]
-    vmovss  xmm1, dword ptr [rsp+0B8h+outTargetPosition+4]
-    vsubss  xmm8, xmm1, dword ptr [rsp+0B8h+outOrg+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+outTargetPosition+8]
-    vsubss  xmm9, xmm0, dword ptr [rsp+0B8h+outOrg+8]
-    vmulss  xmm2, xmm8, xmm8
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm7, xmm0
-    vdivss  xmm6, xmm7, xmm1
   }
-  CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vmulss  xmm4, xmm0, dword ptr [rax+6948h]
-    vmulss  xmm1, xmm10, xmm6
-    vmulss  xmm3, xmm1, dword ptr [rax+6944h]
-    vaddss  xmm5, xmm4, xmm3
-    vmulss  xmm0, xmm9, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rax+694Ch]
-    vaddss  xmm0, xmm5, xmm1; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm7, xmm0, cs:__real@42652ee0
-    vmovss  xmm0, dword ptr [rbx]; X
-  }
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vaddss  xmm2, xmm1, cs:__real@40a00000
-    vcomiss xmm2, xmm7
-  }
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  *(double *)&_XMM0 = I_fclamp((float)((float)((float)(v5 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + (float)((float)(v4 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[0])) + (float)((float)(v7 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[2]), 0.0, 1.0);
+  v12 = acosf_0(*(float *)&_XMM0) * 57.295776;
+  *(float *)&v6 = (float)(atanf_0(p_view->fov.tanHalfFovX) * 57.295776) + 5.0;
   memset(&outOrg, 0, sizeof(outOrg));
-  result = !v40;
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  return *(float *)&v6 >= v12;
 }
 
 /*
@@ -1019,38 +965,32 @@ LUITraceRunner::RequestTraceToEntityOffset
 LUITraceRequest *LUITraceRunner::RequestTraceToEntityOffset(LUITraceRunner *this, int entityNum, const char *tagName, const vec3_t *tagOffset, const vec3_t *entityOffset, const vec3_t *worldOffset, unsigned int ignoreOffsetsForTraces, bool highPriority, bool *outTriviallyNotInSight, bool useClientDetailWorld)
 {
   LocalClientNum_t m_localClientNum; 
-  LUITraceRequest *result; 
   LUIPool<LUITraceRequest,200,1> *p_m_requestPool; 
   unsigned __int16 m_firstFree; 
-  char v70; 
+  LUITraceRequest *v18; 
+  RefdefView *p_view; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
+  cg_t *LocalClientGlobals; 
+  float v28; 
   ntl::internal::pool_allocator_freelist<24> *p_m_freelist; 
   ntl::internal::list_node<LUITraceRequest *> *mp_next; 
-  ntl::internal::list_node<LUITraceRequest *> *v73; 
-  __int64 v74; 
+  ntl::internal::list_node<LUITraceRequest *> *v31; 
+  __int64 v32; 
   vec3_t outOrg; 
-  __int64 v76; 
+  __int64 v34; 
   vec3_t outTargetPosition; 
-  char v78; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v76 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R12 = tagOffset;
+  v34 = -2i64;
   if ( !this->m_initialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 390, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
     __debugbreak();
   m_localClientNum = this->m_localClientNum;
   if ( this->m_localClientNum >= (unsigned int)LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v74) = this->m_localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v74, 2) )
+    LODWORD(v32) = this->m_localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v32, 2) )
       __debugbreak();
   }
   if ( m_localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 391, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( m_localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( m_localClientNum )") )
@@ -1058,118 +998,59 @@ LUITraceRequest *LUITraceRunner::RequestTraceToEntityOffset(LUITraceRunner *this
   if ( (CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, entityNum)->flags & 1) == 0 )
   {
     *outTriviallyNotInSight = 1;
-LABEL_12:
-    result = NULL;
-    goto LABEL_13;
+    return 0i64;
   }
   *outTriviallyNotInSight = 0;
   p_m_requestPool = &this->m_requestPool;
   m_firstFree = this->m_requestPool.m_firstFree;
   if ( m_firstFree >= 0xC8u )
-    goto LABEL_12;
+    return 0i64;
   this->m_requestPool.m_firstFree = this->m_requestPool.m_poolData[m_firstFree];
   p_m_requestPool->m_poolData[m_firstFree] = 201;
-  _RBX = &p_m_requestPool->m_pool[m_firstFree];
-  if ( !_RBX )
-    goto LABEL_12;
-  _RBX->entityNum = entityNum;
-  _RBX->ignoreEntityNum = entityNum;
-  Core_strcpy(_RBX->tagName, 0x40ui64, tagName);
+  v18 = &p_m_requestPool->m_pool[m_firstFree];
+  if ( !v18 )
+    return 0i64;
+  v18->entityNum = entityNum;
+  v18->ignoreEntityNum = entityNum;
+  Core_strcpy(v18->tagName, 0x40ui64, tagName);
   if ( (ignoreOffsetsForTraces & 1) == 0 )
-  {
-    _RCX = worldOffset;
-    _RBX->worldOffset.v[0] = worldOffset->v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [rbx+64h], xmm0
-      vmovss  xmm1, dword ptr [rcx+8]
-      vmovss  dword ptr [rbx+68h], xmm1
-    }
-  }
+    v18->worldOffset = *worldOffset;
   if ( (ignoreOffsetsForTraces & 2) == 0 )
   {
-    _RBX->tagOffset.v[0] = _R12->v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+4]
-      vmovss  dword ptr [rbx+4Ch], xmm0
-      vmovss  xmm1, dword ptr [r12+8]
-      vmovss  dword ptr [rbx+50h], xmm1
-    }
+    v18->tagOffset.v[0] = tagOffset->v[0];
+    v18->tagOffset.v[1] = tagOffset->v[1];
+    v18->tagOffset.v[2] = tagOffset->v[2];
   }
   if ( (ignoreOffsetsForTraces & 4) == 0 )
-  {
-    _RCX = entityOffset;
-    _RBX->entityOffset.v[0] = entityOffset->v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [rbx+58h], xmm0
-      vmovss  xmm1, dword ptr [rcx+8]
-      vmovss  dword ptr [rbx+5Ch], xmm1
-    }
-  }
-  _RBX->useClientDetailWorld = useClientDetailWorld;
-  _RBX->physicsResource = NULL;
-  _RBX->hasResult = 0;
-  _RBX->ripeForCleanup = 0;
-  LUITraceRunner::GetTraceTargetPosition(this, _RBX, &outTargetPosition);
-  _RDI = &CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RDI, &outOrg);
+    v18->entityOffset = *entityOffset;
+  v18->useClientDetailWorld = useClientDetailWorld;
+  v18->physicsResource = NULL;
+  v18->hasResult = 0;
+  v18->ripeForCleanup = 0;
+  LUITraceRunner::GetTraceTargetPosition(this, v18, &outTargetPosition);
+  p_view = &CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v20 = outTargetPosition.v[0] - outOrg.v[0];
+  v22 = LODWORD(outTargetPosition.v[1]);
+  v21 = outTargetPosition.v[1] - outOrg.v[1];
+  v23 = outTargetPosition.v[2] - outOrg.v[2];
+  *(float *)&v22 = fsqrt((float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v23 * v23));
+  _XMM1 = v22;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+108h+outTargetPosition]
-    vsubss  xmm10, xmm0, dword ptr [rsp+108h+outOrg]
-    vmovss  xmm1, dword ptr [rsp+108h+outTargetPosition+4]
-    vsubss  xmm8, xmm1, dword ptr [rsp+108h+outOrg+4]
-    vmovss  xmm0, dword ptr [rsp+108h+outTargetPosition+8]
-    vsubss  xmm9, xmm0, dword ptr [rsp+108h+outOrg+8]
-    vmulss  xmm2, xmm8, xmm8
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm7, xmm0
-    vdivss  xmm6, xmm7, xmm1
   }
-  CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vmulss  xmm4, xmm0, dword ptr [rax+6948h]
-    vmulss  xmm1, xmm10, xmm6
-    vmulss  xmm3, xmm1, dword ptr [rax+6944h]
-    vaddss  xmm5, xmm4, xmm3
-    vmulss  xmm0, xmm9, xmm6
-    vmulss  xmm1, xmm0, dword ptr [rax+694Ch]
-    vaddss  xmm0, xmm5, xmm1; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm7, xmm0, cs:__real@42652ee0
-    vmovss  xmm0, dword ptr [rdi]; X
-  }
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vaddss  xmm2, xmm1, cs:__real@40a00000
-    vcomiss xmm2, xmm7
-  }
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  *(double *)&_XMM0 = I_fclamp((float)((float)((float)(v21 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[0])) + (float)((float)(v23 * (float)(1.0 / *(float *)&_XMM1)) * LocalClientGlobals->refdef.view.axis.m[0].v[2]), 0.0, 1.0);
+  v28 = acosf_0(*(float *)&_XMM0) * 57.295776;
+  *(float *)&v22 = (float)(atanf_0(p_view->fov.tanHalfFovX) * 57.295776) + 5.0;
   memset(&outOrg, 0, sizeof(outOrg));
-  if ( v70 )
+  if ( *(float *)&v22 < v28 )
   {
     *outTriviallyNotInSight = 1;
-    LUIPool<LUITraceRequest,200,1>::Free(&this->m_requestPool, _RBX);
-    goto LABEL_12;
+    LUIPool<LUITraceRequest,200,1>::Free(&this->m_requestPool, v18);
+    return 0i64;
   }
   p_m_freelist = &this->m_requestQueue.m_freelist;
   if ( highPriority )
@@ -1187,9 +1068,9 @@ LABEL_12:
     p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
     mp_next->mp_prev = NULL;
     mp_next->mp_next = NULL;
-    mp_next->m_data = _RBX;
+    mp_next->m_data = v18;
     ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::insert_before(&this->m_requestQueue.m_listHead, (ntl::internal::list_node<LUITraceRequest *> *)this->m_requestQueue.m_listHead.m_sentinel.mp_next, mp_next);
-    result = _RBX;
+    return v18;
   }
   else
   {
@@ -1202,25 +1083,14 @@ LABEL_12:
     }
     if ( (ntl::internal::pool_allocator_freelist<24> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xC8ui64) )
       __debugbreak();
-    v73 = (ntl::internal::list_node<LUITraceRequest *> *)p_m_freelist->m_head.mp_next;
+    v31 = (ntl::internal::list_node<LUITraceRequest *> *)p_m_freelist->m_head.mp_next;
     p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-    v73->mp_prev = NULL;
-    v73->mp_next = NULL;
-    v73->m_data = _RBX;
-    ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::insert_before(&this->m_requestQueue.m_listHead, (ntl::internal::list_node<LUITraceRequest *> *)&this->m_requestQueue.m_listHead, v73);
-    result = _RBX;
+    v31->mp_prev = NULL;
+    v31->mp_next = NULL;
+    v31->m_data = v18;
+    ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::insert_before(&this->m_requestQueue.m_listHead, (ntl::internal::list_node<LUITraceRequest *> *)&this->m_requestQueue.m_listHead, v31);
+    return v18;
   }
-LABEL_13:
-  _R11 = &v78;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
 }
 
 /*
@@ -1505,40 +1375,36 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
 {
   LocalClientNum_t m_localClientNum; 
   int *LocalClientGlobals; 
-  bool v6; 
-  int v7; 
+  bool v4; 
+  int v5; 
   ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *> > *p_m_listHead; 
   ntl::internal::list_node_base *mp_next; 
-  char v11; 
-  ntl::internal::list_node_base *v12; 
-  ntl::internal::list_node_base *v13; 
+  char v8; 
+  ntl::internal::list_node_base *v9; 
+  ntl::internal::list_node_base *v10; 
   ntl::internal::list_node_base *mp_prev; 
-  ntl::internal::list_node_base *v15; 
-  ntl::internal::list_node<LUITraceRequest *> *v16; 
+  ntl::internal::list_node_base *v12; 
+  ntl::internal::list_node<LUITraceRequest *> *v13; 
   ntl::internal::pool_allocator_freelist<24> *p_m_freelist; 
-  ntl::internal::list_node<LUITraceRequest *> *v18; 
+  ntl::internal::list_node<LUITraceRequest *> *v15; 
   __int64 mp_prev_low; 
-  __int64 v20; 
-  CgEntitySystem *v21; 
+  __int64 v17; 
+  CgEntitySystem *v18; 
   int m_numActiveRequests; 
   LUIPool<LUITraceQueryResource,8,0> *p_m_physicsDetailResourcePool; 
   unsigned __int16 m_firstFree; 
-  LUITraceQueryResource *v25; 
-  __int32 v26; 
+  LUITraceQueryResource *v22; 
+  __int32 v23; 
   LUIPool<LUITraceQueryResource,8,0> *p_m_physicsPredictiveResourcePool; 
-  unsigned __int16 v28; 
+  unsigned __int16 v25; 
   int mp_prev_high; 
   unsigned __int8 *WeaponPriorityMap; 
-  int v31; 
+  int v28; 
   __int64 siblings; 
   __int64 linked; 
   vec3_t start; 
   Physics_RaycastExtendedData extendedData; 
-  char v38; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( !this->m_initialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 231, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
     __debugbreak();
   m_localClientNum = this->m_localClientNum;
@@ -1551,14 +1417,13 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
   if ( m_localClientNum >= cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 232, ASSERT_TYPE_ASSERT, "(cg_t::IsClientAllocated( m_localClientNum ))", (const char *)&queryFormat, "cg_t::IsClientAllocated( m_localClientNum )") )
     __debugbreak();
   LocalClientGlobals = (int *)CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  v6 = 0;
-  v7 = LocalClientGlobals[74];
-  if ( v7 != 2047 )
-    v6 = (CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, v7)->flags & 1) != 0;
+  v4 = 0;
+  v5 = LocalClientGlobals[74];
+  if ( v5 != 2047 )
+    v4 = (CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, v5)->flags & 1) != 0;
   if ( this->m_numActiveRequests < 8 )
   {
     p_m_listHead = &this->m_requestQueue.m_listHead;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
     while ( 1 )
     {
       mp_next = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
@@ -1566,14 +1431,26 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
       {
         if ( mp_next != p_m_listHead->m_sentinel.mp_prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 95, ASSERT_TYPE_ASSERT, "( m_sentinel.mp_next == m_sentinel.mp_prev )", (const char *)&queryFormat, "m_sentinel.mp_next == m_sentinel.mp_prev") )
           __debugbreak();
-        v11 = 1;
+        v8 = 1;
       }
       else
       {
-        v11 = 0;
+        v8 = 0;
       }
-      if ( v11 )
-        goto LABEL_98;
+      if ( v8 )
+        return;
+      v9 = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
+      if ( v9 == (ntl::internal::list_node_base *)p_m_listHead )
+      {
+        if ( v9 != p_m_listHead->m_sentinel.mp_prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 95, ASSERT_TYPE_ASSERT, "( m_sentinel.mp_next == m_sentinel.mp_prev )", (const char *)&queryFormat, "m_sentinel.mp_next == m_sentinel.mp_prev") )
+          __debugbreak();
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 137, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
+          __debugbreak();
+      }
+      v10 = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 356, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+        __debugbreak();
+      mp_prev = v10[1].mp_prev;
       v12 = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
       if ( v12 == (ntl::internal::list_node_base *)p_m_listHead )
       {
@@ -1582,26 +1459,14 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 137, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
           __debugbreak();
       }
-      v13 = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
-      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 356, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+      v13 = (ntl::internal::list_node<LUITraceRequest *> *)this->m_requestQueue.m_listHead.m_sentinel.mp_next;
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 319, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
         __debugbreak();
-      mp_prev = v13[1].mp_prev;
-      v15 = this->m_requestQueue.m_listHead.m_sentinel.mp_next;
-      if ( v15 == (ntl::internal::list_node_base *)p_m_listHead )
-      {
-        if ( v15 != p_m_listHead->m_sentinel.mp_prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 95, ASSERT_TYPE_ASSERT, "( m_sentinel.mp_next == m_sentinel.mp_prev )", (const char *)&queryFormat, "m_sentinel.mp_next == m_sentinel.mp_prev") )
-          __debugbreak();
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list_base.h", 137, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
-          __debugbreak();
-      }
-      v16 = (ntl::internal::list_node<LUITraceRequest *> *)this->m_requestQueue.m_listHead.m_sentinel.mp_next;
-      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 319, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+      ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::remove(&this->m_requestQueue.m_listHead, v13);
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
         __debugbreak();
-      ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::remove(&this->m_requestQueue.m_listHead, v16);
-      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
-        __debugbreak();
-      v16->mp_prev = (ntl::internal::list_node_base *)this->m_requestQueue.m_freelist.m_head.mp_next;
-      this->m_requestQueue.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v16;
+      v13->mp_prev = (ntl::internal::list_node_base *)this->m_requestQueue.m_freelist.m_head.mp_next;
+      this->m_requestQueue.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v13;
       p_m_freelist = &this->m_activeRequests.m_freelist;
       if ( !this->m_activeRequests.m_freelist.m_head.mp_next )
       {
@@ -1612,36 +1477,36 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
       }
       if ( (ntl::internal::pool_allocator_freelist<24> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xC8ui64) )
         __debugbreak();
-      v18 = (ntl::internal::list_node<LUITraceRequest *> *)p_m_freelist->m_head.mp_next;
+      v15 = (ntl::internal::list_node<LUITraceRequest *> *)p_m_freelist->m_head.mp_next;
       p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-      v18->mp_prev = NULL;
-      v18->mp_next = NULL;
-      v18->m_data = (LUITraceRequest *)mp_prev;
-      ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::insert_before(&this->m_activeRequests.m_listHead, (ntl::internal::list_node<LUITraceRequest *> *)&this->m_activeRequests.m_listHead, v18);
+      v15->mp_prev = NULL;
+      v15->mp_next = NULL;
+      v15->m_data = (LUITraceRequest *)mp_prev;
+      ntl::internal::list_head_base<ntl::internal::list_node<LUITraceRequest *>>::insert_before(&this->m_activeRequests.m_listHead, (ntl::internal::list_node<LUITraceRequest *> *)&this->m_activeRequests.m_listHead, v15);
       mp_prev_low = SLODWORD(mp_prev->mp_prev);
       if ( (_DWORD)mp_prev_low == 2047 )
         goto LABEL_67;
-      v20 = this->m_localClientNum;
+      v17 = this->m_localClientNum;
       if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
       {
         LODWORD(linked) = this->m_localClientNum;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", linked) )
           __debugbreak();
       }
-      if ( (unsigned int)v20 >= CgEntitySystem::ms_allocatedCount )
+      if ( (unsigned int)v17 >= CgEntitySystem::ms_allocatedCount )
       {
         LODWORD(linked) = CgEntitySystem::ms_allocatedCount;
-        LODWORD(siblings) = v20;
+        LODWORD(siblings) = v17;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", siblings, linked) )
           __debugbreak();
       }
-      if ( !CgEntitySystem::ms_entitySystemArray[v20] )
+      if ( !CgEntitySystem::ms_entitySystemArray[v17] )
       {
-        LODWORD(linked) = v20;
+        LODWORD(linked) = v17;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", linked) )
           __debugbreak();
       }
-      v21 = CgEntitySystem::ms_entitySystemArray[v20];
+      v18 = CgEntitySystem::ms_entitySystemArray[v17];
       if ( (unsigned int)mp_prev_low >= 0x800 )
       {
         LODWORD(linked) = 2048;
@@ -1649,13 +1514,13 @@ void LUITraceRunner::StartRequests(LUITraceRunner *this)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", siblings, linked) )
           __debugbreak();
       }
-      if ( (v21->m_entities[mp_prev_low].flags & 1) != 0 )
+      if ( (v18->m_entities[mp_prev_low].flags & 1) != 0 )
         break;
       *(_WORD *)((char *)&mp_prev[6].mp_next + 5) = 257;
       m_numActiveRequests = this->m_numActiveRequests;
 LABEL_97:
       if ( m_numActiveRequests >= 8 )
-        goto LABEL_98;
+        return;
     }
     LUITraceRunner::GetTraceTargetPosition(this, (const LUITraceRequest *)mp_prev, (vec3_t *)&mp_prev[7]);
 LABEL_67:
@@ -1667,46 +1532,46 @@ LABEL_67:
       {
         this->m_physicsDetailResourcePool.m_firstFree = this->m_physicsDetailResourcePool.m_poolData[m_firstFree];
         p_m_physicsDetailResourcePool->m_poolData[m_firstFree] = 9;
-        v25 = &p_m_physicsDetailResourcePool->m_pool[m_firstFree];
+        v22 = &p_m_physicsDetailResourcePool->m_pool[m_firstFree];
       }
       else
       {
-        v25 = NULL;
+        v22 = NULL;
       }
-      v26 = 3 * this->m_localClientNum + 4;
+      v23 = 3 * this->m_localClientNum + 4;
     }
     else
     {
       p_m_physicsPredictiveResourcePool = &this->m_physicsPredictiveResourcePool;
-      v28 = this->m_physicsPredictiveResourcePool.m_firstFree;
-      if ( v28 < 8u )
+      v25 = this->m_physicsPredictiveResourcePool.m_firstFree;
+      if ( v25 < 8u )
       {
-        this->m_physicsPredictiveResourcePool.m_firstFree = this->m_physicsPredictiveResourcePool.m_poolData[v28];
-        p_m_physicsPredictiveResourcePool->m_poolData[v28] = 9;
-        v25 = &p_m_physicsPredictiveResourcePool->m_pool[v28];
+        this->m_physicsPredictiveResourcePool.m_firstFree = this->m_physicsPredictiveResourcePool.m_poolData[v25];
+        p_m_physicsPredictiveResourcePool->m_poolData[v25] = 9;
+        v22 = &p_m_physicsPredictiveResourcePool->m_pool[v25];
       }
       else
       {
-        v25 = NULL;
+        v22 = NULL;
       }
-      v26 = 3 * this->m_localClientNum + 2;
+      v23 = 3 * this->m_localClientNum + 2;
     }
-    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 278, ASSERT_TYPE_ASSERT, "(physicsResource)", (const char *)&queryFormat, "physicsResource") )
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 278, ASSERT_TYPE_ASSERT, "(physicsResource)", (const char *)&queryFormat, "physicsResource") )
       __debugbreak();
-    if ( !v25->physicsQuery.result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 279, ASSERT_TYPE_ASSERT, "(physicsResource->physicsQuery.result)", (const char *)&queryFormat, "physicsResource->physicsQuery.result") )
+    if ( !v22->physicsQuery.result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_traces.cpp", 279, ASSERT_TYPE_ASSERT, "(physicsResource->physicsQuery.result)", (const char *)&queryFormat, "physicsResource->physicsQuery.result") )
       __debugbreak();
-    mp_prev[8].mp_prev = (ntl::internal::list_node_base *)v25;
-    v25->physicsQuery.isComplete = 0;
+    mp_prev[8].mp_prev = (ntl::internal::list_node_base *)v22;
+    v22->physicsQuery.isComplete = 0;
     HavokPhysics_CollisionQueryResult::Reset((HavokPhysics_CollisionQueryResult *)mp_prev[8].mp_prev->mp_next, 1);
     HavokPhysics_IgnoreBodies::Reset((HavokPhysics_IgnoreBodies *)mp_prev[8].mp_prev[1].mp_next);
     mp_prev_high = HIDWORD(mp_prev->mp_prev);
     if ( mp_prev_high != 2047 )
       HavokPhysics_IgnoreBodies::AddIgnoreEntity((HavokPhysics_IgnoreBodies *)mp_prev[8].mp_prev[1].mp_next, mp_prev_high, 1, 1, 0, 1, 1);
-    if ( v6 )
+    if ( v4 )
       HavokPhysics_IgnoreBodies::AddIgnoreEntity((HavokPhysics_IgnoreBodies *)mp_prev[8].mp_prev[1].mp_next, LocalClientGlobals[74], 1, 1, 0, 1, 1);
     extendedData.ignoreBodies = NULL;
     extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-    __asm { vmovss  [rsp+0B8h+extendedData.collisionBuffer], xmm6 }
+    extendedData.collisionBuffer = 0.0;
     extendedData.phaseSelection = All;
     extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
     *(_WORD *)&extendedData.collectInsideHits = 256;
@@ -1723,19 +1588,16 @@ LABEL_67:
     }
     if ( LocalClientGlobals == (int *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
-    v31 = LocalClientGlobals[6757];
+    v28 = LocalClientGlobals[6757];
     if ( LocalClientGlobals == (int *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    LODWORD(start.v[0]) = LocalClientGlobals[6734] ^ ((v31 ^ ((_DWORD)LocalClientGlobals + 26936)) * ((v31 ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
-    LODWORD(start.v[1]) = LocalClientGlobals[6735] ^ ((v31 ^ ((_DWORD)LocalClientGlobals + 26940)) * ((v31 ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
-    LODWORD(start.v[2]) = ((v31 ^ ((_DWORD)LocalClientGlobals + 26944)) * ((v31 ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LocalClientGlobals[6736];
-    Physics_DeferredRaycast((Physics_WorldId)v26, &start, (const vec3_t *)&mp_prev[7], &extendedData, (Physics_DeferredCollisionQueryData *)mp_prev[8].mp_prev);
+    LODWORD(start.v[0]) = LocalClientGlobals[6734] ^ ((v28 ^ ((_DWORD)LocalClientGlobals + 26936)) * ((v28 ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    LODWORD(start.v[1]) = LocalClientGlobals[6735] ^ ((v28 ^ ((_DWORD)LocalClientGlobals + 26940)) * ((v28 ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    LODWORD(start.v[2]) = ((v28 ^ ((_DWORD)LocalClientGlobals + 26944)) * ((v28 ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LocalClientGlobals[6736];
+    Physics_DeferredRaycast((Physics_WorldId)v23, &start, (const vec3_t *)&mp_prev[7], &extendedData, (Physics_DeferredCollisionQueryData *)mp_prev[8].mp_prev);
     m_numActiveRequests = ++this->m_numActiveRequests;
     memset(&start, 0, sizeof(start));
     goto LABEL_97;
   }
-LABEL_98:
-  _R11 = &v38;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 

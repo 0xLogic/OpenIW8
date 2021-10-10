@@ -987,155 +987,102 @@ GScr_GetScriptableArray
 */
 void GScr_GetScriptableArray(scrContext_t *scrContext, const unsigned int begin, const unsigned int end, const int *offset, const scr_string_t name, const vec3_t *fromOrigin, const float radius, const scr_string_t partName)
 {
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
-  const scriptable_field_t *v14; 
-  bool v18; 
-  bool v19; 
-  const char *v21; 
-  ComErrorCode v22; 
-  ScriptableInstance *v23; 
-  int v24; 
-  bool v25; 
-  __int64 v38; 
+  const scriptable_field_t *v12; 
+  const char *v13; 
+  ComErrorCode v14; 
+  ScriptableInstance *v15; 
+  int v16; 
+  bool v17; 
+  const vec3_t *InstanceOrigin; 
+  float v19; 
+  float v20; 
+  __int64 v21; 
   ScriptableInstance *outInstance; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  v10 = end;
-  v11 = begin;
+  v9 = end;
+  v10 = begin;
   if ( begin > end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 357, ASSERT_TYPE_ASSERT, "( begin <= end )", (const char *)&queryFormat, "begin <= end") )
     __debugbreak();
-  _R14 = fromOrigin;
-  v14 = NULL;
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+radius]
-    vmulss  xmm6, xmm0, xmm0
-  }
+  v12 = NULL;
   if ( fromOrigin )
   {
-    __asm
+    *(float *)&outInstance = fromOrigin->v[0];
+    if ( ((unsigned int)outInstance & 0x7F800000) == 2139095040 || (*(float *)&outInstance = fromOrigin->v[1], ((unsigned int)outInstance & 0x7F800000) == 2139095040) || (*(float *)&outInstance = fromOrigin->v[2], ((unsigned int)outInstance & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  dword ptr [rsp+98h+outInstance], xmm0
-    }
-    if ( ((unsigned int)outInstance & 0x7F800000) == 2139095040 )
-      goto LABEL_47;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  dword ptr [rsp+98h+outInstance], xmm0
-    }
-    if ( ((unsigned int)outInstance & 0x7F800000) == 2139095040 )
-      goto LABEL_47;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  dword ptr [rsp+98h+outInstance], xmm0
-    }
-    v18 = ((unsigned int)outInstance & 0x7F800000) < 0x7F800000;
-    if ( ((unsigned int)outInstance & 0x7F800000) == 2139095040 )
-    {
-LABEL_47:
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 364, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )");
-      v18 = 0;
-      if ( v19 )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 364, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )") )
         __debugbreak();
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 365, ASSERT_TYPE_ASSERT, "( radiusSq >= 0 )", (const char *)&queryFormat, "radiusSq >= 0") )
+    if ( (float)(radius * radius) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 365, ASSERT_TYPE_ASSERT, "( radiusSq >= 0 )", (const char *)&queryFormat, "radiusSq >= 0") )
       __debugbreak();
   }
   if ( offset )
   {
     if ( *offset >= 0xCu )
     {
-      LODWORD(v38) = *offset;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 371, ASSERT_TYPE_ASSERT, "(unsigned)( *offset ) < (unsigned)( S_SCRIPTABLE_FIELD_COUNT )", "*offset doesn't index S_SCRIPTABLE_FIELD_COUNT\n\t%i not in [0, %i)", v38, 12) )
+      LODWORD(v21) = *offset;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 371, ASSERT_TYPE_ASSERT, "(unsigned)( *offset ) < (unsigned)( S_SCRIPTABLE_FIELD_COUNT )", "*offset doesn't index S_SCRIPTABLE_FIELD_COUNT\n\t%i not in [0, %i)", v21, 12) )
         __debugbreak();
     }
-    v14 = &s_scriptableFields[*offset];
-    if ( v14->type == F_STRING )
+    v12 = &s_scriptableFields[*offset];
+    if ( v12->type == F_STRING )
     {
-      if ( v14->ofs != -1 )
+      if ( v12->ofs != -1 )
         goto LABEL_22;
-      v21 = "key cannot be used for lookup";
-      v22 = COM_ERR_2780;
+      v13 = "key cannot be used for lookup";
+      v14 = COM_ERR_2780;
     }
     else
     {
-      v21 = "key is not internally a string";
-      v22 = COM_ERR_2779;
+      v13 = "key is not internally a string";
+      v14 = COM_ERR_2779;
     }
-    Scr_ParamError(v22, scrContext, 1u, v21);
+    Scr_ParamError(v14, scrContext, 1u, v13);
   }
 LABEL_22:
   Scr_MakeArray(scrContext);
-  while ( v11 < v10 )
+  while ( v10 < v9 )
   {
-    if ( ScriptableSv_GetInstanceInUse(v11) && ScriptableSv_GetInstanceCommonContext(v11)->linkedObjectType == SCRIPTABLE_LINK_NONE )
+    if ( ScriptableSv_GetInstanceInUse(v10) && ScriptableSv_GetInstanceCommonContext(v10)->linkedObjectType == SCRIPTABLE_LINK_NONE )
     {
       if ( offset )
       {
-        if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 401, ASSERT_TYPE_ASSERT, "( field )", (const char *)&queryFormat, "field") )
+        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 401, ASSERT_TYPE_ASSERT, "( field )", (const char *)&queryFormat, "field") )
           __debugbreak();
-        if ( !ScriptableCommon_GetMapInstance(v11, (const ScriptableInstance **)&outInstance) )
+        if ( !ScriptableCommon_GetMapInstance(v10, (const ScriptableInstance **)&outInstance) )
           goto LABEL_43;
-        v23 = outInstance;
+        v15 = outInstance;
         if ( !outInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_scriptable.cpp", 409, ASSERT_TYPE_ASSERT, "( instance )", (const char *)&queryFormat, "instance") )
           __debugbreak();
-        v24 = *(_DWORD *)((char *)&v23->initialDef + v14->ofs);
-        v10 = end;
-        if ( !v24 )
+        v16 = *(_DWORD *)((char *)&v15->initialDef + v12->ofs);
+        v9 = end;
+        if ( !v16 )
           goto LABEL_43;
-        v25 = v24 == name;
+        v17 = v16 == name;
       }
       else
       {
         if ( !name )
           goto LABEL_38;
-        v25 = ScriptableSv_GetInstanceType(v11) == name;
+        v17 = ScriptableSv_GetInstanceType(v10) == name;
       }
-      if ( v25 )
+      if ( v17 )
       {
 LABEL_38:
-        if ( !fromOrigin )
-          goto LABEL_48;
-        ScriptableSv_GetInstanceOrigin(v11);
-        __asm
+        if ( !fromOrigin || (InstanceOrigin = ScriptableSv_GetInstanceOrigin(v10), v19 = fromOrigin->v[1] - InstanceOrigin->v[1], v20 = fromOrigin->v[2] - InstanceOrigin->v[2], (float)((float)((float)(v19 * v19) + (float)((float)(fromOrigin->v[0] - InstanceOrigin->v[0]) * (float)(fromOrigin->v[0] - InstanceOrigin->v[0]))) + (float)(v20 * v20)) <= (float)(radius * radius)) )
         {
-          vmovss  xmm0, dword ptr [r14]
-          vmovss  xmm1, dword ptr [r14+4]
-          vsubss  xmm3, xmm0, dword ptr [rax]
-          vsubss  xmm2, xmm1, dword ptr [rax+4]
-          vmovss  xmm0, dword ptr [r14+8]
-          vsubss  xmm4, xmm0, dword ptr [rax+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( v18 || v25 )
-        {
-LABEL_48:
-          if ( !partName || ScriptableSv_GetPartScriptedDefFromName(v11, partName, 0) )
+          if ( !partName || ScriptableSv_GetPartScriptedDefFromName(v10, partName, 0) )
           {
-            Scr_AddEntityNum(scrContext, v11, ENTITY_CLASS_SCRIPTABLE);
+            Scr_AddEntityNum(scrContext, v10, ENTITY_CLASS_SCRIPTABLE);
             Scr_AddArray(scrContext);
           }
         }
       }
     }
 LABEL_43:
-    ++v11;
+    ++v10;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -1185,7 +1132,7 @@ void Scr_GetMLGSettings(scrContext_t *scrContext)
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+58h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     DDLContext = GamerProfile_GetDDLContext(Int, MLG_SETTINGS);
     GamerProfile_GetDDLState(&state, Int, MLG_SETTINGS);
     GScr_Main_GetDDL(scrContext, &state, DDLDef, DDLContext, "GetMLGSettings", 1);
@@ -1230,8 +1177,9 @@ void GScr_Spawn(scrContext_t *scrContext)
   scr_string_t ConstString; 
   int v3; 
   int Int; 
-  const char *v9; 
-  const char *v10; 
+  gentity_s *v5; 
+  const char *v6; 
+  const char *v7; 
   vec3_t vectorValue; 
 
   ConstString = Scr_GetConstString(scrContext, 0);
@@ -1243,30 +1191,22 @@ void GScr_Spawn(scrContext_t *scrContext)
     Int = Scr_GetInt(scrContext, 2u);
   if ( Scr_GetNumParam(scrContext) > 3 )
     v3 = Scr_GetInt(scrContext, 3u);
-  _RBX = G_Utils_SpawnEntity();
-  Scr_SetString(&_RBX->script_classname, ConstString);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  dword ptr [rbx+130h], xmm0
-    vmovss  xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  dword ptr [rbx+134h], xmm1
-    vmovss  xmm0, dword ptr [rsp+58h+vectorValue+8]
-    vmovss  dword ptr [rbx+138h], xmm0
-  }
-  _RBX->spawnflags = Int;
-  if ( G_Spawn_CallForEntity(_RBX) )
+  v5 = G_Utils_SpawnEntity();
+  Scr_SetString(&v5->script_classname, ConstString);
+  v5->r.currentOrigin = vectorValue;
+  v5->spawnflags = Int;
+  if ( G_Spawn_CallForEntity(v5) )
   {
     if ( v3 == 1 )
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0);
-    GScr_AddEntity(_RBX);
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v5->s.lerp.eFlags, ACTIVE, 0);
+    GScr_AddEntity(v5);
   }
   else
   {
-    G_FreeEntity(_RBX);
-    v9 = SL_ConvertToString(ConstString);
-    v10 = j_va("unable to spawn \"%s\" entity", v9);
-    Scr_Error(COM_ERR_4111, scrContext, v10);
+    G_FreeEntity(v5);
+    v6 = SL_ConvertToString(ConstString);
+    v7 = j_va("unable to spawn \"%s\" entity", v6);
+    Scr_Error(COM_ERR_4111, scrContext, v7);
   }
 }
 
@@ -1381,6 +1321,7 @@ void GScr_Turret_Spawn(scrContext_t *scrContext)
 {
   int Int; 
   scr_string_t ConstString; 
+  gentity_s *v4; 
   bool outIsAlternate; 
   vec3_t vectorValue; 
   Weapon outWeapon; 
@@ -1389,22 +1330,14 @@ void GScr_Turret_Spawn(scrContext_t *scrContext)
   ConstString = Scr_GetConstString(scrContext, 0);
   Scr_GetVector(scrContext, 1u, &vectorValue);
   GScr_Main_GetWeaponParam(scrContext, 2u, &outWeapon, &outIsAlternate);
-  _RDI = G_Utils_SpawnEntity();
-  Scr_SetString(&_RDI->classname, ConstString);
-  Scr_SetString(&_RDI->script_classname, ConstString);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue]
-    vmovss  dword ptr [rdi+130h], xmm0
-    vmovss  xmm1, dword ptr [rsp+88h+vectorValue+4]
-    vmovss  dword ptr [rdi+134h], xmm1
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue+8]
-    vmovss  dword ptr [rdi+138h], xmm0
-  }
+  v4 = G_Utils_SpawnEntity();
+  Scr_SetString(&v4->classname, ConstString);
+  Scr_SetString(&v4->script_classname, ConstString);
+  v4->r.currentOrigin = vectorValue;
   if ( Scr_GetNumParam(scrContext) > 3 )
     Int = Scr_GetInt(scrContext, 3u);
-  G_Turret_Spawn(scrContext, _RDI, &outWeapon, Int);
-  GScr_AddEntity(_RDI);
+  G_Turret_Spawn(scrContext, v4, &outWeapon, Int);
+  GScr_AddEntity(v4);
 }
 
 /*
@@ -1784,33 +1717,32 @@ ScrCmd_getShieldMaxEnergy
 void ScrCmd_getShieldMaxEnergy(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
-  ComErrorCode v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v6 = "not an entity";
-    v7 = COM_ERR_3682;
+    v5 = "not an entity";
+    v6 = COM_ERR_3682;
 LABEL_9:
-    Scr_ObjectError(v7, scrContext, v6);
+    Scr_ObjectError(v6, scrContext, v5);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 7151, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     goto LABEL_11;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 7150, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  if ( !v5->client && !v5->agent )
+  v4 = &g_entities[entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v6 = j_va("entity %i is not a player or agent", entnum);
-    v7 = COM_ERR_3679;
+    v5 = j_va("entity %i is not a player or agent", entnum);
+    v6 = COM_ERR_3679;
     goto LABEL_9;
   }
 LABEL_11:
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, 0.0);
 }
 
 /*
@@ -2101,33 +2033,32 @@ ScrCmd_getShieldCurrentEnergy
 void ScrCmd_getShieldCurrentEnergy(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
-  ComErrorCode v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v6 = "not an entity";
-    v7 = COM_ERR_3682;
+    v5 = "not an entity";
+    v6 = COM_ERR_3682;
 LABEL_9:
-    Scr_ObjectError(v7, scrContext, v6);
+    Scr_ObjectError(v6, scrContext, v5);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 7588, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     goto LABEL_11;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 7587, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  if ( !v5->client && !v5->agent )
+  v4 = &g_entities[entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v6 = j_va("entity %i is not a player or agent", entnum);
-    v7 = COM_ERR_3679;
+    v5 = j_va("entity %i is not a player or agent", entnum);
+    v6 = COM_ERR_3679;
     goto LABEL_9;
   }
 LABEL_11:
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, 0.0);
 }
 
 /*
@@ -2270,13 +2201,13 @@ void ScrCmd_SetAudioTriggerState(scrContext_t *scrContext)
 {
   unsigned int NumParam; 
   const char *String; 
-  const char *v5; 
+  const char *v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  const char *v11; 
-  double v12; 
+  double Float; 
+  const char *v10; 
 
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam - 2 > 1 )
@@ -2286,34 +2217,29 @@ void ScrCmd_SetAudioTriggerState(scrContext_t *scrContext)
   else
   {
     String = Scr_GetString(scrContext, 0);
-    v5 = Scr_GetString(scrContext, 1u);
-    v6 = SND_HashName(String);
-    v7 = SND_HashName(v5);
+    v4 = Scr_GetString(scrContext, 1u);
+    v5 = SND_HashName(String);
+    v6 = SND_HashName(v4);
     if ( !CG_CheckAudioStateId(String) )
     {
-      v8 = j_va("SetAudioZoneState: Bad state id name: %s\n", String);
-      Scr_Error(COM_ERR_4722, scrContext, v8);
+      v7 = j_va("SetAudioZoneState: Bad state id name: %s\n", String);
+      Scr_Error(COM_ERR_4722, scrContext, v7);
     }
-    if ( !SV_CheckAudioStateName(v5) )
+    if ( !SV_CheckAudioStateName(v4) )
     {
-      v9 = j_va("SetAudioZoneState: Bad state name: %s\n", v5);
-      Scr_Error(COM_ERR_4723, scrContext, v9);
+      v8 = j_va("SetAudioZoneState: Bad state name: %s\n", v4);
+      Scr_Error(COM_ERR_4723, scrContext, v8);
     }
     if ( NumParam == 3 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+48h+var_20], xmm1
-      }
-      v11 = j_va("%c %c %x %x %g", 109i64, 97i64, v6, v7, v12);
+      Float = Scr_GetFloat(scrContext, 2u);
+      v10 = j_va("%c %c %x %x %g", 109i64, 97i64, v5, v6, *(float *)&Float);
     }
     else
     {
-      v11 = j_va("%c %c %x %x", 109i64, 97i64, v6, v7);
+      v10 = j_va("%c %c %x %x", 109i64, 97i64, v5, v6);
     }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v10);
   }
 }
 
@@ -2431,11 +2357,11 @@ void ScrCmd_SetGlobalSoundContext(scrContext_t *scrContext)
 {
   unsigned int NumParam; 
   const char *String; 
-  const char *v5; 
+  const char *v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  const char *v9; 
-  double v10; 
+  double Float; 
+  const char *v8; 
 
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam - 2 > 1 )
@@ -2445,27 +2371,22 @@ void ScrCmd_SetGlobalSoundContext(scrContext_t *scrContext)
   else
   {
     String = Scr_GetString(scrContext, 0);
-    v5 = Scr_GetString(scrContext, 1u);
-    v6 = SND_HashName(String);
-    if ( *v5 )
-      v7 = SND_HashName(v5);
+    v4 = Scr_GetString(scrContext, 1u);
+    v5 = SND_HashName(String);
+    if ( *v4 )
+      v6 = SND_HashName(v4);
     else
-      v7 = 0;
+      v6 = 0;
     if ( NumParam == 3 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+38h+var_10], xmm1
-      }
-      v9 = j_va("%c %c %x %x %g", 105i64, 98i64, v6, v7, v10);
+      Float = Scr_GetFloat(scrContext, 2u);
+      v8 = j_va("%c %c %x %x %g", 105i64, 98i64, v5, v6, *(float *)&Float);
     }
     else
     {
-      v9 = j_va("%c %c %x %x", 105i64, 98i64, v6, v7);
+      v8 = j_va("%c %c %x %x", 105i64, 98i64, v5, v6);
     }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -2877,11 +2798,11 @@ void GScr_AIAnimsetGetAlias(scrContext_t *scrContext)
   unsigned int v13; 
   AnimsetAlias_Union v14; 
   unsigned int CanonicalString; 
-  AnimsetAlias *v19; 
+  AnimsetAlias *v16; 
   unsigned int i; 
-  unsigned int v21; 
-  AnimsetAlias *v22; 
-  unsigned int v26; 
+  unsigned int v18; 
+  AnimsetAlias *v19; 
+  unsigned int v20; 
   AnimsetAlias *outAlias; 
 
   if ( Scr_GetNumParam(scrContext) != 4 )
@@ -2917,8 +2838,8 @@ LABEL_22:
         Scr_AddStructField(scrContext, CanonicalString);
         Scr_AddUndefined(scrContext);
 LABEL_28:
-        v26 = SL_GetCanonicalString("weights");
-        Scr_AddStructField(scrContext, v26);
+        v20 = SL_GetCanonicalString("weights");
+        Scr_AddStructField(scrContext, v20);
         Sys_ProfEndNamedEvent();
         return;
       }
@@ -2941,10 +2862,7 @@ LABEL_28:
         {
           do
           {
-            _RCX = 3i64 * v6;
-            _RAX = v14.m_AIAnimsetAlias->redAnims;
-            __asm { vmovss  xmm1, dword ptr [rax+rcx*8+4]; value }
-            Scr_AddFloat(scrContext, *(float *)&_XMM1);
+            Scr_AddFloat(scrContext, v14.m_AIAnimsetAlias->redAnims[v6].weight);
             Scr_AddArray(scrContext);
             ++v6;
             v14.m_AIAnimsetAlias = (AIAnimsetAlias *)outAlias->u;
@@ -2964,27 +2882,24 @@ LABEL_28:
     {
       Scr_MakeStruct(scrContext);
       Scr_MakeArray(scrContext);
-      v19 = outAlias;
+      v16 = outAlias;
       for ( i = 0; i < outAlias->numAnims; ++i )
       {
-        Scr_AddAnim(scrContext, v19->anims[i].anim);
+        Scr_AddAnim(scrContext, v16->anims[i].anim);
         Scr_AddArray(scrContext);
-        v19 = outAlias;
+        v16 = outAlias;
       }
-      v21 = SL_GetCanonicalString("anims");
-      Scr_AddStructField(scrContext, v21);
+      v18 = SL_GetCanonicalString("anims");
+      Scr_AddStructField(scrContext, v18);
       Scr_MakeArray(scrContext);
-      v22 = outAlias;
+      v19 = outAlias;
       if ( outAlias->numAnims )
       {
         do
         {
-          _RCX = 3i64 * v6;
-          _RAX = v22->anims;
-          __asm { vmovss  xmm1, dword ptr [rax+rcx*8+4]; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, v19->anims[v6].weight);
           Scr_AddArray(scrContext);
-          v22 = outAlias;
+          v19 = outAlias;
           ++v6;
         }
         while ( v6 < outAlias->numAnims );
@@ -3124,29 +3039,27 @@ void ScrCmd_hideallparts(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   DObj *ServerDObjForEnt; 
-  unsigned int v7; 
+  unsigned int v5; 
+  DObjPartBits *p_partBits; 
   DObjPartBits partBits; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   Entity = GetEntity(entref);
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
   if ( !ServerDObjForEnt )
     Scr_Error(COM_ERR_4150, scrContext, "entity has no model");
-  __asm { vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff }
-  v7 = 0;
-  _RDI = &partBits;
+  v5 = 0;
+  p_partBits = &partBits;
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
-    ++v7;
+    *(_OWORD *)p_partBits->array = _xmm_ffffffffffffffffffffffffffffffff;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
+    ++v5;
   }
-  while ( v7 < 2 );
+  while ( v5 < 2 );
   DObjSetHidePartBits(ServerDObjForEnt, &partBits);
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
   GUtils::ms_gUtils->EntityStateSetPartBits(GUtils::ms_gUtils, Entity, &partBits);
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -3290,20 +3203,20 @@ void ScrCmd_showallparts(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *Entity; 
   DObj *ServerDObjForEnt; 
   unsigned int v6; 
+  DObjPartBits *p_partBits; 
   DObjPartBits partBits; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   Entity = GetEntity(entref);
   ServerDObjForEnt = Com_GetServerDObjForEnt(Entity);
   if ( !ServerDObjForEnt )
     Scr_Error(COM_ERR_4154, scrContext, "entity has no model");
   v6 = 0;
-  _RDI = &partBits;
+  p_partBits = &partBits;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
+    *(_OWORD *)p_partBits->array = _XMM6;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
     ++v6;
   }
   while ( v6 < 2 );
@@ -3311,7 +3224,6 @@ void ScrCmd_showallparts(scrContext_t *scrContext, scr_entref_t entref)
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
   GUtils::ms_gUtils->EntityStateSetPartBits(GUtils::ms_gUtils, Entity, &partBits);
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -3322,67 +3234,48 @@ ScrCmd_SetMoveSpeedScale
 void ScrCmd_SetMoveSpeedScale(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
+  gentity_s *v4; 
+  const char *v5; 
+  double Float; 
   const char *v7; 
-  char v9; 
-  char v10; 
-  const char *v13; 
   gagent_s *agent; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 8134, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client && !v6->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v7);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float > 5.0 )
   {
-    vcomiss xmm0, cs:__real@40a00000
-    vmovaps xmm6, xmm0
+    v7 = j_va("Value %f is greater than SPEED_SCALE_MULTIPLIER_MAX_SIZE, please increase define.", *(float *)&Float);
+    Scr_Error(COM_ERR_4155, scrContext, v7);
   }
-  if ( !(v9 | v10) )
+  if ( G_Utils_IsAgent(v4) )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v13 = j_va("Value %f is greater than SPEED_SCALE_MULTIPLIER_MAX_SIZE, please increase define.", _RDX);
-    Scr_Error(COM_ERR_4155, scrContext, v13);
-  }
-  if ( G_Utils_IsAgent(v6) )
-  {
-    agent = v6->agent;
+    agent = v4->agent;
     if ( !agent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerstate.h", 1145, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40a00000; maxAbsValueSize
-      vmovaps xmm0, xmm6; value
-    }
-    agent->playerState.moveSpeedScaleMultiplier = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0xCu);
+    agent->playerState.moveSpeedScaleMultiplier = MSG_PackUnsignedFloat(*(float *)&Float, 5.0, 0xCu);
   }
   else
   {
-    if ( !v6->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 8150, ASSERT_TYPE_ASSERT, "( pSelf->client )", (const char *)&queryFormat, "pSelf->client") )
+    if ( !v4->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 8150, ASSERT_TYPE_ASSERT, "( pSelf->client )", (const char *)&queryFormat, "pSelf->client") )
       __debugbreak();
-    _RAX = v6->client;
-    __asm { vmovss  dword ptr [rax+55C4h], xmm6 }
+    v4->client->sess.moveSpeedScaleMultiplier = *(float *)&Float;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -3448,39 +3341,40 @@ void GScr_AIAnimsetGetAliases(scrContext_t *scrContext)
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
   ntl::red_black_tree_node_base *v17; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
   ntl::red_black_tree_node_base *mp_right; 
   ntl::red_black_tree_node_base *j; 
-  ntl::red_black_tree_node_base *v23; 
-  ntl::red_black_tree_node_base *v24; 
+  ntl::red_black_tree_node_base *v21; 
+  ntl::red_black_tree_node_base *v22; 
   AnimsetState *outState; 
   ntl::pair<enum scr_string_t,bool> r_element; 
-  scrContext_t *v27; 
-  __m256i v28; 
-  ntl::pair<enum scr_string_t,bool> v29; 
-  __int64 v30; 
+  scrContext_t *v25; 
+  __m256i v26; 
+  double v27; 
+  __int64 v28; 
   ntl::red_black_tree_iterator<enum scr_string_t,ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool> >,ntl::pair<enum scr_string_t,bool> *,ntl::pair<enum scr_string_t,bool> &> result; 
-  ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool> >,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t> > v32; 
+  ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool> >,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t> > v30; 
 
-  v30 = -2i64;
+  v28 = -2i64;
   v2 = scrContext;
-  v27 = scrContext;
-  p_m_freelist = &v32.m_freelist;
-  v4 = &v32.m_data.m_buffer[163800];
+  v25 = scrContext;
+  p_m_freelist = &v30.m_freelist;
+  v4 = &v30.m_data.m_buffer[163800];
   do
   {
     *(_QWORD *)v4 = p_m_freelist;
     p_m_freelist = (ntl::internal::pool_allocator_freelist<40> *)v4;
     v4 -= 40;
   }
-  while ( v4 + 40 > (char *)&v32 );
-  v32.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
+  while ( v4 + 40 > (char *)&v30 );
+  v30.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
   if ( !p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v32.m_size = 0i64;
-  v32.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v32.m_endNodeBase.mp_parent = NULL;
-  v32.m_endNodeBase.mp_left = &v32.m_endNodeBase;
-  v32.m_endNodeBase.mp_right = &v32.m_endNodeBase;
+  v30.m_size = 0i64;
+  v30.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v30.m_endNodeBase.mp_parent = NULL;
+  v30.m_endNodeBase.mp_left = &v30.m_endNodeBase;
+  v30.m_endNodeBase.mp_right = &v30.m_endNodeBase;
   if ( Scr_GetNumParam(v2) != 2 )
   {
     Scr_Error(COM_ERR_4738, v2, "ArchetypeGetAliases called with incorrect number of parameters.");
@@ -3503,9 +3397,9 @@ void GScr_AIAnimsetGetAliases(scrContext_t *scrContext)
         name = outState->animAliases[v7].name;
         if ( !name )
           goto LABEL_70;
-        p_m_endNodeBase = &v32.m_endNodeBase;
-        mp_parent = v32.m_endNodeBase.mp_parent;
-        if ( v32.m_endNodeBase.mp_parent )
+        p_m_endNodeBase = &v30.m_endNodeBase;
+        mp_parent = v30.m_endNodeBase.mp_parent;
+        if ( v30.m_endNodeBase.mp_parent )
         {
           do
           {
@@ -3520,20 +3414,20 @@ void GScr_AIAnimsetGetAliases(scrContext_t *scrContext)
             }
           }
           while ( mp_parent );
-          if ( p_m_endNodeBase != &v32.m_endNodeBase )
+          if ( p_m_endNodeBase != &v30.m_endNodeBase )
           {
-            v11 = &v32.m_endNodeBase;
+            v11 = &v30.m_endNodeBase;
             if ( name >= p_m_endNodeBase[1].m_color )
               v11 = p_m_endNodeBase;
             p_m_endNodeBase = v11;
           }
         }
-        if ( p_m_endNodeBase != &v32.m_endNodeBase )
+        if ( p_m_endNodeBase != &v30.m_endNodeBase )
           goto LABEL_70;
         r_element.first = outState->animAliases[v7].name;
         r_element.second = 1;
-        v12 = &v32.m_endNodeBase;
-        v13 = v32.m_endNodeBase.mp_parent;
+        v12 = &v30.m_endNodeBase;
+        v13 = v30.m_endNodeBase.mp_parent;
         v14 = 1;
         while ( v13 )
         {
@@ -3547,13 +3441,13 @@ void GScr_AIAnimsetGetAliases(scrContext_t *scrContext)
         mp_left = v12;
         if ( !v14 )
           goto LABEL_45;
-        if ( v12 != v32.m_endNodeBase.mp_left )
+        if ( v12 != v30.m_endNodeBase.mp_left )
           break;
-        ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool>>,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t>>::insert_node(&v32, &result, v12, &r_element, 1, 0);
+        ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool>>,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t>>::insert_node(&v30, &result, v12, &r_element, 1, 0);
 LABEL_70:
         if ( ++v7 >= outState->numAnimAliases )
         {
-          v2 = v27;
+          v2 = v25;
           goto LABEL_72;
         }
       }
@@ -3592,67 +3486,59 @@ LABEL_45:
       {
         if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
           __debugbreak();
-        if ( !v32.m_freelist.m_head.mp_next )
+        if ( !v30.m_freelist.m_head.mp_next )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
             __debugbreak();
-          if ( !v32.m_freelist.m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+          if ( !v30.m_freelist.m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
             __debugbreak();
         }
-        if ( (ntl::internal::pool_allocator_freelist<40> *)v32.m_freelist.m_head.mp_next == &v32.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 0x1000ui64) )
+        if ( (ntl::internal::pool_allocator_freelist<40> *)v30.m_freelist.m_head.mp_next == &v30.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 0x1000ui64) )
           __debugbreak();
-        _RCX = v32.m_freelist.m_head.mp_next;
-        v32.m_freelist.m_head.mp_next = v32.m_freelist.m_head.mp_next->mp_next;
-        v28.m256i_i32[0] = 0;
-        v28.m256i_i64[1] = (__int64)v12;
-        __asm
+        mp_next = v30.m_freelist.m_head.mp_next;
+        v30.m_freelist.m_head.mp_next = v30.m_freelist.m_head.mp_next->mp_next;
+        v26.m256i_i32[0] = 0;
+        v26.m256i_i64[1] = (__int64)v12;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v26.m256i_u64[2] = _XMM0;
+        v27 = *(double *)&r_element;
+        *(__m256i *)&mp_next->mp_next = v26;
+        *(double *)&mp_next[4].mp_next = v27;
+        if ( v12 == &v30.m_endNodeBase )
         {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+28100h+var_280A0+10h], xmm0
-        }
-        v29 = r_element;
-        __asm
-        {
-          vmovups ymm0, [rsp+28100h+var_280A0]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovsd  xmm1, [rbp+28000h+var_28080]
-          vmovsd  qword ptr [rcx+20h], xmm1
-        }
-        if ( v12 == &v32.m_endNodeBase )
-        {
-          v32.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
-          v32.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RCX;
-          v32.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RCX;
+          v30.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+          v30.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
+          v30.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
         }
         else if ( name >= v12[1].m_color )
         {
-          v12->mp_right = (ntl::red_black_tree_node_base *)_RCX;
-          mp_right = v32.m_endNodeBase.mp_right;
-          if ( v12 == v32.m_endNodeBase.mp_right )
-            mp_right = (ntl::red_black_tree_node_base *)_RCX;
-          v32.m_endNodeBase.mp_right = mp_right;
+          v12->mp_right = (ntl::red_black_tree_node_base *)mp_next;
+          mp_right = v30.m_endNodeBase.mp_right;
+          if ( v12 == v30.m_endNodeBase.mp_right )
+            mp_right = (ntl::red_black_tree_node_base *)mp_next;
+          v30.m_endNodeBase.mp_right = mp_right;
         }
         else
         {
-          v12->mp_left = (ntl::red_black_tree_node_base *)_RCX;
-          if ( v12 == v32.m_endNodeBase.mp_left )
-            v32.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
+          v12->mp_left = (ntl::red_black_tree_node_base *)mp_next;
+          if ( v12 == v30.m_endNodeBase.mp_left )
+            v30.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
         }
-        ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RCX, &v32.m_endNodeBase.mp_parent);
-        ++v32.m_size;
+        ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &v30.m_endNodeBase.mp_parent);
+        ++v30.m_size;
       }
       goto LABEL_70;
     }
   }
 LABEL_72:
-  if ( !v32.m_size )
+  if ( !v30.m_size )
   {
 LABEL_79:
     Scr_AddUndefined(v2);
     goto LABEL_80;
   }
   Scr_MakeArray(v2);
-  for ( j = v32.m_endNodeBase.mp_left; j != &v32.m_endNodeBase; j = ntl::red_black_tree_node_base::get_next(j) )
+  for ( j = v30.m_endNodeBase.mp_left; j != &v30.m_endNodeBase; j = ntl::red_black_tree_node_base::get_next(j) )
   {
     if ( !j && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
@@ -3660,20 +3546,20 @@ LABEL_79:
     Scr_AddArray(v2);
   }
 LABEL_80:
-  if ( v32.m_size )
+  if ( v30.m_size )
   {
-    v23 = v32.m_endNodeBase.mp_parent;
-    if ( v32.m_endNodeBase.mp_parent )
+    v21 = v30.m_endNodeBase.mp_parent;
+    if ( v30.m_endNodeBase.mp_parent )
     {
       do
       {
-        ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool>>,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t>>::erase_tree(&v32, (ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool> > *)v23->mp_right);
-        v24 = v23->mp_left;
-        *(_QWORD *)&v23->m_color = v32.m_freelist.m_head.mp_next;
-        v32.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v23;
-        v23 = v24;
+        ntl::red_black_tree<enum scr_string_t,ntl::pair<enum scr_string_t,bool>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool>>,4096,8>,ntl::return_pair_first<enum scr_string_t,bool>,ntl::less<enum scr_string_t,enum scr_string_t>>::erase_tree(&v30, (ntl::red_black_tree_node<ntl::pair<enum scr_string_t,bool> > *)v21->mp_right);
+        v22 = v21->mp_left;
+        *(_QWORD *)&v21->m_color = v30.m_freelist.m_head.mp_next;
+        v30.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v21;
+        v21 = v22;
       }
-      while ( v24 );
+      while ( v22 );
     }
   }
 }
@@ -4211,147 +4097,117 @@ ScrCmd_PlayerLinkToBlend
 */
 void ScrCmd_PlayerLinkToBlend(scrContext_t *scrContext, scr_entref_t entref)
 {
-  scr_string_t v6; 
+  scr_string_t v2; 
   unsigned int entnum; 
-  const char *v10; 
+  gentity_s *v5; 
+  const char *v6; 
   int NumParam; 
   gentity_s *Entity; 
   scr_string_t ConstLowercaseString; 
+  double Float; 
+  float v11; 
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
   gclient_s *client; 
-  gclient_s *v25; 
-  const char *v28; 
+  gclient_s *v17; 
+  const char *v18; 
   float totalTime; 
   vec3_t inOutViewAngles; 
   char outErrorMessage[256]; 
-  char v35; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  v6 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    _RDI = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9135, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    if ( !_RDI->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
-      v10 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v10);
+      v6 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
     }
   }
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam < 1 )
     Scr_Error(COM_ERR_4189, scrContext, "Not enough parameters.\n");
-  if ( (_RDI->flags.m_flags[0] & 0x200) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9141, ASSERT_TYPE_ASSERT, "( pSelf->flags.TestFlag( BgEntityFlagsCommon::SUPPORTS_LINKTO ) )", (const char *)&queryFormat, "pSelf->flags.TestFlag( BgEntityFlagsCommon::SUPPORTS_LINKTO )") )
+  if ( (v5->flags.m_flags[0] & 0x200) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9141, ASSERT_TYPE_ASSERT, "( pSelf->flags.TestFlag( BgEntityFlagsCommon::SUPPORTS_LINKTO ) )", (const char *)&queryFormat, "pSelf->flags.TestFlag( BgEntityFlagsCommon::SUPPORTS_LINKTO )") )
     __debugbreak();
-  if ( WorldUpReferenceFrame::HasValidWorldUpInPs(&_RDI->client->ps) )
-    ScrCmd_Unlink_Internal(_RDI, 1);
+  if ( WorldUpReferenceFrame::HasValidWorldUpInPs(&v5->client->ps) )
+    ScrCmd_Unlink_Internal(v5, 1);
   Entity = GScr_GetEntity(0);
   if ( NumParam > 1 && Scr_GetType(scrContext, 1u) )
   {
     ConstLowercaseString = Scr_GetConstLowercaseString(scrContext, 1u);
     if ( ConstLowercaseString == scr_const._ )
       ConstLowercaseString = 0;
-    v6 = ConstLowercaseString;
+    v2 = ConstLowercaseString;
   }
   if ( NumParam <= 2 )
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    *(float *)&Float = FLOAT_1_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovss  [rsp+198h+totalTime], xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
+    Float = Scr_GetFloat(scrContext, 2u);
+  totalTime = *(float *)&Float;
+  v11 = 0.0;
   if ( NumParam <= 3 )
   {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v13 = 0.0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm7, xmm0 }
+    v12 = Scr_GetFloat(scrContext, 3u);
+    v13 = *(float *)&v12;
   }
   if ( NumParam > 4 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm { vmovaps xmm6, xmm0 }
+    v14 = Scr_GetFloat(scrContext, 4u);
+    v11 = *(float *)&v14;
   }
-  __asm
+  CheckTimes(scrContext, &totalTime, v13, v11);
+  inOutViewAngles = v5->client->ps.viewangles;
+  if ( v5->tagInfo )
+    BG_ApplyLinkAngles(&v5->client->ps.linkAngles, &inOutViewAngles);
+  AnglesToQuat(&inOutViewAngles, &v5->c.blend.viewQuat);
+  v15 = totalTime;
+  v5->c.item[0].ammoCount = LODWORD(v5->r.currentOrigin.v[0]);
+  v5->c.item[0].clipAmmoCount[0] = LODWORD(v5->r.currentOrigin.v[1]);
+  v5->c.item[0].clipAmmoCount[1] = LODWORD(v5->r.currentOrigin.v[2]);
+  client = v5->client;
+  v5->c.spawner.count = LODWORD(client->ps.velocity.v[0]);
+  v5->c.mover.pos.pos1.v[1] = client->ps.velocity.v[1];
+  v5->c.mover.pos.pos1.v[2] = client->ps.velocity.v[2];
+  v17 = v5->client;
+  v5->c.mover.pos.pos3.v[1] = v13;
+  v5->c.mover.pos.pos3.v[2] = v11;
+  v5->c.mover.angle.speed = v15;
+  v5->c.mover.angle.decelTime = (float)level.time * 0.001;
+  v5->c.item[0].weapon.attachmentVariationIndices[19] = 1;
+  v5->c.blend.platformEnt = truncate_cast<unsigned short,int>(v17->ps.movingPlatforms.m_movingPlatformEntity);
+  v5->client->linkAnglesFrac = 1.0;
+  v5->client->link_rotationMovesEyePos = 1;
+  v5->client->link_useTagAnglesForViewAngles = 1;
+  v5->client->link_useBaseAnglesForViewClamp = 0;
+  v5->client->link_useTagScriptedCamera = 0;
+  v5->client->prevLinkAnglesSet = 0;
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&v5->client->ps.linkFlags, ACTIVE, 0);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&v5->client->ps.linkFlags, ACTIVE, 2u);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&v5->client->ps.linkFlags, GameModeFlagValues::ms_spValue, 8u);
+  if ( G_EntLinkTo(v5, Entity, v2, 256, outErrorMessage) )
   {
-    vmovaps xmm3, xmm6; decelTime
-    vmovaps xmm2, xmm7; accelTime
-  }
-  CheckTimes(scrContext, &totalTime, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RAX = _RDI->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+1D8h]
-    vmovss  dword ptr [rsp+198h+inOutViewAngles], xmm0
-    vmovss  xmm1, dword ptr [rax+1DCh]
-    vmovss  dword ptr [rsp+198h+inOutViewAngles+4], xmm1
-    vmovss  xmm0, dword ptr [rax+1E0h]
-    vmovss  dword ptr [rsp+198h+inOutViewAngles+8], xmm0
-  }
-  if ( _RDI->tagInfo )
-    BG_ApplyLinkAngles(&_RDI->client->ps.linkAngles, &inOutViewAngles);
-  AnglesToQuat(&inOutViewAngles, &_RDI->c.blend.viewQuat);
-  __asm { vmovss  xmm0, [rsp+198h+totalTime] }
-  _RDI->c.item[0].ammoCount = LODWORD(_RDI->r.currentOrigin.v[0]);
-  _RDI->c.item[0].clipAmmoCount[0] = LODWORD(_RDI->r.currentOrigin.v[1]);
-  _RDI->c.item[0].clipAmmoCount[1] = LODWORD(_RDI->r.currentOrigin.v[2]);
-  client = _RDI->client;
-  __asm { vxorps  xmm1, xmm1, xmm1 }
-  _RDI->c.spawner.count = LODWORD(client->ps.velocity.v[0]);
-  _RDI->c.mover.pos.pos1.v[1] = client->ps.velocity.v[1];
-  _RDI->c.mover.pos.pos1.v[2] = client->ps.velocity.v[2];
-  v25 = _RDI->client;
-  __asm
-  {
-    vmovss  dword ptr [rdi+1E8h], xmm7
-    vmovss  dword ptr [rdi+1ECh], xmm6
-    vmovss  dword ptr [rdi+1F4h], xmm0
-    vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.time; level_locals_t level
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vmovss  dword ptr [rdi+1F0h], xmm2
-  }
-  _RDI->c.item[0].weapon.attachmentVariationIndices[19] = 1;
-  _RDI->c.blend.platformEnt = truncate_cast<unsigned short,int>(v25->ps.movingPlatforms.m_movingPlatformEntity);
-  _RDI->client->linkAnglesFrac = 1.0;
-  _RDI->client->link_rotationMovesEyePos = 1;
-  _RDI->client->link_useTagAnglesForViewAngles = 1;
-  _RDI->client->link_useBaseAnglesForViewClamp = 0;
-  _RDI->client->link_useTagScriptedCamera = 0;
-  _RDI->client->prevLinkAnglesSet = 0;
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RDI->client->ps.linkFlags, ACTIVE, 0);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RDI->client->ps.linkFlags, ACTIVE, 2u);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RDI->client->ps.linkFlags, GameModeFlagValues::ms_spValue, 8u);
-  if ( G_EntLinkTo(_RDI, Entity, v6, 256, outErrorMessage) )
-  {
-    _RDI->tagInfo->blendToParent = 1;
-    G_InitPlayerLinkAngles(_RDI);
+    v5->tagInfo->blendToParent = 1;
+    G_InitPlayerLinkAngles(v5);
   }
   else
   {
-    v28 = j_va("failed to link entity %i to entity %i: %s", (unsigned int)_RDI->s.number, (unsigned int)Entity->s.number, outErrorMessage);
-    Scr_Error(COM_ERR_4190, scrContext, v28);
-  }
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v18 = j_va("failed to link entity %i to entity %i: %s", (unsigned int)v5->s.number, (unsigned int)Entity->s.number, outErrorMessage);
+    Scr_Error(COM_ERR_4190, scrContext, v18);
   }
 }
 
@@ -4363,143 +4219,100 @@ ScrCmd_LerpViewAngleClamp
 void ScrCmd_LerpViewAngleClamp(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v14; 
-  const char *v15; 
+  gentity_s *v4; 
+  const char *v5; 
   int NumParam; 
+  double Float; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  double v19; 
+  float v20; 
+  double v21; 
+  double v22; 
   gclient_s *client; 
-  __int128 v48; 
-  char v49; 
-  void *retaddr; 
+  float v24; 
+  __int64 p_link_viewClamp; 
   float totalTime; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
   entnum = entref.entnum;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0B8h+var_88], xmm12
-  }
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v14 = NULL;
+    v4 = NULL;
   }
   else
   {
-    if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9259, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES", v48) )
+    if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9259, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v14 = &g_entities[entnum];
-    if ( !v14->client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v15 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v15);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam < 7 )
     Scr_Error(COM_ERR_4191, scrContext, "Incorrect number of parameters.  See script docs.\n");
-  if ( (NumParam <= 7 || !Scr_GetInt(scrContext, 7u)) && !BG_IsPlayerLinked(&v14->client->ps) && (v14->client->ps.linkFlags.m_flags[0] & 4) == 0 )
+  if ( (NumParam <= 7 || !Scr_GetInt(scrContext, 7u)) && !BG_IsPlayerLinked(&v4->client->ps) && (v4->client->ps.linkFlags.m_flags[0] & 4) == 0 )
     Scr_Error(COM_ERR_4192, scrContext, "Must be linked to an entity.\n");
-  if ( (v14->client->ps.linkFlags.m_flags[0] & 1) != 0 )
+  if ( (v4->client->ps.linkFlags.m_flags[0] & 1) != 0 )
     Scr_Error(COM_ERR_4193, scrContext, "Angle locked to linked entity.  View clamp is 0.\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovss  [rsp+0B8h+totalTime], xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm3, xmm0; decelTime
-    vmovaps xmm2, xmm8; accelTime
-    vmovaps xmm9, xmm0
-  }
-  CheckTimes(scrContext, &totalTime, *(float *)&_XMM2, *(float *)&_XMM3);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@43340000
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vxorps  xmm10, xmm0, cs:__xmm@80000000800000008000000080000000 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm11, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vxorps  xmm12, xmm0, cs:__xmm@80000000800000008000000080000000 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm7, xmm0 }
+  Float = Scr_GetFloat(scrContext, 0);
+  totalTime = *(float *)&Float;
+  v8 = Scr_GetFloat(scrContext, 1u);
+  v9 = *(float *)&v8;
+  v10 = Scr_GetFloat(scrContext, 2u);
+  v11 = *(float *)&v10;
+  CheckTimes(scrContext, &totalTime, v9, *(float *)&v10);
+  v12 = Scr_GetFloat(scrContext, 3u);
+  v13 = I_fclamp(*(float *)&v12, 0.0, 180.0);
+  LODWORD(v14) = LODWORD(v13) ^ _xmm;
+  v15 = Scr_GetFloat(scrContext, 4u);
+  v16 = I_fclamp(*(float *)&v15, 0.0, 180.0);
+  v17 = *(float *)&v16;
+  v18 = Scr_GetFloat(scrContext, 5u);
+  v19 = I_fclamp(*(float *)&v18, 0.0, 180.0);
+  LODWORD(v20) = LODWORD(v19) ^ _xmm;
+  v21 = Scr_GetFloat(scrContext, 6u);
+  v22 = I_fclamp(*(float *)&v21, 0.0, 180.0);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
   {
-    client = v14->client;
+    client = v4->client;
     client->link_viewClamp.resistMin.goal = 0i64;
     client->link_viewClamp.resistMax.goal = 0i64;
   }
-  __asm { vmovss  xmm6, [rsp+0B8h+totalTime] }
-  _RBX = &v14->client->link_viewClamp;
-  if ( v14->client == (gclient_s *)-24252i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9206, ASSERT_TYPE_ASSERT, "(clamp)", (const char *)&queryFormat, "clamp") )
+  v24 = totalTime;
+  p_link_viewClamp = (__int64)&v4->client->link_viewClamp;
+  if ( v4->client == (gclient_s *)-24252i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9206, ASSERT_TYPE_ASSERT, "(clamp)", (const char *)&queryFormat, "clamp") )
     __debugbreak();
-  __asm
-  {
-    vmovss  dword ptr [rbx+68h], xmm6
-    vmovss  dword ptr [rbx+60h], xmm8
-    vmovss  dword ptr [rbx+64h], xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.time; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  dword ptr [rbx+6Ch], xmm1
-    vmovss  dword ptr [rbx+28h], xmm7
-    vmovss  dword ptr [rbx+2Ch], xmm11
-    vmovss  dword ptr [rbx+10h], xmm12
-    vmovss  dword ptr [rbx+14h], xmm10
-  }
-  _RBX->min.start.v[0] = _RBX->min.current.v[0];
-  _RBX->min.start.v[1] = _RBX->min.current.v[1];
-  _RBX->max.start.v[0] = _RBX->max.current.v[0];
-  _RBX->max.start.v[1] = _RBX->max.current.v[1];
+  *(float *)(p_link_viewClamp + 104) = v24;
+  *(float *)(p_link_viewClamp + 96) = v9;
+  *(float *)(p_link_viewClamp + 100) = v11;
+  *(float *)(p_link_viewClamp + 108) = (float)level.time * 0.001;
+  *(float *)(p_link_viewClamp + 40) = *(float *)&v22;
+  *(float *)(p_link_viewClamp + 44) = v17;
+  *(float *)(p_link_viewClamp + 16) = v20;
+  *(float *)(p_link_viewClamp + 20) = v14;
+  *(_DWORD *)p_link_viewClamp = *(_DWORD *)(p_link_viewClamp + 8);
+  *(_DWORD *)(p_link_viewClamp + 4) = *(_DWORD *)(p_link_viewClamp + 12);
+  *(_DWORD *)(p_link_viewClamp + 24) = *(_DWORD *)(p_link_viewClamp + 32);
+  *(_DWORD *)(p_link_viewClamp + 28) = *(_DWORD *)(p_link_viewClamp + 36);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
   {
-    _RBX->resistMin.start.v[0] = _RBX->resistMin.current.v[0];
-    _RBX->resistMin.start.v[1] = _RBX->resistMin.current.v[1];
-    _RBX->resistMax.start.v[0] = _RBX->resistMax.current.v[0];
-    _RBX->resistMax.start.v[1] = _RBX->resistMax.current.v[1];
-  }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    *(_DWORD *)(p_link_viewClamp + 72) = *(_DWORD *)(p_link_viewClamp + 80);
+    *(_DWORD *)(p_link_viewClamp + 76) = *(_DWORD *)(p_link_viewClamp + 84);
+    *(_DWORD *)(p_link_viewClamp + 48) = *(_DWORD *)(p_link_viewClamp + 56);
+    *(_DWORD *)(p_link_viewClamp + 52) = *(_DWORD *)(p_link_viewClamp + 60);
   }
 }
 
@@ -4510,38 +4323,40 @@ ScrCmd_SetViewAngleResistance
 */
 void ScrCmd_SetViewAngleResistance(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v9; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v12; 
-  const char *v13; 
+  gentity_s *v5; 
+  const char *v6; 
   unsigned int NumParam; 
-  char v36; 
-  void *retaddr; 
+  double Float; 
+  double v9; 
+  float v10; 
+  double v11; 
+  double v12; 
+  float v13; 
+  double v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  double v18; 
+  gclient_s *client; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v9 = 0;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
+  v2 = 0;
   entnum = entref.entnum;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v12 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 9316, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v12 = &g_entities[entnum];
-    if ( !v12->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
-      v13 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v13);
+      v6 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
     }
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
@@ -4549,65 +4364,32 @@ void ScrCmd_SetViewAngleResistance(scrContext_t *scrContext, scr_entref_t entref
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam - 4 > 1 )
     Scr_Error(COM_ERR_4195, scrContext, "Incorrect number of parameters.  See script docs.\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@43340000
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 0);
+  v9 = I_fclamp(*(float *)&Float, 0.0, 180.0);
+  v10 = *(float *)&v9;
+  v11 = Scr_GetFloat(scrContext, 1u);
+  v12 = I_fclamp(*(float *)&v11, 0.0, 180.0);
+  v13 = *(float *)&v12;
+  v14 = Scr_GetFloat(scrContext, 2u);
+  v15 = I_fclamp(*(float *)&v14, 0.0, 180.0);
+  v16 = *(float *)&v15;
+  v17 = Scr_GetFloat(scrContext, 3u);
+  v18 = I_fclamp(*(float *)&v17, 0.0, 180.0);
   if ( NumParam == 5 )
-    LOBYTE(v9) = Scr_GetInt(scrContext, 4u) != 0;
+    LOBYTE(v2) = Scr_GetInt(scrContext, 4u) != 0;
   else
-    v9 = 1;
-  _RCX = v12->client;
-  __asm
+    v2 = 1;
+  client = v5->client;
+  client->link_viewClamp.resistMin.goal.v[1] = v13;
+  client->link_viewClamp.resistMin.goal.v[0] = *(float *)&v18;
+  client->link_viewClamp.resistMax.goal.v[1] = v10;
+  client->link_viewClamp.resistMax.goal.v[0] = v16;
+  if ( v2 )
   {
-    vmovss  dword ptr [rcx+5F18h], xmm8
-    vmovss  dword ptr [rcx+5F14h], xmm6
-    vmovss  dword ptr [rcx+5F00h], xmm7
-    vmovss  dword ptr [rcx+5EFCh], xmm9
-  }
-  if ( v9 )
-  {
-    _RCX->link_viewClamp.resistMin.current.v[0] = _RCX->link_viewClamp.resistMin.goal.v[0];
-    _RCX->link_viewClamp.resistMin.current.v[1] = _RCX->link_viewClamp.resistMin.goal.v[1];
-    _RCX->link_viewClamp.resistMax.current.v[0] = _RCX->link_viewClamp.resistMax.goal.v[0];
-    _RCX->link_viewClamp.resistMax.current.v[1] = _RCX->link_viewClamp.resistMax.goal.v[1];
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+78h+var_28]
+    client->link_viewClamp.resistMin.current.v[0] = client->link_viewClamp.resistMin.goal.v[0];
+    client->link_viewClamp.resistMin.current.v[1] = client->link_viewClamp.resistMin.goal.v[1];
+    client->link_viewClamp.resistMax.current.v[0] = client->link_viewClamp.resistMax.goal.v[0];
+    client->link_viewClamp.resistMax.current.v[1] = client->link_viewClamp.resistMax.goal.v[1];
   }
 }
 
@@ -4769,38 +4551,38 @@ void GScr_SetCursorHint(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   gentity_s *Entity; 
+  gentity_s *v5; 
   const char *String; 
   scr_string_t classname; 
-  const char *v9; 
-  const dvar_t *v11; 
-  char v13; 
-  const dvar_t *v14; 
+  const char *v8; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  int v11; 
+  __int64 v12; 
+  const char *v13; 
+  signed __int64 v14; 
   int v15; 
   __int64 v16; 
-  const char *v17; 
-  signed __int64 v18; 
+  int v17; 
+  int v18; 
   int v19; 
-  __int64 v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  const char **v24; 
-  __int64 v25; 
-  const char *v26; 
+  const char **v20; 
+  __int64 v21; 
+  const char *v22; 
 
   entnum = entref.entnum;
   Entity = GetEntity(entref);
-  _RBP = Entity;
+  v5 = Entity;
   if ( Entity->s.eType == ET_MISSILE && (Entity->hint.flags & 0x10) == 0 )
     Scr_Error(COM_ERR_4197, scrContext, "SetCursorHint called on missile without EnableMissileHint() activation.");
-  if ( BG_IsCharacterEntity(&_RBP->s) && !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
+  if ( BG_IsCharacterEntity(&v5->s) && !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
     Scr_Error(COM_ERR_4198, scrContext, "SetCursorHint may not be called on player or agent type entities");
-  if ( (_RBP->r.svFlags & 1) != 0 )
+  if ( (v5->r.svFlags & 1) != 0 )
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
     {
       Com_Printf(24, "SetCursorHint called on entity %d, which has SVF_NOCLIENT set. Flag will be removed and the entity will be passed to clients.\n", entnum);
-      _RBP->r.svFlags &= ~1u;
+      v5->r.svFlags &= ~1u;
     }
     else
     {
@@ -4808,95 +4590,87 @@ void GScr_SetCursorHint(scrContext_t *scrContext, scr_entref_t entref)
     }
   }
   String = Scr_GetString(scrContext, 0);
-  classname = _RBP->classname;
-  v9 = String;
+  classname = v5->classname;
+  v8 = String;
   if ( (classname == scr_const.trigger_use || classname == scr_const.trigger_use_touch) && !I_stricmp(String, "HINT_NODISPLAY") )
   {
-    _RBP->hint.hintType = 3;
+    v5->hint.hintType = 3;
   }
   else
   {
-    if ( !I_stricmp(v9, "HINT_BUTTON") )
+    if ( !I_stricmp(v8, "HINT_BUTTON") )
     {
-      __asm
+      if ( v5->hint.displayRadius <= 0.0 )
       {
-        vmovaps [rsp+88h+var_38], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vcomiss xmm6, dword ptr [rbp+264h]
+        v9 = DVARFLT_player_buttonHintRadius;
+        if ( !DVARFLT_player_buttonHintRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintRadius") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v9);
+        LODWORD(v5->hint.displayRadius) = v9->current.integer;
       }
-      v11 = DVARFLT_player_buttonHintRadius;
-      if ( !DVARFLT_player_buttonHintRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintRadius") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      LODWORD(_RBP->hint.displayRadius) = v11->current.integer;
-      __asm
+      if ( v5->hint.displayFOV <= 0.0 )
       {
-        vcomiss xmm6, dword ptr [rbp+268h]
-        vmovaps xmm6, [rsp+88h+var_38]
-      }
-      if ( !v13 )
-      {
-        v14 = DVARFLT_player_buttonHintFOV;
+        v10 = DVARFLT_player_buttonHintFOV;
         if ( !DVARFLT_player_buttonHintFOV && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintFOV") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v14);
-        LODWORD(_RBP->hint.displayFOV) = v14->current.integer;
+        Dvar_CheckFrontendServerThread(v10);
+        LODWORD(v5->hint.displayFOV) = v10->current.integer;
       }
     }
-    v15 = 1;
+    v11 = 1;
     while ( 2 )
     {
-      v16 = 0x7FFFFFFFi64;
-      v17 = hintStrings[v15];
-      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v12 = 0x7FFFFFFFi64;
+      v13 = hintStrings[v11];
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v18 = v9 - v17;
+      v14 = v8 - v13;
       while ( 1 )
       {
-        v19 = (unsigned __int8)v17[v18];
-        v20 = v16;
-        v21 = *(unsigned __int8 *)v17++;
-        --v16;
-        if ( !v20 )
+        v15 = (unsigned __int8)v13[v14];
+        v16 = v12;
+        v17 = *(unsigned __int8 *)v13++;
+        --v12;
+        if ( !v16 )
         {
-LABEL_40:
-          if ( (unsigned int)(v15 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v15, "signed", v15) )
+LABEL_42:
+          if ( (unsigned int)(v11 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v11, "signed", v11) )
             __debugbreak();
-          _RBP->hint.hintType = v15;
+          v5->hint.hintType = v11;
           return;
         }
-        if ( v19 != v21 )
+        if ( v15 != v17 )
         {
-          v22 = v19 + 32;
-          if ( (unsigned int)(v19 - 65) > 0x19 )
-            v22 = v19;
-          v19 = v22;
-          v23 = v21 + 32;
-          if ( (unsigned int)(v21 - 65) > 0x19 )
-            v23 = v21;
-          if ( v19 != v23 )
+          v18 = v15 + 32;
+          if ( (unsigned int)(v15 - 65) > 0x19 )
+            v18 = v15;
+          v15 = v18;
+          v19 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v19 = v17;
+          if ( v15 != v19 )
             break;
         }
-        if ( !v19 )
-          goto LABEL_40;
+        if ( !v15 )
+          goto LABEL_42;
       }
-      if ( ++v15 < 6 )
+      if ( ++v11 < 6 )
         continue;
       break;
     }
     Com_Printf(23, "List of valid hint type strings\n");
-    v24 = &hintStrings[1];
-    v25 = 5i64;
+    v20 = &hintStrings[1];
+    v21 = 5i64;
     do
     {
-      Com_Printf(23, "%s\n", *v24++);
-      --v25;
+      Com_Printf(23, "%s\n", *v20++);
+      --v21;
     }
-    while ( v25 );
-    v26 = j_va("%s is not a valid hint type. See above for list of valid hint types\n", v9);
-    Scr_Error(COM_ERR_4199, scrContext, v26);
+    while ( v21 );
+    v22 = j_va("%s is not a valid hint type. See above for list of valid hint types\n", v8);
+    Scr_Error(COM_ERR_4199, scrContext, v22);
   }
 }
 
@@ -4907,25 +4681,23 @@ G_ScrMain_FrontEndSceneCameraFade
 */
 void G_ScrMain_FrontEndSceneCameraFade(scrContext_t *scrContext)
 {
-  BOOL v3; 
+  BOOL v2; 
+  int v3; 
+  double Float; 
 
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_4741, scrContext, "FrontEndSceneCameraChange() called with incorrect number of parameters.\n");
-  v3 = Scr_GetInt(scrContext, 0) != 0;
+  v2 = Scr_GetInt(scrContext, 0) != 0;
   if ( Scr_GetNumParam(scrContext) <= 2 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si eax, xmm1
-    }
+    Float = Scr_GetFloat(scrContext, 1u);
+    v3 = (int)(float)(*(float *)&Float * 1000.0);
   }
   else
   {
-    _EAX = 500;
+    v3 = 500;
   }
-  G_FrontEndScene_SetCameraFade((const BgScriptedCameraFadeState)v3, level.time, level.time + _EAX);
+  G_FrontEndScene_SetCameraFade((const BgScriptedCameraFadeState)v2, level.time, level.time + v3);
 }
 
 /*
@@ -4936,24 +4708,22 @@ G_ScrMain_FrontEndSceneCameraFOV
 void G_ScrMain_FrontEndSceneCameraFOV(scrContext_t *scrContext)
 {
   int Int; 
+  double Float; 
+  int v4; 
 
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_4742, scrContext, "FrontEndSceneFovChange() called with incorrect number of parameters.\n");
   Int = Scr_GetInt(scrContext, 0);
   if ( Scr_GetNumParam(scrContext) < 2 )
   {
-    _ECX = 0;
+    v4 = 0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si ecx, xmm1
-    }
+    Float = Scr_GetFloat(scrContext, 1u);
+    v4 = (int)(float)(*(float *)&Float * 1000.0);
   }
-  G_FrontEndScene_SetCameraFov(Int, level.time, level.time + _ECX);
+  G_FrontEndScene_SetCameraFov(Int, level.time, level.time + v4);
 }
 
 /*
@@ -5222,10 +4992,12 @@ void GScr_SetHintStringParams(scrContext_t *scrContext, scr_entref_t entref)
   scr_string_t classname; 
   entityType_s eType; 
   unsigned int NumParam; 
-  unsigned int v8; 
-  __int64 v10; 
+  unsigned int v7; 
+  HintParamValue *paramValues; 
+  __int64 v9; 
   VariableType Type; 
-  const char *v12; 
+  const char *v11; 
+  double Float; 
   unsigned int HintStringMessage; 
 
   Entity = GetEntity(entref);
@@ -5237,50 +5009,50 @@ void GScr_SetHintStringParams(scrContext_t *scrContext, scr_entref_t entref)
       Scr_Error(COM_ERR_4204, scrContext, "The SetHintStringParams command only works on trigger_use, trigger_use_touch, turret, actor, and script entities.\n");
   }
   NumParam = Scr_GetNumParam(scrContext);
-  v8 = 0;
+  v7 = 0;
   if ( NumParam )
   {
-    _RSI = Entity->hint.paramValues;
-    v10 = 0i64;
+    paramValues = Entity->hint.paramValues;
+    v9 = 0i64;
     do
     {
-      Type = Scr_GetType(scrContext, v8);
+      Type = Scr_GetType(scrContext, v7);
       if ( Type )
       {
         switch ( Type )
         {
           case VAR_ISTRING:
-            HintStringMessage = G_ScrMain_GetHintStringMessage(scrContext, v8, v8);
+            HintStringMessage = G_ScrMain_GetHintStringMessage(scrContext, v7, v7);
             if ( !HintStringMessage )
-              Com_PrintError(15, "SetHintStringParams could not find or allocate hint string index for param %u", v8);
-            Entity->hint.paramsTypes[v10] = HINT_PARAM_TYPE_STRING;
-            _RSI->intVal = HintStringMessage;
+              Com_PrintError(15, "SetHintStringParams could not find or allocate hint string index for param %u", v7);
+            Entity->hint.paramsTypes[v9] = HINT_PARAM_TYPE_STRING;
+            paramValues->intVal = HintStringMessage;
             break;
           case VAR_FLOAT:
-            Entity->hint.paramsTypes[v10] = HINT_PARAM_TYPE_FLOAT;
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, v8);
-            __asm { vmovss  dword ptr [rsi], xmm0 }
+            Entity->hint.paramsTypes[v9] = HINT_PARAM_TYPE_FLOAT;
+            Float = Scr_GetFloat(scrContext, v7);
+            paramValues->floatVal = *(float *)&Float;
             break;
           case VAR_INTEGER:
-            Entity->hint.paramsTypes[v10] = HINT_PARAM_TYPE_INT;
-            _RSI->intVal = Scr_GetInt(scrContext, v8);
+            Entity->hint.paramsTypes[v9] = HINT_PARAM_TYPE_INT;
+            paramValues->intVal = Scr_GetInt(scrContext, v7);
             break;
           default:
-            v12 = j_va("The SetHintStringParams passed an unhandled type for parameter %u\n", v8);
-            Scr_Error(COM_ERR_4205, scrContext, v12);
+            v11 = j_va("The SetHintStringParams passed an unhandled type for parameter %u\n", v7);
+            Scr_Error(COM_ERR_4205, scrContext, v11);
             break;
         }
       }
       else
       {
-        Entity->hint.paramsTypes[v10] = HINT_PARAM_TYPE_NONE;
-        _RSI->intVal = 0;
+        Entity->hint.paramsTypes[v9] = HINT_PARAM_TYPE_NONE;
+        paramValues->intVal = 0;
       }
-      ++v8;
-      ++v10;
-      ++_RSI;
+      ++v7;
+      ++v9;
+      ++paramValues;
     }
-    while ( v8 < NumParam );
+    while ( v7 < NumParam );
   }
 }
 
@@ -5368,14 +5140,12 @@ GScr_SetHintDisplayRange
 */
 void GScr_SetHintDisplayRange(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RDI = GetEntity(entref);
+  gentity_s *Entity; 
+
+  Entity = GetEntity(entref);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm0, xmm0, xmm1
-    vmovss  dword ptr [rdi+264h], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm1 }
+  Entity->hint.displayRadius = *(float *)&_XMM0;
 }
 
 /*
@@ -5385,14 +5155,12 @@ GScr_SetHintDisplayFOV
 */
 void GScr_SetHintDisplayFOV(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RDI = GetEntity(entref);
+  gentity_s *Entity; 
+
+  Entity = GetEntity(entref);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm0, xmm0, xmm1
-    vmovss  dword ptr [rdi+268h], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm1 }
+  Entity->hint.displayFOV = *(float *)&_XMM0;
 }
 
 /*
@@ -5428,22 +5196,19 @@ GScr_SetUseRange
 */
 void GScr_SetUseRange(scrContext_t *scrContext, scr_entref_t entref)
 {
+  gentity_s *Entity; 
   unsigned int number; 
-  const char *v9; 
+  const char *v7; 
 
-  _RBX = GetEntity(entref);
+  Entity = GetEntity(entref);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  number = _RBX->s.number;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm3, xmm0, xmm1; useRadius
-    vmovss  dword ptr [rbx+26Ch], xmm3
-  }
+  number = Entity->s.number;
+  __asm { vmaxss  xmm3, xmm0, xmm1; useRadius }
+  Entity->hint.useRadius = *(float *)&_XMM3;
   if ( !G_PlayerUse_SetUseRadius(number, USE_CLASS_GENTITY, 0, *(const float *)&_XMM3) )
   {
-    v9 = j_va("Failed to set the use radius for entity %d\n", (unsigned int)_RBX->s.number);
-    Scr_Error(COM_ERR_4206, scrContext, v9);
+    v7 = j_va("Failed to set the use radius for entity %d\n", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_4206, scrContext, v7);
   }
 }
 
@@ -5491,15 +5256,7 @@ void ScrCmd_GetShootAtPosition(scrContext_t *scrContext, scr_entref_t entref)
       level.cachedEntTargetTagMat.time = level.time;
       Scr_SetString(&level.cachedEntTargetTagMat.name, tag_eye);
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+24h; level_locals_t level
-      vmovss  xmm1, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+28h; level_locals_t level
-      vmovss  dword ptr [rsp+48h+outCentroid], xmm0
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+2Ch; level_locals_t level
-      vmovss  dword ptr [rsp+48h+outCentroid+8], xmm0
-      vmovss  dword ptr [rsp+48h+outCentroid+4], xmm1
-    }
+    outCentroid = level.cachedEntTargetTagMat.tagMat.m[3];
   }
 LABEL_14:
   Scr_AddVector(scrContext, outCentroid.v);
@@ -5760,14 +5517,12 @@ GScr_SetUseFOV
 */
 void GScr_SetUseFOV(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RDI = GetEntity(entref);
+  gentity_s *Entity; 
+
+  Entity = GetEntity(entref);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm0, xmm0, xmm1
-    vmovss  dword ptr [rdi+270h], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm1 }
+  Entity->hint.useFOV = *(float *)&_XMM0;
 }
 
 /*
@@ -5807,19 +5562,20 @@ void ScrCmd_GetMuzzleSideOffsetPos(scrContext_t *scrContext, scr_entref_t entref
   int MuzzleInfo; 
   AIScriptedInterface_vtbl *v7; 
   __int64 v8; 
-  AIWrapper v20; 
+  float v9; 
+  AIWrapper v10; 
   vec3_t outOrigin; 
   vec3_t right; 
   vec3_t outForward; 
 
-  AIActorInterface::AIActorInterface(&v20.m_actorInterface);
-  AIAgentInterface::AIAgentInterface(&v20.m_newAgentInterface);
-  v20.m_pAI = NULL;
-  v20.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  AIActorInterface::AIActorInterface(&v10.m_actorInterface);
+  AIAgentInterface::AIAgentInterface(&v10.m_newAgentInterface);
+  v10.m_pAI = NULL;
+  v10.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
   Entity = GetEntity(entref);
-  AIWrapper::Setup(&v20, Entity);
-  m_pAI = v20.m_pAI;
-  if ( !v20.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28032, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::Setup(&v10, Entity);
+  m_pAI = v10.m_pAI;
+  if ( !v10.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28032, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   MuzzleInfo = AIScriptedInterface::GetMuzzleInfo(m_pAI, &outOrigin, &outForward);
   v7 = m_pAI->__vftable;
@@ -5827,22 +5583,9 @@ void ScrCmd_GetMuzzleSideOffsetPos(scrContext_t *scrContext, scr_entref_t entref
   {
     v8 = (__int64)v7->GetEntity(m_pAI);
     AngleVectors((const vec3_t *)(v8 + 316), NULL, &right, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0C8h+outOrigin+4]
-      vsubss  xmm1, xmm0, dword ptr [rbx+134h]
-      vmovss  xmm0, dword ptr [rsp+0C8h+outOrigin]
-      vsubss  xmm2, xmm0, dword ptr [rbx+130h]
-      vmulss  xmm4, xmm1, dword ptr [rsp+0C8h+right+4]
-      vmulss  xmm1, xmm2, dword ptr [rsp+0C8h+right]
-      vaddss  xmm4, xmm4, xmm1
-      vmulss  xmm0, xmm4, dword ptr [rsp+0C8h+right]
-      vaddss  xmm2, xmm0, dword ptr [rbx+130h]
-      vmulss  xmm1, xmm4, dword ptr [rsp+0C8h+right+4]
-      vmovss  dword ptr [rsp+0C8h+outOrigin], xmm2
-      vaddss  xmm0, xmm1, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+0C8h+outOrigin+4], xmm0
-    }
+    v9 = (float)((float)(outOrigin.v[1] - *(float *)(v8 + 308)) * right.v[1]) + (float)((float)(outOrigin.v[0] - *(float *)(v8 + 304)) * right.v[0]);
+    outOrigin.v[0] = (float)(v9 * right.v[0]) + *(float *)(v8 + 304);
+    outOrigin.v[1] = (float)(v9 * right.v[1]) + *(float *)(v8 + 308);
   }
   else
   {
@@ -6049,27 +5792,23 @@ ScrCmd_AIEventListenerEvent
 void ScrCmd_AIEventListenerEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  gentity_s *v6; 
+  gentity_s *v4; 
   scr_string_t ConstString; 
   vec3_t vectorValue; 
 
   Entity = GetEntity(entref);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28142, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+68h+vectorValue], xmm0
-    vmovss  dword ptr [rsp+68h+vectorValue+4], xmm0
-    vmovss  dword ptr [rsp+68h+vectorValue+8], xmm0
-  }
-  v6 = NULL;
+  vectorValue.v[0] = 0.0;
+  vectorValue.v[1] = 0.0;
+  vectorValue.v[2] = 0.0;
+  v4 = NULL;
   ConstString = Scr_GetConstString(scrContext, 0);
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) )
-    v6 = GScr_GetEntity(1u);
+    v4 = GScr_GetEntity(1u);
   if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) )
     Scr_GetVector(scrContext, 2u, &vectorValue);
-  Actor_EventListener_EventAdd(Entity->s.number, v6, ConstString, &vectorValue);
+  Actor_EventListener_EventAdd(Entity->s.number, v4, ConstString, &vectorValue);
 }
 
 /*
@@ -6224,55 +5963,43 @@ GScr_SetHUDTutorialMessage
 void GScr_SetHUDTutorialMessage(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   const char *String; 
-  const char *v19; 
+  const char *v11; 
   unsigned int IndexByName; 
   OmnvarData *Data; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  Entity = GetEntity(entref);
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4211, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4211, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( Scr_GetType(scrContext, 0) == VAR_STRING )
     String = Scr_GetString(scrContext, 0);
   else
     String = Scr_GetIString(scrContext, 0);
-  v19 = String;
+  v11 = String;
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
     __debugbreak();
-  GConfigStrings::ms_gConfigStrings->SetLocalizedString(GConfigStrings::ms_gConfigStrings, v19, &EntityPlayerState->tutorialString);
+  GConfigStrings::ms_gConfigStrings->SetLocalizedString(GConfigStrings::ms_gConfigStrings, v11, &EntityPlayerState->tutorialString);
   IndexByName = BG_Omnvar_GetIndexByName("ui_tutorial_message_show");
   if ( IndexByName == -1 )
     Scr_Error(COM_ERR_4212, scrContext, "SetHUDTutorialMessage can't find omnvar ui_tutorial_message_show - check omnvars.csv");
-  Data = G_Omnvar_GetData(IndexByName, _RDI->s.clientNum, NULL);
+  Data = G_Omnvar_GetData(IndexByName, Entity->s.clientNum, NULL);
   Data->current.enabled = 1;
   G_Omnvar_MarkChanged(Data);
 }
@@ -6318,43 +6045,31 @@ GScr_ClearHUDTutorialMessage
 void GScr_ClearHUDTutorialMessage(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   unsigned int IndexByName; 
   OmnvarData *Data; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  Entity = GetEntity(entref);
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4213, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4213, scrContext, v8);
   }
   if ( Scr_GetNumParam(scrContext) && Scr_GetInt(scrContext, 0) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
       __debugbreak();
     GConfigStrings::ms_gConfigStrings->ClearLocalizedString(GConfigStrings::ms_gConfigStrings, &EntityPlayerState->tutorialString);
@@ -6364,7 +6079,7 @@ void GScr_ClearHUDTutorialMessage(scrContext_t *scrContext, scr_entref_t entref)
     IndexByName = BG_Omnvar_GetIndexByName("ui_tutorial_message_show");
     if ( IndexByName == -1 )
       Scr_Error(COM_ERR_4214, scrContext, "ClearHUDTutorialMessage can't find omnvar ui_tutorial_message_show - check omnvars.csv");
-    Data = G_Omnvar_GetData(IndexByName, _RDI->s.clientNum, NULL);
+    Data = G_Omnvar_GetData(IndexByName, Entity->s.clientNum, NULL);
     Data->current.enabled = 0;
     G_Omnvar_MarkChanged(Data);
   }
@@ -6400,48 +6115,36 @@ GScr_AddHUDWarningMessage
 void GScr_AddHUDWarningMessage(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   const char *String; 
-  const char *v18; 
-  const char *v19; 
-  int v20; 
-  __int64 returnValueColumn; 
+  const char *v10; 
+  const char *v11; 
+  int v12; 
 
   entnum = entref.entnum;
-  _RSI = GetEntity(entref);
-  if ( !G_Utils_IsClientOrAgent(_RSI) )
+  Entity = GetEntity(entref);
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RSI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  qword ptr [rsp+48h+returnValueColumn], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, returnValueColumn, v7, v6);
-    Scr_Error(COM_ERR_4216, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4216, scrContext, v8);
   }
   String = Scr_GetString(scrContext, 0);
-  v18 = BGScr_TableLookupInternal(scrContext, "hudwarnings.csv", 1, String, 0);
-  v19 = v18;
-  if ( !v18 || !*v18 )
+  v10 = BGScr_TableLookupInternal(scrContext, "hudwarnings.csv", 1, String, 0);
+  v11 = v10;
+  if ( !v10 || !*v10 )
     Scr_Error(COM_ERR_4217, scrContext, "GScr_AddHUDWarningMessage unable to find given warning key. Please check hudwarnings.csv");
-  v20 = atoi(v19);
-  SetHUDWarningOmnvars(scrContext, v20, 1);
+  v12 = atoi(v11);
+  SetHUDWarningOmnvars(scrContext, v12, 1);
 }
 
 /*
@@ -6480,36 +6183,24 @@ GScr_ClearHUDWarningMessage
 void GScr_ClearHUDWarningMessage(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
-  __int64 v17; 
+  const char *v8; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  Entity = GetEntity(entref);
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, v17, v7, v6);
-    Scr_Error(COM_ERR_4218, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4218, scrContext, v8);
   }
   SetHUDWarningOmnvars(scrContext, 0, 0);
 }
@@ -6801,12 +6492,13 @@ void ScrCmd_GetScriptablePartStateField(scrContext_t *scrContext, scr_entref_t e
   ScriptablePartDef *PartScriptedDefFromName; 
   const char *v10; 
   char *v11; 
+  ScriptableStateDef *PartScriptedStateFromName; 
   const char *v13; 
   const char *v14; 
   Scriptable_StateType type; 
+  const char *v16; 
   const char *v17; 
   const char *v18; 
-  const char *v19; 
   unsigned int out_stateIndex; 
 
   ScriptableIndex_Internal = ScrCmd_GetScriptableIndex_Internal(scrContext, entref);
@@ -6843,8 +6535,8 @@ LABEL_28:
       v7 = v11;
       goto LABEL_29;
     }
-    _RAX = ScriptableSv_GetPartScriptedStateFromName(ScriptableIndex_Internal, PartScriptedDefFromName, v5, 1, &out_stateIndex);
-    if ( !_RAX )
+    PartScriptedStateFromName = ScriptableSv_GetPartScriptedStateFromName(ScriptableIndex_Internal, PartScriptedDefFromName, v5, 1, &out_stateIndex);
+    if ( !PartScriptedStateFromName )
     {
       v13 = SL_ConvertToString(ConstLowercaseString);
       v14 = SL_ConvertToString(v5);
@@ -6854,7 +6546,7 @@ LABEL_28:
     }
     if ( v6 == scr_const.type )
     {
-      type = _RAX->type;
+      type = PartScriptedStateFromName->type;
       if ( type == Scriptable_StateType_Health )
       {
         Scr_AddConstString(scrContext, scr_const.health);
@@ -6872,25 +6564,22 @@ LABEL_28:
     }
     else if ( v6 == scr_const.maxhealth )
     {
-      if ( _RAX->type == Scriptable_StateType_Health )
-        Scr_AddInt(scrContext, _RAX->data.health.health);
+      if ( PartScriptedStateFromName->type == Scriptable_StateType_Health )
+        Scr_AddInt(scrContext, PartScriptedStateFromName->data.health.health);
     }
     else
     {
       if ( v6 != scr_const.radius )
       {
-        v17 = SL_ConvertToString(ConstLowercaseString);
-        v18 = SL_ConvertToString(v5);
-        v19 = SL_ConvertToString(v6);
-        v11 = j_va("GetScriptablePartStateField() unsupported field '%s' for state '%s' in part '%s'", v19, v18, v17);
+        v16 = SL_ConvertToString(ConstLowercaseString);
+        v17 = SL_ConvertToString(v5);
+        v18 = SL_ConvertToString(v6);
+        v11 = j_va("GetScriptablePartStateField() unsupported field '%s' for state '%s' in part '%s'", v18, v17, v16);
         v8 = COM_ERR_4772;
         goto LABEL_28;
       }
-      if ( _RAX->type == Scriptable_StateType_Usable )
-      {
-        __asm { vmovss  xmm1, dword ptr [rax+3Ch]; value }
-        Scr_AddFloat(scrContext, *(float *)&_XMM1);
-      }
+      if ( PartScriptedStateFromName->type == Scriptable_StateType_Usable )
+        Scr_AddFloat(scrContext, PartScriptedStateFromName->data.usable.useRadius);
     }
   }
 }
@@ -6979,30 +6668,31 @@ void ScrCmd_GetScriptablePartStateEventField(scrContext_t *scrContext, scr_entre
 {
   unsigned int ScriptableIndex_Internal; 
   scr_string_t ConstLowercaseString; 
+  scr_string_t v5; 
   scr_string_t v6; 
   scr_string_t v7; 
-  scr_string_t v8; 
   ScriptablePartDef *PartScriptedDefFromName; 
+  const char *v9; 
   const char *v10; 
   const char *v11; 
   const char *v12; 
   const char *v13; 
-  const char *v14; 
   Scriptable_EventType ScriptableEventType_Internal; 
-  const ScriptableStateDef *v16; 
-  scr_string_t v17; 
-  Scriptable_EventType v18; 
+  const ScriptableStateDef *v15; 
+  scr_string_t v16; 
+  Scriptable_EventType v17; 
+  const char *v18; 
   const char *v19; 
-  const char *v20; 
+  ScriptableEventDef *PartScriptedStateFirstEventOfType; 
+  const char *v21; 
   const char *v22; 
   const char *v23; 
   const char *v24; 
   const char *v25; 
-  const char *v39; 
-  const char *v40; 
-  const char *v41; 
-  const char *v42; 
-  const char *v43; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
+  const char *v29; 
   unsigned int out_stateIndex; 
 
   ScriptableIndex_Internal = ScrCmd_GetScriptableIndex_Internal(scrContext, entref);
@@ -7011,108 +6701,86 @@ void ScrCmd_GetScriptablePartStateEventField(scrContext_t *scrContext, scr_entre
     ConstLowercaseString = Scr_GetConstLowercaseString(scrContext, 0);
     if ( ConstLowercaseString )
     {
-      v6 = Scr_GetConstLowercaseString(scrContext, 1u);
-      if ( v6 )
+      v5 = Scr_GetConstLowercaseString(scrContext, 1u);
+      if ( v5 )
       {
-        v7 = Scr_GetConstLowercaseString(scrContext, 2u);
-        if ( v7 )
+        v6 = Scr_GetConstLowercaseString(scrContext, 2u);
+        if ( v6 )
         {
-          v8 = Scr_GetConstLowercaseString(scrContext, 3u);
-          if ( v8 )
+          v7 = Scr_GetConstLowercaseString(scrContext, 3u);
+          if ( v7 )
           {
             PartScriptedDefFromName = ScriptableSv_GetPartScriptedDefFromName(ScriptableIndex_Internal, ConstLowercaseString, 1);
             if ( PartScriptedDefFromName )
             {
-              if ( ScriptableSv_GetPartScriptedStateFromName(ScriptableIndex_Internal, PartScriptedDefFromName, v6, 1, &out_stateIndex) )
+              if ( ScriptableSv_GetPartScriptedStateFromName(ScriptableIndex_Internal, PartScriptedDefFromName, v5, 1, &out_stateIndex) )
               {
-                ScriptableEventType_Internal = ScrCmd_GetScriptableEventType_Internal(v7);
-                v18 = ScriptableEventType_Internal;
+                ScriptableEventType_Internal = ScrCmd_GetScriptableEventType_Internal(v6);
+                v17 = ScriptableEventType_Internal;
                 if ( ScriptableEventType_Internal == Scriptable_EventType_Count )
                 {
-                  v19 = SL_ConvertToString(v17);
-                  v20 = j_va("GetScriptablePartStateEventField() unsupported event '%s'", v19);
-                  Scr_Error(COM_ERR_4779, scrContext, v20);
+                  v18 = SL_ConvertToString(v16);
+                  v19 = j_va("GetScriptablePartStateEventField() unsupported event '%s'", v18);
+                  Scr_Error(COM_ERR_4779, scrContext, v19);
                 }
                 else
                 {
-                  _RBX = ScriptableSv_GetPartScriptedStateFirstEventOfType(ScriptableIndex_Internal, v16, ScriptableEventType_Internal);
-                  if ( _RBX )
+                  PartScriptedStateFirstEventOfType = ScriptableSv_GetPartScriptedStateFirstEventOfType(ScriptableIndex_Internal, v15, ScriptableEventType_Internal);
+                  if ( PartScriptedStateFirstEventOfType )
                   {
-                    switch ( v18 )
+                    switch ( v17 )
                     {
                       case Scriptable_EventType_Wait:
-                        if ( v8 != scr_const.duration )
+                        if ( v7 != scr_const.duration )
                           goto $LN45_11;
-                        __asm
-                        {
-                          vmovss  xmm0, dword ptr [rbx+24h]
-                          vmulss  xmm1, xmm0, cs:__real@447a0000
-                          vcvttss2si edx, xmm1; value
-                        }
-                        Scr_AddInt(scrContext, _EDX);
+                        Scr_AddInt(scrContext, (int)(float)(PartScriptedStateFirstEventOfType->data.wait.delayMax * 1000.0));
                         return;
                       case Scriptable_EventType_Script:
                       case Scriptable_EventType_ScriptDamage:
-                        if ( v8 != scr_const.notifyname )
+                        if ( v7 != scr_const.notifyname )
                           goto $LN45_11;
-                        Scr_AddConstString(scrContext, _RBX->data.script.scrNotification);
+                        Scr_AddConstString(scrContext, PartScriptedStateFirstEventOfType->data.script.scrNotification);
                         return;
                       case Scriptable_EventType_Model:
-                        if ( v8 != scr_const.radius )
+                        if ( v7 != scr_const.radius )
                           goto $LN45_11;
-                        if ( _RBX->data.anonymous.buffer[0] != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28766, ASSERT_TYPE_ASSERT, "( eventDef->data.model.dataType == SCRIPTABLE_DATA_TYPE_XMODEL )", (const char *)&queryFormat, "eventDef->data.model.dataType == SCRIPTABLE_DATA_TYPE_XMODEL") )
+                        if ( PartScriptedStateFirstEventOfType->data.anonymous.buffer[0] != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28766, ASSERT_TYPE_ASSERT, "( eventDef->data.model.dataType == SCRIPTABLE_DATA_TYPE_XMODEL )", (const char *)&queryFormat, "eventDef->data.model.dataType == SCRIPTABLE_DATA_TYPE_XMODEL") )
                           __debugbreak();
-                        if ( !_RBX->data.disablePhysicsSubShape.mutableShapeHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28767, ASSERT_TYPE_ASSERT, "( eventDef->data.model.data.model )", (const char *)&queryFormat, "eventDef->data.model.data.model") )
+                        if ( !PartScriptedStateFirstEventOfType->data.disablePhysicsSubShape.mutableShapeHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28767, ASSERT_TYPE_ASSERT, "( eventDef->data.model.data.model )", (const char *)&queryFormat, "eventDef->data.model.data.model") )
                           __debugbreak();
-                        _RAX = _RBX->data.stateChange.part;
-                        __asm { vmovss  xmm1, dword ptr [rax+28h]; value }
-                        Scr_AddFloat(scrContext, *(float *)&_XMM1);
+                        Scr_AddFloat(scrContext, *(float *)(PartScriptedStateFirstEventOfType->data.disablePhysicsSubShape.mutableShapeHash + 40));
                         return;
                       case Scriptable_EventType_Collision:
                         goto $LN45_11;
                       case Scriptable_EventType_Animation:
-                        if ( v8 != scr_const.duration )
+                        if ( v7 != scr_const.duration )
                           goto $LN45_11;
-                        if ( !_RBX->data.script.notification && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28782, ASSERT_TYPE_ASSERT, "( eventDef->data.animation.animation )", (const char *)&queryFormat, "eventDef->data.animation.animation") )
+                        if ( !PartScriptedStateFirstEventOfType->data.script.notification && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 28782, ASSERT_TYPE_ASSERT, "( eventDef->data.animation.animation )", (const char *)&queryFormat, "eventDef->data.animation.animation") )
                           __debugbreak();
-                        __asm
-                        {
-                          vxorps  xmm0, xmm0, xmm0
-                          vcvtsi2ss xmm0, xmm0, eax
-                          vmulss  xmm1, xmm0, dword ptr [rcx+64h]
-                          vmulss  xmm2, xmm1, cs:__real@447a0000
-                          vcvttss2si edx, xmm2; value
-                        }
-                        Scr_AddInt(scrContext, _EDX);
+                        Scr_AddInt(scrContext, (int)(float)((float)((float)*((unsigned __int16 *)PartScriptedStateFirstEventOfType->data.script.notification + 59) * *((float *)PartScriptedStateFirstEventOfType->data.script.notification + 25)) * 1000.0));
                         break;
                       case Scriptable_EventType_Move:
-                        if ( v8 == scr_const.duration )
+                        if ( v7 == scr_const.duration )
                         {
-                          __asm
-                          {
-                            vmovss  xmm0, dword ptr [rbx+38h]
-                            vmulss  xmm1, xmm0, cs:__real@447a0000
-                            vcvttss2si edx, xmm1; value
-                          }
-                          Scr_AddInt(scrContext, _EDX);
+                          Scr_AddInt(scrContext, (int)(float)(PartScriptedStateFirstEventOfType->data.animation.playbackRateMin * 1000.0));
                         }
-                        else if ( v8 == scr_const.angles_offset )
+                        else if ( v7 == scr_const.angles_offset )
                         {
-                          Scr_AddVector(scrContext, &_RBX->data.animation.startTimeMin);
+                          Scr_AddVector(scrContext, &PartScriptedStateFirstEventOfType->data.animation.startTimeMin);
                         }
-                        else if ( v8 == scr_const.origin_offset )
+                        else if ( v7 == scr_const.origin_offset )
                         {
-                          Scr_AddVector(scrContext, &_RBX->data.wait.delayMin);
+                          Scr_AddVector(scrContext, &PartScriptedStateFirstEventOfType->data.wait.delayMin);
                         }
                         else
                         {
 $LN45_11:
-                          v39 = SL_ConvertToString(ConstLowercaseString);
-                          v40 = SL_ConvertToString(v6);
-                          v41 = SL_ConvertToString(v7);
-                          v42 = SL_ConvertToString(v8);
-                          v43 = j_va("GetScriptablePartStateEventField() unsupported field '%s' for event '%s' in state '%s' in part '%s'", v42, v41, v40, v39);
-                          Scr_Error(COM_ERR_4781, scrContext, v43);
+                          v25 = SL_ConvertToString(ConstLowercaseString);
+                          v26 = SL_ConvertToString(v5);
+                          v27 = SL_ConvertToString(v6);
+                          v28 = SL_ConvertToString(v7);
+                          v29 = j_va("GetScriptablePartStateEventField() unsupported field '%s' for event '%s' in state '%s' in part '%s'", v28, v27, v26, v25);
+                          Scr_Error(COM_ERR_4781, scrContext, v29);
                         }
                         break;
                       default:
@@ -7123,27 +6791,27 @@ $LN45_11:
                   }
                   else
                   {
-                    v22 = SL_ConvertToString(ConstLowercaseString);
+                    v21 = SL_ConvertToString(ConstLowercaseString);
+                    v22 = SL_ConvertToString(v5);
                     v23 = SL_ConvertToString(v6);
-                    v24 = SL_ConvertToString(v7);
-                    v25 = j_va("GetScriptablePartStateEventField() could not find event '%s' in state '%s' in part '%s'", v24, v23, v22);
-                    Scr_Error(COM_ERR_4780, scrContext, v25);
+                    v24 = j_va("GetScriptablePartStateEventField() could not find event '%s' in state '%s' in part '%s'", v23, v22, v21);
+                    Scr_Error(COM_ERR_4780, scrContext, v24);
                   }
                 }
               }
               else
               {
-                v12 = SL_ConvertToString(ConstLowercaseString);
-                v13 = SL_ConvertToString(v6);
-                v14 = j_va("GetScriptablePartStateEventField() could not find state '%s' in part '%s'", v13, v12);
-                Scr_Error(COM_ERR_4778, scrContext, v14);
+                v11 = SL_ConvertToString(ConstLowercaseString);
+                v12 = SL_ConvertToString(v5);
+                v13 = j_va("GetScriptablePartStateEventField() could not find state '%s' in part '%s'", v12, v11);
+                Scr_Error(COM_ERR_4778, scrContext, v13);
               }
             }
             else
             {
-              v10 = SL_ConvertToString(ConstLowercaseString);
-              v11 = j_va("GetScriptablePartStateEventField() could not find part '%s'", v10);
-              Scr_Error(COM_ERR_4777, scrContext, v11);
+              v9 = SL_ConvertToString(ConstLowercaseString);
+              v10 = j_va("GetScriptablePartStateEventField() could not find part '%s'", v9);
+              Scr_Error(COM_ERR_4777, scrContext, v10);
             }
           }
           else
@@ -7176,59 +6844,57 @@ ScrCmd_NightVisionViewOff
 void ScrCmd_NightVisionViewOff(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v7; 
-  ComErrorCode v8; 
+  gentity_s *v4; 
+  const playerState_s *p_ps; 
+  const char *v6; 
+  ComErrorCode v7; 
   unsigned int clientNum; 
-  const char *v11; 
-  const char *v12; 
+  const char *v9; 
+  const char *v10; 
   SvClient *CommonClient; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v7 = "not an entity";
-    v8 = COM_ERR_3682;
+    v6 = "not an entity";
+    v7 = COM_ERR_3682;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 10526, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  _RDI = &v5->client->ps;
-  if ( !_RDI )
+  v4 = &g_entities[entnum];
+  p_ps = &v4->client->ps;
+  if ( !p_ps )
   {
-    _RDI = &v5->agent->playerState;
-    if ( !_RDI )
+    p_ps = &v4->agent->playerState;
+    if ( !p_ps )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      v8 = COM_ERR_3679;
+      v6 = j_va("entity %i is not a player or agent", entnum);
+      v7 = COM_ERR_3679;
 LABEL_9:
-      Scr_ObjectError(v8, scrContext, v7);
-      _RDI = NULL;
+      Scr_ObjectError(v7, scrContext, v6);
+      p_ps = NULL;
     }
   }
-  if ( Scr_GetNumParam(scrContext) == 1 && Scr_GetInt(scrContext, 0) && BG_IsUsingNightVision(_RDI) )
+  if ( Scr_GetNumParam(scrContext) == 1 && Scr_GetInt(scrContext, 0) && BG_IsUsingNightVision(p_ps) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+730h]
-    }
-    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&_RDI->weapCommon.weapFlags, ACTIVE, 7u);
+    if ( p_ps->weapCommon.fWeaponPosFrac > 0.0 )
+      Com_PrintWarning(16, "Forcing NIGHT VISION TRANSITIONS while the player is in ADS will cause view model weapon pops!!!");
+    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::ClearFlagInternal(&p_ps->weapCommon.weapFlags, ACTIVE, 7u);
   }
   else
   {
-    clientNum = _RDI->clientNum;
-    v11 = j_va("%c %d", 69i64, 0i64);
-    v12 = v11;
+    clientNum = p_ps->clientNum;
+    v9 = j_va("%c %d", 69i64, 0i64);
+    v10 = v9;
     if ( clientNum == -1 )
     {
-      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
+      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
     }
     else
     {
       CommonClient = SvClient::GetCommonClient(clientNum);
-      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v12);
+      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
     }
   }
 }
@@ -7241,59 +6907,57 @@ ScrCmd_NightVisionViewOn
 void ScrCmd_NightVisionViewOn(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v7; 
-  ComErrorCode v8; 
+  gentity_s *v4; 
+  const playerState_s *p_ps; 
+  const char *v6; 
+  ComErrorCode v7; 
   unsigned int clientNum; 
-  const char *v11; 
-  const char *v12; 
+  const char *v9; 
+  const char *v10; 
   SvClient *CommonClient; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v7 = "not an entity";
-    v8 = COM_ERR_3682;
+    v6 = "not an entity";
+    v7 = COM_ERR_3682;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 10566, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  _RDI = &v5->client->ps;
-  if ( !_RDI )
+  v4 = &g_entities[entnum];
+  p_ps = &v4->client->ps;
+  if ( !p_ps )
   {
-    _RDI = &v5->agent->playerState;
-    if ( !_RDI )
+    p_ps = &v4->agent->playerState;
+    if ( !p_ps )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      v8 = COM_ERR_3679;
+      v6 = j_va("entity %i is not a player or agent", entnum);
+      v7 = COM_ERR_3679;
 LABEL_9:
-      Scr_ObjectError(v8, scrContext, v7);
-      _RDI = NULL;
+      Scr_ObjectError(v7, scrContext, v6);
+      p_ps = NULL;
     }
   }
-  if ( Scr_GetNumParam(scrContext) == 1 && Scr_GetInt(scrContext, 0) && !BG_IsUsingNightVision(_RDI) )
+  if ( Scr_GetNumParam(scrContext) == 1 && Scr_GetInt(scrContext, 0) && !BG_IsUsingNightVision(p_ps) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+730h]
-    }
-    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&_RDI->weapCommon.weapFlags, ACTIVE, 7u);
+    if ( p_ps->weapCommon.fWeaponPosFrac > 0.0 )
+      Com_PrintWarning(16, "Forcing NIGHT VISION TRANSITIONS while the player is in ADS will cause view model weapon pops!!!");
+    GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::SetFlagInternal(&p_ps->weapCommon.weapFlags, ACTIVE, 7u);
   }
   else
   {
-    clientNum = _RDI->clientNum;
-    v11 = j_va("%c %d", 69i64, 1i64);
-    v12 = v11;
+    clientNum = p_ps->clientNum;
+    v9 = j_va("%c %d", 69i64, 1i64);
+    v10 = v9;
     if ( clientNum == -1 )
     {
-      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
+      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
     }
     else
     {
       CommonClient = SvClient::GetCommonClient(clientNum);
-      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v12);
+      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
     }
   }
 }
@@ -7364,73 +7028,69 @@ ScrCmd_SetNightVisionBlindWeight
 void ScrCmd_SetNightVisionBlindWeight(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
+  gentity_s *v4; 
   const playerState_s *p_ps; 
-  ComErrorCode v7; 
-  const char *v8; 
-  const char *v11; 
+  ComErrorCode v6; 
+  const char *v7; 
+  double Float; 
+  const char *v9; 
   unsigned int clientNum; 
-  const char *v13; 
+  const char *v11; 
   SvClient *CommonClient; 
-  const char *v15; 
-  ComErrorCode v16; 
+  const char *v13; 
+  ComErrorCode v14; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v15 = "not an entity";
-    v16 = COM_ERR_3682;
+    v13 = "not an entity";
+    v14 = COM_ERR_3682;
     goto LABEL_16;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 10636, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  p_ps = &v5->client->ps;
+  v4 = &g_entities[entnum];
+  p_ps = &v4->client->ps;
   if ( !p_ps )
   {
-    p_ps = &v5->agent->playerState;
+    p_ps = &v4->agent->playerState;
     if ( !p_ps )
     {
-      v15 = j_va("entity %i is not a player or agent", entnum);
-      v16 = COM_ERR_3679;
+      v13 = j_va("entity %i is not a player or agent", entnum);
+      v14 = COM_ERR_3679;
 LABEL_16:
-      Scr_ObjectError(v16, scrContext, v15);
-      v7 = COM_ERR_6148;
+      Scr_ObjectError(v14, scrContext, v13);
+      v6 = COM_ERR_6148;
       goto LABEL_17;
     }
   }
   if ( BG_IsAgent(p_ps) )
   {
-    v7 = COM_ERR_6291;
+    v6 = COM_ERR_6291;
 LABEL_17:
-    v8 = "SetNightVisionBlindWeight: This method must be called on players.\n";
+    v7 = "SetNightVisionBlindWeight: This method must be called on players.\n";
     goto LABEL_18;
   }
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v8 = "usage: level.player SetNightVisionBlindWeight( <weight> )\n";
-    v7 = COM_ERR_6149;
+    v7 = "usage: level.player SetNightVisionBlindWeight( <weight> )\n";
+    v6 = COM_ERR_6149;
 LABEL_18:
-    Scr_Error(v7, scrContext, v8);
+    Scr_Error(v6, scrContext, v7);
     return;
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-  }
-  v11 = j_va("%c %f", 36i64, _R8);
+  Float = Scr_GetFloat(scrContext, 0);
+  v9 = j_va("%c %f", 36i64, *(float *)&Float);
   clientNum = p_ps->clientNum;
-  v13 = v11;
+  v11 = v9;
   if ( clientNum == -1 )
   {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
   }
   else
   {
     CommonClient = SvClient::GetCommonClient(clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v11);
   }
 }
 
@@ -8054,14 +7714,12 @@ void ScrCmd_HudOutlineEnableForClient(scrContext_t *scrContext, scr_entref_t ent
   scrContext_t *v10; 
   ComErrorCode v11; 
   unsigned int number; 
-  int v15; 
+  int v13; 
   unsigned int outIndex[3]; 
-  ClientBits v17; 
-  __int128 v18; 
-  __int64 v19; 
-  unsigned int v20; 
+  ClientBits v15; 
+  ClientBits v16; 
 
-  v15 = 0;
+  v13 = 0;
   if ( Scr_GetNumParam(scrContext) > 2 )
   {
     Scr_Error(COM_ERR_4229, scrContext, "usage: HudOutlineEnableForClient( <client>, <hudOutline> );");
@@ -8093,23 +7751,14 @@ LABEL_16:
     Scr_Error(v11, v10, v9);
     return;
   }
-  v18 = 0ui64;
-  v19 = 0i64;
-  v15 ^= ((unsigned __int8)v15 ^ LOBYTE(outIndex[0])) & 0x3F;
+  memset(&v16, 0, sizeof(v16));
+  v13 ^= ((unsigned __int8)v13 ^ LOBYTE(outIndex[0])) & 0x3F;
   number = v6->s.number;
-  v20 = 0;
   if ( number >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", number, 224) )
     __debugbreak();
-  *((_DWORD *)&v18 + ((unsigned __int64)number >> 5)) |= 0x80000000 >> (number & 0x1F);
-  __asm
-  {
-    vmovups xmm0, [rsp+0D8h+var_58]
-    vmovsd  xmm1, [rsp+0D8h+var_48]
-    vmovups [rsp+0D8h+var_78], xmm0
-    vmovsd  [rsp+0D8h+var_68], xmm1
-  }
-  v17.array[6] = v20;
-  if ( !G_HudOutline_EnableForClientMask(Entity, &v17, (const outline_client_data_t *)&v15) )
+  v16.array[(unsigned __int64)number >> 5] |= 0x80000000 >> (number & 0x1F);
+  v15 = v16;
+  if ( !G_HudOutline_EnableForClientMask(Entity, &v15, (const outline_client_data_t *)&v13) )
   {
     v9 = "HudOutlineEnableForClient() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?";
     v10 = scrContext;
@@ -8228,15 +7877,9 @@ void ScrCmd_HudOutlineDisableForClient(scrContext_t *scrContext, scr_entref_t en
   gentity_s *Entity; 
   gentity_s *v5; 
   gentity_s *v6; 
-  unsigned int v7; 
-  int number; 
-  int maxclients; 
-  unsigned int v12; 
-  int v13; 
-  ClientBits v14; 
-  __int128 v15; 
-  __int64 v16; 
-  unsigned int v17; 
+  unsigned int number; 
+  ClientBits v8; 
+  ClientBits v9; 
 
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
@@ -8245,34 +7888,15 @@ void ScrCmd_HudOutlineDisableForClient(scrContext_t *scrContext, scr_entref_t en
     v6 = v5;
     if ( v5 && v5->client )
     {
-      if ( (unsigned int)v5->s.number >= level.maxclients )
-      {
-        maxclients = level.maxclients;
-        number = v5->s.number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11121, ASSERT_TYPE_ASSERT, "(unsigned)( clientEnt->s.number ) < (unsigned)( level.maxclients )", "clientEnt->s.number doesn't index level.maxclients\n\t%i not in [0, %i)", number, maxclients) )
-          __debugbreak();
-      }
-      v7 = v6->s.number;
-      v15 = 0ui64;
-      v16 = 0i64;
-      v17 = 0;
-      if ( v7 >= 0xE0 )
-      {
-        v13 = 224;
-        v12 = v7;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v12, v13) )
-          __debugbreak();
-      }
-      *((_DWORD *)&v15 + ((unsigned __int64)v7 >> 5)) |= 0x80000000 >> (v7 & 0x1F);
-      __asm
-      {
-        vmovups xmm0, [rsp+0A8h+var_38]
-        vmovsd  xmm1, [rsp+0A8h+var_28]
-        vmovups [rsp+0A8h+var_58], xmm0
-        vmovsd  [rsp+0A8h+var_48], xmm1
-      }
-      v14.array[6] = v17;
-      if ( !G_HudOutline_DisableForClientMask(Entity, &v14) )
+      if ( (unsigned int)v5->s.number >= level.maxclients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11121, ASSERT_TYPE_ASSERT, "(unsigned)( clientEnt->s.number ) < (unsigned)( level.maxclients )", "clientEnt->s.number doesn't index level.maxclients\n\t%i not in [0, %i)", v5->s.number, level.maxclients) )
+        __debugbreak();
+      number = v6->s.number;
+      memset(&v9, 0, sizeof(v9));
+      if ( number >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", number, 224) )
+        __debugbreak();
+      v9.array[(unsigned __int64)number >> 5] |= 0x80000000 >> (number & 0x1F);
+      v8 = v9;
+      if ( !G_HudOutline_DisableForClientMask(Entity, &v8) )
         Scr_Error(COM_ERR_6292, scrContext, "HudOutlineDisableForClient() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?");
     }
     else
@@ -8385,44 +8009,32 @@ GScr_StopSliding
 void GScr_StopSliding(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   int time; 
   GHandler *Handler; 
   GWeaponMap *Instance; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29427, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29427, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("StopSliding is only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4797, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("StopSliding is only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4797, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29433, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) )
@@ -8443,11 +8055,11 @@ void ScrCmd_SetEntitySoundContext(scrContext_t *scrContext, scr_entref_t entref)
   unsigned int entnum; 
   unsigned int NumParam; 
   const char *String; 
-  const char *v7; 
+  const char *v6; 
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  const char *v11; 
-  double v12; 
+  double Float; 
+  const char *v10; 
 
   entnum = entref.entnum;
   NumParam = Scr_GetNumParam(scrContext);
@@ -8458,33 +8070,28 @@ void ScrCmd_SetEntitySoundContext(scrContext_t *scrContext, scr_entref_t entref)
   else
   {
     String = Scr_GetString(scrContext, 0);
-    v7 = Scr_GetString(scrContext, 1u);
-    v8 = SND_HashName(String);
+    v6 = Scr_GetString(scrContext, 1u);
+    v7 = SND_HashName(String);
     SND_DevhostString(String);
-    if ( *v7 )
+    if ( *v6 )
     {
-      v9 = SND_HashName(v7);
-      SND_DevhostString(v7);
+      v8 = SND_HashName(v6);
+      SND_DevhostString(v6);
     }
     else
     {
-      v9 = 0;
+      v8 = 0;
     }
     if ( NumParam == 3 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+58h+var_28], xmm1
-      }
-      v11 = j_va("%c %c %d %x %x %g", 105i64, 97i64, entnum, v8, v9, v12);
+      Float = Scr_GetFloat(scrContext, 2u);
+      v10 = j_va("%c %c %d %x %x %g", 105i64, 97i64, entnum, v7, v8, *(float *)&Float);
     }
     else
     {
-      v11 = j_va("%c %c %d %x %x", 105i64, 97i64, entnum, v8, v9);
+      v10 = j_va("%c %c %d %x %x", 105i64, 97i64, entnum, v7, v8);
     }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v10);
   }
 }
 
@@ -8500,12 +8107,12 @@ void ScrCmd_HudOutlineEnableForClients(scrContext_t *scrContext, scr_entref_t en
   const char *v6; 
   const char *v7; 
   ComErrorCode v8; 
-  int v11; 
+  int v9; 
   unsigned int outIndex[3]; 
-  ClientBits v13; 
+  ClientBits v11; 
   ClientBits outClientMask; 
 
-  v11 = 0;
+  v9 = 0;
   if ( Scr_GetNumParam(scrContext) > 2 )
   {
     Scr_Error(COM_ERR_4239, scrContext, "usage: HudOutlineEnableForClients( <client array>, <hudOutline> );");
@@ -8522,19 +8129,9 @@ void ScrCmd_HudOutlineEnableForClients(scrContext_t *scrContext, scr_entref_t en
   outIndex[0] = 0;
   if ( BG_HudOutline_GetDefIndex(v6, outIndex) )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0A8h+outClientMask.baseclass_0.array]
-      vmovsd  xmm1, qword ptr [rsp+0A8h+outClientMask.baseclass_0.array+10h]
-    }
-    v11 ^= ((unsigned __int8)v11 ^ LOBYTE(outIndex[0])) & 0x3F;
-    v13.array[6] = outClientMask.array[6];
-    __asm
-    {
-      vmovups [rsp+0A8h+var_68], xmm0
-      vmovsd  [rsp+0A8h+var_58], xmm1
-    }
-    if ( G_HudOutline_EnableForClientMask(Entity, &v13, (const outline_client_data_t *)&v11) )
+    v9 ^= ((unsigned __int8)v9 ^ LOBYTE(outIndex[0])) & 0x3F;
+    v11 = outClientMask;
+    if ( G_HudOutline_EnableForClientMask(Entity, &v11, (const outline_client_data_t *)&v9) )
       return;
     v7 = "HudOutlineEnableForClients() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?";
     v8 = COM_ERR_6293;
@@ -8555,42 +8152,42 @@ PlayerCmd_SetClientTriggerAudioZone
 void PlayerCmd_SetClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   int number; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  ComErrorCode v10; 
+  ComErrorCode v9; 
   unsigned int NumParam; 
   const char *String; 
+  const char *v12; 
   const char *v13; 
-  const char *v14; 
-  char *fmt; 
+  double Float; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29521, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v6);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
-  number = v5->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( SV_IsAgent(number) && !SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
-    v8 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4800, scrContext, v8);
+    v7 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4800, scrContext, v7);
     return;
   }
   if ( outControllingClientNum < level.maxclients )
@@ -8601,33 +8198,28 @@ void PlayerCmd_SetClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_t 
       if ( NumParam == 1 )
       {
         String = Scr_GetString(scrContext, 0);
-        v13 = j_va("%c %c %s 0", 109i64, 98i64, String);
+        v12 = j_va("%c %c %s 0", 109i64, 98i64, String);
       }
       else
       {
         if ( NumParam != 2 )
           return;
-        v14 = Scr_GetString(scrContext, 0);
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-        __asm
-        {
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rsp+38h+fmt], xmm1
-        }
-        v13 = j_va("%c %c %s 0 %g", 109i64, 98i64, v14, *(double *)&fmt);
+        v13 = Scr_GetString(scrContext, 0);
+        Float = Scr_GetFloat(scrContext, 1u);
+        v12 = j_va("%c %c %s 0 %g", 109i64, 98i64, v13, *(float *)&Float);
       }
-      SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v13);
+      SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v12);
       return;
     }
-    v9 = "Incorrect number of parameters\n";
-    v10 = COM_ERR_4801;
+    v8 = "Incorrect number of parameters\n";
+    v9 = COM_ERR_4801;
   }
   else
   {
-    v9 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-    v10 = COM_ERR_6411;
+    v8 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+    v9 = COM_ERR_6411;
   }
-  Scr_Error(v10, scrContext, v9);
+  Scr_Error(v9, scrContext, v8);
 }
 
 /*
@@ -8640,25 +8232,15 @@ void ScrCmd_HudOutlineDisableForClients(scrContext_t *scrContext, scr_entref_t e
   const char *v4; 
   ComErrorCode v5; 
   gentity_s *Entity; 
-  ClientBits v9; 
+  ClientBits v7; 
   ClientBits outClientMask; 
 
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
     Entity = GetEntity(entref);
     ScrCmd_BuildHudOutlineClientMaskFromEntArray(scrContext, 0, &outClientMask);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+78h+outClientMask.baseclass_0.array]
-      vmovsd  xmm1, qword ptr [rsp+78h+outClientMask.baseclass_0.array+10h]
-    }
-    v9.array[6] = outClientMask.array[6];
-    __asm
-    {
-      vmovups [rsp+78h+var_58], xmm0
-      vmovsd  [rsp+78h+var_48], xmm1
-    }
-    if ( G_HudOutline_DisableForClientMask(Entity, &v9) )
+    v7 = outClientMask;
+    if ( G_HudOutline_DisableForClientMask(Entity, &v7) )
       return;
     v4 = "HudOutlineDisableForClients() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?";
     v5 = COM_ERR_6294;
@@ -8683,13 +8265,13 @@ void ScrCmd_HudOutlineEnable(scrContext_t *scrContext, scr_entref_t entref)
   const char *v6; 
   ComErrorCode v7; 
   gentity_s *Entity; 
-  int v11; 
+  int v9; 
   unsigned int outIndex[3]; 
-  ClientBits v13; 
-  __int128 v14; 
-  __int64 v15; 
+  ClientBits v11; 
+  __int128 v12; 
+  __int64 v13; 
 
-  v11 = 0;
+  v9 = 0;
   if ( Scr_GetNumParam(scrContext) > 1 )
   {
     Scr_Error(COM_ERR_4242, scrContext, "Usage: HudOutlineEnable( <hudOutline>");
@@ -8704,20 +8286,15 @@ void ScrCmd_HudOutlineEnable(scrContext_t *scrContext, scr_entref_t entref)
   outIndex[0] = 0;
   if ( BG_HudOutline_GetDefIndex(v5, outIndex) )
   {
-    v11 ^= ((unsigned __int8)v11 ^ LOBYTE(outIndex[0])) & 0x3F;
+    v9 ^= ((unsigned __int8)v9 ^ LOBYTE(outIndex[0])) & 0x3F;
     Entity = GetEntity(entref);
-    *(_QWORD *)&v14 = -1i64;
-    *((_QWORD *)&v14 + 1) = -1i64;
-    __asm { vmovups xmm0, [rsp+0A8h+var_48] }
-    v15 = -1i64;
-    __asm
-    {
-      vmovsd  xmm1, [rsp+0A8h+var_38]
-      vmovups [rsp+0A8h+var_68], xmm0
-      vmovsd  [rsp+0A8h+var_58], xmm1
-    }
-    v13.array[6] = -1;
-    if ( G_HudOutline_EnableForClientMask(Entity, &v13, (const outline_client_data_t *)&v11) )
+    *(_QWORD *)&v12 = -1i64;
+    *((_QWORD *)&v12 + 1) = -1i64;
+    v13 = -1i64;
+    *(_OWORD *)v11.array = v12;
+    *(double *)&v11.array[4] = NAN;
+    v11.array[6] = -1;
+    if ( G_HudOutline_EnableForClientMask(Entity, &v11, (const outline_client_data_t *)&v9) )
       return;
     v6 = "HudOutlineEnable() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?";
     v7 = COM_ERR_6295;
@@ -8738,39 +8315,39 @@ PlayerCmd_SetPriorityClientTriggerAudioZone
 void PlayerCmd_SetPriorityClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   int number; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
   unsigned int NumParam; 
   const char *String; 
   int AudioTriggerPriorityIndex; 
+  const char *v12; 
   const char *v13; 
-  const char *v14; 
-  const char *v16; 
+  double Float; 
+  const char *v15; 
   char *fmt; 
-  double v18; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29577, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v6);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
-  number = v5->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( !SV_IsAgent(number) || SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
@@ -8787,34 +8364,29 @@ void PlayerCmd_SetPriorityClientTriggerAudioZone(scrContext_t *scrContext, scr_e
         AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(String);
         if ( AudioTriggerPriorityIndex == -1 )
         {
-          v13 = j_va("Invalid client trigger override priority level: %s", String);
-          Scr_Error(COM_ERR_4804, scrContext, v13);
+          v12 = j_va("Invalid client trigger override priority level: %s", String);
+          Scr_Error(COM_ERR_4804, scrContext, v12);
         }
         else if ( NumParam == 2 )
         {
-          v14 = Scr_GetString(scrContext, 0);
-          *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+38h+var_10], xmm1
-          }
+          v13 = Scr_GetString(scrContext, 0);
+          Float = Scr_GetFloat(scrContext, 2u);
           LODWORD(fmt) = AudioTriggerPriorityIndex;
-          v16 = j_va("%c %c %s %d %g", 109i64, 98i64, v14, fmt, v18);
-          SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v16);
+          v15 = j_va("%c %c %s %d %g", 109i64, 98i64, v13, fmt, *(float *)&Float);
+          SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v15);
         }
       }
     }
     else
     {
-      v9 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-      Scr_Error(COM_ERR_6412, scrContext, v9);
+      v8 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+      Scr_Error(COM_ERR_6412, scrContext, v8);
     }
   }
   else
   {
-    v8 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4802, scrContext, v8);
+    v7 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4802, scrContext, v7);
   }
 }
 
@@ -8826,26 +8398,18 @@ ScrCmd_HudOutlineDisable
 void ScrCmd_HudOutlineDisable(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  ClientBits v6; 
-  __int128 v7; 
-  __int64 v8; 
+  ClientBits v4; 
+  __int128 v5; 
+  __int64 v6; 
 
-  *(_QWORD *)&v7 = -1i64;
-  *((_QWORD *)&v7 + 1) = -1i64;
-  v8 = -1i64;
+  *(_QWORD *)&v5 = -1i64;
+  *((_QWORD *)&v5 + 1) = -1i64;
+  v6 = -1i64;
   Entity = GetEntity(entref);
-  __asm
-  {
-    vmovups xmm0, [rsp+78h+var_38]
-    vmovsd  xmm1, [rsp+78h+var_28]
-  }
-  v6.array[6] = -1;
-  __asm
-  {
-    vmovups [rsp+78h+var_58], xmm0
-    vmovsd  [rsp+78h+var_48], xmm1
-  }
-  if ( !G_HudOutline_DisableForClientMask(Entity, &v6) )
+  v4.array[6] = -1;
+  *(_OWORD *)v4.array = v5;
+  *(double *)&v4.array[4] = NAN;
+  if ( !G_HudOutline_DisableForClientMask(Entity, &v4) )
     Scr_Error(COM_ERR_6296, scrContext, "HudOutlineDisable() could not be applied because there are currently too many hud outline settings. Can we reduce color and depth test variations?");
 }
 
@@ -8857,41 +8421,41 @@ PlayerCmd_SetClientTriggerAudioZoneLerp
 void PlayerCmd_SetClientTriggerAudioZoneLerp(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   int number; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  ComErrorCode v10; 
+  ComErrorCode v9; 
   const char *String; 
-  const char *v12; 
-  const char *v14; 
-  double v15; 
+  const char *v11; 
+  double Float; 
+  const char *v13; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29643, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v6);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
-  number = v5->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( SV_IsAgent(number) && !SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
-    v8 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4805, scrContext, v8);
+    v7 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4805, scrContext, v7);
     return;
   }
   if ( outControllingClientNum < level.maxclients )
@@ -8899,26 +8463,21 @@ void PlayerCmd_SetClientTriggerAudioZoneLerp(scrContext_t *scrContext, scr_entre
     if ( Scr_GetNumParam(scrContext) == 3 )
     {
       String = Scr_GetString(scrContext, 0);
-      v12 = Scr_GetString(scrContext, 1u);
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+38h+var_10], xmm1
-      }
-      v14 = j_va("%c %c %s %s %g", 109i64, 99i64, String, v12, v15);
-      SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v14);
+      v11 = Scr_GetString(scrContext, 1u);
+      Float = Scr_GetFloat(scrContext, 2u);
+      v13 = j_va("%c %c %s %s %g", 109i64, 99i64, String, v11, *(float *)&Float);
+      SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v13);
       return;
     }
-    v9 = "Incorrect number of parameters\n";
-    v10 = COM_ERR_4806;
+    v8 = "Incorrect number of parameters\n";
+    v9 = COM_ERR_4806;
   }
   else
   {
-    v9 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-    v10 = COM_ERR_6413;
+    v8 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+    v9 = COM_ERR_6413;
   }
-  Scr_Error(v10, scrContext, v9);
+  Scr_Error(v9, scrContext, v8);
 }
 
 /*
@@ -9041,43 +8600,31 @@ ScrCmd_GetStance
 void ScrCmd_GetStance(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  bool v18; 
+  bool v10; 
   scr_string_t crouch; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11455, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11455, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4244, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4244, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11461, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0) )
@@ -9086,9 +8633,9 @@ void ScrCmd_GetStance(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    v18 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 1u);
+    v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 1u);
     crouch = scr_const.crouch;
-    if ( !v18 )
+    if ( !v10 )
       crouch = scr_const.stand;
     Scr_AddConstString(scrContext, crouch);
   }
@@ -9101,36 +8648,30 @@ PlayerCmd_SetClientTriggerAudioZonePartial
 */
 void PlayerCmd_SetClientTriggerAudioZonePartial(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v5; 
-  const char *v6; 
-  ComErrorCode v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
   const char *String; 
-  float fmt; 
 
   if ( entref.entclass )
   {
-    v6 = "not an entity";
-    v7 = COM_ERR_3678;
+    v5 = "not an entity";
+    v6 = COM_ERR_3678;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29778, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entref.entnum];
-  if ( !v5->client && !v5->agent )
+  v4 = &g_entities[entref.entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v6 = j_va("entity %i is not a player or agent", entref.entnum);
-    v7 = COM_ERR_3677;
+    v5 = j_va("entity %i is not a player or agent", entref.entnum);
+    v6 = COM_ERR_3677;
 LABEL_9:
-    Scr_ObjectError(v7, scrContext, v6);
+    Scr_ObjectError(v6, scrContext, v5);
   }
   Scr_GetNumParam(scrContext);
   String = Scr_GetString(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+38h+fmt], xmm0
-  }
-  SetClientTriggerAudioZonePartial(scrContext, entref, String, 0, fmt, 1);
+  SetClientTriggerAudioZonePartial(scrContext, entref, String, 0, 0.0, 1);
 }
 
 /*
@@ -9140,128 +8681,116 @@ ScrCmd_SetStance
 */
 void ScrCmd_SetStance(scrContext_t *scrContext, scr_entref_t entref)
 {
-  bool v4; 
+  bool v3; 
   gentity_s *Entity; 
   scr_string_t ConstString; 
-  int v7; 
+  int v6; 
+  gclient_s *client; 
   int passEntityNum; 
-  const Bounds *v10; 
-  const char *v11; 
+  const Bounds *v9; 
+  const char *v10; 
   int clientNum; 
   const Bounds *Bounds; 
-  const char *v14; 
+  const char *v13; 
   const SuitDef *SuitDef; 
+  bool v15; 
   bool v16; 
-  bool v17; 
   int viewheight_stand; 
-  unsigned int v19; 
-  int v22; 
+  unsigned int v18; 
   trace_t results; 
 
-  v4 = 0;
+  v3 = 0;
   Entity = GetEntity(entref);
   ConstString = Scr_GetConstString(scrContext, 0);
-  v7 = 1;
+  v6 = 1;
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) )
-    v4 = Scr_GetInt(scrContext, 1u) != 0;
-  _RSI = Entity->client;
-  if ( !_RSI )
+    v3 = Scr_GetInt(scrContext, 1u) != 0;
+  client = Entity->client;
+  if ( !client )
   {
     Scr_Error(COM_ERR_4245, scrContext, "SetStance is only defined for players.");
     return;
   }
-  if ( v4 )
+  if ( v3 )
     goto LABEL_19;
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0) || ConstString != scr_const.crouch && ConstString != scr_const.stand || (passEntityNum = _RSI->ps.clientNum, v10 = BG_Suit_GetBounds(_RSI->ps.suitIndex, PM_EFF_STANCE_DUCKED), G_Main_TraceCapsule(&results, &_RSI->ps.origin, &_RSI->ps.origin, v10, passEntityNum, 65553), !results.allsolid) )
+  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0) || ConstString != scr_const.crouch && ConstString != scr_const.stand || (passEntityNum = client->ps.clientNum, v9 = BG_Suit_GetBounds(client->ps.suitIndex, PM_EFF_STANCE_DUCKED), G_Main_TraceCapsule(&results, &client->ps.origin, &client->ps.origin, v9, passEntityNum, 65553), !results.allsolid) )
   {
-    if ( (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 1u)) && ConstString == scr_const.stand )
+    if ( (GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0) || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 1u)) && ConstString == scr_const.stand )
     {
-      clientNum = _RSI->ps.clientNum;
-      Bounds = BG_Suit_GetBounds(_RSI->ps.suitIndex, PM_EFF_STANCE_DUCKED);
-      G_Main_TraceCapsule(&results, &_RSI->ps.origin, &_RSI->ps.origin, Bounds, clientNum, 65553);
+      clientNum = client->ps.clientNum;
+      Bounds = BG_Suit_GetBounds(client->ps.suitIndex, PM_EFF_STANCE_DUCKED);
+      G_Main_TraceCapsule(&results, &client->ps.origin, &client->ps.origin, Bounds, clientNum, 65553);
       if ( results.allsolid )
       {
-        v14 = SL_ConvertToString(ConstString);
-        Com_PrintWarning(23, "Warning: SetStance( \"%s\" ) could not be applied because there isn't enough room", v14);
-        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0) )
+        v13 = SL_ConvertToString(ConstString);
+        Com_PrintWarning(23, "Warning: SetStance( \"%s\" ) could not be applied because there isn't enough room", v13);
+        if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0) )
           goto LABEL_11;
         ConstString = scr_const.crouch;
       }
     }
 LABEL_19:
-    SuitDef = BG_GetSuitDef(_RSI->ps.suitIndex);
+    SuitDef = BG_GetSuitDef(client->ps.suitIndex);
     if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11540, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    v16 = Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) && Scr_GetInt(scrContext, 2u);
-    v17 = Scr_GetNumParam(scrContext) > 3 && Scr_GetType(scrContext, 3u) && Scr_GetInt(scrContext, 3u);
+    v15 = Scr_GetNumParam(scrContext) > 2 && Scr_GetType(scrContext, 2u) && Scr_GetInt(scrContext, 2u);
+    v16 = Scr_GetNumParam(scrContext) > 3 && Scr_GetType(scrContext, 3u) && Scr_GetInt(scrContext, 3u);
     if ( ConstString == scr_const.stand )
     {
-      if ( v16 )
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 4u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 2u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 3u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0x36u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 1u);
+      if ( v15 )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&client->ps.pm_flags, ACTIVE, 4u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 2u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 0x36u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 1u);
       viewheight_stand = SuitDef->viewheight_stand;
-      v19 = 10;
+      v18 = 10;
     }
     else if ( ConstString == scr_const.crouch )
     {
-      if ( v16 )
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 3u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 2u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 4u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0x36u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 1u);
+      if ( v15 )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&client->ps.pm_flags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 2u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 4u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 0);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 0x36u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&client->ps.pm_flags, ACTIVE, 1u);
       viewheight_stand = SuitDef->viewheight_crouch;
-      v19 = 11;
+      v18 = 11;
     }
     else
     {
       if ( ConstString != scr_const.prone )
       {
-        v7 = 0;
+        v6 = 0;
 LABEL_52:
-        Scr_AddBool(scrContext, v7);
+        Scr_AddBool(scrContext, v6);
         return;
       }
-      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0) )
+      if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&client->ps.pm_flags, ACTIVE, 0) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+1DCh]
-          vmovss  [rsp+0E8h+var_B8], xmm0
-        }
-        if ( (v22 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11593, ASSERT_TYPE_ASSERT, "(!IS_NAN( ps->viewangles[YAW] ))", (const char *)&queryFormat, "!IS_NAN( ps->viewangles[YAW] )") )
+        if ( (LODWORD(client->ps.viewangles.v[1]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 11593, ASSERT_TYPE_ASSERT, "(!IS_NAN( ps->viewangles[YAW] ))", (const char *)&queryFormat, "!IS_NAN( ps->viewangles[YAW] )") )
           __debugbreak();
-        _RSI->ps.proneDirection = _RSI->ps.viewangles.v[1];
+        client->ps.proneDirection = client->ps.viewangles.v[1];
       }
-      if ( v16 )
-        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 2u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 3u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 4u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 1u);
-      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 0);
+      if ( v15 )
+        GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&client->ps.pm_flags, ACTIVE, 2u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 4u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 1u);
+      GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&client->ps.pm_flags, ACTIVE, 0);
       viewheight_stand = BG_Suit_GetProneViewHeight(SuitDef);
-      v19 = 12;
+      v18 = 12;
     }
-    _RSI->ps.viewHeightTarget = viewheight_stand;
-    G_Utils_AddEvent(Entity, v19, 0);
-    if ( v17 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+1E4h]
-        vmovss  dword ptr [rsi+1E8h], xmm0
-      }
-    }
+    client->ps.viewHeightTarget = viewheight_stand;
+    G_Utils_AddEvent(Entity, v18, 0);
+    if ( v16 )
+      client->ps.viewHeightCurrent = (float)client->ps.viewHeightTarget;
     goto LABEL_52;
   }
-  v11 = SL_ConvertToString(ConstString);
-  Com_PrintWarning(23, "Warning: SetStance( \"%s\" ) could not be applied because there isn't enough room", v11);
+  v10 = SL_ConvertToString(ConstString);
+  Com_PrintWarning(23, "Warning: SetStance( \"%s\" ) could not be applied because there isn't enough room", v10);
 LABEL_11:
   Scr_AddBool(scrContext, 0);
 }
@@ -9273,48 +8802,42 @@ PlayerCmd_SetPriorityClientTriggerAudioZonePartial
 */
 void PlayerCmd_SetPriorityClientTriggerAudioZonePartial(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v5; 
-  const char *v6; 
-  ComErrorCode v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
   const char *String; 
-  const char *v9; 
+  const char *v8; 
   int AudioTriggerPriorityIndex; 
-  const char *v11; 
-  float fmt; 
+  const char *v10; 
 
   if ( entref.entclass )
   {
-    v6 = "not an entity";
-    v7 = COM_ERR_3678;
+    v5 = "not an entity";
+    v6 = COM_ERR_3678;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29817, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entref.entnum];
-  if ( !v5->client && !v5->agent )
+  v4 = &g_entities[entref.entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v6 = j_va("entity %i is not a player or agent", entref.entnum);
-    v7 = COM_ERR_3677;
+    v5 = j_va("entity %i is not a player or agent", entref.entnum);
+    v6 = COM_ERR_3677;
 LABEL_9:
-    Scr_ObjectError(v7, scrContext, v6);
+    Scr_ObjectError(v6, scrContext, v5);
   }
   Scr_GetNumParam(scrContext);
   String = Scr_GetString(scrContext, 0);
-  v9 = Scr_GetString(scrContext, 1u);
-  AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(v9);
+  v8 = Scr_GetString(scrContext, 1u);
+  AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(v8);
   if ( AudioTriggerPriorityIndex == -1 )
   {
-    v11 = j_va("Invalid client trigger override priority level: %s", v9);
-    Scr_Error(COM_ERR_4809, scrContext, v11);
+    v10 = j_va("Invalid client trigger override priority level: %s", v8);
+    Scr_Error(COM_ERR_4809, scrContext, v10);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+38h+fmt], xmm0
-    }
-    SetClientTriggerAudioZonePartial(scrContext, entref, String, AudioTriggerPriorityIndex, fmt, 2);
+    SetClientTriggerAudioZonePartial(scrContext, entref, String, AudioTriggerPriorityIndex, 0.0, 2);
   }
 }
 
@@ -9325,33 +8848,32 @@ PlayerCmd_SetClientTriggerAudioZonePartialWithFade
 */
 void PlayerCmd_SetClientTriggerAudioZonePartialWithFade(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v5; 
-  const char *v6; 
-  ComErrorCode v7; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
   const char *String; 
-  float fmt; 
+  double Float; 
 
   if ( entref.entclass )
   {
-    v6 = "not an entity";
-    v7 = COM_ERR_3678;
+    v5 = "not an entity";
+    v6 = COM_ERR_3678;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29863, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entref.entnum];
-  if ( !v5->client && !v5->agent )
+  v4 = &g_entities[entref.entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v6 = j_va("entity %i is not a player or agent", entref.entnum);
-    v7 = COM_ERR_3677;
+    v5 = j_va("entity %i is not a player or agent", entref.entnum);
+    v6 = COM_ERR_3677;
 LABEL_9:
-    Scr_ObjectError(v7, scrContext, v6);
+    Scr_ObjectError(v6, scrContext, v5);
   }
   Scr_GetNumParam(scrContext);
   String = Scr_GetString(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovss  dword ptr [rsp+38h+fmt], xmm0 }
-  SetClientTriggerAudioZonePartial(scrContext, entref, String, 0, fmt, 2);
+  Float = Scr_GetFloat(scrContext, 1u);
+  SetClientTriggerAudioZonePartial(scrContext, entref, String, 0, *(const float *)&Float, 2);
 }
 
 /*
@@ -9361,50 +8883,46 @@ PlayerCmd_SetPriorityClientTriggerAudioZonePartialWithFade
 */
 void PlayerCmd_SetPriorityClientTriggerAudioZonePartialWithFade(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v6; 
-  const char *v7; 
-  ComErrorCode v8; 
+  gentity_s *v4; 
+  const char *v5; 
+  ComErrorCode v6; 
   const char *String; 
-  const char *v11; 
+  double Float; 
+  const char *v9; 
   int AudioTriggerPriorityIndex; 
-  const char *v13; 
-  float fmt; 
+  const char *v11; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( entref.entclass )
   {
-    v7 = "not an entity";
-    v8 = COM_ERR_3678;
+    v5 = "not an entity";
+    v6 = COM_ERR_3678;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29905, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v6 = &g_entities[entref.entnum];
-  if ( !v6->client && !v6->agent )
+  v4 = &g_entities[entref.entnum];
+  if ( !v4->client && !v4->agent )
   {
-    v7 = j_va("entity %i is not a player or agent", entref.entnum);
-    v8 = COM_ERR_3677;
+    v5 = j_va("entity %i is not a player or agent", entref.entnum);
+    v6 = COM_ERR_3677;
 LABEL_9:
-    Scr_ObjectError(v8, scrContext, v7);
+    Scr_ObjectError(v6, scrContext, v5);
   }
   Scr_GetNumParam(scrContext);
   String = Scr_GetString(scrContext, 0);
   Scr_GetString(scrContext, 1u);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
-  v11 = Scr_GetString(scrContext, 0);
-  AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(v11);
+  Float = Scr_GetFloat(scrContext, 2u);
+  v9 = Scr_GetString(scrContext, 0);
+  AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(v9);
   if ( AudioTriggerPriorityIndex == -1 )
   {
-    v13 = j_va("Invalid client trigger override priority level: %s", v11);
-    Scr_Error(COM_ERR_4810, scrContext, v13);
+    v11 = j_va("Invalid client trigger override priority level: %s", v9);
+    Scr_Error(COM_ERR_4810, scrContext, v11);
   }
   else
   {
-    __asm { vmovss  dword ptr [rsp+48h+fmt], xmm6 }
-    SetClientTriggerAudioZonePartial(scrContext, entref, String, AudioTriggerPriorityIndex, fmt, 2);
+    SetClientTriggerAudioZonePartial(scrContext, entref, String, AudioTriggerPriorityIndex, *(const float *)&Float, 2);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -9415,30 +8933,31 @@ PlayerCmd_ClearClientTriggerAudioZone
 void PlayerCmd_ClearClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   int NumParam; 
   int number; 
+  const char *v8; 
   const char *v9; 
   const char *v10; 
-  const char *v11; 
+  double Float; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29942, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v6);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
   NumParam = Scr_GetNumParam(scrContext);
@@ -9447,37 +8966,32 @@ void PlayerCmd_ClearClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_
     Scr_Error(COM_ERR_4811, scrContext, "Incorrect number of parameters\n");
     return;
   }
-  number = v5->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( SV_IsAgent(number) && !SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
-    v9 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4812, scrContext, v9);
+    v8 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4812, scrContext, v8);
     return;
   }
   if ( outControllingClientNum >= level.maxclients )
   {
-    v10 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-    Scr_Error(COM_ERR_6415, scrContext, v10);
+    v9 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+    Scr_Error(COM_ERR_6415, scrContext, v9);
     return;
   }
   if ( NumParam )
   {
     if ( NumParam != 1 )
       return;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    v11 = j_va("%c %c 0 %g", 109i64, 101i64, _R9);
+    Float = Scr_GetFloat(scrContext, 0);
+    v10 = j_va("%c %c 0 %g", 109i64, 101i64, *(float *)&Float);
   }
   else
   {
-    v11 = j_va("%c %c 0", 109i64, 101i64);
+    v10 = j_va("%c %c 0", 109i64, 101i64);
   }
-  SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v11);
+  SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v10);
 }
 
 /*
@@ -9564,35 +9078,35 @@ PlayerCmd_ClearPriorityClientTriggerAudioZone
 void PlayerCmd_ClearPriorityClientTriggerAudioZone(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
   int NumParam; 
   int number; 
-  const char *v9; 
+  const char *v8; 
   const char *String; 
   unsigned int AudioTriggerPriorityIndex; 
-  unsigned int v12; 
+  unsigned int v11; 
+  const char *v12; 
   const char *v13; 
   const char *v14; 
-  const char *v15; 
-  char *fmt; 
+  double Float; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 29994, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client && !v5->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v6 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v6);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
   NumParam = Scr_GetNumParam(scrContext);
@@ -9601,46 +9115,41 @@ void PlayerCmd_ClearPriorityClientTriggerAudioZone(scrContext_t *scrContext, scr
     Scr_Error(COM_ERR_4813, scrContext, "Incorrect number of parameters\n");
     return;
   }
-  number = v5->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( SV_IsAgent(number) && !SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
-    v9 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4814, scrContext, v9);
+    v8 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4814, scrContext, v8);
     return;
   }
   String = Scr_GetString(scrContext, 0);
   AudioTriggerPriorityIndex = GScr_Main_GetAudioTriggerPriorityIndex(String);
-  v12 = AudioTriggerPriorityIndex;
+  v11 = AudioTriggerPriorityIndex;
   if ( AudioTriggerPriorityIndex == -1 )
   {
-    v13 = j_va("Invalid client trigger override priority level: %s", String);
-    Scr_Error(COM_ERR_4815, scrContext, v13);
+    v12 = j_va("Invalid client trigger override priority level: %s", String);
+    Scr_Error(COM_ERR_4815, scrContext, v12);
     return;
   }
   if ( outControllingClientNum >= level.maxclients )
   {
-    v14 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-    Scr_Error(COM_ERR_6416, scrContext, v14);
+    v13 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+    Scr_Error(COM_ERR_6416, scrContext, v13);
     return;
   }
   if ( NumParam == 1 )
   {
-    v15 = j_va("%c %c %d", 109i64, 101i64, AudioTriggerPriorityIndex);
+    v14 = j_va("%c %c %d", 109i64, 101i64, AudioTriggerPriorityIndex);
   }
   else
   {
     if ( NumParam != 2 )
       return;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+38h+fmt], xmm1
-    }
-    v15 = j_va("%c %c %d %g", 109i64, 101i64, v12, *(double *)&fmt);
+    Float = Scr_GetFloat(scrContext, 0);
+    v14 = j_va("%c %c %d %g", 109i64, 101i64, v11, *(float *)&Float);
   }
-  SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v15);
+  SV_Game_SendServerCommand(outControllingClientNum, SV_CMD_RELIABLE, v14);
 }
 
 /*
@@ -9650,135 +9159,65 @@ Scr_BulletSpread
 */
 void Scr_BulletSpread(scrContext_t *scrContext)
 {
-  const WeaponDef *v11; 
-  bool v47; 
-  float v57; 
-  float v58; 
-  float v59; 
+  __int128 v1; 
+  __int128 v2; 
+  double Float; 
+  float v5; 
+  const WeaponDef *v6; 
+  __int128 v7; 
+  const dvar_t *v11; 
+  float value; 
   unsigned int pHoldrand[4]; 
   BgWeaponParms src; 
   vec3_t end; 
   vec3_t vectorValue; 
   vec3_t dir; 
-  char vars0; 
-  void *retaddr; 
+  _OWORD v18[2]; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-  }
+  v18[1] = v1;
+  v18[0] = v2;
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &end);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm2, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups [rbp+60h+var_B8], ymm1
-    vmovsd  xmm1, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+  Float = Scr_GetFloat(scrContext, 2u);
+  memset(&src.weapon, 0, 48);
   *(_DWORD *)&src.weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  *(double *)&src.weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+  v5 = *(float *)&Float;
+  v6 = BG_WeaponDef(&NULL_WEAPON, 0);
+  src.muzzleTrace = vectorValue;
+  v7 = LODWORD(end.v[1]);
+  *(float *)&v7 = fsqrt((float)((float)((float)(end.v[1] - vectorValue.v[1]) * (float)(end.v[1] - vectorValue.v[1])) + (float)((float)(end.v[0] - vectorValue.v[0]) * (float)(end.v[0] - vectorValue.v[0]))) + (float)((float)(end.v[2] - vectorValue.v[2]) * (float)(end.v[2] - vectorValue.v[2])));
+  _XMM4 = v7;
   __asm
   {
-    vmovsd  [rbp+60h+var_88], xmm1
-    vmovaps xmm8, xmm0
-    vmovups [rbp+60h+var_98], xmm2
-  }
-  v11 = BG_WeaponDef(&NULL_WEAPON, 0);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+60h+vectorValue]
-    vmovss  xmm2, dword ptr [rbp+60h+vectorValue+4]
-    vmovss  xmm3, dword ptr [rbp+60h+vectorValue+8]
-    vmovss  xmm0, dword ptr [rbp+60h+end]
-    vsubss  xmm5, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rbp+60h+end+8]
-    vsubss  xmm7, xmm0, xmm3
-    vmovss  [rbp+60h+var_DC], xmm1
-    vmovss  xmm1, dword ptr [rbp+60h+end+4]
-    vsubss  xmm6, xmm1, xmm2
-    vmovss  [rbp+60h+var_D8], xmm2
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vmovss  [rbp+60h+var_D4], xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm3, xmm5, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmulss  xmm0, xmm7, xmm2
   }
-  src.weapDef = v11;
-  __asm
-  {
-    vmovss  dword ptr [rsp+160h+src], xmm3
-    vmovss  dword ptr [rsp+160h+src+4], xmm1
-    vmovss  dword ptr [rsp+160h+src+8], xmm0
-    vmovss  [rbp+60h+var_D0], xmm3
-    vmovss  [rbp+60h+var_CC], xmm1
-    vmovss  [rbp+60h+var_C8], xmm0
-  }
+  src.weapDef = v6;
+  src.forward.v[0] = (float)(end.v[0] - vectorValue.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  src.forward.v[1] = (float)(end.v[1] - vectorValue.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+  src.forward.v[2] = (float)(end.v[2] - vectorValue.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+  src.gunForward = src.forward;
   PerpendicularVector(&src.forward, &src.up);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+60h+dst+8]
-    vmovss  xmm2, dword ptr [rsp+160h+src+8]
-    vmovss  xmm7, dword ptr [rsp+160h+src+4]
-    vmovss  xmm6, dword ptr [rsp+160h+dst+4]
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm2, xmm2, dword ptr [rsp+160h+dst]
-    vmulss  xmm1, xmm7, xmm5
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rsp+160h+src]
-    vmovss  [rsp+160h+var_F4], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm6, dword ptr [rsp+160h+src]
-    vmulss  xmm0, xmm7, dword ptr [rsp+160h+dst]
-    vmovss  [rsp+160h+var_F0], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmovss  [rsp+160h+var_EC], xmm1
-  }
+  src.right.v[0] = (float)(src.forward.v[1] * src.up.v[2]) - (float)(src.forward.v[2] * src.up.v[1]);
+  src.right.v[1] = (float)(src.forward.v[2] * src.up.v[0]) - (float)(src.up.v[2] * src.forward.v[0]);
+  src.right.v[2] = (float)(src.up.v[1] * src.forward.v[0]) - (float)(src.forward.v[1] * src.up.v[0]);
   pHoldrand[0] = level.time;
   BG_srand(pHoldrand);
-  v47 = Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80);
-  __asm
+  if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80) )
   {
-    vmovaps xmm7, [rsp+160h+var_28+8]
-    vmovaps xmm6, xmmword ptr [rsp+160h+var_18+8]
-  }
-  if ( v47 )
-  {
-    _RBX = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
+    v11 = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
     if ( !DCONST_DVARFLT_bg_bulletLongHitScanDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletLongHitScanDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v11);
+    value = v11->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@46000000 }
+    value = FLOAT_8192_0;
   }
-  __asm
-  {
-    vmovss  [rsp+160h+var_120], xmm0
-    vmovss  xmm0, cs:__real@43b40000
-    vmovss  dword ptr [rsp+160h+var_130], xmm0
-    vxorps  xmm1, xmm1, xmm1; spreadMin
-    vmovss  dword ptr [rsp+160h+var_138], xmm1
-    vmovaps xmm2, xmm8; spreadMax
-  }
-  G_Bullet_Endpos(pHoldrand, *(float *)&_XMM1, *(float *)&_XMM2, &end, &dir, v57, v58, &src, v59);
+  G_Bullet_Endpos(pHoldrand, 0.0, v5, &end, &dir, 0.0, 360.0, &src, value);
   Scr_AddVector(scrContext, end.v);
-  _R11 = &vars0;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
 }
 
 /*
@@ -9789,15 +9228,18 @@ Scr_SightTracePassed
 void Scr_SightTracePassed(scrContext_t *scrContext)
 {
   int number; 
-  int v4; 
+  int v2; 
   int contentmask; 
   int NumParam; 
-  bool v8; 
+  bool v6; 
+  double ClientVisibility; 
+  float v8; 
+  double FxVisibility; 
   vec3_t vectorValue; 
   vec3_t start; 
 
   number = 2047;
-  v4 = 2047;
+  v2 = 2047;
   contentmask = 41965571;
   Scr_GetVector(scrContext, 0, &start);
   Scr_GetVector(scrContext, 1u, &vectorValue);
@@ -9807,33 +9249,29 @@ void Scr_SightTracePassed(scrContext_t *scrContext)
     number = GScr_GetEntity(3u)->s.number;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam > 4 && Scr_GetType(scrContext, 4u) == VAR_POINTER && Scr_GetPointerType(scrContext, 4u) == VAR_ENTITY )
-    v4 = GScr_GetEntity(4u)->s.number;
+    v2 = GScr_GetEntity(4u)->s.number;
   if ( NumParam > 5 && Scr_GetType(scrContext, 5u) == VAR_INTEGER && Scr_GetInt(scrContext, 5u) )
     contentmask &= ~2u;
-  v8 = G_Main_SightTrace(&start, &vectorValue, number, v4, contentmask);
-  if ( v8 && (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
+  v6 = G_Main_SightTrace(&start, &vectorValue, number, v2, contentmask);
+  if ( v6 && (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
   {
-    __asm { vmovaps [rsp+88h+var_28], xmm6 }
     if ( SV_IsDemoPlaying() )
     {
-      *(double *)&_XMM0 = SV_DemoSP_GetFxVisibility();
-      __asm { vmovaps xmm6, xmm0 }
+      FxVisibility = SV_DemoSP_GetFxVisibility();
+      v8 = *(float *)&FxVisibility;
     }
     else
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api_inline.h", 118, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::CLIENT_SERVER_SHARED_MEMORY )") )
         __debugbreak();
-      *(double *)&_XMM0 = FX_GetClientVisibility(fx_serverVisClient, &start, &vectorValue);
-      __asm { vmovaps xmm6, xmm0 }
-      SV_DemoSP_RecordFxVisibility(*(float *)&_XMM0);
+      ClientVisibility = FX_GetClientVisibility(fx_serverVisClient, &start, &vectorValue);
+      v8 = *(float *)&ClientVisibility;
+      SV_DemoSP_RecordFxVisibility(*(float *)&ClientVisibility);
     }
-    __asm
-    {
-      vcomiss xmm6, cs:__real@3e4ccccd
-      vmovaps xmm6, [rsp+88h+var_28]
-    }
+    if ( v8 < 0.2 )
+      v6 = 0;
   }
-  Scr_AddBool(scrContext, v8);
+  Scr_AddBool(scrContext, v6);
 }
 
 /*
@@ -9847,20 +9285,18 @@ void __fastcall PlayerCmd_SetSoundSubmix(scrContext_t *scrContext, scr_entref_t 
   unsigned int entnum; 
   unsigned int NumParam; 
   const char *String; 
+  const char *v7; 
+  unsigned int v8; 
+  const char *v9; 
   const char *v10; 
-  unsigned int v11; 
-  const char *v12; 
-  const char *v13; 
+  const char *v11; 
+  double Float; 
+  float v13; 
   const char *v14; 
-  char v15; 
-  const char *v22; 
-  const char *v24; 
-  char v27; 
-  char v28; 
-  const char *v36; 
-  char *fmt; 
-  char *fmta; 
-  double v40; 
+  const char *v15; 
+  double v16; 
+  double v17; 
+  const char *v19; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
@@ -9872,13 +9308,13 @@ void __fastcall PlayerCmd_SetSoundSubmix(scrContext_t *scrContext, scr_entref_t 
   else
   {
     String = Scr_GetString(scrContext, 0);
-    v10 = String;
+    v7 = String;
     if ( (!String || !*String) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30171, ASSERT_TYPE_ASSERT, "(duckName && duckName[0])", (const char *)&queryFormat, "duckName && duckName[0]") )
       __debugbreak();
-    v11 = SND_HashName(v10);
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30173, ASSERT_TYPE_ASSERT, "(duckHash != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "duckHash != SND_INVALID_HASH") )
+    v8 = SND_HashName(v7);
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30173, ASSERT_TYPE_ASSERT, "(duckHash != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "duckHash != SND_INVALID_HASH") )
       __debugbreak();
-    if ( SND_GetDuckById(v11) )
+    if ( SND_GetDuckById(v8) )
     {
       if ( SV_GetAgentControlledByPlayerNum(entnum, &outControllingClientNum) )
         entnum = outControllingClientNum;
@@ -9886,104 +9322,54 @@ void __fastcall PlayerCmd_SetSoundSubmix(scrContext_t *scrContext, scr_entref_t 
       {
         if ( NumParam == 1 )
         {
-          v14 = j_va("%c %c %x", 90i64, 48i64, v11);
-          SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v14);
+          v11 = j_va("%c %c %x", 90i64, 48i64, v8);
+          SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v11);
         }
         else
         {
-          __asm
+          Float = Scr_GetFloat(scrContext, 1u);
+          v13 = *(float *)&Float;
+          if ( *(float *)&Float >= 0.0 || *(float *)&Float == -1.0 )
           {
-            vmovaps [rsp+68h+var_28], xmm6
-            vmovaps [rsp+68h+var_38], xmm7
-          }
-          *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-          __asm
-          {
-            vxorps  xmm7, xmm7, xmm7
-            vcomiss xmm0, xmm7
-            vmovaps xmm6, xmm0
-          }
-          if ( !v27 )
-            goto LABEL_20;
-          __asm { vucomiss xmm0, cs:__real@bf800000 }
-          if ( v15 )
-          {
-LABEL_20:
             if ( NumParam == 2 )
             {
-              __asm
-              {
-                vcvtss2sd xmm0, xmm6, xmm6
-                vmovsd  [rsp+68h+fmt], xmm0
-              }
-              v24 = j_va("%c %c %x %f", NumParam + 88, NumParam + 47, v11, *(double *)&fmt);
+              v15 = j_va("%c %c %x %f", 90i64, 49i64, v8, *(float *)&Float);
             }
             else
             {
-              *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-              __asm { vcomiss xmm0, xmm7 }
-              if ( v27 )
-                goto LABEL_28;
-              __asm { vcomiss xmm0, cs:__real@3f800000 }
-              if ( !(v27 | v28) )
+              v16 = Scr_GetFloat(scrContext, 2u);
+              if ( *(float *)&v16 < 0.0 || *(float *)&v16 > 1.0 )
               {
-LABEL_28:
-                __asm
-                {
-                  vmovsd  xmm3, cs:__real@3ff0000000000000
-                  vcvtss2sd xmm7, xmm0, xmm0
-                  vmovaps xmm1, xmm7
-                  vxorpd  xmm2, xmm2, xmm2
-                  vmovq   rdx, xmm1
-                  vmovq   r9, xmm3
-                  vmovq   r8, xmm2
-                }
-                v36 = j_va("SetSoundSubmix: Incorrect scale parameters %.2f- expect [%.2f,%.2f])\n", _RDX, _R8, _R9);
-                Scr_Error(COM_ERR_5929, scrContext, v36);
+                v17 = *(float *)&v16;
+                __asm { vxorpd  xmm2, xmm2, xmm2 }
+                v19 = j_va("SetSoundSubmix: Incorrect scale parameters %.2f- expect [%.2f,%.2f])\n", *(float *)&v16, (_QWORD)_XMM2, DOUBLE_1_0);
+                Scr_Error(COM_ERR_5929, scrContext, v19);
               }
               else
               {
-                __asm { vcvtss2sd xmm7, xmm0, xmm0 }
+                v17 = *(float *)&v16;
               }
-              __asm
-              {
-                vcvtss2sd xmm0, xmm6, xmm6
-                vmovsd  [rsp+68h+var_40], xmm7
-                vmovsd  [rsp+68h+fmt], xmm0
-              }
-              v24 = j_va("%c %c %x %f %f", 90i64, 50i64, v11, *(double *)&fmta, v40);
+              v15 = j_va("%c %c %x %f %f", 90i64, 50i64, v8, v13, v17);
             }
-            SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v24);
+            SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v15);
           }
           else
           {
-            __asm
-            {
-              vmovsd  xmm2, cs:__real@bff0000000000000
-              vcvtss2sd xmm1, xmm6, xmm0
-              vmovq   r8, xmm2
-              vmovq   rdx, xmm1
-            }
-            v22 = j_va("SetSoundSubmix: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", _RDX, _R8);
-            Scr_Error(COM_ERR_5928, scrContext, v22);
-          }
-          __asm
-          {
-            vmovaps xmm6, [rsp+68h+var_28]
-            vmovaps xmm7, [rsp+68h+var_38]
+            v14 = j_va("SetSoundSubmix: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", *(float *)&Float, DOUBLE_N1_0);
+            Scr_Error(COM_ERR_5928, scrContext, v14);
           }
         }
       }
       else
       {
-        v13 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", entnum);
-        Scr_Error(COM_ERR_6419, scrContext, v13);
+        v10 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", entnum);
+        Scr_Error(COM_ERR_6419, scrContext, v10);
       }
     }
     else
     {
-      v12 = j_va("SetSoundSubmix: bad duck name: '%s'", v10);
-      Scr_ParamError(COM_ERR_4819, scrContext, 0, v12);
+      v9 = j_va("SetSoundSubmix: bad duck name: '%s'", v7);
+      Scr_ParamError(COM_ERR_4819, scrContext, 0, v9);
     }
   }
 }
@@ -10003,25 +9389,9 @@ void Scr_PhysicsTrace(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &end);
   G_Main_TraceCapsule(&results, &vectorValue, &end, &bounds_origin, 2047, 131089);
-  __asm
-  {
-    vmovss  xmm5, [rsp+0D8h+results.fraction]
-    vmovss  xmm0, dword ptr [rsp+0D8h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsp+0D8h+vectorValue]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rsp+0D8h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+0D8h+end+4]
-    vmovss  [rsp+0D8h+value], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsp+0D8h+vectorValue+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsp+0D8h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rsp+0D8h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+0D8h+vectorValue+8]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  [rsp+0D8h+var_84], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rsp+0D8h+vectorValue+8]
-    vmovss  [rsp+0D8h+var_80], xmm3
-  }
+  value[0] = (float)((float)(end.v[0] - vectorValue.v[0]) * results.fraction) + vectorValue.v[0];
+  value[1] = (float)((float)(end.v[1] - vectorValue.v[1]) * results.fraction) + vectorValue.v[1];
+  value[2] = (float)((float)(end.v[2] - vectorValue.v[2]) * results.fraction) + vectorValue.v[2];
   Scr_AddVector(scrContext, value);
 }
 
@@ -10073,25 +9443,9 @@ void Scr_PlayerPhysicsTrace(scrContext_t *scrContext)
   {
     PhysicsQuery_LegacyCapsuleTrace(PHYSICS_WORLD_ID_FIRST, &results, &vectorValue, &end, bounds, &skipEntities, 1, 65553, NULL, 0, NULL, NULL);
   }
-  __asm
-  {
-    vmovss  xmm5, [rbp+20h+results.fraction]
-    vmovss  xmm0, dword ptr [rsp+120h+end]
-    vsubss  xmm1, xmm0, dword ptr [rsp+120h+vectorValue]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rsp+120h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+120h+end+4]
-    vmovss  [rbp+20h+value], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsp+120h+vectorValue+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rsp+120h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rbp+20h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rsp+120h+vectorValue+8]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  [rbp+20h+var_94], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rsp+120h+vectorValue+8]
-    vmovss  [rbp+20h+var_90], xmm3
-  }
+  value[0] = (float)((float)(end.v[0] - vectorValue.v[0]) * results.fraction) + vectorValue.v[0];
+  value[1] = (float)((float)(end.v[1] - vectorValue.v[1]) * results.fraction) + vectorValue.v[1];
+  value[2] = (float)((float)(end.v[2] - vectorValue.v[2]) * results.fraction) + vectorValue.v[2];
   Scr_AddVector(scrContext, value);
 }
 
@@ -10105,27 +9459,28 @@ void Scr_AIPhysicsTrace(scrContext_t *scrContext, scr_entref_t entref)
   int passEntityNum; 
   const gentity_s *Entity; 
   int NumParam; 
+  double Float; 
+  int v7; 
+  double v8; 
   Bounds *p_box; 
-  bool v16; 
-  bool v17; 
-  int v18; 
+  bool v10; 
+  bool v11; 
+  int v12; 
   AIScriptedInterface *m_pAI; 
   int contentmask; 
   unsigned __int16 EntityHitId; 
-  char v38; 
-  const char *v39; 
-  scr_string_t stairs; 
-  AIWrapper v61; 
+  const char *v16; 
+  scr_string_t surfacetype; 
+  __int128 v18; 
+  AIWrapper v22; 
   vec3_t end; 
   vec3_t vectorValue; 
   Bounds *bounds; 
+  float v26; 
   float value[4]; 
-  int v67[8]; 
+  int v28[8]; 
   trace_t results; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
   passEntityNum = entref.entnum;
   Entity = GetEntity(entref);
   Scr_GetVector(scrContext, 0, &vectorValue);
@@ -10133,141 +9488,91 @@ void Scr_AIPhysicsTrace(scrContext_t *scrContext, scr_entref_t entref)
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam > 3 && (Scr_GetType(scrContext, 2u) == VAR_FLOAT || Scr_GetType(scrContext, 2u) == VAR_INTEGER) && (Scr_GetType(scrContext, 3u) == VAR_FLOAT || Scr_GetType(scrContext, 3u) == VAR_INTEGER) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmulss  xmm4, xmm0, cs:__real@3f000000
-      vaddss  xmm3, xmm4, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  [rbp+0A0h+var_D8], xmm3
-      vmovss  [rbp+0A0h+var_E0], xmm1
-      vmovss  [rbp+0A0h+var_DC], xmm2
-      vmovss  [rbp+0A0h+var_D4], xmm6
-      vmovss  [rbp+0A0h+var_D0], xmm6
-      vmovss  [rbp+0A0h+var_CC], xmm4
-    }
-    p_box = (Bounds *)v67;
+    Float = Scr_GetFloat(scrContext, 2u);
+    v7 = SLODWORD(Float);
+    v8 = Scr_GetFloat(scrContext, 3u);
+    *(float *)&v28[2] = (float)(*(float *)&v8 * 0.5) + 0.0;
+    v28[0] = SLODWORD(vec3_origin.v[0]);
+    v28[1] = SLODWORD(vec3_origin.v[1]);
+    v28[3] = v7;
+    v28[4] = v7;
+    *(float *)&v28[5] = *(float *)&v8 * 0.5;
+    p_box = (Bounds *)v28;
   }
   else
   {
     p_box = &Entity->r.box;
   }
   bounds = p_box;
-  v16 = NumParam <= 4 || Scr_GetInt(scrContext, 4u) != 0;
-  v17 = NumParam > 5 && Scr_GetInt(scrContext, 5u) != 0;
-  v18 = 33685521;
+  v10 = NumParam <= 4 || Scr_GetInt(scrContext, 4u) != 0;
+  v11 = NumParam > 5 && Scr_GetInt(scrContext, 5u) != 0;
+  v12 = 33685521;
   if ( NumParam > 6 && BG_ActorOrAgentSystemEnabled() && Scr_GetInt(scrContext, 6u) )
   {
-    AIActorInterface::AIActorInterface(&v61.m_actorInterface);
-    AIAgentInterface::AIAgentInterface(&v61.m_newAgentInterface);
-    v61.m_pAI = NULL;
-    v61.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    AIWrapper::Setup(&v61, Entity);
-    m_pAI = v61.m_pAI;
-    if ( !v61.m_pAI )
+    AIActorInterface::AIActorInterface(&v22.m_actorInterface);
+    AIAgentInterface::AIAgentInterface(&v22.m_newAgentInterface);
+    v22.m_pAI = NULL;
+    v22.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AIWrapper::Setup(&v22, Entity);
+    m_pAI = v22.m_pAI;
+    if ( !v22.m_pAI )
       Scr_Error(COM_ERR_4253, scrContext, "AIPhysicsTrace: arg 6 (bUseActorPhysicsMask) can only be used with a valid actor or agent!");
-    v18 = *(_DWORD *)(m_pAI->GetAI(m_pAI) + 2268);
+    v12 = *(_DWORD *)(m_pAI->GetAI(m_pAI) + 2268);
   }
-  contentmask = v18 & 0xFDFFBFFF;
-  if ( !v16 )
-    contentmask = v18;
+  contentmask = v12 & 0xFDFFBFFF;
+  if ( !v10 )
+    contentmask = v12;
   G_Main_TraceCapsule(&results, &vectorValue, &end, bounds, passEntityNum, contentmask);
-  __asm
+  value[0] = (float)((float)(end.v[0] - vectorValue.v[0]) * results.fraction) + vectorValue.v[0];
+  value[1] = (float)((float)(end.v[1] - vectorValue.v[1]) * results.fraction) + vectorValue.v[1];
+  value[2] = (float)((float)(end.v[2] - vectorValue.v[2]) * results.fraction) + vectorValue.v[2];
+  if ( !v11 )
   {
-    vmovss  xmm5, [rbp+0A0h+results.fraction]
-    vmovss  xmm0, dword ptr [rbp+0A0h+end]
-    vsubss  xmm1, xmm0, dword ptr [rbp+0A0h+vectorValue]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rbp+0A0h+vectorValue]
-    vmovss  xmm1, dword ptr [rbp+0A0h+end+4]
-    vmovss  [rbp+0A0h+value], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rbp+0A0h+vectorValue+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rbp+0A0h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rbp+0A0h+end+8]
-    vsubss  xmm1, xmm0, dword ptr [rbp+0A0h+vectorValue+8]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  [rbp+0A0h+var_EC], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rbp+0A0h+vectorValue+8]
-    vmovss  [rbp+0A0h+var_E8], xmm3
-  }
-  if ( v17 )
-  {
-    __asm { vmovaps [rsp+1A0h+var_58+8], xmm7 }
-    Scr_MakeArray(scrContext);
-    __asm { vmovss  xmm1, [rbp+0A0h+results.fraction]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
-    Scr_AddArrayStringIndexed(scrContext, scr_const.fraction);
     Scr_AddVector(scrContext, value);
-    Scr_AddArrayStringIndexed(scrContext, scr_const.position);
-    EntityHitId = Trace_GetEntityHitId(&results);
-    if ( (unsigned __int16)(EntityHitId - 2046) <= 1u )
-      Scr_AddUndefined(scrContext);
-    else
-      GScr_AddEntity(&g_entities[EntityHitId]);
-    Scr_AddArrayStringIndexed(scrContext, scr_const.entity);
+    return;
+  }
+  Scr_MakeArray(scrContext);
+  Scr_AddFloat(scrContext, results.fraction);
+  Scr_AddArrayStringIndexed(scrContext, scr_const.fraction);
+  Scr_AddVector(scrContext, value);
+  Scr_AddArrayStringIndexed(scrContext, scr_const.position);
+  EntityHitId = Trace_GetEntityHitId(&results);
+  if ( (unsigned __int16)(EntityHitId - 2046) <= 1u )
+    Scr_AddUndefined(scrContext);
+  else
+    GScr_AddEntity(&g_entities[EntityHitId]);
+  Scr_AddArrayStringIndexed(scrContext, scr_const.entity);
+  if ( results.fraction >= 1.0 )
+  {
+    v18 = LODWORD(end.v[1]);
+    *(float *)&v18 = fsqrt((float)((float)((float)(end.v[1] - vectorValue.v[1]) * (float)(end.v[1] - vectorValue.v[1])) + (float)((float)(end.v[0] - vectorValue.v[0]) * (float)(end.v[0] - vectorValue.v[0]))) + (float)((float)(end.v[2] - vectorValue.v[2]) * (float)(end.v[2] - vectorValue.v[2])));
+    _XMM1 = v18;
     __asm
     {
-      vmovss  xmm0, [rbp+0A0h+results.fraction]
-      vmovss  xmm7, cs:__real@3f800000
-      vcomiss xmm0, xmm7
+      vcmpless xmm0, xmm1, cs:__real@80000000
+      vblendvps xmm0, xmm1, xmm7, xmm0
     }
-    if ( v38 )
-    {
-      Scr_AddVector(scrContext, results.normal.v);
-      Scr_AddArrayStringIndexed(scrContext, scr_const.normal);
-      v39 = Com_SurfaceTypeToName((results.surfaceFlags >> 19) & 0x3F);
-      Scr_AddString(scrContext, v39);
-      Scr_AddArrayStringIndexed(scrContext, scr_const.surfacetype);
-      if ( (results.surfaceFlags & 0x200) == 0 )
-      {
-LABEL_32:
-        __asm { vmovaps xmm7, [rsp+1A0h+var_58+8] }
-        goto LABEL_33;
-      }
-      Scr_AddBool(scrContext, (results.surfaceFlags & 0x200) != 0);
-      stairs = scr_const.stairs;
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+end]
-        vsubss  xmm4, xmm0, dword ptr [rbp+0A0h+vectorValue]
-        vmovss  xmm1, dword ptr [rbp+0A0h+end+4]
-        vsubss  xmm5, xmm1, dword ptr [rbp+0A0h+vectorValue+4]
-        vmovss  xmm0, dword ptr [rbp+0A0h+end+8]
-        vsubss  xmm6, xmm0, dword ptr [rbp+0A0h+vectorValue+8]
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vblendvps xmm0, xmm1, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rbp+0A0h+bounds], xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  [rbp+0A0h+var_F8], xmm0
-        vmovss  dword ptr [rbp+0A0h+bounds+4], xmm1
-      }
-      Scr_AddVector(scrContext, (const float *)&bounds);
-      Scr_AddArrayStringIndexed(scrContext, scr_const.normal);
-      Scr_AddConstString(scrContext, scr_const.none);
-      stairs = scr_const.surfacetype;
-    }
-    Scr_AddArrayStringIndexed(scrContext, stairs);
-    goto LABEL_32;
+    *(float *)&bounds = (float)(1.0 / *(float *)&_XMM0) * (float)(end.v[0] - vectorValue.v[0]);
+    v26 = (float)(1.0 / *(float *)&_XMM0) * (float)(end.v[2] - vectorValue.v[2]);
+    *((float *)&bounds + 1) = (float)(1.0 / *(float *)&_XMM0) * (float)(end.v[1] - vectorValue.v[1]);
+    Scr_AddVector(scrContext, (const float *)&bounds);
+    Scr_AddArrayStringIndexed(scrContext, scr_const.normal);
+    Scr_AddConstString(scrContext, scr_const.none);
+    surfacetype = scr_const.surfacetype;
   }
-  Scr_AddVector(scrContext, value);
-LABEL_33:
-  __asm { vmovaps xmm6, [rsp+1A0h+var_48+8] }
+  else
+  {
+    Scr_AddVector(scrContext, results.normal.v);
+    Scr_AddArrayStringIndexed(scrContext, scr_const.normal);
+    v16 = Com_SurfaceTypeToName((results.surfaceFlags >> 19) & 0x3F);
+    Scr_AddString(scrContext, v16);
+    Scr_AddArrayStringIndexed(scrContext, scr_const.surfacetype);
+    if ( (results.surfaceFlags & 0x200) == 0 )
+      return;
+    Scr_AddBool(scrContext, (results.surfaceFlags & 0x200) != 0);
+    surfacetype = scr_const.stairs;
+  }
+  Scr_AddArrayStringIndexed(scrContext, surfacetype);
 }
 
 /*
@@ -10280,78 +9585,54 @@ void __fastcall PlayerCmd_ScaleSoundSubmix(scrContext_t *scrContext, scr_entref_
 {
   int entnum; 
   const char *String; 
+  const char *v6; 
+  unsigned int v7; 
   const char *v8; 
-  unsigned int v9; 
-  const char *v10; 
-  const char *v11; 
-  scrContext_t *v12; 
-  ComErrorCode v13; 
-  char v14; 
-  char v15; 
-  const char *v18; 
-  char *fmt; 
+  const char *v9; 
+  scrContext_t *v10; 
+  ComErrorCode v11; 
+  double Float; 
+  const char *v13; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
     String = Scr_GetString(scrContext, 0);
-    v8 = String;
+    v6 = String;
     if ( (!String || !*String) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30255, ASSERT_TYPE_ASSERT, "(submixName && submixName[0])", (const char *)&queryFormat, "submixName && submixName[0]") )
       __debugbreak();
-    v9 = SND_HashName(v8);
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30257, ASSERT_TYPE_ASSERT, "(submixHash != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submixHash != SND_INVALID_HASH") )
+    v7 = SND_HashName(v6);
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30257, ASSERT_TYPE_ASSERT, "(submixHash != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "submixHash != SND_INVALID_HASH") )
       __debugbreak();
-    if ( !SND_GetDuckById(v9) )
+    if ( !SND_GetDuckById(v7) )
     {
-      v10 = j_va("ScaleSoundSubmix: bad submix name: '%s'", v8);
-      Scr_ParamError(COM_ERR_4821, scrContext, 0, v10);
+      v8 = j_va("ScaleSoundSubmix: bad submix name: '%s'", v6);
+      Scr_ParamError(COM_ERR_4821, scrContext, 0, v8);
       return;
     }
     if ( SV_GetAgentControlledByPlayerNum(entnum, &outControllingClientNum) )
       entnum = outControllingClientNum;
     if ( entnum >= level.maxclients )
     {
-      v11 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
-      v12 = scrContext;
-      v13 = COM_ERR_6420;
+      v9 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
+      v10 = scrContext;
+      v11 = COM_ERR_6420;
 LABEL_15:
-      Scr_Error(v13, v12, v11);
+      Scr_Error(v11, v10, v9);
       return;
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 2u);
+    if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v14 )
-      goto LABEL_19;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v14 | v15) )
-    {
-LABEL_19:
-      __asm
-      {
-        vmovsd  xmm3, cs:__real@3ff0000000000000
-        vcvtss2sd xmm1, xmm0, xmm0
-        vxorpd  xmm2, xmm2, xmm2
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v11 = j_va("ScaleSoundSubmix: Incorrect scale parameters %.2f- expect [%.2f,%.2f])\n", _RDX, _R8, _R9);
-      v12 = scrContext;
-      v13 = COM_ERR_5930;
+      __asm { vxorpd  xmm2, xmm2, xmm2 }
+      v9 = j_va("ScaleSoundSubmix: Incorrect scale parameters %.2f- expect [%.2f,%.2f])\n", *(float *)&Float, (_QWORD)_XMM2, DOUBLE_1_0);
+      v10 = scrContext;
+      v11 = COM_ERR_5930;
       goto LABEL_15;
     }
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v18 = j_va("%c %c %x %f", 90i64, 51i64, v9, *(double *)&fmt);
-    SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v18);
+    v13 = j_va("%c %c %x %f", 90i64, 51i64, v7, *(float *)&Float);
+    SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v13);
   }
   else
   {
@@ -10369,14 +9650,12 @@ void PlayerCmd_ClearSoundSubmix(scrContext_t *scrContext, scr_entref_t entref)
   int entnum; 
   unsigned int NumParam; 
   const char *String; 
-  unsigned int v8; 
+  unsigned int v6; 
+  const char *v7; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
+  double Float; 
   const char *v11; 
-  char v12; 
-  char v14; 
-  const char *v19; 
-  double v21; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
@@ -10388,58 +9667,37 @@ void PlayerCmd_ClearSoundSubmix(scrContext_t *scrContext, scr_entref_t entref)
   else
   {
     String = Scr_GetString(scrContext, 0);
-    v8 = SND_HashName(String);
-    if ( !SND_GetDuckById(v8) )
+    v6 = SND_HashName(String);
+    if ( !SND_GetDuckById(v6) )
     {
-      v9 = j_va("ClearSoundSubmix: bad duck name: '%s'", String);
-      Scr_ParamError(COM_ERR_4823, scrContext, 0, v9);
+      v7 = j_va("ClearSoundSubmix: bad duck name: '%s'", String);
+      Scr_ParamError(COM_ERR_4823, scrContext, 0, v7);
       return;
     }
     if ( SV_GetAgentControlledByPlayerNum(entnum, &outControllingClientNum) )
       entnum = outControllingClientNum;
     if ( entnum >= level.maxclients )
     {
-      v10 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
-      Scr_Error(COM_ERR_6421, scrContext, v10);
+      v8 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
+      Scr_Error(COM_ERR_6421, scrContext, v8);
       return;
     }
     if ( NumParam == 1 )
     {
-      v11 = j_va("%c %c %x", 90i64, 52i64, v8);
+      v9 = j_va("%c %c %x", 90i64, 52i64, v6);
     }
     else
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
+      Float = Scr_GetFloat(scrContext, 1u);
+      if ( *(float *)&Float < 0.0 && *(float *)&Float != -1.0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
+        v11 = j_va("ClearSoundSubmix: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", *(float *)&Float, DOUBLE_N1_0);
+        Scr_Error(COM_ERR_5666, scrContext, v11);
+        return;
       }
-      if ( v14 )
-      {
-        __asm { vucomiss xmm0, cs:__real@bf800000 }
-        if ( !v12 )
-        {
-          __asm
-          {
-            vmovsd  xmm2, cs:__real@bff0000000000000
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovq   r8, xmm2
-            vmovq   rdx, xmm1
-          }
-          v19 = j_va("ClearSoundSubmix: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", _RDX, _R8);
-          Scr_Error(COM_ERR_5666, scrContext, v19);
-          return;
-        }
-      }
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+48h+var_28], xmm0
-      }
-      v11 = j_va("%c %c %x %f", 90i64, 55i64, v8, v21);
+      v9 = j_va("%c %c %x %f", 90i64, 55i64, v6, *(float *)&Float);
     }
-    SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v11);
+    SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v9);
   }
 }
 
@@ -10451,57 +9709,33 @@ Scr_AIPhysicsTracePassed
 void Scr_AIPhysicsTracePassed(scrContext_t *scrContext, scr_entref_t entref)
 {
   int passEntityNum; 
-  int v10; 
-  int v11; 
-  char v16; 
+  double Float; 
+  float v5; 
+  double v6; 
+  int v7; 
+  int v8; 
   Bounds bounds; 
   vec3_t end; 
   vec3_t vectorValue; 
   trace_t results; 
-  char v24; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   passEntityNum = entref.entnum;
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &end);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmulss  xmm7, xmm0, cs:__real@3f000000 }
-  v10 = 0;
-  v11 = Scr_GetNumParam(scrContext) > 4 && Scr_GetInt(scrContext, 4u) == 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-    vaddss  xmm2, xmm7, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    vmovss  dword ptr [rsp+108h+bounds.midPoint], xmm0
-    vmovss  dword ptr [rsp+108h+bounds.midPoint+4], xmm1
-    vmovss  dword ptr [rsp+108h+bounds.midPoint+8], xmm2
-    vmovss  dword ptr [rsp+108h+bounds.halfSize], xmm6
-    vmovss  dword ptr [rsp+108h+bounds.halfSize+4], xmm6
-    vmovss  dword ptr [rsp+108h+bounds.halfSize+8], xmm7
-  }
-  G_Main_TraceCapsule(&results, &vectorValue, &end, &bounds, passEntityNum, (v11 << 25) + 131089);
-  __asm
-  {
-    vmovss  xmm0, [rsp+108h+results.fraction]
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  LOBYTE(v10) = !v16;
-  Scr_AddBool(scrContext, v10);
-  _R11 = &v24;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  Float = Scr_GetFloat(scrContext, 2u);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 3u);
+  v7 = 0;
+  v8 = Scr_GetNumParam(scrContext) > 4 && Scr_GetInt(scrContext, 4u) == 0;
+  bounds.midPoint.v[0] = vec3_origin.v[0];
+  bounds.midPoint.v[1] = vec3_origin.v[1];
+  bounds.midPoint.v[2] = (float)(*(float *)&v6 * 0.5) + 0.0;
+  bounds.halfSize.v[0] = v5;
+  bounds.halfSize.v[1] = v5;
+  bounds.halfSize.v[2] = *(float *)&v6 * 0.5;
+  G_Main_TraceCapsule(&results, &vectorValue, &end, &bounds, passEntityNum, (v8 << 25) + 131089);
+  LOBYTE(v7) = results.fraction >= 1.0;
+  Scr_AddBool(scrContext, v7);
 }
 
 /*
@@ -10511,38 +9745,29 @@ Scr_GetGroundPosition
 */
 void Scr_GetGroundPosition(scrContext_t *scrContext)
 {
+  __m128 v1; 
+  double Float; 
+  float v5; 
+  double v6; 
   vec3_t *p_vectorValue; 
-  __int64 passEntityNum; 
   vec3_t vectorValue; 
   vec3_t start; 
   vec3_t end; 
   float value[4]; 
   Bounds bounds; 
   trace_t results; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vshufps xmm6, xmm6, xmm6, 0
-  }
+  *(double *)v1.m128_u64 = Scr_GetFloat(scrContext, 1u);
+  _XMM6 = _mm_shuffle_ps(v1, v1, 0);
   if ( Scr_GetNumParam(scrContext) <= 2 )
   {
-    __asm { vmovss  xmm7, cs:__real@44340000 }
+    v5 = FLOAT_720_0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm7, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v5 = *(float *)&Float;
   }
   if ( Scr_GetNumParam(scrContext) <= 3 )
   {
@@ -10550,75 +9775,32 @@ void Scr_GetGroundPosition(scrContext_t *scrContext)
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm4, xmm0 }
+    v6 = Scr_GetFloat(scrContext, 3u);
+    LODWORD(_XMM4) = LODWORD(v6);
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+120h+vectorValue+8]
-    vmovss  xmm3, dword ptr [rsp+120h+vectorValue]
-    vmovss  xmm2, dword ptr [rsp+120h+vectorValue+4]
-    vsubss  xmm0, xmm1, xmm7
-    vmovss  dword ptr [rsp+120h+end+8], xmm0
-    vaddss  xmm0, xmm1, xmm4
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+120h+bounds.midPoint], xmm1
-    vmovss  dword ptr [rsp+120h+bounds.midPoint+4], xmm1
-    vmovss  dword ptr [rsp+120h+end], xmm3
-    vmovss  dword ptr [rsp+120h+end+4], xmm2
-    vmovss  dword ptr [rsp+120h+start], xmm3
-    vmovss  dword ptr [rsp+120h+start+4], xmm2
-    vmovss  dword ptr [rsp+120h+start+8], xmm0
-    vmovups xmmword ptr [rsp+120h+bounds.midPoint+8], xmm6
-  }
+  end.v[2] = vectorValue.v[2] - v5;
+  bounds.midPoint.v[0] = 0.0;
+  bounds.midPoint.v[1] = 0.0;
+  end.v[0] = vectorValue.v[0];
+  end.v[1] = vectorValue.v[1];
+  start.v[0] = vectorValue.v[0];
+  start.v[1] = vectorValue.v[1];
+  start.v[2] = vectorValue.v[2] + *(float *)&_XMM4;
+  *(__m128 *)&bounds.midPoint.z = _XMM6;
   G_Main_TraceCapsule(&results, &start, &end, &bounds, 2047, 131089);
   if ( results.startsolid )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+120h+vectorValue+4]
-      vmovss  xmm2, dword ptr [rsp+120h+vectorValue]
-      vmovss  xmm0, dword ptr [rsp+120h+vectorValue+8]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+120h+passEntityNum], xmm0
-    }
-    Com_PrintWarning(23, "GetGroundPosition started in solid at (%g %g %g)\n", _R8, _R9, passEntityNum);
+    Com_PrintWarning(23, "GetGroundPosition started in solid at (%g %g %g)\n", vectorValue.v[0], vectorValue.v[1], vectorValue.v[2]);
     p_vectorValue = &vectorValue;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm5, [rbp+20h+results.fraction]
-      vmovss  xmm0, dword ptr [rsp+120h+end]
-      vsubss  xmm1, xmm0, dword ptr [rsp+120h+start]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rsp+120h+start]
-      vmovss  xmm1, dword ptr [rsp+120h+end+4]
-      vmovss  [rsp+120h+value], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rsp+120h+start+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rsp+120h+start+4]
-      vmovss  xmm0, dword ptr [rsp+120h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+120h+start+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  [rsp+120h+var_BC], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+120h+start+8]
-      vmovss  [rsp+120h+var_B8], xmm3
-    }
+    value[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    value[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+    value[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
     p_vectorValue = (vec3_t *)value;
   }
   Scr_AddVector(scrContext, p_vectorValue->v);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -10630,14 +9812,13 @@ void PlayerCmd_ClearAllSoundSubmixes(scrContext_t *scrContext, scr_entref_t entr
 {
   int entnum; 
   int NumParam; 
+  const char *v5; 
+  const char *v6; 
   const char *v7; 
-  const char *v8; 
-  const char *v9; 
   SvClient *CommonClient; 
-  char v11; 
-  char v13; 
-  const char *v18; 
-  const char *v21; 
+  double Float; 
+  const char *v10; 
+  const char *v11; 
   int outControllingClientNum; 
 
   entnum = entref.entnum;
@@ -10650,58 +9831,37 @@ void PlayerCmd_ClearAllSoundSubmixes(scrContext_t *scrContext, scr_entref_t entr
     {
       if ( NumParam )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-        __asm
+        Float = Scr_GetFloat(scrContext, 0);
+        if ( *(float *)&Float >= 0.0 || *(float *)&Float == -1.0 )
         {
-          vxorps  xmm1, xmm1, xmm1
-          vcomiss xmm0, xmm1
-        }
-        if ( !v13 )
-          goto LABEL_14;
-        __asm { vucomiss xmm0, cs:__real@bf800000 }
-        if ( v11 )
-        {
-LABEL_14:
-          __asm
-          {
-            vcvtss2sd xmm3, xmm0, xmm0
-            vmovq   r9, xmm3
-          }
-          v21 = j_va("%c %c %f", 90i64, 54i64, _R9);
-          SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v21);
+          v11 = j_va("%c %c %f", 90i64, 54i64, *(float *)&Float);
+          SV_Game_SendServerCommand(entnum, SV_CMD_RELIABLE, v11);
         }
         else
         {
-          __asm
-          {
-            vmovsd  xmm2, cs:__real@bff0000000000000
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovq   r8, xmm2
-            vmovq   rdx, xmm1
-          }
-          v18 = j_va("ClearAllSoundSubmixes: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", _RDX, _R8);
-          Scr_Error(COM_ERR_5667, scrContext, v18);
+          v10 = j_va("ClearAllSoundSubmixes: Incorrect fadeTime parameters %.2f- expect >= 0 (or %.2f for asset default)\n", *(float *)&Float, DOUBLE_N1_0);
+          Scr_Error(COM_ERR_5667, scrContext, v10);
         }
       }
       else
       {
-        v8 = j_va("%c %c", 90i64, 53i64);
-        v9 = v8;
+        v6 = j_va("%c %c", 90i64, 53i64);
+        v7 = v6;
         if ( entnum == -1 )
         {
-          SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
+          SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v6);
         }
         else
         {
           CommonClient = SvClient::GetCommonClient(entnum);
-          CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v9);
+          CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v7);
         }
       }
     }
     else
     {
-      v7 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
-      Scr_Error(COM_ERR_6422, scrContext, v7);
+      v5 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)entnum);
+      Scr_Error(COM_ERR_6422, scrContext, v5);
     }
   }
   else
@@ -10722,6 +9882,9 @@ void GScr_PhysicsSetGravity(scrContext_t *scrContext)
   unsigned int v4; 
   unsigned int v5; 
   OmnvarData *Data; 
+  OmnvarData *v7; 
+  OmnvarData *v8; 
+  OmnvarData *v9; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) != 1 )
@@ -10733,24 +9896,18 @@ void GScr_PhysicsSetGravity(scrContext_t *scrContext)
   v5 = v4;
   if ( IndexByName == -1 || v3 == -1 || v4 == -1 )
     Scr_Error(COM_ERR_4255, scrContext, "Physics_SetGravity can't find omnvars - check omnvar.csv");
-  _RBP = G_Omnvar_GetData(IndexByName, -1, NULL);
-  _RDI = G_Omnvar_GetData(v3, -1, NULL);
-  Data = G_Omnvar_GetData(v5, -1, NULL);
-  _RSI = Data;
-  if ( !_RBP || !_RDI || !Data )
+  Data = G_Omnvar_GetData(IndexByName, -1, NULL);
+  v7 = G_Omnvar_GetData(v3, -1, NULL);
+  v8 = G_Omnvar_GetData(v5, -1, NULL);
+  v9 = v8;
+  if ( !Data || !v7 || !v8 )
     Scr_Error(COM_ERR_4256, scrContext, "Physics_SetGravity has invalid omnvar data - check omnvar.csv");
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  dword ptr [rbp+4], xmm0
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-    vmovss  dword ptr [rsi+4], xmm0
-  }
-  G_Omnvar_MarkChanged(_RBP);
-  G_Omnvar_MarkChanged(_RDI);
-  G_Omnvar_MarkChanged(_RSI);
+  Data->current.value = vectorValue.v[0];
+  v7->current.value = vectorValue.v[1];
+  v9->current.value = vectorValue.v[2];
+  G_Omnvar_MarkChanged(Data);
+  G_Omnvar_MarkChanged(v7);
+  G_Omnvar_MarkChanged(v9);
 }
 
 /*
@@ -10758,63 +9915,52 @@ void GScr_PhysicsSetGravity(scrContext_t *scrContext)
 PlayerCmd_GetSprintMeterFraction
 ==============
 */
-
-void __fastcall PlayerCmd_GetSprintMeterFraction(scrContext_t *scrContext, scr_entref_t entref, __int64 a3, double _XMM3_8)
+void PlayerCmd_GetSprintMeterFraction(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v8; 
-  const char *v9; 
+  gentity_s *v4; 
+  const char *v5; 
   const playerState_s *p_ps; 
-  const char *v11; 
+  const char *v7; 
   GWeaponMap *Instance; 
+  int SprintLeftRaw; 
+  int MaxSprintTime; 
+  float v11; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v8 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 30432, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entnum];
-    if ( !v8->client && !v8->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v9 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v9);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
-  p_ps = &v8->client->ps;
+  p_ps = &v4->client->ps;
   if ( !p_ps )
   {
-    p_ps = &v8->agent->playerState;
+    p_ps = &v4->agent->playerState;
     if ( !p_ps )
     {
-      v11 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3679, scrContext, v11);
+      v7 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3679, scrContext, v7);
     }
   }
   Instance = GWeaponMap::GetInstance();
-  PM_GetSprintLeftRaw(Instance, p_ps, p_ps->serverTime);
-  __asm { vxorps  xmm3, xmm3, xmm3 }
-  if ( BG_GetMaxSprintTime(Instance, p_ps) > 0 )
-  {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, edi
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm3, xmm0 }
-  }
-  __asm { vmovaps xmm1, xmm3; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  SprintLeftRaw = PM_GetSprintLeftRaw(Instance, p_ps, p_ps->serverTime);
+  MaxSprintTime = BG_GetMaxSprintTime(Instance, p_ps);
+  v11 = 0.0;
+  if ( MaxSprintTime > 0 )
+    LODWORD(v11) = COERCE_UNSIGNED_INT64(I_fclamp((float)SprintLeftRaw / (float)MaxSprintTime, 0.0, 1.0));
+  Scr_AddFloat(scrContext, v11);
 }
 
 /*
@@ -10824,33 +9970,23 @@ GScr_PhysicsSetGravityRagdollScalar
 */
 void GScr_PhysicsSetGravityRagdollScalar(scrContext_t *scrContext)
 {
-  char v6; 
+  double Float; 
   unsigned int IndexByName; 
+  OmnvarData *Data; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4257, scrContext, "Physics_SetGravityRagdollScalar takes 1 vector parameter");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3c23d70a
-    vmovaps xmm6, xmm0
-  }
-  if ( v6 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( COERCE_FLOAT(LODWORD(Float) & _xmm) < 0.0099999998 )
     Scr_Error(COM_ERR_4258, scrContext, "Physics_SetGravityRagdollScalar doesn't support tiny values between -0.01 and 0.01");
   IndexByName = BG_Omnvar_GetIndexByName("physics_gravity_ragdoll");
   if ( IndexByName == -1 )
     Scr_Error(COM_ERR_4259, scrContext, "Physics_SetGravityRagdollScalar can't find omnvars - check omnvar.csv");
-  _RDI = G_Omnvar_GetData(IndexByName, -1, NULL);
-  if ( !_RDI )
+  Data = G_Omnvar_GetData(IndexByName, -1, NULL);
+  if ( !Data )
     Scr_Error(COM_ERR_4260, scrContext, "Physics_SetGravityRagdollScalar has invalid omnvar data - check omnvar.csv");
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  G_Omnvar_MarkChanged(_RDI);
+  Data->current.value = *(float *)&Float;
+  G_Omnvar_MarkChanged(Data);
 }
 
 /*
@@ -10897,33 +10033,23 @@ GScr_PhysicsSetGravityDynentScalar
 */
 void GScr_PhysicsSetGravityDynentScalar(scrContext_t *scrContext)
 {
-  char v6; 
+  double Float; 
   unsigned int IndexByName; 
+  OmnvarData *Data; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4261, scrContext, "Physics_SetGravityDynentScalar takes 1 vector parameter");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3c23d70a
-    vmovaps xmm6, xmm0
-  }
-  if ( v6 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( COERCE_FLOAT(LODWORD(Float) & _xmm) < 0.0099999998 )
     Scr_Error(COM_ERR_4262, scrContext, "Physics_SetGravityDynentScalar doesn't support tiny values between -0.01 and 0.01");
   IndexByName = BG_Omnvar_GetIndexByName("physics_gravity_dynent");
   if ( IndexByName == -1 )
     Scr_Error(COM_ERR_4263, scrContext, "Physics_SetGravityDynentScalar can't find omnvars - check omnvar.csv");
-  _RDI = G_Omnvar_GetData(IndexByName, -1, NULL);
-  if ( !_RDI )
+  Data = G_Omnvar_GetData(IndexByName, -1, NULL);
+  if ( !Data )
     Scr_Error(COM_ERR_4264, scrContext, "Physics_SetGravityDynentScalar has invalid omnvar data - check omnvar.csv");
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  G_Omnvar_MarkChanged(_RDI);
+  Data->current.value = *(float *)&Float;
+  G_Omnvar_MarkChanged(Data);
 }
 
 /*
@@ -10963,33 +10089,23 @@ GScr_PhysicsSetGravityParticleScalar
 */
 void GScr_PhysicsSetGravityParticleScalar(scrContext_t *scrContext)
 {
-  char v6; 
+  double Float; 
   unsigned int IndexByName; 
+  OmnvarData *Data; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4265, scrContext, "Physics_SetGravityParticleScalar takes 1 vector parameter");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3c23d70a
-    vmovaps xmm6, xmm0
-  }
-  if ( v6 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( COERCE_FLOAT(LODWORD(Float) & _xmm) < 0.0099999998 )
     Scr_Error(COM_ERR_4266, scrContext, "Physics_SetGravityParticleScalar doesn't support tiny values between -0.01 and 0.01");
   IndexByName = BG_Omnvar_GetIndexByName("physics_gravity_particle");
   if ( IndexByName == -1 )
     Scr_Error(COM_ERR_4267, scrContext, "Physics_SetGravityParticleScalar can't find omnvars - check omnvar.csv");
-  _RDI = G_Omnvar_GetData(IndexByName, -1, NULL);
-  if ( !_RDI )
+  Data = G_Omnvar_GetData(IndexByName, -1, NULL);
+  if ( !Data )
     Scr_Error(COM_ERR_4268, scrContext, "Physics_SetGravityParticleScalar has invalid omnvar data - check omnvar.csv");
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  G_Omnvar_MarkChanged(_RDI);
+  Data->current.value = *(float *)&Float;
+  G_Omnvar_MarkChanged(Data);
 }
 
 /*
@@ -11037,26 +10153,14 @@ GScr_PhysicsSetGravityItemScalar
 */
 void GScr_PhysicsSetGravityItemScalar(scrContext_t *scrContext)
 {
-  char v6; 
+  double Float; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4269, scrContext, "Physics_SetGravityItemScalar takes 1 vector parameter");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3c23d70a
-    vmovaps xmm6, xmm0
-  }
-  if ( v6 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( COERCE_FLOAT(LODWORD(Float) & _xmm) < 0.0099999998 )
     Scr_Error(COM_ERR_4270, scrContext, "Physics_SetGravityItemScalar doesn't support tiny values between -0.01 and 0.01");
-  __asm
-  {
-    vmovaps xmm2, xmm6; scalar
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  HavokPhysics_UpdateGravityScalar(PHYSICS_WORLD_ID_FIRST, Physics_GravityType_Item, *(float *)&_XMM2);
+  HavokPhysics_UpdateGravityScalar(PHYSICS_WORLD_ID_FIRST, Physics_GravityType_Item, *(float *)&Float);
 }
 
 /*
@@ -11068,7 +10172,8 @@ void ScrCmd_GetPlayerLightLevel(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   __int16 number; 
-  const char *v6; 
+  const char *v5; 
+  double Normalized; 
 
   Entity = GetEntity(entref);
   if ( !Entity->client )
@@ -11078,13 +10183,12 @@ void ScrCmd_GetPlayerLightLevel(scrContext_t *scrContext, scr_entref_t entref)
   number = Entity->s.number;
   if ( Entity->s.number >= 24 )
   {
-    v6 = j_va("GetPlayerLightLevel only supports %i players (requested for %i)", 24i64, (unsigned int)number);
-    Scr_Error(COM_ERR_4830, scrContext, v6);
+    v5 = j_va("GetPlayerLightLevel only supports %i players (requested for %i)", 24i64, (unsigned int)number);
+    Scr_Error(COM_ERR_4830, scrContext, v5);
     number = Entity->s.number;
   }
-  *(double *)&_XMM0 = G_LightSampler_GetNormalized(number);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Normalized = G_LightSampler_GetNormalized(number);
+  Scr_AddFloat(scrContext, *(float *)&Normalized);
 }
 
 /*
@@ -11168,17 +10272,14 @@ Scr_RandomFloat
 */
 void Scr_RandomFloat(scrContext_t *scrContext)
 {
+  double Float; 
+  double v3; 
+
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4273, scrContext, "RandomFloat takes 1 parameter");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmovaps xmm1, xmm0; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = G_flrand(0.0, *(float *)&Float);
+  Scr_AddFloat(scrContext, *(float *)&v3);
 }
 
 /*
@@ -11248,47 +10349,20 @@ Scr_RandomFloatRange
 */
 void Scr_RandomFloatRange(scrContext_t *scrContext)
 {
-  char v7; 
-  char v8; 
+  double Float; 
+  float v3; 
+  double v4; 
 
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float;
+  v4 = Scr_GetFloat(scrContext, 1u);
+  if ( *(float *)&v4 <= v3 )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( v7 | v8 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm7, xmm0
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_Printf(23, "Scr_RandomFloatRange parms: %f %f ", *(double *)&_XMM2, *(double *)&_XMM3);
+    Com_Printf(23, "Scr_RandomFloatRange parms: %f %f ", v3, *(float *)&v4);
     Scr_Error(COM_ERR_4275, scrContext, "Scr_RandomFloatRange's second parameter must be greater than the first.\n");
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; max
-    vmovaps xmm0, xmm6; min
-  }
-  *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  G_flrand(v3, *(float *)&v4);
+  Scr_AddFloat(scrContext, v3);
 }
 
 /*
@@ -11327,60 +10401,57 @@ ScrCmd_IsNearAnyPlayer
 */
 void ScrCmd_IsNearAnyPlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
+  gentity_s *Entity; 
+  double Float; 
   int v5; 
+  int v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v22; 
-  __int64 v23; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
+  __int64 v13; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
-  GetEntity(entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
+  Entity = GetEntity(entref);
+  Float = Scr_GetFloat(scrContext, 0);
   v5 = 0;
-  __asm { vmulss  xmm6, xmm0, xmm0 }
+  v6 = 0;
   if ( level.maxclients > 0 )
   {
-    _RSI = 0i64;
+    v7 = 0i64;
     v8 = 0i64;
-    do
+    while ( 1 )
     {
-      if ( (unsigned int)v5 >= 0x800 )
+      if ( (unsigned int)v6 >= 0x800 )
       {
-        LODWORD(v23) = 2048;
-        LODWORD(v22) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v22, v23) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[_RSI].r.isInUse != g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v7].r.isInUse != g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
       if ( g_entityIsInUse[v8] )
       {
-        _RAX = g_entities;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+rax+130h]
-          vsubss  xmm3, xmm0, dword ptr [r14+130h]
-          vmovss  xmm1, dword ptr [rsi+rax+134h]
-          vsubss  xmm2, xmm1, dword ptr [r14+134h]
-          vmovss  xmm0, dword ptr [rsi+rax+138h]
-          vsubss  xmm4, xmm0, dword ptr [r14+138h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
+        v9 = g_entities[v7].r.currentOrigin.v[0] - Entity->r.currentOrigin.v[0];
+        v10 = g_entities[v7].r.currentOrigin.v[1] - Entity->r.currentOrigin.v[1];
+        v11 = g_entities[v7].r.currentOrigin.v[2] - Entity->r.currentOrigin.v[2];
+        if ( (float)((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v11 * v11)) < (float)(*(float *)&Float * *(float *)&Float) )
+          break;
       }
-      ++v5;
+      ++v6;
       ++v8;
-      ++_RSI;
+      ++v7;
+      if ( v6 >= level.maxclients )
+        goto LABEL_17;
     }
-    while ( v5 < level.maxclients );
+    v5 = 1;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
-  Scr_AddBool(scrContext, 0);
+LABEL_17:
+  Scr_AddBool(scrContext, v5);
 }
 
 /*
@@ -11420,6 +10491,7 @@ void GScr_Turret_SetDismountOrg(scrContext_t *scrContext, scr_entref_t entref)
   const BgObjectHandle<GTurret> *p_turretHandle; 
   const char *v6; 
   const char *v7; 
+  GTurret *Turret; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
@@ -11431,16 +10503,8 @@ void GScr_Turret_SetDismountOrg(scrContext_t *scrContext, scr_entref_t entref)
     v7 = j_va("entity type '%s' is not a turret", v6);
     Scr_Error(COM_ERR_4837, scrContext, v7);
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  dword ptr [rax+3Ch], xmm0
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmovss  dword ptr [rax+40h], xmm1
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-    vmovss  dword ptr [rax+44h], xmm0
-  }
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Turret->m_data.userOrigin = vectorValue;
 }
 
 /*
@@ -11556,14 +10620,19 @@ void GScr_IsEntityWithinCone(scrContext_t *scrContext, scr_entref_t entref)
 {
   int NumParam; 
   gentity_s *Entity; 
-  char v81; 
-  char v82; 
-  int v107; 
+  double Float; 
+  float v7; 
+  char *p_box; 
+  float v9; 
+  float v10; 
+  float v11; 
+  double v12; 
+  int v13; 
   vec3_t coneDir; 
   Bounds bounds; 
   vec3_t vectorValue; 
   tmat33_t<vec3_t> axis; 
-  char v122; 
+  char v18; 
 
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam < 3 )
@@ -11571,169 +10640,38 @@ void GScr_IsEntityWithinCone(scrContext_t *scrContext, scr_entref_t entref)
   Entity = GetEntity(entref);
   if ( Entity )
   {
-    __asm
-    {
-      vmovaps [rsp+160h+var_30], xmm6
-      vmovaps [rsp+160h+var_40], xmm7
-      vmovaps [rsp+160h+var_50], xmm8
-      vmovaps [rsp+160h+var_60], xmm9
-      vmovaps [rsp+160h+var_70], xmm10
-      vmovaps [rsp+160h+var_80], xmm11
-      vmovaps [rsp+160h+var_90], xmm12
-      vmovaps [rsp+160h+var_A0], xmm13
-      vmovaps [rsp+160h+var_B0], xmm14
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; X }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm { vmovaps xmm14, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v7 = *(float *)&Float * 0.017453292;
+    cosf_0(*(float *)&Float * 0.017453292);
     Scr_GetVector(scrContext, 0, &vectorValue);
     Scr_GetVector(scrContext, 1u, &coneDir);
     AnglesToAxis(&Entity->r.currentAngles, &axis);
-    _RSI = (char *)&Entity->r.box;
+    p_box = (char *)&Entity->r.box;
     if ( &bounds == &Entity->r.box && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 218, ASSERT_TYPE_ASSERT, "( rotatedBounds != baseBounds )", (const char *)&queryFormat, "rotatedBounds != baseBounds") )
       __debugbreak();
-    if ( _RSI == &v122 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    if ( p_box == &v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
+    v9 = Entity->r.box.midPoint.v[1];
+    v10 = *(float *)p_box;
+    v11 = Entity->r.box.midPoint.v[2];
+    bounds.midPoint.v[0] = (float)((float)((float)(*(float *)p_box * axis.m[0].v[0]) + (float)(v9 * axis.m[1].v[0])) + (float)(v11 * axis.m[2].v[0])) + Entity->r.currentOrigin.v[0];
+    bounds.midPoint.v[1] = (float)((float)((float)(v10 * axis.m[0].v[1]) + (float)(v9 * axis.m[1].v[1])) + (float)(v11 * axis.m[2].v[1])) + Entity->r.currentOrigin.v[1];
+    bounds.midPoint.v[2] = (float)((float)((float)(v10 * axis.m[0].v[2]) + (float)(v9 * axis.m[1].v[2])) + (float)(v11 * axis.m[2].v[2])) + Entity->r.currentOrigin.v[2];
+    bounds.halfSize.v[0] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[0].v[0]) & _xmm) * Entity->r.box.halfSize.v[0]) + (float)(COERCE_FLOAT(LODWORD(axis.m[1].v[0]) & _xmm) * Entity->r.box.halfSize.v[1])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[0]) & _xmm) * Entity->r.box.halfSize.v[2]);
+    bounds.halfSize.v[1] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[0].v[1]) & _xmm) * Entity->r.box.halfSize.v[0]) + (float)(COERCE_FLOAT(LODWORD(axis.m[1].v[1]) & _xmm) * Entity->r.box.halfSize.v[1])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[1]) & _xmm) * Entity->r.box.halfSize.v[2]);
+    bounds.halfSize.v[2] = (float)((float)(COERCE_FLOAT(LODWORD(axis.m[0].v[2]) & _xmm) * Entity->r.box.halfSize.v[0]) + (float)(COERCE_FLOAT(LODWORD(axis.m[1].v[2]) & _xmm) * Entity->r.box.halfSize.v[1])) + (float)(COERCE_FLOAT(LODWORD(axis.m[2].v[2]) & _xmm) * Entity->r.box.halfSize.v[2]);
+    if ( NumParam >= 4 && Scr_GetType(scrContext, 3u) && (v12 = Scr_GetFloat(scrContext, 3u), *(float *)&v12 > 0.0) && (float)(fsqrt((float)((float)((float)(vectorValue.v[1] - bounds.midPoint.v[1]) * (float)(vectorValue.v[1] - bounds.midPoint.v[1])) + (float)((float)(vectorValue.v[0] - bounds.midPoint.v[0]) * (float)(vectorValue.v[0] - bounds.midPoint.v[0]))) + (float)((float)(vectorValue.v[2] - bounds.midPoint.v[2]) * (float)(vectorValue.v[2] - bounds.midPoint.v[2]))) - fsqrt((float)((float)(bounds.halfSize.v[0] * bounds.halfSize.v[0]) + (float)(bounds.halfSize.v[1] * bounds.halfSize.v[1])) + (float)(bounds.halfSize.v[2] * bounds.halfSize.v[2]))) > *(float *)&v12 )
     {
-      vmovss  xmm4, dword ptr [rsi+4]
-      vmovss  xmm3, dword ptr [rsi]
-      vmovss  xmm5, dword ptr [rsi+8]
-      vmovss  xmm7, dword ptr [rsp+160h+axis+0Ch]
-      vmovss  xmm8, dword ptr [rbp+60h+axis+18h]
-      vmovss  xmm9, dword ptr [rsp+160h+axis+4]
-      vmovss  xmm10, dword ptr [rsp+160h+axis+10h]
-      vmovss  xmm11, dword ptr [rbp+60h+axis+1Ch]
-      vmovss  xmm12, dword ptr [rsp+160h+axis+8]
-      vmovss  xmm13, dword ptr [rsp+160h+axis+14h]
-      vmovss  xmm6, dword ptr [rsp+160h+axis]
-      vmulss  xmm0, xmm4, xmm7
-      vmulss  xmm1, xmm3, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm8
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rbx+130h]
-      vmovss  dword ptr [rsp+160h+bounds.midPoint], xmm2
-      vmulss  xmm0, xmm4, xmm10
-      vmulss  xmm1, xmm3, xmm9
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm11
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+160h+bounds.midPoint+4], xmm2
-      vmulss  xmm0, xmm4, xmm13
-      vmovss  xmm4, dword ptr [rbp+60h+axis+20h]
-      vmulss  xmm1, xmm3, xmm12
-      vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rbx+138h]
-      vmovss  dword ptr [rsp+160h+bounds.midPoint+8], xmm2
-      vandps  xmm7, xmm7, xmm3
-      vmulss  xmm0, xmm7, dword ptr [rsi+10h]
-      vmovaps xmm7, [rsp+160h+var_40]
-      vandps  xmm8, xmm8, xmm3
-      vandps  xmm9, xmm9, xmm3
-      vandps  xmm10, xmm10, xmm3
-      vandps  xmm11, xmm11, xmm3
-      vandps  xmm12, xmm12, xmm3
-      vandps  xmm13, xmm13, xmm3
-      vandps  xmm6, xmm6, xmm3
-      vmulss  xmm1, xmm6, dword ptr [rsi+0Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm8, dword ptr [rsi+14h]
-      vmovaps xmm8, [rsp+160h+var_50]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsp+160h+bounds.halfSize], xmm1
-      vmulss  xmm1, xmm9, dword ptr [rsi+0Ch]
-      vmovaps xmm9, [rsp+160h+var_60]
-      vmulss  xmm0, xmm10, dword ptr [rsi+10h]
-      vmovaps xmm10, [rsp+160h+var_70]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm11, dword ptr [rsi+14h]
-      vmovaps xmm11, [rsp+160h+var_80]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsp+160h+bounds.halfSize+4], xmm1
-      vmulss  xmm1, xmm12, dword ptr [rsi+0Ch]
-      vmovaps xmm12, [rsp+160h+var_90]
-      vmulss  xmm0, xmm13, dword ptr [rsi+10h]
-      vmovaps xmm13, [rsp+160h+var_A0]
-      vaddss  xmm2, xmm1, xmm0
-      vandps  xmm4, xmm4, xmm3
-      vmulss  xmm0, xmm4, dword ptr [rsi+14h]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsp+160h+bounds.halfSize+8], xmm1
-    }
-    if ( NumParam < 4 )
-      goto LABEL_15;
-    if ( Scr_GetType(scrContext, 3u) == VAR_UNDEFINED )
-      goto LABEL_15;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v81 | v82 )
-      goto LABEL_15;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+160h+vectorValue]
-      vsubss  xmm4, xmm1, dword ptr [rsp+160h+bounds.midPoint]
-      vmovss  xmm2, dword ptr [rsp+160h+vectorValue+4]
-      vsubss  xmm3, xmm2, dword ptr [rsp+160h+bounds.midPoint+4]
-      vmovss  xmm1, dword ptr [rsp+160h+vectorValue+8]
-      vsubss  xmm5, xmm1, dword ptr [rsp+160h+bounds.midPoint+8]
-      vmulss  xmm3, xmm3, xmm3
-      vmulss  xmm2, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  xmm2, dword ptr [rsp+160h+bounds.halfSize]
-      vmulss  xmm3, xmm2, xmm2
-      vmovss  xmm2, dword ptr [rsp+160h+bounds.halfSize+8]
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm4, xmm1
-      vsqrtss xmm5, xmm0, xmm0
-      vmovss  xmm0, dword ptr [rsp+160h+bounds.halfSize+4]
-      vmulss  xmm1, xmm0, xmm0
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm1, xmm4, xmm0
-      vsqrtss xmm3, xmm1, xmm1
-      vsubss  xmm2, xmm5, xmm3
-      vcomiss xmm2, xmm6
-    }
-    if ( v81 | v82 )
-    {
-LABEL_15:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsp+160h+coneDir+4]
-        vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm0, dword ptr [rsp+160h+coneDir]
-        vxorps  xmm1, xmm0, xmm3
-        vxorps  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rsp+160h+coneDir], xmm1
-        vmovss  xmm1, dword ptr [rsp+160h+coneDir+8]
-        vxorps  xmm2, xmm1, xmm3
-        vmovss  dword ptr [rsp+160h+coneDir+8], xmm2
-        vmovaps xmm2, xmm14; cosHalfFov
-        vmovss  dword ptr [rsp+160h+coneDir+4], xmm0
-      }
-      v107 = !CullBoxFromCone(&vectorValue, &coneDir, *(float *)&_XMM2, &bounds);
+      v13 = 0;
     }
     else
     {
-      v107 = 0;
+      LODWORD(coneDir.v[0]) ^= _xmm;
+      LODWORD(coneDir.v[2]) ^= _xmm;
+      LODWORD(coneDir.v[1]) ^= _xmm;
+      v13 = !CullBoxFromCone(&vectorValue, &coneDir, v7, &bounds);
     }
-    Scr_AddBool(scrContext, v107);
-    __asm
-    {
-      vmovaps xmm6, [rsp+160h+var_30]
-      vmovaps xmm14, [rsp+160h+var_B0]
-    }
+    Scr_AddBool(scrContext, v13);
   }
 }
 
@@ -11992,19 +10930,15 @@ Scr_StopAllRumbles
 */
 void Scr_StopAllRumbles(scrContext_t *scrContext)
 {
-  gentity_s *v3; 
+  gentity_s *v1; 
   vec3_t origin; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+48h+origin], xmm0
-    vmovss  dword ptr [rsp+48h+origin+4], xmm0
-    vmovss  dword ptr [rsp+48h+origin+8], xmm0
-  }
-  v3 = G_Utils_SpawnEventEntity(&origin, 153);
-  v3->s.eventParm2 = 0;
-  v3->s.eventParm = 0;
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  v1 = G_Utils_SpawnEventEntity(&origin, 153);
+  v1->s.eventParm2 = 0;
+  v1->s.eventParm = 0;
 }
 
 /*
@@ -12223,46 +11157,34 @@ GScr_Skydive_BeginFreefall
 void GScr_Skydive_BeginFreefall(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31297, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31297, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31306, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x2Fu);
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Skydive_BeginFreefall(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4850, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Skydive_BeginFreefall(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4850, scrContext, v8);
   }
 }
 
@@ -12308,46 +11230,34 @@ GScr_Skydive_DeployParachute
 void GScr_Skydive_DeployParachute(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31325, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31325, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31334, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x30u);
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Skydive_DeployParachute(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4851, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Skydive_DeployParachute(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4851, scrContext, v8);
   }
 }
 
@@ -12424,24 +11334,24 @@ GScr_Skydive_SetDeploymentStatus
 void GScr_Skydive_SetDeploymentStatus(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   int Int; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31354, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31354, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
     if ( Scr_GetNumParam(scrContext) )
     {
-      EntityPlayerState = G_GetEntityPlayerState(_RDI);
+      EntityPlayerState = G_GetEntityPlayerState(Entity);
       if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31369, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
         __debugbreak();
       Int = Scr_GetInt(scrContext, 0);
@@ -12464,26 +11374,14 @@ void GScr_Skydive_SetDeploymentStatus(scrContext_t *scrContext, scr_entref_t ent
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Skydive_SetDeploymentStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4852, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Skydive_SetDeploymentStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4852, scrContext, v8);
   }
 }
 
@@ -12541,24 +11439,24 @@ GScr_Skydive_SetBaseJumpingStatus
 void GScr_Skydive_SetBaseJumpingStatus(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   int Int; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31398, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31398, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
     if ( Scr_GetNumParam(scrContext) )
     {
-      EntityPlayerState = G_GetEntityPlayerState(_RDI);
+      EntityPlayerState = G_GetEntityPlayerState(Entity);
       if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31413, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
         __debugbreak();
       Int = Scr_GetInt(scrContext, 0);
@@ -12575,26 +11473,14 @@ void GScr_Skydive_SetBaseJumpingStatus(scrContext_t *scrContext, scr_entref_t en
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("GScr_Skydive_SetBaseJumpingStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_5932, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("GScr_Skydive_SetBaseJumpingStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_5932, scrContext, v8);
   }
 }
 
@@ -12609,6 +11495,7 @@ void GScr_GetAmmoType(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *v4; 
   const char *v5; 
   ComErrorCode v6; 
+  __m256i *v7; 
   scr_string_t primary; 
   bool outIsAlternate; 
   AmmoStore result; 
@@ -12632,11 +11519,11 @@ LABEL_9:
     Scr_ObjectError(v6, scrContext, v5);
   }
   GScr_Main_GetWeaponParam(scrContext, 0, &outWeapon, &outIsAlternate);
-  _RAX = BG_AmmoStoreForWeapon(&result, &outWeapon, outIsAlternate);
+  v7 = (__m256i *)BG_AmmoStoreForWeapon(&result, &outWeapon, outIsAlternate);
   primary = scr_const.primary;
+  _YMM1 = v7[1];
   __asm
   {
-    vmovups ymm1, ymmword ptr [rax+20h]
     vextractf128 xmm0, ymm1, 1
     vpextrd rax, xmm0, 3
   }
@@ -12653,21 +11540,21 @@ GScr_Skydive_Interrupt
 void GScr_Skydive_Interrupt(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   GWeaponMap *Instance; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31439, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31439, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31448, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( EntityPlayerState->skydivePlayerState.state[0] )
@@ -12691,26 +11578,14 @@ void GScr_Skydive_Interrupt(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Skydive_Interrupt(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_5934, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Skydive_Interrupt(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_5934, scrContext, v8);
   }
 }
 
@@ -13188,13 +12063,7 @@ void GScr_WeaponFireTime(scrContext_t *scrContext)
   GScr_Main_GetWeaponParam(scrContext, 0, &outWeapon, &outIsAlternate);
   isDualWielding = BG_WeaponIsDualWield(&outWeapon);
   BG_GetFireTime(NULL, NULL, &outWeapon, outIsAlternate, isDualWielding, 0, &fireTime, &fireDelay);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+0A8h+var_64]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)fireTime * 0.001);
 }
 
 /*
@@ -13667,24 +12536,24 @@ GScr_Skydive_SetForceThirdPersonStatus
 void GScr_Skydive_SetForceThirdPersonStatus(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   int Int; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31709, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31709, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClient(_RDI) )
+  if ( G_Utils_IsClient(Entity) )
   {
     if ( Scr_GetNumParam(scrContext) )
     {
-      EntityPlayerState = G_GetEntityPlayerState(_RDI);
+      EntityPlayerState = G_GetEntityPlayerState(Entity);
       if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 31724, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
         __debugbreak();
       Int = Scr_GetInt(scrContext, 0);
@@ -13701,26 +12570,14 @@ void GScr_Skydive_SetForceThirdPersonStatus(scrContext_t *scrContext, scr_entref
   }
   else
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Skydive_SetForceThirdPersonStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_5935, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Skydive_SetForceThirdPersonStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_5935, scrContext, v8);
   }
 }
 
@@ -13821,39 +12678,45 @@ ScrCmd_DoDamage
 */
 void ScrCmd_DoDamage(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v6; 
-  gentity_s *v10; 
+  __int128 v2; 
+  int v3; 
+  gentity_s *v6; 
   gentity_s *EntityAllowNull; 
   scr_string_t ConstString; 
-  const char *v27; 
-  bool v44; 
-  bool v45; 
-  int *v61; 
+  gentity_s *Entity; 
+  double Float; 
+  float v11; 
+  const char *v12; 
+  float *p_commandTime; 
+  gclient_s *client; 
+  float v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  float *v27; 
   damageReturnCode_t (__fastcall *Damage)(GCombat *, gentity_s *, const gentity_s *, gentity_s *, const vec3_t *, const vec3_t *, int, int, int, const Weapon *, bool, hitLocation_t, unsigned int, scr_string_t, int, const vec3_t *, const GExtraDamageParams *); 
   bool outIsAlternate[4]; 
   hitLocation_t HitLocationIndexFromString; 
-  meansOfDeath_t v67; 
-  int v68; 
+  meansOfDeath_t v31; 
+  float v32; 
+  float v33; 
+  float v34; 
   vec3_t vectorValue; 
   Weapon outWeapon; 
+  __int128 v37; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-  }
-  v6 = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+50h+outWeapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rbp+50h+outWeapon.attachmentVariationIndices+15h], xmm0
-  }
+  v3 = 0;
+  memset(&outWeapon, 0, 48);
+  *(double *)&outWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   outIsAlternate[0] = 0;
-  __asm { vmovups xmmword ptr [rbp+50h+outWeapon.attachmentVariationIndices+5], xmm1 }
-  v10 = NULL;
-  v67 = MOD_UNKNOWN;
+  v6 = NULL;
+  v31 = MOD_UNKNOWN;
   EntityAllowNull = NULL;
   HitLocationIndexFromString = HITLOC_HEAD;
   switch ( Scr_GetNumParam(scrContext) )
@@ -13879,197 +12742,92 @@ $LN14_55:
         GScr_Main_GetWeaponParam(scrContext, 5u, &outWeapon, outIsAlternate);
 $LN16_45:
       if ( Scr_GetType(scrContext, 4u) )
-        v67 = G_Combat_MeansOfDeathFromScriptParam(scrContext, 4);
+        v31 = G_Combat_MeansOfDeathFromScriptParam(scrContext, 4);
 $LN18_41:
       if ( Scr_GetType(scrContext, 3u) )
         EntityAllowNull = GScr_GetEntityAllowNull(3u);
 $LN20_39:
       if ( Scr_GetType(scrContext, 2u) )
-        v10 = GScr_GetEntityAllowNull(2u);
+        v6 = GScr_GetEntityAllowNull(2u);
 $LN22_42:
-      __asm
-      {
-        vmovaps [rsp+160h+var_40], xmm6
-        vmovaps [rsp+160h+var_50], xmm7
-      }
-      _RBX = GetEntity(entref);
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm7, xmm0 }
+      v37 = v2;
+      Entity = GetEntity(entref);
+      Float = Scr_GetFloat(scrContext, 0);
+      v11 = *(float *)&Float;
       Scr_GetVector(scrContext, 1u, &vectorValue);
-      __asm
+      *(float *)outIsAlternate = vectorValue.v[0];
+      if ( (LODWORD(vectorValue.v[0]) & 0x7F800000) == 2139095040 || (*(float *)outIsAlternate = vectorValue.v[1], (LODWORD(vectorValue.v[1]) & 0x7F800000) == 2139095040) || (*(float *)outIsAlternate = vectorValue.v[2], (LODWORD(vectorValue.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm1, dword ptr [rbp+50h+vectorValue]
-        vmovss  dword ptr [rbp+50h+outIsAlternate], xmm1
+        v12 = j_va("Source Damage vector is invalid : %f %f %f", vectorValue.v[0], vectorValue.v[1], vectorValue.v[2]);
+        Scr_Error(COM_ERR_4305, scrContext, v12);
       }
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        goto LABEL_15;
-      __asm
+      p_commandTime = (float *)&Entity->client->ps.commandTime;
+      if ( p_commandTime )
       {
-        vmovss  xmm1, dword ptr [rbp+50h+vectorValue+4]
-        vmovss  dword ptr [rbp+50h+outIsAlternate], xmm1
-      }
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        goto LABEL_15;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+50h+vectorValue+8]
-        vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-      }
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-      {
-LABEL_15:
-        __asm
+        *(float *)outIsAlternate = p_commandTime[12];
+        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 || (*(float *)outIsAlternate = p_commandTime[13], (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040) || (*(float *)outIsAlternate = p_commandTime[14], (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm3, dword ptr [rbp+50h+vectorValue+8]
-          vmovss  xmm2, dword ptr [rbp+50h+vectorValue+4]
-          vmovss  xmm1, dword ptr [rbp+50h+vectorValue]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        v27 = j_va("Source Damage vector is invalid : %f %f %f", _RDX, _R8, _R9);
-        Scr_Error(COM_ERR_4305, scrContext, v27);
-      }
-      if ( _RBX->client )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+30h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-          goto LABEL_44;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+34h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-          goto LABEL_44;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+38h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        {
-LABEL_44:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14301, ASSERT_TYPE_SANITY, "( !IS_NAN( ( ent->client->ps.origin )[0] ) && !IS_NAN( ( ent->client->ps.origin )[1] ) && !IS_NAN( ( ent->client->ps.origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( ent->client->ps.origin )[0] ) && !IS_NAN( ( ent->client->ps.origin )[1] ) && !IS_NAN( ( ent->client->ps.origin )[2] )") )
             __debugbreak();
         }
-        _RAX = _RBX->client;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+30h]
-          vsubss  xmm4, xmm0, dword ptr [rbp+50h+vectorValue]
-          vmovss  [rbp+50h+var_C0], xmm4
-          vmovss  xmm1, dword ptr [rax+34h]
-          vsubss  xmm5, xmm1, dword ptr [rbp+50h+vectorValue+4]
-          vmovss  [rbp+50h+var_BC], xmm5
-          vmovss  xmm0, dword ptr [rax+38h]
-        }
+        client = Entity->client;
+        v15 = client->ps.origin.v[0] - vectorValue.v[0];
+        v32 = v15;
+        v16 = LODWORD(client->ps.origin.v[1]);
+        v18 = v16;
+        *(float *)&v18 = *(float *)&v16 - vectorValue.v[1];
+        v17 = v18;
+        v33 = *(float *)&v16 - vectorValue.v[1];
+        v19 = client->ps.origin.v[2];
       }
       else
       {
-        __asm
+        *(float *)outIsAlternate = Entity->r.currentOrigin.v[0];
+        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 || (*(float *)outIsAlternate = Entity->r.currentOrigin.v[1], (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040) || (*(float *)outIsAlternate = Entity->r.currentOrigin.v[2], (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rbx+130h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-          goto LABEL_45;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+134h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-          goto LABEL_45;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+138h]
-          vmovss  dword ptr [rbp+50h+outIsAlternate], xmm0
-        }
-        if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        {
-LABEL_45:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14306, ASSERT_TYPE_SANITY, "( !IS_NAN( ( ent->r.currentOrigin )[0] ) && !IS_NAN( ( ent->r.currentOrigin )[1] ) && !IS_NAN( ( ent->r.currentOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( ent->r.currentOrigin )[0] ) && !IS_NAN( ( ent->r.currentOrigin )[1] ) && !IS_NAN( ( ent->r.currentOrigin )[2] )") )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+130h]
-          vsubss  xmm4, xmm0, dword ptr [rbp+50h+vectorValue]
-          vmovss  [rbp+50h+var_C0], xmm4
-          vmovss  xmm1, dword ptr [rbx+134h]
-          vsubss  xmm5, xmm1, dword ptr [rbp+50h+vectorValue+4]
-          vmovss  [rbp+50h+var_BC], xmm5
-          vmovss  xmm0, dword ptr [rbx+138h]
-        }
+        v15 = Entity->r.currentOrigin.v[0] - vectorValue.v[0];
+        v32 = v15;
+        v20 = LODWORD(Entity->r.currentOrigin.v[1]);
+        v21 = v20;
+        *(float *)&v21 = *(float *)&v20 - vectorValue.v[1];
+        v17 = v21;
+        v33 = *(float *)&v20 - vectorValue.v[1];
+        v19 = Entity->r.currentOrigin.v[2];
       }
-      __asm
+      v22 = v19 - vectorValue.v[2];
+      *(float *)outIsAlternate = v15;
+      v34 = v19 - vectorValue.v[2];
+      if ( (LODWORD(v15) & 0x7F800000) == 2139095040 || (*(float *)outIsAlternate = *(float *)&v17, (v17 & 0x7F800000) == 2139095040) || (*(float *)outIsAlternate = v19 - vectorValue.v[2], (COERCE_UNSIGNED_INT(v19 - vectorValue.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vsubss  xmm6, xmm0, dword ptr [rbp+50h+vectorValue+8]
-        vmovss  dword ptr [rbp+50h+outIsAlternate], xmm4
-        vmovss  [rbp+50h+var_B8], xmm6
-      }
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        goto LABEL_32;
-      __asm { vmovss  dword ptr [rbp+50h+outIsAlternate], xmm5 }
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-        goto LABEL_32;
-      __asm { vmovss  dword ptr [rbp+50h+outIsAlternate], xmm6 }
-      v44 = (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040;
-      if ( (*(_DWORD *)outIsAlternate & 0x7F800000) == 2139095040 )
-      {
-LABEL_32:
-        v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14310, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )");
-        v44 = !v45;
-        if ( v45 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14310, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm4, [rbp+50h+var_C0]
-          vmovss  xmm5, [rbp+50h+var_BC]
-          vmovss  xmm6, [rbp+50h+var_B8]
-        }
+        v15 = v32;
+        v17 = LODWORD(v33);
+        v22 = v34;
       }
+      v23 = v17;
+      *(float *)&v23 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(v15 * v15)) + (float)(v22 * v22));
+      _XMM3 = v23;
       __asm
       {
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm2
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  [rbp+50h+var_BC], xmm1
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm3, xmm1
-        vmovss  [rbp+50h+var_C0], xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmovaps xmm6, [rsp+160h+var_40]
       }
-      v61 = NULL;
-      __asm { vmovss  [rbp+50h+var_B8], xmm0 }
-      if ( !v44 )
-        v61 = &v68;
+      v33 = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+      v32 = v15 * (float)(1.0 / *(float *)&_XMM0);
+      v27 = NULL;
+      v34 = v22 * (float)(1.0 / *(float *)&_XMM0);
+      if ( *(float *)&v23 != 0.0 )
+        v27 = &v32;
       if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
         __debugbreak();
       Damage = GCombat::ms_gCombatSystem->Damage;
-      __asm { vcvttss2si eax, xmm7 }
       *(_WORD *)outIsAlternate = 0;
-      LOBYTE(v6) = Damage(GCombat::ms_gCombatSystem, _RBX, EntityAllowNull, v10, (const vec3_t *)v61, &vectorValue, _EAX, 0, v67, &outWeapon, 0, HitLocationIndexFromString, 0, (scr_string_t)0, 0, NULL, (const GExtraDamageParams *)outIsAlternate) == DAMAGE_RETURNCODE_SUCCESS;
-      Scr_AddBool(scrContext, v6);
-      __asm { vmovaps xmm7, [rsp+160h+var_50] }
+      LOBYTE(v3) = Damage(GCombat::ms_gCombatSystem, Entity, EntityAllowNull, v6, (const vec3_t *)v27, &vectorValue, (int)v11, 0, v31, &outWeapon, 0, HitLocationIndexFromString, 0, (scr_string_t)0, 0, NULL, (const GExtraDamageParams *)outIsAlternate) == DAMAGE_RETURNCODE_SUCCESS;
+      Scr_AddBool(scrContext, v3);
       break;
     default:
       Scr_Error(COM_ERR_4306, scrContext, "Usage: doDamage( <health>, <source position>, <attacker>, <inflictor> )\n");
@@ -14128,66 +12886,28 @@ void GScr_EntityRadiusDamageStepped(scrContext_t *scrContext, scr_entref_t entre
 GScr_GlassRadiusDamage
 ==============
 */
-
-void __fastcall GScr_GlassRadiusDamage(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void GScr_GlassRadiusDamage(scrContext_t *scrContext)
 {
-  char v12; 
-  float v21; 
-  float v22; 
+  double Float; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
   vec3_t vectorValue; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm0, xmm9
-    vmovaps xmm10, xmm0
-  }
-  if ( v12 )
+  Float = Scr_GetFloat(scrContext, 1u);
+  v3 = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 )
     Scr_Error(COM_ERR_4307, scrContext, "Invalid <range> value specified for radius damage ( parameter 2 ).\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vcomiss xmm0, xmm9
-    vmovaps xmm6, xmm0
-  }
-  if ( !v12 )
-    __asm { vcomiss xmm0, cs:__real@4f000000 }
-  Scr_Error(COM_ERR_4308, scrContext, "Invalid <max_damage> value specified for radius damage ( parameter 3 ).\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vcomiss xmm0, xmm9
-    vmovaps xmm7, xmm0
-  }
-  if ( !v12 )
-    __asm { vcomiss xmm0, cs:__real@4f000000 }
-  Scr_Error(COM_ERR_4309, scrContext, "Invalid <min_damage> value specified for radius damage ( parameter 4 ).\n");
-  __asm
-  {
-    vmovss  [rsp+98h+var_70], xmm7
-    vxorps  xmm2, xmm2, xmm2; coneAngleCos
-    vmovaps xmm1, xmm10; radius
-    vmovss  [rsp+98h+var_78], xmm6
-  }
-  G_Glass_RadiusDamage(&vectorValue, *(float *)&_XMM1, *(float *)&_XMM2, NULL, v21, v22);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm9, [rsp+98h+var_38]
-    vmovaps xmm10, [rsp+98h+var_48]
-  }
+  v4 = Scr_GetFloat(scrContext, 2u);
+  v5 = *(float *)&v4;
+  if ( *(float *)&v4 < 0.0 || *(float *)&v4 >= 2147483600.0 )
+    Scr_Error(COM_ERR_4308, scrContext, "Invalid <max_damage> value specified for radius damage ( parameter 3 ).\n");
+  v6 = Scr_GetFloat(scrContext, 3u);
+  if ( *(float *)&v6 < 0.0 || *(float *)&v6 >= 2147483600.0 )
+    Scr_Error(COM_ERR_4309, scrContext, "Invalid <min_damage> value specified for radius damage ( parameter 4 ).\n");
+  G_Glass_RadiusDamage(&vectorValue, v3, 0.0, NULL, v5, *(float *)&v6);
 }
 
 /*
@@ -14294,28 +13014,17 @@ GScr_GetPlayerRateOfGameRevenue
 */
 void GScr_GetPlayerRateOfGameRevenue(scrContext_t *scrContext)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  float v2; 
+  gclient_s *client; 
+
+  v2 = FLOAT_1_0;
   if ( g_wegame_platform->current.enabled && Scr_GetType(scrContext, 0) == VAR_POINTER && Scr_GetPointerType(scrContext, 0) == VAR_ENTITY )
   {
-    if ( GScr_GetEntity(0)->client )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+5D2Ch]
-        vaddss  xmm6, xmm0, xmm6
-      }
-    }
+    client = GScr_GetEntity(0)->client;
+    if ( client )
+      v2 = client->sess.extraGameRevenueRate + 1.0;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v2);
 }
 
 /*
@@ -14335,8 +13044,7 @@ GScr_GetBnetIGRPlayerXPMultiplier
 */
 void GScr_GetBnetIGRPlayerXPMultiplier(scrContext_t *scrContext)
 {
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, 1.0);
 }
 
 /*
@@ -14356,8 +13064,7 @@ GScr_GetBnetIGRWeaponXPMultiplier
 */
 void GScr_GetBnetIGRWeaponXPMultiplier(scrContext_t *scrContext)
 {
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, 1.0);
 }
 
 /*
@@ -14365,60 +13072,48 @@ void GScr_GetBnetIGRWeaponXPMultiplier(scrContext_t *scrContext)
 GScr_ShellShock
 ==============
 */
-
-void __fastcall GScr_ShellShock(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void GScr_ShellShock(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  const char *v16; 
   playerState_s *EntityPlayerState; 
   const char *String; 
-  const char *v19; 
-  int v20; 
-  const char *v33; 
-  int v34; 
-  __int64 v35; 
+  const char *v11; 
+  int v12; 
+  int v15; 
+  const char *v16; 
+  int v17; 
+  __int64 v18; 
   unsigned int Animset; 
   unsigned int Anim; 
   bool IsThrowAnim; 
   SuitAnimType SuitAnimIndexFromPlayerState; 
   unsigned __int64 weaponState; 
-  __int64 v41; 
+  __int64 v24; 
   unsigned int *holdrand; 
   GHandler *Handler; 
-  char *fmt; 
   unsigned int outIndex; 
 
   entnum = entref.entnum;
-  _RBP = GetEntity(entref);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14595, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14595, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RBP) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RBP->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
-      v8 = SL_ConvertToString(targetname);
+      v6 = SL_ConvertToString(targetname);
     else
-      v8 = "<undefined>";
-    v9 = SL_ConvertToString(_RBP->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+134h]
-      vmovss  xmm2, dword ptr [rbp+130h]
-      vmovss  xmm0, dword ptr [rbp+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v9, v8);
-    Scr_Error(COM_ERR_4312, scrContext, v16);
+      v6 = "<undefined>";
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4312, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RBP);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14601, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) < 2 )
@@ -14426,57 +13121,42 @@ void __fastcall GScr_ShellShock(scrContext_t *scrContext, scr_entref_t entref, d
   String = Scr_GetString(scrContext, 0);
   if ( !NetConstStrings_GetIndexPlusOneFromName(NETCONSTSTRINGTYPE_SHOCK, String, &outIndex) )
   {
-    v19 = j_va("Shellshock '%s' does not exist", String);
-    Scr_Error(COM_ERR_4314, scrContext, v19);
+    v11 = j_va("Shellshock '%s' does not exist", String);
+    Scr_Error(COM_ERR_4314, scrContext, v11);
   }
   if ( !outIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14613, ASSERT_TYPE_ASSERT, "(shockIndex != 0)", "%s\n\tWe use 0 as a sentinel value for the shellshock index to mean no shock, so start at index 1.", "shockIndex != 0") )
     __debugbreak();
-  v20 = 1;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
+  v12 = 1;
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+  v15 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 < 0 )
   {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si ebx, xmm1
+    v16 = j_va("duration %g should be >= 0", (float)((float)v15 * 0.001));
+    Scr_ParamError(COM_ERR_4315, scrContext, 1u, v16);
   }
-  if ( _EBX < 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v33 = j_va("duration %g should be >= 0", _RDX);
-    Scr_ParamError(COM_ERR_4315, scrContext, 1u, v33);
-  }
-  v34 = 0xFFFF;
+  v17 = 0xFFFF;
   EntityPlayerState->shellshockIndex = outIndex;
-  if ( _EBX < 0xFFFF )
-    v34 = _EBX;
+  if ( v15 < 0xFFFF )
+    v17 = (int)*(float *)&_XMM1;
   EntityPlayerState->shellshockTime = level.time;
-  EntityPlayerState->shellshockDuration = truncate_cast<unsigned short,int>(v34);
+  EntityPlayerState->shellshockDuration = truncate_cast<unsigned short,int>(v17);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
   {
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x15u);
   }
-  else if ( _RBP->health > 0 )
+  else if ( Entity->health > 0 )
   {
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x15u);
     if ( Scr_GetNumParam(scrContext) < 3 || Scr_GetInt(scrContext, 2u) )
     {
-      v35 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
-      if ( !v35 )
+      v18 = *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64);
+      if ( !v18 )
         goto LABEL_45;
       if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
         __debugbreak();
-      if ( v35 != *(_QWORD *)&GStatic::ms_gameStatics )
+      if ( v18 != *(_QWORD *)&GStatic::ms_gameStatics )
       {
 LABEL_45:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14641, ASSERT_TYPE_ASSERT, "(BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics()))", "%s\n\tEntering server game character processing without a valid client game state", "BgStatic::HasActiveStatics() && (BgStatic::GetActiveStatics() == GStatic::GetGameStatics())") )
@@ -14494,11 +13174,11 @@ LABEL_45:
         IsThrowAnim = BG_IsThrowAnim(EntityPlayerState->torsoAnim, SuitAnimIndexFromPlayerState);
       }
       weaponState = EntityPlayerState->weapState[0].weaponState;
-      if ( (unsigned int)weaponState <= 0x32 && (v41 = 0x4000000001FBEi64, _bittest64(&v41, weaponState)) || IsThrowAnim )
-        v20 = 0;
+      if ( (unsigned int)weaponState <= 0x32 && (v24 = 0x4000000001FBEi64, _bittest64(&v24, weaponState)) || IsThrowAnim )
+        v12 = 0;
       holdrand = G_GetRandomSeed();
       Handler = GHandler::getHandler();
-      BG_AnimScriptEvent(Handler, EntityPlayerState, ANIM_ET_SHELLSHOCK, 0, v20, holdrand);
+      BG_AnimScriptEvent(Handler, EntityPlayerState, ANIM_ET_SHELLSHOCK, 0, v12, holdrand);
     }
   }
 }
@@ -14510,8 +13190,7 @@ GScr_GetBnetIGRBattlePassXPMultiplier
 */
 void GScr_GetBnetIGRBattlePassXPMultiplier(scrContext_t *scrContext)
 {
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, 1.0);
 }
 
 /*
@@ -14545,45 +13224,35 @@ GScr_SpawnBrCircle
 void GScr_SpawnBrCircle(scrContext_t *scrContext)
 {
   scr_string_t script_model; 
+  double Float; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  gentity_s *v8; 
 
   script_model = scr_const.script_model;
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  v4 = *(float *)&Float;
+  v5 = Scr_GetFloat(scrContext, 1u);
+  v6 = *(float *)&v5;
+  v7 = Scr_GetFloat(scrContext, 2u);
+  v8 = G_Utils_SpawnEntity();
+  Scr_SetString(&v8->script_classname, script_model);
+  v8->spawnflags = 0;
+  v8->r.currentOrigin.v[0] = v4;
+  v8->r.currentOrigin.v[1] = v6;
+  v8->r.currentOrigin.v[2] = *(float *)&v7;
+  if ( G_Spawn_CallForEntity(v8) )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
-  _RDI = G_Utils_SpawnEntity();
-  Scr_SetString(&_RDI->script_classname, script_model);
-  _RDI->spawnflags = 0;
-  __asm
-  {
-    vmovss  dword ptr [rdi+130h], xmm8
-    vmovss  dword ptr [rdi+134h], xmm7
-    vmovss  dword ptr [rdi+138h], xmm6
-  }
-  if ( G_Spawn_CallForEntity(_RDI) )
-  {
-    _RDI->s.un.scriptMoverType = 9;
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RDI->s.lerp.eFlags, ACTIVE, 0);
-    GScr_AddEntity(_RDI);
+    v8->s.un.scriptMoverType = 9;
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v8->s.lerp.eFlags, ACTIVE, 0);
+    GScr_AddEntity(v8);
   }
   else
   {
-    G_FreeEntity(_RDI);
+    G_FreeEntity(v8);
     Scr_Error(COM_ERR_5936, scrContext, "unable to spawn br circle");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
   }
 }
 
@@ -14596,9 +13265,15 @@ void GScr_SpawnMapCircle(scrContext_t *scrContext)
 {
   scr_string_t script_model; 
   unsigned int NumParam; 
-  gentity_s *v8; 
+  gentity_s *v4; 
   gentity_s *Entity; 
-  const char *v10; 
+  const char *v6; 
+  double Float; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
+  gentity_s *v12; 
 
   script_model = scr_const.script_model;
   NumParam = Scr_GetNumParam(scrContext);
@@ -14608,53 +13283,40 @@ void GScr_SpawnMapCircle(scrContext_t *scrContext)
   }
   else
   {
-    v8 = NULL;
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
+    v4 = NULL;
     if ( NumParam == 4 && Scr_GetType(scrContext, 3u) == VAR_POINTER && Scr_GetPointerType(scrContext, 3u) == VAR_ENTITY )
     {
       Entity = GScr_GetEntity(3u);
-      v8 = Entity;
+      v4 = Entity;
       if ( !Entity->client )
       {
-        v10 = j_va("Owner entity %i is not a player", (unsigned int)Entity->s.number);
-        Scr_ObjectError(COM_ERR_6569, scrContext, v10);
+        v6 = j_va("Owner entity %i is not a player", (unsigned int)Entity->s.number);
+        Scr_ObjectError(COM_ERR_6569, scrContext, v6);
       }
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
-    _RBX = G_Utils_SpawnEntity();
-    Scr_SetString(&_RBX->script_classname, script_model);
-    _RBX->spawnflags = 0;
-    __asm
+    Float = Scr_GetFloat(scrContext, 0);
+    v8 = *(float *)&Float;
+    v9 = Scr_GetFloat(scrContext, 1u);
+    v10 = *(float *)&v9;
+    v11 = Scr_GetFloat(scrContext, 2u);
+    v12 = G_Utils_SpawnEntity();
+    Scr_SetString(&v12->script_classname, script_model);
+    v12->spawnflags = 0;
+    v12->r.currentOrigin.v[0] = v8;
+    v12->r.currentOrigin.v[1] = v10;
+    v12->r.currentOrigin.v[2] = *(float *)&v11;
+    if ( G_Spawn_CallForEntity(v12) )
     {
-      vmovss  dword ptr [rbx+130h], xmm8
-      vmovss  dword ptr [rbx+134h], xmm7
-      vmovss  dword ptr [rbx+138h], xmm6
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-    if ( G_Spawn_CallForEntity(_RBX) )
-    {
-      _RBX->s.un.scriptMoverType = 10;
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0);
-      _RBX->s.staticState.player.stowedWeaponHandle.m_mapEntryId &= 0xFFFC0000;
-      if ( v8 )
-        _RBX->s.otherEntityNum = v8->s.number;
-      GScr_AddEntity(_RBX);
+      v12->s.un.scriptMoverType = 10;
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v12->s.lerp.eFlags, ACTIVE, 0);
+      v12->s.staticState.player.stowedWeaponHandle.m_mapEntryId &= 0xFFFC0000;
+      if ( v4 )
+        v12->s.otherEntityNum = v4->s.number;
+      GScr_AddEntity(v12);
     }
     else
     {
-      G_FreeEntity(_RBX);
+      G_FreeEntity(v12);
       Scr_Error(COM_ERR_6074, scrContext, "unable to spawn map circle");
     }
   }
@@ -14729,71 +13391,44 @@ void GScr_SetMapCircleStyleIndex(scrContext_t *scrContext, scr_entref_t entref)
 GScr_StunPlayer
 ==============
 */
-
-void __fastcall GScr_StunPlayer(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void GScr_StunPlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  const char *v16; 
   playerState_s *EntityPlayerState; 
-  const char *v30; 
-  char *fmt; 
+  int v12; 
+  const char *v13; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  Entity = GetEntity(entref);
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
-      v8 = SL_ConvertToString(targetname);
+      v6 = SL_ConvertToString(targetname);
     else
-      v8 = "<undefined>";
-    v9 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v9, v8);
-    Scr_Error(COM_ERR_4316, scrContext, v16);
+      v6 = "<undefined>";
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4316, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14682, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+  v12 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 < 0 )
   {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si edi, xmm1
+    v13 = j_va("duration %g should be >= 0", (float)((float)v12 * 0.001));
+    Scr_ParamError(COM_ERR_4317, scrContext, 0, v13);
   }
-  if ( _EDI < 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v30 = j_va("duration %g should be >= 0", _RDX);
-    Scr_ParamError(COM_ERR_4317, scrContext, 0, v30);
-  }
-  EntityPlayerState->stunTime = _EDI + level.time;
+  EntityPlayerState->stunTime = v12 + level.time;
 }
 
 /*
@@ -14835,79 +13470,39 @@ GScr_GetMoveDelta
 */
 void GScr_GetMoveDelta(scrContext_t *scrContext)
 {
-  unsigned int v10; 
-  char v11; 
-  char v12; 
-  char v13; 
-  char v14; 
+  float v1; 
+  float v3; 
+  unsigned int v4; 
+  double Float; 
+  double v6; 
   int linkPointer; 
-  unsigned int v16; 
+  unsigned int v8; 
   const XAnim_s *Anims; 
-  float v22; 
-  float v23; 
   vec3_t trans; 
   vec4_t rot; 
-  char v27; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v1 = FLOAT_1_0;
+  v3 = 0.0;
+  v4 = Scr_GetNumParam(scrContext) - 1;
+  if ( v4 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v10 = Scr_GetNumParam(scrContext) - 1;
-  if ( v10 )
-  {
-    if ( v10 != 1 )
+    if ( v4 != 1 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v11 )
-        goto LABEL_5;
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( !(v11 | v12) )
-LABEL_5:
+      Float = Scr_GetFloat(scrContext, 2u);
+      v1 = *(float *)&Float;
+      if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
         Scr_ParamError(COM_ERR_4318, scrContext, 2u, "end time must be between 0 and 1");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm6, xmm0
-    }
-    if ( v13 )
-      goto LABEL_8;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v13 | v14) )
-LABEL_8:
+    v6 = Scr_GetFloat(scrContext, 1u);
+    v3 = *(float *)&v6;
+    if ( *(float *)&v6 < 0.0 || *(float *)&v6 > 1.0 )
       Scr_ParamError(COM_ERR_4319, scrContext, 1u, "start time must be between 0 and 1");
   }
   linkPointer = Scr_GetAnim(scrContext, 0, NULL).linkPointer;
-  v16 = (unsigned __int16)linkPointer;
+  v8 = (unsigned __int16)linkPointer;
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm
-  {
-    vmovss  [rsp+98h+var_70], xmm7
-    vmovss  [rsp+98h+var_78], xmm6
-  }
-  XAnimGetRelDelta3D(Anims, v16, &rot, &trans, v22, v23);
+  XAnimGetRelDelta3D(Anims, v8, &rot, &trans, v3, v1);
   Scr_AddVector(scrContext, trans.v);
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -15017,81 +13612,41 @@ GScr_GetAngleDelta
 */
 void GScr_GetAngleDelta(scrContext_t *scrContext)
 {
-  unsigned int v10; 
-  char v11; 
-  char v12; 
-  char v13; 
-  char v14; 
+  float v1; 
+  float v3; 
+  unsigned int v4; 
+  double Float; 
+  double v6; 
   int linkPointer; 
-  unsigned __int16 v16; 
+  unsigned __int16 v8; 
   const XAnim_s *Anims; 
-  float v23; 
-  float v24; 
+  double v10; 
   vec2_t rot; 
   vec3_t trans; 
-  char v28; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v1 = FLOAT_1_0;
+  v3 = 0.0;
+  v4 = Scr_GetNumParam(scrContext) - 1;
+  if ( v4 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v10 = Scr_GetNumParam(scrContext) - 1;
-  if ( v10 )
-  {
-    if ( v10 != 1 )
+    if ( v4 != 1 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v11 )
-        goto LABEL_5;
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( !(v11 | v12) )
-LABEL_5:
+      Float = Scr_GetFloat(scrContext, 2u);
+      v1 = *(float *)&Float;
+      if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
         Scr_ParamError(COM_ERR_4320, scrContext, 2u, "end time must be between 0 and 1");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm6, xmm0
-    }
-    if ( v13 )
-      goto LABEL_8;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v13 | v14) )
-LABEL_8:
+    v6 = Scr_GetFloat(scrContext, 1u);
+    v3 = *(float *)&v6;
+    if ( *(float *)&v6 < 0.0 || *(float *)&v6 > 1.0 )
       Scr_ParamError(COM_ERR_4321, scrContext, 1u, "start time must be between 0 and 1");
   }
   linkPointer = Scr_GetAnim(scrContext, 0, NULL).linkPointer;
-  v16 = linkPointer;
+  v8 = linkPointer;
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm
-  {
-    vmovss  [rsp+98h+var_70], xmm7
-    vmovss  [rsp+98h+var_78], xmm6
-  }
-  XAnimGetRelDelta(Anims, v16, &rot, &trans, v23, v24);
-  *(double *)&_XMM0 = RotationToYaw(&rot);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
+  XAnimGetRelDelta(Anims, v8, &rot, &trans, v3, v1);
+  v10 = RotationToYaw(&rot);
+  Scr_AddFloat(scrContext, *(float *)&v10);
 }
 
 /*
@@ -15147,83 +13702,43 @@ GScr_GetAngleDelta3D
 */
 void GScr_GetAngleDelta3D(scrContext_t *scrContext)
 {
-  unsigned int v10; 
-  char v11; 
-  char v12; 
-  char v13; 
-  char v14; 
+  float v1; 
+  float v3; 
+  unsigned int v4; 
+  double Float; 
+  double v6; 
   int linkPointer; 
-  unsigned int v16; 
+  unsigned int v8; 
   const XAnim_s *Anims; 
-  float v22; 
-  float v23; 
   vec3_t angles; 
   vec4_t rot; 
   vec3_t trans; 
   tmat33_t<vec3_t> axis; 
-  char v28; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v1 = FLOAT_1_0;
+  v3 = 0.0;
+  v4 = Scr_GetNumParam(scrContext) - 1;
+  if ( v4 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v10 = Scr_GetNumParam(scrContext) - 1;
-  if ( v10 )
-  {
-    if ( v10 != 1 )
+    if ( v4 != 1 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v11 )
-        goto LABEL_5;
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( !(v11 | v12) )
-LABEL_5:
+      Float = Scr_GetFloat(scrContext, 2u);
+      v1 = *(float *)&Float;
+      if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
         Scr_ParamError(COM_ERR_4322, scrContext, 2u, "end time must be between 0 and 1");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm6, xmm0
-    }
-    if ( v13 )
-      goto LABEL_8;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v13 | v14) )
-LABEL_8:
+    v6 = Scr_GetFloat(scrContext, 1u);
+    v3 = *(float *)&v6;
+    if ( *(float *)&v6 < 0.0 || *(float *)&v6 > 1.0 )
       Scr_ParamError(COM_ERR_4323, scrContext, 1u, "start time must be between 0 and 1");
   }
   linkPointer = Scr_GetAnim(scrContext, 0, NULL).linkPointer;
-  v16 = (unsigned __int16)linkPointer;
+  v8 = (unsigned __int16)linkPointer;
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm
-  {
-    vmovss  [rsp+0C8h+var_A0], xmm7
-    vmovss  [rsp+0C8h+var_A8], xmm6
-  }
-  XAnimGetRelDelta3D(Anims, v16, &rot, &trans, v22, v23);
+  XAnimGetRelDelta3D(Anims, v8, &rot, &trans, v3, v1);
   QuatToAxis(&rot, &axis);
   AxisToAngles(&axis, &angles);
   Scr_AddVector(scrContext, angles.v);
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -15278,8 +13793,11 @@ GScr_ScriptableGetMidPoint
 void GScr_ScriptableGetMidPoint(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int ScriptableIndex_Internal; 
+  ScriptableInstanceContext *InstanceCommonContext; 
   const XModel *ScriptableModel; 
   float value; 
+  float v7; 
+  float v8; 
   vec3_t out; 
   tmat33_t<vec3_t> axis; 
 
@@ -15290,36 +13808,21 @@ void GScr_ScriptableGetMidPoint(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    _RBX = ScriptableSv_GetInstanceCommonContext(ScriptableIndex_Internal);
-    ScriptableModel = BG_XCompositeModel_GetScriptableModel(_RBX);
+    InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(ScriptableIndex_Internal);
+    ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
     if ( ScriptableModel )
     {
-      AnglesToAxis(&_RBX->angles, &axis);
+      AnglesToAxis(&InstanceCommonContext->angles, &axis);
       MatrixTransformVector(&ScriptableModel->bounds.midPoint, &axis, &out);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+78h+out]
-        vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-        vmovss  xmm2, dword ptr [rsp+78h+out+4]
-        vmovss  [rsp+78h+value], xmm1
-        vaddss  xmm0, xmm2, dword ptr [rbx+24h]
-        vmovss  xmm1, dword ptr [rsp+78h+out+8]
-        vmovss  [rsp+78h+var_54], xmm0
-        vaddss  xmm2, xmm1, dword ptr [rbx+28h]
-        vmovss  [rsp+78h+var_50], xmm2
-      }
+      value = out.v[0] + InstanceCommonContext->origin.v[0];
+      v7 = out.v[1] + InstanceCommonContext->origin.v[1];
+      v8 = out.v[2] + InstanceCommonContext->origin.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  [rsp+78h+value], xmm0
-        vmovss  xmm1, dword ptr [rbx+24h]
-        vmovss  [rsp+78h+var_54], xmm1
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  [rsp+78h+var_50], xmm0
-      }
+      value = InstanceCommonContext->origin.v[0];
+      v7 = InstanceCommonContext->origin.v[1];
+      v8 = InstanceCommonContext->origin.v[2];
     }
     Scr_AddVector(scrContext, &value);
   }
@@ -15552,6 +14055,7 @@ GScr_ScriptableDoorAngle
 void GScr_ScriptableDoorAngle(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int ScriptableIndex_Internal; 
+  double DeltaAngle; 
 
   ScriptableIndex_Internal = ScrCmd_GetScriptableIndex_Internal(scrContext, entref);
   if ( ScriptableIndex_Internal == -1 )
@@ -15560,9 +14064,8 @@ void GScr_ScriptableDoorAngle(scrContext_t *scrContext, scr_entref_t entref)
   }
   else
   {
-    *(double *)&_XMM0 = G_Door_GetDeltaAngle(ScriptableIndex_Internal);
-    __asm { vmovaps xmm1, xmm0; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    DeltaAngle = G_Door_GetDeltaAngle(ScriptableIndex_Internal);
+    Scr_AddFloat(scrContext, *(float *)&DeltaAngle);
   }
 }
 
@@ -15576,7 +14079,7 @@ void GScr_ScriptableDoorOpen(scrContext_t *scrContext, scr_entref_t entref)
   unsigned int ScriptableIndex_Internal; 
   scr_string_t ConstString; 
   DoorMoveType v5; 
-  vec3_t v7; 
+  vec3_t v6; 
   vec3_t vectorValue; 
 
   ScriptableIndex_Internal = ScrCmd_GetScriptableIndex_Internal(scrContext, entref);
@@ -15602,10 +14105,8 @@ LABEL_14:
     if ( Scr_GetNumParam(scrContext) == 2 && Scr_GetType(scrContext, 1u) == VAR_VECTOR )
     {
       Scr_GetVector(scrContext, 1u, &vectorValue);
-      __asm { vmovsd  xmm0, qword ptr [rsp+58h+vectorValue] }
-      v7.v[2] = vectorValue.v[2];
-      __asm { vmovsd  [rsp+58h+var_38], xmm0 }
-      G_Door_OpenReliablyFromPosition(ScriptableIndex_Internal, &v7);
+      v6 = vectorValue;
+      G_Door_OpenReliablyFromPosition(ScriptableIndex_Internal, &v6);
     }
     else
     {
@@ -16031,17 +14532,18 @@ void Scr_PlayFxBetweenPoints(scrContext_t *scrContext)
   gentity_s *Entity; 
   const char *v6; 
   const char *v7; 
-  unsigned int v15; 
-  vec3_t v16; 
-  vec3_t v17; 
+  gentity_s *v8; 
+  unsigned int v9; 
+  vec3_t v10; 
+  vec3_t v11; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) > 5 )
     Scr_Error(COM_ERR_4358, scrContext, "Incorrect number of parameters");
   Int = Scr_GetInt(scrContext, 0);
   Scr_GetVector(scrContext, 1u, &vectorValue);
-  Scr_GetVector(scrContext, 2u, &v17);
-  Scr_GetVector(scrContext, 3u, &v16);
+  Scr_GetVector(scrContext, 2u, &v11);
+  Scr_GetVector(scrContext, 3u, &v10);
   v3 = 0;
   p_number = NULL;
   if ( Scr_GetNumParam(scrContext) == 5 )
@@ -16062,35 +14564,22 @@ void Scr_PlayFxBetweenPoints(scrContext_t *scrContext)
     v7 = j_va("effect id %i is invalid\n", Int);
     Scr_ParamError(COM_ERR_4360, scrContext, 0, v7);
   }
-  _RBX = G_Utils_SpawnEventEntity(&vectorValue, 123);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+var_48]
-    vmovss  dword ptr [rax+58h], xmm0
-    vmovss  xmm1, dword ptr [rsp+98h+var_48+4]
-    vmovss  dword ptr [rax+5Ch], xmm1
-    vmovss  xmm0, dword ptr [rsp+98h+var_48+8]
-    vmovss  dword ptr [rax+60h], xmm0
-    vmovss  xmm1, dword ptr [rsp+98h+var_38]
-    vmovss  dword ptr [rax+40h], xmm1
-    vmovss  xmm0, dword ptr [rsp+98h+var_38+4]
-    vmovss  dword ptr [rax+44h], xmm0
-    vmovss  xmm1, dword ptr [rsp+98h+var_38+8]
-    vmovss  dword ptr [rax+48h], xmm1
-  }
-  _RBX->s.eventParm = Int;
+  v8 = G_Utils_SpawnEventEntity(&vectorValue, 123);
+  v8->s.lerp.u.turret.gunAngles = v10;
+  v8->s.lerp.apos.trBase = v11;
+  v8->s.eventParm = Int;
   if ( v3 )
   {
     if ( !p_number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 15505, ASSERT_TYPE_ASSERT, "(player)", (const char *)&queryFormat, rowName) )
       __debugbreak();
-    *(_QWORD *)_RBX->clientMask.array = -1i64;
-    *(_QWORD *)&_RBX->clientMask.array[2] = -1i64;
-    *(_QWORD *)&_RBX->clientMask.array[4] = -1i64;
-    _RBX->clientMask.array[6] = -1;
-    v15 = *p_number;
-    if ( v15 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v15, 224) )
+    *(_QWORD *)v8->clientMask.array = -1i64;
+    *(_QWORD *)&v8->clientMask.array[2] = -1i64;
+    *(_QWORD *)&v8->clientMask.array[4] = -1i64;
+    v8->clientMask.array[6] = -1;
+    v9 = *p_number;
+    if ( v9 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v9, 224) )
       __debugbreak();
-    _RBX->clientMask.array[(unsigned __int64)v15 >> 5] &= ~(0x80000000 >> (v15 & 0x1F));
+    v8->clientMask.array[(unsigned __int64)v9 >> 5] &= ~(0x80000000 >> (v9 & 0x1F));
   }
 }
 
@@ -16099,68 +14588,42 @@ void Scr_PlayFxBetweenPoints(scrContext_t *scrContext)
 Scr_PhysicsExplosionSphere
 ==============
 */
-
-void __fastcall Scr_PhysicsExplosionSphere(scrContext_t *scrContext, __int64 a2, __int64 a3, double _XMM3_8)
+void Scr_PhysicsExplosionSphere(scrContext_t *scrContext)
 {
-  char v8; 
-  char v9; 
-  float v19; 
-  float v20; 
-  float impulse; 
-  float v22; 
+  gentity_s *v2; 
+  double Float; 
+  double v4; 
+  bool v5; 
+  float v6; 
+  double v7; 
+  float v8; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 4 )
     Scr_Error(COM_ERR_4361, scrContext, "Incorrect number of parameters");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  _RDI = G_Utils_SpawnEventEntity(&vectorValue, 130);
-  _RDI->s.eventParm2 = 0;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rdi+5Ch]
-    vmovss  dword ptr [rdi+58h], xmm0
-  }
-  if ( !(v8 | v9) )
+  v2 = G_Utils_SpawnEventEntity(&vectorValue, 130);
+  v2->s.eventParm2 = 0;
+  Float = Scr_GetFloat(scrContext, 1u);
+  v2->s.lerp.u.turret.gunAngles.v[1] = *(float *)&Float;
+  v4 = Scr_GetFloat(scrContext, 2u);
+  v5 = v2->s.lerp.u.turret.gunAngles.v[1] >= 0.0;
+  v2->s.lerp.u.turret.gunAngles.v[0] = *(float *)&v4;
+  if ( !v5 )
     Scr_ParamError(COM_ERR_4362, scrContext, 1u, "Radius is negative");
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+58h]
-    vcomiss xmm0, xmm6
-  }
-  if ( v8 )
+  v6 = v2->s.lerp.u.turret.gunAngles.v[0];
+  if ( v6 < 0.0 )
   {
     Scr_ParamError(COM_ERR_4363, scrContext, 2u, "Radius is negative");
-    __asm { vmovss  xmm0, dword ptr [rdi+58h] }
+    v6 = v2->s.lerp.u.turret.gunAngles.v[0];
   }
-  __asm { vcomiss xmm0, dword ptr [rdi+5Ch] }
-  if ( !(v8 | v9) )
+  if ( v6 > v2->s.lerp.u.turret.gunAngles.v[1] )
     Scr_Error(COM_ERR_4364, scrContext, "Inner radius is outside the outer radius");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  xmm2, dword ptr [rdi+5Ch]; radius
-    vmovss  [rsp+88h+var_48], xmm1
-    vmovss  dword ptr [rdi+60h], xmm0
-    vmovss  dword ptr [rsp+88h+impulse], xmm0
-    vxorps  xmm3, xmm3, xmm3; innerDamage
-    vmovss  [rsp+88h+var_68], xmm6
-  }
-  Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, &vectorValue, *(const float *)&_XMM2, *(const float *)&_XMM3, v19, impulse, &vec3_origin, level.time, v22);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+60h]
-    vmovss  xmm2, dword ptr [rdi+5Ch]; outerRadius
-    vmovss  xmm1, dword ptr [rdi+58h]; innerRadius
-    vmovss  [rsp+88h+var_68], xmm0
-  }
-  G_Vehicle_ExplosionEvent(&vectorValue, *(float *)&_XMM1, *(float *)&_XMM2, 0, v20, NULL);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
+  v7 = Scr_GetFloat(scrContext, 3u);
+  v8 = v2->s.lerp.u.turret.gunAngles.v[1];
+  v2->s.lerp.u.turret.gunAngles.v[2] = *(float *)&v7;
+  Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, &vectorValue, v8, 0.0, 0.0, *(const float *)&v7, &vec3_origin, level.time, 1.0);
+  G_Vehicle_ExplosionEvent(&vectorValue, v2->s.lerp.u.turret.gunAngles.v[0], v2->s.lerp.u.turret.gunAngles.v[1], 0, v2->s.lerp.u.turret.gunAngles.v[2], NULL);
 }
 
 /*
@@ -16168,135 +14631,54 @@ void __fastcall Scr_PhysicsExplosionSphere(scrContext_t *scrContext, __int64 a2,
 Scr_PhysicsRadiusJolt
 ==============
 */
-
-void __fastcall Scr_PhysicsRadiusJolt(scrContext_t *scrContext, __int64 a2, __int64 a3, double _XMM3_8)
+void Scr_PhysicsRadiusJolt(scrContext_t *scrContext)
 {
-  bool v11; 
-  char v19; 
-  char v20; 
-  char v29; 
-  float v42; 
-  float v43; 
-  float impulse; 
-  float v45; 
+  gentity_s *v2; 
+  bool v3; 
+  double Float; 
+  float v5; 
   vec3_t vectorValue; 
-  char v47; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
   if ( Scr_GetNumParam(scrContext) != 4 )
     Scr_Error(COM_ERR_4365, scrContext, "Incorrect number of parameters");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  _RSI = G_Utils_SpawnEventEntity(&vectorValue, 131);
-  _RSI->s.eventParm2 = 0;
-  v11 = Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm8, xmm0 }
-  if ( v11 )
+  v2 = G_Utils_SpawnEventEntity(&vectorValue, 131);
+  v2->s.eventParm2 = 0;
+  v3 = Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v5 = *(float *)&Float;
+  if ( v3 )
   {
-    __asm
-    {
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vcvttss2si eax, xmm2
-      vmovd   xmm8, eax
-      vcvtdq2ps xmm8, xmm8
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vaddss  xmm2, xmm0, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm2, xmm1, xmm2
-      vroundss xmm0, xmm7, xmm2, 1
-      vcvttss2si eax, xmm0
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-    }
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    LODWORD(v5) = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_u32[0];
+    Scr_GetFloat(scrContext, 2u);
+    __asm { vroundss xmm0, xmm7, xmm2, 1 }
+    LODWORD(_XMM0) = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM0).m128_u32[0];
   }
   else
   {
     *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
   }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-    vmovss  dword ptr [rsi+5Ch], xmm8
-    vmovss  dword ptr [rsi+58h], xmm0
-  }
-  if ( v19 )
+  v2->s.lerp.u.turret.gunAngles.v[1] = v5;
+  v2->s.lerp.u.turret.gunAngles.v[0] = *(float *)&_XMM0;
+  if ( v5 < 0.0 )
   {
     Scr_ParamError(COM_ERR_4366, scrContext, 1u, "Radius is negative");
-    __asm { vmovss  xmm0, dword ptr [rsi+58h] }
+    LODWORD(_XMM0) = v2->s.lerp.u.anonymous.data[0];
   }
-  __asm { vcomiss xmm0, xmm7 }
-  if ( v19 )
+  if ( *(float *)&_XMM0 < 0.0 )
   {
     Scr_ParamError(COM_ERR_4367, scrContext, 2u, "Radius is negative");
-    __asm { vmovss  xmm0, dword ptr [rsi+58h] }
+    LODWORD(_XMM0) = v2->s.lerp.u.anonymous.data[0];
   }
-  __asm { vcomiss xmm0, dword ptr [rsi+5Ch] }
-  if ( !(v19 | v20) )
+  if ( *(float *)&_XMM0 > v2->s.lerp.u.turret.gunAngles.v[1] )
     Scr_Error(COM_ERR_4368, scrContext, "Inner radius is outside the outer radius");
-  _RBX = &_RSI->s.lerp.u.anonymous.data[2];
-  Scr_GetVector(scrContext, 3u, &_RSI->s.lerp.u.event.explosionJolt.impulse);
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [rbx]
-  }
-  if ( v29 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vucomiss xmm0, dword ptr [rbx+4]
-    }
-    if ( v29 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-        vucomiss xmm0, dword ptr [rbx+8]
-      }
-      if ( v29 )
-        *_RBX = 0x800000;
-    }
-  }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  dword ptr [rsp+0A8h+impulse], xmm7
-    vxorps  xmm3, xmm3, xmm3; innerDamage
-    vmovaps xmm2, xmm8; radius
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, &vectorValue, *(const float *)&_XMM2, *(const float *)&_XMM3, v42, impulse, &_RSI->s.lerp.u.event.explosionJolt.impulse, level.time, v45);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+5Ch]; outerRadius
-    vmovss  xmm1, dword ptr [rsi+58h]; innerRadius
-    vmovss  [rsp+0A8h+var_88], xmm6
-  }
-  G_Vehicle_ExplosionEvent(&vectorValue, *(float *)&_XMM1, *(float *)&_XMM2, 0, v43, &_RSI->s.lerp.u.event.explosionJolt.impulse);
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  Scr_GetVector(scrContext, 3u, &v2->s.lerp.u.event.explosionJolt.impulse);
+  if ( 0.0 == v2->s.lerp.u.turret.gunAngles.v[2] && 0.0 == v2->s.lerp.u.actor.impactVector.v[0] && 0.0 == v2->s.lerp.u.actor.impactVector.v[1] )
+    v2->s.lerp.u.anonymous.data[2] = 0x800000;
+  Physics_ApplyRadiusForce(PHYSICS_WORLD_ID_FIRST, &vectorValue, v5, 0.0, 0.0, 0.0, &v2->s.lerp.u.event.explosionJolt.impulse, level.time, 1.0);
+  G_Vehicle_ExplosionEvent(&vectorValue, v2->s.lerp.u.turret.gunAngles.v[0], v2->s.lerp.u.turret.gunAngles.v[1], 0, 1.0, &v2->s.lerp.u.event.explosionJolt.impulse);
 }
 
 /*
@@ -16423,107 +14805,71 @@ Scr_PhysicsRadiusJitter
 */
 void Scr_PhysicsRadiusJitter(scrContext_t *scrContext)
 {
-  bool v8; 
-  char v17; 
-  char v18; 
-  const char *v31; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  gentity_s *v5; 
+  bool v6; 
+  double Float; 
+  float v8; 
+  const char *v12; 
+  double v13; 
+  double v14; 
+  bool v15; 
   vec3_t vectorValue; 
-  void *retaddr; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm8
-  }
+  v19 = v1;
+  v17 = v3;
   if ( Scr_GetNumParam(scrContext) < 5 || Scr_GetNumParam(scrContext) > 6 )
     Scr_Error(COM_ERR_4369, scrContext, "Incorrect number of parameters");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  _RSI = G_Utils_SpawnEventEntity(&vectorValue, 133);
-  _RSI->s.eventParm2 = 0;
-  v8 = Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm8, xmm0 }
-  if ( v8 )
+  v5 = G_Utils_SpawnEventEntity(&vectorValue, 133);
+  v5->s.eventParm2 = 0;
+  v6 = Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v8 = *(float *)&Float;
+  if ( v6 )
   {
-    __asm
-    {
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vmovaps [rsp+78h+var_28], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vcvttss2si eax, xmm2
-      vmovd   xmm8, eax
-      vcvtdq2ps xmm8, xmm8
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vaddss  xmm2, xmm0, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm2, xmm1, xmm2
-      vroundss xmm0, xmm7, xmm2, 1
-      vmovaps xmm7, [rsp+78h+var_28]
-      vcvttss2si eax, xmm0
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-    }
+    v18 = v2;
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    LODWORD(v8) = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_u32[0];
+    Scr_GetFloat(scrContext, 2u);
+    __asm { vroundss xmm0, xmm7, xmm2, 1 }
+    LODWORD(_XMM0) = _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM0).m128_u32[0];
   }
   else
   {
     *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
   }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm8, xmm6
-    vmovss  dword ptr [rsi+5Ch], xmm8
-    vmovss  dword ptr [rsi+58h], xmm0
-  }
-  if ( v17 )
+  v5->s.lerp.u.turret.gunAngles.v[1] = v8;
+  v5->s.lerp.u.turret.gunAngles.v[0] = *(float *)&_XMM0;
+  if ( v8 < 0.0 )
   {
     Scr_ParamError(COM_ERR_4370, scrContext, 1u, "Radius is negative");
-    __asm { vmovss  xmm0, dword ptr [rsi+58h] }
+    LODWORD(_XMM0) = v5->s.lerp.u.anonymous.data[0];
   }
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  if ( v17 )
+  if ( *(float *)&_XMM0 < 0.0 )
   {
     Scr_ParamError(COM_ERR_4371, scrContext, 2u, "Radius is negative");
-    __asm { vmovss  xmm0, dword ptr [rsi+58h] }
+    LODWORD(_XMM0) = v5->s.lerp.u.anonymous.data[0];
   }
-  __asm { vcomiss xmm0, dword ptr [rsi+5Ch] }
-  if ( !(v17 | v18) )
+  if ( *(float *)&_XMM0 > v5->s.lerp.u.turret.gunAngles.v[1] )
     Scr_Error(COM_ERR_4372, scrContext, "Inner radius is outside the outer radius");
-  __asm
+  if ( v8 > 1024.0 )
   {
-    vcomiss xmm8, cs:__real@44800000
-    vmovaps xmm8, [rsp+78h+var_38]
+    v12 = j_va("Jitter is too big - max radius is %.2f", DOUBLE_1024_0);
+    Scr_Error(COM_ERR_4373, scrContext, v12);
   }
-  if ( !(v17 | v18) )
-  {
-    __asm
-    {
-      vmovsd  xmm1, cs:__real@4090000000000000
-      vmovq   rdx, xmm1
-    }
-    v31 = j_va("Jitter is too big - max radius is %.2f", _RDX);
-    Scr_Error(COM_ERR_4373, scrContext, v31);
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovss  dword ptr [rsi+60h], xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rsi+60h]
-    vmovss  dword ptr [rsi+64h], xmm0
-  }
-  if ( v17 )
+  v13 = Scr_GetFloat(scrContext, 3u);
+  v5->s.lerp.u.turret.gunAngles.v[2] = *(float *)&v13;
+  v14 = Scr_GetFloat(scrContext, 4u);
+  v15 = *(float *)&v14 < v5->s.lerp.u.turret.gunAngles.v[2];
+  v5->s.lerp.u.actor.impactVector.v[0] = *(float *)&v14;
+  if ( v15 )
     Scr_Error(COM_ERR_4374, scrContext, "Maximum jitter is less than minimum jitter");
 }
 
@@ -16719,17 +15065,16 @@ void ScrCmd_UnmarkKeyframedMover(scrContext_t *scrContext, scr_entref_t entref)
 Scr_SetVisionParams
 ==============
 */
-
-void __fastcall Scr_SetVisionParams(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void Scr_SetVisionParams(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
-  const char *v7; 
+  gentity_s *v4; 
+  const char *v5; 
   int number; 
-  const char *v9; 
+  const char *v7; 
   const char *String; 
-  const char *v18; 
-  const char *v19; 
+  const char *v11; 
+  const char *v12; 
   SvClient *CommonClient; 
   int outControllingClientNum; 
 
@@ -16737,53 +15082,45 @@ void __fastcall Scr_SetVisionParams(scrContext_t *scrContext, scr_entref_t entre
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3678, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 15932, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client && !v6->agent )
+    v4 = &g_entities[entnum];
+    if ( !v4->client && !v4->agent )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      Scr_ObjectError(COM_ERR_3677, scrContext, v7);
+      v5 = j_va("entity %i is not a player or agent", entnum);
+      Scr_ObjectError(COM_ERR_3677, scrContext, v5);
     }
   }
   if ( Scr_GetNumParam(scrContext) != 2 )
     Scr_Error(COM_ERR_4378, scrContext, "Incorrect usage for SetVisionParams()");
-  number = v6->s.number;
+  number = v4->s.number;
   outControllingClientNum = number;
   if ( !SV_IsAgent(number) || SV_GetAgentControlledByPlayerNum(outControllingClientNum, &outControllingClientNum) )
   {
     String = Scr_GetString(scrContext, 1u);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm4, xmm2, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm4, 1
-      vcvttss2si r8d, xmm1
-    }
-    v18 = j_va("%c %i \"%s\"", 54i64, _R8, String);
-    v19 = v18;
+    Scr_GetFloat(scrContext, 0);
+    _XMM0 = 0i64;
+    __asm { vroundss xmm1, xmm0, xmm4, 1 }
+    v11 = j_va("%c %i \"%s\"", 54i64, (unsigned int)(int)*(float *)&_XMM1, String);
+    v12 = v11;
     if ( outControllingClientNum == -1 )
     {
-      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v18);
+      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
     }
     else
     {
       CommonClient = SvClient::GetCommonClient(outControllingClientNum);
-      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v19);
+      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v12);
     }
   }
   else
   {
-    v9 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4379, scrContext, v9);
+    v7 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4379, scrContext, v7);
   }
 }
 
@@ -16792,56 +15129,47 @@ void __fastcall Scr_SetVisionParams(scrContext_t *scrContext, scr_entref_t entre
 Scr_VisionSetAlternate
 ==============
 */
-
-void __fastcall Scr_VisionSetAlternate(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void Scr_VisionSetAlternate(scrContext_t *scrContext)
 {
-  unsigned int v5; 
+  unsigned int v2; 
   unsigned int Int; 
   scr_string_t ConstLowercaseString; 
-  const char *v15; 
-  const char *v16; 
-  ComErrorCode v17; 
-  int v18; 
-  unsigned int v19; 
+  const char *v7; 
+  const char *v8; 
+  ComErrorCode v9; 
+  int v10; 
+  unsigned int v11; 
   unsigned int outVisionSetIndex[4]; 
   char dest[64]; 
 
-  v5 = -1;
+  v2 = -1;
   Int = Scr_GetInt(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si ebp, xmm1
-  }
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
   if ( Scr_GetNumParam(scrContext) != 3 )
   {
     if ( Scr_GetNumParam(scrContext) == 2 )
       goto LABEL_9;
-    v16 = "USAGE: VisionSetAlternate( <stage>, <duration>, <optional override> )\n";
-    v17 = COM_ERR_4381;
+    v8 = "USAGE: VisionSetAlternate( <stage>, <duration>, <optional override> )\n";
+    v9 = COM_ERR_4381;
 LABEL_8:
-    Scr_Error(v17, scrContext, v16);
+    Scr_Error(v9, scrContext, v8);
     goto LABEL_9;
   }
   ConstLowercaseString = Scr_GetConstLowercaseString(scrContext, 2u);
-  v15 = SL_ConvertToString(ConstLowercaseString);
-  if ( !*v15 || !NetConstStrings_GetVisionSetIndex(v15, outVisionSetIndex) )
+  v7 = SL_ConvertToString(ConstLowercaseString);
+  if ( !*v7 || !NetConstStrings_GetVisionSetIndex(v7, outVisionSetIndex) )
   {
-    v16 = "Invalid vision set override for VisionSetAlternate.";
-    v17 = COM_ERR_4380;
+    v8 = "Invalid vision set override for VisionSetAlternate.";
+    v9 = COM_ERR_4380;
     goto LABEL_8;
   }
-  v5 = outVisionSetIndex[0];
+  v2 = outVisionSetIndex[0];
 LABEL_9:
-  v19 = v5;
-  v18 = _EBP;
-  Com_sprintf(dest, 0x40ui64, "%i %i %i", Int, v18, v19);
+  v11 = v2;
+  v10 = (int)*(float *)&_XMM1;
+  Com_sprintf(dest, 0x40ui64, "%i %i %i", Int, v10, v11);
   SV_SetConfigstring(8u, dest);
 }
 
@@ -16975,57 +15303,38 @@ void Scr_LookupSoundLength(scrContext_t *scrContext)
 Scr_SoundSetTimeScaleFactor
 ==============
 */
-
-void __fastcall Scr_SoundSetTimeScaleFactor(scrContext_t *scrContext, double _XMM1_8)
+void Scr_SoundSetTimeScaleFactor(scrContext_t *scrContext)
 {
   const char *String; 
   unsigned int EntChannelFromName; 
+  const char *v4; 
+  double Float; 
+  double v6; 
   const char *v7; 
-  char v8; 
-  char v9; 
-  const char *v14; 
-  double v16; 
   char dest[64]; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
-    __asm { vmovaps [rsp+98h+var_18], xmm6 }
     String = Scr_GetString(scrContext, 0);
     EntChannelFromName = SND_GetEntChannelFromName(String);
     if ( EntChannelFromName == -1 )
     {
-      v7 = j_va("uknown channel: %s\n", String);
-      Scr_ParamError(COM_ERR_4394, scrContext, 0, v7);
+      v4 = j_va("uknown channel: %s\n", String);
+      Scr_ParamError(COM_ERR_4394, scrContext, 0, v4);
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 1u);
+    if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v8 )
-      goto LABEL_8;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v8 | v9) )
-    {
-LABEL_8:
-      __asm
-      {
-        vcvtss2sd xmm6, xmm0, xmm0
-        vmovaps xmm1, xmm6
-        vmovq   rdx, xmm1
-      }
-      v14 = j_va("time scale factor must be between 0 and 1 - %f\n", _RDX);
-      Scr_ParamError(COM_ERR_4395, scrContext, 1u, v14);
+      v6 = *(float *)&Float;
+      v7 = j_va("time scale factor must be between 0 and 1 - %f\n", *(float *)&Float);
+      Scr_ParamError(COM_ERR_4395, scrContext, 1u, v7);
     }
     else
     {
-      __asm { vcvtss2sd xmm6, xmm0, xmm0 }
+      v6 = *(float *)&Float;
     }
-    __asm { vmovsd  [rsp+98h+var_70], xmm6 }
-    Com_sprintf(dest, 0x40ui64, "%c %i %.3f\n", 115i64, EntChannelFromName, v16);
+    Com_sprintf(dest, 0x40ui64, "%c %i %.3f\n", 115i64, EntChannelFromName, v6);
     SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, dest);
-    __asm { vmovaps xmm6, [rsp+98h+var_18] }
   }
   else
   {
@@ -17153,11 +15462,12 @@ void GScr_GetTagOrigin(scrContext_t *scrContext, scr_entref_t entref)
   int shouldUseCache; 
   int showScriptError; 
   scr_string_t ConstLowercaseString; 
-  const playerState_s *EntityPlayerState; 
+  playerState_s *EntityPlayerState; 
   GHandler *Handler; 
-  float value; 
+  float v9; 
+  vec3_t value; 
   vec3_t vec; 
-  WorldUpReferenceFrame v28; 
+  WorldUpReferenceFrame v12; 
 
   Entity = GetEntity(entref);
   shouldUseCache = 1;
@@ -17169,50 +15479,25 @@ void GScr_GetTagOrigin(scrContext_t *scrContext, scr_entref_t entref)
     shouldUseCache = 0;
   if ( GScr_UpdateTagInternal(scrContext, Entity, ConstLowercaseString, &level.cachedTagMat, shouldUseCache, showScriptError) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedTagMat.tagMat+24h; level_locals_t level
-      vmovss  xmm1, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedTagMat.tagMat+28h; level_locals_t level
-      vmovss  [rsp+0A8h+value], xmm0
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedTagMat.tagMat+2Ch; level_locals_t level
-      vmovss  [rsp+0A8h+var_70], xmm0
-      vmovss  [rsp+0A8h+var_74], xmm1
-    }
+    value = level.cachedTagMat.tagMat.m[3];
     if ( Scr_GetNumParam(scrContext) > 2 && Scr_GetInt(scrContext, 2u) == 1 )
     {
       EntityPlayerState = G_GetEntityPlayerState(Entity);
       if ( EntityPlayerState )
       {
         Handler = GHandler::getHandler();
-        WorldUpReferenceFrame::WorldUpReferenceFrame(&v28, EntityPlayerState, Handler);
-        __asm
-        {
-          vmovss  xmm0, [rsp+0A8h+value]
-          vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-          vmovss  xmm2, [rsp+0A8h+var_74]
-          vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-          vmovss  dword ptr [rsp+0A8h+vec], xmm1
-          vmovss  xmm1, [rsp+0A8h+var_70]
-          vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-          vmovss  dword ptr [rsp+0A8h+vec+8], xmm2
-          vmovss  dword ptr [rsp+0A8h+vec+4], xmm0
-        }
-        WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v28, &vec);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0A8h+vec]
-          vaddss  xmm1, xmm0, dword ptr [rdi+30h]
-          vmovss  xmm2, dword ptr [rsp+0A8h+vec+4]
-          vmovss  [rsp+0A8h+value], xmm1
-          vaddss  xmm0, xmm2, dword ptr [rdi+34h]
-          vmovss  xmm1, dword ptr [rsp+0A8h+vec+8]
-          vmovss  [rsp+0A8h+var_74], xmm0
-          vaddss  xmm2, xmm1, dword ptr [rdi+38h]
-          vmovss  [rsp+0A8h+var_70], xmm2
-        }
+        WorldUpReferenceFrame::WorldUpReferenceFrame(&v12, EntityPlayerState, Handler);
+        v9 = value.v[1] - EntityPlayerState->origin.v[1];
+        vec.v[0] = value.v[0] - EntityPlayerState->origin.v[0];
+        vec.v[2] = value.v[2] - EntityPlayerState->origin.v[2];
+        vec.v[1] = v9;
+        WorldUpReferenceFrame::ApplyReferenceFrameToVector(&v12, &vec);
+        value.v[0] = vec.v[0] + EntityPlayerState->origin.v[0];
+        value.v[1] = vec.v[1] + EntityPlayerState->origin.v[1];
+        value.v[2] = vec.v[2] + EntityPlayerState->origin.v[2];
       }
     }
-    Scr_AddVector(scrContext, &value);
+    Scr_AddVector(scrContext, value.v);
   }
 }
 
@@ -17310,111 +15595,84 @@ void GScr_SetDepthOfField(scrContext_t *scrContext, scr_entref_t entref)
 GScr_VignetteSetParams
 ==============
 */
-
-void __fastcall GScr_VignetteSetParams(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void GScr_VignetteSetParams(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
+  playerState_s *EntityPlayerState; 
   int NumParam; 
-  char v18; 
-  char v19; 
-  const char *v24; 
+  double Float; 
+  float v7; 
+  const char *v8; 
+  int Int; 
+  double v10; 
+  float v11; 
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  int v28; 
 
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
-  _RBX = G_GetEntityPlayerState(PlayerEntity);
+  EntityPlayerState = G_GetEntityPlayerState(PlayerEntity);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam >= 10 )
   {
-    __asm
+    Float = Scr_GetFloat(scrContext, 0);
+    v7 = *(float *)&Float;
+    if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
     {
-      vmovaps [rsp+0B8h+var_18], xmm6
-      vmovaps [rsp+0B8h+var_28], xmm7
-      vmovaps [rsp+0B8h+var_38], xmm8
-      vmovaps [rsp+0B8h+var_48], xmm9
-      vmovaps [rsp+0B8h+var_58], xmm10
-      vmovaps [rsp+0B8h+var_68], xmm11
-      vmovaps [rsp+0B8h+var_78], xmm12
-      vmovaps [rsp+0B8h+var_88], xmm13
-      vmovaps [rsp+0B8h+var_98], xmm14
+      v8 = j_va("intensity must be between -1 and 1 - %f\n", *(float *)&Float);
+      Scr_ParamError(COM_ERR_5922, scrContext, 1u, v8);
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
+    Int = Scr_GetInt(scrContext, 1u);
+    v10 = Scr_GetFloat(scrContext, 2u);
+    v11 = *(float *)&v10;
+    v12 = Scr_GetFloat(scrContext, 3u);
+    v13 = *(float *)&v12;
+    v14 = Scr_GetFloat(scrContext, 4u);
+    v15 = *(float *)&v14;
+    v16 = Scr_GetFloat(scrContext, 5u);
+    v17 = *(float *)&v16;
+    v18 = Scr_GetFloat(scrContext, 6u);
+    v19 = *(float *)&v18;
+    v20 = Scr_GetFloat(scrContext, 7u);
+    v21 = *(float *)&v20;
+    v22 = Scr_GetFloat(scrContext, 8u);
+    v23 = *(float *)&v22;
+    v24 = Scr_GetFloat(scrContext, 9u);
+    v25 = *(float *)&v24;
+    if ( NumParam <= 10 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
+      v28 = 0;
     }
-    if ( v18 )
-      goto LABEL_5;
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v18 | v19) )
+    else
     {
-LABEL_5:
-      __asm
-      {
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovq   rdx, xmm1
-      }
-      v24 = j_va("intensity must be between -1 and 1 - %f\n", _RDX);
-      Scr_ParamError(COM_ERR_5922, scrContext, 1u, v24);
+      Scr_GetFloat(scrContext, 0xAu);
+      _XMM1 = 0i64;
+      __asm { vroundss xmm5, xmm1, xmm4, 1 }
+      v28 = (int)*(float *)&_XMM5;
     }
-    Scr_GetInt(scrContext, 1u);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm { vmovaps xmm9, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-    __asm { vmovaps xmm10, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-    __asm { vmovaps xmm11, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 7u);
-    __asm { vmovaps xmm12, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 8u);
-    __asm { vmovaps xmm13, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 9u);
-    __asm { vmovaps xmm14, xmm0 }
-    if ( NumParam > 10 )
-    {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0xAu);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm4, xmm2, xmm3
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm5, xmm1, xmm4, 1
-        vcvttss2si eax, xmm5
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [rbx+1244h], xmm6
-      vmovaps xmm6, [rsp+0B8h+var_18]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebp
-      vmovss  dword ptr [rbx+1248h], xmm0
-      vmovss  dword ptr [rbx+124Ch], xmm7
-      vmovaps xmm7, [rsp+0B8h+var_28]
-      vmovss  dword ptr [rbx+1250h], xmm8
-      vmovaps xmm8, [rsp+0B8h+var_38]
-      vmovss  dword ptr [rbx+1254h], xmm9
-      vmovaps xmm9, [rsp+0B8h+var_48]
-      vmovss  dword ptr [rbx+1258h], xmm10
-      vmovaps xmm10, [rsp+0B8h+var_58]
-      vmovss  dword ptr [rbx+125Ch], xmm11
-      vmovaps xmm11, [rsp+0B8h+var_68]
-      vmovss  dword ptr [rbx+1260h], xmm12
-      vmovaps xmm12, [rsp+0B8h+var_78]
-      vmovss  dword ptr [rbx+1264h], xmm13
-      vmovaps xmm13, [rsp+0B8h+var_88]
-      vmovss  dword ptr [rbx+1268h], xmm14
-      vmovaps xmm14, [rsp+0B8h+var_98]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rbx+126Ch], xmm0
-    }
+    EntityPlayerState->vignetteIntensity = v7;
+    EntityPlayerState->vignetteSquareAspectRatio = (float)Int;
+    EntityPlayerState->vignetteScale.v[0] = v11;
+    EntityPlayerState->vignetteScale.v[1] = v13;
+    EntityPlayerState->vignetteFalloff = v15;
+    EntityPlayerState->vignetteFalloffStart = v17;
+    EntityPlayerState->vignetteBoxSize.v[0] = v19;
+    EntityPlayerState->vignetteBoxSize.v[1] = v21;
+    EntityPlayerState->vignetteOffset.v[0] = v23;
+    EntityPlayerState->vignetteOffset.v[1] = v25;
+    EntityPlayerState->vignetteLerpDuration = (float)v28;
   }
   else
   {
@@ -17430,82 +15688,57 @@ GScr_VignetteGetParams
 void GScr_VignetteGetParams(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
+  playerState_s *EntityPlayerState; 
   unsigned int CanonicalString; 
-  char v10; 
-  int v11; 
+  unsigned int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   unsigned int v12; 
+  unsigned int v13; 
   unsigned int v14; 
+  unsigned int v15; 
   unsigned int v16; 
-  unsigned int v18; 
-  unsigned int v20; 
-  unsigned int v22; 
-  unsigned int v24; 
-  unsigned int v26; 
-  unsigned int v28; 
-  unsigned int v31; 
+  unsigned int v17; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
-  _RDI = G_GetEntityPlayerState(PlayerEntity);
+  EntityPlayerState = G_GetEntityPlayerState(PlayerEntity);
   Scr_MakeStruct(scrContext);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1244h]
-    vxorps  xmm6, xmm6, xmm6
-    vmaxss  xmm1, xmm0, xmm6; value
-  }
+  _XMM0 = LODWORD(EntityPlayerState->vignetteIntensity);
+  __asm { vmaxss  xmm1, xmm0, xmm6; value }
   Scr_AddFloat(scrContext, *(float *)&_XMM1);
   CanonicalString = SL_GetCanonicalString("intensity");
   Scr_AddStructField(scrContext, CanonicalString);
-  __asm { vucomiss xmm6, dword ptr [rdi+1248h] }
-  if ( v10 )
-    v11 = 0;
-  else
-    v11 = 1;
-  Scr_AddBool(scrContext, v11);
-  v12 = SL_GetCanonicalString("squareaspectratio");
+  Scr_AddBool(scrContext, EntityPlayerState->vignetteSquareAspectRatio != 0.0);
+  v8 = SL_GetCanonicalString("squareaspectratio");
+  Scr_AddStructField(scrContext, v8);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteScale.v[0]);
+  v9 = SL_GetCanonicalString("scalex");
+  Scr_AddStructField(scrContext, v9);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteScale.v[1]);
+  v10 = SL_GetCanonicalString("scaley");
+  Scr_AddStructField(scrContext, v10);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteFalloff);
+  v11 = SL_GetCanonicalString("falloff");
+  Scr_AddStructField(scrContext, v11);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteFalloffStart);
+  v12 = SL_GetCanonicalString("falloffstart");
   Scr_AddStructField(scrContext, v12);
-  __asm { vmovss  xmm1, dword ptr [rdi+124Ch]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v14 = SL_GetCanonicalString("scalex");
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteBoxSize.v[0]);
+  v13 = SL_GetCanonicalString("boxsizex");
+  Scr_AddStructField(scrContext, v13);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteBoxSize.v[1]);
+  v14 = SL_GetCanonicalString("boxsizey");
   Scr_AddStructField(scrContext, v14);
-  __asm { vmovss  xmm1, dword ptr [rdi+1250h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v16 = SL_GetCanonicalString("scaley");
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteOffset.v[0]);
+  v15 = SL_GetCanonicalString("offsetx");
+  Scr_AddStructField(scrContext, v15);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteOffset.v[1]);
+  v16 = SL_GetCanonicalString("offsety");
   Scr_AddStructField(scrContext, v16);
-  __asm { vmovss  xmm1, dword ptr [rdi+1254h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v18 = SL_GetCanonicalString("falloff");
-  Scr_AddStructField(scrContext, v18);
-  __asm { vmovss  xmm1, dword ptr [rdi+1258h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v20 = SL_GetCanonicalString("falloffstart");
-  Scr_AddStructField(scrContext, v20);
-  __asm { vmovss  xmm1, dword ptr [rdi+125Ch]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v22 = SL_GetCanonicalString("boxsizex");
-  Scr_AddStructField(scrContext, v22);
-  __asm { vmovss  xmm1, dword ptr [rdi+1260h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v24 = SL_GetCanonicalString("boxsizey");
-  Scr_AddStructField(scrContext, v24);
-  __asm { vmovss  xmm1, dword ptr [rdi+1264h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v26 = SL_GetCanonicalString("offsetx");
-  Scr_AddStructField(scrContext, v26);
-  __asm { vmovss  xmm1, dword ptr [rdi+1268h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v28 = SL_GetCanonicalString("offsety");
-  Scr_AddStructField(scrContext, v28);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+126Ch]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v31 = SL_GetCanonicalString("lerpduration");
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  Scr_AddStructField(scrContext, v31);
+  Scr_AddFloat(scrContext, EntityPlayerState->vignetteLerpDuration * 0.001);
+  v17 = SL_GetCanonicalString("lerpduration");
+  Scr_AddStructField(scrContext, v17);
 }
 
 /*
@@ -17538,43 +15771,31 @@ GScr_SetNVGAreaLightEffect
 void GScr_SetNVGAreaLightEffect(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   int Int; 
   GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16702, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16702, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("SetNVGAreaLightEffect(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4408, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("SetNVGAreaLightEffect(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4408, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16710, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) != 1 )
@@ -17595,52 +15816,40 @@ GScr_AnimScriptSetInputParamReplicationStatus
 void GScr_AnimScriptSetInputParamReplicationStatus(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   gclient_s *client; 
   int Int; 
-  unsigned int v19; 
-  char *fmt; 
+  unsigned int v11; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16745, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16745, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptSetInputParamReplicationStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4410, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptSetInputParamReplicationStatus(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4410, scrContext, v8);
   }
-  client = _RDI->client;
+  client = Entity->client;
   if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16753, ASSERT_TYPE_ASSERT, "( client )", (const char *)&queryFormat, "client") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4411, scrContext, "AnimScriptSetInputParamReplicationStatus(). USAGE: <player> AnimScriptSetInputParamReplicationStatus( <replicate> )\n");
   Int = Scr_GetInt(scrContext, 0);
-  v19 = client->flags & 0xFFFFF7FF;
+  v11 = client->flags & 0xFFFFF7FF;
   if ( Int )
-    v19 = client->flags | 0x800;
-  client->flags = v19;
+    v11 = client->flags | 0x800;
+  client->flags = v11;
 }
 
 /*
@@ -17651,55 +15860,43 @@ GScr_AnimScriptSetParachuteState
 void GScr_AnimScriptSetParachuteState(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   scr_string_t ConstString; 
   int ParachuteState; 
-  unsigned __int8 v20; 
-  char *fmt; 
+  unsigned __int8 v12; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16788, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16788, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptSetParachuteState(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4412, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptSetParachuteState(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4412, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16796, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4413, scrContext, "AnimScriptSetInputParamReplicationStatus(). USAGE: <player> AnimScriptSetInputParamReplicationStatus( <replicate> )\n");
   ConstString = Scr_GetConstString(scrContext, 0);
   ParachuteState = BG_AnimScriptGetParachuteState(ConstString);
-  v20 = ParachuteState;
+  v12 = ParachuteState;
   if ( !ParachuteState || ParachuteState >= 12 )
     Scr_ParamError(COM_ERR_4414, scrContext, 0, "Invalid parachute state supplied to AnimScriptSetParachuteState");
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x2Eu);
-  EntityPlayerState->skydivePlayerState.animState = v20;
+  EntityPlayerState->skydivePlayerState.animState = v12;
 }
 
 /*
@@ -17710,41 +15907,29 @@ GScr_AnimScriptExitParachuteState
 void GScr_AnimScriptExitParachuteState(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16832, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16832, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptExitParachuteState(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4415, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptExitParachuteState(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4415, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16840, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
@@ -17761,43 +15946,31 @@ GScr_AnimScriptSelfRevivingDoneEvent
 void GScr_AnimScriptSelfRevivingDoneEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   unsigned int *holdrand; 
   GHandler *Handler; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16870, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16870, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptSelfRevivingDoneEvent(): only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_6427, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptSelfRevivingDoneEvent(): only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_6427, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   holdrand = G_GetRandomSeed();
   Handler = GHandler::getHandler();
   BG_AnimScriptEvent(Handler, EntityPlayerState, ANIM_ET_SELF_REVIVING_DONE, 0, 1, holdrand);
@@ -17811,43 +15984,31 @@ GScr_AnimScriptBuddyRevivingDoneEvent
 void GScr_AnimScriptBuddyRevivingDoneEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   unsigned int *holdrand; 
   GHandler *Handler; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16899, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16899, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptBuddyRevivingDoneEvent(): only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_6428, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptBuddyRevivingDoneEvent(): only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_6428, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   holdrand = G_GetRandomSeed();
   Handler = GHandler::getHandler();
   BG_AnimScriptEvent(Handler, EntityPlayerState, ANIM_ET_BUDDY_REVIVING_DONE, 0, 1, holdrand);
@@ -17861,41 +16022,29 @@ GScr_AnimScriptEnterVehicle
 void GScr_AnimScriptEnterVehicle(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16925, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16925, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptEnterVehicle(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4417, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptEnterVehicle(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4417, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16933, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
@@ -17911,41 +16060,29 @@ GScr_AnimScriptExitVehicle
 void GScr_AnimScriptExitVehicle(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16959, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16959, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("AnimScriptExitVehicle(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4419, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("AnimScriptExitVehicle(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4419, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16967, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
@@ -17961,26 +16098,25 @@ GScr_Vehicle_SetHeldWeaponVisibility
 void GScr_Vehicle_SetHeldWeaponVisibility(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t v5; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
   scr_string_t targetname; 
-  const char *v20; 
-  const char *v21; 
-  const char *v30; 
-  char *fmt; 
-  char *fmta; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16994, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 16994, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClientOrAgent(_RDI) )
+  if ( G_Utils_IsClientOrAgent(Entity) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17003, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     p_otherFlags = &EntityPlayerState->otherFlags;
@@ -17995,50 +16131,26 @@ void GScr_Vehicle_SetHeldWeaponVisibility(scrContext_t *scrContext, scr_entref_t
     }
     else
     {
-      targetname = _RDI->targetname;
+      targetname = Entity->targetname;
       if ( targetname )
-        v20 = SL_ConvertToString(targetname);
+        v12 = SL_ConvertToString(targetname);
       else
-        v20 = "<undefined>";
-      v21 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+134h]
-        vmovss  xmm2, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+48h+fmt], xmm0
-      }
-      v30 = j_va("Vehicle_SetHeldWeaponVisibility(). Only valid on players or agents which are playing vehicle animations via the AnimScriptEnterVehicle call; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmta, v21, v20);
-      Scr_Error(COM_ERR_6139, scrContext, v30);
+        v12 = "<undefined>";
+      v13 = SL_ConvertToString(Entity->classname);
+      v14 = j_va("Vehicle_SetHeldWeaponVisibility(). Only valid on players or agents which are playing vehicle animations via the AnimScriptEnterVehicle call; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v13, v12);
+      Scr_Error(COM_ERR_6139, scrContext, v14);
     }
   }
   else
   {
-    v5 = _RDI->targetname;
+    v5 = Entity->targetname;
     if ( v5 )
       v6 = SL_ConvertToString(v5);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Vehicle_SetHeldWeaponVisibility(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_6138, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Vehicle_SetHeldWeaponVisibility(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_6138, scrContext, v8);
   }
 }
 
@@ -18050,26 +16162,25 @@ GScr_Vehicle_SetStowedWeaponVisibility
 void GScr_Vehicle_SetStowedWeaponVisibility(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t v5; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
   scr_string_t targetname; 
-  const char *v20; 
-  const char *v21; 
-  const char *v30; 
-  char *fmt; 
-  char *fmta; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17045, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17045, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( G_Utils_IsClientOrAgent(_RDI) )
+  if ( G_Utils_IsClientOrAgent(Entity) )
   {
-    EntityPlayerState = G_GetEntityPlayerState(_RDI);
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
     if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17054, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
     p_otherFlags = &EntityPlayerState->otherFlags;
@@ -18084,50 +16195,26 @@ void GScr_Vehicle_SetStowedWeaponVisibility(scrContext_t *scrContext, scr_entref
     }
     else
     {
-      targetname = _RDI->targetname;
+      targetname = Entity->targetname;
       if ( targetname )
-        v20 = SL_ConvertToString(targetname);
+        v12 = SL_ConvertToString(targetname);
       else
-        v20 = "<undefined>";
-      v21 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+134h]
-        vmovss  xmm2, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+48h+fmt], xmm0
-      }
-      v30 = j_va("Vehicle_SetStowedWeaponVisibility(). Only valid on players or agents which are playing vehicle animations via the AnimScriptEnterVehicle call; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmta, v21, v20);
-      Scr_Error(COM_ERR_6142, scrContext, v30);
+        v12 = "<undefined>";
+      v13 = SL_ConvertToString(Entity->classname);
+      v14 = j_va("Vehicle_SetStowedWeaponVisibility(). Only valid on players or agents which are playing vehicle animations via the AnimScriptEnterVehicle call; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v13, v12);
+      Scr_Error(COM_ERR_6142, scrContext, v14);
     }
   }
   else
   {
-    v5 = _RDI->targetname;
+    v5 = Entity->targetname;
     if ( v5 )
       v6 = SL_ConvertToString(v5);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Vehicle_SetStowedWeaponVisibility(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_6141, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Vehicle_SetStowedWeaponVisibility(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_6141, scrContext, v8);
   }
 }
 
@@ -18139,49 +16226,36 @@ GScr_GetLeftStickX
 void GScr_GetLeftStickX(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
-  int v20; 
+  float v10; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17095, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17095, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v16 = j_va("GetLeftStickX(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4421, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("GetLeftStickX(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4421, scrContext, v8);
   }
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
     Scr_Error(COM_ERR_4422, scrContext, "GetLeftStickX(). USAGE: x = <player> GetLeftStickX()\n");
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17110, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v20 = *(_QWORD *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.rightmove, EntityPlayerState->lastInput.forwardmove);
-  __asm { vmovss  xmm1, dword ptr [rsp+58h+arg_10]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  LODWORD(v10) = *(_QWORD *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.rightmove, EntityPlayerState->lastInput.forwardmove);
+  Scr_AddFloat(scrContext, v10);
 }
 
 /*
@@ -18192,49 +16266,36 @@ GScr_GetLeftStickY
 void GScr_GetLeftStickY(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
-  int v20; 
+  vec2_t StickCartesianCoords; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17133, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17133, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v16 = j_va("GetLeftStickY(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4423, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("GetLeftStickY(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4423, scrContext, v8);
   }
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
     Scr_Error(COM_ERR_4424, scrContext, "GetLeftStickY(). USAGE: y = <player> GetLeftStickY()\n");
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17148, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v20 = HIDWORD(*(unsigned __int64 *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.rightmove, EntityPlayerState->lastInput.forwardmove));
-  __asm { vmovss  xmm1, dword ptr [rsp+58h+arg_10+4]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  StickCartesianCoords = BG_GetStickCartesianCoords(EntityPlayerState->lastInput.rightmove, EntityPlayerState->lastInput.forwardmove);
+  Scr_AddFloat(scrContext, StickCartesianCoords.v[1]);
 }
 
 /*
@@ -18245,49 +16306,36 @@ GScr_GetRightStickX
 void GScr_GetRightStickX(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
-  int v20; 
+  float v10; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17171, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17171, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v16 = j_va("GetRightStickX(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4425, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("GetRightStickX(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4425, scrContext, v8);
   }
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
     Scr_Error(COM_ERR_4426, scrContext, "GetRightStickX(). USAGE: x = <player> GetRightStickX()\n");
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17186, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v20 = *(_QWORD *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.yawmove, EntityPlayerState->lastInput.pitchmove);
-  __asm { vmovss  xmm1, dword ptr [rsp+58h+arg_10]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  LODWORD(v10) = *(_QWORD *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.yawmove, EntityPlayerState->lastInput.pitchmove);
+  Scr_AddFloat(scrContext, v10);
 }
 
 /*
@@ -18298,49 +16346,36 @@ GScr_GetRightStickY
 void GScr_GetRightStickY(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
-  int v20; 
+  vec2_t StickCartesianCoords; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17209, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17209, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClient(_RDI) )
+  if ( !G_Utils_IsClient(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v16 = j_va("GetRightStickY(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4427, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("GetRightStickY(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4427, scrContext, v8);
   }
   if ( (int)Scr_GetNumParam(scrContext) > 0 )
     Scr_Error(COM_ERR_4428, scrContext, "GetRightStickY(). USAGE: y = <player> GetRightStickY()\n");
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17224, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v20 = HIDWORD(*(unsigned __int64 *)&BG_GetStickCartesianCoords(EntityPlayerState->lastInput.yawmove, EntityPlayerState->lastInput.pitchmove));
-  __asm { vmovss  xmm1, dword ptr [rsp+58h+arg_10+4]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  StickCartesianCoords = BG_GetStickCartesianCoords(EntityPlayerState->lastInput.yawmove, EntityPlayerState->lastInput.pitchmove);
+  Scr_AddFloat(scrContext, StickCartesianCoords.v[1]);
 }
 
 /*
@@ -18352,61 +16387,49 @@ void GScr_PlayAnimScriptSceneEvent(scrContext_t *scrContext, scr_entref_t entref
 {
   const characterInfo_t *v2; 
   int NumParam; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v8; 
   const char *v9; 
-  const char *v18; 
+  const char *v10; 
   playerState_s *EntityPlayerState; 
   const char *String; 
-  const char *v21; 
-  const char *v22; 
+  const char *v13; 
+  const char *v14; 
   const clientState_t *p_cs; 
   int time; 
-  const char *v25; 
+  const char *v17; 
   gclient_s *client; 
   gagent_s *agent; 
   unsigned int ScriptedSceneAnimTypeIndex; 
-  int v29; 
-  const char *v30; 
+  int v21; 
+  const char *v22; 
   unsigned int *holdrand; 
   GHandler *Handler; 
-  int v33; 
-  int v34; 
-  const char *v35; 
-  char *fmt; 
+  int v25; 
+  int v26; 
+  const char *v27; 
   PlayerAnimScriptEventType event; 
   char *value; 
 
   v2 = NULL;
   value = NULL;
   NumParam = Scr_GetNumParam(scrContext);
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17255, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17255, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v8 = SL_ConvertToString(targetname);
     else
       v8 = "<undefined>";
-    v9 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+78h+fmt], xmm0
-    }
-    v18 = j_va("PlayAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, _R8, _R9, fmt, v9, v8);
-    Scr_Error(COM_ERR_4429, scrContext, v18);
+    v9 = SL_ConvertToString(Entity->classname);
+    v10 = j_va("PlayAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v9, v8);
+    Scr_Error(COM_ERR_4429, scrContext, v10);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17263, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( NumParam < 1 )
@@ -18417,29 +16440,29 @@ void GScr_PlayAnimScriptSceneEvent(scrContext_t *scrContext, scr_entref_t entref
   event = BG_GetExposedAnimEvent(String);
   if ( event < ANIM_ET_DEATH )
   {
-    v21 = j_va("PlayAnimScriptSceneEvent(). Invalid event name '%s'\n", String);
-    Scr_Error(COM_ERR_4431, scrContext, v21);
+    v13 = j_va("PlayAnimScriptSceneEvent(). Invalid event name '%s'\n", String);
+    Scr_Error(COM_ERR_4431, scrContext, v13);
   }
   if ( event != ANIM_ET_SCRIPTED_SCENE )
   {
-    v22 = j_va("PlayAnimScriptSceneEvent(). Attempting to play anim event '%s', but it is not a scene anim, use PlayAnimScriptEvent for this\n", String);
-    Scr_Error(COM_ERR_4432, scrContext, v22);
+    v14 = j_va("PlayAnimScriptSceneEvent(). Attempting to play anim event '%s', but it is not a scene anim, use PlayAnimScriptEvent for this\n", String);
+    Scr_Error(COM_ERR_4432, scrContext, v14);
   }
   p_cs = NULL;
-  if ( _RDI->client )
+  if ( Entity->client )
   {
     if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
       __debugbreak();
     if ( *(_QWORD *)&GStatic::ms_gameStatics )
-      v2 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)_RDI->s.number);
-    p_cs = &_RDI->client->sess.cs;
+      v2 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)Entity->s.number);
+    p_cs = &Entity->client->sess.cs;
   }
   time = level.time;
-  v25 = j_va("g_scr_main starting scripted anim %s", String);
-  BG_ScriptedAsmDebugPrint(v25, time, v2, p_cs);
+  v17 = j_va("g_scr_main starting scripted anim %s", String);
+  BG_ScriptedAsmDebugPrint(v17, time, v2, p_cs);
   if ( PlayerASM_IsEnabled() )
   {
-    client = _RDI->client;
+    client = Entity->client;
     if ( client )
     {
       client->sess.cs.playerASM_scripted_anim_start_time = level.time;
@@ -18447,7 +16470,7 @@ void GScr_PlayAnimScriptSceneEvent(scrContext_t *scrContext, scr_entref_t entref
     }
     else
     {
-      agent = _RDI->agent;
+      agent = Entity->agent;
       if ( agent )
       {
         agent->agentState.playerASM_scripted_anim_start_time = level.time;
@@ -18463,18 +16486,18 @@ void GScr_PlayAnimScriptSceneEvent(scrContext_t *scrContext, scr_entref_t entref
   {
     ScriptedSceneAnimTypeIndex = BG_GetScriptedSceneAnimTypeIndex(value);
     BG_AnimScriptSetConditionValue(EntityPlayerState, 37, ScriptedSceneAnimTypeIndex);
-    v29 = level.time;
-    v30 = j_va("Set type %d", ScriptedSceneAnimTypeIndex);
-    BG_ScriptedAsmDebugPrint(v30, v29, v2, p_cs);
+    v21 = level.time;
+    v22 = j_va("Set type %d", ScriptedSceneAnimTypeIndex);
+    BG_ScriptedAsmDebugPrint(v22, v21, v2, p_cs);
   }
   holdrand = G_GetRandomSeed();
   Handler = GHandler::getHandler();
-  v33 = BG_AnimScriptEvent(Handler, EntityPlayerState, event, 0, 1, holdrand);
+  v25 = BG_AnimScriptEvent(Handler, EntityPlayerState, event, 0, 1, holdrand);
   LODWORD(holdrand) = level.time;
-  v34 = v33;
-  v35 = j_va("Set event %d", (unsigned int)event);
-  BG_ScriptedAsmDebugPrint(v35, (int)holdrand, v2, p_cs);
-  Scr_AddInt(scrContext, v34);
+  v26 = v25;
+  v27 = j_va("Set event %d", (unsigned int)event);
+  BG_ScriptedAsmDebugPrint(v27, (int)holdrand, v2, p_cs);
+  Scr_AddInt(scrContext, v26);
 }
 
 /*
@@ -18485,70 +16508,58 @@ GScr_StopAnimScriptSceneEvent
 void GScr_StopAnimScriptSceneEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
   int NumParam; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v7; 
   const char *v8; 
-  const char *v17; 
+  const char *v9; 
   playerState_s *EntityPlayerState; 
-  __int64 v19; 
-  const characterInfo_t *v20; 
+  __int64 v11; 
+  const characterInfo_t *v12; 
   const clientState_t *p_cs; 
   GHandler *Handler; 
   unsigned int *holdrand; 
-  GHandler *v24; 
-  char *fmt; 
+  GHandler *v16; 
 
   NumParam = Scr_GetNumParam(scrContext);
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17367, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17367, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v7 = SL_ConvertToString(targetname);
     else
       v7 = "<undefined>";
-    v8 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v17 = j_va("StopAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, _R8, _R9, fmt, v8, v7);
-    Scr_Error(COM_ERR_4433, scrContext, v17);
+    v8 = SL_ConvertToString(Entity->classname);
+    v9 = j_va("StopAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v8, v7);
+    Scr_Error(COM_ERR_4433, scrContext, v9);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17375, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( NumParam > 0 )
     Scr_Error(COM_ERR_4434, scrContext, "StopAnimScriptEvent() takes no arguments\n");
   if ( !PlayerASM_IsEnabled() )
     GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&EntityPlayerState->pm_flags, GameModeFlagValues::ms_mpValue, 0x3Du);
-  v20 = NULL;
+  v12 = NULL;
   p_cs = NULL;
-  if ( _RDI->client )
+  if ( Entity->client )
   {
     if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
       __debugbreak();
     if ( *(_QWORD *)&GStatic::ms_gameStatics )
-      v20 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD, __int64, const clientState_t *))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)_RDI->s.number, v19, p_cs);
-    p_cs = &_RDI->client->sess.cs;
+      v12 = (const characterInfo_t *)(*(__int64 (__fastcall **)(_QWORD, _QWORD, __int64, const clientState_t *))(**(_QWORD **)&GStatic::ms_gameStatics + 216i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)Entity->s.number, v11, p_cs);
+    p_cs = &Entity->client->sess.cs;
   }
-  BG_ScriptedAsmDebugPrint("g_scr_main stop anim scripted", level.time, v20, p_cs);
+  BG_ScriptedAsmDebugPrint("g_scr_main stop anim scripted", level.time, v12, p_cs);
   BG_AnimScriptSetConditionValue(EntityPlayerState, 37, 0);
   Handler = GHandler::getHandler();
   BG_ClearSceneAnim(Handler, EntityPlayerState);
   holdrand = G_GetRandomSeed();
-  v24 = GHandler::getHandler();
-  BG_AnimScriptEvent(v24, EntityPlayerState, ANIM_ET_SCRIPTED_SCENE_DONE, 0, 1, holdrand);
+  v16 = GHandler::getHandler();
+  BG_AnimScriptEvent(v16, EntityPlayerState, ANIM_ET_SCRIPTED_SCENE_DONE, 0, 1, holdrand);
 }
 
 /*
@@ -18560,50 +16571,38 @@ void GScr_PlayAnimScriptEvent(scrContext_t *scrContext, scr_entref_t entref)
 {
   const char *v4; 
   int NumParam; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v8; 
   const char *v9; 
-  const char *v18; 
+  const char *v10; 
   playerState_s *EntityPlayerState; 
   const char *String; 
   int ExposedAnimEvent; 
-  const char *v22; 
-  const char *v23; 
+  const char *v14; 
+  const char *v15; 
   int ScriptedAnimTypeIndex; 
   unsigned int *holdrand; 
   GHandler *Handler; 
-  int v27; 
-  char *fmt; 
+  int v19; 
 
   v4 = NULL;
   NumParam = Scr_GetNumParam(scrContext);
-  _RSI = GetEntity(entref);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17428, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17428, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RSI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RSI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v8 = SL_ConvertToString(targetname);
     else
       v8 = "<undefined>";
-    v9 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    v18 = j_va("PlayAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, _R8, _R9, fmt, v9, v8);
-    Scr_Error(COM_ERR_4435, scrContext, v18);
+    v9 = SL_ConvertToString(Entity->classname);
+    v10 = j_va("PlayAnimScriptEvent(). Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entref.entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v9, v8);
+    Scr_Error(COM_ERR_4435, scrContext, v10);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RSI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17436, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( NumParam < 1 )
@@ -18614,13 +16613,13 @@ void GScr_PlayAnimScriptEvent(scrContext_t *scrContext, scr_entref_t entref)
   ExposedAnimEvent = BG_GetExposedAnimEvent(String);
   if ( ExposedAnimEvent < 0 )
   {
-    v22 = j_va("PlayAnimScriptEvent(). Invalid event name '%s'\n", String);
-    Scr_Error(COM_ERR_4437, scrContext, v22);
+    v14 = j_va("PlayAnimScriptEvent(). Invalid event name '%s'\n", String);
+    Scr_Error(COM_ERR_4437, scrContext, v14);
   }
   if ( ExposedAnimEvent == 34 )
   {
-    v23 = j_va("PlayAnimScriptEvent(). Attempting to play a scene anim event '%s', use PlayAnimScriptSceneEvent for this\n", String);
-    Scr_Error(COM_ERR_4438, scrContext, v23);
+    v15 = j_va("PlayAnimScriptEvent(). Attempting to play a scene anim event '%s', use PlayAnimScriptSceneEvent for this\n", String);
+    Scr_Error(COM_ERR_4438, scrContext, v15);
   }
   if ( NumParam >= 2 && v4 )
   {
@@ -18629,8 +16628,8 @@ void GScr_PlayAnimScriptEvent(scrContext_t *scrContext, scr_entref_t entref)
   }
   holdrand = G_GetRandomSeed();
   Handler = GHandler::getHandler();
-  v27 = BG_AnimScriptEvent(Handler, EntityPlayerState, (PlayerAnimScriptEventType)ExposedAnimEvent, 0, 1, holdrand);
-  Scr_AddInt(scrContext, v27);
+  v19 = BG_AnimScriptEvent(Handler, EntityPlayerState, (PlayerAnimScriptEventType)ExposedAnimEvent, 0, 1, holdrand);
+  Scr_AddInt(scrContext, v19);
 }
 
 /*
@@ -18642,14 +16641,17 @@ void PlayerCmd_PlayViewModelAnim(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   const char *String; 
-  const char *v6; 
+  const char *v5; 
   gclient_s *client; 
   playerState_s *p_ps; 
   GWeaponMap *Instance; 
+  XAnimParts *Data; 
+  float v10; 
+  int v11; 
   int time; 
-  unsigned int v16; 
-  GWeaponMap *v17; 
-  const char *v18; 
+  unsigned int v13; 
+  GWeaponMap *v14; 
+  const char *v15; 
   unsigned int outIndex[4]; 
   char dest[1024]; 
 
@@ -18657,7 +16659,7 @@ void PlayerCmd_PlayViewModelAnim(scrContext_t *scrContext, scr_entref_t entref)
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4439, scrContext, "PlayViewModelAnim(). Invalid number of parameters");
   String = Scr_GetString(scrContext, 0);
-  v6 = String;
+  v5 = String;
   if ( String && *String )
   {
     client = Entity->client;
@@ -18676,34 +16678,28 @@ void PlayerCmd_PlayViewModelAnim(scrContext_t *scrContext, scr_entref_t entref)
     }
     else
     {
-      Core_strcpy(dest, 0x400ui64, v6);
+      Core_strcpy(dest, 0x400ui64, v5);
       I_strlwr(dest);
       Com_Printf(16, "Playing anim %s on the viewmodel\n", dest);
       if ( NetConstStrings_GetIndexPlusOneFromName(NETCONSTSTRINGTYPE_ANIM, dest, outIndex) )
       {
-        XAnimFindData(dest);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edx
-          vdivss  xmm1, xmm0, dword ptr [rax+64h]
-          vmulss  xmm2, xmm1, cs:__real@447a0000
-          vcvttss2si ebp, xmm2
-        }
+        Data = XAnimFindData(dest);
+        v10 = (float)((float)Data->numframes / Data->framerate) * 1000.0;
+        v11 = (int)v10;
         if ( !outIndex[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 17537, ASSERT_TYPE_ASSERT, "( animIndex != 0 )", (const char *)&queryFormat, "animIndex != 0") )
           __debugbreak();
         time = level.time;
-        v16 = outIndex[0];
-        v17 = GWeaponMap::GetInstance();
-        BG_Weapon_ViewModelScriptedBegin(v17, p_ps, v16, time, _EBP, WEAPON_HAND_DEFAULT);
+        v13 = outIndex[0];
+        v14 = GWeaponMap::GetInstance();
+        BG_Weapon_ViewModelScriptedBegin(v14, p_ps, v13, time, (int)v10, WEAPON_HAND_DEFAULT);
       }
       else
       {
-        _EBP = 0;
-        v18 = j_va("MP Anim [%s] needs to be pre-cached in order to work with PlayViewModelAnim()\n", dest);
-        Scr_Error(COM_ERR_4443, scrContext, v18);
+        v11 = 0;
+        v15 = j_va("MP Anim [%s] needs to be pre-cached in order to work with PlayViewModelAnim()\n", dest);
+        Scr_Error(COM_ERR_4443, scrContext, v15);
       }
-      Scr_AddInt(scrContext, _EBP);
+      Scr_AddInt(scrContext, v11);
     }
   }
   else
@@ -18871,58 +16867,57 @@ GScr_PlayGestureViewmodel
 */
 void GScr_PlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v3; 
-  bool v5; 
+  gentity_s *v2; 
+  bool v4; 
   gentity_s *Entity; 
   int NumParam; 
+  double Float; 
+  double v8; 
   const char *String; 
-  const char *v13; 
+  const char *v10; 
   playerState_s *p_ps; 
   unsigned int IndexFromName; 
-  bool v16; 
+  bool v13; 
   int gameTime; 
   GHandler *Handler; 
   GWeaponMap *Instance; 
-  bool v24; 
+  GesturePlayRequest *v17; 
+  double v18; 
+  bool v19; 
   const char *ErrorDescription; 
-  const char *v26; 
-  int v27; 
-  int v28; 
+  const char *v21; 
+  int v22; 
+  int v23; 
   int number; 
   GestureError outErrorCode; 
   GesturePlayRequest request; 
   GesturePlayRequest result; 
-  bool v33; 
-  bool v34; 
+  bool v28; 
+  bool v29; 
 
-  v3 = NULL;
+  v2 = NULL;
   number = 2047;
+  v23 = 0;
+  v22 = 0;
+  v29 = 0;
+  v4 = 0;
   v28 = 0;
-  v27 = 0;
-  v34 = 0;
-  v5 = 0;
-  v33 = 0;
   Entity = GetEntity(entref);
   NumParam = Scr_GetNumParam(scrContext);
   if ( (unsigned int)(NumParam - 1) > 5 )
     Scr_Error(COM_ERR_4455, scrContext, "PlayGestureViewmodel(). Invalid number of parameters");
   if ( NumParam >= 2 && Scr_GetType(scrContext, 1u) )
-    v3 = GScr_GetEntity(1u);
+    v2 = GScr_GetEntity(1u);
   if ( NumParam >= 3 && Scr_GetType(scrContext, 2u) )
-    v33 = Scr_GetInt(scrContext, 2u) > 0;
+    v28 = Scr_GetInt(scrContext, 2u) > 0;
   if ( NumParam >= 4 )
   {
     if ( Scr_GetType(scrContext, 3u) )
     {
-      v5 = 1;
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-      }
-      v28 = _EBP;
-      if ( _EBP < 0 )
+      v4 = 1;
+      Float = Scr_GetFloat(scrContext, 3u);
+      v23 = (int)(float)(*(float *)&Float * 1000.0);
+      if ( v23 < 0 )
         Scr_Error(COM_ERR_4456, scrContext, "PlayGestureViewmodel(). Invalid blend time");
     }
   }
@@ -18930,25 +16925,20 @@ void GScr_PlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
   {
     if ( Scr_GetType(scrContext, 4u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-      }
-      v27 = _EBP;
-      if ( _EBP < 0 )
+      v8 = Scr_GetFloat(scrContext, 4u);
+      v22 = (int)(float)(*(float *)&v8 * 1000.0);
+      if ( v22 < 0 )
         Scr_Error(COM_ERR_4457, scrContext, "PlayGestureViewmodel(). Invalid start time");
     }
   }
   if ( NumParam >= 6 && Scr_GetType(scrContext, 5u) )
-    v34 = Scr_GetInt(scrContext, 5u) > 0;
+    v29 = Scr_GetInt(scrContext, 5u) > 0;
   String = Scr_GetString(scrContext, 0);
-  v13 = String;
+  v10 = String;
   if ( String && *String )
   {
-    if ( v3 && G_IsEntityInUse(v3->s.number) )
-      number = v3->s.number;
+    if ( v2 && G_IsEntityInUse(v2->s.number) )
+      number = v2->s.number;
     if ( !Entity->client )
     {
       Scr_Error(COM_ERR_4459, scrContext, "PlayGestureViewmodel(). Self must be a player");
@@ -18956,41 +16946,36 @@ void GScr_PlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
         __debugbreak();
     }
     p_ps = &Entity->client->ps;
-    IndexFromName = BG_Gesture_GetIndexFromName(v13);
+    IndexFromName = BG_Gesture_GetIndexFromName(v10);
     if ( IndexFromName == 256 )
       Scr_Error(COM_ERR_4460, scrContext, "PlayGestureViewmodel() invalid gesture asset name.\n");
-    v16 = v5 && BG_Demeanor_ShouldEnableBlendToLoop(p_ps, IndexFromName);
+    v13 = v4 && BG_Demeanor_ShouldEnableBlendToLoop(p_ps, IndexFromName);
     gameTime = level.time;
     Handler = GHandler::getHandler();
     Instance = GWeaponMap::GetInstance();
-    _RAX = BG_GesturePriority_SetupRequest(&result, Instance, p_ps, Handler, IndexFromName, gameTime);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0E8h+request.weaponMap], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0E8h+request.startTime], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    request.startTime = v27;
-    request.ignoreGamePlayState = v33;
-    request.slotBlendDuration = v28;
-    __asm { vmovsd  qword ptr [rsp+0E8h+request.cancelTransitions], xmm0 }
+    v17 = BG_GesturePriority_SetupRequest(&result, Instance, p_ps, Handler, IndexFromName, gameTime);
+    *(__m256i *)&request.weaponMap = *(__m256i *)&v17->weaponMap;
+    *(_OWORD *)&request.startTime = *(_OWORD *)&v17->startTime;
+    v18 = *(double *)&v17->cancelTransitions;
+    request.startTime = v22;
+    request.ignoreGamePlayState = v28;
+    request.slotBlendDuration = v23;
+    *(double *)&request.cancelTransitions = v18;
     request.targetEntNumber = number;
     request.stopAllGestures = 0;
-    request.slotBlend = v5;
-    request.cancelTransitions = v34 || v16;
-    v24 = BG_GesturePriority_TryPlay(&request, NULL, &outErrorCode);
-    if ( !v24 )
+    request.slotBlend = v4;
+    request.cancelTransitions = v29 || v13;
+    v19 = BG_GesturePriority_TryPlay(&request, NULL, &outErrorCode);
+    if ( !v19 )
     {
       if ( outErrorCode )
       {
         ErrorDescription = BG_Gesture_GetErrorDescription(outErrorCode);
-        v26 = j_va("Gesture '%s' %s.", v13, ErrorDescription);
-        Scr_Error(COM_ERR_4461, scrContext, v26);
+        v21 = j_va("Gesture '%s' %s.", v10, ErrorDescription);
+        Scr_Error(COM_ERR_4461, scrContext, v21);
       }
     }
-    Scr_AddBool(scrContext, v24);
+    Scr_AddBool(scrContext, v19);
   }
   else
   {
@@ -19005,39 +16990,43 @@ GScr_ForcePlayGestureViewmodel
 */
 void GScr_ForcePlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v3; 
+  gentity_s *v2; 
+  bool v4; 
   bool v5; 
-  bool v6; 
   gentity_s *Entity; 
   int NumParam; 
+  double Float; 
+  double v9; 
   const char *String; 
-  const char *v14; 
+  const char *v11; 
   playerState_s *p_ps; 
   unsigned int IndexFromName; 
-  bool v17; 
+  bool v14; 
   int gameTime; 
   GHandler *Handler; 
   GWeaponMap *Instance; 
-  bool v25; 
+  GesturePlayRequest *v18; 
+  double v19; 
+  bool v20; 
   const char *ErrorDescription; 
-  const char *v27; 
-  int v28; 
-  int v29; 
+  const char *v22; 
+  int v23; 
+  int v24; 
   int number; 
   GestureError outErrorCode; 
   GesturePlayRequest request; 
   GesturePlayRequest result; 
-  bool v34; 
-  bool v35; 
+  bool v29; 
+  bool v30; 
 
-  v3 = NULL;
+  v2 = NULL;
   number = 2047;
-  v29 = 0;
-  v5 = 1;
-  v28 = 0;
-  v34 = 1;
-  v35 = 0;
-  v6 = 0;
+  v24 = 0;
+  v4 = 1;
+  v23 = 0;
+  v29 = 1;
+  v30 = 0;
+  v5 = 0;
   Entity = GetEntity(entref);
   NumParam = Scr_GetNumParam(scrContext);
   if ( (unsigned int)(NumParam - 1) > 5 )
@@ -19046,55 +17035,45 @@ void GScr_ForcePlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entre
   {
     if ( Scr_GetType(scrContext, 2u) )
     {
-      v6 = 1;
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-      }
-      v29 = _EBP;
-      if ( _EBP < 0 )
+      v5 = 1;
+      Float = Scr_GetFloat(scrContext, 2u);
+      v24 = (int)(float)(*(float *)&Float * 1000.0);
+      if ( v24 < 0 )
         Scr_Error(COM_ERR_4463, scrContext, "PlayGestureViewmodel(). Invalid blend time");
     }
   }
   if ( NumParam >= 2 && Scr_GetType(scrContext, 1u) )
-    v3 = GScr_GetEntity(1u);
+    v2 = GScr_GetEntity(1u);
   if ( NumParam >= 4 )
   {
     if ( Scr_GetType(scrContext, 3u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-      }
-      v28 = _EBP;
-      if ( _EBP < 0 )
+      v9 = Scr_GetFloat(scrContext, 3u);
+      v23 = (int)(float)(*(float *)&v9 * 1000.0);
+      if ( v23 < 0 )
         Scr_Error(COM_ERR_4464, scrContext, "PlayGestureViewmodel(). Invalid start time");
     }
   }
   if ( NumParam >= 5 && Scr_GetType(scrContext, 4u) )
   {
-    v5 = Scr_GetInt(scrContext, 4u) > 0;
-    v34 = v5;
+    v4 = Scr_GetInt(scrContext, 4u) > 0;
+    v29 = v4;
   }
   if ( NumParam == 6 )
   {
     if ( Scr_GetType(scrContext, 5u) )
     {
-      v35 = Scr_GetInt(scrContext, 5u) > 0;
-      if ( !v5 || !v6 )
+      v30 = Scr_GetInt(scrContext, 5u) > 0;
+      if ( !v4 || !v5 )
         Scr_Error(COM_ERR_4465, scrContext, "ForcePlayGestureViewmodel(). Cancel transitions is available only when stopAllGestures is true and a valid blendtime is provided.");
     }
   }
   String = Scr_GetString(scrContext, 0);
-  v14 = String;
+  v11 = String;
   if ( String && *String )
   {
-    if ( v3 && G_IsEntityInUse(v3->s.number) )
-      number = v3->s.number;
+    if ( v2 && G_IsEntityInUse(v2->s.number) )
+      number = v2->s.number;
     if ( !Entity->client )
     {
       Scr_Error(COM_ERR_4467, scrContext, "PlayGestureViewmodel(). Self must be a player");
@@ -19102,41 +17081,36 @@ void GScr_ForcePlayGestureViewmodel(scrContext_t *scrContext, scr_entref_t entre
         __debugbreak();
     }
     p_ps = &Entity->client->ps;
-    IndexFromName = BG_Gesture_GetIndexFromName(v14);
+    IndexFromName = BG_Gesture_GetIndexFromName(v11);
     if ( IndexFromName == 256 )
       Scr_Error(COM_ERR_4468, scrContext, "PlayGestureViewmodel() invalid gesture asset name.\n");
-    v17 = v5 && v6 && BG_Demeanor_ShouldEnableBlendToLoop(p_ps, IndexFromName);
+    v14 = v4 && v5 && BG_Demeanor_ShouldEnableBlendToLoop(p_ps, IndexFromName);
     gameTime = level.time;
     Handler = GHandler::getHandler();
     Instance = GWeaponMap::GetInstance();
-    _RAX = BG_GesturePriority_SetupRequest(&result, Instance, p_ps, Handler, IndexFromName, gameTime);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0E8h+request.weaponMap], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0E8h+request.startTime], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    request.startTime = v28;
-    request.stopAllGestures = v34;
-    request.slotBlendDuration = v29;
-    __asm { vmovsd  qword ptr [rsp+0E8h+request.cancelTransitions], xmm0 }
+    v18 = BG_GesturePriority_SetupRequest(&result, Instance, p_ps, Handler, IndexFromName, gameTime);
+    *(__m256i *)&request.weaponMap = *(__m256i *)&v18->weaponMap;
+    *(_OWORD *)&request.startTime = *(_OWORD *)&v18->startTime;
+    v19 = *(double *)&v18->cancelTransitions;
+    request.startTime = v23;
+    request.stopAllGestures = v29;
+    request.slotBlendDuration = v24;
+    *(double *)&request.cancelTransitions = v19;
     request.targetEntNumber = number;
     request.ignoreGamePlayState = 1;
-    request.slotBlend = v6;
-    request.cancelTransitions = v35 || v17;
-    v25 = BG_GesturePriority_TryPlay(&request, NULL, &outErrorCode);
-    if ( !v25 )
+    request.slotBlend = v5;
+    request.cancelTransitions = v30 || v14;
+    v20 = BG_GesturePriority_TryPlay(&request, NULL, &outErrorCode);
+    if ( !v20 )
     {
       if ( outErrorCode )
       {
         ErrorDescription = BG_Gesture_GetErrorDescription(outErrorCode);
-        v27 = j_va("Gesture '%s' %s.", v14, ErrorDescription);
-        Scr_Error(COM_ERR_4469, scrContext, v27);
+        v22 = j_va("Gesture '%s' %s.", v11, ErrorDescription);
+        Scr_Error(COM_ERR_4469, scrContext, v22);
       }
     }
-    Scr_AddBool(scrContext, v25);
+    Scr_AddBool(scrContext, v20);
   }
   else
   {
@@ -19151,22 +17125,24 @@ GScr_StopGestureViewmodel
 */
 void GScr_StopGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
 {
-  const char *v4; 
-  char v6; 
-  bool v7; 
+  const char *v3; 
+  int v4; 
+  char v5; 
+  bool v6; 
   bool cancelTransitions; 
   gentity_s *Entity; 
   int NumParam; 
   const char *String; 
-  const char *v13; 
-  ComErrorCode v14; 
+  double Float; 
+  const char *v12; 
+  ComErrorCode v13; 
   playerState_s *p_ps; 
   unsigned int IndexFromName; 
 
-  v4 = NULL;
-  _EBP = 0;
-  v6 = 1;
-  v7 = 0;
+  v3 = NULL;
+  v4 = 0;
+  v5 = 1;
+  v6 = 0;
   cancelTransitions = 0;
   Entity = GetEntity(entref);
   NumParam = Scr_GetNumParam(scrContext);
@@ -19178,38 +17154,34 @@ void GScr_StopGestureViewmodel(scrContext_t *scrContext, scr_entref_t entref)
   if ( NumParam >= 1 )
   {
     String = Scr_GetString(scrContext, 0);
-    v4 = String;
+    v3 = String;
     if ( !String || !*String )
     {
       Scr_Error(COM_ERR_4471, scrContext, "StopGestureViewmodel() missing gesture asset name.");
       return;
     }
-    v6 = 0;
+    v5 = 0;
   }
   if ( NumParam >= 2 )
   {
     if ( Scr_GetType(scrContext, 1u) )
     {
-      v7 = 1;
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-      }
-      if ( _EBP >= 0 )
+      v6 = 1;
+      Float = Scr_GetFloat(scrContext, 1u);
+      v4 = (int)(float)(*(float *)&Float * 1000.0);
+      if ( v4 >= 0 )
         goto LABEL_15;
-      v13 = "StopGestureViewmodel(). Invalid 'out' time";
-      v14 = COM_ERR_4472;
+      v12 = "StopGestureViewmodel(). Invalid 'out' time";
+      v13 = COM_ERR_4472;
     }
     else
     {
       if ( Scr_GetType(scrContext, 1u) )
         goto LABEL_15;
-      v13 = "StopGestureViewmodel(). Invalid 'out' time use 0 as the default.";
-      v14 = COM_ERR_4473;
+      v12 = "StopGestureViewmodel(). Invalid 'out' time use 0 as the default.";
+      v13 = COM_ERR_4473;
     }
-    Scr_Error(v14, scrContext, v13);
+    Scr_Error(v13, scrContext, v12);
   }
 LABEL_15:
   if ( NumParam == 3 && Scr_GetType(scrContext, 2u) )
@@ -19221,16 +17193,16 @@ LABEL_15:
       __debugbreak();
   }
   p_ps = &Entity->client->ps;
-  if ( v6 )
+  if ( v5 )
   {
-    BG_Gesture_StopAll(p_ps, level.time, v7, _EBP, cancelTransitions);
+    BG_Gesture_StopAll(p_ps, level.time, v6, v4, cancelTransitions);
   }
   else
   {
-    IndexFromName = BG_Gesture_GetIndexFromName(v4);
+    IndexFromName = BG_Gesture_GetIndexFromName(v3);
     if ( IndexFromName == 256 )
       Scr_Error(COM_ERR_4475, scrContext, "StopGestureViewmodel() invalid gesture asset name.\n");
-    BG_Gesture_StopByIndex(p_ps, IndexFromName, level.time, v7, _EBP, cancelTransitions);
+    BG_Gesture_StopByIndex(p_ps, IndexFromName, level.time, v6, v4, cancelTransitions);
   }
 }
 
@@ -19243,16 +17215,17 @@ void GScr_GetGestureAnimLength(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   const char *String; 
-  const char *v6; 
+  const char *v5; 
   gclient_s *client; 
   unsigned int IndexFromName; 
   const Gesture *AssetFromIndex; 
+  double AnimLengthInSeconds; 
 
   Entity = GetEntity(entref);
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
     String = Scr_GetString(scrContext, 0);
-    v6 = String;
+    v5 = String;
     if ( String && *String )
     {
       client = Entity->client;
@@ -19263,15 +17236,14 @@ void GScr_GetGestureAnimLength(scrContext_t *scrContext, scr_entref_t entref)
       }
       if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 18164, ASSERT_TYPE_ASSERT, "(player->client)", (const char *)&queryFormat, "player->client") )
         __debugbreak();
-      IndexFromName = BG_Gesture_GetIndexFromName(v6);
+      IndexFromName = BG_Gesture_GetIndexFromName(v5);
       if ( IndexFromName == 256 )
         Scr_Error(COM_ERR_4479, scrContext, "GetGestureAnimLength() invalid gesture asset name.\n");
       AssetFromIndex = BG_Gesture_GetAssetFromIndex(IndexFromName);
       if ( !AssetFromIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 18174, ASSERT_TYPE_ASSERT, "(gesture)", (const char *)&queryFormat, "gesture") )
         __debugbreak();
-      *(double *)&_XMM0 = BG_Gesture_GetAnimLengthInSeconds(AssetFromIndex);
-      __asm { vmovaps xmm1, xmm0; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      AnimLengthInSeconds = BG_Gesture_GetAnimLengthInSeconds(AssetFromIndex);
+      Scr_AddFloat(scrContext, *(float *)&AnimLengthInSeconds);
     }
     else
     {
@@ -19291,18 +17263,19 @@ GScr_GetGestureStartTime
 */
 void GScr_GetGestureStartTime(scrContext_t *scrContext, scr_entref_t entref)
 {
-  GestureSectionType v4; 
+  GestureSectionType v3; 
   gentity_s *Entity; 
   const char *String; 
+  const char *v6; 
   const char *v7; 
   const char *v8; 
   const char *v9; 
-  const char *v10; 
-  scrContext_t *v11; 
-  ComErrorCode v12; 
+  scrContext_t *v10; 
+  ComErrorCode v11; 
   unsigned int IndexFromName; 
+  float SectionStartTime; 
 
-  v4 = GESTURE_SECTION_NUM;
+  v3 = GESTURE_SECTION_NUM;
   Entity = GetEntity(entref);
   if ( Scr_GetNumParam(scrContext) != 2 )
   {
@@ -19310,64 +17283,58 @@ void GScr_GetGestureStartTime(scrContext_t *scrContext, scr_entref_t entref)
     return;
   }
   String = Scr_GetString(scrContext, 0);
-  v7 = String;
+  v6 = String;
   if ( !String || !*String )
   {
     Scr_Error(COM_ERR_4481, scrContext, "GScr_GetGestureStartTime() missing gesture asset name");
     return;
   }
-  v8 = Scr_GetString(scrContext, 1u);
-  v9 = v8;
-  if ( !v8 || !*v8 )
+  v7 = Scr_GetString(scrContext, 1u);
+  v8 = v7;
+  if ( !v7 || !*v7 )
   {
-    v10 = "GScr_GetGestureStartTime() invalid gesture section.";
-    v11 = scrContext;
-    v12 = COM_ERR_4482;
+    v9 = "GScr_GetGestureStartTime() invalid gesture section.";
+    v10 = scrContext;
+    v11 = COM_ERR_4482;
     goto LABEL_9;
   }
   if ( !Entity->client )
   {
-    v10 = "self must be a player";
-    v11 = scrContext;
-    v12 = COM_ERR_4483;
+    v9 = "self must be a player";
+    v10 = scrContext;
+    v11 = COM_ERR_4483;
 LABEL_9:
-    Scr_Error(v12, v11, v10);
+    Scr_Error(v11, v10, v9);
     return;
   }
-  IndexFromName = BG_Gesture_GetIndexFromName(v7);
+  IndexFromName = BG_Gesture_GetIndexFromName(v6);
   if ( IndexFromName == 256 )
   {
-    v10 = "GScr_GetGestureStartTime() invalid gesture asset name.\n";
-    v11 = scrContext;
-    v12 = COM_ERR_4484;
+    v9 = "GScr_GetGestureStartTime() invalid gesture asset name.\n";
+    v10 = scrContext;
+    v11 = COM_ERR_4484;
     goto LABEL_9;
   }
-  if ( I_stricmp(v9, "in") )
+  if ( I_stricmp(v8, "in") )
   {
-    if ( I_stricmp(v9, "loop") )
+    if ( I_stricmp(v8, "loop") )
     {
-      if ( I_stricmp(v9, "out") )
+      if ( I_stricmp(v8, "out") )
         Scr_Error(COM_ERR_4485, scrContext, "GScr_GetGestureStartTime() invalid gesture section. Valid values are: 'in', 'loop', and 'out'.");
       else
-        v4 = GESTURE_SECTION_OUT;
+        v3 = GESTURE_SECTION_OUT;
     }
     else
     {
-      v4 = GESTURE_SECTION_LOOP;
+      v3 = GESTURE_SECTION_LOOP;
     }
   }
   else
   {
-    v4 = GESTURE_SECTION_IN;
+    v3 = GESTURE_SECTION_IN;
   }
-  BG_Gesture_GetSectionStartTime(IndexFromName, v4);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  SectionStartTime = (float)BG_Gesture_GetSectionStartTime(IndexFromName, v3);
+  Scr_AddFloat(scrContext, SectionStartTime * 0.001);
 }
 
 /*
@@ -19522,6 +17489,7 @@ void GScr_GetGestureNotetrackTimes(scrContext_t *scrContext, scr_entref_t entref
   unsigned int IndexFromName; 
   const Gesture *AssetFromIndex; 
   int v9; 
+  float *v10; 
   int outNumNotetracks; 
   float outTimes[10]; 
 
@@ -19552,14 +17520,13 @@ void GScr_GetGestureNotetrackTimes(scrContext_t *scrContext, scr_entref_t entref
       v9 = 0;
       if ( outNumNotetracks > 0 )
       {
-        _RDI = outTimes;
+        v10 = outTimes;
         do
         {
-          __asm { vmovss  xmm1, dword ptr [rdi]; value }
-          Scr_AddFloat(scrContext, *(float *)&_XMM1);
+          Scr_AddFloat(scrContext, *v10);
           Scr_AddArray(scrContext);
           ++v9;
-          ++_RDI;
+          ++v10;
         }
         while ( v9 < outNumNotetracks );
       }
@@ -19666,106 +17633,66 @@ GScr_SetPhysicalDepthOfField
 void GScr_SetPhysicalDepthOfField(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
-  unsigned int NumParam; 
-  bool v17; 
-  bool v18; 
+  double Float; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  gclient_s *client; 
   vec3_t vectorValue; 
-  char v34; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_4504, scrContext, "Incorrect number of parameters\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm10, xmm0 }
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 1u);
+  v7 = *(float *)&v6;
   if ( Scr_GetNumParam(scrContext) < 3 )
   {
-    __asm { vmovss  xmm8, cs:__real@3f800000 }
+    v9 = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm8, xmm0 }
+    v8 = Scr_GetFloat(scrContext, 2u);
+    v9 = *(float *)&v8;
   }
   if ( Scr_GetNumParam(scrContext) < 4 )
   {
-    __asm { vmovss  xmm7, cs:__real@40000000 }
+    v11 = FLOAT_2_0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm7, xmm0 }
+    v10 = Scr_GetFloat(scrContext, 3u);
+    v11 = *(float *)&v10;
   }
-  NumParam = Scr_GetNumParam(scrContext);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v17 = NumParam < 5;
-  v18 = NumParam == 5;
-  if ( NumParam < 5 )
+  if ( Scr_GetNumParam(scrContext) < 5 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+vectorValue], xmm6
-      vmovss  dword ptr [rsp+98h+vectorValue+4], xmm6
-      vmovss  dword ptr [rsp+98h+vectorValue+8], xmm6
-    }
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
   }
   else
   {
     Scr_GetVector(scrContext, 4u, &vectorValue);
   }
-  __asm { vcomiss xmm9, cs:__real@3e000000 }
-  if ( v17 )
-    goto LABEL_14;
-  __asm { vcomiss xmm9, cs:__real@41f00000 }
-  if ( !v17 && !v18 )
-LABEL_14:
+  if ( v5 < 0.125 || v5 > 30.0 )
     Scr_ParamError(COM_ERR_4505, scrContext, 0, "Invalid f-stop value");
-  __asm { vcomiss xmm10, xmm6 }
-  if ( v17 )
+  if ( v7 < 0.0 )
     Scr_ParamError(COM_ERR_4506, scrContext, 0, "Focus distance must be >= 0");
-  __asm { vcomiss xmm8, xmm6 }
-  if ( v17 )
+  if ( v9 < 0.0 )
     Scr_ParamError(COM_ERR_4507, scrContext, 0, "Focus speed must be >= 0");
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v17 )
+  if ( v11 < 0.0 )
     Scr_ParamError(COM_ERR_4508, scrContext, 0, "Aperture speed must be >= 0");
-  _RAX = PlayerEntity->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+vectorValue]
-    vmovss  dword ptr [rax+1204h], xmm0
-    vmovss  xmm1, dword ptr [rsp+98h+vectorValue+4]
-    vmovss  dword ptr [rax+1208h], xmm1
-    vmovss  xmm0, dword ptr [rsp+98h+vectorValue+8]
-    vmovss  dword ptr [rax+120Ch], xmm0
-    vmovss  dword ptr [rax+1210h], xmm9
-  }
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+1214h], xmm10 }
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+1218h], xmm8 }
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+121Ch], xmm7 }
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  client = PlayerEntity->client;
+  client->ps.dofPhysicalFocalPoint = vectorValue;
+  client->ps.dofPhysicalFstop = v5;
+  PlayerEntity->client->ps.dofPhysicalFocusDistance = v7;
+  PlayerEntity->client->ps.dofPhysicalFocusSpeed = v9;
+  PlayerEntity->client->ps.dofPhysicalApertureSpeed = v11;
 }
 
 /*
@@ -19776,47 +17703,22 @@ GScr_SetPhysicalViewModelDepthOfField
 void GScr_SetPhysicalViewModelDepthOfField(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
-  char v8; 
-  char v9; 
+  double Float; 
+  float v5; 
+  double v6; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 2 )
     Scr_Error(COM_ERR_4509, scrContext, "Incorrect number of parameters\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vcomiss xmm6, cs:__real@3e000000
-    vmovaps xmm7, xmm0
-  }
-  if ( v8 )
-    goto LABEL_5;
-  __asm { vcomiss xmm6, cs:__real@41f00000 }
-  if ( !(v8 | v9) )
-LABEL_5:
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 1u);
+  if ( v5 < 0.125 || v5 > 30.0 )
     Scr_ParamError(COM_ERR_4510, scrContext, 0, "Invalid f-stop value");
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-  }
-  if ( v8 )
+  if ( *(float *)&v6 < 0.0 )
     Scr_ParamError(COM_ERR_4511, scrContext, 0, "Focus distance must be >= 0");
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+1220h], xmm6 }
-  _RAX = PlayerEntity->client;
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rax+1224h], xmm7
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
+  PlayerEntity->client->ps.dofPhysicalViewModelFstop = v5;
+  PlayerEntity->client->ps.dofPhysicalViewModelFocusDistance = *(float *)&v6;
 }
 
 /*
@@ -19827,16 +17729,16 @@ GScr_SetAdsPhysicalDepthOfField
 void GScr_SetAdsPhysicalDepthOfField(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
+  double Float; 
+  double v5; 
 
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 2 )
     Scr_Error(COM_ERR_4512, scrContext, "Incorrect number of parameters\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+1228h], xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+122Ch], xmm0 }
+  Float = Scr_GetFloat(scrContext, 0);
+  PlayerEntity->client->ps.dofPhysicalAdsStart = *(float *)&Float;
+  v5 = Scr_GetFloat(scrContext, 1u);
+  PlayerEntity->client->ps.dofPhysicalAdsEnd = *(float *)&v5;
 }
 
 /*
@@ -19846,134 +17748,111 @@ GScr_SetLensProfileDistort
 */
 void GScr_SetLensProfileDistort(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v9; 
+  int v3; 
   gentity_s *PlayerEntity; 
   const char *String; 
-  __int64 v12; 
-  char v13; 
-  __int64 v14; 
-  char v15; 
-  char v31; 
-  void *retaddr; 
+  __int64 v6; 
+  char v7; 
+  __int64 v8; 
+  char v9; 
+  float v10; 
+  double Float; 
+  float v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  float v16; 
+  double v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  v9 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
+  v3 = 0;
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_4513, scrContext, "Incorrect number of parameters\n");
   String = Scr_GetString(scrContext, 0);
-  v12 = 0i64;
+  v6 = 0i64;
   while ( 1 )
   {
-    v13 = String[v12++];
-    if ( v13 != val[v12 - 1] )
+    v7 = String[v6++];
+    if ( v7 != val[v6 - 1] )
       break;
-    if ( v12 == 5 )
+    if ( v6 == 5 )
       goto LABEL_24;
   }
   if ( !strcmp_0(String, "compact portable") )
   {
-    v9 = 1;
+    v3 = 1;
   }
   else if ( !strcmp_0(String, "smartphone") )
   {
-    v9 = 2;
+    v3 = 2;
   }
   else if ( !strcmp_0(String, "cinematic prime") )
   {
-    v9 = 3;
+    v3 = 3;
   }
   else if ( !strcmp_0(String, "action cam 1") )
   {
-    v9 = 4;
+    v3 = 4;
   }
   else if ( !strcmp_0(String, "action cam 2") )
   {
-    v9 = 5;
+    v3 = 5;
   }
   else
   {
-    v14 = 0i64;
+    v8 = 0i64;
     while ( 1 )
     {
-      v15 = String[v14++];
-      if ( v15 != aDrone[v14 - 1] )
+      v9 = String[v8++];
+      if ( v9 != aDrone[v8 - 1] )
         break;
-      if ( v14 == 6 )
+      if ( v8 == 6 )
       {
-        v9 = 6;
+        v3 = 6;
         goto LABEL_24;
       }
     }
     if ( !strcmp_0(String, "telescopic") )
-      v9 = 7;
+      v3 = 7;
     else
       Scr_Error(COM_ERR_4514, scrContext, "Unknown lens profile mode.\n");
   }
 LABEL_24:
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v10 = 0.0;
   if ( Scr_GetNumParam(scrContext) < 2 )
   {
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v12 = 0.0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm9, xmm0 }
+    Float = Scr_GetFloat(scrContext, 1u);
+    v12 = *(float *)&Float;
   }
   if ( Scr_GetNumParam(scrContext) >= 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm7, xmm0 }
+    v13 = Scr_GetFloat(scrContext, 2u);
+    v10 = *(float *)&v13;
   }
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  v14 = FLOAT_1_0;
   if ( Scr_GetNumParam(scrContext) < 4 )
   {
-    __asm { vmovaps xmm8, xmm6 }
+    v16 = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm8, xmm0 }
+    v15 = Scr_GetFloat(scrContext, 3u);
+    v16 = *(float *)&v15;
   }
   if ( Scr_GetNumParam(scrContext) >= 5 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm { vmovaps xmm6, xmm0 }
+    v17 = Scr_GetFloat(scrContext, 4u);
+    v14 = *(float *)&v17;
   }
-  _R11 = &v31;
-  PlayerEntity->client->ps.lensProfileMode = v9;
-  _RAX = PlayerEntity->client;
-  __asm { vmovss  dword ptr [rax+1234h], xmm9 }
-  _RAX = PlayerEntity->client;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rax+1238h], xmm7
-  }
-  _RAX = PlayerEntity->client;
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [rax+123Ch], xmm8
-  }
-  _RAX = PlayerEntity->client;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rax+1240h], xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  PlayerEntity->client->ps.lensProfileMode = v3;
+  PlayerEntity->client->ps.lensProfileDistortFocalLength = v12;
+  PlayerEntity->client->ps.lensProfileDistortAperture = v10;
+  PlayerEntity->client->ps.lensProfileScale = v16;
+  PlayerEntity->client->ps.lensProfileUVScale = v14;
 }
 
 /*
@@ -19984,49 +17863,37 @@ GScr_ViewKick
 void GScr_ViewKick(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *PlayerEntity; 
-  int v5; 
-  const char *v8; 
-  bool v10; 
+  int v4; 
+  double Float; 
+  const char *v6; 
+  float *p_commandTime; 
+  bool v8; 
   gclient_s *client; 
   vec3_t vectorValue; 
 
   PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) > 3 )
     Scr_Error(COM_ERR_4515, scrContext, "USAGE: <player> viewkick <force 0-127> <source position> [optional]<bool displayIndicator>\n");
-  v5 = (PlayerEntity->maxHealth * Scr_GetInt(scrContext, 0) + 50) / 100;
-  if ( v5 < 0 )
+  v4 = (PlayerEntity->maxHealth * Scr_GetInt(scrContext, 0) + 50) / 100;
+  if ( v4 < 0 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v8 = j_va("viewkick: damage %g < 0\n", _RDX);
-    Scr_Error(COM_ERR_4516, scrContext, v8);
+    Float = Scr_GetFloat(scrContext, 0);
+    v6 = j_va("viewkick: damage %g < 0\n", *(float *)&Float);
+    Scr_Error(COM_ERR_4516, scrContext, v6);
   }
   Scr_GetVector(scrContext, 1u, &vectorValue);
-  _RAX = PlayerEntity->client;
-  v10 = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+30h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  dword ptr [rax+5E88h], xmm1
-    vmovss  xmm2, dword ptr [rax+34h]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  dword ptr [rax+5E8Ch], xmm0
-    vmovss  xmm1, dword ptr [rax+38h]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+8]
-    vmovss  dword ptr [rax+5E90h], xmm2
-  }
+  p_commandTime = (float *)&PlayerEntity->client->ps.commandTime;
+  v8 = 1;
+  p_commandTime[6050] = p_commandTime[12] - vectorValue.v[0];
+  p_commandTime[6051] = p_commandTime[13] - vectorValue.v[1];
+  p_commandTime[6052] = p_commandTime[14] - vectorValue.v[2];
   if ( Scr_GetNumParam(scrContext) > 2 )
-    v10 = Scr_GetInt(scrContext, 2u) != 0;
+    v8 = Scr_GetInt(scrContext, 2u) != 0;
   client = PlayerEntity->client;
-  if ( v10 )
-    client->damage_blood += v5;
+  if ( v8 )
+    client->damage_blood += v4;
   else
-    client->damage_kick += v5;
+    client->damage_kick += v4;
 }
 
 /*
@@ -20340,152 +18207,88 @@ GScr_SetMiniMap
 */
 void GScr_SetMiniMap(scrContext_t *scrContext)
 {
-  const char *v10; 
+  const char *v3; 
   unsigned int NumParam; 
   const char *String; 
+  double Float; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  float v13; 
   int Int; 
-  bool v20; 
-  char v21; 
-  const char *v40; 
-  __int64 v50; 
-  double v51; 
-  __int64 v52; 
-  double v53; 
-  __int64 v54; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  const char *v25; 
   float c; 
   float s; 
   char buffer[32]; 
-  char v58; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  v10 = NULL;
+  v3 = NULL;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam < 6 )
     Scr_Error(COM_ERR_4517, scrContext, "Expecting 6 arguments");
   String = Scr_GetString(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm10, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm { vmovaps xmm11, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v7 = *(float *)&Float;
+  v8 = Scr_GetFloat(scrContext, 2u);
+  v9 = *(float *)&v8;
+  v10 = Scr_GetFloat(scrContext, 3u);
+  v11 = *(float *)&v10;
+  v12 = Scr_GetFloat(scrContext, 4u);
+  v13 = *(float *)&v12;
   Int = Scr_GetInt(scrContext, 5u);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING) )
   {
     if ( NumParam < 7 )
-      v10 = String;
+      v3 = String;
     else
-      v10 = Scr_GetString(scrContext, 6u);
+      v3 = Scr_GetString(scrContext, 6u);
   }
   if ( Int < 1 )
     Scr_Error(COM_ERR_6130, scrContext, "numTiles should be >= 1");
-  __asm
+  v15 = v11 - v7;
+  v16 = *(float *)&v12 - v9;
+  if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
   {
-    vsubss  xmm6, xmm10, xmm8
-    vsubss  xmm7, xmm11, xmm9
-  }
-  v20 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80);
-  v21 = 0;
-  if ( v20 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth+4; level_locals_t level
-      vmulss  xmm0, xmm7, dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth; level_locals_t level
-      vsubss  xmm4, xmm1, xmm0
-      vmulss  xmm1, xmm6, dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth; level_locals_t level
-      vmulss  xmm0, xmm7, dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth+4; level_locals_t level
-    }
+    v17 = (float)(v15 * level.compassNorth.v[1]) - (float)(v16 * level.compassNorth.v[0]);
+    v18 = v15 * level.compassNorth.v[0];
+    v19 = v16 * level.compassNorth.v[1];
   }
   else
   {
     SV_GetConfigstring(9u, buffer, 32);
     *(double *)&_XMM0 = atof(buffer);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmulss  xmm1, xmm6, [rsp+0E8h+s]
-      vmulss  xmm0, xmm7, [rsp+0E8h+c]
-      vsubss  xmm4, xmm1, xmm0
-      vmulss  xmm1, xmm6, [rsp+0E8h+c]
-      vmulss  xmm0, xmm7, [rsp+0E8h+s]
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    FastSinCos(*(float *)&_XMM1 * 0.017453292, &s, &c);
+    v17 = (float)(v15 * s) - (float)(v16 * c);
+    v18 = v15 * c;
+    v19 = v16 * s;
   }
-  __asm
-  {
-    vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-    vsubss  xmm5, xmm2, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm4, xmm0
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassMapWorldSize+4, xmm5; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassMapWorldSize, xmm4; level_locals_t level
-  }
-  if ( v21 )
-    goto LABEL_14;
-  __asm { vcomiss xmm5, xmm0 }
-  if ( v21 )
-LABEL_14:
+  level.compassMapWorldSize.v[1] = COERCE_FLOAT(LODWORD(v18) ^ _xmm) - v19;
+  level.compassMapWorldSize.v[0] = v17;
+  if ( v17 < 0.0 || (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) - v19) < 0.0 )
     Scr_Error(COM_ERR_4518, scrContext, "lower-right X and Y coordinates must be both south and east of upper-left X and Y coordinates in terms of the northyaw");
-  __asm
-  {
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassMapUpperLeft, xmm8; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassMapUpperLeft+4, xmm9; level_locals_t level
-    vcvtss2sd xmm0, xmm11, xmm11
-    vcvtss2sd xmm1, xmm10, xmm10
-    vcvtss2sd xmm3, xmm9, xmm9
-    vcvtss2sd xmm2, xmm8, xmm8
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0E8h+var_B8], xmm0
-      vmovsd  [rsp+0E8h+var_C0], xmm1
-      vmovsd  [rsp+0E8h+var_C8], xmm3
-      vmovaps xmm3, xmm2
-      vmovq   r9, xmm3
-    }
-    v40 = j_va("\"%s\" \"%s\" %f %f %f %f %d", String, v10, _R9, v50, v52, v54, Int);
-  }
+  level.compassMapUpperLeft.v[0] = v7;
+  level.compassMapUpperLeft.v[1] = v9;
+  v21 = v13;
+  v22 = v11;
+  v23 = v9;
+  v24 = v7;
+  if ( v3 )
+    v25 = j_va("\"%s\" \"%s\" %f %f %f %f %d", String, v3, v24, v23, v22, v21, Int);
   else
-  {
-    __asm
-    {
-      vmovsd  [rsp+0E8h+var_C0], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+0E8h+var_C8], xmm1
-    }
-    v40 = j_va("\"%s\" %f %f %f %f %d", String, *(double *)&_XMM2, *(double *)&_XMM3, v51, v53, Int);
-  }
-  SV_SetConfigstring(0xAu, v40);
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+    v25 = j_va("\"%s\" %f %f %f %f %d", String, v24, v23, v22, v21, Int);
+  SV_SetConfigstring(0xAu, v25);
 }
 
 /*
@@ -20496,45 +18299,27 @@ GScr_SetMiniMapCPRaidMaze
 void GScr_SetMiniMapCPRaidMaze(scrContext_t *scrContext)
 {
   const char *String; 
-  const char *v16; 
-  __int64 v20; 
-  __int64 v21; 
+  double Float; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  const char *v10; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-  }
   if ( Scr_GetNumParam(scrContext) < 5 )
     Scr_Error(COM_ERR_6561, scrContext, "Expecting 5 arguments");
   String = Scr_GetString(scrContext, 0);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vcvtss2sd xmm3, xmm7, xmm7
-    vcvtss2sd xmm2, xmm8, xmm8
-    vcvtss2sd xmm4, xmm6, xmm6
-    vmovsd  [rsp+68h+var_40], xmm1
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+68h+var_48], xmm4
-  }
-  v16 = j_va("\"%s\" %f %f %f %f", String, _R8, _R9, v20, v21);
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  SV_SetConfigstring(0xFu, v16);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v4 = *(float *)&Float;
+  v5 = Scr_GetFloat(scrContext, 2u);
+  v6 = *(float *)&v5;
+  v7 = Scr_GetFloat(scrContext, 3u);
+  v8 = *(float *)&v7;
+  v9 = Scr_GetFloat(scrContext, 4u);
+  v10 = j_va("\"%s\" %f %f %f %f", String, v4, v6, v8, *(float *)&v9);
+  SV_SetConfigstring(0xFu, v10);
 }
 
 /*
@@ -20656,104 +18441,84 @@ GScr_SortByDistanceCullByRadius
 void GScr_SortByDistanceCullByRadius(scrContext_t *scrContext)
 {
   unsigned int *m_ptr; 
-  EntityOrigin *v6; 
+  EntityOrigin *v3; 
   unsigned int ArrayObject; 
   unsigned int ArraySize; 
-  unsigned int v9; 
-  const char *v10; 
+  unsigned int v6; 
+  const char *v7; 
   const char *NameForType; 
-  const char *v12; 
-  unsigned int v14; 
+  const char *v9; 
+  double Float; 
+  unsigned int v11; 
   unsigned int i; 
-  int ObjectOrigin; 
-  char v17; 
-  bool v18; 
-  const char *v19; 
-  __int64 v31; 
+  EntityOrigin *v13; 
+  const char *v14; 
+  __int64 v15; 
   unsigned int *p_obj; 
   VariableType failureType[4]; 
   unsigned int failureIndex; 
-  __int64 v36; 
-  Mem_LargeLocal v37; 
+  __int64 v19; 
+  Mem_LargeLocal v20; 
   Mem_LargeLocal buffer; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v36 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
+  v19 = -2i64;
   Mem_LargeLocal::Mem_LargeLocal(&buffer, 0x2000ui64, "scr_objectIdArray_t objects");
   m_ptr = (unsigned int *)buffer.m_ptr;
-  Mem_LargeLocal::Mem_LargeLocal(&v37, 0x8000ui64, "entityOriginArray_t entityOriginArray");
-  v6 = (EntityOrigin *)v37.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v20, 0x8000ui64, "entityOriginArray_t entityOriginArray");
+  v3 = (EntityOrigin *)v20.m_ptr;
   ArrayObject = BGScr_Main_GetArrayObject(scrContext, 0);
   ArraySize = GetArraySize(scrContext, ArrayObject);
-  v9 = ArraySize;
+  v6 = ArraySize;
   if ( ArraySize > 0x800 )
   {
-    v10 = j_va("array is too large (%d > %d), need to increase sortable array size", ArraySize, 2048i64);
-    Scr_ParamError(COM_ERR_6306, scrContext, 0, v10);
+    v7 = j_va("array is too large (%d > %d), need to increase sortable array size", ArraySize, 2048i64);
+    Scr_ParamError(COM_ERR_6306, scrContext, 0, v7);
   }
   if ( !Scr_GetObjectArray(scrContext, ArrayObject, 0x800u, m_ptr, &failureIndex, failureType) )
   {
     NameForType = Scr_GetNameForType(failureType[0]);
-    v12 = j_va("element %i of array: type %s is not an object", failureIndex, NameForType);
-    Scr_ParamError(COM_ERR_6307, scrContext, 0, v12);
+    v9 = j_va("element %i of array: type %s is not an object", failureIndex, NameForType);
+    Scr_ParamError(COM_ERR_6307, scrContext, 0, v9);
   }
   Scr_GetVector(scrContext, 1u, &g_entitySortOrigin);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmulss  xmm6, xmm0, xmm0 }
+  Float = Scr_GetFloat(scrContext, 2u);
   AddRefToObject(scrContext, ArrayObject);
   Scr_ClearOutParams(scrContext);
-  v14 = 0;
-  for ( i = 0; i < v9; ++m_ptr )
+  v11 = 0;
+  for ( i = 0; i < v6; ++m_ptr )
   {
-    ObjectOrigin = Scr_GetObjectOrigin(scrContext, *m_ptr, &v6[v14].origin);
-    v17 = 0;
-    v18 = ObjectOrigin == 0;
-    if ( !ObjectOrigin )
+    v13 = &v3[v11];
+    if ( !Scr_GetObjectOrigin(scrContext, *m_ptr, &v13->origin) )
     {
       RemoveRefToObject(scrContext, ArrayObject);
-      v19 = j_va("element %i of array: object's origin property is not a vector", i);
-      Scr_ParamError(COM_ERR_6308, scrContext, 0, v19);
+      v14 = j_va("element %i of array: object's origin property is not a vector", i);
+      Scr_ParamError(COM_ERR_6308, scrContext, 0, v14);
     }
-    __asm
+    if ( (float)((float)((float)((float)(g_entitySortOrigin.v[1] - v13->origin.v[1]) * (float)(g_entitySortOrigin.v[1] - v13->origin.v[1])) + (float)((float)(g_entitySortOrigin.v[0] - v13->origin.v[0]) * (float)(g_entitySortOrigin.v[0] - v13->origin.v[0]))) + (float)((float)(g_entitySortOrigin.v[2] - v13->origin.v[2]) * (float)(g_entitySortOrigin.v[2] - v13->origin.v[2]))) <= (float)(*(float *)&Float * *(float *)&Float) )
     {
-      vmovss  xmm0, dword ptr cs:g_entitySortOrigin
-      vsubss  xmm3, xmm0, dword ptr [rbp+0]
-      vmovss  xmm1, dword ptr cs:g_entitySortOrigin+4
-      vsubss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovss  xmm0, dword ptr cs:g_entitySortOrigin+8
-      vsubss  xmm4, xmm0, dword ptr [rbp+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm6
+      v13->obj = *m_ptr;
+      ++v11;
     }
-    if ( v17 | v18 )
-      v6[v14++].obj = *m_ptr;
     ++i;
   }
-  v31 = v14;
-  std::_Sort_unchecked<EntityOrigin *,bool (*)(EntityOrigin const &,EntityOrigin const &)>(v6, &v6[v14], v14, CompareScriptObjectDistanceIncreasing);
+  v15 = v11;
+  std::_Sort_unchecked<EntityOrigin *,bool (*)(EntityOrigin const &,EntityOrigin const &)>(v3, &v3[v11], v11, CompareScriptObjectDistanceIncreasing);
   Scr_MakeArray(scrContext);
-  if ( v14 )
+  if ( v11 )
   {
-    p_obj = &v6->obj;
+    p_obj = &v3->obj;
     do
     {
       Scr_AddObject(scrContext, *p_obj);
       Scr_AddArray(scrContext);
       p_obj += 4;
-      --v31;
+      --v15;
     }
-    while ( v31 );
+    while ( v15 );
   }
   RemoveRefToObject(scrContext, ArrayObject);
-  Mem_LargeLocal::~Mem_LargeLocal(&v37);
+  Mem_LargeLocal::~Mem_LargeLocal(&v20);
   Mem_LargeLocal::~Mem_LargeLocal(&buffer);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -20763,13 +18528,10 @@ GScr_GetLightIntensity
 */
 void GScr_GetLightIntensity(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RAX = GScr_SetupLightEntity(scrContext, entref);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+60h]
-    vmulss  xmm1, xmm0, cs:__real@3b04d490; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  gentity_s *v3; 
+
+  v3 = GScr_SetupLightEntity(scrContext, entref);
+  Scr_AddFloat(scrContext, v3->s.lerp.u.turret.gunAngles.v[2] * 0.0020268299);
 }
 
 /*
@@ -20779,26 +18541,19 @@ GScr_SetLightIntensity
 */
 void GScr_SetLightIntensity(scrContext_t *scrContext, scr_entref_t entref)
 {
-  char v7; 
+  __int128 v2; 
+  gentity_s *v4; 
+  __int128 v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RDI = GScr_SetupLightEntity(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vcomiss xmm0, cs:__real@ba83126f
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 )
+  v4 = GScr_SetupLightEntity(scrContext, entref);
+  *(double *)&v2 = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&v2 < -0.001 )
     Scr_ParamError(COM_ERR_4524, scrContext, 0, "intensity must be >= 0");
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@43f6b0cf
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vmaxss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+60h], xmm1
-  }
+  v6 = v2;
+  *(float *)&v6 = *(float *)&v2 * 493.38132;
+  _XMM1 = v6;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  v4->s.lerp.u.turret.gunAngles.v[2] = *(float *)&_XMM1;
 }
 
 /*
@@ -20808,13 +18563,10 @@ GScr_GetLightUVIntensity
 */
 void GScr_GetLightUVIntensity(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RAX = GScr_SetupLightEntity(scrContext, entref);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+64h]
-    vmulss  xmm1, xmm0, cs:__real@3b04d490; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  gentity_s *v3; 
+
+  v3 = GScr_SetupLightEntity(scrContext, entref);
+  Scr_AddFloat(scrContext, v3->s.lerp.u.actor.impactVector.v[0] * 0.0020268299);
 }
 
 /*
@@ -20824,26 +18576,19 @@ GScr_SetLightUVIntensity
 */
 void GScr_SetLightUVIntensity(scrContext_t *scrContext, scr_entref_t entref)
 {
-  char v7; 
+  __int128 v2; 
+  gentity_s *v4; 
+  __int128 v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RDI = GScr_SetupLightEntity(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vcomiss xmm0, cs:__real@ba83126f
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 )
+  v4 = GScr_SetupLightEntity(scrContext, entref);
+  *(double *)&v2 = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&v2 < -0.001 )
     Scr_ParamError(COM_ERR_4525, scrContext, 0, "intensity must be >= 0");
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@43f6b0cf
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vmaxss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+64h], xmm1
-  }
+  v6 = v2;
+  *(float *)&v6 = *(float *)&v2 * 493.38132;
+  _XMM1 = v6;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  v4->s.lerp.u.actor.impactVector.v[0] = *(float *)&_XMM1;
 }
 
 /*
@@ -20854,73 +18599,29 @@ GScr_GetLightColor
 void GScr_GetLightColor(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *v3; 
-  char v4; 
-  char v5; 
+  float v4; 
+  float v5; 
+  float v6; 
   float value[4]; 
   LerpEntityStatePrimaryLightUnpacked out; 
 
   v3 = GScr_SetupLightEntity(scrContext, entref);
   LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v3->s.lerp.u, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+out.colorLinearSrgb]; X
-    vcomiss xmm0, cs:__real@3b4d2e1c
-  }
-  if ( v4 | v5 )
-  {
-    __asm { vmulss  xmm0, xmm0, cs:__real@414eb852 }
-  }
+  if ( out.colorLinearSrgb.v[0] > 0.0031308001 )
+    v4 = (float)(powf_0(out.colorLinearSrgb.v[0], 0.41666666) * 1.0549999) - 0.055;
   else
-  {
-    __asm { vmovss  xmm1, cs:__real@3ed55555; Y }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3f870a3d
-      vsubss  xmm0, xmm1, cs:__real@3d6147ae
-    }
-  }
-  __asm
-  {
-    vmovss  [rsp+68h+value], xmm0
-    vmovss  xmm0, dword ptr [rsp+68h+out.colorLinearSrgb+4]; X
-    vcomiss xmm0, cs:__real@3b4d2e1c
-  }
-  if ( v4 | v5 )
-  {
-    __asm { vmulss  xmm1, xmm0, cs:__real@414eb852 }
-  }
+    v4 = out.colorLinearSrgb.v[0] * 12.92;
+  value[0] = v4;
+  if ( out.colorLinearSrgb.v[1] > 0.0031308001 )
+    v5 = (float)(powf_0(out.colorLinearSrgb.v[1], 0.41666666) * 1.0549999) - 0.055;
   else
-  {
-    __asm { vmovss  xmm1, cs:__real@3ed55555; Y }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3f870a3d
-      vsubss  xmm1, xmm1, cs:__real@3d6147ae
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+out.colorLinearSrgb+8]; X
-    vcomiss xmm0, cs:__real@3b4d2e1c
-    vmovss  [rsp+68h+var_44], xmm1
-  }
-  if ( v4 | v5 )
-  {
-    __asm { vmulss  xmm1, xmm0, cs:__real@414eb852 }
-  }
+    v5 = out.colorLinearSrgb.v[1] * 12.92;
+  value[1] = v5;
+  if ( out.colorLinearSrgb.v[2] > 0.0031308001 )
+    v6 = (float)(powf_0(out.colorLinearSrgb.v[2], 0.41666666) * 1.0549999) - 0.055;
   else
-  {
-    __asm { vmovss  xmm1, cs:__real@3ed55555; Y }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3f870a3d
-      vsubss  xmm1, xmm1, cs:__real@3d6147ae
-    }
-  }
-  __asm { vmovss  [rsp+68h+var_40], xmm1 }
+    v6 = out.colorLinearSrgb.v[2] * 12.92;
+  value[2] = v6;
   Scr_AddVector(scrContext, value);
 }
 
@@ -20931,122 +18632,41 @@ GScr_SetLightColor
 */
 void GScr_SetLightColor(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v5; 
-  char v6; 
-  char v7; 
+  gentity_s *v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
   vec3_t vectorValue; 
   LerpEntityStatePrimaryLightUnpacked out; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
-  v5 = GScr_SetupLightEntity(scrContext, entref);
+  v3 = GScr_SetupLightEntity(scrContext, entref);
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue]
-    vcomiss xmm0, cs:__real@3d20e411
-  }
-  if ( v6 | v7 )
-  {
-    __asm { vmulss  xmm7, xmm0, cs:__real@3d9e8391 }
-  }
+  if ( vectorValue.v[0] > 0.039280001 )
+    v4 = powf_0((float)(vectorValue.v[0] * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm7, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue+4]
-    vcomiss xmm0, cs:__real@3d20e411
-    vmovss  dword ptr [rsp+88h+vectorValue], xmm7
-  }
-  if ( v6 | v7 )
-  {
-    __asm { vmulss  xmm6, xmm0, cs:__real@3d9e8391 }
-  }
+    v4 = vectorValue.v[0] * 0.077399381;
+  vectorValue.v[0] = v4;
+  if ( vectorValue.v[1] > 0.039280001 )
+    v5 = powf_0((float)(vectorValue.v[1] * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue+8]
-    vcomiss xmm0, cs:__real@3d20e411
-    vmovss  dword ptr [rsp+88h+vectorValue+4], xmm6
-  }
-  if ( v6 | v7 )
-  {
-    __asm { vmulss  xmm4, xmm0, cs:__real@3d9e8391 }
-  }
+    v5 = vectorValue.v[1] * 0.077399381;
+  vectorValue.v[1] = v5;
+  if ( vectorValue.v[2] > 0.039280001 )
+    v6 = powf_0((float)(vectorValue.v[2] * 0.94786733) + 0.052132703, 2.4000001);
   else
+    v6 = vectorValue.v[2] * 0.077399381;
+  v7 = (float)((float)(v4 * 0.21259999) + (float)(v5 * 0.71520001)) + (float)(v6 * 0.0722);
+  vectorValue.v[2] = v6;
+  if ( v7 > 0.0 )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm4, xmm0 }
+    vectorValue.v[0] = (float)(1.0 / v7) * v4;
+    vectorValue.v[2] = (float)(1.0 / v7) * v6;
+    vectorValue.v[1] = (float)(1.0 / v7) * v5;
   }
-  __asm
-  {
-    vmulss  xmm2, xmm7, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B; vec3_t const luminanceCoefficientsBT709
-    vmulss  xmm1, xmm6, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+4; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm4, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+8; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm0, xmm3, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  dword ptr [rsp+88h+vectorValue+8], xmm4
-  }
-  if ( !(v6 | v7) )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm2, xmm7
-      vmovss  dword ptr [rsp+88h+vectorValue], xmm0
-      vmulss  xmm0, xmm2, xmm4
-      vmulss  xmm1, xmm2, xmm6
-      vmovss  dword ptr [rsp+88h+vectorValue+8], xmm0
-      vmovss  dword ptr [rsp+88h+vectorValue+4], xmm1
-    }
-  }
-  LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v5->s.lerp.u, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+88h+vectorValue+4]
-    vmovss  dword ptr [rsp+88h+out.colorLinearSrgb], xmm0
-    vmovss  xmm0, dword ptr [rsp+88h+vectorValue+8]
-    vmovss  dword ptr [rsp+88h+out.colorLinearSrgb+8], xmm0
-    vmovss  dword ptr [rsp+88h+out.colorLinearSrgb+4], xmm1
-  }
-  LerpEntityStatePrimaryLightPack(&out, (LerpEntityStatePrimaryLightPacked *)&v5->s.lerp.u);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
+  LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v3->s.lerp.u, &out);
+  out.colorLinearSrgb = vectorValue;
+  LerpEntityStatePrimaryLightPack(&out, (LerpEntityStatePrimaryLightPacked *)&v3->s.lerp.u);
 }
 
 /*
@@ -21056,9 +18676,10 @@ GScr_GetLightRadius
 */
 void GScr_GetLightRadius(scrContext_t *scrContext, scr_entref_t entref)
 {
-  _RAX = GScr_SetupLightEntity(scrContext, entref);
-  __asm { vmovss  xmm1, dword ptr [rax+68h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  gentity_s *v3; 
+
+  v3 = GScr_SetupLightEntity(scrContext, entref);
+  Scr_AddFloat(scrContext, v3->s.lerp.u.actor.impactVector.v[1]);
 }
 
 /*
@@ -21068,50 +18689,28 @@ GScr_SetLightRadius
 */
 void GScr_SetLightRadius(scrContext_t *scrContext, scr_entref_t entref)
 {
-  signed int v5; 
-  bool v7; 
-  bool v8; 
+  gentity_s *v3; 
+  signed int v4; 
+  const ComPrimaryLight *PrimaryLight; 
+  double Float; 
+  double v7; 
 
-  _RSI = GScr_SetupLightEntity(scrContext, entref);
-  v5 = comWorld.firstScriptablePrimaryLight + _RSI->s.staticState.general.xmodel;
-  if ( (v5 < (int)comWorld.firstScriptablePrimaryLight || v5 >= (int)comWorld.primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 106, ASSERT_TYPE_ASSERT, "(primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount ))", (const char *)&queryFormat, "primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount )") )
+  v3 = GScr_SetupLightEntity(scrContext, entref);
+  v4 = comWorld.firstScriptablePrimaryLight + v3->s.staticState.general.xmodel;
+  if ( (v4 < (int)comWorld.firstScriptablePrimaryLight || v4 >= (int)comWorld.primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 106, ASSERT_TYPE_ASSERT, "(primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount ))", (const char *)&queryFormat, "primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount )") )
     __debugbreak();
-  _RBX = Com_GetPrimaryLight(v5);
-  v7 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19752, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+90h]
-  }
-  if ( !v7 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vucomiss xmm0, dword ptr [rbx+8Ch]
-  }
-  if ( v7 )
+  PrimaryLight = Com_GetPrimaryLight(v4);
+  if ( !PrimaryLight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19752, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
+    __debugbreak();
+  if ( PrimaryLight->translationLimit == 0.0 && 1.0 == PrimaryLight->rotationLimit )
   {
     Scr_Error(COM_ERR_2199, scrContext, "SetLightRadius only works for lights with maxmove or maxturn KVP specified in Radiant\n");
   }
   else
   {
-LABEL_11:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+50h]; max
-      vmovss  xmm1, cs:__real@3f8147ae; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [rsi+68h], xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    v7 = I_fclamp(*(float *)&Float, 1.01, PrimaryLight->radius);
+    v3->s.lerp.u.actor.impactVector.v[1] = *(float *)&v7;
   }
 }
 
@@ -21123,18 +18722,13 @@ GScr_GetLightFovInner
 void GScr_GetLightFovInner(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *v3; 
+  float v4; 
   LerpEntityStatePrimaryLightUnpacked out; 
 
   v3 = GScr_SetupLightEntity(scrContext, entref);
   LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v3->s.lerp.u, &out);
-  __asm { vmovss  xmm0, [rsp+58h+out.cosHalfFovInner]; X }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vmulss  xmm1, xmm1, cs:__real@40000000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v4 = acosf_0(out.cosHalfFovInner);
+  Scr_AddFloat(scrContext, (float)(v4 * 57.295776) * 2.0);
 }
 
 /*
@@ -21145,18 +18739,13 @@ GScr_GetLightFovOuter
 void GScr_GetLightFovOuter(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *v3; 
+  float v4; 
   LerpEntityStatePrimaryLightUnpacked out; 
 
   v3 = GScr_SetupLightEntity(scrContext, entref);
   LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v3->s.lerp.u, &out);
-  __asm { vmovss  xmm0, [rsp+58h+out.cosHalfFovOuter]; X }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vmulss  xmm1, xmm1, cs:__real@40000000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v4 = acosf_0(out.cosHalfFovOuter);
+  Scr_AddFloat(scrContext, (float)(v4 * 57.295776) * 2.0);
 }
 
 /*
@@ -21166,175 +18755,78 @@ GScr_SetLightFovRange
 */
 void GScr_SetLightFovRange(scrContext_t *scrContext, scr_entref_t entref)
 {
-  gentity_s *v11; 
-  signed int v12; 
-  bool v14; 
-  bool v15; 
-  char v37; 
-  char v38; 
-  double v46; 
-  double v47; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  gentity_s *v6; 
+  signed int v7; 
+  const ComPrimaryLight *PrimaryLight; 
+  float v9; 
+  __int128 v10; 
+  __int128 v11; 
+  float cosHalfFovOuter; 
+  __int128 v13; 
+  double Float; 
+  float v15; 
+  double v16; 
+  __int128 v19; 
   LerpEntityStatePrimaryLightUnpacked out; 
-  void *retaddr; 
+  __int128 v21; 
+  __int128 v22; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm11
-  }
-  v11 = GScr_SetupLightEntity(scrContext, entref);
-  v12 = comWorld.firstScriptablePrimaryLight + v11->s.staticState.general.xmodel;
-  if ( (v12 < (int)comWorld.firstScriptablePrimaryLight || v12 >= (int)comWorld.primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 106, ASSERT_TYPE_ASSERT, "(primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount ))", (const char *)&queryFormat, "primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount )") )
+  v6 = GScr_SetupLightEntity(scrContext, entref);
+  v7 = comWorld.firstScriptablePrimaryLight + v6->s.staticState.general.xmodel;
+  if ( (v7 < (int)comWorld.firstScriptablePrimaryLight || v7 >= (int)comWorld.primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 106, ASSERT_TYPE_ASSERT, "(primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount ))", (const char *)&queryFormat, "primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount )") )
     __debugbreak();
-  _RBX = Com_GetPrimaryLight(v12);
-  v14 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19837, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight");
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm11, xmm11, xmm11
-    vucomiss xmm11, dword ptr [rbx+90h]
-  }
-  if ( !v14 )
-    goto LABEL_11;
-  __asm { vucomiss xmm8, dword ptr [rbx+8Ch] }
-  if ( v14 )
+  PrimaryLight = Com_GetPrimaryLight(v7);
+  if ( !PrimaryLight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19837, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
+    __debugbreak();
+  if ( PrimaryLight->translationLimit == 0.0 && 1.0 == PrimaryLight->rotationLimit )
   {
     Scr_Error(COM_ERR_2201, scrContext, "SetLightFovRange only works for lights with maxmove or maxturn KVP specified in Radiant\n");
   }
   else
   {
-LABEL_11:
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_28], xmm6
-      vmovaps [rsp+0E8h+var_38], xmm7
-      vmovaps [rsp+0E8h+var_58], xmm9
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
-    {
-      vcomiss xmm0, cs:__real@3f7fbe77
-      vmovaps xmm6, xmm0
-    }
-    if ( !v37 )
-      __asm { vcomiss xmm0, cs:__real@42f00083 }
-    Scr_ParamError(COM_ERR_2202, scrContext, 0, "outer fov must be in the range of 1 to 120");
-    __asm { vmulss  xmm0, xmm6, cs:__real@3c0efa35; X }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+6Ch]
-      vmovss  xmm9, cs:__real@3a83126f
-      vsubss  xmm1, xmm3, xmm9
-      vcomiss xmm0, xmm1
-      vmovaps xmm7, xmm0
-    }
-    if ( v37 )
+    v22 = v3;
+    *(double *)&v2 = Scr_GetFloat(scrContext, 0);
+    v9 = *(float *)&v2;
+    if ( *(float *)&v2 < 0.99900001 || *(float *)&v2 >= 120.001 )
+      Scr_ParamError(COM_ERR_2202, scrContext, 0, "outer fov must be in the range of 1 to 120");
+    v10 = v2;
+    *(float *)&v10 = *(float *)&v2 * 0.0087266462;
+    v11 = v10;
+    *(float *)&v11 = cosf_0(v9 * 0.0087266462);
+    cosHalfFovOuter = PrimaryLight->cosHalfFovOuter;
+    v13 = v11;
+    if ( *(float *)&v11 < (float)(cosHalfFovOuter - 0.001) )
     {
       Scr_ParamError(COM_ERR_2203, scrContext, 0, "outer fov cannot be larger than the fov when the map was compiled");
-      __asm { vmovss  xmm3, dword ptr [rbx+6Ch] }
+      cosHalfFovOuter = PrimaryLight->cosHalfFovOuter;
     }
-    __asm
-    {
-      vmovaps xmm2, xmm8; max
-      vmovaps xmm1, xmm3; min
-      vmovaps xmm0, xmm7; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm7, xmm0 }
+    I_fclamp(*(float *)&v11, cosHalfFovOuter, 1.0);
     if ( Scr_GetNumParam(scrContext) == 2 )
     {
-      __asm { vmovaps [rsp+0E8h+var_68], xmm10 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm
-      {
-        vcomiss xmm0, cs:__real@ba83126f
-        vmovaps xmm10, xmm0
-      }
-      if ( !v37 )
-      {
-        __asm
-        {
-          vaddss  xmm1, xmm6, xmm9
-          vcomiss xmm0, xmm1
-        }
-      }
-      Scr_ParamError(COM_ERR_2204, scrContext, 1u, "inner fov must be in the range of 0 to outer fov");
-      __asm
-      {
-        vmulss  xmm0, xmm10, cs:__real@3c0efa35; X
-        vaddss  xmm6, xmm7, xmm9
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm10, [rsp+0E8h+var_68]
-        vmovaps xmm6, xmm0
-      }
+      v21 = v4;
+      Float = Scr_GetFloat(scrContext, 1u);
+      if ( *(float *)&Float < -0.001 || *(float *)&Float >= (float)(v9 + 0.001) )
+        Scr_ParamError(COM_ERR_2204, scrContext, 1u, "inner fov must be in the range of 0 to outer fov");
+      v15 = cosf_0(*(float *)&Float * 0.0087266462);
+      v16 = I_fclamp(v15, *(float *)&v13 + 0.001, 1.0);
+      LODWORD(_XMM6) = LODWORD(v16);
     }
     else
     {
-      __asm
-      {
-        vaddss  xmm0, xmm7, xmm9
-        vminss  xmm6, xmm0, dword ptr [rbx+70h]
-      }
+      v19 = v13;
+      *(float *)&v19 = *(float *)&v13 + 0.001;
+      _XMM0 = v19;
+      __asm { vminss  xmm6, xmm0, dword ptr [rbx+70h] }
     }
-    LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v11->s.lerp.u, &out);
-    __asm
-    {
-      vcomiss xmm7, xmm11
-      vmovaps xmm9, [rsp+0E8h+var_58]
-    }
-    if ( v37 | v38 )
-      goto LABEL_25;
-    __asm { vcomiss xmm7, xmm6 }
-    if ( !v37 )
-      goto LABEL_25;
-    __asm { vcomiss xmm6, xmm8 }
-    if ( !(v37 | v38) )
-    {
-LABEL_25:
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0E8h+var_B0], xmm0
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+0E8h+var_B8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19869, ASSERT_TYPE_ASSERT, "(0.0f < cosHalfFovOuter && cosHalfFovOuter < cosHalfFovInner && cosHalfFovInner <= 1.0f)", "%s\n\t%g, %g", "0.0f < cosHalfFovOuter && cosHalfFovOuter < cosHalfFovInner && cosHalfFovInner <= 1.0f", v46, v47) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  [rsp+0E8h+out.cosHalfFovInner], xmm6
-      vmovss  [rsp+0E8h+out.cosHalfFovOuter], xmm7
-    }
-    LerpEntityStatePrimaryLightPack(&out, (LerpEntityStatePrimaryLightPacked *)&v11->s.lerp.u);
-    __asm
-    {
-      vmovaps xmm7, [rsp+0E8h+var_38]
-      vmovaps xmm6, [rsp+0E8h+var_28]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0E8h+var_48]
-    vmovaps xmm11, [rsp+0E8h+var_78]
+    LerpEntityStatePrimaryLightUnpack((const LerpEntityStatePrimaryLightPacked *)&v6->s.lerp.u, &out);
+    if ( (*(float *)&v13 <= 0.0 || *(float *)&v13 >= *(float *)&_XMM6 || *(float *)&_XMM6 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 19869, ASSERT_TYPE_ASSERT, "(0.0f < cosHalfFovOuter && cosHalfFovOuter < cosHalfFovInner && cosHalfFovInner <= 1.0f)", "%s\n\t%g, %g", "0.0f < cosHalfFovOuter && cosHalfFovOuter < cosHalfFovInner && cosHalfFovInner <= 1.0f", *(float *)&v13, *(float *)&_XMM6) )
+      __debugbreak();
+    out.cosHalfFovInner = *(float *)&_XMM6;
+    out.cosHalfFovOuter = *(float *)&v13;
+    LerpEntityStatePrimaryLightPack(&out, (LerpEntityStatePrimaryLightPacked *)&v6->s.lerp.u);
   }
 }
 
@@ -21536,138 +19028,132 @@ Scr_GetWeaponArrayInRadius
 */
 void Scr_GetWeaponArrayInRadius(scrContext_t *scrContext)
 {
+  double Float; 
+  float v3; 
   EntHandle *droppedWeaponCue; 
-  __int64 v6; 
+  __int64 v5; 
   unsigned __int16 number; 
-  __int64 v8; 
-  unsigned int v9; 
-  __int64 v10; 
-  unsigned __int16 v11; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned __int16 v10; 
+  __int64 v11; 
   __int64 v12; 
   __int64 v13; 
-  int v14; 
-  char v17; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
+  EntHandle *droppedEquipmentCue; 
+  __int64 v20; 
+  unsigned __int16 v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  __int64 v24; 
+  unsigned __int16 v25; 
+  __int64 v26; 
   __int64 v27; 
   __int64 v28; 
-  EntHandle *droppedEquipmentCue; 
-  __int64 v30; 
-  unsigned __int16 v31; 
+  float v29; 
+  float v30; 
+  float v31; 
   __int64 v32; 
-  unsigned int v33; 
+  __int64 v33; 
   __int64 v34; 
-  unsigned __int16 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  int v38; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v53; 
-  __int64 v54; 
+  __int64 v35; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmulss  xmm6, xmm0, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v3 = *(float *)&Float * *(float *)&Float;
   Scr_MakeArray(scrContext);
   droppedWeaponCue = level.droppedWeaponCue;
-  v6 = 32i64;
+  v5 = 32i64;
   do
   {
     number = droppedWeaponCue->number;
     if ( droppedWeaponCue->number )
     {
-      v8 = number;
-      v9 = number - 1;
-      if ( v9 >= 0x800 )
+      v7 = number;
+      v8 = number - 1;
+      if ( v8 >= 0x800 )
       {
-        LODWORD(v54) = 2048;
-        LODWORD(v53) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+        LODWORD(v35) = 2048;
+        LODWORD(v34) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v10 = v8 - 1;
-      if ( g_entities[v10].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v9 = v7 - 1;
+      if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v10] )
+      if ( !g_entityIsInUse[v9] )
       {
-        LODWORD(v54) = droppedWeaponCue->number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v54) )
+        LODWORD(v35) = droppedWeaponCue->number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v35) )
           __debugbreak();
       }
-      v11 = droppedWeaponCue->number;
+      v10 = droppedWeaponCue->number;
       if ( droppedWeaponCue->number )
       {
-        if ( (unsigned int)v11 - 1 >= 0x7FF )
+        if ( (unsigned int)v10 - 1 >= 0x7FF )
         {
-          LODWORD(v54) = 2047;
-          LODWORD(v53) = v11 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v53, v54) )
+          LODWORD(v35) = 2047;
+          LODWORD(v34) = v10 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
-        v12 = droppedWeaponCue->number;
-        if ( (unsigned int)(v12 - 1) >= 0x800 )
+        v11 = droppedWeaponCue->number;
+        if ( (unsigned int)(v11 - 1) >= 0x800 )
         {
-          LODWORD(v54) = 2048;
-          LODWORD(v53) = v12 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+          LODWORD(v35) = 2048;
+          LODWORD(v34) = v11 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v13 = v12 - 1;
-        if ( g_entities[v13].r.isInUse != g_entityIsInUse[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v12 = v11 - 1;
+        if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v13] )
+        if ( !g_entityIsInUse[v12] )
         {
-          LODWORD(v54) = droppedWeaponCue->number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v54) )
+          LODWORD(v35) = droppedWeaponCue->number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v35) )
             __debugbreak();
         }
-        v14 = droppedWeaponCue->number;
-        __asm
+        v13 = droppedWeaponCue->number;
+        v14 = vectorValue.v[0] - g_entities[v13 - 1].r.currentOrigin.v[0];
+        v15 = vectorValue.v[1] - g_entities[v13 - 1].r.currentOrigin.v[1];
+        v16 = vectorValue.v[2] - g_entities[v13 - 1].r.currentOrigin.v[2];
+        if ( (float)((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16)) <= v3 )
         {
-          vmovss  xmm0, dword ptr [rsp+98h+vectorValue]
-          vmovss  xmm1, dword ptr [rsp+98h+vectorValue+4]
-          vsubss  xmm3, xmm0, dword ptr [rcx+rax-480h]
-          vsubss  xmm2, xmm1, dword ptr [rcx+rax-47Ch]
-          vmovss  xmm0, dword ptr [rsp+98h+vectorValue+8]
-          vsubss  xmm4, xmm0, dword ptr [rcx+rax-478h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( ((1456 * (unsigned __int128)droppedWeaponCue->number) >> 64 != 0) | v17 )
-        {
-          if ( (unsigned int)(v14 - 1) >= 0x7FF )
+          if ( (unsigned int)(v13 - 1) >= 0x7FF )
           {
-            LODWORD(v54) = 2047;
-            LODWORD(v53) = v14 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v53, v54) )
+            LODWORD(v35) = 2047;
+            LODWORD(v34) = v13 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
-          v27 = droppedWeaponCue->number;
-          if ( (unsigned int)(v27 - 1) >= 0x800 )
+          v17 = droppedWeaponCue->number;
+          if ( (unsigned int)(v17 - 1) >= 0x800 )
           {
-            LODWORD(v54) = 2048;
-            LODWORD(v53) = v27 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+            LODWORD(v35) = 2048;
+            LODWORD(v34) = v17 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          v28 = v27 - 1;
-          if ( g_entities[v28].r.isInUse != g_entityIsInUse[v28] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          v18 = v17 - 1;
+          if ( g_entities[v18].r.isInUse != g_entityIsInUse[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v28] )
+          if ( !g_entityIsInUse[v18] )
           {
-            LODWORD(v54) = droppedWeaponCue->number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v54) )
+            LODWORD(v35) = droppedWeaponCue->number - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v35) )
               __debugbreak();
           }
           GScr_AddEntity(&g_entities[droppedWeaponCue->number - 1]);
@@ -21676,107 +19162,95 @@ void Scr_GetWeaponArrayInRadius(scrContext_t *scrContext)
       }
     }
     ++droppedWeaponCue;
-    --v6;
+    --v5;
   }
-  while ( v6 );
+  while ( v5 );
   droppedEquipmentCue = level.droppedEquipmentCue;
-  v30 = 8i64;
+  v20 = 8i64;
   do
   {
-    v31 = droppedEquipmentCue->number;
+    v21 = droppedEquipmentCue->number;
     if ( droppedEquipmentCue->number )
     {
-      v32 = v31;
-      v33 = v31 - 1;
-      if ( v33 >= 0x800 )
+      v22 = v21;
+      v23 = v21 - 1;
+      if ( v23 >= 0x800 )
       {
-        LODWORD(v54) = 2048;
-        LODWORD(v53) = v33;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+        LODWORD(v35) = 2048;
+        LODWORD(v34) = v23;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v34 = v32 - 1;
-      if ( g_entities[v34].r.isInUse != g_entityIsInUse[v34] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v24 = v22 - 1;
+      if ( g_entities[v24].r.isInUse != g_entityIsInUse[v24] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v34] )
+      if ( !g_entityIsInUse[v24] )
       {
-        LODWORD(v54) = droppedEquipmentCue->number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v54) )
+        LODWORD(v35) = droppedEquipmentCue->number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v35) )
           __debugbreak();
       }
-      v35 = droppedEquipmentCue->number;
+      v25 = droppedEquipmentCue->number;
       if ( droppedEquipmentCue->number )
       {
-        if ( (unsigned int)v35 - 1 >= 0x7FF )
+        if ( (unsigned int)v25 - 1 >= 0x7FF )
         {
-          LODWORD(v54) = 2047;
-          LODWORD(v53) = v35 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v53, v54) )
+          LODWORD(v35) = 2047;
+          LODWORD(v34) = v25 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
-        v36 = droppedEquipmentCue->number;
-        if ( (unsigned int)(v36 - 1) >= 0x800 )
+        v26 = droppedEquipmentCue->number;
+        if ( (unsigned int)(v26 - 1) >= 0x800 )
         {
-          LODWORD(v54) = 2048;
-          LODWORD(v53) = v36 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+          LODWORD(v35) = 2048;
+          LODWORD(v34) = v26 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v37 = v36 - 1;
-        if ( g_entities[v37].r.isInUse != g_entityIsInUse[v37] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v27 = v26 - 1;
+        if ( g_entities[v27].r.isInUse != g_entityIsInUse[v27] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v37] )
+        if ( !g_entityIsInUse[v27] )
         {
-          LODWORD(v54) = droppedEquipmentCue->number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v54) )
+          LODWORD(v35) = droppedEquipmentCue->number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v35) )
             __debugbreak();
         }
-        v38 = droppedEquipmentCue->number;
-        __asm
+        v28 = droppedEquipmentCue->number;
+        v29 = vectorValue.v[0] - g_entities[v28 - 1].r.currentOrigin.v[0];
+        v30 = vectorValue.v[1] - g_entities[v28 - 1].r.currentOrigin.v[1];
+        v31 = vectorValue.v[2] - g_entities[v28 - 1].r.currentOrigin.v[2];
+        if ( (float)((float)((float)(v30 * v30) + (float)(v29 * v29)) + (float)(v31 * v31)) <= v3 )
         {
-          vmovss  xmm0, dword ptr [rsp+98h+vectorValue]
-          vmovss  xmm1, dword ptr [rsp+98h+vectorValue+4]
-          vsubss  xmm3, xmm0, dword ptr [rcx+rax-480h]
-          vsubss  xmm2, xmm1, dword ptr [rcx+rax-47Ch]
-          vmovss  xmm0, dword ptr [rsp+98h+vectorValue+8]
-          vsubss  xmm4, xmm0, dword ptr [rcx+rax-478h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( ((1456 * (unsigned __int128)droppedEquipmentCue->number) >> 64 != 0) | v17 )
-        {
-          if ( (unsigned int)(v38 - 1) >= 0x7FF )
+          if ( (unsigned int)(v28 - 1) >= 0x7FF )
           {
-            LODWORD(v54) = 2047;
-            LODWORD(v53) = v38 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v53, v54) )
+            LODWORD(v35) = 2047;
+            LODWORD(v34) = v28 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
-          v50 = droppedEquipmentCue->number;
-          if ( (unsigned int)(v50 - 1) >= 0x800 )
+          v32 = droppedEquipmentCue->number;
+          if ( (unsigned int)(v32 - 1) >= 0x800 )
           {
-            LODWORD(v54) = 2048;
-            LODWORD(v53) = v50 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v53, v54) )
+            LODWORD(v35) = 2048;
+            LODWORD(v34) = v32 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          v51 = v50 - 1;
-          if ( g_entities[v51].r.isInUse != g_entityIsInUse[v51] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          v33 = v32 - 1;
+          if ( g_entities[v33].r.isInUse != g_entityIsInUse[v33] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v51] )
+          if ( !g_entityIsInUse[v33] )
           {
-            LODWORD(v54) = droppedEquipmentCue->number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v54) )
+            LODWORD(v35) = droppedEquipmentCue->number - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v35) )
               __debugbreak();
           }
           GScr_AddEntity(&g_entities[droppedEquipmentCue->number - 1]);
@@ -21785,10 +19259,9 @@ void Scr_GetWeaponArrayInRadius(scrContext_t *scrContext)
       }
     }
     ++droppedEquipmentCue;
-    --v30;
+    --v20;
   }
-  while ( v30 );
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
+  while ( v20 );
 }
 
 /*
@@ -21854,11 +19327,13 @@ void GScrCmd_SetWaterSheeting(scrContext_t *scrContext, scr_entref_t entref)
   unsigned int entnum; 
   gentity_s *Entity; 
   int number; 
+  const char *v6; 
   const char *v7; 
-  const char *v8; 
   unsigned int Int; 
+  double Float; 
+  __int64 v10; 
+  const char *v11; 
   const char *v12; 
-  const char *v13; 
   SvClient *CommonClient; 
   int outControllingClientNum; 
 
@@ -21877,39 +19352,35 @@ void GScrCmd_SetWaterSheeting(scrContext_t *scrContext, scr_entref_t entref)
       Int = Scr_GetInt(scrContext, 0);
       if ( Scr_GetNumParam(scrContext) == 2 )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@447a0000
-          vcvttss2si r9d, xmm1
-        }
+        Float = Scr_GetFloat(scrContext, 1u);
+        v10 = (unsigned int)(int)(float)(*(float *)&Float * 1000.0);
       }
       else
       {
-        _R9 = 0i64;
+        v10 = 0i64;
       }
-      v12 = j_va("%c %i %i", 80i64, Int, _R9);
-      v13 = v12;
+      v11 = j_va("%c %i %i", 80i64, Int, v10);
+      v12 = v11;
       if ( outControllingClientNum == -1 )
       {
-        SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+        SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v11);
       }
       else
       {
         CommonClient = SvClient::GetCommonClient(outControllingClientNum);
-        CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+        CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v12);
       }
     }
     else
     {
-      v8 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
-      Scr_Error(COM_ERR_6407, scrContext, v8);
+      v7 = j_va("Invalid entity index %d before SV_Game_SendServerCommand\n", (unsigned int)outControllingClientNum);
+      Scr_Error(COM_ERR_6407, scrContext, v7);
     }
   }
   else
   {
-    v7 = j_va("entity %i is not a player or player-controlled agent", entnum);
-    Scr_ObjectError(COM_ERR_4533, scrContext, v7);
+    v6 = j_va("entity %i is not a player or player-controlled agent", entnum);
+    Scr_ObjectError(COM_ERR_4533, scrContext, v6);
   }
 }
 
@@ -22141,42 +19612,32 @@ GScr_MakeVehicleSolidCapsule
 */
 void GScr_MakeVehicleSolidCapsule(scrContext_t *scrContext, scr_entref_t entref)
 {
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-  }
-  _RBX = GetEntity(entref);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 20490, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  gentity_s *Entity; 
+  double Float; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 20490, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RBX->vehicle )
+  if ( !Entity->vehicle )
     Scr_Error(COM_ERR_4540, scrContext, "MakeVehicleSolidCapsule must be called on a vehicle entity.\n");
   if ( Scr_GetNumParam(scrContext) < 3 )
     Scr_Error(COM_ERR_4541, scrContext, "Usage: MakeVehicleSolidCapsule( <radius>, <midz>, <height> ).");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm1, xmm8; vehRadius
-    vmovaps xmm7, xmm0
-  }
-  SetupVehicleCollision(_RBX, *(float *)&_XMM1);
-  __asm { vmovss  dword ptr [rbx+108h], xmm6 }
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10Ch], xmm8
-    vmovss  dword ptr [rbx+110h], xmm8
-    vmovss  dword ptr [rbx+114h], xmm7
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  SV_LinkEntity(_RBX);
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 1u);
+  v7 = *(float *)&v6;
+  v8 = Scr_GetFloat(scrContext, 2u);
+  SetupVehicleCollision(Entity, v5);
+  Entity->r.box.midPoint.v[2] = v7;
+  *(_QWORD *)Entity->r.box.midPoint.v = 0i64;
+  Entity->r.box.halfSize.v[0] = v5;
+  Entity->r.box.halfSize.v[1] = v5;
+  Entity->r.box.halfSize.v[2] = *(float *)&v8;
+  SV_LinkEntity(Entity);
 }
 
 /*
@@ -22186,42 +19647,34 @@ GScr_MakeVehicleSolidSphere
 */
 void GScr_MakeVehicleSolidSphere(scrContext_t *scrContext, scr_entref_t entref)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RBX = GetEntity(entref);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 20528, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  gentity_s *Entity; 
+  double Float; 
+  float v5; 
+  float v6; 
+  double v7; 
+
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 20528, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RBX->vehicle )
+  if ( !Entity->vehicle )
     Scr_Error(COM_ERR_4542, scrContext, "MakeVehicleSolidSphere must be called on a vehicle entity.\n");
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_4543, scrContext, "Usage: MakeVehicleSolidSphere( <radius> ).");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vxorps  xmm7, xmm7, xmm7
-  }
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = 0.0;
   if ( Scr_GetNumParam(scrContext) > 1 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm7, xmm0 }
+    v7 = Scr_GetFloat(scrContext, 1u);
+    v6 = *(float *)&v7;
   }
-  __asm { vmovaps xmm1, xmm6; vehRadius }
-  SetupVehicleCollision(_RBX, *(float *)&_XMM1);
-  __asm { vmovss  dword ptr [rbx+108h], xmm7 }
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10Ch], xmm6
-    vmovss  dword ptr [rbx+110h], xmm6
-    vmovss  dword ptr [rbx+114h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  SV_LinkEntity(_RBX);
+  SetupVehicleCollision(Entity, v5);
+  Entity->r.box.midPoint.v[2] = v6;
+  *(_QWORD *)Entity->r.box.midPoint.v = 0i64;
+  Entity->r.box.halfSize.v[0] = v5;
+  Entity->r.box.halfSize.v[1] = v5;
+  Entity->r.box.halfSize.v[2] = v5;
+  SV_LinkEntity(Entity);
 }
 
 /*
@@ -22241,8 +19694,8 @@ void ScrCmd_GetCollision(scrContext_t *scrContext, scr_entref_t entref)
   ComErrorCode v10; 
   scr_string_t ConstString; 
   unsigned int CanonicalString; 
-  unsigned int v18; 
-  unsigned int v20; 
+  unsigned int v13; 
+  unsigned int v14; 
   Bounds bounds; 
 
   v2 = PM_EFF_STANCE_DEFAULT;
@@ -22295,29 +19748,19 @@ LABEL_21:
       v2 = PM_EFF_STANCE_PRONE;
     }
   }
-  _RAX = BG_Suit_GetBounds(*((_DWORD *)client + 221), v2);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+68h+bounds.midPoint], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rsp+68h+bounds.halfSize+4], xmm1
-  }
+  bounds = *BG_Suit_GetBounds(*((_DWORD *)client + 221), v2);
   if ( BG_UsingNewPlayerCollision() )
     BG_PlayerCollision_AdjustCapsuleBoundsForStickSystem(&bounds);
   Scr_MakeStruct(scrContext);
-  __asm { vmovss  xmm1, dword ptr [rsp+68h+bounds.halfSize]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, bounds.halfSize.v[0]);
   CanonicalString = SL_GetCanonicalString("capsule_radius");
   Scr_AddStructField(scrContext, CanonicalString);
-  __asm { vmovss  xmm1, dword ptr [rsp+68h+bounds.halfSize+8]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v18 = SL_GetCanonicalString("capsule_halfheight");
-  Scr_AddStructField(scrContext, v18);
-  __asm { vmovss  xmm1, dword ptr [rsp+68h+bounds.midPoint+8]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  v20 = SL_GetCanonicalString("capsule_midpoint_height");
-  Scr_AddStructField(scrContext, v20);
+  Scr_AddFloat(scrContext, bounds.halfSize.v[2]);
+  v13 = SL_GetCanonicalString("capsule_halfheight");
+  Scr_AddStructField(scrContext, v13);
+  Scr_AddFloat(scrContext, bounds.midPoint.v[2]);
+  v14 = SL_GetCanonicalString("capsule_midpoint_height");
+  Scr_AddStructField(scrContext, v14);
 }
 
 /*
@@ -22782,60 +20225,39 @@ GScr_PrintToScreen2D
 */
 void GScr_PrintToScreen2D(scrContext_t *scrContext)
 {
-  unsigned int v7; 
-  unsigned int v8; 
+  float v1; 
+  unsigned int v3; 
+  unsigned int v4; 
+  double Float; 
+  double v6; 
+  float v7; 
+  double v8; 
   const char *text; 
   vec4_t color; 
 
-  __asm
+  v1 = FLOAT_1_0;
+  color = (vec4_t)_xmm;
+  v3 = Scr_GetNumParam(scrContext) - 3;
+  if ( v3 )
   {
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovss  xmm8, cs:__real@3f800000
-    vmovups xmmword ptr [rsp+88h+color], xmm0
-  }
-  v7 = Scr_GetNumParam(scrContext) - 3;
-  if ( !v7 )
-    goto LABEL_7;
-  v8 = v7 - 1;
-  if ( !v8 )
-  {
-LABEL_6:
+    v4 = v3 - 1;
+    if ( v4 )
+    {
+      if ( v4 != 1 )
+      {
+        Scr_Error(COM_ERR_3959, scrContext, "invalid args to printtoscreen3d");
+        return;
+      }
+      Float = Scr_GetFloat(scrContext, 4u);
+      v1 = *(float *)&Float;
+    }
     Scr_GetVector(scrContext, 3u, (vec3_t *)&color);
-LABEL_7:
-    __asm
-    {
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovaps [rsp+88h+var_28], xmm7
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
-    text = Scr_GetString(scrContext, 2u);
-    __asm
-    {
-      vmovaps xmm3, xmm8; scale
-      vmovaps xmm1, xmm6; y
-      vmovaps xmm0, xmm7; x
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &color, *(float *)&_XMM3, text);
-    __asm
-    {
-      vmovaps xmm7, [rsp+88h+var_28]
-      vmovaps xmm6, [rsp+88h+var_18]
-    }
-    goto LABEL_8;
   }
-  if ( v8 == 1 )
-  {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm { vmovaps xmm8, xmm0 }
-    goto LABEL_6;
-  }
-  Scr_Error(COM_ERR_3959, scrContext, "invalid args to printtoscreen3d");
-LABEL_8:
-  __asm { vmovaps xmm8, [rsp+88h+var_38] }
+  v6 = Scr_GetFloat(scrContext, 0);
+  v7 = *(float *)&v6;
+  v8 = Scr_GetFloat(scrContext, 1u);
+  text = Scr_GetString(scrContext, 2u);
+  G_Main_AddDebugString2D(v7, *(float *)&v8, &color, v1, text);
 }
 
 /*
@@ -22887,21 +20309,19 @@ GScr_print3d
 */
 void GScr_print3d(scrContext_t *scrContext)
 {
-  bool v5; 
+  float v1; 
+  bool v3; 
   int duration; 
+  double Float; 
+  double v6; 
   const char *String; 
   vec4_t color; 
   vec3_t vectorValue; 
   vec3_t xyz; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovss  xmm6, cs:__real@3f800000
-    vmovups xmmword ptr [rsp+88h+color], xmm0
-  }
-  v5 = 0;
+  v1 = FLOAT_1_0;
+  color = (vec4_t)_xmm;
+  v3 = 0;
   duration = 1;
   switch ( Scr_GetNumParam(scrContext) )
   {
@@ -22916,40 +20336,30 @@ void GScr_print3d(scrContext_t *scrContext)
     case 6u:
       goto $LN5_39;
     case 7u:
-      v5 = Scr_GetInt(scrContext, 6u) != 0;
+      v3 = Scr_GetInt(scrContext, 6u) != 0;
 $LN5_39:
       duration = Scr_GetInt(scrContext, 5u);
 $LN6_42:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-      __asm { vmovaps xmm6, xmm0 }
+      Float = Scr_GetFloat(scrContext, 4u);
+      v1 = *(float *)&Float;
 $LN7_87:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm { vmovss  dword ptr [rsp+88h+color+0Ch], xmm0 }
+      v6 = Scr_GetFloat(scrContext, 3u);
+      color.v[3] = *(float *)&v6;
 $LN8_50:
       Scr_GetVector(scrContext, 2u, &vectorValue);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+88h+vectorValue]
-        vmovss  xmm0, dword ptr [rsp+88h+vectorValue+4]
-        vmovss  dword ptr [rsp+88h+color], xmm1
-        vmovss  xmm1, dword ptr [rsp+88h+vectorValue+8]
-        vmovss  dword ptr [rsp+88h+color+8], xmm1
-        vmovss  dword ptr [rsp+88h+color+4], xmm0
-      }
+      color.xyz = vectorValue;
 $LN9_64:
       String = Scr_GetString(scrContext, 1u);
       Scr_GetVector(scrContext, 0, &xyz);
-      __asm { vmovaps xmm2, xmm6; scale }
-      if ( v5 )
-        G_Main_AddDebugStringWithDurationCentered(&xyz, &color, *(float *)&_XMM2, String, duration);
+      if ( v3 )
+        G_Main_AddDebugStringWithDurationCentered(&xyz, &color, v1, String, duration);
       else
-        G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, String, duration);
+        G_Main_AddDebugStringWithDuration(&xyz, &color, v1, String, duration);
       break;
     default:
       Scr_Error(COM_ERR_3960, scrContext, "illegal call to print3d()");
       break;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -22958,36 +20368,40 @@ Scr_MagicBullet
 ==============
 */
 
-void __fastcall Scr_MagicBullet(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void __fastcall Scr_MagicBullet(scrContext_t *scrContext, __int64 a2, double a3)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   int NumParam; 
-  unsigned int v10; 
+  unsigned int v8; 
   gentity_s *Entity; 
-  gentity_s *v12; 
-  ComErrorCode v13; 
+  gentity_s *v10; 
+  ComErrorCode v11; 
   const char *String; 
+  const char *v13; 
+  double Float; 
   const char *v15; 
-  char v17; 
-  const char *v20; 
-  bool v29; 
-  bool v30; 
-  const WeaponDef *v34; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  const WeaponDef *v19; 
+  __int128 v20; 
   weapType_t WeaponType; 
   int time; 
   int WeaponClass; 
-  const char *v63; 
-  ComErrorCode v64; 
-  gentity_s *v65; 
-  const gentity_s *v66; 
-  gentity_s *v67; 
-  EntHandle *v68; 
-  weapType_t v69; 
+  const char *v27; 
+  ComErrorCode v28; 
+  gentity_s *v29; 
+  const gentity_s *v30; 
+  gentity_s *v31; 
+  EntHandle *v32; 
+  weapType_t v33; 
   const char *WeaponTypeName; 
-  gentity_s *v71; 
+  gentity_s *v35; 
   GWeaponMap *Instance; 
-  int v73; 
+  int v37; 
   const DObj *ServerDObjForEnt; 
-  float hipSpreadDuckedMin; 
   float *hipSpreadDuckedMax; 
   float *hipSpreadProneMin; 
   bool outIsAlternate[4]; 
@@ -22998,20 +20412,23 @@ void __fastcall Scr_MagicBullet(scrContext_t *scrContext, __int64 a2, double _XM
   float hipSpreadSprintMax; 
   float hipSpreadSprintMin; 
   float hipSpreadProneMax; 
-  float v87; 
-  float v88; 
-  float v89[4]; 
+  float v49; 
+  float v50; 
+  float hipSpreadDuckedMin[4]; 
   BgWeaponParms forward; 
   vec3_t vectorValue; 
   vec3_t origin; 
   Weapon outWeapon; 
   tmat33_t<vec3_t> outAxis; 
   tmat33_t<vec3_t> out; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
 
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam < 3 )
     Scr_Error(COM_ERR_4600, scrContext, "MagicBullet invalid parameters\n");
-  v10 = 0;
+  v8 = 0;
   Entity = NULL;
   if ( NumParam >= 4 )
   {
@@ -23022,276 +20439,200 @@ void __fastcall Scr_MagicBullet(scrContext_t *scrContext, __int64 a2, double _XM
         Scr_Error(COM_ERR_4601, scrContext, "Owner must be a player, actor, or agent.\n");
     }
   }
-  v12 = NULL;
+  v10 = NULL;
   if ( NumParam >= 5 && Scr_GetType(scrContext, 4u) )
-    v12 = GScr_GetEntity(4u);
+    v10 = GScr_GetEntity(4u);
   GScr_Main_GetWeaponParam(scrContext, 0, &outWeapon, outIsAlternate);
-  if ( outWeapon.weaponIdx )
+  if ( !outWeapon.weaponIdx )
   {
-    __asm
+    if ( Scr_GetType(scrContext, 0) == VAR_STRING )
     {
-      vmovaps [rsp+250h+var_40], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+250h+hipSpreadStandMin], xmm7
-    }
-    if ( BG_GetWeaponClass(&outWeapon, 0) == WEAPCLASS_SPREAD )
-      BG_GetHipSpread(&outWeapon, 0, &hipSpreadStandMin, (float *)&hipSpreadStandMax, v89, &v88, &v87, &hipSpreadProneMax, &hipSpreadSprintMin, &hipSpreadSprintMax, &hipSpreadInAirMin, (float *)&outTagName);
-    if ( NumParam >= 6 )
-    {
-      if ( Scr_GetType(scrContext, 5u) )
-      {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-        __asm
-        {
-          vcomiss xmm0, xmm7
-          vmovss  [rsp+250h+hipSpreadStandMin], xmm0
-        }
-        if ( v17 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovq   rdx, xmm1
-          }
-          v20 = j_va("MagicBullet called with an invalid spread value %f\n", _RDX);
-          Scr_ParamError(COM_ERR_6491, scrContext, 0, v20);
-LABEL_72:
-          __asm { vmovaps xmm7, [rsp+250h+var_40] }
-          return;
-        }
-      }
-    }
-    __asm
-    {
-      vmovaps [rsp+250h+var_30], xmm6
-      vmovaps [rsp+250h+var_50], xmm8
-      vmovaps [rsp+250h+var_60], xmm9
-    }
-    Scr_GetVector(scrContext, 1u, &vectorValue);
-    __asm { vmovsd  xmm0, qword ptr [rbp+150h+vectorValue] }
-    origin.v[2] = vectorValue.v[2];
-    __asm { vmovsd  qword ptr [rbp+150h+origin], xmm0 }
-    Scr_GetVector(scrContext, 2u, &vectorValue);
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rbp+150h+outWeapon.weaponIdx]
-      vmovups xmm0, xmmword ptr [rbp+150h+outWeapon.attachmentVariationIndices+5]
-      vmovsd  xmm1, qword ptr [rbp+150h+outWeapon.attachmentVariationIndices+15h]
-      vmovss  xmm6, dword ptr [rbp+150h+vectorValue]
-      vmovss  xmm8, dword ptr [rbp+150h+vectorValue+4]
-      vmovss  xmm9, dword ptr [rbp+150h+vectorValue+8]
-      vmovd   r14d, xmm2
-    }
-    *(_DWORD *)&forward.weapon.weaponCamo = *(_DWORD *)&outWeapon.weaponCamo;
-    forward.isAlternate = 0;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+150h+r_weapon.weaponIdx], ymm2
-      vmovups xmmword ptr [rbp+150h+r_weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  qword ptr [rbp+150h+r_weapon.attachmentVariationIndices+15h], xmm1
-    }
-    if ( (unsigned __int16)_R14 > bg_lastParsedWeaponIndex )
-    {
-      LODWORD(hipSpreadProneMin) = bg_lastParsedWeaponIndex;
-      LODWORD(hipSpreadDuckedMax) = (unsigned __int16)_R14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", hipSpreadDuckedMax, hipSpreadProneMin) )
-        __debugbreak();
-    }
-    _R14 = (unsigned __int16)_R14;
-    v29 = bg_weaponDefs[(unsigned __int16)_R14] == NULL;
-    if ( !bg_weaponDefs[(unsigned __int16)_R14] )
-    {
-      v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]");
-      v29 = !v30;
-      if ( v30 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+150h+origin]
-      vmovss  xmm1, dword ptr [rbp+150h+origin+4]
-      vmovss  xmm0, dword ptr [rbp+150h+origin+8]
-    }
-    v34 = bg_weaponDefs[_R14];
-    __asm
-    {
-      vsubss  xmm4, xmm6, xmm2
-      vsubss  xmm6, xmm9, xmm0
-      vmovaps xmm9, [rsp+250h+var_60]
-      vsubss  xmm5, xmm8, xmm1
-      vmovaps xmm8, [rsp+250h+var_50]
-      vmovss  [rbp+150h+var_184], xmm0
-      vmovss  [rbp+150h+var_188], xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vmovss  [rbp+150h+var_18C], xmm2
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm2, xmm2
-      vcmpless xmm0, xmm3, cs:__real@80000000
-      vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm6, xmm1
-      vmovaps xmm6, [rsp+250h+var_30]
-      vmovss  dword ptr [rbp+150h+forward+8], xmm0
-      vmovss  xmm0, [rsp+250h+hipSpreadStandMin]
-      vcomiss xmm0, xmm7
-      vmulss  xmm2, xmm4, xmm1
-      vmulss  xmm3, xmm5, xmm1
-      vmovss  dword ptr [rbp+150h+forward], xmm2
-      vmovss  dword ptr [rbp+150h+forward+4], xmm3
-    }
-    forward.weapDef = v34;
-    if ( v29 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups [rbp+150h+var_1A4+4], xmm0
-        vmovss  dword ptr [rbp+150h+var_1A4], xmm7
-        vmovss  [rbp+150h+var_190], xmm7
-      }
+      v11 = COM_ERR_4602;
+      String = Scr_GetString(scrContext, 0);
+      v13 = j_va("MagicBullet called with unknown weapon name %s\n", String);
     }
     else
     {
-      MatrixIdentity33(&out);
-      GenerateAxisFromForwardVector(&forward.forward, &out, &outAxis);
-      __asm
+      v11 = COM_ERR_4603;
+      v13 = "MagicBullet called with unknown weapon\n";
+    }
+    Scr_ParamError(v11, scrContext, 0, v13);
+    return;
+  }
+  hipSpreadStandMin = 0.0;
+  if ( BG_GetWeaponClass(&outWeapon, 0) == WEAPCLASS_SPREAD )
+    BG_GetHipSpread(&outWeapon, 0, &hipSpreadStandMin, (float *)&hipSpreadStandMax, hipSpreadDuckedMin, &v50, &v49, &hipSpreadProneMax, &hipSpreadSprintMin, &hipSpreadSprintMax, &hipSpreadInAirMin, (float *)&outTagName);
+  if ( NumParam >= 6 )
+  {
+    if ( Scr_GetType(scrContext, 5u) )
+    {
+      Float = Scr_GetFloat(scrContext, 5u);
+      hipSpreadStandMin = *(float *)&Float;
+      if ( *(float *)&Float < 0.0 )
       {
-        vmovups xmm0, xmmword ptr [rbp+150h+outAxis+0Ch]
-        vmovss  xmm1, dword ptr [rbp+150h+outAxis+20h]
-        vmovups [rbp+150h+var_1A4], xmm0
-        vmovss  xmm0, dword ptr [rbp+150h+outAxis+1Ch]
-        vmovss  [rbp+150h+var_194], xmm0
-        vmovss  [rbp+150h+var_190], xmm1
+        v15 = j_va("MagicBullet called with an invalid spread value %f\n", *(float *)&Float);
+        Scr_ParamError(COM_ERR_6491, scrContext, 0, v15);
+        return;
       }
     }
-    G_Weapon_ClearSimulateTracerFlag(Entity);
-    WeaponType = BG_GetWeaponType(&forward.weapon, forward.isAlternate);
-    time = level.time;
-    switch ( WeaponType )
-    {
-      case WEAPTYPE_BULLET:
-        if ( !Entity )
-          Entity = g_entities + 2046;
-        if ( Entity->client )
-          Scr_Error(COM_ERR_4613, scrContext, "MagicBullet() invoked with a client entity as the bullet weapon 'owner'.  This is not supported.  Specify a different owner entity.\n");
-        __asm { vmovss  xmm1, [rsp+250h+hipSpreadStandMin]; spread }
-        G_Bullet_Fire(Entity, *(float *)&_XMM1, &forward, Entity, WEAPON_HAND_DEFAULT, time);
-        goto LABEL_61;
-      case WEAPTYPE_GRENADE:
-        Scr_Error(COM_ERR_4604, scrContext, "MagicBullet() does not work with grenade-type weapons.\n");
-        goto LABEL_72;
-      case WEAPTYPE_PROJECTILE:
-        WeaponClass = BG_GetWeaponClass(&forward.weapon, forward.isAlternate);
-        if ( WeaponClass < 0 )
-          goto LABEL_47;
-        if ( WeaponClass <= 5 )
-          goto LABEL_52;
-        if ( WeaponClass == 6 )
-        {
-          if ( Entity )
-            v65 = Entity;
-          else
-            v65 = g_entities + 2046;
-          v66 = G_Weapon_GrenadeLauncher_Fire(v65, &outWeapon, WEAPON_HAND_DEFAULT, time, &forward);
-        }
-        else
-        {
-          if ( WeaponClass != 7 && WeaponClass != 12 )
-          {
-LABEL_47:
-            v63 = "MagicBullet(): Unhandled projectile weapClass.\n";
-            v64 = COM_ERR_4614;
-LABEL_60:
-            Scr_Error(v64, scrContext, v63);
-            goto LABEL_61;
-          }
-LABEL_52:
-          if ( Entity )
-            v67 = Entity;
-          else
-            v67 = g_entities + 2046;
-          __asm { vmovss  dword ptr [rsp+250h+hipSpreadDuckedMin], xmm7 }
-          v66 = G_Weapon_RocketLauncher_Fire(v67, &outWeapon, forward.isAlternate, WEAPON_HAND_DEFAULT, hipSpreadDuckedMin, &forward, &vec3_origin, time, NULL, 1);
-        }
-        v68 = (EntHandle *)v66;
-        if ( v66 )
-        {
-          GScr_AddEntity(v66);
-          if ( Entity )
-          {
-            EntHandle::setEnt(v68 + 82, Entity);
-            EntHandle::setEnt(v68 + 108, Entity);
-          }
-LABEL_62:
-          if ( v12 )
-          {
-            if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
-            {
-              BG_GetWeaponFlashTagname(&hipSpreadStandMax, &outWeapon, 0, 0);
-              outIsAlternate[0] = -2;
-              v73 = -1;
-              outTagName = 0;
-              ServerDObjForEnt = Com_GetServerDObjForEnt(v12);
-              if ( TagPair::GetTagNameAndBoneIndex(&hipSpreadStandMax, ServerDObjForEnt, &outTagName, (unsigned __int8 *)outIsAlternate) )
-                v73 = outIsAlternate[0];
-              v10 = BG_CreateWeaponFireParam(v73, &outWeapon);
-            }
-            G_Utils_AddEvent(v12, 0x28u, v10);
-          }
-          else
-          {
-            v71 = G_Utils_SpawnEventEntity(&origin, 40);
-            v71->s.eventParm2 = 0;
-            Instance = GWeaponMap::GetInstance();
-            if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 447, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
-              __debugbreak();
-            Instance->SetWeapon(Instance, &v71->s.weaponHandle, &outWeapon);
-            v71->s.eventParm = 0;
-          }
-          goto LABEL_72;
-        }
-LABEL_61:
-        Scr_AddUndefined(scrContext);
-        goto LABEL_62;
-      case WEAPTYPE_SCRIPT:
-        Scr_Error(COM_ERR_4605, scrContext, "MagicBullet() does not work with script-type weapons.\n");
-        goto LABEL_72;
-      case WEAPTYPE_SHIELD:
-        Scr_Error(COM_ERR_4609, scrContext, "MagicBullet() does not work with shield-type weapons.\n");
-        goto LABEL_72;
-      case WEAPTYPE_CHARGE_SHIELD:
-        Scr_Error(COM_ERR_4610, scrContext, "MagicBullet() does not work with charge shield-type weapons.\n");
-        goto LABEL_72;
-      case WEAPTYPE_LOCATION_SELECT:
-        Scr_Error(COM_ERR_4611, scrContext, "MagicBullet() does not work with location select-type weapons.\n");
-        goto LABEL_72;
-      case WEAPTYPE_EQUIP_DEPLOY:
-        Scr_Error(COM_ERR_4612, scrContext, "MagicBullet() does not work with equipment deploy-type weapons.\n");
-        goto LABEL_72;
-      default:
-        v69 = BG_GetWeaponType(&forward.weapon, forward.isAlternate);
-        WeaponTypeName = BG_GetWeaponTypeName(v69);
-        v63 = j_va("MagicBullet(): Unhandled weapType \"%s\".\n", WeaponTypeName);
-        v64 = COM_ERR_4615;
-        goto LABEL_60;
-    }
   }
-  if ( Scr_GetType(scrContext, 0) == VAR_STRING )
+  v60 = v3;
+  v59 = v4;
+  v58 = v5;
+  Scr_GetVector(scrContext, 1u, &vectorValue);
+  origin = vectorValue;
+  Scr_GetVector(scrContext, 2u, &vectorValue);
+  v16 = vectorValue.v[0];
+  v17 = LODWORD(vectorValue.v[1]);
+  v18 = vectorValue.v[2];
+  forward.weapon = outWeapon;
+  forward.isAlternate = 0;
+  if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
   {
-    v13 = COM_ERR_4602;
-    String = Scr_GetString(scrContext, 0);
-    v15 = j_va("MagicBullet called with unknown weapon name %s\n", String);
+    LODWORD(hipSpreadProneMin) = bg_lastParsedWeaponIndex;
+    LODWORD(hipSpreadDuckedMax) = LOWORD(a3);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", hipSpreadDuckedMax, hipSpreadProneMin) )
+      __debugbreak();
+  }
+  if ( !bg_weaponDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+    __debugbreak();
+  v19 = bg_weaponDefs[LOWORD(a3)];
+  v20 = v17;
+  forward.muzzleTrace = origin;
+  *(float *)&v20 = fsqrt((float)((float)((float)(*(float *)&v17 - origin.v[1]) * (float)(*(float *)&v17 - origin.v[1])) + (float)((float)(v16 - origin.v[0]) * (float)(v16 - origin.v[0]))) + (float)((float)(v18 - origin.v[2]) * (float)(v18 - origin.v[2])));
+  _XMM3 = v20;
+  __asm
+  {
+    vcmpless xmm0, xmm3, cs:__real@80000000
+    vblendvps xmm0, xmm3, xmm1, xmm0
+  }
+  forward.forward.v[2] = (float)(v18 - origin.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+  forward.forward.v[0] = (float)(v16 - origin.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  forward.forward.v[1] = (float)(*(float *)&v17 - origin.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+  forward.weapDef = v19;
+  if ( hipSpreadStandMin <= 0.0 )
+  {
+    *(_OWORD *)&forward.right.y = 0i64;
+    forward.right.v[0] = 0.0;
+    forward.up.v[2] = 0.0;
   }
   else
   {
-    v13 = COM_ERR_4603;
-    v15 = "MagicBullet called with unknown weapon\n";
+    MatrixIdentity33(&out);
+    GenerateAxisFromForwardVector(&forward.forward, &out, &outAxis);
+    *(_OWORD *)forward.right.v = *(_OWORD *)outAxis.row1.v;
+    forward.up.v[1] = outAxis.m[2].v[1];
+    forward.up.v[2] = outAxis.m[2].v[2];
   }
-  Scr_ParamError(v13, scrContext, 0, v15);
+  G_Weapon_ClearSimulateTracerFlag(Entity);
+  WeaponType = BG_GetWeaponType(&forward.weapon, forward.isAlternate);
+  time = level.time;
+  switch ( WeaponType )
+  {
+    case WEAPTYPE_BULLET:
+      if ( !Entity )
+        Entity = g_entities + 2046;
+      if ( Entity->client )
+        Scr_Error(COM_ERR_4613, scrContext, "MagicBullet() invoked with a client entity as the bullet weapon 'owner'.  This is not supported.  Specify a different owner entity.\n");
+      G_Bullet_Fire(Entity, hipSpreadStandMin, &forward, Entity, WEAPON_HAND_DEFAULT, time);
+      goto LABEL_61;
+    case WEAPTYPE_GRENADE:
+      Scr_Error(COM_ERR_4604, scrContext, "MagicBullet() does not work with grenade-type weapons.\n");
+      return;
+    case WEAPTYPE_PROJECTILE:
+      WeaponClass = BG_GetWeaponClass(&forward.weapon, forward.isAlternate);
+      if ( WeaponClass < 0 )
+        goto LABEL_47;
+      if ( WeaponClass <= 5 )
+        goto LABEL_52;
+      if ( WeaponClass == 6 )
+      {
+        if ( Entity )
+          v29 = Entity;
+        else
+          v29 = g_entities + 2046;
+        v30 = G_Weapon_GrenadeLauncher_Fire(v29, &outWeapon, WEAPON_HAND_DEFAULT, time, &forward);
+      }
+      else
+      {
+        if ( WeaponClass != 7 && WeaponClass != 12 )
+        {
+LABEL_47:
+          v27 = "MagicBullet(): Unhandled projectile weapClass.\n";
+          v28 = COM_ERR_4614;
+LABEL_60:
+          Scr_Error(v28, scrContext, v27);
+          goto LABEL_61;
+        }
+LABEL_52:
+        if ( Entity )
+          v31 = Entity;
+        else
+          v31 = g_entities + 2046;
+        v30 = G_Weapon_RocketLauncher_Fire(v31, &outWeapon, forward.isAlternate, WEAPON_HAND_DEFAULT, 0.0, &forward, &vec3_origin, time, NULL, 1);
+      }
+      v32 = (EntHandle *)v30;
+      if ( !v30 )
+      {
+LABEL_61:
+        Scr_AddUndefined(scrContext);
+        goto LABEL_62;
+      }
+      GScr_AddEntity(v30);
+      if ( Entity )
+      {
+        EntHandle::setEnt(v32 + 82, Entity);
+        EntHandle::setEnt(v32 + 108, Entity);
+      }
+LABEL_62:
+      if ( v10 )
+      {
+        if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
+        {
+          BG_GetWeaponFlashTagname(&hipSpreadStandMax, &outWeapon, 0, 0);
+          outIsAlternate[0] = -2;
+          v37 = -1;
+          outTagName = 0;
+          ServerDObjForEnt = Com_GetServerDObjForEnt(v10);
+          if ( TagPair::GetTagNameAndBoneIndex(&hipSpreadStandMax, ServerDObjForEnt, &outTagName, (unsigned __int8 *)outIsAlternate) )
+            v37 = outIsAlternate[0];
+          v8 = BG_CreateWeaponFireParam(v37, &outWeapon);
+        }
+        G_Utils_AddEvent(v10, 0x28u, v8);
+      }
+      else
+      {
+        v35 = G_Utils_SpawnEventEntity(&origin, 40);
+        v35->s.eventParm2 = 0;
+        Instance = GWeaponMap::GetInstance();
+        if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 447, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+          __debugbreak();
+        Instance->SetWeapon(Instance, &v35->s.weaponHandle, &outWeapon);
+        v35->s.eventParm = 0;
+      }
+      return;
+    case WEAPTYPE_SCRIPT:
+      Scr_Error(COM_ERR_4605, scrContext, "MagicBullet() does not work with script-type weapons.\n");
+      return;
+    case WEAPTYPE_SHIELD:
+      Scr_Error(COM_ERR_4609, scrContext, "MagicBullet() does not work with shield-type weapons.\n");
+      return;
+    case WEAPTYPE_CHARGE_SHIELD:
+      Scr_Error(COM_ERR_4610, scrContext, "MagicBullet() does not work with charge shield-type weapons.\n");
+      return;
+    case WEAPTYPE_LOCATION_SELECT:
+      Scr_Error(COM_ERR_4611, scrContext, "MagicBullet() does not work with location select-type weapons.\n");
+      return;
+    case WEAPTYPE_EQUIP_DEPLOY:
+      Scr_Error(COM_ERR_4612, scrContext, "MagicBullet() does not work with equipment deploy-type weapons.\n");
+      return;
+    default:
+      v33 = BG_GetWeaponType(&forward.weapon, forward.isAlternate);
+      WeaponTypeName = BG_GetWeaponTypeName(v33);
+      v27 = j_va("MagicBullet(): Unhandled weapType \"%s\".\n", WeaponTypeName);
+      v28 = COM_ERR_4615;
+      goto LABEL_60;
+  }
 }
 
 /*
@@ -23303,23 +20644,23 @@ void GScr_line(scrContext_t *scrContext)
 {
   int duration; 
   int Int; 
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
+  double Float; 
   vec4_t color; 
   vec3_t vectorValue; 
   vec3_t start; 
 
-  __asm { vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000 }
   duration = 0;
   Int = 0;
-  __asm { vmovups xmmword ptr [rsp+78h+color], xmm0 }
-  v5 = Scr_GetNumParam(scrContext) - 2;
-  if ( !v5 )
+  color = (vec4_t)_xmm;
+  v4 = Scr_GetNumParam(scrContext) - 2;
+  if ( !v4 )
     goto LABEL_11;
-  v6 = v5 - 1;
-  if ( !v6 )
+  v5 = v4 - 1;
+  if ( !v5 )
   {
 LABEL_10:
     Scr_GetVector(scrContext, 2u, (vec3_t *)&color);
@@ -23328,22 +20669,22 @@ LABEL_11:
     Scr_GetVector(scrContext, 0, &start);
     goto LABEL_12;
   }
-  v7 = v6 - 1;
-  if ( !v7 )
+  v6 = v5 - 1;
+  if ( !v6 )
   {
 LABEL_9:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovss  dword ptr [rsp+78h+color+0Ch], xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    color.v[3] = *(float *)&Float;
     goto LABEL_10;
   }
-  v8 = v7 - 1;
-  if ( !v8 )
+  v7 = v6 - 1;
+  if ( !v7 )
   {
 LABEL_8:
     Int = Scr_GetInt(scrContext, 4u);
     goto LABEL_9;
   }
-  if ( v8 == 1 )
+  if ( v7 == 1 )
   {
     duration = Scr_GetInt(scrContext, 5u);
     goto LABEL_8;
@@ -23361,70 +20702,52 @@ GScr_Box
 void GScr_Box(scrContext_t *scrContext)
 {
   int duration; 
+  float v3; 
   int depthTest; 
+  unsigned int v5; 
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  unsigned int v10; 
+  double Float; 
   vec4_t color; 
   vec3_t vectorValue; 
   Bounds box; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rsp+88h+color], xmm0
-  }
+  color = (vec4_t)_xmm;
   duration = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v3 = 0.0;
   depthTest = 0;
-  v7 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v7 )
-    goto LABEL_11;
-  v8 = v7 - 1;
-  if ( !v8 )
+  v5 = Scr_GetNumParam(scrContext) - 1;
+  if ( v5 )
   {
-LABEL_10:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
-LABEL_11:
-    Scr_GetVector(scrContext, 0, &vectorValue);
-    __asm
+    v6 = v5 - 1;
+    if ( v6 )
     {
-      vmovups xmm1, cs:__xmm@41800000410000000000000000000000
-      vmovss  xmm2, cs:__real@41800000
-      vmovups xmmword ptr [rsp+88h+box.midPoint], xmm1
-      vmovss  xmm1, cs:__real@41000000
-      vmovss  dword ptr [rsp+88h+box.halfSize+4], xmm2
-      vmovaps xmm2, xmm6; yaw
-      vmovss  dword ptr [rsp+88h+box.halfSize+8], xmm1
+      v7 = v6 - 1;
+      if ( v7 )
+      {
+        v8 = v7 - 1;
+        if ( v8 )
+        {
+          if ( v8 != 1 )
+          {
+            Scr_Error(COM_ERR_3962, scrContext, "illegal call to box()");
+            return;
+          }
+          duration = Scr_GetInt(scrContext, 4u);
+        }
+        depthTest = Scr_GetInt(scrContext, 3u);
+      }
+      Scr_GetVector(scrContext, 2u, (vec3_t *)&color);
     }
-    G_DebugBox(&vectorValue, &box, *(float *)&_XMM2, &color, depthTest, duration);
-    goto LABEL_12;
+    Float = Scr_GetFloat(scrContext, 1u);
+    v3 = *(float *)&Float;
   }
-  v9 = v8 - 1;
-  if ( !v9 )
-  {
-LABEL_9:
-    Scr_GetVector(scrContext, 2u, (vec3_t *)&color);
-    goto LABEL_10;
-  }
-  v10 = v9 - 1;
-  if ( !v10 )
-  {
-LABEL_8:
-    depthTest = Scr_GetInt(scrContext, 3u);
-    goto LABEL_9;
-  }
-  if ( v10 == 1 )
-  {
-    duration = Scr_GetInt(scrContext, 4u);
-    goto LABEL_8;
-  }
-  Scr_Error(COM_ERR_3962, scrContext, "illegal call to box()");
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
+  Scr_GetVector(scrContext, 0, &vectorValue);
+  *(_OWORD *)box.midPoint.v = _xmm;
+  box.halfSize.v[1] = FLOAT_16_0;
+  box.halfSize.v[2] = FLOAT_8_0;
+  G_DebugBox(&vectorValue, &box, v3, &color, depthTest, duration);
 }
 
 /*
@@ -23436,28 +20759,25 @@ void GScr_DrawEntityBounds(scrContext_t *scrContext)
 {
   int duration; 
   int depthTest; 
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
+  gentity_s *Entity; 
   vec4_t color; 
 
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rsp+58h+color], xmm0
-  }
+  color = (vec4_t)_xmm;
   duration = 1;
   depthTest = 0;
-  v5 = Scr_GetNumParam(scrContext) - 1;
-  if ( v5 )
+  v4 = Scr_GetNumParam(scrContext) - 1;
+  if ( v4 )
   {
-    v6 = v5 - 1;
-    if ( v6 )
+    v5 = v4 - 1;
+    if ( v5 )
     {
-      v7 = v6 - 1;
-      if ( v7 )
+      v6 = v5 - 1;
+      if ( v6 )
       {
-        if ( v7 != 1 )
+        if ( v6 != 1 )
         {
           Scr_Error(COM_ERR_3963, scrContext, "illegal call to DrawEntityBounds()");
           return;
@@ -23468,12 +20788,9 @@ void GScr_DrawEntityBounds(scrContext_t *scrContext)
     }
     Scr_GetVector(scrContext, 1u, (vec3_t *)&color);
   }
-  _RAX = GScr_GetEntity(0);
-  if ( _RAX )
-  {
-    __asm { vmovss  xmm2, dword ptr [rax+140h]; yaw }
-    G_DebugBox(&_RAX->r.currentOrigin, &_RAX->r.box, *(float *)&_XMM2, &color, depthTest, duration);
-  }
+  Entity = GScr_GetEntity(0);
+  if ( Entity )
+    G_DebugBox(&Entity->r.currentOrigin, &Entity->r.box, Entity->r.currentAngles.v[1], &color, depthTest, duration);
 }
 
 /*
@@ -23483,46 +20800,42 @@ GScr_DebugStar
 */
 void GScr_DebugStar(scrContext_t *scrContext)
 {
+  float v1; 
   const char *String; 
   int duration; 
+  unsigned int v5; 
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  unsigned int v10; 
-  float v12; 
+  double Float; 
   vec4_t color; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  v1 = FLOAT_1_0;
   String = NULL;
-  __asm { vmovups xmmword ptr [rsp+78h+color], xmm0 }
+  color = colorWhite;
   duration = 10;
-  v7 = Scr_GetNumParam(scrContext) - 1;
-  if ( v7 )
+  v5 = Scr_GetNumParam(scrContext) - 1;
+  if ( v5 )
   {
-    v8 = v7 - 1;
-    if ( v8 )
+    v6 = v5 - 1;
+    if ( v6 )
     {
-      v9 = v8 - 1;
-      if ( v9 )
+      v7 = v6 - 1;
+      if ( v7 )
       {
-        v10 = v9 - 1;
-        if ( v10 )
+        v8 = v7 - 1;
+        if ( v8 )
         {
-          if ( v10 != 1 )
+          if ( v8 != 1 )
           {
             Scr_Error(COM_ERR_5913, scrContext, "Bad call to GetVector().  Pass in a mandatory origin parameter.");
-            goto LABEL_18;
+            return;
           }
           if ( Scr_GetType(scrContext, 4u) )
           {
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-            __asm { vmovaps xmm6, xmm0 }
+            Float = Scr_GetFloat(scrContext, 4u);
+            v1 = *(float *)&Float;
           }
         }
         if ( Scr_GetType(scrContext, 3u) )
@@ -23536,16 +20849,9 @@ void GScr_DebugStar(scrContext_t *scrContext)
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
   if ( String )
-  {
-    __asm { vmovss  [rsp+78h+var_58], xmm6 }
-    G_DebugStarWithTextDuration(&vectorValue, &color, &color, String, v12, duration);
-  }
+    G_DebugStarWithTextDuration(&vectorValue, &color, &color, String, v1, duration);
   else
-  {
     G_DebugStarWithDuration(&vectorValue, &color, duration);
-  }
-LABEL_18:
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -23557,18 +20863,14 @@ void GScr_OrientedBox(scrContext_t *scrContext)
 {
   int duration; 
   int depthTest; 
-  vec3_t v10; 
+  vec3_t v4; 
   Bounds box; 
   vec4_t color; 
   vec3_t vectorValue; 
   vec3_t origin; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rsp+0C8h+color], xmm0
-  }
+  color = (vec4_t)_xmm;
   duration = 1;
   depthTest = 0;
   switch ( Scr_GetNumParam(scrContext) )
@@ -23592,23 +20894,15 @@ $LN6_43:
 $LN7_88:
       Scr_GetVector(scrContext, 2u, &vectorValue);
 $LN8_51:
-      Scr_GetVector(scrContext, 1u, &v10);
+      Scr_GetVector(scrContext, 1u, &v4);
 $LN9_65:
       Scr_GetVector(scrContext, 0, &origin);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f000000
-        vmulss  xmm0, xmm3, dword ptr [rsp+0C8h+var_98+4]
-        vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+var_98]
-        vmulss  xmm2, xmm3, dword ptr [rsp+0C8h+var_98+8]
-        vmovss  dword ptr [rsp+0C8h+box.halfSize+4], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+0C8h+box.midPoint], xmm0
-        vmovss  dword ptr [rsp+0C8h+box.midPoint+4], xmm0
-        vmovss  dword ptr [rsp+0C8h+box.midPoint+8], xmm0
-        vmovss  dword ptr [rsp+0C8h+box.halfSize], xmm1
-        vmovss  dword ptr [rsp+0C8h+box.halfSize+8], xmm2
-      }
+      box.halfSize.v[1] = 0.5 * v4.v[1];
+      box.midPoint.v[0] = 0.0;
+      box.midPoint.v[1] = 0.0;
+      box.midPoint.v[2] = 0.0;
+      box.halfSize.v[0] = 0.5 * v4.v[0];
+      box.halfSize.v[2] = 0.5 * v4.v[2];
       AnglesToAxis(&vectorValue, &axis);
       G_DebugBoxOriented(&origin, &box, &axis, &color, depthTest, duration);
       break;
@@ -23682,27 +20976,20 @@ void GScr_RemoteCameraSoundscapeOn(scrContext_t *scrContext, scr_entref_t entref
 GScr_DebugAxis
 ==============
 */
-
-void __fastcall GScr_DebugAxis(scrContext_t *scrContext, double _XMM1_8)
+void GScr_DebugAxis(scrContext_t *scrContext)
 {
+  float v1; 
+  float v2; 
   int duration; 
   int depthTest; 
-  char v12; 
-  char v13; 
+  double Float; 
+  double v7; 
   vec3_t vectorValue; 
   vec3_t pos; 
   tmat33_t<vec3_t> axis; 
-  char v28; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovss  xmm9, cs:__real@41800000
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  v1 = FLOAT_16_0;
+  v2 = FLOAT_1_0;
   duration = 1;
   depthTest = 0;
   switch ( Scr_GetNumParam(scrContext) )
@@ -23724,60 +21011,28 @@ $LN5_41:
 $LN6_44:
       if ( Scr_GetType(scrContext, 3u) )
       {
-        __asm { vmovaps [rsp+0B8h+var_28], xmm8 }
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm
-        {
-          vxorps  xmm8, xmm8, xmm8
-          vcomiss xmm0, xmm8
-          vmovaps xmm6, xmm0
-        }
-        if ( v12 )
-          goto LABEL_7;
-        __asm { vcomiss xmm0, cs:__real@40000000 }
-        if ( !(v12 | v13) )
-LABEL_7:
+        Float = Scr_GetFloat(scrContext, 3u);
+        v2 = *(float *)&Float;
+        if ( *(float *)&Float < 0.0 || *(float *)&Float > 2.0 )
           Scr_Error(COM_ERR_5914, scrContext, "Bad call to DebugAxis().  ColorScale must be a multiplier float between 0.0 and 2.0");
-        __asm
-        {
-          vmovss  xmm2, cs:__real@40000000; max
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm0, xmm6; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm8, [rsp+0B8h+var_28]
-          vmovaps xmm6, xmm0
-        }
+        I_fclamp(*(float *)&Float, 0.0, 2.0);
       }
 $LN7_89:
       if ( Scr_GetType(scrContext, 2u) )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-        __asm { vmovaps xmm9, xmm0 }
+        v7 = Scr_GetFloat(scrContext, 2u);
+        v1 = *(float *)&v7;
       }
 $LN11_53:
       Scr_GetVector(scrContext, 1u, &vectorValue);
 $LN13_46:
       Scr_GetVector(scrContext, 0, &pos);
       AnglesToAxis(&vectorValue, &axis);
-      __asm
-      {
-        vmovaps xmm3, xmm6; colorScale
-        vmovaps xmm2, xmm9; length
-      }
-      G_DebugAxisWithColor(&axis, &pos, *(float *)&_XMM2, *(float *)&_XMM3, depthTest, duration);
+      G_DebugAxisWithColor(&axis, &pos, v1, v2, depthTest, duration);
       break;
     default:
       Scr_Error(COM_ERR_5915, scrContext, "Bad call to DebugAxis().  Mandatory parameters are the origin and angles.");
       break;
-  }
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
   }
 }
 
@@ -23809,60 +21064,48 @@ GScr_Sphere
 void GScr_Sphere(scrContext_t *scrContext)
 {
   int duration; 
+  float v3; 
   int Int; 
+  unsigned int v5; 
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  unsigned int v10; 
+  double Float; 
   vec4_t color; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rsp+78h+color], xmm0
-  }
+  color = (vec4_t)_xmm;
   duration = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v3 = 0.0;
   Int = 0;
-  v7 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v7 )
-    goto LABEL_11;
-  v8 = v7 - 1;
-  if ( !v8 )
+  v5 = Scr_GetNumParam(scrContext) - 1;
+  if ( v5 )
   {
-LABEL_10:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
-LABEL_11:
-    Scr_GetVector(scrContext, 0, &vectorValue);
-    __asm { vmovaps xmm1, xmm6; radius }
-    G_DebugSphere(&vectorValue, *(float *)&_XMM1, &color, Int, duration);
-    goto LABEL_12;
+    v6 = v5 - 1;
+    if ( v6 )
+    {
+      v7 = v6 - 1;
+      if ( v7 )
+      {
+        v8 = v7 - 1;
+        if ( v8 )
+        {
+          if ( v8 != 1 )
+          {
+            Scr_Error(COM_ERR_3965, scrContext, "illegal call to Sphere()");
+            return;
+          }
+          duration = Scr_GetInt(scrContext, 4u);
+        }
+        Int = Scr_GetInt(scrContext, 3u);
+      }
+      Scr_GetVector(scrContext, 2u, (vec3_t *)&color);
+    }
+    Float = Scr_GetFloat(scrContext, 1u);
+    v3 = *(float *)&Float;
   }
-  v9 = v8 - 1;
-  if ( !v9 )
-  {
-LABEL_9:
-    Scr_GetVector(scrContext, 2u, (vec3_t *)&color);
-    goto LABEL_10;
-  }
-  v10 = v9 - 1;
-  if ( !v10 )
-  {
-LABEL_8:
-    Int = Scr_GetInt(scrContext, 3u);
-    goto LABEL_9;
-  }
-  if ( v10 == 1 )
-  {
-    duration = Scr_GetInt(scrContext, 4u);
-    goto LABEL_8;
-  }
-  Scr_Error(COM_ERR_3965, scrContext, "illegal call to Sphere()");
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  Scr_GetVector(scrContext, 0, &vectorValue);
+  G_DebugSphere(&vectorValue, v3, &color, Int, duration);
 }
 
 /*
@@ -23873,19 +21116,16 @@ GScr_Cylinder
 void GScr_Cylinder(scrContext_t *scrContext)
 {
   int duration; 
+  float v3; 
   int depthTest; 
+  double Float; 
   vec4_t color; 
   vec3_t vectorValue; 
   vec3_t start; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rsp+88h+color], xmm0
-  }
+  color = (vec4_t)_xmm;
   duration = 1;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v3 = 0.0;
   depthTest = 0;
   switch ( Scr_GetNumParam(scrContext) )
   {
@@ -23906,20 +21146,18 @@ $LN5_42:
 $LN6_45:
       Scr_GetVector(scrContext, 3u, (vec3_t *)&color);
 $LN7_90:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm6, xmm0 }
+      Float = Scr_GetFloat(scrContext, 2u);
+      v3 = *(float *)&Float;
 $LN8_52:
       Scr_GetVector(scrContext, 1u, &vectorValue);
 $LN9_66:
       Scr_GetVector(scrContext, 0, &start);
-      __asm { vmovaps xmm2, xmm6; radius }
-      G_DebugCylinder(&start, &vectorValue, *(float *)&_XMM2, &color, depthTest, duration);
+      G_DebugCylinder(&start, &vectorValue, v3, &color, depthTest, duration);
       break;
     default:
       Scr_Error(COM_ERR_3966, scrContext, "illegal call to Cylinder()");
       break;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -24315,85 +21553,55 @@ ScrCmd_WorldPointToScreenPos
 void ScrCmd_WorldPointToScreenPos(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
-  const char *v7; 
-  char v13; 
+  gentity_s *v4; 
+  const char *v5; 
+  double Float; 
   const char *VariantString; 
-  int v15; 
   vec2_t outScreenPos; 
-  float value[4]; 
+  vec2_t value; 
+  float v12; 
   vec3_t vectorValue; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> outForward; 
-  char v33; 
 
-  __asm { vmovaps [rsp+0B8h+var_18], xmm6 }
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v6 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 22526, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v6 = &g_entities[entnum];
-    if ( !v6->client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v7 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v7);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  G_Client_GetViewOrigin(&v6->client->ps, &outOrigin);
-  G_Client_GetViewDirectionLinked(v6, outForward.m, &outForward.m[1], &outForward.m[2]);
-  __asm { vmovaps xmm2, xmm6; viewFOV }
-  G_Main_WorldPointToScreenPos(&outOrigin, &outForward, *(float *)&_XMM2, &vectorValue, &outScreenPos);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( v13 )
+  Float = Scr_GetFloat(scrContext, 1u);
+  G_Client_GetViewOrigin(&v4->client->ps, &outOrigin);
+  G_Client_GetViewDirectionLinked(v4, outForward.m, &outForward.m[1], &outForward.m[2]);
+  if ( (float)G_Main_WorldPointToScreenPos(&outOrigin, &outForward, *(float *)&Float, &vectorValue, &outScreenPos) == 0.0 )
     goto LABEL_12;
   VariantString = Dvar_GetVariantString("TQQKORSSM");
-  v15 = atoi(VariantString);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rsp+0B8h+outScreenPos]
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm4, xmm3
-    vcvtss2sd xmm2, xmm0, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, ecx
-    vmulsd  xmm1, xmm0, cs:__real@3fe0000000000000
-    vcomisd xmm2, xmm1
-  }
-  if ( v15 )
+  atoi(VariantString);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, ecx }
+  if ( COERCE_FLOAT(LODWORD(outScreenPos.v[0]) & _xmm) > *(double *)&_XMM0 * 0.5 || COERCE_FLOAT(LODWORD(outScreenPos.v[1]) & _xmm) > 240.0 )
   {
 LABEL_12:
     Scr_AddUndefined(scrContext);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+0B8h+outScreenPos+4]
-      vandps  xmm0, xmm1, xmm3
-      vcomiss xmm0, cs:__real@43700000
-      vmovss  [rsp+0B8h+value], xmm4
-      vmovss  [rsp+0B8h+var_7C], xmm1
-      vmovss  [rsp+0B8h+var_78], xmm6
-    }
-    Scr_AddVector(scrContext, value);
+    value = outScreenPos;
+    v12 = 0.0;
+    Scr_AddVector(scrContext, (const float *)&value);
   }
-  _R11 = &v33;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -24408,10 +21616,11 @@ void GScr_GetOmnvar(scrContext_t *scrContext)
   const char *v4; 
   const OmnvarDef *Def; 
   const char *v6; 
+  OmnvarData *Data; 
   unsigned int v8; 
   OmnvarValue current; 
   char Int; 
-  __int64 v12; 
+  __int64 v11; 
   char *outStringValue; 
 
   String = Scr_GetString(scrContext, 0);
@@ -24427,37 +21636,36 @@ void GScr_GetOmnvar(scrContext_t *scrContext)
     v6 = j_va("GetOmnvar '%s' must be done on a a game-scope Omnvar", String);
     Scr_Error(COM_ERR_3983, scrContext, v6);
   }
-  _RBX = G_Omnvar_GetData(IndexByName, -1, NULL);
+  Data = G_Omnvar_GetData(IndexByName, -1, NULL);
   switch ( Def->type )
   {
     case OMNVAR_TYPE_BOOL:
-      Scr_AddBool(scrContext, _RBX->current.enabled);
+      Scr_AddBool(scrContext, Data->current.enabled);
       break;
     case OMNVAR_TYPE_FLOAT:
-      __asm { vmovss  xmm1, dword ptr [rbx+4]; jumptable 0000000141308031 case 1 }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      Scr_AddFloat(scrContext, Data->current.value);
       break;
     case OMNVAR_TYPE_INT:
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+      if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
         __debugbreak();
       if ( Def->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 208, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
         __debugbreak();
-      v8 = Def->minvalue + _RBX->current.integer;
+      v8 = Def->minvalue + Data->current.integer;
       if ( Def->userType != OMNVAR_USER_TYPE_ENTITY )
         goto LABEL_23;
       if ( v8 != 2047 )
       {
         if ( v8 >= 0x7FE )
         {
-          LODWORD(v12) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 2299, ASSERT_TYPE_ASSERT, "(unsigned)( omnvarValue ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "omnvarValue doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v12, 2046) )
+          LODWORD(v11) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 2299, ASSERT_TYPE_ASSERT, "(unsigned)( omnvarValue ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "omnvarValue doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v11, 2046) )
             __debugbreak();
         }
         GScr_AddEntity(&g_entities[v8]);
       }
       break;
     case OMNVAR_TYPE_UINT:
-      current = _RBX->current;
+      current = Data->current;
       if ( Def->userType != OMNVAR_USER_TYPE_BIT_FIELD || Scr_GetNumParam(scrContext) != 2 )
         goto $LN13_47;
       Int = Scr_GetInt(scrContext, 1u);
@@ -24467,11 +21675,11 @@ LABEL_23:
       break;
     case OMNVAR_TYPE_TIME:
 $LN13_47:
-      Scr_AddInt(scrContext, _RBX->current.integer);
+      Scr_AddInt(scrContext, Data->current.integer);
       break;
     case OMNVAR_TYPE_NCS_LUI:
       outStringValue = NULL;
-      BG_Omnvar_GetNCString(Def, _RBX, (const char **)&outStringValue);
+      BG_Omnvar_GetNCString(Def, Data, (const char **)&outStringValue);
       if ( !outStringValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 2338, ASSERT_TYPE_ASSERT, "(stringValue)", (const char *)&queryFormat, "stringValue") )
         __debugbreak();
       Scr_AddString(scrContext, outStringValue);
@@ -24638,10 +21846,11 @@ void GScr_SetDvarIfUninitialized(scrContext_t *scrContext)
 {
   const char *String; 
   const char *Demo_VariantString; 
-  const char *v6; 
-  bool v7; 
-  unsigned int v8; 
-  DvarValue v9; 
+  const dvar_t *VarByName; 
+  const char *v5; 
+  bool v6; 
+  unsigned int v7; 
+  DvarValue current; 
 
   if ( Scr_GetNumParam(scrContext) != 2 )
     Scr_Error(COM_ERR_3990, scrContext, "GScr_SetDvarIfUninitialized( dvarName, initialValue ) requires two parameters");
@@ -24652,25 +21861,21 @@ void GScr_SetDvarIfUninitialized(scrContext_t *scrContext)
     Demo_VariantString = SV_Game_GetDemo_VariantString(String, (const char *)&queryFormat.fmt + 3);
     goto LABEL_7;
   }
-  _RAX = Dvar_FindVarByName(String);
-  if ( _RAX )
+  VarByName = Dvar_FindVarByName(String);
+  if ( VarByName )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+28h]
-      vmovups xmmword ptr [rsp+38h+var_18], xmm0
-    }
-    Demo_VariantString = Dvar_ValueToString(_RAX, &v9);
+    current = VarByName->current;
+    Demo_VariantString = Dvar_ValueToString(VarByName, &current);
 LABEL_7:
     if ( *Demo_VariantString )
       return;
   }
-  v6 = Scr_GetString(scrContext, 1u);
-  v7 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|0x80);
-  v8 = 525448;
-  if ( v7 )
-    v8 = -1;
-  GScr_SetDvar_Internal(scrContext, String, v6, v8);
+  v5 = Scr_GetString(scrContext, 1u);
+  v6 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|0x80);
+  v7 = 525448;
+  if ( v6 )
+    v7 = -1;
+  GScr_SetDvar_Internal(scrContext, String, v5, v7);
 }
 
 /*
@@ -24682,12 +21887,13 @@ void GScr_SetDevDvarIfUninitialized(scrContext_t *scrContext)
 {
   const char *String; 
   const char *Demo_VariantString; 
-  const char *v6; 
-  bool v7; 
   const dvar_t *VarByName; 
+  const char *v5; 
+  bool v6; 
+  const dvar_t *v7; 
   const char *UnobfuscatedName; 
-  const char *v10; 
-  DvarValue v11; 
+  const char *v9; 
+  DvarValue current; 
 
   if ( Scr_GetNumParam(scrContext) != 2 )
     Scr_Error(COM_ERR_3991, scrContext, "GScr_SetDevDvarIfUninitialized( dvarName, initialValue ) requires two parameters");
@@ -24698,30 +21904,26 @@ void GScr_SetDevDvarIfUninitialized(scrContext_t *scrContext)
     Demo_VariantString = SV_Game_GetDemo_VariantString(String, (const char *)&queryFormat.fmt + 3);
     goto LABEL_7;
   }
-  _RAX = Dvar_FindVarByName(String);
-  if ( _RAX )
+  VarByName = Dvar_FindVarByName(String);
+  if ( VarByName )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+28h]
-      vmovups xmmword ptr [rsp+38h+var_18], xmm0
-    }
-    Demo_VariantString = Dvar_ValueToString(_RAX, &v11);
+    current = VarByName->current;
+    Demo_VariantString = Dvar_ValueToString(VarByName, &current);
 LABEL_7:
     if ( *Demo_VariantString )
       return;
   }
-  v6 = Scr_GetString(scrContext, 1u);
-  v7 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|0x80);
+  v5 = Scr_GetString(scrContext, 1u);
+  v6 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|0x80);
   Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|0x80);
-  VarByName = Dvar_FindVarByName(String);
-  if ( v7 && VarByName && (VarByName->flags & 0x100) == 0 )
+  v7 = Dvar_FindVarByName(String);
+  if ( v6 && v7 && (v7->flags & 0x100) == 0 )
   {
     UnobfuscatedName = Dvar_DevGetUnobfuscatedName(String);
-    v10 = j_va("Invalid Dvar set: %s - Internal Dvars cannot be changed by script. Use 'setsaveddvar' to alter SAVED internal dvars\n", UnobfuscatedName);
-    Scr_Error(COM_ERR_3985, scrContext, v10);
+    v9 = j_va("Invalid Dvar set: %s - Internal Dvars cannot be changed by script. Use 'setsaveddvar' to alter SAVED internal dvars\n", UnobfuscatedName);
+    Scr_Error(COM_ERR_3985, scrContext, v9);
   }
-  Dvar_SetFromStringByNameFromScript(SCRIPTINSTANCE_SERVER, String, v6);
+  Dvar_SetFromStringByNameFromScript(SCRIPTINSTANCE_SERVER, String, v5);
 }
 
 /*
@@ -25205,80 +22407,45 @@ ScrCmd_WorldPointInReticle_Circle
 */
 void ScrCmd_WorldPointInReticle_Circle(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v7; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v10; 
-  const char *v11; 
-  char v15; 
-  char v16; 
+  gentity_s *v5; 
+  const char *v6; 
+  double Float; 
+  float v8; 
+  double v9; 
   vec2_t outScreenPos; 
   vec3_t vectorValue; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> outForward; 
-  char v33; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  v7 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v10 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 22579, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v10 = &g_entities[entnum];
-    if ( !v10->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
-      v11 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v11);
+      v6 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
     }
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm7, xmm0 }
-  G_Client_GetViewOrigin(&v10->client->ps, &outOrigin);
-  G_Client_GetViewDirectionLinked(v10, outForward.m, &outForward.m[1], &outForward.m[2]);
-  __asm { vmovaps xmm2, xmm6; viewFOV }
-  G_Main_WorldPointToScreenPos(&outOrigin, &outForward, *(float *)&_XMM2, &vectorValue, &outScreenPos);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( !v16 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0C8h+outScreenPos]
-      vmovss  xmm1, dword ptr [rsp+0C8h+outScreenPos+4]
-      vmulss  xmm3, xmm0, xmm0
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm0, xmm7, xmm7
-      vcomiss xmm0, xmm4
-    }
-    LOBYTE(v7) = !(v15 | v16);
-  }
-  Scr_AddBool(scrContext, v7);
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v8 = *(float *)&Float;
+  v9 = Scr_GetFloat(scrContext, 2u);
+  G_Client_GetViewOrigin(&v5->client->ps, &outOrigin);
+  G_Client_GetViewDirectionLinked(v5, outForward.m, &outForward.m[1], &outForward.m[2]);
+  if ( (float)G_Main_WorldPointToScreenPos(&outOrigin, &outForward, v8, &vectorValue, &outScreenPos) != 0.0 )
+    LOBYTE(v2) = (float)(*(float *)&v9 * *(float *)&v9) > (float)((float)(outScreenPos.v[0] * outScreenPos.v[0]) + (float)(outScreenPos.v[1] * outScreenPos.v[1]));
+  Scr_AddBool(scrContext, v2);
 }
 
 /*
@@ -25321,93 +22488,49 @@ ScrCmd_WorldPointInReticle_Rect
 */
 void ScrCmd_WorldPointInReticle_Rect(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v8; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v11; 
-  const char *v12; 
-  char v17; 
-  char v21; 
+  gentity_s *v5; 
+  const char *v6; 
+  double Float; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
   vec2_t outScreenPos; 
   vec3_t vectorValue; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> outForward; 
-  char v37; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  v8 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v11 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 22625, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v11 = &g_entities[entnum];
-    if ( !v11->client )
+    v5 = &g_entities[entnum];
+    if ( !v5->client )
     {
-      v12 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v12);
+      v6 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
     }
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmulss  xmm8, xmm0, cs:__real@3f000000 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmulss  xmm6, xmm0, cs:__real@3f000000 }
-  G_Client_GetViewOrigin(&v11->client->ps, &outOrigin);
-  G_Client_GetViewDirectionLinked(v11, outForward.m, &outForward.m[1], &outForward.m[2]);
-  __asm { vmovaps xmm2, xmm7; viewFOV }
-  G_Main_WorldPointToScreenPos(&outOrigin, &outForward, *(float *)&_XMM2, &vectorValue, &outScreenPos);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm0, dword ptr [rsp+0D8h+outScreenPos]
-      vandps  xmm0, xmm0, xmm1
-      vandps  xmm8, xmm8, xmm1
-      vcomiss xmm0, xmm8
-    }
-    if ( v17 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0D8h+outScreenPos+4]
-        vandps  xmm0, xmm0, xmm1
-        vandps  xmm6, xmm6, xmm1
-        vcomiss xmm0, xmm6
-      }
-      if ( v17 )
-        v8 = 1;
-    }
-  }
-  Scr_AddBool(scrContext, v8);
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v8 = *(float *)&Float;
+  v9 = Scr_GetFloat(scrContext, 2u);
+  v10 = *(float *)&v9 * 0.5;
+  v11 = Scr_GetFloat(scrContext, 3u);
+  G_Client_GetViewOrigin(&v5->client->ps, &outOrigin);
+  G_Client_GetViewDirectionLinked(v5, outForward.m, &outForward.m[1], &outForward.m[2]);
+  if ( (float)G_Main_WorldPointToScreenPos(&outOrigin, &outForward, v8, &vectorValue, &outScreenPos) != 0.0 && COERCE_FLOAT(LODWORD(outScreenPos.v[0]) & _xmm) < COERCE_FLOAT(LODWORD(v10) & _xmm) && COERCE_FLOAT(LODWORD(outScreenPos.v[1]) & _xmm) < COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v11 * 0.5) & _xmm) )
+    v2 = 1;
+  Scr_AddBool(scrContext, v2);
 }
 
 /*
@@ -25466,32 +22589,21 @@ ScrCmd_GetPointInBounds
 void ScrCmd_GetPointInBounds(scrContext_t *scrContext, scr_entref_t entref)
 {
   const gentity_s *Entity; 
+  double Float; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
   vec3_t outPoint; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
   Entity = GetEntity(entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm3, xmm0; ratioFromCenterZ
-    vmovaps xmm2, xmm6; ratioFromCenterY
-    vmovaps xmm1, xmm7; ratioFromCenterX
-  }
-  G_Utils_GetEntityBoundsPoint(Entity, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &outPoint);
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 1u);
+  v7 = *(float *)&v6;
+  v8 = Scr_GetFloat(scrContext, 2u);
+  G_Utils_GetEntityBoundsPoint(Entity, v5, v7, *(float *)&v8, &outPoint);
   Scr_AddVector(scrContext, outPoint.v);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
 }
 
 /*
@@ -25584,23 +22696,23 @@ GScr_GetAnimLength
 void GScr_GetAnimLength(scrContext_t *scrContext)
 {
   int linkPointer; 
-  unsigned int v4; 
+  unsigned int v3; 
   XAnim_s *Anims; 
   const char *AnimDebugName; 
-  const char *v7; 
+  const char *v6; 
+  double Length; 
 
   linkPointer = Scr_GetAnim(scrContext, 0, NULL).linkPointer;
-  v4 = (unsigned __int16)linkPointer;
+  v3 = (unsigned __int16)linkPointer;
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  if ( !XAnimIsPrimitive(Anims, v4) )
+  if ( !XAnimIsPrimitive(Anims, v3) )
   {
-    AnimDebugName = XAnimGetAnimDebugName(Anims, v4);
-    v7 = j_va("non-primitive animation '%s' has no concept of length", AnimDebugName);
-    Scr_ParamError(COM_ERR_3998, scrContext, 0, v7);
+    AnimDebugName = XAnimGetAnimDebugName(Anims, v3);
+    v6 = j_va("non-primitive animation '%s' has no concept of length", AnimDebugName);
+    Scr_ParamError(COM_ERR_3998, scrContext, 0, v6);
   }
-  *(double *)&_XMM0 = XAnimGetLength(Anims, v4);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Length = XAnimGetLength(Anims, v3);
+  Scr_AddFloat(scrContext, *(float *)&Length);
 }
 
 /*
@@ -25772,7 +22884,7 @@ GScr_DestroyGlass
 void GScr_DestroyGlass(scrContext_t *scrContext)
 {
   unsigned int Int; 
-  const char *v4; 
+  const char *v3; 
   vec3_t vectorValue; 
   vec3_t outOrigin; 
 
@@ -25781,18 +22893,14 @@ void GScr_DestroyGlass(scrContext_t *scrContext)
   Int = Scr_GetInt(scrContext, 0);
   if ( !G_Glass_IsIndexValid(Int) )
   {
-    v4 = j_va("Invalid glass ID %i", Int);
-    Scr_ParamError(COM_ERR_4636, scrContext, 0, v4);
+    v3 = j_va("Invalid glass ID %i", Int);
+    Scr_ParamError(COM_ERR_4636, scrContext, 0, v3);
   }
   if ( Scr_GetNumParam(scrContext) < 2 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+58h+vectorValue], xmm0
-      vmovss  dword ptr [rsp+58h+vectorValue+4], xmm0
-      vmovss  dword ptr [rsp+58h+vectorValue+8], xmm0
-    }
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
   }
   else
   {
@@ -25912,92 +23020,51 @@ ScrCmd_SetSlowMotion
 */
 void ScrCmd_SetSlowMotion(scrContext_t *scrContext)
 {
-  const char *v29; 
-  __int64 v33; 
-  void *retaddr; 
+  float v2; 
+  unsigned int v3; 
+  double Float; 
+  float v5; 
+  double v6; 
+  double v7; 
+  float v8; 
+  float v9; 
+  double TimeScale; 
+  double v11; 
+  const char *v12; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
   if ( !Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_4639, scrContext, "SetSlowMotion requires at least 1 parameter.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm8, xmm6
-  }
-  _EDI = 1000;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm9, xmm0 }
+  v2 = FLOAT_1_0;
+  v3 = 1000;
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
   if ( Scr_GetNumParam(scrContext) >= 2 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm8, xmm0 }
+    v6 = Scr_GetFloat(scrContext, 1u);
+    v2 = *(float *)&v6;
   }
   if ( Scr_GetNumParam(scrContext) >= 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si edi, xmm1
-    }
+    v7 = Scr_GetFloat(scrContext, 2u);
+    v3 = (int)(float)(*(float *)&v7 * 1000.0);
   }
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_STILL_LAND|0x80) )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_28], xmm7
-      vsubss  xmm0, xmm8, xmm9
-      vmovd   xmm7, edi
-      vcvtdq2ps xmm7, xmm7
-      vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.startTimescale, xmm9; SlowMotionCommon g_slowmoCommon
-      vmovss  cs:?g_slowmoCommon@@3USlowMotionCommon@@A.endTimescale, xmm8; SlowMotionCommon g_slowmoCommon
-    }
+    v8 = _mm_cvtepi32_ps((__m128i)v3).m128_f32[0];
+    g_slowmoCommon.startTimescale = v5;
+    g_slowmoCommon.endTimescale = v2;
     g_slowmoCommon.type = 0;
-    __asm { vdivss  xmm6, xmm6, xmm0 }
-    Com_GetTimeScale();
-    __asm
-    {
-      vsubss  xmm1, xmm9, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vmulss  xmm3, xmm2, xmm6
-      vcvttss2si eax, xmm3
-    }
-    g_slowmoCommon.startMsec = com_frameTime + _EAX;
-    Com_GetTimeScale();
-    __asm
-    {
-      vsubss  xmm1, xmm8, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vmovaps xmm7, [rsp+78h+var_28]
-      vmulss  xmm3, xmm2, xmm6
-      vcvttss2si eax, xmm3
-    }
-    g_slowmoCommon.endMsec = com_frameTime + _EAX;
+    v9 = 1.0 / (float)(v2 - v5);
+    TimeScale = Com_GetTimeScale();
+    g_slowmoCommon.startMsec = com_frameTime + (int)(float)((float)((float)(v5 - *(float *)&TimeScale) * v8) * v9);
+    v11 = Com_GetTimeScale();
+    g_slowmoCommon.endMsec = com_frameTime + (int)(float)((float)((float)(v2 - *(float *)&v11) * v8) * v9);
     g_slowmoCommon.enable = 1;
   }
   else
   {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm9, xmm9
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovq   r9, xmm3
-      vmovsd  [rsp+78h+var_58], xmm0
-    }
-    v29 = j_va("%i %i %g %g", (unsigned int)level.time, _EDI, _R9, v33);
-    SV_SetConfigstring(0x217u, v29);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
+    v12 = j_va("%i %i %g %g", (unsigned int)level.time, v3, v5, v2);
+    SV_SetConfigstring(0x217u, v12);
   }
 }
 
@@ -26117,12 +23184,13 @@ ScrCmd_MagicGrenadeManual
 */
 void ScrCmd_MagicGrenadeManual(scrContext_t *scrContext)
 {
-  ComErrorCode v3; 
+  ComErrorCode v2; 
   const char *String; 
-  const char *v5; 
+  const char *v4; 
+  double Float; 
   int fuseTime; 
   gentity_s *Entity; 
-  const gentity_s *v9; 
+  const gentity_s *v8; 
   bool outIsAlternate; 
   vec3_t dir; 
   vec3_t vectorValue; 
@@ -26141,34 +23209,30 @@ void ScrCmd_MagicGrenadeManual(scrContext_t *scrContext)
     }
     else
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si edi, xmm1
-      }
+      Float = Scr_GetFloat(scrContext, 3u);
+      fuseTime = (int)(float)(*(float *)&Float * 1000.0);
     }
     if ( Scr_GetNumParam(scrContext) <= 4 )
       Entity = NULL;
     else
       Entity = GScr_GetEntity(4u);
-    v9 = G_Missile_FireGrenade(Entity, &vectorValue, &dir, &outWeapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
-    GScr_AddEntity(v9);
+    v8 = G_Missile_FireGrenade(Entity, &vectorValue, &dir, &outWeapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
+    GScr_AddEntity(v8);
   }
   else
   {
     if ( Scr_GetType(scrContext, 0) == VAR_STRING )
     {
-      v3 = COM_ERR_4004;
+      v2 = COM_ERR_4004;
       String = Scr_GetString(scrContext, 0);
-      v5 = j_va("\"%s\" grenade weapon is not precached", String);
+      v4 = j_va("\"%s\" grenade weapon is not precached", String);
     }
     else
     {
-      v3 = COM_ERR_4005;
-      v5 = "Invalid grenade weapon specified for MagicGrenadeManual";
+      v2 = COM_ERR_4005;
+      v4 = "Invalid grenade weapon specified for MagicGrenadeManual";
     }
-    Scr_ParamError(v3, scrContext, 0, v5);
+    Scr_ParamError(v2, scrContext, 0, v4);
   }
 }
 
@@ -26177,67 +23241,51 @@ void ScrCmd_MagicGrenadeManual(scrContext_t *scrContext)
 ScrCmd_LerpFOVScaleFactor
 ==============
 */
-
-void __fastcall ScrCmd_LerpFOVScaleFactor(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
+void ScrCmd_LerpFOVScaleFactor(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v7; 
+  gentity_s *v4; 
+  const char *v5; 
   const char *v8; 
-  const char *v18; 
-  const char *v19; 
+  const char *v9; 
   unsigned int clientIndex; 
   SvClient *CommonClient; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v7 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23048, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v7 = &g_entities[entnum];
-    if ( !v7->client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v8 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v8);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
   if ( (int)Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_5923, scrContext, "Not enough parameters.\n");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm6, xmm0, xmm4, 1
-  }
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm6, xmm0, xmm4, 1 }
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-    vcvttss2si r9d, xmm6
-  }
-  v18 = j_va("%c %f %d", 62i64, _R8, _R9);
-  v19 = v18;
-  clientIndex = v7->client->sess.cs.clientIndex;
+  v8 = j_va("%c %f %d", 62i64, *(float *)&_XMM0, (unsigned int)(int)*(float *)&_XMM6);
+  v9 = v8;
+  clientIndex = v4->client->sess.cs.clientIndex;
   if ( clientIndex == -1 )
   {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v18);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
   }
   else
   {
     CommonClient = SvClient::GetCommonClient(clientIndex);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v19);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v9);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -26437,21 +23485,21 @@ GScr_GetBarrelSpinRate
 void GScr_GetBarrelSpinRate(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  gentity_s *v5; 
+  gentity_s *v4; 
+  const char *v5; 
   const char *v6; 
-  const char *v7; 
+  double BarrelSpinRate; 
 
   Entity = GetEntity(entref);
-  v5 = Entity;
+  v4 = Entity;
   if ( !Entity->turretHandle.m_objIndex )
   {
-    v6 = SL_ConvertToString(Entity->classname);
-    v7 = j_va("entity type '%s' is not a turret", v6);
-    Scr_Error(COM_ERR_4011, scrContext, v7);
+    v5 = SL_ConvertToString(Entity->classname);
+    v6 = j_va("entity type '%s' is not a turret", v5);
+    Scr_Error(COM_ERR_4011, scrContext, v6);
   }
-  *(double *)&_XMM0 = G_Turret_GetBarrelSpinRate(v5);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  BarrelSpinRate = G_Turret_GetBarrelSpinRate(v4);
+  Scr_AddFloat(scrContext, *(float *)&BarrelSpinRate);
 }
 
 /*
@@ -26649,6 +23697,7 @@ void GScr_TeleportWorldUpReferenceAngles(scrContext_t *scrContext, scr_entref_t 
   const char *v4; 
   const char *v5; 
   gentity_s *v6; 
+  playerState_s *EntityPlayerState; 
   const char *v8; 
   GHandler *Handler; 
   GUtils *Utils; 
@@ -26658,8 +23707,8 @@ void GScr_TeleportWorldUpReferenceAngles(scrContext_t *scrContext, scr_entref_t 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in; 
   tmat33_t<vec3_t> out; 
-  tmat33_t<vec3_t> v20; 
-  WorldUpReferenceFrame v21; 
+  tmat33_t<vec3_t> v17; 
+  WorldUpReferenceFrame v18; 
 
   Entity = GetEntity(entref);
   Sys_ProfBeginNamedEvent(0xFFFF0000, "GScr_TeleportWorldUpReferenceAngles");
@@ -26667,30 +23716,22 @@ void GScr_TeleportWorldUpReferenceAngles(scrContext_t *scrContext, scr_entref_t 
   {
     v6 = GScr_GetEntity(0);
     Scr_GetVector(scrContext, 1u, &vectorValue);
-    _RSI = G_GetEntityPlayerState(Entity);
-    if ( _RSI )
+    EntityPlayerState = G_GetEntityPlayerState(Entity);
+    if ( EntityPlayerState )
     {
       Handler = GHandler::getHandler();
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v21, _RSI, Handler);
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v18, EntityPlayerState, Handler);
       G_SetAngle(v6, &vectorValue, 1, 1);
       v6->r.svFlags &= ~1u;
       v6->s.lerp.eFlags.m_flags[0] ^= 4u;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+1D8h]
-        vmovss  dword ptr [rsp+138h+inOutViewAngles], xmm0
-        vmovss  xmm1, dword ptr [rsi+1DCh]
-        vmovss  dword ptr [rsp+138h+inOutViewAngles+4], xmm1
-        vmovss  xmm0, dword ptr [rsi+1E0h]
-        vmovss  dword ptr [rsp+138h+inOutViewAngles+8], xmm0
-      }
-      BG_CalcLinkedViewValues(_RSI, &inOutViewAngles);
+      inOutViewAngles = EntityPlayerState->viewangles;
+      BG_CalcLinkedViewValues(EntityPlayerState, &inOutViewAngles);
       AnglesToAxis(&inOutViewAngles, &axis);
-      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v21, &axis);
+      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v18, &axis);
       AnglesToAxis(&v6->r.currentAngles, &in);
       MatrixTranspose(&in, &out);
-      MatrixMultiply(&axis, &out, &v20);
-      AxisToAngles(&v20, &angles);
+      MatrixMultiply(&axis, &out, &v17);
+      AxisToAngles(&v17, &angles);
       Utils = GUtils::GetUtils();
       Utils->SetPlayerViewAngles(Utils, Entity, &angles);
       Sys_ProfEndNamedEvent();
@@ -26777,61 +23818,44 @@ LABEL_6:
 Scr_BadPlace_Cylinder
 ==============
 */
-
-void __fastcall Scr_BadPlace_Cylinder(scrContext_t *scrContext, double _XMM1_8)
+void Scr_BadPlace_Cylinder(scrContext_t *scrContext)
 {
-  unsigned int v6; 
+  unsigned int v2; 
   scr_string_t name; 
+  int v6; 
+  double Float; 
   bitarray<224> *p_result; 
+  bitarray<224> *AllCombatTeamFlags; 
   int usageFlags; 
   nav_space_s *MostLikelySpace; 
-  const char *v21; 
-  float v24; 
+  const char *v12; 
   vec3_t vectorValue; 
   bitarray<224> result; 
-  char v27; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v6 = 0;
+  v2 = 0;
   if ( Scr_GetType(scrContext, 0) && *Scr_GetString(scrContext, 0) )
     name = Scr_GetConstString(scrContext, 0);
   else
     name = 0;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si ebp, xmm4
-  }
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v6 = (int)*(float *)&_XMM4;
   Scr_GetVector(scrContext, 2u, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 3u);
   Scr_GetTeamFlags(&result, scrContext, 5u);
   p_result = &result;
   while ( !p_result->array[0] )
   {
-    ++v6;
+    ++v2;
     p_result = (bitarray<224> *)((char *)p_result + 4);
-    if ( v6 >= 7 )
+    if ( v2 >= 7 )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+        AllCombatTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllCombatTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0A8h+result.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rsp+0A8h+result.array+10h], xmm1
-      }
-      result.array[6] = _RAX->array[6];
+        AllCombatTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      result = *AllCombatTeamFlags;
       break;
     }
   }
@@ -26839,15 +23863,12 @@ void __fastcall Scr_BadPlace_Cylinder(scrContext_t *scrContext, double _XMM1_8)
   MostLikelySpace = Nav_FindMostLikelySpace(&vectorValue, NAV_LAYER_HUMAN, NULL);
   if ( MostLikelySpace )
   {
-    __asm { vmovss  [rsp+0A8h+var_88], xmm6 }
-    if ( !Nav_CreateRepulsor(MostLikelySpace, &vectorValue, &vec3_origin, _EBP, v24, 2047, usageFlags, name, 1) )
+    if ( !Nav_CreateRepulsor(MostLikelySpace, &vectorValue, &vec3_origin, v6, *(float *)&Float, 2047, usageFlags, name, 1) )
     {
-      v21 = j_va("BadPlace: Unable to allocate repulsor.  Exceeded max (%d)?", 256i64);
-      Scr_Error(COM_ERR_4651, scrContext, v21);
+      v12 = j_va("BadPlace: Unable to allocate repulsor.  Exceeded max (%d)?", 256i64);
+      Scr_Error(COM_ERR_4651, scrContext, v12);
     }
   }
-  _R11 = &v27;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -26947,72 +23968,59 @@ void GScr_Turret_Shoot(scrContext_t *scrContext, scr_entref_t entref)
 Scr_BadPlace_Global
 ==============
 */
-
-void __fastcall Scr_BadPlace_Global(scrContext_t *scrContext, double _XMM1_8)
+void Scr_BadPlace_Global(scrContext_t *scrContext)
 {
-  unsigned int v6; 
-  int v7; 
+  unsigned int v2; 
+  int v3; 
   scr_string_t ConstString; 
-  unsigned int v15; 
+  int v7; 
+  unsigned int v8; 
   bitarray<224> *p_result; 
-  unsigned int v20; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v11; 
+  double v12; 
+  unsigned int v13; 
+  unsigned int v14; 
   bitarray<224> result; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-  }
-  v6 = 2;
+  v2 = 2;
   if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) )
     Scr_Error(COM_ERR_4652, scrContext, "Global bad place system must be active to use this function");
   if ( Scr_GetNumParam(scrContext) < 2 )
     Scr_Error(COM_ERR_4653, scrContext, "Incorrect BadPlace_Global() call.");
-  v7 = 0;
+  v3 = 0;
   if ( *Scr_GetString(scrContext, 0) )
     ConstString = Scr_GetConstString(scrContext, 0);
   else
     ConstString = 0;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si r12d, xmm4
-  }
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v7 = (int)*(float *)&_XMM4;
   Scr_GetTeamFlags(&result, scrContext, 2u);
-  v15 = 0;
+  v8 = 0;
   p_result = &result;
   do
   {
     if ( p_result->array[0] )
     {
-      v20 = result.array[6];
-      __asm
-      {
-        vmovsd  xmm7, qword ptr [rsp+0A8h+result.array+10h]
-        vmovups xmm6, xmmword ptr [rsp+0A8h+result.array]
-      }
+      v13 = result.array[6];
+      v12 = *(double *)&result.array[4];
+      v11 = *(_OWORD *)result.array;
       goto LABEL_16;
     }
-    ++v15;
+    ++v8;
     p_result = (bitarray<224> *)((char *)p_result + 4);
   }
-  while ( v15 < 7 );
+  while ( v8 < 7 );
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+    AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
-  {
-    vmovups xmm6, xmmword ptr [rax]
-    vmovsd  xmm7, qword ptr [rax+10h]
-  }
-  v20 = _RAX->array[6];
-  __asm { vmovups xmmword ptr [rsp+0A8h+result.array], xmm6 }
+    AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+  v11 = *(_OWORD *)AllCombatTeamFlags->array;
+  v12 = *(double *)&AllCombatTeamFlags->array[4];
+  v13 = AllCombatTeamFlags->array[6];
+  *(_OWORD *)result.array = *(_OWORD *)AllCombatTeamFlags->array;
 LABEL_16:
   if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23450, ASSERT_TYPE_ASSERT, "( G_Bot_UseBadPlaceRestrictions() )", (const char *)&queryFormat, "G_Bot_UseBadPlaceRestrictions()") )
     __debugbreak();
@@ -27020,36 +24028,28 @@ LABEL_16:
     __debugbreak();
   if ( !Path_UsePathExtraData() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23341, ASSERT_TYPE_ASSERT, "( Path_UsePathExtraData() )", (const char *)&queryFormat, "Path_UsePathExtraData()") )
     __debugbreak();
-  __asm { vmovd   edi, xmm6 }
-  result.array[0] = _EDI;
-  if ( _EDI < 0 && Scr_GetNumParam(scrContext) > 2 )
+  v14 = v11;
+  result.array[0] = v11;
+  if ( (int)v11 < 0 && Scr_GetNumParam(scrContext) > 2 )
   {
     do
     {
-      if ( Scr_GetConstString(scrContext, v6) == scr_const.only_sky )
+      if ( Scr_GetConstString(scrContext, v2) == scr_const.only_sky )
       {
-        v7 |= 1u;
-        _EDI &= ~0x80000000;
+        v3 |= 1u;
+        v14 &= ~0x80000000;
       }
-      ++v6;
+      ++v2;
     }
-    while ( v6 < Scr_GetNumParam(scrContext) );
-    result.array[0] = _EDI;
-    __asm { vmovups xmm6, xmmword ptr [rsp+0A8h+result.array] }
+    while ( v2 < Scr_GetNumParam(scrContext) );
+    result.array[0] = v14;
+    v11 = *(_OWORD *)result.array;
   }
-  result.array[6] = v20;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+0A8h+result.array], xmm6
-    vmovsd  qword ptr [rsp+0A8h+result.array+10h], xmm7
-  }
-  if ( !Path_MakeGlobalBadPlace(ConstString, _ER12, &result, v7) )
+  result.array[6] = v13;
+  *(_OWORD *)result.array = v11;
+  *(double *)&result.array[4] = v12;
+  if ( !Path_MakeGlobalBadPlace(ConstString, v7, &result, v3) )
     Scr_Error(COM_ERR_4654, scrContext, "Error creating BadPlace, see log for details");
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
 }
 
 /*
@@ -27366,24 +24366,24 @@ void GScr_Turret_SetTargetEntity(scrContext_t *scrContext, scr_entref_t entref)
 Scr_ActivateClientExploder
 ==============
 */
-
-void __fastcall Scr_ActivateClientExploder(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void Scr_ActivateClientExploder(scrContext_t *scrContext)
 {
-  gentity_s *v5; 
-  __int64 v6; 
+  gentity_s *v2; 
+  __int64 v3; 
   unsigned int ArrayObject; 
   unsigned int ArraySize; 
   int maxclients; 
   const char *NameForType; 
-  const char *v11; 
+  const char *v8; 
   scr_entref_t EntityIdRef; 
   gentity_s *Entity; 
-  gentity_s *v14; 
-  const char *v15; 
+  gentity_s *v11; 
+  const char *v12; 
+  int time; 
   unsigned int *failureIndex; 
   VariableType failureType[4]; 
   unsigned int count; 
-  unsigned int v26; 
+  unsigned int v19; 
   unsigned int outExploderID; 
   unsigned int buffer[200]; 
 
@@ -27393,16 +24393,16 @@ void __fastcall Scr_ActivateClientExploder(scrContext_t *scrContext, __int64 a2,
     Scr_Error(COM_ERR_6562, scrContext, "Incorrect number of parameters: ActivateClientExploder( exploder_num, <optional_player>, <optional_startTime> )\n");
   if ( Scr_GetExploderID(scrContext, &outExploderID) )
   {
-    v5 = G_Utils_SpawnEventEntity(&vec3_origin, 195);
-    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23600, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    v2 = G_Utils_SpawnEventEntity(&vec3_origin, 195);
+    if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23600, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
       __debugbreak();
-    if ( v5->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23601, ASSERT_TYPE_SANITY, "( ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_STATIONARY") )
+    if ( v2->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 23601, ASSERT_TYPE_SANITY, "( ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_STATIONARY") )
       __debugbreak();
     if ( Scr_GetNumParam(scrContext) >= 2 && Scr_GetType(scrContext, 1u) )
     {
-      v6 = 0i64;
+      v3 = 0i64;
       count = 0;
-      GScr_Main_ClientmaskSetAllHidden(v5);
+      GScr_Main_ClientmaskSetAllHidden(v2);
       if ( Scr_GetType(scrContext, 1u) == VAR_POINTER && Scr_GetPointerType(scrContext, 1u) == VAR_ARRAY )
       {
         ArrayObject = BGScr_Main_GetArrayObject(scrContext, 1u);
@@ -27416,11 +24416,11 @@ void __fastcall Scr_ActivateClientExploder(scrContext_t *scrContext, __int64 a2,
             __debugbreak();
           maxclients = level.maxclients;
         }
-        if ( !Scr_GetEntityArray(scrContext, ArrayObject, maxclients, buffer, &count, &v26, failureType) )
+        if ( !Scr_GetEntityArray(scrContext, ArrayObject, maxclients, buffer, &count, &v19, failureType) )
         {
           NameForType = Scr_GetNameForType(failureType[0]);
-          v11 = j_va("element %i of array: type %s is not an entity", v26, NameForType);
-          Scr_ParamError(COM_ERR_6563, scrContext, 0, v11);
+          v8 = j_va("element %i of array: type %s is not an entity", v19, NameForType);
+          Scr_ParamError(COM_ERR_6563, scrContext, 0, v8);
         }
       }
       else if ( Scr_GetType(scrContext, 1u) == VAR_POINTER && Scr_GetPointerType(scrContext, 1u) == VAR_ENTITY )
@@ -27432,40 +24432,33 @@ void __fastcall Scr_ActivateClientExploder(scrContext_t *scrContext, __int64 a2,
       {
         do
         {
-          EntityIdRef = Scr_GetEntityIdRef(scrContext, buffer[v6]);
+          EntityIdRef = Scr_GetEntityIdRef(scrContext, buffer[v3]);
           Entity = GetEntity(EntityIdRef);
-          v14 = Entity;
+          v11 = Entity;
           if ( !Entity->client )
           {
-            v15 = j_va("entity %i is not a player", (unsigned int)Entity->s.number);
-            Scr_ObjectError(COM_ERR_6564, scrContext, v15);
+            v12 = j_va("entity %i is not a player", (unsigned int)Entity->s.number);
+            Scr_ObjectError(COM_ERR_6564, scrContext, v12);
           }
-          GScr_Main_ClientmaskSetFlagVisible(v5, v14->s.number);
-          v6 = (unsigned int)(v6 + 1);
+          GScr_Main_ClientmaskSetFlagVisible(v2, v11->s.number);
+          v3 = (unsigned int)(v3 + 1);
         }
-        while ( (unsigned int)v6 < count );
+        while ( (unsigned int)v3 < count );
       }
     }
-    v5->s.eventParm = outExploderID;
+    v2->s.eventParm = outExploderID;
     if ( Scr_GetNumParam(scrContext) == 3 && Scr_GetType(scrContext, 2u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm4, xmm2, xmm3
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm4, 1
-        vcvttss2si eax, xmm1
-      }
+      Scr_GetFloat(scrContext, 2u);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm4, 1 }
+      time = (int)*(float *)&_XMM1;
     }
     else
     {
-      _EAX = level.time;
+      time = level.time;
     }
-    v5->s.time2 = _EAX;
+    v2->s.time2 = time;
   }
 }
 
@@ -27513,10 +24506,8 @@ void GScr_Turret_SnapToTargetEntity(scrContext_t *scrContext, scr_entref_t entre
   gentity_s *v4; 
   const char *v5; 
   const char *v6; 
+  GTurret *Turret; 
   const gentity_s *v8; 
-  int v12; 
-  int v13; 
-  int v14; 
 
   Entity = GetEntity(entref);
   v4 = Entity;
@@ -27526,38 +24517,18 @@ void GScr_Turret_SnapToTargetEntity(scrContext_t *scrContext, scr_entref_t entre
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_4036, scrContext, v6);
   }
-  _RBP = GTurret::GetTurret(&v4->turretHandle);
+  Turret = GTurret::GetTurret(&v4->turretHandle);
   v8 = GScr_GetEntity(0);
-  EntHandle::setEnt(&_RBP->m_data.manualTarget, v8);
+  EntHandle::setEnt(&Turret->m_data.manualTarget, v8);
   if ( Scr_GetNumParam(scrContext) <= 1 )
   {
-    *(_QWORD *)_RBP->m_data.manualTargetOffset.v = 0i64;
-    _RBP->m_data.manualTargetOffset.v[2] = 0.0;
+    *(_QWORD *)Turret->m_data.manualTargetOffset.v = 0i64;
+    Turret->m_data.manualTargetOffset.v[2] = 0.0;
   }
   else
   {
-    Scr_GetVector(scrContext, 1u, &_RBP->m_data.manualTargetOffset);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+60h]
-      vmovss  [rsp+28h+arg_10], xmm0
-    }
-    if ( (v12 & 0x7F800000) == 2139095040 )
-      goto LABEL_7;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+64h]
-      vmovss  [rsp+28h+arg_10], xmm0
-    }
-    if ( (v13 & 0x7F800000) == 2139095040 )
-      goto LABEL_7;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+68h]
-      vmovss  [rsp+28h+arg_10], xmm0
-    }
-    if ( (v14 & 0x7F800000) == 2139095040 )
-LABEL_7:
+    Scr_GetVector(scrContext, 1u, &Turret->m_data.manualTargetOffset);
+    if ( (LODWORD(Turret->m_data.manualTargetOffset.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(Turret->m_data.manualTargetOffset.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(Turret->m_data.manualTargetOffset.v[2]) & 0x7F800000) == 2139095040 )
       Scr_ParamError(COM_ERR_4037, scrContext, 1u, "Vector target offset has NAN");
   }
   G_Turret_ScrSnapToTarget(scrContext, v4);
@@ -27656,20 +24627,22 @@ void GScr_Turret_SetPlayerSpread(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   const BgObjectHandle<GTurret> *p_turretHandle; 
+  const char *v5; 
   const char *v6; 
-  const char *v7; 
+  GTurret *Turret; 
+  double Float; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
   if ( !Entity->turretHandle.m_objIndex )
   {
-    v6 = SL_ConvertToString(Entity->classname);
-    v7 = j_va("entity type '%s' is not a turret", v6);
-    Scr_Error(COM_ERR_4040, scrContext, v7);
+    v5 = SL_ConvertToString(Entity->classname);
+    v6 = j_va("entity type '%s' is not a turret", v5);
+    Scr_Error(COM_ERR_4040, scrContext, v6);
   }
-  _RBX = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovss  dword ptr [rbx+48h], xmm0 }
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.playerSpread = *(float *)&Float;
 }
 
 /*
@@ -27770,46 +24743,47 @@ void GScr_Turret_SetConvergenceTime(scrContext_t *scrContext, scr_entref_t entre
 {
   gentity_s *Entity; 
   const BgObjectHandle<GTurret> *p_turretHandle; 
+  const char *v5; 
   const char *v6; 
-  const char *v7; 
-  __int64 v8; 
+  __int64 v7; 
   const char *String; 
-  __int64 v10; 
-  char v11; 
-  __int64 v12; 
-  char v13; 
+  __int64 v9; 
+  char v10; 
+  __int64 v11; 
+  char v12; 
   GTurret *Turret; 
+  double Float; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
   if ( !Entity->turretHandle.m_objIndex )
   {
-    v6 = SL_ConvertToString(Entity->classname);
-    v7 = j_va("entity type '%s' is not a turret", v6);
-    Scr_Error(COM_ERR_4041, scrContext, v7);
+    v5 = SL_ConvertToString(Entity->classname);
+    v6 = j_va("entity type '%s' is not a turret", v5);
+    Scr_Error(COM_ERR_4041, scrContext, v6);
   }
-  v8 = 1i64;
+  v7 = 1i64;
   if ( (int)Scr_GetNumParam(scrContext) > 1 )
   {
     String = Scr_GetString(scrContext, 1u);
-    v10 = 0i64;
+    v9 = 0i64;
     while ( 1 )
     {
-      v11 = String[v10++];
-      if ( v11 != aYaw[v10 - 1] )
+      v10 = String[v9++];
+      if ( v10 != aYaw[v9 - 1] )
         break;
-      if ( v10 == 4 )
+      if ( v9 == 4 )
         goto LABEL_13;
     }
-    v12 = 0i64;
+    v11 = 0i64;
     while ( 1 )
     {
-      v13 = String[v12++];
-      if ( v13 != aPitch[v12 - 1] )
+      v12 = String[v11++];
+      if ( v12 != aPitch[v11 - 1] )
         break;
-      if ( v12 == 6 )
+      if ( v11 == 6 )
       {
-        v8 = 0i64;
+        v7 = 0i64;
         goto LABEL_13;
       }
     }
@@ -27817,13 +24791,8 @@ void GScr_Turret_SetConvergenceTime(scrContext_t *scrContext, scr_entref_t entre
   }
 LABEL_13:
   Turret = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si ecx, xmm1
-  }
-  Turret->m_data.convergenceTime[v8] = _ECX;
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.convergenceTime[v7] = (int)(float)(*(float *)&Float * 1000.0);
 }
 
 /*
@@ -27835,68 +24804,30 @@ void GScr_Turret_SetConvergenceHeightPercent(scrContext_t *scrContext, scr_entre
 {
   gentity_s *Entity; 
   const BgObjectHandle<GTurret> *p_turretHandle; 
-  const char *v9; 
-  const char *v10; 
-  char v11; 
-  char v12; 
-  double v21; 
-  double v22; 
-  double v23; 
+  const char *v6; 
+  const char *v7; 
+  double Float; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm8
-  }
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
   if ( !Entity->turretHandle.m_objIndex )
   {
-    v9 = SL_ConvertToString(Entity->classname);
-    v10 = j_va("entity type '%s' is not a turret", v9);
-    Scr_Error(COM_ERR_4043, scrContext, v10);
+    v6 = SL_ConvertToString(Entity->classname);
+    v7 = j_va("entity type '%s' is not a turret", v6);
+    Scr_Error(COM_ERR_4043, scrContext, v7);
   }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4044, scrContext, "expecting one float argument");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm0, xmm8
-    vmovaps xmm6, xmm0
-  }
-  if ( v11 )
-    goto LABEL_7;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v11 | v12) )
-LABEL_7:
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
     Scr_ParamError(COM_ERR_4045, scrContext, 0, "<scaler> must between 0 and 1 inclusive");
-  __asm { vcomiss xmm6, xmm8 }
-  if ( v11 )
-    goto LABEL_10;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !(v11 | v12) )
+  if ( *(float *)&Float < 0.0 || *(float *)&Float > 1.0 )
   {
-LABEL_10:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+68h+var_30], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_38], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+68h+var_40], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 4681, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( percent ) && ( percent ) <= ( 1.f )", "percent not in [0.f, 1.f]\n\t%g not in [%g, %g]", v21, v22, v23) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 4681, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( percent ) && ( percent ) <= ( 1.f )", "percent not in [0.f, 1.f]\n\t%g not in [%g, %g]", *(float *)&Float, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_28]
-    vmovss  dword ptr [rax+8Ch], xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  GTurret::GetTurret(p_turretHandle)->m_data.convergenceHeightPercent = *(float *)&Float;
 }
 
 /*
@@ -27906,26 +24837,22 @@ Scr_TrajectoryCalculateInitialVelocity
 */
 void Scr_TrajectoryCalculateInitialVelocity(scrContext_t *scrContext)
 {
+  double Float; 
   vec3_t returnVector; 
   vec3_t gravityVector; 
   vec3_t endPos; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+88h+var_58], xmm0
-    vmovss  dword ptr [rsp+88h+var_58+4], xmm0
-    vmovss  dword ptr [rsp+88h+var_58+8], xmm0
-  }
+  returnVector.v[0] = 0.0;
+  returnVector.v[1] = 0.0;
+  returnVector.v[2] = 0.0;
   if ( Scr_GetNumParam(scrContext) == 4 )
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
     Scr_GetVector(scrContext, 1u, &endPos);
     Scr_GetVector(scrContext, 2u, &gravityVector);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm3, xmm0; totalTime }
-    TrajectoryCalculateInitialVelocity(&vectorValue, &endPos, &gravityVector, *(const float *)&_XMM3, &returnVector);
+    Float = Scr_GetFloat(scrContext, 3u);
+    TrajectoryCalculateInitialVelocity(&vectorValue, &endPos, &gravityVector, *(const float *)&Float, &returnVector);
   }
   else
   {
@@ -27941,30 +24868,26 @@ Scr_TrajectoryCalculateMinimumVelocity
 */
 void Scr_TrajectoryCalculateMinimumVelocity(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  double v4; 
   vec3_t endPos; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) == 3 )
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
     Scr_GetVector(scrContext, 1u, &endPos);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm2, xmm0; gravity }
-    *(double *)&_XMM0 = TrajectoryCalculateMinimumVelocity(&vectorValue, &endPos, *(const float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v4 = TrajectoryCalculateMinimumVelocity(&vectorValue, &endPos, *(const float *)&Float);
+    v2 = *(float *)&v4;
   }
   else
   {
     Scr_Error(COM_ERR_4665, scrContext, "Wrong number of parameters to TrajectoryCalculateMinimumVelocity()!");
   }
-  __asm { vmovaps xmm1, xmm6; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  Scr_AddFloat(scrContext, v2);
 }
 
 /*
@@ -28001,50 +24924,34 @@ Scr_TrajectoryCalculateExitAngle
 */
 void Scr_TrajectoryCalculateExitAngle(scrContext_t *scrContext)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  float v2; 
+  double Float; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  double v10; 
+
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) == 4 )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovaps xmm3, xmm0; verticalDistance
-      vmovaps xmm0, xmm8; velocity
-      vmovaps xmm2, xmm6; horizontalDistance
-      vmovaps xmm1, xmm7; gravity
-    }
-    *(double *)&_XMM0 = TrajectoryCalculateExitAngle(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, xmm0
-    }
+    Float = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&Float;
+    v5 = Scr_GetFloat(scrContext, 1u);
+    v6 = *(float *)&v5;
+    v7 = Scr_GetFloat(scrContext, 2u);
+    v8 = *(float *)&v7;
+    v9 = Scr_GetFloat(scrContext, 3u);
+    v10 = TrajectoryCalculateExitAngle(v4, v6, v8, *(const float *)&v9);
+    v2 = *(float *)&v10;
   }
   else
   {
     Scr_Error(COM_ERR_4666, scrContext, "Wrong number of parameters to TrajectoryCalculateExitAngle()!");
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; value
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v2);
 }
 
 /*
@@ -28079,36 +24986,30 @@ Scr_TrajectoryEstimateDesiredInAirTime
 */
 void Scr_TrajectoryEstimateDesiredInAirTime(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  float v4; 
+  double v5; 
+  double v6; 
   vec3_t endPos; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) == 4 )
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
     Scr_GetVector(scrContext, 1u, &endPos);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovaps xmm3, xmm0; gravity
-      vmovaps xmm2, xmm6; velocity
-    }
-    *(double *)&_XMM0 = TrajectoryEstimateDesiredInAirTime(&vectorValue, &endPos, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v4 = *(float *)&Float;
+    v5 = Scr_GetFloat(scrContext, 3u);
+    v6 = TrajectoryEstimateDesiredInAirTime(&vectorValue, &endPos, v4, *(const float *)&v5);
+    v2 = *(float *)&v6;
   }
   else
   {
     Scr_Error(COM_ERR_4667, scrContext, "Wrong number of parameters to TrajectoryEstimateDesiredInAirTime()!");
   }
-  __asm { vmovaps xmm1, xmm6; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  Scr_AddFloat(scrContext, v2);
 }
 
 /*
@@ -28168,42 +25069,30 @@ Scr_TrajectoryComputeDeltaHeightAtTime
 */
 void Scr_TrajectoryComputeDeltaHeightAtTime(scrContext_t *scrContext)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  float v2; 
+  double Float; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  double v8; 
+
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) == 3 )
   {
-    __asm { vmovaps [rsp+48h+var_28], xmm7 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vmovaps xmm2, xmm0; time
-      vmovaps xmm0, xmm7; verticalVelocity
-      vmovaps xmm1, xmm6; gravity
-    }
-    *(double *)&_XMM0 = TrajectoryComputeDeltaHeightAtTime(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovaps xmm6, xmm0
-    }
+    Float = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&Float;
+    v5 = Scr_GetFloat(scrContext, 1u);
+    v6 = *(float *)&v5;
+    v7 = Scr_GetFloat(scrContext, 2u);
+    v8 = TrajectoryComputeDeltaHeightAtTime(v4, v6, *(const float *)&v7);
+    v2 = *(float *)&v8;
   }
   else
   {
     Scr_Error(COM_ERR_4668, scrContext, "Wrong number of parameters to TrajectoryComputeDeltaHeightAtTime()!");
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; value
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v2);
 }
 
 /*
@@ -28217,6 +25106,7 @@ void GScr_Turret_GetRightArc(scrContext_t *scrContext, scr_entref_t entref)
   const BgObjectHandle<GTurret> *p_turretHandle; 
   const char *v5; 
   const char *v6; 
+  GTurret *Turret; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
@@ -28226,13 +25116,8 @@ void GScr_Turret_GetRightArc(scrContext_t *scrContext, scr_entref_t entref)
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5917, scrContext, v6);
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+20h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Scr_AddFloat(scrContext, COERCE_FLOAT(LODWORD(Turret->m_data.arcmin.v[1]) ^ _xmm));
 }
 
 /*
@@ -28242,42 +25127,34 @@ Scr_TrajectoryCanAttemptAccurateJump
 */
 void Scr_TrajectoryCanAttemptAccurateJump(scrContext_t *scrContext)
 {
-  int v4; 
-  int CanAttemptAccurateJump; 
-  float v8; 
-  float v9; 
+  int v2; 
+  double Float; 
+  float v4; 
+  double v5; 
   vec3_t toNormal; 
   vec3_t toPoint; 
   vec3_t fromNormal; 
   vec3_t vectorValue; 
   PathJumpLinkWorkData workData; 
 
-  v4 = 0;
+  v2 = 0;
   if ( Scr_GetNumParam(scrContext) == 6 )
   {
-    __asm { vmovaps [rsp+0E8h+var_18], xmm6 }
     Scr_GetVector(scrContext, 0, &vectorValue);
     Scr_GetVector(scrContext, 1u, &fromNormal);
     Scr_GetVector(scrContext, 2u, &toPoint);
     Scr_GetVector(scrContext, 3u, &toNormal);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_C0], xmm0
-      vmovss  [rsp+0E8h+var_C8], xmm6
-    }
-    CanAttemptAccurateJump = Path_TrajectoryCanAttemptAccurateJump(&vectorValue, &fromNormal, &toPoint, &toNormal, v8, v9, &workData);
-    __asm { vmovaps xmm6, [rsp+0E8h+var_18] }
-    if ( CanAttemptAccurateJump )
-      v4 = 1;
+    Float = Scr_GetFloat(scrContext, 4u);
+    v4 = *(float *)&Float;
+    v5 = Scr_GetFloat(scrContext, 5u);
+    if ( Path_TrajectoryCanAttemptAccurateJump(&vectorValue, &fromNormal, &toPoint, &toNormal, v4, *(float *)&v5, &workData) )
+      v2 = 1;
   }
   else
   {
     Scr_Error(COM_ERR_4669, scrContext, "Wrong number of parameters to TrajectoryCanAttemptAccurateJump()!");
   }
-  Scr_AddBool(scrContext, v4);
+  Scr_AddBool(scrContext, v2);
 }
 
 /*
@@ -28288,23 +25165,17 @@ GScr_Turret_SetRightArc
 void GScr_Turret_SetRightArc(scrContext_t *scrContext, scr_entref_t entref)
 {
   BgObjectHandle<GTurret> *p_turretHandle; 
-  char v8; 
-  char v9; 
+  GTurret *Turret; 
+  double Float; 
 
   p_turretHandle = &GetEntity(entref)->turretHandle;
   if ( !p_turretHandle->m_objIndex )
     Scr_Error(COM_ERR_4049, scrContext, "entity is not a turret");
-  _RBX = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rbx+20h], xmm1
-  }
-  if ( !(v8 | v9) )
-    _RBX->m_data.arcmin.v[1] = 0.0;
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.arcmin.v[1] = COERCE_FLOAT(LODWORD(Float) ^ _xmm);
+  if ( COERCE_FLOAT(LODWORD(Float) ^ _xmm) > 0.0 )
+    Turret->m_data.arcmin.v[1] = 0.0;
 }
 
 /*
@@ -28318,6 +25189,7 @@ void GScr_Turret_GetLeftArc(scrContext_t *scrContext, scr_entref_t entref)
   const BgObjectHandle<GTurret> *p_turretHandle; 
   const char *v5; 
   const char *v6; 
+  GTurret *Turret; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
@@ -28327,9 +25199,8 @@ void GScr_Turret_GetLeftArc(scrContext_t *scrContext, scr_entref_t entref)
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5716, scrContext, v6);
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm { vmovss  xmm1, dword ptr [rax+28h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Scr_AddFloat(scrContext, Turret->m_data.arcmax.v[1]);
 }
 
 /*
@@ -28340,21 +25211,17 @@ GScr_Turret_SetLeftArc
 void GScr_Turret_SetLeftArc(scrContext_t *scrContext, scr_entref_t entref)
 {
   BgObjectHandle<GTurret> *p_turretHandle; 
-  char v8; 
+  GTurret *Turret; 
+  double Float; 
 
   p_turretHandle = &GetEntity(entref)->turretHandle;
   if ( !p_turretHandle->m_objIndex )
     Scr_Error(COM_ERR_4050, scrContext, "entity is not a turret");
-  _RBX = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  dword ptr [rbx+28h], xmm0
-  }
-  if ( v8 )
-    _RBX->m_data.arcmax.v[1] = 0.0;
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.arcmax.v[1] = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 )
+    Turret->m_data.arcmax.v[1] = 0.0;
 }
 
 /*
@@ -28365,15 +25232,21 @@ GScr_drawSoundShape
 void GScr_drawSoundShape(scrContext_t *scrContext)
 {
   const char *String; 
+  double Float; 
   SndAliasList *Alias; 
-  SndAliasList *v8; 
+  SndAliasList *v5; 
   SndAlias *head; 
-  const char *v11; 
-  int v12; 
-  char v13; 
-  char v14; 
+  const OcclusionShape *OcclusionShapeById; 
+  const char *v8; 
+  int v9; 
+  char v10; 
+  char v11; 
+  float distMax; 
+  double v13; 
+  float v14; 
+  double v15; 
   vec4_t color; 
-  vec3_t v35; 
+  vec3_t v17; 
   vec3_t angles; 
   vec3_t vectorValue; 
 
@@ -28382,24 +25255,16 @@ void GScr_drawSoundShape(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   String = Scr_GetString(scrContext, 2u);
-  Scr_GetVector(scrContext, 3u, &v35);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+var_58]
-    vmovss  xmm1, dword ptr [rsp+98h+var_58+4]
-    vmovss  dword ptr [rsp+98h+var_68], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+var_58+8]
-    vmovss  dword ptr [rsp+98h+var_68+8], xmm0
-    vmovss  dword ptr [rsp+98h+var_68+4], xmm1
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm { vmovss  dword ptr [rsp+98h+var_68+0Ch], xmm0 }
+  Scr_GetVector(scrContext, 3u, &v17);
+  color.xyz = v17;
+  Float = Scr_GetFloat(scrContext, 4u);
+  color.v[3] = *(float *)&Float;
   if ( String )
   {
     if ( *String )
     {
       Alias = SND_TryFindAlias(String);
-      v8 = Alias;
+      v5 = Alias;
       if ( Alias )
       {
         if ( Alias->count )
@@ -28407,68 +25272,35 @@ void GScr_drawSoundShape(scrContext_t *scrContext)
           head = Alias->head;
           if ( head )
           {
-            _RDI = SND_GetOcclusionShapeById(head->occlusionShape);
-            if ( _RDI )
+            OcclusionShapeById = SND_GetOcclusionShapeById(head->occlusionShape);
+            if ( OcclusionShapeById )
             {
-              v11 = "default";
-              v12 = 5381;
-              v13 = 100;
+              v8 = "default";
+              v9 = 5381;
+              v10 = 100;
               do
               {
-                ++v11;
-                v14 = v13 | 0x20;
-                if ( (unsigned int)(v13 - 65) >= 0x1A )
-                  v14 = v13;
-                v12 = 65599 * v12 + v14;
-                v13 = *v11;
+                ++v8;
+                v11 = v10 | 0x20;
+                if ( (unsigned int)(v10 - 65) >= 0x1A )
+                  v11 = v10;
+                v9 = 65599 * v9 + v11;
+                v10 = *v8;
               }
-              while ( *v11 );
-              if ( !v12 )
-                v12 = 1;
-              if ( _RDI->id != v12 )
+              while ( *v8 );
+              if ( !v9 )
+                v9 = 1;
+              if ( OcclusionShapeById->id != v9 )
               {
-                _RAX = v8->head;
-                __asm
-                {
-                  vmovss  xmm2, cs:__real@42b40000; max
-                  vmovss  xmm1, cs:__real@c2b40000; min
-                  vmovss  xmm0, dword ptr [rdi+48h]; val
-                  vmovaps [rsp+98h+var_18], xmm6
-                  vmovss  xmm6, dword ptr [rax+68h]
-                }
-                *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                __asm
-                {
-                  vmovaps xmm3, xmm6; range
-                  vmovaps xmm2, xmm0; coneAngle
-                }
-                Scr_DrawCone(&vectorValue, &angles, *(float *)&_XMM2, *(float *)&_XMM3, &color);
-                __asm
-                {
-                  vmovss  xmm5, cs:__real@3f000000
-                  vmulss  xmm0, xmm5, dword ptr [rsp+98h+var_68+4]
-                  vmulss  xmm3, xmm5, dword ptr [rsp+98h+var_68]
-                  vmulss  xmm4, xmm5, dword ptr [rsp+98h+var_68+8]
-                  vmovss  xmm2, cs:__real@42b40000; max
-                  vmovss  xmm1, cs:__real@c2b40000; min
-                  vmovss  dword ptr [rsp+98h+var_68], xmm3
-                  vmovss  dword ptr [rsp+98h+var_68+4], xmm0
-                  vmovss  dword ptr [rsp+98h+var_68+8], xmm4
-                }
-                _RAX = v8->head;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+44h]; val
-                  vmovss  xmm6, dword ptr [rax+68h]
-                }
-                *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                __asm
-                {
-                  vmovaps xmm3, xmm6; range
-                  vmovaps xmm2, xmm0; coneAngle
-                }
-                Scr_DrawCone(&vectorValue, &angles, *(float *)&_XMM2, *(float *)&_XMM3, &color);
-                __asm { vmovaps xmm6, [rsp+98h+var_18] }
+                distMax = v5->head->distMax;
+                v13 = I_fclamp(OcclusionShapeById->outerAngleVolume, -90.0, 90.0);
+                Scr_DrawCone(&vectorValue, &angles, *(float *)&v13, distMax, &color);
+                color.v[0] = 0.5 * color.v[0];
+                color.v[1] = 0.5 * color.v[1];
+                color.v[2] = 0.5 * color.v[2];
+                v14 = v5->head->distMax;
+                v15 = I_fclamp(OcclusionShapeById->innerAngleVolume, -90.0, 90.0);
+                Scr_DrawCone(&vectorValue, &angles, *(float *)&v15, v14, &color);
               }
             }
           }
@@ -28489,6 +25321,7 @@ void GScr_Turret_GetTopArc(scrContext_t *scrContext, scr_entref_t entref)
   const BgObjectHandle<GTurret> *p_turretHandle; 
   const char *v5; 
   const char *v6; 
+  GTurret *Turret; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
@@ -28498,13 +25331,8 @@ void GScr_Turret_GetTopArc(scrContext_t *scrContext, scr_entref_t entref)
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5717, scrContext, v6);
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+1Ch]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Scr_AddFloat(scrContext, COERCE_FLOAT(LODWORD(Turret->m_data.arcmin.v[0]) ^ _xmm));
 }
 
 /*
@@ -28515,23 +25343,17 @@ GScr_Turret_SetTopArc
 void GScr_Turret_SetTopArc(scrContext_t *scrContext, scr_entref_t entref)
 {
   BgObjectHandle<GTurret> *p_turretHandle; 
-  char v8; 
-  char v9; 
+  GTurret *Turret; 
+  double Float; 
 
   p_turretHandle = &GetEntity(entref)->turretHandle;
   if ( !p_turretHandle->m_objIndex )
     Scr_Error(COM_ERR_4051, scrContext, "entity is not a turret");
-  _RBX = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rbx+1Ch], xmm1
-  }
-  if ( !(v8 | v9) )
-    _RBX->m_data.arcmin.v[0] = 0.0;
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.arcmin.v[0] = COERCE_FLOAT(LODWORD(Float) ^ _xmm);
+  if ( COERCE_FLOAT(LODWORD(Float) ^ _xmm) > 0.0 )
+    Turret->m_data.arcmin.v[0] = 0.0;
 }
 
 /*
@@ -28569,6 +25391,7 @@ void GScr_Turret_GetBottomArc(scrContext_t *scrContext, scr_entref_t entref)
   const BgObjectHandle<GTurret> *p_turretHandle; 
   const char *v5; 
   const char *v6; 
+  GTurret *Turret; 
 
   Entity = GetEntity(entref);
   p_turretHandle = &Entity->turretHandle;
@@ -28578,9 +25401,8 @@ void GScr_Turret_GetBottomArc(scrContext_t *scrContext, scr_entref_t entref)
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5718, scrContext, v6);
   }
-  _RAX = GTurret::GetTurret(p_turretHandle);
-  __asm { vmovss  xmm1, dword ptr [rax+24h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Scr_AddFloat(scrContext, Turret->m_data.arcmax.v[0]);
 }
 
 /*
@@ -28599,12 +25421,10 @@ void __fastcall GScr_ResetScriptUsageAnalysisData(scrContext_t *scrContext)
 GScr_InstantlyLogUsageAnalysisData
 ==============
 */
-
-void __fastcall GScr_InstantlyLogUsageAnalysisData(scrContext_t *scrContext, double _XMM1_8)
+void GScr_InstantlyLogUsageAnalysisData(scrContext_t *scrContext)
 {
   Scr_CalcScriptProfileTrackServerTime(scrContext);
-  __asm { vxorps  xmm1, xmm1, xmm1; framtTime }
-  Profile_TrackUsageAnalysis(scrContext, *(float *)&_XMM1, 1);
+  Profile_TrackUsageAnalysis(scrContext, 0.0, 1);
   Scr_ScriptProfilePrintUsageReportToLog(scrContext);
 }
 
@@ -28616,21 +25436,17 @@ GScr_Turret_SetBottomArc
 void GScr_Turret_SetBottomArc(scrContext_t *scrContext, scr_entref_t entref)
 {
   BgObjectHandle<GTurret> *p_turretHandle; 
-  char v8; 
+  GTurret *Turret; 
+  double Float; 
 
   p_turretHandle = &GetEntity(entref)->turretHandle;
   if ( !p_turretHandle->m_objIndex )
     Scr_Error(COM_ERR_4052, scrContext, "entity is not a turret");
-  _RBX = GTurret::GetTurret(p_turretHandle);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  dword ptr [rbx+24h], xmm0
-  }
-  if ( v8 )
-    _RBX->m_data.arcmax.v[0] = 0.0;
+  Turret = GTurret::GetTurret(p_turretHandle);
+  Float = Scr_GetFloat(scrContext, 0);
+  Turret->m_data.arcmax.v[0] = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 )
+    Turret->m_data.arcmax.v[0] = 0.0;
 }
 
 /*
@@ -28666,33 +25482,17 @@ GScr_Turret_SetAutoRotationDelay
 void GScr_Turret_SetAutoRotationDelay(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  char v9; 
+  double Float; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Entity = GetEntity(entref);
   if ( !Entity->turretHandle.m_objIndex )
     Scr_Error(COM_ERR_4053, scrContext, "entity is not a turret");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v9 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float < 0.0 )
     Scr_Error(COM_ERR_4054, scrContext, "need a positive duration");
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si edx, xmm4; delayMS
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  G_Turret_SetAutoRotationStopDelay(Entity, _EDX);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  G_Turret_SetAutoRotationStopDelay(Entity, (int)*(float *)&_XMM4);
 }
 
 /*
@@ -28703,15 +25503,15 @@ GScr_Turret_SetDefaultDropPitch
 void GScr_Turret_SetDefaultDropPitch(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
+  double Float; 
 
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4055, scrContext, "illegal call to setdefaultdroppitch()");
   Entity = GetEntity(entref);
   if ( !Entity->turretHandle.m_objIndex )
     Scr_Error(COM_ERR_4056, scrContext, "entity is not a turret");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm1, xmm0; pitch }
-  G_Turret_SetDefaultDropPitch(Entity, *(float *)&_XMM1);
+  Float = Scr_GetFloat(scrContext, 0);
+  G_Turret_SetDefaultDropPitch(Entity, *(float *)&Float);
 }
 
 /*
@@ -28740,19 +25540,19 @@ GScr_Turret_GetCurrentYaw
 void GScr_Turret_GetCurrentYaw(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
+  gentity_s *v4; 
   const char *v5; 
   const char *v6; 
 
   Entity = GetEntity(entref);
-  _RBX = Entity;
+  v4 = Entity;
   if ( !Entity->turretHandle.m_objIndex )
   {
     v5 = SL_ConvertToString(Entity->classname);
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5719, scrContext, v6);
   }
-  __asm { vmovss  xmm1, dword ptr [rbx+5Ch]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v4->s.lerp.u.turret.gunAngles.v[1]);
 }
 
 /*
@@ -28802,19 +25602,19 @@ GScr_Turret_GetCurrentPitch
 void GScr_Turret_GetCurrentPitch(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
+  gentity_s *v4; 
   const char *v5; 
   const char *v6; 
 
   Entity = GetEntity(entref);
-  _RBX = Entity;
+  v4 = Entity;
   if ( !Entity->turretHandle.m_objIndex )
   {
     v5 = SL_ConvertToString(Entity->classname);
     v6 = j_va("entity type '%s' is not a turret", v5);
     Scr_Error(COM_ERR_5720, scrContext, v6);
   }
-  __asm { vmovss  xmm1, dword ptr [rbx+58h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v4->s.lerp.u.turret.gunAngles.v[0]);
 }
 
 /*
@@ -29152,8 +25952,8 @@ void GScr_SpawnScriptable(scrContext_t *scrContext)
 {
   const char *String; 
   unsigned int Int; 
-  const char *v6; 
-  ComErrorCode v7; 
+  const char *v4; 
+  ComErrorCode v5; 
   unsigned int outInstanceIndex; 
   vec3_t angles; 
   vec3_t vectorValue; 
@@ -29162,13 +25962,9 @@ void GScr_SpawnScriptable(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 1u, &vectorValue);
   if ( Scr_GetNumParam(scrContext) <= 2 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+68h+angles], xmm0
-      vmovss  dword ptr [rsp+68h+angles+4], xmm0
-      vmovss  dword ptr [rsp+68h+angles+8], xmm0
-    }
+    angles.v[0] = 0.0;
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
   }
   else
   {
@@ -29183,8 +25979,8 @@ void GScr_SpawnScriptable(scrContext_t *scrContext)
     Int = Scr_GetInt(scrContext, 3u);
     if ( Int > 0xFFFE )
     {
-      v6 = "GScr_SpawnScriptable payload needs to be between 0 and 65535.";
-      v7 = COM_ERR_6090;
+      v4 = "GScr_SpawnScriptable payload needs to be between 0 and 65535.";
+      v5 = COM_ERR_6090;
       goto LABEL_11;
     }
   }
@@ -29193,10 +25989,10 @@ void GScr_SpawnScriptable(scrContext_t *scrContext)
     Scr_AddEntityNum(scrContext, outInstanceIndex, ENTITY_CLASS_SCRIPTABLE);
     return;
   }
-  v6 = "Failed to spawn standalone instance. See log for details.";
-  v7 = COM_ERR_4682;
+  v4 = "Failed to spawn standalone instance. See log for details.";
+  v5 = COM_ERR_4682;
 LABEL_11:
-  Scr_Error(v7, scrContext, v6);
+  Scr_Error(v5, scrContext, v4);
 }
 
 /*
@@ -29315,14 +26111,14 @@ GScr_GetMissileVelocity
 void GScr_GetMissileVelocity(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  gentity_s *v5; 
+  gentity_s *v4; 
   trType_t trType; 
   GHandler *Handler; 
-  const char *v9; 
+  const char *v7; 
   vec3_t outVelocity; 
 
   Entity = GetEntity(entref);
-  v5 = Entity;
+  v4 = Entity;
   if ( Entity )
   {
     if ( Entity->s.eType == ET_MISSILE )
@@ -29334,36 +26130,28 @@ void GScr_GetMissileVelocity(scrContext_t *scrContext, scr_entref_t entref)
   }
   Scr_Error(COM_ERR_6196, scrContext, "GetMissileVelocity() invoked on invalid or non-missile entity.");
 LABEL_6:
-  trType = v5->s.lerp.pos.trType;
+  trType = v4->s.lerp.pos.trType;
   if ( trType )
   {
     if ( ((trType - 2) & 0xFFFFFFFA) != 0 || trType == TR_LINEAR_STOP )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+58h+outVelocity], xmm0
-        vmovss  dword ptr [rsp+58h+outVelocity+4], xmm0
-        vmovss  dword ptr [rsp+58h+outVelocity+8], xmm0
-      }
-      v9 = j_va("GetMissileVelocity() unsupported Trajectory Type %i for entity %i", (unsigned int)v5->s.lerp.apos.trType, (unsigned int)v5->s.number);
-      Scr_Error(COM_ERR_6197, scrContext, v9);
+      outVelocity.v[0] = 0.0;
+      outVelocity.v[1] = 0.0;
+      outVelocity.v[2] = 0.0;
+      v7 = j_va("GetMissileVelocity() unsupported Trajectory Type %i for entity %i", (unsigned int)v4->s.lerp.apos.trType, (unsigned int)v4->s.number);
+      Scr_Error(COM_ERR_6197, scrContext, v7);
     }
     else
     {
       Handler = GHandler::getHandler();
-      GHandler::GetEntityVelocity(Handler, v5->s.number, &outVelocity);
+      GHandler::GetEntityVelocity(Handler, v4->s.number, &outVelocity);
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+58h+outVelocity], xmm0
-      vmovss  dword ptr [rsp+58h+outVelocity+4], xmm0
-      vmovss  dword ptr [rsp+58h+outVelocity+8], xmm0
-    }
+    outVelocity.v[0] = 0.0;
+    outVelocity.v[1] = 0.0;
+    outVelocity.v[2] = 0.0;
   }
   Scr_AddVector(scrContext, outVelocity.v);
 }
@@ -29525,14 +26313,15 @@ GScr_GetPlayerRollVelocity
 void GScr_GetPlayerRollVelocity(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
+  playerState_s *EntityPlayerState; 
 
   Entity = GetEntity(entref);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 5597, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_GetEntityPlayerState(Entity) )
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
+  if ( !EntityPlayerState )
     Scr_Error(COM_ERR_4067, scrContext, "GetPlayerRollVelocity must be called on a player.\n");
-  __asm { vmovss  xmm1, dword ptr [rbx+48h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, EntityPlayerState->rollVelocity);
 }
 
 /*
@@ -30101,23 +26890,23 @@ GScr_GetCSplineLength
 void GScr_GetCSplineLength(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v4; 
-  const char *v5; 
+  unsigned int v3; 
+  const char *v4; 
+  double CSplineLength; 
 
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
     Int = Scr_GetInt(scrContext, 0);
-    v4 = truncate_cast<unsigned short,int>(Int);
-    if ( v4 <= Com_GetCSplineCount() )
+    v3 = truncate_cast<unsigned short,int>(Int);
+    if ( v3 <= Com_GetCSplineCount() )
     {
-      *(double *)&_XMM0 = Com_GetCSplineLength(v4);
-      __asm { vmovaps xmm1, xmm0; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      CSplineLength = Com_GetCSplineLength(v3);
+      Scr_AddFloat(scrContext, *(float *)&CSplineLength);
     }
     else
     {
-      v5 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplineLength", v4);
-      Scr_Error(COM_ERR_4687, scrContext, v5);
+      v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplineLength", v3);
+      Scr_Error(COM_ERR_4687, scrContext, v4);
     }
   }
   else
@@ -30343,48 +27132,36 @@ GScr_SetBountyCount
 void GScr_SetBountyCount(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *PlayerEntity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   int Int; 
-  const char *v18; 
-  __int64 v19; 
+  const char *v10; 
 
   entnum = entref.entnum;
-  _RSI = GScr_Main_GetPlayerEntity(scrContext, entref);
-  if ( !G_Utils_IsClient(_RSI) )
+  PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
+  if ( !G_Utils_IsClient(PlayerEntity) )
   {
-    targetname = _RSI->targetname;
+    targetname = PlayerEntity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm0
-    }
-    v16 = j_va("SetBountyCount(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, v19, v7, v6);
-    Scr_Error(COM_ERR_4079, scrContext, v16);
+    v7 = SL_ConvertToString(PlayerEntity->classname);
+    v8 = j_va("SetBountyCount(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, PlayerEntity->r.currentOrigin.v[0], PlayerEntity->r.currentOrigin.v[1], PlayerEntity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4079, scrContext, v8);
   }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4080, scrContext, "USAGE: <player> SetBountyCount( <int> )\n");
   Int = Scr_GetInt(scrContext, 0);
   if ( Int > 7 )
   {
-    v18 = j_va("Bounty count limit exceeded! The maximum supported bounty count is %d\n", 7i64);
-    Scr_Error(COM_ERR_4081, scrContext, v18);
+    v10 = j_va("Bounty count limit exceeded! The maximum supported bounty count is %d\n", 7i64);
+    Scr_Error(COM_ERR_4081, scrContext, v10);
   }
-  _RSI->client->sess.cs.bountyCount = truncate_cast<signed char,int>(Int);
+  PlayerEntity->client->sess.cs.bountyCount = truncate_cast<signed char,int>(Int);
 }
 
 /*
@@ -30444,49 +27221,37 @@ GScr_SetPerkIcon
 void GScr_SetPerkIcon(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *PlayerEntity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   const char *String; 
-  const char *v18; 
-  __int64 v19; 
+  const char *v10; 
   unsigned int outIndex; 
 
   entnum = entref.entnum;
-  _RSI = GScr_Main_GetPlayerEntity(scrContext, entref);
-  if ( !G_Utils_IsClient(_RSI) )
+  PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
+  if ( !G_Utils_IsClient(PlayerEntity) )
   {
-    targetname = _RSI->targetname;
+    targetname = PlayerEntity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm0
-    }
-    v16 = j_va("SetPerkIcon(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, v19, v7, v6);
-    Scr_Error(COM_ERR_4082, scrContext, v16);
+    v7 = SL_ConvertToString(PlayerEntity->classname);
+    v8 = j_va("SetPerkIcon(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, PlayerEntity->r.currentOrigin.v[0], PlayerEntity->r.currentOrigin.v[1], PlayerEntity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4082, scrContext, v8);
   }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4083, scrContext, "USAGE: <player> SetPerkIcon( <string> )\n");
   String = Scr_GetString(scrContext, 0);
   if ( !NetConstStrings_GetIndexFromName(NETCONSTSTRINGTYPE_IMAGE, String, &outIndex) )
   {
-    v18 = j_va("'%s' is not a valid perk icon image. Please make sure it is included as precache_image in zone_source.", String);
-    Scr_Error(COM_ERR_4084, scrContext, v18);
+    v10 = j_va("'%s' is not a valid perk icon image. Please make sure it is included as precache_image in zone_source.", String);
+    Scr_Error(COM_ERR_4084, scrContext, v10);
   }
-  _RSI->client->sess.cs.perkIconName = outIndex;
+  PlayerEntity->client->sess.cs.perkIconName = outIndex;
 }
 
 /*
@@ -30595,38 +27360,26 @@ GScr_SetSquadIndex
 void GScr_SetSquadIndex(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *PlayerEntity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   int Int; 
-  const char *v18; 
-  __int64 v19; 
+  const char *v10; 
 
   entnum = entref.entnum;
-  _RSI = GScr_Main_GetPlayerEntity(scrContext, entref);
-  if ( !G_Utils_IsClient(_RSI) )
+  PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
+  if ( !G_Utils_IsClient(PlayerEntity) )
   {
-    targetname = _RSI->targetname;
+    targetname = PlayerEntity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm0
-    }
-    v16 = j_va("SetSquadIndex(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, v19, v7, v6);
-    Scr_Error(COM_ERR_4085, scrContext, v16);
+    v7 = SL_ConvertToString(PlayerEntity->classname);
+    v8 = j_va("SetSquadIndex(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, PlayerEntity->r.currentOrigin.v[0], PlayerEntity->r.currentOrigin.v[1], PlayerEntity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4085, scrContext, v8);
   }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_4086, scrContext, "USAGE: <player> SetSquadIndex( <int> )\n");
@@ -30635,10 +27388,10 @@ void GScr_SetSquadIndex(scrContext_t *scrContext, scr_entref_t entref)
   Int = Scr_GetInt(scrContext, 0);
   if ( Int > 255 )
   {
-    v18 = j_va("Squad index limit exceeded! The maximum supported squad index is %d\n", 255i64);
-    Scr_Error(COM_ERR_4087, scrContext, v18);
+    v10 = j_va("Squad index limit exceeded! The maximum supported squad index is %d\n", 255i64);
+    Scr_Error(COM_ERR_4087, scrContext, v10);
   }
-  _RSI->client->sess.cs.squadIndex = Int;
+  PlayerEntity->client->sess.cs.squadIndex = Int;
 }
 
 /*
@@ -30649,36 +27402,36 @@ GScr_GetCSplinePointTension
 void GScr_GetCSplinePointTension(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v4; 
-  const char *v5; 
-  int v6; 
-  unsigned __int16 v7; 
-  const char *v8; 
+  unsigned int v3; 
+  const char *v4; 
+  int v5; 
+  unsigned __int16 v6; 
+  const char *v7; 
+  double CSplinePointTension; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
     Int = Scr_GetInt(scrContext, 0);
-    v4 = truncate_cast<unsigned short,int>(Int);
-    if ( v4 <= Com_GetCSplineCount() )
+    v3 = truncate_cast<unsigned short,int>(Int);
+    if ( v3 <= Com_GetCSplineCount() )
     {
-      v6 = Scr_GetInt(scrContext, 1u);
-      v7 = truncate_cast<unsigned short,int>(v6);
-      if ( v7 < Com_GetCSplinePointCount(v4) )
+      v5 = Scr_GetInt(scrContext, 1u);
+      v6 = truncate_cast<unsigned short,int>(v5);
+      if ( v6 < Com_GetCSplinePointCount(v3) )
       {
-        *(double *)&_XMM0 = Com_GetCSplinePointTension(v4, v7);
-        __asm { vmovaps xmm1, xmm0; value }
-        Scr_AddFloat(scrContext, *(float *)&_XMM1);
+        CSplinePointTension = Com_GetCSplinePointTension(v3, v6);
+        Scr_AddFloat(scrContext, *(float *)&CSplinePointTension);
       }
       else
       {
-        v8 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "GetCSplinePointTension", v7, v4);
-        Scr_Error(COM_ERR_4688, scrContext, v8);
+        v7 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "GetCSplinePointTension", v6, v3);
+        Scr_Error(COM_ERR_4688, scrContext, v7);
       }
     }
     else
     {
-      v5 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplinePointTension", v4);
-      Scr_Error(COM_ERR_4687, scrContext, v5);
+      v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplinePointTension", v3);
+      Scr_Error(COM_ERR_4687, scrContext, v4);
     }
   }
   else
@@ -30695,40 +27448,28 @@ GScr_GetSquadIndex
 void GScr_GetSquadIndex(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *PlayerEntity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
-  __int64 v17; 
+  const char *v8; 
 
   entnum = entref.entnum;
-  _RSI = GScr_Main_GetPlayerEntity(scrContext, entref);
-  if ( !G_Utils_IsClient(_RSI) )
+  PlayerEntity = GScr_Main_GetPlayerEntity(scrContext, entref);
+  if ( !G_Utils_IsClient(PlayerEntity) )
   {
-    targetname = _RSI->targetname;
+    targetname = PlayerEntity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RSI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+134h]
-      vmovss  xmm2, dword ptr [rsi+130h]
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+var_28], xmm0
-    }
-    v16 = j_va("GetSquadIndex(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, v17, v7, v6);
-    Scr_Error(COM_ERR_6126, scrContext, v16);
+    v7 = SL_ConvertToString(PlayerEntity->classname);
+    v8 = j_va("GetSquadIndex(). Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, PlayerEntity->r.currentOrigin.v[0], PlayerEntity->r.currentOrigin.v[1], PlayerEntity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_6126, scrContext, v8);
   }
   if ( Scr_GetNumParam(scrContext) )
     Scr_Error(COM_ERR_6127, scrContext, "USAGE: <player> GetSquadIndex()\n");
-  Scr_AddInt(scrContext, _RSI->client->sess.cs.squadIndex);
+  Scr_AddInt(scrContext, PlayerEntity->client->sess.cs.squadIndex);
 }
 
 /*
@@ -30915,43 +27656,25 @@ ScrCmd_SetScriptableBeamLength
 void ScrCmd_SetScriptableBeamLength(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  char v7; 
-  char v8; 
-  const char *v11; 
-  const char *v12; 
+  double Float; 
+  const char *v5; 
+  const char *v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Entity = GetEntity(entref);
   if ( !Entity )
     Scr_Error(COM_ERR_4091, scrContext, "SetScriptableBeamLength() invoked on invalid entity.");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float > 10000.0 )
   {
-    vcomiss xmm0, cs:__real@461c4000
-    vmovaps xmm6, xmm0
-  }
-  if ( !(v7 | v8) )
-  {
-    __asm
-    {
-      vmovsd  xmm1, cs:__real@40c3880000000000
-      vmovq   rdx, xmm1
-    }
-    v11 = j_va("SetScriptableBeamLength() length is longer than LERP_ENTITY_STATE_MISSILE_EFFECT_MAX_LENGTH %f\n", _RDX);
-    Scr_Error(COM_ERR_4092, scrContext, v11);
+    v5 = j_va("SetScriptableBeamLength() length is longer than LERP_ENTITY_STATE_MISSILE_EFFECT_MAX_LENGTH %f\n", DOUBLE_10000_0);
+    Scr_Error(COM_ERR_4092, scrContext, v5);
   }
   if ( Entity->s.eType != ET_MISSILE )
   {
-    v12 = j_va("SetScriptableBeamLength() currently only supports missile ents, but could be changed by code with additional work and bandwidth cost.\n");
-    Scr_Error(COM_ERR_4093, scrContext, v12);
+    v6 = j_va("SetScriptableBeamLength() currently only supports missile ents, but could be changed by code with additional work and bandwidth cost.\n");
+    Scr_Error(COM_ERR_4093, scrContext, v6);
   }
-  __asm
-  {
-    vmovss  xmm1, cs:__real@461c4000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Entity->s.lerp.u.anonymous.data[6] = MSG_PackUnsignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x10u);
+  Entity->s.lerp.u.anonymous.data[6] = MSG_PackUnsignedFloat(*(float *)&Float, 10000.0, 0x10u);
 }
 
 /*
@@ -30962,36 +27685,36 @@ GScr_GetCSplinePointDistToNextPoint
 void GScr_GetCSplinePointDistToNextPoint(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v4; 
-  const char *v5; 
-  int v6; 
-  unsigned __int16 v7; 
-  const char *v8; 
+  unsigned int v3; 
+  const char *v4; 
+  int v5; 
+  unsigned __int16 v6; 
+  const char *v7; 
+  double CSplinePointDistToNextPoint; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
     Int = Scr_GetInt(scrContext, 0);
-    v4 = truncate_cast<unsigned short,int>(Int);
-    if ( v4 <= Com_GetCSplineCount() )
+    v3 = truncate_cast<unsigned short,int>(Int);
+    if ( v3 <= Com_GetCSplineCount() )
     {
-      v6 = Scr_GetInt(scrContext, 1u);
-      v7 = truncate_cast<unsigned short,int>(v6);
-      if ( v7 < Com_GetCSplinePointCount(v4) )
+      v5 = Scr_GetInt(scrContext, 1u);
+      v6 = truncate_cast<unsigned short,int>(v5);
+      if ( v6 < Com_GetCSplinePointCount(v3) )
       {
-        *(double *)&_XMM0 = Com_GetCSplinePointDistToNextPoint(v4, v7);
-        __asm { vmovaps xmm1, xmm0; value }
-        Scr_AddFloat(scrContext, *(float *)&_XMM1);
+        CSplinePointDistToNextPoint = Com_GetCSplinePointDistToNextPoint(v3, v6);
+        Scr_AddFloat(scrContext, *(float *)&CSplinePointDistToNextPoint);
       }
       else
       {
-        v8 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "GetCSplinePointDistToNextPoint", v7, v4);
-        Scr_Error(COM_ERR_4688, scrContext, v8);
+        v7 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "GetCSplinePointDistToNextPoint", v6, v3);
+        Scr_Error(COM_ERR_4688, scrContext, v7);
       }
     }
     else
     {
-      v5 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplinePointDistToNextPoint", v4);
-      Scr_Error(COM_ERR_4687, scrContext, v5);
+      v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "GetCSplinePointDistToNextPoint", v3);
+      Scr_Error(COM_ERR_4687, scrContext, v4);
     }
   }
   else
@@ -31005,19 +27728,17 @@ void GScr_GetCSplinePointDistToNextPoint(scrContext_t *scrContext)
 GScr_CalcCSplinePosition
 ==============
 */
-
-void __fastcall GScr_CalcCSplinePosition(scrContext_t *scrContext, double _XMM1_8)
+void GScr_CalcCSplinePosition(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v5; 
-  const char *v6; 
-  int v7; 
-  unsigned __int16 v8; 
-  const char *v9; 
-  ComErrorCode v10; 
-  char v11; 
-  char v12; 
-  unsigned int v17; 
+  unsigned int v3; 
+  const char *v4; 
+  int v5; 
+  unsigned __int16 v6; 
+  const char *v7; 
+  ComErrorCode v8; 
+  double Float; 
+  unsigned int v10; 
   vec3_t out_position; 
 
   if ( Scr_GetNumParam(scrContext) != 3 )
@@ -31026,49 +27747,34 @@ void __fastcall GScr_CalcCSplinePosition(scrContext_t *scrContext, double _XMM1_
     return;
   }
   Int = Scr_GetInt(scrContext, 0);
-  v5 = truncate_cast<unsigned short,int>(Int);
-  if ( v5 > Com_GetCSplineCount() )
+  v3 = truncate_cast<unsigned short,int>(Int);
+  if ( v3 > Com_GetCSplineCount() )
   {
-    v6 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplinePosition", v5);
-    Scr_Error(COM_ERR_4687, scrContext, v6);
+    v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplinePosition", v3);
+    Scr_Error(COM_ERR_4687, scrContext, v4);
     return;
   }
-  v7 = Scr_GetInt(scrContext, 1u);
-  v8 = truncate_cast<unsigned short,int>(v7);
-  if ( v8 < Com_GetCSplinePointCount(v5) )
+  v5 = Scr_GetInt(scrContext, 1u);
+  v6 = truncate_cast<unsigned short,int>(v5);
+  if ( v6 < Com_GetCSplinePointCount(v3) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 2u);
+    if ( *(float *)&Float >= 0.0 && *(float *)&Float <= 1.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
+      Com_CalcCSplinePosition(v3, v6, *(float *)&Float, &out_position);
+      Scr_AddVector(scrContext, out_position.v);
+      return;
     }
-    if ( !v11 )
-    {
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( v11 | v12 )
-      {
-        __asm { vmovaps xmm2, xmm0; lambda }
-        Com_CalcCSplinePosition(v5, v8, *(float *)&_XMM2, &out_position);
-        Scr_AddVector(scrContext, out_position.v);
-        return;
-      }
-    }
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    v17 = v5;
-    v9 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplinePosition", _R8, v8, v17);
-    v10 = COM_ERR_4689;
+    v10 = v3;
+    v7 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplinePosition", *(float *)&Float, v6, v10);
+    v8 = COM_ERR_4689;
   }
   else
   {
-    v9 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplinePosition", v8, v5);
-    v10 = COM_ERR_4688;
+    v7 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplinePosition", v6, v3);
+    v8 = COM_ERR_4688;
   }
-  Scr_Error(v10, scrContext, v9);
+  Scr_Error(v8, scrContext, v7);
 }
 
 /*
@@ -31099,19 +27805,17 @@ void ScrCmd_SetNoDeploy(scrContext_t *scrContext, scr_entref_t entref)
 GScr_CalcCSplineTangent
 ==============
 */
-
-void __fastcall GScr_CalcCSplineTangent(scrContext_t *scrContext, double _XMM1_8)
+void GScr_CalcCSplineTangent(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v5; 
-  const char *v6; 
-  int v7; 
-  unsigned __int16 v8; 
-  const char *v9; 
-  ComErrorCode v10; 
-  char v11; 
-  char v12; 
-  unsigned int v17; 
+  unsigned int v3; 
+  const char *v4; 
+  int v5; 
+  unsigned __int16 v6; 
+  const char *v7; 
+  ComErrorCode v8; 
+  double Float; 
+  unsigned int v10; 
   vec3_t out_tangent; 
 
   if ( Scr_GetNumParam(scrContext) != 3 )
@@ -31120,49 +27824,34 @@ void __fastcall GScr_CalcCSplineTangent(scrContext_t *scrContext, double _XMM1_8
     return;
   }
   Int = Scr_GetInt(scrContext, 0);
-  v5 = truncate_cast<unsigned short,int>(Int);
-  if ( v5 > Com_GetCSplineCount() )
+  v3 = truncate_cast<unsigned short,int>(Int);
+  if ( v3 > Com_GetCSplineCount() )
   {
-    v6 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplineTangent", v5);
-    Scr_Error(COM_ERR_4687, scrContext, v6);
+    v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplineTangent", v3);
+    Scr_Error(COM_ERR_4687, scrContext, v4);
     return;
   }
-  v7 = Scr_GetInt(scrContext, 1u);
-  v8 = truncate_cast<unsigned short,int>(v7);
-  if ( v8 < Com_GetCSplinePointCount(v5) )
+  v5 = Scr_GetInt(scrContext, 1u);
+  v6 = truncate_cast<unsigned short,int>(v5);
+  if ( v6 < Com_GetCSplinePointCount(v3) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 2u);
+    if ( *(float *)&Float >= 0.0 && *(float *)&Float <= 1.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
+      Com_CalcCSplineTangent(v3, v6, *(float *)&Float, &out_tangent);
+      Scr_AddVector(scrContext, out_tangent.v);
+      return;
     }
-    if ( !v11 )
-    {
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( v11 | v12 )
-      {
-        __asm { vmovaps xmm2, xmm0; lambda }
-        Com_CalcCSplineTangent(v5, v8, *(float *)&_XMM2, &out_tangent);
-        Scr_AddVector(scrContext, out_tangent.v);
-        return;
-      }
-    }
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    v17 = v5;
-    v9 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplineTangent", _R8, v8, v17);
-    v10 = COM_ERR_4689;
+    v10 = v3;
+    v7 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplineTangent", *(float *)&Float, v6, v10);
+    v8 = COM_ERR_4689;
   }
   else
   {
-    v9 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplineTangent", v8, v5);
-    v10 = COM_ERR_4688;
+    v7 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplineTangent", v6, v3);
+    v8 = COM_ERR_4688;
   }
-  Scr_Error(v10, scrContext, v9);
+  Scr_Error(v8, scrContext, v7);
 }
 
 /*
@@ -31170,19 +27859,17 @@ void __fastcall GScr_CalcCSplineTangent(scrContext_t *scrContext, double _XMM1_8
 GScr_CalcCSplineCorridor
 ==============
 */
-
-void __fastcall GScr_CalcCSplineCorridor(scrContext_t *scrContext, double _XMM1_8)
+void GScr_CalcCSplineCorridor(scrContext_t *scrContext)
 {
   int Int; 
-  unsigned int v5; 
-  const char *v6; 
-  int v7; 
-  unsigned __int16 v8; 
-  const char *v9; 
-  ComErrorCode v10; 
-  char v11; 
-  char v12; 
-  unsigned int v17; 
+  unsigned int v3; 
+  const char *v4; 
+  int v5; 
+  unsigned __int16 v6; 
+  const char *v7; 
+  ComErrorCode v8; 
+  double Float; 
+  unsigned int v10; 
   vec2_t out_dims; 
 
   if ( Scr_GetNumParam(scrContext) != 3 )
@@ -31191,49 +27878,34 @@ void __fastcall GScr_CalcCSplineCorridor(scrContext_t *scrContext, double _XMM1_
     return;
   }
   Int = Scr_GetInt(scrContext, 0);
-  v5 = truncate_cast<unsigned short,int>(Int);
-  if ( v5 > Com_GetCSplineCount() )
+  v3 = truncate_cast<unsigned short,int>(Int);
+  if ( v3 > Com_GetCSplineCount() )
   {
-    v6 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplineCorridor", v5);
-    Scr_Error(COM_ERR_4687, scrContext, v6);
+    v4 = j_va("'%s' - Invalid CSpline Id '%i'\n", "CalcCSplineCorridor", v3);
+    Scr_Error(COM_ERR_4687, scrContext, v4);
     return;
   }
-  v7 = Scr_GetInt(scrContext, 1u);
-  v8 = truncate_cast<unsigned short,int>(v7);
-  if ( v8 < Com_GetCSplinePointCount(v5) )
+  v5 = Scr_GetInt(scrContext, 1u);
+  v6 = truncate_cast<unsigned short,int>(v5);
+  if ( v6 < Com_GetCSplinePointCount(v3) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 2u);
+    if ( *(float *)&Float >= 0.0 && *(float *)&Float <= 1.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
+      Com_CalcCSplineCorridor(v3, v6, *(float *)&Float, &out_dims);
+      Scr_AddVector(scrContext, (const float *)&out_dims);
+      return;
     }
-    if ( !v11 )
-    {
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( v11 | v12 )
-      {
-        __asm { vmovaps xmm2, xmm0; lambda }
-        Com_CalcCSplineCorridor(v5, v8, *(float *)&_XMM2, &out_dims);
-        Scr_AddVector(scrContext, (const float *)&out_dims);
-        return;
-      }
-    }
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    v17 = v5;
-    v9 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplineCorridor", _R8, v8, v17);
-    v10 = COM_ERR_4689;
+    v10 = v3;
+    v7 = j_va("'%s' - Invalid CSpline Lambda '%f' for Index '%i' for Spline '%i'\n", "CalcCSplineCorridor", *(float *)&Float, v6, v10);
+    v8 = COM_ERR_4689;
   }
   else
   {
-    v9 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplineCorridor", v8, v5);
-    v10 = COM_ERR_4688;
+    v7 = j_va("'%s' - Invalid CSpline Node Index '%i' for Spline '%i'\n", "CalcCSplineCorridor", v6, v3);
+    v8 = COM_ERR_4688;
   }
-  Scr_Error(v10, scrContext, v9);
+  Scr_Error(v8, scrContext, v7);
 }
 
 /*
@@ -31259,8 +27931,7 @@ void GScr_CalcCSplineClosestPoint(scrContext_t *scrContext)
     {
       Scr_GetVector(scrContext, 1u, &vectorValue);
       Com_CalcCSplineClosestPointOnSpline(v3, &vectorValue, out_splinePointIndex, &out_lambda);
-      __asm { vmovss  xmm2, [rsp+58h+out_lambda]; lambda }
-      Com_CalcCSplinePosition(v3, out_splinePointIndex[0], *(float *)&_XMM2, &out_position);
+      Com_CalcCSplinePosition(v3, out_splinePointIndex[0], out_lambda, &out_position);
       Scr_AddVector(scrContext, out_position.v);
     }
     else
@@ -31284,59 +27955,21 @@ void GScr_LocalToWorldCoords(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
   vec3_t vectorValue; 
-  float value[4]; 
+  float value; 
+  float v6; 
+  float v7; 
   tmat33_t<vec3_t> axis; 
-  char v42; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm9
-  }
   Entity = GetEntity(entref);
   Scr_GetVector(scrContext, 0, &vectorValue);
   AnglesToAxis(&Entity->r.currentAngles, &axis);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+98h+vectorValue+8]
-    vmovss  xmm0, dword ptr [rsp+98h+axis]
-    vmulss  xmm2, xmm0, dword ptr [rsp+98h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+98h+axis+0Ch]
-    vmulss  xmm0, xmm1, dword ptr [rsp+98h+vectorValue+4]
-    vmulss  xmm1, xmm6, dword ptr [rsp+98h+axis+18h]
-    vaddss  xmm2, xmm2, xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+axis+4]
-    vmulss  xmm3, xmm0, dword ptr [rsp+98h+vectorValue]
-    vmovss  xmm0, dword ptr [rsp+98h+axis+8]
-    vaddss  xmm9, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+axis+10h]
-    vmulss  xmm2, xmm1, dword ptr [rsp+98h+vectorValue+4]
-    vmulss  xmm1, xmm6, dword ptr [rsp+98h+axis+1Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm0, dword ptr [rsp+98h+vectorValue]
-    vaddss  xmm5, xmm4, xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+axis+14h]
-    vmulss  xmm2, xmm1, dword ptr [rsp+98h+vectorValue+4]
-    vmulss  xmm1, xmm6, dword ptr [rsp+98h+axis+20h]
-    vmovss  [rsp+98h+value], xmm9
-    vmovss  [rsp+98h+var_64], xmm5
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  [rsp+98h+var_60], xmm2
-    vaddss  xmm0, xmm9, dword ptr [rbx+130h]
-    vmovss  [rsp+98h+value], xmm0
-    vaddss  xmm1, xmm5, dword ptr [rbx+134h]
-    vmovss  [rsp+98h+var_64], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbx+138h]
-    vmovss  [rsp+98h+var_60], xmm0
-  }
-  Scr_AddVector(scrContext, value);
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-20h]
-  }
+  value = (float)((float)(axis.m[0].v[0] * vectorValue.v[0]) + (float)(axis.m[1].v[0] * vectorValue.v[1])) + (float)(vectorValue.v[2] * axis.m[2].v[0]);
+  v6 = (float)((float)(axis.m[0].v[1] * vectorValue.v[0]) + (float)(axis.m[1].v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * axis.m[2].v[1]);
+  v7 = (float)((float)(axis.m[0].v[2] * vectorValue.v[0]) + (float)(axis.m[1].v[2] * vectorValue.v[1])) + (float)(vectorValue.v[2] * axis.m[2].v[2]);
+  value = value + Entity->r.currentOrigin.v[0];
+  v6 = v6 + Entity->r.currentOrigin.v[1];
+  v7 = v7 + Entity->r.currentOrigin.v[2];
+  Scr_AddVector(scrContext, &value);
 }
 
 /*
@@ -31434,55 +28067,43 @@ GScr_EarthquakeForPlayer
 void GScr_EarthquakeForPlayer(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *v4; 
   const char *v5; 
   scr_string_t targetname; 
   const char *v7; 
   const char *v8; 
-  const char *v17; 
-  char *fmt; 
+  const char *v9; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    _RDI = NULL;
+    v4 = NULL;
 LABEL_8:
-    if ( !_RDI->client )
+    if ( !v4->client )
     {
-      targetname = _RDI->targetname;
+      targetname = v4->targetname;
       if ( targetname )
         v7 = SL_ConvertToString(targetname);
       else
         v7 = "<undefined>";
-      v8 = SL_ConvertToString(_RDI->classname);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+134h]
-        vmovss  xmm2, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+48h+fmt], xmm0
-      }
-      v17 = j_va("only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v8, v7);
-      Scr_Error(COM_ERR_4099, scrContext, v17);
+      v8 = SL_ConvertToString(v4->classname);
+      v9 = j_va("only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, v4->r.currentOrigin.v[0], v4->r.currentOrigin.v[1], v4->r.currentOrigin.v[2], v8, v7);
+      Scr_Error(COM_ERR_4099, scrContext, v9);
     }
     goto LABEL_13;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6374, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  _RDI = &g_entities[entnum];
-  if ( !_RDI->client )
+  v4 = &g_entities[entnum];
+  if ( !v4->client )
   {
     v5 = j_va("entity %i is not a player", entnum);
     Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     goto LABEL_8;
   }
 LABEL_13:
-  GScr_Earthquake_Internal(scrContext, _RDI->s.number);
+  GScr_Earthquake_Internal(scrContext, v4->s.number);
 }
 
 /*
@@ -31532,41 +28153,29 @@ GScr_StopShellShock
 void GScr_StopShellShock(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
-  char *fmt; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6399, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6399, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4100, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4100, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6405, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) )
@@ -31584,51 +28193,39 @@ GScr_FadeOutShellShock
 void GScr_FadeOutShellShock(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
+  const char *v8; 
   playerState_s *EntityPlayerState; 
   shellshock_parms_t *ShellshockParms; 
   int fadeTime; 
   int shellshockDuration; 
   int time; 
   gclient_s *client; 
-  __int64 v23; 
-  const char *v24; 
-  unsigned int v25; 
-  unsigned __int16 v26; 
-  unsigned int v27; 
-  char *fmt; 
+  __int64 v15; 
+  const char *v16; 
+  unsigned int v17; 
+  unsigned __int16 v18; 
+  unsigned int v19; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6437, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6437, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !G_Utils_IsClientOrAgent(_RDI) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_4102, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_4102, scrContext, v8);
   }
-  EntityPlayerState = G_GetEntityPlayerState(_RDI);
+  EntityPlayerState = G_GetEntityPlayerState(Entity);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 6443, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( Scr_GetNumParam(scrContext) )
@@ -31643,23 +28240,23 @@ void GScr_FadeOutShellShock(scrContext_t *scrContext, scr_entref_t entref)
     time = level.time;
     if ( shellshockDuration + EntityPlayerState->shellshockTime - fadeTime > level.time )
     {
-      client = _RDI->client;
-      v23 = (unsigned int)(level.time + fadeTime - client->ps.shellshockTime);
-      if ( (int)v23 > 0xFFFF )
+      client = Entity->client;
+      v15 = (unsigned int)(level.time + fadeTime - client->ps.shellshockTime);
+      if ( (int)v15 > 0xFFFF )
       {
-        v24 = j_va("Invalid shellshockDuration %d. It must be < %d\n", v23, 0xFFFFi64);
-        Scr_Error(COM_ERR_4104, scrContext, v24);
+        v16 = j_va("Invalid shellshockDuration %d. It must be < %d\n", v15, 0xFFFFi64);
+        Scr_Error(COM_ERR_4104, scrContext, v16);
         LOWORD(shellshockDuration) = EntityPlayerState->shellshockDuration;
-        client = _RDI->client;
+        client = Entity->client;
         fadeTime = ShellshockParms->view.fadeTime;
         time = level.time;
       }
-      v25 = shellshockDuration & 0x7F;
-      v26 = truncate_cast<unsigned short,int>(time + fadeTime - client->ps.shellshockTime);
-      EntityPlayerState->shellshockDuration = v26;
-      v27 = v26 & 0x7F;
-      if ( v25 > v27 )
-        EntityPlayerState->shellshockDuration += truncate_cast<unsigned short,int>(v25 - v27);
+      v17 = shellshockDuration & 0x7F;
+      v18 = truncate_cast<unsigned short,int>(time + fadeTime - client->ps.shellshockTime);
+      EntityPlayerState->shellshockDuration = v18;
+      v19 = v18 & 0x7F;
+      if ( v17 > v19 )
+        EntityPlayerState->shellshockDuration += truncate_cast<unsigned short,int>(v17 - v19);
     }
   }
 }
@@ -31753,12 +28350,7 @@ GScr_ScriptBundleContextScoped::~GScr_ScriptBundleContextScoped
 */
 void GScr_ScriptBundleContextScoped::~GScr_ScriptBundleContextScoped(GScr_ScriptBundleContextScoped *this)
 {
-  _RAX = this->scoped;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+8]
-    vmovups ymmword ptr [rax], ymm0
-  }
+  *this->scoped = this->saved;
 }
 
 /*
@@ -31919,53 +28511,23 @@ char AttachCmd(scrContext_t *scrContext, gentity_s *ent, scr_string_t *tagNameRe
 CheckTimes
 ==============
 */
-
-void __fastcall CheckTimes(scrContext_t *scrContext, float *totalTime, double accelTime, double decelTime)
+void CheckTimes(scrContext_t *scrContext, float *totalTime, float accelTime, float decelTime)
 {
-  char v12; 
-  char v13; 
+  float v6; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = totalTime;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rdx]
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-  }
-  Scr_Error(COM_ERR_4185, scrContext, "total time must be non negative");
-  __asm { vcomiss xmm8, xmm6 }
-  if ( v12 )
+  if ( *totalTime < 0.0 )
+    Scr_Error(COM_ERR_4185, scrContext, "total time must be non negative");
+  if ( accelTime < 0.0 )
     Scr_Error(COM_ERR_4186, scrContext, "acceleration time must be non negative");
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v12 )
+  if ( decelTime < 0.0 )
     Scr_Error(COM_ERR_4187, scrContext, "deceleration time must be non negative");
-  __asm
+  v6 = *totalTime;
+  if ( (float)(accelTime + decelTime) > *totalTime )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm8, xmm7
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v12 | v13) )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm0, cs:__real@3f800004
-      vcomiss xmm1, xmm0
-    }
-    if ( v12 | v13 )
-      __asm { vmovss  dword ptr [rdi], xmm0 }
+    if ( (float)(accelTime + decelTime) <= (float)(v6 + 1.0000005) )
+      *totalTime = v6 + 1.0000005;
     else
       Scr_Error(COM_ERR_4188, scrContext, "accel time plus decel time is greater than total time");
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
   }
 }
 
@@ -31974,38 +28536,9 @@ void __fastcall CheckTimes(scrContext_t *scrContext, float *totalTime, double ac
 CompareScriptObjectDistanceIncreasing
 ==============
 */
-char CompareScriptObjectDistanceIncreasing(const EntityOrigin *obj1, const EntityOrigin *obj2)
+bool CompareScriptObjectDistanceIncreasing(const EntityOrigin *obj1, const EntityOrigin *obj2)
 {
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:g_entitySortOrigin
-    vmovss  xmm1, dword ptr cs:g_entitySortOrigin+4
-    vsubss  xmm3, xmm1, dword ptr [rcx+4]
-    vsubss  xmm5, xmm1, dword ptr [rdx+4]
-    vmovss  xmm0, dword ptr cs:g_entitySortOrigin+8
-    vsubss  xmm4, xmm0, dword ptr [rcx+8]
-    vmovaps [rsp+38h+var_18], xmm6
-    vsubss  xmm6, xmm2, dword ptr [rcx]
-    vmovaps [rsp+38h+var_28], xmm7
-    vsubss  xmm7, xmm2, dword ptr [rdx]
-    vmovaps [rsp+38h+var_38], xmm8
-    vsubss  xmm8, xmm0, dword ptr [rdx+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm6, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps xmm7, [rsp+38h+var_28]
-    vmulss  xmm1, xmm8, xmm8
-    vmovaps xmm8, [rsp+38h+var_38]
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, xmm4
-  }
-  return 1;
+  return (float)((float)((float)((float)(g_entitySortOrigin.v[1] - obj2->origin.v[1]) * (float)(g_entitySortOrigin.v[1] - obj2->origin.v[1])) + (float)((float)(g_entitySortOrigin.v[0] - obj2->origin.v[0]) * (float)(g_entitySortOrigin.v[0] - obj2->origin.v[0]))) + (float)((float)(g_entitySortOrigin.v[2] - obj2->origin.v[2]) * (float)(g_entitySortOrigin.v[2] - obj2->origin.v[2]))) > (float)((float)((float)((float)(g_entitySortOrigin.v[1] - obj1->origin.v[1]) * (float)(g_entitySortOrigin.v[1] - obj1->origin.v[1])) + (float)((float)(g_entitySortOrigin.v[0] - obj1->origin.v[0]) * (float)(g_entitySortOrigin.v[0] - obj1->origin.v[0]))) + (float)((float)(g_entitySortOrigin.v[2] - obj1->origin.v[2]) * (float)(g_entitySortOrigin.v[2] - obj1->origin.v[2])));
 }
 
 /*
@@ -32206,22 +28739,22 @@ GScr_DamageConeTraceInternal
 void GScr_DamageConeTraceInternal(scrContext_t *scrContext, scr_entref_t entref, int contentMask)
 {
   gentity_s *Entity; 
-  gentity_s *v7; 
-  int v9; 
+  gentity_s *v6; 
+  double v7; 
+  int v8; 
   vec3_t vectorValue; 
 
   Entity = GetEntity(entref);
   if ( Scr_GetNumParam(scrContext) <= 1 )
-    v7 = NULL;
+    v6 = NULL;
   else
-    v7 = GScr_GetEntity(1u);
+    v6 = GScr_GetEntity(1u);
   Scr_GetVector(scrContext, 0, &vectorValue);
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  LOBYTE(v9) = 0;
-  *(double *)&_XMM0 = ((double (__fastcall *)(GCombat *, gentity_s *, gentity_s *, vec3_t *, int, int, _QWORD))GCombat::ms_gCombatSystem->GetRadiusDamageFromPos)(GCombat::ms_gCombatSystem, Entity, v7, &vectorValue, contentMask, v9, 0i64);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  LOBYTE(v8) = 0;
+  v7 = ((double (__fastcall *)(GCombat *, gentity_s *, gentity_s *, vec3_t *, int, int, _QWORD))GCombat::ms_gCombatSystem->GetRadiusDamageFromPos)(GCombat::ms_gCombatSystem, Entity, v6, &vectorValue, contentMask, v8, 0i64);
+  Scr_AddFloat(scrContext, *(float *)&v7);
 }
 
 /*
@@ -32229,100 +28762,68 @@ void GScr_DamageConeTraceInternal(scrContext_t *scrContext, scr_entref_t entref,
 GScr_Earthquake_Internal
 ==============
 */
-
-void __fastcall GScr_Earthquake_Internal(scrContext_t *scrContext, int clientNum, double _XMM2_8)
+void GScr_Earthquake_Internal(scrContext_t *scrContext, int clientNum)
 {
-  unsigned __int64 v8; 
-  char v20; 
-  char v21; 
-  const dvar_t *v22; 
-  int v28; 
-  int v29; 
+  unsigned __int64 v2; 
+  double Float; 
+  float v5; 
+  int v8; 
+  double v9; 
+  const dvar_t *v10; 
+  gentity_s *v11; 
+  int v12; 
+  int v13; 
   vec3_t vectorValue; 
-  char v31; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  v8 = (unsigned int)clientNum;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm5, xmm1, xmm4, 1
-    vcvttss2si esi, xmm5
-  }
+  v2 = (unsigned int)clientNum;
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  Scr_GetFloat(scrContext, 1u);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm5, xmm1, xmm4, 1 }
+  v8 = (int)*(float *)&_XMM5;
   Scr_GetVector(scrContext, 2u, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-    vmovaps xmm6, xmm0
-  }
-  if ( v21 | v20 )
+  v9 = Scr_GetFloat(scrContext, 3u);
+  if ( v5 <= 0.0 )
     Scr_ParamError(COM_ERR_4096, scrContext, 0, "Scale must be greater than 0");
-  v21 = 0;
-  if ( _ESI <= 0 )
+  if ( v8 <= 0 )
     Scr_ParamError(COM_ERR_4097, scrContext, 1u, "duration must be greater than 0");
-  __asm { vcomiss xmm6, xmm7 }
-  if ( v21 )
+  if ( *(float *)&v9 < 0.0 )
     Scr_ParamError(COM_ERR_4098, scrContext, 3u, "Radius must be greater than 0");
-  v22 = DVARBOOL_g_earthquakeEnable;
+  v10 = DVARBOOL_g_earthquakeEnable;
   if ( !DVARBOOL_g_earthquakeEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_earthquakeEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  if ( v22->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
   {
-    _RBX = G_Utils_SpawnEventEntity(&vectorValue, 134);
-    _RBX->s.eventParm = 0;
-    _RBX->s.eventParm2 = 0;
-    _RBX->s.lerp.u.anonymous.data[2] = _ESI;
-    __asm
+    v11 = G_Utils_SpawnEventEntity(&vectorValue, 134);
+    v11->s.eventParm = 0;
+    v11->s.eventParm2 = 0;
+    v11->s.lerp.u.anonymous.data[2] = v8;
+    v11->s.lerp.u.turret.gunAngles.v[0] = v5;
+    v11->s.lerp.u.turret.gunAngles.v[1] = *(float *)&v9;
+    if ( (v2 & 0x80000000) != 0i64 )
     {
-      vmovss  dword ptr [rbx+58h], xmm8
-      vmovss  dword ptr [rbx+5Ch], xmm6
-    }
-    if ( (v8 & 0x80000000) != 0i64 )
-    {
-      *(_QWORD *)_RBX->clientMask.array = 0i64;
-      *(_QWORD *)&_RBX->clientMask.array[2] = 0i64;
-      *(_QWORD *)&_RBX->clientMask.array[4] = 0i64;
-      _RBX->clientMask.array[6] = 0;
+      *(_QWORD *)v11->clientMask.array = 0i64;
+      *(_QWORD *)&v11->clientMask.array[2] = 0i64;
+      *(_QWORD *)&v11->clientMask.array[4] = 0i64;
+      v11->clientMask.array[6] = 0;
     }
     else
     {
-      *(_QWORD *)_RBX->clientMask.array = -1i64;
-      *(_QWORD *)&_RBX->clientMask.array[2] = -1i64;
-      *(_QWORD *)&_RBX->clientMask.array[4] = -1i64;
-      _RBX->clientMask.array[6] = -1;
-      if ( (unsigned int)v8 >= 0xE0 )
+      *(_QWORD *)v11->clientMask.array = -1i64;
+      *(_QWORD *)&v11->clientMask.array[2] = -1i64;
+      *(_QWORD *)&v11->clientMask.array[4] = -1i64;
+      v11->clientMask.array[6] = -1;
+      if ( (unsigned int)v2 >= 0xE0 )
       {
-        v29 = 224;
-        v28 = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+        v13 = 224;
+        v12 = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v12, v13) )
           __debugbreak();
       }
-      _RBX->clientMask.array[v8 >> 5] &= ~(0x80000000 >> (v8 & 0x1F));
+      v11->clientMask.array[v2 >> 5] &= ~(0x80000000 >> (v2 & 0x1F));
     }
-  }
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -32359,7 +28860,6 @@ void GScr_EntityGetShootAtPos(scrContext_t *scrContext, gentity_s *ent, vec3_t *
   scr_string_t tag_eye; 
 
   sentient = ent->sentient;
-  _RDI = outShootAtPos;
   if ( !sentient )
   {
     tag_eye = scr_const.tag_eye;
@@ -32367,29 +28867,21 @@ void GScr_EntityGetShootAtPos(scrContext_t *scrContext, gentity_s *ent, vec3_t *
     {
       if ( !SV_Game_DObjExists(ent) || !G_Utils_DObjGetWorldTagMatrix(ent, tag_eye, &level.cachedEntTargetTagMat.tagMat) )
       {
-        G_Utils_EntityCentroid(ent, _RDI);
+        G_Utils_EntityCentroid(ent, outShootAtPos);
         return;
       }
       level.cachedEntTargetTagMat.entnum = ent->s.number;
       level.cachedEntTargetTagMat.time = level.time;
       Scr_SetString(&level.cachedEntTargetTagMat.name, tag_eye);
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+24h; level_locals_t level
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+28h; level_locals_t level
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr cs:?level@@3Ulevel_locals_t@@A.cachedEntTargetTagMat.tagMat+2Ch; level_locals_t level
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    *outShootAtPos = level.cachedEntTargetTagMat.tagMat.m[3];
     return;
   }
   client = ent->client;
   if ( client && client->sess.sessionState )
   {
     Com_PrintWarning(23, "GetShootAtPos() called while not in SESS_STATE_PLAYING");
-    G_Utils_EntityCentroid(ent, _RDI);
+    G_Utils_EntityCentroid(ent, outShootAtPos);
   }
   else
   {
@@ -32941,6 +29433,7 @@ GScr_Main_FillWeaponArray
 */
 __int64 GScr_Main_FillWeaponArray(scrContext_t *scrContext, Weapon *outWeapons, const unsigned int weaponIndexCount)
 {
+  Weapon *v4; 
   unsigned int ArrayObject; 
   unsigned int ArraySize; 
   unsigned int v8; 
@@ -32951,14 +29444,16 @@ __int64 GScr_Main_FillWeaponArray(scrContext_t *scrContext, Weapon *outWeapons, 
   scr_string_t *VariableValueAddress; 
   const char *v14; 
   bool IsAlternate; 
-  VariableUnion *v20; 
+  VariableUnion *v16; 
   scr_entref_t EntityIdRef; 
   signed int entnum; 
-  int v32; 
+  __int128 v19; 
+  int v20; 
+  double v21; 
   Weapon result; 
   Weapon r_weapon; 
 
-  _RSI = outWeapons;
+  v4 = outWeapons;
   if ( !outWeapons && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 403, ASSERT_TYPE_ASSERT, "( outWeapons )", (const char *)&queryFormat, "outWeapons") )
     __debugbreak();
   ArrayObject = BGScr_Main_GetArrayObject(scrContext, 0);
@@ -32969,7 +29464,7 @@ __int64 GScr_Main_FillWeaponArray(scrContext_t *scrContext, Weapon *outWeapons, 
     v9 = j_va("Too many weapons requested. Requested %d weapons but only %d are supported for this call.", ArraySize, weaponIndexCount);
     Scr_Error(COM_ERR_3932, scrContext, v9);
   }
-  for ( i = 0; i < v8; ++_RSI )
+  for ( i = 0; i < v8; ++v4 )
   {
     ArrayVariable = GetArrayVariable(scrContext, ArrayObject, i);
     ValueType = GetValueType(scrContext, ArrayVariable);
@@ -32979,67 +29474,30 @@ __int64 GScr_Main_FillWeaponArray(scrContext_t *scrContext, Weapon *outWeapons, 
       v14 = SL_ConvertToString(*VariableValueAddress);
       if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 366, ASSERT_TYPE_ASSERT, "(weaponName)", (const char *)&queryFormat, "weaponName") )
         __debugbreak();
-      _RAX = GScr_Main_GetWeaponForName(&result, scrContext, v14);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0F8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      r_weapon = *GScr_Main_GetWeaponForName(&result, scrContext, v14);
       IsAlternate = BG_IsAlternate(v14);
       Scr_VerifyWeapon(scrContext, &r_weapon, IsAlternate, v14);
     }
-    else if ( ValueType == VAR_POINTER && (v20 = GetVariableValueAddress(scrContext, ArrayVariable), GetObjectType(scrContext, v20->intValue) == VAR_ENTITY) && (EntityIdRef = Scr_GetEntityIdRef(scrContext, v20->intValue), entnum = EntityIdRef.entnum, EntityIdRef.entclass == ENTITY_CLASS_SAVED_COUNT) )
+    else if ( ValueType == VAR_POINTER && (v16 = GetVariableValueAddress(scrContext, ArrayVariable), GetObjectType(scrContext, v16->intValue) == VAR_ENTITY) && (EntityIdRef = Scr_GetEntityIdRef(scrContext, v16->intValue), entnum = EntityIdRef.entnum, EntityIdRef.entclass == ENTITY_CLASS_SAVED_COUNT) )
     {
-      _RAX = GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)EntityIdRef.entnum);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0F8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      r_weapon = *GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)EntityIdRef.entnum);
       GScr_Weapon_IsAlternate(scrContext, (const scr_weapon_t)entnum);
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-        vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-        vmovups ymmword ptr [rsp+0F8h+r_weapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      }
+      memset(&r_weapon, 0, 48);
       *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-      __asm
-      {
-        vmovsd  qword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+15h], xmm0
-        vmovups xmmword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+5], xmm1
-      }
+      *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
       Scr_ParamError(COM_ERR_3933, scrContext, i, "All weapons in the array need to be weapon strings or weapon objects.");
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0F8h+r_weapon.weaponIdx]
-      vmovups xmm1, xmmword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+5]
-    }
-    v32 = *(_DWORD *)&r_weapon.weaponCamo;
+    v19 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+    v20 = *(_DWORD *)&r_weapon.weaponCamo;
     ++i;
-    __asm
-    {
-      vmovups ymmword ptr [rsi], ymm0
-      vmovsd  xmm0, qword ptr [rsp+0F8h+r_weapon.attachmentVariationIndices+15h]
-      vmovups xmmword ptr [rsi+20h], xmm1
-      vmovsd  qword ptr [rsi+30h], xmm0
-    }
-    *(_DWORD *)&_RSI->weaponCamo = v32;
+    *(__m256i *)&v4->weaponIdx = *(__m256i *)&r_weapon.weaponIdx;
+    v21 = *(double *)&r_weapon.attachmentVariationIndices[21];
+    *(_OWORD *)&v4->attachmentVariationIndices[5] = v19;
+    *(double *)&v4->attachmentVariationIndices[21] = v21;
+    *(_DWORD *)&v4->weaponCamo = v20;
   }
   return v8;
 }
@@ -33111,23 +29569,25 @@ void GScr_Main_GetDDL(scrContext_t *scrContext, DDLState *state, const DDLDef *d
 {
   unsigned int NumParam; 
   int Int; 
-  int v12; 
+  int v11; 
+  double Float; 
+  int v13; 
   int v14; 
   int v15; 
-  int v16; 
   const char *EnumString; 
   const char *String; 
   int BitSize; 
   int Type; 
   const char *stringPtr; 
   bool Bool; 
-  int v23; 
+  int v22; 
+  double v23; 
   unsigned __int16 Short; 
   unsigned __int8 Byte; 
   const char *Enum; 
-  int v29; 
-  __int64 v30; 
-  __int64 v31; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
   int finalArgumentIndex[2]; 
 
   finalArgumentIndex[0] = -1;
@@ -33140,7 +29600,7 @@ void GScr_Main_GetDDL(scrContext_t *scrContext, DDLState *state, const DDLDef *d
       if ( Com_GameMode_SupportsFeature(WEAPON_RELOAD_END|0x80) && g_archiveGetDvar && SV_IsDemoPlaying() )
       {
         Int = SV_Demo_GetInt();
-        v12 = SV_Demo_GetInt();
+        v11 = SV_Demo_GetInt();
         if ( SV_IsDemoPlaying() )
         {
           switch ( Int )
@@ -33150,26 +29610,25 @@ void GScr_Main_GetDDL(scrContext_t *scrContext, DDLState *state, const DDLDef *d
             case 3:
               goto LABEL_14;
             case 2:
-              if ( v12 == 1 )
+              if ( v11 == 1 )
               {
-                v14 = SV_Demo_GetInt();
-                Scr_AddBool(scrContext, v14 != 0);
+                v13 = SV_Demo_GetInt();
+                Scr_AddBool(scrContext, v13 != 0);
               }
               else
               {
 LABEL_14:
-                v15 = SV_Demo_GetInt();
-                Scr_AddInt(scrContext, v15);
+                v14 = SV_Demo_GetInt();
+                Scr_AddInt(scrContext, v14);
               }
               break;
             case 6:
-              *(double *)&_XMM0 = SV_Demo_GetFloat();
-              __asm { vmovaps xmm1, xmm0; value }
-              Scr_AddFloat(scrContext, *(float *)&_XMM1);
+              Float = SV_Demo_GetFloat();
+              Scr_AddFloat(scrContext, *(float *)&Float);
               break;
             case 10:
-              v16 = SV_Demo_GetInt();
-              EnumString = DDL::DDL_Lookup_GetEnumString(state, v16);
+              v15 = SV_Demo_GetInt();
+              EnumString = DDL::DDL_Lookup_GetEnumString(state, v15);
               Scr_AddString(scrContext, EnumString);
               break;
             default:
@@ -33208,13 +29667,12 @@ LABEL_14:
             break;
           case 3:
 $LN11_54:
-            v23 = DDL_GetInt(state, context);
-            Scr_AddInt(scrContext, v23);
+            v22 = DDL_GetInt(state, context);
+            Scr_AddInt(scrContext, v22);
             break;
           case 6:
-            *(double *)&_XMM0 = DDL_GetFloat(state, context);
-            __asm { vmovaps xmm1, xmm0; value }
-            Scr_AddFloat(scrContext, *(float *)&_XMM1);
+            v23 = DDL_GetFloat(state, context);
+            Scr_AddFloat(scrContext, *(float *)&v23);
             break;
           case 10:
             Enum = DDL_GetEnum(state, context);
@@ -33245,20 +29703,19 @@ LABEL_39:
               SV_Record_GetInt((int)stringPtr);
               break;
             case 6:
-              __asm { vmovss  xmm0, [rsp+88h+var_38]; jumptable 000000014131B8A9 case 6 }
-              SV_Record_GetFloat(*(float *)&_XMM0);
+              SV_Record_GetFloat(*(float *)finalArgumentIndex);
               return;
             case 10:
 LABEL_40:
-              v29 = truncate_cast<int,unsigned int>((unsigned int)stringPtr);
-              SV_Record_GetInt(v29);
+              v27 = truncate_cast<int,unsigned int>((unsigned int)stringPtr);
+              SV_Record_GetInt(v27);
               break;
             default:
               if ( Type != 8 )
               {
-                LODWORD(v31) = 8;
-                LODWORD(v30) = Type;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 744, ASSERT_TYPE_ASSERT, "( resultType ) == ( DDL_STRING_TYPE )", "%s == %s\n\t%i, %i", "resultType", "DDL_STRING_TYPE", v30, v31) )
+                LODWORD(v29) = 8;
+                LODWORD(v28) = Type;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 744, ASSERT_TYPE_ASSERT, "( resultType ) == ( DDL_STRING_TYPE )", "%s == %s\n\t%i, %i", "resultType", "DDL_STRING_TYPE", v28, v29) )
                   __debugbreak();
               }
               SV_Record_GetString(stringPtr);
@@ -33288,40 +29745,28 @@ GScr_Main_GetPlayerEntity
 gentity_s *GScr_Main_GetPlayerEntity(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *Entity; 
   scr_string_t targetname; 
   const char *v6; 
   const char *v7; 
-  const char *v16; 
-  char *fmt; 
+  const char *v8; 
 
   entnum = entref.entnum;
-  _RDI = GetEntity(entref);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 1061, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+  Entity = GetEntity(entref);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 1061, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RDI->client )
+  if ( !Entity->client )
   {
-    targetname = _RDI->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v6 = SL_ConvertToString(targetname);
     else
       v6 = "<undefined>";
-    v7 = SL_ConvertToString(_RDI->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+134h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+48h+fmt], xmm0
-    }
-    v16 = j_va("Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, _R8, _R9, fmt, v7, v6);
-    Scr_Error(COM_ERR_3944, scrContext, v16);
+    v7 = SL_ConvertToString(Entity->classname);
+    v8 = j_va("Only valid on players; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v7, v6);
+    Scr_Error(COM_ERR_3944, scrContext, v8);
   }
-  return _RDI;
+  return Entity;
 }
 
 /*
@@ -33360,23 +29805,23 @@ void GScr_Main_GetWeaponParam(scrContext_t *scrContext, const unsigned int index
   const char *v9; 
   scr_entref_t EntityRef; 
   bool IsAlternate; 
-  const char *v16; 
-  scr_entref_t v21; 
-  char v22[512]; 
+  const char *v12; 
+  gentity_s *Entity; 
+  scr_entref_t v14; 
+  char v15[512]; 
   char output[1024]; 
   char dest[1024]; 
 
-  _RDI = outWeapon;
   if ( Scr_GetType(scrContext, index) == VAR_STRING )
   {
     String = Scr_GetString(scrContext, index);
     *outIsAlternate = BG_IsAlternate(String);
-    if ( !BG_Weapons_GetFullWeaponForName(String, _RDI, BG_FindBaseWeaponForName) )
+    if ( !BG_Weapons_GetFullWeaponForName(String, outWeapon, BG_FindBaseWeaponForName) )
     {
       v9 = j_va("Invalid weapon name (%s) specified. See console log for details.", String);
       Scr_ParamError(COM_ERR_3929, scrContext, index, v9);
     }
-    Scr_VerifyWeapon(scrContext, _RDI, *outIsAlternate, String);
+    Scr_VerifyWeapon(scrContext, outWeapon, *outIsAlternate, String);
     return;
   }
   if ( Scr_GetType(scrContext, index) != VAR_POINTER || Scr_GetPointerType(scrContext, index) != VAR_ENTITY )
@@ -33386,49 +29831,33 @@ LABEL_14:
     return;
   }
   EntityRef = Scr_GetEntityRef(scrContext, index);
-  v21 = EntityRef;
+  v14 = EntityRef;
   if ( EntityRef.entclass != ENTITY_CLASS_SAVED_COUNT )
   {
     if ( EntityRef.entclass == ENTITY_CLASS_GENTITY )
     {
-      _RAX = GetEntity(EntityRef);
-      if ( _RAX->s.eType == ET_ITEM )
+      Entity = GetEntity(EntityRef);
+      if ( Entity->s.eType == ET_ITEM )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+1CCh]
-          vmovups ymmword ptr [rdi], ymm0
-          vmovups xmm1, xmmword ptr [rax+1ECh]
-          vmovups xmmword ptr [rdi+20h], xmm1
-          vmovsd  xmm0, qword ptr [rax+1FCh]
-          vmovsd  qword ptr [rdi+30h], xmm0
-        }
-        *(float *)&_RDI->weaponCamo = _RAX->c.mover.angle.pos1.v[2];
+        *(__m256i *)&outWeapon->weaponIdx = *(__m256i *)(&Entity->c.beam + 3);
+        *(_OWORD *)&outWeapon->attachmentVariationIndices[5] = *(_OWORD *)(&Entity->c.beam + 11);
+        *(double *)&outWeapon->attachmentVariationIndices[21] = *(double *)(&Entity->c.beam + 15);
+        *(float *)&outWeapon->weaponCamo = Entity->c.mover.angle.pos1.v[2];
         *outIsAlternate = 0;
         return;
       }
     }
     goto LABEL_14;
   }
-  _RAX = GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)EntityRef.entnum);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  *outWeapon = *GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)EntityRef.entnum);
   IsAlternate = GScr_Weapon_IsAlternate(scrContext, (const scr_weapon_t)EntityRef.entnum);
   *outIsAlternate = IsAlternate;
-  if ( IsAlternate && !BG_ActiveUnderbarrel(_RDI) )
+  if ( IsAlternate && !BG_ActiveUnderbarrel(outWeapon) )
   {
-    BG_GetWeaponNameComplete(_RDI, *outIsAlternate, output, 0x400u);
-    v16 = j_va("Weapon must have an 'active underbarrel' attachment if it's in alt mode: %s", output);
-    BG_GetWeaponName(_RDI, v22, 0x200u);
-    Com_sprintf(dest, 0x400ui64, v16, v22, v21);
+    BG_GetWeaponNameComplete(outWeapon, *outIsAlternate, output, 0x400u);
+    v12 = j_va("Weapon must have an 'active underbarrel' attachment if it's in alt mode: %s", output);
+    BG_GetWeaponName(outWeapon, v15, 0x200u);
+    Com_sprintf(dest, 0x400ui64, v12, v15, v14);
     Scr_ParamError(COM_ERR_6290, scrContext, 0, dest);
     *outIsAlternate = 0;
   }
@@ -33507,23 +29936,32 @@ GScr_Main_PlayerLinkTo_Internal
 void GScr_Main_PlayerLinkTo_Internal(scrContext_t *scrContext, scr_entref_t entref, PlayerLinkToType linkType)
 {
   gentity_s *Entity; 
-  gentity_s *v10; 
+  gclient_s *client; 
+  gentity_s *v7; 
   int NumParam; 
   scr_string_t ConstLowercaseString; 
   GHandler *Handler; 
+  bool v11; 
+  bool v12; 
+  bool v13; 
   bool v14; 
   bool v15; 
-  bool v16; 
-  bool v17; 
-  bool v18; 
-  const dvar_t *v30; 
+  double Float; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  const dvar_t *v25; 
   int time; 
   GWeaponMap *Instance; 
-  GHandler *v33; 
-  const char *v34; 
+  GHandler *v28; 
+  const char *v29; 
   char outErrorMessage[256]; 
 
-  __asm { vmovaps [rsp+198h+var_48], xmm6 }
   Entity = GetEntity(entref);
   if ( Scr_GetType(scrContext, 0) != VAR_POINTER || Scr_GetPointerType(scrContext, 0) != VAR_ENTITY )
     Scr_ParamError(COM_ERR_4169, scrContext, 0, "not an entity");
@@ -33531,8 +29969,8 @@ void GScr_Main_PlayerLinkTo_Internal(scrContext_t *scrContext, scr_entref_t entr
     Scr_ObjectError(COM_ERR_4170, scrContext, "not a player entity");
   if ( (Entity->flags.m_flags[0] & 0x200) == 0 )
     Scr_ObjectError(COM_ERR_4171, scrContext, "player does not support linking");
-  _RSI = Entity->client;
-  v10 = GScr_GetEntity(0);
+  client = Entity->client;
+  v7 = GScr_GetEntity(0);
   NumParam = Scr_GetNumParam(scrContext);
   ConstLowercaseString = 0;
   if ( NumParam > 1 )
@@ -33544,159 +29982,126 @@ void GScr_Main_PlayerLinkTo_Internal(scrContext_t *scrContext, scr_entref_t entr
         ConstLowercaseString = 0;
     }
   }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( BG_IsPlayerZeroG(&_RSI->ps) && !BG_IsPlayerZeroGWalking(&_RSI->ps) )
+  if ( BG_IsPlayerZeroG(&client->ps) && !BG_IsPlayerZeroGWalking(&client->ps) )
   {
     Handler = GHandler::getHandler();
-    BG_NormalizeWorldUpReferenceAngles(&_RSI->ps, Handler);
+    BG_NormalizeWorldUpReferenceAngles(&client->ps, Handler);
   }
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 6u);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, GameModeFlagValues::ms_mpValue, 7u);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, ACTIVE, 6u);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, GameModeFlagValues::ms_mpValue, 7u);
   if ( linkType == PLAYERLINKTO_DELTA )
   {
-    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 2u);
-    v14 = NumParam <= 8 || Scr_GetInt(scrContext, 8u) != 0;
-    _RSI->link_rotationMovesEyePos = v14;
-    v15 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
-    _RSI->link_useTagAnglesForViewAngles = v15;
-    v16 = NumParam <= 9 || Scr_GetInt(scrContext, 9u) != 0;
-    _RSI->link_useTagScriptedCamera = v16;
-    if ( v16 )
-      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 6u);
-    _RSI->link_doCollision = 0;
+    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, ACTIVE, 2u);
+    v11 = NumParam <= 8 || Scr_GetInt(scrContext, 8u) != 0;
+    client->link_rotationMovesEyePos = v11;
+    v12 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
+    client->link_useTagAnglesForViewAngles = v12;
+    v13 = NumParam <= 9 || Scr_GetInt(scrContext, 9u) != 0;
+    client->link_useTagScriptedCamera = v13;
+    if ( v13 )
+      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&client->ps.linkFlags, ACTIVE, 6u);
+    client->link_doCollision = 0;
   }
   else if ( linkType == PLAYERLINKTO_DELTA_WEAPONVIEWONLY )
   {
     if ( ConstLowercaseString != scr_const.tag_player )
       Scr_Error(COM_ERR_4172, scrContext, "This function only supports linking to tags named 'tag_player'.");
-    _RSI->ps.linkWeaponAngles.v[0] = _RSI->ps.viewangles.v[0];
-    _RSI->ps.linkWeaponAngles.v[1] = _RSI->ps.viewangles.v[1];
-    _RSI->ps.linkWeaponAngles.v[2] = _RSI->ps.viewangles.v[2];
-    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 2u);
-    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 3u);
-    _RSI->link_rotationMovesEyePos = 0;
-    v17 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
-    _RSI->link_useTagAnglesForViewAngles = v17;
-    _RSI->link_useTagScriptedCamera = 0;
-    _RSI->link_doCollision = 0;
+    client->ps.linkWeaponAngles.v[0] = client->ps.viewangles.v[0];
+    client->ps.linkWeaponAngles.v[1] = client->ps.viewangles.v[1];
+    client->ps.linkWeaponAngles.v[2] = client->ps.viewangles.v[2];
+    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&client->ps.linkFlags, ACTIVE, 2u);
+    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&client->ps.linkFlags, ACTIVE, 3u);
+    client->link_rotationMovesEyePos = 0;
+    v14 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
+    client->link_useTagAnglesForViewAngles = v14;
+    client->link_useTagScriptedCamera = 0;
+    client->link_doCollision = 0;
     if ( !SV_Game_IsSplitscreen() || SV_Game_IsOnlineGame() )
-      GScr_Main_ClientmaskSetFlagVisible(v10, _RSI->ps.clientNum);
+      GScr_Main_ClientmaskSetFlagVisible(v7, client->ps.clientNum);
     else
-      GScr_Main_ClientmaskSetAllVisible(v10);
+      GScr_Main_ClientmaskSetAllVisible(v7);
   }
   else
   {
     if ( linkType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 8737, ASSERT_TYPE_ASSERT, "(linkType == PLAYERLINKTO_NORMAL)", (const char *)&queryFormat, "linkType == PLAYERLINKTO_NORMAL") )
       __debugbreak();
-    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 2u);
-    _RSI->link_rotationMovesEyePos = 0;
-    _RSI->link_useTagAnglesForViewAngles = 1;
-    _RSI->link_useTagScriptedCamera = 0;
-    v18 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
-    _RSI->link_doCollision = v18;
+    GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, ACTIVE, 2u);
+    client->link_rotationMovesEyePos = 0;
+    client->link_useTagAnglesForViewAngles = 1;
+    client->link_useTagScriptedCamera = 0;
+    v15 = NumParam > 7 && Scr_GetInt(scrContext, 7u) != 0;
+    client->link_doCollision = v15;
   }
-  _RSI->link_useBaseAnglesForViewClamp = 0;
+  client->link_useBaseAnglesForViewClamp = 0;
   if ( NumParam <= 2 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(Float) = 0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  _RSI->flags &= ~4u;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@43340000
-    vmovss  dword ptr [rsi+5EB8h], xmm0
-  }
+    Float = Scr_GetFloat(scrContext, 2u);
+  client->flags &= ~4u;
+  client->linkAnglesFrac = *(float *)&Float;
   if ( NumParam <= 3 )
-    __asm { vmovaps xmm0, xmm6; val }
+    *(float *)&v17 = FLOAT_180_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rsi+5ED0h], xmm0
-  }
+    v17 = Scr_GetFloat(scrContext, 3u);
+  v18 = I_fclamp(*(float *)&v17, 0.0, 180.0);
+  client->link_viewClamp.min.goal.v[1] = COERCE_FLOAT(LODWORD(v18) ^ _xmm);
   if ( NumParam <= 4 )
-    __asm { vmovaps xmm0, xmm6; val }
+    *(float *)&v19 = FLOAT_180_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rsi+5EE8h], xmm0 }
+    v19 = Scr_GetFloat(scrContext, 4u);
+  v20 = I_fclamp(*(float *)&v19, 0.0, 180.0);
+  client->link_viewClamp.max.goal.v[1] = *(float *)&v20;
   if ( NumParam <= 5 )
-    __asm { vmovaps xmm0, xmm6; val }
+    *(float *)&v21 = FLOAT_180_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 5u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rsi+5ECCh], xmm1
-  }
+    v21 = Scr_GetFloat(scrContext, 5u);
+  v22 = I_fclamp(*(float *)&v21, 0.0, 180.0);
+  client->link_viewClamp.min.goal.v[0] = COERCE_FLOAT(LODWORD(v22) ^ _xmm);
   if ( NumParam <= 6 )
-    __asm { vmovaps xmm0, xmm6; val }
+    *(float *)&v23 = FLOAT_180_0;
   else
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rsi+5EE4h], xmm0 }
+    v23 = Scr_GetFloat(scrContext, 6u);
+  v24 = I_fclamp(*(float *)&v23, 0.0, 180.0);
+  client->link_viewClamp.max.goal.v[0] = *(float *)&v24;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
   {
-    _RSI->link_viewClamp.resistMin.goal = 0i64;
-    _RSI->link_viewClamp.resistMax.goal = 0i64;
+    client->link_viewClamp.resistMin.goal = 0i64;
+    client->link_viewClamp.resistMax.goal = 0i64;
   }
-  G_SnapToViewAngleClampGoal(&_RSI->link_viewClamp);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 0);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, GameModeFlagValues::ms_spValue, 7u);
-  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&_RSI->ps.linkFlags, GameModeFlagValues::ms_spValue, 8u);
-  _RSI->prevLinkAnglesSet = 0;
-  if ( (v10->flags.m_flags[0] & 0x80000) != 0 )
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RSI->ps.pm_flags, ACTIVE, 5u);
-  if ( G_EntLinkTo(Entity, v10, ConstLowercaseString, 256, outErrorMessage) )
+  G_SnapToViewAngleClampGoal(&client->link_viewClamp);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, ACTIVE, 0);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, GameModeFlagValues::ms_spValue, 7u);
+  GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::ClearFlagInternal(&client->ps.linkFlags, GameModeFlagValues::ms_spValue, 8u);
+  client->prevLinkAnglesSet = 0;
+  if ( (v7->flags.m_flags[0] & 0x80000) != 0 )
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&client->ps.pm_flags, ACTIVE, 5u);
+  if ( G_EntLinkTo(Entity, v7, ConstLowercaseString, 256, outErrorMessage) )
   {
-    v30 = DVARBOOL_killswitch_prevent_mantle_while_linked_enabled;
+    v25 = DVARBOOL_killswitch_prevent_mantle_while_linked_enabled;
     if ( !DVARBOOL_killswitch_prevent_mantle_while_linked_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_prevent_mantle_while_linked_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    if ( v30->current.enabled )
+    Dvar_CheckFrontendServerThread(v25);
+    if ( v25->current.enabled )
     {
       time = level.time;
       Instance = GWeaponMap::GetInstance();
-      v33 = GHandler::getHandler();
-      Mantle_CancelMantle(v33, Instance, &_RSI->ps, time);
+      v28 = GHandler::getHandler();
+      Mantle_CancelMantle(v28, Instance, &client->ps, time);
     }
     if ( linkType == PLAYERLINKTO_DELTA_WEAPONVIEWONLY )
     {
-      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 2u);
-      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&_RSI->ps.linkFlags, ACTIVE, 3u);
+      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&client->ps.linkFlags, ACTIVE, 2u);
+      GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::SetFlagInternal(&client->ps.linkFlags, ACTIVE, 3u);
     }
     G_InitPlayerLinkAngles(Entity);
   }
   else
   {
-    v34 = j_va("failed to link entity %i to entity %i: %s", (unsigned int)Entity->s.number, (unsigned int)v10->s.number, outErrorMessage);
-    Scr_Error(COM_ERR_4173, scrContext, v34);
+    v29 = j_va("failed to link entity %i to entity %i: %s", (unsigned int)Entity->s.number, (unsigned int)v7->s.number, outErrorMessage);
+    Scr_Error(COM_ERR_4173, scrContext, v29);
   }
-  __asm { vmovaps xmm6, [rsp+198h+var_48] }
 }
 
 /*
@@ -33729,80 +30134,80 @@ GScr_Main_SetDDL
 */
 void GScr_Main_SetDDL(scrContext_t *scrContext, DDLState *state, const DDLDef *def, DDLContext *context, const char *callingFunction, int firstArgIndex)
 {
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
   DDLType Type; 
-  int v13; 
-  bool v14; 
-  unsigned int v15; 
-  int v16; 
-  unsigned __int16 v18; 
+  int v12; 
+  bool v13; 
+  unsigned int v14; 
+  int v15; 
+  double Float; 
+  unsigned __int16 v17; 
   unsigned __int8 Int; 
   const char *String; 
+  const char *v20; 
   const char *v21; 
   const char *v22; 
-  const char *v23; 
   unsigned int index[10]; 
 
   index[0] = -1;
   GScr_Main_NavigateDDL(scrContext, def, callingFunction, state, firstArgIndex, (int *)index);
-  v10 = index[0];
-  v11 = index[0] + 1;
-  if ( v11 <= Scr_GetNumParam(scrContext) )
+  v9 = index[0];
+  v10 = index[0] + 1;
+  if ( v10 <= Scr_GetNumParam(scrContext) )
   {
-    if ( v11 >= Scr_GetNumParam(scrContext) )
+    if ( v10 >= Scr_GetNumParam(scrContext) )
     {
       Type = DDL_GetType(state);
       switch ( Type )
       {
         case DDL_BYTE_TYPE:
-          Int = Scr_GetInt(scrContext, v10);
-          v14 = DDL_SetByte(state, context, Int);
+          Int = Scr_GetInt(scrContext, v9);
+          v13 = DDL_SetByte(state, context, Int);
           break;
         case DDL_SHORT_TYPE:
-          v18 = Scr_GetInt(scrContext, v10);
-          v14 = DDL_SetShort(state, context, v18);
+          v17 = Scr_GetInt(scrContext, v9);
+          v13 = DDL_SetShort(state, context, v17);
           break;
         case DDL_UINT_TYPE:
           if ( DDL_StateGetBitSize(state) == 1 )
           {
-            v13 = Scr_GetInt(scrContext, v10);
-            v14 = DDL_SetBool(state, context, v13 != 0);
+            v12 = Scr_GetInt(scrContext, v9);
+            v13 = DDL_SetBool(state, context, v12 != 0);
           }
           else
           {
-            v15 = Scr_GetInt(scrContext, v10);
-            v14 = DDL_SetUInt(state, context, v15);
+            v14 = Scr_GetInt(scrContext, v9);
+            v13 = DDL_SetUInt(state, context, v14);
           }
           break;
         case DDL_INT_TYPE:
-          v16 = Scr_GetInt(scrContext, v10);
-          v14 = DDL_SetInt(state, context, v16);
+          v15 = Scr_GetInt(scrContext, v9);
+          v13 = DDL_SetInt(state, context, v15);
           break;
         case DDL_FLOAT_TYPE:
-          *(double *)&_XMM0 = Scr_GetFloat(scrContext, v10);
-          __asm { vmovaps xmm2, xmm0; val }
-          v14 = DDL_SetFloat(state, context, *(float *)&_XMM2);
+          Float = Scr_GetFloat(scrContext, v9);
+          v13 = DDL_SetFloat(state, context, *(float *)&Float);
           break;
         case DDL_STRING_TYPE:
           goto $LN14_57;
         case DDL_ENUM_TYPE:
-          String = Scr_GetString(scrContext, v10);
-          v14 = DDL_SetEnum(state, context, String);
+          String = Scr_GetString(scrContext, v9);
+          v13 = DDL_SetEnum(state, context, String);
           break;
         default:
           Com_PrintWarning(28, "attempting to write to ddl type %d as a string?\n", (unsigned int)Type);
 $LN14_57:
-          v21 = Scr_GetString(scrContext, v10);
-          v14 = DDL_SetString(state, context, v21);
+          v20 = Scr_GetString(scrContext, v9);
+          v13 = DDL_SetString(state, context, v20);
           break;
       }
-      if ( !v14 )
+      if ( !v13 )
       {
         GScr_Main_StructuredDataPrintArgs(scrContext, callingFunction);
-        v22 = Scr_GetString(scrContext, v10);
-        v23 = j_va("%s: \"%s\" %s", callingFunction, v22, "DDL error");
-        Scr_ParamError(COM_ERR_3938, scrContext, v10, v23);
+        v21 = Scr_GetString(scrContext, v9);
+        v22 = j_va("%s: \"%s\" %s", callingFunction, v21, "DDL error");
+        Scr_ParamError(COM_ERR_3938, scrContext, v9, v22);
       }
     }
     else
@@ -33825,67 +30230,63 @@ GScr_Main_StructuredDataPrintArgs
 */
 void GScr_Main_StructuredDataPrintArgs(scrContext_t *scrContext, const char *functionName)
 {
-  int v4; 
-  unsigned int v5; 
-  int v6; 
+  int v3; 
+  unsigned int v4; 
+  int v5; 
   VariableType Type; 
   const char *TypeName; 
-  int v9; 
+  int v8; 
   unsigned int Int; 
+  double Float; 
   const char *String; 
   char dest[1024]; 
 
-  v4 = Com_sprintf_truncate(dest, 0x400ui64, "In call to %s( ", functionName);
-  if ( v4 >= 0 )
+  v3 = Com_sprintf_truncate(dest, 0x400ui64, "In call to %s( ", functionName);
+  if ( v3 >= 0 )
   {
-    v5 = 0;
+    v4 = 0;
     if ( Scr_GetNumParam(scrContext) )
     {
       while ( 1 )
       {
-        if ( v5 )
+        if ( v4 )
         {
-          v6 = Com_sprintf_truncate(&dest[v4], 1024 - v4, ", ");
-          if ( v6 < 0 )
+          v5 = Com_sprintf_truncate(&dest[v3], 1024 - v3, ", ");
+          if ( v5 < 0 )
             break;
-          v4 += v6;
+          v3 += v5;
         }
-        Type = Scr_GetType(scrContext, v5);
+        Type = Scr_GetType(scrContext, v4);
         switch ( Type )
         {
           case VAR_STRING:
-            String = Scr_GetString(scrContext, v5);
-            v9 = Com_sprintf_truncate(&dest[v4], 1024 - v4, "\"%s\"", String);
+            String = Scr_GetString(scrContext, v4);
+            v8 = Com_sprintf_truncate(&dest[v3], 1024 - v3, "\"%s\"", String);
             break;
           case VAR_FLOAT:
-            *(double *)&_XMM0 = Scr_GetFloat(scrContext, v5);
-            __asm
-            {
-              vcvtss2sd xmm3, xmm0, xmm0
-              vmovq   r9, xmm3
-            }
-            v9 = Com_sprintf_truncate(&dest[v4], 1024 - v4, "\"%f\"", *(double *)&_XMM3);
+            Float = Scr_GetFloat(scrContext, v4);
+            v8 = Com_sprintf_truncate(&dest[v3], 1024 - v3, "\"%f\"", *(float *)&Float);
             break;
           case VAR_INTEGER:
-            Int = Scr_GetInt(scrContext, v5);
-            v9 = Com_sprintf_truncate(&dest[v4], 1024 - v4, "\"%i\"", Int);
+            Int = Scr_GetInt(scrContext, v4);
+            v8 = Com_sprintf_truncate(&dest[v3], 1024 - v3, "\"%i\"", Int);
             break;
           default:
-            TypeName = Scr_GetTypeName(scrContext, v5);
-            v9 = Com_sprintf_truncate(&dest[v4], 1024 - v4, "[unhandled type %s]", TypeName);
+            TypeName = Scr_GetTypeName(scrContext, v4);
+            v8 = Com_sprintf_truncate(&dest[v3], 1024 - v3, "[unhandled type %s]", TypeName);
             break;
         }
-        if ( v9 < 0 )
+        if ( v8 < 0 )
           break;
-        v4 += v9;
-        if ( ++v5 >= Scr_GetNumParam(scrContext) )
+        v3 += v8;
+        if ( ++v4 >= Scr_GetNumParam(scrContext) )
           goto LABEL_15;
       }
     }
     else
     {
 LABEL_15:
-      Com_sprintf(&dest[v4], 1024 - v4, " )\n");
+      Com_sprintf(&dest[v3], 1024 - v3, " )\n");
     }
   }
   Com_PrintError(23, (const char *)&queryFormat, dest);
@@ -34072,109 +30473,64 @@ GScr_RadiusDamageInternal
 void GScr_RadiusDamageInternal(scrContext_t *scrContext, gentity_s *inflictor)
 {
   bool runOcclusionTraces; 
-  char v16; 
+  float v5; 
+  double Float; 
+  float reactiveEmitterDelay; 
+  float v8; 
+  double v9; 
+  float v10; 
   gentity_s *Entity; 
   meansOfDeath_t mod; 
+  float v13; 
+  double v14; 
   bool environmentOnly; 
-  float v37; 
-  float v38; 
   bool outIsAlternate; 
   vec3_t vectorValue; 
   Weapon outWeapon; 
   BgExplosionDamageRangeInfo outDamageRangeInfo; 
-  char v43; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
   runOcclusionTraces = 1;
-  *(float *)&_XMM0 = GScr_ValidateRadiusDamageRange(scrContext, 1u);
-  __asm { vmovaps xmm10, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
+  v5 = GScr_ValidateRadiusDamageRange(scrContext, 1u);
+  Float = Scr_GetFloat(scrContext, 2u);
+  reactiveEmitterDelay = 0.0;
+  v8 = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 || *(float *)&Float >= 2147483600.0 )
   {
-    vmovss  xmm8, cs:__real@4f000000
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-    vmovaps xmm9, xmm0
+    Scr_ParamError(COM_ERR_4303, scrContext, 2u, "Invalid damage value specified for radius damage.\n");
+    v8 = 0.0;
   }
-  if ( !v16 )
-    __asm { vcomiss xmm0, xmm8 }
-  Scr_ParamError(COM_ERR_4303, scrContext, 2u, "Invalid damage value specified for radius damage.\n");
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
+  v9 = Scr_GetFloat(scrContext, 3u);
+  v10 = *(float *)&v9;
+  if ( *(float *)&v9 < 0.0 || *(float *)&v9 >= 2147483600.0 )
   {
-    vcomiss xmm0, xmm7
-    vmovaps xmm6, xmm0
+    Scr_ParamError(COM_ERR_4303, scrContext, 3u, "Invalid damage value specified for radius damage.\n");
+    v10 = 0.0;
   }
-  if ( !v16 )
-    __asm { vcomiss xmm0, xmm8 }
-  Scr_ParamError(COM_ERR_4303, scrContext, 3u, "Invalid damage value specified for radius damage.\n");
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   Entity = g_entities + 2046;
   if ( Scr_GetNumParam(scrContext) > 4 && Scr_GetType(scrContext, 4u) )
     Entity = GScr_GetEntity(4u);
   mod = MOD_EXPLOSIVE;
   if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) )
     mod = G_Combat_MeansOfDeathFromScriptParam(scrContext, 5);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovss  xmm8, cs:__real@3f800000
-    vmovups ymmword ptr [rsp+148h+outWeapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+  v13 = FLOAT_1_0;
+  memset(&outWeapon, 0, 48);
   *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+148h+outWeapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+148h+outWeapon.attachmentVariationIndices+5], xmm1
-  }
+  *(double *)&outWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( Scr_GetNumParam(scrContext) > 6 && Scr_GetType(scrContext, 6u) )
   {
     GScr_Main_GetWeaponParam(scrContext, 6u, &outWeapon, &outIsAlternate);
-    _RAX = BG_WeaponDef(&outWeapon, 0);
-    __asm { vmovss  xmm7, dword ptr [rax+12E8h] }
-    *(double *)&_XMM0 = BG_ExplosionForceScalar(&outWeapon, outIsAlternate);
-    __asm { vmovaps xmm8, xmm0 }
+    reactiveEmitterDelay = BG_WeaponDef(&outWeapon, 0)->reactiveEmitterDelay;
+    v14 = BG_ExplosionForceScalar(&outWeapon, outIsAlternate);
+    v13 = *(float *)&v14;
   }
   environmentOnly = 0;
   if ( Scr_GetNumParam(scrContext) > 7 && Scr_GetType(scrContext, 7u) )
     environmentOnly = Scr_GetInt(scrContext, 7u) > 0;
   if ( Scr_GetNumParam(scrContext) > 8 && Scr_GetType(scrContext, 8u) )
     runOcclusionTraces = Scr_GetInt(scrContext, 8u) > 0;
-  __asm
-  {
-    vmovaps xmm2, xmm10; damageRadius
-    vmovaps xmm1, xmm6; outerDamage
-    vmovaps xmm0, xmm9; innerDamage
-  }
-  BG_BuildExplosionDamageRangeInfo_Interpolated(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, &outDamageRangeInfo);
-  __asm
-  {
-    vmovss  [rsp+148h+var_110], xmm7
-    vmovss  [rsp+148h+var_118], xmm8
-  }
-  GScr_RadiusDamageProcessInternal(&vectorValue, inflictor, Entity, &outDamageRangeInfo, mod, &outWeapon, v37, v38, environmentOnly, runOcclusionTraces);
-  _R11 = &v43;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  BG_BuildExplosionDamageRangeInfo_Interpolated(v8, v10, v5, &outDamageRangeInfo);
+  GScr_RadiusDamageProcessInternal(&vectorValue, inflictor, Entity, &outDamageRangeInfo, mod, &outWeapon, v13, reactiveEmitterDelay, environmentOnly, runOcclusionTraces);
 }
 
 /*
@@ -34184,87 +30540,58 @@ GScr_RadiusDamageProcessInternal
 */
 void GScr_RadiusDamageProcessInternal(const vec3_t *damageOrigin, gentity_s *const inflictor, gentity_s *const attacker, const BgExplosionDamageRangeInfo *damageRangeInfo, const meansOfDeath_t mod, const Weapon *weapon, const float forceScalar, const float reactiveEmitterDelay, const bool environmentOnly, const bool runOcclusionTraces)
 {
-  GCombat *v15; 
-  __int64 v17; 
-  int v30; 
-  __int64 v31; 
-  double v32; 
+  GCombat *v14; 
+  __int64 v15; 
+  gentity_s *v16; 
+  float outerRadius; 
+  float v18; 
+  float v19; 
+  __int64 v20; 
 
   level.bPlayerIgnoreRadiusDamage = level.bPlayerIgnoreRadiusDamageLatched;
-  _RBP = damageRangeInfo;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  v15 = GCombat::ms_gCombatSystem;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsp+0A8h+var_80], xmm0
-  }
-  ((void (__fastcall *)(GCombat *, const vec3_t *, gentity_s *const, gentity_s *const, const BgExplosionDamageRangeInfo *, int, _QWORD, gentity_s *const, const meansOfDeath_t, const Weapon *, _BYTE, const bool, const bool))GCombat::ms_gCombatSystem->RadiusDamage)(GCombat::ms_gCombatSystem, damageOrigin, inflictor, attacker, _RBP, v30, 0i64, inflictor, mod, weapon, 0, environmentOnly, runOcclusionTraces);
+  v14 = GCombat::ms_gCombatSystem;
+  ((void (__fastcall *)(GCombat *, const vec3_t *, gentity_s *const, gentity_s *const, const BgExplosionDamageRangeInfo *, _DWORD, _QWORD, gentity_s *const, const meansOfDeath_t, const Weapon *, _BYTE, const bool, const bool))GCombat::ms_gCombatSystem->RadiusDamage)(GCombat::ms_gCombatSystem, damageOrigin, inflictor, attacker, damageRangeInfo, LODWORD(FLOAT_1_0), 0i64, inflictor, mod, weapon, 0, environmentOnly, runOcclusionTraces);
   level.bPlayerIgnoreRadiusDamage = 0;
   if ( mod == MOD_EXPLOSIVE )
   {
-    __asm { vmovss  xmm2, dword ptr [rbp+0Ch] }
-    LOBYTE(v31) = 0;
-    ((void (__fastcall *)(GCombat *, const vec3_t *, __int64, gentity_s *const, const Weapon *, _DWORD))v15->NotifyRadiusDamage)(v15, damageOrigin, v17, attacker, weapon, v31);
+    LOBYTE(v20) = 0;
+    ((void (__fastcall *)(GCombat *, const vec3_t *, __int64, gentity_s *const, const Weapon *, _DWORD))v14->NotifyRadiusDamage)(v14, damageOrigin, v15, attacker, weapon, v20);
   }
-  _RBX = G_Utils_SpawnEventEntity(damageOrigin, 132);
+  v16 = G_Utils_SpawnEventEntity(damageOrigin, 132);
   if ( (mod < MOD_UNKNOWN || (unsigned int)mod > (MOD_NUM|MOD_PROJECTILE|0xE0)) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,meansOfDeath_t>(meansOfDeath_t)", "unsigned", (unsigned __int8)mod, "signed", mod) )
     __debugbreak();
-  _RBX->s.eventParm2 = (unsigned __int8)mod;
+  v16->s.eventParm2 = (unsigned __int8)mod;
   if ( (unsigned __int8)mod != mod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13982, ASSERT_TYPE_ASSERT, "(static_cast<meansOfDeath_t>( eventEnt->s.eventParm2 ) == mod)", (const char *)&queryFormat, "static_cast<meansOfDeath_t>( eventEnt->s.eventParm2 ) == mod") )
     __debugbreak();
-  __asm
+  v16->s.lerp.u.anonymous.data[3] = (int)damageRangeInfo->innerDamage;
+  v16->s.lerp.u.anonymous.data[2] = (int)damageRangeInfo->outerDamage;
+  outerRadius = damageRangeInfo->outerRadius;
+  v16->s.lerp.u.anonymous.data[5] = runOcclusionTraces;
+  v16->s.lerp.u.turret.gunAngles.v[0] = outerRadius;
+  v16->s.lerp.u.turret.gunAngles.v[1] = reactiveEmitterDelay;
+  v16->s.lerp.u.actor.impactVector.v[1] = forceScalar;
+  if ( outerRadius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13995, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.range >= 0.0f ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.range ) = %g", outerRadius) )
+    __debugbreak();
+  v18 = v16->s.lerp.u.turret.gunAngles.v[1];
+  if ( v18 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13996, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.delay >= 0.0f ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.delay ) = %g", v18) )
+    __debugbreak();
+  v19 = v16->s.lerp.u.actor.impactVector.v[1];
+  if ( (v19 < 0.0 || v19 > 2.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13997, ASSERT_TYPE_SANITY, "( ( ( ( eventEnt->s.lerp.u.event.radiusDamage.forceScalar >= 0.0f ) && ( eventEnt->s.lerp.u.event.radiusDamage.forceScalar <= PHYSICS_MAX_RADIUSFORCE_SCALAR ) ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.forceScalar ) = %g", v19) )
+    __debugbreak();
+  if ( v16->s.lerp.u.anonymous.data[3] < 0 )
   {
-    vcvttss2si eax, dword ptr [rbp+10h]
-    vmovss  xmm0, [rsp+0A8h+reactiveEmitterDelay]
-    vmovss  xmm1, [rsp+0A8h+forceScalar]
-  }
-  _RBX->s.lerp.u.anonymous.data[3] = _EAX;
-  __asm { vcvttss2si eax, dword ptr [rbp+18h] }
-  _RBX->s.lerp.u.anonymous.data[2] = _EAX;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0Ch]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm2, xmm6
-  }
-  _RBX->s.lerp.u.anonymous.data[5] = runOcclusionTraces;
-  __asm
-  {
-    vmovss  dword ptr [rbx+58h], xmm2
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovss  dword ptr [rbx+68h], xmm1
-    vmovss  xmm0, dword ptr [rbx+5Ch]
-    vcomiss xmm0, xmm6
-    vmovss  xmm0, dword ptr [rbx+68h]
-    vcomiss xmm0, xmm6
-    vcomiss xmm0, cs:__real@40000000
-  }
-  if ( runOcclusionTraces )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0A8h+var_80], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13997, ASSERT_TYPE_SANITY, "( ( ( ( eventEnt->s.lerp.u.event.radiusDamage.forceScalar >= 0.0f ) && ( eventEnt->s.lerp.u.event.radiusDamage.forceScalar <= PHYSICS_MAX_RADIUSFORCE_SCALAR ) ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.forceScalar ) = %g", v32) )
+    LODWORD(v20) = v16->s.lerp.u.anonymous.data[3];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13998, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.damageMax >= 0 ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.damageMax ) = %i", v20) )
       __debugbreak();
   }
-  if ( _RBX->s.lerp.u.anonymous.data[3] < 0 )
+  if ( v16->s.lerp.u.anonymous.data[2] < 0 )
   {
-    LODWORD(v31) = _RBX->s.lerp.u.anonymous.data[3];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13998, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.damageMax >= 0 ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.damageMax ) = %i", v31) )
+    LODWORD(v20) = v16->s.lerp.u.anonymous.data[2];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13999, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.damageMin >= 0 ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.damageMin ) = %i", v20) )
       __debugbreak();
   }
-  if ( _RBX->s.lerp.u.anonymous.data[2] < 0 )
-  {
-    LODWORD(v31) = _RBX->s.lerp.u.anonymous.data[2];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 13999, ASSERT_TYPE_SANITY, "( ( ( eventEnt->s.lerp.u.event.radiusDamage.damageMin >= 0 ) ) )", "( eventEnt->s.lerp.u.event.radiusDamage.damageMin ) = %i", v31) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -34275,134 +30602,77 @@ GScr_RadiusDamageSteppedInternal
 void GScr_RadiusDamageSteppedInternal(scrContext_t *scrContext, gentity_s *inflictor)
 {
   bool runOcclusionTraces; 
-  char v19; 
+  float v5; 
+  double Float; 
+  float reactiveEmitterDelay; 
+  float v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  float v12; 
+  double v13; 
+  float v14; 
   gentity_s *Entity; 
-  meansOfDeath_t v28; 
-  bool environmentOnly; 
   meansOfDeath_t mod; 
-  float weapon; 
-  float outDamageRangeInfo; 
-  float v51; 
+  float v17; 
+  double v18; 
+  bool environmentOnly; 
   bool outIsAlternate; 
   vec3_t vectorValue; 
   Weapon outWeapon; 
   BgExplosionDamageRangeInfo damageRangeInfo; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
   runOcclusionTraces = 1;
-  *(float *)&_XMM0 = GScr_ValidateRadiusDamageRange(scrContext, 1u);
-  __asm { vmovaps xmm13, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
+  v5 = GScr_ValidateRadiusDamageRange(scrContext, 1u);
+  Float = Scr_GetFloat(scrContext, 2u);
+  reactiveEmitterDelay = 0.0;
+  v8 = *(float *)&Float;
+  if ( *(float *)&Float < 0.0 || *(float *)&Float >= 2147483600.0 )
   {
-    vmovss  xmm6, cs:__real@4f000000
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-    vmovaps xmm10, xmm0
+    Scr_ParamError(COM_ERR_4303, scrContext, 2u, "Invalid damage value specified for radius damage.\n");
+    v8 = 0.0;
   }
-  if ( !v19 )
-    __asm { vcomiss xmm0, xmm6 }
-  Scr_ParamError(COM_ERR_4303, scrContext, 2u, "Invalid damage value specified for radius damage.\n");
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  *(float *)&_XMM0 = GScr_ValidateRadiusDamageRange(scrContext, 3u);
-  __asm { vmovaps xmm12, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-  __asm
+  v9 = GScr_ValidateRadiusDamageRange(scrContext, 3u);
+  v10 = Scr_GetFloat(scrContext, 4u);
+  v11 = *(float *)&v10;
+  if ( *(float *)&v10 < 0.0 || *(float *)&v10 >= 2147483600.0 )
   {
-    vcomiss xmm0, xmm7
-    vmovaps xmm8, xmm0
+    Scr_ParamError(COM_ERR_4303, scrContext, 4u, "Invalid damage value specified for radius damage.\n");
+    v11 = 0.0;
   }
-  if ( !v19 )
-    __asm { vcomiss xmm0, xmm6 }
-  Scr_ParamError(COM_ERR_4303, scrContext, 4u, "Invalid damage value specified for radius damage.\n");
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  *(float *)&_XMM0 = GScr_ValidateRadiusDamageRange(scrContext, 5u);
-  __asm { vmovaps xmm11, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 6u);
-  __asm
+  v12 = GScr_ValidateRadiusDamageRange(scrContext, 5u);
+  v13 = Scr_GetFloat(scrContext, 6u);
+  v14 = *(float *)&v13;
+  if ( *(float *)&v13 < 0.0 || *(float *)&v13 >= 2147483600.0 )
   {
-    vcomiss xmm0, xmm7
-    vmovaps xmm9, xmm0
+    Scr_ParamError(COM_ERR_4303, scrContext, 6u, "Invalid damage value specified for radius damage.\n");
+    v14 = 0.0;
   }
-  if ( !v19 )
-    __asm { vcomiss xmm0, xmm6 }
-  Scr_ParamError(COM_ERR_4303, scrContext, 6u, "Invalid damage value specified for radius damage.\n");
-  __asm { vxorps  xmm9, xmm9, xmm9 }
   Entity = g_entities + 2046;
   if ( Scr_GetNumParam(scrContext) > 7 && Scr_GetType(scrContext, 7u) )
     Entity = GScr_GetEntity(7u);
-  v28 = MOD_EXPLOSIVE;
+  mod = MOD_EXPLOSIVE;
   if ( Scr_GetNumParam(scrContext) > 8 && Scr_GetType(scrContext, 8u) )
-    v28 = G_Combat_MeansOfDeathFromScriptParam(scrContext, 8);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovss  xmm6, cs:__real@3f800000
-    vmovups ymmword ptr [rsp+178h+outWeapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+    mod = G_Combat_MeansOfDeathFromScriptParam(scrContext, 8);
+  v17 = FLOAT_1_0;
+  memset(&outWeapon, 0, 48);
   *(_DWORD *)&outWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+178h+outWeapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+178h+outWeapon.attachmentVariationIndices+5], xmm1
-  }
+  *(double *)&outWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( Scr_GetNumParam(scrContext) > 9 && Scr_GetType(scrContext, 9u) )
   {
     GScr_Main_GetWeaponParam(scrContext, 9u, &outWeapon, &outIsAlternate);
-    _RAX = BG_WeaponDef(&outWeapon, 0);
-    __asm { vmovss  xmm7, dword ptr [rax+12E8h] }
-    *(double *)&_XMM0 = BG_ExplosionForceScalar(&outWeapon, outIsAlternate);
-    __asm { vmovaps xmm6, xmm0 }
+    reactiveEmitterDelay = BG_WeaponDef(&outWeapon, 0)->reactiveEmitterDelay;
+    v18 = BG_ExplosionForceScalar(&outWeapon, outIsAlternate);
+    v17 = *(float *)&v18;
   }
   environmentOnly = 0;
   if ( Scr_GetNumParam(scrContext) > 0xA && Scr_GetType(scrContext, 0xAu) )
     environmentOnly = Scr_GetInt(scrContext, 0xAu) > 0;
   if ( Scr_GetNumParam(scrContext) > 0xB && Scr_GetType(scrContext, 0xBu) )
     runOcclusionTraces = Scr_GetInt(scrContext, 0xBu) > 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+178h+weapon], xmm9
-    vmovaps xmm3, xmm8; midDamage
-    vmovaps xmm2, xmm12; midRange
-    vmovaps xmm1, xmm10; innerDamage
-    vmovaps xmm0, xmm13; innerRange
-    vmovss  [rsp+178h+mod], xmm11
-  }
-  BG_BuildExplosionDamageRangeInfo_Stepped(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, *(const float *)&mod, weapon, &damageRangeInfo);
-  __asm
-  {
-    vmovss  [rsp+178h+var_140], xmm7
-    vmovss  dword ptr [rsp+178h+outDamageRangeInfo], xmm6
-  }
-  GScr_RadiusDamageProcessInternal(&vectorValue, inflictor, Entity, &damageRangeInfo, v28, &outWeapon, outDamageRangeInfo, v51, environmentOnly, runOcclusionTraces);
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  BG_BuildExplosionDamageRangeInfo_Stepped(v5, v8, v9, v11, v12, v14, &damageRangeInfo);
+  GScr_RadiusDamageProcessInternal(&vectorValue, inflictor, Entity, &damageRangeInfo, mod, &outWeapon, v17, reactiveEmitterDelay, environmentOnly, runOcclusionTraces);
 }
 
 /*
@@ -34457,7 +30727,8 @@ int *GScr_SBAddArray(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *arr)
 {
   int *v2; 
   int v5; 
-  bool v8; 
+  ScriptBundleValue *v6; 
+  bool v7; 
 
   v2 = (int *)&arr[1];
   if ( arr->type != SCR_SB_ARRAY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26032, ASSERT_TYPE_ASSERT, "(arr->type == ScriptBundleValue::ValueType::SCR_SB_ARRAY)", (const char *)&queryFormat, "arr->type == ScriptBundleValue::ValueType::SCR_SB_ARRAY") )
@@ -34470,43 +30741,42 @@ int *GScr_SBAddArray(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *arr)
   {
     while ( 2 )
     {
-      _RDX = (ScriptBundleValue *)v2;
+      v6 = (ScriptBundleValue *)v2;
       v2 += 2;
-      switch ( _RDX->type )
+      switch ( v6->type )
       {
         case SCR_B_NONE:
           Scr_AddUndefined(ctxt->pScrContext);
           goto LABEL_21;
         case SCR_SB_BOOL:
-          Scr_AddBool(ctxt->pScrContext, _RDX->string);
+          Scr_AddBool(ctxt->pScrContext, v6->string);
           goto LABEL_21;
         case SCR_SB_INT:
-          Scr_AddInt(ctxt->pScrContext, _RDX->string);
+          Scr_AddInt(ctxt->pScrContext, v6->string);
           goto LABEL_21;
         case SCR_SB_FLOAT:
-          __asm { vmovss  xmm1, dword ptr [rdx+4]; jumptable 000000014131E855 case 3 }
-          Scr_AddFloat(ctxt->pScrContext, *(float *)&_XMM1);
+          Scr_AddFloat(ctxt->pScrContext, v6->float_number);
           goto LABEL_21;
         case SCR_SB_STRING:
         case SCR_SB_ANIMTREE:
-          Scr_AddString(ctxt->pScrContext, &ctxt->strPool[_RDX->string]);
+          Scr_AddString(ctxt->pScrContext, &ctxt->strPool[v6->string]);
           goto LABEL_21;
         case SCR_SB_OBJECT:
-          v2 = GScr_SBAddObject(ctxt, _RDX);
+          v2 = GScr_SBAddObject(ctxt, v6);
           goto LABEL_21;
         case SCR_SB_ARRAY:
-          v2 = GScr_SBAddArray(ctxt, _RDX);
+          v2 = GScr_SBAddArray(ctxt, v6);
           goto LABEL_21;
         case SCR_SB_ANIMATION:
-          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26066, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMATION in array???\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMATION in array???\"");
+          v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26066, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMATION in array???\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMATION in array???\"");
           goto LABEL_19;
         case SCR_SB_ANIMTREEID:
-          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26069, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\"");
+          v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26069, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\"");
           goto LABEL_19;
         default:
-          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26072, ASSERT_TYPE_ASSERT, "(!\"Script Bundle parse error\")", (const char *)&queryFormat, "!\"Script Bundle parse error\"");
+          v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26072, ASSERT_TYPE_ASSERT, "(!\"Script Bundle parse error\")", (const char *)&queryFormat, "!\"Script Bundle parse error\"");
 LABEL_19:
-          if ( v8 )
+          if ( v7 )
             __debugbreak();
 LABEL_21:
           Scr_AddArray(ctxt->pScrContext);
@@ -34528,13 +30798,14 @@ int *GScr_SBAddObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
 {
   int *v2; 
   int v5; 
+  float *v6; 
   int *v7; 
   int v8; 
   ScriptBundleValue *v9; 
-  __int64 v11; 
+  __int64 v10; 
   unsigned int CanonicalString; 
-  bool v13; 
-  unsigned int v14; 
+  bool v12; 
+  unsigned int v13; 
 
   v2 = (int *)&obj[1];
   if ( obj->type != SCR_SB_OBJECT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 25963, ASSERT_TYPE_ASSERT, "(obj->type == ScriptBundleValue::ValueType::SCR_SB_OBJECT)", (const char *)&queryFormat, "obj->type == ScriptBundleValue::ValueType::SCR_SB_OBJECT") )
@@ -34547,7 +30818,7 @@ int *GScr_SBAddObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
   {
     while ( 2 )
     {
-      _RBP = v2;
+      v6 = (float *)v2;
       v7 = v2;
       v8 = *((unsigned __int8 *)v2 + 4);
       v9 = (ScriptBundleValue *)(v2 + 1);
@@ -34558,14 +30829,13 @@ int *GScr_SBAddObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
           Scr_AddUndefined(ctxt->pScrContext);
           goto LABEL_23;
         case 1:
-          Scr_AddBool(ctxt->pScrContext, _RBP[2]);
+          Scr_AddBool(ctxt->pScrContext, *((_DWORD *)v6 + 2));
           goto LABEL_23;
         case 2:
-          Scr_AddInt(ctxt->pScrContext, _RBP[2]);
+          Scr_AddInt(ctxt->pScrContext, *((_DWORD *)v6 + 2));
           goto LABEL_23;
         case 3:
-          __asm { vmovss  xmm1, dword ptr [rbp+8]; jumptable 000000014131EADE case 3 }
-          Scr_AddFloat(ctxt->pScrContext, *(float *)&_XMM1);
+          Scr_AddFloat(ctxt->pScrContext, v6[2]);
           goto LABEL_23;
         case 4:
         case 8:
@@ -34577,29 +30847,29 @@ int *GScr_SBAddObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
           v2 = GScr_SBAddArray(ctxt, v9);
           goto LABEL_23;
         case 7:
-          v11 = 4i64;
+          v10 = 4i64;
           if ( ((unsigned __int8)v2 & 4) == 0 )
-            v11 = 3i64;
-          Scr_AddAnim(ctxt->pScrContext, *(scr_anim_t *)&v7[v11]);
+            v10 = 3i64;
+          Scr_AddAnim(ctxt->pScrContext, *(scr_anim_t *)&v7[v10]);
           v2 = v7 + 6;
           CanonicalString = SL_GetCanonicalString("animationid");
           Scr_AppendToArchiveCanonicalString(ctxt->pScrContext, CanonicalString);
           Scr_AddStructField(ctxt->pScrContext, CanonicalString);
 $LN27_33:
-          Scr_AddString(ctxt->pScrContext, &ctxt->strPool[_RBP[2]]);
+          Scr_AddString(ctxt->pScrContext, &ctxt->strPool[*((int *)v6 + 2)]);
           goto LABEL_23;
         case 9:
-          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26012, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\"");
+          v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26012, ASSERT_TYPE_ASSERT, "(!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\")", (const char *)&queryFormat, "!\"Script Bundle schema error - SCR_SB_ANIMTREEID should have been preprocessed to an SCR_SB_INT\"");
           goto LABEL_21;
         default:
-          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26015, ASSERT_TYPE_ASSERT, "(!\"Script Bundle parse error\")", (const char *)&queryFormat, "!\"Script Bundle parse error\"");
+          v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26015, ASSERT_TYPE_ASSERT, "(!\"Script Bundle parse error\")", (const char *)&queryFormat, "!\"Script Bundle parse error\"");
 LABEL_21:
-          if ( v13 )
+          if ( v12 )
             __debugbreak();
 LABEL_23:
-          v14 = SL_GetCanonicalString(&ctxt->strPool[*_RBP]);
-          Scr_AppendToArchiveCanonicalString(ctxt->pScrContext, v14);
-          Scr_AddStructField(ctxt->pScrContext, v14);
+          v13 = SL_GetCanonicalString(&ctxt->strPool[*(int *)v6]);
+          Scr_AppendToArchiveCanonicalString(ctxt->pScrContext, v13);
+          Scr_AddStructField(ctxt->pScrContext, v13);
           if ( ++v5 >= obj->string )
             return v2;
           continue;
@@ -34654,29 +30924,29 @@ GScr_SetOmnvarInternal
 void GScr_SetOmnvarInternal(scrContext_t *scrContext, const OmnvarDef *def, OmnvarData *data, int valueArgumentIndex)
 {
   int time; 
-  const char *v10; 
+  const char *v9; 
   VariableType Type; 
   OmnvarUserType userType; 
-  const char *v13; 
+  const char *v12; 
   int entnum; 
+  const char *v14; 
   const char *v15; 
   const char *v16; 
-  const char *v17; 
+  double Float; 
   const char *String; 
   const char *v19; 
   const char *v20; 
 
-  _RDI = data;
   switch ( def->type )
   {
     case OMNVAR_TYPE_BOOL:
       data->current.enabled = Scr_GetInt(scrContext, valueArgumentIndex) != 0;
-      G_Omnvar_MarkChanged(_RDI);
+      G_Omnvar_MarkChanged(data);
       break;
     case OMNVAR_TYPE_FLOAT:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, valueArgumentIndex);
-      __asm { vmovss  dword ptr [rdi+4], xmm0 }
-      G_Omnvar_MarkChanged(_RDI);
+      Float = Scr_GetFloat(scrContext, valueArgumentIndex);
+      data->current.value = *(float *)&Float;
+      G_Omnvar_MarkChanged(data);
       break;
     case OMNVAR_TYPE_INT:
       Type = Scr_GetType(scrContext, valueArgumentIndex);
@@ -34685,8 +30955,8 @@ void GScr_SetOmnvarInternal(scrContext_t *scrContext, const OmnvarDef *def, Omnv
       {
         if ( userType != OMNVAR_USER_TYPE_ENTITY )
         {
-          v13 = j_va("SetOmnvarInternal - '%s' cannot be set to a value of type entity", def->name);
-          Scr_Error(COM_ERR_3968, scrContext, v13);
+          v12 = j_va("SetOmnvarInternal - '%s' cannot be set to a value of type entity", def->name);
+          Scr_Error(COM_ERR_3968, scrContext, v12);
         }
         entnum = Scr_GetEntityRef(scrContext, valueArgumentIndex).entnum;
       }
@@ -34694,8 +30964,8 @@ void GScr_SetOmnvarInternal(scrContext_t *scrContext, const OmnvarDef *def, Omnv
       {
         if ( userType == OMNVAR_USER_TYPE_ENTITY )
         {
-          v16 = j_va("SetOmnvarInternal - '%s' can only be set to an entity or undefined", def->name);
-          Scr_Error(COM_ERR_3970, scrContext, v16);
+          v15 = j_va("SetOmnvarInternal - '%s' can only be set to an entity or undefined", def->name);
+          Scr_Error(COM_ERR_3970, scrContext, v15);
         }
         entnum = Scr_GetInt(scrContext, valueArgumentIndex);
       }
@@ -34703,26 +30973,26 @@ void GScr_SetOmnvarInternal(scrContext_t *scrContext, const OmnvarDef *def, Omnv
       {
         if ( userType != OMNVAR_USER_TYPE_ENTITY )
         {
-          v15 = j_va("SetOmnvarInternal - '%s' cannot be set to a value of undefined", def->name);
-          Scr_Error(COM_ERR_3969, scrContext, v15);
+          v14 = j_va("SetOmnvarInternal - '%s' cannot be set to a value of undefined", def->name);
+          Scr_Error(COM_ERR_3969, scrContext, v14);
         }
         entnum = 2047;
       }
       if ( entnum > def->maxvalue || entnum < def->minvalue )
       {
-        v17 = j_va("SetOmnvarInternal - '%s' setting to %d would exceed this omnvar's specified range [%d,%d]", def->name, (unsigned int)entnum, (unsigned int)def->minvalue, def->maxvalue);
-        Scr_Error(COM_ERR_3971, scrContext, v17);
+        v16 = j_va("SetOmnvarInternal - '%s' setting to %d would exceed this omnvar's specified range [%d,%d]", def->name, (unsigned int)entnum, (unsigned int)def->minvalue, def->maxvalue);
+        Scr_Error(COM_ERR_3971, scrContext, v16);
       }
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+      if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 21, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
         __debugbreak();
       if ( def->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_omnvar.h", 22, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
         __debugbreak();
-      _RDI->current.integer = entnum - def->minvalue;
-      G_Omnvar_MarkChanged(_RDI);
+      data->current.integer = entnum - def->minvalue;
+      G_Omnvar_MarkChanged(data);
       break;
     case OMNVAR_TYPE_UINT:
       data->current.integer = Scr_GetInt(scrContext, valueArgumentIndex);
-      G_Omnvar_MarkChanged(_RDI);
+      G_Omnvar_MarkChanged(data);
       break;
     case OMNVAR_TYPE_TIME:
       if ( def->userType == OMNVAR_USER_TYPE_NOTIFY )
@@ -34731,20 +31001,20 @@ void GScr_SetOmnvarInternal(scrContext_t *scrContext, const OmnvarDef *def, Omnv
         time = Scr_GetInt(scrContext, valueArgumentIndex);
       if ( time < 0 )
       {
-        v10 = j_va("SetOmnvarInternal - '%s' is a unsigned type, and can not be set to negative values", def->name);
-        Scr_Error(COM_ERR_3967, scrContext, v10);
+        v9 = j_va("SetOmnvarInternal - '%s' is a unsigned type, and can not be set to negative values", def->name);
+        Scr_Error(COM_ERR_3967, scrContext, v9);
       }
-      _RDI->current.integer = time;
-      G_Omnvar_MarkChanged(_RDI);
+      data->current.integer = time;
+      G_Omnvar_MarkChanged(data);
       break;
     case OMNVAR_TYPE_NCS_LUI:
       String = Scr_GetString(scrContext, valueArgumentIndex);
-      if ( !G_Omnvar_SetNCString(def, _RDI, String) )
+      if ( !G_Omnvar_SetNCString(def, data, String) )
       {
         v19 = j_va("SetOmnvarInternal - '%s' is a LUI NetConstString, and cannot be set to '%s'. Did you add this string to ncsLuiStrings.txt?", def->name, String);
         Scr_Error(COM_ERR_3973, scrContext, v19);
       }
-      G_Omnvar_MarkChanged(_RDI);
+      G_Omnvar_MarkChanged(data);
       break;
     default:
       v20 = j_va("SetOmnvarInternal - Type for paramater %d not recognized", (unsigned int)valueArgumentIndex);
@@ -34937,47 +31207,23 @@ GScr_ValidateRadiusDamageRange
 */
 float GScr_ValidateRadiusDamageRange(scrContext_t *scrContext, unsigned int index)
 {
-  char v6; 
-  char v7; 
+  double Float; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, index);
-  __asm
+  Float = Scr_GetFloat(scrContext, index);
+  if ( *(float *)&Float >= 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v6 )
-  {
-    Scr_ParamError(COM_ERR_4302, scrContext, index, "Invalid <range> value specified for radius damage.\n");
-    __asm
+    if ( *(float *)&Float > 512.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
+      Com_PrintWarning(24, "RadiusDamage called with extreme range %.2f - max is %.2f\n", *(float *)&Float, DOUBLE_512_0);
+      *(float *)&Float = FLOAT_512_0;
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@44000000
-      vcomiss xmm0, xmm6
-    }
-    if ( !(v6 | v7) )
-    {
-      __asm
-      {
-        vmovsd  xmm3, cs:__real@4080000000000000
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning(24, "RadiusDamage called with extreme range %.2f - max is %.2f\n", _R8, _R9);
-      __asm { vmovaps xmm0, xmm6 }
-    }
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    Scr_ParamError(COM_ERR_4302, scrContext, index, "Invalid <range> value specified for radius damage.\n");
+    LODWORD(Float) = 0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&Float;
 }
 
 /*
@@ -34985,42 +31231,19 @@ float GScr_ValidateRadiusDamageRange(scrContext_t *scrContext, unsigned int inde
 G_GetAngleDelta
 ==============
 */
-
-float __fastcall G_GetAngleDelta(scrContext_t *scrContext, const scr_anim_t anim, double startTime, double endTime)
+float G_GetAngleDelta(scrContext_t *scrContext, const scr_anim_t anim, const float startTime, float endTime)
 {
   unsigned __int16 index; 
   const XAnim_s *Anims; 
-  double v10; 
-  float v14; 
-  float v15; 
+  double v6; 
   vec2_t rot; 
   vec3_t trans; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
   index = anim.index;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   Anims = Scr_GetAnims(scrContext, anim.tree);
-  __asm
-  {
-    vmovss  [rsp+88h+var_60], xmm7
-    vmovss  [rsp+88h+var_68], xmm6
-  }
-  XAnimGetRelDelta(Anims, index, &rot, &trans, v14, v15);
-  v10 = RotationToYaw(&rot);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return *(float *)&v10;
+  XAnimGetRelDelta(Anims, index, &rot, &trans, startTime, endTime);
+  v6 = RotationToYaw(&rot);
+  return *(float *)&v6;
 }
 
 /*
@@ -35028,38 +31251,15 @@ float __fastcall G_GetAngleDelta(scrContext_t *scrContext, const scr_anim_t anim
 G_GetMoveDelta
 ==============
 */
-
-void __fastcall G_GetMoveDelta(scrContext_t *scrContext, const scr_anim_t anim, double startTime, double endTime, vec3_t *outMoveDelta)
+void G_GetMoveDelta(scrContext_t *scrContext, const scr_anim_t anim, const float startTime, const float endTime, vec3_t *outMoveDelta)
 {
   unsigned int index; 
   const XAnim_s *Anims; 
-  float v13; 
-  float v14; 
   vec4_t rot; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
   index = anim.index;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   Anims = Scr_GetAnims(scrContext, anim.tree);
-  __asm
-  {
-    vmovss  [rsp+88h+var_60], xmm7
-    vmovss  [rsp+88h+var_68], xmm6
-  }
-  XAnimGetRelDelta3D(Anims, index, &rot, outMoveDelta, v13, v14);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  XAnimGetRelDelta3D(Anims, index, &rot, outMoveDelta, startTime, endTime);
 }
 
 /*
@@ -35071,22 +31271,11 @@ void G_LocalToWorldCoords(const gentity_s *pSelf, const vec3_t *local, vec3_t *o
 {
   tmat33_t<vec3_t> axis; 
 
-  _RDI = pSelf;
-  _RSI = outWorld;
   AnglesToAxis(&pSelf->r.currentAngles, &axis);
-  MatrixTransformVector(local, &axis, _RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+130h]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rsi], xmm1
-    vmovss  xmm0, dword ptr [rdi+134h]
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+138h]
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  MatrixTransformVector(local, &axis, outWorld);
+  outWorld->v[0] = pSelf->r.currentOrigin.v[0] + outWorld->v[0];
+  outWorld->v[1] = pSelf->r.currentOrigin.v[1] + outWorld->v[1];
+  outWorld->v[2] = pSelf->r.currentOrigin.v[2] + outWorld->v[2];
 }
 
 /*
@@ -35165,12 +31354,11 @@ void GetScriptableArray_Internal(scrContext_t *scrContext, void (*gScrGetScripta
   int NumParam; 
   int *p_Offset; 
   vec3_t *p_vectorValue; 
-  scr_string_t v9; 
+  scr_string_t v8; 
   scr_string_t ConstLowercaseString; 
   const char *String; 
+  const char *v12; 
   const char *v13; 
-  const char *v14; 
-  int fmt; 
   int Offset; 
   vec3_t vectorValue; 
 
@@ -35182,30 +31370,36 @@ void GetScriptableArray_Internal(scrContext_t *scrContext, void (*gScrGetScripta
   }
   p_Offset = NULL;
   p_vectorValue = NULL;
-  v9 = 0;
+  v8 = 0;
   ConstLowercaseString = 0;
-  __asm
-  {
-    vmovaps [rsp+98h+var_48], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
+  LODWORD(_XMM6) = 0;
   if ( NumParam >= 1 && Scr_GetType(scrContext, 0) )
     ConstLowercaseString = Scr_GetConstLowercaseString(scrContext, 0);
-  if ( NumParam < 2 )
-    goto LABEL_20;
-  if ( Scr_GetType(scrContext, 1u) == VAR_UNDEFINED )
-    goto LABEL_15;
-  String = Scr_GetString(scrContext, 1u);
-  v13 = String;
-  if ( !String )
+  if ( NumParam >= 2 )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 24445, ASSERT_TYPE_ASSERT, "( key )", (const char *)&queryFormat, "key") )
-      __debugbreak();
-    goto LABEL_15;
-  }
-  if ( !*String )
-  {
-LABEL_15:
+    if ( Scr_GetType(scrContext, 1u) )
+    {
+      String = Scr_GetString(scrContext, 1u);
+      v12 = String;
+      if ( String )
+      {
+        if ( *String )
+        {
+          Offset = Scr_GetOffset(scrContext, ENTITY_CLASS_SCRIPTABLE, String);
+          if ( Offset < 0 )
+          {
+            v13 = j_va("key '%s' does not internally belong to scriptables", v12);
+            Scr_ParamError(COM_ERR_4681, scrContext, 1u, v13);
+            return;
+          }
+          p_Offset = &Offset;
+        }
+      }
+      else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 24445, ASSERT_TYPE_ASSERT, "( key )", (const char *)&queryFormat, "key") )
+      {
+        __debugbreak();
+      }
+    }
     if ( NumParam >= 4 )
     {
       if ( Scr_GetType(scrContext, 2u) )
@@ -35216,23 +31410,10 @@ LABEL_15:
         __asm { vmaxss  xmm6, xmm0, xmm6 }
       }
       if ( NumParam >= 5 )
-        v9 = Scr_GetConstLowercaseString(scrContext, 4u);
+        v8 = Scr_GetConstLowercaseString(scrContext, 4u);
     }
-LABEL_20:
-    __asm { vmovss  dword ptr [rsp+98h+fmt], xmm6 }
-    ((void (__fastcall *)(scrContext_t *, int *, _QWORD, vec3_t *, int, scr_string_t, int))gScrGetScriptableArrayImpl)(scrContext, p_Offset, (unsigned int)ConstLowercaseString, p_vectorValue, fmt, v9, Offset);
-    goto LABEL_21;
   }
-  Offset = Scr_GetOffset(scrContext, ENTITY_CLASS_SCRIPTABLE, String);
-  if ( Offset >= 0 )
-  {
-    p_Offset = &Offset;
-    goto LABEL_15;
-  }
-  v14 = j_va("key '%s' does not internally belong to scriptables", v13);
-  Scr_ParamError(COM_ERR_4681, scrContext, 1u, v14);
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
+  ((void (__fastcall *)(scrContext_t *, int *, _QWORD, vec3_t *, _DWORD, scr_string_t, int))gScrGetScriptableArrayImpl)(scrContext, p_Offset, (unsigned int)ConstLowercaseString, p_vectorValue, _XMM6, v8, Offset);
 }
 
 /*
@@ -35805,109 +31986,46 @@ LABEL_37:
 Scr_DrawCone
 ==============
 */
-
-void __fastcall Scr_DrawCone(const vec3_t *start, const vec3_t *angles, double coneAngle, double range, const vec4_t *color)
+void Scr_DrawCone(const vec3_t *start, const vec3_t *angles, float coneAngle, float range, const vec4_t *color)
 {
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  char v53; 
-  char v54; 
+  float v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  float v12; 
+  __int128 v13; 
+  double v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
   vec3_t end; 
   tmat33_t<vec3_t> axis; 
   vec3_t starta; 
-  char v67; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovss  xmm10, cs:__real@3c8efa35
-    vmulss  xmm0, xmm2, xmm10; X
-    vmovaps xmm6, xmm3
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm { vmulss  xmm12, xmm0, xmm6 }
+  v7 = sinf_0(coneAngle * 0.017453292) * range;
   AnglesToAxis(angles, &axis);
-  __asm
-  {
-    vxorps  xmm11, xmm6, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm13, cs:__real@41100000
-    vmovss  xmm8, cs:__real@41900000
-    vmovss  xmm9, cs:__real@43b40000
-    vxorps  xmm7, xmm7, xmm7
-  }
+  LODWORD(v12) = LODWORD(range) ^ _xmm;
+  v13 = 0i64;
   do
   {
-    __asm
-    {
-      vmulss  xmm1, xmm7, xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm0, xmm0, xmm1
-    }
-    *(double *)&_XMM0 = j___libm_sse2_sincosf_(v21, v20, v22, v23);
-    __asm
-    {
-      vmulss  xmm2, xmm11, dword ptr [rsp+108h+axis+0Ch]
-      vshufps xmm1, xmm0, xmm0, 1
-      vmulss  xmm5, xmm1, xmm12
-      vmulss  xmm1, xmm5, dword ptr [rsp+108h+axis]
-      vaddss  xmm3, xmm1, dword ptr [rsi]
-      vmulss  xmm6, xmm0, xmm12
-      vmulss  xmm0, xmm6, dword ptr [rsp+108h+axis+18h]
-      vmulss  xmm1, xmm6, dword ptr [rsp+108h+axis+1Ch]
-      vaddss  xmm4, xmm3, xmm0
-      vaddss  xmm0, xmm4, xmm2
-      vmulss  xmm2, xmm5, dword ptr [rsp+108h+axis+4]
-      vaddss  xmm3, xmm2, dword ptr [rsi+4]
-      vmulss  xmm2, xmm6, dword ptr [rsp+108h+axis+20h]
-      vaddss  xmm4, xmm3, xmm1
-      vmovss  dword ptr [rsp+108h+end], xmm0
-      vmulss  xmm0, xmm11, dword ptr [rsp+108h+axis+10h]
-      vaddss  xmm1, xmm4, xmm0
-      vmulss  xmm0, xmm5, dword ptr [rsp+108h+axis+8]
-      vaddss  xmm3, xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+108h+end+4], xmm1
-      vmulss  xmm1, xmm11, dword ptr [rsp+108h+axis+14h]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rsp+108h+end+8], xmm2
-    }
+    v14 = j___libm_sse2_sincosf_(v9, v8, v10, v11);
+    v15 = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v14, (__m128)*(unsigned __int64 *)&v14, 1).m128_f32[0];
+    v16 = (float)((float)((float)(v15 * v7) * axis.m[0].v[1]) + start->v[1]) + (float)((float)(*(float *)&v14 * v7) * axis.m[2].v[1]);
+    end.v[0] = (float)((float)((float)((float)(v15 * v7) * axis.m[0].v[0]) + start->v[0]) + (float)((float)(*(float *)&v14 * v7) * axis.m[2].v[0])) + (float)(v12 * axis.m[1].v[0]);
+    v17 = (float)((float)(v15 * v7) * axis.m[0].v[2]) + start->v[2];
+    end.v[1] = v16 + (float)(v12 * axis.m[1].v[1]);
+    end.v[2] = (float)(v17 + (float)((float)(*(float *)&v14 * v7) * axis.m[2].v[2])) + (float)(v12 * axis.m[1].v[2]);
     CL_AddDebugLine(start, &end, color, 0, 0, 1);
-    __asm { vcomiss xmm7, xmm13 }
-    if ( !(v53 | v54) )
+    if ( *(float *)&v13 > 9.0 )
       CL_AddDebugLine(&starta, &end, color, 0, 0, 1);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+108h+end]
-      vaddss  xmm7, xmm7, xmm8
-      vcomiss xmm7, xmm9
-      vmovsd  qword ptr [rsp+108h+start], xmm0
-    }
-    starta.v[2] = end.v[2];
+    v18 = v13;
+    *(float *)&v18 = *(float *)&v13 + 18.0;
+    v13 = v18;
+    starta = end;
   }
-  while ( v53 | v54 );
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  while ( *(float *)&v18 <= 360.0 );
 }
 
 /*
@@ -36056,54 +32174,41 @@ Scr_GetEntArrayInRadius_Internal
 */
 void Scr_GetEntArrayInRadius_Internal(scrContext_t *scrContext, int qbOnlyScriptables)
 {
-  unsigned int NumParam; 
-  bool v10; 
-  VariableType Type; 
-  VariableType v12; 
+  float v4; 
+  double Float; 
   scr_string_t ConstString; 
   const char *String; 
   int Offset; 
-  const char *v16; 
-  scrContext_t *v17; 
-  ComErrorCode v18; 
-  float v22; 
+  const char *v9; 
+  scrContext_t *v10; 
+  ComErrorCode v11; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v4 = 0.0;
   if ( Scr_GetNumParam(scrContext) == 3 )
   {
     Scr_Error(COM_ERR_4674, scrContext, "Requires both an origin and a radius if one or the other is provided");
     Scr_MakeArray(scrContext);
-    goto LABEL_12;
+    return;
   }
   if ( Scr_GetNumParam(scrContext) >= 4 )
   {
     Scr_GetVector(scrContext, 2u, &vectorValue);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    v4 = *(float *)&Float;
   }
   if ( !Scr_GetNumParam(scrContext) )
   {
 LABEL_20:
     Scr_GetGenericEntArray(scrContext, qbOnlyScriptables);
-    goto LABEL_12;
+    return;
   }
-  NumParam = Scr_GetNumParam(scrContext);
-  v10 = NumParam <= 2;
-  if ( NumParam < 2 || (Type = Scr_GetType(scrContext, 0), v10 = Type == VAR_UNDEFINED, Type == VAR_UNDEFINED) || (v12 = Scr_GetType(scrContext, 1u), v10 = v12 == VAR_UNDEFINED, v12 == VAR_UNDEFINED) )
+  if ( Scr_GetNumParam(scrContext) < 2 || Scr_GetType(scrContext, 0) == VAR_UNDEFINED || Scr_GetType(scrContext, 1u) == VAR_UNDEFINED )
   {
-    __asm { vcomiss xmm6, xmm7 }
-    if ( !v10 )
+    if ( v4 > 0.0 )
     {
-      __asm { vmovaps xmm3, xmm6; radius }
-      Scr_GetGenericEntArray(scrContext, qbOnlyScriptables, &vectorValue, *(float *)&_XMM3);
-      goto LABEL_12;
+      Scr_GetGenericEntArray(scrContext, qbOnlyScriptables, &vectorValue, v4);
+      return;
     }
     goto LABEL_20;
   }
@@ -36112,36 +32217,24 @@ LABEL_20:
   Offset = Scr_GetOffset(scrContext, ENTITY_CLASS_GENTITY, String);
   if ( Offset < 0 )
   {
-    v16 = j_va("key '%s' does not internally belong to entities", String);
-    v17 = scrContext;
-    v18 = COM_ERR_4675;
+    v9 = j_va("key '%s' does not internally belong to entities", String);
+    v10 = scrContext;
+    v11 = COM_ERR_4675;
 LABEL_11:
-    Scr_ParamError(v18, v17, 1u, v16);
-    goto LABEL_12;
+    Scr_ParamError(v11, v10, 1u, v9);
+    return;
   }
   if ( (Offset & 0xE000) != 0 )
   {
-    v16 = j_va("key '%s' does not internally belong to generic entities", String);
-    v17 = scrContext;
-    v18 = COM_ERR_4676;
+    v9 = j_va("key '%s' does not internally belong to generic entities", String);
+    v10 = scrContext;
+    v11 = COM_ERR_4676;
     goto LABEL_11;
   }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( (Offset & 0xE000) != 0 )
-  {
-    __asm { vmovss  [rsp+88h+var_60], xmm6 }
-    Scr_GetGenericEntArray(scrContext, Offset, ConstString, qbOnlyScriptables, &vectorValue, v22);
-  }
-  else
-  {
+  if ( v4 <= 0.0 )
     Scr_GetGenericEntArray(scrContext, Offset, ConstString, qbOnlyScriptables);
-  }
-LABEL_12:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  else
+    Scr_GetGenericEntArray(scrContext, Offset, ConstString, qbOnlyScriptables, &vectorValue, v4);
 }
 
 /*
@@ -36230,65 +32323,56 @@ Scr_GetTeamFlag
 */
 bitarray<224> *Scr_GetTeamFlag(bitarray<224> *result, scrContext_t *scrContext, scr_string_t teamName)
 {
-  unsigned int v9; 
-  bitarray<224> *v10; 
-  const char *v14; 
-  const char *v15; 
+  const bitarray<224> *AllTeamFlags; 
+  unsigned int v7; 
+  bitarray<224> *v8; 
+  const bitarray<224> *BadGuyTeamFlags; 
+  const char *v10; 
+  const char *v11; 
   team_t outTeam[10]; 
 
-  _RBX = result;
   if ( teamName == scr_const.all )
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllTeamFlags();
+      AllTeamFlags = Com_TeamsSP_GetAllTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
-    v9 = _RAX->array[6];
-    v10 = _RBX;
-    _RBX->array[6] = v9;
+      AllTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    *(_OWORD *)result->array = *(_OWORD *)AllTeamFlags->array;
+    *(double *)&result->array[4] = *(double *)&AllTeamFlags->array[4];
+    v7 = AllTeamFlags->array[6];
+    v8 = result;
+    result->array[6] = v7;
   }
   else if ( teamName == scr_const.bad_guys )
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetBadGuyTeamFlags();
+      BadGuyTeamFlags = Com_TeamsSP_GetBadGuyTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetBadGuyTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
-    _RBX->array[6] = _RAX->array[6];
-    return _RBX;
+      BadGuyTeamFlags = Com_TeamsMP_GetBadGuyTeamFlags();
+    *(_OWORD *)result->array = *(_OWORD *)BadGuyTeamFlags->array;
+    *(double *)&result->array[4] = *(double *)&BadGuyTeamFlags->array[4];
+    result->array[6] = BadGuyTeamFlags->array[6];
+    return result;
   }
   else
   {
     if ( Com_Teams_TeamFromString(teamName, outTeam) )
     {
-      Com_Teams_GetTeamFlag(_RBX, outTeam[0]);
+      Com_Teams_GetTeamFlag(result, outTeam[0]);
     }
     else
     {
-      v14 = SL_ConvertToString(teamName);
-      v15 = j_va("unknown team '%s'", v14);
-      Scr_Error(COM_ERR_3945, scrContext, v15);
-      _RBX->array[0] = 0x80000000;
-      *(_QWORD *)&_RBX->array[1] = 0i64;
-      *(_QWORD *)&_RBX->array[3] = 0i64;
-      *(_QWORD *)&_RBX->array[5] = 0i64;
+      v10 = SL_ConvertToString(teamName);
+      v11 = j_va("unknown team '%s'", v10);
+      Scr_Error(COM_ERR_3945, scrContext, v11);
+      result->array[0] = 0x80000000;
+      *(_QWORD *)&result->array[1] = 0i64;
+      *(_QWORD *)&result->array[3] = 0i64;
+      *(_QWORD *)&result->array[5] = 0i64;
     }
-    return _RBX;
+    return result;
   }
-  return v10;
+  return v8;
 }
 
 /*
@@ -36419,148 +32503,84 @@ Scr_IsTouchingInternal
 */
 int Scr_IsTouchingInternal(scrContext_t *scrContext, const gentity_s *ent1, const gentity_s *ent2)
 {
+  __int128 v3; 
   const gentity_s *v5; 
-  bool v8; 
-  bool v9; 
+  bool v7; 
+  const gentity_s *v8; 
+  const char *v9; 
+  const char *v10; 
   const char *v11; 
-  bool v18; 
-  const char *v19; 
-  bool v26; 
-  const char *v27; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   unsigned int Instance; 
-  __int64 v51; 
-  double v52; 
-  double v53; 
-  double v54; 
-  double v55; 
-  double v56; 
-  double v57; 
-  double v58; 
-  double v59; 
-  double v60; 
+  __int64 v22; 
   bool result; 
   Bounds bounds; 
+  __int128 v25; 
 
   v5 = ent1;
   if ( G_Vehicle_IsTouching(scrContext, ent1, ent2, &result) )
     return result;
-  v8 = v5->r.modelType == 0;
-  __asm { vmovaps [rsp+0B8h+var_28], xmm6 }
-  if ( v8 || v5->vehicle )
+  v7 = v5->r.modelType == 0;
+  v25 = v3;
+  if ( v7 || v5->vehicle )
   {
-    _RBX = v5;
+    v8 = v5;
     v5 = ent2;
   }
   else
   {
-    _RBX = ent2;
+    v8 = ent2;
   }
-  v8 = _RBX == NULL;
-  if ( !_RBX )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3449, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    __debugbreak();
+  if ( v8->r.box.halfSize.v[0] < 0.0 )
   {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3449, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent");
-    v8 = !v9;
-    if ( v9 )
+    v9 = SL_ConvertToString(v8->classname);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3450, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[0] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[0] >= 0.0f", v8->s.number, v8->r.currentOrigin.v[0], v8->r.currentOrigin.v[1], v8->r.currentOrigin.v[2], v9) )
       __debugbreak();
   }
-  __asm
+  if ( v8->r.box.halfSize.v[1] < 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+10Ch]
-  }
-  if ( !v8 )
-  {
-    v11 = SL_ConvertToString(_RBX->classname);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0B8h+var_70], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+0B8h+var_78], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+0B8h+var_80], xmm2
-    }
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3450, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[0] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[0] >= 0.0f", _RBX->s.number, v52, v55, v58, v11);
-    v8 = !v18;
-    if ( v18 )
+    v10 = SL_ConvertToString(v8->classname);
+    LODWORD(v22) = v8->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3451, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[1] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[1] >= 0.0f", v22, v8->r.currentOrigin.v[0], v8->r.currentOrigin.v[1], v8->r.currentOrigin.v[2], v10) )
       __debugbreak();
   }
-  __asm { vcomiss xmm6, dword ptr [rbx+110h] }
-  if ( !v8 )
+  if ( v8->r.box.halfSize.v[2] < 0.0 )
   {
-    v19 = SL_ConvertToString(_RBX->classname);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0B8h+var_70], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+0B8h+var_78], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+0B8h+var_80], xmm2
-    }
-    LODWORD(v51) = _RBX->s.number;
-    v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3451, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[1] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[1] >= 0.0f", v51, v53, v56, v59, v19);
-    v8 = !v26;
-    if ( v26 )
+    v11 = SL_ConvertToString(v8->classname);
+    LODWORD(v22) = v8->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3452, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[2] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[2] >= 0.0f", v22, v8->r.currentOrigin.v[0], v8->r.currentOrigin.v[1], v8->r.currentOrigin.v[2], v11) )
       __debugbreak();
   }
-  __asm { vcomiss xmm6, dword ptr [rbx+114h] }
-  if ( !v8 )
-  {
-    v27 = SL_ConvertToString(_RBX->classname);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0B8h+var_70], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+0B8h+var_78], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+0B8h+var_80], xmm2
-    }
-    LODWORD(v51) = _RBX->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 3452, ASSERT_TYPE_ASSERT, "(ent->r.box.halfSize[2] >= 0.0f)", "%s\n\tentnum: %d, origin: %g %g %g, classname: %s", "ent->r.box.halfSize[2] >= 0.0f", v51, v54, v57, v60, v27) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+100h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm2, dword ptr [rbx+104h]
-    vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-    vmovss  xmm3, dword ptr [rbx+10Ch]
-    vcomiss xmm3, xmm6
-    vmovss  dword ptr [rsp+0B8h+bounds.midPoint], xmm1
-    vmovss  xmm1, dword ptr [rbx+108h]
-    vaddss  xmm2, xmm1, dword ptr [rbx+138h]
-    vmovss  xmm1, dword ptr [rbx+114h]
-    vmovss  dword ptr [rsp+0B8h+bounds.midPoint+4], xmm0
-    vmovss  xmm0, dword ptr [rbx+110h]
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize+8], xmm1
-    vmovss  dword ptr [rsp+0B8h+bounds.midPoint+8], xmm2
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize], xmm3
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize+4], xmm0
-    vmovss  xmm0, dword ptr [rsp+0B8h+bounds.halfSize+4]
-    vcomiss xmm0, xmm6
-    vmovss  xmm0, dword ptr [rsp+0B8h+bounds.halfSize+8]
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vmovss  xmm0, dword ptr [rsp+0B8h+bounds.halfSize+4]
-    vmaxss  xmm1, xmm0, dword ptr [rsp+0B8h+bounds.halfSize]
-    vmovss  xmm0, dword ptr [rsp+0B8h+bounds.halfSize+8]
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize], xmm1
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize+4], xmm1
-    vmaxss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rsp+0B8h+bounds.halfSize+8], xmm1
-  }
+  v12 = v8->r.box.midPoint.v[1] + v8->r.currentOrigin.v[1];
+  v13 = v8->r.box.halfSize.v[0];
+  bounds.midPoint.v[0] = v8->r.box.midPoint.v[0] + v8->r.currentOrigin.v[0];
+  v14 = v8->r.box.midPoint.v[2] + v8->r.currentOrigin.v[2];
+  v15 = v8->r.box.halfSize.v[2];
+  bounds.midPoint.v[1] = v12;
+  v16 = v8->r.box.halfSize.v[1];
+  bounds.halfSize.v[2] = v15;
+  bounds.midPoint.v[2] = v14;
+  bounds.halfSize.v[0] = v13;
+  bounds.halfSize.v[1] = v16;
+  if ( v13 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 824, ASSERT_TYPE_ASSERT, "(bounds->halfSize[0] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[0] >= 0.0f") )
+    __debugbreak();
+  if ( bounds.halfSize.v[1] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 825, ASSERT_TYPE_ASSERT, "(bounds->halfSize[1] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[1] >= 0.0f") )
+    __debugbreak();
+  if ( bounds.halfSize.v[2] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 826, ASSERT_TYPE_ASSERT, "(bounds->halfSize[2] >= 0.0f)", (const char *)&queryFormat, "bounds->halfSize[2] >= 0.0f") )
+    __debugbreak();
+  _XMM0 = LODWORD(bounds.halfSize.v[1]);
+  __asm { vmaxss  xmm1, xmm0, dword ptr [rsp+0B8h+bounds.halfSize] }
+  _XMM0 = LODWORD(bounds.halfSize.v[2]);
+  bounds.halfSize.v[0] = *(float *)&_XMM1;
+  bounds.halfSize.v[1] = *(float *)&_XMM1;
+  __asm { vmaxss  xmm1, xmm0, xmm1 }
+  bounds.halfSize.v[2] = *(float *)&_XMM1;
   Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v5);
   return PhysicsQuery_LegacyEntityContactCapsule(PHYSICS_WORLD_ID_FIRST, &bounds, Instance, v5);
 }
@@ -36582,93 +32602,72 @@ Scr_PlayFXInternal
 */
 gentity_s *Scr_PlayFXInternal(scrContext_t *scrContext, int fxId, const vec3_t *pos, vec3_t *forward, vec3_t *up)
 {
-  const char *v12; 
-  gentity_s *v13; 
+  const char *v9; 
+  gentity_s *v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
   tmat33_t<vec3_t> vec; 
 
-  _RBP = forward;
   if ( !FX_IsValidFxId(fxId) )
   {
-    v12 = j_va("Scr_PlayFX: invalid effect id %d", (unsigned int)fxId);
-    Scr_Error(COM_ERR_4330, scrContext, v12);
+    v9 = j_va("Scr_PlayFX: invalid effect id %d", (unsigned int)fxId);
+    Scr_Error(COM_ERR_4330, scrContext, v9);
   }
   G_Debug_LogFxInfo(pos, fxId, (const scr_string_t)0);
-  v13 = G_Utils_SpawnEventEntity(pos, 122);
-  if ( v13->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 15002, ASSERT_TYPE_SANITY, "( ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_STATIONARY") )
+  v10 = G_Utils_SpawnEventEntity(pos, 122);
+  if ( v10->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 15002, ASSERT_TYPE_SANITY, "( ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_STATIONARY") )
     __debugbreak();
-  v13->s.eventParm2 = 0;
-  v13->s.eventParm = fxId;
-  if ( _RBP )
+  v10->s.eventParm2 = 0;
+  v10->s.eventParm = fxId;
+  if ( forward )
   {
+    v11 = forward->v[0];
+    v12 = forward->v[2];
+    vec.m[0].v[1] = forward->v[1];
+    v13 = LODWORD(vec.m[0].v[1]);
+    *(float *)&v13 = fsqrt((float)(vec.m[0].v[1] + (float)(v11 * v11)) + (float)(v12 * v12));
+    _XMM4 = v13;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbp+4]
-      vmovss  xmm5, dword ptr [rbp+0]
-      vmovss  xmm3, dword ptr [rbp+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  dword ptr [rsp+0B8h+vec+4], xmm0
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm4, xmm2, xmm2
       vcmpless xmm0, xmm4, cs:__real@80000000
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3f800000
       vblendvps xmm0, xmm4, xmm7, xmm0
-      vdivss  xmm2, xmm7, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbp+0], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbp+4]
-      vmovss  dword ptr [rbp+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbp+8]
-      vmovaps [rsp+0B8h+var_58], xmm9
-      vxorps  xmm9, xmm9, xmm9
-      vucomiss xmm4, xmm9
-      vmovss  dword ptr [rbp+8], xmm0
-      vmovss  dword ptr [rsp+0B8h+vec], xmm5
-      vmovss  dword ptr [rsp+0B8h+vec+8], xmm3
     }
-    _RAX = up;
+    forward->v[0] = v11 * (float)(1.0 / *(float *)&_XMM0);
+    forward->v[1] = (float)(1.0 / *(float *)&_XMM0) * forward->v[1];
+    forward->v[2] = (float)(1.0 / *(float *)&_XMM0) * forward->v[2];
+    vec.m[0].v[0] = v11;
+    vec.m[0].v[2] = v12;
+    if ( *(float *)&v13 == 0.0 )
+      Scr_FxParamError(COM_ERR_5348, scrContext, 2, "playFx called with (0 0 0) forward direction", fxId);
     if ( up )
     {
+      v17 = LODWORD(up->v[1]);
+      v18 = v17;
+      v19 = up->v[2];
+      *(float *)&v18 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(up->v[0] * up->v[0])) + (float)(v19 * v19));
+      _XMM3 = v18;
       __asm
       {
-        vmovss  xmm4, dword ptr [rax]
-        vmovss  xmm5, dword ptr [rax+4]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmovaps [rsp+0B8h+var_38], xmm6
-        vmovss  xmm6, dword ptr [rax+8]
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vucomiss xmm3, xmm9
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm7, xmm0
-        vdivss  xmm2, xmm7, xmm0
-        vmulss  xmm0, xmm2, xmm4
-        vmovss  [rsp+0B8h+var_70], xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmovaps xmm6, [rsp+0B8h+var_38]
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  [rsp+0B8h+var_68], xmm0
-        vmovss  [rsp+0B8h+var_6C], xmm1
       }
-      Scr_SetFxAngles(scrContext, 2, &vec, &v13->s.lerp.apos.trBase, fxId);
+      vec.m[2].v[0] = (float)(1.0 / *(float *)&_XMM0) * up->v[0];
+      vec.m[2].v[2] = (float)(1.0 / *(float *)&_XMM0) * v19;
+      vec.m[2].v[1] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v17;
+      if ( *(float *)&v18 == 0.0 )
+        Scr_FxParamError(COM_ERR_5349, scrContext, 3, "playFx called with (0 0 0) up direction", fxId);
+      Scr_SetFxAngles(scrContext, 2, &vec, &v10->s.lerp.apos.trBase, fxId);
     }
     else
     {
-      vectoangles(vec.m, &v13->s.lerp.apos.trBase);
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_48]
-      vmovaps xmm9, [rsp+0B8h+var_58]
+      vectoangles(vec.m, &v10->s.lerp.apos.trBase);
     }
   }
-  return v13;
+  return v10;
 }
 
 /*
@@ -36801,20 +32800,17 @@ Scr_SBPreScanObject
 int *Scr_SBPreScanObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
 {
   int *v4; 
+  __m256i v5; 
   int v6; 
   int *v7; 
   scr_anim_t *v8; 
+  __m256i v10; 
 
-  _RSI = ctxt;
   v4 = (int *)&obj[1];
   if ( obj->type != SCR_SB_OBJECT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 26085, ASSERT_TYPE_ASSERT, "(obj->type == ScriptBundleValue::ValueType::SCR_SB_OBJECT)", (const char *)&queryFormat, "obj->type == ScriptBundleValue::ValueType::SCR_SB_OBJECT", -2i64) )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups [rsp+0A8h+var_70], ymm0
-    vmovups [rsp+0A8h+var_48], ymm0
-  }
+  v5 = *(__m256i *)ctxt;
+  v10 = *(__m256i *)ctxt;
   v6 = 0;
   if ( obj->string > 0 )
   {
@@ -36831,23 +32827,23 @@ int *Scr_SBPreScanObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
         case 4:
           break;
         case 5:
-          v4 = Scr_SBPreScanObject(_RSI, (ScriptBundleValue *)(v7 + 1));
+          v4 = Scr_SBPreScanObject(ctxt, (ScriptBundleValue *)(v7 + 1));
           break;
         case 6:
-          v4 = Scr_SBPreScanArray(_RSI, (ScriptBundleValue *)(v7 + 1));
+          v4 = Scr_SBPreScanArray(ctxt, (ScriptBundleValue *)(v7 + 1));
           break;
         case 7:
           v8 = (scr_anim_t *)(v4 + 1);
           if ( ((unsigned __int8)v4 & 4) == 0 )
             v8 = (scr_anim_t *)v4;
-          Scr_FindAnim(_RSI->currentAnimTree, &_RSI->strPool[v7[2]], v8, _RSI->anim_user);
+          Scr_FindAnim(ctxt->currentAnimTree, &ctxt->strPool[v7[2]], v8, ctxt->anim_user);
           v4 += 3;
           break;
         case 8:
-          _RSI->currentAnimTree = &_RSI->strPool[v7[2]];
+          ctxt->currentAnimTree = &ctxt->strPool[v7[2]];
           break;
         case 9:
-          v7[2] = Scr_FindAnimTreeID(&_RSI->strPool[v7[2]], _RSI->anim_user);
+          v7[2] = Scr_FindAnimTreeID(&ctxt->strPool[v7[2]], ctxt->anim_user);
           *((_BYTE *)v7 + 4) = 2;
           break;
         default:
@@ -36858,9 +32854,9 @@ int *Scr_SBPreScanObject(GScr_ScriptBundleContext *ctxt, ScriptBundleValue *obj)
       ++v6;
     }
     while ( v6 < obj->string );
-    __asm { vmovups ymm0, [rsp+0A8h+var_70] }
+    v5 = v10;
   }
-  __asm { vmovups ymmword ptr [rsi], ymm0 }
+  *(__m256i *)ctxt = v5;
   return v4;
 }
 
@@ -36902,67 +32898,55 @@ Scr_SetFxAngles
 */
 void Scr_SetFxAngles(scrContext_t *scrContext, int givenAxisCount, tmat33_t<vec3_t> *inOutAxis, vec3_t *outAngles)
 {
-  int v9; 
-  const char *v40; 
+  int v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  float v13; 
+  float v14; 
+  const char *v18; 
 
-  _RDI = inOutAxis;
   if ( (unsigned int)givenAxisCount > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 14895, ASSERT_TYPE_ASSERT, "( 0 ) <= ( givenAxisCount ) && ( givenAxisCount ) <= ( 2 )", "givenAxisCount not in [0, 2]\n\t%i not in [%i, %i]", givenAxisCount, 0i64, 2) )
     __debugbreak();
-  v9 = givenAxisCount - 1;
-  if ( v9 )
+  v8 = givenAxisCount - 1;
+  if ( v8 )
   {
-    if ( v9 == 1 )
+    if ( v8 == 1 )
     {
+      v9 = LODWORD(inOutAxis->m[2].v[0]);
+      v10 = v9;
+      *(float *)&v10 = (float)((float)(*(float *)&v9 * inOutAxis->m[0].v[0]) + (float)(inOutAxis->m[0].v[1] * inOutAxis->m[2].v[1])) + (float)(inOutAxis->m[2].v[2] * inOutAxis->m[0].v[2]);
+      v11 = v10 ^ _xmm;
+      v12 = v11;
+      *(float *)&v12 = (float)(*(float *)&v11 * inOutAxis->m[0].v[0]) + *(float *)&v9;
+      inOutAxis->m[2].v[0] = *(float *)&v12;
+      v13 = (float)(*(float *)&v11 * inOutAxis->m[0].v[1]) + inOutAxis->m[2].v[1];
+      inOutAxis->m[2].v[1] = v13;
+      v14 = (float)(*(float *)&v11 * inOutAxis->m[0].v[2]) + inOutAxis->m[2].v[2];
+      inOutAxis->m[2].v[2] = v14;
+      *(float *)&v12 = fsqrt((float)((float)(*(float *)&v12 * inOutAxis->m[2].v[0]) + (float)(v13 * v13)) + (float)(v14 * v14));
+      _XMM5 = v12;
       __asm
       {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmulss  xmm1, xmm0, dword ptr [rdi+1Ch]
-        vmovaps [rsp+58h+var_18], xmm6
-        vmovss  xmm6, dword ptr [rdi+18h]
-        vmulss  xmm2, xmm6, dword ptr [rdi]
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm2, dword ptr [rdi+20h]
-        vmulss  xmm0, xmm2, dword ptr [rdi+8]
-        vaddss  xmm1, xmm3, xmm0
-        vxorps  xmm4, xmm1, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm2, xmm4, dword ptr [rdi]
-        vaddss  xmm5, xmm2, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovss  dword ptr [rdi+18h], xmm5
-        vmulss  xmm0, xmm4, dword ptr [rdi+4]
-        vaddss  xmm2, xmm0, dword ptr [rdi+1Ch]
-        vmovss  dword ptr [rdi+1Ch], xmm2
-        vmulss  xmm1, xmm4, dword ptr [rdi+8]
-        vaddss  xmm3, xmm1, dword ptr [rdi+20h]
-        vmovss  dword ptr [rdi+20h], xmm3
-        vmulss  xmm1, xmm5, dword ptr [rdi+18h]
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm5, xmm2, xmm2
         vcmpless xmm0, xmm5, cs:__real@80000000
         vblendvps xmm0, xmm5, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm2, dword ptr [rdi+18h]
-        vmovss  dword ptr [rdi+18h], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rdi+1Ch]
-        vmovss  dword ptr [rdi+1Ch], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdi+20h]
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm5, xmm1
-        vmovss  dword ptr [rdi+20h], xmm0
       }
-      v40 = j_va("forward and up vectors are the same direction or exact opposite directions");
-      Scr_Error(COM_ERR_4326, scrContext, v40);
-      Vec3Cross(&_RDI->m[2], _RDI->m, &_RDI->m[1]);
-      AxisToAngles(_RDI, outAngles);
+      inOutAxis->m[2].v[0] = (float)(1.0 / *(float *)&_XMM0) * inOutAxis->m[2].v[0];
+      inOutAxis->m[2].v[1] = (float)(1.0 / *(float *)&_XMM0) * inOutAxis->m[2].v[1];
+      inOutAxis->m[2].v[2] = (float)(1.0 / *(float *)&_XMM0) * inOutAxis->m[2].v[2];
+      if ( *(float *)&v12 == 0.0 )
+      {
+        v18 = j_va("forward and up vectors are the same direction or exact opposite directions");
+        Scr_Error(COM_ERR_4326, scrContext, v18);
+      }
+      Vec3Cross(&inOutAxis->m[2], inOutAxis->m, &inOutAxis->m[1]);
+      AxisToAngles(inOutAxis, outAngles);
     }
   }
   else
   {
-    vectoangles(_RDI->m, outAngles);
+    vectoangles(inOutAxis->m, outAngles);
   }
 }
 
@@ -36974,39 +32958,18 @@ Scr_SetOrigin
 void Scr_SetOrigin(scrContext_t *scrContext, gentity_s *ent, int offset)
 {
   sentient_s *sentient; 
-  int v9; 
-  int v10; 
-  int v11; 
+  float v6; 
   vec3_t vectorValue; 
 
   if ( ent->actor )
     Scr_Error(COM_ERR_4526, scrContext, "cannot directly set the origin on AI.  Use the teleport command instead.\n");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_6;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_6;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+vectorValue+8]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-LABEL_6:
+  v6 = vectorValue.v[0];
+  if ( (LODWORD(vectorValue.v[0]) & 0x7F800000) == 2139095040 || (v6 = vectorValue.v[1], (LODWORD(vectorValue.v[1]) & 0x7F800000) == 2139095040) || (v6 = vectorValue.v[2], (LODWORD(vectorValue.v[2]) & 0x7F800000) == 2139095040) )
     Scr_Error(COM_ERR_4527, scrContext, "origin being set to NAN.");
   if ( ent->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
-    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
+    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )", v6) )
       __debugbreak();
     Scr_Error(COM_ERR_4528, scrContext, "Cannot set an entity's origin while it is playing a delta animation. Call scriptmodelclearanim first.\n");
     Sys_ProfEndNamedEvent();
@@ -37184,12 +33147,11 @@ void SetClientTriggerAudioZonePartial(scrContext_t *scrContext, scr_entref_t ent
   int v35; 
   const char *v36; 
   const char *v37; 
-  const char *v40; 
-  const char *v41; 
+  const char *v38; 
+  const char *v39; 
   SvClient *CommonClient; 
   char *fmt; 
-  __int64 v44; 
-  double v45; 
+  __int64 v42; 
   int outControllingClientNum[4]; 
   unsigned int entnum; 
 
@@ -37363,24 +33325,18 @@ LABEL_15:
   {
     if ( outControllingClientNum[0] < level.maxclients )
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+88h+fadetime]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+88h+var_58], xmm0
-      }
-      LODWORD(v44) = v11;
+      LODWORD(v42) = v11;
       LODWORD(fmt) = v6;
-      v40 = j_va("%c %c %s %d %d %f", 109i64, 100i64, v7, fmt, v44, v45);
-      v41 = v40;
+      v38 = j_va("%c %c %s %d %d %f", 109i64, 100i64, v7, fmt, v42, fadetime);
+      v39 = v38;
       if ( outControllingClientNum[0] == -1 )
       {
-        SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v40);
+        SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v38);
       }
       else
       {
         CommonClient = SvClient::GetCommonClient(outControllingClientNum[0]);
-        CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v41);
+        CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v39);
       }
     }
     else
@@ -37429,65 +33385,40 @@ void SetHUDWarningOmnvars(scrContext_t *scrContext, const int warningIndex, cons
 SetupVehicleCollision
 ==============
 */
-
-void __fastcall SetupVehicleCollision(gentity_s *ent, double vehRadius)
+void SetupVehicleCollision(gentity_s *ent, float vehRadius)
 {
   __int16 otherEntityNum; 
-  bool v8; 
+  float v4; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   vec3_t forward; 
   vec3_t origin; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   Sys_ProfBeginNamedEvent(0xFFFF0000, "SetupVehicleCollision");
   otherEntityNum = ent->s.otherEntityNum;
   ent->r.svFlags |= 4u;
   ent->clipmask = 8389137;
   if ( otherEntityNum )
   {
-    __asm { vaddss  xmm6, xmm6, cs:__real@41720000 }
-    _RCX = 1456i64 * otherEntityNum;
-    v8 = (unsigned __int128)(1456 * (__int128)otherEntityNum) >> 64 != 0;
-    __asm { vmovaps [rsp+78h+var_28], xmm7 }
-    _RAX = g_entities;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rax+130h]
-      vmovss  xmm1, dword ptr [rcx+rax+134h]
-      vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+130h]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm7, xmm3, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm7, xmm1
-    }
-    if ( v8 )
+    v4 = vehRadius + 15.125;
+    v5 = otherEntityNum;
+    v6 = g_entities[v5].r.currentOrigin.v[1] - ent->r.currentOrigin.v[1];
+    v7 = g_entities[v5].r.currentOrigin.v[0] - ent->r.currentOrigin.v[0];
+    v8 = (float)(v6 * v6) + (float)(v7 * v7);
+    if ( v8 < (float)(v4 * v4) )
     {
       AngleVectors(&ent->r.currentAngles, &forward, NULL, NULL);
-      __asm
-      {
-        vsqrtss xmm0, xmm7, xmm7
-        vsubss  xmm3, xmm6, xmm0
-        vmulss  xmm0, xmm3, dword ptr [rsp+78h+forward]
-        vaddss  xmm2, xmm0, dword ptr [rbx+130h]
-        vmulss  xmm0, xmm3, dword ptr [rsp+78h+forward+4]
-        vmovss  dword ptr [rsp+78h+origin], xmm2
-        vaddss  xmm2, xmm0, dword ptr [rbx+134h]
-        vmulss  xmm0, xmm3, dword ptr [rsp+78h+forward+8]
-        vmovss  dword ptr [rsp+78h+origin+4], xmm2
-        vaddss  xmm2, xmm0, dword ptr [rbx+138h]
-        vmovss  dword ptr [rsp+78h+origin+8], xmm2
-      }
+      v9 = v4 - fsqrt(v8);
+      origin.v[0] = (float)(v9 * forward.v[0]) + ent->r.currentOrigin.v[0];
+      origin.v[1] = (float)(v9 * forward.v[1]) + ent->r.currentOrigin.v[1];
+      origin.v[2] = (float)(v9 * forward.v[2]) + ent->r.currentOrigin.v[2];
       G_SetOrigin(ent, &origin, 1, 1);
     }
-    __asm { vmovaps xmm7, [rsp+78h+var_28] }
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -37495,74 +33426,67 @@ void __fastcall SetupVehicleCollision(gentity_s *ent, double vehRadius)
 VisionSetSendToClient
 ==============
 */
-
-void __fastcall VisionSetSendToClient(scrContext_t *scrContext, visionSetMode_t visionMode, double _XMM2_8)
+void VisionSetSendToClient(scrContext_t *scrContext, visionSetMode_t visionMode)
 {
-  __int64 v4; 
-  unsigned int v7; 
+  __int64 v2; 
+  int v4; 
+  unsigned int v5; 
   scr_string_t ConstLowercaseString; 
-  const char *v15; 
-  const char *v16; 
-  __int64 v17; 
-  const char *v18; 
+  const char *v9; 
+  const char *v10; 
+  __int64 v11; 
+  const char *v12; 
   char *fmt; 
   unsigned int outVisionSetIndex[4]; 
   char dest[64]; 
 
-  v4 = visionMode;
-  _EBP = 1000;
-  v7 = Scr_GetNumParam(scrContext) - 1;
-  if ( v7 )
+  v2 = visionMode;
+  v4 = 1000;
+  v5 = Scr_GetNumParam(scrContext) - 1;
+  if ( v5 )
   {
-    if ( v7 != 1 )
+    if ( v5 != 1 )
     {
       Scr_Error(COM_ERR_4376, scrContext, "Invalid parameters.");
       return;
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  xmm4, xmm2, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm4, 1
-      vcvttss2si ebp, xmm1
-    }
+    Scr_GetFloat(scrContext, 1u);
+    _XMM0 = 0i64;
+    __asm { vroundss xmm1, xmm0, xmm4, 1 }
+    v4 = (int)*(float *)&_XMM1;
   }
   ConstLowercaseString = Scr_GetConstLowercaseString(scrContext, 0);
-  v15 = SL_ConvertToString(ConstLowercaseString);
-  v16 = v15;
-  if ( *v15 )
+  v9 = SL_ConvertToString(ConstLowercaseString);
+  v10 = v9;
+  if ( *v9 )
   {
-    if ( !NetConstStrings_GetVisionSetIndex(v15, outVisionSetIndex) )
+    if ( !NetConstStrings_GetVisionSetIndex(v9, outVisionSetIndex) )
     {
-      v18 = j_va("visionset %s has not been precached, include with precache_vision", v16);
-      Scr_Error(COM_ERR_4375, scrContext, v18);
+      v12 = j_va("visionset %s has not been precached, include with precache_vision", v10);
+      Scr_Error(COM_ERR_4375, scrContext, v12);
     }
-    v17 = outVisionSetIndex[0];
+    v11 = outVisionSetIndex[0];
     if ( !outVisionSetIndex[0] )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.cpp", 15723, ASSERT_TYPE_ASSERT, "( visionSetIndex != 0 )", (const char *)&queryFormat, "visionSetIndex != 0") )
         __debugbreak();
-      v17 = outVisionSetIndex[0];
+      v11 = outVisionSetIndex[0];
     }
   }
   else
   {
-    v17 = 0i64;
+    v11 = 0i64;
     outVisionSetIndex[0] = 0;
   }
-  if ( !(_DWORD)v4 || (_DWORD)v4 == 5 )
+  if ( !(_DWORD)v2 || (_DWORD)v2 == 5 )
   {
-    LODWORD(fmt) = _EBP;
-    Com_sprintf(dest, 0x40ui64, "%d %i", v17, fmt);
+    LODWORD(fmt) = v4;
+    Com_sprintf(dest, 0x40ui64, "%d %i", v11, fmt);
   }
   else
   {
-    Com_sprintf(dest, 0x40ui64, "%d", v17);
+    Com_sprintf(dest, 0x40ui64, "%d", v11);
   }
-  SV_SetConfigstring(dword_143FD1A68[v4], dest);
+  SV_SetConfigstring(dword_143FD1A68[v2], dest);
 }
 

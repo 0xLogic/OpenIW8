@@ -71,9 +71,10 @@ LUI_CoD_LuaCall_SelectedMember_SetLocalMemberMLGSpectator
 __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberMLGSpectator(lua_State *luaVM)
 {
   PartyData *PartyData; 
-  int v4; 
+  int v3; 
+  double v4; 
   int PortForLocalXUID; 
-  unsigned int v7; 
+  unsigned int v6; 
 
   PartyData = &g_partyData;
   if ( !Party_InParty(&g_partyData) && !Live_IsInSystemlinkLobby() )
@@ -82,17 +83,16 @@ __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberMLGSpectator(lua_State *lua
     j_luaL_error(luaVM, "SelectedMember_SetLocalMemberMLGSpectator( <isMLGSpectator> )");
   if ( j_lua_type(luaVM, 1) == 1 && (j_lua_gettop(luaVM) == 1 || j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 2)) )
   {
-    v4 = j_lua_toboolean(luaVM, 1);
+    v3 = j_lua_toboolean(luaVM, 1);
     if ( j_lua_gettop(luaVM) == 2 )
     {
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-      __asm { vcvttss2si edx, xmm0; localControllerIndex }
-      Party_SetLocalMLGSpectator(PartyData, _EDX, v4);
+      v4 = lui_tonumber32(luaVM, 2);
+      Party_SetLocalMLGSpectator(PartyData, (int)*(float *)&v4, v3);
     }
     else if ( Live_XUIDIsLocalPlayer(sharedUiInfo.partyMemberXuid) )
     {
       PortForLocalXUID = Live_GetPortForLocalXUID(sharedUiInfo.partyMemberXuid);
-      Party_SetLocalMLGSpectator(PartyData, PortForLocalXUID, v4);
+      Party_SetLocalMLGSpectator(PartyData, PortForLocalXUID, v3);
     }
     else
     {
@@ -101,8 +101,8 @@ __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberMLGSpectator(lua_State *lua
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
   }
   return 0i64;
 }
@@ -115,9 +115,10 @@ LUI_CoD_LuaCall_SelectedMember_SetLocalMemberIsFollower
 __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberIsFollower(lua_State *luaVM)
 {
   PartyData *PartyData; 
-  int v4; 
+  int v3; 
+  double v4; 
   int PortForLocalXUID; 
-  unsigned int v7; 
+  unsigned int v6; 
 
   PartyData = &g_partyData;
   if ( !Party_InParty(&g_partyData) && !Live_IsInSystemlinkLobby() )
@@ -126,17 +127,16 @@ __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberIsFollower(lua_State *luaVM
     j_luaL_error(luaVM, "SelectedMember_SetLocalMemberIsFollower( <isFollower> )");
   if ( j_lua_type(luaVM, 1) == 1 && (j_lua_gettop(luaVM) == 1 || j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 2)) )
   {
-    v4 = j_lua_toboolean(luaVM, 1);
+    v3 = j_lua_toboolean(luaVM, 1);
     if ( j_lua_gettop(luaVM) == 2 )
     {
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-      __asm { vcvttss2si edx, xmm0; localControllerIndex }
-      Party_SetLocalMLGFollower(PartyData, _EDX, v4);
+      v4 = lui_tonumber32(luaVM, 2);
+      Party_SetLocalMLGFollower(PartyData, (int)*(float *)&v4, v3);
     }
     else if ( Live_XUIDIsLocalPlayer(sharedUiInfo.partyMemberXuid) )
     {
       PortForLocalXUID = Live_GetPortForLocalXUID(sharedUiInfo.partyMemberXuid);
-      Party_SetLocalMLGFollower(PartyData, PortForLocalXUID, v4);
+      Party_SetLocalMLGFollower(PartyData, PortForLocalXUID, v3);
     }
     else
     {
@@ -145,8 +145,8 @@ __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberIsFollower(lua_State *luaVM
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
   }
   return 0i64;
 }
@@ -159,6 +159,9 @@ LUI_CoD_LuaCall_SelectedMember_SetLocalMemberFollowerIndex
 __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberFollowerIndex(lua_State *luaVM)
 {
   PartyData *PartyData; 
+  double v3; 
+  int v4; 
+  double v5; 
   int PortForLocalXUID; 
   unsigned int v7; 
 
@@ -169,18 +172,17 @@ __int64 LUI_CoD_LuaCall_SelectedMember_SetLocalMemberFollowerIndex(lua_State *lu
     j_luaL_error(luaVM, "SelectedMember_SetLocalMemberFollowerIndex( <indexFollower> )");
   if ( j_lua_isnumber(luaVM, 1) && (j_lua_gettop(luaVM) == 1 || j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 2)) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si esi, xmm0 }
+    v3 = lui_tonumber32(luaVM, 1);
+    v4 = (int)*(float *)&v3;
     if ( j_lua_gettop(luaVM) == 2 )
     {
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-      __asm { vcvttss2si edx, xmm0; localControllerIndex }
-      Party_SetLocalMLGFollowerIndex(PartyData, _EDX, _ESI);
+      v5 = lui_tonumber32(luaVM, 2);
+      Party_SetLocalMLGFollowerIndex(PartyData, (int)*(float *)&v5, v4);
     }
     else if ( Live_XUIDIsLocalPlayer(sharedUiInfo.partyMemberXuid) )
     {
       PortForLocalXUID = Live_GetPortForLocalXUID(sharedUiInfo.partyMemberXuid);
-      Party_SetLocalMLGFollowerIndex(PartyData, PortForLocalXUID, _ESI);
+      Party_SetLocalMLGFollowerIndex(PartyData, PortForLocalXUID, v4);
     }
     else
     {
@@ -1170,6 +1172,8 @@ LUI_CoD_LuaCall_GetVoteMapImage
 */
 __int64 LUI_CoD_LuaCall_GetVoteMapImage(lua_State *luaVM)
 {
+  double v2; 
+  unsigned int v3; 
   char ActiveGameMode; 
   const char *MapVoteMapImage; 
   const char *v6; 
@@ -1178,12 +1182,12 @@ __int64 LUI_CoD_LuaCall_GetVoteMapImage(lua_State *luaVM)
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Lobby.GetVoteMapImage( <map_index> )\n");
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-  __asm { vcvttss2si esi, xmm0 }
-  if ( _ESI <= 2 )
+  v2 = lui_tonumber32(luaVM, 1);
+  v3 = (int)*(float *)&v2;
+  if ( (unsigned int)(int)*(float *)&v2 <= 2 )
   {
     ActiveGameMode = Com_GameMode_GetActiveGameMode();
-    MapVoteMapImage = UI_GetMapVoteMapImage(_ESI);
+    MapVoteMapImage = UI_GetMapVoteMapImage(v3);
     v6 = "%s_lobby";
     if ( ActiveGameMode != 3 )
       v6 = "%s_vote";
@@ -1191,7 +1195,7 @@ __int64 LUI_CoD_LuaCall_GetVoteMapImage(lua_State *luaVM)
   }
   else
   {
-    Com_PrintError(13, "Lobby.GetMapVoteMapImage called unrecognized integer data=[%d] expected 0 or 1 or 2\n", _ESI);
+    Com_PrintError(13, "Lobby.GetMapVoteMapImage called unrecognized integer data=[%d] expected 0 or 1 or 2\n", v3);
     v7 = (char *)&queryFormat.fmt + 3;
   }
   j_lua_pushstring(luaVM, v7);
@@ -1230,20 +1234,22 @@ LUI_CoD_LuaCall_GetVoteMapName
 */
 __int64 LUI_CoD_LuaCall_GetVoteMapName(lua_State *luaVM)
 {
+  double v2; 
+  unsigned int v3; 
   const char *MapVoteMapName; 
   unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Lobby.GetVoteMapName( <map_index> )\n");
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-  __asm { vcvttss2si ecx, xmm0; entry }
-  if ( _ECX <= 2 )
+  v2 = lui_tonumber32(luaVM, 1);
+  v3 = (int)*(float *)&v2;
+  if ( (unsigned int)(int)*(float *)&v2 <= 2 )
   {
-    MapVoteMapName = UI_GetMapVoteMapName(_ECX);
+    MapVoteMapName = UI_GetMapVoteMapName(v3);
   }
   else
   {
-    Com_PrintError(13, "Lobby.GetMapVoteMapImage called unrecognized integer data=[%d] expected 0 or 1 or 2\n", _ECX);
+    Com_PrintError(13, "Lobby.GetMapVoteMapImage called unrecognized integer data=[%d] expected 0 or 1 or 2\n", v3);
     MapVoteMapName = (char *)&queryFormat.fmt + 3;
   }
   j_lua_pushstring(luaVM, MapVoteMapName);
@@ -1302,6 +1308,8 @@ LUI_CoD_LuaCall_GetVoteMapGametype
 */
 __int64 LUI_CoD_LuaCall_GetVoteMapGametype(lua_State *luaVM)
 {
+  double v2; 
+  unsigned int v3; 
   const dvar_t *v4; 
   const PartyData *PartyData; 
   int MapVotePlaylistEntry; 
@@ -1315,11 +1323,11 @@ __int64 LUI_CoD_LuaCall_GetVoteMapGametype(lua_State *luaVM)
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Lobby.GetVoteMapGametype( <map_index> )\n");
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-  __asm { vcvttss2si esi, xmm0 }
-  if ( _ESI > 2 )
+  v2 = lui_tonumber32(luaVM, 1);
+  v3 = (int)*(float *)&v2;
+  if ( (unsigned int)(int)*(float *)&v2 > 2 )
   {
-    Com_PrintError(13, "Lobby.GetMapVoteGametypeName called unrecognized integer data=[%d] expected 0 or 1 or 2\n", _ESI);
+    Com_PrintError(13, "Lobby.GetMapVoteGametypeName called unrecognized integer data=[%d] expected 0 or 1 or 2\n", v3);
 LABEL_19:
     v8 = (char *)&queryFormat.fmt + 3;
     goto LABEL_20;
@@ -1348,7 +1356,7 @@ LABEL_15:
   else
   {
     PartyData = Lobby_GetPartyData();
-    MapVotePlaylistEntry = Party_GetMapVotePlaylistEntry(PartyData, _ESI);
+    MapVotePlaylistEntry = Party_GetMapVotePlaylistEntry(PartyData, v3);
     LocalizedGametypeName = Playlist_GetLocalizedGametypeName(MapVotePlaylistEntry);
     v8 = (char *)&queryFormat.fmt + 3;
     if ( LocalizedGametypeName )
@@ -1567,37 +1575,30 @@ LUI_CoD_LuaCall_GetServerData
 */
 __int64 LUI_CoD_LuaCall_GetServerData(lua_State *luaVM)
 {
-  const char *v3; 
+  const char *v2; 
+  int v3; 
   int v4; 
   int v5; 
-  int v6; 
   LocalClientNum_t ClientFromController; 
-  unsigned int v10; 
-  float v12; 
+  unsigned int v7; 
   Material *material; 
 
-  v3 = (char *)&queryFormat.fmt + 3;
+  v2 = (char *)&queryFormat.fmt + 3;
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: Lobby.GetServerData( <controller>, <index>, <column> )\n");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isnumber(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    v4 = lui_tointeger32(luaVM, 1);
-    v5 = lui_tointeger32(luaVM, 2);
-    v6 = lui_tointeger32(luaVM, 3);
-    ClientFromController = CL_Mgr_GetClientFromController(v4);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40000000; feederID
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+58h+var_10], xmm0
-    }
-    v3 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v5, v6, NULL, NULL, NULL, NULL, &material, v12);
+    v3 = lui_tointeger32(luaVM, 1);
+    v4 = lui_tointeger32(luaVM, 2);
+    v5 = lui_tointeger32(luaVM, 3);
+    ClientFromController = CL_Mgr_GetClientFromController(v3);
+    v2 = UI_FeederItemText(ClientFromController, 2.0, v4, v5, NULL, NULL, NULL, NULL, &material, 0.0);
   }
-  j_lua_pushstring(luaVM, v3);
+  j_lua_pushstring(luaVM, v2);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v10);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
   }
   return 1i64;
 }
@@ -1713,7 +1714,7 @@ __int64 LUI_CoD_LuaCall_JoinServer(lua_State *luaVM)
   int v2; 
   int v3; 
   LocalClientNum_t ClientFromController; 
-  unsigned int v6; 
+  unsigned int v5; 
   char *args; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
@@ -1722,16 +1723,15 @@ __int64 LUI_CoD_LuaCall_JoinServer(lua_State *luaVM)
   {
     v2 = lui_tointeger32(luaVM, 1);
     v3 = lui_tointeger32(luaVM, 2);
-    __asm { vmovss  xmm1, cs:__real@40000000; feederID }
     ClientFromController = CL_Mgr_GetClientFromController(v2);
-    UI_FeederSelection(ClientFromController, *(float *)&_XMM1, v3);
+    UI_FeederSelection(ClientFromController, 2.0, v3);
     args = "JoinServer";
     UI_RunMenuScript(ClientFromController, (const char **)&args, (const char *)&queryFormat.fmt + 3);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -3376,11 +3376,8 @@ __int64 __fastcall LUI_CoD_LuaCall_GetPartyUIRoot(lua_State *luaVM, double _XMM1
   else
   {
     Party_GetUIRoot(ActiveParty);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, eax
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, eax }
   }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
@@ -3791,30 +3788,24 @@ LUI_CoD_LuaCall_CreateServersDataModels_impl
 */
 __int64 LUI_CoD_LuaCall_CreateServersDataModels_impl(lua_State *const luaVM)
 {
-  int v4; 
+  int v2; 
   LocalClientNum_t ClientFromController; 
   unsigned __int16 GlobalModel; 
   unsigned __int16 ModelFromPath; 
   int ServerCount; 
+  unsigned __int16 v7; 
+  int v8; 
   unsigned __int16 v9; 
-  int v10; 
-  unsigned __int16 v13; 
-  const char *v15; 
-  unsigned __int16 v16; 
-  const char *v18; 
+  const char *v10; 
+  unsigned __int16 v11; 
+  const char *v12; 
   const char *MapDisplayName; 
-  const char *v21; 
-  unsigned __int16 v22; 
-  const char *v24; 
-  unsigned __int16 v25; 
-  const char *v27; 
-  unsigned __int16 v28; 
-  __int64 result; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
+  const char *v14; 
+  unsigned __int16 v15; 
+  const char *v16; 
+  unsigned __int16 v17; 
+  const char *v18; 
+  unsigned __int16 v19; 
   Material *material[2]; 
   char dest[64]; 
 
@@ -3822,77 +3813,42 @@ __int64 LUI_CoD_LuaCall_CreateServersDataModels_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, "USAGE: Lobby.CreateServersDataModels( controllerIndex )");
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) || sharedUiInfo.serverStatus.refreshActive )
     return 0i64;
-  v4 = lui_tointeger32(luaVM, 1);
-  ClientFromController = CL_Mgr_GetClientFromController(v4);
+  v2 = lui_tointeger32(luaVM, 1);
+  ClientFromController = CL_Mgr_GetClientFromController(v2);
   GlobalModel = LUI_Model_GetGlobalModel();
   ModelFromPath = LUI_Model_CreateModelFromPath(GlobalModel, "frontEnd.systemLinkMenu.serverBrowser");
   ServerCount = UI_GetServerCount(ClientFromController);
-  v9 = LUI_Model_CreateModelFromPath(ModelFromPath, "serverCount");
-  LUI_Model_SetInt(v9, ServerCount);
-  v10 = 0;
+  v7 = LUI_Model_CreateModelFromPath(ModelFromPath, "serverCount");
+  LUI_Model_SetInt(v7, ServerCount);
+  v8 = 0;
   if ( ServerCount <= 0 )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_38], xmm6
-    vmovaps [rsp+0F8h+var_48], xmm7
-    vmovss  xmm7, cs:__real@40000000
-    vxorps  xmm6, xmm6, xmm6
-  }
   do
   {
-    if ( v10 >= 64 )
+    if ( v8 >= 64 )
       break;
-    Com_sprintf(dest, 0x40ui64, "%i", (unsigned int)v10);
-    __asm { vmovss  [rsp+0F8h+var_B0], xmm6 }
-    v13 = LUI_Model_CreateModelFromPath(ModelFromPath, dest);
-    __asm { vmovaps xmm1, xmm7; feederID }
-    v15 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v10, 0, NULL, NULL, NULL, NULL, material, v32);
-    v16 = LUI_Model_CreateModelFromPath(v13, "host");
-    LUI_Model_SetString(v16, v15);
-    __asm
-    {
-      vmovss  [rsp+0F8h+var_B0], xmm6
-      vmovaps xmm1, xmm7; feederID
-    }
-    v18 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v10, 1, NULL, NULL, NULL, NULL, material, v33);
-    LOWORD(v15) = LUI_Model_CreateModelFromPath(v13, "map");
-    MapDisplayName = UI_GetMapDisplayName(v18);
-    LUI_Model_SetString((const unsigned __int16)v15, MapDisplayName);
-    __asm
-    {
-      vmovss  [rsp+0F8h+var_B0], xmm6
-      vmovaps xmm1, xmm7; feederID
-    }
-    v21 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v10, 2, NULL, NULL, NULL, NULL, material, v34);
-    v22 = LUI_Model_CreateModelFromPath(v13, "players");
-    LUI_Model_SetString(v22, v21);
-    __asm
-    {
-      vmovss  [rsp+0F8h+var_B0], xmm6
-      vmovaps xmm1, xmm7; feederID
-    }
-    v24 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v10, 3, NULL, NULL, NULL, NULL, material, v35);
-    v25 = LUI_Model_CreateModelFromPath(v13, "type");
-    LUI_Model_SetString(v25, v24);
-    __asm
-    {
-      vmovss  [rsp+0F8h+var_B0], xmm6
-      vmovaps xmm1, xmm7; feederID
-    }
-    v27 = UI_FeederItemText(ClientFromController, *(const float *)&_XMM1, v10, 5, NULL, NULL, NULL, NULL, material, v36);
-    v28 = LUI_Model_CreateModelFromPath(v13, "status");
-    LUI_Model_SetInt(v28, *v27 == 49);
-    ++v10;
+    Com_sprintf(dest, 0x40ui64, "%i", (unsigned int)v8);
+    v9 = LUI_Model_CreateModelFromPath(ModelFromPath, dest);
+    v10 = UI_FeederItemText(ClientFromController, 2.0, v8, 0, NULL, NULL, NULL, NULL, material, 0.0);
+    v11 = LUI_Model_CreateModelFromPath(v9, "host");
+    LUI_Model_SetString(v11, v10);
+    v12 = UI_FeederItemText(ClientFromController, 2.0, v8, 1, NULL, NULL, NULL, NULL, material, 0.0);
+    LOWORD(v10) = LUI_Model_CreateModelFromPath(v9, "map");
+    MapDisplayName = UI_GetMapDisplayName(v12);
+    LUI_Model_SetString((const unsigned __int16)v10, MapDisplayName);
+    v14 = UI_FeederItemText(ClientFromController, 2.0, v8, 2, NULL, NULL, NULL, NULL, material, 0.0);
+    v15 = LUI_Model_CreateModelFromPath(v9, "players");
+    LUI_Model_SetString(v15, v14);
+    v16 = UI_FeederItemText(ClientFromController, 2.0, v8, 3, NULL, NULL, NULL, NULL, material, 0.0);
+    v17 = LUI_Model_CreateModelFromPath(v9, "type");
+    LUI_Model_SetString(v17, v16);
+    v18 = UI_FeederItemText(ClientFromController, 2.0, v8, 5, NULL, NULL, NULL, NULL, material, 0.0);
+    v19 = LUI_Model_CreateModelFromPath(v9, "status");
+    LUI_Model_SetInt(v19, *v18 == 49);
+    ++v8;
   }
-  while ( v10 < ServerCount );
-  result = 0i64;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0F8h+var_38]
-    vmovaps xmm7, [rsp+0F8h+var_48]
-  }
-  return result;
+  while ( v8 < ServerCount );
+  return 0i64;
 }
 
 /*
@@ -3904,11 +3860,11 @@ __int64 LUI_CoD_LuaCall_GetLobbyMemberStats_impl(lua_State *const luaVM)
 {
   const PartyData *ActiveParty; 
   int MemberByXUID; 
-  char *v5; 
-  __int64 v14; 
-  int v15; 
+  int *v4; 
+  __int64 v5; 
+  int v6; 
   __int64 i; 
-  int v17; 
+  int v8; 
   XUID result; 
 
   if ( j_lua_gettop(luaVM) != 1 )
@@ -3921,47 +3877,33 @@ __int64 LUI_CoD_LuaCall_GetLobbyMemberStats_impl(lua_State *const luaVM)
   MemberByXUID = Party_FindMemberByXUID(ActiveParty, result);
   if ( MemberByXUID >= 0 )
   {
-    v5 = (char *)ActiveParty + 504 * MemberByXUID;
-    LUI_SetTableInt("numWins", *((int *)v5 + 576), luaVM);
-    LUI_SetTableInt("currentWinStreak", *((int *)v5 + 578), luaVM);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r14+904h]
-      vmulss  xmm0, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm0, xmm0; value
-    }
-    LUI_SetTableNumber("kdRatio", *(long double *)&_XMM1, luaVM);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r14+910h]
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("winLossRatio", *(long double *)&_XMM1, luaVM);
+    v4 = (int *)((char *)ActiveParty + 504 * MemberByXUID);
+    LUI_SetTableInt("numWins", v4[576], luaVM);
+    LUI_SetTableInt("currentWinStreak", v4[578], luaVM);
+    LUI_SetTableNumber("kdRatio", (float)((float)v4[577] * 0.001), luaVM);
+    LUI_SetTableNumber("winLossRatio", (float)((float)v4[580] * 0.001), luaVM);
     j_lua_createtable(luaVM, 0, 0);
-    v14 = 0i64;
-    v15 = 1;
+    v5 = 0i64;
+    v6 = 1;
     for ( i = 0i64; i < 5; ++i )
     {
-      j_lua_pushinteger(luaVM, v15);
-      j_lua_pushinteger(luaVM, (unsigned __int8)v5[i + 2360]);
+      j_lua_pushinteger(luaVM, v6);
+      j_lua_pushinteger(luaVM, *((unsigned __int8 *)v4 + i + 2360));
       j_lua_settable(luaVM, -3);
-      ++v15;
+      ++v6;
     }
     j_lua_setfield(luaVM, -2, "killsHistory");
     j_lua_createtable(luaVM, 0, 0);
-    v17 = 1;
+    v8 = 1;
     do
     {
-      j_lua_pushinteger(luaVM, v17);
-      j_lua_pushinteger(luaVM, (unsigned __int8)v5[v14 + 2365]);
+      j_lua_pushinteger(luaVM, v8);
+      j_lua_pushinteger(luaVM, *((unsigned __int8 *)v4 + v5 + 2365));
       j_lua_settable(luaVM, -3);
-      ++v17;
-      ++v14;
+      ++v8;
+      ++v5;
     }
-    while ( v14 < 5 );
+    while ( v5 < 5 );
     j_lua_setfield(luaVM, -2, "deathsHistory");
   }
   return 1i64;

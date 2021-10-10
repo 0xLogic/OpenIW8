@@ -125,15 +125,16 @@ void __fastcall emit_dht(jpeg_compress_struct *cinfo, int index, unsigned __int8
 {
   int v5; 
   JHUFF_TBL *v7; 
+  unsigned __int8 *v10; 
   __int64 v11; 
   jpeg_destination_mgr *dest; 
-  bool v25; 
+  bool v24; 
+  jpeg_destination_mgr *v25; 
   jpeg_destination_mgr *v26; 
-  jpeg_destination_mgr *v27; 
   __int64 i; 
-  jpeg_destination_mgr *v29; 
-  __int64 v30; 
-  jpeg_destination_mgr *v31; 
+  jpeg_destination_mgr *v28; 
+  __int64 v29; 
+  jpeg_destination_mgr *v30; 
 
   v5 = index;
   if ( is_ac )
@@ -159,16 +160,16 @@ void __fastcall emit_dht(jpeg_compress_struct *cinfo, int index, unsigned __int8
       vpxor   xmm2, xmm2, xmm2
       vpxor   xmm3, xmm3, xmm3
     }
-    _RAX = &v7->bits[5];
+    v10 = &v7->bits[5];
     v11 = 2i64;
     do
     {
-      __asm { vmovd   xmm0, dword ptr [rax-4] }
-      _RAX += 8;
+      _XMM0 = *((unsigned int *)v10 - 1);
+      v10 += 8;
+      __asm { vpmovzxbd xmm1, xmm0 }
+      _XMM0 = *((unsigned int *)v10 - 2);
       __asm
       {
-        vpmovzxbd xmm1, xmm0
-        vmovd   xmm0, dword ptr [rax-8]
         vpaddd  xmm2, xmm1, xmm2
         vpmovzxbd xmm1, xmm0
         vpaddd  xmm3, xmm1, xmm3
@@ -184,58 +185,57 @@ void __fastcall emit_dht(jpeg_compress_struct *cinfo, int index, unsigned __int8
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r14d, xmm0
     }
-    *dest->next_output_byte++ = (unsigned __int16)(_ER14 + 19) >> 8;
-    v25 = dest->free_in_buffer-- == 1;
-    if ( v25 && !dest->empty_output_buffer(cinfo) )
+    *dest->next_output_byte++ = (unsigned __int16)(_XMM0 + 19) >> 8;
+    v24 = dest->free_in_buffer-- == 1;
+    if ( v24 && !dest->empty_output_buffer(cinfo) )
+    {
+      cinfo->err->msg_code = 24;
+      cinfo->err->error_exit((jpeg_common_struct *)cinfo);
+    }
+    v25 = cinfo->dest;
+    *v25->next_output_byte++ = _XMM0 + 19;
+    v24 = v25->free_in_buffer-- == 1;
+    if ( v24 && !v25->empty_output_buffer(cinfo) )
     {
       cinfo->err->msg_code = 24;
       cinfo->err->error_exit((jpeg_common_struct *)cinfo);
     }
     v26 = cinfo->dest;
-    *v26->next_output_byte++ = _ER14 + 19;
-    v25 = v26->free_in_buffer-- == 1;
-    if ( v25 && !v26->empty_output_buffer(cinfo) )
-    {
-      cinfo->err->msg_code = 24;
-      cinfo->err->error_exit((jpeg_common_struct *)cinfo);
-    }
-    v27 = cinfo->dest;
-    *v27->next_output_byte++ = v5;
-    v25 = v27->free_in_buffer-- == 1;
-    if ( v25 && !v27->empty_output_buffer(cinfo) )
+    *v26->next_output_byte++ = v5;
+    v24 = v26->free_in_buffer-- == 1;
+    if ( v24 && !v26->empty_output_buffer(cinfo) )
     {
       cinfo->err->msg_code = 24;
       cinfo->err->error_exit((jpeg_common_struct *)cinfo);
     }
     for ( i = 1i64; i <= 16; ++i )
     {
-      v29 = cinfo->dest;
-      *v29->next_output_byte++ = v7->bits[i];
-      v25 = v29->free_in_buffer-- == 1;
-      if ( v25 && !v29->empty_output_buffer(cinfo) )
+      v28 = cinfo->dest;
+      *v28->next_output_byte++ = v7->bits[i];
+      v24 = v28->free_in_buffer-- == 1;
+      if ( v24 && !v28->empty_output_buffer(cinfo) )
       {
         cinfo->err->msg_code = 24;
         cinfo->err->error_exit((jpeg_common_struct *)cinfo);
       }
     }
-    if ( _ER14 > 0i64 )
+    if ( (int)_XMM0 > 0i64 )
     {
-      v30 = 0i64;
+      v29 = 0i64;
       do
       {
-        v31 = cinfo->dest;
-        *v31->next_output_byte++ = v7->huffval[v30];
-        v25 = v31->free_in_buffer-- == 1;
-        if ( v25 && !v31->empty_output_buffer(cinfo) )
+        v30 = cinfo->dest;
+        *v30->next_output_byte++ = v7->huffval[v29];
+        v24 = v30->free_in_buffer-- == 1;
+        if ( v24 && !v30->empty_output_buffer(cinfo) )
         {
           cinfo->err->msg_code = 24;
           cinfo->err->error_exit((jpeg_common_struct *)cinfo);
         }
-        ++v30;
+        ++v29;
       }
-      while ( v30 < _ER14 );
+      while ( v29 < (int)_XMM0 );
     }
     v7->sent_table = 1;
   }

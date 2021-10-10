@@ -10,6 +10,8 @@ void start_input_pass(jpeg_decompress_struct *cinfo)
   jpeg_component_info *v4; 
   __int64 quant_tbl_no; 
   __int64 v6; 
+  __m256i *v7; 
+  __m256i *v8; 
 
   per_scan_setup(cinfo);
   v2 = 0;
@@ -29,21 +31,14 @@ void start_input_pass(jpeg_decompress_struct *cinfo)
           cinfo->err->msg_parm.i[0] = quant_tbl_no;
           cinfo->err->error_exit((jpeg_common_struct *)cinfo);
         }
-        _RAX = cinfo->mem->alloc_small((jpeg_common_struct *)cinfo, 1i64, 130i64);
-        _RCX = cinfo->quant_tbl_ptrs[v6];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm1, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rax+20h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+60h]
-          vmovups ymmword ptr [rax+60h], ymm1
-        }
-        *(_WORD *)(_RAX + 128) = *(_WORD *)&_RCX->sent_table;
-        v4->quant_table = (JQUANT_TBL *)_RAX;
+        v7 = (__m256i *)cinfo->mem->alloc_small((jpeg_common_struct *)cinfo, 1i64, 130i64);
+        v8 = (__m256i *)cinfo->quant_tbl_ptrs[v6];
+        *v7 = *v8;
+        v7[1] = v8[1];
+        v7[2] = v8[2];
+        v7[3] = v8[3];
+        v7[4].m256i_i16[0] = v8[4].m256i_i16[0];
+        v4->quant_table = (JQUANT_TBL *)v7;
       }
       ++v2;
       ++cur_comp_info;

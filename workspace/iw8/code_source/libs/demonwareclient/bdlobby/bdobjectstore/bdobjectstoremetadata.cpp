@@ -401,25 +401,13 @@ bdObjectStoreMetadata::bdObjectStoreMetadata
 */
 void bdObjectStoreMetadata::bdObjectStoreMetadata(bdObjectStoreMetadata *this, const bdObjectStoreObjectID *objectID)
 {
-  _RDI = objectID;
-  _RSI = this;
   bdObjectStoreObjectID::bdObjectStoreObjectID(&this->m_objectID);
-  bdObjectStoreACL::bdObjectStoreACL(&_RSI->m_acl);
-  _RSI->m_tags.m_data = NULL;
-  *(_QWORD *)&_RSI->m_tags.m_capacity = 0i64;
-  bdObjectStoreObjectStatistics::bdObjectStoreObjectStatistics(&_RSI->m_statistics);
-  bdObjectStoreMetadata::reset(_RSI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsi+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rsi+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rsi+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rsi+70h], xmm1
-  }
+  bdObjectStoreACL::bdObjectStoreACL(&this->m_acl);
+  this->m_tags.m_data = NULL;
+  *(_QWORD *)&this->m_tags.m_capacity = 0i64;
+  bdObjectStoreObjectStatistics::bdObjectStoreObjectStatistics(&this->m_statistics);
+  bdObjectStoreMetadata::reset(this);
+  this->m_objectID = *objectID;
 }
 
 /*
@@ -429,30 +417,19 @@ bdObjectStoreMetadata::bdObjectStoreMetadata
 */
 void bdObjectStoreMetadata::bdObjectStoreMetadata(bdObjectStoreMetadata *this, const bdObjectStoreObjectID *objectID, const char *const contentChecksum, const __int64 expiresOn, const bdObjectStoreACL *acl, const unsigned __int8 *extraData, unsigned int extraDataSize, const char *const category, bdObjectStoreTag *tags, unsigned int numTags)
 {
-  bdObjectStoreMetadata *v11; 
-  _BYTE *v16; 
-  unsigned __int64 v17; 
-  _BYTE *v18; 
-  unsigned __int64 v19; 
-  unsigned int v20; 
+  _BYTE *v12; 
+  unsigned __int64 v13; 
+  _BYTE *v14; 
+  unsigned __int64 v15; 
+  unsigned int v16; 
   unsigned int m_capacity; 
-  __int64 v23; 
+  __int64 v19; 
   unsigned int m_size; 
-  __int64 v28; 
-  __int64 v29; 
+  __m256i *v21; 
+  __int64 v22; 
+  __int64 v23; 
 
-  v11 = this;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-  }
+  this->m_objectID = *objectID;
   this->m_expiresOn = expiresOn;
   this->m_acl = (bdObjectStoreACL)acl->m_aclType;
   this->m_summaryContentLength = 0i64;
@@ -460,98 +437,92 @@ void bdObjectStoreMetadata::bdObjectStoreMetadata(bdObjectStoreMetadata *this, c
   this->m_tags.m_data = NULL;
   *(_QWORD *)&this->m_tags.m_capacity = 0i64;
   bdObjectStoreObjectStatistics::bdObjectStoreObjectStatistics(&this->m_statistics);
-  v16 = memchr_0(contentChecksum, 0, 0x21ui64);
-  v17 = 33i64;
-  if ( v16 )
-    v17 = v16 - contentChecksum;
-  bdHandleAssert(v17 < 0x21, "(bdStrnlen(contentChecksum, BD_OBJECTSTORE_MAX_CHECKSUM_LENGTH) < BD_OBJECTSTORE_MAX_CHECKSUM_LENGTH)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x24u, "Checksum is too long. Max length is %d", 32);
-  bdStrlcpy(v11->m_contentChecksum, contentChecksum, 0x21ui64);
-  *(_QWORD *)v11->m_context = 0i64;
-  *(_QWORD *)&v11->m_context[8] = 0i64;
-  *(_QWORD *)v11->m_objectVersion = 0i64;
-  *(_QWORD *)&v11->m_objectVersion[8] = 0i64;
-  *(_QWORD *)&v11->m_objectVersion[16] = 0i64;
-  *(_QWORD *)&v11->m_objectVersion[24] = 0i64;
-  v11->m_objectVersion[32] = 0;
-  memset_0(v11->m_contentURL, 0, sizeof(v11->m_contentURL));
-  LODWORD(v28) = 2048;
-  bdHandleAssert(extraDataSize <= 0x800, "extraDataSize <= BD_OBJECTSTORE_MAX_EXTRA_DATA_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x2Bu, "extraDataSize > %d", v28);
-  v11->m_extraDataSize = extraDataSize;
-  memset_0(v11->m_extraData, 0, sizeof(v11->m_extraData));
+  v12 = memchr_0(contentChecksum, 0, 0x21ui64);
+  v13 = 33i64;
+  if ( v12 )
+    v13 = v12 - contentChecksum;
+  bdHandleAssert(v13 < 0x21, "(bdStrnlen(contentChecksum, BD_OBJECTSTORE_MAX_CHECKSUM_LENGTH) < BD_OBJECTSTORE_MAX_CHECKSUM_LENGTH)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x24u, "Checksum is too long. Max length is %d", 32);
+  bdStrlcpy(this->m_contentChecksum, contentChecksum, 0x21ui64);
+  *(_QWORD *)this->m_context = 0i64;
+  *(_QWORD *)&this->m_context[8] = 0i64;
+  *(_QWORD *)this->m_objectVersion = 0i64;
+  *(_QWORD *)&this->m_objectVersion[8] = 0i64;
+  *(_QWORD *)&this->m_objectVersion[16] = 0i64;
+  *(_QWORD *)&this->m_objectVersion[24] = 0i64;
+  this->m_objectVersion[32] = 0;
+  memset_0(this->m_contentURL, 0, sizeof(this->m_contentURL));
+  LODWORD(v22) = 2048;
+  bdHandleAssert(extraDataSize <= 0x800, "extraDataSize <= BD_OBJECTSTORE_MAX_EXTRA_DATA_LENGTH", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x2Bu, "extraDataSize > %d", v22);
+  this->m_extraDataSize = extraDataSize;
+  memset_0(this->m_extraData, 0, sizeof(this->m_extraData));
   if ( extraData )
-    memcpy_0(v11->m_extraData, extraData, extraDataSize);
+    memcpy_0(this->m_extraData, extraData, extraDataSize);
   if ( category )
   {
-    v18 = memchr_0(category, 0, 0x41ui64);
-    v19 = 65i64;
-    if ( v18 )
-      v19 = v18 - category;
-    LODWORD(v29) = 64;
-    bdHandleAssert(v19 < 0x41, "(bdStrnlen(category, BD_OBJECTSTORE_MAX_CATEGORY_LENGTH) < BD_OBJECTSTORE_MAX_CATEGORY_LENGTH)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x38u, "Category is too long. Max length is %d", v29);
-    bdStrlcpy(v11->m_category, category, 0x41ui64);
+    v14 = memchr_0(category, 0, 0x41ui64);
+    v15 = 65i64;
+    if ( v14 )
+      v15 = v14 - category;
+    LODWORD(v23) = 64;
+    bdHandleAssert(v15 < 0x41, "(bdStrnlen(category, BD_OBJECTSTORE_MAX_CATEGORY_LENGTH) < BD_OBJECTSTORE_MAX_CATEGORY_LENGTH)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::bdObjectStoreMetadata", 0x38u, "Category is too long. Max length is %d", v23);
+    bdStrlcpy(this->m_category, category, 0x41ui64);
   }
   else
   {
-    *(_QWORD *)v11->m_category = 0i64;
-    *(_QWORD *)&v11->m_category[8] = 0i64;
-    *(_QWORD *)&v11->m_category[16] = 0i64;
-    *(_QWORD *)&v11->m_category[24] = 0i64;
-    *(_QWORD *)&v11->m_category[32] = 0i64;
-    *(_QWORD *)&v11->m_category[40] = 0i64;
-    *(_QWORD *)&v11->m_category[48] = 0i64;
-    *(_QWORD *)&v11->m_category[56] = 0i64;
-    v11->m_category[64] = 0;
+    *(_QWORD *)this->m_category = 0i64;
+    *(_QWORD *)&this->m_category[8] = 0i64;
+    *(_QWORD *)&this->m_category[16] = 0i64;
+    *(_QWORD *)&this->m_category[24] = 0i64;
+    *(_QWORD *)&this->m_category[32] = 0i64;
+    *(_QWORD *)&this->m_category[40] = 0i64;
+    *(_QWORD *)&this->m_category[48] = 0i64;
+    *(_QWORD *)&this->m_category[56] = 0i64;
+    this->m_category[64] = 0;
   }
-  v11->m_contentLength = 0i64;
-  v11->m_created = 0i64;
-  v11->m_modified = 0i64;
-  *(_QWORD *)v11->m_summaryChecksum = 0i64;
-  *(_QWORD *)&v11->m_summaryChecksum[8] = 0i64;
-  *(_QWORD *)&v11->m_summaryChecksum[16] = 0i64;
-  *(_QWORD *)&v11->m_summaryChecksum[24] = 0i64;
-  v11->m_summaryChecksum[32] = 0;
+  this->m_contentLength = 0i64;
+  this->m_created = 0i64;
+  this->m_modified = 0i64;
+  *(_QWORD *)this->m_summaryChecksum = 0i64;
+  *(_QWORD *)&this->m_summaryChecksum[8] = 0i64;
+  *(_QWORD *)&this->m_summaryChecksum[16] = 0i64;
+  *(_QWORD *)&this->m_summaryChecksum[24] = 0i64;
+  this->m_summaryChecksum[32] = 0;
   if ( numTags )
   {
-    v20 = 150;
+    v16 = 150;
     bdHandleAssert(numTags <= 0x96, "!tooManyTags", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::setTags", 0xE2u, "Too many tags were passed in.");
     if ( numTags < 0x96 )
-      v20 = numTags;
-    m_capacity = v11->m_tags.m_capacity;
-    if ( m_capacity < v20 )
-      bdArray<bdObjectStoreTag>::increaseCapacity(&v11->m_tags, v20 - m_capacity);
-    _RBX = tags;
-    v23 = v20;
-    m_size = v11->m_tags.m_size;
+      v16 = numTags;
+    m_capacity = this->m_tags.m_capacity;
+    if ( m_capacity < v16 )
+      bdArray<bdObjectStoreTag>::increaseCapacity(&this->m_tags, v16 - m_capacity);
+    v19 = v16;
+    m_size = this->m_tags.m_size;
     do
     {
-      if ( m_size == v11->m_tags.m_capacity )
+      if ( m_size == this->m_tags.m_capacity )
       {
-        bdArray<bdObjectStoreTag>::increaseCapacity(&v11->m_tags, 1u);
-        m_size = v11->m_tags.m_size;
+        bdArray<bdObjectStoreTag>::increaseCapacity(&this->m_tags, 1u);
+        m_size = this->m_tags.m_size;
       }
-      _RDX = (__int64)v11->m_tags.m_data[m_size].m_key;
-      if ( _RDX )
+      v21 = (__m256i *)&this->m_tags.m_data[m_size];
+      if ( v21 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymmword ptr [rdx], ymm0
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rdx+20h], ymm1
-        }
-        *(_WORD *)(_RDX + 64) = *(_WORD *)&_RBX->m_value[31];
-        m_size = v11->m_tags.m_size;
+        *v21 = *(__m256i *)tags->m_key;
+        v21[1] = *(__m256i *)&tags->m_key[32];
+        v21[2].m256i_i16[0] = *(_WORD *)&tags->m_value[31];
+        m_size = this->m_tags.m_size;
       }
-      v11->m_tags.m_size = ++m_size;
-      ++_RBX;
-      --v23;
+      this->m_tags.m_size = ++m_size;
+      ++tags;
+      --v19;
     }
-    while ( v23 );
-    v11->m_numTags = v20;
+    while ( v19 );
+    this->m_numTags = v16;
   }
   else
   {
-    v11->m_numTags = 0;
+    this->m_numTags = 0;
   }
 }
 
@@ -699,14 +670,16 @@ _BOOL8 bdObjectStoreMetadata::deserializeTagsFromJSON(bdObjectStoreMetadata *thi
   unsigned int v13; 
   unsigned int v14; 
   unsigned int m_size; 
-  unsigned int v19; 
-  __int64 v24; 
+  bdObjectStoreTag *v16; 
+  unsigned int v17; 
+  bdObjectStoreTag *v18; 
+  __int64 v20; 
   bdJSONDeserializer value; 
   bdJSONDeserializer valueJson; 
-  __int64 v28; 
-  bdObjectStoreTag v29; 
+  __int64 v24; 
+  bdObjectStoreTag v25; 
 
-  v28 = -2i64;
+  v24 = -2i64;
   bdHandleAssert(json != NULL, "json != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::deserializeTagsFromJSON", 0x109u, "bdJSONDeserializer is NULL.");
   m_type = json->m_type;
   v5 = json->m_type == BD_JSON_ARRAY;
@@ -750,8 +723,8 @@ _BOOL8 bdObjectStoreMetadata::deserializeTagsFromJSON(bdObjectStoreMetadata *thi
             v14 = 0;
             while ( v14 < v13 && v12 < 0x96 )
             {
-              bdObjectStoreTag::bdObjectStoreTag(&v29);
-              if ( bdObjectStoreTag::deserializeFromJSON(&v29, &value, &valueJson, v14) )
+              bdObjectStoreTag::bdObjectStoreTag(&v25);
+              if ( bdObjectStoreTag::deserializeFromJSON(&v25, &value, &valueJson, v14) )
               {
                 v5 = 1;
                 m_size = this->m_tags.m_size;
@@ -760,17 +733,10 @@ _BOOL8 bdObjectStoreMetadata::deserializeTagsFromJSON(bdObjectStoreMetadata *thi
                   bdArray<bdObjectStoreTag>::increaseCapacity(&this->m_tags, 1u);
                   m_size = this->m_tags.m_size;
                 }
-                _RDX = &this->m_tags.m_data[m_size];
-                if ( _RDX )
+                v16 = &this->m_tags.m_data[m_size];
+                if ( v16 )
                 {
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_key]
-                    vmovups ymmword ptr [rdx], ymm0
-                    vmovups ymm1, ymmword ptr [rbp+57h+var_90.m_key+20h]
-                    vmovups ymmword ptr [rdx+20h], ymm1
-                  }
-                  *(_WORD *)&_RDX->m_value[31] = *(_WORD *)&v29.m_value[31];
+                  *v16 = v25;
                   m_size = this->m_tags.m_size;
                 }
                 this->m_tags.m_size = m_size + 1;
@@ -795,30 +761,23 @@ _BOOL8 bdObjectStoreMetadata::deserializeTagsFromJSON(bdObjectStoreMetadata *thi
         }
         if ( bdJSONDeserializer::hasKey(&value, (const char *const)&stru_143CE7590) )
         {
-          bdObjectStoreTag::bdObjectStoreTag(&v29);
-          if ( bdObjectStoreTag::deserializeFromJSON(&v29, &value) )
+          bdObjectStoreTag::bdObjectStoreTag(&v25);
+          if ( bdObjectStoreTag::deserializeFromJSON(&v25, &value) )
           {
             v5 = 1;
-            v19 = this->m_tags.m_size;
-            if ( v19 == this->m_tags.m_capacity )
+            v17 = this->m_tags.m_size;
+            if ( v17 == this->m_tags.m_capacity )
             {
               bdArray<bdObjectStoreTag>::increaseCapacity(&this->m_tags, 1u);
-              v19 = this->m_tags.m_size;
+              v17 = this->m_tags.m_size;
             }
-            _RDX = &this->m_tags.m_data[v19];
-            if ( _RDX )
+            v18 = &this->m_tags.m_data[v17];
+            if ( v18 )
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_key]
-                vmovups ymmword ptr [rdx], ymm0
-                vmovups ymm1, ymmword ptr [rbp+57h+var_90.m_key+20h]
-                vmovups ymmword ptr [rdx+20h], ymm1
-              }
-              *(_WORD *)&_RDX->m_value[31] = *(_WORD *)&v29.m_value[31];
-              v19 = this->m_tags.m_size;
+              *v18 = v25;
+              v17 = this->m_tags.m_size;
             }
-            this->m_tags.m_size = v19 + 1;
+            this->m_tags.m_size = v17 + 1;
             ++v12;
             goto LABEL_45;
           }
@@ -837,8 +796,8 @@ LABEL_45:
   }
   if ( v5 && v10 < v7 && v12 >= 0x96 )
   {
-    LODWORD(v24) = 150;
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdObjectStore/bdObjectStoreMetadata", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::deserializeTagsFromJSON", 0x168u, "Too many tags to deserialize. Deserialized [%d] tags", v24);
+    LODWORD(v20) = 150;
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdObjectStore/bdObjectStoreMetadata", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoremetadata.cpp", "bdObjectStoreMetadata::deserializeTagsFromJSON", 0x168u, "Too many tags to deserialize. Deserialized [%d] tags", v20);
   }
 LABEL_46:
   this->m_numTags = v12;
@@ -1301,17 +1260,7 @@ bdObjectStoreMetadata::setObjectID
 */
 char bdObjectStoreMetadata::setObjectID(bdObjectStoreMetadata *this, const bdObjectStoreObjectID *objectID)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-  }
+  this->m_objectID = *objectID;
   return 1;
 }
 
@@ -1342,8 +1291,8 @@ bool bdObjectStoreMetadata::setTags(bdObjectStoreMetadata *this, bdObjectStoreTa
   unsigned int m_capacity; 
   unsigned int m_size; 
   __int64 v10; 
+  __m256i *v11; 
 
-  _RDI = tags;
   if ( numTags )
   {
     v7 = 150;
@@ -1364,21 +1313,16 @@ bool bdObjectStoreMetadata::setTags(bdObjectStoreMetadata *this, bdObjectStoreTa
           bdArray<bdObjectStoreTag>::increaseCapacity(&this->m_tags, 1u);
           m_size = this->m_tags.m_size;
         }
-        _RDX = &this->m_tags.m_data[m_size];
-        if ( _RDX )
+        v11 = (__m256i *)&this->m_tags.m_data[m_size];
+        if ( v11 )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi]
-            vmovups ymmword ptr [rdx], ymm0
-            vmovups ymm1, ymmword ptr [rdi+20h]
-            vmovups ymmword ptr [rdx+20h], ymm1
-          }
-          *(_WORD *)&_RDX->m_value[31] = *(_WORD *)&_RDI->m_value[31];
+          *v11 = *(__m256i *)tags->m_key;
+          v11[1] = *(__m256i *)&tags->m_key[32];
+          v11[2].m256i_i16[0] = *(_WORD *)&tags->m_value[31];
           m_size = this->m_tags.m_size;
         }
         ++m_size;
-        ++_RDI;
+        ++tags;
         this->m_tags.m_size = m_size;
         --v10;
       }
@@ -1401,129 +1345,83 @@ bdObjectStoreMetadata::bdObjectStoreMetadata
 */
 void bdObjectStoreMetadata::bdObjectStoreMetadata(bdObjectStoreMetadata *this, const bdObjectStoreMetadata *__that)
 {
-  __int64 v13; 
-  bdObjectStoreTag *v25; 
+  char *m_contentURL; 
+  char *v5; 
+  __int64 v6; 
+  bdObjectStoreTag *v7; 
   __int64 m_capacity; 
   unsigned int m_size; 
-  __int64 v30; 
+  __m256i *v10; 
+  char *v11; 
+  __int64 v12; 
 
-  _RDI = __that;
-  _RBX = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups ymm0, ymmword ptr [rdx+10h]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+30h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+50h]
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups ymm0, ymmword ptr [rdx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-  }
+  *(_OWORD *)this->m_context = *(_OWORD *)__that->m_context;
+  this->m_objectID = __that->m_objectID;
+  *(__m256i *)this->m_contentChecksum = *(__m256i *)__that->m_contentChecksum;
   this->m_contentChecksum[32] = __that->m_contentChecksum[32];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+0A1h]
-    vmovups ymmword ptr [rcx+0A1h], ymm0
-  }
+  *(__m256i *)this->m_objectVersion = *(__m256i *)__that->m_objectVersion;
   this->m_objectVersion[32] = __that->m_objectVersion[32];
   this->m_expiresOn = __that->m_expiresOn;
   this->m_contentLength = __that->m_contentLength;
   this->m_acl.m_aclType = __that->m_acl.m_aclType;
   this->m_created = __that->m_created;
   this->m_modified = __that->m_modified;
-  _RCX = this->m_contentURL;
-  _RAX = __that->m_contentURL;
-  v13 = 8i64;
+  m_contentURL = this->m_contentURL;
+  v5 = __that->m_contentURL;
+  v6 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
-    --v13;
+    *(_OWORD *)m_contentURL = *(_OWORD *)v5;
+    *((_OWORD *)m_contentURL + 1) = *((_OWORD *)v5 + 1);
+    *((_OWORD *)m_contentURL + 2) = *((_OWORD *)v5 + 2);
+    *((_OWORD *)m_contentURL + 3) = *((_OWORD *)v5 + 3);
+    *((_OWORD *)m_contentURL + 4) = *((_OWORD *)v5 + 4);
+    *((_OWORD *)m_contentURL + 5) = *((_OWORD *)v5 + 5);
+    *((_OWORD *)m_contentURL + 6) = *((_OWORD *)v5 + 6);
+    m_contentURL += 128;
+    *((_OWORD *)m_contentURL - 1) = *((_OWORD *)v5 + 7);
+    v5 += 128;
+    --v6;
   }
-  while ( v13 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+4F0h]
-    vmovups ymmword ptr [rbx+4F0h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+510h]
-    vmovups ymmword ptr [rbx+510h], ymm1
-  }
-  _RBX->m_category[64] = _RDI->m_category[64];
-  memcpy_0(_RBX->m_extraData, _RDI->m_extraData, sizeof(_RBX->m_extraData));
-  _RBX->m_extraDataSize = _RDI->m_extraDataSize;
-  _RBX->m_summaryContentLength = _RDI->m_summaryContentLength;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0D40h]
-    vmovups ymmword ptr [rbx+0D40h], ymm0
-  }
-  _RBX->m_summaryChecksum[32] = _RDI->m_summaryChecksum[32];
-  _RBX->m_hasSummary = _RDI->m_hasSummary;
-  _RBX->m_tags.m_capacity = _RDI->m_tags.m_capacity;
-  _RBX->m_tags.m_size = _RDI->m_tags.m_size;
-  v25 = NULL;
-  m_capacity = _RDI->m_tags.m_capacity;
+  while ( v6 );
+  *(__m256i *)this->m_category = *(__m256i *)__that->m_category;
+  *(__m256i *)&this->m_category[32] = *(__m256i *)&__that->m_category[32];
+  this->m_category[64] = __that->m_category[64];
+  memcpy_0(this->m_extraData, __that->m_extraData, sizeof(this->m_extraData));
+  this->m_extraDataSize = __that->m_extraDataSize;
+  this->m_summaryContentLength = __that->m_summaryContentLength;
+  *(__m256i *)this->m_summaryChecksum = *(__m256i *)__that->m_summaryChecksum;
+  this->m_summaryChecksum[32] = __that->m_summaryChecksum[32];
+  this->m_hasSummary = __that->m_hasSummary;
+  this->m_tags.m_capacity = __that->m_tags.m_capacity;
+  this->m_tags.m_size = __that->m_tags.m_size;
+  v7 = NULL;
+  m_capacity = __that->m_tags.m_capacity;
   if ( (_DWORD)m_capacity )
   {
-    v25 = (bdObjectStoreTag *)bdMemory::allocate(66 * m_capacity);
-    m_size = _RDI->m_tags.m_size;
+    v7 = (bdObjectStoreTag *)bdMemory::allocate(66 * m_capacity);
+    m_size = __that->m_tags.m_size;
     if ( m_size )
     {
-      _RCX = v25;
-      _R8 = (char *)_RDI->m_tags.m_data - (char *)v25;
-      v30 = m_size;
+      v10 = (__m256i *)v7;
+      v11 = (char *)((char *)__that->m_tags.m_data - (char *)v7);
+      v12 = m_size;
       do
       {
-        if ( _RCX )
+        if ( v10 )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r8+rcx]
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm1, ymmword ptr [r8+rcx+20h]
-            vmovups ymmword ptr [rcx+20h], ymm1
-          }
-          *(_WORD *)&_RCX->m_value[31] = *(_WORD *)&_RCX->m_value[_R8 + 31];
+          *v10 = *(__m256i *)((char *)v10 + (_QWORD)v11);
+          v10[1] = *(__m256i *)((char *)v10 + (_QWORD)v11 + 32);
+          v10[2].m256i_i16[0] = *(__int16 *)((char *)v10[2].m256i_i16 + (_QWORD)v11);
         }
-        ++_RCX;
-        --v30;
+        v10 = (__m256i *)((char *)v10 + 66);
+        --v12;
       }
-      while ( v30 );
+      while ( v12 );
     }
   }
-  _RBX->m_tags.m_data = v25;
-  _RBX->m_numTags = _RDI->m_numTags;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0D7Ch]
-    vmovups ymmword ptr [rbx+0D7Ch], ymm0
-  }
+  this->m_tags.m_data = v7;
+  this->m_numTags = __that->m_numTags;
+  this->m_statistics = __that->m_statistics;
 }
 

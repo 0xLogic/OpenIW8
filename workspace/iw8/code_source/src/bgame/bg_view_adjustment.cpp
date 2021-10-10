@@ -60,194 +60,97 @@ GetViewAngleForTime
 */
 float GetViewAngleForTime(playerViewAngleState_s *p_viewAngleState, int time, int axis)
 {
+  __int64 v3; 
+  float v6; 
+  double v7; 
   EViewAngleEaseMode easeMode; 
-  __int32 v14; 
-  __int32 v15; 
-  int v16; 
-  char v39; 
-  __int64 v68; 
-  __int64 v69; 
-  int v70; 
+  float v9; 
+  float v10; 
+  __int32 v11; 
+  __int32 v12; 
+  __int32 v13; 
+  float *v14; 
+  float v15; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
 
-  _RBX = axis;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RDI = p_viewAngleState;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
+  v3 = axis;
   if ( (unsigned int)axis > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 119, ASSERT_TYPE_ASSERT, "(( axis == PITCH ) || ( axis == YAW ))", (const char *)&queryFormat, "( axis == PITCH ) || ( axis == YAW )") )
     __debugbreak();
-  if ( (unsigned int)_RBX >= 2 )
+  if ( (unsigned int)v3 >= 2 )
   {
-    v70 = 2;
-    LODWORD(v68) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v68, v70) )
+    v28 = 2;
+    LODWORD(v26) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v28) )
       __debugbreak();
   }
-  __asm { vmovss  xmm6, dword ptr [rdi+rbx*4+20h] }
-  if ( (unsigned int)_RBX >= 2 )
+  v6 = p_viewAngleState->goalAngles.v[v3];
+  if ( (unsigned int)v3 >= 2 )
   {
-    LODWORD(v69) = 2;
-    LODWORD(v68) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v68, v69) )
+    LODWORD(v27) = 2;
+    LODWORD(v26) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+rbx*4+18h]; angle1
-    vmovaps xmm1, xmm6; angle2
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  easeMode = _RDI->easeMode;
-  __asm
-  {
-    vxorps  xmm7, xmm0, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, ebp
-  }
+  v7 = AngleDelta(p_viewAngleState->startAngles.v[v3], v6);
+  easeMode = p_viewAngleState->easeMode;
+  LODWORD(v9) = LODWORD(v7) ^ _xmm;
+  v10 = (float)time;
   if ( easeMode == VAEM_LINEAR )
-    goto LABEL_23;
-  v14 = easeMode - 1;
-  if ( v14 )
   {
-    v15 = v14 - 1;
-    if ( v15 )
+LABEL_24:
+    v25 = (float)(v10 * v9) / (float)PM_GetViewAngleTransitionDuration(p_viewAngleState);
+    return v25 + *vec2_t::operator[](&p_viewAngleState->startAngles, v3);
+  }
+  v11 = easeMode - 1;
+  if ( v11 )
+  {
+    v12 = v11 - 1;
+    if ( v12 )
     {
-      v16 = v15 - 1;
-      if ( !v16 )
+      v13 = v12 - 1;
+      if ( !v13 )
       {
-        PM_GetViewAngleTransitionDuration(_RDI);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm6, xmm6, xmm0
-        }
-        vec2_t::operator[](&_RDI->startAngles, _RBX);
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm7
-          vmulss  xmm1, xmm0, xmm6
-          vaddss  xmm0, xmm1, dword ptr [rax]
-        }
-        goto LABEL_24;
+        v17 = v10 / (float)PM_GetViewAngleTransitionDuration(p_viewAngleState);
+        return (float)((float)(v17 * v9) * v17) + *vec2_t::operator[](&p_viewAngleState->startAngles, v3);
       }
-      if ( v16 == 1 )
+      if ( v13 == 1 )
       {
-        __asm { vmulss  xmm6, xmm6, cs:__real@40490fdb }
-        _RBX = vec2_t::operator[](&_RDI->startAngles, _RBX);
-        PM_GetViewAngleTransitionDuration(_RDI);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm0, xmm6, xmm0; X
-        }
-        *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-        __asm
-        {
-          vsubss  xmm1, xmm0, cs:__real@3f800000
-          vmovss  xmm0, dword ptr [rbx]
-          vmulss  xmm2, xmm1, xmm7
-          vmulss  xmm3, xmm2, cs:__real@3f000000
-          vsubss  xmm0, xmm0, xmm3
-        }
-        goto LABEL_24;
+        v14 = vec2_t::operator[](&p_viewAngleState->startAngles, v3);
+        v15 = (float)(v10 * 3.1415927) / (float)PM_GetViewAngleTransitionDuration(p_viewAngleState);
+        return *v14 - (float)((float)((float)(cosf_0(v15) - 1.0) * v9) * 0.5);
       }
-LABEL_23:
-      __asm { vmulss  xmm6, xmm6, xmm7 }
-      PM_GetViewAngleTransitionDuration(_RDI);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm6, xmm6, xmm0
-      }
-      vec2_t::operator[](&_RDI->startAngles, _RBX);
-      __asm { vaddss  xmm0, xmm6, dword ptr [rax] }
       goto LABEL_24;
     }
-    PM_GetViewAngleTransitionDuration(_RDI);
-    __asm
-    {
-      vmulss  xmm7, xmm7, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm6, xmm6, xmm0
-    }
-    _RAX = vec2_t::operator[](&_RDI->startAngles, _RBX);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vcomiss xmm6, xmm2
-      vmovss  xmm4, dword ptr [rax]
-    }
-    if ( v39 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm6
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm0, xmm1, xmm4
-      }
-    }
+    v18 = v9 * 0.5;
+    v19 = v10 / (float)(PM_GetViewAngleTransitionDuration(p_viewAngleState) / 2);
+    v20 = *vec2_t::operator[](&p_viewAngleState->startAngles, v3);
+    if ( v19 >= 1.0 )
+      return v20 - (float)((float)((float)((float)((float)(v19 + -1.0) - 2.0) * (float)(v19 + -1.0)) - 1.0) * v18);
     else
-    {
-      __asm
-      {
-        vaddss  xmm1, xmm6, cs:__real@bf800000
-        vsubss  xmm0, xmm1, cs:__real@40000000
-        vmulss  xmm1, xmm0, xmm1
-        vsubss  xmm2, xmm1, xmm2
-        vmulss  xmm3, xmm2, xmm7
-        vsubss  xmm0, xmm4, xmm3
-      }
-    }
+      return (float)((float)(v18 * v19) * v19) + v20;
   }
   else
   {
-    PM_GetViewAngleTransitionDuration(_RDI);
-    __asm
-    {
-      vmulss  xmm7, xmm7, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm6, xmm6, xmm0
-    }
-    _RAX = vec2_t::operator[](&_RDI->startAngles, _RBX);
-    __asm
-    {
-      vcomiss xmm6, cs:__real@3f800000
-      vmovss  xmm4, dword ptr [rax]
-    }
-    if ( v39 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm6
-        vmulss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm0, xmm2, xmm4
-      }
-    }
+    v21 = v9 * 0.5;
+    v22 = (float)time / (float)(PM_GetViewAngleTransitionDuration(p_viewAngleState) / 2);
+    v23 = *vec2_t::operator[](&p_viewAngleState->startAngles, v3);
+    if ( v22 >= 1.0 )
+      v24 = (float)((float)((float)((float)(v22 + -2.0) * (float)(v22 + -2.0)) * (float)(v22 + -2.0)) + 2.0) * v21;
     else
-    {
-      __asm
-      {
-        vaddss  xmm1, xmm6, cs:__real@c0000000
-        vmulss  xmm0, xmm1, xmm1
-        vmulss  xmm1, xmm0, xmm1
-        vaddss  xmm2, xmm1, cs:__real@40000000
-        vmulss  xmm3, xmm2, xmm7
-        vaddss  xmm0, xmm3, xmm4
-      }
-    }
+      v24 = (float)((float)(v21 * v22) * v22) * v22;
+    return v24 + v23;
   }
-LABEL_24:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -255,173 +158,70 @@ LABEL_24:
 GetViewAngleFromCurrentAngle
 ==============
 */
-
-float __fastcall GetViewAngleFromCurrentAngle(playerViewAngleState_s *p_viewAngleState, double currentAngle, int time, int axis)
+float GetViewAngleFromCurrentAngle(playerViewAngleState_s *p_viewAngleState, float currentAngle, int time, int axis)
 {
+  __int64 v5; 
+  double v8; 
+  float v9; 
   EViewAngleEaseMode easeMode; 
+  float v11; 
   int ViewAngleTransitionDuration; 
-  __int32 v17; 
-  __int32 v18; 
-  int v19; 
-  __int64 v65; 
-  char v69; 
+  __int32 v13; 
+  __int32 v14; 
+  __int32 v15; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RDI = axis;
-  _RSI = p_viewAngleState;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm6, xmm1
-  }
+  v5 = axis;
   if ( (unsigned int)axis > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 61, ASSERT_TYPE_ASSERT, "(( axis == PITCH ) || ( axis == YAW ))", (const char *)&queryFormat, "( axis == PITCH ) || ( axis == YAW )") )
     __debugbreak();
-  if ( (unsigned int)_RDI >= 2 )
+  if ( (unsigned int)v5 >= 2 )
   {
-    LODWORD(v65) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v65, 2) )
+    LODWORD(v23) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, 2) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+rdi*4+20h]; angle2
-    vmovaps xmm0, xmm6; angle1
-  }
-  *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-  __asm { vxorps  xmm7, xmm0, cs:__xmm@80000000800000008000000080000000 }
-  easeMode = _RSI->easeMode;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, ebp
-  }
-  ViewAngleTransitionDuration = PM_GetViewAngleTransitionDuration(_RSI);
+  v8 = AngleDelta(currentAngle, p_viewAngleState->goalAngles.v[v5]);
+  LODWORD(v9) = LODWORD(v8) ^ _xmm;
+  easeMode = p_viewAngleState->easeMode;
+  v11 = (float)time;
+  ViewAngleTransitionDuration = PM_GetViewAngleTransitionDuration(p_viewAngleState);
   if ( easeMode == VAEM_LINEAR )
-    goto LABEL_20;
-  v17 = easeMode - 1;
-  if ( v17 )
-  {
-    v18 = v17 - 1;
-    if ( !v18 )
-    {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000
-        vmulss  xmm3, xmm7, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm8, xmm0
-        vcomiss xmm1, xmm2
-      }
-      if ( !(((_BYTE)ViewAngleTransitionDuration - (unsigned __int8)(ViewAngleTransitionDuration >> 31)) & 1) )
-      {
-        __asm
-        {
-          vaddss  xmm1, xmm1, cs:__real@bf800000
-          vsubss  xmm0, xmm1, cs:__real@40000000
-          vmulss  xmm1, xmm0, xmm1
-          vsubss  xmm2, xmm1, xmm2
-          vmulss  xmm3, xmm2, xmm3
-          vsubss  xmm0, xmm6, xmm3
-        }
-        goto LABEL_22;
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm1
-        vmulss  xmm1, xmm0, xmm1
-      }
-LABEL_21:
-      __asm { vaddss  xmm0, xmm1, xmm6 }
-      goto LABEL_22;
-    }
-    v19 = v18 - 1;
-    if ( !v19 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm6, xmm8, xmm0
-      }
-      vec2_t::operator[](&_RSI->startAngles, _RDI);
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm7
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm0, xmm1, dword ptr [rax]
-      }
-      goto LABEL_22;
-    }
-    if ( v19 == 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm8, cs:__real@40490fdb
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm1, xmm0; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vsubss  xmm1, xmm0, cs:__real@3f800000
-        vmulss  xmm2, xmm1, xmm7
-        vmulss  xmm3, xmm2, cs:__real@3f000000
-        vsubss  xmm0, xmm6, xmm3
-      }
-      goto LABEL_22;
-    }
-LABEL_20:
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm8, xmm7
-      vdivss  xmm1, xmm1, xmm0
-    }
     goto LABEL_21;
-  }
-  __asm
+  v13 = easeMode - 1;
+  if ( v13 )
   {
-    vmulss  xmm3, xmm7, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm2, xmm8, xmm0
-    vcomiss xmm2, cs:__real@3f800000
-  }
-  if ( ((_BYTE)ViewAngleTransitionDuration - (unsigned __int8)(ViewAngleTransitionDuration >> 31)) & 1 )
-  {
-    __asm
+    v14 = v13 - 1;
+    if ( !v14 )
     {
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm2
-      vmulss  xmm2, xmm1, xmm2
-      vaddss  xmm0, xmm2, xmm6
+      v17 = v9 * 0.5;
+      v18 = v11 / (float)(ViewAngleTransitionDuration / 2);
+      if ( v18 >= 1.0 )
+        return currentAngle - (float)((float)((float)((float)((float)(v18 + -1.0) - 2.0) * (float)(v18 + -1.0)) - 1.0) * v17);
+      v19 = (float)(v17 * v18) * v18;
+      return v19 + currentAngle;
     }
+    v15 = v14 - 1;
+    if ( !v15 )
+      return (float)((float)((float)(v11 / (float)ViewAngleTransitionDuration) * v9) * (float)(v11 / (float)ViewAngleTransitionDuration)) + *vec2_t::operator[](&p_viewAngleState->startAngles, v5);
+    if ( v15 == 1 )
+      return currentAngle - (float)((float)((float)(cosf_0((float)(v11 * 3.1415927) / (float)ViewAngleTransitionDuration) - 1.0) * v9) * 0.5);
+LABEL_21:
+    v19 = (float)(v11 * v9) / (float)ViewAngleTransitionDuration;
+    return v19 + currentAngle;
   }
+  v20 = v9 * 0.5;
+  v21 = v11 / (float)(ViewAngleTransitionDuration / 2);
+  if ( v21 >= 1.0 )
+    v22 = (float)((float)((float)((float)(v21 + -2.0) * (float)(v21 + -2.0)) * (float)(v21 + -2.0)) + 2.0) * v20;
   else
-  {
-    __asm
-    {
-      vaddss  xmm1, xmm2, cs:__real@c0000000
-      vmulss  xmm0, xmm1, xmm1
-      vmulss  xmm1, xmm0, xmm1
-      vaddss  xmm2, xmm1, cs:__real@40000000
-      vmulss  xmm3, xmm2, xmm3
-      vaddss  xmm0, xmm3, xmm6
-    }
-  }
-LABEL_22:
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return *(float *)&_XMM0;
+    v22 = (float)((float)(v20 * v21) * v21) * v21;
+  return v22 + currentAngle;
 }
 
 /*
@@ -429,91 +229,50 @@ LABEL_22:
 PM_AllowCameraInputForAxis
 ==============
 */
-
-bool __fastcall PM_AllowCameraInputForAxis(playerState_s *ps, int axis, double delta)
+char PM_AllowCameraInputForAxis(playerState_s *ps, int axis, float delta)
 {
   unsigned int flags; 
-  bool v13; 
-  bool result; 
+  double v6; 
+  float v7; 
+  float v8; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
-  _RDI = ps;
-  __asm { vmovaps xmm7, xmm2 }
   if ( (unsigned int)axis > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 305, ASSERT_TYPE_ASSERT, "(( axis == PITCH ) || ( axis == YAW ))", (const char *)&queryFormat, "( axis == PITCH ) || ( axis == YAW )") )
     __debugbreak();
-  __asm { vmovaps xmm2, xmm7; delta }
-  if ( !BG_SkydiveAllowCameraInputForAxis(_RDI, axis, *(float *)&_XMM2) )
-    goto LABEL_16;
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0x10u) )
-    goto LABEL_21;
-  flags = _RDI->viewAngleState.flags;
+  if ( !BG_SkydiveAllowCameraInputForAxis(ps, axis, delta) )
+    return 0;
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0x10u) )
+    return 1;
+  flags = ps->viewAngleState.flags;
   if ( (flags & 4) != 0 )
-    goto LABEL_21;
+    return 1;
   if ( (flags & 8) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm0, xmm0, xmm0
-    }
+    LODWORD(v6) = 0;
     if ( axis )
     {
-      v13 = axis == 0;
-      if ( axis != 1 || (v13 = 0, (flags & 2) == 0) )
-      {
-LABEL_15:
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm7
-          vcomiss xmm0, xmm6
-          vmovaps xmm6, [rsp+58h+var_18]
-        }
-        if ( v13 )
-        {
-LABEL_16:
-          result = 0;
-          __asm { vmovaps xmm7, [rsp+58h+var_28] }
-          return result;
-        }
-        goto LABEL_21;
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+234h]; angle2
-        vmovss  xmm0, dword ptr [rdi+23Ch]; angle1
-      }
+      if ( axis != 1 || (flags & 2) == 0 )
+        return (float)(*(float *)&v6 * delta) >= 0.0;
+      v7 = ps->viewAngleState.startAngles.v[1];
+      v8 = ps->viewAngleState.goalAngles.v[1];
     }
     else
     {
-      v13 = 0;
       if ( (flags & 1) == 0 )
-        goto LABEL_15;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+230h]
-        vmovss  xmm0, dword ptr [rdi+238h]
-      }
+        return (float)(*(float *)&v6 * delta) >= 0.0;
+      v7 = ps->viewAngleState.startAngles.v[0];
+      v8 = ps->viewAngleState.goalAngles.v[0];
     }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    goto LABEL_15;
+    v6 = AngleDelta(v8, v7);
+    return (float)(*(float *)&v6 * delta) >= 0.0;
   }
   if ( !axis )
-  {
-LABEL_20:
-    result = (flags & 1) == 0;
-    __asm { vmovaps xmm7, [rsp+58h+var_28] }
-    return result;
-  }
+    return (flags & 1) == 0;
   if ( axis == 1 )
   {
     flags >>= 1;
-    goto LABEL_20;
+    return (flags & 1) == 0;
   }
-LABEL_21:
-  result = 1;
-  __asm { vmovaps xmm7, [rsp+58h+var_28] }
-  return result;
+  return 1;
 }
 
 /*
@@ -524,104 +283,40 @@ PM_CalcViewAnglesOverride
 void PM_CalcViewAnglesOverride(playerState_s *ps, usercmd_s *cmd, playerViewAngleState_s *viewAngleState, int time)
 {
   int flags; 
+  float ViewAngleForTime; 
+  double v9; 
+  float v14; 
+  double v15; 
 
   flags = viewAngleState->flags;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RDI = ps;
-  __asm
-  {
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovss  xmm8, cs:__real@43b40000
-    vmovss  xmm7, cs:__real@3f000000
-  }
   if ( (viewAngleState->flags & 1) != 0 )
   {
-    *(float *)&_XMM0 = GetViewAngleForTime(viewAngleState, time, 0);
-    __asm { vmovss  xmm1, dword ptr [rdi+1D8h]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
+    ViewAngleForTime = GetViewAngleForTime(viewAngleState, time, 0);
+    v9 = AngleDelta(ViewAngleForTime, ps->viewangles.v[0]);
+    _XMM6 = 0i64;
     __asm
     {
-      vaddss  xmm1, xmm0, dword ptr [rdi+0B4h]
-      vmulss  xmm2, xmm1, cs:__real@43360b61
-      vaddss  xmm4, xmm2, xmm7
-      vmovaps xmm5, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  xmm1, xmm3, xmm4
-      vxorps  xmm6, xmm6, xmm6
       vroundss xmm2, xmm6, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm4, xmm1, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
       vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rdi+0B4h], xmm1
-      vaddss  xmm0, xmm5, dword ptr [rdi+1D8h]
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm6, xmm0, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, xmm8
-      vmovss  dword ptr [rdi+1D8h], xmm0
     }
+    ps->delta_angles.v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm6, xmm0, 1 }
+    ps->viewangles.v[0] = (float)((float)((float)(*(float *)&v9 + ps->viewangles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
     flags = viewAngleState->flags;
   }
   if ( (flags & 2) != 0 )
   {
-    *(float *)&_XMM0 = GetViewAngleForTime(viewAngleState, time, 1);
-    __asm { vmovss  xmm1, dword ptr [rdi+1DCh]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
+    v14 = GetViewAngleForTime(viewAngleState, time, 1);
+    v15 = AngleDelta(v14, ps->viewangles.v[1]);
+    _XMM6 = 0i64;
     __asm
     {
-      vaddss  xmm1, xmm0, dword ptr [rdi+0B8h]
-      vmulss  xmm2, xmm1, cs:__real@43360b61
-      vaddss  xmm4, xmm2, xmm7
-      vmovaps xmm5, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  xmm1, xmm3, xmm4
-      vxorps  xmm6, xmm6, xmm6
       vroundss xmm2, xmm6, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm4, xmm1, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
       vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rdi+0B8h], xmm1
-      vaddss  xmm2, xmm5, dword ptr [rdi+1DCh]
-      vmulss  xmm3, xmm2, cs:__real@3b360b61
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm6, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rdi+1DCh], xmm1
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
+    ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm2, xmm6, xmm1, 1 }
+    ps->viewangles.v[1] = (float)((float)((float)(*(float *)&v15 + ps->viewangles.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
   }
 }
 
@@ -633,106 +328,40 @@ PM_CalcViewAnglesOverrideActive
 void PM_CalcViewAnglesOverrideActive(playerState_s *ps, usercmd_s *cmd, playerViewAngleState_s *viewAngleState, int time)
 {
   int flags; 
+  float ViewAngleFromCurrentAngle; 
+  double v9; 
+  float v14; 
+  double v15; 
 
   flags = viewAngleState->flags;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RBX = ps;
-  __asm
-  {
-    vmovaps [rsp+58h+var_38], xmm8
-    vmovss  xmm8, cs:__real@43b40000
-    vmovss  xmm7, cs:__real@3f000000
-  }
   if ( (viewAngleState->flags & 1) != 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rcx+1D8h]; currentAngle }
-    *(float *)&_XMM0 = GetViewAngleFromCurrentAngle(viewAngleState, *(double *)&_XMM1, time, 0);
-    __asm { vmovss  xmm1, dword ptr [rbx+1D8h]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
+    ViewAngleFromCurrentAngle = GetViewAngleFromCurrentAngle(viewAngleState, ps->viewangles.v[0], time, 0);
+    v9 = AngleDelta(ViewAngleFromCurrentAngle, ps->viewangles.v[0]);
+    _XMM6 = 0i64;
     __asm
     {
-      vaddss  xmm1, xmm0, dword ptr [rbx+0B4h]
-      vmulss  xmm2, xmm1, cs:__real@43360b61
-      vaddss  xmm4, xmm2, xmm7
-      vmovaps xmm5, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  xmm1, xmm3, xmm4
-      vxorps  xmm6, xmm6, xmm6
       vroundss xmm2, xmm6, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm4, xmm1, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
       vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rbx+0B4h], xmm1
-      vaddss  xmm0, xmm5, dword ptr [rbx+1D8h]
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm6, xmm0, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, xmm8
-      vmovss  dword ptr [rbx+1D8h], xmm0
     }
+    ps->delta_angles.v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm6, xmm0, 1 }
+    ps->viewangles.v[0] = (float)((float)((float)(*(float *)&v9 + ps->viewangles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
     flags = viewAngleState->flags;
   }
   if ( (flags & 2) != 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rbx+1DCh]; currentAngle }
-    *(float *)&_XMM0 = GetViewAngleFromCurrentAngle(viewAngleState, *(double *)&_XMM1, time, 1);
-    __asm { vmovss  xmm1, dword ptr [rbx+1DCh]; angle2 }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
+    v14 = GetViewAngleFromCurrentAngle(viewAngleState, ps->viewangles.v[1], time, 1);
+    v15 = AngleDelta(v14, ps->viewangles.v[1]);
+    _XMM6 = 0i64;
     __asm
     {
-      vaddss  xmm1, xmm0, dword ptr [rbx+0B8h]
-      vmulss  xmm2, xmm1, cs:__real@43360b61
-      vaddss  xmm4, xmm2, xmm7
-      vmovaps xmm5, xmm0
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  xmm1, xmm3, xmm4
-      vxorps  xmm6, xmm6, xmm6
       vroundss xmm2, xmm6, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm4, xmm1, cs:__real@37800000
-      vaddss  xmm2, xmm4, xmm7
       vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rbx+0B8h], xmm1
-      vaddss  xmm2, xmm5, dword ptr [rbx+1DCh]
-      vmulss  xmm3, xmm2, cs:__real@3b360b61
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm1, xmm3, xmm7
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm6, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  dword ptr [rbx+1DCh], xmm1
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
+    ps->delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM2).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm2, xmm6, xmm1, 1 }
+    ps->viewangles.v[1] = (float)((float)((float)(*(float *)&v15 + ps->viewangles.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
   }
 }
 
@@ -765,54 +394,36 @@ PM_StartViewAngleTransition
 */
 void PM_StartViewAngleTransition(pmove_t *pm, int duration, EViewAngleEaseMode easeInMode, EViewAngleEaseMode eastOutMode, const vec2_t *goalAngles, int flags)
 {
-  int v12; 
+  playerState_s *ps; 
+  int v10; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 17, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBX = pm->ps;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 17, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 17, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( duration > 0 )
   {
-    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&_RBX->otherFlags, ACTIVE, 0x10u);
-    __asm { vmovss  xmm5, cs:__real@43360b61 }
-    _RBX->viewAngleState.time = pm->cmd.serverTime;
-    _RBX->viewAngleState.startTimeMs = pm->cmd.serverTime;
-    v12 = duration + pm->cmd.serverTime;
-    _RBX->viewAngleState.easeMode = easeInMode;
-    _RBX->viewAngleState.endTimeMs = v12;
-    _RBX->viewAngleState.flags = flags;
+    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::SetFlagInternal(&ps->otherFlags, ACTIVE, 0x10u);
+    ps->viewAngleState.time = pm->cmd.serverTime;
+    ps->viewAngleState.startTimeMs = pm->cmd.serverTime;
+    v10 = duration + pm->cmd.serverTime;
+    ps->viewAngleState.easeMode = easeInMode;
+    ps->viewAngleState.endTimeMs = v10;
+    ps->viewAngleState.flags = flags;
     if ( (flags & 1) != 0 )
     {
-      _RBX->viewAngleState.startAngles.v[0] = _RBX->viewangles.v[0];
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [r8]
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm3, 1
-        vcvttss2si eax, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm1, xmm0, cs:__real@3bb40000
-        vmovss  dword ptr [rbx+238h], xmm1
-      }
+      ps->viewAngleState.startAngles.v[0] = ps->viewangles.v[0];
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm3, 1 }
+      ps->viewAngleState.goalAngles.v[0] = (float)(unsigned __int16)(int)*(float *)&_XMM1 * 0.0054931641;
     }
     if ( (flags & 2) != 0 )
     {
-      _RBX->viewAngleState.startAngles.v[1] = _RBX->viewangles.v[1];
-      __asm
-      {
-        vmulss  xmm1, xmm5, dword ptr [r8+4]
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm3, 1
-        vcvttss2si eax, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm1, xmm0, cs:__real@3bb40000
-        vmovss  dword ptr [rbx+23Ch], xmm1
-      }
+      ps->viewAngleState.startAngles.v[1] = ps->viewangles.v[1];
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm3, 1 }
+      ps->viewAngleState.goalAngles.v[1] = (float)(unsigned __int16)(int)*(float *)&_XMM1 * 0.0054931641;
     }
   }
   else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 19, ASSERT_TYPE_ASSERT, "(duration > 0)", (const char *)&queryFormat, "duration > 0") )
@@ -828,156 +439,119 @@ PM_UpdateViewAnglesOverride
 */
 void PM_UpdateViewAnglesOverride(pmove_t *pm, usercmd_s *cmd)
 {
-  const dvar_t *v7; 
-  const dvar_t *v8; 
-  char v9; 
+  playerState_s *ps; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
+  char v7; 
   __int16 groundRefEnt; 
   int flags; 
-  int v12; 
+  int v10; 
   int ViewAngleTransitionDuration; 
-  bool v14; 
-  char v20; 
-  char v21; 
-  char v27; 
-  char v28; 
+  bool v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  double v16; 
+  float v17; 
+  double v18; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 263, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 263, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 263, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( (_RDI->viewAngleState.flags & 3) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 266, ASSERT_TYPE_ASSERT, "(viewAngleState->flags & ( (1<<0)|(1<<1) ))", (const char *)&queryFormat, "viewAngleState->flags & ( VAF_PITCH|VAF_YAW )") )
+  if ( (ps->viewAngleState.flags & 3) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_view_adjustment.cpp", 266, ASSERT_TYPE_ASSERT, "(viewAngleState->flags & ( (1<<0)|(1<<1) ))", (const char *)&queryFormat, "viewAngleState->flags & ( VAF_PITCH|VAF_YAW )") )
     __debugbreak();
-  v7 = DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold;
+  v5 = DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold;
   if ( !DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ViewAngleOverride_cameraInputThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( abs8(cmd->yawmove) > v7->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( abs8(cmd->yawmove) > v5->current.integer )
     goto LABEL_19;
-  v8 = DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold;
+  v6 = DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold;
   if ( !DCONST_DVARINT_ViewAngleOverride_cameraInputThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ViewAngleOverride_cameraInputThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( abs8(cmd->pitchmove) > v8->current.integer )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( abs8(cmd->pitchmove) > v6->current.integer )
 LABEL_19:
-    v9 = 1;
+    v7 = 1;
   else
-    v9 = 0;
-  if ( !_RDI )
+    v7 = 0;
+  if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  __asm
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x2Au) )
   {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-  }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x2Au) )
-  {
-    groundRefEnt = _RDI->groundRefEnt;
+    groundRefEnt = ps->groundRefEnt;
     if ( groundRefEnt == 2047 || !groundRefEnt )
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
         __debugbreak();
-      if ( !BG_IsPlayerZeroGWalking(_RDI) )
+      if ( !BG_IsPlayerZeroGWalking(ps) )
         goto LABEL_51;
     }
   }
-  flags = _RDI->viewAngleState.flags;
+  flags = ps->viewAngleState.flags;
   if ( (flags & 4) != 0 )
   {
-    if ( v9 )
+    if ( v7 )
       goto LABEL_51;
   }
-  v12 = cmd->serverTime - _RDI->viewAngleState.startTimeMs;
-  if ( v12 > _RDI->viewAngleState.endTimeMs - _RDI->viewAngleState.startTimeMs )
+  v10 = cmd->serverTime - ps->viewAngleState.startTimeMs;
+  if ( v10 > ps->viewAngleState.endTimeMs - ps->viewAngleState.startTimeMs )
   {
-    ViewAngleTransitionDuration = PM_GetViewAngleTransitionDuration(&_RDI->viewAngleState);
-    flags = _RDI->viewAngleState.flags;
-    v12 = ViewAngleTransitionDuration;
+    ViewAngleTransitionDuration = PM_GetViewAngleTransitionDuration(&ps->viewAngleState);
+    flags = ps->viewAngleState.flags;
+    v10 = ViewAngleTransitionDuration;
   }
-  if ( (flags & 8) != 0 )
+  if ( (flags & 8) == 0 )
   {
-    v14 = 0;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    if ( (flags & 2) != 0 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+234h]; angle2
-        vmovss  xmm0, dword ptr [rdi+23Ch]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+1DCh]; angle2
-        vmovaps xmm6, xmm0
-        vmovss  xmm0, dword ptr [rdi+23Ch]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v20 | v21 )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        v14 = !(v20 | v21);
-      }
-      else
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v20 )
-          v14 = 1;
-      }
-    }
-    if ( (_RDI->viewAngleState.flags & 1) != 0 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+230h]; angle2
-        vmovss  xmm0, dword ptr [rdi+238h]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+1D8h]; angle2
-        vmovaps xmm6, xmm0
-        vmovss  xmm0, dword ptr [rdi+238h]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v27 | v28 )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( !(v27 | v28) )
-          goto LABEL_51;
-      }
-      else
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v27 )
-          goto LABEL_51;
-      }
-    }
-    if ( !v14 )
-    {
-      PM_CalcViewAnglesOverrideActive(_RDI, cmd, &_RDI->viewAngleState, v12);
-      goto LABEL_50;
-    }
-LABEL_51:
-    GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&_RDI->otherFlags, ACTIVE, 0x10u);
-    goto LABEL_52;
-  }
-  PM_CalcViewAnglesOverride(_RDI, cmd, &_RDI->viewAngleState, v12);
+    PM_CalcViewAnglesOverride(ps, cmd, &ps->viewAngleState, v10);
 LABEL_50:
-  if ( v12 == PM_GetViewAngleTransitionDuration(&_RDI->viewAngleState) )
+    if ( v10 != PM_GetViewAngleTransitionDuration(&ps->viewAngleState) )
+      return;
     goto LABEL_51;
-LABEL_52:
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_48]
-    vmovaps xmm6, [rsp+88h+var_38]
   }
+  v12 = 0;
+  if ( (flags & 2) != 0 )
+  {
+    v13 = AngleDelta(ps->viewAngleState.goalAngles.v[1], ps->viewAngleState.startAngles.v[1]);
+    v14 = *(float *)&v13;
+    v15 = AngleDelta(ps->viewAngleState.goalAngles.v[1], ps->viewangles.v[1]);
+    if ( v14 <= 0.0 )
+    {
+      v12 = *(float *)&v15 > 0.0;
+    }
+    else if ( *(float *)&v15 < 0.0 )
+    {
+      v12 = 1;
+    }
+  }
+  if ( (ps->viewAngleState.flags & 1) != 0 )
+  {
+    v16 = AngleDelta(ps->viewAngleState.goalAngles.v[0], ps->viewAngleState.startAngles.v[0]);
+    v17 = *(float *)&v16;
+    v18 = AngleDelta(ps->viewAngleState.goalAngles.v[0], ps->viewangles.v[0]);
+    if ( v17 <= 0.0 )
+    {
+      if ( *(float *)&v18 > 0.0 )
+        goto LABEL_51;
+    }
+    else if ( *(float *)&v18 < 0.0 )
+    {
+      goto LABEL_51;
+    }
+  }
+  if ( !v12 )
+  {
+    PM_CalcViewAnglesOverrideActive(ps, cmd, &ps->viewAngleState, v10);
+    goto LABEL_50;
+  }
+LABEL_51:
+  GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&ps->otherFlags, ACTIVE, 0x10u);
 }
 

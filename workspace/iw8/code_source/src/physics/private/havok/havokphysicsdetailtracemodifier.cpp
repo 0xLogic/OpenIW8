@@ -129,7 +129,6 @@ void HavokPhysicsHitCollector_DetailTraceModifier::HavokPhysicsHitCollector_Deta
   hknpInplaceTriangleShape *p_m_triangle; 
   hknpWorld *World; 
 
-  _R14 = this;
   this->m_propertyBag.m_bag = NULL;
   *(_DWORD *)&this->m_memSizeAndFlags = 0x1FFFF;
   this->__vftable = (HavokPhysicsHitCollector_DetailTraceModifier_vtbl *)&HavokPhysicsHitCollector_DetailTraceModifier::`vftable';
@@ -137,42 +136,33 @@ void HavokPhysicsHitCollector_DetailTraceModifier::HavokPhysicsHitCollector_Deta
   this->m_detailHitData.m_size = 0;
   this->m_detailHitData.m_capacityAndFlags = 0x80000000;
   p_m_triangle = &this->m_triangle;
-  __asm { vxorps  xmm1, xmm1, xmm1; radius }
-  hknpInplaceTriangleShape::hknpInplaceTriangleShape(&this->m_triangle, *(float *)&_XMM1);
-  _R14->m_queryContext.m_dispatcher = NULL;
-  _R14->m_queryContext.m_queryTriangle = (hknpTriangleShape *)p_m_triangle;
-  _R14->m_queryContext.m_targetTriangle = (hknpTriangleShape *)p_m_triangle;
-  _R14->m_queryContext.m_initialCastFractionHint = 0.0;
-  _R14->m_queryContext.m_externallyAllocatedTriangles = 1;
-  _R14->m_targetShapeInfo.m_shapeKeyPath.m_key.m_value = -1;
-  _R14->m_targetShapeInfo.m_shapeKeyPath.m_size = 0;
-  _R14->m_targetShapeInfo.m_body = NULL;
-  _R14->m_targetShapeInfo.m_rootShape = NULL;
-  _R14->m_targetShapeInfo.m_parentShape = NULL;
-  _R14->m_targetShapeInfo.m_shapeToWorld = NULL;
-  _R14->m_targetShapeInfo.m_shapeKeyMask = NULL;
-  _R14->m_targetShapeInfo.m_scalingInternals.m_isScaled = 0;
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [r14+1A0h], xmm0
-  }
-  *(_QWORD *)&_R14->m_targetShapeInfo.m_scalingInternals.m_mode = 0i64;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovups xmmword ptr [r14+1B0h], xmm1
-  }
-  _R14->m_targetShapeFilterData.m_materialId.m_value = -1;
-  _R14->m_targetShapeFilterData.m_collisionFilterInfo = 0;
-  _R14->m_targetShapeFilterData.m_userData = 0i64;
-  _R14->m_worldId = worldId;
-  _R14->m_localClientNum = Physics_GetLocalClientForWorld(worldId);
-  _R14->m_priorityMap = priorityMap;
-  World = HavokPhysics_GetWorld(_R14->m_worldId);
+  hknpInplaceTriangleShape::hknpInplaceTriangleShape(&this->m_triangle, 0.0);
+  this->m_queryContext.m_dispatcher = NULL;
+  this->m_queryContext.m_queryTriangle = (hknpTriangleShape *)p_m_triangle;
+  this->m_queryContext.m_targetTriangle = (hknpTriangleShape *)p_m_triangle;
+  this->m_queryContext.m_initialCastFractionHint = 0.0;
+  this->m_queryContext.m_externallyAllocatedTriangles = 1;
+  this->m_targetShapeInfo.m_shapeKeyPath.m_key.m_value = -1;
+  this->m_targetShapeInfo.m_shapeKeyPath.m_size = 0;
+  this->m_targetShapeInfo.m_body = NULL;
+  this->m_targetShapeInfo.m_rootShape = NULL;
+  this->m_targetShapeInfo.m_parentShape = NULL;
+  this->m_targetShapeInfo.m_shapeToWorld = NULL;
+  this->m_targetShapeInfo.m_shapeKeyMask = NULL;
+  this->m_targetShapeInfo.m_scalingInternals.m_isScaled = 0;
+  this->m_targetShapeInfo.m_scalingInternals.m_scale = (hkVector4f)_xmm;
+  *(_QWORD *)&this->m_targetShapeInfo.m_scalingInternals.m_mode = 0i64;
+  this->m_targetShapeInfo.m_scalingInternals.m_offset = 0i64;
+  this->m_targetShapeFilterData.m_materialId.m_value = -1;
+  this->m_targetShapeFilterData.m_collisionFilterInfo = 0;
+  this->m_targetShapeFilterData.m_userData = 0i64;
+  this->m_worldId = worldId;
+  this->m_localClientNum = Physics_GetLocalClientForWorld(worldId);
+  this->m_priorityMap = priorityMap;
+  World = HavokPhysics_GetWorld(this->m_worldId);
   if ( !World && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 70, ASSERT_TYPE_ASSERT, "( world )", (const char *)&queryFormat, "world", -2i64) )
     __debugbreak();
-  _R14->m_queryContext.m_dispatcher = World->m_collisionQueryDispatcher;
+  this->m_queryContext.m_dispatcher = World->m_collisionQueryDispatcher;
 }
 
 /*
@@ -187,7 +177,6 @@ void HavokPhysicsHitCollector_DetailTraceModifier::AddDetailHitData(HavokPhysics
   int v10; 
   Physics_DetailHitData *m_data; 
 
-  _RBX = objTrace;
   if ( !HavokPhysicsHitCollector::WillBeIgnored((HavokPhysicsHitCollector *)collector, hit) )
   {
     if ( HavokPhysicsHitCollector::WillHitReplaceCurrentHit((HavokPhysicsHitCollector *)collector, hit) )
@@ -206,18 +195,16 @@ void HavokPhysicsHitCollector_DetailTraceModifier::AddDetailHitData(HavokPhysics
     m_data = this->m_detailHitData.m_data;
     this->m_detailHitData.m_size = v10 + 1;
     m_data[v10].isValid = 0;
-    if ( _RBX )
+    if ( objTrace )
     {
-      __asm
+      if ( objTrace->fraction < 1.0 )
       {
-        vmovss  xmm0, cs:__real@3f800000
-        vcomiss xmm0, dword ptr [rbx]
+        m_data[v10].isValid = 1;
+        m_data[v10].surfaceflags = objTrace->surfaceflags;
+        m_data[v10].modelIndex = objTrace->modelIndex;
+        m_data[v10].partName = objTrace->partName;
+        m_data[v10].partGroup = objTrace->partGroup;
       }
-      m_data[v10].isValid = 1;
-      m_data[v10].surfaceflags = _RBX->surfaceflags;
-      m_data[v10].modelIndex = _RBX->modelIndex;
-      m_data[v10].partName = _RBX->partName;
-      m_data[v10].partGroup = _RBX->partGroup;
     }
   }
 }
@@ -229,41 +216,35 @@ HavokPhysicsHitCollector_DetailTraceModifier::ClientModifyHitForShield
 */
 _BOOL8 HavokPhysicsHitCollector_DetailTraceModifier::ClientModifyHitForShield(const DObj *obj, const XModel *model, void *args)
 {
-  LocalClientNum_t v6; 
-  int v7; 
-  Physics_WorldId v8; 
+  LocalClientNum_t v4; 
+  int v5; 
+  Physics_WorldId v6; 
+  centity_t *Entity; 
+  CG_PhysicsObject *v8; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v13; 
   unsigned int updated; 
-  bool v41; 
-  __int64 v43[2]; 
+  bool v24; 
+  _QWORD v26[2]; 
   DObjPartBits *partBits[2]; 
   vec3_t angles; 
   vec4_t quat; 
   hknpClosestHitCollector chc; 
 
   partBits[1] = (DObjPartBits *)-2i64;
-  v6 = *(_DWORD *)(*(_QWORD *)args + 28i64);
-  v7 = *((_DWORD *)args + 4);
-  v8 = *(_DWORD *)(*(_QWORD *)args + 24i64);
-  _RDI = CG_GetEntity(v6, v7);
-  _RBX = CG_PhysicsObject_Get(v7, v6);
-  Physics_LockWorld(v8);
+  v4 = *(_DWORD *)(*(_QWORD *)args + 28i64);
+  v5 = *((_DWORD *)args + 4);
+  v6 = *(_DWORD *)(*(_QWORD *)args + 24i64);
+  Entity = CG_GetEntity(v4, v5);
+  v8 = CG_PhysicsObject_Get(v5, v4);
+  Physics_LockWorld(v6);
   chc.m_hints.m_storage = 0;
   chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpClosestHitCollector::`vftable';
-  __asm { vxorps  xmm1, xmm1, xmm1 }
   chc.m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbp+40h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-  }
+  chc.m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   chc.m_earlyOut.m_bool = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+40h+chc.m_hit.m_position.m_quad], ymm1
-    vmovss  xmm0, cs:__real@7f7fffee
-    vmovss  [rbp+40h+chc.m_hit.m_fraction], xmm0
-  }
+  *(__m256i *)chc.m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
+  chc.m_hit.m_fraction = FLOAT_3_40282e38;
   chc.m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&chc.m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
   chc.m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = -1;
@@ -273,80 +254,55 @@ _BOOL8 HavokPhysicsHitCollector_DetailTraceModifier::ClientModifyHitForShield(co
   *(_QWORD *)&chc.m_hit.m_hitBodyInfo.m_shapeKey.m_value = -1i64;
   chc.m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = -1;
   memset(&chc.m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo, 0, 20);
-  _RAX = HavokPhysicsHitCollector::GetCollector(*((HavokPhysicsHitCollector **)args + 1));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbp+40h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+  chc.m_earlyOutThreshold = HavokPhysicsHitCollector::GetCollector(*((HavokPhysicsHitCollector **)args + 1))->m_earlyOutThreshold;
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
-  if ( !_RDI->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+  if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
-  FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RDI->pose.origin.Get_origin, &_RDI->pose);
-  FunctionPointer_origin(&_RDI->pose.origin.origin.origin, (vec3_t *)v43);
-  if ( _RDI->pose.isPosePrecise )
+  FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(Entity->pose.origin.Get_origin, &Entity->pose);
+  FunctionPointer_origin(&Entity->pose.origin.origin.origin, (vec3_t *)v26);
+  if ( Entity->pose.isPosePrecise )
   {
-    __asm
-    {
-      vmovd   xmm0, [rsp+140h+var_110]
-      vcvtdq2pd xmm0, xmm0
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  [rsp+140h+var_110], xmm1
-      vmovd   xmm2, [rsp+140h+var_10C]
-      vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  [rsp+140h+var_10C], xmm1
-      vmovd   xmm2, dword ptr [rsp+140h+var_108]
-      vcvtdq2pd xmm2, xmm2
-      vmulsd  xmm0, xmm2, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rsp+140h+var_108], xmm1
-    }
+    _XMM0 = LODWORD(v26[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v13 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v13;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *(float *)v26 = *(float *)&_XMM1;
+    _XMM2 = HIDWORD(v26[0]);
+    __asm { vcvtdq2pd xmm2, xmm2 }
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v13 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v13;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *((float *)v26 + 1) = *(float *)&_XMM1;
+    _XMM2 = LODWORD(v26[1]);
+    __asm { vcvtdq2pd xmm2, xmm2 }
+    *((_QWORD *)&v13 + 1) = *((_QWORD *)&_XMM2 + 1);
+    *(double *)&v13 = *(double *)&_XMM2 * 0.000244140625;
+    _XMM0 = v13;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    *(float *)&v26[1] = *(float *)&_XMM1;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+48h]
-    vmovss  dword ptr [rsp+140h+angles], xmm0
-    vmovss  xmm1, dword ptr [rdi+4Ch]
-    vmovss  dword ptr [rsp+140h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+50h]
-    vmovss  dword ptr [rsp+140h+angles+8], xmm0
-  }
+  angles = Entity->pose.angles;
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovss  xmm0, [rsp+140h+var_110]
-    vmovss  dword ptr [rbx+2A0h], xmm0
-    vmovss  xmm1, [rsp+140h+var_10C]
-    vmovss  dword ptr [rbx+2A4h], xmm1
-    vmovss  xmm0, dword ptr [rsp+140h+var_108]
-    vmovss  dword ptr [rbx+2A8h], xmm0
-    vmovss  xmm1, dword ptr [rsp+140h+quat]
-    vmovss  dword ptr [rbx+2ACh], xmm1
-    vmovss  xmm0, dword ptr [rsp+140h+quat+4]
-    vmovss  dword ptr [rbx+2B0h], xmm0
-    vmovss  xmm1, dword ptr [rsp+140h+quat+8]
-    vmovss  dword ptr [rbx+2B4h], xmm1
-    vmovss  xmm0, dword ptr [rsp+140h+quat+0Ch]
-    vmovss  dword ptr [rbx+2B8h], xmm0
-  }
-  _RBX->detailCache.cached = 0;
-  if ( CG_PhysicsObject_GetInstance(v8, v7, v6) != -1 )
+  *(_QWORD *)v8->detailCache.position.v = v26[0];
+  v8->detailCache.position.v[2] = *(float *)&v26[1];
+  v8->detailCache.orientationAsQuat = quat;
+  v8->detailCache.cached = 0;
+  if ( CG_PhysicsObject_GetInstance(v6, v5, v4) != -1 )
   {
     partBits[0] = NULL;
-    updated = CG_PhysicsObject_UpdateDetailWorldInstance((Physics_WorldId)(3 * v6 + 3), v8, v7, v6, partBits);
+    updated = CG_PhysicsObject_UpdateDetailWorldInstance((Physics_WorldId)(3 * v4 + 3), v6, v5, v4, partBits);
     HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay(*(HavokPhysicsHitCollector_DetailTraceModifier **)args, &chc, updated, partBits[0], *((const HavokPhysicsHitCollector **)args + 1), 0x2181u);
   }
-  Physics_UnlockWorld(v8);
-  v41 = chc.m_numHits != 0;
-  memset(v43, 0, 0xCui64);
+  Physics_UnlockWorld(v6);
+  v24 = chc.m_numHits != 0;
+  memset(v26, 0, 0xCui64);
   chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   hkBaseObject::~hkBaseObject(&chc);
-  return v41;
+  return v24;
 }
 
 /*
@@ -411,129 +367,95 @@ HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForCharacterProxy
 */
 void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForCharacterProxy(HavokPhysicsHitCollector_DetailTraceModifier *this, const HavokPhysicsHitCollector *collector, hknpCollisionResult *hit, bool isServerCharacterProxy, const __int16 entNum)
 {
-  gentity_s *v21; 
-  GAntiLag *v22; 
+  const hkVector4f *ModifierCastStart; 
+  const hkVector4f *ModifierCastEnd; 
+  gentity_s *v11; 
+  GAntiLag *v12; 
   playerState_s *EntityPlayerState; 
-  const playerState_s *v24; 
+  const playerState_s *v14; 
   GHandler *Handler; 
-  SvAntilagArchiveInfo *v26; 
+  SvAntilagArchiveInfo *v16; 
   unsigned __int8 *m_priorityMap; 
-  char v28; 
+  __m128 fraction_low; 
+  float v19; 
+  float v20; 
+  float v21; 
   DObj *ClientDObj; 
-  DObj *v49; 
-  unsigned __int8 *v66; 
+  DObj *v23; 
+  cg_t *LocalClientGlobals; 
+  unsigned __int8 *v25; 
+  const hkVector4f *v26; 
+  const hkVector4f *v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float fraction; 
   DObj *obj; 
   centity_t *obja; 
   HavokPhysicsHitCollector_DetailTraceModifier *userArgs; 
-  const HavokPhysicsHitCollector *v81; 
-  int v82; 
+  const HavokPhysicsHitCollector *v35; 
+  int v36; 
   vec3_t in1; 
-  vec3_t v84; 
+  vec3_t v38; 
   DObjTrace_s trace; 
   vec3_t out; 
   vec3_t end; 
   tmat43_t<vec3_t> result; 
   DObjPartBits partBits; 
-  WorldUpReferenceFrame v90; 
-  char v91; 
-  void *retaddr; 
+  WorldUpReferenceFrame v44; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RSI = hit;
   Profile_Begin(764);
-  HavokPhysicsHitCollector::GetModifierCastStart((HavokPhysicsHitCollector *)collector);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42000000
-    vmulss  xmm0, xmm6, dword ptr [rax]
-    vmovss  dword ptr [rsp+1A0h+in1], xmm0
-    vmulss  xmm2, xmm6, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+1A0h+in1+4], xmm2
-    vmulss  xmm1, xmm6, dword ptr [rax+8]
-    vmovss  dword ptr [rsp+1A0h+in1+8], xmm1
-  }
-  HavokPhysicsHitCollector::GetModifierCastEnd((HavokPhysicsHitCollector *)collector);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm1, xmm6, dword ptr [rax]
-    vmovss  dword ptr [rsp+1A0h+var_130], xmm1
-    vmulss  xmm0, xmm6, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+1A0h+var_130+4], xmm0
-    vmulss  xmm2, xmm6, dword ptr [rax+8]
-    vmovss  dword ptr [rsp+1A0h+var_130+8], xmm2
-    vmovss  [rbp+0A0h+trace.fraction], xmm8
-  }
+  ModifierCastStart = HavokPhysicsHitCollector::GetModifierCastStart((HavokPhysicsHitCollector *)collector);
+  in1.v[0] = 32.0 * ModifierCastStart->m_quad.m128_f32[0];
+  in1.v[1] = 32.0 * ModifierCastStart->m_quad.m128_f32[1];
+  in1.v[2] = 32.0 * ModifierCastStart->m_quad.m128_f32[2];
+  ModifierCastEnd = HavokPhysicsHitCollector::GetModifierCastEnd((HavokPhysicsHitCollector *)collector);
+  v38.v[0] = 32.0 * ModifierCastEnd->m_quad.m128_f32[0];
+  v38.v[1] = 32.0 * ModifierCastEnd->m_quad.m128_f32[1];
+  v38.v[2] = 32.0 * ModifierCastEnd->m_quad.m128_f32[2];
+  trace.fraction = FLOAT_1_0;
   if ( isServerCharacterProxy )
   {
-    v21 = SV_GentityNum(entNum);
-    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 485, ASSERT_TYPE_ASSERT, "(touch)", (const char *)&queryFormat, "touch") )
+    v11 = SV_GentityNum(entNum);
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 485, ASSERT_TYPE_ASSERT, "(touch)", (const char *)&queryFormat, "touch") )
       __debugbreak();
     obj = Com_GetServerDObjForEntnum(entNum);
     if ( !obj )
       goto LABEL_23;
-    AnglesAndOriginToMatrix43(&v21->r.currentAngles, &v21->r.currentOrigin, &result);
+    AnglesAndOriginToMatrix43(&v11->r.currentAngles, &v11->r.currentOrigin, &result);
     if ( !GAntiLag::ms_gAntiLagData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_antilag.h", 209, ASSERT_TYPE_ASSERT, "( ms_gAntiLagData )", (const char *)&queryFormat, "ms_gAntiLagData") )
       __debugbreak();
-    v22 = GAntiLag::ms_gAntiLagData;
-    EntityPlayerState = G_GetEntityPlayerState(v21);
-    v24 = EntityPlayerState;
-    if ( EntityPlayerState && !v22->IsWorldUpIncludedOnEntity(v22, EntityPlayerState->clientNum) )
+    v12 = GAntiLag::ms_gAntiLagData;
+    EntityPlayerState = G_GetEntityPlayerState(v11);
+    v14 = EntityPlayerState;
+    if ( EntityPlayerState && !v12->IsWorldUpIncludedOnEntity(v12, EntityPlayerState->clientNum) )
     {
       Handler = GHandler::getHandler();
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v90, v24, Handler);
-      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v90, (tmat33_t<vec3_t> *)&result);
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v44, v14, Handler);
+      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v44, (tmat33_t<vec3_t> *)&result);
     }
     MatrixTransposeTransformVector43(&in1, &result, &out);
-    MatrixTransposeTransformVector43(&v84, &result, &end);
+    MatrixTransposeTransformVector43(&v38, &result, &end);
     DObjTracelinePartBits(obj, &partBits);
-    v26 = v22->GetAntilagTraceInfo(v22);
-    if ( v26 )
-      G_Utils_DObjCalcAntilagPose(v21, v26, &partBits);
+    v16 = v12->GetAntilagTraceInfo(v12);
+    if ( v16 )
+      G_Utils_DObjCalcAntilagPose(v11, v16, &partBits);
     else
-      G_Utils_DObjCalcPose(v21, &partBits);
+      G_Utils_DObjCalcPose(v11, &partBits);
     m_priorityMap = this->m_priorityMap;
     userArgs = this;
-    v81 = collector;
-    v82 = entNum;
+    v35 = collector;
+    v36 = entNum;
     DObjTraceline(obj, &out, &end, m_priorityMap, &trace, HavokPhysicsHitCollector_DetailTraceModifier::ServerModifyHitForShield, &userArgs);
-    __asm
-    {
-      vmovss  xmm7, [rbp+0A0h+trace.fraction]
-      vcomiss xmm7, xmm8
-    }
-    if ( !v28 )
+    fraction_low = (__m128)LODWORD(trace.fraction);
+    if ( trace.fraction >= 1.0 )
       goto LABEL_23;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+0A0h+trace.normal+4]
-      vmovss  xmm6, dword ptr [rbp+0A0h+trace.normal]
-      vmovss  xmm5, dword ptr [rbp+0A0h+trace.normal+8]
-      vmulss  xmm1, xmm4, dword ptr [rbp+0A0h+result+0Ch]
-      vmulss  xmm0, xmm4, dword ptr [rbp+0A0h+result+10h]
-      vmulss  xmm2, xmm6, dword ptr [rbp+0A0h+result]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm5, dword ptr [rbp+0A0h+result+18h]
-      vaddss  xmm2, xmm3, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rbp+0A0h+result+4]
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm1, xmm4, dword ptr [rbp+0A0h+result+14h]
-      vmovss  dword ptr [rbp+0A0h+trace.normal], xmm2
-      vmulss  xmm2, xmm5, dword ptr [rbp+0A0h+result+1Ch]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm3, xmm6, dword ptr [rbp+0A0h+result+8]
-      vmulss  xmm2, xmm5, dword ptr [rbp+0A0h+result+20h]
-      vaddss  xmm4, xmm3, xmm1
-      vaddss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rbp+0A0h+trace.normal+8], xmm1
-      vmovss  dword ptr [rbp+0A0h+trace.normal+4], xmm0
-    }
+    v19 = trace.normal.v[0];
+    v20 = (float)(trace.normal.v[0] * result.m[0].v[1]) + (float)(trace.normal.v[1] * result.m[1].v[1]);
+    trace.normal.v[0] = (float)((float)(trace.normal.v[0] * result.m[0].v[0]) + (float)(trace.normal.v[1] * result.m[1].v[0])) + (float)(trace.normal.v[2] * result.m[2].v[0]);
+    v21 = v20 + (float)(trace.normal.v[2] * result.m[2].v[1]);
+    trace.normal.v[2] = (float)((float)(v19 * result.m[0].v[2]) + (float)(trace.normal.v[1] * result.m[1].v[2])) + (float)(trace.normal.v[2] * result.m[2].v[2]);
+    trace.normal.v[1] = v21;
   }
   else
   {
@@ -546,91 +468,56 @@ void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForCharacterProxy(Ha
     while ( 1 )
     {
       DObjLock(ClientDObj);
-      v49 = Com_GetClientDObj(entNum, this->m_localClientNum);
-      if ( ClientDObj == v49 )
+      v23 = Com_GetClientDObj(entNum, this->m_localClientNum);
+      if ( ClientDObj == v23 )
         break;
       DObjUnlock(ClientDObj);
-      ClientDObj = v49;
-      if ( !v49 )
+      ClientDObj = v23;
+      if ( !v23 )
         goto LABEL_23;
     }
     if ( !ClientDObj )
       goto LABEL_23;
-    CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1A0h+in1]
-      vmovss  xmm2, dword ptr [rsp+1A0h+in1+4]
-      vsubss  xmm1, xmm0, dword ptr [rax+699Ch]
-      vmovss  dword ptr [rbp+0A0h+end], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rax+69A0h]
-      vmovss  xmm1, dword ptr [rsp+1A0h+in1+8]
-      vmovss  dword ptr [rbp+0A0h+end+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rax+69A4h]
-      vmovss  xmm0, dword ptr [rsp+1A0h+var_130]
-      vmovss  dword ptr [rbp+0A0h+end+8], xmm2
-      vsubss  xmm1, xmm0, dword ptr [rax+699Ch]
-      vmovss  xmm2, dword ptr [rsp+1A0h+var_130+4]
-      vmovss  dword ptr [rbp+0A0h+out], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rax+69A0h]
-      vmovss  xmm1, dword ptr [rsp+1A0h+var_130+8]
-      vmovss  dword ptr [rbp+0A0h+out+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rax+69A4h]
-      vmovss  dword ptr [rbp+0A0h+out+8], xmm2
-    }
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+    end.v[0] = in1.v[0] - LocalClientGlobals->refdef.viewOffset.v[0];
+    end.v[1] = in1.v[1] - LocalClientGlobals->refdef.viewOffset.v[1];
+    end.v[2] = in1.v[2] - LocalClientGlobals->refdef.viewOffset.v[2];
+    out.v[0] = v38.v[0] - LocalClientGlobals->refdef.viewOffset.v[0];
+    out.v[1] = v38.v[1] - LocalClientGlobals->refdef.viewOffset.v[1];
+    out.v[2] = v38.v[2] - LocalClientGlobals->refdef.viewOffset.v[2];
     DObjTracelinePartBits(ClientDObj, &partBits);
     CG_Pose_CalcDObjPose(&obja->pose, ClientDObj, &partBits);
     if ( !DObjSkelAreBonesUpToDate(ClientDObj, &partBits) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 596, ASSERT_TYPE_ASSERT, "(DObjSkelAreBonesUpToDate( obj, &partBits ))", (const char *)&queryFormat, "DObjSkelAreBonesUpToDate( obj, &partBits )") )
       __debugbreak();
     DObjUnlock(ClientDObj);
-    v66 = this->m_priorityMap;
+    v25 = this->m_priorityMap;
     userArgs = this;
-    v81 = collector;
-    v82 = entNum;
-    DObjTraceline(ClientDObj, &end, &out, v66, &trace, HavokPhysicsHitCollector_DetailTraceModifier::ClientModifyHitForShield, &userArgs);
-    __asm { vmovss  xmm7, [rbp+0A0h+trace.fraction] }
+    v35 = collector;
+    v36 = entNum;
+    DObjTraceline(ClientDObj, &end, &out, v25, &trace, HavokPhysicsHitCollector_DetailTraceModifier::ClientModifyHitForShield, &userArgs);
+    fraction_low = (__m128)LODWORD(trace.fraction);
   }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( v28 )
+  if ( fraction_low.m128_f32[0] < 1.0 )
   {
-    __asm
-    {
-      vmovaps xmm6, xmm7
-      vshufps xmm6, xmm6, xmm6, 0
-    }
-    _RBX = HavokPhysicsHitCollector::GetModifierCastEnd((HavokPhysicsHitCollector *)collector);
-    HavokPhysicsHitCollector::GetModifierCastStart((HavokPhysicsHitCollector *)collector);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vsubps  xmm1, xmm0, xmmword ptr [rax]
-      vmovss  xmm0, dword ptr [rbp+0A0h+trace.normal]
-      vmulps  xmm2, xmm1, xmm6
-      vaddps  xmm3, xmm2, xmmword ptr [rax]
-      vmovss  xmm1, dword ptr [rbp+0A0h+trace.normal+4]
-      vmovups xmmword ptr [rsi], xmm3
-      vmovss  dword ptr [rsi+10h], xmm0
-      vmovss  xmm0, dword ptr [rbp+0A0h+trace.normal+8]
-      vmovss  dword ptr [rsi+14h], xmm1
-      vmovss  xmm1, [rbp+0A0h+trace.fraction]
-      vmovss  dword ptr [rsi+18h], xmm0
-      vmovss  dword ptr [rsi+20h], xmm1
-    }
+    v26 = HavokPhysicsHitCollector::GetModifierCastEnd((HavokPhysicsHitCollector *)collector);
+    v27 = HavokPhysicsHitCollector::GetModifierCastStart((HavokPhysicsHitCollector *)collector);
+    v28 = trace.normal.v[0];
+    v29 = trace.normal.v[1];
+    hit->m_position.m_quad = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v26->m_quad, v27->m_quad), _mm_shuffle_ps(fraction_low, fraction_low, 0)), v27->m_quad);
+    hit->m_normal.m_quad.m128_f32[0] = v28;
+    v30 = trace.normal.v[2];
+    hit->m_normal.m_quad.m128_f32[1] = v29;
+    fraction = trace.fraction;
+    hit->m_normal.m_quad.m128_f32[2] = v30;
+    hit->m_fraction = fraction;
     goto LABEL_24;
   }
 LABEL_23:
-  _RSI->m_rayCastResult.m_value = 0;
-  _RSI->m_fraction = 1.0;
+  hit->m_rayCastResult.m_value = 0;
+  hit->m_fraction = 1.0;
 LABEL_24:
-  HavokPhysicsHitCollector_DetailTraceModifier::AddDetailHitData(this, collector, _RSI, &trace);
+  HavokPhysicsHitCollector_DetailTraceModifier::AddDetailHitData(this, collector, hit, &trace);
   Profile_EndInternal(NULL);
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -641,32 +528,31 @@ HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBounds
 void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBounds(HavokPhysicsHitCollector_DetailTraceModifier *this, const HavokPhysicsHitCollector *collector, hknpCollisionResult *hit)
 {
   int Ref; 
-  __int32 v9; 
+  __int32 v7; 
   unsigned int updated; 
   unsigned __int16 RefId; 
+  unsigned __int16 v10; 
+  unsigned __int16 v11; 
   unsigned __int16 v12; 
-  unsigned __int16 v13; 
-  unsigned __int16 v14; 
-  int v15; 
-  __int64 v16; 
-  const char *v17; 
-  const char *v18; 
-  int v19; 
+  int v13; 
+  __int64 v14; 
+  const char *v15; 
+  const char *v16; 
+  int v17; 
   __int64 m_localClientNum; 
   hknpCollisionQueryType::Enum m_queryType; 
   __int64 extraContentsFlags; 
-  __int64 v30; 
+  __int64 v21; 
   DObjPartBits *partBits[2]; 
   hknpClosestHitCollector chc; 
 
   partBits[1] = (DObjPartBits *)-2i64;
-  _R14 = hit;
   Ref = HavokPhysics_GetRef(this->m_worldId, hit->m_hitBodyInfo.m_bodyId);
-  v9 = Physics_GetRefSystem(Ref) - 1;
+  v7 = Physics_GetRefSystem(Ref) - 1;
   Physics_LockWorld(this->m_worldId);
   updated = -1;
   partBits[0] = NULL;
-  switch ( v9 )
+  switch ( v7 )
   {
     case 0:
       RefId = Physics_GetRefId(Ref);
@@ -674,43 +560,43 @@ void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBounds(Havo
       goto LABEL_28;
     case 1:
     case 8:
-      v12 = Physics_GetRefId(Ref);
-      updated = G_PhysicsObject_UpdateDetailWorldInstance(PHYSICS_WORLD_ID_FIRST, PHYSICS_WORLD_ID_SERVER_DETAIL, v12, partBits);
+      v10 = Physics_GetRefId(Ref);
+      updated = G_PhysicsObject_UpdateDetailWorldInstance(PHYSICS_WORLD_ID_FIRST, PHYSICS_WORLD_ID_SERVER_DETAIL, v10, partBits);
       goto LABEL_28;
     case 3:
-      v13 = Physics_GetRefId(Ref);
-      updated = CG_PhysicsObject_UpdateDetailWorldInstance((Physics_WorldId)(3 * this->m_localClientNum + 3), (Physics_WorldId)(3 * this->m_localClientNum + 4), v13, this->m_localClientNum, partBits);
+      v11 = Physics_GetRefId(Ref);
+      updated = CG_PhysicsObject_UpdateDetailWorldInstance((Physics_WorldId)(3 * this->m_localClientNum + 3), (Physics_WorldId)(3 * this->m_localClientNum + 4), v11, this->m_localClientNum, partBits);
       goto LABEL_28;
     case 7:
-      v15 = Ref >> 22;
-      v16 = Ref & 0x3FFFFF;
-      if ( (v15 & 3) != 0 )
+      v13 = Ref >> 22;
+      v14 = Ref & 0x3FFFFF;
+      if ( (v13 & 3) != 0 )
       {
         m_localClientNum = this->m_localClientNum;
         ScriptableCommon_AssertCountsInitialized();
-        if ( (unsigned int)v16 >= g_scriptableWorldCounts.totalInstanceCount )
+        if ( (unsigned int)v14 >= g_scriptableWorldCounts.totalInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v16, g_scriptableWorldCounts.totalInstanceCount) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", v14, g_scriptableWorldCounts.totalInstanceCount) )
             __debugbreak();
         }
         if ( (unsigned int)m_localClientNum >= 2 )
         {
-          LODWORD(v30) = 2;
+          LODWORD(v21) = 2;
           LODWORD(extraContentsFlags) = m_localClientNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 124, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", extraContentsFlags, v30) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 124, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableCl_instanceContexts ) ) + 0 ) )", "localClientNum doesn't index g_scriptableCl_instanceContexts\n\t%i not in [0, %i)", extraContentsFlags, v21) )
             __debugbreak();
         }
         if ( !g_scriptableCl_instanceContexts[m_localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 125, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
           __debugbreak();
-        updated = g_scriptableCl_instanceContexts[m_localClientNum][(unsigned int)v16].collisionContext.scriptableCollisionDetail;
+        updated = g_scriptableCl_instanceContexts[m_localClientNum][(unsigned int)v14].collisionContext.scriptableCollisionDetail;
         if ( Physics_GetNumRigidBodys((const Physics_WorldId)(3 * this->m_localClientNum + 4), updated) != 1 )
         {
-          v17 = "Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( m_localClientNum ), instanceId ) == 1";
-          v18 = "(Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( m_localClientNum ), instanceId ) == 1)";
-          v19 = 337;
+          v15 = "Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( m_localClientNum ), instanceId ) == 1";
+          v16 = "(Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( m_localClientNum ), instanceId ) == 1)";
+          v17 = 337;
 LABEL_26:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", v19, ASSERT_TYPE_ASSERT, v18, (const char *)&queryFormat, v17) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", v17, ASSERT_TYPE_ASSERT, v16, (const char *)&queryFormat, v15) )
             __debugbreak();
         }
       }
@@ -719,19 +605,19 @@ LABEL_26:
         if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
           __debugbreak();
         ScriptableCommon_AssertCountsInitialized();
-        if ( (unsigned int)v16 >= g_scriptableWorldCounts.serverInstanceCount )
+        if ( (unsigned int)v14 >= g_scriptableWorldCounts.serverInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
-          LODWORD(extraContentsFlags) = v16;
+          LODWORD(extraContentsFlags) = v14;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", extraContentsFlags, g_scriptableWorldCounts.serverInstanceCount) )
             __debugbreak();
         }
-        updated = g_scriptableSv_instanceContexts[v16].collisionContext.scriptableCollisionDetail;
+        updated = g_scriptableSv_instanceContexts[v14].collisionContext.scriptableCollisionDetail;
         if ( Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_SERVER_DETAIL, updated) != 1 )
         {
-          v17 = "Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_DETAIL, instanceId ) == 1";
-          v18 = "(Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_DETAIL, instanceId ) == 1)";
-          v19 = 330;
+          v15 = "Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_DETAIL, instanceId ) == 1";
+          v16 = "(Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_DETAIL, instanceId ) == 1)";
+          v17 = 330;
           goto LABEL_26;
         }
       }
@@ -744,20 +630,11 @@ LABEL_32:
       }
       chc.m_hints.m_storage = 0;
       chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpClosestHitCollector::`vftable';
-      __asm { vxorps  xmm1, xmm1, xmm1 }
       chc.m_numHits = 0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-        vmovups xmmword ptr [rbp+57h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-      }
+      chc.m_earlyOutThreshold.m_real = g_vectorfConstants[37];
       chc.m_earlyOut.m_bool = 0;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+57h+chc.m_hit.m_position.m_quad], ymm1
-        vmovss  xmm0, cs:__real@7f7fffee
-        vmovss  [rbp+57h+chc.m_hit.m_fraction], xmm0
-      }
+      *(__m256i *)chc.m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
+      chc.m_hit.m_fraction = FLOAT_3_40282e38;
       chc.m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
       *(_QWORD *)&chc.m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
       chc.m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = -1;
@@ -767,13 +644,8 @@ LABEL_32:
       *(_QWORD *)&chc.m_hit.m_hitBodyInfo.m_shapeKey.m_value = -1i64;
       chc.m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = -1;
       memset(&chc.m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo, 0, 20);
-      _RAX = HavokPhysicsHitCollector::GetCollector((HavokPhysicsHitCollector *)collector);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rbp+57h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-      }
-      m_queryType = _R14->m_queryType;
+      chc.m_earlyOutThreshold = HavokPhysicsHitCollector::GetCollector((HavokPhysicsHitCollector *)collector)->m_earlyOutThreshold;
+      m_queryType = hit->m_queryType;
       if ( m_queryType == RAY_CAST )
       {
         HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay(this, &chc, updated, partBits[0], collector, 0);
@@ -784,46 +656,41 @@ LABEL_32:
       }
       else
       {
-        LODWORD(extraContentsFlags) = _R14->m_queryType;
+        LODWORD(extraContentsFlags) = hit->m_queryType;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 368, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported detail bound query type %i", extraContentsFlags) )
           __debugbreak();
       }
       Physics_UnlockWorld(this->m_worldId);
       if ( chc.m_numHits )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+57h+chc.m_hit.m_position.m_quad]
-          vmovups ymmword ptr [r14], ymm0
-          vmovss  xmm0, [rbp+57h+chc.m_hit.m_fraction]
-          vmovss  dword ptr [r14+20h], xmm0
-        }
-        _R14->m_queryBodyInfo.m_bodyId.m_serialAndIndex = chc.m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-        _R14->m_queryBodyInfo.m_shapeKey.m_value = chc.m_hit.m_queryBodyInfo.m_shapeKey.m_value;
-        *(_DWORD *)_R14->m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)chc.m_hit.m_queryBodyInfo.m_levelOfDetail;
-        _R14->m_queryBodyInfo.m_filterData.m_materialId.m_value = chc.m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value;
-        _R14->m_queryBodyInfo.m_filterData.m_collisionFilterInfo = chc.m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-        _R14->m_queryBodyInfo.m_filterData.m_userData = chc.m_hit.m_queryBodyInfo.m_filterData.m_userData;
-        _R14->m_hitBodyInfo.m_bodyId.m_serialAndIndex = chc.m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-        _R14->m_hitBodyInfo.m_shapeKey.m_value = chc.m_hit.m_hitBodyInfo.m_shapeKey.m_value;
-        *(_DWORD *)_R14->m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)chc.m_hit.m_hitBodyInfo.m_levelOfDetail;
-        _R14->m_hitBodyInfo.m_filterData.m_materialId.m_value = chc.m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value;
-        _R14->m_hitBodyInfo.m_filterData.m_collisionFilterInfo = chc.m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-        _R14->m_hitBodyInfo.m_filterData.m_userData = chc.m_hit.m_hitBodyInfo.m_filterData.m_userData;
-        _R14->m_queryType = chc.m_hit.m_queryType;
-        _R14->m_rayCastResult.m_value = chc.m_hit.m_rayCastResult.m_value;
+        *(__m256i *)hit->m_position.m_quad.m128_f32 = *(__m256i *)chc.m_hit.m_position.m_quad.m128_f32;
+        hit->m_fraction = chc.m_hit.m_fraction;
+        hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex = chc.m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+        hit->m_queryBodyInfo.m_shapeKey.m_value = chc.m_hit.m_queryBodyInfo.m_shapeKey.m_value;
+        *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)chc.m_hit.m_queryBodyInfo.m_levelOfDetail;
+        hit->m_queryBodyInfo.m_filterData.m_materialId.m_value = chc.m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value;
+        hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo = chc.m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+        hit->m_queryBodyInfo.m_filterData.m_userData = chc.m_hit.m_queryBodyInfo.m_filterData.m_userData;
+        hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex = chc.m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+        hit->m_hitBodyInfo.m_shapeKey.m_value = chc.m_hit.m_hitBodyInfo.m_shapeKey.m_value;
+        *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)chc.m_hit.m_hitBodyInfo.m_levelOfDetail;
+        hit->m_hitBodyInfo.m_filterData.m_materialId.m_value = chc.m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value;
+        hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo = chc.m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+        hit->m_hitBodyInfo.m_filterData.m_userData = chc.m_hit.m_hitBodyInfo.m_filterData.m_userData;
+        hit->m_queryType = chc.m_hit.m_queryType;
+        hit->m_rayCastResult.m_value = chc.m_hit.m_rayCastResult.m_value;
       }
       else
       {
-        _R14->m_fraction = 1.0;
-        _R14->m_rayCastResult.m_value = 0;
+        hit->m_fraction = 1.0;
+        hit->m_rayCastResult.m_value = 0;
       }
       chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
       hkBaseObject::~hkBaseObject(&chc);
       return;
     case 9:
-      v14 = Physics_GetRefId(Ref);
-      updated = CG_ClientModel_Physics_UpdateDetailWorldInstance((const LocalClientNum_t)this->m_localClientNum, v14);
+      v12 = Physics_GetRefId(Ref);
+      updated = CG_ClientModel_Physics_UpdateDetailWorldInstance((const LocalClientNum_t)this->m_localClientNum, v12);
       goto LABEL_28;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 346, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled system ref for detail bounds") )
@@ -840,51 +707,56 @@ HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay
 void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay(HavokPhysicsHitCollector_DetailTraceModifier *this, hknpClosestHitCollector *chc, unsigned int instanceId, DObjPartBits *partBits, const HavokPhysicsHitCollector *collector, unsigned int extraContentsFlags)
 {
   Physics_WorldId m_worldId; 
-  DObjPartBits *v9; 
-  unsigned int v10; 
+  DObjPartBits *v8; 
+  unsigned int v9; 
   hknpRayCastQuery *ModifierRaycastQuery; 
   hknpCollisionQuery *ModifierBatchRaycastQuery; 
   hkFlags<enum hkcdRayQueryFlags::Enum,unsigned int> *p_m_flags; 
   int m_storage; 
-  unsigned int v16; 
-  int v17; 
-  Physics_WorldId v18; 
+  unsigned int v15; 
+  int v16; 
+  Physics_WorldId v17; 
   unsigned int NumRigidBodys; 
-  unsigned __int64 v20; 
-  unsigned int v21; 
+  unsigned __int64 v19; 
+  unsigned int v20; 
   unsigned int m_serialAndIndex; 
-  const hknpShape *m_shape; 
+  __int64 v22; 
+  const hknpShape *v23; 
+  const hkVector4f *ModifierCastStart; 
+  __m128 v31; 
+  const hkVector4f *ModifierCastEnd; 
   hkMonitorStream *Value; 
-  __int64 v63; 
-  __int64 v66; 
+  __int64 v51; 
+  __int64 v53; 
   const hknpBody *m_body; 
-  __int128 *p_m_targetShapeFilterData; 
-  hkMonitorStream *v69; 
-  __int64 v71; 
-  __int64 v72; 
-  unsigned int v74; 
+  hknpQueryFilterData *p_m_targetShapeFilterData; 
+  hkMonitorStream *v56; 
+  __int64 v57; 
+  __int64 v58; 
+  unsigned int v60; 
   hkFlags<enum hkcdRayQueryFlags::Enum,unsigned int> result; 
-  hknpBodyId v76; 
-  DObjPartBits *v77; 
+  hknpBodyId v62; 
+  DObjPartBits *v63; 
   hknpWorld *World; 
-  HavokPhysicsHitCollector *v79; 
-  __int128 v80; 
+  HavokPhysicsHitCollector *v65; 
+  hknpQueryFilterData m_targetShapeFilterData; 
   const hknpShapeTagCodec *m_shapeTagCodec; 
   const hknpCollisionFilter *m_filter; 
   unsigned __int16 m_value; 
-  unsigned int v84; 
+  unsigned int v70; 
   unsigned __int64 m_userData; 
-  int v86; 
-  char v87; 
-  int v91; 
+  int v72; 
+  char v73; 
+  __m128 v74; 
+  __m128 v75; 
+  __int128 v76; 
+  int v77; 
 
-  _R13 = this;
   m_worldId = this->m_worldId;
-  v9 = partBits;
-  v79 = (HavokPhysicsHitCollector *)collector;
-  v10 = instanceId;
-  v77 = partBits;
-  _R15 = chc;
+  v8 = partBits;
+  v65 = (HavokPhysicsHitCollector *)collector;
+  v9 = instanceId;
+  v63 = partBits;
   World = HavokPhysics_GetWorld(m_worldId);
   if ( !World && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 134, ASSERT_TYPE_ASSERT, "( world )", (const char *)&queryFormat, "world") )
     __debugbreak();
@@ -900,145 +772,130 @@ void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay(H
   m_storage = p_m_flags->m_storage;
   if ( !ModifierBatchRaycastQuery && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 143, ASSERT_TYPE_ASSERT, "(baseQuery)", (const char *)&queryFormat, "baseQuery") )
     __debugbreak();
-  v87 = -5;
+  v73 = -5;
   m_shapeTagCodec = ModifierBatchRaycastQuery->m_shapeTagCodec;
   m_filter = ModifierBatchRaycastQuery->m_filter;
   m_value = ModifierBatchRaycastQuery->m_filterData.m_materialId.m_value;
-  v16 = extraContentsFlags | ModifierBatchRaycastQuery->m_filterData.m_collisionFilterInfo;
+  v15 = extraContentsFlags | ModifierBatchRaycastQuery->m_filterData.m_collisionFilterInfo;
   m_userData = ModifierBatchRaycastQuery->m_filterData.m_userData;
-  v17 = *(_DWORD *)ModifierBatchRaycastQuery->m_levelOfDetail;
-  v84 = v16;
-  v18 = _R13->m_worldId;
-  v86 = v17;
-  v91 = m_storage;
-  NumRigidBodys = Physics_GetNumRigidBodys(v18, v10);
+  v16 = *(_DWORD *)ModifierBatchRaycastQuery->m_levelOfDetail;
+  v70 = v15;
+  v17 = this->m_worldId;
+  v72 = v16;
+  v77 = m_storage;
+  NumRigidBodys = Physics_GetNumRigidBodys(v17, v9);
   if ( NumRigidBodys == 1 )
-    v74 = 1;
+    v60 = 1;
   else
-    v74 = NumRigidBodys - 1;
-  v20 = 0i64;
-  __asm { vmovaps [rsp+140h+var_40], xmm6 }
-  v21 = 0;
+    v60 = NumRigidBodys - 1;
+  v19 = 0i64;
+  v20 = 0;
   do
   {
-    if ( !v9 )
+    if ( !v8 )
       goto LABEL_21;
-    if ( v21 >= 0x100 )
+    if ( v20 >= 0x100 )
     {
-      LODWORD(v72) = 256;
-      LODWORD(v71) = v21;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v71, v72) )
+      LODWORD(v58) = 256;
+      LODWORD(v57) = v20;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v57, v58) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> (v21 & 0x1F)) & v9->array[v20 >> 5]) != 0 )
+    if ( ((0x80000000 >> (v20 & 0x1F)) & v8->array[v19 >> 5]) != 0 )
     {
 LABEL_21:
-      HavokPhysics_GetRigidBodyID(&v76, (const Physics_WorldId)_R13->m_worldId, v10, v21);
-      m_serialAndIndex = v76.m_serialAndIndex;
-      if ( (v76.m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 169, ASSERT_TYPE_ASSERT, "( bodyId.isValid() )", (const char *)&queryFormat, "bodyId.isValid()") )
+      HavokPhysics_GetRigidBodyID(&v62, (const Physics_WorldId)this->m_worldId, v9, v20);
+      m_serialAndIndex = v62.m_serialAndIndex;
+      if ( (v62.m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 169, ASSERT_TYPE_ASSERT, "( bodyId.isValid() )", (const char *)&queryFormat, "bodyId.isValid()") )
         __debugbreak();
-      _RSI = (const hknpBody *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))World->getBody)(&World->hknpWorldReader, m_serialAndIndex);
-      m_shape = _RSI->m_shape;
-      if ( m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, (const hknpQueryFilterData *)&m_value, _RSI) )
+      v22 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))World->getBody)(&World->hknpWorldReader, m_serialAndIndex);
+      v23 = *(const hknpShape **)(v22 + 96);
+      if ( m_filter->isCollisionEnabled((hknpCollisionFilter *)m_filter, RAY_CAST, (const hknpQueryFilterData *)&m_value, (const hknpBody *)v22) )
       {
-        _RAX = HavokPhysicsHitCollector::GetModifierCastStart(v79);
+        ModifierCastStart = HavokPhysicsHitCollector::GetModifierCastStart(v65);
+        _XMM1 = *(_OWORD *)v22;
+        _mm128_sub_ps(ModifierCastStart->m_quad, *(__m128 *)(v22 + 48));
+        _XMM0 = *(_OWORD *)(v22 + 16);
+        __asm { vdpps   xmm3, xmm0, xmm5, 72h ; 'r' }
+        _XMM0 = *(_OWORD *)(v22 + 32);
         __asm
         {
-          vmovups xmm1, xmmword ptr [rsi]
-          vmovups xmm0, xmmword ptr [rax]
-          vsubps  xmm5, xmm0, xmmword ptr [rsi+30h]
-          vmovups xmm0, xmmword ptr [rsi+10h]
-          vdpps   xmm3, xmm0, xmm5, 72h ; 'r'
-          vmovups xmm0, xmmword ptr [rsi+20h]
           vdpps   xmm2, xmm1, xmm5, 71h ; 'q'
           vdpps   xmm1, xmm0, xmm5, 74h ; 't'
-          vorps   xmm4, xmm3, xmm2
-          vorps   xmm6, xmm4, xmm1
         }
-        _RAX = HavokPhysicsHitCollector::GetModifierCastEnd(v79);
+        v31 = (__m128)(_XMM3 | _XMM2 | _XMM1);
+        ModifierCastEnd = HavokPhysicsHitCollector::GetModifierCastEnd(v65);
+        _XMM1 = *(_OWORD *)(v22 + 16);
+        _mm128_sub_ps(ModifierCastEnd->m_quad, *(__m128 *)(v22 + 48));
+        _XMM0 = *(_OWORD *)v22;
+        __asm { vdpps   xmm3, xmm1, xmm5, 72h ; 'r' }
+        _XMM1 = *(_OWORD *)(v22 + 32);
         __asm
         {
-          vmovups xmm1, xmmword ptr [rsi+10h]
-          vmovups xmm0, xmmword ptr [rax]
-          vsubps  xmm5, xmm0, xmmword ptr [rsi+30h]
-          vmovups xmm0, xmmword ptr [rsi]
-          vdpps   xmm3, xmm1, xmm5, 72h ; 'r'
-          vmovups xmm1, xmmword ptr [rsi+20h]
           vdpps   xmm2, xmm0, xmm5, 71h ; 'q'
-          vorps   xmm4, xmm3, xmm2
           vdpps   xmm0, xmm1, xmm5, 74h ; 't'
-          vorps   xmm2, xmm4, xmm0
-          vsubps  xmm3, xmm2, xmm6
-          vblendps xmm1, xmm3, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h, 8; __m128 const near * const g_vectorfConstants
-          vmovups [rbp+40h+var_90], xmm6
-          vxorps  xmm4, xmm4, xmm4
+        }
+        _XMM3 = _mm128_sub_ps((__m128)(_XMM3 | _XMM2 | _XMM0), v31);
+        __asm { vblendps xmm1, xmm3, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h, 8; __m128 const near * const g_vectorfConstants }
+        v74 = v31;
+        _XMM4 = 0i64;
+        __asm
+        {
           vcmpeqps xmm0, xmm4, xmm1
           vandnps xmm2, xmm0, xmm1
-          vmovups xmm1, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
         }
-        _R13->m_targetShapeInfo.m_body = _RSI;
+        this->m_targetShapeInfo.m_body = (const hknpBody *)v22;
+        v75 = _XMM2;
         __asm
         {
-          vmovups [rbp+40h+var_80], xmm2
           vcmpeqps xmm0, xmm4, xmm2
-          vmovups xmm4, cs:__xmm@7f7fffee7f7fffee7f7fffee7f7fffee
           vrcpps  xmm3, xmm2
-          vmulps  xmm2, xmm3, xmm2
-          vsubps  xmm2, xmm1, xmm2
-          vmulps  xmm3, xmm2, xmm3
-          vblendvps xmm1, xmm3, xmm4, xmm0
-          vmovups [rbp+40h+var_70], xmm1
         }
-        _R13->m_targetShapeInfo.m_rootShape = _RSI->m_shape;
-        _R13->m_targetShapeInfo.m_parentShape = NULL;
-        _R13->m_targetShapeInfo.m_shapeKeyPath.m_key.m_value = -1;
-        _R13->m_targetShapeInfo.m_shapeKeyPath.m_size = 0;
-        _R13->m_targetShapeInfo.m_shapeToWorld = &_RSI->m_transform;
-        _R13->m_targetShapeInfo.m_shapeKeyMask = NULL;
-        _R13->m_targetShapeFilterData.m_materialId.m_value = _RSI->m_materialId.m_value;
-        _R13->m_targetShapeFilterData.m_collisionFilterInfo = _RSI->m_collisionFilterInfo;
-        _R13->m_targetShapeFilterData.m_userData = _RSI->m_userData;
-        s_shapeTagCodec->overrideInitialFilterData(s_shapeTagCodec, RAY_CAST, _RSI, m_shape, &_R13->m_targetShapeFilterData);
+        _XMM3 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM3, _XMM2)), _XMM3);
+        __asm { vblendvps xmm1, xmm3, xmm4, xmm0 }
+        v76 = _XMM1;
+        this->m_targetShapeInfo.m_rootShape = *(const hknpShape **)(v22 + 96);
+        this->m_targetShapeInfo.m_parentShape = NULL;
+        this->m_targetShapeInfo.m_shapeKeyPath.m_key.m_value = -1;
+        this->m_targetShapeInfo.m_shapeKeyPath.m_size = 0;
+        this->m_targetShapeInfo.m_shapeToWorld = (const hkTransformf *)v22;
+        this->m_targetShapeInfo.m_shapeKeyMask = NULL;
+        this->m_targetShapeFilterData.m_materialId.m_value = *(_WORD *)(v22 + 106);
+        this->m_targetShapeFilterData.m_collisionFilterInfo = *(_DWORD *)(v22 + 108);
+        this->m_targetShapeFilterData.m_userData = *(_QWORD *)(v22 + 160);
+        s_shapeTagCodec->overrideInitialFilterData(s_shapeTagCodec, RAY_CAST, (const hknpBody *)v22, v23, &this->m_targetShapeFilterData);
         Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
         if ( Value )
           hkMonitorStream::timerBegin(Value, "TtRaycast_Body_Detail_HK");
-        __asm
+        _XMM1.m_real = (__m128)chc->m_earlyOutThreshold;
+        __asm { vbroadcastss xmm2, dword ptr [rbp+40h+var_80+0Ch] }
+        v51 = (__int64)m_shapeTagCodec;
+        __asm { vminps  xmm2, xmm1, xmm2 }
+        chc->m_earlyOutThreshold = (hkSimdFloat32)_XMM2.m_real;
+        if ( v51 && (*(_BYTE *)(v51 + 24) & 1) != 0 )
         {
-          vmovups xmm1, xmmword ptr [r15+10h]
-          vbroadcastss xmm2, dword ptr [rbp+40h+var_80+0Ch]
-        }
-        v63 = (__int64)m_shapeTagCodec;
-        __asm
-        {
-          vminps  xmm2, xmm1, xmm2
-          vmovups xmmword ptr [r15+10h], xmm2
-        }
-        if ( v63 && (*(_BYTE *)(v63 + 24) & 1) != 0 )
-        {
-          __asm { vmovups xmm0, xmmword ptr [r13+1C0h] }
-          v66 = *(_QWORD *)v63;
-          m_body = _R13->m_targetShapeInfo.m_body;
-          __asm { vmovups [rsp+140h+var_D8], xmm0 }
-          (*(void (__fastcall **)(__int64, __int64, const hknpBody *, const hknpShape *, __int128 *))(v66 + 24))(v63, 1i64, m_body, m_shape, &v80);
-          p_m_targetShapeFilterData = &v80;
+          v53 = *(_QWORD *)v51;
+          m_body = this->m_targetShapeInfo.m_body;
+          m_targetShapeFilterData = this->m_targetShapeFilterData;
+          (*(void (__fastcall **)(__int64, __int64, const hknpBody *, const hknpShape *, hknpQueryFilterData *))(v53 + 24))(v51, 1i64, m_body, v23, &m_targetShapeFilterData);
+          p_m_targetShapeFilterData = &m_targetShapeFilterData;
         }
         else
         {
-          p_m_targetShapeFilterData = (__int128 *)&_R13->m_targetShapeFilterData;
+          p_m_targetShapeFilterData = &this->m_targetShapeFilterData;
         }
-        m_shape->castRayImpl((hknpShape *)m_shape, &_R13->m_queryContext, (const hknpRayCastQuery *)&m_shapeTagCodec, (const hknpQueryFilterData *)p_m_targetShapeFilterData, &_R13->m_targetShapeInfo, _R15);
-        v69 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-        if ( v69 )
-          hkMonitorStream::timerEnd(v69, "Et");
-        v10 = instanceId;
+        v23->castRayImpl((hknpShape *)v23, &this->m_queryContext, (const hknpRayCastQuery *)&m_shapeTagCodec, p_m_targetShapeFilterData, &this->m_targetShapeInfo, chc);
+        v56 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
+        if ( v56 )
+          hkMonitorStream::timerEnd(v56, "Et");
+        v9 = instanceId;
       }
-      v9 = v77;
+      v8 = v63;
     }
-    ++v21;
     ++v20;
+    ++v19;
   }
-  while ( v21 < v74 );
-  __asm { vmovaps xmm6, [rsp+140h+var_40] }
+  while ( v20 < v60 );
 }
 
 /*
@@ -1049,66 +906,55 @@ HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsShape
 void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsShape(HavokPhysicsHitCollector_DetailTraceModifier *this, hknpClosestHitCollector *chc, unsigned int instanceId, DObjPartBits *partBits, const HavokPhysicsHitCollector *collector)
 {
   Physics_WorldId m_worldId; 
-  unsigned int v14; 
-  __int64 v15; 
+  unsigned int v8; 
+  __int64 v9; 
+  hknpShapeCastQuery *ModifierShapecastQuery; 
+  __m128 m_quad; 
+  __m128 v12; 
+  __m128 v13; 
   const hkQuaternionf *ModifierShapecastRotation; 
-  Physics_WorldId v26; 
+  Physics_WorldId v15; 
   unsigned int NumRigidBodys; 
-  unsigned __int64 v30; 
-  unsigned int v31; 
+  unsigned __int64 v18; 
+  unsigned int v19; 
   unsigned int m_serialAndIndex; 
-  const hknpShape *m_shape; 
+  __int64 v21; 
+  const hknpShape *v22; 
+  __int128 v28; 
+  __m128 v30; 
+  __int128 v33; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v63; 
+  hkMonitorStream *v44; 
   hknpShapeQueryInfo *targetShapeInfo; 
-  hknpCollisionQueryCollector *v84; 
-  unsigned int v86; 
+  hknpCollisionQueryCollector *v54; 
+  unsigned int v56; 
   hknpBodyId result; 
   hknpWorld *World; 
-  hknpCollisionQueryCollector *v89; 
+  hknpCollisionQueryCollector *v59; 
   hknpShapeQueryInfo queryShapeInfoIn; 
-  char v91[64]; 
-  char v98; 
+  char v61[64]; 
 
-  __asm
-  {
-    vmovaps [rsp+1A8h+var_78], xmm9
-    vmovaps [rsp+1A8h+var_88], xmm10
-    vmovaps [rsp+1A8h+var_98], xmm11
-  }
   m_worldId = this->m_worldId;
-  v14 = instanceId;
-  v89 = chc;
+  v8 = instanceId;
+  v59 = chc;
   World = HavokPhysics_GetWorld(m_worldId);
-  v15 = (__int64)World;
+  v9 = (__int64)World;
   if ( !World && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 205, ASSERT_TYPE_ASSERT, "( world )", (const char *)&queryFormat, "world") )
     __debugbreak();
-  _RSI = HavokPhysicsHitCollector::GetModifierShapecastQuery((HavokPhysicsHitCollector *)collector);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 208, ASSERT_TYPE_ASSERT, "(query)", (const char *)&queryFormat, "query") )
+  ModifierShapecastQuery = HavokPhysicsHitCollector::GetModifierShapecastQuery((HavokPhysicsHitCollector *)collector);
+  if ( !ModifierShapecastQuery && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 208, ASSERT_TYPE_ASSERT, "(query)", (const char *)&queryFormat, "query") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rsi+40h]
-    vmovups xmm10, xmmword ptr [rsi+30h]
-    vshufps xmm0, xmm1, xmm1, 0FFh
-    vmulps  xmm1, xmm0, xmm1
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rsp+1A8h+var_E8], ymm0
-    vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-    vmovups ymmword ptr [rsp+1A8h+var_E8+20h], ymm0
-    vaddps  xmm11, xmm1, xmm10
-  }
+  m_quad = ModifierShapecastQuery->m_ray.m_origin.m_quad;
+  v12 = _mm128_mul_ps(_mm_shuffle_ps(ModifierShapecastQuery->m_ray.m_direction.m_quad, ModifierShapecastQuery->m_ray.m_direction.m_quad, 255), ModifierShapecastQuery->m_ray.m_direction.m_quad);
+  *(__m256i *)v61 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+  *(__m256i *)&v61[32] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+  v13 = _mm128_add_ps(v12, m_quad);
   ModifierShapecastRotation = HavokPhysicsHitCollector::GetModifierShapecastRotation((HavokPhysicsHitCollector *)collector);
-  hkRotationImpl<float>::set((hkRotationImpl<float> *)v91, ModifierShapecastRotation);
-  __asm { vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000 }
-  v26 = this->m_worldId;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+1A8h+queryShapeInfoIn.m_scalingInternals.m_scale.m_quad], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+1A8h+queryShapeInfoIn.m_scalingInternals.m_convexRadius], xmm0
-    vmovups xmmword ptr [rsp+1A8h+var_E8+30h], xmm10
-  }
+  hkRotationImpl<float>::set((hkRotationImpl<float> *)v61, ModifierShapecastRotation);
+  v15 = this->m_worldId;
+  queryShapeInfoIn.m_scalingInternals.m_scale = (hkVector4f)_xmm;
+  queryShapeInfoIn.m_scalingInternals.m_convexRadius = 0.0;
+  *(__m128 *)&v61[48] = m_quad;
   queryShapeInfoIn.m_shapeKeyPath.m_key.m_value = -1;
   queryShapeInfoIn.m_shapeKeyPath.m_size = 0;
   queryShapeInfoIn.m_body = NULL;
@@ -1116,132 +962,119 @@ void HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsShape
   queryShapeInfoIn.m_shapeKeyMask = NULL;
   queryShapeInfoIn.m_scalingInternals.m_isScaled = 0;
   queryShapeInfoIn.m_scalingInternals.m_mode = 0;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vmovups xmmword ptr [rsp+1A8h+queryShapeInfoIn.m_scalingInternals.m_offset.m_quad], xmm9
-  }
-  queryShapeInfoIn.m_rootShape = _RSI->m_shape;
-  queryShapeInfoIn.m_shapeToWorld = (const hkTransformf *)v91;
-  NumRigidBodys = Physics_GetNumRigidBodys(v26, v14);
+  _XMM9 = 0i64;
+  queryShapeInfoIn.m_scalingInternals.m_offset = 0i64;
+  queryShapeInfoIn.m_rootShape = ModifierShapecastQuery->m_shape;
+  queryShapeInfoIn.m_shapeToWorld = (const hkTransformf *)v61;
+  NumRigidBodys = Physics_GetNumRigidBodys(v15, v8);
   if ( NumRigidBodys == 1 )
-    v86 = 1;
+    v56 = 1;
   else
-    v86 = NumRigidBodys - 1;
-  __asm { vmovaps [rsp+1A8h+var_48], xmm6 }
-  v30 = 0i64;
-  __asm { vmovaps [rsp+1A8h+var_58], xmm7 }
-  v31 = 0;
-  __asm { vmovaps [rsp+1A8h+var_68], xmm8 }
+    v56 = NumRigidBodys - 1;
+  v18 = 0i64;
+  v19 = 0;
   do
   {
     if ( !partBits )
       goto LABEL_16;
-    if ( v31 >= 0x100 )
+    if ( v19 >= 0x100 )
     {
-      LODWORD(v84) = 256;
-      LODWORD(targetShapeInfo) = v31;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", targetShapeInfo, v84) )
+      LODWORD(v54) = 256;
+      LODWORD(targetShapeInfo) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", targetShapeInfo, v54) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> (v31 & 0x1F)) & partBits->array[v30 >> 5]) != 0 )
+    if ( ((0x80000000 >> (v19 & 0x1F)) & partBits->array[v18 >> 5]) != 0 )
     {
 LABEL_16:
-      HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)this->m_worldId, v14, v31);
+      HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)this->m_worldId, v8, v19);
       m_serialAndIndex = result.m_serialAndIndex;
       if ( (result.m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsdetailtracemodifier.cpp", 237, ASSERT_TYPE_ASSERT, "( bodyId.isValid() )", (const char *)&queryFormat, "bodyId.isValid()") )
         __debugbreak();
-      _RBX = (const hknpBody *)(*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)(v15 + 32) + 104i64))(v15 + 32, m_serialAndIndex);
-      m_shape = _RBX->m_shape;
-      if ( _RSI->m_filter->isCollisionEnabled((hknpCollisionFilter *)_RSI->m_filter, RAY_CAST, &_RSI->m_filterData, _RBX) )
+      v21 = (*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)(v9 + 32) + 104i64))(v9 + 32, m_serialAndIndex);
+      v22 = *(const hknpShape **)(v21 + 96);
+      if ( ModifierShapecastQuery->m_filter->isCollisionEnabled((hknpCollisionFilter *)ModifierShapecastQuery->m_filter, RAY_CAST, &ModifierShapecastQuery->m_filterData, (const hknpBody *)v21) )
       {
+        _mm128_sub_ps(m_quad, *(__m128 *)(v21 + 48));
+        _XMM4 = *(_OWORD *)v21;
+        _XMM6 = *(_OWORD *)(v21 + 16);
+        _XMM7 = *(_OWORD *)(v21 + 32);
         __asm
         {
-          vsubps  xmm3, xmm10, xmmword ptr [rbx+30h]
-          vmovups xmm4, xmmword ptr [rbx]
-          vmovups xmm6, xmmword ptr [rbx+10h]
-          vmovups xmm7, xmmword ptr [rbx+20h]
           vdpps   xmm1, xmm4, xmm3, 71h ; 'q'
           vdpps   xmm0, xmm6, xmm3, 72h ; 'r'
-          vorps   xmm2, xmm1, xmm0
-          vdpps   xmm1, xmm7, xmm3, 74h ; 't'
-          vsubps  xmm3, xmm11, xmmword ptr [rbx+30h]
-          vorps   xmm8, xmm2, xmm1
+        }
+        v28 = _XMM1 | _XMM0;
+        __asm { vdpps   xmm1, xmm7, xmm3, 74h ; 't' }
+        _mm128_sub_ps(v13, *(__m128 *)(v21 + 48));
+        v30 = (__m128)(v28 | _XMM1);
+        __asm
+        {
           vdpps   xmm1, xmm4, xmm3, 71h ; 'q'
           vdpps   xmm0, xmm6, xmm3, 72h ; 'r'
-          vorps   xmm2, xmm1, xmm0
-          vdpps   xmm1, xmm7, xmm3, 74h ; 't'
-          vorps   xmm2, xmm2, xmm1
-          vsubps  xmm0, xmm2, xmm8
-          vblendps xmm3, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h, 8; __m128 const near * const g_vectorfConstants
-          vmovups xmm0, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-          vmovups xmmword ptr [rsi+30h], xmm8
+        }
+        v33 = _XMM1 | _XMM0;
+        __asm { vdpps   xmm1, xmm7, xmm3, 74h ; 't' }
+        _XMM0 = _mm128_sub_ps((__m128)(v33 | _XMM1), v30);
+        __asm { vblendps xmm3, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h, 8; __m128 const near * const g_vectorfConstants }
+        ModifierShapecastQuery->m_ray.m_origin.m_quad = v30;
+        __asm
+        {
           vcmpeqps xmm1, xmm9, xmm3
           vandnps xmm4, xmm1, xmm3
-          vmovups xmmword ptr [rsi+40h], xmm4
-          vrcpps  xmm2, xmm4
-          vmulps  xmm1, xmm2, xmm4
-          vsubps  xmm1, xmm0, xmm1
-          vmulps  xmm3, xmm1, xmm2
-          vmovups xmm1, cs:__xmm@7f7fffee7f7fffee7f7fffee7f7fffee
+        }
+        ModifierShapecastQuery->m_ray.m_direction.m_quad = _XMM4;
+        __asm { vrcpps  xmm2, xmm4 }
+        _XMM3 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM2, _XMM4)), _XMM2);
+        __asm
+        {
           vcmpeqps xmm0, xmm9, xmm4
           vblendvps xmm1, xmm3, xmm1, xmm0
-          vmovups xmmword ptr [rsi+50h], xmm1
         }
-        this->m_targetShapeInfo.m_body = _RBX;
-        this->m_targetShapeInfo.m_rootShape = _RBX->m_shape;
+        ModifierShapecastQuery->m_ray.m_invDirection = (hkVector4f)_XMM1.m_quad;
+        this->m_targetShapeInfo.m_body = (const hknpBody *)v21;
+        this->m_targetShapeInfo.m_rootShape = *(const hknpShape **)(v21 + 96);
         this->m_targetShapeInfo.m_parentShape = NULL;
         this->m_targetShapeInfo.m_shapeKeyPath.m_key.m_value = -1;
         this->m_targetShapeInfo.m_shapeKeyPath.m_size = 0;
-        this->m_targetShapeInfo.m_shapeToWorld = &_RBX->m_transform;
+        this->m_targetShapeInfo.m_shapeToWorld = (const hkTransformf *)v21;
         this->m_targetShapeInfo.m_shapeKeyMask = NULL;
-        this->m_targetShapeFilterData.m_materialId.m_value = _RBX->m_materialId.m_value;
-        this->m_targetShapeFilterData.m_collisionFilterInfo = _RBX->m_collisionFilterInfo;
-        this->m_targetShapeFilterData.m_userData = _RBX->m_userData;
-        s_shapeTagCodec->overrideInitialFilterData(s_shapeTagCodec, SHAPE_CAST, _RBX, m_shape, &this->m_targetShapeFilterData);
+        this->m_targetShapeFilterData.m_materialId.m_value = *(_WORD *)(v21 + 106);
+        this->m_targetShapeFilterData.m_collisionFilterInfo = *(_DWORD *)(v21 + 108);
+        this->m_targetShapeFilterData.m_userData = *(_QWORD *)(v21 + 160);
+        s_shapeTagCodec->overrideInitialFilterData(s_shapeTagCodec, SHAPE_CAST, (const hknpBody *)v21, v22, &this->m_targetShapeFilterData);
         Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
         if ( Value )
           hkMonitorStream::timerBegin(Value, "TtShapecast_Body_Detail_HK");
-        hknpShapeQueryInterface::castShape(&this->m_queryContext, _RSI, &queryShapeInfoIn, m_shape, &this->m_targetShapeFilterData, &this->m_targetShapeInfo, v89, NULL);
-        v63 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-        if ( v63 )
-          hkMonitorStream::timerEnd(v63, "Et");
-        v15 = (__int64)World;
+        hknpShapeQueryInterface::castShape(&this->m_queryContext, ModifierShapecastQuery, &queryShapeInfoIn, v22, &this->m_targetShapeFilterData, &this->m_targetShapeInfo, v59, NULL);
+        v44 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
+        if ( v44 )
+          hkMonitorStream::timerEnd(v44, "Et");
+        v9 = (__int64)World;
       }
-      v14 = instanceId;
+      v8 = instanceId;
     }
-    ++v31;
-    ++v30;
+    ++v19;
+    ++v18;
   }
-  while ( v31 < v86 );
+  while ( v19 < v56 );
+  _XMM0 = _mm128_sub_ps(v13, m_quad);
   __asm
   {
-    vmovaps xmm8, [rsp+1A8h+var_68]
-    vmovaps xmm7, [rsp+1A8h+var_58]
-    vmovaps xmm6, [rsp+1A8h+var_48]
-    vsubps  xmm0, xmm11, xmm10
     vblendps xmm2, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h, 8; __m128 const near * const g_vectorfConstants
-    vmovups xmm0, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
     vcmpeqps xmm1, xmm9, xmm2
     vandnps xmm4, xmm1, xmm2
     vrcpps  xmm2, xmm4
-    vmulps  xmm1, xmm2, xmm4
-    vsubps  xmm1, xmm0, xmm1
-    vmulps  xmm3, xmm1, xmm2
-    vmovups xmm1, cs:__xmm@7f7fffee7f7fffee7f7fffee7f7fffee
-    vcmpeqps xmm0, xmm9, xmm4
-    vblendvps xmm1, xmm3, xmm1, xmm0
-    vmovups xmmword ptr [rsi+50h], xmm1
-    vmovups xmmword ptr [rsi+40h], xmm4
-    vmovups xmmword ptr [rsi+30h], xmm10
   }
-  _R11 = &v98;
+  _XMM3 = _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM2, _XMM4)), _XMM2);
   __asm
   {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    vcmpeqps xmm0, xmm9, xmm4
+    vblendvps xmm1, xmm3, xmm1, xmm0
   }
+  ModifierShapecastQuery->m_ray.m_invDirection = (hkVector4f)_XMM1.m_quad;
+  ModifierShapecastQuery->m_ray.m_direction.m_quad = _XMM4;
+  ModifierShapecastQuery->m_ray.m_origin.m_quad = m_quad;
 }
 
 /*
@@ -1251,32 +1084,26 @@ HavokPhysicsHitCollector_DetailTraceModifier::ServerModifyHitForShield
 */
 _BOOL8 HavokPhysicsHitCollector_DetailTraceModifier::ServerModifyHitForShield(const DObj *obj, const XModel *model, void *args)
 {
+  gentity_s *v4; 
+  G_PhysicsObject *v5; 
+  float v6; 
   unsigned int updated; 
-  bool v23; 
+  bool v8; 
   DObjPartBits *partBits[2]; 
   vec4_t quat; 
   hknpClosestHitCollector chc; 
 
   partBits[1] = (DObjPartBits *)-2i64;
-  _RDI = SV_GentityNum(*((_DWORD *)args + 4));
-  _RBX = G_PhysicsObject_Get(_RDI);
+  v4 = SV_GentityNum(*((_DWORD *)args + 4));
+  v5 = G_PhysicsObject_Get(v4);
   Physics_LockWorld(PHYSICS_WORLD_ID_SERVER_DETAIL);
   chc.m_hints.m_storage = 0;
   chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpClosestHitCollector::`vftable';
-  __asm { vxorps  xmm1, xmm1, xmm1 }
   chc.m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbp+57h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-  }
+  chc.m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   chc.m_earlyOut.m_bool = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+57h+chc.m_hit.m_position.m_quad], ymm1
-    vmovss  xmm0, cs:__real@7f7fffee
-    vmovss  [rbp+57h+chc.m_hit.m_fraction], xmm0
-  }
+  *(__m256i *)chc.m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
+  chc.m_hit.m_fraction = FLOAT_3_40282e38;
   chc.m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&chc.m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
   chc.m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = -1;
@@ -1286,51 +1113,29 @@ _BOOL8 HavokPhysicsHitCollector_DetailTraceModifier::ServerModifyHitForShield(co
   *(_QWORD *)&chc.m_hit.m_hitBodyInfo.m_shapeKey.m_value = -1i64;
   chc.m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = -1;
   memset(&chc.m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo, 0, 20);
-  _RAX = HavokPhysicsHitCollector::GetCollector(*((HavokPhysicsHitCollector **)args + 1));
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbp+57h+chc.baseclass_0.m_earlyOutThreshold.m_real], xmm0
-  }
-  AnglesToQuat(&_RDI->r.currentAngles, &quat);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\g_physicsobject.inl", 14, ASSERT_TYPE_ASSERT, "(physicsObject)", (const char *)&queryFormat, "physicsObject") )
+  chc.m_earlyOutThreshold = HavokPhysicsHitCollector::GetCollector(*((HavokPhysicsHitCollector **)args + 1))->m_earlyOutThreshold;
+  AnglesToQuat(&v4->r.currentAngles, &quat);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\g_physicsobject.inl", 14, ASSERT_TYPE_ASSERT, "(physicsObject)", (const char *)&queryFormat, "physicsObject") )
     __debugbreak();
-  _RBX->detailCache.position.v[0] = _RDI->r.currentOrigin.v[0];
-  __asm
+  v5->detailCache.position.v[0] = v4->r.currentOrigin.v[0];
+  v5->detailCache.position.v[1] = v4->r.currentOrigin.v[1];
+  v5->detailCache.position.v[2] = v4->r.currentOrigin.v[2];
+  if ( ((v4->r.modelType - 1) & 0xFD) != 0 )
   {
-    vmovss  xmm0, dword ptr [rdi+134h]
-    vmovss  dword ptr [rbx+8Ch], xmm0
-    vmovss  xmm1, dword ptr [rdi+138h]
-    vmovss  dword ptr [rbx+90h], xmm1
-  }
-  if ( ((_RDI->r.modelType - 1) & 0xFD) != 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+quat]
-      vmovss  dword ptr [rbx+94h], xmm0
-      vmovss  xmm1, dword ptr [rbp+57h+quat+4]
-      vmovss  dword ptr [rbx+98h], xmm1
-      vmovss  xmm0, dword ptr [rbp+57h+quat+8]
-      vmovss  dword ptr [rbx+9Ch], xmm0
-      vmovss  xmm1, dword ptr [rbp+57h+quat+0Ch]
-    }
+    v5->detailCache.orientationAsQuat.v[0] = quat.v[0];
+    v5->detailCache.orientationAsQuat.v[1] = quat.v[1];
+    v5->detailCache.orientationAsQuat.v[2] = quat.v[2];
+    v6 = quat.v[3];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+94h], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+98h], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+9Ch], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-    }
+    v5->detailCache.orientationAsQuat.v[0] = quat_identity.v[0];
+    v5->detailCache.orientationAsQuat.v[1] = quat_identity.v[1];
+    v5->detailCache.orientationAsQuat.v[2] = quat_identity.v[2];
+    v6 = quat_identity.v[3];
   }
-  __asm { vmovss  dword ptr [rbx+0A0h], xmm1 }
-  _RBX->detailCache.cached = 0;
+  v5->detailCache.orientationAsQuat.v[3] = v6;
+  v5->detailCache.cached = 0;
   if ( G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_SERVER_DETAIL, *((_DWORD *)args + 4)) != -1 )
   {
     partBits[0] = NULL;
@@ -1338,9 +1143,9 @@ _BOOL8 HavokPhysicsHitCollector_DetailTraceModifier::ServerModifyHitForShield(co
     HavokPhysicsHitCollector_DetailTraceModifier::ModifyHitForDetailBoundsRay(*(HavokPhysicsHitCollector_DetailTraceModifier **)args, &chc, updated, partBits[0], *((const HavokPhysicsHitCollector **)args + 1), 0x2181u);
   }
   Physics_UnlockWorld(PHYSICS_WORLD_ID_SERVER_DETAIL);
-  v23 = chc.m_numHits != 0;
+  v8 = chc.m_numHits != 0;
   chc.__vftable = (hknpClosestHitCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   hkBaseObject::~hkBaseObject(&chc);
-  return v23;
+  return v8;
 }
 

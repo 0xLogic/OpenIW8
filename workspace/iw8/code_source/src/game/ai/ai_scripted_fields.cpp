@@ -90,71 +90,37 @@ AIScriptedScr_Clamp_0_1
 */
 void AIScriptedScr_Clamp_0_1(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  char v9; 
-  char v11; 
-  const char *v13; 
-  const char *v16; 
-  const char *v20; 
-  const char *v23; 
+  double Float; 
+  const char *v7; 
+  const char *v8; 
+  const char *v9; 
+  const char *v10; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
-  _RDI = pSelf;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 51, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 55, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 1.0 )
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm0, xmm7
-  }
-  if ( v9 | v11 )
-  {
-    __asm
+    if ( *(float *)&Float >= 0.0 )
     {
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm0, xmm7
-    }
-    if ( v9 )
-    {
-      __asm { vcvtss2sd xmm6, xmm0, xmm0 }
-      v20 = SL_ConvertToString(*pField->name);
-      __asm
-      {
-        vmovaps xmm2, xmm6
-        vmovq   r8, xmm2
-      }
-      v23 = j_va("AI field %s clamped from %g to 0\n", v20, _R8);
-      Scr_Error(COM_ERR_2936, scrContext, v23);
-      _RAX = pField->ofs;
-      __asm { vmovss  dword ptr [rdi+rax], xmm7 }
+      *(float *)((char *)&pSelf->ent + pField->ofs) = *(float *)&Float;
     }
     else
     {
-      _RAX = pField->ofs;
-      __asm { vmovss  dword ptr [rdi+rax], xmm0 }
+      v9 = SL_ConvertToString(*pField->name);
+      v10 = j_va("AI field %s clamped from %g to 0\n", v9, *(float *)&Float);
+      Scr_Error(COM_ERR_2936, scrContext, v10);
+      *(float *)((char *)&pSelf->ent + pField->ofs) = 0;
     }
   }
   else
   {
-    __asm { vcvtss2sd xmm6, xmm0, xmm0 }
-    v13 = SL_ConvertToString(*pField->name);
-    __asm
-    {
-      vmovaps xmm2, xmm6
-      vmovq   r8, xmm2
-    }
-    v16 = j_va("AI field %s clamped from %g to 1\n", v13, _R8);
-    Scr_Error(COM_ERR_2935, scrContext, v16);
-    _RAX = pField->ofs;
-    __asm { vmovss  dword ptr [rdi+rax], xmm7 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
+    v7 = SL_ConvertToString(*pField->name);
+    v8 = j_va("AI field %s clamped from %g to 1\n", v7, *(float *)&Float);
+    Scr_Error(COM_ERR_2935, scrContext, v8);
+    *(const float *)((char *)&pSelf->ent + pField->ofs) = FLOAT_1_0;
   }
 }
 
@@ -165,50 +131,26 @@ AIScriptedScr_Clamp_0_Positive
 */
 void AIScriptedScr_Clamp_0_Positive(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  char v10; 
-  const char *v12; 
-  const char *v15; 
+  double Float; 
+  const char *v7; 
+  const char *v8; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm7 }
-  _RDI = pSelf;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 81, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 85, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float >= 0.0 )
   {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vcvtss2sd xmm6, xmm0, xmm0
-    }
-    v12 = SL_ConvertToString(*pField->name);
-    __asm
-    {
-      vmovaps xmm2, xmm6
-      vmovq   r8, xmm2
-    }
-    v15 = j_va("AI field %s clamped from %g to 0\n", v12, _R8);
-    Scr_Error(COM_ERR_2937, scrContext, v15);
-    _RAX = pField->ofs;
-    __asm
-    {
-      vmovaps xmm6, [rsp+58h+var_18]
-      vmovss  dword ptr [rdi+rax], xmm7
-    }
+    *(float *)((char *)&pSelf->ent + pField->ofs) = *(float *)&Float;
   }
   else
   {
-    _RAX = pField->ofs;
-    __asm { vmovss  dword ptr [rdi+rax], xmm0 }
+    v7 = SL_ConvertToString(*pField->name);
+    v8 = j_va("AI field %s clamped from %g to 0\n", v7, *(float *)&Float);
+    Scr_Error(COM_ERR_2937, scrContext, v8);
+    *(float *)((char *)&pSelf->ent + pField->ofs) = 0;
   }
-  __asm { vmovaps xmm7, [rsp+58h+var_28] }
 }
 
 /*
@@ -218,45 +160,23 @@ AIScriptedScr_Clamp_Non0_Positive
 */
 void AIScriptedScr_Clamp_Non0_Positive(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  char v10; 
-  char v11; 
-  const char *v13; 
-  const char *v16; 
+  double Float; 
+  const char *v7; 
+  const char *v8; 
 
-  _RDI = pSelf;
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 105, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 109, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
+    v7 = SL_ConvertToString(*pField->name);
+    v8 = j_va("AI field %s must be > 0, value: %g\n", v7, *(float *)&Float);
+    Scr_Error(COM_ERR_5866, scrContext, v8);
+    *(float *)&Float = FLOAT_1_1920929eN7;
   }
-  if ( v10 | v11 )
-  {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vcvtss2sd xmm6, xmm0, xmm0
-    }
-    v13 = SL_ConvertToString(*pField->name);
-    __asm
-    {
-      vmovaps xmm2, xmm6
-      vmovq   r8, xmm2
-    }
-    v16 = j_va("AI field %s must be > 0, value: %g\n", v13, _R8);
-    Scr_Error(COM_ERR_5866, scrContext, v16);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@34000000
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  _RAX = pField->ofs;
-  __asm { vmovss  dword ptr [rdi+rax], xmm0 }
+  *(float *)((char *)&pSelf->ent + pField->ofs) = *(float *)&Float;
 }
 
 /*
@@ -453,26 +373,14 @@ AIScriptedScr_SetGoalRadius
 */
 void AIScriptedScr_SetGoalRadius(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  char v10; 
+  double Float; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 260, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v10 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float < 0.0 )
     Scr_ParamError(COM_ERR_2943, scrContext, 0, "radius must be >= 0");
-  __asm
-  {
-    vmovaps xmm1, xmm6; radius
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  AICommonInterface::SetGoalRadius(&pSelf->scriptGoal, *(float *)&_XMM1);
+  AICommonInterface::SetGoalRadius(&pSelf->scriptGoal, *(float *)&Float);
 }
 
 /*
@@ -483,19 +391,19 @@ AIScriptedScr_SetGoalHeight
 void AIScriptedScr_SetGoalHeight(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
   AIScriptedInterface *m_pAI; 
-  bool v7; 
-  AIWrapper v9; 
+  bool v6; 
+  double Float; 
+  AIWrapper v8; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 277, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  AIWrapper::AIWrapper(&v9, pSelf);
-  m_pAI = v9.m_pAI;
-  if ( !v9.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 278, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v8, pSelf);
+  m_pAI = v8.m_pAI;
+  if ( !v8.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 278, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v7 = !AICommonInterface::Use3DPathing(m_pAI);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm1, xmm0; height }
-  AICommonInterface::SetGoalHeight(&pSelf->scriptGoal, *(float *)&_XMM1, v7);
+  v6 = !AICommonInterface::Use3DPathing(m_pAI);
+  Float = Scr_GetFloat(scrContext, 0);
+  AICommonInterface::SetGoalHeight(&pSelf->scriptGoal, *(float *)&Float, v6);
 }
 
 /*
@@ -612,21 +520,17 @@ AIScriptedScr_GetLookaheadDist
 void AIScriptedScr_GetLookaheadDist(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
   AINavigator *pNavigator; 
+  float v6; 
+  double DistToNextCorner; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   pNavigator = pSelf->pNavigator;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v6 = 0.0;
   if ( pNavigator && Nav_HasPath(pNavigator) )
   {
-    *(double *)&_XMM0 = Nav_GetDistToNextCorner(pSelf->pNavigator);
-    __asm { vmovaps xmm6, xmm0 }
+    DistToNextCorner = Nav_GetDistToNextCorner(pSelf->pNavigator);
+    v6 = *(float *)&DistToNextCorner;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v6);
 }
 
 /*
@@ -642,18 +546,10 @@ void AIScriptedScr_SetTime(scrContext_t *scrContext, ai_scripted_t *pSelf, const
     __debugbreak();
   if ( pField->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 403, ASSERT_TYPE_ASSERT, "(pField->type == F_INT)", (const char *)&queryFormat, "pField->type == F_INT") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm4, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm4, 1
-    vcvttss2si ecx, xmm1
-  }
-  *(_DWORD *)((char *)&pSelf->ent + pField->ofs) = _ECX;
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+  *(_DWORD *)((char *)&pSelf->ent + pField->ofs) = (int)*(float *)&_XMM1;
 }
 
 /*
@@ -667,13 +563,7 @@ void AIScriptedScr_GetTime(scrContext_t *scrContext, ai_scripted_t *pSelf, const
     __debugbreak();
   if ( pField->type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 417, ASSERT_TYPE_ASSERT, "(pField->type == F_INT)", (const char *)&queryFormat, "pField->type == F_INT") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)*(int *)((char *)&pSelf->ent + pField->ofs) * 0.001);
 }
 
 /*
@@ -683,20 +573,16 @@ AIScriptedScr_SetSqr
 */
 void AIScriptedScr_SetSqr(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  _RDI = pSelf;
+  double Float; 
+
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 428, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 432, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
   if ( pField->type != F_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 433, ASSERT_TYPE_ASSERT, "(pField->type == F_FLOAT)", (const char *)&queryFormat, "pField->type == F_FLOAT") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  _RAX = pField->ofs;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  dword ptr [rdi+rax], xmm1
-  }
+  Float = Scr_GetFloat(scrContext, 0);
+  *(float *)((char *)&pSelf->ent + pField->ofs) = *(float *)&Float * *(float *)&Float;
 }
 
 /*
@@ -706,18 +592,11 @@ AIScriptedScr_GetSqrt
 */
 void AIScriptedScr_GetSqrt(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  _RDI = pSelf;
   if ( !pField && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 447, ASSERT_TYPE_ASSERT, "(pField)", (const char *)&queryFormat, "pField") )
     __debugbreak();
   if ( pField->type != F_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_scripted_fields.cpp", 448, ASSERT_TYPE_ASSERT, "(pField->type == F_FLOAT)", (const char *)&queryFormat, "pField->type == F_FLOAT") )
     __debugbreak();
-  _RAX = pField->ofs;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+rdi]
-    vsqrtss xmm1, xmm1, xmm1; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, fsqrt(*(float *)((char *)&pSelf->ent + pField->ofs)));
 }
 
 /*
@@ -1580,16 +1459,17 @@ AIScriptedScr_SetDesiredTurnYaw
 */
 void AIScriptedScr_SetDesiredTurnYaw(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
-  _RBX = pSelf;
+  double Float; 
+
   if ( Scr_GetType(scrContext, 0) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovss  dword ptr [rbx+0C14h], xmm0 }
-    _RBX->bDesiredTurnYawValid = 1;
+    Float = Scr_GetFloat(scrContext, 0);
+    pSelf->desiredTurnYaw = *(float *)&Float;
+    pSelf->bDesiredTurnYawValid = 1;
   }
   else
   {
-    _RBX->bDesiredTurnYawValid = 0;
+    pSelf->bDesiredTurnYawValid = 0;
   }
 }
 
@@ -1601,10 +1481,7 @@ AIScriptedScr_GetDesiredTurnYaw
 void AIScriptedScr_GetDesiredTurnYaw(scrContext_t *scrContext, ai_scripted_t *pSelf, const ai_scripted_fields_s *pField)
 {
   if ( pSelf->bDesiredTurnYawValid )
-  {
-    __asm { vmovss  xmm1, dword ptr [rdx+0C14h]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
-  }
+    Scr_AddFloat(scrContext, pSelf->desiredTurnYaw);
 }
 
 /*
@@ -1663,12 +1540,15 @@ char Cmd_AIScripted_f(const char *szField, int argc)
   char v12; 
   int v13; 
   __int64 v14; 
+  bitarray<224> *v15; 
   actor_s *j; 
   actor_s *actor; 
+  bitarray<224> *v18; 
   GUtils *Utils; 
-  unsigned int v24; 
-  unsigned __int64 v25; 
-  __int64 v26; 
+  unsigned int v20; 
+  unsigned __int64 v21; 
+  __int64 v22; 
+  bitarray<224> *AllTeamFlags; 
   actor_s *i; 
   scr_string_t to; 
   bitarray<224> iTeamFlags; 
@@ -1709,37 +1589,30 @@ char Cmd_AIScripted_f(const char *szField, int argc)
     if ( I_stricmp(p_buffer, "all") )
     {
       Utils = GUtils::GetUtils();
-      v24 = Utils->GetTeamFromDebugString(Utils, p_buffer);
-      v25 = v24;
-      if ( v24 )
+      v20 = Utils->GetTeamFromDebugString(Utils, p_buffer);
+      v21 = v20;
+      if ( v20 )
       {
         memset(&iTeamFlags, 0, sizeof(iTeamFlags));
-        if ( v24 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v24, 224) )
+        if ( v20 >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v20, 224) )
           __debugbreak();
-        iTeamFlags.array[v25 >> 5] |= 0x80000000 >> (v25 & 0x1F);
+        iTeamFlags.array[v21 >> 5] |= 0x80000000 >> (v21 & 0x1F);
         Cmd_AI_Team(argc, ai_scripted_fields, v9, &iTeamFlags, v13);
       }
       else
       {
-        v26 = 404i64;
+        v22 = 404i64;
         if ( IsActorClassname(p_buffer) )
-          v26 = 380i64;
+          v22 = 380i64;
         to = SL_GetString(p_buffer, 0);
         if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-          _RAX = Com_TeamsSP_GetAllTeamFlags();
+          AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
         else
-          _RAX = Com_TeamsMP_GetAllTeamFlags();
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+1B0h+iTeamFlags.array], xmm0
-          vmovsd  xmm1, qword ptr [rax+10h]
-          vmovsd  qword ptr [rsp+1B0h+iTeamFlags.array+10h], xmm1
-        }
-        iTeamFlags.array[6] = _RAX->array[6];
+          AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+        iTeamFlags = *AllTeamFlags;
         for ( i = AIActorInterface::FirstActor(&iTeamFlags); i; i = AIActorInterface::NextActor(i, &iTeamFlags) )
         {
-          if ( (*(_DWORD *)((char *)&i->ent->s.number + v26) == to) == (v10 != 33) )
+          if ( (*(_DWORD *)((char *)&i->ent->s.number + v22) == to) == (v10 != 33) )
             Cmd_AI_Dispatch(argc, i, ai_scripted_fields, v9);
         }
         Scr_SetString(&to, (scr_string_t)0);
@@ -1748,17 +1621,10 @@ char Cmd_AIScripted_f(const char *szField, int argc)
     else
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        v18 = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+1B0h+iTeamFlags.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rsp+1B0h+iTeamFlags.array+10h], xmm1
-      }
-      iTeamFlags.array[6] = _RAX->array[6];
+        v18 = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      iTeamFlags = *v18;
       Cmd_AI_Team(argc, ai_scripted_fields, v9, &iTeamFlags, v13);
     }
   }
@@ -1768,17 +1634,10 @@ char Cmd_AIScripted_f(const char *szField, int argc)
     if ( v10 == 33 )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllTeamFlags();
+        v15 = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+1B0h+iTeamFlags.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rsp+1B0h+iTeamFlags.array+10h], xmm1
-      }
-      iTeamFlags.array[6] = _RAX->array[6];
+        v15 = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      iTeamFlags = *v15;
       for ( j = AIActorInterface::FirstActor(&iTeamFlags); j; j = AIActorInterface::NextActor(j, &iTeamFlags) )
       {
         if ( j->ent->s.number != (_DWORD)v14 )

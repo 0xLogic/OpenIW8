@@ -124,22 +124,80 @@ void __fastcall BgBallistics<GBallisticInstance>::FreeBalisticInstance(BgBallist
 BgBallistics<CgBallisticInstance>::CompactStorage
 ==============
 */
-
-void __fastcall BgBallistics<CgBallisticInstance>::CompactStorage(BgBallistics<CgBallisticInstance> *this, double _XMM1_8)
+void BgBallistics<CgBallisticInstance>::CompactStorage(BgBallistics<CgBallisticInstance> *this)
 {
+  int m_numTouchedSlots; 
+  CgBallisticInstance *m_ballisticInstances; 
+  CgBallisticInstance *v4; 
+  CgBallisticInstance *v5; 
+  CgBallisticInstance *v6; 
+  CgBallisticInstance *v7; 
+  CgBallisticInstance *v8; 
+  __int64 v9; 
+  __int128 v10; 
+
   if ( this->m_numTouchedSlots < this->m_numSlotsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 283, ASSERT_TYPE_ASSERT, "(m_numTouchedSlots >= m_numSlotsActive)", (const char *)&queryFormat, "m_numTouchedSlots >= m_numSlotsActive") )
     __debugbreak();
-  if ( this->m_numTouchedSlots )
+  m_numTouchedSlots = this->m_numTouchedSlots;
+  if ( m_numTouchedSlots && (float)((float)this->m_numSlotsActive / (float)m_numTouchedSlots) < `BgBallistics<CgBallisticInstance>::CompactStorage'::`2'::IDEAL_MIN_FILL_RATE )
   {
-    __asm
+    m_ballisticInstances = this->m_ballisticInstances;
+    v4 = &this->m_ballisticInstances[m_numTouchedSlots - 1];
+    if ( v4 > this->m_ballisticInstances )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rsi+40758h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm1, xmm1, xmm0
-      vcomiss xmm1, cs:?IDEAL_MIN_FILL_RATE@?1??CompactStorage@?$BgBallistics@UCgBallisticInstance@@@@IEAAXXZ@4MA; float `BgBallistics<CgBallisticInstance>::CompactStorage(void)'::`2'::IDEAL_MIN_FILL_RATE
+      do
+      {
+        v5 = m_ballisticInstances;
+        if ( m_ballisticInstances >= v4 )
+          break;
+        while ( v5->isInUse )
+        {
+          if ( ++v5 >= v4 )
+            goto LABEL_18;
+        }
+        v6 = v4;
+        while ( 1 )
+        {
+          v4 = v6 - 1;
+          if ( v6->isInUse )
+            break;
+          --v6;
+          if ( v4 <= m_ballisticInstances )
+            goto LABEL_18;
+        }
+        v7 = v5;
+        v8 = v6;
+        v9 = 3i64;
+        do
+        {
+          v7 = (CgBallisticInstance *)((char *)v7 + 128);
+          v10 = *(_OWORD *)&v8->weapon.weaponIdx;
+          v8 = (CgBallisticInstance *)((char *)v8 + 128);
+          *(_OWORD *)&v7[-1].bulletId = v10;
+          *(_OWORD *)&v7[-1].tracerStart.y = *(_OWORD *)&v8[-1].tracerStart.y;
+          *(_OWORD *)&v7[-1].foliageSoundPos.z = *(_OWORD *)&v8[-1].foliageSoundPos.z;
+          *(_OWORD *)v7[-1].soundData.whizbyData.whizbySndInPos.v = *(_OWORD *)v8[-1].soundData.whizbyData.whizbySndInPos.v;
+          *(_OWORD *)&v7[-1].soundData.whizbyData.whizbySndOutPos.y = *(_OWORD *)&v8[-1].soundData.whizbyData.whizbySndOutPos.y;
+          *(_OWORD *)&v7[-1].soundData.whizbyData.whizbyOutAlias = *(_OWORD *)&v8[-1].soundData.whizbyData.whizbyOutAlias;
+          *(_OWORD *)&v7[-1].soundData.whizbyData.whizbyDelayMs = *(_OWORD *)&v8[-1].soundData.whizbyData.whizbyDelayMs;
+          *(_OWORD *)&v7[-1].foliageSoundSurfaceTypeId = *(_OWORD *)&v8[-1].foliageSoundSurfaceTypeId;
+          --v9;
+        }
+        while ( v9 );
+        *(_OWORD *)&v7->weapon.weaponIdx = *(_OWORD *)&v8->weapon.weaponIdx;
+        *(_OWORD *)&v7->weapon.weaponAttachments[2] = *(_OWORD *)&v8->weapon.weaponAttachments[2];
+        *(_OWORD *)&v7->weapon.attachmentVariationIndices[5] = *(_OWORD *)&v8->weapon.attachmentVariationIndices[5];
+        *(_QWORD *)&v7->weapon.attachmentVariationIndices[21] = *(_QWORD *)&v8->weapon.attachmentVariationIndices[21];
+        memset_0(v6, 0, sizeof(CgBallisticInstance));
+        this->OnCompactOperation(this, v5);
+        m_ballisticInstances = v5 + 1;
+      }
+      while ( v4 > &v5[1] );
     }
+LABEL_18:
+    this->m_firstFree = NULL;
+    this->m_lastFree = NULL;
+    this->m_numTouchedSlots = this->m_numSlotsActive;
   }
 }
 
@@ -150,164 +208,104 @@ BgBallistics<CgBallisticInstance>::SetBallisticInstanceData
 */
 void BgBallistics<CgBallisticInstance>::SetBallisticInstanceData(BgBallistics<CgBallisticInstance> *this, const Weapon *r_weapon, const bool isAlternate, const PlayerHandIndex hand, const BulletFireParams *fireParams, const vec3_t *shootingAxisRight, const vec3_t *shootingAxisUp, const int attackerEntNum, const int shootingTime, const unsigned int randSeed, CgBallisticInstance *ballisticInstance)
 {
+  __int128 v14; 
   const BallisticInfo *BallisticInfo; 
-  const BallisticInfo *v33; 
-  bool v34; 
-  bool v35; 
-  float v59; 
-  float v61; 
-  float v63; 
+  const BallisticInfo *v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float zeroingAngle; 
+  float v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
   vec3_t angles; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  char v86; 
 
-  __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
-  _RBX = ballisticInstance;
-  _R14 = shootingAxisRight;
-  _R15 = shootingAxisUp;
-  _RDI = r_weapon;
   if ( !ballisticInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 165, ASSERT_TYPE_ASSERT, "(ballisticInstance)", (const char *)&queryFormat, "ballisticInstance") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  _R8 = fireParams;
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&ballisticInstance->weapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+  *(__m256i *)&ballisticInstance->weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)&ballisticInstance->weapon.attachmentVariationIndices[5] = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&ballisticInstance->weapon.attachmentVariationIndices[21] = *(double *)&r_weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&ballisticInstance->weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
   ballisticInstance->isAlternate = isAlternate;
   ballisticInstance->hand = hand;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rbx+48h], xmm0
-    vmovups xmm1, xmmword ptr [r8+10h]
-    vmovups xmmword ptr [rbx+58h], xmm1
-    vmovups xmm0, xmmword ptr [r8+20h]
-    vmovups xmmword ptr [rbx+68h], xmm0
-    vmovups xmm1, xmmword ptr [r8+30h]
-    vmovups xmmword ptr [rbx+78h], xmm1
-    vmovups xmm0, xmmword ptr [r8+40h]
-    vmovups xmmword ptr [rbx+88h], xmm0
-    vmovups xmm1, xmmword ptr [r8+50h]
-    vmovups xmmword ptr [rbx+98h], xmm1
-    vmovups xmm0, xmmword ptr [r8+60h]
-    vmovups xmmword ptr [rbx+0A8h], xmm0
-    vmovups xmm0, xmmword ptr [r8+70h]
-    vmovups xmmword ptr [rbx+0B8h], xmm0
-    vmovups xmm1, xmmword ptr [r8+80h]
-    vmovups xmmword ptr [rbx+0C8h], xmm1
-    vmovups xmm0, xmmword ptr [r8+90h]
-  }
+  *(_OWORD *)&ballisticInstance->fireParams.weaponEntIndex = *(_OWORD *)&fireParams->weaponEntIndex;
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[3] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[3];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[7] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[7];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[11] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[11];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[15] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[15];
+  *(_OWORD *)&ballisticInstance->fireParams.penetrationMultiplier = *(_OWORD *)&fireParams->penetrationMultiplier;
+  *(_OWORD *)&ballisticInstance->fireParams.initialPos.y = *(_OWORD *)&fireParams->initialPos.y;
+  *(_OWORD *)&ballisticInstance->fireParams.start.z = *(_OWORD *)&fireParams->start.z;
+  *(_OWORD *)ballisticInstance->fireParams.dir.v = *(_OWORD *)fireParams->dir.v;
+  v14 = *(_OWORD *)&fireParams->shotCount;
   ballisticInstance->attackerEntNum = attackerEntNum;
   ballisticInstance->shootingTime = shootingTime;
   ballisticInstance->lastSimulationTime = shootingTime;
-  __asm { vmovups xmmword ptr [rbx+0D8h], xmm0 }
+  *(_OWORD *)&ballisticInstance->fireParams.shotCount = v14;
   ballisticInstance->randSeed = randSeed;
   ballisticInstance->fireParams.isBallistics = 1;
   ballisticInstance->shootingPos = fireParams->start;
-  BallisticInfo = BG_GetBallisticInfo(_RDI, isAlternate);
-  v33 = BallisticInfo;
-  if ( !BallisticInfo || !BallisticInfo->calculated || (v34 = !BallisticInfo->enableBallisticTrajectory) )
-  {
-    v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 180, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory");
-    v34 = !v35;
-    if ( v35 )
-      __debugbreak();
-  }
+  BallisticInfo = BG_GetBallisticInfo(r_weapon, isAlternate);
+  v16 = BallisticInfo;
+  if ( (!BallisticInfo || !BallisticInfo->calculated || !BallisticInfo->enableBallisticTrajectory) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 180, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory") )
+    __debugbreak();
+  v17 = LODWORD(ballisticInstance->fireParams.dir.v[0]);
+  v18 = v17;
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(ballisticInstance->fireParams.dir.v[1] * ballisticInstance->fireParams.dir.v[1])) + (float)(ballisticInstance->fireParams.dir.v[2] * ballisticInstance->fireParams.dir.v[2]));
+  _XMM4 = v18;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+0CCh]
-    vmovss  xmm5, dword ptr [rbx+0C8h]
-    vmovss  xmm3, dword ptr [rbx+0D0h]
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm6, xmm0
-    vdivss  xmm2, xmm6, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbx+0C8h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+0CCh]
-    vmovss  dword ptr [rbx+0CCh], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+0D0h]
-    vmovss  dword ptr [rbx+0D0h], xmm0
   }
+  ballisticInstance->fireParams.dir.v[0] = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+  ballisticInstance->fireParams.dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[1];
+  ballisticInstance->fireParams.dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[2];
   ballisticInstance->originalShootingdir = ballisticInstance->fireParams.dir;
-  _RAX = v33->calculated;
-  __asm
+  zeroingAngle = v16->calculated->zeroingAngle;
+  if ( COERCE_FLOAT(LODWORD(zeroingAngle) & _xmm) > 0.000001 )
   {
-    vmovss  xmm1, dword ptr [rax+8]
-    vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( !v34 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rsp+0F8h+angles+4], xmm1
-      vmovss  dword ptr [rsp+0F8h+angles+8], xmm1
-      vmovss  dword ptr [rsp+0F8h+angles], xmm0
-    }
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
+    LODWORD(angles.v[0]) = LODWORD(zeroingAngle) ^ _xmm;
     AnglesToAxis(&angles, &axis);
-    __asm { vmovsd  xmm0, qword ptr [rbx+0C8h] }
-    v59 = ballisticInstance->fireParams.dir.v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+0F8h+in2], xmm0
-      vmovsd  xmm0, qword ptr [r14]
-    }
-    in2.m[0].v[2] = v59;
-    v61 = shootingAxisRight->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+0F8h+in2+0Ch], xmm0
-      vmovsd  xmm0, qword ptr [r15]
-    }
-    in2.m[1].v[2] = v61;
-    v63 = shootingAxisUp->v[2];
-    __asm { vmovsd  qword ptr [rsp+0F8h+in2+18h], xmm0 }
-    in2.m[2].v[2] = v63;
+    v23 = ballisticInstance->fireParams.dir.v[2];
+    *(_QWORD *)in2.m[0].v = *(_QWORD *)ballisticInstance->fireParams.dir.v;
+    v24 = *(double *)shootingAxisRight->v;
+    in2.m[0].v[2] = v23;
+    v25 = shootingAxisRight->v[2];
+    *(double *)in2.row1.v = v24;
+    v26 = *(double *)shootingAxisUp->v;
+    in2.m[1].v[2] = v25;
+    v27 = shootingAxisUp->v[2];
+    *(double *)in2.row2.v = v26;
+    in2.m[2].v[2] = v27;
     MatrixMultiply(&axis, &in2, &out);
+    v28 = LODWORD(out.m[0].v[1]);
+    v29 = out.m[0].v[2];
+    v30 = out.m[0].v[0];
+    ballisticInstance->fireParams.dir.v[1] = out.m[0].v[1];
+    v31 = v28;
+    ballisticInstance->fireParams.dir.v[2] = v29;
+    *(float *)&v31 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(v30 * v30)) + (float)(v29 * v29));
+    _XMM3 = v31;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsp+0F8h+out+4]
-      vmovss  xmm3, dword ptr [rsp+0F8h+out+8]
-      vmovss  xmm4, dword ptr [rsp+0F8h+out]
-      vmovss  dword ptr [rbx+0CCh], xmm0
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  dword ptr [rbx+0D0h], xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm6, xmm0
-      vdivss  xmm2, xmm6, xmm0
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rbx+0C8h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx+0CCh]
-      vmovss  dword ptr [rbx+0CCh], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+0D0h]
-      vmovss  dword ptr [rbx+0D0h], xmm0
     }
+    ballisticInstance->fireParams.dir.v[0] = (float)(1.0 / *(float *)&_XMM0) * v30;
+    ballisticInstance->fireParams.dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[1];
+    ballisticInstance->fireParams.dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[2];
   }
-  _R11 = &v86;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -335,157 +333,87 @@ bool BgBallistics<CgBallisticInstance>::ShouldFireBallisticBullet(BgBallistics<C
 BgBallistics<CgBallisticInstance>::UpdateBallisticPosition
 ==============
 */
-
-bool __fastcall BgBallistics<CgBallisticInstance>::UpdateBallisticPosition(BgBallistics<CgBallisticInstance> *this, CgBallisticInstance *ballisticInstance, double terminationRange)
+char BgBallistics<CgBallisticInstance>::UpdateBallisticPosition(BgBallistics<CgBallisticInstance> *this, CgBallisticInstance *ballisticInstance, const float terminationRange)
 {
   const BallisticInfo *BallisticInfo; 
-  const BallisticInfo *v13; 
-  const dvar_t *v14; 
+  const BallisticInfo *v6; 
+  const dvar_t *v7; 
   int shootingTime; 
   int lifeTimeMs; 
   int lastSimulationTime; 
-  int v18; 
-  bool isAlternate; 
-  char v21; 
-  char v23; 
-  bool v27; 
-  bool result; 
+  int v11; 
+  double BallisticMuzzleVelocityScale; 
+  float travelDistance; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t outDisplacement; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-28h], xmm7 }
-  _RBX = ballisticInstance;
-  __asm { vmovaps xmm7, xmm2 }
   if ( !ballisticInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 360, ASSERT_TYPE_ASSERT, "(ballisticInstance)", (const char *)&queryFormat, "ballisticInstance") )
     __debugbreak();
-  BallisticInfo = BG_GetBallisticInfo(&_RBX->weapon, _RBX->isAlternate);
-  v13 = BallisticInfo;
+  BallisticInfo = BG_GetBallisticInfo(&ballisticInstance->weapon, ballisticInstance->isAlternate);
+  v6 = BallisticInfo;
   if ( (!BallisticInfo || !BallisticInfo->enableBallisticTrajectory) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 363, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->enableBallisticTrajectory") )
     __debugbreak();
-  v14 = DCONST_DVARINT_bg_ballisticsSimTimeStepMs;
+  v7 = DCONST_DVARINT_bg_ballisticsSimTimeStepMs;
   if ( !DCONST_DVARINT_bg_ballisticsSimTimeStepMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ballisticsSimTimeStepMs") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  shootingTime = _RBX->shootingTime;
-  lifeTimeMs = v13->lifeTimeMs;
-  lastSimulationTime = _RBX->lastSimulationTime;
-  v18 = lastSimulationTime + v14->current.integer - shootingTime;
-  if ( lifeTimeMs <= v18 )
-    v18 = lifeTimeMs - 1;
+  Dvar_CheckFrontendServerThread(v7);
+  shootingTime = ballisticInstance->shootingTime;
+  lifeTimeMs = v6->lifeTimeMs;
+  lastSimulationTime = ballisticInstance->lastSimulationTime;
+  v11 = lastSimulationTime + v7->current.integer - shootingTime;
+  if ( lifeTimeMs <= v11 )
+    v11 = lifeTimeMs - 1;
   if ( lastSimulationTime != shootingTime )
   {
-    _RBX->fireParams.start.v[0] = _RBX->fireParams.end.v[0];
-    _RBX->fireParams.start.v[1] = _RBX->fireParams.end.v[1];
-    _RBX->fireParams.start.v[2] = _RBX->fireParams.end.v[2];
+    ballisticInstance->fireParams.start.v[0] = ballisticInstance->fireParams.end.v[0];
+    ballisticInstance->fireParams.start.v[1] = ballisticInstance->fireParams.end.v[1];
+    ballisticInstance->fireParams.start.v[2] = ballisticInstance->fireParams.end.v[2];
   }
-  isAlternate = _RBX->isAlternate;
-  __asm
+  BallisticMuzzleVelocityScale = BG_GetBallisticMuzzleVelocityScale(&ballisticInstance->weapon, ballisticInstance->isAlternate);
+  BG_Ballistics_CalculateDisplacement(v6, v11, *(const float *)&BallisticMuzzleVelocityScale, &ballisticInstance->fireParams.dir, &outDisplacement);
+  if ( terminationRange <= 0.0 )
   {
-    vmovaps [rsp+0C8h+var_18], xmm6
-    vmovaps [rsp+0C8h+var_38], xmm8
-    vmovaps [rsp+0C8h+var_48], xmm9
-    vmovaps [rsp+0C8h+var_58], xmm10
+    v19 = outDisplacement.v[2];
+    v16 = outDisplacement.v[1];
+    v14 = outDisplacement.v[0];
   }
-  *(double *)&_XMM0 = BG_GetBallisticMuzzleVelocityScale(&_RBX->weapon, isAlternate);
-  __asm { vmovaps xmm2, xmm0; scalar }
-  BG_Ballistics_CalculateDisplacement(v13, v18, *(const float *)&_XMM2, &_RBX->fireParams.dir, &outDisplacement);
-  __asm
+  else
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-  }
-  if ( v21 | v23 )
-  {
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsp+0C8h+outDisplacement+8]
-      vmovss  xmm4, dword ptr [rsp+0C8h+outDisplacement+4]
-      vmovss  xmm3, dword ptr [rsp+0C8h+outDisplacement]
-    }
-LABEL_22:
-    __asm
-    {
-      vaddss  xmm0, xmm3, dword ptr [rbx+0E8h]
-      vmovss  dword ptr [rbx+0BCh], xmm0
-      vaddss  xmm1, xmm4, dword ptr [rbx+0ECh]
-      vmovss  dword ptr [rbx+0C0h], xmm1
-      vaddss  xmm0, xmm5, dword ptr [rbx+0F0h]
-      vmovss  dword ptr [rbx+0C4h], xmm0
-    }
-    result = 0;
-    goto LABEL_23;
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+0D4h]
-    vcomiss xmm6, xmm7
-  }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vcvttss2si edx, xmm6
-      vcvttss2si eax, xmm7
-    }
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 383, ASSERT_TYPE_ASSERT, "( travelledDistance ) < ( terminationRange )", "%s < %s\n\t%i, %i", "travelledDistance", "terminationRange", _EDX, _EAX);
-    v21 = 0;
-    if ( v27 )
+    travelDistance = ballisticInstance->fireParams.travelDistance;
+    if ( travelDistance >= terminationRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 383, ASSERT_TYPE_ASSERT, "( travelledDistance ) < ( terminationRange )", "%s < %s\n\t%i, %i", "travelledDistance", "terminationRange", (int)travelDistance, (int)terminationRange) )
       __debugbreak();
+    v14 = outDisplacement.v[0];
+    v15 = (float)(outDisplacement.v[0] + ballisticInstance->shootingPos.v[0]) - ballisticInstance->fireParams.start.v[0];
+    v16 = outDisplacement.v[1];
+    v17 = LODWORD(outDisplacement.v[1]);
+    v18 = (float)(outDisplacement.v[1] + ballisticInstance->shootingPos.v[1]) - ballisticInstance->fireParams.start.v[1];
+    v19 = outDisplacement.v[2];
+    v20 = (float)(outDisplacement.v[2] + ballisticInstance->shootingPos.v[2]) - ballisticInstance->fireParams.start.v[2];
+    *(float *)&v17 = fsqrt((float)((float)(v18 * v18) + (float)(v15 * v15)) + (float)(v20 * v20));
+    _XMM2 = v17;
+    if ( (float)(*(float *)&v17 + travelDistance) >= terminationRange )
+    {
+      __asm
+      {
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm0, xmm2, xmm1, xmm0
+      }
+      ballisticInstance->fireParams.end.v[0] = (float)((float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[0];
+      ballisticInstance->fireParams.end.v[1] = (float)((float)(v18 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[1];
+      ballisticInstance->fireParams.end.v[2] = (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[2];
+      return 1;
+    }
   }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsp+0C8h+outDisplacement]
-    vaddss  xmm0, xmm3, dword ptr [rbx+0E8h]
-    vsubss  xmm8, xmm0, dword ptr [rbx+0B0h]
-    vmovss  xmm4, dword ptr [rsp+0C8h+outDisplacement+4]
-    vaddss  xmm0, xmm4, dword ptr [rbx+0ECh]
-    vsubss  xmm9, xmm0, dword ptr [rbx+0B4h]
-    vmovss  xmm5, dword ptr [rsp+0C8h+outDisplacement+8]
-    vaddss  xmm0, xmm5, dword ptr [rbx+0F0h]
-    vsubss  xmm10, xmm0, dword ptr [rbx+0B8h]
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm2, xmm2, xmm2
-    vaddss  xmm0, xmm2, xmm6
-    vcomiss xmm0, xmm7
-  }
-  if ( v21 )
-    goto LABEL_22;
-  __asm
-  {
-    vcmpless xmm0, xmm2, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
-    vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm3, xmm1, xmm0
-    vsubss  xmm4, xmm7, xmm6
-    vmulss  xmm0, xmm8, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B0h]
-    vmulss  xmm0, xmm9, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+0BCh], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B4h]
-    vmulss  xmm0, xmm10, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+0C0h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B8h]
-    vmovss  dword ptr [rbx+0C4h], xmm2
-  }
-  result = 1;
-LABEL_23:
-  __asm
-  {
-    vmovaps xmm10, [rsp+0C8h+var_58]
-    vmovaps xmm9, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_38]
-    vmovaps xmm6, [rsp+0C8h+var_18]
-    vmovaps xmm7, [rsp+0C8h+var_28]
-  }
-  return result;
+  ballisticInstance->fireParams.end.v[0] = v14 + ballisticInstance->shootingPos.v[0];
+  ballisticInstance->fireParams.end.v[1] = v16 + ballisticInstance->shootingPos.v[1];
+  ballisticInstance->fireParams.end.v[2] = v19 + ballisticInstance->shootingPos.v[2];
+  return 0;
 }
 
 /*
@@ -493,22 +421,78 @@ LABEL_23:
 BgBallistics<GBallisticInstance>::CompactStorage
 ==============
 */
-
-void __fastcall BgBallistics<GBallisticInstance>::CompactStorage(BgBallistics<GBallisticInstance> *this, double _XMM1_8)
+void BgBallistics<GBallisticInstance>::CompactStorage(BgBallistics<GBallisticInstance> *this)
 {
+  int m_numTouchedSlots; 
+  GBallisticInstance *m_ballisticInstances; 
+  GBallisticInstance *v4; 
+  GBallisticInstance *v5; 
+  GBallisticInstance *v6; 
+  GBallisticInstance *v7; 
+  GBallisticInstance *v8; 
+  __int64 v9; 
+  __int128 v10; 
+
   if ( this->m_numTouchedSlots < this->m_numSlotsActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 283, ASSERT_TYPE_ASSERT, "(m_numTouchedSlots >= m_numSlotsActive)", (const char *)&queryFormat, "m_numTouchedSlots >= m_numSlotsActive") )
     __debugbreak();
-  if ( this->m_numTouchedSlots )
+  m_numTouchedSlots = this->m_numTouchedSlots;
+  if ( m_numTouchedSlots && (float)((float)this->m_numSlotsActive / (float)m_numTouchedSlots) < `BgBallistics<GBallisticInstance>::CompactStorage'::`2'::IDEAL_MIN_FILL_RATE )
   {
-    __asm
+    m_ballisticInstances = this->m_ballisticInstances;
+    v4 = &this->m_ballisticInstances[m_numTouchedSlots - 1];
+    if ( v4 > this->m_ballisticInstances )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rsi+29058h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm1, xmm1, xmm0
-      vcomiss xmm1, cs:?IDEAL_MIN_FILL_RATE@?1??CompactStorage@?$BgBallistics@UGBallisticInstance@@@@IEAAXXZ@4MA; float `BgBallistics<GBallisticInstance>::CompactStorage(void)'::`2'::IDEAL_MIN_FILL_RATE
+      do
+      {
+        v5 = m_ballisticInstances;
+        if ( m_ballisticInstances >= v4 )
+          break;
+        while ( v5->isInUse )
+        {
+          if ( ++v5 >= v4 )
+            goto LABEL_18;
+        }
+        v6 = v4;
+        while ( 1 )
+        {
+          v4 = v6 - 1;
+          if ( v6->isInUse )
+            break;
+          --v6;
+          if ( v4 <= m_ballisticInstances )
+            goto LABEL_18;
+        }
+        v7 = v5;
+        v8 = v6;
+        v9 = 2i64;
+        do
+        {
+          v7 = (GBallisticInstance *)((char *)v7 + 128);
+          v10 = *(_OWORD *)&v8->weapon.weaponIdx;
+          v8 = (GBallisticInstance *)((char *)v8 + 128);
+          *(_OWORD *)&v7[-1].fireParams.penetrationMultiplier = v10;
+          *(_OWORD *)&v7[-1].fireParams.initialPos.y = *(_OWORD *)&v8[-1].fireParams.initialPos.y;
+          *(_OWORD *)&v7[-1].fireParams.start.z = *(_OWORD *)&v8[-1].fireParams.start.z;
+          *(_OWORD *)v7[-1].fireParams.dir.v = *(_OWORD *)v8[-1].fireParams.dir.v;
+          *(_OWORD *)&v7[-1].fireParams.shotCount = *(_OWORD *)&v8[-1].fireParams.shotCount;
+          *(_OWORD *)v7[-1].shootingPos.v = *(_OWORD *)v8[-1].shootingPos.v;
+          *(_OWORD *)&v7[-1].originalShootingdir.y = *(_OWORD *)&v8[-1].originalShootingdir.y;
+          *(_OWORD *)&v7[-1].shootingTime = *(_OWORD *)&v8[-1].shootingTime;
+          --v9;
+        }
+        while ( v9 );
+        *(_OWORD *)&v7->weapon.weaponIdx = *(_OWORD *)&v8->weapon.weaponIdx;
+        *(_QWORD *)&v7->weapon.weaponAttachments[2] = *(_QWORD *)&v8->weapon.weaponAttachments[2];
+        memset_0(v6, 0, sizeof(GBallisticInstance));
+        this->OnCompactOperation(this, v5);
+        m_ballisticInstances = v5 + 1;
+      }
+      while ( v4 > &v5[1] );
     }
+LABEL_18:
+    this->m_firstFree = NULL;
+    this->m_lastFree = NULL;
+    this->m_numTouchedSlots = this->m_numSlotsActive;
   }
 }
 
@@ -544,164 +528,104 @@ BgBallistics<GBallisticInstance>::SetBallisticInstanceData
 */
 void BgBallistics<GBallisticInstance>::SetBallisticInstanceData(BgBallistics<GBallisticInstance> *this, const Weapon *r_weapon, const bool isAlternate, const PlayerHandIndex hand, const BulletFireParams *fireParams, const vec3_t *shootingAxisRight, const vec3_t *shootingAxisUp, const int attackerEntNum, const int shootingTime, const unsigned int randSeed, GBallisticInstance *ballisticInstance)
 {
+  __int128 v14; 
   const BallisticInfo *BallisticInfo; 
-  const BallisticInfo *v33; 
-  bool v34; 
-  bool v35; 
-  float v59; 
-  float v61; 
-  float v63; 
+  const BallisticInfo *v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float zeroingAngle; 
+  float v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
   vec3_t angles; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  char v86; 
 
-  __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
-  _RBX = ballisticInstance;
-  _R14 = shootingAxisRight;
-  _R15 = shootingAxisUp;
-  _RDI = r_weapon;
   if ( !ballisticInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 165, ASSERT_TYPE_ASSERT, "(ballisticInstance)", (const char *)&queryFormat, "ballisticInstance") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  _R8 = fireParams;
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&ballisticInstance->weapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+  *(__m256i *)&ballisticInstance->weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)&ballisticInstance->weapon.attachmentVariationIndices[5] = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&ballisticInstance->weapon.attachmentVariationIndices[21] = *(double *)&r_weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&ballisticInstance->weapon.weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
   ballisticInstance->isAlternate = isAlternate;
   ballisticInstance->hand = hand;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rbx+48h], xmm0
-    vmovups xmm1, xmmword ptr [r8+10h]
-    vmovups xmmword ptr [rbx+58h], xmm1
-    vmovups xmm0, xmmword ptr [r8+20h]
-    vmovups xmmword ptr [rbx+68h], xmm0
-    vmovups xmm1, xmmword ptr [r8+30h]
-    vmovups xmmword ptr [rbx+78h], xmm1
-    vmovups xmm0, xmmword ptr [r8+40h]
-    vmovups xmmword ptr [rbx+88h], xmm0
-    vmovups xmm1, xmmword ptr [r8+50h]
-    vmovups xmmword ptr [rbx+98h], xmm1
-    vmovups xmm0, xmmword ptr [r8+60h]
-    vmovups xmmword ptr [rbx+0A8h], xmm0
-    vmovups xmm0, xmmword ptr [r8+70h]
-    vmovups xmmword ptr [rbx+0B8h], xmm0
-    vmovups xmm1, xmmword ptr [r8+80h]
-    vmovups xmmword ptr [rbx+0C8h], xmm1
-    vmovups xmm0, xmmword ptr [r8+90h]
-  }
+  *(_OWORD *)&ballisticInstance->fireParams.weaponEntIndex = *(_OWORD *)&fireParams->weaponEntIndex;
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[3] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[3];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[7] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[7];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[11] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[11];
+  *(_OWORD *)&ballisticInstance->fireParams.ignoreHitEntityQueue[15] = *(_OWORD *)&fireParams->ignoreHitEntityQueue[15];
+  *(_OWORD *)&ballisticInstance->fireParams.penetrationMultiplier = *(_OWORD *)&fireParams->penetrationMultiplier;
+  *(_OWORD *)&ballisticInstance->fireParams.initialPos.y = *(_OWORD *)&fireParams->initialPos.y;
+  *(_OWORD *)&ballisticInstance->fireParams.start.z = *(_OWORD *)&fireParams->start.z;
+  *(_OWORD *)ballisticInstance->fireParams.dir.v = *(_OWORD *)fireParams->dir.v;
+  v14 = *(_OWORD *)&fireParams->shotCount;
   ballisticInstance->attackerEntNum = attackerEntNum;
   ballisticInstance->shootingTime = shootingTime;
   ballisticInstance->lastSimulationTime = shootingTime;
-  __asm { vmovups xmmword ptr [rbx+0D8h], xmm0 }
+  *(_OWORD *)&ballisticInstance->fireParams.shotCount = v14;
   ballisticInstance->randSeed = randSeed;
   ballisticInstance->fireParams.isBallistics = 1;
   ballisticInstance->shootingPos = fireParams->start;
-  BallisticInfo = BG_GetBallisticInfo(_RDI, isAlternate);
-  v33 = BallisticInfo;
-  if ( !BallisticInfo || !BallisticInfo->calculated || (v34 = !BallisticInfo->enableBallisticTrajectory) )
-  {
-    v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 180, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory");
-    v34 = !v35;
-    if ( v35 )
-      __debugbreak();
-  }
+  BallisticInfo = BG_GetBallisticInfo(r_weapon, isAlternate);
+  v16 = BallisticInfo;
+  if ( (!BallisticInfo || !BallisticInfo->calculated || !BallisticInfo->enableBallisticTrajectory) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 180, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->calculated && ballisticInfo->enableBallisticTrajectory") )
+    __debugbreak();
+  v17 = LODWORD(ballisticInstance->fireParams.dir.v[0]);
+  v18 = v17;
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(ballisticInstance->fireParams.dir.v[1] * ballisticInstance->fireParams.dir.v[1])) + (float)(ballisticInstance->fireParams.dir.v[2] * ballisticInstance->fireParams.dir.v[2]));
+  _XMM4 = v18;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+0CCh]
-    vmovss  xmm5, dword ptr [rbx+0C8h]
-    vmovss  xmm3, dword ptr [rbx+0D0h]
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm6, xmm0
-    vdivss  xmm2, xmm6, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbx+0C8h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+0CCh]
-    vmovss  dword ptr [rbx+0CCh], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+0D0h]
-    vmovss  dword ptr [rbx+0D0h], xmm0
   }
+  ballisticInstance->fireParams.dir.v[0] = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+  ballisticInstance->fireParams.dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[1];
+  ballisticInstance->fireParams.dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[2];
   ballisticInstance->originalShootingdir = ballisticInstance->fireParams.dir;
-  _RAX = v33->calculated;
-  __asm
+  zeroingAngle = v16->calculated->zeroingAngle;
+  if ( COERCE_FLOAT(LODWORD(zeroingAngle) & _xmm) > 0.000001 )
   {
-    vmovss  xmm1, dword ptr [rax+8]
-    vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( !v34 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rsp+0F8h+angles+4], xmm1
-      vmovss  dword ptr [rsp+0F8h+angles+8], xmm1
-      vmovss  dword ptr [rsp+0F8h+angles], xmm0
-    }
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
+    LODWORD(angles.v[0]) = LODWORD(zeroingAngle) ^ _xmm;
     AnglesToAxis(&angles, &axis);
-    __asm { vmovsd  xmm0, qword ptr [rbx+0C8h] }
-    v59 = ballisticInstance->fireParams.dir.v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+0F8h+in2], xmm0
-      vmovsd  xmm0, qword ptr [r14]
-    }
-    in2.m[0].v[2] = v59;
-    v61 = shootingAxisRight->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+0F8h+in2+0Ch], xmm0
-      vmovsd  xmm0, qword ptr [r15]
-    }
-    in2.m[1].v[2] = v61;
-    v63 = shootingAxisUp->v[2];
-    __asm { vmovsd  qword ptr [rsp+0F8h+in2+18h], xmm0 }
-    in2.m[2].v[2] = v63;
+    v23 = ballisticInstance->fireParams.dir.v[2];
+    *(_QWORD *)in2.m[0].v = *(_QWORD *)ballisticInstance->fireParams.dir.v;
+    v24 = *(double *)shootingAxisRight->v;
+    in2.m[0].v[2] = v23;
+    v25 = shootingAxisRight->v[2];
+    *(double *)in2.row1.v = v24;
+    v26 = *(double *)shootingAxisUp->v;
+    in2.m[1].v[2] = v25;
+    v27 = shootingAxisUp->v[2];
+    *(double *)in2.row2.v = v26;
+    in2.m[2].v[2] = v27;
     MatrixMultiply(&axis, &in2, &out);
+    v28 = LODWORD(out.m[0].v[1]);
+    v29 = out.m[0].v[2];
+    v30 = out.m[0].v[0];
+    ballisticInstance->fireParams.dir.v[1] = out.m[0].v[1];
+    v31 = v28;
+    ballisticInstance->fireParams.dir.v[2] = v29;
+    *(float *)&v31 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(v30 * v30)) + (float)(v29 * v29));
+    _XMM3 = v31;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsp+0F8h+out+4]
-      vmovss  xmm3, dword ptr [rsp+0F8h+out+8]
-      vmovss  xmm4, dword ptr [rsp+0F8h+out]
-      vmovss  dword ptr [rbx+0CCh], xmm0
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  dword ptr [rbx+0D0h], xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm6, xmm0
-      vdivss  xmm2, xmm6, xmm0
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rbx+0C8h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx+0CCh]
-      vmovss  dword ptr [rbx+0CCh], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+0D0h]
-      vmovss  dword ptr [rbx+0D0h], xmm0
     }
+    ballisticInstance->fireParams.dir.v[0] = (float)(1.0 / *(float *)&_XMM0) * v30;
+    ballisticInstance->fireParams.dir.v[1] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[1];
+    ballisticInstance->fireParams.dir.v[2] = (float)(1.0 / *(float *)&_XMM0) * ballisticInstance->fireParams.dir.v[2];
   }
-  _R11 = &v86;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -729,157 +653,87 @@ bool BgBallistics<GBallisticInstance>::ShouldFireBallisticBullet(BgBallistics<GB
 BgBallistics<GBallisticInstance>::UpdateBallisticPosition
 ==============
 */
-
-bool __fastcall BgBallistics<GBallisticInstance>::UpdateBallisticPosition(BgBallistics<GBallisticInstance> *this, GBallisticInstance *ballisticInstance, double terminationRange)
+char BgBallistics<GBallisticInstance>::UpdateBallisticPosition(BgBallistics<GBallisticInstance> *this, GBallisticInstance *ballisticInstance, const float terminationRange)
 {
   const BallisticInfo *BallisticInfo; 
-  const BallisticInfo *v13; 
-  const dvar_t *v14; 
+  const BallisticInfo *v6; 
+  const dvar_t *v7; 
   int shootingTime; 
   int lifeTimeMs; 
   int lastSimulationTime; 
-  int v18; 
-  bool isAlternate; 
-  char v21; 
-  char v23; 
-  bool v27; 
-  bool result; 
+  int v11; 
+  double BallisticMuzzleVelocityScale; 
+  float travelDistance; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t outDisplacement; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-28h], xmm7 }
-  _RBX = ballisticInstance;
-  __asm { vmovaps xmm7, xmm2 }
   if ( !ballisticInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 360, ASSERT_TYPE_ASSERT, "(ballisticInstance)", (const char *)&queryFormat, "ballisticInstance") )
     __debugbreak();
-  BallisticInfo = BG_GetBallisticInfo(&_RBX->weapon, _RBX->isAlternate);
-  v13 = BallisticInfo;
+  BallisticInfo = BG_GetBallisticInfo(&ballisticInstance->weapon, ballisticInstance->isAlternate);
+  v6 = BallisticInfo;
   if ( (!BallisticInfo || !BallisticInfo->enableBallisticTrajectory) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 363, ASSERT_TYPE_ASSERT, "(ballisticInfo && ballisticInfo->enableBallisticTrajectory)", (const char *)&queryFormat, "ballisticInfo && ballisticInfo->enableBallisticTrajectory") )
     __debugbreak();
-  v14 = DCONST_DVARINT_bg_ballisticsSimTimeStepMs;
+  v7 = DCONST_DVARINT_bg_ballisticsSimTimeStepMs;
   if ( !DCONST_DVARINT_bg_ballisticsSimTimeStepMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_ballisticsSimTimeStepMs") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  shootingTime = _RBX->shootingTime;
-  lifeTimeMs = v13->lifeTimeMs;
-  lastSimulationTime = _RBX->lastSimulationTime;
-  v18 = lastSimulationTime + v14->current.integer - shootingTime;
-  if ( lifeTimeMs <= v18 )
-    v18 = lifeTimeMs - 1;
+  Dvar_CheckFrontendServerThread(v7);
+  shootingTime = ballisticInstance->shootingTime;
+  lifeTimeMs = v6->lifeTimeMs;
+  lastSimulationTime = ballisticInstance->lastSimulationTime;
+  v11 = lastSimulationTime + v7->current.integer - shootingTime;
+  if ( lifeTimeMs <= v11 )
+    v11 = lifeTimeMs - 1;
   if ( lastSimulationTime != shootingTime )
   {
-    _RBX->fireParams.start.v[0] = _RBX->fireParams.end.v[0];
-    _RBX->fireParams.start.v[1] = _RBX->fireParams.end.v[1];
-    _RBX->fireParams.start.v[2] = _RBX->fireParams.end.v[2];
+    ballisticInstance->fireParams.start.v[0] = ballisticInstance->fireParams.end.v[0];
+    ballisticInstance->fireParams.start.v[1] = ballisticInstance->fireParams.end.v[1];
+    ballisticInstance->fireParams.start.v[2] = ballisticInstance->fireParams.end.v[2];
   }
-  isAlternate = _RBX->isAlternate;
-  __asm
+  BallisticMuzzleVelocityScale = BG_GetBallisticMuzzleVelocityScale(&ballisticInstance->weapon, ballisticInstance->isAlternate);
+  BG_Ballistics_CalculateDisplacement(v6, v11, *(const float *)&BallisticMuzzleVelocityScale, &ballisticInstance->fireParams.dir, &outDisplacement);
+  if ( terminationRange <= 0.0 )
   {
-    vmovaps [rsp+0C8h+var_18], xmm6
-    vmovaps [rsp+0C8h+var_38], xmm8
-    vmovaps [rsp+0C8h+var_48], xmm9
-    vmovaps [rsp+0C8h+var_58], xmm10
+    v19 = outDisplacement.v[2];
+    v16 = outDisplacement.v[1];
+    v14 = outDisplacement.v[0];
   }
-  *(double *)&_XMM0 = BG_GetBallisticMuzzleVelocityScale(&_RBX->weapon, isAlternate);
-  __asm { vmovaps xmm2, xmm0; scalar }
-  BG_Ballistics_CalculateDisplacement(v13, v18, *(const float *)&_XMM2, &_RBX->fireParams.dir, &outDisplacement);
-  __asm
+  else
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-  }
-  if ( v21 | v23 )
-  {
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsp+0C8h+outDisplacement+8]
-      vmovss  xmm4, dword ptr [rsp+0C8h+outDisplacement+4]
-      vmovss  xmm3, dword ptr [rsp+0C8h+outDisplacement]
-    }
-LABEL_22:
-    __asm
-    {
-      vaddss  xmm0, xmm3, dword ptr [rbx+0E8h]
-      vmovss  dword ptr [rbx+0BCh], xmm0
-      vaddss  xmm1, xmm4, dword ptr [rbx+0ECh]
-      vmovss  dword ptr [rbx+0C0h], xmm1
-      vaddss  xmm0, xmm5, dword ptr [rbx+0F0h]
-      vmovss  dword ptr [rbx+0C4h], xmm0
-    }
-    result = 0;
-    goto LABEL_23;
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+0D4h]
-    vcomiss xmm6, xmm7
-  }
-  if ( !v21 )
-  {
-    __asm
-    {
-      vcvttss2si edx, xmm6
-      vcvttss2si eax, xmm7
-    }
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 383, ASSERT_TYPE_ASSERT, "( travelledDistance ) < ( terminationRange )", "%s < %s\n\t%i, %i", "travelledDistance", "terminationRange", _EDX, _EAX);
-    v21 = 0;
-    if ( v27 )
+    travelDistance = ballisticInstance->fireParams.travelDistance;
+    if ( travelDistance >= terminationRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_ballistics.h", 383, ASSERT_TYPE_ASSERT, "( travelledDistance ) < ( terminationRange )", "%s < %s\n\t%i, %i", "travelledDistance", "terminationRange", (int)travelDistance, (int)terminationRange) )
       __debugbreak();
+    v14 = outDisplacement.v[0];
+    v15 = (float)(outDisplacement.v[0] + ballisticInstance->shootingPos.v[0]) - ballisticInstance->fireParams.start.v[0];
+    v16 = outDisplacement.v[1];
+    v17 = LODWORD(outDisplacement.v[1]);
+    v18 = (float)(outDisplacement.v[1] + ballisticInstance->shootingPos.v[1]) - ballisticInstance->fireParams.start.v[1];
+    v19 = outDisplacement.v[2];
+    v20 = (float)(outDisplacement.v[2] + ballisticInstance->shootingPos.v[2]) - ballisticInstance->fireParams.start.v[2];
+    *(float *)&v17 = fsqrt((float)((float)(v18 * v18) + (float)(v15 * v15)) + (float)(v20 * v20));
+    _XMM2 = v17;
+    if ( (float)(*(float *)&v17 + travelDistance) >= terminationRange )
+    {
+      __asm
+      {
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm0, xmm2, xmm1, xmm0
+      }
+      ballisticInstance->fireParams.end.v[0] = (float)((float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[0];
+      ballisticInstance->fireParams.end.v[1] = (float)((float)(v18 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[1];
+      ballisticInstance->fireParams.end.v[2] = (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * (float)(terminationRange - travelDistance)) + ballisticInstance->fireParams.start.v[2];
+      return 1;
+    }
   }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsp+0C8h+outDisplacement]
-    vaddss  xmm0, xmm3, dword ptr [rbx+0E8h]
-    vsubss  xmm8, xmm0, dword ptr [rbx+0B0h]
-    vmovss  xmm4, dword ptr [rsp+0C8h+outDisplacement+4]
-    vaddss  xmm0, xmm4, dword ptr [rbx+0ECh]
-    vsubss  xmm9, xmm0, dword ptr [rbx+0B4h]
-    vmovss  xmm5, dword ptr [rsp+0C8h+outDisplacement+8]
-    vaddss  xmm0, xmm5, dword ptr [rbx+0F0h]
-    vsubss  xmm10, xmm0, dword ptr [rbx+0B8h]
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm2, xmm2, xmm2
-    vaddss  xmm0, xmm2, xmm6
-    vcomiss xmm0, xmm7
-  }
-  if ( v21 )
-    goto LABEL_22;
-  __asm
-  {
-    vcmpless xmm0, xmm2, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
-    vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm3, xmm1, xmm0
-    vsubss  xmm4, xmm7, xmm6
-    vmulss  xmm0, xmm8, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B0h]
-    vmulss  xmm0, xmm9, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+0BCh], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B4h]
-    vmulss  xmm0, xmm10, xmm3
-    vmulss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+0C0h], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+0B8h]
-    vmovss  dword ptr [rbx+0C4h], xmm2
-  }
-  result = 1;
-LABEL_23:
-  __asm
-  {
-    vmovaps xmm10, [rsp+0C8h+var_58]
-    vmovaps xmm9, [rsp+0C8h+var_48]
-    vmovaps xmm8, [rsp+0C8h+var_38]
-    vmovaps xmm6, [rsp+0C8h+var_18]
-    vmovaps xmm7, [rsp+0C8h+var_28]
-  }
-  return result;
+  ballisticInstance->fireParams.end.v[0] = v14 + ballisticInstance->shootingPos.v[0];
+  ballisticInstance->fireParams.end.v[1] = v16 + ballisticInstance->shootingPos.v[1];
+  ballisticInstance->fireParams.end.v[2] = v19 + ballisticInstance->shootingPos.v[2];
+  return 0;
 }
 
 /*

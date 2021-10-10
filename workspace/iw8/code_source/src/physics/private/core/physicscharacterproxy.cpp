@@ -104,60 +104,54 @@ PhysicsCharacterProxy_CalcCapsule
 */
 void PhysicsCharacterProxy_CalcCapsule(const Bounds *entityBounds, PhysicsCharacterProxy_Capsule *capsule)
 {
+  vec3_t *p_halfSize; 
+  __int64 v5; 
   int v6; 
   unsigned int v7; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v12; 
+  __int64 v13; 
 
-  _RDI = capsule;
   if ( !entityBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 149, ASSERT_TYPE_ASSERT, "(entityBounds)", (const char *)&queryFormat, "entityBounds") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 150, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
+  if ( !capsule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 150, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
     __debugbreak();
-  _R14 = &entityBounds->halfSize;
-  _RBP = Vec3MajorAxis(&entityBounds->halfSize);
+  p_halfSize = &entityBounds->halfSize;
+  v5 = Vec3MajorAxis(&entityBounds->halfSize);
   v6 = Vec3MinorAxis(&entityBounds->halfSize);
   v7 = v6 == 0;
-  if ( v7 == (_DWORD)_RBP )
+  if ( v7 == (_DWORD)v5 )
   {
     v7 = 3 - v6;
     if ( !v6 )
       v7 = 2;
   }
-  _RDI->center.v[0] = entityBounds->midPoint.v[0];
-  _RDI->center.v[1] = entityBounds->midPoint.v[1];
-  _RDI->center.v[2] = entityBounds->midPoint.v[2];
+  capsule->center.v[0] = entityBounds->midPoint.v[0];
+  capsule->center.v[1] = entityBounds->midPoint.v[1];
+  capsule->center.v[2] = entityBounds->midPoint.v[2];
   if ( v7 >= 3 )
   {
-    LODWORD(v15) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v15, 3) )
+    LODWORD(v12) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v12, 3) )
       __debugbreak();
   }
-  _RDI->radius = _R14->v[v7];
-  if ( (unsigned int)_RBP >= 3 )
+  capsule->radius = p_halfSize->v[v7];
+  if ( (unsigned int)v5 >= 3 )
   {
-    LODWORD(v16) = 3;
-    LODWORD(v15) = _RBP;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v15, v16) )
+    LODWORD(v13) = 3;
+    LODWORD(v12) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
+  _XMM0 = 0i64;
+  capsule->halfHeight = p_halfSize->v[v5] - capsule->radius;
+  _XMM1 = LODWORD(FLOAT_1_0);
   __asm
   {
-    vmovss  xmm0, dword ptr [r14+rbp*4]
-    vmovss  xmm3, dword ptr [rdi+10h]
-    vsubss  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vcmpltss xmm2, xmm0, xmm3
     vblendvps xmm0, xmm1, xmm3, xmm2
   }
-  _RDI->majorAxis = _RBP;
-  __asm
-  {
-    vmovss  dword ptr [rdi+10h], xmm0
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
+  capsule->majorAxis = v5;
+  capsule->radius = *(float *)&_XMM0;
 }
 
 /*
@@ -167,31 +161,23 @@ PhysicsCharacterProxy_DoCapsulesVary
 */
 bool PhysicsCharacterProxy_DoCapsulesVary(const PhysicsCharacterProxy_Capsule *capsuleA, const PhysicsCharacterProxy_Capsule *capsuleB)
 {
-  bool result; 
+  char v4; 
+  char v5; 
+  char v6; 
 
-  _RBX = capsuleB;
-  _RDI = capsuleA;
   if ( !capsuleA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 181, ASSERT_TYPE_ASSERT, "( capsuleA )", (const char *)&queryFormat, "capsuleA") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 182, ASSERT_TYPE_ASSERT, "( capsuleB )", (const char *)&queryFormat, "capsuleB") )
+  if ( !capsuleB && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 182, ASSERT_TYPE_ASSERT, "( capsuleB )", (const char *)&queryFormat, "capsuleB") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx] }
-  result = 1;
-  __asm
-  {
-    vucomiss xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rbx+4]
-    vucomiss xmm0, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vucomiss xmm0, dword ptr [rdi+8]
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vucomiss xmm0, dword ptr [rdi+0Ch]
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vucomiss xmm0, dword ptr [rdi+10h]
-  }
-  if ( _RDI->majorAxis == _RBX->majorAxis )
-    return 0;
-  return result;
+  v4 = 0;
+  v5 = 1;
+  if ( capsuleB->center.v[0] != capsuleA->center.v[0] || capsuleB->center.v[1] != capsuleA->center.v[1] || (v6 = 0, capsuleB->center.v[2] != capsuleA->center.v[2]) )
+    v6 = 1;
+  if ( capsuleB->radius != capsuleA->radius )
+    v4 = 1;
+  if ( capsuleA->majorAxis == capsuleB->majorAxis )
+    v5 = v4;
+  return (capsuleB->halfHeight != capsuleA->halfHeight) | v6 | v5;
 }
 
 /*
@@ -202,34 +188,24 @@ PhysicsCharacterProxy_GetCollisionBounds
 void PhysicsCharacterProxy_GetCollisionBounds(Bounds *bounds, const XModelCharCollBoundsType boundsType, bool quantized)
 {
   __int64 v3; 
+  __int128 v6; 
+  double v7; 
 
   v3 = boundsType;
-  _RBX = bounds;
   if ( (unsigned int)(boundsType - 1) > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 133, ASSERT_TYPE_ASSERT, "((boundsType > XModelCharCollBoundsType::CharCollBoundsType_None) && (boundsType < XModelCharCollBoundsType::CharCollBoundsType_Num))", (const char *)&queryFormat, "(boundsType > XModelCharCollBoundsType::CharCollBoundsType_None) && (boundsType < XModelCharCollBoundsType::CharCollBoundsType_Num)") )
     __debugbreak();
-  _RCX = 3 * v3;
-  _RAX = 0x140000000ui64;
   if ( quantized )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr ds:rva s_physicsCharacterProxy_BoundsQuantized.midPoint[rax+rcx*8]
-      vmovsd  xmm1, qword ptr ds:(rva s_physicsCharacterProxy_BoundsQuantized.halfSize+4)[rax+rcx*8]
-    }
+    v6 = *(_OWORD *)s_physicsCharacterProxy_BoundsQuantized[v3].midPoint.v;
+    v7 = *(double *)&s_physicsCharacterProxy_BoundsQuantized[v3].halfSize.y;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr ds:rva s_physicsCharacterProxy_Bounds.midPoint[rax+rcx*8]
-      vmovsd  xmm1, qword ptr ds:(rva s_physicsCharacterProxy_Bounds.halfSize+4)[rax+rcx*8]
-    }
+    v6 = *(_OWORD *)s_physicsCharacterProxy_Bounds[v3].midPoint.v;
+    v7 = *(double *)&s_physicsCharacterProxy_Bounds[v3].halfSize.y;
   }
-  __asm
-  {
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *(_OWORD *)bounds->midPoint.v = v6;
+  *(double *)&bounds->halfSize.y = v7;
 }
 
 /*
@@ -240,25 +216,9 @@ PhysicsCharacterProxy_GetCollisionBounds
 void PhysicsCharacterProxy_GetCollisionBounds(Bounds *bounds, bool quantized)
 {
   if ( quantized )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:s_physicsCharacterProxy_BoundsQuantized.midPoint+18h
-      vmovsd  xmm1, qword ptr cs:s_physicsCharacterProxy_BoundsQuantized.halfSize+1Ch
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-  }
+    *bounds = s_physicsCharacterProxy_BoundsQuantized[1];
   else
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:s_physicsCharacterProxy_Bounds.midPoint+18h
-      vmovsd  xmm1, qword ptr cs:s_physicsCharacterProxy_Bounds.halfSize+1Ch
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-  }
+    *bounds = s_physicsCharacterProxy_Bounds[1];
 }
 
 /*
@@ -268,13 +228,7 @@ PhysicsCharacterProxy_GetEncapsulatingBounds
 */
 void PhysicsCharacterProxy_GetEncapsulatingBounds(Bounds *bounds)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_physicsCharacterProxy_EncapsulatingBounds.midPoint+18h
-    vmovsd  xmm1, qword ptr cs:s_physicsCharacterProxy_EncapsulatingBounds.halfSize+1Ch
-    vmovups xmmword ptr [rcx], xmm0
-    vmovsd  qword ptr [rcx+10h], xmm1
-  }
+  *bounds = s_physicsCharacterProxy_EncapsulatingBounds[1];
 }
 
 /*
@@ -285,20 +239,14 @@ PhysicsCharacterProxy_GetEncapsulatingBounds
 void PhysicsCharacterProxy_GetEncapsulatingBounds(Bounds *bounds, const XModelCharCollBoundsType boundsType)
 {
   __int64 v2; 
+  double v4; 
 
   v2 = boundsType;
-  _RDI = bounds;
   if ( (unsigned int)(boundsType - 1) > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscharacterproxy.cpp", 110, ASSERT_TYPE_ASSERT, "((boundsType > XModelCharCollBoundsType::CharCollBoundsType_None) && (boundsType < XModelCharCollBoundsType::CharCollBoundsType_Num))", (const char *)&queryFormat, "(boundsType > XModelCharCollBoundsType::CharCollBoundsType_None) && (boundsType < XModelCharCollBoundsType::CharCollBoundsType_Num)") )
     __debugbreak();
-  _RCX = 3 * v2;
-  _RAX = s_physicsCharacterProxy_EncapsulatingBounds;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+rcx*8]
-    vmovsd  xmm1, qword ptr [rax+rcx*8+10h]
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  qword ptr [rdi+10h], xmm1
-  }
+  v4 = *(double *)&s_physicsCharacterProxy_EncapsulatingBounds[v2].halfSize.y;
+  *(_OWORD *)bounds->midPoint.v = *(_OWORD *)s_physicsCharacterProxy_EncapsulatingBounds[v2].midPoint.v;
+  *(double *)&bounds->halfSize.y = v4;
 }
 
 /*

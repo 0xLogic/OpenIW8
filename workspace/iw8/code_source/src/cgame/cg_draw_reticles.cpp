@@ -207,142 +207,56 @@ CG_CalcADSTransitionBlend
 float CG_CalcADSTransitionBlend(const cg_t *cgameGlob, const Weapon *weapon, bool isAlternate)
 {
   __int64 localClientNum; 
-  CgWeaponMap *v14; 
-  bool v15; 
-  bool v16; 
-  char v23; 
-  bool v24; 
-  bool v30; 
-  float *outBlendStart; 
-  float *outBlendStarta; 
-  float *outBlendStartb; 
-  float *outBlendEnd; 
-  float *outBlendEnda; 
-  float *outBlendEndb; 
-  double v54; 
-  double v55; 
-  double v56; 
-  char v58; 
-  void *retaddr; 
-  float v60; 
-  float v61; 
+  CgWeaponMap *v8; 
+  __int128 fWeaponPosFrac_low; 
+  __int128 v12; 
+  __int128 v15; 
+  __int128 v19; 
+  float v22; 
+  float outBlendStart; 
+  float outBlendEnd; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RBX = cgameGlob;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0C8h+var_88], xmm11
-  }
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 330, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( BG_GetWeaponType(weapon, isAlternate) != WEAPTYPE_BULLET && BG_GetWeaponType(weapon, isAlternate) != WEAPTYPE_PROJECTILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 331, ASSERT_TYPE_ASSERT, "((BG_GetWeaponType( weapon, isAlternate ) == WEAPTYPE_BULLET) || (BG_GetWeaponType( weapon, isAlternate ) == WEAPTYPE_PROJECTILE))", (const char *)&queryFormat, "(BG_GetWeaponType( weapon, isAlternate ) == WEAPTYPE_BULLET) || (BG_GetWeaponType( weapon, isAlternate ) == WEAPTYPE_PROJECTILE)") )
     __debugbreak();
-  localClientNum = _RBX->localClientNum;
+  localClientNum = cgameGlob->localClientNum;
   if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v14 = CgWeaponMap::ms_instance[localClientNum];
-  v15 = v14 == NULL;
-  if ( !v14 )
-  {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 334, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap");
-    v15 = !v16;
-    if ( v16 )
-      __debugbreak();
-  }
+  v8 = CgWeaponMap::ms_instance[localClientNum];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 334, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    __debugbreak();
+  fWeaponPosFrac_low = LODWORD(cgameGlob->predictedPlayerState.weapCommon.fWeaponPosFrac);
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( (*(float *)&fWeaponPosFrac_low < 0.0 || *(float *)&fWeaponPosFrac_low > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 336, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( adsFrac ) && ( adsFrac ) <= ( 1.0f )", "adsFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&fWeaponPosFrac_low, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
+  BG_GetADSCrosshairBlendFracs(v8, &cgameGlob->predictedPlayerState, weapon, isAlternate, cgameGlob->playerEntity.bPositionToADS != 0, &outBlendStart, &outBlendEnd);
+  v12 = LODWORD(outBlendEnd);
+  *(float *)&v12 = outBlendEnd - outBlendStart;
+  _XMM1 = v12;
+  __asm { vmaxss  xmm8, xmm1, cs:__real@358637bd }
+  if ( (*(float *)&_XMM8 < 0.000001 || *(float *)&_XMM8 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 347, ASSERT_TYPE_ASSERT, "( static_cast<float>( 1.0E-6 ) ) <= ( blendFracDist ) && ( blendFracDist ) <= ( 1.0f )", "blendFracDist not in [static_cast<float>( ZERO_EPSILON ), 1.0f]\n\t%g not in [%g, %g]", *(float *)&_XMM8, DOUBLE_9_999999974752427eN7, DOUBLE_1_0) )
+    __debugbreak();
+  v15 = fWeaponPosFrac_low;
+  *(float *)&v15 = *(float *)&fWeaponPosFrac_low - outBlendStart;
+  _XMM0 = v15;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbx+738h]
-    vmovsd  xmm10, cs:__real@3ff0000000000000
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm6, xmm9
-    vxorpd  xmm11, xmm11, xmm11
-    vcomiss xmm6, xmm7
-  }
-  if ( !v15 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_90], xmm10
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+outBlendEnd], xmm11
-      vmovsd  [rsp+0C8h+outBlendStart], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 336, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( adsFrac ) && ( adsFrac ) <= ( 1.0f )", "adsFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&outBlendStart, *(double *)&outBlendEnd, v54) )
-      __debugbreak();
-  }
-  BG_GetADSCrosshairBlendFracs(v14, &_RBX->predictedPlayerState, weapon, isAlternate, _RBX->playerEntity.bPositionToADS != 0, &v60, &v61);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+arg_18]
-    vsubss  xmm1, xmm0, [rsp+0C8h+arg_0]
-    vmaxss  xmm8, xmm1, cs:__real@358637bd
-    vcomiss xmm8, cs:__real@358637bd
-  }
-  if ( v23 )
-    goto LABEL_29;
-  __asm { vcomiss xmm8, xmm7 }
-  if ( !(v23 | v24) )
-  {
-LABEL_29:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3eb0c6f7a0000000
-      vmovsd  [rsp+0C8h+var_90], xmm10
-      vmovsd  [rsp+0C8h+outBlendEnd], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovsd  [rsp+0C8h+outBlendStart], xmm1
-    }
-    v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 347, ASSERT_TYPE_ASSERT, "( static_cast<float>( 1.0E-6 ) ) <= ( blendFracDist ) && ( blendFracDist ) <= ( 1.0f )", "blendFracDist not in [static_cast<float>( ZERO_EPSILON ), 1.0f]\n\t%g not in [%g, %g]", *(double *)&outBlendStarta, *(double *)&outBlendEnda, v55);
-    v23 = 0;
-    v24 = !v30;
-    if ( v30 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vsubss  xmm0, xmm6, [rsp+0C8h+arg_0]
     vmaxss  xmm0, xmm0, xmm9
     vminss  xmm1, xmm0, xmm7
-    vdivss  xmm2, xmm1, xmm8
-    vmaxss  xmm0, xmm2, xmm9
-    vminss  xmm1, xmm0, xmm7
-    vsubss  xmm6, xmm7, xmm1
-    vcomiss xmm6, xmm9
-    vcomiss xmm6, xmm7
   }
-  if ( !(v23 | v24) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_90], xmm10
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+outBlendEnd], xmm11
-      vmovsd  [rsp+0C8h+outBlendStart], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 350, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( alpha ) && ( alpha ) <= ( 1.0f )", "alpha not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&outBlendStartb, *(double *)&outBlendEndb, v56) )
-      __debugbreak();
-  }
-  _R11 = &v58;
+  v19 = _XMM1;
+  *(float *)&v19 = *(float *)&_XMM1 / *(float *)&_XMM8;
+  _XMM2 = v19;
   __asm
   {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
+    vmaxss  xmm0, xmm2, xmm9
+    vminss  xmm1, xmm0, xmm7
   }
-  return *(float *)&_XMM0;
+  v22 = 1.0 - *(float *)&_XMM1;
+  if ( ((float)(1.0 - *(float *)&_XMM1) < 0.0 || v22 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 350, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( alpha ) && ( alpha ) <= ( 1.0f )", "alpha not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v22, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
+  return 1.0 - *(float *)&_XMM1;
 }
 
 /*
@@ -350,46 +264,30 @@ LABEL_29:
 CG_CalcCrosshairColor
 ==============
 */
-
-void __fastcall CG_CalcCrosshairColor(const LocalClientNum_t localClientNum, double alpha, vec4_t *outColor)
+void CG_CalcCrosshairColor(const LocalClientNum_t localClientNum, float alpha, vec4_t *outColor)
 {
   playerState_s *p_predictedPlayerState; 
   CgHandler *Handler; 
   const Weapon *Weapon; 
-  bool v13; 
+  bool v8; 
   CgWeaponMap *Instance; 
-  const WeaponDef *v15; 
-  const dvar_t *v16; 
-  const dvar_t *v17; 
-  const dvar_t *v21; 
-  double v24; 
+  const WeaponDef *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-  }
-  _RBX = outColor;
-  __asm
-  {
-    vmovaps xmm6, xmm1
-    vcomiss xmm1, cs:__real@3f800000
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovsd  [rsp+58h+var_30], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 437, ASSERT_TYPE_ASSERT, "( ( alpha >= 0.0f && alpha <= 1.0f ) )", "( alpha ) = %g", v24) )
+  if ( (alpha < 0.0 || alpha > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 437, ASSERT_TYPE_ASSERT, "( ( alpha >= 0.0f && alpha <= 1.0f ) )", "( alpha ) = %g", alpha) )
     __debugbreak();
   p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
   if ( BG_IsTurretActive(p_predictedPlayerState) )
   {
     Handler = CgHandler::getHandler(localClientNum);
     Weapon = Handler->PlayerTurret(Handler, p_predictedPlayerState);
-    v13 = 0;
+    v8 = 0;
   }
   else
   {
-    v13 = BG_UsingAlternate(p_predictedPlayerState);
+    v8 = BG_UsingAlternate(p_predictedPlayerState);
     Instance = CgWeaponMap::GetInstance(localClientNum);
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 885, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
@@ -397,50 +295,39 @@ void __fastcall CG_CalcCrosshairColor(const LocalClientNum_t localClientNum, dou
       __debugbreak();
     Weapon = BgWeaponMap::GetWeapon(Instance, p_predictedPlayerState->weapCommon.weaponHandle);
   }
-  v15 = BG_WeaponDef(Weapon, v13);
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 455, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+  v10 = BG_WeaponDef(Weapon, v8);
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 455, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( !v15->crosshairColorChange )
-    goto LABEL_29;
-  v16 = DVARBOOL_cg_crosshairFriendlyColorEnabled;
+  if ( !v10->crosshairColorChange )
+    goto LABEL_31;
+  v11 = DVARBOOL_cg_crosshairFriendlyColorEnabled;
   if ( !DVARBOOL_cg_crosshairFriendlyColorEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairFriendlyColorEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( !v16->current.enabled || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 3u) )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( !v11->current.enabled || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 3u) )
   {
-    v17 = DVARBOOL_cg_crosshairEnemyColorEnabled;
+    v12 = DVARBOOL_cg_crosshairEnemyColorEnabled;
     if ( !DVARBOOL_cg_crosshairEnemyColorEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairEnemyColorEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( v17->current.enabled && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 4u) && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_crosshairEnemyColor, "cg_crosshairEnemyColor") )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 4u) && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_crosshairEnemyColor, "cg_crosshairEnemyColor") )
     {
-      Dvar_GetUnpackedColorByName("NORTRLQQTT", _RBX);
-      goto LABEL_30;
+      Dvar_GetUnpackedColorByName("NORTRLQQTT", outColor);
+      goto LABEL_32;
     }
-LABEL_29:
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+8], xmm0
-    }
-    goto LABEL_30;
+LABEL_31:
+    outColor->v[0] = colorWhite.v[0];
+    outColor->v[1] = colorWhite.v[1];
+    outColor->v[2] = colorWhite.v[2];
+    goto LABEL_32;
   }
-  Dvar_GetUnpackedColorByName("NSRQOMSLKT", _RBX);
-LABEL_30:
-  v21 = DVARFLT_cg_crosshairAlpha;
+  Dvar_GetUnpackedColorByName("NSRQOMSLKT", outColor);
+LABEL_32:
+  v13 = DVARFLT_cg_crosshairAlpha;
   if ( !DVARFLT_cg_crosshairAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairAlpha") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+28h]
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v13);
+  outColor->v[3] = alpha * v13->current.value;
 }
 
 /*
@@ -448,107 +335,35 @@ LABEL_30:
 CG_CalcCrosshairPosition
 ==============
 */
-
-void __fastcall CG_CalcCrosshairPosition(const cg_t *cgameGlob, double screenWidth, double screenHeight, float *x, float *y)
+void CG_CalcCrosshairPosition(const cg_t *cgameGlob, const float screenWidth, const float screenHeight, float *x, float *y)
 {
-  char v20; 
-  char v21; 
+  float v5; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float tanHalfFovX; 
   vec3_t angles; 
   vec3_t forward; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovss  xmm0, dword ptr [rcx+49DFCh]
-    vmovss  xmm3, dword ptr [rcx+49E00h]
-  }
-  _RDI = y;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+angles], xmm0
-    vmovss  xmm0, dword ptr [rcx+178C8h]
-  }
-  _RSI = x;
-  _RBX = cgameGlob;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+angles+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+angles+4], xmm3
-    vmovaps xmm10, xmm2
-    vmovaps xmm11, xmm1
-  }
+  v5 = cgameGlob->gunAnglesExtrapolated.v[1];
+  angles.v[0] = cgameGlob->gunAnglesExtrapolated.v[0];
+  angles.v[2] = cgameGlob->refdefViewAngles.v[2];
+  angles.v[1] = v5;
   AngleVectors(&angles, &forward, NULL, NULL);
-  __asm
+  v8 = forward.v[1];
+  v9 = forward.v[0];
+  v10 = forward.v[2];
+  v11 = (float)((float)(forward.v[1] * cgameGlob->refdef.view.axis.m[0].v[1]) + (float)(forward.v[0] * cgameGlob->refdef.view.axis.m[0].v[0])) + (float)(forward.v[2] * cgameGlob->refdef.view.axis.m[0].v[2]);
+  if ( v11 <= 0.0 || (tanHalfFovX = cgameGlob->refdef.view.fov.tanHalfFovX, tanHalfFovX <= 0.0) )
   {
-    vmovss  xmm6, dword ptr [rsp+0B8h+forward+4]
-    vmulss  xmm1, xmm6, dword ptr [rbx+6948h]
-    vmovss  xmm7, dword ptr [rsp+0B8h+forward]
-    vmulss  xmm0, xmm7, dword ptr [rbx+6944h]
-    vmovss  xmm8, dword ptr [rsp+0B8h+forward+8]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm8, dword ptr [rbx+694Ch]
-    vaddss  xmm9, xmm2, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm9, xmm1
-  }
-  if ( v20 | v21 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+6930h]
-    vcomiss xmm3, xmm1
-  }
-  if ( v20 | v21 )
-  {
-LABEL_4:
-    *_RSI = 0.0;
-    __asm { vmovss  dword ptr [rdi], xmm1 }
+    *x = 0.0;
+    *y = 0;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbx+6954h]
-      vmulss  xmm0, xmm7, dword ptr [rbx+6950h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [rbx+6958h]
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm1, xmm11, cs:__real@3f000000
-      vmulss  xmm0, xmm3, xmm9
-      vdivss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rsi], xmm0
-      vmulss  xmm1, xmm6, dword ptr [rbx+6960h]
-      vmulss  xmm0, xmm7, dword ptr [rbx+695Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [rbx+6964h]
-      vmulss  xmm0, xmm9, dword ptr [rbx+6934h]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm10, cs:__real@3f000000
-      vdivss  xmm2, xmm3, xmm0
-      vmulss  xmm2, xmm2, xmm1
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rdi], xmm0
-    }
-  }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    *x = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(forward.v[1] * cgameGlob->refdef.view.axis.m[1].v[1]) + (float)(forward.v[0] * cgameGlob->refdef.view.axis.m[1].v[0])) + (float)(forward.v[2] * cgameGlob->refdef.view.axis.m[1].v[2])) / (float)(tanHalfFovX * v11)) * (float)(screenWidth * 0.5)) ^ _xmm);
+    *y = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v8 * cgameGlob->refdef.view.axis.m[2].v[1]) + (float)(v9 * cgameGlob->refdef.view.axis.m[2].v[0])) + (float)(v10 * cgameGlob->refdef.view.axis.m[2].v[2])) / (float)(v11 * cgameGlob->refdef.view.fov.tanHalfFovY)) * (float)(screenHeight * 0.5)) ^ _xmm);
   }
 }
 
@@ -557,89 +372,40 @@ LABEL_4:
 CG_CalcReticleColor
 ==============
 */
-
-void __fastcall CG_CalcReticleColor(const vec4_t *baseColor, double alpha, double adsAlpha, float aimSpreadScale, vec4_t *outReticleColor)
+void CG_CalcReticleColor(const vec4_t *baseColor, float alpha, float adsAlpha, float aimSpreadScale, vec4_t *outReticleColor)
 {
-  const dvar_t *v15; 
-  char v18; 
-  char v19; 
-  double v28; 
-  double v29; 
-  char v31; 
-  void *retaddr; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
+  float value; 
+  const dvar_t *v9; 
+  float v10; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm1, xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmm9, xmm2
-    vmovaps xmm6, xmm1
-    vcomiss xmm1, cs:__real@3f800000
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovsd  [rsp+78h+var_50], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 926, ASSERT_TYPE_ASSERT, "( ( alpha >= 0 && alpha <= 1.0f ) )", "( alpha ) = %g", v28) )
+  if ( (alpha < 0.0 || alpha > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 926, ASSERT_TYPE_ASSERT, "( ( alpha >= 0 && alpha <= 1.0f ) )", "( alpha ) = %g", alpha) )
     __debugbreak();
-  _RDI = outReticleColor;
   *(_QWORD *)outReticleColor->v = *(_QWORD *)baseColor->v;
   outReticleColor->v[2] = baseColor->v[2];
-  v15 = DVARFLT_cg_crosshairAlpha;
+  v6 = DVARFLT_cg_crosshairAlpha;
   if ( !DVARFLT_cg_crosshairAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairAlpha") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmovss  dword ptr [rdi+0Ch], xmm0
-  }
-  _RBX = DVARFLT_cg_crosshairAlphaMin;
+  Dvar_CheckFrontendServerThread(v6);
+  outReticleColor->v[3] = alpha * v6->current.value;
+  v7 = DVARFLT_cg_crosshairAlphaMin;
   if ( !DVARFLT_cg_crosshairAlphaMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairAlphaMin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  value = outReticleColor->v[3];
+  if ( value < v7->current.value )
   {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vcomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( v18 )
-  {
-    _RBX = DVARFLT_cg_crosshairAlphaMin;
+    v9 = DVARFLT_cg_crosshairAlphaMin;
     if ( !DVARFLT_cg_crosshairAlphaMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairAlphaMin") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v9);
+    value = v9->current.value;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm9
-    vcomiss xmm0, xmm8
-    vmovss  dword ptr [rdi+0Ch], xmm0
-  }
-  if ( v18 )
-    goto LABEL_16;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v18 | v19) )
-  {
-LABEL_16:
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+78h+var_50], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 938, ASSERT_TYPE_SANITY, "( ( outReticleColor[3] >= 0 && outReticleColor[3] <= 1.0f ) )", "( outReticleColor[3] ) = %g", v29) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
+  v10 = value * adsAlpha;
+  outReticleColor->v[3] = value * adsAlpha;
+  if ( ((float)(value * adsAlpha) < 0.0 || v10 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 938, ASSERT_TYPE_SANITY, "( ( outReticleColor[3] >= 0 && outReticleColor[3] <= 1.0f ) )", "( outReticleColor[3] ) = %g", v10) )
+    __debugbreak();
 }
 
 /*
@@ -650,70 +416,37 @@ CG_CalcReticleSpreadRadius
 float CG_CalcReticleSpreadRadius(const cg_t *cgameGlob, const Weapon *weapon, bool isAlternate)
 {
   CgHandler *Handler; 
-  bool IsTargetAssistActive; 
-  bool v14; 
+  double v7; 
+  float tanHalfFovY; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
   float outAngle; 
   float outRange; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps [rsp+68h+var_38], xmm7
-  }
-  _RDI = cgameGlob;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 860, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   BG_WeaponDef(weapon, isAlternate);
-  Handler = CgHandler::getHandler(_RDI->localClientNum);
-  __asm
+  Handler = CgHandler::getHandler(cgameGlob->localClientNum);
+  v7 = BG_CalculateFinalSpreadForWeapon(Handler, &cgameGlob->predictedPlayerState, weapon, cgameGlob->predictedPlayerState.weapCommon.aimSpreadScale * 0.0039215689);
+  outAngle = *(float *)&v7;
+  if ( BG_IsTargetAssistActive(&cgameGlob->predictedPlayerState, NULL, weapon, isAlternate) )
+    BG_GetTargetAssistAngleRange(weapon, isAlternate, outAngle, 0.0, &outAngle, &outRange);
+  tanHalfFovY = cgameGlob->refdef.view.fov.tanHalfFovY;
+  if ( tanHalfFovY == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+74Ch]
-    vmulss  xmm3, xmm0, cs:__real@3b808081; aimSpreadScale
-  }
-  *(double *)&_XMM0 = BG_CalculateFinalSpreadForWeapon(Handler, &_RDI->predictedPlayerState, weapon, *(float *)&_XMM3);
-  __asm { vmovss  [rsp+68h+outAngle], xmm0 }
-  IsTargetAssistActive = BG_IsTargetAssistActive(&_RDI->predictedPlayerState, NULL, weapon, isAlternate);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v14 = !IsTargetAssistActive;
-  if ( IsTargetAssistActive )
-  {
-    __asm
-    {
-      vmovss  xmm2, [rsp+68h+outAngle]; fallbackAngle
-      vxorps  xmm3, xmm3, xmm3; fallbackRange
-    }
-    BG_GetTargetAssistAngleRange(weapon, isAlternate, *(const float *)&_XMM2, *(const float *)&_XMM3, &outAngle, &outRange);
-  }
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi+6934h]
-    vucomiss xmm7, xmm6
-  }
-  if ( v14 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+outAngle]
-      vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-    }
-    *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@43700000
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [r14+240h]
-      vdivss  xmm3, xmm1, xmm7
-      vmaxss  xmm0, xmm3, xmm2
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
+    v11 = LODWORD(outAngle);
+    *(float *)&v11 = outAngle * 0.017453292;
+    v10 = v11;
+    *(float *)&v10 = tanf_0(outAngle * 0.017453292);
+    v12 = v10;
+    *(float *)&v12 = (float)(*(float *)&v10 * 240.0) / tanHalfFovY;
+    _XMM3 = v12;
+    __asm { vmaxss  xmm0, xmm3, xmm2 }
   }
   return *(float *)&_XMM0;
 }
@@ -725,222 +458,86 @@ CG_DrawAdsOverlay
 */
 void CG_DrawAdsOverlay(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const vec4_t *color, const vec2_t *crosshairPos)
 {
+  const ADSOverlay *Overlay; 
   const ScreenPlacement *ActivePlacement; 
   Material *material; 
-  bool IsSplitscreenGame; 
-  const dvar_t *v54; 
-  const dvar_t *v65; 
+  float widthSplitscreen; 
   float h; 
-  float ha; 
-  float hb; 
-  float hc; 
-  float hd; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
-  float v86; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  float v91; 
-  float v92; 
-  float v93; 
-  float v94; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  const dvar_t *v22; 
   float x; 
   float y; 
   float w; 
-  float v98; 
+  float v26; 
 
-  _R14 = BG_GetOverlay(weapon, isAlternate);
+  Overlay = BG_GetOverlay(weapon, isAlternate);
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
   material = CG_GetWeapOverlayMaterial(localClientNum, weapon, isAlternate, ActivePlacement);
   if ( material )
   {
-    IsSplitscreenGame = CL_Main_IsSplitscreenGame();
-    if ( IsSplitscreenGame )
+    if ( CL_Main_IsSplitscreenGame() )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+50h]
-        vmovss  [rbp+4Fh+w], xmm3
-        vmovss  xmm4, dword ptr [r14+54h]
-      }
+      widthSplitscreen = Overlay->widthSplitscreen;
+      w = widthSplitscreen;
+      h = Overlay->heightSplitscreen;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+48h]; w
-        vmovss  [rbp+4Fh+w], xmm3
-        vmovss  xmm4, dword ptr [r14+4Ch]
-      }
+      widthSplitscreen = Overlay->width;
+      w = widthSplitscreen;
+      h = Overlay->height;
     }
-    __asm
+    v26 = h;
+    if ( widthSplitscreen > 320.0 || h > 240.0 )
     {
-      vcomiss xmm3, cs:__real@43a00000
-      vmovss  [rbp+4Fh+var_74], xmm4
-    }
-    if ( IsSplitscreenGame )
-    {
-      _RAX = crosshairPos;
-      __asm
-      {
-        vmulss  xmm1, xmm3, cs:__real@3f000000
-        vmulss  xmm2, xmm4, cs:__real@3f000000
-      }
-      v54 = DVARBOOL_cg_debug_overlay_viewport;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vsubss  xmm1, xmm0, xmm1
-        vmovss  xmm0, dword ptr [rax+4]
-        vmovss  [rbp+4Fh+x], xmm1
-        vsubss  xmm1, xmm0, xmm2
-        vmovss  [rbp+4Fh+y], xmm1
-      }
+      v20 = DVARBOOL_cg_debug_overlay_viewport;
+      v21 = crosshairPos->v[1];
+      x = crosshairPos->v[0] - (float)(widthSplitscreen * 0.5);
+      y = v21 - (float)(h * 0.5);
       if ( !DVARBOOL_cg_debug_overlay_viewport && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debug_overlay_viewport") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v54);
-      if ( !v54->current.enabled )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  xmm3, [rbp+4Fh+w]; w
-          vmovss  xmm2, [rbp+4Fh+y]; y
-          vmovss  [rsp+0F0h+var_A0], xmm0
-          vmovss  [rsp+0F0h+var_A8], xmm0
-          vmovss  xmm0, [rbp+4Fh+var_74]
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  [rsp+0F0h+var_B0], xmm1
-          vmovss  [rsp+0F0h+var_B8], xmm1
-          vmovss  xmm1, [rbp+4Fh+x]; x
-          vmovss  dword ptr [rsp+0F0h+h], xmm0
-        }
-        CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hd, 2, 2, v79, v84, v89, v94, color, material);
-      }
-      ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &v98, 2, 2);
-      v65 = DVARBOOL_cg_debug_overlay_viewport;
+      Dvar_CheckFrontendServerThread(v20);
+      if ( !v20->current.enabled )
+        CL_DrawStretchPic(ActivePlacement, x, y, w, v26, 2, 2, 0.0, 0.0, 1.0, 1.0, color, material);
+      ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &v26, 2, 2);
+      v22 = DVARBOOL_cg_debug_overlay_viewport;
       if ( !DVARBOOL_cg_debug_overlay_viewport && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debug_overlay_viewport") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v65);
-      if ( !v65->current.enabled )
-      {
-        __asm
-        {
-          vmovss  xmm2, [rbp+4Fh+y]; innerTop
-          vmovss  xmm0, [rbp+4Fh+x]; innerLeft
-          vaddss  xmm3, xmm2, [rbp+4Fh+var_74]; innerBottom
-          vaddss  xmm1, xmm0, [rbp+4Fh+w]; innerRight
-        }
-        CG_DrawFrameOverlay(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, color, material);
-      }
+      Dvar_CheckFrontendServerThread(v22);
+      if ( !v22->current.enabled )
+        CG_DrawFrameOverlay(x, x + w, y, y + v26, color, material);
     }
     else
     {
-      __asm { vcomiss xmm4, cs:__real@43700000 }
-      _RBX = crosshairPos;
-      __asm
-      {
-        vmovaps [rsp+0F0h+var_50], xmm6
-        vmovss  xmm0, dword ptr [rbx]
-        vsubss  xmm1, xmm0, xmm3; x
-        vmovss  xmm0, dword ptr [rbx+4]
-        vxorps  xmm6, xmm6, xmm6
-        vsubss  xmm2, xmm0, xmm4; y
-        vmovaps [rsp+0F0h+var_60], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  [rsp+0F0h+var_A0], xmm7
-        vmovss  [rsp+0F0h+var_A8], xmm7
-        vmovss  [rsp+0F0h+var_B0], xmm6
-        vmovss  [rsp+0F0h+var_B8], xmm6
-        vmovss  [rbp+4Fh+y], xmm2
-        vmovss  [rbp+4Fh+x], xmm1
-        vmovss  dword ptr [rsp+0F0h+h], xmm4
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, 2, 2, v75, v80, v85, v90, color, material);
-      __asm
-      {
-        vmovss  xmm3, [rbp+4Fh+var_74]
-        vmovss  xmm0, dword ptr [rbx+4]
-        vmovss  xmm1, dword ptr [rbx]; x
-        vmovss  [rsp+0F0h+var_A0], xmm7
-        vmovss  [rsp+0F0h+var_A8], xmm6
-        vmovss  [rsp+0F0h+var_B0], xmm6
-        vmovss  [rsp+0F0h+var_B8], xmm7
-        vsubss  xmm2, xmm0, xmm3; y
-        vmovss  dword ptr [rsp+0F0h+h], xmm3
-        vmovss  xmm3, [rbp+4Fh+w]; w
-        vmovss  [rbp+4Fh+x], xmm1
-        vmovss  [rbp+4Fh+y], xmm2
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ha, 2, 2, v76, v81, v86, v91, color, material);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  xmm3, [rbp+4Fh+w]; w
-        vmovss  xmm2, dword ptr [rbx+4]; y
-        vmovss  [rsp+0F0h+var_A0], xmm6
-        vmovss  [rsp+0F0h+var_A8], xmm7
-        vmovss  [rsp+0F0h+var_B0], xmm7
-        vmovss  [rsp+0F0h+var_B8], xmm6
-        vsubss  xmm1, xmm0, xmm3; x
-        vmovss  xmm0, [rbp+4Fh+var_74]
-        vmovss  dword ptr [rsp+0F0h+h], xmm0
-        vmovss  [rbp+4Fh+x], xmm1
-        vmovss  [rbp+4Fh+y], xmm2
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hb, 2, 2, v77, v82, v87, v92, color, material);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx]; x
-        vmovss  xmm2, dword ptr [rbx+4]; y
-        vmovss  xmm0, [rbp+4Fh+var_74]
-        vmovss  xmm3, [rbp+4Fh+w]; w
-        vmovss  [rsp+0F0h+var_A0], xmm6
-        vmovss  [rsp+0F0h+var_A8], xmm6
-        vmovss  [rsp+0F0h+var_B0], xmm7
-        vmovss  [rsp+0F0h+var_B8], xmm7
-        vmovss  dword ptr [rsp+0F0h+h], xmm0
-        vmovss  [rbp+4Fh+x], xmm1
-        vmovss  [rbp+4Fh+y], xmm2
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hc, 2, 2, v78, v83, v88, v93, color, material);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vsubss  xmm1, xmm0, [rbp+4Fh+w]
-        vmovss  xmm2, dword ptr [rbx+4]
-        vsubss  xmm0, xmm2, [rbp+4Fh+var_74]
-        vmovss  [rbp+4Fh+y], xmm0
-        vmovss  [rbp+4Fh+x], xmm1
-      }
-      ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &v98, 2, 2);
-      __asm
-      {
-        vmovss  xmm4, cs:__real@40000000
-        vmulss  xmm1, xmm4, [rbp+4Fh+var_74]
-        vmovss  xmm2, [rbp+4Fh+y]; innerTop
-        vmulss  xmm4, xmm4, [rbp+4Fh+w]
-        vmovss  xmm0, [rbp+4Fh+x]; innerLeft
-        vaddss  xmm3, xmm1, xmm2; innerBottom
-        vaddss  xmm1, xmm4, xmm0; innerRight
-      }
-      CG_DrawFrameOverlay(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, color, material);
-      __asm
-      {
-        vmovaps xmm7, [rsp+0F0h+var_60]
-        vmovaps xmm6, [rsp+0F0h+var_50]
-      }
+      v14 = crosshairPos->v[0] - widthSplitscreen;
+      v15 = crosshairPos->v[1];
+      y = v15 - h;
+      x = v14;
+      CL_DrawStretchPic(ActivePlacement, v14, v15 - h, widthSplitscreen, h, 2, 2, 0.0, 0.0, 1.0, 1.0, color, material);
+      v16 = crosshairPos->v[1];
+      x = crosshairPos->v[0];
+      y = v16 - v26;
+      CL_DrawStretchPic(ActivePlacement, x, v16 - v26, w, v26, 2, 2, 1.0, 0.0, 0.0, 1.0, color, material);
+      v17 = crosshairPos->v[1];
+      x = crosshairPos->v[0] - w;
+      y = v17;
+      CL_DrawStretchPic(ActivePlacement, x, v17, w, v26, 2, 2, 0.0, 1.0, 1.0, 0.0, color, material);
+      v18 = crosshairPos->v[1];
+      x = crosshairPos->v[0];
+      y = v18;
+      CL_DrawStretchPic(ActivePlacement, x, v18, w, v26, 2, 2, 1.0, 1.0, 0.0, 0.0, color, material);
+      v19 = crosshairPos->v[0] - w;
+      y = crosshairPos->v[1] - v26;
+      x = v19;
+      ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &v26, 2, 2);
+      CG_DrawFrameOverlay(x, (float)(2.0 * w) + x, y, (float)(2.0 * v26) + y, color, material);
     }
   }
 }
@@ -950,143 +547,33 @@ void CG_DrawAdsOverlay(LocalClientNum_t localClientNum, const Weapon *weapon, bo
 CG_DrawFrameOverlay
 ==============
 */
-
-void __fastcall CG_DrawFrameOverlay(double innerLeft, double innerRight, double innerTop, double innerBottom, const vec4_t *color, Material *material)
+void CG_DrawFrameOverlay(float innerLeft, float innerRight, float innerTop, float innerBottom, const vec4_t *color, Material *material)
 {
-  char v19; 
-  char v20; 
-  Material *v21; 
-  const vec4_t *v22; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  char v70; 
-  void *retaddr; 
-  int v72; 
-  int v73; 
-  float v74; 
+  Material *v6; 
+  const vec4_t *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  int v12; 
+  int v13; 
+  float v14; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps xmm13, xmm2
-    vmovaps xmm10, xmm3
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm0
-  }
-  CL_GetScreenDimensions(&v72, &v73, &v74);
-  v21 = material;
-  v22 = color;
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f800000
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-    vxorps  xmm12, xmm12, xmm12
-    vcvtsi2ss xmm12, xmm12, [rsp+0D8h+arg_0]
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, [rsp+0D8h+arg_8]
-  }
-  if ( !(v19 | v20) )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A0], xmm11
-      vmovss  [rsp+0D8h+var_A8], xmm6
-      vmovss  [rsp+0D8h+var_B0], xmm6
-      vmovaps xmm3, xmm9; h
-      vmovaps xmm2, xmm7; w
-      vxorps  xmm1, xmm1, xmm1; y
-      vxorps  xmm0, xmm0, xmm0; x
-      vmovss  [rsp+0D8h+var_B8], xmm6
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&innerRight, *(float *)&_XMM2, *(float *)&_XMM3, v53, v57, v61, v65, color, material);
-  }
-  __asm { vcomiss xmm8, xmm12 }
-  if ( v19 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A0], xmm11
-      vmovss  [rsp+0D8h+var_A8], xmm6
-      vmovss  [rsp+0D8h+var_B0], xmm6
-      vsubss  xmm2, xmm12, xmm8; w
-      vmovaps xmm3, xmm9; h
-      vxorps  xmm1, xmm1, xmm1; y
-      vmovaps xmm0, xmm8; x
-      vmovss  [rsp+0D8h+var_B8], xmm6
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&innerRight, *(float *)&_XMM2, *(float *)&_XMM3, v54, v58, v62, v66, v22, v21);
-  }
-  __asm
-  {
-    vcomiss xmm13, xmm6
-    vsubss  xmm8, xmm8, xmm7
-  }
-  if ( !(v19 | v20) )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A0], xmm6
-      vmovss  [rsp+0D8h+var_A8], xmm11
-      vmovss  [rsp+0D8h+var_B0], xmm6
-      vmovaps xmm3, xmm13; h
-      vmovaps xmm2, xmm8; w
-      vxorps  xmm1, xmm1, xmm1; y
-      vmovaps xmm0, xmm7; x
-      vmovss  [rsp+0D8h+var_B8], xmm6
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v55, v59, v63, v67, v22, v21);
-  }
-  __asm { vcomiss xmm10, xmm9 }
-  if ( v19 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A0], xmm6
-      vmovss  [rsp+0D8h+var_A8], xmm11
-      vmovss  [rsp+0D8h+var_B0], xmm6
-      vsubss  xmm3, xmm9, xmm10; h
-      vmovaps xmm2, xmm8; w
-      vmovaps xmm1, xmm10; y
-      vmovaps xmm0, xmm7; x
-      vmovss  [rsp+0D8h+var_B8], xmm6
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v56, v60, v64, v68, v22, v21);
-  }
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  CL_GetScreenDimensions(&v12, &v13, &v14);
+  v6 = material;
+  v7 = color;
+  v8 = (float)v12;
+  v10 = (float)v13;
+  v9 = v10;
+  if ( innerLeft > 0.0 )
+    CL_DrawStretchPicPhysical(0.0, 0.0, innerLeft, v10, 0.0, 0.0, 0.0, 1.0, color, material);
+  if ( innerRight < v8 )
+    CL_DrawStretchPicPhysical(innerRight, 0.0, v8 - innerRight, v10, 0.0, 0.0, 0.0, 1.0, v7, v6);
+  v11 = innerRight - innerLeft;
+  if ( innerTop > 0.0 )
+    CL_DrawStretchPicPhysical(innerLeft, 0.0, v11, innerTop, 0.0, 0.0, 1.0, 0.0, v7, v6);
+  if ( innerBottom < v9 )
+    CL_DrawStretchPicPhysical(innerLeft, innerBottom, v11, v9 - innerBottom, 0.0, 0.0, 1.0, 0.0, v7, v6);
 }
 
 /*
@@ -1096,104 +583,64 @@ CG_DrawReticleCenter
 */
 void CG_DrawReticleCenter(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const vec4_t *color, float centerX, float centerY)
 {
-  const WeaponDef *v13; 
-  const dvar_t *v14; 
+  const WeaponDef *v10; 
+  const dvar_t *v11; 
+  float v12; 
   cg_t *LocalClientGlobals; 
-  const cg_t *v22; 
+  int v14; 
+  float v15; 
+  const cg_t *v16; 
   Material *material; 
   const ScreenPlacement *ActivePlacement; 
-  float shouldPulse; 
-  float v38; 
-  float v39; 
-  float v40; 
-  float v41; 
   bool result; 
-  bool v43; 
+  bool shouldPulse; 
   bool spin45; 
   int reticleCenterSize; 
   Material *reticleCenter; 
   int reticleSideSize; 
   Material *reticleSide; 
 
-  v13 = BG_WeaponDef(weapon, isAlternate);
-  BG_GetCenterReticle(weapon, isAlternate, &reticleCenter, &reticleCenterSize, &v43);
+  v10 = BG_WeaponDef(weapon, isAlternate);
+  BG_GetCenterReticle(weapon, isAlternate, &reticleCenter, &reticleCenterSize, &shouldPulse);
   if ( reticleCenter )
   {
-    v14 = DCONST_DVARBOOL_lui_footage_capture_enabled;
+    v11 = DCONST_DVARBOOL_lui_footage_capture_enabled;
     if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( !v14->current.enabled )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( !v11->current.enabled )
     {
       CG_GetOmnvar_BooleanByName(localClientNum, "ui_realism_hud", &result, NULL, NULL);
       if ( !result )
       {
-        __asm
-        {
-          vmovaps [rsp+0E8h+var_48], xmm6
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, [rsp+0E8h+reticleCenterSize]
-          vmovaps [rsp+0E8h+var_58], xmm7
-        }
+        v12 = (float)reticleCenterSize;
         if ( BG_IsOffhandWeaponType(weapon, isAlternate) )
         {
-          if ( v13->bCookOffHold )
+          if ( v10->bCookOffHold )
           {
             BG_GetSideReticle(weapon, isAlternate, &reticleSide, &reticleSideSize, &spin45);
-            if ( !reticleSide && v43 )
+            if ( !reticleSide && shouldPulse )
             {
               LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-              if ( LocalClientGlobals->predictedPlayerState.grenadeTimeLeft != BG_GetCookingGrenadeFuseMin(weapon, isAlternate, &LocalClientGlobals->predictedPlayerState) )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, ecx
-                  vmulss  xmm1, xmm0, cs:__real@3c23d70a
-                  vaddss  xmm6, xmm1, xmm6
-                }
-              }
+              v14 = LocalClientGlobals->predictedPlayerState.grenadeTimeLeft - BG_GetCookingGrenadeFuseMin(weapon, isAlternate, &LocalClientGlobals->predictedPlayerState);
+              if ( v14 )
+                v12 = (float)((float)(v14 % 1000) * 0.0099999998) + v12;
             }
           }
         }
-        __asm { vmovaps xmm7, xmm6 }
+        v15 = v12;
         if ( CL_IsRenderingSplitScreen() )
         {
-          __asm
-          {
-            vmulss  xmm6, xmm6, cs:__real@40000000
-            vmovaps xmm7, xmm6
-          }
+          v12 = v12 * 2.0;
+          v15 = v12;
         }
-        v22 = CG_GetLocalClientGlobals(localClientNum);
-        CG_Draw_UpdateScramblerState(v22, localClientNum);
+        v16 = CG_GetLocalClientGlobals(localClientNum);
+        CG_Draw_UpdateScramblerState(v16, localClientNum);
         if ( !CG_Draw_IsScramblingActive(localClientNum) )
         {
           material = reticleCenter;
           ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-          __asm
-          {
-            vmulss  xmm1, xmm6, cs:__real@3f000000
-            vmovss  xmm0, [rsp+0E8h+centerY]
-            vmulss  xmm3, xmm7, cs:__real@3f000000
-            vsubss  xmm2, xmm0, xmm1; y
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  xmm1, [rsp+0E8h+centerX]
-            vmovss  [rsp+0E8h+var_98], xmm0
-            vmovss  [rsp+0E8h+var_A0], xmm0
-            vxorps  xmm4, xmm4, xmm4
-            vmovss  [rsp+0E8h+var_A8], xmm4
-            vmovss  [rsp+0E8h+var_B0], xmm4
-            vsubss  xmm1, xmm1, xmm3; x
-            vmovaps xmm3, xmm6; w
-            vmovss  dword ptr [rsp+0E8h+shouldPulse], xmm6
-          }
-          CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, shouldPulse, 2, 2, v38, v39, v40, v41, color, material);
-        }
-        __asm
-        {
-          vmovaps xmm6, [rsp+0E8h+var_48]
-          vmovaps xmm7, [rsp+0E8h+var_58]
+          CL_DrawStretchPic(ActivePlacement, centerX - (float)(v15 * 0.5), centerY - (float)(v12 * 0.5), v12, v12, 2, 2, 0.0, 0.0, 1.0, 1.0, color, material);
         }
       }
     }
@@ -1208,69 +655,24 @@ CG_DrawReticleOnePiece
 void CG_DrawReticleOnePiece(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const vec4_t *baseColor, float centerX, float centerY)
 {
   Material *material; 
-  char v18; 
+  cg_t *LocalClientGlobals; 
+  float v12; 
   const ScreenPlacement *ActivePlacement; 
   float adsAlpha; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
   float crossHairAlpha; 
   vec4_t outReticleColor; 
 
   material = BG_GetOnePieceReticle(weapon, isAlternate);
   if ( material )
   {
-    _R15 = CG_GetLocalClientGlobals(localClientNum);
-    CG_DrawWeapReticle(localClientNum, weapon, isAlternate, &crossHairAlpha, &v37);
-    __asm
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    CG_DrawWeapReticle(localClientNum, weapon, isAlternate, &crossHairAlpha, &adsAlpha);
+    CG_CalcReticleColor(baseColor, crossHairAlpha, adsAlpha, LocalClientGlobals->predictedPlayerState.weapCommon.aimSpreadScale, &outReticleColor);
+    if ( outReticleColor.v[3] >= 0.0099999998 )
     {
-      vmovss  xmm3, dword ptr [r15+74Ch]; aimSpreadScale
-      vmovss  xmm2, [rsp+0D8h+var_68]; adsAlpha
-      vmovss  xmm1, [rsp+0D8h+crossHairAlpha]; alpha
-    }
-    CG_CalcReticleColor(baseColor, *(double *)&_XMM1, *(double *)&_XMM2, *(float *)&_XMM3, &outReticleColor);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0D8h+outReticleColor+0Ch]
-      vcomiss xmm0, cs:__real@3c23d70a
-    }
-    if ( !v18 )
-    {
-      __asm
-      {
-        vmovaps [rsp+0D8h+var_38], xmm6
-        vmovaps [rsp+0D8h+var_48], xmm7
-      }
-      *(float *)&_XMM0 = CG_CalcReticleSpreadRadius(_R15, weapon, isAlternate);
-      __asm
-      {
-        vmulss  xmm7, xmm0, cs:__real@40000000
-        vmovaps xmm6, xmm0
-      }
+      v12 = CG_CalcReticleSpreadRadius(LocalClientGlobals, weapon, isAlternate);
       ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm1, [rsp+0D8h+centerY]
-        vmovss  xmm3, [rsp+0D8h+centerX]
-        vmovss  [rsp+0D8h+var_88], xmm0
-        vmovss  [rsp+0D8h+var_90], xmm0
-        vxorps  xmm4, xmm4, xmm4
-        vmovss  [rsp+0D8h+var_98], xmm4
-        vmovss  [rsp+0D8h+var_A0], xmm4
-        vsubss  xmm2, xmm1, xmm6; y
-        vsubss  xmm1, xmm3, xmm6; x
-        vmovaps xmm3, xmm7; w
-        vmovss  dword ptr [rsp+0D8h+adsAlpha], xmm7
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, adsAlpha, 2, 2, v33, v34, v35, v36, &outReticleColor, material);
-      __asm
-      {
-        vmovaps xmm7, [rsp+0D8h+var_48]
-        vmovaps xmm6, [rsp+0D8h+var_38]
-      }
+      CL_DrawStretchPic(ActivePlacement, centerX - v12, centerY - v12, v12 * 2.0, v12 * 2.0, 2, 2, 0.0, 0.0, 1.0, 1.0, &outReticleColor, material);
     }
   }
 }
@@ -1282,579 +684,390 @@ CG_DrawReticleSides
 */
 void CG_DrawReticleSides(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const vec4_t *baseColor, float centerX, float centerY)
 {
-  const ScreenPlacement *ActivePlacement; 
+  int v6; 
   cg_t *LocalClientGlobals; 
-  char v46; 
-  const WeaponDef *v68; 
-  char v90; 
-  bool v91; 
-  char v130; 
-  bool v131; 
-  char v153; 
-  char v154; 
-  float spin45; 
-  float spin45a; 
-  float spin45b; 
-  float spin45c; 
-  float spin45d; 
-  float spin45e; 
-  float spin45f; 
-  float spin45g; 
-  float spin45i; 
-  float spin45j; 
-  int horzAlign; 
-  float color; 
-  float colora; 
-  float colorb; 
-  float colorc; 
-  float colore; 
-  float colorf; 
+  const WeaponDef *v16; 
+  const ScreenPlacement *ActivePlacement; 
+  cg_t *v18; 
+  double CookingGrenadeCookPercentage; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  int v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  const WeaponDef *v32; 
+  bool v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
   float adsAlpha; 
   float crossHairAlpha; 
-  bool v236; 
+  bool spin45; 
+  float v58; 
   Material *reticleSide; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
   int reticleSideSize; 
   vec2_t drawSize; 
   vec4_t outReticleColor; 
   vec2_t spread; 
   vec4_t stuv; 
 
-  __asm
+  *(float *)&v6 = FLOAT_1_0;
+  BG_GetSideReticle(weapon, isAlternate, &reticleSide, &reticleSideSize, &spin45);
+  if ( !reticleSide )
+    return;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  CG_DrawWeapReticle(localClientNum, weapon, isAlternate, &crossHairAlpha, &adsAlpha);
+  CG_CalcReticleColor(baseColor, crossHairAlpha, adsAlpha, LocalClientGlobals->predictedPlayerState.weapCommon.aimSpreadScale, &outReticleColor);
+  if ( outReticleColor.v[3] < 0.0099999998 )
+    return;
+  _XMM0 = CL_IsRenderingSplitScreen();
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_2_0);
+  __asm { vblendvps xmm1, xmm1, xmm7, xmm2 }
+  drawSize.v[0] = (float)reticleSideSize * *(float *)&_XMM1;
+  drawSize.v[1] = drawSize.v[0];
+  v84 = *(float *)&_XMM1;
+  adsAlpha = *(float *)&_XMM1;
+  *(float *)&_XMM0 = CG_CalcReticleSpreadRadius(LocalClientGlobals, weapon, isAlternate);
+  v16 = BG_WeaponDef(weapon, isAlternate);
+  spread.v[0] = *(float *)&_XMM0 - (float)(drawSize.v[0] * v16->fHipReticleSidePos);
+  spread.v[1] = *(float *)&_XMM0 - (float)(drawSize.v[1] * v16->fHipReticleSidePos);
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  v18 = CG_GetLocalClientGlobals(localClientNum);
+  if ( BG_IsOffhandWeaponType(weapon, isAlternate) && BG_WeaponDef(weapon, isAlternate)->bCookOffHold )
   {
-    vmovaps [rsp+1D0h+var_40], xmm7
-    vmovss  xmm7, cs:__real@3f800000
+    if ( !v18->predictedPlayerState.grenadeTimeLeft )
+    {
+      v28 = 0.0;
+      v76 = 0.0;
+      v68 = 0.0;
+      v77 = 0.0;
+      v69 = 0.0;
+      v78 = 0.0;
+      v70 = 0.0;
+      v79 = 0.0;
+      v71 = 0.0;
+      v72 = 0.0;
+      v58 = 0.0;
+      v73 = 0.0;
+      v74 = 0.0;
+      crossHairAlpha = 0.0;
+      v75 = 0.0;
+      v80 = 0.0;
+      v61 = 0.0;
+      v81 = 0.0;
+      v63 = 0.0;
+      v82 = 0.0;
+      v62 = 0.0;
+      v83 = 0.0;
+      v66 = 0.0;
+      v64 = 0.0;
+      v67 = 0.0;
+      adsAlpha = 0.0;
+      v60 = 0.0;
+      v65 = 0.0;
+      v22 = 0.0;
+      v24 = 0.0;
+      *(float *)&v26 = 0.0;
+      v27 = 0.0;
+      v29 = 0.0;
+      v30 = 0.0;
+      *(float *)&v6 = 0.0;
+      goto LABEL_20;
+    }
+    CookingGrenadeCookPercentage = BG_GetCookingGrenadeCookPercentage(weapon, isAlternate, &v18->predictedPlayerState);
+    if ( *(float *)&CookingGrenadeCookPercentage < 0.25 )
+    {
+      v22 = *(float *)&CookingGrenadeCookPercentage * 4.0;
+      v20 = 0.0;
+    }
+    else
+    {
+      v21 = *(float *)&CookingGrenadeCookPercentage + -0.25;
+      v20 = v21;
+      v22 = FLOAT_1_0;
+      if ( v21 >= 0.25 )
+      {
+        v23 = v21 + -0.25;
+        v24 = FLOAT_1_0;
+LABEL_11:
+        if ( v23 < 0.25 )
+        {
+          *(float *)&v26 = v23 * 4.0;
+          v25 = 0.0;
+        }
+        else
+        {
+          v25 = v23 + -0.25;
+          *(float *)&v26 = FLOAT_1_0;
+        }
+        if ( v25 < 0.25 )
+          *(float *)&v6 = v25 * 4.0;
+        v72 = *(float *)&v26;
+        v58 = *(float *)&v26;
+        v73 = *(float *)&v26;
+        v74 = *(float *)&v26;
+        crossHairAlpha = *(float *)&v26;
+        v75 = *(float *)&v26;
+        v27 = *(float *)&v26;
+        v28 = *(float *)&v26;
+        goto LABEL_19;
+      }
+    }
+    v24 = v20 * 4.0;
+    v23 = 0.0;
+    goto LABEL_11;
   }
-  BG_GetSideReticle(weapon, isAlternate, &reticleSide, &reticleSideSize, &v236);
-  if ( reticleSide )
+  v72 = FLOAT_1_0;
+  v58 = FLOAT_1_0;
+  v73 = FLOAT_1_0;
+  v74 = FLOAT_1_0;
+  crossHairAlpha = FLOAT_1_0;
+  v75 = FLOAT_1_0;
+  v22 = FLOAT_1_0;
+  v24 = FLOAT_1_0;
+  *(float *)&v26 = FLOAT_1_0;
+  v27 = FLOAT_1_0;
+  v28 = FLOAT_1_0;
+LABEL_19:
+  v76 = *(float *)&v6;
+  v65 = *(float *)&v6;
+  v60 = *(float *)&v6;
+  adsAlpha = *(float *)&v6;
+  v67 = *(float *)&v6;
+  v64 = *(float *)&v6;
+  v66 = *(float *)&v6;
+  v83 = *(float *)&v6;
+  v62 = *(float *)&v6;
+  v82 = *(float *)&v6;
+  v63 = *(float *)&v6;
+  v81 = *(float *)&v6;
+  v61 = *(float *)&v6;
+  v80 = *(float *)&v6;
+  v71 = *(float *)&v6;
+  v79 = *(float *)&v6;
+  v70 = *(float *)&v6;
+  v78 = *(float *)&v6;
+  v69 = *(float *)&v6;
+  v77 = *(float *)&v6;
+  v68 = *(float *)&v6;
+  v30 = *(float *)&v6;
+  v29 = *(float *)&v6;
+LABEL_20:
+  v31 = outReticleColor.v[3];
+  v32 = BG_WeaponDef(weapon, isAlternate);
+  if ( BG_IsOffhandWeaponType(weapon, isAlternate) )
   {
-    _RBX = CG_GetLocalClientGlobals(localClientNum);
-    CG_DrawWeapReticle(localClientNum, weapon, isAlternate, &crossHairAlpha, &adsAlpha);
-    __asm
+    v33 = !v32->bCookOffHold;
+    v29 = v80;
+    v30 = v66;
+    v34 = v60;
+    v61 = v81;
+    v63 = v82;
+    v62 = v83;
+    v64 = v67;
+    v65 = *(float *)&v6;
+    if ( !v33 )
     {
-      vmovss  xmm3, dword ptr [rbx+74Ch]; aimSpreadScale
-      vmovss  xmm2, [rsp+1D0h+adsAlpha]; adsAlpha
-      vmovss  xmm1, [rsp+1D0h+crossHairAlpha]; alpha
-    }
-    CG_CalcReticleColor(baseColor, *(double *)&_XMM1, *(double *)&_XMM2, *(float *)&_XMM3, &outReticleColor);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0D0h+outReticleColor+0Ch]
-      vcomiss xmm0, cs:__real@3c23d70a
-    }
-    if ( !v46 )
-    {
-      __asm
+      v35 = drawSize.v[0];
+      v36 = centerX;
+      v37 = drawSize.v[1];
+      v60 = centerX - drawSize.v[0];
+      adsAlpha = centerY - drawSize.v[1];
+      if ( v22 <= 0.0 )
       {
-        vmovaps [rsp+1D0h+var_30], xmm6
-        vmovaps [rsp+1D0h+var_50], xmm8
-        vmovaps [rsp+1D0h+var_60], xmm9
-        vmovaps [rsp+1D0h+var_70], xmm10
-        vmovaps [rsp+1D0h+var_80], xmm11
-        vmovaps [rsp+1D0h+var_90], xmm12
-        vmovaps [rsp+1D0h+var_A0], xmm13
-        vmovaps [rsp+1D0h+var_B0], xmm14
-        vmovaps [rsp+1D0h+var_C0], xmm15
-      }
-      LOBYTE(_EAX) = CL_IsRenderingSplitScreen();
-      _ECX = 0;
-      _EAX = (unsigned __int8)_EAX;
-      __asm
-      {
-        vmovd   xmm1, ecx
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@40000000
-        vblendvps xmm1, xmm1, xmm7, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, [rbp+0D0h+reticleSideSize]
-        vmulss  xmm0, xmm0, xmm1
-        vmovss  dword ptr [rbp+0D0h+drawSize], xmm0
-        vmovss  dword ptr [rbp+0D0h+drawSize+4], xmm0
-        vmovss  [rbp+0D0h+var_108], xmm1
-        vmovss  [rsp+1D0h+adsAlpha], xmm1
-      }
-      *(float *)&_XMM0 = CG_CalcReticleSpreadRadius(_RBX, weapon, isAlternate);
-      __asm { vmovaps xmm6, xmm0 }
-      BG_WeaponDef(weapon, isAlternate);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+0D0h+drawSize]
-        vmulss  xmm2, xmm1, dword ptr [rax+524h]
-        vmovss  xmm1, dword ptr [rbp+0D0h+drawSize+4]
-        vsubss  xmm3, xmm6, xmm2
-        vmovss  dword ptr [rbp+0D0h+spread], xmm3
-        vmulss  xmm2, xmm1, dword ptr [rax+524h]
-        vsubss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [rbp+0D0h+spread+4], xmm0
-      }
-      ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( BG_IsOffhandWeaponType(weapon, isAlternate) && BG_WeaponDef(weapon, isAlternate)->bCookOffHold )
-      {
-        if ( !LocalClientGlobals->predictedPlayerState.grenadeTimeLeft )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vxorps  xmm12, xmm12, xmm12
-            vmovss  [rbp+0D0h+var_128], xmm0
-            vmovss  [rbp+0D0h+var_148], xmm0
-            vmovss  [rbp+0D0h+var_124], xmm1
-            vmovss  [rbp+0D0h+var_144], xmm0
-            vmovss  [rbp+0D0h+var_120], xmm0
-            vmovss  [rbp+0D0h+var_140], xmm0
-            vmovss  [rbp+0D0h+var_11C], xmm1
-            vmovss  [rbp+0D0h+var_13C], xmm0
-            vmovss  [rbp+0D0h+var_138], xmm0
-            vmovss  [rsp+1D0h+var_174], xmm1
-            vmovss  [rbp+0D0h+var_134], xmm0
-            vmovss  [rbp+0D0h+var_130], xmm0
-            vmovss  [rsp+1D0h+crossHairAlpha], xmm1
-            vmovss  [rbp+0D0h+var_12C], xmm0
-            vmovss  [rbp+0D0h+var_118], xmm0
-            vmovss  [rsp+1D0h+var_164], xmm0
-            vmovss  [rbp+0D0h+var_114], xmm0
-            vmovss  [rsp+1D0h+var_15C], xmm12
-            vmovss  [rbp+0D0h+var_110], xmm0
-            vmovss  [rsp+1D0h+var_160], xmm0
-            vmovss  [rbp+0D0h+var_10C], xmm0
-            vmovss  [rbp+0D0h+var_150], xmm0
-            vmovss  [rsp+1D0h+var_158], xmm0
-            vmovss  [rbp+0D0h+var_14C], xmm0
-            vmovss  [rsp+1D0h+adsAlpha], xmm0
-            vmovss  [rsp+1D0h+var_168], xmm0
-            vmovss  [rsp+1D0h+var_154], xmm0
-            vxorps  xmm10, xmm10, xmm10
-            vxorps  xmm9, xmm9, xmm9
-            vxorps  xmm8, xmm8, xmm8
-            vxorps  xmm13, xmm13, xmm13
-            vxorps  xmm15, xmm15, xmm15
-            vxorps  xmm14, xmm14, xmm14
-            vxorps  xmm7, xmm7, xmm7
-          }
-          goto LABEL_18;
-        }
-        *(double *)&_XMM0 = BG_GetCookingGrenadeCookPercentage(weapon, isAlternate, &LocalClientGlobals->predictedPlayerState);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3e800000
-          vcomiss xmm0, xmm3
-          vmovss  xmm2, cs:__real@40800000
-          vmovss  xmm4, cs:__real@be800000
-        }
-        if ( v46 )
-        {
-          __asm
-          {
-            vmulss  xmm10, xmm0, xmm2
-            vxorps  xmm0, xmm0, xmm0
-            vmulss  xmm9, xmm0, xmm2
-            vxorps  xmm1, xmm1, xmm1
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm4
-            vcomiss xmm0, xmm3
-            vmovaps xmm10, xmm7
-            vaddss  xmm1, xmm0, xmm4
-            vmovaps xmm9, xmm7
-          }
-        }
-        __asm { vcomiss xmm1, xmm3 }
-        if ( v46 )
-        {
-          __asm
-          {
-            vmulss  xmm8, xmm1, xmm2
-            vxorps  xmm0, xmm0, xmm0
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vaddss  xmm0, xmm1, xmm4
-            vmovaps xmm8, xmm7
-          }
-        }
-        __asm { vcomiss xmm0, xmm3 }
-        if ( v46 )
-          __asm { vmulss  xmm7, xmm0, xmm2 }
-        __asm
-        {
-          vmovss  [rbp+0D0h+var_138], xmm8
-          vmovss  [rsp+1D0h+var_174], xmm8
-          vmovss  [rbp+0D0h+var_134], xmm8
-          vmovss  [rbp+0D0h+var_130], xmm8
-          vmovss  [rsp+1D0h+crossHairAlpha], xmm8
-          vmovss  [rbp+0D0h+var_12C], xmm8
-          vmovaps xmm13, xmm8
-          vmovaps xmm12, xmm8
-        }
+        v38 = v76;
+        v39 = v77;
+        v40 = v78;
+        v41 = v79;
+        v42 = v58;
+        v43 = crossHairAlpha;
       }
       else
       {
-        __asm
-        {
-          vmovss  [rbp+0D0h+var_138], xmm7
-          vmovss  [rsp+1D0h+var_174], xmm7
-          vmovss  [rbp+0D0h+var_134], xmm7
-          vmovss  [rbp+0D0h+var_130], xmm7
-          vmovss  [rsp+1D0h+crossHairAlpha], xmm7
-          vmovss  [rbp+0D0h+var_12C], xmm7
-          vmovaps xmm10, xmm7
-          vmovaps xmm9, xmm7
-          vmovaps xmm8, xmm7
-          vmovaps xmm13, xmm7
-          vmovaps xmm12, xmm7
-        }
+        stuv = (vec4_t)_xmm;
+        outReticleColor.v[3] = (float)((float)((float)(v22 - 3.0) * v22) + 3.0) * v22;
+        UI_DrawMaterialWithUVs(ActivePlacement, centerX - drawSize.v[0], adsAlpha, drawSize.v[0], drawSize.v[1], 2, 2, &outReticleColor, reticleSide, &stuv);
+        v38 = v68;
+        v39 = v69;
+        v40 = v70;
+        v41 = v71;
+        v35 = drawSize.v[0];
+        v36 = centerX;
+        v27 = v72;
+        v42 = v73;
+        v28 = v74;
+        v43 = v75;
+        v37 = drawSize.v[1];
       }
-      __asm
+      if ( v38 > 0.0 )
       {
-        vmovss  [rbp+0D0h+var_128], xmm7
-        vmovss  [rsp+1D0h+var_154], xmm7
-        vmovss  [rsp+1D0h+var_168], xmm7
-        vmovss  [rsp+1D0h+adsAlpha], xmm7
-        vmovss  [rbp+0D0h+var_14C], xmm7
-        vmovss  [rsp+1D0h+var_158], xmm7
-        vmovss  [rbp+0D0h+var_150], xmm7
-        vmovss  [rbp+0D0h+var_10C], xmm7
-        vmovss  [rsp+1D0h+var_160], xmm7
-        vmovss  [rbp+0D0h+var_110], xmm7
-        vmovss  [rsp+1D0h+var_15C], xmm7
-        vmovss  [rbp+0D0h+var_114], xmm7
-        vmovss  [rsp+1D0h+var_164], xmm7
-        vmovss  [rbp+0D0h+var_118], xmm7
-        vmovss  [rbp+0D0h+var_13C], xmm7
-        vmovss  [rbp+0D0h+var_11C], xmm7
-        vmovss  [rbp+0D0h+var_140], xmm7
-        vmovss  [rbp+0D0h+var_120], xmm7
-        vmovss  [rbp+0D0h+var_144], xmm7
-        vmovss  [rbp+0D0h+var_124], xmm7
-        vmovss  [rbp+0D0h+var_148], xmm7
-        vmovaps xmm14, xmm7
-        vmovaps xmm15, xmm7
+        stuv = (vec4_t)_xmm;
+        outReticleColor.v[3] = (float)((float)((float)(v39 - 3.0) * v40) + 3.0) * v41;
+        UI_DrawMaterialWithUVs(ActivePlacement, v36, adsAlpha, v35, v37, 2, 2, &outReticleColor, reticleSide, &stuv);
+        v35 = drawSize.v[0];
+        v37 = drawSize.v[1];
+        v27 = v42;
+        v28 = v43;
       }
-LABEL_18:
-      __asm { vmovss  xmm11, dword ptr [rbp+0D0h+outReticleColor+0Ch] }
-      v68 = BG_WeaponDef(weapon, isAlternate);
-      if ( BG_IsOffhandWeaponType(weapon, isAlternate) )
+      if ( *(float *)&v26 > 0.0 )
       {
-        v91 = !v68->bCookOffHold;
-        __asm
-        {
-          vmovss  xmm0, [rbp+0D0h+var_114]
-          vmovss  xmm15, [rbp+0D0h+var_118]
-          vmovss  xmm14, [rbp+0D0h+var_150]
-          vmovss  xmm2, [rsp+1D0h+var_168]
-          vmovss  [rsp+1D0h+var_164], xmm0
-          vmovss  xmm0, [rbp+0D0h+var_110]
-          vmovss  [rsp+1D0h+var_15C], xmm0
-          vmovss  xmm0, [rbp+0D0h+var_10C]
-          vmovss  [rsp+1D0h+var_160], xmm0
-          vmovss  xmm0, [rbp+0D0h+var_14C]
-          vmovss  [rsp+1D0h+var_158], xmm0
-          vmovss  [rsp+1D0h+var_154], xmm7
-        }
-        if ( !v91 )
-        {
-          __asm
-          {
-            vcomiss xmm10, xmm6
-            vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-            vmovss  xmm4, [rbp+0D0h+centerX]
-            vmovss  xmm14, [rbp+0D0h+centerY]
-            vmovss  xmm11, dword ptr [rbp+0D0h+drawSize+4]
-            vmovss  xmm7, cs:__real@40400000
-            vsubss  xmm15, xmm4, xmm5
-            vsubss  xmm0, xmm14, xmm11
-            vmovss  [rsp+1D0h+var_168], xmm15
-            vmovss  [rsp+1D0h+adsAlpha], xmm0
-            vmovups xmm0, cs:__xmm@3f8000003f8000000000000000000000
-            vsubss  xmm1, xmm10, xmm7
-            vmulss  xmm2, xmm1, xmm10
-            vmovups xmmword ptr [rbp+0D0h+var_E0], xmm0
-            vaddss  xmm0, xmm2, xmm7
-            vmovss  xmm2, [rsp+1D0h+adsAlpha]; y
-            vmulss  xmm4, xmm0, xmm10
-            vmovaps xmm3, xmm5; w
-            vmovaps xmm1, xmm15; x
-            vmovss  dword ptr [rsp+1D0h+spin45], xmm11
-            vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm4
-          }
-          UI_DrawMaterialWithUVs(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45, 2, 2, &outReticleColor, reticleSide, &stuv);
-          __asm
-          {
-            vmovss  xmm0, [rbp+0D0h+var_148]
-            vmovss  xmm1, [rbp+0D0h+var_144]
-            vmovss  xmm2, [rbp+0D0h+var_140]
-            vmovss  xmm3, [rbp+0D0h+var_13C]
-            vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-            vmovss  xmm4, [rbp+0D0h+centerX]
-            vmovss  xmm13, [rbp+0D0h+var_138]
-            vmovss  xmm10, [rbp+0D0h+var_134]
-            vmovss  xmm12, [rbp+0D0h+var_130]
-            vmovss  xmm15, [rbp+0D0h+var_12C]
-            vmovss  xmm11, dword ptr [rbp+0D0h+drawSize+4]
-            vcomiss xmm0, xmm6
-          }
-          if ( !(v90 | v91) )
-          {
-            __asm
-            {
-              vmovups xmm0, cs:__xmm@3f80000000000000000000003f800000
-              vsubss  xmm1, xmm1, xmm7
-              vmulss  xmm2, xmm1, xmm2
-              vmovups xmmword ptr [rbp+0D0h+var_E0], xmm0
-              vaddss  xmm0, xmm2, xmm7
-              vmovss  xmm2, [rsp+1D0h+adsAlpha]; y
-              vmulss  xmm3, xmm0, xmm3
-              vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm3
-              vmovaps xmm3, xmm5; w
-              vmovaps xmm1, xmm4; x
-              vmovss  dword ptr [rsp+1D0h+spin45], xmm11
-            }
-            UI_DrawMaterialWithUVs(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45a, 2, 2, &outReticleColor, reticleSide, &stuv);
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-              vmovss  xmm11, dword ptr [rbp+0D0h+drawSize+4]
-              vmovaps xmm13, xmm10
-              vmovaps xmm12, xmm15
-            }
-          }
-          __asm { vcomiss xmm8, xmm6 }
-          if ( !(v90 | v91) )
-          {
-            __asm
-            {
-              vmovups xmm0, cs:__xmm@00000000000000003f8000003f800000
-              vsubss  xmm1, xmm8, xmm7
-              vmulss  xmm2, xmm1, xmm13
-              vmovss  xmm1, [rbp+0D0h+centerX]; x
-              vmovups xmmword ptr [rbp+0D0h+var_E0], xmm0
-              vaddss  xmm0, xmm2, xmm7
-              vmulss  xmm3, xmm0, xmm12
-              vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm3
-              vmovaps xmm3, xmm5; w
-              vmovaps xmm2, xmm14; y
-              vmovss  dword ptr [rsp+1D0h+spin45], xmm11
-            }
-            UI_DrawMaterialWithUVs(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45b, 2, 2, &outReticleColor, reticleSide, &stuv);
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-              vmovss  xmm11, dword ptr [rbp+0D0h+drawSize+4]
-            }
-          }
-          __asm { vcomiss xmm9, xmm6 }
-          if ( !(v90 | v91) )
-          {
-            __asm
-            {
-              vmovups xmm0, cs:__xmm@000000003f8000003f80000000000000
-              vsubss  xmm1, xmm9, xmm7
-              vmulss  xmm3, xmm1, xmm9
-              vmovss  xmm1, [rsp+1D0h+var_168]; x
-              vmovups xmmword ptr [rbp+0D0h+var_E0], xmm0
-              vaddss  xmm0, xmm3, xmm7
-              vmulss  xmm4, xmm0, xmm9
-              vmovaps xmm3, xmm5; w
-              vmovaps xmm2, xmm14; y
-              vmovss  dword ptr [rsp+1D0h+spin45], xmm11
-              vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm4
-            }
-            UI_DrawMaterialWithUVs(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45c, 2, 2, &outReticleColor, reticleSide, &stuv);
-          }
-LABEL_40:
-          __asm
-          {
-            vmovaps xmm14, [rsp+1D0h+var_B0]
-            vmovaps xmm13, [rsp+1D0h+var_A0]
-            vmovaps xmm12, [rsp+1D0h+var_90]
-            vmovaps xmm11, [rsp+1D0h+var_80]
-            vmovaps xmm10, [rsp+1D0h+var_70]
-            vmovaps xmm9, [rsp+1D0h+var_60]
-            vmovaps xmm8, [rsp+1D0h+var_50]
-            vmovaps xmm6, [rsp+1D0h+var_30]
-            vmovaps xmm15, [rsp+1D0h+var_C0]
-          }
-          goto LABEL_41;
-        }
+        stuv = (vec4_t)_xmm;
+        outReticleColor.v[3] = (float)((float)((float)(*(float *)&v26 - 3.0) * v27) + 3.0) * v28;
+        UI_DrawMaterialWithUVs(ActivePlacement, centerX, centerY, v35, v37, 2, 2, &outReticleColor, reticleSide, &stuv);
+        v35 = drawSize.v[0];
+        v37 = drawSize.v[1];
       }
-      else
+      if ( v24 > 0.0 )
       {
-        __asm { vmovss  xmm2, [rsp+1D0h+adsAlpha] }
+        stuv = (vec4_t)_xmm;
+        outReticleColor.v[3] = (float)((float)((float)(v24 - 3.0) * v24) + 3.0) * v24;
+        UI_DrawMaterialWithUVs(ActivePlacement, v60, centerY, v35, v37, 2, 2, &outReticleColor, reticleSide, &stuv);
       }
-      v130 = 0;
-      v131 = !v236;
-      __asm
-      {
-        vmovss  xmm12, [rbp+0D0h+centerX]
-        vmovss  xmm13, [rbp+0D0h+centerY]
-      }
-      if ( v236 )
-      {
-        __asm
-        {
-          vcomiss xmm10, xmm6
-          vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-          vmovss  xmm3, cs:__real@3f000000
-          vmovss  xmm7, dword ptr [rbp+0D0h+drawSize+4]
-          vmulss  xmm0, xmm3, dword ptr [rbp+0D0h+spread]
-          vsubss  xmm1, xmm12, xmm5
-          vsubss  xmm0, xmm1, xmm0
-          vmovss  [rsp+1D0h+adsAlpha], xmm0
-          vmulss  xmm0, xmm3, dword ptr [rbp+0D0h+spread+4]
-          vsubss  xmm1, xmm13, xmm7
-          vsubss  xmm14, xmm1, xmm0
-          vaddss  xmm1, xmm5, [rsp+1D0h+adsAlpha]
-          vaddss  xmm1, xmm1, dword ptr [rbp+0D0h+spread]; x
-          vaddss  xmm0, xmm7, xmm14
-          vaddss  xmm0, xmm0, dword ptr [rbp+0D0h+spread+4]
-          vmovss  [rsp+1D0h+var_174], xmm0
-          vmovss  [rsp+1D0h+crossHairAlpha], xmm1
-          vmulss  xmm0, xmm10, xmm11
-          vmovss  xmm10, [rsp+1D0h+adsAlpha]
-          vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm0
-          vmovss  xmm0, cs:__real@439d8000
-          vmovss  dword ptr [rsp+1D0h+color], xmm0
-          vmovaps xmm3, xmm5; width
-          vmovaps xmm2, xmm14; y
-          vmovaps xmm1, xmm10; x
-          vmovss  dword ptr [rsp+1D0h+spin45], xmm7
-        }
-        CG_DrawRotatedPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45d, 2, 2, color, &outReticleColor, reticleSide);
-        __asm
-        {
-          vmovss  xmm0, [rsp+1D0h+var_160]
-          vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-          vmovss  xmm1, [rsp+1D0h+crossHairAlpha]
-          vmovss  xmm15, [rsp+1D0h+var_164]
-          vmovss  xmm7, dword ptr [rbp+0D0h+drawSize+4]
-          vcomiss xmm15, xmm6
-        }
-        if ( !(v153 | v154) )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm11, xmm0
-            vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm0
-            vmovss  xmm0, cs:__real@42340000
-            vmovss  dword ptr [rsp+1D0h+color], xmm0
-            vmovaps xmm3, xmm5; width
-            vmovaps xmm2, xmm14; y
-            vmovss  dword ptr [rsp+1D0h+spin45], xmm7
-          }
-          CG_DrawRotatedPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45e, 2, 2, colora, &outReticleColor, reticleSide);
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-            vmovss  xmm7, dword ptr [rbp+0D0h+drawSize+4]
-          }
-        }
-        __asm { vcomiss xmm8, xmm6 }
-        if ( v153 | v154 )
-        {
-          __asm { vmovss  xmm8, [rsp+1D0h+var_174] }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+1D0h+crossHairAlpha]; x
-            vmulss  xmm0, xmm8, xmm11
-            vmovss  xmm8, [rsp+1D0h+var_174]
-            vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm0
-            vmovss  xmm0, cs:__real@43070000
-            vmovss  dword ptr [rsp+1D0h+color], xmm0
-            vmovaps xmm3, xmm5; width
-            vmovaps xmm2, xmm8; y
-            vmovss  dword ptr [rsp+1D0h+spin45], xmm7
-          }
-          CG_DrawRotatedPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45f, 2, 2, colorb, &outReticleColor, reticleSide);
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rbp+0D0h+drawSize]
-            vmovss  xmm7, dword ptr [rbp+0D0h+drawSize+4]
-          }
-        }
-        __asm { vcomiss xmm9, xmm6 }
-        if ( !(v153 | v154) )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm9, xmm11
-            vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm0
-            vmovss  xmm0, cs:__real@43610000
-            vmovss  dword ptr [rsp+1D0h+color], xmm0
-            vmovss  dword ptr [rsp+1D0h+spin45], xmm7
-            vmovaps xmm3, xmm5
-            vmovaps xmm2, xmm8
-            vmovaps xmm1, xmm10
-          }
-          CG_DrawRotatedPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45g, 2, 2, colorc, &outReticleColor, reticleSide);
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vcomiss xmm10, xmm6
-          vmovss  xmm3, dword ptr [rbp+0D0h+drawSize]; width
-          vmovss  xmm7, cs:__real@3f000000
-          vmovss  xmm4, dword ptr [rbp+0D0h+drawSize+4]
-          vmulss  xmm0, xmm3, xmm7
-          vsubss  xmm1, xmm12, xmm0; x
-          vsubss  xmm0, xmm13, xmm4
-          vsubss  xmm5, xmm0, dword ptr [rbp+0D0h+spread+4]
-          vcomiss xmm14, xmm6
-          vaddss  xmm5, xmm12, dword ptr [rbp+0D0h+spread]
-          vmulss  xmm1, xmm4, xmm7
-          vsubss  xmm1, xmm13, xmm1
-          vcomiss xmm8, xmm6
-          vaddss  xmm2, xmm13, dword ptr [rbp+0D0h+spread+4]; y
-          vmulss  xmm0, xmm3, xmm7
-          vsubss  xmm5, xmm12, xmm0
-          vcomiss xmm9, xmm6
-          vsubss  xmm0, xmm12, xmm3
-          vsubss  xmm5, xmm0, dword ptr [rbp+0D0h+spread]
-          vmulss  xmm1, xmm4, xmm7
-          vsubss  xmm2, xmm13, xmm1; y
-        }
-        if ( !(v130 | v131) )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm9, xmm11
-            vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm0
-            vmovss  xmm0, cs:__real@43870000
-            vmovss  dword ptr [rsp+1D0h+color], xmm0
-            vmovss  dword ptr [rsp+1D0h+spin45], xmm4
-            vmovaps xmm1, xmm5; x
-          }
-          CG_DrawRotatedPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, spin45i, 2, 2, colore, &outReticleColor, reticleSide);
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rbp+0D0h+var_108]
-        vmovss  dword ptr [rsp+1D0h+color], xmm0
-        vmovss  [rsp+1D0h+horzAlign], xmm13
-        vmovss  dword ptr [rsp+1D0h+spin45], xmm12
-        vmovss  dword ptr [rbp+0D0h+outReticleColor+0Ch], xmm11
-      }
-      CG_ContextMount_TryDrawMountIndicator(localClientNum, ActivePlacement, &drawSize, &spread, spin45j, *(const float *)&horzAlign, &outReticleColor, colorf, 2, 2);
-      goto LABEL_40;
+      return;
     }
   }
-LABEL_41:
-  __asm { vmovaps xmm7, [rsp+1D0h+var_40] }
+  else
+  {
+    v34 = adsAlpha;
+  }
+  if ( spin45 )
+  {
+    v44 = drawSize.v[0];
+    v45 = drawSize.v[1];
+    adsAlpha = (float)(centerX - drawSize.v[0]) - (float)(0.5 * spread.v[0]);
+    v46 = (float)(centerY - drawSize.v[1]) - (float)(0.5 * spread.v[1]);
+    v47 = (float)(drawSize.v[0] + adsAlpha) + spread.v[0];
+    v58 = (float)(drawSize.v[1] + v46) + spread.v[1];
+    crossHairAlpha = v47;
+    if ( v22 <= 0.0 )
+    {
+      v50 = v63;
+      v49 = adsAlpha;
+    }
+    else
+    {
+      v48 = v22 * v31;
+      v49 = adsAlpha;
+      outReticleColor.v[3] = v48;
+      CG_DrawRotatedPic(ActivePlacement, adsAlpha, v46, drawSize.v[0], drawSize.v[1], 2, 2, 315.0, &outReticleColor, reticleSide);
+      v50 = v62;
+      v44 = drawSize.v[0];
+      v47 = crossHairAlpha;
+      v29 = v61;
+      v45 = drawSize.v[1];
+    }
+    if ( v29 > 0.0 )
+    {
+      outReticleColor.v[3] = v31 * v50;
+      CG_DrawRotatedPic(ActivePlacement, v47, v46, v44, v45, 2, 2, 45.0, &outReticleColor, reticleSide);
+      v44 = drawSize.v[0];
+      v45 = drawSize.v[1];
+    }
+    if ( *(float *)&v26 <= 0.0 )
+    {
+      v52 = v58;
+    }
+    else
+    {
+      v51 = *(float *)&v26 * v31;
+      v52 = v58;
+      outReticleColor.v[3] = v51;
+      CG_DrawRotatedPic(ActivePlacement, crossHairAlpha, v58, v44, v45, 2, 2, 135.0, &outReticleColor, reticleSide);
+      v44 = drawSize.v[0];
+      v45 = drawSize.v[1];
+    }
+    if ( v24 > 0.0 )
+    {
+      outReticleColor.v[3] = v24 * v31;
+      CG_DrawRotatedPic(ActivePlacement, v49, v52, v44, v45, 2, 2, 225.0, &outReticleColor, reticleSide);
+    }
+  }
+  else
+  {
+    v53 = drawSize.v[0];
+    v54 = drawSize.v[1];
+    if ( v22 > 0.0 )
+    {
+      outReticleColor.v[3] = v22 * v31;
+      CG_DrawRotatedPic(ActivePlacement, centerX - (float)(drawSize.v[0] * 0.5), (float)(centerY - drawSize.v[1]) - spread.v[1], drawSize.v[0], drawSize.v[1], 2, 2, 0.0, &outReticleColor, reticleSide);
+      v34 = v65;
+      v54 = drawSize.v[1];
+      v53 = drawSize.v[0];
+      v30 = v64;
+    }
+    if ( v30 > 0.0 )
+    {
+      outReticleColor.v[3] = v31 * v34;
+      CG_DrawRotatedPic(ActivePlacement, centerX + spread.v[0], centerY - (float)(v54 * 0.5), v53, v54, 2, 2, 90.0, &outReticleColor, reticleSide);
+      v54 = drawSize.v[1];
+      v53 = drawSize.v[0];
+    }
+    if ( *(float *)&v26 > 0.0 )
+    {
+      outReticleColor.v[3] = *(float *)&v26 * v31;
+      CG_DrawRotatedPic(ActivePlacement, centerX - (float)(v53 * 0.5), centerY + spread.v[1], v53, v54, 2, 2, 180.0, &outReticleColor, reticleSide);
+      v54 = drawSize.v[1];
+      v53 = drawSize.v[0];
+    }
+    if ( v24 > 0.0 )
+    {
+      outReticleColor.v[3] = v24 * v31;
+      CG_DrawRotatedPic(ActivePlacement, (float)(centerX - v53) - spread.v[0], centerY - (float)(v54 * 0.5), v53, v54, 2, 2, 270.0, &outReticleColor, reticleSide);
+    }
+  }
+  outReticleColor.v[3] = v31;
+  CG_ContextMount_TryDrawMountIndicator(localClientNum, ActivePlacement, &drawSize, &spread, centerX, centerY, &outReticleColor, v84, 2, 2);
 }
 
 /*
@@ -1864,263 +1077,193 @@ CG_DrawReticles_DrawCrosshair
 */
 void CG_DrawReticles_DrawCrosshair(LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
+  cg_t *LocalClientGlobals; 
   CgDrawSystem *DrawSystem; 
   bool IsEMPJammed; 
   CgWeaponMap *Instance; 
   bool IsThirdPersonMode; 
+  bool v7; 
+  bool v8; 
   bool v9; 
   bool v10; 
-  bool v11; 
-  bool v12; 
-  int v13; 
-  bool v15; 
+  int v11; 
+  float fWeaponPosFrac; 
+  bool v13; 
   CgHandler *Handler; 
-  const Weapon *v17; 
-  const Weapon *v18; 
+  const Weapon *v15; 
+  const Weapon *v16; 
   const ADSOverlay *Overlay; 
-  const dvar_t *v20; 
-  CgHandler *v21; 
-  cg_t *LocalClientGlobals; 
-  cg_t *v23; 
+  const dvar_t *v18; 
+  CgHandler *v19; 
+  cg_t *v20; 
+  cg_t *v21; 
   __int64 clientNum; 
   const characterInfo_t *CharacterInfo; 
   int entityNum; 
-  centity_t *Entity; 
+  centity_t *v25; 
   const entityState_t *EntityState; 
-  int v29; 
-  centity_t *v30; 
-  cg_t *v31; 
+  int entity; 
+  centity_t *v28; 
+  cg_t *v29; 
   const Weapon *ReticleWeapon; 
-  bool v33; 
-  char v38; 
-  char v42; 
+  bool v31; 
+  float v32; 
+  float v33; 
+  double CrosshairVerticalOffset; 
+  float v35; 
   ReticleType ReticleType; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
   __int64 centerY; 
-  float centerYa; 
-  float centerYb; 
-  float centerYc; 
-  __int64 v56; 
+  __int64 v38; 
   bool outIsAlternate; 
   bool IsUAVJammed; 
   animScriptVehicleSeat_t outVehicleSeat; 
   animScriptVehicleType_t outVehicleType; 
   vec4_t outColor; 
 
-  v3 = localClientNum;
-  _R15 = CG_GetLocalClientGlobals(localClientNum);
-  if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v3, 2) )
+  v1 = localClientNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( (unsigned int)v1 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v1, 2) )
     __debugbreak();
-  DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v3);
-  IsEMPJammed = CG_View_IsEMPJammed((const LocalClientNum_t)v3);
-  IsUAVJammed = CG_View_IsUAVJammed((const LocalClientNum_t)v3);
-  if ( !CG_View_IsKillCamEntityView((const LocalClientNum_t)v3) && (!_R15->renderingThirdPerson || _R15->predictedPlayerState.vehicleState.entity != 2047) )
+  DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v1);
+  IsEMPJammed = CG_View_IsEMPJammed((const LocalClientNum_t)v1);
+  IsUAVJammed = CG_View_IsUAVJammed((const LocalClientNum_t)v1);
+  if ( !CG_View_IsKillCamEntityView((const LocalClientNum_t)v1) && (!LocalClientGlobals->renderingThirdPerson || LocalClientGlobals->predictedPlayerState.vehicleState.entity != 2047) )
   {
-    __asm { vmovaps [rsp+0B8h+var_48], xmm7 }
-    Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v3);
-    IsThirdPersonMode = BG_IsThirdPersonMode(Instance, &_R15->predictedPlayerState);
-    v9 = DrawSystem->ShouldDrawHud(DrawSystem) != 0;
-    v10 = DrawSystem->ShouldDrawCrosshair(DrawSystem);
-    v11 = v9;
-    v12 = 0;
-    if ( !v10 )
-      v11 = 0;
-    if ( (clientUIActives[v3].keyCatchers & 0x40) == 0 )
-      v12 = v11;
+    Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v1);
+    IsThirdPersonMode = BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState);
+    v7 = DrawSystem->ShouldDrawHud(DrawSystem) != 0;
+    v8 = DrawSystem->ShouldDrawCrosshair(DrawSystem);
+    v9 = v7;
+    v10 = 0;
+    if ( !v8 )
+      v9 = 0;
+    if ( (clientUIActives[v1].keyCatchers & 0x40) == 0 )
+      v10 = v9;
     if ( Com_GameMode_SupportsFeature(WEAPON_STUNNED_START) && IsEMPJammed )
-      v12 = 0;
-    v13 = _R15->IsClientGamePaused(_R15);
-    __asm { vmovss  xmm7, dword ptr [r15+738h] }
-    v15 = v12;
-    if ( v13 )
-      v15 = 0;
-    if ( BG_IsTurretActive(&_R15->predictedPlayerState) )
+      v10 = 0;
+    v11 = LocalClientGlobals->IsClientGamePaused(LocalClientGlobals);
+    fWeaponPosFrac = LocalClientGlobals->predictedPlayerState.weapCommon.fWeaponPosFrac;
+    v13 = v10;
+    if ( v11 )
+      v13 = 0;
+    if ( BG_IsTurretActive(&LocalClientGlobals->predictedPlayerState) )
     {
-      Handler = CgHandler::getHandler((LocalClientNum_t)v3);
-      v17 = Handler->PlayerTurret(Handler, &_R15->predictedPlayerState);
-      v18 = v17;
-      if ( v17->weaponIdx && ((Overlay = BG_GetOverlay(v17, 0), Overlay->shaderMat) || IsEMPJammed && Overlay->shaderEMPMat) )
+      Handler = CgHandler::getHandler((LocalClientNum_t)v1);
+      v15 = Handler->PlayerTurret(Handler, &LocalClientGlobals->predictedPlayerState);
+      v16 = v15;
+      if ( v15->weaponIdx && ((Overlay = BG_GetOverlay(v15, 0), Overlay->shaderMat) || IsEMPJammed && Overlay->shaderEMPMat) )
       {
-        CG_DrawAdsOverlay((LocalClientNum_t)v3, v18, 0, &colorWhite, &vec2_origin);
+        CG_DrawAdsOverlay((LocalClientNum_t)v1, v16, 0, &colorWhite, &vec2_origin);
       }
-      else if ( !CG_GetFlashbangedRemainingTime((LocalClientNum_t)v3) && v15 && _R15->predictedPlayerState.viewlocked_entNum != 2047 )
+      else if ( !CG_GetFlashbangedRemainingTime((LocalClientNum_t)v1) && v13 && LocalClientGlobals->predictedPlayerState.viewlocked_entNum != 2047 )
       {
-        CG_DrawTurretCrossHair((LocalClientNum_t)v3);
+        CG_DrawTurretCrossHair((LocalClientNum_t)v1);
       }
+      return;
+    }
+    v18 = DVARBOOL_cg_crosshairCheckDrivingPhysVeh;
+    if ( !DVARBOOL_cg_crosshairCheckDrivingPhysVeh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairCheckDrivingPhysVeh") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v18);
+    if ( !v18->current.enabled )
+      goto LABEL_47;
+    v19 = CgHandler::getHandler((LocalClientNum_t)v1);
+    if ( !v19 )
+      goto LABEL_47;
+    v20 = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+    v21 = v20;
+    if ( !v20 )
+      goto LABEL_47;
+    clientNum = v20->predictedPlayerState.clientNum;
+    if ( v20->IsMP(v20) )
+    {
+      if ( (unsigned int)clientNum >= v21[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+      {
+        LODWORD(v38) = v21[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+        LODWORD(centerY) = clientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", centerY, v38) )
+          __debugbreak();
+      }
+      CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v21[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
     }
     else
     {
-      v20 = DVARBOOL_cg_crosshairCheckDrivingPhysVeh;
-      if ( !DVARBOOL_cg_crosshairCheckDrivingPhysVeh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairCheckDrivingPhysVeh") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      if ( v20->current.enabled )
+      CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v21, clientNum);
+    }
+    if ( !CharacterInfo || ((entityNum = CharacterInfo->entityNum, !v19->IsClient(v19)) ? (EntityState = GHandler::GetEntityState((GHandler *)v19, entityNum)) : (v25 = CG_GetEntity((const LocalClientNum_t)v19->m_localClientNum, entityNum)) == NULL ? (EntityState = NULL) : (EntityState = &v25->nextState), !EntityState || (*(float *)&outVehicleSeat = 0.0, BG_VehicleOccupancy_GetLinkedVehicle(v19, EntityState, CharacterInfo, &outVehicleType, &outVehicleSeat) == 2047) || outVehicleSeat != VEHICLE_SEAT_DRIVER) )
+    {
+LABEL_47:
+      entity = CG_GetLocalClientGlobals((const LocalClientNum_t)v1)->predictedPlayerState.vehicleState.entity;
+      if ( entity != 2047 )
       {
-        v21 = CgHandler::getHandler((LocalClientNum_t)v3);
-        if ( v21 )
+        v28 = CG_GetEntity((const LocalClientNum_t)v1, entity);
+        if ( CG_Vehicle_IsVehicleEntity(v28) )
         {
-          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
-          v23 = LocalClientGlobals;
-          if ( LocalClientGlobals )
-          {
-            clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-            if ( LocalClientGlobals->IsMP(LocalClientGlobals) )
-            {
-              if ( (unsigned int)clientNum >= v23[1].predictedPlayerState.rxvOmnvars[64].timeModified )
-              {
-                LODWORD(v56) = v23[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-                LODWORD(centerY) = clientNum;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", centerY, v56) )
-                  __debugbreak();
-              }
-              CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v23[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
-            }
-            else
-            {
-              CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v23, clientNum);
-            }
-            if ( CharacterInfo )
-            {
-              entityNum = CharacterInfo->entityNum;
-              if ( v21->IsClient(v21) )
-              {
-                Entity = CG_GetEntity((const LocalClientNum_t)v21->m_localClientNum, entityNum);
-                EntityState = Entity ? &Entity->nextState : 0i64;
-              }
-              else
-              {
-                EntityState = GHandler::GetEntityState((GHandler *)v21, entityNum);
-              }
-              if ( EntityState )
-              {
-                outVehicleSeat = VEHICLE_SEAT_UNUSED;
-                if ( BG_VehicleOccupancy_GetLinkedVehicle(v21, EntityState, CharacterInfo, &outVehicleType, &outVehicleSeat) != 2047 && outVehicleSeat == VEHICLE_SEAT_DRIVER )
-                  goto LABEL_81;
-              }
-            }
-          }
+LABEL_57:
+          CG_DrawVehicleCrossHairShared((LocalClientNum_t)v1, v28);
+          return;
         }
       }
-      v29 = CG_GetLocalClientGlobals((const LocalClientNum_t)v3)->predictedPlayerState.vehicleState.entity;
-      if ( v29 != 2047 )
+      if ( BG_IsVehicleActive(&LocalClientGlobals->predictedPlayerState) )
       {
-        v30 = CG_GetEntity((const LocalClientNum_t)v3, v29);
-        if ( CG_Vehicle_IsVehicleEntity(v30) )
+        v29 = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+        if ( v29 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2184, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+          __debugbreak();
+        if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v29->predictedPlayerState.eFlags, ACTIVE, 0xBu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 655, ASSERT_TYPE_ASSERT, "(BG_IsVehicleActive( &cgameGlob->predictedPlayerState ))", (const char *)&queryFormat, "BG_IsVehicleActive( &cgameGlob->predictedPlayerState )") )
+          __debugbreak();
+        v28 = CG_GetEntity((const LocalClientNum_t)v1, v29->predictedPlayerState.viewlocked_entNum);
+        if ( CG_Vehicle_IsVehicleEntity(v28) )
           goto LABEL_57;
       }
-      if ( !BG_IsVehicleActive(&_R15->predictedPlayerState) )
+      else
       {
         outIsAlternate = 0;
-        ReticleWeapon = CG_GetReticleWeapon((LocalClientNum_t)v3, &outIsAlternate);
-        if ( ReticleWeapon->weaponIdx && !BG_Gesture_ShouldHideReticle(&_R15->predictedPlayerState) && !IsUAVJammed )
+        ReticleWeapon = CG_GetReticleWeapon((LocalClientNum_t)v1, &outIsAlternate);
+        if ( ReticleWeapon->weaponIdx )
         {
-          v33 = outIsAlternate;
-          __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-          CG_DrawWeapReticle((LocalClientNum_t)v3, ReticleWeapon, outIsAlternate, (float *)&outVehicleSeat, (float *)&outVehicleType);
-          __asm
+          if ( !BG_Gesture_ShouldHideReticle(&LocalClientGlobals->predictedPlayerState) && !IsUAVJammed )
           {
-            vmovss  xmm0, [rsp+0B8h+outVehicleSeat]
-            vmulss  xmm6, xmm0, [rsp+0B8h+outVehicleType]
-          }
-          if ( !CG_GetFlashbangedRemainingTime((LocalClientNum_t)v3) && v15 && !CG_WeaponInspect_IsUIHidden((LocalClientNum_t)v3) )
-          {
-            __asm { vmovaps xmm1, xmm6; alpha }
-            CG_CalcCrosshairColor((const LocalClientNum_t)v3, *(double *)&_XMM1, &outColor);
-            __asm
+            v31 = outIsAlternate;
+            CG_DrawWeapReticle((LocalClientNum_t)v1, ReticleWeapon, outIsAlternate, (float *)&outVehicleSeat, (float *)&outVehicleType);
+            v32 = *(float *)&outVehicleSeat * *(float *)&outVehicleType;
+            if ( !CG_GetFlashbangedRemainingTime((LocalClientNum_t)v1) && v13 && !CG_WeaponInspect_IsUIHidden((LocalClientNum_t)v1) )
             {
-              vmovss  xmm0, dword ptr [rsp+0B8h+outColor+0Ch]
-              vcomiss xmm0, cs:__real@3c23d70a
-            }
-            if ( !v38 )
-            {
-              __asm { vmovss  xmm6, cs:__real@3f800000 }
-              if ( BG_ADSShouldShowCrosshair(ReticleWeapon, v33) )
-                goto LABEL_84;
-              __asm { vucomiss xmm7, xmm6 }
-              if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawGun, "cg_drawGun") || IsThirdPersonMode )
+              CG_CalcCrosshairColor((const LocalClientNum_t)v1, v32, &outColor);
+              if ( outColor.v[3] >= 0.0099999998 && (BG_ADSShouldShowCrosshair(ReticleWeapon, v31) || fWeaponPosFrac != 1.0 || !Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawGun, "cg_drawGun") || IsThirdPersonMode) && AllowedToDrawCrosshair((LocalClientNum_t)v1, &LocalClientGlobals->predictedPlayerState) )
               {
-LABEL_84:
-                if ( AllowedToDrawCrosshair((LocalClientNum_t)v3, &_R15->predictedPlayerState) )
+                CG_CalcCrosshairPosition(LocalClientGlobals, 640.0, 480.0, (float *)&outVehicleSeat, (float *)&outVehicleType);
+                if ( fWeaponPosFrac != 1.0 || Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawGun, "cg_drawGun") || IsThirdPersonMode )
                 {
-                  __asm
+                  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_crosshairDynamic, "cg_crosshairDynamic") )
                   {
-                    vmovss  xmm2, cs:__real@43f00000; screenHeight
-                    vmovss  xmm1, cs:__real@44200000; screenWidth
+                    v35 = *(float *)&outVehicleType;
+                    v33 = *(float *)&outVehicleSeat;
                   }
-                  CG_CalcCrosshairPosition(_R15, *(const float *)&_XMM1, *(const float *)&_XMM2, (float *)&outVehicleSeat, (float *)&outVehicleType);
-                  __asm { vucomiss xmm7, xmm6 }
-                  if ( !v42 || Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawGun, "cg_drawGun") || IsThirdPersonMode )
+                  else
                   {
-                    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_crosshairDynamic, "cg_crosshairDynamic") )
-                    {
-                      __asm
-                      {
-                        vmovss  xmm7, [rsp+0B8h+outVehicleType]
-                        vmovss  xmm6, [rsp+0B8h+outVehicleSeat]
-                      }
-                    }
-                    else
-                    {
-                      __asm { vxorps  xmm6, xmm6, xmm6 }
-                      *(double *)&_XMM0 = CG_View_GetCrosshairVerticalOffset((const LocalClientNum_t)v3, &_R15->predictedPlayerState);
-                      __asm
-                      {
-                        vmulss  xmm1, xmm0, cs:__real@c3f00000
-                        vmulss  xmm7, xmm1, cs:__real@3f000000
-                      }
-                    }
-                    __asm
-                    {
-                      vmovss  [rsp+0B8h+centerY], xmm7
-                      vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-                    }
-                    ReticleType = BG_GetReticleType(ReticleWeapon, v33);
-                    CG_DrawReticleCenter((LocalClientNum_t)v3, ReticleWeapon, v33, &outColor, fmt, centerYa);
-                    if ( ReticleType )
-                    {
-                      if ( ReticleType == RETICLE_TYPE_ONE_PIECE )
-                      {
-                        __asm
-                        {
-                          vmovss  [rsp+0B8h+centerY], xmm7
-                          vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-                        }
-                        CG_DrawReticleOnePiece((LocalClientNum_t)v3, ReticleWeapon, v33, &outColor, fmtb, centerYc);
-                      }
-                    }
-                    else
-                    {
-                      __asm
-                      {
-                        vmovss  [rsp+0B8h+centerY], xmm7
-                        vmovss  dword ptr [rsp+0B8h+fmt], xmm6
-                      }
-                      CG_DrawReticleSides((LocalClientNum_t)v3, ReticleWeapon, v33, &outColor, fmta, centerYb);
-                    }
+                    v33 = 0.0;
+                    CrosshairVerticalOffset = CG_View_GetCrosshairVerticalOffset((const LocalClientNum_t)v1, &LocalClientGlobals->predictedPlayerState);
+                    v35 = (float)(*(float *)&CrosshairVerticalOffset * -480.0) * 0.5;
+                  }
+                  ReticleType = BG_GetReticleType(ReticleWeapon, v31);
+                  CG_DrawReticleCenter((LocalClientNum_t)v1, ReticleWeapon, v31, &outColor, v33, v35);
+                  if ( ReticleType )
+                  {
+                    if ( ReticleType == RETICLE_TYPE_ONE_PIECE )
+                      CG_DrawReticleOnePiece((LocalClientNum_t)v1, ReticleWeapon, v31, &outColor, v33, v35);
+                  }
+                  else
+                  {
+                    CG_DrawReticleSides((LocalClientNum_t)v1, ReticleWeapon, v31, &outColor, v33, v35);
                   }
                 }
               }
             }
           }
-          __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
         }
-        goto LABEL_81;
       }
-      v31 = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
-      if ( v31 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2184, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-      if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v31->predictedPlayerState.eFlags, ACTIVE, 0xBu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 655, ASSERT_TYPE_ASSERT, "(BG_IsVehicleActive( &cgameGlob->predictedPlayerState ))", (const char *)&queryFormat, "BG_IsVehicleActive( &cgameGlob->predictedPlayerState )") )
-        __debugbreak();
-      v30 = CG_GetEntity((const LocalClientNum_t)v3, v31->predictedPlayerState.viewlocked_entNum);
-      if ( CG_Vehicle_IsVehicleEntity(v30) )
-LABEL_57:
-        CG_DrawVehicleCrossHairShared((LocalClientNum_t)v3, v30);
     }
-LABEL_81:
-    __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
   }
 }
 
@@ -2131,92 +1274,70 @@ CG_DrawReticles_ShouldDrawCrosshair
 */
 bool CG_DrawReticles_ShouldDrawCrosshair(const LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
+  __int64 v1; 
+  const cg_t *LocalClientGlobals; 
   CgDrawSystem *DrawSystem; 
   const Weapon *ReticleWeapon; 
   CgWeaponMap *Instance; 
-  bool v9; 
-  char v14; 
-  bool v15; 
-  BOOL outIsAlternate; 
+  char v6; 
+  float fWeaponPosFrac; 
+  float v8; 
+  double Float_Internal_DebugName; 
+  float outIsAlternate; 
   bool result; 
 
-  v4 = localClientNum;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps [rsp+78h+var_48], xmm7
-  }
-  _R14 = CG_GetLocalClientGlobals(localClientNum);
-  DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v4);
-  if ( _R14->renderingThirdPerson && _R14->predictedPlayerState.vehicleState.entity == 2047 )
-    goto LABEL_37;
-  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v1 = localClientNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  DrawSystem = CgDrawSystem::GetDrawSystem((const LocalClientNum_t)v1);
+  if ( LocalClientGlobals->renderingThirdPerson && LocalClientGlobals->predictedPlayerState.vehicleState.entity == 2047 )
+    return 0;
+  if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v4], &_R14->predictedPlayerState) && !CG_GameInterface_ThirdPersonCrosshairForceDraw(&_R14->predictedPlayerState) )
-    goto LABEL_37;
-  if ( !DrawSystem->ShouldDrawHud(DrawSystem) || !DrawSystem->ShouldDrawCrosshair(DrawSystem) || Com_GameMode_SupportsFeature(WEAPON_STUNNED_START) && CG_View_IsEMPJammed((const LocalClientNum_t)v4) )
-    goto LABEL_37;
-  if ( CG_View_IsUAVJammed((const LocalClientNum_t)v4) )
-    goto LABEL_37;
-  if ( _R14->IsClientGamePaused((cg_t *)_R14) )
-    goto LABEL_37;
-  if ( BG_IsTurretActive(&_R14->predictedPlayerState) )
-    goto LABEL_37;
-  if ( BG_IsVehicleActive(&_R14->predictedPlayerState) )
-    goto LABEL_37;
-  if ( CG_GetFlashbangedRemainingTime((LocalClientNum_t)v4) )
-    goto LABEL_37;
-  CG_GetOmnvar_BooleanByName((LocalClientNum_t)v4, "ui_realism_hud", &result, NULL, NULL);
+  if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v1], &LocalClientGlobals->predictedPlayerState) && !CG_GameInterface_ThirdPersonCrosshairForceDraw(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( !DrawSystem->ShouldDrawHud(DrawSystem) || !DrawSystem->ShouldDrawCrosshair(DrawSystem) || Com_GameMode_SupportsFeature(WEAPON_STUNNED_START) && CG_View_IsEMPJammed((const LocalClientNum_t)v1) )
+    return 0;
+  if ( CG_View_IsUAVJammed((const LocalClientNum_t)v1) )
+    return 0;
+  if ( LocalClientGlobals->IsClientGamePaused((cg_t *)LocalClientGlobals) )
+    return 0;
+  if ( BG_IsTurretActive(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( BG_IsVehicleActive(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( CG_GetFlashbangedRemainingTime((LocalClientNum_t)v1) )
+    return 0;
+  CG_GetOmnvar_BooleanByName((LocalClientNum_t)v1, "ui_realism_hud", &result, NULL, NULL);
   if ( result )
-    goto LABEL_37;
+    return 0;
   LOBYTE(outIsAlternate) = 0;
-  ReticleWeapon = CG_GetReticleWeapon((LocalClientNum_t)v4, (bool *)&outIsAlternate);
+  ReticleWeapon = CG_GetReticleWeapon((LocalClientNum_t)v1, (bool *)&outIsAlternate);
   if ( !ReticleWeapon->weaponIdx )
-    goto LABEL_37;
-  Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v4);
-  if ( BG_Offhand_IsPlayingGrenadeGesture(Instance, &_R14->predictedPlayerState) && !BG_Offhand_GrenadeGestureInterruptable(Instance, &_R14->predictedPlayerState, _R14->time) )
-    goto LABEL_37;
-  if ( BG_Ladder_HideCrosshair(&_R14->predictedPlayerState) || BG_Skydive_IsSkydiving(&_R14->predictedPlayerState) || BG_Skydive_IsParachuting(&_R14->predictedPlayerState) || BG_Gesture_ShouldHideReticle(&_R14->predictedPlayerState) )
-    goto LABEL_37;
-  v9 = outIsAlternate;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [r14+738h]
-    vmovss  xmm6, cs:__real@3f800000
-  }
-  if ( !BG_ADSShouldShowCrosshair(ReticleWeapon, outIsAlternate) )
-  {
-    __asm { vucomiss xmm7, xmm6 }
-LABEL_37:
-    v15 = 0;
-    goto LABEL_38;
-  }
-  if ( !AllowedToDrawCrosshair((LocalClientNum_t)v4, &_R14->predictedPlayerState) )
-    goto LABEL_37;
-  if ( CG_GetWeapReticleZoom(_R14, (float *)&outIsAlternate) )
-    __asm { vsubss  xmm6, xmm6, dword ptr [rsp+78h+outIsAlternate] }
-  if ( (BG_GetWeaponType(ReticleWeapon, v9) == WEAPTYPE_BULLET || BG_GetWeaponType(ReticleWeapon, v9) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(ReticleWeapon, v9) && !BG_ADSShouldShowCrosshair(ReticleWeapon, v9) )
-  {
-    CG_CalcADSTransitionBlend(_R14, ReticleWeapon, v9);
-    __asm { vmulss  xmm6, xmm6, xmm0 }
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_crosshairAlpha, "cg_crosshairAlpha");
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vcomiss xmm1, cs:__real@3c23d70a
-  }
-  if ( v14 )
-    goto LABEL_37;
-  v15 = 1;
-LABEL_38:
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-  }
-  return v15;
+    return 0;
+  Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v1);
+  if ( BG_Offhand_IsPlayingGrenadeGesture(Instance, &LocalClientGlobals->predictedPlayerState) && !BG_Offhand_GrenadeGestureInterruptable(Instance, &LocalClientGlobals->predictedPlayerState, LocalClientGlobals->time) )
+    return 0;
+  if ( BG_Ladder_HideCrosshair(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( BG_Skydive_IsSkydiving(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( BG_Skydive_IsParachuting(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( BG_Gesture_ShouldHideReticle(&LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  v6 = LOBYTE(outIsAlternate);
+  fWeaponPosFrac = LocalClientGlobals->predictedPlayerState.weapCommon.fWeaponPosFrac;
+  v8 = FLOAT_1_0;
+  if ( !BG_ADSShouldShowCrosshair(ReticleWeapon, SLOBYTE(outIsAlternate)) && fWeaponPosFrac == 1.0 )
+    return 0;
+  if ( !AllowedToDrawCrosshair((LocalClientNum_t)v1, &LocalClientGlobals->predictedPlayerState) )
+    return 0;
+  if ( CG_GetWeapReticleZoom(LocalClientGlobals, &outIsAlternate) )
+    v8 = 1.0 - outIsAlternate;
+  if ( (BG_GetWeaponType(ReticleWeapon, v6) == WEAPTYPE_BULLET || BG_GetWeaponType(ReticleWeapon, v6) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(ReticleWeapon, v6) && !BG_ADSShouldShowCrosshair(ReticleWeapon, v6) )
+    v8 = v8 * CG_CalcADSTransitionBlend(LocalClientGlobals, ReticleWeapon, v6);
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_crosshairAlpha, "cg_crosshairAlpha");
+  return (float)(*(float *)&Float_Internal_DebugName * v8) >= 0.0099999998;
 }
 
 /*
@@ -2233,7 +1354,7 @@ void CG_DrawReticles_UpdateWeapReticleScissor(LocalClientNum_t localClientNum)
   const Weapon *v6; 
   bool v7; 
   const Weapon *ReticleWeapon; 
-  bool v12; 
+  bool v9; 
   bool outIsAlternate; 
   vec2_t zoomResult; 
 
@@ -2257,18 +1378,11 @@ void CG_DrawReticles_UpdateWeapReticleScissor(LocalClientNum_t localClientNum)
       ReticleWeapon = CG_GetReticleWeapon(localClientNum, &outIsAlternate);
       if ( ReticleWeapon->weaponIdx )
       {
-        if ( CG_GetWeapReticleZoom(v3, (float *)&zoomResult) )
+        if ( CG_GetWeapReticleZoom(v3, (float *)&zoomResult) && zoomResult.v[0] >= 0.99000001 )
         {
-          __asm
-          {
-            vmovss  xmm0, [rsp+58h+zoomResult]
-            vcomiss xmm0, cs:__real@3f7d70a4
-            vmovss  xmm2, cs:__real@43f00000; screenHeight
-            vmovss  xmm1, cs:__real@44200000; screenWidth
-          }
-          CG_CalcCrosshairPosition(v3, *(const float *)&_XMM1, *(const float *)&_XMM2, (float *)&zoomResult, (float *)&zoomResult + 1);
-          v12 = BG_UsingAlternate(p_predictedPlayerState);
-          CG_UpdateScissorForWeaponDef(localClientNum, ReticleWeapon, v12, &zoomResult);
+          CG_CalcCrosshairPosition(v3, 640.0, 480.0, (float *)&zoomResult, (float *)&zoomResult + 1);
+          v9 = BG_UsingAlternate(p_predictedPlayerState);
+          CG_UpdateScissorForWeaponDef(localClientNum, ReticleWeapon, v9, &zoomResult);
         }
       }
     }
@@ -2281,122 +1395,70 @@ CG_DrawTurretCrossHair
 ==============
 */
 
-void __fastcall CG_DrawTurretCrossHair(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void __fastcall CG_DrawTurretCrossHair(LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
-  const dvar_t *v7; 
-  const dvar_t *v9; 
+  const dvar_t *v3; 
+  const dvar_t *v5; 
   playerState_s *p_predictedPlayerState; 
-  bool v11; 
+  bool v7; 
   centity_t *Entity; 
-  centity_t *v13; 
+  centity_t *v9; 
   CgWeaponMap *Instance; 
-  char v19; 
+  double Float_Internal_DebugName; 
+  float v12; 
+  float v13; 
+  double CrosshairVerticalOffset; 
   Material *material; 
   const ScreenPlacement *ActivePlacement; 
-  float fmt; 
-  float v39; 
-  float v40; 
-  float v41; 
-  float v42; 
   int reticleCenterSize; 
   Material *reticleCenter; 
   vec4_t outColor; 
   Weapon r_weapon; 
 
-  v7 = DVARBOOL_cg_drawTurretCrosshair;
+  v3 = DVARBOOL_cg_drawTurretCrosshair;
   if ( !DVARBOOL_cg_drawTurretCrosshair && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawTurretCrosshair") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
     if ( !CL_Pause_IsGamePaused() )
       goto LABEL_10;
-    v9 = DVARBOOL_cg_drawpaused;
+    v5 = DVARBOOL_cg_drawpaused;
     if ( !DVARBOOL_cg_drawpaused && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawpaused") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    if ( !v9->current.enabled )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( !v5->current.enabled )
     {
 LABEL_10:
       p_predictedPlayerState = &CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState;
-      v11 = BG_UsingAlternate(p_predictedPlayerState);
+      v7 = BG_UsingAlternate(p_predictedPlayerState);
       if ( p_predictedPlayerState->viewlocked_entNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 518, ASSERT_TYPE_ASSERT, "(predictedPlayerState->viewlocked_entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "predictedPlayerState->viewlocked_entNum != ENTITYNUM_NONE") )
         __debugbreak();
       Entity = CG_GetEntity(localClientNum, p_predictedPlayerState->viewlocked_entNum);
-      v13 = Entity;
+      v9 = Entity;
       if ( (Entity->flags & 1) != 0 )
       {
         if ( Entity->nextState.eType != ET_TURRET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 524, ASSERT_TYPE_ASSERT, "(cent->nextState.eType == ET_TURRET)", (const char *)&queryFormat, "cent->nextState.eType == ET_TURRET") )
           __debugbreak();
         Instance = CgWeaponMap::GetInstance(localClientNum);
-        _RAX = BG_GetWeaponForEntity(Instance, &v13->nextState);
-        __asm
+        r_weapon = *BG_GetWeaponForEntity(Instance, &v9->nextState);
+        if ( LOWORD(a3) )
         {
-          vmovups ymm2, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+138h+r_weapon.weaponIdx], ymm2
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+138h+r_weapon.attachmentVariationIndices+5], xmm0
-          vmovsd  xmm1, qword ptr [rax+30h]
-          vmovsd  qword ptr [rsp+138h+r_weapon.attachmentVariationIndices+15h], xmm1
-        }
-        *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-        __asm { vmovd   eax, xmm2 }
-        if ( (_WORD)_RAX )
-        {
-          BG_GetCenterReticle(&r_weapon, v11, &reticleCenter, &reticleCenterSize, NULL);
+          BG_GetCenterReticle(&r_weapon, v7, &reticleCenter, &reticleCenterSize, NULL);
           if ( reticleCenter )
           {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_crosshairAlpha, "cg_crosshairAlpha");
-            __asm { vcomiss xmm0, cs:__real@3c23d70a }
-            if ( !v19 )
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_crosshairAlpha, "cg_crosshairAlpha");
+            if ( *(float *)&Float_Internal_DebugName >= 0.0099999998 )
             {
-              __asm
-              {
-                vmovaps [rsp+138h+var_28], xmm6
-                vmovaps [rsp+138h+var_38], xmm7
-                vmovaps [rsp+138h+var_48], xmm8
-                vmovaps [rsp+138h+var_58], xmm9
-                vmovss  xmm9, cs:__real@3f800000
-                vmovaps xmm1, xmm9; alpha
-              }
-              CG_CalcCrosshairColor(localClientNum, *(double *)&_XMM1, &outColor);
-              __asm
-              {
-                vxorps  xmm8, xmm8, xmm8
-                vcvtsi2ss xmm8, xmm8, [rsp+138h+reticleCenterSize]
-              }
+              CG_CalcCrosshairColor(localClientNum, 1.0, &outColor);
+              v13 = (float)reticleCenterSize;
+              v12 = v13;
               if ( CL_IsRenderingSplitScreen() )
-                __asm { vmulss  xmm8, xmm8, cs:__real@40000000 }
-              __asm { vmulss  xmm7, xmm8, cs:__real@bf000000 }
-              *(double *)&_XMM0 = CG_View_GetCrosshairVerticalOffset(localClientNum, p_predictedPlayerState);
-              __asm
-              {
-                vmulss  xmm1, xmm0, cs:__real@43f00000
-                vmulss  xmm2, xmm1, cs:__real@3f000000
-              }
+                v12 = v13 * 2.0;
+              CrosshairVerticalOffset = CG_View_GetCrosshairVerticalOffset(localClientNum, p_predictedPlayerState);
               material = reticleCenter;
-              __asm { vsubss  xmm6, xmm7, xmm2 }
               ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-              __asm
-              {
-                vmovss  [rsp+138h+var_E8], xmm9
-                vmovss  [rsp+138h+var_F0], xmm9
-                vxorps  xmm0, xmm0, xmm0
-                vmovss  [rsp+138h+var_F8], xmm0
-                vmovss  [rsp+138h+var_100], xmm0
-                vmovaps xmm3, xmm8; w
-                vmovaps xmm2, xmm6; y
-                vmovaps xmm1, xmm7; x
-                vmovss  dword ptr [rsp+138h+fmt], xmm8
-              }
-              CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, 2, 2, v39, v40, v41, v42, &outColor, material);
-              __asm
-              {
-                vmovaps xmm9, [rsp+138h+var_58]
-                vmovaps xmm8, [rsp+138h+var_48]
-                vmovaps xmm7, [rsp+138h+var_38]
-                vmovaps xmm6, [rsp+138h+var_28]
-              }
+              CL_DrawStretchPic(ActivePlacement, v12 * -0.5, (float)(v12 * -0.5) - (float)((float)(*(float *)&CrosshairVerticalOffset * 480.0) * 0.5), v12, v12, 2, 2, 0.0, 0.0, 1.0, 1.0, &outColor, material);
             }
           }
         }
@@ -2416,18 +1478,11 @@ void CG_DrawVehicleCrossHairShared(LocalClientNum_t localClientNum, centity_t *c
   entityState_t *p_nextState; 
   CgWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  char v12; 
-  char v13; 
-  bool v16; 
+  const dvar_t *v8; 
+  bool v9; 
   Material *material; 
+  float v11; 
   const ScreenPlacement *ActivePlacement; 
-  float fmt; 
-  float fmta; 
-  float centerY; 
-  float v31; 
-  float v32; 
-  float v33; 
-  float v34; 
   int reticleCenterSize; 
   Material *reticleCenter; 
   vec4_t outColor; 
@@ -2446,65 +1501,29 @@ void CG_DrawVehicleCrossHairShared(LocalClientNum_t localClientNum, centity_t *c
     WeaponForEntity = BG_GetWeaponForEntity(Instance, p_nextState);
     if ( WeaponForEntity->weaponIdx )
     {
-      _RBX = DVARFLT_cg_crosshairAlpha;
+      v8 = DVARFLT_cg_crosshairAlpha;
       if ( !DVARFLT_cg_crosshairAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_crosshairAlpha") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
+      Dvar_CheckFrontendServerThread(v8);
+      if ( v8->current.value >= 0.0099999998 )
       {
-        vmovss  xmm0, cs:__real@3c23d70a
-        vcomiss xmm0, dword ptr [rbx+28h]
-      }
-      if ( v12 | v13 )
-      {
-        __asm
+        v9 = BG_UsingAlternate(&LocalClientGlobals->predictedPlayerState);
+        CG_CalcCrosshairColor(localClientNum, 1.0, &outColor);
+        if ( BG_GetReticleType(WeaponForEntity, v9) == RETICLE_TYPE_ONE_PIECE )
         {
-          vmovaps [rsp+0D8h+var_38], xmm7
-          vmovss  xmm7, cs:__real@3f800000
-          vmovaps xmm1, xmm7; alpha
-        }
-        v16 = BG_UsingAlternate(&LocalClientGlobals->predictedPlayerState);
-        CG_CalcCrosshairColor(localClientNum, *(double *)&_XMM1, &outColor);
-        if ( BG_GetReticleType(WeaponForEntity, v16) == RETICLE_TYPE_ONE_PIECE )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  [rsp+0D8h+centerY], xmm0
-            vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-          }
-          CG_DrawReticleOnePiece(localClientNum, WeaponForEntity, v16, &outColor, fmt, centerY);
+          CG_DrawReticleOnePiece(localClientNum, WeaponForEntity, v9, &outColor, 0.0, 0.0);
         }
         else
         {
-          BG_GetCenterReticle(WeaponForEntity, v16, &reticleCenter, &reticleCenterSize, NULL);
+          BG_GetCenterReticle(WeaponForEntity, v9, &reticleCenter, &reticleCenterSize, NULL);
           material = reticleCenter;
           if ( reticleCenter )
           {
-            __asm
-            {
-              vmovaps [rsp+0D8h+var_28], xmm6
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, [rsp+0D8h+reticleCenterSize]
-            }
+            v11 = (float)reticleCenterSize;
             ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-            __asm
-            {
-              vmulss  xmm1, xmm6, cs:__real@bf000000; x
-              vmovss  [rsp+0D8h+var_88], xmm7
-              vmovss  [rsp+0D8h+var_90], xmm7
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  [rsp+0D8h+var_98], xmm0
-              vmovss  [rsp+0D8h+var_A0], xmm0
-              vmovaps xmm3, xmm6; w
-              vmovaps xmm2, xmm1; y
-              vmovss  dword ptr [rsp+0D8h+fmt], xmm6
-            }
-            CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 2, 2, v31, v32, v33, v34, &outColor, material);
-            __asm { vmovaps xmm6, [rsp+0D8h+var_28] }
+            CL_DrawStretchPic(ActivePlacement, v11 * -0.5, v11 * -0.5, v11, v11, 2, 2, 0.0, 0.0, 1.0, 1.0, &outColor, material);
           }
         }
-        __asm { vmovaps xmm7, [rsp+0D8h+var_38] }
       }
     }
   }
@@ -2517,82 +1536,42 @@ CG_DrawWeapReticle
 */
 void CG_DrawWeapReticle(LocalClientNum_t localClientNum, const Weapon *r_weapon, bool isAlternate, float *crossHairAlpha, float *adsAlpha)
 {
+  __int128 v5; 
   const cg_t *LocalClientGlobals; 
-  bool WeapReticleZoom; 
-  char v16; 
-  bool v17; 
-  weapType_t WeaponType; 
-  double v27; 
+  float v11; 
+  float v12; 
   float zoomResult; 
   vec2_t x; 
   vec4_t color; 
+  __int128 v16; 
 
-  _RSI = adsAlpha;
-  _R14 = crossHairAlpha;
   if ( !crossHairAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 392, ASSERT_TYPE_ASSERT, "(crossHairAlpha)", (const char *)&queryFormat, "crossHairAlpha") )
     __debugbreak();
   if ( !adsAlpha && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 393, ASSERT_TYPE_ASSERT, "(adsAlpha)", (const char *)&queryFormat, "adsAlpha") )
     __debugbreak();
-  __asm { vmovaps [rsp+0B8h+var_58], xmm7 }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  WeapReticleZoom = CG_GetWeapReticleZoom(LocalClientGlobals, &zoomResult);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v16 = 0;
-  v17 = !WeapReticleZoom;
-  if ( WeapReticleZoom )
+  if ( CG_GetWeapReticleZoom(LocalClientGlobals, &zoomResult) )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@43f00000; screenHeight
-      vmovss  xmm1, cs:__real@44200000; screenWidth
-      vmovaps [rsp+0B8h+var_48], xmm6
-      vmovss  xmm6, [rsp+0B8h+zoomResult]
-      vmovss  dword ptr [rsp+0B8h+color+0Ch], xmm6
-      vmovss  dword ptr [rsp+0B8h+color], xmm7
-      vmovss  dword ptr [rsp+0B8h+color+4], xmm7
-      vmovss  dword ptr [rsp+0B8h+color+8], xmm7
-    }
-    CG_CalcCrosshairPosition(LocalClientGlobals, *(const float *)&_XMM1, *(const float *)&_XMM2, (float *)&x, (float *)&x + 1);
+    v16 = v5;
+    v12 = zoomResult;
+    color.v[3] = zoomResult;
+    color.v[0] = FLOAT_1_0;
+    color.v[1] = FLOAT_1_0;
+    color.v[2] = FLOAT_1_0;
+    CG_CalcCrosshairPosition(LocalClientGlobals, 640.0, 480.0, (float *)&x, (float *)&x + 1);
     CG_DrawAdsOverlay(localClientNum, r_weapon, isAlternate, &color, &x);
-    __asm
-    {
-      vsubss  xmm1, xmm7, xmm6
-      vmovaps xmm6, [rsp+0B8h+var_48]
-    }
+    v11 = 1.0 - v12;
   }
   else
   {
-    __asm { vmovaps xmm1, xmm7 }
+    v11 = FLOAT_1_0;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [r14], xmm1
-  }
-  if ( v16 )
-    goto LABEL_21;
-  __asm { vcomiss xmm1, xmm7 }
-  if ( !(v16 | v17) )
-  {
-LABEL_21:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0B8h+var_90], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 418, ASSERT_TYPE_SANITY, "( ( *crossHairAlpha >= 0 && *crossHairAlpha <= 1 ) )", "( *crossHairAlpha ) = %g", v27) )
-      __debugbreak();
-  }
+  *crossHairAlpha = v11;
+  if ( (v11 < 0.0 || v11 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 418, ASSERT_TYPE_SANITY, "( ( *crossHairAlpha >= 0 && *crossHairAlpha <= 1 ) )", "( *crossHairAlpha ) = %g", *crossHairAlpha) )
+    __debugbreak();
   *adsAlpha = 1.0;
-  WeaponType = BG_GetWeaponType(r_weapon, isAlternate);
-  __asm { vmovaps xmm7, [rsp+0B8h+var_58] }
-  if ( (WeaponType == WEAPTYPE_BULLET || BG_GetWeaponType(r_weapon, isAlternate) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(r_weapon, isAlternate) && !BG_ADSShouldShowCrosshair(r_weapon, isAlternate) )
-  {
-    *(float *)&_XMM0 = CG_CalcADSTransitionBlend(LocalClientGlobals, r_weapon, isAlternate);
-    __asm { vmovss  dword ptr [rsi], xmm0 }
-  }
+  if ( (BG_GetWeaponType(r_weapon, isAlternate) == WEAPTYPE_BULLET || BG_GetWeaponType(r_weapon, isAlternate) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(r_weapon, isAlternate) && !BG_ADSShouldShowCrosshair(r_weapon, isAlternate) )
+    *adsAlpha = CG_CalcADSTransitionBlend(LocalClientGlobals, r_weapon, isAlternate);
 }
 
 /*
@@ -2602,82 +1581,49 @@ CG_GetCrosshairAlpha
 */
 float CG_GetCrosshairAlpha(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v5; 
+  const dvar_t *v2; 
+  cg_t *LocalClientGlobals; 
   const Weapon *ReticleWeapon; 
-  bool v8; 
-  const Weapon *v9; 
-  const cg_t *LocalClientGlobals; 
-  double v22; 
+  bool v5; 
+  const Weapon *v6; 
+  const cg_t *v7; 
+  float v8; 
+  float v9; 
   bool outIsAlternate; 
   float zoomResult; 
   vec4_t outColor; 
   vec4_t outReticleColor; 
 
   if ( !CG_DrawReticles_ShouldDrawCrosshair(localClientNum) )
-    goto LABEL_18;
-  v5 = DCONST_DVARBOOL_lui_footage_capture_enabled;
+    return 0.0;
+  v2 = DCONST_DVARBOOL_lui_footage_capture_enabled;
   if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled || CG_WeaponInspect_IsUIHidden(localClientNum) )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled || CG_WeaponInspect_IsUIHidden(localClientNum) )
+    return 0.0;
+  outIsAlternate = 0;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  ReticleWeapon = CG_GetReticleWeapon(localClientNum, &outIsAlternate);
+  v5 = outIsAlternate;
+  v6 = ReticleWeapon;
+  v7 = CG_GetLocalClientGlobals(localClientNum);
+  v8 = FLOAT_1_0;
+  if ( CG_GetWeapReticleZoom(v7, &zoomResult) )
   {
-LABEL_18:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v9 = 1.0 - zoomResult;
+    if ( ((float)(1.0 - zoomResult) < 0.0 || (float)(1.0 - zoomResult) > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 377, ASSERT_TYPE_SANITY, "( ( *crossHairAlpha >= 0 && *crossHairAlpha <= 1 ) )", "( *crossHairAlpha ) = %g", v9) )
+      __debugbreak();
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-    }
-    outIsAlternate = 0;
-    _R14 = CG_GetLocalClientGlobals(localClientNum);
-    ReticleWeapon = CG_GetReticleWeapon(localClientNum, &outIsAlternate);
-    v8 = outIsAlternate;
-    v9 = ReticleWeapon;
-    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( CG_GetWeapReticleZoom(LocalClientGlobals, &zoomResult) )
-    {
-      __asm
-      {
-        vsubss  xmm7, xmm6, [rsp+0A8h+zoomResult]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm7, xmm0
-        vcomiss xmm7, xmm6
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+0A8h+var_80], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 377, ASSERT_TYPE_SANITY, "( ( *crossHairAlpha >= 0 && *crossHairAlpha <= 1 ) )", "( *crossHairAlpha ) = %g", v22) )
-        __debugbreak();
-    }
-    else
-    {
-      __asm { vmovaps xmm7, xmm6 }
-    }
-    if ( (BG_GetWeaponType(v9, v8) == WEAPTYPE_BULLET || BG_GetWeaponType(v9, v8) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(v9, v8) && !BG_ADSShouldShowCrosshair(v9, v8) )
-    {
-      *(float *)&_XMM0 = CG_CalcADSTransitionBlend(LocalClientGlobals, v9, v8);
-      __asm { vmovaps xmm6, xmm0 }
-    }
-    __asm { vmovaps xmm1, xmm7; alpha }
-    CG_CalcCrosshairColor(localClientNum, *(double *)&_XMM1, &outColor);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r14+74Ch]; aimSpreadScale
-      vmovaps xmm2, xmm6; adsAlpha
-      vmovaps xmm1, xmm7; alpha
-    }
-    CG_CalcReticleColor(&outColor, *(double *)&_XMM1, *(double *)&_XMM2, *(float *)&_XMM3, &outReticleColor);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0A8h+outReticleColor+0Ch]
-      vmovaps xmm7, [rsp+0A8h+var_38]
-      vmovaps xmm6, [rsp+0A8h+var_28]
-    }
+    v9 = FLOAT_1_0;
   }
-  return *(float *)&_XMM0;
+  if ( (BG_GetWeaponType(v6, v5) == WEAPTYPE_BULLET || BG_GetWeaponType(v6, v5) == WEAPTYPE_PROJECTILE) && BG_IsAimDownSight(v6, v5) && !BG_ADSShouldShowCrosshair(v6, v5) )
+    v8 = CG_CalcADSTransitionBlend(v7, v6, v5);
+  CG_CalcCrosshairColor(localClientNum, v9, &outColor);
+  CG_CalcReticleColor(&outColor, v9, v8, LocalClientGlobals->predictedPlayerState.weapCommon.aimSpreadScale, &outReticleColor);
+  return outReticleColor.v[3];
 }
 
 /*
@@ -2685,35 +1631,22 @@ LABEL_18:
 CG_GetCrosshairColorAsInt
 ==============
 */
-
-__int64 __fastcall CG_GetCrosshairColorAsInt(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+__int64 CG_GetCrosshairColorAsInt(const LocalClientNum_t localClientNum)
 {
-  int v14; 
+  int v3; 
+  int v6; 
   vec4_t outColor; 
 
-  __asm { vmovss  xmm1, cs:__real@3f800000; alpha }
-  CG_CalcCrosshairColor(localClientNum, *(double *)&_XMM1, &outColor);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@437f0000
-    vmulss  xmm1, xmm3, dword ptr [rsp+48h+outColor]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vmulss  xmm1, xmm3, dword ptr [rsp+48h+outColor+4]
-    vcvttss2si eax, xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vmulss  xmm1, xmm3, dword ptr [rsp+48h+outColor+8]
-    vcvttss2si ecx, xmm2
-  }
-  v14 = _ECX + (_EAX << 8);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si ecx, xmm2
-  }
-  return (unsigned int)(_ECX + (v14 << 8));
+  CG_CalcCrosshairColor(localClientNum, 1.0, &outColor);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v3 = (int)*(float *)&_XMM2;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v6 = (int)*(float *)&_XMM2 + (v3 << 8);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  return (unsigned int)((int)*(float *)&_XMM2 + (v6 << 8));
 }
 
 /*
@@ -2724,17 +1657,15 @@ CG_GetCrosshairRadius
 float CG_GetCrosshairRadius(const LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
-  const cg_t *v4; 
+  const cg_t *v3; 
   const Weapon *ReticleWeapon; 
   bool outIsAlternate; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   outIsAlternate = 0;
-  v4 = LocalClientGlobals;
+  v3 = LocalClientGlobals;
   ReticleWeapon = CG_GetReticleWeapon(localClientNum, &outIsAlternate);
-  *(float *)&_XMM0 = CG_CalcReticleSpreadRadius(v4, ReticleWeapon, outIsAlternate);
-  __asm { vmulss  xmm0, xmm0, cs:__real@40100000 }
-  return *(float *)&_XMM0;
+  return CG_CalcReticleSpreadRadius(v3, ReticleWeapon, outIsAlternate) * 2.25;
 }
 
 /*
@@ -2776,44 +1707,34 @@ CG_GetWeapOverlayMaterial
 */
 Material *CG_GetWeapOverlayMaterial(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const ScreenPlacement *scrPlace)
 {
-  char v10; 
+  bool v8; 
   bool IsEMPJammed; 
   const ADSOverlay *Overlay; 
   Material *result; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RSI = scrPlace;
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 173, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@43f00000
-    vcomiss xmm6, dword ptr [rsi+24h]
-  }
-  v10 = 1;
+  v8 = scrPlace->realViewportSize.v[1] <= 480.0;
   IsEMPJammed = CG_View_IsEMPJammed(localClientNum);
   Overlay = BG_GetOverlay(weapon, isAlternate);
-  if ( CL_Main_IsSplitscreenGame() )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vmulss  xmm1, xmm0, cs:__real@3b088889
-      vmulss  xmm2, xmm1, dword ptr [rbx+54h]
-      vcomiss xmm2, xmm6
-    }
-    v10 = 0;
-  }
+  if ( v8 && CL_Main_IsSplitscreenGame() && (float)((float)(scrPlace->realViewportSize.v[1] * 0.0020833334) * Overlay->heightSplitscreen) >= 480.0 )
+    v8 = 0;
   if ( IsEMPJammed && Overlay->shaderEMPMat )
   {
-    if ( !v10 || (result = Overlay->shaderEMPLowResMat) == NULL )
-      result = Overlay->shaderEMPMat;
+    if ( !v8 )
+      return Overlay->shaderEMPMat;
+    result = Overlay->shaderEMPLowResMat;
+    if ( !result )
+      return Overlay->shaderEMPMat;
   }
-  else if ( !v10 || (result = Overlay->shaderLowResMat) == NULL )
+  else
   {
-    result = Overlay->shaderMat;
+    if ( !v8 )
+      return Overlay->shaderMat;
+    result = Overlay->shaderLowResMat;
+    if ( !result )
+      return Overlay->shaderMat;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   return result;
 }
 
@@ -2825,49 +1746,43 @@ CG_GetWeapReticleZoom
 bool CG_GetWeapReticleZoom(const cg_t *cgameGlob, float *zoomResult)
 {
   const Weapon *ReticleWeapon; 
-  const WeaponDef *v7; 
+  const WeaponDef *v5; 
   const ADSOverlay *Overlay; 
   __int64 localClientNum; 
-  CgWeaponMap *v12; 
+  float correctedWeaponPosFrac; 
+  CgWeaponMap *v10; 
+  double OffhandAdsFrac; 
+  double WeaponZoom; 
   bool outIsAlternate; 
 
-  _RBX = zoomResult;
-  _RDI = cgameGlob;
   ReticleWeapon = CG_GetReticleWeapon(cgameGlob->localClientNum, &outIsAlternate);
-  v7 = BG_WeaponDef(ReticleWeapon, outIsAlternate);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 106, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+  v5 = BG_WeaponDef(ReticleWeapon, outIsAlternate);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 106, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   Overlay = BG_GetOverlay(ReticleWeapon, outIsAlternate);
-  if ( BG_GetWeaponClass(ReticleWeapon, outIsAlternate) == WEAPCLASS_TURRET && v7->overlayInterface == WEAPOVERLAYINTERFACE_TURRETSCOPE || Overlay->shaderMat || Overlay->reticle && !CG_View_IsUsingDualFOV((const LocalClientNum_t)_RDI->localClientNum) )
+  if ( BG_GetWeaponClass(ReticleWeapon, outIsAlternate) == WEAPCLASS_TURRET && v5->overlayInterface == WEAPOVERLAYINTERFACE_TURRETSCOPE || Overlay->shaderMat || Overlay->reticle && !CG_View_IsUsingDualFOV((const LocalClientNum_t)cgameGlob->localClientNum) )
   {
-    localClientNum = _RDI->localClientNum;
-    __asm
-    {
-      vmovaps [rsp+58h+var_28], xmm6
-      vmovss  xmm6, dword ptr [rdi+7C64Ch]
-    }
+    localClientNum = cgameGlob->localClientNum;
+    correctedWeaponPosFrac = cgameGlob->weaponPosFracAnimData.correctedWeaponPosFrac;
     if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
       __debugbreak();
-    v12 = CgWeaponMap::ms_instance[localClientNum];
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 122, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    v10 = CgWeaponMap::ms_instance[localClientNum];
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 122, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    if ( BG_IsUsingOffhandGestureWeaponADSSupport(v12, &_RDI->predictedPlayerState) )
+    if ( BG_IsUsingOffhandGestureWeaponADSSupport(v10, &cgameGlob->predictedPlayerState) )
     {
-      *(double *)&_XMM0 = BG_GetOffhandAdsFrac(&_RDI->predictedPlayerState);
-      __asm { vmovaps xmm6, xmm0 }
+      OffhandAdsFrac = BG_GetOffhandAdsFrac(&cgameGlob->predictedPlayerState);
+      correctedWeaponPosFrac = *(float *)&OffhandAdsFrac;
     }
-    __asm { vmovaps xmm2, xmm6; weapPosFrac }
-    *(double *)&_XMM0 = CG_GetWeaponZoom(_RDI, ReticleWeapon, *(const float *)&_XMM2, CG_FovSpace_Scene);
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
-    if ( _RBX )
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-    __asm { vcomiss xmm0, cs:__real@3c23d70a }
-    return _RBX != NULL;
+    WeaponZoom = CG_GetWeaponZoom(cgameGlob, ReticleWeapon, correctedWeaponPosFrac, CG_FovSpace_Scene);
+    if ( zoomResult )
+      *zoomResult = *(float *)&WeaponZoom;
+    return *(float *)&WeaponZoom > 0.0099999998;
   }
   else
   {
-    if ( _RBX )
-      *_RBX = 0.0;
+    if ( zoomResult )
+      *zoomResult = 0.0;
     return 0;
   }
 }
@@ -2879,25 +1794,30 @@ CG_UpdateScissorForWeaponDef
 */
 void CG_UpdateScissorForWeaponDef(LocalClientNum_t localClientNum, const Weapon *weapon, bool isAlternate, const vec2_t *crosshairPos)
 {
+  const ADSOverlay *Overlay; 
   const ScreenPlacement *ActivePlacement; 
   cg_t *LocalClientGlobals; 
   cg_t *v11; 
-  bool IsSplitscreenGame; 
+  float widthSplitscreen; 
+  float heightSplitscreen; 
+  float v14; 
+  float v15; 
   refdef_t *p_refdef; 
+  int v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
+  int v22; 
   int v23; 
-  unsigned int v25; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
+  int v24; 
+  int v25; 
   float w; 
   float h; 
   float x; 
   float y; 
 
-  _R15 = crosshairPos;
-  _RSI = BG_GetOverlay(weapon, isAlternate);
+  Overlay = BG_GetOverlay(weapon, isAlternate);
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
   if ( CG_GetWeapOverlayMaterial(localClientNum, weapon, isAlternate, ActivePlacement) )
   {
@@ -2906,43 +1826,25 @@ void CG_UpdateScissorForWeaponDef(LocalClientNum_t localClientNum, const Weapon 
     if ( !LocalClientGlobals->shellshock.wantSavedScreen )
     {
       LocalClientGlobals->shellshock.hasScissor = 1;
-      IsSplitscreenGame = CL_Main_IsSplitscreenGame();
-      if ( IsSplitscreenGame )
+      if ( CL_Main_IsSplitscreenGame() )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+50h]
-          vmovss  [rsp+98h+w], xmm0
-          vmovss  xmm3, dword ptr [rsi+54h]
-        }
+        widthSplitscreen = Overlay->widthSplitscreen;
+        w = widthSplitscreen;
+        heightSplitscreen = Overlay->heightSplitscreen;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+48h]
-          vmovss  [rsp+98h+w], xmm0
-          vmovss  xmm3, dword ptr [rsi+4Ch]
-        }
+        widthSplitscreen = Overlay->width;
+        w = widthSplitscreen;
+        heightSplitscreen = Overlay->height;
       }
-      __asm
+      h = heightSplitscreen;
+      if ( widthSplitscreen > 320.0 || heightSplitscreen > 240.0 )
       {
-        vcomiss xmm0, cs:__real@43a00000
-        vmovss  [rsp+98h+var_54], xmm3
-      }
-      if ( IsSplitscreenGame )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@3f000000
-          vmovss  xmm0, dword ptr [r15]
-          vmulss  xmm2, xmm3, cs:__real@3f000000
-          vsubss  xmm1, xmm0, xmm1
-          vmovss  xmm0, dword ptr [r15+4]
-          vmovss  [rsp+98h+x], xmm1
-          vsubss  xmm1, xmm0, xmm2
-          vmovss  [rsp+98h+y], xmm1
-        }
+        v14 = crosshairPos->v[0] - (float)(widthSplitscreen * 0.5);
+        v15 = crosshairPos->v[1];
+        x = v14;
+        y = v15 - (float)(heightSplitscreen * 0.5);
         ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &h, 2, 2);
         p_refdef = &v11->refdef;
         if ( !p_refdef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 184, ASSERT_TYPE_ASSERT, "(refdef)", (const char *)&queryFormat, "refdef") )
@@ -2950,29 +1852,23 @@ void CG_UpdateScissorForWeaponDef(LocalClientNum_t localClientNum, const Weapon 
         if ( p_refdef->useScissorViewport && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_reticles.cpp", 185, ASSERT_TYPE_ASSERT, "(!refdef->useScissorViewport)", (const char *)&queryFormat, "!refdef->useScissorViewport") )
           __debugbreak();
         p_refdef->useScissorViewport = 1;
-        __asm { vcvttss2si esi, [rsp+98h+x] }
-        v23 = p_refdef->displayViewport.x + _ESI;
-        p_refdef->scissorViewport.x = v23;
-        __asm { vcvttss2si ebp, [rsp+98h+y] }
-        v25 = p_refdef->displayViewport.y + _EBP;
-        p_refdef->scissorViewport.y = v25;
-        __asm { vcvttss2si ebx, [rsp+98h+w] }
-        p_refdef->scissorViewport.width = _EBX;
-        __asm { vcvttss2si edi, [rsp+98h+var_54] }
-        p_refdef->scissorViewport.height = _EDI;
-        v28 = I_clamp(v23, p_refdef->displayViewport.x, p_refdef->displayViewport.x + p_refdef->displayViewport.width);
-        v29 = p_refdef->scissorViewport.y;
-        p_refdef->scissorViewport.x = v28;
-        p_refdef->scissorViewport.y = I_clamp(v29, p_refdef->displayViewport.y, p_refdef->displayViewport.y + p_refdef->displayViewport.height);
-        v30 = I_clamp(_EBX + v23, p_refdef->displayViewport.x, p_refdef->displayViewport.x + p_refdef->displayViewport.width);
-        v31 = I_clamp(_EDI + v25, p_refdef->displayViewport.y, p_refdef->displayViewport.y + p_refdef->displayViewport.height);
-        v32 = v30 - p_refdef->scissorViewport.x;
-        p_refdef->scissorViewport.height = v31 - p_refdef->scissorViewport.y;
-        p_refdef->scissorViewport.width = v32;
-      }
-      else
-      {
-        __asm { vcomiss xmm3, cs:__real@43700000 }
+        v17 = p_refdef->displayViewport.x + (int)x;
+        p_refdef->scissorViewport.x = v17;
+        v18 = p_refdef->displayViewport.y + (int)y;
+        p_refdef->scissorViewport.y = v18;
+        v19 = (int)w;
+        p_refdef->scissorViewport.width = (int)w;
+        v20 = (int)h;
+        p_refdef->scissorViewport.height = (int)h;
+        v21 = I_clamp(v17, p_refdef->displayViewport.x, p_refdef->displayViewport.x + p_refdef->displayViewport.width);
+        v22 = p_refdef->scissorViewport.y;
+        p_refdef->scissorViewport.x = v21;
+        p_refdef->scissorViewport.y = I_clamp(v22, p_refdef->displayViewport.y, p_refdef->displayViewport.y + p_refdef->displayViewport.height);
+        v23 = I_clamp(v19 + v17, p_refdef->displayViewport.x, p_refdef->displayViewport.x + p_refdef->displayViewport.width);
+        v24 = I_clamp(v20 + v18, p_refdef->displayViewport.y, p_refdef->displayViewport.y + p_refdef->displayViewport.height);
+        v25 = v23 - p_refdef->scissorViewport.x;
+        p_refdef->scissorViewport.height = v24 - p_refdef->scissorViewport.y;
+        p_refdef->scissorViewport.width = v25;
       }
     }
   }

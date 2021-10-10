@@ -222,213 +222,168 @@ void RBT_EffectLighting_Process(ComputeCmdBufState *computeState, const GfxTaskI
 {
   bool v5; 
   ComputeCmdBufState *v6; 
+  __int64 v7; 
+  R_RT_Handle v11; 
+  bool v12; 
   bool v13; 
-  bool v15; 
-  bool v18; 
-  bool v20; 
   R_RT_Image *blackShadowImage; 
-  bool v26; 
+  bool v15; 
   GfxWrappedBuffer *lightsClusterBuffer; 
   const R_RT_Surface *Surface; 
   R_RT_Image *blackImage3D; 
   bool enabled; 
   R_RT_Image *whiteImage3D; 
-  bool v37; 
-  signed int v39; 
-  const dvar_t *v40; 
-  bool v44; 
-  bool v48; 
-  ComputeCmdBufState *v55; 
-  bool v56; 
-  R_RT_Handle v57; 
+  bool v21; 
+  signed int v22; 
+  const dvar_t *v23; 
+  R_RT_Handle v24; 
+  bool v26; 
+  R_RT_Handle v27; 
+  bool v29; 
+  R_RT_Handle *attachments; 
+  ComputeCmdBufState *v31; 
+  bool v32; 
+  R_RT_Handle v33; 
   ComputeCmdBufState *computeStatea; 
   GfxImage *translucentSunShadowMaskImage; 
   GfxImage *translucentSunShadowImage; 
   GfxImage *sunShadowImage; 
   GfxImage *imagesRead; 
   R_RT_Image *p_m_image; 
-  R_RT_Handle v64; 
+  R_RT_Handle v40; 
   GfxImage *imagesWrite[2]; 
   GfxImage *lightGenImages[2]; 
-  R_RT_Image *v67; 
+  R_RT_Image *v43; 
 
   v5 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 4) != 0;
   computeStatea = computeState;
   v6 = computeState;
-  _RCX = 256i64;
+  v7 = 8i64;
   if ( data->sunShadow.opaqueCascadeCount <= 1u )
-    _RCX = 224i64;
-  _RAX = taskInfo->attachments;
-  __asm { vmovups ymm0, ymmword ptr [rcx+rax] }
+    v7 = 7i64;
+  v11 = taskInfo->attachments[v7];
   sunShadowImage = rgp.blackShadowImage;
-  __asm
+  v33 = v11;
+  if ( (_WORD)_XMM0 )
   {
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v57);
+    R_RT_Handle::GetSurface(&v33);
     if ( v5 )
-      sunShadowImage = &R_RT_Handle::GetSurface(&v57)->m_image.m_base;
+      sunShadowImage = &R_RT_Handle::GetSurface(&v33)->m_image.m_base;
   }
-  else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   translucentSunShadowImage = rgp.zeroImage;
-  v13 = R_SunShadow_TranslucentEnabled(viewInfo);
-  _RCX = taskInfo->attachments;
-  v15 = v13;
-  __asm
+  v12 = R_SunShadow_TranslucentEnabled(viewInfo);
+  v33 = taskInfo->attachments[9];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rcx+120h]
-    vmovd   ecx, xmm0
-    vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v33);
+    if ( v12 )
+      translucentSunShadowImage = &R_RT_Handle::GetSurface(&v33)->m_image.m_base;
   }
-  if ( (_WORD)_ECX )
-  {
-    R_RT_Handle::GetSurface(&v57);
-    if ( v15 )
-      translucentSunShadowImage = &R_RT_Handle::GetSurface(&v57)->m_image.m_base;
-  }
-  else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_ECX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_XMM0 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   translucentSunShadowMaskImage = rgp.blackImage;
-  v18 = R_SunShadow_TranslucentEnabled(viewInfo);
-  _RCX = taskInfo->attachments;
-  v20 = v18;
-  __asm
+  v13 = R_SunShadow_TranslucentEnabled(viewInfo);
+  v33 = taskInfo->attachments[10];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rcx+140h]
-    vmovd   ecx, xmm0
-    vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_ECX )
-  {
-    R_RT_Handle::GetSurface(&v57);
-    if ( v20 )
+    R_RT_Handle::GetSurface(&v33);
+    if ( v13 )
     {
-      translucentSunShadowMaskImage = &R_RT_Handle::GetSurface(&v57)->m_image.m_base;
+      translucentSunShadowMaskImage = &R_RT_Handle::GetSurface(&v33)->m_image.m_base;
       v6 = computeStatea;
     }
   }
-  else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_ECX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_XMM0 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  _RAX = taskInfo->attachments;
   blackShadowImage = (R_RT_Image *)rgp.blackShadowImage;
-  __asm
+  v15 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
+  v33 = taskInfo->attachments[12];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+180h]
-    vmovd   eax, xmm0
+    R_RT_Handle::GetSurface(&v33);
+    if ( v15 )
+      blackShadowImage = &R_RT_Handle::GetSurface(&v33)->m_image;
   }
-  v26 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
-  __asm { vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0 }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v57);
-    if ( v26 )
-      blackShadowImage = &R_RT_Handle::GetSurface(&v57)->m_image;
-  }
-  else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  _RAX = taskInfo->attachments;
-  __asm
+  v33 = taskInfo->attachments[13];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+1A0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v57);
-    Surface = R_RT_Handle::GetSurface(&v57);
+    R_RT_Handle::GetSurface(&v33);
+    Surface = R_RT_Handle::GetSurface(&v33);
     if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
     lightsClusterBuffer = (GfxWrappedBuffer *)&Surface->1080;
   }
   else
   {
-    if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
     lightsClusterBuffer = &gfxBuf.dummyBuffer;
   }
   if ( R_DeferredLighting_SetupSharedInputCustom(v6, viewInfo, &blackShadowImage->m_base) )
   {
     RB_DrawEmissive_UnmapMeshes(data);
-    _RAX = taskInfo->attachments;
     blackImage3D = (R_RT_Image *)rgp.blackImage3D;
     enabled = viewInfo->volumetrics.enabled;
-    __asm
+    v33 = taskInfo->attachments[5];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
+      R_RT_Handle::GetSurface(&v33);
       if ( enabled )
-        blackImage3D = &R_RT_Handle::GetSurface(&v57)->m_image;
+        blackImage3D = &R_RT_Handle::GetSurface(&v33)->m_image;
     }
-    else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
-    _RAX = taskInfo->attachments;
     whiteImage3D = (R_RT_Image *)rgp.whiteImage3D;
-    v37 = viewInfo->volumetrics.enabled;
-    __asm
+    v21 = viewInfo->volumetrics.enabled;
+    v33 = taskInfo->attachments[6];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+0C0h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
+      R_RT_Handle::GetSurface(&v33);
+      if ( v21 )
+        whiteImage3D = &R_RT_Handle::GetSurface(&v33)->m_image;
     }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      if ( v37 )
-        whiteImage3D = &R_RT_Handle::GetSurface(&v57)->m_image;
-    }
-    else if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
-    v39 = *taskInfo->pTaskData;
-    if ( v39 == 2 )
+    v22 = *taskInfo->pTaskData;
+    if ( v22 == 2 )
     {
-      v40 = r_del_oof;
+      v23 = r_del_oof;
       if ( !r_del_oof && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v40);
-      if ( v40->current.enabled )
-        v39 = 3;
+      Dvar_CheckFrontendServerThread(v23);
+      if ( v23->current.enabled )
+        v22 = 3;
     }
-    _RAX = taskInfo->attachments;
-    __asm
+    v24 = *taskInfo->attachments;
+    v40 = v24;
+    v33 = v24;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      if ( (R_RT_Handle::GetSurface(&v57)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v33);
+      if ( (R_RT_Handle::GetSurface(&v33)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+120h+var_E0.m_surfaceID] }
+        v24 = v33;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+120h+var_E0.m_surfaceID] }
+        v24 = v33;
       }
     }
     else
@@ -436,33 +391,28 @@ void RBT_EffectLighting_Process(ComputeCmdBufState *computeState, const GfxTaskI
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_surfaceID] }
-        if ( v44 )
+        v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v24 = v40;
+        if ( v26 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0 }
-    imagesWrite[0] = &R_RT_Handle::GetSurface(&v64)->m_image.m_base;
-    _RAX = taskInfo->attachments;
-    __asm
+    v40 = v24;
+    imagesWrite[0] = &R_RT_Handle::GetSurface(&v40)->m_image.m_base;
+    v27 = taskInfo->attachments[1];
+    v40 = v27;
+    v33 = v27;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      if ( (R_RT_Handle::GetSurface(&v57)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v33);
+      if ( (R_RT_Handle::GetSurface(&v33)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+120h+var_E0.m_surfaceID] }
+        v27 = v33;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+120h+var_E0.m_surfaceID] }
+        v27 = v33;
       }
     }
     else
@@ -470,77 +420,60 @@ void RBT_EffectLighting_Process(ComputeCmdBufState *computeState, const GfxTaskI
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_surfaceID] }
-        if ( v48 )
+        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v27 = v40;
+        if ( v29 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0 }
-    imagesWrite[1] = &R_RT_Handle::GetSurface(&v64)->m_image.m_base;
-    _RAX = taskInfo->attachments;
-    __asm
+    v40 = v27;
+    imagesWrite[1] = &R_RT_Handle::GetSurface(&v40)->m_image.m_base;
+    v33 = taskInfo->attachments[3];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      imagesRead = &R_RT_Handle::GetSurface(&v57)->m_image.m_base;
+      R_RT_Handle::GetSurface(&v33);
+      imagesRead = &R_RT_Handle::GetSurface(&v33)->m_image.m_base;
     }
     else
     {
-      if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       imagesRead = NULL;
     }
-    _RAX = taskInfo->attachments;
-    __asm
+    v33 = taskInfo->attachments[4];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      p_m_image = &R_RT_Handle::GetSurface(&v57)->m_image;
+      R_RT_Handle::GetSurface(&v33);
+      p_m_image = &R_RT_Handle::GetSurface(&v33)->m_image;
     }
     else
     {
-      if ( v57.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       p_m_image = NULL;
     }
-    _RAX = taskInfo->attachments;
+    attachments = taskInfo->attachments;
     lightGenImages[0] = &blackImage3D->m_base;
     lightGenImages[1] = &whiteImage3D->m_base;
-    __asm
+    v33 = attachments[2];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+120h+var_E0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      v67 = &R_RT_Handle::GetSurface(&v57)->m_image;
+      R_RT_Handle::GetSurface(&v33);
+      v43 = &R_RT_Handle::GetSurface(&v33)->m_image;
     }
     else
     {
-      if ( v57.m_tracking.m_allocCounter )
+      if ( v33.m_tracking.m_allocCounter )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
-      v67 = NULL;
+      v43 = NULL;
     }
-    v55 = computeStatea;
-    v56 = R_EffectLighting_SetConstantBuffer(computeStatea, viewInfo);
-    R_DeferredLighting_SetupOverlappingInputCustom(v55, viewInfo, (EffectLightingProcessType)v39, sunShadowImage, translucentSunShadowImage, translucentSunShadowMaskImage, lightsClusterBuffer);
-    R_EffectLighting_Process(v55, viewInfo, v56, (EffectLightingProcessType)v39, (const GfxImage *const *)&imagesRead, (const GfxImage *const *)imagesWrite, (const GfxImage *const *)lightGenImages, NULL);
+    v31 = computeStatea;
+    v32 = R_EffectLighting_SetConstantBuffer(computeStatea, viewInfo);
+    R_DeferredLighting_SetupOverlappingInputCustom(v31, viewInfo, (EffectLightingProcessType)v22, sunShadowImage, translucentSunShadowImage, translucentSunShadowMaskImage, lightsClusterBuffer);
+    R_EffectLighting_Process(v31, viewInfo, v32, (EffectLightingProcessType)v22, (const GfxImage *const *)&imagesRead, (const GfxImage *const *)imagesWrite, (const GfxImage *const *)lightGenImages, NULL);
   }
 }
 
@@ -554,33 +487,34 @@ void RBT_EffectLighting_Process_MultilightGrid_Combine(ComputeCmdBufState *compu
   R_RT_Image *blackShadowImage; 
   bool v7; 
   bool v8; 
+  __int64 v9; 
   R_RT_Image *zeroImage; 
-  bool v15; 
-  bool v17; 
+  bool v12; 
   R_RT_Image *translucentSunShadowMaskImage; 
-  bool v21; 
-  bool v23; 
+  bool v14; 
   R_RT_Image *p_m_image; 
-  bool v29; 
+  bool v16; 
   const GfxImage *p_m_base; 
-  ComputeCmdBufState *v31; 
-  bool v35; 
-  bool v39; 
+  ComputeCmdBufState *v18; 
+  R_RT_Handle v19; 
+  bool v21; 
+  R_RT_Handle v22; 
+  bool v24; 
   const R_RT_Surface *Surface; 
-  bool v42; 
+  bool v27; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
-  R_RT_Handle *v44; 
-  const GfxWrappedRWBuffer *v45; 
-  R_RT_Handle *v46; 
-  const GfxWrappedRWBuffer *v47; 
-  R_RT_Handle *v48; 
-  const GfxWrappedRWBuffer *v49; 
-  R_RT_Handle *v50; 
-  const GfxWrappedRWBuffer *v51; 
-  R_RT_Handle *v52; 
-  R_RT_Handle v53; 
+  R_RT_Handle *v29; 
+  const GfxWrappedRWBuffer *v30; 
+  R_RT_Handle *v31; 
+  const GfxWrappedRWBuffer *v32; 
+  R_RT_Handle *v33; 
+  const GfxWrappedRWBuffer *v34; 
+  R_RT_Handle *v35; 
+  const GfxWrappedRWBuffer *v36; 
+  R_RT_Handle *v37; 
+  R_RT_Handle v38; 
   GfxBackEndData *dataa[2]; 
-  R_RT_Handle v55; 
+  R_RT_Handle v40; 
   ComputeCmdBufState *computeStatea[2]; 
   EffectLightingMultiLightGridTempBuffers multiLightGridTempBuffers; 
   GfxImage *lightGenImages[3]; 
@@ -589,110 +523,79 @@ void RBT_EffectLighting_Process_MultilightGrid_Combine(ComputeCmdBufState *compu
   v7 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 4) != 0;
   computeStatea[0] = computeState;
   v8 = data->sunShadow.opaqueCascadeCount <= 1u;
-  _RCX = 96i64;
+  v9 = 3i64;
   dataa[0] = (GfxBackEndData *)data;
-  _RAX = taskInfo->attachments;
   if ( v8 )
-    _RCX = 64i64;
-  __asm
+    v9 = 2i64;
+  v38 = taskInfo->attachments[v9];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rcx+rax]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v53);
+    R_RT_Handle::GetSurface(&v38);
     if ( v7 )
-      blackShadowImage = &R_RT_Handle::GetSurface(&v53)->m_image;
+      blackShadowImage = &R_RT_Handle::GetSurface(&v38)->m_image;
   }
-  else if ( v53.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   zeroImage = (R_RT_Image *)rgp.zeroImage;
-  v15 = R_SunShadow_TranslucentEnabled(viewInfo);
-  _RCX = taskInfo->attachments;
-  v17 = v15;
-  __asm
+  v12 = R_SunShadow_TranslucentEnabled(viewInfo);
+  v38 = taskInfo->attachments[4];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rcx+80h]
-    vmovd   ecx, xmm0
-    vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v38);
+    if ( v12 )
+      zeroImage = &R_RT_Handle::GetSurface(&v38)->m_image;
   }
-  if ( (_WORD)_ECX )
-  {
-    R_RT_Handle::GetSurface(&v53);
-    if ( v17 )
-      zeroImage = &R_RT_Handle::GetSurface(&v53)->m_image;
-  }
-  else if ( v53.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_ECX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_XMM0 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   translucentSunShadowMaskImage = (R_RT_Image *)rgp.blackImage;
-  v21 = R_SunShadow_TranslucentEnabled(viewInfo);
-  _RCX = taskInfo->attachments;
-  v23 = v21;
-  __asm
+  v14 = R_SunShadow_TranslucentEnabled(viewInfo);
+  v38 = taskInfo->attachments[5];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rcx+0A0h]
-    vmovd   ecx, xmm0
-    vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v38);
+    if ( v14 )
+      translucentSunShadowMaskImage = &R_RT_Handle::GetSurface(&v38)->m_image;
   }
-  if ( (_WORD)_ECX )
-  {
-    R_RT_Handle::GetSurface(&v53);
-    if ( v23 )
-      translucentSunShadowMaskImage = &R_RT_Handle::GetSurface(&v53)->m_image;
-  }
-  else if ( v53.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_ECX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_XMM0 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  _RAX = taskInfo->attachments;
   p_m_image = (R_RT_Image *)rgp.blackShadowImage;
-  __asm
+  v16 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
+  v38 = taskInfo->attachments[7];
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+0E0h]
-    vmovd   eax, xmm0
+    R_RT_Handle::GetSurface(&v38);
+    if ( v16 )
+      p_m_image = &R_RT_Handle::GetSurface(&v38)->m_image;
   }
-  v29 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
-  __asm { vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0 }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v53);
-    if ( v29 )
-      p_m_image = &R_RT_Handle::GetSurface(&v53)->m_image;
-  }
-  else if ( v53.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
   p_m_base = &p_m_image->m_base;
-  v31 = computeStatea[0];
+  v18 = computeStatea[0];
   if ( R_DeferredLighting_SetupSharedInputCustom(computeStatea[0], viewInfo, p_m_base) )
   {
     RB_DrawEmissive_UnmapMeshes(dataa[0]);
-    _RAX = taskInfo->attachments;
-    __asm
+    v19 = *taskInfo->attachments;
+    v40 = v19;
+    v38 = v19;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_C0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v53);
-      if ( (R_RT_Handle::GetSurface(&v53)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v38);
+      if ( (R_RT_Handle::GetSurface(&v38)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+130h+var_F0.m_surfaceID] }
+        v19 = v38;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+130h+var_F0.m_surfaceID] }
+        v19 = v38;
       }
     }
     else
@@ -700,33 +603,28 @@ void RBT_EffectLighting_Process_MultilightGrid_Combine(ComputeCmdBufState *compu
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_C0.m_surfaceID] }
-        if ( v35 )
+        v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v19 = v40;
+        if ( v21 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_C0.m_surfaceID], ymm0 }
-    dataa[0] = (GfxBackEndData *)&R_RT_Handle::GetSurface(&v55)->m_image;
-    _RAX = taskInfo->attachments;
-    __asm
+    v40 = v19;
+    dataa[0] = (GfxBackEndData *)&R_RT_Handle::GetSurface(&v40)->m_image;
+    v22 = taskInfo->attachments[1];
+    v40 = v22;
+    v38 = v22;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+57h+var_C0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+130h+var_F0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v53);
-      if ( (R_RT_Handle::GetSurface(&v53)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v38);
+      if ( (R_RT_Handle::GetSurface(&v38)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+130h+var_F0.m_surfaceID] }
+        v22 = v38;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+130h+var_F0.m_surfaceID] }
+        v22 = v38;
       }
     }
     else
@@ -734,39 +632,39 @@ void RBT_EffectLighting_Process_MultilightGrid_Combine(ComputeCmdBufState *compu
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+57h+var_C0.m_surfaceID] }
-        if ( v39 )
+        v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v22 = v40;
+        if ( v24 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+57h+var_C0.m_surfaceID], ymm0 }
-    Surface = R_RT_Handle::GetSurface(&v55);
+    v40 = v22;
+    Surface = R_RT_Handle::GetSurface(&v40);
     lightGenImages[2] = NULL;
     dataa[1] = (GfxBackEndData *)&Surface->m_image;
     lightGenImages[0] = rgp.blackImage3D;
     __asm { vpxor   xmm0, xmm0, xmm0 }
     lightGenImages[1] = rgp.whiteImage3D;
-    __asm { vmovdqu xmmword ptr [rbp+57h+computeState], xmm0 }
-    v42 = R_EffectLighting_SetConstantBuffer(v31, viewInfo);
+    *(_OWORD *)computeStatea = _XMM0;
+    v27 = R_EffectLighting_SetConstantBuffer(v18, viewInfo);
     WrappedBuffer = R_RT_Handle::GetWrappedBuffer(taskInfo->attachments + 8);
-    v44 = taskInfo->attachments + 9;
+    v29 = taskInfo->attachments + 9;
     multiLightGridTempBuffers.m_lightGridElements[0] = WrappedBuffer;
-    v45 = R_RT_Handle::GetWrappedBuffer(v44);
-    v46 = taskInfo->attachments + 10;
-    multiLightGridTempBuffers.m_lightGridElements[1] = v45;
-    v47 = R_RT_Handle::GetWrappedBuffer(v46);
-    v48 = taskInfo->attachments + 11;
-    multiLightGridTempBuffers.m_lightingData[0] = v47;
-    v49 = R_RT_Handle::GetWrappedBuffer(v48);
-    v50 = taskInfo->attachments + 12;
-    multiLightGridTempBuffers.m_lightingData[1] = v49;
-    v51 = R_RT_Handle::GetWrappedBuffer(v50);
-    v52 = taskInfo->attachments + 13;
-    multiLightGridTempBuffers.m_lightingAlpha[0] = v51;
-    multiLightGridTempBuffers.m_lightingAlpha[1] = R_RT_Handle::GetWrappedBuffer(v52);
-    R_DeferredLighting_SetupOverlappingInputCustom(v31, viewInfo, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, &blackShadowImage->m_base, &zeroImage->m_base, &translucentSunShadowMaskImage->m_base, NULL);
-    R_EffectLighting_Process(v31, viewInfo, v42, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, (const GfxImage *const *)computeStatea, (const GfxImage *const *)dataa, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
+    v30 = R_RT_Handle::GetWrappedBuffer(v29);
+    v31 = taskInfo->attachments + 10;
+    multiLightGridTempBuffers.m_lightGridElements[1] = v30;
+    v32 = R_RT_Handle::GetWrappedBuffer(v31);
+    v33 = taskInfo->attachments + 11;
+    multiLightGridTempBuffers.m_lightingData[0] = v32;
+    v34 = R_RT_Handle::GetWrappedBuffer(v33);
+    v35 = taskInfo->attachments + 12;
+    multiLightGridTempBuffers.m_lightingData[1] = v34;
+    v36 = R_RT_Handle::GetWrappedBuffer(v35);
+    v37 = taskInfo->attachments + 13;
+    multiLightGridTempBuffers.m_lightingAlpha[0] = v36;
+    multiLightGridTempBuffers.m_lightingAlpha[1] = R_RT_Handle::GetWrappedBuffer(v37);
+    R_DeferredLighting_SetupOverlappingInputCustom(v18, viewInfo, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, &blackShadowImage->m_base, &zeroImage->m_base, &translucentSunShadowMaskImage->m_base, NULL);
+    R_EffectLighting_Process(v18, viewInfo, v27, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, (const GfxImage *const *)computeStatea, (const GfxImage *const *)dataa, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
   }
 }
 
@@ -795,11 +693,8 @@ void RBT_EffectLighting_Process_MultilightGrid_Prepare(ComputeCmdBufState *compu
       vpxor   xmm1, xmm1, xmm1
     }
     lightGenImages[1] = rgp.whiteImage3D;
-    __asm
-    {
-      vmovdqu xmmword ptr [rsp+0D8h+imagesWrite], xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+imagesRead], xmm1
-    }
+    *(_OWORD *)imagesWrite = _XMM0;
+    *(_OWORD *)imagesRead = _XMM1;
     lightGenImages[2] = NULL;
     v12 = R_EffectLighting_SetConstantBuffer(computeState, viewInfo);
     WrappedBuffer = R_RT_Handle::GetWrappedBuffer(taskInfo->attachments);
@@ -848,11 +743,8 @@ void RBT_EffectLighting_Process_MultilightGrid_Sample(ComputeCmdBufState *comput
       vpxor   xmm1, xmm1, xmm1
     }
     lightGenImages[1] = rgp.whiteImage3D;
-    __asm
-    {
-      vmovdqu xmmword ptr [rsp+0D8h+imagesWrite], xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+imagesRead], xmm1
-    }
+    *(_OWORD *)imagesWrite = _XMM0;
+    *(_OWORD *)imagesRead = _XMM1;
     lightGenImages[2] = NULL;
     v12 = R_EffectLighting_SetConstantBuffer(computeState, viewInfo);
     WrappedBuffer = R_RT_Handle::GetWrappedBuffer(taskInfo->attachments);

@@ -467,22 +467,14 @@ MemFile_ArchiveFloat
 */
 void MemFile_ArchiveFloat(MemoryFile *memFile, float *value)
 {
-  int v5; 
-
-  _RDI = value;
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.h", 397, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
   if ( !memFile->archiveProc && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.h", 398, ASSERT_TYPE_ASSERT, "(memFile->archiveProc)", (const char *)&queryFormat, "memFile->archiveProc") )
     __debugbreak();
-  memFile->archiveProc(memFile, 4ui64, _RDI);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 37, ASSERT_TYPE_ASSERT, (const char *)&stru_143CE7590.m_end, (const char *)&queryFormat, &stru_143CE7590) )
+  memFile->archiveProc(memFile, 4ui64, value);
+  if ( !value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 37, ASSERT_TYPE_ASSERT, (const char *)&stru_143CE7590.m_end, (const char *)&queryFormat, &stru_143CE7590) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v5 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 38, ASSERT_TYPE_SANITY, "( !IS_NAN( *value ) )", (const char *)&queryFormat, "!IS_NAN( *value )") )
+  if ( (*(_DWORD *)value & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 38, ASSERT_TYPE_SANITY, "( !IS_NAN( *value ) )", (const char *)&queryFormat, "!IS_NAN( *value )") )
     __debugbreak();
 }
 
@@ -1268,23 +1260,14 @@ MemFile_ReadFloat
 */
 float MemFile_ReadFloat(MemoryFile *memFile)
 {
-  int p; 
+  float v1; 
+  float p; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   MemFile_ReadData(memFile, 4ui64, &p);
-  __asm
-  {
-    vmovss  xmm6, [rsp+48h+p]
-    vmovss  [rsp+48h+p], xmm6
-  }
-  if ( (p & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 29, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
+  v1 = p;
+  if ( (LODWORD(p) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 29, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return v1;
 }
 
 /*
@@ -1967,18 +1950,14 @@ void MemFile_WriteError(MemoryFile *memFile)
 MemFile_WriteFloat
 ==============
 */
-
-void __fastcall MemFile_WriteFloat(MemoryFile *memFile, double value)
+void MemFile_WriteFloat(MemoryFile *memFile, float value)
 {
-  int p; 
-  int v4; 
+  float p; 
+  float v4; 
 
-  __asm
-  {
-    vmovss  [rsp+p], xmm1
-    vmovss  [rsp+38h+arg_10], xmm1
-  }
-  if ( (v4 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 19, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
+  p = value;
+  v4 = value;
+  if ( (LODWORD(value) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\memfile.cpp", 19, ASSERT_TYPE_SANITY, "( !IS_NAN( value ) )", (const char *)&queryFormat, "!IS_NAN( value )") )
     __debugbreak();
   MemFile_WriteData(memFile, 4ui64, &p);
 }

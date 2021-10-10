@@ -131,15 +131,14 @@ void MemoryHashInfo::Complete(MemoryHashInfo *this, unsigned __int64 *resultptr)
   challengeTest_t type; 
   unsigned __int64 state; 
   unsigned __int64 v7; 
-  int v9; 
-  __int64 v10[2]; 
-  int v11; 
+  int v8; 
+  __int64 v9[2]; 
+  int v10; 
 
-  _RDI = resultptr;
   if ( this->type == CT_TYPE_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\memory_hash.cpp", 552, ASSERT_TYPE_ASSERT, "(CT_TYPE_INVALID != GetType())", (const char *)&queryFormat, "CT_TYPE_INVALID != GetType()") )
     __debugbreak();
   v4 = __rdtsc();
-  v9 = v4;
+  v8 = v4;
   type = this->type;
   if ( this->type > CT_TYPE_INVALID )
   {
@@ -150,23 +149,19 @@ void MemoryHashInfo::Complete(MemoryHashInfo *this, unsigned __int64 *resultptr)
       case CT_TYPE_SHA_TOMCRYPT:
         if ( hash_descriptor[(__int64)libTomCryptSHA1Index].hashsize != 20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\memory_hash.cpp", 570, ASSERT_TYPE_ASSERT, "(20 == hash_descriptor[libTomCryptSHA1Index].hashsize)", (const char *)&queryFormat, "TOMCRYPT_SHA1_DIGEST_SIZE == hash_descriptor[libTomCryptSHA1Index].hashsize") )
           __debugbreak();
-        v10[0] = 0i64;
-        v10[1] = 0i64;
-        v11 = 0;
+        v9[0] = 0i64;
+        v9[1] = 0i64;
+        v10 = 0;
         if ( libTomCryptSHA1Index < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\memory_hash.cpp", 574, ASSERT_TYPE_ASSERT, "(libTomCryptSHA1Index >= 0)", (const char *)&queryFormat, "libTomCryptSHA1Index >= 0") )
           __debugbreak();
-        if ( hash_descriptor[(__int64)libTomCryptSHA1Index].done((Hash_state *)&this->48, (unsigned __int8 *)v10) )
+        if ( hash_descriptor[(__int64)libTomCryptSHA1Index].done((Hash_state *)&this->48, (unsigned __int8 *)v9) )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\memory_hash.cpp", 582, ASSERT_TYPE_ASSERT, "(CRYPT_OK == intresult)", (const char *)&queryFormat, "CRYPT_OK == intresult") )
             __debugbreak();
         }
         else
         {
-          __asm
-          {
-            vmovsd  xmm0, [rsp+78h+var_40]
-            vmovsd  qword ptr [rdi], xmm0
-          }
+          *resultptr = v9[0];
         }
         break;
       case CT_TYPE_8WAY:
@@ -176,12 +171,12 @@ void MemoryHashInfo::Complete(MemoryHashInfo *this, unsigned __int64 *resultptr)
 LABEL_9:
         state = this->state;
 LABEL_10:
-        *_RDI = state;
+        *resultptr = state;
         break;
     }
   }
   v7 = __rdtsc();
-  LODWORD(v7) = this->cumulativeProcessingTime - v9 + v7;
+  LODWORD(v7) = this->cumulativeProcessingTime - v8 + v7;
   this->type = CT_TYPE_INVALID;
   this->cumulativeProcessingTime = v7;
 }

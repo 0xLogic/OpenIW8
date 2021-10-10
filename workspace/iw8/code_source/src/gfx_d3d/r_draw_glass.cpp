@@ -31,12 +31,11 @@ void R_DrawGlassSurf(GfxGlassSurfIter *glassSurfIter, GfxCmdBufContext *context)
   const char *v16; 
   const char *ConstantLayoutName; 
   __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
-  __int64 v21; 
-  GfxCmdBufContext v22; 
-  int v23; 
+  GfxCmdBufContext v21; 
+  int v22; 
 
-  _RBP = context;
   Value = (char *)Sys_GetValue(0);
   v5 = (unsigned int *)(Value + 5336);
   if ( (unsigned int)(*((_DWORD *)Value + 1334) + 1) >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", *((_DWORD *)Value + 1334) + 1, 3) )
@@ -45,9 +44,9 @@ void R_DrawGlassSurf(GfxGlassSurfIter *glassSurfIter, GfxCmdBufContext *context)
   *v5 = v6;
   if ( v6 >= 3 )
   {
-    LODWORD(v21) = 3;
-    LODWORD(v20) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v20) = 3;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
   v7 = Value + 2088;
@@ -70,21 +69,17 @@ void R_DrawGlassSurf(GfxGlassSurfIter *glassSurfIter, GfxCmdBufContext *context)
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 81, NULL, 0);
   if ( !glassSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_glass.cpp", 72, ASSERT_TYPE_ASSERT, "(glassSurfIter)", (const char *)&queryFormat, "glassSurfIter") )
     __debugbreak();
-  if ( !_RBP->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_glass.cpp", 73, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_glass.cpp", 73, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBP->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_glass.cpp", 74, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_glass.cpp", 74, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBP->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   if ( precompiledIndex == MTL_CONSTANT_LAYOUT_GLASS )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups [rsp+98h+var_38], xmm0
-    }
-    R_DrawGlassSurf_Internal_31_(glassSurfIter, &v22);
+    v21 = *context;
+    R_DrawGlassSurf_Internal_31_(glassSurfIter, &v21);
   }
   else
   {
@@ -102,19 +97,19 @@ void R_DrawGlassSurf(GfxGlassSurfIter *glassSurfIter, GfxCmdBufContext *context)
       v18 = *(_WORD *)glassSurfIter->current;
       if ( (unsigned int)v18 >= rgp.materialCount )
       {
-        LODWORD(v21) = rgp.materialCount;
-        LODWORD(v20) = glassSurfIter->current->materialSortedIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v20) = rgp.materialCount;
+        LODWORD(v19) = glassSurfIter->current->materialSortedIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_glasssurfiter.h", 45, ASSERT_TYPE_ASSERT, "(unsigned)( drawGroup.fields.materialSortedIndex ) < (unsigned)( rgp.materialCount )", "drawGroup.fields.materialSortedIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v19, v20) )
           __debugbreak();
         if ( (unsigned int)v18 >= rgp.materialCount )
         {
-          LODWORD(v21) = rgp.materialCount;
-          LODWORD(v20) = v18;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v20, v21) )
+          LODWORD(v20) = rgp.materialCount;
+          LODWORD(v19) = v18;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v19, v20) )
             __debugbreak();
         }
       }
-      if ( ((unsigned int)v18 | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[v18])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17)) != v23 )
+      if ( ((unsigned int)v18 | (((LODWORD(DB_GetMaterialAtIndex(rgp.sortedMaterials[v18])->drawSurf.packed.p1) >> 22) & 1 | 0x1C) << 17)) != v22 )
         break;
     }
   }

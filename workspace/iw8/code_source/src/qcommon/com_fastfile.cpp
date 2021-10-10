@@ -1083,52 +1083,49 @@ ComFastFileLoadModule::AddRequestFrom
 */
 void ComFastFileLoadModule::AddRequestFrom(ComFastFileLoadModule *this, const ComFastFileLoadModule *otherModule)
 {
+  ComFastFileZoneList *p_m_requestedZones; 
+  ComFastFileZoneList *v5; 
   __int64 v6; 
   unsigned int Count; 
   __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
 
   if ( !otherModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3373, ASSERT_TYPE_ASSERT, "(otherModule)", (const char *)&queryFormat, "otherModule") )
     __debugbreak();
-  _RSI = &this->m_requestedZones;
-  _RDI = &otherModule->m_requestedZones;
+  p_m_requestedZones = &this->m_requestedZones;
+  v5 = &otherModule->m_requestedZones;
   v6 = 3i64;
   do
   {
-    Count = ComFastFileZoneList::GetCount(_RSI);
+    Count = ComFastFileZoneList::GetCount(p_m_requestedZones);
     v8 = Count;
-    if ( _RDI->m_zones[0].name[0] )
+    if ( v5->m_zones[0].name[0] )
     {
       if ( Count >= 3 )
       {
-        LODWORD(v14) = 3;
-        LODWORD(v13) = Count;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 73, ASSERT_TYPE_ASSERT, "(unsigned)( usedCount ) < (unsigned)( ( sizeof( *array_counter( m_zones ) ) + 0 ) )", "usedCount doesn't index ARRAY_COUNT( m_zones )\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v11) = 3;
+        LODWORD(v10) = Count;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 73, ASSERT_TYPE_ASSERT, "(unsigned)( usedCount ) < (unsigned)( ( sizeof( *array_counter( m_zones ) ) + 0 ) )", "usedCount doesn't index ARRAY_COUNT( m_zones )\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rdi] }
-      _RCX = 9 * v8;
+      v9 = v8;
       LODWORD(v8) = v8 + 1;
-      __asm
-      {
-        vmovups ymmword ptr [rsi+rcx*8], ymm0
-        vmovups ymm1, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [rsi+rcx*8+20h], ymm1
-        vmovsd  xmm0, qword ptr [rdi+40h]
-        vmovsd  qword ptr [rsi+rcx*8+40h], xmm0
-      }
+      *(__m256i *)p_m_requestedZones->m_zones[v9].name = *(__m256i *)v5->m_zones[0].name;
+      *(__m256i *)&p_m_requestedZones->m_zones[v9].name[32] = *(__m256i *)&v5->m_zones[0].name[32];
+      p_m_requestedZones->m_zones[v9].sizeEstimate = v5->m_zones[0].sizeEstimate;
     }
-    if ( (_DWORD)v8 != ComFastFileZoneList::GetCount(_RSI) )
+    if ( (_DWORD)v8 != ComFastFileZoneList::GetCount(p_m_requestedZones) )
     {
-      LODWORD(v16) = ComFastFileZoneList::GetCount(_RSI);
-      LODWORD(v15) = v8;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 78, ASSERT_TYPE_ASSERT, "( usedCount ) == ( GetCount() )", "%s == %s\n\t%i, %i", "usedCount", "GetCount()", v15, v16) )
+      LODWORD(v13) = ComFastFileZoneList::GetCount(p_m_requestedZones);
+      LODWORD(v12) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 78, ASSERT_TYPE_ASSERT, "( usedCount ) == ( GetCount() )", "%s == %s\n\t%i, %i", "usedCount", "GetCount()", v12, v13) )
         __debugbreak();
     }
-    _RDI = (ComFastFileZoneList *)((char *)_RDI + 72);
+    v5 = (ComFastFileZoneList *)((char *)v5 + 72);
     --v6;
   }
   while ( v6 );
@@ -1872,13 +1869,7 @@ Com_FastFile_CheckInstallInProgress
 _BOOL8 Com_FastFile_CheckInstallInProgress(float *progress, __int64 *secondsRemaining)
 {
   if ( progress )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:s_fastFileInstallation.m_progress
-      vmovss  dword ptr [rcx], xmm0
-    }
-  }
+    *progress = s_fastFileInstallation.m_progress;
   if ( secondsRemaining )
     *secondsRemaining = s_fastFileInstallation.m_secondsRemaining;
   return s_fastFileInstallation.m_installationPending;
@@ -2214,17 +2205,16 @@ Com_FastFile_Init
 */
 void Com_FastFile_Init(void)
 {
-  unsigned int v1; 
-  bool v2; 
-  const dvar_t *v3; 
-  GameModeType v4; 
+  unsigned int v0; 
+  bool v1; 
+  const dvar_t *v2; 
+  GameModeType v3; 
 
   if ( s_fastFileSystemIninitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 2044, ASSERT_TYPE_ASSERT, "(!s_fastFileSystemIninitialized)", (const char *)&queryFormat, "!s_fastFileSystemIninitialized") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  v1 = 0;
+  v0 = 0;
   s_fastFileSystemIninitialized = 1;
-  __asm { vmovss  cs:s_fastFileInstallation.m_progress, xmm0 }
+  s_fastFileInstallation.m_progress = FLOAT_1_0;
   s_fastFileInstallation.m_secondsRemaining = 0i64;
   *(_WORD *)&s_fastFileInstallation.m_installationPending = 0;
   Dvar_BeginPermanentRegistration();
@@ -2235,8 +2225,8 @@ void Com_FastFile_Init(void)
   DCONST_DVARINT_fastfile_prStress_frameCount = Dvar_RegisterInt("fastfile_prStress_frameCount", 1, 1, 600, 0x40004u, "Fast file pause/resume stress testing - Number of frames between toggles");
   DCONST_DVARBOOL_fastfileInstallTestEnabled = Dvar_RegisterBool("fastfileInstallTestEnabled", 0, 0x40004u, "Enables streamed install test, which will pretend the game is still isntalling chunks");
   DCONST_DVARINT_fastFileDatabaseAccessTimeout = Dvar_RegisterInt("fastFileDatabaseAccessTimeout", 240, 0, 600, 0x40004u, "Time out, in seconds, until we generate a dump because the database took too long (0 to disable)");
-  v2 = Sys_IsReleaseBuild() || !SI_IsFullyInstalled();
-  DVARBOOL_fastfileAltLaunch = Dvar_RegisterBool("MPNRKLKOKR", v2, 0x80u, "When enabled, we load the 'alt' set of fastfiles. Intended for the launch chunks.");
+  v1 = Sys_IsReleaseBuild() || !SI_IsFullyInstalled();
+  DVARBOOL_fastfileAltLaunch = Dvar_RegisterBool("MPNRKLKOKR", v1, 0x80u, "When enabled, we load the 'alt' set of fastfiles. Intended for the launch chunks.");
   Dvar_EndPermanentRegistration();
   if ( s_fastfile_mpLevelParentsTable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 1849, ASSERT_TYPE_ASSERT, "(s_fastfile_mpLevelParentsTable == nullptr)", (const char *)&queryFormat, "s_fastfile_mpLevelParentsTable == nullptr") )
     __debugbreak();
@@ -2244,21 +2234,21 @@ void Com_FastFile_Init(void)
   Com_FastFile_InitLoadModules();
   Com_FastFile_ValidateModuleInitialization();
   do
-    ComFastFileLoadModule::ClearState(&s_fastfileLoadModules[(unsigned __int8)v1++]);
-  while ( v1 < 0xB );
+    ComFastFileLoadModule::ClearState(&s_fastfileLoadModules[(unsigned __int8)v0++]);
+  while ( v0 < 0xB );
   Com_Fastfile_SetupCommonModules();
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 2005, ASSERT_TYPE_ASSERT, "(Com_GameMode_GetActiveGameMode() == GameModeType::NONE)", "%s\n\tMust not have an active game mode here, or we may override data", "Com_GameMode_GetActiveGameMode() == GameModeType::NONE") )
     __debugbreak();
   if ( !DB_DevFastBoot_DevmapBootSkipUI() && SI_IsFullyInstalled() )
   {
-    v3 = DVARBOOL_fastfilePreloadGamemode;
+    v2 = DVARBOOL_fastfilePreloadGamemode;
     if ( !DVARBOOL_fastfilePreloadGamemode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fastfilePreloadGamemode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v3);
-    if ( v3->current.enabled )
+    Dvar_CheckFrontendServerThread(v2);
+    if ( v2->current.enabled )
     {
-      LOBYTE(v4) = 2;
-      Com_FastFile_RequestGameModeFastFiles(v4, ALLOW_MISSING);
+      LOBYTE(v3) = 2;
+      Com_FastFile_RequestGameModeFastFiles(v3, ALLOW_MISSING);
     }
   }
 }
@@ -2581,19 +2571,18 @@ void Com_FastFile_LoadError(const ComFastFileZoneList *names, const char *const 
 Com_FastFile_OnEnterFrontEnd
 ==============
 */
-
-void __fastcall Com_FastFile_OnEnterFrontEnd(double _XMM0_8)
+void Com_FastFile_OnEnterFrontEnd(void)
 {
-  unsigned __int64 v1; 
-  ComFastFileLoadModule *v6; 
+  unsigned __int64 v0; 
+  ComFastFileLoadModule *v3; 
   ComFastFileLoadModule *m_childModule; 
-  const ComFastFileModuleType *v8; 
-  __int64 v9; 
-  unsigned __int8 v10; 
-  ComFastFileLoadModule *v11; 
-  bool v12; 
-  __int64 v13; 
-  __int64 v14; 
+  const ComFastFileModuleType *v5; 
+  __int64 v6; 
+  unsigned __int8 v7; 
+  ComFastFileLoadModule *v8; 
+  bool v9; 
+  __int64 v10; 
+  __int64 v11; 
 
   if ( Com_FrontEndScene_IsPreloadEnabled() && Com_GameMode_SupportsFeature(WEAPON_LADDER_SLIDE) && ComFastFileLoadModule::RequestContainsModule(&s_fastfileLoadModules[10], &s_fastfileLoadModules[6]) )
   {
@@ -2612,30 +2601,22 @@ void __fastcall Com_FastFile_OnEnterFrontEnd(double _XMM0_8)
     ComFastFileLoadModule::ClearState(&s_fastfileLoadModules[10]);
     ComFastFileLoadModule::SetModuleActive(&s_fastfileLoadModules[10], 1);
   }
-  v1 = __rdtsc();
+  v0 = __rdtsc();
   DB_SyncXAssetsKeepAlive();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v1) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r8, xmm2
-  }
-  Com_Printf(0, "Com_FastFile_OnEnterFrontEnd: Stall to gate on UI load took %.2fms\n", *(double *)&_XMM2);
-  v6 = s_fastfileRootModules[1];
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v0) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(0, "Com_FastFile_OnEnterFrontEnd: Stall to gate on UI load took %.2fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  v3 = s_fastfileRootModules[1];
   if ( !s_fastfileRootModules[1] )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 481, ASSERT_TYPE_ASSERT, "(s_fastfileRootModules[static_cast<uint>( category )] != nullptr)", (const char *)&queryFormat, "s_fastfileRootModules[static_cast<uint>( category )] != nullptr") )
       __debugbreak();
-    v6 = s_fastfileRootModules[1];
+    v3 = s_fastfileRootModules[1];
   }
-  ComFastFileLoadModule::SetModuleActive(v6, 1);
-  m_childModule = v6->m_childModule;
+  ComFastFileLoadModule::SetModuleActive(v3, 1);
+  m_childModule = v3->m_childModule;
   if ( m_childModule )
     ComFastFileLoadModule::SetModuleListActive(m_childModule, 1);
   ComFastFileLoadModule::SetModuleActive(&s_fastfileLoadModules[10], 1);
@@ -2644,30 +2625,30 @@ void __fastcall Com_FastFile_OnEnterFrontEnd(double _XMM0_8)
   s_fastfileBackToFrontendFrame = 1;
   Com_FastFile_FrameInternal(1);
   s_fastfileBackToFrontendFrame = 0;
-  v8 = &S_GAMEMODE_GLOBAL_PAUSABLE_MODULES[2];
-  v9 = 5i64;
+  v5 = &S_GAMEMODE_GLOBAL_PAUSABLE_MODULES[2];
+  v6 = 5i64;
   do
   {
-    v10 = *(_BYTE *)v8;
-    if ( *(_BYTE *)v8 >= 0xBu )
+    v7 = *(_BYTE *)v5;
+    if ( *(_BYTE *)v5 >= 0xBu )
     {
-      LODWORD(v14) = 11;
-      LODWORD(v13) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 489, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( moduleType ) ) < (unsigned)( static_cast<uint>( ComFastFileModuleType::COUNT ) )", "static_cast<uint>( moduleType ) doesn't index static_cast<uint>( ComFastFileModuleType::COUNT )\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v11) = 11;
+      LODWORD(v10) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 489, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( moduleType ) ) < (unsigned)( static_cast<uint>( ComFastFileModuleType::COUNT ) )", "static_cast<uint>( moduleType ) doesn't index static_cast<uint>( ComFastFileModuleType::COUNT )\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    v11 = &s_fastfileLoadModules[v10];
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 1497, ASSERT_TYPE_ASSERT, "(module)", (const char *)&queryFormat, "module") )
+    v8 = &s_fastfileLoadModules[v7];
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 1497, ASSERT_TYPE_ASSERT, "(module)", (const char *)&queryFormat, "module") )
       __debugbreak();
     if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() )
-      v12 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF && v10 == 5;
+      v9 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF && v7 == 5;
     else
-      v12 = (unsigned __int8)(v10 - 4) <= 1u;
-    ComFastFileLoadModule::CheckIsLoadedOrPendingWithDB(v11, v12);
-    v8 = (const ComFastFileModuleType *)((char *)v8 + 1);
-    --v9;
+      v9 = (unsigned __int8)(v7 - 4) <= 1u;
+    ComFastFileLoadModule::CheckIsLoadedOrPendingWithDB(v8, v9);
+    v5 = (const ComFastFileModuleType *)((char *)v5 + 1);
+    --v6;
   }
-  while ( v9 );
+  while ( v6 );
 }
 
 /*
@@ -2870,204 +2851,202 @@ Com_FastFile_ProcessNonLoadRequestsForType
 */
 char Com_FastFile_ProcessNonLoadRequestsForType(const ComFastFileDbRequestType requestType)
 {
-  unsigned int v2; 
-  unsigned __int8 v3; 
+  unsigned int v1; 
+  unsigned __int8 v2; 
   unsigned int i; 
-  ComFastFileLoadModule *v5; 
+  ComFastFileLoadModule *v4; 
   const char *p_m_activeZones; 
-  unsigned int v7; 
-  ComFastFileZoneList *v8; 
-  unsigned int v9; 
+  unsigned int v6; 
+  ComFastFileZoneList *v7; 
+  unsigned int v8; 
   const char *name; 
+  const char *v10; 
   const char *v11; 
-  const char *v12; 
-  char v13; 
-  unsigned int v14; 
-  ComFastFileZoneList *v15; 
-  unsigned int v16; 
+  char v12; 
+  unsigned int v13; 
+  ComFastFileZoneList *v14; 
+  unsigned int v15; 
+  const char *v16; 
   const char *v17; 
   const char *v18; 
-  const char *v19; 
   const char *DebugText; 
   const char *DebugName; 
-  unsigned int v23; 
-  const char *v24; 
-  __int64 v31; 
+  unsigned int v22; 
+  const char *v23; 
+  __int128 v27; 
+  __int64 v29; 
   DB_FastfileInfo zoneInfo; 
 
-  v2 = 0;
-  v3 = requestType;
+  v1 = 0;
+  v2 = requestType;
   for ( i = 0; i < 0xB; ++i )
   {
-    v5 = &s_fastfileLoadModules[(unsigned __int8)i];
-    if ( v3 == 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3795, ASSERT_TYPE_ASSERT, "(request != ComFastFileDbRequestType::LOAD)", "%s\n\tLoad requests must be processed via CollectModuleLoadRequests", "request != ComFastFileDbRequestType::LOAD") )
+    v4 = &s_fastfileLoadModules[(unsigned __int8)i];
+    if ( v2 == 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3795, ASSERT_TYPE_ASSERT, "(request != ComFastFileDbRequestType::LOAD)", "%s\n\tLoad requests must be processed via CollectModuleLoadRequests", "request != ComFastFileDbRequestType::LOAD") )
       __debugbreak();
-    if ( v5->m_databaseRequest[0] == v3 )
+    if ( v4->m_databaseRequest[0] == v2 )
     {
-      v2 |= v5->m_zoneFlags;
-      p_m_activeZones = (const char *)&v5->m_activeZones;
-      v7 = 0;
-      v8 = &v5->m_activeZones;
-      while ( v8->m_zones[0].name[0] )
+      v1 |= v4->m_zoneFlags;
+      p_m_activeZones = (const char *)&v4->m_activeZones;
+      v6 = 0;
+      v7 = &v4->m_activeZones;
+      while ( v7->m_zones[0].name[0] )
       {
-        ++v7;
-        v8 = (ComFastFileZoneList *)((char *)v8 + 72);
-        if ( v7 >= 3 )
+        ++v6;
+        v7 = (ComFastFileZoneList *)((char *)v7 + 72);
+        if ( v6 >= 3 )
         {
-          v7 = 3;
+          v6 = 3;
           break;
         }
       }
-      if ( v7 )
+      if ( v6 )
       {
-        v9 = v7 - 1;
-        if ( v9 )
+        v8 = v6 - 1;
+        if ( v8 )
         {
-          name = v5->m_activeZones.m_zones[1].name;
-          v11 = (const char *)&v5->m_activeZones;
-          if ( v9 == 1 )
-            v12 = j_va("%s,%s", v11, name);
+          name = v4->m_activeZones.m_zones[1].name;
+          v10 = (const char *)&v4->m_activeZones;
+          if ( v8 == 1 )
+            v11 = j_va("%s,%s", v10, name);
           else
-            v12 = j_va("%s,%s,%s", v11, name, v5->m_activeZones.m_zones[2].name);
+            v11 = j_va("%s,%s,%s", v10, name, v4->m_activeZones.m_zones[2].name);
         }
         else
         {
-          v12 = (const char *)&v5->m_activeZones;
+          v11 = (const char *)&v4->m_activeZones;
         }
       }
       else
       {
-        v12 = "<empty>";
+        v11 = "<empty>";
       }
-      Com_Printf(30, "ComFastFile: Executing Request '%s' (0x%x, %s)\n", S_REQUEST_NAMES[v3], v5->m_zoneFlags, v12);
-      v13 = v5->m_databaseRequest[0];
-      if ( v13 == 1 )
+      Com_Printf(30, "ComFastFile: Executing Request '%s' (0x%x, %s)\n", S_REQUEST_NAMES[v2], v4->m_zoneFlags, v11);
+      v12 = v4->m_databaseRequest[0];
+      if ( v12 == 1 )
       {
-        if ( v13 != 3 )
+        if ( v12 != 3 )
         {
-          DebugText = ComFastFileZoneList::GetDebugText(&v5->m_activeZones);
+          DebugText = ComFastFileZoneList::GetDebugText(&v4->m_activeZones);
           DebugName = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
-          Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v5->m_databaseRequest[0]], S_REQUEST_NAMES[3], DebugName, DebugText);
+          Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v4->m_databaseRequest[0]], S_REQUEST_NAMES[3], DebugName, DebugText);
         }
-        v5->m_databaseRequest[0] = 3;
+        v4->m_databaseRequest[0] = 3;
       }
       else
       {
-        if ( v5->m_databaseRequest[0] == 3 )
-          v5->m_loadProgress = v5->LOAD_PROGRESS_NONE;
-        if ( v13 )
+        if ( v4->m_databaseRequest[0] == 3 )
+          v4->m_loadProgress = v4->LOAD_PROGRESS_NONE;
+        if ( v12 )
         {
-          v14 = 0;
-          v15 = &v5->m_activeZones;
-          while ( v15->m_zones[0].name[0] )
+          v13 = 0;
+          v14 = &v4->m_activeZones;
+          while ( v14->m_zones[0].name[0] )
           {
-            ++v14;
-            v15 = (ComFastFileZoneList *)((char *)v15 + 72);
-            if ( v14 >= 3 )
+            ++v13;
+            v14 = (ComFastFileZoneList *)((char *)v14 + 72);
+            if ( v13 >= 3 )
             {
-              v14 = 3;
+              v13 = 3;
               break;
             }
           }
-          if ( v14 )
+          if ( v13 )
           {
-            v16 = v14 - 1;
-            if ( v16 )
+            v15 = v13 - 1;
+            if ( v15 )
             {
-              v17 = v5->m_activeZones.m_zones[1].name;
-              v18 = (const char *)&v5->m_activeZones;
-              if ( v16 == 1 )
-                p_m_activeZones = j_va("%s,%s", v18, v17);
+              v16 = v4->m_activeZones.m_zones[1].name;
+              v17 = (const char *)&v4->m_activeZones;
+              if ( v15 == 1 )
+                p_m_activeZones = j_va("%s,%s", v17, v16);
               else
-                p_m_activeZones = j_va("%s,%s,%s", v18, v17, v5->m_activeZones.m_zones[2].name);
+                p_m_activeZones = j_va("%s,%s,%s", v17, v16, v4->m_activeZones.m_zones[2].name);
             }
           }
           else
           {
             p_m_activeZones = "<empty>";
           }
-          v19 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
-          Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v5->m_databaseRequest[0]], S_REQUEST_NAMES[0], v19, p_m_activeZones);
+          v18 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
+          Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v4->m_databaseRequest[0]], S_REQUEST_NAMES[0], v18, p_m_activeZones);
         }
-        v5->m_databaseRequest[0] = 0;
+        v4->m_databaseRequest[0] = 0;
       }
     }
   }
-  if ( !v2 )
+  if ( !v1 )
     return 0;
-  switch ( v3 )
+  switch ( v2 )
   {
     case 1u:
       __rdtsc();
-      DB_CancelLoadFastfilesByZoneFlags(v2);
+      DB_CancelLoadFastfilesByZoneFlags(v1);
       __rdtsc();
-      v24 = "ComFastFile: CancelZones (%x) took %f ms\n";
+      v23 = "ComFastFile: CancelZones (%x) took %f ms\n";
       break;
     case 2u:
       zoneInfo.name = NULL;
-      zoneInfo.zoneFlags = v2;
+      zoneInfo.zoneFlags = v1;
       __rdtsc();
       *(_QWORD *)&zoneInfo.failureMode = 0i64;
       DB_PauseLoadFastfiles(&zoneInfo, 1u);
       __rdtsc();
-      v24 = "ComFastFile: PauseZones (%x) took %f ms\n";
+      v23 = "ComFastFile: PauseZones (%x) took %f ms\n";
       break;
     case 3u:
       __rdtsc();
-      DB_ReleaseZoneExternalReferences(v2);
-      if ( (v2 & 0x10003F) == 0 || (v2 & 0xFFEFFFC0) != 0 )
+      DB_ReleaseZoneExternalReferences(v1);
+      if ( (v1 & 0x10003F) == 0 || (v1 & 0xFFEFFFC0) != 0 )
       {
-        if ( (v2 & 0xC0) == 0 || (v2 & 0xFFFFFF3F) != 0 )
+        if ( (v1 & 0xC0) == 0 || (v1 & 0xFFFFFF3F) != 0 )
         {
           Com_Printf(30, "ComFastFile: FreeZones: Doing sync unload\n");
-          v23 = 4;
+          v22 = 4;
         }
         else
         {
           Com_Printf(30, "ComFastFile: FreeZones: Doing frontend unload\n");
-          v23 = 8;
+          v22 = 8;
         }
       }
       else
       {
-        if ( (v2 & 0x3F) != 0 )
+        if ( (v1 & 0x3F) != 0 )
           Com_Printf(30, "ComFastFile: FreeZones: Doing async unload of common files\n");
-        v23 = 13;
+        v22 = 13;
       }
-      if ( (v2 & 0x100000) != 0 )
+      if ( (v1 & 0x100000) != 0 )
       {
         Com_Printf(30, "Com_FastFile_FreeZones: Freeing PRELOAD_FRONTEND transients\n");
         CL_Transients_OnPreloadFrontendUnload();
       }
-      DB_UnloadFastfilesByZoneFlags(v2, v23);
-      if ( (v2 & 0x100000) != 0 )
+      DB_UnloadFastfilesByZoneFlags(v1, v22);
+      if ( (v1 & 0x100000) != 0 )
         Sys_HeapOptimize();
-      if ( (v2 & 0x100100) != 0 )
+      if ( (v1 & 0x100100) != 0 )
         IWMem_ProfileTree_PruneTree();
-      if ( (v2 & 0x100180) != 0 && !s_fastFile_inDevMap )
+      if ( (v1 & 0x100180) != 0 && !s_fastFile_inDevMap )
       {
         DB_ValidateHasNoPausedFastfiles();
         DB_DynamicHeap_ValidateClear();
       }
       __rdtsc();
-      v24 = "ComFastFile: FreeZones (%x) took %f ms\n";
+      v23 = "ComFastFile: FreeZones (%x) took %f ms\n";
       break;
     default:
-      LODWORD(v31) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 2205, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected request type %i", v31) )
+      LODWORD(v29) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 2205, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected request type %i", v29) )
         __debugbreak();
       return 1;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovq   r9, xmm3
-  }
-  Com_Printf(30, v24, v2, _R9);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v27 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v27 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v27;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(30, v23, v1, *(float *)&_XMM2);
   return 1;
 }
 
@@ -3392,27 +3371,7 @@ void Com_FastFile_SetFrontendPreloadRequest(void)
       __debugbreak();
     if ( !ComFastFileLoadModule::IsUnloaded(&s_fastfileLoadModules[3]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 973, ASSERT_TYPE_ASSERT, "(uiMainLoadModle->IsUnloaded())", "%s\n\tUI should be unloaded", "uiMainLoadModle->IsUnloaded()") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name
-      vmovups ymm1, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+20h
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3B60h, ymm0
-      vmovsd  xmm0, cs:s_fastfileLoadModules.m_requestedZones.m_zones.sizeEstimate
-      vmovsd  qword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3BA0h, xmm0
-      vmovups ymm0, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+68h
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3B80h, ymm1
-      vmovups ymm1, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+48h
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3BC8h, ymm0
-      vmovups ymm0, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+90h
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3BA8h, ymm1
-      vmovsd  xmm1, cs:s_fastfileLoadModules.m_requestedZones.m_zones.sizeEstimate+48h
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3BF0h, ymm0
-      vmovsd  xmm0, cs:s_fastfileLoadModules.m_requestedZones.m_zones.sizeEstimate+90h
-      vmovsd  qword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3BE8h, xmm1
-      vmovups ymm1, ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+0B0h
-      vmovsd  qword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3C30h, xmm0
-      vmovups ymmword ptr cs:s_fastfileLoadModules.m_requestedZones.m_zones.name+3C10h, ymm1
-    }
+    s_fastfileLoadModules[10].m_requestedZones = s_fastfileLoadModules[0].m_requestedZones;
     ComFastFileLoadModule::AddRequestFrom(&s_fastfileLoadModules[10], &s_fastfileLoadModules[3]);
     ComFastFileLoadModule::AddRequestFrom(&s_fastfileLoadModules[10], &s_fastfileLoadModules[6]);
     ComFastFileLoadModule::SetModuleActive(&s_fastfileLoadModules[10], 1);
@@ -4390,100 +4349,100 @@ void Com_Fastfile_ErrorCleanup(void)
 Com_Fastfile_ProcessLoadRequests
 ==============
 */
-
-char __fastcall Com_Fastfile_ProcessLoadRequests(double _XMM0_8)
+char Com_Fastfile_ProcessLoadRequests()
 {
-  unsigned int v1; 
-  int v2; 
+  unsigned int v0; 
+  int v1; 
   unsigned int i; 
-  ComFastFileLoadModule *v4; 
+  ComFastFileLoadModule *v3; 
   const char *p_m_activeZones; 
-  unsigned int v6; 
-  ComFastFileZoneList *v7; 
-  unsigned int v8; 
+  unsigned int v5; 
+  ComFastFileZoneList *v6; 
+  unsigned int v7; 
   const char *name; 
+  const char *v9; 
   const char *v10; 
-  const char *v11; 
   const char *DebugName; 
   __int64 j; 
-  unsigned int v14; 
-  ComFastFileZoneList *v15; 
+  unsigned int v13; 
+  ComFastFileZoneList *v14; 
   unsigned int Count; 
-  unsigned int v17; 
-  ComFastFileZoneList *v18; 
-  unsigned int v19; 
+  unsigned int v16; 
+  ComFastFileZoneList *v17; 
+  unsigned int v18; 
+  const char *v19; 
   const char *v20; 
   const char *v21; 
-  const char *v22; 
+  __int128 v25; 
   unsigned __int64 zoneSizeEstimate; 
   __int64 zoneFlags; 
   unsigned int currentRequestCount[4]; 
   unsigned __int64 requestSizeEstimates[20]; 
   DB_FastfileInfo requests; 
 
+  v0 = 0;
   v1 = 0;
-  v2 = 0;
   currentRequestCount[0] = 0;
   for ( i = 0; i < 0xB; ++i )
   {
-    v4 = &s_fastfileLoadModules[(unsigned __int8)i];
-    if ( ((v4->m_zoneFlags & 0x100000) == 0 || !v1) && v4->m_databaseRequest[0] == 5 )
+    v3 = &s_fastfileLoadModules[(unsigned __int8)i];
+    if ( ((v3->m_zoneFlags & 0x100000) == 0 || !v0) && v3->m_databaseRequest[0] == 5 )
     {
-      p_m_activeZones = (const char *)&v4->m_activeZones;
-      v6 = 0;
-      v7 = &v4->m_activeZones;
-      while ( v7->m_zones[0].name[0] )
+      p_m_activeZones = (const char *)&v3->m_activeZones;
+      v5 = 0;
+      v6 = &v3->m_activeZones;
+      while ( v6->m_zones[0].name[0] )
       {
-        ++v6;
-        v7 = (ComFastFileZoneList *)((char *)v7 + 72);
-        if ( v6 >= 3 )
+        ++v5;
+        v6 = (ComFastFileZoneList *)((char *)v6 + 72);
+        if ( v5 >= 3 )
         {
-          v6 = 3;
+          v5 = 3;
           break;
         }
       }
-      if ( v6 )
+      if ( v5 )
       {
-        v8 = v6 - 1;
-        if ( v8 )
+        v7 = v5 - 1;
+        if ( v7 )
         {
-          name = v4->m_activeZones.m_zones[1].name;
-          v10 = (const char *)&v4->m_activeZones;
-          if ( v8 == 1 )
-            v11 = j_va("%s,%s", v10, name);
+          name = v3->m_activeZones.m_zones[1].name;
+          v9 = (const char *)&v3->m_activeZones;
+          if ( v7 == 1 )
+            v10 = j_va("%s,%s", v9, name);
           else
-            v11 = j_va("%s,%s,%s", v10, name, v4->m_activeZones.m_zones[2].name);
+            v10 = j_va("%s,%s,%s", v9, name, v3->m_activeZones.m_zones[2].name);
         }
         else
         {
-          v11 = (const char *)&v4->m_activeZones;
+          v10 = (const char *)&v3->m_activeZones;
         }
       }
       else
       {
-        v11 = "<empty>";
+        v10 = "<empty>";
       }
-      Com_Printf(30, "ComFastFile: Load Request: %s\n", v11);
+      Com_Printf(30, "ComFastFile: Load Request: %s\n", v10);
       DebugName = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
       ComFastFileLoadModule::ValidateDynamicLoadOrder(&s_fastfileLoadModules[(unsigned __int8)i], DebugName);
-      v2 |= v4->m_zoneFlags;
+      v1 |= v3->m_zoneFlags;
       for ( j = 0i64; ; j = (unsigned int)(j + 1) )
       {
-        v14 = 0;
-        v15 = &v4->m_activeZones;
-        while ( v15->m_zones[0].name[0] )
+        v13 = 0;
+        v14 = &v3->m_activeZones;
+        while ( v14->m_zones[0].name[0] )
         {
-          ++v14;
-          v15 = (ComFastFileZoneList *)((char *)v15 + 72);
-          if ( v14 >= 3 )
+          ++v13;
+          v14 = (ComFastFileZoneList *)((char *)v14 + 72);
+          if ( v13 >= 3 )
           {
-            v14 = 3;
+            v13 = 3;
             break;
           }
         }
-        if ( (unsigned int)j >= v14 )
+        if ( (unsigned int)j >= v13 )
           break;
-        Count = ComFastFileZoneList::GetCount(&v4->m_activeZones);
+        Count = ComFastFileZoneList::GetCount(&v3->m_activeZones);
         if ( (unsigned int)j >= Count )
         {
           LODWORD(zoneFlags) = Count;
@@ -4491,63 +4450,60 @@ char __fastcall Com_Fastfile_ProcessLoadRequests(double _XMM0_8)
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", zoneSizeEstimate, zoneFlags) )
             __debugbreak();
         }
-        Com_FastFile_AddLoadZone(&requests, requestSizeEstimates, currentRequestCount, 0x14u, &p_m_activeZones[72 * j], *(_QWORD *)&p_m_activeZones[72 * j + 64], v4->m_zoneFlags, (const DB_FastFileFailureMode)v4->m_failureMode);
+        Com_FastFile_AddLoadZone(&requests, requestSizeEstimates, currentRequestCount, 0x14u, &p_m_activeZones[72 * j], *(_QWORD *)&p_m_activeZones[72 * j + 64], v3->m_zoneFlags, (const DB_FastFileFailureMode)v3->m_failureMode);
       }
-      if ( v4->m_databaseRequest[0] )
+      if ( v3->m_databaseRequest[0] )
       {
-        v17 = 0;
-        v18 = &v4->m_activeZones;
-        while ( v18->m_zones[0].name[0] )
+        v16 = 0;
+        v17 = &v3->m_activeZones;
+        while ( v17->m_zones[0].name[0] )
         {
-          ++v17;
-          v18 = (ComFastFileZoneList *)((char *)v18 + 72);
-          if ( v17 >= 3 )
+          ++v16;
+          v17 = (ComFastFileZoneList *)((char *)v17 + 72);
+          if ( v16 >= 3 )
           {
-            v17 = 3;
+            v16 = 3;
             break;
           }
         }
-        if ( v17 )
+        if ( v16 )
         {
-          v19 = v17 - 1;
-          if ( v19 )
+          v18 = v16 - 1;
+          if ( v18 )
           {
-            v20 = v4->m_activeZones.m_zones[1].name;
-            v21 = (const char *)&v4->m_activeZones;
-            if ( v19 == 1 )
-              p_m_activeZones = j_va("%s,%s", v21, v20);
+            v19 = v3->m_activeZones.m_zones[1].name;
+            v20 = (const char *)&v3->m_activeZones;
+            if ( v18 == 1 )
+              p_m_activeZones = j_va("%s,%s", v20, v19);
             else
-              p_m_activeZones = j_va("%s,%s,%s", v21, v20, v4->m_activeZones.m_zones[2].name);
+              p_m_activeZones = j_va("%s,%s,%s", v20, v19, v3->m_activeZones.m_zones[2].name);
           }
         }
         else
         {
           p_m_activeZones = "<empty>";
         }
-        v22 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
-        Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v4->m_databaseRequest[0]], S_REQUEST_NAMES[0], v22, p_m_activeZones);
+        v21 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
+        Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v3->m_databaseRequest[0]], S_REQUEST_NAMES[0], v21, p_m_activeZones);
       }
-      v1 = currentRequestCount[0];
-      v4->m_databaseRequest[0] = 0;
+      v0 = currentRequestCount[0];
+      v3->m_databaseRequest[0] = 0;
     }
   }
-  if ( !v1 )
+  if ( !v0 )
     return 0;
   __rdtsc();
-  LoadBar_EstimateFastfiles(&requests, requestSizeEstimates, v1, 0i64, 0i64);
+  LoadBar_EstimateFastfiles(&requests, requestSizeEstimates, v0, 0i64, 0i64);
   SI_SuspendInstall();
-  DB_LoadFastfiles(&requests, v1, 2u, 0);
+  DB_LoadFastfiles(&requests, v0, 2u, 0);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovq   r9, xmm3
-  }
-  Com_Printf(30, "ComFastFile: LoadZones (%i) took %f ms\n", v1, *(double *)&_XMM3);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v25 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v25;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(30, "ComFastFile: LoadZones (%i) took %f ms\n", v0, *(float *)&_XMM2);
   return 1;
 }
 
@@ -4556,31 +4512,31 @@ char __fastcall Com_Fastfile_ProcessLoadRequests(double _XMM0_8)
 Com_Fastfile_ProcessResumeRequests
 ==============
 */
-
-char __fastcall Com_Fastfile_ProcessResumeRequests(double _XMM0_8)
+char Com_Fastfile_ProcessResumeRequests()
 {
+  unsigned int v0; 
   unsigned int v1; 
-  unsigned int v2; 
   unsigned int i; 
-  ComFastFileLoadModule *v4; 
+  ComFastFileLoadModule *v3; 
   const char *p_m_activeZones; 
-  unsigned int v6; 
-  ComFastFileZoneList *v7; 
-  unsigned int v8; 
+  unsigned int v5; 
+  ComFastFileZoneList *v6; 
+  unsigned int v7; 
   const char *name; 
+  const char *v9; 
   const char *v10; 
-  const char *v11; 
   const char *DebugName; 
   unsigned int j; 
-  unsigned int v14; 
-  ComFastFileZoneList *v15; 
+  unsigned int v13; 
+  ComFastFileZoneList *v14; 
   unsigned int Count; 
-  unsigned int v17; 
-  ComFastFileZoneList *v18; 
-  unsigned int v19; 
+  unsigned int v16; 
+  ComFastFileZoneList *v17; 
+  unsigned int v18; 
+  const char *v19; 
   const char *v20; 
   const char *v21; 
-  const char *v22; 
+  __int128 v25; 
   unsigned __int64 zoneSizeEstimate; 
   __int64 zoneFlags; 
   unsigned int currentRequestCount; 
@@ -4588,69 +4544,69 @@ char __fastcall Com_Fastfile_ProcessResumeRequests(double _XMM0_8)
   unsigned __int64 requestSizeEstimates[20]; 
   DB_FastfileInfo requests; 
 
-  v1 = 0;
+  v0 = 0;
   currentRequestCount = 0;
-  v2 = 0;
+  v1 = 0;
   for ( i = 0; i < 0xB; ++i )
   {
-    v4 = &s_fastfileLoadModules[(unsigned __int8)i];
-    if ( ((v4->m_zoneFlags & 0x100000) == 0 || !v1) && v4->m_databaseRequest[0] == 4 )
+    v3 = &s_fastfileLoadModules[(unsigned __int8)i];
+    if ( ((v3->m_zoneFlags & 0x100000) == 0 || !v0) && v3->m_databaseRequest[0] == 4 )
     {
-      p_m_activeZones = (const char *)&v4->m_activeZones;
-      v6 = 0;
-      v7 = &v4->m_activeZones;
-      while ( v7->m_zones[0].name[0] )
+      p_m_activeZones = (const char *)&v3->m_activeZones;
+      v5 = 0;
+      v6 = &v3->m_activeZones;
+      while ( v6->m_zones[0].name[0] )
       {
-        ++v6;
-        v7 = (ComFastFileZoneList *)((char *)v7 + 72);
-        if ( v6 >= 3 )
+        ++v5;
+        v6 = (ComFastFileZoneList *)((char *)v6 + 72);
+        if ( v5 >= 3 )
         {
-          v6 = 3;
+          v5 = 3;
           break;
         }
       }
-      if ( v6 )
+      if ( v5 )
       {
-        v8 = v6 - 1;
-        if ( v8 )
+        v7 = v5 - 1;
+        if ( v7 )
         {
-          name = v4->m_activeZones.m_zones[1].name;
-          v10 = (const char *)&v4->m_activeZones;
-          if ( v8 == 1 )
-            v11 = j_va("%s,%s", v10, name);
+          name = v3->m_activeZones.m_zones[1].name;
+          v9 = (const char *)&v3->m_activeZones;
+          if ( v7 == 1 )
+            v10 = j_va("%s,%s", v9, name);
           else
-            v11 = j_va("%s,%s,%s", v10, name, v4->m_activeZones.m_zones[2].name);
+            v10 = j_va("%s,%s,%s", v9, name, v3->m_activeZones.m_zones[2].name);
         }
         else
         {
-          v11 = (const char *)&v4->m_activeZones;
+          v10 = (const char *)&v3->m_activeZones;
         }
       }
       else
       {
-        v11 = "<empty>";
+        v10 = "<empty>";
       }
-      Com_Printf(30, "ComFastFile: Load Request: %s\n", v11);
+      Com_Printf(30, "ComFastFile: Load Request: %s\n", v10);
       DebugName = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
       ComFastFileLoadModule::ValidateDynamicLoadOrder(&s_fastfileLoadModules[(unsigned __int8)i], DebugName);
-      v2 |= v4->m_zoneFlags;
+      v1 |= v3->m_zoneFlags;
       for ( j = 0; ; ++j )
       {
-        v14 = 0;
-        v15 = &v4->m_activeZones;
-        while ( v15->m_zones[0].name[0] )
+        v13 = 0;
+        v14 = &v3->m_activeZones;
+        while ( v14->m_zones[0].name[0] )
         {
-          ++v14;
-          v15 = (ComFastFileZoneList *)((char *)v15 + 72);
-          if ( v14 >= 3 )
+          ++v13;
+          v14 = (ComFastFileZoneList *)((char *)v14 + 72);
+          if ( v13 >= 3 )
           {
-            v14 = 3;
+            v13 = 3;
             break;
           }
         }
-        if ( j >= v14 )
+        if ( j >= v13 )
           break;
-        Count = ComFastFileZoneList::GetCount(&v4->m_activeZones);
+        Count = ComFastFileZoneList::GetCount(&v3->m_activeZones);
         if ( j >= Count )
         {
           LODWORD(zoneFlags) = Count;
@@ -4658,67 +4614,64 @@ char __fastcall Com_Fastfile_ProcessResumeRequests(double _XMM0_8)
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", zoneSizeEstimate, zoneFlags) )
             __debugbreak();
         }
-        Com_FastFile_AddLoadZone(&requests, requestSizeEstimates, &currentRequestCount, 0x14u, &p_m_activeZones[72 * j], *(_QWORD *)&p_m_activeZones[72 * j + 64], v4->m_zoneFlags, (const DB_FastFileFailureMode)v4->m_failureMode);
+        Com_FastFile_AddLoadZone(&requests, requestSizeEstimates, &currentRequestCount, 0x14u, &p_m_activeZones[72 * j], *(_QWORD *)&p_m_activeZones[72 * j + 64], v3->m_zoneFlags, (const DB_FastFileFailureMode)v3->m_failureMode);
       }
-      if ( v4->m_databaseRequest[0] )
+      if ( v3->m_databaseRequest[0] )
       {
-        v17 = 0;
-        v18 = &v4->m_activeZones;
-        while ( v18->m_zones[0].name[0] )
+        v16 = 0;
+        v17 = &v3->m_activeZones;
+        while ( v17->m_zones[0].name[0] )
         {
-          ++v17;
-          v18 = (ComFastFileZoneList *)((char *)v18 + 72);
-          if ( v17 >= 3 )
+          ++v16;
+          v17 = (ComFastFileZoneList *)((char *)v17 + 72);
+          if ( v16 >= 3 )
           {
-            v17 = 3;
+            v16 = 3;
             break;
           }
         }
-        if ( v17 )
+        if ( v16 )
         {
-          v19 = v17 - 1;
-          if ( v19 )
+          v18 = v16 - 1;
+          if ( v18 )
           {
-            v20 = v4->m_activeZones.m_zones[1].name;
-            v21 = (const char *)&v4->m_activeZones;
-            if ( v19 == 1 )
-              p_m_activeZones = j_va("%s,%s", v21, v20);
+            v19 = v3->m_activeZones.m_zones[1].name;
+            v20 = (const char *)&v3->m_activeZones;
+            if ( v18 == 1 )
+              p_m_activeZones = j_va("%s,%s", v20, v19);
             else
-              p_m_activeZones = j_va("%s,%s,%s", v21, v20, v4->m_activeZones.m_zones[2].name);
+              p_m_activeZones = j_va("%s,%s,%s", v20, v19, v3->m_activeZones.m_zones[2].name);
           }
         }
         else
         {
           p_m_activeZones = "<empty>";
         }
-        v22 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
-        Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v4->m_databaseRequest[0]], S_REQUEST_NAMES[0], v22, p_m_activeZones);
+        v21 = ComFastFileLoadModule::GetDebugName(&s_fastfileLoadModules[(unsigned __int8)i]);
+        Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)v3->m_databaseRequest[0]], S_REQUEST_NAMES[0], v21, p_m_activeZones);
       }
-      v1 = currentRequestCount;
-      v4->m_databaseRequest[0] = 0;
+      v0 = currentRequestCount;
+      v3->m_databaseRequest[0] = 0;
     }
   }
-  if ( !v1 )
+  if ( !v0 )
     return 0;
-  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 817, ASSERT_TYPE_ASSERT, "(zoneFlags)", (const char *)&queryFormat, "zoneFlags") )
+  if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 817, ASSERT_TYPE_ASSERT, "(zoneFlags)", (const char *)&queryFormat, "zoneFlags") )
     __debugbreak();
   zoneInfo.name = NULL;
-  zoneInfo.zoneFlags = v2;
+  zoneInfo.zoneFlags = v1;
   *(_QWORD *)&zoneInfo.failureMode = 0i64;
   __rdtsc();
-  LoadBar_EstimateFastfiles(&requests, requestSizeEstimates, v1, 0i64, 0i64);
+  LoadBar_EstimateFastfiles(&requests, requestSizeEstimates, v0, 0i64, 0i64);
   DB_UnpauseLoadFastfiles(&zoneInfo, 1u);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovq   r9, xmm3
-  }
-  Com_Printf(30, "ComFastFile: ResumeZones (%x) took %f ms\n", v2, *(double *)&_XMM3);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v25 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v25;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(30, "ComFastFile: ResumeZones (%x) took %f ms\n", v1, *(float *)&_XMM2);
   return 1;
 }
 
@@ -4945,17 +4898,17 @@ LABEL_36:
 Com_Fastfile_UpdateModules
 ==============
 */
-void Com_Fastfile_UpdateModules(double a1)
+void Com_Fastfile_UpdateModules()
 {
   unsigned int i; 
-  ComFastFileDbRequestType v2; 
+  ComFastFileDbRequestType v1; 
   unsigned int j; 
   unsigned int k; 
-  ComFastFileDbRequestType v5; 
-  int v6; 
-  ComFastFileDbRequestType v7; 
+  ComFastFileDbRequestType v4; 
+  int v5; 
+  ComFastFileDbRequestType v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
 
   do
   {
@@ -4969,19 +4922,19 @@ void Com_Fastfile_UpdateModules(double a1)
         {
           if ( (unsigned __int8)k >= 0xBu )
           {
-            LODWORD(v9) = 11;
-            LODWORD(v8) = (unsigned __int8)k;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 489, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( moduleType ) ) < (unsigned)( static_cast<uint>( ComFastFileModuleType::COUNT ) )", "static_cast<uint>( moduleType ) doesn't index static_cast<uint>( ComFastFileModuleType::COUNT )\n\t%i not in [0, %i)", v8, v9) )
+            LODWORD(v8) = 11;
+            LODWORD(v7) = (unsigned __int8)k;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 489, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( moduleType ) ) < (unsigned)( static_cast<uint>( ComFastFileModuleType::COUNT ) )", "static_cast<uint>( moduleType ) doesn't index static_cast<uint>( ComFastFileModuleType::COUNT )\n\t%i not in [0, %i)", v7, v8) )
               __debugbreak();
           }
           ComFastFileLoadModule::ValidateDynamicRelationships(&s_fastfileLoadModules[(unsigned __int8)j], &s_fastfileLoadModules[(unsigned __int8)k]);
         }
       }
-      LOBYTE(v2) = 1;
-      if ( !Com_FastFile_ProcessNonLoadRequestsForType(v2) )
+      LOBYTE(v1) = 1;
+      if ( !Com_FastFile_ProcessNonLoadRequestsForType(v1) )
       {
-        LOBYTE(v5) = 2;
-        if ( !Com_FastFile_ProcessNonLoadRequestsForType(v5) )
+        LOBYTE(v4) = 2;
+        if ( !Com_FastFile_ProcessNonLoadRequestsForType(v4) )
           break;
       }
     }
@@ -5001,11 +4954,11 @@ void Com_Fastfile_UpdateModules(double a1)
       Com_Printf(30, "Com_FastFile_IsDatabaseAvailable: Waiting for Stream_DBIsDeferredFastfileUnloadDone\n");
       return;
     }
-    v6 = Sys_Milliseconds();
-    LOBYTE(v7) = 3;
-    s_fastfile_lastDBAvailableTime = v6;
+    v5 = Sys_Milliseconds();
+    LOBYTE(v6) = 3;
+    s_fastfile_lastDBAvailableTime = v5;
   }
-  while ( Com_FastFile_ProcessNonLoadRequestsForType(v7) || Com_Fastfile_ProcessResumeRequests(a1) || Com_Fastfile_ProcessLoadRequests(a1) );
+  while ( Com_FastFile_ProcessNonLoadRequestsForType(v6) || Com_Fastfile_ProcessResumeRequests() || Com_Fastfile_ProcessLoadRequests() );
 }
 
 /*
@@ -5015,31 +4968,17 @@ ComFastFileLoadModule::CopyRequestFrom
 */
 void ComFastFileLoadModule::CopyRequestFrom(ComFastFileLoadModule *this, const ComFastFileLoadModule *otherModule)
 {
-  _RBX = otherModule;
-  _RDI = this;
   if ( !otherModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3365, ASSERT_TYPE_ASSERT, "(otherModule)", (const char *)&queryFormat, "otherModule") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+110h]
-    vmovups ymmword ptr [rdi+110h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+130h]
-    vmovups ymmword ptr [rdi+130h], ymm1
-    vmovsd  xmm0, qword ptr [rbx+150h]
-    vmovsd  qword ptr [rdi+150h], xmm0
-    vmovups ymm0, ymmword ptr [rbx+158h]
-    vmovups ymmword ptr [rdi+158h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+178h]
-    vmovups ymmword ptr [rdi+178h], ymm1
-    vmovsd  xmm0, qword ptr [rbx+198h]
-    vmovsd  qword ptr [rdi+198h], xmm0
-    vmovups ymm0, ymmword ptr [rbx+1A0h]
-    vmovups ymmword ptr [rdi+1A0h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+1C0h]
-    vmovups ymmword ptr [rdi+1C0h], ymm1
-    vmovsd  xmm0, qword ptr [rbx+1E0h]
-    vmovsd  qword ptr [rdi+1E0h], xmm0
-  }
+  *(__m256i *)this->m_requestedZones.m_zones[0].name = *(__m256i *)otherModule->m_requestedZones.m_zones[0].name;
+  *(__m256i *)&this->m_requestedZones.m_zones[0].name[32] = *(__m256i *)&otherModule->m_requestedZones.m_zones[0].name[32];
+  this->m_requestedZones.m_zones[0].sizeEstimate = otherModule->m_requestedZones.m_zones[0].sizeEstimate;
+  *(__m256i *)this->m_requestedZones.m_zones[1].name = *(__m256i *)otherModule->m_requestedZones.m_zones[1].name;
+  *(__m256i *)&this->m_requestedZones.m_zones[1].name[32] = *(__m256i *)&otherModule->m_requestedZones.m_zones[1].name[32];
+  this->m_requestedZones.m_zones[1].sizeEstimate = otherModule->m_requestedZones.m_zones[1].sizeEstimate;
+  *(__m256i *)this->m_requestedZones.m_zones[2].name = *(__m256i *)otherModule->m_requestedZones.m_zones[2].name;
+  *(__m256i *)&this->m_requestedZones.m_zones[2].name[32] = *(__m256i *)&otherModule->m_requestedZones.m_zones[2].name[32];
+  this->m_requestedZones.m_zones[2].sizeEstimate = otherModule->m_requestedZones.m_zones[2].sizeEstimate;
 }
 
 /*
@@ -5085,13 +5024,14 @@ ComFastFileLoadModule::Frame_Idle
 void ComFastFileLoadModule::Frame_Idle(ComFastFileLoadModule *this)
 {
   unsigned __int8 v2; 
+  ComFastFileZoneList *p_m_requestedZones; 
   unsigned int v4; 
   int v5; 
   char v6; 
   char v7; 
   unsigned int i; 
   unsigned int v9; 
-  ComFastFileZoneList *p_m_requestedZones; 
+  ComFastFileZoneList *v10; 
   DB_FastfileState v11; 
   unsigned int v12; 
   ComFastFileZoneList *v13; 
@@ -5134,26 +5074,28 @@ void ComFastFileLoadModule::Frame_Idle(ComFastFileLoadModule *this)
   ComFastFileZoneEntry *v50; 
   ComFastFileZoneList *v51; 
   const char *v52; 
+  ComFastFileZoneList *v53; 
   unsigned __int64 sizeEstimate; 
-  ComFastFileZoneList *v62; 
-  int v63; 
-  ComFastFileZoneEntry *v64; 
-  ComFastFileZoneList *v65; 
-  const char *v66; 
+  __m256i v55; 
+  ComFastFileZoneList *v56; 
+  int v57; 
+  ComFastFileZoneEntry *v58; 
+  ComFastFileZoneList *v59; 
+  const char *v60; 
   char *fmt; 
-  __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  char v71; 
-  int v73[4]; 
+  __int64 v62; 
+  __int64 v63; 
+  __int64 v64; 
+  char v65; 
+  int v67[4]; 
 
   if ( this->m_activeZones.m_zones[0].name[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3446, ASSERT_TYPE_ASSERT, "(m_activeZones.IsEmpty())", (const char *)&queryFormat, "m_activeZones.IsEmpty()") )
     __debugbreak();
   v2 = this->m_databaseRequest[0];
   if ( (v2 & 0xFC) != 0 || v2 == 2 )
   {
-    LODWORD(v68) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3447, ASSERT_TYPE_ASSERT, "( ( (m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD) || (m_databaseRequest == ComFastFileDbRequestType::NONE) ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v68) )
+    LODWORD(v62) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3447, ASSERT_TYPE_ASSERT, "( ( (m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD) || (m_databaseRequest == ComFastFileDbRequestType::NONE) ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v62) )
       __debugbreak();
   }
   if ( this->m_currentState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 4001, ASSERT_TYPE_ASSERT, "(m_currentState == LoadState::IDLE)", "%s\n\tOnly meant to be called from the idle state", "m_currentState == LoadState::IDLE") )
@@ -5162,12 +5104,12 @@ void ComFastFileLoadModule::Frame_Idle(ComFastFileLoadModule *this)
     return;
   if ( ComFastFileLoadModule::HasFailedDependencies(this) )
     return;
-  _RDI = &this->m_requestedZones;
+  p_m_requestedZones = &this->m_requestedZones;
   if ( !this->m_requestedZones.m_zones[0].name[0] )
     return;
   v4 = 0;
   v5 = 0;
-  while ( !I_stricmp(this->m_activeZones.m_zones[v5].name, _RDI->m_zones[v5].name) )
+  while ( !I_stricmp(this->m_activeZones.m_zones[v5].name, p_m_requestedZones->m_zones[v5].name) )
   {
     if ( (unsigned int)++v5 >= 3 )
     {
@@ -5176,19 +5118,19 @@ void ComFastFileLoadModule::Frame_Idle(ComFastFileLoadModule *this)
       break;
     }
   }
-  if ( !_RDI->m_zones[0].name[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3456, ASSERT_TYPE_ASSERT, "(!m_requestedZones.IsEmpty())", (const char *)&queryFormat, "!m_requestedZones.IsEmpty()") )
+  if ( !p_m_requestedZones->m_zones[0].name[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3456, ASSERT_TYPE_ASSERT, "(!m_requestedZones.IsEmpty())", (const char *)&queryFormat, "!m_requestedZones.IsEmpty()") )
     __debugbreak();
   v6 = 0;
-  v71 = 1;
+  v65 = 1;
   v7 = 0;
   for ( i = 0; ; ++i )
   {
     v9 = 0;
-    p_m_requestedZones = &this->m_requestedZones;
-    while ( p_m_requestedZones->m_zones[0].name[0] )
+    v10 = &this->m_requestedZones;
+    while ( v10->m_zones[0].name[0] )
     {
       ++v9;
-      p_m_requestedZones = (ComFastFileZoneList *)((char *)p_m_requestedZones + 72);
+      v10 = (ComFastFileZoneList *)((char *)v10 + 72);
       if ( v9 >= 3 )
       {
         v9 = 3;
@@ -5197,25 +5139,25 @@ void ComFastFileLoadModule::Frame_Idle(ComFastFileLoadModule *this)
     }
     if ( i >= v9 )
       break;
-    if ( i >= ComFastFileZoneList::GetCount(_RDI) )
+    if ( i >= ComFastFileZoneList::GetCount(p_m_requestedZones) )
     {
-      LODWORD(v69) = ComFastFileZoneList::GetCount(_RDI);
-      LODWORD(v68) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v68, v69) )
+      LODWORD(v63) = ComFastFileZoneList::GetCount(p_m_requestedZones);
+      LODWORD(v62) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v62, v63) )
         __debugbreak();
     }
-    v11 = DB_PollFastfileState(_RDI->m_zones[i].name);
-    v73[i] = v11;
+    v11 = DB_PollFastfileState(p_m_requestedZones->m_zones[i].name);
+    v67[i] = v11;
     if ( v11 == AWAITING_COMMIT )
     {
-      if ( !DB_Zones_IsFinishedLoading(_RDI->m_zones[i].name) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3473, ASSERT_TYPE_ASSERT, "( ( DB_Zones_IsFinishedLoading( zoneName ) ) )", "( zoneName ) = %s", _RDI->m_zones[i].name) )
+      if ( !DB_Zones_IsFinishedLoading(p_m_requestedZones->m_zones[i].name) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3473, ASSERT_TYPE_ASSERT, "( ( DB_Zones_IsFinishedLoading( zoneName ) ) )", "( zoneName ) = %s", p_m_requestedZones->m_zones[i].name) )
         __debugbreak();
     }
     else
     {
-      v71 = 0;
+      v65 = 0;
     }
-    if ( (unsigned int)(v73[i] - 1) <= 1 )
+    if ( (unsigned int)(v67[i] - 1) <= 1 )
       v6 = 1;
     else
       v7 = 1;
@@ -5246,7 +5188,7 @@ LABEL_47:
         {
           v16 = &this->m_requestedZones.m_zones[1];
           if ( v15 == 1 )
-            v17 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)_RDI, v16->name);
+            v17 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)p_m_requestedZones, v16->name);
           else
             v17 = (ComFastFileZoneList *)j_va("%s,%s,%s", (const char *)&this->m_requestedZones, v16->name, this->m_requestedZones.m_zones[2].name);
         }
@@ -5266,7 +5208,7 @@ LABEL_47:
     {
       v14 = 3;
     }
-    if ( ComFastFileLoadModule::IsPreloadModuleOrAllZonesNotPreload(this, _RDI) )
+    if ( ComFastFileLoadModule::IsPreloadModuleOrAllZonesNotPreload(this, p_m_requestedZones) )
     {
       if ( (DB_Zones_GetInUseFlags() & this->m_zoneFlags) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3499, ASSERT_TYPE_ASSERT, "(DB_Zones_GetInUseFlags() & m_zoneFlags)", (const char *)&queryFormat, "DB_Zones_GetInUseFlags() & m_zoneFlags") )
         __debugbreak();
@@ -5287,7 +5229,7 @@ LABEL_47:
         if ( j >= v19 )
           break;
         v21 = &this->m_requestedZones;
-        v22 = v73[j];
+        v22 = v67[j];
         v23 = 0;
         while ( v21->m_zones[0].name[0] )
         {
@@ -5306,7 +5248,7 @@ LABEL_47:
           {
             v25 = &this->m_requestedZones.m_zones[1];
             if ( v24 == 1 )
-              v26 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)_RDI, v25->name);
+              v26 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)p_m_requestedZones, v25->name);
             else
               v26 = (ComFastFileZoneList *)j_va("%s,%s,%s", (const char *)&this->m_requestedZones, v25->name, this->m_requestedZones.m_zones[2].name);
           }
@@ -5326,8 +5268,8 @@ LABEL_47:
       v28 = this->m_databaseRequest[0];
       if ( ((v28 - 1) & 0xFD) != 0 )
       {
-        LODWORD(v69) = v28;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3506, ASSERT_TYPE_ASSERT, "((m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD))", "%s\n\tThe file should have been queued for deletion before we got here. Trying to load the same file multiple times (%i)", "(m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD)", v69) )
+        LODWORD(v63) = v28;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3506, ASSERT_TYPE_ASSERT, "((m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD))", "%s\n\tThe file should have been queued for deletion before we got here. Trying to load the same file multiple times (%i)", "(m_databaseRequest == ComFastFileDbRequestType::CANCEL) || (m_databaseRequest == ComFastFileDbRequestType::UNLOAD)", v63) )
           __debugbreak();
       }
       if ( this->m_databaseRequest[0] )
@@ -5369,7 +5311,7 @@ LABEL_47:
         Com_Printf(30, "ComFastFile: Request Change: %s -> %s (%s: %s)'\n", S_REQUEST_NAMES[(unsigned __int8)this->m_databaseRequest[0]], S_REQUEST_NAMES[0], v35, (const char *)v34);
       }
       this->m_databaseRequest[0] = 0;
-      if ( !v71 )
+      if ( !v65 )
         goto LABEL_130;
       v36 = 2;
       this->m_loadProgress = this->LOAD_PROGRESS_FINISHED;
@@ -5398,20 +5340,20 @@ LABEL_47:
     }
     if ( k >= v38 )
       break;
-    if ( k >= ComFastFileZoneList::GetCount(_RDI) )
+    if ( k >= ComFastFileZoneList::GetCount(p_m_requestedZones) )
     {
-      LODWORD(v69) = ComFastFileZoneList::GetCount(_RDI);
-      LODWORD(v68) = k;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v68, v69) )
+      LODWORD(v63) = ComFastFileZoneList::GetCount(p_m_requestedZones);
+      LODWORD(v62) = k;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v62, v63) )
         __debugbreak();
     }
-    v40 = DB_PollFastfileState(_RDI->m_zones[k].name);
+    v40 = DB_PollFastfileState(p_m_requestedZones->m_zones[k].name);
     if ( v40 == COMMITTED )
     {
       m_zoneFlags = this->m_zoneFlags;
       v42 = ComFastFileLoadModule::GetDebugName(this);
-      LODWORD(v70) = m_zoneFlags;
-      v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3531, ASSERT_TYPE_ASSERT, "(ffState != DB_FastfileState::PAUSED)", "%s\n\t%s Zone is an unexpected state (%s, %x)", "ffState != DB_FastfileState::PAUSED", v42, _RDI->m_zones[k].name, v70);
+      LODWORD(v64) = m_zoneFlags;
+      v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3531, ASSERT_TYPE_ASSERT, "(ffState != DB_FastfileState::PAUSED)", "%s\n\t%s Zone is an unexpected state (%s, %x)", "ffState != DB_FastfileState::PAUSED", v42, p_m_requestedZones->m_zones[k].name, v64);
     }
     else
     {
@@ -5419,8 +5361,8 @@ LABEL_47:
         continue;
       v44 = this->m_zoneFlags;
       v45 = ComFastFileLoadModule::GetDebugName(this);
-      LODWORD(v70) = v44;
-      v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3532, ASSERT_TYPE_ASSERT, "(ffState != DB_FastfileState::CANCELLED)", "%s\n\t%s Zone is an unexpected state (%s, %x)", "ffState != DB_FastfileState::CANCELLED", v45, _RDI->m_zones[k].name, v70);
+      LODWORD(v64) = v44;
+      v43 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3532, ASSERT_TYPE_ASSERT, "(ffState != DB_FastfileState::CANCELLED)", "%s\n\t%s Zone is an unexpected state (%s, %x)", "ffState != DB_FastfileState::CANCELLED", v45, p_m_requestedZones->m_zones[k].name, v64);
     }
     if ( v43 )
       __debugbreak();
@@ -5467,33 +5409,24 @@ LABEL_47:
 LABEL_130:
   v36 = 1;
 LABEL_131:
-  _R14 = &this->m_activeZones;
+  v53 = &this->m_activeZones;
   sizeEstimate = this->m_requestedZones.m_zones[2].sizeEstimate;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymm1, ymmword ptr [rdi+80h]
-    vmovups ymmword ptr [r14], ymm0
-    vmovups ymm0, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [r14+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [r14+40h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [r14+60h], ymm0
-    vmovups ymmword ptr [r14+80h], ymm1
-    vmovups ymm1, ymmword ptr [rdi+0A0h]
-    vmovups ymmword ptr [r14+0A0h], ymm1
-    vmovups xmm1, xmmword ptr [rdi+0C0h]
-    vmovups xmmword ptr [r14+0C0h], xmm1
-  }
+  v55 = *(__m256i *)&this->m_requestedZones.m_zones[1].name[56];
+  *(__m256i *)this->m_activeZones.m_zones[0].name = *(__m256i *)p_m_requestedZones->m_zones[0].name;
+  *(__m256i *)&this->m_activeZones.m_zones[0].name[32] = *(__m256i *)&this->m_requestedZones.m_zones[0].name[32];
+  *(__m256i *)&this->m_activeZones.m_zones[0].sizeEstimate = *(__m256i *)&this->m_requestedZones.m_zones[0].sizeEstimate;
+  *(__m256i *)&this->m_activeZones.m_zones[1].name[24] = *(__m256i *)&this->m_requestedZones.m_zones[1].name[24];
+  *(__m256i *)&this->m_activeZones.m_zones[1].name[56] = v55;
+  *(__m256i *)&this->m_activeZones.m_zones[2].name[16] = *(__m256i *)&this->m_requestedZones.m_zones[2].name[16];
+  *(_OWORD *)&this->m_activeZones.m_zones[2].name[48] = *(_OWORD *)&this->m_requestedZones.m_zones[2].name[48];
   this->m_activeZones.m_zones[2].sizeEstimate = sizeEstimate;
   if ( this->m_currentState[0] != v36 )
   {
-    v62 = &this->m_activeZones;
-    while ( v62->m_zones[0].name[0] )
+    v56 = &this->m_activeZones;
+    while ( v56->m_zones[0].name[0] )
     {
       ++v4;
-      v62 = (ComFastFileZoneList *)((char *)v62 + 72);
+      v56 = (ComFastFileZoneList *)((char *)v56 + 72);
       if ( v4 >= 3 )
         goto LABEL_137;
     }
@@ -5501,23 +5434,23 @@ LABEL_131:
 LABEL_137:
     if ( v14 )
     {
-      v63 = v14 - 1;
-      if ( v63 )
+      v57 = v14 - 1;
+      if ( v57 )
       {
-        v64 = &this->m_activeZones.m_zones[1];
-        v65 = &this->m_activeZones;
-        if ( v63 == 1 )
-          _R14 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)v65, v64->name);
+        v58 = &this->m_activeZones.m_zones[1];
+        v59 = &this->m_activeZones;
+        if ( v57 == 1 )
+          v53 = (ComFastFileZoneList *)j_va("%s,%s", (const char *)v59, v58->name);
         else
-          _R14 = (ComFastFileZoneList *)j_va("%s,%s,%s", (const char *)v65, v64->name, this->m_activeZones.m_zones[2].name);
+          v53 = (ComFastFileZoneList *)j_va("%s,%s,%s", (const char *)v59, v58->name, this->m_activeZones.m_zones[2].name);
       }
     }
     else
     {
-      _R14 = (ComFastFileZoneList *)"<empty>";
+      v53 = (ComFastFileZoneList *)"<empty>";
     }
-    v66 = ComFastFileLoadModule::GetDebugName(this);
-    Com_Printf(30, "ComFastFile: State Change: %s -> %s (%s: %s)'\n", S_STATE_NAMES[(unsigned __int8)this->m_currentState[0]], S_STATE_NAMES[v36], v66, (const char *)_R14);
+    v60 = ComFastFileLoadModule::GetDebugName(this);
+    Com_Printf(30, "ComFastFile: State Change: %s -> %s (%s: %s)'\n", S_STATE_NAMES[(unsigned __int8)this->m_currentState[0]], S_STATE_NAMES[v36], v60, (const char *)v53);
   }
   this->m_currentState[0] = v36;
 }
@@ -5757,151 +5690,152 @@ ComFastFileLoadModule::Frame_Loading
 */
 void ComFastFileLoadModule::Frame_Loading(ComFastFileLoadModule *this)
 {
-  unsigned __int8 v3; 
-  __int64 v4; 
-  char v5; 
+  unsigned __int8 v2; 
+  __int64 v3; 
+  char v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
   ComFastFileZoneList *p_m_activeZones; 
-  DB_FastfileState v9; 
-  const char *v10; 
-  int v11; 
-  const char *v12; 
+  DB_FastfileState v8; 
+  const char *v9; 
+  int v10; 
+  const char *v11; 
   ComFastFileLoadModule *m_parent; 
   ComFastFileLoadModule *m_dependency; 
-  ComFastFileDbRequestType v15; 
-  ComFastFileLoadModule::LoadState v16; 
-  char v17; 
-  ComFastFileDbRequestType v18; 
-  unsigned __int8 v19; 
+  ComFastFileDbRequestType v14; 
+  ComFastFileLoadModule::LoadState v15; 
+  char v16; 
+  ComFastFileDbRequestType v17; 
+  double LoadedFraction; 
+  double v19; 
   unsigned __int8 v20; 
-  __int64 v21; 
+  unsigned __int8 v21; 
   __int64 v22; 
+  __int64 v23; 
 
-  _RBX = this;
   if ( !this->m_activeZones.m_zones[0].name[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3555, ASSERT_TYPE_ASSERT, "(!m_activeZones.IsEmpty())", (const char *)&queryFormat, "!m_activeZones.IsEmpty()") )
     __debugbreak();
-  v3 = _RBX->m_databaseRequest[0];
-  if ( (v3 & 0xFA) != 0 || v3 == 1 )
+  v2 = this->m_databaseRequest[0];
+  if ( (v2 & 0xFA) != 0 || v2 == 1 )
   {
-    LODWORD(v21) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3557, ASSERT_TYPE_ASSERT, "( ( (m_databaseRequest == ComFastFileDbRequestType::LOAD) || (m_databaseRequest == ComFastFileDbRequestType::RESUME) || (m_databaseRequest == ComFastFileDbRequestType::NONE) ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v21) )
+    LODWORD(v22) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3557, ASSERT_TYPE_ASSERT, "( ( (m_databaseRequest == ComFastFileDbRequestType::LOAD) || (m_databaseRequest == ComFastFileDbRequestType::RESUME) || (m_databaseRequest == ComFastFileDbRequestType::NONE) ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v22) )
       __debugbreak();
   }
-  v4 = 0i64;
-  v5 = 1;
-  v6 = 0;
+  v3 = 0i64;
+  v4 = 1;
+  v5 = 0;
   while ( 1 )
   {
-    v7 = 0;
-    p_m_activeZones = &_RBX->m_activeZones;
+    v6 = 0;
+    p_m_activeZones = &this->m_activeZones;
     while ( p_m_activeZones->m_zones[0].name[0] )
     {
-      ++v7;
+      ++v6;
       p_m_activeZones = (ComFastFileZoneList *)((char *)p_m_activeZones + 72);
-      if ( v7 >= 3 )
+      if ( v6 >= 3 )
       {
-        v7 = 3;
+        v6 = 3;
         break;
       }
     }
-    if ( v6 >= v7 )
+    if ( v5 >= v6 )
       break;
-    if ( v6 >= ComFastFileZoneList::GetCount(&_RBX->m_activeZones) )
+    if ( v5 >= ComFastFileZoneList::GetCount(&this->m_activeZones) )
     {
-      LODWORD(v22) = ComFastFileZoneList::GetCount(&_RBX->m_activeZones);
-      LODWORD(v21) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v23) = ComFastFileZoneList::GetCount(&this->m_activeZones);
+      LODWORD(v22) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile_zonelist.h", 145, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( GetCount() )", "index doesn't index GetCount()\n\t%i not in [0, %i)", v22, v23) )
         __debugbreak();
     }
-    v9 = DB_PollFastfileState(_RBX->m_activeZones.m_zones[v6].name);
-    if ( v9 == LOADING )
+    v8 = DB_PollFastfileState(this->m_activeZones.m_zones[v5].name);
+    if ( v8 == LOADING )
     {
-      v10 = "ffState != DB_FastfileState::CANCELLED";
-      v11 = 3566;
-      v12 = "(ffState != DB_FastfileState::CANCELLED)";
+      v9 = "ffState != DB_FastfileState::CANCELLED";
+      v10 = 3566;
+      v11 = "(ffState != DB_FastfileState::CANCELLED)";
 LABEL_22:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", v11, ASSERT_TYPE_ASSERT, v12, (const char *)&queryFormat, v10) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", v10, ASSERT_TYPE_ASSERT, v11, (const char *)&queryFormat, v9) )
         __debugbreak();
       goto LABEL_24;
     }
-    if ( v9 == COMMITTED )
+    if ( v8 == COMMITTED )
     {
-      if ( _RBX->m_databaseRequest[0] != 4 )
+      if ( this->m_databaseRequest[0] != 4 )
       {
-        v10 = "( ffState != DB_FastfileState::PAUSED ) || ( m_databaseRequest == ComFastFileDbRequestType::RESUME )";
-        v11 = 3567;
-        v12 = "(( ffState != DB_FastfileState::PAUSED ) || ( m_databaseRequest == ComFastFileDbRequestType::RESUME ))";
+        v9 = "( ffState != DB_FastfileState::PAUSED ) || ( m_databaseRequest == ComFastFileDbRequestType::RESUME )";
+        v10 = 3567;
+        v11 = "(( ffState != DB_FastfileState::PAUSED ) || ( m_databaseRequest == ComFastFileDbRequestType::RESUME ))";
         goto LABEL_22;
       }
 LABEL_24:
-      v5 = 0;
+      v4 = 0;
       goto LABEL_25;
     }
-    if ( v9 != AWAITING_COMMIT )
+    if ( v8 != AWAITING_COMMIT )
       goto LABEL_24;
-    if ( DB_Zones_IsFinishedLoading(_RBX->m_activeZones.m_zones[v6].name) || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3571, ASSERT_TYPE_ASSERT, "( ( DB_Zones_IsFinishedLoading( zoneName ) ) )", "( zoneName ) = %s", _RBX->m_activeZones.m_zones[v6].name) )
+    if ( DB_Zones_IsFinishedLoading(this->m_activeZones.m_zones[v5].name) || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3571, ASSERT_TYPE_ASSERT, "( ( DB_Zones_IsFinishedLoading( zoneName ) ) )", "( zoneName ) = %s", this->m_activeZones.m_zones[v5].name) )
     {
 LABEL_25:
-      ++v6;
+      ++v5;
     }
     else
     {
       __debugbreak();
-      ++v6;
+      ++v5;
     }
   }
-  if ( !_RBX->m_currentState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3982, ASSERT_TYPE_ASSERT, "(m_currentState != LoadState::IDLE)", "%s\n\tShould not be called when already in the idle state", "m_currentState != LoadState::IDLE") )
+  if ( !this->m_currentState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3982, ASSERT_TYPE_ASSERT, "(m_currentState != LoadState::IDLE)", "%s\n\tShould not be called when already in the idle state", "m_currentState != LoadState::IDLE") )
     __debugbreak();
-  if ( _RBX->m_moduleActive )
+  if ( this->m_moduleActive )
   {
-    m_parent = _RBX->m_parent;
-    if ( !m_parent || (m_parent->m_currentState[0] != 4 || ComFastFileLoadModule::IsNewZoneRequested(m_parent)) && !ComFastFileLoadModule::HasFailedDependencies(_RBX->m_parent) )
+    m_parent = this->m_parent;
+    if ( !m_parent || (m_parent->m_currentState[0] != 4 || ComFastFileLoadModule::IsNewZoneRequested(m_parent)) && !ComFastFileLoadModule::HasFailedDependencies(this->m_parent) )
     {
-      m_dependency = _RBX->m_dependency;
-      if ( !m_dependency || (m_dependency->m_currentState[0] != 4 || ComFastFileLoadModule::IsNewZoneRequested(m_dependency)) && !ComFastFileLoadModule::HasFailedDependencies(_RBX->m_dependency) )
+      m_dependency = this->m_dependency;
+      if ( !m_dependency || (m_dependency->m_currentState[0] != 4 || ComFastFileLoadModule::IsNewZoneRequested(m_dependency)) && !ComFastFileLoadModule::HasFailedDependencies(this->m_dependency) )
       {
-        while ( !I_stricmp(_RBX->m_activeZones.m_zones[v4].name, _RBX->m_requestedZones.m_zones[v4].name) )
+        while ( !I_stricmp(this->m_activeZones.m_zones[v3].name, this->m_requestedZones.m_zones[v3].name) )
         {
-          v4 = (unsigned int)(v4 + 1);
-          if ( (unsigned int)v4 >= 3 )
+          v3 = (unsigned int)(v3 + 1);
+          if ( (unsigned int)v3 >= 3 )
           {
-            if ( v5 && ComFastFileLoadModule::IsPreloadModuleOrAllZonesNotPreload(_RBX, &_RBX->m_activeZones) )
+            if ( v4 && ComFastFileLoadModule::IsPreloadModuleOrAllZonesNotPreload(this, &this->m_activeZones) )
             {
-              if ( _RBX->m_databaseRequest[0] == 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3602, ASSERT_TYPE_ASSERT, "(m_databaseRequest != ComFastFileDbRequestType::LOAD)", "%s\n\tFinished loading without processing our load request?", "m_databaseRequest != ComFastFileDbRequestType::LOAD") )
+              if ( this->m_databaseRequest[0] == 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3602, ASSERT_TYPE_ASSERT, "(m_databaseRequest != ComFastFileDbRequestType::LOAD)", "%s\n\tFinished loading without processing our load request?", "m_databaseRequest != ComFastFileDbRequestType::LOAD") )
                 __debugbreak();
-              ComFastFileLoadModule::SetDatabaseRequest(_RBX, NONE);
-              LOBYTE(v16) = 2;
-              ComFastFileLoadModule::SetState(_RBX, v16);
-              _RBX->m_loadProgress = _RBX->LOAD_PROGRESS_FINISHED;
+              ComFastFileLoadModule::SetDatabaseRequest(this, NONE);
+              LOBYTE(v15) = 2;
+              ComFastFileLoadModule::SetState(this, v15);
+              this->m_loadProgress = this->LOAD_PROGRESS_FINISHED;
             }
             else
             {
-              v17 = _RBX->m_databaseRequest[0];
-              if ( _RBX->m_modulePaused )
+              v16 = this->m_databaseRequest[0];
+              if ( this->m_modulePaused )
               {
-                if ( v17 == 5 )
+                if ( v16 == 5 )
                 {
-                  v18 = NONE;
+                  v17 = NONE;
                   goto LABEL_67;
                 }
-                if ( v17 == 4 )
+                if ( v16 == 4 )
                 {
-                  LOBYTE(v15) = 0;
+                  LOBYTE(v14) = 0;
                 }
                 else
                 {
-                  *(double *)&_XMM0 = LoadBar_GetLoadedFraction();
-                  __asm { vmovss  dword ptr [rbx+28h], xmm0 }
-                  LOBYTE(v15) = 2;
+                  LoadedFraction = LoadBar_GetLoadedFraction();
+                  this->m_loadProgress = *(float *)&LoadedFraction;
+                  LOBYTE(v14) = 2;
                 }
-                ComFastFileLoadModule::SetDatabaseRequest(_RBX, v15);
-                ComFastFileLoadModule::SetState(_RBX, QOSING);
+                ComFastFileLoadModule::SetDatabaseRequest(this, v14);
+                ComFastFileLoadModule::SetState(this, QOSING);
               }
-              else if ( v17 != 5 )
+              else if ( v16 != 5 )
               {
-                *(double *)&_XMM0 = LoadBar_GetLoadedFraction();
-                __asm { vmovss  dword ptr [rbx+28h], xmm0 }
+                v19 = LoadBar_GetLoadedFraction();
+                this->m_loadProgress = *(float *)&v19;
               }
             }
             return;
@@ -5910,27 +5844,27 @@ LABEL_25:
       }
     }
   }
-  v19 = _RBX->m_databaseRequest[0];
-  if ( v19 == 5 )
+  v20 = this->m_databaseRequest[0];
+  if ( v20 == 5 )
   {
-    v20 = 0;
+    v21 = 0;
   }
   else
   {
-    if ( (v19 & 0xFB) != 0 )
+    if ( (v20 & 0xFB) != 0 )
     {
-      LODWORD(v21) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3590, ASSERT_TYPE_ASSERT, "( ( m_databaseRequest == ComFastFileDbRequestType::RESUME || m_databaseRequest == ComFastFileDbRequestType::NONE ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v21) )
+      LODWORD(v22) = v20;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3590, ASSERT_TYPE_ASSERT, "( ( m_databaseRequest == ComFastFileDbRequestType::RESUME || m_databaseRequest == ComFastFileDbRequestType::NONE ) )", "( static_cast<uint>( m_databaseRequest ) ) = %u", v22) )
         __debugbreak();
     }
-    v20 = 1;
-    if ( v5 )
-      v20 = 3;
+    v21 = 1;
+    if ( v4 )
+      v21 = 3;
   }
-  v18 = v20;
+  v17 = v21;
 LABEL_67:
-  ComFastFileLoadModule::SetDatabaseRequest(_RBX, v18);
-  ComFastFileLoadModule::Restart(_RBX);
+  ComFastFileLoadModule::SetDatabaseRequest(this, v17);
+  ComFastFileLoadModule::Restart(this);
 }
 
 /*
@@ -6168,50 +6102,45 @@ bool ComFastFileLoadModule::GetDebugString(ComFastFileLoadModule *this, char *st
   unsigned __int64 v3; 
   ComFastFileZoneList *p_m_activeZones; 
   const char *DebugName; 
-  const char *v9; 
-  unsigned __int8 v10; 
-  int v12; 
-  const char *v13; 
-  char *fmta; 
-  char *fmt; 
+  const char *v8; 
+  unsigned __int8 v9; 
+  double m_loadProgress; 
+  int v11; 
+  const char *v12; 
 
   v3 = stringBufferLen;
-  _RBX = this;
   if ( !stringbuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_fastfile.cpp", 3131, ASSERT_TYPE_ASSERT, "(stringbuffer)", (const char *)&queryFormat, "stringbuffer") )
     __debugbreak();
-  if ( _RBX->m_currentState[0] )
+  if ( this->m_currentState[0] )
   {
-    p_m_activeZones = &_RBX->m_activeZones;
+    p_m_activeZones = &this->m_activeZones;
   }
   else
   {
-    p_m_activeZones = &_RBX->m_requestedZones;
-    if ( !_RBX->m_requestedZones.m_zones[0].name[0] )
+    p_m_activeZones = &this->m_requestedZones;
+    if ( !this->m_requestedZones.m_zones[0].name[0] )
     {
-      DebugName = ComFastFileLoadModule::GetDebugName(_RBX);
+      DebugName = ComFastFileLoadModule::GetDebugName(this);
       goto LABEL_9;
     }
   }
   DebugName = ComFastFileZoneList::GetDebugText(p_m_activeZones);
 LABEL_9:
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  v9 = DebugName;
-  v10 = _RBX->m_databaseRequest[0];
-  __asm { vcvtss2sd xmm0, xmm0, xmm0 }
-  if ( v10 )
+  v8 = DebugName;
+  v9 = this->m_databaseRequest[0];
+  m_loadProgress = this->m_loadProgress;
+  if ( v9 )
   {
-    __asm { vmovsd  [rsp+48h+fmt], xmm0 }
-    v12 = Com_sprintf_truncate(stringbuffer, v3, "%s: %0.2f %s  [%s]", v9, *(double *)&fmta, S_STATE_NAMES[(unsigned __int8)_RBX->m_currentState[0]], S_REQUEST_NAMES[v10]);
+    v11 = Com_sprintf_truncate(stringbuffer, v3, "%s: %0.2f %s  [%s]", v8, m_loadProgress, S_STATE_NAMES[(unsigned __int8)this->m_currentState[0]], S_REQUEST_NAMES[v9]);
   }
   else
   {
-    v13 = "%s: %0.2f %s [p]";
-    __asm { vmovsd  [rsp+48h+fmt], xmm0 }
-    if ( !_RBX->m_modulePaused )
-      v13 = "%s: %0.2f %s";
-    v12 = Com_sprintf_truncate(stringbuffer, v3, v13, v9, fmt, S_STATE_NAMES[(unsigned __int8)_RBX->m_currentState[0]]);
+    v12 = "%s: %0.2f %s [p]";
+    if ( !this->m_modulePaused )
+      v12 = "%s: %0.2f %s";
+    v11 = Com_sprintf_truncate(stringbuffer, v3, v12, v8, m_loadProgress, S_STATE_NAMES[(unsigned __int8)this->m_currentState[0]]);
   }
-  return v12 > 0;
+  return v11 > 0;
 }
 
 /*

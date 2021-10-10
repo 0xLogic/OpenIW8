@@ -1484,16 +1484,16 @@ Plat_AddSplitscreenUserToPrivatePartySession
 void Plat_AddSplitscreenUserToPrivatePartySession(const int controllerIndex, sessionParameters *sessionParams)
 {
   int v4; 
-  __int64 v7; 
-  _BYTE v8[24]; 
-  SessionTaskResponseData v9; 
+  __int64 v5; 
+  SessionTaskResponseData v6; 
+  SessionTaskResponseData v7; 
 
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 820, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    LODWORD(v7) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 821, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v7, 8) )
+    LODWORD(v5) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 821, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v5, 8) )
       __debugbreak();
   }
   if ( Live_IsSignedIn(controllerIndex) && Xb3MultiplayerManager::IsLocalPlayerInSession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, controllerIndex, UNKNOWN) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 822, ASSERT_TYPE_ASSERT, "(!Plat_CheckIfPrivatePartySessionExistsForController( controllerIndex ))", (const char *)&queryFormat, "!Plat_CheckIfPrivatePartySessionExistsForController( controllerIndex )") )
@@ -1511,16 +1511,10 @@ void Plat_AddSplitscreenUserToPrivatePartySession(const int controllerIndex, ses
   s_numTasksAttempted = v4 + 1;
   if ( !Xb3MultiplayerManager::AddSplitscreenUserToPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
   {
-    *(_DWORD *)v8 = controllerIndex;
-    memset(&v8[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    AddSplitscreenUserToPrivatePartySession_Failed(&v9);
+    v6.m_controllerIndex = controllerIndex;
+    memset(&v6.m_sessionId, 0, 17);
+    v7 = v6;
+    AddSplitscreenUserToPrivatePartySession_Failed(&v7);
   }
 }
 
@@ -1690,14 +1684,10 @@ Plat_CheckIfSessionIdMatchesCurrentSessionIdInGameLobbySession
 */
 bool Plat_CheckIfSessionIdMatchesCurrentSessionIdInGameLobbySession(const int controllerIndex, sessionParameters *params)
 {
-  _GUID v4; 
+  _GUID xb3SessionId; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+0A4h]
-    vmovups xmmword ptr [rsp+38h+var_18.Data1], xmm0
-  }
-  return Xb3MultiplayerManager::CompareSessionNameInGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &v4);
+  xb3SessionId = params->xb3SessionId;
+  return Xb3MultiplayerManager::CompareSessionNameInGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &xb3SessionId);
 }
 
 /*
@@ -1707,14 +1697,10 @@ Plat_CheckIfSessionIdMatchesCurrentSessionIdInPrivatePartySession
 */
 bool Plat_CheckIfSessionIdMatchesCurrentSessionIdInPrivatePartySession(const int controllerIndex, sessionParameters *params)
 {
-  _GUID v4; 
+  _GUID xb3SessionId; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+0A4h]
-    vmovups xmmword ptr [rsp+38h+var_18.Data1], xmm0
-  }
-  return Xb3MultiplayerManager::CompareSessionNameInPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &v4);
+  xb3SessionId = params->xb3SessionId;
+  return Xb3MultiplayerManager::CompareSessionNameInPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &xb3SessionId);
 }
 
 /*
@@ -1779,22 +1765,22 @@ Plat_CleanupSessions
 void Plat_CleanupSessions(const int controllerIndex)
 {
   int v2; 
-  __int64 v7; 
-  __int64 v8; 
-  __int64 v9; 
-  _BYTE v10[24]; 
-  SessionTaskResponseData v11; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  SessionTaskResponseData v6; 
+  SessionTaskResponseData v7; 
 
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 949, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    LODWORD(v7) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 950, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v7, 8) )
+    LODWORD(v3) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 950, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v3, 8) )
       __debugbreak();
-    LODWORD(v9) = 8;
-    LODWORD(v8) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 525, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
+    LODWORD(v5) = 8;
+    LODWORD(v4) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 525, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v4, v5) )
       __debugbreak();
   }
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 526, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
@@ -1813,31 +1799,20 @@ void Plat_CleanupSessions(const int controllerIndex)
     s_numTasksAttempted = v2 + 1;
     if ( !Xb3MultiplayerManager::LeavePrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
     {
-      *(_DWORD *)v10 = controllerIndex;
-      memset(&v10[4], 0, 17);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+50h]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovsd  [rsp+88h+var_18], xmm1
-      }
-      LeavePrivatePartySession_Failed(&v11);
+      v6.m_controllerIndex = controllerIndex;
+      memset(&v6.m_sessionId, 0, 17);
+      v7 = v6;
+      LeavePrivatePartySession_Failed(&v7);
     }
   }
   else
   {
-    *(_DWORD *)v10 = controllerIndex;
-    memset(&v10[4], 0, 17);
+    *(_DWORD *)&v6.m_sessionId.Data4[4] = 0;
+    v6.m_shouldBeConsideredForThrottle = 0;
     Com_PrintWarning(25, "Plat_LeavePrivatePartySession called without a valid session to leave\n");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    LeavePrivatePartySession_CompletedSuccessfully(&v11);
+    *(_OWORD *)&v7.m_controllerIndex = (unsigned int)controllerIndex;
+    *(double *)&v7.m_sessionId.Data4[4] = *(double *)&v6.m_sessionId.Data4[4];
+    LeavePrivatePartySession_CompletedSuccessfully(&v7);
   }
 }
 
@@ -1903,8 +1878,8 @@ Plat_CreateGameLobbySession
 void Plat_CreateGameLobbySession(const int controllerIndex, sessionParameters *sessionParams)
 {
   int v4; 
-  _BYTE v7[24]; 
-  SessionTaskResponseData v8; 
+  SessionTaskResponseData v5; 
+  SessionTaskResponseData v6; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 350, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -1925,16 +1900,10 @@ void Plat_CreateGameLobbySession(const int controllerIndex, sessionParameters *s
   s_numTasksAttempted = v4 + 1;
   if ( !Xb3MultiplayerManager::CreateGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
   {
-    *(_DWORD *)v7 = controllerIndex;
-    memset(&v7[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    CreateGameLobbySession_Failed(&v8);
+    v5.m_controllerIndex = controllerIndex;
+    memset(&v5.m_sessionId, 0, 17);
+    v6 = v5;
+    CreateGameLobbySession_Failed(&v6);
   }
 }
 
@@ -1946,8 +1915,8 @@ Plat_CreatePrivatePartySession
 void Plat_CreatePrivatePartySession(const int controllerIndex, sessionParameters *sessionParams)
 {
   int v4; 
-  _BYTE v7[24]; 
-  SessionTaskResponseData v8; 
+  SessionTaskResponseData v5; 
+  SessionTaskResponseData v6; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 300, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -1968,16 +1937,10 @@ void Plat_CreatePrivatePartySession(const int controllerIndex, sessionParameters
   s_numTasksAttempted = v4 + 1;
   if ( !Xb3MultiplayerManager::CreatePrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
   {
-    *(_DWORD *)v7 = controllerIndex;
-    memset(&v7[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    CreatePrivatePartySession_Failed(&v8);
+    v5.m_controllerIndex = controllerIndex;
+    memset(&v5.m_sessionId, 0, 17);
+    v6 = v5;
+    CreatePrivatePartySession_Failed(&v6);
   }
 }
 
@@ -2015,10 +1978,9 @@ Plat_FollowPrivatePartyHostToGameLobby
 void Plat_FollowPrivatePartyHostToGameLobby(const int controllerIndex, sessionParameters *params)
 {
   int v4; 
-  _BYTE v10[24]; 
-  SessionTaskResponseData v11; 
+  SessionTaskResponseData v5; 
+  SessionTaskResponseData v6; 
 
-  _RDI = params;
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 760, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 761, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
@@ -2027,51 +1989,27 @@ void Plat_FollowPrivatePartyHostToGameLobby(const int controllerIndex, sessionPa
   s_currentSessionTaskParams.m_successCallback = (void (__fastcall *)(SessionTaskResponseData))FollowPrivatePartyHostToGameLobby_CompletedSuccessfully;
   s_currentSessionTaskParams.m_failedCallback = (void (__fastcall *)(SessionTaskResponseData))FollowPrivatePartyHostToGameLobby_Failed;
   v4 = s_numTasksAttempted;
-  s_currentSessionTaskParams.m_sessionParams = _RDI;
+  s_currentSessionTaskParams.m_sessionParams = params;
   if ( !s_numTasksAttempted )
   {
     s_lastPlatformCallAttemptTime = Sys_Milliseconds();
     v4 = s_numTasksAttempted;
   }
   s_numTasksAttempted = v4 + 1;
-  if ( !Live_IsSignedIn(controllerIndex) )
-    goto LABEL_17;
-  if ( !Xb3MultiplayerManager::IsLocalPlayerInSession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, controllerIndex, (const SessionType)1) )
-    goto LABEL_17;
-  __asm
+  if ( Live_IsSignedIn(controllerIndex) && Xb3MultiplayerManager::IsLocalPlayerInSession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, controllerIndex, (const SessionType)1) && (*(_GUID *)&v5.m_controllerIndex = params->xb3SessionId, Xb3MultiplayerManager::CompareSessionNameInGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, (_GUID *)&v5)) )
   {
-    vmovups xmm0, xmmword ptr [rdi+0A4h]
-    vmovups xmmword ptr [rsp+88h+var_48], xmm0
+    v5.m_controllerIndex = controllerIndex;
+    memset(&v5.m_sessionId, 0, 17);
+    v6 = v5;
+    FollowPrivatePartyHostToGameLobby_CompletedSuccessfully(&v6);
   }
-  if ( Xb3MultiplayerManager::CompareSessionNameInGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, (_GUID *)v10) )
+  else if ( !Xb3MultiplayerManager::JoinGameLobbyFromPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
   {
-    *(_DWORD *)v10 = controllerIndex;
-    memset(&v10[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    FollowPrivatePartyHostToGameLobby_CompletedSuccessfully(&v11);
-  }
-  else
-  {
-LABEL_17:
-    if ( !Xb3MultiplayerManager::JoinGameLobbyFromPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
-    {
-      *(_DWORD *)v10 = controllerIndex;
-      memset(&v10[4], 0, 17);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+50h]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovsd  [rsp+88h+var_18], xmm1
-      }
-      FollowPrivatePartyHostToGameLobby_Failed(&v11);
-    }
+    v5.m_controllerIndex = controllerIndex;
+    memset(&v5.m_sessionId, 0, 17);
+    *(_OWORD *)&v6.m_controllerIndex = (unsigned int)controllerIndex;
+    *(double *)&v6.m_sessionId.Data4[4] = *(double *)&v5.m_sessionId.Data4[4];
+    FollowPrivatePartyHostToGameLobby_Failed(&v6);
   }
 }
 
@@ -2084,17 +2022,11 @@ void Plat_GetCurrentGameLobbySessionId(const int controllerIndex, _GUID *session
 {
   _GUID result; 
 
-  _RBX = sessionId;
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 116, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 117, ASSERT_TYPE_ASSERT, "(sessionId)", (const char *)&queryFormat, "sessionId") )
+  if ( !sessionId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 117, ASSERT_TYPE_ASSERT, "(sessionId)", (const char *)&queryFormat, "sessionId") )
     __debugbreak();
-  _RAX = Xb3MultiplayerManager::GetCurrentGameLobbySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-  }
+  *sessionId = *Xb3MultiplayerManager::GetCurrentGameLobbySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
 }
 
 /*
@@ -2106,17 +2038,11 @@ void Plat_GetCurrentPrivatePartySessionId(const int controllerIndex, _GUID *sess
 {
   _GUID result; 
 
-  _RBX = sessionId;
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 108, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 109, ASSERT_TYPE_ASSERT, "(sessionId)", (const char *)&queryFormat, "sessionId") )
+  if ( !sessionId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 109, ASSERT_TYPE_ASSERT, "(sessionId)", (const char *)&queryFormat, "sessionId") )
     __debugbreak();
-  _RAX = Xb3MultiplayerManager::GetCurrentPrivatePartySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-  }
+  *sessionId = *Xb3MultiplayerManager::GetCurrentPrivatePartySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
 }
 
 /*
@@ -2241,8 +2167,8 @@ Plat_JoinGameLobbySession
 void Plat_JoinGameLobbySession(const int controllerIndex, sessionParameters *sessionParams)
 {
   int v4; 
-  _BYTE v7[24]; 
-  SessionTaskResponseData v8; 
+  SessionTaskResponseData v5; 
+  SessionTaskResponseData v6; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 711, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2261,16 +2187,10 @@ void Plat_JoinGameLobbySession(const int controllerIndex, sessionParameters *ses
   s_numTasksAttempted = v4 + 1;
   if ( !Xb3MultiplayerManager::JoinGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
   {
-    *(_DWORD *)v7 = controllerIndex;
-    memset(&v7[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    JoinGameLobbySession_Failed(&v8);
+    v5.m_controllerIndex = controllerIndex;
+    memset(&v5.m_sessionId, 0, 17);
+    v6 = v5;
+    JoinGameLobbySession_Failed(&v6);
   }
 }
 
@@ -2283,8 +2203,8 @@ void Plat_JoinPrivatePartySession(const int controllerIndex, sessionParameters *
 {
   int v4; 
   bool v5; 
-  _BYTE v8[24]; 
-  SessionTaskResponseData v9; 
+  SessionTaskResponseData v6; 
+  SessionTaskResponseData v7; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 646, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2313,16 +2233,10 @@ void Plat_JoinPrivatePartySession(const int controllerIndex, sessionParameters *
     v5 = Xb3MultiplayerManager::JoinPrivatePartySessionByFetchingHandleIdFromActivity(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams);
   if ( !v5 )
   {
-    *(_DWORD *)v8 = controllerIndex;
-    memset(&v8[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    JoinPrivatePartySession_Failed(&v9);
+    v6.m_controllerIndex = controllerIndex;
+    memset(&v6.m_sessionId, 0, 17);
+    v7 = v6;
+    JoinPrivatePartySession_Failed(&v7);
   }
 }
 
@@ -2334,8 +2248,8 @@ Plat_LeaveGameLobbySession
 void Plat_LeaveGameLobbySession(const int controllerIndex, sessionParameters *params)
 {
   int v3; 
-  _BYTE v8[24]; 
-  SessionTaskResponseData v9; 
+  SessionTaskResponseData v4; 
+  SessionTaskResponseData v5; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 585, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2355,31 +2269,20 @@ void Plat_LeaveGameLobbySession(const int controllerIndex, sessionParameters *pa
     s_numTasksAttempted = v3 + 1;
     if ( !Xb3MultiplayerManager::LeaveGameLobbySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
     {
-      *(_DWORD *)v8 = controllerIndex;
-      memset(&v8[4], 0, 17);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+50h]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovsd  [rsp+88h+var_18], xmm1
-      }
-      LeaveGameLobbySession_Failed(&v9);
+      v4.m_controllerIndex = controllerIndex;
+      memset(&v4.m_sessionId, 0, 17);
+      v5 = v4;
+      LeaveGameLobbySession_Failed(&v5);
     }
   }
   else
   {
-    *(_DWORD *)v8 = controllerIndex;
-    memset(&v8[4], 0, 17);
+    *(_DWORD *)&v4.m_sessionId.Data4[4] = 0;
+    v4.m_shouldBeConsideredForThrottle = 0;
     Com_PrintWarning(25, "Plat_LeaveGameLobbySession called without a valid session to leave\n");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    LeaveGameLobbySession_CompletedSuccessfully(&v9);
+    *(_OWORD *)&v5.m_controllerIndex = (unsigned int)controllerIndex;
+    *(double *)&v5.m_sessionId.Data4[4] = *(double *)&v4.m_sessionId.Data4[4];
+    LeaveGameLobbySession_CompletedSuccessfully(&v5);
   }
 }
 
@@ -2391,8 +2294,8 @@ Plat_LeavePrivatePartySession
 void Plat_LeavePrivatePartySession(const int controllerIndex)
 {
   int v2; 
-  _BYTE v7[24]; 
-  SessionTaskResponseData v8; 
+  SessionTaskResponseData v3; 
+  SessionTaskResponseData v4; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 525, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2412,31 +2315,20 @@ void Plat_LeavePrivatePartySession(const int controllerIndex)
     s_numTasksAttempted = v2 + 1;
     if ( !Xb3MultiplayerManager::LeavePrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
     {
-      *(_DWORD *)v7 = controllerIndex;
-      memset(&v7[4], 0, 17);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+50h]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovsd  [rsp+88h+var_18], xmm1
-      }
-      LeavePrivatePartySession_Failed(&v8);
+      v3.m_controllerIndex = controllerIndex;
+      memset(&v3.m_sessionId, 0, 17);
+      v4 = v3;
+      LeavePrivatePartySession_Failed(&v4);
     }
   }
   else
   {
-    *(_DWORD *)v7 = controllerIndex;
-    memset(&v7[4], 0, 17);
+    *(_DWORD *)&v3.m_sessionId.Data4[4] = 0;
+    v3.m_shouldBeConsideredForThrottle = 0;
     Com_PrintWarning(25, "Plat_LeavePrivatePartySession called without a valid session to leave\n");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    LeavePrivatePartySession_CompletedSuccessfully(&v8);
+    *(_OWORD *)&v4.m_controllerIndex = (unsigned int)controllerIndex;
+    *(double *)&v4.m_sessionId.Data4[4] = *(double *)&v3.m_sessionId.Data4[4];
+    LeavePrivatePartySession_CompletedSuccessfully(&v4);
   }
 }
 
@@ -2468,18 +2360,18 @@ void Plat_RemoveFirstUserInGraveyardFromSession(const int controllerIndex)
   Windows::Xbox::System::User *v3; 
   Windows::Xbox::System::User *xboxLiveUser; 
   int v5; 
-  __int64 v10; 
-  _BYTE v11[24]; 
-  SessionTaskResponseData v12; 
+  __int64 v6; 
+  SessionTaskResponseData v7; 
+  SessionTaskResponseData v8; 
   XB3SessionTaskRequestResult result; 
-  Windows::Xbox::System::User *v14; 
+  Windows::Xbox::System::User *v10; 
 
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 1063, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    LODWORD(v10) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 1064, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, 8) )
+    LODWORD(v6) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 1064, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, 8) )
       __debugbreak();
   }
   s_currentSessionTaskParams.m_controllerIndex = controllerIndex;
@@ -2496,7 +2388,7 @@ void Plat_RemoveFirstUserInGraveyardFromSession(const int controllerIndex)
   }
   v3->__abi_AddRef(v3);
 LABEL_12:
-  v14 = v3;
+  v10 = v3;
   xboxLiveUser = s_currentSessionTaskParams.xboxLiveUser;
   if ( v3 != s_currentSessionTaskParams.xboxLiveUser )
   {
@@ -2527,37 +2419,26 @@ LABEL_12:
     Xb3MultiplayerManager::RemoveUserFromSession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result, &s_currentSessionTaskParams);
     if ( !result.m_wasRequestSuccessful )
     {
-      memset(&v11[4], 0, 17);
-      *(_DWORD *)v11 = controllerIndex;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+var_38]
-        vmovups [rbp+var_20], xmm0
-        vmovsd  xmm1, qword ptr [rbp-28h]
-        vmovsd  [rbp+var_10], xmm1
-      }
-      RemoveFirstUserInGraveyard_Failed(&v12);
+      *(_DWORD *)&v7.m_sessionId.Data4[4] = 0;
+      v7.m_shouldBeConsideredForThrottle = 0;
+      *(_OWORD *)&v8.m_controllerIndex = (unsigned int)controllerIndex;
+      *(double *)&v8.m_sessionId.Data4[4] = *(double *)&v7.m_sessionId.Data4[4];
+      RemoveFirstUserInGraveyard_Failed(&v8);
       return;
     }
     if ( !result.m_shouldCallCallbackImmediately )
       return;
-    memset(&v11[4], 0, 17);
-    *(_DWORD *)v11 = controllerIndex;
+    memset(&v7.m_sessionId, 0, 17);
+    v7.m_controllerIndex = controllerIndex;
   }
   else
   {
-    memset(&v11[4], 0, 17);
-    *(_DWORD *)v11 = controllerIndex;
+    memset(&v7.m_sessionId, 0, 17);
+    v7.m_controllerIndex = controllerIndex;
     Com_PrintWarning(25, "Plat_RemoveFirstUserInGraveyardFromSession called but there are not users in the graveyard\n");
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+var_38]
-    vmovsd  xmm1, qword ptr [rbp-28h]
-    vmovups [rbp+var_20], xmm0
-    vmovsd  [rbp+var_10], xmm1
-  }
-  RemoveFirstUserInGraveyard_CompletedSuccessfully(&v12);
+  v8 = v7;
+  RemoveFirstUserInGraveyard_CompletedSuccessfully(&v8);
 }
 
 /*
@@ -2594,16 +2475,16 @@ Plat_RemoveSplitscreenUserFromPrivatePartySession
 void Plat_RemoveSplitscreenUserFromPrivatePartySession(const int controllerIndex, sessionParameters *sessionParams)
 {
   int v4; 
-  __int64 v9; 
-  _BYTE v10[24]; 
-  SessionTaskResponseData v11; 
+  __int64 v5; 
+  SessionTaskResponseData v6; 
+  SessionTaskResponseData v7; 
 
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 879, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    LODWORD(v9) = controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 880, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v9, 8) )
+    LODWORD(v5) = controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 880, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v5, 8) )
       __debugbreak();
   }
   s_currentSessionTaskParams.m_controllerIndex = controllerIndex;
@@ -2621,30 +2502,19 @@ void Plat_RemoveSplitscreenUserFromPrivatePartySession(const int controllerIndex
     s_numTasksAttempted = v4 + 1;
     if ( !Xb3MultiplayerManager::RemoveSplitscreenUserFromPrivatePartySession(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &s_currentSessionTaskParams) )
     {
-      *(_DWORD *)v10 = controllerIndex;
-      memset(&v10[4], 0, 17);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-        vmovsd  xmm1, qword ptr [rsp+50h]
-        vmovups [rsp+88h+var_28], xmm0
-        vmovsd  [rsp+88h+var_18], xmm1
-      }
-      RemoveSplitscreenUserFromPrivatePartySession_Failed(&v11);
+      v6.m_controllerIndex = controllerIndex;
+      memset(&v6.m_sessionId, 0, 17);
+      v7 = v6;
+      RemoveSplitscreenUserFromPrivatePartySession_Failed(&v7);
     }
   }
   else
   {
-    *(_DWORD *)v10 = controllerIndex;
-    memset(&v10[4], 0, 17);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-      vmovsd  xmm1, qword ptr [rsp+50h]
-      vmovups [rsp+88h+var_28], xmm0
-      vmovsd  [rsp+88h+var_18], xmm1
-    }
-    RemoveSplitscreenUserFromPrivatePartySession_CompletedSuccessfully(&v11);
+    *(_DWORD *)&v6.m_sessionId.Data4[4] = 0;
+    v6.m_shouldBeConsideredForThrottle = 0;
+    *(_OWORD *)&v7.m_controllerIndex = (unsigned int)controllerIndex;
+    *(double *)&v7.m_sessionId.Data4[4] = *(double *)&v6.m_sessionId.Data4[4];
+    RemoveSplitscreenUserFromPrivatePartySession_CompletedSuccessfully(&v7);
   }
 }
 
@@ -2666,8 +2536,9 @@ Plat_SendResponseToDSAfterCreatingGameLobbySession
 void Plat_SendResponseToDSAfterCreatingGameLobbySession(const int controllerIndex, sessionParameters *params, bool isSuccess, unsigned int partyVersionNumber)
 {
   void (__fastcall *m_completeCallback)(PlatformSessionType, _GUID, bool, unsigned int); 
+  __int128 *CurrentGameLobbySessionID; 
   _BOOL8 v9; 
-  __int128 v12; 
+  __int128 v10; 
   _GUID result; 
 
   if ( !params->m_createSessionForPartyRequest->m_completeCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 1114, ASSERT_TYPE_ASSERT, "(params->m_createSessionForPartyRequest->m_completeCallback)", (const char *)&queryFormat, "params->m_createSessionForPartyRequest->m_completeCallback") )
@@ -2675,25 +2546,16 @@ void Plat_SendResponseToDSAfterCreatingGameLobbySession(const int controllerInde
   m_completeCallback = params->m_createSessionForPartyRequest->m_completeCallback;
   if ( isSuccess )
   {
-    _RAX = Xb3MultiplayerManager::GetCurrentGameLobbySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
+    CurrentGameLobbySessionID = (__int128 *)Xb3MultiplayerManager::GetCurrentGameLobbySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
     v9 = isSuccess;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+78h+var_48], xmm0
-    }
+    v10 = *CurrentGameLobbySessionID;
   }
   else
   {
-    v12 = 0ui64;
+    v10 = 0ui64;
     v9 = 0i64;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovdqa [rsp+78h+var_48], xmm0
-    }
   }
-  ((void (__fastcall *)(__int64, __int128 *, _BOOL8, _QWORD))m_completeCallback)(2i64, &v12, v9, partyVersionNumber);
+  ((void (__fastcall *)(__int64, __int128 *, _BOOL8, _QWORD))m_completeCallback)(2i64, &v10, v9, partyVersionNumber);
 }
 
 /*
@@ -2704,19 +2566,14 @@ Plat_SendResponseToDSAfterCreatingPrivatePartySession
 void Plat_SendResponseToDSAfterCreatingPrivatePartySession(const int controllerIndex, sessionParameters *params, bool isSuccess, unsigned int partyVersionNumber)
 {
   void (__fastcall *m_completeCallback)(PlatformSessionType, _GUID, bool, unsigned int); 
-  __int128 v10; 
+  __int128 v8; 
   _GUID result; 
 
   if ( !params->m_createSessionForPartyRequest->m_completeCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 1107, ASSERT_TYPE_ASSERT, "(params->m_createSessionForPartyRequest->m_completeCallback)", (const char *)&queryFormat, "params->m_createSessionForPartyRequest->m_completeCallback") )
     __debugbreak();
   m_completeCallback = params->m_createSessionForPartyRequest->m_completeCallback;
-  _RAX = Xb3MultiplayerManager::GetCurrentPrivatePartySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rsp+78h+var_48], xmm0
-  }
-  ((void (__fastcall *)(__int64, __int128 *, bool, _QWORD))m_completeCallback)(1i64, &v10, isSuccess, partyVersionNumber);
+  v8 = (__int128)*Xb3MultiplayerManager::GetCurrentPrivatePartySessionID(&Xb3MultiplayerManager::ms_xb3MultiplayerManager, &result);
+  ((void (__fastcall *)(__int64, __int128 *, bool, _QWORD))m_completeCallback)(1i64, &v8, isSuccess, partyVersionNumber);
 }
 
 /*
@@ -2804,8 +2661,8 @@ Plat_UpdateGameLobbySessionData
 */
 void Plat_UpdateGameLobbySessionData(const int controllerIndex, sessionParameters *sessionParams)
 {
-  _BYTE v6[24]; 
-  SessionTaskResponseData v7; 
+  SessionTaskResponseData v4; 
+  SessionTaskResponseData v5; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 456, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2813,20 +2670,14 @@ void Plat_UpdateGameLobbySessionData(const int controllerIndex, sessionParameter
     __debugbreak();
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 458, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
-  *(_DWORD *)v6 = controllerIndex;
+  v4.m_controllerIndex = controllerIndex;
   s_currentSessionTaskParams.m_successCallback = (void (__fastcall *)(SessionTaskResponseData))UpdateGameLobbySessionData_CompletedSuccessfully;
   s_currentSessionTaskParams.m_controllerIndex = controllerIndex;
   s_currentSessionTaskParams.m_failedCallback = (void (__fastcall *)(SessionTaskResponseData))UpdateGameLobbySessionData_Failed;
-  memset(&v6[4], 0, 17);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-    vmovsd  xmm1, qword ptr [rsp+50h]
-    vmovups [rsp+88h+var_28], xmm0
-    vmovsd  [rsp+88h+var_18], xmm1
-  }
+  memset(&v4.m_sessionId, 0, 17);
+  v5 = v4;
   s_currentSessionTaskParams.m_sessionParams = sessionParams;
-  UpdateGameLobbySessionData_CompletedSuccessfully(&v7);
+  UpdateGameLobbySessionData_CompletedSuccessfully(&v5);
 }
 
 /*
@@ -2847,8 +2698,8 @@ Plat_UpdatePrivatePartySessionData
 */
 void Plat_UpdatePrivatePartySessionData(const int controllerIndex, sessionParameters *sessionParams)
 {
-  _BYTE v6[24]; 
-  SessionTaskResponseData v7; 
+  SessionTaskResponseData v4; 
+  SessionTaskResponseData v5; 
 
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 400, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
@@ -2856,20 +2707,14 @@ void Plat_UpdatePrivatePartySessionData(const int controllerIndex, sessionParame
     __debugbreak();
   if ( s_currentSessionTaskParams.m_controllerIndex <= 7u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\sessions\\platformsessions_xb3.cpp", 402, ASSERT_TYPE_ASSERT, "(!s_currentSessionTaskParams.IsInUse())", (const char *)&queryFormat, "!s_currentSessionTaskParams.IsInUse()") )
     __debugbreak();
-  *(_DWORD *)v6 = controllerIndex;
+  v4.m_controllerIndex = controllerIndex;
   s_currentSessionTaskParams.m_successCallback = (void (__fastcall *)(SessionTaskResponseData))UpdatePrivatePartySessionData_CompletedSuccessfully;
   s_currentSessionTaskParams.m_controllerIndex = controllerIndex;
   s_currentSessionTaskParams.m_failedCallback = (void (__fastcall *)(SessionTaskResponseData))UpdatePrivatePartySessionData_Failed;
-  memset(&v6[4], 0, 17);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+88h+var_48]
-    vmovsd  xmm1, qword ptr [rsp+50h]
-    vmovups [rsp+88h+var_28], xmm0
-    vmovsd  [rsp+88h+var_18], xmm1
-  }
+  memset(&v4.m_sessionId, 0, 17);
+  v5 = v4;
   s_currentSessionTaskParams.m_sessionParams = sessionParams;
-  UpdatePrivatePartySessionData_CompletedSuccessfully(&v7);
+  UpdatePrivatePartySessionData_CompletedSuccessfully(&v5);
 }
 
 /*

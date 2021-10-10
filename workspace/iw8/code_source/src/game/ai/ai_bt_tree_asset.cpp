@@ -1159,128 +1159,74 @@ AI_BT_DebugRender
 */
 void AI_BT_DebugRender(const AI_BT_TreeAssetInstance *treeInstance, int entnum)
 {
-  const dvar_t *v6; 
+  const dvar_t *v2; 
   int integer; 
-  const dvar_t *v10; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
+  float value; 
   BehaviorTreeNode *nodes; 
-  const vec4_t *v22; 
-  vec4_t *v23; 
+  float v10; 
+  const vec4_t *v11; 
+  vec4_t *v12; 
   unsigned int initFn; 
-  unsigned int v30; 
-  float columnY; 
-  float v38; 
+  unsigned int i; 
   int lineNumber; 
   float columnX; 
   float y; 
 
-  v6 = DVARINT_ai_showNativeBT;
+  v2 = DVARINT_ai_showNativeBT;
   if ( !DVARINT_ai_showNativeBT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNativeBT") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  integer = v6->current.integer;
+  Dvar_CheckFrontendServerThread(v2);
+  integer = v2->current.integer;
   if ( integer == entnum )
     goto LABEL_10;
   if ( !integer )
   {
-    v10 = DVARINT_ai_debugEntIndex;
+    v6 = DVARINT_ai_debugEntIndex;
     if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    if ( entnum == v10->current.integer )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( entnum == v6->current.integer )
     {
 LABEL_10:
-      _RBX = DCONST_DVARFLT_cl_devguiFontScaleHD;
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_38], xmm6
-        vmovaps [rsp+0A8h+var_48], xmm7
-        vmovaps [rsp+0A8h+var_68], xmm9
-      }
+      v7 = DCONST_DVARFLT_cl_devguiFontScaleHD;
       if ( !DCONST_DVARFLT_cl_devguiFontScaleHD && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_devguiFontScaleHD") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rbx+28h]
-        vmovss  xmm6, cs:__real@42c80000
-        vmovss  xmm1, cs:__real@432a0000; y
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm0, xmm6; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorRed, *(float *)&_XMM3, "BT Asset");
+      Dvar_CheckFrontendServerThread(v7);
+      value = v7->current.value;
+      G_Main_AddDebugString2D(100.0, 170.0, &colorRed, value, "BT Asset");
       lineNumber = 0;
-      __asm
-      {
-        vmovss  [rsp+0A8h+columnX], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  [rsp+0A8h+y], xmm6
-      }
+      columnX = FLOAT_100_0;
+      y = 0.0;
       if ( !treeInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1435, ASSERT_TYPE_ASSERT, "(treeInstance)", (const char *)&queryFormat, "treeInstance") )
         __debugbreak();
-      __asm { vmulss  xmm9, xmm7, cs:__real@435c0000 }
       nodes = treeInstance->tree->nodes;
       if ( treeInstance->instanceData[0].m_tickedThisFrame )
       {
-        __asm
-        {
-          vmulss  xmm0, xmm7, cs:__real@41500000
-          vaddss  xmm1, xmm0, [rsp+0A8h+y]
-          vmovss  [rsp+0A8h+y], xmm1
-        }
-        v22 = &colorLtGrey;
-        __asm { vmovaps [rsp+0A8h+var_58], xmm8 }
+        v10 = (float)(value * 13.0) + y;
+        y = v10;
+        v11 = &colorLtGrey;
         if ( nodes->type == BT_NODE_TYPE_ACTION )
         {
-          v23 = &colorLtCyan;
+          v12 = &colorLtCyan;
           if ( !treeInstance->instanceData[0].m_NodeData.action.m_bRunning )
-            v23 = &colorLtGrey;
-          v22 = v23;
+            v12 = &colorLtGrey;
+          v11 = v12;
         }
-        __asm
-        {
-          vmovss  xmm8, cs:__real@43480000
-          vmovss  xmm0, [rsp+0A8h+columnX]; x
-          vaddss  xmm1, xmm1, xmm8; y
-          vmovaps xmm3, xmm7; scale
-        }
-        G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, v22, *(float *)&_XMM3, nodes->name);
+        G_Main_AddDebugString2D(columnX, v10 + 200.0, v11, value, nodes->name);
         if ( ++lineNumber > 35 )
         {
-          __asm
-          {
-            vaddss  xmm1, xmm9, [rsp+0A8h+columnX]
-            vmovss  [rsp+0A8h+columnX], xmm1
-            vmovss  [rsp+0A8h+y], xmm6
-          }
+          columnX = (float)(value * 220.0) + columnX;
+          y = 0.0;
           lineNumber = 0;
         }
         if ( nodes->type != BT_NODE_TYPE_ACTION )
         {
           initFn = nodes->data.actionData.initFn;
-          v30 = initFn + nodes->data.actionData.processFn;
-          if ( initFn < v30 )
-          {
-            __asm { vmovss  xmm6, cs:__real@41880000 }
-            do
-            {
-              __asm
-              {
-                vmovss  [rsp+0A8h+var_70], xmm7
-                vmovss  [rsp+0A8h+columnY], xmm8
-                vmovaps xmm2, xmm6; x
-              }
-              AI_BT_DebugRenderNode(initFn++, treeInstance, *(const float *)&_XMM2, &y, &columnX, columnY, &lineNumber, v38);
-            }
-            while ( initFn < v30 );
-          }
+          for ( i = initFn + nodes->data.actionData.processFn; initFn < i; ++initFn )
+            AI_BT_DebugRenderNode(initFn, treeInstance, 17.0, &y, &columnX, 200.0, &lineNumber, value);
         }
-        __asm { vmovaps xmm8, [rsp+0A8h+var_58] }
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+0A8h+var_48]
-        vmovaps xmm6, [rsp+0A8h+var_38]
-        vmovaps xmm9, [rsp+0A8h+var_68]
       }
     }
   }
@@ -1291,108 +1237,51 @@ LABEL_10:
 AI_BT_DebugRenderNode
 ==============
 */
-
-void __fastcall AI_BT_DebugRenderNode(const unsigned int nodeIndex, const AI_BT_TreeAssetInstance *treeInstance, double x, float *y, float *columnX, const float columnY, int *lineNumber, const float scale)
+void AI_BT_DebugRenderNode(const unsigned int nodeIndex, const AI_BT_TreeAssetInstance *treeInstance, const float x, float *y, float *columnX, const float columnY, int *lineNumber, const float scale)
 {
-  __int64 v14; 
-  BehaviorTreeNode *v19; 
-  bool v22; 
-  const vec4_t *v23; 
-  vec4_t *v24; 
+  __int64 v10; 
+  BehaviorTreeNode *v11; 
+  float v12; 
+  const vec4_t *v13; 
+  vec4_t *v14; 
   unsigned int initFn; 
-  unsigned int v31; 
-  float v39; 
-  float v40; 
-  char v45; 
+  unsigned int i; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  _R15 = y;
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps [rsp+98h+var_58], xmm9
-  }
-  v14 = nodeIndex;
-  __asm { vmovaps xmm9, xmm2 }
+  v10 = nodeIndex;
   if ( !treeInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1435, ASSERT_TYPE_ASSERT, "(treeInstance)", (const char *)&queryFormat, "treeInstance") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1436, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1436, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  _RSI = columnX;
   if ( !columnX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1437, ASSERT_TYPE_ASSERT, "(columnX)", (const char *)&queryFormat, "columnX") )
     __debugbreak();
   if ( !lineNumber && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_tree_asset.cpp", 1438, ASSERT_TYPE_ASSERT, "(lineNumber)", (const char *)&queryFormat, "lineNumber") )
     __debugbreak();
-  __asm
+  v11 = &treeInstance->tree->nodes[v10];
+  if ( treeInstance->instanceData[v10].m_tickedThisFrame )
   {
-    vmovss  xmm6, [rsp+98h+scale]
-    vmulss  xmm7, xmm6, cs:__real@435c0000
-  }
-  v19 = &treeInstance->tree->nodes[v14];
-  if ( treeInstance->instanceData[v14].m_tickedThisFrame )
-  {
-    __asm
+    v12 = (float)(scale * 13.0) + *y;
+    *y = v12;
+    v13 = &colorLtGrey;
+    if ( v11->type == BT_NODE_TYPE_ACTION )
     {
-      vmulss  xmm0, xmm6, cs:__real@41500000
-      vaddss  xmm1, xmm0, dword ptr [r15]
-      vmovss  dword ptr [r15], xmm1
+      v14 = &colorLtCyan;
+      if ( !treeInstance->instanceData[v10].m_NodeData.action.m_bRunning )
+        v14 = &colorLtGrey;
+      v13 = v14;
     }
-    v22 = v19->type == BT_NODE_TYPE_ACTION;
-    v23 = &colorLtGrey;
-    __asm { vmovaps [rsp+98h+var_48], xmm8 }
-    if ( v22 )
-    {
-      v24 = &colorLtCyan;
-      if ( !treeInstance->instanceData[v14].m_NodeData.action.m_bRunning )
-        v24 = &colorLtGrey;
-      v23 = v24;
-    }
-    __asm
-    {
-      vmovss  xmm8, [rsp+98h+columnY]
-      vaddss  xmm0, xmm9, dword ptr [rsi]; x
-      vaddss  xmm1, xmm1, xmm8; y
-      vmovaps xmm3, xmm6; scale
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, v23, *(float *)&_XMM3, v19->name);
+    G_Main_AddDebugString2D(x + *columnX, v12 + columnY, v13, scale, v11->name);
     if ( ++*lineNumber > 35 )
     {
-      __asm
-      {
-        vaddss  xmm0, xmm7, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm0
-      }
+      *columnX = (float)(scale * 220.0) + *columnX;
       *lineNumber = 0;
-      *_R15 = 0.0;
+      *y = 0.0;
     }
-    if ( v19->type != BT_NODE_TYPE_ACTION )
+    if ( v11->type != BT_NODE_TYPE_ACTION )
     {
-      initFn = v19->data.actionData.initFn;
-      v31 = initFn + v19->data.actionData.processFn;
-      if ( initFn < v31 )
-      {
-        __asm { vaddss  xmm7, xmm9, cs:__real@41880000 }
-        do
-        {
-          __asm
-          {
-            vmovss  [rsp+98h+var_60], xmm6
-            vmovss  [rsp+98h+var_70], xmm8
-            vmovaps xmm2, xmm7; x
-          }
-          AI_BT_DebugRenderNode(initFn++, treeInstance, *(const float *)&_XMM2, _R15, columnX, v39, lineNumber, v40);
-        }
-        while ( initFn < v31 );
-      }
+      initFn = v11->data.actionData.initFn;
+      for ( i = initFn + v11->data.actionData.processFn; initFn < i; ++initFn )
+        AI_BT_DebugRenderNode(initFn, treeInstance, x + 17.0, y, columnX, columnY, lineNumber, scale);
     }
-    __asm { vmovaps xmm8, [rsp+98h+var_48] }
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+98h+var_38]
   }
 }
 

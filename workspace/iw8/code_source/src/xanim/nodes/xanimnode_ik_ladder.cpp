@@ -93,98 +93,63 @@ XAnimNode_IKLadder_Update
 */
 void XAnimNode_IKLadder_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex, float dtime)
 {
-  refdef_t *v12; 
-  unsigned int v14; 
-  unsigned int v15; 
+  refdef_t *v8; 
+  int v9; 
+  int v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  double v15; 
 
-  _RBX = (char *)nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 79, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 80, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 81, ASSERT_TYPE_ASSERT, "(animInfo)", (const char *)&queryFormat, "animInfo") )
     __debugbreak();
-  v12 = g_activeRefDef;
+  v8 = g_activeRefDef;
   if ( g_activeRefDef )
   {
-    *((_DWORD *)_RBX + 14) = LODWORD(g_activeRefDef->viewOffset.v[0]);
-    *((_DWORD *)_RBX + 15) = LODWORD(v12->viewOffset.v[1]);
-    *((_DWORD *)_RBX + 16) = LODWORD(v12->viewOffset.v[2]);
-    AxisToAngles(&g_activeRefDef->view.axis, (vec3_t *)(_RBX + 68));
-    _RAX = g_activeRefDef;
-    __asm { vmovss  xmm0, dword ptr [rax+10h]; X }
-    *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@42e52ee0
-      vmovss  dword ptr [rbx+90h], xmm1
-    }
-    *((_DWORD *)_RBX + 42) += g_activeRefDef->frameTime;
+    *((_DWORD *)nodeData + 14) = LODWORD(g_activeRefDef->viewOffset.v[0]);
+    *((_DWORD *)nodeData + 15) = LODWORD(v8->viewOffset.v[1]);
+    *((_DWORD *)nodeData + 16) = LODWORD(v8->viewOffset.v[2]);
+    AxisToAngles(&g_activeRefDef->view.axis, (vec3_t *)((char *)nodeData + 68));
+    *((float *)nodeData + 36) = atanf_0(g_activeRefDef->view.fov.tanHalfFovX) * 114.59155;
+    *((_DWORD *)nodeData + 42) += g_activeRefDef->frameTime;
   }
-  v14 = *((_DWORD *)_RBX + 38);
-  v15 = *((_DWORD *)_RBX + 20);
-  __asm
+  v9 = *((_DWORD *)nodeData + 38);
+  v10 = *((_DWORD *)nodeData + 20);
+  if ( v9 != v10 )
   {
-    vmovss  xmm5, cs:__real@3f800000
-    vxorps  xmm4, xmm4, xmm4
-  }
-  if ( v14 != v15 )
-  {
-    __asm
+    v11 = *((float *)nodeData + 21);
+    if ( v11 > 0.0 && v9 )
     {
-      vmovss  xmm1, dword ptr [rbx+54h]
-      vcomiss xmm1, xmm4
-    }
-    if ( v14 > v15 && v14 )
-    {
-      if ( v15 == 1 || v15 == 4 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm5, dword ptr [rbx+0A0h]
-          vdivss  xmm2, xmm0, xmm1
-        }
-      }
+      if ( v10 == 1 || v10 == 4 )
+        v12 = (float)(1.0 - *((float *)nodeData + 40)) / v11;
       else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+0A0h]
-          vdivss  xmm1, xmm0, xmm1
-          vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-        }
-      }
+        LODWORD(v12) = COERCE_UNSIGNED_INT(*((float *)nodeData + 40) / v11) ^ _xmm;
     }
     else
     {
-      if ( v15 == 1 || v15 == 4 )
-        __asm { vmovaps xmm0, xmm5 }
+      if ( v10 == 1 || v10 == 4 )
+        v13 = FLOAT_1_0;
       else
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-      __asm
-      {
-        vmovss  dword ptr [rbx+0A0h], xmm0
-        vxorps  xmm2, xmm2, xmm2
-      }
+        v13 = 0.0;
+      *((float *)nodeData + 40) = v13;
+      v12 = 0.0;
     }
-    __asm { vmovss  dword ptr [rbx+0A4h], xmm2 }
-    *((_DWORD *)_RBX + 37) = v14;
-    *((_DWORD *)_RBX + 38) = v15;
-    *((_DWORD *)_RBX + 24) = *((_DWORD *)_RBX + 42);
-    if ( v15 == 4 )
-      *((_QWORD *)_RBX + 17) = 0i64;
+    *((float *)nodeData + 41) = v12;
+    *((_DWORD *)nodeData + 37) = v9;
+    *((_DWORD *)nodeData + 38) = v10;
+    *((_DWORD *)nodeData + 24) = *((_DWORD *)nodeData + 42);
+    if ( v10 == 4 )
+      *((_QWORD *)nodeData + 17) = 0i64;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+dtime]
-    vmulss  xmm3, xmm0, dword ptr [rbx+0A4h]
-    vaddss  xmm0, xmm3, dword ptr [rbx+0A0h]; val
-    vmovaps xmm2, xmm5; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovss  dword ptr [rbx+0A0h], xmm0
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rbx+0A0h], xmm0 }
+  v14 = (float)(dtime * *((float *)nodeData + 41)) + *((float *)nodeData + 40);
+  *((float *)nodeData + 40) = v14;
+  v15 = I_fclamp(v14, 0.0, 1.0);
+  *((float *)nodeData + 40) = *(float *)&v15;
 }
 
 /*
@@ -194,99 +159,157 @@ XAnimNode_IKLadder_Calc
 */
 void XAnimNode_IKLadder_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
   XAnimIKCalcInfo *ikCalcInfo; 
-  bool v22; 
-  int v23; 
-  __int64 v24; 
-  unsigned int v25; 
+  bool v15; 
+  int v16; 
+  __int64 v17; 
+  unsigned int v18; 
   XAnimIKDObjData *dObjData; 
-  _DWORD *v27; 
+  _DWORD *v20; 
   unsigned __int8 targetBoneIndex; 
   unsigned int i; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
+  __m128 v; 
   XAnimTree *tree; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
   unsigned __int16 children; 
-  const XAnimInfo *v55; 
-  int v56; 
-  int v110; 
-  unsigned __int8 v134; 
-  char v174; 
-  char v175; 
-  unsigned __int8 *v217; 
-  unsigned __int8 v218; 
+  const XAnimInfo *v38; 
+  int v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  int v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  unsigned __int8 v56; 
+  __m128 v58; 
+  __m128 v62; 
+  float v65; 
+  __m128 v67; 
+  __m128 v70; 
+  __m128 v71; 
+  __m128 v72; 
+  __m128 v73; 
+  __m128 v74; 
+  __m128 v75; 
+  __m128 v76; 
+  __m128 v77; 
+  __m128 v78; 
+  double v79; 
+  float v80; 
+  __m128 v81; 
+  __m128 v82; 
+  double v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __int128 v86; 
+  float v87; 
+  float v88; 
+  double v89; 
+  unsigned __int8 *v91; 
+  unsigned __int8 v92; 
+  float v93; 
+  __m128 v95; 
+  vec4_t v98; 
+  __m128 v99; 
+  __m128 v100; 
+  __m128 v101; 
+  __m128 v104; 
+  __m128 v105; 
+  __m128 v106; 
+  __m128 v107; 
+  __m128 v108; 
+  __m128 v109; 
+  __m128 v110; 
+  __m128 v114; 
+  double Weight; 
+  float v124; 
+  __m128 v126; 
   const float4 *fmt; 
   const float4 *fmta; 
   const float4 *fmtb; 
-  XAnimCalcBuffer *v309; 
-  const float4 *v310; 
-  XAnimCalcBuffer *v311; 
-  float v312; 
-  float v313; 
-  float v314; 
-  char v315; 
+  XAnimCalcBuffer *v137; 
+  const float4 *v138; 
+  XAnimCalcBuffer *v139; 
+  char v140; 
+  float buffer; 
   int modelIndex[2]; 
   XAnimInfo *info; 
-  __int128 v322; 
+  __m128 info_8; 
+  __m128 v145; 
   vec3_t angles; 
   vec3_t outAnimWeights; 
-  __int128 v325; 
-  float4 v326; 
+  __m128 v148; 
+  float4 v149; 
   tmat33_t<vec3_t> mat; 
   tmat33_t<vec3_t> axis; 
   float4 outModelQuat; 
-  float4 v330; 
-  float4 v331; 
+  float4 v153; 
+  float4 v154; 
   float4 outModelTranslation; 
   vec4_t quat; 
-  float4 v334; 
+  float4 v157; 
   vec4_t out; 
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > otherBitSet; 
-  void *retaddr; 
+  __int128 v160; 
+  __int128 v161; 
+  __int128 v162; 
+  __int128 v163; 
 
-  _R11 = &retaddr;
   ikCalcInfo = animCalcInfo->ikCalcInfo;
   info = (XAnimInfo *)animInfo;
   *(_QWORD *)outAnimWeights.v = nodeData;
   if ( ikCalcInfo->dObjData && ikCalcInfo->ikData )
   {
-    v22 = *((_DWORD *)nodeData + 22) < 2;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-58h], xmm6
-      vmovaps xmmword ptr [r11-68h], xmm7
-      vmovaps xmmword ptr [r11-78h], xmm8
-      vmovaps xmmword ptr [r11-88h], xmm9
-      vmovaps xmmword ptr [r11-98h], xmm10
-      vmovaps xmmword ptr [r11-0A8h], xmm11
-      vmovaps xmmword ptr [r11-0B8h], xmm12
-      vmovaps xmmword ptr [r11-0C8h], xmm13
-      vmovaps xmmword ptr [r11-0D8h], xmm14
-      vmovaps xmmword ptr [r11-0E8h], xmm15
-    }
-    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 346, ASSERT_TYPE_ASSERT, "(node->m_ladderHand < XANIM_IK_NUM_HAND_TYPES)", (const char *)&queryFormat, "node->m_ladderHand < XANIM_IK_NUM_HAND_TYPES") )
+    v15 = *((_DWORD *)nodeData + 22) < 2;
+    v163 = v7;
+    v162 = v8;
+    v161 = v9;
+    v160 = v10;
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 346, ASSERT_TYPE_ASSERT, "(node->m_ladderHand < XANIM_IK_NUM_HAND_TYPES)", (const char *)&queryFormat, "node->m_ladderHand < XANIM_IK_NUM_HAND_TYPES") )
       __debugbreak();
-    v23 = *((_DWORD *)nodeData + 22);
-    v24 = v23 != 1;
-    *(_QWORD *)&v325 = v23 != 1;
-    v25 = 0;
+    v16 = *((_DWORD *)nodeData + 22);
+    v17 = v16 != 1;
+    v148.m128_u64[0] = v16 != 1;
+    v18 = 0;
     dObjData = animCalcInfo->ikCalcInfo->dObjData;
-    v27 = (char *)nodeData + 100;
-    while ( !*v27 )
+    v20 = (char *)nodeData + 100;
+    while ( !*v20 )
     {
-      ++v25;
-      ++v27;
-      if ( v25 >= 8 )
+      ++v18;
+      ++v20;
+      if ( v18 >= 8 )
       {
-        bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 100, dObjData->boneInfo[v24].targetBoneIndex);
-        bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 100, dObjData->boneInfo[v24].thirdBoneIndex);
+        bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 100, dObjData->boneInfo[v17].targetBoneIndex);
+        bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 100, dObjData->boneInfo[v17].thirdBoneIndex);
         DObjCompleteHierarchyBits(obj, (DObjPartBits *)((char *)nodeData + 100));
         break;
       }
     }
-    if ( *((_BYTE *)nodeData + 92) && v23 != 1 && *((_BYTE *)nodeData + 157) == 0xFE )
+    if ( *((_BYTE *)nodeData + 92) && v16 != 1 && *((_BYTE *)nodeData + 157) == 0xFE )
       DObjGetBoneIndexInternal_30(obj, scr_const.tag_weapon, (unsigned __int8 *)nodeData + 157, modelIndex);
-    targetBoneIndex = dObjData->boneInfo[v24].targetBoneIndex;
-    if ( bitarray_base<bitarray<256>>::testBit(&animCalcInfo->ignorePartBits, targetBoneIndex) || (v315 = 0, targetBoneIndex > 0xFDu) )
-      v315 = 1;
+    targetBoneIndex = dObjData->boneInfo[v17].targetBoneIndex;
+    if ( bitarray_base<bitarray<256>>::testBit(&animCalcInfo->ignorePartBits, targetBoneIndex) || (v140 = 0, targetBoneIndex > 0xFDu) )
+      v140 = 1;
     if ( *((_BYTE *)nodeData + 92) && !*((_DWORD *)nodeData + 22) && *((_BYTE *)nodeData + 157) != 0xFE )
       targetBoneIndex = *((_BYTE *)nodeData + 157);
     bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&otherBitSet, animCalcInfo->partBits);
@@ -299,505 +322,274 @@ void XAnimNode_IKLadder_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, co
         vlddqu  xmm6, xmmword ptr [r12+rsi]
         vlddqu  xmm0, xmmword ptr [rsi]
         vpor    xmm6, xmm0, xmm6
-        vmovdqu xmmword ptr [rsi], xmm6
       }
+      *(_OWORD *)_RSI->array = _XMM6;
       _RSI = (DObjPartBits *)((char *)_RSI + 16);
     }
-    __asm
-    {
-      vmovss  xmm10, [rbp+190h+weightScale]
-      vmovaps xmm3, xmm10; weightScale
-    }
-    XAnimCalcDefaultBlendNode(animCalcInfo, obj, info, *(float *)&_XMM3, bNormQuat, destBuffer, LINEAR);
+    XAnimCalcDefaultBlendNode(animCalcInfo, obj, info, weightScale, bNormQuat, destBuffer, LINEAR);
     bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(animCalcInfo->partBits, &otherBitSet);
-    _RBX = *(_QWORD *)outAnimWeights.v;
-    __asm
+    v28 = *(_QWORD *)outAnimWeights.v;
+    outModelTranslation.v = 0i64;
+    outModelQuat.v = 0i64;
+    v29 = 0.0;
+    v30 = 0.0;
+    if ( !v140 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm4, xmm4, xmm4
-      vmovss  dword ptr [rsp+290h+var_250+4], xmm4
-      vmovss  dword ptr [rsp+290h+buffer], xmm0
-      vmovups xmmword ptr [rbp+190h+outModelTranslation.v], xmm0
-      vmovups xmmword ptr [rbp+190h+outModelQuat.v], xmm0
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm14, xmm14, xmm14
-      vxorps  xmm12, xmm12, xmm12
-      vxorps  xmm13, xmm13, xmm13
-      vxorps  xmm15, xmm15, xmm15
-    }
-    if ( !v315 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rbp+190h+angles], xmm8
-        vmovss  dword ptr [rbp+190h+angles+4], xmm8
-        vmovss  dword ptr [rbp+190h+angles+8], xmm8
-      }
+      angles.v[0] = 0.0;
+      angles.v[1] = 0.0;
+      angles.v[2] = 0.0;
       XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, targetBoneIndex, &outModelQuat, &outModelTranslation);
-      __asm { vmovups xmm0, xmmword ptr [rbp+190h+outModelTranslation.v] }
+      v = outModelTranslation.v;
       tree = obj->tree;
       *(_QWORD *)modelIndex = 0i64;
       *(_QWORD *)outAnimWeights.v = 0i64;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rbp+190h+outModelQuat.v]
-        vaddss  xmm14, xmm0, dword ptr [rbx+38h]
-        vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-        vaddss  xmm9, xmm2, dword ptr [rbx+40h]
-        vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-        vaddss  xmm15, xmm1, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rsp+290h+buffer], xmm9
-        vmovups xmmword ptr [rbp+190h+var_1E0.v], xmm3
-      }
+      v34 = outModelTranslation.v.m128_f32[0] + *(float *)(v28 + 56);
+      v33 = v34;
+      v35 = _mm_shuffle_ps(v, v, 170).m128_f32[0] + *(float *)(v28 + 64);
+      v36 = _mm_shuffle_ps(v, v, 85).m128_f32[0] + *(float *)(v28 + 60);
+      buffer = v35;
+      v149.v = outModelQuat.v;
       if ( tree && (children = tree->children) != 0 )
       {
-        v55 = GetAnimInfo(children);
-        BG_CalcFingerPoseWeights(v55, (float *)modelIndex, outAnimWeights.v);
-        v56 = v325;
-        _RAX = (unsigned int)v325;
-        __asm { vmovss  xmm7, [rsp+rax*4+290h+modelIndex] }
+        v38 = GetAnimInfo(children);
+        BG_CalcFingerPoseWeights(v38, (float *)modelIndex, outAnimWeights.v);
+        v39 = v148.m128_i32[0];
+        v40 = *(float *)&modelIndex[v148.m128_u32[0]];
       }
       else
       {
-        v56 = v325;
-        __asm { vxorps  xmm7, xmm7, xmm7 }
+        v39 = v148.m128_i32[0];
+        v40 = 0.0;
       }
-      AnglesToAxis((const vec3_t *)(_RBX + 36), &axis);
-      __asm
+      AnglesToAxis((const vec3_t *)(v28 + 36), &axis);
+      v42 = (float)((float)((float)(v34 - *(float *)(v28 + 12)) * axis.m[1].v[0]) + (float)((float)(v36 - *(float *)(v28 + 16)) * axis.m[1].v[1])) + (float)((float)(v35 - *(float *)(v28 + 20)) * axis.m[1].v[2]);
+      v41 = v42;
+      if ( *(_DWORD *)(v28 + 88) == 1 )
       {
-        vsubss  xmm0, xmm14, dword ptr [rbx+0Ch]
-        vmovss  xmm11, dword ptr [rbp+190h+axis+0Ch]
-        vsubss  xmm1, xmm15, dword ptr [rbx+10h]
-        vmovss  xmm12, dword ptr [rbp+190h+axis+10h]
-        vmovss  xmm13, dword ptr [rbp+190h+axis+14h]
-        vmulss  xmm2, xmm0, xmm11
-        vmulss  xmm0, xmm1, xmm12
-        vmovss  xmm1, dword ptr [rbx+4]
-        vaddss  xmm3, xmm2, xmm0
-        vsubss  xmm2, xmm9, dword ptr [rbx+14h]
-        vmulss  xmm0, xmm2, xmm13
-        vsubss  xmm2, xmm1, dword ptr [rbx+10h]
-        vaddss  xmm9, xmm3, xmm0
-        vmovss  xmm0, dword ptr [rbx]
-        vsubss  xmm1, xmm0, dword ptr [rbx+0Ch]
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmulss  xmm3, xmm2, xmm12
-        vmulss  xmm2, xmm1, xmm11
-        vsubss  xmm1, xmm0, dword ptr [rbx+14h]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm2, xmm1, xmm13
-        vaddss  xmm3, xmm4, xmm2
-      }
-      if ( *(_DWORD *)(_RBX + 88) == 1 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm9, cs:__real@c0f3fe5d
-          vmovss  xmm1, cs:__real@bf000000
-        }
+        v43 = v42 - -7.6248002;
+        v44 = FLOAT_N0_5;
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm0, xmm9, cs:__real@40f3fe5d
-          vmovss  xmm1, cs:__real@3f000000
-        }
+        v43 = v42 - 7.6248002;
+        v44 = FLOAT_0_5;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm1, dword ptr [rbx+30h]
-        vsubss  xmm2, xmm0, xmm3
-        vmovss  xmm3, cs:__real@3f800000
-      }
-      if ( *(_BYTE *)(_RBX + 92) )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+0A0h]
-          vaddss  xmm0, xmm4, xmm2
-          vmulss  xmm2, xmm0, xmm1
-          vsubss  xmm1, xmm3, xmm1
-          vmulss  xmm0, xmm1, xmm9
-          vaddss  xmm4, xmm2, xmm0
-        }
-      }
+      v45 = v43 - (float)((float)((float)((float)(*(float *)(v28 + 4) - *(float *)(v28 + 16)) * axis.m[1].v[1]) + (float)((float)(*(float *)v28 - *(float *)(v28 + 12)) * axis.m[1].v[0])) + (float)((float)(*(float *)(v28 + 8) - *(float *)(v28 + 20)) * axis.m[1].v[2]));
+      if ( *(_BYTE *)(v28 + 92) )
+        v46 = (float)((float)((float)(v44 * *(float *)(v28 + 48)) + v45) * *(float *)(v28 + 160)) + (float)((float)(1.0 - *(float *)(v28 + 160)) * v42);
       else
+        v46 = (float)((float)(1.0 - v40) * v45) + (float)(v44 * *(float *)(v28 + 48));
+      v29 = (float)(axis.m[1].v[0] * (float)(v46 - v42)) + v33;
+      v47 = (float)(axis.m[1].v[1] * (float)(v46 - v42)) + v36;
+      v48 = (float)(axis.m[1].v[2] * (float)(v46 - v42)) + buffer;
+      outAnimWeights.v[0] = v29;
+      outAnimWeights.v[1] = (float)(axis.m[1].v[1] * (float)(v46 - v41)) + v36;
+      outAnimWeights.v[2] = (float)(axis.m[1].v[2] * (float)(v46 - v41)) + buffer;
+      XAnimNode_IKLadder_GetBestRungTarget(&outAnimWeights, (const vec4_t *)&v149, &angles, v39, (XAnimNode_IKLadder *)v28);
+      v49 = angles.v[2];
+      v50 = angles.v[1];
+      if ( *(_DWORD *)(v28 + 148) == 4 && *(_DWORD *)(v28 + 152) == 1 && (v51 = *(_DWORD *)(v28 + 168) - *(_DWORD *)(v28 + 96), v51 <= LADDER_SLIDE_TO_CLIMB_IK_END) )
       {
-        __asm
+        v52 = angles.v[0];
+        if ( v51 < LADDER_SLIDE_TO_CLIMB_IK_BEGIN )
         {
-          vsubss  xmm0, xmm3, xmm7
-          vmulss  xmm1, xmm0, xmm2
-          vaddss  xmm4, xmm1, xmm4
-        }
-      }
-      __asm
-      {
-        vsubss  xmm1, xmm4, xmm9
-        vmulss  xmm0, xmm11, xmm1
-        vaddss  xmm14, xmm0, xmm14
-        vmulss  xmm0, xmm12, xmm1
-        vaddss  xmm12, xmm0, xmm15
-        vmulss  xmm0, xmm13, xmm1
-        vaddss  xmm13, xmm0, dword ptr [rsp+290h+buffer]
-        vmovups xmm0, xmmword ptr [rbp+190h+var_1E0.v]
-        vmovdqa xmmword ptr [rbp+190h+var_1E0.v], xmm0
-        vmovss  [rbp+190h+outAnimWeights], xmm14
-        vmovss  [rbp+190h+outAnimWeights+4], xmm12
-        vmovss  [rbp+190h+var_1F8], xmm13
-      }
-      XAnimNode_IKLadder_GetBestRungTarget(&outAnimWeights, (const vec4_t *)&v326, &angles, v56, (XAnimNode_IKLadder *)_RBX);
-      __asm
-      {
-        vmovss  xmm9, dword ptr [rbp+190h+angles+8]
-        vmovss  xmm11, dword ptr [rbp+190h+angles+4]
-        vmovaps xmm2, xmm14
-        vmovaps xmm3, xmm12
-        vmovaps xmm4, xmm12
-        vmovaps xmm5, xmm13
-        vmovaps xmm6, xmm13
-      }
-      if ( *(_DWORD *)(_RBX + 148) == 4 && *(_DWORD *)(_RBX + 152) == 1 && (v110 = *(_DWORD *)(_RBX + 168) - *(_DWORD *)(_RBX + 96), v110 <= LADDER_SLIDE_TO_CLIMB_IK_END) )
-      {
-        __asm { vmovss  xmm5, dword ptr [rbp+190h+angles] }
-        if ( v110 < LADDER_SLIDE_TO_CLIMB_IK_BEGIN )
-        {
-          __asm
-          {
-            vmovaps xmm15, xmm14
-            vmovaps xmm4, xmm12
-            vmovaps xmm0, xmm13
-          }
+          v30 = v29;
+          v55 = v47;
+          v54 = v48;
         }
         else
         {
-          _EAX = v110 - LADDER_SLIDE_TO_CLIMB_IK_BEGIN;
-          _ECX = LADDER_SLIDE_TO_CLIMB_IK_END - LADDER_SLIDE_TO_CLIMB_IK_BEGIN;
-          __asm
-          {
-            vmovd   xmm0, ecx
-            vcvtdq2ps xmm0, xmm0
-            vmovd   xmm1, eax
-            vcvtdq2ps xmm1, xmm1
-            vdivss  xmm3, xmm1, xmm0
-            vsubss  xmm1, xmm5, xmm14
-            vmulss  xmm2, xmm1, xmm3
-            vsubss  xmm0, xmm11, xmm12
-            vmulss  xmm1, xmm0, xmm3
-            vaddss  xmm15, xmm2, xmm14
-            vsubss  xmm2, xmm9, xmm13
-            vmulss  xmm0, xmm2, xmm3
-            vaddss  xmm0, xmm0, xmm13
-            vaddss  xmm4, xmm1, xmm12
-          }
+          v53 = _mm_cvtepi32_ps((__m128i)(unsigned int)(v51 - LADDER_SLIDE_TO_CLIMB_IK_BEGIN)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)(LADDER_SLIDE_TO_CLIMB_IK_END - LADDER_SLIDE_TO_CLIMB_IK_BEGIN)).m128_f32[0];
+          v30 = (float)((float)(angles.v[0] - v29) * v53) + v29;
+          v54 = (float)((float)(angles.v[2] - v48) * v53) + v48;
+          v55 = (float)((float)(angles.v[1] - v47) * v53) + v47;
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+190h+angles]
-          vsubss  xmm0, xmm0, xmm2
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm15, xmm1, xmm2
-          vsubss  xmm2, xmm11, xmm3
-          vmulss  xmm0, xmm2, xmm7
-          vsubss  xmm1, xmm9, xmm5
-          vmovss  xmm5, dword ptr [rbp+190h+angles]
-          vmulss  xmm2, xmm1, xmm7
-          vaddss  xmm4, xmm0, xmm4
-          vaddss  xmm0, xmm2, xmm6
-        }
+        v30 = (float)((float)(angles.v[0] - v29) * v40) + v29;
+        v52 = angles.v[0];
+        v55 = (float)((float)(angles.v[1] - v47) * v40) + v47;
+        v54 = (float)((float)(angles.v[2] - v48) * v40) + v48;
       }
-      *(_DWORD *)(_RBX + 208) = 0;
-      __asm
-      {
-        vmovss  dword ptr [rbx+0ACh], xmm14
-        vmovss  dword ptr [rbx+0B0h], xmm12
-        vmovss  dword ptr [rbx+0B4h], xmm13
-        vmovss  dword ptr [rbx+0C4h], xmm5
-        vmovss  dword ptr [rbx+0C8h], xmm11
-        vmovss  dword ptr [rbx+0CCh], xmm9
-        vmovss  dword ptr [rbx+0B8h], xmm15
-        vmovss  dword ptr [rbx+0BCh], xmm4
-        vmovss  dword ptr [rbx+0C0h], xmm0
-        vmovss  dword ptr [rsp+290h+var_250+4], xmm4
-        vmovss  dword ptr [rsp+290h+buffer], xmm0
-      }
+      *(_DWORD *)(v28 + 208) = 0;
+      *(float *)(v28 + 172) = v29;
+      *(float *)(v28 + 176) = v47;
+      *(float *)(v28 + 180) = v48;
+      *(float *)(v28 + 196) = v52;
+      *(float *)(v28 + 200) = v50;
+      *(float *)(v28 + 204) = v49;
+      *(float *)(v28 + 184) = v30;
+      *(float *)(v28 + 188) = v55;
+      *(float *)(v28 + 192) = v54;
     }
-    v134 = *(_BYTE *)(_RBX + 156);
-    if ( v134 == 0xFE )
+    v56 = *(_BYTE *)(v28 + 156);
+    if ( v56 == 0xFE )
     {
-      DObjGetBoneIndexInternal_30(obj, scr_const.j_spineupper, (unsigned __int8 *)(_RBX + 156), modelIndex);
-      v134 = *(_BYTE *)(_RBX + 156);
+      DObjGetBoneIndexInternal_30(obj, scr_const.j_spineupper, (unsigned __int8 *)(v28 + 156), modelIndex);
+      v56 = *(_BYTE *)(v28 + 156);
     }
-    __asm { vmovaps xmm9, cs:__xmm@80000000800000008000000080000000 }
-    if ( v134 != 0xFF )
+    if ( v56 != 0xFF )
     {
-      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v134, &v326, &v334);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+190h+var_1E0.v]
-        vmovups xmmword ptr [rbp+190h+quat], xmm0
-      }
+      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v56, &v149, &v157);
+      quat = (vec4_t)v149.v;
       QuatToAxis(&quat, &axis);
+      v145.m128_f32[0] = axis.m[0].v[0];
+      v145.m128_f32[2] = axis.m[0].v[2];
+      v148.m128_i32[3] = 0;
+      v58 = v148;
+      v58.m128_f32[0] = axis.m[1].v[0];
+      _XMM3 = v58;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+190h+axis]
-        vmovss  xmm1, dword ptr [rbp+190h+axis+4]
-        vmovss  dword ptr [rsp+290h+var_228+8], xmm0
-        vmovss  xmm0, dword ptr [rbp+190h+axis+8]
-        vmovss  dword ptr [rsp+290h+var_228+10h], xmm0
-        vmovss  xmm0, dword ptr [rbp+190h+axis+0Ch]
-      }
-      HIDWORD(v325) = 0;
-      __asm
-      {
-        vmovups xmm3, [rbp+190h+var_1F0]
-        vmovss  xmm3, xmm3, xmm0
-        vmovss  xmm0, dword ptr [rbp+190h+axis+18h]
         vinsertps xmm3, xmm3, dword ptr [rbp+190h+axis+10h], 190h+outModelQuat
         vinsertps xmm3, xmm3, dword ptr [rbp+190h+axis+14h], 190h+var_170
-        vmovss  dword ptr [rsp+290h+var_228+0Ch], xmm1
       }
-      HIDWORD(v322) = 0;
+      v145.m128_f32[1] = axis.m[0].v[1];
+      v145.m128_i32[3] = 0;
+      v62 = v145;
+      v62.m128_f32[0] = axis.m[2].v[0];
+      _XMM7 = v62;
       __asm
       {
-        vmovups xmm7, xmmword ptr [rsp+290h+var_228+8]
-        vmovss  xmm7, xmm7, xmm0
         vinsertps xmm7, xmm7, dword ptr [rbp+190h+axis+1Ch], 190h+outModelQuat
         vinsertps xmm7, xmm7, dword ptr [rbp+190h+axis+20h], 190h+var_170
-        vmovups xmmword ptr [rsp+290h+var_228+8], xmm7
-        vmovups [rbp+190h+var_1F0], xmm3
       }
+      v145 = _XMM7;
+      v148 = _XMM3;
       QuatToAngles(&quat, &outAnimWeights);
-      __asm { vmovss  xmm0, dword ptr [rbx+38h] }
-      HIDWORD(v322) = 0;
+      v65 = *(float *)(v28 + 56);
+      v145.m128_i32[3] = 0;
+      v67 = v145;
+      v67.m128_f32[0] = v65;
+      _XMM3 = v67;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+290h+var_228+8]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rbx+3Ch], 10h
         vinsertps xmm3, xmm3, dword ptr [rbx+40h], 20h ; ' '
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vaddps  xmm1, xmm3, xmmword ptr [rbp+190h+var_130.v]
-        vaddss  xmm0, xmm0, cs:__real@43340000; angle
-        vmovups xmmword ptr [rsp+290h+info+8], xmm1
-        vmovups xmmword ptr [rsp+290h+var_228+8], xmm3
       }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm
+      v67.m128_f32[0] = *(float *)(v28 + 40) + 180.0;
+      info_8 = _mm128_add_ps(_XMM3, v157.v);
+      v145 = _XMM3;
+      AngleNormalize360(v67.m128_f32[0]);
+      v70 = (__m128)*(unsigned int *)(v28 + 72);
+      *(double *)v70.m128_u64 = AngleDelta(v70.m128_f32[0], v67.m128_f32[0]);
+      v71 = v70;
+      modelIndex[0] = *(_DWORD *)(v28 + 160);
+      *(double *)v70.m128_u64 = I_fclamp(v70.m128_f32[0], RIGHT_DIFF_BEGIN, RIGHT_DIFF_END);
+      v72 = v70;
+      v72.m128_f32[0] = (float)((float)(v70.m128_f32[0] - RIGHT_DIFF_BEGIN) / (float)(RIGHT_DIFF_END - RIGHT_DIFF_BEGIN)) * RIGHT_PUSH_DIST;
+      v73 = _mm_shuffle_ps(v72, v72, 0);
+      *(double *)v70.m128_u64 = I_fclamp(v71.m128_f32[0], LEFT_DIFF_END, LEFT_DIFF_BEGIN);
+      v74 = v71;
+      v74.m128_f32[0] = (float)((float)(v70.m128_f32[0] - LEFT_DIFF_BEGIN) / (float)(LEFT_DIFF_END - LEFT_DIFF_BEGIN)) * LEFT_PUSH_DIST;
+      v75 = _mm128_mul_ps(_mm_shuffle_ps((__m128)(*(_OWORD *)&v74 ^ _xmm), (__m128)(*(_OWORD *)&v74 ^ _xmm), 0), _XMM7);
+      v76 = _mm128_mul_ps(_XMM7, v73);
+      v77 = info_8;
+      v78 = _mm128_add_ps(v75, _mm128_add_ps(v76, info_8));
+      if ( COERCE_FLOAT(v71.m128_i32[0] & _xmm) > FORWARD_DIFF_BEGIN )
       {
-        vmovaps xmm1, xmm0; angle2
-        vmovss  xmm0, dword ptr [rbx+48h]; angle1
-      }
-      *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm2, cs:RIGHT_DIFF_END; max
-        vmovss  xmm1, cs:RIGHT_DIFF_BEGIN; min
-        vmovaps xmm11, xmm0
-        vmovss  xmm0, dword ptr [rbx+0A0h]
-        vmovss  [rsp+290h+modelIndex], xmm0
-        vmovaps xmm0, xmm11; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm1, cs:RIGHT_DIFF_END
-        vsubss  xmm2, xmm1, cs:RIGHT_DIFF_BEGIN
-        vsubss  xmm3, xmm0, cs:RIGHT_DIFF_BEGIN
-        vmovss  xmm1, cs:LEFT_DIFF_END; min
-        vdivss  xmm3, xmm3, xmm2
-        vmulss  xmm6, xmm3, cs:RIGHT_PUSH_DIST
-        vmovss  xmm2, cs:LEFT_DIFF_BEGIN; max
-        vmovaps xmm0, xmm11; val
-        vshufps xmm6, xmm6, xmm6, 0
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm2, xmm0, cs:LEFT_DIFF_BEGIN
-        vmovss  xmm0, cs:LEFT_DIFF_END
-        vsubss  xmm1, xmm0, cs:LEFT_DIFF_BEGIN
-        vdivss  xmm2, xmm2, xmm1
-        vmulss  xmm3, xmm2, cs:LEFT_PUSH_DIST
-        vxorps  xmm0, xmm3, xmm9
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm2, xmm0, xmm7
-        vmulps  xmm0, xmm7, xmm6
-        vmovups xmm7, xmmword ptr [rsp+290h+info+8]
-        vaddps  xmm1, xmm0, xmm7
-        vandps  xmm0, xmm11, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vaddps  xmm6, xmm2, xmm1
-        vmovss  xmm1, cs:FORWARD_DIFF_BEGIN; min
-        vcomiss xmm0, xmm1
-      }
-      if ( !(v174 | v175) )
-      {
-        __asm { vcomiss xmm11, xmm8 }
-        if ( v174 | v175 )
+        if ( v71.m128_f32[0] <= 0.0 )
         {
-          __asm
-          {
-            vmovss  xmm0, cs:FORWARD_DIFF_END
-            vxorps  xmm2, xmm1, xmm9; max
-            vxorps  xmm1, xmm0, xmm9; min
-            vmovaps xmm0, xmm11; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  xmm1, cs:FORWARD_DIFF_BEGIN
-            vaddss  xmm2, xmm0, xmm1
-          }
+          v83 = I_fclamp(v71.m128_f32[0], COERCE_FLOAT(LODWORD(FORWARD_DIFF_END) ^ _xmm), COERCE_FLOAT(LODWORD(FORWARD_DIFF_BEGIN) ^ _xmm));
+          v80 = FORWARD_DIFF_BEGIN;
+          v84 = v71;
+          v84.m128_f32[0] = *(float *)&v83 + FORWARD_DIFF_BEGIN;
+          v81 = v84;
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm2, cs:FORWARD_DIFF_END; max
-            vmovaps xmm0, xmm11; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  xmm1, cs:FORWARD_DIFF_BEGIN
-            vsubss  xmm2, xmm0, xmm1
-          }
+          v79 = I_fclamp(v71.m128_f32[0], FORWARD_DIFF_BEGIN, FORWARD_DIFF_END);
+          v80 = FORWARD_DIFF_BEGIN;
+          v82 = v71;
+          v82.m128_f32[0] = *(float *)&v79 - FORWARD_DIFF_BEGIN;
+          v81 = v82;
         }
-        __asm
-        {
-          vmovss  xmm0, cs:FORWARD_DIFF_END
-          vsubss  xmm1, xmm0, xmm1
-          vdivss  xmm2, xmm2, xmm1
-          vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmulss  xmm0, xmm2, cs:FORWARD_PUSH_DIST
-          vxorps  xmm1, xmm0, xmm9
-          vshufps xmm1, xmm1, xmm1, 0
-          vmulps  xmm1, xmm1, [rbp+190h+var_1F0]
-          vaddps  xmm6, xmm1, xmm6
-        }
+        v85 = v81;
+        v85.m128_f32[0] = v81.m128_f32[0] / (float)(FORWARD_DIFF_END - v80);
+        v86 = *(_OWORD *)&v85 & _xmm;
+        *(float *)&v86 = *(float *)&v86 * FORWARD_PUSH_DIST;
+        v78 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)(v86 ^ _xmm), (__m128)(v86 ^ _xmm), 0), v148), v78);
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+24h]
-        vmovss  xmm1, dword ptr [rbx+28h]
-        vmovss  xmm2, dword ptr [rbx+2Ch]
-        vmovss  dword ptr [rbp+190h+angles], xmm0
-        vaddss  xmm0, xmm1, cs:__real@43340000; angle
-        vmovss  dword ptr [rbp+190h+angles+4], xmm0
-        vmovss  dword ptr [rbp+190h+angles+8], xmm2
-      }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm { vmovss  dword ptr [rbp+190h+angles+4], xmm0 }
+      v87 = *(float *)(v28 + 40);
+      v88 = *(float *)(v28 + 44);
+      angles.v[0] = *(float *)(v28 + 36);
+      angles.v[1] = v87 + 180.0;
+      angles.v[2] = v88;
+      v89 = AngleNormalize360(v87 + 180.0);
+      angles.v[1] = *(float *)&v89;
       AnglesToQuat(&angles, (vec4_t *)&otherBitSet);
-      __asm
-      {
-        vbroadcastss xmm0, [rsp+290h+modelIndex]
-        vsubps  xmm1, xmm6, xmm7
-        vmulps  xmm0, xmm1, xmm0
-        vaddps  xmm1, xmm0, xmm7
-        vsubps  xmm1, xmm1, xmmword ptr [rsp+290h+var_228+8]
-        vmovups xmm0, xmmword ptr [rbp+190h+var_1E0.v]
-        vmovss  dword ptr [rsp+30h], xmm10
-      }
-      XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(unsigned __int8 *)(_RBX + 156), fmt, (const float4 *)v309, v312);
+      __asm { vbroadcastss xmm0, [rsp+290h+modelIndex] }
+      _mm128_sub_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v78, v77), _XMM0), v77), v145);
+      XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(unsigned __int8 *)(v28 + 156), fmt, (const float4 *)v137, weightScale);
     }
-    v217 = (unsigned __int8 *)(_RBX + 133);
-    if ( *(_BYTE *)(_RBX + 132) == 0xFE || *v217 == 0xFE )
+    v91 = (unsigned __int8 *)(v28 + 133);
+    if ( *(_BYTE *)(v28 + 132) == 0xFE || *v91 == 0xFE )
     {
-      DObjGetBoneIndexInternal_30(obj, scr_const.j_clavicle_le, (unsigned __int8 *)(_RBX + 132), modelIndex);
-      DObjGetBoneIndexInternal_30(obj, scr_const.j_clavicle_ri, (unsigned __int8 *)(_RBX + 133), modelIndex);
+      DObjGetBoneIndexInternal_30(obj, scr_const.j_clavicle_le, (unsigned __int8 *)(v28 + 132), modelIndex);
+      DObjGetBoneIndexInternal_30(obj, scr_const.j_clavicle_ri, (unsigned __int8 *)(v28 + 133), modelIndex);
     }
-    if ( *(_DWORD *)(_RBX + 88) == 1 )
+    if ( *(_DWORD *)(v28 + 88) == 1 )
     {
-      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *v217, &v331, &v330);
-      v218 = *v217;
+      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *v91, &v154, &v153);
+      v92 = *v91;
     }
     else
     {
-      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(unsigned __int8 *)(_RBX + 132), &v331, &v330);
-      v218 = *(_BYTE *)(_RBX + 132);
+      XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(unsigned __int8 *)(v28 + 132), &v154, &v153);
+      v92 = *(_BYTE *)(v28 + 132);
     }
-    __asm { vmovss  xmm0, dword ptr [rbx+38h] }
-    HIDWORD(v322) = 0;
+    v93 = *(float *)(v28 + 56);
+    v145.m128_i32[3] = 0;
+    v95 = v145;
+    v95.m128_f32[0] = v93;
+    _XMM11 = v95;
     __asm
     {
-      vmovups xmm11, xmmword ptr [rsp+290h+var_228+8]
-      vmovss  xmm11, xmm11, xmm0
       vinsertps xmm11, xmm11, dword ptr [rbx+3Ch], 10h
       vinsertps xmm11, xmm11, dword ptr [rbx+40h], 20h ; ' '
-      vaddps  xmm0, xmm11, xmmword ptr [rbp+190h+var_170.v]
-      vmovups xmmword ptr [rbp+190h+var_170.v], xmm0
-      vmovups xmmword ptr [rsp+290h+var_228+8], xmm11
     }
-    AnglesToAxis((const vec3_t *)(_RBX + 68), &mat);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+190h+mat+10h]
-      vxorps  xmm1, xmm9, xmmword ptr [rbp+190h+mat]
-      vxorps  xmm0, xmm2, xmm9
-      vmovups xmmword ptr [rbp+190h+mat], xmm1
-      vmovss  xmm1, dword ptr [rbp+190h+mat+14h]
-      vxorps  xmm2, xmm1, xmm9
-      vmovss  dword ptr [rbp+190h+mat+14h], xmm2
-      vmovss  dword ptr [rbp+190h+mat+10h], xmm0
-    }
+    v153.v = _mm128_add_ps(_XMM11, v153.v);
+    v145 = _XMM11;
+    AnglesToAxis((const vec3_t *)(v28 + 68), &mat);
+    *(_OWORD *)mat.m[0].v ^= _xmm;
+    LODWORD(mat.m[1].v[2]) ^= _xmm;
+    LODWORD(mat.m[1].v[1]) ^= _xmm;
     AxisToQuat(&mat, &out);
+    v98 = out;
+    v99 = _mm_shuffle_ps((__m128)v98, (__m128)v98, 201);
+    v100 = _mm_shuffle_ps((__m128)v98, (__m128)v98, 255);
+    v101 = _mm_shuffle_ps((__m128)v98, (__m128)v98, 210);
+    _XMM5 = 0i64;
+    __asm { vinsertps xmm5, xmm5, cs:offset, 0 }
+    v104 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 210), v99), _mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 201), v101));
+    v105 = _mm128_add_ps(v104, v104);
+    v106 = _mm128_add_ps(_mm128_mul_ps(v100, v105), _XMM5);
+    v107 = _mm128_mul_ps(_mm_shuffle_ps(v105, v105, 201), v101);
+    v108 = _mm_shuffle_ps(v105, v105, 210);
+    v109 = v154.v;
+    v110 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(v108, v99), v107), v106), v153.v);
+    _XMM0 = _mm128_mul_ps((__m128)out, v154.v);
     __asm
     {
-      vmovups xmm10, xmmword ptr [rbp+190h+out]
-      vshufps xmm6, xmm10, xmm10, 0C9h ; 'É'
-      vshufps xmm9, xmm10, xmm10, 0FFh
-      vshufps xmm7, xmm10, xmm10, 0D2h ; 'Ò'
-      vxorps  xmm5, xmm5, xmm5
-      vinsertps xmm5, xmm5, cs:offset, 0
-      vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm6
-      vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm7
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm9, xmm4
-      vaddps  xmm5, xmm0, xmm5
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm7
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vmovups xmm4, xmmword ptr [rbp+190h+var_160.v]
-      vmulps  xmm3, xmm1, xmm6
-      vsubps  xmm1, xmm3, xmm2
-      vaddps  xmm3, xmm1, xmm5
-      vaddps  xmm8, xmm3, xmmword ptr [rbp+190h+var_170.v]
-      vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm6
-      vmulps  xmm0, xmm10, xmm4
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm7
-      vsubps  xmm6, xmm2, xmm3
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
-      vshufps xmm5, xmm4, xmm4, 0FFh
-      vmulps  xmm0, xmm9, xmm5
-      vmulps  xmm1, xmm10, xmm5
-      vmovaps xmm10, [rsp+290h+var_98+8]
-      vmulps  xmm4, xmm9, xmm4
-      vmovaps xmm9, [rsp+290h+var_88+8]
-      vhaddps xmm3, xmm2, xmm2
-      vsubps  xmm2, xmm0, xmm3
-      vaddps  xmm1, xmm4, xmm1
-      vaddps  xmm0, xmm6, xmm1
-      vblendps xmm3, xmm2, xmm0, 7
-      vsubps  xmm6, xmm8, xmm11
-      vmovaps xmm11, [rsp+290h+var_A8+8]
-      vmovaps xmm8, [rsp+290h+var_78+8]
+    }
+    v114 = _mm_shuffle_ps(v109, v109, 255);
+    __asm { vhaddps xmm3, xmm2, xmm2 }
+    _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v100, v114), _XMM3);
+    _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v109, v109, 201), v101), _mm128_mul_ps(_mm_shuffle_ps(v109, v109, 210), v99)), _mm128_add_ps(_mm128_mul_ps(v100, v154.v), _mm128_mul_ps((__m128)out, v114)));
+    __asm { vblendps xmm3, xmm2, xmm0, 7 }
+    _XMM6 = _mm128_sub_ps(v110, _XMM11);
+    __asm
+    {
       vcmpneqps xmm0, xmm3, xmm3
       vmovmskps eax, xmm0
-      vmovups xmmword ptr [rbp+190h+var_160.v], xmm3
     }
+    v154.v = _XMM3;
     if ( _EAX )
     {
-      v310 = (const float4 *)"!Float4IsNaN( clavicleQuat )";
+      v138 = (const float4 *)"!Float4IsNaN( clavicleQuat )";
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 601, ASSERT_TYPE_ASSERT, "(!Float4IsNaN( clavicleQuat ))", (const char *)&queryFormat) )
         __debugbreak();
     }
@@ -808,49 +600,30 @@ void XAnimNode_IKLadder_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, co
     }
     if ( _EAX )
     {
-      v310 = (const float4 *)"!Float4IsNaN( adjustedClaviclePos )";
+      v138 = (const float4 *)"!Float4IsNaN( adjustedClaviclePos )";
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 602, ASSERT_TYPE_ASSERT, "(!Float4IsNaN( adjustedClaviclePos ))", (const char *)&queryFormat) )
         __debugbreak();
     }
-    __asm
+    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, v92, fmta, v138, weightScale);
+    Weight = XAnimGetWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, info->animIndex);
+    if ( !v140 )
     {
-      vmovss  xmm7, [rbp+190h+weightScale]
-      vmovups xmm0, xmmword ptr [rbp+190h+var_160.v]
-      vmovups xmm1, xmm6
-      vmovss  dword ptr [rsp+30h], xmm7
-    }
-    XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, v218, fmta, v310, v313);
-    *(double *)&_XMM0 = XAnimGetWeight(obj->tree, 0, XANIM_SUBTREE_DEFAULT, info->animIndex);
-    if ( !v315 )
-    {
+      if ( *(float *)&Weight < 1.0 )
+        v30 = (float)(v29 * (float)(1.0 - *(float *)&Weight)) + (float)(v30 * *(float *)&Weight);
+      v124 = v30 - *(float *)(v28 + 56);
+      v145.m128_i32[3] = 0;
+      v126 = v145;
+      v126.m128_f32[0] = v124;
+      _XMM6 = v126;
       __asm
       {
-        vmovss  xmm1, cs:__real@3f800000
-        vcomiss xmm0, xmm1
-        vmovss  xmm3, dword ptr [rsp+290h+var_250+4]
-        vmovss  xmm5, dword ptr [rsp+290h+buffer]
-        vsubss  xmm0, xmm15, dword ptr [rbx+38h]
-        vsubss  xmm1, xmm3, dword ptr [rbx+3Ch]
-        vsubss  xmm2, xmm5, dword ptr [rbx+40h]
-      }
-      HIDWORD(v322) = 0;
-      __asm
-      {
-        vmovups xmm6, xmmword ptr [rsp+290h+var_228+8]
-        vmovss  xmm6, xmm6, xmm0
-        vmovups xmm0, xmmword ptr [rbp+190h+outModelQuat.v]
         vinsertps xmm6, xmm6, xmm1, 10h
         vinsertps xmm6, xmm6, xmm2, 20h ; ' '
-        vmovss  dword ptr [rsp+30h], xmm7
       }
-      if ( *(_DWORD *)(_RBX + 80) )
-        __asm { vmovups xmm1, xmm6 }
-      else
-        __asm { vmovups xmm1, xmmword ptr [rbp+190h+outModelTranslation.v] }
-      XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, targetBoneIndex, fmtb, (const float4 *)v311, v314);
+      XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, targetBoneIndex, fmtb, (const float4 *)v139, weightScale);
+      _XMM0 = outModelQuat.v;
       __asm
       {
-        vmovups xmm0, xmmword ptr [rbp+190h+outModelQuat.v]
         vcmpneqps xmm1, xmm0, xmm0
         vmovmskps eax, xmm1
       }
@@ -867,15 +640,6 @@ void XAnimNode_IKLadder_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, co
           __debugbreak();
       }
     }
-    __asm
-    {
-      vmovaps xmm14, [rsp+290h+var_D8+8]
-      vmovaps xmm13, [rsp+290h+var_C8+8]
-      vmovaps xmm12, [rsp+290h+var_B8+8]
-      vmovaps xmm7, [rsp+290h+var_68+8]
-      vmovaps xmm6, xmmword ptr [rsp+290h+var_58+8]
-      vmovaps xmm15, [rsp+290h+var_E8+8]
-    }
   }
 }
 
@@ -886,53 +650,70 @@ XAnimNode_IKLadder_Read
 */
 void XAnimNode_IKLadder_Read(void *nodeData, MemoryFile *memFile)
 {
+  double Float; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
   int p; 
 
-  _RDI = nodeData;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+10h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+14h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+24h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+28h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+30h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+38h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+40h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  *(float *)nodeData = *(float *)&Float;
+  v5 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 1) = *(float *)&v5;
+  v6 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 2) = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 3) = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 4) = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 5) = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 6) = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 7) = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 8) = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 9) = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 10) = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 11) = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 12) = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 13) = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 14) = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 15) = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 16) = *(float *)&v20;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI[20] = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+54h], xmm0 }
+  *((_DWORD *)nodeData + 20) = p;
+  v21 = MemFile_ReadFloat(memFile);
+  *((float *)nodeData + 21) = *(float *)&v21;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI[22] = p;
+  *((_DWORD *)nodeData + 22) = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  *((_BYTE *)_RDI + 92) = p;
-  *((_WORD *)_RDI + 66) = -258;
-  *((_BYTE *)_RDI + 156) = -2;
+  *((_BYTE *)nodeData + 92) = p;
+  *((_WORD *)nodeData + 66) = -258;
+  *((_BYTE *)nodeData + 156) = -2;
 }
 
 /*
@@ -978,23 +759,8 @@ void XAnimNode_IKLadder_PrintDebug(void *nodeData, const XAnimInfo *animInfo, ch
   unsigned __int64 v6; 
   __int64 v9; 
   int v10; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
-  double v51; 
-  double deptha; 
 
   v6 = size;
-  _R14 = nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 693, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   if ( depth > 0 )
@@ -1007,7 +773,7 @@ void XAnimNode_IKLadder_PrintDebug(void *nodeData, const XAnimInfo *animInfo, ch
     }
     while ( v9 );
   }
-  v10 = _R14[20];
+  v10 = *((_DWORD *)nodeData + 20);
   if ( v10 == 1 )
   {
     Com_sprintfPos_truncate(buffer, v6, inoutPos, "   ^5[^7mode: climb");
@@ -1025,72 +791,12 @@ void XAnimNode_IKLadder_PrintDebug(void *nodeData, const XAnimInfo *animInfo, ch
   {
     Com_sprintfPos_truncate(buffer, v6, inoutPos, "   ^5[^7mode: vault");
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+2Ch]
-    vmovss  xmm1, dword ptr [r14+28h]
-    vmovss  xmm2, dword ptr [r14+24h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_18], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+48h+var_20], xmm1
-    vmovsd  [rsp+48h+fmt], xmm2
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^1angles: %0.2f  %0.2f  %0.2f", *(double *)&fmt, v44, v48);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+0B4h]
-    vmovss  xmm1, dword ptr [r14+0B0h]
-    vmovss  xmm2, dword ptr [r14+0ACh]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_18], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+48h+var_20], xmm1
-    vmovsd  [rsp+48h+fmt], xmm2
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^hand: x= %0.2f  %0.2f  %0.2f", *(double *)&fmta, v45, v49);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+0CCh]
-    vmovss  xmm1, dword ptr [r14+0C8h]
-    vmovss  xmm2, dword ptr [r14+0C4h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_18], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+48h+var_20], xmm1
-    vmovsd  [rsp+48h+fmt], xmm2
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^3target: x= %0.2f  %0.2f  %0.2f", *(double *)&fmtb, v46, v50);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+0C0h]
-    vmovss  xmm1, dword ptr [r14+0BCh]
-    vmovss  xmm2, dword ptr [r14+0B8h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_18], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+48h+var_20], xmm1
-    vmovsd  [rsp+48h+fmt], xmm2
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^4result: x= %0.2f  %0.2f  %0.2f", *(double *)&fmtc, v47, v51);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+0D0h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+fmt], xmm0
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^5IK: %0.2f", *(double *)&fmtd);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+0A0h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+depth], xmm0
-  }
-  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^6hide: %0.2f^5]\n", deptha);
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^1angles: %0.2f  %0.2f  %0.2f", *((float *)nodeData + 9), *((float *)nodeData + 10), *((float *)nodeData + 11));
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^hand: x= %0.2f  %0.2f  %0.2f", *((float *)nodeData + 43), *((float *)nodeData + 44), *((float *)nodeData + 45));
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^3target: x= %0.2f  %0.2f  %0.2f", *((float *)nodeData + 49), *((float *)nodeData + 50), *((float *)nodeData + 51));
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^4result: x= %0.2f  %0.2f  %0.2f", *((float *)nodeData + 46), *((float *)nodeData + 47), *((float *)nodeData + 48));
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^5IK: %0.2f", *((float *)nodeData + 52));
+  Com_sprintfPos_truncate(buffer, v6, inoutPos, ", ^6hide: %0.2f^5]\n", *((float *)nodeData + 40));
 }
 
 /*
@@ -1098,68 +804,35 @@ void XAnimNode_IKLadder_PrintDebug(void *nodeData, const XAnimInfo *animInfo, ch
 XAnimNode_IKLadder_BlendRungTarget
 ==============
 */
-
-void __fastcall XAnimNode_IKLadder_BlendRungTarget(XAnimNode_IKLadder *node, const vec3_t *handPos, const vec3_t *rungTargetPos, double rungIKWeight, vec3_t *outBoneTargetPos)
+void XAnimNode_IKLadder_BlendRungTarget(XAnimNode_IKLadder *node, const vec3_t *handPos, const vec3_t *rungTargetPos, float rungIKWeight, vec3_t *outBoneTargetPos)
 {
-  int v11; 
+  float v8; 
+  int v9; 
+  float v10; 
+  float v11; 
 
-  _RDI = outBoneTargetPos;
-  _RBP = rungTargetPos;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RSI = handPos;
-  __asm { vmovaps xmm6, xmm3 }
+  v8 = rungIKWeight;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 308, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( *(_DWORD *)node->m_prevLadderState != 4 || *(_DWORD *)node->m_currLadderState != 1 || (v11 = node->m_frameTime - node->m_prevStateTime, v11 > LADDER_SLIDE_TO_CLIMB_IK_END) )
+  if ( *(_DWORD *)node->m_prevLadderState != 4 || *(_DWORD *)node->m_currLadderState != 1 || (v9 = node->m_frameTime - node->m_prevStateTime, v9 > LADDER_SLIDE_TO_CLIMB_IK_END) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm1, xmm0, dword ptr [rsi]
-      vmulss  xmm2, xmm1, xmm6
-    }
+    v10 = (float)(rungTargetPos->v[0] - handPos->v[0]) * rungIKWeight;
     goto LABEL_11;
   }
-  if ( v11 >= LADDER_SLIDE_TO_CLIMB_IK_BEGIN )
+  if ( v9 >= LADDER_SLIDE_TO_CLIMB_IK_BEGIN )
   {
-    _EAX = v11 - LADDER_SLIDE_TO_CLIMB_IK_BEGIN;
-    _ECX = LADDER_SLIDE_TO_CLIMB_IK_END - LADDER_SLIDE_TO_CLIMB_IK_BEGIN;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmovd   xmm1, eax
-      vcvtdq2ps xmm1, xmm1
-      vdivss  xmm6, xmm1, xmm0
-      vmovss  xmm1, dword ptr [rbp+0]
-      vsubss  xmm0, xmm1, dword ptr [rsi]
-      vmulss  xmm2, xmm0, xmm6
-    }
+    v8 = _mm_cvtepi32_ps((__m128i)(unsigned int)(v9 - LADDER_SLIDE_TO_CLIMB_IK_BEGIN)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)(LADDER_SLIDE_TO_CLIMB_IK_END - LADDER_SLIDE_TO_CLIMB_IK_BEGIN)).m128_f32[0];
+    v10 = (float)(rungTargetPos->v[0] - handPos->v[0]) * v8;
 LABEL_11:
-    __asm
-    {
-      vaddss  xmm3, xmm2, dword ptr [rsi]
-      vmovss  dword ptr [rdi], xmm3
-      vmovss  xmm0, dword ptr [rbp+4]
-      vsubss  xmm1, xmm0, dword ptr [rsi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsi+4]
-      vmovss  dword ptr [rdi+4], xmm3
-      vmovss  xmm0, dword ptr [rbp+8]
-      vsubss  xmm1, xmm0, dword ptr [rsi+8]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsi+8]
-    }
+    outBoneTargetPos->v[0] = v10 + handPos->v[0];
+    outBoneTargetPos->v[1] = (float)((float)(rungTargetPos->v[1] - handPos->v[1]) * v8) + handPos->v[1];
+    v11 = (float)((float)(rungTargetPos->v[2] - handPos->v[2]) * v8) + handPos->v[2];
     goto LABEL_12;
   }
-  *(_QWORD *)outBoneTargetPos->v = *(_QWORD *)_RSI->v;
-  __asm { vmovss  xmm3, dword ptr [rsi+8] }
+  *(_QWORD *)outBoneTargetPos->v = *(_QWORD *)handPos->v;
+  v11 = handPos->v[2];
 LABEL_12:
-  __asm
-  {
-    vmovss  dword ptr [rdi+8], xmm3
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  outBoneTargetPos->v[2] = v11;
 }
 
 /*
@@ -1169,210 +842,169 @@ XAnimNode_IKLadder_GetBestRungTarget
 */
 void XAnimNode_IKLadder_GetBestRungTarget(const vec3_t *bonePos, const vec4_t *boneQuat, vec3_t *outBoneTargetPos, int ikType, XAnimNode_IKLadder *node)
 {
-  char v56; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int64 v12; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 m_ladderRungDist_low; 
+  float v29; 
+  const dvar_t *v30; 
+  float value; 
+  __int128 v34; 
+  __int128 unsignedInt; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  const dvar_t *v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
   vec3_t out; 
   tmat33_t<vec3_t> axis; 
   vec3_t in; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v66; 
+  __int128 v67; 
 
-  _RBX = node;
-  _RDI = outBoneTargetPos;
-  _R14 = ikType;
-  _RSI = bonePos;
+  v12 = ikType;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 196, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( node->m_hasWeapon && (_DWORD)_R14 == 1 )
+  if ( node->m_hasWeapon && (_DWORD)v12 == 1 )
   {
-    _RDI->v[0] = _RSI->v[0];
-    _RDI->v[1] = _RSI->v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    outBoneTargetPos->v[0] = bonePos->v[0];
+    outBoneTargetPos->v[1] = bonePos->v[1];
+    outBoneTargetPos->v[2] = bonePos->v[2];
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+150h+var_40], xmm6
-      vmovaps [rsp+150h+var_50], xmm7
-      vmovaps [rsp+150h+var_60], xmm8
-      vmovaps [rsp+150h+var_70], xmm9
-      vmovaps [rsp+150h+var_80], xmm10
-      vmovaps [rsp+150h+var_90], xmm11
-      vmovaps [rsp+150h+var_A0], xmm12
-      vmovaps [rsp+150h+var_B0], xmm13
-    }
+    v67 = v5;
+    v66 = v6;
+    v65 = v7;
+    v64 = v8;
+    v63 = v9;
+    v62 = v10;
     AnglesToAxis(&node->m_ladderAngles, &axis);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vsubss  xmm6, xmm0, dword ptr [rbx+0Ch]
-    }
-    _R15 = DCONST_DVARFLT_xanim_ladder_wrist_query_offset;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vsubss  xmm10, xmm0, dword ptr [rbx+14h]
-      vsubss  xmm8, xmm1, dword ptr [rbx+10h]
-    }
+    v15 = node->m_ladderTop.v[0] - node->m_ladderBottom.v[0];
+    v16 = DCONST_DVARFLT_xanim_ladder_wrist_query_offset;
+    v17 = node->m_ladderTop.v[2] - node->m_ladderBottom.v[2];
+    v18 = LODWORD(node->m_ladderTop.v[1]);
+    *(float *)&v18 = node->m_ladderTop.v[1] - node->m_ladderBottom.v[1];
     if ( !DCONST_DVARFLT_xanim_ladder_wrist_query_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_wrist_query_offset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R15);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+28h]
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  dword ptr [rbp+50h+in], xmm0
-      vmovss  dword ptr [rbp+50h+in+4], xmm9
-      vmovss  dword ptr [rbp+50h+in+8], xmm9
-    }
+    Dvar_CheckFrontendServerThread(v16);
+    LODWORD(in.v[0]) = v16->current.integer;
+    in.v[1] = 0.0;
+    in.v[2] = 0.0;
     QuatTransform(boneQuat, &in, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+150h+out]
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vsubss  xmm11, xmm3, dword ptr [rbx+0Ch]
-      vmovss  xmm0, dword ptr [rsp+150h+out+4]
-      vaddss  xmm2, xmm0, dword ptr [rsi+4]
-      vsubss  xmm12, xmm2, dword ptr [rbx+10h]
-      vmovss  xmm0, dword ptr [rsp+150h+out+8]
-      vaddss  xmm1, xmm0, dword ptr [rsi+8]
-      vsubss  xmm13, xmm1, dword ptr [rbx+14h]
-      vmovss  xmm7, dword ptr [rbx+34h]
-      vmovss  dword ptr [rsp+150h+out+8], xmm1
-      vmovss  dword ptr [rsp+150h+out+4], xmm2
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm1, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm11, dword ptr [rsp+150h+axis+18h]
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm1, xmm13, dword ptr [rsp+150h+axis+20h]
-      vsqrtss xmm4, xmm2, xmm2
-      vmovss  dword ptr [rsp+150h+out], xmm3
-      vmulss  xmm3, xmm12, dword ptr [rsp+150h+axis+1Ch]
-      vaddss  xmm2, xmm3, xmm0
-      vaddss  xmm2, xmm2, xmm1
-      vminss  xmm0, xmm4, xmm2; X
-      vdivss  xmm3, xmm0, xmm7
-      vxorps  xmm6, xmm6, xmm6
-      vmovaps xmm1, xmm7; Y
-      vroundss xmm6, xmm6, xmm3, 1
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    _RSI = DCONST_DVARFLT_xanim_ladder_ik_dist_ratio;
-    __asm { vmovaps xmm8, xmm0 }
+    v19 = out.v[0] + bonePos->v[0];
+    v20 = v19 - node->m_ladderBottom.v[0];
+    v21 = out.v[1] + bonePos->v[1];
+    v22 = v21 - node->m_ladderBottom.v[1];
+    v23 = (float)(out.v[2] + bonePos->v[2]) - node->m_ladderBottom.v[2];
+    m_ladderRungDist_low = LODWORD(node->m_ladderRungDist);
+    out.v[2] = out.v[2] + bonePos->v[2];
+    out.v[1] = v21;
+    *(float *)&v18 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(v15 * v15)) + (float)(v17 * v17));
+    _XMM4 = v18;
+    out.v[0] = v19;
+    __asm { vminss  xmm0, xmm4, xmm2; X }
+    _XMM6 = 0i64;
+    __asm { vroundss xmm6, xmm6, xmm3, 1 }
+    v29 = fmodf_0(*(float *)&_XMM0, *(float *)&m_ladderRungDist_low);
+    v30 = DCONST_DVARFLT_xanim_ladder_ik_dist_ratio;
     if ( !DCONST_DVARFLT_xanim_ladder_ik_dist_ratio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_ik_dist_ratio") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
+    Dvar_CheckFrontendServerThread(v30);
+    value = v30->current.value;
+    if ( v29 < (float)((float)(1.0 - value) * *(float *)&m_ladderRungDist_low) )
     {
-      vmovss  xmm4, dword ptr [rsi+28h]
-      vmovss  xmm2, cs:__real@3f800000
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm1, xmm0, xmm7
-      vcomiss xmm8, xmm1
-    }
-    if ( v56 )
-    {
-      __asm
+      if ( node->m_prevRungTarget[v12] >= 0.0 )
       {
-        vmovss  xmm3, dword ptr [rbx+r14*4+88h]
-        vcomiss xmm3, xmm9
-      }
-      if ( v56 )
-      {
+        unsignedInt = v30->current.unsignedInt;
+        *(float *)&unsignedInt = value * *(float *)&m_ladderRungDist_low;
+        _XMM0 = unsignedInt;
         __asm
         {
-          vmulss  xmm0, xmm7, cs:__real@3f000000
-          vcmpless xmm0, xmm0, xmm8
-          vaddss  xmm1, xmm6, xmm2
-          vblendvps xmm2, xmm6, xmm1, xmm0
+          vcmpltss xmm1, xmm0, xmm8
+          vblendvps xmm2, xmm6, xmm3, xmm1
         }
       }
       else
       {
+        v34 = m_ladderRungDist_low;
+        *(float *)&v34 = *(float *)&m_ladderRungDist_low * 0.5;
+        _XMM0 = v34;
         __asm
         {
-          vmulss  xmm0, xmm4, xmm7
-          vcmpltss xmm1, xmm0, xmm8
-          vblendvps xmm2, xmm6, xmm3, xmm1
+          vcmpless xmm0, xmm0, xmm8
+          vblendvps xmm2, xmm6, xmm1, xmm0
         }
       }
     }
     else
     {
-      __asm { vaddss  xmm2, xmm6, xmm2 }
+      *(float *)&_XMM2 = *(float *)&_XMM6 + 1.0;
     }
-    __asm
-    {
-      vmovss  dword ptr [rbx+r14*4+88h], xmm2
-      vmulss  xmm10, xmm2, xmm7
-      vmulss  xmm0, xmm10, dword ptr [rsp+150h+axis+18h]
-      vaddss  xmm7, xmm0, dword ptr [rbx+0Ch]
-      vmulss  xmm1, xmm10, dword ptr [rsp+150h+axis+1Ch]
-      vmulss  xmm0, xmm12, dword ptr [rsp+150h+axis+10h]
-      vmovaps xmm12, [rsp+150h+var_A0]
-      vmovss  dword ptr [rdi], xmm7
-      vaddss  xmm8, xmm1, dword ptr [rbx+10h]
-      vmulss  xmm1, xmm11, dword ptr [rsp+150h+axis+0Ch]
-      vmovaps xmm11, [rsp+150h+var_90]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm13, dword ptr [rsp+150h+axis+14h]
-      vmovaps xmm13, [rsp+150h+var_B0]
-      vaddss  xmm5, xmm2, xmm1
-      vmulss  xmm0, xmm5, dword ptr [rsp+150h+axis+0Ch]
-      vmulss  xmm1, xmm5, dword ptr [rsp+150h+axis+10h]
-      vaddss  xmm2, xmm0, xmm7
-      vaddss  xmm0, xmm1, xmm8
-      vmovss  dword ptr [rdi+4], xmm8
-      vmovss  xmm9, dword ptr [rbx+14h]
-      vmovaps xmm8, [rsp+150h+var_60]
-      vmovss  dword ptr [rdi], xmm2
-      vmulss  xmm2, xmm10, dword ptr [rsp+150h+axis+20h]
-      vmovaps xmm10, [rsp+150h+var_80]
-      vmovss  dword ptr [rdi+4], xmm0
-      vmulss  xmm0, xmm5, dword ptr [rsp+150h+axis+14h]
-      vaddss  xmm1, xmm2, xmm9
-      vmovaps xmm9, [rsp+150h+var_70]
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rdi+8], xmm1
-    }
-    _RBX = DCONST_DVARVEC3_xanim_ladder_rung_wrist_ik_offset;
+    node->m_prevRungTarget[v12] = *(float *)&_XMM2;
+    v39 = *(float *)&_XMM2 * *(float *)&m_ladderRungDist_low;
+    v40 = (float)((float)(*(float *)&_XMM2 * *(float *)&m_ladderRungDist_low) * axis.m[2].v[0]) + node->m_ladderBottom.v[0];
+    v41 = v39 * axis.m[2].v[1];
+    v42 = v22 * axis.m[1].v[1];
+    outBoneTargetPos->v[0] = v40;
+    v43 = v41 + node->m_ladderBottom.v[1];
+    v44 = (float)((float)(v20 * axis.m[1].v[0]) + v42) + (float)(v23 * axis.m[1].v[2]);
+    v45 = (float)(v44 * axis.m[1].v[0]) + v40;
+    v46 = (float)(v44 * axis.m[1].v[1]) + v43;
+    outBoneTargetPos->v[1] = v43;
+    v47 = node->m_ladderBottom.v[2];
+    outBoneTargetPos->v[0] = v45;
+    v48 = v39 * axis.m[2].v[2];
+    outBoneTargetPos->v[1] = v46;
+    outBoneTargetPos->v[2] = (float)(v48 + v47) + (float)(v44 * axis.m[1].v[2]);
+    v49 = DCONST_DVARVEC3_xanim_ladder_rung_wrist_ik_offset;
     if ( !DCONST_DVARVEC3_xanim_ladder_rung_wrist_ik_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ladder_rung_wrist_ik_offset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx+30h]
-      vmovss  xmm4, dword ptr [rbx+28h]
-      vmovss  xmm5, dword ptr [rbx+2Ch]
-      vmulss  xmm0, xmm4, dword ptr [rsp+150h+axis+8]
-      vaddss  xmm2, xmm0, dword ptr [rdi+8]
-      vmulss  xmm1, xmm5, dword ptr [rsp+150h+axis+14h]
-      vmulss  xmm0, xmm4, dword ptr [rsp+150h+axis]
-      vaddss  xmm6, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rdi]
-      vmulss  xmm0, xmm7, dword ptr [rsp+150h+axis+18h]
-      vmulss  xmm1, xmm5, dword ptr [rsp+150h+axis+0Ch]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm4, dword ptr [rsp+150h+axis+4]
-      vaddss  xmm2, xmm3, xmm0
-      vaddss  xmm3, xmm1, dword ptr [rdi+4]
-      vmulss  xmm1, xmm7, dword ptr [rsp+150h+axis+1Ch]
-      vmulss  xmm0, xmm5, dword ptr [rsp+150h+axis+10h]
-      vmovss  dword ptr [rdi], xmm2
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rsp+150h+axis+20h]
-      vaddss  xmm2, xmm2, xmm1
-      vaddss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi+4], xmm2
-      vmovss  dword ptr [rdi+8], xmm1
-      vmovaps xmm7, [rsp+150h+var_50]
-      vmovaps xmm6, [rsp+150h+var_40]
-    }
+    Dvar_CheckFrontendServerThread(v49);
+    v50 = v49->current.vector.v[2];
+    v51 = v49->current.value;
+    v52 = v49->current.vector.v[1];
+    v53 = (float)((float)(v51 * axis.m[0].v[2]) + outBoneTargetPos->v[2]) + (float)(v52 * axis.m[1].v[2]);
+    v54 = (float)(v51 * axis.m[0].v[1]) + outBoneTargetPos->v[1];
+    v55 = v50 * axis.m[2].v[1];
+    v56 = v52 * axis.m[1].v[1];
+    outBoneTargetPos->v[0] = (float)((float)((float)(v51 * axis.m[0].v[0]) + outBoneTargetPos->v[0]) + (float)(v52 * axis.m[1].v[0])) + (float)(v50 * axis.m[2].v[0]);
+    v57 = v54 + v56;
+    v58 = v50 * axis.m[2].v[2];
+    outBoneTargetPos->v[1] = v57 + v55;
+    outBoneTargetPos->v[2] = v58 + v53;
   }
 }
 
@@ -1381,128 +1013,51 @@ void XAnimNode_IKLadder_GetBestRungTarget(const vec3_t *bonePos, const vec4_t *b
 XAnimNode_IKLadder_GetClampedHandPosition
 ==============
 */
-
-void __fastcall XAnimNode_IKLadder_GetClampedHandPosition(const DObj *obj, XAnimNode_IKLadder *node, double rungIKWeight, const vec3_t *bonePos, vec3_t *outBoneTargetPos)
+void XAnimNode_IKLadder_GetClampedHandPosition(const DObj *obj, XAnimNode_IKLadder *node, float rungIKWeight, const vec3_t *bonePos, vec3_t *outBoneTargetPos)
 {
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   tmat33_t<vec3_t> axis; 
-  char v72; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm7
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovaps xmmword ptr [rax-68h], xmm12
-  }
-  _RDI = outBoneTargetPos;
-  _RSI = bonePos;
-  _RBX = node;
-  __asm { vmovaps xmm8, xmm2 }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 140, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 141, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
+  if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_ik_ladder.cpp", 141, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  AnglesToAxis(&_RBX->m_ladderAngles, &axis);
-  __asm
+  AnglesToAxis(&node->m_ladderAngles, &axis);
+  v7 = axis.m[1].v[1];
+  v8 = axis.m[1].v[2];
+  v10 = (float)((float)((float)(bonePos->v[0] - node->m_ladderBottom.v[0]) * axis.m[1].v[0]) + (float)((float)(bonePos->v[1] - node->m_ladderBottom.v[1]) * axis.m[1].v[1])) + (float)((float)(bonePos->v[2] - node->m_ladderBottom.v[2]) * axis.m[1].v[2]);
+  v9 = v10;
+  v11 = (float)((float)((float)(node->m_ladderAnchor.v[1] - node->m_ladderBottom.v[1]) * axis.m[1].v[1]) + (float)((float)(node->m_ladderAnchor.v[0] - node->m_ladderBottom.v[0]) * axis.m[1].v[0])) + (float)((float)(node->m_ladderAnchor.v[2] - node->m_ladderBottom.v[2]) * axis.m[1].v[2]);
+  if ( node->m_ladderHand == 1 )
   {
-    vmovss  xmm9, dword ptr [rsp+0C8h+axis+0Ch]
-    vmovss  xmm10, dword ptr [rsp+0C8h+axis+10h]
-    vmovss  xmm11, dword ptr [rsp+0C8h+axis+14h]
-    vmovss  xmm12, dword ptr [rsi]
-    vsubss  xmm0, xmm12, dword ptr [rbx+0Ch]
-    vmovss  xmm5, dword ptr [rbx+30h]
-    vmulss  xmm2, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+10h]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm1, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm2, xmm0, dword ptr [rbx+14h]
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm2, xmm11
-    vsubss  xmm2, xmm0, dword ptr [rbx+10h]
-    vaddss  xmm7, xmm3, xmm1
-    vmovss  xmm1, dword ptr [rbx]
-    vsubss  xmm0, xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmulss  xmm3, xmm2, xmm10
-    vmulss  xmm2, xmm0, xmm9
-    vsubss  xmm0, xmm1, dword ptr [rbx+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm2, xmm0, xmm11
-    vaddss  xmm3, xmm4, xmm2
-  }
-  if ( _RBX->m_ladderHand == 1 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm7, cs:__real@c0f3fe5d
-      vmovss  xmm1, cs:__real@bf000000
-    }
+    v12 = v10 - -7.6248002;
+    v13 = FLOAT_N0_5;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm7, cs:__real@40f3fe5d
-      vmovss  xmm1, cs:__real@3f000000
-    }
+    v12 = v10 - 7.6248002;
+    v13 = FLOAT_0_5;
   }
-  __asm
-  {
-    vsubss  xmm3, xmm0, xmm3
-    vmulss  xmm4, xmm5, xmm1
-  }
-  if ( _RBX->m_hasWeapon )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+0A0h]
-      vmovss  xmm1, cs:__real@3f800000
-      vaddss  xmm0, xmm3, xmm4
-      vmulss  xmm3, xmm0, xmm2
-      vsubss  xmm2, xmm1, xmm2
-      vmulss  xmm0, xmm2, xmm7
-      vaddss  xmm4, xmm3, xmm0
-    }
-  }
+  v15 = v12 - v11;
+  v14 = v12 - v11;
+  v16 = node->m_ladderWidth * v13;
+  if ( node->m_hasWeapon )
+    v17 = (float)((float)(v15 + v16) * node->m_hideRatio) + (float)((float)(1.0 - node->m_hideRatio) * v9);
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm8
-      vmulss  xmm2, xmm1, xmm3
-      vaddss  xmm4, xmm2, xmm4
-    }
-  }
-  __asm
-  {
-    vsubss  xmm3, xmm4, xmm7
-    vmulss  xmm0, xmm9, xmm3
-    vaddss  xmm1, xmm0, xmm12
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm2, xmm10, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rsi+4]
-    vmulss  xmm1, xmm11, xmm3
-    vmovss  dword ptr [rdi+4], xmm0
-    vaddss  xmm2, xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rdi+8], xmm2
-  }
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-  }
+    v17 = (float)((float)(1.0 - rungIKWeight) * v14) + v16;
+  outBoneTargetPos->v[0] = (float)(axis.m[1].v[0] * (float)(v17 - v9)) + bonePos->v[0];
+  outBoneTargetPos->v[1] = (float)(v7 * (float)(v17 - v9)) + bonePos->v[1];
+  outBoneTargetPos->v[2] = (float)(v8 * (float)(v17 - v9)) + bonePos->v[2];
 }
 
 /*
@@ -1512,25 +1067,23 @@ XAnimNode_IKLadder_GetRungIKWeight
 */
 float XAnimNode_IKLadder_GetRungIKWeight(const DObj *obj, int ikType)
 {
+  __int64 v2; 
   unsigned __int16 children; 
   const XAnimInfo *AnimInfo; 
   __int64 outWeights; 
   __int64 outAnimWeights; 
 
-  _RBX = ikType;
+  v2 = ikType;
   outWeights = 0i64;
   outAnimWeights = 0i64;
-  if ( obj->tree && (children = obj->tree->children) != 0 )
-  {
-    AnimInfo = GetAnimInfo(children);
-    BG_CalcFingerPoseWeights(AnimInfo, (float *)&outWeights, (float *)&outAnimWeights);
-    __asm { vmovss  xmm0, dword ptr [rsp+rbx*4+28h+outWeights] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !obj->tree )
+    return 0.0;
+  children = obj->tree->children;
+  if ( !children )
+    return 0.0;
+  AnimInfo = GetAnimInfo(children);
+  BG_CalcFingerPoseWeights(AnimInfo, (float *)&outWeights, (float *)&outAnimWeights);
+  return *((float *)&outWeights + v2);
 }
 
 /*

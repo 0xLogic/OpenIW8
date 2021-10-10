@@ -570,16 +570,20 @@ void NetInit::InitLocalAddr(NetInit *this)
   bdSocketRouter *SocketRouter; 
   const char *v11; 
   const char *v12; 
+  bdCommonAddr *m_ptr; 
+  bdCommonAddr *v14; 
+  bdFixedArray<bdAddr,5> *p_m_localAddrs; 
+  bdFixedArray<bdAddr,5> *v16; 
   __int64 v17; 
   NetEventListener *m_listener; 
   bdReference<bdCommonAddr> result; 
   bdReference<bdCommonAddr> newLocalCommonAddr; 
-  __int64 v35; 
+  __int64 v21; 
   bdAddr publicAddr; 
-  XNADDR v37; 
+  XNADDR v23; 
   XNADDR buffer; 
 
-  v35 = -2i64;
+  v21 = -2i64;
   Net = dwGetNet();
   bdNetImpl::getLocalCommonAddr(Net, &result);
   if ( !result.m_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_init.cpp", 392, ASSERT_TYPE_ASSERT, "(localAddr.notNull())", (const char *)&queryFormat, "localAddr.notNull()") )
@@ -626,65 +630,42 @@ void NetInit::InitLocalAddr(NetInit *this)
     v12 = dwCommonAddrToString(&result);
     Com_Printf(25, "[NET] New address\n%s\n", v12);
     bdCommonAddr::serialize(this->m_localAddr.m_ptr, buffer.addrBuff);
-    bdCommonAddr::serialize(result.m_ptr, v37.addrBuff);
-    _RBX = result.m_ptr;
-    _RSI = this->m_localAddr.m_ptr;
-    bdReferencable::operator=(_RSI, result.m_ptr);
-    _RAX = &_RSI->m_localAddrs;
-    _RCX = &_RBX->m_localAddrs;
+    bdCommonAddr::serialize(result.m_ptr, v23.addrBuff);
+    m_ptr = result.m_ptr;
+    v14 = this->m_localAddr.m_ptr;
+    bdReferencable::operator=(v14, result.m_ptr);
+    p_m_localAddrs = &v14->m_localAddrs;
+    v16 = &m_ptr->m_localAddrs;
     v17 = 6i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rcx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX = (bdFixedArray<bdAddr,5> *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RCX = (bdFixedArray<bdAddr,5> *)((char *)_RCX + 128);
+      *(_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_sockaddrStorage.ss_family = *(_OWORD *)&v16->m_array[0].m_address.inUn.m_sockaddrStorage.ss_family;
+      *(in6_addr *)((char *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8) = *(in6_addr *)((char *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr.sin6_addr + 8);
+      *((_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr + 2) = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 2);
+      *((_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr + 3) = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 3);
+      *((_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr + 4) = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 4);
+      *((_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr + 5) = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 5);
+      *((_OWORD *)&p_m_localAddrs->m_array[0].m_address.inUn.m_ipv6Sockaddr + 6) = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 6);
+      p_m_localAddrs = (bdFixedArray<bdAddr,5> *)((char *)p_m_localAddrs + 128);
+      *(_OWORD *)&p_m_localAddrs[-1].m_array[4].m_type = *((_OWORD *)&v16->m_array[0].m_address.inUn.m_ipv6Sockaddr + 7);
+      v16 = (bdFixedArray<bdAddr,5> *)((char *)v16 + 128);
       --v17;
     }
     while ( v17 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+310h]
-      vmovups ymmword ptr [rsi+310h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+330h]
-      vmovups ymmword ptr [rsi+330h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+350h]
-      vmovups ymmword ptr [rsi+350h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+370h]
-      vmovups ymmword ptr [rsi+370h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+390h]
-      vmovups xmmword ptr [rsi+390h], xmm0
-      vmovsd  xmm1, qword ptr [rbx+3A0h]
-      vmovsd  qword ptr [rsi+3A0h], xmm1
-    }
-    _RSI->m_natType = _RBX->m_natType;
-    _RSI->m_hash = _RBX->m_hash;
-    _RSI->m_isLoopback = _RBX->m_isLoopback;
-    _RSI->m_platformID = _RBX->m_platformID;
-    bdRelayJoinData::operator=(&_RSI->m_joinData, &_RBX->m_joinData);
+    *(__m256i *)&v14->m_publicAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_sockaddrStorage.ss_family;
+    *((__m256i *)&v14->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 1);
+    *((__m256i *)&v14->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 2);
+    *((__m256i *)&v14->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 3);
+    v14->m_publicAddr.m_relayRoute = m_ptr->m_publicAddr.m_relayRoute;
+    *(double *)&v14->m_publicAddr.m_type = *(double *)&m_ptr->m_publicAddr.m_type;
+    v14->m_natType = m_ptr->m_natType;
+    v14->m_hash = m_ptr->m_hash;
+    v14->m_isLoopback = m_ptr->m_isLoopback;
+    v14->m_platformID = m_ptr->m_platformID;
+    bdRelayJoinData::operator=(&v14->m_joinData, &m_ptr->m_joinData);
     this->m_localAddrResolved = 1;
     m_listener = this->m_listener;
-    if ( m_listener && m_listener->LocalAddressUpdated(m_listener, &buffer, &v37) )
+    if ( m_listener && m_listener->LocalAddressUpdated(m_listener, &buffer, &v23) )
       Timer::Start(&this->m_localAddrUpdateTimer, net_local_addr_update_expiry->current.integer);
   }
   NetInit::UpdateLoopbacks(this, &result);
@@ -879,60 +860,44 @@ NetInit::SetLocalAddr
 */
 void NetInit::SetLocalAddr(NetInit *this, const bdCommonAddr *localAddr)
 {
+  bdCommonAddr *m_ptr; 
+  bdFixedArray<bdAddr,5> *p_m_localAddrs; 
   __int64 v6; 
+  bdFixedArray<bdAddr,5> *v7; 
+  __int128 v8; 
 
-  _RDI = this->m_localAddr.m_ptr;
-  _RBX = localAddr;
-  bdReferencable::operator=(_RDI, localAddr);
-  _R8 = &_RDI->m_localAddrs;
+  m_ptr = this->m_localAddr.m_ptr;
+  bdReferencable::operator=(m_ptr, localAddr);
+  p_m_localAddrs = &m_ptr->m_localAddrs;
   v6 = 6i64;
-  _RAX = &_RBX->m_localAddrs;
+  v7 = &localAddr->m_localAddrs;
   do
   {
-    _R8 = (bdFixedArray<bdAddr,5> *)((char *)_R8 + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (bdFixedArray<bdAddr,5> *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [r8-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [r8-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [r8-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [r8-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [r8-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [r8-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r8-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [r8-10h], xmm1
-    }
+    p_m_localAddrs = (bdFixedArray<bdAddr,5> *)((char *)p_m_localAddrs + 128);
+    v8 = *(_OWORD *)&v7->m_array[0].m_address.inUn.m_sockaddrStorage.ss_family;
+    v7 = (bdFixedArray<bdAddr,5> *)((char *)v7 + 128);
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 2) = v8;
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 3) = *((_OWORD *)&v7[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 3);
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 4) = *((_OWORD *)&v7[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 4);
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 5) = *((_OWORD *)&v7[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 5);
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 6) = *((_OWORD *)&v7[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 6);
+    *((_OWORD *)&p_m_localAddrs[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 7) = *((_OWORD *)&v7[-1].m_array[4].m_address.inUn.m_ipv6Sockaddr + 7);
+    p_m_localAddrs[-1].m_array[4].m_relayRoute = v7[-1].m_array[4].m_relayRoute;
+    *(_OWORD *)&p_m_localAddrs[-1].m_array[4].m_type = *(_OWORD *)&v7[-1].m_array[4].m_type;
     --v6;
   }
   while ( v6 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+310h]
-    vmovups ymmword ptr [rdi+310h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+330h]
-    vmovups ymmword ptr [rdi+330h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+350h]
-    vmovups ymmword ptr [rdi+350h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+370h]
-    vmovups ymmword ptr [rdi+370h], ymm1
-    vmovups xmm0, xmmword ptr [rbx+390h]
-    vmovups xmmword ptr [rdi+390h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+3A0h]
-    vmovsd  qword ptr [rdi+3A0h], xmm1
-  }
-  _RDI->m_natType = _RBX->m_natType;
-  _RDI->m_hash = _RBX->m_hash;
-  _RDI->m_isLoopback = _RBX->m_isLoopback;
-  _RDI->m_platformID = _RBX->m_platformID;
-  bdRelayJoinData::operator=(&_RDI->m_joinData, &_RBX->m_joinData);
+  *(__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&localAddr->m_publicAddr.m_address.inUn.m_sockaddrStorage.ss_family;
+  *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&localAddr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 1);
+  *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&localAddr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&m_ptr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&localAddr->m_publicAddr.m_address.inUn.m_ipv6Sockaddr + 3);
+  m_ptr->m_publicAddr.m_relayRoute = localAddr->m_publicAddr.m_relayRoute;
+  *(double *)&m_ptr->m_publicAddr.m_type = *(double *)&localAddr->m_publicAddr.m_type;
+  m_ptr->m_natType = localAddr->m_natType;
+  m_ptr->m_hash = localAddr->m_hash;
+  m_ptr->m_isLoopback = localAddr->m_isLoopback;
+  m_ptr->m_platformID = localAddr->m_platformID;
+  bdRelayJoinData::operator=(&m_ptr->m_joinData, &localAddr->m_joinData);
   this->m_localAddrResolved = 1;
 }
 

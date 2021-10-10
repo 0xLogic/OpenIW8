@@ -104,20 +104,12 @@ void Particle_DebugBox(const vec3_t *origin, const Bounds *bounds, const vec3_t 
 Particle_DebugCircle
 ==============
 */
-
-void __fastcall Particle_DebugCircle(const vec3_t *center, double radius, const vec3_t *rotation, const vec4_t *color, bool depthTest, int duration)
+void Particle_DebugCircle(const vec3_t *center, float radius, const vec3_t *rotation, const vec4_t *color, bool depthTest, int duration)
 {
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps xmm6, xmm1
-  }
   AnglesToAxis(rotation, &axis);
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugCircle(center, *(float *)&_XMM1, &axis.m[2], color, depthTest, duration);
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  CG_DebugCircle(center, radius, &axis.m[2], color, depthTest, duration);
 }
 
 /*
@@ -125,16 +117,9 @@ void __fastcall Particle_DebugCircle(const vec3_t *center, double radius, const 
 Particle_DebugCone
 ==============
 */
-
-void __fastcall Particle_DebugCone(const vec3_t *center, const tmat33_t<vec3_t> *rotation, double height, double radius, const vec4_t *color, bool depthTest, int duration)
+void Particle_DebugCone(const vec3_t *center, const tmat33_t<vec3_t> *rotation, float height, float radius, const vec4_t *color, bool depthTest, int duration)
 {
-  __asm
-  {
-    vmovaps xmm0, xmm3
-    vmovaps xmm3, xmm2; length
-    vmovaps xmm2, xmm0; radius
-  }
-  CG_DebugCone(center, &rotation->m[2], *(float *)&_XMM2, *(float *)&_XMM3, color, depthTest, duration);
+  CG_DebugCone(center, &rotation->m[2], radius, height, color, depthTest, duration);
 }
 
 /*
@@ -142,85 +127,38 @@ void __fastcall Particle_DebugCone(const vec3_t *center, const tmat33_t<vec3_t> 
 Particle_DebugCylinder
 ==============
 */
-
-void __fastcall Particle_DebugCylinder(const vec3_t *start, const vec3_t *end, double radius, const vec3_t *rotation, const vec4_t *color, bool depthTest, int duration)
+void Particle_DebugCylinder(const vec3_t *start, const vec3_t *end, float radius, const vec3_t *rotation, const vec4_t *color, bool depthTest, int duration)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   tmat33_t<vec3_t> axis; 
   vec3_t enda; 
   vec3_t starta; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RDI = (vec3_t *)end;
-  _RBX = (vec3_t *)start;
-  __asm { vmovaps xmm7, xmm2 }
   AnglesToAxis(rotation, &axis);
-  if ( _RBX == &starta && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  if ( start == &starta && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmulss  xmm3, xmm4, dword ptr [rbp+3Fh+axis]
-    vmovss  xmm6, dword ptr [rbx+8]
-    vmulss  xmm2, xmm5, dword ptr [rbp+3Fh+axis+0Ch]
-    vmulss  xmm0, xmm6, dword ptr [rbp+3Fh+axis+18h]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm2, xmm6, dword ptr [rbp+3Fh+axis+1Ch]
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm3, xmm4, dword ptr [rbp+3Fh+axis+4]
-    vmovss  dword ptr [rbp+3Fh+start], xmm1
-    vmulss  xmm1, xmm5, dword ptr [rbp+3Fh+axis+10h]
-    vaddss  xmm3, xmm3, xmm1
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm2, xmm5, dword ptr [rbp+3Fh+axis+14h]
-    vmulss  xmm3, xmm4, dword ptr [rbp+3Fh+axis+8]
-    vmovss  dword ptr [rbp+3Fh+start+4], xmm0
-    vmulss  xmm0, xmm6, dword ptr [rbp+3Fh+axis+20h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  dword ptr [rbp+3Fh+start+8], xmm2
-  }
-  if ( _RDI == &enda && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  v9 = start->v[0];
+  v10 = start->v[1];
+  v11 = start->v[2];
+  starta.v[0] = (float)((float)(start->v[0] * axis.m[0].v[0]) + (float)(v10 * axis.m[1].v[0])) + (float)(v11 * axis.m[2].v[0]);
+  starta.v[1] = (float)((float)(v9 * axis.m[0].v[1]) + (float)(v10 * axis.m[1].v[1])) + (float)(v11 * axis.m[2].v[1]);
+  starta.v[2] = (float)((float)(v9 * axis.m[0].v[2]) + (float)(v10 * axis.m[1].v[2])) + (float)(v11 * axis.m[2].v[2]);
+  if ( end == &enda && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rdi]
-    vmulss  xmm1, xmm4, dword ptr [rbp+3Fh+axis]
-    vmulss  xmm0, xmm5, dword ptr [rbp+3Fh+axis+0Ch]
-    vmovss  xmm6, dword ptr [rdi+8]
-    vmulss  xmm3, xmm4, dword ptr [rbp+3Fh+axis+4]
-    vmulss  xmm4, xmm4, dword ptr [rbp+3Fh+axis+8]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rbp+3Fh+axis+18h]
-    vmulss  xmm0, xmm5, dword ptr [rbp+3Fh+axis+10h]
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbp+3Fh+axis+1Ch]
-    vmovss  dword ptr [rbp+3Fh+end], xmm2
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm3, xmm5, dword ptr [rbp+3Fh+axis+14h]
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbp+3Fh+axis+20h]
-    vaddss  xmm5, xmm4, xmm3
-    vaddss  xmm3, xmm5, xmm1
-    vmovss  dword ptr [rbp+3Fh+end+4], xmm2
-    vmovaps xmm2, xmm7; radius
-    vmovss  dword ptr [rbp+3Fh+end+8], xmm3
-  }
-  CG_DebugCylinder(&starta, &enda, *(float *)&_XMM2, color, depthTest, duration);
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  v12 = end->v[1];
+  v13 = end->v[2];
+  v14 = end->v[0] * axis.m[0].v[1];
+  v15 = end->v[0] * axis.m[0].v[2];
+  enda.v[0] = (float)((float)(end->v[0] * axis.m[0].v[0]) + (float)(v12 * axis.m[1].v[0])) + (float)(v13 * axis.m[2].v[0]);
+  enda.v[1] = (float)(v14 + (float)(v12 * axis.m[1].v[1])) + (float)(v13 * axis.m[2].v[1]);
+  enda.v[2] = (float)(v15 + (float)(v12 * axis.m[1].v[2])) + (float)(v13 * axis.m[2].v[2]);
+  CG_DebugCylinder(&starta, &enda, radius, color, depthTest, duration);
 }
 
 /*
@@ -230,21 +168,10 @@ Particle_DebugEllipsoid
 */
 void Particle_DebugEllipsoid(const vec3_t *center, const vec3_t *rotation, const vec3_t *size, const vec4_t *color, bool depthTest, int duration)
 {
-  float v12; 
-  float v13; 
   tmat33_t<vec3_t> axis; 
 
-  _RDI = size;
   AnglesToAxis(rotation, &axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi]; radiusA
-    vmovss  [rsp+98h+var_70], xmm0
-    vmovss  [rsp+98h+var_78], xmm1
-  }
-  CG_DebugEllipsoid(center, axis.m, &axis.m[1], *(const float *)&_XMM3, v12, v13, color, depthTest, duration);
+  CG_DebugEllipsoid(center, axis.m, &axis.m[1], size->v[0], size->v[1], size->v[2], color, depthTest, duration);
 }
 
 /*
@@ -275,123 +202,105 @@ Particle_DebugVector
 
 void __fastcall Particle_DebugVector(const vec3_t *start, const vec3_t *end, double size, const vec4_t *color, bool depthTest, int duration)
 {
-  const vec3_t *v18; 
-  const vec3_t *v28; 
-  const float4 *v30; 
-  float4 *v31; 
-  const float4 *v32; 
-  vector3 *v33; 
-  const vector4 *v35; 
-  __m256i *v37; 
-  __int64 v38; 
+  __int128 v6; 
+  float v7; 
+  float v8; 
+  __m128 v; 
+  __m128 v16; 
+  __m128 v19; 
+  __m128 v20; 
+  const float4 *v25; 
+  float4 *v26; 
+  const float4 *v27; 
+  vector3 *v28; 
+  const vector4 *v29; 
+  __m256i v30; 
+  __m128 **v31; 
+  __int64 v32; 
+  __m128 v33; 
   vector4 result; 
   vector4 outMatrix; 
   float4 lookAtInput; 
-  __m256i v48; 
-  __m256i v49; 
-  __m256i v50; 
-  void *retaddr; 
+  __m256i v38; 
+  __m256i v39; 
+  __m256i v40; 
+  __m256i v41; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovss  xmm1, dword ptr [rcx]
-    vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovdqa xmmword ptr [rsp+1A8h+result.w.v], xmm0
-    vmovss  xmm0, dword ptr [rdx]
-  }
+  v7 = start->v[0];
+  result.w = (float4)g_unit.v;
+  v8 = end->v[0];
   lookAtInput.v.m128_i32[3] = 0;
+  v = lookAtInput.v;
+  v.m128_f32[0] = v7;
+  _XMM4 = v;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+0B0h]
-    vmovss  xmm4, xmm4, xmm1
     vinsertps xmm4, xmm4, dword ptr [rcx+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rcx+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+0B0h], xmm4
   }
+  lookAtInput.v = _XMM4;
   lookAtInput.v.m128_i32[3] = 0;
-  v18 = end;
+  v16 = lookAtInput.v;
+  v16.m128_f32[0] = v8;
+  _XMM6 = v16;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rsp+0B0h]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rdx+4], 10h
     vinsertps xmm6, xmm6, dword ptr [rdx+8], 20h ; ' '
-    vmovaps xmm7, xmm2
-    vsubps  xmm2, xmm6, xmm4
-    vmulps  xmm0, xmm2, xmm2
+  }
+  v19 = *(__m128 *)&size;
+  v20 = _mm128_sub_ps(_XMM6, _XMM4);
+  _XMM0 = _mm128_mul_ps(v20, v20);
+  __asm
+  {
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vcomiss xmm0, cs:__real@3a83126f
   }
-  v28 = start;
-  __asm
+  lookAtInput.v = _XMM6;
+  if ( *(float *)&_XMM0 >= 0.001 )
   {
-    vmovups xmmword ptr [rsp+0B0h], xmm6
-    vmovups xmmword ptr [rsp+1A8h+lookAtInput.v], xmm2
-  }
-  Particle_GenerateMatrixFromLookAt(&lookAtInput, &outMatrix);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@00000000bf490fdbc016cbe400000000
-    vmovdqa [rsp+1A8h+var_108], xmm6
-  }
-  Float4RadianToQuat(v31, v30);
-  Float4UnitQuatToAxis(v33, v32);
-  __asm
-  {
-    vmovups xmmword ptr [rsp+1A8h+var_A8+10h], xmm1
-    vmovups xmmword ptr [rsp+1A8h+var_A8], xmm0
-    vmovups ymm3, [rsp+1A8h+var_A8]
-    vmovups ymmword ptr [rsp+1A8h+result.baseclass_0.x.v], ymm3
-    vmovups xmmword ptr [rsp+1A8h+result.baseclass_0.z.v], xmm2
-  }
-  Float4x4Mul(&result, &outMatrix, v35);
-  __asm
-  {
-    vmovups xmmword ptr [rsp+1A8h+var_A8], xmm0
-    vmovups xmmword ptr [rsp+1A8h+var_88], xmm2
-    vmovups xmmword ptr [rsp+1A8h+var_A8+10h], xmm1
-    vmovups ymm2, [rsp+1A8h+var_A8]
-  }
-  v50.m256i_i64[0] = (__int64)&v48;
-  v37 = &v50;
-  v38 = 3i64;
-  v50.m256i_i64[1] = (__int64)&v48.m256i_i64[2];
-  __asm
-  {
-    vmovups xmmword ptr [rsp+1A8h+var_88+10h], xmm3
-    vmovups ymm0, [rsp+1A8h+var_88]
-  }
-  v50.m256i_i64[2] = (__int64)&v49;
-  __asm
-  {
-    vmovups [rsp+1A8h+var_E8], ymm2
-    vmovups [rsp+1A8h+var_C8], ymm0
-    vshufps xmm7, xmm7, xmm7, 0
-  }
-  do
-  {
-    __asm
+    lookAtInput.v = v20;
+    Particle_GenerateMatrixFromLookAt(&lookAtInput, &outMatrix);
+    outMatrix.w.v = _XMM6;
+    Float4RadianToQuat(v26, v25);
+    Float4UnitQuatToAxis(v28, v27);
+    *(_OWORD *)&v40.m256i_u64[2] = _XMM1;
+    *(_OWORD *)v40.m256i_i8 = _xmm;
+    *(__m256i *)result.x.v.m128_f32 = v40;
+    result.z.v = v20;
+    Float4x4Mul(&result, &outMatrix, v29);
+    *(_OWORD *)v40.m256i_i8 = _xmm;
+    *(__m128 *)v41.m256i_i8 = v20;
+    *(_OWORD *)&v40.m256i_u64[2] = _XMM1;
+    v30 = v40;
+    v40.m256i_i64[0] = (__int64)&v38;
+    v31 = (__m128 **)&v40;
+    v32 = 3i64;
+    v40.m256i_i64[1] = (__int64)&v38.m256i_i64[2];
+    *(_OWORD *)&v41.m256i_u64[2] = v6;
+    v40.m256i_i64[2] = (__int64)&v39;
+    v38 = v30;
+    v39 = v41;
+    v33 = _mm_shuffle_ps(v19, v19, 0);
+    do
     {
-      vmulps  xmm1, xmm7, xmmword ptr [rax]
-      vaddps  xmm2, xmm6, xmm1
-      vmovss  dword ptr [rsp+1A8h+lookAtInput.v], xmm2
-      vextractps dword ptr [rsp+1A8h+lookAtInput.v+4], xmm2, 1
-      vextractps dword ptr [rsp+1A8h+lookAtInput.v+8], xmm2, 2
+      _XMM2 = _mm128_add_ps(_XMM6, _mm128_mul_ps(v33, **v31));
+      lookAtInput.v.m128_f32[0] = _XMM2.m128_f32[0];
+      __asm
+      {
+        vextractps dword ptr [rsp+1A8h+lookAtInput.v+4], xmm2, 1
+        vextractps dword ptr [rsp+1A8h+lookAtInput.v+8], xmm2, 2
+      }
+      CG_DebugLine((const vec3_t *)&lookAtInput, end, color, depthTest, duration);
+      ++v31;
+      --v32;
     }
-    CG_DebugLine((const vec3_t *)&lookAtInput, v18, color, depthTest, duration);
-    v37 = (__m256i *)((char *)v37 + 8);
-    --v38;
+    while ( v32 );
+    CG_DebugLine(start, end, color, depthTest, duration);
   }
-  while ( v38 );
-  CG_DebugLine(v28, v18, color, depthTest, duration);
-  __asm
+  else
   {
-    vmovaps xmm6, [rsp+1A8h+var_48]
-    vmovaps xmm7, [rsp+1A8h+var_58]
+    CG_DebugSphere(start, v19.m128_f32[0] * 0.25, color, depthTest, duration);
   }
 }
 

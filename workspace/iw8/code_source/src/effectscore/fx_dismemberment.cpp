@@ -261,100 +261,68 @@ Dismemberment_BoneRemapIndex
 */
 __int64 Dismemberment_BoneRemapIndex(LocalClientNum_t localClientNum, DObj *obj, int boneIndex, const vec3_t *boneOffset)
 {
-  const dvar_t *v7; 
+  const dvar_t *v4; 
   scr_string_t BoneNameScriptString; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
   int numDismembermentRemap; 
-  int v16; 
-  scr_string_t v30; 
-  __int64 v35; 
-  __int64 v36; 
+  int v13; 
+  float v14; 
+  float *v15; 
+  scr_string_t v16; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned __int8 inOutIndex[4]; 
   int modelIndex[3]; 
 
-  v7 = DVARBOOL_dismemberment_bone_torso_remap_enabled;
-  _RDI = boneOffset;
+  v4 = DVARBOOL_dismemberment_bone_torso_remap_enabled;
   if ( !DVARBOOL_dismemberment_bone_torso_remap_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dismemberment_bone_torso_remap_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 239, ASSERT_TYPE_ASSERT, "(boneOffset)", (const char *)&queryFormat, "boneOffset") )
+    if ( !boneOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 239, ASSERT_TYPE_ASSERT, "(boneOffset)", (const char *)&queryFormat, "boneOffset") )
       __debugbreak();
     if ( boneIndex >= (unsigned int)obj->numBones )
     {
-      LODWORD(v36) = obj->numBones;
-      LODWORD(v35) = boneIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex ) < (unsigned)( obj->numBones )", "boneIndex doesn't index obj->numBones\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v19) = obj->numBones;
+      LODWORD(v18) = boneIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex ) < (unsigned)( obj->numBones )", "boneIndex doesn't index obj->numBones\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     BoneNameScriptString = DObjGetBoneNameScriptString(obj, boneIndex);
     if ( BoneNameScriptString )
     {
-      _RBX = DVARFLT_dismemberment_bone_torso_remap_max_dist;
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_38], xmm6
-        vmovaps [rsp+0A8h+var_48], xmm7
-        vmovaps [rsp+0A8h+var_58], xmm8
-        vmovss  xmm8, dword ptr [rdi+8]
-        vmovss  xmm7, dword ptr [rdi]
-      }
+      v9 = DVARFLT_dismemberment_bone_torso_remap_max_dist;
+      v10 = boneOffset->v[2];
+      v11 = boneOffset->v[0];
       if ( !DVARFLT_dismemberment_bone_torso_remap_max_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dismemberment_bone_torso_remap_max_dist") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
+      Dvar_CheckFrontendServerThread(v9);
       numDismembermentRemap = g_dismembermentGlob.config.numDismembermentRemap;
-      v16 = 0;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm6, xmm0, xmm0
-      }
+      v13 = 0;
+      v14 = v9->current.value * v9->current.value;
       if ( g_dismembermentGlob.config.numDismembermentRemap > 0 )
       {
-        _RBX = &g_dismembermentGlob.config.dismembermentRemap[0].srcBoneOffset.v[2];
+        v15 = &g_dismembermentGlob.config.dismembermentRemap[0].srcBoneOffset.v[2];
         do
         {
-          if ( BoneNameScriptString == *((_DWORD *)_RBX - 4) )
+          if ( BoneNameScriptString == *((_DWORD *)v15 - 4) && v14 >= (float)((float)((float)((float)(*(v15 - 2) - v11) * (float)(*(v15 - 2) - v11)) + (float)(*(v15 - 1) * *(v15 - 1))) + (float)((float)(*v15 - v10) * (float)(*v15 - v10))) )
           {
-            __asm
+            v16 = *((_DWORD *)v15 - 3);
+            inOutIndex[0] = -2;
+            if ( v16 )
             {
-              vmovss  xmm0, dword ptr [rbx-8]
-              vmovss  xmm3, dword ptr [rbx-4]
-              vmovss  xmm1, dword ptr [rbx]
-              vsubss  xmm2, xmm0, xmm7
-              vmulss  xmm2, xmm2, xmm2
-              vsubss  xmm4, xmm1, xmm8
-              vmulss  xmm0, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm0
-              vmulss  xmm1, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm1
-              vcomiss xmm6, xmm2
-            }
-            if ( (unsigned int)BoneNameScriptString >= *((_DWORD *)_RBX - 4) )
-            {
-              v30 = *((_DWORD *)_RBX - 3);
-              inOutIndex[0] = -2;
-              if ( v30 )
-              {
-                if ( DObjGetBoneIndexInternal_39(obj, v30, inOutIndex, modelIndex) )
-                {
-                  boneIndex = inOutIndex[0];
-                  break;
-                }
-                numDismembermentRemap = g_dismembermentGlob.config.numDismembermentRemap;
-              }
+              if ( DObjGetBoneIndexInternal_39(obj, v16, inOutIndex, modelIndex) )
+                return inOutIndex[0];
+              numDismembermentRemap = g_dismembermentGlob.config.numDismembermentRemap;
             }
           }
-          ++v16;
-          _RBX += 5;
+          ++v13;
+          v15 += 5;
         }
-        while ( v16 < numDismembermentRemap );
-      }
-      __asm
-      {
-        vmovaps xmm8, [rsp+0A8h+var_58]
-        vmovaps xmm7, [rsp+0A8h+var_48]
-        vmovaps xmm6, [rsp+0A8h+var_38]
+        while ( v13 < numDismembermentRemap );
       }
     }
   }
@@ -1399,6 +1367,7 @@ void FX_Dismemberment_LoadConfig(const char *remapFilename, DismembermentConfig 
   int RowCount; 
   int ColumnCount; 
   int v7; 
+  float *v8; 
   const char *ColumnValueForRow; 
   scr_string_t String; 
   StringTable *v11; 
@@ -1425,33 +1394,27 @@ void FX_Dismemberment_LoadConfig(const char *remapFilename, DismembermentConfig 
   v7 = 0;
   if ( config->numDismembermentRemap > 0 )
   {
-    _RSI = &config->dismembermentRemap[0].srcBoneOffset.v[1];
+    v8 = &config->dismembermentRemap[0].srcBoneOffset.v[1];
     do
     {
       ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v7, 0);
       String = SL_FindString(ColumnValueForRow);
       v11 = tablePtr;
-      *((_DWORD *)_RSI - 3) = String;
+      *((_DWORD *)v8 - 3) = String;
       v12 = StringTable_GetColumnValueForRow(v11, v7, 1);
       *(double *)&_XMM0 = atof(v12);
       v13 = tablePtr;
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsi-4], xmm1
-      }
-      *_RSI = 0.0;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      *(v8 - 1) = *(float *)&_XMM1;
+      *v8 = 0.0;
       v15 = StringTable_GetColumnValueForRow(v13, v7, 2);
       *(double *)&_XMM0 = atof(v15);
       v16 = tablePtr;
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsi+4], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      v8[1] = *(float *)&_XMM1;
       v18 = StringTable_GetColumnValueForRow(v16, v7, 3);
-      *((_DWORD *)_RSI - 2) = SL_FindString(v18);
-      _RSI += 5;
+      *((_DWORD *)v8 - 2) = SL_FindString(v18);
+      v8 += 5;
       ++v7;
     }
     while ( v7 < config->numDismembermentRemap );
@@ -1465,6 +1428,7 @@ FX_Dismemberment_ProcessEntity
 */
 bool FX_Dismemberment_ProcessEntity(LocalClientNum_t localClientNum, DObj *obj, bool hideVFX)
 {
+  __int128 v3; 
   LocalClientNum_t v4; 
   bool v7; 
   bool v8; 
@@ -1521,50 +1485,49 @@ bool FX_Dismemberment_ProcessEntity(LocalClientNum_t localClientNum, DObj *obj, 
   int v59; 
   int v60; 
   ParticleSystemHandle *v61; 
-  __int64 v63; 
-  unsigned __int8 v64; 
-  __int64 v65; 
-  int v66; 
+  __int64 v62; 
+  unsigned __int8 v63; 
+  __int64 v64; 
+  int v65; 
   int time; 
-  const FXRegisteredDef *v68; 
-  scr_string_t v69; 
-  int v70; 
-  const FXRegisteredDef *v71; 
-  const SndAliasList *v72; 
-  scr_string_t v73; 
+  const FXRegisteredDef *v67; 
+  scr_string_t v68; 
+  int v69; 
+  const FXRegisteredDef *v70; 
+  const SndAliasList *v71; 
+  scr_string_t v72; 
   const char ***p_gibDismemberHead; 
   scr_string_t String; 
-  __int64 v76; 
-  ParticleSystemHandle v77; 
-  __int64 v78; 
-  unsigned int v79; 
-  __int64 v80; 
-  ParticleSystem *v81; 
-  __int64 v82; 
-  int v84; 
+  __int64 v75; 
+  ParticleSystemHandle v76; 
+  __int64 v77; 
+  unsigned int v78; 
+  __int64 v79; 
+  ParticleSystem *v80; 
+  __int64 v81; 
+  int v82; 
   __int64 spawnFlags; 
-  int spawnFlagsa; 
-  __int64 v87; 
-  int v88; 
+  __int64 v84; 
   unsigned __int8 childIndex; 
   unsigned __int8 j; 
-  char v91; 
-  bool v92; 
+  char v87; 
+  bool v88; 
   LocalClientNum_t localClientNuma; 
-  int v94; 
+  int v90; 
   int dobjHandle; 
-  __int64 v96; 
+  __int64 v92; 
   int dismemberHandle; 
-  int v98; 
+  int v94; 
   int NumModels; 
-  DismembermentUser *v100; 
-  __int64 v101; 
+  DismembermentUser *v96; 
+  __int64 v97; 
   orientation_t orient; 
-  __int64 v103[4]; 
+  __int64 v99[4]; 
+  __int128 v100; 
 
   v4 = localClientNum;
   localClientNuma = localClientNum;
-  v92 = hideVFX;
+  v88 = hideVFX;
   if ( !obj )
     return 0;
   v7 = 0;
@@ -1580,9 +1543,9 @@ bool FX_Dismemberment_ProcessEntity(LocalClientNum_t localClientNum, DObj *obj, 
   }
   entnum = obj->entnum;
   v11 = entnum - 1;
-  v91 = v9;
+  v87 = v9;
   v12 = &g_dismembermentGlob.users[localClientNum];
-  v100 = v12;
+  v96 = v12;
   dobjHandle = entnum - 1;
   if ( (unsigned int)(entnum - 1) <= 0x7FF && ((0x80000000 >> (v11 & 0x1F)) & v12->dismembermentEntNumInUse[(entnum - 1) >> 5]) != 0 )
   {
@@ -1602,9 +1565,9 @@ LABEL_160:
       return v7;
     }
     v17 = DObjEntry;
-    v101 = 952 * v14;
+    v97 = 952 * v14;
     v18 = (__int64)&v12->dismembermentEntries[v17];
-    v96 = v18;
+    v92 = v18;
     if ( v12->dismembermentEntries[v17].indicesValid && v12->dismembermentEntries[v17].dismembermentPointCount && (v12->dismembermentEntries[v17].baseBoneCount != DObjNumBones(obj) || *(_DWORD *)(v18 + 8) != *(_DWORD *)(v18 + 4) + DObjNumClientOnlyBones(obj)) )
     {
       Com_PrintWarning(21, "FX_Dismemberment_ProcessEntity unexpected dobj change dish:%d dobjh:%d\n", (unsigned int)v14, v11);
@@ -1672,7 +1635,7 @@ LABEL_160:
                 v28 = DObjGetNextBoneIndex(obj, v26, v28);
               }
               while ( v28 != 0xFF );
-              v18 = v96;
+              v18 = v92;
             }
           }
           ++v25;
@@ -1685,7 +1648,7 @@ LABEL_160:
       {
         NumModels = DObjGetNumModels(obj);
         v31 = NumModels;
-        v94 = 0;
+        v90 = 0;
         v32 = 0;
         ClientBoneOffset = DObjGetClientBoneOffset(obj);
         if ( v31 > 0 )
@@ -1695,19 +1658,19 @@ LABEL_160:
             Model = DObjGetModel(obj, v15);
             if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 743, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
               __debugbreak();
-            v98 = v32;
+            v94 = v32;
             if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
               __debugbreak();
             numBones = Model->numBones;
             numClientBones = Model->numClientBones;
-            v94 += numBones;
+            v90 += numBones;
             numRootBones = Model->numRootBones;
             if ( Model->parentList )
             {
               if ( (int)numClientBones + ClientBoneOffset >= 768 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 758, ASSERT_TYPE_ASSERT, "(( dobjClientBoneIndex + numModelClientBones ) < (DOBJ_TOTAL_PARTS_LIMIT))", (const char *)&queryFormat, "( dobjClientBoneIndex + numModelClientBones ) < DISMEMBERMENT_DOBJ_BONE_MAX") )
                 __debugbreak();
               v38 = 0;
-              v39 = ClientBoneOffset - numBones - v98;
+              v39 = ClientBoneOffset - numBones - v94;
               if ( numClientBones )
               {
                 v40 = 0i64;
@@ -1734,16 +1697,16 @@ LABEL_160:
             {
               ClientBoneOffset += numClientBones;
             }
-            v32 = v94;
+            v32 = v90;
             ++v15;
           }
           while ( v15 < NumModels );
-          v12 = v100;
+          v12 = v96;
         }
-        v18 = v96;
+        v18 = v92;
       }
       v46 = 0;
-      memset(v103, 0, sizeof(v103));
+      memset(v99, 0, sizeof(v99));
       if ( *(int *)(v18 + 8) > 0 )
       {
         do
@@ -1753,14 +1716,14 @@ LABEL_160:
           {
             if ( v47 >= 8u )
             {
-              LODWORD(v87) = 8;
+              LODWORD(v84) = 8;
               LODWORD(spawnFlags) = v47;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 786, ASSERT_TYPE_ASSERT, "(unsigned)( boneDismemberIndices[boneIdx] ) < (unsigned)( ( sizeof( *array_counter( usedBoneIndex ) ) + 0 ) )", "boneDismemberIndices[boneIdx] doesn't index ARRAY_COUNT( usedBoneIndex )\n\t%i not in [0, %i)", spawnFlags, v87) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 786, ASSERT_TYPE_ASSERT, "(unsigned)( boneDismemberIndices[boneIdx] ) < (unsigned)( ( sizeof( *array_counter( usedBoneIndex ) ) + 0 ) )", "boneDismemberIndices[boneIdx] doesn't index ARRAY_COUNT( usedBoneIndex )\n\t%i not in [0, %i)", spawnFlags, v84) )
                 __debugbreak();
             }
             v48 = *v21;
-            if ( !*((_DWORD *)v103 + v48) )
-              *((_DWORD *)v103 + v48) = v46 + 1;
+            if ( !*((_DWORD *)v99 + v48) )
+              *((_DWORD *)v99 + v48) = v46 + 1;
           }
           ++v46;
           ++v21;
@@ -1775,7 +1738,7 @@ LABEL_160:
         v52 = (_DWORD *)(v18 + 800);
         do
         {
-          if ( *((_DWORD *)v103 + v51) )
+          if ( *((_DWORD *)v99 + v51) )
           {
             LOBYTE(v54) = v49;
           }
@@ -1788,7 +1751,7 @@ LABEL_160:
             *v52 = *(_DWORD *)(v18 + 4i64 * *(unsigned __int8 *)(v18 + 791) + 800);
             *(_BYTE *)(v51 + v18 + 944) = *(_BYTE *)(*(unsigned __int8 *)(v18 + 791) + v18 + 944);
             v54 = *(unsigned __int8 *)(v18 + 791);
-            *((_DWORD *)v103 + v51--) = *((_DWORD *)v103 + v54);
+            *((_DWORD *)v99 + v51--) = *((_DWORD *)v99 + v54);
             --v52;
           }
           ++v50;
@@ -1798,9 +1761,9 @@ LABEL_160:
         }
         while ( v50 < (unsigned __int8)v54 );
       }
-      v55 = v101;
+      v55 = v97;
       v4 = localClientNuma;
-      v9 = v91;
+      v9 = v87;
       *(_BYTE *)(v18 + 12) = 1;
       v20 = v12->dismembermentEntries[0].dismembermentPointBoneIndices[v55 + 8];
     }
@@ -1821,69 +1784,68 @@ LABEL_160:
     LOBYTE(v60) = *(_BYTE *)(v18 + 791);
     if ( (_BYTE)v60 )
     {
-      __asm { vmovaps [rsp+118h+var_48], xmm6 }
+      v100 = v3;
       v61 = (ParticleSystemHandle *)(v18 + 872);
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-      v63 = 0i64;
+      v62 = 0i64;
       while ( 1 )
       {
-        v64 = *(_BYTE *)(v18 + v63 + 792);
-        if ( v64 >= 0x32u )
+        v63 = *(_BYTE *)(v18 + v62 + 792);
+        if ( v63 >= 0x32u )
         {
-          LODWORD(v87) = 50;
-          LODWORD(spawnFlags) = v64;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 821, ASSERT_TYPE_ASSERT, "(unsigned)( tagIdx ) < (unsigned)( (50) )", "tagIdx doesn't index DISMEMBERMENT_MAX_POINTS\n\t%i not in [0, %i)", spawnFlags, v87) )
+          LODWORD(v84) = 50;
+          LODWORD(spawnFlags) = v63;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_dismemberment.cpp", 821, ASSERT_TYPE_ASSERT, "(unsigned)( tagIdx ) < (unsigned)( (50) )", "tagIdx doesn't index DISMEMBERMENT_MAX_POINTS\n\t%i not in [0, %i)", spawnFlags, v84) )
             __debugbreak();
         }
-        if ( !v92 && *(_BYTE *)(v18 + 13) && (v65 = v64, g_dismembermentGlob.config.dismembermentBoneNames[v64] == *((_DWORD *)v61 - 18)) && g_dismembermentGlob.config.pointType[v64] == *(_BYTE *)(v63 + v18 + 944) )
+        if ( !v88 && *(_BYTE *)(v18 + 13) && (v64 = v63, g_dismembermentGlob.config.dismembermentBoneNames[v63] == *((_DWORD *)v61 - 18)) && g_dismembermentGlob.config.pointType[v63] == *(_BYTE *)(v62 + v18 + 944) )
         {
-          v66 = DObjGetNextBoneIndex(obj, g_dismembermentGlob.config.attachmentBoneNames[v64], 0xFEu);
+          v65 = DObjGetNextBoneIndex(obj, g_dismembermentGlob.config.attachmentBoneNames[v63], 0xFEu);
           if ( *v61 == PARTICLE_SYSTEM_INVALID_HANDLE )
           {
             if ( v4 >= (unsigned int)cg_t::ms_allocatedCount )
             {
-              LODWORD(v87) = cg_t::ms_allocatedCount;
+              LODWORD(v84) = cg_t::ms_allocatedCount;
               LODWORD(spawnFlags) = v4;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", spawnFlags, v87) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", spawnFlags, v84) )
                 __debugbreak();
             }
             if ( !cg_t::ms_cgArray[v4] )
             {
-              LODWORD(v87) = v4;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v87) )
+              LODWORD(v84) = v4;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v84) )
                 __debugbreak();
             }
             if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
             {
-              LODWORD(v87) = v4;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v87) )
+              LODWORD(v84) = v4;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v84) )
                 __debugbreak();
             }
             time = cg_t::ms_cgArray[v4]->time;
-            v68 = &g_dismembermentGlob.config.attachmentFXDef[v64][*((int *)v61 + 8)];
-            if ( v68->m_particleSystemDef && v66 != 255 )
-              *v61 = FX_PlayBoltedEffect(localClientNuma, v68, time, dobjHandle, v66, 0);
-            if ( !*(_BYTE *)(v63 + v96 + 864) )
+            v67 = &g_dismembermentGlob.config.attachmentFXDef[v63][*((int *)v61 + 8)];
+            if ( v67->m_particleSystemDef && v65 != 255 )
+              *v61 = FX_PlayBoltedEffect(localClientNuma, v67, time, dobjHandle, v65, 0);
+            if ( !*(_BYTE *)(v62 + v92 + 864) )
             {
-              v69 = g_dismembermentGlob.config.onAttachBoneNames[v64];
-              v70 = v69 == g_dismembermentGlob.config.attachmentBoneNames[v64] ? v66 : DObjGetNextBoneIndex(obj, v69, 0xFEu);
-              v71 = &g_dismembermentGlob.config.onAttachFXDef[v64][*((int *)v61 + 8)];
-              *(_BYTE *)(v63 + v96 + 864) = 1;
-              if ( v71->m_particleSystemDef )
+              v68 = g_dismembermentGlob.config.onAttachBoneNames[v63];
+              v69 = v68 == g_dismembermentGlob.config.attachmentBoneNames[v63] ? v65 : DObjGetNextBoneIndex(obj, v68, 0xFEu);
+              v70 = &g_dismembermentGlob.config.onAttachFXDef[v63][*((int *)v61 + 8)];
+              *(_BYTE *)(v62 + v92 + 864) = 1;
+              if ( v70->m_particleSystemDef )
               {
-                if ( v70 != 255 )
-                  FX_PlayBoltedEffect(localClientNuma, v71, time, dobjHandle, v70, 0);
+                if ( v69 != 255 )
+                  FX_PlayBoltedEffect(localClientNuma, v70, time, dobjHandle, v69, 0);
               }
             }
           }
           Sys_ProfBeginNamedEvent(0xFF008008, "Play Sound - Dismemberment");
-          if ( !*(_BYTE *)(v63 + v96 + 936) && v66 != 255 )
+          if ( !*(_BYTE *)(v62 + v92 + 936) && v65 != 255 )
           {
-            *(_BYTE *)(v63 + v96 + 936) = 1;
-            v72 = g_dismembermentGlob.config.attachmentSFX[v64];
-            if ( v72 )
+            *(_BYTE *)(v62 + v92 + 936) = 1;
+            v71 = g_dismembermentGlob.config.attachmentSFX[v63];
+            if ( v71 )
               goto LABEL_131;
-            v73 = g_dismembermentGlob.config.attachmentSFXNames[v65];
+            v72 = g_dismembermentGlob.config.attachmentSFXNames[v64];
             p_gibDismemberHead = (const char ***)&cgMedia.gibDismemberHead;
             while ( 1 )
             {
@@ -1892,95 +1854,89 @@ LABEL_160:
                 String = SL_FindString(**p_gibDismemberHead);
                 if ( String )
                 {
-                  if ( String == v73 )
+                  if ( String == v72 )
                     break;
                 }
               }
               if ( ++p_gibDismemberHead > (const char ***)&cgMedia.gibGeneric2Arm )
               {
-                v72 = NULL;
+                v71 = NULL;
                 goto LABEL_130;
               }
             }
-            v72 = (const SndAliasList *)*p_gibDismemberHead;
+            v71 = (const SndAliasList *)*p_gibDismemberHead;
 LABEL_130:
-            g_dismembermentGlob.config.attachmentSFX[v65] = v72;
-            if ( v72 )
+            g_dismembermentGlob.config.attachmentSFX[v64] = v71;
+            if ( v71 )
             {
 LABEL_131:
-              v76 = localClientNuma;
-              if ( FX_GetBoneOrientation(localClientNuma, dobjHandle, v66, &orient) )
+              v75 = localClientNuma;
+              if ( FX_GetBoneOrientation(localClientNuma, dobjHandle, v65, &orient) )
               {
                 if ( !(_BYTE)CgSoundSystem::ms_allocatedType )
                 {
-                  LODWORD(v87) = v76;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 179, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the sound system for localClientNum %d but the sound system type is not known\n", "ms_allocatedType != GameModeType::NONE", v87) )
+                  LODWORD(v84) = v75;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 179, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the sound system for localClientNum %d but the sound system type is not known\n", "ms_allocatedType != GameModeType::NONE", v84) )
                     __debugbreak();
                 }
-                if ( (unsigned int)v76 >= CgSoundSystem::ms_allocatedCount )
+                if ( (unsigned int)v75 >= CgSoundSystem::ms_allocatedCount )
                 {
-                  LODWORD(v87) = CgSoundSystem::ms_allocatedCount;
-                  LODWORD(spawnFlags) = v76;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 180, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", spawnFlags, v87) )
+                  LODWORD(v84) = CgSoundSystem::ms_allocatedCount;
+                  LODWORD(spawnFlags) = v75;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 180, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", spawnFlags, v84) )
                     __debugbreak();
                 }
-                if ( !CgSoundSystem::ms_soundSystemArray[v76] )
+                if ( !CgSoundSystem::ms_soundSystemArray[v75] )
                 {
-                  LODWORD(v87) = v76;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 181, ASSERT_TYPE_ASSERT, "(ms_soundSystemArray[localClientNum])", "%s\n\tTrying to access unallocated sound system for localClientNum %d\n", "ms_soundSystemArray[localClientNum]", v87) )
+                  LODWORD(v84) = v75;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_sound.h", 181, ASSERT_TYPE_ASSERT, "(ms_soundSystemArray[localClientNum])", "%s\n\tTrying to access unallocated sound system for localClientNum %d\n", "ms_soundSystemArray[localClientNum]", v84) )
                     __debugbreak();
                 }
-                __asm
-                {
-                  vmovss  dword ptr [rsp+118h+var_E8], xmm6
-                  vmovss  dword ptr [rsp+118h+spawnFlags], xmm6
-                }
-                ((void (__fastcall *)(CgSoundSystem *, __int64, orientation_t *, const SndAliasList *, _DWORD, int, int, _DWORD))CgSoundSystem::ms_soundSystemArray[v76]->PlaySurfaceSound)(CgSoundSystem::ms_soundSystemArray[v76], 2046i64, &orient, v72, 0, spawnFlagsa, v88, 0);
+                ((void (__fastcall *)(CgSoundSystem *, __int64, orientation_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD, _DWORD))CgSoundSystem::ms_soundSystemArray[v75]->PlaySurfaceSound)(CgSoundSystem::ms_soundSystemArray[v75], 2046i64, &orient, v71, 0, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
               }
             }
           }
           Sys_ProfEndNamedEvent();
-          v18 = v96;
+          v18 = v92;
         }
         else
         {
-          v77 = *v61;
+          v76 = *v61;
           if ( *v61 )
           {
-            v78 = (__int64)(int)v4 << 12;
-            v79 = 0;
-            if ( g_particleSystemsGeneration[v78 + (v77 & 0xFFF)].__all32 == v77 )
-              v79 = *v61 & 0xFFF;
-            v80 = v79;
-            v81 = NULL;
-            v82 = v78 + v80;
-            if ( g_particleSystems[0][v82] >= (ParticleSystem *)0x1000 )
-              v81 = g_particleSystems[0][v82];
-            if ( v81 )
-              FX_KillEffect(v4, v77);
+            v77 = (__int64)(int)v4 << 12;
+            v78 = 0;
+            if ( g_particleSystemsGeneration[v77 + (v76 & 0xFFF)].__all32 == v76 )
+              v78 = *v61 & 0xFFF;
+            v79 = v78;
+            v80 = NULL;
+            v81 = v77 + v79;
+            if ( g_particleSystems[0][v81] >= (ParticleSystem *)0x1000 )
+              v80 = g_particleSystems[0][v81];
+            if ( v80 )
+              FX_KillEffect(v4, v76);
             *v61 = PARTICLE_SYSTEM_INVALID_HANDLE;
           }
         }
         v60 = *(unsigned __int8 *)(v18 + 791);
         ++v59;
-        ++v63;
+        ++v62;
         ++v61;
         if ( v59 >= v60 )
           break;
         v4 = localClientNuma;
       }
-      v9 = v91;
-      __asm { vmovaps xmm6, [rsp+118h+var_48] }
+      v9 = v87;
     }
     if ( *(_BYTE *)(v18 + 14) )
     {
       if ( v9 )
       {
-        v84 = dismemberHandle;
+        v82 = dismemberHandle;
 LABEL_157:
         if ( !*(_BYTE *)(v18 + 13) )
-          v84 = 32;
-        v16 = v84 == 32;
+          v82 = 32;
+        v16 = v82 == 32;
         goto LABEL_160;
       }
     }
@@ -1989,7 +1945,7 @@ LABEL_157:
       __debugbreak();
     }
     Dismemberment_ClearEntry(localClientNuma, dismemberHandle);
-    v84 = 32;
+    v82 = 32;
     goto LABEL_157;
   }
   return v7;

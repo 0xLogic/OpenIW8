@@ -131,20 +131,18 @@ _BOOL8 bdBandwidthTestResults::deserialize(bdBandwidthTestResults *this, const b
 bdBandwidthTestResults::getBandwidth
 ==============
 */
-
-float __fastcall bdBandwidthTestResults::getBandwidth(bdBandwidthTestResults *this, double _XMM1_8)
+float bdBandwidthTestResults::getBandwidth(bdBandwidthTestResults *this)
 {
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f7a0000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+  __int64 m_receivePeriodMs; 
+  float v2; 
+  float v3; 
+
+  m_receivePeriodMs = 1i64;
+  if ( this->m_receivePeriodMs > 1 )
+    m_receivePeriodMs = this->m_receivePeriodMs;
+  v2 = (float)m_receivePeriodMs;
+  v3 = (float)(8 * this->m_bytesReceived);
+  return (float)(0.9765625 / v2) * v3;
 }
 
 /*

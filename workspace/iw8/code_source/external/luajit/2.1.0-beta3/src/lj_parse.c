@@ -185,73 +185,61 @@ bcemit_arith
 */
 void bcemit_arith(FuncState *fs, BinOpr opr, ExpDesc *e1, ExpDesc *e2)
 {
-  __int32 v13; 
-  unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v16; 
-  __int64 v18; 
+  union {struct {unsigned int info;unsigned int aux;} s;TValue nval;GCstr *sval;} u; 
+  double v9; 
+  __int32 v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
 
-  _RSI = e2;
-  _RBX = e1;
   if ( *(_QWORD *)&e1->k == __PAIR64__(e1->f, 4) && e2->k == VKNUM && e2->t == e2->f )
   {
-    __asm { vmovaps [rsp+48h+var_28], xmm6 }
     if ( (unsigned int)(e2->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm { vmovsd  xmm6, qword ptr [rsi] }
-    if ( (unsigned int)(_RBX->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+    u = e2->u;
+    if ( (unsigned int)(e1->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm
+    v9 = j_lj_vm_foldarith(e1->u.nval.n, u.nval.n, opr);
+    if ( v9 != -0.0 )
     {
-      vmovsd  xmm0, qword ptr [rbx]; x
-      vmovaps xmm1, xmm6; y
-    }
-    *(double *)&_XMM0 = j_lj_vm_foldarith(*(long double *)&_XMM0, *(long double *)&_XMM1, opr);
-    __asm
-    {
-      vmovaps xmm6, [rsp+48h+var_28]
-      vmovsd  [rsp+48h+arg_10], xmm0
-    }
-    if ( v18 != 0x8000000000000000ui64 )
-    {
-      __asm { vmovsd  qword ptr [rbx], xmm0 }
+      e1->u.nval.n = v9;
       return;
     }
   }
   if ( opr == OPR_POW )
   {
-    v13 = 37;
-    v14 = expr_toanyreg(fs, _RSI);
+    v10 = 37;
+    v11 = expr_toanyreg(fs, e2);
 LABEL_14:
-    v15 = expr_toanyreg(fs, _RBX);
+    v12 = expr_toanyreg(fs, e1);
     goto LABEL_15;
   }
-  v13 = opr + 32;
-  expr_toval(fs, _RSI);
-  if ( _RSI->k == VKNUM && (v14 = const_num(fs, _RSI), v14 <= 0xFF) )
-    v13 -= 10;
+  v10 = opr + 32;
+  expr_toval(fs, e2);
+  if ( e2->k == VKNUM && (v11 = const_num(fs, e2), v11 <= 0xFF) )
+    v10 -= 10;
   else
-    v14 = expr_toanyreg(fs, _RSI);
-  if ( ((_RBX->k - 4) & 0xFFFFFFF7) != 0 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 806, "((e1)->k == VKNUM) || e1->k == VNONRELOC") )
+    v11 = expr_toanyreg(fs, e2);
+  if ( ((e1->k - 4) & 0xFFFFFFF7) != 0 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 806, "((e1)->k == VKNUM) || e1->k == VNONRELOC") )
     __debugbreak();
-  expr_toval(fs, _RBX);
-  if ( _RBX->k != VKNUM )
+  expr_toval(fs, e1);
+  if ( e1->k != VKNUM )
     goto LABEL_14;
-  if ( _RSI->k == VKNUM )
+  if ( e2->k == VKNUM )
     goto LABEL_14;
-  v16 = const_num(fs, _RBX);
-  if ( v16 > 0xFF )
+  v13 = const_num(fs, e1);
+  if ( v13 > 0xFF )
     goto LABEL_14;
-  v15 = v14;
-  v13 -= 5;
-  v14 = v16;
+  v12 = v11;
+  v10 -= 5;
+  v11 = v13;
 LABEL_15:
-  if ( _RBX->k == VNONRELOC && _RBX->u.s.info >= fs->nactvar )
+  if ( e1->k == VNONRELOC && e1->u.s.info >= fs->nactvar )
     --fs->freereg;
-  if ( _RSI->k == VNONRELOC && _RSI->u.s.info >= fs->nactvar )
+  if ( e2->k == VNONRELOC && e2->u.s.info >= fs->nactvar )
     --fs->freereg;
-  _RBX->u.s.info = bcemit_INS(fs, v13 | ((v14 | (v15 << 8)) << 16));
-  _RBX->k = VRELOCABLE;
+  e1->u.s.info = bcemit_INS(fs, v10 | ((v11 | (v12 << 8)) << 16));
+  e1->k = VRELOCABLE;
 }
 
 /*
@@ -267,8 +255,6 @@ void bcemit_binop(FuncState *fs, BinOpr op, ExpDesc *e1, ExpDesc *e2)
   int v11; 
   unsigned int ins; 
 
-  _RBX = e2;
-  _RDI = e1;
   if ( op <= OPR_POW )
   {
     bcemit_arith(fs, op, e1, e2);
@@ -279,14 +265,14 @@ void bcemit_binop(FuncState *fs, BinOpr op, ExpDesc *e1, ExpDesc *e2)
     case OPR_AND:
       if ( e1->t != -1 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 891, "e1->t == (~(BCPos)0)") )
         __debugbreak();
-      expr_discharge(fs, _RBX);
-      f = _RDI->f;
+      expr_discharge(fs, e2);
+      f = e1->f;
       if ( f != -1 )
       {
-        v9 = _RBX->f;
+        v9 = e2->f;
         if ( v9 == -1 )
         {
-          _RBX->f = f;
+          e2->f = f;
         }
         else
         {
@@ -302,44 +288,39 @@ void bcemit_binop(FuncState *fs, BinOpr op, ExpDesc *e1, ExpDesc *e2)
         }
       }
 LABEL_20:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rdi], xmm0
-        vmovsd  xmm1, qword ptr [rbx+10h]
-        vmovsd  qword ptr [rdi+10h], xmm1
-      }
+      *(_OWORD *)&e1->u.s.info = *(_OWORD *)&e2->u.s.info;
+      *(double *)&e1->f = *(double *)&e2->f;
       return;
     case OPR_OR:
       if ( e1->f != -1 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 896, "e1->f == (~(BCPos)0)") )
         __debugbreak();
-      expr_discharge(fs, _RBX);
-      jmp_append(fs, &_RBX->t, _RDI->t);
+      expr_discharge(fs, e2);
+      jmp_append(fs, &e2->t, e1->t);
       goto LABEL_20;
     case OPR_CONCAT:
       expr_toval(fs, e2);
-      if ( _RBX->k == VRELOCABLE && (ins = fs->bcbase[_RBX->u.s.info].ins, (_BYTE)ins == 38) )
+      if ( e2->k == VRELOCABLE && (ins = fs->bcbase[e2->u.s.info].ins, (_BYTE)ins == 38) )
       {
-        if ( _RDI->u.s.info != HIBYTE(ins) - 1 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 903, "e1->u.s.info == ((BCReg)((*(&(fs)->bcbase[(e2)->u.s.info].ins))>>24))-1") )
+        if ( e1->u.s.info != HIBYTE(ins) - 1 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 903, "e1->u.s.info == ((BCReg)((*(&(fs)->bcbase[(e2)->u.s.info].ins))>>24))-1") )
           __debugbreak();
-        expr_free(fs, _RDI);
-        HIBYTE(fs->bcbase[_RBX->u.s.info].ins) = _RDI->u.s.info;
-        _RDI->u.s.info = _RBX->u.s.info;
-        _RDI->k = VRELOCABLE;
+        expr_free(fs, e1);
+        HIBYTE(fs->bcbase[e2->u.s.info].ins) = e1->u.s.info;
+        e1->u.s.info = e2->u.s.info;
+        e1->k = VRELOCABLE;
       }
       else
       {
-        expr_tonextreg(fs, _RBX);
-        expr_free(fs, _RBX);
-        expr_free(fs, _RDI);
-        _RDI->u.s.info = bcemit_INS(fs, ((_RBX->u.s.info | (_RDI->u.s.info << 8)) << 16) | 0x26);
-        _RDI->k = VRELOCABLE;
+        expr_tonextreg(fs, e2);
+        expr_free(fs, e2);
+        expr_free(fs, e1);
+        e1->u.s.info = bcemit_INS(fs, ((e2->u.s.info | (e1->u.s.info << 8)) << 16) | 0x26);
+        e1->k = VRELOCABLE;
       }
       break;
     default:
       if ( (unsigned int)(op - 7) > 5 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 916, "op == OPR_NE || op == OPR_EQ || op == OPR_LT || op == OPR_GE || op == OPR_LE || op == OPR_GT") )
         __debugbreak();
-      bcemit_comp(fs, op, _RDI, _RBX);
+      bcemit_comp(fs, op, e1, e2);
       break;
   }
 }
@@ -1392,30 +1373,22 @@ expr_index
 void expr_index(FuncState *fs, ExpDesc *t, ExpDesc *e)
 {
   ExpKind k; 
-  unsigned int v12; 
+  unsigned int v11; 
   unsigned int info; 
 
   t->k = VINDEXED;
-  _RBX = e;
   k = e->k;
   if ( k == VKNUM )
   {
     if ( (unsigned int)(e->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    __asm
-    {
-      vmovsd  xmm1, qword ptr [rbx]
-      vcvttsd2si ecx, xmm1; fs
-    }
+    _XMM1 = e->u.nval.u64;
+    __asm { vcvttsd2si ecx, xmm1; fs }
     if ( _ECX == (unsigned __int8)_ECX )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, ecx
-        vucomisd xmm1, xmm0
-      }
-      if ( _ECX == (unsigned __int8)_ECX )
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, ecx }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
       {
         t->u.s.aux = _ECX + 256;
         return;
@@ -1424,28 +1397,28 @@ void expr_index(FuncState *fs, ExpDesc *t, ExpDesc *e)
   }
   else if ( k == VKSTR )
   {
-    v12 = const_str(fs, e);
-    if ( v12 <= 0xFF )
+    v11 = const_str(fs, e);
+    if ( v11 <= 0xFF )
     {
-      t->u.s.aux = ~v12;
+      t->u.s.aux = ~v11;
       return;
     }
   }
-  expr_discharge(fs, _RBX);
-  if ( _RBX->k != VNONRELOC )
+  expr_discharge(fs, e);
+  if ( e->k != VNONRELOC )
     goto LABEL_15;
-  info = _RBX->u.s.info;
-  if ( _RBX->t != _RBX->f )
+  info = e->u.s.info;
+  if ( e->t != e->f )
   {
     if ( info >= fs->nactvar )
     {
-      expr_toreg(fs, _RBX, info);
+      expr_toreg(fs, e, info);
 LABEL_16:
-      info = _RBX->u.s.info;
+      info = e->u.s.info;
       goto LABEL_17;
     }
 LABEL_15:
-    expr_tonextreg(fs, _RBX);
+    expr_tonextreg(fs, e);
     goto LABEL_16;
   }
 LABEL_17:
@@ -1780,23 +1753,23 @@ expr_table
 void expr_table(LexState *ls, ExpDesc *e)
 {
   FuncState *fs; 
-  __int16 v5; 
-  int v6; 
-  GCobj *v7; 
+  __int16 v4; 
+  int v5; 
+  GCobj *v6; 
+  int v7; 
   int v8; 
   int v9; 
-  int v10; 
+  unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  unsigned int v13; 
   int tok; 
+  FuncState *v14; 
   FuncState *v15; 
-  FuncState *v16; 
   unsigned int info; 
+  unsigned int v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  bool v20; 
-  GCstr *v21; 
+  bool v19; 
+  GCstr *v20; 
   ExpKind k; 
   unsigned int v24; 
   unsigned int v25; 
@@ -1847,37 +1820,37 @@ void expr_table(LexState *ls, ExpDesc *e)
   int v71; 
 
   fs = ls->fs;
-  v5 = 1;
+  v4 = 1;
   linenumber = ls->linenumber;
-  v6 = 1;
+  v5 = 1;
   v64 = fs;
-  v7 = NULL;
+  v6 = NULL;
   v71 = 0;
-  v8 = 0;
+  v7 = 0;
   v60 = 0;
-  v9 = 0;
+  v8 = 0;
   v70 = 0;
   asize = 1;
-  v10 = (fs->freereg << 8) | 0x34;
+  v9 = (fs->freereg << 8) | 0x34;
   freereg = fs->freereg;
   v61 = freereg;
-  v11 = bcemit_INS(fs, v10);
-  v12 = freereg;
-  v59 = v11;
+  v10 = bcemit_INS(fs, v9);
+  v11 = freereg;
+  v59 = v10;
   e->k = VNONRELOC;
-  e->u.s.info = v12;
+  e->u.s.info = v11;
   *(_QWORD *)&e->t = -1i64;
-  v13 = fs->freereg + 1;
-  if ( v13 > fs->framesize )
+  v12 = fs->freereg + 1;
+  if ( v12 > fs->framesize )
   {
-    if ( v13 >= 0xFA )
+    if ( v12 >= 0xFA )
       err_syntax(fs->ls, LJ_ERR_XSLOTS);
-    fs->framesize = v13;
+    fs->framesize = v12;
   }
-  fs->freereg = v13;
-  v20 = ls->tok == 123;
-  freereg = v12 + 1;
-  if ( !v20 )
+  fs->freereg = v12;
+  v19 = ls->tok == 123;
+  freereg = v11 + 1;
+  if ( !v19 )
     err_token(ls, 123);
   j_lj_lex_next(ls);
   tok = ls->tok;
@@ -1885,7 +1858,7 @@ void expr_table(LexState *ls, ExpDesc *e)
   {
     while ( 1 )
     {
-      v8 = 0;
+      v7 = 0;
       if ( tok != 91 )
       {
         if ( (tok == 287 || tok == 266) && j_lj_lex_lookahead(ls) == 61 )
@@ -1893,26 +1866,23 @@ void expr_table(LexState *ls, ExpDesc *e)
           v.k = VKSTR;
           v.u.s.info = 0;
           *(_QWORD *)&v.t = -1i64;
-          v21 = lex_str(ls);
-          v20 = ls->tok == 61;
-          v.u.nval.u64 = (unsigned __int64)v21;
-          if ( !v20 )
+          v20 = lex_str(ls);
+          v19 = ls->tok == 61;
+          v.u.nval.u64 = (unsigned __int64)v20;
+          if ( !v19 )
             goto LABEL_157;
           j_lj_lex_next(ls);
-          v70 = ++v9;
+          v70 = ++v8;
         }
         else
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, ebx
-          }
-          ++v6;
+          _XMM0 = 0i64;
+          __asm { vcvtsi2sd xmm0, xmm0, ebx }
+          ++v5;
           v.k = VKNUM;
-          asize = v6;
-          v8 = 1;
-          __asm { vmovsd  qword ptr [rbp+57h+v.u], xmm0 }
+          asize = v5;
+          v7 = 1;
+          v.u.nval.n = *(double *)&_XMM0;
           *(_QWORD *)&v.t = -1i64;
           v71 = 1;
         }
@@ -1920,82 +1890,82 @@ void expr_table(LexState *ls, ExpDesc *e)
       }
       j_lj_lex_next(ls);
       expr_binop(ls, &v, 0);
+      v14 = ls->fs;
       v15 = ls->fs;
-      v16 = ls->fs;
       if ( v.t == v.f )
       {
-        expr_discharge(v16, &v);
+        expr_discharge(v15, &v);
       }
       else
       {
-        expr_discharge(v16, &v);
+        expr_discharge(v15, &v);
         if ( v.k != VNONRELOC )
           goto LABEL_12;
         if ( v.t != v.f )
         {
-          if ( v.u.s.info < v15->nactvar )
+          if ( v.u.s.info < v14->nactvar )
           {
 LABEL_12:
-            expr_discharge(v15, &v);
+            expr_discharge(v14, &v);
             if ( v.k == VNONRELOC )
             {
               info = v.u.s.info;
-              if ( v.u.s.info >= v15->nactvar && info != --v15->freereg )
+              if ( v.u.s.info >= v14->nactvar && info != --v14->freereg )
               {
                 if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 395, "reg == fs->freereg") )
                   __debugbreak();
               }
             }
-            v18 = v15->freereg;
-            v19 = v18 + 1;
-            if ( v18 + 1 > v15->framesize )
+            v17 = v14->freereg;
+            v18 = v17 + 1;
+            if ( v17 + 1 > v14->framesize )
             {
-              if ( v19 >= 0xFA )
-                err_syntax(v15->ls, LJ_ERR_XSLOTS);
-              v15->framesize = v19;
+              if ( v18 >= 0xFA )
+                err_syntax(v14->ls, LJ_ERR_XSLOTS);
+              v14->framesize = v18;
             }
-            v15->freereg = v19;
-            expr_toreg(v15, &v, v18);
+            v14->freereg = v18;
+            expr_toreg(v14, &v, v17);
             goto LABEL_22;
           }
-          expr_toreg(v15, &v, v.u.s.info);
+          expr_toreg(v14, &v, v.u.s.info);
         }
       }
 LABEL_22:
       if ( ls->tok != 93 )
         err_token(ls, 93);
       j_lj_lex_next(ls);
-      v20 = v.k == VKNUM;
+      v19 = v.k == VKNUM;
       if ( v.k > VKNUM )
       {
         expr_index(fs, e, &v);
-        v20 = v.k == VKNUM;
+        v19 = v.k == VKNUM;
       }
-      if ( !v20 || (v.u.nval.u64 & 0x7FFFFFFFFFFFFFFFi64) != 0 )
-        v70 = ++v9;
+      if ( !v19 || (v.u.nval.u64 & 0x7FFFFFFFFFFFFFFFi64) != 0 )
+        v70 = ++v8;
       else
         v71 = 1;
       if ( ls->tok != 61 )
 LABEL_157:
         err_token(ls, 61);
       j_lj_lex_next(ls);
-      v6 = asize;
+      v5 = asize;
 LABEL_37:
       expr_binop(ls, &ea, 0);
       k = v.k;
       if ( v.k <= VKNUM && v.k && (v.k == VKSTR || ea.k <= VKNUM && ea.t == ea.f) )
       {
-        if ( !v7 )
+        if ( !v6 )
         {
-          if ( v9 )
+          if ( v8 )
           {
-            if ( v9 == 1 )
+            if ( v8 == 1 )
             {
               v24 = 1;
             }
             else
             {
-              _BitScanReverse(&v25, v9 - 1);
+              _BitScanReverse(&v25, v8 - 1);
               v24 = v25 + 1;
             }
           }
@@ -2005,13 +1975,13 @@ LABEL_37:
           }
           v26 = 0;
           if ( v71 )
-            v26 = v6;
-          v7 = (GCobj *)j_lj_tab_new(fs->L, v26, v24);
-          v27 = const_gc(fs, v7, 0xFFFFFFF4);
+            v26 = v5;
+          v6 = (GCobj *)j_lj_tab_new(fs->L, v26, v24);
+          v27 = const_gc(fs, v6, 0xFFFFFFF4);
           fs->bcbase[v59].ins = ((v61 | (v27 << 8)) << 8) | 0x35;
           k = v.k;
         }
-        v8 = 0;
+        v7 = 0;
         if ( k > VKTRUE )
         {
           if ( k == VKSTR )
@@ -2043,8 +2013,8 @@ LABEL_37:
         }
         L = fs->L;
         key.u64 = v28.u64;
-        v30 = j_lj_tab_set(L, (GCtab *)v7, &key);
-        marked = v7->gch.marked;
+        v30 = j_lj_tab_set(L, (GCtab *)v6, &key);
+        marked = v6->gch.marked;
         v32 = v30;
         if ( (marked & 4) != 0 )
         {
@@ -2054,9 +2024,9 @@ LABEL_37:
           v34 = *(_BYTE *)(ptr64 + 65);
           if ( (v34 == 5 || !v34) && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_gc.h", 85, "g->gc.state != GCSfinalize && g->gc.state != GCSpause") )
             __debugbreak();
-          v7->gch.marked &= ~4u;
-          v7->gch.gclist.gcptr64 = *(_QWORD *)(ptr64 + 96);
-          *(_QWORD *)(ptr64 + 96) = v7;
+          v6->gch.marked &= ~4u;
+          v6->gch.gclist.gcptr64 = *(_QWORD *)(ptr64 + 96);
+          *(_QWORD *)(ptr64 + 96) = v6;
         }
         if ( ea.k <= VKNUM && ea.t == ea.f )
         {
@@ -2064,9 +2034,9 @@ LABEL_37:
           goto LABEL_103;
         }
         v35 = fs->L;
-        v32->u64 = (unsigned __int64)v7 | 0xFFFA000000000000ui64;
-        v36 = (__int64)((unsigned __int64)v7 | 0xFFFA000000000000ui64) >> 47;
-        if ( (unsigned int)(v36 + 4) > 0xFFFFFFF6 && (~(_DWORD)v36 != *(unsigned __int8 *)(((unsigned __int64)v7 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)(((unsigned __int64)v7 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(v35->glref.ptr64 + 64) & 3) != 0) && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
+        v32->u64 = (unsigned __int64)v6 | 0xFFFA000000000000ui64;
+        v36 = (__int64)((unsigned __int64)v6 | 0xFFFA000000000000ui64) >> 47;
+        if ( (unsigned int)(v36 + 4) > 0xFFFFFFF6 && (~(_DWORD)v36 != *(unsigned __int8 *)(((unsigned __int64)v6 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)(((unsigned __int64)v6 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(v35->glref.ptr64 + 64) & 3) != 0) && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
           __debugbreak();
         k = v.k;
         v60 = 1;
@@ -2085,7 +2055,7 @@ LABEL_98:
             expr_toreg(fs, &ea, v37);
           }
           k = v.k;
-          v8 = 0;
+          v7 = 0;
           goto LABEL_100;
         }
 LABEL_89:
@@ -2119,7 +2089,7 @@ LABEL_103:
       v40 = ls->tok;
       if ( v40 != 44 && v40 != 59 )
       {
-        v9 = v70;
+        v8 = v70;
         if ( v40 != 125 )
         {
           v53 = linenumber;
@@ -2135,14 +2105,14 @@ LABEL_103:
       }
       j_lj_lex_next(ls);
       tok = ls->tok;
-      v9 = v70;
+      v8 = v70;
       if ( tok == 125 )
         break;
-      v6 = asize;
+      v5 = asize;
     }
   }
   j_lj_lex_next(ls);
-  if ( v8 )
+  if ( v7 )
   {
     v41 = freereg;
     v42 = &fs->bcbase[fs->pc - 1];
@@ -2192,19 +2162,19 @@ LABEL_162:
     v47 = VNONRELOC;
   }
   e->k = v47;
-  if ( v7 )
+  if ( v6 )
   {
-    if ( v71 && v7->pt.sizekgc < asize )
-      j_lj_tab_reasize(fs->L, (GCtab *)v7, asize - 1);
+    if ( v71 && v6->pt.sizekgc < asize )
+      j_lj_tab_reasize(fs->L, (GCtab *)v6, asize - 1);
     if ( v60 )
     {
-      top = v7->th.top;
-      v51 = v7->pt.sizekn + 1;
+      top = v6->th.top;
+      v51 = v6->pt.sizekn + 1;
       do
       {
         if ( (unsigned int)(top->it64 >> 47) == -12 )
         {
-          if ( (GCobj *)(top->u64 & 0x7FFFFFFFFFFFi64) != v7 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1799, "(my_lua_assert(((((uint32_t)((&n->val)->it64 >> 47)) == (~11u))), \"c:\\\\workspace\\\\iw8\\\\code_source\\\\external\\\\luajit\\\\2.1.0-beta3\\\\src\\\\lj_parse.c\", 1799, \"(((uint32_t)((&n->val)->it64 >> 47)) == (~11u))\", \"(((uint32_t)((&n->val)->it64 >> 47)) == (~11u))\"), (&((GCobj *)((((&n->val)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->tab)) == t") )
+          if ( (GCobj *)(top->u64 & 0x7FFFFFFFFFFFi64) != v6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1799, "(my_lua_assert(((((uint32_t)((&n->val)->it64 >> 47)) == (~11u))), \"c:\\\\workspace\\\\iw8\\\\code_source\\\\external\\\\luajit\\\\2.1.0-beta3\\\\src\\\\lj_parse.c\", 1799, \"(((uint32_t)((&n->val)->it64 >> 47)) == (~11u))\", \"(((uint32_t)((&n->val)->it64 >> 47)) == (~11u))\"), (&((GCobj *)((((&n->val)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->tab)) == t") )
             __debugbreak();
           top->u64 = -1i64;
         }
@@ -2237,19 +2207,19 @@ LABEL_162:
     {
       v48 = 0;
     }
-    if ( v9 )
+    if ( v8 )
     {
-      if ( v9 != 1 )
+      if ( v8 != 1 )
       {
-        _BitScanReverse(&v49, v9 - 1);
-        v5 = v49 + 1;
+        _BitScanReverse(&v49, v8 - 1);
+        v4 = v49 + 1;
       }
     }
     else
     {
-      v5 = 0;
+      v4 = 0;
     }
-    HIWORD(fs->bcbase[v46].ins) = v48 | (v5 << 11);
+    HIWORD(fs->bcbase[v46].ins) = v48 | (v4 << 11);
   }
 }
 
@@ -2438,65 +2408,57 @@ expr_toreg_nobranch
 */
 void expr_toreg_nobranch(FuncState *fs, ExpDesc *e, unsigned int reg)
 {
-  int k; 
-  unsigned int v8; 
+  ExpKind k; 
+  unsigned int v7; 
 
-  _RBX = e;
   expr_discharge(fs, e);
-  k = _RBX->k;
+  k = e->k;
   switch ( k )
   {
-    case 3:
-      v8 = ((reg | ((unsigned int)const_gc(fs, (GCobj *)_RBX->u.nval.u64, 0xFFFFFFFB) << 8)) << 8) | 0x27;
+    case VKSTR:
+      v7 = ((reg | ((unsigned int)const_gc(fs, (GCobj *)e->u.nval.u64, 0xFFFFFFFB) << 8)) << 8) | 0x27;
       goto LABEL_20;
-    case 4:
-      if ( (unsigned int)(_RBX->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+    case VKNUM:
+      if ( (unsigned int)(e->u.nval.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 970, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
         __debugbreak();
-      __asm
-      {
-        vmovsd  xmm1, qword ptr [rbx]
-        vcvttsd2si ecx, xmm1
-      }
+      _XMM1 = e->u.nval.u64;
+      __asm { vcvttsd2si ecx, xmm1 }
       if ( _ECX != (__int16)_ECX )
         goto LABEL_10;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, ecx
-        vucomisd xmm1, xmm0
-      }
-      if ( _ECX == (__int16)_ECX )
-        v8 = ((reg | ((unsigned __int16)_ECX << 8)) << 8) | 0x29;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, ecx }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
+        v7 = ((reg | ((unsigned __int16)_ECX << 8)) << 8) | 0x29;
       else
 LABEL_10:
-        v8 = ((reg | ((unsigned int)const_num(fs, _RBX) << 8)) << 8) | 0x2A;
+        v7 = ((reg | ((unsigned int)const_num(fs, e) << 8)) << 8) | 0x2A;
       goto LABEL_20;
-    case 11:
-      BYTE1(fs->bcbase[_RBX->u.s.info].ins) = reg;
-      _RBX->u.s.info = reg;
-      _RBX->k = VNONRELOC;
+    case VRELOCABLE:
+      BYTE1(fs->bcbase[e->u.s.info].ins) = reg;
+      e->u.s.info = reg;
+      e->k = VNONRELOC;
       return;
-    case 12:
-      if ( reg == _RBX->u.s.info )
+    case VNONRELOC:
+      if ( reg == e->u.s.info )
       {
 $noins:
-        _RBX->u.s.info = reg;
-        _RBX->k = VNONRELOC;
+        e->u.s.info = reg;
+        e->k = VNONRELOC;
         return;
       }
-      v8 = ((reg | (_RBX->u.s.info << 8)) << 8) | 0x12;
+      v7 = ((reg | (e->u.s.info << 8)) << 8) | 0x12;
 LABEL_20:
-      bcemit_INS(fs, v8);
+      bcemit_INS(fs, v7);
       goto $noins;
-    case 0:
+    case VKNIL:
       bcemit_nil(fs, reg, 1u);
-      _RBX->u.s.info = reg;
-      _RBX->k = VNONRELOC;
+      e->u.s.info = reg;
+      e->k = VNONRELOC;
       return;
   }
-  if ( k <= 2 )
+  if ( k <= VKTRUE )
   {
-    v8 = ((reg | (k << 8)) << 8) | 0x2B;
+    v7 = ((reg | (k << 8)) << 8) | 0x2B;
     goto LABEL_20;
   }
   if ( ((k - 10) & 0xFFFFFFFB) != 0 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 545, "e->k == VVOID || e->k == VJMP") )
@@ -2761,108 +2723,105 @@ fs_fixup_k
 */
 void fs_fixup_k(FuncState *fs, GCproto *pt, void *kptr)
 {
-  GCobj *v5; 
+  double *v3; 
+  GCobj *v4; 
   GCtab *kt; 
-  __int64 v8; 
+  __int64 v7; 
   unsigned __int64 i; 
-  __int64 *v12; 
+  __int64 *v11; 
+  __int64 v12; 
   __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
-  GCobj *v16; 
+  GCobj *v15; 
   TValue *top; 
   VarInfo *vstack; 
   unsigned __int8 sizeuv; 
-  __int64 v20; 
+  __int64 v19; 
   unsigned __int16 n_low; 
-  __int16 v22; 
-  __int64 v23; 
+  __int16 v21; 
+  __int64 v22; 
   __int16 slot; 
-  __int16 v25; 
+  __int16 v24; 
 
-  _R15 = kptr;
-  v5 = (GCobj *)pt;
+  v3 = (double *)kptr;
+  v4 = (GCobj *)pt;
   if ( fs->nkn > 0x10000 || fs->nkgc > 0x10000 )
     err_limit(fs, 0x10000u, "constants");
   pt->k.ptr64 = (unsigned __int64)kptr;
   pt->sizekn = fs->nkn;
   pt->sizekgc = fs->nkgc;
   kt = fs->kt;
-  v8 = 0i64;
-  for ( i = kt->array.ptr64; (unsigned int)v8 < kt->asize; v8 = (unsigned int)(v8 + 1) )
+  v7 = 0i64;
+  for ( i = kt->array.ptr64; (unsigned int)v7 < kt->asize; v7 = (unsigned int)(v7 + 1) )
   {
-    if ( !*(_DWORD *)(i + 8 * v8 + 4) )
+    if ( !*(_DWORD *)(i + 8 * v7 + 4) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      _RAX = *(unsigned int *)(i + 8 * v8);
-      __asm { vmovsd  qword ptr [r15+rax*8], xmm0 }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      v3[*(unsigned int *)(i + 8 * v7)] = *(double *)&_XMM0;
     }
   }
-  v12 = (__int64 *)(kt->node.ptr64 + 8);
-  v13 = kt->hmask + 1;
+  v11 = (__int64 *)(kt->node.ptr64 + 8);
+  v12 = kt->hmask + 1;
   do
   {
-    if ( !*((_DWORD *)v12 - 1) )
+    if ( !*((_DWORD *)v11 - 1) )
     {
-      v14 = *((unsigned int *)v12 - 2);
-      v15 = *v12 >> 47;
-      if ( (unsigned int)v15 >= 0xFFFFFFF2 )
+      v13 = *((unsigned int *)v11 - 2);
+      v14 = *v11 >> 47;
+      if ( (unsigned int)v14 >= 0xFFFFFFF2 )
       {
-        if ( (unsigned int)(v15 + 4) <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1379, "((((uint32_t)((&n->key)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
+        if ( (unsigned int)(v14 + 4) <= 0xFFFFFFF6 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1379, "((((uint32_t)((&n->key)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1)))") )
           __debugbreak();
-        v16 = (GCobj *)(*v12 & 0x7FFFFFFFFFFFi64);
-        _R15[~v14] = v16;
-        if ( (v16->gch.marked & 3) != 0 && (v5->gch.marked & 4) != 0 )
-          j_lj_gc_barrierf((global_State *)fs->L->glref.ptr64, v5, v16);
-        if ( (unsigned int)(*v12 >> 47) == -8 )
+        v15 = (GCobj *)(*v11 & 0x7FFFFFFFFFFFi64);
+        *(_QWORD *)&v3[~v13] = v15;
+        if ( (v15->gch.marked & 3) != 0 && (v4->gch.marked & 4) != 0 )
+          j_lj_gc_barrierf((global_State *)fs->L->glref.ptr64, v4, v15);
+        if ( (unsigned int)(*v11 >> 47) == -8 )
         {
-          if ( v16->gch.gct != 7 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1383, "(o)->gch.gct == ~(~7u)") )
+          if ( v15->gch.gct != 7 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1383, "(o)->gch.gct == ~(~7u)") )
             __debugbreak();
-          top = v16->th.top;
+          top = v15->th.top;
           vstack = fs->ls->vstack;
-          sizeuv = v16->pt.sizeuv;
+          sizeuv = v15->pt.sizeuv;
           if ( sizeuv )
           {
-            v20 = sizeuv;
+            v19 = sizeuv;
             do
             {
               n_low = LOWORD(top->n);
               if ( LOWORD(top->n) < 0xFFC4u )
               {
-                v23 = n_low;
+                v22 = n_low;
                 slot = vstack[n_low].slot;
-                v22 = slot | 0xC000;
-                v25 = slot | 0x8000;
-                if ( (vstack[v23].info & 1) != 0 )
-                  v22 = v25;
+                v21 = slot | 0xC000;
+                v24 = slot | 0x8000;
+                if ( (vstack[v22].info & 1) != 0 )
+                  v21 = v24;
               }
               else
               {
-                v22 = n_low + 60;
+                v21 = n_low + 60;
               }
-              LOWORD(top->n) = v22;
+              LOWORD(top->n) = v21;
               top = (TValue *)((char *)top + 2);
-              --v20;
+              --v19;
             }
-            while ( v20 );
-            _R15 = kptr;
-            v5 = (GCobj *)pt;
+            while ( v19 );
+            v3 = (double *)kptr;
+            v4 = (GCobj *)pt;
           }
         }
       }
       else
       {
-        _R15[v14] = *v12;
+        *(_QWORD *)&v3[v13] = *v11;
       }
     }
-    v12 += 3;
-    --v13;
+    v11 += 3;
+    --v12;
   }
-  while ( v13 );
+  while ( v12 );
 }
 
 /*
@@ -4233,15 +4192,15 @@ parse_func
 */
 void parse_func(LexState *ls, int line)
 {
-  int v4; 
-  GCstr *v6; 
+  int v3; 
+  GCstr *v5; 
   int tok; 
   FuncState *fs; 
   unsigned int freereg; 
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
-  int v12; 
-  GCobj *v13; 
+  int v11; 
+  GCobj *v12; 
   unsigned int v17; 
   unsigned int v18; 
   unsigned int info; 
@@ -4257,10 +4216,10 @@ void parse_func(LexState *ls, int line)
   ExpDesc v29; 
   ExpDesc v30; 
 
-  v4 = 0;
+  v3 = 0;
   j_lj_lex_next(ls);
-  v6 = lex_str(ls);
-  var_lookup_(ls->fs, v6, &e, 1);
+  v5 = lex_str(ls);
+  var_lookup_(ls->fs, v5, &e, 1);
   tok = ls->tok;
   if ( tok == 46 )
   {
@@ -4274,40 +4233,33 @@ void parse_func(LexState *ls, int line)
         break;
 LABEL_15:
       j_lj_lex_next(ls);
-      v12 = ls->tok;
+      v11 = ls->tok;
       v29.k = VKSTR;
       v29.u.s.info = 0;
       *(_QWORD *)&v29.t = -1i64;
-      if ( v12 != 287 && v12 != 266 )
+      if ( v11 != 287 && v11 != 266 )
         err_token(ls, 287);
       if ( (unsigned int)(ls->tokval.it64 >> 47) != -5 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 1023, "(((uint32_t)((&ls->tokval)->it64 >> 47)) == (~4u))") )
         __debugbreak();
-      v13 = (GCobj *)(ls->tokval.u64 & 0x7FFFFFFFFFFFi64);
+      v12 = (GCobj *)(ls->tokval.u64 & 0x7FFFFFFFFFFFi64);
       j_lj_lex_next(ls);
-      v29.u.nval.u64 = (unsigned __int64)v13;
+      v29.u.nval.u64 = (unsigned __int64)v12;
       e.k = VINDEXED;
       if ( v29.k == VKNUM )
       {
-        __asm
-        {
-          vmovsd  xmm1, qword ptr [rbp+var_38.u]
-          vcvttsd2si ecx, xmm1
-        }
+        _XMM1 = v29.u.nval.u64;
+        __asm { vcvttsd2si ecx, xmm1 }
         if ( _ECX != (unsigned __int8)_ECX )
           goto LABEL_27;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, ecx
-          vucomisd xmm1, xmm0
-        }
-        if ( _ECX != (unsigned __int8)_ECX )
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, ecx }
+        if ( v29.u.nval.n != *(double *)&_XMM0 )
           goto LABEL_27;
         v17 = _ECX + 256;
       }
       else
       {
-        if ( v29.k != VKSTR || (v18 = const_gc(fs, v13, 0xFFFFFFFB), v18 > 0xFF) )
+        if ( v29.k != VKSTR || (v18 = const_gc(fs, v12, 0xFFFFFFFB), v18 > 0xFF) )
         {
 LABEL_27:
           expr_discharge(fs, &v29);
@@ -4361,22 +4313,22 @@ LABEL_5:
       expr_discharge(fs, &e);
       if ( e.k == VNONRELOC )
       {
-        v10 = e.u.s.info;
-        if ( e.u.s.info >= fs->nactvar && v10 != --fs->freereg )
+        v9 = e.u.s.info;
+        if ( e.u.s.info >= fs->nactvar && v9 != --fs->freereg )
         {
           if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_parse.c", 395, "reg == fs->freereg") )
             __debugbreak();
         }
       }
       freereg = fs->freereg;
-      v11 = freereg + 1;
+      v10 = freereg + 1;
       if ( freereg + 1 > fs->framesize )
       {
-        if ( v11 >= 0xFA )
+        if ( v10 >= 0xFA )
           err_syntax(fs->ls, LJ_ERR_XSLOTS);
-        fs->framesize = v11;
+        fs->framesize = v10;
       }
-      fs->freereg = v11;
+      fs->freereg = v10;
     }
     expr_toreg(fs, &e, freereg);
     goto LABEL_15;
@@ -4385,7 +4337,7 @@ LABEL_42:
   if ( tok == 58 )
   {
     v22 = ls->fs;
-    v4 = 1;
+    v3 = 1;
     expr_discharge(ls->fs, &e);
     if ( e.k != VNONRELOC )
       goto LABEL_46;
@@ -4433,7 +4385,7 @@ LABEL_46:
     goto LABEL_56;
   }
 LABEL_57:
-  parse_body(ls, &v30, v4, line);
+  parse_body(ls, &v30, v3, line);
   v27 = ls->fs;
   bcemit_store(ls->fs, &e, &v30);
   v27->bcbase[v27->pc - 1].line = line;

@@ -450,27 +450,23 @@ __int64 LUI_CoD_LuaCall_HasEmptyStore(lua_State *const luaVM)
 LUI_CoD_LuaCall_GetSignInExchangeState
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetSignInExchangeState(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetSignInExchangeState(lua_State *const luaVM)
 {
-  unsigned int v7; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: Commerce.GetSignInExchangeState( <controller> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Commerce.GetSignInExchangeState( <controller> )\n");
   *(double *)&_XMM0 = j_lua_tonumber(luaVM, 1);
-  __asm
-  {
-    vcvttsd2si eax, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, dword ptr [rax+rcx*4]; n
-  }
+  __asm { vcvttsd2si eax, xmm0 }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rax+rcx*4]; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v6);
   }
   return 1i64;
 }

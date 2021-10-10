@@ -27,19 +27,11 @@ bdSetUserRegulationPreferenceRequest::bdSetUserRegulationPreferenceRequest
 */
 void bdSetUserRegulationPreferenceRequest::bdSetUserRegulationPreferenceRequest(bdSetUserRegulationPreferenceRequest *this, const bdUserAccountID *userAccount, const bdRegulationPreference *regulationPreference, const char *authToken)
 {
-  _RBX = regulationPreference;
-  _RSI = this;
   this->__vftable = (bdSetUserRegulationPreferenceRequest_vtbl *)&bdSetUserRegulationPreferenceRequest::`vftable';
   bdUserAccountID::bdUserAccountID(&this->m_userAccount, userAccount);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsi+50h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rsi+70h], ymm1
-  }
+  this->m_regulationPreference = *regulationPreference;
   bdHandleAssert(authToken != NULL, "authToken != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdregulations\\bdsetuserregulationpreferencerequest.cpp", "bdSetUserRegulationPreferenceRequest::bdSetUserRegulationPreferenceRequest", 0x12u, "Must instantiate bdSetUserRegulationPreferenceRequest with a valid authorization token.", -2i64);
-  bdStrlcpy(_RSI->m_authToken, authToken, 0x1A80ui64);
+  bdStrlcpy(this->m_authToken, authToken, 0x1A80ui64);
 }
 
 /*

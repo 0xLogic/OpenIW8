@@ -231,27 +231,19 @@ void BgVehiclePhysicsRCPlane::BoostControl(BgVehiclePhysicsRCPlane *this, float 
   BgVehicleEventSystem *v6; 
   void (__fastcall *RCPlaneBoost)(BgVehicleEventSystem *, const BgVehiclePhysics *, float, int, float, const SndAliasList *); 
   SndAliasList *AliasFromId; 
-  int v11; 
 
-  _RBX = this;
   if ( this->m_boostPressed && !this->m_boostOneTimeEventDone )
   {
     v3 = this->m_vehicleSystem->PhysicsGetEventSystem(this->m_vehicleSystem);
-    BoostSound = _RBX->m_boostEvent.BoostSound;
+    BoostSound = this->m_boostEvent.BoostSound;
     v6 = v3;
     RCPlaneBoost = v3->RCPlaneBoost;
     if ( BoostSound )
       AliasFromId = SND_FindAliasFromId(BoostSound);
     else
       AliasFromId = NULL;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+368h]
-      vmovss  xmm2, dword ptr [rbx+360h]
-      vmovss  [rsp+38h+var_18], xmm0
-    }
-    ((void (__fastcall *)(BgVehicleEventSystem *, BgVehiclePhysicsRCPlane *, __int64, _QWORD, int, SndAliasList *))RCPlaneBoost)(v6, _RBX, v4, (unsigned int)_RBX->m_boostEvent.shakeDuration, v11, AliasFromId);
-    _RBX->m_boostOneTimeEventDone = 1;
+    ((void (__fastcall *)(BgVehicleEventSystem *, BgVehiclePhysicsRCPlane *, __int64, _QWORD, _DWORD, SndAliasList *))RCPlaneBoost)(v6, this, v4, (unsigned int)this->m_boostEvent.shakeDuration, LODWORD(this->m_boostEvent.shakeRadius), AliasFromId);
+    this->m_boostOneTimeEventDone = 1;
   }
 }
 
@@ -260,21 +252,55 @@ void BgVehiclePhysicsRCPlane::BoostControl(BgVehiclePhysicsRCPlane *this, float 
 BgVehiclePhysicsRCPlane::CheckTraceAhead
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::CheckTraceAhead(BgVehiclePhysicsRCPlane *this, double deltaTime)
+void BgVehiclePhysicsRCPlane::CheckTraceAhead(BgVehiclePhysicsRCPlane *this, float deltaTime)
 {
-  void *retaddr; 
+  float m_traceAhead; 
+  float v5; 
+  float v6; 
+  float v7; 
+  int m_entityNumber; 
+  Physics_WorldId m_worldId; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned int PhysicsBodyId; 
+  float v14; 
+  float v15; 
+  vec3_t end; 
+  vec3_t start; 
+  Physics_SimpleCollisionCallback_Data cbData; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( this->m_traceAhead > 0.0 && !Physics_IsPredictiveWorld(this->m_worldId) )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rcx+358h]
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, [rsp+0D8h+var_18]
-    vmovaps xmm7, [rsp+0D8h+var_28]
+    m_traceAhead = this->m_traceAhead;
+    v5 = m_traceAhead * this->m_transform.m[0].v[0];
+    v6 = this->m_transform.m[3].v[1];
+    v7 = this->m_transform.m[3].v[2];
+    m_entityNumber = this->m_entityNumber;
+    m_worldId = this->m_worldId;
+    start.v[0] = this->m_transform.m[3].v[0];
+    v10 = m_traceAhead * this->m_transform.m[0].v[1];
+    end.v[0] = v5 + start.v[0];
+    v11 = v10 + v6;
+    v12 = m_traceAhead * this->m_transform.m[0].v[2];
+    end.v[1] = v11;
+    start.v[1] = v6;
+    start.v[2] = v7;
+    end.v[2] = v12 + v7;
+    if ( BgVehiclePhysicsRCPlane::DoTrace(this, m_worldId, m_entityNumber, &start, &end, 0.0, &cbData.position, &cbData.normal, &cbData.bodyIds[1], &cbData.surfaceFlagData[1]) )
+    {
+      cbData.worldId = this->m_worldId;
+      PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(this);
+      v14 = (float)(this->m_currentSpeed * this->m_mass) * deltaTime;
+      cbData.bodyIds[0] = PhysicsBodyId;
+      cbData.surfaceFlagData[0] = 0;
+      cbData.impulse = v14;
+      BgVehiclePhysics::CollisionImpulseCallback(this, &cbData);
+      AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &this->m_euler);
+      v15 = this->m_euler.v[2];
+      *(double *)this->m_lerpEuler.v = *(double *)this->m_euler.v;
+      this->m_lerpEuler.v[2] = v15;
+    }
   }
 }
 
@@ -285,15 +311,13 @@ BgVehiclePhysicsRCPlane::CollisionImpulseCallback
 */
 void BgVehiclePhysicsRCPlane::CollisionImpulseCallback(BgVehiclePhysicsRCPlane *this, const Physics_SimpleCollisionCallback_Data *cbData)
 {
-  float v4; 
+  float v3; 
 
-  _RDI = this;
   BgVehiclePhysics::CollisionImpulseCallback(this, cbData);
-  AxisToAngles((const tmat33_t<vec3_t> *)&_RDI->m_transform, &_RDI->m_euler);
-  __asm { vmovsd  xmm0, qword ptr [rdi+384h] }
-  v4 = _RDI->m_euler.v[2];
-  __asm { vmovsd  qword ptr [rdi+390h], xmm0 }
-  _RDI->m_lerpEuler.v[2] = v4;
+  AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &this->m_euler);
+  v3 = this->m_euler.v[2];
+  *(double *)this->m_lerpEuler.v = *(double *)this->m_euler.v;
+  this->m_lerpEuler.v[2] = v3;
 }
 
 /*
@@ -338,190 +362,110 @@ BgVehiclePhysicsRCPlane::DebugDraw
 */
 void BgVehiclePhysicsRCPlane::DebugDraw(BgVehiclePhysicsRCPlane *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
+  __int128 v6; 
   bool Bool_Internal_DebugName; 
-  const tmat33_t<vec3_t> *p_m_transform; 
-  const dvar_t *v172; 
-  const dvar_t *v174; 
-  const dvar_t *v199; 
-  const dvar_t *v201; 
-  const dvar_t *v251; 
-  const dvar_t *v253; 
-  const dvar_t *v270; 
-  const dvar_t *v274; 
-  const dvar_t *v306; 
-  const dvar_t *v308; 
-  float setColor; 
-  float setColora; 
-  float setColorb; 
-  float setColorc; 
-  float setColord; 
-  float setColore; 
-  float setColorf; 
-  float setColorg; 
-  float setColorh; 
-  float setColori; 
-  float setColorj; 
-  float setColork; 
-  float setColorl; 
-  float setColorm; 
-  int forceColor; 
-  int forceColora; 
-  int forceColorb; 
-  int forceColorc; 
-  int forceColord; 
-  int forceColore; 
-  int forceColorf; 
-  int forceColorg; 
-  int forceColorh; 
-  int forceColori; 
-  int forceColorj; 
-  int forceColork; 
-  int forceColorl; 
-  int forceColorm; 
-  int shadow; 
-  int shadowa; 
-  int shadowb; 
-  int shadowc; 
-  int shadowd; 
-  int shadowe; 
-  int shadowf; 
-  int shadowg; 
-  float outHeightChange; 
-  float outHeightChangea; 
-  float outHeightChangeb; 
-  float outHeightChangec; 
-  float outHeightChanged; 
-  float outHeightChangee; 
-  float outHeightChangef; 
-  float outHeightChangeg; 
-  float outHeightChangeh; 
-  float outHeightChangei; 
-  float outHeightChangej; 
-  float outHeightChangek; 
-  float outHeightChangel; 
-  float outHeightChangem; 
-  float outHeightChangen; 
-  float outHeightChangeo; 
+  tmat43_t<vec3_t> *p_m_transform; 
+  double Value; 
+  double v18; 
+  float v19; 
+  float v20; 
+  double v21; 
+  float v22; 
+  float v23; 
+  double v25; 
+  float v26; 
+  float v28; 
+  double v29; 
+  float v30; 
+  float v32; 
+  float v33; 
+  float v34; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v48; 
+  double v49; 
+  float m_pitchMaxAngle; 
+  const dvar_t *v51; 
+  float v52; 
+  double v53; 
+  float v54; 
+  const dvar_t *v55; 
+  double v56; 
+  float m_pitchTurnSpeed; 
+  const dvar_t *v58; 
+  float v59; 
+  double v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  const dvar_t *v68; 
+  double v69; 
+  float m_yawTurnSpeed; 
+  const dvar_t *v71; 
+  float v72; 
+  double v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  const dvar_t *v78; 
+  double v79; 
+  float m_rollMaxAngle; 
+  const dvar_t *v81; 
+  float v83; 
+  double v84; 
+  float v85; 
+  const dvar_t *v87; 
+  double v88; 
+  float m_rollTurnSpeed; 
+  const dvar_t *v90; 
+  float v91; 
+  double v92; 
+  float v93; 
+  float v94; 
+  float v95; 
   float value2MaxAbs; 
+  float v97; 
+  float v98; 
   vec3_t angles; 
   char _Buffer[128]; 
+  __int128 v101; 
 
-  _RDI = y;
-  _R14 = x;
-  _RBX = this;
-  if ( Sys_IsMainThread() && scrPlace && _R14 && _RDI )
+  if ( Sys_IsMainThread() && scrPlace && x && y )
   {
-    __asm
-    {
-      vmovaps [rsp+1E0h+var_50], xmm6
-      vmovaps [rsp+1E0h+var_60], xmm7
-      vmovaps [rsp+1E0h+var_70], xmm8
-      vmovaps [rsp+1E0h+var_80], xmm9
-      vmovaps [rsp+1E0h+var_90], xmm10
-      vmovaps [rsp+1E0h+var_A0], xmm11
-      vmovaps [rsp+1E0h+var_B0], xmm12
-      vmovaps [rsp+1E0h+var_C0], xmm13
-    }
     Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpDebugFull, "bg_rcpDebugFull");
-    p_m_transform = (const tmat33_t<vec3_t> *)&_RBX->m_transform;
+    p_m_transform = &this->m_transform;
     if ( Bool_Internal_DebugName )
     {
+      v101 = v6;
+      AxisToAngles((const tmat33_t<vec3_t> *)p_m_transform, &angles);
+      _XMM9 = 0i64;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      angles.v[0] = (float)((float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM2) * 360.0;
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      angles.v[1] = (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      v97 = *x;
+      angles.v[2] = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM2) * 360.0;
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeed, "bg_rcp_m_pitchLerpSpeed");
+      else
+        *(float *)&Float_Internal_DebugName = this->m_pitchLerpSpeed;
+      value2MaxAbs = *(float *)&Float_Internal_DebugName;
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeed, "bg_rcp_m_yawLerpSpeed");
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedChangeDir, "bg_rcp_m_yawLerpSpeedChangeDir");
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedReturning, "bg_rcp_m_yawLerpSpeedReturning");
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedSteering, "bg_rcp_m_rollLerpSpeedSteering");
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedChangeDir, "bg_rcp_m_rollLerpSpeedChangeDir");
+      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedReturning, "bg_rcp_m_rollLerpSpeedReturning");
+      _XMM0 = LODWORD(value2MaxAbs);
       __asm
       {
-        vmovaps [rsp+1E0h+var_D0], xmm14
-        vmovaps [rsp+1E0h+var_E0], xmm15
-      }
-      AxisToAngles(p_m_transform, &angles);
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3b360b61
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles]
-        vmulss  xmm4, xmm8, dword ptr [rsp+1E0h+angles+4]
-        vmovss  xmm10, cs:__real@3f000000
-        vmovss  xmm11, cs:__real@43b40000
-        vaddss  xmm1, xmm3, xmm10
-        vxorps  xmm9, xmm9, xmm9
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, xmm11
-        vmovss  dword ptr [rsp+1E0h+angles], xmm0
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles+8]
-        vmulss  xmm1, xmm0, xmm11
-        vmovss  dword ptr [rsp+1E0h+angles+4], xmm1
-        vaddss  xmm1, xmm3, xmm10
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm11
-        vmovss  xmm0, dword ptr [r14]
-        vmovss  [rsp+1E0h+var_18C], xmm0
-        vmovss  dword ptr [rsp+1E0h+angles+8], xmm1
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeed, "bg_rcp_m_pitchLerpSpeed");
-      else
-        __asm { vmovss  xmm0, dword ptr [rbx+318h] }
-      __asm { vmovss  [rsp+1E0h+value2MaxAbs], xmm0 }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeed, "bg_rcp_m_yawLerpSpeed");
-        __asm { vmovaps xmm15, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm15, dword ptr [rbx+330h] }
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedChangeDir, "bg_rcp_m_yawLerpSpeedChangeDir");
-        __asm { vmovaps xmm14, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm14, dword ptr [rbx+334h] }
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedReturning, "bg_rcp_m_yawLerpSpeedReturning");
-        __asm { vmovaps xmm13, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm13, dword ptr [rbx+338h] }
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedSteering, "bg_rcp_m_rollLerpSpeedSteering");
-        __asm { vmovaps xmm12, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm12, dword ptr [rbx+340h] }
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedChangeDir, "bg_rcp_m_rollLerpSpeedChangeDir");
-        __asm { vmovaps xmm7, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm7, dword ptr [rbx+344h] }
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedReturning, "bg_rcp_m_rollLerpSpeedReturning");
-        __asm { vmovaps xmm4, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm4, dword ptr [rbx+348h] }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vxorps  xmm6, xmm6, xmm6
         vmaxss  xmm0, xmm0, xmm6
         vmaxss  xmm1, xmm0, xmm15
         vmaxss  xmm2, xmm1, xmm14
@@ -529,704 +473,306 @@ void BgVehiclePhysicsRCPlane::DebugDraw(BgVehiclePhysicsRCPlane *this, const Scr
         vmaxss  xmm0, xmm3, xmm12
         vmaxss  xmm1, xmm0, xmm7
         vmaxss  xmm13, xmm1, xmm4
-        vmovss  [rsp+1E0h+var_188], xmm13
       }
+      v98 = *(float *)&_XMM13;
       j_sprintf(_Buffer, "RC Plane Debug - Full (set bg_rcpDebugFull 0 to see Summary)");
-      __asm
-      {
-        vmovss  xmm15, cs:__real@41000000
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm15
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorWhiteFaded, 0, 1, outHeightChangef, 0);
-      __asm
-      {
-        vmovss  xmm7, [rbp+0E0h+charHeight]
-        vaddss  xmm0, xmm7, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm0
-      }
+      Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorWhiteFaded, 0, 1, 8.0, 0);
+      *y = charHeight + *y;
       j_sprintf(_Buffer, "============================");
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm15
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorWhiteFaded, 0, 1, outHeightChangeg, 0);
-      __asm
-      {
-        vaddss  xmm0, xmm7, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  [rsp+1E0h+value2MaxAbs], xmm6
-      }
+      Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorWhiteFaded, 0, 1, 8.0, 0);
+      *y = charHeight + *y;
+      value2MaxAbs = 0.0;
       j_sprintf(_Buffer, "Pitch Input");
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+378h]
-        vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm6, cs:__real@3f800000
-        vmovss  xmm2, dword ptr [rdi]; y
-        vxorps  xmm1, xmm0, xmm14
-        vmovss  [rsp+1E0h+forceColor], xmm6
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorc, *(float *)&forceColorc, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm2
-      }
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, COERCE_FLOAT(LODWORD(this->m_pitchInput) ^ _xmm), 1.0, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
       j_sprintf(_Buffer, "Yaw Input");
-      *(double *)&_XMM0 = BgVehiclePhysicsControls::GetValue(&_RBX->m_controls, 2u);
-      __asm
-      {
-        vmovss  xmm12, cs:__real@bf800000
-        vmulss  xmm1, xmm0, xmm12
-        vmovss  [rsp+1E0h+forceColor], xmm6
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColord, *(float *)&forceColord, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+var_18C]
-        vmovss  xmm2, dword ptr [rsp+1E0h+angles]
-        vmovss  dword ptr [r14], xmm0
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmulss  xmm0, xmm2, xmm12
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-        vmovss  dword ptr [rdi], xmm1
-      }
-      j_sprintf(_Buffer, "Pitch: %f", *(double *)&_XMM2);
-      v172 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      *(double *)&_XMM0 = BgVehiclePhysicsControls::GetValue(&this->m_controls, 2u);
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, *(float *)&_XMM0 * -1.0, 1.0, _Buffer, &value2MaxAbs);
+      *(float *)&_XMM2 = angles.v[0];
+      *x = v97;
+      *y = value2MaxAbs + *y;
+      j_sprintf(_Buffer, "Pitch: %f", (float)(*(float *)&_XMM2 * -1.0));
+      v48 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v172);
-      if ( v172->current.enabled )
+      Dvar_CheckFrontendServerThread(v48);
+      if ( v48->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle, "bg_rcp_m_pitchMaxAngle");
-        __asm { vmovaps xmm6, xmm0 }
+        v49 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle, "bg_rcp_m_pitchMaxAngle");
+        m_pitchMaxAngle = *(float *)&v49;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rbx+324h] }
+        m_pitchMaxAngle = this->m_pitchMaxAngle;
       }
-      v174 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmulss  xmm12, xmm12, dword ptr [rsp+1E0h+angles] }
+      v51 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v52 = -1.0 * angles.v[0];
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v174);
-      if ( v174->current.enabled )
+      Dvar_CheckFrontendServerThread(v51);
+      if ( v51->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle, "bg_rcp_m_pitchMaxAngle");
-        __asm { vmovaps xmm2, xmm0 }
+        v53 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle, "bg_rcp_m_pitchMaxAngle");
+        v54 = *(float *)&v53;
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rbx+324h] }
+        v54 = this->m_pitchMaxAngle;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+384h]
-        vxorps  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm6
-        vmovss  [rsp+1E0h+shadow], xmm12
-        vmovss  [rsp+1E0h+forceColor], xmm2
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColore, *(float *)&forceColore, *(float *)&shadowb, outHeightChangeh, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm2
-        vmovss  xmm2, dword ptr [rbx+3C0h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Pitch Lerp Rate: %f", *(double *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+3C0h]
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  [rsp+1E0h+forceColor], xmm13
-        vmovaps xmm3, xmm7; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorf, *(float *)&forceColorf, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  xmm12, cs:__real@c2652ee0
-        vmovss  dword ptr [r14], xmm2
-        vmulss  xmm0, xmm12, dword ptr [rbx+3A4h]
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Pitch Velocity: %f", *(double *)&_XMM2);
-      v199 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, COERCE_FLOAT(LODWORD(this->m_euler.v[0]) ^ _xmm), v54, v52, m_pitchMaxAngle, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Pitch Lerp Rate: %f", this->m_angularVelocitylerpSpeed.v[0]);
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, this->m_angularVelocitylerpSpeed.v[0], *(float *)&_XMM13, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Pitch Velocity: %f", (float)(-57.295776 * this->m_eulerAngularVelocity.v[0]));
+      v55 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v199);
-      if ( v199->current.enabled )
+      Dvar_CheckFrontendServerThread(v55);
+      if ( v55->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed, "bg_rcp_m_pitchTurnSpeed");
-        __asm { vmovaps xmm6, xmm0 }
+        v56 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed, "bg_rcp_m_pitchTurnSpeed");
+        m_pitchTurnSpeed = *(float *)&v56;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rbx+310h] }
+        m_pitchTurnSpeed = this->m_pitchTurnSpeed;
       }
-      v201 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmulss  xmm13, xmm12, dword ptr [rbx+3A4h] }
+      v58 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v59 = -57.295776 * this->m_eulerAngularVelocity.v[0];
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v201);
-      if ( v201->current.enabled )
+      Dvar_CheckFrontendServerThread(v58);
+      if ( v58->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed, "bg_rcp_m_pitchTurnSpeed");
-        __asm { vmovaps xmm2, xmm0 }
+        v60 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed, "bg_rcp_m_pitchTurnSpeed");
+        v61 = *(float *)&v60;
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rbx+310h] }
+        v61 = this->m_pitchTurnSpeed;
       }
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, COERCE_FLOAT(LODWORD(this->m_goalAngularVelocity.v[0]) ^ _xmm), v61, v59, m_pitchTurnSpeed, _Buffer, &value2MaxAbs);
+      v62 = value2MaxAbs;
+      v63 = 0.0027777778 * angles.v[1];
+      v64 = v97;
+      *x = v97;
+      *y = v62 + *y;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      j_sprintf(_Buffer, "Yaw: %f", (float)((float)(v63 - *(float *)&_XMM2) * 360.0));
       __asm
       {
-        vmovss  xmm0, dword ptr [rbx+3B4h]
-        vxorps  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm6
-        vmovss  [rsp+1E0h+shadow], xmm13
-        vmovss  [rsp+1E0h+forceColor], xmm2
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorg, *(float *)&forceColorg, *(float *)&shadowc, outHeightChangei, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles+4]
-        vmovss  xmm13, [rsp+1E0h+var_18C]
-        vmovss  dword ptr [r14], xmm13
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-        vaddss  xmm1, xmm3, xmm10
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm11
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Yaw: %f", *(double *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm4, xmm8, dword ptr [rsp+1E0h+angles+4]
-        vmulss  xmm6, xmm8, dword ptr [rbx+388h]
-        vaddss  xmm2, xmm4, xmm10
         vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm3, xmm0, cs:__real@c3b40000
-        vaddss  xmm1, xmm6, xmm10
         vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm6, xmm2
-        vmulss  xmm1, xmm0, cs:__real@c3b40000
-        vmovss  xmm0, cs:__real@43340000
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm0
-        vmovss  [rsp+1E0h+shadow], xmm3
-        vmovss  [rsp+1E0h+forceColor], xmm0
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
       }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorh, *(float *)&forceColorh, *(float *)&shadowd, outHeightChangej, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm2
-        vmovss  xmm2, dword ptr [rbx+3C4h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Yaw Lerp Rate: %f", *(double *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+var_188]
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  [rsp+1E0h+forceColor], xmm0
-        vmovss  xmm0, dword ptr [rbx+3C4h]
-        vmovaps xmm3, xmm7; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColori, *(float *)&forceColori, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm2
-        vmovss  xmm0, dword ptr [rbx+3A8h]
-        vmulss  xmm1, xmm0, xmm12
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Yaw Velocity: %f", *(double *)&_XMM2);
-      v251 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, (float)((float)(0.0027777778 * this->m_euler.v[1]) - *(float *)&_XMM2) * -360.0, 180.0, (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * -360.0, 180.0, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Yaw Lerp Rate: %f", this->m_angularVelocitylerpSpeed.v[1]);
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, this->m_angularVelocitylerpSpeed.v[1], v98, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Yaw Velocity: %f", (float)(this->m_eulerAngularVelocity.v[1] * -57.295776));
+      v68 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v251);
-      if ( v251->current.enabled )
+      Dvar_CheckFrontendServerThread(v68);
+      if ( v68->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
-        __asm { vmovaps xmm6, xmm0 }
+        v69 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
+        m_yawTurnSpeed = *(float *)&v69;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rbx+328h] }
+        m_yawTurnSpeed = this->m_yawTurnSpeed;
       }
-      v253 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmulss  xmm12, xmm12, dword ptr [rbx+3A8h] }
+      v71 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v72 = -57.295776 * this->m_eulerAngularVelocity.v[1];
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v253);
-      if ( v253->current.enabled )
+      Dvar_CheckFrontendServerThread(v71);
+      if ( v71->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
-        __asm { vmovaps xmm2, xmm0 }
+        v73 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
+        v74 = *(float *)&v73;
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rbx+328h] }
+        v74 = this->m_yawTurnSpeed;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+3B8h]
-        vxorps  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm6
-        vmovss  [rsp+1E0h+shadow], xmm12
-        vmovss  [rsp+1E0h+forceColor], xmm2
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm7; charHeight
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorj, *(float *)&forceColorj, *(float *)&shadowe, outHeightChangek, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles+8]
-        vmovss  dword ptr [r14], xmm13
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-        vaddss  xmm1, xmm3, xmm10
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm11
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Roll: %f", *(double *)&_XMM2);
-      v270 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmovaps xmm14, [rsp+1E0h+var_D0] }
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, COERCE_FLOAT(LODWORD(this->m_goalAngularVelocity.v[1]) ^ _xmm), v74, v72, m_yawTurnSpeed, _Buffer, &value2MaxAbs);
+      v75 = value2MaxAbs;
+      v76 = 0.0027777778 * angles.v[2];
+      *x = v64;
+      *y = v75 + *y;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      j_sprintf(_Buffer, "Roll: %f", (float)((float)(v76 - *(float *)&_XMM2) * 360.0));
+      v78 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v270);
-      if ( v270->current.enabled )
+      Dvar_CheckFrontendServerThread(v78);
+      if ( v78->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
-        __asm { vmovaps xmm6, xmm0 }
+        v79 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
+        m_rollMaxAngle = *(float *)&v79;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rbx+34Ch] }
+        m_rollMaxAngle = this->m_rollMaxAngle;
       }
-      __asm { vmulss  xmm4, xmm8, dword ptr [rsp+1E0h+angles+8] }
-      v274 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm
-      {
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm12, xmm1, xmm11
-      }
+      v81 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      v83 = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM3) * 360.0;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v274);
-      if ( v274->current.enabled )
+      Dvar_CheckFrontendServerThread(v81);
+      if ( v81->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
-        __asm { vmovaps xmm5, xmm0 }
+        v84 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
+        v85 = *(float *)&v84;
       }
       else
       {
-        __asm { vmovss  xmm5, dword ptr [rbx+34Ch] }
+        v85 = this->m_rollMaxAngle;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm8, dword ptr [rbx+38Ch]
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm9, xmm2, 1
-        vmovss  xmm2, dword ptr [rdi]; y
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm11
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm6
-        vmovss  [rsp+1E0h+shadow], xmm12
-        vmovss  [rsp+1E0h+forceColor], xmm5
-        vmovaps xmm3, xmm7; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColork, *(float *)&forceColork, *(float *)&shadowf, outHeightChangel, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm2
-        vmovss  xmm2, dword ptr [rbx+3C8h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Roll Lerp Rate: %f", *(double *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+var_188]
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  [rsp+1E0h+forceColor], xmm0
-        vmovss  xmm0, dword ptr [rbx+3C8h]
-        vmovaps xmm3, xmm7; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorl, *(float *)&forceColorl, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, cs:RCP_DEBUG_HORIZONTAL_SPACER
-        vaddss  xmm1, xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-        vaddss  xmm2, xmm1, dword ptr [r14]
-        vmovss  xmm8, cs:__real@42652ee0
-        vmovss  dword ptr [r14], xmm2
-        vmulss  xmm0, xmm8, dword ptr [rbx+3ACh]
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Roll Velocity: %f", *(double *)&_XMM2);
-      v306 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, (float)((float)(0.0027777778 * this->m_euler.v[2]) - *(float *)&_XMM3) * 360.0, v85, v83, m_rollMaxAngle, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Roll Lerp Rate: %f", this->m_angularVelocitylerpSpeed.v[2]);
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, this->m_angularVelocitylerpSpeed.v[2], v98, _Buffer, &value2MaxAbs);
+      *x = (float)(RCP_DEBUG_HORIZONTAL_SPACER + RCP_DEBUG_GRAPH_WIDTH) + *x;
+      j_sprintf(_Buffer, "Roll Velocity: %f", (float)(57.295776 * this->m_eulerAngularVelocity.v[2]));
+      v87 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v306);
-      if ( v306->current.enabled )
+      Dvar_CheckFrontendServerThread(v87);
+      if ( v87->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed, "bg_rcp_m_rollTurnSpeed");
-        __asm { vmovaps xmm6, xmm0 }
+        v88 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed, "bg_rcp_m_rollTurnSpeed");
+        m_rollTurnSpeed = *(float *)&v88;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rbx+33Ch] }
+        m_rollTurnSpeed = this->m_rollTurnSpeed;
       }
-      v308 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmulss  xmm8, xmm8, dword ptr [rbx+3ACh] }
+      v90 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v91 = 57.295776 * this->m_eulerAngularVelocity.v[2];
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v308);
-      if ( v308->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed, "bg_rcp_m_rollTurnSpeed");
+      Dvar_CheckFrontendServerThread(v90);
+      if ( v90->current.enabled )
+        v92 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed, "bg_rcp_m_rollTurnSpeed");
       else
-        __asm { vmovss  xmm0, dword ptr [rbx+33Ch] }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm6
-        vmovss  [rsp+1E0h+shadow], xmm8
-        vmovss  [rsp+1E0h+forceColor], xmm0
-        vmovss  xmm0, dword ptr [rbx+3BCh]
-        vmovaps xmm3, xmm7; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorm, *(float *)&forceColorm, *(float *)&shadowg, outHeightChangem, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vmovss  dword ptr [r14], xmm13
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-      if ( _RBX->m_pitchCounterSteering )
+        *(float *)&v92 = this->m_rollTurnSpeed;
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, this->m_goalAngularVelocity.v[2], *(float *)&v92, v91, m_rollTurnSpeed, _Buffer, &value2MaxAbs);
+      v93 = value2MaxAbs;
+      *x = v64;
+      v94 = v93 + *y;
+      *y = v94;
+      if ( this->m_pitchCounterSteering )
       {
         j_sprintf(_Buffer, "PITCH Counter Steering");
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [r14]; x
-          vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm15
-        }
-        Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorGreen, 0, 1, outHeightChangen, 0);
-        __asm { vmovss  xmm1, dword ptr [rdi] }
+        Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorGreen, 0, 1, 8.0, 0);
+        v94 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm1, xmm7
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _RBX->m_yawCounterSteering )
+      v95 = v94 + charHeight;
+      *y = v94 + charHeight;
+      if ( this->m_yawCounterSteering )
       {
         j_sprintf(_Buffer, "YAW Counter Steering");
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [r14]; x
-          vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm15
-        }
-        Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorGreen, 0, 1, outHeightChangeo, 0);
-        __asm { vmovss  xmm0, dword ptr [rdi] }
+        Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorGreen, 0, 1, 8.0, 0);
+        v95 = *y;
       }
-      __asm
-      {
-        vmovaps xmm15, [rsp+1E0h+var_E0]
-        vaddss  xmm0, xmm0, xmm7
-      }
+      v34 = v95 + charHeight;
     }
     else
     {
-      AxisToAngles(p_m_transform, &angles);
+      AxisToAngles((const tmat33_t<vec3_t> *)p_m_transform, &angles);
+      _XMM9 = 0i64;
       __asm
       {
-        vmovss  xmm8, cs:__real@3b360b61
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles]
-        vmulss  xmm4, xmm8, dword ptr [rsp+1E0h+angles+4]
-        vmovss  xmm10, cs:__real@3f000000
-        vmovss  xmm11, cs:__real@43b40000
-        vaddss  xmm1, xmm3, xmm10
-        vxorps  xmm9, xmm9, xmm9
         vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, xmm11
-        vaddss  xmm2, xmm4, xmm10
         vroundss xmm3, xmm9, xmm2, 1
-        vmovss  dword ptr [rsp+1E0h+angles], xmm0
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles+8]
-        vmulss  xmm1, xmm0, xmm11
-        vmovss  dword ptr [rsp+1E0h+angles+4], xmm1
-        vaddss  xmm1, xmm3, xmm10
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm11
-        vmovss  dword ptr [rsp+1E0h+angles+8], xmm1
       }
+      angles.v[0] = (float)((float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM2) * 360.0;
+      angles.v[1] = (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      angles.v[2] = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM2) * 360.0;
       j_sprintf(_Buffer, "RC Plane Debug - Summary (set bg_rcpDebugFull 1 to see Full)");
-      __asm
-      {
-        vmovss  xmm12, cs:__real@41000000
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm12
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorWhiteFaded, 0, 1, outHeightChange, 0);
-      __asm
-      {
-        vmovss  xmm6, [rbp+0E0h+charHeight]
-        vaddss  xmm0, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm0
-      }
+      Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorWhiteFaded, 0, 1, 8.0, 0);
+      *y = charHeight + *y;
       j_sprintf(_Buffer, "============================");
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm12
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorWhiteFaded, 0, 1, outHeightChangea, 0);
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [rdi]
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  [rsp+1E0h+value2MaxAbs], xmm1
-      }
+      Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorWhiteFaded, 0, 1, 8.0, 0);
+      *y = charHeight + *y;
+      value2MaxAbs = 0.0;
       j_sprintf(_Buffer, "Yaw Input");
-      *(double *)&_XMM0 = BgVehiclePhysicsControls::GetValue(&_RBX->m_controls, 2u);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@bf800000
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  [rsp+1E0h+forceColor], xmm0
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm6; charHeight
-      }
-      Draw2DVariableOnGraph(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColor, *(float *)&forceColor, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  xmm13, cs:__real@c2652ee0
-        vmulss  xmm0, xmm13, dword ptr [rbx+3A8h]
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Yaw Velocity: %f", *(double *)&_XMM2);
+      Value = BgVehiclePhysicsControls::GetValue(&this->m_controls, 2u);
+      Draw2DVariableOnGraph(scrPlace, *x, *y, charHeight, *(float *)&Value * -1.0, 1.0, _Buffer, &value2MaxAbs);
+      *y = value2MaxAbs + *y;
+      j_sprintf(_Buffer, "Yaw Velocity: %f", (float)(-57.295776 * this->m_eulerAngularVelocity.v[1]));
       if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
-        __asm { vmovaps xmm7, xmm0 }
+        v18 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
+        v19 = *(float *)&v18;
       }
       else
       {
-        __asm { vmovss  xmm7, dword ptr [rbx+328h] }
+        v19 = this->m_yawTurnSpeed;
       }
-      __asm { vmulss  xmm13, xmm13, dword ptr [rbx+3A8h] }
+      v20 = -57.295776 * this->m_eulerAngularVelocity.v[1];
       if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
-        __asm { vmovaps xmm2, xmm0 }
+        v21 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
+        v22 = *(float *)&v21;
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rbx+328h] }
+        v22 = this->m_yawTurnSpeed;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+3B8h]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm7
-        vmovss  [rsp+1E0h+shadow], xmm13
-        vmovss  [rsp+1E0h+forceColor], xmm2
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm1
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovaps xmm3, xmm6; charHeight
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColora, *(float *)&forceColora, *(float *)&shadow, outHeightChangeb, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmulss  xmm3, xmm8, dword ptr [rsp+1E0h+angles+8]
-        vmovss  dword ptr [rdi], xmm1
-        vaddss  xmm1, xmm3, xmm10
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm11
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
-      j_sprintf(_Buffer, "Roll: %f", *(double *)&_XMM2);
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, COERCE_FLOAT(LODWORD(this->m_goalAngularVelocity.v[1]) ^ _xmm), v22, v20, v19, _Buffer, &value2MaxAbs);
+      v23 = 0.0027777778 * angles.v[2];
+      *y = value2MaxAbs + *y;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      j_sprintf(_Buffer, "Roll: %f", (float)((float)(v23 - *(float *)&_XMM2) * 360.0));
       if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
-        __asm { vmovaps xmm7, xmm0 }
+        v25 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
+        v26 = *(float *)&v25;
       }
       else
       {
-        __asm { vmovss  xmm7, dword ptr [rbx+34Ch] }
+        v26 = this->m_rollMaxAngle;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm8, dword ptr [rsp+1E0h+angles+8]
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm13, xmm1, xmm11
-      }
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      v28 = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM3) * 360.0;
       if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
-        __asm { vmovaps xmm5, xmm0 }
+        v29 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
+        v30 = *(float *)&v29;
       }
       else
       {
-        __asm { vmovss  xmm5, dword ptr [rbx+34Ch] }
+        v30 = this->m_rollMaxAngle;
       }
-      __asm
-      {
-        vmulss  xmm4, xmm8, dword ptr [rbx+38Ch]
-        vaddss  xmm2, xmm4, xmm10
-        vroundss xmm3, xmm9, xmm2, 1
-        vmovss  xmm2, dword ptr [rdi]; y
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, xmm11
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm7
-        vmovss  [rsp+1E0h+shadow], xmm13
-        vmovss  [rsp+1E0h+forceColor], xmm5
-        vmovaps xmm3, xmm6; charHeight
-        vmovss  dword ptr [rsp+1E0h+setColor], xmm0
-      }
-      Draw2DVariableOnGraphDouble(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorb, *(float *)&forceColorb, *(float *)&shadowa, outHeightChangec, _Buffer, &value2MaxAbs);
-      __asm
-      {
-        vmovss  xmm0, [rsp+1E0h+value2MaxAbs]
-        vaddss  xmm1, xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-      if ( _RBX->m_pitchCounterSteering )
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      Draw2DVariableOnGraphDouble(scrPlace, *x, *y, charHeight, (float)((float)(0.0027777778 * this->m_euler.v[2]) - *(float *)&_XMM3) * 360.0, v30, v28, v26, _Buffer, &value2MaxAbs);
+      v32 = value2MaxAbs + *y;
+      *y = v32;
+      if ( this->m_pitchCounterSteering )
       {
         j_sprintf(_Buffer, "PITCH Counter Steering");
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [r14]; x
-          vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm12
-        }
-        Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorGreen, 0, 1, outHeightChanged, 0);
-        __asm { vmovss  xmm1, dword ptr [rdi] }
+        Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorGreen, 0, 1, 8.0, 0);
+        v32 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm1, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _RBX->m_yawCounterSteering )
+      v33 = v32 + charHeight;
+      *y = v32 + charHeight;
+      if ( this->m_yawCounterSteering )
       {
         j_sprintf(_Buffer, "YAW Counter Steering");
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vmovss  xmm1, dword ptr [r14]; x
-          vmovss  dword ptr [rsp+1E0h+outHeightChange], xmm12
-        }
-        Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorGreen, 0, 1, outHeightChangee, 0);
-        __asm { vmovss  xmm0, dword ptr [rdi] }
+        Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorGreen, 0, 1, 8.0, 0);
+        v33 = *y;
       }
-      __asm { vaddss  xmm0, xmm0, xmm6 }
+      v34 = v33 + charHeight;
     }
-    __asm
-    {
-      vmovaps xmm12, [rsp+1E0h+var_B0]
-      vmovaps xmm11, [rsp+1E0h+var_A0]
-      vmovaps xmm10, [rsp+1E0h+var_90]
-      vmovaps xmm9, [rsp+1E0h+var_80]
-      vmovaps xmm8, [rsp+1E0h+var_70]
-      vmovaps xmm7, [rsp+1E0h+var_60]
-      vmovaps xmm6, [rsp+1E0h+var_50]
-      vmovaps xmm13, [rsp+1E0h+var_C0]
-      vmovss  dword ptr [rdi], xmm0
-    }
+    *y = v34;
   }
 }
 
@@ -1238,395 +784,311 @@ BgVehiclePhysicsRCPlane::DeriveFinalAngularVelocity
 
 void __fastcall BgVehiclePhysicsRCPlane::DeriveFinalAngularVelocity(BgVehiclePhysicsRCPlane *this, double deltaTime)
 {
-  bool v16; 
-  const dvar_t *v31; 
-  const dvar_t *v34; 
-  const dvar_t *v36; 
-  unsigned int v42; 
-  bool v46; 
-  bool v47; 
-  int v57; 
-  float v106; 
-  __int64 v110; 
-  __int64 v111; 
-  __int64 v112; 
-  int v117; 
+  __int128 v2; 
+  double Float_Internal_DebugName; 
+  float v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  const dvar_t *v9; 
+  double v10; 
+  bool v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  double v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  double v17; 
+  float v18; 
+  float v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  bool v22; 
+  __int128 v23; 
+  __int128 v26; 
+  float v28; 
+  float v29; 
+  float v30; 
+  double v31; 
+  float v32; 
+  double v33; 
+  float v34; 
+  float v35; 
+  float v38; 
+  double v39; 
+  float v40; 
+  float v41; 
+  __int128 v43; 
+  float v44; 
+  __int128 v45; 
+  __int64 v49; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v57; 
+  __int64 v58; 
+  int v59[2]; 
+  float v60; 
+  __int64 v61; 
+  double v62; 
+  float v63; 
   vec3_t angles; 
   vec3_t vec; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
+  v2 = *(_OWORD *)&deltaTime;
+  if ( *(float *)&deltaTime > 0.0 )
   {
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-0A8h], xmm13
-    vxorps  xmm13, xmm13, xmm13
-    vcomiss xmm1, xmm13
-    vmovaps xmm9, xmm1
-  }
-  _RSI = this;
-  if ( (unsigned __int64)&v110 != _security_cookie )
-  {
-    v16 = !this->m_yawSteering;
-    __asm
+    if ( !this->m_yawSteering && !this->m_pitchSteering && (this->m_wasYawSteering || this->m_wasPitchSteering) )
     {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovss  xmm10, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-      vmovaps xmmword ptr [r11-0B8h], xmm14
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_overshootProtection, "bg_rcp_m_overshootProtection");
+      v5 = this->m_euler.v[1];
+      v6 = this->m_euler.v[2];
+      this->m_euler.v[0] = (float)((float)(this->m_euler.v[0] - this->m_lerpEuler.v[0]) * (float)(1.0 - *(float *)&Float_Internal_DebugName)) + this->m_lerpEuler.v[0];
+      this->m_euler.v[1] = (float)((float)(v5 - this->m_lerpEuler.v[1]) * (float)(1.0 - *(float *)&Float_Internal_DebugName)) + this->m_lerpEuler.v[1];
+      this->m_euler.v[2] = (float)((float)(v6 - this->m_lerpEuler.v[2]) * (float)(1.0 - *(float *)&Float_Internal_DebugName)) + this->m_lerpEuler.v[2];
     }
-    if ( v16 && !this->m_pitchSteering && (this->m_wasYawSteering || this->m_wasPitchSteering) )
-    {
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_overshootProtection, "bg_rcp_m_overshootProtection");
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+390h]
-        vmovss  xmm5, dword ptr [rsi+388h]
-        vmovss  xmm7, dword ptr [rsi+38Ch]
-        vsubss  xmm8, xmm10, xmm0
-        vmovss  xmm0, dword ptr [rsi+384h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rsi+384h], xmm3
-        vsubss  xmm0, xmm5, dword ptr [rsi+394h]
-        vmulss  xmm1, xmm0, xmm8
-        vaddss  xmm2, xmm1, dword ptr [rsi+394h]
-        vmovss  dword ptr [rsi+388h], xmm2
-        vsubss  xmm0, xmm7, dword ptr [rsi+398h]
-        vmulss  xmm1, xmm0, xmm8
-        vaddss  xmm2, xmm1, dword ptr [rsi+398h]
-        vmovss  dword ptr [rsi+38Ch], xmm2
-      }
-    }
-    v31 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    __asm { vdivss  xmm14, xmm10, xmm9 }
-    if ( _RSI->m_pitchCounterSteering )
+    v7 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    v8 = 1.0 / *(float *)&deltaTime;
+    if ( this->m_pitchCounterSteering )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      if ( v31->current.enabled )
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.enabled )
       {
-        _R15 = DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeedChangeDir;
+        v9 = DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeedChangeDir;
         if ( !DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeedChangeDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchLerpSpeedChangeDir") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm { vmovss  xmm0, dword ptr [r15+28h] }
+        Dvar_CheckFrontendServerThread(v9);
+        LODWORD(v10) = v9->current.integer;
       }
       else
       {
-        __asm { vmovss  xmm0, dword ptr [rsi+31Ch] }
+        *(float *)&v10 = this->m_pitchLerpSpeedChangeDir;
       }
     }
-    else if ( _RSI->m_pitchSteering )
+    else if ( this->m_pitchSteering )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      if ( v31->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeed, "bg_rcp_m_pitchLerpSpeed");
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.enabled )
+        v10 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeed, "bg_rcp_m_pitchLerpSpeed");
       else
-        __asm { vmovss  xmm0, dword ptr [rsi+318h] }
+        *(float *)&v10 = this->m_pitchLerpSpeed;
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      if ( v31->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeedReturning, "bg_rcp_m_pitchLerpSpeedReturning");
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.enabled )
+        v10 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_pitchLerpSpeedReturning, "bg_rcp_m_pitchLerpSpeedReturning");
       else
-        __asm { vmovss  xmm0, dword ptr [rsi+320h] }
+        *(float *)&v10 = this->m_pitchLerpSpeedReturning;
     }
-    v16 = !_RSI->m_yawCounterSteering;
-    v34 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    __asm { vmovss  dword ptr [rsp+140h+var_F0], xmm0 }
-    if ( v16 )
+    v11 = !this->m_yawCounterSteering;
+    v12 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    *(float *)&v62 = *(float *)&v10;
+    if ( v11 )
     {
-      if ( _RSI->m_yawSteering )
+      if ( this->m_yawSteering )
       {
         if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v34);
-        if ( v34->current.enabled )
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeed, "bg_rcp_m_yawLerpSpeed");
+        Dvar_CheckFrontendServerThread(v12);
+        if ( v12->current.enabled )
+          v14 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeed, "bg_rcp_m_yawLerpSpeed");
         else
-          __asm { vmovss  xmm0, dword ptr [rsi+330h] }
+          *(float *)&v14 = this->m_yawLerpSpeed;
       }
       else
       {
         if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v34);
-        if ( v34->current.enabled )
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedReturning, "bg_rcp_m_yawLerpSpeedReturning");
+        Dvar_CheckFrontendServerThread(v12);
+        if ( v12->current.enabled )
+          v14 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedReturning, "bg_rcp_m_yawLerpSpeedReturning");
         else
-          __asm { vmovss  xmm0, dword ptr [rsi+338h] }
+          *(float *)&v14 = this->m_yawLerpSpeedReturning;
       }
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v34);
-      if ( v34->current.enabled )
+      Dvar_CheckFrontendServerThread(v12);
+      if ( v12->current.enabled )
       {
-        _R15 = DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedChangeDir;
+        v13 = DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedChangeDir;
         if ( !DCONST_DVARFLT_bg_rcp_m_yawLerpSpeedChangeDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_yawLerpSpeedChangeDir") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm { vmovss  xmm0, dword ptr [r15+28h] }
+        Dvar_CheckFrontendServerThread(v13);
+        LODWORD(v14) = v13->current.integer;
       }
       else
       {
-        __asm { vmovss  xmm0, dword ptr [rsi+334h] }
+        *(float *)&v14 = this->m_yawLerpSpeedChangeDir;
       }
     }
-    v16 = !_RSI->m_yawCounterSteering;
-    v36 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    __asm { vmovss  dword ptr [rsp+140h+var_F0+4], xmm0 }
-    if ( v16 )
+    v11 = !this->m_yawCounterSteering;
+    v15 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    *((float *)&v62 + 1) = *(float *)&v14;
+    if ( v11 )
     {
-      if ( _RSI->m_rollSteering )
+      if ( this->m_rollSteering )
       {
         if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v36);
-        if ( v36->current.enabled )
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedSteering, "bg_rcp_m_rollLerpSpeedSteering");
+        Dvar_CheckFrontendServerThread(v15);
+        if ( v15->current.enabled )
+          v17 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedSteering, "bg_rcp_m_rollLerpSpeedSteering");
         else
-          __asm { vmovss  xmm0, dword ptr [rsi+340h] }
+          *(float *)&v17 = this->m_rollLerpSpeedSteering;
       }
       else
       {
         if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v36);
-        if ( v36->current.enabled )
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedReturning, "bg_rcp_m_rollLerpSpeedReturning");
+        Dvar_CheckFrontendServerThread(v15);
+        if ( v15->current.enabled )
+          v17 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedReturning, "bg_rcp_m_rollLerpSpeedReturning");
         else
-          __asm { vmovss  xmm0, dword ptr [rsi+348h] }
+          *(float *)&v17 = this->m_rollLerpSpeedReturning;
       }
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v36);
-      if ( v36->current.enabled )
+      Dvar_CheckFrontendServerThread(v15);
+      if ( v15->current.enabled )
       {
-        _R14 = DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedChangeDir;
+        v16 = DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedChangeDir;
         if ( !DCONST_DVARFLT_bg_rcp_m_rollLerpSpeedChangeDir && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_rollLerpSpeedChangeDir") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R14);
-        __asm { vmovss  xmm0, dword ptr [r14+28h] }
+        Dvar_CheckFrontendServerThread(v16);
+        LODWORD(v17) = v16->current.integer;
       }
       else
       {
-        __asm { vmovss  xmm0, dword ptr [rsi+344h] }
+        *(float *)&v17 = this->m_rollLerpSpeedChangeDir;
       }
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+388h]
-      vmovss  [rsp+140h+var_E8], xmm0
-      vmovss  xmm0, dword ptr [rsi+384h]
-      vsubss  xmm1, xmm0, dword ptr [rsi+390h]
-      vsubss  xmm0, xmm2, dword ptr [rsi+394h]
-    }
-    v42 = 0;
-    __asm
-    {
-      vmovss  [rsp+140h+var_100], xmm1
-      vmovss  xmm1, dword ptr [rsi+38Ch]
-      vsubss  xmm2, xmm1, dword ptr [rsi+398h]
-      vmovss  dword ptr [rsp+140h+var_F8], xmm2
-      vmovss  [rsp+140h+anonymous_1], xmm0
-    }
-    _RDI = 0i64;
-    v46 = 1;
+    v18 = this->m_euler.v[1];
+    v63 = *(float *)&v17;
+    v19 = v18 - this->m_lerpEuler.v[1];
+    v20 = 0;
+    *(float *)v59 = this->m_euler.v[0] - this->m_lerpEuler.v[0];
+    *(float *)&v61 = this->m_euler.v[2] - this->m_lerpEuler.v[2];
+    v60 = v19;
+    v21 = 0i64;
+    v22 = 1;
     do
     {
-      if ( !v46 )
+      if ( !v22 )
       {
-        LODWORD(v112) = 3;
-        LODWORD(v111) = v42;
-        v47 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112);
-        v46 = 0;
-        if ( v47 )
+        LODWORD(v54) = 3;
+        LODWORD(v49) = v20;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v49, v54) )
           __debugbreak();
       }
-      __asm
+      if ( *(float *)&v59[v21] < 0.0 )
       {
-        vmovss  xmm6, [rsp+rdi+140h+var_100]
-        vcomiss xmm6, xmm13
-      }
-      if ( v46 )
-      {
-        if ( v42 >= 3 )
+        if ( v20 >= 3 )
         {
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v54) = 3;
+          LODWORD(v49) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v49, v54) )
             __debugbreak();
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v57) = 3;
+          LODWORD(v52) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v57) )
             __debugbreak();
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v58) = 3;
+          LODWORD(v53) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v53, v58) )
             __debugbreak();
         }
-        __asm
-        {
-          vmulss  xmm0, xmm9, [rsp+rdi+140h+var_100]
-          vmulss  xmm1, xmm0, dword ptr [rsp+rdi+140h+var_F0]
-          vmaxss  xmm6, xmm1, xmm6
-        }
+        v26 = v2;
+        *(float *)&v26 = (float)(*(float *)&v2 * *(float *)&v59[v21]) * *(float *)((char *)&v62 + v21 * 4);
+        _XMM1 = v26;
+        __asm { vmaxss  xmm6, xmm1, xmm6 }
       }
       else
       {
-        if ( v42 >= 3 )
+        if ( v20 >= 3 )
         {
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v54) = 3;
+          LODWORD(v49) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v49, v54) )
             __debugbreak();
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v55) = 3;
+          LODWORD(v50) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v50, v55) )
             __debugbreak();
-          LODWORD(v112) = 3;
-          LODWORD(v111) = v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+          LODWORD(v56) = 3;
+          LODWORD(v51) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v56) )
             __debugbreak();
         }
-        __asm
-        {
-          vmulss  xmm0, xmm9, [rsp+rdi+140h+var_100]
-          vmulss  xmm1, xmm0, dword ptr [rsp+rdi+140h+var_F0]
-          vminss  xmm6, xmm1, xmm6
-        }
+        v23 = v2;
+        *(float *)&v23 = (float)(*(float *)&v2 * *(float *)&v59[v21]) * *(float *)((char *)&v62 + v21 * 4);
+        _XMM1 = v23;
+        __asm { vminss  xmm6, xmm1, xmm6 }
       }
-      if ( v42 >= 3 )
+      if ( v20 >= 3 )
       {
-        LODWORD(v112) = 3;
-        LODWORD(v111) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v112) )
+        LODWORD(v54) = 3;
+        LODWORD(v49) = v20;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v49, v54) )
           __debugbreak();
       }
-      __asm { vmovss  [rsp+rdi+140h+var_100], xmm6 }
-      _RDI += 4i64;
-      v46 = ++v42 < 3;
+      v59[v21++] = _XMM6;
+      v22 = ++v20 < 3;
     }
-    while ( (int)v42 < 3 );
-    __asm
-    {
-      vmovss  xmm0, [rsp+140h+var_100]
-      vaddss  xmm1, xmm0, dword ptr [rsi+390h]
-      vmovss  xmm2, [rsp+140h+anonymous_1]
-    }
-    v57 = v117;
-    __asm
-    {
-      vmovss  dword ptr [rsi+390h], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rsi+394h]
-      vmovss  xmm1, dword ptr [rsp+140h+var_F8]
-      vmovss  dword ptr [rsi+394h], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rsi+398h]
-      vmovsd  xmm0, [rsp+140h+var_F0]
-      vmovss  dword ptr [rsi+398h], xmm2
-      vmovsd  qword ptr [rsi+3C0h], xmm0
-    }
-    LODWORD(_RSI->m_angularVelocitylerpSpeed.v[2]) = v57;
-    AxisToAngles((const tmat33_t<vec3_t> *)&_RSI->m_transform, &angles);
+    while ( (int)v20 < 3 );
+    v28 = v60;
+    v29 = v63;
+    this->m_lerpEuler.v[0] = *(float *)v59 + this->m_lerpEuler.v[0];
+    v30 = *(float *)&v61;
+    this->m_lerpEuler.v[1] = v28 + this->m_lerpEuler.v[1];
+    v31 = v62;
+    this->m_lerpEuler.v[2] = v30 + this->m_lerpEuler.v[2];
+    *(double *)this->m_angularVelocitylerpSpeed.v = v31;
+    this->m_angularVelocitylerpSpeed.v[2] = v29;
+    AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &angles);
     AnglesNormalize360(&angles, &angles);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+394h]; angle
-      vmovss  xmm6, dword ptr [rsp+140h+angles+4]
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3b360b61
-      vmovss  xmm9, cs:__real@3f000000
-      vmovss  xmm8, cs:__real@40c90fdb
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  xmm6, dword ptr [rsp+140h+angles+8]
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm3, xmm1, xmm10
-      vaddss  xmm1, xmm3, xmm9
-      vmovss  xmm1, xmm0, xmm1
-      vxorps  xmm11, xmm11, xmm11
-      vroundss xmm2, xmm11, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, xmm8
-      vmulss  xmm12, xmm0, xmm14
-      vmovss  xmm0, dword ptr [rsi+398h]; angle
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  xmm6, dword ptr [rsp+140h+angles]
-      vmulss  xmm4, xmm1, xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm4, xmm9
-      vmovss  xmm1, xmm0, xmm2
-      vroundss xmm3, xmm11, xmm1, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rsi+390h]; angle
-      vmulss  xmm7, xmm1, xmm14
-    }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmulss  xmm4, xmm1, xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm2, xmm4, xmm9
-      vmovss  xmm1, xmm0, xmm2
-      vroundss xmm3, xmm11, xmm1, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmulss  xmm6, xmm1, xmm14
-      vmovss  dword ptr [rsp+140h+vec+4], xmm6
-      vmovss  dword ptr [rsp+140h+vec], xmm7
-      vmovss  dword ptr [rsp+140h+vec+8], xmm13
-    }
-    AxisTransformVec3((const tmat33_t<vec3_t> *)&_RSI->m_transform, &vec, &_RSI->m_angularVelocityWs);
-    __asm
-    {
-      vmovaps xmm14, [rsp+140h+var_B8+8]
-      vmovaps xmm11, [rsp+140h+var_88+8]
-      vmovaps xmm10, [rsp+140h+var_78+8]
-      vmovaps xmm8, [rsp+140h+var_58+8]
-      vunpcklps xmm0, xmm6, xmm12
-      vmovaps xmm6, [rsp+140h+var_38+8]
-      vmovss  dword ptr [rsi+1B8h], xmm12
-      vmovaps xmm12, [rsp+140h+var_98+8]
-      vmovss  dword ptr [rsp+140h+vec+8], xmm7
-    }
-    v106 = vec.v[2];
-    __asm
-    {
-      vmovaps xmm7, [rsp+140h+var_48+8]
-      vmovsd  qword ptr [rsi+3A4h], xmm0
-    }
-    _RSI->m_eulerAngularVelocity.v[2] = v106;
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+140h+var_68+8]
-    vmovaps xmm13, [rsp+140h+var_A8+8]
+    v32 = angles.v[1];
+    v33 = AngleNormalize360(this->m_lerpEuler.v[1]);
+    v34 = *(float *)&v33 - v32;
+    v35 = angles.v[2];
+    _XMM11 = 0i64;
+    __asm { vroundss xmm2, xmm11, xmm1, 1 }
+    v38 = (float)((float)((float)(v34 * 0.0027777778) - *(float *)&_XMM2) * 6.2831855) * v8;
+    v39 = AngleNormalize360(this->m_lerpEuler.v[2]);
+    v40 = *(float *)&v39 - v35;
+    v41 = angles.v[0];
+    __asm { vroundss xmm3, xmm11, xmm1, 1 }
+    v43 = LODWORD(this->m_lerpEuler.v[0]);
+    v44 = (float)((float)((float)(v40 * 0.0027777778) - *(float *)&_XMM3) * 6.2831855) * v8;
+    *(double *)&v43 = AngleNormalize360(*(const float *)&v43);
+    v45 = v43;
+    __asm { vroundss xmm3, xmm11, xmm1, 1 }
+    *(float *)&v45 = (float)((float)((float)((float)(*(float *)&v43 - v41) * 0.0027777778) - *(float *)&_XMM3) * 6.2831855) * v8;
+    _XMM6 = v45;
+    vec.v[1] = *(float *)&v45;
+    vec.v[0] = v44;
+    vec.v[2] = 0.0;
+    AxisTransformVec3((const tmat33_t<vec3_t> *)&this->m_transform, &vec, &this->m_angularVelocityWs);
+    __asm { vunpcklps xmm0, xmm6, xmm12 }
+    this->m_angularVelocityWs.v[2] = v38;
+    *(double *)this->m_eulerAngularVelocity.v = *(double *)&_XMM0;
+    this->m_eulerAngularVelocity.v[2] = v44;
   }
 }
 
@@ -1637,32 +1099,28 @@ BgVehiclePhysicsRCPlane::DoTrace
 */
 _BOOL8 BgVehiclePhysicsRCPlane::DoTrace(BgVehiclePhysicsRCPlane *this, Physics_WorldId worldId, int entityNumber, const vec3_t *start, const vec3_t *end, float noiseAmp, vec3_t *outHitPos, vec3_t *outHitNormal, unsigned int *outHitBody, unsigned int *outSurflags)
 {
-  int v16; 
+  int v14; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
   bool HasHit; 
-  hkMemoryAllocator *v19; 
-  hkMemoryAllocator *v20; 
+  hkMemoryAllocator *v17; 
+  hkMemoryAllocator *v18; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v23; 
+  HavokPhysics_IgnoreBodies v21; 
 
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_rcplane.cpp", 280, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tBgVehiclePhysicsRCPlane::DoTrace: Invalid world Index: %d", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", worldId) )
     __debugbreak();
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v23, 1, 0);
-  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v23, 0, entityNumber, 1, 1, 0, 0, 0);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v21, 1, 0);
+  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v21, 0, entityNumber, 1, 1, 0, 0, 0);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0B8h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
-  v16 = 41951633;
+  v14 = 41951633;
   if ( !this->m_hasMissileContents )
-    v16 = 41943825;
-  extendedData.contents = v16;
-  extendedData.ignoreBodies = &v23;
+    v14 = 41943825;
+  extendedData.contents = v14;
+  extendedData.ignoreBodies = &v21;
   ClosestResult = PhysicsQuery_GetClosestResult(worldId);
   if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_rcplane.cpp", 300, ASSERT_TYPE_ASSERT, "(castResult)", (const char *)&queryFormat, "castResult") )
     __debugbreak();
@@ -1676,16 +1134,16 @@ _BOOL8 BgVehiclePhysicsRCPlane::DoTrace(BgVehiclePhysicsRCPlane *this, Physics_W
     *outHitBody = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(ClosestResult, 0);
     *outSurflags = HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0);
   }
-  v19 = hkMemHeapAllocator();
-  v23.m_ignoreBodies.m_size = 0;
-  if ( v23.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v19, v23.m_ignoreBodies.m_data, 4, v23.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v23.m_ignoreBodies.m_data = NULL;
-  v23.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v20 = hkMemHeapAllocator();
-  v23.m_ignoreEntities.m_size = 0;
-  if ( v23.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v20, v23.m_ignoreEntities.m_data, 8, v23.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  v17 = hkMemHeapAllocator();
+  v21.m_ignoreBodies.m_size = 0;
+  if ( v21.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v17, v21.m_ignoreBodies.m_data, 4, v21.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v21.m_ignoreBodies.m_data = NULL;
+  v21.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v18 = hkMemHeapAllocator();
+  v21.m_ignoreEntities.m_size = 0;
+  if ( v21.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v18, v21.m_ignoreEntities.m_data, 8, v21.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   return HasHit;
 }
 
@@ -1694,83 +1152,12 @@ _BOOL8 BgVehiclePhysicsRCPlane::DoTrace(BgVehiclePhysicsRCPlane *this, Physics_W
 Draw2DAxis
 ==============
 */
-
-void __fastcall Draw2DAxis(const ScreenPlacement *scrPlace, double x, double y, double width, float height)
+void Draw2DAxis(const ScreenPlacement *scrPlace, float x, float y, float width, float height)
 {
-  Material *material; 
-  float v41; 
-  float v42; 
-  float v43; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  float v48; 
-  char v49; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  material = cgMedia.whiteMaterial;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovss  xmm6, [rsp+0B8h+height]
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vmovaps xmmword ptr [r11-28h], xmm8
-    vmovaps xmmword ptr [r11-38h], xmm9
-    vmovaps xmmword ptr [r11-48h], xmm10
-    vmovss  xmm10, cs:__real@3f800000
-    vmovaps xmmword ptr [r11-58h], xmm11
-    vmovaps xmmword ptr [r11-68h], xmm12
-    vmovaps xmm12, xmm2
-    vaddss  xmm11, xmm1, xmm3
-    vaddss  xmm2, xmm0, xmm2; p1y
-    vmovaps xmm9, xmm3
-    vmovss  [rsp+0B8h+var_90], xmm10
-    vmovaps xmm3, xmm11; p2x
-    vmovss  [rsp+0B8h+var_98], xmm2
-    vmovaps xmm8, xmm1
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&x, *(float *)&_XMM2, *(float *)&_XMM3, v41, v45, 1, 1, &colorWhite, material);
-  __asm
-  {
-    vaddss  xmm6, xmm12, xmm6
-    vmovss  [rsp+0B8h+var_90], xmm10
-    vmovaps xmm3, xmm8; p2x
-    vmovaps xmm2, xmm12; p1y
-    vmovaps xmm1, xmm8; p1x
-    vmovss  [rsp+0B8h+var_98], xmm6
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v42, v46, 1, 1, &colorWhite, cgMedia.whiteMaterial);
-  __asm
-  {
-    vmulss  xmm0, xmm9, cs:__real@3f000000
-    vaddss  xmm1, xmm0, xmm8; p1x
-    vmovss  [rsp+0B8h+var_90], xmm10
-    vmovaps xmm3, xmm1; p2x
-    vmovaps xmm2, xmm12; p1y
-    vmovss  [rsp+0B8h+var_98], xmm6
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v43, v47, 1, 1, &colorWhite, cgMedia.whiteMaterial);
-  __asm
-  {
-    vmovss  [rsp+0B8h+var_90], xmm10
-    vmovaps xmm3, xmm11; p2x
-    vmovaps xmm2, xmm12; p1y
-    vmovaps xmm1, xmm11; p1x
-    vmovss  [rsp+0B8h+var_98], xmm6
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v44, v48, 1, 1, &colorWhite, cgMedia.whiteMaterial);
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-  }
+  CG_Draw2DLine(scrPlace, x, (float)(height * 0.5) + y, x + width, (float)(height * 0.5) + y, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, x, y, x, y + height, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, (float)(width * 0.5) + x, y, (float)(width * 0.5) + x, y + height, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, x + width, y, x + width, y + height, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
 }
 
 /*
@@ -1778,68 +1165,15 @@ void __fastcall Draw2DAxis(const ScreenPlacement *scrPlace, double x, double y, 
 Draw2DVariableOnGraph
 ==============
 */
-
-void __fastcall Draw2DVariableOnGraph(const ScreenPlacement *scrPlace, double x, double y, double charHeight, float value, float valueMaxAbs, const char *label, float *outHeightChange)
+void Draw2DVariableOnGraph(const ScreenPlacement *scrPlace, float x, float y, float charHeight, float value, float valueMaxAbs, const char *label, float *outHeightChange)
 {
-  float setColor; 
-  float setColora; 
-  int forceColor; 
-  int vertAlign; 
-  void *retaddr; 
+  float v9; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41000000
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  [rsp+98h+vertAlign], xmm0
-    vmovaps xmm8, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm6, xmm1
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&x, *(float *)&y, label, &colorWhiteFaded, 0, 1, *(float *)&vertAlign, 0);
-  __asm
-  {
-    vmovss  xmm0, cs:RCP_DEBUG_GRAPH_HEIGHT
-    vmovss  xmm3, cs:RCP_DEBUG_GRAPH_WIDTH; width
-    vaddss  xmm7, xmm9, xmm8
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm6; x
-    vmovss  dword ptr [rsp+98h+setColor], xmm0
-  }
-  Draw2DAxis(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, setColor);
-  __asm
-  {
-    vmovss  xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-    vmulss  xmm4, xmm0, cs:__real@3f000000
-    vmovss  xmm1, [rsp+98h+value]
-    vdivss  xmm2, xmm1, [rsp+98h+valueMaxAbs]
-    vmulss  xmm3, xmm2, xmm4
-    vaddss  xmm0, xmm4, xmm6
-    vaddss  xmm4, xmm7, cs:RCP_DEBUG_GRAPH_HEIGHT
-    vaddss  xmm1, xmm3, xmm0; p1x
-    vmovss  xmm0, cs:__real@40000000
-    vmovss  [rsp+98h+forceColor], xmm0
-    vmovaps xmm3, xmm1; p2x
-    vmovaps xmm2, xmm7; p1y
-    vmovss  dword ptr [rsp+98h+setColor], xmm4
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColora, *(float *)&forceColor, 1, 1, &colorRed, cgMedia.whiteMaterial);
-  __asm { vaddss  xmm1, xmm8, cs:RCP_DEBUG_GRAPH_HEIGHT }
-  _RAX = outHeightChange;
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vaddss  xmm2, xmm1, xmm7
-    vmovaps xmm7, [rsp+98h+var_28]
-    vsubss  xmm3, xmm2, xmm9
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovss  dword ptr [rax], xmm3
-  }
+  Physics_DrawDebugString(scrPlace, x, y, label, &colorWhiteFaded, 0, 1, 8.0, 0);
+  Draw2DAxis(scrPlace, x, y + charHeight, RCP_DEBUG_GRAPH_WIDTH, RCP_DEBUG_GRAPH_HEIGHT);
+  v9 = (float)((float)(value / valueMaxAbs) * (float)(RCP_DEBUG_GRAPH_WIDTH * 0.5)) + (float)((float)(RCP_DEBUG_GRAPH_WIDTH * 0.5) + x);
+  CG_Draw2DLine(scrPlace, v9, y + charHeight, v9, (float)(y + charHeight) + RCP_DEBUG_GRAPH_HEIGHT, 2.0, 1, 1, &colorRed, cgMedia.whiteMaterial);
+  *outHeightChange = (float)((float)(charHeight + RCP_DEBUG_GRAPH_HEIGHT) + (float)(y + charHeight)) - y;
 }
 
 /*
@@ -1847,90 +1181,18 @@ void __fastcall Draw2DVariableOnGraph(const ScreenPlacement *scrPlace, double x,
 Draw2DVariableOnGraphDouble
 ==============
 */
-
-void __fastcall Draw2DVariableOnGraphDouble(const ScreenPlacement *scrPlace, double x, double y, double charHeight, float value, float valueMaxAbs, float value2, float value2MaxAbs, const char *label, float *outHeightChange)
+void Draw2DVariableOnGraphDouble(const ScreenPlacement *scrPlace, float x, float y, float charHeight, float value, float valueMaxAbs, float value2, float value2MaxAbs, const char *label, float *outHeightChange)
 {
-  float setColor; 
-  float setColora; 
-  float setColorb; 
-  int forceColor; 
-  int forceColora; 
-  int vertAlign; 
-  char v63; 
-  void *retaddr; 
+  float v11; 
+  float v12; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41000000
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovss  [rsp+0A8h+vertAlign], xmm0
-    vmovaps xmm10, xmm3
-    vmovaps xmm11, xmm2
-    vmovaps xmm8, xmm1
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&x, *(float *)&y, label, &colorWhiteFaded, 0, 1, *(float *)&vertAlign, 0);
-  __asm
-  {
-    vmovss  xmm0, cs:RCP_DEBUG_GRAPH_HEIGHT
-    vmovss  xmm3, cs:RCP_DEBUG_GRAPH_WIDTH; width
-    vaddss  xmm9, xmm11, xmm10
-    vmovaps xmm2, xmm9; y
-    vmovaps xmm1, xmm8; x
-    vmovss  dword ptr [rsp+0A8h+setColor], xmm0
-  }
-  Draw2DAxis(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, *(double *)&_XMM3, setColor);
-  __asm
-  {
-    vmovss  xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-    vmulss  xmm4, xmm0, cs:__real@3f000000
-    vmovss  xmm1, [rsp+0A8h+value]
-    vdivss  xmm2, xmm1, [rsp+0A8h+valueMaxAbs]
-    vmovss  xmm6, cs:__real@40000000
-    vmulss  xmm3, xmm2, xmm4
-    vaddss  xmm0, xmm4, xmm8
-    vaddss  xmm4, xmm9, cs:RCP_DEBUG_GRAPH_HEIGHT
-    vaddss  xmm1, xmm3, xmm0; p1x
-    vmovss  [rsp+0A8h+forceColor], xmm6
-    vmovaps xmm3, xmm1; p2x
-    vmovaps xmm2, xmm9; p1y
-    vmovss  dword ptr [rsp+0A8h+setColor], xmm4
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColora, *(float *)&forceColor, 1, 1, &colorRed, cgMedia.whiteMaterial);
-  __asm
-  {
-    vmovss  xmm0, cs:RCP_DEBUG_GRAPH_WIDTH
-    vmulss  xmm4, xmm0, cs:__real@3f000000
-    vmovss  xmm1, [rsp+0A8h+value2]
-    vdivss  xmm2, xmm1, [rsp+0A8h+value2MaxAbs]
-    vmulss  xmm3, xmm2, xmm4
-    vaddss  xmm0, xmm4, xmm8
-    vaddss  xmm4, xmm9, cs:RCP_DEBUG_GRAPH_HEIGHT
-    vaddss  xmm1, xmm3, xmm0; p1x
-    vmovss  [rsp+0A8h+forceColor], xmm6
-    vmovaps xmm3, xmm1; p2x
-    vmovaps xmm2, xmm9; p1y
-    vmovss  dword ptr [rsp+0A8h+setColor], xmm4
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorb, *(float *)&forceColora, 1, 1, &colorGreen, cgMedia.whiteMaterial);
-  __asm { vaddss  xmm1, xmm10, cs:RCP_DEBUG_GRAPH_HEIGHT }
-  _RAX = outHeightChange;
-  _R11 = &v63;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vaddss  xmm2, xmm1, xmm9
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vsubss  xmm3, xmm2, xmm11
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rax], xmm3
-  }
+  Physics_DrawDebugString(scrPlace, x, y, label, &colorWhiteFaded, 0, 1, 8.0, 0);
+  v11 = y + charHeight;
+  Draw2DAxis(scrPlace, x, y + charHeight, RCP_DEBUG_GRAPH_WIDTH, RCP_DEBUG_GRAPH_HEIGHT);
+  v12 = (float)((float)(value / valueMaxAbs) * (float)(RCP_DEBUG_GRAPH_WIDTH * 0.5)) + (float)((float)(RCP_DEBUG_GRAPH_WIDTH * 0.5) + x);
+  CG_Draw2DLine(scrPlace, v12, v11, v12, v11 + RCP_DEBUG_GRAPH_HEIGHT, 2.0, 1, 1, &colorRed, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, (float)((float)(value2 / value2MaxAbs) * (float)(RCP_DEBUG_GRAPH_WIDTH * 0.5)) + (float)((float)(RCP_DEBUG_GRAPH_WIDTH * 0.5) + x), v11, (float)((float)(value2 / value2MaxAbs) * (float)(RCP_DEBUG_GRAPH_WIDTH * 0.5)) + (float)((float)(RCP_DEBUG_GRAPH_WIDTH * 0.5) + x), v11 + RCP_DEBUG_GRAPH_HEIGHT, 2.0, 1, 1, &colorGreen, cgMedia.whiteMaterial);
+  *outHeightChange = (float)((float)(charHeight + RCP_DEBUG_GRAPH_HEIGHT) + (float)(y + charHeight)) - y;
 }
 
 /*
@@ -1952,33 +1214,23 @@ void BgVehiclePhysicsRCPlane::LinearVelocityAdjust(BgVehiclePhysicsRCPlane *this
 {
   bool m_playerControlled; 
   float v4; 
+  float m_currentSpeed; 
 
   m_playerControlled = this->m_playerControlled;
-  _RDI = this;
   if ( m_playerControlled && !this->m_prevPlayerControlled )
   {
     this->m_wasControlled = 1;
     AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &this->m_lerpEuler);
-    v4 = _RDI->m_lerpEuler.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rdi+390h]
-      vmovsd  qword ptr [rdi+384h], xmm0
-    }
-    _RDI->m_euler.v[2] = v4;
-    m_playerControlled = _RDI->m_playerControlled;
+    v4 = this->m_lerpEuler.v[2];
+    *(double *)this->m_euler.v = *(double *)this->m_lerpEuler.v;
+    this->m_euler.v[2] = v4;
+    m_playerControlled = this->m_playerControlled;
   }
-  __asm { vmovss  xmm2, dword ptr [rdi+374h] }
-  _RDI->m_prevPlayerControlled = m_playerControlled;
-  __asm
-  {
-    vmulss  xmm0, xmm2, dword ptr [rdi+174h]
-    vmovss  dword ptr [rdi+1A4h], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rdi+178h]
-    vmovss  dword ptr [rdi+1A8h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rdi+17Ch]
-    vmovss  dword ptr [rdi+1ACh], xmm0
-  }
+  m_currentSpeed = this->m_currentSpeed;
+  this->m_prevPlayerControlled = m_playerControlled;
+  this->m_linearVelocityWs.v[0] = m_currentSpeed * this->m_transform.m[0].v[0];
+  this->m_linearVelocityWs.v[1] = m_currentSpeed * this->m_transform.m[0].v[1];
+  this->m_linearVelocityWs.v[2] = m_currentSpeed * this->m_transform.m[0].v[2];
 }
 
 /*
@@ -1986,606 +1238,448 @@ void BgVehiclePhysicsRCPlane::LinearVelocityAdjust(BgVehiclePhysicsRCPlane *this
 BgVehiclePhysicsRCPlane::PitchAndBank
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::PitchAndBank(BgVehiclePhysicsRCPlane *this, double deltaTime)
+void BgVehiclePhysicsRCPlane::PitchAndBank(BgVehiclePhysicsRCPlane *this, float deltaTime)
 {
-  BOOL v15; 
-  bool v16; 
-  bool v36; 
-  bool v37; 
-  const dvar_t *v69; 
-  const dvar_t *v71; 
-  char v80; 
-  const dvar_t *v81; 
-  const dvar_t *v93; 
-  const dvar_t *v97; 
-  const dvar_t *v106; 
-  const dvar_t *v109; 
-  const dvar_t *v115; 
-  const dvar_t *v116; 
+  BOOL v5; 
+  bool v6; 
+  __int128 v7; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v18; 
+  __int128 v19; 
+  float m_pitchInput; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  bool v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  float value; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  float m_rollMaxAngle; 
+  double v33; 
+  double v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  float m_pitchTurnSpeed; 
+  const dvar_t *v38; 
+  const dvar_t *v39; 
+  float v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
+  const dvar_t *v43; 
+  float m_pitchMaxAngle; 
+  const dvar_t *v45; 
+  const dvar_t *v46; 
+  float v47; 
+  double v48; 
+  const dvar_t *v49; 
+  const dvar_t *v50; 
   bool enabled; 
-  const dvar_t *v118; 
-  bool v119; 
-  const dvar_t *v122; 
-  const dvar_t *v129; 
-  const dvar_t *v136; 
-  float v156; 
+  const dvar_t *v52; 
+  const dvar_t *v53; 
+  float v54; 
+  double v55; 
+  const dvar_t *v56; 
+  double Float_Internal_DebugName; 
+  float v58; 
+  float v59; 
+  const dvar_t *v60; 
+  double v61; 
+  float v62; 
+  const dvar_t *v63; 
+  float m_yawTurnSpeed; 
+  const dvar_t *v65; 
+  const dvar_t *v66; 
+  float v67; 
+  const dvar_t *v68; 
+  double v69; 
+  float v70; 
   vec3_t angles; 
-  char v159; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps [rsp+128h+var_B8], xmm15
-    vxorps  xmm12, xmm12, xmm12
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovss  dword ptr [rsp+128h+var_E0], xmm12
-    vmovss  dword ptr [rsp+128h+var_E0+4], xmm12
-    vmovss  [rsp+128h+var_D8], xmm12
-    vmovaps xmm15, xmm1
-  }
-  v15 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 2, 4);
-  v16 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 2, 4);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+0D0h]
-    vmovss  xmm10, dword ptr [rdi+0F0h]
-    vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm14, cs:__real@3f800000
-  }
-  switch ( v15 + 3 * v16 )
+  _XMM12 = 0i64;
+  *(float *)&v69 = 0.0;
+  v70 = 0.0;
+  v5 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 2, 4);
+  v6 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 2, 4);
+  v7 = LODWORD(this->m_controls.playerValues[2]);
+  _XMM10 = LODWORD(this->m_controls.externalValues[2]);
+  switch ( v5 + 3 * v6 )
   {
     case 1:
-      __asm { vmovaps xmm10, xmm3 }
+      *(float *)&_XMM10 = this->m_controls.playerValues[2];
       break;
     case 3:
       break;
     case 4:
-      switch ( _RDI->m_controls.valuePolicy[2] )
+      switch ( this->m_controls.valuePolicy[2] )
       {
         case VP_MAXABS:
+          _XMM0 = _XMM10 & (unsigned int)_xmm;
           __asm
           {
-            vandps  xmm0, xmm10, xmm11
-            vandps  xmm1, xmm3, xmm11
             vcmpltss xmm1, xmm0, xmm1
             vblendvps xmm10, xmm10, xmm3, xmm1
           }
           goto LABEL_16;
         case VP_MINABS:
+          _XMM1 = v7 & (unsigned int)_xmm;
           __asm
           {
-            vandps  xmm0, xmm10, xmm11
-            vandps  xmm1, xmm3, xmm11
             vcmpltss xmm1, xmm1, xmm0
             vblendvps xmm10, xmm10, xmm3, xmm1
           }
           goto LABEL_16;
         case VP_AVERAGE:
-          __asm
-          {
-            vaddss  xmm0, xmm10, xmm3
-            vmulss  xmm10, xmm0, cs:__real@3f000000
-          }
+          *(float *)&_XMM10 = (float)(*(float *)&_XMM10 + *(float *)&v7) * 0.5;
           goto LABEL_16;
         case VP_AVERAGE_WEIGHT_PLAYER:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi+118h]
-            vsubss  xmm0, xmm14, xmm1
-            vmulss  xmm2, xmm0, xmm10
-            vmulss  xmm1, xmm1, xmm3
-            vaddss  xmm10, xmm2, xmm1
-          }
+          *(float *)&_XMM10 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM10) + (float)(this->m_controls.policyWeight * *(float *)&v7);
           goto LABEL_16;
         case VP_AVERAGE_WEIGHT_EXTERNAL:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi+118h]
-            vsubss  xmm0, xmm14, xmm1
-            vmulss  xmm2, xmm0, xmm3
-            vmulss  xmm1, xmm1, xmm10
-            vaddss  xmm10, xmm2, xmm1
-          }
+          *(float *)&_XMM10 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v7) + (float)(this->m_controls.policyWeight * *(float *)&_XMM10);
           goto LABEL_16;
       }
     default:
-      __asm { vxorps  xmm10, xmm10, xmm10 }
+      LODWORD(_XMM10) = 0;
       break;
   }
 LABEL_16:
-  v36 = 0;
-  v37 = !_RDI->m_gamepadInput;
-  __asm { vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  if ( _RDI->m_gamepadInput )
+  if ( this->m_gamepadInput )
   {
+    if ( COERCE_FLOAT(_XMM10 & _xmm) > 0.0 )
+      *(float *)&_XMM10 = (float)((float)(*(float *)&_XMM10 / COERCE_FLOAT(_XMM10 & _xmm)) * (float)(COERCE_FLOAT(_XMM10 & _xmm) - 0.15748031)) * 1.1869159;
+  }
+  else if ( this->m_vehicleAnimProfile == VEH_ANIMPROFILE_FOXTROT )
+  {
+    v13 = LODWORD(FLOAT_10_0);
+    *(float *)&v13 = powf_0(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT(this->m_pitchInput * 0.0078740157) & _xmm));
+    v14 = v13;
+    *(float *)&v14 = *(float *)&v13 - 1.0;
+    _XMM1 = v14 ^ (unsigned int)_xmm;
     __asm
     {
-      vandps  xmm0, xmm10, xmm11
-      vcomiss xmm0, xmm12
+      vcmpless xmm0, xmm12, xmm6
+      vblendvps xmm1, xmm1, xmm2, xmm0
     }
-    if ( _RDI->m_gamepadInput )
+    this->m_pitchInput = *(float *)&_XMM1 * 127.0;
+    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM1 * 127.0, -127.0, 127.0);
+    this->m_pitchInput = *(float *)&_XMM0;
+    v18 = LODWORD(FLOAT_10_0);
+    *(float *)&v18 = powf_0(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM10 * 0.0078740157) & _xmm));
+    v19 = v18;
+    *(float *)&v19 = *(float *)&v18 - 1.0;
+    _XMM2 = v19 ^ (unsigned int)_xmm;
+    __asm
     {
-      __asm
-      {
-        vdivss  xmm1, xmm10, xmm0
-        vsubss  xmm0, xmm0, cs:__real@3e214285
-        vmulss  xmm1, xmm1, xmm0
-        vmulss  xmm10, xmm1, cs:__real@3f97ecdc
-      }
+      vcmpless xmm0, xmm12, xmm10
+      vblendvps xmm0, xmm2, xmm3, xmm0
     }
+    *(float *)&v19 = *(float *)&_XMM0 * 127.0;
+    I_fclamp(*(float *)&_XMM0 * 127.0, -127.0, 127.0);
+    LODWORD(_XMM10) = v19;
   }
-  else
-  {
-    v36 = _RDI->m_vehicleAnimProfile < (unsigned int)VEH_ANIMPROFILE_FOXTROT;
-    v37 = _RDI->m_vehicleAnimProfile == VEH_ANIMPROFILE_FOXTROT;
-    if ( _RDI->m_vehicleAnimProfile == VEH_ANIMPROFILE_FOXTROT )
-    {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rdi+378h]
-        vmulss  xmm1, xmm6, cs:__real@3c010204
-        vmovss  xmm0, cs:__real@41200000; X
-        vandps  xmm1, xmm1, xmm11; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm8, cs:__real@42fe0000
-        vsubss  xmm2, xmm0, xmm14
-        vxorps  xmm1, xmm2, xmm13
-        vcmpless xmm0, xmm12, xmm6
-        vblendvps xmm1, xmm1, xmm2, xmm0
-        vmulss  xmm0, xmm1, xmm8; val
-        vmovss  xmm1, cs:__real@c2fe0000; min
-        vmovaps xmm2, xmm8; max
-        vmovss  dword ptr [rdi+378h], xmm0
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm1, xmm10, cs:__real@3c010204
-        vmovss  dword ptr [rdi+378h], xmm0
-        vmovss  xmm0, cs:__real@41200000; X
-        vandps  xmm1, xmm1, xmm11; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm1, cs:__real@c2fe0000; min
-        vsubss  xmm3, xmm0, xmm14
-        vxorps  xmm2, xmm3, xmm13
-        vcmpless xmm0, xmm12, xmm10
-        vblendvps xmm0, xmm2, xmm3, xmm0
-        vmulss  xmm0, xmm0, xmm8; val
-        vmovaps xmm2, xmm8; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm10, xmm0 }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3c23d70a
-    vmovss  xmm1, dword ptr [rdi+378h]
-  }
-  _RDI->m_wasPitchSteering = _RDI->m_pitchSteering;
-  __asm
-  {
-    vandps  xmm1, xmm1, xmm11
-    vcomiss xmm1, xmm7
-    vandps  xmm8, xmm10, xmm11
-  }
-  _RDI->m_pitchSteering = !v36 && !v37;
-  __asm { vcomiss xmm8, xmm7 }
-  _RDI->m_wasYawSteering = _RDI->m_yawSteering;
-  _RDI->m_yawSteering = !v36 && !v37;
-  v69 = DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogicPitch;
+  m_pitchInput = this->m_pitchInput;
+  this->m_wasPitchSteering = this->m_pitchSteering;
+  this->m_pitchSteering = COERCE_FLOAT(LODWORD(m_pitchInput) & _xmm) > 0.0099999998;
+  this->m_wasYawSteering = this->m_yawSteering;
+  this->m_yawSteering = COERCE_FLOAT(_XMM10 & _xmm) > 0.0099999998;
+  v24 = DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogicPitch;
   if ( !DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogicPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_useChangeDirLogicPitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v69);
-  if ( v69->current.enabled )
-  {
-    if ( _RDI->m_pitchSteering )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+3A4h]
-        vmulss  xmm1, xmm0, dword ptr [rdi+378h]
-        vcomiss xmm1, cs:__real@bc23d70a
-      }
-    }
-    _RDI->m_pitchCounterSteering = 0;
-  }
+  Dvar_CheckFrontendServerThread(v24);
+  if ( v24->current.enabled )
+    this->m_pitchCounterSteering = this->m_pitchSteering && (float)(this->m_eulerAngularVelocity.v[0] * this->m_pitchInput) < -0.0099999998;
   else
-  {
-    _RDI->m_yawCounterSteering = 0;
-  }
-  v71 = DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogic;
+    this->m_yawCounterSteering = 0;
+  v25 = DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogic;
   if ( !DCONST_DVARBOOL_bg_rcp_m_useChangeDirLogic && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_useChangeDirLogic") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v71);
-  if ( !v71->current.enabled )
-    goto LABEL_36;
-  if ( !_RDI->m_yawSteering )
-    goto LABEL_36;
-  __asm
+  Dvar_CheckFrontendServerThread(v25);
+  v26 = v25->current.enabled && this->m_yawSteering && (float)((float)((float)((float)(0.0 * this->m_transform.m[1].v[1]) + (float)(0.0 * this->m_transform.m[1].v[0])) + (float)(1.0 * this->m_transform.m[1].v[2])) * *(float *)&_XMM10) > 0.0099999998;
+  this->m_yawCounterSteering = v26;
+  if ( COERCE_FLOAT(_XMM10 & _xmm) <= 0.0099999998 )
   {
-    vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-    vmulss  xmm3, xmm0, dword ptr [rdi+184h]
-    vmovss  xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-    vmulss  xmm2, xmm1, dword ptr [rdi+180h]
-    vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-    vmulss  xmm1, xmm0, dword ptr [rdi+188h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm3, xmm2, xmm10
-    vcomiss xmm3, xmm7
-  }
-  if ( _RDI->m_yawSteering )
-    v80 = 1;
-  else
-LABEL_36:
-    v80 = 0;
-  _RDI->m_yawCounterSteering = v80;
-  __asm { vcomiss xmm8, xmm7 }
-  if ( _RDI->m_stabilizeRoll )
-  {
-    _RDI->m_rollSteering = 0;
-    _RDI->m_euler.v[2] = 0.0;
-    __asm { vmovss  [rsp+128h+var_D8], xmm12 }
-  }
-  v81 = DCONST_DVARBOOL_bg_rcpUseDvars;
-  if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v81);
-  if ( v81->current.enabled )
-  {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_rollMaxAngle;
-    if ( !DCONST_DVARFLT_bg_rcp_m_rollMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_rollMaxAngle") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  }
-  else
-  {
-    __asm { vmovss  xmm6, dword ptr [rdi+34Ch] }
-  }
-  __asm
-  {
-    vmovaps xmm2, xmm14; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm8; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm2, xmm0, xmm6; max
-    vmovss  xmm0, dword ptr [rdi+38Ch]; val
-    vxorps  xmm1, xmm2, xmm13; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi+38Ch], xmm0
-    vmovss  xmm1, dword ptr [rdi+378h]
-    vandps  xmm1, xmm1, xmm11
-    vcomiss xmm1, xmm7
-  }
-  if ( v36 || v37 )
-  {
-    if ( _RDI->m_stabilizePitch )
+    if ( this->m_stabilizeRoll )
     {
-      __asm { vmovss  dword ptr [rsp+128h+var_E0], xmm12 }
-      _RDI->m_euler.v[0] = 0.0;
+      this->m_rollSteering = 0;
+      this->m_euler.v[2] = 0.0;
+      v70 = 0.0;
     }
   }
   else
   {
-    v93 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    if ( _RDI->m_pitchCounterSteering )
+    this->m_rollSteering = 1;
+    v27 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v27);
+    if ( v27->current.enabled )
+    {
+      v28 = DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed;
+      if ( !DCONST_DVARFLT_bg_rcp_m_rollTurnSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_rollTurnSpeed") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v28);
+      value = v28->current.value;
+    }
+    else
+    {
+      value = this->m_rollTurnSpeed;
+    }
+    LODWORD(v70) = COERCE_UNSIGNED_INT(value * *(float *)&_XMM10) ^ _xmm;
+    this->m_euler.v[2] = (float)(v70 * deltaTime) + this->m_euler.v[2];
+  }
+  v30 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v30);
+  if ( v30->current.enabled )
+  {
+    v31 = DCONST_DVARFLT_bg_rcp_m_rollMaxAngle;
+    if ( !DCONST_DVARFLT_bg_rcp_m_rollMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_rollMaxAngle") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v31);
+    m_rollMaxAngle = v31->current.value;
+  }
+  else
+  {
+    m_rollMaxAngle = this->m_rollMaxAngle;
+  }
+  v33 = I_fclamp(COERCE_FLOAT(_XMM10 & _xmm), 0.0, 1.0);
+  v34 = I_fclamp(this->m_euler.v[2], COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v33 * m_rollMaxAngle) ^ _xmm), *(float *)&v33 * m_rollMaxAngle);
+  this->m_euler.v[2] = *(float *)&v34;
+  if ( COERCE_FLOAT(LODWORD(this->m_pitchInput) & _xmm) <= 0.0099999998 )
+  {
+    if ( this->m_stabilizePitch )
+    {
+      *(float *)&v69 = 0.0;
+      this->m_euler.v[0] = 0.0;
+    }
+  }
+  else
+  {
+    v35 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    if ( this->m_pitchCounterSteering )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v93);
-      if ( v93->current.enabled )
+      Dvar_CheckFrontendServerThread(v35);
+      if ( v35->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed;
+        v36 = DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed;
         if ( !DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchTurnSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+        Dvar_CheckFrontendServerThread(v36);
+        m_pitchTurnSpeed = v36->current.value;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rdi+310h] }
+        m_pitchTurnSpeed = this->m_pitchTurnSpeed;
       }
-      v97 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v38 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v97);
-      if ( v97->current.enabled )
+      Dvar_CheckFrontendServerThread(v38);
+      if ( v38->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_pitchChangeDirFactor;
+        v39 = DCONST_DVARFLT_bg_rcp_m_pitchChangeDirFactor;
         if ( !DCONST_DVARFLT_bg_rcp_m_pitchChangeDirFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchChangeDirFactor") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmulss  xmm0, xmm0, xmm6
-        }
+        Dvar_CheckFrontendServerThread(v39);
+        v40 = v39->current.value * m_pitchTurnSpeed;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+314h]
-          vmulss  xmm0, xmm0, xmm6
-        }
+        v40 = this->m_pitchChangeDirFactor * m_pitchTurnSpeed;
       }
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v93);
-      if ( v93->current.enabled )
+      Dvar_CheckFrontendServerThread(v35);
+      if ( v35->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed;
+        v41 = DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed;
         if ( !DCONST_DVARFLT_bg_rcp_m_pitchTurnSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchTurnSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+        Dvar_CheckFrontendServerThread(v41);
+        v40 = v41->current.value;
       }
       else
       {
-        __asm { vmovss  xmm0, dword ptr [rdi+310h] }
+        v40 = this->m_pitchTurnSpeed;
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm0, dword ptr [rdi+378h]
-      vmovss  dword ptr [rsp+128h+var_E0], xmm0
-      vmulss  xmm0, xmm0, xmm15
-      vaddss  xmm1, xmm0, dword ptr [rdi+384h]
-      vmovss  dword ptr [rdi+384h], xmm1
-    }
+    *(float *)&v69 = v40 * this->m_pitchInput;
+    this->m_euler.v[0] = (float)(*(float *)&v69 * deltaTime) + this->m_euler.v[0];
   }
-  v106 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v42 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v106);
-  if ( v106->current.enabled )
+  Dvar_CheckFrontendServerThread(v42);
+  if ( v42->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
+    v43 = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
     if ( !DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchMaxAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v43);
+    m_pitchMaxAngle = v43->current.value;
   }
   else
   {
-    __asm { vmovss  xmm6, dword ptr [rdi+324h] }
+    m_pitchMaxAngle = this->m_pitchMaxAngle;
   }
-  v109 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v45 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v109);
-  if ( v109->current.enabled )
+  Dvar_CheckFrontendServerThread(v45);
+  if ( v45->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
+    v46 = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
     if ( !DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchMaxAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v46);
+    v47 = v46->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+324h] }
+    v47 = this->m_pitchMaxAngle;
   }
-  __asm
-  {
-    vxorps  xmm1, xmm0, xmm13; min
-    vmovss  xmm0, dword ptr [rdi+384h]; val
-    vmovaps xmm2, xmm6; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [rdi+384h], xmm0 }
-  v115 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v48 = I_fclamp(this->m_euler.v[0], COERCE_FLOAT(LODWORD(v47) ^ _xmm), m_pitchMaxAngle);
+  this->m_euler.v[0] = *(float *)&v48;
+  v49 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v115);
-  if ( v115->current.enabled )
+  Dvar_CheckFrontendServerThread(v49);
+  if ( v49->current.enabled )
   {
-    v116 = DCONST_DVARBOOL_bg_rcp_m_useRollForYawSpeed;
+    v50 = DCONST_DVARBOOL_bg_rcp_m_useRollForYawSpeed;
     if ( !DCONST_DVARBOOL_bg_rcp_m_useRollForYawSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_useRollForYawSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v116);
-    enabled = v116->current.enabled;
+    Dvar_CheckFrontendServerThread(v50);
+    enabled = v50->current.enabled;
   }
   else
   {
-    enabled = _RDI->m_useRollForYawSpeed;
+    enabled = this->m_useRollForYawSpeed;
   }
-  v118 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v52 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !enabled )
   {
-    if ( _RDI->m_yawCounterSteering )
+    if ( this->m_yawCounterSteering )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v118);
-      if ( v118->current.enabled )
+      Dvar_CheckFrontendServerThread(v52);
+      if ( v52->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed;
+        v63 = DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed;
         if ( !DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_yawTurnSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+        Dvar_CheckFrontendServerThread(v63);
+        m_yawTurnSpeed = v63->current.value;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rdi+328h] }
+        m_yawTurnSpeed = this->m_yawTurnSpeed;
       }
-      v136 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v65 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v136);
-      if ( v136->current.enabled )
+      Dvar_CheckFrontendServerThread(v65);
+      if ( v65->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_yawChangeDirFactor;
+        v66 = DCONST_DVARFLT_bg_rcp_m_yawChangeDirFactor;
         if ( !DCONST_DVARFLT_bg_rcp_m_yawChangeDirFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_yawChangeDirFactor") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmulss  xmm0, xmm0, xmm6
-        }
+        Dvar_CheckFrontendServerThread(v66);
+        v67 = v66->current.value * m_yawTurnSpeed;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+32Ch]
-          vmulss  xmm0, xmm0, xmm6
-        }
+        v67 = this->m_yawChangeDirFactor * m_yawTurnSpeed;
       }
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v118);
-      if ( v118->current.enabled )
+      Dvar_CheckFrontendServerThread(v52);
+      if ( v52->current.enabled )
       {
-        _RBX = DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed;
+        v68 = DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed;
         if ( !DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_yawTurnSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+        Dvar_CheckFrontendServerThread(v68);
+        v67 = v68->current.value;
       }
       else
       {
-        __asm { vmovss  xmm0, dword ptr [rdi+328h] }
+        v67 = this->m_yawTurnSpeed;
       }
     }
-    __asm { vmulss  xmm0, xmm0, xmm10 }
-    goto LABEL_163;
+    v62 = v67 * *(float *)&_XMM10;
+    goto LABEL_175;
   }
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v118);
-  v119 = !v118->current.enabled;
-  if ( v118->current.enabled )
+  Dvar_CheckFrontendServerThread(v52);
+  if ( v52->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_rollMaxAngle;
+    v53 = DCONST_DVARFLT_bg_rcp_m_rollMaxAngle;
     if ( !DCONST_DVARFLT_bg_rcp_m_rollMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_rollMaxAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v53);
+    v54 = v53->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+34Ch] }
+    v54 = this->m_rollMaxAngle;
   }
-  __asm { vucomiss xmm0, xmm12 }
-  if ( !v119 )
+  if ( v54 != 0.0 )
   {
-    if ( _RDI->m_yawSteering )
-      goto LABEL_121;
-    if ( !_RDI->m_wasYawSteering )
-      goto LABEL_121;
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_overshootProtection, "bg_rcp_m_overshootProtection");
-    __asm { vcomiss xmm0, xmm12 }
-    if ( v36 || v37 )
+    if ( this->m_yawSteering || !this->m_wasYawSteering || (v55 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_overshootProtection, "bg_rcp_m_overshootProtection"), *(float *)&v55 <= 0.0) )
     {
-LABEL_121:
-      AxisToAngles((const tmat33_t<vec3_t> *)&_RDI->m_transform, &angles);
-      v122 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &angles);
+      v56 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v122);
-      if ( v122->current.enabled )
+      Dvar_CheckFrontendServerThread(v56);
+      if ( v56->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
-        __asm { vmovaps xmm2, xmm0 }
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_rollMaxAngle, "bg_rcp_m_rollMaxAngle");
+        v58 = *(float *)&Float_Internal_DebugName;
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rdi+34Ch] }
+        v58 = this->m_rollMaxAngle;
       }
-      __asm
-      {
-        vmovss  xmm1, cs:__real@bf800000; min
-        vmulss  xmm3, xmm1, dword ptr [rsp+128h+angles+8]
-        vdivss  xmm0, xmm3, xmm2; val
-        vmovaps xmm2, xmm14; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      v129 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      __asm { vmovaps xmm6, xmm0 }
+      v59 = (float)(-1.0 * angles.v[2]) / v58;
+      I_fclamp(v59, -1.0, 1.0);
+      v60 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v129);
-      if ( v129->current.enabled )
+      Dvar_CheckFrontendServerThread(v60);
+      if ( v60->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
-        __asm { vmulss  xmm0, xmm0, xmm6 }
+        v61 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_yawTurnSpeed, "bg_rcp_m_yawTurnSpeed");
+        v62 = *(float *)&v61 * v59;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+328h]
-          vmulss  xmm0, xmm0, xmm6
-        }
+        v62 = this->m_yawTurnSpeed * v59;
       }
-LABEL_163:
-      __asm
-      {
-        vmovss  dword ptr [rsp+128h+var_E0+4], xmm0
-        vmulss  xmm0, xmm0, xmm15
-        vaddss  xmm1, xmm0, dword ptr [rdi+388h]
-        vmovss  dword ptr [rdi+388h], xmm1
-      }
-      goto LABEL_164;
+LABEL_175:
+      *((float *)&v69 + 1) = v62;
+      this->m_euler.v[1] = (float)(v62 * deltaTime) + this->m_euler.v[1];
+      goto LABEL_176;
     }
   }
-  __asm { vmovss  dword ptr [rsp+128h+var_E0+4], xmm12 }
-LABEL_164:
-  __asm
-  {
-    vmovsd  xmm0, [rsp+128h+var_E0]
-    vmovsd  qword ptr [rdi+3B4h], xmm0
-  }
-  _RDI->m_goalAngularVelocity.v[2] = v156;
-  _R11 = &v159;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+128h+var_B8]
-  }
+  *((float *)&v69 + 1) = 0.0;
+LABEL_176:
+  *(double *)this->m_goalAngularVelocity.v = v69;
+  this->m_goalAngularVelocity.v[2] = v70;
 }
 
 /*
@@ -2593,16 +1687,12 @@ LABEL_164:
 BgVehiclePhysicsRCPlane::SetMinSpeed
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::SetMinSpeed(BgVehiclePhysicsRCPlane *this, double speedmph)
+void BgVehiclePhysicsRCPlane::SetMinSpeed(BgVehiclePhysicsRCPlane *this, float speedmph)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+2ECh]
-    vmovss  dword ptr [rcx+2E4h], xmm1
-    vmaxss  xmm1, xmm0, xmm1
-    vmovss  dword ptr [rcx+2ECh], xmm1
-  }
+  _XMM0 = LODWORD(this->m_topSpeedBoostReleased);
+  this->m_minSpeed = speedmph;
+  __asm { vmaxss  xmm1, xmm0, xmm1 }
+  this->m_topSpeedBoostReleased = *(float *)&_XMM1;
 }
 
 /*
@@ -2610,10 +1700,9 @@ void __fastcall BgVehiclePhysicsRCPlane::SetMinSpeed(BgVehiclePhysicsRCPlane *th
 BgVehiclePhysicsRCPlane::SetTopSpeedBoosting
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::SetTopSpeedBoosting(BgVehiclePhysicsRCPlane *this, double speedmph)
+void BgVehiclePhysicsRCPlane::SetTopSpeedBoosting(BgVehiclePhysicsRCPlane *this, float speedmph)
 {
-  __asm { vmovss  dword ptr [rcx+300h], xmm1 }
+  this->m_boostSpeed = speedmph;
 }
 
 /*
@@ -2621,10 +1710,9 @@ void __fastcall BgVehiclePhysicsRCPlane::SetTopSpeedBoosting(BgVehiclePhysicsRCP
 BgVehiclePhysicsRCPlane::SetTopSpeedNoBoosting
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::SetTopSpeedNoBoosting(BgVehiclePhysicsRCPlane *this, double speedmph)
+void BgVehiclePhysicsRCPlane::SetTopSpeedNoBoosting(BgVehiclePhysicsRCPlane *this, float speedmph)
 {
-  __asm { vmovss  dword ptr [rcx+2E8h], xmm1 }
+  this->m_topSpeed = speedmph;
 }
 
 /*
@@ -2638,155 +1726,137 @@ bool BgVehiclePhysicsRCPlane::Setup(BgVehiclePhysicsRCPlane *this, BGVehicles *v
   int physics_boostButton; 
   Physics_WorldId m_worldId; 
   const char *name; 
-  char v29; 
-  int v30; 
-  char v31; 
-  const dvar_t *v32; 
+  char v22; 
+  unsigned int v23; 
+  char v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  float value; 
 
-  _RBX = this;
-  _RDI = vehDef;
   result = BgVehiclePhysics::Setup(this, vehSystem, worldId, vehicleId, entityNumber, vehDefIndex, vehDef);
   if ( result )
   {
-    __asm { vmovss  xmm2, cs:__real@3f800000 }
-    _RBX->m_acceleration = vehDef->accel;
-    _RBX->m_deceleration = vehDef->vehiclePhysicsDef.physics_decel;
-    _RBX->m_timeAfterColl = vehDef->vehiclePhysicsDef.physics_timeAfterColl;
-    _RBX->m_minSpeed = vehDef->vehiclePhysicsDef.physics_minSpeed;
-    _RBX->m_stabilizeRoll = vehDef->vehiclePhysicsDef.physics_stabilizeRoll;
-    _RBX->m_stabilizePitch = vehDef->vehiclePhysicsDef.physics_stabilizePitch;
-    _EAX = vehDef->vehiclePhysicsDef.physics_pitchInversion;
-    __asm { vmovd   xmm0, eax }
-    _ESI = 0;
-    __asm
-    {
-      vmovd   xmm1, esi
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@bf800000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  dword ptr [rbx+2F4h], xmm0
-    }
-    _RBX->m_controlMode = vehDef->vehiclePhysicsDef.physics_controlMode;
+    this->m_acceleration = vehDef->accel;
+    this->m_deceleration = vehDef->vehiclePhysicsDef.physics_decel;
+    this->m_timeAfterColl = vehDef->vehiclePhysicsDef.physics_timeAfterColl;
+    this->m_minSpeed = vehDef->vehiclePhysicsDef.physics_minSpeed;
+    this->m_stabilizeRoll = vehDef->vehiclePhysicsDef.physics_stabilizeRoll;
+    this->m_stabilizePitch = vehDef->vehiclePhysicsDef.physics_stabilizePitch;
+    _XMM0 = vehDef->vehiclePhysicsDef.physics_pitchInversion;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_N1_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    this->m_pitchInversion = *(float *)&_XMM0;
+    this->m_controlMode = vehDef->vehiclePhysicsDef.physics_controlMode;
     physics_boostButton = vehDef->vehiclePhysicsDef.physics_boostButton;
-    __asm { vxorps  xmm2, xmm2, xmm2 }
     if ( physics_boostButton < 0 )
       physics_boostButton = 0;
-    _RBX->m_boostButton = physics_boostButton;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+21Ch]
-      vmaxss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rbx+300h], xmm0
-    }
-    _RBX->m_holdToBoost = vehDef->vehiclePhysicsDef.physics_holdToBoost;
-    _RBX->m_hasMissileContents = vehDef->vehiclePhysicsDef.physics_contentsAsMissile;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+220h]
-      vmaxss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rbx+36Ch], xmm0
-      vmovss  xmm1, dword ptr [rdi+224h]
-    }
-    *(_WORD *)&_RBX->m_prevPlayerControlled = 0;
-    *(_QWORD *)&_RBX->m_currentSpeed = 0i64;
-    *(_WORD *)&_RBX->m_doBoost = 0;
-    _RBX->m_lastDoBoost = 0;
-    _RBX->m_boostOneTimeEventDone = 0;
-    __asm
-    {
-      vmaxss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rbx+370h], xmm0
-    }
-    _RBX->m_useChangeDirLogic = vehDef->vehiclePhysicsDef.physics_rcpUseChangeDirLogic;
-    _RBX->m_useChangeDirLogicPitch = vehDef->vehiclePhysicsDef.physics_rcpUseChangeDirLogicPitch;
-    _RBX->m_useRollForYawSpeed = vehDef->vehiclePhysicsDef.physics_rcpUseRollForYawSpeed;
-    _RBX->m_overshootProtection = vehDef->vehiclePhysicsDef.physics_rcpOvershootProtection;
-    _RBX->m_pitchTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpPitchTurnSpeed;
-    _RBX->m_pitchChangeDirFactor = vehDef->vehiclePhysicsDef.physics_rcpPitchChangeDirFactor;
-    _RBX->m_pitchLerpSpeed = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeed;
-    _RBX->m_pitchLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeedChangeDir;
-    _RBX->m_pitchLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeedReturning;
-    _RBX->m_pitchMaxAngle = vehDef->vehiclePhysicsDef.physics_rcpPitchMaxAngle;
-    _RBX->m_yawTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpYawTurnSpeed;
-    _RBX->m_yawChangeDirFactor = vehDef->vehiclePhysicsDef.physics_rcpYawChangeDirFactor;
-    _RBX->m_yawLerpSpeed = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeed;
-    _RBX->m_yawLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeedChangeDir;
-    _RBX->m_yawLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeedReturning;
-    _RBX->m_rollTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpRollTurnSpeed;
-    m_worldId = _RBX->m_worldId;
-    _RBX->m_rollLerpSpeedSteering = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedSteering;
-    _RBX->m_rollLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedChangeDir;
-    _RBX->m_rollLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedReturning;
-    _RBX->m_rollMaxAngle = vehDef->vehiclePhysicsDef.physics_rcpRollMaxAngle;
-    _RBX->m_accelGoingDown = vehDef->vehiclePhysicsDef.physics_rcpAccelGoingDown;
-    _RBX->m_decelGoingUp = vehDef->vehiclePhysicsDef.physics_rcpDecelGoingUp;
-    _RBX->m_traceAhead = vehDef->vehiclePhysicsDef.physics_rcpTraceAhead;
-    _RBX->m_rollSteering = 0;
-    _RBX->m_boostEvent.shakeScale = vehDef->vehiclePhysicsDef.physics_rcpBoostShakeCam.v[0];
-    __asm { vcvttss2si eax, dword ptr [rdi+23Ch] }
-    _RBX->m_boostEvent.shakeDuration = _EAX;
-    _RBX->m_boostEvent.shakeRadius = vehDef->vehiclePhysicsDef.physics_rcpBoostShakeCam.v[2];
-    _RBX->m_boostEvent.BoostSound = 0;
+    this->m_boostButton = physics_boostButton;
+    _XMM0 = LODWORD(vehDef->vehiclePhysicsDef.physics_boostSpeed);
+    __asm { vmaxss  xmm0, xmm0, xmm2 }
+    this->m_boostSpeed = *(float *)&_XMM0;
+    this->m_holdToBoost = vehDef->vehiclePhysicsDef.physics_holdToBoost;
+    this->m_hasMissileContents = vehDef->vehiclePhysicsDef.physics_contentsAsMissile;
+    _XMM0 = LODWORD(vehDef->vehiclePhysicsDef.physics_rcpBoostAccel);
+    __asm { vmaxss  xmm0, xmm0, xmm2 }
+    this->m_boostAccel = *(float *)&_XMM0;
+    _XMM1 = LODWORD(vehDef->vehiclePhysicsDef.physics_rcpBoostDecel);
+    *(_WORD *)&this->m_prevPlayerControlled = 0;
+    *(_QWORD *)&this->m_currentSpeed = 0i64;
+    *(_WORD *)&this->m_doBoost = 0;
+    this->m_lastDoBoost = 0;
+    this->m_boostOneTimeEventDone = 0;
+    __asm { vmaxss  xmm0, xmm1, xmm2 }
+    this->m_boostDecel = *(float *)&_XMM0;
+    this->m_useChangeDirLogic = vehDef->vehiclePhysicsDef.physics_rcpUseChangeDirLogic;
+    this->m_useChangeDirLogicPitch = vehDef->vehiclePhysicsDef.physics_rcpUseChangeDirLogicPitch;
+    this->m_useRollForYawSpeed = vehDef->vehiclePhysicsDef.physics_rcpUseRollForYawSpeed;
+    this->m_overshootProtection = vehDef->vehiclePhysicsDef.physics_rcpOvershootProtection;
+    this->m_pitchTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpPitchTurnSpeed;
+    this->m_pitchChangeDirFactor = vehDef->vehiclePhysicsDef.physics_rcpPitchChangeDirFactor;
+    this->m_pitchLerpSpeed = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeed;
+    this->m_pitchLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeedChangeDir;
+    this->m_pitchLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpPitchLerpSpeedReturning;
+    this->m_pitchMaxAngle = vehDef->vehiclePhysicsDef.physics_rcpPitchMaxAngle;
+    this->m_yawTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpYawTurnSpeed;
+    this->m_yawChangeDirFactor = vehDef->vehiclePhysicsDef.physics_rcpYawChangeDirFactor;
+    this->m_yawLerpSpeed = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeed;
+    this->m_yawLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeedChangeDir;
+    this->m_yawLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpYawLerpSpeedReturning;
+    this->m_rollTurnSpeed = vehDef->vehiclePhysicsDef.physics_rcpRollTurnSpeed;
+    m_worldId = this->m_worldId;
+    this->m_rollLerpSpeedSteering = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedSteering;
+    this->m_rollLerpSpeedChangeDir = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedChangeDir;
+    this->m_rollLerpSpeedReturning = vehDef->vehiclePhysicsDef.physics_rcpRollLerpSpeedReturning;
+    this->m_rollMaxAngle = vehDef->vehiclePhysicsDef.physics_rcpRollMaxAngle;
+    this->m_accelGoingDown = vehDef->vehiclePhysicsDef.physics_rcpAccelGoingDown;
+    this->m_decelGoingUp = vehDef->vehiclePhysicsDef.physics_rcpDecelGoingUp;
+    this->m_traceAhead = vehDef->vehiclePhysicsDef.physics_rcpTraceAhead;
+    this->m_rollSteering = 0;
+    this->m_boostEvent.shakeScale = vehDef->vehiclePhysicsDef.physics_rcpBoostShakeCam.v[0];
+    this->m_boostEvent.shakeDuration = (int)vehDef->vehiclePhysicsDef.physics_rcpBoostShakeCam.v[1];
+    this->m_boostEvent.shakeRadius = vehDef->vehiclePhysicsDef.physics_rcpBoostShakeCam.v[2];
+    this->m_boostEvent.BoostSound = 0;
     if ( Physics_IsPredictiveWorld(m_worldId) )
     {
       name = vehDef->vehiclePhysicsDef.physics_rcpBoostSound.name;
       if ( name )
       {
-        v29 = *name;
+        v22 = *name;
         if ( *name )
         {
-          v30 = 5381;
+          v23 = 5381;
           do
           {
             ++name;
-            v31 = v29 | 0x20;
-            if ( (unsigned int)(v29 - 65) >= 0x1A )
-              v31 = v29;
-            v30 = 65599 * v30 + v31;
-            v29 = *name;
+            v24 = v22 | 0x20;
+            if ( (unsigned int)(v22 - 65) >= 0x1A )
+              v24 = v22;
+            v23 = 65599 * v23 + v24;
+            v22 = *name;
           }
           while ( *name );
-          if ( !v30 )
-            v30 = 1;
+          if ( !v23 )
+            v23 = 1;
         }
         else
         {
-          v30 = 0;
+          v23 = 0;
         }
-        _RBX->m_boostEvent.BoostSound = v30;
+        this->m_boostEvent.BoostSound = v23;
       }
     }
     if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG )
     {
       if ( vehDef->name && I_strstr(vehDef->name, "rcplane_physics") )
-        _RBX->m_netcodeType = VEH_NETCODE_CLIENT_PRED_SB;
+        this->m_netcodeType = VEH_NETCODE_CLIENT_PRED_SB;
     }
     else
     {
-      _RBX->m_netcodeType = VEH_NETCODE_SERVER_AUTH;
+      this->m_netcodeType = VEH_NETCODE_SERVER_AUTH;
     }
-    _RBX->m_topSpeedForward = 0i64;
-    *(_QWORD *)_RBX->m_topAngularSpeedLs.v = 0i64;
-    _RBX->m_topAngularSpeedLs.v[2] = 0.0;
-    _RBX->m_topSpeed = vehDef->topSpeed;
-    v32 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    this->m_topSpeedForward = 0i64;
+    *(_QWORD *)this->m_topAngularSpeedLs.v = 0i64;
+    this->m_topAngularSpeedLs.v[2] = 0.0;
+    this->m_topSpeed = vehDef->topSpeed;
+    v25 = DCONST_DVARBOOL_bg_rcpUseDvars;
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    if ( v32->current.enabled )
+    Dvar_CheckFrontendServerThread(v25);
+    if ( v25->current.enabled )
     {
-      _RDI = DCONST_DVARFLT_bg_rcp_m_topSpeed;
+      v26 = DCONST_DVARFLT_bg_rcp_m_topSpeed;
       if ( !DCONST_DVARFLT_bg_rcp_m_topSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_topSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v26);
+      value = v26->current.value;
     }
     else
     {
-      __asm { vmovss  xmm0, dword ptr [rbx+2E8h] }
+      value = this->m_topSpeed;
     }
     result = 1;
-    __asm { vmovss  dword ptr [rbx+2ECh], xmm0 }
+    this->m_topSpeedBoostReleased = value;
   }
   return result;
 }
@@ -2796,67 +1866,82 @@ bool BgVehiclePhysicsRCPlane::Setup(BgVehiclePhysicsRCPlane *this, BGVehicles *v
 BgVehiclePhysicsRCPlane::Step
 ==============
 */
-
-bool __fastcall BgVehiclePhysicsRCPlane::Step(BgVehiclePhysicsRCPlane *this, double deltaTime)
+char BgVehiclePhysicsRCPlane::Step(BgVehiclePhysicsRCPlane *this, float deltaTime)
 {
-  bool m_playerControlled; 
+  float m_traceAhead; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int m_entityNumber; 
+  Physics_WorldId m_worldId; 
+  float v9; 
   float v10; 
-  bool result; 
+  unsigned int PhysicsBodyId; 
+  float v12; 
+  float v13; 
+  bool m_playerControlled; 
+  float v15; 
+  float m_currentSpeed; 
+  vec3_t end; 
+  vec3_t start; 
+  Physics_SimpleCollisionCallback_Data cbData; 
 
-  __asm
+  BgVehiclePhysics::Step(this, deltaTime);
+  if ( this->m_playerControlled || this->m_wasControlled )
   {
-    vmovaps [rsp+0D8h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  _RDI = this;
-  BgVehiclePhysics::Step(this, *(float *)&deltaTime);
-  if ( _RDI->m_playerControlled || _RDI->m_wasControlled )
-  {
-    __asm
+    if ( this->m_traceAhead > 0.0 && !Physics_IsPredictiveWorld(this->m_worldId) )
     {
-      vmovaps [rsp+0D8h+var_28], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm7, dword ptr [rdi+358h]
-      vmovaps xmm1, xmm6; deltaTime
-    }
-    BgVehiclePhysicsRCPlane::BoostControl(_RDI, *(float *)&_XMM1);
-    m_playerControlled = _RDI->m_playerControlled;
-    __asm { vmovaps xmm7, [rsp+0D8h+var_28] }
-    if ( m_playerControlled && !_RDI->m_prevPlayerControlled )
-    {
-      _RDI->m_wasControlled = 1;
-      AxisToAngles((const tmat33_t<vec3_t> *)&_RDI->m_transform, &_RDI->m_lerpEuler);
-      v10 = _RDI->m_lerpEuler.v[2];
-      __asm
+      m_traceAhead = this->m_traceAhead;
+      v4 = m_traceAhead * this->m_transform.m[0].v[0];
+      v5 = this->m_transform.m[3].v[1];
+      v6 = this->m_transform.m[3].v[2];
+      m_entityNumber = this->m_entityNumber;
+      m_worldId = this->m_worldId;
+      start.v[0] = this->m_transform.m[3].v[0];
+      v9 = m_traceAhead * this->m_transform.m[0].v[1];
+      end.v[0] = v4 + start.v[0];
+      v10 = m_traceAhead * this->m_transform.m[0].v[2];
+      end.v[1] = v9 + v5;
+      start.v[1] = v5;
+      start.v[2] = v6;
+      end.v[2] = v10 + v6;
+      if ( BgVehiclePhysicsRCPlane::DoTrace(this, m_worldId, m_entityNumber, &start, &end, 0.0, &cbData.position, &cbData.normal, &cbData.bodyIds[1], &cbData.surfaceFlagData[1]) )
       {
-        vmovsd  xmm0, qword ptr [rdi+390h]
-        vmovsd  qword ptr [rdi+384h], xmm0
+        cbData.worldId = this->m_worldId;
+        PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(this);
+        v12 = (float)(this->m_currentSpeed * this->m_mass) * deltaTime;
+        cbData.bodyIds[0] = PhysicsBodyId;
+        cbData.surfaceFlagData[0] = 0;
+        cbData.impulse = v12;
+        BgVehiclePhysics::CollisionImpulseCallback(this, &cbData);
+        AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &this->m_euler);
+        v13 = this->m_euler.v[2];
+        *(double *)this->m_lerpEuler.v = *(double *)this->m_euler.v;
+        this->m_lerpEuler.v[2] = v13;
       }
-      _RDI->m_euler.v[2] = v10;
-      m_playerControlled = _RDI->m_playerControlled;
     }
-    __asm { vmovss  xmm3, dword ptr [rdi+374h] }
-    _RDI->m_prevPlayerControlled = m_playerControlled;
-    __asm
+    BgVehiclePhysicsRCPlane::BoostControl(this, deltaTime);
+    m_playerControlled = this->m_playerControlled;
+    if ( m_playerControlled && !this->m_prevPlayerControlled )
     {
-      vmulss  xmm0, xmm3, dword ptr [rdi+174h]
-      vmovss  dword ptr [rdi+1A4h], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rdi+178h]
-      vmovss  dword ptr [rdi+1A8h], xmm2
-      vmulss  xmm0, xmm3, dword ptr [rdi+17Ch]
-      vmovaps xmm1, xmm6; deltaTime
-      vmovss  dword ptr [rdi+1ACh], xmm0
+      this->m_wasControlled = 1;
+      AxisToAngles((const tmat33_t<vec3_t> *)&this->m_transform, &this->m_lerpEuler);
+      v15 = this->m_lerpEuler.v[2];
+      *(double *)this->m_euler.v = *(double *)this->m_lerpEuler.v;
+      this->m_euler.v[2] = v15;
+      m_playerControlled = this->m_playerControlled;
     }
-    BgVehiclePhysicsRCPlane::Thrust(_RDI, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm6; deltaTime }
-    BgVehiclePhysicsRCPlane::PitchAndBank(_RDI, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm6; deltaTime }
-    BgVehiclePhysicsRCPlane::DeriveFinalAngularVelocity(_RDI, *(float *)&_XMM1);
-    _RDI->m_lastDoBoost = _RDI->m_doBoost;
+    m_currentSpeed = this->m_currentSpeed;
+    this->m_prevPlayerControlled = m_playerControlled;
+    this->m_linearVelocityWs.v[0] = m_currentSpeed * this->m_transform.m[0].v[0];
+    this->m_linearVelocityWs.v[1] = m_currentSpeed * this->m_transform.m[0].v[1];
+    this->m_linearVelocityWs.v[2] = m_currentSpeed * this->m_transform.m[0].v[2];
+    BgVehiclePhysicsRCPlane::Thrust(this, deltaTime);
+    BgVehiclePhysicsRCPlane::PitchAndBank(this, deltaTime);
+    BgVehiclePhysicsRCPlane::DeriveFinalAngularVelocity(this, deltaTime);
+    this->m_lastDoBoost = this->m_doBoost;
   }
-  result = 1;
-  __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
-  return result;
+  return 1;
 }
 
 /*
@@ -2885,551 +1970,405 @@ bool BgVehiclePhysicsRCPlane::SupportsFeature(BgVehiclePhysicsRCPlane *this, BgV
 BgVehiclePhysicsRCPlane::Thrust
 ==============
 */
-
-void __fastcall BgVehiclePhysicsRCPlane::Thrust(BgVehiclePhysicsRCPlane *this, double deltaTime)
+void BgVehiclePhysicsRCPlane::Thrust(BgVehiclePhysicsRCPlane *this, float deltaTime)
 {
-  const dvar_t *v8; 
-  char v11; 
-  bool v12; 
-  const dvar_t *v26; 
-  const dvar_t *v29; 
-  const dvar_t *v32; 
-  BOOL v37; 
-  bool v38; 
-  BOOL v64; 
-  bool v65; 
-  const dvar_t *v83; 
-  char v85; 
-  const dvar_t *v88; 
-  char v89; 
-  bool v90; 
-  const dvar_t *v93; 
-  const dvar_t *v99; 
-  char v100; 
-  bool v101; 
-  const dvar_t *v110; 
-  const dvar_t *v114; 
-  char v115; 
-  bool v116; 
-  const dvar_t *v119; 
-  char v120; 
-  const dvar_t *v125; 
-  double v142; 
-  double v143; 
+  const dvar_t *v2; 
+  const dvar_t *v5; 
+  float value; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v14; 
+  double v16; 
+  double v17; 
+  BOOL v18; 
+  bool v19; 
+  __int128 v20; 
+  BOOL v26; 
+  bool v27; 
+  __int128 v28; 
+  const dvar_t *v34; 
+  float v35; 
+  float v36; 
+  const dvar_t *v37; 
+  __int128 unsignedInt; 
+  const dvar_t *v39; 
+  double Float_Internal_DebugName; 
+  __int128 v43; 
+  const dvar_t *v44; 
+  __int128 v46; 
+  const dvar_t *v48; 
+  __int128 v50; 
+  const dvar_t *v54; 
+  const dvar_t *v55; 
+  const dvar_t *v56; 
+  const dvar_t *v57; 
+  float m_pitchMaxAngle; 
+  const dvar_t *v59; 
+  const dvar_t *v60; 
+  float v61; 
+  float v62; 
+  const dvar_t *v63; 
+  __int128 m_accelGoingDown_low; 
+  __int128 v65; 
 
-  v8 = DCONST_DVARBOOL_bg_rcpUseDvars;
-  __asm { vmovaps [rsp+0C8h+var_88], xmm12 }
-  _RDI = this;
-  __asm { vmovaps xmm12, xmm1 }
+  v2 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  v11 = 0;
-  v12 = !v8->current.enabled;
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_timeAfterColl;
+    v5 = DCONST_DVARFLT_bg_rcp_m_timeAfterColl;
     if ( !DCONST_DVARFLT_bg_rcp_m_timeAfterColl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_timeAfterColl") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v5);
+    value = v5->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+2E0h] }
+    value = this->m_timeAfterColl;
   }
-  __asm { vcomiss xmm0, dword ptr [rdi+2B0h] }
-  if ( !(v11 | v12) )
+  if ( value > this->m_timeSinceLastCollision )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+1A4h]
-      vmovss  xmm2, dword ptr [rdi+1A8h]
-      vmovss  xmm3, dword ptr [rdi+1ACh]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmovss  dword ptr [rdi+374h], xmm0
-    }
-    goto LABEL_169;
+    this->m_currentSpeed = fsqrt((float)((float)(this->m_linearVelocityWs.v[0] * this->m_linearVelocityWs.v[0]) + (float)(this->m_linearVelocityWs.v[1] * this->m_linearVelocityWs.v[1])) + (float)(this->m_linearVelocityWs.v[2] * this->m_linearVelocityWs.v[2]));
+    return;
   }
-  __asm
+  _XMM11 = 0i64;
+  if ( this->m_playerControlled || this->m_wasControlled )
   {
-    vmovaps [rsp+0C8h+var_58], xmm9
-    vmovaps [rsp+0C8h+var_68], xmm10
-    vmovaps [rsp+0C8h+var_78], xmm11
-    vxorps  xmm11, xmm11, xmm11
-  }
-  if ( _RDI->m_playerControlled || _RDI->m_wasControlled )
-  {
-    v26 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    v9 = DCONST_DVARBOOL_bg_rcpUseDvars;
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    if ( v26->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v9->current.enabled )
     {
-      _RBX = DCONST_DVARFLT_bg_rcp_m_minSpeed;
+      v10 = DCONST_DVARFLT_bg_rcp_m_minSpeed;
       if ( !DCONST_DVARFLT_bg_rcp_m_minSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_minSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm9, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v10);
+      _XMM9 = v10->current.unsignedInt;
     }
     else
     {
-      __asm { vmovss  xmm9, dword ptr [rdi+2E4h] }
+      _XMM9 = LODWORD(this->m_minSpeed);
     }
   }
   else
   {
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    _XMM9 = 0i64;
   }
-  __asm
+  if ( !this->m_doBoost )
   {
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+0C8h+var_38], xmm6
-    vmovaps [rsp+0C8h+var_48], xmm7
-  }
-  if ( !_RDI->m_doBoost )
-  {
-    v37 = Com_BitCheckAssert(_RDI->m_controls.playerEnabledBits, 1, 4);
-    v38 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 1, 4);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+0CCh]
-      vmovss  xmm6, dword ptr [rdi+0ECh]
-      vmovss  xmm7, cs:__real@3f800000
-    }
-    switch ( v37 + 3 * v38 )
+    v18 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 1, 4);
+    v19 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 1, 4);
+    v20 = LODWORD(this->m_controls.playerValues[1]);
+    _XMM6 = LODWORD(this->m_controls.externalValues[1]);
+    switch ( v18 + 3 * v19 )
     {
       case 1:
-        __asm { vmovaps xmm6, xmm3 }
+        *(float *)&_XMM6 = this->m_controls.playerValues[1];
         break;
       case 3:
         break;
       case 4:
-        switch ( _RDI->m_controls.valuePolicy[1] )
+        switch ( this->m_controls.valuePolicy[1] )
         {
           case VP_MAXABS:
+            _XMM0 = _XMM6 & (unsigned int)_xmm;
             __asm
             {
-              vandps  xmm0, xmm6, xmm10
-              vandps  xmm1, xmm3, xmm10
               vcmpltss xmm1, xmm0, xmm1
               vblendvps xmm6, xmm6, xmm3, xmm1
             }
-            goto LABEL_63;
+            goto LABEL_64;
           case VP_MINABS:
+            _XMM1 = v20 & (unsigned int)_xmm;
             __asm
             {
-              vandps  xmm0, xmm6, xmm10
-              vandps  xmm1, xmm3, xmm10
               vcmpltss xmm1, xmm1, xmm0
               vblendvps xmm6, xmm6, xmm3, xmm1
             }
-            goto LABEL_63;
+            goto LABEL_64;
           case VP_AVERAGE:
-            __asm
-            {
-              vaddss  xmm0, xmm6, xmm3
-              vmulss  xmm6, xmm0, cs:__real@3f000000
-            }
-            goto LABEL_63;
+            *(float *)&_XMM6 = (float)(*(float *)&_XMM6 + *(float *)&v20) * 0.5;
+            goto LABEL_64;
           case VP_AVERAGE_WEIGHT_PLAYER:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm7, xmm1
-              vmulss  xmm2, xmm0, xmm6
-              vmulss  xmm1, xmm1, xmm3
-              vaddss  xmm6, xmm2, xmm1
-            }
-            goto LABEL_63;
+            *(float *)&_XMM6 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM6) + (float)(this->m_controls.policyWeight * *(float *)&v20);
+            goto LABEL_64;
           case VP_AVERAGE_WEIGHT_EXTERNAL:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm7, xmm1
-              vmulss  xmm2, xmm0, xmm3
-              vmulss  xmm1, xmm1, xmm6
-              vaddss  xmm6, xmm2, xmm1
-            }
-            goto LABEL_63;
+            *(float *)&_XMM6 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v20) + (float)(this->m_controls.policyWeight * *(float *)&_XMM6);
+            goto LABEL_64;
         }
       default:
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        LODWORD(_XMM6) = 0;
         break;
     }
-LABEL_63:
-    v64 = Com_BitCheckAssert(_RDI->m_controls.playerEnabledBits, 0, 4);
-    v65 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 0, 4);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rdi+0C8h]
-      vmovss  xmm3, dword ptr [rdi+0E8h]
-    }
-    switch ( v64 + 3 * v65 )
+LABEL_64:
+    v26 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 0, 4);
+    v27 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 0, 4);
+    v28 = LODWORD(this->m_controls.playerValues[0]);
+    _XMM3 = LODWORD(this->m_controls.externalValues[0]);
+    switch ( v26 + 3 * v27 )
     {
       case 1:
-        __asm { vmovaps xmm3, xmm4 }
+        *(float *)&_XMM3 = this->m_controls.playerValues[0];
         break;
       case 3:
         break;
       case 4:
-        switch ( _RDI->m_controls.valuePolicy[0] )
+        switch ( this->m_controls.valuePolicy[0] )
         {
           case VP_MAXABS:
+            _XMM0 = _XMM3 & (unsigned int)_xmm;
             __asm
             {
-              vandps  xmm0, xmm3, xmm10
-              vandps  xmm1, xmm4, xmm10
               vcmpltss xmm1, xmm0, xmm1
               vblendvps xmm3, xmm3, xmm4, xmm1
             }
-            goto LABEL_78;
+            goto LABEL_79;
           case VP_MINABS:
+            _XMM1 = v28 & (unsigned int)_xmm;
             __asm
             {
-              vandps  xmm0, xmm3, xmm10
-              vandps  xmm1, xmm4, xmm10
               vcmpltss xmm1, xmm1, xmm0
               vblendvps xmm3, xmm3, xmm4, xmm1
             }
-            goto LABEL_78;
+            goto LABEL_79;
           case VP_AVERAGE:
-            __asm
-            {
-              vaddss  xmm0, xmm3, xmm4
-              vmulss  xmm3, xmm0, cs:__real@3f000000
-            }
-            goto LABEL_78;
+            *(float *)&_XMM3 = (float)(*(float *)&_XMM3 + *(float *)&v28) * 0.5;
+            goto LABEL_79;
           case VP_AVERAGE_WEIGHT_PLAYER:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm7, xmm1
-              vmulss  xmm2, xmm0, xmm3
-              vmulss  xmm1, xmm1, xmm4
-              vaddss  xmm3, xmm2, xmm1
-            }
-            goto LABEL_78;
+            *(float *)&_XMM3 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM3) + (float)(this->m_controls.policyWeight * *(float *)&v28);
+            goto LABEL_79;
           case VP_AVERAGE_WEIGHT_EXTERNAL:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm7, xmm1
-              vmulss  xmm2, xmm0, xmm4
-              vmulss  xmm1, xmm1, xmm3
-              vaddss  xmm3, xmm2, xmm1
-            }
-            goto LABEL_78;
+            *(float *)&_XMM3 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v28) + (float)(this->m_controls.policyWeight * *(float *)&_XMM3);
+            goto LABEL_79;
         }
       default:
-        __asm { vxorps  xmm3, xmm3, xmm3 }
+        LODWORD(_XMM3) = 0;
         break;
     }
-LABEL_78:
-    v83 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    __asm { vsubss  xmm7, xmm3, xmm6 }
+LABEL_79:
+    v34 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    v36 = *(float *)&_XMM3 - *(float *)&_XMM6;
+    v35 = *(float *)&_XMM3 - *(float *)&_XMM6;
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v83);
-    v85 = 0;
-    if ( v83->current.enabled )
+    Dvar_CheckFrontendServerThread(v34);
+    if ( v34->current.enabled )
     {
-      _RBX = DCONST_DVARFLT_bg_rcp_m_topSpeed;
+      v37 = DCONST_DVARFLT_bg_rcp_m_topSpeed;
       if ( !DCONST_DVARFLT_bg_rcp_m_topSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_topSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v37);
+      unsignedInt = v37->current.unsignedInt;
     }
     else
     {
-      __asm { vmovss  xmm0, dword ptr [rdi+2E8h] }
+      unsignedInt = LODWORD(this->m_topSpeed);
     }
-    __asm { vcomiss xmm0, dword ptr [rdi+2ECh] }
-    if ( v85 )
+    if ( *(float *)&unsignedInt < this->m_topSpeedBoostReleased )
     {
-      v88 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v39 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v88);
-      v89 = 0;
-      v90 = !v88->current.enabled;
-      if ( v88->current.enabled )
+      Dvar_CheckFrontendServerThread(v39);
+      if ( v39->current.enabled )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostDecel, "bg_rcp_m_boostDecel");
-        __asm { vmovaps xmm6, xmm0 }
+        *(double *)&unsignedInt = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostDecel, "bg_rcp_m_boostDecel");
+        _XMM6 = unsignedInt;
       }
       else
       {
-        __asm { vmovss  xmm6, dword ptr [rdi+370h] }
+        _XMM6 = LODWORD(this->m_boostDecel);
       }
-      __asm { vcomiss xmm7, cs:__real@3a83126f }
-      if ( !(v89 | v90) )
+      if ( v36 > 0.001 )
       {
         if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
-          Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_acceleration, "bg_rcp_m_acceleration");
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_acceleration, "bg_rcp_m_acceleration");
         else
-          __asm { vmovss  xmm0, dword ptr [rdi+2D8h] }
-        __asm { vsubss  xmm6, xmm6, xmm0 }
+          *(float *)&Float_Internal_DebugName = this->m_acceleration;
+        v43 = _XMM6;
+        *(float *)&v43 = *(float *)&_XMM6 - *(float *)&Float_Internal_DebugName;
+        _XMM6 = v43;
         if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_bg_rcpUseDvars, "bg_rcpUseDvars") )
           Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_deceleration, "bg_rcp_m_deceleration");
-        else
-          __asm { vmovss  xmm0, dword ptr [rdi+2DCh] }
         __asm { vmaxss  xmm6, xmm6, xmm0 }
       }
-      v93 = DCONST_DVARBOOL_bg_rcpUseDvars;
+      v44 = DCONST_DVARBOOL_bg_rcpUseDvars;
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v93);
-      v85 = 0;
-      if ( v93->current.enabled )
-      {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_topSpeed, "bg_rcp_m_topSpeed");
-        __asm { vmovaps xmm2, xmm0 }
-      }
-      else
-      {
-        __asm { vmovss  xmm2, dword ptr [rdi+2E8h] }
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+2ECh]
-        vmulss  xmm1, xmm6, xmm12
-        vsubss  xmm1, xmm0, xmm1
-        vmaxss  xmm2, xmm1, xmm2
-        vmovss  dword ptr [rdi+2ECh], xmm2
-      }
+      Dvar_CheckFrontendServerThread(v44);
+      if ( v44->current.enabled )
+        Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_topSpeed, "bg_rcp_m_topSpeed");
+      unsignedInt = LODWORD(this->m_topSpeedBoostReleased);
+      v46 = unsignedInt;
+      *(float *)&v46 = *(float *)&unsignedInt - (float)(*(float *)&_XMM6 * deltaTime);
+      _XMM1 = v46;
+      __asm { vmaxss  xmm2, xmm1, xmm2 }
+      this->m_topSpeedBoostReleased = *(float *)&_XMM2;
     }
-    __asm { vcomiss xmm7, xmm11 }
-    v99 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    if ( v85 )
+    v48 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    if ( v35 < 0.0 )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v99);
-      v100 = 0;
-      v101 = !v99->current.enabled;
-      if ( v99->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_deceleration, "bg_rcp_m_deceleration");
+      Dvar_CheckFrontendServerThread(v48);
+      if ( v48->current.enabled )
+        *(double *)&unsignedInt = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_deceleration, "bg_rcp_m_deceleration");
       else
-        __asm { vmovss  xmm0, dword ptr [rdi+2DCh] }
+        unsignedInt = LODWORD(this->m_deceleration);
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v99);
-      v100 = 0;
-      v101 = !v99->current.enabled;
-      if ( v99->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_acceleration, "bg_rcp_m_acceleration");
+      Dvar_CheckFrontendServerThread(v48);
+      if ( v48->current.enabled )
+        *(double *)&unsignedInt = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_acceleration, "bg_rcp_m_acceleration");
       else
-        __asm { vmovss  xmm0, dword ptr [rdi+2D8h] }
+        unsignedInt = LODWORD(this->m_acceleration);
     }
-    __asm
-    {
-      vmaxss  xmm6, xmm9, dword ptr [rdi+2ECh]
-      vcomiss xmm9, xmm6
-      vmulss  xmm0, xmm0, xmm7
-      vmulss  xmm1, xmm0, xmm12
-      vaddss  xmm7, xmm1, dword ptr [rdi+374h]
-    }
-    if ( !(v100 | v101) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0C8h+var_98], xmm0
-        vcvtss2sd xmm1, xmm9, xmm9
-        vmovsd  [rsp+0C8h+var_A0], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v142, v143) )
-        __debugbreak();
-    }
+    __asm { vmaxss  xmm6, xmm9, dword ptr [rdi+2ECh] }
+    v50 = unsignedInt;
+    *(float *)&v50 = (float)((float)(*(float *)&unsignedInt * v35) * deltaTime) + this->m_currentSpeed;
+    _XMM7 = v50;
+    if ( *(float *)&_XMM9 > *(float *)&_XMM6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(float *)&_XMM9, *(float *)&_XMM6) )
+      __debugbreak();
     __asm
     {
       vmaxss  xmm0, xmm7, xmm9
       vminss  xmm6, xmm0, xmm6
-      vmovss  dword ptr [rdi+374h], xmm6
     }
-    v110 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    this->m_currentSpeed = *(float *)&_XMM6;
+    v54 = DCONST_DVARBOOL_bg_rcpUseDvars;
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v110);
-    if ( v110->current.enabled )
+    Dvar_CheckFrontendServerThread(v54);
+    if ( v54->current.enabled )
     {
-      _RBX = DCONST_DVARFLT_bg_rcp_m_topSpeed;
+      v55 = DCONST_DVARFLT_bg_rcp_m_topSpeed;
       if ( !DCONST_DVARFLT_bg_rcp_m_topSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_topSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v55);
     }
-    else
-    {
-      __asm { vmovss  xmm0, dword ptr [rdi+2E8h] }
-    }
-    __asm
-    {
-      vmaxss  xmm7, xmm6, xmm0
-      vmovaps xmm0, xmm7
-    }
-    goto LABEL_135;
+    __asm { vmaxss  xmm7, xmm6, xmm0 }
+    LODWORD(v17) = _XMM7;
+    goto LABEL_133;
   }
-  v29 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v11 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  if ( v29->current.enabled )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_boostSpeed;
+    v12 = DCONST_DVARFLT_bg_rcp_m_boostSpeed;
     if ( !DCONST_DVARFLT_bg_rcp_m_boostSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_boostSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm7, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v12);
+    _XMM7 = v12->current.unsignedInt;
   }
   else
   {
-    __asm { vmovss  xmm7, dword ptr [rdi+300h] }
+    _XMM7 = LODWORD(this->m_boostSpeed);
   }
-  v32 = DCONST_DVARBOOL_bg_rcpUseDvars;
-  if ( _RDI->m_holdToBoost )
+  v14 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  if ( this->m_holdToBoost )
   {
     __asm { vmaxss  xmm6, xmm7, xmm9 }
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    if ( v32->current.enabled )
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostAccel, "bg_rcp_m_boostAccel");
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.enabled )
+      v16 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostAccel, "bg_rcp_m_boostAccel");
     else
-      __asm { vmovss  xmm0, dword ptr [rdi+36Ch] }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm12
-      vaddss  xmm0, xmm0, dword ptr [rdi+374h]; val
-      vmovaps xmm2, xmm6; max
-      vmovaps xmm1, xmm9; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [rdi+374h], xmm0 }
+      *(float *)&v16 = this->m_boostAccel;
+    v17 = I_fclamp((float)(*(float *)&v16 * deltaTime) + this->m_currentSpeed, *(float *)&_XMM9, *(float *)&_XMM6);
+    this->m_currentSpeed = *(float *)&v17;
   }
   else
   {
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    if ( v32->current.enabled )
-    {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostSpeed, "bg_rcp_m_boostSpeed");
-      __asm { vmovss  dword ptr [rdi+374h], xmm0 }
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.enabled )
+      v17 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_boostSpeed, "bg_rcp_m_boostSpeed");
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+300h]
-        vmovss  dword ptr [rdi+374h], xmm0
-      }
-    }
+      *(float *)&v17 = this->m_boostSpeed;
+    this->m_currentSpeed = *(float *)&v17;
   }
-LABEL_135:
-  __asm { vmovss  dword ptr [rdi+2ECh], xmm0 }
-  v114 = DCONST_DVARBOOL_bg_rcpUseDvars;
+LABEL_133:
+  this->m_topSpeedBoostReleased = *(float *)&v17;
+  v56 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v114);
-  v115 = 0;
-  v116 = !v114->current.enabled;
-  if ( v114->current.enabled )
+  Dvar_CheckFrontendServerThread(v56);
+  if ( v56->current.enabled )
   {
-    _RBX = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
+    v57 = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
     if ( !DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchMaxAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v57);
+    m_pitchMaxAngle = v57->current.value;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+324h] }
+    m_pitchMaxAngle = this->m_pitchMaxAngle;
   }
-  __asm { vcomiss xmm0, cs:__real@3c23d70a }
-  if ( !(v115 | v116) )
+  if ( m_pitchMaxAngle > 0.0099999998 )
   {
-    v119 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    v59 = DCONST_DVARBOOL_bg_rcpUseDvars;
     if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v119);
-    v120 = 0;
-    if ( v119->current.enabled )
+    Dvar_CheckFrontendServerThread(v59);
+    if ( v59->current.enabled )
     {
-      _RBX = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
+      v60 = DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle;
       if ( !DCONST_DVARFLT_bg_rcp_m_pitchMaxAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchMaxAngle") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm2, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v60);
+      v61 = v60->current.value;
     }
     else
     {
-      __asm { vmovss  xmm2, dword ptr [rdi+324h] }
+      v61 = this->m_pitchMaxAngle;
     }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+390h]
-      vcomiss xmm1, xmm11
-    }
-    v125 = DCONST_DVARBOOL_bg_rcpUseDvars;
-    __asm
-    {
-      vandps  xmm0, xmm1, xmm10
-      vdivss  xmm6, xmm0, xmm2
-    }
-    if ( v120 )
+    v62 = this->m_lerpEuler.v[0];
+    v63 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    *((_QWORD *)&m_accelGoingDown_low + 1) = 0i64;
+    if ( v62 >= 0.0 )
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v125);
-      if ( v125->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_decelGoingUp, "bg_rcp_m_decelGoingUp");
+      Dvar_CheckFrontendServerThread(v63);
+      if ( v63->current.enabled )
+        *(double *)&m_accelGoingDown_low = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_accelGoingDown, "bg_rcp_m_accelGoingDown");
       else
-        __asm { vmovss  xmm0, dword ptr [rdi+354h] }
+        m_accelGoingDown_low = LODWORD(this->m_accelGoingDown);
     }
     else
     {
       if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v125);
-      if ( v125->current.enabled )
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_accelGoingDown, "bg_rcp_m_accelGoingDown");
+      Dvar_CheckFrontendServerThread(v63);
+      if ( v63->current.enabled )
+        *(double *)&m_accelGoingDown_low = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_rcp_m_decelGoingUp, "bg_rcp_m_decelGoingUp");
       else
-        __asm { vmovss  xmm0, dword ptr [rdi+350h] }
+        m_accelGoingDown_low = LODWORD(this->m_decelGoingUp);
     }
+    v65 = m_accelGoingDown_low;
+    *(float *)&v65 = (float)(*(float *)&m_accelGoingDown_low * (float)(COERCE_FLOAT(LODWORD(v62) & _xmm) / v61)) * deltaTime;
+    _XMM2 = v65 ^ _xmm;
     __asm
     {
-      vmulss  xmm0, xmm0, xmm6
-      vmulss  xmm3, xmm0, xmm12
-      vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
       vcmpless xmm0, xmm11, dword ptr [rdi+390h]
       vblendvps xmm0, xmm2, xmm3, xmm0
-      vaddss  xmm0, xmm0, dword ptr [rdi+374h]; val
       vmaxss  xmm2, xmm7, xmm9; max
-      vmovaps xmm1, xmm9; min
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [rdi+374h], xmm0 }
+    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0 + this->m_currentSpeed, *(float *)&_XMM9, *(float *)&_XMM2);
+    this->m_currentSpeed = *(float *)&_XMM0;
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm6, [rsp+0C8h+var_38]
-    vmovaps xmm9, [rsp+0C8h+var_58]
-    vmovaps xmm10, [rsp+0C8h+var_68]
-    vmovaps xmm11, [rsp+0C8h+var_78]
-  }
-LABEL_169:
-  __asm { vmovaps xmm12, [rsp+0C8h+var_88] }
 }
 
 /*
@@ -3439,229 +2378,192 @@ BgVehiclePhysicsRCPlane::UpdatePlayerInputControls
 */
 void BgVehiclePhysicsRCPlane::UpdatePlayerInputControls(BgVehiclePhysicsRCPlane *this, const usercmd_s *cmd, const playerState_s *ps)
 {
-  const dvar_t *v9; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
+  float value; 
+  int v8; 
   bool m_gamepadInput; 
+  char v10; 
+  char v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  unsigned int unsignedInt; 
+  unsigned int v17; 
+  unsigned int v18; 
+  int v19; 
+  bool v20; 
+  bool v21; 
+  char v22; 
+  float v23; 
+  char v24; 
   const dvar_t *v25; 
   const dvar_t *v26; 
-  unsigned int unsignedInt; 
-  unsigned int v28; 
-  unsigned int v29; 
-  const dvar_t *v36; 
-  bool v40; 
+  float m_pitchInversion; 
+  bool v28; 
+  char v29; 
+  int v30; 
+  int v31; 
+  char v32; 
+  float v33; 
+  int v34; 
+  char v35; 
+  int v36; 
+  double v37; 
+  float v38; 
+  int v39; 
+  char v40; 
+  int v41; 
+  float v42; 
+  double v43; 
+  double v44; 
   unsigned int m_boostButton; 
-  unsigned __int64 v70; 
-  bool v71; 
-  char v79; 
+  unsigned __int64 v46; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps [rsp+98h+var_48], xmm7
-  }
-  _RBX = this;
-  __asm { vmovaps [rsp+98h+var_58], xmm8 }
   BgVehiclePhysics::UpdatePlayerInputControls(this, cmd, ps);
-  _RBX->m_gamepadInput = (cmd->buttons & 0x8000000000000i64) != 0;
-  v9 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  this->m_gamepadInput = (cmd->buttons & 0x8000000000000i64) != 0;
+  v5 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    _RDI = DCONST_DVARFLT_bg_rcp_m_pitchInversion;
+    v6 = DCONST_DVARFLT_bg_rcp_m_pitchInversion;
     if ( !DCONST_DVARFLT_bg_rcp_m_pitchInversion && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchInversion") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm1, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v6);
+    value = v6->current.value;
   }
   else
   {
-    __asm { vmovss  xmm1, dword ptr [rbx+2F4h] }
+    value = this->m_pitchInversion;
   }
-  m_gamepadInput = _RBX->m_gamepadInput;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3c010204
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, xmm6
-    vmulss  xmm2, xmm0, xmm1
-    vmovss  dword ptr [rbx+378h], xmm2
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( m_gamepadInput )
-  {
-    __asm
-    {
-      vandps  xmm0, xmm2, xmm7
-      vcomiss xmm0, xmm8
-      vdivss  xmm1, xmm2, xmm0
-      vsubss  xmm0, xmm0, cs:__real@3e214285
-      vmulss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, cs:__real@3f97ecdc
-      vmovss  dword ptr [rbx+378h], xmm2
-    }
-  }
-  v25 = DCONST_DVARBOOL_bg_rcpUseDvars;
+  v8 = cmd->remoteControlAngles[0];
+  m_gamepadInput = this->m_gamepadInput;
+  v10 = 0;
+  v11 = cmd->remoteControlAngles[0];
+  if ( v8 >= -(m_gamepadInput ? 0x14 : 0) && (char)v8 <= (char)(this->m_gamepadInput ? 0x14 : 0) )
+    v11 = 0;
+  v12 = (float)((float)v11 * 0.0078740157) * value;
+  this->m_pitchInput = v12;
+  v13 = 0.0;
+  if ( m_gamepadInput && COERCE_FLOAT(LODWORD(v12) & _xmm) > 0.0 )
+    this->m_pitchInput = (float)((float)(v12 / COERCE_FLOAT(LODWORD(v12) & _xmm)) * (float)(COERCE_FLOAT(LODWORD(v12) & _xmm) - 0.15748031)) * 1.1869159;
+  v14 = DCONST_DVARBOOL_bg_rcpUseDvars;
   if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  if ( v25->current.enabled )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.enabled )
   {
-    v26 = DCONST_DVARINT_bg_rcp_m_controlMode;
+    v15 = DCONST_DVARINT_bg_rcp_m_controlMode;
     if ( !DCONST_DVARINT_bg_rcp_m_controlMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_controlMode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    unsignedInt = v26->current.unsignedInt;
+    Dvar_CheckFrontendServerThread(v15);
+    unsignedInt = v15->current.unsignedInt;
   }
   else
   {
-    unsignedInt = _RBX->m_controlMode;
+    unsignedInt = this->m_controlMode;
   }
-  v28 = unsignedInt - 1;
-  if ( v28 )
+  v17 = unsignedInt - 1;
+  if ( !v17 )
   {
-    v29 = v28 - 1;
-    if ( !v29 )
+    v39 = cmd->remoteControlMove[1];
+    v40 = cmd->remoteControlMove[1];
+    if ( v39 >= -(this->m_gamepadInput ? 0x14 : 0) && (char)v39 <= (char)(this->m_gamepadInput ? 0x14 : 0) )
+      v40 = 0;
+    v23 = (float)v40 * -0.0078740157;
+    goto LABEL_62;
+  }
+  v18 = v17 - 1;
+  if ( !v18 )
+  {
+    v25 = DCONST_DVARBOOL_bg_rcpUseDvars;
+    if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v25);
+    if ( v25->current.enabled )
     {
-      v36 = DCONST_DVARBOOL_bg_rcpUseDvars;
-      if ( !DCONST_DVARBOOL_bg_rcpUseDvars && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcpUseDvars") )
+      v26 = DCONST_DVARFLT_bg_rcp_m_pitchInversion;
+      if ( !DCONST_DVARFLT_bg_rcp_m_pitchInversion && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchInversion") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v36);
-      if ( v36->current.enabled )
-      {
-        _RBP = DCONST_DVARFLT_bg_rcp_m_pitchInversion;
-        if ( !DCONST_DVARFLT_bg_rcp_m_pitchInversion && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_rcp_m_pitchInversion") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBP);
-        __asm { vmovss  xmm2, dword ptr [rbp+28h] }
-      }
-      else
-      {
-        __asm { vmovss  xmm2, dword ptr [rbx+2F4h] }
-      }
-      v40 = _RBX->m_gamepadInput;
-      __asm
-      {
-        vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, xmm2
-        vxorps  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rbx+378h], xmm3
-      }
-      if ( v40 )
-      {
-        __asm
-        {
-          vandps  xmm1, xmm3, xmm7
-          vcomiss xmm1, xmm8
-          vsubss  xmm0, xmm1, cs:__real@3e214285
-          vdivss  xmm1, xmm0, xmm1
-          vmulss  xmm2, xmm1, xmm3
-          vmulss  xmm3, xmm2, cs:__real@3f97ecdc
-          vmovss  dword ptr [rbx+378h], xmm3
-        }
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, cs:__real@bc010204
-        vmovss  dword ptr [rbx+0D0h], xmm1
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm7, xmm0, xmm6
-        vxorps  xmm0, xmm7, xmm4; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rbx+0C8h], xmm0
-        vmovaps xmm0, xmm7
-      }
-      goto LABEL_40;
-    }
-    if ( v29 == 1 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rbx+0D0h], xmm1
-      }
-      _RBX->m_controls.playerValues[0] = 0.0;
-      goto LABEL_41;
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@bc010204
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+0D0h], xmm1
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, xmm6
-    vmovaps xmm0, xmm6; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx+0C8h], xmm0
-    vxorps  xmm0, xmm6, cs:__xmm@80000000800000008000000080000000; val
-  }
-LABEL_40:
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm8, xmm0 }
-LABEL_41:
-  __asm { vmovss  dword ptr [rbx+0CCh], xmm8 }
-  m_boostButton = _RBX->m_boostButton;
-  if ( m_boostButton )
-  {
-    v70 = cmd->buttons & (1i64 << ((unsigned __int8)m_boostButton - 1));
-    v71 = !_RBX->m_holdToBoost;
-    _RBX->m_doBoost = v70 != 0;
-    if ( v71 )
-    {
-      if ( v70 )
-        _RBX->m_boostPressed = 1;
+      Dvar_CheckFrontendServerThread(v26);
+      m_pitchInversion = v26->current.value;
     }
     else
     {
-      _RBX->m_boostPressed = v70 != 0;
+      m_pitchInversion = this->m_pitchInversion;
     }
+    v28 = this->m_gamepadInput;
+    v29 = v28 ? 0x14 : 0;
+    v30 = cmd->remoteControlMove[0];
+    v31 = -(unsigned __int8)v29;
+    v32 = cmd->remoteControlMove[0];
+    if ( v30 >= v31 && (char)v30 <= v29 )
+      v32 = 0;
+    LODWORD(v33) = COERCE_UNSIGNED_INT((float)((float)v32 * 0.0078740157) * m_pitchInversion) ^ _xmm;
+    this->m_pitchInput = v33;
+    if ( v28 && COERCE_FLOAT(LODWORD(v33) & _xmm) > 0.0 )
+      this->m_pitchInput = (float)((float)((float)(COERCE_FLOAT(LODWORD(v33) & _xmm) - 0.15748031) / COERCE_FLOAT(LODWORD(v33) & _xmm)) * v33) * 1.1869159;
+    v34 = cmd->remoteControlMove[1];
+    v35 = cmd->remoteControlMove[1];
+    if ( v34 >= v31 && (char)v34 <= v29 )
+      v35 = 0;
+    this->m_controls.playerValues[2] = (float)v35 * -0.0078740157;
+    v36 = cmd->remoteControlAngles[0];
+    if ( v36 < -(this->m_gamepadInput ? 0x14 : 0) || (char)v36 > (char)(this->m_gamepadInput ? 0x14 : 0) )
+      v10 = cmd->remoteControlAngles[0];
+    v37 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)v10 * 0.0078740157) ^ _xmm), 0.0, 1.0);
+    this->m_controls.playerValues[0] = *(float *)&v37;
+    v38 = (float)v10 * 0.0078740157;
+    goto LABEL_66;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  _R11 = &v79;
-  __asm
+  v19 = cmd->remoteControlAngles[1];
+  v20 = v18 == 1;
+  v21 = this->m_gamepadInput;
+  if ( !v20 )
   {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+98h+var_48]
+    v22 = cmd->remoteControlAngles[1];
+    if ( v19 >= -(v21 ? 0x14 : 0) && (char)v19 <= (char)(v21 ? 0x14 : 0) )
+      v22 = 0;
+    v23 = (float)v22 * 0.0078740157;
+LABEL_62:
+    this->m_controls.playerValues[2] = v23;
+    v41 = cmd->remoteControlMove[0];
+    if ( v41 < -(this->m_gamepadInput ? 0x14 : 0) || (char)v41 > (char)(this->m_gamepadInput ? 0x14 : 0) )
+      v10 = cmd->remoteControlMove[0];
+    v42 = (float)v10 * 0.0078740157;
+    v43 = I_fclamp(v42, 0.0, 1.0);
+    this->m_controls.playerValues[0] = *(float *)&v43;
+    LODWORD(v38) = LODWORD(v42) ^ _xmm;
+LABEL_66:
+    v44 = I_fclamp(v38, 0.0, 1.0);
+    v13 = *(float *)&v44;
+    goto LABEL_67;
+  }
+  v24 = cmd->remoteControlAngles[1];
+  if ( v19 >= -(v21 ? 0x14 : 0) && (char)v19 <= (char)(v21 ? 0x14 : 0) )
+    v24 = 0;
+  this->m_controls.playerValues[2] = (float)v24 * 0.0078740157;
+  this->m_controls.playerValues[0] = 0.0;
+LABEL_67:
+  this->m_controls.playerValues[1] = v13;
+  m_boostButton = this->m_boostButton;
+  if ( m_boostButton )
+  {
+    v46 = cmd->buttons & (1i64 << ((unsigned __int8)m_boostButton - 1));
+    v20 = !this->m_holdToBoost;
+    this->m_doBoost = v46 != 0;
+    if ( v20 )
+    {
+      if ( v46 )
+        this->m_boostPressed = 1;
+    }
+    else
+    {
+      this->m_boostPressed = v46 != 0;
+    }
   }
 }
 

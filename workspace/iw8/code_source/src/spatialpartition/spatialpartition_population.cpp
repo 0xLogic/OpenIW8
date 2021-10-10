@@ -553,50 +553,42 @@ SpatialPartition_PopulationTree_FindPartition
 */
 __int64 SpatialPartition_PopulationTree_FindPartition(const SpatialPartition_Population_Tree *tree, const vec3_t *pos)
 {
+  __int64 v4; 
+  SpatialPartition_Population_Partition *partitions; 
   int v6; 
-  bool v8; 
-  bool v9; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v7; 
+  __int64 v9; 
+  __int64 v10; 
 
-  _R15 = pos;
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 10, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 11, ASSERT_TYPE_ASSERT, "(tree->partitionCount > 0)", (const char *)&queryFormat, "tree->partitionCount > 0") )
     __debugbreak();
-  _RBX = 0i64;
+  v4 = 0i64;
   while ( 1 )
   {
-    if ( (unsigned int)_RBX >= tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 15, ASSERT_TYPE_ASSERT, "(partitionIndex < tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < tree->partitionCount") )
+    if ( (unsigned int)v4 >= tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 15, ASSERT_TYPE_ASSERT, "(partitionIndex < tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < tree->partitionCount") )
       __debugbreak();
-    _RBP = tree->partitions;
-    v6 = *((_DWORD *)&tree->partitions[_RBX] + 1);
+    partitions = tree->partitions;
+    v6 = *((_DWORD *)&tree->partitions[v4] + 1);
     if ( (v6 & 0x7FFFFFFC) == 0 )
       break;
     if ( (v6 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 19, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
       __debugbreak();
-    _RDI = *((_DWORD *)&_RBP[_RBX] + 1) & 3;
-    v8 = (*((_DWORD *)&_RBP[_RBX] + 1) & 3) != 3;
-    if ( (*((_DWORD *)&_RBP[_RBX] + 1) & 3) == 3 )
+    v7 = *((_DWORD *)&partitions[v4] + 1) & 3;
+    if ( (*((_DWORD *)&partitions[v4] + 1) & 3) == 3 )
     {
-      LODWORD(v13) = 3;
-      LODWORD(v12) = *((_DWORD *)&_RBP[_RBX] + 1) & 3;
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v12, v13);
-      v8 = 0;
-      if ( v9 )
+      LODWORD(v10) = 3;
+      LODWORD(v9) = *((_DWORD *)&partitions[v4] + 1) & 3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v9, v10) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+rbx*8+0]
-      vcomiss xmm0, dword ptr [r15+rdi*4]
-    }
-    if ( v8 )
-      _RBX = (*((_DWORD *)&_RBP[_RBX] + 1) >> 2) & 0x1FFFFFFF;
+    if ( partitions[v4].dist < pos->v[v7] )
+      v4 = (*((_DWORD *)&partitions[v4] + 1) >> 2) & 0x1FFFFFFF;
     else
-      _RBX = (unsigned int)(_RBX + 1);
+      v4 = (unsigned int)(v4 + 1);
   }
-  return (unsigned int)_RBX;
+  return (unsigned int)v4;
 }
 
 /*
@@ -761,51 +753,43 @@ SpatialPartition_Population_FindPartition
 __int64 SpatialPartition_Population_FindPartition(const SpatialPartition_Population *population, const vec3_t *pos)
 {
   const SpatialPartition_Population_Tree *tree; 
+  __int64 v4; 
+  SpatialPartition_Population_Partition *partitions; 
   int v6; 
-  bool v8; 
-  bool v9; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v7; 
+  __int64 v9; 
+  __int64 v10; 
 
   tree = population->tree;
-  _R15 = pos;
   if ( !population->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 10, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
   if ( !tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 11, ASSERT_TYPE_ASSERT, "(tree->partitionCount > 0)", (const char *)&queryFormat, "tree->partitionCount > 0") )
     __debugbreak();
-  _RBX = 0i64;
+  v4 = 0i64;
   while ( 1 )
   {
-    if ( (unsigned int)_RBX >= tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 15, ASSERT_TYPE_ASSERT, "(partitionIndex < tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < tree->partitionCount") )
+    if ( (unsigned int)v4 >= tree->partitionCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 15, ASSERT_TYPE_ASSERT, "(partitionIndex < tree->partitionCount)", (const char *)&queryFormat, "partitionIndex < tree->partitionCount") )
       __debugbreak();
-    _RBP = tree->partitions;
-    v6 = *((_DWORD *)&tree->partitions[_RBX] + 1);
+    partitions = tree->partitions;
+    v6 = *((_DWORD *)&tree->partitions[v4] + 1);
     if ( (v6 & 0x7FFFFFFC) == 0 )
       break;
     if ( (v6 & 3) == 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population.cpp", 19, ASSERT_TYPE_ASSERT, "(partition.axis < 3)", (const char *)&queryFormat, "partition.axis < 3") )
       __debugbreak();
-    _RDI = *((_DWORD *)&_RBP[_RBX] + 1) & 3;
-    v8 = (*((_DWORD *)&_RBP[_RBX] + 1) & 3) != 3;
-    if ( (*((_DWORD *)&_RBP[_RBX] + 1) & 3) == 3 )
+    v7 = *((_DWORD *)&partitions[v4] + 1) & 3;
+    if ( (*((_DWORD *)&partitions[v4] + 1) & 3) == 3 )
     {
-      LODWORD(v13) = 3;
-      LODWORD(v12) = *((_DWORD *)&_RBP[_RBX] + 1) & 3;
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v12, v13);
-      v8 = 0;
-      if ( v9 )
+      LODWORD(v10) = 3;
+      LODWORD(v9) = *((_DWORD *)&partitions[v4] + 1) & 3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v9, v10) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+rbx*8+0]
-      vcomiss xmm0, dword ptr [r15+rdi*4]
-    }
-    if ( v8 )
-      _RBX = (*((_DWORD *)&_RBP[_RBX] + 1) >> 2) & 0x1FFFFFFF;
+    if ( partitions[v4].dist < pos->v[v7] )
+      v4 = (*((_DWORD *)&partitions[v4] + 1) >> 2) & 0x1FFFFFFF;
     else
-      _RBX = (unsigned int)(_RBX + 1);
+      v4 = (unsigned int)(v4 + 1);
   }
-  return (unsigned int)_RBX;
+  return (unsigned int)v4;
 }
 
 /*

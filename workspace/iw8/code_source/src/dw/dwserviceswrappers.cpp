@@ -6312,38 +6312,20 @@ bdReference<bdRemoteTask> *DWContentStreaming::copyFromUserStorage(DWContentStre
 DWGameMetrics::counter
 ==============
 */
-
-bool __fastcall DWGameMetrics::counter(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, double value)
+char DWGameMetrics::counter(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, long double value)
 {
-  const dvar_t *v9; 
-  bool result; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !this->m_gameMetrics )
-    goto LABEL_8;
-  v9 = DVARBOOL_online_matchmaking_using_metrics;
+    return 0;
+  v7 = DVARBOOL_online_matchmaking_using_metrics;
   if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled )
-    goto LABEL_8;
-  __asm { vmovaps xmm3, xmm6; value }
-  if ( bdGameMetrics::counter(this->m_gameMetrics, timestamp, name, *(long double *)&_XMM3) )
-  {
-    ++this->m_messagesEnqueued;
-    result = 1;
-  }
-  else
-  {
-LABEL_8:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled || !bdGameMetrics::counter(this->m_gameMetrics, timestamp, name, value) )
+    return 0;
+  ++this->m_messagesEnqueued;
+  return 1;
 }
 
 /*
@@ -7291,38 +7273,20 @@ void DWPooledStorage::enablePersistentThread(DWPooledStorage *this, bool enable)
 DWGameMetrics::enqueue
 ==============
 */
-
-bool __fastcall DWGameMetrics::enqueue(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, double value)
+char DWGameMetrics::enqueue(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, long double value)
 {
-  const dvar_t *v9; 
-  bool result; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !this->m_gameMetrics )
-    goto LABEL_8;
-  v9 = DVARBOOL_online_matchmaking_using_metrics;
+    return 0;
+  v7 = DVARBOOL_online_matchmaking_using_metrics;
   if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled )
-    goto LABEL_8;
-  __asm { vmovaps xmm3, xmm6; value }
-  if ( bdGameMetrics::enqueue(this->m_gameMetrics, timestamp, name, *(long double *)&_XMM3) )
-  {
-    ++this->m_messagesEnqueued;
-    result = 1;
-  }
-  else
-  {
-LABEL_8:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled || !bdGameMetrics::enqueue(this->m_gameMetrics, timestamp, name, value) )
+    return 0;
+  ++this->m_messagesEnqueued;
+  return 1;
 }
 
 /*
@@ -7496,38 +7460,20 @@ bdReference<bdRemoteTask> *DWMatchMaking::findSessionsTwoPass(DWMatchMaking *thi
 DWGameMetrics::gauge
 ==============
 */
-
-bool __fastcall DWGameMetrics::gauge(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, double value)
+char DWGameMetrics::gauge(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, long double value)
 {
-  const dvar_t *v9; 
-  bool result; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !this->m_gameMetrics )
-    goto LABEL_8;
-  v9 = DVARBOOL_online_matchmaking_using_metrics;
+    return 0;
+  v7 = DVARBOOL_online_matchmaking_using_metrics;
   if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled )
-    goto LABEL_8;
-  __asm { vmovaps xmm3, xmm6; value }
-  if ( bdGameMetrics::gauge(this->m_gameMetrics, timestamp, name, *(long double *)&_XMM3) )
-  {
-    ++this->m_messagesEnqueued;
-    result = 1;
-  }
-  else
-  {
-LABEL_8:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled || !bdGameMetrics::gauge(this->m_gameMetrics, timestamp, name, value) )
+    return 0;
+  ++this->m_messagesEnqueued;
+  return 1;
 }
 
 /*
@@ -8513,25 +8459,27 @@ DWStorageContext *DWStorage::getContext(DWStorage *this, const char *context)
 {
   ntl::fixed_vector<DWStorageContext,5,0> *p_m_contexts; 
   unsigned __int64 m_size; 
+  DWStorageContext *p_m_unknownContext; 
+  ntl::fixed_vector<DWStorageContext,5,0> *v6; 
   ntl::fixed_vector<DWStorageContext,5,0> *v7; 
   int v8; 
   int v9; 
-  ntl::fixed_vector<DWStorageContext,5,0> *v12; 
+  ntl::fixed_vector<DWStorageContext,5,0> *v10; 
 
   p_m_contexts = &this->m_contexts;
   m_size = this->m_contexts.m_size;
-  _RBP = &this->m_unknownContext;
-  _RBX = &this->m_contexts;
+  p_m_unknownContext = &this->m_unknownContext;
+  v6 = &this->m_contexts;
   if ( &this->m_contexts != (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)&this->m_contexts + 40 * m_size) )
   {
     while ( 1 )
     {
       if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\string\\string_storage.h", 41, ASSERT_TYPE_ASSERT, "( p_constString != 0 )", (const char *)&queryFormat, "p_constString != NULL") )
         __debugbreak();
-      v7 = _RBX;
+      v7 = v6;
       do
       {
-        v8 = (unsigned __int8)v7->m_data.m_buffer[context - (const char *)_RBX];
+        v8 = (unsigned __int8)v7->m_data.m_buffer[context - (const char *)v6];
         v9 = (unsigned __int8)v7->m_data.m_buffer[0] - v8;
         if ( v9 )
           break;
@@ -8541,48 +8489,38 @@ DWStorageContext *DWStorage::getContext(DWStorage *this, const char *context)
       if ( !v9 )
         break;
       m_size = p_m_contexts->m_size;
-      _RBX = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)_RBX + 40);
-      if ( _RBX == (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * m_size) )
+      v6 = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)v6 + 40);
+      if ( v6 == (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * m_size) )
         goto LABEL_12;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rbp+0], ymm0
-      vmovsd  xmm1, qword ptr [rbx+20h]
-      vmovsd  qword ptr [rbp+20h], xmm1
-    }
+    *(__m256i *)p_m_unknownContext->m_context.m_string = *(__m256i *)v6->m_data.m_buffer;
+    *(double *)&p_m_unknownContext->m_inUse = *(double *)&v6->m_data.m_buffer[32];
     m_size = p_m_contexts->m_size;
   }
 LABEL_12:
-  v12 = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * m_size);
-  if ( _RBX == v12 )
+  v10 = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * m_size);
+  if ( v6 == v10 )
   {
-    _RBX = p_m_contexts;
-    if ( p_m_contexts != v12 )
+    v6 = p_m_contexts;
+    if ( p_m_contexts != v10 )
     {
-      while ( _RBX->m_data.m_buffer[32] )
+      while ( v6->m_data.m_buffer[32] )
       {
-        _RBX = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)_RBX + 40);
-        if ( _RBX == v12 )
+        v6 = (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)v6 + 40);
+        if ( v6 == v10 )
           goto LABEL_21;
       }
       if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\string\\string_storage.h", 41, ASSERT_TYPE_ASSERT, "( p_constString != 0 )", (const char *)&queryFormat, "p_constString != NULL") )
         __debugbreak();
-      ntl::internal::string_assign(_RBX->m_data.m_buffer, 0x10ui64, context);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rbp+0], ymm0
-        vmovsd  xmm1, qword ptr [rbx+20h]
-        vmovsd  qword ptr [rbp+20h], xmm1
-      }
+      ntl::internal::string_assign(v6->m_data.m_buffer, 0x10ui64, context);
+      *(__m256i *)p_m_unknownContext->m_context.m_string = *(__m256i *)v6->m_data.m_buffer;
+      *(double *)&p_m_unknownContext->m_inUse = *(double *)&v6->m_data.m_buffer[32];
     }
   }
 LABEL_21:
-  if ( _RBX == (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * p_m_contexts->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwserviceswrappers.cpp", 2078, ASSERT_TYPE_ASSERT, "(it != m_contexts.end())", (const char *)&queryFormat, "it != m_contexts.end()") )
+  if ( v6 == (ntl::fixed_vector<DWStorageContext,5,0> *)((char *)p_m_contexts + 40 * p_m_contexts->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwserviceswrappers.cpp", 2078, ASSERT_TYPE_ASSERT, "(it != m_contexts.end())", (const char *)&queryFormat, "it != m_contexts.end()") )
     __debugbreak();
-  return _RBP;
+  return p_m_unknownContext;
 }
 
 /*
@@ -9606,19 +9544,14 @@ bool DWPublisherVariables::getKeyValueByIterator(DWPublisherVariables *this, con
 {
   DWWrappers *m_owningWrapper; 
   bdPublisherVariables *PublisherVariables; 
-  bdPublisherVariablesIterator v14; 
+  bdPublisherVariablesIterator v13; 
 
   m_owningWrapper = this->m_owningWrapper;
-  _RBP = iterator;
   if ( !m_owningWrapper || !DWWrappers::isReady(m_owningWrapper) || !DWLobbyService::getPublisherVariables(&this->m_owningWrapper->m_lobbyService) )
     return 0;
   PublisherVariables = DWLobbyService::getPublisherVariables(&this->m_owningWrapper->m_lobbyService);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups xmmword ptr [rsp+48h+var_18.m_it], xmm0
-  }
-  return bdPublisherVariables::getKeyValueByIterator(PublisherVariables, &v14, key, keySize, value, valueSize) == BD_AVAILABLE;
+  v13 = *iterator;
+  return bdPublisherVariables::getKeyValueByIterator(PublisherVariables, &v13, key, keySize, value, valueSize) == BD_AVAILABLE;
 }
 
 /*
@@ -13416,34 +13349,40 @@ char DWLogin::initLogin(DWLogin *this, const int controllerIndex, bdPlatformUser
   int v35; 
   const char *v36; 
   unsigned int m_titleVersion; 
+  char *m_authAddress; 
+  char *v39; 
+  __int64 v40; 
   __int64 v41; 
-  __int64 v42; 
-  __int64 v50; 
-  bdPushMessageHandler **v65; 
-  bdPushMessageHandler **v66; 
+  char *m_lsgAddress; 
+  char *v43; 
+  __int64 v44; 
+  char *m_loginQueueAddress; 
+  char *v46; 
+  bdPushMessageHandler **v47; 
+  bdPushMessageHandler **v48; 
   char *fmt; 
   bdReference<bdWinRTPtr> result; 
   HSTRING string; 
   unsigned __int64 macAddr; 
   HSTRING newString; 
   unsigned __int64 platformId; 
-  DWLogin *v74; 
-  bdLoginConfig *v75; 
-  __int64 v76; 
+  DWLogin *v56; 
+  bdLoginConfig *v57; 
+  __int64 v58; 
   bdWinRTPtr *m_ptr; 
-  __int64 v78; 
-  bdMACAddr v79; 
+  __int64 v60; 
+  bdMACAddr v61; 
   bdLoginConfig Src; 
-  bdLoginConfig v81; 
+  bdLoginConfig v63; 
   bdLogin login; 
   char dest[8]; 
-  __int64 v84; 
-  __int64 v85; 
-  __int64 v86; 
-  int v87; 
+  __int64 v66; 
+  __int64 v67; 
+  __int64 v68; 
+  int v69; 
 
-  v76 = -2i64;
-  v74 = this;
+  v58 = -2i64;
+  v56 = this;
   m_ptr = platformUser.m_user.m_ptr;
   v6 = NULL;
   if ( !this->m_login )
@@ -13529,10 +13468,10 @@ LABEL_29:
   v27 = enabled || com_unattendedMode->current.enabled;
   Src.m_shouldCreateAnonymousAccount = v27;
   *(_QWORD *)dest = 0i64;
-  v84 = 0i64;
-  v85 = 0i64;
-  v86 = 0i64;
-  v87 = 0;
+  v66 = 0i64;
+  v67 = 0i64;
+  v68 = 0i64;
+  v69 = 0;
   if ( v27 )
   {
     LocalClientName = Live_GetLocalClientName(controllerIndex);
@@ -13553,7 +13492,7 @@ LABEL_29:
   v32 = (__int64)v31;
   if ( v31 )
     v31->AddRef(v31);
-  v78 = v32;
+  v60 = v32;
   string = NULL;
   v33 = (*(__int64 (__fastcall **)(__int64, HSTRING *))(*(_QWORD *)v32 + 120i64))(v32, &string);
   if ( v33 < 0 )
@@ -13568,7 +13507,7 @@ LABEL_29:
     v34 = string;
   }
   WindowsDeleteString_0(v34);
-  v75 = (bdLoginConfig *)v6;
+  v57 = (bdLoginConfig *)v6;
   ConvertPlatformStringToPlatformId((Platform::String *)v6, &platformId);
   WindowsDeleteString_0(v6);
   v36 = "no";
@@ -13578,149 +13517,107 @@ LABEL_29:
   Com_Printf(25, "[DW] Initializing DW Login with titleIds(%u,%u,%u), platformId(%zu), createAnonymous(%s), username(%s).\n", *TitleIds, TitleIds[1], fmt, platformId, v36, dest);
   m_titleVersion = 1065;
   Src.m_titleVersion = 1065;
-  v75 = &v81;
-  v81.__vftable = (bdLoginConfig_vtbl *)&bdLoginConfig::`vftable';
-  v81.m_environment = Src.m_environment;
-  v81.m_user.m_user.m_ptr = Src.m_user.m_user.m_ptr;
+  v57 = &v63;
+  v63.__vftable = (bdLoginConfig_vtbl *)&bdLoginConfig::`vftable';
+  v63.m_environment = Src.m_environment;
+  v63.m_user.m_user.m_ptr = Src.m_user.m_user.m_ptr;
   if ( Src.m_user.m_user.m_ptr )
   {
     _InterlockedExchangeAdd((volatile signed __int32 *)&Src.m_user.m_user.m_ptr->m_refCount, 1u);
     m_titleVersion = Src.m_titleVersion;
   }
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbp+269F0h+Src.m_titleIDs]
-    vmovsd  qword ptr [rbp+269F0h+var_25590.m_titleIDs], xmm0
-  }
-  v81.m_titleIDs[2] = Src.m_titleIDs[2];
-  _RAX = v81.m_authAddress;
-  _RCX = Src.m_authAddress;
+  *(double *)v63.m_titleIDs = *(double *)Src.m_titleIDs;
+  v63.m_titleIDs[2] = Src.m_titleIDs[2];
+  m_authAddress = v63.m_authAddress;
+  v39 = Src.m_authAddress;
+  v40 = 8i64;
   v41 = 8i64;
-  v42 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
-    --v42;
-  }
-  while ( v42 );
-  v81.m_authPort = Src.m_authPort;
-  _RAX = v81.m_lsgAddress;
-  _RCX = Src.m_lsgAddress;
-  v50 = 8i64;
-  do
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
-    --v50;
-  }
-  while ( v50 );
-  v81.m_lsgPort = Src.m_lsgPort;
-  _RAX = v81.m_loginQueueAddress;
-  _RCX = Src.m_loginQueueAddress;
-  do
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
+    *(__m256i *)m_authAddress = *(__m256i *)v39;
+    *((__m256i *)m_authAddress + 1) = *((__m256i *)v39 + 1);
+    *((__m256i *)m_authAddress + 2) = *((__m256i *)v39 + 2);
+    *((_OWORD *)m_authAddress + 6) = *((_OWORD *)v39 + 6);
+    m_authAddress += 128;
+    *((_OWORD *)m_authAddress - 1) = *((_OWORD *)v39 + 7);
+    v39 += 128;
     --v41;
   }
   while ( v41 );
-  v81.m_loginQueuePort = Src.m_loginQueuePort;
-  v81.m_titleVersion = m_titleVersion;
-  v81.m_loginType = Src.m_loginType;
-  v81.m_macAddr = Src.m_macAddr;
-  v81.m_gameMode = Src.m_gameMode;
-  v81.m_internalAddr = Src.m_internalAddr;
-  v81.m_shouldCreateAnonymousAccount = Src.m_shouldCreateAnonymousAccount;
-  memcpy_0(v81.m_thunderpantsToken, Src.m_thunderpantsToken, sizeof(v81.m_thunderpantsToken));
-  v81.m_dediLogin = Src.m_dediLogin;
-  v81.m_shouldPauseFlow = Src.m_shouldPauseFlow;
-  __asm
+  v63.m_authPort = Src.m_authPort;
+  m_lsgAddress = v63.m_lsgAddress;
+  v43 = Src.m_lsgAddress;
+  v44 = 8i64;
+  do
   {
-    vmovups ymm0, ymmword ptr [rbp+269F0h+Src.m_desiredUserName]
-    vmovups ymmword ptr [rbp+269F0h+var_25590.m_desiredUserName], ymm0
-    vmovups ymm1, ymmword ptr [rbp+269F0h+Src.m_desiredUserName+20h]
-    vmovups ymmword ptr [rbp+269F0h+var_25590.m_desiredUserName+20h], ymm1
+    *(__m256i *)m_lsgAddress = *(__m256i *)v43;
+    *((__m256i *)m_lsgAddress + 1) = *((__m256i *)v43 + 1);
+    *((__m256i *)m_lsgAddress + 2) = *((__m256i *)v43 + 2);
+    *((_OWORD *)m_lsgAddress + 6) = *((_OWORD *)v43 + 6);
+    m_lsgAddress += 128;
+    *((_OWORD *)m_lsgAddress - 1) = *((_OWORD *)v43 + 7);
+    v43 += 128;
+    --v44;
   }
-  v81.m_desiredUserName[64] = Src.m_desiredUserName[64];
-  v81.m_lobbyEventHandler = Src.m_lobbyEventHandler;
-  *(_QWORD *)&v81.m_pushHandlers.m_capacity = *(_QWORD *)&Src.m_pushHandlers.m_capacity;
-  v65 = NULL;
+  while ( v44 );
+  v63.m_lsgPort = Src.m_lsgPort;
+  m_loginQueueAddress = v63.m_loginQueueAddress;
+  v46 = Src.m_loginQueueAddress;
+  do
+  {
+    *(__m256i *)m_loginQueueAddress = *(__m256i *)v46;
+    *((__m256i *)m_loginQueueAddress + 1) = *((__m256i *)v46 + 1);
+    *((__m256i *)m_loginQueueAddress + 2) = *((__m256i *)v46 + 2);
+    *((_OWORD *)m_loginQueueAddress + 6) = *((_OWORD *)v46 + 6);
+    m_loginQueueAddress += 128;
+    *((_OWORD *)m_loginQueueAddress - 1) = *((_OWORD *)v46 + 7);
+    v46 += 128;
+    --v40;
+  }
+  while ( v40 );
+  v63.m_loginQueuePort = Src.m_loginQueuePort;
+  v63.m_titleVersion = m_titleVersion;
+  v63.m_loginType = Src.m_loginType;
+  v63.m_macAddr = Src.m_macAddr;
+  v63.m_gameMode = Src.m_gameMode;
+  v63.m_internalAddr = Src.m_internalAddr;
+  v63.m_shouldCreateAnonymousAccount = Src.m_shouldCreateAnonymousAccount;
+  memcpy_0(v63.m_thunderpantsToken, Src.m_thunderpantsToken, sizeof(v63.m_thunderpantsToken));
+  v63.m_dediLogin = Src.m_dediLogin;
+  v63.m_shouldPauseFlow = Src.m_shouldPauseFlow;
+  *(__m256i *)v63.m_desiredUserName = *(__m256i *)Src.m_desiredUserName;
+  *(__m256i *)&v63.m_desiredUserName[32] = *(__m256i *)&Src.m_desiredUserName[32];
+  v63.m_desiredUserName[64] = Src.m_desiredUserName[64];
+  v63.m_lobbyEventHandler = Src.m_lobbyEventHandler;
+  *(_QWORD *)&v63.m_pushHandlers.m_capacity = *(_QWORD *)&Src.m_pushHandlers.m_capacity;
+  v47 = NULL;
   if ( Src.m_pushHandlers.m_capacity )
   {
-    v66 = (bdPushMessageHandler **)bdMemory::allocate(8i64 * Src.m_pushHandlers.m_capacity);
-    v65 = v66;
+    v48 = (bdPushMessageHandler **)bdMemory::allocate(8i64 * Src.m_pushHandlers.m_capacity);
+    v47 = v48;
     if ( Src.m_pushHandlers.m_size )
-      memcpy_0(v66, Src.m_pushHandlers.m_data, 8i64 * Src.m_pushHandlers.m_size);
+      memcpy_0(v48, Src.m_pushHandlers.m_data, 8i64 * Src.m_pushHandlers.m_size);
   }
-  v81.m_pushHandlers.m_data = v65;
-  *(_DWORD *)v81.m_serviceLevel = *(_DWORD *)Src.m_serviceLevel;
-  v81.m_serviceLevel[4] = Src.m_serviceLevel[4];
-  v81.m_maxInitialLoginDelayMS = Src.m_maxInitialLoginDelayMS;
-  v81.m_clientSetQueueID = Src.m_clientSetQueueID;
-  v81.m_queueID = Src.m_queueID;
-  *(_DWORD *)v81.m_gameID = *(_DWORD *)Src.m_gameID;
-  *(_DWORD *)v81.m_region = *(_DWORD *)Src.m_region;
-  *(_WORD *)&v81.m_region[4] = *(_WORD *)&Src.m_region[4];
-  v81.m_region[6] = Src.m_region[6];
-  bdLoginConfig::~bdLoginConfig(&v81);
+  v63.m_pushHandlers.m_data = v47;
+  *(_DWORD *)v63.m_serviceLevel = *(_DWORD *)Src.m_serviceLevel;
+  v63.m_serviceLevel[4] = Src.m_serviceLevel[4];
+  v63.m_maxInitialLoginDelayMS = Src.m_maxInitialLoginDelayMS;
+  v63.m_clientSetQueueID = Src.m_clientSetQueueID;
+  v63.m_queueID = Src.m_queueID;
+  *(_DWORD *)v63.m_gameID = *(_DWORD *)Src.m_gameID;
+  *(_DWORD *)v63.m_region = *(_DWORD *)Src.m_region;
+  *(_WORD *)&v63.m_region[4] = *(_WORD *)&Src.m_region[4];
+  v63.m_region[6] = Src.m_region[6];
+  bdLoginConfig::~bdLoginConfig(&v63);
   if ( Live_GetMACAddressAsUint64(&macAddr) )
   {
-    bdMACAddr::bdMACAddr(&v79);
-    v79 = (bdMACAddr)macAddr;
+    bdMACAddr::bdMACAddr(&v61);
+    v61 = (bdMACAddr)macAddr;
     Src.m_macAddr = (bdMACAddr)macAddr;
   }
   Src.m_lobbyEventHandler = dwGetLobbyEventHandlerForControllerIndex(controllerIndex);
   bdLogin::bdLogin(&login, &Src);
-  bdLogin::operator=(v74->m_login, &login);
+  bdLogin::operator=(v56->m_login, &login);
   bdLogin::~bdLogin(&login);
   (*(void (__fastcall **)(__int64))(*(_QWORD *)v32 + 16i64))(v32);
   if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
@@ -15531,10 +15428,12 @@ void DWLogin::pump(DWLogin *this)
   unsigned __int64 FirstPartyUserID; 
   const char *FirstPartyAccountType; 
   const bdLoginFailure *Failure; 
+  char *m_loginFailureMessage; 
+  char *v20; 
   __int64 v21; 
   bdLoginFailure::bdLoginFailureCode LoginFailureCode; 
   const char *LoginFailureMessage; 
-  bdLoginResult v32; 
+  bdLoginResult v24; 
 
   m_login = this->m_login;
   if ( m_login )
@@ -15564,63 +15463,49 @@ void DWLogin::pump(DWLogin *this)
         if ( v9 )
         {
           Result = bdLogin::getResult(v10);
-          bdLoginResult::bdLoginResult(&v32, Result);
+          bdLoginResult::bdLoginResult(&v24, Result);
           Com_Printf(25, "[DW] Login Succeeded\n");
-          Username = bdLoginResult::getUsername(&v32);
-          UserID = bdLoginResult::getUserID(&v32);
-          AccountType = bdLoginResult::getAccountType(&v32);
+          Username = bdLoginResult::getUsername(&v24);
+          UserID = bdLoginResult::getUserID(&v24);
+          AccountType = bdLoginResult::getAccountType(&v24);
           Com_Printf(25, "[DW] DW Account: %s-%zu [%s]\n", AccountType, UserID, Username);
-          FirstPartyUsername = bdLoginResult::getFirstPartyUsername(&v32);
-          FirstPartyUserID = bdLoginResult::getFirstPartyUserID(&v32);
-          FirstPartyAccountType = bdLoginResult::getFirstPartyAccountType(&v32);
+          FirstPartyUsername = bdLoginResult::getFirstPartyUsername(&v24);
+          FirstPartyUserID = bdLoginResult::getFirstPartyUserID(&v24);
+          FirstPartyAccountType = bdLoginResult::getFirstPartyAccountType(&v24);
           Com_Printf(25, "[DW] FP Account: %s-%zu [%s]\n", FirstPartyAccountType, FirstPartyUserID, FirstPartyUsername);
           this->m_pending = 0;
-          bdLoginResult::~bdLoginResult(&v32);
+          bdLoginResult::~bdLoginResult(&v24);
         }
         else
         {
           Failure = bdLogin::getFailure(v10);
-          *(_QWORD *)&v32.m_titleID = &bdLoginFailure::`vftable';
-          *(_DWORD *)&v32.m_platformToken[4] = Failure->m_loginFailureCode;
-          _RCX = Failure->m_loginFailureMessage;
-          _RAX = &v32.m_platformToken[8];
+          *(_QWORD *)&v24.m_titleID = &bdLoginFailure::`vftable';
+          *(_DWORD *)&v24.m_platformToken[4] = Failure->m_loginFailureCode;
+          m_loginFailureMessage = Failure->m_loginFailureMessage;
+          v20 = &v24.m_platformToken[8];
           v21 = 4i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx]
-              vmovups xmmword ptr [rax], xmm0
-              vmovups xmm1, xmmword ptr [rcx+10h]
-              vmovups xmmword ptr [rax+10h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+20h]
-              vmovups xmmword ptr [rax+20h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+30h]
-              vmovups xmmword ptr [rax+30h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+40h]
-              vmovups xmmword ptr [rax+40h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+50h]
-              vmovups xmmword ptr [rax+50h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+60h]
-              vmovups xmmword ptr [rax+60h], xmm0
-            }
-            _RAX += 128;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rcx+70h]
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
-            _RCX += 128;
+            *(_OWORD *)v20 = *(_OWORD *)m_loginFailureMessage;
+            *((_OWORD *)v20 + 1) = *((_OWORD *)m_loginFailureMessage + 1);
+            *((_OWORD *)v20 + 2) = *((_OWORD *)m_loginFailureMessage + 2);
+            *((_OWORD *)v20 + 3) = *((_OWORD *)m_loginFailureMessage + 3);
+            *((_OWORD *)v20 + 4) = *((_OWORD *)m_loginFailureMessage + 4);
+            *((_OWORD *)v20 + 5) = *((_OWORD *)m_loginFailureMessage + 5);
+            *((_OWORD *)v20 + 6) = *((_OWORD *)m_loginFailureMessage + 6);
+            v20 += 128;
+            *((_OWORD *)v20 - 1) = *((_OWORD *)m_loginFailureMessage + 7);
+            m_loginFailureMessage += 128;
             --v21;
           }
           while ( v21 );
           Com_Printf(25, "[DW] Login Failed\n");
-          LoginFailureCode = bdLoginFailure::getLoginFailureCode((bdLoginFailure *)&v32);
+          LoginFailureCode = bdLoginFailure::getLoginFailureCode((bdLoginFailure *)&v24);
           Com_Printf(25, "[DW] Failure Code: %u\n", (unsigned int)LoginFailureCode);
-          LoginFailureMessage = bdLoginFailure::getLoginFailureMessage((bdLoginFailure *)&v32);
+          LoginFailureMessage = bdLoginFailure::getLoginFailureMessage((bdLoginFailure *)&v24);
           Com_Printf(25, "[DW] Failure Message: %s\n", LoginFailureMessage);
           this->m_pending = 0;
-          bdLoginFailure::~bdLoginFailure((bdLoginFailure *)&v32);
+          bdLoginFailure::~bdLoginFailure((bdLoginFailure *)&v24);
         }
       }
     }
@@ -17475,38 +17360,20 @@ bdReference<bdRemoteTask> *DWMessaging::sendToChannel(DWMessaging *this, bdRefer
 DWGameMetrics::set
 ==============
 */
-
-bool __fastcall DWGameMetrics::set(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, double value)
+char DWGameMetrics::set(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, long double value)
 {
-  const dvar_t *v9; 
-  bool result; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !this->m_gameMetrics )
-    goto LABEL_8;
-  v9 = DVARBOOL_online_matchmaking_using_metrics;
+    return 0;
+  v7 = DVARBOOL_online_matchmaking_using_metrics;
   if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled )
-    goto LABEL_8;
-  __asm { vmovaps xmm3, xmm6; value }
-  if ( bdGameMetrics::set(this->m_gameMetrics, timestamp, name, *(long double *)&_XMM3) )
-  {
-    ++this->m_messagesEnqueued;
-    result = 1;
-  }
-  else
-  {
-LABEL_8:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled || !bdGameMetrics::set(this->m_gameMetrics, timestamp, name, value) )
+    return 0;
+  ++this->m_messagesEnqueued;
+  return 1;
 }
 
 /*
@@ -17619,22 +17486,20 @@ bool DWStandaloneUmbrella::setControllerIndexAndEnv(DWStandaloneUmbrella *this, 
 DWAchievementEngineClient::setFlushIntervalSeconds
 ==============
 */
-
-void __fastcall DWAchievementEngineClient::setFlushIntervalSeconds(DWAchievementEngineClient *this, double flushIntervalSeconds)
+void DWAchievementEngineClient::setFlushIntervalSeconds(DWAchievementEngineClient *this, float flushIntervalSeconds)
 {
   DWWrappers *m_owningWrapper; 
   bdAchievementClient *AchievementsEngineClientService; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   m_owningWrapper = this->m_owningWrapper;
-  __asm { vmovaps xmm6, xmm1 }
-  if ( m_owningWrapper && DWWrappers::isReady(m_owningWrapper) && DWLobbyService::getAchievementsEngineClientService(&this->m_owningWrapper->m_lobbyService) )
+  if ( m_owningWrapper && DWWrappers::isReady(m_owningWrapper) )
   {
-    AchievementsEngineClientService = DWLobbyService::getAchievementsEngineClientService(&this->m_owningWrapper->m_lobbyService);
-    __asm { vmovaps xmm1, xmm6; flushIntervalSeconds }
-    bdAchievementClient::setFlushIntervalSeconds(AchievementsEngineClientService, *(float *)&_XMM1);
+    if ( DWLobbyService::getAchievementsEngineClientService(&this->m_owningWrapper->m_lobbyService) )
+    {
+      AchievementsEngineClientService = DWLobbyService::getAchievementsEngineClientService(&this->m_owningWrapper->m_lobbyService);
+      bdAchievementClient::setFlushIntervalSeconds(AchievementsEngineClientService, flushIntervalSeconds);
+    }
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -18637,38 +18502,20 @@ bdReference<bdRemoteTask> *DWAsyncMatchMaking::syncLobbyDocuments(DWAsyncMatchMa
 DWGameMetrics::timing
 ==============
 */
-
-bool __fastcall DWGameMetrics::timing(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, double value)
+char DWGameMetrics::timing(DWGameMetrics *this, unsigned __int64 timestamp, const char *const name, long double value)
 {
-  const dvar_t *v9; 
-  bool result; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !this->m_gameMetrics )
-    goto LABEL_8;
-  v9 = DVARBOOL_online_matchmaking_using_metrics;
+    return 0;
+  v7 = DVARBOOL_online_matchmaking_using_metrics;
   if ( !DVARBOOL_online_matchmaking_using_metrics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_using_metrics") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled )
-    goto LABEL_8;
-  __asm { vmovaps xmm3, xmm6; value }
-  if ( bdGameMetrics::timing(this->m_gameMetrics, timestamp, name, *(long double *)&_XMM3) )
-  {
-    ++this->m_messagesEnqueued;
-    result = 1;
-  }
-  else
-  {
-LABEL_8:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled || !bdGameMetrics::timing(this->m_gameMetrics, timestamp, name, value) )
+    return 0;
+  ++this->m_messagesEnqueued;
+  return 1;
 }
 
 /*

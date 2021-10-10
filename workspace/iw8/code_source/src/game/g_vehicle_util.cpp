@@ -18,30 +18,25 @@ Vehicle_AccelerateSpeed
 ==============
 */
 
-float __fastcall Vehicle_AccelerateSpeed(double speed, double tgtSpeed, double accel, float dt)
+float __fastcall Vehicle_AccelerateSpeed(double speed, float tgtSpeed, double accel, float dt)
 {
-  char v4; 
+  __int128 v4; 
+  __int128 v8; 
 
-  __asm
+  v4 = *(_OWORD *)&accel;
+  *(float *)&v4 = *(float *)&accel * dt;
+  if ( *(float *)&speed >= tgtSpeed )
   {
-    vcomiss xmm0, xmm1
-    vmulss  xmm4, xmm2, xmm3
-  }
-  if ( v4 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm4, xmm0
-      vminss  xmm0, xmm0, xmm1
-    }
+    v8 = *(_OWORD *)&speed;
+    *(float *)&v8 = *(float *)&speed - (float)(*(float *)&accel * dt);
+    _XMM0 = v8;
+    __asm { vmaxss  xmm0, xmm0, xmm1 }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm4
-      vmaxss  xmm0, xmm0, xmm1
-    }
+    *(float *)&v4 = *(float *)&v4 + *(float *)&speed;
+    _XMM0 = v4;
+    __asm { vminss  xmm0, xmm0, xmm1 }
   }
   return *(float *)&_XMM0;
 }

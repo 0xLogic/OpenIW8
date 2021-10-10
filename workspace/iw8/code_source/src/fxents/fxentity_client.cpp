@@ -260,101 +260,77 @@ CG_LoopFx
 void CG_LoopFx(int fxEntNum, ClientFxEntity *fxEnt)
 {
   LocalClientNum_t OnlyLocalClientNum; 
-  __int64 v6; 
-  char v7; 
+  __int64 v5; 
   cg_t *LocalClientGlobals; 
-  cg_t *v11; 
-  char v12; 
-  int triggerTime; 
-  unsigned int v26; 
-  __int64 v27; 
-  ParticleSystem *v28; 
-  __int64 v29; 
+  float loopingCullDist; 
+  cg_t *v8; 
+  float v9; 
+  float v10; 
+  FxEntity::<unnamed_type_un1> v11; 
+  unsigned __int32 v12; 
+  __int64 v13; 
+  ParticleSystem *v14; 
+  __int64 v15; 
   int time; 
-  int v31; 
-  __int64 v32; 
-  unsigned int v33; 
-  ParticleSystem *v34; 
-  __int64 v35; 
+  int triggerTime; 
+  __int64 v18; 
+  unsigned __int32 v19; 
+  ParticleSystem *v20; 
+  __int64 v21; 
 
-  _RBX = fxEnt;
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  v6 = OnlyLocalClientNum;
+  v5 = OnlyLocalClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(OnlyLocalClientNum);
-  __asm
+  loopingCullDist = fxEnt->info.loopingCullDist;
+  v8 = LocalClientGlobals;
+  if ( loopingCullDist == 0.0 || (v9 = fxEnt->info.origin.v[1] - LocalClientGlobals->predictedPlayerState.origin.v[1], v10 = fxEnt->info.origin.v[2] - LocalClientGlobals->predictedPlayerState.origin.v[2], (float)((float)((float)(v9 * v9) + (float)((float)(fxEnt->info.origin.v[0] - LocalClientGlobals->predictedPlayerState.origin.v[0]) * (float)(fxEnt->info.origin.v[0] - LocalClientGlobals->predictedPlayerState.origin.v[0]))) + (float)(v10 * v10)) < (float)(loopingCullDist * loopingCullDist)) )
   {
-    vmovss  xmm5, dword ptr [rbx+18h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm5, xmm0
-  }
-  v11 = LocalClientGlobals;
-  if ( v12 )
-    goto LABEL_30;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm3, xmm0, dword ptr [rax+38h]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm2, xmm1, dword ptr [rax+3Ch]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm4, xmm0, dword ptr [rax+40h]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vcomiss xmm4, xmm1
-  }
-  if ( v7 )
-  {
-LABEL_30:
-    if ( (_RBX->info.flags & 0x20) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity.h", 84, ASSERT_TYPE_ASSERT, "(FXEntity_IsLoopingType( fxEnt ))", "%s\n\tTried to get looping period on a non looping-type FX entity.", "FXEntity_IsLoopingType( fxEnt )") )
+    if ( (fxEnt->info.flags & 0x20) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity.h", 84, ASSERT_TYPE_ASSERT, "(FXEntity_IsLoopingType( fxEnt ))", "%s\n\tTried to get looping period on a non looping-type FX entity.", "FXEntity_IsLoopingType( fxEnt )") )
       __debugbreak();
-    triggerTime = _RBX->info.un1.triggerTime;
-    if ( triggerTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity_client.cpp", 75, ASSERT_TYPE_ASSERT, "(period > 0)", (const char *)&queryFormat, "period > 0") )
+    v11.triggerTime = (int)fxEnt->info.un1;
+    if ( v11.triggerTime <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\fxents\\fxentity_client.cpp", 75, ASSERT_TYPE_ASSERT, "(period > 0)", (const char *)&queryFormat, "period > 0") )
       __debugbreak();
-    if ( _RBX->particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE )
+    if ( fxEnt->particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE )
     {
-      CG_StartFxOnFXEnt(fxEntNum, _RBX, v11->time, v11->time + triggerTime);
-      v26 = 0;
-      if ( g_particleSystemsGeneration[4096 * v6 + (_RBX->particleSystem & 0xFFF)].__all32 == _RBX->particleSystem )
-        v26 = _RBX->particleSystem & 0xFFF;
-      v27 = v26;
-      v28 = NULL;
-      v29 = (v6 << 12) + v27;
-      if ( g_particleSystems[0][v29] >= (ParticleSystem *)0x1000 )
-        v28 = g_particleSystems[0][v29];
-      if ( v28 )
-        ParticleSystem::SetLoopedFxEnt(v28, fxEntNum);
+      CG_StartFxOnFXEnt(fxEntNum, fxEnt, v8->time, v8->time + v11.triggerTime);
+      v12 = 0;
+      if ( g_particleSystemsGeneration[4096 * v5 + (fxEnt->particleSystem & 0xFFF)].__all32 == fxEnt->particleSystem )
+        v12 = fxEnt->particleSystem & 0xFFF;
+      v13 = v12;
+      v14 = NULL;
+      v15 = (v5 << 12) + v13;
+      if ( g_particleSystems[0][v15] >= (ParticleSystem *)0x1000 )
+        v14 = g_particleSystems[0][v15];
+      if ( v14 )
+        ParticleSystem::SetLoopedFxEnt(v14, fxEntNum);
     }
-    time = v11->time;
-    v31 = _RBX->triggerTime;
-    if ( time >= v31 )
+    time = v8->time;
+    triggerTime = fxEnt->triggerTime;
+    if ( time >= triggerTime )
     {
-      v32 = v6 << 12;
+      v18 = v5 << 12;
       do
       {
-        CG_StartFxOnFXEnt(fxEntNum, _RBX, time, v31);
-        v33 = 0;
-        if ( g_particleSystemsGeneration[v32 + (_RBX->particleSystem & 0xFFF)].__all32 == _RBX->particleSystem )
-          v33 = _RBX->particleSystem & 0xFFF;
-        v34 = NULL;
-        v35 = v32 + v33;
-        if ( g_particleSystems[0][v35] >= (ParticleSystem *)0x1000 )
-          v34 = g_particleSystems[0][v35];
-        if ( v34 )
+        CG_StartFxOnFXEnt(fxEntNum, fxEnt, time, triggerTime);
+        v19 = 0;
+        if ( g_particleSystemsGeneration[v18 + (fxEnt->particleSystem & 0xFFF)].__all32 == fxEnt->particleSystem )
+          v19 = fxEnt->particleSystem & 0xFFF;
+        v20 = NULL;
+        v21 = v18 + v19;
+        if ( g_particleSystems[0][v21] >= (ParticleSystem *)0x1000 )
+          v20 = g_particleSystems[0][v21];
+        if ( v20 )
         {
           if ( fxEntNum == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlesystem.h", 205, ASSERT_TYPE_ASSERT, "(loopedFxEnt != PARTICLE_SYSTEM_INVALID_LOOPED_FX_ENT)", (const char *)&queryFormat, "loopedFxEnt != PARTICLE_SYSTEM_INVALID_LOOPED_FX_ENT") )
             __debugbreak();
-          v34->m_loopedFxEnt = fxEntNum;
-          v34->m_flags |= 0x400000ui64;
+          v20->m_loopedFxEnt = fxEntNum;
+          v20->m_flags |= 0x400000ui64;
         }
-        v31 = triggerTime + _RBX->triggerTime;
-        _RBX->triggerTime = v31;
-        time = v11->time;
+        triggerTime = v11.triggerTime + fxEnt->triggerTime;
+        fxEnt->triggerTime = triggerTime;
+        time = v8->time;
       }
-      while ( time >= v31 );
+      while ( time >= triggerTime );
     }
   }
 }

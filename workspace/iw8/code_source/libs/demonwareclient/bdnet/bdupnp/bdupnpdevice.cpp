@@ -457,86 +457,36 @@ bdUPnPDevice::cleanup
 */
 void bdUPnPDevice::cleanup(bdUPnPDevice *this)
 {
-  bdStreamSocket_vtbl *v14; 
-  bdUPnPConfig v32; 
+  bdAddr *v2; 
+  __m256i *v3; 
+  __m256i v4; 
+  bdStreamSocket_vtbl *v5; 
+  bdUPnPConfig *v6; 
+  bdSockAddr *v7; 
+  bdUPnPConfig v8; 
 
-  _RBX = this;
   this->m_state = BD_UPNP_DEVICE_UNINITIALISED;
   this->m_shutdownRequested = 0;
   this->m_portStatus = BD_UPNP_PORT_STATUS_UNKNOWN;
-  bdAddr::bdAddr((bdAddr *)&v32);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+50h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+70h], ymm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+90h], xmm0
-    vmovsd  xmm1, qword ptr [rax+90h]
-    vmovsd  qword ptr [rbx+0A0h], xmm1
-  }
-  _RBX->m_localAddrs = NULL;
-  bdSockAddr::bdSockAddr((bdSockAddr *)&v32);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+0B0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+0D0h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+0F0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-  }
-  v14 = _RBX->m_streamSocket.__vftable;
-  __asm { vmovups ymmword ptr [rbx+110h], ymm1 }
-  ((void (*)(void))v14->close)();
-  bdUPnPConfig::bdUPnPConfig(&v32);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx+148h], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+158h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+168h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rbx+178h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+188h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rbx+198h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbx+1A8h], xmm0
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rbx+1B8h], xmm0
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+1C8h], xmm1
-    vmovups xmm0, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rbx+1D8h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rbx+1E8h], xmm1
-  }
-  *(_DWORD *)&_RBX->m_gamePort = 0;
-  bdSockAddr::bdSockAddr((bdSockAddr *)&v32);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+200h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+220h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+240h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+260h], ymm1
-  }
-  _RBX->m_requestSize = 0;
-  _RBX->m_bytesReceived = 0;
-  _RBX->m_mappingAttempts = 0;
+  bdAddr::bdAddr((bdAddr *)&v8);
+  this->m_deviceAddr = *v2;
+  this->m_localAddrs = NULL;
+  bdSockAddr::bdSockAddr((bdSockAddr *)&v8);
+  *(__m256i *)&this->m_localConnectedAddr.inUn.m_sockaddrStorage.ss_family = *v3;
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 1) = v3[1];
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 2) = v3[2];
+  v4 = v3[3];
+  v5 = this->m_streamSocket.__vftable;
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 3) = v4;
+  ((void (*)(void))v5->close)();
+  bdUPnPConfig::bdUPnPConfig(&v8);
+  this->m_config = *v6;
+  *(_DWORD *)&this->m_gamePort = 0;
+  bdSockAddr::bdSockAddr((bdSockAddr *)&v8);
+  this->m_externalDeviceAddr = *v7;
+  this->m_requestSize = 0;
+  this->m_bytesReceived = 0;
+  this->m_mappingAttempts = 0;
 }
 
 /*
@@ -582,20 +532,20 @@ bool bdUPnPDevice::extractControlURL(bdUPnPDevice *this, char **controlLoc, unsi
 {
   const char *v4; 
   char *v7; 
+  char *v8; 
   char *v9; 
   char *v10; 
   char *v11; 
-  char *v12; 
-  int v13; 
-  unsigned int v14; 
+  int v12; 
+  unsigned int v13; 
+  char *v14; 
   char *v15; 
-  char *v16; 
-  __int64 v17; 
-  const char *v18; 
-  char *v19; 
-  unsigned int v20; 
+  __int64 v16; 
+  const char *v17; 
+  char *v18; 
+  unsigned int v19; 
   char SubStr[8]; 
-  char v23[8]; 
+  char v22[8]; 
   char dst[24]; 
 
   *controlLoc = NULL;
@@ -606,58 +556,54 @@ bool bdUPnPDevice::extractControlURL(bdUPnPDevice *this, char **controlLoc, unsi
   v7 = strstr_0(this->m_readBuffer, v4);
   if ( v7 )
   {
-    __asm
+    *(double *)SubStr = *(double *)"<controlURL";
+    strcpy(v22, "URL");
+    v8 = strstr_0(v7, SubStr);
+    if ( v8 )
     {
-      vmovsd  xmm0, qword ptr cs:aControlurl; "<controlURL"
-      vmovsd  qword ptr [rsp+0A8h+SubStr], xmm0
-    }
-    strcpy(v23, "URL");
-    v9 = strstr_0(v7, SubStr);
-    if ( v9 )
-    {
-      v10 = strstr_0(v9, ">");
-      if ( v10 )
+      v9 = strstr_0(v8, ">");
+      if ( v9 )
       {
-        v11 = v10 + 1;
-        v12 = strstr_0(v10 + 1, "</");
-        if ( v12 )
+        v10 = v9 + 1;
+        v11 = strstr_0(v9 + 1, "</");
+        if ( v11 )
         {
-          v13 = (_DWORD)v12 - (_DWORD)v11;
-          v14 = v13;
-          if ( !v13 )
-            v11 = NULL;
-          if ( !v13 )
-            v14 = 0;
-          if ( v13 )
+          v12 = (_DWORD)v11 - (_DWORD)v10;
+          v13 = v12;
+          if ( !v12 )
+            v10 = NULL;
+          if ( !v12 )
+            v13 = 0;
+          if ( v12 )
           {
-            v15 = strstr_0(v11, "http:
-            v16 = &v11[v14];
-            if ( v15 == v11 )
+            v14 = strstr_0(v10, "http:
+            v15 = &v10[v13];
+            if ( v14 == v10 )
             {
               bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-              v17 = -1i64;
+              v16 = -1i64;
               do
-                ++v17;
-              while ( aHttp[v17] );
-              v18 = &v15[v17];
-              v19 = strstr_0(v18, "/");
-              v11 = v19;
-              if ( !v19 || v19 > v16 )
-                v11 = v16;
-              if ( (unsigned int)((_DWORD)v11 - (_DWORD)v18) < 0x16 )
+                ++v16;
+              while ( aHttp[v16] );
+              v17 = &v14[v16];
+              v18 = strstr_0(v17, "/");
+              v10 = v18;
+              if ( !v18 || v18 > v15 )
+                v10 = v15;
+              if ( (unsigned int)((_DWORD)v10 - (_DWORD)v17) < 0x16 )
               {
-                bdStrlcpy(dst, v18, (unsigned int)((_DWORD)v11 - (_DWORD)v18 + 1));
+                bdStrlcpy(dst, v17, (unsigned int)((_DWORD)v10 - (_DWORD)v17 + 1));
                 bdAddr::set(&this->m_deviceAddr, dst);
               }
-              v20 = (_DWORD)v16 - (_DWORD)v11;
+              v19 = (_DWORD)v15 - (_DWORD)v10;
             }
             else
             {
-              v20 = v14;
+              v19 = v13;
             }
-            *controlLoc = v11;
+            *controlLoc = v10;
             LOBYTE(v7) = 1;
-            *controlLen = v20;
+            *controlLen = v19;
             return (char)v7;
           }
         }
@@ -680,69 +626,56 @@ bdUPnPDevice::extractExternalAddress
 */
 char bdUPnPDevice::extractExternalAddress(bdUPnPDevice *this, bdSockAddr *externalAddress)
 {
-  char *v10; 
-  char *v11; 
-  _BYTE *v12; 
-  char *v13; 
-  int v14; 
-  int v15; 
-  __int64 v16; 
-  size_t v17; 
-  bdSockAddr v19; 
-  char SubStr[16]; 
-  char v21[8]; 
+  bdSockAddr *v4; 
+  char *v5; 
+  char *v6; 
+  _BYTE *v7; 
+  char *v8; 
+  int v9; 
+  int v10; 
+  __int64 v11; 
+  size_t v12; 
+  bdSockAddr v14; 
+  char SubStr[24]; 
   char addr[24]; 
 
-  _RBP = externalAddress;
-  bdSockAddr::bdSockAddr(&v19);
-  __asm
+  bdSockAddr::bdSockAddr(&v14);
+  *externalAddress = *v4;
+  strcpy(SubStr, "<NewExternalIPAddress");
+  v5 = strstr_0(this->m_readBuffer, SubStr);
+  if ( v5 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbp+60h], ymm1
-    vmovups xmm0, xmmword ptr cs:aNewexternalipa; "<NewExternalIPAddress"
-  }
-  strcpy(v21, "dress");
-  __asm { vmovups xmmword ptr [rsp+118h+SubStr], xmm0 }
-  v10 = strstr_0(this->m_readBuffer, SubStr);
-  if ( v10 )
-  {
-    v11 = strstr_0(v10, ">");
-    if ( v11 )
+    v6 = strstr_0(v5, ">");
+    if ( v6 )
     {
-      v12 = v11 + 1;
-      v13 = strstr_0(v11 + 1, "</");
-      if ( v13 )
+      v7 = v6 + 1;
+      v8 = strstr_0(v6 + 1, "</");
+      if ( v8 )
       {
-        v14 = (_DWORD)v13 - (_DWORD)v12;
-        v15 = v14;
-        if ( !v14 )
-          v12 = NULL;
-        if ( !v14 )
-          v15 = 0;
-        if ( v14 )
+        v9 = (_DWORD)v8 - (_DWORD)v7;
+        v10 = v9;
+        if ( !v9 )
+          v7 = NULL;
+        if ( !v9 )
+          v10 = 0;
+        if ( v9 )
         {
-          if ( (unsigned int)(v15 - 1) > 0x14 )
+          if ( (unsigned int)(v10 - 1) > 0x14 )
             return 0;
-          v16 = (unsigned int)(v15 + 1);
-          bdHandleAssert(v12 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-          v17 = -1i64;
+          v11 = (unsigned int)(v10 + 1);
+          bdHandleAssert(v7 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+          v12 = -1i64;
           do
-            ++v17;
-          while ( v12[v17] );
-          if ( v16 )
+            ++v12;
+          while ( v7[v12] );
+          if ( v11 )
           {
-            if ( v17 >= v16 - 1 )
-              v17 = v16 - 1;
-            memcpy_0(addr, v12, v17);
-            addr[v17] = 0;
+            if ( v12 >= v11 - 1 )
+              v12 = v11 - 1;
+            memcpy_0(addr, v7, v12);
+            addr[v12] = 0;
           }
-          bdSockAddr::set(_RBP, addr);
+          bdSockAddr::set(externalAddress, addr);
           bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractExternalAddress", 0x442u, "External address on device determined to be: %s", addr);
         }
       }
@@ -806,43 +739,33 @@ bdUPnPDevice::extractMappingOwner
 */
 char bdUPnPDevice::extractMappingOwner(bdUPnPDevice *this, bdSockAddr *owner, char *addrLoc, unsigned int addrLen)
 {
-  __int64 v12; 
-  size_t v13; 
+  bdSockAddr *v7; 
+  __int64 v8; 
+  size_t v9; 
   bdSockAddr other; 
   char addr[24]; 
 
-  _RBP = owner;
   bdSockAddr::bdSockAddr(&other);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbp+60h], ymm1
-  }
+  *owner = *v7;
   if ( addrLen - 1 > 0x14 )
     return 0;
-  v12 = addrLen + 1;
+  v8 = addrLen + 1;
   bdHandleAssert(addrLoc != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-  v13 = -1i64;
+  v9 = -1i64;
   do
-    ++v13;
-  while ( addrLoc[v13] );
-  if ( v12 )
+    ++v9;
+  while ( addrLoc[v9] );
+  if ( v8 )
   {
-    if ( v13 >= v12 - 1 )
-      v13 = v12 - 1;
-    memcpy_0(addr, addrLoc, v13);
-    addr[v13] = 0;
+    if ( v9 >= v8 - 1 )
+      v9 = v8 - 1;
+    memcpy_0(addr, addrLoc, v9);
+    addr[v9] = 0;
   }
   bdSockAddr::bdSockAddr(&other, addr);
   if ( !bdSockAddr::isValid(&other) )
     return 0;
-  bdSockAddr::set(_RBP, &other);
+  bdSockAddr::set(owner, &other);
   return 1;
 }
 
@@ -978,92 +901,88 @@ bdUPnPDevice::extractURLBase
 */
 char bdUPnPDevice::extractURLBase(bdUPnPDevice *this, char **baseLoc, unsigned int *baseLen)
 {
+  char *v6; 
   char *v7; 
-  char *v8; 
-  const char *v9; 
-  char *v10; 
-  unsigned int v11; 
-  __int64 v12; 
-  char *v13; 
-  const char *v14; 
-  size_t v15; 
-  __int64 v16; 
-  const char *v17; 
-  char *v18; 
-  unsigned int v19; 
-  __int64 v20; 
+  const char *v8; 
+  char *v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  char *v12; 
+  const char *v13; 
+  size_t v14; 
+  __int64 v15; 
+  const char *v16; 
+  char *v17; 
+  unsigned int v18; 
+  __int64 v19; 
   char SubStr[8]; 
-  char v23; 
+  char v22; 
   char socketAddress[24]; 
 
   *baseLoc = NULL;
   *baseLen = 0;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr cs:aUrlbase; "<URLBase"
-    vmovsd  qword ptr [rsp+0A8h+SubStr], xmm0
-  }
-  v23 = aUrlbase[8];
-  v7 = strstr_0(this->m_readBuffer, SubStr);
+  *(double *)SubStr = *(double *)"<URLBase";
+  v22 = aUrlbase[8];
+  v6 = strstr_0(this->m_readBuffer, SubStr);
+  if ( !v6 )
+    return 1;
+  v7 = strstr_0(v6, ">");
   if ( !v7 )
     return 1;
-  v8 = strstr_0(v7, ">");
-  if ( !v8 )
-    return 1;
-  v9 = v8 + 1;
-  v10 = strstr_0(v8 + 1, "</");
-  if ( !v10 )
+  v8 = v7 + 1;
+  v9 = strstr_0(v7 + 1, "</");
+  if ( !v9 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractTag", 0x2EBu, "Tag %s is improperly formatted", SubStr);
     return 1;
   }
-  v11 = (_DWORD)v10 - (_DWORD)v9;
-  v12 = v11;
-  if ( !v11 )
-    v9 = NULL;
-  if ( !v11 )
-    v12 = 0i64;
-  if ( !v11 )
+  v10 = (_DWORD)v9 - (_DWORD)v8;
+  v11 = v10;
+  if ( !v10 )
+    v8 = NULL;
+  if ( !v10 )
+    v11 = 0i64;
+  if ( !v10 )
     return 1;
-  v13 = strstr_0(v9, "http:
-  if ( v13 == v9 )
+  v12 = strstr_0(v8, "http:
+  if ( v12 == v8 )
   {
-    v14 = &v9[v12];
+    v13 = &v8[v11];
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+    v14 = -1i64;
     v15 = -1i64;
-    v16 = -1i64;
     do
-      ++v16;
-    while ( aHttp[v16] );
-    v17 = &v13[v16];
-    v18 = strstr_0(v17, "/");
-    if ( v18 >= v14 )
+      ++v15;
+    while ( aHttp[v15] );
+    v16 = &v12[v15];
+    v17 = strstr_0(v16, "/");
+    if ( v17 >= v13 )
     {
-      LODWORD(v18) = (_DWORD)v14;
+      LODWORD(v17) = (_DWORD)v13;
     }
     else
     {
-      *baseLoc = v18;
-      *baseLen = (_DWORD)v14 - (_DWORD)v18;
+      *baseLoc = v17;
+      *baseLen = (_DWORD)v13 - (_DWORD)v17;
     }
-    v19 = (_DWORD)v18 - (_DWORD)v17;
-    if ( v19 >= 0x16 )
+    v18 = (_DWORD)v17 - (_DWORD)v16;
+    if ( v18 >= 0x16 )
     {
       return 0;
     }
     else
     {
-      v20 = v19 + 1;
-      bdHandleAssert(v17 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+      v19 = v18 + 1;
+      bdHandleAssert(v16 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
       do
-        ++v15;
-      while ( v17[v15] );
-      if ( v20 )
+        ++v14;
+      while ( v16[v14] );
+      if ( v19 )
       {
-        if ( v15 >= v20 - 1 )
-          v15 = v20 - 1;
-        memcpy_0(socketAddress, v17, v15);
-        socketAddress[v15] = 0;
+        if ( v14 >= v19 - 1 )
+          v14 = v19 - 1;
+        memcpy_0(socketAddress, v16, v14);
+        socketAddress[v14] = 0;
       }
       bdAddr::set(&this->m_deviceAddr, socketAddress);
       return 1;
@@ -1162,9 +1081,8 @@ bdUPnPDevice::init
 */
 char bdUPnPDevice::init(bdUPnPDevice *this, const bdUPnPConfig *config, bdArray<bdSockAddr> *localAddrs, const bdAddr *deviceAddress, const char *const fetchLocation, const unsigned int fetchLocationLength, const unsigned __int16 port)
 {
-  bdUPnPDevice *v7; 
+  __int128 v8; 
 
-  v7 = this;
   if ( this->m_state )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::init", 0x42u, "Cannot initialize class unless it is in the uninitialized state.");
@@ -1172,55 +1090,28 @@ char bdUPnPDevice::init(bdUPnPDevice *this, const bdUPnPConfig *config, bdArray<
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups ymmword ptr [rcx+10h], ymm0
-      vmovups ymm1, ymmword ptr [r9+20h]
-      vmovups ymmword ptr [rcx+30h], ymm1
-      vmovups ymm0, ymmword ptr [r9+40h]
-      vmovups ymmword ptr [rcx+50h], ymm0
-      vmovups ymm1, ymmword ptr [r9+60h]
-      vmovups ymmword ptr [rcx+70h], ymm1
-      vmovups xmm0, xmmword ptr [r9+80h]
-      vmovups xmmword ptr [rcx+90h], xmm0
-      vmovsd  xmm1, qword ptr [r9+90h]
-      vmovsd  qword ptr [rcx+0A0h], xmm1
-    }
+    this->m_deviceAddr = *deviceAddress;
     this->m_gamePort = port;
     this->m_externalPort = port;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx+148h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+10h]
-      vmovups xmmword ptr [rcx+158h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rcx+168h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+30h]
-      vmovups xmmword ptr [rcx+178h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+40h]
-      vmovups xmmword ptr [rcx+188h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+50h]
-      vmovups xmmword ptr [rcx+198h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+60h]
-      vmovups xmmword ptr [rcx+1A8h], xmm0
-      vmovups xmm0, xmmword ptr [rdx+70h]
-      vmovups xmmword ptr [rcx+1B8h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+80h]
-      vmovups xmmword ptr [rcx+1C8h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+90h]
-      vmovups xmmword ptr [rcx+1D8h], xmm0
-      vmovups xmm1, xmmword ptr [rdx+0A0h]
-    }
+    *(_OWORD *)&this->m_config.m_discoveryTimeout = *(_OWORD *)&config->m_discoveryTimeout;
+    *(_OWORD *)&this->m_config.m_discoveryRetries = *(_OWORD *)&config->m_discoveryRetries;
+    *(_OWORD *)&this->m_config.m_disabled = *(_OWORD *)&config->m_disabled;
+    this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr.sin6_addr = config->m_gatewayAddr.inUn.m_ipv6Sockaddr.sin6_addr;
+    *(_OWORD *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr.sin6_scope_id = *(_OWORD *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr.sin6_scope_id;
+    *(_OWORD *)((char *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 40) = *(_OWORD *)((char *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 40);
+    *(_OWORD *)(&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 2) = *(_OWORD *)(&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 2);
+    *(_OWORD *)((char *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 72) = *(_OWORD *)((char *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 72);
+    *(_OWORD *)((char *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 88) = *(_OWORD *)((char *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 88);
+    *(_OWORD *)((char *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 104) = *(_OWORD *)((char *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 104);
+    v8 = *(_OWORD *)((char *)&config->m_gatewayAddr.inUn.m_ipv6Sockaddr + 120);
     this->m_localAddrs = localAddrs;
-    __asm { vmovups xmmword ptr [rcx+1E8h], xmm1 }
+    *(_OWORD *)((char *)&this->m_config.m_gatewayAddr.inUn.m_ipv6Sockaddr + 120) = v8;
     bdSnprintf(this->m_fetchLocation, fetchLocationLength + 1, fetchLocation);
-    v7->m_state = BD_UPNP_DEVICE_INITIALISED;
-    v7->m_portStatus = BD_UPNP_PORT_STATUS_UNKNOWN;
-    v7->m_shutdownRequested = 0;
-    if ( bdStreamSocket::isConnected(&v7->m_streamSocket) )
-      v7->m_streamSocket.close(&v7->m_streamSocket);
+    this->m_state = BD_UPNP_DEVICE_INITIALISED;
+    this->m_portStatus = BD_UPNP_PORT_STATUS_UNKNOWN;
+    this->m_shutdownRequested = 0;
+    if ( bdStreamSocket::isConnected(&this->m_streamSocket) )
+      this->m_streamSocket.close(&this->m_streamSocket);
     return 1;
   }
 }
@@ -1391,78 +1282,65 @@ bool bdUPnPDevice::parseGetExternalIPResponse(bdUPnPDevice *this)
 {
   char *v2; 
   bool v3; 
-  char *v10; 
-  char *v11; 
-  _BYTE *v12; 
-  char *v13; 
-  int v14; 
-  int v15; 
-  __int64 v16; 
-  size_t v17; 
-  bdSockAddr v23; 
-  bdSockAddr v24; 
-  char SubStr[16]; 
-  char v26[8]; 
+  bdSockAddr *v4; 
+  char *v5; 
+  char *v6; 
+  _BYTE *v7; 
+  char *v8; 
+  int v9; 
+  int v10; 
+  __int64 v11; 
+  size_t v12; 
+  __m256i v14; 
+  __m256i v15; 
+  __m256i v16; 
+  bdSockAddr v17; 
+  bdSockAddr v18; 
+  char SubStr[24]; 
   char addr[24]; 
 
-  _RSI = this;
-  bdSockAddr::bdSockAddr(&v23);
-  v2 = strstr_0(_RSI->m_readBuffer, "200 OK");
+  bdSockAddr::bdSockAddr(&v17);
+  v2 = strstr_0(this->m_readBuffer, "200 OK");
   v3 = v2 != NULL;
   if ( !v2 )
     return v3;
-  bdSockAddr::bdSockAddr(&v24);
-  __asm
+  bdSockAddr::bdSockAddr(&v18);
+  v17 = *v4;
+  strcpy(SubStr, "<NewExternalIPAddress");
+  v5 = strstr_0(this->m_readBuffer, SubStr);
+  if ( v5 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+188h+var_148.inUn], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+188h+var_148.inUn+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsp+188h+var_148.inUn+40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups xmm0, xmmword ptr cs:aNewexternalipa; "<NewExternalIPAddress"
-  }
-  strcpy(v26, "dress");
-  __asm
-  {
-    vmovups ymmword ptr [rsp+188h+var_148.inUn+60h], ymm1
-    vmovups xmmword ptr [rsp+188h+SubStr], xmm0
-  }
-  v10 = strstr_0(_RSI->m_readBuffer, SubStr);
-  if ( v10 )
-  {
-    v11 = strstr_0(v10, ">");
-    if ( v11 )
+    v6 = strstr_0(v5, ">");
+    if ( v6 )
     {
-      v12 = v11 + 1;
-      v13 = strstr_0(v11 + 1, "</");
-      if ( v13 )
+      v7 = v6 + 1;
+      v8 = strstr_0(v6 + 1, "</");
+      if ( v8 )
       {
-        v14 = (_DWORD)v13 - (_DWORD)v12;
-        v15 = v14;
-        if ( !v14 )
-          v12 = NULL;
-        if ( !v14 )
-          v15 = 0;
-        if ( v14 )
+        v9 = (_DWORD)v8 - (_DWORD)v7;
+        v10 = v9;
+        if ( !v9 )
+          v7 = NULL;
+        if ( !v9 )
+          v10 = 0;
+        if ( v9 )
         {
-          if ( (unsigned int)(v15 - 1) > 0x14 )
+          if ( (unsigned int)(v10 - 1) > 0x14 )
             return 0;
-          v16 = (unsigned int)(v15 + 1);
-          bdHandleAssert(v12 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-          v17 = -1i64;
+          v11 = (unsigned int)(v10 + 1);
+          bdHandleAssert(v7 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+          v12 = -1i64;
           do
-            ++v17;
-          while ( v12[v17] );
-          if ( v16 )
+            ++v12;
+          while ( v7[v12] );
+          if ( v11 )
           {
-            if ( v17 >= v16 - 1 )
-              v17 = v16 - 1;
-            memcpy_0(addr, v12, v17);
-            addr[v17] = 0;
+            if ( v12 >= v11 - 1 )
+              v12 = v11 - 1;
+            memcpy_0(addr, v7, v12);
+            addr[v12] = 0;
           }
-          bdSockAddr::set(&v23, addr);
+          bdSockAddr::set(&v17, addr);
           bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractExternalAddress", 0x442u, "External address on device determined to be: %s", addr);
           v3 = 1;
           goto LABEL_22;
@@ -1476,17 +1354,13 @@ bool bdUPnPDevice::parseGetExternalIPResponse(bdUPnPDevice *this)
   }
   v3 = 1;
 LABEL_22:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+188h+var_148.inUn]
-    vmovups ymm1, ymmword ptr [rsp+188h+var_148.inUn+20h]
-    vmovups ymmword ptr [rsi+200h], ymm0
-    vmovups ymm0, ymmword ptr [rsp+188h+var_148.inUn+40h]
-    vmovups ymmword ptr [rsi+220h], ymm1
-    vmovups ymm1, ymmword ptr [rsp+188h+var_148.inUn+60h]
-    vmovups ymmword ptr [rsi+240h], ymm0
-    vmovups ymmword ptr [rsi+260h], ymm1
-  }
+  v14 = *((__m256i *)&v17.inUn.m_ipv6Sockaddr + 1);
+  *(__m256i *)&this->m_externalDeviceAddr.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&v17.inUn.m_sockaddrStorage.ss_family;
+  v15 = *((__m256i *)&v17.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&this->m_externalDeviceAddr.inUn.m_ipv6Sockaddr + 1) = v14;
+  v16 = *((__m256i *)&v17.inUn.m_ipv6Sockaddr + 3);
+  *((__m256i *)&this->m_externalDeviceAddr.inUn.m_ipv6Sockaddr + 2) = v15;
+  *((__m256i *)&this->m_externalDeviceAddr.inUn.m_ipv6Sockaddr + 3) = v16;
   return v3;
 }
 
@@ -1498,97 +1372,87 @@ bdUPnPDevice::parseGetMappingsResponse
 char bdUPnPDevice::parseGetMappingsResponse(bdUPnPDevice *this, bool *mappingExists, bool *mappingIsMine)
 {
   unsigned int v3; 
-  _BYTE *v8; 
-  int v9; 
+  _BYTE *v7; 
+  int v8; 
+  char *v9; 
   char *v10; 
   char *v11; 
   char *v12; 
-  char *v13; 
-  int v14; 
-  char v15; 
-  __int64 v21; 
-  size_t v22; 
+  int v13; 
+  char v14; 
+  bdSockAddr *v15; 
+  __int64 v16; 
+  size_t v17; 
   bdArray<bdSockAddr> *m_localAddrs; 
   bdSockAddr other; 
-  bdSockAddr v32; 
-  bdSockAddr v33; 
+  bdSockAddr v21; 
+  bdSockAddr v22; 
   char SubStr[16]; 
-  __int16 v35; 
-  char v36; 
+  __int16 v24; 
+  char v25; 
   char addr[24]; 
 
   v3 = 0;
-  __asm { vmovups xmm0, xmmword ptr cs:aNewinternalcli; "<NewInternalClient" }
-  v35 = *(_WORD *)"nt";
+  v24 = *(_WORD *)"nt";
   *mappingExists = 0;
-  v36 = aNewinternalcli[18];
+  v25 = aNewinternalcli[18];
   *mappingIsMine = 0;
-  __asm { vmovups xmmword ptr [rbp+130h+SubStr], xmm0 }
-  v8 = NULL;
-  v9 = 0;
-  v10 = strstr_0(this->m_readBuffer, "200 OK");
-  *mappingExists = v10 != NULL;
-  if ( !v10 )
+  *(_OWORD *)SubStr = *(_OWORD *)"<NewInternalClient";
+  v7 = NULL;
+  v8 = 0;
+  v9 = strstr_0(this->m_readBuffer, "200 OK");
+  *mappingExists = v9 != NULL;
+  if ( !v9 )
     goto LABEL_10;
-  v11 = strstr_0(this->m_readBuffer, SubStr);
-  if ( !v11 || (v12 = strstr_0(v11, ">")) == NULL )
+  v10 = strstr_0(this->m_readBuffer, SubStr);
+  if ( !v10 || (v11 = strstr_0(v10, ">")) == NULL )
   {
 LABEL_31:
     *mappingExists = 0;
     return 1;
   }
-  v8 = v12 + 1;
-  v13 = strstr_0(v12 + 1, "</");
-  if ( !v13 )
+  v7 = v11 + 1;
+  v12 = strstr_0(v11 + 1, "</");
+  if ( !v12 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractTag", 0x2EBu, "Tag %s is improperly formatted", SubStr);
     goto LABEL_31;
   }
-  v9 = (_DWORD)v13 - (_DWORD)v8;
-  v14 = (_DWORD)v13 - (_DWORD)v8;
-  if ( (_DWORD)v13 == (_DWORD)v8 )
-    v8 = NULL;
-  if ( !v9 )
-    v9 = 0;
-  if ( !v14 )
+  v8 = (_DWORD)v12 - (_DWORD)v7;
+  v13 = (_DWORD)v12 - (_DWORD)v7;
+  if ( (_DWORD)v12 == (_DWORD)v7 )
+    v7 = NULL;
+  if ( !v8 )
+    v8 = 0;
+  if ( !v13 )
     goto LABEL_31;
 LABEL_10:
   if ( !*mappingExists )
     return 1;
-  bdSockAddr::bdSockAddr(&v32);
-  v15 = 0;
-  bdSockAddr::bdSockAddr(&v33);
-  __asm
+  bdSockAddr::bdSockAddr(&v21);
+  v14 = 0;
+  bdSockAddr::bdSockAddr(&v22);
+  v21 = *v15;
+  if ( (unsigned int)(v8 - 1) <= 0x14 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+130h+var_170.inUn], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+130h+var_170.inUn+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+130h+var_170.inUn+40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbp+130h+var_170.inUn+60h], ymm1
-  }
-  if ( (unsigned int)(v9 - 1) <= 0x14 )
-  {
-    v21 = (unsigned int)(v9 + 1);
-    bdHandleAssert(v8 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-    v22 = -1i64;
+    v16 = (unsigned int)(v8 + 1);
+    bdHandleAssert(v7 != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+    v17 = -1i64;
     do
-      ++v22;
-    while ( v8[v22] );
-    if ( v21 )
+      ++v17;
+    while ( v7[v17] );
+    if ( v16 )
     {
-      if ( v22 >= v21 - 1 )
-        v22 = v21 - 1;
-      memcpy_0(addr, v8, v22);
-      addr[v22] = 0;
+      if ( v17 >= v16 - 1 )
+        v17 = v16 - 1;
+      memcpy_0(addr, v7, v17);
+      addr[v17] = 0;
     }
     bdSockAddr::bdSockAddr(&other, addr);
     if ( bdSockAddr::isValid(&other) )
     {
-      bdSockAddr::set(&v32, &other);
-      v15 = 1;
+      bdSockAddr::set(&v21, &other);
+      v14 = 1;
     }
   }
   if ( this->m_localAddrs->m_size )
@@ -1598,22 +1462,8 @@ LABEL_10:
       bdSockAddr::bdSockAddr(&other);
       m_localAddrs = this->m_localAddrs;
       if ( v3 < m_localAddrs->m_size )
-      {
-        _RAX = m_localAddrs->m_data;
-        _RCX = (unsigned __int64)v3 << 7;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+rax]
-          vmovups ymmword ptr [rsp+230h+other.inUn], ymm0
-          vmovups ymm1, ymmword ptr [rcx+rax+20h]
-          vmovups ymmword ptr [rsp+230h+other.inUn+20h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+rax+40h]
-          vmovups ymmword ptr [rbp+130h+other.inUn+40h], ymm0
-          vmovups ymm1, ymmword ptr [rcx+rax+60h]
-          vmovups ymmword ptr [rbp+130h+other.inUn+60h], ymm1
-        }
-      }
-      if ( bdSockAddr::compare(&other, &v32, 0) )
+        other = m_localAddrs->m_data[(unsigned __int64)v3];
+      if ( bdSockAddr::compare(&other, &v21, 0) )
         *mappingIsMine = 1;
       if ( ++v3 >= this->m_localAddrs->m_size )
         goto LABEL_27;
@@ -1624,11 +1474,11 @@ LABEL_10:
 LABEL_27:
     if ( !*mappingIsMine )
     {
-      bdSockAddr::toString(&v32, addr, 0x16ui64);
+      bdSockAddr::toString(&v21, addr, 0x16ui64);
       bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::parseGetMappingsResponse", 0x48Bu, "Port Mapping collision found, owned by %s.", addr);
     }
   }
-  return v15;
+  return v14;
 }
 
 /*
@@ -1721,7 +1571,7 @@ bdUPnPDevice::pump
 */
 void bdUPnPDevice::pump(bdUPnPDevice *this)
 {
-  int v2; 
+  bdUPnPDevice::bdUPnPDeviceState v2; 
   bdUPnPDevice::bdUPnPDeviceState m_state; 
   int v4; 
   __int64 v5; 
@@ -1729,32 +1579,32 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
   bool v7; 
   bdArray<bdSockAddr> *m_localAddrs; 
   unsigned int m_size; 
-  bool v15; 
-  bool v16; 
-  char *v17; 
-  char *v18; 
-  const void *v19; 
-  char *v20; 
-  unsigned int v21; 
-  unsigned int v22; 
-  size_t v23; 
-  int v24; 
+  __m256i *m_data; 
+  bool v11; 
+  bool v12; 
+  char *v13; 
+  char *v14; 
+  const void *v15; 
+  char *v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  size_t v19; 
+  int v20; 
   unsigned int m_mappingRetries; 
   unsigned int m_mappingAttempts; 
-  bdTrulyRandomImpl *v27; 
-  unsigned int v28; 
-  unsigned int v29; 
+  bdTrulyRandomImpl *v23; 
+  unsigned int v24; 
+  unsigned int v25; 
   bdTrulyRandomImpl *Instance; 
-  bool v31; 
-  __int64 v32; 
+  bool v27; 
+  __int64 v28; 
   bool isComplete[4]; 
-  char v34[4]; 
-  char v35; 
+  char v30[4]; 
+  char v31; 
   char str[32]; 
   char buf[112]; 
 
-  _RDI = this;
-  v2 = 14;
+  v2 = BD_UPNP_DEVICE_SHUTTING_DOWN;
   if ( this->m_shutdownRequested )
   {
     this->m_shutdownRequested = 0;
@@ -1778,15 +1628,15 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
       do
         ++v6;
       while ( s_getRequest[v6] );
-      bdHandleAssert(_RDI->m_fetchLocation != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+      bdHandleAssert(this->m_fetchLocation != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
       do
         ++v5;
-      while ( _RDI->m_fetchLocation[v5] );
+      while ( this->m_fetchLocation[v5] );
       bdHandleAssert((unsigned int)(v6 + v4 + v5) < 0x800, "totalRequestSize < BD_UPNP_MAX_DEVICE_REQUEST_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::prepareGetDescriptionRequest", 0x2FAu, "Request is too large for buffer");
-      _RDI->m_requestSize = bdSnprintf(_RDI->m_requestBuffer, 0x800ui64, "GET %s HTTP/1.1\r\nConnection: close\r\nHost: %s\r\n\r\n", _RDI->m_fetchLocation, str);
-      if ( bdUPnPDevice::connectToDevice(_RDI) )
+      this->m_requestSize = bdSnprintf(this->m_requestBuffer, 0x800ui64, "GET %s HTTP/1.1\r\nConnection: close\r\nHost: %s\r\n\r\n", this->m_fetchLocation, str);
+      if ( bdUPnPDevice::connectToDevice(this) )
       {
-        v2 = 2;
+        v2 = BD_UPNP_DEVICE_SENDING_DESCRIPTION_REQ;
         goto LABEL_98;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x60u, "Failed to connect to device.");
@@ -1798,24 +1648,17 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
       {
         if ( v7 )
         {
-          m_localAddrs = _RDI->m_localAddrs;
+          m_localAddrs = this->m_localAddrs;
           m_size = m_localAddrs->m_size;
           if ( m_size )
           {
             bdHandleAssert(m_size != 0, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-            _RAX = m_localAddrs->m_data;
-            v2 = 3;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rdi+0B0h], ymm0
-              vmovups ymm1, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rdi+0D0h], ymm1
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rdi+0F0h], ymm0
-              vmovups ymm1, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rdi+110h], ymm1
-            }
+            m_data = (__m256i *)m_localAddrs->m_data;
+            v2 = BD_UPNP_DEVICE_GETTING_DESCRIPTION;
+            *(__m256i *)&this->m_localConnectedAddr.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&m_localAddrs->m_data->inUn.m_sockaddrStorage.ss_family;
+            *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 1) = m_data[1];
+            *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 2) = m_data[2];
+            *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 3) = m_data[3];
             goto LABEL_98;
           }
           bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x72u, "Failed to set the local addr.");
@@ -1831,35 +1674,35 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
     case BD_UPNP_DEVICE_GETTING_DESCRIPTION:
       if ( bdUPnPDevice::pumpReceive(this) )
         return;
-      if ( bdUPnPDevice::parseDescriptionResponse(_RDI) )
+      if ( bdUPnPDevice::parseDescriptionResponse(this) )
       {
-        _RDI->m_state = BD_UPNP_DEVICE_GOT_DESCRIPTION;
+        this->m_state = BD_UPNP_DEVICE_GOT_DESCRIPTION;
         return;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x88u, "Failed to parse the device description.");
       goto LABEL_97;
     case BD_UPNP_DEVICE_GOT_DESCRIPTION:
       bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x90u, "Successfully received the device description");
-      bdUPnPDevice::genUPnPCommand(_RDI, "GetExternalIPAddress", "\r\n");
-      if ( bdUPnPDevice::connectToDevice(_RDI) )
+      bdUPnPDevice::genUPnPCommand(this, "GetExternalIPAddress", "\r\n");
+      if ( bdUPnPDevice::connectToDevice(this) )
       {
-        v2 = 5;
+        v2 = BD_UPNP_DEVICE_SENDING_IP_REQ;
         goto LABEL_98;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x99u, "Failed to connect to device.");
       goto LABEL_97;
     case BD_UPNP_DEVICE_SENDING_IP_REQ:
       isComplete[0] = 0;
-      v15 = bdUPnPDevice::pumpSendRequest(this, isComplete);
+      v11 = bdUPnPDevice::pumpSendRequest(this, isComplete);
       if ( isComplete[0] )
       {
-        if ( v15 )
+        if ( v11 )
         {
-          _RDI->m_state = BD_UPNP_DEVICE_DISCOVERING_IP;
+          this->m_state = BD_UPNP_DEVICE_DISCOVERING_IP;
           return;
         }
       }
-      else if ( v15 )
+      else if ( v11 )
       {
         return;
       }
@@ -1868,9 +1711,9 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
     case BD_UPNP_DEVICE_DISCOVERING_IP:
       if ( bdUPnPDevice::pumpReceive(this) )
         return;
-      if ( bdUPnPDevice::parseGetExternalIPResponse(_RDI) )
+      if ( bdUPnPDevice::parseGetExternalIPResponse(this) )
       {
-        _RDI->m_state = BD_UPNP_DEVICE_DISCOVERED_IP;
+        this->m_state = BD_UPNP_DEVICE_DISCOVERED_IP;
         return;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xB9u, "Failed to parse the external IP response.");
@@ -1879,20 +1722,20 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
       if ( this->m_config.m_runMode == BD_UPNP_DO_PORT_MAPPING )
         goto LABEL_65;
       bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xCAu, "UPnP device configuration complete");
-      v2 = 15;
+      v2 = BD_UPNP_DEVICE_FINISHED;
       goto LABEL_98;
     case BD_UPNP_DEVICE_SENDING_MAPPING_REQ:
       isComplete[0] = 0;
-      v16 = bdUPnPDevice::pumpSendRequest(this, isComplete);
+      v12 = bdUPnPDevice::pumpSendRequest(this, isComplete);
       if ( isComplete[0] )
       {
-        if ( v16 )
+        if ( v12 )
         {
-          _RDI->m_state = BD_UPNP_DEVICE_MAPPING_PORT;
+          this->m_state = BD_UPNP_DEVICE_MAPPING_PORT;
           return;
         }
       }
-      else if ( v16 )
+      else if ( v12 )
       {
         return;
       }
@@ -1901,26 +1744,26 @@ void bdUPnPDevice::pump(bdUPnPDevice *this)
     case BD_UPNP_DEVICE_MAPPING_PORT:
       if ( bdUPnPDevice::pumpReceive(this) )
         return;
-      if ( strstr_0(_RDI->m_readBuffer, "200 OK") )
+      if ( strstr_0(this->m_readBuffer, "200 OK") )
       {
-        _RDI->m_state = BD_UPNP_DEVICE_MAPPED_PORT;
-        _RDI->m_portStatus = BD_UPNP_PORT_MAPPED;
+        this->m_state = BD_UPNP_DEVICE_MAPPED_PORT;
+        this->m_portStatus = BD_UPNP_PORT_MAPPED;
         return;
       }
-      if ( !strstr_0(_RDI->m_readBuffer, "UPnPError") )
+      if ( !strstr_0(this->m_readBuffer, "UPnPError") )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractUPnPError", 0x290u, "Attempted to parse error code from successful response");
         goto LABEL_73;
       }
-      v17 = strstr_0(_RDI->m_readBuffer, "<errorCode");
-      if ( !v17 )
+      v13 = strstr_0(this->m_readBuffer, "<errorCode");
+      if ( !v13 )
         goto LABEL_71;
-      v18 = strstr_0(v17, ">");
-      if ( !v18 )
+      v14 = strstr_0(v13, ">");
+      if ( !v14 )
         goto LABEL_71;
-      v19 = v18 + 1;
-      v20 = strstr_0(v18 + 1, "</");
-      if ( !v20 )
+      v15 = v14 + 1;
+      v16 = strstr_0(v14 + 1, "</");
+      if ( !v16 )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::extractTag", 0x2EBu, "Tag %s is improperly formatted", "<errorCode");
 LABEL_71:
@@ -1929,84 +1772,84 @@ LABEL_73:
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x10Au, "Failed to map port.");
         goto LABEL_97;
       }
-      v21 = (_DWORD)v20 - (_DWORD)v19;
-      v22 = v21;
-      if ( !v21 )
-        v22 = 0;
-      if ( !v21 )
-        v19 = NULL;
-      if ( !v21 )
+      v17 = (_DWORD)v16 - (_DWORD)v15;
+      v18 = v17;
+      if ( !v17 )
+        v18 = 0;
+      if ( !v17 )
+        v15 = NULL;
+      if ( !v17 )
         goto LABEL_71;
-      v23 = 4i64;
-      *(_DWORD *)v34 = 0;
-      v35 = 0;
-      if ( v22 < 4 )
-        v23 = v22;
-      memcpy_0(v34, v19, v23);
-      v24 = atoi(v34);
-      if ( v24 == 718 )
+      v19 = 4i64;
+      *(_DWORD *)v30 = 0;
+      v31 = 0;
+      if ( v18 < 4 )
+        v19 = v18;
+      memcpy_0(v30, v15, v19);
+      v20 = atoi(v30);
+      if ( v20 == 718 )
       {
-        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xEEu, "UPnP port mapping of external port %d already in use", _RDI->m_externalPort);
-        m_mappingRetries = _RDI->m_config.m_mappingRetries;
-        m_mappingAttempts = _RDI->m_mappingAttempts;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xEEu, "UPnP port mapping of external port %d already in use", this->m_externalPort);
+        m_mappingRetries = this->m_config.m_mappingRetries;
+        m_mappingAttempts = this->m_mappingAttempts;
         if ( m_mappingAttempts >= m_mappingRetries + 1 )
         {
-          LODWORD(v32) = _RDI->m_mappingAttempts;
-          bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xF8u, "Unable to create UPnP port mapping after %d attempts", v32);
+          LODWORD(v28) = this->m_mappingAttempts;
+          bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xF8u, "Unable to create UPnP port mapping after %d attempts", v28);
           goto LABEL_97;
         }
-        if ( _RDI->m_config.m_portSelectionMode == BD_UPNP_PORT_SELECTION_EXPANDING_RANDOM )
+        if ( this->m_config.m_portSelectionMode == BD_UPNP_PORT_SELECTION_EXPANDING_RANDOM )
         {
-          v29 = m_mappingAttempts * _RDI->m_config.m_portPoolSize / m_mappingRetries;
+          v25 = m_mappingAttempts * this->m_config.m_portPoolSize / m_mappingRetries;
           Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
-          v28 = bdTrulyRandomImpl::getRandomUInt(Instance) % v29;
+          v24 = bdTrulyRandomImpl::getRandomUInt(Instance) % v25;
         }
         else
         {
-          if ( _RDI->m_config.m_portSelectionMode != BD_UPNP_PORT_SELECTION_RANDOM )
+          if ( this->m_config.m_portSelectionMode != BD_UPNP_PORT_SELECTION_RANDOM )
           {
-            ++_RDI->m_externalPort;
-            bdUPnPDevice::sendCreatePortMappingRequest(_RDI);
+            ++this->m_externalPort;
+            bdUPnPDevice::sendCreatePortMappingRequest(this);
             return;
           }
-          v27 = bdSingleton<bdTrulyRandomImpl>::getInstance();
-          v28 = bdTrulyRandomImpl::getRandomUInt(v27) % _RDI->m_config.m_portPoolSize;
+          v23 = bdSingleton<bdTrulyRandomImpl>::getInstance();
+          v24 = bdTrulyRandomImpl::getRandomUInt(v23) % this->m_config.m_portPoolSize;
         }
-        _RDI->m_externalPort = v28 + _RDI->m_gamePort;
+        this->m_externalPort = v24 + this->m_gamePort;
 LABEL_65:
-        bdUPnPDevice::sendCreatePortMappingRequest(_RDI);
+        bdUPnPDevice::sendCreatePortMappingRequest(this);
         return;
       }
-      if ( v24 == 724 )
+      if ( v20 == 724 )
         bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0xFFu, "UPnP Device requires same external and interal ports");
       else
-        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x104u, "Unexpected UPnP error code %d", v24);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x104u, "Unexpected UPnP error code %d", v20);
 LABEL_97:
-      v2 = 16;
+      v2 = BD_UPNP_DEVICE_FAILED;
 LABEL_98:
-      _RDI->m_state = v2;
+      this->m_state = v2;
       return;
     case BD_UPNP_DEVICE_MAPPED_PORT:
       if ( this->m_portStatus == BD_UPNP_PORT_MAPPED )
       {
         bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x115u, "Port successfully mapped. UPnP device configuration complete");
-        v2 = 15;
+        v2 = BD_UPNP_DEVICE_FINISHED;
         goto LABEL_98;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x11Au, "Unexpected port status");
       goto LABEL_97;
     case BD_UPNP_DEVICE_SENDING_UNMAPPING_REQ:
       isComplete[0] = 0;
-      v31 = bdUPnPDevice::pumpSendRequest(this, isComplete);
+      v27 = bdUPnPDevice::pumpSendRequest(this, isComplete);
       if ( isComplete[0] )
       {
-        if ( v31 )
+        if ( v27 )
         {
-          _RDI->m_state = BD_UPNP_DEVICE_UNMAPPING_PORT;
+          this->m_state = BD_UPNP_DEVICE_UNMAPPING_PORT;
           return;
         }
       }
-      else if ( v31 )
+      else if ( v27 )
       {
         return;
       }
@@ -2015,11 +1858,11 @@ LABEL_98:
     case BD_UPNP_DEVICE_UNMAPPING_PORT:
       if ( bdUPnPDevice::pumpReceive(this) )
         return;
-      if ( strstr_0(_RDI->m_readBuffer, "200 OK") )
+      if ( strstr_0(this->m_readBuffer, "200 OK") )
       {
-        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x136u, "Port unmapping successful on port %u", _RDI->m_gamePort);
-        _RDI->m_state = BD_UPNP_DEVICE_UNMAPPED_PORT;
-        _RDI->m_portStatus = BD_UPNP_PORT_NOT_MAPPED;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x136u, "Port unmapping successful on port %u", this->m_gamePort);
+        this->m_state = BD_UPNP_DEVICE_UNMAPPED_PORT;
+        this->m_portStatus = BD_UPNP_PORT_NOT_MAPPED;
         return;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x13Cu, "Failed to unmap port.");
@@ -2034,16 +1877,16 @@ LABEL_98:
       goto LABEL_97;
     case BD_UPNP_DEVICE_SHUTTING_DOWN:
       ((void (__fastcall *)(bdStreamSocket *, __int64))this->m_streamSocket.close)(&this->m_streamSocket, 14i64);
-      if ( *(_QWORD *)&_RDI->m_shutdownType != 0x300000000i64 )
+      if ( *(_QWORD *)&this->m_shutdownType != 0x300000000i64 )
       {
-        bdUPnPDevice::cleanup(_RDI);
+        bdUPnPDevice::cleanup(this);
         return;
       }
-      bdSnprintf(buf, 0x6Eui64, "<NewRemoteHost></NewRemoteHost>\r\n<NewExternalPort>%d</NewExternalPort>\r\n<NewProtocol>UDP</NewProtocol>\r\n", _RDI->m_gamePort);
-      bdUPnPDevice::genUPnPCommand(_RDI, "DeletePortMapping", buf);
-      if ( bdUPnPDevice::connectToDevice(_RDI) )
+      bdSnprintf(buf, 0x6Eui64, "<NewRemoteHost></NewRemoteHost>\r\n<NewExternalPort>%d</NewExternalPort>\r\n<NewProtocol>UDP</NewProtocol>\r\n", this->m_gamePort);
+      bdUPnPDevice::genUPnPCommand(this, "DeletePortMapping", buf);
+      if ( bdUPnPDevice::connectToDevice(this) )
       {
-        v2 = 11;
+        v2 = BD_UPNP_DEVICE_SENDING_UNMAPPING_REQ;
         goto LABEL_98;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x15Eu, "Failed to connect to device.");
@@ -2052,7 +1895,7 @@ LABEL_98:
       return;
     case BD_UPNP_DEVICE_FAILED:
       if ( bdStreamSocket::isConnected(&this->m_streamSocket) )
-        _RDI->m_streamSocket.close(&_RDI->m_streamSocket);
+        this->m_streamSocket.close(&this->m_streamSocket);
       return;
     default:
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pump", 0x178u, "Pumping Device in Unknown State");
@@ -2067,36 +1910,33 @@ bdUPnPDevice::pumpReceive
 */
 char bdUPnPDevice::pumpReceive(bdUPnPDevice *this)
 {
-  char v3; 
-  char v4; 
+  double ElapsedTimeInSeconds; 
+  int v3; 
   int v5; 
-  int v7; 
 
-  _RBX = this;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_responseTimer);
-  __asm { vcomiss xmm0, dword ptr [rbx+14Ch] }
-  if ( v3 | v4 )
-  {
-    v5 = bdStreamSocket::recv(&_RBX->m_streamSocket, &_RBX->m_readBuffer[_RBX->m_bytesReceived], 6144 - _RBX->m_bytesReceived);
-    if ( v5 > 0 )
-    {
-      _RBX->m_readBuffer[v5 + _RBX->m_bytesReceived] = 0;
-      _RBX->m_bytesReceived += v5;
-      return 1;
-    }
-    if ( v5 == -2 )
-      return 1;
-    if ( v5 )
-    {
-      v7 = v5;
-      bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpReceive", 0x236u, "Error recieving from socket %d", v7);
-    }
-  }
-  else
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_responseTimer);
+  if ( *(float *)&ElapsedTimeInSeconds > this->m_config.m_responseTimeout )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpReceive", 0x23Bu, "Timed out while getting response from device");
   }
-  _RBX->m_streamSocket.close(&_RBX->m_streamSocket);
+  else
+  {
+    v3 = bdStreamSocket::recv(&this->m_streamSocket, &this->m_readBuffer[this->m_bytesReceived], 6144 - this->m_bytesReceived);
+    if ( v3 > 0 )
+    {
+      this->m_readBuffer[v3 + this->m_bytesReceived] = 0;
+      this->m_bytesReceived += v3;
+      return 1;
+    }
+    if ( v3 == -2 )
+      return 1;
+    if ( v3 )
+    {
+      v5 = v3;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpReceive", 0x236u, "Error recieving from socket %d", v5);
+    }
+  }
+  this->m_streamSocket.close(&this->m_streamSocket);
   return 0;
 }
 
@@ -2107,44 +1947,41 @@ bdUPnPDevice::pumpSendRequest
 */
 char bdUPnPDevice::pumpSendRequest(bdUPnPDevice *this, bool *isComplete)
 {
-  __int64 v5; 
-  int v6; 
-  char v8; 
-  char v9; 
+  __int64 v4; 
+  int v5; 
+  double ElapsedTimeInSeconds; 
 
-  _RBX = this;
   *isComplete = 0;
   if ( bdStreamSocket::isConnected(&this->m_streamSocket) )
   {
-    bdHandleAssert(_RBX->m_requestBuffer != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-    v5 = -1i64;
+    bdHandleAssert(this->m_requestBuffer != NULL, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
+    v4 = -1i64;
     do
-      ++v5;
-    while ( _RBX->m_requestBuffer[v5] );
-    bdHandleAssert((_DWORD)v5 == _RBX->m_requestSize, "requestLen == m_requestSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpSendRequest", 0x206u, "Corrupted Buffer");
-    v6 = bdStreamSocket::send(&_RBX->m_streamSocket, _RBX->m_requestBuffer, _RBX->m_requestSize);
-    if ( v6 > 0 )
+      ++v4;
+    while ( this->m_requestBuffer[v4] );
+    bdHandleAssert((_DWORD)v4 == this->m_requestSize, "requestLen == m_requestSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpSendRequest", 0x206u, "Corrupted Buffer");
+    v5 = bdStreamSocket::send(&this->m_streamSocket, this->m_requestBuffer, this->m_requestSize);
+    if ( v5 > 0 )
     {
-      _RBX->m_bytesReceived = 0;
-      memset_0(_RBX->m_readBuffer, 0, sizeof(_RBX->m_readBuffer));
-      bdStopwatch::reset(&_RBX->m_responseTimer);
-      bdStopwatch::start(&_RBX->m_responseTimer);
+      this->m_bytesReceived = 0;
+      memset_0(this->m_readBuffer, 0, sizeof(this->m_readBuffer));
+      bdStopwatch::reset(&this->m_responseTimer);
+      bdStopwatch::start(&this->m_responseTimer);
       *isComplete = 1;
       return 1;
     }
-    if ( v6 == -2 )
+    if ( v5 == -2 )
       return 1;
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpSendRequest", 0x20Fu, "Error sending to UPnP Device");
   }
   else
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_connectTimer);
-    __asm { vcomiss xmm0, dword ptr [rbx+150h] }
-    if ( v8 | v9 )
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_connectTimer);
+    if ( *(float *)&ElapsedTimeInSeconds <= this->m_config.m_connectTimeout )
       return 1;
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdnet/upnpdevice", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdnet\\bdupnp\\bdupnpdevice.cpp", "bdUPnPDevice::pumpSendRequest", 0x216u, "Timed out while connecting to UPnP device");
   }
-  _RBX->m_streamSocket.close(&_RBX->m_streamSocket);
+  this->m_streamSocket.close(&this->m_streamSocket);
   return 0;
 }
 
@@ -2222,25 +2059,18 @@ char bdUPnPDevice::setLocalConnectedAddr(bdUPnPDevice *this)
 {
   bdArray<bdSockAddr> *m_localAddrs; 
   unsigned int m_size; 
+  __m256i *m_data; 
 
   m_localAddrs = this->m_localAddrs;
-  _RBX = this;
   m_size = m_localAddrs->m_size;
   if ( !m_size )
     return 0;
   bdHandleAssert(m_size != 0, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-  _RAX = m_localAddrs->m_data;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+0B0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+0D0h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbx+0F0h], ymm0
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbx+110h], ymm1
-  }
+  m_data = (__m256i *)m_localAddrs->m_data;
+  *(__m256i *)&this->m_localConnectedAddr.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&m_localAddrs->m_data->inUn.m_sockaddrStorage.ss_family;
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 1) = m_data[1];
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 2) = m_data[2];
+  *((__m256i *)&this->m_localConnectedAddr.inUn.m_ipv6Sockaddr + 3) = m_data[3];
   return 1;
 }
 

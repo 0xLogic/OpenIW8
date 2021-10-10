@@ -87,13 +87,15 @@ void CG_HighPriorityWeapon_Update(const LocalClientNum_t localClientNum)
   cg_t *v3; 
   const Weapon *v4; 
   const dvar_t *v5; 
+  const Weapon *v6; 
   const WeaponCompleteDef *v7; 
   int EquippedWeaponIndex; 
   const char *WeaponName; 
   const WeaponCompleteDef *v10; 
-  const WeaponCompleteDef *v15; 
-  __int64 v16; 
-  __int64 v17; 
+  ClActiveClient *Client; 
+  const WeaponCompleteDef *v12; 
+  __int64 v13; 
+  __int64 v14; 
   char output[1024]; 
 
   v1 = localClientNum;
@@ -102,20 +104,20 @@ void CG_HighPriorityWeapon_Update(const LocalClientNum_t localClientNum)
   v2 = CgWeaponMap::ms_instance[v1];
   if ( (unsigned int)v1 >= cg_t::ms_allocatedCount )
   {
-    LODWORD(v16) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v16, cg_t::ms_allocatedCount) )
+    LODWORD(v13) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v13, cg_t::ms_allocatedCount) )
       __debugbreak();
   }
   if ( !cg_t::ms_cgArray[v1] )
   {
-    LODWORD(v17) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v17) )
+    LODWORD(v14) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v14) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v17) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v17) )
+    LODWORD(v14) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v14) )
       __debugbreak();
   }
   v3 = cg_t::ms_cgArray[v1];
@@ -125,51 +127,42 @@ void CG_HighPriorityWeapon_Update(const LocalClientNum_t localClientNum)
   {
     v4 = BG_HighPriorityWeapon_Get(v2, &v3->predictedPlayerState);
     v5 = DVARBOOL_bg_highPriorityWeaponDebugPrint;
-    _RBX = v4;
+    v6 = v4;
     if ( !DVARBOOL_bg_highPriorityWeaponDebugPrint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_highPriorityWeaponDebugPrint") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v5);
     if ( v5->current.enabled )
     {
-      v7 = BG_WeaponCompleteDef(_RBX, 0);
+      v7 = BG_WeaponCompleteDef(v6, 0);
       Com_Printf(17, "HighPriorityDebug - CG_HighPriorityWeapon_Update: Attempting CG_SelectWeapon with %s\n", v7->szInternalName);
     }
     if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1089, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( v3 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1090, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( !_RBX->weaponIdx || (EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v2, &v3->predictedPlayerState, _RBX), EquippedWeaponIndex < 0) || (playerState_s *)((char *)&v3->predictedPlayerState + 16 * EquippedWeaponIndex) == (playerState_s *)-1540i64 )
+    if ( !v6->weaponIdx || (EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v2, &v3->predictedPlayerState, v6), EquippedWeaponIndex < 0) || (playerState_s *)((char *)&v3->predictedPlayerState + 16 * EquippedWeaponIndex) == (playerState_s *)-1540i64 )
     {
-      WeaponName = BG_GetWeaponName(_RBX, output, 0x400u);
+      WeaponName = BG_GetWeaponName(v6, output, 0x400u);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_high_priority_weapon.cpp", 80, ASSERT_TYPE_ASSERT, "(BG_GetEquippedWeaponStateConst( weaponMap, ps, r_highPriorityWeapon ))", "%s\n\tPlayer has a high priority weapon set but they don't have the weapon in their inventory. Please verify the script implementation. Weapon name: %s", "BG_GetEquippedWeaponStateConst( weaponMap, ps, r_highPriorityWeapon )", WeaponName) )
         __debugbreak();
     }
-    if ( !memcmp_0(&v3->weaponSelect, _RBX, 0x3Cui64) )
+    if ( !memcmp_0(&v3->weaponSelect, v6, 0x3Cui64) )
     {
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_highPriorityWeaponDebugPrint, "bg_highPriorityWeaponDebugPrint") )
       {
-        v10 = BG_WeaponCompleteDef(_RBX, 0);
+        v10 = BG_WeaponCompleteDef(v6, 0);
         Com_Printf(17, "HighPriorityDebug - CG_HighPriorityWeapon_Update: Skipping CG_SelectWeapon, cgameGlob->weaponSelect = r_highPriorityWeapon = %s\n", v10->szInternalName);
       }
     }
-    else if ( CG_SelectWeapon((LocalClientNum_t)v1, _RBX, 0) )
+    else if ( CG_SelectWeapon((LocalClientNum_t)v1, v6, 0) )
     {
-      _RAX = ClActiveClient::GetClient((const LocalClientNum_t)v1);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rax+90h], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rax+0B0h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rax+0C0h], xmm0
-      }
-      *(_DWORD *)&_RAX->cgameUserCmdWeapon.weaponCamo = *(_DWORD *)&_RBX->weaponCamo;
-      _RAX->cgameUserCmdAlternate = 0;
+      Client = ClActiveClient::GetClient((const LocalClientNum_t)v1);
+      Client->cgameUserCmdWeapon = *v6;
+      Client->cgameUserCmdAlternate = 0;
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_highPriorityWeaponDebugPrint, "bg_highPriorityWeaponDebugPrint") )
       {
-        v15 = BG_WeaponCompleteDef(_RBX, 0);
-        Com_Printf(17, "HighPriorityDebug - CG_HighPriorityWeapon_Update: CG_SelectWeapon returned true, cgameUserCmdWeapon set to %s\n", v15->szInternalName);
+        v12 = BG_WeaponCompleteDef(v6, 0);
+        Com_Printf(17, "HighPriorityDebug - CG_HighPriorityWeapon_Update: CG_SelectWeapon returned true, cgameUserCmdWeapon set to %s\n", v12->szInternalName);
       }
     }
   }

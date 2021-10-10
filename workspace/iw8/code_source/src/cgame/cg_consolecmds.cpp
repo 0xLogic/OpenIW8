@@ -40,17 +40,15 @@ cg_t *CG_ConsoleCmds_Viewpos_f()
 {
   LocalClientNum_t v0; 
   cg_t *result; 
+  cg_t *v2; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  char *fmt; 
-  double v19; 
-  double v20; 
-  int v21[3]; 
+  int v6[3]; 
 
   v0 = Cmd_LocalClientNum();
   result = CG_GetLocalClientGlobals(v0);
-  _RBX = result;
+  v2 = result;
   if ( result->nextSnap )
   {
     p_view = &result->refdef.view;
@@ -60,30 +58,9 @@ cg_t *CG_ConsoleCmds_Viewpos_f()
     v = (_DWORD *)p_view->org.org.v;
     if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    v21[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-    v21[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-    v21[2] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+178C0h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rbx+178C4h]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm4, [rsp+68h+var_18]
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm3, [rsp+68h+var_1C]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, [rsp+68h+var_20]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+68h+var_38], xmm0
-      vmovsd  [rsp+68h+var_40], xmm1
-      vmovsd  [rsp+68h+fmt], xmm4
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_Printf(0, "(%.0f %.0f %.0f) : %.0f %.0f\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v19, v20);
+    Com_Printf(0, "(%.0f %.0f %.0f) : %.0f %.0f\n", COERCE_FLOAT(*v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2))), COERCE_FLOAT(v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2))), COERCE_FLOAT(((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2]), v2->refdefViewAngles.v[1], v2->refdefViewAngles.v[0]);
     result = NULL;
-    memset(v21, 0, sizeof(v21));
+    memset(v6, 0, sizeof(v6));
   }
   return result;
 }
@@ -93,55 +70,41 @@ cg_t *CG_ConsoleCmds_Viewpos_f()
 CG_ConsoleCmds_ShellShock_f
 ==============
 */
-
-void __fastcall CG_ConsoleCmds_ShellShock_f(double _XMM0_8, __int64 a2, double _XMM2_8)
+void CG_ConsoleCmds_ShellShock_f()
 {
-  LocalClientNum_t v4; 
-  __int64 v5; 
-  int v6; 
-  const char *v7; 
+  LocalClientNum_t v0; 
+  __int64 v1; 
+  int v2; 
+  const char *v3; 
   cg_t *LocalClientGlobals; 
   shellshock_parms_t *ShellshockParms; 
 
-  v4 = Cmd_LocalClientNum();
-  v5 = v4;
-  if ( (unsigned int)v4 >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v4, 2) )
+  v0 = Cmd_LocalClientNum();
+  v1 = v0;
+  if ( (unsigned int)v0 >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v0, 2) )
     __debugbreak();
-  if ( !clientUIActives[v5].frontEndSceneState[0] && clientUIActives[v5].cgameInitialized && CG_IsFullyInitialized((const LocalClientNum_t)v5) )
+  if ( !clientUIActives[v1].frontEndSceneState[0] && clientUIActives[v1].cgameInitialized && CG_IsFullyInitialized((const LocalClientNum_t)v1) )
   {
-    v6 = Cmd_Argc() - 2;
-    if ( !v6 )
+    v2 = Cmd_Argc() - 2;
+    if ( !v2 )
       goto LABEL_11;
-    if ( v6 != 1 )
+    if ( v2 != 1 )
     {
       Com_Printf(0, "USAGE: cg_shellshock <duration> <filename?>\n");
       return;
     }
-    v7 = Cmd_Argv(2);
-    if ( BG_LoadShellShockDvars(v7) )
+    v3 = Cmd_Argv(2);
+    if ( BG_LoadShellShockDvars(v3) )
     {
 LABEL_11:
-      __asm { vmovaps [rsp+58h+var_18], xmm6 }
-      _XMM0_8 = Cmd_ArgFloat(1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm4, xmm2, xmm3
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm6, xmm0, xmm4, 1
-      }
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+      Cmd_ArgFloat(1);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm6, xmm0, xmm4, 1 }
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
       ShellshockParms = BG_GetShellshockParms(0);
       BG_SetShellShockParmsFromDvars(ShellshockParms);
       LocalClientGlobals->testShock.time = LocalClientGlobals->time;
-      __asm
-      {
-        vcvttss2si ecx, xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
-      LocalClientGlobals->testShock.duration = _ECX;
+      LocalClientGlobals->testShock.duration = (int)*(float *)&_XMM6;
     }
   }
 }

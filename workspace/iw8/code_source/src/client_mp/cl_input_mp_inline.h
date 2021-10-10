@@ -27,303 +27,197 @@ CL_InputMP_CreateCmd
 */
 usercmd_s *CL_InputMP_CreateCmd(usercmd_s *result, LocalClientNum_t localClientNum, ButtonSet *outClearButtons)
 {
-  __int64 v6; 
+  __int64 v4; 
+  cg_t *LocalClientGlobals; 
   ClActiveClientMP *ClientMP; 
-  __int64 v15; 
-  __int64 v23; 
-  bool v31; 
-  __int64 v32; 
-  __int64 v38; 
+  usercmd_s *v8; 
+  usercmd_s *p_cmd; 
+  __int64 v10; 
+  __int64 v11; 
+  bool v12; 
+  __int64 v13; 
+  __int64 v14; 
+  double v15; 
   int ControllerFromClient; 
-  const dvar_t *v50; 
-  __int64 v54; 
-  usercmd_s *v60; 
-  float fmt; 
-  float fmta; 
-  __int64 v64; 
-  __int64 v65; 
+  const dvar_t *v17; 
+  __int64 v18; 
+  __int64 v20; 
+  __int64 v21; 
   float my; 
   float mx; 
   vec3_t oldAngles; 
-  __int64 v69; 
+  __int64 v25; 
   usercmd_s cmd; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v69 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v6 = localClientNum;
-  _R13 = CG_GetLocalClientGlobals(localClientNum);
-  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v6);
+  v25 = -2i64;
+  v4 = localClientNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
   if ( !ClientMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 264, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
   LODWORD(oldAngles.v[0]) = LODWORD(ClientMP->clViewangles.clViewangles.v[0]) ^ ((((_DWORD)ClientMP + 428) ^ ClientMP->clviewangles_aab) * ((((_DWORD)ClientMP + 428) ^ ClientMP->clviewangles_aab) + 2));
   LODWORD(oldAngles.v[1]) = LODWORD(ClientMP->clViewangles.clViewangles.v[1]) ^ ((((_DWORD)ClientMP + 432) ^ ClientMP->clviewangles_aab) * ((((_DWORD)ClientMP + 432) ^ ClientMP->clviewangles_aab) + 2));
   LODWORD(oldAngles.v[2]) = ((((_DWORD)ClientMP + 436) ^ ClientMP->clviewangles_aab) * ((((_DWORD)ClientMP + 436) ^ ClientMP->clviewangles_aab) + 2)) ^ LODWORD(ClientMP->clViewangles.clViewangles.v[2]);
-  CL_InputMP_AdjustViewanglesForKeyboard((LocalClientNum_t)v6);
+  CL_InputMP_AdjustViewanglesForKeyboard((LocalClientNum_t)v4);
   memset_0(&cmd, 0, sizeof(cmd));
   cmd.meleeChargeEnt = 2047;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0B5328h]
-    vmovups xmmword ptr [rbp+0D0h+cmd.sightedClientsMask.data], xmm0
-    vmovsd  xmm1, qword ptr [r13+0B5338h]
-    vmovsd  qword ptr [rbp+0D0h+cmd.sightedClientsMask.data+10h], xmm1
-  }
-  cmd.sightedClientsMask.data[6] = _R13->sightedEnemyFools.array[6];
-  cmd.lightSample = _R13->lightSample;
-  CG_ClientNetPerf_GetData((const LocalClientNum_t)v6, &cmd.extrapolationMax, &cmd.interpolationMax);
-  if ( !(_BYTE)CgVehicleSystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v6) )
+  cmd.sightedClientsMask = (UserCmdClientBits)LocalClientGlobals->sightedEnemyFools;
+  cmd.lightSample = LocalClientGlobals->lightSample;
+  CG_ClientNetPerf_GetData((const LocalClientNum_t)v4, &cmd.extrapolationMax, &cmd.interpolationMax);
+  if ( !(_BYTE)CgVehicleSystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v4) )
     __debugbreak();
-  if ( (unsigned int)v6 >= CgVehicleSystem::ms_allocatedCount )
+  if ( (unsigned int)v4 >= CgVehicleSystem::ms_allocatedCount )
   {
-    LODWORD(v65) = CgVehicleSystem::ms_allocatedCount;
-    LODWORD(v64) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v64, v65) )
+    LODWORD(v21) = CgVehicleSystem::ms_allocatedCount;
+    LODWORD(v20) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v20, v21) )
       __debugbreak();
   }
-  if ( !CgVehicleSystem::ms_vehicleSystemArray[v6] )
+  if ( !CgVehicleSystem::ms_vehicleSystemArray[v4] )
   {
-    LODWORD(v65) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v65) )
+    LODWORD(v21) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v21) )
       __debugbreak();
   }
-  CgVehicleSystem::PhysicsUpdateCmdValues(CgVehicleSystem::ms_vehicleSystemArray[v6], &cmd);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+1D0h+mx], xmm0
-    vmovss  [rsp+1D0h+my], xmm0
-  }
+  CgVehicleSystem::PhysicsUpdateCmdValues(CgVehicleSystem::ms_vehicleSystemArray[v4], &cmd);
+  mx = 0.0;
+  my = 0.0;
   CL_Input_ValidateMouseMovementCalls();
-  CL_Input_GetMouseMovement((LocalClientNum_t)v6, &mx, &my);
-  if ( CL_InputMP_ProcessFrontendCommand((LocalClientNum_t)v6) )
+  CL_Input_GetMouseMovement((LocalClientNum_t)v4, &mx, &my);
+  if ( CL_InputMP_ProcessFrontendCommand((LocalClientNum_t)v4) )
   {
-    CL_InputMP_FrontEndMove((LocalClientNum_t)v6, &cmd);
-    CL_InputMP_FinishMove((LocalClientNum_t)v6, &cmd, outClearButtons);
+    CL_InputMP_FrontEndMove((LocalClientNum_t)v4, &cmd);
+    CL_InputMP_FinishMove((LocalClientNum_t)v4, &cmd, outClearButtons);
     memset(&oldAngles, 0, sizeof(oldAngles));
-    _RDX = result;
-    _RCX = &cmd;
-    v15 = 2i64;
+    v8 = result;
+    p_cmd = &cmd;
+    v10 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups ymm0, ymmword ptr [rcx+20h]
-        vmovups ymmword ptr [rdx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rcx+40h]
-        vmovups ymmword ptr [rdx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rdx+60h], xmm0
-      }
-      _RDX = (usercmd_s *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
-      _RCX = (usercmd_s *)((char *)_RCX + 128);
-      --v15;
+      *(__m256i *)&v8->buttons = *(__m256i *)&p_cmd->buttons;
+      *(__m256i *)(&v8->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+      *(__m256i *)&v8->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+      *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+      v8 = (usercmd_s *)((char *)v8 + 128);
+      *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+      p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+      --v10;
     }
-    while ( v15 );
+    while ( v10 );
+  }
+  else if ( (CL_Keys_IsCatcherActive((LocalClientNum_t)v4, 8) || CL_Keys_IsCatcherActive((LocalClientNum_t)v4, 16)) && !CL_Keys_IsCatcherActive((LocalClientNum_t)v4, 64) && CL_Input_LocationSelection((const LocalClientNum_t)v4, &cmd, mx, my, outClearButtons) )
+  {
+    CL_InputMP_FinishMove((LocalClientNum_t)v4, &cmd, outClearButtons);
+    memset(&oldAngles, 0, sizeof(oldAngles));
+    v8 = result;
+    p_cmd = &cmd;
+    v11 = 2i64;
+    do
+    {
+      *(__m256i *)&v8->buttons = *(__m256i *)&p_cmd->buttons;
+      *(__m256i *)(&v8->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+      *(__m256i *)&v8->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+      *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+      v8 = (usercmd_s *)((char *)v8 + 128);
+      *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+      p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+      --v11;
+    }
+    while ( v11 );
   }
   else
   {
-    if ( !CL_Keys_IsCatcherActive((LocalClientNum_t)v6, 8) && !CL_Keys_IsCatcherActive((LocalClientNum_t)v6, 16) )
-      goto LABEL_30;
-    if ( CL_Keys_IsCatcherActive((LocalClientNum_t)v6, 64) )
-      goto LABEL_30;
-    __asm
+    if ( CL_Keys_IsCatcherActive((LocalClientNum_t)v4, 64) || !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x1Cu) )
+      goto LABEL_49;
+    CL_InputMP_RemoteControlMove((LocalClientNum_t)v4, &cmd, outClearButtons, mx, my);
+    if ( LocalClientGlobals->predictedPlayerState.pm_type == 5 || (v12 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u)) )
+      v12 = 1;
+    if ( ClientMP->snap.ps.viewlocked_entNum != 2047 || v12 )
     {
-      vmovss  xmm3, [rsp+1D0h+my]; my
-      vmovss  xmm2, [rsp+1D0h+mx]; mx
-    }
-    if ( CL_Input_LocationSelection((const LocalClientNum_t)v6, &cmd, *(float *)&_XMM2, *(float *)&_XMM3, outClearButtons) )
-    {
-      CL_InputMP_FinishMove((LocalClientNum_t)v6, &cmd, outClearButtons);
-      memset(&oldAngles, 0, sizeof(oldAngles));
-      _RDX = result;
-      _RCX = &cmd;
-      v23 = 2i64;
-      do
-      {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymmword ptr [rdx], ymm0
-          vmovups ymm0, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rdx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rdx+40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx+60h]
-          vmovups xmmword ptr [rdx+60h], xmm0
-        }
-        _RDX = (usercmd_s *)((char *)_RDX + 128);
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rcx+70h]
-          vmovups xmmword ptr [rdx-10h], xmm1
-        }
-        _RCX = (usercmd_s *)((char *)_RCX + 128);
-        --v23;
-      }
-      while ( v23 );
-    }
-    else
-    {
-LABEL_30:
-      if ( CL_Keys_IsCatcherActive((LocalClientNum_t)v6, 64) || !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ClientMP->snap.ps.pm_flags, ACTIVE, 0x1Cu) )
-        goto LABEL_49;
-      __asm
-      {
-        vmovss  xmm0, [rsp+1D0h+my]
-        vmovss  dword ptr [rsp+1D0h+fmt], xmm0
-        vmovss  xmm3, [rsp+1D0h+mx]; mx
-      }
-      CL_InputMP_RemoteControlMove((LocalClientNum_t)v6, &cmd, outClearButtons, *(float *)&_XMM3, fmt);
-      if ( _R13->predictedPlayerState.pm_type == 5 || (v31 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R13->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u)) )
-        v31 = 1;
-      if ( ClientMP->snap.ps.viewlocked_entNum != 2047 || v31 )
-      {
 LABEL_49:
-        if ( CL_Cameraman_isActive() )
+      if ( CL_Cameraman_isActive() )
+      {
+        CL_InputMP_FinishMove((LocalClientNum_t)v4, &cmd, outClearButtons);
+        memset(&oldAngles, 0, sizeof(oldAngles));
+        v8 = result;
+        p_cmd = &cmd;
+        v14 = 2i64;
+        do
         {
-          CL_InputMP_FinishMove((LocalClientNum_t)v6, &cmd, outClearButtons);
-          memset(&oldAngles, 0, sizeof(oldAngles));
-          _RDX = result;
-          _RCX = &cmd;
-          v38 = 2i64;
-          do
-          {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups ymmword ptr [rdx], ymm0
-              vmovups ymm0, ymmword ptr [rcx+20h]
-              vmovups ymmword ptr [rdx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rcx+40h]
-              vmovups ymmword ptr [rdx+40h], ymm0
-              vmovups xmm0, xmmword ptr [rcx+60h]
-              vmovups xmmword ptr [rdx+60h], xmm0
-            }
-            _RDX = (usercmd_s *)((char *)_RDX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rcx+70h]
-              vmovups xmmword ptr [rdx-10h], xmm1
-            }
-            _RCX = (usercmd_s *)((char *)_RCX + 128);
-            --v38;
-          }
-          while ( v38 );
+          *(__m256i *)&v8->buttons = *(__m256i *)&p_cmd->buttons;
+          *(__m256i *)(&v8->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+          *(__m256i *)&v8->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+          *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+          v8 = (usercmd_s *)((char *)v8 + 128);
+          *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+          p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+          --v14;
         }
-        else
-        {
-          CL_InputMP_CmdButtons((LocalClientNum_t)v6, &cmd, outClearButtons);
-          CL_InputMP_KeyMove((LocalClientNum_t)v6, &cmd, outClearButtons);
-          CG_LatencyTestMP_Move((LocalClientNum_t)v6, &cmd);
-          __asm { vmovss  xmm0, cs:?cls@@3UClStatic@@A.frametime_base; sec }
-          *(double *)&_XMM0 = Com_ViewScaleMsec(*(float *)&_XMM0);
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmovss  xmm1, [rsp+1D0h+my]
-            vmovss  dword ptr [rsp+1D0h+fmt], xmm1
-            vmovss  xmm3, [rsp+1D0h+mx]; rawMx
-            vmovaps xmm2, xmm0; frametime_base
-          }
-          CL_InputMP_MouseMove((LocalClientNum_t)v6, &cmd, *(float *)&_XMM2, *(float *)&_XMM3, fmta);
-          ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v6);
-          if ( GPad_IsActive(ControllerFromClient) )
-            goto LABEL_43;
-          v50 = DVARBOOL_ATClient_Enabled;
-          if ( !DVARBOOL_ATClient_Enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_Enabled") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v50);
-          if ( v50->current.enabled )
-          {
-LABEL_43:
-            __asm { vmovaps xmm1, xmm6; frametime_base }
-            CL_InputMP_GamepadMove((LocalClientNum_t)v6, *(float *)&_XMM1, &cmd, outClearButtons);
-          }
-          __asm
-          {
-            vmovss  dword ptr [r13+65E8h], xmm6
-            vmulss  xmm0, xmm6, cs:__real@447a0000
-            vcvttss2si eax, xmm0
-          }
-          ClientMP->cmdInputAccumTimeMs += _EAX;
-          CL_InputMP_UpdateAngleWrap(ClientMP, &oldAngles);
-          CL_InputMP_UpdateCmdDemoInput((LocalClientNum_t)v6, ClientMP);
-          CL_InputMP_FinishMove((LocalClientNum_t)v6, &cmd, outClearButtons);
-          memset(&oldAngles, 0, sizeof(oldAngles));
-          _RDX = result;
-          _RCX = &cmd;
-          v54 = 2i64;
-          do
-          {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups ymmword ptr [rdx], ymm0
-              vmovups ymm0, ymmword ptr [rcx+20h]
-              vmovups ymmword ptr [rdx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rcx+40h]
-              vmovups ymmword ptr [rdx+40h], ymm0
-              vmovups xmm0, xmmword ptr [rcx+60h]
-              vmovups xmmword ptr [rdx+60h], xmm0
-            }
-            _RDX = (usercmd_s *)((char *)_RDX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rcx+70h]
-              vmovups xmmword ptr [rdx-10h], xmm1
-            }
-            _RCX = (usercmd_s *)((char *)_RCX + 128);
-            --v54;
-          }
-          while ( v54 );
-        }
+        while ( v14 );
       }
       else
       {
-        CL_InputMP_FinishMove((LocalClientNum_t)v6, &cmd, outClearButtons);
+        CL_InputMP_CmdButtons((LocalClientNum_t)v4, &cmd, outClearButtons);
+        CL_InputMP_KeyMove((LocalClientNum_t)v4, &cmd, outClearButtons);
+        CG_LatencyTestMP_Move((LocalClientNum_t)v4, &cmd);
+        v15 = Com_ViewScaleMsec(cls.frametime_base);
+        CL_InputMP_MouseMove((LocalClientNum_t)v4, &cmd, *(float *)&v15, mx, my);
+        ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v4);
+        if ( GPad_IsActive(ControllerFromClient) )
+          goto LABEL_43;
+        v17 = DVARBOOL_ATClient_Enabled;
+        if ( !DVARBOOL_ATClient_Enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_Enabled") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v17);
+        if ( v17->current.enabled )
+LABEL_43:
+          CL_InputMP_GamepadMove((LocalClientNum_t)v4, *(float *)&v15, &cmd, outClearButtons);
+        LocalClientGlobals->frametimeInputSec = *(float *)&v15;
+        ClientMP->cmdInputAccumTimeMs += (int)(float)(*(float *)&v15 * 1000.0);
+        CL_InputMP_UpdateAngleWrap(ClientMP, &oldAngles);
+        CL_InputMP_UpdateCmdDemoInput((LocalClientNum_t)v4, ClientMP);
+        CL_InputMP_FinishMove((LocalClientNum_t)v4, &cmd, outClearButtons);
         memset(&oldAngles, 0, sizeof(oldAngles));
-        _RDX = result;
-        _RCX = &cmd;
-        v32 = 2i64;
+        v8 = result;
+        p_cmd = &cmd;
+        v18 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rcx]
-            vmovups ymmword ptr [rdx], ymm0
-            vmovups ymm0, ymmword ptr [rcx+20h]
-            vmovups ymmword ptr [rdx+20h], ymm0
-            vmovups ymm0, ymmword ptr [rcx+40h]
-            vmovups ymmword ptr [rdx+40h], ymm0
-            vmovups xmm0, xmmword ptr [rcx+60h]
-            vmovups xmmword ptr [rdx+60h], xmm0
-          }
-          _RDX = (usercmd_s *)((char *)_RDX + 128);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+70h]
-            vmovups xmmword ptr [rdx-10h], xmm1
-          }
-          _RCX = (usercmd_s *)((char *)_RCX + 128);
-          --v32;
+          *(__m256i *)&v8->buttons = *(__m256i *)&p_cmd->buttons;
+          *(__m256i *)(&v8->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+          *(__m256i *)&v8->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+          *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+          v8 = (usercmd_s *)((char *)v8 + 128);
+          *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+          p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+          --v18;
         }
-        while ( v32 );
+        while ( v18 );
       }
     }
+    else
+    {
+      CL_InputMP_FinishMove((LocalClientNum_t)v4, &cmd, outClearButtons);
+      memset(&oldAngles, 0, sizeof(oldAngles));
+      v8 = result;
+      p_cmd = &cmd;
+      v13 = 2i64;
+      do
+      {
+        *(__m256i *)&v8->buttons = *(__m256i *)&p_cmd->buttons;
+        *(__m256i *)(&v8->angles.xy + 1) = *(__m256i *)(&p_cmd->angles.xy + 1);
+        *(__m256i *)&v8->weapon.attachmentVariationIndices[1] = *(__m256i *)&p_cmd->weapon.attachmentVariationIndices[1];
+        *(_OWORD *)&v8->offHand.weaponIdx = *(_OWORD *)&p_cmd->offHand.weaponIdx;
+        v8 = (usercmd_s *)((char *)v8 + 128);
+        *(_OWORD *)&v8[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_cmd->offHand.weaponAttachments[2];
+        p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+        --v13;
+      }
+      while ( v13 );
+    }
   }
-  _RDX->buttons = _RCX->buttons;
-  v60 = result;
-  __asm { vmovaps xmm6, xmmword ptr [rsp+1D0h+var_48+8] }
-  return v60;
+  v8->buttons = p_cmd->buttons;
+  return result;
 }
 
 /*
@@ -331,19 +225,32 @@ LABEL_43:
 CL_InputMP_CreateNewCommands
 ==============
 */
-
-void __fastcall CL_InputMP_CreateNewCommands(LocalClientNum_t localClientNum, double _XMM1_8)
+void CL_InputMP_CreateNewCommands(LocalClientNum_t localClientNum)
 {
   ClActiveClientMP *ClientMP; 
-  __int64 v7; 
+  usercmd_s *v3; 
+  usercmd_s *p_cmd; 
+  __int64 v5; 
+  __int128 v6; 
   int UserCommandConstantMsec; 
   int svCmdMaxDurationMsec; 
-  unsigned int v16; 
+  unsigned int v9; 
   char CmdNumber; 
+  __int64 v11; 
+  double TimescaleForSv; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  unsigned __int64 v17; 
   unsigned __int64 v18; 
   unsigned __int64 cmdAccumTimeUsec; 
   unsigned __int64 cmdTimeUsec; 
-  char v33[4]; 
+  double v21; 
+  __int64 v22; 
+  float v23; 
+  float v24; 
+  char v25[4]; 
   usercmd_s result; 
   ButtonSet outClearButtons; 
   usercmd_s cmd; 
@@ -358,36 +265,26 @@ void __fastcall CL_InputMP_CreateNewCommands(LocalClientNum_t localClientNum, do
     ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
     if ( CL_GetLocalClientMigrationState(localClientNum) == CMSTATE_INACTIVE || CL_GetLocalClientMigrationState(localClientNum) == CMSTATE_NEWHOSTCONNECT )
     {
-      _RAX = CL_InputMP_CreateCmd(&result, localClientNum, &outClearButtons);
-      _RCX = &cmd;
-      v7 = 2i64;
+      v3 = CL_InputMP_CreateCmd(&result, localClientNum, &outClearButtons);
+      p_cmd = &cmd;
+      v5 = 2i64;
       do
       {
-        _RCX = (usercmd_s *)((char *)_RCX + 128);
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RAX = (usercmd_s *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups xmmword ptr [rcx-80h], xmm0
-          vmovups xmm1, xmmword ptr [rax-70h]
-          vmovups xmmword ptr [rcx-70h], xmm1
-          vmovups xmm0, xmmword ptr [rax-60h]
-          vmovups xmmword ptr [rcx-60h], xmm0
-          vmovups xmm1, xmmword ptr [rax-50h]
-          vmovups xmmword ptr [rcx-50h], xmm1
-          vmovups xmm0, xmmword ptr [rax-40h]
-          vmovups xmmword ptr [rcx-40h], xmm0
-          vmovups xmm1, xmmword ptr [rax-30h]
-          vmovups xmmword ptr [rcx-30h], xmm1
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmm1, xmmword ptr [rax-10h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v7;
+        p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+        v6 = *(_OWORD *)&v3->buttons;
+        v3 = (usercmd_s *)((char *)v3 + 128);
+        *(_OWORD *)&p_cmd[-1].offHand.attachmentVariationIndices[13] = v6;
+        *(_OWORD *)&p_cmd[-1].offHand.weaponCamo = *(_OWORD *)&v3[-1].offHand.weaponCamo;
+        *(_OWORD *)p_cmd[-1].remoteControlMove = *(_OWORD *)v3[-1].remoteControlMove;
+        *(_OWORD *)p_cmd[-1].vehAngles = *(_OWORD *)v3[-1].vehAngles;
+        *(_OWORD *)&p_cmd[-1].vehOrgZ = *(_OWORD *)&v3[-1].vehOrgZ;
+        *(_OWORD *)&p_cmd[-1].gunYOfs = *(_OWORD *)&v3[-1].gunYOfs;
+        *(_OWORD *)p_cmd[-1].sightedClientsMask.data = *(_OWORD *)v3[-1].sightedClientsMask.data;
+        *(_OWORD *)&p_cmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v3[-1].sightedClientsMask.data[4];
+        --v5;
       }
-      while ( v7 );
-      _RCX->buttons = _RAX->buttons;
+      while ( v5 );
+      p_cmd->buttons = v3->buttons;
     }
     else
     {
@@ -398,69 +295,63 @@ void __fastcall CL_InputMP_CreateNewCommands(LocalClientNum_t localClientNum, do
     {
       UserCommandConstantMsec = Com_GetUserCommandConstantMsec();
       svCmdMaxDurationMsec = ClientMP->svCmdMaxDurationMsec;
-      v16 = UserCommandConstantMsec;
+      v9 = UserCommandConstantMsec;
       if ( svCmdMaxDurationMsec < UserCommandConstantMsec )
-        v16 = ClientMP->svCmdMaxDurationMsec;
-      if ( svCmdMaxDurationMsec > v16 )
+        v9 = ClientMP->svCmdMaxDurationMsec;
+      if ( svCmdMaxDurationMsec > v9 )
       {
         CmdNumber = ClActiveClient_GetCmdNumber(ClientMP);
         if ( ((cmd.buttons ^ ClientMP->cmds[CmdNumber & 0x7F].buttons) & 0x1000010004003CDi64) == 0 )
-          v16 = svCmdMaxDurationMsec;
-        memset(v33, 0, sizeof(v33));
+          v9 = svCmdMaxDurationMsec;
+        memset(v25, 0, sizeof(v25));
       }
-      v18 = 1000i64 * v16;
-      *(double *)&_XMM0 = Com_GetTimescaleForSv();
-      __asm
+      v11 = 1000i64 * v9;
+      TimescaleForSv = Com_GetTimescaleForSv();
+      v13 = (float)v11;
+      if ( v11 < 0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rdi
+        v14 = (float)v11;
+        v13 = v14 + 1.8446744e19;
       }
-      if ( (v18 & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-      __asm
+      v16 = *(float *)&TimescaleForSv * v13;
+      v15 = v16;
+      v17 = 0i64;
+      if ( v16 >= 9.223372e18 )
       {
-        vmovss  xmm2, cs:__real@5f000000
-        vmulss  xmm0, xmm0, xmm1
-        vcomiss xmm0, xmm2
-        vsubss  xmm0, xmm0, xmm2
-        vcomiss xmm0, xmm2
-        vcvttss2si rsi, xmm0
+        v15 = v16 - 9.223372e18;
+        if ( (float)(v16 - 9.223372e18) < 9.223372e18 )
+          v17 = 0x8000000000000000ui64;
       }
-      if ( ClientMP->cmdAccumTimeUsec >= v18 )
+      v18 = v17 + (unsigned int)(int)v15;
+      if ( ClientMP->cmdAccumTimeUsec >= v11 )
       {
         CL_Input_CycleWeapon(localClientNum, &cmd);
         CL_Input_HoldBreathHybridAndVZoomToggle(localClientNum, &cmd);
         cmdAccumTimeUsec = ClientMP->cmdAccumTimeUsec;
-        if ( cmdAccumTimeUsec >= v18 )
+        if ( cmdAccumTimeUsec >= v11 )
         {
           cmdTimeUsec = ClientMP->cmdTimeUsec;
           do
           {
-            cmdTimeUsec += _RSI;
-            cmdAccumTimeUsec -= v18;
+            cmdTimeUsec += v18;
+            cmdAccumTimeUsec -= v11;
           }
-          while ( cmdAccumTimeUsec >= v18 );
+          while ( cmdAccumTimeUsec >= v11 );
           ClientMP->cmdAccumTimeUsec = cmdAccumTimeUsec;
           ClientMP->cmdTimeUsec = cmdTimeUsec;
         }
         if ( CL_Input_AddCommand(ClientMP, &cmd) )
           CL_InputMP_ClearButtonsPressed(localClientNum, &outClearButtons);
       }
-      *(double *)&_XMM0 = Com_GetTimescaleForSv();
-      __asm
+      v21 = Com_GetTimescaleForSv();
+      v22 = ClientMP->cmdAccumTimeUsec;
+      v23 = (float)v22;
+      if ( v22 < 0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
+        v24 = (float)v22;
+        v23 = v24 + 1.8446744e19;
       }
-      if ( (ClientMP->cmdAccumTimeUsec & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm1
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vcvttss2si r8d, xmm1; deltaTime
-      }
-      CL_Input_SetExtrapolationCommand(ClientMP, &cmd, _ER8);
+      CL_Input_SetExtrapolationCommand(ClientMP, &cmd, (int)(float)((float)(*(float *)&v21 * v23) * 0.001));
     }
     else
     {
@@ -604,63 +495,63 @@ void CL_InputMP_WritePacket(LocalClientNum_t localClientNum)
   CmdPredict *v123; 
   bool v124; 
   int cursize; 
-  int v128; 
+  int v126; 
   int realtime; 
-  ClOutPacketMP *v130; 
+  ClOutPacketMP *v128; 
   int reliableSent; 
-  int v132; 
-  int v133; 
+  int v130; 
+  int v131; 
   int reliableSequence; 
-  const dvar_t *v135; 
+  const dvar_t *v133; 
   const char *String; 
-  int v137; 
+  int v135; 
   char *fmt; 
   CmdPredict *outPredict; 
   CmdPredict *outPredicta; 
+  __int64 v139; 
+  __int64 v140; 
   __int64 v141; 
-  __int64 v142; 
-  __int64 v143; 
   unsigned __int8 outCmdDelta[4]; 
   LocalClientNum_t clientNum; 
   int outCurSize[2]; 
   unsigned __int8 *outBuf; 
-  ClActiveClientMP *v148; 
-  ClConnectionMP *v149; 
+  ClActiveClientMP *v146; 
+  ClConnectionMP *v147; 
   msg_t buf; 
-  unsigned __int8 *v151; 
-  CmdPredict *v152; 
+  unsigned __int8 *v149; 
+  CmdPredict *v150; 
   usercmd_s *from; 
-  __int64 v154; 
+  __int64 v152; 
   ClOutPacketMP outPacket; 
-  __int64 v156; 
+  __int64 v154; 
   usercmd_s outCmd; 
-  CmdPredict v158; 
+  CmdPredict v156; 
   CmdPredict outCmdPredict; 
-  unsigned __int8 v160[8]; 
-  __int16 v161; 
+  unsigned __int8 v158[8]; 
+  __int16 v159; 
   unsigned __int8 to[2470]; 
   unsigned __int8 data[2480]; 
 
-  v156 = -2i64;
+  v154 = -2i64;
   v1 = localClientNum;
   clientNum = localClientNum;
   if ( CL_Demo_IsPlayingAny(localClientNum) || CL_GetLocalClientAnyConnectionState(v1) == CA_SENDINGSTATS )
     return;
   ClientConnectionMP = ClConnectionMP::GetClientConnectionMP(v1);
-  v149 = ClientConnectionMP;
+  v147 = ClientConnectionMP;
   if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)ClConnection::ms_activeConnectionType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 157, ASSERT_TYPE_ASSERT, "(BG_GameInterface_GameModeIsMP( ms_activeConnectionType ))", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_activeConnectionType )") )
     __debugbreak();
   ClientMP = ClActiveClientMP::GetClientMP(v1);
-  v148 = ClientMP;
+  v146 = ClientMP;
   if ( !ClientMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 453, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  v152 = &v158;
+  v150 = &v156;
   p_outCmdPredict = &outCmdPredict;
-  if ( !CL_InputMP_GetCommandDelta(v1, ClientMP, ClientConnectionMP, outCmdDelta, &outCmd, &v158) )
+  if ( !CL_InputMP_GetCommandDelta(v1, ClientMP, ClientConnectionMP, outCmdDelta, &outCmd, &v156) )
   {
     memset_0(&outCmd, 0, sizeof(outCmd));
     BG_ClearMeleeChargeCmd(&outCmd);
-    memset(&v158, 0, sizeof(v158));
+    memset(&v156, 0, sizeof(v156));
     outCmdDelta[0] = 0;
   }
   from = &outCmd;
@@ -673,22 +564,22 @@ void CL_InputMP_WritePacket(LocalClientNum_t localClientNum)
     __debugbreak();
   if ( ClientConnectionMP->m_connectionData.serverMessageConsecutiveValid < 0 )
   {
-    LODWORD(v142) = ClientConnectionMP->m_connectionData.serverMessageConsecutiveValid;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 482, ASSERT_TYPE_ASSERT, "( clcData->serverMessageConsecutiveValid ) >= ( 0 )", "%s >= %s\n\t%i, %i", "clcData->serverMessageConsecutiveValid", "0", v142, 0i64) )
+    LODWORD(v140) = ClientConnectionMP->m_connectionData.serverMessageConsecutiveValid;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 482, ASSERT_TYPE_ASSERT, "( clcData->serverMessageConsecutiveValid ) >= ( 0 )", "%s >= %s\n\t%i, %i", "clcData->serverMessageConsecutiveValid", "0", v140, 0i64) )
       __debugbreak();
   }
   MSG_WriteLong(&buf, ClientConnectionMP->m_connectionData.serverMessageSequence);
   if ( ClientConnectionMP->m_packetBackupCount <= 0 )
   {
-    LODWORD(v142) = ClientConnectionMP->m_packetBackupCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 171, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v142, 0i64) )
+    LODWORD(v140) = ClientConnectionMP->m_packetBackupCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 171, ASSERT_TYPE_ASSERT, "( m_packetBackupCount ) > ( 0 )", "%s > %s\n\t%i, %i", "m_packetBackupCount", "0", v140, 0i64) )
       __debugbreak();
   }
   if ( ClientConnectionMP->m_packetBackupCount > 255 )
   {
-    LODWORD(v143) = 255;
-    LODWORD(v142) = ClientConnectionMP->m_packetBackupCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 491, ASSERT_TYPE_ASSERT, "( clc->GetPacketBackupCount() ) <= ( 0xffui8 )", "%s <= %s\n\t%i, %i", "clc->GetPacketBackupCount()", "UINT8_MAX", v142, v143) )
+    LODWORD(v141) = 255;
+    LODWORD(v140) = ClientConnectionMP->m_packetBackupCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 491, ASSERT_TYPE_ASSERT, "( clc->GetPacketBackupCount() ) <= ( 0xffui8 )", "%s <= %s\n\t%i, %i", "clc->GetPacketBackupCount()", "UINT8_MAX", v140, v141) )
       __debugbreak();
   }
   serverMessageConsecutiveValid = ClientConnectionMP->m_connectionData.serverMessageConsecutiveValid;
@@ -700,9 +591,9 @@ void CL_InputMP_WritePacket(LocalClientNum_t localClientNum)
   MSG_WriteLong(&buf, ClientConnectionMP->m_connectionData.serverCommandSequence);
   if ( buf.cursize != 10 )
   {
-    LODWORD(v143) = 10;
-    LODWORD(v142) = buf.cursize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 498, ASSERT_TYPE_ASSERT, "( buf.cursize ) == ( 10 )", "%s == %s\n\t%i, %i", "buf.cursize", "CL_ENCODE_START", v142, v143) )
+    LODWORD(v141) = 10;
+    LODWORD(v140) = buf.cursize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 498, ASSERT_TYPE_ASSERT, "( buf.cursize ) == ( 10 )", "%s == %s\n\t%i, %i", "buf.cursize", "CL_ENCODE_START", v140, v141) )
       __debugbreak();
   }
   v9 = ClientConnectionMP->m_connectionData.reliableAcknowledge + 1;
@@ -719,12 +610,12 @@ void CL_InputMP_WritePacket(LocalClientNum_t localClientNum)
         if ( ClientConnectionMP->m_connectionData.clientReliableCommands.m_entries[v11].type == 1 )
         {
           size = p_clientReliableCommands->m_entries[v11].size;
-          CircularEntryBuffer<128,131072,int,0>::GetData(p_clientReliableCommands, v9 & 0x7F, (const unsigned __int8 **)&v151);
-          v13 = v151;
-          if ( *v151 != 89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 519, ASSERT_TYPE_ASSERT, "(commandData[0] == 'Y')", (const char *)&queryFormat, "commandData[0] == SVSCMD_BINARY_COMMAND") )
+          CircularEntryBuffer<128,131072,int,0>::GetData(p_clientReliableCommands, v9 & 0x7F, (const unsigned __int8 **)&v149);
+          v13 = v149;
+          if ( *v149 != 89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 519, ASSERT_TYPE_ASSERT, "(commandData[0] == 'Y')", (const char *)&queryFormat, "commandData[0] == SVSCMD_BINARY_COMMAND") )
             __debugbreak();
           MSG_WriteData(&buf, v13, size);
-          ClientConnectionMP = v149;
+          ClientConnectionMP = v147;
         }
         else
         {
@@ -743,7 +634,7 @@ void CL_InputMP_WritePacket(LocalClientNum_t localClientNum)
     while ( v9 <= ClientConnectionMP->m_connectionData.reliableSequence );
     p_outCmdPredict = &outCmdPredict;
     v5 = outCurSize[1];
-    ClientMP = v148;
+    ClientMP = v146;
     v1 = clientNum;
   }
   CmdNumber = ClActiveClient_GetCmdNumber(ClientMP);
@@ -804,19 +695,19 @@ LABEL_61:
       MSG_WriteByte(&buf, outCmdDelta[0]);
       MSG_WriteByte(&buf, v5);
       MSG_WriteLong(&buf, ClientMP->svCmdCurrentErrorUsec / 1000);
-      v23 = v149;
-      v24 = v149->m_connectionData.checksumFeed ^ ClientConnectionMP->m_connectionData.serverMessageSequence;
-      serverCommandSequence = v149->m_connectionData.serverCommandSequence;
-      LODWORD(v148) = serverCommandSequence & 0x1FF;
-      offset = v149->m_connectionData.serverReliableCommands.m_entries[serverCommandSequence & 0x1FF].offset;
-      if ( v149->m_connectionData.serverReliableCommands.m_bufferNextIndex - offset <= 0x20000 && (v27 = v149->m_connectionData.serverReliableCommands.m_entries[(unsigned int)v148].size) != 0 )
+      v23 = v147;
+      v24 = v147->m_connectionData.checksumFeed ^ ClientConnectionMP->m_connectionData.serverMessageSequence;
+      serverCommandSequence = v147->m_connectionData.serverCommandSequence;
+      LODWORD(v146) = serverCommandSequence & 0x1FF;
+      offset = v147->m_connectionData.serverReliableCommands.m_entries[serverCommandSequence & 0x1FF].offset;
+      if ( v147->m_connectionData.serverReliableCommands.m_bufferNextIndex - offset <= 0x20000 && (v27 = v147->m_connectionData.serverReliableCommands.m_entries[(unsigned int)v146].size) != 0 )
       {
         v28 = offset & 0x1FFFF;
         if ( (unsigned int)v28 + v27 > 0x20000 )
         {
-          LODWORD(v143) = 0x20000;
-          LODWORD(v142) = v28 + v27;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 202, ASSERT_TYPE_ASSERT, "( bufferIndex + m_entries[entryIndex].size ) <= ( sizeof( m_buffer ) )", "%s <= %s\n\t%i, %i", "bufferIndex + m_entries[entryIndex].size", "sizeof( m_buffer )", v142, v143) )
+          LODWORD(v141) = 0x20000;
+          LODWORD(v140) = v28 + v27;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 202, ASSERT_TYPE_ASSERT, "( bufferIndex + m_entries[entryIndex].size ) <= ( sizeof( m_buffer ) )", "%s <= %s\n\t%i, %i", "bufferIndex + m_entries[entryIndex].size", "sizeof( m_buffer )", v140, v141) )
             __debugbreak();
         }
         v29 = (const char *)&v23->m_connectionData.serverReliableCommands.m_buffer[v28];
@@ -842,7 +733,7 @@ LABEL_61:
         while ( *v31 );
       }
       v33 = v30 ^ v24;
-      LODWORD(v151) = v33;
+      LODWORD(v149) = v33;
       v34 = DVARBOOL_cl_debugMessageKey;
       outBuf = (unsigned __int8 *)DVARBOOL_cl_debugMessageKey;
       if ( !DVARBOOL_cl_debugMessageKey )
@@ -858,11 +749,11 @@ LABEL_61:
         do
           ++v35;
         while ( v29[v35] );
-        LODWORD(v143) = v35;
-        LODWORD(v141) = (_DWORD)v148;
+        LODWORD(v141) = v35;
+        LODWORD(v139) = (_DWORD)v146;
         LODWORD(outPredict) = v30;
-        LODWORD(fmt) = v149->m_connectionData.serverMessageSequence;
-        Com_Printf(14, "key:%i, checksumFeed:%i, messageAcknowledge:%i, reliableCmdHash:%u, servercommand(%i):'%s', len:%i\n", v33, (unsigned int)v149->m_connectionData.checksumFeed, fmt, outPredict, v141, v29, v143);
+        LODWORD(fmt) = v147->m_connectionData.serverMessageSequence;
+        Com_Printf(14, "key:%i, checksumFeed:%i, messageAcknowledge:%i, reliableCmdHash:%u, servercommand(%i):'%s', len:%i\n", v33, (unsigned int)v147->m_connectionData.checksumFeed, fmt, outPredict, v139, v29, v141);
       }
       v36 = -1;
       v37 = (unsigned __int8 *)&outCmd.buttons + 2;
@@ -879,7 +770,7 @@ LABEL_61:
         --v38;
       }
       while ( v38 );
-      v44 = (unsigned __int8 *)&v158.origin.x + 2;
+      v44 = (unsigned __int8 *)&v156.origin.x + 2;
       v45 = 2i64;
       do
       {
@@ -927,19 +818,19 @@ LABEL_61:
       {
         ControllerFromClient = CL_Mgr_GetControllerFromClient(clientNum);
         UsernameForLocalClient = CL_GetUsernameForLocalClient(ControllerFromClient);
-        LODWORD(v141) = v75;
+        LODWORD(v139) = v75;
         LODWORD(outPredict) = outCmd.commandTime;
-        LODWORD(fmt) = v149->m_connectionData.netchan.outgoingSequence;
-        Com_Printf(16, "CL[%s] -- writing %d commands in packet %d from command time %d with baseline %d\n", UsernameForLocalClient, (unsigned int)v5, fmt, outPredict, v141);
+        LODWORD(fmt) = v147->m_connectionData.netchan.outgoingSequence;
+        Com_Printf(16, "CL[%s] -- writing %d commands in packet %d from command time %d with baseline %d\n", UsernameForLocalClient, (unsigned int)v5, fmt, outPredict, v139);
       }
       v79 = 1;
       v80 = ~v5;
-      LODWORD(v148) = ~v5;
+      LODWORD(v146) = ~v5;
       outBuf = (unsigned __int8 *)(unsigned int)v5;
       do
       {
-        v154 = (__int64)ClientMP + 264 * (((unsigned __int8)v80 + (unsigned __int8)v79 + (unsigned __int8)CmdNumber + 1) & 0x7F);
-        v81 = (usercmd_s *)(v154 + 472);
+        v152 = (__int64)ClientMP + 264 * (((unsigned __int8)v80 + (unsigned __int8)v79 + (unsigned __int8)CmdNumber + 1) & 0x7F);
+        v81 = (usercmd_s *)(v152 + 472);
         ClActiveClientMP::GetPredictedData(ClientMP, v80 + v79 + CmdNumber + 1, p_outCmdPredict);
         v82 = DVARBOOL_cl_usercmd_print;
         if ( !DVARBOOL_cl_usercmd_print && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_usercmd_print") )
@@ -1003,25 +894,25 @@ LABEL_61:
             --v93;
           }
           while ( v93 );
-          LODWORD(v141) = ~v84;
-          LODWORD(outPredict) = *(_DWORD *)(v154 + 488);
+          LODWORD(v139) = ~v84;
+          LODWORD(outPredict) = *(_DWORD *)(v152 + 488);
           LODWORD(fmt) = v5;
-          Com_Printf(16, "CL[%s] -- writing command[%d/%d] for time %d with checksum %d\n", *(const char **)&outPacket.p_packetSeq, v79, fmt, outPredict, v141);
+          Com_Printf(16, "CL[%s] -- writing command[%d/%d] for time %d with checksum %d\n", *(const char **)&outPacket.p_packetSeq, v79, fmt, outPredict, v139);
         }
-        MSG_UserCmd_WriteCommandFields(&buf, (int)v151, from, v81);
-        MSG_UserCmd_WritePredictedFields(&buf, (int)v151, v152, p_outCmdPredict);
-        v123 = v152;
-        v152 = p_outCmdPredict;
+        MSG_UserCmd_WriteCommandFields(&buf, (int)v149, from, v81);
+        MSG_UserCmd_WritePredictedFields(&buf, (int)v149, v150, p_outCmdPredict);
+        v123 = v150;
+        v150 = p_outCmdPredict;
         p_outCmdPredict = v123;
         from = v81;
         ++v79;
         v124 = outBuf-- == (unsigned __int8 *)1;
-        v80 = (int)v148;
+        v80 = (int)v146;
       }
       while ( !v124 );
       MSG_UserCmd_DisableWriteData();
       v1 = clientNum;
-      ClientConnectionMP = v149;
+      ClientConnectionMP = v147;
     }
   }
   MSG_WriteBits(&buf, 3i64, 3u);
@@ -1036,72 +927,67 @@ LABEL_61:
     cursize = buf.cursize;
     if ( buf.cursize < 10 )
     {
-      LODWORD(v143) = 10;
-      LODWORD(v142) = buf.cursize;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 724, ASSERT_TYPE_ASSERT, "( buf.cursize ) >= ( 10 )", "%s >= %s\n\t%i, %i", "buf.cursize", "CL_ENCODE_START", v142, v143) )
+      LODWORD(v141) = 10;
+      LODWORD(v140) = buf.cursize;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 724, ASSERT_TYPE_ASSERT, "( buf.cursize ) >= ( 10 )", "%s >= %s\n\t%i, %i", "buf.cursize", "CL_ENCODE_START", v140, v141) )
         __debugbreak();
       cursize = buf.cursize;
     }
-    _RDX = buf.data;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rdx]
-      vmovsd  qword ptr [rbp+1510h+var_1390], xmm0
-    }
-    v161 = *((_WORD *)buf.data + 4);
+    *(_QWORD *)v158 = *(_QWORD *)buf.data;
+    v159 = *((_WORD *)buf.data + 4);
     if ( MSG_WriteBitsCompress(0, (const unsigned __int8 *)buf.data + 10, to, cursize - 10, 2464, outCurSize) )
     {
-      v128 = outCurSize[0] + 10;
-      outCurSize[0] = v128;
-      if ( v128 < 10 || (unsigned int)v128 > 0x9AA )
+      v126 = outCurSize[0] + 10;
+      outCurSize[0] = v126;
+      if ( v126 < 10 || (unsigned int)v126 > 0x9AA )
       {
-        LODWORD(v142) = 2474;
-        LODWORD(v141) = 10;
-        LODWORD(outPredicta) = v128;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 752, ASSERT_TYPE_ASSERT, "( 10 ) <= ( compressedSize ) && ( compressedSize ) <= ( sizeof( compressedBuf ) )", "compressedSize not in [CL_ENCODE_START, sizeof( compressedBuf )]\n\t%i not in [%i, %i]", outPredicta, v141, v142) )
+        LODWORD(v140) = 2474;
+        LODWORD(v139) = 10;
+        LODWORD(outPredicta) = v126;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 752, ASSERT_TYPE_ASSERT, "( 10 ) <= ( compressedSize ) && ( compressedSize ) <= ( sizeof( compressedBuf ) )", "compressedSize not in [CL_ENCODE_START, sizeof( compressedBuf )]\n\t%i not in [%i, %i]", outPredicta, v139, v140) )
           __debugbreak();
       }
       realtime = cls.realtime;
-      v130 = &ClientConnectionMP->m_packetBackupData[ClientConnectionMP->m_connectionData.netchan.outgoingSequence % ClientConnectionMP->m_packetBackupCount];
-      v130->p_packetSeq = ClientConnectionMP->m_connectionData.netchan.outgoingSequence;
-      v130->p_realtime = realtime;
-      v130->p_commandTime = 0;
-      v130->p_cmdNumber = CmdNumber;
+      v128 = &ClientConnectionMP->m_packetBackupData[ClientConnectionMP->m_connectionData.netchan.outgoingSequence % ClientConnectionMP->m_packetBackupCount];
+      v128->p_packetSeq = ClientConnectionMP->m_connectionData.netchan.outgoingSequence;
+      v128->p_realtime = realtime;
+      v128->p_commandTime = 0;
+      v128->p_cmdNumber = CmdNumber;
       reliableSent = ClientConnectionMP->m_connectionData.reliableSent;
       if ( ClientConnectionMP->m_connectionData.reliableAcknowledge > reliableSent || reliableSent > ClientConnectionMP->m_connectionData.reliableSequence )
       {
-        LODWORD(v142) = ClientConnectionMP->m_connectionData.reliableSequence;
-        LODWORD(v141) = ClientConnectionMP->m_connectionData.reliableAcknowledge;
+        LODWORD(v140) = ClientConnectionMP->m_connectionData.reliableSequence;
+        LODWORD(v139) = ClientConnectionMP->m_connectionData.reliableAcknowledge;
         LODWORD(outPredicta) = ClientConnectionMP->m_connectionData.reliableSent;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 764, ASSERT_TYPE_ASSERT, "( clcData->reliableAcknowledge ) <= ( clcData->reliableSent ) && ( clcData->reliableSent ) <= ( clcData->reliableSequence )", "clcData->reliableSent not in [clcData->reliableAcknowledge, clcData->reliableSequence]\n\t%i not in [%i, %i]", outPredicta, v141, v142) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_input_mp_inline.h", 764, ASSERT_TYPE_ASSERT, "( clcData->reliableAcknowledge ) <= ( clcData->reliableSent ) && ( clcData->reliableSent ) <= ( clcData->reliableSequence )", "clcData->reliableSent not in [clcData->reliableAcknowledge, clcData->reliableSequence]\n\t%i not in [%i, %i]", outPredicta, v139, v140) )
           __debugbreak();
       }
-      v132 = ClientConnectionMP->m_connectionData.reliableSent;
-      v133 = v132 + 1;
+      v130 = ClientConnectionMP->m_connectionData.reliableSent;
+      v131 = v130 + 1;
       reliableSequence = ClientConnectionMP->m_connectionData.reliableSequence;
-      if ( v132 < reliableSequence )
+      if ( v130 < reliableSequence )
       {
         do
         {
-          ClientConnectionMP->m_connectionData.serverReliableCommandPacket[v133++ & 0x7F] = ClientConnectionMP->m_connectionData.netchan.outgoingSequence;
+          ClientConnectionMP->m_connectionData.serverReliableCommandPacket[v131++ & 0x7F] = ClientConnectionMP->m_connectionData.netchan.outgoingSequence;
           reliableSequence = ClientConnectionMP->m_connectionData.reliableSequence;
         }
-        while ( v133 <= reliableSequence );
+        while ( v131 <= reliableSequence );
       }
       ClientConnectionMP->m_connectionData.reliableSent = reliableSequence;
       ClientConnectionMP->m_connectionData.connectLastSendTime = cls.realtime;
-      v135 = DVARBOOL_cl_showSend;
+      v133 = DVARBOOL_cl_showSend;
       if ( !DVARBOOL_cl_showSend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_showSend") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v135);
-      if ( v135->current.enabled )
+      Dvar_CheckFrontendServerThread(v133);
+      if ( v133->current.enabled )
       {
         String = NetConnection::GetString(&ClientConnectionMP->m_connectionData.serverConnection);
         Com_Printf(14, "%i to %s\n", (unsigned int)outCurSize[0], String);
       }
-      v137 = CL_Netchan_Transmit(&ClientConnectionMP->m_connectionData.netchan, v160, outCurSize[0]);
-      if ( v137 < 0 )
-        CL_MainMP_TransmissionError(v1, v137);
+      v135 = CL_Netchan_Transmit(&ClientConnectionMP->m_connectionData.netchan, v158, outCurSize[0]);
+      if ( v135 < 0 )
+        CL_MainMP_TransmissionError(v1, v135);
     }
     else if ( !Com_ErrorEntered() )
     {

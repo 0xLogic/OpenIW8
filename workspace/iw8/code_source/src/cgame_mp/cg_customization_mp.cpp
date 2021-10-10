@@ -649,16 +649,13 @@ CG_CustomizationMP_GetMaxLatchDistanceSqFromDvar
 */
 float CG_CustomizationMP_GetMaxLatchDistanceSqFromDvar()
 {
-  _RBX = DCONST_DVARFLT_cg_customizationMP_latchMaxDistance;
+  const dvar_t *v0; 
+
+  v0 = DCONST_DVARFLT_cg_customizationMP_latchMaxDistance;
   if ( !DCONST_DVARFLT_cg_customizationMP_latchMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_customizationMP_latchMaxDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, xmm0
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value * v0->current.value;
 }
 
 /*
@@ -755,6 +752,7 @@ CG_CustomizationMP_Init
 void CG_CustomizationMP_Init(void)
 {
   int i; 
+  const dvar_t *v1; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_AIM|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_customization_mp.cpp", 648, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_CUSTOMIZATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRANSIENT_CUSTOMIZATION )") )
     __debugbreak();
@@ -762,16 +760,11 @@ void CG_CustomizationMP_Init(void)
   Cmd_AddCommandInternal("cg_customization_devLatchModels", CG_CustomizationMP_DevLatchModels, &stru_148C55408);
   for ( i = 0; i < 2; ++i )
     CG_CustomizationMP_ClearModelCustomizationLatch((const LocalClientNum_t)i);
-  _RBX = DCONST_DVARFLT_cg_customizationMP_latchMaxDistance;
+  v1 = DCONST_DVARFLT_cg_customizationMP_latchMaxDistance;
   if ( !DCONST_DVARFLT_cg_customizationMP_latchMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_customizationMP_latchMaxDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  cs:s_customizationMaxLatchDistanceSq, xmm1
-  }
+  Dvar_CheckFrontendServerThread(v1);
+  s_customizationMaxLatchDistanceSq = v1->current.value * v1->current.value;
 }
 
 /*

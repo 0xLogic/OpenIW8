@@ -518,36 +518,31 @@ R_FlushImmediateContext
 */
 unsigned __int64 R_FlushImmediateContext()
 {
-  HRESULT v2; 
-  const char *v3; 
-  D3DCommandListHandle *v4; 
-  __int128 state; 
+  __int128 v0; 
+  HRESULT v1; 
+  const char *v2; 
+  D3DCommandListHandle *v3; 
   GfxCmdBufContext result; 
   unsigned __int64 fence; 
 
   if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  _RAX = RB_GetBackendCmdBufContext(&result);
-  __asm
+  v0 = (__int128)*RB_GetBackendCmdBufContext(&result);
+  v1 = ((__int64 (__fastcall *)(GfxDevice *))g_dx.immediateContext->m_pFunction[3].QueryInterface)(g_dx.immediateContext);
+  if ( v1 < 0 )
   {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+58h+state], xmm0
-  }
-  v2 = ((__int64 (__fastcall *)(GfxDevice *))g_dx.immediateContext->m_pFunction[3].QueryInterface)(g_dx.immediateContext);
-  if ( v2 < 0 )
-  {
-    v3 = R_ErrorDescription(v2);
-    Sys_Error((const ObfuscateErrorText)&stru_1443D92C0, 1059i64, v3);
+    v2 = R_ErrorDescription(v1);
+    Sys_Error((const ObfuscateErrorText)&stru_1443D92C0, 1059i64, v2);
   }
   if ( g_dx.immediateContext != g_dx.immediateCommandQueue.cmdListRing[g_dx.immediateCommandQueue.currListIndex].cmdList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 1061, ASSERT_TYPE_ASSERT, "(g_dx.immediateContext == g_dx.immediateCommandQueue.cmdListRing[g_dx.immediateCommandQueue.currListIndex].cmdList)", (const char *)&queryFormat, "g_dx.immediateContext == g_dx.immediateCommandQueue.cmdListRing[g_dx.immediateCommandQueue.currListIndex].cmdList") )
     __debugbreak();
-  v4 = R_FlushCommandQueue(&g_dx.immediateCommandQueue, &fence, 1);
-  if ( (v4->cmdListType == D3D12XBOX_COMMAND_LIST_TYPE_DMA || v4->cmdListType == D3D12_COMMAND_LIST_TYPE_COPY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 1070, ASSERT_TYPE_ASSERT, "(newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA && newList->cmdListType != D3D12_COMMAND_LIST_TYPE_COPY && newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA)", (const char *)&queryFormat, "newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA && newList->cmdListType != D3D12_COMMAND_LIST_TYPE_COPY && newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA") )
+  v3 = R_FlushCommandQueue(&g_dx.immediateCommandQueue, &fence, 1);
+  if ( (v3->cmdListType == D3D12XBOX_COMMAND_LIST_TYPE_DMA || v3->cmdListType == D3D12_COMMAND_LIST_TYPE_COPY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 1070, ASSERT_TYPE_ASSERT, "(newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA && newList->cmdListType != D3D12_COMMAND_LIST_TYPE_COPY && newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA)", (const char *)&queryFormat, "newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA && newList->cmdListType != D3D12_COMMAND_LIST_TYPE_COPY && newList->cmdListType != D3D12XBOX_COMMAND_LIST_TYPE_DMA") )
     __debugbreak();
-  R_DynamicRingBufferInsertGivenFenceToAll(*((GfxCmdBufState **)&state + 1), fence);
-  g_dx.immediateContext = (GfxDevice *)v4->cmdList;
-  *(_QWORD *)(*((_QWORD *)&state + 1) + 1360i64) = g_dx.immediateContext;
-  R_InvalidateState(*((GfxCmdBufState **)&state + 1));
+  R_DynamicRingBufferInsertGivenFenceToAll(*((GfxCmdBufState **)&v0 + 1), fence);
+  g_dx.immediateContext = (GfxDevice *)v3->cmdList;
+  *(_QWORD *)(*((_QWORD *)&v0 + 1) + 1360i64) = g_dx.immediateContext;
+  R_InvalidateState(*((GfxCmdBufState **)&v0 + 1));
   return fence;
 }
 
@@ -737,30 +732,30 @@ void R_InitCommandQueue(D3D12_COMMAND_LIST_TYPE type, unsigned int numAllocs, un
   D3DCommandAllocHandle *cmdAllocRing; 
   D3DCommandListHandle *cmdListRing; 
   ID3D12DeviceChild **p_cmdList; 
-  HRESULT v34; 
-  const char *v35; 
+  HRESULT v32; 
+  const char *v33; 
+  const char *v34; 
+  HRESULT v35; 
   const char *v36; 
   HRESULT v37; 
   const char *v38; 
-  HRESULT v39; 
-  const char *v40; 
-  int v43[3]; 
-  int v44; 
-  int v45[4]; 
-  __int128 v46; 
+  int v41[3]; 
+  int v42; 
+  int v43[4]; 
+  GUID v44; 
 
   v11 = numAllocs;
   if ( !g_dx.d3d12device && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 594, ASSERT_TYPE_ASSERT, "(g_dx.d3d12device)", (const char *)&queryFormat, "g_dx.d3d12device") )
     __debugbreak();
   v12 = pipeIndex;
-  v45[3] = queueIndex;
-  v45[0] = type;
+  v43[3] = queueIndex;
+  v43[0] = type;
   inited = (void **)(int)R_InitCommandQueueCustomAllocCallback(type, pipeIndex);
   if ( type == D3D12_COMMAND_LIST_TYPE_COMPUTE )
     v12 = 1;
-  v45[2] = v12;
-  v45[1] = 0;
-  v14 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, D3DCommandQueueHandle *))g_dx.d3d12device->m_pFunction[16].QueryInterface)(g_dx.d3d12device, v45, &GUID_0ec870a6_5d7e_4c22_8cfc_5baae07616ed, commandQueueHandle);
+  v43[2] = v12;
+  v43[1] = 0;
+  v14 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, D3DCommandQueueHandle *))g_dx.d3d12device->m_pFunction[16].QueryInterface)(g_dx.d3d12device, v43, &GUID_0ec870a6_5d7e_4c22_8cfc_5baae07616ed, commandQueueHandle);
   if ( v14 < 0 )
   {
     v15 = R_ErrorDescription(v14);
@@ -812,34 +807,24 @@ void R_InitCommandQueue(D3D12_COMMAND_LIST_TYPE type, unsigned int numAllocs, un
     {
       cmdAllocRing = commandQueueHandle->cmdAllocRing;
       cmdListRing = commandQueueHandle->cmdListRing;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:_GUID_5b160d0f_ac1b_4185_8ba8_b3ae42a5a455.Data1
-        vmovups [rsp+0A8h+var_50], xmm0
-      }
+      v44 = GUID_5b160d0f_ac1b_4185_8ba8_b3ae42a5a455;
       if ( type == D3D12_COMMAND_LIST_TYPE_COPY || type == D3D12XBOX_COMMAND_LIST_TYPE_DMA )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:_GUID_30bc77b9_8379_4b25_95de_b8588c42275d.Data1
-          vmovups [rsp+0A8h+var_50], xmm0
-        }
-      }
-      v43[0] = type;
-      v43[1] = 0;
-      v43[2] = 1;
-      if ( type == D3D12_COMMAND_LIST_TYPE_COPY || (v44 = 32, type == D3D12XBOX_COMMAND_LIST_TYPE_DMA) )
-        v44 = 0;
+        v44 = GUID_30bc77b9_8379_4b25_95de_b8588c42275d;
+      v41[0] = type;
+      v41[1] = 0;
+      v41[2] = 1;
+      if ( type == D3D12_COMMAND_LIST_TYPE_COPY || (v42 = 32, type == D3D12XBOX_COMMAND_LIST_TYPE_DMA) )
+        v42 = 0;
       cmdListRing[v27].cmdListType = type;
       p_cmdList = &cmdListRing[v27].cmdList;
-      v34 = ((__int64 (__fastcall *)(ID3D12Device *, int *, ID3D12CommandAllocator *, _QWORD, __int128 *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[24].AddRef)(g_dx.d3d12device, v43, cmdAllocRing->cmdAlloc, 0i64, &v46, p_cmdList);
-      if ( v34 < 0 )
+      v32 = ((__int64 (__fastcall *)(ID3D12Device *, int *, ID3D12CommandAllocator *, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[24].AddRef)(g_dx.d3d12device, v41, cmdAllocRing->cmdAlloc, 0i64, &v44, p_cmdList);
+      if ( v32 < 0 )
       {
-        v35 = R_ErrorDescription(v34);
-        Sys_Error((const ObfuscateErrorText)&stru_1443D8CA0, 662i64, v35);
+        v33 = R_ErrorDescription(v32);
+        Sys_Error((const ObfuscateErrorText)&stru_1443D8CA0, 662i64, v33);
       }
-      v36 = j_va("%s command list %d", name, v26);
-      PIXSetDebugName(*p_cmdList, v36);
+      v34 = j_va("%s command list %d", name, v26);
+      PIXSetDebugName(*p_cmdList, v34);
       if ( (type & 0xFFFFFFFD) != 0 )
       {
         if ( v28 )
@@ -850,21 +835,21 @@ void R_InitCommandQueue(D3D12_COMMAND_LIST_TYPE type, unsigned int numAllocs, un
       else if ( v28 )
       {
 LABEL_40:
-        v39 = ((__int64 (__fastcall *)(ID3D12DeviceChild *))(*p_cmdList)->m_pFunction[3].QueryInterface)(*p_cmdList);
-        if ( v39 < 0 )
+        v37 = ((__int64 (__fastcall *)(ID3D12DeviceChild *))(*p_cmdList)->m_pFunction[3].QueryInterface)(*p_cmdList);
+        if ( v37 < 0 )
         {
-          v40 = R_ErrorDescription(v39);
-          Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp (%i) static_cast<D3DCopyCommandList*>( cmdListHandle->cmdList )->Close() failed: %s\n", 717i64, v40);
+          v38 = R_ErrorDescription(v37);
+          Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp (%i) static_cast<D3DCopyCommandList*>( cmdListHandle->cmdList )->Close() failed: %s\n", 717i64, v38);
         }
         goto LABEL_36;
       }
       if ( (type & 0xFFFFFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 721, ASSERT_TYPE_ASSERT, "(type == D3D12_COMMAND_LIST_TYPE_DIRECT || type == D3D12_COMMAND_LIST_TYPE_COMPUTE)", (const char *)&queryFormat, "type == D3D12_COMMAND_LIST_TYPE_DIRECT || type == D3D12_COMMAND_LIST_TYPE_COMPUTE") )
         __debugbreak();
-      v37 = ((__int64 (__fastcall *)(ID3D12DeviceChild *))(*p_cmdList)->m_pFunction[3].QueryInterface)(*p_cmdList);
-      if ( v37 < 0 )
+      v35 = ((__int64 (__fastcall *)(ID3D12DeviceChild *))(*p_cmdList)->m_pFunction[3].QueryInterface)(*p_cmdList);
+      if ( v35 < 0 )
       {
-        v38 = R_ErrorDescription(v37);
-        Sys_Error((const ObfuscateErrorText)&stru_1443D9050, 722i64, v38);
+        v36 = R_ErrorDescription(v35);
+        Sys_Error((const ObfuscateErrorText)&stru_1443D9050, 722i64, v36);
       }
 LABEL_36:
       v25 = numLists;
@@ -894,6 +879,8 @@ R_InitCommandQueueCustomAllocCallback
 __int64 R_InitCommandQueueCustomAllocCallback(D3D12_COMMAND_LIST_TYPE type, unsigned int pipeIndex)
 {
   __int64 result; 
+  float v3; 
+  float v4; 
 
   if ( type == D3D12_COMMAND_LIST_TYPE_DIRECT )
   {
@@ -920,17 +907,10 @@ LABEL_23:
   if ( pipeIndex == 2 )
   {
     R_InitCmdBufHeapInfo_Ring(GFX_CMDBUF_CONTEXT_COPY, "CopyCommandQueue");
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3e800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr cs:s_cmdBufHeapInfos.___u3+18h
-      vmovss  dword ptr cs:s_cmdBufHeapInfos.___u3+820h, xmm1
-      vmulss  xmm1, xmm0, xmm1
-      vcvttss2si eax, xmm1
-    }
+    s_cmdBufHeapInfos[0].ring.ringBuffer.settings.fractionFlush = FLOAT_0_25;
+    v3 = (float)s_cmdBufHeapInfos[0].ring.ringBuffer.bufSize * 0.25;
     *(_WORD *)&s_cmdBufHeapInfos[0].ring.ringBuffer.settings.notUsingImmediateContext = 257;
-    if ( _EAX <= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 542, ASSERT_TYPE_ASSERT, "( static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize ) ) > ( 8 * KB )", "%s > %s\n\t%i, %i", "static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize )", "8 * KB", _EAX, 0x2000) )
+    if ( (unsigned int)(int)v3 <= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 542, ASSERT_TYPE_ASSERT, "( static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize ) ) > ( 8 * KB )", "%s > %s\n\t%i, %i", "static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize )", "8 * KB", (int)v3, 0x2000) )
       __debugbreak();
     result = 0i64;
     s_cmdBufHeapInfos[0].ring.ringBuffer.settings.flushFct = R_KickCopyCommandList;
@@ -941,17 +921,10 @@ LABEL_23:
     if ( pipeIndex != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 551, ASSERT_TYPE_ASSERT, "(pipeIndex == 1)", (const char *)&queryFormat, "pipeIndex == 1") )
       __debugbreak();
     R_InitCmdBufHeapInfo_Ring(GFX_CMDBUF_CONTEXT_DEFRAG_COPY, "DefragCommandQueue");
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3e800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr cs:s_cmdBufHeapInfos.___u3+878h
-      vmovss  dword ptr cs:s_cmdBufHeapInfos.___u3+1080h, xmm1
-      vmulss  xmm1, xmm0, xmm1
-      vcvttss2si eax, xmm1
-    }
+    s_cmdBufHeapInfos[1].ring.ringBuffer.settings.fractionFlush = FLOAT_0_25;
+    v4 = (float)s_cmdBufHeapInfos[1].ring.ringBuffer.bufSize * 0.25;
     *(_WORD *)&s_cmdBufHeapInfos[1].ring.ringBuffer.settings.notUsingImmediateContext = 257;
-    if ( _EAX <= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 559, ASSERT_TYPE_ASSERT, "( static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize ) ) > ( 8 * KB )", "%s > %s\n\t%i, %i", "static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize )", "8 * KB", _EAX, 0x2000) )
+    if ( (unsigned int)(int)v4 <= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cmdbuf.cpp", 559, ASSERT_TYPE_ASSERT, "( static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize ) ) > ( 8 * KB )", "%s > %s\n\t%i, %i", "static_cast<int>( ringBuffer.settings.fractionFlush * ringBuffer.bufSize )", "8 * KB", (int)v4, 0x2000) )
       __debugbreak();
     result = 1i64;
     s_cmdBufHeapInfos[1].ring.ringBuffer.settings.flushFct = R_KickDefragDMACommandList;

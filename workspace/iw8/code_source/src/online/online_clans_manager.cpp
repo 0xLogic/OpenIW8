@@ -1420,8 +1420,11 @@ void AcceptClanInviteComplete(GenericTask *task, eTaskManagerTaskState state)
   bdClansGroupIdentifier *v15; 
   unsigned __int64 v16; 
   OnlineClan *IdleClan; 
-  OnlineClanPool *v26; 
-  bool v27; 
+  __int64 v18; 
+  ClanInvitePool *v19; 
+  __int64 v20; 
+  OnlineClanPool *v21; 
+  bool v22; 
   unsigned __int64 TransactionID; 
   int ErrorCode; 
   char *fmt; 
@@ -1450,29 +1453,21 @@ void AcceptClanInviteComplete(GenericTask *task, eTaskManagerTaskState state)
     if ( (unsigned int)v8 >= numInvites )
       goto LABEL_10;
   }
-  _R14 = (__int64)&v7->invites[v8];
+  v18 = (__int64)&v7->invites[v8];
   if ( (ClanInvitePool *)((char *)v7 + 120 * v8) != (ClanInvitePool *)-16i64 )
   {
     if ( CL_Mgr_IsControllerMappedToClient(m_controllerIndex, &outLocalClientNum) )
-      _RBX = &s_clanInvitePool[outLocalClientNum];
+      v19 = &s_clanInvitePool[outLocalClientNum];
     else
-      _RBX = NULL;
-    _RCX = 120i64 * (_RBX->numInvites - 1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+rbx+10h]
-      vmovups ymmword ptr [r14], ymm0
-      vmovups ymm1, ymmword ptr [rcx+rbx+30h]
-      vmovups ymmword ptr [r14+20h], ymm1
-      vmovups ymm0, ymmword ptr [rcx+rbx+50h]
-      vmovups ymmword ptr [r14+40h], ymm0
-      vmovups xmm1, xmmword ptr [rcx+rbx+70h]
-      vmovups xmmword ptr [r14+60h], xmm1
-      vmovsd  xmm0, qword ptr [rcx+rbx+80h]
-      vmovsd  qword ptr [r14+70h], xmm0
-    }
-    memset_0(&_RBX->invites[_RBX->numInvites - 1], 0, sizeof(_RBX->invites[_RBX->numInvites - 1]));
-    --_RBX->numInvites;
+      v19 = NULL;
+    v20 = v19->numInvites - 1;
+    *(__m256i *)v18 = *(__m256i *)&v19->invites[v20].inviter.m_id;
+    *(__m256i *)(v18 + 32) = *(__m256i *)&v19->invites[v20].inviterName[24];
+    *(__m256i *)(v18 + 64) = *(__m256i *)&v19->invites[v20].clanName[20];
+    *(_OWORD *)(v18 + 96) = *(_OWORD *)&v19->invites[v20].sentTimestamp;
+    *(double *)(v18 + 112) = *(double *)&v19->invites[v20].dataFetched;
+    memset_0(&v19->invites[v19->numInvites - 1], 0, sizeof(v19->invites[v19->numInvites - 1]));
+    --v19->numInvites;
   }
   else
   {
@@ -1511,18 +1506,18 @@ LABEL_35:
   if ( IdleClan )
   {
     if ( CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, &outLocalClientNum) )
-      v26 = &s_clanPool[outLocalClientNum];
+      v21 = &s_clanPool[outLocalClientNum];
     else
-      v26 = NULL;
-    v27 = 1;
-    while ( !OnlineClan::IsActiveClan(&v26->clans[v6]) )
+      v21 = NULL;
+    v22 = 1;
+    while ( !OnlineClan::IsActiveClan(&v21->clans[v6]) )
     {
       if ( (unsigned int)++v6 >= 0xA )
         goto LABEL_33;
     }
-    v27 = 0;
+    v22 = 0;
 LABEL_33:
-    OnlineClan::Init(IdleClan, task->m_controllerIndex, id, v27, 0);
+    OnlineClan::Init(IdleClan, task->m_controllerIndex, id, v22, 0);
     goto LABEL_35;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_clans_manager.cpp", 1183, ASSERT_TYPE_ASSERT, "(clan)", (const char *)&queryFormat, "clan") )
@@ -2344,79 +2339,83 @@ void FetchClanInfosComplete(GenericTask *task, eTaskManagerTaskState state)
   __int64 v26; 
   bdArray<bdClansGroupInfo> *GroupInfos; 
   bdClansGroupInfo *v28; 
+  _OWORD *v29; 
+  unsigned __int64 *v30; 
   __int64 v31; 
-  __int64 v42; 
+  bdStructFixedSizeString<255> *p_m_uniqueTag; 
+  bdStructFixedSizeString<255> *v33; 
+  __int64 v34; 
   bool *p_m_hasValue; 
-  bdClansGroupMembershipInfo *v52; 
-  __int64 v53; 
+  bdClansGroupMembershipInfo *v36; 
+  __int64 v37; 
+  __int64 v38; 
+  bdClansGroupMembershipInfo_vtbl **v39; 
+  __int64 v40; 
+  bdArray<bdClansGroupMemberInfo> *v41; 
+  bdClansGroupMemberInfo *v42; 
+  bdClansGroupMemberInfo *v43; 
+  __int64 v44; 
+  __int64 v45; 
+  bdClansGroupMemberInfo_vtbl **v46; 
+  __int64 v47; 
+  bdArray<bdClansGroupMembershipInfo> *v48; 
+  char *v49; 
+  bdClansGroupInfo *v50; 
+  __int64 v51; 
+  __int64 v52; 
+  bdClansGroupInfo_vtbl **v53; 
   __int64 v54; 
-  bdClansGroupMembershipInfo_vtbl **v55; 
-  __int64 v56; 
-  bdArray<bdClansGroupMemberInfo> *v57; 
-  bdClansGroupMemberInfo *v58; 
-  bdClansGroupMemberInfo *v59; 
-  __int64 v60; 
-  __int64 v61; 
-  bdClansGroupMemberInfo_vtbl **v62; 
-  __int64 v63; 
-  bdArray<bdClansGroupMembershipInfo> *v64; 
-  char *v65; 
-  bdClansGroupInfo *v66; 
-  __int64 v67; 
-  __int64 v68; 
-  bdClansGroupInfo_vtbl **v69; 
-  __int64 v70; 
-  char *v71; 
-  GenericTask *v72; 
-  OnlineClanPool *v73; 
-  unsigned int v74; 
-  OnlineClanPool *v75; 
-  _BYTE *v76; 
-  unsigned __int64 v77; 
-  OnlineClan *v78; 
+  char *v55; 
+  GenericTask *v56; 
+  OnlineClanPool *v57; 
+  unsigned int v58; 
+  OnlineClanPool *v59; 
+  _BYTE *v60; 
+  unsigned __int64 v61; 
+  OnlineClan *v62; 
   bool isActiveGroup; 
   bdClansGroupIdentifier *Group; 
   unsigned __int64 ID; 
-  _BYTE *v82; 
-  unsigned __int64 v83; 
-  _BYTE *v84; 
-  unsigned __int64 v85; 
-  _BYTE *v86; 
-  unsigned __int64 v87; 
+  _BYTE *v66; 
+  unsigned __int64 v67; 
+  _BYTE *v68; 
+  unsigned __int64 v69; 
+  _BYTE *v70; 
+  unsigned __int64 v71; 
   unsigned __int64 TransactionID; 
   bdLobbyErrorCode ErrorCode; 
   __int64 isActiveOnDemonware; 
   LocalClientNum_t outLocalClientNum[2]; 
-  bdArray<bdClansGroupMemberInfo> v92; 
-  bdArray<bdClansGroupMembershipInfo> v93; 
-  bdClansGetMembershipsByUsersResponse *v94; 
-  OnlineClanPool *v95; 
+  bdArray<bdClansGroupMemberInfo> v76; 
+  bdArray<bdClansGroupMembershipInfo> v77; 
+  bdClansGetMembershipsByUsersResponse *v78; 
+  OnlineClanPool *v79; 
   bdArray<bdClansGroupInfo> result; 
-  LocalClientNum_t v97; 
-  bdClansGetGroupInfosResponse *v98; 
-  bdClansGroupMembershipInfo v99; 
-  GenericTask *v100; 
-  __int64 v101; 
-  bdClansGroupIdentifier v102; 
-  bdClansGroupMemberInfo v103; 
+  LocalClientNum_t v81; 
+  bdClansGetGroupInfosResponse *v82; 
+  bdClansGroupMembershipInfo v83; 
+  GenericTask *v84; 
+  __int64 v85; 
+  bdClansGroupIdentifier v86; 
+  bdClansGroupMemberInfo v87; 
   bdClansGroupInfo Buf; 
 
-  v101 = -2i64;
-  v100 = task;
+  v85 = -2i64;
+  v84 = task;
   if ( state )
   {
     TransactionID = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
     ErrorCode = bdRemoteTask::getErrorCode(task->m_remoteDemonwareTask.m_ptr);
     Com_PrintError(14, "[Clan] %s: failed to fetch clan infos with error code %i, id %zu\n", "FetchClanInfosComplete", (unsigned int)ErrorCode, TransactionID);
   }
-  else if ( !CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, &outLocalClientNum[1]) || (v3 = outLocalClientNum[1], v4 = &s_clanPool[v3] == NULL, v5 = &s_clanPool[v3], v95 = v5, v4) )
+  else if ( !CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, &outLocalClientNum[1]) || (v3 = outLocalClientNum[1], v4 = &s_clanPool[v3] == NULL, v5 = &s_clanPool[v3], v79 = v5, v4) )
   {
     Com_PrintError(14, "[Clan] %s: not processing more clans for controller %i since the controller is not mapped\n", "FetchClanInfosComplete", (unsigned int)task->m_controllerIndex);
   }
   else
   {
     p_getGroupInfoResponse = &v5->getGroupInfoResponse;
-    v98 = &v5->getGroupInfoResponse;
+    v82 = &v5->getGroupInfoResponse;
     outLocalClientNum[0] = (LocalClientNum_t)bdClansGetGroupInfosResponse::getGroupInfos(&v5->getGroupInfoResponse, &result)->m_size;
     bdArray<bdClansGroupInfo>::~bdArray<bdClansGroupInfo>(&result);
     outLocalClientNum[1] = LOCAL_CLIENT_0;
@@ -2425,28 +2424,28 @@ void FetchClanInfosComplete(GenericTask *task, eTaskManagerTaskState state)
     if ( outLocalClientNum[0] )
     {
       p_getMembershipsByUsersResponse = &v5->getMembershipsByUsersResponse;
-      v94 = p_getMembershipsByUsersResponse;
+      v78 = p_getMembershipsByUsersResponse;
       v10 = 0i64;
       while ( 1 )
       {
-        bdClansGroupMemberInfo::bdClansGroupMemberInfo(&v103);
-        Memberships = bdClansGetMembershipsByUsersResponse::getMemberships(p_getMembershipsByUsersResponse, &v92);
+        bdClansGroupMemberInfo::bdClansGroupMemberInfo(&v87);
+        Memberships = bdClansGetMembershipsByUsersResponse::getMemberships(p_getMembershipsByUsersResponse, &v76);
         if ( Memberships->m_size )
         {
           m_data = Memberships->m_data;
-          bdReferencable::operator=((bdReferencable *)&v103.m_user[*(int *)(*((_QWORD *)&v103.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&Memberships->m_data->__vftable + *(int *)(*((_QWORD *)&Memberships->m_data->__vftable + 1) + 4i64) + 8));
-          bdUserDetails::operator=((bdUserDetails *)(&v103.__vftable + 2), (const bdUserDetails *)(&m_data->__vftable + 2));
-          bdReferencable::operator=((bdReferencable *)&v103.m_user[*(int *)(*(_QWORD *)&v103.m_user[120] + 4i64) + 120], (const bdReferencable *)&m_data->m_user[*(int *)(*(_QWORD *)&m_data->m_user[120] + 4i64) + 120]);
-          bdArray<bdClansGroupMembershipInfo>::operator=(&v103.m_memberships, &m_data->m_memberships);
-          v103.m_onlineStatus = m_data->m_onlineStatus;
+          bdReferencable::operator=((bdReferencable *)&v87.m_user[*(int *)(*((_QWORD *)&v87.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&Memberships->m_data->__vftable + *(int *)(*((_QWORD *)&Memberships->m_data->__vftable + 1) + 4i64) + 8));
+          bdUserDetails::operator=((bdUserDetails *)(&v87.__vftable + 2), (const bdUserDetails *)(&m_data->__vftable + 2));
+          bdReferencable::operator=((bdReferencable *)&v87.m_user[*(int *)(*(_QWORD *)&v87.m_user[120] + 4i64) + 120], (const bdReferencable *)&m_data->m_user[*(int *)(*(_QWORD *)&m_data->m_user[120] + 4i64) + 120]);
+          bdArray<bdClansGroupMembershipInfo>::operator=(&v87.m_memberships, &m_data->m_memberships);
+          v87.m_onlineStatus = m_data->m_onlineStatus;
         }
-        v13 = v92.m_data;
-        if ( v92.m_size )
+        v13 = v76.m_data;
+        if ( v76.m_size )
         {
           v14 = 0i64;
           v15 = 0i64;
-          v16 = &v92.m_data->__vftable + 1;
-          m_size = v92.m_size;
+          v16 = &v76.m_data->__vftable + 1;
+          m_size = v76.m_size;
           do
           {
             (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v13->__vftable + SHIDWORD((*v16)->serialize) + v14 + 8))((__int64)&v13->__vftable + SHIDWORD((*v16)->serialize) + v15 + 8, 0i64);
@@ -2456,32 +2455,32 @@ void FetchClanInfosComplete(GenericTask *task, eTaskManagerTaskState state)
             --m_size;
           }
           while ( m_size );
-          v13 = v92.m_data;
+          v13 = v76.m_data;
         }
         bdMemory::deallocate(v13);
-        v92.m_data = NULL;
-        *(_QWORD *)&v92.m_capacity = 0i64;
-        bdClansGroupMembershipInfo::bdClansGroupMembershipInfo(&v99);
-        v18 = bdClansGroupMemberInfo::getMemberships(&v103, &v93);
+        v76.m_data = NULL;
+        *(_QWORD *)&v76.m_capacity = 0i64;
+        bdClansGroupMembershipInfo::bdClansGroupMembershipInfo(&v83);
+        v18 = bdClansGroupMemberInfo::getMemberships(&v87, &v77);
         if ( v7 < v18->m_size )
         {
           v19 = &v18->m_data[v10];
-          bdReferencable::operator=((bdReferencable *)&v99.m_group[*(int *)(*((_QWORD *)&v99.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&v19->__vftable + *(int *)(*((_QWORD *)&v19->__vftable + 1) + 4i64) + 8));
-          *((_WORD *)&v99.__vftable + 8) = *((_WORD *)&v19->__vftable + 8);
-          bdReferencable::operator=((bdReferencable *)&v99.m_group[*(int *)(*(_QWORD *)v99.m_group + 4i64)], (const bdReferencable *)&v19->m_group[*(int *)(*(_QWORD *)v19->m_group + 4i64)]);
-          *(_WORD *)&v99.m_group[8] = *(_WORD *)&v19->m_group[8];
-          *(_QWORD *)&v99.m_group[16] = *(_QWORD *)&v19->m_group[16];
-          *(_WORD *)&v99.m_group[24] = *(_WORD *)&v19->m_group[24];
-          *(_QWORD *)&v99.m_group[32] = *(_QWORD *)&v19->m_group[32];
-          v99.m_isActiveGroup = v19->m_isActiveGroup;
+          bdReferencable::operator=((bdReferencable *)&v83.m_group[*(int *)(*((_QWORD *)&v83.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&v19->__vftable + *(int *)(*((_QWORD *)&v19->__vftable + 1) + 4i64) + 8));
+          *((_WORD *)&v83.__vftable + 8) = *((_WORD *)&v19->__vftable + 8);
+          bdReferencable::operator=((bdReferencable *)&v83.m_group[*(int *)(*(_QWORD *)v83.m_group + 4i64)], (const bdReferencable *)&v19->m_group[*(int *)(*(_QWORD *)v19->m_group + 4i64)]);
+          *(_WORD *)&v83.m_group[8] = *(_WORD *)&v19->m_group[8];
+          *(_QWORD *)&v83.m_group[16] = *(_QWORD *)&v19->m_group[16];
+          *(_WORD *)&v83.m_group[24] = *(_WORD *)&v19->m_group[24];
+          *(_QWORD *)&v83.m_group[32] = *(_QWORD *)&v19->m_group[32];
+          v83.m_isActiveGroup = v19->m_isActiveGroup;
         }
-        v20 = v93.m_data;
-        if ( v93.m_size )
+        v20 = v77.m_data;
+        if ( v77.m_size )
         {
           v21 = 0i64;
           v22 = 0i64;
-          v23 = &v93.m_data->__vftable + 1;
-          v24 = v93.m_size;
+          v23 = &v77.m_data->__vftable + 1;
+          v24 = v77.m_size;
           do
           {
             (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v20->__vftable + SHIDWORD((*v23)->serialize) + v21 + 8))((__int64)&v20->__vftable + SHIDWORD((*v23)->serialize) + v22 + 8, 0i64);
@@ -2491,43 +2490,43 @@ void FetchClanInfosComplete(GenericTask *task, eTaskManagerTaskState state)
             --v24;
           }
           while ( v24 );
-          v20 = v93.m_data;
+          v20 = v77.m_data;
         }
         bdMemory::deallocate(v20);
-        v93.m_data = NULL;
-        *(_QWORD *)&v93.m_capacity = 0i64;
-        if ( bdClansGroupMembershipInfo::isActiveGroup(&v99) )
+        v77.m_data = NULL;
+        *(_QWORD *)&v77.m_capacity = 0i64;
+        if ( bdClansGroupMembershipInfo::isActiveGroup(&v83) )
           break;
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v99.m_group[8]);
-        bdReferencable::~bdReferencable((bdReferencable *)&v99.m_group[40]);
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v99.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)&v99.gap59[7]);
-        bdClansGroupMemberInfo::`vbase destructor(&v103);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v83.m_group[8]);
+        bdReferencable::~bdReferencable((bdReferencable *)&v83.m_group[40]);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v83.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)&v83.gap59[7]);
+        bdClansGroupMemberInfo::`vbase destructor(&v87);
         ++v7;
         ++v10;
-        p_getMembershipsByUsersResponse = v94;
+        p_getMembershipsByUsersResponse = v78;
         if ( (unsigned int)v7 >= outLocalClientNum[0] )
           goto LABEL_22;
       }
       outLocalClientNum[1] = v7;
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v99.m_group[8]);
-      bdReferencable::~bdReferencable((bdReferencable *)&v99.m_group[40]);
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v99.__vftable + 2));
-      bdReferencable::~bdReferencable((bdReferencable *)&v99.gap59[7]);
-      bdClansGroupMemberInfo::`vbase destructor(&v103);
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v83.m_group[8]);
+      bdReferencable::~bdReferencable((bdReferencable *)&v83.m_group[40]);
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v83.__vftable + 2));
+      bdReferencable::~bdReferencable((bdReferencable *)&v83.gap59[7]);
+      bdClansGroupMemberInfo::`vbase destructor(&v87);
 LABEL_22:
-      p_getGroupInfoResponse = v98;
+      p_getGroupInfoResponse = v82;
       v8 = outLocalClientNum[0];
     }
     v25 = LOCAL_CLIENT_0;
     if ( v8 )
     {
-      v94 = NULL;
+      v78 = NULL;
       v26 = 0i64;
       while ( 1 )
       {
         bdClansGroupInfo::bdClansGroupInfo(&Buf);
-        GroupInfos = bdClansGetGroupInfosResponse::getGroupInfos(p_getGroupInfoResponse, (bdArray<bdClansGroupInfo> *)&v93);
+        GroupInfos = bdClansGetGroupInfosResponse::getGroupInfos(p_getGroupInfoResponse, (bdArray<bdClansGroupInfo> *)&v77);
         if ( v25 < GroupInfos->m_size )
         {
           v28 = &GroupInfos->m_data[v26];
@@ -2536,70 +2535,42 @@ LABEL_22:
           *((_QWORD *)&Buf.__vftable + 3) = *((_QWORD *)&v28->__vftable + 3);
           Buf.m_rootKind = v28->m_rootKind;
           Buf.m_rootID = v28->m_rootID;
-          _RAX = &v28->m_rootID + 1;
-          _RCX = &Buf.m_rootID + 1;
+          v29 = &v28->m_rootID + 1;
+          v30 = &Buf.m_rootID + 1;
           v31 = 2i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX += 16;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RAX += 16;
+            *(_OWORD *)v30 = *v29;
+            *((_OWORD *)v30 + 1) = v29[1];
+            *((_OWORD *)v30 + 2) = v29[2];
+            *((_OWORD *)v30 + 3) = v29[3];
+            *((_OWORD *)v30 + 4) = v29[4];
+            *((_OWORD *)v30 + 5) = v29[5];
+            *((_OWORD *)v30 + 6) = v29[6];
+            v30 += 16;
+            *((_OWORD *)v30 - 1) = v29[7];
+            v29 += 8;
             --v31;
           }
           while ( v31 );
-          _RCX = &v28->m_uniqueTag;
-          _RAX = &Buf.m_uniqueTag;
-          v42 = 2i64;
+          p_m_uniqueTag = &v28->m_uniqueTag;
+          v33 = &Buf.m_uniqueTag;
+          v34 = 2i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx]
-              vmovups xmmword ptr [rax], xmm0
-              vmovups xmm1, xmmword ptr [rcx+10h]
-              vmovups xmmword ptr [rax+10h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+20h]
-              vmovups xmmword ptr [rax+20h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+30h]
-              vmovups xmmword ptr [rax+30h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+40h]
-              vmovups xmmword ptr [rax+40h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+50h]
-              vmovups xmmword ptr [rax+50h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+60h]
-              vmovups xmmword ptr [rax+60h], xmm0
-            }
-            _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rcx+70h]
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
-            _RCX = (bdStructFixedSizeString<255> *)((char *)_RCX + 128);
-            --v42;
+            *(_OWORD *)v33->m_buffer = *(_OWORD *)p_m_uniqueTag->m_buffer;
+            *(_OWORD *)&v33->m_buffer[16] = *(_OWORD *)&p_m_uniqueTag->m_buffer[16];
+            *(_OWORD *)&v33->m_buffer[32] = *(_OWORD *)&p_m_uniqueTag->m_buffer[32];
+            *(_OWORD *)&v33->m_buffer[48] = *(_OWORD *)&p_m_uniqueTag->m_buffer[48];
+            *(_OWORD *)&v33->m_buffer[64] = *(_OWORD *)&p_m_uniqueTag->m_buffer[64];
+            *(_OWORD *)&v33->m_buffer[80] = *(_OWORD *)&p_m_uniqueTag->m_buffer[80];
+            *(_OWORD *)&v33->m_buffer[96] = *(_OWORD *)&p_m_uniqueTag->m_buffer[96];
+            v33 = (bdStructFixedSizeString<255> *)((char *)v33 + 128);
+            *(_OWORD *)&v33[-1].m_buffer[240] = *(_OWORD *)&p_m_uniqueTag->m_buffer[112];
+            p_m_uniqueTag = (bdStructFixedSizeString<255> *)((char *)p_m_uniqueTag + 128);
+            --v34;
           }
-          while ( v42 );
+          while ( v34 );
           Buf.m_privacyLevel = v28->m_privacyLevel;
           p_m_hasValue = &v28->m_owner.m_hasValue;
           if ( &Buf.m_owner != &v28->m_owner )
@@ -2613,184 +2584,184 @@ LABEL_22:
           Buf.m_createdTimestamp = v28->m_createdTimestamp;
           Buf.m_onlineMemberCount = v28->m_onlineMemberCount;
         }
-        v52 = v93.m_data;
-        if ( v93.m_size )
+        v36 = v77.m_data;
+        if ( v77.m_size )
         {
-          v53 = 0i64;
-          v54 = 0i64;
-          v55 = &v93.m_data->__vftable + 1;
-          v56 = v93.m_size;
+          v37 = 0i64;
+          v38 = 0i64;
+          v39 = &v77.m_data->__vftable + 1;
+          v40 = v77.m_size;
           do
           {
-            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v52->__vftable + SHIDWORD((*v55)->serialize) + v53 + 8))((__int64)&v52->__vftable + SHIDWORD((*v55)->serialize) + v54 + 8, 0i64);
-            v54 += 696i64;
-            v53 += 696i64;
-            v55 += 87;
-            --v56;
+            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v36->__vftable + SHIDWORD((*v39)->serialize) + v37 + 8))((__int64)&v36->__vftable + SHIDWORD((*v39)->serialize) + v38 + 8, 0i64);
+            v38 += 696i64;
+            v37 += 696i64;
+            v39 += 87;
+            --v40;
           }
-          while ( v56 );
-          v52 = v93.m_data;
+          while ( v40 );
+          v36 = v77.m_data;
         }
-        bdMemory::deallocate(v52);
-        v93.m_data = NULL;
-        *(_QWORD *)&v93.m_capacity = 0i64;
-        bdClansGroupMemberInfo::bdClansGroupMemberInfo(&v103);
-        v57 = bdClansGetMembershipsByUsersResponse::getMemberships(&v95->getMembershipsByUsersResponse, &v92);
-        if ( v57->m_size )
+        bdMemory::deallocate(v36);
+        v77.m_data = NULL;
+        *(_QWORD *)&v77.m_capacity = 0i64;
+        bdClansGroupMemberInfo::bdClansGroupMemberInfo(&v87);
+        v41 = bdClansGetMembershipsByUsersResponse::getMemberships(&v79->getMembershipsByUsersResponse, &v76);
+        if ( v41->m_size )
         {
-          v58 = v57->m_data;
-          bdReferencable::operator=((bdReferencable *)&v103.m_user[*(int *)(*((_QWORD *)&v103.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&v57->m_data->__vftable + *(int *)(*((_QWORD *)&v57->m_data->__vftable + 1) + 4i64) + 8));
-          bdUserDetails::operator=((bdUserDetails *)(&v103.__vftable + 2), (const bdUserDetails *)(&v58->__vftable + 2));
-          bdReferencable::operator=((bdReferencable *)&v103.m_user[*(int *)(*(_QWORD *)&v103.m_user[120] + 4i64) + 120], (const bdReferencable *)&v58->m_user[*(int *)(*(_QWORD *)&v58->m_user[120] + 4i64) + 120]);
-          bdArray<bdClansGroupMembershipInfo>::operator=(&v103.m_memberships, &v58->m_memberships);
-          v103.m_onlineStatus = v58->m_onlineStatus;
+          v42 = v41->m_data;
+          bdReferencable::operator=((bdReferencable *)&v87.m_user[*(int *)(*((_QWORD *)&v87.__vftable + 1) + 4i64) - 24], (const bdReferencable *)((char *)&v41->m_data->__vftable + *(int *)(*((_QWORD *)&v41->m_data->__vftable + 1) + 4i64) + 8));
+          bdUserDetails::operator=((bdUserDetails *)(&v87.__vftable + 2), (const bdUserDetails *)(&v42->__vftable + 2));
+          bdReferencable::operator=((bdReferencable *)&v87.m_user[*(int *)(*(_QWORD *)&v87.m_user[120] + 4i64) + 120], (const bdReferencable *)&v42->m_user[*(int *)(*(_QWORD *)&v42->m_user[120] + 4i64) + 120]);
+          bdArray<bdClansGroupMembershipInfo>::operator=(&v87.m_memberships, &v42->m_memberships);
+          v87.m_onlineStatus = v42->m_onlineStatus;
         }
-        v59 = v92.m_data;
-        if ( v92.m_size )
+        v43 = v76.m_data;
+        if ( v76.m_size )
         {
-          v60 = 0i64;
-          v61 = 0i64;
-          v62 = &v92.m_data->__vftable + 1;
-          v63 = v92.m_size;
+          v44 = 0i64;
+          v45 = 0i64;
+          v46 = &v76.m_data->__vftable + 1;
+          v47 = v76.m_size;
           do
           {
-            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v59[v60].__vftable + SHIDWORD((*v62)->serialize) + 8))((__int64)&v59->__vftable + SHIDWORD((*v62)->serialize) + v61 + 8, 0i64);
-            v61 += 216i64;
-            ++v60;
-            v62 += 27;
-            --v63;
+            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v43[v44].__vftable + SHIDWORD((*v46)->serialize) + 8))((__int64)&v43->__vftable + SHIDWORD((*v46)->serialize) + v45 + 8, 0i64);
+            v45 += 216i64;
+            ++v44;
+            v46 += 27;
+            --v47;
           }
-          while ( v63 );
-          v59 = v92.m_data;
+          while ( v47 );
+          v43 = v76.m_data;
         }
-        bdMemory::deallocate(v59);
-        v92.m_data = NULL;
-        *(_QWORD *)&v92.m_capacity = 0i64;
-        bdClansGroupMembershipInfo::bdClansGroupMembershipInfo(&v99);
-        v64 = bdClansGroupMemberInfo::getMemberships(&v103, (bdArray<bdClansGroupMembershipInfo> *)&result);
-        if ( v25 < v64->m_size )
+        bdMemory::deallocate(v43);
+        v76.m_data = NULL;
+        *(_QWORD *)&v76.m_capacity = 0i64;
+        bdClansGroupMembershipInfo::bdClansGroupMembershipInfo(&v83);
+        v48 = bdClansGroupMemberInfo::getMemberships(&v87, (bdArray<bdClansGroupMembershipInfo> *)&result);
+        if ( v25 < v48->m_size )
         {
-          v65 = (char *)v64->m_data + (unsigned __int64)v94;
-          bdReferencable::operator=((bdReferencable *)&v99.m_group[*(int *)(*((_QWORD *)&v99.__vftable + 1) + 4i64) - 24], (const bdReferencable *)&v65[*(int *)(*((_QWORD *)v65 + 1) + 4i64) + 8]);
-          *((_WORD *)&v99.__vftable + 8) = *((_WORD *)v65 + 8);
-          bdReferencable::operator=((bdReferencable *)&v99.m_group[*(int *)(*(_QWORD *)v99.m_group + 4i64)], (const bdReferencable *)&v65[*(int *)(*((_QWORD *)v65 + 4) + 4i64) + 32]);
-          *(_WORD *)&v99.m_group[8] = *((_WORD *)v65 + 20);
-          *(_QWORD *)&v99.m_group[16] = *((_QWORD *)v65 + 6);
-          *(_WORD *)&v99.m_group[24] = *((_WORD *)v65 + 28);
-          *(_QWORD *)&v99.m_group[32] = *((_QWORD *)v65 + 8);
-          v99.m_isActiveGroup = v65[88];
+          v49 = (char *)v48->m_data + (unsigned __int64)v78;
+          bdReferencable::operator=((bdReferencable *)&v83.m_group[*(int *)(*((_QWORD *)&v83.__vftable + 1) + 4i64) - 24], (const bdReferencable *)&v49[*(int *)(*((_QWORD *)v49 + 1) + 4i64) + 8]);
+          *((_WORD *)&v83.__vftable + 8) = *((_WORD *)v49 + 8);
+          bdReferencable::operator=((bdReferencable *)&v83.m_group[*(int *)(*(_QWORD *)v83.m_group + 4i64)], (const bdReferencable *)&v49[*(int *)(*((_QWORD *)v49 + 4) + 4i64) + 32]);
+          *(_WORD *)&v83.m_group[8] = *((_WORD *)v49 + 20);
+          *(_QWORD *)&v83.m_group[16] = *((_QWORD *)v49 + 6);
+          *(_WORD *)&v83.m_group[24] = *((_WORD *)v49 + 28);
+          *(_QWORD *)&v83.m_group[32] = *((_QWORD *)v49 + 8);
+          v83.m_isActiveGroup = v49[88];
         }
-        v66 = result.m_data;
+        v50 = result.m_data;
         if ( result.m_size )
         {
-          v67 = 0i64;
-          v68 = 0i64;
-          v69 = &result.m_data->__vftable + 1;
-          v70 = result.m_size;
+          v51 = 0i64;
+          v52 = 0i64;
+          v53 = &result.m_data->__vftable + 1;
+          v54 = result.m_size;
           do
           {
-            v71 = (char *)v66 + SHIDWORD((*v69)->serialize);
-            (**(void (__fastcall ***)(__int64, _QWORD))&v71[v67 + 8])((__int64)&v71[v68 + 8], 0i64);
-            v68 += 112i64;
-            v67 += 112i64;
-            v69 += 14;
-            --v70;
+            v55 = (char *)v50 + SHIDWORD((*v53)->serialize);
+            (**(void (__fastcall ***)(__int64, _QWORD))&v55[v51 + 8])((__int64)&v55[v52 + 8], 0i64);
+            v52 += 112i64;
+            v51 += 112i64;
+            v53 += 14;
+            --v54;
           }
-          while ( v70 );
-          v66 = result.m_data;
+          while ( v54 );
+          v50 = result.m_data;
         }
-        bdMemory::deallocate(v66);
+        bdMemory::deallocate(v50);
         result.m_data = NULL;
         *(_QWORD *)&result.m_capacity = 0i64;
-        v72 = v100;
-        if ( !CL_Mgr_IsControllerMappedToClient(v100->m_controllerIndex, &v97) )
+        v56 = v84;
+        if ( !CL_Mgr_IsControllerMappedToClient(v84->m_controllerIndex, &v81) )
           break;
-        v73 = &s_clanPool[v97];
-        if ( !v73 )
+        v57 = &s_clanPool[v81];
+        if ( !v57 )
           break;
-        v74 = 0;
-        v75 = &s_clanPool[v97];
-        while ( v75->clans[0].m_state )
+        v58 = 0;
+        v59 = &s_clanPool[v81];
+        while ( v59->clans[0].m_state )
         {
-          ++v74;
-          v75 = (OnlineClanPool *)((char *)v75 + 3984);
-          if ( v74 >= 0xA )
+          ++v58;
+          v59 = (OnlineClanPool *)((char *)v59 + 3984);
+          if ( v58 >= 0xA )
             goto LABEL_54;
         }
-        v78 = &v73->clans[v74];
-        if ( !v78 )
+        v62 = &v57->clans[v58];
+        if ( !v62 )
           break;
-        isActiveGroup = bdClansGroupMembershipInfo::isActiveGroup(&v99);
-        Group = bdClansGroupMembershipInfo::getGroup(&v99, &v102);
+        isActiveGroup = bdClansGroupMembershipInfo::isActiveGroup(&v83);
+        Group = bdClansGroupMembershipInfo::getGroup(&v83, &v86);
         ID = bdClansGroupIdentifier::getID(Group);
-        OnlineClan::Init(v78, v72->m_controllerIndex, ID, v25 == outLocalClientNum[1], isActiveGroup, &Buf);
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v102.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)(&v102.m_rootID + 1));
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v99.m_group[8]);
-        bdReferencable::~bdReferencable((bdReferencable *)&v99.m_group[40]);
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v99.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)&v99.gap59[7]);
-        bdArray<bdClansGroupMembershipInfo>::destruct(&v103.m_memberships, v103.m_memberships.m_data, v103.m_memberships.m_size);
-        bdMemory::deallocate(v103.m_memberships.m_data);
-        v103.m_memberships.m_data = NULL;
-        *(_QWORD *)&v103.m_memberships.m_capacity = 0i64;
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v103.m_user[128]);
-        bdUserDetails::~bdUserDetails((bdUserDetails *)&v103.m_user[112]);
-        bdReferencable::~bdReferencable((bdReferencable *)&v103.m_user[128]);
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v103.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)&v103.gapC1[7]);
+        OnlineClan::Init(v62, v56->m_controllerIndex, ID, v25 == outLocalClientNum[1], isActiveGroup, &Buf);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v86.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)(&v86.m_rootID + 1));
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v83.m_group[8]);
+        bdReferencable::~bdReferencable((bdReferencable *)&v83.m_group[40]);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v83.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)&v83.gap59[7]);
+        bdArray<bdClansGroupMembershipInfo>::destruct(&v87.m_memberships, v87.m_memberships.m_data, v87.m_memberships.m_size);
+        bdMemory::deallocate(v87.m_memberships.m_data);
+        v87.m_memberships.m_data = NULL;
+        *(_QWORD *)&v87.m_memberships.m_capacity = 0i64;
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v87.m_user[128]);
+        bdUserDetails::~bdUserDetails((bdUserDetails *)&v87.m_user[112]);
+        bdReferencable::~bdReferencable((bdReferencable *)&v87.m_user[128]);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v87.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)&v87.gapC1[7]);
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)Buf.m_owner.m_value._bytes_48);
         bdUserAccountID::~bdUserAccountID((bdUserAccountID *)Buf.m_owner.m_value.gap38);
         bdReferencable::~bdReferencable((bdReferencable *)Buf.m_owner.m_value._bytes_48);
-        v82 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
-        if ( v82 )
-          v83 = v82 - (_BYTE *)&Buf.m_uniqueTag;
+        v66 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
+        if ( v66 )
+          v67 = v66 - (_BYTE *)&Buf.m_uniqueTag;
         else
-          v83 = 256i64;
-        bdHandleAssert(v83 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-        v84 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
-        if ( v84 )
-          v85 = v84 - (_BYTE *)(&Buf.m_rootID + 1);
+          v67 = 256i64;
+        bdHandleAssert(v67 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+        v68 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
+        if ( v68 )
+          v69 = v68 - (_BYTE *)(&Buf.m_rootID + 1);
         else
-          v85 = 256i64;
-        bdHandleAssert(v85 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+          v69 = 256i64;
+        bdHandleAssert(v69 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
         bdReferencable::~bdReferencable((bdReferencable *)Buf.gap2A8);
         ++v25;
         ++v26;
-        v94 = (bdClansGetMembershipsByUsersResponse *)((char *)v94 + 112);
+        v78 = (bdClansGetMembershipsByUsersResponse *)((char *)v78 + 112);
         if ( (unsigned int)v25 >= outLocalClientNum[0] )
           goto LABEL_70;
-        p_getGroupInfoResponse = v98;
+        p_getGroupInfoResponse = v82;
       }
 LABEL_54:
       LODWORD(isActiveOnDemonware) = 10;
-      Com_PrintError(14, "[Clan] %s: not processing more clans for controller %i since we are already at max %i\n", "FetchClanInfosComplete", (unsigned int)v72->m_controllerIndex, isActiveOnDemonware);
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v99.m_group[8]);
-      bdReferencable::~bdReferencable((bdReferencable *)&v99.m_group[40]);
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v99.__vftable + 2));
-      bdReferencable::~bdReferencable((bdReferencable *)&v99.gap59[7]);
-      bdClansGroupMemberInfo::`vbase destructor(&v103);
+      Com_PrintError(14, "[Clan] %s: not processing more clans for controller %i since we are already at max %i\n", "FetchClanInfosComplete", (unsigned int)v56->m_controllerIndex, isActiveOnDemonware);
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v83.m_group[8]);
+      bdReferencable::~bdReferencable((bdReferencable *)&v83.m_group[40]);
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v83.__vftable + 2));
+      bdReferencable::~bdReferencable((bdReferencable *)&v83.gap59[7]);
+      bdClansGroupMemberInfo::`vbase destructor(&v87);
       bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)Buf.m_owner.m_value._bytes_48);
       bdUserAccountID::~bdUserAccountID((bdUserAccountID *)Buf.m_owner.m_value.gap38);
       bdReferencable::~bdReferencable((bdReferencable *)Buf.m_owner.m_value._bytes_48);
-      v76 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
-      if ( v76 )
-        v77 = v76 - (_BYTE *)&Buf.m_uniqueTag;
+      v60 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
+      if ( v60 )
+        v61 = v60 - (_BYTE *)&Buf.m_uniqueTag;
       else
-        v77 = 256i64;
-      bdHandleAssert(v77 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-      v86 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
-      if ( v86 )
-        v87 = v86 - (_BYTE *)(&Buf.m_rootID + 1);
+        v61 = 256i64;
+      bdHandleAssert(v61 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+      v70 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
+      if ( v70 )
+        v71 = v70 - (_BYTE *)(&Buf.m_rootID + 1);
       else
-        v87 = 256i64;
-      bdHandleAssert(v87 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+        v71 = 256i64;
+      bdHandleAssert(v71 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
       bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
       bdReferencable::~bdReferencable((bdReferencable *)Buf.gap2A8);
     }
 LABEL_70:
-    v95->state = FETCHED;
+    v79->state = FETCHED;
   }
 }
 
@@ -3394,39 +3365,43 @@ void GetClanInfosForInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
   __int64 v15; 
   bdArray<bdClansGroupInfo> *GroupInfos; 
   __int64 v17; 
+  _OWORD *v18; 
+  unsigned __int64 *v19; 
   __int64 v20; 
-  __int64 v31; 
-  bool *v40; 
-  bdClansGroupInfo *v41; 
-  __int64 v42; 
-  __int64 v43; 
-  bdClansGroupInfo_vtbl **v44; 
-  __int64 v45; 
-  _BYTE *v46; 
-  unsigned __int64 v47; 
-  _BYTE *v48; 
-  unsigned __int64 v49; 
+  _OWORD *v21; 
+  bdStructFixedSizeString<255> *p_m_uniqueTag; 
+  __int64 v23; 
+  bool *v24; 
+  bdClansGroupInfo *v25; 
+  __int64 v26; 
+  __int64 v27; 
+  bdClansGroupInfo_vtbl **v28; 
+  __int64 v29; 
+  _BYTE *v30; 
+  unsigned __int64 v31; 
+  _BYTE *v32; 
+  unsigned __int64 v33; 
   const char *Name; 
   const char *UniqueTag; 
   bdUserAccountID *Owner; 
   unsigned __int64 UserID; 
-  const XUID *v54; 
-  _BYTE *v55; 
-  unsigned __int64 v56; 
-  _BYTE *v57; 
-  unsigned __int64 v58; 
+  const XUID *v38; 
+  _BYTE *v39; 
+  unsigned __int64 v40; 
+  _BYTE *v41; 
+  unsigned __int64 v42; 
   LocalClientNum_t outLocalClientNum[2]; 
   bdArray<bdClansGroupInfo> result; 
-  bdArray<bdClansGroupInfo> v61; 
-  ClanInvitePool *v62; 
-  bdClansGetGroupInfosResponse *v63; 
-  __int64 v64; 
-  __int64 v65; 
-  XUID v66; 
+  bdArray<bdClansGroupInfo> v45; 
+  ClanInvitePool *v46; 
+  bdClansGetGroupInfosResponse *v47; 
+  __int64 v48; 
+  __int64 v49; 
+  XUID v50; 
   bdClansGroupInfo Buf; 
-  bdUserAccountID v68; 
+  bdUserAccountID v52; 
 
-  v65 = -2i64;
+  v49 = -2i64;
   if ( !CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, outLocalClientNum) )
   {
     v5 = NULL;
@@ -3435,7 +3410,7 @@ void GetClanInfosForInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
   v3 = outLocalClientNum[0];
   v4 = &s_clanInvitePool[v3] == NULL;
   v5 = &s_clanInvitePool[v3];
-  v62 = v5;
+  v46 = v5;
   if ( v4 || state )
   {
 LABEL_42:
@@ -3446,7 +3421,7 @@ LABEL_42:
   }
   v6 = LOCAL_CLIENT_0;
   p_getGroupInfosResponse = &v5->getGroupInfosResponse;
-  v63 = &v5->getGroupInfosResponse;
+  v47 = &v5->getGroupInfosResponse;
   while ( 1 )
   {
 LABEL_5:
@@ -3469,9 +3444,9 @@ LABEL_5:
       }
       while ( v13 );
       m_data = result.m_data;
-      v5 = v62;
+      v5 = v46;
       v6 = outLocalClientNum[0];
-      p_getGroupInfosResponse = v63;
+      p_getGroupInfosResponse = v47;
     }
     bdMemory::deallocate(m_data);
     result.m_data = NULL;
@@ -3484,9 +3459,9 @@ LABEL_5:
       while ( 1 )
       {
         v15 = (__int64)v5 + 120 * v14;
-        v64 = v15;
+        v48 = v15;
         bdClansGroupInfo::bdClansGroupInfo(&Buf);
-        GroupInfos = bdClansGetGroupInfosResponse::getGroupInfos(p_getGroupInfosResponse, &v61);
+        GroupInfos = bdClansGetGroupInfosResponse::getGroupInfos(p_getGroupInfosResponse, &v45);
         if ( v6 < GroupInfos->m_size )
         {
           v17 = (__int64)&GroupInfos->m_data[v6];
@@ -3495,124 +3470,96 @@ LABEL_5:
           *((_QWORD *)&Buf.__vftable + 3) = *(_QWORD *)(v17 + 24);
           Buf.m_rootKind = *(_WORD *)(v17 + 32);
           Buf.m_rootID = *(_QWORD *)(v17 + 40);
-          _RAX = v17 + 48;
-          _RCX = &Buf.m_rootID + 1;
+          v18 = (_OWORD *)(v17 + 48);
+          v19 = &Buf.m_rootID + 1;
           v20 = 2i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX += 16;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RAX += 128i64;
+            *(_OWORD *)v19 = *v18;
+            *((_OWORD *)v19 + 1) = v18[1];
+            *((_OWORD *)v19 + 2) = v18[2];
+            *((_OWORD *)v19 + 3) = v18[3];
+            *((_OWORD *)v19 + 4) = v18[4];
+            *((_OWORD *)v19 + 5) = v18[5];
+            *((_OWORD *)v19 + 6) = v18[6];
+            v19 += 16;
+            *((_OWORD *)v19 - 1) = v18[7];
+            v18 += 8;
             --v20;
           }
           while ( v20 );
-          _RCX = v17 + 304;
-          _RAX = &Buf.m_uniqueTag;
-          v31 = 2i64;
+          v21 = (_OWORD *)(v17 + 304);
+          p_m_uniqueTag = &Buf.m_uniqueTag;
+          v23 = 2i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx]
-              vmovups xmmword ptr [rax], xmm0
-              vmovups xmm1, xmmword ptr [rcx+10h]
-              vmovups xmmword ptr [rax+10h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+20h]
-              vmovups xmmword ptr [rax+20h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+30h]
-              vmovups xmmword ptr [rax+30h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+40h]
-              vmovups xmmword ptr [rax+40h], xmm0
-              vmovups xmm1, xmmword ptr [rcx+50h]
-              vmovups xmmword ptr [rax+50h], xmm1
-              vmovups xmm0, xmmword ptr [rcx+60h]
-              vmovups xmmword ptr [rax+60h], xmm0
-            }
-            _RAX = (bdStructFixedSizeString<255> *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rcx+70h]
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
-            _RCX += 128i64;
-            --v31;
+            *(_OWORD *)p_m_uniqueTag->m_buffer = *v21;
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[16] = v21[1];
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[32] = v21[2];
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[48] = v21[3];
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[64] = v21[4];
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[80] = v21[5];
+            *(_OWORD *)&p_m_uniqueTag->m_buffer[96] = v21[6];
+            p_m_uniqueTag = (bdStructFixedSizeString<255> *)((char *)p_m_uniqueTag + 128);
+            *(_OWORD *)&p_m_uniqueTag[-1].m_buffer[240] = v21[7];
+            v21 += 8;
+            --v23;
           }
-          while ( v31 );
+          while ( v23 );
           Buf.m_privacyLevel = *(_WORD *)(v17 + 560);
-          v40 = (bool *)(v17 + 568);
+          v24 = (bool *)(v17 + 568);
           if ( &Buf.m_owner != (bdStructOptionalObject<bdStructUserAccountID> *)(v17 + 568) )
           {
-            Buf.m_owner.m_hasValue = *v40;
+            Buf.m_owner.m_hasValue = *v24;
             bdUserAccountID::operator=(&Buf.m_owner.m_value, (const bdUserAccountID *)(v17 + 576));
-            bdReferencable::operator=((bdReferencable *)&Buf.m_owner.m_value.gap38[*(int *)(*(_QWORD *)&Buf.m_owner.m_value.gap38[8] + 4i64) + 8], (const bdReferencable *)&v40[*(int *)(*(_QWORD *)(v17 + 640) + 4i64) + 72]);
+            bdReferencable::operator=((bdReferencable *)&Buf.m_owner.m_value.gap38[*(int *)(*(_QWORD *)&Buf.m_owner.m_value.gap38[8] + 4i64) + 8], (const bdReferencable *)&v24[*(int *)(*(_QWORD *)(v17 + 640) + 4i64) + 72]);
           }
           Buf.m_memberCount = *(_DWORD *)(v17 + 664);
           Buf.m_proposalCount = *(_DWORD *)(v17 + 668);
           Buf.m_createdTimestamp = *(_DWORD *)(v17 + 672);
           Buf.m_onlineMemberCount = *(_DWORD *)(v17 + 676);
         }
-        v41 = v61.m_data;
-        if ( v61.m_size )
+        v25 = v45.m_data;
+        if ( v45.m_size )
         {
-          v42 = 0i64;
-          v43 = 0i64;
-          v44 = &v61.m_data->__vftable + 1;
-          v45 = v61.m_size;
+          v26 = 0i64;
+          v27 = 0i64;
+          v28 = &v45.m_data->__vftable + 1;
+          v29 = v45.m_size;
           do
           {
-            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v41->__vftable + SHIDWORD((*v44)->serialize) + v42 + 8))((__int64)&v41->__vftable + SHIDWORD((*v44)->serialize) + v43 + 8, 0i64);
-            v43 += 696i64;
-            v42 += 696i64;
-            v44 += 87;
-            --v45;
+            (**(void (__fastcall ***)(__int64, _QWORD))((char *)&v25->__vftable + SHIDWORD((*v28)->serialize) + v26 + 8))((__int64)&v25->__vftable + SHIDWORD((*v28)->serialize) + v27 + 8, 0i64);
+            v27 += 696i64;
+            v26 += 696i64;
+            v28 += 87;
+            --v29;
           }
-          while ( v45 );
-          v41 = v61.m_data;
-          v15 = v64;
-          v5 = v62;
+          while ( v29 );
+          v25 = v45.m_data;
+          v15 = v48;
+          v5 = v46;
           v6 = outLocalClientNum[0];
         }
-        bdMemory::deallocate(v41);
-        v61.m_data = NULL;
-        *(_QWORD *)&v61.m_capacity = 0i64;
+        bdMemory::deallocate(v25);
+        v45.m_data = NULL;
+        *(_QWORD *)&v45.m_capacity = 0i64;
         if ( *(_QWORD *)(v15 + 104) == bdClansGroupIdentifier::getID(&Buf) )
           break;
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)Buf.m_owner.m_value._bytes_48);
         bdUserAccountID::~bdUserAccountID((bdUserAccountID *)Buf.m_owner.m_value.gap38);
         bdReferencable::~bdReferencable((bdReferencable *)Buf.m_owner.m_value._bytes_48);
-        v46 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
-        if ( v46 )
-          v47 = v46 - (_BYTE *)&Buf.m_uniqueTag;
+        v30 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
+        if ( v30 )
+          v31 = v30 - (_BYTE *)&Buf.m_uniqueTag;
         else
-          v47 = 256i64;
-        bdHandleAssert(v47 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-        v48 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
-        if ( v48 )
-          v49 = v48 - (_BYTE *)(&Buf.m_rootID + 1);
+          v31 = 256i64;
+        bdHandleAssert(v31 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+        v32 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
+        if ( v32 )
+          v33 = v32 - (_BYTE *)(&Buf.m_rootID + 1);
         else
-          v49 = 256i64;
-        bdHandleAssert(v49 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+          v33 = 256i64;
+        bdHandleAssert(v33 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
         bdReferencable::~bdReferencable((bdReferencable *)Buf.gap2A8);
         ++v14;
@@ -3628,28 +3575,28 @@ LABEL_5:
       Core_strcpy((char *)(v15 + 60), 0x1Fui64, Name);
       UniqueTag = bdClansGroupInfo::getUniqueTag(&Buf);
       Core_strcpy((char *)(v15 + 91), 6ui64, UniqueTag);
-      Owner = bdClansGroupInfo::getOwner(&Buf, &v68);
+      Owner = bdClansGroupInfo::getOwner(&Buf, &v52);
       UserID = bdUserAccountID::getUserID(Owner);
-      v54 = XUID::FromUInt64(&v66, UserID);
-      XUID::operator=((XUID *)(v15 + 120), v54);
-      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v68.gap38);
-      bdReferencable::~bdReferencable((bdReferencable *)v68.gap38);
+      v38 = XUID::FromUInt64(&v50, UserID);
+      XUID::operator=((XUID *)(v15 + 120), v38);
+      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v52.gap38);
+      bdReferencable::~bdReferencable((bdReferencable *)v52.gap38);
       *(_BYTE *)(v15 + 128) = 1;
       bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)Buf.m_owner.m_value._bytes_48);
       bdUserAccountID::~bdUserAccountID((bdUserAccountID *)Buf.m_owner.m_value.gap38);
       bdReferencable::~bdReferencable((bdReferencable *)Buf.m_owner.m_value._bytes_48);
-      v55 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
-      if ( v55 )
-        v56 = v55 - (_BYTE *)&Buf.m_uniqueTag;
+      v39 = memchr_0(&Buf.m_uniqueTag, 0, 0x100ui64);
+      if ( v39 )
+        v40 = v39 - (_BYTE *)&Buf.m_uniqueTag;
       else
-        v56 = 256i64;
-      bdHandleAssert(v56 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-      v57 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
-      if ( v57 )
-        v58 = v57 - (_BYTE *)(&Buf.m_rootID + 1);
+        v40 = 256i64;
+      bdHandleAssert(v40 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+      v41 = memchr_0(&Buf.m_rootID + 1, 0, 0x100ui64);
+      if ( v41 )
+        v42 = v41 - (_BYTE *)(&Buf.m_rootID + 1);
       else
-        v58 = 256i64;
-      bdHandleAssert(v58 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+        v42 = 256i64;
+      bdHandleAssert(v42 < 0x100, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<255>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
       bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
       bdReferencable::~bdReferencable((bdReferencable *)Buf.gap2A8);
     }
@@ -3991,26 +3938,28 @@ void GetIncomingClanInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
   __int64 v21; 
   bdClansGroupMembershipProposal_vtbl **v22; 
   __int64 v23; 
+  unsigned __int8 *m_attachment; 
+  unsigned __int8 *v25; 
   __int64 v26; 
-  ClansNotifications *v32; 
+  ClansNotifications *v27; 
   int m_controllerIndex; 
   DWServicesAccess *Instance; 
   DWClans *Clans; 
-  unsigned __int64 v36; 
+  unsigned __int64 v31; 
   unsigned __int64 TransactionID; 
   LocalClientNum_t outLocalClientNum[2]; 
   bdArray<bdClansGroupMembershipProposal> result; 
-  bdClansGroupMembershipProposal *v40; 
-  bdClansGetMembershipProposalsByUserResponse *v41; 
-  ClanInvitePool *v42; 
-  __int64 v43; 
-  bdClansGroupMembershipProposal v44; 
-  bdClansGroupMembershipProposal v45; 
+  bdClansGroupMembershipProposal *v35; 
+  bdClansGetMembershipProposalsByUserResponse *v36; 
+  ClanInvitePool *v37; 
+  __int64 v38; 
+  bdClansGroupMembershipProposal v39; 
+  bdClansGroupMembershipProposal v40; 
 
-  v43 = -2i64;
+  v38 = -2i64;
   v4 = LOCAL_CLIENT_0;
   outLocalClientNum[0] = LOCAL_CLIENT_0;
-  if ( !CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, &outLocalClientNum[1]) || (v5 = outLocalClientNum[1], v6 = &s_clanInvitePool[v5] == NULL, v7 = &s_clanInvitePool[v5], v42 = v7, v6) )
+  if ( !CL_Mgr_IsControllerMappedToClient(task->m_controllerIndex, &outLocalClientNum[1]) || (v5 = outLocalClientNum[1], v6 = &s_clanInvitePool[v5] == NULL, v7 = &s_clanInvitePool[v5], v37 = v7, v6) )
   {
     TransactionID = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
     Com_PrintError(14, "[Clan] %s: Failed to receive clan invite(s) for controller %d, tid %zu\n", "GetIncomingClanInvitesComplete", (unsigned int)task->m_controllerIndex, TransactionID);
@@ -4020,14 +3969,14 @@ void GetIncomingClanInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
     v7->numInvites = 0;
     if ( state )
     {
-      v36 = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
-      Com_PrintError(14, "[Clan] %s: Failed to receive clan invite(s), tid %zu\n", "GetIncomingClanInvitesComplete", v36);
+      v31 = bdRemoteTask::getTransactionID(task->m_remoteDemonwareTask.m_ptr);
+      Com_PrintError(14, "[Clan] %s: Failed to receive clan invite(s), tid %zu\n", "GetIncomingClanInvitesComplete", v31);
       v7->state = NOT_FETCHED;
     }
     else
     {
       p_getMembershipProposalsByUserResponse = &v7->getMembershipProposalsByUserResponse;
-      v41 = &v7->getMembershipProposalsByUserResponse;
+      v36 = &v7->getMembershipProposalsByUserResponse;
       Proposals = bdClansGetMembershipProposalsByUserResponse::getProposals(&v7->getMembershipProposalsByUserResponse, &result);
       m_size = 10;
       if ( (int)Proposals->m_size < 10 )
@@ -4040,38 +3989,38 @@ void GetIncomingClanInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
       if ( m_size )
       {
         v13 = NULL;
-        v40 = NULL;
+        v35 = NULL;
         do
         {
-          bdClansGroupMembershipProposal::bdClansGroupMembershipProposal(&v45);
+          bdClansGroupMembershipProposal::bdClansGroupMembershipProposal(&v40);
           v14 = bdClansGetMembershipProposalsByUserResponse::getProposals(p_getMembershipProposalsByUserResponse, &result);
           if ( v12 < v14->m_size )
           {
             v15 = (char *)v13 + (unsigned __int64)v14->m_data;
-            bdReferencable::operator=((bdReferencable *)&v45.m_proposingUser[*(int *)(*((_QWORD *)&v45.__vftable + 1) + 4i64) - 24], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 1) + 4i64) + 8]);
-            bdUserDetails::operator=((bdUserDetails *)(&v45.__vftable + 2), (const bdUserDetails *)(v15 + 16));
-            bdReferencable::operator=((bdReferencable *)&v45.m_proposingUser[*(int *)(*(_QWORD *)&v45.m_proposingUser[120] + 4i64) + 120], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 19) + 4i64) + 152]);
-            bdUserDetails::operator=(&v45.m_targetUser, (const bdUserDetails *)(v15 + 176));
-            bdReferencable::operator=((bdReferencable *)&v45.m_targetUser.gap79[*(int *)(*(_QWORD *)&v45.m_targetUser.gap79[15] + 4i64) + 15], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 39) + 4i64) + 312]);
-            v45.m_role = *((_WORD *)v15 + 168);
-            bdReferencable::operator=((bdReferencable *)((char *)&v45.m_group.__vftable + *(int *)(*((_QWORD *)&v45.m_group.__vftable + 1) + 4i64) + 8), (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 44) + 4i64) + 352]);
-            *((_WORD *)&v45.m_group.__vftable + 8) = *((_WORD *)v15 + 180);
-            *((_QWORD *)&v45.m_group.__vftable + 3) = *((_QWORD *)v15 + 46);
-            v45.m_group.m_rootKind = *((_WORD *)v15 + 188);
-            v45.m_group.m_rootID = *((_QWORD *)v15 + 48);
-            v45.m_replacesGroupID = *((_QWORD *)v15 + 51);
-            v45.m_attachmentSize = *((_DWORD *)v15 + 104);
+            bdReferencable::operator=((bdReferencable *)&v40.m_proposingUser[*(int *)(*((_QWORD *)&v40.__vftable + 1) + 4i64) - 24], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 1) + 4i64) + 8]);
+            bdUserDetails::operator=((bdUserDetails *)(&v40.__vftable + 2), (const bdUserDetails *)(v15 + 16));
+            bdReferencable::operator=((bdReferencable *)&v40.m_proposingUser[*(int *)(*(_QWORD *)&v40.m_proposingUser[120] + 4i64) + 120], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 19) + 4i64) + 152]);
+            bdUserDetails::operator=(&v40.m_targetUser, (const bdUserDetails *)(v15 + 176));
+            bdReferencable::operator=((bdReferencable *)&v40.m_targetUser.gap79[*(int *)(*(_QWORD *)&v40.m_targetUser.gap79[15] + 4i64) + 15], (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 39) + 4i64) + 312]);
+            v40.m_role = *((_WORD *)v15 + 168);
+            bdReferencable::operator=((bdReferencable *)((char *)&v40.m_group.__vftable + *(int *)(*((_QWORD *)&v40.m_group.__vftable + 1) + 4i64) + 8), (const bdReferencable *)&v15[*(int *)(*((_QWORD *)v15 + 44) + 4i64) + 352]);
+            *((_WORD *)&v40.m_group.__vftable + 8) = *((_WORD *)v15 + 180);
+            *((_QWORD *)&v40.m_group.__vftable + 3) = *((_QWORD *)v15 + 46);
+            v40.m_group.m_rootKind = *((_WORD *)v15 + 188);
+            v40.m_group.m_rootID = *((_QWORD *)v15 + 48);
+            v40.m_replacesGroupID = *((_QWORD *)v15 + 51);
+            v40.m_attachmentSize = *((_DWORD *)v15 + 104);
             v16 = 0i64;
-            v17 = v15 - (char *)v45.m_attachment;
+            v17 = v15 - (char *)v40.m_attachment;
             do
             {
-              v18 = &v45.m_attachment[v16];
+              v18 = &v40.m_attachment[v16];
               *v18 = v18[v17 + 420];
-              v18[1] = v45.m_attachment[v16 + 421 + v17];
+              v18[1] = v40.m_attachment[v16 + 421 + v17];
               v16 += 2i64;
             }
             while ( v16 < 0x400 );
-            v45.m_updatedTimestamp = *((_QWORD *)v15 + 181);
+            v40.m_updatedTimestamp = *((_QWORD *)v15 + 181);
             v4 = outLocalClientNum[0];
           }
           m_data = result.m_data;
@@ -4091,81 +4040,70 @@ void GetIncomingClanInvitesComplete(GenericTask *task, eTaskManagerTaskState sta
             }
             while ( v23 );
             m_data = result.m_data;
-            v13 = v40;
+            v13 = v35;
             v4 = outLocalClientNum[0];
             m_size = outLocalClientNum[1];
           }
           bdMemory::deallocate(m_data);
           result.m_data = NULL;
           *(_QWORD *)&result.m_capacity = 0i64;
-          v40 = &v44;
-          *((_QWORD *)&v44.__vftable + 1) = &bdClansGroupMembershipProposal::`vbtable';
-          bdReferencable::bdReferencable((bdReferencable *)(&v44.m_updatedTimestamp + 1), (const bdReferencable *)&v45.m_proposingUser[*(int *)(*((_QWORD *)&v45.__vftable + 1) + 4i64) - 24]);
+          v35 = &v39;
+          *((_QWORD *)&v39.__vftable + 1) = &bdClansGroupMembershipProposal::`vbtable';
+          bdReferencable::bdReferencable((bdReferencable *)(&v39.m_updatedTimestamp + 1), (const bdReferencable *)&v40.m_proposingUser[*(int *)(*((_QWORD *)&v40.__vftable + 1) + 4i64) - 24]);
           v4 |= 1u;
           outLocalClientNum[0] = v4;
-          bdStructBufferSerializable::bdStructBufferSerializable(&v44, &v45);
-          v44.__vftable = (bdClansGroupMembershipProposal_vtbl *)&bdClansGroupMembershipProposal::`vftable'{for `bdStructBufferSerializable'};
-          *(_QWORD *)&v44.m_proposingUser[*(int *)(*((_QWORD *)&v44.__vftable + 1) + 4i64) - 24] = &bdClansGroupMembershipProposal::`vftable'{for `bdReferencable'};
-          bdStructUserDetails::bdStructUserDetails((bdStructUserDetails *)(&v44.__vftable + 2), (const bdStructUserDetails *)(&v45.__vftable + 2));
-          bdStructUserDetails::bdStructUserDetails(&v44.m_targetUser, &v45.m_targetUser);
-          v44.m_role = v45.m_role;
-          bdClansGroupIdentifier::bdClansGroupIdentifier(&v44.m_group, &v45.m_group);
-          v44.m_replacesGroupID = v45.m_replacesGroupID;
-          v44.m_attachmentSize = v45.m_attachmentSize;
-          _RCX = v44.m_attachment;
-          _RAX = v45.m_attachment;
+          bdStructBufferSerializable::bdStructBufferSerializable(&v39, &v40);
+          v39.__vftable = (bdClansGroupMembershipProposal_vtbl *)&bdClansGroupMembershipProposal::`vftable'{for `bdStructBufferSerializable'};
+          *(_QWORD *)&v39.m_proposingUser[*(int *)(*((_QWORD *)&v39.__vftable + 1) + 4i64) - 24] = &bdClansGroupMembershipProposal::`vftable'{for `bdReferencable'};
+          bdStructUserDetails::bdStructUserDetails((bdStructUserDetails *)(&v39.__vftable + 2), (const bdStructUserDetails *)(&v40.__vftable + 2));
+          bdStructUserDetails::bdStructUserDetails(&v39.m_targetUser, &v40.m_targetUser);
+          v39.m_role = v40.m_role;
+          bdClansGroupIdentifier::bdClansGroupIdentifier(&v39.m_group, &v40.m_group);
+          v39.m_replacesGroupID = v40.m_replacesGroupID;
+          v39.m_attachmentSize = v40.m_attachmentSize;
+          m_attachment = v39.m_attachment;
+          v25 = v40.m_attachment;
           v26 = 8i64;
           do
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX += 128;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RAX += 128;
+            *(__m256i *)m_attachment = *(__m256i *)v25;
+            *((__m256i *)m_attachment + 1) = *((__m256i *)v25 + 1);
+            *((__m256i *)m_attachment + 2) = *((__m256i *)v25 + 2);
+            *((_OWORD *)m_attachment + 6) = *((_OWORD *)v25 + 6);
+            m_attachment += 128;
+            *((_OWORD *)m_attachment - 1) = *((_OWORD *)v25 + 7);
+            v25 += 128;
             --v26;
           }
           while ( v26 );
-          v44.m_updatedTimestamp = v45.m_updatedTimestamp;
-          CacheIncomingInvite(task->m_controllerIndex, &v44);
-          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v45.m_group.__vftable + 2));
-          bdReferencable::~bdReferencable((bdReferencable *)(&v45.m_group.m_rootID + 1));
-          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v45.m_targetUser._bytes_90);
-          bdUserDetails::~bdUserDetails((bdUserDetails *)&v45.m_targetUser.gap79[7]);
-          bdReferencable::~bdReferencable((bdReferencable *)v45.m_targetUser._bytes_90);
-          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v45.m_proposingUser[128]);
-          bdUserDetails::~bdUserDetails((bdUserDetails *)&v45.m_proposingUser[112]);
-          bdReferencable::~bdReferencable((bdReferencable *)&v45.m_proposingUser[128]);
-          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v45.__vftable + 2));
-          bdReferencable::~bdReferencable((bdReferencable *)(&v45.m_updatedTimestamp + 1));
+          v39.m_updatedTimestamp = v40.m_updatedTimestamp;
+          CacheIncomingInvite(task->m_controllerIndex, &v39);
+          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v40.m_group.__vftable + 2));
+          bdReferencable::~bdReferencable((bdReferencable *)(&v40.m_group.m_rootID + 1));
+          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v40.m_targetUser._bytes_90);
+          bdUserDetails::~bdUserDetails((bdUserDetails *)&v40.m_targetUser.gap79[7]);
+          bdReferencable::~bdReferencable((bdReferencable *)v40.m_targetUser._bytes_90);
+          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)&v40.m_proposingUser[128]);
+          bdUserDetails::~bdUserDetails((bdUserDetails *)&v40.m_proposingUser[112]);
+          bdReferencable::~bdReferencable((bdReferencable *)&v40.m_proposingUser[128]);
+          bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v40.__vftable + 2));
+          bdReferencable::~bdReferencable((bdReferencable *)(&v40.m_updatedTimestamp + 1));
           ++v12;
-          v40 = ++v13;
-          p_getMembershipProposalsByUserResponse = v41;
+          v35 = ++v13;
+          p_getMembershipProposalsByUserResponse = v36;
         }
         while ( v12 < m_size );
-        v7 = v42;
+        v7 = v37;
       }
       v7->state = FETCHED;
-      v32 = &s_clanNotifications[CL_Mgr_GetClientFromController(task->m_controllerIndex)];
+      v27 = &s_clanNotifications[CL_Mgr_GetClientFromController(task->m_controllerIndex)];
       m_controllerIndex = task->m_controllerIndex;
       Instance = DWServicesAccess::GetInstance();
       Clans = DWServicesAccess::GetClans(Instance, m_controllerIndex);
-      if ( DWClans::registerEventHandler(Clans, v32) )
+      if ( DWClans::registerEventHandler(Clans, v27) )
       {
-        v32->m_controllerIndex = m_controllerIndex;
-        v32->m_initialized = 1;
+        v27->m_controllerIndex = m_controllerIndex;
+        v27->m_initialized = 1;
       }
     }
   }
@@ -4385,34 +4323,30 @@ RemoveClanInvite
 void RemoveClanInvite(const int controllerIndex, const unsigned __int64 clanId)
 {
   ClanInvitePool *v4; 
+  OnlineClanInvite *ClanInvite; 
+  ClanInvitePool *v6; 
+  __int64 v7; 
   LocalClientNum_t outLocalClientNum; 
 
   if ( CL_Mgr_IsControllerMappedToClient(controllerIndex, &outLocalClientNum) && (v4 = &s_clanInvitePool[outLocalClientNum]) != NULL )
   {
     if ( v4->numInvites )
     {
-      if ( GetClanInvite(controllerIndex, clanId) )
+      ClanInvite = GetClanInvite(controllerIndex, clanId);
+      if ( ClanInvite )
       {
         if ( CL_Mgr_IsControllerMappedToClient(controllerIndex, &outLocalClientNum) )
-          _RBX = &s_clanInvitePool[outLocalClientNum];
+          v6 = &s_clanInvitePool[outLocalClientNum];
         else
-          _RBX = NULL;
-        _RCX = 120i64 * (_RBX->numInvites - 1);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+rbx+10h]
-          vmovups ymmword ptr [rdi], ymm0
-          vmovups ymm1, ymmword ptr [rcx+rbx+30h]
-          vmovups ymmword ptr [rdi+20h], ymm1
-          vmovups ymm0, ymmword ptr [rcx+rbx+50h]
-          vmovups ymmword ptr [rdi+40h], ymm0
-          vmovups xmm1, xmmword ptr [rcx+rbx+70h]
-          vmovups xmmword ptr [rdi+60h], xmm1
-          vmovsd  xmm0, qword ptr [rcx+rbx+80h]
-          vmovsd  qword ptr [rdi+70h], xmm0
-        }
-        memset_0(&_RBX->invites[_RBX->numInvites - 1], 0, sizeof(_RBX->invites[_RBX->numInvites - 1]));
-        --_RBX->numInvites;
+          v6 = NULL;
+        v7 = v6->numInvites - 1;
+        *(__m256i *)&ClanInvite->inviter.m_id = *(__m256i *)&v6->invites[v7].inviter.m_id;
+        *(__m256i *)&ClanInvite->inviterName[24] = *(__m256i *)&v6->invites[v7].inviterName[24];
+        *(__m256i *)&ClanInvite->clanName[20] = *(__m256i *)&v6->invites[v7].clanName[20];
+        *(_OWORD *)&ClanInvite->sentTimestamp = *(_OWORD *)&v6->invites[v7].sentTimestamp;
+        *(double *)&ClanInvite->dataFetched = *(double *)&v6->invites[v7].dataFetched;
+        memset_0(&v6->invites[v6->numInvites - 1], 0, sizeof(v6->invites[v6->numInvites - 1]));
+        --v6->numInvites;
         Com_Printf(14, "[Clan] %s: Sucessfully declined invite for %zu\n", "RemoveClanInvite", clanId);
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_clans_manager.cpp", 1289, ASSERT_TYPE_ASSERT, "(invite)", (const char *)&queryFormat, "invite") )

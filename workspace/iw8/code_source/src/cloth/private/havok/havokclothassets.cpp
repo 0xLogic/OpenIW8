@@ -602,60 +602,58 @@ void HavokCloth_MoveClothAsset(ClothAsset *from, ClothAsset *to)
   unsigned __int32 v7; 
   unsigned int v8; 
   Dummy *v9; 
-  unsigned __int64 key; 
+  ClothAsset *key; 
   unsigned __int32 v11; 
   unsigned __int32 v12; 
   unsigned int v13; 
   Dummy *v14; 
-  unsigned __int64 v15; 
+  ClothAsset *v15; 
   unsigned __int64 val; 
-  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v18; 
-  int v22; 
+  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  unsigned __int32 v21; 
+  unsigned __int32 v22; 
   int v23; 
-  int v24; 
-  unsigned __int32 v25; 
-  unsigned __int32 v26; 
-  int v27; 
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64> >::Pair *m_elem; 
-  unsigned int v29; 
-  ClothAsset *v30; 
-  __int64 v31; 
+  unsigned int v25; 
+  ClothAsset *v26; 
+  __int64 v27; 
   hkMemoryAllocator alloc; 
 
-  _RBX = to;
-  _RBP = from;
   HavokCloth_LockAssetWrite();
   v4 = s_havokClothAssets;
   m_hashMod = s_havokClothAssets->m_map.m_hashMod;
-  if ( m_hashMod <= 0 || (v6 = _byteswap_ulong(-1640531535 * (_DWORD)_RBP), v7 = _byteswap_ulong(-1640531535 * HIDWORD(_RBP)), v8 = m_hashMod & (v7 ^ ((v6 >> 2) + v6 + (v7 << 6) - 1640531527)), v9 = (Dummy *)v8, key = s_havokClothAssets->m_map.m_elem[v8].key, key == -1i64) )
+  if ( m_hashMod <= 0 || (v6 = _byteswap_ulong(-1640531535 * (_DWORD)from), v7 = _byteswap_ulong(-1640531535 * HIDWORD(from)), v8 = m_hashMod & (v7 ^ ((v6 >> 2) + v6 + (v7 << 6) - 1640531527)), v9 = (Dummy *)v8, key = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v8].key, key == (ClothAsset *)-1i64) )
   {
 LABEL_5:
     v9 = (Dummy *)(m_hashMod + 1);
   }
   else
   {
-    while ( (ClothAsset *)key != _RBP )
+    while ( key != from )
     {
       v8 = m_hashMod & (v8 + 1);
       v9 = (Dummy *)v8;
-      key = s_havokClothAssets->m_map.m_elem[v8].key;
-      if ( key == -1i64 )
+      key = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v8].key;
+      if ( key == (ClothAsset *)-1i64 )
         goto LABEL_5;
     }
   }
-  if ( m_hashMod <= 0 || (v11 = _byteswap_ulong(-1640531535 * (_DWORD)_RBX), v12 = _byteswap_ulong(-1640531535 * HIDWORD(_RBX)), v13 = m_hashMod & (v12 ^ ((v11 >> 2) + v11 + (v12 << 6) - 1640531527)), v14 = (Dummy *)v13, v15 = s_havokClothAssets->m_map.m_elem[v13].key, v15 == -1i64) )
+  if ( m_hashMod <= 0 || (v11 = _byteswap_ulong(-1640531535 * (_DWORD)to), v12 = _byteswap_ulong(-1640531535 * HIDWORD(to)), v13 = m_hashMod & (v12 ^ ((v11 >> 2) + v11 + (v12 << 6) - 1640531527)), v14 = (Dummy *)v13, v15 = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v13].key, v15 == (ClothAsset *)-1i64) )
   {
 LABEL_10:
     v14 = (Dummy *)(m_hashMod + 1);
   }
   else
   {
-    while ( (ClothAsset *)v15 != _RBX )
+    while ( v15 != to )
     {
       v13 = m_hashMod & (v13 + 1);
       v14 = (Dummy *)v13;
-      v15 = s_havokClothAssets->m_map.m_elem[v13].key;
-      if ( v15 == -1i64 )
+      v15 = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v13].key;
+      if ( v15 == (ClothAsset *)-1i64 )
         goto LABEL_10;
     }
   }
@@ -674,48 +672,41 @@ LABEL_10:
   val = v4->m_map.m_elem[(int)v9].val;
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&v4->m_map, v9);
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokClothAssets->m_map, v14);
-  __asm { vmovups ymm0, ymmword ptr [rbp+0] }
-  v18 = s_havokClothAssets;
-  __asm
+  v17 = s_havokClothAssets;
+  *(__m256i *)&to->name = *(__m256i *)&from->name;
+  *(__m256i *)&to->boneMappingSetCount = *(__m256i *)&from->boneMappingSetCount;
+  *(__m256i *)&to->simulationLodCount = *(__m256i *)&from->simulationLodCount;
+  *(__m256i *)&to->speedBlendSpeed = *(__m256i *)&from->speedBlendSpeed;
+  v18 = (unsigned int)hkMemHeapAllocator();
+  v19 = v17->m_map.m_hashMod;
+  if ( 2 * v17->m_map.m_numElems > v19 )
   {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rbp+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbp+40h]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+60h]
-    vmovups ymmword ptr [rbx+60h], ymm1
+    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v17->m_map, &alloc, v18);
+    v19 = v17->m_map.m_hashMod;
   }
-  v22 = (unsigned int)hkMemHeapAllocator();
-  v23 = v18->m_map.m_hashMod;
-  if ( 2 * v18->m_map.m_numElems > v23 )
+  v20 = 1;
+  v21 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v22 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v23 = v22 ^ ((v21 >> 2) + v21 + (v22 << 6) - 1640531527);
+  m_elem = v17->m_map.m_elem;
+  v25 = v19 & v23;
+  v26 = (ClothAsset *)v17->m_map.m_elem[v25].key;
+  if ( v26 != (ClothAsset *)-1i64 )
   {
-    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v18->m_map, &alloc, v22);
-    v23 = v18->m_map.m_hashMod;
-  }
-  v24 = 1;
-  v25 = _byteswap_ulong(-1640531535 * (_DWORD)_RBX);
-  v26 = _byteswap_ulong(-1640531535 * HIDWORD(_RBX));
-  v27 = v26 ^ ((v25 >> 2) + v25 + (v26 << 6) - 1640531527);
-  m_elem = v18->m_map.m_elem;
-  v29 = v23 & v27;
-  v30 = (ClothAsset *)v18->m_map.m_elem[v29].key;
-  if ( v30 != (ClothAsset *)-1i64 )
-  {
-    while ( v30 != _RBX )
+    while ( v26 != to )
     {
-      v29 = v18->m_map.m_hashMod & (v29 + 1);
-      v30 = (ClothAsset *)m_elem[v29].key;
-      if ( v30 == (ClothAsset *)-1i64 )
+      v25 = v17->m_map.m_hashMod & (v25 + 1);
+      v26 = (ClothAsset *)m_elem[v25].key;
+      if ( v26 == (ClothAsset *)-1i64 )
         goto LABEL_26;
     }
-    v24 = 0;
+    v20 = 0;
   }
 LABEL_26:
-  v18->m_map.m_numElems += v24;
-  v31 = (int)v29;
-  m_elem[v31].key = (unsigned __int64)_RBX;
-  v18->m_map.m_elem[v31].val = val;
+  v17->m_map.m_numElems += v20;
+  v27 = (int)v25;
+  m_elem[v27].key = (unsigned __int64)to;
+  v17->m_map.m_elem[v27].val = val;
   s_havokClothAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokClothAssetLock);
   Sys_CheckReleaseLock(&s_havokClothAssetLock);
@@ -796,78 +787,80 @@ void HavokCloth_SwapClothAsset(ClothAsset *from, ClothAsset *to)
   unsigned __int32 v7; 
   unsigned int v8; 
   Dummy *v9; 
-  unsigned __int64 key; 
+  ClothAsset *key; 
   unsigned __int32 v11; 
   unsigned __int32 v12; 
   unsigned int v13; 
   Dummy *v14; 
-  unsigned __int64 v15; 
+  ClothAsset *v15; 
   unsigned __int64 val; 
   unsigned __int64 v17; 
-  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v23; 
-  int v27; 
-  int v28; 
+  __m256i v18; 
+  __m256i v19; 
+  __m256i v20; 
+  __m256i v21; 
+  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  unsigned __int32 v27; 
+  unsigned __int32 v28; 
   int v29; 
-  int v30; 
-  unsigned __int32 v31; 
-  unsigned __int32 v32; 
-  int v33; 
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64> >::Pair *m_elem; 
-  unsigned int v35; 
-  ClothAsset *v36; 
-  __int64 v37; 
-  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v38; 
-  int v39; 
-  int v40; 
-  unsigned __int32 v41; 
-  unsigned __int32 v42; 
-  unsigned __int32 v43; 
-  unsigned __int32 v44; 
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64> >::Pair *v45; 
-  unsigned int v46; 
-  ClothAsset *v47; 
-  __int64 v48; 
+  unsigned int v31; 
+  ClothAsset *v32; 
+  __int64 v33; 
+  hkPointerMap<ClothAsset const *,hclClothContainer *,hkContainerHeapAllocator> *v34; 
+  int v35; 
+  int v36; 
+  unsigned __int32 v37; 
+  unsigned __int32 v38; 
+  unsigned __int32 v39; 
+  unsigned __int32 v40; 
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64> >::Pair *v41; 
+  unsigned int v42; 
+  ClothAsset *v43; 
+  __int64 v44; 
   hkMemoryAllocator alloc; 
-  hkMemoryAllocator v50; 
+  hkMemoryAllocator v46; 
 
-  _RDI = to;
-  _RBX = from;
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothassets.cpp", 162, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothassets.cpp", 163, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokclothassets.cpp", 163, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
   HavokCloth_LockAssetWrite();
   v4 = s_havokClothAssets;
   m_hashMod = s_havokClothAssets->m_map.m_hashMod;
-  if ( m_hashMod <= 0 || (v6 = _byteswap_ulong(-1640531535 * (_DWORD)_RBX), v7 = _byteswap_ulong(-1640531535 * HIDWORD(_RBX)), v8 = m_hashMod & (v7 ^ ((v6 >> 2) + v6 + (v7 << 6) - 1640531527)), v9 = (Dummy *)v8, key = s_havokClothAssets->m_map.m_elem[v8].key, key == -1i64) )
+  if ( m_hashMod <= 0 || (v6 = _byteswap_ulong(-1640531535 * (_DWORD)from), v7 = _byteswap_ulong(-1640531535 * HIDWORD(from)), v8 = m_hashMod & (v7 ^ ((v6 >> 2) + v6 + (v7 << 6) - 1640531527)), v9 = (Dummy *)v8, key = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v8].key, key == (ClothAsset *)-1i64) )
   {
 LABEL_11:
     v9 = (Dummy *)(m_hashMod + 1);
   }
   else
   {
-    while ( (ClothAsset *)key != _RBX )
+    while ( key != from )
     {
       v8 = m_hashMod & (v8 + 1);
       v9 = (Dummy *)v8;
-      key = s_havokClothAssets->m_map.m_elem[v8].key;
-      if ( key == -1i64 )
+      key = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v8].key;
+      if ( key == (ClothAsset *)-1i64 )
         goto LABEL_11;
     }
   }
-  if ( m_hashMod <= 0 || (v11 = _byteswap_ulong(-1640531535 * (_DWORD)_RDI), v12 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI)), v13 = m_hashMod & (v12 ^ ((v11 >> 2) + v11 + (v12 << 6) - 1640531527)), v14 = (Dummy *)v13, v15 = s_havokClothAssets->m_map.m_elem[v13].key, v15 == -1i64) )
+  if ( m_hashMod <= 0 || (v11 = _byteswap_ulong(-1640531535 * (_DWORD)to), v12 = _byteswap_ulong(-1640531535 * HIDWORD(to)), v13 = m_hashMod & (v12 ^ ((v11 >> 2) + v11 + (v12 << 6) - 1640531527)), v14 = (Dummy *)v13, v15 = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v13].key, v15 == (ClothAsset *)-1i64) )
   {
 LABEL_16:
     v14 = (Dummy *)(m_hashMod + 1);
   }
   else
   {
-    while ( (ClothAsset *)v15 != _RDI )
+    while ( v15 != to )
     {
       v13 = m_hashMod & (v13 + 1);
       v14 = (Dummy *)v13;
-      v15 = s_havokClothAssets->m_map.m_elem[v13].key;
-      if ( v15 == -1i64 )
+      v15 = (ClothAsset *)s_havokClothAssets->m_map.m_elem[v13].key;
+      if ( v15 == (ClothAsset *)-1i64 )
         goto LABEL_16;
     }
   }
@@ -887,91 +880,81 @@ LABEL_16:
   v17 = v4->m_map.m_elem[(int)v14].val;
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&v4->m_map, v9);
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::remove(&s_havokClothAssets->m_map, v14);
-  __asm
+  v18 = *(__m256i *)&from->name;
+  v19 = *(__m256i *)&from->boneMappingSetCount;
+  v20 = *(__m256i *)&from->simulationLodCount;
+  v21 = *(__m256i *)&from->speedBlendSpeed;
+  v22 = s_havokClothAssets;
+  *(__m256i *)&from->name = *(__m256i *)&to->name;
+  *(__m256i *)&from->boneMappingSetCount = *(__m256i *)&to->boneMappingSetCount;
+  *(__m256i *)&from->simulationLodCount = *(__m256i *)&to->simulationLodCount;
+  *(__m256i *)&from->speedBlendSpeed = *(__m256i *)&to->speedBlendSpeed;
+  *(__m256i *)&to->name = v18;
+  *(__m256i *)&to->boneMappingSetCount = v19;
+  *(__m256i *)&to->simulationLodCount = v20;
+  *(__m256i *)&to->speedBlendSpeed = v21;
+  v23 = (unsigned int)hkMemHeapAllocator();
+  v24 = v22->m_map.m_hashMod;
+  if ( 2 * v22->m_map.m_numElems > v24 )
   {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymm2, ymmword ptr [rbx]
-    vmovups ymm3, ymmword ptr [rbx+20h]
-    vmovups ymm4, ymmword ptr [rbx+40h]
-    vmovups ymm5, ymmword ptr [rbx+60h]
+    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v22->m_map, &alloc, v23);
+    v24 = v22->m_map.m_hashMod;
   }
-  v23 = s_havokClothAssets;
-  __asm
+  v25 = 1;
+  v26 = 1;
+  v27 = _byteswap_ulong(-1640531535 * (_DWORD)to);
+  v28 = _byteswap_ulong(-1640531535 * HIDWORD(to));
+  v29 = v28 ^ ((v27 >> 2) + v27 + (v28 << 6) - 1640531527);
+  m_elem = v22->m_map.m_elem;
+  v31 = v24 & v29;
+  v32 = (ClothAsset *)v22->m_map.m_elem[v31].key;
+  if ( v32 != (ClothAsset *)-1i64 )
   {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rbx+60h], ymm1
-    vmovups ymmword ptr [rdi], ymm2
-    vmovups ymmword ptr [rdi+20h], ymm3
-    vmovups ymmword ptr [rdi+40h], ymm4
-    vmovups ymmword ptr [rdi+60h], ymm5
-  }
-  v27 = (unsigned int)hkMemHeapAllocator();
-  v28 = v23->m_map.m_hashMod;
-  if ( 2 * v23->m_map.m_numElems > v28 )
-  {
-    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v23->m_map, &alloc, v27);
-    v28 = v23->m_map.m_hashMod;
-  }
-  v29 = 1;
-  v30 = 1;
-  v31 = _byteswap_ulong(-1640531535 * (_DWORD)_RDI);
-  v32 = _byteswap_ulong(-1640531535 * HIDWORD(_RDI));
-  v33 = v32 ^ ((v31 >> 2) + v31 + (v32 << 6) - 1640531527);
-  m_elem = v23->m_map.m_elem;
-  v35 = v28 & v33;
-  v36 = (ClothAsset *)v23->m_map.m_elem[v35].key;
-  if ( v36 != (ClothAsset *)-1i64 )
-  {
-    while ( v36 != _RDI )
+    while ( v32 != to )
     {
-      v35 = v23->m_map.m_hashMod & (v35 + 1);
-      v36 = (ClothAsset *)m_elem[v35].key;
-      if ( v36 == (ClothAsset *)-1i64 )
+      v31 = v22->m_map.m_hashMod & (v31 + 1);
+      v32 = (ClothAsset *)m_elem[v31].key;
+      if ( v32 == (ClothAsset *)-1i64 )
         goto LABEL_32;
     }
-    v30 = 0;
+    v26 = 0;
   }
 LABEL_32:
-  v23->m_map.m_numElems += v30;
-  v37 = (int)v35;
-  m_elem[v37].key = (unsigned __int64)_RDI;
-  v38 = s_havokClothAssets;
-  v23->m_map.m_elem[v37].val = val;
-  v39 = (unsigned int)hkMemHeapAllocator();
-  v40 = v38->m_map.m_hashMod;
-  if ( 2 * v38->m_map.m_numElems > v40 )
+  v22->m_map.m_numElems += v26;
+  v33 = (int)v31;
+  m_elem[v33].key = (unsigned __int64)to;
+  v34 = s_havokClothAssets;
+  v22->m_map.m_elem[v33].val = val;
+  v35 = (unsigned int)hkMemHeapAllocator();
+  v36 = v34->m_map.m_hashMod;
+  if ( 2 * v34->m_map.m_numElems > v36 )
   {
-    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v38->m_map, &v50, v39);
-    v40 = v38->m_map.m_hashMod;
+    hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::resizeTable(&v34->m_map, &v46, v35);
+    v36 = v34->m_map.m_hashMod;
   }
-  v41 = _byteswap_ulong(-1640531535 * (_DWORD)_RBX);
-  v42 = v41 >> 2;
-  v43 = _byteswap_ulong(-1640531535 * HIDWORD(_RBX));
-  v44 = v41 + (v43 << 6);
-  v45 = v38->m_map.m_elem;
-  v46 = v40 & (v43 ^ (v42 + v44 - 1640531527));
-  v47 = (ClothAsset *)v38->m_map.m_elem[v46].key;
-  if ( v47 != (ClothAsset *)-1i64 )
+  v37 = _byteswap_ulong(-1640531535 * (_DWORD)from);
+  v38 = v37 >> 2;
+  v39 = _byteswap_ulong(-1640531535 * HIDWORD(from));
+  v40 = v37 + (v39 << 6);
+  v41 = v34->m_map.m_elem;
+  v42 = v36 & (v39 ^ (v38 + v40 - 1640531527));
+  v43 = (ClothAsset *)v34->m_map.m_elem[v42].key;
+  if ( v43 != (ClothAsset *)-1i64 )
   {
-    while ( v47 != _RBX )
+    while ( v43 != from )
     {
-      v46 = v38->m_map.m_hashMod & (v46 + 1);
-      v47 = (ClothAsset *)v45[v46].key;
-      if ( v47 == (ClothAsset *)-1i64 )
+      v42 = v34->m_map.m_hashMod & (v42 + 1);
+      v43 = (ClothAsset *)v41[v42].key;
+      if ( v43 == (ClothAsset *)-1i64 )
         goto LABEL_39;
     }
-    v29 = 0;
+    v25 = 0;
   }
 LABEL_39:
-  v38->m_map.m_numElems += v29;
-  v48 = (int)v46;
-  v45[v48].key = (unsigned __int64)_RBX;
-  v38->m_map.m_elem[v48].val = v17;
+  v34->m_map.m_numElems += v25;
+  v44 = (int)v42;
+  v41[v44].key = (unsigned __int64)from;
+  v34->m_map.m_elem[v44].val = v17;
   s_havokClothAssetLock.writeThreadId = 0;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_havokClothAssetLock);
   Sys_CheckReleaseLock(&s_havokClothAssetLock);

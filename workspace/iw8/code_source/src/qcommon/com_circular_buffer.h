@@ -434,57 +434,23 @@ void CircularEntryBuffer<512,131072,int,0>::SetDataAndType(CircularEntryBuffer<5
 CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit
 ==============
 */
-
-bool __fastcall CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(CircularEntryBuffer<512,131072,int,0> *this, const unsigned int entryIndex, double memoryRatio)
+bool CircularEntryBuffer<512,131072,int,0>::IsNearBufferLimit(CircularEntryBuffer<512,131072,int,0> *this, const unsigned int entryIndex, const float memoryRatio)
 {
-  __int64 v5; 
-  bool v7; 
-  bool v8; 
-  double v16; 
-  int v17; 
-  __int128 v18; 
+  __int64 v4; 
+  int v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v5 = entryIndex;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = entryIndex;
   if ( entryIndex >= 0x200 )
   {
-    v17 = 512;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 68, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "entryIndex doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", entryIndex, v17) )
+    v7 = 512;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 68, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "entryIndex doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", entryIndex, v7) )
       __debugbreak();
   }
-  v7 = this->m_entries[v5].size == 0;
-  if ( !this->m_entries[v5].size )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 69, ASSERT_TYPE_ASSERT, "(m_entries[entryIndex].size > 0)", "%s\n\tRequesting buffer information about an invalid command", "m_entries[entryIndex].size > 0");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm6, cs:__real@3c23d70a
-    vcomiss xmm6, cs:__real@3f7d70a4
-  }
-  if ( !v7 )
-  {
-    __asm
-    {
-      vmovaps xmm0, cs:__xmm@3fefae14800000003f847ae140000000
-      vmovups [rsp+58h+var_28], xmm0
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 70, ASSERT_TYPE_ASSERT, "( 0.01f ) <= ( memoryRatio ) && ( memoryRatio ) <= ( 0.99f )", "memoryRatio not in [0.01f, 0.99f]\n\t%g not in [%g, %g]", v16, *(double *)&v18, *((double *)&v18 + 1)) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@48000000
-    vmovaps xmm6, [rsp+58h+var_18]
-    vcvttss2si rax, xmm0
-  }
-  return this->m_bufferNextIndex - this->m_entries[v5].offset >= (unsigned int)_RAX;
+  if ( !this->m_entries[v4].size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 69, ASSERT_TYPE_ASSERT, "(m_entries[entryIndex].size > 0)", "%s\n\tRequesting buffer information about an invalid command", "m_entries[entryIndex].size > 0") )
+    __debugbreak();
+  if ( (memoryRatio < 0.0099999998 || memoryRatio > 0.99000001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_circular_buffer.h", 70, ASSERT_TYPE_ASSERT, "( 0.01f ) <= ( memoryRatio ) && ( memoryRatio ) <= ( 0.99f )", "memoryRatio not in [0.01f, 0.99f]\n\t%g not in [%g, %g]", memoryRatio, *(double *)&_xmm, *((double *)&_xmm + 1)) )
+    __debugbreak();
+  return this->m_bufferNextIndex - this->m_entries[v4].offset >= (int)(float)(memoryRatio * 131072.0);
 }
 
 /*

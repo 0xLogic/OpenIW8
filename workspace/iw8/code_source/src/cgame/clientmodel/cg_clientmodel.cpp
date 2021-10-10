@@ -982,10 +982,11 @@ void CG_ClientModel_GetOrigin(const LocalClientNum_t localClientNum, const unsig
   CG_ClientModel_RuntimeData *RuntimeData; 
   const cpose_t *p_pose; 
   const DObj *DObj; 
+  DObjAnimMat *LocalBoneMatrix; 
+  refdef_t *v12; 
   int modelIndex[14]; 
   unsigned __int8 inOutIndex; 
 
-  _RDI = outOrigin;
   RuntimeData = CG_ClientModel_GetRuntimeData(localClientNum, clientModelIdx);
   p_pose = &RuntimeData->pose;
   if ( RuntimeData == (CG_ClientModel_RuntimeData *)-304i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1671, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
@@ -1000,25 +1001,17 @@ void CG_ClientModel_GetOrigin(const LocalClientNum_t localClientNum, const unsig
   if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
     __debugbreak();
   inOutIndex = -2;
-  if ( DObjGetBoneIndexInternal_68(DObj, tagName, &inOutIndex, modelIndex) && (_RAX = CG_DObjGetLocalBoneMatrix(p_pose, DObj, inOutIndex)) != NULL )
+  if ( DObjGetBoneIndexInternal_68(DObj, tagName, &inOutIndex, modelIndex) && (LocalBoneMatrix = CG_DObjGetLocalBoneMatrix(p_pose, DObj, inOutIndex)) != NULL )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+10h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+7Ch]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rax+14h]
-      vaddss  xmm0, xmm2, dword ptr [rcx+80h]
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm1, dword ptr [rax+18h]
-      vaddss  xmm2, xmm1, dword ptr [rcx+84h]
-      vmovss  dword ptr [rdi+8], xmm2
-    }
+    v12 = g_activeRefDef;
+    outOrigin->v[0] = LocalBoneMatrix->trans.v[0] + g_activeRefDef->viewOffset.v[0];
+    outOrigin->v[1] = LocalBoneMatrix->trans.v[1] + v12->viewOffset.v[1];
+    outOrigin->v[2] = LocalBoneMatrix->trans.v[2] + v12->viewOffset.v[2];
   }
   else
   {
 LABEL_15:
-    CG_GetPoseOrigin(p_pose, _RDI);
+    CG_GetPoseOrigin(p_pose, outOrigin);
   }
 }
 
@@ -1309,37 +1302,33 @@ CG_ClientModel_InitClientModelDObj
 */
 char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, const unsigned int clientModelIdx, DObj *recycledDObj)
 {
-  __int64 v4; 
-  DObj *v5; 
+  __int64 v3; 
+  DObj *v4; 
   CG_ClientModel_RuntimeData *RuntimeData; 
   unsigned __int16 *p_modelCount; 
   ClGameModeApplication *ActiveClientApplication; 
-  char v10; 
-  bitarray_base<bitarray<384> > *v11; 
+  char v9; 
+  bitarray_base<bitarray<384> > *v10; 
   const Weapon *p_weapon; 
   CgWeaponSystem *WeaponSystem; 
-  bool v15; 
+  bool v14; 
   XModel *WeaponModels; 
-  const XModel *v17; 
-  const Weapon *v18; 
+  const XModel *v16; 
+  const Weapon *v17; 
   const char *WeaponBaseName; 
   const DObjCamoParams *camoParams; 
-  int v21; 
-  const XModel **v22; 
-  const XModel *v23; 
-  XAnimOwner v24; 
+  int v20; 
+  const XModel **v21; 
+  const XModel *v22; 
+  XAnimOwner v23; 
   XAnim_s *animations; 
   XAnimTree *SmallTree; 
   XAnimTree *Tree; 
   unsigned int index; 
-  float fmt; 
-  float fmta; 
   __int64 isUsingDetonator; 
   __int64 isUsingDetonatora; 
-  float isUsingDetonatorb; 
   __int64 isUsingCensorshipWorldModel; 
   unsigned int isUsingCensorshipWorldModela; 
-  float isUsingCensorshipWorldModelb; 
   __int64 maxModels; 
   unsigned __int16 *numModels; 
   int handle; 
@@ -1349,15 +1338,15 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
   DObjStickerSlotList stickerSlots; 
   DObjModel outDObjModel[16]; 
 
-  v4 = localClientNum;
-  v5 = recycledDObj;
+  v3 = localClientNum;
+  v4 = recycledDObj;
   if ( (unsigned int)localClientNum > LOCAL_CLIENT_1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 377, ASSERT_TYPE_ASSERT, "(localClientNum >= LOCAL_CLIENT_0 && localClientNum <= LOCAL_CLIENT_LAST)", (const char *)&queryFormat, "localClientNum >= LOCAL_CLIENT_0 && localClientNum <= LOCAL_CLIENT_LAST") )
     __debugbreak();
-  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 378, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
+  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 378, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  if ( clientModelIdx >= CG_ClientModel_GetCount((const LocalClientNum_t)v4) )
+  if ( clientModelIdx >= CG_ClientModel_GetCount((const LocalClientNum_t)v3) )
   {
-    isUsingCensorshipWorldModela = CG_ClientModel_GetCount((const LocalClientNum_t)v4);
+    isUsingCensorshipWorldModela = CG_ClientModel_GetCount((const LocalClientNum_t)v3);
     LODWORD(isUsingDetonator) = clientModelIdx;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 379, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CG_ClientModel_GetCount( localClientNum ) )", "clientModelIdx doesn't index CG_ClientModel_GetCount( localClientNum )\n\t%i not in [0, %i)", isUsingDetonator, isUsingCensorshipWorldModela) )
       __debugbreak();
@@ -1369,11 +1358,11 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 380, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", isUsingDetonator, isUsingCensorshipWorldModel) )
       __debugbreak();
   }
-  if ( CG_ClientModel_IsInitialized((const LocalClientNum_t)v4, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 381, ASSERT_TYPE_ASSERT, "(!CG_ClientModel_IsInitialized( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "!CG_ClientModel_IsInitialized( localClientNum, clientModelIdx )") )
+  if ( CG_ClientModel_IsInitialized((const LocalClientNum_t)v3, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 381, ASSERT_TYPE_ASSERT, "(!CG_ClientModel_IsInitialized( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "!CG_ClientModel_IsInitialized( localClientNum, clientModelIdx )") )
     __debugbreak();
-  if ( CG_ClientModel_IsModifiable((const LocalClientNum_t)v4, clientModelIdx) && !CG_ClientModel_IsModifiableAssetRequired((const LocalClientNum_t)v4, clientModelIdx) )
+  if ( CG_ClientModel_IsModifiable((const LocalClientNum_t)v3, clientModelIdx) && !CG_ClientModel_IsModifiableAssetRequired((const LocalClientNum_t)v3, clientModelIdx) )
     return 0;
-  RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v4, clientModelIdx);
+  RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v3, clientModelIdx);
   p_modelCount = &RuntimeData->modelCount;
   if ( !RuntimeData->modelCount )
     return 0;
@@ -1385,11 +1374,11 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 398, ASSERT_TYPE_ASSERT, "( ENTITYNUM_CLIENTMODEL_START ) <= ( entNum ) && ( entNum ) <= ( ENTITYNUM_CLIENTMODEL_END - 1 )", "entNum not in [ENTITYNUM_CLIENTMODEL_START, ENTITYNUM_CLIENTMODEL_END - 1]\n\t%i not in [%i, %i]", isUsingDetonator, isUsingCensorshipWorldModel, 2500) )
       __debugbreak();
   }
-  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 316, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
+  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 316, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  if ( clientModelIdx >= CG_ClientModel_GetCount((const LocalClientNum_t)v4) )
+  if ( clientModelIdx >= CG_ClientModel_GetCount((const LocalClientNum_t)v3) )
   {
-    LODWORD(isUsingCensorshipWorldModel) = CG_ClientModel_GetCount((const LocalClientNum_t)v4);
+    LODWORD(isUsingCensorshipWorldModel) = CG_ClientModel_GetCount((const LocalClientNum_t)v3);
     LODWORD(isUsingDetonator) = clientModelIdx;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 317, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CG_ClientModel_GetCount( localClientNum ) )", "clientModelIdx doesn't index CG_ClientModel_GetCount( localClientNum )\n\t%i not in [0, %i)", isUsingDetonator, isUsingCensorshipWorldModel) )
       __debugbreak();
@@ -1397,24 +1386,24 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
   ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
   if ( !ActiveClientApplication && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 321, ASSERT_TYPE_ASSERT, "(clGameApp)", (const char *)&queryFormat, "clGameApp") )
     __debugbreak();
-  if ( CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v4, clientModelIdx)->models[0] )
+  if ( CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v3, clientModelIdx)->models[0] )
   {
-    v10 = ((__int64 (__fastcall *)(ClGameModeApplication *))ActiveClientApplication->IsModelLoaded)(ActiveClientApplication);
-    v11 = &s_CG_ClientModel_SubAssetsLoadingState[v4];
-    if ( v10 )
-      bitarray_base<bitarray<384>>::resetBit(v11, clientModelIdx);
+    v9 = ((__int64 (__fastcall *)(ClGameModeApplication *))ActiveClientApplication->IsModelLoaded)(ActiveClientApplication);
+    v10 = &s_CG_ClientModel_SubAssetsLoadingState[v3];
+    if ( v9 )
+      bitarray_base<bitarray<384>>::resetBit(v10, clientModelIdx);
     else
-      bitarray_base<bitarray<384>>::setBit(v11, clientModelIdx);
+      bitarray_base<bitarray<384>>::setBit(v10, clientModelIdx);
   }
-  if ( CG_ClientModel_AreSubAssetsLoading((const LocalClientNum_t)v4, clientModelIdx) )
+  if ( CG_ClientModel_AreSubAssetsLoading((const LocalClientNum_t)v3, clientModelIdx) )
   {
-    if ( !CG_ClientModel_IsModifiable((const LocalClientNum_t)v4, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 404, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiable( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiable( localClientNum, clientModelIdx )") )
+    if ( !CG_ClientModel_IsModifiable((const LocalClientNum_t)v3, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 404, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiable( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiable( localClientNum, clientModelIdx )") )
       __debugbreak();
-    if ( !CG_ClientModel_IsModifiableAssetRequired((const LocalClientNum_t)v4, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 405, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiableAssetRequired( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiableAssetRequired( localClientNum, clientModelIdx )") )
+    if ( !CG_ClientModel_IsModifiableAssetRequired((const LocalClientNum_t)v3, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 405, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiableAssetRequired( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiableAssetRequired( localClientNum, clientModelIdx )") )
       __debugbreak();
     return 0;
   }
-  bitarray_base<bitarray<384>>::setBit(&s_CG_ClientModel_Initialized[v4], clientModelIdx);
+  bitarray_base<bitarray<384>>::setBit(&s_CG_ClientModel_Initialized[v3], clientModelIdx);
   p_weapon = &RuntimeData->weapon;
   if ( RuntimeData->weapon.weaponIdx )
   {
@@ -1425,14 +1414,14 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 416, ASSERT_TYPE_ASSERT, "(unsigned)( runtimeData.weapon.weaponCamo ) < (unsigned)( BG_Camo_GetCamoCount() )", "runtimeData.weapon.weaponCamo doesn't index BG_Camo_GetCamoCount()\n\t%i not in [0, %i)", isUsingDetonator, isUsingCensorshipWorldModel) )
         __debugbreak();
     }
-    WeaponSystem = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)v4);
-    v15 = WeaponSystem->IsWeaponWorldModelLoaded(WeaponSystem, &RuntimeData->weapon);
-    WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &RuntimeData->weapon, 0, !v15, 0, 0, 0);
-    v17 = WeaponModels;
-    v18 = &RuntimeData->weapon;
+    WeaponSystem = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)v3);
+    v14 = WeaponSystem->IsWeaponWorldModelLoaded(WeaponSystem, &RuntimeData->weapon);
+    WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, &RuntimeData->weapon, 0, !v14, 0, 0, 0);
+    v16 = WeaponModels;
+    v17 = &RuntimeData->weapon;
     if ( !WeaponModels )
     {
-      WeaponBaseName = BG_GetWeaponBaseName(v18, 0);
+      WeaponBaseName = BG_GetWeaponBaseName(v17, 0);
       LODWORD(isUsingDetonatora) = clientModelIdx;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 426, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ClientModel %d initialized with null model for weapon '%s'", isUsingDetonatora, WeaponBaseName) )
         __debugbreak();
@@ -1442,10 +1431,10 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
       return 0;
     }
     RuntimeData->models[0] = WeaponModels;
-    RuntimeData->isWeaponLoaded = v15;
+    RuntimeData->isWeaponLoaded = v14;
     *p_modelCount = 1;
-    camoParams = BG_Camo_GetWeaponDObjCamoParams(v18, 0, &outLocalParams);
-    DObjInitModel(v17, (scr_string_t)0, 0, 0, camoParams, outDObjModel);
+    camoParams = BG_Camo_GetWeaponDObjCamoParams(v17, 0, &outLocalParams);
+    DObjInitModel(v16, (scr_string_t)0, 0, 0, camoParams, outDObjModel);
     if ( RuntimeData->isWeaponLoaded )
       BG_AddWeaponAttachmentModels(&RuntimeData->weapon, WEAPON_HAND_DEFAULT, 0, 0, 1, 0, outDObjModel, 0x10u, p_modelCount, NULL, camoParams);
     if ( *p_modelCount > 0x10u )
@@ -1458,9 +1447,9 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
   }
   else
   {
-    if ( !CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v4, clientModelIdx)->models[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 451, ASSERT_TYPE_ASSERT, "(CG_ClientModel_GetModel( localClientNum, clientModelIdx, 0 ))", (const char *)&queryFormat, "CG_ClientModel_GetModel( localClientNum, clientModelIdx, 0 )") )
+    if ( !CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v3, clientModelIdx)->models[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 451, ASSERT_TYPE_ASSERT, "(CG_ClientModel_GetModel( localClientNum, clientModelIdx, 0 ))", (const char *)&queryFormat, "CG_ClientModel_GetModel( localClientNum, clientModelIdx, 0 )") )
       __debugbreak();
-    if ( !CG_ClientModel_IsClientModelLoaded((const LocalClientNum_t)v4, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 452, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientModelLoaded( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsClientModelLoaded( localClientNum, clientModelIdx )") )
+    if ( !CG_ClientModel_IsClientModelLoaded((const LocalClientNum_t)v3, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 452, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientModelLoaded( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsClientModelLoaded( localClientNum, clientModelIdx )") )
       __debugbreak();
     if ( *p_modelCount > 0x10u )
     {
@@ -1468,34 +1457,34 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 453, ASSERT_TYPE_ASSERT, "( runtimeData.modelCount ) <= ( CLIENT_MODEL_MAX_XMODELS )", "%s <= %s\n\t%i, %i", "runtimeData.modelCount", "CLIENT_MODEL_MAX_XMODELS", maxModels, 16) )
         __debugbreak();
     }
-    v21 = 0;
+    v20 = 0;
     if ( *p_modelCount )
     {
-      v22 = (const XModel **)RuntimeData;
+      v21 = (const XModel **)RuntimeData;
       attach_names = RuntimeData->attach_names;
       do
       {
-        v23 = *v22;
-        if ( !*v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 460, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+        v22 = *v21;
+        if ( !*v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 460, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
-        DObjInitModel(v23, *attach_names++, 0, 0, NULL, &outDObjModel[v21++]);
-        ++v22;
+        DObjInitModel(v22, *attach_names++, 0, 0, NULL, &outDObjModel[v20++]);
+        ++v21;
       }
-      while ( v21 < *p_modelCount );
-      LODWORD(v4) = localClientNum;
-      v5 = recycledDObj;
+      while ( v20 < *p_modelCount );
+      LODWORD(v3) = localClientNum;
+      v4 = recycledDObj;
     }
     p_weapon = &RuntimeData->weapon;
   }
-  if ( v5 )
+  if ( v4 )
   {
-    if ( v5->tree )
+    if ( v4->tree )
     {
-      Com_XAnimFreeSmallTree(v5->tree);
-      DObjSetTree(v5, NULL);
+      Com_XAnimFreeSmallTree(v4->tree);
+      DObjSetTree(v4, NULL);
     }
     LOBYTE(isUsingDetonator) = 1;
-    DObjRealloc(outDObjModel, *p_modelCount, NULL, (char *)v5, handle + 1, (XAnimOwner)isUsingDetonator);
+    DObjRealloc(outDObjModel, *p_modelCount, NULL, (char *)v4, handle + 1, (XAnimOwner)isUsingDetonator);
   }
   else
   {
@@ -1507,34 +1496,19 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 481, ASSERT_TYPE_ASSERT, "( ((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) ) <= ( dobjHandle ) && ( dobjHandle ) <= ( ((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1 )", "dobjHandle not in [DOBJ_HANDLE_FIRST_CLIENTMODEL, DOBJ_HANDLE_FIRST_CLIENTMODEL + CLIENT_MODEL_MAX_COUNT - 1]\n\t%i not in [%i, %i]", isUsingDetonator, isUsingCensorshipWorldModel, maxModels) )
         __debugbreak();
     }
-    v5 = Com_ClientDObjCreate(outDObjModel, *p_modelCount, NULL, handle, (LocalClientNum_t)v4, 0, handle);
+    v4 = Com_ClientDObjCreate(outDObjModel, *p_modelCount, NULL, handle, (LocalClientNum_t)v3, 0, handle);
   }
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 484, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 484, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
   if ( p_weapon->weaponIdx )
   {
-    DObjSetCamoMaterialOverride(v5, outDObjModel, *p_modelCount);
+    DObjSetCamoMaterialOverride(v4, outDObjModel, *p_modelCount);
     if ( RuntimeData->isWeaponLoaded )
     {
-      _RAX = CG_Weapons_BuildStickerSlotList(&result, (const LocalClientNum_t)v4, NULL, 0, p_weapon);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+728h+stickerSlots.modelTypeToApply], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+728h+stickerSlots.modelTypeToApply+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rsp+728h+stickerSlots.modelTypeToApply+40h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rsp+728h+stickerSlots.slots.overrideMaterial], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rsp+728h+stickerSlots.slots.overrideMaterial+20h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  [rsp+728h+stickerSlots.slots.overrideMaterial+30h], xmm1
-      }
-      DObjSetStickerMaterialOverrides(v5, NULL, &stickerSlots);
-      BG_UpdateWeaponHidePartBitsForDObj(v5, p_weapon, 0, 0);
-      BG_UpdatedWeaponBones(p_weapon, v5, 0);
+      stickerSlots = *CG_Weapons_BuildStickerSlotList(&result, (const LocalClientNum_t)v3, NULL, 0, p_weapon);
+      DObjSetStickerMaterialOverrides(v4, NULL, &stickerSlots);
+      BG_UpdateWeaponHidePartBitsForDObj(v4, p_weapon, 0, 0);
+      BG_UpdatedWeaponBones(p_weapon, v4, 0);
     }
   }
   if ( RuntimeData->animationTreeName )
@@ -1542,32 +1516,21 @@ char CG_ClientModel_InitClientModelDObj(const LocalClientNum_t localClientNum, c
     animations = RuntimeData->animations;
     if ( animations )
     {
-      LOBYTE(v24) = 1;
-      SmallTree = Com_XAnimCreateSmallTree(animations, v24);
+      LOBYTE(v23) = 1;
+      SmallTree = Com_XAnimCreateSmallTree(animations, v23);
       if ( !SmallTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 513, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
         __debugbreak();
-      DObjSetTree(v5, SmallTree);
+      DObjSetTree(v4, SmallTree);
     }
   }
   if ( RuntimeData->animation )
   {
-    __asm { vmovaps [rsp+728h+var_48], xmm6 }
-    Tree = DObjGetTree(v5);
+    Tree = DObjGetTree(v4);
     if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 524, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
       __debugbreak();
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     index = RuntimeData->animationIndex.index;
-    __asm
-    {
-      vmovss  dword ptr [rsp+728h+isUsingCensorshipWorldModel], xmm0
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  dword ptr [rsp+728h+isUsingDetonator], xmm6
-      vmovss  dword ptr [rsp+728h+fmt], xmm0
-    }
-    XAnimSetCompleteGoalWeight(v5, 0, XANIM_SUBTREE_DEFAULT, index, fmt, isUsingDetonatorb, isUsingCensorshipWorldModelb, (scr_string_t)0, 0, 1, LINEAR, NULL);
-    __asm { vmovss  dword ptr [rsp+728h+fmt], xmm6 }
-    XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmta);
-    __asm { vmovaps xmm6, [rsp+728h+var_48] }
+    XAnimSetCompleteGoalWeight(v4, 0, XANIM_SUBTREE_DEFAULT, index, 1.0, 0.0, 1.0, (scr_string_t)0, 0, 1, LINEAR, NULL);
+    XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, 0.0);
   }
   return 1;
 }
@@ -1897,174 +1860,107 @@ CG_ClientModel_ParseClipmap
 */
 void CG_ClientModel_ParseClipmap(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
-  unsigned int v4; 
+  __int64 v1; 
+  unsigned int v2; 
+  CM_ClientModel *v3; 
   CG_ClientModel_RuntimeData *RuntimeData; 
   XAnim_s *ClipmapAnims; 
   unsigned __int64 linkPointer; 
-  void (__fastcall *v19)(const vec3_t *, vec4_t *); 
-  int *v26; 
+  void (__fastcall *v7)(const vec3_t *, vec4_t *); 
+  int *v8; 
   XAnimParts *animation; 
   scr_anim_t animationIndex; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37[4]; 
-  bitarray<384> *v38; 
-  __int64 v39; 
-  int v40[4]; 
-  char v41; 
-  void *retaddr; 
+  int v11[4]; 
+  bitarray<384> *v12; 
+  __int64 v13; 
+  int v14[4]; 
 
-  _RAX = &retaddr;
-  v39 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v3 = localClientNum;
+  v13 = -2i64;
+  v1 = localClientNum;
   if ( !CG_ClientModel_IsClientInitialized(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 278, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
   if ( cm.mapEnts->numClientModels > 0x180 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 281, ASSERT_TYPE_ASSERT, "( cm.mapEnts->numClientModels ) <= ( CLIENT_MODEL_MAX_COUNT )", "%s <= %s\n\t%i, %i", "cm.mapEnts->numClientModels", "CLIENT_MODEL_MAX_COUNT", cm.mapEnts->numClientModels, 384) )
     __debugbreak();
-  v4 = 0;
+  v2 = 0;
   if ( cm.mapEnts->numClientModels )
   {
-    v38 = &s_CG_ClientModel_NeedsPrevPoseReset[v3];
-    __asm { vmovss  xmm6, cs:__real@45800000 }
+    v12 = &s_CG_ClientModel_NeedsPrevPoseReset[v1];
     do
     {
-      if ( v4 >= 0x180 )
+      if ( v2 >= 0x180 )
       {
         animationIndex.0 = ($6CB7272563F4458FB40A4A5E123C4ABA)384;
-        LODWORD(animation) = v4;
+        LODWORD(animation) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 210, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", animation, animationIndex) )
           __debugbreak();
       }
       if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 165, ASSERT_TYPE_ASSERT, "(cm.mapEnts)", (const char *)&queryFormat, "cm.mapEnts") )
         __debugbreak();
-      if ( v4 >= cm.mapEnts->numClientModels )
+      if ( v2 >= cm.mapEnts->numClientModels )
       {
         animationIndex.0 = ($6CB7272563F4458FB40A4A5E123C4ABA)cm.mapEnts->numClientModels;
-        LODWORD(animation) = v4;
+        LODWORD(animation) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 211, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CG_ClientModel_GetClipmapPoolSize() )", "clientModelIdx doesn't index CG_ClientModel_GetClipmapPoolSize()\n\t%i not in [0, %i)", animation, animationIndex) )
           __debugbreak();
       }
       if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 212, ASSERT_TYPE_ASSERT, "(cm.mapEnts)", (const char *)&queryFormat, "cm.mapEnts") )
         __debugbreak();
-      _R15 = &cm.mapEnts->clientModels[v4];
-      if ( !_R15->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 286, ASSERT_TYPE_ASSERT, "(clientModel.model)", (const char *)&queryFormat, "clientModel.model") )
+      v3 = &cm.mapEnts->clientModels[v2];
+      if ( !v3->model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 286, ASSERT_TYPE_ASSERT, "(clientModel.model)", (const char *)&queryFormat, "clientModel.model") )
         __debugbreak();
-      RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v3, v4);
-      _RBP = &RuntimeData->pose;
-      ClipmapAnims = CG_ClientModel_GetClipmapAnims(v4);
-      linkPointer = CG_ClientModel_GetClipmapAnimIndex(v4).linkPointer;
-      CG_ClientModel_SetRuntimeDataModel((const LocalClientNum_t)v3, v4, RuntimeData, _R15->model);
-      CG_ClientModel_SetRuntimeDataAnim((const LocalClientNum_t)v3, v4, RuntimeData, _R15->animationTreeName, ClipmapAnims, _R15->animation, (scr_anim_t)linkPointer);
-      CG_ClientModel_SetRuntimeDataMisc((const LocalClientNum_t)v3, v4, RuntimeData, _R15->name, _R15->noPhysics, _R15->noCloth);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15]
-        vmovss  [rsp+0C8h+var_70], xmm0
-        vmovss  xmm1, dword ptr [r15+4]
-        vmovss  [rsp+0C8h+var_6C], xmm1
-        vmovss  xmm0, dword ptr [r15+8]
-        vmovss  [rsp+0C8h+var_68], xmm0
-      }
-      RuntimeData->pose.angles.v[0] = _R15->spawnAngles.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+10h]
-        vmovss  dword ptr [rbp+4Ch], xmm0
-        vmovss  xmm1, dword ptr [r15+14h]
-        vmovss  dword ptr [rbp+50h], xmm1
-      }
-      if ( v4 >= 0x180 )
+      RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v1, v2);
+      ClipmapAnims = CG_ClientModel_GetClipmapAnims(v2);
+      linkPointer = CG_ClientModel_GetClipmapAnimIndex(v2).linkPointer;
+      CG_ClientModel_SetRuntimeDataModel((const LocalClientNum_t)v1, v2, RuntimeData, v3->model);
+      CG_ClientModel_SetRuntimeDataAnim((const LocalClientNum_t)v1, v2, RuntimeData, v3->animationTreeName, ClipmapAnims, v3->animation, (scr_anim_t)linkPointer);
+      CG_ClientModel_SetRuntimeDataMisc((const LocalClientNum_t)v1, v2, RuntimeData, v3->name, v3->noPhysics, v3->noCloth);
+      v11[0] = LODWORD(v3->spawnOrigin.v[0]);
+      v11[1] = LODWORD(v3->spawnOrigin.v[1]);
+      v11[2] = LODWORD(v3->spawnOrigin.v[2]);
+      RuntimeData->pose.angles = v3->spawnAngles;
+      if ( v2 >= 0x180 )
       {
         animationIndex.0 = ($6CB7272563F4458FB40A4A5E123C4ABA)384;
-        LODWORD(animation) = v4;
+        LODWORD(animation) = v2;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", animation, animationIndex) )
           __debugbreak();
       }
-      if ( ((0x80000000 >> (v4 & 0x1F)) & v38->array[(unsigned __int64)v4 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 304, ASSERT_TYPE_ASSERT, "(!s_CG_ClientModel_NeedsPrevPoseReset[localClientNum].testBit( clientModelIdx ))", "%s\n\tShould not have any of those bits set", "!s_CG_ClientModel_NeedsPrevPoseReset[localClientNum].testBit( clientModelIdx )") )
+      if ( ((0x80000000 >> (v2 & 0x1F)) & v12->array[(unsigned __int64)v2 >> 5]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 304, ASSERT_TYPE_ASSERT, "(!s_CG_ClientModel_NeedsPrevPoseReset[localClientNum].testBit( clientModelIdx ))", "%s\n\tShould not have any of those bits set", "!s_CG_ClientModel_NeedsPrevPoseReset[localClientNum].testBit( clientModelIdx )") )
         __debugbreak();
-      CG_ClientModel_SetPrevPose((const LocalClientNum_t)v3, v4, &_R15->spawnOrigin, &_R15->spawnAngles);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+var_70]
-        vmovss  [rsp+0C8h+var_78], xmm0
-      }
-      if ( (v34 & 0x7F800000) == 2139095040 )
-        goto LABEL_50;
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+var_6C]
-        vmovss  [rsp+0C8h+var_78], xmm0
-      }
-      if ( (v35 & 0x7F800000) == 2139095040 )
-        goto LABEL_50;
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+var_68]
-        vmovss  [rsp+0C8h+var_78], xmm0
-      }
-      if ( (v36 & 0x7F800000) == 2139095040 )
-      {
-LABEL_50:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
-          __debugbreak();
-      }
+      CG_ClientModel_SetPrevPose((const LocalClientNum_t)v1, v2, &v3->spawnOrigin, &v3->spawnAngles);
+      if ( ((v11[0] & 0x7F800000) == 2139095040 || (v11[1] & 0x7F800000) == 2139095040 || (v11[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
+        __debugbreak();
       if ( RuntimeData == (CG_ClientModel_RuntimeData *)-304i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 412, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
       if ( !RuntimeData->pose.origin.Set_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 413, ASSERT_TYPE_ASSERT, "(pose->origin.Set_origin)", (const char *)&queryFormat, "pose->origin.Set_origin") )
         __debugbreak();
       if ( RuntimeData->pose.isEntityPose )
       {
-        CG_Pose_ValidateSetEntityPoseOrigin(_RBP);
+        CG_Pose_ValidateSetEntityPoseOrigin(&RuntimeData->pose);
         RuntimeData->pose.entOriginSet = 1;
         RuntimeData->pose.hasStaleEntityPose = 1;
       }
-      v19 = ObfuscateSetFunctionPointer_origin(RuntimeData->pose.origin.Set_origin, &RuntimeData->pose);
+      v7 = ObfuscateSetFunctionPointer_origin(RuntimeData->pose.origin.Set_origin, &RuntimeData->pose);
       if ( RuntimeData->pose.isPosePrecise )
       {
-        __asm
-        {
-          vmulss  xmm1, xmm6, [rsp+0C8h+var_70]
-          vcvttss2si ecx, xmm1
-        }
-        v40[0] = _ECX;
-        __asm
-        {
-          vmulss  xmm1, xmm6, [rsp+0C8h+var_6C]
-          vcvttss2si ecx, xmm1
-        }
-        v40[1] = _ECX;
-        __asm
-        {
-          vmulss  xmm1, xmm6, [rsp+0C8h+var_68]
-          vcvttss2si ecx, xmm1
-        }
-        v40[2] = _ECX;
-        v26 = v40;
+        v14[0] = (int)(float)(4096.0 * *(float *)v11);
+        v14[1] = (int)(float)(4096.0 * *(float *)&v11[1]);
+        v14[2] = (int)(float)(4096.0 * *(float *)&v11[2]);
+        v8 = v14;
       }
       else
       {
-        v26 = v37;
+        v8 = v11;
       }
-      v19((const vec3_t *)v26, &RuntimeData->pose.origin.origin.origin);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0C8h+var_70]
-        vmovss  dword ptr [rbp+1Ch], xmm0
-        vmovss  xmm1, [rsp+0C8h+var_6C]
-        vmovss  dword ptr [rbp+20h], xmm1
-        vmovss  xmm0, [rsp+0C8h+var_68]
-        vmovss  dword ptr [rbp+24h], xmm0
-      }
-      memset(v37, 0, 0xCui64);
-      ++v4;
+      v7((const vec3_t *)v8, &RuntimeData->pose.origin.origin.origin);
+      RuntimeData->pose.actualOrigin.v[0] = *(float *)v11;
+      RuntimeData->pose.actualOrigin.v[1] = *(float *)&v11[1];
+      RuntimeData->pose.actualOrigin.v[2] = *(float *)&v11[2];
+      memset(v11, 0, 0xCui64);
+      ++v2;
     }
-    while ( v4 < cm.mapEnts->numClientModels );
+    while ( v2 < cm.mapEnts->numClientModels );
   }
-  _R11 = &v41;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -2074,127 +1970,107 @@ CG_ClientModel_ResetPrevPose
 */
 void CG_ClientModel_ResetPrevPose(const LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
-  bitarray<384> *v3; 
-  __int64 v4; 
+  __int64 v1; 
+  bitarray<384> *v2; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int v5; 
-  unsigned int v7; 
   CG_ClientModel_RuntimeData *RuntimeData; 
+  cpose_t *p_pose; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v12; 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
-  __int64 v26; 
-  __int64 v28; 
-  __int64 v29; 
-  int v30[6]; 
-  int v32; 
-  int v33; 
-  int v34; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26[6]; 
 
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-  v2 = localClientNum;
+  v1 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFFFFA07A, "CG_ClientModel_ResetPrevPose");
-  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1030, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
+  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1030, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  v3 = &s_CG_ClientModel_NeedsPrevPoseReset[v2];
-  LODWORD(v4) = 0;
-  v5 = v3->array[0];
-  __asm { vmovsd  xmm6, cs:__real@3f30000000000000 }
-  while ( v5 )
+  v2 = &s_CG_ClientModel_NeedsPrevPoseReset[v1];
+  LODWORD(v3) = 0;
+  v4 = v2->array[0];
+  while ( v4 )
   {
 LABEL_8:
-    v7 = __lzcnt(v5);
-    if ( v7 >= 0x20 )
+    v5 = __lzcnt(v4);
+    if ( v5 >= 0x20 )
     {
-      LODWORD(v29) = 32;
-      LODWORD(v28) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v25) = 32;
+      LODWORD(v24) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    if ( (v5 & (0x80000000 >> v7)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v4 & (0x80000000 >> v5)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v5 &= ~(0x80000000 >> v7);
-    RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v2, v7 + 32 * v4);
-    _RDI = &RuntimeData->pose;
+    v4 &= ~(0x80000000 >> v5);
+    RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v1, v5 + 32 * v3);
+    p_pose = &RuntimeData->pose;
     if ( RuntimeData == (CG_ClientModel_RuntimeData *)-304i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
-    if ( !_RDI->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+    if ( !p_pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
       __debugbreak();
-    FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RDI->origin.Get_origin, _RDI);
-    FunctionPointer_origin(&_RDI->origin.origin.origin, (vec3_t *)v30);
-    if ( _RDI->isPosePrecise )
+    FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(p_pose->origin.Get_origin, p_pose);
+    FunctionPointer_origin(&p_pose->origin.origin.origin, (vec3_t *)v26);
+    if ( p_pose->isPosePrecise )
     {
-      __asm
-      {
-        vmovd   xmm0, [rsp+0A8h+var_60]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm6
-        vcvtsd2ss xmm2, xmm1, xmm1
-        vmovss  [rsp+0A8h+var_60], xmm2
-        vmovd   xmm0, [rsp+0A8h+var_5C]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm6
-        vcvtsd2ss xmm3, xmm1, xmm1
-        vmovss  [rsp+0A8h+var_5C], xmm3
-        vmovd   xmm0, [rsp+0A8h+var_58]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm6
-        vcvtsd2ss xmm4, xmm1, xmm1
-        vmovss  [rsp+0A8h+var_58], xmm4
-      }
+      _XMM0 = (unsigned int)v26[0];
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v12;
+      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+      v26[0] = _XMM2;
+      _XMM0 = (unsigned int)v26[1];
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v12;
+      __asm { vcvtsd2ss xmm3, xmm1, xmm1 }
+      v26[1] = _XMM3;
+      _XMM0 = (unsigned int)v26[2];
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v12;
+      __asm { vcvtsd2ss xmm4, xmm1, xmm1 }
+      v26[2] = _XMM4;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm4, [rsp+0A8h+var_58]
-        vmovss  xmm3, [rsp+0A8h+var_5C]
-        vmovss  xmm2, [rsp+0A8h+var_60]
-      }
+      LODWORD(_XMM4) = v26[2];
+      LODWORD(_XMM3) = v26[1];
+      LODWORD(_XMM2) = v26[0];
     }
-    __asm { vmovss  [rsp+0A8h+arg_0], xmm2 }
-    if ( (v32 & 0x7F800000) == 2139095040 )
-      goto LABEL_35;
-    __asm { vmovss  [rsp+0A8h+arg_0], xmm3 }
-    if ( (v33 & 0x7F800000) == 2139095040 )
-      goto LABEL_35;
-    __asm { vmovss  [rsp+0A8h+arg_0], xmm4 }
-    if ( (v34 & 0x7F800000) == 2139095040 )
-    {
-LABEL_35:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
-        __debugbreak();
-    }
-    if ( !_RDI->prevOrigin.Set_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 595, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Set_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Set_prevOrigin") )
+    if ( ((_XMM2 & 0x7F800000) == 2139095040 || (_XMM3 & 0x7F800000) == 2139095040 || (_XMM4 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
       __debugbreak();
-    Origin = ObfuscateSetFunctionPointer_prevOrigin(_RDI->prevOrigin.Set_prevOrigin, _RDI);
-    Origin((const vec3_t *)v30, &_RDI->prevOrigin.prevOrigin);
-    _RDI->prevAngles.v[0] = _RDI->angles.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4Ch]
-      vmovss  dword ptr [rdi+7Ch], xmm0
-      vmovss  xmm1, dword ptr [rdi+50h]
-      vmovss  dword ptr [rdi+80h], xmm1
-    }
-    memset(v30, 0, 0xCui64);
+    if ( !p_pose->prevOrigin.Set_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 595, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Set_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Set_prevOrigin") )
+      __debugbreak();
+    Origin = ObfuscateSetFunctionPointer_prevOrigin(p_pose->prevOrigin.Set_prevOrigin, p_pose);
+    Origin((const vec3_t *)v26, &p_pose->prevOrigin.prevOrigin);
+    p_pose->prevAngles.v[0] = p_pose->angles.v[0];
+    p_pose->prevAngles.v[1] = p_pose->angles.v[1];
+    p_pose->prevAngles.v[2] = p_pose->angles.v[2];
+    memset(v26, 0, 0xCui64);
   }
   while ( 1 )
   {
-    v4 = (unsigned int)(v4 + 1);
-    if ( (unsigned int)v4 >= 0xC )
+    v3 = (unsigned int)(v3 + 1);
+    if ( (unsigned int)v3 >= 0xC )
       break;
-    v5 = v3->array[v4];
-    if ( v5 )
+    v4 = v2->array[v3];
+    if ( v4 )
       goto LABEL_8;
   }
-  v26 = v2;
-  *(_QWORD *)s_CG_ClientModel_NeedsPrevPoseReset[v26].array = 0i64;
-  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v26].array[2] = 0i64;
-  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v26].array[4] = 0i64;
-  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v26].array[6] = 0i64;
-  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v26].array[8] = 0i64;
-  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v26].array[10] = 0i64;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
+  v23 = v1;
+  *(_QWORD *)s_CG_ClientModel_NeedsPrevPoseReset[v23].array = 0i64;
+  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v23].array[2] = 0i64;
+  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v23].array[4] = 0i64;
+  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v23].array[6] = 0i64;
+  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v23].array[8] = 0i64;
+  *(_QWORD *)&s_CG_ClientModel_NeedsPrevPoseReset[v23].array[10] = 0i64;
   Sys_ProfEndNamedEvent();
 }
 
@@ -2386,21 +2262,23 @@ CG_ClientModel_SetHudOutline
 void CG_ClientModel_SetHudOutline(const LocalClientNum_t localClientNum, const unsigned int clientModelIdx, bool enabled, int colorIdx, bool fill)
 {
   unsigned int HudOutlineColor; 
+  const dvar_t *v9; 
   unsigned int v10; 
+  int value; 
   CG_ClientModel_RuntimeData *RuntimeData; 
 
   HudOutlineColor = CG_Utils_GetHudOutlineColor(colorIdx + 1);
-  _RBX = DVARFLT_r_hudOutlineWidth;
+  v9 = DVARFLT_r_hudOutlineWidth;
   v10 = HudOutlineColor;
   if ( !DVARFLT_r_hudOutlineWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcvttss2si ebx, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v9);
+  value = (int)v9->current.value;
   if ( !CG_ClientModel_IsModifiable(localClientNum, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1538, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiable( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiable( localClientNum, clientModelIdx )") )
     __debugbreak();
   RuntimeData = CG_ClientModel_GetRuntimeData(localClientNum, clientModelIdx);
   RuntimeData->hudOutlineEnabled = enabled;
-  RuntimeData->hudOutlineLineWidth = _EBX;
+  RuntimeData->hudOutlineLineWidth = value;
   RuntimeData->hudOutlineRenderMode = 0;
   RuntimeData->hudOutlineColor = v10;
   RuntimeData->hudOutlineFill = fill;
@@ -2432,13 +2310,16 @@ CG_ClientModel_SetModel
 */
 void CG_ClientModel_SetModel(const LocalClientNum_t localClientNum, const unsigned int clientModelIdx, const XModel *model)
 {
+  __int128 v3; 
   CG_ClientModel_RuntimeData *RuntimeData; 
   bool v8; 
   const DObj *DObj; 
   DObj *v10; 
   char v11; 
   unsigned int v12; 
+  DObjPartBits *p_partBits; 
   DObjPartBits partBits; 
+  __int128 v15; 
 
   if ( !CG_ClientModel_IsModifiable(localClientNum, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1292, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiable( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiable( localClientNum, clientModelIdx )") )
     __debugbreak();
@@ -2485,18 +2366,16 @@ void CG_ClientModel_SetModel(const LocalClientNum_t localClientNum, const unsign
       if ( v11 )
       {
         v12 = 0;
-        __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-        _R14 = &partBits;
-        __asm { vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff }
+        v15 = v3;
+        p_partBits = &partBits;
         do
         {
-          __asm { vmovdqu xmmword ptr [r14], xmm6 }
-          _R14 = (DObjPartBits *)((char *)_R14 + 16);
+          *(_OWORD *)p_partBits->array = _xmm_ffffffffffffffffffffffffffffffff;
+          p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
           ++v12;
         }
         while ( v12 < 2 );
         CL_Pose_DObjCreateSkelForBones(v10, &partBits);
-        __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
         v10->skel.timeStamp = 0;
       }
     }
@@ -2697,7 +2576,9 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
   __int64 v15; 
   unsigned __int64 v16; 
   bitarray<384> *v17; 
-  __int64 v19; 
+  __int64 v18; 
+  bitarray<384> *v19; 
+  __int64 v22; 
   __int64 v23; 
   __int64 v24; 
   __int64 v25; 
@@ -2706,7 +2587,6 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
   __int64 v28; 
   __int64 v29; 
   __int64 v30; 
-  __int64 v31; 
 
   v3 = localClientNum;
   v5 = numClientModelIndices;
@@ -2728,16 +2608,16 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
   v14->array[4] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v10);
   v14->array[5] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v11);
   v14->array[6] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v12);
-  v27 = 48 * v3 + 28;
-  v14->array[7] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v27);
-  v28 = 48 * v3 + 32;
-  v14->array[8] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v28);
-  v29 = 48 * v3 + 36;
-  v14->array[9] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v29);
-  v30 = 48 * v3 + 40;
-  v14->array[10] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v30);
-  v31 = 48 * v3 + 44;
-  v14->array[11] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v31);
+  v26 = 48 * v3 + 28;
+  v14->array[7] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v26);
+  v27 = 48 * v3 + 32;
+  v14->array[8] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v27);
+  v28 = 48 * v3 + 36;
+  v14->array[9] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v28);
+  v29 = 48 * v3 + 40;
+  v14->array[10] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v29);
+  v30 = 48 * v3 + 44;
+  v14->array[11] = *(unsigned int *)((char *)s_CG_ClientModel_ScriptableLinked[0].array + v30);
   if ( (_DWORD)v5 )
   {
     v15 = v5;
@@ -2746,25 +2626,25 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
       v16 = *clientModelIndices;
       if ( (unsigned int)v16 >= CG_ClientModel_GetCount((const LocalClientNum_t)v3) )
       {
-        LODWORD(v24) = CG_ClientModel_GetCount((const LocalClientNum_t)v3);
-        LODWORD(v23) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1806, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CG_ClientModel_GetCount( localClientNum ) )", "clientModelIdx doesn't index CG_ClientModel_GetCount( localClientNum )\n\t%i not in [0, %i)", v23, v24) )
+        LODWORD(v23) = CG_ClientModel_GetCount((const LocalClientNum_t)v3);
+        LODWORD(v22) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1806, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CG_ClientModel_GetCount( localClientNum ) )", "clientModelIdx doesn't index CG_ClientModel_GetCount( localClientNum )\n\t%i not in [0, %i)", v22, v23) )
           __debugbreak();
       }
       if ( (unsigned int)v16 >= 0x180 )
       {
-        LODWORD(v24) = 384;
-        LODWORD(v23) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1807, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", v23, v24) )
+        LODWORD(v23) = 384;
+        LODWORD(v22) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1807, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", v22, v23) )
           __debugbreak();
       }
       if ( !CG_ClientModel_IsModifiable((const LocalClientNum_t)v3, v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1808, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsModifiable( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsModifiable( localClientNum, clientModelIdx )") )
         __debugbreak();
       if ( (unsigned int)v16 >= 0x180 )
       {
-        LODWORD(v26) = 384;
-        LODWORD(v25) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
+        LODWORD(v25) = 384;
+        LODWORD(v24) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v24, v25) )
           __debugbreak();
       }
       ++clientModelIndices;
@@ -2782,7 +2662,6 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
     v12 = 48 * v3 + 24;
   }
   v17 = &s_CG_ClientModel_UnwantedModifiables[v13];
-  __asm { vmovdqu xmm2, cs:__xmm@ffffffffffffffffffffffffffffffff }
   v17->array[0] = s_CG_ClientModel_RequiredModifiables[v6].array[0];
   v17->array[1] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v7);
   v17->array[2] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v8);
@@ -2790,25 +2669,22 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
   v17->array[4] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v10);
   v17->array[5] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v11);
   v17->array[6] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v12);
-  v17->array[7] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v27);
-  v17->array[8] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v28);
-  v17->array[9] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v29);
-  v17->array[10] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v30);
-  v19 = 3i64;
-  v17->array[11] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v31);
-  _RAX = &s_CG_ClientModel_UnwantedModifiables[v13];
+  v17->array[7] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v26);
+  v17->array[8] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v27);
+  v17->array[9] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v28);
+  v17->array[10] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v29);
+  v18 = 3i64;
+  v17->array[11] = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v30);
+  v19 = &s_CG_ClientModel_UnwantedModifiables[v13];
   do
   {
-    __asm { vmovdqu xmm0, xmmword ptr [rax] }
-    _RAX = (bitarray<384> *)((char *)_RAX + 16);
-    __asm
-    {
-      vpandn  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rax-10h], xmm1
-    }
-    --v19;
+    _XMM0 = *(_OWORD *)v19->array;
+    v19 = (bitarray<384> *)((char *)v19 + 16);
+    __asm { vpandn  xmm1, xmm0, xmm2 }
+    *(_OWORD *)&v19[-1].array[8] = _XMM1;
+    --v18;
   }
-  while ( v19 );
+  while ( v18 );
   v17->array[0] &= s_CG_ClientModel_Modifiable[v6].array[0];
   v17->array[1] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v7);
   v17->array[2] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v8);
@@ -2816,11 +2692,11 @@ void CG_ClientModel_SetRequiredModifiables(const LocalClientNum_t localClientNum
   v17->array[4] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v10);
   v17->array[5] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v11);
   v17->array[6] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v12);
-  v17->array[7] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v27);
-  v17->array[8] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v28);
-  v17->array[9] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v29);
-  v17->array[10] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v30);
-  v17->array[11] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v31);
+  v17->array[7] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v26);
+  v17->array[8] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v27);
+  v17->array[9] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v28);
+  v17->array[10] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v29);
+  v17->array[11] &= *(unsigned int *)((char *)s_CG_ClientModel_Modifiable[0].array + v30);
 }
 
 /*
@@ -2904,42 +2780,30 @@ CG_ClientModel_SetRuntimeDataModel
 void CG_ClientModel_SetRuntimeDataModel(const LocalClientNum_t localClientNum, unsigned int clientModelIdx, CG_ClientModel_RuntimeData *runtimeData, const XModel *model)
 {
   __int64 v4; 
-  __int64 v13; 
-  int v14; 
+  const dvar_t *v8; 
+  __int64 v9; 
 
   v4 = localClientNum;
-  _RBX = runtimeData;
   if ( !CG_ClientModel_IsClientInitialized(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 221, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
   if ( clientModelIdx >= 0x180 )
   {
-    v14 = 384;
-    LODWORD(v13) = clientModelIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", v13, v14) )
+    LODWORD(v9) = clientModelIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelIdx ) < (unsigned)( CLIENT_MODEL_MAX_COUNT )", "clientModelIdx doesn't index CLIENT_MODEL_MAX_COUNT\n\t%i not in [0, %i)", v9, 384) )
       __debugbreak();
   }
-  _RBX->models[0] = model;
-  _RBX->attach_names[0] = 0;
-  _RBX->modelCount = model != NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rbx+0CAh], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rbx+0EAh], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rbx+0FAh], xmm0
-  }
-  *(_DWORD *)&_RBX->weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  _RBX->isWeaponLoaded = 0;
-  _RBX->hudOutlineEnabled = 0;
-  _RSI = DVARFLT_r_hudOutlineWidth;
+  runtimeData->models[0] = model;
+  runtimeData->attach_names[0] = 0;
+  runtimeData->modelCount = model != NULL;
+  runtimeData->weapon = NULL_WEAPON;
+  runtimeData->isWeaponLoaded = 0;
+  runtimeData->hudOutlineEnabled = 0;
+  v8 = DVARFLT_r_hudOutlineWidth;
   if ( !DVARFLT_r_hudOutlineWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vcvttss2si eax, dword ptr [rsi+28h] }
-  _RBX->hudOutlineLineWidth = _EAX;
-  _RBX->hudOutlineRenderMode = 0;
+  Dvar_CheckFrontendServerThread(v8);
+  runtimeData->hudOutlineLineWidth = (int)v8->current.value;
+  runtimeData->hudOutlineRenderMode = 0;
   bitarray_base<bitarray<384>>::resetBit(&s_CG_ClientModel_StreamingWeapons[v4], clientModelIdx);
 }
 
@@ -2953,13 +2817,12 @@ void CG_ClientModel_SetRuntimeDataWeapon(const LocalClientNum_t localClientNum, 
   __int64 v4; 
   CgWeaponSystem *WeaponSystem; 
   bool v9; 
-  XModel *WeaponModels; 
+  const XModel *WeaponModels; 
+  const dvar_t *v11; 
   __int64 isUsingDetonator; 
   int isUsingCensorshipWorldModel; 
 
   v4 = localClientNum;
-  _RBP = weapon;
-  _RBX = runtimeData;
   if ( !CG_ClientModel_IsClientInitialized(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 238, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
   if ( clientModelIdx >= 0x180 )
@@ -2971,33 +2834,26 @@ void CG_ClientModel_SetRuntimeDataWeapon(const LocalClientNum_t localClientNum, 
   }
   if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 193, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  if ( !_RBP->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 194, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
+  if ( !weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 194, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
     __debugbreak();
   WeaponSystem = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)v4);
-  v9 = WeaponSystem->IsWeaponWorldModelLoaded(WeaponSystem, _RBP);
-  _RBX->isWeaponLoaded = v9;
-  WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, _RBP, 0, !v9, 0, 0, 0);
-  _RBX->models[0] = WeaponModels;
-  _RBX->attach_names[0] = 0;
-  _RBX->modelCount = WeaponModels != NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rbx+0CAh], ymm0
-    vmovups xmm1, xmmword ptr [rbp+20h]
-    vmovups xmmword ptr [rbx+0EAh], xmm1
-    vmovsd  xmm0, qword ptr [rbp+30h]
-    vmovsd  qword ptr [rbx+0FAh], xmm0
-  }
-  *(_DWORD *)&_RBX->weapon.weaponCamo = *(_DWORD *)&_RBP->weaponCamo;
-  _RBX->hudOutlineEnabled = 0;
-  _RBP = DVARFLT_r_hudOutlineWidth;
+  v9 = WeaponSystem->IsWeaponWorldModelLoaded(WeaponSystem, weapon);
+  runtimeData->isWeaponLoaded = v9;
+  WeaponModels = BG_GetWeaponModels(WEAPON_HAND_DEFAULT, weapon, 0, !v9, 0, 0, 0);
+  runtimeData->models[0] = WeaponModels;
+  runtimeData->attach_names[0] = 0;
+  runtimeData->modelCount = WeaponModels != NULL;
+  *(__m256i *)&runtimeData->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)&runtimeData->weapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)&runtimeData->weapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&runtimeData->weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
+  runtimeData->hudOutlineEnabled = 0;
+  v11 = DVARFLT_r_hudOutlineWidth;
   if ( !DVARFLT_r_hudOutlineWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBP);
-  __asm { vcvttss2si eax, dword ptr [rbp+28h] }
-  _RBX->hudOutlineLineWidth = _EAX;
-  _RBX->hudOutlineRenderMode = 0;
+  Dvar_CheckFrontendServerThread(v11);
+  runtimeData->hudOutlineLineWidth = (int)v11->current.value;
+  runtimeData->hudOutlineRenderMode = 0;
   bitarray_base<bitarray<384>>::setBit(&s_CG_ClientModel_StreamingWeapons[v4], clientModelIdx);
 }
 
@@ -3374,37 +3230,39 @@ CG_ClientModel_SyncLoaded
 void CG_ClientModel_SyncLoaded(const LocalClientNum_t localClientNum)
 {
   __int64 v1; 
-  unsigned int v9; 
-  unsigned int *v15; 
+  unsigned int v7; 
+  unsigned int *v13; 
+  __int64 v14; 
+  unsigned int v15; 
   __int64 v16; 
   unsigned int v17; 
-  __int64 v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  __int64 v23; 
-  unsigned int *v34; 
+  unsigned int v18; 
+  __int64 v19; 
+  __int128 *v20; 
+  unsigned int *v28; 
+  __int64 v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  unsigned int v37; 
+  unsigned int v38; 
+  unsigned int v39; 
   __int64 v40; 
   unsigned int v41; 
-  __int64 v42; 
-  unsigned int v43; 
-  unsigned int v44; 
-  unsigned int v45; 
-  __int64 v46; 
-  unsigned int v47; 
-  unsigned int v48; 
+  unsigned int v42; 
   CG_ClientModel_RuntimeData *RuntimeData; 
   CgWeaponSystem *WeaponSystem; 
   DObj *DObj; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int128 v56; 
-  __int128 v57; 
-  unsigned int v58; 
-  unsigned int v59; 
-  unsigned int v60; 
-  unsigned int v61; 
+  __int64 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  __int64 v49; 
+  __int64 v50; 
+  __int128 v51; 
+  __int128 v52; 
+  unsigned int v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  unsigned int v56; 
 
   v1 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFFFFA07A, "CG_ClientModel_SyncLoaded");
@@ -3412,185 +3270,174 @@ void CG_ClientModel_SyncLoaded(const LocalClientNum_t localClientNum)
     __debugbreak();
   if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 949, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  _R12 = 0x140000000ui64;
-  _R10 = 48 * v1;
-  v55 = 48 * v1 + 16;
-  __asm
-  {
-    vmovd   xmm0, dword ptr [r10+r12+1139E580h]
-    vpinsrd xmm0, xmm0, dword ptr [r11+r12+1139E580h], 1
-  }
-  LODWORD(v56) = s_CG_ClientModel_Initialized[v1].array[0];
+  v50 = 48 * v1 + 16;
+  _XMM0 = s_CG_ClientModel_UnwantedModifiables[v1].array[0];
+  __asm { vpinsrd xmm0, xmm0, dword ptr [r11+r12+1139E580h], 1 }
+  LODWORD(v51) = s_CG_ClientModel_Initialized[v1].array[0];
   __asm
   {
     vpinsrd xmm0, xmm0, dword ptr [r15+r12+1139E580h], 2
     vpinsrd xmm0, xmm0, dword ptr rva s_CG_ClientModel_UnwantedModifiables.array[r12+r13], 3
   }
-  DWORD1(v56) = s_CG_ClientModel_Initialized[v1].array[1];
-  DWORD2(v56) = s_CG_ClientModel_Initialized[v1].array[2];
-  HIDWORD(v56) = s_CG_ClientModel_Initialized[v1].array[3];
+  DWORD1(v51) = s_CG_ClientModel_Initialized[v1].array[1];
+  DWORD2(v51) = s_CG_ClientModel_Initialized[v1].array[2];
+  HIDWORD(v51) = s_CG_ClientModel_Initialized[v1].array[3];
   __asm { vpand   xmm0, xmm0, [rbp+57h+var_60] }
-  LODWORD(v57) = *(unsigned int *)((char *)s_CG_ClientModel_Initialized[0].array + v55);
-  DWORD1(v57) = s_CG_ClientModel_Initialized[v1].array[5];
-  DWORD2(v57) = s_CG_ClientModel_Initialized[v1].array[6];
-  HIDWORD(v57) = s_CG_ClientModel_Initialized[v1].array[7];
-  v58 = s_CG_ClientModel_Initialized[v1].array[8];
-  v59 = s_CG_ClientModel_Initialized[v1].array[9];
-  v9 = s_CG_ClientModel_Initialized[v1].array[10];
+  LODWORD(v52) = *(unsigned int *)((char *)s_CG_ClientModel_Initialized[0].array + v50);
+  DWORD1(v52) = s_CG_ClientModel_Initialized[v1].array[5];
+  DWORD2(v52) = s_CG_ClientModel_Initialized[v1].array[6];
+  HIDWORD(v52) = s_CG_ClientModel_Initialized[v1].array[7];
+  v53 = s_CG_ClientModel_Initialized[v1].array[8];
+  v54 = s_CG_ClientModel_Initialized[v1].array[9];
+  v7 = s_CG_ClientModel_Initialized[v1].array[10];
+  v51 = _XMM0;
+  _XMM0 = *(unsigned int *)((char *)s_CG_ClientModel_UnwantedModifiables[0].array + v50);
   __asm
   {
-    vmovdqu [rbp+57h+var_60], xmm0
-    vmovd   xmm0, dword ptr [r8+r12+1139E580h]
     vpinsrd xmm0, xmm0, dword ptr [rbx+r12+1139E580h], 1
     vpinsrd xmm0, xmm0, dword ptr [rdi+r12+1139E580h], 2
     vpinsrd xmm0, xmm0, dword ptr [rsi+r12+1139E580h], 3
     vpand   xmm0, xmm0, [rbp+57h+var_50]
   }
-  v60 = v9;
-  v61 = s_CG_ClientModel_Initialized[v1].array[11];
-  v54 = v1;
-  v15 = &v58;
-  v16 = 4i64;
-  __asm { vmovdqu [rbp+57h+var_50], xmm0 }
+  v55 = v7;
+  v56 = s_CG_ClientModel_Initialized[v1].array[11];
+  v48 = v1;
+  v13 = &v53;
+  v49 = v1;
+  v14 = 4i64;
+  v52 = _XMM0;
   do
   {
-    *v15 &= *(unsigned int *)((char *)v15 + (_QWORD)s_CG_ClientModel_UnwantedModifiables + 48 * v1 - (_QWORD)&v56);
-    ++v15;
-    --v16;
+    *v13 &= *(unsigned int *)((char *)v13 + (_QWORD)s_CG_ClientModel_UnwantedModifiables + 48 * v1 - (_QWORD)&v51);
+    ++v13;
+    --v14;
   }
-  while ( v16 );
-  v17 = v56;
-  LODWORD(v18) = 0;
-  while ( v17 )
+  while ( v14 );
+  v15 = v51;
+  LODWORD(v16) = 0;
+  while ( v15 )
   {
 LABEL_13:
-    v19 = __lzcnt(v17);
-    v20 = v19 + 32 * v18;
-    if ( v19 >= 0x20 )
+    v17 = __lzcnt(v15);
+    v18 = v17 + 32 * v16;
+    if ( v17 >= 0x20 )
     {
-      LODWORD(v53) = 32;
-      LODWORD(v52) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v52, v53) )
+      LODWORD(v47) = 32;
+      LODWORD(v46) = v17;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v46, v47) )
         __debugbreak();
     }
-    if ( (v17 & (0x80000000 >> v19)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v15 & (0x80000000 >> v17)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v17 &= ~(0x80000000 >> v19);
-    if ( CG_ClientModel_ShutdownClientModelSystems((const LocalClientNum_t)v1, v20) )
-      CG_ClientModel_ShutdownClientModelDObj((const LocalClientNum_t)v1, v20);
+    v15 &= ~(0x80000000 >> v17);
+    if ( CG_ClientModel_ShutdownClientModelSystems((const LocalClientNum_t)v1, v18) )
+      CG_ClientModel_ShutdownClientModelDObj((const LocalClientNum_t)v1, v18);
   }
   while ( 1 )
   {
-    v18 = (unsigned int)(v18 + 1);
-    if ( (unsigned int)v18 >= 0xC )
+    v16 = (unsigned int)(v16 + 1);
+    if ( (unsigned int)v16 >= 0xC )
       break;
-    v17 = *((_DWORD *)&v56 + v18);
-    if ( v17 )
+    v15 = *((_DWORD *)&v51 + v16);
+    if ( v15 )
       goto LABEL_13;
   }
-  _R10 = 48 * v1;
-  _R12 = 0x140000000ui64;
-  v23 = 3i64;
-  _RDX = 48 * v1 + 16;
-  __asm { vmovdqu xmm2, cs:__xmm@ffffffffffffffffffffffffffffffff }
-  *(_QWORD *)&v56 = *(_QWORD *)s_CG_ClientModel_Initialized[v1].array;
-  DWORD2(v56) = s_CG_ClientModel_Initialized[v1].array[2];
-  HIDWORD(v56) = s_CG_ClientModel_Initialized[v1].array[3];
-  LODWORD(v57) = *(unsigned int *)((char *)s_CG_ClientModel_Initialized[0].array + v55);
-  DWORD1(v57) = s_CG_ClientModel_Initialized[v1].array[5];
-  DWORD2(v57) = s_CG_ClientModel_Initialized[v1].array[6];
-  HIDWORD(v57) = s_CG_ClientModel_Initialized[v1].array[7];
-  v58 = s_CG_ClientModel_Initialized[v1].array[8];
-  v59 = s_CG_ClientModel_Initialized[v1].array[9];
-  v60 = s_CG_ClientModel_Initialized[v1].array[10];
-  v61 = s_CG_ClientModel_Initialized[v1].array[11];
-  _RAX = &v56;
+  v19 = 3i64;
+  LODWORD(v51) = s_CG_ClientModel_Initialized[v49].array[0];
+  DWORD1(v51) = s_CG_ClientModel_Initialized[v1].array[1];
+  DWORD2(v51) = s_CG_ClientModel_Initialized[v1].array[2];
+  HIDWORD(v51) = s_CG_ClientModel_Initialized[v1].array[3];
+  LODWORD(v52) = *(unsigned int *)((char *)s_CG_ClientModel_Initialized[0].array + v50);
+  DWORD1(v52) = s_CG_ClientModel_Initialized[v1].array[5];
+  DWORD2(v52) = s_CG_ClientModel_Initialized[v1].array[6];
+  HIDWORD(v52) = s_CG_ClientModel_Initialized[v1].array[7];
+  v53 = s_CG_ClientModel_Initialized[v1].array[8];
+  v54 = s_CG_ClientModel_Initialized[v1].array[9];
+  v55 = s_CG_ClientModel_Initialized[v1].array[10];
+  v56 = s_CG_ClientModel_Initialized[v1].array[11];
+  v20 = &v51;
   do
   {
-    __asm { vmovdqu xmm0, xmmword ptr [rax] }
-    ++_RAX;
-    __asm
-    {
-      vpandn  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rax-10h], xmm1
-    }
-    --v23;
+    _XMM0 = *v20++;
+    __asm { vpandn  xmm1, xmm0, xmm2 }
+    *(v20 - 1) = _XMM1;
+    --v19;
   }
-  while ( v23 );
+  while ( v19 );
+  _XMM0 = s_CG_ClientModel_RequiredModifiables[v49].array[0];
   __asm
   {
-    vmovd   xmm0, dword ptr [r10+r12+1139E520h]
     vpinsrd xmm0, xmm0, dword ptr [r11+r12+1139E520h], 1
     vpinsrd xmm0, xmm0, dword ptr [r15+r12+1139E520h], 2
     vpinsrd xmm0, xmm0, dword ptr rva s_CG_ClientModel_RequiredModifiables.array[r12+r13], 3
     vpand   xmm0, xmm0, [rbp+57h+var_60]
   }
-  v34 = &v58;
+  v28 = &v53;
+  v51 = _XMM0;
+  _XMM0 = *(unsigned int *)((char *)s_CG_ClientModel_RequiredModifiables[0].array + v50);
   __asm
   {
-    vmovdqu [rbp+57h+var_60], xmm0
-    vmovd   xmm0, dword ptr [rdx+r12+1139E520h]
     vpinsrd xmm0, xmm0, dword ptr [r8+r12+1139E520h], 1
     vpinsrd xmm0, xmm0, dword ptr [r9+r12+1139E520h], 2
     vpinsrd xmm0, xmm0, dword ptr [rbx+r12+1139E520h], 3
     vpand   xmm0, xmm0, [rbp+57h+var_50]
   }
-  v40 = 4i64;
-  __asm { vmovdqu [rbp+57h+var_50], xmm0 }
+  v34 = 4i64;
+  v52 = _XMM0;
   do
   {
-    *v34 &= *(unsigned int *)((char *)v34 + (_QWORD)s_CG_ClientModel_RequiredModifiables + v54 * 48 - (_QWORD)&v56);
-    ++v34;
-    --v40;
+    *v28 &= *(unsigned int *)((char *)v28 + (_QWORD)s_CG_ClientModel_RequiredModifiables + v48 * 48 - (_QWORD)&v51);
+    ++v28;
+    --v34;
   }
-  while ( v40 );
-  v41 = v56;
-  LODWORD(v42) = 0;
-  while ( v41 )
+  while ( v34 );
+  v35 = v51;
+  LODWORD(v36) = 0;
+  while ( v35 )
   {
 LABEL_29:
-    v43 = __lzcnt(v41);
-    v44 = v43 + 32 * v42;
-    if ( v43 >= 0x20 )
+    v37 = __lzcnt(v35);
+    v38 = v37 + 32 * v36;
+    if ( v37 >= 0x20 )
     {
-      LODWORD(v53) = 32;
-      LODWORD(v52) = v43;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v52, v53) )
+      LODWORD(v47) = 32;
+      LODWORD(v46) = v37;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v46, v47) )
         __debugbreak();
     }
-    if ( (v41 & (0x80000000 >> v43)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v35 & (0x80000000 >> v37)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v41 &= ~(0x80000000 >> v43);
-    if ( CG_ClientModel_InitClientModelDObj((const LocalClientNum_t)v1, v44, NULL) )
-      CG_ClientModel_InitClientModelSystems((const LocalClientNum_t)v1, v44);
+    v35 &= ~(0x80000000 >> v37);
+    if ( CG_ClientModel_InitClientModelDObj((const LocalClientNum_t)v1, v38, NULL) )
+      CG_ClientModel_InitClientModelSystems((const LocalClientNum_t)v1, v38);
   }
   while ( 1 )
   {
-    v42 = (unsigned int)(v42 + 1);
-    if ( (unsigned int)v42 >= 0xC )
+    v36 = (unsigned int)(v36 + 1);
+    if ( (unsigned int)v36 >= 0xC )
       break;
-    v41 = *((_DWORD *)&v56 + v42);
-    if ( v41 )
+    v35 = *((_DWORD *)&v51 + v36);
+    if ( v35 )
       goto LABEL_29;
   }
-  v45 = s_CG_ClientModel_StreamingWeapons[v54].array[0];
-  LODWORD(v46) = 0;
-  while ( v45 )
+  v39 = s_CG_ClientModel_StreamingWeapons[v48].array[0];
+  LODWORD(v40) = 0;
+  while ( v39 )
   {
 LABEL_41:
-    v47 = __lzcnt(v45);
-    v48 = v47 + 32 * v46;
-    if ( v47 >= 0x20 )
+    v41 = __lzcnt(v39);
+    v42 = v41 + 32 * v40;
+    if ( v41 >= 0x20 )
     {
-      LODWORD(v53) = 32;
-      LODWORD(v52) = v47;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v52, v53) )
+      LODWORD(v47) = 32;
+      LODWORD(v46) = v41;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v46, v47) )
         __debugbreak();
     }
-    if ( (v45 & (0x80000000 >> v47)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v39 & (0x80000000 >> v41)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v45 &= ~(0x80000000 >> v47);
-    RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v1, v48);
+    v39 &= ~(0x80000000 >> v41);
+    RuntimeData = CG_ClientModel_GetRuntimeData((const LocalClientNum_t)v1, v42);
     if ( RuntimeData->weapon.weaponIdx )
     {
       if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 183, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
@@ -3600,21 +3447,21 @@ LABEL_41:
       WeaponSystem = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)v1);
       if ( WeaponSystem->IsWeaponWorldModelLoaded(WeaponSystem, &RuntimeData->weapon) != RuntimeData->isWeaponLoaded )
       {
-        if ( CG_ClientModel_ShutdownClientModelSystems((const LocalClientNum_t)v1, v48) )
-          CG_ClientModel_ShutdownClientModelDObj((const LocalClientNum_t)v1, v48);
-        DObj = CG_ClientModel_GetDObj((const LocalClientNum_t)v1, v48);
-        if ( CG_ClientModel_InitClientModelDObj((const LocalClientNum_t)v1, v48, DObj) )
-          CG_ClientModel_InitClientModelSystems((const LocalClientNum_t)v1, v48);
+        if ( CG_ClientModel_ShutdownClientModelSystems((const LocalClientNum_t)v1, v42) )
+          CG_ClientModel_ShutdownClientModelDObj((const LocalClientNum_t)v1, v42);
+        DObj = CG_ClientModel_GetDObj((const LocalClientNum_t)v1, v42);
+        if ( CG_ClientModel_InitClientModelDObj((const LocalClientNum_t)v1, v42, DObj) )
+          CG_ClientModel_InitClientModelSystems((const LocalClientNum_t)v1, v42);
       }
     }
   }
   while ( 1 )
   {
-    v46 = (unsigned int)(v46 + 1);
-    if ( (unsigned int)v46 >= 0xC )
+    v40 = (unsigned int)(v40 + 1);
+    if ( (unsigned int)v40 >= 0xC )
       break;
-    v45 = s_CG_ClientModel_StreamingWeapons[v54].array[v46];
-    if ( v45 )
+    v39 = s_CG_ClientModel_StreamingWeapons[v48].array[v40];
+    if ( v39 )
       goto LABEL_41;
   }
   Sys_ProfEndNamedEvent();
@@ -3627,77 +3474,70 @@ CG_ClientModel_Update
 */
 void CG_ClientModel_Update(const LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
-  bitarray<384> *v4; 
-  unsigned int v8; 
+  __int64 v1; 
+  cg_t *v2; 
+  bitarray<384> *v3; 
+  float v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  unsigned int v7; 
+  __int64 v8; 
   __int64 v9; 
-  unsigned int v10; 
-  __int64 v13; 
-  __int64 v14; 
-  int v15; 
 
-  v3 = localClientNum;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
+  v1 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFFFFA07A, "CG_ClientModel_Update");
-  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1001, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
+  if ( !CG_ClientModel_IsClientInitialized((const LocalClientNum_t)v1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1001, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsClientInitialized( localClientNum ))", (const char *)&queryFormat, "CG_ClientModel_IsClientInitialized( localClientNum )") )
     __debugbreak();
-  if ( (unsigned int)v3 >= cg_t::ms_allocatedCount )
+  if ( (unsigned int)v1 >= cg_t::ms_allocatedCount )
   {
-    v15 = cg_t::ms_allocatedCount;
-    LODWORD(v13) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v13, v15) )
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v8, cg_t::ms_allocatedCount) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v3] )
+  if ( !cg_t::ms_cgArray[v1] )
   {
-    LODWORD(v14) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v14) )
+    LODWORD(v9) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v9) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v14) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v14) )
+    LODWORD(v9) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v9) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1005, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v2 = cg_t::ms_cgArray[v1];
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 1005, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  v4 = &s_CG_ClientModel_Initialized[v3];
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+65E4h]
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-  }
-  v8 = v4->array[0];
-  LODWORD(v9) = 0;
-  while ( v8 )
+  v3 = &s_CG_ClientModel_Initialized[v1];
+  v4 = (float)v2->frametime * 0.001;
+  v5 = v3->array[0];
+  LODWORD(v6) = 0;
+  while ( v5 )
   {
 LABEL_20:
-    v10 = __lzcnt(v8);
-    if ( v10 >= 0x20 )
+    v7 = __lzcnt(v5);
+    if ( v7 >= 0x20 )
     {
-      LODWORD(v14) = 32;
-      LODWORD(v13) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v9) = 32;
+      LODWORD(v8) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v8, v9) )
         __debugbreak();
     }
-    if ( (v8 & (0x80000000 >> v10)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v5 & (0x80000000 >> v7)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v8 &= ~(0x80000000 >> v10);
-    __asm { vmovaps xmm2, xmm6; deltaTime }
-    CG_ClientModel_UpdateClientModel((const LocalClientNum_t)v3, v10 + 32 * v9, *(const float *)&_XMM2);
+    v5 &= ~(0x80000000 >> v7);
+    CG_ClientModel_UpdateClientModel((const LocalClientNum_t)v1, v7 + 32 * v6, v4);
   }
   while ( 1 )
   {
-    v9 = (unsigned int)(v9 + 1);
-    if ( (unsigned int)v9 >= 0xC )
+    v6 = (unsigned int)(v6 + 1);
+    if ( (unsigned int)v6 >= 0xC )
       break;
-    v8 = v4->array[v9];
-    if ( v8 )
+    v5 = v3->array[v6];
+    if ( v5 )
       goto LABEL_20;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
   Sys_ProfEndNamedEvent();
 }
 
@@ -3706,38 +3546,30 @@ LABEL_20:
 CG_ClientModel_UpdateClientModel
 ==============
 */
-
-void __fastcall CG_ClientModel_UpdateClientModel(const LocalClientNum_t localClientNum, const unsigned int clientModelIdx, double deltaTime)
+void CG_ClientModel_UpdateClientModel(const LocalClientNum_t localClientNum, const unsigned int clientModelIdx, const float deltaTime)
 {
   float v3; 
   CG_ClientModel_RuntimeData *RuntimeData; 
   const DObj *DObj; 
-  const char *v11; 
-  unsigned int v13; 
-  bool v16; 
-  unsigned int v34; 
+  const DObj *v8; 
+  const char *v9; 
+  unsigned int v10; 
+  bool v11; 
+  unsigned int v12; 
   const char ***models; 
-  float fmt; 
   vec3_t *lightingOrigin; 
-  float materialTime; 
-  float materialTimea; 
   DObj obj; 
-  unsigned int v42; 
+  unsigned int v16; 
   GfxSceneEntityMutableShaderData entityMutableShaderData; 
 
   *(_QWORD *)&obj.ignoreCollision.array[1] = -2i64;
-  __asm
-  {
-    vmovaps [rsp+2A0h+var_40], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !CG_ClientModel_IsLoaded(localClientNum, clientModelIdx) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 841, ASSERT_TYPE_ASSERT, "(CG_ClientModel_IsLoaded( localClientNum, clientModelIdx ))", (const char *)&queryFormat, "CG_ClientModel_IsLoaded( localClientNum, clientModelIdx )") )
     __debugbreak();
   RuntimeData = CG_ClientModel_GetRuntimeData(localClientNum, clientModelIdx);
   if ( RuntimeData->modelCount )
   {
     DObj = CG_ClientModel_GetDObj(localClientNum, clientModelIdx);
-    _R14 = DObj;
+    v8 = DObj;
     if ( !DObj )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 852, ASSERT_TYPE_ASSERT, "(dobj != nullptr)", (const char *)&queryFormat, "dobj != nullptr") )
@@ -3746,34 +3578,32 @@ void __fastcall CG_ClientModel_UpdateClientModel(const LocalClientNum_t localCli
     }
     if ( !DObjVerifyNumBones(DObj) )
     {
-      models = (const char ***)_R14->models;
+      models = (const char ***)v8->models;
       if ( *models )
       {
-        v11 = **models;
+        v9 = **models;
 LABEL_9:
         LODWORD(lightingOrigin) = clientModelIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 857, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DObjVerifyNumBones failed for ClientModel at index %d and model %s", lightingOrigin, v11) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 857, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DObjVerifyNumBones failed for ClientModel at index %d and model %s", lightingOrigin, v9) )
           __debugbreak();
-        goto LABEL_11;
+        return;
       }
 LABEL_8:
-      v11 = "unknown";
+      v9 = "unknown";
       goto LABEL_9;
     }
-    v13 = clientModelIdx + 2117;
+    v10 = clientModelIdx + 2117;
     if ( clientModelIdx > 0x17F )
     {
       LODWORD(lightingOrigin) = clientModelIdx + 2117;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\clientmodel\\cg_clientmodel.cpp", 866, ASSERT_TYPE_ASSERT, "( ENTITYNUM_CLIENTMODEL_START ) <= ( entNum ) && ( entNum ) <= ( ENTITYNUM_CLIENTMODEL_END - 1 )", "entNum not in [ENTITYNUM_CLIENTMODEL_START, ENTITYNUM_CLIENTMODEL_END - 1]\n\t%i not in [%i, %i]", lightingOrigin, 2117, 2500) )
         __debugbreak();
     }
-    __asm { vmovaps xmm2, xmm6; deltaTime }
-    CG_ClientModel_Cloth_UpdateClientModel(localClientNum, clientModelIdx, *(const float *)&_XMM2);
-    __asm { vmovaps xmm2, xmm6 }
-    DObjUpdateClientInfo(&obj, v3, v16, 0);
+    CG_ClientModel_Cloth_UpdateClientModel(localClientNum, clientModelIdx, deltaTime);
+    DObjUpdateClientInfo(&obj, v3, v11, 0);
     CG_GetPoseOrigin(&RuntimeData->pose, (vec3_t *)&obj.duplicateParts);
     memset(&obj.modelHasBadRootBoneMeld, 0, sizeof(obj.modelHasBadRootBoneMeld));
-    v42 = 0;
+    v16 = 0;
     if ( RuntimeData->hudOutlineEnabled )
     {
       obj.modelHasBadRootBoneMeld.array[0] = RuntimeData->hudOutlineColor;
@@ -3782,66 +3612,17 @@ LABEL_8:
       HIBYTE(obj.modelHasBadRootBoneMeld.array[3]) = RuntimeData->hudOutlineLineWidth;
       BYTE2(obj.modelHasBadRootBoneMeld.array[3]) = RuntimeData->hudOutlineRenderMode;
     }
-    CG_Entity_UpdateCharacterEvOffset(localClientNum, v13, (GfxSceneHudOutlineInfo *)&obj.modelHasBadRootBoneMeld);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_6.scrollRateX
-      vmovups ymmword ptr [rsp+2A0h+obj.ignoreCollision.baseclass_0.array+0Ch], ymm0
-    }
-    obj.skel.partBits.anim.array[2] = LODWORD(NULL_SHADER_OVERRIDE_6.atlasTime);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1A0h+obj.modelHasBadRootBoneMeld.baseclass_0.array]
-      vmovups ymmword ptr [rbp+1A0h+obj.skel.partBits.anim.baseclass_0.baseclass_0.baseclass_0.array+18h], ymm0
-    }
-    obj.skel.partBits.control.array[6] = v42;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rsp+2A0h+materialTime], xmm6
-    }
-    _RAX = CG_Entity_GetMutableShaderData((GfxSceneEntityMutableShaderData *)&obj.skel.partBits.worldCtrl.array[2], localClientNum, _R14, 0, (GfxSceneHudOutlineInfo *)&obj.skel.partBits.anim.array[6], (shaderOverride_t *)&obj.ignoreCollision.array[3], materialTime);
-    _RCX = &entityMutableShaderData;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rax+80h]
-      vmovups xmmword ptr [rcx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rax+90h]
-      vmovups xmmword ptr [rcx+90h], xmm0
-      vmovups xmm1, xmmword ptr [rax+0A0h]
-      vmovups xmmword ptr [rcx+0A0h], xmm1
-      vmovss  [rsp+2A0h+materialTime], xmm6
-    }
-    R_AddDObjToScene(_R14, &RuntimeData->pose, v13, 0, &entityMutableShaderData, (const vec3_t *)&obj.duplicateParts, materialTimea);
-    __asm { vmovss  xmm3, dword ptr [r14+0C8h]; radius }
-    v34 = R_LinkDObjEntity(localClientNum, v13, (const vec3_t *)&obj.duplicateParts, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+0C8h]
-      vmovss  dword ptr [rsp+2A0h+fmt], xmm0
-    }
-    CG_Entity_CheckLightCount(v13, _R14, v34, (const vec3_t *)&obj.duplicateParts, fmt);
-    if ( (_R14->flags & 4) != 0 )
-      R_EntityHasSkinningAnimation(localClientNum, v13);
+    CG_Entity_UpdateCharacterEvOffset(localClientNum, v10, (GfxSceneHudOutlineInfo *)&obj.modelHasBadRootBoneMeld);
+    memset(&obj.ignoreCollision.array[3], 0, 36);
+    *(DObjModelBits *)((char *)&obj.skel.partBits.anim + 24) = obj.modelHasBadRootBoneMeld;
+    obj.skel.partBits.control.array[6] = v16;
+    entityMutableShaderData = *CG_Entity_GetMutableShaderData((GfxSceneEntityMutableShaderData *)&obj.skel.partBits.worldCtrl.array[2], localClientNum, v8, 0, (GfxSceneHudOutlineInfo *)&obj.skel.partBits.anim.array[6], (shaderOverride_t *)&obj.ignoreCollision.array[3], 0.0);
+    R_AddDObjToScene(v8, &RuntimeData->pose, v10, 0, &entityMutableShaderData, (const vec3_t *)&obj.duplicateParts, 0.0);
+    v12 = R_LinkDObjEntity(localClientNum, v10, (const vec3_t *)&obj.duplicateParts, v8->radius);
+    CG_Entity_CheckLightCount(v10, v8, v12, (const vec3_t *)&obj.duplicateParts, v8->radius);
+    if ( (v8->flags & 4) != 0 )
+      R_EntityHasSkinningAnimation(localClientNum, v10);
     memset(&obj.duplicateParts, 0, 0xCui64);
   }
-LABEL_11:
-  __asm { vmovaps xmm6, [rsp+2A0h+var_40] }
 }
 

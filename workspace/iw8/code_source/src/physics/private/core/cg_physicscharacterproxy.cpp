@@ -391,99 +391,97 @@ CG_PhysicsCharacterProxy_CreateAuthPhysics
 */
 void CG_PhysicsCharacterProxy_CreateAuthPhysics(LocalClientNum_t localClientNum, unsigned int entityId)
 {
+  __int64 v2; 
   __int64 v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  __int64 v9; 
-  __int64 v10; 
-  Physics_WorldId v11; 
-  hknpShape *v14; 
+  centity_t *Entity; 
+  __int64 v7; 
+  __int64 v8; 
+  Physics_WorldId v9; 
+  hknpShape *v10; 
   const entityState_t *p_nextState; 
-  unsigned __int16 v16; 
+  unsigned __int16 v12; 
   int Ref; 
-  const float4 *v24; 
-  float4 *v25; 
-  int v26; 
-  unsigned int v27; 
+  float v14; 
+  __int128 v16; 
+  vec4_t v19; 
+  const float4 *v20; 
+  float4 *v21; 
+  int v22; 
+  unsigned int v23; 
   unsigned int RigidBodyID; 
   char *optionalInplaceBuffer; 
   vec3_t outOrigin; 
-  __int64 v31; 
+  __int64 v27; 
   vec3_t majorAxis; 
-  __int128 v33; 
+  __int128 v29; 
   vec4_t orientationAsQuat; 
   PhysicsCharacterProxy_Capsule capsules; 
   vec3_t center; 
-  unsigned int v39; 
+  float v33; 
+  float v34; 
+  unsigned int v35; 
 
-  v31 = -2i64;
-  v3 = entityId;
-  v4 = localClientNum;
+  v27 = -2i64;
+  v2 = entityId;
+  v3 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFFFF00FF, "CG_PhysicsCharacterProxy_CreateAuthPhysics");
-  CG_PhysicsCharacterProxy_CalcEncapsulatingShapes((LocalClientNum_t)v4, v3, &capsules);
-  v5 = (unsigned int)v3;
-  v6 = v3 + 248 * v4;
-  _R15 = CG_GetEntity((const LocalClientNum_t)v4, s_cg_physicsCharacterProxyEntities[0][v6]);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 446, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+  CG_PhysicsCharacterProxy_CalcEncapsulatingShapes((LocalClientNum_t)v3, v2, &capsules);
+  v4 = (unsigned int)v2;
+  v5 = v2 + 248 * v3;
+  Entity = CG_GetEntity((const LocalClientNum_t)v3, s_cg_physicsCharacterProxyEntities[0][v5]);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 446, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
-  __asm
+  majorAxis.v[0] = 0.0;
+  majorAxis.v[1] = 0.0;
+  majorAxis.v[2] = 0.0;
+  v7 = (int)v35;
+  if ( v35 >= 3 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+128h+majorAxis], xmm0
-    vmovss  dword ptr [rsp+128h+majorAxis+4], xmm0
-    vmovss  dword ptr [rsp+128h+majorAxis+8], xmm0
-  }
-  v9 = (int)v39;
-  if ( v39 >= 3 )
-  {
-    LODWORD(optionalInplaceBuffer) = v39;
+    LODWORD(optionalInplaceBuffer) = v35;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", optionalInplaceBuffer, 3) )
       __debugbreak();
   }
-  majorAxis.v[v9] = 1.0;
-  v10 = v5 + 744i64 * (_DWORD)v4;
-  if ( s_cg_physicsCharacterProxyShapes[3 * (int)v4 + 1][v5][1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 454, ASSERT_TYPE_ASSERT, "(!s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "!s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
+  majorAxis.v[v7] = 1.0;
+  v8 = v4 + 744i64 * (_DWORD)v3;
+  if ( s_cg_physicsCharacterProxyShapes[3 * (int)v3 + 1][v4][1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 454, ASSERT_TYPE_ASSERT, "(!s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "!s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
     __debugbreak();
-  v11 = 3 * v4 + 3;
+  v9 = 3 * v3 + 3;
+  v10 = Physics_CreateShapeCapsule(v9, &center, v33, v34, &majorAxis, NULL, 0, Permanent);
+  s_cg_physicsCharacterProxyShapes[3 * (int)v3 + 1][v4][1] = v10;
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 456, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
+    __debugbreak();
+  p_nextState = &Entity->nextState;
+  v12 = truncate_cast<unsigned short,short>(Entity->nextState.number);
+  Ref = Physics_MakeRef(Physics_RefSystem_GCharacterProxies, Physics_RelationshipSystem_None, 1u, v12);
+  CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+  v14 = Entity->pose.angles.v[0];
+  HIDWORD(v29) = 0;
+  v16 = v29;
+  *(float *)&v16 = v14;
+  _XMM3 = v16;
   __asm
   {
-    vmovss  xmm3, [rsp+128h+var_50]; radius
-    vmovss  xmm2, [rsp+128h+var_54]; halfHeight
-  }
-  v14 = Physics_CreateShapeCapsule(v11, &center, *(float *)&_XMM2, *(float *)&_XMM3, &majorAxis, NULL, 0, Permanent);
-  s_cg_physicsCharacterProxyShapes[3 * (int)v4 + 1][v5][1] = v14;
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 456, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
-    __debugbreak();
-  p_nextState = &_R15->nextState;
-  v16 = truncate_cast<unsigned short,short>(_R15->nextState.number);
-  Ref = Physics_MakeRef(Physics_RefSystem_GCharacterProxies, Physics_RelationshipSystem_None, 1u, v16);
-  CG_GetPoseOrigin(&_R15->pose, &outOrigin);
-  __asm { vmovss  xmm0, dword ptr [r15+48h] }
-  HIDWORD(v33) = 0;
-  __asm
-  {
-    vmovups xmm3, xmmword ptr [rsp+90h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [r15+4Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [r15+50h], 20h ; ' '
-    vmulps  xmm0, xmm3, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
   }
-  Float4RadianToQuat(v25, v24);
-  __asm { vmovups xmmword ptr [rsp+128h+orientationAsQuat], xmm0 }
-  v26 = 0x2000000;
-  if ( _R15 == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1976, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  v19 = (vec4_t)_mm128_mul_ps(_XMM3, g_degreeToRadian.v);
+  Float4RadianToQuat(v21, v20);
+  orientationAsQuat = v19;
+  v22 = 0x2000000;
+  if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1976, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  if ( _R15->nextState.eType == ET_AGENT || BG_IsActorEntity(p_nextState) || BG_IsFakeActor(p_nextState) )
-    v26 = 0x4000;
-  if ( s_cg_physicsCharacterProxyAuthInstances[0][v6] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 473, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] == PHYSICSINSTANCEID_INVALID") )
+  if ( Entity->nextState.eType == ET_AGENT || BG_IsActorEntity(p_nextState) || BG_IsFakeActor(p_nextState) )
+    v22 = 0x4000;
+  if ( s_cg_physicsCharacterProxyAuthInstances[0][v5] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 473, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
-  v27 = Physics_InstantiateKeyframedBody(v11, s_cg_physicsCharacterProxyShapes[1][v10][1], Ref, "character proxy", "PM_Player_SoftContact", v26, &outOrigin, &orientationAsQuat, 1, 1, 0);
-  s_cg_physicsCharacterProxyAuthInstances[0][v6] = v27;
-  if ( v27 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 476, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] != PHYSICSINSTANCEID_INVALID") )
+  v23 = Physics_InstantiateKeyframedBody(v9, s_cg_physicsCharacterProxyShapes[1][v8][1], Ref, "character proxy", "PM_Player_SoftContact", v22, &outOrigin, &orientationAsQuat, 1, 1, 0);
+  s_cg_physicsCharacterProxyAuthInstances[0][v5] = v23;
+  if ( v23 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 476, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_cg_physicsCharacterProxyAuthInstances[localClientNum][entityId] != PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
-  RigidBodyID = Physics_GetRigidBodyID(v11, s_cg_physicsCharacterProxyAuthInstances[0][v6], 0);
-  s_cg_physicsCharacterProxyAuthBodies[0][v6] = RigidBodyID;
+  RigidBodyID = Physics_GetRigidBodyID(v9, s_cg_physicsCharacterProxyAuthInstances[0][v5], 0);
+  s_cg_physicsCharacterProxyAuthBodies[0][v5] = RigidBodyID;
   if ( (RigidBodyID & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 479, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] )") )
     __debugbreak();
   Sys_ProfEndNamedEvent();
@@ -520,129 +518,88 @@ CG_PhysicsCharacterProxy_DebugDrawEntityData
 */
 void CG_PhysicsCharacterProxy_DebugDrawEntityData(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
+  __int64 v8; 
+  __int16 *v10; 
   __int64 v11; 
-  __int16 *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  CgEntitySystem *v22; 
-  centity_t *v23; 
+  __int64 v12; 
+  CgEntitySystem *v13; 
+  centity_t *v14; 
   unsigned __int8 eType; 
-  const char *v25; 
-  const char *v26; 
+  const char *v16; 
+  const char *v17; 
   vec4_t *setColor; 
   __int64 forceColor; 
   __int64 shadow; 
-  float v37; 
-  float v38; 
-  unsigned int v39; 
+  unsigned int v21; 
   char dest[256]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _R12 = x;
-  v11 = localClientNum;
-  _R13 = y;
+  v8 = localClientNum;
   Com_sprintf(dest, 0x100ui64, "Client Entities");
-  __asm
-  {
-    vmovss  xmm6, [rsp+1D8h+charHeight]
-    vmovss  xmm2, dword ptr [r13+0]; y
-    vmovss  xmm1, dword ptr [r12]; x
-    vmovss  [rsp+1D8h+var_1A0], xmm6
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v37, 0);
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [r13+0]
-    vmovss  xmm7, [rsp+1D8h+tabWidth]
-    vmovss  dword ptr [r13+0], xmm0
-    vaddss  xmm0, xmm7, dword ptr [r12]
-  }
-  v39 = 0;
-  __asm { vmovss  dword ptr [r12], xmm0 }
-  v19 = s_cg_physicsCharacterProxyEntities[v11];
-  v20 = 248i64;
+  Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
+  *y = charHeight + *y;
+  v21 = 0;
+  *x = tabWidth + *x;
+  v10 = s_cg_physicsCharacterProxyEntities[v8];
+  v11 = 248i64;
   do
   {
-    v21 = *v19;
+    v12 = *v10;
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(shadow) = v11;
+      LODWORD(shadow) = v8;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", shadow) )
         __debugbreak();
     }
-    if ( (unsigned int)v11 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v8 >= CgEntitySystem::ms_allocatedCount )
     {
       LODWORD(shadow) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(forceColor) = v11;
+      LODWORD(forceColor) = v8;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", forceColor, shadow) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v11] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v8] )
     {
-      LODWORD(shadow) = v11;
+      LODWORD(shadow) = v8;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", shadow) )
         __debugbreak();
     }
-    v22 = CgEntitySystem::ms_entitySystemArray[v11];
-    if ( (unsigned int)v21 >= 0x800 )
+    v13 = CgEntitySystem::ms_entitySystemArray[v8];
+    if ( (unsigned int)v12 >= 0x800 )
     {
       LODWORD(shadow) = 2048;
-      LODWORD(forceColor) = v21;
+      LODWORD(forceColor) = v12;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", forceColor, shadow) )
         __debugbreak();
     }
-    v23 = &v22->m_entities[v21];
-    if ( (CgEntitySystem *)((char *)v22 + 760 * v21) != (CgEntitySystem *)-16i64 )
+    v14 = &v13->m_entities[v12];
+    if ( (CgEntitySystem *)((char *)v13 + 760 * v12) != (CgEntitySystem *)-16i64 )
     {
-      eType = v23->pose.eType;
-      v25 = "UNSUPPORTED TYPE";
-      if ( v23->pose.eType == 1 )
-        v25 = "PLAYER";
+      eType = v14->pose.eType;
+      v16 = "UNSUPPORTED TYPE";
+      if ( v14->pose.eType == 1 )
+        v16 = "PLAYER";
       if ( eType == 17 )
-        v25 = "AGENT";
+        v16 = "AGENT";
       if ( eType == 19 )
-        v25 = "ACTOR";
+        v16 = "ACTOR";
       if ( eType == 6 )
       {
-        v26 = "DRONE";
-        if ( v22->m_entities[v21].nextState.un.scriptMoverType != 1 )
-          v26 = v25;
-        v25 = v26;
+        v17 = "DRONE";
+        if ( v13->m_entities[v12].nextState.un.scriptMoverType != 1 )
+          v17 = v16;
+        v16 = v17;
       }
-      LODWORD(setColor) = v22->m_entities[v21].nextState.number;
-      Com_sprintf(dest, 0x100ui64, "%i entity %i %s", v39, setColor, v25);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r13+0]; y
-        vmovss  xmm1, dword ptr [r12]; x
-        vmovss  [rsp+1D8h+var_1A0], xmm6
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v38, 0);
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [r13+0]
-        vmovss  dword ptr [r13+0], xmm0
-      }
-      ++v39;
+      LODWORD(setColor) = v13->m_entities[v12].nextState.number;
+      Com_sprintf(dest, 0x100ui64, "%i entity %i %s", v21, setColor, v16);
+      Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
+      *y = charHeight + *y;
+      ++v21;
     }
-    ++v19;
-    --v20;
+    ++v10;
+    --v11;
   }
-  while ( v20 );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vsubss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [r12], xmm1
-    vmovaps xmm6, [rsp+1D8h+var_58]
-    vmovaps xmm7, [rsp+1D8h+var_68]
-  }
+  while ( v11 );
+  *x = *x - tabWidth;
 }
 
 /*
@@ -652,264 +609,210 @@ CG_PhysicsCharacterProxy_DebugDrawEntityShapesAuth
 */
 void CG_PhysicsCharacterProxy_DebugDrawEntityShapesAuth(LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
+  unsigned int *v2; 
+  __int64 v3; 
+  __int16 *v4; 
+  float *v5; 
+  __int64 v6; 
+  CgEntitySystem *v7; 
+  float *v8; 
   __int64 v9; 
-  unsigned int *v10; 
-  __int64 v11; 
-  __int16 *v12; 
-  __int64 v15; 
-  CgEntitySystem *v16; 
-  __int64 v17; 
-  bool v18; 
-  unsigned int v19; 
-  int v20; 
+  bool v10; 
+  unsigned int v11; 
+  int v12; 
   const HavokPhysicsWorld *ConstWorld; 
-  unsigned int v22; 
+  unsigned int v14; 
   hknpBodyId *RigidBodyID; 
+  float v16; 
+  float v17; 
+  float v18; 
   __int64 duration; 
-  __int64 v57; 
-  __int16 *v58; 
-  __int64 v59; 
+  __int64 v20; 
+  __int16 *v21; 
+  __int64 v22; 
   hknpBodyId result; 
   vec3_t out; 
   vec3_t end; 
-  int v63; 
+  float v26; 
+  float v27; 
+  float v28; 
   vec3_t in; 
-  vec3_t v65; 
+  vec3_t v30; 
   vec3_t position; 
   vec4_t orientation; 
-  char v71; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-  }
-  v9 = localClientNum;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-  }
-  v59 = 248i64;
-  v10 = s_cg_physicsCharacterProxyAuthInstances[localClientNum];
-  v11 = localClientNum;
-  v12 = s_cg_physicsCharacterProxyEntities[localClientNum];
-  v58 = v12;
-  _R13 = &s_cg_physicsCharacterProxyCapsules[localClientNum][0][1].center.v[1];
-  __asm { vxorps  xmm11, xmm11, xmm11 }
+  v1 = localClientNum;
+  v22 = 248i64;
+  v2 = s_cg_physicsCharacterProxyAuthInstances[localClientNum];
+  v3 = localClientNum;
+  v4 = s_cg_physicsCharacterProxyEntities[localClientNum];
+  v21 = v4;
+  v5 = &s_cg_physicsCharacterProxyCapsules[localClientNum][0][1].center.v[1];
   do
   {
-    v15 = *v12;
+    v6 = *v4;
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v57) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v57) )
+      LODWORD(v20) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v20) )
         __debugbreak();
     }
-    if ( (unsigned int)v9 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v57) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(duration) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v57) )
+      LODWORD(v20) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(duration) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v20) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v11] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v3] )
     {
-      LODWORD(v57) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v57) )
+      LODWORD(v20) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v20) )
         __debugbreak();
     }
-    v16 = CgEntitySystem::ms_entitySystemArray[v11];
-    if ( (unsigned int)v15 >= 0x800 )
+    v7 = CgEntitySystem::ms_entitySystemArray[v3];
+    if ( (unsigned int)v6 >= 0x800 )
     {
-      LODWORD(v57) = 2048;
-      LODWORD(duration) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v57) )
+      LODWORD(v20) = 2048;
+      LODWORD(duration) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v20) )
         __debugbreak();
     }
-    if ( (CgEntitySystem *)((char *)v16 + 760 * v15) != (CgEntitySystem *)-16i64 && *v10 != -1 )
+    if ( (CgEntitySystem *)((char *)v7 + 760 * v6) != (CgEntitySystem *)-16i64 && *v2 != -1 )
     {
-      if ( _R13 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1145, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
+      v8 = v5 - 1;
+      if ( v5 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1145, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
         __debugbreak();
-      v17 = *((int *)_R13 + 4);
-      if ( (unsigned int)v17 >= 3 )
+      v9 = *((int *)v5 + 4);
+      if ( (unsigned int)v9 >= 3 )
       {
-        LODWORD(v57) = 3;
-        *(float *)&duration = _R13[4];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v57) )
+        LODWORD(v20) = 3;
+        *(float *)&duration = v5[4];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v20) )
           __debugbreak();
       }
-      v18 = !g_physicsInitialized;
-      v19 = *v10;
-      *(&v63 + v17) = 1065353216;
-      v20 = 3 * v9 + 3;
-      if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
+      v10 = !g_physicsInitialized;
+      v11 = *v2;
+      *(&v26 + v9) = 1.0;
+      v12 = 3 * v1 + 3;
+      if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v20 > 7 )
+      if ( (unsigned int)v12 > 7 )
       {
-        LODWORD(v57) = 3 * v9 + 3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v57) )
+        LODWORD(v20) = 3 * v1 + 3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v20) )
           __debugbreak();
       }
-      if ( v19 == -1 )
+      if ( v11 == -1 )
       {
-        LODWORD(v57) = 3 * v9 + 3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v57) )
+        LODWORD(v20) = 3 * v1 + 3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v20) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * v9 + 1) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * v1 + 1) <= 5 )
       {
-        LODWORD(v57) = 3 * v9 + 3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v57) )
+        LODWORD(v20) = 3 * v1 + 3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v20) )
           __debugbreak();
       }
       if ( !g_physicsServerWorldsCreated )
       {
-        if ( v20 < 0 )
+        if ( v12 < 0 )
           goto LABEL_41;
-        if ( v20 <= 1 )
+        if ( v12 <= 1 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v20) )
             __debugbreak();
         }
       }
-      if ( (unsigned int)v20 <= 7 )
+      if ( (unsigned int)v12 <= 7 )
       {
 LABEL_43:
-        if ( v19 == -1 )
+        if ( v11 == -1 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v20) )
             __debugbreak();
         }
-        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v20);
+        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v12);
         if ( !ConstWorld->world )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v20) )
             __debugbreak();
         }
-        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v19) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1152, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientAuthoritativeWorldId( localClientNum ), s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientAuthoritativeWorldId( localClientNum ), s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1") )
+        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v11) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1152, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientAuthoritativeWorldId( localClientNum ), s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientAuthoritativeWorldId( localClientNum ), s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1") )
           __debugbreak();
-        v22 = *v10;
+        v14 = *v2;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v20 > 7 )
+        if ( (unsigned int)v12 > 7 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v20) )
             __debugbreak();
         }
-        if ( v22 == -1 )
+        if ( v14 == -1 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v20) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * v9 + 1) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * v1 + 1) <= 5 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v20) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v20 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v12 <= 1 )
         {
-          LODWORD(v57) = 3 * v9 + 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v57) )
+          LODWORD(v20) = 3 * v1 + 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v20) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v20, v22, 0);
-        Physics_GetRigidBodyTransform((const Physics_WorldId)v20, RigidBodyID->m_serialAndIndex, &position, &orientation);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [r13+8]
-          vxorps  xmm2, xmm7, xmm10
-          vmulss  xmm0, xmm2, [rsp+150h+var_D8]
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vmulss  xmm0, xmm2, [rsp+150h+var_D4]
-          vmovss  dword ptr [rbp+50h+in], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r13+0]
-          vmulss  xmm0, xmm2, [rbp+50h+var_D0]
-          vmulss  xmm2, xmm7, [rsp+150h+var_D4]
-          vmovss  dword ptr [rbp+50h+in+4], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r13+4]
-          vmulss  xmm0, xmm7, [rsp+150h+var_D8]
-          vmovss  dword ptr [rbp+50h+in+8], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vaddss  xmm0, xmm2, dword ptr [r13+0]
-          vmovss  dword ptr [rbp+50h+var_B8], xmm1
-          vmulss  xmm1, xmm7, [rbp+50h+var_D0]
-          vaddss  xmm2, xmm1, dword ptr [r13+4]
-          vmovss  dword ptr [rbp+50h+var_B8+8], xmm2
-          vmovss  dword ptr [rbp+50h+var_B8+4], xmm0
-        }
+        RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v12, v14, 0);
+        Physics_GetRigidBodyTransform((const Physics_WorldId)v12, RigidBodyID->m_serialAndIndex, &position, &orientation);
+        v16 = v5[2];
+        in.v[0] = (float)(COERCE_FLOAT(LODWORD(v16) ^ _xmm) * v26) + *v8;
+        in.v[1] = (float)(COERCE_FLOAT(LODWORD(v16) ^ _xmm) * v27) + *v5;
+        in.v[2] = (float)(COERCE_FLOAT(LODWORD(v16) ^ _xmm) * v28) + v5[1];
+        v17 = (float)(v16 * v27) + *v5;
+        v30.v[0] = (float)(v16 * v26) + *v8;
+        v30.v[2] = (float)(v16 * v28) + v5[1];
+        v30.v[1] = v17;
         QuatTransform(&orientation, &in, &out);
-        QuatTransform(&orientation, &v65, &end);
-        __asm
-        {
-          vucomiss xmm11, dword ptr [r13+8]
-          vmovss  xmm5, dword ptr [rbp+50h+position]
-          vaddss  xmm1, xmm5, dword ptr [rsp+150h+out]
-          vmovss  xmm4, dword ptr [rbp+50h+position+4]
-          vmovss  xmm3, dword ptr [rbp+50h+position+8]
-          vaddss  xmm2, xmm4, dword ptr [rsp+150h+end+4]
-          vaddss  xmm0, xmm5, dword ptr [rsp+150h+end]
-          vmovss  dword ptr [rsp+150h+out], xmm1
-          vaddss  xmm1, xmm4, dword ptr [rsp+150h+out+4]
-          vmovss  dword ptr [rsp+150h+out+4], xmm1
-          vaddss  xmm1, xmm3, dword ptr [rsp+150h+out+8]
-          vmovss  dword ptr [rsp+150h+out+8], xmm1
-          vaddss  xmm1, xmm3, dword ptr [rsp+150h+end+8]
-          vmovss  dword ptr [rsp+150h+end+4], xmm2
-          vmovss  xmm2, dword ptr [r13+0Ch]; radius
-          vmovss  dword ptr [rsp+150h+end+8], xmm1
-          vmovss  dword ptr [rsp+150h+end], xmm0
-        }
-        if ( v18 )
-        {
-          __asm { vmovaps xmm1, xmm2; radius }
-          CG_DebugSphere(&out, *(float *)&_XMM1, &colorYellow, 1, 0);
-        }
+        QuatTransform(&orientation, &v30, &end);
+        v10 = v5[2] == 0.0;
+        out.v[0] = position.v[0] + out.v[0];
+        out.v[1] = position.v[1] + out.v[1];
+        out.v[2] = position.v[2] + out.v[2];
+        end.v[1] = position.v[1] + end.v[1];
+        v18 = v5[3];
+        end.v[2] = position.v[2] + end.v[2];
+        end.v[0] = position.v[0] + end.v[0];
+        if ( v10 )
+          CG_DebugSphere(&out, v18, &colorYellow, 1, 0);
         else
-        {
-          CG_DebugCapsule(&out, &end, *(float *)&_XMM2, &colorYellow, 1, 0);
-        }
+          CG_DebugCapsule(&out, &end, v18, &colorYellow, 1, 0);
         goto LABEL_72;
       }
 LABEL_41:
-      LODWORD(v57) = 3 * v9 + 3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v57) )
+      LODWORD(v20) = 3 * v1 + 3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v20) )
         __debugbreak();
       goto LABEL_43;
     }
 LABEL_72:
-    v12 = v58 + 1;
-    _R13 += 12;
-    ++v58;
-    ++v10;
-    v18 = v59-- == 1;
-    v11 = v9;
+    v4 = v21 + 1;
+    v5 += 12;
+    ++v21;
+    ++v2;
+    v10 = v22-- == 1;
+    v3 = v1;
   }
-  while ( !v18 );
-  __asm
-  {
-    vmovaps xmm9, [rsp+150h+var_68+8]
-    vmovaps xmm8, [rsp+150h+var_58+8]
-    vmovaps xmm7, [rsp+150h+var_48+8]
-    vmovaps xmm6, xmmword ptr [rsp+150h+var_38+8]
-  }
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  while ( !v10 );
 }
 
 /*
@@ -919,336 +822,279 @@ CG_PhysicsCharacterProxy_DebugDrawEntityShapesDetail
 */
 void CG_PhysicsCharacterProxy_DebugDrawEntityShapesDetail(LocalClientNum_t localClientNum)
 {
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  __int64 v19; 
-  __int64 v20; 
-  CgEntitySystem *v21; 
-  int v22; 
-  __int64 v23; 
-  unsigned int *v25; 
-  __int64 v26; 
-  bool v27; 
-  unsigned int v28; 
+  __int64 v1; 
+  __int64 v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
+  CgEntitySystem *v7; 
+  int v8; 
+  __int64 v9; 
+  float *v10; 
+  unsigned int *v11; 
+  float *v12; 
+  __int64 v13; 
+  bool v14; 
+  unsigned int v15; 
   const HavokPhysicsWorld *ConstWorld; 
-  unsigned int v30; 
+  unsigned int v17; 
   unsigned int m_serialAndIndex; 
   hknpWorld *world; 
-  const tmat34_t<vec4_t> *v33; 
+  const tmat34_t<vec4_t> *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   __int64 duration; 
-  __int64 v71; 
-  unsigned int v72; 
-  __int64 v74; 
+  __int64 v28; 
+  unsigned int v29; 
+  __int64 v31; 
   hknpBodyId result; 
-  __int64 v76; 
+  __int64 v33; 
   vec3_t center; 
   vec3_t end; 
-  int v79[4]; 
+  float v36; 
+  float v37; 
+  float v38; 
   vec3_t in; 
-  vec3_t v81; 
+  vec3_t v40; 
   vec4_t out; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm15, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm14, cs:__real@42000000
-  }
-  v14 = localClientNum;
-  v15 = 0i64;
-  v16 = 248i64 * (int)localClientNum;
-  v72 = 0;
-  v76 = v16;
-  v17 = v14;
-  v74 = 0i64;
-  __asm { vxorps  xmm13, xmm13, xmm13 }
+  v1 = localClientNum;
+  v2 = 0i64;
+  v3 = 248i64 * (int)localClientNum;
+  v29 = 0;
+  v33 = v3;
+  v4 = v1;
+  v31 = 0i64;
   do
   {
-    v19 = v16 + v15;
-    v20 = s_cg_physicsCharacterProxyEntities[0][v16 + v15];
+    v5 = v3 + v2;
+    v6 = s_cg_physicsCharacterProxyEntities[0][v3 + v2];
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v71) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v71) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v28) )
         __debugbreak();
     }
-    if ( (unsigned int)v14 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v71) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(duration) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v71) )
+      LODWORD(v28) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(duration) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v28) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v17] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v4] )
     {
-      LODWORD(v71) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v71) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v28) )
         __debugbreak();
     }
-    v21 = CgEntitySystem::ms_entitySystemArray[v17];
-    if ( (unsigned int)v20 >= 0x800 )
+    v7 = CgEntitySystem::ms_entitySystemArray[v4];
+    if ( (unsigned int)v6 >= 0x800 )
     {
-      LODWORD(v71) = 2048;
-      LODWORD(duration) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v71) )
+      LODWORD(v28) = 2048;
+      LODWORD(duration) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v28) )
         __debugbreak();
     }
-    if ( (CgEntitySystem *)((char *)v21 + 760 * v20) != (CgEntitySystem *)-16i64 )
+    if ( (CgEntitySystem *)((char *)v7 + 760 * v6) != (CgEntitySystem *)-16i64 )
     {
-      v22 = 3 * v14 + 4;
-      v23 = 2i64;
-      _R14 = &s_cg_physicsCharacterProxyCapsules[0][v19][0].center.v[1];
-      v25 = s_cg_physicsCharacterProxyDetailInstances[0][v19];
+      v8 = 3 * v1 + 4;
+      v9 = 2i64;
+      v10 = &s_cg_physicsCharacterProxyCapsules[0][v5][0].center.v[1];
+      v11 = s_cg_physicsCharacterProxyDetailInstances[0][v5];
       while ( 1 )
       {
-        if ( _R14 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1210, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
+        v12 = v10 - 1;
+        if ( v10 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1210, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
           __debugbreak();
-        v26 = *((int *)_R14 + 4);
-        __asm
+        v13 = *((int *)v10 + 4);
+        v36 = 0.0;
+        v37 = 0.0;
+        v38 = 0.0;
+        if ( (unsigned int)v13 >= 3 )
         {
-          vmovss  [rbp+90h+var_110], xmm13
-          vmovss  [rbp+90h+var_10C], xmm13
-          vmovss  [rbp+90h+var_108], xmm13
-        }
-        if ( (unsigned int)v26 >= 3 )
-        {
-          LODWORD(v71) = 3;
-          LODWORD(duration) = v26;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v71) )
+          LODWORD(v28) = 3;
+          LODWORD(duration) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v28) )
             __debugbreak();
         }
-        v27 = !g_physicsInitialized;
-        v28 = *v25;
-        v79[v26] = 1065353216;
-        if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
+        v14 = !g_physicsInitialized;
+        v15 = *v11;
+        *(&v36 + v13) = 1.0;
+        if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v28 == -1 )
+        if ( v15 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated )
         {
-          if ( v22 < 0 )
+          if ( v8 < 0 )
             goto LABEL_41;
-          if ( v22 <= 1 )
+          if ( v8 <= 1 )
           {
-            LODWORD(v71) = v22;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+            LODWORD(v28) = v8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
               __debugbreak();
           }
         }
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
 LABEL_41:
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v28 == -1 )
+        if ( v15 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v22);
+        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v8);
         if ( !ConstWorld->world )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v28) )
             __debugbreak();
         }
-        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v28) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1218, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( localClientNum ), s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( localClientNum ), s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1") )
+        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v15) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1218, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( localClientNum ), s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientDetailWorldId( localClientNum ), s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1") )
           __debugbreak();
-        v30 = *v25;
+        v17 = *v11;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v30 == -1 )
+        if ( v17 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v22 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
             __debugbreak();
         }
-        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v22, v30, 0)->m_serialAndIndex;
+        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, v17, 0)->m_serialAndIndex;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 260, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body Transform when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 261, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 261, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 262, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 262, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 263, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 263, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v22 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 264, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 264, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
             __debugbreak();
         }
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 345, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 345, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 346, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 346, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v28) )
             __debugbreak();
         }
-        world = HavokPhysics_GetConstWorld((Physics_WorldId)v22)->world;
+        world = HavokPhysics_GetConstWorld((Physics_WorldId)v8)->world;
         if ( !world )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 350, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 350, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v28) )
             __debugbreak();
         }
-        v33 = (const tmat34_t<vec4_t> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
-        __asm
-        {
-          vmulss  xmm10, xmm14, dword ptr [rax+30h]
-          vmulss  xmm11, xmm14, dword ptr [rax+34h]
-          vmulss  xmm12, xmm14, dword ptr [rax+38h]
-        }
-        Axis34ToQuat(v33, &out);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [r14+8]
-          vxorps  xmm2, xmm7, xmm15
-          vmulss  xmm0, xmm2, [rbp+90h+var_110]
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vmulss  xmm0, xmm2, [rbp+90h+var_10C]
-          vmovss  dword ptr [rbp+90h+in], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm0, xmm2, [rbp+90h+var_108]
-          vmulss  xmm2, xmm7, [rbp+90h+var_10C]
-          vmovss  dword ptr [rbp+90h+in+4], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmulss  xmm0, xmm7, [rbp+90h+var_110]
-          vmovss  dword ptr [rbp+90h+in+8], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vaddss  xmm0, xmm2, dword ptr [r14]
-          vmovss  dword ptr [rbp+90h+var_F0], xmm1
-          vmulss  xmm1, xmm7, [rbp+90h+var_108]
-          vaddss  xmm2, xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rbp+90h+var_F0+8], xmm2
-          vmovss  dword ptr [rbp+90h+var_F0+4], xmm0
-        }
+        v20 = (const tmat34_t<vec4_t> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
+        v21 = 32.0 * v20[1].m[0].v[0];
+        v22 = 32.0 * v20[1].m[0].v[1];
+        v23 = 32.0 * v20[1].m[0].v[2];
+        Axis34ToQuat(v20, &out);
+        v24 = v10[2];
+        in.v[0] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v36) + *v12;
+        in.v[1] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v37) + *v10;
+        in.v[2] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v38) + v10[1];
+        v25 = (float)(v24 * v37) + *v10;
+        v40.v[0] = (float)(v24 * v36) + *v12;
+        v40.v[2] = (float)(v24 * v38) + v10[1];
+        v40.v[1] = v25;
         QuatTransform(&out, &in, &center);
-        QuatTransform(&out, &v81, &end);
-        __asm
-        {
-          vucomiss xmm13, dword ptr [r14+8]
-          vaddss  xmm2, xmm12, dword ptr [rsp+190h+center+8]
-          vaddss  xmm1, xmm10, dword ptr [rsp+190h+center]
-          vaddss  xmm0, xmm11, dword ptr [rsp+190h+center+4]
-          vmovss  dword ptr [rsp+190h+center+8], xmm2
-          vaddss  xmm2, xmm12, dword ptr [rsp+190h+end+8]
-          vmovss  dword ptr [rsp+190h+center], xmm1
-          vaddss  xmm1, xmm10, dword ptr [rsp+190h+end]
-          vmovss  dword ptr [rsp+190h+center+4], xmm0
-          vaddss  xmm0, xmm11, dword ptr [rsp+190h+end+4]
-          vmovss  dword ptr [rsp+190h+end+8], xmm2
-          vmovss  xmm2, dword ptr [r14+0Ch]; radius
-          vmovss  dword ptr [rsp+190h+end], xmm1
-          vmovss  dword ptr [rsp+190h+end+4], xmm0
-        }
-        if ( v27 )
-        {
-          __asm { vmovaps xmm1, xmm2; radius }
-          CG_DebugSphere(&center, *(float *)&_XMM1, &colorYellow, 1, 0);
-        }
+        QuatTransform(&out, &v40, &end);
+        v14 = v10[2] == 0.0;
+        center.v[2] = v23 + center.v[2];
+        center.v[0] = v21 + center.v[0];
+        center.v[1] = v22 + center.v[1];
+        end.v[2] = v23 + end.v[2];
+        v26 = v10[3];
+        end.v[0] = v21 + end.v[0];
+        end.v[1] = v22 + end.v[1];
+        if ( v14 )
+          CG_DebugSphere(&center, v26, &colorYellow, 1, 0);
         else
+          CG_DebugCapsule(&center, &end, v26, &colorYellow, 1, 0);
+        v10 += 6;
+        ++v11;
+        if ( !--v9 )
         {
-          CG_DebugCapsule(&center, &end, *(float *)&_XMM2, &colorYellow, 1, 0);
-        }
-        _R14 += 6;
-        ++v25;
-        if ( !--v23 )
-        {
-          LODWORD(v14) = localClientNum;
+          LODWORD(v1) = localClientNum;
           break;
         }
       }
     }
-    v17 = (int)v14;
-    v15 = v74 + 1;
-    ++v72;
-    ++v74;
-    v16 = v76;
+    v4 = (int)v1;
+    v2 = v31 + 1;
+    ++v29;
+    ++v31;
+    v3 = v33;
   }
-  while ( v72 < 0xF8 );
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v29 < 0xF8 );
 }
 
 /*
@@ -1258,336 +1104,279 @@ CG_PhysicsCharacterProxy_DebugDrawEntityShapesPred
 */
 void CG_PhysicsCharacterProxy_DebugDrawEntityShapesPred(LocalClientNum_t localClientNum)
 {
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  __int64 v19; 
-  __int64 v20; 
-  CgEntitySystem *v21; 
-  int v22; 
-  __int64 v23; 
-  unsigned int *v25; 
-  __int64 v26; 
-  bool v27; 
-  unsigned int v28; 
+  __int64 v1; 
+  __int64 v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
+  CgEntitySystem *v7; 
+  int v8; 
+  __int64 v9; 
+  float *v10; 
+  unsigned int *v11; 
+  float *v12; 
+  __int64 v13; 
+  bool v14; 
+  unsigned int v15; 
   const HavokPhysicsWorld *ConstWorld; 
-  unsigned int v30; 
+  unsigned int v17; 
   unsigned int m_serialAndIndex; 
   hknpWorld *world; 
-  const tmat34_t<vec4_t> *v33; 
+  const tmat34_t<vec4_t> *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   __int64 duration; 
-  __int64 v71; 
-  unsigned int v72; 
-  __int64 v74; 
+  __int64 v28; 
+  unsigned int v29; 
+  __int64 v31; 
   hknpBodyId result; 
-  __int64 v76; 
+  __int64 v33; 
   vec3_t center; 
   vec3_t end; 
-  int v79[4]; 
+  float v36; 
+  float v37; 
+  float v38; 
   vec3_t in; 
-  vec3_t v81; 
+  vec3_t v40; 
   vec4_t out; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm15, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm14, cs:__real@42000000
-  }
-  v14 = localClientNum;
-  v15 = 0i64;
-  v16 = 248i64 * (int)localClientNum;
-  v72 = 0;
-  v76 = v16;
-  v17 = v14;
-  v74 = 0i64;
-  __asm { vxorps  xmm13, xmm13, xmm13 }
+  v1 = localClientNum;
+  v2 = 0i64;
+  v3 = 248i64 * (int)localClientNum;
+  v29 = 0;
+  v33 = v3;
+  v4 = v1;
+  v31 = 0i64;
   do
   {
-    v19 = v16 + v15;
-    v20 = s_cg_physicsCharacterProxyEntities[0][v16 + v15];
+    v5 = v3 + v2;
+    v6 = s_cg_physicsCharacterProxyEntities[0][v3 + v2];
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v71) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v71) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v28) )
         __debugbreak();
     }
-    if ( (unsigned int)v14 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v71) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(duration) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v71) )
+      LODWORD(v28) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(duration) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", duration, v28) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v17] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v4] )
     {
-      LODWORD(v71) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v71) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v28) )
         __debugbreak();
     }
-    v21 = CgEntitySystem::ms_entitySystemArray[v17];
-    if ( (unsigned int)v20 >= 0x800 )
+    v7 = CgEntitySystem::ms_entitySystemArray[v4];
+    if ( (unsigned int)v6 >= 0x800 )
     {
-      LODWORD(v71) = 2048;
-      LODWORD(duration) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v71) )
+      LODWORD(v28) = 2048;
+      LODWORD(duration) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", duration, v28) )
         __debugbreak();
     }
-    if ( (CgEntitySystem *)((char *)v21 + 760 * v20) != (CgEntitySystem *)-16i64 )
+    if ( (CgEntitySystem *)((char *)v7 + 760 * v6) != (CgEntitySystem *)-16i64 )
     {
-      v22 = 3 * v14 + 2;
-      v23 = 2i64;
-      _R14 = &s_cg_physicsCharacterProxyCapsules[0][v19][0].center.v[1];
-      v25 = s_cg_physicsCharacterProxyPredInstances[0][v19];
+      v8 = 3 * v1 + 2;
+      v9 = 2i64;
+      v10 = &s_cg_physicsCharacterProxyCapsules[0][v5][0].center.v[1];
+      v11 = s_cg_physicsCharacterProxyPredInstances[0][v5];
       while ( 1 )
       {
-        if ( _R14 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1075, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
+        v12 = v10 - 1;
+        if ( v10 == (float *)4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1075, ASSERT_TYPE_ASSERT, "(capsule)", (const char *)&queryFormat, "capsule") )
           __debugbreak();
-        v26 = *((int *)_R14 + 4);
-        __asm
+        v13 = *((int *)v10 + 4);
+        v36 = 0.0;
+        v37 = 0.0;
+        v38 = 0.0;
+        if ( (unsigned int)v13 >= 3 )
         {
-          vmovss  [rbp+90h+var_110], xmm13
-          vmovss  [rbp+90h+var_10C], xmm13
-          vmovss  [rbp+90h+var_108], xmm13
-        }
-        if ( (unsigned int)v26 >= 3 )
-        {
-          LODWORD(v71) = 3;
-          LODWORD(duration) = v26;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v71) )
+          LODWORD(v28) = 3;
+          LODWORD(duration) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v28) )
             __debugbreak();
         }
-        v27 = !g_physicsInitialized;
-        v28 = *v25;
-        v79[v26] = 1065353216;
-        if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
+        v14 = !g_physicsInitialized;
+        v15 = *v11;
+        *(&v36 + v13) = 1.0;
+        if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v28 == -1 )
+        if ( v15 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated )
         {
-          if ( v22 < 0 )
+          if ( v8 < 0 )
             goto LABEL_41;
-          if ( v22 <= 1 )
+          if ( v8 <= 1 )
           {
-            LODWORD(v71) = v22;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+            LODWORD(v28) = v8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
               __debugbreak();
           }
         }
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
 LABEL_41:
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v28 == -1 )
+        if ( v15 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v22);
+        ConstWorld = HavokPhysics_GetConstWorld((Physics_WorldId)v8);
         if ( !ConstWorld->world )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", v28) )
             __debugbreak();
         }
-        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v28) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1083, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientPredictiveWorldId( localClientNum ), s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientPredictiveWorldId( localClientNum ), s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1") )
+        if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v15) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 1083, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( Physics_GetClientPredictiveWorldId( localClientNum ), s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( Physics_GetClientPredictiveWorldId( localClientNum ), s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1") )
           __debugbreak();
-        v30 = *v25;
+        v17 = *v11;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
-        if ( v30 == -1 )
+        if ( v17 == -1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v22 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
             __debugbreak();
         }
-        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v22, v30, 0)->m_serialAndIndex;
+        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, v17, 0)->m_serialAndIndex;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 260, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body Transform when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 261, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 261, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 262, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 262, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Get Rigid Body Transform with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", v28) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v22 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 263, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 263, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v22 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 264, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 264, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body Transform in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
             __debugbreak();
         }
-        if ( (unsigned int)v22 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 345, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 345, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
             __debugbreak();
         }
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 346, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 346, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body Transform with invalid body id for world %i", "bodyId.isValid()", v28) )
             __debugbreak();
         }
-        world = HavokPhysics_GetConstWorld((Physics_WorldId)v22)->world;
+        world = HavokPhysics_GetConstWorld((Physics_WorldId)v8)->world;
         if ( !world )
         {
-          LODWORD(v71) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 350, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v71) )
+          LODWORD(v28) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 350, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics Get rigid Body Transform %i: world is NULL", "world", v28) )
             __debugbreak();
         }
-        v33 = (const tmat34_t<vec4_t> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
-        __asm
-        {
-          vmulss  xmm10, xmm14, dword ptr [rax+30h]
-          vmulss  xmm11, xmm14, dword ptr [rax+34h]
-          vmulss  xmm12, xmm14, dword ptr [rax+38h]
-        }
-        Axis34ToQuat(v33, &out);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [r14+8]
-          vxorps  xmm2, xmm7, xmm15
-          vmulss  xmm0, xmm2, [rbp+90h+var_110]
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vmulss  xmm0, xmm2, [rbp+90h+var_10C]
-          vmovss  dword ptr [rbp+90h+in], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm0, xmm2, [rbp+90h+var_108]
-          vmulss  xmm2, xmm7, [rbp+90h+var_10C]
-          vmovss  dword ptr [rbp+90h+in+4], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmulss  xmm0, xmm7, [rbp+90h+var_110]
-          vmovss  dword ptr [rbp+90h+in+8], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r12]
-          vaddss  xmm0, xmm2, dword ptr [r14]
-          vmovss  dword ptr [rbp+90h+var_F0], xmm1
-          vmulss  xmm1, xmm7, [rbp+90h+var_108]
-          vaddss  xmm2, xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rbp+90h+var_F0+8], xmm2
-          vmovss  dword ptr [rbp+90h+var_F0+4], xmm0
-        }
+        v20 = (const tmat34_t<vec4_t> *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))world->getBodyTransform)(&world->hknpWorldReader, m_serialAndIndex);
+        v21 = 32.0 * v20[1].m[0].v[0];
+        v22 = 32.0 * v20[1].m[0].v[1];
+        v23 = 32.0 * v20[1].m[0].v[2];
+        Axis34ToQuat(v20, &out);
+        v24 = v10[2];
+        in.v[0] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v36) + *v12;
+        in.v[1] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v37) + *v10;
+        in.v[2] = (float)(COERCE_FLOAT(LODWORD(v24) ^ _xmm) * v38) + v10[1];
+        v25 = (float)(v24 * v37) + *v10;
+        v40.v[0] = (float)(v24 * v36) + *v12;
+        v40.v[2] = (float)(v24 * v38) + v10[1];
+        v40.v[1] = v25;
         QuatTransform(&out, &in, &center);
-        QuatTransform(&out, &v81, &end);
-        __asm
-        {
-          vucomiss xmm13, dword ptr [r14+8]
-          vaddss  xmm2, xmm12, dword ptr [rsp+190h+center+8]
-          vaddss  xmm1, xmm10, dword ptr [rsp+190h+center]
-          vaddss  xmm0, xmm11, dword ptr [rsp+190h+center+4]
-          vmovss  dword ptr [rsp+190h+center+8], xmm2
-          vaddss  xmm2, xmm12, dword ptr [rsp+190h+end+8]
-          vmovss  dword ptr [rsp+190h+center], xmm1
-          vaddss  xmm1, xmm10, dword ptr [rsp+190h+end]
-          vmovss  dword ptr [rsp+190h+center+4], xmm0
-          vaddss  xmm0, xmm11, dword ptr [rsp+190h+end+4]
-          vmovss  dword ptr [rsp+190h+end+8], xmm2
-          vmovss  xmm2, dword ptr [r14+0Ch]; radius
-          vmovss  dword ptr [rsp+190h+end], xmm1
-          vmovss  dword ptr [rsp+190h+end+4], xmm0
-        }
-        if ( v27 )
-        {
-          __asm { vmovaps xmm1, xmm2; radius }
-          CG_DebugSphere(&center, *(float *)&_XMM1, &colorYellow, 1, 0);
-        }
+        QuatTransform(&out, &v40, &end);
+        v14 = v10[2] == 0.0;
+        center.v[2] = v23 + center.v[2];
+        center.v[0] = v21 + center.v[0];
+        center.v[1] = v22 + center.v[1];
+        end.v[2] = v23 + end.v[2];
+        v26 = v10[3];
+        end.v[0] = v21 + end.v[0];
+        end.v[1] = v22 + end.v[1];
+        if ( v14 )
+          CG_DebugSphere(&center, v26, &colorYellow, 1, 0);
         else
+          CG_DebugCapsule(&center, &end, v26, &colorYellow, 1, 0);
+        v10 += 6;
+        ++v11;
+        if ( !--v9 )
         {
-          CG_DebugCapsule(&center, &end, *(float *)&_XMM2, &colorYellow, 1, 0);
-        }
-        _R14 += 6;
-        ++v25;
-        if ( !--v23 )
-        {
-          LODWORD(v14) = localClientNum;
+          LODWORD(v1) = localClientNum;
           break;
         }
       }
     }
-    v17 = (int)v14;
-    v15 = v74 + 1;
-    ++v72;
-    ++v74;
-    v16 = v76;
+    v4 = (int)v1;
+    v2 = v31 + 1;
+    ++v29;
+    ++v31;
+    v3 = v33;
   }
-  while ( v72 < 0xF8 );
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v29 < 0xF8 );
 }
 
 /*
@@ -1598,83 +1387,53 @@ CG_PhysicsCharacterProxy_GetCollisionBounds
 void CG_PhysicsCharacterProxy_GetCollisionBounds(const DObj *dobj, const entityState_t *es, int suitIndex, EffectiveStance stance, bool quantized, Bounds *outCollisionBounds)
 {
   unsigned int characterCollBoundsType; 
-  __int64 v28; 
-  __int64 v29; 
+  float v11; 
+  __int64 v12; 
+  __int64 v13; 
 
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 669, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  _RBX = outCollisionBounds;
   if ( !outCollisionBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 670, ASSERT_TYPE_ASSERT, "(outCollisionBounds)", (const char *)&queryFormat, "outCollisionBounds") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?playerBox@@3UBounds@@B.midPoint; Bounds const playerBox
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, qword ptr cs:?playerBox@@3UBounds@@B.halfSize+4; Bounds const playerBox
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *outCollisionBounds = playerBox;
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
   if ( ((es->eType - 1) & 0xFFEF) == 0 )
   {
     if ( (unsigned int)stance >= PM_EFF_STANCE_COUNT )
     {
-      LODWORD(v28) = stance;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 678, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<int>( stance ) ) < (unsigned)( static_cast<int>( PM_EFF_STANCE_COUNT ) )", "static_cast<int>( stance ) doesn't index static_cast<int>( PM_EFF_STANCE_COUNT )\n\t%i not in [0, %i)", v28, 4) )
+      LODWORD(v12) = stance;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 678, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<int>( stance ) ) < (unsigned)( static_cast<int>( PM_EFF_STANCE_COUNT ) )", "static_cast<int>( stance ) doesn't index static_cast<int>( PM_EFF_STANCE_COUNT )\n\t%i not in [0, %i)", v12, 4) )
         __debugbreak();
     }
     if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_SLOW_SOFT_LAND|WEAPON_OFFHAND_END|0x80) || es->eType != ET_PLAYER )
       stance = PM_EFF_STANCE_DEFAULT;
-    _RAX = BG_Suit_GetBounds(suitIndex, stance);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
+    *outCollisionBounds = *BG_Suit_GetBounds(suitIndex, stance);
   }
   if ( quantized )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm2, cs:__real@3f800000
-      vsubss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr [rbx+4]
-      vsubss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rbx+4], xmm0
-      vmovss  xmm1, dword ptr [rbx+8]
-      vsubss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    outCollisionBounds->midPoint.v[0] = outCollisionBounds->midPoint.v[0] - 1.0;
+    outCollisionBounds->midPoint.v[1] = outCollisionBounds->midPoint.v[1] - 1.0;
+    outCollisionBounds->midPoint.v[2] = outCollisionBounds->midPoint.v[2] - 1.0;
   }
   if ( dobj && dobj->numModels )
   {
     characterCollBoundsType = (*dobj->models)->characterCollBoundsType;
     if ( characterCollBoundsType >= 0xA )
     {
-      LODWORD(v29) = 10;
-      LODWORD(v28) = (*dobj->models)->characterCollBoundsType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 697, ASSERT_TYPE_ASSERT, "(unsigned)( collBoundsType ) < (unsigned)( XModelCharCollBoundsType::CharCollBoundsType_Num )", "collBoundsType doesn't index XModelCharCollBoundsType::CharCollBoundsType_Num\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v13) = 10;
+      LODWORD(v12) = (*dobj->models)->characterCollBoundsType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 697, ASSERT_TYPE_ASSERT, "(unsigned)( collBoundsType ) < (unsigned)( XModelCharCollBoundsType::CharCollBoundsType_Num )", "collBoundsType doesn't index XModelCharCollBoundsType::CharCollBoundsType_Num\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
     if ( characterCollBoundsType == 1 )
     {
       if ( ((es->eType - 19) & 0xFFFD) == 0 && (es->lerp.u.actor.flags & 1) != 0 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?actorBox@@3UBounds@@B.midPoint; Bounds const actorBox
-          vmovups xmmword ptr [rbx], xmm0
-          vmovsd  xmm1, qword ptr cs:?actorBox@@3UBounds@@B.halfSize+4; Bounds const actorBox
-          vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-          vsubss  xmm0, xmm2, cs:__real@42240000
-          vmovsd  qword ptr [rbx+10h], xmm1
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  dword ptr [rbx+14h], xmm2
-        }
+        *outCollisionBounds = actorBox;
+        v11 = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&actorBox.halfSize.y, (__m128)*(unsigned __int64 *)&actorBox.halfSize.y, 85).m128_f32[0];
+        outCollisionBounds->midPoint.v[2] = v11 - 41.0;
+        outCollisionBounds->halfSize.v[2] = v11;
       }
     }
     else
@@ -1836,109 +1595,90 @@ void CG_PhysicsCharacterProxy_MatchSnapshot(LocalClientNum_t localClientNum, int
   __int64 v2; 
   hkMonitorStream *Value; 
   hkMonitorStream *v4; 
+  cg_t *LocalClientGlobals; 
+  cg_t *v6; 
+  float v7; 
+  float v8; 
   centity_t *Entity; 
-  unsigned int v15; 
-  __int64 v16; 
-  __int64 v17; 
-  hkMonitorStream *v22; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  centity_t *v13; 
+  hkMonitorStream *v14; 
   vec3_t outOrigin; 
-  __int64 v24; 
-  hkMonitorStream *v25; 
+  __int64 v16; 
+  hkMonitorStream *v17; 
   vec3_t viewPos; 
   vec3_t viewDir; 
   vec3_t angles; 
   vec4_t quat; 
 
-  v24 = -2i64;
+  v16 = -2i64;
   v2 = localClientNum;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
   v4 = Value;
-  v22 = Value;
+  v14 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCG_PhysicsCharacterProxy_MatchSnapshot");
-  v25 = v4;
-  _RDI = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
-  if ( !_RAX->renderingThirdPerson || _RAX->playerTeleported )
+  v17 = v4;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
+  v6 = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
+  if ( !v6->renderingThirdPerson || v6->playerTeleported )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+699Ch]
-      vmovss  dword ptr [rsp+0B8h+viewPos], xmm0
-      vmovss  xmm1, dword ptr [rax+69A0h]
-      vmovss  xmm0, dword ptr [rax+69A4h]
-    }
+    viewPos.v[0] = v6->refdef.viewOffset.v[0];
+    v7 = v6->refdef.viewOffset.v[1];
+    v8 = v6->refdef.viewOffset.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+59680h]
-      vmovss  dword ptr [rsp+0B8h+viewPos], xmm0
-      vmovss  xmm1, dword ptr [rax+59684h]
-      vmovss  xmm0, dword ptr [rax+59688h]
-    }
+    viewPos.v[0] = v6->lastFrameViewPos.v[0];
+    v7 = v6->lastFrameViewPos.v[1];
+    v8 = v6->lastFrameViewPos.v[2];
   }
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+viewPos+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+viewPos+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+6944h]
-    vmovss  dword ptr [rsp+0B8h+viewDir], xmm0
-    vmovss  xmm1, dword ptr [rdi+6948h]
-    vmovss  dword ptr [rsp+0B8h+viewDir+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+694Ch]
-    vmovss  dword ptr [rsp+0B8h+viewDir+8], xmm0
-  }
+  viewPos.v[2] = v8;
+  viewPos.v[1] = v7;
+  viewDir = LocalClientGlobals->refdef.view.axis.m[0];
   Entity = CG_GetEntity((const LocalClientNum_t)v2, 0);
-  v15 = 0;
+  v10 = 0;
   if ( s_cg_physicsCharacterProxyEntityCount[v2] )
   {
     while ( 1 )
     {
-      v16 = 248 * v2 + v15;
-      v17 = s_cg_physicsCharacterProxyEntities[0][v16];
-      _RDI = &Entity[v17];
-      if ( _RDI )
+      v11 = 248 * v2 + v10;
+      v12 = s_cg_physicsCharacterProxyEntities[0][v11];
+      v13 = &Entity[v12];
+      if ( v13 )
       {
-        if ( (_RDI->flags & 1) == 0 || !CG_PhysicsCharacterProxy_IsEntityRightType(&Entity[v17]) || (unsigned int)(_RDI->prevState.pos.trType - 23) <= 5 )
+        if ( (v13->flags & 1) == 0 || !CG_PhysicsCharacterProxy_IsEntityRightType(&Entity[v12]) || (unsigned int)(v13->prevState.pos.trType - 23) <= 5 )
         {
-          CG_PhysicsChracterProxy_RemoveCharacter((LocalClientNum_t)v2, v15);
+          CG_PhysicsChracterProxy_RemoveCharacter((LocalClientNum_t)v2, v10);
           goto LABEL_20;
         }
-        if ( !CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(_RDI, &viewPos, &viewDir) )
+        if ( !CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(v13, &viewPos, &viewDir) )
         {
-          if ( s_cg_physicsCharacterProxyPredInstances[0][v16][1] != -1 )
-            CG_PhysicsCharacterProxy_RemovePhysics((LocalClientNum_t)v2, v15);
+          if ( s_cg_physicsCharacterProxyPredInstances[0][v11][1] != -1 )
+            CG_PhysicsCharacterProxy_RemovePhysics((LocalClientNum_t)v2, v10);
 LABEL_18:
-          ++v15;
+          ++v10;
           goto LABEL_20;
         }
-        if ( s_cg_physicsCharacterProxyPredInstances[0][v16][1] != -1 )
+        if ( s_cg_physicsCharacterProxyPredInstances[0][v11][1] != -1 )
           goto LABEL_18;
-        CG_GetPoseOrigin(&_RDI->pose, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+48h]
-          vmovss  dword ptr [rsp+0B8h+angles], xmm0
-          vmovss  xmm1, dword ptr [rdi+4Ch]
-          vmovss  dword ptr [rsp+0B8h+angles+4], xmm1
-          vmovss  xmm0, dword ptr [rdi+50h]
-          vmovss  dword ptr [rsp+0B8h+angles+8], xmm0
-        }
+        CG_GetPoseOrigin(&v13->pose, &outOrigin);
+        angles = v13->pose.angles;
         AnglesToQuat(&angles, &quat);
-        CG_PhysicsCharacterProxy_CreatePhysics((LocalClientNum_t)v2, v15, &outOrigin, &quat);
+        CG_PhysicsCharacterProxy_CreatePhysics((LocalClientNum_t)v2, v10, &outOrigin, &quat);
         memset(&outOrigin, 0, sizeof(outOrigin));
-        ++v15;
+        ++v10;
       }
       else
       {
-        ++v15;
+        ++v10;
       }
 LABEL_20:
-      if ( v15 >= s_cg_physicsCharacterProxyEntityCount[v2] )
+      if ( v10 >= s_cg_physicsCharacterProxyEntityCount[v2] )
       {
-        v4 = v22;
+        v4 = v14;
         break;
       }
     }
@@ -1972,91 +1712,47 @@ void CG_PhysicsCharacterProxy_RemovePhysics(LocalClientNum_t localClientNum, uns
 CG_PhysicsCharacterProxy_ShouldEntityHavePhysics
 ==============
 */
-char CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(const centity_t *entity, const vec3_t *viewPos, const vec3_t *viewDir)
+bool CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(const centity_t *entity, const vec3_t *viewPos, const vec3_t *viewDir)
 {
-  bool v8; 
-  bool v9; 
-  char v14; 
-  char v15; 
+  bool v6; 
+  bool v7; 
+  const dvar_t *v8; 
+  float value; 
+  const dvar_t *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   vec3_t outOrigin; 
 
   if ( !entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 192, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
-  v8 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0xCu) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0);
-  v9 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0x11u);
-  if ( v8 || v9 )
+  v6 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0xCu) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0);
+  v7 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entity->prevState.eFlags, ACTIVE, 0x11u);
+  if ( v6 || v7 )
     return 0;
-  _RBX = DCONST_DVARFLT_physics_characterProxyClientDistance;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_28], xmm6
-    vmovaps [rsp+0B8h+var_38], xmm7
-    vmovaps [rsp+0B8h+var_48], xmm8
-    vmovaps [rsp+0B8h+var_58], xmm9
-  }
+  v8 = DCONST_DVARFLT_physics_characterProxyClientDistance;
   if ( !DCONST_DVARFLT_physics_characterProxyClientDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_characterProxyClientDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_physics_characterProxyClientCosFOV;
+  Dvar_CheckFrontendServerThread(v8);
+  value = v8->current.value;
+  v10 = DCONST_DVARFLT_physics_characterProxyClientCosFOV;
   if ( !DCONST_DVARFLT_physics_characterProxyClientCosFOV && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_characterProxyClientCosFOV") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.value;
   CG_GetPoseOrigin(&entity->pose, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin]
-    vsubss  xmm5, xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [rsp+0B8h+outOrigin+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin+8]
-    vsubss  xmm8, xmm1, dword ptr [r14+4]
-    vsubss  xmm9, xmm0, dword ptr [r14+8]
-    vmulss  xmm2, xmm8, xmm8
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, cs:__real@80000000
-  }
-  if ( v14 | v15 )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+  v12 = outOrigin.v[0] - viewPos->v[0];
+  v13 = outOrigin.v[1] - viewPos->v[1];
+  v14 = outOrigin.v[2] - viewPos->v[2];
+  v15 = fsqrt((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14));
+  if ( v15 > -0.0 )
+    v16 = (float)((float)((float)(v13 * viewDir->v[1]) + (float)(v12 * viewDir->v[0])) + (float)(v14 * viewDir->v[2])) / v15;
   else
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm8, dword ptr [rbp+4]
-      vmulss  xmm0, xmm5, dword ptr [rbp+0]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm9, dword ptr [rbp+8]
-      vaddss  xmm0, xmm2, xmm1
-      vdivss  xmm0, xmm0, xmm4
-    }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_48]
-    vcomiss xmm4, xmm6
-    vmovaps xmm6, [rsp+0B8h+var_28]
-  }
-  if ( v14 )
-    goto LABEL_22;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !(v14 | v15) )
-  {
-LABEL_22:
-    __asm { vmovaps xmm7, [rsp+0B8h+var_38] }
-    return 1;
-  }
-  else
-  {
-    __asm { vmovaps xmm7, [rsp+0B8h+var_38] }
-    return 0;
-  }
+    v16 = FLOAT_1_0;
+  return v15 < value || v16 > v11;
 }
 
 /*
@@ -2081,430 +1777,369 @@ CG_PhysicsCharacterProxy_Update
 void CG_PhysicsCharacterProxy_Update(LocalClientNum_t localClientNum, Physics_WorldId predictiveWorldId, Physics_WorldId authoritativeWorldId, Physics_WorldId detailWorldId)
 {
   signed __int64 v4; 
-  void *v10; 
+  void *v5; 
   int m_serialAndIndex; 
-  unsigned __int64 v12; 
+  unsigned __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v14; 
+  hkMonitorStream *v9; 
+  cg_t *LocalClientGlobals; 
+  cg_t *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
   centity_t *Entity; 
-  unsigned int v27; 
-  centity_t *v28; 
-  unsigned int v29; 
-  __int64 v30; 
-  unsigned __int64 v31; 
-  __int64 v32; 
-  __int64 v34; 
+  unsigned int v18; 
+  centity_t *v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  unsigned __int64 v22; 
+  __int64 v23; 
+  unsigned __int64 v24; 
+  const centity_t *v25; 
+  int *v26; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  const float4 *v38; 
-  float4 *v39; 
-  hkMonitorStream *v59; 
-  vec3_t *v60; 
-  __int64 v61; 
-  unsigned int *v62; 
-  __int64 v63; 
-  int v64; 
+  const float4 *v28; 
+  float4 *v29; 
+  __int128 v33; 
+  float v43; 
+  __int128 v45; 
+  __m128 v48; 
+  vec4_t *v49; 
+  hkMonitorStream *v50; 
+  vec3_t *v51; 
+  __int64 v52; 
+  unsigned int *v53; 
+  __int64 v54; 
+  int v55; 
   PhysicsCharacterProxy_Capsule *capsule; 
-  char *v66; 
-  bool v67; 
+  char *v57; 
+  bool v58; 
+  __int64 v59; 
+  int *v60; 
+  __int64 v61; 
+  const dvar_t *v62; 
+  __int64 v63; 
+  const char *v64; 
+  unsigned __int64 v65; 
+  int *v66; 
+  __int64 v67; 
   __int64 v68; 
-  int *v69; 
-  __int64 v70; 
-  const dvar_t *v71; 
-  __int64 v96; 
-  const char *v99; 
-  unsigned __int64 v100; 
-  int *v101; 
-  __int64 v102; 
-  __int64 v103; 
-  __int64 v104; 
-  unsigned __int64 v105; 
-  unsigned int v106; 
+  __int64 v69; 
+  unsigned __int64 v70; 
+  unsigned int v71; 
   const HavokPhysicsWorld *ConstWorld; 
-  unsigned int v108; 
-  const char *v109; 
-  vec3_t *v110; 
-  int *v111; 
-  __int64 v112; 
-  Physics_WorldId v113; 
-  __int64 v114; 
-  char *v115; 
-  unsigned int v116; 
-  const HavokPhysicsWorld *v117; 
-  unsigned int v118; 
-  Physics_WorldId v119; 
-  const char *v120; 
-  vec3_t *v121; 
-  int *v122; 
-  __int64 v124; 
-  __int64 v127; 
-  unsigned int v128; 
-  const HavokPhysicsWorld *v129; 
-  unsigned int v130; 
-  hknpBodyId v131; 
-  float fmt; 
-  float fmta; 
+  unsigned int v73; 
+  const char *v74; 
+  vec3_t *v75; 
+  int *v76; 
+  __int64 v77; 
+  Physics_WorldId v78; 
+  __int64 v79; 
+  char *v80; 
+  unsigned int v81; 
+  const HavokPhysicsWorld *v82; 
+  unsigned int v83; 
+  const char *v84; 
+  vec3_t *v85; 
+  int *v86; 
+  __int64 v87; 
+  __int64 v88; 
+  __int64 v89; 
+  __int64 v90; 
+  unsigned int v91; 
+  const HavokPhysicsWorld *v92; 
+  unsigned int v93; 
+  hknpBodyId v94; 
   __int64 updateBroadphaseIfWarping; 
-  float v165; 
-  float v166; 
-  Physics_WorldId v168; 
-  Physics_WorldId v169; 
-  Physics_WorldId v170; 
-  Physics_WorldId v171; 
-  Physics_WorldId v172; 
-  Physics_WorldId v173; 
-  Physics_WorldId v174; 
-  unsigned int v175; 
+  unsigned int v103; 
   hknpBodyId result; 
   Physics_WorldId worldId; 
-  int *v178; 
-  hkMonitorStream *v179; 
+  int *v106; 
+  hkMonitorStream *v107; 
   vec3_t *position; 
-  __int64 v181; 
-  hkMonitorStream *v182; 
+  __int64 v109; 
+  hkMonitorStream *v110; 
   vec3_t viewDir; 
-  __int128 v184; 
+  __m128 v112; 
   hkVector4f viewPos; 
   hkQuaternionf hkOrientation; 
   PhysicsCharacterProxy_Capsule capsules; 
-  int v188[248]; 
+  int v116[248]; 
   int ptr[744]; 
   vec4_t orientation[248]; 
-  char v196; 
 
-  v10 = alloca(v4);
-  v181 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+2090h+var_50], xmm6
-    vmovaps [rsp+2090h+var_60], xmm7
-    vmovaps [rsp+2090h+var_70], xmm8
-    vmovaps [rsp+2090h+var_80], xmm9
-    vmovaps [rsp+2090h+var_90], xmm10
-  }
+  v5 = alloca(v4);
+  v109 = -2i64;
   worldId = authoritativeWorldId;
   m_serialAndIndex = predictiveWorldId;
   result.m_serialAndIndex = predictiveWorldId;
-  v12 = localClientNum;
+  v7 = localClientNum;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v14 = Value;
-  v179 = Value;
+  v9 = Value;
+  v107 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCG_PhysicsCharacterProxy_Update");
-  v182 = v14;
-  _RSI = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
-  if ( !_RAX->renderingThirdPerson || _RAX->playerTeleported )
+  v110 = v9;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  v11 = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  if ( !v11->renderingThirdPerson || v11->playerTeleported )
   {
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rax+699Ch]
-      vmovss  xmm8, dword ptr [rax+69A0h]
-      vmovss  xmm9, dword ptr [rax+69A4h]
-    }
+    v12 = v11->refdef.viewOffset.v[0];
+    v13 = v11->refdef.viewOffset.v[1];
+    v14 = v11->refdef.viewOffset.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rax+59680h]
-      vmovss  xmm8, dword ptr [rax+59684h]
-      vmovss  xmm9, dword ptr [rax+59688h]
-    }
+    v12 = v11->lastFrameViewPos.v[0];
+    v13 = v11->lastFrameViewPos.v[1];
+    v14 = v11->lastFrameViewPos.v[2];
   }
-  __asm
-  {
-    vmovss  dword ptr [rbp+1F90h+viewPos+8], xmm9
-    vmovss  dword ptr [rbp+1F90h+viewPos+4], xmm8
-    vmovss  dword ptr [rbp+1F90h+viewPos], xmm7
-    vmovss  xmm0, dword ptr [rsi+6944h]
-    vmovss  dword ptr [rsp+2090h+viewDir], xmm0
-    vmovss  xmm1, dword ptr [rsi+6948h]
-    vmovss  dword ptr [rsp+2090h+viewDir+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+694Ch]
-    vmovss  dword ptr [rbp+1F90h+viewDir+8], xmm0
-  }
-  _RSI = DCONST_DVARFLT_physics_characterSoftBodyDistance;
+  viewPos.m_quad.m128_f32[2] = v14;
+  viewPos.m_quad.m128_f32[1] = v13;
+  viewPos.m_quad.m128_f32[0] = v12;
+  viewDir = LocalClientGlobals->refdef.view.axis.m[0];
+  v15 = DCONST_DVARFLT_physics_characterSoftBodyDistance;
   if ( !DCONST_DVARFLT_physics_characterSoftBodyDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_characterSoftBodyDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmulss  xmm10, xmm0, xmm0
-  }
-  Entity = CG_GetEntity((const LocalClientNum_t)v12, 0);
-  *(_QWORD *)&v184 = Entity;
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.value * v15->current.value;
+  Entity = CG_GetEntity((const LocalClientNum_t)v7, 0);
+  v112.m128_u64[0] = (unsigned __int64)Entity;
   Profile_Begin(644);
-  hkOrientation.m_vec.m_quad.m128_u64[0] = v12;
-  Physics_SetCGCharacterProxyPredictiveDebugData((LocalClientNum_t)v12, s_cg_physicsCharacterProxyEntityCount[v12]);
-  v27 = 0;
-  if ( s_cg_physicsCharacterProxyEntityCount[v12] )
+  hkOrientation.m_vec.m_quad.m128_u64[0] = v7;
+  Physics_SetCGCharacterProxyPredictiveDebugData((LocalClientNum_t)v7, s_cg_physicsCharacterProxyEntityCount[v7]);
+  v18 = 0;
+  if ( s_cg_physicsCharacterProxyEntityCount[v7] )
   {
     do
     {
-      v28 = &Entity[s_cg_physicsCharacterProxyEntities[v12][v27]];
-      if ( !v28 )
+      v19 = &Entity[s_cg_physicsCharacterProxyEntities[v7][v18]];
+      if ( !v19 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 832, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 169, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
           __debugbreak();
       }
-      if ( (v28->flags & 1) != 0 && CG_PhysicsCharacterProxy_IsEntityRightType(v28) && (unsigned int)(v28->prevState.pos.trType - 23) > 5 )
-        ++v27;
+      if ( (v19->flags & 1) != 0 && CG_PhysicsCharacterProxy_IsEntityRightType(v19) && (unsigned int)(v19->prevState.pos.trType - 23) > 5 )
+        ++v18;
       else
-        CG_PhysicsChracterProxy_RemoveCharacter((LocalClientNum_t)v12, v27);
+        CG_PhysicsChracterProxy_RemoveCharacter((LocalClientNum_t)v7, v18);
     }
-    while ( v27 < s_cg_physicsCharacterProxyEntityCount[v12] );
-    v14 = v179;
+    while ( v18 < s_cg_physicsCharacterProxyEntityCount[v7] );
+    v9 = v107;
     m_serialAndIndex = result.m_serialAndIndex;
   }
   Profile_EndInternal(NULL);
   Profile_Begin(645);
-  v29 = 0;
-  v175 = 0;
+  v20 = 0;
+  v103 = 0;
   `eh vector constructor iterator'(ptr, 0xCui64, 0xF8ui64, (void (__fastcall *)(void *))SecureVec3::SecureVec3, (void (__fastcall *)(void *))SecureVec3::~SecureVec3);
-  v30 = 0i64;
-  v31 = v12;
-  if ( s_cg_physicsCharacterProxyEntityCount[v12] )
+  v21 = 0i64;
+  v22 = v7;
+  if ( s_cg_physicsCharacterProxyEntityCount[v7] )
   {
-    v32 = 248 * v12;
-    __asm { vmovsd  xmm6, cs:__real@3f30000000000000 }
-    v34 = v184;
+    v23 = 248 * v7;
+    v24 = v112.m128_u64[0];
     do
     {
-      v178 = (int *)(v30 + v32);
-      _RSI = (const centity_t *)(v34 + 760i64 * s_cg_physicsCharacterProxyEntities[0][v30 + v32]);
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 858, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+      v106 = (int *)(v21 + v23);
+      v25 = (const centity_t *)(v24 + 760i64 * s_cg_physicsCharacterProxyEntities[0][v21 + v23]);
+      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 858, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
         __debugbreak();
-      _R14 = &ptr[3 * v30];
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+      v26 = &ptr[3 * v21];
+      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
-      if ( !_RSI->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+      if ( !v25->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
-      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RSI->pose.origin.Get_origin, &_RSI->pose);
-      FunctionPointer_origin(&_RSI->pose.origin.origin.origin, (vec3_t *)&ptr[3 * v30]);
-      if ( _RSI->pose.isPosePrecise )
+      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v25->pose.origin.Get_origin, &v25->pose);
+      FunctionPointer_origin(&v25->pose.origin.origin.origin, (vec3_t *)&ptr[3 * v21]);
+      if ( v25->pose.isPosePrecise )
       {
-        __asm
-        {
-          vmovd   xmm0, dword ptr [r14]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [r14], xmm2
-          vmovd   xmm0, dword ptr [r14+4]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [r14+4], xmm2
-          vmovd   xmm0, dword ptr [r14+8]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm6
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [r14+8], xmm2
-        }
+        _XMM0 = (unsigned int)*v26;
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v33 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v33;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        *v26 = _XMM2;
+        _XMM0 = (unsigned int)v26[1];
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v33 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v33;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        v26[1] = _XMM2;
+        _XMM0 = (unsigned int)v26[2];
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v33 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v33 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v33;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        v26[2] = _XMM2;
       }
-      __asm { vmovss  xmm0, dword ptr [rsi+48h] }
-      HIDWORD(v184) = 0;
+      v43 = v25->pose.angles.v[0];
+      v112.m128_i32[3] = 0;
+      v45 = (__int128)v112;
+      *(float *)&v45 = v43;
+      _XMM3 = v45;
       __asm
       {
-        vmovups xmm3, [rbp+1F90h+var_2000]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsi+4Ch], 10h
         vinsertps xmm3, xmm3, dword ptr [rsi+50h], 20h ; ' '
-        vmovups [rbp+1F90h+var_2000], xmm3
-        vmulps  xmm0, xmm3, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
       }
-      Float4RadianToQuat(v39, v38);
-      _R12 = &orientation[(unsigned int)v30];
-      __asm { vmovups xmmword ptr [r12], xmm0 }
-      if ( CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(_RSI, (const vec3_t *)&viewPos, &viewDir) )
+      v112 = _XMM3;
+      v48 = _mm128_mul_ps(_XMM3, g_degreeToRadian.v);
+      Float4RadianToQuat(v29, v28);
+      v49 = &orientation[(unsigned int)v21];
+      *v49 = (vec4_t)v48;
+      if ( CG_PhysicsCharacterProxy_ShouldEntityHavePhysics(v25, (const vec3_t *)&viewPos, &viewDir) )
       {
-        if ( s_cg_physicsCharacterProxyPredInstances[0][(_QWORD)v178][1] == -1 )
-          CG_PhysicsCharacterProxy_CreatePhysics((LocalClientNum_t)v12, v30, (const vec3_t *)&ptr[3 * v30], _R12);
-        v188[v175] = v30;
-        v29 = ++v175;
+        if ( s_cg_physicsCharacterProxyPredInstances[0][(_QWORD)v106][1] == -1 )
+          CG_PhysicsCharacterProxy_CreatePhysics((LocalClientNum_t)v7, v21, (const vec3_t *)&ptr[3 * v21], v49);
+        v116[v103] = v21;
+        v20 = ++v103;
       }
       else
       {
-        if ( s_cg_physicsCharacterProxyPredInstances[0][(_QWORD)v178][1] != -1 )
+        if ( s_cg_physicsCharacterProxyPredInstances[0][(_QWORD)v106][1] != -1 )
         {
-          v59 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-          v60 = (vec3_t *)v59;
-          if ( v59 )
-            hkMonitorStream::timerBegin(v59, "TtCG_PhysicsCharacterProxy_RemovePhysics");
-          position = v60;
-          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v12, v30, PHYSICS_CHARACTERPROXY_TYPE_COLLISION);
-          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v12, v30, PHYSICS_CHARACTERPROXY_TYPE_DETAIL);
-          if ( v60 )
-            hkMonitorStream::timerEnd((hkMonitorStream *)v60, "Et");
+          v50 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
+          v51 = (vec3_t *)v50;
+          if ( v50 )
+            hkMonitorStream::timerBegin(v50, "TtCG_PhysicsCharacterProxy_RemovePhysics");
+          position = v51;
+          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v7, v21, PHYSICS_CHARACTERPROXY_TYPE_COLLISION);
+          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v7, v21, PHYSICS_CHARACTERPROXY_TYPE_DETAIL);
+          if ( v51 )
+            hkMonitorStream::timerEnd((hkMonitorStream *)v51, "Et");
         }
-        v29 = v175;
+        v20 = v103;
       }
-      v30 = (unsigned int)(v30 + 1);
-      v31 = v12;
+      v21 = (unsigned int)(v21 + 1);
+      v22 = v7;
     }
-    while ( (unsigned int)v30 < s_cg_physicsCharacterProxyEntityCount[v12] );
-    v14 = v179;
+    while ( (unsigned int)v21 < s_cg_physicsCharacterProxyEntityCount[v7] );
+    v9 = v107;
     m_serialAndIndex = result.m_serialAndIndex;
   }
   Profile_EndInternal(NULL);
   Profile_Begin(646);
-  if ( v29 )
+  if ( v20 )
   {
-    v61 = 248 * v31;
-    *(_QWORD *)&v184 = 248 * v31;
-    v62 = (unsigned int *)v188;
-    v178 = v188;
-    *(_QWORD *)viewDir.v = v29;
+    v52 = 248 * v22;
+    v112.m128_u64[0] = 248 * v22;
+    v53 = (unsigned int *)v116;
+    v106 = v116;
+    *(_QWORD *)viewDir.v = v20;
     do
     {
-      v63 = *v62;
-      CG_PhysicsCharacterProxy_CalcEncapsulatingShapes((LocalClientNum_t)v12, *v62, &capsules);
-      v64 = 0;
+      v54 = *v53;
+      CG_PhysicsCharacterProxy_CalcEncapsulatingShapes((LocalClientNum_t)v7, *v53, &capsules);
+      v55 = 0;
       capsule = &capsules;
-      v66 = (char *)s_cg_physicsCharacterProxyCapsules + 48 * (v63 + v61) - (_QWORD)&capsules;
+      v57 = (char *)s_cg_physicsCharacterProxyCapsules + 48 * (v54 + v52) - (_QWORD)&capsules;
       do
       {
-        if ( (unsigned int)v63 >= 0xF8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 288, ASSERT_TYPE_ASSERT, "(entityId < PHYSICS_CHARACTERPROXY_MAXNUMCHARACTERS)", (const char *)&queryFormat, "entityId < PHYSICS_CHARACTERPROXY_MAXNUMCHARACTERS") )
+        if ( (unsigned int)v54 >= 0xF8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 288, ASSERT_TYPE_ASSERT, "(entityId < PHYSICS_CHARACTERPROXY_MAXNUMCHARACTERS)", (const char *)&queryFormat, "entityId < PHYSICS_CHARACTERPROXY_MAXNUMCHARACTERS") )
           __debugbreak();
-        if ( PhysicsCharacterProxy_DoCapsulesVary((const PhysicsCharacterProxy_Capsule *)((char *)capsule + (_QWORD)v66), capsule) )
+        if ( PhysicsCharacterProxy_DoCapsulesVary((const PhysicsCharacterProxy_Capsule *)((char *)capsule + (_QWORD)v57), capsule) )
         {
-          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v12, v63, (Physics_CharacterProxy_Type)v64);
-          CG_PhysicsCharacterProxy_CreatePhysics_0((LocalClientNum_t)v12, v63, (Physics_CharacterProxy_Type)v64, (const vec3_t *)&ptr[3 * v63], &orientation[v63], capsule);
+          CG_PhysicsCharacterProxy_RemovePhysics_0((LocalClientNum_t)v7, v54, (Physics_CharacterProxy_Type)v55);
+          CG_PhysicsCharacterProxy_CreatePhysics_0((LocalClientNum_t)v7, v54, (Physics_CharacterProxy_Type)v55, (const vec3_t *)&ptr[3 * v54], &orientation[v54], capsule);
         }
-        ++v64;
+        ++v55;
         ++capsule;
       }
-      while ( v64 < 2 );
-      v62 = (unsigned int *)++v178;
-      v67 = (*(_QWORD *)viewDir.v)-- == 1i64;
-      v61 = v184;
+      while ( v55 < 2 );
+      v53 = (unsigned int *)++v106;
+      v58 = (*(_QWORD *)viewDir.v)-- == 1i64;
+      v52 = v112.m128_u64[0];
     }
-    while ( !v67 );
-    v14 = v179;
+    while ( !v58 );
+    v9 = v107;
     m_serialAndIndex = result.m_serialAndIndex;
-    v29 = v175;
+    v20 = v103;
   }
   Profile_EndInternal(NULL);
   if ( worldId != PHYSICS_WORLD_ID_INVALID && Com_GameMode_SupportsFeature(WEAPONSTATES_NUM|WEAPON_LADDER_AIM|0x80) )
   {
     Profile_Begin(647);
-    if ( v29 )
+    if ( v20 )
     {
-      v68 = 248 * v12;
-      v69 = v188;
-      *(_QWORD *)viewDir.v = v29;
+      v59 = 248 * v7;
+      v60 = v116;
+      *(_QWORD *)viewDir.v = v20;
       do
       {
-        v70 = (unsigned int)*v69;
-        v71 = DVARBOOL_physics_enableCharacterSoftBody;
-        if ( s_cg_physicsCharacterProxyAuthInstances[0][v70 + v68] == -1 )
+        v61 = (unsigned int)*v60;
+        v62 = DVARBOOL_physics_enableCharacterSoftBody;
+        if ( s_cg_physicsCharacterProxyAuthInstances[0][v61 + v59] == -1 )
         {
           if ( !DVARBOOL_physics_enableCharacterSoftBody && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_enableCharacterSoftBody") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v71);
-          if ( v71->current.enabled )
-          {
-            _RAX = 3 * v70;
-            __asm
-            {
-              vmovss  xmm0, [rbp+rax*4+1F90h+ptr]
-              vsubss  xmm3, xmm0, xmm7
-              vmovss  xmm1, [rbp+rax*4+1F90h+var_1BBC]
-              vsubss  xmm2, xmm1, xmm8
-              vmovss  xmm0, [rbp+rax*4+1F90h+var_1BB8]
-              vsubss  xmm4, xmm0, xmm9
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vcomiss xmm2, xmm10
-            }
-          }
+          Dvar_CheckFrontendServerThread(v62);
+          if ( v62->current.enabled && (float)((float)((float)((float)(*(float *)&ptr[3 * v61 + 1] - v13) * (float)(*(float *)&ptr[3 * v61 + 1] - v13)) + (float)((float)(*(float *)&ptr[3 * v61] - v12) * (float)(*(float *)&ptr[3 * v61] - v12))) + (float)((float)(*(float *)&ptr[3 * v61 + 2] - v14) * (float)(*(float *)&ptr[3 * v61 + 2] - v14))) < v16 )
+            CG_PhysicsCharacterProxy_CreateAuthPhysics((LocalClientNum_t)v7, v61);
         }
         else
         {
           if ( !DVARBOOL_physics_enableCharacterSoftBody && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_enableCharacterSoftBody") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v71);
-          if ( !v71->current.enabled )
-            goto LABEL_74;
-          _RAX = 3 * v70;
-          __asm
+          Dvar_CheckFrontendServerThread(v62);
+          if ( !v62->current.enabled || (float)((float)((float)((float)(*(float *)&ptr[3 * v61 + 1] - v13) * (float)(*(float *)&ptr[3 * v61 + 1] - v13)) + (float)((float)(*(float *)&ptr[3 * v61] - v12) * (float)(*(float *)&ptr[3 * v61] - v12))) + (float)((float)(*(float *)&ptr[3 * v61 + 2] - v14) * (float)(*(float *)&ptr[3 * v61 + 2] - v14))) > v16 )
           {
-            vmovss  xmm0, [rbp+rax*4+1F90h+ptr]
-            vsubss  xmm3, xmm0, xmm7
-            vmovss  xmm1, [rbp+rax*4+1F90h+var_1BBC]
-            vsubss  xmm2, xmm1, xmm8
-            vmovss  xmm0, [rbp+rax*4+1F90h+var_1BB8]
-            vsubss  xmm4, xmm0, xmm9
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, xmm10
-          }
-          if ( v71->current.enabled )
-          {
-LABEL_74:
             Sys_ProfBeginNamedEvent(0xFFFF00FF, "CG_PhysicsCharacterProxy_DestroyAuthPhysics");
-            v96 = v70 + v68;
-            if ( (s_cg_physicsCharacterProxyAuthBodies[0][v70 + v68] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 490, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] )") )
+            v63 = v61 + v59;
+            if ( (s_cg_physicsCharacterProxyAuthBodies[0][v61 + v59] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 490, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][entityId] )") )
               __debugbreak();
-            s_cg_physicsCharacterProxyAuthBodies[0][v96] = 0xFFFFFF;
-            Physics_DestroyInstance((Physics_WorldId)(3 * v12 + 3), s_cg_physicsCharacterProxyAuthInstances[0][v96], 0);
-            s_cg_physicsCharacterProxyAuthInstances[0][v96] = -1;
-            if ( !s_cg_physicsCharacterProxyShapes[3 * v12 + 1][v70][1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 496, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
+            s_cg_physicsCharacterProxyAuthBodies[0][v63] = 0xFFFFFF;
+            Physics_DestroyInstance((Physics_WorldId)(3 * v7 + 3), s_cg_physicsCharacterProxyAuthInstances[0][v63], 0);
+            s_cg_physicsCharacterProxyAuthInstances[0][v63] = -1;
+            if ( !s_cg_physicsCharacterProxyShapes[3 * v7 + 1][v61][1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 496, ASSERT_TYPE_ASSERT, "(s_cg_physicsCharacterProxyShapes[( 1 + PHYSICS_NUM_CLIENT_PROXY_WORLDS * localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION])", (const char *)&queryFormat, "s_cg_physicsCharacterProxyShapes[Physics_GetClientCharacterProxyAuthoritativeWorldIndex( localClientNum )][entityId][PHYSICS_CHARACTERPROXY_TYPE_COLLISION]") )
               __debugbreak();
-            Physics_ReleaseShape((Physics_WorldId)(3 * v12 + 3), s_cg_physicsCharacterProxyShapes[3 * v12 + 1][v70][1], 1);
-            s_cg_physicsCharacterProxyShapes[3 * v12 + 1][v70][1] = NULL;
+            Physics_ReleaseShape((Physics_WorldId)(3 * v7 + 3), s_cg_physicsCharacterProxyShapes[3 * v7 + 1][v61][1], 1);
+            s_cg_physicsCharacterProxyShapes[3 * v7 + 1][v61][1] = NULL;
             Sys_ProfEndNamedEvent();
           }
         }
-        ++v69;
+        ++v60;
         --*(_QWORD *)viewDir.v;
       }
       while ( *(_QWORD *)viewDir.v );
-      v14 = v179;
+      v9 = v107;
       m_serialAndIndex = result.m_serialAndIndex;
-      v29 = v175;
+      v20 = v103;
     }
     Profile_EndInternal(NULL);
   }
   Profile_Begin(648);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  xmm6, cs:__real@3f800000
-  }
   if ( m_serialAndIndex == -1 )
+    goto LABEL_146;
+  v64 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsPred %i", v20);
+  Sys_ProfBeginNamedEvent(0xFFFF00FF, v64);
+  if ( !v20 )
     goto LABEL_145;
-  v99 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsPred %i", v29);
-  Sys_ProfBeginNamedEvent(0xFFFF00FF, v99);
-  if ( !v29 )
-    goto LABEL_144;
-  v100 = 248 * hkOrientation.m_vec.m_quad.m128_u64[0];
-  *(_QWORD *)&v184 = 248 * hkOrientation.m_vec.m_quad.m128_u64[0];
-  v101 = v188;
-  *(_QWORD *)viewDir.v = v188;
-  v178 = (int *)v29;
+  v65 = 248 * hkOrientation.m_vec.m_quad.m128_u64[0];
+  v112.m128_u64[0] = 248 * hkOrientation.m_vec.m_quad.m128_u64[0];
+  v66 = v116;
+  *(_QWORD *)viewDir.v = v116;
+  v106 = (int *)v20;
   do
   {
-    v102 = 0i64;
-    v103 = (unsigned int)*v101;
-    viewPos.m_quad.m128_u64[0] = (unsigned __int64)&orientation[v103];
-    position = (vec3_t *)&ptr[3 * v103];
-    v104 = 2 * (v100 + v103);
+    v67 = 0i64;
+    v68 = (unsigned int)*v66;
+    viewPos.m_quad.m128_u64[0] = (unsigned __int64)&orientation[v68];
+    position = (vec3_t *)&ptr[3 * v68];
+    v69 = 2 * (v65 + v68);
     do
     {
-      v105 = v102 + 2 * (v100 + v103);
-      if ( (s_cg_physicsCharacterProxyPredBodies[0][0][v105] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 953, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type] )") )
+      v70 = v67 + 2 * (v65 + v68);
+      if ( (s_cg_physicsCharacterProxyPredBodies[0][0][v70] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 953, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type] )") )
         __debugbreak();
-      v106 = s_cg_physicsCharacterProxyPredInstances[0][0][v105];
+      v71 = s_cg_physicsCharacterProxyPredInstances[0][0][v70];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)m_serialAndIndex > 7 )
@@ -2513,7 +2148,7 @@ LABEL_74:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v106 == -1 )
+      if ( v71 == -1 )
       {
         LODWORD(updateBroadphaseIfWarping) = m_serialAndIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
@@ -2526,7 +2161,7 @@ LABEL_74:
           __debugbreak();
       }
       if ( g_physicsServerWorldsCreated )
-        goto LABEL_109;
+        goto LABEL_110;
       if ( m_serialAndIndex >= 0 )
       {
         if ( m_serialAndIndex <= 1 )
@@ -2535,15 +2170,15 @@ LABEL_74:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
             __debugbreak();
         }
-LABEL_109:
+LABEL_110:
         if ( (unsigned int)m_serialAndIndex <= 7 )
-          goto LABEL_112;
+          goto LABEL_113;
       }
       LODWORD(updateBroadphaseIfWarping) = m_serialAndIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
         __debugbreak();
-LABEL_112:
-      if ( v106 == -1 )
+LABEL_113:
+      if ( v71 == -1 )
       {
         LODWORD(updateBroadphaseIfWarping) = m_serialAndIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
@@ -2556,9 +2191,9 @@ LABEL_112:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v106) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 954, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1") )
+      if ( HavokPhysicsInstanceManager_GetBodyCount(&ConstWorld->instanceManager, v71) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 954, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type] ) == 1") )
         __debugbreak();
-      v108 = s_cg_physicsCharacterProxyPredInstances[0][0][v104];
+      v73 = s_cg_physicsCharacterProxyPredInstances[0][0][v69];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)m_serialAndIndex > 7 )
@@ -2567,7 +2202,7 @@ LABEL_112:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v108 == -1 )
+      if ( v73 == -1 )
       {
         LODWORD(updateBroadphaseIfWarping) = m_serialAndIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
@@ -2585,396 +2220,310 @@ LABEL_112:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)m_serialAndIndex, v108, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyPredBodies[0][0][v104] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 955, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type])", (const char *)&queryFormat, "Physics_GetRigidBodyID( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type]") )
+      if ( HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)m_serialAndIndex, v73, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyPredBodies[0][0][v69] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 955, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type])", (const char *)&queryFormat, "Physics_GetRigidBodyID( predictiveWorldId, s_cg_physicsCharacterProxyPredInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyPredBodies[localClientNum][characterIdx][type]") )
         __debugbreak();
-      __asm
-      {
-        vmovss  [rsp+2090h+var_2058], xmm7
-        vmovss  dword ptr [rsp+2090h+fmt], xmm6
-      }
-      Physics_KeyframeRigidBodyTo((Physics_WorldId)m_serialAndIndex, s_cg_physicsCharacterProxyPredBodies[0][0][v104], position, &orientation[v103], fmt, 1, 0, v165);
-      ++v102;
-      ++v104;
-      v100 = v184;
+      Physics_KeyframeRigidBodyTo((Physics_WorldId)m_serialAndIndex, s_cg_physicsCharacterProxyPredBodies[0][0][v69], position, &orientation[v68], 1.0, 1, 0, 0.0);
+      ++v67;
+      ++v69;
+      v65 = v112.m128_u64[0];
     }
-    while ( v102 < 2 );
-    v101 = (int *)(*(_QWORD *)viewDir.v + 4i64);
+    while ( v67 < 2 );
+    v66 = (int *)(*(_QWORD *)viewDir.v + 4i64);
     *(_QWORD *)viewDir.v += 4i64;
-    v178 = (int *)((char *)v178 - 1);
+    v106 = (int *)((char *)v106 - 1);
   }
-  while ( v178 );
-  v14 = v179;
-  v29 = v175;
-LABEL_144:
-  Sys_ProfEndNamedEvent();
+  while ( v106 );
+  v9 = v107;
+  v20 = v103;
 LABEL_145:
+  Sys_ProfEndNamedEvent();
+LABEL_146:
   if ( worldId == PHYSICS_WORLD_ID_INVALID )
+    goto LABEL_207;
+  v74 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsAuth %i", v20);
+  Sys_ProfBeginNamedEvent(0xFFFF00FF, v74);
+  if ( !v20 )
     goto LABEL_206;
-  v109 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsAuth %i", v29);
-  Sys_ProfBeginNamedEvent(0xFFFF00FF, v109);
-  if ( !v29 )
-    goto LABEL_205;
-  v110 = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
+  v75 = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
   position = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
-  v111 = v188;
-  v112 = v29;
-  v113 = worldId;
+  v76 = v116;
+  v77 = v20;
+  v78 = worldId;
   while ( 2 )
   {
-    v114 = (unsigned int)*v111;
-    v115 = (char *)v110 + v114;
-    if ( s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v110 + v114] != -1 )
+    v79 = (unsigned int)*v76;
+    v80 = (char *)v75 + v79;
+    if ( s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v75 + v79] != -1 )
     {
-      if ( (s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v115] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 974, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx] )") )
+      if ( (s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v80] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 974, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx] )") )
         __debugbreak();
-      v116 = s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v115];
+      v81 = s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v80];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v113 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)v78 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v116 == -1 )
+      if ( v81 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v113 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v78 - 2) <= 5 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
       if ( g_physicsServerWorldsCreated )
       {
-LABEL_170:
-        if ( (unsigned int)v113 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-          goto LABEL_171;
+LABEL_171:
+        if ( (unsigned int)v78 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+          goto LABEL_172;
       }
       else
       {
-        if ( v113 >= PHYSICS_WORLD_ID_FIRST )
+        if ( v78 >= PHYSICS_WORLD_ID_FIRST )
         {
-          if ( v113 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+          if ( v78 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
           {
-            LODWORD(updateBroadphaseIfWarping) = v113;
+            LODWORD(updateBroadphaseIfWarping) = v78;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
               __debugbreak();
           }
-          goto LABEL_170;
+          goto LABEL_171;
         }
-LABEL_171:
-        LODWORD(updateBroadphaseIfWarping) = v113;
+LABEL_172:
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v116 == -1 )
+      if ( v81 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      v117 = HavokPhysics_GetConstWorld(v113);
-      if ( !v117->world )
+      v82 = HavokPhysics_GetConstWorld(v78);
+      if ( !v82->world )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysicsInstanceManager_GetBodyCount(&v117->instanceManager, v116) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 975, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1") )
+      if ( HavokPhysicsInstanceManager_GetBodyCount(&v82->instanceManager, v81) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 975, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx] ) == 1") )
         __debugbreak();
-      v118 = s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v115];
+      v83 = s_cg_physicsCharacterProxyAuthInstances[0][(_QWORD)v80];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v113 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)v78 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v118 == -1 )
+      if ( v83 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v113 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v78 - 2) <= 5 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v113 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v78 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v113;
+        LODWORD(updateBroadphaseIfWarping) = v78;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysics_GetRigidBodyID((hknpBodyId *)&worldId, v113, v118, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v115] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 976, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx], 0 ) == s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx])", (const char *)&queryFormat, "Physics_GetRigidBodyID( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx], 0 ) == s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx]") )
+      if ( HavokPhysics_GetRigidBodyID((hknpBodyId *)&worldId, v78, v83, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v80] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 976, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx], 0 ) == s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx])", (const char *)&queryFormat, "Physics_GetRigidBodyID( authoritativeWorldId, s_cg_physicsCharacterProxyAuthInstances[localClientNum][characterIdx], 0 ) == s_cg_physicsCharacterProxyAuthBodies[localClientNum][characterIdx]") )
         __debugbreak();
-      __asm
-      {
-        vmovss  [rsp+2090h+var_2058], xmm7
-        vmovss  dword ptr [rsp+2090h+fmt], xmm6
-      }
-      Physics_KeyframeRigidBodyTo(v113, s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v115], (const vec3_t *)&ptr[3 * v114], &orientation[v114], fmta, 1, 0, v166);
-      v110 = position;
+      Physics_KeyframeRigidBodyTo(v78, s_cg_physicsCharacterProxyAuthBodies[0][(_QWORD)v80], (const vec3_t *)&ptr[3 * v79], &orientation[v79], 1.0, 1, 0, 0.0);
+      v75 = position;
     }
-    ++v111;
-    if ( --v112 )
+    ++v76;
+    if ( --v77 )
       continue;
     break;
   }
-  v14 = v179;
-  v29 = v175;
-LABEL_205:
-  Sys_ProfEndNamedEvent();
+  v9 = v107;
+  v20 = v103;
 LABEL_206:
-  v119 = detailWorldId;
+  Sys_ProfEndNamedEvent();
+LABEL_207:
   if ( detailWorldId == PHYSICS_WORLD_ID_INVALID )
+    goto LABEL_288;
+  v84 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsDetail %i", v20);
+  Sys_ProfBeginNamedEvent(0xFFFF00FF, v84);
+  if ( !v20 )
     goto LABEL_287;
-  v120 = j_va("ClientCharacterProxyUpdatePredictiveMovePhysicsDetail %i", v29);
-  Sys_ProfBeginNamedEvent(0xFFFF00FF, v120);
-  if ( !v29 )
-    goto LABEL_286;
-  v121 = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
+  v85 = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
   position = (vec3_t *)(248 * hkOrientation.m_vec.m_quad.m128_u64[0]);
-  v122 = v188;
-  *(_QWORD *)viewDir.v = v188;
-  v178 = (int *)v29;
-  __asm { vmovss  xmm6, cs:__real@3d000000 }
+  v86 = v116;
+  *(_QWORD *)viewDir.v = v116;
+  v106 = (int *)v20;
   while ( 2 )
   {
-    v124 = (unsigned int)*v122;
-    _R15 = 2 * v124;
-    _R12 = 3 * v124;
-    v127 = 2 * ((_QWORD)v121 + v124);
-    *(_QWORD *)&v184 = 2i64;
+    v87 = (unsigned int)*v86;
+    v88 = v87;
+    v89 = 3 * v87;
+    v90 = 2 * ((_QWORD)v85 + v87);
+    v112.m128_u64[0] = 2i64;
     while ( 2 )
     {
-      if ( (s_cg_physicsCharacterProxyDetailBodies[0][0][v127] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 996, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type] )") )
+      if ( (s_cg_physicsCharacterProxyDetailBodies[0][0][v90] & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 996, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type] ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type] )") )
         __debugbreak();
-      v128 = s_cg_physicsCharacterProxyDetailInstances[0][0][v127];
+      v91 = s_cg_physicsCharacterProxyDetailInstances[0][0][v90];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 71, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v119 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)detailWorldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 72, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v128 == -1 )
+      if ( v91 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 73, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v119 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(detailWorldId - 2) <= 5 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 74, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
       if ( g_physicsServerWorldsCreated )
       {
-LABEL_231:
-        if ( (unsigned int)v119 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-          goto LABEL_232;
+LABEL_232:
+        if ( (unsigned int)detailWorldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+          goto LABEL_233;
       }
       else
       {
-        if ( v119 >= PHYSICS_WORLD_ID_FIRST )
+        if ( detailWorldId >= PHYSICS_WORLD_ID_FIRST )
         {
-          if ( v119 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+          if ( detailWorldId <= PHYSICS_WORLD_ID_SERVER_DETAIL )
           {
-            LODWORD(updateBroadphaseIfWarping) = v119;
+            LODWORD(updateBroadphaseIfWarping) = detailWorldId;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 75, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Number of Rigid Bodies in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
               __debugbreak();
           }
-          goto LABEL_231;
+          goto LABEL_232;
         }
-LABEL_232:
-        LODWORD(updateBroadphaseIfWarping) = v119;
+LABEL_233:
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 123, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v128 == -1 )
+      if ( v91 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 124, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tHavok Physics: Trying to Get Number of Rigid Bodies with invalid index in world %i", "instanceId != HAVOKPHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      v129 = HavokPhysics_GetConstWorld(v119);
-      if ( !v129->world )
+      v92 = HavokPhysics_GetConstWorld(detailWorldId);
+      if ( !v92->world )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 128, ASSERT_TYPE_ASSERT, "(havokPhysicsWorld->world)", "%s\n\tHavokPhysics Get rigid Body count %i: world is NULL", "havokPhysicsWorld->world", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysicsInstanceManager_GetBodyCount(&v129->instanceManager, v128) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 997, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1") )
+      if ( HavokPhysicsInstanceManager_GetBodyCount(&v92->instanceManager, v91) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 997, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type] ) == 1") )
         __debugbreak();
-      v130 = s_cg_physicsCharacterProxyDetailInstances[0][0][v127];
+      v93 = s_cg_physicsCharacterProxyDetailInstances[0][0][v90];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v119 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)detailWorldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( v130 == -1 )
+      if ( v93 == -1 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v119 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(detailWorldId - 2) <= 5 )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v119 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)detailWorldId <= PHYSICS_WORLD_ID_SERVER_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( HavokPhysics_GetRigidBodyID((hknpBodyId *)&worldId, v119, v130, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyDetailBodies[0][0][v127] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 998, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type])", (const char *)&queryFormat, "Physics_GetRigidBodyID( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type]") )
+      if ( HavokPhysics_GetRigidBodyID((hknpBodyId *)&worldId, detailWorldId, v93, 0)->m_serialAndIndex != s_cg_physicsCharacterProxyDetailBodies[0][0][v90] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\cg_physicscharacterproxy.cpp", 998, ASSERT_TYPE_ASSERT, "(Physics_GetRigidBodyID( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type])", (const char *)&queryFormat, "Physics_GetRigidBodyID( detailWorldId, s_cg_physicsCharacterProxyDetailInstances[localClientNum][characterIdx][type], 0 ) == s_cg_physicsCharacterProxyDetailBodies[localClientNum][characterIdx][type]") )
         __debugbreak();
-      v131.m_serialAndIndex = s_cg_physicsCharacterProxyDetailBodies[0][0][v127];
+      v94.m_serialAndIndex = s_cg_physicsCharacterProxyDetailBodies[0][0][v90];
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 422, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Warp Rigid Body when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v119 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)detailWorldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 423, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", updateBroadphaseIfWarping) )
           __debugbreak();
       }
-      if ( (v131.m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
+      if ( (v94.m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
       {
-        LODWORD(updateBroadphaseIfWarping) = v119;
+        LODWORD(updateBroadphaseIfWarping) = detailWorldId;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 424, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", updateBroadphaseIfWarping) )
           __debugbreak();
       }
+      if ( ((ptr[v89] & 0x7F800000) == 2139095040 || (ptr[v89 + 1] & 0x7F800000) == 2139095040 || (ptr[v89 + 2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 425, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid position", "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
+        __debugbreak();
+      if ( ((LODWORD(orientation[v88].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orientation[v88].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orientation[v88].v[2]) & 0x7F800000) == 2139095040 || (LODWORD(orientation[v88].v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 426, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid orientation", "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )") )
+        __debugbreak();
+      viewPos.m_quad.m128_f32[0] = 0.03125 * *(float *)&ptr[v89];
+      viewPos.m_quad.m128_f32[1] = 0.03125 * *(float *)&ptr[v89 + 1];
+      viewPos.m_quad.m128_f32[2] = 0.03125 * *(float *)&ptr[v89 + 2];
+      viewPos.m_quad.m128_f32[3] = 0.0;
+      _XMM4 = LODWORD(orientation[v88].v[0]);
       __asm
       {
-        vmovss  xmm0, [rbp+r12*4+1F90h+ptr]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v168 & 0x7F800000) == 2139095040 )
-        goto LABEL_292;
-      __asm
-      {
-        vmovss  xmm0, [rbp+r12*4+1F90h+var_1BBC]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v169 & 0x7F800000) == 2139095040 )
-        goto LABEL_292;
-      __asm
-      {
-        vmovss  xmm0, [rbp+r12*4+1F90h+var_1BB8]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v170 & 0x7F800000) == 2139095040 )
-      {
-LABEL_292:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 425, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid position", "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+r15*8+1F90h+orientation]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v171 & 0x7F800000) == 2139095040 )
-        goto LABEL_293;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+r15*8+1F90h+orientation+4]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v172 & 0x7F800000) == 2139095040 )
-        goto LABEL_293;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+r15*8+1F90h+orientation+8]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v173 & 0x7F800000) == 2139095040 )
-        goto LABEL_293;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+r15*8+1F90h+orientation+0Ch]
-        vmovss  [rsp+2090h+var_2050], xmm0
-      }
-      if ( (v174 & 0x7F800000) == 2139095040 )
-      {
-LABEL_293:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 426, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", "%s\n\tPhysics: Trying to Warp Rigid Body with invalid orientation", "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmulss  xmm1, xmm6, [rbp+r12*4+1F90h+ptr]
-        vmovss  dword ptr [rbp+1F90h+viewPos], xmm1
-        vmulss  xmm0, xmm6, [rbp+r12*4+1F90h+var_1BBC]
-        vmovss  dword ptr [rbp+1F90h+viewPos+4], xmm0
-        vmulss  xmm2, xmm6, [rbp+r12*4+1F90h+var_1BB8]
-        vmovss  dword ptr [rbp+1F90h+viewPos+8], xmm2
-        vmovss  [rbp+1F90h+var_1FE4], xmm7
-        vmovss  xmm4, dword ptr [rbp+r15*8+1F90h+orientation]
         vinsertps xmm4, xmm4, dword ptr [rbp+r15*8+1F90h+orientation+4], 1F90h+var_1FA0+20h
         vinsertps xmm4, xmm4, dword ptr [rbp+r15*8+1F90h+orientation+8], 1F90h+var_1FA0+30h
         vinsertps xmm4, xmm4, dword ptr [rbp+r15*8+1F90h+orientation+0Ch], 1F90h+var_1FA0+40h
         vdpps   xmm0, xmm4, xmm4, 0FFh
-        vmovups xmmword ptr [rbp+1F90h+hkOrientation.m_vec.m_quad], xmm0
         vrsqrtps xmm1, xmm0
-        vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-        vmulps  xmm0, xmm1, xmm0
-        vmulps  xmm1, xmm0, xmm1
-        vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-        vsubps  xmm1, xmm0, xmm1
-        vmulps  xmm2, xmm1, xmm2
-        vmulps  xmm0, xmm2, xmm4
-        vmovups xmmword ptr [rbp+1F90h+hkOrientation.m_vec.m_quad], xmm0
       }
-      HavokPhysics_WarpRigidBodyTo(v119, v131, &viewPos, &hkOrientation, 0, 0);
-      ++v127;
-      *(_QWORD *)&v184 = v184 - 1;
-      if ( (_QWORD)v184 )
+      hkOrientation.m_vec.m_quad = _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM0), _XMM1)), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM4);
+      HavokPhysics_WarpRigidBodyTo(detailWorldId, v94, &viewPos, &hkOrientation, 0, 0);
+      ++v90;
+      if ( --v112.m128_u64[0] )
         continue;
       break;
     }
-    v122 = (int *)(*(_QWORD *)viewDir.v + 4i64);
+    v86 = (int *)(*(_QWORD *)viewDir.v + 4i64);
     *(_QWORD *)viewDir.v += 4i64;
-    v67 = v178 == (int *)1;
-    v178 = (int *)((char *)v178 - 1);
-    v121 = position;
-    if ( !v67 )
+    v58 = v106 == (int *)1;
+    v106 = (int *)((char *)v106 - 1);
+    v85 = position;
+    if ( !v58 )
       continue;
     break;
   }
-  v14 = v179;
-LABEL_286:
-  Sys_ProfEndNamedEvent();
+  v9 = v107;
 LABEL_287:
+  Sys_ProfEndNamedEvent();
+LABEL_288:
   Profile_EndInternal(NULL);
   `eh vector destructor iterator'(ptr, 0xCui64, 0xF8ui64, (void (__fastcall *)(void *))SecureVec3::~SecureVec3);
-  if ( v14 )
-    hkMonitorStream::timerEnd(v14, "Et");
-  _R11 = &v196;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-  }
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
 }
 
 /*
@@ -2986,6 +2535,7 @@ void CG_PhysicsChracterProxy_RemoveCharacter(LocalClientNum_t localClientNum, un
 {
   __int64 v2; 
   __int64 v3; 
+  __int64 v4; 
   __int64 v5; 
   __int64 v6; 
   __int64 v7; 
@@ -3003,82 +2553,74 @@ void CG_PhysicsChracterProxy_RemoveCharacter(LocalClientNum_t localClientNum, un
   __int64 v19; 
   __int64 v20; 
   __int64 v21; 
+  __int64 v22; 
+  __int128 v23; 
+  __int64 v24; 
 
   v2 = localClientNum;
   v3 = characterIdx;
   CG_PhysicsCharacterProxy_RemovePhysics(localClientNum, characterIdx);
-  _R13 = 0x140000000ui64;
-  v5 = (unsigned int)v3;
-  v6 = --s_cg_physicsCharacterProxyEntityCount[v2];
-  v7 = v2;
-  v8 = 248 * v2 + v6;
-  v9 = 248 * v2 + v3;
-  v10 = v9;
-  s_cg_physicsCharacterProxyEntities[0][v10] = s_cg_physicsCharacterProxyEntities[0][v8];
-  s_cg_physicsCharacterProxyEntities[0][v8] = -1;
-  v11 = 3 * (int)v2;
-  v12 = 248 * v11;
-  v13 = 248 * v11 + v5;
-  v14 = 248 * (v11 + 1);
-  v15 = v5 + v14;
-  v16 = 248 * (v11 + 2);
-  v17 = v5 + v16;
-  v18 = v12 + v6;
-  v19 = v14 + v6;
-  v20 = v16 + v6;
-  v21 = v7 * 248 + v6;
-  _RCX = 6 * (v7 * 248 + v6);
-  __asm { vmovups xmm0, xmmword ptr rva s_cg_physicsCharacterProxyCapsules.center[r13+rcx*8] }
-  _RAX = 6 * v9;
-  __asm
-  {
-    vmovups xmmword ptr rva s_cg_physicsCharacterProxyCapsules.center[r13+rax*8], xmm0
-    vmovsd  xmm1, qword ptr rva s_cg_physicsCharacterProxyCapsules.radius[r13+rcx*8]
-    vmovsd  qword ptr rva s_cg_physicsCharacterProxyCapsules.radius[r13+rax*8], xmm1
-  }
-  _RCX += 3i64;
-  __asm { vmovups xmm0, xmmword ptr rva s_cg_physicsCharacterProxyCapsules.center[r13+rcx*8] }
-  s_cg_physicsCharacterProxyShapes[0][v13][0] = s_cg_physicsCharacterProxyShapes[0][v18][0];
-  s_cg_physicsCharacterProxyShapes[0][v15][0] = s_cg_physicsCharacterProxyShapes[0][v19][0];
-  s_cg_physicsCharacterProxyShapes[0][v17][0] = s_cg_physicsCharacterProxyShapes[0][v20][0];
-  LODWORD(_RAX) = s_cg_physicsCharacterProxyPredInstances[v7][v6][0];
+  v4 = (unsigned int)v3;
+  v5 = --s_cg_physicsCharacterProxyEntityCount[v2];
+  v6 = v2;
+  v7 = 248 * v2 + v5;
+  v8 = 248 * v2 + v3;
+  v9 = v8;
+  s_cg_physicsCharacterProxyEntities[0][v9] = s_cg_physicsCharacterProxyEntities[0][v7];
+  s_cg_physicsCharacterProxyEntities[0][v7] = -1;
+  v10 = 3 * (int)v2;
+  v11 = 248 * v10;
+  v12 = 248 * v10 + v4;
+  v13 = 248 * (v10 + 1);
+  v14 = v4 + v13;
+  v15 = 248 * (v10 + 2);
+  v16 = v4 + v15;
+  v17 = v11 + v5;
+  v18 = v13 + v5;
+  v19 = v15 + v5;
+  v20 = v6 * 248 + v5;
+  v21 = 6 * v8;
+  *(_OWORD *)&s_cg_physicsCharacterProxyCapsules[0][0][0].center.v[2 * v21] = *(_OWORD *)s_cg_physicsCharacterProxyCapsules[v6][v5][0].center.v;
+  *((double *)&s_cg_physicsCharacterProxyCapsules[0][0][0].radius + v21) = *(double *)&s_cg_physicsCharacterProxyCapsules[v6][v5][0].radius;
+  v22 = 6 * (v6 * 248 + v5) + 3;
+  v23 = *(_OWORD *)&s_cg_physicsCharacterProxyCapsules[0][0][0].center.v[2 * v22];
+  s_cg_physicsCharacterProxyShapes[0][v12][0] = s_cg_physicsCharacterProxyShapes[0][v17][0];
+  s_cg_physicsCharacterProxyShapes[0][v14][0] = s_cg_physicsCharacterProxyShapes[0][v18][0];
+  s_cg_physicsCharacterProxyShapes[0][v16][0] = s_cg_physicsCharacterProxyShapes[0][v19][0];
+  LODWORD(v21) = s_cg_physicsCharacterProxyPredInstances[v6][v5][0];
+  s_cg_physicsCharacterProxyShapes[0][v17][0] = NULL;
   s_cg_physicsCharacterProxyShapes[0][v18][0] = NULL;
+  s_cg_physicsCharacterProxyPredInstances[0][v9][0] = v21;
+  LODWORD(v21) = s_cg_physicsCharacterProxyDetailInstances[v6][v5][0];
   s_cg_physicsCharacterProxyShapes[0][v19][0] = NULL;
-  s_cg_physicsCharacterProxyPredInstances[0][v10][0] = _RAX;
-  LODWORD(_RAX) = s_cg_physicsCharacterProxyDetailInstances[v7][v6][0];
-  s_cg_physicsCharacterProxyShapes[0][v20][0] = NULL;
-  s_cg_physicsCharacterProxyDetailInstances[0][v10][0] = _RAX;
-  s_cg_physicsCharacterProxyPredBodies[0][v10][0] = s_cg_physicsCharacterProxyPredBodies[v7][v6][0];
-  s_cg_physicsCharacterProxyDetailBodies[0][v10][0] = s_cg_physicsCharacterProxyDetailBodies[v7][v6][0];
-  _RAX = 6 * v9 + 3;
-  __asm
-  {
-    vmovups xmmword ptr rva s_cg_physicsCharacterProxyCapsules.center[r13+rax*8], xmm0
-    vmovsd  xmm1, qword ptr rva s_cg_physicsCharacterProxyCapsules.radius[r13+rcx*8]
-    vmovsd  qword ptr rva s_cg_physicsCharacterProxyCapsules.radius[r13+rax*8], xmm1
-  }
-  s_cg_physicsCharacterProxyShapes[0][v13][1] = s_cg_physicsCharacterProxyShapes[0][v18][1];
-  s_cg_physicsCharacterProxyShapes[0][v15][1] = s_cg_physicsCharacterProxyShapes[0][v19][1];
-  s_cg_physicsCharacterProxyShapes[0][v17][1] = s_cg_physicsCharacterProxyShapes[0][v20][1];
+  s_cg_physicsCharacterProxyDetailInstances[0][v9][0] = v21;
+  s_cg_physicsCharacterProxyPredBodies[0][v9][0] = s_cg_physicsCharacterProxyPredBodies[v6][v5][0];
+  s_cg_physicsCharacterProxyDetailBodies[0][v9][0] = s_cg_physicsCharacterProxyDetailBodies[v6][v5][0];
+  v24 = 6 * v8 + 3;
+  *(_OWORD *)&s_cg_physicsCharacterProxyCapsules[0][0][0].center.v[2 * v24] = v23;
+  *((double *)&s_cg_physicsCharacterProxyCapsules[0][0][0].radius + v24) = *((double *)&s_cg_physicsCharacterProxyCapsules[0][0][0].radius + v22);
+  s_cg_physicsCharacterProxyShapes[0][v12][1] = s_cg_physicsCharacterProxyShapes[0][v17][1];
+  s_cg_physicsCharacterProxyShapes[0][v14][1] = s_cg_physicsCharacterProxyShapes[0][v18][1];
+  s_cg_physicsCharacterProxyShapes[0][v16][1] = s_cg_physicsCharacterProxyShapes[0][v19][1];
+  s_cg_physicsCharacterProxyShapes[0][v17][1] = NULL;
   s_cg_physicsCharacterProxyShapes[0][v18][1] = NULL;
+  s_cg_physicsCharacterProxyPredInstances[0][v20][0] = -1;
+  LODWORD(v24) = s_cg_physicsCharacterProxyPredInstances[v6][v5][1];
   s_cg_physicsCharacterProxyShapes[0][v19][1] = NULL;
-  s_cg_physicsCharacterProxyPredInstances[0][v21][0] = -1;
-  LODWORD(_RAX) = s_cg_physicsCharacterProxyPredInstances[v7][v6][1];
-  s_cg_physicsCharacterProxyShapes[0][v20][1] = NULL;
-  s_cg_physicsCharacterProxyDetailInstances[0][v21][0] = -1;
-  s_cg_physicsCharacterProxyPredBodies[0][v21][0] = 0xFFFFFF;
-  s_cg_physicsCharacterProxyDetailBodies[0][v21][0] = 0xFFFFFF;
-  s_cg_physicsCharacterProxyPredInstances[0][v10][1] = _RAX;
-  s_cg_physicsCharacterProxyDetailInstances[0][v10][1] = s_cg_physicsCharacterProxyDetailInstances[v7][v6][1];
-  s_cg_physicsCharacterProxyPredBodies[0][v10][1] = s_cg_physicsCharacterProxyPredBodies[v7][v6][1];
-  s_cg_physicsCharacterProxyDetailBodies[0][v10][1] = s_cg_physicsCharacterProxyDetailBodies[v7][v6][1];
-  s_cg_physicsCharacterProxyAuthInstances[0][v9] = s_cg_physicsCharacterProxyAuthInstances[0][v8];
-  s_cg_physicsCharacterProxyAuthBodies[0][v9] = s_cg_physicsCharacterProxyAuthBodies[0][v8];
-  s_cg_physicsCharacterProxyAuthBodies[0][v8] = 0xFFFFFF;
-  s_cg_physicsCharacterProxyPredInstances[0][v21][1] = -1;
-  s_cg_physicsCharacterProxyDetailInstances[0][v21][1] = -1;
-  s_cg_physicsCharacterProxyPredBodies[0][v21][1] = 0xFFFFFF;
-  s_cg_physicsCharacterProxyDetailBodies[0][v21][1] = 0xFFFFFF;
-  s_cg_physicsCharacterProxyAuthInstances[0][v8] = -1;
+  s_cg_physicsCharacterProxyDetailInstances[0][v20][0] = -1;
+  s_cg_physicsCharacterProxyPredBodies[0][v20][0] = 0xFFFFFF;
+  s_cg_physicsCharacterProxyDetailBodies[0][v20][0] = 0xFFFFFF;
+  s_cg_physicsCharacterProxyPredInstances[0][v9][1] = v24;
+  s_cg_physicsCharacterProxyDetailInstances[0][v9][1] = s_cg_physicsCharacterProxyDetailInstances[v6][v5][1];
+  s_cg_physicsCharacterProxyPredBodies[0][v9][1] = s_cg_physicsCharacterProxyPredBodies[v6][v5][1];
+  s_cg_physicsCharacterProxyDetailBodies[0][v9][1] = s_cg_physicsCharacterProxyDetailBodies[v6][v5][1];
+  s_cg_physicsCharacterProxyAuthInstances[0][v8] = s_cg_physicsCharacterProxyAuthInstances[0][v7];
+  s_cg_physicsCharacterProxyAuthBodies[0][v8] = s_cg_physicsCharacterProxyAuthBodies[0][v7];
+  s_cg_physicsCharacterProxyAuthBodies[0][v7] = 0xFFFFFF;
+  s_cg_physicsCharacterProxyPredInstances[0][v20][1] = -1;
+  s_cg_physicsCharacterProxyDetailInstances[0][v20][1] = -1;
+  s_cg_physicsCharacterProxyPredBodies[0][v20][1] = 0xFFFFFF;
+  s_cg_physicsCharacterProxyDetailBodies[0][v20][1] = 0xFFFFFF;
+  s_cg_physicsCharacterProxyAuthInstances[0][v7] = -1;
 }
 

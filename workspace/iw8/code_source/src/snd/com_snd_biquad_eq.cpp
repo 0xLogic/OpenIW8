@@ -91,54 +91,23 @@ void __fastcall SND_ApplyFilterLPFFrequency(SndFilter *filter, const float freq)
 OnePole_Init
 ==============
 */
-
-void __fastcall OnePole_Init(OnePoleFilter_t *p_state, double fadetime, double freq, double sampleRate)
+void OnePole_Init(OnePoleFilter_t *p_state, float fadetime, float freq, float sampleRate)
 {
-  __asm
-  {
-    vmovss  xmm0, cs:__real@b8aec33e
-    vmovaps [rsp+48h+var_18], xmm6
-  }
-  _RBX = p_state;
-  __asm
-  {
-    vdivss  xmm0, xmm0, xmm1; X
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
-  *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm2, xmm7, cs:__real@3f000000; max
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+14h], xmm0
-    vmovaps xmm0, xmm6; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@c0c90fdb
-    vdivss  xmm0, xmm1, xmm7; X
-  }
-  *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3f800000
-    vsubss  xmm1, xmm4, dword ptr [rbx+8]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-    vsubss  xmm3, xmm4, xmm0
-    vmovss  dword ptr [rbx+10h], xmm3
-    vmulss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rbx+0Ch], xmm2
-    vsubss  xmm1, xmm4, dword ptr [rbx+14h]
-    vmulss  xmm2, xmm1, xmm0
-    vmovss  dword ptr [rbx+18h], xmm2
-    vmovss  dword ptr [rbx+1Ch], xmm0
-  }
-  *(_QWORD *)&_RBX->m_delay = 0i64;
+  float v5; 
+  double v6; 
+  float v7; 
+
+  v5 = expf_0(-0.000083333332 / fadetime);
+  p_state->m_a.A = v5;
+  p_state->m_b.A = v5;
+  v6 = I_fclamp(freq, 0.0, sampleRate * 0.5);
+  *(float *)&v6 = expf_0((float)(*(float *)&v6 * -6.2831855) / sampleRate);
+  v7 = 1.0 - p_state->m_a.A;
+  p_state->m_a.currentVal = 1.0 - *(float *)&v6;
+  p_state->m_a.precalcB = v7 * (float)(1.0 - *(float *)&v6);
+  p_state->m_b.precalcB = (float)(1.0 - p_state->m_b.A) * *(float *)&v6;
+  p_state->m_b.currentVal = *(float *)&v6;
+  *(_QWORD *)&p_state->m_delay = 0i64;
 }
 
 /*
@@ -146,59 +115,29 @@ void __fastcall OnePole_Init(OnePoleFilter_t *p_state, double fadetime, double f
 OnePole_SetFrequency
 ==============
 */
-
-void __fastcall OnePole_SetFrequency(OnePoleFilter_t *p_state, double freq, double sampleRate, bool setImmediate)
+void OnePole_SetFrequency(OnePoleFilter_t *p_state, float freq, float sampleRate, bool setImmediate)
 {
-  __asm
-  {
-    vmovaps xmm0, xmm1; val
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-    vmulss  xmm2, xmm2, cs:__real@3f000000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  _RDI = p_state;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@c0c90fdb
-    vdivss  xmm0, xmm1, xmm6; X
-  }
-  *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000
-    vsubss  xmm5, xmm3, xmm0
-    vmovaps xmm4, xmm0
-  }
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+
+  v6 = I_fclamp(freq, 0.0, sampleRate * 0.5);
+  v7 = expf_0((float)(*(float *)&v6 * -6.2831855) / sampleRate);
+  v8 = 1.0 - v7;
   if ( setImmediate )
   {
-    __asm
-    {
-      vsubss  xmm1, xmm3, dword ptr [rdi+8]
-      vmovss  dword ptr [rdi+10h], xmm5
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rdi+0Ch], xmm2
-      vsubss  xmm0, xmm3, dword ptr [rdi+14h]
-      vmulss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rdi+18h], xmm1
-      vmovss  dword ptr [rdi+1Ch], xmm4
-    }
-    *(_QWORD *)&_RDI->m_delay = 0i64;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    v9 = 1.0 - p_state->m_a.A;
+    p_state->m_a.currentVal = v8;
+    p_state->m_a.precalcB = v9 * v8;
+    p_state->m_b.precalcB = (float)(1.0 - p_state->m_b.A) * v7;
+    p_state->m_b.currentVal = v7;
+    *(_QWORD *)&p_state->m_delay = 0i64;
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm3, dword ptr [rdi+8]
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rdi+0Ch], xmm1
-      vsubss  xmm0, xmm3, dword ptr [rdi+14h]
-      vmulss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rdi+18h], xmm1
-    }
+    p_state->m_a.precalcB = (float)(1.0 - p_state->m_a.A) * (float)(1.0 - v7);
+    p_state->m_b.precalcB = (float)(1.0 - p_state->m_b.A) * v7;
   }
 }
 
@@ -209,110 +148,58 @@ SND_ApplyEQBankParams
 */
 void SND_ApplyEQBankParams(SndEQBank *p_bank, const SndEQBankParams *p_bankParams)
 {
-  char v9; 
-  __int64 v10; 
-  __int64 v11; 
-  char v12; 
-  unsigned int v17; 
-  bool v18; 
-  float v24; 
-  float v25; 
+  float *p_q; 
+  float *p_gain; 
+  char v5; 
+  __int64 v6; 
+  __int64 v7; 
+  char v8; 
+  int v9; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RBX = &p_bankParams->params[0][0].q;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@46bb8000
-    vmovaps [rsp+68h+var_38], xmm7
-  }
-  _RDI = &p_bank->eq[0][0].curParams.gain;
-  __asm { vmovss  xmm7, cs:__real@473b8000 }
-  v9 = 0;
-  v10 = 2i64;
+  p_q = &p_bankParams->params[0][0].q;
+  p_gain = &p_bank->eq[0][0].curParams.gain;
+  v5 = 0;
+  v6 = 2i64;
   do
   {
-    v11 = 2i64;
+    v7 = 2i64;
     do
     {
-      v12 = *((_BYTE *)_RBX + 4);
-      if ( v12 )
+      v8 = *((_BYTE *)p_q + 4);
+      if ( v8 )
       {
-        if ( v12 != *((_BYTE *)_RDI + 12) )
-          goto LABEL_9;
-        __asm
+        if ( v8 != *((_BYTE *)p_gain + 12) || p_gain[1] != *(p_q - 1) || *p_gain != *(p_q - 2) || p_gain[2] != *p_q || *((_DWORD *)p_q - 3) != *((_DWORD *)p_gain - 1) )
         {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vucomiss xmm0, dword ptr [rbx-4]
-        }
-        if ( v12 != *((_BYTE *)_RDI + 12) )
-          goto LABEL_9;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vucomiss xmm0, dword ptr [rbx-8]
-        }
-        if ( v12 != *((_BYTE *)_RDI + 12) )
-          goto LABEL_9;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+8]
-          vucomiss xmm0, dword ptr [rbx]
-        }
-        if ( v12 != *((_BYTE *)_RDI + 12) || *((_DWORD *)_RBX - 3) != *((_DWORD *)_RDI - 1) )
-        {
-LABEL_9:
-          __asm
+          *(_OWORD *)(p_gain - 1) = *(_OWORD *)(p_q - 3);
+          p_gain[3] = p_q[1];
+          v9 = *((_DWORD *)p_q - 3);
+          if ( (!v9 || v9 == 3) && *(p_q - 1) >= 24000.0 )
           {
-            vmovups xmm0, xmmword ptr [rbx-0Ch]
-            vmovups xmmword ptr [rdi-4], xmm0
+            v8 = 0;
+            goto LABEL_16;
           }
-          _RDI[3] = _RBX[1];
-          v17 = *((_DWORD *)_RBX - 3);
-          v18 = v17 == 0;
-          if ( !v17 || (v18 = v17 <= 3, v17 == 3) )
-          {
-            __asm { vcomiss xmm6, dword ptr [rbx-4] }
-            if ( v18 )
-            {
-              v12 = 0;
-              goto LABEL_16;
-            }
-          }
-          *(_QWORD *)(_RDI - 5) = 0i64;
-          *(_QWORD *)(_RDI - 3) = 0i64;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-8]
-            vmovss  xmm3, dword ptr [rbx]; q
-            vmovss  xmm2, dword ptr [rbx-4]; freq
-            vmovss  [rsp+68h+var_40], xmm7
-            vmovss  [rsp+68h+var_48], xmm0
-          }
-          SND_CalcBiquadCoefficientsAtRate((SndBiquadCoeffs *const)_RDI - 2, *((SND_EQTYPE *)_RBX - 3), *(float *)&_XMM2, *(float *)&_XMM3, v24, v25);
-          v12 = *((_BYTE *)_RBX + 4);
+          *(_QWORD *)(p_gain - 5) = 0i64;
+          *(_QWORD *)(p_gain - 3) = 0i64;
+          SND_CalcBiquadCoefficientsAtRate((SndBiquadCoeffs *const)p_gain - 2, *((SND_EQTYPE *)p_q - 3), *(p_q - 1), *p_q, *(p_q - 2), 48000.0);
+          v8 = *((_BYTE *)p_q + 4);
         }
-        v9 |= v12;
+        v5 |= v8;
       }
       else
       {
-        v12 = 0;
+        v8 = 0;
       }
 LABEL_16:
-      *((_BYTE *)_RDI + 12) = v12;
-      _RBX += 5;
-      _RDI += 14;
-      --v11;
+      *((_BYTE *)p_gain + 12) = v8;
+      p_q += 5;
+      p_gain += 14;
+      --v7;
     }
-    while ( v11 );
-    --v10;
+    while ( v7 );
+    --v6;
   }
-  while ( v10 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
-  }
-  p_bank->isAnyEqBandEnabled = v9;
+  while ( v6 );
+  p_bank->isAnyEqBandEnabled = v5;
 }
 
 /*
@@ -320,41 +207,15 @@ LABEL_16:
 SND_ApplyFilterHPFFrequency
 ==============
 */
-
-void __fastcall SND_ApplyFilterHPFFrequency(SndFilter *filter, double freq)
+void SND_ApplyFilterHPFFrequency(SndFilter *filter, const float freq)
 {
-  bool v5; 
-  bool v6; 
-  float fmt; 
-  float rate; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = filter;
-  __asm { vmovaps xmm6, xmm1 }
-  v5 = filter == NULL;
-  if ( !filter )
+  if ( !filter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 284, ASSERT_TYPE_ASSERT, "(filter)", (const char *)&queryFormat, "filter") )
+    __debugbreak();
+  if ( freq != filter->curFreq )
   {
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 284, ASSERT_TYPE_ASSERT, "(filter)", (const char *)&queryFormat, "filter");
-    v5 = !v6;
-    if ( v6 )
-      __debugbreak();
+    filter->curFreq = freq;
+    SND_CalcBiquadCoefficientsAtRate(&filter->coeffs, SND_EQTYPE_HIGHPASS, freq, 0.70710677, 1.0, 48000.0);
   }
-  __asm { vucomiss xmm6, dword ptr [rbx+24h] }
-  if ( !v5 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@473b8000
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm3, cs:__real@3f3504f3; q
-      vmovss  [rsp+48h+rate], xmm0
-      vmovaps xmm2, xmm6; freq
-      vmovss  dword ptr [rsp+48h+fmt], xmm1
-      vmovss  dword ptr [rbx+24h], xmm6
-    }
-    SND_CalcBiquadCoefficientsAtRate(&_RBX->coeffs, SND_EQTYPE_HIGHPASS, *(float *)&_XMM2, *(float *)&_XMM3, fmt, rate);
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -362,41 +223,15 @@ void __fastcall SND_ApplyFilterHPFFrequency(SndFilter *filter, double freq)
 SND_ApplyFilterLPFFrequency
 ==============
 */
-
-void __fastcall SND_ApplyFilterLPFFrequency(SndFilter *filter, double freq)
+void SND_ApplyFilterLPFFrequency(SndFilter *filter, const float freq)
 {
-  bool v5; 
-  bool v6; 
-  float fmt; 
-  float rate; 
-
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = filter;
-  __asm { vmovaps xmm6, xmm1 }
-  v5 = filter == NULL;
-  if ( !filter )
+  if ( !filter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 272, ASSERT_TYPE_ASSERT, "(filter)", (const char *)&queryFormat, "filter") )
+    __debugbreak();
+  if ( freq != filter->curFreq )
   {
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 272, ASSERT_TYPE_ASSERT, "(filter)", (const char *)&queryFormat, "filter");
-    v5 = !v6;
-    if ( v6 )
-      __debugbreak();
+    filter->curFreq = freq;
+    SND_CalcBiquadCoefficientsAtRate(&filter->coeffs, SND_EQTYPE_FIRST, freq, 0.70710677, 1.0, 48000.0);
   }
-  __asm { vucomiss xmm6, dword ptr [rbx+24h] }
-  if ( !v5 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@473b8000
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm3, cs:__real@3f3504f3; q
-      vmovss  [rsp+48h+rate], xmm0
-      vmovaps xmm2, xmm6; freq
-      vmovss  dword ptr [rsp+48h+fmt], xmm1
-      vmovss  dword ptr [rbx+24h], xmm6
-    }
-    SND_CalcBiquadCoefficientsAtRate(&_RBX->coeffs, SND_EQTYPE_FIRST, *(float *)&_XMM2, *(float *)&_XMM3, fmt, rate);
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -404,261 +239,138 @@ void __fastcall SND_ApplyFilterLPFFrequency(SndFilter *filter, double freq)
 SND_CalcBiquadCoefficientsAtRate
 ==============
 */
-
-void __fastcall SND_CalcBiquadCoefficientsAtRate(SndBiquadCoeffs *const coeffs, SND_EQTYPE type, double freq, double q, const float gain)
+void SND_CalcBiquadCoefficientsAtRate(SndBiquadCoeffs *const coeffs, SND_EQTYPE type, float freq, float q, const float gain, const float rate)
 {
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
-  bool v43; 
-  bool v44; 
-  __int32 v45; 
-  __int32 v46; 
-  __int32 v47; 
-  double v143; 
-  char v147; 
-  void *retaddr; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  double v12; 
+  float v13; 
+  float v14; 
+  double v15; 
+  int v16; 
+  float v17; 
+  __int32 v18; 
+  __int32 v19; 
+  __int32 v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
-  _RDI = coeffs;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps [rsp+0D8h+var_A8], xmm15
-    vmovaps xmm7, xmm3
-    vmovaps xmm9, xmm2
-  }
   if ( !coeffs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 18, ASSERT_TYPE_ASSERT, "(coeffs)", (const char *)&queryFormat, "coeffs") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm2, xmm8, [rsp+0D8h+rate]; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm9; val
-    vxorps  xmm15, xmm15, xmm15
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vdivss  xmm1, xmm0, [rsp+0D8h+rate]
-    vmulss  xmm3, xmm1, cs:__real@40c90fdb
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm0, xmm2, xmm3
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v31, v30, v32, v33);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3a83126f; min
-    vmovups xmm6, xmm0
-    vshufps xmm14, xmm0, xmm0, 1
-    vmovaps xmm2, xmm11; max
-    vmovaps xmm0, xmm7; val
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm7, xmm1, xmm6
-  }
-  v43 = 0;
-  v44 = type == SND_EQTYPE_FIRST;
+  I_fclamp(freq, 0.0, 0.5 * rate);
+  v12 = j___libm_sse2_sincosf_(v9, v8, v10, v11);
+  v13 = *(float *)&v12;
+  LODWORD(v14) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v12, (__m128)*(unsigned __int64 *)&v12, 1).m128_u32[0];
+  v15 = I_fclamp(q, 0.001, 1.0);
+  v16 = _xmm;
+  v17 = (float)(0.5 / *(float *)&v15) * v13;
   if ( type == SND_EQTYPE_FIRST )
   {
-    __asm
-    {
-      vsubss  xmm13, xmm11, xmm14
-      vmulss  xmm12, xmm13, xmm8
-    }
+    v22 = 1.0 - v14;
+    v21 = (float)(1.0 - v14) * 0.5;
     goto LABEL_15;
   }
-  v43 = type == SND_EQTYPE_FIRST;
-  v45 = type - 1;
-  v44 = v45 == 0;
-  if ( !v45 )
+  v18 = type - 1;
+  if ( !v18 )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm14, xmm11
-      vaddss  xmm1, xmm14, xmm11
-      vmulss  xmm12, xmm0, xmm8
-      vxorps  xmm13, xmm1, xmm10
-    }
+    v21 = (float)(v14 + 1.0) * 0.5;
+    LODWORD(v22) = COERCE_UNSIGNED_INT(v14 + 1.0) ^ _xmm;
 LABEL_15:
-    __asm
-    {
-      vmulss  xmm9, xmm14, cs:__real@c0000000
-      vaddss  xmm6, xmm7, xmm11
-      vsubss  xmm7, xmm11, xmm7
-      vmovaps xmm8, xmm12
-    }
+    v25 = v14 * -2.0;
+    v24 = v17 + 1.0;
+    v26 = 1.0 - v17;
+    v23 = v21;
     goto LABEL_16;
   }
-  v46 = v45 - 1;
-  if ( v46 )
+  v19 = v18 - 1;
+  if ( v19 )
   {
-    v47 = v46 - 1;
-    if ( v47 )
+    v20 = v19 - 1;
+    if ( v20 )
     {
-      if ( v47 != 1 )
+      if ( v20 != 1 )
       {
-        __asm
-        {
-          vmovaps xmm12, xmm11
-          vxorps  xmm13, xmm13, xmm13
-          vxorps  xmm8, xmm8, xmm8
-          vmovaps xmm6, xmm11
-          vxorps  xmm9, xmm9, xmm9
-          vxorps  xmm7, xmm7, xmm7
-        }
+        v21 = FLOAT_1_0;
+        v22 = 0.0;
+        v23 = 0.0;
+        v24 = FLOAT_1_0;
+        v25 = 0.0;
+        v26 = 0.0;
         goto LABEL_19;
       }
-      __asm
-      {
-        vmovss  xmm0, [rsp+0D8h+gain]
-        vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-        vmovss  xmm0, cs:__real@41200000; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm13, xmm14, cs:__real@c0000000
-        vmulss  xmm1, xmm0, xmm7
-        vdivss  xmm0, xmm7, xmm0
-        vaddss  xmm6, xmm0, xmm11
-        vsubss  xmm7, xmm11, xmm0
-        vaddss  xmm12, xmm1, xmm11
-        vsubss  xmm8, xmm11, xmm1
-        vmovaps xmm9, xmm13
-      }
+      v27 = powf_0(10.0, gain * 0.025);
+      v22 = v14 * -2.0;
+      v28 = v27 * v17;
+      v29 = v17 / v27;
+      v24 = v29 + 1.0;
+      v26 = 1.0 - v29;
+      v21 = v28 + 1.0;
+      v23 = 1.0 - v28;
+      v25 = v14 * -2.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+0D8h+gain]
-        vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-        vmovss  xmm0, cs:__real@41200000; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vaddss  xmm5, xmm0, xmm11
-        vmovaps xmm8, xmm0
-        vsqrtss xmm1, xmm8, xmm0
-        vmulss  xmm2, xmm1, xmm7
-        vmulss  xmm10, xmm2, cs:__real@40000000
-        vsubss  xmm7, xmm0, xmm11
-        vmulss  xmm6, xmm7, xmm14
-        vaddss  xmm3, xmm6, xmm5
-        vaddss  xmm1, xmm3, xmm10
-        vmulss  xmm12, xmm1, xmm0
-        vmulss  xmm4, xmm5, xmm14
-        vaddss  xmm2, xmm4, xmm7
-        vmulss  xmm1, xmm2, xmm0
-        vmulss  xmm13, xmm1, cs:__real@c0000000
-        vsubss  xmm0, xmm3, xmm10
-        vsubss  xmm1, xmm5, xmm6
-        vmulss  xmm8, xmm0, xmm8
-        vsubss  xmm0, xmm7, xmm4
-        vmulss  xmm9, xmm0, cs:__real@40000000
-        vaddss  xmm6, xmm1, xmm10
-        vsubss  xmm7, xmm1, xmm10
-        vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
+      v30 = powf_0(10.0, gain * 0.025);
+      v31 = (float)(fsqrt(v30) * v17) * 2.0;
+      v32 = (float)(v30 - 1.0) * v14;
+      v33 = v32 + (float)(v30 + 1.0);
+      v21 = (float)(v33 + v31) * v30;
+      v34 = (float)(v30 + 1.0) * v14;
+      v22 = (float)((float)(v34 + (float)(v30 - 1.0)) * v30) * -2.0;
+      v35 = (float)(v30 + 1.0) - v32;
+      v23 = (float)(v33 - v31) * v30;
+      v25 = (float)((float)(v30 - 1.0) - v34) * 2.0;
+      v24 = v35 + v31;
+      v26 = v35 - v31;
+      v16 = _xmm;
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+0D8h+gain]
-      vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-      vmovss  xmm0, cs:__real@41200000; X
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@40000000
-      vaddss  xmm6, xmm0, xmm11
-      vmovaps xmm8, xmm0
-      vsqrtss xmm1, xmm8, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vmulss  xmm10, xmm2, xmm9
-      vsubss  xmm7, xmm0, xmm11
-      vmulss  xmm5, xmm7, xmm14
-      vsubss  xmm3, xmm6, xmm5
-      vmulss  xmm4, xmm6, xmm14
-      vaddss  xmm1, xmm3, xmm10
-      vmulss  xmm12, xmm1, xmm0
-      vsubss  xmm2, xmm7, xmm4
-      vmulss  xmm1, xmm2, xmm0
-      vsubss  xmm0, xmm3, xmm10
-      vmulss  xmm13, xmm1, xmm9
-      vmulss  xmm1, xmm7, cs:__real@c0000000
-      vaddss  xmm2, xmm5, xmm6
-      vmulss  xmm8, xmm0, xmm8
-      vmulss  xmm0, xmm4, xmm9
-      vaddss  xmm6, xmm2, xmm10
-      vsubss  xmm7, xmm2, xmm10
-      vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      vsubss  xmm9, xmm1, xmm0
-    }
+    v36 = powf_0(10.0, gain * 0.025);
+    v37 = (float)(fsqrt(v36) * v17) * 2.0;
+    v38 = (float)(v36 - 1.0) * v14;
+    v39 = (float)(v36 + 1.0) - v38;
+    v40 = (float)(v36 + 1.0) * v14;
+    v21 = (float)(v39 + v37) * v36;
+    v22 = (float)((float)((float)(v36 - 1.0) - v40) * v36) * 2.0;
+    v41 = v38 + (float)(v36 + 1.0);
+    v23 = (float)(v39 - v37) * v36;
+    v24 = v41 + v37;
+    v26 = v41 - v37;
+    v16 = _xmm;
+    v25 = (float)((float)(v36 - 1.0) * -2.0) - (float)(v40 * 2.0);
   }
 LABEL_16:
-  __asm { vcomiss xmm6, xmm15 }
-  if ( v43 || v44 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_B0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 119, ASSERT_TYPE_ASSERT, "( ( a[0] > 0 ) )", "( a[0] ) = %g", v143) )
-      __debugbreak();
-  }
+  if ( v24 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\com_snd_biquad_eq.cpp", 119, ASSERT_TYPE_ASSERT, "( ( a[0] > 0 ) )", "( a[0] ) = %g", v24) )
+    __debugbreak();
 LABEL_19:
-  __asm { vmovaps xmm14, [rsp+0D8h+var_98] }
-  _R11 = &v147;
-  __asm
-  {
-    vmovaps xmm15, [rsp+0D8h+var_A8]
-    vdivss  xmm3, xmm11, xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmulss  xmm0, xmm3, xmm12
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmulss  xmm1, xmm3, xmm13
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm0, xmm3, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm1, xmm3, xmm9
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vxorps  xmm2, xmm1, xmm10
-    vmovss  dword ptr [rdi+8], xmm0
-    vmulss  xmm0, xmm3, xmm7
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vxorps  xmm1, xmm0, xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmovss  dword ptr [rdi+0Ch], xmm2
-  }
+  coeffs->a0 = (float)(1.0 / v24) * v21;
+  coeffs->a1 = (float)(1.0 / v24) * v22;
+  coeffs->a2 = (float)(1.0 / v24) * v23;
+  coeffs->a4 = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / v24) * v26) ^ v16);
+  coeffs->a3 = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / v24) * v25) ^ v16);
 }
 
 /*
@@ -707,38 +419,33 @@ SND_InitEQBankParams
 */
 void SND_InitEQBankParams(SndEQBankParams *p_params)
 {
+  SndEqParams (*params)[2]; 
+  __int64 v2; 
   __int64 v4; 
-  __int64 v7; 
-  __int128 v8; 
-  int v9; 
+  __int128 v5; 
+  int v6; 
 
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  _RAX = p_params->params;
-  __asm
-  {
-    vmovss  dword ptr [rsp+28h+var_28+4], xmm0
-    vmovss  dword ptr [rsp+28h+var_28+0Ch], xmm0
-    vmovss  xmm0, cs:__real@46bb8000
-    vmovss  dword ptr [rsp+28h+var_28+8], xmm0
-  }
-  LODWORD(v8) = 0;
-  v4 = 2i64;
-  __asm { vmovups xmm0, [rsp+28h+var_28] }
-  LOBYTE(v9) = 0;
+  params = p_params->params;
+  *((float *)&v5 + 1) = FLOAT_1_0;
+  *((float *)&v5 + 3) = FLOAT_1_0;
+  *((float *)&v5 + 2) = FLOAT_24000_0;
+  LODWORD(v5) = 0;
+  v2 = 2i64;
+  LOBYTE(v6) = 0;
   do
   {
-    v7 = 2i64;
+    v4 = 2i64;
     do
     {
-      __asm { vmovups xmmword ptr [rax], xmm0 }
-      *(_DWORD *)&(*_RAX)[0].enabled = v9;
-      _RAX = (SndEqParams (*)[2])((char *)_RAX + 20);
-      --v7;
+      *(_OWORD *)params = v5;
+      *(_DWORD *)&(*params)[0].enabled = v6;
+      params = (SndEqParams (*)[2])((char *)params + 20);
+      --v4;
     }
-    while ( v7 );
-    --v4;
+    while ( v4 );
+    --v2;
   }
-  while ( v4 );
+  while ( v2 );
   p_params->eqLerp = 0.0;
 }
 

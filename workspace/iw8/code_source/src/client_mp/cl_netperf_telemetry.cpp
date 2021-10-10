@@ -129,34 +129,26 @@ ClNetperfTelemetry::Frame
 */
 void ClNetperfTelemetry::Frame(ClNetperfTelemetry *this)
 {
-  unsigned __int64 v3; 
-  bool v4; 
+  unsigned __int64 v2; 
+  bool v3; 
   ClConnectionDataMP *ConnectionDataMP; 
 
   if ( ClNetperfTelemetry::IsEnabled(this) )
   {
-    v3 = __rdtsc();
+    v2 = __rdtsc();
     if ( this->m_frameTimer.m_started )
     {
-      v4 = (__int64)(v3 - this->m_frameTimer.m_ticks) < 0;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rcx
-      }
-      this->m_frameTimer.m_ticks = v3;
-      if ( v4 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm
-      {
-        vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; value
-        vmovsd  xmm2, cs:__real@3ff0000000000000; weight
-      }
-      DLogTDigest<20,8>::Add(&this->m_digests[4], *(long double *)&_XMM1, *(long double *)&_XMM2);
+      v3 = (__int64)(v2 - this->m_frameTimer.m_ticks) < 0;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rcx }
+      this->m_frameTimer.m_ticks = v2;
+      if ( v3 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      DLogTDigest<20,8>::Add(&this->m_digests[4], *(double *)&_XMM0 * msecPerRawTimerTick, 1.0);
     }
     else
     {
-      this->m_frameTimer.m_ticks = v3;
+      this->m_frameTimer.m_ticks = v2;
       this->m_frameTimer.m_started = 1;
     }
     ConnectionDataMP = ClConnectionMP::GetConnectionDataMP(this->m_conn);
@@ -278,13 +270,9 @@ ClNetperfTelemetry::TrackPing
 */
 void ClNetperfTelemetry::TrackPing(ClNetperfTelemetry *this, int value)
 {
-  __asm
-  {
-    vmovsd  xmm2, cs:__real@3ff0000000000000; weight
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, edx; value
-  }
-  DLogTDigest<20,8>::Add(&this->m_digests[5], *(long double *)&_XMM1, *(long double *)&_XMM2);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, edx; value }
+  DLogTDigest<20,8>::Add(&this->m_digests[5], *(long double *)&_XMM1, 1.0);
 }
 
 /*
@@ -305,66 +293,36 @@ ClNetperfTelemetry::TrackUsercmd
 */
 void ClNetperfTelemetry::TrackUsercmd(ClNetperfTelemetry *this, int count, int size, bool valid)
 {
-  unsigned __int64 v9; 
-  bool v10; 
+  unsigned __int64 v7; 
+  bool v8; 
 
   if ( ClNetperfTelemetry::IsEnabled(this) )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovsd  xmm6, cs:__real@3ff0000000000000
-    }
-    v9 = __rdtsc();
+    v7 = __rdtsc();
     if ( this->m_usercmdTimer.m_started )
     {
-      v10 = (__int64)(v9 - this->m_usercmdTimer.m_ticks) < 0;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rcx
-      }
-      this->m_usercmdTimer.m_ticks = v9;
-      if ( v10 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm
-      {
-        vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; value
-        vmovaps xmm2, xmm6; weight
-      }
-      DLogTDigest<20,8>::Add(&this->m_digests[1], *(long double *)&_XMM1, *(long double *)&_XMM2);
+      v8 = (__int64)(v7 - this->m_usercmdTimer.m_ticks) < 0;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rcx }
+      this->m_usercmdTimer.m_ticks = v7;
+      if ( v8 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      DLogTDigest<20,8>::Add(&this->m_digests[1], *(double *)&_XMM0 * msecPerRawTimerTick, 1.0);
     }
     else
     {
-      this->m_usercmdTimer.m_ticks = v9;
+      this->m_usercmdTimer.m_ticks = v7;
       this->m_usercmdTimer.m_started = 1;
     }
     ClConnectionMP::GetConnectionDataMP(this->m_conn);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     this->m_usercmdsInvalid += !valid;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, ebp
-      vmulss  xmm1, xmm0, cs:__real@3a800000
-      vcvtss2sd xmm1, xmm1, xmm1; value
-      vmovaps xmm2, xmm6; weight
-    }
-    DLogTDigest<20,8>::Add(&this->m_digests[3], *(long double *)&_XMM1, *(long double *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, r14d; value
-      vmovaps xmm2, xmm6; weight
-    }
-    DLogTDigest<20,8>::Add(&this->m_digests[2], *(long double *)&_XMM1, *(long double *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, eax; value
-      vmovaps xmm2, xmm6; weight
-    }
-    DLogTDigest<20,8>::Add(this->m_digests, *(long double *)&_XMM1, *(long double *)&_XMM2);
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    DLogTDigest<20,8>::Add(&this->m_digests[3], (float)((float)size * 0.0009765625), 1.0);
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, r14d; value }
+    DLogTDigest<20,8>::Add(&this->m_digests[2], *(long double *)&_XMM1, 1.0);
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, eax; value }
+    DLogTDigest<20,8>::Add(this->m_digests, *(long double *)&_XMM1, 1.0);
   }
 }
 

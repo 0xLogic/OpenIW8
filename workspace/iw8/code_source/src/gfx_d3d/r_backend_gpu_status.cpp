@@ -135,22 +135,17 @@ R_BackendGpuStatus_Init
 */
 void R_BackendGpuStatus_Init(void)
 {
-  unsigned __int64 *v1; 
-  GfxBufferCreationContext v2; 
+  unsigned __int64 *v0; 
+  GfxBufferCreationContext v1; 
 
-  v2.zoneName = (char *)&queryFormat.fmt + 3;
-  v2.objectName = "Backend Status Labels";
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+38h+var_18.zoneName]
-    vmovdqa xmmword ptr [rsp+38h+var_18.zoneName], xmm0
-  }
-  v1 = (unsigned __int64 *)R_AllocGfxBufferMemory(0x20u, &v2);
-  g_backEndStatusLabels = v1;
-  *v1 = 0xFFFFFFFFi64;
-  v1[1] = 0xFFFFFFFFi64;
-  v1[2] = 0xFFFFFFFFi64;
-  v1[3] = 0xFFFFFFFFi64;
+  v1.zoneName = (char *)&queryFormat.fmt + 3;
+  v1.objectName = "Backend Status Labels";
+  v0 = (unsigned __int64 *)R_AllocGfxBufferMemory(0x20u, &v1);
+  g_backEndStatusLabels = v0;
+  *v0 = 0xFFFFFFFFi64;
+  v0[1] = 0xFFFFFFFFi64;
+  v0[2] = 0xFFFFFFFFi64;
+  v0[3] = 0xFFFFFFFFi64;
 }
 
 /*

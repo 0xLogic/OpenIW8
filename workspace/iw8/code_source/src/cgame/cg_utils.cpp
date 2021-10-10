@@ -753,16 +753,16 @@ void CG_Utils_GetActiveWeaponState(LocalClientNum_t localClientNum, const player
   CgWeaponSystem *v14; 
   unsigned int number; 
   const characterInfo_t *CharacterInfo; 
+  const Weapon *ViewmodelWeapon; 
   bool inAltWeaponMode; 
   bool isWeaponDefault; 
-  __int64 v23; 
-  __int64 v24; 
+  __int64 v20; 
+  __int64 v21; 
 
   v8 = localClientNum;
-  _RBP = weapon;
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 116, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 117, ASSERT_TYPE_ASSERT, "(weapon)", (const char *)&queryFormat, "weapon") )
+  if ( !weapon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 117, ASSERT_TYPE_ASSERT, "(weapon)", (const char *)&queryFormat, "weapon") )
     __debugbreak();
   if ( !isViewModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 118, ASSERT_TYPE_ASSERT, "(isViewModel)", (const char *)&queryFormat, "isViewModel") )
     __debugbreak();
@@ -781,15 +781,15 @@ void CG_Utils_GetActiveWeaponState(LocalClientNum_t localClientNum, const player
     __debugbreak();
   if ( (unsigned int)v8 >= CgWeaponSystem::ms_allocatedCount )
   {
-    LODWORD(v24) = CgWeaponSystem::ms_allocatedCount;
-    LODWORD(v23) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v23, v24) )
+    LODWORD(v21) = CgWeaponSystem::ms_allocatedCount;
+    LODWORD(v20) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v20, v21) )
       __debugbreak();
   }
   if ( !CgWeaponSystem::ms_weaponSystemArray[v12] )
   {
-    LODWORD(v24) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v24) )
+    LODWORD(v21) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v21) )
       __debugbreak();
   }
   v14 = CgWeaponSystem::ms_weaponSystemArray[v12];
@@ -804,23 +804,17 @@ void CG_Utils_GetActiveWeaponState(LocalClientNum_t localClientNum, const player
     *isViewModel = 0;
     if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    _RAX = BgWeaponMap::GetWeapon(v13, es->weaponHandle);
+    ViewmodelWeapon = BgWeaponMap::GetWeapon(v13, es->weaponHandle);
   }
   else
   {
     *isViewModel = 1;
-    _RAX = BG_GetViewmodelWeapon(v13, ps);
+    ViewmodelWeapon = BG_GetViewmodelWeapon(v13, ps);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbp+20h], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rbp+30h], xmm0
-  }
-  *(_DWORD *)&_RBP->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  *(__m256i *)&weapon->weaponIdx = *(__m256i *)&ViewmodelWeapon->weaponIdx;
+  *(_OWORD *)&weapon->attachmentVariationIndices[5] = *(_OWORD *)&ViewmodelWeapon->attachmentVariationIndices[5];
+  *(double *)&weapon->attachmentVariationIndices[21] = *(double *)&ViewmodelWeapon->attachmentVariationIndices[21];
+  *(_DWORD *)&weapon->weaponCamo = *(_DWORD *)&ViewmodelWeapon->weaponCamo;
   if ( *isViewModel )
     inAltWeaponMode = BG_UsingAlternate(ps);
   else
@@ -829,7 +823,7 @@ void CG_Utils_GetActiveWeaponState(LocalClientNum_t localClientNum, const player
   if ( *isViewModel )
     isWeaponDefault = LocalClientGlobals->playerWeaponInfo.isWeaponDefault;
   else
-    isWeaponDefault = !v14->IsWeaponWorldModelLoaded(v14, _RBP);
+    isWeaponDefault = !v14->IsWeaponWorldModelLoaded(v14, weapon);
   *isDefaultModel = isWeaponDefault;
 }
 
@@ -929,23 +923,18 @@ CG_Utils_GetHudOutlineColorVector
 void CG_Utils_GetHudOutlineColorVector(unsigned int index, vec4_t *outColorVector)
 {
   __int64 v2; 
+  const dvar_t *v4; 
 
   v2 = index;
-  _RDI = outColorVector;
   if ( index >= 0xC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 932, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( HUD_OUTLINE_COLOR_MAX )", "index doesn't index HUD_OUTLINE_COLOR_MAX\n\t%i not in [0, %i)", index, 12) )
     __debugbreak();
-  _RBX = cg_hud_outline_colors[v2];
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 683, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
+  v4 = cg_hud_outline_colors[v2];
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 683, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovd   xmm0, dword ptr [rbx+28h]
-    vpmovzxbd xmm1, xmm0
-    vcvtdq2ps xmm3, xmm1
-    vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  _XMM0 = v4->current.unsignedInt;
+  __asm { vpmovzxbd xmm1, xmm0 }
+  *(__m128 *)outColorVector = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
 }
 
 /*
@@ -955,116 +944,88 @@ CG_Utils_GetHudOutlineTeamColor
 */
 __int64 CG_Utils_GetHudOutlineTeamColor(CgGlobalsMP *cgameGlobMP, const LocalClientNum_t localClientNum, const team_t team, bool fade)
 {
-  __int64 v6; 
-  CgCompassSystemMP *v9; 
+  __int64 v5; 
+  CgCompassSystemMP *v8; 
   CgMLGSpectator *MLGSpectator; 
-  unsigned int OutlineFadeTime; 
-  unsigned int time; 
-  bool v13; 
-  unsigned int v29; 
+  int OutlineFadeTime; 
+  int time; 
+  __int128 v13; 
+  unsigned int v15; 
+  int integer; 
   HudOutlineColor PlayerOutlineColor; 
-  __int64 v32; 
-  const dvar_t *v33; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v18; 
+  const dvar_t *v19; 
+  __int64 v21; 
+  __int64 v22; 
   vec4_t color; 
 
-  v6 = localClientNum;
+  v5 = localClientNum;
   if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", localClientNum, 2, (unsigned __int8)CgCompassSystem::ms_allocatedType) )
     __debugbreak();
-  if ( (unsigned int)v6 >= CgCompassSystem::ms_allocatedCount )
+  if ( (unsigned int)v5 >= CgCompassSystem::ms_allocatedCount )
   {
-    LODWORD(v36) = CgCompassSystem::ms_allocatedCount;
-    LODWORD(v35) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v22) = CgCompassSystem::ms_allocatedCount;
+    LODWORD(v21) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v21, v22) )
       __debugbreak();
   }
-  if ( !CgCompassSystem::ms_compassSystemArray[v6] )
+  if ( !CgCompassSystem::ms_compassSystemArray[v5] )
   {
-    LODWORD(v36) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v36) )
+    LODWORD(v22) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v22) )
       __debugbreak();
   }
-  v9 = (CgCompassSystemMP *)CgCompassSystem::ms_compassSystemArray[v6];
-  MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)v6);
-  if ( CgCompassSystemMP::GetTeamCompassColor(v9, cgameGlobMP, team, &color) )
+  v8 = (CgCompassSystemMP *)CgCompassSystem::ms_compassSystemArray[v5];
+  MLGSpectator = CgMLGSpectator::GetMLGSpectator((const LocalClientNum_t)v5);
+  if ( CgCompassSystemMP::GetTeamCompassColor(v8, cgameGlobMP, team, &color) )
   {
     if ( fade )
     {
       OutlineFadeTime = CgMLGSpectator::GetOutlineFadeTime(MLGSpectator);
-      time = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v6)->time;
-      v13 = OutlineFadeTime <= time;
-      if ( (int)OutlineFadeTime < (int)time )
+      time = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v5)->time;
+      if ( OutlineFadeTime < time )
       {
-        __asm
-        {
-          vmovss  xmm1, cs:__real@3f800000
-          vxorps  xmm0, xmm0, xmm0
-        }
-        v13 = time <= OutlineFadeTime;
-        __asm
-        {
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm2, xmm0, cs:__real@3a2ec33e
-          vsubss  xmm0, xmm1, xmm2
-        }
+        v13 = LODWORD(FLOAT_1_0);
+        *(float *)&v13 = 1.0 - (float)((float)(time - OutlineFadeTime) * 0.00066666666);
+        _XMM0 = v13;
       }
       else
       {
-        __asm { vmovss  xmm0, cs:__real@3f800000 }
+        _XMM0 = LODWORD(FLOAT_1_0);
       }
-      __asm
+      __asm { vminss  xmm1, xmm0, [rsp+0A8h+outsideFade] }
+      if ( *(float *)&_XMM1 <= 0.0 )
       {
-        vminss  xmm1, xmm0, [rsp+0A8h+outsideFade]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm1, xmm0
-      }
-      if ( v13 )
-      {
-        __asm
-        {
-          vshufps xmm1, xmm0, xmm0, 0FFh
-          vmovups xmmword ptr [rsp+0A8h+color], xmm0
-        }
+        LODWORD(_XMM1) = _mm_shuffle_ps((__m128)0i64, (__m128)0i64, 255).m128_u32[0];
+        color = 0i64;
       }
     }
     else
     {
-      __asm { vmovss  xmm1, dword ptr [rsp+0A8h+color+0Ch] }
+      *(float *)&_XMM1 = color.v[3];
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@437f0000
-      vmulss  xmm0, xmm1, xmm2
-      vmulss  xmm1, xmm2, dword ptr [rsp+0A8h+color+4]
-      vcvttss2si rcx, xmm1
-      vmulss  xmm1, xmm2, dword ptr [rsp+0A8h+color]
-      vcvttss2si rdx, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsp+0A8h+color+8]
-      vcvttss2si rax, xmm0
-    }
-    v29 = ((unsigned int)_RCX | ((((_DWORD)_RDX << 8) | (unsigned int)_RAX) << 8)) << 8;
-    __asm { vcvttss2si rcx, xmm1 }
+    v15 = ((int)(float)(255.0 * color.v[1]) | ((((int)(float)(*(float *)&_XMM1 * 255.0) << 8) | (int)(float)(255.0 * color.v[2])) << 8)) << 8;
+    integer = (int)(float)(255.0 * color.v[0]);
   }
   else
   {
-    PlayerOutlineColor = CgMLGSpectator::GetPlayerOutlineColor(MLGSpectator, (const LocalClientNum_t)v6, team);
-    v32 = (unsigned int)PlayerOutlineColor;
+    PlayerOutlineColor = CgMLGSpectator::GetPlayerOutlineColor(MLGSpectator, (const LocalClientNum_t)v5, team);
+    v18 = (unsigned int)PlayerOutlineColor;
     if ( (unsigned int)PlayerOutlineColor >= HUD_OUTLINE_COLOR_MAX )
     {
-      LODWORD(v36) = 12;
-      LODWORD(v35) = PlayerOutlineColor;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 922, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( HUD_OUTLINE_COLOR_MAX )", "index doesn't index HUD_OUTLINE_COLOR_MAX\n\t%i not in [0, %i)", v35, v36) )
+      LODWORD(v22) = 12;
+      LODWORD(v21) = PlayerOutlineColor;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 922, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( HUD_OUTLINE_COLOR_MAX )", "index doesn't index HUD_OUTLINE_COLOR_MAX\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    v33 = cg_hud_outline_colors[v32];
-    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 683, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
+    v19 = cg_hud_outline_colors[v18];
+    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 683, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v33);
-    v29 = v33->current.integer & 0xFF000000 | (((unsigned __int8)BYTE1(v33->current.integer) | ((unsigned __int8)BYTE2(v33->current.integer) << 8)) << 8);
-    LODWORD(_RCX) = (unsigned __int8)v33->current.integer;
+    Dvar_CheckFrontendServerThread(v19);
+    v15 = v19->current.integer & 0xFF000000 | (((unsigned __int8)BYTE1(v19->current.integer) | ((unsigned __int8)BYTE2(v19->current.integer) << 8)) << 8);
+    integer = (unsigned __int8)v19->current.integer;
   }
-  return (unsigned int)_RCX | v29;
+  return integer | v15;
 }
 
 /*
@@ -1078,7 +1039,7 @@ __int64 CG_Utils_GetPlayerClipAmmoCount(const LocalClientNum_t localClientNum, P
   const playerState_s *p_predictedPlayerState; 
   const Weapon *WeaponForHud; 
   bool UsingAltForHud; 
-  int v10; 
+  int v7; 
   AmmoStore result; 
   AmmoStore r_clip2; 
 
@@ -1088,25 +1049,18 @@ __int64 CG_Utils_GetPlayerClipAmmoCount(const LocalClientNum_t localClientNum, P
   UsingAltForHud = CG_GetUsingAltForHud(&LocalClientGlobals->predictedPlayerState);
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, WeaponForHud, UsingAltForHud);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clip2 = *BG_AmmoStoreForWeapon(&result, WeaponForHud, UsingAltForHud);
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( BG_HasLadderHand(p_predictedPlayerState) && hand == WEAPON_HAND_LEFT )
     hand = WEAPON_HAND_DEFAULT;
-  v10 = 0;
-  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v10].clipIndex, &r_clip2) )
+  v7 = 0;
+  while ( !BG_IsClipCompatible(&p_predictedPlayerState->weapCommon.ammoInClip[v7].clipIndex, &r_clip2) )
   {
-    if ( (unsigned int)++v10 >= 0xF )
+    if ( (unsigned int)++v7 >= 0xF )
       return 0i64;
   }
-  return (unsigned int)p_predictedPlayerState->weapCommon.ammoInClip[v10].ammoCount[hand];
+  return (unsigned int)p_predictedPlayerState->weapCommon.ammoInClip[v7].ammoCount[hand];
 }
 
 /*
@@ -1304,14 +1258,16 @@ void CG_Utils_PlayNotetrackMeleeAttackSound(const LocalClientNum_t localClientNu
   cg_t *v7; 
   unsigned int clothType; 
   cg_t *v9; 
+  const characterInfo_t *CharacterInfo; 
   const characterInfo_t *v11; 
   CgWeaponMap *Instance; 
   WeaponSFXPackage *SfxPackage; 
   MeleeImpactType sfxMeleeImpactType; 
   const SndAliasList *ClothMeleeAttackSoundPLR; 
   centity_t *Entity; 
-  float v32; 
-  float v33; 
+  trajectory_t_secure *p_pos; 
+  float v18; 
+  float v19; 
   CgSoundSystem *SoundSystem; 
   bool outIsAltMelee; 
   WeaponMaterialType materialType; 
@@ -1319,11 +1275,11 @@ void CG_Utils_PlayNotetrackMeleeAttackSound(const LocalClientNum_t localClientNu
   unsigned int variant; 
   vec3_t outOrg; 
   MeleeAnimType outAnimType; 
-  __int64 v51; 
+  __int64 v27; 
   vec3_t origin; 
   Weapon r_weapon; 
 
-  v51 = -2i64;
+  v27 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   v7 = LocalClientGlobals;
   *(_QWORD *)outOrg.v = LocalClientGlobals;
@@ -1331,47 +1287,28 @@ void CG_Utils_PlayNotetrackMeleeAttackSound(const LocalClientNum_t localClientNu
     entNum = LocalClientGlobals->predictedPlayerState.clientNum;
   clothType = 0;
   outAnimType = COUNT|DODGE;
-  materialType = MOVEMENT;
+  *(float *)&materialType = 0.0;
   outIsAltMelee = 0;
   variant = 0;
   outResult = HIT;
   v9 = CG_GetLocalClientGlobals(localClientNum);
   if ( !v9->HasCharacterInfo(v9, entNum) )
     goto LABEL_12;
-  _RAX = CG_GetCharacterInfo(v9, entNum);
-  v11 = _RAX;
-  if ( !_RAX )
+  CharacterInfo = CG_GetCharacterInfo(v9, entNum);
+  v11 = CharacterInfo;
+  if ( !CharacterInfo )
   {
     v7 = *(cg_t **)outOrg.v;
 LABEL_12:
     sfxMeleeImpactType = MELEE_IMPACT_TYPE_GUN_MEDIUM;
     goto LABEL_13;
   }
-  clothType = _RAX->clothType;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+5F4h]
-    vmovups ymmword ptr [rbp+57h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+614h]
-    vmovups xmmword ptr [rbp+57h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+624h]
-    vmovsd  qword ptr [rbp+57h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->dobjHeldWeapon.weaponCamo;
+  clothType = CharacterInfo->clothType;
+  r_weapon = CharacterInfo->dobjHeldWeapon;
   if ( v9->predictedPlayerState.clientNum == entNum )
   {
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    _RAX = BG_GetViewmodelWeapon(Instance, &v9->predictedPlayerState);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+57h+r_weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbp+57h+r_weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbp+57h+r_weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    r_weapon = *BG_GetViewmodelWeapon(Instance, &v9->predictedPlayerState);
   }
   SfxPackage = BG_GetSfxPackage(&r_weapon, v11->isUsingWeaponAltMode != 0);
   if ( SfxPackage )
@@ -1390,19 +1327,9 @@ LABEL_13:
   {
     ClothMeleeAttackSoundPLR = BG_GetClothMeleeAttackSoundPLR(clothType, sfxMeleeImpactType, materialType, outIsAltMelee, variant, outResult);
     RefdefView_GetOrg(&v7->refdef.view, &outOrg);
-    __asm
-    {
-      vmovss  xmm2, cs:s_meleeAttackVmOffset
-      vmulss  xmm0, xmm2, dword ptr [rbx+6944h]
-      vaddss  xmm1, xmm0, dword ptr [rbp+57h+outOrg]
-      vmovss  dword ptr [rbp+57h+origin], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+6948h]
-      vaddss  xmm1, xmm0, dword ptr [rbp+57h+outOrg+4]
-      vmovss  dword ptr [rbp+57h+origin+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+694Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbp+57h+outOrg+8]
-      vmovss  dword ptr [rbp+57h+origin+8], xmm1
-    }
+    origin.v[0] = (float)(s_meleeAttackVmOffset * v7->refdef.view.axis.m[0].v[0]) + outOrg.v[0];
+    origin.v[1] = (float)(s_meleeAttackVmOffset * v7->refdef.view.axis.m[0].v[1]) + outOrg.v[1];
+    origin.v[2] = (float)(s_meleeAttackVmOffset * v7->refdef.view.axis.m[0].v[2]) + outOrg.v[2];
     memset(&outOrg, 0, sizeof(outOrg));
   }
   else
@@ -1411,67 +1338,33 @@ LABEL_13:
     Entity = CG_GetEntity(localClientNum, entNum);
     if ( !Entity || (Entity->flags & 1) == 0 )
       return;
-    _RDI = &Entity->nextState.lerp.pos;
-    if ( Entity == (centity_t *)-416i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+    p_pos = &Entity->nextState.lerp.pos;
+    if ( Entity == (centity_t *)-416i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)Entity + 523, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
       __debugbreak();
-    if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+    if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
     {
-      v32 = _RDI->trBase.v[0];
-      v33 = _RDI->trBase.v[1];
-      LODWORD(origin.v[2]) = s_trbase_aab_Z ^ LODWORD(v33) ^ LODWORD(_RDI->trBase.v[2]);
-      LODWORD(origin.v[1]) = LODWORD(v32) ^ s_trbase_aab_Y ^ LODWORD(v33);
-      LODWORD(origin.v[0]) = LODWORD(v32) ^ ~s_trbase_aab_X;
+      v18 = p_pos->trBase.v[0];
+      v19 = p_pos->trBase.v[1];
+      LODWORD(origin.v[2]) = s_trbase_aab_Z ^ LODWORD(v19) ^ LODWORD(p_pos->trBase.v[2]);
+      LODWORD(origin.v[1]) = LODWORD(v18) ^ s_trbase_aab_Y ^ LODWORD(v19);
+      LODWORD(origin.v[0]) = LODWORD(v18) ^ ~s_trbase_aab_X;
       memset(&outOrg, 0, 8ui64);
-      __asm
+      materialType = SLODWORD(origin.v[0]);
+      if ( (LODWORD(origin.v[0]) & 0x7F800000) == 2139095040 || (materialType = SLODWORD(origin.v[1]), (LODWORD(origin.v[1]) & 0x7F800000) == 2139095040) || (materialType = SLODWORD(origin.v[2]), (LODWORD(origin.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+origin]
-        vmovss  [rbp+57h+materialType], xmm0
-      }
-      if ( (materialType & 0x7F800000) == 2139095040 )
-        goto LABEL_36;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+origin+4]
-        vmovss  [rbp+57h+materialType], xmm0
-      }
-      if ( (materialType & 0x7F800000) == 2139095040 )
-        goto LABEL_36;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+origin+8]
-        vmovss  [rbp+57h+materialType], xmm0
-      }
-      if ( (materialType & 0x7F800000) == 2139095040 )
-      {
-LABEL_36:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
           __debugbreak();
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  dword ptr [rbp+57h+origin], xmm0
-        vmovss  xmm1, dword ptr [rdi+10h]
-        vmovss  dword ptr [rbp+57h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+14h]
-        vmovss  dword ptr [rbp+57h+origin+8], xmm0
-      }
+      origin = p_pos->trBase;
     }
     if ( CG_UsePreciseSoundLocation() && CG_GetTagOrientation(localClientNum, entNum, scr_const.tag_weapon_right, (orientation_t *)&r_weapon) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+r_weapon.weaponIdx]
-        vmovss  dword ptr [rbp+57h+origin], xmm0
-        vmovss  xmm1, dword ptr [rbp+57h+r_weapon.stickerIndices+2]
-        vmovss  dword ptr [rbp+57h+origin+4], xmm1
-        vmovss  xmm0, dword ptr [rbp+57h+r_weapon.stickerIndices+6]
-        vaddss  xmm2, xmm0, cs:s_meleeAttackHeightOffset
-        vmovss  dword ptr [rbp+57h+origin+8], xmm2
-      }
+      origin.v[0] = *(float *)&r_weapon.weaponIdx;
+      origin.v[1] = *(float *)&r_weapon.stickerIndices[1];
+      origin.v[2] = *(float *)&r_weapon.stickerIndices[3] + s_meleeAttackHeightOffset;
     }
   }
   SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
@@ -1507,21 +1400,21 @@ void CG_Utils_PlayVehicleNotetracks(LocalClientNum_t localClientNum, const int e
 {
   CgVehicleSystem *VehicleSystem; 
   char v9; 
+  __int64 v10; 
+  const char *v11; 
   __int64 v12; 
-  const char *v13; 
+  __int64 v13; 
   __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  unsigned int v18; 
-  int v19; 
-  const char *v20; 
-  signed __int64 v21; 
-  __int64 v22; 
-  unsigned int v23; 
-  int v24; 
-  __int64 v25; 
-  int v26; 
+  unsigned int v16; 
+  int v17; 
+  const char *v18; 
+  signed __int64 v19; 
+  __int64 v20; 
+  unsigned int v21; 
+  int v22; 
+  __int64 v23; 
+  float v24; 
 
   if ( !noteName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 517, ASSERT_TYPE_ASSERT, "(noteName)", (const char *)&queryFormat, "noteName") )
     __debugbreak();
@@ -1537,75 +1430,70 @@ void CG_Utils_PlayVehicleNotetracks(LocalClientNum_t localClientNum, const int e
   }
   else if ( v9 == 105 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+58h+arg_10], xmm0
-    }
-    j_sscanf(noteParam, "%f", &v26);
-    __asm { vmovss  xmm2, [rsp+58h+arg_10]; impK }
-    CgVehicleAnimSystem::AnimateAngularImpulse(&VehicleSystem->m_vehicleAnimSystem, entNum, *(float *)&_XMM2);
+    v24 = FLOAT_1_0;
+    j_sscanf(noteParam, "%f", &v24);
+    CgVehicleAnimSystem::AnimateAngularImpulse(&VehicleSystem->m_vehicleAnimSystem, entNum, v24);
   }
   else
   {
+    v10 = 5i64;
+    v11 = "vfxds";
     v12 = 5i64;
-    v13 = "vfxds";
-    v14 = 5i64;
     if ( noteName == (const char *)-4i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     do
     {
-      v15 = (unsigned __int8)v13[noteName + 4 - "vfxds"];
-      v16 = v14;
-      v17 = *(unsigned __int8 *)v13++;
-      --v14;
-      if ( !v16 )
+      v13 = (unsigned __int8)v11[noteName + 4 - "vfxds"];
+      v14 = v12;
+      v15 = *(unsigned __int8 *)v11++;
+      --v12;
+      if ( !v14 )
         break;
-      if ( (_DWORD)v15 != (_DWORD)v17 )
+      if ( (_DWORD)v13 != (_DWORD)v15 )
       {
-        v18 = v15 + 32;
+        v16 = v13 + 32;
+        if ( (unsigned int)(v13 - 65) > 0x19 )
+          v16 = v13;
+        v13 = v16;
+        v17 = v15 + 32;
         if ( (unsigned int)(v15 - 65) > 0x19 )
-          v18 = v15;
-        v15 = v18;
-        v19 = v17 + 32;
-        if ( (unsigned int)(v17 - 65) > 0x19 )
-          v19 = v17;
-        if ( (_DWORD)v15 != v19 )
+          v17 = v15;
+        if ( (_DWORD)v13 != v17 )
         {
-          v20 = "smoke";
+          v18 = "smoke";
           if ( noteName == (const char *)-4i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
-          v21 = noteName - "smoke";
+          v19 = noteName - "smoke";
           while ( 1 )
           {
-            v15 = (unsigned __int8)v20[v21 + 4];
-            v22 = v12;
-            v17 = *(unsigned __int8 *)v20++;
-            --v12;
-            if ( !v22 )
+            v13 = (unsigned __int8)v18[v19 + 4];
+            v20 = v10;
+            v15 = *(unsigned __int8 *)v18++;
+            --v10;
+            if ( !v20 )
               goto LABEL_38;
-            if ( (_DWORD)v15 != (_DWORD)v17 )
+            if ( (_DWORD)v13 != (_DWORD)v15 )
             {
-              v23 = v15 + 32;
+              v21 = v13 + 32;
+              if ( (unsigned int)(v13 - 65) > 0x19 )
+                v21 = v13;
+              v13 = v21;
+              v22 = v15 + 32;
               if ( (unsigned int)(v15 - 65) > 0x19 )
-                v23 = v15;
-              v15 = v23;
-              v24 = v17 + 32;
-              if ( (unsigned int)(v17 - 65) > 0x19 )
-                v24 = v17;
-              if ( (_DWORD)v15 != v24 )
+                v22 = v15;
+              if ( (_DWORD)v13 != v22 )
                 return;
             }
-            if ( !(_DWORD)v15 )
+            if ( !(_DWORD)v13 )
               goto LABEL_38;
           }
         }
       }
     }
-    while ( (_DWORD)v15 );
+    while ( (_DWORD)v13 );
 LABEL_38:
-    v25 = ((__int64 (__fastcall *)(CgVehicleSystem *, __int64, __int64))VehicleSystem->PhysicsGetEventSystem)(VehicleSystem, v15, v17);
-    (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v25 + 96i64))(v25, (unsigned int)entNum);
+    v23 = ((__int64 (__fastcall *)(CgVehicleSystem *, __int64, __int64))VehicleSystem->PhysicsGetEventSystem)(VehicleSystem, v13, v15);
+    (*(void (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v23 + 96i64))(v23, (unsigned int)entNum);
   }
 }
 
@@ -1654,87 +1542,122 @@ CG_Utils_ProcessNotetracks
 void CG_Utils_ProcessNotetracks(LocalClientNum_t localClientNum, const int entNum, DObj *dObj, const cpose_t *cpose, const XAnimNotify *notify, const bool isViewmodel, const bool isMayhem, const unsigned int mayhemEntId, const unsigned int subObjIdx, bool processFxNotetracks)
 {
   const cpose_t *m_particleSystemDef; 
+  const char *v13; 
+  int v14; 
+  __int64 v15; 
+  __int64 v16; 
   const char *v17; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
-  const char *v21; 
-  char *v22; 
-  signed __int64 v23; 
+  char *v18; 
+  signed __int64 v19; 
+  int v20; 
+  int v21; 
+  int v23; 
   int v24; 
-  int v25; 
-  int v27; 
-  int v28; 
-  char *v29; 
+  char *v25; 
   scr_string_t String; 
-  __int64 v31; 
-  const char *v32; 
-  char *v33; 
-  signed __int64 v34; 
+  __int64 v27; 
+  const char *v28; 
+  char *v29; 
+  signed __int64 v30; 
+  int v31; 
+  int v32; 
+  int v34; 
   int v35; 
-  int v36; 
-  int v38; 
-  int v39; 
+  char *v36; 
+  scr_string_t v37; 
+  __int64 v38; 
+  const char *v39; 
   char *v40; 
-  scr_string_t v41; 
-  __int64 v42; 
-  const char *v43; 
-  char *v44; 
-  signed __int64 v45; 
+  signed __int64 v41; 
+  int v42; 
+  int v43; 
+  int v45; 
   int v46; 
-  int v47; 
-  int v49; 
-  int v50; 
+  char *v47; 
+  scr_string_t v48; 
+  __int64 v49; 
+  const char *v50; 
   char *v51; 
-  scr_string_t v52; 
-  __int64 v53; 
-  const char *v54; 
-  char *v55; 
-  signed __int64 v56; 
+  signed __int64 v52; 
+  int v53; 
+  int v54; 
+  int v56; 
   int v57; 
-  int v58; 
-  int v60; 
-  int v61; 
-  char *v62; 
+  char *v58; 
+  char *v59; 
+  scr_string_t v60; 
+  scr_string_t v61; 
+  const char *v62; 
   char *v63; 
-  scr_string_t v64; 
-  scr_string_t v65; 
-  const char *v66; 
-  char *v67; 
-  signed __int64 v68; 
+  signed __int64 v64; 
+  int v65; 
+  int v66; 
+  int v68; 
   int v69; 
-  int v70; 
-  int v72; 
-  int v73; 
-  char *v75; 
+  char *v70; 
   cg_t *LocalClientGlobals; 
-  const char *v111; 
-  int v112; 
-  __int64 v113; 
-  const char *v114; 
-  char *v115; 
-  signed __int64 v116; 
-  int v117; 
-  int v118; 
-  int v120; 
-  int v121; 
-  scr_string_t v122; 
-  cg_t *v123; 
+  const char *v72; 
+  int v73; 
+  __int64 v74; 
+  const char *v75; 
+  char *v76; 
+  signed __int64 v77; 
+  int v78; 
+  int v79; 
+  int v81; 
+  int v82; 
+  scr_string_t v83; 
+  cg_t *v84; 
   CgHandler *Handler; 
-  scr_string_t v125; 
-  char *v126; 
+  scr_string_t v86; 
+  char *v87; 
   CgSoundSystem *SoundSystem; 
-  unsigned int v128; 
-  __int64 v129; 
-  __int64 v130; 
-  const char *v131; 
-  char *v132; 
-  signed __int64 v133; 
-  int v134; 
+  unsigned int v89; 
+  __int64 v90; 
+  __int64 v91; 
+  const char *v92; 
+  char *v93; 
+  signed __int64 v94; 
+  int v95; 
+  int v96; 
+  int v98; 
+  int v99; 
+  __int64 v100; 
+  const char *v101; 
+  char *v102; 
+  signed __int64 v103; 
+  int v104; 
+  int v105; 
+  int v107; 
+  int v108; 
+  const char *v109; 
+  char *v110; 
+  signed __int64 v111; 
+  int v112; 
+  int v113; 
+  int v115; 
+  int v116; 
+  __int64 v117; 
+  const char *v118; 
+  char *v119; 
+  signed __int64 v120; 
+  int v121; 
+  int v122; 
+  int v124; 
+  int v125; 
+  scr_string_t v126; 
+  __int64 v127; 
+  __int64 v128; 
+  const char *v129; 
+  char *v130; 
+  signed __int64 v131; 
+  int v132; 
+  int v133; 
   int v135; 
-  int v137; 
-  int v138; 
-  __int64 v139; 
+  int v136; 
+  cg_t *v137; 
+  CgHandler *v138; 
+  scr_string_t v139; 
   const char *v140; 
   char *v141; 
   signed __int64 v142; 
@@ -1742,101 +1665,66 @@ void CG_Utils_ProcessNotetracks(LocalClientNum_t localClientNum, const int entNu
   int v144; 
   int v146; 
   int v147; 
-  const char *v148; 
-  char *v149; 
-  signed __int64 v150; 
-  int v151; 
-  int v152; 
+  __int64 v148; 
+  __int64 v149; 
+  const char *v150; 
+  char *v151; 
+  signed __int64 v152; 
+  int v153; 
   int v154; 
-  int v155; 
-  __int64 v156; 
-  const char *v157; 
-  char *v158; 
-  signed __int64 v159; 
-  int v160; 
-  int v161; 
+  int v156; 
+  int v157; 
+  __int64 v158; 
+  __int64 v159; 
+  const char *v160; 
+  char *v161; 
+  signed __int64 v162; 
   int v163; 
   int v164; 
-  scr_string_t v165; 
-  __int64 v166; 
-  __int64 v167; 
-  const char *v168; 
-  char *v169; 
-  signed __int64 v170; 
-  int v171; 
-  int v172; 
-  int v174; 
-  int v175; 
-  cg_t *v176; 
-  CgHandler *v177; 
-  scr_string_t v178; 
-  const char *v179; 
-  char *v180; 
-  signed __int64 v181; 
-  int v182; 
-  int v183; 
-  int v185; 
-  int v186; 
-  __int64 v187; 
-  __int64 v188; 
-  const char *v189; 
-  char *v190; 
-  signed __int64 v191; 
+  int v166; 
+  int v167; 
+  cg_t *v168; 
+  int v169; 
+  const characterInfo_t *v170; 
+  const characterInfo_t *v171; 
+  team_t v172; 
+  __int64 v173; 
+  const char *v174; 
+  char *v175; 
+  signed __int64 v176; 
+  int v177; 
+  int v178; 
+  int v180; 
+  int v181; 
+  cg_t *v182; 
+  const characterInfo_t *CharacterInfo; 
+  const characterInfo_t *v184; 
+  team_t team; 
+  const char *v186; 
+  char *v187; 
+  signed __int64 v188; 
+  int v189; 
+  int v190; 
   int v192; 
   int v193; 
-  int v195; 
-  int v196; 
-  __int64 v199; 
-  __int64 v200; 
-  const char *v201; 
-  char *v202; 
-  signed __int64 v203; 
-  int v204; 
-  int v205; 
-  int v207; 
-  int v208; 
-  cg_t *v209; 
-  int v210; 
-  const characterInfo_t *v211; 
-  const characterInfo_t *v212; 
-  team_t v213; 
-  __int64 v214; 
-  const char *v215; 
-  char *v216; 
-  signed __int64 v217; 
-  int v218; 
-  int v219; 
-  int v221; 
-  int v222; 
-  cg_t *v223; 
-  const characterInfo_t *CharacterInfo; 
-  const characterInfo_t *v225; 
-  team_t team; 
-  const char *v227; 
-  char *v228; 
-  signed __int64 v229; 
-  int v230; 
-  int v231; 
-  int v233; 
-  int v234; 
-  char *v235; 
-  CgSoundSystem *v236; 
+  char *v194; 
+  CgSoundSystem *v195; 
   scr_string_t noteName; 
-  const char *v238; 
-  char *v239; 
-  signed __int64 v240; 
-  int v241; 
-  int v242; 
-  int v244; 
-  int v245; 
-  __int64 v246; 
-  const char *v247; 
-  char *v248; 
-  signed __int64 v249; 
-  int v250; 
-  int v251; 
-  int v253; 
-  int v254; 
+  const char *v197; 
+  char *v198; 
+  signed __int64 v199; 
+  int v200; 
+  int v201; 
+  int v203; 
+  int v204; 
+  __int64 v205; 
+  const char *v206; 
+  char *v207; 
+  signed __int64 v208; 
+  int v209; 
+  int v210; 
+  int v212; 
+  int v213; 
   unsigned __int8 outBoneIndex[8]; 
   char *outCommand; 
   FXRegisteredDef outDef; 
@@ -1845,8 +1733,8 @@ void CG_Utils_ProcessNotetracks(LocalClientNum_t localClientNum, const int entNu
   DObj *obj; 
   char *str[2]; 
   vec3_t origin; 
-  const XAnimNotify *v263; 
-  int v264; 
+  const XAnimNotify *v222; 
+  float v223; 
   tmat33_t<vec3_t> out; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> outTagMat; 
@@ -1854,22 +1742,15 @@ void CG_Utils_ProcessNotetracks(LocalClientNum_t localClientNum, const int entNu
   char paramBuf[272]; 
   char targetBuf[272]; 
   char commandBuf[272]; 
-  char v272; 
-  char v273[272]; 
-  void *retaddr; 
+  char v231; 
+  char v232[272]; 
 
-  _RAX = &retaddr;
   str[1] = (char *)-2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   m_particleSystemDef = cpose;
   outDef.m_particleSystemDef = (const ParticleSystemDef *)cpose;
   obj = dObj;
   LODWORD(def.m_particleSystemDef) = entNum;
-  v263 = notify;
+  v222 = notify;
   if ( !cpose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 550, ASSERT_TYPE_ASSERT, "(cpose)", (const char *)&queryFormat, "cpose") )
     __debugbreak();
   commandBuf[0] = 0;
@@ -1878,319 +1759,274 @@ void CG_Utils_ProcessNotetracks(LocalClientNum_t localClientNum, const int entNu
   outCommand = NULL;
   effectName = NULL;
   str[0] = NULL;
-  v17 = SL_ConvertToString(notify->noteName);
-  v18 = Com_ParseNoteTrack(v17, commandBuf, paramBuf, targetBuf, (const char **)&outCommand, (const char **)&effectName, (const char **)str);
-  switch ( v18 )
+  v13 = SL_ConvertToString(notify->noteName);
+  v14 = Com_ParseNoteTrack(v13, commandBuf, paramBuf, targetBuf, (const char **)&outCommand, (const char **)&effectName, (const char **)str);
+  switch ( v14 )
   {
     case 3:
       if ( processFxNotetracks )
       {
-        v19 = 0x7FFFFFFFi64;
-        v20 = 0x7FFFFFFFi64;
-        v21 = "fx_playfxontag";
-        v22 = outCommand;
+        v15 = 0x7FFFFFFFi64;
+        v16 = 0x7FFFFFFFi64;
+        v17 = "fx_playfxontag";
+        v18 = outCommand;
         if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v23 = v22 - "fx_playfxontag";
+        v19 = v18 - "fx_playfxontag";
         while ( 1 )
         {
-          v24 = (unsigned __int8)v21[v23];
-          v25 = *(unsigned __int8 *)v21++;
-          if ( !v20-- )
+          v20 = (unsigned __int8)v17[v19];
+          v21 = *(unsigned __int8 *)v17++;
+          if ( !v16-- )
           {
 LABEL_18:
             outDef.m_particleSystemDef = NULL;
-            v29 = effectName;
+            v25 = effectName;
             if ( !effectName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 368, ASSERT_TYPE_ASSERT, "(fxName)", (const char *)&queryFormat, "fxName") )
               __debugbreak();
-            FX_LoadEffect(v29, &outDef);
+            FX_LoadEffect(v25, &outDef);
             if ( !outDef.m_particleSystemDef )
-              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v29);
+              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v25);
             String = SL_GetString(str[0], 0);
             CG_PlayBoltedEffect(localClientNum, &outDef, entNum, String);
             SL_RemoveRefToString(String);
-            goto LABEL_225;
+            return;
           }
-          if ( v24 != v25 )
+          if ( v20 != v21 )
           {
-            v27 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v27 = v24;
-            v24 = v27;
-            v28 = v25 + 32;
-            if ( (unsigned int)(v25 - 65) > 0x19 )
-              v28 = v25;
-            if ( v24 != v28 )
+            v23 = v20 + 32;
+            if ( (unsigned int)(v20 - 65) > 0x19 )
+              v23 = v20;
+            v20 = v23;
+            v24 = v21 + 32;
+            if ( (unsigned int)(v21 - 65) > 0x19 )
+              v24 = v21;
+            if ( v20 != v24 )
               break;
           }
-          if ( !v24 )
+          if ( !v20 )
             goto LABEL_18;
         }
-        v31 = 0x7FFFFFFFi64;
-        v32 = "fx_stopfxontag";
-        v33 = outCommand;
+        v27 = 0x7FFFFFFFi64;
+        v28 = "fx_stopfxontag";
+        v29 = outCommand;
         if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v34 = v33 - "fx_stopfxontag";
+        v30 = v29 - "fx_stopfxontag";
         while ( 1 )
         {
-          v35 = (unsigned __int8)v32[v34];
-          v36 = *(unsigned __int8 *)v32++;
-          if ( !v31-- )
+          v31 = (unsigned __int8)v28[v30];
+          v32 = *(unsigned __int8 *)v28++;
+          if ( !v27-- )
           {
 LABEL_36:
             outDef.m_particleSystemDef = NULL;
-            v40 = effectName;
+            v36 = effectName;
             if ( !effectName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 368, ASSERT_TYPE_ASSERT, "(fxName)", (const char *)&queryFormat, "fxName") )
               __debugbreak();
-            FX_LoadEffect(v40, &outDef);
+            FX_LoadEffect(v36, &outDef);
             if ( !outDef.m_particleSystemDef )
-              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v40);
-            v41 = SL_GetString(str[0], 0);
-            CG_StopBoltedEffects(localClientNum, &outDef, entNum, v41);
-            SL_RemoveRefToString(v41);
-            goto LABEL_225;
+              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v36);
+            v37 = SL_GetString(str[0], 0);
+            CG_StopBoltedEffects(localClientNum, &outDef, entNum, v37);
+            SL_RemoveRefToString(v37);
+            return;
           }
-          if ( v35 != v36 )
+          if ( v31 != v32 )
           {
-            v38 = v35 + 32;
-            if ( (unsigned int)(v35 - 65) > 0x19 )
-              v38 = v35;
-            v35 = v38;
-            v39 = v36 + 32;
-            if ( (unsigned int)(v36 - 65) > 0x19 )
-              v39 = v36;
-            if ( v35 != v39 )
+            v34 = v31 + 32;
+            if ( (unsigned int)(v31 - 65) > 0x19 )
+              v34 = v31;
+            v31 = v34;
+            v35 = v32 + 32;
+            if ( (unsigned int)(v32 - 65) > 0x19 )
+              v35 = v32;
+            if ( v31 != v35 )
               break;
           }
-          if ( !v35 )
+          if ( !v31 )
             goto LABEL_36;
         }
-        v42 = 0x7FFFFFFFi64;
-        v43 = "fx_killfxontag";
-        v44 = outCommand;
+        v38 = 0x7FFFFFFFi64;
+        v39 = "fx_killfxontag";
+        v40 = outCommand;
         if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v45 = v44 - "fx_killfxontag";
+        v41 = v40 - "fx_killfxontag";
         while ( 1 )
         {
-          v46 = (unsigned __int8)v43[v45];
-          v47 = *(unsigned __int8 *)v43++;
-          if ( !v42-- )
+          v42 = (unsigned __int8)v39[v41];
+          v43 = *(unsigned __int8 *)v39++;
+          if ( !v38-- )
           {
 LABEL_54:
             outDef.m_particleSystemDef = NULL;
-            v51 = effectName;
+            v47 = effectName;
             if ( !effectName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 368, ASSERT_TYPE_ASSERT, "(fxName)", (const char *)&queryFormat, "fxName") )
               __debugbreak();
-            FX_LoadEffect(v51, &outDef);
+            FX_LoadEffect(v47, &outDef);
             if ( !outDef.m_particleSystemDef )
-              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v51);
-            v52 = SL_GetString(str[0], 0);
-            CG_KillBoltedEffects(localClientNum, &outDef, entNum, v52);
-            SL_RemoveRefToString(v52);
-            goto LABEL_225;
+              Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v47);
+            v48 = SL_GetString(str[0], 0);
+            CG_KillBoltedEffects(localClientNum, &outDef, entNum, v48);
+            SL_RemoveRefToString(v48);
+            return;
           }
-          if ( v46 != v47 )
+          if ( v42 != v43 )
           {
-            v49 = v46 + 32;
-            if ( (unsigned int)(v46 - 65) > 0x19 )
-              v49 = v46;
-            v46 = v49;
-            v50 = v47 + 32;
-            if ( (unsigned int)(v47 - 65) > 0x19 )
-              v50 = v47;
-            if ( v46 != v50 )
+            v45 = v42 + 32;
+            if ( (unsigned int)(v42 - 65) > 0x19 )
+              v45 = v42;
+            v42 = v45;
+            v46 = v43 + 32;
+            if ( (unsigned int)(v43 - 65) > 0x19 )
+              v46 = v43;
+            if ( v42 != v46 )
               break;
           }
-          if ( !v46 )
+          if ( !v42 )
             goto LABEL_54;
         }
-        v53 = 0x7FFFFFFFi64;
-        v54 = "fx_debris";
-        v55 = outCommand;
+        v49 = 0x7FFFFFFFi64;
+        v50 = "fx_debris";
+        v51 = outCommand;
         if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v56 = v55 - "fx_debris";
+        v52 = v51 - "fx_debris";
         do
         {
-          v57 = (unsigned __int8)v54[v56];
-          v58 = *(unsigned __int8 *)v54++;
-          if ( !v53-- )
+          v53 = (unsigned __int8)v50[v52];
+          v54 = *(unsigned __int8 *)v50++;
+          if ( !v49-- )
             break;
-          if ( v57 != v58 )
+          if ( v53 != v54 )
           {
-            v60 = v57 + 32;
-            if ( (unsigned int)(v57 - 65) > 0x19 )
-              v60 = v57;
-            v57 = v60;
-            v61 = v58 + 32;
-            if ( (unsigned int)(v58 - 65) > 0x19 )
-              v61 = v58;
-            if ( v57 != v61 )
+            v56 = v53 + 32;
+            if ( (unsigned int)(v53 - 65) > 0x19 )
+              v56 = v53;
+            v53 = v56;
+            v57 = v54 + 32;
+            if ( (unsigned int)(v54 - 65) > 0x19 )
+              v57 = v54;
+            if ( v53 != v57 )
             {
-              v66 = "fx_playfx";
-              v67 = outCommand;
+              v62 = "fx_playfx";
+              v63 = outCommand;
               if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                 __debugbreak();
-              v68 = v67 - "fx_playfx";
+              v64 = v63 - "fx_playfx";
               do
               {
-                v69 = (unsigned __int8)v66[v68];
-                v70 = *(unsigned __int8 *)v66++;
-                if ( !v19-- )
+                v65 = (unsigned __int8)v62[v64];
+                v66 = *(unsigned __int8 *)v62++;
+                if ( !v15-- )
                   break;
-                if ( v69 != v70 )
+                if ( v65 != v66 )
                 {
-                  v72 = v69 + 32;
-                  if ( (unsigned int)(v69 - 65) > 0x19 )
-                    v72 = v69;
-                  v69 = v72;
-                  v73 = v70 + 32;
-                  if ( (unsigned int)(v70 - 65) > 0x19 )
-                    v73 = v70;
-                  if ( v69 != v73 )
+                  v68 = v65 + 32;
+                  if ( (unsigned int)(v65 - 65) > 0x19 )
+                    v68 = v65;
+                  v65 = v68;
+                  v69 = v66 + 32;
+                  if ( (unsigned int)(v66 - 65) > 0x19 )
+                    v69 = v66;
+                  if ( v65 != v69 )
                   {
                     m_particleSystemDef = (const cpose_t *)outDef.m_particleSystemDef;
                     goto LABEL_105;
                   }
                 }
               }
-              while ( v69 );
+              while ( v65 );
               def.m_particleSystemDef = NULL;
               MatrixIdentity33(&out);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vmovss  dword ptr [rbp+610h+var_660], xmm0
-                vmovss  dword ptr [rbp+610h+var_660+4], xmm0
-                vmovss  [rbp+610h+var_658], xmm0
-              }
-              v75 = effectName;
+              v222 = NULL;
+              v223 = 0.0;
+              v70 = effectName;
               if ( !effectName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 368, ASSERT_TYPE_ASSERT, "(fxName)", (const char *)&queryFormat, "fxName") )
                 __debugbreak();
-              FX_LoadEffect(v75, &def);
+              FX_LoadEffect(v70, &def);
               if ( !def.m_particleSystemDef )
-                Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v75);
-              if ( j_sscanf(str[0], "%f,%f,%f,%f,%f,%f,%f,%f,%f", &v263, (char *)&v263 + 4, &v264, &out, &out.row0.y, &out.row0.z, &out.row2, &out.row2.y, &out.row2.z) != 9 )
+                Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v70);
+              if ( j_sscanf(str[0], "%f,%f,%f,%f,%f,%f,%f,%f,%f", &v222, (char *)&v222 + 4, &v223, &out, &out.row0.y, &out.row0.z, &out.row2, &out.row2.y, &out.row2.z) != 9 )
                 Com_PrintError(14, "Unexpected number of parameters for 'fx_playfx' note track\n");
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbp+610h+out+1Ch]
-                vmovss  xmm5, dword ptr [rbp+610h+out+8]
-                vmulss  xmm1, xmm5, xmm7
-                vmovss  xmm2, dword ptr [rbp+610h+out+20h]
-                vmovss  xmm6, dword ptr [rbp+610h+out+4]
-                vmulss  xmm0, xmm6, xmm2
-                vsubss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rbp+610h+out+0Ch], xmm1
-                vmulss  xmm2, xmm2, dword ptr [rbp+610h+out]
-                vmulss  xmm0, xmm5, dword ptr [rbp+610h+out+18h]
-                vsubss  xmm1, xmm2, xmm0
-                vmovss  dword ptr [rbp+610h+out+10h], xmm1
-                vmulss  xmm2, xmm6, dword ptr [rbp+610h+out+18h]
-                vmulss  xmm0, xmm7, dword ptr [rbp+610h+out]
-                vsubss  xmm1, xmm2, xmm0
-                vmovss  dword ptr [rbp+610h+out+14h], xmm1
-              }
+              out.m[1].v[0] = (float)(out.m[0].v[2] * out.m[2].v[1]) - (float)(out.m[0].v[1] * out.m[2].v[2]);
+              out.m[1].v[1] = (float)(out.m[2].v[2] * out.m[0].v[0]) - (float)(out.m[0].v[2] * out.m[2].v[0]);
+              out.m[1].v[2] = (float)(out.m[0].v[1] * out.m[2].v[0]) - (float)(out.m[2].v[1] * out.m[0].v[0]);
               CG_DObjGetWorldBoneMatrix((const cpose_t *)outDef.m_particleSystemDef, obj, 0, &outTagMat, &outOrigin);
               MatrixMultiply(&outTagMat, &out, &axis);
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbp+610h+var_660+4]
-                vmulss  xmm2, xmm7, dword ptr [rbp+610h+outTagMat+0Ch]
-                vmovss  xmm6, dword ptr [rbp+610h+var_660]
-                vmulss  xmm0, xmm6, dword ptr [rbp+610h+outTagMat]
-                vaddss  xmm3, xmm2, xmm0
-                vmovss  xmm5, [rbp+610h+var_658]
-                vmulss  xmm0, xmm5, dword ptr [rbp+610h+outTagMat+18h]
-                vaddss  xmm2, xmm3, xmm0
-                vaddss  xmm3, xmm2, dword ptr [rbp+610h+outOrigin]
-                vmovss  dword ptr [rbp+610h+origin], xmm3
-                vmulss  xmm4, xmm7, dword ptr [rbp+610h+outTagMat+10h]
-                vmulss  xmm2, xmm6, dword ptr [rbp+610h+outTagMat+4]
-                vaddss  xmm3, xmm4, xmm2
-                vmulss  xmm1, xmm5, dword ptr [rbp+610h+outTagMat+1Ch]
-                vaddss  xmm2, xmm3, xmm1
-                vaddss  xmm3, xmm2, dword ptr [rbp+610h+outOrigin+4]
-                vmovss  dword ptr [rbp+610h+origin+4], xmm3
-                vmulss  xmm4, xmm7, dword ptr [rbp+610h+outTagMat+14h]
-                vmulss  xmm2, xmm6, dword ptr [rbp+610h+outTagMat+8]
-                vaddss  xmm3, xmm4, xmm2
-                vmulss  xmm1, xmm5, dword ptr [rbp+610h+outTagMat+20h]
-                vaddss  xmm2, xmm3, xmm1
-                vaddss  xmm3, xmm2, dword ptr [rbp+610h+outOrigin+8]
-                vmovss  dword ptr [rbp+610h+origin+8], xmm3
-              }
+              origin.v[0] = (float)((float)((float)(*((float *)&v222 + 1) * outTagMat.m[1].v[0]) + (float)(*(float *)&v222 * outTagMat.m[0].v[0])) + (float)(v223 * outTagMat.m[2].v[0])) + outOrigin.v[0];
+              origin.v[1] = (float)((float)((float)(*((float *)&v222 + 1) * outTagMat.m[1].v[1]) + (float)(*(float *)&v222 * outTagMat.m[0].v[1])) + (float)(v223 * outTagMat.m[2].v[1])) + outOrigin.v[1];
+              origin.v[2] = (float)((float)((float)(*((float *)&v222 + 1) * outTagMat.m[1].v[2]) + (float)(*(float *)&v222 * outTagMat.m[0].v[2])) + (float)(v223 * outTagMat.m[2].v[2])) + outOrigin.v[2];
               LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
               FX_PlayOrientedEffect(localClientNum, &def, LocalClientGlobals->time, &origin, &axis);
-              goto LABEL_225;
+              return;
             }
           }
         }
-        while ( v57 );
+        while ( v53 );
         outDef.m_particleSystemDef = NULL;
-        v62 = effectName;
+        v58 = effectName;
         if ( !effectName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 368, ASSERT_TYPE_ASSERT, "(fxName)", (const char *)&queryFormat, "fxName") )
           __debugbreak();
-        FX_LoadEffect(v62, &outDef);
+        FX_LoadEffect(v58, &outDef);
         if ( !outDef.m_particleSystemDef )
-          Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v62);
-        v63 = &v272;
-        if ( j_sscanf(str[0], "%[^','],%[^',']", v273, &v272) != 2 )
-          v63 = NULL;
-        v64 = SL_GetString(v273, 0);
-        CG_PlayBoltedEffect(localClientNum, &outDef, entNum, v64);
-        v65 = v64;
+          Com_PrintError(19, "ERROR: Failed to find fx (%s) to play as a notetrack", v58);
+        v59 = &v231;
+        if ( j_sscanf(str[0], "%[^','],%[^',']", v232, &v231) != 2 )
+          v59 = NULL;
+        v60 = SL_GetString(v232, 0);
+        CG_PlayBoltedEffect(localClientNum, &outDef, entNum, v60);
+        v61 = v60;
         if ( !isMayhem )
         {
-          v111 = v63;
+          v72 = v59;
           goto LABEL_102;
         }
 LABEL_80:
-        Mayhem_HidePart(1, mayhemEntId, v65);
-        SL_RemoveRefToString(v64);
-        break;
+        Mayhem_HidePart(1, mayhemEntId, v61);
+        SL_RemoveRefToString(v60);
+        return;
       }
 LABEL_105:
-      v113 = 4i64;
-      v114 = "pst_";
-      v115 = outCommand;
+      v74 = 4i64;
+      v75 = "pst_";
+      v76 = outCommand;
       if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v116 = v115 - "pst_";
+      v77 = v76 - "pst_";
       do
       {
-        v117 = (unsigned __int8)v114[v116];
-        v118 = *(unsigned __int8 *)v114++;
-        if ( !v113-- )
+        v78 = (unsigned __int8)v75[v77];
+        v79 = *(unsigned __int8 *)v75++;
+        if ( !v74-- )
           break;
-        if ( v117 != v118 )
+        if ( v78 != v79 )
         {
-          v120 = v117 + 32;
-          if ( (unsigned int)(v117 - 65) > 0x19 )
-            v120 = v117;
-          v117 = v120;
-          v121 = v118 + 32;
-          if ( (unsigned int)(v118 - 65) > 0x19 )
-            v121 = v118;
-          if ( v117 != v121 )
-            goto LABEL_225;
+          v81 = v78 + 32;
+          if ( (unsigned int)(v78 - 65) > 0x19 )
+            v81 = v78;
+          v78 = v81;
+          v82 = v79 + 32;
+          if ( (unsigned int)(v79 - 65) > 0x19 )
+            v82 = v79;
+          if ( v78 != v82 )
+            return;
         }
       }
-      while ( v117 );
+      while ( v78 );
       outBoneIndex[0] = -2;
-      v122 = SL_GetString(effectName, 0);
-      CG_Utils_GetBoneOrigin(obj, m_particleSystemDef, v122, outBoneIndex, &origin);
-      v123 = CG_GetLocalClientGlobals(localClientNum);
+      v83 = SL_GetString(effectName, 0);
+      CG_Utils_GetBoneOrigin(obj, m_particleSystemDef, v83, outBoneIndex, &origin);
+      v84 = CG_GetLocalClientGlobals(localClientNum);
       Handler = CgHandler::getHandler(localClientNum);
-      CgHandler::GetPlayerTeam(Handler, v123->predictedPlayerState.clientNum, (team_t *)&obj);
-      v125 = SL_GetString(str[0], 0);
-      if ( !Com_Teams_TeamFromString(v125, (team_t *)&def) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 673, ASSERT_TYPE_ASSERT, "(Com_Teams_TeamFromString( SL_GetString( notetrackCmdTarget, 0 ), playToTeam ))", (const char *)&queryFormat, "Com_Teams_TeamFromString( SL_GetString( notetrackCmdTarget, 0 ), playToTeam )") )
+      CgHandler::GetPlayerTeam(Handler, v84->predictedPlayerState.clientNum, (team_t *)&obj);
+      v86 = SL_GetString(str[0], 0);
+      if ( !Com_Teams_TeamFromString(v86, (team_t *)&def) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 673, ASSERT_TYPE_ASSERT, "(Com_Teams_TeamFromString( SL_GetString( notetrackCmdTarget, 0 ), playToTeam ))", (const char *)&queryFormat, "Com_Teams_TeamFromString( SL_GetString( notetrackCmdTarget, 0 ), playToTeam )") )
         __debugbreak();
       if ( (_DWORD)obj == LODWORD(def.m_particleSystemDef) )
       {
-        v126 = outCommand + 4;
+        v87 = outCommand + 4;
         if ( outCommand == (char *)-4i64 )
         {
 LABEL_122:
@@ -2199,341 +2035,341 @@ LABEL_122:
         }
 LABEL_124:
         SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-        v128 = SoundSystem->PlaySoundAliasByName2(SoundSystem, entNum, &origin, v126);
+        v89 = SoundSystem->PlaySoundAliasByName2(SoundSystem, entNum, &origin, v87);
         if ( isMayhem )
-          Mayhem_SetSoundEntry(v128, mayhemEntId, subObjIdx, outBoneIndex[0]);
+          Mayhem_SetSoundEntry(v89, mayhemEntId, subObjIdx, outBoneIndex[0]);
       }
       break;
     case 2:
-      v129 = 0x7FFFFFFFi64;
-      v130 = 0x7FFFFFFFi64;
-      v131 = "rumble_play";
-      v132 = outCommand;
+      v90 = 0x7FFFFFFFi64;
+      v91 = 0x7FFFFFFFi64;
+      v92 = "rumble_play";
+      v93 = outCommand;
       if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v133 = v132 - "rumble_play";
+      v94 = v93 - "rumble_play";
       while ( 1 )
       {
-        v134 = (unsigned __int8)v131[v133];
-        v135 = *(unsigned __int8 *)v131++;
-        if ( !v130-- )
+        v95 = (unsigned __int8)v92[v94];
+        v96 = *(unsigned __int8 *)v92++;
+        if ( !v91-- )
         {
 LABEL_139:
           CG_Rumble_PlayOnClientSafeByName(localClientNum, effectName);
-          goto LABEL_225;
+          return;
         }
-        if ( v134 != v135 )
+        if ( v95 != v96 )
         {
-          v137 = v134 + 32;
-          if ( (unsigned int)(v134 - 65) > 0x19 )
-            v137 = v134;
-          v134 = v137;
-          v138 = v135 + 32;
-          if ( (unsigned int)(v135 - 65) > 0x19 )
-            v138 = v135;
-          if ( v134 != v138 )
+          v98 = v95 + 32;
+          if ( (unsigned int)(v95 - 65) > 0x19 )
+            v98 = v95;
+          v95 = v98;
+          v99 = v96 + 32;
+          if ( (unsigned int)(v96 - 65) > 0x19 )
+            v99 = v96;
+          if ( v95 != v99 )
             break;
         }
-        if ( !v134 )
+        if ( !v95 )
           goto LABEL_139;
       }
-      v139 = 0x7FFFFFFFi64;
-      v140 = "hide";
-      v141 = outCommand;
+      v100 = 0x7FFFFFFFi64;
+      v101 = "hide";
+      v102 = outCommand;
       if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v142 = v141 - "hide";
+      v103 = v102 - "hide";
       do
       {
-        v143 = (unsigned __int8)v140[v142];
-        v144 = *(unsigned __int8 *)v140++;
-        if ( !v139-- )
+        v104 = (unsigned __int8)v101[v103];
+        v105 = *(unsigned __int8 *)v101++;
+        if ( !v100-- )
           break;
-        if ( v143 != v144 )
+        if ( v104 != v105 )
         {
-          v146 = v143 + 32;
-          if ( (unsigned int)(v143 - 65) > 0x19 )
-            v146 = v143;
-          v143 = v146;
-          v147 = v144 + 32;
-          if ( (unsigned int)(v144 - 65) > 0x19 )
-            v147 = v144;
-          if ( v143 != v147 )
+          v107 = v104 + 32;
+          if ( (unsigned int)(v104 - 65) > 0x19 )
+            v107 = v104;
+          v104 = v107;
+          v108 = v105 + 32;
+          if ( (unsigned int)(v105 - 65) > 0x19 )
+            v108 = v105;
+          if ( v104 != v108 )
           {
-            v148 = "show";
-            v149 = outCommand;
+            v109 = "show";
+            v110 = outCommand;
             if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v150 = v149 - "show";
+            v111 = v110 - "show";
             do
             {
-              v151 = (unsigned __int8)v148[v150];
-              v152 = *(unsigned __int8 *)v148++;
-              if ( !v129-- )
+              v112 = (unsigned __int8)v109[v111];
+              v113 = *(unsigned __int8 *)v109++;
+              if ( !v90-- )
                 break;
-              if ( v151 != v152 )
+              if ( v112 != v113 )
               {
-                v154 = v151 + 32;
-                if ( (unsigned int)(v151 - 65) > 0x19 )
-                  v154 = v151;
-                v151 = v154;
-                v155 = v152 + 32;
-                if ( (unsigned int)(v152 - 65) > 0x19 )
-                  v155 = v152;
-                if ( v151 != v155 )
+                v115 = v112 + 32;
+                if ( (unsigned int)(v112 - 65) > 0x19 )
+                  v115 = v112;
+                v112 = v115;
+                v116 = v113 + 32;
+                if ( (unsigned int)(v113 - 65) > 0x19 )
+                  v116 = v113;
+                if ( v112 != v116 )
                 {
-                  v156 = 3i64;
-                  v157 = "ps_";
-                  v158 = outCommand;
+                  v117 = 3i64;
+                  v118 = "ps_";
+                  v119 = outCommand;
                   if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                     __debugbreak();
-                  v159 = v158 - "ps_";
+                  v120 = v119 - "ps_";
                   do
                   {
-                    v160 = (unsigned __int8)v157[v159];
-                    v161 = *(unsigned __int8 *)v157++;
-                    if ( !v156-- )
+                    v121 = (unsigned __int8)v118[v120];
+                    v122 = *(unsigned __int8 *)v118++;
+                    if ( !v117-- )
                       break;
-                    if ( v160 != v161 )
+                    if ( v121 != v122 )
                     {
-                      v163 = v160 + 32;
-                      if ( (unsigned int)(v160 - 65) > 0x19 )
-                        v163 = v160;
-                      v160 = v163;
-                      v164 = v161 + 32;
-                      if ( (unsigned int)(v161 - 65) > 0x19 )
-                        v164 = v161;
-                      if ( v160 != v164 )
+                      v124 = v121 + 32;
+                      if ( (unsigned int)(v121 - 65) > 0x19 )
+                        v124 = v121;
+                      v121 = v124;
+                      v125 = v122 + 32;
+                      if ( (unsigned int)(v122 - 65) > 0x19 )
+                        v125 = v122;
+                      if ( v121 != v125 )
                       {
-                        v166 = 4i64;
-                        v167 = 4i64;
-                        v168 = "pst_";
-                        v169 = outCommand;
+                        v127 = 4i64;
+                        v128 = 4i64;
+                        v129 = "pst_";
+                        v130 = outCommand;
                         if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                           __debugbreak();
-                        v170 = v169 - "pst_";
+                        v131 = v130 - "pst_";
                         do
                         {
-                          v171 = (unsigned __int8)v168[v170];
-                          v172 = *(unsigned __int8 *)v168++;
-                          if ( !v167-- )
+                          v132 = (unsigned __int8)v129[v131];
+                          v133 = *(unsigned __int8 *)v129++;
+                          if ( !v128-- )
                             break;
-                          if ( v171 != v172 )
+                          if ( v132 != v133 )
                           {
-                            v174 = v171 + 32;
-                            if ( (unsigned int)(v171 - 65) > 0x19 )
-                              v174 = v171;
-                            v171 = v174;
-                            v175 = v172 + 32;
-                            if ( (unsigned int)(v172 - 65) > 0x19 )
-                              v175 = v172;
-                            if ( v171 != v175 )
+                            v135 = v132 + 32;
+                            if ( (unsigned int)(v132 - 65) > 0x19 )
+                              v135 = v132;
+                            v132 = v135;
+                            v136 = v133 + 32;
+                            if ( (unsigned int)(v133 - 65) > 0x19 )
+                              v136 = v133;
+                            if ( v132 != v136 )
                             {
-                              v179 = "veh_";
-                              v180 = outCommand;
+                              v140 = "veh_";
+                              v141 = outCommand;
                               if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                                 __debugbreak();
-                              v181 = v180 - "veh_";
+                              v142 = v141 - "veh_";
                               do
                               {
-                                v182 = (unsigned __int8)v179[v181];
-                                v183 = *(unsigned __int8 *)v179++;
-                                if ( !v166-- )
+                                v143 = (unsigned __int8)v140[v142];
+                                v144 = *(unsigned __int8 *)v140++;
+                                if ( !v127-- )
                                   break;
-                                if ( v182 != v183 )
+                                if ( v143 != v144 )
                                 {
-                                  v185 = v182 + 32;
-                                  if ( (unsigned int)(v182 - 65) > 0x19 )
-                                    v185 = v182;
-                                  v182 = v185;
-                                  v186 = v183 + 32;
-                                  if ( (unsigned int)(v183 - 65) > 0x19 )
-                                    v186 = v183;
-                                  if ( v182 != v186 )
-                                    goto LABEL_225;
+                                  v146 = v143 + 32;
+                                  if ( (unsigned int)(v143 - 65) > 0x19 )
+                                    v146 = v143;
+                                  v143 = v146;
+                                  v147 = v144 + 32;
+                                  if ( (unsigned int)(v144 - 65) > 0x19 )
+                                    v147 = v144;
+                                  if ( v143 != v147 )
+                                    return;
                                 }
                               }
-                              while ( v182 );
+                              while ( v143 );
                               CG_Utils_PlayVehicleNotetracks(localClientNum, entNum, outCommand, paramBuf);
-                              goto LABEL_225;
+                              return;
                             }
                           }
                         }
-                        while ( v171 );
-                        v176 = CG_GetLocalClientGlobals(localClientNum);
-                        v177 = CgHandler::getHandler(localClientNum);
-                        CgHandler::GetPlayerTeam(v177, v176->predictedPlayerState.clientNum, (team_t *)&def);
-                        v178 = SL_GetString(effectName, 0);
-                        Com_Teams_TeamFromString(v178, (team_t *)&obj);
+                        while ( v132 );
+                        v137 = CG_GetLocalClientGlobals(localClientNum);
+                        v138 = CgHandler::getHandler(localClientNum);
+                        CgHandler::GetPlayerTeam(v138, v137->predictedPlayerState.clientNum, (team_t *)&def);
+                        v139 = SL_GetString(effectName, 0);
+                        Com_Teams_TeamFromString(v139, (team_t *)&obj);
                         if ( LODWORD(def.m_particleSystemDef) != (_DWORD)obj )
-                          goto LABEL_225;
+                          return;
                         CG_GetPoseOrigin((const cpose_t *)outDef.m_particleSystemDef, &origin);
                         CG_Utils_PlayNotetrackSound(localClientNum, outCommand + 4, entNum, &origin, isViewmodel, isMayhem, 1);
                         goto LABEL_224;
                       }
                     }
                   }
-                  while ( v160 );
+                  while ( v121 );
                   outBoneIndex[0] = -2;
-                  v165 = SL_GetString(effectName, 0);
-                  CG_Utils_GetBoneOrigin(obj, (const cpose_t *)outDef.m_particleSystemDef, v165, outBoneIndex, &origin);
-                  SL_RemoveRefToString(v165);
-                  v126 = outCommand + 3;
+                  v126 = SL_GetString(effectName, 0);
+                  CG_Utils_GetBoneOrigin(obj, (const cpose_t *)outDef.m_particleSystemDef, v126, outBoneIndex, &origin);
+                  SL_RemoveRefToString(v126);
+                  v87 = outCommand + 3;
                   if ( outCommand != (char *)-3i64 )
                     goto LABEL_124;
                   goto LABEL_122;
                 }
               }
             }
-            while ( v151 );
-            v64 = SL_GetString(effectName, 0);
-            v65 = v64;
+            while ( v112 );
+            v60 = SL_GetString(effectName, 0);
+            v61 = v60;
             if ( isMayhem )
             {
-              Mayhem_HidePart(0, mayhemEntId, v64);
-              SL_RemoveRefToString(v64);
-              goto LABEL_225;
+              Mayhem_HidePart(0, mayhemEntId, v60);
+              SL_RemoveRefToString(v60);
+              return;
             }
-            v112 = 0;
-            v111 = NULL;
+            v73 = 0;
+            v72 = NULL;
             goto LABEL_103;
           }
         }
       }
-      while ( v143 );
-      v64 = SL_GetString(effectName, 0);
-      v65 = v64;
+      while ( v104 );
+      v60 = SL_GetString(effectName, 0);
+      v61 = v60;
       if ( !isMayhem )
       {
-        v111 = NULL;
+        v72 = NULL;
 LABEL_102:
-        v112 = 1;
+        v73 = 1;
 LABEL_103:
-        CG_Utils_HidePart(obj, v111, v65, v112);
-        SL_RemoveRefToString(v64);
-        break;
+        CG_Utils_HidePart(obj, v72, v61, v73);
+        SL_RemoveRefToString(v60);
+        return;
       }
       goto LABEL_80;
     case 1:
-      v187 = 3i64;
-      v188 = 3i64;
-      v189 = "ps_";
-      v190 = outCommand;
+      v148 = 3i64;
+      v149 = 3i64;
+      v150 = "ps_";
+      v151 = outCommand;
       if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v191 = v190 - "ps_";
+      v152 = v151 - "ps_";
       while ( 1 )
       {
-        v192 = (unsigned __int8)v189[v191];
-        v193 = *(unsigned __int8 *)v189++;
-        if ( !v188-- )
+        v153 = (unsigned __int8)v150[v152];
+        v154 = *(unsigned __int8 *)v150++;
+        if ( !v149-- )
         {
 LABEL_223:
           CG_GetPoseOrigin((const cpose_t *)outDef.m_particleSystemDef, &origin);
           CG_Utils_PlayNotetrackSound(localClientNum, outCommand + 3, entNum, &origin, isViewmodel, isMayhem, 0);
 LABEL_224:
           memset(&origin, 0, sizeof(origin));
-          goto LABEL_225;
+          return;
         }
-        if ( v192 != v193 )
+        if ( v153 != v154 )
         {
-          v195 = v192 + 32;
-          if ( (unsigned int)(v192 - 65) > 0x19 )
-            v195 = v192;
-          v192 = v195;
-          v196 = v193 + 32;
-          if ( (unsigned int)(v193 - 65) > 0x19 )
-            v196 = v193;
-          if ( v192 != v196 )
+          v156 = v153 + 32;
+          if ( (unsigned int)(v153 - 65) > 0x19 )
+            v156 = v153;
+          v153 = v156;
+          v157 = v154 + 32;
+          if ( (unsigned int)(v154 - 65) > 0x19 )
+            v157 = v154;
+          if ( v153 != v157 )
             break;
         }
-        if ( !v192 )
+        if ( !v153 )
           goto LABEL_223;
       }
-      v199 = 4i64;
-      v200 = 4i64;
-      v201 = "psa_";
-      v202 = outCommand;
+      v158 = 4i64;
+      v159 = 4i64;
+      v160 = "psa_";
+      v161 = outCommand;
       if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v203 = v202 - "psa_";
+      v162 = v161 - "psa_";
       do
       {
-        v204 = (unsigned __int8)v201[v203];
-        v205 = *(unsigned __int8 *)v201++;
-        if ( !v200-- )
+        v163 = (unsigned __int8)v160[v162];
+        v164 = *(unsigned __int8 *)v160++;
+        if ( !v159-- )
           break;
-        if ( v204 != v205 )
+        if ( v163 != v164 )
         {
-          v207 = v204 + 32;
-          if ( (unsigned int)(v204 - 65) > 0x19 )
-            v207 = v204;
-          v204 = v207;
-          v208 = v205 + 32;
-          if ( (unsigned int)(v205 - 65) > 0x19 )
-            v208 = v205;
-          if ( v204 != v208 )
+          v166 = v163 + 32;
+          if ( (unsigned int)(v163 - 65) > 0x19 )
+            v166 = v163;
+          v163 = v166;
+          v167 = v164 + 32;
+          if ( (unsigned int)(v164 - 65) > 0x19 )
+            v167 = v164;
+          if ( v163 != v167 )
           {
-            v214 = 4i64;
-            v215 = "pse_";
-            v216 = outCommand;
+            v173 = 4i64;
+            v174 = "pse_";
+            v175 = outCommand;
             if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
               __debugbreak();
-            v217 = v216 - "pse_";
+            v176 = v175 - "pse_";
             do
             {
-              v218 = (unsigned __int8)v215[v217];
-              v219 = *(unsigned __int8 *)v215++;
-              if ( !v214-- )
+              v177 = (unsigned __int8)v174[v176];
+              v178 = *(unsigned __int8 *)v174++;
+              if ( !v173-- )
                 break;
-              if ( v218 != v219 )
+              if ( v177 != v178 )
               {
-                v221 = v218 + 32;
-                if ( (unsigned int)(v218 - 65) > 0x19 )
-                  v221 = v218;
-                v218 = v221;
-                v222 = v219 + 32;
-                if ( (unsigned int)(v219 - 65) > 0x19 )
-                  v222 = v219;
-                if ( v218 != v222 )
+                v180 = v177 + 32;
+                if ( (unsigned int)(v177 - 65) > 0x19 )
+                  v180 = v177;
+                v177 = v180;
+                v181 = v178 + 32;
+                if ( (unsigned int)(v178 - 65) > 0x19 )
+                  v181 = v178;
+                if ( v177 != v181 )
                 {
-                  v227 = "vo_";
-                  v228 = outCommand;
+                  v186 = "vo_";
+                  v187 = outCommand;
                   if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                     __debugbreak();
-                  v229 = v228 - "vo_";
+                  v188 = v187 - "vo_";
                   while ( 1 )
                   {
-                    v230 = (unsigned __int8)v227[v229];
-                    v231 = *(unsigned __int8 *)v227++;
-                    if ( !v187-- )
+                    v189 = (unsigned __int8)v186[v188];
+                    v190 = *(unsigned __int8 *)v186++;
+                    if ( !v148-- )
                     {
 LABEL_272:
                       outBoneIndex[0] = -2;
                       CG_Utils_GetBoneOrigin(obj, (const cpose_t *)outDef.m_particleSystemDef, scr_const.j_head, outBoneIndex, &origin);
-                      v235 = outCommand + 3;
+                      v194 = outCommand + 3;
                       if ( outCommand == (char *)-3i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 399, ASSERT_TYPE_ASSERT, "(aliasName)", (const char *)&queryFormat, "aliasName") )
                         __debugbreak();
-                      v236 = CgSoundSystem::GetSoundSystem(localClientNum);
-                      v236->PlaySoundAliasByName2(v236, (const int)def.m_particleSystemDef, &origin, v235);
-                      goto LABEL_225;
+                      v195 = CgSoundSystem::GetSoundSystem(localClientNum);
+                      v195->PlaySoundAliasByName2(v195, (const int)def.m_particleSystemDef, &origin, v194);
+                      return;
                     }
-                    if ( v230 != v231 )
+                    if ( v189 != v190 )
                     {
-                      v233 = v230 + 32;
-                      if ( (unsigned int)(v230 - 65) > 0x19 )
-                        v233 = v230;
-                      v230 = v233;
-                      v234 = v231 + 32;
-                      if ( (unsigned int)(v231 - 65) > 0x19 )
-                        v234 = v231;
-                      if ( v230 != v234 )
+                      v192 = v189 + 32;
+                      if ( (unsigned int)(v189 - 65) > 0x19 )
+                        v192 = v189;
+                      v189 = v192;
+                      v193 = v190 + 32;
+                      if ( (unsigned int)(v190 - 65) > 0x19 )
+                        v193 = v190;
+                      if ( v189 != v193 )
                         break;
                     }
-                    if ( !v230 )
+                    if ( !v189 )
                       goto LABEL_272;
                   }
-                  noteName = v263->noteName;
+                  noteName = v222->noteName;
                   if ( noteName == scr_const.melee_attack_sfx )
                   {
                     CG_Utils_PlayNotetrackMeleeAttackSound(localClientNum, (int)def.m_particleSystemDef, isViewmodel);
@@ -2544,114 +2380,108 @@ LABEL_272:
                   }
                   else
                   {
-                    v238 = "veh_";
-                    v239 = outCommand;
+                    v197 = "veh_";
+                    v198 = outCommand;
                     if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                       __debugbreak();
-                    v240 = v239 - "veh_";
+                    v199 = v198 - "veh_";
                     do
                     {
-                      v241 = (unsigned __int8)v238[v240];
-                      v242 = *(unsigned __int8 *)v238++;
-                      if ( !v199-- )
+                      v200 = (unsigned __int8)v197[v199];
+                      v201 = *(unsigned __int8 *)v197++;
+                      if ( !v158-- )
                         break;
-                      if ( v241 != v242 )
+                      if ( v200 != v201 )
                       {
-                        v244 = v241 + 32;
-                        if ( (unsigned int)(v241 - 65) > 0x19 )
-                          v244 = v241;
-                        v241 = v244;
-                        v245 = v242 + 32;
-                        if ( (unsigned int)(v242 - 65) > 0x19 )
-                          v245 = v242;
-                        if ( v241 != v245 )
+                        v203 = v200 + 32;
+                        if ( (unsigned int)(v200 - 65) > 0x19 )
+                          v203 = v200;
+                        v200 = v203;
+                        v204 = v201 + 32;
+                        if ( (unsigned int)(v201 - 65) > 0x19 )
+                          v204 = v201;
+                        if ( v200 != v204 )
                         {
-                          v246 = 9i64;
-                          v247 = "vfx_smoke";
-                          v248 = outCommand;
+                          v205 = 9i64;
+                          v206 = "vfx_smoke";
+                          v207 = outCommand;
                           if ( !outCommand && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                             __debugbreak();
-                          v249 = v248 - "vfx_smoke";
+                          v208 = v207 - "vfx_smoke";
                           while ( 1 )
                           {
-                            v250 = (unsigned __int8)v247[v249];
-                            v251 = *(unsigned __int8 *)v247++;
-                            if ( !v246-- )
+                            v209 = (unsigned __int8)v206[v208];
+                            v210 = *(unsigned __int8 *)v206++;
+                            if ( !v205-- )
                               goto LABEL_305;
-                            if ( v250 != v251 )
+                            if ( v209 != v210 )
                             {
-                              v253 = v250 + 32;
-                              if ( (unsigned int)(v250 - 65) > 0x19 )
-                                v253 = v250;
-                              v250 = v253;
-                              v254 = v251 + 32;
-                              if ( (unsigned int)(v251 - 65) > 0x19 )
-                                v254 = v251;
-                              if ( v250 != v254 )
-                                goto LABEL_225;
+                              v212 = v209 + 32;
+                              if ( (unsigned int)(v209 - 65) > 0x19 )
+                                v212 = v209;
+                              v209 = v212;
+                              v213 = v210 + 32;
+                              if ( (unsigned int)(v210 - 65) > 0x19 )
+                                v213 = v210;
+                              if ( v209 != v213 )
+                                return;
                             }
-                            if ( !v250 )
+                            if ( !v209 )
                               goto LABEL_305;
                           }
                         }
                       }
                     }
-                    while ( v241 );
+                    while ( v200 );
 LABEL_305:
                     CG_Utils_PlayVehicleNotetracks(localClientNum, (const int)def.m_particleSystemDef, outCommand, paramBuf);
                   }
-                  goto LABEL_225;
+                  return;
                 }
               }
             }
-            while ( v218 );
-            v223 = CG_GetLocalClientGlobals(localClientNum);
-            v210 = (int)def.m_particleSystemDef;
-            CharacterInfo = cg_t::TryGetCharacterInfo(v223, (const int)def.m_particleSystemDef);
-            v225 = cg_t::TryGetCharacterInfo(v223, v223->predictedPlayerState.clientNum);
+            while ( v177 );
+            v182 = CG_GetLocalClientGlobals(localClientNum);
+            v169 = (int)def.m_particleSystemDef;
+            CharacterInfo = cg_t::TryGetCharacterInfo(v182, (const int)def.m_particleSystemDef);
+            v184 = cg_t::TryGetCharacterInfo(v182, v182->predictedPlayerState.clientNum);
             if ( !CharacterInfo )
-              goto LABEL_225;
-            if ( !v225 )
-              goto LABEL_225;
-            team = v225->team;
+              return;
+            if ( !v184 )
+              return;
+            team = v184->team;
             if ( team )
             {
               if ( team == CharacterInfo->team )
-                goto LABEL_225;
+                return;
             }
             goto LABEL_242;
           }
         }
       }
-      while ( v204 );
-      v209 = CG_GetLocalClientGlobals(localClientNum);
-      v210 = (int)def.m_particleSystemDef;
-      v211 = cg_t::TryGetCharacterInfo(v209, (const int)def.m_particleSystemDef);
-      v212 = cg_t::TryGetCharacterInfo(v209, v209->predictedPlayerState.clientNum);
-      if ( v211 )
+      while ( v163 );
+      v168 = CG_GetLocalClientGlobals(localClientNum);
+      v169 = (int)def.m_particleSystemDef;
+      v170 = cg_t::TryGetCharacterInfo(v168, (const int)def.m_particleSystemDef);
+      v171 = cg_t::TryGetCharacterInfo(v168, v168->predictedPlayerState.clientNum);
+      if ( v170 )
       {
-        if ( v212 )
+        if ( v171 )
         {
-          v213 = v212->team;
-          if ( v213 )
+          v172 = v171->team;
+          if ( v172 )
           {
-            if ( v213 == v211->team )
+            if ( v172 == v170->team )
             {
 LABEL_242:
               CG_GetPoseOrigin((const cpose_t *)outDef.m_particleSystemDef, &origin);
-              CG_Utils_PlayNotetrackSound(localClientNum, outCommand + 4, v210, &origin, isViewmodel, isMayhem, 1);
+              CG_Utils_PlayNotetrackSound(localClientNum, outCommand + 4, v169, &origin, isViewmodel, isMayhem, 1);
               goto LABEL_224;
             }
           }
         }
       }
       break;
-  }
-LABEL_225:
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+710h+var_58+8]
-    vmovaps xmm7, [rsp+710h+var_68+8]
   }
 }
 
@@ -2784,26 +2614,27 @@ CG_Utils_ShouldHighlightInScope
 */
 bool CG_Utils_ShouldHighlightInScope(const LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
-  CgWeaponMap *v4; 
-  char v5; 
-  char v6; 
+  CgWeaponMap *v3; 
+  double v4; 
+  bool result; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v4 = CgWeaponMap::ms_instance[v2];
-  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 947, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  v3 = CgWeaponMap::ms_instance[v1];
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 947, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 9u) )
-    return 0;
-  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 1u) )
-    return 0;
-  *(double *)&_XMM0 = BG_WeaponADSFractionAffectedByReload(v4, &LocalClientGlobals->predictedPlayerState);
-  __asm { vcomiss xmm0, cs:__real@3f400000 }
-  return !(v5 | v6) && BG_GetHudOutlineWeapon(v4, &LocalClientGlobals->predictedPlayerState) && !BG_IsEMPJammed(&LocalClientGlobals->predictedPlayerState);
+  result = 0;
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 9u) && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 1u) )
+  {
+    v4 = BG_WeaponADSFractionAffectedByReload(v3, &LocalClientGlobals->predictedPlayerState);
+    if ( *(float *)&v4 > 0.75 && BG_GetHudOutlineWeapon(v3, &LocalClientGlobals->predictedPlayerState) && !BG_IsEMPJammed(&LocalClientGlobals->predictedPlayerState) )
+      return 1;
+  }
+  return result;
 }
 
 /*
@@ -2935,77 +2766,78 @@ CG_Utils_SubtitlePrint
 */
 void CG_Utils_SubtitlePrint(const LocalClientNum_t localClientNum, int msec, const SndAlias *alias)
 {
-  __int64 v4; 
-  const dvar_t *v7; 
+  __int64 v3; 
+  const dvar_t *v6; 
+  cgs_t *v7; 
+  const dvar_t *v8; 
+  const char *v9; 
   int Int_Internal_DebugName; 
   bool v11; 
   int v12; 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v15; 
+  __int64 v16; 
 
-  v4 = localClientNum;
+  v3 = localClientNum;
   if ( !alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_utils.cpp", 271, ASSERT_TYPE_ASSERT, "(alias)", (const char *)&queryFormat, "alias") )
     __debugbreak();
   if ( msec && alias->subtitle )
   {
-    v7 = DVARBOOL_cg_ignoreSubtitle;
+    v6 = DVARBOOL_cg_ignoreSubtitle;
     if ( !DVARBOOL_cg_ignoreSubtitle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_ignoreSubtitle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( !v7->current.enabled )
+    Dvar_CheckFrontendServerThread(v6);
+    if ( !v6->current.enabled )
     {
-      if ( (unsigned int)v4 >= 2 )
+      if ( (unsigned int)v3 >= 2 )
       {
-        LODWORD(v21) = 2;
-        LODWORD(v20) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 98, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v20, v21) )
+        LODWORD(v16) = 2;
+        LODWORD(v15) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 98, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
-      if ( (int)v4 < cgs_t::ms_allocatedCount )
+      if ( (int)v3 < cgs_t::ms_allocatedCount )
       {
-        if ( (unsigned int)v4 >= cgs_t::ms_allocatedCount )
+        if ( (unsigned int)v3 >= cgs_t::ms_allocatedCount )
         {
-          LODWORD(v21) = cgs_t::ms_allocatedCount;
-          LODWORD(v20) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", v20, v21) )
+          LODWORD(v16) = cgs_t::ms_allocatedCount;
+          LODWORD(v15) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", v15, v16) )
             __debugbreak();
         }
-        if ( !cgs_t::ms_cgsArray[v4] )
+        if ( !cgs_t::ms_cgsArray[v3] )
         {
-          LODWORD(v21) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", v21) )
+          LODWORD(v16) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", v16) )
             __debugbreak();
         }
         if ( cgs_t::ms_allocatedType == STATIC_GLOB_TYPE_UNKNOWN )
         {
-          LODWORD(v21) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", v21) )
+          LODWORD(v16) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", v16) )
             __debugbreak();
         }
-        if ( cgs_t::ms_cgsArray[v4] )
+        v7 = cgs_t::ms_cgsArray[v3];
+        if ( v7 )
         {
-          __asm
+          if ( v7->viewAspect <= 1.3333334 )
           {
-            vmovss  xmm0, cs:__real@3faaaaab
-            vcomiss xmm0, dword ptr [rax+18h]
+            v8 = DVARINT_cg_subtitleWidthStandard;
+            v9 = "cg_subtitleWidthStandard";
           }
-          Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_cg_subtitleWidthStandard, "cg_subtitleWidthStandard");
+          else
+          {
+            v8 = DVARINT_cg_subtitleWidthWidescreen;
+            v9 = "cg_subtitleWidthWidescreen";
+          }
+          Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(v8, v9);
           v11 = HIBYTE(alias->flags) & 1;
           v12 = Int_Internal_DebugName;
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_subtitleMinTime, "cg_subtitleMinTime");
-          __asm
-          {
-            vmulss  xmm1, xmm0, cs:__real@447a0000
-            vaddss  xmm3, xmm1, cs:__real@3f000000
-            vxorps  xmm2, xmm2, xmm2
-            vmovss  xmm4, xmm2, xmm3
-            vxorps  xmm0, xmm0, xmm0
-            vroundss xmm1, xmm0, xmm4, 1
-            vcvttss2si eax, xmm1
-          }
-          if ( _EAX > msec )
-            msec = _EAX;
-          CL_SubtitlePrint((LocalClientNum_t)v4, alias->subtitle, msec, v12, v11);
+          Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_subtitleMinTime, "cg_subtitleMinTime");
+          _XMM0 = 0i64;
+          __asm { vroundss xmm1, xmm0, xmm4, 1 }
+          if ( (int)*(float *)&_XMM1 > msec )
+            msec = (int)*(float *)&_XMM1;
+          CL_SubtitlePrint((LocalClientNum_t)v3, alias->subtitle, msec, v12, v11);
         }
       }
     }
@@ -3228,76 +3060,39 @@ CG_Utils_WhizbyPoint
 */
 void CG_Utils_WhizbyPoint(LocalClientNum_t localClientNum, const vec3_t *start, const vec3_t *end, vec3_t *outPoint)
 {
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  float v13; 
+  float v14; 
   cg_t *LocalClientGlobals; 
+  float v16; 
   vec3_t outOrg; 
-  __int64 v52; 
-  void *retaddr; 
+  __int64 v18; 
 
-  _RAX = &retaddr;
-  v52 = -2i64;
+  v18 = -2i64;
+  v6 = end->v[0] - start->v[0];
+  v8 = LODWORD(end->v[1]);
+  v7 = end->v[1] - start->v[1];
+  v9 = end->v[2] - start->v[2];
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v9 * v9));
+  _XMM1 = v8;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBX = outPoint;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm6, xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [r8+4]
-    vsubss  xmm5, xmm1, dword ptr [rdx+4]
-    vmovss  xmm0, dword ptr [r8+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm2, xmm0
-    vdivss  xmm0, xmm2, xmm1
-    vmulss  xmm7, xmm0, xmm6
-    vmulss  xmm8, xmm0, xmm5
-    vmulss  xmm9, xmm0, xmm4
   }
+  v13 = (float)(1.0 / *(float *)&_XMM1) * v6;
+  v14 = (float)(1.0 / *(float *)&_XMM1) * v7;
+  *(float *)&v8 = (float)(1.0 / *(float *)&_XMM1) * v9;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+outOrg]
-    vsubss  xmm3, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rsp+88h+outOrg+4]
-    vsubss  xmm2, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rsp+88h+outOrg+8]
-    vsubss  xmm4, xmm0, dword ptr [rdi+8]
-    vmulss  xmm2, xmm8, xmm2
-    vmulss  xmm1, xmm7, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm4
-    vaddss  xmm5, xmm3, xmm0
-    vmulss  xmm1, xmm7, xmm5
-    vaddss  xmm2, xmm1, dword ptr [rdi]
-    vmovss  dword ptr [rbx], xmm2
-    vmulss  xmm0, xmm8, xmm5
-    vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm2, xmm9, xmm5
-    vaddss  xmm0, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  v16 = (float)((float)(v14 * (float)(outOrg.v[1] - start->v[1])) + (float)(v13 * (float)(outOrg.v[0] - start->v[0]))) + (float)(*(float *)&v8 * (float)(outOrg.v[2] - start->v[2]));
+  outPoint->v[0] = (float)(v13 * v16) + start->v[0];
+  outPoint->v[1] = (float)(v14 * v16) + start->v[1];
+  outPoint->v[2] = (float)(*(float *)&v8 * v16) + start->v[2];
   memset(&outOrg, 0, sizeof(outOrg));
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-  }
 }
 
 /*
@@ -3307,21 +3102,12 @@ GetOutlineFadeAmount
 */
 float GetOutlineFadeAmount(const int *beginFadeTime, LocalClientNum_t localClientNum)
 {
-  if ( *beginFadeTime < CgGlobalsMP::GetLocalClientGlobals(localClientNum)->time )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm2, xmm0, cs:__real@3a2ec33e
-      vsubss  xmm0, xmm1, xmm2
-    }
-  }
+  int time; 
+
+  time = CgGlobalsMP::GetLocalClientGlobals(localClientNum)->time;
+  if ( *beginFadeTime < time )
+    return 1.0 - (float)((float)(time - *beginFadeTime) * 0.00066666666);
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+    return FLOAT_1_0;
 }
 

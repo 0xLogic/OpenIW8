@@ -137,99 +137,100 @@ void RB_EffectLighting(ComputeCmdBufState *computeState, const GfxViewInfo *view
   const R_RT_Surface *Surface; 
   const GfxBackEndData *v15; 
   bool v17; 
+  const dvar_t *v18; 
   bool v19; 
-  __int64 v21; 
-  const R_RT_Surface *v22; 
-  const GfxWrappedBuffer *v23; 
-  const R_RT_Surface *v24; 
-  const GfxWrappedBuffer *v25; 
+  __int64 v20; 
+  const R_RT_Surface *v21; 
+  const GfxWrappedBuffer *v22; 
+  const R_RT_Surface *v23; 
+  const GfxWrappedBuffer *v24; 
+  const R_RT_Surface *v25; 
   const R_RT_Surface *v26; 
   const R_RT_Surface *v27; 
   const R_RT_Surface *v28; 
-  const R_RT_Surface *v29; 
   __int64 i; 
   const GfxTexture *Resident; 
-  GfxImage **v32; 
-  __int64 v33; 
-  const GfxTexture *v34; 
+  GfxImage **v31; 
+  __int64 v32; 
+  const GfxTexture *v33; 
   __int64 j; 
-  const GfxTexture *v36; 
-  GfxImage **v37; 
-  __int64 v38; 
-  const GfxTexture *v39; 
+  const GfxTexture *v35; 
+  GfxImage **v36; 
+  __int64 v37; 
+  const GfxTexture *v38; 
   __int64 k; 
-  const GfxTexture *v41; 
-  GfxImage **v42; 
-  __int64 v43; 
-  const GfxTexture *v44; 
+  const GfxTexture *v40; 
+  GfxImage **v41; 
+  __int64 v42; 
+  const GfxTexture *v43; 
   __int64 m; 
-  const GfxTexture *v46; 
-  GfxImage **v47; 
-  __int64 v48; 
-  const GfxTexture *v49; 
+  const GfxTexture *v45; 
+  GfxImage **v46; 
+  __int64 v47; 
+  const GfxTexture *v48; 
   __int64 n; 
-  const GfxTexture *v51; 
-  GfxImage **v52; 
-  __int64 v53; 
-  const GfxTexture *v54; 
+  const GfxTexture *v50; 
+  GfxImage **v51; 
+  __int64 v52; 
+  const GfxTexture *v53; 
   __int64 ii; 
-  const GfxTexture *v56; 
-  GfxImage **v57; 
-  __int64 v58; 
-  const GfxTexture *v59; 
+  const GfxTexture *v55; 
+  GfxImage **v56; 
+  __int64 v57; 
+  const GfxTexture *v58; 
   __int64 jj; 
-  const GfxTexture *v61; 
-  GfxImage **v62; 
-  __int64 v63; 
-  const GfxTexture *v64; 
+  const GfxTexture *v60; 
+  GfxImage **v61; 
+  __int64 v62; 
+  const GfxTexture *v63; 
   __int64 kk; 
-  const GfxTexture *v66; 
-  GfxImage **v67; 
-  __int64 v68; 
-  const GfxTexture *v69; 
-  GfxShaderBufferView **v70; 
-  __int64 v71; 
-  const GfxTexture *v72; 
-  GfxImage **v73; 
-  __int64 v74; 
-  const GfxTexture *v75; 
+  const GfxTexture *v65; 
+  GfxImage **v66; 
+  __int64 v67; 
+  const GfxTexture *v68; 
+  GfxShaderBufferView **v69; 
+  __int64 v70; 
+  const GfxTexture *v71; 
+  GfxImage **v72; 
+  __int64 v73; 
+  const GfxTexture *v74; 
   __int64 mm; 
-  const GfxTexture *v77; 
-  GfxImage **v78; 
-  __int64 v79; 
-  const GfxTexture *v80; 
+  const GfxTexture *v76; 
+  GfxImage **v77; 
+  __int64 v78; 
+  const GfxTexture *v79; 
   __int64 nn; 
-  const GfxTexture *v82; 
-  GfxImage **v83; 
-  __int64 v84; 
-  const GfxTexture *v85; 
+  const GfxTexture *v81; 
+  GfxImage **v82; 
+  __int64 v83; 
+  const GfxTexture *v84; 
   __int64 i1; 
-  const GfxTexture *v87; 
-  GfxImage **v88; 
-  __int64 v89; 
-  const GfxTexture *v90; 
+  const GfxTexture *v86; 
+  GfxImage **v87; 
+  __int64 v88; 
+  const GfxTexture *v89; 
   __int64 i2; 
-  const GfxTexture *v92; 
-  GfxImage **v93; 
-  __int64 v94; 
-  const GfxTexture *v95; 
+  const GfxTexture *v91; 
+  GfxImage **v92; 
+  __int64 v93; 
+  const GfxTexture *v94; 
   __int64 i3; 
-  const GfxTexture *v97; 
-  GfxImage **v98; 
-  const GfxTexture *v99; 
+  const GfxTexture *v96; 
+  GfxImage **v97; 
+  const GfxTexture *v98; 
+  GfxShaderBufferView *v99[2]; 
   GfxShaderBufferView *v100[2]; 
-  GfxShaderBufferView *v101[2]; 
   GfxShaderBufferView *views[2]; 
-  GfxShaderBufferView *v103; 
+  GfxShaderBufferView *v102; 
   ID3D12Resource *buffers; 
   EffectLightingMultiLightGridTempBuffers multiLightGridTempBuffers; 
   GfxShaderBufferView *p_view; 
   GfxTexture *textures; 
-  GfxTexture *v108[2]; 
+  GfxTexture *v107[2]; 
   GfxTexture *data[2]; 
   GfxImage *lightGenImages[2]; 
-  __int64 v111; 
-  GfxImage *v112[3]; 
+  __int64 v110; 
+  GfxImage *v111[3]; 
 
   Sys_ProfBeginNamedEvent(0xFFFF7F50, "Fx Lighting");
   v5 = viewInfo->input.data;
@@ -266,128 +267,118 @@ LABEL_6:
     R_SetComputeTextures(computeState, 35, 1, (const GfxTexture *const *)&textures);
     data[0] = (GfxTexture *)R_Texture_GetResident(iesLookupTexture->textureId);
     R_SetComputeTextures(computeState, 26, 1, (const GfxTexture *const *)data);
-    v108[0] = (GfxTexture *)R_Texture_GetResident(rgp.hgPhaseFunction->textureId);
-    R_SetComputeTextures(computeState, 27, 1, (const GfxTexture *const *)v108);
+    v107[0] = (GfxTexture *)R_Texture_GetResident(rgp.hgPhaseFunction->textureId);
+    R_SetComputeTextures(computeState, 27, 1, (const GfxTexture *const *)v107);
     views[0] = &R_ReflectionProbe_GetInstanceBuffer(computeState->data->reflectionProbeFrameIndex)->view;
     R_SetComputeViews(computeState, 10, 1, (const GfxShaderBufferView *const *)views);
-    v101[0] = &R_ReflectionProbe_GetObbBuffer(computeState->data->reflectionProbeFrameIndex)->view;
-    R_SetComputeViews(computeState, 11, 1, (const GfxShaderBufferView *const *)v101);
-    v100[0] = &R_ReflectionProbe_GetLightgridOverrideBuffer(computeState->data->reflectionProbeFrameIndex)->view;
-    R_SetComputeViews(computeState, 12, 1, (const GfxShaderBufferView *const *)v100);
+    v100[0] = &R_ReflectionProbe_GetObbBuffer(computeState->data->reflectionProbeFrameIndex)->view;
+    R_SetComputeViews(computeState, 11, 1, (const GfxShaderBufferView *const *)v100);
+    v99[0] = &R_ReflectionProbe_GetLightgridOverrideBuffer(computeState->data->reflectionProbeFrameIndex)->view;
+    R_SetComputeViews(computeState, 12, 1, (const GfxShaderBufferView *const *)v99);
     p_view = &R_ReflectionProbe_GetSHBuffer()->view;
     R_SetComputeViews(computeState, 31, 1, (const GfxShaderBufferView *const *)&p_view);
-    v103 = &R_CompressedSunShadow_GetBuffer()->view;
-    R_SetComputeViews(computeState, 34, 1, (const GfxShaderBufferView *const *)&v103);
+    v102 = &R_CompressedSunShadow_GetBuffer()->view;
+    R_SetComputeViews(computeState, 34, 1, (const GfxShaderBufferView *const *)&v102);
     buffers = viewInfo->input.data->globalSceneConstantBuffer->buffer;
     R_SetComputeConstantBuffers(computeState, 7, 1, &buffers);
     R_GPU_BeginTimer(GPU_TIMER_EFFECT_LIGHTING);
     R_ProfBeginNamedEvent(computeState, "effect lighting");
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+150h+var_100], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)v100 = _XMM0;
     views[0] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&s_lightmap)->m_image;
     views[1] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&stru_152646720)->m_image;
-    v100[0] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&s_lightmap_tmp)->m_image;
-    v100[1] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&stru_152646760)->m_image;
-    R_VOL_GetAccumImages(viewInfo, (const GfxImage **)&buffers, (const GfxImage **)&v103, (const GfxImage **)&p_view);
-    v112[0] = (GfxImage *)buffers;
-    v112[1] = (GfxImage *)v103;
+    v99[0] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&s_lightmap_tmp)->m_image;
+    v99[1] = (GfxShaderBufferView *)&R_RT_Handle::GetSurface(&stru_152646760)->m_image;
+    R_VOL_GetAccumImages(viewInfo, (const GfxImage **)&buffers, (const GfxImage **)&v102, (const GfxImage **)&p_view);
+    v111[0] = (GfxImage *)buffers;
+    v111[1] = (GfxImage *)v102;
     Surface = R_RT_Handle::GetSurface(&s_fogLightmap);
-    v111 = 0i64;
-    v112[2] = &Surface->m_image.m_base;
+    v110 = 0i64;
+    v111[2] = &Surface->m_image.m_base;
     v15 = computeState->data;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+50h+var_70], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)lightGenImages = _XMM0;
     v17 = R_ReflectionProbe_UseLightgridOverride(v15->reflectionProbeFrameIndex);
-    _RBX = fx_lighting_shScale;
+    v18 = fx_lighting_shScale;
     v19 = v17;
     if ( !fx_lighting_shScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 669, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+28h]
-      vmovaps xmmword ptr [rbp+50h+var_90], xmm0
-      vmovdqa xmmword ptr [rbp+50h+data], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v18);
+    *(DvarValue *)v107 = v18->current;
+    *(_OWORD *)data = *(_OWORD *)v107;
     R_UploadAndSetComputeConstants(computeState, 0, data, 0x10u, NULL);
-    v21 = 3i64;
+    v20 = 3i64;
     if ( RB_GpuLightGrid_DataAvailable(viewInfo) )
     {
       if ( R_LGV_UseMultiLightGridSampling() )
       {
-        v22 = R_RT_Handle::GetSurface(&s_lightGridElemsColor);
-        if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+        v21 = R_RT_Handle::GetSurface(&s_lightGridElemsColor);
+        if ( (v21->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
           __debugbreak();
-        v23 = (const GfxWrappedBuffer *)&v22->1080;
-        multiLightGridTempBuffers.m_lightGridElements[0] = (const GfxWrappedRWBuffer *)&v22->1080;
-        v24 = R_RT_Handle::GetSurface(&s_lightGridElemsSh);
-        if ( (v24->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+        v22 = (const GfxWrappedBuffer *)&v21->1080;
+        multiLightGridTempBuffers.m_lightGridElements[0] = (const GfxWrappedRWBuffer *)&v21->1080;
+        v23 = R_RT_Handle::GetSurface(&s_lightGridElemsSh);
+        if ( (v23->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
           __debugbreak();
-        v25 = (const GfxWrappedBuffer *)&v24->1080;
-        multiLightGridTempBuffers.m_lightGridElements[1] = (const GfxWrappedRWBuffer *)&v24->1080;
-        v26 = R_RT_Handle::GetSurface(&s_lightGridDataColor);
+        v24 = (const GfxWrappedBuffer *)&v23->1080;
+        multiLightGridTempBuffers.m_lightGridElements[1] = (const GfxWrappedRWBuffer *)&v23->1080;
+        v25 = R_RT_Handle::GetSurface(&s_lightGridDataColor);
+        if ( (v25->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+          __debugbreak();
+        multiLightGridTempBuffers.m_lightingData[0] = (const GfxWrappedRWBuffer *)&v25->1080;
+        v26 = R_RT_Handle::GetSurface(&s_lightGridDataSh);
         if ( (v26->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
           __debugbreak();
-        multiLightGridTempBuffers.m_lightingData[0] = (const GfxWrappedRWBuffer *)&v26->1080;
-        v27 = R_RT_Handle::GetSurface(&s_lightGridDataSh);
+        multiLightGridTempBuffers.m_lightingData[1] = (const GfxWrappedRWBuffer *)&v26->1080;
+        v27 = R_RT_Handle::GetSurface(&s_lightGridAlphaColor);
         if ( (v27->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
           __debugbreak();
-        multiLightGridTempBuffers.m_lightingData[1] = (const GfxWrappedRWBuffer *)&v27->1080;
-        v28 = R_RT_Handle::GetSurface(&s_lightGridAlphaColor);
+        multiLightGridTempBuffers.m_lightingAlpha[0] = (const GfxWrappedRWBuffer *)&v27->1080;
+        v28 = R_RT_Handle::GetSurface(&s_lightGridAlphaSh);
         if ( (v28->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
           __debugbreak();
-        multiLightGridTempBuffers.m_lightingAlpha[0] = (const GfxWrappedRWBuffer *)&v28->1080;
-        v29 = R_RT_Handle::GetSurface(&s_lightGridAlphaSh);
-        if ( (v29->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
-          __debugbreak();
-        multiLightGridTempBuffers.m_lightingAlpha[1] = (const GfxWrappedRWBuffer *)&v29->1080;
+        multiLightGridTempBuffers.m_lightingAlpha[1] = (const GfxWrappedRWBuffer *)&v28->1080;
         R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE);
-        R_HW_AddResourceTransition(computeState, v23, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        R_HW_AddResourceTransition(computeState, v25, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        R_HW_AddResourceTransition(computeState, v22, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        R_HW_AddResourceTransition(computeState, v24, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         for ( i = 0i64; i < 2; ++i )
         {
-          Resident = R_Texture_GetResident((GfxTextureId)LODWORD(v101[i][1].resource));
+          Resident = R_Texture_GetResident((GfxTextureId)LODWORD(v100[i][1].resource));
           R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v32 = lightGenImages;
-        v33 = 3i64;
+        v31 = lightGenImages;
+        v32 = 3i64;
         do
         {
-          if ( *v32 )
+          if ( *v31 )
           {
-            v34 = R_Texture_GetResident((*v32)->textureId);
-            R_HW_AddResourceTransition(computeState, v34, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v33 = R_Texture_GetResident((*v31)->textureId);
+            R_HW_AddResourceTransition(computeState, v33, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v32;
-          --v33;
+          ++v31;
+          --v32;
         }
-        while ( v33 );
+        while ( v32 );
         R_HW_FlushResourceTransitions(computeState);
-        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE, (const GfxImage *const *)v101, (const GfxImage *const *)v101, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
+        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE, (const GfxImage *const *)v100, (const GfxImage *const *)v100, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
         for ( j = 0i64; j < 2; ++j )
         {
-          v36 = R_Texture_GetResident((GfxTextureId)LODWORD(v101[j][1].resource));
-          R_HW_AddResourceTransition(computeState, v36, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v35 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[j][1].resource));
+          R_HW_AddResourceTransition(computeState, v35, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v37 = lightGenImages;
-        v38 = 3i64;
+        v36 = lightGenImages;
+        v37 = 3i64;
         do
         {
-          if ( *v37 )
+          if ( *v36 )
           {
-            v39 = R_Texture_GetResident((*v37)->textureId);
-            R_HW_AddResourceTransition(computeState, v39, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v38 = R_Texture_GetResident((*v36)->textureId);
+            R_HW_AddResourceTransition(computeState, v38, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v37;
-          --v38;
+          ++v36;
+          --v37;
         }
-        while ( v38 );
+        while ( v37 );
         R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE);
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightGridElements[0], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightGridElements[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
@@ -397,42 +388,42 @@ LABEL_6:
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightingAlpha[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         for ( k = 0i64; k < 2; ++k )
         {
-          v41 = R_Texture_GetResident((GfxTextureId)LODWORD(v101[k][1].resource));
-          R_HW_AddResourceTransition(computeState, v41, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v40 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[k][1].resource));
+          R_HW_AddResourceTransition(computeState, v40, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v42 = lightGenImages;
-        v43 = 3i64;
+        v41 = lightGenImages;
+        v42 = 3i64;
         do
         {
-          if ( *v42 )
+          if ( *v41 )
           {
-            v44 = R_Texture_GetResident((*v42)->textureId);
-            R_HW_AddResourceTransition(computeState, v44, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v43 = R_Texture_GetResident((*v41)->textureId);
+            R_HW_AddResourceTransition(computeState, v43, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v42;
-          --v43;
+          ++v41;
+          --v42;
         }
-        while ( v43 );
+        while ( v42 );
         R_HW_FlushResourceTransitions(computeState);
-        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE, (const GfxImage *const *)v101, (const GfxImage *const *)v101, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
+        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE, (const GfxImage *const *)v100, (const GfxImage *const *)v100, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
         for ( m = 0i64; m < 2; ++m )
         {
-          v46 = R_Texture_GetResident((GfxTextureId)LODWORD(v101[m][1].resource));
-          R_HW_AddResourceTransition(computeState, v46, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v45 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[m][1].resource));
+          R_HW_AddResourceTransition(computeState, v45, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v47 = lightGenImages;
-        v48 = 3i64;
+        v46 = lightGenImages;
+        v47 = 3i64;
         do
         {
-          if ( *v47 )
+          if ( *v46 )
           {
-            v49 = R_Texture_GetResident((*v47)->textureId);
-            R_HW_AddResourceTransition(computeState, v49, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v48 = R_Texture_GetResident((*v46)->textureId);
+            R_HW_AddResourceTransition(computeState, v48, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v47;
-          --v48;
+          ++v46;
+          --v47;
         }
-        while ( v48 );
+        while ( v47 );
         R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE);
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightingData[0], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightingData[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
@@ -440,210 +431,210 @@ LABEL_6:
         R_HW_AddResourceTransition(computeState, multiLightGridTempBuffers.m_lightingAlpha[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         for ( n = 0i64; n < 2; ++n )
         {
-          v51 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[n][1].resource));
-          R_HW_AddResourceTransition(computeState, v51, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v50 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[n][1].resource));
+          R_HW_AddResourceTransition(computeState, v50, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v52 = lightGenImages;
-        v53 = 3i64;
+        v51 = lightGenImages;
+        v52 = 3i64;
         do
         {
-          if ( *v52 )
+          if ( *v51 )
           {
-            v54 = R_Texture_GetResident((*v52)->textureId);
-            R_HW_AddResourceTransition(computeState, v54, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v53 = R_Texture_GetResident((*v51)->textureId);
+            R_HW_AddResourceTransition(computeState, v53, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v52;
-          --v53;
+          ++v51;
+          --v52;
         }
-        while ( v53 );
+        while ( v52 );
         R_HW_FlushResourceTransitions(computeState);
-        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, (const GfxImage *const *)v101, (const GfxImage *const *)v100, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
+        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE, (const GfxImage *const *)v100, (const GfxImage *const *)v99, (const GfxImage *const *)lightGenImages, &multiLightGridTempBuffers);
         for ( ii = 0i64; ii < 2; ++ii )
         {
-          v56 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[ii][1].resource));
-          R_HW_AddResourceTransition(computeState, v56, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v55 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[ii][1].resource));
+          R_HW_AddResourceTransition(computeState, v55, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v57 = lightGenImages;
-        v58 = 3i64;
+        v56 = lightGenImages;
+        v57 = 3i64;
         do
         {
-          if ( *v57 )
+          if ( *v56 )
           {
-            v59 = R_Texture_GetResident((*v57)->textureId);
-            R_HW_AddResourceTransition(computeState, v59, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v58 = R_Texture_GetResident((*v56)->textureId);
+            R_HW_AddResourceTransition(computeState, v58, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v57;
-          --v58;
+          ++v56;
+          --v57;
         }
-        while ( v58 );
+        while ( v57 );
       }
       else
       {
         R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_SAMPLE_LIGHTGRID);
         for ( jj = 0i64; jj < 2; ++jj )
         {
-          v61 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[jj][1].resource));
-          R_HW_AddResourceTransition(computeState, v61, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v60 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[jj][1].resource));
+          R_HW_AddResourceTransition(computeState, v60, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v62 = lightGenImages;
-        v63 = 3i64;
+        v61 = lightGenImages;
+        v62 = 3i64;
         do
         {
-          if ( *v62 )
+          if ( *v61 )
           {
-            v64 = R_Texture_GetResident((*v62)->textureId);
-            R_HW_AddResourceTransition(computeState, v64, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v63 = R_Texture_GetResident((*v61)->textureId);
+            R_HW_AddResourceTransition(computeState, v63, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v62;
-          --v63;
+          ++v61;
+          --v62;
         }
-        while ( v63 );
+        while ( v62 );
         R_HW_FlushResourceTransitions(computeState);
-        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_SAMPLE_LIGHTGRID, (const GfxImage *const *)v101, (const GfxImage *const *)v100, (const GfxImage *const *)lightGenImages, NULL);
+        R_EffectLighting_Process(computeState, viewInfo, v19, EFFECT_LIGHTING_SAMPLE_LIGHTGRID, (const GfxImage *const *)v100, (const GfxImage *const *)v99, (const GfxImage *const *)lightGenImages, NULL);
         for ( kk = 0i64; kk < 2; ++kk )
         {
-          v66 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[kk][1].resource));
-          R_HW_AddResourceTransition(computeState, v66, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v65 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[kk][1].resource));
+          R_HW_AddResourceTransition(computeState, v65, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        v67 = lightGenImages;
-        v68 = 3i64;
+        v66 = lightGenImages;
+        v67 = 3i64;
         do
         {
-          if ( *v67 )
+          if ( *v66 )
           {
-            v69 = R_Texture_GetResident((*v67)->textureId);
-            R_HW_AddResourceTransition(computeState, v69, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            v68 = R_Texture_GetResident((*v66)->textureId);
+            R_HW_AddResourceTransition(computeState, v68, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           }
-          ++v67;
-          --v68;
+          ++v66;
+          --v67;
         }
-        while ( v68 );
+        while ( v67 );
       }
     }
     R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_LIGHTMAP_GENERATE);
-    v70 = v100;
-    v71 = 0i64;
+    v69 = v99;
+    v70 = 0i64;
     if ( !RB_GpuLightGrid_DataAvailable(viewInfo) )
-      v70 = v101;
+      v69 = v100;
     do
     {
-      v72 = R_Texture_GetResident((GfxTextureId)LODWORD(views[v71][1].resource));
-      R_HW_AddResourceTransition(computeState, v72, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-      ++v71;
+      v71 = R_Texture_GetResident((GfxTextureId)LODWORD(views[v70][1].resource));
+      R_HW_AddResourceTransition(computeState, v71, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      ++v70;
     }
-    while ( v71 < 2 );
-    v73 = v112;
-    v74 = 3i64;
+    while ( v70 < 2 );
+    v72 = v111;
+    v73 = 3i64;
     do
     {
-      if ( *v73 )
+      if ( *v72 )
       {
-        v75 = R_Texture_GetResident((*v73)->textureId);
-        R_HW_AddResourceTransition(computeState, v75, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v74 = R_Texture_GetResident((*v72)->textureId);
+        R_HW_AddResourceTransition(computeState, v74, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      ++v73;
-      --v74;
+      ++v72;
+      --v73;
     }
-    while ( v74 );
+    while ( v73 );
     R_HW_FlushResourceTransitions(computeState);
-    R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_GENERATE, (const GfxImage *const *)v70, (const GfxImage *const *)views, (const GfxImage *const *)v112, NULL);
+    R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_GENERATE, (const GfxImage *const *)v69, (const GfxImage *const *)views, (const GfxImage *const *)v111, NULL);
     for ( mm = 0i64; mm < 2; ++mm )
     {
-      v77 = R_Texture_GetResident((GfxTextureId)LODWORD(views[mm][1].resource));
-      R_HW_AddResourceTransition(computeState, v77, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      v76 = R_Texture_GetResident((GfxTextureId)LODWORD(views[mm][1].resource));
+      R_HW_AddResourceTransition(computeState, v76, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     }
-    v78 = v112;
-    v79 = 3i64;
+    v77 = v111;
+    v78 = 3i64;
     do
     {
-      if ( *v78 )
+      if ( *v77 )
       {
-        v80 = R_Texture_GetResident((*v78)->textureId);
-        R_HW_AddResourceTransition(computeState, v80, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v79 = R_Texture_GetResident((*v77)->textureId);
+        R_HW_AddResourceTransition(computeState, v79, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      ++v78;
-      --v79;
+      ++v77;
+      --v78;
     }
-    while ( v79 );
+    while ( v78 );
     if ( fx_gpu_scatter->current.enabled )
     {
       R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_LIGHTMAP_BLUR_X);
       for ( nn = 0i64; nn < 2; ++nn )
       {
-        v82 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[nn][1].resource));
-        R_HW_AddResourceTransition(computeState, v82, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v81 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[nn][1].resource));
+        R_HW_AddResourceTransition(computeState, v81, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      v83 = lightGenImages;
-      v84 = 3i64;
+      v82 = lightGenImages;
+      v83 = 3i64;
       do
       {
-        if ( *v83 )
+        if ( *v82 )
         {
-          v85 = R_Texture_GetResident((*v83)->textureId);
-          R_HW_AddResourceTransition(computeState, v85, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v84 = R_Texture_GetResident((*v82)->textureId);
+          R_HW_AddResourceTransition(computeState, v84, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        ++v83;
-        --v84;
+        ++v82;
+        --v83;
       }
-      while ( v84 );
+      while ( v83 );
       R_HW_FlushResourceTransitions(computeState);
-      R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_BLUR_X, (const GfxImage *const *)views, (const GfxImage *const *)v100, (const GfxImage *const *)lightGenImages, NULL);
+      R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_BLUR_X, (const GfxImage *const *)views, (const GfxImage *const *)v99, (const GfxImage *const *)lightGenImages, NULL);
       for ( i1 = 0i64; i1 < 2; ++i1 )
       {
-        v87 = R_Texture_GetResident((GfxTextureId)LODWORD(v100[i1][1].resource));
-        R_HW_AddResourceTransition(computeState, v87, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v86 = R_Texture_GetResident((GfxTextureId)LODWORD(v99[i1][1].resource));
+        R_HW_AddResourceTransition(computeState, v86, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      v88 = lightGenImages;
-      v89 = 3i64;
+      v87 = lightGenImages;
+      v88 = 3i64;
       do
       {
-        if ( *v88 )
+        if ( *v87 )
         {
-          v90 = R_Texture_GetResident((*v88)->textureId);
-          R_HW_AddResourceTransition(computeState, v90, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v89 = R_Texture_GetResident((*v87)->textureId);
+          R_HW_AddResourceTransition(computeState, v89, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        ++v88;
-        --v89;
+        ++v87;
+        --v88;
       }
-      while ( v89 );
+      while ( v88 );
       R_DeferredLighting_SetupOverlappingInput(computeState, viewInfo, EFFECT_LIGHTING_LIGHTMAP_BLUR_Y);
       for ( i2 = 0i64; i2 < 2; ++i2 )
       {
-        v92 = R_Texture_GetResident((GfxTextureId)LODWORD(views[i2][1].resource));
-        R_HW_AddResourceTransition(computeState, v92, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v91 = R_Texture_GetResident((GfxTextureId)LODWORD(views[i2][1].resource));
+        R_HW_AddResourceTransition(computeState, v91, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      v93 = lightGenImages;
-      v94 = 3i64;
+      v92 = lightGenImages;
+      v93 = 3i64;
       do
       {
-        if ( *v93 )
+        if ( *v92 )
         {
-          v95 = R_Texture_GetResident((*v93)->textureId);
-          R_HW_AddResourceTransition(computeState, v95, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v94 = R_Texture_GetResident((*v92)->textureId);
+          R_HW_AddResourceTransition(computeState, v94, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        ++v93;
-        --v94;
+        ++v92;
+        --v93;
       }
-      while ( v94 );
+      while ( v93 );
       R_HW_FlushResourceTransitions(computeState);
-      R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_BLUR_Y, (const GfxImage *const *)v100, (const GfxImage *const *)views, (const GfxImage *const *)lightGenImages, NULL);
+      R_EffectLighting_Process(computeState, viewInfo, 0, EFFECT_LIGHTING_LIGHTMAP_BLUR_Y, (const GfxImage *const *)v99, (const GfxImage *const *)views, (const GfxImage *const *)lightGenImages, NULL);
       for ( i3 = 0i64; i3 < 2; ++i3 )
       {
-        v97 = R_Texture_GetResident((GfxTextureId)LODWORD(views[i3][1].resource));
-        R_HW_AddResourceTransition(computeState, v97, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v96 = R_Texture_GetResident((GfxTextureId)LODWORD(views[i3][1].resource));
+        R_HW_AddResourceTransition(computeState, v96, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       }
-      v98 = lightGenImages;
+      v97 = lightGenImages;
       do
       {
-        if ( *v98 )
+        if ( *v97 )
         {
-          v99 = R_Texture_GetResident((*v98)->textureId);
-          R_HW_AddResourceTransition(computeState, v99, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v98 = R_Texture_GetResident((*v97)->textureId);
+          R_HW_AddResourceTransition(computeState, v98, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
         }
-        ++v98;
-        --v21;
+        ++v97;
+        --v20;
       }
-      while ( v21 );
+      while ( v20 );
     }
     R_HW_FlushResourceTransitions(computeState);
     R_ProfEndNamedEvent(computeState);
@@ -660,59 +651,50 @@ R_DeferredLighting_SetupOverlappingInput
 */
 void R_DeferredLighting_SetupOverlappingInput(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, EffectLightingProcessType processType)
 {
+  __int16 v3; 
   unsigned __int16 opaqueCascadeCount; 
+  __int64 v8; 
   R_RT_Image *p_m_image; 
   R_RT_Image *zeroImage; 
   GfxImage *translucentSunShadowMaskImage; 
   const GfxWrappedBuffer *lightsClusterBuffer; 
-  R_RT_Handle v17; 
+  R_RT_Handle m_translucentShadowRt; 
 
-  _RSI = viewInfo;
   opaqueCascadeCount = viewInfo->input.data->sunShadow.opaqueCascadeCount;
-  if ( (*((_BYTE *)&_RSI->viewportFeatures + 44) & 4) != 0 )
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
-    _RAX = 12928i64;
+    v8 = 808i64;
     if ( opaqueCascadeCount > 1u )
-      _RAX = 12960i64;
-    __asm
+      v8 = 810i64;
+    m_translucentShadowRt = *(R_RT_Handle *)viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[v8].v;
+    if ( v3 )
     {
-      vmovups ymm0, ymmword ptr [rax+rsi]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+78h+var_38.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v17);
-      p_m_image = &R_RT_Handle::GetSurface(&v17)->m_image;
+      R_RT_Handle::GetSurface(&m_translucentShadowRt);
+      p_m_image = &R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_image;
       goto LABEL_9;
     }
-    if ( v17.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( m_translucentShadowRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
   }
   p_m_image = (R_RT_Image *)rgp.blackShadowImage;
 LABEL_9:
-  if ( (*((_BYTE *)&_RSI->viewportFeatures + 44) & 4) != 0 && rg.useTransSunShadow )
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 && rg.useTransSunShadow )
   {
-    __asm
+    m_translucentShadowRt = (R_RT_Handle)viewInfo->sceneRtInput.m_translucentShadowRt;
+    if ( v3 )
     {
-      vmovups ymm0, ymmword ptr [rsi+3300h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+78h+var_38.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v17);
-      zeroImage = &R_RT_Handle::GetSurface(&v17)->m_image;
+      R_RT_Handle::GetSurface(&m_translucentShadowRt);
+      zeroImage = &R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_image;
       goto LABEL_16;
     }
-    if ( v17.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( m_translucentShadowRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
   }
   zeroImage = (R_RT_Image *)rgp.zeroImage;
 LABEL_16:
   translucentSunShadowMaskImage = rgp.blackImage;
   lightsClusterBuffer = R_GetFrustumLightsClusterBuffer();
-  R_DeferredLighting_SetupOverlappingInputCustom(computeState, _RSI, processType, &p_m_image->m_base, &zeroImage->m_base, translucentSunShadowMaskImage, lightsClusterBuffer);
+  R_DeferredLighting_SetupOverlappingInputCustom(computeState, viewInfo, processType, &p_m_image->m_base, &zeroImage->m_base, translucentSunShadowMaskImage, lightsClusterBuffer);
 }
 
 /*
@@ -723,18 +705,16 @@ R_DeferredLighting_SetupOverlappingInputCustom
 void R_DeferredLighting_SetupOverlappingInputCustom(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, EffectLightingProcessType processType, const GfxImage *sunShadowImage, const GfxImage *translucentSunShadowImage, const GfxImage *translucentSunShadowMaskImage, const GfxWrappedBuffer *lightsClusterBuffer)
 {
   __int64 voxelTreeZoneIndex; 
+  bool v11; 
+  GfxImage *SVDBasis; 
   GfxWrappedBuffer *p_dummyBuffer; 
   GfxTexture *Resident; 
-  int v14; 
+  int v15; 
   GfxImage *MagmaHeightfield; 
   GfxTexture *textures; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMin; GfxWorld s_world
-    vcomiss xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMax; GfxWorld s_world
-  }
   voxelTreeZoneIndex = viewInfo->input.voxelTreeZoneIndex;
+  v11 = s_world.precomputedSkyIllumination.boxMin.v[0] < s_world.precomputedSkyIllumination.boxMax.v[0] && r_enablePrecomputedSkyIllumination->current.enabled;
   if ( processType )
   {
     if ( processType == EFFECT_LIGHTING_LIGHTMAP_GENERATE )
@@ -755,8 +735,8 @@ void R_DeferredLighting_SetupOverlappingInputCustom(ComputeCmdBufState *computeS
       textures = (GfxTexture *)R_Texture_GetResident(translucentSunShadowImage->textureId);
       R_SetComputeTextures(computeState, 18, 1, (const GfxTexture *const *)&textures);
       Resident = (GfxTexture *)R_Texture_GetResident(translucentSunShadowMaskImage->textureId);
-      v14 = 32;
-      goto LABEL_10;
+      v15 = 32;
+      goto LABEL_17;
     }
     if ( processType == EFFECT_LIGHTING_LIGHTMAP_GENERATE_OUT_OF_FRUSTUM )
     {
@@ -784,23 +764,37 @@ void R_DeferredLighting_SetupOverlappingInputCustom(ComputeCmdBufState *computeS
       R_SetComputeTextures(computeState, 18, 1, (const GfxTexture *const *)&textures);
       textures = (GfxTexture *)R_Texture_GetResident(translucentSunShadowMaskImage->textureId);
       R_SetComputeTextures(computeState, 32, 1, (const GfxTexture *const *)&textures);
-      goto LABEL_11;
+      goto LABEL_18;
     }
     if ( (unsigned int)(processType - 5) > 2 )
-      goto LABEL_11;
+      goto LABEL_18;
   }
-  textures = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
-  R_SetComputeTextures(computeState, 13, 1, (const GfxTexture *const *)&textures);
-  textures = (GfxTexture *)R_Texture_GetResident(rgp.whiteImage->textureId);
-  R_SetComputeTextures(computeState, 14, 1, (const GfxTexture *const *)&textures);
-  textures = (GfxTexture *)R_Texture_GetResident(rgp.blackImage3D->textureId);
-  R_SetComputeTextures(computeState, 15, 1, (const GfxTexture *const *)&textures);
-  Resident = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
-  v14 = 16;
-LABEL_10:
+  if ( v11 )
+  {
+    textures = (GfxTexture *)R_Texture_GetResident(s_world.precomputedSkyIllumination.heightMap->textureId);
+    R_SetComputeTextures(computeState, 13, 1, (const GfxTexture *const *)&textures);
+    textures = (GfxTexture *)R_Texture_GetResident(s_world.precomputedSkyIllumination.detailMask->textureId);
+    R_SetComputeTextures(computeState, 14, 1, (const GfxTexture *const *)&textures);
+    textures = (GfxTexture *)R_Texture_GetResident(s_world.precomputedSkyIllumination.SVDCoefficient->textureId);
+    R_SetComputeTextures(computeState, 15, 1, (const GfxTexture *const *)&textures);
+    SVDBasis = s_world.precomputedSkyIllumination.SVDBasis;
+  }
+  else
+  {
+    textures = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
+    R_SetComputeTextures(computeState, 13, 1, (const GfxTexture *const *)&textures);
+    textures = (GfxTexture *)R_Texture_GetResident(rgp.whiteImage->textureId);
+    R_SetComputeTextures(computeState, 14, 1, (const GfxTexture *const *)&textures);
+    textures = (GfxTexture *)R_Texture_GetResident(rgp.blackImage3D->textureId);
+    R_SetComputeTextures(computeState, 15, 1, (const GfxTexture *const *)&textures);
+    SVDBasis = rgp.blackImage;
+  }
+  Resident = (GfxTexture *)R_Texture_GetResident(SVDBasis->textureId);
+  v15 = 16;
+LABEL_17:
   textures = Resident;
-  R_SetComputeTextures(computeState, v14, 1, (const GfxTexture *const *)&textures);
-LABEL_11:
+  R_SetComputeTextures(computeState, v15, 1, (const GfxTexture *const *)&textures);
+LABEL_18:
   MagmaHeightfield = (GfxImage *)Particle_GetMagmaHeightfield();
   if ( !MagmaHeightfield )
     MagmaHeightfield = rgp.blackImage;
@@ -865,147 +859,87 @@ R_EffectLighting_FreeRts
 
 void __fastcall R_EffectLighting_FreeRts(double _XMM0_8)
 {
-  __int64 v3; 
-  R_RT_Handle v24; 
+  __int64 v1; 
+  __int64 v2; 
+  __m256i v3; 
+  __m256i v6; 
+  __m256i v7; 
+  __m256i v8; 
+  __m256i v9; 
+  __m256i v10; 
+  R_RT_Handle v11; 
 
-  _R14 = 0x140000000ui64;
-  _RBX = 0i64;
-  v3 = 2i64;
+  v1 = 0i64;
+  v2 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+r14+12646700h]
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v24);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+r14+12646740h]
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v24);
-    v24.m_surfaceID = 0;
-    _RBX += 32i64;
-    v24.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm1, [rbp+var_20]
-    }
-    v24.m_surfaceID = 0;
-    v24.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups ymmword ptr [rbx+r14+126466E0h], ymm1
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm1, [rbp+var_20]
-      vmovups ymmword ptr [rbx+r14+12646720h], ymm1
-    }
-    --v3;
+    v11 = *(R_RT_Handle *)((char *)&s_lightmap + v1);
+    R_RT_DestroyInternal(&v11);
+    v11 = *(R_RT_Handle *)((char *)&s_lightmap_tmp + v1);
+    R_RT_DestroyInternal(&v11);
+    v11.m_surfaceID = 0;
+    v1 += 32i64;
+    v11.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v11.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+    v3 = (__m256i)v11;
+    v11.m_surfaceID = 0;
+    v11.m_tracking.m_allocCounter = 0;
+    *(__m256i *)((char *)&unk_1526466E0 + v1) = v3;
+    *(_OWORD *)&v11.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+    *(R_RT_Handle *)((char *)&stru_152646720 + v1) = v11;
+    --v2;
   }
-  while ( v3 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_fogLightmap@@3VR_RT_ColorHandle@@A.baseclass_0.m_surfaceID; R_RT_ColorHandle s_fogLightmap
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymm0, ymmword ptr cs:?s_lightGridElemsColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridElemsColor
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovups ymm1, [rbp+var_20]
-    vmovups ymmword ptr cs:?s_fogLightmap@@3VR_RT_ColorHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_ColorHandle s_fogLightmap
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_lightGridElemsSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridElemsSh
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_lightGridDataColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridDataColor
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_lightGridDataSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridDataSh
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_lightGridAlphaColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridAlphaColor
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?s_lightGridAlphaSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID; R_RT_BufferHandle s_lightGridAlphaSh
-    vmovups [rbp+var_20], ymm0
-  }
-  R_RT_DestroyInternal(&v24);
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymm1, [rbp+var_20]
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridElemsColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridElemsColor
-    vmovups ymm1, [rbp+var_20]
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridElemsSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridElemsSh
-    vmovups ymm1, [rbp+var_20]
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridDataColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridDataColor
-    vmovups ymm1, [rbp+var_20]
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridDataSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridDataSh
-    vmovups ymm1, [rbp+var_20]
-  }
-  v24.m_surfaceID = 0;
-  v24.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovups ymmword ptr cs:?s_lightGridAlphaColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridAlphaColor
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymm1, [rbp+var_20]
-    vmovups ymmword ptr cs:?s_lightGridAlphaSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridAlphaSh
-  }
+  while ( v2 );
+  v11 = (R_RT_Handle)s_fogLightmap;
+  R_RT_DestroyInternal(&v11);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  s_fogLightmap = (R_RT_ColorHandle)v11;
+  v11 = (R_RT_Handle)s_lightGridElemsColor;
+  R_RT_DestroyInternal(&v11);
+  v11 = (R_RT_Handle)s_lightGridElemsSh;
+  R_RT_DestroyInternal(&v11);
+  v11 = (R_RT_Handle)s_lightGridDataColor;
+  R_RT_DestroyInternal(&v11);
+  v11 = (R_RT_Handle)s_lightGridDataSh;
+  R_RT_DestroyInternal(&v11);
+  v11 = (R_RT_Handle)s_lightGridAlphaColor;
+  R_RT_DestroyInternal(&v11);
+  v11 = (R_RT_Handle)s_lightGridAlphaSh;
+  R_RT_DestroyInternal(&v11);
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  v6 = (__m256i)v11;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  s_lightGridElemsColor = (R_RT_BufferHandle)v6;
+  v7 = (__m256i)v11;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  s_lightGridElemsSh = (R_RT_BufferHandle)v7;
+  v8 = (__m256i)v11;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  s_lightGridDataColor = (R_RT_BufferHandle)v8;
+  v9 = (__m256i)v11;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  s_lightGridDataSh = (R_RT_BufferHandle)v9;
+  v10 = (__m256i)v11;
+  v11.m_surfaceID = 0;
+  v11.m_tracking.m_allocCounter = 0;
+  s_lightGridAlphaColor = (R_RT_BufferHandle)v10;
+  *(_OWORD *)&v11.m_tracking.m_name = _XMM0;
+  s_lightGridAlphaSh = (R_RT_BufferHandle)v11;
 }
 
 /*
@@ -1045,42 +979,47 @@ R_EffectLighting_LazyAllocRts
 
 void __fastcall R_EffectLighting_LazyAllocRts(double _XMM0_8)
 {
-  bool v7; 
+  R_RT_Handle v1; 
+  R_RT_Handle v3; 
+  bool v5; 
+  R_RT_Handle v6; 
+  bool v8; 
+  R_RT_Handle v9; 
   bool v11; 
-  bool v15; 
-  GfxDataFormat v19; 
+  R_RT_BufferHandle *BufferInternal; 
+  GfxDataFormat v13; 
   unsigned int BytesPerElement; 
-  GfxDataFormat v23; 
-  unsigned int v25; 
-  GfxDataFormat v27; 
-  unsigned int v29; 
-  GfxDataFormat v31; 
-  unsigned int v33; 
-  bool v39; 
-  R_RT_Handle v40; 
+  R_RT_BufferHandle *v15; 
+  GfxDataFormat v16; 
+  unsigned int v17; 
+  R_RT_BufferHandle *v18; 
+  GfxDataFormat v19; 
+  unsigned int v20; 
+  R_RT_BufferHandle *v21; 
+  GfxDataFormat v22; 
+  unsigned int v23; 
+  R_RT_Handle v24; 
+  bool v26; 
+  R_RT_Handle v27; 
+  R_RT_Handle v28; 
   R_RT_Handle result; 
 
   if ( !R_RT_Handle::IsValid(&s_lightmap) )
   {
-    _RAX = R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[48], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(91)");
-    __asm
+    v1 = *R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[48], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(91)");
+    v28 = v1;
+    v27 = v1;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+var_60], ymm0
-      vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v40);
-      if ( (R_RT_Handle::GetSurface(&v40)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v27);
+      if ( (R_RT_Handle::GetSurface(&v27)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v1 = v27;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v1 = v27;
       }
     }
     else
@@ -1088,31 +1027,26 @@ void __fastcall R_EffectLighting_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        __asm { vmovups ymm0, [rbp+var_60] }
+        v1 = v28;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:?s_lightmap@@3PAVR_RT_ColorHandle@@A.m_surfaceID, ymm0; R_RT_ColorHandle near * s_lightmap }
-    _RAX = R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[48], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting colortmp", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(92)");
-    __asm
+    s_lightmap = v1;
+    v3 = *R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[48], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting colortmp", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(92)");
+    v28 = v3;
+    v27 = v3;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+var_60], ymm0
-      vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v40);
-      if ( (R_RT_Handle::GetSurface(&v40)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v27);
+      if ( (R_RT_Handle::GetSurface(&v27)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v3 = v27;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v3 = v27;
       }
     }
     else
@@ -1120,32 +1054,55 @@ void __fastcall R_EffectLighting_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+var_60] }
-        if ( v7 )
+        v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v3 = v28;
+        if ( v5 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:?s_lightmap_tmp@@3PAVR_RT_ColorHandle@@A.m_surfaceID, ymm0; R_RT_ColorHandle near * s_lightmap_tmp }
-    _RAX = R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 3u, 1u, g_R_RT_renderTargetFmts[49], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sh", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(94)");
-    __asm
+    s_lightmap_tmp = v3;
+    v6 = *R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 3u, 1u, g_R_RT_renderTargetFmts[49], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sh", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(94)");
+    v28 = v6;
+    v27 = v6;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+var_60], ymm0
-      vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v40);
-      if ( (R_RT_Handle::GetSurface(&v40)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v27);
+      if ( (R_RT_Handle::GetSurface(&v27)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v6 = v27;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v6 = v27;
+      }
+    }
+    else
+    {
+      __asm { vpextrd rax, xmm0, 2 }
+      if ( (_DWORD)_RAX )
+      {
+        v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v6 = v28;
+        if ( v8 )
+          __debugbreak();
+      }
+    }
+    stru_152646720 = v6;
+    v9 = *R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 3u, 1u, g_R_RT_renderTargetFmts[49], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting shtmp", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(95)");
+    v28 = v9;
+    v27 = v9;
+    if ( LOWORD(_XMM0_8) )
+    {
+      R_RT_Handle::GetSurface(&v27);
+      if ( (R_RT_Handle::GetSurface(&v27)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      {
+        v9 = v27;
+        __debugbreak();
+      }
+      else
+      {
+        v9 = v27;
       }
     }
     else
@@ -1154,108 +1111,44 @@ void __fastcall R_EffectLighting_LazyAllocRts(double _XMM0_8)
       if ( (_DWORD)_RAX )
       {
         v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+var_60] }
+        v9 = v28;
         if ( v11 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:stru_152646720.m_surfaceID, ymm0 }
-    _RAX = R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 3u, 1u, g_R_RT_renderTargetFmts[49], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting shtmp", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(95)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+var_60], ymm0
-      vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v40);
-      if ( (R_RT_Handle::GetSurface(&v40)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
-      {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
-        __debugbreak();
-      }
-      else
-      {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
-      }
-    }
-    else
-    {
-      __asm { vpextrd rax, xmm0, 2 }
-      if ( (_DWORD)_RAX )
-      {
-        v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+var_60] }
-        if ( v15 )
-          __debugbreak();
-      }
-    }
-    __asm { vmovups ymmword ptr cs:stru_152646760.m_surfaceID, ymm0 }
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 0x50u, 0x18000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color elems", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(97)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridElemsColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridElemsColor
-    }
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 0x50u, 0x18000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color elems", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(98)");
-    v19 = g_R_RT_bufferFmts[8];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridElemsSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridElemsSh
-    }
+    stru_152646760 = v9;
+    s_lightGridElemsColor = *R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 0x50u, 0x18000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color elems", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(97)");
+    BufferInternal = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 0x50u, 0x18000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting color elems", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(98)");
+    v13 = g_R_RT_bufferFmts[8];
+    s_lightGridElemsSh = *BufferInternal;
     BytesPerElement = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[8]);
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, BytesPerElement, 0x40000u, v19, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled color", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(99)");
-    v23 = g_R_RT_bufferFmts[9];
-    __asm
+    v15 = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, BytesPerElement, 0x40000u, v13, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled color", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(99)");
+    v16 = g_R_RT_bufferFmts[9];
+    s_lightGridDataColor = *v15;
+    v17 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[9]);
+    v18 = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v17, 0x100000u, v16, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled sh", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(100)");
+    v19 = g_R_RT_bufferFmts[10];
+    s_lightGridDataSh = *v18;
+    v20 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[10]);
+    v21 = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v20, 0x100000u, v19, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled color alpha", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(101)");
+    v22 = g_R_RT_bufferFmts[10];
+    s_lightGridAlphaColor = *v21;
+    v23 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[10]);
+    s_lightGridAlphaSh = *R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v23, 0x100000u, v22, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled sh alpha", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(102)");
+    v24 = *R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 2u, 1u, g_R_RT_renderTargetFmts[50], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting fog", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(104)");
+    v28 = v24;
+    v27 = v24;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridDataColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridDataColor
-    }
-    v25 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[9]);
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v25, 0x100000u, v23, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled sh", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(100)");
-    v27 = g_R_RT_bufferFmts[10];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridDataSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridDataSh
-    }
-    v29 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[10]);
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v29, 0x100000u, v27, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled color alpha", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(101)");
-    v31 = g_R_RT_bufferFmts[10];
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridAlphaColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridAlphaColor
-    }
-    v33 = DataFormat_GetBytesPerElement(g_R_RT_bufferFmts[10]);
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v33, 0x100000u, v31, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting sampled sh alpha", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(102)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr cs:?s_lightGridAlphaSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_BufferHandle s_lightGridAlphaSh
-    }
-    _RAX = R_RT_CreateInternal(&result, 0x200u, 0x200u, 0x200u, 0x200u, 1u, 2u, 1u, g_R_RT_renderTargetFmts[50], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "effect lighting fog", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp(104)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+var_60], ymm0
-      vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v40);
-      if ( (R_RT_Handle::GetSurface(&v40)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v27);
+      if ( (R_RT_Handle::GetSurface(&v27)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v24 = v27;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+        v24 = v27;
       }
     }
     else
@@ -1263,13 +1156,13 @@ void __fastcall R_EffectLighting_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+var_60] }
-        if ( v39 )
+        v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v24 = v28;
+        if ( v26 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:?s_fogLightmap@@3VR_RT_ColorHandle@@A.baseclass_0.m_surfaceID, ymm0; R_RT_ColorHandle s_fogLightmap }
+    s_fogLightmap = (R_RT_ColorHandle)v24;
   }
 }
 
@@ -1280,394 +1173,379 @@ R_EffectLighting_Process
 */
 void R_EffectLighting_Process(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const bool useReflectionProbeOverride, EffectLightingProcessType processType, const GfxImage *const *imagesRead, const GfxImage *const *imagesWrite, const GfxImage *const *lightGenImages, const EffectLightingMultiLightGridTempBuffers *multiLightGridTempBuffers)
 {
-  EffectLightingProcessType v10; 
-  const GfxBackEndData *v12; 
-  char v14; 
+  EffectLightingProcessType v8; 
+  const GfxBackEndData *v10; 
+  char v12; 
   int NumActiveLightGrids; 
-  unsigned int v16; 
+  unsigned int v14; 
   GfxCmdBufInput *p_input; 
-  __int64 v18; 
+  __int64 v16; 
+  int v17; 
+  const GfxGpuLightGrid *v18; 
   int v19; 
-  const GfxGpuLightGrid *v21; 
-  int v22; 
-  __int64 v23; 
-  int *v24; 
+  __int64 v20; 
+  int *v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  int v24; 
   __int64 v25; 
-  unsigned int v26; 
-  int v27; 
-  __int64 v28; 
-  int v29; 
-  __int64 v30; 
-  unsigned int v32; 
-  __int64 v33; 
+  int v26; 
+  __int64 v27; 
+  unsigned int v28; 
+  __int64 v29; 
   GfxImage *blackImage; 
-  GfxImage *v35; 
-  __int64 v36; 
-  int v37; 
-  GfxShaderBufferView *v38; 
-  __int64 v39; 
-  bool v40; 
-  unsigned int v41; 
-  __int64 v42; 
-  const GfxImage *const *v43; 
+  GfxImage *v31; 
+  __int64 v32; 
+  int v33; 
+  GfxShaderBufferView *v34; 
+  __int64 v35; 
+  bool v36; 
+  unsigned int v37; 
+  __int64 v38; 
+  const GfxImage *const *v39; 
   const GfxImage *Image; 
-  __int64 v45; 
-  const ComputeShader *v46; 
-  __int64 v47; 
-  int v48; 
+  __int64 v41; 
+  const ComputeShader *v42; 
+  __int64 v43; 
+  int v44; 
   GfxMultiLightGridFXLightingBuffers *lightGridBuffers; 
-  __int64 v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  unsigned int v54; 
+  __int64 v46; 
+  unsigned int v47; 
+  unsigned int v48; 
+  unsigned int v49; 
   bool enabled; 
   GfxShaderBufferView *views; 
-  bool v59; 
-  bool v60; 
-  const GfxBackEndData *v61; 
-  GfxShaderBufferView **v62; 
-  EffectLightingProcessType v63; 
-  int v64; 
+  bool v52; 
+  bool v53; 
+  const GfxBackEndData *v54; 
+  GfxShaderBufferView **v55; 
+  EffectLightingProcessType v56; 
+  int v57; 
+  int v58; 
+  int v59; 
+  __int64 v60; 
+  const GfxViewInfo *v61; 
+  __int64 v62; 
+  unsigned __int64 v63; 
+  unsigned int v64; 
   int v65; 
-  int v66; 
-  __int64 v67; 
-  const GfxViewInfo *v68; 
+  const GfxImage *const *v66; 
+  const EffectLightingMultiLightGridTempBuffers *v67; 
+  __int64 v68; 
   __int64 v69; 
-  unsigned __int64 v70; 
-  unsigned int v71; 
-  int v72; 
-  const GfxImage *const *v73; 
-  const EffectLightingMultiLightGridTempBuffers *v74; 
-  __int64 v75; 
-  __int64 v76; 
-  __int64 v77; 
-  int *v78; 
-  int *v79; 
-  const GfxGpuLightGrid *v80; 
+  __int64 v70; 
+  int *v71; 
+  int *v72; 
+  const GfxGpuLightGrid *v73; 
   const GfxWrappedRWBuffer **m_lightingAlpha; 
-  int *v82; 
-  __int64 v83; 
+  int *v75; 
+  __int64 v76; 
   const GfxGpuLightGrid **ActiveLightGridsList; 
   GfxTexture *textures; 
-  __int64 v86; 
+  __int64 v79; 
   GfxTexture *Resident; 
-  __int64 v88; 
-  const GfxImage *const *v89; 
-  GfxTexture *v90; 
-  GfxTexture *v91; 
-  GfxTexture *v92; 
-  GfxTexture *v93; 
-  __int64 v94; 
-  GfxCmdBufInput *v95; 
-  int data[7]; 
+  __int64 v81; 
+  const GfxImage *const *v82; 
+  GfxTexture *v83; 
+  GfxTexture *v84; 
+  GfxTexture *v85; 
+  GfxTexture *v86; 
+  __int64 v87; 
+  GfxCmdBufInput *v88; 
+  int data; 
+  float v90; 
+  float v91; 
+  int v92; 
+  int v93; 
+  int v94; 
+  int v95; 
+  __int64 v96; 
   int v97; 
-  __int64 v98; 
-  int v99; 
   tmat44_t<vec4_t> out; 
 
-  v10 = processType;
-  v12 = viewInfo->input.data;
-  v73 = imagesRead;
-  v89 = lightGenImages;
-  v63 = processType;
-  v59 = useReflectionProbeOverride;
-  v68 = viewInfo;
-  v74 = multiLightGridTempBuffers;
-  v61 = v12;
-  if ( processType == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE && !v12->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 212, ASSERT_TYPE_ASSERT, "(!iterateOverLightGrids || ( mesh->lightGridBuffers != nullptr ))", (const char *)&queryFormat, "!iterateOverLightGrids || ( mesh->lightGridBuffers != nullptr )") )
+  v8 = processType;
+  v10 = viewInfo->input.data;
+  v66 = imagesRead;
+  v82 = lightGenImages;
+  v56 = processType;
+  v52 = useReflectionProbeOverride;
+  v61 = viewInfo;
+  v67 = multiLightGridTempBuffers;
+  v54 = v10;
+  if ( processType == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE && !v10->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 212, ASSERT_TYPE_ASSERT, "(!iterateOverLightGrids || ( mesh->lightGridBuffers != nullptr ))", (const char *)&queryFormat, "!iterateOverLightGrids || ( mesh->lightGridBuffers != nullptr )") )
     __debugbreak();
   ActiveLightGridsList = R_GetActiveLightGridsList(viewInfo->input.data);
-  v60 = RB_GpuLightGrid_DataAvailable(viewInfo);
-  v14 = v60;
-  if ( v10 == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE )
+  v53 = RB_GpuLightGrid_DataAvailable(viewInfo);
+  v12 = v53;
+  if ( v8 == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE )
   {
     NumActiveLightGrids = R_GetNumActiveLightGrids(viewInfo->input.data);
-    v14 = v60;
+    v12 = v53;
   }
   else
   {
     NumActiveLightGrids = 1;
   }
-  if ( v10 == EFFECT_LIGHTING_LIGHTMAP_BLUR_X || v10 == EFFECT_LIGHTING_LIGHTMAP_BLUR_Y )
-    v16 = 3;
+  if ( v8 == EFFECT_LIGHTING_LIGHTMAP_BLUR_X || v8 == EFFECT_LIGHTING_LIGHTMAP_BLUR_Y )
+    v14 = 3;
   else
-    v16 = 0;
-  v65 = v16;
-  v66 = 0;
-  v94 = NumActiveLightGrids;
+    v14 = 0;
+  v58 = v14;
+  v59 = 0;
+  v87 = NumActiveLightGrids;
   if ( NumActiveLightGrids > 0 )
   {
-    v73 = (const GfxImage *const *)((char *)v73 - (__int64)multiLightGridTempBuffers);
+    v66 = (const GfxImage *const *)((char *)v66 - (__int64)multiLightGridTempBuffers);
     p_input = &viewInfo->input;
-    v18 = 0i64;
-    v71 = __ROL4__(1, v16);
+    v16 = 0i64;
+    v64 = __ROL4__(1, v14);
     m_lightingAlpha = multiLightGridTempBuffers->m_lightingAlpha;
-    v19 = v16;
-    __asm
-    {
-      vmovaps [rsp+230h+var_50], xmm6
-      vmovaps [rsp+230h+var_60], xmm7
-      vmovss  xmm7, cs:__real@3f000000
-    }
-    v83 = v16;
-    v82 = (int *)((char *)v12->mesh[0].lightingCount + 4 * v16);
-    v77 = 0i64;
-    v88 = -32i64 - (_QWORD)multiLightGridTempBuffers;
-    v95 = p_input;
-    v86 = (char *)imagesWrite - (char *)multiLightGridTempBuffers;
+    v17 = v14;
+    v76 = v14;
+    v75 = (int *)((char *)v10->mesh[0].lightingCount + 4 * v14);
+    v70 = 0i64;
+    v81 = -32i64 - (_QWORD)multiLightGridTempBuffers;
+    v88 = p_input;
+    v79 = (char *)imagesWrite - (char *)multiLightGridTempBuffers;
     do
     {
-      v21 = NULL;
-      v80 = NULL;
-      if ( v14 )
+      v18 = NULL;
+      v73 = NULL;
+      if ( v12 )
       {
-        v21 = ActiveLightGridsList[v18];
-        v80 = v21;
+        v18 = ActiveLightGridsList[v16];
+        v73 = v18;
       }
-      RB_GpuLightGrid_SetResouces(computeState, p_input, v21);
-      v22 = 0;
-      v62 = (GfxShaderBufferView **)m_lightingAlpha;
-      v23 = 42i64;
-      v24 = v82;
-      v79 = v82;
-      v64 = 0;
-      v67 = 0i64;
-      v70 = 0i64;
-      v76 = 4328i64;
-      v75 = 42i64;
+      RB_GpuLightGrid_SetResouces(computeState, p_input, v18);
+      v19 = 0;
+      v55 = (GfxShaderBufferView **)m_lightingAlpha;
+      v20 = 42i64;
+      v21 = v75;
+      v72 = v75;
+      v57 = 0;
+      v60 = 0i64;
+      v63 = 0i64;
+      v69 = 4328i64;
+      v68 = 42i64;
       do
       {
-        v25 = v83;
-        v26 = v71;
-        v69 = v83;
-        v78 = v24;
+        v22 = v76;
+        v23 = v64;
+        v62 = v76;
+        v71 = v21;
         do
         {
-          v27 = *v24;
-          v72 = v27;
-          if ( v10 == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE )
+          v24 = *v21;
+          v65 = v24;
+          if ( v8 == EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE )
           {
-            v28 = v18 + 20 * (v23 + v25);
-            v25 = v69;
-            v29 = *((_DWORD *)&v12->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v28);
+            v25 = v16 + 20 * (v20 + v22);
+            v22 = v62;
+            v26 = *((_DWORD *)&v10->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v25);
           }
           else
           {
-            v29 = v27;
+            v26 = v24;
           }
-          if ( v29 )
+          if ( v26 )
           {
-            v30 = 3i64;
-            __asm
-            {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, rax
-            }
-            if ( v19 < 3 )
-              v30 = (unsigned int)v19;
-            v32 = 1 << v30;
+            v27 = 3i64;
+            if ( v17 < 3 )
+              v27 = (unsigned int)v17;
+            v28 = 1 << v27;
             enabled = fx_lighting_lowres_ambient->current.enabled;
-            v33 = v19 + 6i64 * v22;
-            views = &v68->input.data->mesh[0].lightingView[0][v33];
+            v29 = v17 + 6i64 * v19;
+            views = &v61->input.data->mesh[0].lightingView[0][v29];
             R_SetComputeViews(computeState, 28, 1, (const GfxShaderBufferView *const *)&views);
-            blackImage = *(GfxImage **)((char *)v73 + (_QWORD)v62 - 32);
+            blackImage = *(GfxImage **)((char *)v66 + (_QWORD)v55 - 32);
             if ( !blackImage )
               blackImage = rgp.blackImage;
             textures = (GfxTexture *)R_Texture_GetResident(blackImage->textureId);
             R_SetComputeTextures(computeState, 29, 1, (const GfxTexture *const *)&textures);
-            v35 = *(GfxImage **)((char *)v62 + v86 - 32);
-            if ( !v35 )
-              v35 = rgp.blackImage;
-            Resident = (GfxTexture *)R_Texture_GetResident(v35->textureId);
+            v31 = *(GfxImage **)((char *)v55 + v79 - 32);
+            if ( !v31 )
+              v31 = rgp.blackImage;
+            Resident = (GfxTexture *)R_Texture_GetResident(v31->textureId);
             R_SetComputeRWTextures(computeState, 0, 1, (const GfxTexture *const *)&Resident);
-            switch ( v63 )
+            switch ( v56 )
             {
               case EFFECT_LIGHTING_SAMPLE_LIGHTGRID:
-                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectLightgridComputeShader[0][v67][4 * (enabled ? 2 : 0)][2 * v30] + v59));
+                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectLightgridComputeShader[0][v60][4 * (enabled ? 2 : 0)][2 * v27] + v52));
                 views = &R_GetFallbackProbe()->view;
                 R_SetComputeViews(computeState, 30, 1, (const GfxShaderBufferView *const *)&views);
-                v40 = !enabled;
+                v36 = !enabled;
                 goto LABEL_44;
               case EFFECT_LIGHTING_LIGHTMAP_BLUR_X:
-                v45 = 0i64;
-                if ( v19 == 5 )
-                  v45 = 1i64;
-                v46 = rgp.deferredEffectScatterXComputeShader[v70 / 0x10][v45];
+                v41 = 0i64;
+                if ( v17 == 5 )
+                  v41 = 1i64;
+                v42 = rgp.deferredEffectScatterXComputeShader[v63 / 0x10][v41];
                 goto LABEL_66;
               case EFFECT_LIGHTING_LIGHTMAP_GENERATE:
               case EFFECT_LIGHTING_LIGHTMAP_GENERATE_OUT_OF_FRUSTUM:
-                v42 = 0i64;
-                if ( v63 == EFFECT_LIGHTING_LIGHTMAP_GENERATE_OUT_OF_FRUSTUM )
-                  v42 = 4i64;
-                R_SetComputeShader(computeState, rgp.deferredEffectLightingComputeShader[0][0][(_QWORD)v62 + v42 + (unsigned int)v30 + v88]);
+                v38 = 0i64;
+                if ( v56 == EFFECT_LIGHTING_LIGHTMAP_GENERATE_OUT_OF_FRUSTUM )
+                  v38 = 4i64;
+                R_SetComputeShader(computeState, rgp.deferredEffectLightingComputeShader[0][0][(_QWORD)v55 + v38 + (unsigned int)v27 + v81]);
                 views = &R_GetFallbackProbe()->view;
                 R_SetComputeViews(computeState, 30, 1, (const GfxShaderBufferView *const *)&views);
-                if ( !v64 )
+                if ( !v57 )
                 {
-                  v43 = v89;
-                  v90 = (GfxTexture *)R_Texture_GetResident((*v89)->textureId);
-                  R_SetComputeTextures(computeState, 0, 1, (const GfxTexture *const *)&v90);
-                  v91 = (GfxTexture *)R_Texture_GetResident((GfxTextureId)*(_DWORD *)(*((_QWORD *)v43 + 1) + 16i64));
-                  R_SetComputeTextures(computeState, 1, 1, (const GfxTexture *const *)&v91);
-                  Image = RB_FogSpline_GetImage(&v68->fog, v68->clientIndex);
-                  v92 = (GfxTexture *)R_Texture_GetResident(Image->textureId);
-                  R_SetComputeTextures(computeState, 2, 1, (const GfxTexture *const *)&v92);
-                  v93 = (GfxTexture *)R_Texture_GetResident((GfxTextureId)*(_DWORD *)(*((_QWORD *)v43 + 2) + 16i64));
-                  R_SetComputeRWTextures(computeState, 1, 1, (const GfxTexture *const *)&v93);
+                  v39 = v82;
+                  v83 = (GfxTexture *)R_Texture_GetResident((*v82)->textureId);
+                  R_SetComputeTextures(computeState, 0, 1, (const GfxTexture *const *)&v83);
+                  v84 = (GfxTexture *)R_Texture_GetResident((GfxTextureId)*(_DWORD *)(*((_QWORD *)v39 + 1) + 16i64));
+                  R_SetComputeTextures(computeState, 1, 1, (const GfxTexture *const *)&v84);
+                  Image = RB_FogSpline_GetImage(&v61->fog, v61->clientIndex);
+                  v85 = (GfxTexture *)R_Texture_GetResident(Image->textureId);
+                  R_SetComputeTextures(computeState, 2, 1, (const GfxTexture *const *)&v85);
+                  v86 = (GfxTexture *)R_Texture_GetResident((GfxTextureId)*(_DWORD *)(*((_QWORD *)v39 + 2) + 16i64));
+                  R_SetComputeRWTextures(computeState, 1, 1, (const GfxTexture *const *)&v86);
                 }
                 break;
               case EFFECT_LIGHTING_LIGHTMAP_BLUR_Y:
-                v47 = 0i64;
-                if ( v19 == 5 )
-                  v47 = 1i64;
-                v46 = rgp.deferredEffectScatterYComputeShader[v70 / 0x10][v47];
+                v43 = 0i64;
+                if ( v17 == 5 )
+                  v43 = 1i64;
+                v42 = rgp.deferredEffectScatterYComputeShader[v63 / 0x10][v43];
 LABEL_66:
-                R_SetComputeShader(computeState, v46);
+                R_SetComputeShader(computeState, v42);
                 break;
               case EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE:
-                if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 256, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
+                if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 256, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
                   __debugbreak();
-                if ( !v61->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 257, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
+                if ( !v54->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 257, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
                   __debugbreak();
                 R_SetComputeShader(computeState, rgp.deferredEffectComputeMultiLightgridSamplingOffsets);
-                v36 = v33;
-                views = &v61->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][v36].view;
+                v32 = v29;
+                views = &v54->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][v32].view;
                 R_SetComputeViews(computeState, 23, 1, (const GfxShaderBufferView *const *)&views);
-                views = &v61->mesh[0].lightGridBuffers->lightGridLightingElemsPrefixSumBuffer[0][v36].view;
+                views = &v54->mesh[0].lightGridBuffers->lightGridLightingElemsPrefixSumBuffer[0][v32].view;
                 R_SetComputeViews(computeState, 25, 1, (const GfxShaderBufferView *const *)&views);
-                views = *(v62 - 4) + 2;
+                views = *(v55 - 4) + 2;
                 R_SetComputeRWViewsWithCounters(computeState, 4, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
                 break;
               case EFFECT_LIGHTING_MULTILIGHTGRID_SAMPLE:
-                if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 268, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
+                if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 268, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
                   __debugbreak();
-                if ( !v61->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 269, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
+                if ( !v54->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 269, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
                   __debugbreak();
-                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectSampleMultiLightgridComputeShader[0][v67][4 * (enabled ? 2 : 0)] + v30));
-                views = *(v62 - 2) + 2;
+                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectSampleMultiLightgridComputeShader[0][v60][4 * (enabled ? 2 : 0)] + v27));
+                views = *(v55 - 2) + 2;
                 R_SetComputeRWViewsWithCounters(computeState, 2, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-                views = *v62 + 2;
+                views = *v55 + 2;
                 R_SetComputeRWViewsWithCounters(computeState, 3, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
                 views = &R_GetFallbackProbe()->view;
                 R_SetComputeViews(computeState, 30, 1, (const GfxShaderBufferView *const *)&views);
-                v37 = 21;
-                v38 = *(v62 - 4);
+                v33 = 21;
+                v34 = *(v55 - 4);
                 goto LABEL_43;
               case EFFECT_LIGHTING_MULTILIGHTGRID_COMBINE:
-                if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 289, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
+                if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 289, ASSERT_TYPE_ASSERT, "(multiLightGridTempBuffers != nullptr)", (const char *)&queryFormat, "multiLightGridTempBuffers != nullptr") )
                   __debugbreak();
-                if ( !v61->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 290, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
+                if ( !v54->mesh[0].lightGridBuffers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_deferred_effect_lighting.cpp", 290, ASSERT_TYPE_ASSERT, "(mesh->lightGridBuffers)", (const char *)&queryFormat, "mesh->lightGridBuffers") )
                   __debugbreak();
-                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectCombineSampledLightingComputeShader[0][v67][4 * (enabled ? 2 : 0)][2 * v30] + v59));
-                views = (GfxShaderBufferView *)&(*(v62 - 4))->view;
+                R_SetComputeShader(computeState, *((const ComputeShader **)&rgp.deferredEffectCombineSampledLightingComputeShader[0][v60][4 * (enabled ? 2 : 0)][2 * v27] + v52));
+                views = (GfxShaderBufferView *)&(*(v55 - 4))->view;
                 R_SetComputeViews(computeState, 21, 1, (const GfxShaderBufferView *const *)&views);
-                views = (GfxShaderBufferView *)&(*(v62 - 2))->view;
+                views = (GfxShaderBufferView *)&(*(v55 - 2))->view;
                 R_SetComputeViews(computeState, 19, 1, (const GfxShaderBufferView *const *)&views);
-                v37 = 20;
-                v38 = *v62;
+                v33 = 20;
+                v34 = *v55;
 LABEL_43:
-                views = (GfxShaderBufferView *)&v38->view;
-                R_SetComputeViews(computeState, v37, 1, (const GfxShaderBufferView *const *)&views);
-                v39 = v33;
-                views = &v61->mesh[0].lightGridBuffers->lightGridsDataOffsetBuffer[0][v39].view;
+                views = (GfxShaderBufferView *)&v34->view;
+                R_SetComputeViews(computeState, v33, 1, (const GfxShaderBufferView *const *)&views);
+                v35 = v29;
+                views = &v54->mesh[0].lightGridBuffers->lightGridsDataOffsetBuffer[0][v35].view;
                 R_SetComputeViews(computeState, 22, 1, (const GfxShaderBufferView *const *)&views);
-                views = &v61->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][v39].view;
+                views = &v54->mesh[0].lightGridBuffers->lightGridsActiveBuffer[0][v35].view;
                 R_SetComputeViews(computeState, 23, 1, (const GfxShaderBufferView *const *)&views);
-                v40 = !enabled;
+                v36 = !enabled;
 LABEL_44:
-                if ( !v40 )
+                if ( !v36 )
                 {
-                  v41 = v32 >> 1;
-                  v32 = 1;
-                  if ( v41 > 1 )
-                    v32 = v41;
+                  v37 = v28 >> 1;
+                  v28 = 1;
+                  if ( v37 > 1 )
+                    v28 = v37;
                 }
                 break;
               default:
                 break;
             }
-            v48 = v72;
-            data[4] = v66;
-            data[0] = v72;
-            data[5] = v29;
-            data[6] = v19;
-            lightGridBuffers = v61->mesh[0].lightGridBuffers;
+            v44 = v65;
+            v92 = v59;
+            data = v65;
+            v93 = v26;
+            v94 = v17;
+            lightGridBuffers = v54->mesh[0].lightGridBuffers;
             if ( lightGridBuffers )
-              v97 = *(_DWORD *)((char *)&lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v76);
+              v95 = *(_DWORD *)((char *)&lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v69);
             else
+              v95 = 0;
+            v90 = (float)v23;
+            v91 = 0.5 / v90;
+            MatrixTranspose44(&v61->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &out);
+            if ( v73 )
+            {
+              v46 = (__int64)&v73->zones[v61->input.voxelTreeZoneIndex];
+              v96 = *(_QWORD *)(v46 + 12);
+              v97 = *(_DWORD *)(v46 + 20);
+            }
+            else
+            {
+              v96 = 0i64;
               v97 = 0;
-            __asm
-            {
-              vdivss  xmm0, xmm7, xmm6
-              vmovss  [rbp+130h+var_DC], xmm6
-              vmovss  [rbp+130h+var_D8], xmm0
             }
-            MatrixTranspose44(&v68->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &out);
-            if ( v80 )
+            R_UploadAndSetComputeConstants(computeState, 1, &data, 0x70u, NULL);
+            if ( v56 == EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE )
             {
-              v51 = (__int64)&v80->zones[v68->input.voxelTreeZoneIndex];
-              v98 = *(_QWORD *)(v51 + 12);
-              v99 = *(_DWORD *)(v51 + 20);
+              v47 = 1;
+              v48 = (unsigned int)(v44 + 63) >> 6;
+              v49 = 1;
             }
             else
             {
-              v98 = 0i64;
-              v99 = 0;
+              v49 = v23 >> v27;
+              v47 = v23 >> v27;
+              v48 = (0x40 / (v28 * v28) + v26 - 1) / (0x40 / (v28 * v28));
             }
-            R_UploadAndSetComputeConstants(computeState, 1, data, 0x70u, NULL);
-            if ( v63 == EFFECT_LIGHTING_MULTILIGHTGRID_PREPARE )
-            {
-              v52 = 1;
-              v53 = (unsigned int)(v48 + 63) >> 6;
-              v54 = 1;
-            }
-            else
-            {
-              v54 = v26 >> v30;
-              v52 = v26 >> v30;
-              v53 = (0x40 / (v32 * v32) + v29 - 1) / (0x40 / (v32 * v32));
-            }
-            R_Dispatch(computeState, v53, v54, v52);
-            v23 = v75;
-            v22 = v64;
-            v25 = v69;
-            v18 = v77;
-            v10 = v63;
+            R_Dispatch(computeState, v48, v49, v47);
+            v20 = v68;
+            v19 = v57;
+            v22 = v62;
+            v16 = v70;
+            v8 = v56;
           }
-          ++v25;
-          v12 = v61;
-          v24 = v78 + 1;
-          ++v19;
-          v26 = __ROL4__(v26, 1);
-          v69 = v25;
-          ++v78;
+          ++v22;
+          v10 = v54;
+          v21 = v71 + 1;
+          ++v17;
+          v23 = __ROL4__(v23, 1);
+          v62 = v22;
+          ++v71;
         }
-        while ( v19 < 6 );
-        ++v22;
-        ++v67;
-        v24 = v79 + 6;
-        ++v62;
-        v23 += 6i64;
-        v70 += 16i64;
-        v76 += 4i64;
-        v19 = v65;
-        v64 = v22;
-        v79 += 6;
-        v75 = v23;
+        while ( v17 < 6 );
+        ++v19;
+        ++v60;
+        v21 = v72 + 6;
+        ++v55;
+        v20 += 6i64;
+        v63 += 16i64;
+        v69 += 4i64;
+        v17 = v58;
+        v57 = v19;
+        v72 += 6;
+        v68 = v20;
       }
-      while ( v22 < 2 );
-      ++v66;
-      ++v18;
-      v14 = v60;
-      p_input = v95;
-      v77 = v18;
+      while ( v19 < 2 );
+      ++v59;
+      ++v16;
+      v12 = v53;
+      p_input = v88;
+      v70 = v16;
     }
-    while ( v18 < v94 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+230h+var_60]
-      vmovaps xmm6, [rsp+230h+var_50]
-    }
+    while ( v16 < v87 );
   }
 }
 
@@ -1679,21 +1557,17 @@ R_EffectLighting_SetConstantBuffer
 _BOOL8 R_EffectLighting_SetConstantBuffer(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo)
 {
   bool v3; 
+  const dvar_t *v4; 
   bool v5; 
-  __int128 data; 
+  DvarValue data; 
 
   v3 = R_ReflectionProbe_UseLightgridOverride(computeState->data->reflectionProbeFrameIndex);
-  _RBX = fx_lighting_shScale;
+  v4 = fx_lighting_shScale;
   v5 = v3;
   if ( !fx_lighting_shScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 669, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+28h]
-    vmovaps [rsp+68h+var_38], xmm0
-    vmovdqa [rsp+68h+data], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  data = v4->current;
   R_UploadAndSetComputeConstants(computeState, 0, &data, 0x10u, NULL);
   return v5;
 }
@@ -1706,90 +1580,64 @@ R_InitEffectLighting
 
 void __fastcall R_InitEffectLighting(double _XMM0_8)
 {
-  __m256i v13; 
-  __m256i v14; 
+  R_RT_Handle v2; 
+  R_RT_ColorHandle v3; 
+  R_RT_BufferHandle v4; 
+  R_RT_BufferHandle v5; 
+  R_RT_BufferHandle v6; 
+  R_RT_BufferHandle v7; 
+  R_RT_Handle v8; 
+  R_RT_Handle v9; 
 
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+var_20+10h], xmm0 }
-  v13.m256i_i16[0] = 0;
-  v13.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_40+10h], xmm0
-    vmovups ymm1, [rbp+var_40]
-    vmovups ymmword ptr cs:?s_lightmap@@3PAVR_RT_ColorHandle@@A.m_surfaceID, ymm1; R_RT_ColorHandle near * s_lightmap
-    vmovups ymm1, [rbp+var_20]
-    vmovups ymmword ptr cs:?s_lightmap_tmp@@3PAVR_RT_ColorHandle@@A.m_surfaceID, ymm1; R_RT_ColorHandle near * s_lightmap_tmp
-  }
-  v14.m256i_i16[0] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+var_20+10h], xmm0 }
-  v13.m256i_i16[0] = 0;
-  v13.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_40+10h], xmm0
-    vmovups ymm1, [rbp+var_40]
-    vmovups ymmword ptr cs:stru_152646720.m_surfaceID, ymm1
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:stru_152646760.m_surfaceID, ymm1
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_fogLightmap@@3VR_RT_ColorHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_ColorHandle s_fogLightmap
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridElemsColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridElemsColor
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridElemsSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridElemsSh
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridDataColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridDataColor
-    vmovups ymm1, [rbp+var_20]
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymmword ptr cs:?s_lightGridDataSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridDataSh
-    vmovups ymm1, [rbp+var_20]
-    vmovups ymmword ptr cs:?s_lightGridAlphaColor@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridAlphaColor
-  }
-  v14.m256i_i16[0] = 0;
-  v14.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-    vmovups ymm1, [rbp+var_20]
-    vmovups ymmword ptr cs:?s_lightGridAlphaSh@@3VR_RT_BufferHandle@@A.baseclass_0.m_surfaceID, ymm1; R_RT_BufferHandle s_lightGridAlphaSh
-  }
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  v8.m_surfaceID = 0;
+  v8.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v8.m_tracking.m_name = _XMM0;
+  s_lightmap = v8;
+  s_lightmap_tmp = v9;
+  v9.m_surfaceID = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  v8.m_surfaceID = 0;
+  v8.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v8.m_tracking.m_name = _XMM0;
+  stru_152646720 = v8;
+  v2 = v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  stru_152646760 = v2;
+  v3 = (R_RT_ColorHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_fogLightmap = v3;
+  v4 = (R_RT_BufferHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_lightGridElemsColor = v4;
+  v5 = (R_RT_BufferHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_lightGridElemsSh = v5;
+  v6 = (R_RT_BufferHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_lightGridDataColor = v6;
+  v7 = (R_RT_BufferHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_lightGridDataSh = v7;
+  s_lightGridAlphaColor = (R_RT_BufferHandle)v9;
+  v9.m_surfaceID = 0;
+  v9.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v9.m_tracking.m_name = _XMM0;
+  s_lightGridAlphaSh = (R_RT_BufferHandle)v9;
 }
 

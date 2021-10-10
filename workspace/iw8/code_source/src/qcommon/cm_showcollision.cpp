@@ -27,254 +27,168 @@ CM_AddColinearExteriorPointToWindingProjected
 */
 void CM_AddColinearExteriorPointToWindingProjected(winding_t *w, const vec3_t *pt, int i, int j, int index0, int index1)
 {
-  bool v12; 
-  bool v13; 
-  bool v15; 
-  bool v16; 
-  bool v20; 
-  bool v21; 
-  bool v22; 
-  bool v30; 
-  bool v31; 
-  bool v34; 
-  bool v35; 
-  bool v40; 
-  bool v41; 
-  bool v44; 
-  bool v45; 
-  __int64 v51; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
-  __int64 v60; 
-  __int64 v61; 
-  __int64 v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  __int64 v66; 
-  __int64 v67; 
-  __int64 v68; 
+  __int64 v6; 
+  __int64 v8; 
+  float *v9; 
+  char *v10; 
+  float v11; 
+  __int128 v13; 
+  float *v17; 
+  float *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
+  __int64 v36; 
 
-  _RDI = i;
-  _RSI = (vec3_t *)pt;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RBP = j;
-  _RBX = &w->numpoints + 3 * index0;
-  _R15 = (char *)w + 12 * index1;
-  v12 = i == 3;
+  v6 = i;
+  v8 = j;
+  v9 = (float *)(&w->numpoints + 3 * index0);
+  v10 = (char *)w + 12 * index1;
   if ( (unsigned int)i >= 3 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", i, 3) )
       __debugbreak();
-    LODWORD(v61) = 3;
-    LODWORD(v52) = _RDI;
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v61);
-    v12 = !v13;
-    if ( v13 )
+    LODWORD(v29) = 3;
+    LODWORD(v20) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v20, v29) )
       __debugbreak();
   }
-  __asm
+  if ( *(float *)&v10[4 * v6 + 4] == v9[v6 + 1] )
   {
-    vmovss  xmm0, dword ptr [r15+rdi*4+4]
-    vucomiss xmm0, dword ptr [rbx+rdi*4+4]
-  }
-  if ( v12 )
-  {
-    v15 = (_DWORD)_RBP == 3;
-    if ( (unsigned int)_RBP >= 3 )
+    if ( (unsigned int)v8 >= 3 )
     {
-      LODWORD(v60) = 3;
-      LODWORD(v51) = _RBP;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+      LODWORD(v28) = 3;
+      LODWORD(v19) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
         __debugbreak();
-      LODWORD(v62) = 3;
-      LODWORD(v53) = _RBP;
-      v16 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v53, v62);
-      v15 = !v16;
-      if ( v16 )
+      LODWORD(v30) = 3;
+      LODWORD(v21) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v30) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rbp*4+4]
-      vucomiss xmm0, dword ptr [rbx+rbp*4+4]
-    }
-    if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 207, ASSERT_TYPE_ASSERT, "(w->p[index0][i] != w->p[index1][i] || w->p[index0][j] != w->p[index1][j])", (const char *)&queryFormat, "w->p[index0][i] != w->p[index1][i] || w->p[index0][j] != w->p[index1][j]") )
+    if ( *(float *)&v10[4 * v8 + 4] == v9[v8 + 1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 207, ASSERT_TYPE_ASSERT, "(w->p[index0][i] != w->p[index1][i] || w->p[index0][j] != w->p[index1][j])", (const char *)&queryFormat, "w->p[index0][i] != w->p[index1][i] || w->p[index0][j] != w->p[index1][j]") )
       __debugbreak();
   }
-  if ( (unsigned int)_RDI >= 3 )
+  if ( (unsigned int)v6 >= 3 )
   {
-    LODWORD(v60) = 3;
-    LODWORD(v51) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+    LODWORD(v28) = 3;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
       __debugbreak();
-    LODWORD(v63) = 3;
-    LODWORD(v54) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v54, v63) )
+    LODWORD(v31) = 3;
+    LODWORD(v22) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v31) )
       __debugbreak();
   }
+  v11 = *(float *)&v10[4 * v6 + 4] - v9[v6 + 1];
+  if ( (unsigned int)v8 >= 3 )
+  {
+    LODWORD(v28) = 3;
+    LODWORD(v19) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
+      __debugbreak();
+    LODWORD(v32) = 3;
+    LODWORD(v23) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v32) )
+      __debugbreak();
+  }
+  v13 = *(unsigned int *)&v10[4 * v8 + 4];
+  *(float *)&v13 = *(float *)&v10[4 * v8 + 4] - v9[v8 + 1];
+  _XMM3 = v13;
+  _XMM0 = v13 & _xmm;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+rdi*4+4]
-    vsubss  xmm6, xmm0, dword ptr [rbx+rdi*4+4]
-  }
-  v20 = (unsigned int)_RBP < 3;
-  v21 = (unsigned int)_RBP <= 3;
-  if ( (unsigned int)_RBP >= 3 )
-  {
-    LODWORD(v60) = 3;
-    LODWORD(v51) = _RBP;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
-      __debugbreak();
-    LODWORD(v64) = 3;
-    LODWORD(v55) = _RBP;
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v55, v64);
-    v20 = 0;
-    v21 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+rbp*4+4]
-    vsubss  xmm3, xmm0, dword ptr [rbx+rbp*4+4]
-    vandps  xmm0, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm2, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm2, xmm0
     vcmpless xmm0, xmm0, xmm2
     vblendvps xmm1, xmm3, xmm6, xmm0
-    vxorps  xmm0, xmm0, xmm0
   }
-  if ( v20 )
-    LODWORD(_RDI) = _RBP;
-  __asm { vcomiss xmm1, xmm0 }
-  if ( !v21 )
+  if ( COERCE_FLOAT(LODWORD(v11) & _xmm) < COERCE_FLOAT(v13 & _xmm) )
+    LODWORD(v6) = v8;
+  if ( *(float *)&_XMM1 <= 0.0 )
   {
-    v30 = (unsigned int)_RDI <= 3;
-    if ( (unsigned int)_RDI >= 3 )
+    if ( (unsigned int)v6 >= 3 )
     {
-      LODWORD(v60) = 3;
-      LODWORD(v51) = _RDI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+      LODWORD(v28) = 3;
+      LODWORD(v19) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
         __debugbreak();
-      LODWORD(v65) = 3;
-      LODWORD(v56) = _RDI;
-      v31 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v56, v65);
-      v30 = !v31;
-      if ( v31 )
+      LODWORD(v35) = 3;
+      LODWORD(v26) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v35) )
         __debugbreak();
     }
-    _RBP = (int)_RDI;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rbp*4+4]
-      vcomiss xmm0, dword ptr [rbx+rbp*4+4]
-    }
-    if ( v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 224, ASSERT_TYPE_ASSERT, "(w->p[index0][axis] < w->p[index1][axis])", (const char *)&queryFormat, "w->p[index0][axis] < w->p[index1][axis]") )
+    if ( *(float *)&v10[4 * (int)v6 + 4] >= v9[(int)v6 + 1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 232, ASSERT_TYPE_ASSERT, "(w->p[index0][axis] > w->p[index1][axis])", (const char *)&queryFormat, "w->p[index0][axis] > w->p[index1][axis]") )
       __debugbreak();
-    v34 = (unsigned int)_RDI <= 3;
-    if ( (unsigned int)_RDI >= 3 )
+    if ( (unsigned int)v6 >= 3 )
     {
-      LODWORD(v60) = 3;
-      LODWORD(v51) = _RDI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+      LODWORD(v28) = 3;
+      LODWORD(v19) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
         __debugbreak();
-      LODWORD(v66) = 3;
-      LODWORD(v57) = _RDI;
-      v35 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v57, v66);
-      v34 = !v35;
-      if ( v35 )
+      LODWORD(v36) = 3;
+      LODWORD(v27) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v27, v36) )
         __debugbreak();
     }
-    __asm
+    if ( v9[(int)v6 + 1] >= pt->v[(int)v6] )
     {
-      vmovss  xmm0, dword ptr [rbx+rbp*4+4]
-      vcomiss xmm0, dword ptr [rsi+rbp*4]
-    }
-    if ( v34 )
-    {
-      _RBX = vec3_t::operator[](_RSI, _RDI);
-      _RAX = vec3_t::operator[]((vec3_t *)(_R15 + 4), _RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vcomiss xmm0, dword ptr [rbx]
-      }
-      if ( v20 )
-        goto LABEL_60;
-      goto LABEL_61;
+      v18 = (float *)vec3_t::operator[]((vec3_t *)pt, v6);
+      if ( *vec3_t::operator[]((vec3_t *)(v10 + 4), v6) <= *v18 )
+        return;
+      goto LABEL_60;
     }
 LABEL_58:
-    _RBX[1] = LODWORD(_RSI->v[0]);
-    _RBX[2] = LODWORD(_RSI->v[1]);
-    _RBX[3] = LODWORD(_RSI->v[2]);
-    goto LABEL_61;
+    v9[1] = pt->v[0];
+    v9[2] = pt->v[1];
+    v9[3] = pt->v[2];
+    return;
   }
-  v40 = (unsigned int)_RDI < 3;
-  if ( (unsigned int)_RDI >= 3 )
+  if ( (unsigned int)v6 >= 3 )
   {
-    LODWORD(v60) = 3;
-    LODWORD(v51) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+    LODWORD(v28) = 3;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
       __debugbreak();
-    LODWORD(v67) = 3;
-    LODWORD(v58) = _RDI;
-    v41 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v58, v67);
-    v40 = 0;
-    if ( v41 )
+    LODWORD(v33) = 3;
+    LODWORD(v24) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v33) )
       __debugbreak();
   }
-  _RBP = (int)_RDI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+rbp*4+4]
-    vcomiss xmm0, dword ptr [rbx+rbp*4+4]
-  }
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 232, ASSERT_TYPE_ASSERT, "(w->p[index0][axis] > w->p[index1][axis])", (const char *)&queryFormat, "w->p[index0][axis] > w->p[index1][axis]") )
+  if ( *(float *)&v10[4 * (int)v6 + 4] <= v9[(int)v6 + 1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 224, ASSERT_TYPE_ASSERT, "(w->p[index0][axis] < w->p[index1][axis])", (const char *)&queryFormat, "w->p[index0][axis] < w->p[index1][axis]") )
     __debugbreak();
-  v44 = (unsigned int)_RDI < 3;
-  if ( (unsigned int)_RDI >= 3 )
+  if ( (unsigned int)v6 >= 3 )
   {
-    LODWORD(v60) = 3;
-    LODWORD(v51) = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v51, v60) )
+    LODWORD(v28) = 3;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v19, v28) )
       __debugbreak();
-    LODWORD(v68) = 3;
-    LODWORD(v59) = _RDI;
-    v45 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v59, v68);
-    v44 = 0;
-    if ( v45 )
+    LODWORD(v34) = 3;
+    LODWORD(v25) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v25, v34) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rbp*4+4]
-    vcomiss xmm0, dword ptr [rsi+rbp*4]
-  }
-  if ( v44 )
+  if ( v9[(int)v6 + 1] > pt->v[(int)v6] )
     goto LABEL_58;
-  _RBX = vec3_t::operator[](_RSI, _RDI);
-  _RAX = vec3_t::operator[]((vec3_t *)(_R15 + 4), _RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vcomiss xmm0, dword ptr [rbx]
-  }
-  if ( !v20 && !v12 )
-  {
+  v17 = (float *)vec3_t::operator[]((vec3_t *)pt, v6);
+  if ( *vec3_t::operator[]((vec3_t *)(v10 + 4), v6) >= *v17 )
+    return;
 LABEL_60:
-    *((_DWORD *)_R15 + 1) = LODWORD(_RSI->v[0]);
-    *((_DWORD *)_R15 + 2) = LODWORD(_RSI->v[1]);
-    *((_DWORD *)_R15 + 3) = LODWORD(_RSI->v[2]);
-  }
-LABEL_61:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  *((_DWORD *)v10 + 1) = LODWORD(pt->v[0]);
+  *((_DWORD *)v10 + 2) = LODWORD(pt->v[1]);
+  *((_DWORD *)v10 + 3) = LODWORD(pt->v[2]);
 }
 
 /*
@@ -284,105 +198,63 @@ CM_AddSimpleBrushPoint
 */
 __int64 CM_AddSimpleBrushPoint(const vec4_t *planes, int count, const vec4_t (*axialPlanes)[6], const __int16 (*sideIndices)[3], const vec3_t *xyz, int ptCount, ShowCollisionBrushPt *brushPts)
 {
-  __int64 v9; 
-  float *v14; 
-  bool v16; 
-  __int64 v17; 
-  unsigned int v18; 
-  const vec4_t *v28; 
-  const vec4_t *v29; 
-  __int64 result; 
+  __int64 v8; 
+  float *v11; 
+  __int64 v12; 
+  unsigned int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  const vec4_t *v17; 
+  __int64 v19; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  v9 = count;
+  v8 = count;
   if ( !planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 47, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
     __debugbreak();
-  _RSI = brushPts;
   if ( !brushPts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 48, ASSERT_TYPE_ASSERT, "(brushPts)", (const char *)&queryFormat, "brushPts") )
     __debugbreak();
-  _R10 = xyz;
-  v14 = &(*axialPlanes)[0].v[2];
-  __asm { vmovss  xmm5, cs:__real@3dcccccd }
-  v16 = 1;
-  v17 = 0i64;
-  v18 = 0;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r10+4]
-    vmovss  xmm3, dword ptr [r10]
-    vmovss  xmm4, dword ptr [r10+8]
-  }
+  v11 = &(*axialPlanes)[0].v[2];
+  v12 = 0i64;
+  v13 = 0;
+  v14 = xyz->v[1];
+  v15 = xyz->v[0];
+  v16 = xyz->v[2];
   do
   {
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rax-4]
-      vmulss  xmm0, xmm3, dword ptr [rax-8]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, dword ptr [rax]
-      vaddss  xmm2, xmm2, xmm1
-      vsubss  xmm0, xmm2, dword ptr [rax+4]
-      vcomiss xmm0, xmm5
-    }
-    if ( !v16 )
-      goto LABEL_20;
-    ++v18;
-    v14 += 4;
-    v16 = v18 <= 6;
+    if ( (float)((float)((float)((float)(v14 * *(v11 - 1)) + (float)(v15 * *(v11 - 2))) + (float)(v16 * *v11)) - v11[1]) > 0.1 )
+      return (unsigned int)ptCount;
+    ++v13;
+    v11 += 4;
   }
-  while ( v18 < 6 );
-  if ( (int)v9 > 0 )
+  while ( v13 < 6 );
+  if ( (int)v8 > 0 )
   {
-    v28 = planes;
-    while ( 1 )
+    v17 = planes;
+    while ( v17 == &planes[(*sideIndices)[0] - 6] || v17 == &planes[(*sideIndices)[1] - 6] || v17 == &planes[(*sideIndices)[2] - 6] || (float)((float)((float)((float)(v14 * v17->v[1]) + (float)(v15 * v17->v[0])) + (float)(v16 * v17->v[2])) - v17->v[3]) <= 0.1 )
     {
-      if ( v28 != &planes[(*sideIndices)[0] - 6] && v28 != &planes[(*sideIndices)[1] - 6] )
-      {
-        v29 = &planes[(*sideIndices)[2] - 6];
-        if ( v28 != v29 )
-        {
-          __asm
-          {
-            vmulss  xmm1, xmm6, dword ptr [rcx+4]
-            vmulss  xmm0, xmm3, dword ptr [rcx]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm4, dword ptr [rcx+8]
-            vaddss  xmm2, xmm2, xmm1
-            vsubss  xmm0, xmm2, dword ptr [rcx+0Ch]
-            vcomiss xmm0, xmm5
-          }
-          if ( v28 > v29 )
-            break;
-        }
-      }
+      ++v12;
       ++v17;
-      ++v28;
-      if ( v17 >= v9 )
+      if ( v12 >= v8 )
         goto LABEL_17;
     }
-LABEL_20:
-    result = (unsigned int)ptCount;
-    goto LABEL_21;
+    return (unsigned int)ptCount;
   }
 LABEL_17:
   if ( (unsigned int)ptCount < 0x4C0 )
   {
-    _RCX = ptCount;
-    __asm { vmovss  dword ptr [rsi+rcx*4], xmm3 }
-    *(_QWORD *)&brushPts[_RCX].xyz.y = *(_QWORD *)&xyz->y;
-    brushPts[_RCX].sideIndex[0] = (*sideIndices)[0];
-    brushPts[_RCX].sideIndex[1] = (*sideIndices)[1];
-    brushPts[_RCX].sideIndex[2] = (*sideIndices)[2];
-    result = (unsigned int)(ptCount + 1);
+    v19 = ptCount;
+    brushPts[v19].xyz.v[0] = v15;
+    *(_QWORD *)&brushPts[v19].xyz.y = *(_QWORD *)&xyz->y;
+    brushPts[v19].sideIndex[0] = (*sideIndices)[0];
+    brushPts[v19].sideIndex[1] = (*sideIndices)[1];
+    brushPts[v19].sideIndex[2] = (*sideIndices)[2];
+    return (unsigned int)(ptCount + 1);
   }
   else
   {
-    Com_PrintWarning(20, "More than %i points from plane intersections on %i-sided brush\n", (unsigned int)ptCount, (unsigned int)v9);
-    result = (unsigned int)ptCount;
+    Com_PrintWarning(20, "More than %i points from plane intersections on %i-sided brush\n", (unsigned int)ptCount, (unsigned int)v8);
+    return (unsigned int)ptCount;
   }
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return result;
 }
 
 /*
@@ -390,51 +262,77 @@ LABEL_21:
 CM_BuildBrushWindingForSide
 ==============
 */
-bool CM_BuildBrushWindingForSide(winding_t *winding, const vec3_t *planeNormal, int sideIndex, const ShowCollisionBrushPt *pts, int ptCount)
+char CM_BuildBrushWindingForSide(winding_t *winding, const vec3_t *planeNormal, int sideIndex, const ShowCollisionBrushPt *pts, int ptCount)
 {
+  int v6; 
+  int v8; 
+  int v9; 
+  __int64 v10; 
+  __int16 *v11; 
+  __int64 v12; 
+  int v13; 
+  __int64 v14; 
+  const vec3_t *v15; 
   int v16; 
+  __int64 v17; 
   int v18; 
-  int v19; 
-  __int64 v21; 
-  __int16 *v22; 
-  __int64 v23; 
-  int v24; 
-  __int64 v26; 
-  int v31; 
-  int v36; 
-  char v42; 
+  float v19; 
+  char v20; 
   int numpoints; 
   vec3_t *p_pt1; 
-  int v49; 
+  int v23; 
   int index1; 
-  int v51; 
-  __int64 v52; 
-  char v54; 
-  bool v55; 
-  bool v56; 
-  int v57; 
+  __int64 v25; 
+  int v26; 
+  __int64 v27; 
+  float v28; 
+  float v29; 
+  __int64 v30; 
+  bool v31; 
+  int v32; 
+  int v33; 
+  int v34; 
+  float v35; 
+  float *v36; 
+  int v37; 
+  __int128 v38; 
+  float v39; 
+  float v40; 
+  float *v41; 
+  int v42; 
+  float v43; 
+  float v44; 
+  __int128 v45; 
+  __int128 v46; 
+  float v47; 
+  float v48; 
+  float *v49; 
+  float v50; 
+  float v51; 
+  __int128 v52; 
+  float v53; 
+  int v54; 
+  float v55; 
   int v58; 
   int v59; 
-  int v62; 
-  int v67; 
-  bool v74; 
-  int v93; 
-  int v100; 
-  int v101; 
-  __int64 v121; 
-  int v122; 
-  bool result; 
-  float fmt; 
-  int v132; 
+  float *v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  __int64 v64; 
+  int v65; 
+  __int64 v66; 
+  int v69; 
   int i; 
-  __int64 v137; 
+  __int64 v72; 
   int j; 
   vec4_t plane; 
   float v0[4]; 
+  float v76; 
+  float v77; 
   vec3_t pt1; 
 
-  v16 = sideIndex;
-  _RBX = winding;
+  v6 = sideIndex;
   if ( !winding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 343, ASSERT_TYPE_ASSERT, "(winding)", (const char *)&queryFormat, "winding") )
     __debugbreak();
   if ( !pts )
@@ -444,346 +342,216 @@ bool CM_BuildBrushWindingForSide(winding_t *winding, const vec3_t *planeNormal, 
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 160, ASSERT_TYPE_ASSERT, "(pts)", (const char *)&queryFormat, "pts") )
       __debugbreak();
   }
-  v18 = 0;
-  v19 = 0;
-  __asm
-  {
-    vmovaps [rsp+3148h+var_48], xmm6
-    vmovaps [rsp+3148h+var_58], xmm7
-    vmovaps [rsp+3148h+var_68], xmm8
-    vmovaps [rsp+3148h+var_78], xmm9
-    vmovaps [rsp+3148h+var_98], xmm11
-  }
+  v8 = 0;
+  v9 = 0;
   if ( ptCount <= 0 )
-    goto LABEL_61;
-  __asm { vmovss  xmm6, cs:__real@3dcccccd }
-  v21 = 0i64;
-  v22 = &pts->sideIndex[1];
-  v23 = (unsigned int)ptCount;
+    return 0;
+  v10 = 0i64;
+  v11 = &pts->sideIndex[1];
+  v12 = (unsigned int)ptCount;
   do
   {
-    if ( v16 == *(v22 - 1) || v16 == *v22 || v16 == v22[1] )
+    if ( v6 == *(v11 - 1) || v6 == *v11 || v6 == v11[1] )
     {
-      v24 = 0;
-      if ( v19 <= 0 )
+      v13 = 0;
+      if ( v9 <= 0 )
       {
 LABEL_17:
-        if ( v21 == 1024 )
+        if ( v10 == 1024 )
           Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FFD0A0, 129i64, 1024i64);
-        v26 = 3 * v21;
-        v0[v26] = *(float *)(v22 - 7);
-        ++v19;
-        ++v21;
-        v0[v26 + 1] = *(float *)(v22 - 5);
-        v0[v26 + 2] = *(float *)(v22 - 3);
+        v14 = 3 * v10;
+        v0[v14] = *(float *)(v11 - 7);
+        ++v9;
+        ++v10;
+        v0[v14 + 1] = *(float *)(v11 - 5);
+        v0[v14 + 2] = *(float *)(v11 - 3);
       }
       else
       {
-        while ( 1 )
+        while ( !VecNCompareCustomEpsilon(&v0[3 * v13], pts->xyz.v, 0.1, 3) )
         {
-          __asm { vmovaps xmm2, xmm6; epsilon }
-          if ( VecNCompareCustomEpsilon(&v0[3 * v24], pts->xyz.v, *(float *)&_XMM2, 3) )
-            break;
-          if ( ++v24 >= v19 )
+          if ( ++v13 >= v9 )
             goto LABEL_17;
         }
       }
-      v16 = sideIndex;
+      v6 = sideIndex;
     }
     ++pts;
-    v22 += 10;
-    --v23;
+    v11 += 10;
+    --v12;
   }
-  while ( v23 );
-  _R15 = planeNormal;
-  if ( v19 < 3 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15]
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v31 = 2;
-  __asm
-  {
-    vandps  xmm0, xmm0, xmm2
-    vandps  xmm1, xmm1, xmm2
-    vcomiss xmm0, xmm1
-    vmovss  xmm0, dword ptr [r15+8]
-  }
-  v132 = 2;
-  _RCX = (unsigned int)v19 > 3;
-  v36 = 2;
-  __asm
-  {
-    vandps  xmm0, xmm0, xmm2
-    vmovss  xmm1, dword ptr [r15+rcx*4]
-    vandps  xmm1, xmm1, xmm2
-    vcomiss xmm0, xmm1
-    vmovaps xmm0, xmmword ptr [rsp+3148h+v0]
-    vmovss  xmm1, [rsp+3148h+var_30D4]
-  }
-  if ( (unsigned int)v19 > 3 )
-    LOBYTE(_RCX) = 2;
-  v42 = ~(_BYTE)_RCX;
-  __asm
-  {
-    vmovups xmmword ptr [rbx+4], xmm0
-    vmovss  xmm0, [rsp+3148h+var_30D8]
-  }
-  j = v42 & 2;
-  i = v42 & 1;
+  while ( v12 );
+  v15 = planeNormal;
+  if ( v9 < 3 )
+    return 0;
+  v16 = 2;
+  v69 = 2;
+  v17 = COERCE_FLOAT(LODWORD(planeNormal->v[1]) & _xmm) > COERCE_FLOAT(LODWORD(planeNormal->v[0]) & _xmm);
+  v18 = 2;
+  v19 = v77;
+  if ( COERCE_FLOAT(LODWORD(planeNormal->v[2]) & _xmm) > COERCE_FLOAT(LODWORD(planeNormal->v[v17]) & _xmm) )
+    LOBYTE(v17) = 2;
+  v20 = ~(_BYTE)v17;
+  *(_OWORD *)winding->p[0].v = *(_OWORD *)v0;
+  j = v20 & 2;
+  i = v20 & 1;
   numpoints = 2;
-  __asm
+  winding->p[1].v[1] = v76;
+  winding->p[1].v[2] = v19;
+  winding->numpoints = 2;
+  if ( v9 > 2i64 )
   {
-    vmovss  dword ptr [rbx+14h], xmm0
-    vmovss  dword ptr [rbx+18h], xmm1
-  }
-  _RBX->numpoints = 2;
-  if ( v19 > 2i64 )
-  {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@7f7fffff
-      vmovss  xmm7, cs:__real@ba83126f
-      vmovss  xmm9, cs:__real@3a83126f
-    }
     p_pt1 = &pt1;
-    v137 = v19 - 2i64;
+    v72 = v9 - 2i64;
     do
     {
-      v49 = v36 - 1;
+      v23 = v18 - 1;
       index1 = -1;
-      v51 = 0;
-      v52 = 0i64;
-      __asm { vmovaps xmm6, xmm8 }
-      if ( v36 <= 0 )
-        goto LABEL_32;
+      v25 = -1i64;
+      v26 = 0;
+      v27 = 0i64;
+      v28 = FLOAT_3_4028235e38;
+      if ( v18 <= 0 )
+        goto LABEL_66;
       do
       {
-        *(float *)&_XMM0 = CM_SignedAreaForPointsProjected(&_RBX->p[v49], p_pt1, &_RBX->p[v51], i, j);
-        __asm { vcomiss xmm6, xmm0 }
-        if ( !(v54 | v55) )
+        v29 = CM_SignedAreaForPointsProjected(&winding->p[v23], p_pt1, &winding->p[v26], i, j);
+        if ( v28 > v29 )
         {
-          __asm { vmovaps xmm6, xmm0 }
-          index1 = v51;
+          v28 = v29;
+          index1 = v26;
+          v25 = v27;
         }
-        v49 = v51;
-        ++v52;
-        ++v51;
+        v23 = v26;
+        ++v27;
+        ++v26;
       }
-      while ( v51 < _RBX->numpoints );
-      v18 = 0;
-      v55 = index1 == 0;
+      while ( v26 < winding->numpoints );
+      v8 = 0;
       if ( index1 < 0 )
       {
-LABEL_32:
-        v56 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 261, ASSERT_TYPE_ASSERT, "(bestIndex >= 0)", (const char *)&queryFormat, "bestIndex >= 0");
-        v55 = !v56;
-        if ( v56 )
+LABEL_66:
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 261, ASSERT_TYPE_ASSERT, "(bestIndex >= 0)", (const char *)&queryFormat, "bestIndex >= 0") )
           __debugbreak();
       }
-      __asm
+      if ( v28 < -0.001 )
       {
-        vcomiss xmm6, xmm7
-        vcomiss xmm6, xmm9
+        memmove_0(&winding->p[index1 + 1], &winding->p[index1], 12i64 * (winding->numpoints - index1));
+        v30 = v25;
+        winding->p[v30].v[0] = p_pt1->v[0];
+        winding->p[v30].v[1] = p_pt1->v[1];
+        winding->p[v30].v[2] = p_pt1->v[2];
+        ++winding->numpoints;
       }
-      if ( v55 )
-        CM_AddColinearExteriorPointToWindingProjected(_RBX, p_pt1, i, j, (_RBX->numpoints + index1 - 1) % _RBX->numpoints, index1);
-      numpoints = _RBX->numpoints;
+      else if ( v28 <= 0.001 )
+      {
+        CM_AddColinearExteriorPointToWindingProjected(winding, p_pt1, i, j, (winding->numpoints + index1 - 1) % winding->numpoints, index1);
+      }
+      numpoints = winding->numpoints;
       ++p_pt1;
-      v55 = v137-- == 1;
-      v36 = _RBX->numpoints;
+      v31 = v72-- == 1;
+      v18 = winding->numpoints;
     }
-    while ( !v55 );
-    _R15 = planeNormal;
-    v31 = 2;
-    v132 = _RBX->numpoints;
+    while ( !v31 );
+    v15 = planeNormal;
+    v16 = 2;
+    v69 = winding->numpoints;
   }
-  v57 = 0;
-  v58 = 1;
-  v59 = 2;
-  __asm { vxorps  xmm11, xmm11, xmm11 }
+  v32 = 0;
+  v33 = 1;
+  v34 = 2;
+  v35 = 0.0;
   if ( numpoints <= 2 )
-    goto LABEL_61;
-  __asm { vmovaps [rsp+3148h+var_88], xmm10 }
-  _RSI = &_RBX->p[2].v[2];
-  __asm
-  {
-    vmovaps [rsp+3148h+var_A8], xmm12
-    vmovaps [rsp+3148h+var_B8], xmm13
-    vmovaps [rsp+3148h+var_C8], xmm14
-    vmovaps [rsp+3148h+var_D8], xmm15
-  }
+    return 0;
+  v36 = &winding->p[2].v[2];
   do
   {
-    v62 = 1;
-    if ( v59 > 1 )
+    v37 = 1;
+    if ( v34 > 1 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi-8]
-        vmovss  xmm1, dword ptr [rsi-4]
-        vmovss  xmm2, dword ptr [rsi]
-        vmovss  [rsp+3148h+i], xmm0
-        vmovss  dword ptr [rsp+3148h+var_3110], xmm1
-        vmovss  dword ptr [rsp+3148h+var_3108], xmm2
-      }
-      _RDX = &_RBX->p[1].v[2];
+      v38 = *((unsigned int *)v36 - 2);
+      v39 = *(v36 - 1);
+      v40 = *v36;
+      v41 = &winding->p[1].v[2];
       do
       {
-        v67 = 0;
-        __asm
+        v42 = 0;
+        v43 = *(v41 - 2);
+        v44 = *(v41 - 1);
+        v46 = v38;
+        *(float *)&v46 = *(float *)&v38 - v43;
+        v45 = v46;
+        v47 = v39 - v44;
+        v48 = v40 - *v41;
+        if ( v37 > 0 )
         {
-          vmovss  xmm8, dword ptr [rdx-8]
-          vmovss  xmm9, dword ptr [rdx-4]
-          vmovss  xmm10, dword ptr [rdx]
-          vsubss  xmm12, xmm0, xmm8
-          vsubss  xmm13, xmm1, xmm9
-          vsubss  xmm14, xmm2, xmm10
-        }
-        v74 = v62 == 0;
-        if ( v62 > 0 )
-        {
-          __asm { vmovss  xmm15, dword ptr [r15+4] }
-          _R8 = &_RBX->p[0].v[2];
+          v49 = &winding->p[0].v[2];
           do
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r8-8]
-              vmovss  xmm1, dword ptr [r8-4]
-              vsubss  xmm7, xmm0, xmm8
-              vmovss  xmm0, dword ptr [r8]
-              vsubss  xmm5, xmm0, xmm10
-              vsubss  xmm6, xmm1, xmm9
-              vmulss  xmm2, xmm12, xmm5
-              vmulss  xmm1, xmm14, xmm7
-              vsubss  xmm0, xmm2, xmm1
-              vmulss  xmm4, xmm0, xmm15
-              vmulss  xmm1, xmm13, xmm5
-              vmulss  xmm3, xmm14, xmm6
-              vsubss  xmm0, xmm3, xmm1
-              vmulss  xmm2, xmm0, dword ptr [r15]
-              vmulss  xmm0, xmm12, xmm6
-              vaddss  xmm5, xmm4, xmm2
-            }
-            v93 = v67;
-            _R8 += 3;
-            __asm
-            {
-              vmulss  xmm1, xmm13, xmm7
-              vsubss  xmm1, xmm1, xmm0
-              vmulss  xmm2, xmm1, dword ptr [r15+8]
-              vaddss  xmm3, xmm5, xmm2
-              vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-              vcomiss xmm3, xmm11
-              vmaxss  xmm0, xmm3, xmm11
-            }
-            if ( v74 )
-              v93 = v57;
-            v57 = v93;
-            v100 = v62;
-            if ( v74 )
-              v100 = v58;
-            v58 = v100;
-            v101 = v59;
-            if ( v74 )
-              v101 = v31;
-            ++v67;
-            v31 = v101;
-            __asm { vmovaps xmm11, xmm0 }
-            v74 = v67 <= (unsigned int)v62;
+            v50 = *(v49 - 2) - v43;
+            v51 = *(v49 - 1) - v44;
+            v52 = v45;
+            v53 = (float)((float)((float)(*(float *)&v45 * (float)(*v49 - *v41)) - (float)(v48 * v50)) * v15->v[1]) + (float)((float)((float)(v48 * v51) - (float)(v47 * (float)(*v49 - *v41))) * v15->v[0]);
+            v54 = v42;
+            v49 += 3;
+            v55 = (float)((float)(v47 * v50) - (float)(*(float *)&v45 * v51)) * v15->v[2];
+            *(float *)&v52 = v53 + v55;
+            _XMM3 = v52 & _xmm;
+            __asm { vmaxss  xmm0, xmm3, xmm11 }
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v53 + v55) & _xmm) <= v35 )
+              v54 = v32;
+            v32 = v54;
+            v58 = v37;
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v53 + v55) & _xmm) <= v35 )
+              v58 = v33;
+            v33 = v58;
+            v59 = v34;
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v53 + v55) & _xmm) <= v35 )
+              v59 = v16;
+            ++v42;
+            v16 = v59;
+            v35 = *(float *)&_XMM0;
           }
-          while ( v67 < v62 );
-          __asm
-          {
-            vmovss  xmm0, [rsp+3148h+i]
-            vmovss  xmm1, dword ptr [rsp+3148h+var_3110]
-            vmovss  xmm2, dword ptr [rsp+3148h+var_3108]
-          }
+          while ( v42 < v37 );
+          v38 = *((unsigned int *)v36 - 2);
+          v39 = *(v36 - 1);
+          v40 = *v36;
         }
-        ++v62;
-        _RDX += 3;
+        ++v37;
+        v41 += 3;
       }
-      while ( v62 < v59 );
-      v36 = v132;
+      while ( v37 < v34 );
+      v18 = v69;
     }
-    ++v59;
-    _RSI += 3;
+    ++v34;
+    v36 += 3;
   }
-  while ( v59 < v36 );
-  __asm
+  while ( v34 < v18 );
+  if ( v35 < 0.001 )
+    return 0;
+  PlaneFromPoints(&plane, &winding->p[v32], &winding->p[v33], &winding->p[v16], 0.001);
+  if ( (float)((float)((float)(plane.v[0] * v15->v[0]) + (float)(plane.v[1] * v15->v[1])) + (float)(plane.v[2] * v15->v[2])) > 0.0 && winding->numpoints / 2 > 0 )
   {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm11, xmm0
-    vmovaps xmm15, [rsp+3148h+var_D8]
-    vmovaps xmm14, [rsp+3148h+var_C8]
-    vmovaps xmm13, [rsp+3148h+var_B8]
-    vmovaps xmm12, [rsp+3148h+var_A8]
-    vmovaps xmm10, [rsp+3148h+var_88]
-  }
-  if ( v59 < (unsigned int)v36 )
-  {
-LABEL_61:
-    result = 0;
-  }
-  else
-  {
-    __asm { vmovss  dword ptr [rsp+3148h+fmt], xmm0 }
-    PlaneFromPoints(&plane, &_RBX->p[v57], &_RBX->p[v58], &_RBX->p[v31], fmt);
-    __asm
+    v60 = &winding->p[0].v[2];
+    do
     {
-      vmovss  xmm0, dword ptr [rsp+3148h+plane]
-      vmulss  xmm3, xmm0, dword ptr [r15]
-      vmovss  xmm1, dword ptr [rsp+3148h+plane+4]
-      vmulss  xmm2, xmm1, dword ptr [r15+4]
-      vmovss  xmm0, dword ptr [rsp+3148h+plane+8]
-      vmulss  xmm1, xmm0, dword ptr [r15+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm2, xmm0
+      v61 = *(v60 - 2);
+      v62 = *(v60 - 1);
+      v63 = *v60;
+      v60 += 3;
+      v64 = 3i64 * (winding->numpoints - v8);
+      *(v60 - 5) = *((float *)winding + 3 * (winding->numpoints - v8) - 2);
+      *(v60 - 4) = *((float *)winding + v64 - 1);
+      *(v60 - 3) = *((float *)&winding->numpoints + v64);
+      v65 = winding->numpoints - v8++;
+      v66 = 3i64 * v65;
+      *((float *)winding + v66 - 2) = v61;
+      *((float *)winding + v66 - 1) = v62;
+      *((float *)&winding->numpoints + v66) = v63;
     }
-    if ( !(v54 | v55) && _RBX->numpoints / 2 > 0 )
-    {
-      _R8 = &_RBX->p[0].v[2];
-      do
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r8-8]
-          vmovss  xmm0, dword ptr [r8-4]
-          vmovss  xmm1, dword ptr [r8]
-        }
-        _R8 += 3;
-        v121 = 3i64 * (_RBX->numpoints - v18);
-        *(_R8 - 5) = *((float *)_RBX + 3 * (_RBX->numpoints - v18) - 2);
-        *(_R8 - 4) = *((float *)_RBX + v121 - 1);
-        *(_R8 - 3) = *((float *)&_RBX->numpoints + v121);
-        v122 = _RBX->numpoints - v18++;
-        _RCX = 3i64 * v122;
-        __asm
-        {
-          vmovss  dword ptr [rbx+rcx*4-8], xmm2
-          vmovss  dword ptr [rbx+rcx*4-4], xmm0
-          vmovss  dword ptr [rbx+rcx*4], xmm1
-        }
-      }
-      while ( v18 < _RBX->numpoints / 2 );
-    }
-    result = 1;
+    while ( v8 < winding->numpoints / 2 );
   }
-  __asm
-  {
-    vmovaps xmm11, [rsp+3148h+var_98]
-    vmovaps xmm9, [rsp+3148h+var_78]
-    vmovaps xmm8, [rsp+3148h+var_68]
-    vmovaps xmm7, [rsp+3148h+var_58]
-    vmovaps xmm6, [rsp+3148h+var_48]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -793,14 +561,23 @@ CM_ForEachBrushPlaneIntersection
 */
 __int64 CM_ForEachBrushPlaneIntersection(const vec4_t *planes, int planeCount, const vec4_t (*axialPlanes)[6], ShowCollisionBrushPt *brushPts)
 {
-  unsigned int v9; 
+  unsigned int v7; 
+  int v8; 
+  __int16 v9; 
   int v10; 
   __int16 v11; 
-  int v12; 
-  __int16 v15; 
-  __int64 v16; 
-  unsigned __int16 v26; 
-  unsigned __int16 v36; 
+  __int64 v12; 
+  const vec4_t *v13; 
+  float v14; 
+  const vec4_t *v15; 
+  __int16 v16; 
+  const vec4_t *v17; 
+  float v18; 
+  const vec4_t *v19; 
+  unsigned __int16 v20; 
+  const vec4_t *v21; 
+  float v22; 
+  const vec4_t *v23; 
   int ptCount; 
   vec3_t xyz; 
   vec4_t plane[3]; 
@@ -808,44 +585,30 @@ __int64 CM_ForEachBrushPlaneIntersection(const vec4_t *planes, int planeCount, c
 
   if ( !brushPts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 105, ASSERT_TYPE_ASSERT, "(brushPts)", (const char *)&queryFormat, "brushPts") )
     __debugbreak();
-  v9 = 0;
-  v10 = planeCount + 6;
+  v7 = 0;
+  v8 = planeCount + 6;
   ptCount = 0;
   sideIndices[0] = 0;
-  v11 = 0;
+  v9 = 0;
   if ( planeCount + 4 > 0 )
   {
-    v12 = planeCount + 5;
-    __asm
-    {
-      vmovaps [rsp+100h+var_50], xmm6
-      vmovss  xmm6, cs:__real@3c23d70a
-      vmovaps [rsp+100h+var_60], xmm7
-      vmovss  xmm7, cs:__real@3e800000
-    }
-    v15 = 0;
+    v10 = planeCount + 5;
+    v11 = 0;
     do
     {
-      v16 = v15;
-      if ( (unsigned __int64)v15 >= 6 )
+      v12 = v11;
+      if ( (unsigned __int64)v11 >= 6 )
       {
         if ( !planes )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 90, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
             __debugbreak();
-          v12 = v10 - 1;
+          v10 = v8 - 1;
         }
-        _RAX = &planes[v16 - 6];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  dword ptr [rbp+57h+plane], xmm0
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  dword ptr [rbp+57h+plane+4], xmm1
-          vmovss  xmm0, dword ptr [rax+8]
-          vmovss  dword ptr [rbp+57h+plane+8], xmm0
-          vmovss  xmm1, dword ptr [rax+0Ch]
-        }
+        v15 = &planes[v12 - 6];
+        *(_QWORD *)plane[0].v = *(_QWORD *)v15->v;
+        plane[0].v[2] = v15->v[2];
+        v14 = v15->v[3];
       }
       else
       {
@@ -853,148 +616,98 @@ __int64 CM_ForEachBrushPlaneIntersection(const vec4_t *planes, int planeCount, c
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 85, ASSERT_TYPE_ASSERT, "(axialPlanes)", (const char *)&queryFormat, "axialPlanes") )
             __debugbreak();
-          v12 = v10 - 1;
+          v10 = v8 - 1;
         }
-        _RBX = &(*axialPlanes)[v16];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  dword ptr [rbp+57h+plane], xmm0
-          vmovss  xmm1, dword ptr [rbx+4]
-          vmovss  dword ptr [rbp+57h+plane+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rbp+57h+plane+8], xmm0
-          vmovss  xmm1, dword ptr [rbx+0Ch]
-        }
+        v13 = &(*axialPlanes)[v12];
+        *(_QWORD *)plane[0].v = *(_QWORD *)v13->v;
+        plane[0].v[2] = v13->v[2];
+        v14 = v13->v[3];
       }
-      v26 = v11 + 1;
-      sideIndices[1] = v11 + 1;
-      __asm { vmovss  dword ptr [rbp+57h+plane+0Ch], xmm1 }
-      if ( (__int16)(v11 + 1) < v12 )
+      v16 = v9 + 1;
+      sideIndices[1] = v9 + 1;
+      for ( plane[0].v[3] = v14; v16 < v10; sideIndices[1] = v16 )
       {
-        do
+        if ( (unsigned __int64)v9 < 6 || (unsigned __int16)v16 < 6u || 16i64 * v9 != 16i64 * v16 )
         {
-          if ( (unsigned __int64)v11 < 6 || v26 < 6u || 16i64 * v11 != 16i64 * (__int16)v26 )
+          if ( (unsigned __int64)v16 >= 6 )
           {
-            if ( (unsigned __int64)(__int16)v26 >= 6 )
+            if ( !planes )
             {
-              if ( !planes )
-              {
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 90, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
-                  __debugbreak();
-                v12 = v10 - 1;
-              }
-              _RAX = &planes[(__int16)v26 - 6];
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+57h+plane+10h], xmm0
-                vmovss  xmm1, dword ptr [rax+4]
-                vmovss  dword ptr [rbp+57h+plane+14h], xmm1
-                vmovss  xmm0, dword ptr [rax+8]
-                vmovss  dword ptr [rbp+57h+plane+18h], xmm0
-                vmovss  xmm1, dword ptr [rax+0Ch]
-              }
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 90, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
+                __debugbreak();
+              v10 = v8 - 1;
             }
-            else
-            {
-              if ( !axialPlanes )
-              {
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 85, ASSERT_TYPE_ASSERT, "(axialPlanes)", (const char *)&queryFormat, "axialPlanes") )
-                  __debugbreak();
-                v12 = v10 - 1;
-              }
-              _RBX = &(*axialPlanes)[(__int16)v26];
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx]
-                vmovss  dword ptr [rbp+57h+plane+10h], xmm0
-                vmovss  xmm1, dword ptr [rbx+4]
-                vmovss  dword ptr [rbp+57h+plane+14h], xmm1
-                vmovss  xmm0, dword ptr [rbx+8]
-                vmovss  dword ptr [rbp+57h+plane+18h], xmm0
-                vmovss  xmm1, dword ptr [rbx+0Ch]
-              }
-            }
-            v36 = v26 + 1;
-            sideIndices[2] = v26 + 1;
-            __asm { vmovss  dword ptr [rbp+57h+plane+1Ch], xmm1 }
-            if ( (__int16)(v26 + 1) < v10 )
-            {
-              do
-              {
-                if ( ((unsigned __int64)v11 < 6 || v36 < 6u || 16i64 * v11 != 16i64 * (__int16)v36) && ((unsigned __int64)(__int16)v26 < 6 || v36 < 6u || 16i64 * (__int16)v26 != 16i64 * (__int16)v36) )
-                {
-                  if ( (unsigned __int64)(__int16)v36 >= 6 )
-                  {
-                    if ( !planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 90, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
-                      __debugbreak();
-                    _RAX = &planes[(__int16)v36 - 6];
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rax]
-                      vmovss  dword ptr [rbp+57h+plane+20h], xmm0
-                      vmovss  xmm1, dword ptr [rax+4]
-                      vmovss  dword ptr [rbp+57h+plane+24h], xmm1
-                      vmovss  xmm0, dword ptr [rax+8]
-                      vmovss  dword ptr [rbp+57h+plane+28h], xmm0
-                      vmovss  xmm1, dword ptr [rax+0Ch]
-                    }
-                  }
-                  else
-                  {
-                    if ( !axialPlanes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 85, ASSERT_TYPE_ASSERT, "(axialPlanes)", (const char *)&queryFormat, "axialPlanes") )
-                      __debugbreak();
-                    _RDI = &(*axialPlanes)[(__int16)v36];
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rdi]
-                      vmovss  dword ptr [rbp+57h+plane+20h], xmm0
-                      vmovss  xmm1, dword ptr [rdi+4]
-                      vmovss  dword ptr [rbp+57h+plane+24h], xmm1
-                      vmovss  xmm0, dword ptr [rdi+8]
-                      vmovss  dword ptr [rbp+57h+plane+28h], xmm0
-                      vmovss  xmm1, dword ptr [rdi+0Ch]
-                    }
-                  }
-                  __asm { vmovss  dword ptr [rbp+57h+plane+2Ch], xmm1 }
-                  if ( IntersectPlanes((const vec4_t (*)[3])plane, &xyz) )
-                  {
-                    __asm
-                    {
-                      vmovaps xmm3, xmm6; snapEpsilon
-                      vmovaps xmm2, xmm7; snapGrid
-                    }
-                    SnapPointToIntersectingPlanes((const vec4_t (*)[3])plane, &xyz, *(float *)&_XMM2, *(float *)&_XMM3);
-                    v9 = CM_AddSimpleBrushPoint(planes, planeCount, axialPlanes, (const __int16 (*)[3])sideIndices, &xyz, ptCount, brushPts);
-                    ptCount = v9;
-                  }
-                  else
-                  {
-                    v9 = ptCount;
-                  }
-                }
-                sideIndices[2] = ++v36;
-              }
-              while ( (__int16)v36 < v10 );
-              v12 = v10 - 1;
-            }
+            v19 = &planes[v16 - 6];
+            *(_QWORD *)plane[1].v = *(_QWORD *)v19->v;
+            plane[1].v[2] = v19->v[2];
+            v18 = v19->v[3];
           }
-          sideIndices[1] = ++v26;
+          else
+          {
+            if ( !axialPlanes )
+            {
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 85, ASSERT_TYPE_ASSERT, "(axialPlanes)", (const char *)&queryFormat, "axialPlanes") )
+                __debugbreak();
+              v10 = v8 - 1;
+            }
+            v17 = &(*axialPlanes)[v16];
+            *(_QWORD *)plane[1].v = *(_QWORD *)v17->v;
+            plane[1].v[2] = v17->v[2];
+            v18 = v17->v[3];
+          }
+          v20 = v16 + 1;
+          sideIndices[2] = v16 + 1;
+          plane[1].v[3] = v18;
+          if ( (__int16)(v16 + 1) < v8 )
+          {
+            do
+            {
+              if ( ((unsigned __int64)v9 < 6 || v20 < 6u || 16i64 * v9 != 16i64 * (__int16)v20) && ((unsigned __int64)v16 < 6 || v20 < 6u || 16i64 * v16 != 16i64 * (__int16)v20) )
+              {
+                if ( (unsigned __int64)(__int16)v20 >= 6 )
+                {
+                  if ( !planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 90, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes") )
+                    __debugbreak();
+                  v23 = &planes[(__int16)v20 - 6];
+                  *(_QWORD *)plane[2].v = *(_QWORD *)v23->v;
+                  plane[2].v[2] = v23->v[2];
+                  v22 = v23->v[3];
+                }
+                else
+                {
+                  if ( !axialPlanes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 85, ASSERT_TYPE_ASSERT, "(axialPlanes)", (const char *)&queryFormat, "axialPlanes") )
+                    __debugbreak();
+                  v21 = &(*axialPlanes)[(__int16)v20];
+                  *(_QWORD *)plane[2].v = *(_QWORD *)v21->v;
+                  plane[2].v[2] = v21->v[2];
+                  v22 = v21->v[3];
+                }
+                plane[2].v[3] = v22;
+                if ( IntersectPlanes((const vec4_t (*)[3])plane, &xyz) )
+                {
+                  SnapPointToIntersectingPlanes((const vec4_t (*)[3])plane, &xyz, 0.25, 0.0099999998);
+                  v7 = CM_AddSimpleBrushPoint(planes, planeCount, axialPlanes, (const __int16 (*)[3])sideIndices, &xyz, ptCount, brushPts);
+                  ptCount = v7;
+                }
+                else
+                {
+                  v7 = ptCount;
+                }
+              }
+              sideIndices[2] = ++v20;
+            }
+            while ( (__int16)v20 < v8 );
+            v10 = v8 - 1;
+          }
         }
-        while ( (__int16)v26 < v12 );
+        ++v16;
       }
-      v15 = ++v11;
-      sideIndices[0] = v11;
+      v11 = ++v9;
+      sideIndices[0] = v9;
     }
-    while ( v11 < v10 - 2 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+100h+var_60]
-      vmovaps xmm6, [rsp+100h+var_50]
-    }
+    while ( v9 < v8 - 2 );
   }
-  return v9;
+  return v7;
 }
 
 /*
@@ -1014,81 +727,75 @@ CM_ShowSingleBrushCollision
 */
 void CM_ShowSingleBrushCollision(const Bounds *bounds, const vec4_t *planes, int planeCount, const vec4_t *color, bool drawSolid, const vec4_t *interiorColor, void (*drawCollisionPoly)(int, const vec3_t *, const vec4_t *, const bool, const vec4_t *))
 {
-  __int64 v10; 
-  int v24; 
+  __int64 v9; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
   unsigned int i; 
-  unsigned __int64 v26; 
-  int v27; 
-  __int64 v28; 
-  const vec4_t *v29; 
+  unsigned __int64 v18; 
+  int v19; 
+  __int64 v20; 
+  const vec4_t *v21; 
   vec4_t axialPlanes[6]; 
   ShowCollisionBrushPt brushPts; 
 
-  v10 = planeCount;
-  _RDI = bounds;
-  v29 = planes;
+  v9 = planeCount;
+  v21 = planes;
   if ( !planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cm_showcollision.cpp", 380, ASSERT_TYPE_ASSERT, "(planes)", (const char *)&queryFormat, "planes", 0i64) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+0Ch]
-    vsubss  xmm0, xmm2, dword ptr [rdi]
-    vmovss  xmm4, cs:__real@bf800000
-    vmovss  xmm3, cs:__real@3f800000
-    vxorps  xmm5, xmm5, xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+0Ch], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rdi+10h]
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+1Ch], xmm0
-    vsubss  xmm0, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+2Ch], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rdi+4]
-    vmovss  xmm2, dword ptr [rdi+14h]
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+3Ch], xmm0
-    vsubss  xmm0, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+4Ch], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+5Ch], xmm0
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes], xmm4
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+4], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+8], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+10h], xmm3
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+14h], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+18h], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+20h], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+24h], xmm4
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+28h], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+30h], xmm5
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+34h], xmm3
-    vmovss  dword ptr [rsp+5FE0h+axialPlanes+38h], xmm5
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+40h], xmm5
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+44h], xmm5
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+48h], xmm4
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+50h], xmm5
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+54h], xmm5
-    vmovss  dword ptr [rbp+5EE0h+axialPlanes+58h], xmm3
-  }
-  v24 = CM_ForEachBrushPlaneIntersection(planes, v10, (const vec4_t (*)[6])axialPlanes, &brushPts);
-  if ( v24 >= 4 )
+  v11 = bounds->halfSize.v[0];
+  axialPlanes[0].v[3] = v11 - bounds->midPoint.v[0];
+  v12 = v11 + bounds->midPoint.v[0];
+  v13 = bounds->halfSize.v[1];
+  axialPlanes[1].v[3] = v12;
+  axialPlanes[2].v[3] = v13 - bounds->midPoint.v[1];
+  v14 = v13 + bounds->midPoint.v[1];
+  v15 = bounds->halfSize.v[2];
+  axialPlanes[3].v[3] = v14;
+  axialPlanes[4].v[3] = v15 - bounds->midPoint.v[2];
+  axialPlanes[5].v[3] = v15 + bounds->midPoint.v[2];
+  axialPlanes[0].v[0] = FLOAT_N1_0;
+  axialPlanes[0].v[1] = 0.0;
+  axialPlanes[0].v[2] = 0.0;
+  axialPlanes[1].v[0] = FLOAT_1_0;
+  axialPlanes[1].v[1] = 0.0;
+  axialPlanes[1].v[2] = 0.0;
+  axialPlanes[2].v[0] = 0.0;
+  axialPlanes[2].v[1] = FLOAT_N1_0;
+  axialPlanes[2].v[2] = 0.0;
+  axialPlanes[3].v[0] = 0.0;
+  axialPlanes[3].v[1] = FLOAT_1_0;
+  axialPlanes[3].v[2] = 0.0;
+  axialPlanes[4].v[0] = 0.0;
+  axialPlanes[4].v[1] = 0.0;
+  axialPlanes[4].v[2] = FLOAT_N1_0;
+  axialPlanes[5].v[0] = 0.0;
+  axialPlanes[5].v[1] = 0.0;
+  axialPlanes[5].v[2] = FLOAT_1_0;
+  v16 = CM_ForEachBrushPlaneIntersection(planes, v9, (const vec4_t (*)[6])axialPlanes, &brushPts);
+  if ( v16 >= 4 )
   {
     Sys_EnterCriticalSection(CRITSECT_SHOW_COLLISION);
     for ( i = 0; i < 6; ++i )
     {
-      if ( CM_BuildBrushWindingForSide(&s_windingPool, (const vec3_t *)&axialPlanes[i], i, &brushPts, v24) )
+      if ( CM_BuildBrushWindingForSide(&s_windingPool, (const vec3_t *)&axialPlanes[i], i, &brushPts, v16) )
         drawCollisionPoly(s_windingPool.numpoints, s_windingPool.p, color, drawSolid, interiorColor);
     }
-    v26 = v10 + 6;
-    v27 = 6;
-    if ( v26 > 6 )
+    v18 = v9 + 6;
+    v19 = 6;
+    if ( v18 > 6 )
     {
-      v28 = 6i64;
+      v20 = 6i64;
       do
       {
-        if ( CM_BuildBrushWindingForSide(&s_windingPool, (const vec3_t *)&v29[v28 - 6], v27, &brushPts, v24) )
+        if ( CM_BuildBrushWindingForSide(&s_windingPool, (const vec3_t *)&v21[v20 - 6], v19, &brushPts, v16) )
           drawCollisionPoly(s_windingPool.numpoints, s_windingPool.p, color, drawSolid, interiorColor);
-        v28 = ++v27;
+        v20 = ++v19;
       }
-      while ( v27 < v26 );
+      while ( v19 < v18 );
     }
     Sys_LeaveCriticalSection(CRITSECT_SHOW_COLLISION);
   }
@@ -1111,82 +818,66 @@ CM_SignedAreaForPointsProjected
 */
 float CM_SignedAreaForPointsProjected(const vec3_t *pt0, const vec3_t *pt1, const vec3_t *pt2, int i, int j)
 {
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v5; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
 
-  _RSI = pt2;
-  _RBP = pt1;
-  _R14 = pt0;
+  v5 = i;
   if ( (unsigned int)i >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", i, 3) )
     __debugbreak();
-  _RBX = j;
   if ( (unsigned int)j >= 3 )
   {
-    LODWORD(v26) = 3;
-    LODWORD(v22) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v26) )
+    LODWORD(v14) = 3;
+    LODWORD(v10) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v14) )
       __debugbreak();
-    LODWORD(v27) = 3;
-    LODWORD(v23) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v27) )
-      __debugbreak();
-  }
-  if ( (unsigned int)i >= 3 )
-  {
-    LODWORD(v26) = 3;
-    LODWORD(v22) = i;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v26) )
+    LODWORD(v15) = 3;
+    LODWORD(v11) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v15) )
       __debugbreak();
   }
-  if ( (unsigned int)j >= 3 )
+  if ( (unsigned int)v5 >= 3 )
   {
-    LODWORD(v26) = 3;
-    LODWORD(v22) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v26) )
-      __debugbreak();
-    LODWORD(v28) = 3;
-    LODWORD(v24) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v28) )
-      __debugbreak();
-  }
-  if ( (unsigned int)i >= 3 )
-  {
-    LODWORD(v26) = 3;
-    LODWORD(v22) = i;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v26) )
+    LODWORD(v14) = 3;
+    LODWORD(v10) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v14) )
       __debugbreak();
   }
   if ( (unsigned int)j >= 3 )
   {
-    LODWORD(v26) = 3;
-    LODWORD(v22) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v26) )
+    LODWORD(v14) = 3;
+    LODWORD(v10) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v14) )
       __debugbreak();
-    LODWORD(v29) = 3;
-    LODWORD(v25) = j;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v25, v29) )
+    LODWORD(v16) = 3;
+    LODWORD(v12) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v12, v16) )
       __debugbreak();
   }
-  __asm
+  if ( (unsigned int)v5 >= 3 )
   {
-    vmovss  xmm1, dword ptr [rsi+rbx*4]
-    vmovss  xmm5, dword ptr [rbp+rbx*4+0]
-    vmovss  xmm4, dword ptr [r14+rbx*4]
-    vsubss  xmm0, xmm4, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rbp+rdi*4+0]
-    vsubss  xmm1, xmm1, xmm5
-    vmulss  xmm0, xmm1, dword ptr [r14+rdi*4]
-    vaddss  xmm3, xmm2, xmm0
-    vsubss  xmm2, xmm5, xmm4
-    vmulss  xmm0, xmm2, dword ptr [rsi+rdi*4]
-    vaddss  xmm0, xmm3, xmm0
+    LODWORD(v14) = 3;
+    LODWORD(v10) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v14) )
+      __debugbreak();
   }
-  return *(float *)&_XMM0;
+  if ( (unsigned int)j >= 3 )
+  {
+    LODWORD(v14) = 3;
+    LODWORD(v10) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v10, v14) )
+      __debugbreak();
+    LODWORD(v17) = 3;
+    LODWORD(v13) = j;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v17) )
+      __debugbreak();
+  }
+  return (float)((float)((float)(pt0->v[j] - pt2->v[j]) * pt1->v[v5]) + (float)((float)(pt2->v[j] - pt1->v[j]) * pt0->v[v5])) + (float)((float)(pt1->v[j] - pt0->v[j]) * pt2->v[v5]);
 }
 

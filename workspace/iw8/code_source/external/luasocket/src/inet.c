@@ -34,15 +34,14 @@ __int64 inet_global_toip(lua_State *L)
 inet_global_getaddrinfo
 ==============
 */
-
-__int64 __fastcall inet_global_getaddrinfo(lua_State *L, long double _XMM1_8)
+__int64 inet_global_getaddrinfo(lua_State *L)
 {
-  const char *v3; 
+  const char *v2; 
+  int v3; 
   int v4; 
-  int v5; 
-  const char *v6; 
-  PADDRINFOA v8; 
-  int v9; 
+  const char *v5; 
+  PADDRINFOA v7; 
+  int v8; 
   int ai_family; 
   const char *v12; 
   unsigned __int64 v13; 
@@ -51,40 +50,37 @@ __int64 __fastcall inet_global_getaddrinfo(lua_State *L, long double _XMM1_8)
   ADDRINFOA pHints; 
   char pNodeBuffer[1040]; 
 
-  v3 = j_luaL_checklstring(L, 1, NULL);
+  v2 = j_luaL_checklstring(L, 1, NULL);
   pHints.ai_flags = 0;
   memset(&pHints.ai_protocol, 0, 36);
-  v4 = 1;
+  v3 = 1;
   pHints.ai_socktype = 1;
   ppResult = NULL;
   pHints.ai_family = 0;
-  v5 = getaddrinfo(v3, NULL, &pHints, &ppResult);
-  if ( v5 )
+  v4 = getaddrinfo(v2, NULL, &pHints, &ppResult);
+  if ( v4 )
   {
     j_lua_pushnil(L);
-    v6 = j_socket_gaistrerror(v5);
-    j_lua_pushstring(L, v6);
+    v5 = j_socket_gaistrerror(v4);
+    j_lua_pushstring(L, v5);
     return 2i64;
   }
   else
   {
     j_lua_createtable(L, 0, 0);
-    v8 = ppResult;
+    v7 = ppResult;
     if ( ppResult )
     {
       while ( 1 )
       {
-        v9 = getnameinfo(v8->ai_addr, v8->ai_addrlen, pNodeBuffer, 0x401u, NULL, 0, 2);
-        if ( v9 )
+        v8 = getnameinfo(v7->ai_addr, v7->ai_addrlen, pNodeBuffer, 0x401u, NULL, 0, 2);
+        if ( v8 )
           break;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, r14d; n
-        }
-        j_lua_pushnumber(L, _XMM1_8);
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, r14d; n }
+        j_lua_pushnumber(L, *(long double *)&_XMM1);
         j_lua_createtable(L, 0, 0);
-        ai_family = v8->ai_family;
+        ai_family = v7->ai_family;
         if ( ai_family )
         {
           if ( ai_family == 2 )
@@ -115,24 +111,24 @@ __int64 __fastcall inet_global_getaddrinfo(lua_State *L, long double _XMM1_8)
         j_lua_pushstring(L, pNodeBuffer);
         j_lua_settable(L, -3);
         j_lua_settable(L, -3);
-        v8 = v8->ai_next;
-        ++v4;
-        if ( !v8 )
+        v7 = v7->ai_next;
+        ++v3;
+        if ( !v7 )
         {
-          v8 = ppResult;
+          v7 = ppResult;
           goto LABEL_14;
         }
       }
       freeaddrinfo(ppResult);
       j_lua_pushnil(L);
-      v14 = j_socket_gaistrerror(v9);
+      v14 = j_socket_gaistrerror(v8);
       j_lua_pushstring(L, v14);
       return 2i64;
     }
     else
     {
 LABEL_14:
-      freeaddrinfo(v8);
+      freeaddrinfo(v7);
       return 1i64;
     }
   }
@@ -172,67 +168,63 @@ __int64 inet_global_tohostname(lua_State *L)
 inet_global_getnameinfo
 ==============
 */
-
-__int64 __fastcall inet_global_getnameinfo(lua_State *L, long double _XMM1_8)
+__int64 inet_global_getnameinfo(lua_State *L)
 {
+  const char *v2; 
   const char *v3; 
   const char *v4; 
-  const char *v5; 
-  int v6; 
-  const char *v7; 
-  PADDRINFOA v9; 
-  int v10; 
+  int v5; 
+  const char *v6; 
+  PADDRINFOA v8; 
+  int v9; 
   PADDRINFOA ppResult; 
   ADDRINFOA pHints; 
   char str[40]; 
   char pNodeBuffer[1040]; 
 
-  v3 = j_luaL_optlstring(L, 1, NULL, NULL);
-  v4 = j_luaL_optlstring(L, 2, NULL, NULL);
-  v5 = v4;
-  if ( !v3 && !v4 )
+  v2 = j_luaL_optlstring(L, 1, NULL, NULL);
+  v3 = j_luaL_optlstring(L, 2, NULL, NULL);
+  v4 = v3;
+  if ( !v2 && !v3 )
     j_luaL_error(L, "host and serv cannot be both nil");
   pHints.ai_flags = 0;
   memset(&pHints.ai_protocol, 0, 36);
   pHints.ai_socktype = 1;
   pHints.ai_family = 0;
-  v6 = getaddrinfo(v3, v4, &pHints, &ppResult);
-  if ( v6 )
+  v5 = getaddrinfo(v2, v3, &pHints, &ppResult);
+  if ( v5 )
   {
     j_lua_pushnil(L);
-    v7 = j_socket_gaistrerror(v6);
-    j_lua_pushstring(L, v7);
+    v6 = j_socket_gaistrerror(v5);
+    j_lua_pushstring(L, v6);
     return 2i64;
   }
   else
   {
     j_lua_createtable(L, 0, 0);
-    v9 = ppResult;
-    v10 = 1;
+    v8 = ppResult;
+    v9 = 1;
     if ( ppResult )
     {
       do
       {
-        getnameinfo(v9->ai_addr, v9->ai_addrlen, pNodeBuffer, v3 != NULL ? 0x401 : 0, str, v5 != NULL ? 0x20 : 0, 0);
-        if ( v3 )
+        getnameinfo(v8->ai_addr, v8->ai_addrlen, pNodeBuffer, v2 != NULL ? 0x401 : 0, str, v4 != NULL ? 0x20 : 0, 0);
+        if ( v2 )
         {
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2sd xmm1, xmm1, esi; n
-          }
-          j_lua_pushnumber(L, _XMM1_8);
+          _XMM1 = 0i64;
+          __asm { vcvtsi2sd xmm1, xmm1, esi; n }
+          j_lua_pushnumber(L, *(long double *)&_XMM1);
           j_lua_pushstring(L, pNodeBuffer);
           j_lua_settable(L, -3);
         }
-        v9 = v9->ai_next;
-        ++v10;
+        v8 = v8->ai_next;
+        ++v9;
       }
-      while ( v9 );
-      v9 = ppResult;
+      while ( v8 );
+      v8 = ppResult;
     }
-    freeaddrinfo(v9);
-    if ( v5 )
+    freeaddrinfo(v8);
+    if ( v4 )
     {
       j_lua_pushstring(L, str);
       return 2i64;
@@ -496,63 +488,57 @@ inet_pushresolved
 */
 void inet_pushresolved(lua_State *L, hostent *hp)
 {
-  int v5; 
+  int v4; 
   char **h_aliases; 
+  int v6; 
   int v7; 
-  int v8; 
   char **h_addr_list; 
-  char *v12; 
+  char *v13; 
 
   j_lua_createtable(L, 0, 0);
-  v5 = j_lua_gettop(L);
+  v4 = j_lua_gettop(L);
   j_lua_pushstring(L, (const char *)&stru_143C9A1A4);
   j_lua_pushstring(L, hp->h_name);
-  j_lua_settable(L, v5);
+  j_lua_settable(L, v4);
   j_lua_pushstring(L, "ip");
   j_lua_pushstring(L, "alias");
   h_aliases = hp->h_aliases;
+  v6 = 1;
   v7 = 1;
-  v8 = 1;
   j_lua_createtable(L, 0, 0);
   if ( h_aliases && *h_aliases )
   {
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, esi; n
-      }
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, esi; n }
       j_lua_pushnumber(L, *(long double *)&_XMM1);
       j_lua_pushstring(L, *h_aliases);
       j_lua_settable(L, -3);
-      ++v8;
+      ++v7;
       ++h_aliases;
     }
     while ( *h_aliases );
   }
-  j_lua_settable(L, v5);
+  j_lua_settable(L, v4);
   j_lua_createtable(L, 0, 0);
   h_addr_list = hp->h_addr_list;
   if ( h_addr_list && *h_addr_list )
   {
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, ebp; n
-      }
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, ebp; n }
       j_lua_pushnumber(L, *(long double *)&_XMM1);
-      v12 = inet_ntoa(*(struct in_addr *)*h_addr_list);
-      j_lua_pushstring(L, v12);
+      v13 = inet_ntoa(*(struct in_addr *)*h_addr_list);
+      j_lua_pushstring(L, v13);
       j_lua_settable(L, -3);
-      ++v7;
+      ++v6;
       ++h_addr_list;
     }
     while ( *h_addr_list );
   }
-  j_lua_settable(L, v5);
+  j_lua_settable(L, v4);
 }
 
 /*
@@ -671,11 +657,13 @@ const char *inet_tryconnect(unsigned __int64 *ps, int *family, const char *addre
   int v10; 
   const char *v11; 
   PADDRINFOA v13; 
+  t_timeout_ *v14; 
   int ai_family; 
   int v17; 
   unsigned __int64 v18; 
   int v19; 
   PADDRINFOA ppResult; 
+  __int128 v21; 
   int optval; 
 
   v7 = *family;
@@ -691,16 +679,13 @@ const char *inet_tryconnect(unsigned __int64 *ps, int *family, const char *addre
   }
   v13 = ppResult;
   if ( !ppResult )
-    goto LABEL_19;
-  _RBP = tm;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vxorpd  xmm6, xmm6, xmm6
-  }
+    goto LABEL_18;
+  v14 = tm;
+  v21 = _XMM6;
+  __asm { vxorpd  xmm6, xmm6, xmm6 }
   while ( 1 )
   {
-    j_timeout_markstart(_RBP);
+    j_timeout_markstart(v14);
     if ( v7 != v13->ai_family || *ps == -1i64 )
     {
       j_socket_destroy(ps);
@@ -718,11 +703,10 @@ const char *inet_tryconnect(unsigned __int64 *ps, int *family, const char *addre
       v7 = v13->ai_family;
       j_socket_setnonblocking(ps);
     }
-    v19 = j_socket_connect(ps, v13->ai_addr, v13->ai_addrlen, _RBP);
+    v19 = j_socket_connect(ps, v13->ai_addr, v13->ai_addrlen, v14);
     v11 = j_socket_strerror(v19);
-    if ( !v11 )
+    if ( !v11 || *(double *)&_XMM6 == v14->block )
       break;
-    __asm { vucomisd xmm6, qword ptr [rbp+0] }
 LABEL_15:
     v13 = v13->ai_next;
     if ( !v13 )
@@ -730,8 +714,6 @@ LABEL_15:
   }
   *family = v7;
 LABEL_18:
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-LABEL_19:
   freeaddrinfo(ppResult);
   return v11;
 }
@@ -770,20 +752,21 @@ const char *inet_trydisconnect(unsigned __int64 *ps, int family, t_timeout_ *tm)
   const char *result; 
   sockaddr *p_addr; 
   t_timeout_ *v5; 
+  int v6; 
   int v7; 
-  int v8; 
   sockaddr addr; 
-  __int16 v10; 
-  int v11; 
-  __int16 v12; 
-  int v14; 
+  __int16 v9; 
+  int v10; 
+  __int16 v11; 
+  __int128 v12; 
+  int v13; 
 
   result = NULL;
   if ( family == 2 )
   {
     v5 = tm;
     *(_QWORD *)&addr.sa_family = 0i64;
-    v7 = 16;
+    v6 = 16;
     *(_QWORD *)&addr.sa_data[6] = 0i64;
     p_addr = &addr;
   }
@@ -792,21 +775,17 @@ const char *inet_trydisconnect(unsigned __int64 *ps, int family, t_timeout_ *tm)
     if ( family != 23 )
       return result;
     *(_QWORD *)&addr.sa_family = 0i64;
-    p_addr = (sockaddr *)&v10;
+    p_addr = (sockaddr *)&v9;
     *(_QWORD *)&addr.sa_data[6] = 0i64;
     v5 = tm;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+addr.sa_family]
-      vmovups [rsp+68h+var_30], xmm0
-    }
-    v11 = 0;
-    v7 = 28;
-    v12 = 0;
-    v14 = 0;
+    v12 = 0u;
     v10 = 0;
+    v6 = 28;
+    v11 = 0;
+    v13 = 0;
+    v9 = 0;
   }
-  v8 = j_socket_connect(ps, p_addr, v7, v5);
-  return j_socket_strerror(v8);
+  v7 = j_socket_connect(ps, p_addr, v6, v5);
+  return j_socket_strerror(v7);
 }
 

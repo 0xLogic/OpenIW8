@@ -27,68 +27,53 @@ hknpFlippedShapeCastQueryCollector::addHit
 */
 void hknpFlippedShapeCastQueryCollector::addHit(hknpFlippedShapeCastQueryCollector *this, const hknpCollisionResult *flippedHit)
 {
-  int v12; 
+  __m256i v2; 
+  __m128 v4; 
+  int v7; 
   unsigned __int64 m_userData; 
   hknpCollisionQueryCollector *m_childCollector; 
-  bool v18; 
-  hknpCollisionQueryCollector *v20; 
-  bool v22; 
-  __m256i v23; 
-  __m256i v24; 
-  __m256i v25; 
-  unsigned __int64 v26; 
-  void *retaddr; 
+  bool v12; 
+  hknpCollisionQueryCollector *v14; 
+  bool v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  __int128 v20; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups [rsp+0A8h+var_88], ymm0
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups [rsp+0A8h+var_48], ymm0
-    vbroadcastss xmm0, dword ptr [rdx+20h]
-    vmulps  xmm2, xmm0, xmmword ptr [rcx+30h]
-    vmovups [rsp+0A8h+var_68], ymm1
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [r11-28h], xmm1
-    vaddps  xmm1, xmm2, xmmword ptr [rdx]
-    vmovups xmmword ptr [rsp+0A8h+var_88], xmm1
-    vpxor   xmm0, xmm0, xmm0
-  }
-  _RBX = this;
-  v12 = *(_DWORD *)flippedHit->m_hitBodyInfo.m_levelOfDetail;
+  v2 = *(__m256i *)&flippedHit->m_fraction;
+  v17 = *(__m256i *)flippedHit->m_position.m_quad.m128_f32;
+  v19 = *(__m256i *)&flippedHit->m_queryBodyInfo.m_filterData.m_userData;
+  __asm { vbroadcastss xmm0, dword ptr [rdx+20h] }
+  v4 = _mm128_mul_ps(_XMM0, this->m_castDirectionWS.m_quad);
+  v18 = v2;
+  v20 = *(_OWORD *)&flippedHit->m_hitBodyInfo.m_filterData.m_userData;
+  *(__m128 *)v17.m256i_i8 = _mm128_add_ps(v4, flippedHit->m_position.m_quad);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v7 = *(_DWORD *)flippedHit->m_hitBodyInfo.m_levelOfDetail;
   __asm { vpinsrw xmm0, xmm0, eax, 1 }
-  v24.m256i_i64[1] = *(_QWORD *)&flippedHit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-  v24.m256i_i16[12] = flippedHit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-  v24.m256i_i32[7] = flippedHit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+  v18.m256i_i64[1] = *(_QWORD *)&flippedHit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+  v18.m256i_i16[12] = flippedHit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+  v18.m256i_i32[7] = flippedHit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
   m_userData = flippedHit->m_hitBodyInfo.m_filterData.m_userData;
-  __asm
-  {
-    vpshufd xmm2, xmm0, 40h ; '@'
-    vxorps  xmm0, xmm2, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rsp+0A8h+var_88+10h], xmm0
-  }
-  v25.m256i_i64[0] = m_userData;
-  v25.m256i_i64[1] = *(_QWORD *)&flippedHit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-  v25.m256i_i16[12] = flippedHit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-  v25.m256i_i32[7] = flippedHit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-  v26 = flippedHit->m_queryBodyInfo.m_filterData.m_userData;
-  v25.m256i_i32[4] = v12;
-  m_childCollector = _RBX->m_childCollector;
-  v24.m256i_i32[4] = -1;
-  m_childCollector->addHit(m_childCollector, (const hknpCollisionResult *)&v23);
-  v18 = _RBX->m_earlyOut.m_bool == 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx+10h] }
-  v20 = _RBX->m_childCollector;
-  __asm
-  {
-    vminps  xmm1, xmm0, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-  }
-  v22 = !v18 || v20->m_earlyOut.m_bool;
-  _RBX->m_earlyOut.m_bool = v22;
-  _RBX->m_numHits = v20->m_numHits;
+  __asm { vpshufd xmm2, xmm0, 40h ; '@' }
+  *(_OWORD *)&v17.m256i_u64[2] = _XMM2 ^ *(_OWORD *)&flippedHit->m_normal;
+  v19.m256i_i64[0] = m_userData;
+  v19.m256i_i64[1] = *(_QWORD *)&flippedHit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+  v19.m256i_i16[12] = flippedHit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+  v19.m256i_i32[7] = flippedHit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+  *(_QWORD *)&v20 = flippedHit->m_queryBodyInfo.m_filterData.m_userData;
+  v19.m256i_i32[4] = v7;
+  m_childCollector = this->m_childCollector;
+  v18.m256i_i32[4] = -1;
+  m_childCollector->addHit(m_childCollector, (const hknpCollisionResult *)&v17);
+  v12 = this->m_earlyOut.m_bool == 0;
+  _XMM0.m_real = (__m128)this->m_earlyOutThreshold;
+  v14 = this->m_childCollector;
+  __asm { vminps  xmm1, xmm0, xmmword ptr [rcx+10h] }
+  this->m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
+  v16 = !v12 || v14->m_earlyOut.m_bool;
+  this->m_earlyOut.m_bool = v16;
+  this->m_numHits = v14->m_numHits;
 }
 
 /*
@@ -101,25 +86,21 @@ void hknpFlippedShapeCastQueryCollector::reset(hknpFlippedShapeCastQueryCollecto
   bool v2; 
   hknpCollisionQueryCollector *m_childCollector; 
 
-  _RBX = this;
   this->m_childCollector->reset(this->m_childCollector);
-  v2 = _RBX->m_earlyOut.m_bool == 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx+10h] }
-  m_childCollector = _RBX->m_childCollector;
-  __asm
-  {
-    vminps  xmm1, xmm0, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-  }
+  v2 = this->m_earlyOut.m_bool == 0;
+  _XMM0.m_real = (__m128)this->m_earlyOutThreshold;
+  m_childCollector = this->m_childCollector;
+  __asm { vminps  xmm1, xmm0, xmmword ptr [rcx+10h] }
+  this->m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
   if ( !v2 || m_childCollector->m_earlyOut.m_bool )
   {
-    _RBX->m_earlyOut.m_bool = 1;
-    _RBX->m_numHits = m_childCollector->m_numHits;
+    this->m_earlyOut.m_bool = 1;
+    this->m_numHits = m_childCollector->m_numHits;
   }
   else
   {
-    _RBX->m_earlyOut.m_bool = 0;
-    _RBX->m_numHits = m_childCollector->m_numHits;
+    this->m_earlyOut.m_bool = 0;
+    this->m_numHits = m_childCollector->m_numHits;
   }
 }
 

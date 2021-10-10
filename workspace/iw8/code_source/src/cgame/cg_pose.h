@@ -199,35 +199,40 @@ CG_GetPoseOrigin
 void CG_GetPoseOrigin(const cpose_t *pose, vec3_t *outOrigin)
 {
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v8; 
 
-  _RDI = outOrigin;
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
   if ( !pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(pose->origin.Get_origin, pose);
-  FunctionPointer_origin(&pose->origin.origin.origin, _RDI);
+  FunctionPointer_origin(&pose->origin.origin.origin, outOrigin);
   if ( pose->isPosePrecise )
   {
+    _XMM0 = LODWORD(outOrigin->v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v8 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v8;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    _XMM0 = LODWORD(outOrigin->v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    outOrigin->v[0] = *(float *)&_XMM1;
+    *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v8 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v8;
+    _XMM0 = LODWORD(outOrigin->v[2]);
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, dword ptr [rdi]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovd   xmm0, dword ptr [rdi+4]
-      vcvtdq2pd xmm0, xmm0
-      vmovss  dword ptr [rdi], xmm1
-      vmulsd  xmm1, xmm0, xmm3
-      vmovd   xmm0, dword ptr [rdi+8]
       vcvtsd2ss xmm2, xmm1, xmm1
       vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rdi+4], xmm2
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmovss  dword ptr [rdi+8], xmm2
     }
+    *((_QWORD *)&v8 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v8 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v8;
+    outOrigin->v[1] = *(float *)&_XMM2;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    outOrigin->v[2] = *(float *)&_XMM2;
   }
 }
 
@@ -252,38 +257,17 @@ CG_SetPoseOrigin
 */
 void CG_SetPoseOrigin(cpose_t *pose, const vec3_t *inOrigin)
 {
-  const vec3_t *v3; 
-  void (__fastcall *v7)(const vec3_t *, vec4_t *); 
-  int *v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19[4]; 
+  void (__fastcall *v4)(const vec3_t *, vec4_t *); 
+  float v5; 
+  float v6; 
+  const vec3_t *v7; 
+  float v8; 
+  int v9[4]; 
 
-  __asm
+  v8 = inOrigin->v[0];
+  if ( (LODWORD(inOrigin->v[0]) & 0x7F800000) == 2139095040 || (v8 = inOrigin->v[1], (LODWORD(v8) & 0x7F800000) == 2139095040) || (v8 = inOrigin->v[2], (LODWORD(v8) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  v3 = inOrigin;
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )", v8) )
       __debugbreak();
   }
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 412, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
@@ -296,35 +280,24 @@ LABEL_20:
     pose->entOriginSet = 1;
     pose->hasStaleEntityPose = 1;
   }
-  v7 = ObfuscateSetFunctionPointer_origin(pose->origin.Set_origin, pose);
+  v4 = ObfuscateSetFunctionPointer_origin(pose->origin.Set_origin, pose);
   if ( pose->isPosePrecise )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@45800000
-      vmulss  xmm0, xmm2, dword ptr [rdi]
-      vcvttss2si ecx, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rdi+4]
-    }
-    v19[0] = _ECX;
-    __asm
-    {
-      vcvttss2si ecx, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rdi+8]
-      vcvttss2si eax, xmm0
-    }
-    v19[1] = _ECX;
-    v15 = v19;
-    v19[2] = _EAX;
+    v5 = 4096.0 * inOrigin->v[1];
+    v9[0] = (int)(float)(4096.0 * inOrigin->v[0]);
+    v6 = 4096.0 * inOrigin->v[2];
+    v9[1] = (int)v5;
+    v7 = (const vec3_t *)v9;
+    v9[2] = (int)v6;
   }
   else
   {
-    v15 = (int *)v3;
+    v7 = inOrigin;
   }
-  v7((const vec3_t *)v15, &pose->origin.origin.origin);
-  pose->actualOrigin.v[0] = v3->v[0];
-  pose->actualOrigin.v[1] = v3->v[1];
-  pose->actualOrigin.v[2] = v3->v[2];
+  v4(v7, &pose->origin.origin.origin);
+  pose->actualOrigin.v[0] = inOrigin->v[0];
+  pose->actualOrigin.v[1] = inOrigin->v[1];
+  pose->actualOrigin.v[2] = inOrigin->v[2];
 }
 
 /*
@@ -334,44 +307,16 @@ CG_SetPrevPoseOrigin
 */
 void CG_SetPrevPoseOrigin(cpose_t *pose, const vec3_t *inOrigin)
 {
-  const vec3_t *v3; 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
-  int v8; 
-  int v9; 
-  int v10; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v3 = inOrigin;
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-  {
-LABEL_15:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(inOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(inOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(inOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
+    __debugbreak();
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 594, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
   if ( !pose->prevOrigin.Set_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 595, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Set_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Set_prevOrigin") )
     __debugbreak();
   Origin = ObfuscateSetFunctionPointer_prevOrigin(pose->prevOrigin.Set_prevOrigin, pose);
-  Origin(v3, &pose->prevOrigin.prevOrigin);
+  Origin(inOrigin, &pose->prevOrigin.prevOrigin);
 }
 
 /*
@@ -446,53 +391,36 @@ void Copy_CPose(cpose_t *out, const cpose_t *in)
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
   void (__fastcall *FunctionPointer_prevOrigin)(const vec4_t *, vec3_t *); 
+  cpose_t *v8; 
+  const cpose_t *v9; 
   __int64 v10; 
-  void (__fastcall *v21)(const vec4_t *, vec3_t *); 
+  void (__fastcall *v11)(const vec4_t *, vec3_t *); 
   vec3_t outOrigin; 
 
   v4 = ObfuscateSetFunctionPointer_origin(out->origin.Set_origin, out);
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(out->origin.Get_origin, out);
   Origin = ObfuscateSetFunctionPointer_prevOrigin(out->prevOrigin.Set_prevOrigin, out);
   FunctionPointer_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(out->prevOrigin.Get_prevOrigin, out);
-  _RDX = out;
-  _RCX = in;
+  v8 = out;
+  v9 = in;
   v10 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rdx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rdx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rdx+60h], xmm0
-    }
-    _RDX = (cpose_t *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
-    _RCX = (const cpose_t *)((char *)_RCX + 128);
+    *(_OWORD *)&v8->eType = *(_OWORD *)&v9->eType;
+    *(_OWORD *)&v8->ragdollHandle = *(_OWORD *)&v9->ragdollHandle;
+    *(_OWORD *)&v8->actualOrigin.y = *(_OWORD *)&v9->actualOrigin.y;
+    *(_OWORD *)&v8->origin.Get_origin = *(_OWORD *)&v9->origin.Get_origin;
+    *(SecureOrigin::secureUnion *)((char *)&v8->origin.origin + 8) = *(SecureOrigin::secureUnion *)((char *)&v9->origin.origin + 8);
+    *(_OWORD *)&v8->angles.z = *(_OWORD *)&v9->angles.z;
+    *(_OWORD *)&v8->prevOrigin.Get_prevOrigin = *(_OWORD *)&v9->prevOrigin.Get_prevOrigin;
+    v8 = (cpose_t *)((char *)v8 + 128);
+    *((_OWORD *)&v8[-1].moverFx + 7) = *(vec4_t *)((char *)&v9->prevOrigin.prevOrigin + 8);
+    v9 = (const cpose_t *)((char *)v9 + 128);
     --v10;
   }
   while ( v10 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-  }
+  *(_OWORD *)&v8->eType = *(_OWORD *)&v9->eType;
+  *(_OWORD *)&v8->ragdollHandle = *(_OWORD *)&v9->ragdollHandle;
   out->origin.Set_origin = NULL;
   out->origin.Get_origin = NULL;
   out->prevOrigin.Set_prevOrigin = NULL;
@@ -505,8 +433,8 @@ void Copy_CPose(cpose_t *out, const cpose_t *in)
   CG_SetPoseOrigin(out, &outOrigin);
   if ( !in->prevOrigin.Get_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 568, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Get_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Get_prevOrigin", -2i64) )
     __debugbreak();
-  v21 = ObfuscateGetFunctionPointer_prevOrigin(in->prevOrigin.Get_prevOrigin, in);
-  v21(&in->prevOrigin.prevOrigin, &outOrigin);
+  v11 = ObfuscateGetFunctionPointer_prevOrigin(in->prevOrigin.Get_prevOrigin, in);
+  v11(&in->prevOrigin.prevOrigin, &outOrigin);
   CG_SetPrevPoseOrigin(out, &outOrigin);
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
@@ -519,53 +447,25 @@ CG_ResetPoseRandom
 void CG_ResetPoseRandom(cpose_t *pose, const int randValOrigin, const int randValPrevOrigin)
 {
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
-  int v10; 
-  int v11; 
-  int v12; 
-  int v13; 
+  float v6; 
+  float v7; 
+  float v8; 
 
   CG_Reset_PoseOrigin(pose, randValOrigin);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@4f800000
-    vmovss  [rsp+78h+var_30], xmm0
-    vmovss  [rsp+78h+var_2C], xmm0
-    vmovss  [rsp+78h+var_28], xmm0
-  }
+  v6 = FLOAT_4_2949673e9;
+  v7 = FLOAT_4_2949673e9;
+  v8 = FLOAT_4_2949673e9;
   if ( (unsigned int)randValPrevOrigin >= 0x22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 628, ASSERT_TYPE_ASSERT, "(unsigned)( randVal ) < (unsigned)( NUM_AAB_FUNCTIONS )", "randVal doesn't index NUM_AAB_FUNCTIONS\n\t%i not in [0, %i)", randValPrevOrigin, 34) )
     __debugbreak();
   SetObfuscatedFunction(randValPrevOrigin, (unsigned __int64)&pose->prevOrigin.Get_prevOrigin, (unsigned __int64)&pose->prevOrigin, &pose->prevOrigin.Set_prevOrigin, &pose->prevOrigin.Get_prevOrigin, s_aab_set_pointer_prevorigin, s_aab_get_pointer_prevorigin);
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_30]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_2C]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_28]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-  {
-LABEL_18:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(v6) & 0x7F800000) == 2139095040 || (LODWORD(v7) & 0x7F800000) == 2139095040 || (LODWORD(v8) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
+    __debugbreak();
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 594, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
   if ( !pose->prevOrigin.Set_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 595, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Set_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Set_prevOrigin") )
     __debugbreak();
   Origin = ObfuscateSetFunctionPointer_prevOrigin(pose->prevOrigin.Set_prevOrigin, pose);
-  Origin((const vec3_t *)&v13, &pose->prevOrigin.prevOrigin);
+  Origin((const vec3_t *)&v6, &pose->prevOrigin.prevOrigin);
 }
 
 /*
@@ -575,95 +475,49 @@ CG_Reset_PoseOrigin
 */
 void CG_Reset_PoseOrigin(cpose_t *pose, const int randVal)
 {
-  void (__fastcall *v8)(const vec3_t *, vec4_t *); 
-  int *v16; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v26[4]; 
+  void (__fastcall *v4)(const vec3_t *, vec4_t *); 
+  float *v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  int v10[4]; 
 
-  _RBX = pose;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@4f800000
-    vmovss  [rsp+78h+var_30], xmm0
-    vmovss  [rsp+78h+var_2C], xmm0
-    vmovss  [rsp+78h+var_28], xmm0
-  }
+  v7 = FLOAT_4_2949673e9;
+  v8 = FLOAT_4_2949673e9;
+  v9 = FLOAT_4_2949673e9;
   if ( (unsigned int)randVal >= 0x22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 544, ASSERT_TYPE_ASSERT, "(unsigned)( randVal ) < (unsigned)( NUM_AAB_FUNCTIONS )", "randVal doesn't index NUM_AAB_FUNCTIONS\n\t%i not in [0, %i)", randVal, 34) )
     __debugbreak();
-  SetObfuscatedFunction(randVal, (unsigned __int64)&_RBX->origin.Get_origin, (unsigned __int64)&_RBX->origin, &_RBX->origin.Set_origin, &_RBX->origin.Get_origin, s_aab_set_pointer_origin, s_aab_get_pointer_origin);
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_30]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_2C]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_28]
-    vmovss  [rsp+78h+var_38], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
-      __debugbreak();
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 412, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+  SetObfuscatedFunction(randVal, (unsigned __int64)&pose->origin.Get_origin, (unsigned __int64)&pose->origin, &pose->origin.Set_origin, &pose->origin.Get_origin, s_aab_set_pointer_origin, s_aab_get_pointer_origin);
+  if ( ((LODWORD(v7) & 0x7F800000) == 2139095040 || (LODWORD(v8) & 0x7F800000) == 2139095040 || (LODWORD(v9) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 411, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inOrigin )[0] ) && !IS_NAN( ( inOrigin )[1] ) && !IS_NAN( ( inOrigin )[2] )") )
     __debugbreak();
-  if ( !_RBX->origin.Set_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 413, ASSERT_TYPE_ASSERT, "(pose->origin.Set_origin)", (const char *)&queryFormat, "pose->origin.Set_origin") )
+  if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 412, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
-  if ( _RBX->isEntityPose )
+  if ( !pose->origin.Set_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 413, ASSERT_TYPE_ASSERT, "(pose->origin.Set_origin)", (const char *)&queryFormat, "pose->origin.Set_origin") )
+    __debugbreak();
+  if ( pose->isEntityPose )
   {
-    CG_Pose_ValidateSetEntityPoseOrigin(_RBX);
-    _RBX->entOriginSet = 1;
-    _RBX->hasStaleEntityPose = 1;
+    CG_Pose_ValidateSetEntityPoseOrigin(pose);
+    pose->entOriginSet = 1;
+    pose->hasStaleEntityPose = 1;
   }
-  v8 = ObfuscateSetFunctionPointer_origin(_RBX->origin.Set_origin, _RBX);
-  if ( _RBX->isPosePrecise )
+  v4 = ObfuscateSetFunctionPointer_origin(pose->origin.Set_origin, pose);
+  if ( pose->isPosePrecise )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@45800000
-      vmulss  xmm1, xmm2, [rsp+78h+var_30]
-      vcvttss2si ecx, xmm1
-      vmulss  xmm1, xmm2, [rsp+78h+var_2C]
-    }
-    v26[0] = _ECX;
-    __asm
-    {
-      vcvttss2si ecx, xmm1
-      vmulss  xmm1, xmm2, [rsp+78h+var_28]
-      vcvttss2si eax, xmm1
-    }
-    v26[1] = _ECX;
-    v16 = v26;
-    v26[2] = _EAX;
+    v10[0] = (int)(float)(4096.0 * v7);
+    v10[1] = (int)(float)(4096.0 * v8);
+    v5 = (float *)v10;
+    v10[2] = (int)(float)(4096.0 * v9);
   }
   else
   {
-    v16 = &v23;
+    v5 = &v7;
   }
-  v8((const vec3_t *)v16, &_RBX->origin.origin.origin);
-  __asm
-  {
-    vmovss  xmm0, [rsp+78h+var_30]
-    vmovss  xmm1, [rsp+78h+var_2C]
-    vmovss  dword ptr [rbx+1Ch], xmm0
-    vmovss  xmm0, [rsp+78h+var_28]
-    vmovss  dword ptr [rbx+24h], xmm0
-    vmovss  dword ptr [rbx+20h], xmm1
-  }
+  v4((const vec3_t *)v5, &pose->origin.origin.origin);
+  v6 = v8;
+  pose->actualOrigin.v[0] = v7;
+  pose->actualOrigin.v[2] = v9;
+  pose->actualOrigin.v[1] = v6;
 }
 
 /*
@@ -709,31 +563,11 @@ void CG_GetPrevPoseOrigin(const cpose_t *pose, vec3_t *outOrigin)
 CompressSignedUnit
 ==============
 */
-
-int __fastcall CompressSignedUnit(double unit)
+__int64 CompressSignedUnit(float unit)
 {
-  int result; 
-  double v8; 
-
-  __asm
-  {
-    vcomiss xmm0, cs:__real@bf800000
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@3f800000
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovsd  [rsp+48h+var_20], xmm1
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 874, ASSERT_TYPE_ASSERT, "( ( unit >= -1.0f && unit <= 1.0f ) )", "( unit ) = %g", v8) )
+  if ( (unit < -1.0 || unit > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 874, ASSERT_TYPE_ASSERT, "( ( unit >= -1.0f && unit <= 1.0f ) )", "( unit ) = %g", unit) )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@46ffff00
-    vaddss  xmm1, xmm0, cs:__real@47000000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)(unit * 32767.5) + 32768.0);
 }
 
 /*
@@ -741,31 +575,10 @@ int __fastcall CompressSignedUnit(double unit)
 CompressUnit
 ==============
 */
-
-int __fastcall CompressUnit(double unit, double _XMM1_8)
+__int64 CompressUnit(float unit)
 {
-  int result; 
-  double v10; 
-
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@3f800000
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovsd  [rsp+48h+var_20], xmm1
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 867, ASSERT_TYPE_ASSERT, "( ( unit >= 0.0f && unit <= 1.0f ) )", "( unit ) = %g", v10) )
+  if ( (unit < 0.0 || unit > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 867, ASSERT_TYPE_ASSERT, "( ( unit >= 0.0f && unit <= 1.0f ) )", "( unit ) = %g", unit) )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@477fff00
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)(unit * 65535.0) + 0.5);
 }
 

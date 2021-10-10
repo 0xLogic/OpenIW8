@@ -155,80 +155,31 @@ XModelStreamTreeGridCell::Print
 */
 void XModelStreamTreeGridCell::Print(XModelStreamTreeGridCell *this)
 {
-  unsigned __int64 v16; 
-  double v33; 
-  double v34; 
-  double v35; 
-  double v36; 
-  double v37; 
-  double v38; 
-  double v39; 
-  double v40; 
+  unsigned __int64 v2; 
+  __int64 v3; 
+  XModelStreamTreeNode *nodes; 
 
-  _RBP = this;
   Com_Printf(0, "XModelStreamTreeGridCell [%u,%u]\n", this->rowIndex, this->columnIndex);
-  __asm
+  Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", this->bounds.mins.v[0], this->bounds.mins.v[1], this->bounds.mins.v[2], this->bounds.maxs.v[0], this->bounds.maxs.v[1], this->bounds.maxs.v[2]);
+  Com_Printf(0, "  Total InstanceIndexCount: %u\n", this->instanceIndexCount);
+  Com_Printf(0, "  Large InstanceIndexCount: %u\n", this->largeInstanceIndexCount);
+  Com_Printf(0, "  Instance Count: %u\n", this->instanceCount);
+  Com_Printf(0, "  Nodes [%u]:\n", this->nodeCount);
+  v2 = 0i64;
+  if ( this->nodeCount )
   {
-    vmovss  xmm0, dword ptr [rbp+18h]
-    vmovss  xmm1, dword ptr [rbp+14h]
-    vmovss  xmm4, dword ptr [rbp+10h]
-    vmovss  xmm3, dword ptr [rbp+8]
-    vmovss  xmm2, dword ptr [rbp+4]
-    vmovss  xmm5, dword ptr [rbp+0Ch]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+48h+var_18], xmm1
-    vcvtss2sd xmm4, xmm4, xmm4
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+48h+var_20], xmm4
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+48h+var_28], xmm5
-  }
-  Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", *(double *)&_XMM2, *(double *)&_XMM3, v33, v35, v37, v39);
-  Com_Printf(0, "  Total InstanceIndexCount: %u\n", _RBP->instanceIndexCount);
-  Com_Printf(0, "  Large InstanceIndexCount: %u\n", _RBP->largeInstanceIndexCount);
-  Com_Printf(0, "  Instance Count: %u\n", _RBP->instanceCount);
-  Com_Printf(0, "  Nodes [%u]:\n", _RBP->nodeCount);
-  v16 = 0i64;
-  if ( _RBP->nodeCount )
-  {
-    _RDI = 0i64;
+    v3 = 0i64;
     do
     {
-      _RBX = _RBP->nodes;
-      Com_Printf(0, "    Node %u:\n", (unsigned int)v16);
-      Com_Printf(0, "      Children: %u %u\n", _RBX[_RDI].childNodes[0], _RBX[_RDI].childNodes[1]);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+rbx+18h]
-        vmovss  xmm1, dword ptr [rdi+rbx+14h]
-        vmovss  xmm4, dword ptr [rdi+rbx+10h]
-        vmovss  xmm3, dword ptr [rdi+rbx+8]
-        vmovss  xmm2, dword ptr [rdi+rbx+4]
-        vmovss  xmm5, dword ptr [rdi+rbx+0Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+48h+var_10], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+48h+var_18], xmm1
-        vcvtss2sd xmm4, xmm4, xmm4
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+48h+var_20], xmm4
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+48h+var_28], xmm5
-      }
-      Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", *(double *)&_XMM2, *(double *)&_XMM3, v34, v36, v38, v40);
-      Com_Printf(0, "      Instances:  Start=%u  Count=%u\n", _RBX[_RDI].instanceStartIndex, _RBX[_RDI].instanceCount);
-      ++_RDI;
-      ++v16;
+      nodes = this->nodes;
+      Com_Printf(0, "    Node %u:\n", (unsigned int)v2);
+      Com_Printf(0, "      Children: %u %u\n", nodes[v3].childNodes[0], nodes[v3].childNodes[1]);
+      Com_Printf(0, "      Bounds: min={ %f %f %f } max={ %f %f %f }\n", nodes[v3].bounds.mins.v[0], nodes[v3].bounds.mins.v[1], nodes[v3].bounds.mins.v[2], nodes[v3].bounds.maxs.v[0], nodes[v3].bounds.maxs.v[1], nodes[v3].bounds.maxs.v[2]);
+      Com_Printf(0, "      Instances:  Start=%u  Count=%u\n", nodes[v3].instanceStartIndex, nodes[v3].instanceCount);
+      ++v3;
+      ++v2;
     }
-    while ( v16 < _RBP->nodeCount );
+    while ( v2 < this->nodeCount );
   }
 }
 

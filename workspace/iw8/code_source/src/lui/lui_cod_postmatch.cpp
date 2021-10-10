@@ -189,7 +189,7 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetPlayerMatchStatsData_impl(lua_State *
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+0C0h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.arrayIndex = -1;
   DDL_GetRootState(&fromState, Asset);
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
@@ -206,13 +206,10 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetPlayerMatchStatsData_impl(lua_State *
     v45.isValid = 0;
     v45.offset = 0;
     v45.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+1C0h+var_170.member], xmm0 }
+    *(_OWORD *)&v45.member = _XMM0;
     DDL_MoveToIndex(&toState, &v45, v12);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+1C0h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
@@ -497,11 +494,8 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetScoreboardRowData_impl(lua_State *con
   Asset = Com_DDL_LoadAsset(cls.matchData.def);
   Com_DDL_CreateContext(cls.matchData.data, 24000, Asset, &ddlContext, NULL, NULL);
   DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+13B70h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
@@ -516,13 +510,10 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetScoreboardRowData_impl(lua_State *con
   v128.isValid = 0;
   v128.offset = 0;
   v128.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+13B70h+var_13B58.member], xmm0 }
+  *(_OWORD *)&v128.member = _XMM0;
   DDL_MoveToName(&fromState, &v128, "commonData");
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+13B70h+var_13B38.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v129.member = _XMM0;
   v129.isValid = 0;
   v129.offset = 0;
   v129.arrayIndex = -1;
@@ -543,7 +534,7 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetScoreboardRowData_impl(lua_State *con
     players = scr_const.player;
   v130.offset = 0;
   v130.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+13B70h+var_13B18.member], xmm0 }
+  *(_OWORD *)&v130.member = _XMM0;
   v21 = j_SL_GetRawHash(players);
   if ( DDL_MoveToNameByHash(&result, &v130, v21, NULL) )
   {
@@ -563,17 +554,14 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_GetScoreboardRowData_impl(lua_State *con
       v117.isValid = 0;
       v117.offset = 0;
       v117.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+13C70h+var_13C08.member], xmm0 }
+      *(_OWORD *)&v117.member = _XMM0;
       DDL_MoveToIndex(&v130, &v117, v24);
       state.isValid = 0;
       state.offset = 0;
       state.arrayIndex = -1;
       v113 = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+13C70h+state.member], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&state.member = _XMM0;
       if ( v18 )
         goto LABEL_118;
       v27 = j_SL_GetRawHash(scr_const.team);
@@ -998,23 +986,17 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushCPScoreboardDataToLUIModel_impl(lua_
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+10h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   DDL_MoveToName(&result, &toState, "commonData");
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
   RawHash = j_SL_GetRawHash(scr_const.round);
   DDL_MoveToNameByHash(&toState, &fromState, RawHash, NULL);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+110h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1037,7 +1019,7 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushCPScoreboardDataToLUIModel_impl(lua_
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+110h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   LOWORD(v19) = LUI_Model_CreateModelFromPath(GlobalModel, "frontEnd.AAR.scoreBoard.players.numCPPlayers");
   v21 = j_SL_GetRawHash(scr_const.scoreboardPlayerCount);
@@ -1054,11 +1036,8 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushCPScoreboardDataToLUIModel_impl(lua_
   DDL_MoveToNameByHash(&result, &state, v25, NULL);
   v26 = DDL_GetInt(&state, &context);
   LUI_Model_SetInt((const unsigned __int16)v19, v26);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+10h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
@@ -1072,13 +1051,10 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushCPScoreboardDataToLUIModel_impl(lua_
     fromState.isValid = 0;
     fromState.offset = 0;
     fromState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+110h+fromState.member], xmm0 }
+    *(_OWORD *)&fromState.member = _XMM0;
     DDL_MoveToIndex(&toState, &fromState, i);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+10h+var_60.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v39.member = _XMM0;
     v39.isValid = 0;
     v39.offset = 0;
     v39.arrayIndex = -1;
@@ -1118,97 +1094,120 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel(lua_State 
 LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel_impl
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel_impl(lua_State *const luaVM)
 {
-  int v13; 
+  int v3; 
   const char *UsernameForLocalClient; 
   unsigned __int16 Short; 
-  unsigned __int16 v17; 
+  unsigned __int16 v7; 
+  __int128 v8; 
+  __int128 v9; 
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
   const DDLDef *Asset; 
   unsigned int RawHash; 
-  unsigned int v27; 
+  unsigned int v14; 
   int Int; 
   int i; 
-  unsigned int v30; 
-  unsigned int v31; 
-  unsigned int v32; 
-  const DDLDef *v40; 
-  int v42; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  int v20; 
+  float v21; 
+  const DDLDef *v22; 
+  DDLState *RootState; 
+  int v24; 
   StatsSource ActiveStatsSource; 
+  unsigned int v26; 
+  unsigned int v27; 
+  const char *Enum; 
+  const DDLDef *v29; 
+  StatsSource v30; 
+  unsigned int v31; 
+  int v32; 
+  unsigned int v33; 
+  int v34; 
+  float v35; 
+  unsigned int v36; 
+  float v37; 
+  unsigned int v38; 
+  unsigned int v39; 
+  int v40; 
+  int v41; 
+  int v42; 
+  float v43; 
+  float v44; 
   unsigned int v45; 
   unsigned int v46; 
-  const char *Enum; 
-  const DDLDef *v48; 
-  StatsSource v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  unsigned int v59; 
-  unsigned int v63; 
+  __int64 v47; 
+  DDLState *p_result; 
+  int v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v53; 
+  __int128 v57; 
+  __int128 v59; 
+  float v60; 
+  float v61; 
+  bool v62; 
+  bool v63; 
   unsigned int v64; 
   int v65; 
-  int v66; 
-  int v67; 
-  unsigned int v73; 
-  unsigned int v74; 
-  __int64 v75; 
-  bool v91; 
-  unsigned int v101; 
-  int v102; 
-  unsigned int v103; 
-  unsigned int v104; 
-  int v105; 
-  unsigned int v106; 
-  int v107; 
-  DDLState *p_result; 
+  unsigned int v66; 
+  unsigned int v67; 
+  int v68; 
+  unsigned int v69; 
+  int v70; 
+  DDLState *v71; 
+  int v72; 
+  __int128 v74; 
+  __int128 v75; 
   DDLState state; 
   int newValue; 
-  unsigned __int16 v126; 
-  unsigned __int16 v127; 
-  unsigned __int16 v128; 
-  unsigned __int16 v129; 
-  unsigned __int16 v130; 
-  unsigned __int16 v131; 
-  unsigned __int16 v132; 
-  unsigned __int16 v133; 
-  unsigned __int16 v134; 
-  unsigned __int16 v135; 
-  unsigned __int16 v136; 
-  unsigned __int16 v137; 
-  unsigned __int16 v138; 
-  unsigned __int16 v139; 
-  unsigned __int16 v140; 
-  unsigned __int16 v141; 
-  unsigned __int16 v142; 
-  unsigned __int16 v143; 
-  unsigned __int16 v144; 
-  unsigned __int16 v145; 
-  unsigned __int16 v146; 
-  unsigned __int16 v147; 
-  unsigned __int16 v148; 
-  unsigned __int16 v149; 
-  unsigned __int16 v150; 
-  unsigned __int16 v151; 
+  unsigned __int16 v80; 
+  unsigned __int16 v81; 
+  unsigned __int16 v82; 
+  unsigned __int16 v83; 
+  unsigned __int16 v84; 
+  unsigned __int16 v85; 
+  unsigned __int16 v86; 
+  unsigned __int16 v87; 
+  unsigned __int16 v88; 
+  unsigned __int16 v89; 
+  unsigned __int16 v90; 
+  unsigned __int16 v91; 
+  unsigned __int16 v92; 
+  unsigned __int16 v93; 
+  unsigned __int16 v94; 
+  unsigned __int16 v95; 
+  unsigned __int16 v96; 
+  unsigned __int16 v97; 
+  unsigned __int16 v98; 
+  unsigned __int16 v99; 
+  unsigned __int16 v100; 
+  unsigned __int16 v101; 
+  unsigned __int16 v102; 
+  unsigned __int16 v103; 
+  unsigned __int16 v104; 
+  unsigned __int16 v105; 
   int controllerIndex; 
   unsigned int time; 
   int index; 
-  DDLState v155; 
-  DDLContext v156; 
-  DDLState v157; 
-  DDLState v158; 
-  DDLState v159; 
+  DDLState v109; 
+  DDLContext v110; 
+  DDLState v111; 
+  DDLState v112; 
+  DDLState v113; 
   DDLState fromState; 
   DDLState toState; 
-  DDLState v162; 
-  DDLState v163; 
-  DDLState v164; 
-  DDLState v165; 
-  DDLState v166; 
-  DDLState v167; 
-  DDLState v168; 
-  DDLState v169; 
+  DDLState v116; 
+  DDLState v117; 
+  DDLState v118; 
+  DDLState v119; 
+  DDLState v120; 
+  DDLState v121; 
+  DDLState v122; 
+  DDLState v123; 
   DDLContext ddlContext; 
   DDLContext context; 
   DDLState result; 
@@ -1218,91 +1217,75 @@ __int64 __fastcall LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel
     j_luaL_error(luaVM, "USAGE: PostMatch.PushPerformanceDataToLUIModel( <controller> )");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isnumber(luaVM, 1) )
   {
-    __asm
-    {
-      vmovaps [rsp+7D0h+var_30], xmm6
-      vmovaps [rsp+7D0h+var_40], xmm7
-      vmovaps [rsp+7D0h+var_50], xmm8
-      vmovaps [rsp+7D0h+var_60], xmm9
-      vmovaps [rsp+7D0h+var_70], xmm10
-      vmovaps [rsp+7D0h+var_80], xmm11
-      vmovaps [rsp+7D0h+var_90], xmm12
-      vmovaps [rsp+7D0h+var_A0], xmm13
-      vmovaps [rsp+7D0h+var_B0], xmm14
-    }
     controllerIndex = lui_tointeger32(luaVM, 1);
-    v13 = 0;
-    v166.isValid = 0;
+    v3 = 0;
+    v120.isValid = 0;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v166.offset = 0;
+    v120.offset = 0;
     UsernameForLocalClient = CL_GetUsernameForLocalClient(controllerIndex);
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_5C0.member], xmm0 }
-    v155.isValid = 0;
-    v155.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_738.member], xmm0 }
-    v167.isValid = 0;
-    v167.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_5A0.member], xmm0 }
-    v168.isValid = 0;
-    v168.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_580.member], xmm0 }
+    *(_OWORD *)&v120.member = _XMM0;
+    v109.isValid = 0;
+    v109.offset = 0;
+    *(_OWORD *)&v109.member = _XMM0;
+    v121.isValid = 0;
+    v121.offset = 0;
+    *(_OWORD *)&v121.member = _XMM0;
+    v122.isValid = 0;
+    v122.offset = 0;
+    *(_OWORD *)&v122.member = _XMM0;
     fromState.isValid = 0;
     fromState.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+fromState.member], xmm0 }
+    *(_OWORD *)&fromState.member = _XMM0;
     toState.isValid = 0;
     toState.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+toState.member], xmm0 }
-    v159.isValid = 0;
-    v159.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_6A0.member], xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
+    v113.isValid = 0;
+    v113.offset = 0;
+    *(_OWORD *)&v113.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
-    __asm { vmovdqu xmmword ptr [rsp+7D0h+state.member], xmm0 }
-    v157.isValid = 0;
-    v157.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_6E8.member], xmm0 }
-    v158.isValid = 0;
-    v158.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_6C8.member], xmm0 }
-    v169.isValid = 0;
-    v169.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_560.member], xmm0 }
-    v162.isValid = 0;
-    v162.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_640.member], xmm0 }
-    v163.isValid = 0;
-    v163.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_620.member], xmm0 }
-    v164.isValid = 0;
-    v164.offset = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_600.member], xmm0 }
-    v165.isValid = 0;
-    v166.arrayIndex = -1;
-    v155.arrayIndex = -1;
-    v167.arrayIndex = -1;
-    v168.arrayIndex = -1;
+    *(_OWORD *)&state.member = _XMM0;
+    v111.isValid = 0;
+    v111.offset = 0;
+    *(_OWORD *)&v111.member = _XMM0;
+    v112.isValid = 0;
+    v112.offset = 0;
+    *(_OWORD *)&v112.member = _XMM0;
+    v123.isValid = 0;
+    v123.offset = 0;
+    *(_OWORD *)&v123.member = _XMM0;
+    v116.isValid = 0;
+    v116.offset = 0;
+    *(_OWORD *)&v116.member = _XMM0;
+    v117.isValid = 0;
+    v117.offset = 0;
+    *(_OWORD *)&v117.member = _XMM0;
+    v118.isValid = 0;
+    v118.offset = 0;
+    *(_OWORD *)&v118.member = _XMM0;
+    v119.isValid = 0;
+    v120.arrayIndex = -1;
+    v109.arrayIndex = -1;
+    v121.arrayIndex = -1;
+    v122.arrayIndex = -1;
     fromState.arrayIndex = -1;
     toState.arrayIndex = -1;
-    v159.arrayIndex = -1;
+    v113.arrayIndex = -1;
     state.arrayIndex = -1;
-    v157.arrayIndex = -1;
-    v158.arrayIndex = -1;
-    v169.arrayIndex = -1;
-    v162.arrayIndex = -1;
-    v163.arrayIndex = -1;
-    v164.arrayIndex = -1;
-    v165.offset = 0;
-    v165.arrayIndex = -1;
+    v111.arrayIndex = -1;
+    v112.arrayIndex = -1;
+    v123.arrayIndex = -1;
+    v116.arrayIndex = -1;
+    v117.arrayIndex = -1;
+    v118.arrayIndex = -1;
+    v119.offset = 0;
+    v119.arrayIndex = -1;
     Short = 0;
-    __asm { vmovdqu xmmword ptr [rbp+6D0h+var_5E0.member], xmm0 }
-    v17 = 0;
+    *(_OWORD *)&v119.member = _XMM0;
+    v7 = 0;
     index = -1;
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm10, xmm10, xmm10
-    }
+    v8 = 0i64;
+    v9 = 0i64;
     ModelForController = LUI_Model_GetModelForController(controllerIndex);
     ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kills");
     LOWORD(time) = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.deaths");
@@ -1310,47 +1293,42 @@ __int64 __fastcall LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel
     LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalWins");
     LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalLosses");
     LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.winPercentage");
-    v138 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.gamesPlayed");
-    v126 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.0.value");
-    v127 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.1.value");
-    v128 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.2.value");
-    v129 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.3.value");
-    v130 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.4.value");
-    v131 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.maxValue");
-    v137 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.global");
-    v134 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.best");
-    v141 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.bestTimestamp");
-    v132 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.average");
-    v135 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalWins");
-    v136 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalLosses");
-    v133 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.winLossPercent");
-    v139 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.isPersonalBestKills");
-    v140 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.isPersonalBestKD");
-    v142 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.0.value");
-    v143 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.1.value");
-    v144 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.2.value");
-    v145 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.3.value");
-    v146 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.4.value");
-    v147 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.maxValue");
-    v150 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.global");
-    v149 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.best");
-    v151 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.bestTimestamp");
-    v148 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.average");
+    v92 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.gamesPlayed");
+    v80 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.0.value");
+    v81 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.1.value");
+    v82 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.2.value");
+    v83 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.3.value");
+    v84 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.4.value");
+    v85 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.maxValue");
+    v91 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.global");
+    v88 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.best");
+    v95 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.bestTimestamp");
+    v86 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.kdHistory.average");
+    v89 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalWins");
+    v90 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.totalLosses");
+    v87 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.winLossPercent");
+    v93 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.isPersonalBestKills");
+    v94 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.isPersonalBestKD");
+    v96 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.0.value");
+    v97 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.1.value");
+    v98 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.2.value");
+    v99 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.3.value");
+    v100 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.4.value");
+    v101 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.maxValue");
+    v104 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.global");
+    v103 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.best");
+    v105 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.bestTimestamp");
+    v102 = LUI_Model_CreateModelFromPath(ModelForController, "frontEnd.AAR.performance.spmHistory.average");
     if ( cls.matchData.def[0] )
     {
       Asset = Com_DDL_LoadAsset(cls.matchData.def);
       Com_DDL_CreateContext(cls.matchData.data, 24000, Asset, &ddlContext, NULL, NULL);
-      _RAX = DDL_GetRootState(&result, Asset);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+6D0h+fromState.isValid], ymm0
-      }
+      fromState = *DDL_GetRootState(&result, Asset);
       RawHash = j_SL_GetRawHash(scr_const.players);
       if ( !DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_postmatch.cpp", 1082, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &rootState, &playersState, SL_GetRawHash( scr_const.players ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &rootState, &playersState, SL_GetRawHash( scr_const.players ) )") )
         __debugbreak();
-      v27 = j_SL_GetRawHash(scr_const.scoreboardPlayerCount);
-      if ( !DDL_MoveToNameByHash(&fromState, &state, v27, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_postmatch.cpp", 1084, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &rootState, &fieldState, SL_GetRawHash( scr_const.scoreboardPlayerCount ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &rootState, &fieldState, SL_GetRawHash( scr_const.scoreboardPlayerCount ) )") )
+      v14 = j_SL_GetRawHash(scr_const.scoreboardPlayerCount);
+      if ( !DDL_MoveToNameByHash(&fromState, &state, v14, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_postmatch.cpp", 1084, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &rootState, &fieldState, SL_GetRawHash( scr_const.scoreboardPlayerCount ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &rootState, &fieldState, SL_GetRawHash( scr_const.scoreboardPlayerCount ) )") )
         __debugbreak();
       if ( toState.isValid && state.isValid )
       {
@@ -1359,17 +1337,17 @@ __int64 __fastcall LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel
         {
           if ( i < Int )
           {
-            DDL_MoveToIndex(&toState, &v159, i);
-            v30 = j_SL_GetRawHash(scr_const.username);
-            DDL_MoveToNameByHash(&v159, &state, v30, NULL);
+            DDL_MoveToIndex(&toState, &v113, i);
+            v17 = j_SL_GetRawHash(scr_const.username);
+            DDL_MoveToNameByHash(&v113, &state, v17, NULL);
             if ( !strcmp(UsernameForLocalClient, DDL_GetString(&state, &ddlContext)) )
             {
-              v31 = j_SL_GetRawHash(scr_const.kills);
-              DDL_MoveToNameByHash(&v159, &state, v31, NULL);
+              v18 = j_SL_GetRawHash(scr_const.kills);
+              DDL_MoveToNameByHash(&v113, &state, v18, NULL);
               Short = DDL_GetShort(&state, &ddlContext);
-              v32 = j_SL_GetRawHash(scr_const.deaths);
-              DDL_MoveToNameByHash(&v159, &state, v32, NULL);
-              v17 = DDL_GetShort(&state, &ddlContext);
+              v19 = j_SL_GetRawHash(scr_const.deaths);
+              DDL_MoveToNameByHash(&v113, &state, v19, NULL);
+              v7 = DDL_GetShort(&state, &ddlContext);
             }
           }
         }
@@ -1377,253 +1355,174 @@ __int64 __fastcall LUI_LuaCall_LUIPostMatchPackage_PushPerformanceDataToLUIModel
       else
       {
         Short = 0;
-        v17 = 0;
+        v7 = 0;
       }
     }
     else
     {
       Short = 0;
-      v17 = 0;
+      v7 = 0;
     }
+    v20 = Short;
     LUI_Model_SetInt(ModelFromPath, Short);
-    LUI_Model_SetInt(time, v17);
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    if ( v17 )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebx
-      }
-    }
+    LUI_Model_SetInt(time, v7);
+    if ( v7 )
+      v21 = (float)v7;
     else
-    {
-      __asm { vmovaps xmm1, xmm7 }
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r15d
-      vdivss  xmm1, xmm0, xmm1; newValue
-    }
-    LUI_Model_SetReal(newValue, *(float *)&_XMM1);
-    v40 = Com_DDL_LoadAsset("ddl/mp/commondata.ddl");
-    _RAX = DDL_GetRootState(&result, v40);
-    v42 = controllerIndex;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+6D0h+var_640.isValid], ymm0
-    }
+      v21 = FLOAT_1_0;
+    LUI_Model_SetReal(newValue, (float)Short / v21);
+    v22 = Com_DDL_LoadAsset("ddl/mp/commondata.ddl");
+    RootState = DDL_GetRootState(&result, v22);
+    v24 = controllerIndex;
+    v116 = *RootState;
     ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
-    CL_PlayerData_GetDDLBuffer(&context, v42, ActiveStatsSource, STATSGROUP_COMMON);
-    DDL_MoveToName(&v162, &v163, "commonData");
-    v45 = j_SL_GetRawHash(scr_const.round);
-    DDL_MoveToNameByHash(&v163, &v164, v45, NULL);
-    v46 = j_SL_GetRawHash(scr_const.gameMode);
-    DDL_MoveToNameByHash(&v164, &v165, v46, NULL);
-    Enum = DDL_GetEnum(&v165, &context);
+    CL_PlayerData_GetDDLBuffer(&context, v24, ActiveStatsSource, STATSGROUP_COMMON);
+    DDL_MoveToName(&v116, &v117, "commonData");
+    v26 = j_SL_GetRawHash(scr_const.round);
+    DDL_MoveToNameByHash(&v117, &v118, v26, NULL);
+    v27 = j_SL_GetRawHash(scr_const.gameMode);
+    DDL_MoveToNameByHash(&v118, &v119, v27, NULL);
+    Enum = DDL_GetEnum(&v119, &context);
     Com_GameInfo_GetGameTypeIndexForInternalName(Enum, &index);
-    v48 = Com_DDL_LoadAsset("ddl/mp/playerdata.ddl");
-    _RAX = DDL_GetRootState(&result, v48);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+6D0h+var_5C0.isValid], ymm0
-    }
-    v51 = LiveStorage_GetActiveStatsSource(v42);
-    CL_PlayerData_GetDDLBuffer(&v156, v42, v51, STATSGROUP_RANKED);
-    DDL_MoveToName(&v166, &v155, "rankedMatchData");
-    v52 = j_SL_GetRawHash(scr_const.kills);
-    DDL_MoveToNameByHash(&v155, &state, v52, NULL);
-    DDL_GetInt(&state, &v156);
-    v53 = j_SL_GetRawHash(scr_const.deaths);
-    DDL_MoveToNameByHash(&v155, &state, v53, NULL);
-    DDL_GetInt(&state, &v156);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcvtsi2ss xmm1, xmm1, ebx
-      vdivss  xmm14, xmm1, xmm0
-    }
-    DDL_MoveToName(&v155, &v157, "bestKD");
-    v59 = j_SL_GetRawHash(scr_const.score);
-    DDL_MoveToNameByHash(&v157, &state, v59, NULL);
-    DDL_GetInt(&state, &v156);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm13, xmm0, cs:__real@3a83126f
-    }
-    v63 = j_SL_GetRawHash(scr_const.time);
-    DDL_MoveToNameByHash(&v157, &state, v63, NULL);
-    time = DDL_GetInt(&state, &v156);
-    DDL_MoveToName(&v155, &state, "bestKills");
-    controllerIndex = DDL_GetInt(&state, &v156);
-    v64 = j_SL_GetRawHash(scr_const.wins);
-    DDL_MoveToNameByHash(&v155, &state, v64, NULL);
-    v65 = DDL_GetInt(&state, &v156);
-    DDL_MoveToName(&v155, &state, "losses");
-    newValue = DDL_GetInt(&state, &v156);
-    v66 = newValue;
-    DDL_MoveToName(&v155, &state, "ties");
-    v67 = v65 + DDL_GetInt(&state, &v156) + v66;
-    if ( v65 + v66 <= 0 )
-    {
-      __asm { vmovaps xmm1, xmm7 }
-    }
+    v29 = Com_DDL_LoadAsset("ddl/mp/playerdata.ddl");
+    v120 = *DDL_GetRootState(&result, v29);
+    v30 = LiveStorage_GetActiveStatsSource(v24);
+    CL_PlayerData_GetDDLBuffer(&v110, v24, v30, STATSGROUP_RANKED);
+    DDL_MoveToName(&v120, &v109, "rankedMatchData");
+    v31 = j_SL_GetRawHash(scr_const.kills);
+    DDL_MoveToNameByHash(&v109, &state, v31, NULL);
+    v32 = DDL_GetInt(&state, &v110);
+    v33 = j_SL_GetRawHash(scr_const.deaths);
+    DDL_MoveToNameByHash(&v109, &state, v33, NULL);
+    v34 = DDL_GetInt(&state, &v110);
+    if ( v34 < 1 )
+      v34 = 1;
+    v35 = (float)v32 / (float)v34;
+    DDL_MoveToName(&v109, &v111, "bestKD");
+    v36 = j_SL_GetRawHash(scr_const.score);
+    DDL_MoveToNameByHash(&v111, &state, v36, NULL);
+    v37 = (float)DDL_GetInt(&state, &v110) * 0.001;
+    v38 = j_SL_GetRawHash(scr_const.time);
+    DDL_MoveToNameByHash(&v111, &state, v38, NULL);
+    time = DDL_GetInt(&state, &v110);
+    DDL_MoveToName(&v109, &state, "bestKills");
+    controllerIndex = DDL_GetInt(&state, &v110);
+    v39 = j_SL_GetRawHash(scr_const.wins);
+    DDL_MoveToNameByHash(&v109, &state, v39, NULL);
+    v40 = DDL_GetInt(&state, &v110);
+    DDL_MoveToName(&v109, &state, "losses");
+    newValue = DDL_GetInt(&state, &v110);
+    v41 = newValue;
+    DDL_MoveToName(&v109, &state, "ties");
+    v42 = v40 + DDL_GetInt(&state, &v110) + v41;
+    if ( v40 + v41 <= 0 )
+      v43 = FLOAT_1_0;
     else
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-      }
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r13d
-      vdivss  xmm12, xmm0, xmm1
-    }
-    v73 = j_SL_GetRawHash(scr_const.kdHistoryK);
-    DDL_MoveToNameByHash(&v155, &v167, v73, NULL);
-    v74 = j_SL_GetRawHash(scr_const.kdHistoryD);
-    DDL_MoveToNameByHash(&v155, &v168, v74, NULL);
-    v75 = 5i64;
-    _RBX = &result;
+      v43 = (float)(v40 + v41);
+    v44 = (float)v40 / v43;
+    v45 = j_SL_GetRawHash(scr_const.kdHistoryK);
+    DDL_MoveToNameByHash(&v109, &v121, v45, NULL);
+    v46 = j_SL_GetRawHash(scr_const.kdHistoryD);
+    DDL_MoveToNameByHash(&v109, &v122, v46, NULL);
+    v47 = 5i64;
+    p_result = &result;
+    v49 = 5;
+    if ( v42 < 5 )
+      v49 = v42;
+    if ( !v49 )
+      v49 = 1;
     do
     {
-      DDL_MoveToIndex(&v167, &state, v13);
-      DDL_GetByte(&state, &v156);
+      DDL_MoveToIndex(&v121, &state, v3);
+      v51 = 0i64;
+      *(float *)&v51 = (float)DDL_GetByte(&state, &v110);
+      v50 = v51;
+      DDL_MoveToIndex(&v122, &state, v3);
+      p_result = (DDLState *)((char *)p_result + 4);
+      v53 = 0i64;
+      *(float *)&v53 = (float)DDL_GetByte(&state, &v110);
+      _XMM1 = v53;
       __asm
       {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, eax
-      }
-      DDL_MoveToIndex(&v168, &state, v13);
-      DDL_GetByte(&state, &v156);
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-      _RBX = (DDLState *)((char *)_RBX + 4);
-      __asm
-      {
-        vcvtsi2ss xmm1, xmm1, eax
         vcmpeqss xmm0, xmm1, xmm8
         vblendvps xmm1, xmm1, xmm7, xmm0
-        vdivss  xmm0, xmm6, xmm1
       }
-      ++v13;
-      __asm
-      {
-        vmovss  dword ptr [rbx-4], xmm0
-        vmaxss  xmm9, xmm0, xmm9
-        vaddss  xmm10, xmm10, xmm0
-      }
+      v57 = v50;
+      *(float *)&v57 = *(float *)&v50 / *(float *)&_XMM1;
+      _XMM0 = v57;
+      ++v3;
+      *((float *)&p_result[-1].ddlDef + 1) = *(float *)&v50 / *(float *)&_XMM1;
+      __asm { vmaxss  xmm9, xmm0, xmm9 }
+      v59 = v9;
+      *(float *)&v59 = *(float *)&v9 + *(float *)&_XMM0;
+      v9 = v59;
     }
-    while ( v13 < 5 );
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+6D0h+result.member]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r14d
-      vdivss  xmm11, xmm7, xmm0
-      vsubss  xmm0, xmm6, xmm13
-      vcvtss2sd xmm1, xmm0, xmm0
-      vcomisd xmm1, cs:__real@bfa999999999999a
-      vmovss  xmm1, dword ptr [rbp+6D0h+result.isValid]; newValue
-      vmulss  xmm7, xmm10, xmm11
-    }
-    v91 = Short >= controllerIndex;
-    LUI_Model_SetReal(v126, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, [rbp+6D0h+result.offset]; newValue }
-    LUI_Model_SetReal(v127, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, [rbp+6D0h+result.arrayIndex]; newValue }
-    LUI_Model_SetReal(v128, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbp+6D0h+result+0Ch]; newValue }
-    LUI_Model_SetReal(v129, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm6; newValue }
-    LUI_Model_SetReal(v130, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm9; newValue }
-    LUI_Model_SetReal(v131, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm7; newValue }
-    LUI_Model_SetReal(v132, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm12; newValue }
-    LUI_Model_SetReal(v133, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm13; newValue }
-    LUI_Model_SetReal(v134, *(float *)&_XMM1);
-    LUI_Model_SetInt(v135, v65);
-    LUI_Model_SetInt(v136, newValue);
-    __asm { vmovaps xmm1, xmm14; newValue }
-    LUI_Model_SetReal(v137, *(float *)&_XMM1);
-    LUI_Model_SetInt(v138, v67);
-    LUI_Model_SetBool(v139, v91);
-    LUI_Model_SetBool(v140, (unsigned int)v13 > 5);
+    while ( v3 < 5 );
+    v60 = *(float *)&result.member;
+    v61 = 1.0 / (float)v49;
+    v62 = (float)(*(float *)&result.member - v37) > -0.05;
+    v63 = v20 >= controllerIndex;
+    LUI_Model_SetReal(v80, *(float *)&result.isValid);
+    LUI_Model_SetReal(v81, *(float *)&result.offset);
+    LUI_Model_SetReal(v82, *(float *)&result.arrayIndex);
+    LUI_Model_SetReal(v83, *((float *)&result.arrayIndex + 1));
+    LUI_Model_SetReal(v84, v60);
+    LUI_Model_SetReal(v85, *(float *)&_XMM9);
+    LUI_Model_SetReal(v86, *(float *)&v59 * v61);
+    LUI_Model_SetReal(v87, v44);
+    LUI_Model_SetReal(v88, v37);
+    LUI_Model_SetInt(v89, v40);
+    LUI_Model_SetInt(v90, newValue);
+    LUI_Model_SetReal(v91, v35);
+    LUI_Model_SetInt(v92, v42);
+    LUI_Model_SetBool(v93, v63);
+    LUI_Model_SetBool(v94, v62);
     FormatDateTime(time, outputString, 0x400u);
-    LUI_Model_SetString(v141, outputString);
-    DDL_MoveToName(&v155, &v157, "bestSPM");
-    v101 = j_SL_GetRawHash(scr_const.score);
-    DDL_MoveToNameByHash(&v157, &state, v101, NULL);
-    v102 = DDL_GetInt(&state, &v156);
-    v103 = j_SL_GetRawHash(scr_const.time);
-    DDL_MoveToNameByHash(&v157, &state, v103, NULL);
-    v104 = DDL_GetInt(&state, &v156);
-    DDL_MoveToName(&v155, &state, "globalSPM");
-    v105 = DDL_GetInt(&state, &v156);
-    DDL_MoveToName(&v155, &v158, "gameModeScoreHistory");
-    DDL_MoveToIndex(&v158, &v158, index);
-    v106 = j_SL_GetRawHash(scr_const.index);
-    DDL_MoveToNameByHash(&v158, &state, v106, NULL);
-    v107 = DDL_GetInt(&state, &v156);
-    DDL_MoveToName(&v158, &v169, "scores");
-    __asm { vmovaps xmm14, [rsp+7D0h+var_B0] }
-    p_result = &result;
-    __asm
-    {
-      vmovaps xmm13, [rsp+7D0h+var_A0]
-      vmovaps xmm12, [rsp+7D0h+var_90]
-      vmovaps xmm10, [rsp+7D0h+var_70]
-      vmovaps xmm9, [rsp+7D0h+var_60]
-      vmovaps xmm7, [rsp+7D0h+var_40]
-      vmovaps xmm6, xmm8
-    }
+    LUI_Model_SetString(v95, outputString);
+    DDL_MoveToName(&v109, &v111, "bestSPM");
+    v64 = j_SL_GetRawHash(scr_const.score);
+    DDL_MoveToNameByHash(&v111, &state, v64, NULL);
+    v65 = DDL_GetInt(&state, &v110);
+    v66 = j_SL_GetRawHash(scr_const.time);
+    DDL_MoveToNameByHash(&v111, &state, v66, NULL);
+    v67 = DDL_GetInt(&state, &v110);
+    DDL_MoveToName(&v109, &state, "globalSPM");
+    v68 = DDL_GetInt(&state, &v110);
+    DDL_MoveToName(&v109, &v112, "gameModeScoreHistory");
+    DDL_MoveToIndex(&v112, &v112, index);
+    v69 = j_SL_GetRawHash(scr_const.index);
+    DDL_MoveToNameByHash(&v112, &state, v69, NULL);
+    v70 = DDL_GetInt(&state, &v110);
+    DDL_MoveToName(&v112, &v123, "scores");
+    v71 = &result;
     do
     {
-      DDL_MoveToIndex(&v169, &state, v107);
-      *(_DWORD *)&p_result->isValid = DDL_GetInt(&state, &v156);
-      p_result = (DDLState *)((char *)p_result + 4);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm8, xmm8, xmm0
-        vmaxss  xmm6, xmm0, xmm6
-      }
-      v107 = (v107 + 1) % 5;
-      --v75;
+      DDL_MoveToIndex(&v123, &state, v70);
+      v72 = DDL_GetInt(&state, &v110);
+      *(_DWORD *)&v71->isValid = v72;
+      v71 = (DDLState *)((char *)v71 + 4);
+      v74 = 0i64;
+      *(float *)&v74 = (float)v72;
+      _XMM0 = v74;
+      v75 = v8;
+      *(float *)&v75 = *(float *)&v8 + *(float *)&_XMM0;
+      v8 = v75;
+      __asm { vmaxss  xmm6, xmm0, xmm6 }
+      v70 = (v70 + 1) % 5;
+      --v47;
     }
-    while ( v75 );
-    LUI_Model_SetInt(v142, *(int *)&result.isValid);
-    LUI_Model_SetInt(v143, result.offset);
-    LUI_Model_SetInt(v144, result.arrayIndex);
-    LUI_Model_SetInt(v145, *(&result.arrayIndex + 1));
-    LUI_Model_SetInt(v146, (int)result.member);
-    __asm { vmovaps xmm1, xmm6; newValue }
-    LUI_Model_SetReal(v147, *(float *)&_XMM1);
-    __asm { vmulss  xmm1, xmm11, xmm8; newValue }
-    LUI_Model_SetReal(v148, *(float *)&_XMM1);
-    LUI_Model_SetInt(v149, v102);
-    LUI_Model_SetInt(v150, v105);
-    FormatDateTime(v104, outputString, 0x400u);
-    LUI_Model_SetString(v151, outputString);
-    __asm
-    {
-      vmovaps xmm11, [rsp+7D0h+var_80]
-      vmovaps xmm8, [rsp+7D0h+var_50]
-      vmovaps xmm6, [rsp+7D0h+var_30]
-    }
+    while ( v47 );
+    LUI_Model_SetInt(v96, *(int *)&result.isValid);
+    LUI_Model_SetInt(v97, result.offset);
+    LUI_Model_SetInt(v98, result.arrayIndex);
+    LUI_Model_SetInt(v99, *(&result.arrayIndex + 1));
+    LUI_Model_SetInt(v100, (int)result.member);
+    LUI_Model_SetReal(v101, *(float *)&_XMM6);
+    LUI_Model_SetReal(v102, v61 * *(float *)&v75);
+    LUI_Model_SetInt(v103, v65);
+    LUI_Model_SetInt(v104, v68);
+    FormatDateTime(v67, outputString, 0x400u);
+    LUI_Model_SetString(v105, outputString);
   }
   return 0i64;
 }
@@ -1744,23 +1643,17 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushScoreboardDataToLUIModel_impl(lua_St
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+130h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   DDL_MoveToName(&fromState, &toState, "commonData");
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+130h+var_168.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v69.member = _XMM0;
   v69.isValid = 0;
   v69.offset = 0;
   v69.arrayIndex = -1;
   RawHash = j_SL_GetRawHash(scr_const.round);
   DDL_MoveToNameByHash(&toState, &v69, RawHash, NULL);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+230h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
@@ -1812,11 +1705,8 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushScoreboardDataToLUIModel_impl(lua_St
   v24 = Com_DDL_LoadAsset(cls.matchData.def);
   Com_DDL_CreateContext(cls.matchData.data, 24000, v24, &ddlContext, NULL, NULL);
   DDL_GetRootState(&v74, v24);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+130h+var_188.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v68.member = _XMM0;
   v68.isValid = 0;
   v68.offset = 0;
   v68.arrayIndex = -1;
@@ -1831,11 +1721,8 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushScoreboardDataToLUIModel_impl(lua_St
   v29 = j_SL_GetRawHash(scr_const.axisScore);
   DDL_MoveToNameByHash(&v74, &v68, v29, NULL);
   v30 = DDL_GetInt(&v68, &ddlContext);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+130h+var_128.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v71.member = _XMM0;
   v62 = v30;
   v71.isValid = 0;
   v71.offset = 0;
@@ -1857,13 +1744,10 @@ __int64 LUI_LuaCall_LUIPostMatchPackage_PushScoreboardDataToLUIModel_impl(lua_St
     v70.isValid = 0;
     v70.offset = 0;
     v70.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+130h+var_148.member], xmm0 }
+    *(_OWORD *)&v70.member = _XMM0;
     DDL_MoveToIndex(&v71, &v70, v35);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+130h+var_1A8.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v67.member = _XMM0;
     v67.isValid = 0;
     v67.offset = 0;
     v67.arrayIndex = -1;

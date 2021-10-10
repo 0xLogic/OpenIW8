@@ -71,20 +71,12 @@ bdRelayInitJoin::bdRelayInitJoin
 */
 void bdRelayInitJoin::bdRelayInitJoin(bdRelayInitJoin *this, bdRelayJoinData *joinData, bdClientAuthToken *clientAuthToken, const unsigned __int8 *clientRandom)
 {
-  _RBP = clientRandom;
-  _RSI = this;
   bdRelayBasePacket::bdRelayBasePacket(this, BD_RELAY_PACKET_INIT_JOIN, 0x10u);
-  _RSI->m_joinData = joinData;
-  _RSI->__vftable = (bdRelayInitJoin_vtbl *)&bdRelayInitJoin::`vftable';
-  _RSI->m_clientAuthToken = clientAuthToken;
-  if ( _RBP )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [rsi+30h], xmm0
-    }
-  }
+  this->m_joinData = joinData;
+  this->__vftable = (bdRelayInitJoin_vtbl *)&bdRelayInitJoin::`vftable';
+  this->m_clientAuthToken = clientAuthToken;
+  if ( clientRandom )
+    *(_OWORD *)this->m_clientRandom = *(_OWORD *)clientRandom;
 }
 
 /*

@@ -85,31 +85,26 @@ HttpHeapInit
 
 void __fastcall HttpHeapInit(double _XMM0_8)
 {
-  void *v1; 
-  __int128 v5; 
-  __int128 v6; 
-  __int128 v7; 
+  char *v1; 
+  ntl::solitary_buffer_allocator v3; 
+  ntl::internal::buffer_memory_block<char> v4; 
 
   if ( s_httpHeapIsInited && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\restrequestmgr\\httpheap.cpp", 57, ASSERT_TYPE_ASSERT, "(s_httpHeapIsInited == false)", (const char *)&queryFormat, "s_httpHeapIsInited == false") )
     __debugbreak();
   s_httpHeapIsInited = 1;
   s_httpHeapMem = PMem_Alloc(0x80000ui64, 8ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "HttpHeap");
-  v1 = s_httpHeapMem;
+  v1 = (char *)s_httpHeapMem;
   if ( !s_httpHeapMem )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\restrequestmgr\\httpheap.cpp", 62, ASSERT_TYPE_ASSERT, "(s_httpHeapMem)", (const char *)&queryFormat, "s_httpHeapMem") )
       __debugbreak();
-    v1 = s_httpHeapMem;
+    v1 = (char *)s_httpHeapMem;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+48h+var_18], xmm0
-  }
-  if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v5) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  if ( !v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
     __debugbreak();
-  *(_QWORD *)&v6 = v1;
-  *((_QWORD *)&v6 + 1) = 0x80000i64;
+  v3.m_data.m_buffer = v1;
+  v3.m_data.m_size = 0x80000i64;
   ntl::nxheap::shutdown(&s_httpHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_httpHeap.m_region);
   if ( s_httpHeap.m_data.m_buffer )
@@ -119,11 +114,7 @@ void __fastcall HttpHeapInit(double _XMM0_8)
     s_httpHeap.m_data.m_buffer = NULL;
     s_httpHeap.m_data.m_size = 0i64;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_httpHeap.m_allocator.m_data.m_buffer, xmm0
-  }
+  s_httpHeap.m_allocator = v3;
   ntl::nxheap::shutdown(&s_httpHeap.m_heap);
   ntl::nxheap_region::shutdown(&s_httpHeap.m_region);
   if ( s_httpHeap.m_data.m_buffer )
@@ -135,13 +126,9 @@ void __fastcall HttpHeapInit(double _XMM0_8)
   }
   if ( s_httpHeap.m_allocator.m_data.m_size < 0x80000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
     __debugbreak();
-  *(_QWORD *)&v7 = s_httpHeap.m_allocator.m_data.m_buffer;
-  *((_QWORD *)&v7 + 1) = 0x80000i64;
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_httpHeap.baseclass_0.m_data.m_buffer, xmm0
-  }
+  v4.m_buffer = s_httpHeap.m_allocator.m_data.m_buffer;
+  v4.m_size = 0x80000i64;
+  s_httpHeap.m_data = v4;
   if ( s_httpHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
     __debugbreak();
   ntl::nxheap_region::init(&s_httpHeap.m_region, s_httpHeap.m_data.m_buffer, s_httpHeap.m_data.m_size);

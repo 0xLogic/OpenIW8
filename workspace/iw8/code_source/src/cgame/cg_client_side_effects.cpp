@@ -705,32 +705,15 @@ bool CgClientSideEffectsSystem::ActiveSounds_Add(CgClientSideEffectsSystem *this
 {
   __int64 m_activeSoundCount; 
   bool result; 
-  __int64 v12; 
-  __int64 v13; 
-  int v14; 
+  int v5; 
   ClientSideTypeData data_out; 
 
   m_activeSoundCount = this->m_activeSoundCount;
   if ( (unsigned int)m_activeSoundCount >= 0x400 )
   {
     CgClientSideEffectsSystem::GetTypeData(this, type, index, &data_out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+data_out.origin+8]
-      vmovss  xmm3, dword ptr [rsp+78h+data_out.origin]
-      vmovss  xmm1, dword ptr [rsp+78h+data_out.origin+4]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-    }
-    v14 = 1024;
-    __asm
-    {
-      vmovsd  [rsp+78h+var_50], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+78h+var_58], xmm1
-    }
-    Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce concurrent sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", data_out.aliasName, _R9, v12, v13, v14);
+    v5 = 1024;
+    Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce concurrent sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", data_out.aliasName, data_out.origin.v[0], data_out.origin.v[1], data_out.origin.v[2], v5);
     return 0;
   }
   else
@@ -938,23 +921,24 @@ CgClientSideEffectsSystem::AddSounds
 */
 void CgClientSideEffectsSystem::AddSounds(CgClientSideEffectsSystem *this)
 {
-  int v4; 
-  bool v5; 
+  int v2; 
+  bool v3; 
   LocalClientNum_t m_localClientNum; 
-  int *v7; 
-  const vec3_t *v8; 
-  __int64 v9; 
+  int *v5; 
+  const vec3_t *v6; 
+  __int64 v7; 
   CgSoundSystem *SoundSystem; 
   unsigned int time; 
+  int v10; 
+  ClientEntSound *v11; 
   int v12; 
-  ClientEntSound *v13; 
-  int v14; 
   int *p_delayMinMS; 
-  __int64 v16; 
-  char v20; 
-  char v21; 
-  unsigned int v22; 
-  CgSoundSystem *v23; 
+  __int64 v14; 
+  __int64 v15; 
+  float v16; 
+  double v17; 
+  unsigned int v18; 
+  CgSoundSystem *v19; 
   unsigned int pHoldrand; 
   vec3_t out_pos; 
 
@@ -963,95 +947,87 @@ void CgClientSideEffectsSystem::AddSounds(CgClientSideEffectsSystem *this)
     if ( cm.mapEnts->createFxEffectTotal )
     {
       if ( CgClientSideEffectsSystem::GetViewPos(this, &out_pos) && cm.mapEnts->clientSideEffects.soundsSpatialTree )
-      {
-        __asm { vmovss  xmm3, cs:__real@44bb8000; viewRadius }
-        ActiveSet::Update(&this->m_spatialSound, this->m_localClientNum, &out_pos, *(float *)&_XMM3, CG_SpatialSound_IsValid, CG_SpatialSound_Activate, CG_SpatialSound_Deactivate, CG_SpatialSound_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialSound_GetRadius, cm.mapEnts->clientSideEffects.soundsSpatialTree);
-      }
+        ActiveSet::Update(&this->m_spatialSound, this->m_localClientNum, &out_pos, 1500.0, CG_SpatialSound_IsValid, CG_SpatialSound_Activate, CG_SpatialSound_Deactivate, CG_SpatialSound_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialSound_GetRadius, cm.mapEnts->clientSideEffects.soundsSpatialTree);
       CgClientSideEffectsSystem::ActiveSounds_Update(this);
     }
     else
     {
-      v4 = 0;
-      v5 = 0;
+      v2 = 0;
+      v3 = 0;
       m_localClientNum = this->m_localClientNum;
       if ( s_bPendingExploderSounds )
       {
-        v7 = (int *)&unk_150EC7748;
-        v8 = &s_pendingExploderSounds;
-        v9 = 64i64;
+        v5 = (int *)&unk_150EC7748;
+        v6 = &s_pendingExploderSounds;
+        v7 = 64i64;
         do
         {
-          if ( *v7 > 0 )
+          if ( *v5 > 0 )
           {
-            if ( CG_Utils_TimeIsInThePast(m_localClientNum, *v7) )
+            if ( CG_Utils_TimeIsInThePast(m_localClientNum, *v5) )
             {
               SoundSystem = CgSoundSystem::GetSoundSystem(m_localClientNum);
-              CgSoundSystem::PlaySoundAliasAsync(SoundSystem, *(v7 - 3), v8, *((const SndAliasList **)v7 - 1));
-              *v7 = 0;
+              CgSoundSystem::PlaySoundAliasAsync(SoundSystem, *(v5 - 3), v6, *((const SndAliasList **)v5 - 1));
+              *v5 = 0;
             }
             else
             {
-              v5 = 1;
+              v3 = 1;
             }
           }
-          v8 = (const vec3_t *)((char *)v8 + 32);
-          v7 += 8;
-          --v9;
+          v6 = (const vec3_t *)((char *)v6 + 32);
+          v5 += 8;
+          --v7;
         }
-        while ( v9 );
+        while ( v7 );
         m_localClientNum = this->m_localClientNum;
-        s_bPendingExploderSounds = v5;
+        s_bPendingExploderSounds = v3;
       }
       time = CG_GetLocalClientGlobals(m_localClientNum)->time;
       pHoldrand = Sys_Milliseconds();
       BG_srand(&pHoldrand);
-      v12 = s_clientEntSoundCount;
+      v10 = s_clientEntSoundCount;
       if ( s_clientEntSoundCount > 0 )
       {
-        v13 = s_clientEntSounds;
+        v11 = s_clientEntSounds;
         do
         {
-          if ( v13->active )
+          if ( v11->active )
           {
-            CG_UpdateClientSideSound(m_localClientNum, v4, v13);
-            v12 = s_clientEntSoundCount;
+            CG_UpdateClientSideSound(m_localClientNum, v2, v11);
+            v10 = s_clientEntSoundCount;
           }
-          ++v4;
-          ++v13;
+          ++v2;
+          ++v11;
         }
-        while ( v4 < v12 );
+        while ( v2 < v10 );
       }
       if ( s_clientEntIntervalSoundCount > 0 )
       {
-        v14 = 3201;
-        __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
+        v12 = 3201;
         p_delayMinMS = &s_clientEntIntervalSounds[0].delayMinMS;
         do
         {
-          v16 = *((_QWORD *)p_delayMinMS - 1);
-          if ( v16 )
+          v14 = *((_QWORD *)p_delayMinMS - 1);
+          if ( v14 )
           {
-            if ( *(_QWORD *)(v16 + 16) )
+            v15 = *(_QWORD *)(v14 + 16);
+            if ( v15 )
             {
-              __asm { vmovss  xmm6, dword ptr [rcx+68h] }
-              *(double *)&_XMM0 = SND_DistSqToNearestListener((const vec3_t *)(p_delayMinMS - 8));
-              __asm
+              v16 = *(float *)(v15 + 104);
+              v17 = SND_DistSqToNearestListener((const vec3_t *)(p_delayMinMS - 8));
+              if ( *(float *)&v17 <= (float)(v16 * v16) )
               {
-                vmulss  xmm1, xmm6, xmm6
-                vcomiss xmm0, xmm1
-              }
-              if ( v20 | v21 )
-              {
-                v22 = p_delayMinMS[2];
-                if ( v22 )
+                v18 = p_delayMinMS[2];
+                if ( v18 )
                 {
-                  if ( time >= v22 )
+                  if ( time >= v18 )
                   {
                     p_delayMinMS[2] = time + BG_irand(*p_delayMinMS, p_delayMinMS[1], &pHoldrand);
-                    if ( v14 >= 505571 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1990, ASSERT_TYPE_ASSERT, "(soundClientEntIndex < ( ( ( 2048 ) ) + ( 1 ) + ( 1024 ) + ( 128 ) + ( 128 ) + 1024 + ( 2 ) + ( 32 ) + ( 1024 ) + ( 32 ) + ( 128 ) + ( 500000 ) ))", (const char *)&queryFormat, "soundClientEntIndex < MAX_SOUND_ENTITIES") )
+                    if ( v12 >= 505571 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1990, ASSERT_TYPE_ASSERT, "(soundClientEntIndex < ( ( ( 2048 ) ) + ( 1 ) + ( 1024 ) + ( 128 ) + ( 128 ) + 1024 + ( 2 ) + ( 32 ) + ( 1024 ) + ( 32 ) + ( 128 ) + ( 500000 ) ))", (const char *)&queryFormat, "soundClientEntIndex < MAX_SOUND_ENTITIES") )
                       __debugbreak();
-                    v23 = CgSoundSystem::GetSoundSystem(m_localClientNum);
-                    CgSoundSystem::PlaySoundAliasAsync(v23, v14, (const vec3_t *)(p_delayMinMS - 8), *((const SndAliasList **)p_delayMinMS - 1));
+                    v19 = CgSoundSystem::GetSoundSystem(m_localClientNum);
+                    CgSoundSystem::PlaySoundAliasAsync(v19, v12, (const vec3_t *)(p_delayMinMS - 8), *((const SndAliasList **)p_delayMinMS - 1));
                   }
                 }
                 else
@@ -1061,11 +1037,10 @@ void CgClientSideEffectsSystem::AddSounds(CgClientSideEffectsSystem *this)
               }
             }
           }
-          ++v14;
+          ++v12;
           p_delayMinMS += 12;
         }
-        while ( v14 - 3201 < s_clientEntIntervalSoundCount );
-        __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+        while ( v12 - 3201 < s_clientEntIntervalSoundCount );
       }
     }
   }
@@ -1201,54 +1176,35 @@ CG_AddClientEntSound
 */
 __int64 CG_AddClientEntSound(const vec3_t *origin, const char *soundalias, const vec3_t *angles, bool initiallyActive)
 {
-  const vec3_t *v6; 
   __int64 result; 
-  __int64 v15; 
+  __int64 v8; 
   SndAliasList *Alias; 
-  unsigned int v17; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
-  int v21; 
+  unsigned int v10; 
+  __int64 v11; 
+  int v12; 
 
-  v6 = origin;
   if ( s_clientEntSoundCount == 1024 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vmovss  xmm3, dword ptr [rcx]
-      vmovss  xmm1, dword ptr [rcx+4]
-    }
-    v21 = s_clientEntSoundCount;
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+48h+var_20], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+48h+var_28], xmm1
-    }
-    Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", soundalias, _R9, v19, v20, v21);
+    v12 = s_clientEntSoundCount;
+    Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", soundalias, origin->v[0], origin->v[1], origin->v[2], v12);
     return 0xFFFFFFFFi64;
   }
   else
   {
-    v15 = s_clientEntSoundCount;
-    s_clientEntSounds[v15].origin.v[0] = v6->v[0];
-    s_clientEntSounds[v15].origin.v[1] = v6->v[1];
-    s_clientEntSounds[v15].origin.v[2] = v6->v[2];
+    v8 = s_clientEntSoundCount;
+    s_clientEntSounds[v8].origin.v[0] = origin->v[0];
+    s_clientEntSounds[v8].origin.v[1] = origin->v[1];
+    s_clientEntSounds[v8].origin.v[2] = origin->v[2];
     Alias = SND_FindAlias(soundalias);
-    v17 = s_clientEntSoundCount;
-    v18 = s_clientEntSoundCount;
-    s_clientEntSounds[v18].aliasList = Alias;
-    result = v17;
-    s_clientEntSounds[v18].angles.v[0] = angles->v[0];
-    s_clientEntSounds[v18].angles.v[1] = angles->v[1];
-    s_clientEntSounds[v18].angles.v[2] = angles->v[2];
-    s_clientEntSounds[v18].active = initiallyActive;
-    s_clientEntSoundCount = v17 + 1;
+    v10 = s_clientEntSoundCount;
+    v11 = s_clientEntSoundCount;
+    s_clientEntSounds[v11].aliasList = Alias;
+    result = v10;
+    s_clientEntSounds[v11].angles.v[0] = angles->v[0];
+    s_clientEntSounds[v11].angles.v[1] = angles->v[1];
+    s_clientEntSounds[v11].angles.v[2] = angles->v[2];
+    s_clientEntSounds[v11].active = initiallyActive;
+    s_clientEntSoundCount = v10 + 1;
   }
   return result;
 }
@@ -1396,50 +1352,44 @@ void CG_CopySoundEntityOrientation(int clientSoundEntIndex, vec3_t *origin_out, 
 {
   __int64 v3; 
   vec3_t *p_angles; 
-  int v10; 
-  int v13; 
+  float v7; 
+  unsigned int v8; 
+  int v9; 
 
   v3 = clientSoundEntIndex;
-  _RDI = origin_out;
   if ( clientSoundEntIndex >= 1024 )
   {
-    v10 = clientSoundEntIndex - 1024;
+    v8 = clientSoundEntIndex - 1024;
     if ( clientSoundEntIndex - 1024 >= 128 )
     {
-      v13 = clientSoundEntIndex - 1152;
-      if ( (unsigned int)(clientSoundEntIndex - 1152) >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1747, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntIntervalSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntIntervalSounds )\n\t%i not in [0, %i)", v13, 128) )
+      v9 = clientSoundEntIndex - 1152;
+      if ( (unsigned int)(clientSoundEntIndex - 1152) >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1747, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntIntervalSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntIntervalSounds )\n\t%i not in [0, %i)", v9, 128) )
         __debugbreak();
-      _R8 = 0x140000000ui64;
-      _RDX = 6i64 * v13;
-      _RDI->v[0] = s_clientEntIntervalSounds[v13].origin.v[0];
-      _RDI->v[1] = s_clientEntIntervalSounds[v13].origin.v[1];
-      p_angles = &s_clientEntIntervalSounds[v13].angles;
-      __asm { vmovss  xmm0, dword ptr (rva s_clientEntIntervalSounds.origin+8)[r8+rdx*8] }
+      origin_out->v[0] = s_clientEntIntervalSounds[v9].origin.v[0];
+      origin_out->v[1] = s_clientEntIntervalSounds[v9].origin.v[1];
+      p_angles = &s_clientEntIntervalSounds[v9].angles;
+      v7 = s_clientEntIntervalSounds[v9].origin.v[2];
     }
     else
     {
-      if ( (unsigned int)v10 >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1740, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntReactiveSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntReactiveSounds )\n\t%i not in [0, %i)", v10, 128) )
+      if ( v8 >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1740, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntReactiveSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntReactiveSounds )\n\t%i not in [0, %i)", v8, 128) )
         __debugbreak();
-      _R8 = 0x140000000ui64;
-      _RCX = 5i64 * v10;
-      _RDI->v[0] = s_clientEntReactiveSounds[v10].origin.v[0];
-      _RDI->v[1] = s_clientEntReactiveSounds[v10].origin.v[1];
-      p_angles = &s_clientEntReactiveSounds[v10].angles;
-      __asm { vmovss  xmm0, dword ptr (rva s_clientEntReactiveSounds.origin+8)[r8+rcx*8] }
+      origin_out->v[0] = s_clientEntReactiveSounds[v8].origin.v[0];
+      origin_out->v[1] = s_clientEntReactiveSounds[v8].origin.v[1];
+      p_angles = &s_clientEntReactiveSounds[v8].angles;
+      v7 = s_clientEntReactiveSounds[v8].origin.v[2];
     }
   }
   else
   {
     if ( (unsigned int)clientSoundEntIndex >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1730, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntSounds )\n\t%i not in [0, %i)", clientSoundEntIndex, 1024) )
       __debugbreak();
-    _RCX = 5 * v3;
-    _R8 = 0x140000000ui64;
-    _RDI->v[0] = s_clientEntSounds[v3].origin.v[0];
-    _RDI->v[1] = s_clientEntSounds[v3].origin.v[1];
+    origin_out->v[0] = s_clientEntSounds[v3].origin.v[0];
+    origin_out->v[1] = s_clientEntSounds[v3].origin.v[1];
     p_angles = &s_clientEntSounds[v3].angles;
-    __asm { vmovss  xmm0, dword ptr (rva s_clientEntSounds.origin+8)[r8+rcx*8] }
+    v7 = s_clientEntSounds[v3].origin.v[2];
   }
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
+  origin_out->v[2] = v7;
   AnglesToAxis(p_angles, axis_out);
 }
 
@@ -1566,65 +1516,44 @@ CG_InsertClientReactiveEntSort
 */
 void CG_InsertClientReactiveEntSort(ClientSideEffectsData *cseData, ClientReactiveEntDef *const reactiveEntDef, const int index, const int currentTime, const float distToPlayer, const float timeDelay)
 {
+  int v6; 
+  ClientReactiveEntDefsActive *reactiveEntDefsActive; 
   int v10; 
-  int v14; 
-  int v16; 
-  __int128 v20; 
-  ClientReactiveEntDef *v21; 
+  int v12; 
+  __int64 v13; 
+  __int128 v14; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+timeDelay]
-    vmulss  xmm1, xmm0, cs:__real@c47a0000
-    vmovss  xmm2, [rsp+28h+distToPlayer]
-    vcvttss2si eax, xmm1
-  }
-  DWORD1(v20) = index;
+  DWORD1(v14) = index;
+  v6 = 0;
+  DWORD2(v14) = currentTime - (int)(float)(timeDelay * -1000.0);
+  reactiveEntDefsActive = cseData->reactiveEntDefsActive;
+  BYTE12(v14) = 1;
+  *(float *)&v14 = distToPlayer;
+  LODWORD(_XMM1) = 0;
   v10 = 0;
-  v21 = reactiveEntDef;
-  _R10 = cseData;
-  DWORD2(v20) = currentTime - _EAX;
-  _RCX = cseData->reactiveEntDefsActive;
-  BYTE12(v20) = 1;
-  __asm
-  {
-    vmovss  dword ptr [rsp+28h+var_28], xmm2
-    vxorps  xmm1, xmm1, xmm1
-  }
-  v14 = 0;
   do
   {
-    if ( !_RCX->inUse )
+    if ( !reactiveEntDefsActive->inUse )
     {
-      _RCX = 3i64 * v14 + 36;
+      v13 = 3i64 * v10 + 36;
       goto LABEL_9;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx]
-      vcomiss xmm0, xmm1
-    }
-    v16 = v14;
-    if ( !_RCX->inUse )
-      v16 = v10;
-    ++v14;
-    ++_RCX;
-    v10 = v16;
+    _XMM0 = LODWORD(reactiveEntDefsActive->distToPlayer);
+    v12 = v10;
+    if ( *(float *)&_XMM0 <= *(float *)&_XMM1 )
+      v12 = v6;
+    ++v10;
+    ++reactiveEntDefsActive;
+    v6 = v12;
     __asm { vmaxss  xmm1, xmm0, xmm1 }
   }
-  while ( v14 < 12 );
-  __asm { vcomiss xmm1, xmm2 }
-  if ( (unsigned int)v14 <= 0xC )
+  while ( v10 < 12 );
+  if ( *(float *)&_XMM1 <= distToPlayer )
     return;
-  _RCX = 3i64 * v16 + 36;
+  v13 = 3i64 * v12 + 36;
 LABEL_9:
-  __asm
-  {
-    vmovups xmm0, [rsp+28h+var_28]
-    vmovsd  xmm1, [rsp+28h+var_18]
-    vmovups xmmword ptr [r10+rcx*8], xmm0
-    vmovsd  qword ptr [r10+rcx*8+10h], xmm1
-  }
+  *(_OWORD *)(&cseData->reactiveSoundsActive[0].distToPlayer + 2 * v13) = v14;
+  *((double *)&cseData->reactiveSoundsActive[0].reactiveSound + v13) = *(double *)&reactiveEntDef;
 }
 
 /*
@@ -1634,21 +1563,14 @@ CG_IsSoundAliasInRange
 */
 bool CG_IsSoundAliasInRange(const vec3_t *origin, const SndAliasList *list)
 {
-  char v10; 
+  float distMax; 
+  double v5; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( (!list || !list->head) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 92, ASSERT_TYPE_ASSERT, "(list && list->head)", (const char *)&queryFormat, "list && list->head") )
     __debugbreak();
-  _RAX = list->head;
-  __asm { vmovss  xmm6, dword ptr [rax+68h] }
-  *(double *)&_XMM0 = SND_DistSqToNearestListener(origin);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcomiss xmm1, xmm0
-  }
-  return !v10;
+  distMax = list->head->distMax;
+  v5 = SND_DistSqToNearestListener(origin);
+  return (float)(distMax * distMax) >= *(float *)&v5;
 }
 
 /*
@@ -2385,21 +2307,24 @@ char *CG_ParseEffect(LocalClientNum_t localClientNum, const char *line, EffectDe
   const char *v81; 
   char m; 
   char v83; 
+  float v84; 
+  __int64 v85; 
   SndAliasList *Alias; 
-  int v100; 
-  EffectDefMap *v102; 
-  __int64 v103; 
-  char *v104; 
-  EffectDefMap *v105; 
-  char v106; 
-  __int64 v107; 
-  char v108; 
-  char *fmt; 
-  __int64 v113; 
+  float v87; 
+  float v88; 
+  __int64 v89; 
+  int v90; 
+  EffectDefMap *v91; 
+  __int64 v92; 
+  char *v93; 
+  EffectDefMap *v94; 
+  char v95; 
+  __int64 v96; 
+  char v97; 
   float value; 
   LocalClientNum_t localClientNuma; 
   FXRegisteredDef outDef; 
-  EffectDefMap *v117; 
+  EffectDefMap *v101; 
   vec3_t origin; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
@@ -2409,7 +2334,7 @@ char *CG_ParseEffect(LocalClientNum_t localClientNum, const char *line, EffectDe
   char effectName[256]; 
 
   v4 = 0;
-  v117 = effectDefMap;
+  v101 = effectDefMap;
   localClientNuma = localClientNum;
   v5 = 27i64;
   outDef.m_particleSystemDef = NULL;
@@ -2563,11 +2488,7 @@ LABEL_68:
                     break;
                   if ( v63 != v65 )
                   {
-                    __asm
-                    {
-                      vmovss  xmm0, cs:__real@c0800000
-                      vmovss  [rsp+460h+value], xmm0
-                    }
+                    value = FLOAT_N4_0;
 LABEL_83:
                     v70 = 24i64;
                     v71 = v44;
@@ -2628,89 +2549,59 @@ LABEL_83:
                         }
                         if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNuma) )
                         {
-                          __asm { vmovss  xmm1, dword ptr [rsp+460h+origin+4] }
+                          v84 = origin.v[1];
                           if ( s_clientEntSoundCount == 1024 )
                           {
-                            __asm
-                            {
-                              vmovss  xmm0, dword ptr [rsp+460h+origin+8]
-                              vmovss  xmm3, dword ptr [rsp+460h+origin]
-                              vcvtss2sd xmm0, xmm0, xmm0
-                              vcvtss2sd xmm3, xmm3, xmm3
-                              vcvtss2sd xmm1, xmm1, xmm1
-                              vmovsd  [rsp+460h+var_438], xmm0
-                              vmovq   r9, xmm3
-                              vmovsd  [rsp+460h+fmt], xmm1
-                            }
-                            Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", name, _R9, fmt, v113, s_clientEntSoundCount);
+                            Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", name, origin.v[0], origin.v[1], origin.v[2], s_clientEntSoundCount);
                           }
                           else
                           {
-                            __asm { vmovss  xmm0, dword ptr [rsp+460h+origin] }
-                            _RCX = 5i64 * s_clientEntSoundCount;
-                            _RDI = s_clientEntSounds;
-                            __asm
-                            {
-                              vmovss  dword ptr [rdi+rcx*8], xmm0
-                              vmovss  xmm0, dword ptr [rsp+460h+origin+8]
-                              vmovss  dword ptr [rdi+rcx*8+8], xmm0
-                              vmovss  dword ptr [rdi+rcx*8+4], xmm1
-                            }
+                            v85 = s_clientEntSoundCount;
+                            s_clientEntSounds[v85].origin.v[0] = origin.v[0];
+                            s_clientEntSounds[v85].origin.v[2] = origin.v[2];
+                            s_clientEntSounds[v85].origin.v[1] = v84;
                             Alias = SND_FindAlias(name);
-                            __asm
-                            {
-                              vmovss  xmm0, dword ptr [rsp+460h+angles]
-                              vmovss  xmm1, dword ptr [rsp+460h+angles+4]
-                            }
-                            _RDX = s_clientEntSoundCount;
-                            v100 = s_clientEntSoundCount + 1;
-                            s_clientEntSounds[_RDX].aliasList = Alias;
-                            __asm
-                            {
-                              vmovss  dword ptr [rdi+rdx*8+18h], xmm0
-                              vmovss  xmm0, dword ptr [rsp+460h+angles+8]
-                              vmovss  dword ptr [rdi+rdx*8+20h], xmm0
-                              vmovss  dword ptr [rdi+rdx*8+1Ch], xmm1
-                            }
-                            s_clientEntSounds[_RDX].active = 1;
-                            s_clientEntSoundCount = v100;
+                            v87 = angles.v[0];
+                            v88 = angles.v[1];
+                            v89 = s_clientEntSoundCount;
+                            v90 = s_clientEntSoundCount + 1;
+                            s_clientEntSounds[v89].aliasList = Alias;
+                            s_clientEntSounds[v89].angles.v[0] = v87;
+                            s_clientEntSounds[v89].angles.v[2] = angles.v[2];
+                            s_clientEntSounds[v89].angles.v[1] = v88;
+                            s_clientEntSounds[v89].active = 1;
+                            s_clientEntSoundCount = v90;
                           }
                         }
 LABEL_113:
                         if ( *effectDefMapEntries > 0 )
                         {
-                          v102 = v117;
+                          v91 = v101;
                           do
                           {
-                            v103 = 0x7FFFFFFFi64;
-                            v104 = text;
-                            v105 = &v102[v4];
-                            if ( !v105 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+                            v92 = 0x7FFFFFFFi64;
+                            v93 = text;
+                            v94 = &v91[v4];
+                            if ( !v94 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                               __debugbreak();
                             while ( 1 )
                             {
-                              v106 = v104[(char *)v105 - text];
-                              v107 = v103;
-                              v108 = *v104++;
-                              --v103;
-                              if ( !v107 )
+                              v95 = v93[(char *)v94 - text];
+                              v96 = v92;
+                              v97 = *v93++;
+                              --v92;
+                              if ( !v96 )
                               {
 LABEL_121:
-                                Core_strcpy(effectName, 0x100ui64, v105->filename);
+                                Core_strcpy(effectName, 0x100ui64, v94->filename);
                                 FX_LoadEffect(effectName, &outDef);
                                 AnglesToAxis(&angles, &axis);
-                                __asm
-                                {
-                                  vmovss  xmm0, [rsp+460h+value]
-                                  vmulss  xmm1, xmm0, cs:__real@447a0000
-                                  vcvttss2si r8d, xmm1; startMsec
-                                }
-                                FX_PlayOrientedEffect(localClientNuma, &outDef, _ER8, &origin, &axis);
+                                FX_PlayOrientedEffect(localClientNuma, &outDef, (int)(float)(value * 1000.0), &origin, &axis);
                                 return v44;
                               }
-                              if ( v106 != v108 )
+                              if ( v95 != v97 )
                                 break;
-                              if ( !v106 )
+                              if ( !v95 )
                                 goto LABEL_121;
                             }
                             ++v4;
@@ -2967,40 +2858,44 @@ char *CG_ParseExploder(LocalClientNum_t localClientNum, const char *line, Effect
   __int64 v148; 
   char v149; 
   const ParticleSystemDef *m_particleSystemDef; 
-  bool v163; 
-  __int64 v168; 
-  __int64 v169; 
-  char v170; 
-  __int64 v171; 
-  char v172; 
-  char v173; 
-  __int64 v174; 
-  char v175; 
+  int v151; 
+  float v152; 
+  float v153; 
+  ClientExploder *v154; 
+  bool v155; 
+  float v156; 
+  float v157; 
+  __int64 v158; 
+  __int64 v159; 
+  char v160; 
+  __int64 v161; 
+  char v162; 
+  char v163; 
+  __int64 v164; 
+  char v165; 
   char *fmt; 
-  char *fmta; 
-  __int64 v178; 
-  __int64 v179; 
-  int v180; 
-  int v181; 
+  __int64 v167; 
+  int v168; 
+  int v169; 
   FXRegisteredDef outDef; 
   float value; 
   LocalClientNum_t localClientNuma; 
-  int *v185; 
-  float v186; 
-  float v187; 
-  EffectDefMap *v188; 
+  int *v173; 
+  float v174; 
+  float v175; 
+  EffectDefMap *v176; 
   vec3_t origin; 
   vec3_t angles; 
   char text[64]; 
-  char v192[128]; 
+  char v180[128]; 
   char name[64]; 
   char soundalias[64]; 
   char dest[128]; 
   char effectName[64]; 
 
-  v185 = effectDefMapEntries;
+  v173 = effectDefMapEntries;
   v4 = 22i64;
-  v188 = effectDefMap;
+  v176 = effectDefMap;
   v5 = 22i64;
   localClientNuma = localClientNum;
   outDef.m_particleSystemDef = NULL;
@@ -3052,9 +2947,9 @@ LABEL_17:
         break;
       if ( v19 != v13 )
       {
-        Core_strcpy_truncate(v192, 0x80ui64, v11);
+        Core_strcpy_truncate(v180, 0x80ui64, v11);
         v14 = "ent set_origin_and_angles( ";
-        v15 = v192;
+        v15 = v180;
         goto LABEL_17;
       }
       if ( !v19 )
@@ -3081,9 +2976,9 @@ LABEL_17:
             break;
           if ( v28 != v30 )
           {
-            Core_strcpy_truncate(v192, 0x80ui64, v23);
+            Core_strcpy_truncate(v180, 0x80ui64, v23);
             v14 = "ent.v[ \"fxid\" ] = ";
-            v15 = v192;
+            v15 = v180;
             goto LABEL_17;
           }
         }
@@ -3119,9 +3014,9 @@ LABEL_17:
                 break;
               if ( v37 != v34 )
               {
-                Core_strcpy_truncate(v192, 0x80ui64, v32);
+                Core_strcpy_truncate(v180, 0x80ui64, v32);
                 v14 = "ent.v[ \"delay\" ] = ";
-                v15 = v192;
+                v15 = v180;
                 goto LABEL_17;
               }
               if ( !v37 )
@@ -3216,9 +3111,9 @@ LABEL_103:
                                 break;
                               if ( v82 != v84 )
                               {
-                                Core_strcpy_truncate(v192, 0x80ui64, v41);
+                                Core_strcpy_truncate(v180, 0x80ui64, v41);
                                 v14 = "ent.v[ \"exploder\" ] = ";
-                                v15 = v192;
+                                v15 = v180;
                                 goto LABEL_17;
                               }
                             }
@@ -3247,14 +3142,14 @@ LABEL_103:
                                 ++v87;
                               }
                               v90 = atoi(dest);
-                              v180 = v90;
-                              v181 = v90;
+                              v168 = v90;
+                              v169 = v90;
                               if ( !v90 )
                               {
                                 if ( dest[0] != 48 )
                                 {
-                                  LODWORD(v178) = 255;
-                                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14427A1D0, 288i64, text, dest, v178);
+                                  LODWORD(v167) = 255;
+                                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14427A1D0, 288i64, text, dest, v167);
                                   goto LABEL_128;
                                 }
 LABEL_131:
@@ -3308,9 +3203,9 @@ LABEL_166:
                                         break;
                                       if ( v121 != v123 )
                                       {
-                                        Core_strcpy_truncate(v192, 0x80ui64, v87);
+                                        Core_strcpy_truncate(v180, 0x80ui64, v87);
                                         v14 = "ent.v[ \"loopsound\" ] = ";
-                                        v15 = v192;
+                                        v15 = v180;
                                         goto LABEL_17;
                                       }
                                     }
@@ -3384,11 +3279,11 @@ LABEL_201:
                                               v140 = v138;
                                             if ( v136 != v140 )
                                             {
-                                              v141 = v185;
+                                              v141 = v173;
                                               v142 = 0;
-                                              if ( *v185 > 0 )
+                                              if ( *v173 > 0 )
                                               {
-                                                v143 = v188;
+                                                v143 = v176;
                                                 do
                                                 {
                                                   v144 = 0x7FFFFFFFi64;
@@ -3398,7 +3293,7 @@ LABEL_201:
                                                   {
                                                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                                                       __debugbreak();
-                                                    v141 = v185;
+                                                    v141 = v173;
                                                   }
                                                   while ( 1 )
                                                   {
@@ -3434,72 +3329,62 @@ LABEL_220:
                                         m_particleSystemDef = NULL;
                                         outDef.m_particleSystemDef = NULL;
 LABEL_225:
-                                        __asm
-                                        {
-                                          vmovss  xmm0, [rsp+2D0h+value]
-                                          vmulss  xmm1, xmm0, cs:__real@447a0000
-                                          vcvttss2si edx, xmm1
-                                          vmovss  xmm1, dword ptr [rsp+2D0h+origin+4]
-                                        }
+                                        v151 = (int)(float)(value * 1000.0);
+                                        v152 = origin.v[1];
                                         if ( s_clientExploders.numExploders < 0x100 )
                                         {
-                                          __asm { vmovss  xmm0, dword ptr [rsp+2D0h+origin] }
-                                          _RDI = &s_clientExploders.exploders[(unsigned __int64)s_clientExploders.numExploders];
-                                          v163 = name[0] == 0;
-                                          s_clientExploders.name[s_clientExploders.numExploders] = v180;
-                                          __asm
+                                          v153 = origin.v[0];
+                                          v154 = &s_clientExploders.exploders[(unsigned __int64)s_clientExploders.numExploders];
+                                          v155 = name[0] == 0;
+                                          s_clientExploders.name[s_clientExploders.numExploders] = v168;
+                                          v154->origin.v[0] = v153;
+                                          v154->origin.v[2] = origin.v[2];
+                                          v156 = angles.v[0];
+                                          v154->origin.v[1] = v152;
+                                          v157 = angles.v[1];
+                                          v154->angles.v[0] = v156;
+                                          v154->angles.v[2] = angles.v[2];
+                                          v154->angles.v[1] = v157;
+                                          v154->delay = v151;
+                                          v154->fxDef.m_particleSystemDef = m_particleSystemDef;
+                                          v154->aliasList = NULL;
+                                          v154->loopSoundIndex = -1;
+                                          if ( !v155 )
                                           {
-                                            vmovss  dword ptr [rdi], xmm0
-                                            vmovss  xmm0, dword ptr [rsp+2D0h+origin+8]
-                                            vmovss  dword ptr [rdi+8], xmm0
-                                            vmovss  xmm0, dword ptr [rbp+1D0h+angles]
-                                            vmovss  dword ptr [rdi+4], xmm1
-                                            vmovss  xmm1, dword ptr [rbp+1D0h+angles+4]
-                                            vmovss  dword ptr [rdi+0Ch], xmm0
-                                            vmovss  xmm0, dword ptr [rbp+1D0h+angles+8]
-                                            vmovss  dword ptr [rdi+14h], xmm0
-                                            vmovss  dword ptr [rdi+10h], xmm1
-                                          }
-                                          _RDI->delay = _EDX;
-                                          _RDI->fxDef.m_particleSystemDef = m_particleSystemDef;
-                                          _RDI->aliasList = NULL;
-                                          _RDI->loopSoundIndex = -1;
-                                          if ( !v163 )
-                                          {
-                                            v168 = 0x7FFFFFFFi64;
-                                            v169 = 0i64;
+                                            v158 = 0x7FFFFFFFi64;
+                                            v159 = 0i64;
                                             do
                                             {
-                                              v170 = name[v169];
-                                              v171 = v168;
-                                              v172 = aNull[v169++];
-                                              --v168;
-                                              if ( !v171 )
+                                              v160 = name[v159];
+                                              v161 = v158;
+                                              v162 = aNull[v159++];
+                                              --v158;
+                                              if ( !v161 )
                                                 break;
-                                              if ( v170 != v172 )
+                                              if ( v160 != v162 )
                                               {
-                                                _RDI->aliasList = SND_FindAlias(name);
+                                                v154->aliasList = SND_FindAlias(name);
                                                 break;
                                               }
                                             }
-                                            while ( v170 );
+                                            while ( v160 );
                                           }
                                           if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNuma) && soundalias[0] )
                                           {
                                             while ( 1 )
                                             {
-                                              v173 = soundalias[v106];
-                                              v174 = v98;
-                                              v175 = aNull[v106++];
+                                              v163 = soundalias[v106];
+                                              v164 = v98;
+                                              v165 = aNull[v106++];
                                               --v98;
-                                              if ( !v174 )
+                                              if ( !v164 )
                                                 break;
-                                              if ( v173 != v175 )
+                                              if ( v163 != v165 )
                                               {
-                                                _RDI->loopSoundIndex = CG_AddClientEntSound(&_RDI->origin, soundalias, &_RDI->angles, 0);
+                                                v154->loopSoundIndex = CG_AddClientEntSound(&v154->origin, soundalias, &v154->angles, 0);
                                                 break;
                                               }
-                                              if ( !v173 )
+                                              if ( !v163 )
                                               {
                                                 ++s_clientExploders.numExploders;
                                                 return v87;
@@ -3511,18 +3396,7 @@ LABEL_225:
                                         }
                                         else
                                         {
-                                          __asm
-                                          {
-                                            vmovss  xmm0, dword ptr [rsp+2D0h+origin+8]
-                                            vmovss  xmm3, dword ptr [rsp+2D0h+origin]
-                                            vcvtss2sd xmm0, xmm0, xmm0
-                                            vcvtss2sd xmm3, xmm3, xmm3
-                                            vcvtss2sd xmm1, xmm1, xmm1
-                                            vmovsd  [rsp+2D0h+var_2A8], xmm0
-                                            vmovq   r9, xmm3
-                                            vmovsd  [rsp+2D0h+fmt], xmm1
-                                          }
-                                          Com_PrintError(1, "Unable to add %i at [%.2f, %.2f, %.2f]-> Too many client exploders. Max is %d.\n", (unsigned int)v180, _R9, fmta, v179, 256);
+                                          Com_PrintError(1, "Unable to add %i at [%.2f, %.2f, %.2f]-> Too many client exploders. Max is %d.\n", (unsigned int)v168, origin.v[0], origin.v[1], origin.v[2], 256);
                                           return v87;
                                         }
                                       }
@@ -3544,9 +3418,9 @@ LABEL_225:
                                     break;
                                   if ( v100 != v102 )
                                   {
-                                    Core_strcpy_truncate(v192, 0x80ui64, v87);
+                                    Core_strcpy_truncate(v180, 0x80ui64, v87);
                                     v14 = "ent.v[ \"soundalias\" ] = ";
-                                    v15 = v192;
+                                    v15 = v180;
                                     goto LABEL_17;
                                   }
                                 }
@@ -3605,19 +3479,19 @@ LABEL_225:
                             }
                             else
                             {
-                              v87 = (char *)CG_ParseIntFinish(v85, &v181);
+                              v87 = (char *)CG_ParseIntFinish(v85, &v169);
                               if ( !v87 )
                                 return 0i64;
 LABEL_128:
-                              v90 = v181;
-                              v180 = v181;
+                              v90 = v169;
+                              v168 = v169;
                             }
                             if ( v90 > 0xFF )
                             {
-                              LODWORD(v178) = 255;
+                              LODWORD(v167) = 255;
                               LODWORD(fmt) = v90;
-                              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14427A270, 289i64, text, fmt, v178);
-                              v180 = v181;
+                              Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14427A270, 289i64, text, fmt, v167);
+                              v168 = v169;
                             }
                             goto LABEL_131;
                           }
@@ -3637,16 +3511,16 @@ LABEL_128:
                             break;
                           if ( v78 != v80 )
                           {
-                            Core_strcpy_truncate(v192, 0x80ui64, v41);
+                            Core_strcpy_truncate(v180, 0x80ui64, v41);
                             v14 = "ent.v[ \"delay_max\" ] = ";
-                            v15 = v192;
+                            v15 = v180;
                             goto LABEL_17;
                           }
                         }
                         while ( v78 );
                         if ( v41 != (char *)-23i64 )
                         {
-                          v41 = (char *)CG_ParseFloatFinish(v41 + 23, &v187);
+                          v41 = (char *)CG_ParseFloatFinish(v41 + 23, &v175);
                           if ( v41 )
                           {
                             Com_PrintWarning(0, "WARNING: delay_max not supported on client side exploders: exploder with fxid of %s and exploder id of %d.", text, 0i64);
@@ -3671,16 +3545,16 @@ LABEL_128:
                         break;
                       if ( v67 != v69 )
                       {
-                        Core_strcpy_truncate(v192, 0x80ui64, v41);
+                        Core_strcpy_truncate(v180, 0x80ui64, v41);
                         v14 = "ent.v[ \"delay_min\" ] = ";
-                        v15 = v192;
+                        v15 = v180;
                         goto LABEL_17;
                       }
                     }
                     while ( v67 );
                     if ( v41 != (char *)-23i64 )
                     {
-                      v41 = (char *)CG_ParseFloatFinish(v41 + 23, &v186);
+                      v41 = (char *)CG_ParseFloatFinish(v41 + 23, &v174);
                       if ( v41 )
                       {
                         Com_PrintWarning(0, "WARNING: delay_min not supported on client side exploders: exploder with fxid of %s and exploder id of %d.", text, 0i64);
@@ -3704,16 +3578,16 @@ LABEL_128:
                     break;
                   if ( v55 != v57 )
                   {
-                    Core_strcpy_truncate(v192, 0x80ui64, v41);
+                    Core_strcpy_truncate(v180, 0x80ui64, v41);
                     v14 = "ent.v[ \"repeat\" ] = ";
-                    v15 = v192;
+                    v15 = v180;
                     goto LABEL_17;
                   }
                 }
                 while ( v55 );
                 if ( v41 != (char *)-20i64 )
                 {
-                  v41 = (char *)CG_ParseIntFinish(v41 + 20, &v180);
+                  v41 = (char *)CG_ParseIntFinish(v41 + 20, &v168);
                   if ( v41 )
                   {
                     Com_PrintWarning(0, "WARNING: repeat not supported on client side exploders: exploder with fxid of %s and exploder id of %d.", text, 0i64);
@@ -3737,160 +3611,164 @@ CG_ParseExploderEx
 */
 char *CG_ParseExploderEx(LocalClientNum_t localClientNum, const char *line, EffectDefMap *effectDefMap, int *effectDefMapEntries)
 {
+  __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  const char *v8; 
+  const char *v7; 
+  char v8; 
+  __int64 v9; 
   char v10; 
-  __int64 v11; 
-  char v12; 
-  char *v13; 
+  char *v11; 
+  const char *v12; 
+  __int64 v13; 
   const char *v14; 
-  __int64 v15; 
-  const char *v16; 
-  char *v17; 
+  char *v15; 
+  char v16; 
+  __int64 v17; 
   char v18; 
-  __int64 v19; 
-  char v20; 
-  const char *v21; 
-  const char *v22; 
+  const char *v19; 
+  const char *v20; 
   char i; 
-  char v24; 
-  const char *v25; 
-  __int64 v27; 
-  const char *v28; 
+  char v22; 
+  const char *v23; 
+  __int64 v25; 
+  const char *v26; 
+  char v27; 
+  __int64 v28; 
   char v29; 
-  __int64 v30; 
-  char v31; 
-  char *v32; 
-  char *v33; 
-  __int64 v34; 
-  __int64 v35; 
-  char *v36; 
-  char *v37; 
+  char *v30; 
+  char *v31; 
+  __int64 v32; 
+  __int64 v33; 
+  char *v34; 
+  char *v35; 
+  char v36; 
+  __int64 v37; 
   char v38; 
-  __int64 v39; 
+  char *v39; 
   char v40; 
-  char *v41; 
+  __int64 v41; 
   char v42; 
   __int64 v43; 
-  char v44; 
-  __int64 v45; 
-  char *v46; 
+  char *v44; 
+  char v45; 
+  __int64 v46; 
   char v47; 
   __int64 v48; 
-  char v49; 
+  char *v49; 
   __int64 v50; 
   char *v51; 
-  __int64 v52; 
-  char *v53; 
+  char v52; 
+  __int64 v53; 
   char v54; 
-  __int64 v55; 
+  char *v55; 
   char v56; 
-  char *v57; 
+  __int64 v57; 
   char v58; 
   __int64 v59; 
-  char v60; 
+  char *v60; 
   __int64 v61; 
   char *v62; 
-  __int64 v63; 
-  char *v64; 
+  char v63; 
+  __int64 v64; 
   char v65; 
   __int64 v66; 
-  char v67; 
-  __int64 v68; 
-  char *v69; 
+  char *v67; 
+  char v68; 
+  __int64 v69; 
   char v70; 
   __int64 v71; 
-  char v72; 
-  __int64 v73; 
-  char *v74; 
-  char *v75; 
+  char *v72; 
+  char *v73; 
+  char v74; 
+  __int64 v75; 
   char v76; 
   __int64 v77; 
-  char v78; 
-  __int64 v79; 
-  char *v80; 
+  char *v78; 
+  char v79; 
+  __int64 v80; 
   char v81; 
   __int64 v82; 
-  char v83; 
-  __int64 v84; 
-  char *v85; 
-  char *v86; 
+  char *v83; 
+  char *v84; 
+  char v85; 
+  __int64 v86; 
   char v87; 
   __int64 v88; 
-  char v89; 
-  __int64 v90; 
-  char *v91; 
+  char *v89; 
+  char v90; 
+  __int64 v91; 
   char v92; 
-  __int64 v93; 
-  char v94; 
-  const char *v95; 
+  const char *v93; 
   char m; 
-  char v97; 
+  char v95; 
+  __int64 v96; 
+  __int64 v97; 
   __int64 v98; 
-  __int64 v99; 
+  int v99; 
   __int64 v100; 
   int v101; 
-  __int64 v102; 
+  int v102; 
   int v103; 
-  int v104; 
-  int v105; 
-  __int64 v106; 
-  char *v107; 
-  char *v108; 
+  __int64 v104; 
+  char *v105; 
+  char *v106; 
+  char v107; 
+  __int64 v108; 
   char v109; 
-  __int64 v110; 
+  char *v110; 
   char v111; 
-  char *v112; 
+  __int64 v112; 
   char v113; 
-  __int64 v114; 
-  char v115; 
-  const char *v116; 
+  const char *v114; 
   char j; 
-  char v118; 
-  __int64 v119; 
+  char v116; 
+  __int64 v117; 
+  __int64 v118; 
+  int v119; 
   __int64 v120; 
   int v121; 
-  __int64 v122; 
+  int v122; 
   int v123; 
-  int v124; 
-  int v125; 
-  __int64 v126; 
+  __int64 v124; 
+  __int64 v125; 
+  int v126; 
   __int64 v127; 
   int v128; 
-  __int64 v129; 
+  int v129; 
   int v130; 
-  int v131; 
-  int v132; 
-  int *v133; 
+  int *v131; 
   int k; 
-  char *v135; 
-  __int64 v136; 
-  EffectDefMap *v137; 
+  char *v133; 
+  __int64 v134; 
+  EffectDefMap *v135; 
+  char v136; 
+  __int64 v137; 
   char v138; 
-  __int64 v139; 
-  char v140; 
   const ParticleSystemDef *m_particleSystemDef; 
-  bool v154; 
-  __int64 v159; 
-  __int64 v160; 
-  char v161; 
-  __int64 v162; 
-  char v163; 
-  char v164; 
-  __int64 v165; 
-  char v166; 
-  char *fmt; 
-  __int64 v168; 
+  int v140; 
+  float v141; 
+  float v142; 
+  ClientExploder *v143; 
+  bool v144; 
+  float v145; 
+  float v146; 
+  __int64 v147; 
+  __int64 v148; 
+  char v149; 
+  __int64 v150; 
+  char v151; 
+  char v152; 
+  __int64 v153; 
+  char v154; 
   float value; 
   unsigned int String; 
   FXRegisteredDef outDef; 
   LocalClientNum_t localClientNuma; 
-  int *v173; 
-  int v174; 
-  float v175; 
-  float v176; 
-  EffectDefMap *v177; 
+  int *v159; 
+  int v160; 
+  float v161; 
+  float v162; 
+  EffectDefMap *v163; 
   vec3_t origin; 
   vec3_t angles; 
   char text[64]; 
@@ -3900,70 +3778,66 @@ char *CG_ParseExploderEx(LocalClientNum_t localClientNum, const char *line, Effe
   char str[64]; 
   char effectName[64]; 
 
-  v173 = effectDefMapEntries;
+  v159 = effectDefMapEntries;
+  v4 = 24i64;
+  v163 = effectDefMap;
   v5 = 24i64;
-  v177 = effectDefMap;
-  v6 = 24i64;
   localClientNuma = localClientNum;
   outDef.m_particleSystemDef = NULL;
-  v8 = line;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+2A0h+value], xmm0
-  }
+  v7 = line;
+  value = 0.0;
   if ( !line && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
     __debugbreak();
   do
   {
-    v10 = v8["ent = createExploderEx( " - line];
-    v11 = v6;
-    v12 = *v8++;
-    --v6;
-    if ( !v11 )
+    v8 = v7["ent = createExploderEx( " - line];
+    v9 = v5;
+    v10 = *v7++;
+    --v5;
+    if ( !v9 )
       break;
-    if ( v10 != v12 )
+    if ( v8 != v10 )
     {
       Core_strcpy_truncate(dest, 0x80ui64, line);
-      v25 = "ent = createExploderEx( ";
+      v23 = "ent = createExploderEx( ";
 LABEL_24:
-      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", dest, v25);
+      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", dest, v23);
       return 0i64;
     }
   }
-  while ( v10 );
+  while ( v8 );
   if ( line != (const char *)-24i64 )
   {
-    v13 = (char *)CG_ParseString(line + 24, text, 0x40u);
-    v14 = v13;
-    if ( v13 )
+    v11 = (char *)CG_ParseString(line + 24, text, 0x40u);
+    v12 = v11;
+    if ( v11 )
     {
-      v15 = 2i64;
-      v16 = (const char *)(", " - v13);
-      v17 = v13;
+      v13 = 2i64;
+      v14 = (const char *)(", " - v11);
+      v15 = v11;
       do
       {
-        v18 = v17[(_QWORD)v16];
-        v19 = v15;
-        v20 = *v17++;
-        --v15;
-        if ( !v19 )
+        v16 = v15[(_QWORD)v14];
+        v17 = v13;
+        v18 = *v15++;
+        --v13;
+        if ( !v17 )
           break;
-        if ( v18 != v20 )
+        if ( v16 != v18 )
         {
-          Core_strcpy_truncate(dest, 0x80ui64, v14);
-          v25 = ", ";
+          Core_strcpy_truncate(dest, 0x80ui64, v12);
+          v23 = ", ";
           goto LABEL_24;
         }
       }
-      while ( v18 );
-      if ( v14 != (const char *)-2i64 )
+      while ( v16 );
+      if ( v12 != (const char *)-2i64 )
       {
-        v21 = CG_ParseString(v14 + 2, str, 0x40u);
-        v22 = v21;
-        if ( v21 )
+        v19 = CG_ParseString(v12 + 2, str, 0x40u);
+        v20 = v19;
+        if ( v19 )
         {
-          for ( i = *v21; i != 10; i = *++v22 )
+          for ( i = *v19; i != 10; i = *++v20 )
           {
             if ( i == 13 )
               break;
@@ -3972,210 +3846,210 @@ LABEL_24:
           }
           while ( 1 )
           {
-            v24 = *v22;
-            if ( *v22 < 9u || (unsigned __int8)v24 > 0x20u || !v24 )
+            v22 = *v20;
+            if ( *v20 < 9u || (unsigned __int8)v22 > 0x20u || !v22 )
               break;
-            ++v22;
+            ++v20;
           }
           String = SL_FindString(str);
           if ( String )
           {
-            v27 = 27i64;
-            v28 = v22;
+            v25 = 27i64;
+            v26 = v20;
             do
             {
-              v29 = v28["ent set_origin_and_angles( " - v22];
-              v30 = v27;
-              v31 = *v28++;
-              --v27;
-              if ( !v30 )
+              v27 = v26["ent set_origin_and_angles( " - v20];
+              v28 = v25;
+              v29 = *v26++;
+              --v25;
+              if ( !v28 )
                 break;
-              if ( v29 != v31 )
+              if ( v27 != v29 )
               {
-                Core_strcpy_truncate(dest, 0x80ui64, v22);
-                v25 = "ent set_origin_and_angles( ";
+                Core_strcpy_truncate(dest, 0x80ui64, v20);
+                v23 = "ent set_origin_and_angles( ";
                 goto LABEL_24;
               }
             }
-            while ( v29 );
-            if ( v22 != (const char *)-27i64 )
+            while ( v27 );
+            if ( v20 != (const char *)-27i64 )
             {
-              v32 = (char *)CG_ParseVec3x2Finish(v22 + 27, &origin, &angles);
-              v33 = v32;
-              if ( v32 )
+              v30 = (char *)CG_ParseVec3x2Finish(v20 + 27, &origin, &angles);
+              v31 = v30;
+              if ( v30 )
               {
-                v34 = 19i64;
-                v35 = 19i64;
-                v36 = (char *)("ent.v[ \"delay\" ] = " - v32);
-                v37 = v32;
+                v32 = 19i64;
+                v33 = 19i64;
+                v34 = (char *)("ent.v[ \"delay\" ] = " - v30);
+                v35 = v30;
                 do
                 {
-                  v38 = v37[(_QWORD)v36];
-                  v39 = v35;
-                  v40 = *v37;
-                  --v35;
-                  ++v37;
-                  if ( !v39 )
+                  v36 = v35[(_QWORD)v34];
+                  v37 = v33;
+                  v38 = *v35;
+                  --v33;
+                  ++v35;
+                  if ( !v37 )
                     break;
-                  if ( v38 != v40 )
+                  if ( v36 != v38 )
                     goto LABEL_45;
                 }
-                while ( v38 );
-                v41 = v33;
+                while ( v36 );
+                v39 = v31;
                 do
                 {
-                  v42 = v41[(_QWORD)v36];
-                  v43 = v34;
-                  v44 = *v41++;
-                  --v34;
-                  if ( !v43 )
+                  v40 = v39[(_QWORD)v34];
+                  v41 = v32;
+                  v42 = *v39++;
+                  --v32;
+                  if ( !v41 )
                     break;
-                  if ( v42 != v44 )
+                  if ( v40 != v42 )
                   {
-                    Core_strcpy_truncate(dest, 0x80ui64, v33);
-                    v25 = "ent.v[ \"delay\" ] = ";
+                    Core_strcpy_truncate(dest, 0x80ui64, v31);
+                    v23 = "ent.v[ \"delay\" ] = ";
                     goto LABEL_24;
                   }
                 }
-                while ( v42 );
-                if ( v33 != (char *)-19i64 )
+                while ( v40 );
+                if ( v31 != (char *)-19i64 )
                 {
-                  v33 = (char *)CG_ParseFloatFinish(v33 + 19, &value);
-                  if ( v33 )
+                  v31 = (char *)CG_ParseFloatFinish(v31 + 19, &value);
+                  if ( v31 )
                   {
 LABEL_45:
-                    v45 = 18i64;
-                    v46 = v33;
-                    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                    v43 = 18i64;
+                    v44 = v31;
+                    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                       __debugbreak();
                     do
                     {
-                      v47 = v46["ent.v[ \"flag\" ] = " - v33];
-                      v48 = v45;
-                      v49 = *v46++;
-                      --v45;
-                      if ( !v48 )
+                      v45 = v44["ent.v[ \"flag\" ] = " - v31];
+                      v46 = v43;
+                      v47 = *v44++;
+                      --v43;
+                      if ( !v46 )
                         break;
-                      if ( v47 != v49 )
+                      if ( v45 != v47 )
                         goto LABEL_52;
                     }
-                    while ( v47 );
-                    v33 = (char *)CG_SkipRestOfLine(v33);
-                    if ( !v33 )
+                    while ( v45 );
+                    v31 = (char *)CG_SkipRestOfLine(v31);
+                    if ( !v31 )
                       return 0i64;
 LABEL_52:
+                    v48 = 20i64;
+                    v49 = v31;
                     v50 = 20i64;
-                    v51 = v33;
-                    v52 = 20i64;
-                    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                       __debugbreak();
-                    v53 = (char *)("ent.v[ \"repeat\" ] = " - v33);
+                    v51 = (char *)("ent.v[ \"repeat\" ] = " - v31);
                     do
                     {
-                      v54 = v51[(_QWORD)v53];
-                      v55 = v52;
-                      v56 = *v51++;
-                      --v52;
-                      if ( !v55 )
+                      v52 = v49[(_QWORD)v51];
+                      v53 = v50;
+                      v54 = *v49++;
+                      --v50;
+                      if ( !v53 )
                         break;
-                      if ( v54 != v56 )
+                      if ( v52 != v54 )
                       {
 LABEL_68:
+                        v59 = 23i64;
+                        v60 = v31;
                         v61 = 23i64;
-                        v62 = v33;
-                        v63 = 23i64;
-                        if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                        if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                           __debugbreak();
-                        v64 = (char *)("ent.v[ \"delay_min\" ] = " - v33);
+                        v62 = (char *)("ent.v[ \"delay_min\" ] = " - v31);
                         do
                         {
-                          v65 = v62[(_QWORD)v64];
-                          v66 = v63;
-                          v67 = *v62++;
-                          --v63;
-                          if ( !v66 )
+                          v63 = v60[(_QWORD)v62];
+                          v64 = v61;
+                          v65 = *v60++;
+                          --v61;
+                          if ( !v64 )
                             break;
-                          if ( v65 != v67 )
+                          if ( v63 != v65 )
                           {
 LABEL_84:
-                            v73 = 23i64;
-                            v74 = v33;
-                            if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                            v71 = 23i64;
+                            v72 = v31;
+                            if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                               __debugbreak();
-                            v75 = (char *)("ent.v[ \"delay_max\" ] = " - v33);
+                            v73 = (char *)("ent.v[ \"delay_max\" ] = " - v31);
                             do
                             {
-                              v76 = v74[(_QWORD)v75];
-                              v77 = v73;
-                              v78 = *v74++;
-                              --v73;
-                              if ( !v77 )
+                              v74 = v72[(_QWORD)v73];
+                              v75 = v71;
+                              v76 = *v72++;
+                              --v71;
+                              if ( !v75 )
                                 break;
-                              if ( v76 != v78 )
+                              if ( v74 != v76 )
                               {
 LABEL_100:
-                                v84 = 24i64;
-                                v85 = v33;
-                                if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                                v82 = 24i64;
+                                v83 = v31;
+                                if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                                   __debugbreak();
-                                v86 = (char *)("ent.v[ \"soundalias\" ] = " - v33);
+                                v84 = (char *)("ent.v[ \"soundalias\" ] = " - v31);
                                 do
                                 {
-                                  v87 = v86[(_QWORD)v85];
-                                  v88 = v84;
-                                  v89 = *v85++;
-                                  --v84;
-                                  v90 = 0x7FFFFFFFi64;
-                                  if ( !v88 )
+                                  v85 = v84[(_QWORD)v83];
+                                  v86 = v82;
+                                  v87 = *v83++;
+                                  --v82;
+                                  v88 = 0x7FFFFFFFi64;
+                                  if ( !v86 )
                                     break;
-                                  if ( v87 != v89 )
+                                  if ( v85 != v87 )
                                   {
                                     name[0] = 0;
-                                    v98 = 0i64;
+                                    v96 = 0i64;
 LABEL_140:
-                                    v106 = 23i64;
-                                    v107 = v33;
-                                    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                                    v104 = 23i64;
+                                    v105 = v31;
+                                    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                                       __debugbreak();
-                                    v108 = (char *)("ent.v[ \"loopsound\" ] = " - v33);
+                                    v106 = (char *)("ent.v[ \"loopsound\" ] = " - v31);
                                     do
                                     {
-                                      v109 = v108[(_QWORD)v107];
-                                      v110 = v106;
-                                      v111 = *v107++;
-                                      --v106;
-                                      if ( !v110 )
+                                      v107 = v106[(_QWORD)v105];
+                                      v108 = v104;
+                                      v109 = *v105++;
+                                      --v104;
+                                      if ( !v108 )
                                         break;
-                                      if ( v109 != v111 )
+                                      if ( v107 != v109 )
                                         goto LABEL_174;
                                     }
-                                    while ( v109 );
-                                    v112 = v33;
-                                    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                                    while ( v107 );
+                                    v110 = v31;
+                                    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                                       __debugbreak();
                                     do
                                     {
-                                      v113 = v108[(_QWORD)v112];
-                                      v114 = v61;
-                                      v115 = *v112++;
-                                      --v61;
-                                      if ( !v114 )
+                                      v111 = v106[(_QWORD)v110];
+                                      v112 = v59;
+                                      v113 = *v110++;
+                                      --v59;
+                                      if ( !v112 )
                                         break;
-                                      if ( v113 != v115 )
+                                      if ( v111 != v113 )
                                       {
-                                        Core_strcpy_truncate(dest, 0x80ui64, v33);
-                                        v25 = "ent.v[ \"loopsound\" ] = ";
+                                        Core_strcpy_truncate(dest, 0x80ui64, v31);
+                                        v23 = "ent.v[ \"loopsound\" ] = ";
                                         goto LABEL_24;
                                       }
                                     }
-                                    while ( v113 );
-                                    if ( v33 != (char *)-23i64 )
+                                    while ( v111 );
+                                    if ( v31 != (char *)-23i64 )
                                     {
-                                      v116 = CG_ParseString(v33 + 23, soundalias, 0x40u);
-                                      v33 = (char *)v116;
-                                      if ( v116 )
+                                      v114 = CG_ParseString(v31 + 23, soundalias, 0x40u);
+                                      v31 = (char *)v114;
+                                      if ( v114 )
                                       {
-                                        for ( j = *v116; j != 10; j = *++v33 )
+                                        for ( j = *v114; j != 10; j = *++v31 )
                                         {
                                           if ( j == 13 )
                                             break;
@@ -4184,89 +4058,89 @@ LABEL_140:
                                         }
                                         while ( 1 )
                                         {
-                                          v118 = *v33;
-                                          if ( (unsigned __int8)*v33 < 9u || (unsigned __int8)v118 > 0x20u || !v118 )
+                                          v116 = *v31;
+                                          if ( (unsigned __int8)*v31 < 9u || (unsigned __int8)v116 > 0x20u || !v116 )
                                             break;
-                                          ++v33;
+                                          ++v31;
                                         }
-                                        v119 = 0x7FFFFFFFi64;
-                                        v120 = 0i64;
+                                        v117 = 0x7FFFFFFFi64;
+                                        v118 = 0i64;
                                         do
                                         {
-                                          v121 = (unsigned __int8)soundalias[v120];
-                                          v122 = v119;
-                                          v123 = (unsigned __int8)aNil[v120++];
-                                          --v119;
-                                          if ( !v122 )
+                                          v119 = (unsigned __int8)soundalias[v118];
+                                          v120 = v117;
+                                          v121 = (unsigned __int8)aNil[v118++];
+                                          --v117;
+                                          if ( !v120 )
                                             break;
-                                          if ( v121 != v123 )
+                                          if ( v119 != v121 )
                                           {
-                                            v124 = v121 + 32;
+                                            v122 = v119 + 32;
+                                            if ( (unsigned int)(v119 - 65) > 0x19 )
+                                              v122 = v119;
+                                            v119 = v122;
+                                            v123 = v121 + 32;
                                             if ( (unsigned int)(v121 - 65) > 0x19 )
-                                              v124 = v121;
-                                            v121 = v124;
-                                            v125 = v123 + 32;
-                                            if ( (unsigned int)(v123 - 65) > 0x19 )
-                                              v125 = v123;
-                                            if ( v121 != v125 )
+                                              v123 = v121;
+                                            if ( v119 != v123 )
                                               goto LABEL_175;
                                           }
                                         }
-                                        while ( v121 );
+                                        while ( v119 );
 LABEL_174:
                                         soundalias[0] = 0;
 LABEL_175:
-                                        v126 = 0x7FFFFFFFi64;
-                                        v127 = 0i64;
+                                        v124 = 0x7FFFFFFFi64;
+                                        v125 = 0i64;
                                         do
                                         {
-                                          v128 = (unsigned __int8)text[v127];
-                                          v129 = v126;
-                                          v130 = (unsigned __int8)aNoFx[v127];
-                                          --v126;
-                                          ++v127;
-                                          if ( !v129 )
+                                          v126 = (unsigned __int8)text[v125];
+                                          v127 = v124;
+                                          v128 = (unsigned __int8)aNoFx[v125];
+                                          --v124;
+                                          ++v125;
+                                          if ( !v127 )
                                             break;
-                                          if ( v128 != v130 )
+                                          if ( v126 != v128 )
                                           {
-                                            v131 = v128 + 32;
+                                            v129 = v126 + 32;
+                                            if ( (unsigned int)(v126 - 65) > 0x19 )
+                                              v129 = v126;
+                                            v126 = v129;
+                                            v130 = v128 + 32;
                                             if ( (unsigned int)(v128 - 65) > 0x19 )
-                                              v131 = v128;
-                                            v128 = v131;
-                                            v132 = v130 + 32;
-                                            if ( (unsigned int)(v130 - 65) > 0x19 )
-                                              v132 = v130;
-                                            if ( v128 != v132 )
+                                              v130 = v128;
+                                            if ( v126 != v130 )
                                             {
-                                              v133 = v173;
-                                              for ( k = 0; k < *v133; ++k )
+                                              v131 = v159;
+                                              for ( k = 0; k < *v131; ++k )
                                               {
-                                                v135 = text;
-                                                v136 = 0x7FFFFFFFi64;
-                                                v137 = &v177[k];
-                                                if ( !v137 )
+                                                v133 = text;
+                                                v134 = 0x7FFFFFFFi64;
+                                                v135 = &v163[k];
+                                                if ( !v135 )
                                                 {
                                                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                                                     __debugbreak();
-                                                  v133 = v173;
+                                                  v131 = v159;
                                                 }
                                                 while ( 1 )
                                                 {
-                                                  v138 = v135[(char *)v137 - text];
-                                                  v139 = v136;
-                                                  v140 = *v135++;
-                                                  --v136;
-                                                  if ( !v139 )
+                                                  v136 = v133[(char *)v135 - text];
+                                                  v137 = v134;
+                                                  v138 = *v133++;
+                                                  --v134;
+                                                  if ( !v137 )
                                                   {
 LABEL_193:
-                                                    Core_strcpy(effectName, 0x40ui64, v137->filename);
+                                                    Core_strcpy(effectName, 0x40ui64, v135->filename);
                                                     FX_LoadEffect(effectName, &outDef);
                                                     m_particleSystemDef = outDef.m_particleSystemDef;
                                                     goto LABEL_197;
                                                   }
-                                                  if ( v138 != v140 )
+                                                  if ( v136 != v138 )
                                                     break;
-                                                  if ( !v138 )
+                                                  if ( !v136 )
                                                     goto LABEL_193;
                                                 }
                                               }
@@ -4275,133 +4149,112 @@ LABEL_193:
                                             }
                                           }
                                         }
-                                        while ( v128 );
+                                        while ( v126 );
                                         m_particleSystemDef = NULL;
                                         outDef.m_particleSystemDef = NULL;
 LABEL_197:
-                                        __asm
-                                        {
-                                          vmovss  xmm0, [rsp+2A0h+value]
-                                          vmulss  xmm1, xmm0, cs:__real@447a0000
-                                          vcvttss2si edx, xmm1
-                                          vmovss  xmm1, dword ptr [rsp+2A0h+origin+4]
-                                        }
+                                        v140 = (int)(float)(value * 1000.0);
+                                        v141 = origin.v[1];
                                         if ( s_clientExploders.numExploders < 0x100 )
                                         {
-                                          __asm { vmovss  xmm0, dword ptr [rsp+2A0h+origin] }
-                                          _RDI = &s_clientExploders.exploders[(unsigned __int64)s_clientExploders.numExploders];
-                                          v154 = name[0] == 0;
+                                          v142 = origin.v[0];
+                                          v143 = &s_clientExploders.exploders[(unsigned __int64)s_clientExploders.numExploders];
+                                          v144 = name[0] == 0;
                                           s_clientExploders.name[s_clientExploders.numExploders] = String;
-                                          __asm
+                                          v143->origin.v[0] = v142;
+                                          v143->origin.v[2] = origin.v[2];
+                                          v145 = angles.v[0];
+                                          v143->origin.v[1] = v141;
+                                          v146 = angles.v[1];
+                                          v143->angles.v[0] = v145;
+                                          v143->angles.v[2] = angles.v[2];
+                                          v143->angles.v[1] = v146;
+                                          v143->delay = v140;
+                                          v143->fxDef.m_particleSystemDef = m_particleSystemDef;
+                                          v143->aliasList = NULL;
+                                          v143->loopSoundIndex = -1;
+                                          if ( !v144 )
                                           {
-                                            vmovss  dword ptr [rdi], xmm0
-                                            vmovss  xmm0, dword ptr [rbp+1A0h+origin+8]
-                                            vmovss  dword ptr [rdi+8], xmm0
-                                            vmovss  xmm0, dword ptr [rbp+1A0h+angles]
-                                            vmovss  dword ptr [rdi+4], xmm1
-                                            vmovss  xmm1, dword ptr [rbp+1A0h+angles+4]
-                                            vmovss  dword ptr [rdi+0Ch], xmm0
-                                            vmovss  xmm0, dword ptr [rbp+1A0h+angles+8]
-                                            vmovss  dword ptr [rdi+14h], xmm0
-                                            vmovss  dword ptr [rdi+10h], xmm1
-                                          }
-                                          _RDI->delay = _EDX;
-                                          _RDI->fxDef.m_particleSystemDef = m_particleSystemDef;
-                                          _RDI->aliasList = NULL;
-                                          _RDI->loopSoundIndex = -1;
-                                          if ( !v154 )
-                                          {
-                                            v159 = 0x7FFFFFFFi64;
-                                            v160 = 0i64;
+                                            v147 = 0x7FFFFFFFi64;
+                                            v148 = 0i64;
                                             do
                                             {
-                                              v161 = name[v160];
-                                              v162 = v159;
-                                              v163 = aNull[v160++];
-                                              --v159;
-                                              if ( !v162 )
+                                              v149 = name[v148];
+                                              v150 = v147;
+                                              v151 = aNull[v148++];
+                                              --v147;
+                                              if ( !v150 )
                                                 break;
-                                              if ( v161 != v163 )
+                                              if ( v149 != v151 )
                                               {
-                                                _RDI->aliasList = SND_FindAlias(name);
+                                                v143->aliasList = SND_FindAlias(name);
                                                 break;
                                               }
                                             }
-                                            while ( v161 );
+                                            while ( v149 );
                                           }
                                           if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNuma) && soundalias[0] )
                                           {
                                             while ( 1 )
                                             {
-                                              v164 = soundalias[v98];
-                                              v165 = v90;
-                                              v166 = aNull[v98++];
-                                              --v90;
-                                              if ( !v165 )
+                                              v152 = soundalias[v96];
+                                              v153 = v88;
+                                              v154 = aNull[v96++];
+                                              --v88;
+                                              if ( !v153 )
                                                 break;
-                                              if ( v164 != v166 )
+                                              if ( v152 != v154 )
                                               {
-                                                _RDI->loopSoundIndex = CG_AddClientEntSound(&_RDI->origin, soundalias, &_RDI->angles, 0);
+                                                v143->loopSoundIndex = CG_AddClientEntSound(&v143->origin, soundalias, &v143->angles, 0);
                                                 break;
                                               }
-                                              if ( !v164 )
+                                              if ( !v152 )
                                               {
                                                 ++s_clientExploders.numExploders;
-                                                return v33;
+                                                return v31;
                                               }
                                             }
                                           }
                                           ++s_clientExploders.numExploders;
-                                          return v33;
+                                          return v31;
                                         }
                                         else
                                         {
-                                          __asm
-                                          {
-                                            vmovss  xmm0, dword ptr [rbp+1A0h+origin+8]
-                                            vmovss  xmm3, dword ptr [rsp+2A0h+origin]
-                                            vcvtss2sd xmm0, xmm0, xmm0
-                                            vcvtss2sd xmm3, xmm3, xmm3
-                                            vcvtss2sd xmm1, xmm1, xmm1
-                                            vmovsd  [rsp+2A0h+var_278], xmm0
-                                            vmovq   r9, xmm3
-                                            vmovsd  [rsp+2A0h+fmt], xmm1
-                                          }
-                                          Com_PrintError(1, "Unable to add %i at [%.2f, %.2f, %.2f]-> Too many client exploders. Max is %d.\n", String, _R9, fmt, v168, 256);
-                                          return v33;
+                                          Com_PrintError(1, "Unable to add %i at [%.2f, %.2f, %.2f]-> Too many client exploders. Max is %d.\n", String, origin.v[0], origin.v[1], origin.v[2], 256);
+                                          return v31;
                                         }
                                       }
                                     }
                                     return 0i64;
                                   }
                                 }
-                                while ( v87 );
-                                v91 = v33;
-                                if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                                while ( v85 );
+                                v89 = v31;
+                                if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                                   __debugbreak();
                                 do
                                 {
-                                  v92 = v86[(_QWORD)v91];
-                                  v93 = v5;
-                                  v94 = *v91++;
-                                  --v5;
-                                  if ( !v93 )
+                                  v90 = v84[(_QWORD)v89];
+                                  v91 = v4;
+                                  v92 = *v89++;
+                                  --v4;
+                                  if ( !v91 )
                                     break;
-                                  if ( v92 != v94 )
+                                  if ( v90 != v92 )
                                   {
-                                    Core_strcpy_truncate(dest, 0x80ui64, v33);
-                                    v25 = "ent.v[ \"soundalias\" ] = ";
+                                    Core_strcpy_truncate(dest, 0x80ui64, v31);
+                                    v23 = "ent.v[ \"soundalias\" ] = ";
                                     goto LABEL_24;
                                   }
                                 }
-                                while ( v92 );
-                                if ( v33 != (char *)-24i64 )
+                                while ( v90 );
+                                if ( v31 != (char *)-24i64 )
                                 {
-                                  v95 = CG_ParseString(v33 + 24, name, 0x40u);
-                                  v33 = (char *)v95;
-                                  if ( v95 )
+                                  v93 = CG_ParseString(v31 + 24, name, 0x40u);
+                                  v31 = (char *)v93;
+                                  if ( v93 )
                                   {
-                                    for ( m = *v95; m != 10; m = *++v33 )
+                                    for ( m = *v93; m != 10; m = *++v31 )
                                     {
                                       if ( m == 13 )
                                         break;
@@ -4410,36 +4263,36 @@ LABEL_197:
                                     }
                                     while ( 1 )
                                     {
-                                      v97 = *v33;
-                                      if ( (unsigned __int8)*v33 < 9u || (unsigned __int8)v97 > 0x20u || !v97 )
+                                      v95 = *v31;
+                                      if ( (unsigned __int8)*v31 < 9u || (unsigned __int8)v95 > 0x20u || !v95 )
                                         break;
-                                      ++v33;
+                                      ++v31;
                                     }
-                                    v98 = 0i64;
-                                    v99 = 0i64;
-                                    v100 = 0x7FFFFFFFi64;
+                                    v96 = 0i64;
+                                    v97 = 0i64;
+                                    v98 = 0x7FFFFFFFi64;
                                     do
                                     {
-                                      v101 = (unsigned __int8)name[v99];
-                                      v102 = v100;
-                                      v103 = (unsigned __int8)aNil[v99++];
-                                      --v100;
-                                      if ( !v102 )
+                                      v99 = (unsigned __int8)name[v97];
+                                      v100 = v98;
+                                      v101 = (unsigned __int8)aNil[v97++];
+                                      --v98;
+                                      if ( !v100 )
                                         break;
-                                      if ( v101 != v103 )
+                                      if ( v99 != v101 )
                                       {
-                                        v104 = v101 + 32;
+                                        v102 = v99 + 32;
+                                        if ( (unsigned int)(v99 - 65) > 0x19 )
+                                          v102 = v99;
+                                        v99 = v102;
+                                        v103 = v101 + 32;
                                         if ( (unsigned int)(v101 - 65) > 0x19 )
-                                          v104 = v101;
-                                        v101 = v104;
-                                        v105 = v103 + 32;
-                                        if ( (unsigned int)(v103 - 65) > 0x19 )
-                                          v105 = v103;
-                                        if ( v101 != v105 )
+                                          v103 = v101;
+                                        if ( v99 != v103 )
                                           goto LABEL_140;
                                       }
                                     }
-                                    while ( v101 );
+                                    while ( v99 );
                                     name[0] = 0;
                                     goto LABEL_140;
                                   }
@@ -4447,31 +4300,31 @@ LABEL_197:
                                 return 0i64;
                               }
                             }
-                            while ( v76 );
-                            v79 = 23i64;
-                            v80 = v33;
-                            if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                            while ( v74 );
+                            v77 = 23i64;
+                            v78 = v31;
+                            if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                               __debugbreak();
                             do
                             {
-                              v81 = v80[(_QWORD)v75];
-                              v82 = v79;
-                              v83 = *v80++;
-                              --v79;
-                              if ( !v82 )
+                              v79 = v78[(_QWORD)v73];
+                              v80 = v77;
+                              v81 = *v78++;
+                              --v77;
+                              if ( !v80 )
                                 break;
-                              if ( v81 != v83 )
+                              if ( v79 != v81 )
                               {
-                                Core_strcpy_truncate(dest, 0x80ui64, v33);
-                                v25 = "ent.v[ \"delay_max\" ] = ";
+                                Core_strcpy_truncate(dest, 0x80ui64, v31);
+                                v23 = "ent.v[ \"delay_max\" ] = ";
                                 goto LABEL_24;
                               }
                             }
-                            while ( v81 );
-                            if ( v33 != (char *)-23i64 )
+                            while ( v79 );
+                            if ( v31 != (char *)-23i64 )
                             {
-                              v33 = (char *)CG_ParseFloatFinish(v33 + 23, &v176);
-                              if ( v33 )
+                              v31 = (char *)CG_ParseFloatFinish(v31 + 23, &v162);
+                              if ( v31 )
                               {
                                 Com_PrintWarning(0, "WARNING: delay_max not supported on client side exploders: exploder with fxid of %s and exploder name of %s.", text, str);
                                 goto LABEL_100;
@@ -4480,31 +4333,31 @@ LABEL_197:
                             return 0i64;
                           }
                         }
-                        while ( v65 );
-                        v68 = 23i64;
-                        v69 = v33;
-                        if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                        while ( v63 );
+                        v66 = 23i64;
+                        v67 = v31;
+                        if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                           __debugbreak();
                         do
                         {
-                          v70 = v69[(_QWORD)v64];
-                          v71 = v68;
-                          v72 = *v69++;
-                          --v68;
-                          if ( !v71 )
+                          v68 = v67[(_QWORD)v62];
+                          v69 = v66;
+                          v70 = *v67++;
+                          --v66;
+                          if ( !v69 )
                             break;
-                          if ( v70 != v72 )
+                          if ( v68 != v70 )
                           {
-                            Core_strcpy_truncate(dest, 0x80ui64, v33);
-                            v25 = "ent.v[ \"delay_min\" ] = ";
+                            Core_strcpy_truncate(dest, 0x80ui64, v31);
+                            v23 = "ent.v[ \"delay_min\" ] = ";
                             goto LABEL_24;
                           }
                         }
-                        while ( v70 );
-                        if ( v33 != (char *)-23i64 )
+                        while ( v68 );
+                        if ( v31 != (char *)-23i64 )
                         {
-                          v33 = (char *)CG_ParseFloatFinish(v33 + 23, &v175);
-                          if ( v33 )
+                          v31 = (char *)CG_ParseFloatFinish(v31 + 23, &v161);
+                          if ( v31 )
                           {
                             Com_PrintWarning(0, "WARNING: delay_min not supported on client side exploders: exploder with fxid of %s and exploder name of %s.", text, str);
                             goto LABEL_84;
@@ -4513,30 +4366,30 @@ LABEL_197:
                         return 0i64;
                       }
                     }
-                    while ( v54 );
-                    v57 = v33;
-                    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                    while ( v52 );
+                    v55 = v31;
+                    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                       __debugbreak();
                     do
                     {
-                      v58 = v57[(_QWORD)v53];
-                      v59 = v50;
-                      v60 = *v57++;
-                      --v50;
-                      if ( !v59 )
+                      v56 = v55[(_QWORD)v51];
+                      v57 = v48;
+                      v58 = *v55++;
+                      --v48;
+                      if ( !v57 )
                         break;
-                      if ( v58 != v60 )
+                      if ( v56 != v58 )
                       {
-                        Core_strcpy_truncate(dest, 0x80ui64, v33);
-                        v25 = "ent.v[ \"repeat\" ] = ";
+                        Core_strcpy_truncate(dest, 0x80ui64, v31);
+                        v23 = "ent.v[ \"repeat\" ] = ";
                         goto LABEL_24;
                       }
                     }
-                    while ( v58 );
-                    if ( v33 != (char *)-20i64 )
+                    while ( v56 );
+                    if ( v31 != (char *)-20i64 )
                     {
-                      v33 = (char *)CG_ParseIntFinish(v33 + 20, &v174);
-                      if ( v33 )
+                      v31 = (char *)CG_ParseIntFinish(v31 + 20, &v160);
+                      if ( v31 )
                       {
                         Com_PrintWarning(0, "WARNING: repeat not supported on client side exploders: exploder with fxid of %s and exploder name of %s.", text, str);
                         goto LABEL_68;
@@ -4643,280 +4496,287 @@ CG_ParseIntervalSound
 */
 const char *CG_ParseIntervalSound(LocalClientNum_t localClientNum, const char *line)
 {
-  __int64 v6; 
-  const char *v7; 
+  __int64 v4; 
+  const char *v5; 
+  char v6; 
+  __int64 v7; 
   char v8; 
-  __int64 v9; 
+  char *v9; 
   char v10; 
-  char *v11; 
-  char v12; 
-  const char *v13; 
-  char *v14; 
-  __int64 v16; 
-  __int64 v17; 
-  char *v18; 
+  const char *v11; 
+  char *v12; 
+  __int64 v14; 
+  __int64 v15; 
+  char *v16; 
   char *i; 
-  char v20; 
+  char v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  char *v24; 
+  char *v22; 
+  char v23; 
+  __int64 v24; 
   char v25; 
-  __int64 v26; 
-  char v27; 
+  char *v26; 
+  const char *v27; 
   char *v28; 
-  const char *v29; 
-  char *v30; 
-  char *v31; 
+  char *v29; 
+  char v30; 
+  __int64 v31; 
   char v32; 
-  __int64 v33; 
-  char v34; 
-  const char *v35; 
-  char *v36; 
+  const char *v33; 
+  char *v34; 
+  char v35; 
+  __int64 v36; 
   char v37; 
-  __int64 v38; 
-  char v39; 
+  const char *v38; 
+  __int64 v39; 
   const char *v40; 
   __int64 v41; 
-  const char *v42; 
+  char v42; 
   __int64 v43; 
   char v44; 
-  __int64 v45; 
-  char v46; 
+  char *v45; 
+  const char *v46; 
   char *v47; 
-  const char *v48; 
-  char *v49; 
-  char *v50; 
+  char *v48; 
+  char v49; 
+  __int64 v50; 
   char v51; 
-  __int64 v52; 
-  char v53; 
-  char *v54; 
-  const char *v55; 
-  __int64 v56; 
-  char *v57; 
-  char *v58; 
+  char *v52; 
+  const char *v53; 
+  __int64 v54; 
+  char *v55; 
+  char *v56; 
+  char v57; 
+  __int64 v58; 
   char v59; 
-  __int64 v60; 
-  char v61; 
-  const char *v62; 
-  const char *v63; 
+  const char *v60; 
+  const char *v61; 
   char j; 
-  char v65; 
-  __int64 v66; 
+  char v63; 
+  __int64 v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  ClientEntIntervalSound *v68; 
+  float v69; 
+  float v70; 
+  float v71; 
   SndAliasList *Alias; 
-  char *fmt; 
-  __int64 v90; 
-  float v91; 
+  int v73; 
+  int v74; 
+  float v75; 
   float value; 
   vec3_t origin; 
   vec3_t angles; 
-  char v95[128]; 
+  char v79[128]; 
   char dest[128]; 
   char text[256]; 
 
-  v6 = 28i64;
-  v7 = line;
+  v4 = 28i64;
+  v5 = line;
   if ( !line && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
     __debugbreak();
   do
   {
-    v8 = v7["ent = createIntervalSound();" - line];
-    v9 = v6;
-    v10 = *v7++;
-    --v6;
-    if ( !v9 )
+    v6 = v5["ent = createIntervalSound();" - line];
+    v7 = v4;
+    v8 = *v5++;
+    --v4;
+    if ( !v7 )
       break;
-    if ( v8 != v10 )
+    if ( v6 != v8 )
     {
       Core_strcpy_truncate(dest, 0x80ui64, line);
-      v13 = "ent = createIntervalSound();";
-      v14 = dest;
+      v11 = "ent = createIntervalSound();";
+      v12 = dest;
 LABEL_13:
-      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", v14, v13);
+      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", v12, v11);
       return 0i64;
     }
   }
-  while ( v8 );
-  v11 = (char *)(line + 28);
+  while ( v6 );
+  v9 = (char *)(line + 28);
   if ( line != (const char *)-28i64 )
   {
     while ( 1 )
     {
-      v12 = *v11;
-      if ( (unsigned __int8)*v11 < 9u || (unsigned __int8)v12 > 0x20u || !v12 )
+      v10 = *v9;
+      if ( (unsigned __int8)*v9 < 9u || (unsigned __int8)v10 > 0x20u || !v10 )
         break;
-      ++v11;
+      ++v9;
     }
-    v16 = 27i64;
-    v17 = 27i64;
-    v18 = (char *)("ent set_origin_and_angles( " - v11);
-    for ( i = v11; ; v12 = *i )
+    v14 = 27i64;
+    v15 = 27i64;
+    v16 = (char *)("ent set_origin_and_angles( " - v9);
+    for ( i = v9; ; v10 = *i )
     {
-      v20 = i[(_QWORD)v18];
-      v21 = v17;
+      v18 = i[(_QWORD)v16];
+      v19 = v15;
       ++i;
-      --v17;
-      if ( !v21 )
+      --v15;
+      if ( !v19 )
       {
 LABEL_34:
-        v36 = v11;
+        v34 = v9;
         do
         {
-          v37 = v36[(_QWORD)v18];
-          v38 = v16;
-          v39 = *v36++;
-          --v16;
-          if ( !v38 )
+          v35 = v34[(_QWORD)v16];
+          v36 = v14;
+          v37 = *v34++;
+          --v14;
+          if ( !v36 )
             break;
-          if ( v37 != v39 )
+          if ( v35 != v37 )
           {
-            Core_strcpy_truncate(v95, 0x80ui64, v11);
-            v13 = "ent set_origin_and_angles( ";
-            v14 = v95;
+            Core_strcpy_truncate(v79, 0x80ui64, v9);
+            v11 = "ent set_origin_and_angles( ";
+            v12 = v79;
             goto LABEL_13;
           }
         }
-        while ( v37 );
-        if ( v11 == (char *)-27i64 )
+        while ( v35 );
+        if ( v9 == (char *)-27i64 )
           return 0i64;
-        v35 = CG_ParseVec3x2Finish(v11 + 27, &origin, &angles);
+        v33 = CG_ParseVec3x2Finish(v9 + 27, &origin, &angles);
         goto LABEL_40;
       }
-      if ( v20 != v12 )
+      if ( v18 != v10 )
         break;
-      if ( !v20 )
+      if ( !v18 )
         goto LABEL_34;
     }
-    v22 = 21i64;
-    v23 = 21i64;
-    v24 = v11;
+    v20 = 21i64;
+    v21 = 21i64;
+    v22 = v9;
     do
     {
-      v25 = v24["ent.v[ \"origin\" ] = (" - v11];
-      v26 = v23;
-      v27 = *v24++;
-      --v23;
-      if ( !v26 )
+      v23 = v22["ent.v[ \"origin\" ] = (" - v9];
+      v24 = v21;
+      v25 = *v22++;
+      --v21;
+      if ( !v24 )
         break;
-      if ( v25 != v27 )
+      if ( v23 != v25 )
       {
-        Core_strcpy_truncate(v95, 0x80ui64, v11);
-        v13 = "ent.v[ \"origin\" ] = (";
-        v14 = v95;
+        Core_strcpy_truncate(v79, 0x80ui64, v9);
+        v11 = "ent.v[ \"origin\" ] = (";
+        v12 = v79;
         goto LABEL_13;
       }
     }
-    while ( v25 );
-    if ( v11 == (char *)-21i64 )
+    while ( v23 );
+    if ( v9 == (char *)-21i64 )
       return 0i64;
-    v28 = (char *)CG_ParseVec3Finish(v11 + 21, &origin);
-    v29 = v28;
-    if ( !v28 )
+    v26 = (char *)CG_ParseVec3Finish(v9 + 21, &origin);
+    v27 = v26;
+    if ( !v26 )
       return 0i64;
-    v30 = v28;
-    v31 = (char *)("ent.v[ \"angles\" ] = (" - v28);
+    v28 = v26;
+    v29 = (char *)("ent.v[ \"angles\" ] = (" - v26);
     do
     {
-      v32 = v30[(_QWORD)v31];
-      v33 = v22;
-      v34 = *v30++;
-      --v22;
-      if ( !v33 )
+      v30 = v28[(_QWORD)v29];
+      v31 = v20;
+      v32 = *v28++;
+      --v20;
+      if ( !v31 )
         break;
-      if ( v32 != v34 )
+      if ( v30 != v32 )
       {
-        Core_strcpy_truncate(v95, 0x80ui64, v29);
-        v13 = "ent.v[ \"angles\" ] = (";
-        v14 = v95;
+        Core_strcpy_truncate(v79, 0x80ui64, v27);
+        v11 = "ent.v[ \"angles\" ] = (";
+        v12 = v79;
         goto LABEL_13;
       }
     }
-    while ( v32 );
-    if ( v29 == (const char *)-21i64 )
+    while ( v30 );
+    if ( v27 == (const char *)-21i64 )
       return 0i64;
-    v35 = CG_ParseVec3Finish(v29 + 21, &angles);
+    v33 = CG_ParseVec3Finish(v27 + 21, &angles);
 LABEL_40:
-    v40 = v35;
-    if ( v35 )
+    v38 = v33;
+    if ( v33 )
     {
+      v39 = 23i64;
+      v40 = v33;
       v41 = 23i64;
-      v42 = v35;
-      v43 = 23i64;
       do
       {
-        v44 = v42["ent.v[ \"delay_min\" ] = " - v40];
-        v45 = v43;
-        v46 = *v42++;
-        --v43;
-        if ( !v45 )
+        v42 = v40["ent.v[ \"delay_min\" ] = " - v38];
+        v43 = v41;
+        v44 = *v40++;
+        --v41;
+        if ( !v43 )
           break;
-        if ( v44 != v46 )
+        if ( v42 != v44 )
         {
-          Core_strcpy_truncate(v95, 0x80ui64, v40);
-          v13 = "ent.v[ \"delay_min\" ] = ";
-          v14 = v95;
+          Core_strcpy_truncate(v79, 0x80ui64, v38);
+          v11 = "ent.v[ \"delay_min\" ] = ";
+          v12 = v79;
           goto LABEL_13;
         }
       }
-      while ( v44 );
-      if ( v40 != (const char *)-23i64 )
+      while ( v42 );
+      if ( v38 != (const char *)-23i64 )
       {
-        v47 = (char *)CG_ParseFloatFinish(v40 + 23, &value);
-        v48 = v47;
-        if ( v47 )
+        v45 = (char *)CG_ParseFloatFinish(v38 + 23, &value);
+        v46 = v45;
+        if ( v45 )
         {
-          v49 = v47;
-          v50 = (char *)("ent.v[ \"delay_max\" ] = " - v47);
+          v47 = v45;
+          v48 = (char *)("ent.v[ \"delay_max\" ] = " - v45);
           do
           {
-            v51 = v49[(_QWORD)v50];
-            v52 = v41;
-            v53 = *v49++;
-            --v41;
-            if ( !v52 )
+            v49 = v47[(_QWORD)v48];
+            v50 = v39;
+            v51 = *v47++;
+            --v39;
+            if ( !v50 )
               break;
-            if ( v51 != v53 )
+            if ( v49 != v51 )
             {
-              Core_strcpy_truncate(v95, 0x80ui64, v48);
-              v13 = "ent.v[ \"delay_max\" ] = ";
-              v14 = v95;
+              Core_strcpy_truncate(v79, 0x80ui64, v46);
+              v11 = "ent.v[ \"delay_max\" ] = ";
+              v12 = v79;
               goto LABEL_13;
             }
           }
-          while ( v51 );
-          if ( v48 != (const char *)-23i64 )
+          while ( v49 );
+          if ( v46 != (const char *)-23i64 )
           {
-            v54 = (char *)CG_ParseFloatFinish(v48 + 23, &v91);
-            v55 = v54;
-            if ( v54 )
+            v52 = (char *)CG_ParseFloatFinish(v46 + 23, &v75);
+            v53 = v52;
+            if ( v52 )
             {
-              v56 = 24i64;
-              v57 = (char *)("ent.v[ \"soundalias\" ] = " - v54);
-              v58 = v54;
+              v54 = 24i64;
+              v55 = (char *)("ent.v[ \"soundalias\" ] = " - v52);
+              v56 = v52;
               do
               {
-                v59 = v58[(_QWORD)v57];
-                v60 = v56;
-                v61 = *v58++;
-                --v56;
-                if ( !v60 )
+                v57 = v56[(_QWORD)v55];
+                v58 = v54;
+                v59 = *v56++;
+                --v54;
+                if ( !v58 )
                   break;
-                if ( v59 != v61 )
+                if ( v57 != v59 )
                 {
-                  Core_strcpy_truncate(v95, 0x80ui64, v55);
-                  v13 = "ent.v[ \"soundalias\" ] = ";
-                  v14 = v95;
+                  Core_strcpy_truncate(v79, 0x80ui64, v53);
+                  v11 = "ent.v[ \"soundalias\" ] = ";
+                  v12 = v79;
                   goto LABEL_13;
                 }
               }
-              while ( v59 );
-              if ( v55 != (const char *)-24i64 )
+              while ( v57 );
+              if ( v53 != (const char *)-24i64 )
               {
-                v62 = CG_ParseString(v55 + 24, text, 0x100u);
-                v63 = v62;
-                if ( v62 )
+                v60 = CG_ParseString(v53 + 24, text, 0x100u);
+                v61 = v60;
+                if ( v60 )
                 {
-                  for ( j = *v62; j != 10; j = *++v63 )
+                  for ( j = *v60; j != 10; j = *++v61 )
                   {
                     if ( j == 13 )
                       break;
@@ -4925,77 +4785,46 @@ LABEL_40:
                   }
                   while ( 1 )
                   {
-                    v65 = *v63;
-                    if ( *v63 < 9u || (unsigned __int8)v65 > 0x20u || !v65 )
+                    v63 = *v61;
+                    if ( *v61 < 9u || (unsigned __int8)v63 > 0x20u || !v63 )
                       break;
-                    ++v63;
+                    ++v61;
                   }
                   if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNum) )
                   {
-                    v66 = s_clientEntIntervalSoundCount;
-                    __asm
-                    {
-                      vmovaps [rsp+2D0h+var_40], xmm6
-                      vmovaps [rsp+2D0h+var_50], xmm7
-                      vmovss  xmm6, [rsp+2D0h+var_290]
-                      vmovss  xmm7, [rsp+2D0h+value]
-                      vmovss  xmm1, dword ptr [rsp+2D0h+origin+4]
-                    }
+                    v64 = s_clientEntIntervalSoundCount;
+                    v65 = v75;
+                    v66 = value;
+                    v67 = origin.v[1];
                     if ( s_clientEntIntervalSoundCount == 128 )
                     {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rsp+2D0h+origin+8]
-                        vmovss  xmm3, dword ptr [rsp+2D0h+origin]
-                        vcvtss2sd xmm0, xmm0, xmm0
-                        vcvtss2sd xmm3, xmm3, xmm3
-                        vcvtss2sd xmm1, xmm1, xmm1
-                        vmovsd  [rsp+2D0h+var_2A8], xmm0
-                        vmovq   r9, xmm3
-                        vmovsd  [rsp+2D0h+fmt], xmm1
-                      }
-                      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent interval sounds.  Reduce sounds or increase MAX_CLIENT_ENT_INTERVAL_SOUNDS (%d).\n", text, _R9, fmt, v90, s_clientEntIntervalSoundCount);
+                      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent interval sounds.  Reduce sounds or increase MAX_CLIENT_ENT_INTERVAL_SOUNDS (%d).\n", text, origin.v[0], origin.v[1], origin.v[2], 128);
                     }
                     else
                     {
-                      __asm { vmovss  xmm0, dword ptr [rsp+2D0h+origin] }
                       ++s_clientEntIntervalSoundCount;
-                      _RDI = &s_clientEntIntervalSounds[v66];
-                      __asm
-                      {
-                        vmovss  dword ptr [rdi], xmm0
-                        vmovss  xmm0, dword ptr [rsp+2D0h+origin+8]
-                        vmovss  dword ptr [rdi+4], xmm1
-                        vmovss  xmm1, dword ptr [rsp+2D0h+angles]
-                        vmovss  dword ptr [rdi+8], xmm0
-                        vmovss  xmm0, dword ptr [rsp+2D0h+angles+4]
-                        vmovss  dword ptr [rdi+0Ch], xmm1
-                        vmovss  xmm1, dword ptr [rsp+2D0h+angles+8]
-                        vmovss  dword ptr [rdi+14h], xmm1
-                        vmovss  dword ptr [rdi+10h], xmm0
-                      }
+                      v68 = &s_clientEntIntervalSounds[v64];
+                      v68->origin.v[0] = origin.v[0];
+                      v69 = origin.v[2];
+                      v68->origin.v[1] = v67;
+                      v70 = angles.v[0];
+                      v68->origin.v[2] = v69;
+                      v71 = angles.v[1];
+                      v68->angles.v[0] = v70;
+                      v68->angles.v[2] = angles.v[2];
+                      v68->angles.v[1] = v71;
                       Alias = SND_FindAlias(text);
-                      __asm
-                      {
-                        vmulss  xmm0, xmm7, cs:__real@447a0000
-                        vmulss  xmm1, xmm6, cs:__real@447a0000
-                        vcvttss2si ecx, xmm1
-                      }
-                      _RDI->aliasList = Alias;
-                      __asm { vcvttss2si eax, xmm0 }
-                      _RDI->delayMinMS = _EAX;
-                      _RDI->delayMaxMS = _ECX;
-                      if ( _EAX >= _ECX )
-                        _RDI->delayMaxMS = _EAX + 1;
-                      _RDI->nextTime = 0;
-                    }
-                    __asm
-                    {
-                      vmovaps xmm6, [rsp+2D0h+var_40]
-                      vmovaps xmm7, [rsp+2D0h+var_50]
+                      v73 = (int)(float)(v65 * 1000.0);
+                      v68->aliasList = Alias;
+                      v74 = (int)(float)(v66 * 1000.0);
+                      v68->delayMinMS = v74;
+                      v68->delayMaxMS = v73;
+                      if ( v74 >= v73 )
+                        v68->delayMaxMS = v74 + 1;
+                      v68->nextTime = 0;
                     }
                   }
-                  return v63;
+                  return v61;
                 }
               }
             }
@@ -5014,215 +4843,219 @@ CG_ParseReactiveSound
 */
 const char *CG_ParseReactiveSound(LocalClientNum_t localClientNum, const char *line)
 {
-  __int64 v5; 
-  const char *v6; 
-  char v7; 
-  __int64 v8; 
-  char v9; 
-  char *v10; 
-  char v11; 
-  const char *v12; 
-  char *v13; 
+  __int64 v4; 
+  const char *v5; 
+  char v6; 
+  __int64 v7; 
+  char v8; 
+  char *v9; 
+  char v10; 
+  const char *v11; 
+  char *v12; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
-  char *v17; 
+  char *v16; 
   char *i; 
-  char v19; 
+  char v18; 
+  __int64 v19; 
   __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  char *v23; 
-  char v24; 
-  __int64 v25; 
-  char v26; 
-  char *v27; 
-  const char *v28; 
+  char *v22; 
+  char v23; 
+  __int64 v24; 
+  char v25; 
+  char *v26; 
+  const char *v27; 
+  char *v28; 
   char *v29; 
-  char *v30; 
-  char v31; 
-  __int64 v32; 
-  char v33; 
-  const char *v34; 
-  char *v35; 
-  char v36; 
-  __int64 v37; 
-  char v38; 
-  const char *v39; 
-  __int64 v40; 
-  const char *v41; 
-  char v42; 
-  __int64 v43; 
-  char v44; 
+  char v30; 
+  __int64 v31; 
+  char v32; 
+  const char *v33; 
+  char *v34; 
+  char v35; 
+  __int64 v36; 
+  char v37; 
+  const char *v38; 
+  __int64 v39; 
+  const char *v40; 
+  char v41; 
+  __int64 v42; 
+  char v43; 
+  const char *v44; 
   const char *v45; 
-  const char *v46; 
   char j; 
-  char v48; 
-  __int64 v49; 
+  char v47; 
+  __int64 v48; 
   char *k; 
-  char v51; 
+  char v50; 
+  const char *v52; 
   const char *v53; 
-  const char *v54; 
+  float v54; 
+  float v55; 
+  __int64 v56; 
+  float v57; 
+  float v58; 
+  float v59; 
   SndAliasList *Alias; 
-  char *fmt; 
-  __int64 v74; 
   float value; 
   vec3_t origin; 
   vec3_t angles; 
-  char v78[128]; 
+  char v64[128]; 
   char dest[128]; 
   char text[256]; 
 
-  v5 = 26i64;
-  v6 = line;
+  v4 = 26i64;
+  v5 = line;
   if ( !line && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
     __debugbreak();
   do
   {
-    v7 = v6["ent = createReactiveEnt();" - line];
-    v8 = v5;
-    v9 = *v6++;
-    --v5;
-    if ( !v8 )
+    v6 = v5["ent = createReactiveEnt();" - line];
+    v7 = v4;
+    v8 = *v5++;
+    --v4;
+    if ( !v7 )
       break;
-    if ( v7 != v9 )
+    if ( v6 != v8 )
     {
       Core_strcpy_truncate(dest, 0x80ui64, line);
-      v12 = "ent = createReactiveEnt();";
-      v13 = dest;
+      v11 = "ent = createReactiveEnt();";
+      v12 = dest;
 LABEL_13:
-      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", v13, v12);
+      Com_PrintError(1, "Unexpected text '%s' when trying to find '%s' in map's effect file\n", v12, v11);
       return 0i64;
     }
   }
-  while ( v7 );
-  v10 = (char *)(line + 26);
+  while ( v6 );
+  v9 = (char *)(line + 26);
   if ( line == (const char *)-26i64 )
     return 0i64;
   while ( 1 )
   {
-    v11 = *v10;
-    if ( (unsigned __int8)*v10 < 9u || (unsigned __int8)v11 > 0x20u || !v11 )
+    v10 = *v9;
+    if ( (unsigned __int8)*v9 < 9u || (unsigned __int8)v10 > 0x20u || !v10 )
       break;
-    ++v10;
+    ++v9;
   }
+  v14 = 27i64;
   v15 = 27i64;
-  v16 = 27i64;
-  v17 = (char *)("ent set_origin_and_angles( " - v10);
-  for ( i = v10; ; v11 = *i )
+  v16 = (char *)("ent set_origin_and_angles( " - v9);
+  for ( i = v9; ; v10 = *i )
   {
-    v19 = i[(_QWORD)v17];
-    v20 = v16;
+    v18 = i[(_QWORD)v16];
+    v19 = v15;
     ++i;
-    --v16;
-    if ( !v20 )
+    --v15;
+    if ( !v19 )
     {
 LABEL_34:
-      v35 = v10;
+      v34 = v9;
       do
       {
-        v36 = v35[(_QWORD)v17];
-        v37 = v15;
-        v38 = *v35++;
-        --v15;
-        if ( !v37 )
+        v35 = v34[(_QWORD)v16];
+        v36 = v14;
+        v37 = *v34++;
+        --v14;
+        if ( !v36 )
           break;
-        if ( v36 != v38 )
+        if ( v35 != v37 )
         {
-          Core_strcpy_truncate(v78, 0x80ui64, v10);
-          v12 = "ent set_origin_and_angles( ";
-          v13 = v78;
+          Core_strcpy_truncate(v64, 0x80ui64, v9);
+          v11 = "ent set_origin_and_angles( ";
+          v12 = v64;
           goto LABEL_13;
         }
       }
-      while ( v36 );
-      if ( v10 == (char *)-27i64 )
+      while ( v35 );
+      if ( v9 == (char *)-27i64 )
         return 0i64;
-      v34 = CG_ParseVec3x2Finish(v10 + 27, &origin, &angles);
+      v33 = CG_ParseVec3x2Finish(v9 + 27, &origin, &angles);
       goto LABEL_40;
     }
-    if ( v19 != v11 )
+    if ( v18 != v10 )
       break;
-    if ( !v19 )
+    if ( !v18 )
       goto LABEL_34;
   }
+  v20 = 21i64;
   v21 = 21i64;
-  v22 = 21i64;
-  v23 = v10;
+  v22 = v9;
   do
   {
-    v24 = v23["ent.v[ \"origin\" ] = (" - v10];
-    v25 = v22;
-    v26 = *v23++;
-    --v22;
-    if ( !v25 )
-      break;
-    if ( v24 != v26 )
-    {
-      Core_strcpy_truncate(v78, 0x80ui64, v10);
-      v12 = "ent.v[ \"origin\" ] = (";
-      v13 = v78;
-      goto LABEL_13;
-    }
-  }
-  while ( v24 );
-  if ( v10 == (char *)-21i64 )
-    return 0i64;
-  v27 = (char *)CG_ParseVec3Finish(v10 + 21, &origin);
-  v28 = v27;
-  if ( !v27 )
-    return 0i64;
-  v29 = v27;
-  v30 = (char *)("ent.v[ \"angles\" ] = (" - v27);
-  do
-  {
-    v31 = v29[(_QWORD)v30];
-    v32 = v21;
-    v33 = *v29++;
+    v23 = v22["ent.v[ \"origin\" ] = (" - v9];
+    v24 = v21;
+    v25 = *v22++;
     --v21;
-    if ( !v32 )
+    if ( !v24 )
       break;
-    if ( v31 != v33 )
+    if ( v23 != v25 )
     {
-      Core_strcpy_truncate(v78, 0x80ui64, v28);
-      v12 = "ent.v[ \"angles\" ] = (";
-      v13 = v78;
+      Core_strcpy_truncate(v64, 0x80ui64, v9);
+      v11 = "ent.v[ \"origin\" ] = (";
+      v12 = v64;
       goto LABEL_13;
     }
   }
-  while ( v31 );
-  if ( v28 == (const char *)-21i64 )
+  while ( v23 );
+  if ( v9 == (char *)-21i64 )
     return 0i64;
-  v34 = CG_ParseVec3Finish(v28 + 21, &angles);
-LABEL_40:
-  v39 = v34;
-  if ( !v34 )
+  v26 = (char *)CG_ParseVec3Finish(v9 + 21, &origin);
+  v27 = v26;
+  if ( !v26 )
     return 0i64;
-  v40 = 24i64;
-  v41 = v34;
+  v28 = v26;
+  v29 = (char *)("ent.v[ \"angles\" ] = (" - v26);
   do
   {
-    v42 = v41["ent.v[ \"soundalias\" ] = " - v39];
-    v43 = v40;
-    v44 = *v41++;
-    --v40;
-    if ( !v43 )
+    v30 = v28[(_QWORD)v29];
+    v31 = v20;
+    v32 = *v28++;
+    --v20;
+    if ( !v31 )
       break;
-    if ( v42 != v44 )
+    if ( v30 != v32 )
     {
-      Core_strcpy_truncate(v78, 0x80ui64, v39);
-      v12 = "ent.v[ \"soundalias\" ] = ";
-      v13 = v78;
+      Core_strcpy_truncate(v64, 0x80ui64, v27);
+      v11 = "ent.v[ \"angles\" ] = (";
+      v12 = v64;
       goto LABEL_13;
     }
   }
-  while ( v42 );
-  if ( v39 == (const char *)-24i64 )
+  while ( v30 );
+  if ( v27 == (const char *)-21i64 )
     return 0i64;
-  v45 = CG_ParseString(v39 + 24, text, 0x100u);
-  v46 = v45;
-  if ( !v45 )
+  v33 = CG_ParseVec3Finish(v27 + 21, &angles);
+LABEL_40:
+  v38 = v33;
+  if ( !v33 )
     return 0i64;
-  for ( j = *v45; j != 10; j = *++v46 )
+  v39 = 24i64;
+  v40 = v33;
+  do
+  {
+    v41 = v40["ent.v[ \"soundalias\" ] = " - v38];
+    v42 = v39;
+    v43 = *v40++;
+    --v39;
+    if ( !v42 )
+      break;
+    if ( v41 != v43 )
+    {
+      Core_strcpy_truncate(v64, 0x80ui64, v38);
+      v11 = "ent.v[ \"soundalias\" ] = ";
+      v12 = v64;
+      goto LABEL_13;
+    }
+  }
+  while ( v41 );
+  if ( v38 == (const char *)-24i64 )
+    return 0i64;
+  v44 = CG_ParseString(v38 + 24, text, 0x100u);
+  v45 = v44;
+  if ( !v44 )
+    return 0i64;
+  for ( j = *v44; j != 10; j = *++v45 )
   {
     if ( j == 13 )
       break;
@@ -5231,85 +5064,58 @@ LABEL_40:
   }
   while ( 1 )
   {
-    v48 = *v46;
-    if ( *v46 < 9u || (unsigned __int8)v48 > 0x20u || !v48 )
+    v47 = *v45;
+    if ( *v45 < 9u || (unsigned __int8)v47 > 0x20u || !v47 )
       break;
-    ++v46;
+    ++v45;
   }
-  v49 = 29i64;
-  for ( k = (char *)v46; ; v48 = *k )
+  v48 = 29i64;
+  for ( k = (char *)v45; ; v47 = *k )
   {
-    v51 = (k++)["ent.v[ \"reactive_radius\" ] = " - v46];
-    if ( !v49-- )
+    v50 = (k++)["ent.v[ \"reactive_radius\" ] = " - v45];
+    if ( !v48-- )
       break;
-    if ( v51 != v48 )
+    if ( v50 != v47 )
     {
-      Core_strcpy_truncate(v78, 0x80ui64, v46);
-      v12 = "ent.v[ \"reactive_radius\" ] = ";
-      v13 = v78;
+      Core_strcpy_truncate(v64, 0x80ui64, v45);
+      v11 = "ent.v[ \"reactive_radius\" ] = ";
+      v12 = v64;
       goto LABEL_13;
     }
-    if ( !v51 )
+    if ( !v50 )
       break;
   }
-  v53 = v46 + 29;
-  if ( !v53 )
+  v52 = v45 + 29;
+  if ( !v52 )
     return 0i64;
-  v54 = CG_ParseFloatFinish(v53, &value);
-  if ( !v54 )
+  v53 = CG_ParseFloatFinish(v52, &value);
+  if ( !v53 )
     return 0i64;
   if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNum) )
   {
-    __asm
-    {
-      vmovaps [rsp+2B0h+var_30], xmm6
-      vmovss  xmm6, [rsp+2B0h+value]
-      vmovss  xmm1, dword ptr [rsp+2B0h+origin+4]
-    }
+    v54 = value;
+    v55 = origin.v[1];
     if ( s_clientEntReactiveSoundCount == 128 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+2B0h+origin+8]
-        vmovss  xmm3, dword ptr [rsp+2B0h+origin]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+2B0h+var_288], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+2B0h+fmt], xmm1
-      }
-      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent reactive sounds.  Reduce sounds or increase MAX_CLIENT_ENT_REACTIVE_SOUNDS (%d).\n", text, _R9, fmt, v74, s_clientEntReactiveSoundCount);
-      __asm { vmovaps xmm6, [rsp+2B0h+var_30] }
-      return v54;
+      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent reactive sounds.  Reduce sounds or increase MAX_CLIENT_ENT_REACTIVE_SOUNDS (%d).\n", text, origin.v[0], origin.v[1], origin.v[2], 128);
+      return v53;
     }
-    __asm { vmovss  xmm0, dword ptr [rsp+2B0h+origin] }
-    _RBX = s_clientEntReactiveSoundCount;
-    _RSI = s_clientEntReactiveSounds;
-    ++s_clientEntReactiveSoundCount;
-    __asm
-    {
-      vmovss  dword ptr [rsi+rbx*8], xmm0
-      vmovss  xmm0, dword ptr [rsp+2B0h+origin+8]
-      vmovss  dword ptr [rsi+rbx*8+4], xmm1
-      vmovss  xmm1, dword ptr [rsp+2B0h+angles]
-      vmovss  dword ptr [rsi+rbx*8+8], xmm0
-      vmovss  xmm0, dword ptr [rsp+2B0h+angles+4]
-      vmovss  dword ptr [rsi+rbx*8+0Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+2B0h+angles+8]
-      vmovss  dword ptr [rsi+rbx*8+14h], xmm1
-      vmovss  dword ptr [rsi+rbx*8+10h], xmm0
-    }
+    v56 = s_clientEntReactiveSoundCount++;
+    s_clientEntReactiveSounds[v56].origin.v[0] = origin.v[0];
+    v57 = origin.v[2];
+    s_clientEntReactiveSounds[v56].origin.v[1] = v55;
+    v58 = angles.v[0];
+    s_clientEntReactiveSounds[v56].origin.v[2] = v57;
+    v59 = angles.v[1];
+    s_clientEntReactiveSounds[v56].angles.v[0] = v58;
+    s_clientEntReactiveSounds[v56].angles.v[2] = angles.v[2];
+    s_clientEntReactiveSounds[v56].angles.v[1] = v59;
     Alias = SND_FindAlias(text);
-    __asm
-    {
-      vmovss  dword ptr [rsi+rbx*8+20h], xmm6
-      vmovaps xmm6, [rsp+2B0h+var_30]
-    }
-    s_clientEntReactiveSounds[_RBX].aliasList = Alias;
-    s_clientEntReactiveSounds[_RBX].nextTime = 0;
+    s_clientEntReactiveSounds[v56].radius = v54;
+    s_clientEntReactiveSounds[v56].aliasList = Alias;
+    s_clientEntReactiveSounds[v56].nextTime = 0;
   }
-  return v54;
+  return v53;
 }
 
 /*
@@ -5362,13 +5168,16 @@ const char *CG_ParseSound(LocalClientNum_t localClientNum, const char *line)
   const char *v45; 
   char j; 
   char v47; 
+  float v48; 
+  __int64 v49; 
   SndAliasList *Alias; 
-  int v63; 
-  char *fmt; 
-  __int64 v66; 
+  float v51; 
+  float v52; 
+  __int64 v53; 
+  int v54; 
   vec3_t origin; 
   vec3_t angles; 
-  char v69[128]; 
+  char v57[128]; 
   char dest[128]; 
   char text[256]; 
 
@@ -5429,9 +5238,9 @@ LABEL_34:
           break;
         if ( v36 != v38 )
         {
-          Core_strcpy_truncate(v69, 0x80ui64, v10);
+          Core_strcpy_truncate(v57, 0x80ui64, v10);
           v12 = "ent set_origin_and_angles( ";
-          v13 = v69;
+          v13 = v57;
           goto LABEL_13;
         }
       }
@@ -5459,9 +5268,9 @@ LABEL_34:
       break;
     if ( v24 != v26 )
     {
-      Core_strcpy_truncate(v69, 0x80ui64, v10);
+      Core_strcpy_truncate(v57, 0x80ui64, v10);
       v12 = "ent.v[ \"origin\" ] = (";
-      v13 = v69;
+      v13 = v57;
       goto LABEL_13;
     }
   }
@@ -5484,9 +5293,9 @@ LABEL_34:
       break;
     if ( v31 != v33 )
     {
-      Core_strcpy_truncate(v69, 0x80ui64, v28);
+      Core_strcpy_truncate(v57, 0x80ui64, v28);
       v12 = "ent.v[ \"angles\" ] = (";
-      v13 = v69;
+      v13 = v57;
       goto LABEL_13;
     }
   }
@@ -5509,9 +5318,9 @@ LABEL_40:
       break;
     if ( v41 != v43 )
     {
-      Core_strcpy_truncate(v69, 0x80ui64, v39);
+      Core_strcpy_truncate(v57, 0x80ui64, v39);
       v12 = "ent.v[ \"soundalias\" ] = ";
-      v13 = v69;
+      v13 = v57;
       goto LABEL_13;
     }
   }
@@ -5538,51 +5347,27 @@ LABEL_40:
   }
   if ( ClStatic::IsFirstActiveGameLocalClient(&cls, localClientNum) )
   {
-    __asm { vmovss  xmm1, dword ptr [rsp+2A0h+origin+4] }
+    v48 = origin.v[1];
     if ( s_clientEntSoundCount == 1024 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+2A0h+origin+8]
-        vmovss  xmm3, dword ptr [rsp+2A0h+origin]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+2A0h+var_278], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+2A0h+fmt], xmm1
-      }
-      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", text, _R9, fmt, v66, s_clientEntSoundCount);
+      Com_PrintError(1, "Unable to add %s at [%.2f, %.2f, %.2f]-> Too many client ent sounds.  Reduce sounds or increase MAX_CLIENT_ENT_SOUNDS (%d).\n", text, origin.v[0], origin.v[1], origin.v[2], s_clientEntSoundCount);
       return v45;
     }
-    __asm { vmovss  xmm0, dword ptr [rsp+2A0h+origin] }
-    _RCX = 5i64 * s_clientEntSoundCount;
-    _RDI = s_clientEntSounds;
-    __asm
-    {
-      vmovss  dword ptr [rdi+rcx*8], xmm0
-      vmovss  xmm0, dword ptr [rsp+2A0h+origin+8]
-      vmovss  dword ptr [rdi+rcx*8+8], xmm0
-      vmovss  dword ptr [rdi+rcx*8+4], xmm1
-    }
+    v49 = s_clientEntSoundCount;
+    s_clientEntSounds[v49].origin.v[0] = origin.v[0];
+    s_clientEntSounds[v49].origin.v[2] = origin.v[2];
+    s_clientEntSounds[v49].origin.v[1] = v48;
     Alias = SND_FindAlias(text);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+2A0h+angles]
-      vmovss  xmm1, dword ptr [rsp+2A0h+angles+4]
-    }
-    _RDX = s_clientEntSoundCount;
-    v63 = s_clientEntSoundCount + 1;
-    s_clientEntSounds[_RDX].aliasList = Alias;
-    __asm
-    {
-      vmovss  dword ptr [rdi+rdx*8+18h], xmm0
-      vmovss  xmm0, dword ptr [rsp+2A0h+angles+8]
-      vmovss  dword ptr [rdi+rdx*8+20h], xmm0
-      vmovss  dword ptr [rdi+rdx*8+1Ch], xmm1
-    }
-    s_clientEntSounds[_RDX].active = 1;
-    s_clientEntSoundCount = v63;
+    v51 = angles.v[0];
+    v52 = angles.v[1];
+    v53 = s_clientEntSoundCount;
+    v54 = s_clientEntSoundCount + 1;
+    s_clientEntSounds[v53].aliasList = Alias;
+    s_clientEntSounds[v53].angles.v[0] = v51;
+    s_clientEntSounds[v53].angles.v[2] = angles.v[2];
+    s_clientEntSounds[v53].angles.v[1] = v52;
+    s_clientEntSounds[v53].active = 1;
+    s_clientEntSoundCount = v54;
   }
   return v45;
 }
@@ -5766,68 +5551,62 @@ void CG_RunExploder(LocalClientNum_t localClientNum, ClientExploder *pExploder, 
   __int64 v3; 
   int v6; 
   CgSoundSystem *SoundSystem; 
-  const char **p_aliasName; 
+  double v8; 
+  SndAliasList *aliasList; 
   int v10; 
   _DWORD *v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
   FXRegisteredDef def; 
-  float v18; 
+  float v16; 
   tmat33_t<vec3_t> axis; 
 
   v3 = localClientNum;
-  _RBX = pExploder;
   if ( !pExploder && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2005, ASSERT_TYPE_ASSERT, "(pExploder)", (const char *)&queryFormat, "pExploder") )
     __debugbreak();
-  v6 = _RBX->delay + startTime;
-  if ( _RBX->fxDef.m_particleSystemDef )
+  v6 = pExploder->delay + startTime;
+  if ( pExploder->fxDef.m_particleSystemDef )
   {
-    def.m_particleSystemDef = _RBX->fxDef.m_particleSystemDef;
-    AnglesToAxis(&_RBX->angles, &axis);
-    _RBX->effectHandle[v3] = FX_PlayOrientedEffect((LocalClientNum_t)v3, &def, v6, &_RBX->origin, &axis);
+    def.m_particleSystemDef = (const ParticleSystemDef *)pExploder->fxDef;
+    AnglesToAxis(&pExploder->angles, &axis);
+    pExploder->effectHandle[v3] = FX_PlayOrientedEffect((LocalClientNum_t)v3, &def, v6, &pExploder->origin, &axis);
   }
-  if ( _RBX->aliasList )
+  if ( pExploder->aliasList )
   {
     SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v3);
     if ( CG_Utils_TimeIsInThePast((LocalClientNum_t)v3, v6) )
     {
-      CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &_RBX->origin, _RBX->aliasList);
+      CgSoundSystem::PlaySoundAliasAsync(SoundSystem, 2046, &pExploder->origin, pExploder->aliasList);
     }
     else
     {
-      __asm { vmovsd  xmm0, qword ptr [rbx] }
-      p_aliasName = &_RBX->aliasList->aliasName;
+      v8 = *(double *)pExploder->origin.v;
+      aliasList = pExploder->aliasList;
       v10 = 0;
-      v18 = _RBX->origin.v[2];
+      v16 = pExploder->origin.v[2];
       v11 = &unk_150EC7748;
-      __asm { vmovsd  [rsp+88h+def.m_particleSystemDef], xmm0 }
+      *(double *)&def.m_particleSystemDef = v8;
       while ( *v11 )
       {
         ++v10;
         v11 += 8;
         if ( (__int64)v11 >= (__int64)&unk_150EC7F48 )
         {
-          Com_PrintError(1, "CG_AddPendingSoundAlias ran out of pending slots trying to add %s", *p_aliasName);
+          Com_PrintError(1, "CG_AddPendingSoundAlias ran out of pending slots trying to add %s", aliasList->aliasName);
           return;
         }
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+def.m_particleSystemDef]
-        vmovss  xmm1, dword ptr [rsp+88h+def.m_particleSystemDef+4]
-      }
-      _RAX = v10;
-      _RCX = &s_pendingExploderSounds;
-      _RAX *= 32i64;
+      v12 = *(float *)&def.m_particleSystemDef;
+      v13 = *((float *)&def.m_particleSystemDef + 1);
+      v14 = 8i64 * v10;
       s_bPendingExploderSounds = 1;
-      *(_DWORD *)((char *)&s_pendingExploderSounds + _RAX + 12) = 2046;
-      __asm
-      {
-        vmovss  dword ptr [rax+rcx], xmm0
-        vmovss  xmm0, [rsp+88h+var_50]
-        vmovss  dword ptr [rax+rcx+8], xmm0
-        vmovss  dword ptr [rax+rcx+4], xmm1
-      }
-      *(_QWORD *)((char *)&s_pendingExploderSounds + _RAX + 16) = p_aliasName;
-      *(_DWORD *)((char *)&s_pendingExploderSounds + _RAX + 24) = v6;
+      *(_DWORD *)((char *)&s_pendingExploderSounds + v14 * 4 + 12) = 2046;
+      s_pendingExploderSounds.v[v14] = v12;
+      s_pendingExploderSounds.v[v14 + 2] = v16;
+      s_pendingExploderSounds.v[v14 + 1] = v13;
+      *(_QWORD *)((char *)&s_pendingExploderSounds + v14 * 4 + 16) = aliasList;
+      *(_DWORD *)((char *)&s_pendingExploderSounds + v14 * 4 + 24) = v6;
     }
   }
 }
@@ -6033,10 +5812,7 @@ float CG_SpatialFX_GetRadius(const LocalClientNum_t localClientNum, unsigned int
   v3 = id;
   if ( id >= cm.mapEnts->clientSideEffects.oneshotEffectCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 187, ASSERT_TYPE_ASSERT, "(id < effectsData->oneshotEffectCount)", (const char *)&queryFormat, "id < effectsData->oneshotEffectCount") )
     __debugbreak();
-  _RAX = mapEnts->clientSideEffects.oneshotEffects;
-  _RCX = 56 * v3;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax+18h] }
-  return *(float *)&_XMM0;
+  return mapEnts->clientSideEffects.oneshotEffects[v3].radius;
 }
 
 /*
@@ -6067,27 +5843,19 @@ CG_SpatialReactiveEnt_IsValid
 */
 bool CG_SpatialReactiveEnt_IsValid(const ClientReactiveEntDef *const reactiveEntDef, unsigned int timeNext, unsigned int currentTime, const vec3_t *eventOrigin, const float eventRadius)
 {
-  if ( currentTime < timeNext )
-    return 0;
-  __asm
+  float v5; 
+  float v6; 
+  bool result; 
+
+  result = 0;
+  if ( currentTime >= timeNext )
   {
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm3, xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [r9+4]
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+8]
-    vmovss  xmm1, [rsp+eventRadius]
-    vaddss  xmm5, xmm1, dword ptr [rcx+30h]
-    vmulss  xmm0, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm5
-    vcomiss xmm4, xmm0
+    v5 = eventOrigin->v[1] - reactiveEntDef->origin.v[1];
+    v6 = eventOrigin->v[2] - reactiveEntDef->origin.v[2];
+    if ( (float)((float)((float)(v5 * v5) + (float)((float)(eventOrigin->v[0] - reactiveEntDef->origin.v[0]) * (float)(eventOrigin->v[0] - reactiveEntDef->origin.v[0]))) + (float)(v6 * v6)) <= (float)((float)(eventRadius + reactiveEntDef->radius) * (float)(eventRadius + reactiveEntDef->radius)) )
+      return 1;
   }
-  return currentTime <= timeNext;
+  return result;
 }
 
 /*
@@ -6191,12 +5959,14 @@ void CG_SpatialSound_GetOrigin(const LocalClientNum_t localClientNum, unsigned i
   MapEnts *mapEnts; 
   __int64 v5; 
   unsigned int intervalSoundCount; 
+  float *v; 
+  float v8; 
   __int64 v9; 
-  __int64 v12; 
+  ClientLoopSoundDef *loopSounds; 
+  __int64 v11; 
   unsigned int loopSoundCount; 
 
   mapEnts = cm.mapEnts;
-  _RSI = origin;
   v5 = id;
   if ( id >= cm.mapEnts->clientSideEffects.loopSoundCount + cm.mapEnts->clientSideEffects.intervalSoundCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 305, ASSERT_TYPE_ASSERT, "(id < ( effectsData->intervalSoundCount + effectsData->loopSoundCount ))", (const char *)&queryFormat, "id < ( effectsData->intervalSoundCount + effectsData->loopSoundCount )") )
     __debugbreak();
@@ -6207,24 +5977,23 @@ void CG_SpatialSound_GetOrigin(const LocalClientNum_t localClientNum, unsigned i
     if ( (unsigned int)v9 >= mapEnts->clientSideEffects.loopSoundCount )
     {
       loopSoundCount = mapEnts->clientSideEffects.loopSoundCount;
-      LODWORD(v12) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 314, ASSERT_TYPE_ASSERT, "(unsigned)( loopSoundIndex ) < (unsigned)( effectsData->loopSoundCount )", "loopSoundIndex doesn't index effectsData->loopSoundCount\n\t%i not in [0, %i)", v12, loopSoundCount) )
+      LODWORD(v11) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 314, ASSERT_TYPE_ASSERT, "(unsigned)( loopSoundIndex ) < (unsigned)( effectsData->loopSoundCount )", "loopSoundIndex doesn't index effectsData->loopSoundCount\n\t%i not in [0, %i)", v11, loopSoundCount) )
         __debugbreak();
     }
-    _RCX = mapEnts->clientSideEffects.loopSounds;
-    _RDX = 5 * v9;
-    _RSI->v[0] = _RCX[v9].origin.v[0];
-    _RSI->v[1] = _RCX[v9].origin.v[1];
-    __asm { vmovss  xmm0, dword ptr [rcx+rdx*8+8] }
+    loopSounds = mapEnts->clientSideEffects.loopSounds;
+    origin->v[0] = loopSounds[v9].origin.v[0];
+    origin->v[1] = loopSounds[v9].origin.v[1];
+    v8 = loopSounds[v9].origin.v[2];
   }
   else
   {
-    _RCX = mapEnts->clientSideEffects.intervalSounds[v5].origin.v;
-    _RSI->v[0] = *_RCX;
-    _RSI->v[1] = _RCX[1];
-    __asm { vmovss  xmm0, dword ptr [rcx+8] }
+    v = mapEnts->clientSideEffects.intervalSounds[v5].origin.v;
+    origin->v[0] = *v;
+    origin->v[1] = v[1];
+    v8 = v[2];
   }
-  __asm { vmovss  dword ptr [rsi+8], xmm0 }
+  origin->v[2] = v8;
 }
 
 /*
@@ -6235,39 +6004,39 @@ CG_SpatialSound_GetRadius
 float CG_SpatialSound_GetRadius(const LocalClientNum_t localClientNum, unsigned int id)
 {
   MapEnts *mapEnts; 
-  __int64 v4; 
+  __int64 v3; 
   unsigned int intervalSoundCount; 
   SndAliasList *aliasList; 
-  __int64 v7; 
-  __int64 v11; 
+  __int64 v6; 
+  SndAlias *head; 
+  __int64 v9; 
   unsigned int loopSoundCount; 
 
   mapEnts = cm.mapEnts;
-  v4 = id;
+  v3 = id;
   if ( id >= cm.mapEnts->clientSideEffects.loopSoundCount + cm.mapEnts->clientSideEffects.intervalSoundCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 323, ASSERT_TYPE_ASSERT, "(id < ( effectsData->intervalSoundCount + effectsData->loopSoundCount ))", (const char *)&queryFormat, "id < ( effectsData->intervalSoundCount + effectsData->loopSoundCount )") )
     __debugbreak();
   intervalSoundCount = mapEnts->clientSideEffects.intervalSoundCount;
-  if ( (unsigned int)v4 >= intervalSoundCount )
+  if ( (unsigned int)v3 >= intervalSoundCount )
   {
-    v7 = (unsigned int)v4 - intervalSoundCount;
-    if ( (unsigned int)v7 >= mapEnts->clientSideEffects.loopSoundCount )
+    v6 = (unsigned int)v3 - intervalSoundCount;
+    if ( (unsigned int)v6 >= mapEnts->clientSideEffects.loopSoundCount )
     {
       loopSoundCount = mapEnts->clientSideEffects.loopSoundCount;
-      LODWORD(v11) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 331, ASSERT_TYPE_ASSERT, "(unsigned)( loopSoundIndex ) < (unsigned)( effectsData->loopSoundCount )", "loopSoundIndex doesn't index effectsData->loopSoundCount\n\t%i not in [0, %i)", v11, loopSoundCount) )
+      LODWORD(v9) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 331, ASSERT_TYPE_ASSERT, "(unsigned)( loopSoundIndex ) < (unsigned)( effectsData->loopSoundCount )", "loopSoundIndex doesn't index effectsData->loopSoundCount\n\t%i not in [0, %i)", v9, loopSoundCount) )
         __debugbreak();
     }
-    aliasList = mapEnts->clientSideEffects.loopSounds[v7].aliasList;
+    aliasList = mapEnts->clientSideEffects.loopSounds[v6].aliasList;
   }
   else
   {
-    aliasList = mapEnts->clientSideEffects.intervalSounds[v4].aliasList;
+    aliasList = mapEnts->clientSideEffects.intervalSounds[v3].aliasList;
   }
-  if ( aliasList && (_RAX = aliasList->head) != NULL )
-    __asm { vmovss  xmm0, dword ptr [rax+68h] }
+  if ( aliasList && (head = aliasList->head) != NULL )
+    return head->distMax;
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -6290,13 +6059,14 @@ CG_UpdateClientSideSound
 */
 void CG_UpdateClientSideSound(LocalClientNum_t localClientNum, int index, const ClientEntSound *sound)
 {
-  int v5; 
+  int v3; 
   CgSoundSystem *SoundSystem; 
   SndAliasList *aliasList; 
-  char v14; 
-  char v15; 
+  SndAlias *head; 
+  float distMax; 
+  double v10; 
 
-  v5 = index + 2049;
+  v3 = index + 2049;
   if ( index + 2049 >= 3329 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1756, ASSERT_TYPE_ASSERT, "(soundClientEntIndex < ( ( ( ( 2048 ) ) ) + ( 1 ) ) + ( 1024 ) + ( 128 ) + ( 128 ))", (const char *)&queryFormat, "soundClientEntIndex < FIRST_CLIENT_ENT_SOUND + MAX_CLIENT_ENT_SOUNDS + MAX_CLIENT_ENT_REACTIVE_SOUNDS + MAX_CLIENT_ENT_INTERVAL_SOUNDS") )
     __debugbreak();
   SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
@@ -6305,22 +6075,13 @@ void CG_UpdateClientSideSound(LocalClientNum_t localClientNum, int index, const 
     aliasList = sound->aliasList;
     if ( aliasList )
     {
-      if ( aliasList->head )
+      head = aliasList->head;
+      if ( head )
       {
-        __asm
-        {
-          vmovaps [rsp+48h+var_18], xmm6
-          vmovss  xmm6, dword ptr [r8+68h]
-        }
-        *(double *)&_XMM0 = SND_DistSqToNearestListener(&sound->origin);
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm6
-          vcomiss xmm0, xmm1
-          vmovaps xmm6, [rsp+48h+var_18]
-        }
-        if ( v14 | v15 )
-          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, v5, &sound->origin, sound->aliasList);
+        distMax = head->distMax;
+        v10 = SND_DistSqToNearestListener(&sound->origin);
+        if ( *(float *)&v10 <= (float)(distMax * distMax) )
+          CgSoundSystem::PlaySoundAliasAsync(SoundSystem, v3, &sound->origin, sound->aliasList);
       }
     }
   }
@@ -6392,30 +6153,31 @@ CgClientSideEffectsSystem::CopySoundEntityOrientation
 void CgClientSideEffectsSystem::CopySoundEntityOrientation(CgClientSideEffectsSystem *this, int clientSoundEntIndex, vec3_t *origin_out, tmat33_t<vec3_t> *axis_out)
 {
   __int64 v5; 
+  float v8; 
   vec3_t *p_angles; 
-  int v12; 
+  int v10; 
+  unsigned int v11; 
+  float v12; 
+  int v13; 
+  int v14; 
   unsigned int v15; 
-  int v20; 
-  int v21; 
-  unsigned int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
+  int v16; 
+  int v17; 
+  int v18; 
   ClientSideTypeData data_out; 
 
   v5 = clientSoundEntIndex;
-  _RBX = origin_out;
   if ( !CgClientSideEffectsSystem::SystemEnabled(this) )
   {
 LABEL_2:
-    *(_QWORD *)_RBX->v = 0i64;
-    _RBX->v[2] = 0.0;
+    *(_QWORD *)origin_out->v = 0i64;
+    origin_out->v[2] = 0.0;
     AxisClear(axis_out);
     return;
   }
   if ( CG_CreateFx_HasBeenEnabled() )
   {
-    CG_CreateFx_CopySoundEntityOrientation(v5, _RBX, axis_out);
+    CG_CreateFx_CopySoundEntityOrientation(v5, origin_out, axis_out);
   }
   else
   {
@@ -6426,70 +6188,60 @@ LABEL_2:
       if ( (unsigned int)v5 >= this->m_activeSoundCount )
         goto LABEL_2;
       CgClientSideEffectsSystem::GetTypeData(this, this->m_activeSounds[v5].type, this->m_activeSounds[v5].index, &data_out);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+data_out.origin]
-        vmovss  xmm1, dword ptr [rsp+98h+data_out.origin+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rsp+98h+data_out.origin+8]
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v12 = data_out.origin.v[1];
+      origin_out->v[0] = data_out.origin.v[0];
+      v8 = data_out.origin.v[2];
+      origin_out->v[1] = v12;
       p_angles = &data_out.angles;
     }
     else if ( (int)v5 >= 1024 )
     {
-      v12 = v5 - 1024;
-      if ( v12 >= 128 )
+      v10 = v5 - 1024;
+      if ( v10 >= 128 )
       {
-        v15 = v12 - 128;
-        if ( v15 >= 0x80 )
+        v11 = v10 - 128;
+        if ( v11 >= 0x80 )
         {
-          v25 = 128;
-          v22 = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1747, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntIntervalSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntIntervalSounds )\n\t%i not in [0, %i)", v22, v25) )
+          v18 = 128;
+          v15 = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1747, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntIntervalSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntIntervalSounds )\n\t%i not in [0, %i)", v15, v18) )
             __debugbreak();
         }
-        _RDX = 0x140000000ui64;
-        _RCX = 6i64 * (int)v15;
-        _RBX->v[0] = s_clientEntIntervalSounds[v15].origin.v[0];
-        _RBX->v[1] = s_clientEntIntervalSounds[v15].origin.v[1];
-        __asm { vmovss  xmm0, dword ptr (rva s_clientEntIntervalSounds.origin+8)[rdx+rcx*8] }
-        p_angles = &s_clientEntIntervalSounds[v15].angles;
+        origin_out->v[0] = s_clientEntIntervalSounds[v11].origin.v[0];
+        origin_out->v[1] = s_clientEntIntervalSounds[v11].origin.v[1];
+        v8 = s_clientEntIntervalSounds[v11].origin.v[2];
+        p_angles = &s_clientEntIntervalSounds[v11].angles;
       }
       else
       {
-        if ( (unsigned int)v12 >= 0x80 )
+        if ( (unsigned int)v10 >= 0x80 )
         {
-          v24 = 128;
-          v21 = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1740, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntReactiveSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntReactiveSounds )\n\t%i not in [0, %i)", v21, v24) )
+          v17 = 128;
+          v14 = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1740, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntReactiveSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntReactiveSounds )\n\t%i not in [0, %i)", v14, v17) )
             __debugbreak();
         }
-        _RDX = 0x140000000ui64;
-        _RCX = 5i64 * v12;
-        _RBX->v[0] = s_clientEntReactiveSounds[v12].origin.v[0];
-        _RBX->v[1] = s_clientEntReactiveSounds[v12].origin.v[1];
-        __asm { vmovss  xmm0, dword ptr (rva s_clientEntReactiveSounds.origin+8)[rdx+rcx*8] }
-        p_angles = &s_clientEntReactiveSounds[v12].angles;
+        origin_out->v[0] = s_clientEntReactiveSounds[v10].origin.v[0];
+        origin_out->v[1] = s_clientEntReactiveSounds[v10].origin.v[1];
+        v8 = s_clientEntReactiveSounds[v10].origin.v[2];
+        p_angles = &s_clientEntReactiveSounds[v10].angles;
       }
     }
     else
     {
       if ( (unsigned int)v5 >= 0x400 )
       {
-        v23 = 1024;
-        v20 = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1730, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntSounds )\n\t%i not in [0, %i)", v20, v23) )
+        v16 = 1024;
+        v13 = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 1730, ASSERT_TYPE_ASSERT, "(unsigned)( clientSoundEntIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientEntSounds ) ) + 0 ) )", "clientSoundEntIndex doesn't index ARRAY_COUNT( s_clientEntSounds )\n\t%i not in [0, %i)", v13, v16) )
           __debugbreak();
       }
-      _RCX = 5 * v5;
-      _RDX = 0x140000000ui64;
-      _RBX->v[0] = s_clientEntSounds[v5].origin.v[0];
-      _RBX->v[1] = s_clientEntSounds[v5].origin.v[1];
-      __asm { vmovss  xmm0, dword ptr (rva s_clientEntSounds.origin+8)[rdx+rcx*8] }
+      origin_out->v[0] = s_clientEntSounds[v5].origin.v[0];
+      origin_out->v[1] = s_clientEntSounds[v5].origin.v[1];
+      v8 = s_clientEntSounds[v5].origin.v[2];
       p_angles = &s_clientEntSounds[v5].angles;
     }
-    __asm { vmovss  dword ptr [rbx+8], xmm0 }
+    origin_out->v[2] = v8;
     AnglesToAxis(p_angles, axis_out);
   }
 }
@@ -6501,129 +6253,163 @@ CgClientSideEffectsSystem::Draw3D
 */
 void CgClientSideEffectsSystem::Draw3D(CgClientSideEffectsSystem *this, const ScreenPlacement *const scrPlace)
 {
-  const char *v14; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  const char *v13; 
+  const dvar_t *v14; 
   const dvar_t *v15; 
-  const dvar_t *v16; 
   LocalClientNum_t m_localClientNum; 
   MapEnts *mapEnts; 
   cg_t *LocalClientGlobals; 
   unsigned int oneshotEffectCount; 
   unsigned int loopSoundCount; 
   unsigned int intervalSoundCount; 
-  unsigned int v23; 
-  int v24; 
-  unsigned int v25; 
+  unsigned int v22; 
+  int v23; 
+  unsigned int v24; 
   unsigned int *p_count; 
-  __int64 v27; 
+  __int64 v26; 
   unsigned int i; 
   __int64 j; 
   __int64 k; 
   unsigned int m; 
   unsigned int n; 
-  unsigned int v33; 
-  const char *v35; 
+  unsigned int v32; 
+  const char *v33; 
+  unsigned __int64 v34; 
+  __int64 v35; 
+  float v36; 
   const char *CurrentRootName; 
-  const char *v43; 
-  int v44; 
+  const char *v38; 
+  int v39; 
   const char *RootName; 
-  int v46; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
-  MapEnts *v51; 
+  int v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
+  MapEnts *v45; 
   unsigned int parentCount; 
-  int v53; 
-  __int64 v54; 
-  bool v55; 
-  MapEnts *v56; 
+  int v47; 
+  __int64 v48; 
+  bool v49; 
+  MapEnts *v50; 
   bool isSpatiallyActive; 
-  unsigned int v58; 
-  int v59; 
+  unsigned int v52; 
+  int v53; 
   unsigned __int16 *parents; 
-  const char **v61; 
-  const char *v62; 
-  int v63; 
+  const char **v55; 
+  const char *v56; 
+  int v57; 
+  MapEnts *v58; 
+  unsigned int v59; 
+  int v60; 
+  __int64 v61; 
+  __int64 v62; 
+  bool v63; 
   MapEnts *v64; 
-  unsigned int v65; 
-  int v66; 
-  __int64 v67; 
-  __int64 v68; 
-  bool v69; 
+  bool v65; 
+  unsigned int v66; 
+  int v67; 
+  unsigned __int16 *v68; 
+  int v69; 
   MapEnts *v70; 
-  bool v71; 
-  unsigned int v72; 
-  int v73; 
-  unsigned __int16 *v74; 
-  int v75; 
+  unsigned int v71; 
+  int v72; 
+  __int64 v73; 
+  __int64 v74; 
+  bool v75; 
   MapEnts *v76; 
-  unsigned int v77; 
-  int v78; 
-  __int64 v79; 
-  __int64 v80; 
-  bool v81; 
+  bool v77; 
+  unsigned int v78; 
+  int v79; 
+  unsigned __int16 *v80; 
+  unsigned int v81; 
   MapEnts *v82; 
-  bool v83; 
-  unsigned int v84; 
-  int v85; 
-  unsigned __int16 *v86; 
-  unsigned int v87; 
-  MapEnts *v88; 
-  unsigned int v89; 
-  int v90; 
-  MapEnts *v91; 
-  unsigned int v92; 
-  __int64 v93; 
+  unsigned int v83; 
+  int v84; 
+  MapEnts *v85; 
+  unsigned int v86; 
+  __int64 v87; 
+  int v88; 
+  const char **v89; 
+  const char *v90; 
+  unsigned int v91; 
+  MapEnts *v92; 
+  unsigned int v93; 
   int v94; 
-  const char **v95; 
+  unsigned __int64 v95; 
   const char *v96; 
-  unsigned int v97; 
-  MapEnts *v98; 
+  MapEnts *v97; 
+  const char *v98; 
   unsigned int v99; 
   int v100; 
-  unsigned __int64 v101; 
-  const char *v102; 
-  MapEnts *v103; 
-  const char *v104; 
-  unsigned int v105; 
-  int v106; 
-  unsigned __int16 *v107; 
-  unsigned int v109; 
-  bool v129; 
-  const char *v141; 
-  const char *v167; 
+  unsigned __int16 *v101; 
+  unsigned int v102; 
+  __int64 v103; 
+  unsigned __int64 v104; 
+  float v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  const char *v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  __int128 v115; 
+  const char *v119; 
   __int64 m_rootLookAt; 
-  const char *v188; 
-  const dvar_t *v191; 
-  const dvar_t *v192; 
-  MapEnts *v193; 
+  float v121; 
+  ClientRootDef *roots; 
+  __int64 v123; 
+  const char *v124; 
+  const dvar_t *v125; 
+  const dvar_t *v126; 
+  MapEnts *v127; 
   const SpatialPartition_Tree *oneshotEffectsTree; 
-  const dvar_t *v195; 
+  const dvar_t *v129; 
   const SpatialPartition_Tree *soundsSpatialTree; 
   const SpatialPartition_Tree *reactiveSpatialTree; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
   char *text; 
   __int64 type; 
   int rootIndex; 
-  int v206; 
-  bool v207; 
-  unsigned int v208; 
-  unsigned int v210; 
-  int v212; 
-  unsigned int v214; 
+  int v135; 
+  bool v136; 
+  unsigned int v137; 
+  float v138; 
+  unsigned int v139; 
+  float v140; 
+  int v141; 
+  float v142; 
+  unsigned int v143; 
   vec3_t start; 
   vec3_t out_pos; 
   vec3_t scrPlacea; 
   vec3_t end; 
-  vec3_t v219; 
-  vec3_t v220; 
-  vec3_t v221; 
+  vec3_t v148; 
+  vec3_t v149; 
+  vec3_t v150; 
+  __int128 v151; 
+  __int128 v152; 
+  __int128 v153; 
+  __int128 v154; 
+  __int128 v155; 
+  __int128 v156; 
+  __int128 v157; 
+  __int128 v158; 
+  __int128 v159; 
+  __int128 v160; 
 
   *(_QWORD *)scrPlacea.v = scrPlace;
-  _RSI = this;
   if ( CgClientSideEffectsSystem::SystemEnabled(this) )
   {
     if ( !CG_CreateFx_HasBeenEnabled() || cm.mapEnts->clientSideEffects.rootCount > 1 )
@@ -6632,64 +6418,64 @@ void CgClientSideEffectsSystem::Draw3D(CgClientSideEffectsSystem *this, const Sc
     {
       if ( !cls.m_activeGameMapName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 295, ASSERT_TYPE_ASSERT, "(m_activeGameMapName[0])", "%s\n\tRequested mapname before it was set", "m_activeGameMapName[0]") )
         __debugbreak();
-      v14 = SL_ConvertToStringSafe(cm.mapEnts->clientSideEffects.roots->path);
-      if ( v14 )
+      v13 = SL_ConvertToStringSafe(cm.mapEnts->clientSideEffects.roots->path);
+      if ( v13 )
       {
-        if ( *v14 && cls.m_activeGameMapName[0] && !I_strstr(v14, cls.m_activeGameMapName) )
+        if ( *v13 && cls.m_activeGameMapName[0] && !I_strstr(v13, cls.m_activeGameMapName) )
         {
 LABEL_12:
-          v15 = DCONST_DVARBOOL_cg_cfx_debug_effects;
+          v14 = DCONST_DVARBOOL_cg_cfx_debug_effects;
           if ( !DCONST_DVARBOOL_cg_cfx_debug_effects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_effects") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v14);
+          if ( v14->current.enabled )
+            goto LABEL_20;
+          v15 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
+          if ( !DCONST_DVARBOOL_cg_cfx_debug_sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_sounds") )
             __debugbreak();
           Dvar_CheckFrontendServerThread(v15);
           if ( v15->current.enabled )
-            goto LABEL_20;
-          v16 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
-          if ( !DCONST_DVARBOOL_cg_cfx_debug_sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_sounds") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v16);
-          if ( v16->current.enabled )
           {
 LABEL_20:
-            if ( !CgClientSideEffectsSystem::GetViewPos(_RSI, &out_pos) )
+            if ( !CgClientSideEffectsSystem::GetViewPos(this, &out_pos) )
               return;
-            m_localClientNum = _RSI->m_localClientNum;
+            m_localClientNum = this->m_localClientNum;
             mapEnts = cm.mapEnts;
-            __asm { vmovaps [rsp+1B0h+var_40], xmm6 }
+            v160 = v2;
             LocalClientGlobals = CG_GetLocalClientGlobals(m_localClientNum);
             oneshotEffectCount = mapEnts->clientSideEffects.oneshotEffectCount;
             loopSoundCount = mapEnts->clientSideEffects.loopSoundCount;
             intervalSoundCount = mapEnts->clientSideEffects.intervalSoundCount;
             *(_QWORD *)start.v = LocalClientGlobals;
-            v208 = oneshotEffectCount;
-            v23 = loopSoundCount + oneshotEffectCount;
-            v214 = loopSoundCount + oneshotEffectCount;
-            v24 = mapEnts->clientSideEffects.reactiveEntCount + oneshotEffectCount + intervalSoundCount + loopSoundCount;
-            v25 = oneshotEffectCount + intervalSoundCount + loopSoundCount;
-            v210 = v25;
-            v212 = v24;
-            if ( !_RSI->m_rootsParsed )
+            v137 = oneshotEffectCount;
+            v22 = loopSoundCount + oneshotEffectCount;
+            v143 = loopSoundCount + oneshotEffectCount;
+            v23 = mapEnts->clientSideEffects.reactiveEntCount + oneshotEffectCount + intervalSoundCount + loopSoundCount;
+            v24 = oneshotEffectCount + intervalSoundCount + loopSoundCount;
+            v139 = v24;
+            v141 = v23;
+            if ( !this->m_rootsParsed )
             {
               Com_Printf(14, "[CreateFx] Parsing compiled client-side effects data\n");
-              p_count = &_RSI->m_roots[0].count;
-              v27 = 1024i64;
+              p_count = &this->m_roots[0].count;
+              v26 = 1024i64;
               do
               {
                 *p_count = 0;
                 p_count += 16;
-                --v27;
+                --v26;
               }
-              while ( v27 );
+              while ( v26 );
               for ( i = 0; i < mapEnts->clientSideEffects.oneshotEffectCount; ++i )
-                CgClientSideEffectsSystem::ParseRootAddChild(_RSI, i, &mapEnts->clientSideEffects.oneshotEffects[i].origin, NormalSpace);
+                CgClientSideEffectsSystem::ParseRootAddChild(this, i, &mapEnts->clientSideEffects.oneshotEffects[i].origin, NormalSpace);
               for ( j = 0i64; (unsigned int)j < mapEnts->clientSideEffects.loopSoundCount; j = (unsigned int)(j + 1) )
-                CgClientSideEffectsSystem::ParseRootAddChild(_RSI, j + oneshotEffectCount, &mapEnts->clientSideEffects.loopSounds[j].origin, PhaseSpace);
+                CgClientSideEffectsSystem::ParseRootAddChild(this, j + oneshotEffectCount, &mapEnts->clientSideEffects.loopSounds[j].origin, PhaseSpace);
               for ( k = 0i64; (unsigned int)k < mapEnts->clientSideEffects.intervalSoundCount; k = (unsigned int)(k + 1) )
-                CgClientSideEffectsSystem::ParseRootAddChild(_RSI, k + v23, &mapEnts->clientSideEffects.intervalSounds[k].origin, (ClientSideEffectType)4);
+                CgClientSideEffectsSystem::ParseRootAddChild(this, k + v22, &mapEnts->clientSideEffects.intervalSounds[k].origin, (ClientSideEffectType)4);
               for ( m = 0; m < mapEnts->clientSideEffects.reactiveEntCount; ++m )
-                CgClientSideEffectsSystem::ParseRootAddChild(_RSI, m + v25, &mapEnts->clientSideEffects.reactiveEnts[m].origin, (ClientSideEffectType)5);
+                CgClientSideEffectsSystem::ParseRootAddChild(this, m + v24, &mapEnts->clientSideEffects.reactiveEnts[m].origin, (ClientSideEffectType)5);
               for ( n = 0; n < mapEnts->clientSideEffects.exploderCount; ++n )
-                CgClientSideEffectsSystem::ParseRootAddChild(_RSI, n + v24, &mapEnts->clientSideEffects.exploders[(unsigned __int64)n].origin, Count);
+                CgClientSideEffectsSystem::ParseRootAddChild(this, n + v23, &mapEnts->clientSideEffects.exploders[(unsigned __int64)n].origin, Count);
               Com_Printf(14, "[CreateFx] Totals\n");
               Com_Printf(14, "[CreateFx]  %5d oneshotEffects\n", mapEnts->clientSideEffects.oneshotEffectCount);
               Com_Printf(14, "[CreateFx]  %5d loopSounds\n", mapEnts->clientSideEffects.loopSoundCount);
@@ -6699,626 +6485,510 @@ LABEL_20:
               Com_Printf(14, "[CreateFx]  %5d roots\n", mapEnts->clientSideEffects.rootCount);
               if ( mapEnts->clientSideEffects.rootCount > 1 )
               {
-                v33 = 0;
-                __asm { vmovss  xmm6, cs:__real@3f800000 }
+                v32 = 0;
                 do
                 {
-                  v35 = SL_ConvertToStringSafe(mapEnts->clientSideEffects.roots[v33].path);
+                  v33 = SL_ConvertToStringSafe(mapEnts->clientSideEffects.roots[v32].path);
                   Com_Printf(14, "[CreateFx]\n");
-                  Com_Printf(14, "[CreateFx] Root %s\n", v35);
-                  if ( v33 < 0x400 )
+                  Com_Printf(14, "[CreateFx] Root %s\n", v33);
+                  if ( v32 < 0x400 )
                   {
-                    _R14 = (unsigned __int64)v33 << 6;
-                    if ( *(unsigned int *)((char *)&_RSI->m_roots[0].count + _R14) )
+                    v34 = (unsigned __int64)v32 << 6;
+                    v35 = *(unsigned int *)((char *)&this->m_roots[0].count + v34);
+                    if ( (_DWORD)v35 )
                     {
-                      __asm
-                      {
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm0, xmm0, rax
-                        vdivss  xmm1, xmm6, xmm0
-                        vmulss  xmm0, xmm1, dword ptr [r14+rsi+38B4h]
-                        vmovss  dword ptr [r14+rsi+38B4h], xmm0
-                        vmulss  xmm0, xmm1, dword ptr [r14+rsi+38B8h]
-                        vmovss  dword ptr [r14+rsi+38B8h], xmm0
-                        vmulss  xmm0, xmm1, dword ptr [r14+rsi+38BCh]
-                        vmovss  dword ptr [r14+rsi+38BCh], xmm0
-                      }
-                      Com_Printf(14, "[CreateFx]  %4d oneshotEffects\n", *(unsigned int *)((char *)&_RSI->m_roots[0].countPerType[1] + _R14));
-                      Com_Printf(14, "[CreateFx]  %4d loopSounds\n", *(unsigned int *)((char *)&_RSI->m_roots[0].countPerType[2] + _R14));
-                      Com_Printf(14, "[CreateFx]  %4d intervalSounds\n", *(unsigned int *)((char *)&_RSI->m_roots[0].countPerType[4] + _R14));
-                      Com_Printf(14, "[CreateFx]  %4d reactiveEnts\n", *(unsigned int *)((char *)&_RSI->m_roots[0].countPerType[5] + _R14));
-                      Com_Printf(14, "[CreateFx]  %4d exploders\n", *(unsigned int *)((char *)&_RSI->m_roots[0].countPerType[3] + _R14));
-                      Com_Printf(14, "[CreateFx]  %4d ALL\n", *(unsigned int *)((char *)&_RSI->m_roots[0].count + _R14));
+                      v36 = (float)v35;
+                      *(float *)((char *)this->m_roots[0].origin.v + v34) = (float)(1.0 / v36) * *(float *)((char *)this->m_roots[0].origin.v + v34);
+                      *(float *)((char *)&this->m_roots[0].origin.v[1] + v34) = (float)(1.0 / v36) * *(float *)((char *)&this->m_roots[0].origin.v[1] + v34);
+                      *(float *)((char *)&this->m_roots[0].origin.v[2] + v34) = (float)(1.0 / v36) * *(float *)((char *)&this->m_roots[0].origin.v[2] + v34);
+                      Com_Printf(14, "[CreateFx]  %4d oneshotEffects\n", *(unsigned int *)((char *)&this->m_roots[0].countPerType[1] + v34));
+                      Com_Printf(14, "[CreateFx]  %4d loopSounds\n", *(unsigned int *)((char *)&this->m_roots[0].countPerType[2] + v34));
+                      Com_Printf(14, "[CreateFx]  %4d intervalSounds\n", *(unsigned int *)((char *)&this->m_roots[0].countPerType[4] + v34));
+                      Com_Printf(14, "[CreateFx]  %4d reactiveEnts\n", *(unsigned int *)((char *)&this->m_roots[0].countPerType[5] + v34));
+                      Com_Printf(14, "[CreateFx]  %4d exploders\n", *(unsigned int *)((char *)&this->m_roots[0].countPerType[3] + v34));
+                      Com_Printf(14, "[CreateFx]  %4d ALL\n", *(unsigned int *)((char *)&this->m_roots[0].count + v34));
                     }
                   }
-                  ++v33;
+                  ++v32;
                 }
-                while ( v33 < mapEnts->clientSideEffects.rootCount );
+                while ( v32 < mapEnts->clientSideEffects.rootCount );
               }
-              _RSI->m_rootsParsed = 1;
+              this->m_rootsParsed = 1;
             }
-            v206 = -1;
+            v135 = -1;
             CurrentRootName = CG_CreateFx_GetCurrentRootName();
-            v43 = CurrentRootName;
+            v38 = CurrentRootName;
             if ( CurrentRootName && *CurrentRootName && mapEnts->clientSideEffects.rootCount > 1 )
             {
-              v44 = 0;
+              v39 = 0;
               while ( 1 )
               {
-                RootName = CG_CreateFx_GetRootName(&mapEnts->clientSideEffects.roots[v44]);
-                if ( !I_strncmp(RootName, v43, 0x7FFFFFFFui64) )
+                RootName = CG_CreateFx_GetRootName(&mapEnts->clientSideEffects.roots[v39]);
+                if ( !I_strncmp(RootName, v38, 0x7FFFFFFFui64) )
                   break;
-                if ( ++v44 >= mapEnts->clientSideEffects.rootCount )
-                  goto LABEL_48;
+                if ( ++v39 >= mapEnts->clientSideEffects.rootCount )
+                  goto LABEL_47;
               }
-              v46 = v44;
-              v206 = v44;
+              v41 = v39;
+              v135 = v39;
             }
             else
             {
-LABEL_48:
-              v46 = -1;
+LABEL_47:
+              v41 = -1;
             }
-            __asm { vmovss  xmm6, cs:__real@457a0000 }
-            v48 = 0i64;
-            v49 = v46;
+            v42 = 0i64;
+            v43 = v41;
             if ( mapEnts->clientSideEffects.oneshotEffectCount )
             {
-              v50 = v46;
+              v44 = v41;
               do
               {
-                if ( v50 == -1 )
-                  goto LABEL_62;
-                v51 = cm.mapEnts;
+                if ( v44 == -1 )
+                  goto LABEL_61;
+                v45 = cm.mapEnts;
                 parentCount = cm.mapEnts->clientSideEffects.parentCount;
                 if ( parentCount )
                 {
-                  if ( (unsigned int)v48 >= parentCount )
+                  if ( (unsigned int)v42 >= parentCount )
                   {
                     LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                    LODWORD(text) = v48;
+                    LODWORD(text) = v42;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                       __debugbreak();
                   }
-                  v53 = v51->clientSideEffects.parents[v48] ? v51->clientSideEffects.parents[v48] - 1 : -1;
+                  v47 = v45->clientSideEffects.parents[v42] ? v45->clientSideEffects.parents[v42] - 1 : -1;
                 }
                 else
                 {
-                  v53 = -1;
+                  v47 = -1;
                 }
-                v46 = v206;
-                if ( v53 != v206 )
+                v41 = v135;
+                if ( v47 != v135 )
                 {
-LABEL_62:
-                  v54 = (__int64)&mapEnts->clientSideEffects.oneshotEffects[(unsigned int)v48];
-                  v55 = ActiveSet::CheckActive(&_RSI->m_spatialFX, v48);
-                  v56 = cm.mapEnts;
-                  isSpatiallyActive = v55;
-                  v207 = v55;
-                  v58 = cm.mapEnts->clientSideEffects.parentCount;
-                  if ( v58 )
+LABEL_61:
+                  v48 = (__int64)&mapEnts->clientSideEffects.oneshotEffects[(unsigned int)v42];
+                  v49 = ActiveSet::CheckActive(&this->m_spatialFX, v42);
+                  v50 = cm.mapEnts;
+                  isSpatiallyActive = v49;
+                  v136 = v49;
+                  v52 = cm.mapEnts->clientSideEffects.parentCount;
+                  if ( v52 )
                   {
-                    if ( (unsigned int)v48 >= v58 )
+                    if ( (unsigned int)v42 >= v52 )
                     {
                       LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                      LODWORD(text) = v48;
+                      LODWORD(text) = v42;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                         __debugbreak();
-                      isSpatiallyActive = v207;
+                      isSpatiallyActive = v136;
                     }
-                    parents = v56->clientSideEffects.parents;
-                    if ( parents[v48] )
-                      v59 = parents[v48] - 1;
+                    parents = v50->clientSideEffects.parents;
+                    if ( parents[v42] )
+                      v53 = parents[v42] - 1;
                     else
-                      v59 = -1;
+                      v53 = -1;
                   }
                   else
                   {
-                    v59 = -1;
+                    v53 = -1;
                   }
-                  v61 = *(const char ***)(v54 + 32);
-                  if ( v61 )
-                    v62 = *v61;
+                  v55 = *(const char ***)(v48 + 32);
+                  if ( v55 )
+                    v56 = *v55;
                   else
-                    v62 = (char *)&queryFormat.fmt + 3;
-                  __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)_RSI->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v54, &out_pos, fmt, v62, (CreateFxEffectType)1, isSpatiallyActive, v59);
-                  v46 = v206;
+                    v56 = (char *)&queryFormat.fmt + 3;
+                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)this->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v48, &out_pos, 4000.0, v56, (CreateFxEffectType)1, isSpatiallyActive, v53);
+                  v41 = v135;
                 }
-                v48 = (unsigned int)(v48 + 1);
+                v42 = (unsigned int)(v42 + 1);
               }
-              while ( (unsigned int)v48 < mapEnts->clientSideEffects.oneshotEffectCount );
-              oneshotEffectCount = v208;
-              v23 = v214;
-              v49 = v46;
+              while ( (unsigned int)v42 < mapEnts->clientSideEffects.oneshotEffectCount );
+              oneshotEffectCount = v137;
+              v22 = v143;
+              v43 = v41;
             }
             if ( mapEnts->clientSideEffects.loopSoundCount )
             {
-              v63 = -oneshotEffectCount;
+              v57 = -oneshotEffectCount;
               do
               {
-                if ( v49 == -1 )
-                  goto LABEL_89;
-                v64 = cm.mapEnts;
-                v65 = cm.mapEnts->clientSideEffects.parentCount;
-                if ( v65 )
+                if ( v43 == -1 )
+                  goto LABEL_88;
+                v58 = cm.mapEnts;
+                v59 = cm.mapEnts->clientSideEffects.parentCount;
+                if ( v59 )
                 {
-                  if ( oneshotEffectCount >= v65 )
+                  if ( oneshotEffectCount >= v59 )
                   {
                     LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
                     LODWORD(text) = oneshotEffectCount;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                       __debugbreak();
                   }
-                  v66 = v64->clientSideEffects.parents[oneshotEffectCount] ? v64->clientSideEffects.parents[oneshotEffectCount] - 1 : -1;
+                  v60 = v58->clientSideEffects.parents[oneshotEffectCount] ? v58->clientSideEffects.parents[oneshotEffectCount] - 1 : -1;
                 }
                 else
                 {
-                  v66 = -1;
+                  v60 = -1;
                 }
-                if ( v66 != v46 )
+                if ( v60 != v41 )
                 {
-LABEL_89:
-                  v67 = v63 + oneshotEffectCount;
-                  v68 = (__int64)&mapEnts->clientSideEffects.loopSounds[v67];
-                  v69 = ActiveSet::CheckActive(&_RSI->m_spatialSound, v67);
-                  v70 = cm.mapEnts;
-                  v71 = v69;
-                  v72 = cm.mapEnts->clientSideEffects.parentCount;
-                  if ( v72 )
+LABEL_88:
+                  v61 = v57 + oneshotEffectCount;
+                  v62 = (__int64)&mapEnts->clientSideEffects.loopSounds[v61];
+                  v63 = ActiveSet::CheckActive(&this->m_spatialSound, v61);
+                  v64 = cm.mapEnts;
+                  v65 = v63;
+                  v66 = cm.mapEnts->clientSideEffects.parentCount;
+                  if ( v66 )
                   {
-                    if ( oneshotEffectCount >= v72 )
+                    if ( oneshotEffectCount >= v66 )
                     {
                       LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
                       LODWORD(text) = oneshotEffectCount;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                         __debugbreak();
                     }
-                    v74 = v70->clientSideEffects.parents;
-                    if ( v74[oneshotEffectCount] )
-                      v73 = v74[oneshotEffectCount] - 1;
+                    v68 = v64->clientSideEffects.parents;
+                    if ( v68[oneshotEffectCount] )
+                      v67 = v68[oneshotEffectCount] - 1;
                     else
-                      v73 = -1;
+                      v67 = -1;
                   }
                   else
                   {
-                    v73 = -1;
+                    v67 = -1;
                   }
-                  __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)_RSI->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v68, &out_pos, fmta, *(const char **)(v68 + 24), (CreateFxEffectType)2, v71, v73);
-                  v46 = v206;
+                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)this->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v62, &out_pos, 4000.0, *(const char **)(v62 + 24), (CreateFxEffectType)2, v65, v67);
+                  v41 = v135;
                 }
                 ++oneshotEffectCount;
-                v49 = v46;
+                v43 = v41;
               }
-              while ( v63 + oneshotEffectCount < mapEnts->clientSideEffects.loopSoundCount );
-              v23 = v214;
+              while ( v57 + oneshotEffectCount < mapEnts->clientSideEffects.loopSoundCount );
+              v22 = v143;
             }
             if ( mapEnts->clientSideEffects.intervalSoundCount )
             {
-              v75 = -v23;
+              v69 = -v22;
               do
               {
-                if ( v46 == -1 )
-                  goto LABEL_112;
-                v76 = cm.mapEnts;
-                v77 = cm.mapEnts->clientSideEffects.parentCount;
-                if ( v77 )
+                if ( v41 == -1 )
+                  goto LABEL_111;
+                v70 = cm.mapEnts;
+                v71 = cm.mapEnts->clientSideEffects.parentCount;
+                if ( v71 )
                 {
-                  if ( v23 >= v77 )
+                  if ( v22 >= v71 )
                   {
                     LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                    LODWORD(text) = v23;
+                    LODWORD(text) = v22;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                       __debugbreak();
                   }
-                  v78 = v76->clientSideEffects.parents[v23] ? v76->clientSideEffects.parents[v23] - 1 : -1;
+                  v72 = v70->clientSideEffects.parents[v22] ? v70->clientSideEffects.parents[v22] - 1 : -1;
                 }
                 else
                 {
-                  v78 = -1;
+                  v72 = -1;
                 }
-                if ( v78 != v46 )
+                if ( v72 != v41 )
                 {
-LABEL_112:
-                  v79 = v75 + v23;
-                  v80 = (__int64)&mapEnts->clientSideEffects.intervalSounds[v79];
-                  v81 = ActiveSet::CheckActive(&_RSI->m_spatialSound, v79 + mapEnts->clientSideEffects.loopSoundCount);
-                  v82 = cm.mapEnts;
-                  v83 = v81;
-                  v84 = cm.mapEnts->clientSideEffects.parentCount;
-                  if ( v84 )
+LABEL_111:
+                  v73 = v69 + v22;
+                  v74 = (__int64)&mapEnts->clientSideEffects.intervalSounds[v73];
+                  v75 = ActiveSet::CheckActive(&this->m_spatialSound, v73 + mapEnts->clientSideEffects.loopSoundCount);
+                  v76 = cm.mapEnts;
+                  v77 = v75;
+                  v78 = cm.mapEnts->clientSideEffects.parentCount;
+                  if ( v78 )
                   {
-                    if ( v23 >= v84 )
+                    if ( v22 >= v78 )
                     {
                       LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                      LODWORD(text) = v23;
+                      LODWORD(text) = v22;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                         __debugbreak();
                     }
-                    v86 = v82->clientSideEffects.parents;
-                    if ( v86[v23] )
-                      v85 = v86[v23] - 1;
+                    v80 = v76->clientSideEffects.parents;
+                    if ( v80[v22] )
+                      v79 = v80[v22] - 1;
                     else
-                      v85 = -1;
+                      v79 = -1;
                   }
                   else
                   {
-                    v85 = -1;
+                    v79 = -1;
                   }
-                  __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)_RSI->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v80, &out_pos, fmtb, *(const char **)(v80 + 24), Menu, v83, v85);
-                  v46 = v206;
+                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)this->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v74, &out_pos, 4000.0, *(const char **)(v74 + 24), Menu, v77, v79);
+                  v41 = v135;
                 }
-                ++v23;
+                ++v22;
               }
-              while ( v75 + v23 < mapEnts->clientSideEffects.intervalSoundCount );
+              while ( v69 + v22 < mapEnts->clientSideEffects.intervalSoundCount );
             }
             if ( mapEnts->clientSideEffects.reactiveEntCount )
             {
-              v87 = v210;
+              v81 = v139;
               do
               {
-                if ( v46 == -1 )
-                  goto LABEL_134;
-                v88 = cm.mapEnts;
-                v89 = cm.mapEnts->clientSideEffects.parentCount;
-                if ( v89 )
+                if ( v41 == -1 )
+                  goto LABEL_133;
+                v82 = cm.mapEnts;
+                v83 = cm.mapEnts->clientSideEffects.parentCount;
+                if ( v83 )
                 {
-                  if ( v87 >= v89 )
+                  if ( v81 >= v83 )
                   {
                     LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                    LODWORD(text) = v87;
+                    LODWORD(text) = v81;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                       __debugbreak();
                   }
-                  v90 = v88->clientSideEffects.parents[v87] ? v88->clientSideEffects.parents[v87] - 1 : -1;
+                  v84 = v82->clientSideEffects.parents[v81] ? v82->clientSideEffects.parents[v81] - 1 : -1;
                 }
                 else
                 {
-                  v90 = -1;
+                  v84 = -1;
                 }
-                if ( v90 != v46 )
+                if ( v84 != v41 )
                 {
-LABEL_134:
-                  v91 = cm.mapEnts;
-                  v92 = cm.mapEnts->clientSideEffects.parentCount;
-                  v93 = (__int64)&mapEnts->clientSideEffects.reactiveEnts[v87 - v210];
-                  if ( v92 )
+LABEL_133:
+                  v85 = cm.mapEnts;
+                  v86 = cm.mapEnts->clientSideEffects.parentCount;
+                  v87 = (__int64)&mapEnts->clientSideEffects.reactiveEnts[v81 - v139];
+                  if ( v86 )
                   {
-                    if ( v87 >= v92 )
+                    if ( v81 >= v86 )
                     {
                       LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                      LODWORD(text) = v87;
+                      LODWORD(text) = v81;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                         __debugbreak();
                     }
-                    if ( v91->clientSideEffects.parents[v87] )
-                      v94 = v91->clientSideEffects.parents[v87] - 1;
+                    if ( v85->clientSideEffects.parents[v81] )
+                      v88 = v85->clientSideEffects.parents[v81] - 1;
                     else
-                      v94 = -1;
+                      v88 = -1;
                   }
                   else
                   {
-                    v94 = -1;
+                    v88 = -1;
                   }
-                  v95 = *(const char ***)(v93 + 24);
-                  rootIndex = v94;
-                  if ( v95 )
-                    v96 = *v95;
+                  v89 = *(const char ***)(v87 + 24);
+                  rootIndex = v88;
+                  if ( v89 )
+                    v90 = *v89;
                   else
-                    v96 = *(const char **)(v93 + 32);
-                  __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)_RSI->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v93, &out_pos, fmtc, v96, (CreateFxEffectType)5, 1, rootIndex);
-                  v46 = v206;
+                    v90 = *(const char **)(v87 + 32);
+                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)this->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v87, &out_pos, 4000.0, v90, (CreateFxEffectType)5, 1, rootIndex);
+                  v41 = v135;
                 }
-                ++v87;
+                ++v81;
               }
-              while ( v87 - v210 < mapEnts->clientSideEffects.reactiveEntCount );
+              while ( v81 - v139 < mapEnts->clientSideEffects.reactiveEntCount );
             }
             if ( mapEnts->clientSideEffects.exploderCount )
             {
-              v97 = v212;
+              v91 = v141;
               do
               {
-                if ( v46 == -1 )
-                  goto LABEL_159;
-                v98 = cm.mapEnts;
-                v99 = cm.mapEnts->clientSideEffects.parentCount;
-                if ( v99 )
+                if ( v41 == -1 )
+                  goto LABEL_158;
+                v92 = cm.mapEnts;
+                v93 = cm.mapEnts->clientSideEffects.parentCount;
+                if ( v93 )
                 {
-                  if ( v97 >= v99 )
+                  if ( v91 >= v93 )
                   {
                     LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                    LODWORD(text) = v97;
+                    LODWORD(text) = v91;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                       __debugbreak();
                   }
-                  v100 = v98->clientSideEffects.parents[v97] ? v98->clientSideEffects.parents[v97] - 1 : -1;
+                  v94 = v92->clientSideEffects.parents[v91] ? v92->clientSideEffects.parents[v91] - 1 : -1;
                 }
                 else
                 {
-                  v100 = -1;
+                  v94 = -1;
                 }
-                if ( v100 != v46 )
+                if ( v94 != v41 )
                 {
-LABEL_159:
-                  v101 = (unsigned __int64)&mapEnts->clientSideEffects.exploders[(unsigned __int64)(v97 - v212)];
-                  v102 = SL_ConvertToStringSafe((scr_string_t)*(_DWORD *)(v101 + 56));
-                  v103 = cm.mapEnts;
-                  v104 = v102;
-                  v105 = cm.mapEnts->clientSideEffects.parentCount;
-                  if ( v105 )
+LABEL_158:
+                  v95 = (unsigned __int64)&mapEnts->clientSideEffects.exploders[(unsigned __int64)(v91 - v141)];
+                  v96 = SL_ConvertToStringSafe((scr_string_t)*(_DWORD *)(v95 + 56));
+                  v97 = cm.mapEnts;
+                  v98 = v96;
+                  v99 = cm.mapEnts->clientSideEffects.parentCount;
+                  if ( v99 )
                   {
-                    if ( v97 >= v105 )
+                    if ( v91 >= v99 )
                     {
                       LODWORD(type) = cm.mapEnts->clientSideEffects.parentCount;
-                      LODWORD(text) = v97;
+                      LODWORD(text) = v91;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2887, ASSERT_TYPE_ASSERT, "(unsigned)( parentIndex ) < (unsigned)( effectsData->parentCount )", "parentIndex doesn't index effectsData->parentCount\n\t%i not in [0, %i)", text, type) )
                         __debugbreak();
                     }
-                    v107 = v103->clientSideEffects.parents;
-                    if ( v107[v97] )
-                      v106 = v107[v97] - 1;
+                    v101 = v97->clientSideEffects.parents;
+                    if ( v101[v91] )
+                      v100 = v101[v91] - 1;
                     else
-                      v106 = -1;
+                      v100 = -1;
                   }
                   else
                   {
-                    v106 = -1;
+                    v100 = -1;
                   }
-                  __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)_RSI->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v101, &out_pos, fmtd, v104, (CreateFxEffectType)3, 1, v106);
-                  v46 = v206;
+                  CG_CreateFx_Draw3DEmitter((const LocalClientNum_t)this->m_localClientNum, *(const ScreenPlacement *const *)scrPlacea.v, (const vec3_t *)v95, &out_pos, 4000.0, v98, (CreateFxEffectType)3, 1, v100);
+                  v41 = v135;
                 }
-                ++v97;
+                ++v91;
               }
-              while ( v97 - v212 < mapEnts->clientSideEffects.exploderCount );
+              while ( v91 - v141 < mapEnts->clientSideEffects.exploderCount );
             }
-            _RSI->m_rootLookAt = -1;
+            this->m_rootLookAt = -1;
             if ( mapEnts->clientSideEffects.rootCount > 1 )
             {
-              _RCX = *(_QWORD *)start.v;
-              v109 = 0;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rcx+6944h]
-                vmovss  [rsp+1B0h+var_154], xmm0
-                vmovss  xmm0, dword ptr [rcx+6948h]
-                vmovss  [rsp+1B0h+var_150], xmm0
-                vmovss  xmm0, dword ptr [rcx+694Ch]
-                vmovss  [rsp+1B0h+var_158], xmm0
-                vmovaps [rsp+1B0h+var_90], xmm11
-                vmovaps [rsp+1B0h+var_A0], xmm12
-                vmovss  xmm12, cs:__real@45fa0000
-                vmovaps [rsp+1B0h+var_B0], xmm13
-                vmovss  xmm13, cs:__real@48742400
-                vmovaps [rsp+1B0h+var_C0], xmm14
-                vmovss  xmm14, cs:__real@41200000
-                vmovaps [rsp+1B0h+var_D0], xmm15
-                vmovss  xmm15, cs:__real@3e800000
-                vmovaps [rsp+1B0h+var_50], xmm7
-                vmovaps [rsp+1B0h+var_60], xmm8
-                vmovaps [rsp+1B0h+var_70], xmm9
-                vmovaps [rsp+1B0h+var_80], xmm10
-                vxorps  xmm11, xmm11, xmm11
-              }
+              v102 = 0;
+              v140 = *(float *)(*(_QWORD *)start.v + 26948i64);
+              v142 = *(float *)(*(_QWORD *)start.v + 26952i64);
+              v138 = *(float *)(*(_QWORD *)start.v + 26956i64);
+              v155 = v7;
+              v154 = v8;
+              v153 = v9;
+              v152 = v10;
+              v151 = v11;
+              v159 = v3;
+              v158 = v4;
+              v157 = v5;
+              v156 = v6;
               do
               {
-                _RBX = &mapEnts->clientSideEffects.roots[v109].path;
-                if ( v109 >= 0x400 )
+                v103 = (__int64)&mapEnts->clientSideEffects.roots[v102];
+                if ( v102 >= 0x400 )
                 {
-                  __asm
-                  {
-                    vmovss  xmm4, dword ptr [rbx+4]
-                    vmovss  dword ptr [rsp+1B0h+start], xmm4
-                    vmovss  xmm5, dword ptr [rbx+8]
-                    vmovss  dword ptr [rsp+1B0h+start+4], xmm5
-                    vmovss  xmm6, dword ptr [rbx+0Ch]
-                  }
+                  v108 = *(float *)(v103 + 4);
+                  start.v[0] = v108;
+                  v109 = *(float *)(v103 + 8);
+                  start.v[1] = v109;
+                  v105 = *(float *)(v103 + 12);
                 }
                 else
                 {
-                  _RCX = (unsigned __int64)v109 << 6;
-                  _RAX = (v109 + 227i64) << 6;
-                  __asm
-                  {
-                    vmovss  xmm6, dword ptr [rcx+rsi+38BCh]
-                    vmovss  xmm0, dword ptr [rax+rsi]
-                    vmovss  xmm3, dword ptr [rcx+rsi+38C4h]
-                    vmovss  xmm1, dword ptr [rcx+rsi+38D0h]
-                    vmovss  xmm4, dword ptr [rcx+rsi+38B4h]
-                    vmovss  xmm5, dword ptr [rcx+rsi+38B8h]
-                    vmovss  dword ptr [rbp+0B0h+var_F8], xmm0
-                    vmovss  dword ptr [rbp+0B0h+scrPlace], xmm0
-                    vmovss  xmm0, dword ptr [rcx+rsi+38CCh]
-                    vmovss  dword ptr [rbp+0B0h+var_108], xmm0
-                    vmovss  dword ptr [rbp+0B0h+var_E8], xmm0
-                    vmovss  dword ptr [rsp+1B0h+start], xmm4
-                    vmovss  dword ptr [rsp+1B0h+start+4], xmm5
-                    vmovss  dword ptr [rbp+0B0h+var_F8+4], xmm3
-                    vmovss  dword ptr [rbp+0B0h+var_F8+8], xmm6
-                    vmovss  dword ptr [rbp+0B0h+scrPlace+4], xmm1
-                    vmovss  [rbp+0B0h+var_120], xmm6
-                    vmovss  dword ptr [rbp+0B0h+var_108+4], xmm1
-                    vmovss  dword ptr [rbp+0B0h+var_108+8], xmm6
-                    vmovss  dword ptr [rbp+0B0h+var_E8+4], xmm3
-                    vmovss  dword ptr [rbp+0B0h+var_E8+8], xmm6
-                  }
+                  v104 = (unsigned __int64)v102 << 6;
+                  v105 = *(float *)((char *)&this->m_roots[0].origin.v[2] + v104);
+                  v106 = *(float *)((char *)&this->m_roots[0].bounds.mins.v[1] + v104);
+                  v107 = *(float *)((char *)&this->m_roots[0].bounds.maxs.v[1] + v104);
+                  v108 = *(float *)((char *)this->m_roots[0].origin.v + v104);
+                  v109 = *(float *)((char *)&this->m_roots[0].origin.v[1] + v104);
+                  v149.v[0] = this->m_roots[v102].bounds.mins.v[0];
+                  scrPlacea.v[0] = v149.v[0];
+                  v148.v[0] = *(float *)((char *)this->m_roots[0].bounds.maxs.v + v104);
+                  v150.v[0] = v148.v[0];
+                  start.v[0] = v108;
+                  start.v[1] = v109;
+                  v149.v[1] = v106;
+                  v149.v[2] = v105;
+                  scrPlacea.v[1] = v107;
+                  scrPlacea.v[2] = v105;
+                  v148.v[1] = v107;
+                  v148.v[2] = v105;
+                  v150.v[1] = v106;
+                  v150.v[2] = v105;
                 }
-                __asm
-                {
-                  vaddss  xmm0, xmm6, xmm12
-                  vmovss  dword ptr [rbp+0B0h+end+8], xmm0
-                  vmovss  dword ptr [rsp+1B0h+start+8], xmm6
-                  vmovss  dword ptr [rbp+0B0h+end], xmm4
-                  vmovss  dword ptr [rbp+0B0h+end+4], xmm5
-                }
+                end.v[2] = v105 + 8000.0;
+                start.v[2] = v105;
+                end.v[0] = v108;
+                end.v[1] = v109;
                 CG_DebugLine(&start, &end, &colorCyan, 0, 0);
-                v129 = v109 < 0x400;
-                if ( v109 < 0x400 )
+                if ( v102 < 0x400 )
                 {
-                  CG_DebugLine(&v220, &scrPlacea, &colorCyan, 0, 0);
-                  CG_DebugLine(&scrPlacea, &v219, &colorCyan, 0, 0);
-                  CG_DebugLine(&v219, &v221, &colorCyan, 0, 0);
-                  CG_DebugLine(&v221, &v220, &colorCyan, 0, 0);
+                  CG_DebugLine(&v149, &scrPlacea, &colorCyan, 0, 0);
+                  CG_DebugLine(&scrPlacea, &v148, &colorCyan, 0, 0);
+                  CG_DebugLine(&v148, &v150, &colorCyan, 0, 0);
+                  CG_DebugLine(&v150, &v149, &colorCyan, 0, 0);
                 }
-                __asm
+                v110 = (float)((float)((float)(start.v[1] - out_pos.v[1]) * (float)(start.v[1] - out_pos.v[1])) + (float)((float)(start.v[0] - out_pos.v[0]) * (float)(start.v[0] - out_pos.v[0]))) + (float)((float)(start.v[2] - out_pos.v[2]) * (float)(start.v[2] - out_pos.v[2]));
+                if ( v110 < 16000000.0 )
                 {
-                  vmovss  xmm0, dword ptr [rsp+1B0h+start]
-                  vsubss  xmm3, xmm0, dword ptr [rsp+1B0h+out_pos]
-                  vmovss  xmm1, dword ptr [rsp+1B0h+start+4]
-                  vmovss  xmm0, dword ptr [rsp+1B0h+start+8]
-                  vsubss  xmm2, xmm1, dword ptr [rsp+1B0h+out_pos+4]
-                  vsubss  xmm4, xmm0, dword ptr [rbp+0B0h+out_pos+8]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm6, xmm3, xmm0
-                  vcomiss xmm6, cs:__real@4b742400
-                }
-                if ( v129 )
-                {
-                  v141 = SL_ConvertToStringSafe(*_RBX);
-                  __asm
+                  v111 = SL_ConvertToStringSafe((scr_string_t)*(_DWORD *)v103);
+                  v112 = start.v[2];
+                  v113 = start.v[1];
+                  v114 = start.v[0];
+                  if ( v110 < 250000.0 && (this->m_rootLookAt == -1 || v110 < 0.0) )
                   {
-                    vcomiss xmm6, xmm13
-                    vmovss  xmm8, dword ptr [rsp+1B0h+start+8]
-                    vmovss  xmm9, dword ptr [rsp+1B0h+start+4]
-                    vmovss  xmm10, dword ptr [rsp+1B0h+start]
-                  }
-                  if ( v129 )
-                  {
-                    if ( _RSI->m_rootLookAt == -1 )
-                      goto LABEL_181;
-                    __asm { vcomiss xmm6, xmm11 }
-                    if ( _RSI->m_rootLookAt != -1 )
+                    v115 = LODWORD(start.v[1]);
+                    *(float *)&v115 = fsqrt((float)((float)((float)(start.v[1] - out_pos.v[1]) * (float)(start.v[1] - out_pos.v[1])) + (float)((float)(start.v[0] - out_pos.v[0]) * (float)(start.v[0] - out_pos.v[0]))) + (float)((float)(start.v[2] - out_pos.v[2]) * (float)(start.v[2] - out_pos.v[2])));
+                    _XMM3 = v115;
+                    __asm
                     {
-LABEL_181:
-                      __asm
-                      {
-                        vsubss  xmm4, xmm9, dword ptr [rsp+1B0h+out_pos+4]
-                        vsubss  xmm6, xmm10, dword ptr [rsp+1B0h+out_pos]
-                        vsubss  xmm7, xmm8, dword ptr [rbp+0B0h+out_pos+8]
-                        vmulss  xmm1, xmm4, xmm4
-                        vmulss  xmm0, xmm6, xmm6
-                        vaddss  xmm2, xmm1, xmm0
-                        vmulss  xmm1, xmm7, xmm7
-                        vaddss  xmm2, xmm2, xmm1
-                        vmovss  xmm1, cs:__real@3f800000
-                        vsqrtss xmm3, xmm2, xmm2
-                        vcmpless xmm0, xmm3, cs:__real@80000000
-                        vblendvps xmm0, xmm3, xmm1, xmm0
-                        vdivss  xmm5, xmm1, xmm0
-                        vmulss  xmm0, xmm4, xmm5
-                        vmulss  xmm3, xmm0, [rsp+1B0h+var_150]
-                        vmulss  xmm1, xmm6, xmm5
-                        vmulss  xmm2, xmm1, [rsp+1B0h+var_154]
-                        vmulss  xmm0, xmm7, xmm5
-                        vmulss  xmm1, xmm0, [rsp+1B0h+var_158]
-                        vaddss  xmm4, xmm3, xmm2
-                        vaddss  xmm2, xmm4, xmm1
-                        vcomiss xmm2, cs:__real@3f666666
-                      }
+                      vcmpless xmm0, xmm3, cs:__real@80000000
+                      vblendvps xmm0, xmm3, xmm1, xmm0
                     }
+                    if ( (float)((float)((float)((float)((float)(start.v[1] - out_pos.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * v142) + (float)((float)((float)(start.v[0] - out_pos.v[0]) * (float)(1.0 / *(float *)&_XMM0)) * v140)) + (float)((float)((float)(start.v[2] - out_pos.v[2]) * (float)(1.0 / *(float *)&_XMM0)) * v138)) > 0.89999998 )
+                      this->m_rootLookAt = v102;
                   }
-                  __asm
-                  {
-                    vsubss  xmm0, xmm8, xmm14
-                    vmovss  dword ptr [rbp+0B0h+end+8], xmm0
-                    vmovss  dword ptr [rbp+0B0h+end], xmm10
-                    vmovss  dword ptr [rbp+0B0h+end+4], xmm9
-                  }
-                  v167 = j_va((const char *)&queryFormat, v141);
-                  __asm { vmovaps xmm2, xmm15; scale }
-                  CL_AddDebugStringCentered(&end, &colorCyan, *(float *)&_XMM2, v167, 0, 0);
+                  end.v[2] = v112 - 10.0;
+                  end.v[0] = v114;
+                  end.v[1] = v113;
+                  v119 = j_va((const char *)&queryFormat, v111);
+                  CL_AddDebugStringCentered(&end, &colorCyan, 0.25, v119, 0, 0);
                 }
-                ++v109;
+                ++v102;
               }
-              while ( v109 < mapEnts->clientSideEffects.rootCount );
-              m_rootLookAt = _RSI->m_rootLookAt;
-              __asm
-              {
-                vmovaps xmm15, [rsp+1B0h+var_D0]
-                vmovaps xmm14, [rsp+1B0h+var_C0]
-                vmovaps xmm13, [rsp+1B0h+var_B0]
-                vmovaps xmm12, [rsp+1B0h+var_A0]
-                vmovaps xmm11, [rsp+1B0h+var_90]
-                vmovaps xmm10, [rsp+1B0h+var_80]
-                vmovaps xmm9, [rsp+1B0h+var_70]
-                vmovaps xmm8, [rsp+1B0h+var_60]
-                vmovaps xmm7, [rsp+1B0h+var_50]
-              }
+              while ( v102 < mapEnts->clientSideEffects.rootCount );
+              m_rootLookAt = this->m_rootLookAt;
               if ( (_DWORD)m_rootLookAt != -1 )
               {
                 if ( (unsigned int)m_rootLookAt >= 0x400 )
                 {
-                  _RAX = mapEnts->clientSideEffects.roots;
-                  _RCX = 32i64 * _RSI->m_rootLookAt;
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rcx+rax+4]
-                    vmovss  dword ptr [rsp+1B0h+start], xmm0
-                    vmovss  xmm1, dword ptr [rcx+rax+8]
-                    vmovss  dword ptr [rsp+1B0h+start+4], xmm1
-                    vmovss  xmm0, dword ptr [rcx+rax+0Ch]
-                  }
+                  roots = mapEnts->clientSideEffects.roots;
+                  v123 = this->m_rootLookAt;
+                  *(_QWORD *)start.v = *(_QWORD *)roots[v123].origin.v;
+                  v121 = roots[v123].origin.v[2];
                 }
                 else
                 {
-                  _RCX = m_rootLookAt << 6;
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rcx+rsi+38B4h]
-                    vmovss  dword ptr [rsp+1B0h+start], xmm0
-                    vmovss  xmm1, dword ptr [rcx+rsi+38B8h]
-                    vmovss  dword ptr [rsp+1B0h+start+4], xmm1
-                    vmovss  xmm0, dword ptr [rcx+rsi+38BCh]
-                  }
+                  *(_QWORD *)start.v = *(_QWORD *)this->m_roots[m_rootLookAt].origin.v;
+                  v121 = this->m_roots[m_rootLookAt].origin.v[2];
                 }
-                __asm
-                {
-                  vaddss  xmm0, xmm0, cs:__real@c1c80000
-                  vmovss  dword ptr [rsp+1B0h+start+8], xmm0
-                }
-                v188 = j_va("CreateFX Enter");
-                __asm { vmovss  xmm2, cs:__real@3e99999a; scale }
-                CL_AddDebugStringCentered(&start, &colorGreen, *(float *)&_XMM2, v188, 0, 0);
+                start.v[2] = v121 + -25.0;
+                v124 = j_va("CreateFX Enter");
+                CL_AddDebugStringCentered(&start, &colorGreen, 0.30000001, v124, 0, 0);
               }
             }
-            __asm { vmovaps xmm6, [rsp+1B0h+var_40] }
           }
-          v191 = DCONST_DVARBOOL_cg_cfx_debug_ssr;
+          v125 = DCONST_DVARBOOL_cg_cfx_debug_ssr;
           if ( !DCONST_DVARBOOL_cg_cfx_debug_ssr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_ssr") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v191);
-          if ( v191->current.enabled )
+          Dvar_CheckFrontendServerThread(v125);
+          if ( v125->current.enabled )
           {
-            v192 = DCONST_DVARBOOL_cg_cfx_debug_effects;
-            v193 = cm.mapEnts;
+            v126 = DCONST_DVARBOOL_cg_cfx_debug_effects;
+            v127 = cm.mapEnts;
             if ( !DCONST_DVARBOOL_cg_cfx_debug_effects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_effects") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v192);
-            if ( v192->current.enabled )
+            Dvar_CheckFrontendServerThread(v126);
+            if ( v126->current.enabled )
             {
-              oneshotEffectsTree = v193->clientSideEffects.oneshotEffectsTree;
+              oneshotEffectsTree = v127->clientSideEffects.oneshotEffectsTree;
               if ( oneshotEffectsTree )
-                SpatialPartition_DrawTree((const LocalClientNum_t)_RSI->m_localClientNum, oneshotEffectsTree, 0xAu, 0, CG_SpatialFX_GetOrigin, NULL);
+                SpatialPartition_DrawTree((const LocalClientNum_t)this->m_localClientNum, oneshotEffectsTree, 0xAu, 0, CG_SpatialFX_GetOrigin, NULL);
             }
-            v195 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
+            v129 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
             if ( !DCONST_DVARBOOL_cg_cfx_debug_sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_sounds") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v195);
-            if ( v195->current.enabled )
+            Dvar_CheckFrontendServerThread(v129);
+            if ( v129->current.enabled )
             {
-              soundsSpatialTree = v193->clientSideEffects.soundsSpatialTree;
+              soundsSpatialTree = v127->clientSideEffects.soundsSpatialTree;
               if ( soundsSpatialTree )
-                SpatialPartition_DrawTree((const LocalClientNum_t)_RSI->m_localClientNum, soundsSpatialTree, 0xAu, 0, CG_SpatialSound_GetOrigin, NULL);
+                SpatialPartition_DrawTree((const LocalClientNum_t)this->m_localClientNum, soundsSpatialTree, 0xAu, 0, CG_SpatialSound_GetOrigin, NULL);
             }
-            reactiveSpatialTree = v193->clientSideEffects.reactiveSpatialTree;
+            reactiveSpatialTree = v127->clientSideEffects.reactiveSpatialTree;
             if ( reactiveSpatialTree )
-              SpatialPartition_DrawTree((const LocalClientNum_t)_RSI->m_localClientNum, reactiveSpatialTree, 0xAu, 1, CG_SpatialReactiveEnt_GetOrigin, NULL);
+              SpatialPartition_DrawTree((const LocalClientNum_t)this->m_localClientNum, reactiveSpatialTree, 0xAu, 1, CG_SpatialReactiveEnt_GetOrigin, NULL);
           }
         }
       }
@@ -7333,30 +7003,26 @@ CgClientSideEffectsSystem::DrawOverlay
 */
 void CgClientSideEffectsSystem::DrawOverlay(CgClientSideEffectsSystem *this)
 {
+  const dvar_t *v2; 
   const dvar_t *v3; 
-  const dvar_t *v4; 
   float y; 
   float x; 
 
   if ( CgClientSideEffectsSystem::SystemEnabled(this) && !CG_CreateFx_HasBeenEnabled() )
   {
-    __asm { vmovss  xmm0, cs:__real@41000000 }
-    v3 = DCONST_DVARBOOL_cg_cfx_debug_effects;
-    __asm
-    {
-      vmovss  [rsp+58h+x], xmm0
-      vmovss  [rsp+58h+y], xmm0
-    }
+    v2 = DCONST_DVARBOOL_cg_cfx_debug_effects;
+    x = FLOAT_8_0;
+    y = FLOAT_8_0;
     if ( !DCONST_DVARBOOL_cg_cfx_debug_effects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_effects") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v2);
+    if ( v2->current.enabled )
+      ActiveSet::DrawOverlay(&this->m_spatialFX, (const LocalClientNum_t)this->m_localClientNum, &x, &y, "spatialFX");
+    v3 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
+    if ( !DCONST_DVARBOOL_cg_cfx_debug_sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_sounds") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v3);
     if ( v3->current.enabled )
-      ActiveSet::DrawOverlay(&this->m_spatialFX, (const LocalClientNum_t)this->m_localClientNum, &x, &y, "spatialFX");
-    v4 = DCONST_DVARBOOL_cg_cfx_debug_sounds;
-    if ( !DCONST_DVARBOOL_cg_cfx_debug_sounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_cfx_debug_sounds") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v4);
-    if ( v4->current.enabled )
       ActiveSet::DrawOverlay(&this->m_spatialSound, (const LocalClientNum_t)this->m_localClientNum, &x, &y, "spatialSound");
   }
 }
@@ -7616,56 +7282,52 @@ void CgClientSideEffectsSystem::Exploder_DeactivateSingle(CgClientSideEffectsSys
   __int64 v11; 
   ParticleManager *ParticleManager; 
   unsigned int m_pendingCount; 
-  signed int v14; 
+  unsigned int v14; 
   __int64 v15; 
   unsigned int *i; 
-  __int64 v17; 
+  ClientSidePendingEffect *v17; 
 
   mapEnts = cm.mapEnts;
   v5 = id;
-  _RDI = this;
   if ( id >= cm.mapEnts->clientSideEffects.exploderCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3739, ASSERT_TYPE_ASSERT, "(unsigned)( id ) < (unsigned)( effectsData->exploderCount )", "id doesn't index effectsData->exploderCount\n\t%i not in [0, %i)", id, cm.mapEnts->clientSideEffects.exploderCount) )
     __debugbreak();
   v7 = &mapEnts->clientSideEffects.exploders[v5];
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3741, ASSERT_TYPE_ASSERT, "(exploderDef)", (const char *)&queryFormat, "exploderDef") )
     __debugbreak();
   v8 = 0;
-  v9 = (__int64)(int)_RDI->m_localClientNum << 12;
-  if ( g_particleSystemsGeneration[v9 + (_RDI->m_activeExploderFXHandles[v5] & 0xFFF)].__all32 == _RDI->m_activeExploderFXHandles[v5] )
-    v8 = _RDI->m_activeExploderFXHandles[v5] & 0xFFF;
+  v9 = (__int64)(int)this->m_localClientNum << 12;
+  if ( g_particleSystemsGeneration[v9 + (this->m_activeExploderFXHandles[v5] & 0xFFF)].__all32 == this->m_activeExploderFXHandles[v5] )
+    v8 = this->m_activeExploderFXHandles[v5] & 0xFFF;
   v10 = NULL;
   v11 = v9 + v8;
   if ( g_particleSystems[0][v11] >= (ParticleSystem *)0x1000 )
     v10 = g_particleSystems[0][v11];
   if ( v10 )
   {
-    ParticleManager = ParticleManager::GetParticleManager(_RDI->m_localClientNum);
+    ParticleManager = ParticleManager::GetParticleManager(this->m_localClientNum);
     if ( kill )
       ParticleManager::KillSystem(ParticleManager, v10);
     else
       ParticleManager::StopSystem(ParticleManager, v10);
   }
-  _RDI->m_activeExploderFXHandles[v5] = 0;
+  this->m_activeExploderFXHandles[v5] = 0;
   if ( v7->effectSound.name )
-    CgClientSideEffectsSystem::ActiveSounds_Remove(_RDI, Count, v5);
-  m_pendingCount = _RDI->m_pendingCount;
+    CgClientSideEffectsSystem::ActiveSounds_Remove(this, Count, v5);
+  m_pendingCount = this->m_pendingCount;
   v14 = m_pendingCount - 1;
   v15 = (int)(m_pendingCount - 1);
   if ( (int)(m_pendingCount - 1) >= 0 )
   {
-    for ( i = &_RDI->m_pending[v14].index; *(i - 1) != 3 || *i != (_DWORD)v5; i -= 3 )
+    for ( i = &this->m_pending[v14].index; *(i - 1) != 3 || *i != (_DWORD)v5; i -= 3 )
     {
       --v14;
       if ( --v15 < 0 )
         return;
     }
-    v17 = v14;
-    _RDX = 3i64 * (m_pendingCount - 1);
-    __asm { vmovsd  xmm0, qword ptr [rdi+rdx*4+2084h] }
-    _RCX = (__int64)&_RDI->m_pending[v17];
-    __asm { vmovsd  qword ptr [rcx], xmm0 }
-    *(_DWORD *)(_RCX + 8) = *((_DWORD *)&_RDI->m_activeSounds[1024].type + 3 * m_pendingCount);
-    --_RDI->m_pendingCount;
+    v17 = &this->m_pending[v14];
+    *(double *)&v17->type = *(double *)((char *)&this->m_activeSounds[1023] + 12 * m_pendingCount);
+    v17->startTime = *((_DWORD *)&this->m_activeSounds[1024].type + 3 * m_pendingCount);
+    --this->m_pendingCount;
   }
 }
 
@@ -7835,42 +7497,24 @@ CgClientSideEffectsSystem::GetViewPos
 */
 bool CgClientSideEffectsSystem::GetViewPos(CgClientSideEffectsSystem *this, vec3_t *out_pos)
 {
-  int v9; 
-  int v10; 
-  int v11; 
+  cg_t *LocalClientGlobals; 
+  float v4; 
 
-  _RBX = out_pos;
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  _R8 = _RAX;
-  if ( !_RAX->renderingThirdPerson || _RAX->playerTeleported )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( !LocalClientGlobals->renderingThirdPerson || LocalClientGlobals->playerTeleported )
   {
-    _RBX->v[0] = _RAX->refdef.viewOffset.v[0];
-    _RBX->v[1] = _RAX->refdef.viewOffset.v[1];
-    __asm { vmovss  xmm1, dword ptr [r8+69A4h] }
+    out_pos->v[0] = LocalClientGlobals->refdef.viewOffset.v[0];
+    out_pos->v[1] = LocalClientGlobals->refdef.viewOffset.v[1];
+    v4 = LocalClientGlobals->refdef.viewOffset.v[2];
   }
   else
   {
-    _RBX->v[0] = _RAX->lastFrameViewPos.v[0];
-    _RBX->v[1] = _RAX->lastFrameViewPos.v[1];
-    __asm { vmovss  xmm1, dword ptr [rax+59688h] }
+    out_pos->v[0] = LocalClientGlobals->lastFrameViewPos.v[0];
+    out_pos->v[1] = LocalClientGlobals->lastFrameViewPos.v[1];
+    v4 = LocalClientGlobals->lastFrameViewPos.v[2];
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm1
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+28h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+28h+arg_0], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    return 0;
-  __asm { vmovss  [rsp+28h+arg_0], xmm1 }
-  return (v11 & 0x7F800000) != 2139095040;
+  out_pos->v[2] = v4;
+  return (LODWORD(out_pos->v[0]) & 0x7F800000) != 2139095040 && (LODWORD(out_pos->v[1]) & 0x7F800000) != 2139095040 && (LODWORD(v4) & 0x7F800000) != 2139095040;
 }
 
 /*
@@ -7903,40 +7547,40 @@ CgClientSideEffectsSystem::LoadEffects
 */
 void CgClientSideEffectsSystem::LoadEffects(CgClientSideEffectsSystem *this, const char *mapname, const char *scriptDirectory)
 {
-  const dvar_t *v8; 
+  const dvar_t *v6; 
   MapEnts *mapEnts; 
-  int v10; 
-  __int64 v11; 
-  __int64 v12; 
-  const char *v13; 
-  unsigned int v14; 
+  int v8; 
+  __int64 v9; 
+  __int64 v10; 
+  const char *v11; 
+  unsigned int i; 
+  ClientLoopSoundDef *loopSounds; 
   const char *name; 
   SndAliasList **p_aliasList; 
-  bool AliasForCaching; 
-  bool v22; 
   SndAliasList *aliasList; 
-  unsigned int i; 
-  const char *v36; 
-  unsigned int v47; 
-  __int64 v50; 
-  const char *v51; 
+  float distMax; 
   unsigned int j; 
-  unsigned __int64 v53; 
-  const char *v54; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v57; 
-  __int64 v58; 
+  __int64 v19; 
+  const char *v20; 
+  float v21; 
+  unsigned int k; 
+  __int64 v23; 
+  const char *v24; 
+  unsigned int m; 
+  unsigned __int64 v26; 
+  const char *v27; 
+  __int64 v28; 
+  __int64 v29; 
   bool outIsAlwaysLoaded; 
 
   if ( !CgClientSideEffectsSystem::SystemEnabled(this) )
     return;
-  v8 = DCONST_DVARBOOL_developer_createfx;
+  v6 = DCONST_DVARBOOL_developer_createfx;
   mapEnts = cm.mapEnts;
   if ( !DCONST_DVARBOOL_developer_createfx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "developer_createfx") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled && mapEnts->clientSideEffects.rootCount <= 1 )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled && mapEnts->clientSideEffects.rootCount <= 1 )
   {
     CG_CreateFx_LoadLoose();
     if ( !CG_CreateFx_HasBeenEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3315, ASSERT_TYPE_ASSERT, "(CG_CreateFx_HasBeenEnabled())", (const char *)&queryFormat, "CG_CreateFx_HasBeenEnabled()") )
@@ -7948,202 +7592,140 @@ void CgClientSideEffectsSystem::LoadEffects(CgClientSideEffectsSystem *this, con
     CG_InitClientSideFx(this->m_localClientNum, mapname, scriptDirectory);
     return;
   }
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_48], xmm7
-  }
   this->m_rootsParsed = 0;
   this->m_rootLookAt = -1;
   CG_CreateFx_SetupColors();
-  v10 = 0;
+  v8 = 0;
   if ( mapEnts->clientSideEffects.oneshotSoundCount )
   {
     while ( 1 )
     {
-      v11 = mapEnts->clientSideEffects.oneshotSoundIndices[v10];
-      if ( (unsigned int)v11 >= mapEnts->clientSideEffects.oneshotEffectCount )
+      v9 = mapEnts->clientSideEffects.oneshotSoundIndices[v8];
+      if ( (unsigned int)v9 >= mapEnts->clientSideEffects.oneshotEffectCount )
       {
-        LODWORD(v58) = mapEnts->clientSideEffects.oneshotEffectCount;
-        LODWORD(v57) = mapEnts->clientSideEffects.oneshotSoundIndices[v10];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3343, ASSERT_TYPE_ASSERT, "(unsigned)( oneshotEffectIndex ) < (unsigned)( effectsData->oneshotEffectCount )", "oneshotEffectIndex doesn't index effectsData->oneshotEffectCount\n\t%i not in [0, %i)", v57, v58) )
+        LODWORD(v29) = mapEnts->clientSideEffects.oneshotEffectCount;
+        LODWORD(v28) = mapEnts->clientSideEffects.oneshotSoundIndices[v8];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3343, ASSERT_TYPE_ASSERT, "(unsigned)( oneshotEffectIndex ) < (unsigned)( effectsData->oneshotEffectCount )", "oneshotEffectIndex doesn't index effectsData->oneshotEffectCount\n\t%i not in [0, %i)", v28, v29) )
           __debugbreak();
       }
-      v12 = (__int64)&mapEnts->clientSideEffects.oneshotEffects[v11];
-      v13 = *(const char **)(v12 + 40);
-      if ( !v13 || !SND_TryFindAliasForCaching(v13, (SndAliasList **)(v12 + 48), &outIsAlwaysLoaded) )
+      v10 = (__int64)&mapEnts->clientSideEffects.oneshotEffects[v9];
+      v11 = *(const char **)(v10 + 40);
+      if ( !v11 || !SND_TryFindAliasForCaching(v11, (SndAliasList **)(v10 + 48), &outIsAlwaysLoaded) )
         goto LABEL_23;
-      if ( !Com_IsSoundAliasLooping(*(const SndAliasList **)(v12 + 48)) )
+      if ( !Com_IsSoundAliasLooping(*(const SndAliasList **)(v10 + 48)) )
         break;
       if ( !outIsAlwaysLoaded )
       {
-        Com_Printf(0, "CreateFX oneshot entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v12 + 40));
+        Com_Printf(0, "CreateFX oneshot entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v10 + 40));
         goto LABEL_22;
       }
 LABEL_23:
-      if ( ++v10 >= mapEnts->clientSideEffects.oneshotSoundCount )
+      if ( ++v8 >= mapEnts->clientSideEffects.oneshotSoundCount )
         goto LABEL_24;
     }
-    Com_PrintError(0, "Soundalias '%s' is not looping but assigned to a oneshotFX emitter\n", *(const char **)(v12 + 40));
-    *(_QWORD *)(v12 + 40) = 0i64;
+    Com_PrintError(0, "Soundalias '%s' is not looping but assigned to a oneshotFX emitter\n", *(const char **)(v10 + 40));
+    *(_QWORD *)(v10 + 40) = 0i64;
 LABEL_22:
-    *(_QWORD *)(v12 + 48) = 0i64;
+    *(_QWORD *)(v10 + 48) = 0i64;
     goto LABEL_23;
   }
 LABEL_24:
-  v14 = 0;
-  __asm
+  for ( i = 0; i < mapEnts->clientSideEffects.loopSoundCount; ++i )
   {
-    vmovss  xmm6, cs:__real@44bb8000
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( mapEnts->clientSideEffects.loopSoundCount )
-  {
-    do
+    loopSounds = mapEnts->clientSideEffects.loopSounds;
+    name = loopSounds[i].effectSound.name;
+    if ( name )
     {
-      _RSI = mapEnts->clientSideEffects.loopSounds;
-      _RBX = 5i64 * v14;
-      name = _RSI[v14].effectSound.name;
-      if ( name )
+      p_aliasList = &loopSounds[i].aliasList;
+      if ( SND_TryFindAliasForCaching(name, p_aliasList, &outIsAlwaysLoaded) )
       {
-        p_aliasList = &_RSI[v14].aliasList;
-        AliasForCaching = SND_TryFindAliasForCaching(name, p_aliasList, &outIsAlwaysLoaded);
-        v22 = !AliasForCaching;
-        if ( AliasForCaching )
+        aliasList = *p_aliasList;
+        distMax = (*p_aliasList)->head->distMax;
+        if ( distMax <= 0.0 || distMax >= 1500.0 )
         {
-          _RAX = (*p_aliasList)->head;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+68h]
-            vcomiss xmm0, xmm7
-          }
-          if ( !v22 )
-            __asm { vcomiss xmm0, xmm6 }
-          CgClientSideEffectsSystem::AddSpatialSoundGlobal(this, v14 + mapEnts->clientSideEffects.intervalSoundCount);
-          aliasList = _RSI[v14].aliasList;
-          if ( !aliasList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 339, ASSERT_TYPE_ASSERT, "(aliasList)", (const char *)&queryFormat, "aliasList") )
-            __debugbreak();
-          if ( !aliasList->head && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 340, ASSERT_TYPE_ASSERT, "(aliasList->head)", (const char *)&queryFormat, "aliasList->head") )
-            __debugbreak();
-          if ( (aliasList->head->flags & 1) == 0 )
-          {
-            Com_PrintError(0, "Soundalias '%s' is not looping but assigned to a looping emitter\n", _RSI[v14].effectSound.name);
-            _RSI[v14].effectSound.name = NULL;
-            *p_aliasList = NULL;
-          }
+          CgClientSideEffectsSystem::AddSpatialSoundGlobal(this, i + mapEnts->clientSideEffects.intervalSoundCount);
+          aliasList = loopSounds[i].aliasList;
         }
-        else
+        if ( !aliasList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 339, ASSERT_TYPE_ASSERT, "(aliasList)", (const char *)&queryFormat, "aliasList") )
+          __debugbreak();
+        if ( !aliasList->head && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 340, ASSERT_TYPE_ASSERT, "(aliasList->head)", (const char *)&queryFormat, "aliasList->head") )
+          __debugbreak();
+        if ( (aliasList->head->flags & 1) == 0 )
         {
-          Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", _RSI[v14].effectSound.name);
+          Com_PrintError(0, "Soundalias '%s' is not looping but assigned to a looping emitter\n", loopSounds[i].effectSound.name);
+          loopSounds[i].effectSound.name = NULL;
+          *p_aliasList = NULL;
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi+rbx*8+4]
-          vmovss  xmm2, dword ptr [rsi+rbx*8]
-          vmovss  xmm0, dword ptr [rsi+rbx*8+8]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovsd  [rsp+88h+fmt], xmm0
-        }
-        Com_PrintError(9, "No soundalias assigned to createFX looping sound located at (%f, %f, %f)\n", _R8, _R9, fmt);
-      }
-      ++v14;
-    }
-    while ( v14 < mapEnts->clientSideEffects.loopSoundCount );
-  }
-  for ( i = 0; i < mapEnts->clientSideEffects.intervalSoundCount; ++i )
-  {
-    _RBX = (__int64)&mapEnts->clientSideEffects.intervalSounds[i];
-    v36 = *(const char **)(_RBX + 24);
-    if ( v36 )
-    {
-      if ( SND_TryFindAliasForCaching(v36, (SndAliasList **)(_RBX + 32), &outIsAlwaysLoaded) )
-      {
-        _RCX = *(_QWORD *)(*(_QWORD *)(_RBX + 32) + 16i64);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+68h]
-          vcomiss xmm0, xmm7
-          vcomiss xmm0, xmm6
-        }
-        CgClientSideEffectsSystem::AddSpatialSoundGlobal(this, i);
-      }
-      else
-      {
-        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(_RBX + 24));
+        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", loopSounds[i].effectSound.name);
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+4]
-        vmovss  xmm2, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rbx+8]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+88h+fmt], xmm0
-      }
-      Com_PrintError(9, "No soundalias assigned to createFX interval sound located at (%f, %f, %f)\n", _R8, _R9, fmta);
+      Com_PrintError(9, "No soundalias assigned to createFX looping sound located at (%f, %f, %f)\n", loopSounds[i].origin.v[0], loopSounds[i].origin.v[1], loopSounds[i].origin.v[2]);
     }
   }
-  v47 = 0;
-  __asm
+  for ( j = 0; j < mapEnts->clientSideEffects.intervalSoundCount; ++j )
   {
-    vmovaps xmm7, [rsp+88h+var_48]
-    vmovaps xmm6, [rsp+88h+var_38]
-  }
-  if ( mapEnts->clientSideEffects.reactiveEntCount )
-  {
-    do
+    v19 = (__int64)&mapEnts->clientSideEffects.intervalSounds[j];
+    v20 = *(const char **)(v19 + 24);
+    if ( v20 )
     {
-      v50 = (__int64)&mapEnts->clientSideEffects.reactiveEnts[v47];
-      v51 = *(const char **)(v50 + 32);
-      if ( v51 )
+      if ( SND_TryFindAliasForCaching(v20, (SndAliasList **)(v19 + 32), &outIsAlwaysLoaded) )
       {
-        if ( SND_TryFindAliasForCaching(v51, (SndAliasList **)(v50 + 40), &outIsAlwaysLoaded) )
-        {
-          if ( !outIsAlwaysLoaded )
-          {
-            Com_Printf(0, "CreateFX reactive entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v50 + 32));
-            *(_QWORD *)(v50 + 40) = 0i64;
-          }
-        }
-        else
-        {
-          Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(v50 + 32));
-        }
+        v21 = *(float *)(*(_QWORD *)(*(_QWORD *)(v19 + 32) + 16i64) + 104i64);
+        if ( v21 <= 0.0 || v21 >= 1500.0 )
+          CgClientSideEffectsSystem::AddSpatialSoundGlobal(this, j);
       }
-      ++v47;
+      else
+      {
+        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(v19 + 24));
+      }
     }
-    while ( v47 < mapEnts->clientSideEffects.reactiveEntCount );
-  }
-  for ( j = 0; j < mapEnts->clientSideEffects.exploderCount; ++j )
-  {
-    v53 = (unsigned __int64)&mapEnts->clientSideEffects.exploders[(unsigned __int64)j];
-    v54 = *(const char **)(v53 + 40);
-    if ( v54 )
+    else
     {
-      if ( SND_TryFindAliasForCaching(v54, (SndAliasList **)(v53 + 48), &outIsAlwaysLoaded) )
+      Com_PrintError(9, "No soundalias assigned to createFX interval sound located at (%f, %f, %f)\n", *(float *)v19, *(float *)(v19 + 4), *(float *)(v19 + 8));
+    }
+  }
+  for ( k = 0; k < mapEnts->clientSideEffects.reactiveEntCount; ++k )
+  {
+    v23 = (__int64)&mapEnts->clientSideEffects.reactiveEnts[k];
+    v24 = *(const char **)(v23 + 32);
+    if ( v24 )
+    {
+      if ( SND_TryFindAliasForCaching(v24, (SndAliasList **)(v23 + 40), &outIsAlwaysLoaded) )
       {
         if ( !outIsAlwaysLoaded )
         {
-          Com_Printf(0, "CreateFX exploder entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v53 + 40));
-          *(_QWORD *)(v53 + 48) = 0i64;
+          Com_Printf(0, "CreateFX reactive entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v23 + 32));
+          *(_QWORD *)(v23 + 40) = 0i64;
         }
       }
       else
       {
-        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(v53 + 40));
+        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(v23 + 32));
+      }
+    }
+  }
+  for ( m = 0; m < mapEnts->clientSideEffects.exploderCount; ++m )
+  {
+    v26 = (unsigned __int64)&mapEnts->clientSideEffects.exploders[(unsigned __int64)m];
+    v27 = *(const char **)(v26 + 40);
+    if ( v27 )
+    {
+      if ( SND_TryFindAliasForCaching(v27, (SndAliasList **)(v26 + 48), &outIsAlwaysLoaded) )
+      {
+        if ( !outIsAlwaysLoaded )
+        {
+          Com_Printf(0, "CreateFX exploder entity reference to sound %s can't be cached (transient bank)\n", *(const char **)(v26 + 40));
+          *(_QWORD *)(v26 + 48) = 0i64;
+        }
+      }
+      else
+      {
+        Com_PrintError(0, "Missing soundalias '%s' -- is it loaded?\n", *(const char **)(v26 + 40));
       }
     }
   }
@@ -8159,92 +7741,81 @@ void CgClientSideEffectsSystem::ParseRootAddChild(CgClientSideEffectsSystem *thi
   __int64 v4; 
   unsigned int RootIndex; 
   __int64 v8; 
+  __int64 v9; 
   __int64 v10; 
+  __int64 v11; 
+  ExtentBounds *p_bounds; 
 
   v4 = type;
-  _RSI = childOrigin;
-  _RBX = this;
   RootIndex = CgClientSideEffectsSystem::GetRootIndex(this, parentIndex);
   v8 = RootIndex;
   if ( RootIndex <= 0x3FF )
   {
     if ( RootIndex >= cm.mapEnts->clientSideEffects.rootCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2926, ASSERT_TYPE_ASSERT, "(unsigned)( rootIndex ) < (unsigned)( cm.mapEnts->clientSideEffects.rootCount )", "rootIndex doesn't index cm.mapEnts->clientSideEffects.rootCount\n\t%i not in [0, %i)", RootIndex, cm.mapEnts->clientSideEffects.rootCount) )
       __debugbreak();
-    _RDX = v8 << 6;
-    if ( _RBX->m_roots[v8].count )
+    v9 = v8 << 6;
+    if ( this->m_roots[v8].count )
     {
-      _RAX = &_RBX->m_roots[v8].bounds;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vminss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rax], xmm1
-        vmovss  xmm0, dword ptr [rsi]
-        vmaxss  xmm1, xmm0, dword ptr [rax+0Ch]
-        vmovss  dword ptr [rax+0Ch], xmm1
-        vmovss  xmm0, dword ptr [rax+4]
-        vminss  xmm1, xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rax+4], xmm1
-        vmovss  xmm0, dword ptr [rax+10h]
-        vmaxss  xmm1, xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rax+10h], xmm1
-        vmovss  xmm0, dword ptr [rax+8]
-        vminss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rax+8], xmm1
-        vmovss  xmm0, dword ptr [rax+14h]
-        vmaxss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rax+14h], xmm1
-        vmovss  xmm0, dword ptr [rdx+rbx+38B4h]
-        vaddss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rdx+rbx+38B4h], xmm1
-        vmovss  xmm2, dword ptr [rdx+rbx+38B8h]
-        vaddss  xmm0, xmm2, dword ptr [rsi+4]
-        vmovss  dword ptr [rdx+rbx+38B8h], xmm0
-        vmovss  xmm1, dword ptr [rdx+rbx+38BCh]
-        vaddss  xmm2, xmm1, dword ptr [rsi+8]
-        vmovss  dword ptr [rdx+rbx+38BCh], xmm2
-      }
+      p_bounds = &this->m_roots[v8].bounds;
+      _XMM0 = LODWORD(p_bounds->mins.v[0]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi] }
+      p_bounds->mins.v[0] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(childOrigin->v[0]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rax+0Ch] }
+      p_bounds->maxs.v[0] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(p_bounds->mins.v[1]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi+4] }
+      p_bounds->mins.v[1] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(p_bounds->maxs.v[1]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsi+4] }
+      p_bounds->maxs.v[1] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(p_bounds->mins.v[2]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi+8] }
+      p_bounds->mins.v[2] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(p_bounds->maxs.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsi+8] }
+      p_bounds->maxs.v[2] = *(float *)&_XMM1;
+      *(float *)((char *)this->m_roots[0].origin.v + v9) = *(float *)((char *)this->m_roots[0].origin.v + v9) + childOrigin->v[0];
+      *(float *)((char *)&this->m_roots[0].origin.v[1] + v9) = *(float *)((char *)&this->m_roots[0].origin.v[1] + v9) + childOrigin->v[1];
+      *(float *)((char *)&this->m_roots[0].origin.v[2] + v9) = *(float *)((char *)&this->m_roots[0].origin.v[2] + v9) + childOrigin->v[2];
     }
     else
     {
       v10 = v8;
-      *(_QWORD *)_RBX->m_roots[v10].countPerType = 0i64;
-      *(_QWORD *)&_RBX->m_roots[v10].countPerType[2] = 0i64;
-      *(_QWORD *)&_RBX->m_roots[v10].countPerType[4] = 0i64;
-      _RAX = (v8 + 227) << 6;
-      *(_DWORD *)((char *)&_RBX->__vftable + _RAX) = 2139095039;
-      *(_DWORD *)((char *)&_RBX->__vftable + _RAX + 4) = 2139095039;
-      *(LocalClientNum_t *)((char *)&_RBX->m_localClientNum + _RAX) = 2139095039;
-      *(LocalClientNum_t *)((char *)&_RBX->m_localClientNum + _RAX + 4) = -8388609;
-      *(_DWORD *)((char *)&_RBX->m_spatialFX.m_bitsActive + _RAX) = -8388609;
-      *(_DWORD *)((char *)&_RBX->m_spatialFX.m_bitsActive + _RAX + 4) = -8388609;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vminss  xmm1, xmm0, dword ptr [rax+rbx]
-        vmovss  dword ptr [rax+rbx], xmm1
-        vmovss  xmm0, dword ptr [rax+rbx+0Ch]
-        vmaxss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rax+rbx+0Ch], xmm1
-        vmovss  xmm0, dword ptr [rax+rbx+4]
-        vminss  xmm1, xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rax+rbx+4], xmm1
-        vmovss  xmm0, dword ptr [rax+rbx+10h]
-        vmaxss  xmm1, xmm0, dword ptr [rsi+4]
-        vmovss  dword ptr [rax+rbx+10h], xmm1
-        vmovss  xmm0, dword ptr [rax+rbx+8]
-        vminss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rax+rbx+8], xmm1
-        vmovss  xmm0, dword ptr [rax+rbx+14h]
-        vmaxss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rax+rbx+14h], xmm1
-      }
-      *(float *)((char *)_RBX->m_roots[0].origin.v + _RDX) = _RSI->v[0];
-      *(float *)((char *)&_RBX->m_roots[0].origin.v[1] + _RDX) = _RSI->v[1];
-      *(float *)((char *)&_RBX->m_roots[0].origin.v[2] + _RDX) = _RSI->v[2];
+      *(_QWORD *)this->m_roots[v10].countPerType = 0i64;
+      *(_QWORD *)&this->m_roots[v10].countPerType[2] = 0i64;
+      *(_QWORD *)&this->m_roots[v10].countPerType[4] = 0i64;
+      v11 = (v8 + 227) << 6;
+      *(_DWORD *)((char *)&this->__vftable + v11) = 2139095039;
+      *(_DWORD *)((char *)&this->__vftable + v11 + 4) = 2139095039;
+      *(LocalClientNum_t *)((char *)&this->m_localClientNum + v11) = 2139095039;
+      *(LocalClientNum_t *)((char *)&this->m_localClientNum + v11 + 4) = -8388609;
+      *(_DWORD *)((char *)&this->m_spatialFX.m_bitsActive + v11) = -8388609;
+      *(_DWORD *)((char *)&this->m_spatialFX.m_bitsActive + v11 + 4) = -8388609;
+      _XMM0 = LODWORD(childOrigin->v[0]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rax+rbx] }
+      *(float *)((char *)&this->__vftable + v11) = *(float *)&_XMM1;
+      _XMM0 = *(unsigned int *)((char *)&this->m_localClientNum + v11 + 4);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsi] }
+      *(LocalClientNum_t *)((char *)&this->m_localClientNum + v11 + 4) = _XMM1;
+      _XMM0 = *(unsigned int *)((char *)&this->__vftable + v11 + 4);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi+4] }
+      *(float *)((char *)&this->__vftable + v11 + 4) = *(float *)&_XMM1;
+      _XMM0 = *(unsigned int *)((char *)&this->m_spatialFX.m_bitsActive + v11);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsi+4] }
+      *(float *)((char *)&this->m_spatialFX.m_bitsActive + v11) = *(float *)&_XMM1;
+      _XMM0 = *(unsigned int *)((char *)&this->m_localClientNum + v11);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi+8] }
+      *(LocalClientNum_t *)((char *)&this->m_localClientNum + v11) = _XMM1;
+      _XMM0 = *(unsigned int *)((char *)&this->m_spatialFX.m_bitsActive + v11 + 4);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rsi+8] }
+      *(float *)((char *)&this->m_spatialFX.m_bitsActive + v11 + 4) = *(float *)&_XMM1;
+      *(float *)((char *)this->m_roots[0].origin.v + v9) = childOrigin->v[0];
+      *(float *)((char *)&this->m_roots[0].origin.v[1] + v9) = childOrigin->v[1];
+      *(float *)((char *)&this->m_roots[0].origin.v[2] + v9) = childOrigin->v[2];
     }
-    ++*(unsigned int *)((char *)&_RBX->m_roots[0].count + _RDX);
-    ++_RBX->m_roots[v8].countPerType[v4];
+    ++*(unsigned int *)((char *)&this->m_roots[0].count + v9);
+    ++this->m_roots[v8].countPerType[v4];
   }
 }
 
@@ -8256,28 +7827,15 @@ CgClientSideEffectsSystem::Pending_Add
 void CgClientSideEffectsSystem::Pending_Add(CgClientSideEffectsSystem *this, ClientSideEffectType type, unsigned int index, const int activateTime)
 {
   __int64 m_pendingCount; 
-  __int64 v13; 
-  int v14; 
+  int v5; 
   ClientSideTypeData data_out; 
 
   m_pendingCount = this->m_pendingCount;
   if ( (unsigned int)m_pendingCount >= 0x200 )
   {
     CgClientSideEffectsSystem::GetTypeData(this, type, index, &data_out);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+68h+data_out.origin+4]
-      vmovss  xmm2, dword ptr [rsp+68h+data_out.origin]
-      vmovss  xmm0, dword ptr [rsp+68h+data_out.origin+8]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    v14 = 512;
-    __asm { vmovsd  [rsp+68h+var_48], xmm0 }
-    Com_PrintError(1, "Unable to add pending effect at [%.2f, %.2f, %.2f]-> Too many pending effects.  Increase MAX_PENDING_CFX (%d).\n", _R8, _R9, v13, v14);
+    v5 = 512;
+    Com_PrintError(1, "Unable to add pending effect at [%.2f, %.2f, %.2f]-> Too many pending effects.  Increase MAX_PENDING_CFX (%d).\n", data_out.origin.v[0], data_out.origin.v[1], data_out.origin.v[2], v5);
   }
   else
   {
@@ -8298,25 +7856,27 @@ void CgClientSideEffectsSystem::Pending_Remove(CgClientSideEffectsSystem *this, 
   unsigned int v5; 
   __int64 v6; 
   unsigned int *i; 
+  __int64 v8; 
+  double v9; 
+  ClientSidePendingEffect *v10; 
 
-  _R11 = this;
   m_pendingCount = this->m_pendingCount;
   v5 = m_pendingCount - 1;
   v6 = (int)(m_pendingCount - 1);
   if ( (int)(m_pendingCount - 1) >= 0 )
   {
-    for ( i = &_R11->m_pending[v5].index; *(i - 1) != type || *i != index; i -= 3 )
+    for ( i = &this->m_pending[v5].index; *(i - 1) != type || *i != index; i -= 3 )
     {
       --v5;
       if ( --v6 < 0 )
         return;
     }
-    _RDX = m_pendingCount - 1;
-    __asm { vmovsd  xmm0, qword ptr [r11+rdx*4+2084h] }
-    _RCX = (__int64)&_R11->m_pending[v5];
-    __asm { vmovsd  qword ptr [rcx], xmm0 }
-    *(_DWORD *)(_RCX + 8) = _R11->m_pending[_RDX].startTime;
-    --_R11->m_pendingCount;
+    v8 = m_pendingCount - 1;
+    v9 = *(double *)((char *)&this->m_activeSounds[1023] + 12 * m_pendingCount);
+    v10 = &this->m_pending[v5];
+    *(double *)&v10->type = v9;
+    v10->startTime = this->m_pending[v8].startTime;
+    --this->m_pendingCount;
   }
 }
 
@@ -8327,22 +7887,23 @@ CgClientSideEffectsSystem::Pending_Update
 */
 void CgClientSideEffectsSystem::Pending_Update(CgClientSideEffectsSystem *this)
 {
-  int v2; 
+  signed int v2; 
   __int64 v3; 
+  unsigned int *p_index; 
+  __int64 v5; 
 
-  _RSI = this;
   if ( !cm.mapEnts->createFxEffectTotal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3645, ASSERT_TYPE_ASSERT, "(CG_HaveMapEntsEffects())", (const char *)&queryFormat, "CG_HaveMapEntsEffects()") )
     __debugbreak();
-  v2 = _RSI->m_pendingCount - 1;
+  v2 = this->m_pendingCount - 1;
   v3 = v2;
   if ( v2 >= 0 )
   {
-    _RBX = &_RSI->m_pending[v2].index;
+    p_index = &this->m_pending[v2].index;
     do
     {
-      if ( CG_Utils_TimeIsInThePast(_RSI->m_localClientNum, _RBX[1]) )
+      if ( CG_Utils_TimeIsInThePast(this->m_localClientNum, p_index[1]) )
       {
-        switch ( *(_RBX - 1) )
+        switch ( *(p_index - 1) )
         {
           case 0u:
           case 6u:
@@ -8358,7 +7919,7 @@ void CgClientSideEffectsSystem::Pending_Update(CgClientSideEffectsSystem *this)
               goto LABEL_16;
             break;
           case 3u:
-            CgClientSideEffectsSystem::Exploder_ActivateSingle(_RSI, *_RBX, _RBX[1]);
+            CgClientSideEffectsSystem::Exploder_ActivateSingle(this, *p_index, p_index[1]);
             break;
           case 4u:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3670, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "IntervalSound can not be delayed") )
@@ -8366,21 +7927,17 @@ LABEL_16:
               __debugbreak();
             break;
           case 5u:
-            CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(_RSI, *_RBX);
+            CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(this, *p_index);
             break;
           default:
             break;
         }
-        _RCX = _RSI->m_pendingCount - 1;
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsi+rcx*4+2084h]
-          vmovsd  qword ptr [rbx-4], xmm0
-        }
-        _RBX[1] = _RSI->m_pending[_RCX].startTime;
-        --_RSI->m_pendingCount;
+        v5 = this->m_pendingCount - 1;
+        *(double *)(p_index - 1) = *(double *)&this->m_pending[this->m_pendingCount - 1].type;
+        p_index[1] = this->m_pending[v5].startTime;
+        --this->m_pendingCount;
       }
-      _RBX -= 3;
+      p_index -= 3;
       --v3;
     }
     while ( v3 >= 0 );
@@ -8433,71 +7990,199 @@ void CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(CgClientSideEffectsSy
 CgClientSideEffectsSystem::ReactiveEnts_Fire
 ==============
 */
-
-void __fastcall CgClientSideEffectsSystem::ReactiveEnts_Fire(CgClientSideEffectsSystem *this, const vec3_t *eventOrigin, double eventRadius, double timeDelay)
+void CgClientSideEffectsSystem::ReactiveEnts_Fire(CgClientSideEffectsSystem *this, const vec3_t *eventOrigin, const float eventRadius, const float timeDelay)
 {
   signed __int64 v4; 
-  void *v14; 
-  __int64 v46; 
-  char v47[4368]; 
-  char v57; 
+  void *v5; 
+  unsigned __int64 v6; 
+  float v10; 
+  float v11; 
+  float v12; 
+  LocalClientNum_t m_localClientNum; 
+  cg_t *v14; 
+  cg_t *v15; 
+  int v16; 
+  int v17; 
+  unsigned int v18; 
+  float *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int64 v24; 
+  __int64 v25; 
+  float v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v30; 
+  double v32; 
+  cg_t *LocalClientGlobals; 
+  MapEnts *mapEnts; 
+  unsigned int v35; 
+  unsigned int time; 
+  SpatialPartition_Tree *reactiveSpatialTree; 
+  unsigned int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  char v44[4368]; 
 
-  v14 = alloca(v4);
-  __asm
+  v5 = alloca(v4);
+  v6 = (unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1100) = (unsigned __int64)&v41 ^ _security_cookie;
+  if ( CgClientSideEffectsSystem::SystemEnabled(this) && CgClientSideEffectsSystem::GetViewPos(this, (vec3_t *)((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64)) )
   {
-    vmovaps [rsp+1248h+var_58], xmm6
-    vmovaps [rsp+1248h+var_68], xmm7
-    vmovaps [rsp+1248h+var_78], xmm8
-    vmovaps [rsp+1248h+var_88], xmm9
-    vmovaps [rsp+1248h+var_98], xmm10
-    vmovaps [rsp+1248h+var_A8], xmm11
-    vmovaps [rsp+1248h+var_B8], xmm12
-    vmovaps [rsp+1248h+var_C8], xmm13
-    vmovaps [rsp+1248h+var_D8], xmm14
-  }
-  _RBP = (unsigned __int64)v47 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1100) = (unsigned __int64)&v46 ^ _security_cookie;
-  __asm
-  {
-    vmovaps xmm13, xmm3
-    vmovaps xmm14, xmm2
-  }
-  _R12 = eventOrigin;
-  if ( CgClientSideEffectsSystem::SystemEnabled(this) && CgClientSideEffectsSystem::GetViewPos(this, (vec3_t *)((unsigned __int64)v47 & 0xFFFFFFFFFFFFFFE0ui64)) )
-  {
-    __asm
+    v10 = *(float *)v6;
+    v11 = *(float *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+    v12 = *(float *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+    if ( (float)((float)((float)((float)(eventOrigin->v[1] - v11) * (float)(eventOrigin->v[1] - v11)) + (float)((float)(eventOrigin->v[0] - v10) * (float)(eventOrigin->v[0] - v10))) + (float)((float)(eventOrigin->v[2] - v12) * (float)(eventOrigin->v[2] - v12))) <= (float)((float)(eventRadius + 5000.0) * (float)(eventRadius + 5000.0)) )
     {
-      vmovss  xmm0, dword ptr [r12]
-      vmovss  xmm9, dword ptr [rbp+0]
-      vmovss  xmm1, dword ptr [r12+4]
-      vmovss  xmm10, dword ptr [rbp+4]
-      vmovss  xmm11, dword ptr [rbp+8]
-      vaddss  xmm6, xmm14, cs:__real@459c4000
-      vsubss  xmm4, xmm0, xmm9
-      vmovss  xmm0, dword ptr [r12+8]
-      vsubss  xmm5, xmm0, xmm11
-      vsubss  xmm3, xmm1, xmm10
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm3, xmm3, xmm3
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm3, xmm5, xmm5
-      vaddss  xmm5, xmm4, xmm3
-      vmulss  xmm0, xmm6, xmm6
-      vcomiss xmm5, xmm0
+      if ( CG_CreateFx_HasBeenEnabled() )
+      {
+        CG_CreateFx_PlayReactiveSounds(eventOrigin, eventRadius, timeDelay);
+      }
+      else
+      {
+        m_localClientNum = this->m_localClientNum;
+        if ( cm.mapEnts->createFxEffectTotal )
+        {
+          LocalClientGlobals = CG_GetLocalClientGlobals(m_localClientNum);
+          mapEnts = cm.mapEnts;
+          v35 = 0;
+          time = LocalClientGlobals->time;
+          reactiveSpatialTree = cm.mapEnts->clientSideEffects.reactiveSpatialTree;
+          if ( reactiveSpatialTree )
+          {
+            *(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
+            *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
+            *(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
+            *(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
+            SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v6 + 32), reactiveSpatialTree, eventOrigin, eventRadius);
+            while ( SpatialPartition_Tree_SphereIterator::Advance((SpatialPartition_Tree_SphereIterator *)(v6 + 32)) )
+            {
+              if ( !*(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+                __debugbreak();
+              v38 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) + 20i64);
+              v39 = *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8);
+              if ( v39 == v38 )
+              {
+                if ( !*(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+                  __debugbreak();
+                if ( (**(_BYTE **)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+                  __debugbreak();
+                if ( *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) >= **(unsigned __int8 **)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+                  __debugbreak();
+                v40 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) + 4i64 * *(unsigned int *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) + 4);
+              }
+              else
+              {
+                if ( v39 >= v38 )
+                {
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
+                    __debugbreak();
+                  v39 = *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8);
+                }
+                v40 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) + 8i64) + 4i64 * v39);
+              }
+              if ( v40 >= mapEnts->clientSideEffects.reactiveEntCount )
+              {
+                LODWORD(v43) = mapEnts->clientSideEffects.reactiveEntCount;
+                LODWORD(v42) = v40;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2533, ASSERT_TYPE_ASSERT, "(unsigned)( reactiveEntIndex ) < (unsigned)( effectsData->reactiveEntCount )", "reactiveEntIndex doesn't index effectsData->reactiveEntCount\n\t%i not in [0, %i)", v42, v43) )
+                  __debugbreak();
+              }
+              if ( CG_SpatialReactiveEnt_IsValid(&mapEnts->clientSideEffects.reactiveEnts[v40], this->m_reactiveEntTimers[v40], time, eventOrigin, eventRadius) )
+              {
+                if ( timeDelay <= 0.0 )
+                  CgClientSideEffectsSystem::Pending_Add(this, (ClientSideEffectType)5, v40, time - (int)(float)(timeDelay * -1000.0));
+                else
+                  CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(this, v40);
+              }
+            }
+          }
+          else if ( cm.mapEnts->clientSideEffects.reactiveEntCount )
+          {
+            do
+            {
+              if ( CG_SpatialReactiveEnt_IsValid(&mapEnts->clientSideEffects.reactiveEnts[v35], this->m_reactiveEntTimers[v35], time, eventOrigin, eventRadius) )
+              {
+                if ( timeDelay <= 0.0 )
+                  CgClientSideEffectsSystem::Pending_Add(this, (ClientSideEffectType)5, v35, time - (int)(float)(timeDelay * -1000.0));
+                else
+                  CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(this, v35);
+              }
+              ++v35;
+            }
+            while ( v35 < mapEnts->clientSideEffects.reactiveEntCount );
+          }
+        }
+        else
+        {
+          v14 = CG_GetLocalClientGlobals(m_localClientNum);
+          v15 = CG_GetLocalClientGlobals(m_localClientNum);
+          v16 = s_clientEntReactiveSoundCount;
+          v17 = 0;
+          v18 = v15->time;
+          if ( s_clientEntReactiveSoundCount > 0 )
+          {
+            v19 = &s_clientEntReactiveSounds[0].origin.v[1];
+            do
+            {
+              if ( v18 >= *((_DWORD *)v19 + 8) )
+              {
+                v20 = *v19;
+                v21 = v19[1];
+                v22 = *(v19 - 1);
+                if ( (float)((float)((float)((float)(eventOrigin->v[0] - v22) * (float)(eventOrigin->v[0] - v22)) + (float)((float)(eventOrigin->v[1] - v20) * (float)(eventOrigin->v[1] - v20))) + (float)((float)(eventOrigin->v[2] - v21) * (float)(eventOrigin->v[2] - v21))) <= (float)((float)(eventRadius + v19[7]) * (float)(eventRadius + v19[7])) )
+                {
+                  *(_QWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v19 - 1;
+                  v23 = (float)((float)((float)(v22 - v10) * (float)(v22 - v10)) + (float)((float)(v20 - v11) * (float)(v20 - v11))) + (float)((float)(v21 - v12) * (float)(v21 - v12));
+                  *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v17;
+                  *(_DWORD *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v18 - (int)(float)(timeDelay * -1000.0);
+                  v24 = 0i64;
+                  v25 = 0i64;
+                  *(_BYTE *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = 1;
+                  *(float *)v6 = v23;
+                  v26 = 0.0;
+                  v27 = 0;
+                  while ( 1 )
+                  {
+                    v28 = v25;
+                    if ( !v14->cseData.reactiveSoundsActive[v25].inUse )
+                      break;
+                    _XMM0 = LODWORD(v14->cseData.reactiveSoundsActive[v25].distToPlayer);
+                    v30 = v25;
+                    if ( *(float *)&_XMM0 <= v26 )
+                      v30 = v24;
+                    ++v27;
+                    ++v25;
+                    v24 = v30;
+                    __asm { vmaxss  xmm2, xmm0, xmm1 }
+                    v26 = *(float *)&_XMM2;
+                    if ( v27 >= 12 )
+                    {
+                      if ( *(float *)&_XMM2 <= v23 )
+                        goto LABEL_19;
+                      v28 = v30;
+                      break;
+                    }
+                  }
+                  v32 = *(double *)(((unsigned __int64)v44 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+                  *(_OWORD *)&v14->cseData.reactiveSoundsActive[v28].distToPlayer = *(_OWORD *)v6;
+                  *(double *)&v14->cseData.reactiveSoundsActive[v28].reactiveSound = v32;
+                }
+              }
+LABEL_19:
+              ++v17;
+              v19 += 10;
+            }
+            while ( v17 < v16 );
+          }
+        }
+      }
     }
-  }
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
   }
 }
 
@@ -8509,8 +8194,8 @@ CgClientSideEffectsSystem::Restart
 void CgClientSideEffectsSystem::Restart(CgClientSideEffectsSystem *this)
 {
   MapEnts *mapEnts; 
+  unsigned int v3; 
   unsigned int v4; 
-  unsigned int v5; 
   unsigned int i; 
 
   if ( CG_CreateFx_HasBeenEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 2361, ASSERT_TYPE_ASSERT, "(!CG_CreateFx_HasBeenEnabled())", (const char *)&queryFormat, "!CG_CreateFx_HasBeenEnabled()") )
@@ -8518,33 +8203,21 @@ void CgClientSideEffectsSystem::Restart(CgClientSideEffectsSystem *this)
   if ( CgClientSideEffectsSystem::SystemEnabled(this) && cm.mapEnts->createFxEffectTotal && !CG_CreateFx_HasBeenEnabled() )
   {
     mapEnts = cm.mapEnts;
+    v3 = 0;
     v4 = 0;
-    v5 = 0;
     if ( cm.mapEnts->clientSideEffects.oneshotEffectCount )
     {
-      __asm
-      {
-        vmovaps [rsp+48h+var_18], xmm6
-        vxorps  xmm6, xmm6, xmm6
-      }
       do
       {
-        if ( !mapEnts->clientSideEffects.oneshotEffectsTree )
-          goto LABEL_11;
-        _RCX = 56i64 * v5;
-        _RAX = mapEnts->clientSideEffects.oneshotEffects;
-        __asm { vcomiss xmm6, dword ptr [rcx+rax+18h] }
-        if ( is_mul_ok(0x38ui64, v5) )
+        if ( !mapEnts->clientSideEffects.oneshotEffectsTree || mapEnts->clientSideEffects.oneshotEffects[v4].radius <= 0.0 )
         {
-LABEL_11:
           ActiveSet::AddGlobal(&this->m_spatialFX);
-          CG_PlayOneshotEffect((const LocalClientNum_t)this->m_localClientNum, v5);
+          CG_PlayOneshotEffect((const LocalClientNum_t)this->m_localClientNum, v4);
         }
-        ++v5;
+        ++v4;
       }
-      while ( v5 < mapEnts->clientSideEffects.oneshotEffectCount );
+      while ( v4 < mapEnts->clientSideEffects.oneshotEffectCount );
       mapEnts = cm.mapEnts;
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
     }
     for ( i = 0; i < mapEnts->clientSideEffects.intervalSoundCount; ++i )
     {
@@ -8558,14 +8231,14 @@ LABEL_11:
     {
       do
       {
-        if ( !mapEnts->clientSideEffects.soundsSpatialTree || CgClientSideEffectsSystem::IsSpatialSoundGlobal(this, v4 + mapEnts->clientSideEffects.intervalSoundCount) )
+        if ( !mapEnts->clientSideEffects.soundsSpatialTree || CgClientSideEffectsSystem::IsSpatialSoundGlobal(this, v3 + mapEnts->clientSideEffects.intervalSoundCount) )
         {
           ActiveSet::AddGlobal(&this->m_spatialSound);
-          CgClientSideEffectsSystem::ActiveSounds_Add(this, PhaseSpace, v4);
+          CgClientSideEffectsSystem::ActiveSounds_Add(this, PhaseSpace, v3);
         }
-        ++v4;
+        ++v3;
       }
-      while ( v4 < mapEnts->clientSideEffects.loopSoundCount );
+      while ( v3 < mapEnts->clientSideEffects.loopSoundCount );
     }
   }
 }
@@ -8699,10 +8372,7 @@ void CgClientSideEffectsSystem::SpatialFX_Update(CgClientSideEffectsSystem *this
   if ( CgClientSideEffectsSystem::GetViewPos(this, &out_pos) )
   {
     if ( cm.mapEnts->clientSideEffects.oneshotEffectsTree )
-    {
-      __asm { vmovss  xmm3, cs:__real@41200000; viewRadius }
-      ActiveSet::Update(&this->m_spatialFX, this->m_localClientNum, &out_pos, *(float *)&_XMM3, NULL, (bool (__fastcall *const)(const LocalClientNum_t, unsigned int))CG_SpatialFX_Activate, CG_SpatialFX_Deactivate, CG_SpatialFX_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialFX_GetRadius, cm.mapEnts->clientSideEffects.oneshotEffectsTree);
-    }
+      ActiveSet::Update(&this->m_spatialFX, this->m_localClientNum, &out_pos, 10.0, NULL, (bool (__fastcall *const)(const LocalClientNum_t, unsigned int))CG_SpatialFX_Activate, CG_SpatialFX_Deactivate, CG_SpatialFX_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialFX_GetRadius, cm.mapEnts->clientSideEffects.oneshotEffectsTree);
   }
 }
 
@@ -8718,10 +8388,7 @@ void CgClientSideEffectsSystem::SpatialSound_Update(CgClientSideEffectsSystem *t
   if ( CgClientSideEffectsSystem::GetViewPos(this, &out_pos) )
   {
     if ( cm.mapEnts->clientSideEffects.soundsSpatialTree )
-    {
-      __asm { vmovss  xmm3, cs:__real@44bb8000; viewRadius }
-      ActiveSet::Update(&this->m_spatialSound, this->m_localClientNum, &out_pos, *(float *)&_XMM3, CG_SpatialSound_IsValid, CG_SpatialSound_Activate, CG_SpatialSound_Deactivate, CG_SpatialSound_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialSound_GetRadius, cm.mapEnts->clientSideEffects.soundsSpatialTree);
-    }
+      ActiveSet::Update(&this->m_spatialSound, this->m_localClientNum, &out_pos, 1500.0, CG_SpatialSound_IsValid, CG_SpatialSound_Activate, CG_SpatialSound_Deactivate, CG_SpatialSound_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialSound_GetRadius, cm.mapEnts->clientSideEffects.soundsSpatialTree);
   }
 }
 
@@ -8733,40 +8400,28 @@ CgClientSideEffectsSystem::StartEffects
 void CgClientSideEffectsSystem::StartEffects(CgClientSideEffectsSystem *this)
 {
   MapEnts *mapEnts; 
+  unsigned int v3; 
   unsigned int v4; 
-  unsigned int v5; 
   unsigned int i; 
 
   if ( CgClientSideEffectsSystem::SystemEnabled(this) && cm.mapEnts->createFxEffectTotal && !CG_CreateFx_HasBeenEnabled() )
   {
     mapEnts = cm.mapEnts;
+    v3 = 0;
     v4 = 0;
-    v5 = 0;
     if ( cm.mapEnts->clientSideEffects.oneshotEffectCount )
     {
-      __asm
-      {
-        vmovaps [rsp+38h+var_18], xmm6
-        vxorps  xmm6, xmm6, xmm6
-      }
       do
       {
-        if ( !mapEnts->clientSideEffects.oneshotEffectsTree )
-          goto LABEL_8;
-        _RCX = 56i64 * v5;
-        _RAX = mapEnts->clientSideEffects.oneshotEffects;
-        __asm { vcomiss xmm6, dword ptr [rcx+rax+18h] }
-        if ( is_mul_ok(0x38ui64, v5) )
+        if ( !mapEnts->clientSideEffects.oneshotEffectsTree || mapEnts->clientSideEffects.oneshotEffects[v4].radius <= 0.0 )
         {
-LABEL_8:
           ActiveSet::AddGlobal(&this->m_spatialFX);
-          CG_PlayOneshotEffect((const LocalClientNum_t)this->m_localClientNum, v5);
+          CG_PlayOneshotEffect((const LocalClientNum_t)this->m_localClientNum, v4);
         }
-        ++v5;
+        ++v4;
       }
-      while ( v5 < mapEnts->clientSideEffects.oneshotEffectCount );
+      while ( v4 < mapEnts->clientSideEffects.oneshotEffectCount );
       mapEnts = cm.mapEnts;
-      __asm { vmovaps xmm6, [rsp+38h+var_18] }
     }
     for ( i = 0; i < mapEnts->clientSideEffects.intervalSoundCount; ++i )
     {
@@ -8780,14 +8435,14 @@ LABEL_8:
     {
       do
       {
-        if ( !mapEnts->clientSideEffects.soundsSpatialTree || CgClientSideEffectsSystem::IsSpatialSoundGlobal(this, v4 + mapEnts->clientSideEffects.intervalSoundCount) )
+        if ( !mapEnts->clientSideEffects.soundsSpatialTree || CgClientSideEffectsSystem::IsSpatialSoundGlobal(this, v3 + mapEnts->clientSideEffects.intervalSoundCount) )
         {
           ActiveSet::AddGlobal(&this->m_spatialSound);
-          CgClientSideEffectsSystem::ActiveSounds_Add(this, PhaseSpace, v4);
+          CgClientSideEffectsSystem::ActiveSounds_Add(this, PhaseSpace, v3);
         }
-        ++v4;
+        ++v3;
       }
-      while ( v4 < mapEnts->clientSideEffects.loopSoundCount );
+      while ( v3 < mapEnts->clientSideEffects.loopSoundCount );
     }
   }
 }
@@ -8909,24 +8564,25 @@ void CgClientSideEffectsSystem::Update(CgClientSideEffectsSystem *this)
   char v13; 
   int *p_startTime; 
   __int64 v15; 
-  int v16; 
+  signed int v16; 
   __int64 v17; 
+  unsigned int *p_index; 
+  __int64 v19; 
 
-  _RSI = this;
   if ( CgClientSideEffectsSystem::SystemEnabled(this) && !CG_CreateFx_HasBeenEnabled() )
   {
     if ( cm.mapEnts->createFxEffectTotal )
     {
-      v16 = _RSI->m_pendingCount - 1;
+      v16 = this->m_pendingCount - 1;
       v17 = v16;
       if ( v16 >= 0 )
       {
-        _RBX = &_RSI->m_pending[v16].index;
+        p_index = &this->m_pending[v16].index;
         do
         {
-          if ( CG_Utils_TimeIsInThePast(_RSI->m_localClientNum, _RBX[1]) )
+          if ( CG_Utils_TimeIsInThePast(this->m_localClientNum, p_index[1]) )
           {
-            switch ( *(_RBX - 1) )
+            switch ( *(p_index - 1) )
             {
               case 0u:
               case 6u:
@@ -8942,7 +8598,7 @@ void CgClientSideEffectsSystem::Update(CgClientSideEffectsSystem *this)
                   goto LABEL_35;
                 break;
               case 3u:
-                CgClientSideEffectsSystem::Exploder_ActivateSingle(_RSI, *_RBX, _RBX[1]);
+                CgClientSideEffectsSystem::Exploder_ActivateSingle(this, *p_index, p_index[1]);
                 break;
               case 4u:
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.cpp", 3670, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "IntervalSound can not be delayed") )
@@ -8950,21 +8606,17 @@ LABEL_35:
                   __debugbreak();
                 break;
               case 5u:
-                CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(_RSI, *_RBX);
+                CgClientSideEffectsSystem::ReactiveEnt_ActivateSingle(this, *p_index);
                 break;
               default:
                 break;
             }
-            _RCX = _RSI->m_pendingCount - 1;
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rsi+rcx*4+2084h]
-              vmovsd  qword ptr [rbx-4], xmm0
-            }
-            _RBX[1] = _RSI->m_pending[_RCX].startTime;
-            --_RSI->m_pendingCount;
+            v19 = this->m_pendingCount - 1;
+            *(double *)(p_index - 1) = *(double *)&this->m_pending[this->m_pendingCount - 1].type;
+            p_index[1] = this->m_pending[v19].startTime;
+            --this->m_pendingCount;
           }
-          _RBX -= 3;
+          p_index -= 3;
           --v17;
         }
         while ( v17 >= 0 );
@@ -8972,8 +8624,8 @@ LABEL_35:
     }
     else
     {
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)_RSI->m_localClientNum);
-      m_localClientNum = _RSI->m_localClientNum;
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+      m_localClientNum = this->m_localClientNum;
       time = LocalClientGlobals->time;
       v5 = 12i64;
       p_reactiveSound = &CG_GetLocalClientGlobals(m_localClientNum)->cseData.reactiveSoundsActive[0].reactiveSound;
@@ -9040,10 +8692,7 @@ void CgClientSideEffectsSystem::UpdateEffects(CgClientSideEffectsSystem *this)
   if ( CgClientSideEffectsSystem::SystemEnabled(this) && !CG_CreateFx_HasBeenEnabled() && cm.mapEnts->createFxEffectTotal && CgClientSideEffectsSystem::GetViewPos(this, &out_pos) )
   {
     if ( cm.mapEnts->clientSideEffects.oneshotEffectsTree )
-    {
-      __asm { vmovss  xmm3, cs:__real@41200000; viewRadius }
-      ActiveSet::Update(&this->m_spatialFX, this->m_localClientNum, &out_pos, *(float *)&_XMM3, NULL, (bool (__fastcall *const)(const LocalClientNum_t, unsigned int))CG_SpatialFX_Activate, CG_SpatialFX_Deactivate, CG_SpatialFX_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialFX_GetRadius, cm.mapEnts->clientSideEffects.oneshotEffectsTree);
-    }
+      ActiveSet::Update(&this->m_spatialFX, this->m_localClientNum, &out_pos, 10.0, NULL, (bool (__fastcall *const)(const LocalClientNum_t, unsigned int))CG_SpatialFX_Activate, CG_SpatialFX_Deactivate, CG_SpatialFX_GetOrigin, (float (__fastcall *)(const LocalClientNum_t, unsigned int))CG_SpatialFX_GetRadius, cm.mapEnts->clientSideEffects.oneshotEffectsTree);
   }
 }
 

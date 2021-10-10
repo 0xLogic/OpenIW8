@@ -82,21 +82,13 @@ bdDTLSCookieAck::bdDTLSCookieAck
 */
 void bdDTLSCookieAck::bdDTLSCookieAck(bdDTLSCookieAck *this, unsigned __int16 vtag, const unsigned __int8 *key, const bdSecurityID secID)
 {
-  _RBX = key;
-  _RDI = this;
   bdDTLSHeader::bdDTLSHeader(this, BD_DTLS_COOKIE_ACK, vtag, 0);
-  _RDI->__vftable = (bdDTLSCookieAck_vtbl *)&bdDTLSCookieAck::`vftable';
-  bdSecurityID::bdSecurityID(&_RDI->m_secID, *(const bdSecurityID **)&secID);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+10h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+30h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rdi+50h], ymm0
-  }
-  *(_DWORD *)&_RDI->m_ECCKey[96] = *((_DWORD *)_RBX + 24);
+  this->__vftable = (bdDTLSCookieAck_vtbl *)&bdDTLSCookieAck::`vftable';
+  bdSecurityID::bdSecurityID(&this->m_secID, *(const bdSecurityID **)&secID);
+  *(__m256i *)this->m_ECCKey = *(__m256i *)key;
+  *(__m256i *)&this->m_ECCKey[32] = *((__m256i *)key + 1);
+  *(__m256i *)&this->m_ECCKey[64] = *((__m256i *)key + 2);
+  *(_DWORD *)&this->m_ECCKey[96] = *((_DWORD *)key + 24);
   bdSecurityID::~bdSecurityID(*(bdSecurityID **)&secID);
 }
 

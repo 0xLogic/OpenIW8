@@ -135,15 +135,14 @@ void __fastcall SV_CmdsSP_SetSpecialistModeDvar(const bool specialistMode)
 SV_ScriptProfile_f
 ==============
 */
-
-void __fastcall SV_ScriptProfile_f(double _XMM0_8)
+void SV_ScriptProfile_f()
 {
-  scrContext_t *v1; 
+  scrContext_t *v0; 
+  double v1; 
 
-  v1 = ScriptContext_Server();
-  _XMM0_8 = SV_Cmd_ArgFloat(1);
-  __asm { vmovaps xmm1, xmm0; minTime }
-  Scr_DoProfile(v1, *(float *)&_XMM1);
+  v0 = ScriptContext_Server();
+  v1 = SV_Cmd_ArgFloat(1);
+  Scr_DoProfile(v0, *(float *)&v1);
 }
 
 /*
@@ -151,15 +150,14 @@ void __fastcall SV_ScriptProfile_f(double _XMM0_8)
 SV_ScriptBuiltin_f
 ==============
 */
-
-void __fastcall SV_ScriptBuiltin_f(double _XMM0_8)
+void SV_ScriptBuiltin_f()
 {
-  scrContext_t *v1; 
+  scrContext_t *v0; 
+  double v1; 
 
-  v1 = ScriptContext_Server();
-  _XMM0_8 = SV_Cmd_ArgFloat(1);
-  __asm { vmovaps xmm1, xmm0; minTime }
-  Scr_DoProfileBuiltin(v1, *(float *)&_XMM1);
+  v0 = ScriptContext_Server();
+  v1 = SV_Cmd_ArgFloat(1);
+  Scr_DoProfileBuiltin(v0, *(float *)&v1);
 }
 
 /*
@@ -225,15 +223,13 @@ void Scr_PrintScriptFunctionNames_f()
 SV_CmdsSP_FastRestart_f
 ==============
 */
-
-char __fastcall SV_CmdsSP_FastRestart_f(double _XMM0_8)
+char SV_CmdsSP_FastRestart_f()
 {
   char result; 
 
   if ( Com_IsAnyLocalServerStarting() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_ccmds_sp.cpp", 859, ASSERT_TYPE_ASSERT, "(!Com_IsAnyLocalServerStarting())", "%s\n\tCan't restart map while server is starting up", "!Com_IsAnyLocalServerStarting()") )
     __debugbreak();
-  __asm { vxorps  xmm0, xmm0, xmm0; volume }
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(0.0, 0);
   s_svCmdsSP_mapRestart = 1;
   s_svCmdsSP_loadScripts = 0;
   result = Com_IsAnyLocalServerRunning();
@@ -1236,17 +1232,16 @@ SV_CmdsSP_RequestMapRestart
 */
 void SV_CmdsSP_RequestMapRestart(int loadScripts)
 {
-  const char *v4; 
+  const char *v2; 
 
   if ( Com_IsAnyLocalServerStarting() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_sp\\sv_ccmds_sp.cpp", 859, ASSERT_TYPE_ASSERT, "(!Com_IsAnyLocalServerStarting())", "%s\n\tCan't restart map while server is starting up", "!Com_IsAnyLocalServerStarting()") )
     __debugbreak();
-  __asm { vxorps  xmm0, xmm0, xmm0; volume }
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(0.0, 0);
   s_svCmdsSP_mapRestart = 1;
   if ( loadScripts )
   {
-    v4 = Cmd_Argv(1);
-    Core_strcpy_truncate(s_svCmdsSP_loadZone, 0x40ui64, v4);
+    v2 = Cmd_Argv(1);
+    Core_strcpy_truncate(s_svCmdsSP_loadZone, 0x40ui64, v2);
   }
   s_svCmdsSP_loadScripts = loadScripts;
   if ( !Com_IsAnyLocalServerRunning() )
@@ -1309,8 +1304,7 @@ void SV_LoadGameContinue(int loadScripts, int missionfailed, const char *overrid
     SV_DemoSP_Restart_f();
     return;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0; volume }
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(0.0, 0);
   s_svCmdsSP_mapRestart = 0;
   s_svCmdsSP_loadScripts = loadScripts;
   MemCard_SetUseDevSaveArea(0);

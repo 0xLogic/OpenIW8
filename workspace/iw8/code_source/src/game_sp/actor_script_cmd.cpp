@@ -489,73 +489,56 @@ AIActorInterface::OnScrCmd_AIClearAnim
 */
 void AIActorInterface::OnScrCmd_AIClearAnim(AIActorInterface *this, scrContext_t *scrContext)
 {
-  AIActorInterface_vtbl *v7; 
-  gentity_s *v8; 
+  gentity_s *v4; 
   XAnimTree *EntAnimTree; 
   scr_string_t AnimsetName; 
   scr_string_t ConstString; 
   int Int; 
-  const char *v14; 
+  double Float; 
+  const char *v10; 
   const char *String; 
-  const char *v16; 
-  unsigned int v17; 
+  const char *v12; 
+  unsigned int v13; 
   const XAnim_s *SubTreeAnims; 
   XAnimCurveID curveID; 
   DObj *ServerDObjForEnt; 
-  float pOutGraftNode; 
-  float pOutGraftNodea; 
-  float pOutAnimSubtreeID; 
-  float pOutAnimCurveID; 
   unsigned int pOutAnimIndex; 
   int pOutStateIndex; 
   float weight; 
   AnimsetState *outState; 
-  XAnimCurveID v33; 
-  XAnimSubTreeID v34; 
+  XAnimCurveID pOutAnimCurveID; 
+  XAnimSubTreeID pOutAnimSubtreeID; 
 
-  v33 = LINEAR;
+  pOutAnimCurveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1568, scrContext, "AnimScripted entities are not supported in this game mode");
   if ( Scr_GetType(scrContext, 0) == VAR_STRING )
   {
-    v7 = this->__vftable;
-    __asm { vmovaps [rsp+98h+var_38], xmm6 }
-    v8 = v7->GetEntity(this);
-    EntAnimTree = GScr_GetEntAnimTree(v8);
-    AnimsetName = BG_AnimationState_GetAnimsetName(&v8->s);
+    v4 = this->GetEntity(this);
+    EntAnimTree = GScr_GetEntAnimTree(v4);
+    AnimsetName = BG_AnimationState_GetAnimsetName(&v4->s);
     ConstString = Scr_GetConstString(scrContext, 0);
     Int = Scr_GetInt(scrContext, 1u);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
+    Float = Scr_GetFloat(scrContext, 2u);
     outState = NULL;
-    __asm { vmovaps xmm6, xmm0 }
     BG_Animset_GetStateInfoByName(AnimsetName, ConstString, &outState, &pOutStateIndex);
     if ( !outState )
     {
-      v14 = SL_ConvertToString(AnimsetName);
+      v10 = SL_ConvertToString(AnimsetName);
       String = Scr_GetString(scrContext, 0);
-      v16 = j_va("Unable to find state %s in animset %s", String, v14);
-      Scr_Error(COM_ERR_1569, scrContext, v16);
+      v12 = j_va("Unable to find state %s in animset %s", String, v10);
+      Scr_Error(COM_ERR_1569, scrContext, v12);
     }
-    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, Int, &pOutAnimIndex, (unsigned int *)&weight, &v34, &v33);
-    if ( ShouldDumpAnimCommand(scrContext, v8->s.number, 3u) )
+    BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, Int, &pOutAnimIndex, (unsigned int *)&weight, &pOutAnimSubtreeID, &pOutAnimCurveID);
+    if ( ShouldDumpAnimCommand(scrContext, v4->s.number, 3u) )
     {
-      v17 = pOutAnimIndex;
-      SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, v34);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  dword ptr [rsp+98h+pOutAnimCurveID], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  dword ptr [rsp+98h+pOutAnimSubtreeID], xmm6
-        vmovss  dword ptr [rsp+98h+pOutGraftNode], xmm1
-      }
-      DumpAnimCommandInternal("ClearAnim", SubTreeAnims, v17, -1, pOutGraftNode, pOutAnimSubtreeID, pOutAnimCurveID);
+      v13 = pOutAnimIndex;
+      SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, pOutAnimSubtreeID);
+      DumpAnimCommandInternal("ClearAnim", SubTreeAnims, v13, -1, 0.0, *(float *)&Float, 1.0);
     }
-    curveID = v33;
-    ServerDObjForEnt = Com_GetServerDObjForEnt(v8);
-    __asm { vmovss  dword ptr [rsp+98h+pOutGraftNode], xmm6 }
-    XAnimClearTreeGoalWeights(EntAnimTree, LODWORD(weight), v34, pOutAnimIndex, pOutGraftNodea, 1, ServerDObjForEnt, curveID);
-    __asm { vmovaps xmm6, [rsp+98h+var_38] }
+    curveID = pOutAnimCurveID;
+    ServerDObjForEnt = Com_GetServerDObjForEnt(v4);
+    XAnimClearTreeGoalWeights(EntAnimTree, LODWORD(weight), pOutAnimSubtreeID, pOutAnimIndex, *(float *)&Float, 1, ServerDObjForEnt, curveID);
   }
 }
 
@@ -566,43 +549,37 @@ AIActorInterface::OnScrCmd_AISetAnim
 */
 void AIActorInterface::OnScrCmd_AISetAnim(AIActorInterface *this, scrContext_t *scrContext)
 {
-  const gentity_s *v7; 
-  unsigned int v9; 
-  char v11; 
+  const gentity_s *v4; 
+  float v5; 
+  unsigned int v6; 
+  double Float; 
   int Int; 
   scr_string_t ConstString; 
   actor_s *m_pAI; 
   scr_string_t AnimsetName; 
-  const Animset *v16; 
+  const Animset *v12; 
   const char *name; 
   const char *String; 
-  const char *v19; 
-  const char *v20; 
-  const char *v21; 
-  int v23; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
   int pOutStateIndex; 
   AnimsetState *outState; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1561, scrContext, "AnimScripted entities are not supported int this game mode");
-  v7 = this->GetEntity(this);
-  if ( !Com_GetServerDObjForEnt(v7) )
+  v4 = this->GetEntity(this);
+  if ( !Com_GetServerDObjForEnt(v4) )
     Scr_ObjectError(COM_ERR_1562, scrContext, "No model exists.");
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  v9 = Scr_GetNumParam(scrContext) - 2;
-  if ( v9 )
+  v5 = FLOAT_1_0;
+  v6 = Scr_GetNumParam(scrContext) - 2;
+  if ( v6 )
   {
-    if ( v9 != 1 )
+    if ( v6 != 1 )
       Scr_Error(COM_ERR_1563, scrContext, "incorrect number of parameters");
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v11 )
+    Float = Scr_GetFloat(scrContext, 2u);
+    v5 = *(float *)&Float;
+    if ( *(float *)&Float < 0.0 )
       Scr_ParamError(COM_ERR_1564, scrContext, 4u, "must set nonnegative rate for flagged anims");
   }
   Int = Scr_GetInt(scrContext, 1u);
@@ -612,24 +589,22 @@ void AIActorInterface::OnScrCmd_AISetAnim(AIActorInterface *this, scrContext_t *
   m_pAI = this->m_pAI;
   outState = NULL;
   AnimsetName = BG_AnimationState_GetAnimsetName(&m_pAI->ent->s);
-  v16 = Animset_Find(AnimsetName);
-  BG_Animset_GetStateInfoByName(v16, ConstString, &outState, &pOutStateIndex);
+  v12 = Animset_Find(AnimsetName);
+  BG_Animset_GetStateInfoByName(v12, ConstString, &outState, &pOutStateIndex);
   if ( !outState )
   {
-    name = v16->name;
+    name = v12->name;
     String = Scr_GetString(scrContext, 0);
-    v19 = j_va("Unable to find state %s in animset %s", String, name);
-    Scr_ParamError(COM_ERR_1566, scrContext, 0, v19);
+    v15 = j_va("Unable to find state %s in animset %s", String, name);
+    Scr_ParamError(COM_ERR_1566, scrContext, 0, v15);
   }
   if ( Int < 0 )
   {
-    v20 = Scr_GetString(scrContext, 0);
-    v21 = j_va("invalid entry index %d for animset %s state %s", (unsigned int)Int, v16->name, v20);
-    Scr_ParamError(COM_ERR_1567, scrContext, 1u, v21);
+    v16 = Scr_GetString(scrContext, 0);
+    v17 = j_va("invalid entry index %d for animset %s state %s", (unsigned int)Int, v12->name, v16);
+    Scr_ParamError(COM_ERR_1567, scrContext, 1u, v17);
   }
-  __asm { vmovss  [rsp+58h+var_38], xmm6 }
-  ((void (__fastcall *)(AIActorInterface *, const Animset *, _QWORD, _QWORD, int))this->SetAnim)(this, v16, (unsigned int)pOutStateIndex, (unsigned int)Int, v23);
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
+  ((void (__fastcall *)(AIActorInterface *, const Animset *, _QWORD, _QWORD, _DWORD))this->SetAnim)(this, v12, (unsigned int)pOutStateIndex, (unsigned int)Int, LODWORD(v5));
 }
 
 /*
@@ -740,68 +715,63 @@ AIActorInterface::OnScrCmd_AISetAnimRate
 */
 void AIActorInterface::OnScrCmd_AISetAnimRate(AIActorInterface *this, scrContext_t *scrContext)
 {
-  gentity_s *v7; 
-  XAnimTree *v8; 
+  gentity_s *v4; 
+  XAnimTree *v5; 
   scr_string_t AnimsetName; 
-  unsigned int v10; 
+  unsigned int v7; 
   scr_string_t ConstString; 
   int Int; 
-  const char *v14; 
+  double Float; 
+  float v11; 
+  const char *v12; 
   const char *String; 
-  const char *v16; 
-  unsigned int v17; 
+  const char *v14; 
+  double v15; 
+  unsigned int v16; 
   const XAnim_s *SubTreeAnims; 
-  float pOutGraftNode; 
-  float pOutGraftNodea; 
   int pOutStateIndex; 
   AnimsetState *outState; 
-  void *retaddr; 
   XAnimSubTreeID outSubTreeID; 
   unsigned int pOutAnimIndex; 
   unsigned int outGraftAnimIndex; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1570, scrContext, "AnimScripted entities are not supported in this game mode");
-  v7 = this->GetEntity(this);
-  v8 = this->GetAnimTree(this);
+  v4 = this->GetEntity(this);
+  v5 = this->GetAnimTree(this);
   if ( Scr_GetType(scrContext, 0) == VAR_STRING )
   {
-    AnimsetName = BG_AnimationState_GetAnimsetName(&v7->s);
-    v10 = 1;
+    AnimsetName = BG_AnimationState_GetAnimsetName(&v4->s);
+    v7 = 1;
     ConstString = Scr_GetConstString(scrContext, 0);
     Int = Scr_GetInt(scrContext, 1u);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
+    Float = Scr_GetFloat(scrContext, 2u);
     outState = NULL;
-    __asm { vmovaps xmm6, xmm0 }
+    v11 = *(float *)&Float;
     BG_Animset_GetStateInfoByName(AnimsetName, ConstString, &outState, &pOutStateIndex);
     if ( !outState )
     {
-      v14 = SL_ConvertToString(AnimsetName);
+      v12 = SL_ConvertToString(AnimsetName);
       String = Scr_GetString(scrContext, 0);
-      v16 = j_va("Unable to find state %s in animset %s", String, v14);
-      Scr_Error(COM_ERR_1571, scrContext, v16);
+      v14 = j_va("Unable to find state %s in animset %s", String, v12);
+      Scr_Error(COM_ERR_1571, scrContext, v14);
     }
     BG_Animset_GetAnimIndexFromStateIndexAndEntry(AnimsetName, pOutStateIndex, Int, &pOutAnimIndex, &outGraftAnimIndex, &outSubTreeID, NULL);
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
-    pOutAnimIndex = Scr_GetAnim(scrContext, 0, v8).index;
-    v10 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 2u, &outGraftAnimIndex, &outSubTreeID, &pOutAnimIndex, NULL);
+    v15 = Scr_GetFloat(scrContext, 1u);
+    v11 = *(float *)&v15;
+    pOutAnimIndex = Scr_GetAnim(scrContext, 0, v5).index;
+    v7 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 2u, &outGraftAnimIndex, &outSubTreeID, &pOutAnimIndex, NULL);
   }
-  __asm { vmovss  dword ptr [rsp+98h+pOutGraftNode], xmm6 }
-  XAnimSetAnimRate(v8, outGraftAnimIndex, outSubTreeID, pOutAnimIndex, pOutGraftNode);
-  if ( ShouldDumpAnimCommand(scrContext, v7->s.number, v10 + 2) )
+  XAnimSetAnimRate(v5, outGraftAnimIndex, outSubTreeID, pOutAnimIndex, v11);
+  if ( ShouldDumpAnimCommand(scrContext, v4->s.number, v7 + 2) )
   {
-    v17 = pOutAnimIndex;
-    SubTreeAnims = XAnimGetSubTreeAnims(v8, outSubTreeID);
-    __asm { vmovss  dword ptr [rsp+98h+pOutGraftNode], xmm6 }
-    DumpAnimSetRateCommand("SetAnimRate", SubTreeAnims, v17, -1, pOutGraftNodea);
+    v16 = pOutAnimIndex;
+    SubTreeAnims = XAnimGetSubTreeAnims(v5, outSubTreeID);
+    DumpAnimSetRateCommand("SetAnimRate", SubTreeAnims, v16, -1, v11);
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -811,89 +781,59 @@ AIActorInterface::OnScrCmd_AISetAnimTime
 */
 void AIActorInterface::OnScrCmd_AISetAnimTime(AIActorInterface *this, scrContext_t *scrContext)
 {
-  gentity_s *v7; 
-  XAnimTree *v10; 
+  gentity_s *v4; 
+  float v5; 
+  XAnimTree *v6; 
   unsigned int NumParam; 
-  char v12; 
-  char v13; 
-  const char *v14; 
-  ComErrorCode v15; 
-  unsigned int v16; 
+  double Float; 
+  const char *v9; 
+  ComErrorCode v10; 
+  unsigned int v11; 
   const XAnim_s *SubTreeAnims; 
-  int IsLeafNode; 
-  bool v19; 
-  float outAnimIndex; 
-  float outAnimIndexa; 
   XAnimSubTreeID outSubTreeID; 
   unsigned int animIndex; 
   unsigned int outGraftAnimIndex; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps [rsp+78h+var_48], xmm8
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1575, scrContext, "AnimScripted entities are not supported in this game mode");
-  v7 = this->GetEntity(this);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v10 = this->GetAnimTree(this);
+  v4 = this->GetEntity(this);
+  v5 = 0.0;
+  v6 = this->GetAnimTree(this);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
     if ( NumParam - 2 > 2 )
       Scr_Error(COM_ERR_1576, scrContext, "too many parameters");
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
+    Float = Scr_GetFloat(scrContext, 1u);
+    v5 = *(float *)&Float;
+    if ( *(float *)&Float >= 0.0 )
     {
-      vcomiss xmm0, xmm8
-      vmovaps xmm6, xmm0
-    }
-    if ( v12 )
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      v14 = "must be > 0";
-      v15 = COM_ERR_1577;
+      if ( *(float *)&Float <= 1.0 )
+        goto LABEL_11;
+      v5 = FLOAT_1_0;
+      v9 = "must be < 1";
+      v10 = COM_ERR_1578;
     }
     else
     {
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( v12 | v13 )
-        goto LABEL_11;
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-      v14 = "must be < 1";
-      v15 = COM_ERR_1578;
+      v5 = 0.0;
+      v9 = "must be > 0";
+      v10 = COM_ERR_1577;
     }
-    Scr_ParamError(v15, scrContext, 1u, v14);
+    Scr_ParamError(v10, scrContext, 1u, v9);
   }
 LABEL_11:
-  animIndex = Scr_GetAnim(scrContext, 0, v10).index;
-  v16 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 2u, &outGraftAnimIndex, &outSubTreeID, &animIndex, NULL);
-  SubTreeAnims = XAnimGetSubTreeAnims(v10, outSubTreeID);
-  IsLeafNode = XAnimIsLeafNode(SubTreeAnims, animIndex);
-  v19 = IsLeafNode == 0;
-  if ( !IsLeafNode )
+  animIndex = Scr_GetAnim(scrContext, 0, v6).index;
+  v11 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 2u, &outGraftAnimIndex, &outSubTreeID, &animIndex, NULL);
+  SubTreeAnims = XAnimGetSubTreeAnims(v6, outSubTreeID);
+  if ( !XAnimIsLeafNode(SubTreeAnims, animIndex) )
     Scr_ParamError(COM_ERR_1579, scrContext, 0, "not a leaf animation");
-  __asm { vucomiss xmm6, cs:__real@3f800000 }
-  if ( v19 && XAnimIsLooped(SubTreeAnims, animIndex) )
+  if ( v5 == 1.0 && XAnimIsLooped(SubTreeAnims, animIndex) )
     Scr_ParamError(COM_ERR_1580, scrContext, 1u, "cannot set time 1 on looping animation");
-  __asm { vmovss  dword ptr [rsp+78h+outAnimIndex], xmm6 }
-  XAnimSetTime(v10, outGraftAnimIndex, outSubTreeID, animIndex, outAnimIndex);
-  G_FlagAnimForUpdate(v7);
-  if ( ShouldDumpAnimCommand(scrContext, v7->s.number, v16 + 2) )
-  {
-    __asm { vmovss  dword ptr [rsp+78h+outAnimIndex], xmm6 }
-    DumpAnimSetTimeCommand("SetAnimTime", SubTreeAnims, animIndex, -1, outAnimIndexa);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm8, [rsp+78h+var_48]
-  }
+  XAnimSetTime(v6, outGraftAnimIndex, outSubTreeID, animIndex, v5);
+  G_FlagAnimForUpdate(v4);
+  if ( ShouldDumpAnimCommand(scrContext, v4->s.number, v11 + 2) )
+    DumpAnimSetTimeCommand("SetAnimTime", SubTreeAnims, animIndex, -1, v5);
 }
 
 /*
@@ -970,40 +910,26 @@ AIActorInterface::OnScrCmd_CheckProne
 */
 void AIActorInterface::OnScrCmd_CheckProne(AIActorInterface *this, scrContext_t *scrContext)
 {
+  double Float; 
+  float v5; 
+  unsigned int Int; 
   GHandler *handler; 
-  gentity_s *v10; 
-  bool v19; 
-  float v21; 
-  float v22; 
-  int proneValidFlags; 
+  gentity_s *v8; 
+  bool v13; 
   vec3_t vPos; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-28h], xmm6 }
   Scr_GetVector(scrContext, 0, &vPos);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  _EBX = Scr_GetInt(scrContext, 2u);
+  Float = Scr_GetFloat(scrContext, 1u);
+  v5 = *(float *)&Float;
+  Int = Scr_GetInt(scrContext, 2u);
   handler = GHandler::getHandler();
-  v10 = this->GetEntity(this);
-  __asm { vmovss  xmm2, cs:__real@41c80000 }
-  proneValidFlags = 0;
-  __asm
-  {
-    vmovd   xmm1, edx
-    vmovd   xmm0, ebx
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@42480000
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  xmm3, cs:__real@42400000; fHeight
-    vmovss  xmm2, cs:__real@41700000; fSize
-    vmovss  [rsp+0D8h+var_70], xmm0
-    vmovss  [rsp+0D8h+var_B8], xmm6
-  }
-  v19 = BG_CheckProneValid(v10->s.number, &vPos, *(const float *)&_XMM2, *(const float *)&_XMM3, v21, NULL, NULL, _EBX != 0, 1, 1, handler, PHYSICS_WORLD_ID_FIRST, PCT_ACTOR, v22, FEETDIR_BACK, NULL, NULL);
-  Scr_AddBool(scrContext, v19);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_28] }
+  v8 = this->GetEntity(this);
+  _XMM0 = Int;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_50_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  v13 = BG_CheckProneValid(v8->s.number, &vPos, 15.0, 48.0, v5, NULL, NULL, Int != 0, 1, 1, handler, PHYSICS_WORLD_ID_FIRST, PCT_ACTOR, *(float *)&_XMM0, FEETDIR_BACK, NULL, NULL);
+  Scr_AddBool(scrContext, v13);
 }
 
 /*
@@ -1013,9 +939,10 @@ AIActorInterface::OnScrCmd_CodeMoveAnimRate
 */
 void AIActorInterface::OnScrCmd_CodeMoveAnimRate(AIActorInterface *this, scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  _RAX = this->m_pAI;
-  __asm { vmovss  dword ptr [rax+0E78h], xmm0 }
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  this->m_pAI->movePlaybackRate = *(float *)&Float;
 }
 
 /*
@@ -1025,90 +952,48 @@ AIActorInterface::OnScrCmd_EnterProne
 */
 void AIActorInterface::OnScrCmd_EnterProne(AIActorInterface *this, scrContext_t *scrContext)
 {
-  BOOL v10; 
-  const dvar_t *v12; 
   actor_s *m_pAI; 
+  double Float; 
+  BOOL v6; 
+  int v7; 
+  const dvar_t *v8; 
+  actor_s *v9; 
   unsigned int animProneLow; 
-  XAnimTree *v18; 
-  unsigned int animProneLevel; 
-  XAnimTree *v21; 
-  unsigned int animProneHigh; 
-  XAnimTree *v23; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
   float time; 
-  float timea; 
-  float timeb; 
-  float rate; 
-  float ratea; 
-  float rateb; 
+  XAnimTree *v12; 
+  unsigned int animProneLevel; 
+  XAnimTree *v14; 
+  unsigned int animProneHigh; 
+  XAnimTree *v16; 
 
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+0BD0h]
-  }
-  if ( !_RAX->prone.animProneLow || !_RAX->prone.animProneLevel || !_RAX->prone.animProneHigh )
+  m_pAI = this->m_pAI;
+  if ( m_pAI->prone.fInvProneAnimLowPitch == 0.0 && m_pAI->prone.fInvProneAnimHighPitch == 0.0 || !m_pAI->prone.animProneLow || !m_pAI->prone.animProneLevel || !m_pAI->prone.animProneHigh )
     Scr_Error(COM_ERR_1553, scrContext, "Must call SetProneAnimNodes before calling EnterProne");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
-  v10 = 1;
-  __asm { vcvttss2si ebp, xmm1 }
+  Float = Scr_GetFloat(scrContext, 0);
+  v6 = 1;
+  v7 = (int)(float)(*(float *)&Float * 1000.0);
   if ( Scr_GetNumParam(scrContext) > 1 )
-    v10 = Scr_GetInt(scrContext, 1u) == 0;
-  AIScriptedInterface::EnterProne(this, _EBP, (FeetDirection)v10);
-  v12 = DVARINT_g_dumpAnimsCommands;
+    v6 = Scr_GetInt(scrContext, 1u) == 0;
+  AIScriptedInterface::EnterProne(this, v7, (FeetDirection)v6);
+  v8 = DVARINT_g_dumpAnimsCommands;
   if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  m_pAI = this->m_pAI;
-  if ( v12->current.integer == m_pAI->ent->s.number )
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = this->m_pAI;
+  if ( v8->current.integer == v9->ent->s.number )
   {
-    if ( m_pAI->prone.animProneLevel )
+    if ( v9->prone.animProneLevel )
     {
-      animProneLow = m_pAI->prone.animProneLow;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vmovaps [rsp+68h+var_18], xmm6
-        vmovaps [rsp+68h+var_28], xmm7
-        vmulss  xmm7, xmm0, cs:__real@3a83126f
-      }
-      v18 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vmovss  [rsp+68h+rate], xmm6
-        vmovss  [rsp+68h+time], xmm7
-        vmovss  dword ptr [rsp+68h+fmt], xmm6
-      }
-      DumpAnimCommand("EnterProne", v18, animProneLow, -1, fmt, time, rate);
+      animProneLow = v9->prone.animProneLow;
+      time = (float)v7 * 0.001;
+      v12 = this->GetAnimTree(this);
+      DumpAnimCommand("EnterProne", v12, animProneLow, -1, 1.0, time, 1.0);
       animProneLevel = this->m_pAI->prone.animProneLevel;
-      v21 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  [rsp+68h+rate], xmm6
-        vmovss  [rsp+68h+time], xmm7
-        vmovss  dword ptr [rsp+68h+fmt], xmm6
-      }
-      DumpAnimCommand("EnterProne", v21, animProneLevel, -1, fmta, timea, ratea);
+      v14 = this->GetAnimTree(this);
+      DumpAnimCommand("EnterProne", v14, animProneLevel, -1, 1.0, time, 1.0);
       animProneHigh = this->m_pAI->prone.animProneHigh;
-      v23 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  [rsp+68h+rate], xmm6
-        vmovss  [rsp+68h+time], xmm7
-        vmovss  dword ptr [rsp+68h+fmt], xmm6
-      }
-      DumpAnimCommand("EnterProne", v23, animProneHigh, -1, fmtb, timeb, rateb);
-      __asm
-      {
-        vmovaps xmm7, [rsp+68h+var_28]
-        vmovaps xmm6, [rsp+68h+var_18]
-      }
+      v16 = this->GetAnimTree(this);
+      DumpAnimCommand("EnterProne", v16, animProneHigh, -1, 1.0, time, 1.0);
     }
   }
 }
@@ -1120,84 +1005,38 @@ AIActorInterface::OnScrCmd_ExitProne
 */
 void AIActorInterface::OnScrCmd_ExitProne(AIActorInterface *this, scrContext_t *scrContext)
 {
-  const dvar_t *v9; 
+  double Float; 
+  const dvar_t *v4; 
   actor_s *m_pAI; 
   unsigned int animProneLow; 
-  XAnimTree *v15; 
-  unsigned int animProneLevel; 
-  XAnimTree *v19; 
-  unsigned int animProneHigh; 
-  XAnimTree *v21; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
   float time; 
-  float timea; 
-  float timeb; 
-  float rate; 
-  float ratea; 
-  float rateb; 
+  XAnimTree *v8; 
+  unsigned int animProneLevel; 
+  XAnimTree *v10; 
+  unsigned int animProneHigh; 
+  XAnimTree *v12; 
 
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si esi, xmm1
-  }
-  AIScriptedInterface::ExitProne(this, _ESI);
-  v9 = DVARINT_g_dumpAnimsCommands;
+  Float = Scr_GetFloat(scrContext, 0);
+  AIScriptedInterface::ExitProne(this, (int)(float)(*(float *)&Float * 1000.0));
+  v4 = DVARINT_g_dumpAnimsCommands;
   if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
+  Dvar_CheckFrontendServerThread(v4);
   m_pAI = this->m_pAI;
-  if ( v9->current.integer == m_pAI->ent->s.number )
+  if ( v4->current.integer == m_pAI->ent->s.number )
   {
     if ( m_pAI->prone.animProneLevel )
     {
       animProneLow = m_pAI->prone.animProneLow;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovaps [rsp+78h+var_18], xmm6
-        vcvtsi2ss xmm0, xmm0, esi
-        vmovaps [rsp+78h+var_28], xmm7
-        vmovaps [rsp+78h+var_38], xmm8
-        vmulss  xmm8, xmm0, cs:__real@3a83126f
-      }
-      v15 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  [rsp+78h+rate], xmm7
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  [rsp+78h+time], xmm8
-        vmovss  dword ptr [rsp+78h+fmt], xmm6
-      }
-      DumpAnimCommand("ExitProne", v15, animProneLow, -1, fmt, time, rate);
+      time = (float)(int)(float)(*(float *)&Float * 1000.0) * 0.001;
+      v8 = this->GetAnimTree(this);
+      DumpAnimCommand("ExitProne", v8, animProneLow, -1, 0.0, time, 1.0);
       animProneLevel = this->m_pAI->prone.animProneLevel;
-      v19 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  [rsp+78h+rate], xmm7
-        vmovss  [rsp+78h+time], xmm8
-        vmovss  dword ptr [rsp+78h+fmt], xmm6
-      }
-      DumpAnimCommand("ExitProne", v19, animProneLevel, -1, fmta, timea, ratea);
+      v10 = this->GetAnimTree(this);
+      DumpAnimCommand("ExitProne", v10, animProneLevel, -1, 0.0, time, 1.0);
       animProneHigh = this->m_pAI->prone.animProneHigh;
-      v21 = this->GetAnimTree(this);
-      __asm
-      {
-        vmovss  [rsp+78h+rate], xmm7
-        vmovss  [rsp+78h+time], xmm8
-        vmovss  dword ptr [rsp+78h+fmt], xmm6
-      }
-      DumpAnimCommand("ExitProne", v21, animProneHigh, -1, fmtb, timeb, rateb);
-      __asm
-      {
-        vmovaps xmm8, [rsp+78h+var_38]
-        vmovaps xmm7, [rsp+78h+var_28]
-        vmovaps xmm6, [rsp+78h+var_18]
-      }
+      v12 = this->GetAnimTree(this);
+      DumpAnimCommand("ExitProne", v12, animProneHigh, -1, 0.0, time, 1.0);
     }
   }
 }
@@ -1258,17 +1097,7 @@ void AIActorInterface::OnScrCmd_InitRiotshieldHealth(AIActorInterface *this, scr
       else
         riotShieldHealth = 1;
       this->m_pAI->shieldHealth = riotShieldHealth;
-      __asm { vmovups ymm0, ymmword ptr [rsp+98h+outWeapon.weaponIdx] }
-      _RCX = this->m_pAI;
-      __asm
-      {
-        vmovups ymmword ptr [rcx+0E84h], ymm0
-        vmovups xmm1, xmmword ptr [rsp+98h+outWeapon.attachmentVariationIndices+5]
-        vmovups xmmword ptr [rcx+0EA4h], xmm1
-        vmovsd  xmm0, qword ptr [rsp+98h+outWeapon.attachmentVariationIndices+15h]
-        vmovsd  qword ptr [rcx+0EB4h], xmm0
-      }
-      *(_DWORD *)&_RCX->shieldWeapon.weaponCamo = *(_DWORD *)&outWeapon.weaponCamo;
+      this->m_pAI->shieldWeapon = outWeapon;
     }
   }
   else
@@ -1389,93 +1218,36 @@ AIActorInterface::OnScrCmd_SetProneAnimNodes
 */
 void AIActorInterface::OnScrCmd_SetProneAnimNodes(AIActorInterface *this, scrContext_t *scrContext)
 {
-  char v12; 
-  char v13; 
-  XAnimTree *v14; 
-  const dvar_t *v20; 
+  double Float; 
+  float v5; 
+  double v6; 
+  XAnimTree *v7; 
+  const dvar_t *v8; 
   actor_s *m_pAI; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float time; 
-  float timea; 
-  float timeb; 
-  float rate; 
-  float ratea; 
-  float rateb; 
-  char v40; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm9, xmm6
-  }
-  v14 = this->GetAnimTree(this);
-  if ( !v12 )
+  Float = Scr_GetFloat(scrContext, 0);
+  v5 = *(float *)&Float;
+  v6 = Scr_GetFloat(scrContext, 1u);
+  v7 = this->GetAnimTree(this);
+  if ( v5 >= 0.0 )
     Scr_Error(COM_ERR_1554, scrContext, "Down angle (parameter 1) must be set to be less than 0.");
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v12 | v13 )
+  if ( *(float *)&v6 <= 0.0 )
     Scr_Error(COM_ERR_1555, scrContext, "Up angle (parameter 2) must be set to be greater than 0.");
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vdivss  xmm0, xmm8, xmm9
-    vdivss  xmm1, xmm8, xmm7
-    vmovss  dword ptr [rax+0BD0h], xmm0
-  }
-  _RAX = this->m_pAI;
-  __asm { vmovss  dword ptr [rax+0BD4h], xmm1 }
-  this->m_pAI->prone.animProneLow = Scr_GetAnim(scrContext, 2u, v14).index;
-  this->m_pAI->prone.animProneLevel = Scr_GetAnim(scrContext, 3u, v14).index;
-  this->m_pAI->prone.animProneHigh = Scr_GetAnim(scrContext, 4u, v14).index;
-  v20 = DVARINT_g_dumpAnimsCommands;
+  this->m_pAI->prone.fInvProneAnimLowPitch = 1.0 / v5;
+  this->m_pAI->prone.fInvProneAnimHighPitch = 1.0 / *(float *)&v6;
+  this->m_pAI->prone.animProneLow = Scr_GetAnim(scrContext, 2u, v7).index;
+  this->m_pAI->prone.animProneLevel = Scr_GetAnim(scrContext, 3u, v7).index;
+  this->m_pAI->prone.animProneHigh = Scr_GetAnim(scrContext, 4u, v7).index;
+  v8 = DVARINT_g_dumpAnimsCommands;
   if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
+  Dvar_CheckFrontendServerThread(v8);
   m_pAI = this->m_pAI;
-  if ( v20->current.integer == m_pAI->ent->s.number )
+  if ( v8->current.integer == m_pAI->ent->s.number )
   {
-    __asm
-    {
-      vmovss  [rsp+88h+rate], xmm8
-      vmovss  [rsp+88h+time], xmm6
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    DumpAnimCommand("SetProneAnimNodes", v14, m_pAI->prone.animProneLow, -1, fmt, time, rate);
-    __asm
-    {
-      vmovss  [rsp+88h+rate], xmm8
-      vmovss  [rsp+88h+time], xmm6
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    DumpAnimCommand("SetProneAnimNodes", v14, this->m_pAI->prone.animProneLevel, -1, fmta, timea, ratea);
-    __asm
-    {
-      vmovss  [rsp+88h+rate], xmm8
-      vmovss  [rsp+88h+time], xmm6
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    DumpAnimCommand("SetProneAnimNodes", v14, this->m_pAI->prone.animProneHigh, -1, fmtb, timeb, rateb);
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_28]
+    DumpAnimCommand("SetProneAnimNodes", v7, m_pAI->prone.animProneLow, -1, 1.0, 0.0, 1.0);
+    DumpAnimCommand("SetProneAnimNodes", v7, this->m_pAI->prone.animProneLevel, -1, 1.0, 0.0, 1.0);
+    DumpAnimCommand("SetProneAnimNodes", v7, this->m_pAI->prone.animProneHigh, -1, 1.0, 0.0, 1.0);
   }
 }
 
@@ -1486,60 +1258,29 @@ AIActorInterface::OnScrCmd_SetPupilDiameter
 */
 void AIActorInterface::OnScrCmd_SetPupilDiameter(AIActorInterface *this, scrContext_t *scrContext)
 {
-  char v8; 
-  char v9; 
+  gentity_s *v4; 
+  double Float; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_5796, scrContext, "incorrect number of parameters");
-  _RDI = this->GetEntity(this);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  v4 = this->GetEntity(this);
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float >= 2.0 || *(float *)&Float == 0.0 )
   {
-    vmovss  xmm6, cs:__real@40000000
-    vcomiss xmm0, xmm6
-  }
-  if ( !v8 )
-    goto LABEL_6;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v9 )
-  {
-LABEL_6:
-    __asm
+    if ( *(float *)&Float <= 8.0 )
     {
-      vmovss  xmm6, cs:__real@41000000
-      vcomiss xmm0, xmm6
-    }
-    if ( v8 | v9 )
-    {
-      __asm
-      {
-        vmovaps xmm6, [rsp+38h+var_18]
-        vmovss  dword ptr [rdi+70h], xmm0
-      }
+      v4->s.lerp.u.actor.pupilDiameter = *(float *)&Float;
     }
     else
     {
       Scr_ParamError(COM_ERR_5798, scrContext, 0, "must be <= 8");
-      __asm
-      {
-        vmovss  dword ptr [rdi+70h], xmm6
-        vmovaps xmm6, [rsp+38h+var_18]
-      }
+      v4->s.lerp.u.actor.pupilDiameter = FLOAT_8_0;
     }
   }
   else
   {
     Scr_ParamError(COM_ERR_5797, scrContext, 0, "must be >= 2 or equal to 0");
-    __asm
-    {
-      vmovss  dword ptr [rdi+70h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v4->s.lerp.u.actor.pupilDiameter = FLOAT_2_0;
   }
 }
 
@@ -1664,23 +1405,16 @@ void AIActorInterface::OnScrCmd_UpdateProne(AIActorInterface *this, scrContext_t
 {
   actor_s *m_pAI; 
   trajectory_t_secure *p_pos; 
-  XAnimTree *v10; 
+  XAnimTree *v6; 
   unsigned int index; 
-  unsigned int v12; 
-  const DObj *ServerDObjForEnt; 
-  const dvar_t *v17; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
+  unsigned int v8; 
+  double Float; 
+  float v10; 
+  double v11; 
   float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float rate; 
-  float ratea; 
-  float rateb; 
-  float ratec; 
+  double rate; 
+  const DObj *ServerDObjForEnt; 
+  const dvar_t *v15; 
 
   if ( BG_ActorIsProne(&this->m_pAI->ProneInfo, level.time) )
   {
@@ -1690,63 +1424,26 @@ void AIActorInterface::OnScrCmd_UpdateProne(AIActorInterface *this, scrContext_t
       __debugbreak();
     if ( (unsigned int)(p_pos->trType - 23) > 5 )
     {
-      __asm
-      {
-        vmovaps [rsp+0A8h+var_28], xmm6
-        vmovaps [rsp+0A8h+var_38], xmm7
-        vmovaps [rsp+0A8h+var_48], xmm8
-      }
-      v10 = this->GetAnimTree(this);
-      index = Scr_GetAnim(scrContext, 0, v10).index;
-      v12 = Scr_GetAnim(scrContext, 1u, v10).index;
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm { vmovaps xmm7, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-      __asm { vmovaps xmm8, xmm0 }
+      v6 = this->GetAnimTree(this);
+      index = Scr_GetAnim(scrContext, 0, v6).index;
+      v8 = Scr_GetAnim(scrContext, 1u, v6).index;
+      Float = Scr_GetFloat(scrContext, 2u);
+      v10 = *(float *)&Float;
+      v11 = Scr_GetFloat(scrContext, 3u);
+      goalTime = *(float *)&v11;
+      rate = Scr_GetFloat(scrContext, 4u);
       ServerDObjForEnt = Com_GetServerDObjForEnt(this->m_pAI->ent);
-      __asm
-      {
-        vmovss  [rsp+0A8h+rate], xmm8
-        vmovss  [rsp+0A8h+goalTime], xmm7
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-      }
-      XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, index, fmt, goalTime, rate, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      __asm
-      {
-        vmovss  [rsp+0A8h+rate], xmm8
-        vmovss  [rsp+0A8h+goalTime], xmm7
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-      }
-      XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, v12, fmta, goalTimea, ratea, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, index, v10, goalTime, *(float *)&rate, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, v8, v10, goalTime, *(float *)&rate, (scr_string_t)0, 0, 0, LINEAR, NULL);
       this->UpdateProneInformation(this, 0);
-      v17 = DVARINT_g_dumpAnimsCommands;
+      v15 = DVARINT_g_dumpAnimsCommands;
       if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      if ( v17->current.integer == this->m_pAI->ent->s.number )
+      Dvar_CheckFrontendServerThread(v15);
+      if ( v15->current.integer == this->m_pAI->ent->s.number )
       {
-        __asm
-        {
-          vmovss  [rsp+0A8h+rate], xmm8
-          vmovss  [rsp+0A8h+goalTime], xmm7
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-        }
-        DumpAnimCommand("UpdateProne", v10, index, -1, fmtb, goalTimeb, rateb);
-        __asm
-        {
-          vmovss  [rsp+0A8h+rate], xmm8
-          vmovss  [rsp+0A8h+goalTime], xmm7
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-        }
-        DumpAnimCommand("UpdateProne", v10, v12, -1, fmtc, goalTimec, ratec);
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+0A8h+var_38]
-        vmovaps xmm6, [rsp+0A8h+var_28]
-        vmovaps xmm8, [rsp+0A8h+var_48]
+        DumpAnimCommand("UpdateProne", v6, index, -1, v10, goalTime, *(float *)&rate);
+        DumpAnimCommand("UpdateProne", v6, v8, -1, v10, goalTime, *(float *)&rate);
       }
     }
   }
@@ -1798,13 +1495,9 @@ void AIActorInterface::OnScrCmd_VisibleSolid(AIActorInterface *this, scrContext_
 AIActorInterface::ScrShouldTeleport_Reset
 ==============
 */
-
-bool __fastcall AIActorInterface::ScrShouldTeleport_Reset(AIActorInterface *this, const vec3_t *teleportPos, double distFromPosSq)
+bool AIActorInterface::ScrShouldTeleport_Reset(AIActorInterface *this, const vec3_t *teleportPos, float distFromPosSq)
 {
-  if ( level.loading )
-    return 1;
-  __asm { vcomiss xmm2, cs:__real@42c80000 }
-  return level.loading != LOADING_DONE;
+  return level.loading || distFromPosSq > 100.0;
 }
 
 /*
@@ -1812,22 +1505,33 @@ bool __fastcall AIActorInterface::ScrShouldTeleport_Reset(AIActorInterface *this
 AIActorInterface::ScrShouldTeleport_Safe
 ==============
 */
-
-char __fastcall AIActorInterface::ScrShouldTeleport_Safe(AIActorInterface *this, scrContext_t *scrContext, const vec3_t *teleportPos, double distFromPosSq)
+char AIActorInterface::ScrShouldTeleport_Safe(AIActorInterface *this, scrContext_t *scrContext, const vec3_t *teleportPos, float distFromPosSq)
 {
-  actor_s *m_pAI; 
+  actor_s *v7; 
   gentity_s *v8; 
   gentity_s *ent; 
   int v10; 
   unsigned int number; 
   scrContext_t *v12; 
-  actor_s *v14; 
+  actor_s *m_pAI; 
   vec3_t vEyePosOut; 
 
   if ( level.loading == LOADING_DONE )
   {
-    __asm { vcomiss xmm3, cs:__real@42c80000 }
-    if ( level.loading )
+    if ( distFromPosSq <= 100.0 )
+    {
+      if ( AICommonInterface::HasPath(this) )
+      {
+        m_pAI = this->m_pAI;
+        if ( m_pAI->iPathEndTime )
+        {
+          Com_DPrintf(18, "Teleport failed because actor (%i) in mid-stopping.\n", (unsigned int)m_pAI->ent->s.number);
+          Scr_AddBool(scrContext, 0);
+          return 0;
+        }
+      }
+    }
+    else
     {
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
@@ -1835,9 +1539,9 @@ char __fastcall AIActorInterface::ScrShouldTeleport_Safe(AIActorInterface *this,
         __debugbreak();
       if ( !*g_entityIsInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 575, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( 0 ) )", (const char *)&queryFormat, "G_IsEntityInUse( 0 )") )
         __debugbreak();
-      m_pAI = this->m_pAI;
+      v7 = this->m_pAI;
       v8 = g_entities;
-      ent = m_pAI->ent;
+      ent = v7->ent;
       if ( g_entities->classname != scr_const.player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 527, ASSERT_TYPE_ASSERT, "(player->classname == scr_const.player)", (const char *)&queryFormat, "player->classname == scr_const.player") )
         __debugbreak();
       if ( !v8->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 528, ASSERT_TYPE_ASSERT, "(player->sentient)", (const char *)&queryFormat, "player->sentient") )
@@ -1859,16 +1563,6 @@ LABEL_22:
         goto LABEL_22;
       }
     }
-    else if ( AICommonInterface::HasPath(this) )
-    {
-      v14 = this->m_pAI;
-      if ( v14->iPathEndTime )
-      {
-        Com_DPrintf(18, "Teleport failed because actor (%i) in mid-stopping.\n", (unsigned int)v14->ent->s.number);
-        Scr_AddBool(scrContext, 0);
-        return 0;
-      }
-    }
   }
   return 1;
 }
@@ -1878,13 +1572,9 @@ LABEL_22:
 AIActorInterface::ScrShouldTeleport_Strict
 ==============
 */
-
-char __fastcall AIActorInterface::ScrShouldTeleport_Strict(AIActorInterface *this, scrContext_t *scrContext, const vec3_t *teleportPos, double distFromPosSq, float checkDistSq)
+char AIActorInterface::ScrShouldTeleport_Strict(AIActorInterface *this, scrContext_t *scrContext, const vec3_t *teleportPos, float distFromPosSq, float checkDistSq)
 {
-  if ( level.loading )
-    return 1;
-  __asm { vcomiss xmm3, [rsp+28h+checkDistSq] }
-  if ( level.loading == LOADING_DONE )
+  if ( level.loading || distFromPosSq <= checkDistSq )
     return 1;
   Com_DPrintf(18, "SafeTeleport (of actor %i) failed.\n", (unsigned int)this->m_pAI->ent->s.number);
   Scr_AddBool(scrContext, 0);
@@ -1898,139 +1588,104 @@ AIScriptedInterface::ScrTeleport
 */
 void AIScriptedInterface::ScrTeleport(AIScriptedInterface *this, scrContext_t *scrContext, TeleportCheckMode checkMode)
 {
-  vec3_t *v9; 
-  bool v12; 
-  AIScriptedInterface_vtbl *v26; 
-  bool v27; 
-  AIScriptedInterface_vtbl *v28; 
-  bool v29; 
+  vec3_t *v6; 
+  gentity_s *v7; 
+  bool v8; 
+  float v9; 
+  AIScriptedInterface_vtbl *v10; 
+  bool v11; 
+  AIScriptedInterface_vtbl *v12; 
+  bool v13; 
   ai_scripted_t *m_pAI; 
-  ai_scripted_t *v33; 
-  char v35; 
-  char v36; 
-  char v37; 
+  ai_scripted_t *v15; 
+  char v16; 
   int number; 
-  Ai_Asm *v39; 
+  Ai_Asm *v18; 
   ASM_Instance *Instance; 
   scr_string_t m_Name; 
-  Ai_Asm *v42; 
+  Ai_Asm *v21; 
   vec3_t vectorValue; 
-  vec3_t v47; 
+  vec3_t v23; 
 
-  __asm { vmovaps [rsp+0B8h+var_58], xmm7 }
   Sys_ProfBeginNamedEvent(0xFFFF0000, "AI_ScrTeleport");
-  v9 = NULL;
-  _RSI = this->GetEntity(this);
+  v6 = NULL;
+  v7 = this->GetEntity(this);
   Scr_GetVector(scrContext, 0, &vectorValue);
   if ( Scr_GetNumParam(scrContext) > 1 && Scr_GetType(scrContext, 1u) == VAR_VECTOR )
   {
-    Scr_GetVector(scrContext, 1u, &v47);
-    v9 = &v47;
+    Scr_GetVector(scrContext, 1u, &v23);
+    v6 = &v23;
   }
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  if ( Scr_GetNumParam(scrContext) <= 2 )
-  {
-    __asm { vmovss  xmm6, cs:__real@42c80000 }
-  }
-  else
-  {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmulss  xmm6, xmm0, xmm0 }
-  }
-  v12 = Scr_GetNumParam(scrContext) > 3 && Scr_GetInt(scrContext, 3u);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+vectorValue]
-    vmovss  xmm1, dword ptr [rsi+134h]
-    vmovss  xmm0, dword ptr [rsi+138h]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0B8h+vectorValue+4]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+vectorValue+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm7, xmm3, xmm0
-  }
+  if ( Scr_GetNumParam(scrContext) > 2 )
+    Scr_GetFloat(scrContext, 2u);
+  v8 = Scr_GetNumParam(scrContext) > 3 && Scr_GetInt(scrContext, 3u);
+  v9 = (float)((float)((float)(v7->r.currentOrigin.v[1] - vectorValue.v[1]) * (float)(v7->r.currentOrigin.v[1] - vectorValue.v[1])) + (float)((float)(v7->r.currentOrigin.v[0] - vectorValue.v[0]) * (float)(v7->r.currentOrigin.v[0] - vectorValue.v[0]))) + (float)((float)(v7->r.currentOrigin.v[2] - vectorValue.v[2]) * (float)(v7->r.currentOrigin.v[2] - vectorValue.v[2]));
   if ( checkMode == TELEPORT_CHECK_STRICT )
   {
-    __asm
-    {
-      vmovaps xmm3, xmm7
-      vmovss  dword ptr [rsp+0B8h+updateBroadphase], xmm6
-    }
     if ( !((unsigned __int8 (__fastcall *)(AIScriptedInterface *, scrContext_t *, vec3_t *))this->ScrShouldTeleport_Strict)(this, scrContext, &vectorValue) )
-      goto LABEL_43;
-    goto LABEL_15;
+      goto LABEL_42;
+    goto LABEL_14;
   }
   if ( checkMode != TELEPORT_CHECK_NONE )
   {
-LABEL_15:
-    __asm { vmovaps xmm3, xmm7 }
+LABEL_14:
     if ( !((unsigned __int8 (__fastcall *)(AIScriptedInterface *, scrContext_t *, vec3_t *))this->ScrShouldTeleport_Safe)(this, scrContext, &vectorValue) )
-      goto LABEL_43;
+      goto LABEL_42;
   }
-  G_MotionWarp_Cancel(_RSI->s.number);
-  if ( v9 )
+  G_MotionWarp_Cancel(v7->s.number);
+  if ( v6 )
   {
-    G_SetOriginAndAngle(_RSI, &vectorValue, v9, 1, 1);
-    v26 = this->__vftable;
-    v27 = this->Is3D(this);
-    v26->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &_RSI->r.currentAngles, v27);
+    G_SetOriginAndAngle(v7, &vectorValue, v6, 1, 1);
+    v10 = this->__vftable;
+    v11 = this->Is3D(this);
+    v10->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &v7->r.currentAngles, v11);
     if ( (unsigned int)(this->m_pAI->ScriptOrient.eMode - 1) <= 1 )
     {
-      v28 = this->__vftable;
-      v29 = this->Is3D(this);
-      v28->SetDesiredBodyAngles(this, &this->m_pAI->ScriptOrient, &_RSI->r.currentAngles, v29);
+      v12 = this->__vftable;
+      v13 = this->Is3D(this);
+      v12->SetDesiredBodyAngles(this, &this->m_pAI->ScriptOrient, &v7->r.currentAngles, v13);
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+140h]; fYaw
-      vmovss  xmm1, dword ptr [rsi+13Ch]; fPitch
-    }
-    AIScriptedInterface::SetLookAngles(this, *(const float *)&_XMM1, *(const float *)&_XMM2);
+    AIScriptedInterface::SetLookAngles(this, v7->r.currentAngles.v[0], v7->r.currentAngles.v[1]);
   }
   else
   {
-    G_SetOrigin(_RSI, &vectorValue, 1, 1);
+    G_SetOrigin(v7, &vectorValue, 1, 1);
   }
   m_pAI = this->m_pAI;
   *(_QWORD *)m_pAI->Physics.vVelocity.v = 0i64;
   m_pAI->Physics.vVelocity.v[2] = 0.0;
-  v33 = this->m_pAI;
-  *(_QWORD *)v33->Physics.vWishDelta.v = 0i64;
-  v33->Physics.vWishDelta.v[2] = 0.0;
+  v15 = this->m_pAI;
+  *(_QWORD *)v15->Physics.vWishDelta.v = 0i64;
+  v15->Physics.vWishDelta.v[2] = 0.0;
   AIScriptedInterface::Physics_HandleMovingPlatformTeleport(this);
-  __asm { vmovaps xmm2, xmm7 }
-  v35 = ((__int64 (__fastcall *)(AIScriptedInterface *, vec3_t *))this->ScrShouldTeleport_Reset)(this, &vectorValue);
-  if ( this->UseEnemyGoal(this) && (v35 || !AICommonInterface::PointAtGoal(this, &vectorValue, &this->m_pAI->codeGoal)) )
+  v16 = ((__int64 (__fastcall *)(AIScriptedInterface *, vec3_t *))this->ScrShouldTeleport_Reset)(this, &vectorValue);
+  if ( this->UseEnemyGoal(this) && (v16 || !AICommonInterface::PointAtGoal(this, &vectorValue, &this->m_pAI->codeGoal)) )
     AIScriptedInterface::ClearUseEnemyGoal(this);
-  if ( _RSI->tagInfo )
+  if ( v7->tagInfo )
   {
-    _RSI->s.lerp.eFlags.m_flags[0] ^= 4u;
+    v7->s.lerp.eFlags.m_flags[0] ^= 4u;
   }
-  else if ( v35 )
+  else if ( v16 )
   {
     Sentient_InvalidateNearestNode(this->m_pAI->sentient);
     this->ClearPath(this);
     Sentient_InvalidateNearestTacPoint(this->m_pAI->sentient);
-    __asm { vcomiss xmm7, cs:__real@46800000 }
-    if ( !(v36 | v37) )
-      _RSI->s.lerp.eFlags.m_flags[0] ^= 4u;
+    if ( v9 > 16384.0 )
+      v7->s.lerp.eFlags.m_flags[0] ^= 4u;
     if ( checkMode == TELEPORT_CHECK_NONE )
     {
       if ( !this->InScriptedState(this) )
         AIScriptedInterface::KillAnimScript(this);
-      if ( v12 && this->IsAlive(this) )
+      if ( v8 && this->IsAlive(this) )
       {
-        number = _RSI->s.number;
-        v39 = Ai_Asm::Singleton();
-        Instance = Ai_Asm::GetInstance(v39, NULL, number);
+        number = v7->s.number;
+        v18 = Ai_Asm::Singleton();
+        Instance = Ai_Asm::GetInstance(v18, NULL, number);
         if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 713, ASSERT_TYPE_ASSERT, "( pInst )", (const char *)&queryFormat, "pInst") )
           __debugbreak();
         m_Name = Common_Asm::Utils::GetState(Instance->m_pASM, Instance->m_pASM->m_StartState)->m_Name;
-        v42 = Ai_Asm::Singleton();
-        if ( Common_Asm::SetState(v42, NULL, Instance, m_Name, 0, NULL) )
+        v21 = Ai_Asm::Singleton();
+        if ( Common_Asm::SetState(v21, NULL, Instance, m_Name, 0, NULL) )
           Scr_Error(COM_ERR_5754, scrContext, "Failed to reset ASM state in ForceTeleport()");
         if ( this->m_pAI->eState[this->m_pAI->stateLevel] != AIS_BEHAVE )
           AIScriptedInterface::ForceState(this, AIS_BEHAVE);
@@ -2039,13 +1694,8 @@ LABEL_15:
   }
   Nav_Teleport(this->m_pAI->pNavigator, &vectorValue);
   Scr_AddInt(scrContext, 1);
-LABEL_43:
+LABEL_42:
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-  }
 }
 
 /*
@@ -2055,147 +1705,93 @@ AIActorInterface::SetAnimInternal
 */
 void AIActorInterface::SetAnimInternal(scrContext_t *scrContext, gentity_s *ent, unsigned int flags)
 {
+  __int128 v3; 
+  float v7; 
+  float v8; 
+  float v9; 
   XAnimTree *EntAnimTree; 
   unsigned int NumParam; 
-  char v18; 
-  unsigned int v20; 
-  const char *v21; 
-  unsigned int v22; 
+  double Float; 
+  double v13; 
+  double v14; 
+  unsigned int v15; 
+  const char *v16; 
+  unsigned int v17; 
   const XAnim_s *SubTreeAnims; 
   const DObj *ServerDObjForEnt; 
   int bRestart; 
-  int v26; 
-  float outAnimIndex; 
-  float outAnimIndexa; 
-  float outAnimIndexb; 
-  float outBlendCurveID; 
-  float outBlendCurveIDa; 
-  float outBlendCurveIDb; 
-  float v36; 
-  float v37; 
-  float v38; 
+  int v21; 
   unsigned int outGraftAnimIndex[4]; 
-  void *retaddr; 
+  __int128 v23; 
   XAnimSubTreeID outSubTreeID; 
-  XAnimCurveID curveID; 
+  XAnimCurveID outBlendCurveID; 
   unsigned int anim; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  curveID = LINEAR;
+  outBlendCurveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1546, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@3e4ccccd
-    vmovaps xmm6, xmm8
-  }
+  v7 = FLOAT_1_0;
+  v8 = FLOAT_0_2;
+  v9 = FLOAT_1_0;
   EntAnimTree = GScr_GetEntAnimTree(ent);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
-    __asm
-    {
-      vmovaps [rsp+0D8h+var_68], xmm9
-      vxorps  xmm9, xmm9, xmm9
-    }
+    v23 = v3;
     if ( NumParam != 2 )
     {
       if ( NumParam != 3 )
       {
         if ( NumParam - 4 > 3 )
           Scr_Error(COM_ERR_1547, scrContext, "too many parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm { vmovaps xmm8, xmm0 }
+        Float = Scr_GetFloat(scrContext, 3u);
+        v7 = *(float *)&Float;
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v18 )
+      v13 = Scr_GetFloat(scrContext, 2u);
+      v8 = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_1548, scrContext, 2u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm9, [rsp+0D8h+var_68]
-      vmovaps xmm6, xmm0
-    }
-    if ( v18 )
+    v14 = Scr_GetFloat(scrContext, 1u);
+    v9 = *(float *)&v14;
+    if ( *(float *)&v14 < 0.0 )
       Scr_ParamError(COM_ERR_1549, scrContext, 1u, "must set nonnegative weight");
   }
   anim = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  v20 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 4u, outGraftAnimIndex, &outSubTreeID, &anim, &curveID);
-  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v20 + 4) )
+  v15 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 4u, outGraftAnimIndex, &outSubTreeID, &anim, &outBlendCurveID);
+  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v15 + 4) )
   {
     switch ( flags )
     {
       case 1u:
-        v21 = "SetAnim";
+        v16 = "SetAnim";
         break;
       case 2u:
-        v21 = "SetAnimLimitedRestart";
+        v16 = "SetAnimLimitedRestart";
         break;
       case 3u:
-        v21 = "SetAnimRestart";
+        v16 = "SetAnimRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 255, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v21 = "SetAnimLimited";
+        v16 = "SetAnimLimited";
         break;
     }
-    v22 = anim;
+    v17 = anim;
     SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, outSubTreeID);
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    DumpAnimCommandInternal(v21, SubTreeAnims, v22, -1, outAnimIndex, outBlendCurveID, v36);
+    DumpAnimCommandInternal(v16, SubTreeAnims, v17, -1, v9, v8, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_1550, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    v26 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, outAnimIndexa, outBlendCurveIDa, v37, (scr_string_t)0, 0, bRestart, curveID, NULL);
-  }
+    v21 = XAnimSetCompleteGoalWeight(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, v9, v8, v7, (scr_string_t)0, 0, bRestart, outBlendCurveID, NULL);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    v26 = XAnimSetGoalWeight(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, outAnimIndexb, outBlendCurveIDb, v38, (scr_string_t)0, 0, bRestart, curveID, NULL);
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0D8h+var_58]
-    vmovaps xmm7, [rsp+0D8h+var_48]
-    vmovaps xmm6, [rsp+0D8h+var_38]
-  }
-  if ( v26 )
-    GScr_HandleAnimError(scrContext, v26);
+    v21 = XAnimSetGoalWeight(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, v9, v8, v7, (scr_string_t)0, 0, bRestart, outBlendCurveID, NULL);
+  if ( v21 )
+    GScr_HandleAnimError(scrContext, v21);
   else
     G_FlagAnimForUpdate(ent);
 }
@@ -2207,147 +1803,93 @@ AIActorInterface::SetAnimKnobInternal
 */
 void AIActorInterface::SetAnimKnobInternal(scrContext_t *scrContext, gentity_s *ent, unsigned int flags)
 {
+  __int128 v3; 
+  float v7; 
+  float v8; 
+  float v9; 
   XAnimTree *EntAnimTree; 
   unsigned int NumParam; 
-  char v18; 
-  unsigned int v20; 
-  const char *v21; 
-  unsigned int v22; 
+  double Float; 
+  double v13; 
+  double v14; 
+  unsigned int v15; 
+  const char *v16; 
+  unsigned int v17; 
   const XAnim_s *SubTreeAnims; 
   const DObj *ServerDObjForEnt; 
   int bRestart; 
-  int v26; 
-  float outAnimIndex; 
-  float outAnimIndexa; 
-  float outAnimIndexb; 
-  float outBlendCurveID; 
-  float outBlendCurveIDa; 
-  float outBlendCurveIDb; 
-  float v36; 
-  float v37; 
-  float v38; 
+  int v21; 
   unsigned int outGraftAnimIndex[4]; 
-  void *retaddr; 
+  __int128 v23; 
   XAnimSubTreeID outSubTreeID; 
-  XAnimCurveID curveID; 
+  XAnimCurveID outBlendCurveID; 
   unsigned int anim; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  curveID = LINEAR;
+  outBlendCurveID = LINEAR;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1541, scrContext, "AnimScripted entities are not supported in this game mode");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@3e4ccccd
-    vmovaps xmm6, xmm8
-  }
+  v7 = FLOAT_1_0;
+  v8 = FLOAT_0_2;
+  v9 = FLOAT_1_0;
   EntAnimTree = GScr_GetEntAnimTree(ent);
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam != 1 )
   {
-    __asm
-    {
-      vmovaps [rsp+0D8h+var_68], xmm9
-      vxorps  xmm9, xmm9, xmm9
-    }
+    v23 = v3;
     if ( NumParam != 2 )
     {
       if ( NumParam != 3 )
       {
         if ( NumParam - 4 > 3 )
           Scr_Error(COM_ERR_1542, scrContext, "too many parameters");
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm { vmovaps xmm8, xmm0 }
+        Float = Scr_GetFloat(scrContext, 3u);
+        v7 = *(float *)&Float;
       }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm7, xmm0
-      }
-      if ( v18 )
+      v13 = Scr_GetFloat(scrContext, 2u);
+      v8 = *(float *)&v13;
+      if ( *(float *)&v13 < 0.0 )
         Scr_ParamError(COM_ERR_1543, scrContext, 2u, "must set nonnegative goal time");
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcomiss xmm0, xmm9
-      vmovaps xmm9, [rsp+0D8h+var_68]
-      vmovaps xmm6, xmm0
-    }
-    if ( v18 )
+    v14 = Scr_GetFloat(scrContext, 1u);
+    v9 = *(float *)&v14;
+    if ( *(float *)&v14 < 0.0 )
       Scr_ParamError(COM_ERR_1544, scrContext, 1u, "must set nonnegative weight");
   }
   anim = Scr_GetAnim(scrContext, 0, EntAnimTree).index;
-  v20 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 4u, outGraftAnimIndex, &outSubTreeID, &anim, &curveID);
-  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v20 + 4) )
+  v15 = AIScriptedInterface::FixupExtraAnimParams(scrContext, 4u, outGraftAnimIndex, &outSubTreeID, &anim, &outBlendCurveID);
+  if ( ShouldDumpAnimCommand(scrContext, ent->s.number, v15 + 4) )
   {
     switch ( flags )
     {
       case 1u:
-        v21 = "SetAnimKnob";
+        v16 = "SetAnimKnob";
         break;
       case 2u:
-        v21 = "SetAnimKnobLimitedRestart";
+        v16 = "SetAnimKnobLimitedRestart";
         break;
       case 3u:
-        v21 = "SetAnimKnobRestart";
+        v16 = "SetAnimKnobRestart";
         break;
       default:
         if ( flags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_script_cmd.cpp", 141, ASSERT_TYPE_ASSERT, "(flags == 0)", (const char *)&queryFormat, "flags == 0") )
           __debugbreak();
-        v21 = "SetAnimKnobLimited";
+        v16 = "SetAnimKnobLimited";
         break;
     }
-    v22 = anim;
+    v17 = anim;
     SubTreeAnims = XAnimGetSubTreeAnims(EntAnimTree, outSubTreeID);
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    DumpAnimCommandInternal(v21, SubTreeAnims, v22, -1, outAnimIndex, outBlendCurveID, v36);
+    DumpAnimCommandInternal(v16, SubTreeAnims, v17, -1, v9, v8, v7);
   }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   if ( !ServerDObjForEnt )
     Scr_ObjectError(COM_ERR_1545, scrContext, "No model exists.");
   bRestart = (flags >> 1) & 1;
   if ( (flags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    v26 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, outAnimIndexa, outBlendCurveIDa, v37, (scr_string_t)0, 0, bRestart, curveID);
-  }
+    v21 = XAnimSetCompleteGoalWeightKnob(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, v9, v8, v7, (scr_string_t)0, 0, bRestart, outBlendCurveID);
   else
-  {
-    __asm
-    {
-      vmovss  [rsp+0D8h+var_A8], xmm8
-      vmovss  dword ptr [rsp+0D8h+outBlendCurveID], xmm7
-      vmovss  dword ptr [rsp+0D8h+outAnimIndex], xmm6
-    }
-    v26 = XAnimSetGoalWeightKnob(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, outAnimIndexb, outBlendCurveIDb, v38, (scr_string_t)0, bRestart, curveID);
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0D8h+var_58]
-    vmovaps xmm7, [rsp+0D8h+var_48]
-    vmovaps xmm6, [rsp+0D8h+var_38]
-  }
-  if ( v26 )
-    GScr_HandleAnimError(scrContext, v26);
+    v21 = XAnimSetGoalWeightKnob(ServerDObjForEnt, outGraftAnimIndex[0], outSubTreeID, anim, v9, v8, v7, (scr_string_t)0, bRestart, outBlendCurveID);
+  if ( v21 )
+    GScr_HandleAnimError(scrContext, v21);
   else
     G_FlagAnimForUpdate(ent);
 }

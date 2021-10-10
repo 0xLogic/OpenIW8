@@ -860,31 +860,28 @@ BootPrintHex
 void BootPrintHex(const void *data, const unsigned __int64 dataSize)
 {
   unsigned int v2; 
-  char *v5; 
-  __int64 v6; 
-  unsigned __int64 v7; 
-  __int128 v8; 
-  char v9; 
-  char v10[1024]; 
+  char *v4; 
+  __int64 v5; 
+  unsigned __int64 v6; 
+  char v7[32]; 
+  char v8[1024]; 
 
   v2 = 0;
-  __asm { vmovups xmm0, xmmword ptr cs:a0123456789abcd_6; "0123456789ABCDEF" }
-  v9 = a0123456789abcd_6[16];
-  v5 = v10;
-  __asm { vmovups [rsp+458h+var_438], xmm0 }
-  v6 = 0i64;
+  v4 = v8;
+  strcpy(v7, "0123456789ABCDEF");
+  v5 = 0i64;
   do
   {
-    v5 += 2;
-    v7 = *((unsigned __int8 *)data + v6);
+    v4 += 2;
+    v6 = *((unsigned __int8 *)data + v5);
     ++v2;
-    *(v5 - 2) = *((_BYTE *)&v8 + (v7 >> 4));
-    v6 = v2;
-    *(v5 - 1) = *((_BYTE *)&v8 + (v7 & 0xF));
+    *(v4 - 2) = v7[v6 >> 4];
+    v5 = v2;
+    *(v4 - 1) = v7[v6 & 0xF];
   }
   while ( v2 != dataSize );
-  *v5 = 0;
-  BootPrintf("Hex: [%s]\n", v10);
+  *v4 = 0;
+  BootPrintf("Hex: [%s]\n", v8);
 }
 
 /*

@@ -761,37 +761,40 @@ Scr_DoLoadEntryInternal
 */
 void Scr_DoLoadEntryInternal(scrContext_t *scrContext, VariableValue *value, MemoryFile *memFile)
 {
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
-  int v9; 
-  scr_string_t String; 
+  int v8; 
+  int String; 
+  double Float; 
+  double v11; 
+  double v12; 
+  double v13; 
   VariableType type; 
-  bool v14; 
+  bool v15; 
   __int16 m_scriptPos; 
   __int64 m_genericPos_low; 
-  int v17; 
-  ScriptCodePos *v18; 
+  int v18; 
   ScriptCodePos *v19; 
-  VariableType *v20; 
+  VariableUnion v20; 
+  VariableType *v21; 
   unsigned __int8 p; 
-  char v22[7]; 
-  ScriptCodePos v23; 
+  char v23[7]; 
+  ScriptCodePos v24; 
   VariableValue v; 
 
-  _RDI = value;
   MemFile_ReadData(memFile, 1ui64, &p);
-  v7 = p;
+  v6 = p;
   if ( (p & 7) != 0 )
   {
-    v8 = p;
-    _RDI->type = VAR_POINTER;
-    _RDI->u.intValue = Scr_ReadId(scrContext, memFile, v8);
+    v7 = p;
+    value->type = VAR_POINTER;
+    value->u.intValue = Scr_ReadId(scrContext, memFile, v7);
   }
   else
   {
-    v9 = p >> 3;
-    _RDI->type = v9;
-    switch ( (unsigned __int8)(v7 >> 3) )
+    v8 = p >> 3;
+    value->type = v8;
+    switch ( (unsigned __int8)(v6 >> 3) )
     {
       case 0u:
       case 8u:
@@ -799,103 +802,88 @@ void Scr_DoLoadEntryInternal(scrContext_t *scrContext, VariableValue *value, Mem
       case 2u:
       case 3u:
         String = Scr_ReadString(memFile);
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.h", 65, ASSERT_TYPE_ASSERT, "( variable )", (const char *)&queryFormat, "variable") )
+        if ( !value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.h", 65, ASSERT_TYPE_ASSERT, "( variable )", (const char *)&queryFormat, "variable") )
           __debugbreak();
-        if ( (unsigned __int8)(_RDI->type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.h", 66, ASSERT_TYPE_ASSERT, "( variable->type == VAR_STRING || variable->type == VAR_ISTRING )", (const char *)&queryFormat, "variable->type == VAR_STRING || variable->type == VAR_ISTRING") )
+        if ( (unsigned __int8)(value->type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.h", 66, ASSERT_TYPE_ASSERT, "( variable->type == VAR_STRING || variable->type == VAR_ISTRING )", (const char *)&queryFormat, "variable->type == VAR_STRING || variable->type == VAR_ISTRING") )
           __debugbreak();
         if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_variable.h", 67, ASSERT_TYPE_ASSERT, "( stringValue != 0 )", (const char *)&queryFormat, "stringValue != 0") )
           __debugbreak();
-        _RDI->u.intValue = String;
+        value->u.intValue = String;
         break;
       case 4u:
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  [rsp+0A8h+v], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  [rsp+0A8h+v+4], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm
+        Float = MemFile_ReadFloat(memFile);
+        v.u.floatValue = *(float *)&Float;
+        v11 = MemFile_ReadFloat(memFile);
+        *((float *)&v.u.stringValue + 1) = *(float *)&v11;
+        v12 = MemFile_ReadFloat(memFile);
+        *(float *)&v24.m_scriptPos = v.u.floatValue;
+        *(float *)&v.type = *(float *)&v12;
+        if ( (v.u.intValue & 0x7F800000) == 2139095040 || (*(float *)&v24.m_scriptPos = *((float *)&v.u.stringValue + 1), (*(&v.u.stringValue + 1) & 0x7F800000) == 2139095040) || (*(float *)&v24.m_scriptPos = *(float *)&v12, (LODWORD(v12) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm1, [rsp+0A8h+v]
-          vmovss  dword ptr [rsp+0A8h+var_60.___u0], xmm1
-          vmovss  [rsp+0A8h+var_50], xmm0
-        }
-        if ( ((__int64)v23.m_scriptPos & 0x7F800000) == 2139095040 )
-          goto LABEL_38;
-        __asm
-        {
-          vmovss  xmm1, [rsp+0A8h+v+4]
-          vmovss  dword ptr [rsp+0A8h+var_60.___u0], xmm1
-        }
-        if ( ((__int64)v23.m_scriptPos & 0x7F800000) == 2139095040 )
-          goto LABEL_38;
-        __asm { vmovss  dword ptr [rsp+0A8h+var_60.___u0], xmm0 }
-        if ( ((__int64)v23.m_scriptPos & 0x7F800000) == 2139095040 )
-        {
-LABEL_38:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 184, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
             __debugbreak();
         }
-        _RDI->u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, (const float *)&v.u);
+        value->u.scriptCodePosValue = (unsigned __int64)Scr_AllocVector(scrContext, (const float *)&v.u);
         break;
       case 5u:
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rdi], xmm0 }
+        v13 = MemFile_ReadFloat(memFile);
+        value->u.floatValue = *(float *)&v13;
         break;
       case 6u:
       case 0xAu:
       case 0xBu:
       case 0xDu:
-        MemFile_ReadData(memFile, 4ui64, &v23);
-        _RDI->u.intValue = (int)v23.m_scriptPos;
+        MemFile_ReadData(memFile, 4ui64, &v24);
+        value->u.intValue = (int)v24.m_scriptPos;
         break;
       case 7u:
       case 9u:
-        v23.m_scriptPos = Scr_ReadCodepos(scrContext, memFile).m_scriptPos;
-        _RDI->u = (VariableUnion)v23.m_scriptPos;
-        if ( ScriptCodePos::IsEndPos(&v23) )
+        v24.m_scriptPos = Scr_ReadCodepos(scrContext, memFile).m_scriptPos;
+        value->u = (VariableUnion)v24.m_scriptPos;
+        if ( ScriptCodePos::IsEndPos(&v24) )
         {
-          type = _RDI->type;
+          type = value->type;
           if ( type == VAR_FUNCTION )
           {
-            _RDI->type = VAR_UNDEFINED;
+            value->type = VAR_UNDEFINED;
           }
           else if ( type != VAR_CODEPOS )
           {
-            v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 713, ASSERT_TYPE_ASSERT, "( ( value->type == VAR_CODEPOS ) )", "%s\n\t( value->type ) = %i", "( value->type == VAR_CODEPOS )", (unsigned __int8)type);
+            v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 713, ASSERT_TYPE_ASSERT, "( ( value->type == VAR_CODEPOS ) )", "%s\n\t( value->type ) = %i", "( value->type == VAR_CODEPOS )", (unsigned __int8)type);
             goto LABEL_34;
           }
         }
         break;
       case 0xCu:
-        MemFile_ReadData(memFile, 2ui64, &v23);
-        m_scriptPos = (__int16)v23.m_scriptPos;
-        m_genericPos_low = LOWORD(v23.m_genericPos);
-        v17 = (unsigned __int16)(8 * LOWORD(v23.m_scriptPos) + LOWORD(v23.m_scriptPos) + 17);
-        if ( 9 * LOWORD(v23.m_genericPos) + 17 != v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 492, ASSERT_TYPE_ASSERT, "( bufLen == (unsigned short)bufLen )", (const char *)&queryFormat, "bufLen == (unsigned short)bufLen") )
+        MemFile_ReadData(memFile, 2ui64, &v24);
+        m_scriptPos = (__int16)v24.m_scriptPos;
+        m_genericPos_low = LOWORD(v24.m_genericPos);
+        v18 = (unsigned __int16)(8 * LOWORD(v24.m_scriptPos) + LOWORD(v24.m_scriptPos) + 17);
+        if ( 9 * LOWORD(v24.m_genericPos) + 17 != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 492, ASSERT_TYPE_ASSERT, "( bufLen == (unsigned short)bufLen )", (const char *)&queryFormat, "bufLen == (unsigned short)bufLen") )
           __debugbreak();
-        v18 = (ScriptCodePos *)MT_Alloc(9 * m_genericPos_low + 17, 1);
+        v19 = (ScriptCodePos *)MT_Alloc(9 * m_genericPos_low + 17, 1);
         ++scrContext->m_varPub.numScriptThreads;
-        v19 = v18;
-        LOWORD(v18[1].m_scriptPos) = m_scriptPos;
-        WORD1(v18[1].m_genericPos) = v17;
-        v18->m_scriptPos = Scr_ReadCodepos(scrContext, memFile).m_scriptPos;
+        v20.scriptCodePosValue = (unsigned __int64)v19;
+        LOWORD(v19[1].m_scriptPos) = m_scriptPos;
+        WORD1(v19[1].m_genericPos) = v18;
+        v19->m_scriptPos = Scr_ReadCodepos(scrContext, memFile).m_scriptPos;
         MemFile_ReadData(memFile, 1ui64, &p);
-        HIDWORD(v19[1].m_genericPos) = Scr_ReadId(scrContext, memFile, p);
-        MemFile_ReadData(memFile, 1ui64, v22);
-        v20 = (VariableType *)&v19[2].m_scriptPos + 1;
-        for ( LOBYTE(v19[2].m_scriptPos) = v22[0]; m_scriptPos; --m_scriptPos )
+        *(_DWORD *)(v20.scriptCodePosValue + 12) = Scr_ReadId(scrContext, memFile, p);
+        MemFile_ReadData(memFile, 1ui64, v23);
+        v21 = (VariableType *)(v20.scriptCodePosValue + 17);
+        for ( *(_BYTE *)(v20.scriptCodePosValue + 16) = v23[0]; m_scriptPos; --m_scriptPos )
         {
           Scr_DoLoadEntryInternal(scrContext, &v, memFile);
-          *v20 = v.type;
-          v20 += 9;
-          *((_QWORD *)v20 - 1) = v.u.scriptCodePosValue;
+          *v21 = v.type;
+          v21 += 9;
+          *((_QWORD *)v21 - 1) = v.u.scriptCodePosValue;
         }
-        _RDI->u.scriptCodePosValue = (unsigned __int64)v19;
+        value->u = v20;
         break;
       default:
-        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 724, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unknown type %i", v9);
+        v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 724, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unknown type %i", v8);
 LABEL_34:
-        if ( v14 )
+        if ( v15 )
           __debugbreak();
         break;
     }
@@ -1170,171 +1158,164 @@ Scr_LoadPre
 */
 void Scr_LoadPre(scrContext_t *scrContext, MemoryFile *memFile, int scriptRunning)
 {
-  char v9; 
-  char v10; 
+  double Float; 
   unsigned int *saveIdMapRev; 
-  unsigned int v12; 
-  unsigned int v13; 
-  __int64 v14; 
-  unsigned int v15; 
+  unsigned int v8; 
+  unsigned int v9; 
+  ChildVariableValue *v10; 
+  unsigned int v11; 
   unsigned int Id; 
-  unsigned int v17; 
-  unsigned int v18; 
+  unsigned int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  unsigned int *p_entArrayId; 
+  __int64 v18; 
   unsigned int v19; 
   unsigned int v20; 
-  unsigned int *p_entArrayId; 
-  __int64 v22; 
+  unsigned int v21; 
+  unsigned int v22; 
   unsigned int v23; 
   unsigned int v24; 
   unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
   VariableValue value; 
   unsigned int p; 
 
-  _RBX = scrContext;
   if ( scrContext->m_Instance == SCRIPTINSTANCE_SERVER )
     MT_Reset();
-  Scr_FixupFreeLists(_RBX);
-  if ( ScriptCodePos::GetVarUsagePos(&_RBX->m_varPub.varUsagePos) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1715, ASSERT_TYPE_ASSERT, "( !pScrVarPub->varUsagePos.GetVarUsagePos() )", (const char *)&queryFormat, "!pScrVarPub->varUsagePos.GetVarUsagePos()") )
+  Scr_FixupFreeLists(scrContext);
+  if ( ScriptCodePos::GetVarUsagePos(&scrContext->m_varPub.varUsagePos) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1715, ASSERT_TYPE_ASSERT, "( !pScrVarPub->varUsagePos.GetVarUsagePos() )", (const char *)&queryFormat, "!pScrVarPub->varUsagePos.GetVarUsagePos()") )
     __debugbreak();
-  ScriptCodePos::SetVarUsagePos(&_RBX->m_varPub.varUsagePos, "<save game variable>");
-  memset_0(_RBX->m_profileScript.threadId, 0, 16i64 * _RBX->m_variableListParentSize);
+  ScriptCodePos::SetVarUsagePos(&scrContext->m_varPub.varUsagePos, "<save game variable>");
+  memset_0(scrContext->m_profileScript.threadId, 0, 16i64 * scrContext->m_variableListParentSize);
   if ( scriptRunning )
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovss  dword ptr [rbx+5D7Ch], xmm0
-    }
-    if ( v9 | v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1726, ASSERT_TYPE_ASSERT, "( pScrVarPub->framerate > 0.0f )", (const char *)&queryFormat, "pScrVarPub->framerate > 0.0f") )
+    Float = MemFile_ReadFloat(memFile);
+    scrContext->m_varPub.framerate = *(float *)&Float;
+    if ( *(float *)&Float <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1726, ASSERT_TYPE_ASSERT, "( pScrVarPub->framerate > 0.0f )", (const char *)&queryFormat, "pScrVarPub->framerate > 0.0f") )
       __debugbreak();
     MemFile_ReadData(memFile, 4ui64, &p);
-    _RBX->m_varPub.time = p;
+    scrContext->m_varPub.time = p;
   }
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RBX->m_varPub.savecount = p;
+  scrContext->m_varPub.savecount = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  saveIdMapRev = _RBX->m_varPub.saveIdMapRev;
-  _RBX->m_varPub.savecountMark = p;
-  memset_0(saveIdMapRev, 0, 4i64 * _RBX->m_variableListParentSize);
-  v12 = 1;
-  *(_QWORD *)_RBX->m_idHistory = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[2] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[4] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[6] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[8] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[10] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[12] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[14] = 0i64;
-  for ( _RBX->m_idHistoryIndex = 0; v12 <= _RBX->m_varPub.savecount; ++v12 )
+  saveIdMapRev = scrContext->m_varPub.saveIdMapRev;
+  scrContext->m_varPub.savecountMark = p;
+  memset_0(saveIdMapRev, 0, 4i64 * scrContext->m_variableListParentSize);
+  v8 = 1;
+  *(_QWORD *)scrContext->m_idHistory = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[2] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[4] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[6] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[8] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[10] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[12] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[14] = 0i64;
+  for ( scrContext->m_idHistoryIndex = 0; v8 <= scrContext->m_varPub.savecount; ++v8 )
   {
-    v13 = _RBX->m_varPub.saveIdMapRev[v12];
-    if ( !v13 )
+    v9 = scrContext->m_varPub.saveIdMapRev[v8];
+    if ( !v9 )
     {
-      v13 = AllocObject(_RBX);
-      _RBX->m_varPub.saveIdMapRev[v12] = v13;
+      v9 = AllocObject(scrContext);
+      scrContext->m_varPub.saveIdMapRev[v8] = v9;
     }
-    Scr_DoLoadObjectInfo(_RBX, v13, memFile);
+    Scr_DoLoadObjectInfo(scrContext, v9, memFile);
   }
-  if ( _RBX->m_varPub.gameId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1519, ASSERT_TYPE_ASSERT, "( !scrContext.m_varPub.gameId )", (const char *)&queryFormat, "!scrContext.m_varPub.gameId") )
+  if ( scrContext->m_varPub.gameId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1519, ASSERT_TYPE_ASSERT, "( !scrContext.m_varPub.gameId )", (const char *)&queryFormat, "!scrContext.m_varPub.gameId") )
     __debugbreak();
   MemFile_ReadData(memFile, 1ui64, &p);
   if ( (_BYTE)p )
   {
-    _RBX->m_varPub.gameId = AllocValue(_RBX);
-    Scr_DoLoadEntryInternal(_RBX, &value, memFile);
-    v14 = (__int64)&_RBX->m_varGlob.childVariableValue[_RBX->m_varPub.gameId];
-    *(_WORD *)(v14 + 12) &= 0xFFC0u;
-    *(_WORD *)(v14 + 12) |= value.type & 0x3F;
-    _RBX->m_varGlob.childVariableValue[_RBX->m_varPub.gameId].u.u.scriptCodePosValue = value.u.scriptCodePosValue;
+    scrContext->m_varPub.gameId = AllocValue(scrContext);
+    Scr_DoLoadEntryInternal(scrContext, &value, memFile);
+    v10 = &scrContext->m_varGlob.childVariableValue[scrContext->m_varPub.gameId];
+    *(_WORD *)&v10->tn &= 0xFFC0u;
+    *(_WORD *)&v10->tn |= value.type & 0x3F;
+    scrContext->m_varGlob.childVariableValue[scrContext->m_varPub.gameId].u.u.scriptCodePosValue = value.u.scriptCodePosValue;
   }
   if ( scriptRunning )
   {
     MemFile_ReadData(memFile, 1ui64, &p);
+    v11 = (unsigned __int8)p;
+    if ( scrContext->m_varPub.levelId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1757, ASSERT_TYPE_ASSERT, "( !pScrVarPub->levelId )", (const char *)&queryFormat, "!pScrVarPub->levelId") )
+      __debugbreak();
+    Id = Scr_ReadId(scrContext, memFile, v11);
+    scrContext->m_varPub.levelId = Id;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[Id];
+    MemFile_ReadData(memFile, 1ui64, &p);
+    v13 = (unsigned __int8)p;
+    if ( scrContext->m_varPub.animId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1765, ASSERT_TYPE_ASSERT, "( !pScrVarPub->animId )", (const char *)&queryFormat, "!pScrVarPub->animId") )
+      __debugbreak();
+    v14 = Scr_ReadId(scrContext, memFile, v13);
+    scrContext->m_varPub.animId = v14;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v14];
+    MemFile_ReadData(memFile, 1ui64, &p);
     v15 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.levelId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1757, ASSERT_TYPE_ASSERT, "( !pScrVarPub->levelId )", (const char *)&queryFormat, "!pScrVarPub->levelId") )
+    if ( scrContext->m_varPub.freeEntList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1773, ASSERT_TYPE_ASSERT, "( !pScrVarPub->freeEntList )", (const char *)&queryFormat, "!pScrVarPub->freeEntList") )
       __debugbreak();
-    Id = Scr_ReadId(_RBX, memFile, v15);
-    _RBX->m_varPub.levelId = Id;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[Id];
-    MemFile_ReadData(memFile, 1ui64, &p);
-    v17 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.animId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1765, ASSERT_TYPE_ASSERT, "( !pScrVarPub->animId )", (const char *)&queryFormat, "!pScrVarPub->animId") )
-      __debugbreak();
-    v18 = Scr_ReadId(_RBX, memFile, v17);
-    _RBX->m_varPub.animId = v18;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v18];
-    MemFile_ReadData(memFile, 1ui64, &p);
-    v19 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.freeEntList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1773, ASSERT_TYPE_ASSERT, "( !pScrVarPub->freeEntList )", (const char *)&queryFormat, "!pScrVarPub->freeEntList") )
-      __debugbreak();
-    v20 = Scr_ReadId(_RBX, memFile, v19);
-    _RBX->m_varPub.freeEntList = v20;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v20];
-    p_entArrayId = &_RBX->m_varPub.m_classMap[0].entArrayId;
-    v22 = 10i64;
+    v16 = Scr_ReadId(scrContext, memFile, v15);
+    scrContext->m_varPub.freeEntList = v16;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v16];
+    p_entArrayId = &scrContext->m_varPub.m_classMap[0].entArrayId;
+    v18 = 10i64;
     do
     {
       if ( *p_entArrayId )
       {
-        if ( GetArraySize(_RBX, *p_entArrayId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1784, ASSERT_TYPE_ASSERT, "( !GetArraySize( scrContext, scrContext.m_varPub.m_classMap[classnum].entArrayId ) )", (const char *)&queryFormat, "!GetArraySize( scrContext, scrContext.m_varPub.m_classMap[classnum].entArrayId )") )
+        if ( GetArraySize(scrContext, *p_entArrayId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1784, ASSERT_TYPE_ASSERT, "( !GetArraySize( scrContext, scrContext.m_varPub.m_classMap[classnum].entArrayId ) )", (const char *)&queryFormat, "!GetArraySize( scrContext, scrContext.m_varPub.m_classMap[classnum].entArrayId )") )
           __debugbreak();
-        if ( _RBX->m_varDebugPub.m_Inited )
-          --_RBX->m_varDebugPub.extRefCount[*p_entArrayId];
-        RemoveRefToObject(_RBX, *p_entArrayId);
+        if ( scrContext->m_varDebugPub.m_Inited )
+          --scrContext->m_varDebugPub.extRefCount[*p_entArrayId];
+        RemoveRefToObject(scrContext, *p_entArrayId);
         MemFile_ReadData(memFile, 1ui64, &p);
-        v23 = Scr_ReadId(_RBX, memFile, (unsigned __int8)p);
-        *p_entArrayId = v23;
-        if ( _RBX->m_varDebugPub.m_Inited )
-          ++_RBX->m_varDebugPub.extRefCount[v23];
+        v19 = Scr_ReadId(scrContext, memFile, (unsigned __int8)p);
+        *p_entArrayId = v19;
+        if ( scrContext->m_varDebugPub.m_Inited )
+          ++scrContext->m_varDebugPub.extRefCount[v19];
       }
       p_entArrayId += 6;
-      --v22;
+      --v18;
     }
-    while ( v22 );
+    while ( v18 );
+    MemFile_ReadData(memFile, 1ui64, &p);
+    v20 = (unsigned __int8)p;
+    if ( scrContext->m_varPub.timeArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1804, ASSERT_TYPE_ASSERT, "( !pScrVarPub->timeArrayId )", (const char *)&queryFormat, "!pScrVarPub->timeArrayId") )
+      __debugbreak();
+    v21 = Scr_ReadId(scrContext, memFile, v20);
+    scrContext->m_varPub.timeArrayId = v21;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v21];
+    MemFile_ReadData(memFile, 1ui64, &p);
+    v22 = (unsigned __int8)p;
+    if ( scrContext->m_varPub.pauseArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1812, ASSERT_TYPE_ASSERT, "( !pScrVarPub->pauseArrayId )", (const char *)&queryFormat, "!pScrVarPub->pauseArrayId") )
+      __debugbreak();
+    v23 = Scr_ReadId(scrContext, memFile, v22);
+    scrContext->m_varPub.pauseArrayId = v23;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v23];
     MemFile_ReadData(memFile, 1ui64, &p);
     v24 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.timeArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1804, ASSERT_TYPE_ASSERT, "( !pScrVarPub->timeArrayId )", (const char *)&queryFormat, "!pScrVarPub->timeArrayId") )
+    if ( scrContext->m_varPub.notifyArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1820, ASSERT_TYPE_ASSERT, "( !pScrVarPub->notifyArrayId )", (const char *)&queryFormat, "!pScrVarPub->notifyArrayId") )
       __debugbreak();
-    v25 = Scr_ReadId(_RBX, memFile, v24);
-    _RBX->m_varPub.timeArrayId = v25;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v25];
+    v25 = Scr_ReadId(scrContext, memFile, v24);
+    scrContext->m_varPub.notifyArrayId = v25;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v25];
     MemFile_ReadData(memFile, 1ui64, &p);
     v26 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.pauseArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1812, ASSERT_TYPE_ASSERT, "( !pScrVarPub->pauseArrayId )", (const char *)&queryFormat, "!pScrVarPub->pauseArrayId") )
+    if ( scrContext->m_varPub.objectStackId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1828, ASSERT_TYPE_ASSERT, "( !pScrVarPub->objectStackId )", (const char *)&queryFormat, "!pScrVarPub->objectStackId") )
       __debugbreak();
-    v27 = Scr_ReadId(_RBX, memFile, v26);
-    _RBX->m_varPub.pauseArrayId = v27;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v27];
-    MemFile_ReadData(memFile, 1ui64, &p);
-    v28 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.notifyArrayId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1820, ASSERT_TYPE_ASSERT, "( !pScrVarPub->notifyArrayId )", (const char *)&queryFormat, "!pScrVarPub->notifyArrayId") )
-      __debugbreak();
-    v29 = Scr_ReadId(_RBX, memFile, v28);
-    _RBX->m_varPub.notifyArrayId = v29;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v29];
-    MemFile_ReadData(memFile, 1ui64, &p);
-    v30 = (unsigned __int8)p;
-    if ( _RBX->m_varPub.objectStackId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1828, ASSERT_TYPE_ASSERT, "( !pScrVarPub->objectStackId )", (const char *)&queryFormat, "!pScrVarPub->objectStackId") )
-      __debugbreak();
-    v31 = Scr_ReadId(_RBX, memFile, v30);
-    _RBX->m_varPub.objectStackId = v31;
-    if ( _RBX->m_varDebugPub.m_Inited )
-      ++_RBX->m_varDebugPub.extRefCount[v31];
-    ReadProfileData(_RBX, memFile);
+    v27 = Scr_ReadId(scrContext, memFile, v26);
+    scrContext->m_varPub.objectStackId = v27;
+    if ( scrContext->m_varDebugPub.m_Inited )
+      ++scrContext->m_varDebugPub.extRefCount[v27];
+    ReadProfileData(scrContext, memFile);
   }
 }
 
@@ -1511,19 +1492,11 @@ void Scr_MemFileCache_WriteByte(scrContext_t *scrContext, unsigned __int8 b, Mem
 Scr_MemFileCache_WriteFloat
 ==============
 */
-
-void __fastcall Scr_MemFileCache_WriteFloat(scrContext_t *scrContext, double f, MemoryFile *memFile)
+void Scr_MemFileCache_WriteFloat(scrContext_t *scrContext, float f, MemoryFile *memFile)
 {
   unsigned __int64 m_srcMemFileWriteCacheCount; 
-  int v6; 
-  int v7; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_8], xmm1
-    vmovss  [rsp+38h+arg_0], xmm1
-  }
-  if ( (v6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 159, ASSERT_TYPE_SANITY, "( !IS_NAN( f ) )", (const char *)&queryFormat, "!IS_NAN( f )") )
+  if ( (LODWORD(f) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 159, ASSERT_TYPE_SANITY, "( !IS_NAN( f ) )", (const char *)&queryFormat, "!IS_NAN( f )") )
     __debugbreak();
   m_srcMemFileWriteCacheCount = scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount;
   if ( m_srcMemFileWriteCacheCount + 4 > 0x2800 )
@@ -1531,7 +1504,7 @@ void __fastcall Scr_MemFileCache_WriteFloat(scrContext_t *scrContext, double f, 
     MemFile_WriteData(memFile, m_srcMemFileWriteCacheCount, &scrContext->m_readWriteGlob);
     m_srcMemFileWriteCacheCount = 0i64;
   }
-  *(_DWORD *)&scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = v7;
+  *(float *)&scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = f;
   scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 4;
 }
 
@@ -1894,29 +1867,25 @@ void Scr_ReadWrite_DoSaveEntryInternal(scrContext_t *scrContext, unsigned int ty
   unsigned __int64 UsedSize; 
   unsigned __int64 v10; 
   unsigned __int64 v11; 
-  ScriptCodePos v19; 
-  unsigned __int16 v20; 
+  ScriptCodePos v12; 
+  unsigned __int16 v13; 
   unsigned __int64 m_srcMemFileWriteCacheCount; 
-  unsigned __int8 v22; 
-  unsigned __int8 *v23; 
-  unsigned int v24; 
-  VariableUnion v25; 
-  bool v26; 
-  int v27; 
-  int v28; 
-  int v29; 
+  unsigned __int8 v15; 
+  unsigned __int8 *v16; 
+  unsigned int v17; 
+  VariableUnion v18; 
+  bool v19; 
   int intValue; 
 
   intValue = u.intValue;
   v4 = type;
-  _RBX = u;
   if ( type != (unsigned __int8)type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1900, ASSERT_TYPE_ASSERT, "( type == (unsigned char)type )", (const char *)&queryFormat, "type == (unsigned char)type") )
     __debugbreak();
   UsedSize = MemFile_GetUsedSize(memFile);
   if ( type == 1 )
   {
     ProfMem_Begin("pointer", UsedSize);
-    Scr_MemFileCache_WriteId(scrContext, _RBX.uintValue, 1u, memFile);
+    Scr_MemFileCache_WriteId(scrContext, u.uintValue, 1u, memFile);
     v10 = MemFile_GetUsedSize(memFile);
     ProfMem_End(v10);
   }
@@ -1933,89 +1902,62 @@ void Scr_ReadWrite_DoSaveEntryInternal(scrContext_t *scrContext, unsigned int ty
         return;
       case 2u:
       case 3u:
-        Scr_MemFileCache_WriteString(scrContext, (scr_string_t)_RBX.intValue, memFile);
+        Scr_MemFileCache_WriteString(scrContext, (scr_string_t)u.intValue, memFile);
         break;
       case 4u:
-        if ( !_RBX.scriptCodePosValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 167, ASSERT_TYPE_ASSERT, "( v )", (const char *)&queryFormat, "v") )
+        if ( !u.scriptCodePosValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 167, ASSERT_TYPE_ASSERT, "( v )", (const char *)&queryFormat, "v") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  [rsp+58h+arg_8], xmm0
-        }
-        if ( (v27 & 0x7F800000) == 2139095040 )
-          goto LABEL_34;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  [rsp+58h+arg_8], xmm0
-        }
-        if ( (v28 & 0x7F800000) == 2139095040 )
-          goto LABEL_34;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vmovss  [rsp+58h+arg_8], xmm0
-        }
-        if ( (v29 & 0x7F800000) == 2139095040 )
-        {
-LABEL_34:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 169, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
-            __debugbreak();
-        }
-        __asm { vmovss  xmm1, dword ptr [rbx]; f }
-        Scr_MemFileCache_WriteFloat(scrContext, *(double *)&_XMM1, memFile);
-        __asm { vmovss  xmm1, dword ptr [rbx+4]; f }
-        Scr_MemFileCache_WriteFloat(scrContext, *(double *)&_XMM1, memFile);
-        __asm { vmovss  xmm1, dword ptr [rbx+8] }
-        Scr_MemFileCache_WriteFloat(scrContext, *(double *)&_XMM1, memFile);
+        if ( ((*(_DWORD *)u.vectorValue & 0x7F800000) == 2139095040 || (*(_DWORD *)(u.scriptCodePosValue + 4) & 0x7F800000) == 2139095040 || (*(_DWORD *)(u.scriptCodePosValue + 8) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 169, ASSERT_TYPE_SANITY, "( !IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( v )[0] ) && !IS_NAN( ( v )[1] ) && !IS_NAN( ( v )[2] )") )
+          __debugbreak();
+        Scr_MemFileCache_WriteFloat(scrContext, *u.vectorValue, memFile);
+        Scr_MemFileCache_WriteFloat(scrContext, *(float *)(u.scriptCodePosValue + 4), memFile);
+        Scr_MemFileCache_WriteFloat(scrContext, *(float *)(u.scriptCodePosValue + 8), memFile);
         break;
       case 5u:
-        __asm { vmovss  xmm1, dword ptr [rsp+58h+arg_10]; jumptable 0000000141573036 case 5 }
-        Scr_MemFileCache_WriteFloat(scrContext, *(double *)&_XMM1, memFile);
+        Scr_MemFileCache_WriteFloat(scrContext, *(float *)&intValue, memFile);
         break;
       case 6u:
       case 0xAu:
       case 0xBu:
       case 0xDu:
-        Scr_MemFileCache_WriteInt(scrContext, _RBX.intValue, memFile);
+        Scr_MemFileCache_WriteInt(scrContext, u.intValue, memFile);
         break;
       case 7u:
       case 9u:
-        v19.m_scriptPos = ScriptCodePos::CreateGenericPos(_RBX.scriptCodePosValue).m_scriptPos;
-        WriteCodepos(scrContext, v19, memFile);
+        v12.m_scriptPos = ScriptCodePos::CreateGenericPos(u.scriptCodePosValue).m_scriptPos;
+        WriteCodepos(scrContext, v12, memFile);
         break;
       case 0xCu:
-        if ( !_RBX.scriptCodePosValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 460, ASSERT_TYPE_ASSERT, "( stackBuf )", (const char *)&queryFormat, "stackBuf") )
+        if ( !u.scriptCodePosValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 460, ASSERT_TYPE_ASSERT, "( stackBuf )", (const char *)&queryFormat, "stackBuf") )
           __debugbreak();
-        v20 = *(_WORD *)(_RBX.scriptCodePosValue + 8);
-        Scr_MemFileCache_WriteShort(scrContext, v20, memFile);
-        WriteCodepos(scrContext, *(const ScriptCodePos *)_RBX.vectorValue, memFile);
-        Scr_MemFileCache_WriteId(scrContext, *(_DWORD *)(_RBX.scriptCodePosValue + 12), 0, memFile);
+        v13 = *(_WORD *)(u.scriptCodePosValue + 8);
+        Scr_MemFileCache_WriteShort(scrContext, v13, memFile);
+        WriteCodepos(scrContext, *(const ScriptCodePos *)u.vectorValue, memFile);
+        Scr_MemFileCache_WriteId(scrContext, *(_DWORD *)(u.scriptCodePosValue + 12), 0, memFile);
         m_srcMemFileWriteCacheCount = scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount;
-        v22 = *(_BYTE *)(_RBX.scriptCodePosValue + 16);
+        v15 = *(_BYTE *)(u.scriptCodePosValue + 16);
         if ( m_srcMemFileWriteCacheCount + 1 > 0x2800 )
         {
           MemFile_WriteData(memFile, scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount, &scrContext->m_readWriteGlob);
           m_srcMemFileWriteCacheCount = 0i64;
         }
-        v23 = (unsigned __int8 *)(_RBX.scriptCodePosValue + 17);
-        scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = v22;
-        for ( scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1; v20; --v20 )
+        v16 = (unsigned __int8 *)(u.scriptCodePosValue + 17);
+        scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = v15;
+        for ( scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1; v13; --v13 )
         {
-          v24 = *v23;
-          v25 = *(VariableUnion *)(v23 + 1);
-          v23 += 9;
-          Scr_ReadWrite_DoSaveEntryInternal(scrContext, v24, v25, memFile);
+          v17 = *v16;
+          v18 = *(VariableUnion *)(v16 + 1);
+          v16 += 9;
+          Scr_ReadWrite_DoSaveEntryInternal(scrContext, v17, v18, memFile);
         }
         break;
       case 0x10u:
-        v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1944, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "VAR_ANIM_TREE should be cleared before save. Ignoring.");
+        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1944, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "VAR_ANIM_TREE should be cleared before save. Ignoring.");
         goto LABEL_30;
       default:
-        v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1947, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unknown type");
+        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1947, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unknown type");
 LABEL_30:
-        if ( v26 )
+        if ( v19 )
           __debugbreak();
         break;
     }
@@ -2244,177 +2186,170 @@ void Scr_SavePost(scrContext_t *scrContext, MemoryFile *memFile, int scriptRunni
   unsigned int savecountMark; 
   unsigned int i; 
   __int64 j; 
-  unsigned __int64 v13; 
+  unsigned __int64 v10; 
   unsigned __int64 m_srcMemFileWriteCacheCount; 
-  unsigned __int64 v15; 
+  unsigned __int64 v12; 
   ChildVariableValue *childVariableValue; 
   __int64 gameId; 
-  __int64 v18; 
+  __int64 v15; 
   unsigned int *p_entArrayId; 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v17; 
+  __int64 v18; 
   unsigned int m_idHistoryIndex; 
-  int v23; 
+  int v20; 
+  __int64 v21; 
+  int v22; 
+  unsigned int *v23; 
   __int64 v24; 
-  int v25; 
-  unsigned int *v26; 
-  __int64 v27; 
-  unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned __int64 v31; 
-  unsigned __int64 v32; 
+  unsigned int v25; 
+  unsigned int v26; 
+  unsigned int v27; 
+  unsigned __int64 v28; 
+  unsigned __int64 v29; 
 
   scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = 0i64;
-  _RBX = scrContext;
   DebugWipe(&scrContext->m_readWriteGlob, 0x2800ui64);
-  *(_QWORD *)_RBX->m_idHistory = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[2] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[4] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[6] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[8] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[10] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[12] = 0i64;
-  *(_QWORD *)&_RBX->m_idHistory[14] = 0i64;
-  _RBX->m_idHistoryIndex = 0;
+  *(_QWORD *)scrContext->m_idHistory = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[2] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[4] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[6] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[8] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[10] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[12] = 0i64;
+  *(_QWORD *)&scrContext->m_idHistory[14] = 0i64;
+  scrContext->m_idHistoryIndex = 0;
   if ( scriptRunning )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+5D7Ch]
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1591, ASSERT_TYPE_ASSERT, "( pScrVarPub->framerate > 0.0f )", (const char *)&queryFormat, "pScrVarPub->framerate > 0.0f") )
+    if ( scrContext->m_varPub.framerate <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 1591, ASSERT_TYPE_ASSERT, "( pScrVarPub->framerate > 0.0f )", (const char *)&queryFormat, "pScrVarPub->framerate > 0.0f") )
       __debugbreak();
-    __asm { vmovss  xmm1, dword ptr [rbx+5D7Ch]; f }
-    Scr_MemFileCache_WriteFloat(_RBX, *(double *)&_XMM1, memFile);
-    Scr_MemFileCache_WriteInt(_RBX, _RBX->m_varPub.time, memFile);
+    Scr_MemFileCache_WriteFloat(scrContext, scrContext->m_varPub.framerate, memFile);
+    Scr_MemFileCache_WriteInt(scrContext, scrContext->m_varPub.time, memFile);
   }
-  Scr_MemFileCache_WriteInt(_RBX, _RBX->m_varPub.savecount, memFile);
-  Scr_MemFileCache_WriteInt(_RBX, _RBX->m_varPub.savecountMark, memFile);
+  Scr_MemFileCache_WriteInt(scrContext, scrContext->m_varPub.savecount, memFile);
+  Scr_MemFileCache_WriteInt(scrContext, scrContext->m_varPub.savecountMark, memFile);
   UsedSize = MemFile_GetUsedSize(memFile);
   ProfMem_Begin("DoSaveObjectInfo", UsedSize);
-  savecountMark = _RBX->m_varPub.savecountMark;
+  savecountMark = scrContext->m_varPub.savecountMark;
   for ( i = 1; i <= savecountMark; ++i )
   {
-    Scr_ReadWrite_DoSaveObjectInfo(_RBX, _RBX->m_varPub.saveIdMapRev[i], memFile);
-    savecountMark = _RBX->m_varPub.savecountMark;
+    Scr_ReadWrite_DoSaveObjectInfo(scrContext, scrContext->m_varPub.saveIdMapRev[i], memFile);
+    savecountMark = scrContext->m_varPub.savecountMark;
   }
-  for ( j = savecountMark + 1; (unsigned int)j <= _RBX->m_varPub.savecount; j = (unsigned int)(j + 1) )
-    Scr_ReadWrite_DoSaveObjectInfo(_RBX, _RBX->m_varPub.saveIdMapRev[j], memFile);
-  v13 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v13);
-  m_srcMemFileWriteCacheCount = _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount;
-  v15 = m_srcMemFileWriteCacheCount + 1;
-  if ( _RBX->m_varPub.gameId )
+  for ( j = savecountMark + 1; (unsigned int)j <= scrContext->m_varPub.savecount; j = (unsigned int)(j + 1) )
+    Scr_ReadWrite_DoSaveObjectInfo(scrContext, scrContext->m_varPub.saveIdMapRev[j], memFile);
+  v10 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v10);
+  m_srcMemFileWriteCacheCount = scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount;
+  v12 = m_srcMemFileWriteCacheCount + 1;
+  if ( scrContext->m_varPub.gameId )
   {
-    if ( v15 > 0x2800 )
+    if ( v12 > 0x2800 )
     {
-      MemFile_WriteData(memFile, m_srcMemFileWriteCacheCount, &_RBX->m_readWriteGlob);
+      MemFile_WriteData(memFile, m_srcMemFileWriteCacheCount, &scrContext->m_readWriteGlob);
       m_srcMemFileWriteCacheCount = 0i64;
     }
-    _RBX->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = 1;
-    childVariableValue = _RBX->m_varGlob.childVariableValue;
-    gameId = _RBX->m_varPub.gameId;
-    _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1;
-    Scr_ReadWrite_DoSaveEntryInternal(_RBX, *(_BYTE *)&childVariableValue[gameId].tn & 0x3F, childVariableValue[gameId].u.u, memFile);
+    scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = 1;
+    childVariableValue = scrContext->m_varGlob.childVariableValue;
+    gameId = scrContext->m_varPub.gameId;
+    scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1;
+    Scr_ReadWrite_DoSaveEntryInternal(scrContext, *(_BYTE *)&childVariableValue[gameId].tn & 0x3F, childVariableValue[gameId].u.u, memFile);
   }
   else
   {
-    if ( v15 > 0x2800 )
+    if ( v12 > 0x2800 )
     {
-      MemFile_WriteData(memFile, m_srcMemFileWriteCacheCount, &_RBX->m_readWriteGlob);
+      MemFile_WriteData(memFile, m_srcMemFileWriteCacheCount, &scrContext->m_readWriteGlob);
       m_srcMemFileWriteCacheCount = 0i64;
     }
-    _RBX->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = 0;
-    _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1;
+    scrContext->m_readWriteGlob.m_srcMemFileWriteCache[m_srcMemFileWriteCacheCount] = 0;
+    scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = m_srcMemFileWriteCacheCount + 1;
   }
   if ( scriptRunning )
   {
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.levelId, 0, memFile);
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.animId, 0, memFile);
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.freeEntList, 0, memFile);
-    v18 = 10i64;
-    p_entArrayId = &_RBX->m_varPub.m_classMap[0].entArrayId;
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.levelId, 0, memFile);
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.animId, 0, memFile);
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.freeEntList, 0, memFile);
+    v15 = 10i64;
+    p_entArrayId = &scrContext->m_varPub.m_classMap[0].entArrayId;
     do
     {
-      v20 = *p_entArrayId;
-      v21 = v20;
-      if ( !_RBX->m_varPub.saveIdMap[v20] && (_DWORD)v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 389, ASSERT_TYPE_ASSERT, "( scrContext.m_varPub.saveIdMap[id] || !id )", (const char *)&queryFormat, "scrContext.m_varPub.saveIdMap[id] || !id") )
+      v17 = *p_entArrayId;
+      v18 = v17;
+      if ( !scrContext->m_varPub.saveIdMap[v17] && (_DWORD)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_readwrite.cpp", 389, ASSERT_TYPE_ASSERT, "( scrContext.m_varPub.saveIdMap[id] || !id )", (const char *)&queryFormat, "scrContext.m_varPub.saveIdMap[id] || !id") )
         __debugbreak();
-      m_idHistoryIndex = _RBX->m_idHistoryIndex;
-      v23 = 1;
-      v24 = m_idHistoryIndex + 1;
-      v25 = _RBX->m_varPub.saveIdMap[v21];
-      if ( (unsigned int)v24 >= 0x10 )
+      m_idHistoryIndex = scrContext->m_idHistoryIndex;
+      v20 = 1;
+      v21 = m_idHistoryIndex + 1;
+      v22 = scrContext->m_varPub.saveIdMap[v18];
+      if ( (unsigned int)v21 >= 0x10 )
       {
-LABEL_27:
-        v27 = 0i64;
+LABEL_28:
+        v24 = 0i64;
         while ( 1 )
         {
-          v28 = _RBX->m_idHistory[v27];
-          if ( v25 == v28 + 1 )
+          v25 = scrContext->m_idHistory[v24];
+          if ( v22 == v25 + 1 )
             break;
-          if ( v25 == v28 )
-            goto LABEL_32;
-          v27 = (unsigned int)(v27 + 1);
-          v23 += 2;
-          if ( (unsigned int)v27 > m_idHistoryIndex )
+          if ( v22 == v25 )
+            goto LABEL_33;
+          v24 = (unsigned int)(v24 + 1);
+          v20 += 2;
+          if ( (unsigned int)v24 > m_idHistoryIndex )
           {
-            v23 = 0;
+            v20 = 0;
             break;
           }
         }
       }
       else
       {
-        v26 = &_RBX->m_idHistory[v24];
-        while ( v25 != *v26 + 1 )
+        v23 = &scrContext->m_idHistory[v21];
+        while ( v22 != *v23 + 1 )
         {
-          if ( v25 == *v26 )
+          if ( v22 == *v23 )
           {
-LABEL_32:
-            ++v23;
+LABEL_33:
+            ++v20;
             break;
           }
-          LODWORD(v24) = v24 + 1;
-          ++v26;
-          v23 += 2;
-          if ( (unsigned int)v24 >= 0x10 )
-            goto LABEL_27;
+          LODWORD(v21) = v21 + 1;
+          ++v23;
+          v20 += 2;
+          if ( (unsigned int)v21 >= 0x10 )
+            goto LABEL_28;
         }
       }
-      v29 = 8 * v23;
-      v30 = 0;
-      v31 = _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount;
-      if ( v29 < 0x100 )
-        v30 = v29;
-      if ( v31 + 1 > 0x2800 )
+      v26 = 8 * v20;
+      v27 = 0;
+      v28 = scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount;
+      if ( v26 < 0x100 )
+        v27 = v26;
+      if ( v28 + 1 > 0x2800 )
       {
-        MemFile_WriteData(memFile, _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount, &_RBX->m_readWriteGlob);
-        v31 = 0i64;
+        MemFile_WriteData(memFile, scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount, &scrContext->m_readWriteGlob);
+        v28 = 0i64;
       }
-      _RBX->m_readWriteGlob.m_srcMemFileWriteCache[v31] = v30;
-      _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount = v31 + 1;
-      if ( !v30 )
-        Scr_MemFileCache_WriteInt(_RBX, v25, memFile);
+      scrContext->m_readWriteGlob.m_srcMemFileWriteCache[v28] = v27;
+      scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = v28 + 1;
+      if ( !v27 )
+        Scr_MemFileCache_WriteInt(scrContext, v22, memFile);
       p_entArrayId += 6;
-      _RBX->m_idHistory[_RBX->m_idHistoryIndex] = v25;
-      _RBX->m_idHistoryIndex = ((unsigned __int8)_RBX->m_idHistoryIndex - 1) & 0xF;
-      --v18;
+      scrContext->m_idHistory[scrContext->m_idHistoryIndex] = v22;
+      scrContext->m_idHistoryIndex = ((unsigned __int8)scrContext->m_idHistoryIndex - 1) & 0xF;
+      --v15;
     }
-    while ( v18 );
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.timeArrayId, 0, memFile);
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.pauseArrayId, 0, memFile);
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.notifyArrayId, 0, memFile);
-    Scr_MemFileCache_WriteId(_RBX, _RBX->m_varPub.objectStackId, 0, memFile);
-    WriteProfileData(_RBX, memFile);
+    while ( v15 );
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.timeArrayId, 0, memFile);
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.pauseArrayId, 0, memFile);
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.notifyArrayId, 0, memFile);
+    Scr_MemFileCache_WriteId(scrContext, scrContext->m_varPub.objectStackId, 0, memFile);
+    WriteProfileData(scrContext, memFile);
   }
-  v32 = _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount;
-  if ( v32 )
+  v29 = scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount;
+  if ( v29 )
   {
-    MemFile_WriteData(memFile, v32, &_RBX->m_readWriteGlob);
-    _RBX->m_readWriteGlob.m_srcMemFileWriteCacheCount = 0i64;
+    MemFile_WriteData(memFile, v29, &scrContext->m_readWriteGlob);
+    scrContext->m_readWriteGlob.m_srcMemFileWriteCacheCount = 0i64;
   }
 }
 

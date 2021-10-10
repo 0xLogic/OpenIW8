@@ -263,22 +263,13 @@ void bdObjectStoreGetUserSummaryObjectRequest::init(bdObjectStoreGetUserSummaryO
 {
   bdObjectStoreObjectID::bdObjectStoreObjectIDOwnerType OwnerType; 
 
-  _RDI = (bdObjectStoreObjectID *)objectID;
-  _RBX = this;
   bdObjectStoreRequestBase::setContext(this, context);
-  OwnerType = bdObjectStoreObjectID::getOwnerType(_RDI);
+  OwnerType = bdObjectStoreObjectID::getOwnerType((bdObjectStoreObjectID *)objectID);
   bdHandleAssert(OwnerType == USER_SUMMARY_OWNER_TYPE, "objectID.getOwnerType() == bdObjectStoreObjectID::USER_SUMMARY_OWNER_TYPE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstoregetusersummaryobjectrequest.cpp", "bdObjectStoreGetUserSummaryObjectRequest::init", 0x32u, "ObjectID should have an ownerType of USER_SUMMARY_OWNER_TYPE to use this API");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+30h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+50h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rbx+70h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rbx+90h], xmm1
-  }
+  *(bdStructBufferSerializable *)((char *)&this->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)&objectID->m_ownerType;
+  *(__m256i *)&this->m_objectID[16] = *(__m256i *)&objectID->m_owner[28];
+  *(__m256i *)&this->m_objectID[48] = *(__m256i *)&objectID->m_objectName[30];
+  *(_OWORD *)&this->m_objectID[80] = *(_OWORD *)&objectID->m_objectName[62];
 }
 
 /*
@@ -318,16 +309,9 @@ bdObjectStoreGetUserSummaryObjectRequest::setObjectID
 */
 void bdObjectStoreGetUserSummaryObjectRequest::setObjectID(bdObjectStoreGetUserSummaryObjectRequest *this, const bdObjectStoreObjectID *objectID)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+30h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+50h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+70h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+90h], xmm1
-  }
+  *(bdStructBufferSerializable *)((char *)&this->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)&objectID->m_ownerType;
+  *(__m256i *)&this->m_objectID[16] = *(__m256i *)&objectID->m_owner[28];
+  *(__m256i *)&this->m_objectID[48] = *(__m256i *)&objectID->m_objectName[30];
+  *(_OWORD *)&this->m_objectID[80] = *(_OWORD *)&objectID->m_objectName[62];
 }
 

@@ -61,68 +61,51 @@ bdQoSProbe::bdQoSProbeEntryWrapper::bdQoSProbeEntryWrapper
 void bdQoSProbe::bdQoSProbeEntryWrapper::bdQoSProbeEntryWrapper(bdQoSProbe::bdQoSProbeEntryWrapper *this, const bdQoSProbe::bdQoSProbeEntryWrapper *__that)
 {
   bdCommonAddr *m_ptr; 
-  bdCommonAddr *v9; 
+  bdCommonAddr *v5; 
 
-  _RBX = __that;
-  _RSI = this;
   m_ptr = __that->m_addr.m_ptr;
-  _RSI->m_addr.m_ptr = __that->m_addr.m_ptr;
+  this->m_addr.m_ptr = __that->m_addr.m_ptr;
   if ( m_ptr )
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-  bdSecurityID::bdSecurityID(&_RSI->m_id, &__that->m_id);
-  bdSecurityKey::bdSecurityKey(&_RSI->m_key, &_RBX->m_key);
-  _RSI->m_listener = _RBX->m_listener;
-  bdAddr::bdAddr(&_RSI->m_realAddr, &_RBX->m_realAddr);
-  _RSI->m_retries = _RBX->m_retries;
-  _RSI->m_lastTry.m_start = _RBX->m_lastTry.m_start;
-  _RSI->m_numRepliesReceived = _RBX->m_numRepliesReceived;
-  _RSI->m_numRepliesExpected = _RBX->m_numRepliesExpected;
-  _RSI->m_latency = _RBX->m_latency;
-  _RSI->m_minLatency = _RBX->m_minLatency;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+0E0h]
-    vmovups ymmword ptr [rsi+0E0h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+100h]
-    vmovups ymmword ptr [rsi+100h], ymm1
-  }
-  _RSI->m_bandwidthUp = _RBX->m_bandwidthUp;
-  _RSI->m_bandwidthDown = _RBX->m_bandwidthDown;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+128h]
-    vmovups ymmword ptr [rsi+128h], ymm0
-  }
-  _RSI->m_telemetry.m_age.m_start = _RBX->m_telemetry.m_age.m_start;
-  _RSI->m_telemetry.m_duration = _RBX->m_telemetry.m_duration;
-  _RSI->m_telemetry.m_msToNatTravResolve = _RBX->m_telemetry.m_msToNatTravResolve;
-  _RSI->m_telemetry.m_msToRelayEstablished = _RBX->m_telemetry.m_msToRelayEstablished;
-  _RDI = &_RSI->m_telemetry.m_probeInfo;
-  v9 = _RBX->m_telemetry.m_probeInfo.m_addr.m_ptr;
-  _RSI->m_telemetry.m_probeInfo.m_addr.m_ptr = v9;
-  if ( v9 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
-  bdAddr::bdAddr(&_RSI->m_telemetry.m_probeInfo.m_realAddr, &_RBX->m_telemetry.m_probeInfo.m_realAddr);
-  _RSI->m_telemetry.m_probeInfo.m_latency = _RBX->m_telemetry.m_probeInfo.m_latency;
-  _RSI->m_telemetry.m_probeInfo.m_data = _RBX->m_telemetry.m_probeInfo.m_data;
-  _RSI->m_telemetry.m_probeInfo.m_dataSize = _RBX->m_telemetry.m_probeInfo.m_dataSize;
-  _RSI->m_telemetry.m_probeInfo.m_disabled = _RBX->m_telemetry.m_probeInfo.m_disabled;
-  _RSI->m_telemetry.m_probeInfo.m_bandwidthDown = _RBX->m_telemetry.m_probeInfo.m_bandwidthDown;
-  _RSI->m_telemetry.m_probeInfo.m_bandwidthUp = _RBX->m_telemetry.m_probeInfo.m_bandwidthUp;
-  _RSI->m_telemetry.m_probeInfo.m_minLatency = _RBX->m_telemetry.m_probeInfo.m_minLatency;
-  _RSI->m_telemetry.m_probeInfo.m_numReplies = _RBX->m_telemetry.m_probeInfo.m_numReplies;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+228h]
-    vmovups ymmword ptr [rdi+0C8h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+248h]
-    vmovups ymmword ptr [rdi+0E8h], ymm1
-  }
-  _RSI->m_telemetry.m_probeInfo.m_numProbesReceived = _RBX->m_telemetry.m_probeInfo.m_numProbesReceived;
-  _RSI->m_telemetry.m_probeInfo.m_numProbesExpected = _RBX->m_telemetry.m_probeInfo.m_numProbesExpected;
-  _RSI->m_telemetry.m_probeInfo.m_numRetries = _RBX->m_telemetry.m_probeInfo.m_numRetries;
-  _RSI->m_telemetry.m_probeInfo.m_failureReason = _RBX->m_telemetry.m_probeInfo.m_failureReason;
-  _RSI->m_telemetry.m_result = _RBX->m_telemetry.m_result;
+  bdSecurityID::bdSecurityID(&this->m_id, &__that->m_id);
+  bdSecurityKey::bdSecurityKey(&this->m_key, &__that->m_key);
+  this->m_listener = __that->m_listener;
+  bdAddr::bdAddr(&this->m_realAddr, &__that->m_realAddr);
+  this->m_retries = __that->m_retries;
+  this->m_lastTry.m_start = __that->m_lastTry.m_start;
+  this->m_numRepliesReceived = __that->m_numRepliesReceived;
+  this->m_numRepliesExpected = __that->m_numRepliesExpected;
+  this->m_latency = __that->m_latency;
+  this->m_minLatency = __that->m_minLatency;
+  *(__m256i *)this->m_replies = *(__m256i *)__that->m_replies;
+  *(__m256i *)&this->m_replies[8] = *(__m256i *)&__that->m_replies[8];
+  this->m_bandwidthUp = __that->m_bandwidthUp;
+  this->m_bandwidthDown = __that->m_bandwidthDown;
+  this->m_currentProbe = __that->m_currentProbe;
+  this->m_telemetry.m_age.m_start = __that->m_telemetry.m_age.m_start;
+  this->m_telemetry.m_duration = __that->m_telemetry.m_duration;
+  this->m_telemetry.m_msToNatTravResolve = __that->m_telemetry.m_msToNatTravResolve;
+  this->m_telemetry.m_msToRelayEstablished = __that->m_telemetry.m_msToRelayEstablished;
+  v5 = __that->m_telemetry.m_probeInfo.m_addr.m_ptr;
+  this->m_telemetry.m_probeInfo.m_addr.m_ptr = v5;
+  if ( v5 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v5->m_refCount, 1u);
+  bdAddr::bdAddr(&this->m_telemetry.m_probeInfo.m_realAddr, &__that->m_telemetry.m_probeInfo.m_realAddr);
+  this->m_telemetry.m_probeInfo.m_latency = __that->m_telemetry.m_probeInfo.m_latency;
+  this->m_telemetry.m_probeInfo.m_data = __that->m_telemetry.m_probeInfo.m_data;
+  this->m_telemetry.m_probeInfo.m_dataSize = __that->m_telemetry.m_probeInfo.m_dataSize;
+  this->m_telemetry.m_probeInfo.m_disabled = __that->m_telemetry.m_probeInfo.m_disabled;
+  this->m_telemetry.m_probeInfo.m_bandwidthDown = __that->m_telemetry.m_probeInfo.m_bandwidthDown;
+  this->m_telemetry.m_probeInfo.m_bandwidthUp = __that->m_telemetry.m_probeInfo.m_bandwidthUp;
+  this->m_telemetry.m_probeInfo.m_minLatency = __that->m_telemetry.m_probeInfo.m_minLatency;
+  this->m_telemetry.m_probeInfo.m_numReplies = __that->m_telemetry.m_probeInfo.m_numReplies;
+  *(__m256i *)this->m_telemetry.m_probeInfo.m_replies = *(__m256i *)__that->m_telemetry.m_probeInfo.m_replies;
+  *(__m256i *)&this->m_telemetry.m_probeInfo.m_replies[8] = *(__m256i *)&__that->m_telemetry.m_probeInfo.m_replies[8];
+  this->m_telemetry.m_probeInfo.m_numProbesReceived = __that->m_telemetry.m_probeInfo.m_numProbesReceived;
+  this->m_telemetry.m_probeInfo.m_numProbesExpected = __that->m_telemetry.m_probeInfo.m_numProbesExpected;
+  this->m_telemetry.m_probeInfo.m_numRetries = __that->m_telemetry.m_probeInfo.m_numRetries;
+  this->m_telemetry.m_probeInfo.m_failureReason = __that->m_telemetry.m_probeInfo.m_failureReason;
+  this->m_telemetry.m_result = __that->m_telemetry.m_result;
 }
 
 /*

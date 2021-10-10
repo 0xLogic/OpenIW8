@@ -551,104 +551,77 @@ LUI_QuadCache_CacheText
 */
 void LUI_QuadCache_CacheText(UIQuadCache *quadCache, lua_State *luaVM, LocalClientNum_t localClientNum, const vec4_t *verts, const vec4_t *color, GfxFont *font, const char *text, char tracking, float rotation, int fontSize, Material *fontMaterial, Material *iconsMaterial, bool tintIcons, FontDecodeStyle *fontDecodeStyle, FontGlowStyle *fontGlowStyle, float glitchAmount, float blurAmount, float parallaxAmount, const LUIColorOpData *colorOp, bool has3DTransforms)
 {
-  __int64 v26; 
-  int v27; 
+  __int64 v23; 
+  double CurrentUnitScale; 
+  int v25; 
   unsigned __int8 CurrentRTT; 
-  __int64 v31; 
-  unsigned int v32; 
-  const char *v33; 
-  __int64 v34; 
+  __int64 v27; 
+  unsigned int v28; 
+  const char *v29; 
+  __int64 v30; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [r9+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-  }
-  _RBX = quadCache;
+  *(__m256i *)quadCache->verts[0].v = *(__m256i *)verts->v;
+  *(__m256i *)quadCache->verts[2].v = *(__m256i *)verts[2].v;
   quadCache->color = *color;
   if ( has3DTransforms )
     quadCache->flags |= 2u;
   if ( LUI_Render_GetAsyncRenderSuspended() )
-    _RBX->flags |= 0x20u;
-  __asm { vmovss  xmm0, [rsp+48h+glitchAmount] }
-  v26 = -1i64;
-  __asm { vmovss  dword ptr [rbx+58h], xmm0 }
-  _RBX->scopeIndex = -1;
-  *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-  v27 = 0;
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+blurAmount]
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovss  xmm0, [rsp+48h+parallaxAmount]
-    vmovss  dword ptr [rbx+60h], xmm1
-    vmovss  dword ptr [rbx+64h], xmm0
-  }
-  _RBX->extraParam = 0.0;
-  _RBX->colorOp = *colorOp;
-  _RBX->type[0] = 1;
+    quadCache->flags |= 0x20u;
+  v23 = -1i64;
+  quadCache->glitchAmount = glitchAmount;
+  quadCache->scopeIndex = -1;
+  CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+  v25 = 0;
+  quadCache->unitScale = *(float *)&CurrentUnitScale;
+  quadCache->blurAmount = blurAmount;
+  quadCache->parallaxAmount = parallaxAmount;
+  quadCache->extraParam = 0.0;
+  quadCache->colorOp = *colorOp;
+  quadCache->type[0] = 1;
   CurrentRTT = LUI_Render_GetCurrentRTT();
   if ( text && CurrentRTT && R_RTT_UseDirtyCheck(localClientNum, CurrentRTT) )
   {
     do
-      ++v26;
-    while ( text[v26] );
-    if ( (unsigned int)v26 > 0x1000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_quadcache.cpp", 376, ASSERT_TYPE_ASSERT, "(stringSize <= 4096)", (const char *)&queryFormat, "stringSize <= 4096") )
+      ++v23;
+    while ( text[v23] );
+    if ( (unsigned int)v23 > 0x1000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_quadcache.cpp", 376, ASSERT_TYPE_ASSERT, "(stringSize <= 4096)", (const char *)&queryFormat, "stringSize <= 4096") )
       __debugbreak();
-    v31 = (unsigned int)v26;
-    v32 = ~(_DWORD)v26;
-    v33 = text;
-    if ( (_DWORD)v26 )
+    v27 = (unsigned int)v23;
+    v28 = ~(_DWORD)v23;
+    v29 = text;
+    if ( (_DWORD)v23 )
     {
       do
       {
-        v34 = *(unsigned __int8 *)v33++;
-        v32 = (v32 >> 8) ^ g_crc32Table[v34 ^ (unsigned __int8)v32];
-        --v31;
+        v30 = *(unsigned __int8 *)v29++;
+        v28 = (v28 >> 8) ^ g_crc32Table[v30 ^ (unsigned __int8)v28];
+        --v27;
       }
-      while ( v31 );
+      while ( v27 );
     }
-    v27 = ~v32;
+    v25 = ~v28;
   }
-  _RBX->text.textChecksum = v27;
+  quadCache->text.textChecksum = v25;
   j_lua_pushstring(luaVM, text);
-  __asm { vmovss  xmm0, [rsp+48h+rotation] }
-  _RBX->text.textRef = LUI_Ref_Monitor_AddRef(luaVM, -10000);
-  _RBX->text.tracking = tracking;
-  _RBX->text.fontSize = fontSize;
-  _RBX->text.font = font;
-  _RBX->text.fontMaterial = fontMaterial;
-  _RBX->text.iconsMaterial = iconsMaterial;
-  _RAX = fontDecodeStyle;
-  __asm { vmovss  dword ptr [rbx+80h], xmm0 }
+  quadCache->text.textRef = LUI_Ref_Monitor_AddRef(luaVM, -10000);
+  quadCache->text.tracking = tracking;
+  quadCache->text.fontSize = fontSize;
+  quadCache->text.font = font;
+  quadCache->text.fontMaterial = fontMaterial;
+  quadCache->text.iconsMaterial = iconsMaterial;
+  quadCache->text.textRotation = rotation;
   if ( fontDecodeStyle )
   {
-    _RBX->flags |= 4u;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx+0A0h], xmm0
-    }
-    *(_DWORD *)&_RBX->image.samplerState = *(_DWORD *)&fontDecodeStyle->useGameTime;
+    quadCache->flags |= 4u;
+    quadCache->text.decodeStyle = *fontDecodeStyle;
   }
-  _RAX = fontGlowStyle;
   if ( fontGlowStyle )
   {
-    _RBX->flags |= 8u;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx+0B4h], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbx+0D4h], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbx+0E4h], xmm0
-    }
+    quadCache->flags |= 8u;
+    quadCache->text.glowStyle = *fontGlowStyle;
   }
   if ( tintIcons )
-    _RBX->flags |= 1u;
+    quadCache->flags |= 1u;
 }
 
 /*
@@ -945,59 +918,42 @@ LUI_QuadCache_Element_CacheImageQuad
 */
 void LUI_QuadCache_Element_CacheImageQuad(lua_State *luaVM, LocalClientNum_t localClientNum, LUIElement *element, const vec4_t *verts, const vec4_t *color, LUIQuadUV *uv, const GfxImage *image, Material *material, float glitchAmount, float blurAmount, unsigned __int16 samplerState, float parallaxAmount, const LUIColorOpData *colorOp, const bool has3DTransforms, const int scopeIndex, const bool applyScopeBufferWeight, const LUIColorSource colorSource, const float extraParam)
 {
-  _RSI = verts;
+  UIQuadCache *FreeQuadCacheForElement; 
+  double CurrentUnitScale; 
+  double v24; 
+
   if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_quadcache.cpp", 464, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
   if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_quadcache.cpp", 465, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
     __debugbreak();
-  _RBX = LUI_QuadCache_GetFreeQuadCacheForElement(luaVM, element);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rax+20h], ymm1
-  }
-  _RBX->color = *color;
+  FreeQuadCacheForElement = LUI_QuadCache_GetFreeQuadCacheForElement(luaVM, element);
+  *(__m256i *)FreeQuadCacheForElement->verts[0].v = *(__m256i *)verts->v;
+  *(__m256i *)FreeQuadCacheForElement->verts[2].v = *(__m256i *)verts[2].v;
+  FreeQuadCacheForElement->color = *color;
   if ( has3DTransforms )
-    _RBX->flags |= 2u;
+    FreeQuadCacheForElement->flags |= 2u;
   if ( colorSource == LUI_COLOR_SOURCE_IMAGE_PIXEL_SHAPE )
-    _RBX->flags |= 0x10u;
+    FreeQuadCacheForElement->flags |= 0x10u;
   if ( LUI_Render_GetAsyncRenderSuspended() )
-    _RBX->flags |= 0x20u;
+    FreeQuadCacheForElement->flags |= 0x20u;
   if ( applyScopeBufferWeight )
-    _RBX->flags |= 0x40u;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+glitchAmount]
-    vmovss  dword ptr [rbx+58h], xmm0
-  }
-  _RBX->scopeIndex = scopeIndex;
-  *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+blurAmount]
-    vmovss  dword ptr [rbx+60h], xmm1
-    vmovss  xmm1, [rsp+48h+extraParam]
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovss  xmm0, [rsp+48h+parallaxAmount]
-    vmovss  dword ptr [rbx+68h], xmm1
-    vmovss  dword ptr [rbx+64h], xmm0
-  }
-  _RAX = uv;
-  _RBX->colorOp = *colorOp;
-  _RBX->type[0] = 0;
-  _RBX->image.texture = image;
-  _RBX->image.material = material;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+88h], ymm0
-    vmovsd  xmm1, qword ptr [rax+20h]
-  }
-  _RBX->image.samplerState = samplerState;
-  __asm { vmovsd  qword ptr [rbx+0A8h], xmm1 }
-  LUI_QuadCache_Element_AppendToCache(localClientNum, element, _RBX);
+    FreeQuadCacheForElement->flags |= 0x40u;
+  FreeQuadCacheForElement->glitchAmount = glitchAmount;
+  FreeQuadCacheForElement->scopeIndex = scopeIndex;
+  CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+  FreeQuadCacheForElement->blurAmount = blurAmount;
+  FreeQuadCacheForElement->unitScale = *(float *)&CurrentUnitScale;
+  FreeQuadCacheForElement->extraParam = extraParam;
+  FreeQuadCacheForElement->parallaxAmount = parallaxAmount;
+  FreeQuadCacheForElement->colorOp = *colorOp;
+  FreeQuadCacheForElement->type[0] = 0;
+  FreeQuadCacheForElement->image.texture = image;
+  FreeQuadCacheForElement->image.material = material;
+  *(__m256i *)&FreeQuadCacheForElement->image.uv.minMax.uMin = *(__m256i *)&uv->minMax.uMin;
+  v24 = *(double *)&uv->rotated.angle;
+  FreeQuadCacheForElement->image.samplerState = samplerState;
+  *(double *)&FreeQuadCacheForElement->image.uv.rotated.angle = v24;
+  LUI_QuadCache_Element_AppendToCache(localClientNum, element, FreeQuadCacheForElement);
 }
 
 /*
@@ -1008,24 +964,9 @@ LUI_QuadCache_Element_CacheTextQuad
 void LUI_QuadCache_Element_CacheTextQuad(lua_State *luaVM, LocalClientNum_t localClientNum, LUIElement *element, const vec4_t *verts, const vec4_t *color, GfxFont *font, const char *text, char tracking, float rotation, int fontSize, Material *fontMaterial, Material *iconsMaterial, bool tintIcons, FontDecodeStyle *fontDecodeStyle, FontGlowStyle *fontGlowStyle, float glitchAmount, float blurAmount, float parallaxAmount, const LUIColorOpData *colorOp, bool has3DTransforms)
 {
   UIQuadCache *FreeQuadCacheForElement; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
 
-  __asm { vmovss  xmm0, [rsp+0A8h+parallaxAmount] }
   FreeQuadCacheForElement = LUI_QuadCache_GetFreeQuadCacheForElement(luaVM, element);
-  __asm
-  {
-    vmovss  xmm1, [rsp+0A8h+blurAmount]
-    vmovss  [rsp+0A8h+var_20], xmm0
-    vmovss  xmm0, [rsp+0A8h+glitchAmount]
-    vmovss  [rsp+0A8h+var_28], xmm1
-    vmovss  [rsp+0A8h+var_30], xmm0
-    vmovss  xmm0, [rsp+0A8h+rotation]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  LUI_QuadCache_CacheText(FreeQuadCacheForElement, luaVM, localClientNum, verts, color, font, text, tracking, v29, fontSize, fontMaterial, iconsMaterial, tintIcons, fontDecodeStyle, fontGlowStyle, v30, v31, v32, colorOp, has3DTransforms);
+  LUI_QuadCache_CacheText(FreeQuadCacheForElement, luaVM, localClientNum, verts, color, font, text, tracking, rotation, fontSize, fontMaterial, iconsMaterial, tintIcons, fontDecodeStyle, fontGlowStyle, glitchAmount, blurAmount, parallaxAmount, colorOp, has3DTransforms);
   LUI_QuadCache_Element_AppendToCache(localClientNum, element, FreeQuadCacheForElement);
 }
 

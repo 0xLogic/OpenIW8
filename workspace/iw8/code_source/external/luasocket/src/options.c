@@ -339,11 +339,8 @@ __int64 opt_getint(lua_State *L, unsigned __int64 *ps, int level, int name)
   optlen[0] = 4;
   if ( getsockopt(*ps, level, name, optval, optlen) >= 0 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, dword ptr [rsp+48h+optval]; n
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rsp+48h+optval]; n }
     j_lua_pushnumber(L, *(long double *)&_XMM1);
     return 1i64;
   }
@@ -365,11 +362,11 @@ __int64 opt_ip6_setmembership(lua_State *L, unsigned __int64 *ps, int level, int
   const char *v9; 
   const char *v10; 
   __int64 pAddrBuf[2]; 
-  int v15; 
+  int v14; 
 
   pAddrBuf[0] = 0i64;
   pAddrBuf[1] = 0i64;
-  v15 = 0;
+  v14 = 0;
   if ( j_lua_type(L, 3) != 5 )
   {
     v9 = j_lua_typename(L, 5);
@@ -390,12 +387,11 @@ __int64 opt_ip6_setmembership(lua_State *L, unsigned __int64 *ps, int level, int
       j_luaL_argerror(L, -1, "number 'interface' field expected");
     *(double *)&_XMM0 = j_lua_tonumber(L, -1);
     __asm { vcvttsd2si rax, xmm0 }
-    v15 = _RAX;
+    v14 = _RAX;
   }
   if ( setsockopt(*ps, level, name, (const char *)pAddrBuf, 20) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else
@@ -610,8 +606,7 @@ __int64 opt_set_ip_multicast_if(lua_State *L, unsigned __int64 *ps)
     j_luaL_argerror(L, 3, "ip expected");
   if ( setsockopt(*ps, 0, 9, (const char *)&inp, 4) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else
@@ -662,7 +657,7 @@ __int64 opt_set_linger(lua_State *L, unsigned __int64 *ps)
   const char *v5; 
   unsigned __int64 v6; 
   __int16 optval; 
-  __int16 v11; 
+  __int16 v10; 
 
   if ( j_lua_type(L, 3) != 5 )
   {
@@ -681,11 +676,10 @@ __int64 opt_set_linger(lua_State *L, unsigned __int64 *ps)
   *(double *)&_XMM0 = j_lua_tonumber(L, -1);
   v6 = *ps;
   __asm { vcvttsd2si eax, xmm0 }
-  v11 = _EAX;
+  v10 = _EAX;
   if ( setsockopt(v6, 0xFFFF, 128, (const char *)&optval, 4) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else
@@ -742,8 +736,7 @@ __int64 opt_setboolean(lua_State *L, unsigned __int64 *ps, int level, int name)
   *(_DWORD *)optval = v8;
   if ( setsockopt(v9, level, name, optval, 4) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else
@@ -770,8 +763,7 @@ __int64 opt_setint(lua_State *L, unsigned __int64 *ps, int level, int name)
   *(_DWORD *)optval = _EAX;
   if ( setsockopt(v9, level, name, optval, 4) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else
@@ -794,7 +786,7 @@ __int64 opt_setmembership(lua_State *L, unsigned __int64 *ps, int level, int nam
   const char *v10; 
   const char *v11; 
   in_addr inp; 
-  in_addr v15; 
+  in_addr v14; 
 
   if ( j_lua_type(L, 3) != 5 )
   {
@@ -812,18 +804,17 @@ __int64 opt_setmembership(lua_State *L, unsigned __int64 *ps, int level, int nam
   j_lua_gettable(L, 3);
   if ( !j_lua_isstring(L, -1) )
     j_luaL_argerror(L, 3, "string 'interface' field expected");
-  v15 = (in_addr)htonl(0);
+  v14 = (in_addr)htonl(0);
   v10 = j_lua_tolstring(L, -1, NULL);
   if ( *v10 != asc_143D6868C[0] || v10[1] != asc_143D6868C[1] )
   {
     v11 = j_lua_tolstring(L, -1, NULL);
-    if ( !j_inet_aton(v11, &v15) )
+    if ( !j_inet_aton(v11, &v14) )
       j_luaL_argerror(L, 3, "invalid 'interface' ip address");
   }
   if ( setsockopt(*ps, level, name, (const char *)&inp, 8) >= 0 )
   {
-    __asm { vmovsd  xmm1, cs:__real@3ff0000000000000; n }
-    j_lua_pushnumber(L, *(long double *)&_XMM1);
+    j_lua_pushnumber(L, 1.0);
     return 1i64;
   }
   else

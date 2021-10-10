@@ -551,44 +551,41 @@ bdAchievementEvent::addKeyValue
 bdAchievementEvent *bdAchievementEvent::addKeyValue(bdAchievementEvent *this, const char *key, unsigned __int64 value)
 {
   unsigned int m_size; 
-  int v10; 
-  __int64 v11; 
-  bdStructBufferSerializable v12; 
-  int v13; 
-  char v14; 
-  unsigned __int64 v15; 
-  bdReferencable v16; 
+  bdAchievementEventKeyValue *v7; 
+  int v9; 
+  __int64 v10; 
+  bdStructBufferSerializable v11; 
+  int v12; 
+  char v13; 
+  unsigned __int64 v14; 
+  bdReferencable v15; 
 
-  v10 = 0;
-  bdHandleAssert(this->m_keyValues.m_size < 0xA, "m_keyValues.canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementevent.cpp", "bdAchievementEvent::addKeyValue", 0x98u, "too many keyValues.", v10, -2i64);
-  *((_QWORD *)&v12.__vftable + 1) = &bdAchievementEventKeyValue::`vbtable';
-  v16.__vftable = (bdReferencable_vtbl *)&bdReferencable::`vftable';
-  v16.m_refCount.m_value._My_val = 0;
-  LODWORD(v11) = 1;
-  bdStructBufferSerializable::bdStructBufferSerializable(&v12);
-  v12.__vftable = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdStructBufferSerializable'};
-  *(bdStructBufferSerializable_vtbl **)((char *)&v12.__vftable + *(int *)(*((_QWORD *)&v12.__vftable + 1) + 4i64) + 8) = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdReferencable'};
-  bdStructFixedSizeString<20>::copy((bdStructFixedSizeString<20> *)(&v12.__vftable + 2), key);
-  v15 = value;
-  bdHandleAssert(this->m_keyValues.m_size < 0xA, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementEventKeyValue,10>::pushBack", 0x40u, "No more capacity for pushBack", v11);
+  v9 = 0;
+  bdHandleAssert(this->m_keyValues.m_size < 0xA, "m_keyValues.canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementevent.cpp", "bdAchievementEvent::addKeyValue", 0x98u, "too many keyValues.", v9, -2i64);
+  *((_QWORD *)&v11.__vftable + 1) = &bdAchievementEventKeyValue::`vbtable';
+  v15.__vftable = (bdReferencable_vtbl *)&bdReferencable::`vftable';
+  v15.m_refCount.m_value._My_val = 0;
+  LODWORD(v10) = 1;
+  bdStructBufferSerializable::bdStructBufferSerializable(&v11);
+  v11.__vftable = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdStructBufferSerializable'};
+  *(bdStructBufferSerializable_vtbl **)((char *)&v11.__vftable + *(int *)(*((_QWORD *)&v11.__vftable + 1) + 4i64) + 8) = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdReferencable'};
+  bdStructFixedSizeString<20>::copy((bdStructFixedSizeString<20> *)(&v11.__vftable + 2), key);
+  v14 = value;
+  bdHandleAssert(this->m_keyValues.m_size < 0xA, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementEventKeyValue,10>::pushBack", 0x40u, "No more capacity for pushBack", v10);
   m_size = this->m_keyValues.m_size;
   if ( m_size < 0xA )
   {
-    _RBX = &this->m_keyValues.m_elements[(unsigned __int64)m_size];
+    v7 = &this->m_keyValues.m_elements[(unsigned __int64)m_size];
     this->m_keyValues.m_size = m_size + 1;
-    bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&v12.__vftable + *(int *)(*((_QWORD *)&v12.__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0A8h+var_68+10h]
-      vmovups xmmword ptr [rbx+10h], xmm0
-    }
-    *(_DWORD *)_RBX->m_key = v13;
-    _RBX->m_key[4] = v14;
-    _RBX->m_value = v15;
+    bdReferencable::operator=((bdReferencable *)((char *)&v7->__vftable + *(int *)(*((_QWORD *)&v7->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&v11.__vftable + *(int *)(*((_QWORD *)&v11.__vftable + 1) + 4i64) + 8));
+    *((_OWORD *)&v7->__vftable + 1) = *((_OWORD *)&v11.__vftable + 1);
+    *(_DWORD *)v7->m_key = v12;
+    v7->m_key[4] = v13;
+    v7->m_value = v14;
   }
-  bdStructFixedSizeString<20>::~bdStructFixedSizeString<20>((bdStructFixedSizeString<20> *)(&v12.__vftable + 2));
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v12.__vftable + 2));
-  bdReferencable::~bdReferencable(&v16);
+  bdStructFixedSizeString<20>::~bdStructFixedSizeString<20>((bdStructFixedSizeString<20> *)(&v11.__vftable + 2));
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v11.__vftable + 2));
+  bdReferencable::~bdReferencable(&v15);
   return this;
 }
 
@@ -887,45 +884,42 @@ bdAchievementEvent::setValue
 bdAchievementEvent *bdAchievementEvent::setValue(bdAchievementEvent *this, unsigned __int64 value)
 {
   unsigned int m_size; 
-  int v8; 
-  __int64 v9; 
-  bdStructBufferSerializable v10; 
-  int v11; 
-  char v12; 
-  unsigned __int64 v13; 
-  bdReferencable v14; 
+  bdAchievementEventKeyValue *v5; 
+  int v7; 
+  __int64 v8; 
+  bdStructBufferSerializable v9; 
+  int v10; 
+  char v11; 
+  unsigned __int64 v12; 
+  bdReferencable v13; 
 
-  v8 = 0;
-  bdHandleAssert(this->m_keyValues.m_size == 0, "m_keyValues.getSize() == 0U", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementevent.cpp", "bdAchievementEvent::setValue", 0x92u, "If multiple keyValues are required use addKeyValue.", v8, -2i64);
+  v7 = 0;
+  bdHandleAssert(this->m_keyValues.m_size == 0, "m_keyValues.getSize() == 0U", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementevent.cpp", "bdAchievementEvent::setValue", 0x92u, "If multiple keyValues are required use addKeyValue.", v7, -2i64);
   bdHandleAssert(this->m_keyValues.m_size < 0xA, "m_keyValues.canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementevent.cpp", "bdAchievementEvent::addKeyValue", 0x98u, "too many keyValues.");
-  *((_QWORD *)&v10.__vftable + 1) = &bdAchievementEventKeyValue::`vbtable';
-  v14.__vftable = (bdReferencable_vtbl *)&bdReferencable::`vftable';
-  v14.m_refCount.m_value._My_val = 0;
-  LODWORD(v9) = 1;
-  bdStructBufferSerializable::bdStructBufferSerializable(&v10);
-  v10.__vftable = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdStructBufferSerializable'};
-  *(bdStructBufferSerializable_vtbl **)((char *)&v10.__vftable + *(int *)(*((_QWORD *)&v10.__vftable + 1) + 4i64) + 8) = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdReferencable'};
-  bdStructFixedSizeString<20>::copy((bdStructFixedSizeString<20> *)(&v10.__vftable + 2), (const char *const)&stru_143CE7590);
-  v13 = value;
-  bdHandleAssert(this->m_keyValues.m_size < 0xA, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementEventKeyValue,10>::pushBack", 0x40u, "No more capacity for pushBack", v9);
+  *((_QWORD *)&v9.__vftable + 1) = &bdAchievementEventKeyValue::`vbtable';
+  v13.__vftable = (bdReferencable_vtbl *)&bdReferencable::`vftable';
+  v13.m_refCount.m_value._My_val = 0;
+  LODWORD(v8) = 1;
+  bdStructBufferSerializable::bdStructBufferSerializable(&v9);
+  v9.__vftable = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdStructBufferSerializable'};
+  *(bdStructBufferSerializable_vtbl **)((char *)&v9.__vftable + *(int *)(*((_QWORD *)&v9.__vftable + 1) + 4i64) + 8) = (bdStructBufferSerializable_vtbl *)&bdAchievementEventKeyValue::`vftable'{for `bdReferencable'};
+  bdStructFixedSizeString<20>::copy((bdStructFixedSizeString<20> *)(&v9.__vftable + 2), (const char *const)&stru_143CE7590);
+  v12 = value;
+  bdHandleAssert(this->m_keyValues.m_size < 0xA, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementEventKeyValue,10>::pushBack", 0x40u, "No more capacity for pushBack", v8);
   m_size = this->m_keyValues.m_size;
   if ( m_size < 0xA )
   {
-    _RBX = &this->m_keyValues.m_elements[(unsigned __int64)m_size];
+    v5 = &this->m_keyValues.m_elements[(unsigned __int64)m_size];
     this->m_keyValues.m_size = m_size + 1;
-    bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&v10.__vftable + *(int *)(*((_QWORD *)&v10.__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+98h+var_58+10h]
-      vmovups xmmword ptr [rbx+10h], xmm0
-    }
-    *(_DWORD *)_RBX->m_key = v11;
-    _RBX->m_key[4] = v12;
-    _RBX->m_value = v13;
+    bdReferencable::operator=((bdReferencable *)((char *)&v5->__vftable + *(int *)(*((_QWORD *)&v5->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&v9.__vftable + *(int *)(*((_QWORD *)&v9.__vftable + 1) + 4i64) + 8));
+    *((_OWORD *)&v5->__vftable + 1) = *((_OWORD *)&v9.__vftable + 1);
+    *(_DWORD *)v5->m_key = v10;
+    v5->m_key[4] = v11;
+    v5->m_value = v12;
   }
-  bdStructFixedSizeString<20>::~bdStructFixedSizeString<20>((bdStructFixedSizeString<20> *)(&v10.__vftable + 2));
-  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v10.__vftable + 2));
-  bdReferencable::~bdReferencable(&v14);
+  bdStructFixedSizeString<20>::~bdStructFixedSizeString<20>((bdStructFixedSizeString<20> *)(&v9.__vftable + 2));
+  bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v9.__vftable + 2));
+  bdReferencable::~bdReferencable(&v13);
   return this;
 }
 

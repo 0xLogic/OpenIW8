@@ -75,100 +75,63 @@ void R_DrawBModelSurf(GfxDrawSurfIter *drawSurfIter, GfxCmdBufContext *context)
   const MaterialTechnique *technique; 
   MaterialConstantLayout precompiledIndex; 
   const char *name; 
-  const char *v17; 
+  const char *v8; 
   const char *ConstantLayoutName; 
-  GfxCmdBufContext v19[2]; 
+  GfxCmdBufContext v10[2]; 
 
-  _RBX = context;
   Profile_Begin(85);
   if ( !drawSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 814, ASSERT_TYPE_ASSERT, "(drawSurfIter)", (const char *)&queryFormat, "drawSurfIter", -2i64) )
     __debugbreak();
-  if ( !_RBX->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 815, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 815, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 816, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 816, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBX->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   switch ( precompiledIndex )
   {
     case MTL_CONSTANT_LAYOUT_BMODEL:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 39
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_39_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_39_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_AUX:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 40
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_40_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_40_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_AUX_QUERY:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 41
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_41_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_41_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_VEL:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 42
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_42_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_42_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_LIT_LMAP:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 43
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_43_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_43_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_TESS:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 44
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_44_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_44_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_TESS_QUERY:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 45
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_45_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_45_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_TESS_VEL:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 46
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_46_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_46_(drawSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_BMODEL_TESS_LIT_LMAP:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E526 case 47
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBModelSurf_Internal_47_(drawSurfIter, v19);
+      v10[0] = *context;
+      R_DrawBModelSurf_Internal_47_(drawSurfIter, v10);
       break;
     default:
       name = technique->name;
-      v17 = state->material->name;
+      v8 = state->material->name;
       ConstantLayoutName = R_GetConstantLayoutName(precompiledIndex);
-      R_WarnOncePerFrame(R_WARN_INVALID_MTL_CONSTANT_LAYOUT, ConstantLayoutName, "BMODEL", v17, name);
+      R_WarnOncePerFrame(R_WARN_INVALID_MTL_CONSTANT_LAYOUT, ConstantLayoutName, "BMODEL", v8, name);
       GfxDrawSurfIter::SkipToNextDrawGroup(drawSurfIter);
       break;
   }
@@ -186,84 +149,55 @@ void R_DrawBspSurf(GfxBspSurfIter *bspSurfIter, GfxCmdBufContext *context)
   const MaterialTechnique *technique; 
   MaterialConstantLayout precompiledIndex; 
   const char *name; 
-  const char *v15; 
+  const char *v8; 
   const char *ConstantLayoutName; 
-  GfxCmdBufContext v17[2]; 
+  GfxCmdBufContext v10[2]; 
 
-  _RBX = context;
   Profile_Begin(79);
   if ( !bspSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 526, ASSERT_TYPE_ASSERT, "(bspSurfIter)", (const char *)&queryFormat, "bspSurfIter", -2i64) )
     __debugbreak();
-  if ( !_RBX->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 527, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 527, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 528, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_bsp.cpp", 528, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBX->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   switch ( precompiledIndex )
   {
     case MTL_CONSTANT_LAYOUT_WORLD:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 32
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_32_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_32_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_AUX:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 33
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_33_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_33_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_AUX_QUERY:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 34
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_34_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_34_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_LIT_LMAP:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 35
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_35_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_35_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_TESS:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 36
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_36_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_36_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_TESS_QUERY:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 37
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_37_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_37_(bspSurfIter, v10);
       break;
     case MTL_CONSTANT_LAYOUT_WORLD_TESS_LIT_LMAP:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]; jumptable 000000014224E846 case 38
-        vmovups [rsp+68h+var_28], xmm0
-      }
-      R_DrawBspSurf_Internal_38_(bspSurfIter, v17);
+      v10[0] = *context;
+      R_DrawBspSurf_Internal_38_(bspSurfIter, v10);
       break;
     default:
       name = technique->name;
-      v15 = state->material->name;
+      v8 = state->material->name;
       ConstantLayoutName = R_GetConstantLayoutName(precompiledIndex);
-      R_WarnOncePerFrame(R_WARN_INVALID_MTL_CONSTANT_LAYOUT, ConstantLayoutName, "WORLD", v15, name);
+      R_WarnOncePerFrame(R_WARN_INVALID_MTL_CONSTANT_LAYOUT, ConstantLayoutName, "WORLD", v8, name);
       GfxBspSurfIter::SkipToNextDrawGroup(bspSurfIter);
       break;
   }
@@ -349,19 +283,19 @@ R_SetBspPatchConstantBuffer
 void R_SetBspPatchConstantBuffer(GfxCmdBufContext *context, int indirectArgsOffset)
 {
   GfxCmdBufState *state; 
+  GfxConstantBufferDesc *v4; 
+  GfxConstantBufferDesc v5; 
+  _DWORD *bufferData; 
   unsigned int bufferSize; 
   GfxConstantBufferDesc cbuff; 
   GfxConstantBufferDesc result; 
 
   state = context->state;
-  _RAX = R_AllocateConstantBufferBegin(&result, state, CBUFFER_BSP_PATCH, 4u);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rax, xmm0
-    vmovups xmmword ptr [rsp+48h+cbuff.bufferData], xmm0
-  }
-  *_RAX = 16 * (indirectArgsOffset + 3074);
+  v4 = R_AllocateConstantBufferBegin(&result, state, CBUFFER_BSP_PATCH, 4u);
+  v5 = *v4;
+  bufferData = v4->bufferData;
+  cbuff = v5;
+  *bufferData = 16 * (indirectArgsOffset + 3074);
   R_AllocateConstantBufferEnd(state, &cbuff);
   bufferSize = cbuff.bufferSize;
   state->constants[2][5].bufferData = cbuff.bufferData;

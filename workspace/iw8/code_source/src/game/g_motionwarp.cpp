@@ -222,9 +222,11 @@ void G_MotionWarp_Load(SaveGame *save)
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *j; 
   ntl::red_black_tree_node_base *v11; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  ntl::pair<int,motionwarp_tracker_field_t *> v13; 
   ntl::red_black_tree_node_base *mp_right; 
   ntl::pair<int,motionwarp_tracker_field_t *> r_element; 
-  __m256i v17; 
+  __m256i v16; 
   int buffer; 
   ntl::red_black_tree_iterator<int,ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> >,ntl::pair<int,motionwarp_tracker_field_t *> *,ntl::pair<int,motionwarp_tracker_field_t *> &> result; 
 
@@ -310,43 +312,36 @@ LABEL_29:
       }
       if ( (ntl::internal::pool_allocator_freelist<48> *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next == &s_MotionWarpTrackerMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x30ui64, 0x40ui64) )
         __debugbreak();
-      _RCX = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rsp+0B8h+r_element.first]
-        vpxor   xmm0, xmm0, xmm0
-      }
-      v17.m256i_i32[0] = 0;
+      mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
+      v13 = r_element;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v16.m256i_i32[0] = 0;
       s_MotionWarpTrackerMap.m_freelist.m_head.mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
-      v17.m256i_i64[1] = (__int64)p_m_endNodeBase;
-      __asm
-      {
-        vmovdqu xmmword ptr [rsp+0B8h+var_68+10h], xmm0
-        vmovups ymm0, ymmword ptr [rsp+0B8h+var_68]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmmword ptr [rcx+20h], xmm1
-      }
+      v16.m256i_i64[1] = (__int64)p_m_endNodeBase;
+      *(_OWORD *)&v16.m256i_u64[2] = _XMM0;
+      *(__m256i *)&mp_next->mp_next = v16;
+      *(ntl::pair<int,motionwarp_tracker_field_t *> *)&mp_next[4].mp_next = v13;
       if ( p_m_endNodeBase == &s_MotionWarpTrackerMap.m_endNodeBase )
       {
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RCX;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
       }
       else if ( entnum >= p_m_endNodeBase[1].m_color )
       {
-        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)mp_next;
         mp_right = s_MotionWarpTrackerMap.m_endNodeBase.mp_right;
         if ( p_m_endNodeBase == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
-          mp_right = (ntl::red_black_tree_node_base *)_RCX;
+          mp_right = (ntl::red_black_tree_node_base *)mp_next;
         s_MotionWarpTrackerMap.m_endNodeBase.mp_right = mp_right;
       }
       else
       {
-        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)mp_next;
         if ( p_m_endNodeBase == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
-          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
+          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
       }
-      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RCX, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
+      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
       ++s_MotionWarpTrackerMap.m_size;
     }
     goto LABEL_54;
@@ -649,134 +644,124 @@ MotionWarp_DebugFinalState
 void MotionWarp_DebugFinalState(int entnum)
 {
   ntl::red_black_tree_node_base *mp_parent; 
-  __int64 v13; 
-  ntl::red_black_tree_node_base *v15; 
-  ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *p_m_endNodeBase; 
-  bool v17; 
+  __int64 v3; 
+  ntl::red_black_tree_node_base *p_m_endNodeBase; 
+  ntl::red_black_tree_node_base *v5; 
+  ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *v6; 
+  bool v7; 
   ntl::red_black_tree_node_base *i; 
-  ntl::red_black_tree_node_base *v19; 
+  ntl::red_black_tree_node_base *v9; 
+  ntl::pair<int,motionwarp_tracker_field_t *> v10; 
   ntl::red_black_tree_node_base *mp_right; 
-  double hintElementLessInsert; 
-  double hintElementLessInserta; 
-  double hintElementLessInsertb; 
-  double hintElementLessInsertc; 
-  double hintElementLessInsertd; 
-  double hintElementLessInserte; 
-  double hintElementLessInsertf; 
+  ntl::red_black_tree_node_base *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   ntl::pair<int,motionwarp_tracker_field_t *> r_element_8; 
   ntl::red_black_tree_iterator<int,ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> >,ntl::pair<int,motionwarp_tracker_field_t *> *,ntl::pair<int,motionwarp_tracker_field_t *> &> result[7]; 
   vec3_t angles; 
-  vec3_t v119; 
-  vec3_t v120; 
+  vec3_t v26; 
+  vec3_t v27; 
   vec4_t quat; 
   vec4_t outRotationDeltaQuat; 
-  vec4_t v123; 
-  vec4_t v124; 
-  char v125; 
-  void *retaddr; 
+  vec4_t v30; 
+  vec4_t v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-  }
   mp_parent = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
-  v13 = entnum;
-  _RDI = &s_MotionWarpTrackerMap.m_endNodeBase;
-  v15 = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
+  v3 = entnum;
+  p_m_endNodeBase = &s_MotionWarpTrackerMap.m_endNodeBase;
+  v5 = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
   if ( !s_MotionWarpTrackerMap.m_endNodeBase.mp_parent )
     goto LABEL_8;
   do
   {
-    if ( v15[1].m_color < entnum )
+    if ( v5[1].m_color < entnum )
     {
-      v15 = v15->mp_right;
+      v5 = v5->mp_right;
     }
     else
     {
-      _RDI = v15;
-      v15 = v15->mp_left;
+      p_m_endNodeBase = v5;
+      v5 = v5->mp_left;
     }
   }
-  while ( v15 );
-  if ( _RDI == &s_MotionWarpTrackerMap.m_endNodeBase || entnum < _RDI[1].m_color )
+  while ( v5 );
+  if ( p_m_endNodeBase == &s_MotionWarpTrackerMap.m_endNodeBase || entnum < p_m_endNodeBase[1].m_color )
   {
 LABEL_8:
-    p_m_endNodeBase = (ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *)&s_MotionWarpTrackerMap.m_endNodeBase;
-    v17 = 1;
-    r_element_8.first = v13;
+    v6 = (ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *)&s_MotionWarpTrackerMap.m_endNodeBase;
+    v7 = 1;
+    r_element_8.first = v3;
     r_element_8.second = NULL;
     if ( s_MotionWarpTrackerMap.m_endNodeBase.mp_parent )
     {
       do
       {
-        p_m_endNodeBase = (ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *)mp_parent;
-        v17 = (int)v13 < mp_parent[1].m_color;
-        if ( (int)v13 >= mp_parent[1].m_color )
+        v6 = (ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> > *)mp_parent;
+        v7 = (int)v3 < mp_parent[1].m_color;
+        if ( (int)v3 >= mp_parent[1].m_color )
           mp_parent = mp_parent->mp_right;
         else
           mp_parent = mp_parent->mp_left;
       }
       while ( mp_parent );
     }
-    _RDI = p_m_endNodeBase;
-    if ( v17 )
+    p_m_endNodeBase = v6;
+    if ( v7 )
     {
-      if ( p_m_endNodeBase == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
+      if ( v6 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
       {
-        _RDI = ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, result, p_m_endNodeBase, &r_element_8, 1, 0)->mp_node;
+        p_m_endNodeBase = ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, result, v6, &r_element_8, 1, 0)->mp_node;
 LABEL_55:
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         goto LABEL_58;
       }
-      if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( p_m_endNodeBase->m_color || p_m_endNodeBase->mp_parent->ntl::red_black_tree_node_base::mp_parent != p_m_endNodeBase )
+      if ( v6->m_color || v6->mp_parent->ntl::red_black_tree_node_base::mp_parent != v6 )
       {
-        _RDI = p_m_endNodeBase->mp_left;
-        if ( _RDI )
+        p_m_endNodeBase = v6->mp_left;
+        if ( p_m_endNodeBase )
         {
-          for ( i = _RDI->mp_right; i; i = i->mp_right )
-            _RDI = i;
+          for ( i = p_m_endNodeBase->mp_right; i; i = i->mp_right )
+            p_m_endNodeBase = i;
         }
         else
         {
-          _RDI = p_m_endNodeBase->mp_parent;
-          if ( p_m_endNodeBase == _RDI->mp_left )
+          p_m_endNodeBase = v6->mp_parent;
+          if ( v6 == p_m_endNodeBase->mp_left )
           {
             do
             {
-              v19 = _RDI;
-              _RDI = _RDI->mp_parent;
+              v9 = p_m_endNodeBase;
+              p_m_endNodeBase = p_m_endNodeBase->mp_parent;
             }
-            while ( v19 == _RDI->mp_left );
+            while ( v9 == p_m_endNodeBase->mp_left );
           }
         }
       }
       else
       {
-        _RDI = p_m_endNodeBase->mp_right;
+        p_m_endNodeBase = v6->mp_right;
       }
     }
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+    if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    if ( _RDI[1].m_color >= (int)v13 )
+    if ( p_m_endNodeBase[1].m_color >= (int)v3 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\map\\map.h", 87, ASSERT_TYPE_ASSERT, "( retVal.second )", (const char *)&queryFormat, "retVal.second") )
         __debugbreak();
     }
     else
     {
-      if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
+      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
         __debugbreak();
       if ( !s_MotionWarpTrackerMap.m_freelist.m_head.mp_next )
       {
@@ -787,178 +772,65 @@ LABEL_55:
       }
       if ( (ntl::internal::pool_allocator_freelist<48> *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next == &s_MotionWarpTrackerMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x30ui64, 0x40ui64) )
         __debugbreak();
-      _RDI = (ntl::red_black_tree_node_base *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
+      p_m_endNodeBase = (ntl::red_black_tree_node_base *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
       LODWORD(result[1].mp_node) = 0;
-      result[2].mp_node = p_m_endNodeBase;
-      __asm { vmovups xmm1, xmmword ptr [rsp+1B0h+r_element.second] }
+      result[2].mp_node = v6;
+      v10 = r_element_8;
       s_MotionWarpTrackerMap.m_freelist.m_head.mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
-      __asm
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&result[3].mp_node = _XMM0;
+      *p_m_endNodeBase = *(ntl::red_black_tree_node_base *)&result[1].mp_node;
+      *(ntl::pair<int,motionwarp_tracker_field_t *> *)&p_m_endNodeBase[1].m_color = v10;
+      if ( v6 == &s_MotionWarpTrackerMap.m_endNodeBase )
       {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+1B0h+result+18h], xmm0
-        vmovups ymm0, ymmword ptr [rsp+1B0h+result+8]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmmword ptr [rdi+20h], xmm1
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = p_m_endNodeBase;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = p_m_endNodeBase;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = p_m_endNodeBase;
       }
-      if ( p_m_endNodeBase == &s_MotionWarpTrackerMap.m_endNodeBase )
+      else if ( (int)v3 >= v6->m_element.first )
       {
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = _RDI;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = _RDI;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = _RDI;
-      }
-      else if ( (int)v13 >= p_m_endNodeBase->m_element.first )
-      {
-        p_m_endNodeBase->mp_right = _RDI;
+        v6->mp_right = p_m_endNodeBase;
         mp_right = s_MotionWarpTrackerMap.m_endNodeBase.mp_right;
-        if ( p_m_endNodeBase == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
-          mp_right = _RDI;
+        if ( v6 == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
+          mp_right = p_m_endNodeBase;
         s_MotionWarpTrackerMap.m_endNodeBase.mp_right = mp_right;
       }
       else
       {
-        p_m_endNodeBase->mp_left = _RDI;
-        if ( p_m_endNodeBase == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
-          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = _RDI;
+        v6->mp_left = p_m_endNodeBase;
+        if ( v6 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
+          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = p_m_endNodeBase;
       }
-      ntl::red_black_tree_node_base::rebalance(_RDI, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
+      ntl::red_black_tree_node_base::rebalance(p_m_endNodeBase, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
       ++s_MotionWarpTrackerMap.m_size;
     }
     goto LABEL_55;
   }
 LABEL_58:
-  _RDI = _RDI[1].mp_parent;
-  _RAX = g_entities;
-  _RBX = 1456 * v13;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rdi+50h]
-    vmovss  xmm13, dword ptr [rdi+4Ch]
-    vmovss  xmm14, dword ptr [rdi+48h]
-    vmovss  xmm8, dword ptr [rdi+2Ch]
-    vmovss  xmm0, dword ptr [rbx+rax+138h]
-    vmovss  xmm2, dword ptr [rbx+rax+134h]
-    vmovss  xmm7, dword ptr [rdi+30h]
-    vmovss  xmm6, dword ptr [rdi+34h]
-    vmovss  xmm11, dword ptr [rdi+10h]
-    vmovss  xmm10, dword ptr [rdi+14h]
-    vmovss  xmm9, dword ptr [rdi+18h]
-    vsubss  xmm1, xmm0, xmm12
-    vsubss  xmm0, xmm2, xmm13
-    vcvtss2sd xmm4, xmm1, xmm1
-    vmovss  xmm1, dword ptr [rbx+rax+130h]
-    vsubss  xmm2, xmm1, xmm14
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm3, xmm0, xmm0
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm4
-  }
-  Com_Printf(18, "warpTranslationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInsert);
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm12
-    vcvtss2sd xmm4, xmm0, xmm0
-    vsubss  xmm0, xmm8, xmm14
-    vsubss  xmm1, xmm7, xmm13
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm4
-  }
-  Com_Printf(18, "animTranslationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInserta);
-  __asm
-  {
-    vsubss  xmm0, xmm9, xmm12
-    vcvtss2sd xmm4, xmm0, xmm0
-    vsubss  xmm0, xmm11, xmm14
-    vsubss  xmm1, xmm10, xmm13
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm4
-  }
-  Com_Printf(18, "naiveTranslationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInsertb);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+84h]
-    vmovss  xmm2, dword ptr [rdi+80h]
-    vmovss  xmm0, dword ptr [rdi+88h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm0
-  }
-  Com_Printf(18, "accumulatedTransError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInsertc);
-  AnglesToQuat(&g_entities[v13].r.currentAngles, &quat);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm3, xmm6; f
-  }
-  ComputeFrameRotationDeltaQuat(&quat, (const vec4_t *)((char *)&_RDI[2].mp_left + 4), &quat, *(float *)&_XMM3, &outRotationDeltaQuat);
+  v13 = p_m_endNodeBase[1].mp_parent;
+  v14 = *(float *)&v13[2].mp_left;
+  v15 = *((float *)&v13[2].mp_parent + 1);
+  v16 = *(float *)&v13[2].mp_parent;
+  v17 = *((float *)&v13[1].mp_parent + 1);
+  v18 = *(float *)&v13[1].mp_left;
+  v19 = *((float *)&v13[1].mp_left + 1);
+  v20 = *(float *)&v13->mp_left;
+  v21 = *((float *)&v13->mp_left + 1);
+  v22 = *(float *)&v13->mp_right;
+  Com_Printf(18, "warpTranslationError: %f, %f, %f\n", (float)(g_entities[v3].r.currentOrigin.v[0] - v16), (float)(g_entities[v3].r.currentOrigin.v[1] - v15), (float)(g_entities[v3].r.currentOrigin.v[2] - v14));
+  Com_Printf(18, "animTranslationError: %f, %f, %f\n", (float)(v17 - v16), (float)(v18 - v15), (float)(v19 - v14));
+  Com_Printf(18, "naiveTranslationError: %f, %f, %f\n", (float)(v20 - v16), (float)(v21 - v15), (float)(v22 - v14));
+  Com_Printf(18, "accumulatedTransError: %f, %f, %f\n", *(float *)&v13[4].m_color, *((float *)&v13[4].m_color + 1), *(float *)&v13[4].mp_parent);
+  AnglesToQuat(&g_entities[v3].r.currentAngles, &quat);
+  ComputeFrameRotationDeltaQuat(&quat, (const vec4_t *)((char *)&v13[2].mp_left + 4), &quat, 1.0, &outRotationDeltaQuat);
   QuatToAngles(&outRotationDeltaQuat, &angles);
-  __asm { vmovaps xmm3, xmm6; f }
-  ComputeFrameRotationDeltaQuat((const vec4_t *)&_RDI[1].mp_right, (const vec4_t *)((char *)&_RDI[2].mp_left + 4), (const vec4_t *)&_RDI[1].mp_right, *(float *)&_XMM3, &v123);
-  QuatToAngles(&v123, &v119);
-  __asm { vmovaps xmm3, xmm6; f }
-  ComputeFrameRotationDeltaQuat((const vec4_t *)((char *)&_RDI->mp_right + 4), (const vec4_t *)((char *)&_RDI[2].mp_left + 4), (const vec4_t *)((char *)&_RDI->mp_right + 4), *(float *)&_XMM3, &v124);
-  QuatToAngles(&v124, &v120);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+0B0h+angles+4]
-    vmovss  xmm2, dword ptr [rbp+0B0h+angles]
-    vmovss  xmm0, dword ptr [rbp+0B0h+angles+8]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm0
-  }
-  Com_Printf(18, "warpRotationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInsertd);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+0B0h+var_118+4]
-    vmovss  xmm2, dword ptr [rbp+0B0h+var_118]
-    vmovss  xmm0, dword ptr [rbp+0B0h+var_118+8]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm0
-  }
-  Com_Printf(18, "animRotationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInserte);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+0B0h+var_108+4]
-    vmovss  xmm2, dword ptr [rbp+0B0h+var_108]
-    vmovss  xmm0, dword ptr [rbp+0B0h+var_108+8]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  qword ptr [rsp+1B0h+hintElementLessInsert], xmm0
-  }
-  Com_Printf(18, "naiveRotationError: %f, %f, %f\n", *(double *)&_XMM2, *(double *)&_XMM3, hintElementLessInsertf);
-  _R11 = &v125;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
+  ComputeFrameRotationDeltaQuat((const vec4_t *)&v13[1].mp_right, (const vec4_t *)((char *)&v13[2].mp_left + 4), (const vec4_t *)&v13[1].mp_right, 1.0, &v30);
+  QuatToAngles(&v30, &v26);
+  ComputeFrameRotationDeltaQuat((const vec4_t *)((char *)&v13->mp_right + 4), (const vec4_t *)((char *)&v13[2].mp_left + 4), (const vec4_t *)((char *)&v13->mp_right + 4), 1.0, &v31);
+  QuatToAngles(&v31, &v27);
+  Com_Printf(18, "warpRotationError: %f, %f, %f\n", angles.v[0], angles.v[1], angles.v[2]);
+  Com_Printf(18, "animRotationError: %f, %f, %f\n", v26.v[0], v26.v[1], v26.v[2]);
+  Com_Printf(18, "naiveRotationError: %f, %f, %f\n", v27.v[0], v27.v[1], v27.v[2]);
 }
 
 /*
@@ -973,11 +845,13 @@ ntl::red_black_tree_node_base *MotionWarp_GetEntTrackerPointer(int entnum)
   ntl::red_black_tree_node_base *v5; 
   bool v7; 
   ntl::red_black_tree_node_base *v8; 
+  _QWORD *mp_left; 
   _QWORD *i; 
   _QWORD *v11; 
+  ntl::pair<int,motionwarp_tracker_field_t *> v12; 
   ntl::red_black_tree_node_base *mp_right; 
   ntl::pair<int,motionwarp_tracker_field_t *> r_element; 
-  __m256i v17; 
+  __m256i v16; 
   ntl::red_black_tree_iterator<int,ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> >,ntl::pair<int,motionwarp_tracker_field_t *> *,ntl::pair<int,motionwarp_tracker_field_t *> &> result; 
 
   mp_parent = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
@@ -1018,7 +892,7 @@ ntl::red_black_tree_node_base *MotionWarp_GetEntTrackerPointer(int entnum)
     }
     while ( mp_parent );
   }
-  _RBX = v8;
+  mp_left = v8;
   if ( !v7 )
     goto LABEL_29;
   if ( v8 != s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
@@ -1027,34 +901,34 @@ ntl::red_black_tree_node_base *MotionWarp_GetEntTrackerPointer(int entnum)
       __debugbreak();
     if ( v8->m_color || v8->mp_parent->mp_parent != v8 )
     {
-      _RBX = v8->mp_left;
-      if ( _RBX )
+      mp_left = v8->mp_left;
+      if ( mp_left )
       {
-        for ( i = (_QWORD *)_RBX[3]; i; i = (_QWORD *)i[3] )
-          _RBX = i;
+        for ( i = (_QWORD *)mp_left[3]; i; i = (_QWORD *)i[3] )
+          mp_left = i;
       }
       else
       {
-        _RBX = v8->mp_parent;
-        if ( v8 == (ntl::red_black_tree_node_base *)_RBX[2] )
+        mp_left = v8->mp_parent;
+        if ( v8 == (ntl::red_black_tree_node_base *)mp_left[2] )
         {
           do
           {
-            v11 = _RBX;
-            _RBX = (_QWORD *)_RBX[1];
+            v11 = mp_left;
+            mp_left = (_QWORD *)mp_left[1];
           }
-          while ( v11 == (_QWORD *)_RBX[2] );
+          while ( v11 == (_QWORD *)mp_left[2] );
         }
       }
     }
     else
     {
-      _RBX = v8->mp_right;
+      mp_left = v8->mp_right;
     }
 LABEL_29:
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+    if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    if ( *((_DWORD *)_RBX + 8) >= entnum )
+    if ( *((_DWORD *)mp_left + 8) >= entnum )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\map\\map.h", 87, ASSERT_TYPE_ASSERT, "( retVal.second )", (const char *)&queryFormat, "retVal.second") )
         __debugbreak();
@@ -1072,49 +946,45 @@ LABEL_29:
       }
       if ( (ntl::internal::pool_allocator_freelist<48> *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next == &s_MotionWarpTrackerMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x30ui64, 0x40ui64) )
         __debugbreak();
-      _RBX = &s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
-      v17.m256i_i32[0] = 0;
-      v17.m256i_i64[1] = (__int64)v8;
-      __asm { vmovups xmm1, xmmword ptr [rsp+98h+r_element.first] }
+      mp_left = &s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
+      v16.m256i_i32[0] = 0;
+      v16.m256i_i64[1] = (__int64)v8;
+      v12 = r_element;
       s_MotionWarpTrackerMap.m_freelist.m_head.mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+98h+var_48+10h], xmm0
-        vmovups ymm0, ymmword ptr [rsp+98h+var_48]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmmword ptr [rbx+20h], xmm1
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v16.m256i_u64[2] = _XMM0;
+      *(__m256i *)mp_left = v16;
+      *((ntl::pair<int,motionwarp_tracker_field_t *> *)mp_left + 2) = v12;
       if ( v8 == &s_MotionWarpTrackerMap.m_endNodeBase )
       {
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RBX;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RBX;
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RBX;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_left;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_left;
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_left;
       }
       else if ( entnum >= v8[1].m_color )
       {
-        v8->mp_right = (ntl::red_black_tree_node_base *)_RBX;
+        v8->mp_right = (ntl::red_black_tree_node_base *)mp_left;
         mp_right = s_MotionWarpTrackerMap.m_endNodeBase.mp_right;
         if ( v8 == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
-          mp_right = (ntl::red_black_tree_node_base *)_RBX;
+          mp_right = (ntl::red_black_tree_node_base *)mp_left;
         s_MotionWarpTrackerMap.m_endNodeBase.mp_right = mp_right;
       }
       else
       {
-        v8->mp_left = (ntl::red_black_tree_node_base *)_RBX;
+        v8->mp_left = (ntl::red_black_tree_node_base *)mp_left;
         if ( v8 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
-          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RBX;
+          s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_left;
       }
-      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RBX, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
+      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_left, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
       ++s_MotionWarpTrackerMap.m_size;
     }
     goto LABEL_56;
   }
-  _RBX = ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, &result, v8, &r_element, 1, 0)->mp_node;
+  mp_left = ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, &result, v8, &r_element, 1, 0)->mp_node;
 LABEL_56:
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+  if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
     __debugbreak();
-  return (ntl::red_black_tree_node_base *)_RBX[5];
+  return (ntl::red_black_tree_node_base *)mp_left[5];
 }
 
 /*
@@ -1127,48 +997,42 @@ void MotionWarp_Start(int entnum, const vec3_t *animStartPos, const vec3_t *anim
   __int64 v10; 
   int frameDuration; 
   unsigned __int8 v12; 
-  int v26; 
+  int v13; 
+  float v14; 
+  float v15; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
-  ntl::red_black_tree_node_base *v47; 
-  int v49; 
-  motionwarp_tracker_field_t *v50; 
-  ntl::red_black_tree_node_base *v53; 
-  int v54; 
-  bool v56; 
+  ntl::red_black_tree_node_base *v18; 
+  int v19; 
+  motionwarp_tracker_field_t *v20; 
+  __m256i v21; 
+  ntl::red_black_tree_node_base *v22; 
+  float v23; 
+  motionwarp_tracker_field_t *v24; 
+  bool v25; 
+  __m256i v26; 
+  __m256i v27; 
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
-  ntl::red_black_tree_node_base *v62; 
+  ntl::red_black_tree_node_base *v31; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  __int128 v33; 
   ntl::red_black_tree_node_base *mp_right; 
   __int64 hintInsertLessElement; 
   __int64 hintInsertLessElementa; 
-  __int64 v70; 
-  __int64 v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  int v80; 
-  int v81; 
-  int v82; 
-  int v83; 
+  __int64 v38; 
+  __int64 v39; 
   ntl::red_black_tree_iterator<int,ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *> >,ntl::pair<int,motionwarp_tracker_field_t *> *,ntl::pair<int,motionwarp_tracker_field_t *> &> result; 
   vec3_t *angles[2]; 
-  __m256i v86; 
+  __m256i v42; 
   vec4_t quat[2]; 
-  __m256i v88; 
-  __m256i v89; 
-  __m256i v90; 
-  int v92; 
+  __m256i v44; 
+  __m256i v45; 
+  __m256i v46; 
+  unsigned __int64 v47; 
+  float v48; 
 
-  _R15 = targetPos;
-  _R13 = animStartAngles;
   angles[0] = (vec3_t *)targetAngles;
-  _R12 = animStartPos;
   v10 = entnum;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
@@ -1179,13 +1043,13 @@ void MotionWarp_Start(int entnum, const vec3_t *animStartPos, const vec3_t *anim
     __debugbreak();
   if ( (unsigned int)v10 >= 0x800 )
   {
-    LODWORD(v70) = 2048;
+    LODWORD(v38) = 2048;
     LODWORD(hintInsertLessElement) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 153, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", hintInsertLessElement, v70) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 153, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", hintInsertLessElement, v38) )
       __debugbreak();
-    LODWORD(v71) = 2048;
+    LODWORD(v39) = 2048;
     LODWORD(hintInsertLessElementa) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", hintInsertLessElementa, v71) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", hintInsertLessElementa, v39) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1196,187 +1060,58 @@ void MotionWarp_Start(int entnum, const vec3_t *animStartPos, const vec3_t *anim
     __debugbreak();
   if ( !g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 154, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( entnum ))", (const char *)&queryFormat, "G_IsEntityInUse( entnum )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-    goto LABEL_121;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v73 & 0x7F800000) == 2139095040 )
-    goto LABEL_121;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v74 & 0x7F800000) == 2139095040 )
-  {
-LABEL_121:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 155, ASSERT_TYPE_ASSERT, "(!IS_NAN( animStartPos[ 0 ] ) && !IS_NAN( animStartPos[ 1 ] ) && !IS_NAN( animStartPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( animStartPos[ 0 ] ) && !IS_NAN( animStartPos[ 1 ] ) && !IS_NAN( animStartPos[ 2 ] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v75 & 0x7F800000) == 2139095040 )
-    goto LABEL_122;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v76 & 0x7F800000) == 2139095040 )
-    goto LABEL_122;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v77 & 0x7F800000) == 2139095040 )
-  {
-LABEL_122:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 156, ASSERT_TYPE_ASSERT, "(!IS_NAN( animStartAngles[ 0 ] ) && !IS_NAN( animStartAngles[ 1 ] ) && !IS_NAN( animStartAngles[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( animStartAngles[ 0 ] ) && !IS_NAN( animStartAngles[ 1 ] ) && !IS_NAN( animStartAngles[ 2 ] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v78 & 0x7F800000) == 2139095040 )
-    goto LABEL_123;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v79 & 0x7F800000) == 2139095040 )
-    goto LABEL_123;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v80 & 0x7F800000) == 2139095040 )
-  {
-LABEL_123:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 157, ASSERT_TYPE_ASSERT, "(!IS_NAN( targetPos[ 0 ] ) && !IS_NAN( targetPos[ 1 ] ) && !IS_NAN( targetPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( targetPos[ 0 ] ) && !IS_NAN( targetPos[ 1 ] ) && !IS_NAN( targetPos[ 2 ] )") )
-      __debugbreak();
-  }
-  _RDI = angles[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v81 & 0x7F800000) == 2139095040 )
-    goto LABEL_124;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v82 & 0x7F800000) == 2139095040 )
-    goto LABEL_124;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  if ( (v83 & 0x7F800000) == 2139095040 )
-  {
-LABEL_124:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 158, ASSERT_TYPE_ASSERT, "(!IS_NAN( targetAngles[ 0 ] ) && !IS_NAN( targetAngles[ 1 ] ) && !IS_NAN( targetAngles[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( targetAngles[ 0 ] ) && !IS_NAN( targetAngles[ 1 ] ) && !IS_NAN( targetAngles[ 2 ] )") )
-      __debugbreak();
-  }
-  *(_QWORD *)quat[0].v = __PAIR64__(level.time, v10);
-  v26 = duration - duration % frameDuration;
-  LODWORD(quat[0].v[2]) = v26 + level.time;
-  v90.m256i_i8[4] = useAnim;
-  LODWORD(quat[0].v[3]) = v26 / frameDuration;
-  if ( v26 / frameDuration <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 171, ASSERT_TYPE_ASSERT, "(entTracker.numTotalFrames > 0)", (const char *)&queryFormat, "entTracker.numTotalFrames > 0") )
+  if ( ((LODWORD(animStartPos->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(animStartPos->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(animStartPos->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 155, ASSERT_TYPE_ASSERT, "(!IS_NAN( animStartPos[ 0 ] ) && !IS_NAN( animStartPos[ 1 ] ) && !IS_NAN( animStartPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( animStartPos[ 0 ] ) && !IS_NAN( animStartPos[ 1 ] ) && !IS_NAN( animStartPos[ 2 ] )") )
     __debugbreak();
-  _RAX = g_entities;
-  _RBX = result.mp_node;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rax+130h]
-    vmovss  dword ptr [rbp+60h+quat+10h], xmm0
-    vmovss  xmm1, dword ptr [rbx+rax+134h]
-    vmovss  dword ptr [rbp+60h+quat+14h], xmm1
-    vmovss  xmm0, dword ptr [rbx+rax+138h]
-    vmovss  dword ptr [rbp+60h+quat+18h], xmm0
-  }
+  if ( ((LODWORD(animStartAngles->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(animStartAngles->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(animStartAngles->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 156, ASSERT_TYPE_ASSERT, "(!IS_NAN( animStartAngles[ 0 ] ) && !IS_NAN( animStartAngles[ 1 ] ) && !IS_NAN( animStartAngles[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( animStartAngles[ 0 ] ) && !IS_NAN( animStartAngles[ 1 ] ) && !IS_NAN( animStartAngles[ 2 ] )") )
+    __debugbreak();
+  if ( ((LODWORD(targetPos->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(targetPos->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(targetPos->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 157, ASSERT_TYPE_ASSERT, "(!IS_NAN( targetPos[ 0 ] ) && !IS_NAN( targetPos[ 1 ] ) && !IS_NAN( targetPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( targetPos[ 0 ] ) && !IS_NAN( targetPos[ 1 ] ) && !IS_NAN( targetPos[ 2 ] )") )
+    __debugbreak();
+  if ( ((LODWORD(angles[0]->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(angles[0]->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(angles[0]->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 158, ASSERT_TYPE_ASSERT, "(!IS_NAN( targetAngles[ 0 ] ) && !IS_NAN( targetAngles[ 1 ] ) && !IS_NAN( targetAngles[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( targetAngles[ 0 ] ) && !IS_NAN( targetAngles[ 1 ] ) && !IS_NAN( targetAngles[ 2 ] )") )
+    __debugbreak();
+  *(_QWORD *)quat[0].v = __PAIR64__(level.time, v10);
+  v13 = duration - duration % frameDuration;
+  LODWORD(quat[0].v[2]) = v13 + level.time;
+  v46.m256i_i8[4] = useAnim;
+  LODWORD(quat[0].v[3]) = v13 / frameDuration;
+  if ( v13 / frameDuration <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 171, ASSERT_TYPE_ASSERT, "(entTracker.numTotalFrames > 0)", (const char *)&queryFormat, "entTracker.numTotalFrames > 0") )
+    __debugbreak();
+  *(_QWORD *)quat[1].v = *(ntl::red_black_tree_node_base **)((char *)&result.mp_node[6].mp_left + (unsigned __int64)g_entities);
+  quat[1].v[2] = *(float *)((char *)&result.mp_node[6].mp_right + (unsigned __int64)g_entities);
   AnglesToQuat((const vec3_t *)((char *)&result.mp_node[6].mp_right + (unsigned __int64)g_entities + 4), (vec4_t *)&quat[1].v[3]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  xmm1, dword ptr [r12+4]
-    vmovss  [rbp+60h+var_A4], xmm0
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  [rbp+60h+var_9C], xmm0
-    vmovss  [rbp+60h+var_A0], xmm1
-  }
-  AnglesToQuat(_R13, (vec4_t *)&v88.m256i_u64[3]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  xmm1, dword ptr [r15+4]
-    vmovss  [rbp+60h+var_88], xmm0
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rbp+60h+var_80], xmm0
-    vmovss  [rbp+60h+var_84], xmm1
-  }
-  AnglesToQuat(angles[0], (vec4_t *)((char *)&v89.m256i_u64[2] + 4));
-  _RAX = g_entities;
+  v14 = animStartPos->v[1];
+  v44.m256i_i32[3] = LODWORD(animStartPos->v[0]);
+  v44.m256i_i32[5] = LODWORD(animStartPos->v[2]);
+  *(float *)&v44.m256i_i32[4] = v14;
+  AnglesToQuat(animStartAngles, (vec4_t *)&v44.m256i_u64[3]);
+  v15 = targetPos->v[1];
+  v45.m256i_i32[2] = LODWORD(targetPos->v[0]);
+  v45.m256i_i32[4] = LODWORD(targetPos->v[2]);
+  *(float *)&v45.m256i_i32[3] = v15;
+  AnglesToQuat(angles[0], (vec4_t *)((char *)&v45.m256i_u64[2] + 4));
   mp_parent = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rax+130h]
-    vmovss  [rbp+60h+var_68], xmm0
-    vmovss  xmm1, dword ptr [rbx+rax+134h]
-    vmovss  [rbp+60h+var_64], xmm1
-    vmovss  xmm0, dword ptr [rbx+rax+138h]
-    vmovss  [rbp+60h+var_60], xmm0
-    vmovss  xmm1, dword ptr [rbx+rax+130h]
-    vmovss  [rbp+60h+var_5C], xmm1
-    vmovss  xmm0, dword ptr [rbx+rax+134h]
-    vmovss  [rbp+60h+var_58], xmm0
-    vmovss  xmm1, dword ptr [rbx+rax+138h]
-  }
+  v46.m256i_i64[1] = *(__int64 *)((char *)&result.mp_node[6].mp_left + (unsigned __int64)g_entities);
+  v46.m256i_i32[4] = *(_DWORD *)((char *)&result.mp_node[6].mp_right + (unsigned __int64)g_entities);
+  *(__int64 *)((char *)&v46.m256i_i64[2] + 4) = *(__int64 *)((char *)&result.mp_node[6].mp_left + (unsigned __int64)g_entities);
   p_m_endNodeBase = &s_MotionWarpTrackerMap.m_endNodeBase;
-  v47 = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+60h+var_54], xmm1
-    vmovss  dword ptr [rbp+60h+var_50], xmm0
-    vmovss  dword ptr [rbp+60h+var_50+4], xmm0
-    vmovss  [rbp+60h+var_48], xmm0
-  }
+  v18 = s_MotionWarpTrackerMap.m_endNodeBase.mp_parent;
+  v46.m256i_i32[7] = *(_DWORD *)((char *)&result.mp_node[6].mp_right + (unsigned __int64)g_entities);
+  v47 = 0i64;
+  v48 = 0.0;
   if ( s_MotionWarpTrackerMap.m_endNodeBase.mp_parent )
   {
     do
     {
-      if ( v47[1].m_color < (int)v10 )
+      if ( v18[1].m_color < (int)v10 )
       {
-        v47 = v47->mp_right;
+        v18 = v18->mp_right;
       }
       else
       {
-        p_m_endNodeBase = v47;
-        v47 = v47->mp_left;
+        p_m_endNodeBase = v18;
+        v18 = v18->mp_left;
       }
     }
-    while ( v47 );
+    while ( v18 );
     if ( p_m_endNodeBase != &s_MotionWarpTrackerMap.m_endNodeBase && (int)v10 >= p_m_endNodeBase[1].m_color )
     {
       if ( !s_MotionWarpTrackerMap.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 521, ASSERT_TYPE_ASSERT, "( !empty() )", (const char *)&queryFormat, "!empty()") )
@@ -1397,59 +1132,52 @@ LABEL_124:
       s_MotionWarpTrackerMap.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)p_m_endNodeBase;
     }
   }
-  v49 = 0;
-  v50 = s_MotionWarpTrackerArray;
-  while ( v50->entnum != 2047 )
+  v19 = 0;
+  v20 = s_MotionWarpTrackerArray;
+  while ( v20->entnum != 2047 )
   {
-    ++v49;
-    if ( (__int64)++v50 >= (__int64)&unk_1491B9170 )
+    ++v19;
+    if ( (__int64)++v20 >= (__int64)&unk_1491B9170 )
       return;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+60h+quat]
-    vmovups ymm1, ymmword ptr [rbp-50h]
-  }
-  v53 = &s_MotionWarpTrackerMap.m_endNodeBase;
-  v54 = v92;
-  _RDX = &s_MotionWarpTrackerArray[v49];
+  v21 = v44;
+  v22 = &s_MotionWarpTrackerMap.m_endNodeBase;
+  v23 = v48;
+  v24 = &s_MotionWarpTrackerArray[v19];
   LODWORD(angles[0]) = v10;
-  v56 = 1;
-  angles[1] = (vec3_t *)_RDX;
-  __asm
-  {
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm0, ymmword ptr [rbp-30h]
-    vmovups ymmword ptr [rdx+20h], ymm1
-    vmovups ymm1, ymmword ptr [rbp-10h]
-    vmovups ymmword ptr [rdx+40h], ymm0
-    vmovsd  xmm0, [rbp+60h+var_50]
-    vmovups ymmword ptr [rdx+60h], ymm1
-    vmovsd  qword ptr [rdx+80h], xmm0
-  }
-  LODWORD(_RDX->accumulatedTransError.v[2]) = v54;
+  v25 = 1;
+  angles[1] = (vec3_t *)v24;
+  *(__m256i *)&v24->entnum = *(__m256i *)quat[0].v;
+  v26 = v45;
+  *(__m256i *)&v24->naiveQuat.xyz.y = v21;
+  v27 = v46;
+  *(__m256i *)&v24->animQuat.xyz.z = v26;
+  _XMM0 = v47;
+  *(__m256i *)(&v24->targetQuat.xyz + 1) = v27;
+  *(double *)v24->accumulatedTransError.v = *(double *)&_XMM0;
+  v24->accumulatedTransError.v[2] = v23;
   while ( mp_parent )
   {
-    v53 = mp_parent;
-    v56 = (int)v10 < mp_parent[1].m_color;
+    v22 = mp_parent;
+    v25 = (int)v10 < mp_parent[1].m_color;
     if ( (int)v10 >= mp_parent[1].m_color )
       mp_parent = mp_parent->mp_right;
     else
       mp_parent = mp_parent->mp_left;
   }
-  mp_left = v53;
-  if ( v56 )
+  mp_left = v22;
+  if ( v25 )
   {
-    if ( v53 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
+    if ( v22 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
     {
-      ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, &result, v53, (const ntl::pair<int,motionwarp_tracker_field_t *> *)angles, 1, 0);
+      ntl::red_black_tree<int,ntl::pair<int,motionwarp_tracker_field_t *>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<int,motionwarp_tracker_field_t *>>,64,8>,ntl::return_pair_first<int,motionwarp_tracker_field_t *>,ntl::less<int,int>>::insert_node(&s_MotionWarpTrackerMap, &result, v22, (const ntl::pair<int,motionwarp_tracker_field_t *> *)angles, 1, 0);
       return;
     }
-    if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    if ( v53->m_color || v53->mp_parent->mp_parent != v53 )
+    if ( v22->m_color || v22->mp_parent->mp_parent != v22 )
     {
-      mp_left = v53->mp_left;
+      mp_left = v22->mp_left;
       if ( mp_left )
       {
         for ( i = mp_left->mp_right; i; i = i->mp_right )
@@ -1457,28 +1185,28 @@ LABEL_124:
       }
       else
       {
-        mp_left = v53->mp_parent;
-        if ( v53 == mp_left->mp_left )
+        mp_left = v22->mp_parent;
+        if ( v22 == mp_left->mp_left )
         {
           do
           {
-            v62 = mp_left;
+            v31 = mp_left;
             mp_left = mp_left->mp_parent;
           }
-          while ( v62 == mp_left->mp_left );
+          while ( v31 == mp_left->mp_left );
         }
       }
     }
     else
     {
-      mp_left = v53->mp_right;
+      mp_left = v22->mp_right;
     }
   }
   if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
     __debugbreak();
   if ( mp_left[1].m_color < (int)v10 )
   {
-    if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 694, ASSERT_TYPE_ASSERT, "( p_insert != 0 )", (const char *)&queryFormat, "p_insert != NULL") )
       __debugbreak();
     if ( !s_MotionWarpTrackerMap.m_freelist.m_head.mp_next )
     {
@@ -1489,40 +1217,36 @@ LABEL_124:
     }
     if ( (ntl::internal::pool_allocator_freelist<48> *)s_MotionWarpTrackerMap.m_freelist.m_head.mp_next == &s_MotionWarpTrackerMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x30ui64, 0x40ui64) )
       __debugbreak();
-    _RCX = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
-    v86.m256i_i32[0] = 0;
-    v86.m256i_i64[1] = (__int64)v53;
-    __asm { vmovups xmm1, xmmword ptr [rsp+160h+angles] }
+    mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next;
+    v42.m256i_i32[0] = 0;
+    v42.m256i_i64[1] = (__int64)v22;
+    v33 = *(_OWORD *)angles;
     s_MotionWarpTrackerMap.m_freelist.m_head.mp_next = s_MotionWarpTrackerMap.m_freelist.m_head.mp_next->mp_next;
-    __asm
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v42.m256i_u64[2] = _XMM0;
+    *(__m256i *)&mp_next->mp_next = v42;
+    *(_OWORD *)&mp_next[4].mp_next = v33;
+    if ( v22 == &s_MotionWarpTrackerMap.m_endNodeBase )
     {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+160h+var_100+10h], xmm0
-      vmovups ymm0, ymmword ptr [rsp+160h+var_100]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups xmmword ptr [rcx+20h], xmm1
+      s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+      s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
+      s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
     }
-    if ( v53 == &s_MotionWarpTrackerMap.m_endNodeBase )
+    else if ( (int)v10 >= v22[1].m_color )
     {
-      s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
-      s_MotionWarpTrackerMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RCX;
-      s_MotionWarpTrackerMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RCX;
-    }
-    else if ( (int)v10 >= v53[1].m_color )
-    {
-      v53->mp_right = (ntl::red_black_tree_node_base *)_RCX;
+      v22->mp_right = (ntl::red_black_tree_node_base *)mp_next;
       mp_right = s_MotionWarpTrackerMap.m_endNodeBase.mp_right;
-      if ( v53 == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
-        mp_right = (ntl::red_black_tree_node_base *)_RCX;
+      if ( v22 == s_MotionWarpTrackerMap.m_endNodeBase.mp_right )
+        mp_right = (ntl::red_black_tree_node_base *)mp_next;
       s_MotionWarpTrackerMap.m_endNodeBase.mp_right = mp_right;
     }
     else
     {
-      v53->mp_left = (ntl::red_black_tree_node_base *)_RCX;
-      if ( v53 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
-        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
+      v22->mp_left = (ntl::red_black_tree_node_base *)mp_next;
+      if ( v22 == s_MotionWarpTrackerMap.m_endNodeBase.mp_left )
+        s_MotionWarpTrackerMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
     }
-    ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RCX, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
+    ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &s_MotionWarpTrackerMap.m_endNodeBase.mp_parent);
     ++s_MotionWarpTrackerMap.m_size;
   }
 }
@@ -1534,68 +1258,76 @@ MotionWarp_Update
 */
 __int64 MotionWarp_Update(motionwarp_tracker_field_t *pEntTracker, vec3_t *translationDeltaLocal, vec4_t *rotationDeltaQuat)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
   __int64 entnum; 
-  __int64 v14; 
+  __int64 v13; 
+  int v14; 
   int v15; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   vec4_t *p_out; 
-  const dvar_t *v73; 
-  __int64 v129; 
-  __int64 v130; 
-  int v131; 
-  int v132; 
-  int v133; 
-  int v134; 
-  int v135; 
-  int v136; 
-  int v137; 
-  int v138; 
-  int v139; 
-  int v140; 
-  int v141; 
-  int v142; 
-  int v143; 
-  int v144; 
-  int v145; 
-  int v146; 
-  int v147; 
-  int v148; 
-  int v149; 
-  int v150; 
-  int v151; 
-  int v152; 
-  int v153; 
-  int v154; 
-  int v155; 
-  int v156; 
-  int v157; 
-  int v158; 
-  int v159; 
-  int v160; 
-  int v161; 
-  int v162; 
-  int v163; 
-  vec3_t v164; 
+  float v24; 
+  vec4_t naiveQuat; 
+  float v26; 
+  vec4_t animQuat; 
+  float v28; 
+  const dvar_t *v29; 
+  float v30; 
+  float v31; 
+  __int64 v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  vec4_t v46; 
+  float v47; 
+  vec4_t v48; 
+  float v49; 
+  __int64 v50; 
+  __int64 v51; 
+  vec3_t v52; 
   vec3_t endPos; 
-  vec3_t v166; 
+  vec3_t v54; 
   vec4_t targetQuat; 
   vec4_t out; 
   vec3_t worldVec; 
   vec4_t outRotationDeltaQuat; 
-  vec3_t v171; 
+  vec3_t v59; 
   vec4_t quat; 
   vec3_t angles; 
-  vec4_t v174; 
+  vec4_t v62; 
+  __int128 v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
 
-  _RSI = rotationDeltaQuat;
-  _R14 = translationDeltaLocal;
-  _RDI = pEntTracker;
   if ( !pEntTracker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 239, ASSERT_TYPE_ASSERT, "(pEntTracker)", "%s\n\tMotion warp update requested for untracked entity.", "pEntTracker") )
     __debugbreak();
-  entnum = _RDI->entnum;
+  entnum = pEntTracker->entnum;
   if ( (unsigned int)entnum >= 0x800 )
   {
-    LODWORD(v129) = _RDI->entnum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v129, 2048) )
+    LODWORD(v50) = pEntTracker->entnum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v50, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1604,470 +1336,150 @@ __int64 MotionWarp_Update(motionwarp_tracker_field_t *pEntTracker, vec3_t *trans
     __debugbreak();
   if ( !g_entityIsInUse[entnum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 240, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( pEntTracker->entnum ))", (const char *)&queryFormat, "G_IsEntityInUse( pEntTracker->entnum )") )
     __debugbreak();
-  v14 = _RDI->entnum;
+  v13 = pEntTracker->entnum;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  v15 = _RDI->endTime - level.time;
-  if ( v15 % level.frameDuration )
+  v14 = pEntTracker->endTime - level.time;
+  v15 = v14 / level.frameDuration;
+  if ( v14 % level.frameDuration )
   {
-    LODWORD(v130) = _RDI->endTime - level.time;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 248, ASSERT_TYPE_ASSERT, "(timeRemaining % frameDuration == 0)", "%s\n\ttimeRemaining (%i ms) is not evenly divisible by frame duration (%i ms).", "timeRemaining % frameDuration == 0", v130, level.frameDuration) )
+    LODWORD(v51) = pEntTracker->endTime - level.time;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 248, ASSERT_TYPE_ASSERT, "(timeRemaining % frameDuration == 0)", "%s\n\ttimeRemaining (%i ms) is not evenly divisible by frame duration (%i ms).", "timeRemaining % frameDuration == 0", v51, level.frameDuration) )
       __debugbreak();
   }
-  if ( v15 > 0 )
+  if ( v14 > 0 )
   {
-    _RAX = g_entities;
-    _RCX = 1456 * v14;
-    __asm
+    v68 = v3;
+    v67 = v4;
+    v66 = v5;
+    v17 = g_entities[v13].r.currentOrigin.v[0];
+    v18 = g_entities[v13].r.currentOrigin.v[1];
+    v65 = v6;
+    v19 = g_entities[v13].r.currentOrigin.v[2];
+    AnglesToQuat(&g_entities[v13].r.currentAngles, &quat);
+    if ( ((LODWORD(translationDeltaLocal->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(translationDeltaLocal->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(translationDeltaLocal->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 264, ASSERT_TYPE_ASSERT, "(!IS_NAN( translationDeltaLocal[ 0 ] ) && !IS_NAN( translationDeltaLocal[ 1 ] ) && !IS_NAN( translationDeltaLocal[ 2 ] ))", "%s\n\tNAN translationDeltaLocal in", "!IS_NAN( translationDeltaLocal[ 0 ] ) && !IS_NAN( translationDeltaLocal[ 1 ] ) && !IS_NAN( translationDeltaLocal[ 2 ] )") )
+      __debugbreak();
+    if ( ((LODWORD(rotationDeltaQuat->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 265, ASSERT_TYPE_ASSERT, "(!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] ))", "%s\n\tNAN rotationDeltaQuat in", "!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] )") )
+      __debugbreak();
+    if ( ((LODWORD(pEntTracker->naivePos.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->naivePos.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->naivePos.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 266, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->naivePos[ 0 ] ) && !IS_NAN( pEntTracker->naivePos[ 1 ] ) && !IS_NAN( pEntTracker->naivePos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->naivePos[ 0 ] ) && !IS_NAN( pEntTracker->naivePos[ 1 ] ) && !IS_NAN( pEntTracker->naivePos[ 2 ] )") )
+      __debugbreak();
+    if ( ((LODWORD(pEntTracker->animPos.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->animPos.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->animPos.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 267, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->animPos[ 0 ] ) && !IS_NAN( pEntTracker->animPos[ 1 ] ) && !IS_NAN( pEntTracker->animPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->animPos[ 0 ] ) && !IS_NAN( pEntTracker->animPos[ 1 ] ) && !IS_NAN( pEntTracker->animPos[ 2 ] )") )
+      __debugbreak();
+    if ( ((LODWORD(pEntTracker->naiveQuat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->naiveQuat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->naiveQuat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->naiveQuat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 268, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->naiveQuat[ 0 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 1 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 2 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 3 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->naiveQuat[ 0 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 1 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 2 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 3 ] )") )
+      __debugbreak();
+    if ( ((LODWORD(pEntTracker->animQuat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->animQuat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->animQuat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(pEntTracker->animQuat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 269, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->animQuat[ 0 ] ) && !IS_NAN( pEntTracker->animQuat[ 1 ] ) && !IS_NAN( pEntTracker->animQuat[ 2 ] ) && !IS_NAN( pEntTracker->animQuat[ 3 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->animQuat[ 0 ] ) && !IS_NAN( pEntTracker->animQuat[ 1 ] ) && !IS_NAN( pEntTracker->animQuat[ 2 ] ) && !IS_NAN( pEntTracker->animQuat[ 3 ] )") )
+      __debugbreak();
+    Vec4Normalize(rotationDeltaQuat);
+    if ( ((LODWORD(rotationDeltaQuat->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 279, ASSERT_TYPE_ASSERT, "(!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] ))", "%s\n\tNAN rotationDeltaQuat normalize", "!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] )") )
+      __debugbreak();
+    v20 = (float)(pEntTracker->numTotalFrames - v15 + 1) / (float)pEntTracker->numTotalFrames;
+    if ( pEntTracker->useAnim )
     {
-      vmovaps [rsp+190h+var_40], xmm6
-      vmovaps [rsp+190h+var_50], xmm7
-      vmovaps [rsp+190h+var_60], xmm8
-      vmovss  xmm7, dword ptr [rcx+rax+130h]
-      vmovss  xmm8, dword ptr [rcx+rax+134h]
-      vmovaps [rsp+190h+var_70], xmm9
-      vmovss  xmm9, dword ptr [rcx+rax+138h]
-    }
-    AnglesToQuat(&g_entities[v14].r.currentAngles, &quat);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v131 & 0x7F800000) == 2139095040 )
-      goto LABEL_93;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v132 & 0x7F800000) == 2139095040 )
-      goto LABEL_93;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v133 & 0x7F800000) == 2139095040 )
-    {
-LABEL_93:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 264, ASSERT_TYPE_ASSERT, "(!IS_NAN( translationDeltaLocal[ 0 ] ) && !IS_NAN( translationDeltaLocal[ 1 ] ) && !IS_NAN( translationDeltaLocal[ 2 ] ))", "%s\n\tNAN translationDeltaLocal in", "!IS_NAN( translationDeltaLocal[ 0 ] ) && !IS_NAN( translationDeltaLocal[ 1 ] ) && !IS_NAN( translationDeltaLocal[ 2 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v134 & 0x7F800000) == 2139095040 )
-      goto LABEL_94;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v135 & 0x7F800000) == 2139095040 )
-      goto LABEL_94;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v136 & 0x7F800000) == 2139095040 )
-      goto LABEL_94;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0Ch]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v137 & 0x7F800000) == 2139095040 )
-    {
-LABEL_94:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 265, ASSERT_TYPE_ASSERT, "(!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] ))", "%s\n\tNAN rotationDeltaQuat in", "!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+10h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v138 & 0x7F800000) == 2139095040 )
-      goto LABEL_95;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+14h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v139 & 0x7F800000) == 2139095040 )
-      goto LABEL_95;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v140 & 0x7F800000) == 2139095040 )
-    {
-LABEL_95:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 266, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->naivePos[ 0 ] ) && !IS_NAN( pEntTracker->naivePos[ 1 ] ) && !IS_NAN( pEntTracker->naivePos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->naivePos[ 0 ] ) && !IS_NAN( pEntTracker->naivePos[ 1 ] ) && !IS_NAN( pEntTracker->naivePos[ 2 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+2Ch]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v141 & 0x7F800000) == 2139095040 )
-      goto LABEL_96;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+30h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v142 & 0x7F800000) == 2139095040 )
-      goto LABEL_96;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+34h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v143 & 0x7F800000) == 2139095040 )
-    {
-LABEL_96:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 267, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->animPos[ 0 ] ) && !IS_NAN( pEntTracker->animPos[ 1 ] ) && !IS_NAN( pEntTracker->animPos[ 2 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->animPos[ 0 ] ) && !IS_NAN( pEntTracker->animPos[ 1 ] ) && !IS_NAN( pEntTracker->animPos[ 2 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+1Ch]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v144 & 0x7F800000) == 2139095040 )
-      goto LABEL_97;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v145 & 0x7F800000) == 2139095040 )
-      goto LABEL_97;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+24h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v146 & 0x7F800000) == 2139095040 )
-      goto LABEL_97;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v147 & 0x7F800000) == 2139095040 )
-    {
-LABEL_97:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 268, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->naiveQuat[ 0 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 1 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 2 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 3 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->naiveQuat[ 0 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 1 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 2 ] ) && !IS_NAN( pEntTracker->naiveQuat[ 3 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v148 & 0x7F800000) == 2139095040 )
-      goto LABEL_98;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+3Ch]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v149 & 0x7F800000) == 2139095040 )
-      goto LABEL_98;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+40h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v150 & 0x7F800000) == 2139095040 )
-      goto LABEL_98;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+44h]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v151 & 0x7F800000) == 2139095040 )
-    {
-LABEL_98:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 269, ASSERT_TYPE_ASSERT, "(!IS_NAN( pEntTracker->animQuat[ 0 ] ) && !IS_NAN( pEntTracker->animQuat[ 1 ] ) && !IS_NAN( pEntTracker->animQuat[ 2 ] ) && !IS_NAN( pEntTracker->animQuat[ 3 ] ))", (const char *)&queryFormat, "!IS_NAN( pEntTracker->animQuat[ 0 ] ) && !IS_NAN( pEntTracker->animQuat[ 1 ] ) && !IS_NAN( pEntTracker->animQuat[ 2 ] ) && !IS_NAN( pEntTracker->animQuat[ 3 ] )") )
-        __debugbreak();
-    }
-    Vec4Normalize(_RSI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v152 & 0x7F800000) == 2139095040 )
-      goto LABEL_99;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v153 & 0x7F800000) == 2139095040 )
-      goto LABEL_99;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v154 & 0x7F800000) == 2139095040 )
-      goto LABEL_99;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0Ch]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v155 & 0x7F800000) == 2139095040 )
-    {
-LABEL_99:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 279, ASSERT_TYPE_ASSERT, "(!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] ))", "%s\n\tNAN rotationDeltaQuat normalize", "!IS_NAN( rotationDeltaQuat[ 0 ] ) && !IS_NAN( rotationDeltaQuat[ 1 ] ) && !IS_NAN( rotationDeltaQuat[ 2 ] ) && !IS_NAN( rotationDeltaQuat[ 3 ] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+0Ch]
-      vcvtsi2ss xmm1, xmm1, eax
-      vdivss  xmm6, xmm1, xmm0
-    }
-    if ( _RDI->useAnim )
-    {
-      QuatMultiply(&_RDI->naiveQuat, _RSI, &out);
-      QuatTransform(&out, _R14, &v166);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+190h+var_128]
-        vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-        vmovss  xmm2, dword ptr [rsp+190h+var_128+4]
-        vaddss  xmm0, xmm2, dword ptr [rdi+14h]
-        vmovss  dword ptr [rsp+190h+var_148], xmm1
-        vmovss  xmm1, dword ptr [rsp+190h+var_128+8]
-        vaddss  xmm2, xmm1, dword ptr [rdi+18h]
-        vmovss  dword ptr [rsp+190h+var_148+8], xmm2
-        vmovss  dword ptr [rsp+190h+var_148+4], xmm0
-      }
-      QuatMultiply(&_RDI->animQuat, _RSI, &targetQuat);
-      QuatTransform(&targetQuat, _R14, &v171);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+90h+var_D8]
-        vaddss  xmm1, xmm0, dword ptr [rdi+2Ch]
-        vmovss  xmm2, dword ptr [rbp+90h+var_D8+4]
-        vaddss  xmm0, xmm2, dword ptr [rdi+30h]
-        vmovss  dword ptr [rsp+190h+endPos], xmm1
-        vmovss  xmm1, dword ptr [rbp+90h+var_D8+8]
-        vaddss  xmm2, xmm1, dword ptr [rdi+34h]
-        vmovss  dword ptr [rsp+190h+endPos+8], xmm2
-        vmovss  dword ptr [rsp+190h+endPos+4], xmm0
-      }
+      QuatMultiply(&pEntTracker->naiveQuat, rotationDeltaQuat, &out);
+      QuatTransform(&out, translationDeltaLocal, &v54);
+      v21 = v54.v[1] + pEntTracker->naivePos.v[1];
+      v52.v[0] = v54.v[0] + pEntTracker->naivePos.v[0];
+      v52.v[2] = v54.v[2] + pEntTracker->naivePos.v[2];
+      v52.v[1] = v21;
+      QuatMultiply(&pEntTracker->animQuat, rotationDeltaQuat, &targetQuat);
+      QuatTransform(&targetQuat, translationDeltaLocal, &v59);
+      v22 = v59.v[1] + pEntTracker->animPos.v[1];
+      endPos.v[0] = v59.v[0] + pEntTracker->animPos.v[0];
+      endPos.v[2] = v59.v[2] + pEntTracker->animPos.v[2];
+      endPos.v[1] = v22;
       p_out = &out;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+10h]
-        vmovss  xmm1, dword ptr [rdi+14h]
-        vmovss  dword ptr [rsp+190h+var_148], xmm0
-        vmovss  xmm0, dword ptr [rdi+18h]
-        vmovss  dword ptr [rsp+190h+var_148+8], xmm0
-        vmovss  xmm0, dword ptr [rdi+30h]
-        vmovss  dword ptr [rsp+190h+endPos+4], xmm0
-        vmovups xmm0, xmmword ptr [rdi+1Ch]
-        vmovss  dword ptr [rsp+190h+var_148+4], xmm1
-        vmovss  xmm1, dword ptr [rdi+2Ch]
-        vmovups xmmword ptr [rbp+90h+out], xmm0
-        vmovups xmm0, xmmword ptr [rdi+38h]
-        vmovss  dword ptr [rsp+190h+endPos], xmm1
-        vmovss  xmm1, dword ptr [rdi+34h]
-        vmovups xmmword ptr [rsp+190h+targetQuat], xmm0
-        vmovss  dword ptr [rsp+190h+endPos+8], xmm1
-      }
+      v24 = pEntTracker->naivePos.v[1];
+      v52.v[0] = pEntTracker->naivePos.v[0];
+      v52.v[2] = pEntTracker->naivePos.v[2];
+      endPos.v[1] = pEntTracker->animPos.v[1];
+      naiveQuat = pEntTracker->naiveQuat;
+      v52.v[1] = v24;
+      v26 = pEntTracker->animPos.v[0];
+      out = naiveQuat;
+      animQuat = pEntTracker->animQuat;
+      endPos.v[0] = v26;
+      v28 = pEntTracker->animPos.v[2];
+      targetQuat = animQuat;
+      endPos.v[2] = v28;
       p_out = &quat;
     }
-    __asm { vmovaps xmm3, xmm6; f }
-    ComputeFrameRotationDeltaQuat(p_out, &targetQuat, &quat, *(float *)&_XMM3, &outRotationDeltaQuat);
-    if ( _RDI->numTotalFrames <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 318, ASSERT_TYPE_ASSERT, "(pEntTracker->numTotalFrames > 0)", (const char *)&queryFormat, "pEntTracker->numTotalFrames > 0") )
+    ComputeFrameRotationDeltaQuat(p_out, &targetQuat, &quat, v20, &outRotationDeltaQuat);
+    if ( pEntTracker->numTotalFrames <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 318, ASSERT_TYPE_ASSERT, "(pEntTracker->numTotalFrames > 0)", (const char *)&queryFormat, "pEntTracker->numTotalFrames > 0") )
       __debugbreak();
-    __asm { vmovss  [rsp+190h+var_150], xmm6 }
-    if ( (v156 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 319, ASSERT_TYPE_ASSERT, "(!IS_NAN( scale ))", (const char *)&queryFormat, "!IS_NAN( scale )") )
+    if ( (LODWORD(v20) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 319, ASSERT_TYPE_ASSERT, "(!IS_NAN( scale ))", (const char *)&queryFormat, "!IS_NAN( scale )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+190h+endPos]
-      vsubss  xmm1, xmm0, dword ptr [rsp+190h+var_148]
-    }
-    v73 = DVARBOOL_ai_debugMotionWarp;
-    __asm
-    {
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsp+190h+var_148]
-      vmovss  xmm1, dword ptr [rsp+190h+endPos+4]
-      vsubss  xmm0, xmm3, xmm7
-      vmovss  dword ptr [rbp+90h+worldVec], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rsp+190h+var_148+4]
-      vmulss  xmm2, xmm0, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsp+190h+var_148+4]
-      vmovss  xmm0, dword ptr [rsp+190h+endPos+8]
-      vsubss  xmm1, xmm3, xmm8
-      vmovss  dword ptr [rbp+90h+worldVec+4], xmm1
-      vsubss  xmm1, xmm0, dword ptr [rsp+190h+var_148+8]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsp+190h+var_148+8]
-      vsubss  xmm0, xmm3, xmm9
-      vmovss  dword ptr [rbp+90h+worldVec+8], xmm0
-    }
+    v29 = DVARBOOL_ai_debugMotionWarp;
+    worldVec.v[0] = (float)((float)((float)(endPos.v[0] - v52.v[0]) * v20) + v52.v[0]) - v17;
+    worldVec.v[1] = (float)((float)((float)(endPos.v[1] - v52.v[1]) * v20) + v52.v[1]) - v18;
+    worldVec.v[2] = (float)((float)((float)(endPos.v[2] - v52.v[2]) * v20) + v52.v[2]) - v19;
     if ( !DVARBOOL_ai_debugMotionWarp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugMotionWarp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v73);
-    if ( v73->current.enabled )
+    Dvar_CheckFrontendServerThread(v29);
+    if ( v29->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+74h]
-        vmovss  xmm2, dword ptr [rdi+78h]
-      }
-      _RCX = 1456i64 * _RDI->entnum;
-      __asm
-      {
-        vmovaps [rsp+190h+var_80], xmm10
-        vmovaps [rsp+190h+var_90], xmm11
-      }
-      _RAX = g_entities;
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rcx+rax+130h]
-        vaddss  xmm6, xmm5, dword ptr [rbp+90h+worldVec]
-        vsubss  xmm1, xmm0, xmm5
-        vaddss  xmm11, xmm1, dword ptr [rdi+80h]
-        vmovss  xmm1, dword ptr [rdi+7Ch]
-        vmovss  dword ptr [rsp+190h+var_128], xmm5
-        vmovss  xmm4, dword ptr [rcx+rax+134h]
-        vaddss  xmm7, xmm4, dword ptr [rbp+90h+worldVec+4]
-        vsubss  xmm0, xmm2, xmm4
-        vaddss  xmm10, xmm0, dword ptr [rdi+84h]
-        vmovss  dword ptr [rsp+190h+var_128+4], xmm4
-        vmovss  xmm3, dword ptr [rcx+rax+138h]
-        vaddss  xmm8, xmm3, dword ptr [rbp+90h+worldVec+8]
-        vsubss  xmm2, xmm1, xmm3
-        vaddss  xmm9, xmm2, dword ptr [rdi+88h]
-        vmovss  dword ptr [rsp+190h+var_128+8], xmm3
-      }
-      G_DebugLineWithArrow(&_RDI->animPos, &endPos, &colorGreen, 100);
-      G_DebugLineWithArrow(&_RDI->lastPos, &v166, &colorOrange, 100);
-      G_DebugLineWithArrow(&_RDI->naivePos, &v164, &colorRed, 100);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+190h+var_128]
-        vmovss  xmm1, dword ptr [rsp+190h+var_128+4]
-        vmovss  dword ptr [rdi+68h], xmm0
-        vmovss  xmm0, dword ptr [rsp+190h+var_128+8]
-        vmovss  dword ptr [rdi+70h], xmm0
-        vmovss  dword ptr [rdi+6Ch], xmm1
-        vmovss  dword ptr [rdi+74h], xmm6
-        vmovss  dword ptr [rdi+78h], xmm7
-        vmovss  dword ptr [rdi+7Ch], xmm8
-        vmovss  dword ptr [rdi+80h], xmm11
-        vmovaps xmm11, [rsp+190h+var_90]
-        vmovss  dword ptr [rdi+84h], xmm10
-        vmovaps xmm10, [rsp+190h+var_80]
-        vmovss  dword ptr [rdi+88h], xmm9
-      }
+      v30 = pEntTracker->expectedPos.v[0];
+      v31 = pEntTracker->expectedPos.v[1];
+      v32 = pEntTracker->entnum;
+      v64 = v7;
+      v63 = v8;
+      v33 = g_entities[v32].r.currentOrigin.v[0];
+      v34 = v33 + worldVec.v[0];
+      v35 = (float)(v30 - v33) + pEntTracker->accumulatedTransError.v[0];
+      v36 = pEntTracker->expectedPos.v[2];
+      v54.v[0] = v33;
+      v37 = g_entities[v32].r.currentOrigin.v[1];
+      v38 = v37 + worldVec.v[1];
+      v39 = (float)(v31 - v37) + pEntTracker->accumulatedTransError.v[1];
+      v54.v[1] = v37;
+      v40 = g_entities[v32].r.currentOrigin.v[2];
+      v41 = v40 + worldVec.v[2];
+      v42 = (float)(v36 - v40) + pEntTracker->accumulatedTransError.v[2];
+      v54.v[2] = v40;
+      G_DebugLineWithArrow(&pEntTracker->animPos, &endPos, &colorGreen, 100);
+      G_DebugLineWithArrow(&pEntTracker->lastPos, &v54, &colorOrange, 100);
+      G_DebugLineWithArrow(&pEntTracker->naivePos, &v52, &colorRed, 100);
+      v43 = v54.v[1];
+      pEntTracker->lastPos.v[0] = v54.v[0];
+      pEntTracker->lastPos.v[2] = v54.v[2];
+      pEntTracker->lastPos.v[1] = v43;
+      pEntTracker->expectedPos.v[0] = v34;
+      pEntTracker->expectedPos.v[1] = v38;
+      pEntTracker->expectedPos.v[2] = v41;
+      pEntTracker->accumulatedTransError.v[0] = v35;
+      pEntTracker->accumulatedTransError.v[1] = v39;
+      pEntTracker->accumulatedTransError.v[2] = v42;
     }
-    QuatMultiply(&quat, &outRotationDeltaQuat, &v174);
-    QuatToAngles(&v174, &angles);
-    OrientVectorToLocalSpace(&worldVec, _R14, &angles);
-    __asm
+    QuatMultiply(&quat, &outRotationDeltaQuat, &v62);
+    QuatToAngles(&v62, &angles);
+    OrientVectorToLocalSpace(&worldVec, translationDeltaLocal, &angles);
+    v44 = v52.v[1];
+    *rotationDeltaQuat = outRotationDeltaQuat;
+    pEntTracker->naivePos.v[0] = v52.v[0];
+    v45 = v52.v[2];
+    pEntTracker->naivePos.v[1] = v44;
+    v46 = out;
+    pEntTracker->naivePos.v[2] = v45;
+    v47 = endPos.v[1];
+    pEntTracker->naiveQuat = v46;
+    pEntTracker->animPos.v[0] = endPos.v[0];
+    v46.v[0] = endPos.v[2];
+    pEntTracker->animPos.v[1] = v47;
+    v48 = targetQuat;
+    pEntTracker->animPos.v[2] = v46.v[0];
+    pEntTracker->animQuat = v48;
+    if ( ((LODWORD(translationDeltaLocal->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(translationDeltaLocal->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(translationDeltaLocal->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 345, ASSERT_TYPE_ASSERT, "(!IS_NAN( translationDeltaLocal[0] ) && !IS_NAN( translationDeltaLocal[1] ) && !IS_NAN( translationDeltaLocal[2] ))", "%s\n\tNAN translationDelta out!", "!IS_NAN( translationDeltaLocal[0] ) && !IS_NAN( translationDeltaLocal[1] ) && !IS_NAN( translationDeltaLocal[2] )") )
+      __debugbreak();
+    if ( (LODWORD(rotationDeltaQuat->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotationDeltaQuat->v[1]) & 0x7F800000) == 2139095040 )
+      goto LABEL_93;
+    v49 = 0.0;
+    if ( rotationDeltaQuat->v[2] != 0.0 && (LODWORD(rotationDeltaQuat->v[3]) & 0x7F800000) != 2139095040 )
+      v49 = FLOAT_1_0;
+    if ( (LODWORD(v49) & 0x7F800000) == 2139095040 )
     {
-      vmovups xmm0, xmmword ptr [rbp+90h+outRotationDeltaQuat]
-      vmovss  xmm1, dword ptr [rsp+190h+var_148+4]
-      vmovaps xmm9, [rsp+190h+var_70]
-      vmovaps xmm8, [rsp+190h+var_60]
-      vmovaps xmm7, [rsp+190h+var_50]
-      vmovaps xmm6, [rsp+190h+var_40]
-      vmovups xmmword ptr [rsi], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+var_148]
-      vmovss  dword ptr [rdi+10h], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+var_148+8]
-      vmovss  dword ptr [rdi+14h], xmm1
-      vmovups xmm1, xmmword ptr [rbp+90h+out]
-      vmovss  dword ptr [rdi+18h], xmm0
-      vmovss  xmm0, dword ptr [rsp+190h+endPos+4]
-      vmovups xmmword ptr [rdi+1Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+190h+endPos]
-      vmovss  dword ptr [rdi+2Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+190h+endPos+8]
-      vmovss  dword ptr [rdi+30h], xmm0
-      vmovups xmm0, xmmword ptr [rsp+190h+targetQuat]
-      vmovss  dword ptr [rdi+34h], xmm1
-      vmovups xmmword ptr [rdi+38h], xmm0
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v157 & 0x7F800000) == 2139095040 )
-      goto LABEL_100;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v158 & 0x7F800000) == 2139095040 )
-      goto LABEL_100;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v159 & 0x7F800000) == 2139095040 )
-    {
-LABEL_100:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 345, ASSERT_TYPE_ASSERT, "(!IS_NAN( translationDeltaLocal[0] ) && !IS_NAN( translationDeltaLocal[1] ) && !IS_NAN( translationDeltaLocal[2] ))", "%s\n\tNAN translationDelta out!", "!IS_NAN( translationDeltaLocal[0] ) && !IS_NAN( translationDeltaLocal[1] ) && !IS_NAN( translationDeltaLocal[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v160 & 0x7F800000) == 2139095040 )
-      goto LABEL_101;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  [rsp+190h+var_150], xmm0
-    }
-    if ( (v161 & 0x7F800000) == 2139095040 )
-      goto LABEL_101;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm1, dword ptr [rsi+8]
-    }
-    if ( (v161 & 0x7F800000) != 2139095040 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmovss  [rsp+190h+var_150], xmm0
-      }
-      if ( (v162 & 0x7F800000) != 2139095040 )
-        __asm { vmovss  xmm1, cs:__real@3f800000 }
-    }
-    __asm { vmovss  [rsp+190h+var_150], xmm1 }
-    if ( (v163 & 0x7F800000) == 2139095040 )
-    {
-LABEL_101:
+LABEL_93:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_motionwarp.cpp", 346, ASSERT_TYPE_ASSERT, "(!IS_NAN( rotationDeltaQuat[0] ) && !IS_NAN( rotationDeltaQuat[1] ) && !IS_NAN( rotationDeltaQuat[2] && !IS_NAN( rotationDeltaQuat[3] ) ))", "%s\n\tNAN rotationDeltaQuat out!", "!IS_NAN( rotationDeltaQuat[0] ) && !IS_NAN( rotationDeltaQuat[1] ) && !IS_NAN( rotationDeltaQuat[2] && !IS_NAN( rotationDeltaQuat[3] ) )") )
         __debugbreak();
     }
@@ -2075,7 +1487,7 @@ LABEL_101:
   }
   else
   {
-    MotionWarp_Cancel(_RDI);
+    MotionWarp_Cancel(pEntTracker);
     return 2i64;
   }
 }

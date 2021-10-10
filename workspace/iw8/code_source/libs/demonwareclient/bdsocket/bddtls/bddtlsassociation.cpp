@@ -398,7 +398,6 @@ void bdDTLSAssociation::bdDTLSAssociation(bdDTLSAssociation *this, bdRoutingLaye
   bdCommonAddr_vtbl *v16; 
   bdTrulyRandomImpl *Instance; 
 
-  _RSI = this;
   this->m_refCount.m_value._My_val = 0;
   this->__vftable = (bdDTLSAssociation_vtbl *)&bdDTLSAssociation::`vftable';
   this->m_routingLayer = routingLayer;
@@ -408,51 +407,47 @@ void bdDTLSAssociation::bdDTLSAssociation(bdDTLSAssociation *this, bdRoutingLaye
   this->m_cypherSuite = cypherSuite.m_seqNum;
   this->m_cypherAlgorithm = bdCypherSuites::getCypherFromSuite(m_seqNum);
   CypherFromSuite = bdCypherSuites::getCypherFromSuite(m_seqNum);
-  bdDynamicCypher::bdDynamicCypher(&_RSI->m_sendingCypher, CypherFromSuite);
+  bdDynamicCypher::bdDynamicCypher(&this->m_sendingCypher, CypherFromSuite);
   v13 = bdCypherSuites::getCypherFromSuite(m_seqNum);
-  bdDynamicCypher::bdDynamicCypher(&_RSI->m_receivingCypher, v13);
-  _RSI->m_hashAlgorithm = bdCypherSuites::getHashFromSuite(m_seqNum);
+  bdDynamicCypher::bdDynamicCypher(&this->m_receivingCypher, v13);
+  this->m_hashAlgorithm = bdCypherSuites::getHashFromSuite(m_seqNum);
   HashFromSuite = bdCypherSuites::getHashFromSuite(m_seqNum);
-  bdDynamicHash::bdDynamicHash(&_RSI->m_hash, HashFromSuite);
-  bdAddr::bdAddr(&_RSI->m_addr, addr);
+  bdDynamicHash::bdDynamicHash(&this->m_hash, HashFromSuite);
+  bdAddr::bdAddr(&this->m_addr, addr);
   v15 = addrHandle.m_ptr->__vftable;
-  _RSI->m_addrHandle.m_ptr = (bdAddrHandle *)addrHandle.m_ptr->__vftable;
+  this->m_addrHandle.m_ptr = (bdAddrHandle *)addrHandle.m_ptr->__vftable;
   if ( v15 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v15[1], 1u);
-  _RSI->m_state = BD_DTLS_CLOSED;
-  bdGlobalStopwatch::bdGlobalStopwatch(&_RSI->m_lastReceived);
-  bdStopwatch::bdStopwatch(&_RSI->m_initTimer);
-  _RSI->m_initResends = 0;
-  bdStopwatch::bdStopwatch(&_RSI->m_cookieTimer);
-  _RSI->m_cookieResends = 0;
-  _RSI->m_localRandom.m_initialized = 0;
-  *(_QWORD *)_RSI->m_localRandom.m_dtlsRandom = 0i64;
-  *(_QWORD *)&_RSI->m_localRandom.m_dtlsRandom[8] = 0i64;
-  *(_QWORD *)&_RSI->m_localRandom.m_dtlsRandom[16] = 0i64;
-  *(_QWORD *)&_RSI->m_localRandom.m_dtlsRandom[24] = 0i64;
-  _RSI->m_peerRandom.m_initialized = 0;
-  *(_QWORD *)_RSI->m_peerRandom.m_dtlsRandom = 0i64;
-  *(_QWORD *)&_RSI->m_peerRandom.m_dtlsRandom[8] = 0i64;
-  *(_QWORD *)&_RSI->m_peerRandom.m_dtlsRandom[16] = 0i64;
-  *(_QWORD *)&_RSI->m_peerRandom.m_dtlsRandom[24] = 0i64;
-  bdSequenceNumber::bdSequenceNumber(&_RSI->m_seqNum, -1);
+  this->m_state = BD_DTLS_CLOSED;
+  bdGlobalStopwatch::bdGlobalStopwatch(&this->m_lastReceived);
+  bdStopwatch::bdStopwatch(&this->m_initTimer);
+  this->m_initResends = 0;
+  bdStopwatch::bdStopwatch(&this->m_cookieTimer);
+  this->m_cookieResends = 0;
+  this->m_localRandom.m_initialized = 0;
+  *(_QWORD *)this->m_localRandom.m_dtlsRandom = 0i64;
+  *(_QWORD *)&this->m_localRandom.m_dtlsRandom[8] = 0i64;
+  *(_QWORD *)&this->m_localRandom.m_dtlsRandom[16] = 0i64;
+  *(_QWORD *)&this->m_localRandom.m_dtlsRandom[24] = 0i64;
+  this->m_peerRandom.m_initialized = 0;
+  *(_QWORD *)this->m_peerRandom.m_dtlsRandom = 0i64;
+  *(_QWORD *)&this->m_peerRandom.m_dtlsRandom[8] = 0i64;
+  *(_QWORD *)&this->m_peerRandom.m_dtlsRandom[16] = 0i64;
+  *(_QWORD *)&this->m_peerRandom.m_dtlsRandom[24] = 0i64;
+  bdSequenceNumber::bdSequenceNumber(&this->m_seqNum, -1);
   bdSequenceNumber::bdSequenceNumber(&cypherSuite, -1);
-  bdSequenceNumberStore::bdSequenceNumberStore(&_RSI->m_incomingSeqNums, &cypherSuite);
-  bdDTLSInitAck::bdDTLSInitAck(&_RSI->m_initAck);
-  bdSecurityID::bdSecurityID(&_RSI->m_localId);
+  bdSequenceNumberStore::bdSequenceNumberStore(&this->m_incomingSeqNums, &cypherSuite);
+  bdDTLSInitAck::bdDTLSInitAck(&this->m_initAck);
+  bdSecurityID::bdSecurityID(&this->m_localId);
   v16 = localCommonAddr.m_ptr->__vftable;
-  _RSI->m_localCommonAddr.m_ptr = (bdCommonAddr *)localCommonAddr.m_ptr->__vftable;
+  this->m_localCommonAddr.m_ptr = (bdCommonAddr *)localCommonAddr.m_ptr->__vftable;
   if ( v16 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v16[1], 1u);
-  _RSI->m_addrMap = addrMap;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+receiveTimeout]
-    vmovss  dword ptr [rsi+3A8h], xmm0
-  }
-  bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&_RSI->m_telemetry);
-  bdMutex::bdMutex(&_RSI->m_mutex);
-  bdDTLSAssociation::reset(_RSI);
+  this->m_addrMap = addrMap;
+  this->m_receiveTimeout = receiveTimeout;
+  bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(&this->m_telemetry);
+  bdMutex::bdMutex(&this->m_mutex);
+  bdDTLSAssociation::reset(this);
   if ( !bdDTLSAssociation::m_cookieKey.m_initialised )
   {
     Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
@@ -532,107 +527,101 @@ __int64 bdDTLSAssociation::calculateSharedKey(bdDTLSAssociation *this, const uns
   unsigned int CypherAlgorithmKeySize; 
   unsigned int m_blockSize; 
   bdHash *Hash; 
+  __m256i v13; 
   bdCypher *Cypher; 
-  bdCypher *v16; 
-  bdHash *v17; 
+  bdCypher *v15; 
+  bdHash *v16; 
+  bool v17; 
   bool v18; 
-  bool v19; 
   const unsigned __int8 (*Data)[32]; 
-  const unsigned __int8 (*v21)[32]; 
-  __int64 v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  unsigned int v25; 
-  char v26; 
+  const unsigned __int8 (*v20)[32]; 
+  __int64 v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  char v25; 
+  const unsigned __int8 (*v26)[32]; 
   const unsigned __int8 (*v27)[32]; 
-  const unsigned __int8 (*v28)[32]; 
-  __int64 v29; 
-  unsigned int v30; 
-  __int64 v31; 
-  unsigned int v32; 
-  bdCypher *v35; 
-  bdCypher *v36; 
-  char v37; 
-  unsigned __int8 v38; 
+  __int64 v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  unsigned int v31; 
+  bdCypher *v32; 
+  bdCypher *v33; 
+  char v34; 
+  unsigned __int8 v35; 
   unsigned int format; 
-  char *v41; 
+  char *v38; 
   unsigned int newOffset; 
   unsigned int offset; 
-  __int64 v44; 
+  __int64 v41; 
   bdSecurityKey key; 
   unsigned __int8 inSecret[32]; 
   __int64 dest[8]; 
-  int v48; 
+  int v45; 
   unsigned __int8 inMessages[8]; 
+  __int64 v47; 
+  __int64 v48; 
+  __int64 v49; 
   __int64 v50; 
   __int64 v51; 
   __int64 v52; 
   __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  int v57; 
+  int v54; 
   unsigned __int8 inSalt[32]; 
   unsigned __int8 secretBuffer[28]; 
+  bdSecurityKey v57; 
   unsigned __int8 outBuffer[32]; 
-  unsigned __int8 v62[32]; 
+  unsigned __int8 v59[32]; 
   unsigned __int8 outPRK[32]; 
   unsigned __int8 buffer[32]; 
+  unsigned __int8 v62[32]; 
+  unsigned __int8 v63[32]; 
+  unsigned __int8 v64[32]; 
   unsigned __int8 v65[32]; 
-  unsigned __int8 v66[32]; 
-  unsigned __int8 v67[32]; 
-  unsigned __int8 v68[32]; 
 
-  v44 = -2i64;
-  _RDI = this;
+  v41 = -2i64;
   bdSecurityKey::bdSecurityKey(&key);
-  if ( !bdSecurityKeyMap::get(_RDI->m_keyMap, secID, &key) )
+  if ( !bdSecurityKeyMap::get(this->m_keyMap, secID, &key) )
   {
-    v41 = "bdDTLSAssociation: secID not in m_keyMap";
+    v38 = "bdDTLSAssociation: secID not in m_keyMap";
     format = 1353;
 LABEL_3:
     v8 = "warn/";
     v9 = BD_LOG_WARNING;
 LABEL_48:
-    bdLogMessage(v9, v8, "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", format, v41);
+    bdLogMessage(v9, v8, "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", format, v38);
     goto LABEL_49;
   }
-  if ( !bdECCKey::generateSharedSecret(_RDI->m_ECCKey, pubKey, keylen, secretBuffer, 0x2Cu) )
+  if ( !bdECCKey::generateSharedSecret(this->m_ECCKey, pubKey, keylen, secretBuffer, 0x2Cu) )
   {
-    v41 = "bdDTLSAssociation: Couldn't generate shared secret";
+    v38 = "bdDTLSAssociation: Couldn't generate shared secret";
     format = 1364;
     goto LABEL_3;
   }
   memset(inSecret, 0, sizeof(inSecret));
-  CypherAlgorithmKeySize = bdCryptoDynamic::getCypherAlgorithmKeySize((bdCypherAlgorithms)_RDI->m_cypherAlgorithm);
-  m_blockSize = bdDynamicCypher::getCypher(&_RDI->m_sendingCypher)->m_blockSize;
+  CypherAlgorithmKeySize = bdCryptoDynamic::getCypherAlgorithmKeySize((bdCypherAlgorithms)this->m_cypherAlgorithm);
+  m_blockSize = bdDynamicCypher::getCypher(&this->m_sendingCypher)->m_blockSize;
   bdHandleAssert(CypherAlgorithmKeySize <= 0x20, "cypherKeySize <= BD_DTLS_SECRET_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x55Fu, "bdDTLSAssociation: cypherKeySize too large");
   bdHandleAssert(m_blockSize <= 0x20, "cypherBlockSize <= BD_DTLS_SECRET_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x560u, "bdDTLSAssociation: cypherBlockSize too large");
   if ( BD_DTLS_VERSION == 2 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+2C0h+key.ab]
-      vmovups [rbp+1C0h+var_164], xmm0
-    }
+    v57 = key;
     newOffset = 32;
-    Hash = bdDynamicHash::getHash(&_RDI->m_hash);
+    Hash = bdDynamicHash::getHash(&this->m_hash);
     if ( !Hash->hash(Hash, secretBuffer, 44u, inSecret, &newOffset) )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x56Fu, "bdDTLSAssociation: Unable to hash the shared secret");
 LABEL_49:
-      v38 = 0;
+      v35 = 0;
       goto LABEL_50;
     }
     bdCryptoUtils::zeroBuffer(secretBuffer, 0x2Cui64);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+2C0h+inSecret]
-      vmovups ymmword ptr [rdi+120h], ymm0
-      vmovups ymmword ptr [rdi+140h], ymm0
-    }
-    Cypher = bdDynamicCypher::getCypher(&_RDI->m_sendingCypher);
-    if ( !Cypher->init(Cypher, inSecret, CypherAlgorithmKeySize) || (v16 = bdDynamicCypher::getCypher(&_RDI->m_receivingCypher), !v16->init(v16, inSecret, CypherAlgorithmKeySize)) )
+    v13 = *(__m256i *)inSecret;
+    *(__m256i *)this->m_sendingIVMaterial = *(__m256i *)inSecret;
+    *(__m256i *)this->m_receivingIVMaterial = v13;
+    Cypher = bdDynamicCypher::getCypher(&this->m_sendingCypher);
+    if ( !Cypher->init(Cypher, inSecret, CypherAlgorithmKeySize) || (v15 = bdDynamicCypher::getCypher(&this->m_receivingCypher), !v15->init(v15, inSecret, CypherAlgorithmKeySize)) )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x57Fu, "bdDTLSAssociation: Cypher->init() failed");
 LABEL_45:
@@ -644,110 +633,93 @@ LABEL_45:
   {
     if ( BD_DTLS_VERSION < 3u )
     {
-      v41 = "bdDTLSAssociation: Unknown BD_DTLS_VERSION";
+      v38 = "bdDTLSAssociation: Unknown BD_DTLS_VERSION";
       format = 1552;
       v8 = (const char *)&other;
       v9 = BD_LOG_ERROR;
       goto LABEL_48;
     }
-    v17 = bdDynamicHash::getHash(&_RDI->m_hash);
-    bdHandleAssert(v17->m_digestSize == 32, "hashSize == BD_SHA256_HASH_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x5A3u, "bdDTLSAssociation: DTLS_V3 only SHA256 HKDF is supported");
+    v16 = bdDynamicHash::getHash(&this->m_hash);
+    bdHandleAssert(v16->m_digestSize == 32, "hashSize == BD_SHA256_HASH_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x5A3u, "bdDTLSAssociation: DTLS_V3 only SHA256 HKDF is supported");
     memset(inSalt, 0, sizeof(inSalt));
-    v18 = bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])inSalt, key.ab, 0x10u, (unsigned __int8 (*)[32])outPRK) && bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])outPRK, secretBuffer, 0x1Cu, (unsigned __int8 (*)[32])buffer);
+    v17 = bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])inSalt, key.ab, 0x10u, (unsigned __int8 (*)[32])outPRK) && bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])outPRK, secretBuffer, 0x1Cu, (unsigned __int8 (*)[32])buffer);
     bdCryptoUtils::zeroBuffer(secretBuffer, 0x2Cui64);
-    v19 = v18 && bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])buffer, inSalt, 0x20u, (unsigned __int8 (*)[32])inSecret);
+    v18 = v17 && bdCryptoUtils::hkdfExtractSHA256((const unsigned __int8 (*)[32])buffer, inSalt, 0x20u, (unsigned __int8 (*)[32])inSecret);
     offset = 0;
     memset(dest, 0, sizeof(dest));
-    v48 = 0;
-    if ( !v19 )
+    v45 = 0;
+    if ( !v18 )
       goto LABEL_30;
-    Data = bdDTLSRandom::getData(&_RDI->m_peerRandom);
+    Data = bdDTLSRandom::getData(&this->m_peerRandom);
     if ( !bdBytePacker::appendBuffer(dest, 0x44u, offset, &offset, Data, 0x20u) )
       goto LABEL_30;
-    v21 = bdDTLSRandom::getData(&_RDI->m_localRandom);
-    if ( !bdBytePacker::appendBuffer(dest, 0x44u, offset, &offset, v21, 0x20u) )
+    v20 = bdDTLSRandom::getData(&this->m_localRandom);
+    if ( !bdBytePacker::appendBuffer(dest, 0x44u, offset, &offset, v20, 0x20u) )
       goto LABEL_30;
-    v22 = offset;
-    v23 = offset + 2;
-    offset = v23;
-    bdHandleAssert(v23 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
-    if ( v23 > 0x44 )
+    v21 = offset;
+    v22 = offset + 2;
+    offset = v22;
+    bdHandleAssert(v22 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
+    if ( v22 > 0x44 )
       goto LABEL_30;
-    *(_WORD *)((char *)dest + v22) = _RDI->m_peerTag;
-    v24 = offset;
-    v25 = offset + 2;
-    offset = v25;
-    bdHandleAssert(v25 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
-    if ( v25 <= 0x44 && (*(_WORD *)((char *)dest + v24) = _RDI->m_localTag, bdDTLSUtils::deriveSecret((const unsigned __int8 (*)[32])inSecret, "nN<0dtEg1xrlhp8OS18Uuu=0YxuM2zk2!", (const unsigned __int8 *)dest, 0x44u, (unsigned __int8 (*)[32])outBuffer)) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])outBuffer, "VI)", NULL, 0, v65, CypherAlgorithmKeySize) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])outBuffer, "ti", NULL, 0, v67, 0x20u) )
-      v26 = 1;
+    *(_WORD *)((char *)dest + v21) = this->m_peerTag;
+    v23 = offset;
+    v24 = offset + 2;
+    offset = v24;
+    bdHandleAssert(v24 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
+    if ( v24 <= 0x44 && (*(_WORD *)((char *)dest + v23) = this->m_localTag, bdDTLSUtils::deriveSecret((const unsigned __int8 (*)[32])inSecret, "nN<0dtEg1xrlhp8OS18Uuu=0YxuM2zk2!", (const unsigned __int8 *)dest, 0x44u, (unsigned __int8 (*)[32])outBuffer)) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])outBuffer, "VI)", NULL, 0, v62, CypherAlgorithmKeySize) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])outBuffer, "ti", NULL, 0, v64, 0x20u) )
+      v25 = 1;
     else
 LABEL_30:
-      v26 = 0;
+      v25 = 0;
     newOffset = 0;
     *(_QWORD *)inMessages = 0i64;
+    v47 = 0i64;
+    v48 = 0i64;
+    v49 = 0i64;
     v50 = 0i64;
     v51 = 0i64;
     v52 = 0i64;
     v53 = 0i64;
-    v54 = 0i64;
-    v55 = 0i64;
-    v56 = 0i64;
-    v57 = 0;
-    if ( !v26 )
+    v54 = 0;
+    if ( !v25 )
       goto LABEL_42;
-    v27 = bdDTLSRandom::getData(&_RDI->m_localRandom);
+    v26 = bdDTLSRandom::getData(&this->m_localRandom);
+    if ( !bdBytePacker::appendBuffer(inMessages, 0x44u, newOffset, &newOffset, v26, 0x20u) )
+      goto LABEL_42;
+    v27 = bdDTLSRandom::getData(&this->m_peerRandom);
     if ( !bdBytePacker::appendBuffer(inMessages, 0x44u, newOffset, &newOffset, v27, 0x20u) )
       goto LABEL_42;
-    v28 = bdDTLSRandom::getData(&_RDI->m_peerRandom);
-    if ( !bdBytePacker::appendBuffer(inMessages, 0x44u, newOffset, &newOffset, v28, 0x20u) )
+    v28 = newOffset;
+    v29 = newOffset + 2;
+    newOffset = v29;
+    bdHandleAssert(v29 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
+    if ( v29 > 0x44 )
       goto LABEL_42;
-    v29 = newOffset;
-    v30 = newOffset + 2;
-    newOffset = v30;
-    bdHandleAssert(v30 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
-    if ( v30 > 0x44 )
+    *(_WORD *)&inMessages[v28] = this->m_localTag;
+    v30 = newOffset;
+    v31 = newOffset + 2;
+    newOffset = v31;
+    bdHandleAssert(v31 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
+    if ( v31 > 0x44 )
       goto LABEL_42;
-    *(_WORD *)&inMessages[v29] = _RDI->m_localTag;
-    v31 = newOffset;
-    v32 = newOffset + 2;
-    newOffset = v32;
-    bdHandleAssert(v32 <= 0x44, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
-    if ( v32 > 0x44 )
-      goto LABEL_42;
-    *(_WORD *)&inMessages[v31] = _RDI->m_peerTag;
-    if ( !bdDTLSUtils::deriveSecret((const unsigned __int8 (*)[32])inSecret, "nN<0dtEg1xrlhp8OS18Uuu=0YxuM2zk2!", inMessages, 0x44u, (unsigned __int8 (*)[32])v62) )
-      goto LABEL_42;
-    if ( !bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])v62, "VI)", NULL, 0, v66, CypherAlgorithmKeySize) )
-      goto LABEL_42;
-    if ( !bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])v62, "ti", NULL, 0, v68, 0x20u) )
-      goto LABEL_42;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1C0h+var_90]
-      vmovups ymmword ptr [rdi+120h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+1C0h+var_70]
-      vmovups ymmword ptr [rdi+140h], ymm1
-    }
-    v35 = bdDynamicCypher::getCypher(&_RDI->m_sendingCypher);
-    if ( !v35->init(v35, v65, CypherAlgorithmKeySize) )
-      goto LABEL_42;
-    v36 = bdDynamicCypher::getCypher(&_RDI->m_receivingCypher);
-    if ( v36->init(v36, v66, CypherAlgorithmKeySize) )
-      v37 = 1;
+    *(_WORD *)&inMessages[v30] = this->m_peerTag;
+    if ( bdDTLSUtils::deriveSecret((const unsigned __int8 (*)[32])inSecret, "nN<0dtEg1xrlhp8OS18Uuu=0YxuM2zk2!", inMessages, 0x44u, (unsigned __int8 (*)[32])v59) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])v59, "VI)", NULL, 0, v63, CypherAlgorithmKeySize) && bdDTLSUtils::hkdfExpandLabel((const unsigned __int8 (*)[32])v59, "ti", NULL, 0, v65, 0x20u) && (*(__m256i *)this->m_sendingIVMaterial = *(__m256i *)v64, *(__m256i *)this->m_receivingIVMaterial = *(__m256i *)v65, v32 = bdDynamicCypher::getCypher(&this->m_sendingCypher), v32->init(v32, v62, CypherAlgorithmKeySize)) && (v33 = bdDynamicCypher::getCypher(&this->m_receivingCypher), v33->init(v33, v63, CypherAlgorithmKeySize)) )
+      v34 = 1;
     else
 LABEL_42:
-      v37 = 0;
+      v34 = 0;
     bdCryptoUtils::zeroBuffer(outPRK, 0x20ui64);
     bdCryptoUtils::zeroBuffer(buffer, 0x20ui64);
     bdCryptoUtils::zeroBuffer(dest, 0x44ui64);
     bdCryptoUtils::zeroBuffer(inMessages, 0x44ui64);
     bdCryptoUtils::zeroBuffer(outBuffer, 0x20ui64);
+    bdCryptoUtils::zeroBuffer(v59, 0x20ui64);
     bdCryptoUtils::zeroBuffer(v62, 0x20ui64);
+    bdCryptoUtils::zeroBuffer(v63, 0x20ui64);
+    bdCryptoUtils::zeroBuffer(v64, 0x20ui64);
     bdCryptoUtils::zeroBuffer(v65, 0x20ui64);
-    bdCryptoUtils::zeroBuffer(v66, 0x20ui64);
-    bdCryptoUtils::zeroBuffer(v67, 0x20ui64);
-    bdCryptoUtils::zeroBuffer(v68, 0x20ui64);
-    if ( !v37 )
+    if ( !v34 )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::calculateSharedKey", 0x609u, "bdDTLSAssociation: Cypher->init() failed");
       goto LABEL_45;
@@ -755,10 +727,10 @@ LABEL_42:
   }
   bdCryptoUtils::zeroBuffer(secretBuffer, 0x2Cui64);
   bdCryptoUtils::zeroBuffer(inSecret, 0x20ui64);
-  v38 = 1;
+  v35 = 1;
 LABEL_50:
   bdSecurityKey::~bdSecurityKey(&key);
-  return v38;
+  return v35;
 }
 
 /*
@@ -1086,48 +1058,48 @@ __int64 bdDTLSAssociation::handleCookieEcho(bdDTLSAssociation *this, const bdAdd
   bdDTLSInitAck *v12; 
   bdDTLSInitAck *v13; 
   bdDTLSInitAck *v14; 
+  __m256i *LocalRandom; 
   bdDTLSInitAck *v16; 
   bdCommonAddr *v17; 
   bdCommonAddr *v18; 
   bdCommonAddr *v19; 
   const unsigned __int8 *Ca; 
   bdCommonAddr *m_ptr; 
-  bool v24; 
+  bool v22; 
   unsigned __int16 m_localTag; 
   unsigned __int16 m_peerTag; 
   bdDTLSError::bdDTLSErrorType *p_type; 
-  bdDTLSAssociationTelemetry::bdDTLSAssociationState v28; 
-  const unsigned __int8 *v32; 
-  const unsigned __int8 *v36; 
-  bdDTLSAssociationTelemetry *v37; 
-  const unsigned __int8 *v41; 
+  bdDTLSAssociationTelemetry::bdDTLSAssociationState v26; 
+  const unsigned __int8 *v27; 
+  const unsigned __int8 *v28; 
+  bdDTLSAssociationTelemetry *v29; 
+  const unsigned __int8 *v30; 
   bdDTLSAssociationTelemetry *p_m_telemetry; 
   const unsigned __int8 *ECCKey; 
   unsigned int expectedCypherSuite; 
   unsigned __int16 LocalTieTag; 
   unsigned __int16 PeerTieTag; 
   bdReference<bdCommonAddr> commonAddr; 
-  const bdDTLSRandom *PeerRandom; 
+  __m256i *PeerRandom; 
   bdReference<bdCommonAddr> me; 
   bdDTLSError::bdDTLSErrorType type; 
-  int v55; 
-  bdDTLSError::bdDTLSErrorType v56; 
-  int v57; 
+  int v41; 
+  bdDTLSError::bdDTLSErrorType v42; 
+  int v43; 
   unsigned int newOffset; 
-  __int64 v59; 
+  __int64 v45; 
   bdSecurityID id; 
   bdDTLSCookieEcho cookiePacket; 
 
-  v59 = -2i64;
-  _RSI = this;
+  v45 = -2i64;
   bdDTLSCookieEcho::bdDTLSCookieEcho(&cookiePacket);
-  if ( !bdDTLSCookieEcho::deserialize(&cookiePacket, data, size, 0, &newOffset, _RSI->m_cypherSuite) )
+  if ( !bdDTLSCookieEcho::deserialize(&cookiePacket, data, size, 0, &newOffset, this->m_cypherSuite) )
   {
 LABEL_65:
-    bdDTLSAssociationTelemetry::setCookieEchoStageTime(&_RSI->m_telemetry);
+    bdDTLSAssociationTelemetry::setCookieEchoStageTime(&this->m_telemetry);
     goto LABEL_66;
   }
-  if ( bdDTLSAssociation::checkCookieValidity(_RSI, addr, &cookiePacket) )
+  if ( bdDTLSAssociation::checkCookieValidity(this, addr, &cookiePacket) )
   {
     Cookie = (bdDTLSInitAck *)bdDTLSCookieEcho::getCookie(&cookiePacket);
     LocalTag = bdDTLSInitAck::getLocalTag(Cookie);
@@ -1138,9 +1110,9 @@ LABEL_65:
     v13 = (bdDTLSInitAck *)bdDTLSCookieEcho::getCookie(&cookiePacket);
     PeerTieTag = bdDTLSInitAck::getPeerTieTag(v13);
     v14 = (bdDTLSInitAck *)bdDTLSCookieEcho::getCookie(&cookiePacket);
-    _R13 = bdDTLSInitAck::getLocalRandom(v14);
+    LocalRandom = (__m256i *)bdDTLSInitAck::getLocalRandom(v14);
     v16 = (bdDTLSInitAck *)bdDTLSCookieEcho::getCookie(&cookiePacket);
-    PeerRandom = bdDTLSInitAck::getPeerRandom(v16);
+    PeerRandom = (__m256i *)bdDTLSInitAck::getPeerRandom(v16);
     bdSecurityID::bdSecurityID(&id);
     v17 = (bdCommonAddr *)bdMemory::allocate(0x4E0ui64);
     me.m_ptr = v17;
@@ -1156,116 +1128,93 @@ LABEL_65:
     commonAddr.m_ptr = v19;
     if ( v19 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
-    _RAX = bdDTLSCookieEcho::getSecID(&cookiePacket);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  qword ptr [rbp+1E0h+id.ab], xmm0
-    }
+    id = *(bdSecurityID *)bdDTLSCookieEcho::getSecID(&cookiePacket);
     Ca = bdDTLSCookieEcho::getCa(&cookiePacket);
-    m_ptr = _RSI->m_localCommonAddr.m_ptr;
+    m_ptr = this->m_localCommonAddr.m_ptr;
     me.m_ptr = m_ptr;
     if ( m_ptr )
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-    v24 = bdCommonAddr::deserialize(v19, (bdReference<bdCommonAddr>)&me, Ca);
-    if ( !v24 )
+    v22 = bdCommonAddr::deserialize(v19, (bdReference<bdCommonAddr>)&me, Ca);
+    if ( !v22 )
       goto LABEL_60;
-    if ( _RSI->m_state == BD_DTLS_CLOSED )
+    if ( this->m_state == BD_DTLS_CLOSED )
     {
-      _RSI->m_localTag = LocalTag;
-      _RSI->m_peerTag = PeerTag;
+      this->m_localTag = LocalTag;
+      this->m_peerTag = PeerTag;
       if ( BD_DTLS_VERSION >= 3u )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r13+0]
-          vmovups ymmword ptr [rsi+226h], ymm0
-        }
-        _RSI->m_localRandom.m_initialized = 1;
-        _RAX = PeerRandom;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsi+247h], ymm0
-        }
-        _RSI->m_peerRandom.m_initialized = 1;
+        *(__m256i *)this->m_localRandom.m_dtlsRandom = *LocalRandom;
+        this->m_localRandom.m_initialized = 1;
+        *(__m256i *)this->m_peerRandom.m_dtlsRandom = *PeerRandom;
+        this->m_peerRandom.m_initialized = 1;
       }
-      if ( !bdSecurityKeyMap::contains(_RSI->m_keyMap, &id) )
+      if ( !bdSecurityKeyMap::contains(this->m_keyMap, &id) )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1ECu, "Handle DTLS CookieEcho: secID not in keymap");
-        v57 = 0;
-        p_type = (bdDTLSError::bdDTLSErrorType *)&v57;
+        v43 = 0;
+        p_type = (bdDTLSError::bdDTLSErrorType *)&v43;
         goto LABEL_19;
       }
       ECCKey = bdDTLSCookieEcho::getECCKey(&cookiePacket);
-      if ( bdDTLSAssociation::calculateSharedKey(_RSI, ECCKey, 0x64u, &id) )
+      if ( bdDTLSAssociation::calculateSharedKey(this, ECCKey, 0x64u, &id) )
       {
-        bdHandleAssert(_RSI->m_addrHandle.m_ptr == NULL, "m_addrHandle.isNull()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1F6u, "Address handle expected to be null when DTLS closed");
-        bdDTLSAssociation::updateAddress(_RSI, &id, &commonAddr, addr);
-        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1FBu, "Handle DTLS CookieEcho: Handling CookieEcho (Expected) m_localTag/m_peerTag: %X/%X", _RSI->m_localTag, _RSI->m_peerTag);
-        bdDTLSAssociation::sendCookieAck(_RSI, addr, &cookiePacket);
-        _RSI->m_state = BD_DTLS_ESTABLISHED;
-        bdDTLSAssociationTelemetry::setEstablishedTime(&_RSI->m_telemetry);
+        bdHandleAssert(this->m_addrHandle.m_ptr == NULL, "m_addrHandle.isNull()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1F6u, "Address handle expected to be null when DTLS closed");
+        bdDTLSAssociation::updateAddress(this, &id, &commonAddr, addr);
+        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1FBu, "Handle DTLS CookieEcho: Handling CookieEcho (Expected) m_localTag/m_peerTag: %X/%X", this->m_localTag, this->m_peerTag);
+        bdDTLSAssociation::sendCookieAck(this, addr, &cookiePacket);
+        this->m_state = BD_DTLS_ESTABLISHED;
+        bdDTLSAssociationTelemetry::setEstablishedTime(&this->m_telemetry);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1FFu, "Handle DTLS CookieEcho: DTLS established");
         goto LABEL_24;
       }
       expectedCypherSuite = 521;
       goto LABEL_56;
     }
-    m_localTag = _RSI->m_localTag;
-    m_peerTag = _RSI->m_peerTag;
+    m_localTag = this->m_localTag;
+    m_peerTag = this->m_peerTag;
     if ( m_localTag != LocalTag )
     {
       if ( m_peerTag != PeerTag )
       {
         if ( m_localTag == LocalTieTag && m_peerTag == PeerTieTag )
         {
-          if ( !bdSecurityKeyMap::contains(_RSI->m_keyMap, &id) )
+          if ( !bdSecurityKeyMap::contains(this->m_keyMap, &id) )
           {
             bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x245u, "Handle DTLS CookieEcho: secID not in keymap");
             type = BD_DTLS_ERROR_BAD_SECID;
             p_type = &type;
 LABEL_19:
-            bdDTLSAssociation::sendError(_RSI, addr, &id, p_type);
-            _RSI->m_state = BD_DTLS_CLOSED;
-            bdDTLSAssociation::finalizeTelemetry(_RSI);
-            v28 = 17;
+            bdDTLSAssociation::sendError(this, addr, &id, p_type);
+            this->m_state = BD_DTLS_CLOSED;
+            bdDTLSAssociation::finalizeTelemetry(this);
+            v26 = 17;
 LABEL_58:
-            p_m_telemetry = &_RSI->m_telemetry;
+            p_m_telemetry = &this->m_telemetry;
             goto LABEL_59;
           }
-          bdDTLSAssociation::reset(_RSI);
-          _RSI->m_localTag = LocalTag;
-          _RSI->m_peerTag = PeerTag;
+          bdDTLSAssociation::reset(this);
+          this->m_localTag = LocalTag;
+          this->m_peerTag = PeerTag;
           if ( BD_DTLS_VERSION >= 3u )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r13+0]
-              vmovups ymmword ptr [rsi+226h], ymm0
-            }
-            _RSI->m_localRandom.m_initialized = 1;
-            _RAX = PeerRandom;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rsi+247h], ymm0
-            }
-            _RSI->m_peerRandom.m_initialized = 1;
+            *(__m256i *)this->m_localRandom.m_dtlsRandom = *LocalRandom;
+            this->m_localRandom.m_initialized = 1;
+            *(__m256i *)this->m_peerRandom.m_dtlsRandom = *PeerRandom;
+            this->m_peerRandom.m_initialized = 1;
           }
-          v32 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
-          if ( bdDTLSAssociation::calculateSharedKey(_RSI, v32, 0x64u, &id) )
+          v27 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
+          if ( bdDTLSAssociation::calculateSharedKey(this, v27, 0x64u, &id) )
           {
-            bdDTLSAssociation::updateAddress(_RSI, &id, &commonAddr, addr);
-            bdDTLSAssociation::sendCookieAck(_RSI, addr, &cookiePacket);
-            bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x25Cu, "Handle DTLS CookieEcho: Handling CookiEcho (A): m_localTag/m_peerTag: %X/%X", _RSI->m_localTag, _RSI->m_peerTag);
-            _RSI->m_state = BD_DTLS_ESTABLISHED;
-            bdDTLSAssociationTelemetry::setEstablishedTime(&_RSI->m_telemetry);
+            bdDTLSAssociation::updateAddress(this, &id, &commonAddr, addr);
+            bdDTLSAssociation::sendCookieAck(this, addr, &cookiePacket);
+            bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x25Cu, "Handle DTLS CookieEcho: Handling CookiEcho (A): m_localTag/m_peerTag: %X/%X", this->m_localTag, this->m_peerTag);
+            this->m_state = BD_DTLS_ESTABLISHED;
+            bdDTLSAssociationTelemetry::setEstablishedTime(&this->m_telemetry);
             bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x260u, "Handle DTLS CookieEcho: DTLS established");
 LABEL_24:
-            v24 = 1;
-            _RSI->m_localId = id;
-            v28 = 22;
+            v22 = 1;
+            this->m_localId = id;
+            v26 = 22;
             goto LABEL_58;
           }
           expectedCypherSuite = 617;
@@ -1274,128 +1223,110 @@ LABEL_24:
         if ( m_peerTag != PeerTag )
         {
           bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2F7u, "Handle DTLS CookieEcho: Handling CookieEcho (E): m_localTag/m_peerTag: %X/%X", m_localTag, m_peerTag);
-          v28 = 21;
+          v26 = 21;
 LABEL_57:
-          v24 = 0;
+          v22 = 0;
           goto LABEL_58;
         }
       }
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2B7u, "Handle DTLS CookieEcho: Handling CookieEcho (C): m_localTag/m_peerTag: %X/%X", m_localTag, m_peerTag);
-      v28 = 20;
+      v26 = 20;
       goto LABEL_58;
     }
     if ( m_peerTag != PeerTag || !m_peerTag )
     {
-      if ( bdAddrHandle::isResolved(_RSI->m_addrHandle.m_ptr) )
+      if ( bdAddrHandle::isResolved(this->m_addrHandle.m_ptr) )
       {
-        v37 = &_RSI->m_telemetry;
+        v29 = &this->m_telemetry;
       }
       else
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x281u, "Handle DTLS CookieEcho: Invalid addr handle!");
-        v37 = &_RSI->m_telemetry;
-        bdDTLSAssociationTelemetry::setState(&_RSI->m_telemetry, BD_DTLS_ESTABLISHED|0x10);
+        v29 = &this->m_telemetry;
+        bdDTLSAssociationTelemetry::setState(&this->m_telemetry, BD_DTLS_ESTABLISHED|0x10);
       }
-      _RSI->m_peerTag = PeerTag;
-      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x289u, "Handle DTLS CookieEcho: Handling CookieEcho (B): m_localTag/m_peerTag: %X/%X", _RSI->m_localTag, PeerTag);
+      this->m_peerTag = PeerTag;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x289u, "Handle DTLS CookieEcho: Handling CookieEcho (B): m_localTag/m_peerTag: %X/%X", this->m_localTag, PeerTag);
       if ( BD_DTLS_VERSION >= 3u )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r13+0]
-          vmovups ymmword ptr [rsi+226h], ymm0
-        }
-        _RSI->m_localRandom.m_initialized = 1;
-        _RAX = PeerRandom;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsi+247h], ymm0
-        }
-        _RSI->m_peerRandom.m_initialized = 1;
+        *(__m256i *)this->m_localRandom.m_dtlsRandom = *LocalRandom;
+        this->m_localRandom.m_initialized = 1;
+        *(__m256i *)this->m_peerRandom.m_dtlsRandom = *PeerRandom;
+        this->m_peerRandom.m_initialized = 1;
       }
-      if ( !bdSecurityKeyMap::contains(_RSI->m_keyMap, &id) )
+      if ( !bdSecurityKeyMap::contains(this->m_keyMap, &id) )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x295u, "Handle DTLS CookieEcho: secID not in keymap.");
-        v56 = BD_DTLS_ERROR_BAD_SECID;
-        bdDTLSAssociation::sendError(_RSI, addr, &id, &v56);
-        _RSI->m_state = BD_DTLS_CLOSED;
-        bdDTLSAssociation::finalizeTelemetry(_RSI);
+        v42 = BD_DTLS_ERROR_BAD_SECID;
+        bdDTLSAssociation::sendError(this, addr, &id, &v42);
+        this->m_state = BD_DTLS_CLOSED;
+        bdDTLSAssociation::finalizeTelemetry(this);
         goto LABEL_60;
       }
-      v41 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
-      if ( bdDTLSAssociation::calculateSharedKey(_RSI, v41, 0x64u, &id) )
+      v30 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
+      if ( bdDTLSAssociation::calculateSharedKey(this, v30, 0x64u, &id) )
       {
-        bdDTLSAssociation::updateAddress(_RSI, &id, &commonAddr, addr);
-        bdDTLSAssociation::sendCookieAck(_RSI, addr, &cookiePacket);
-        _RSI->m_state = BD_DTLS_ESTABLISHED;
-        bdDTLSAssociationTelemetry::setEstablishedTime(v37);
+        bdDTLSAssociation::updateAddress(this, &id, &commonAddr, addr);
+        bdDTLSAssociation::sendCookieAck(this, addr, &cookiePacket);
+        this->m_state = BD_DTLS_ESTABLISHED;
+        bdDTLSAssociationTelemetry::setEstablishedTime(v29);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x29Fu, "Handle DTLS CookieEcho: DTLS established");
-        _RSI->m_localId = id;
-        v24 = 1;
-        v28 = 22;
+        this->m_localId = id;
+        v22 = 1;
+        v26 = 22;
       }
       else
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2A7u, "Handle DTLS CookieEcho: Failed to generate shared secret");
-        v24 = 0;
-        v28 = 18;
+        v22 = 0;
+        v26 = 18;
       }
-      p_m_telemetry = v37;
+      p_m_telemetry = v29;
 LABEL_59:
-      bdDTLSAssociationTelemetry::setState(p_m_telemetry, v28);
+      bdDTLSAssociationTelemetry::setState(p_m_telemetry, v26);
 LABEL_60:
       if ( commonAddr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&commonAddr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         ((void (__fastcall *)(bdCommonAddr *, __int64))commonAddr.m_ptr->~bdReferencable)(commonAddr.m_ptr, 1i64);
       bdSecurityID::~bdSecurityID(&id);
-      if ( v24 )
-        bdGlobalStopwatch::start(&_RSI->m_lastReceived);
+      if ( v22 )
+        bdGlobalStopwatch::start(&this->m_lastReceived);
       goto LABEL_65;
     }
-    if ( !bdSecurityKeyMap::contains(_RSI->m_keyMap, &id) )
+    if ( !bdSecurityKeyMap::contains(this->m_keyMap, &id) )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2CFu, "Handle DTLS CookieEcho(D): secID not in keymap.");
-      v55 = 0;
-      p_type = (bdDTLSError::bdDTLSErrorType *)&v55;
+      v41 = 0;
+      p_type = (bdDTLSError::bdDTLSErrorType *)&v41;
       goto LABEL_19;
     }
     if ( BD_DTLS_VERSION >= 3u )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r13+0]
-        vmovups ymmword ptr [rsi+226h], ymm0
-      }
-      _RSI->m_localRandom.m_initialized = 1;
-      _RAX = PeerRandom;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsi+247h], ymm0
-      }
-      _RSI->m_peerRandom.m_initialized = 1;
+      *(__m256i *)this->m_localRandom.m_dtlsRandom = *LocalRandom;
+      this->m_localRandom.m_initialized = 1;
+      *(__m256i *)this->m_peerRandom.m_dtlsRandom = *PeerRandom;
+      this->m_peerRandom.m_initialized = 1;
     }
-    v36 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
-    if ( bdDTLSAssociation::calculateSharedKey(_RSI, v36, 0x64u, &id) )
+    v28 = bdDTLSCookieEcho::getECCKey(&cookiePacket);
+    if ( bdDTLSAssociation::calculateSharedKey(this, v28, 0x64u, &id) )
     {
-      bdDTLSAssociation::updateAddress(_RSI, &id, &commonAddr, addr);
-      bdDTLSAssociation::sendCookieAck(_RSI, addr, &cookiePacket);
-      _RSI->m_state = BD_DTLS_ESTABLISHED;
-      bdDTLSAssociationTelemetry::setEstablishedTime(&_RSI->m_telemetry);
-      _RSI->m_localId = id;
-      v24 = 1;
-      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2E6u, "Handle DTLS CookieEcho: Handling CookieEcho (D): m_localTag/m_peerTag: %X/%X", _RSI->m_localTag, _RSI->m_peerTag);
-      v28 = 22;
+      bdDTLSAssociation::updateAddress(this, &id, &commonAddr, addr);
+      bdDTLSAssociation::sendCookieAck(this, addr, &cookiePacket);
+      this->m_state = BD_DTLS_ESTABLISHED;
+      bdDTLSAssociationTelemetry::setEstablishedTime(&this->m_telemetry);
+      this->m_localId = id;
+      v22 = 1;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x2E6u, "Handle DTLS CookieEcho: Handling CookieEcho (D): m_localTag/m_peerTag: %X/%X", this->m_localTag, this->m_peerTag);
+      v26 = 22;
       goto LABEL_58;
     }
     expectedCypherSuite = 747;
 LABEL_56:
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", expectedCypherSuite, "Handle DTLS CookieEcho: Failed to generate shared secret");
-    v28 = 18;
+    v26 = 18;
     goto LABEL_57;
   }
   bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleCookieEcho", 0x1C8u, "Handle DTLS CookieEcho: Received bad cookie. Ignoring");
-  bdDTLSAssociationTelemetry::setState(&_RSI->m_telemetry, (const bdDTLSAssociationTelemetry::bdDTLSAssociationState)16);
+  bdDTLSAssociationTelemetry::setState(&this->m_telemetry, (const bdDTLSAssociationTelemetry::bdDTLSAssociationState)16);
 LABEL_66:
   bdDTLSCookieEcho::~bdDTLSCookieEcho(&cookiePacket);
   return 4294967294i64;
@@ -1417,8 +1348,8 @@ __int64 bdDTLSAssociation::handleData(bdDTLSAssociation *this, bdAddr *addr, con
   const bdSequenceNumber *lastSequenceNumber; 
   bdSequenceNumberStore::bdSequenceStatus v17; 
   const bdSockAddr *p_m_address; 
-  bdReference<bdAddrHandle> *v31; 
-  bdAddrHandle *v32; 
+  bdReference<bdAddrHandle> *v19; 
+  bdAddrHandle *v20; 
   unsigned __int8 *outData; 
   __int64 outDataMaxSize; 
   unsigned int Size; 
@@ -1426,21 +1357,19 @@ __int64 bdDTLSAssociation::handleData(bdDTLSAssociation *this, bdAddr *addr, con
   bdSequenceNumber thisSeq; 
   unsigned int inDataSize; 
   unsigned int inDataNewOffset; 
-  bdSequenceNumber v41; 
+  bdSequenceNumber v29; 
   void *inData; 
-  bdReference<bdAddrHandle> *v43; 
-  void *v44; 
-  __int64 v45; 
-  bdDTLSData v46; 
+  bdReference<bdAddrHandle> *v31; 
+  void *v32; 
+  __int64 v33; 
+  bdDTLSData v34; 
   unsigned __int8 Src[1296]; 
 
-  v45 = -2i64;
+  v33 = -2i64;
   inDataSize = size;
   inData = (void *)data;
-  _R14 = addr;
-  _RBP = this;
-  v43 = addrHandle;
-  v44 = buffer;
+  v31 = addrHandle;
+  v32 = buffer;
   v10 = -2;
   if ( this->m_state == BD_DTLS_ESTABLISHED )
   {
@@ -1451,21 +1380,21 @@ __int64 bdDTLSAssociation::handleData(bdDTLSAssociation *this, bdAddr *addr, con
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         ((void (__fastcall *)(bdCommonAddr *, __int64))m_ptr->~bdReferencable)(m_ptr, 1i64);
-      if ( vtag == _RBP->m_localTag )
+      if ( vtag == this->m_localTag )
       {
-        bdDTLSData::bdDTLSData(&v46);
-        cypherSuite = _RBP->m_cypherSuite;
-        hash = bdDynamicHash::getHash(&_RBP->m_hash);
-        cypher = bdDynamicCypher::getCypher(&_RBP->m_receivingCypher);
-        lastSequenceNumber = bdSequenceNumberStore::getLastSequenceNumber(&_RBP->m_incomingSeqNums);
-        if ( bdDTLSData::deserialize(&v46, inData, inDataSize, 0, &inDataNewOffset, lastSequenceNumber, (const unsigned __int8 (*)[32])_RBP->m_receivingIVMaterial, Src, 0x508u, &Size, cypher, hash, cypherSuite) )
+        bdDTLSData::bdDTLSData(&v34);
+        cypherSuite = this->m_cypherSuite;
+        hash = bdDynamicHash::getHash(&this->m_hash);
+        cypher = bdDynamicCypher::getCypher(&this->m_receivingCypher);
+        lastSequenceNumber = bdSequenceNumberStore::getLastSequenceNumber(&this->m_incomingSeqNums);
+        if ( bdDTLSData::deserialize(&v34, inData, inDataSize, 0, &inDataNewOffset, lastSequenceNumber, (const unsigned __int8 (*)[32])this->m_receivingIVMaterial, Src, 0x508u, &Size, cypher, hash, cypherSuite) )
         {
-          bdSequenceNumber::bdSequenceNumber(&v41, -1);
-          if ( v46.m_vtag == _RBP->m_localTag )
+          bdSequenceNumber::bdSequenceNumber(&v29, -1);
+          if ( v34.m_vtag == this->m_localTag )
           {
-            Size_4.m_seqNum = bdSequenceNumberStore::getLastSequenceNumber(&_RBP->m_incomingSeqNums)->m_seqNum;
-            bdSequenceNumber::bdSequenceNumber(&thisSeq, &Size_4, v46.m_counter, 0x10u);
-            v17 = bdSequenceNumberStore::check(&_RBP->m_incomingSeqNums, &thisSeq);
+            Size_4.m_seqNum = bdSequenceNumberStore::getLastSequenceNumber(&this->m_incomingSeqNums)->m_seqNum;
+            bdSequenceNumber::bdSequenceNumber(&thisSeq, &Size_4, v34.m_counter, 0x10u);
+            v17 = bdSequenceNumberStore::check(&this->m_incomingSeqNums, &thisSeq);
             if ( v17 == BD_SN_INVALID_SMALLER )
             {
               LODWORD(outDataMaxSize) = bdSequenceNumber::getValue(&Size_4);
@@ -1481,58 +1410,40 @@ __int64 bdDTLSAssociation::handleData(bdDTLSAssociation *this, bdAddr *addr, con
               else
               {
                 p_m_address = &p_m_addrHandle->m_ptr->m_realAddr.m_address;
-                if ( _RBP->m_migrating )
+                if ( this->m_migrating )
                 {
-                  if ( bdSockAddr::compare(&_R14->m_address, p_m_address, 1) )
-                    _RBP->m_migrating = 0;
+                  if ( bdSockAddr::compare(&addr->m_address, p_m_address, 1) )
+                    this->m_migrating = 0;
                 }
-                else if ( !bdSockAddr::compare(&_R14->m_address, p_m_address, 1) )
+                else if ( !bdSockAddr::compare(&addr->m_address, p_m_address, 1) )
                 {
-                  bdAddrHandle::setRealAddr(p_m_addrHandle->m_ptr, _R14);
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [r14]
-                    vmovups ymmword ptr [rbp+160h], ymm0
-                    vmovups ymm1, ymmword ptr [r14+20h]
-                    vmovups ymmword ptr [rbp+180h], ymm1
-                    vmovups ymm0, ymmword ptr [r14+40h]
-                    vmovups ymmword ptr [rbp+1A0h], ymm0
-                    vmovups ymm1, ymmword ptr [r14+60h]
-                    vmovups ymmword ptr [rbp+1C0h], ymm1
-                    vmovups xmm0, xmmword ptr [r14+80h]
-                    vmovups xmmword ptr [rbp+1E0h], xmm0
-                    vmovsd  xmm1, qword ptr [r14+90h]
-                    vmovsd  qword ptr [rbp+1F0h], xmm1
-                  }
+                  bdAddrHandle::setRealAddr(p_m_addrHandle->m_ptr, addr);
+                  *(__m256i *)&this->m_addr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&addr->m_address.inUn.m_sockaddrStorage.ss_family;
+                  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 1);
+                  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 2);
+                  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 3);
+                  this->m_addr.m_relayRoute = addr->m_relayRoute;
+                  *(double *)&this->m_addr.m_type = *(double *)&addr->m_type;
                 }
                 v10 = Size;
-                __asm
+                *(__m256i *)&addr->m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&this->m_addr.m_address.inUn.m_sockaddrStorage.ss_family;
+                *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 1);
+                *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 2);
+                *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 3);
+                addr->m_relayRoute = this->m_addr.m_relayRoute;
+                *(double *)&addr->m_type = *(double *)&this->m_addr.m_type;
+                v19 = v31;
+                if ( p_m_addrHandle != v31 )
                 {
-                  vmovups ymm0, ymmword ptr [rbp+160h]
-                  vmovups ymmword ptr [r14], ymm0
-                  vmovups ymm1, ymmword ptr [rbp+180h]
-                  vmovups ymmword ptr [r14+20h], ymm1
-                  vmovups ymm0, ymmword ptr [rbp+1A0h]
-                  vmovups ymmword ptr [r14+40h], ymm0
-                  vmovups ymm1, ymmword ptr [rbp+1C0h]
-                  vmovups ymmword ptr [r14+60h], ymm1
-                  vmovups xmm0, xmmword ptr [rbp+1E0h]
-                  vmovups xmmword ptr [r14+80h], xmm0
-                  vmovsd  xmm1, qword ptr [rbp+1F0h]
-                  vmovsd  qword ptr [r14+90h], xmm1
+                  if ( v31->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v31->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v19->m_ptr )
+                    ((void (__fastcall *)(bdAddrHandle *, __int64))v19->m_ptr->~bdReferencable)(v19->m_ptr, 1i64);
+                  v20 = p_m_addrHandle->m_ptr;
+                  v19->m_ptr = p_m_addrHandle->m_ptr;
+                  if ( v20 )
+                    _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 1u);
                 }
-                v31 = v43;
-                if ( p_m_addrHandle != v43 )
-                {
-                  if ( v43->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v43->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v31->m_ptr )
-                    ((void (__fastcall *)(bdAddrHandle *, __int64))v31->m_ptr->~bdReferencable)(v31->m_ptr, 1i64);
-                  v32 = p_m_addrHandle->m_ptr;
-                  v31->m_ptr = p_m_addrHandle->m_ptr;
-                  if ( v32 )
-                    _InterlockedExchangeAdd((volatile signed __int32 *)&v32->m_refCount, 1u);
-                }
-                bdGlobalStopwatch::start(&_RBP->m_lastReceived);
-                memcpy_0(v44, Src, Size);
+                bdGlobalStopwatch::start(&this->m_lastReceived);
+                memcpy_0(v32, Src, Size);
               }
             }
             else
@@ -1547,7 +1458,7 @@ __int64 bdDTLSAssociation::handleData(bdDTLSAssociation *this, bdAddr *addr, con
             bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::verify", 0x645u, "bdDTLSAssociation: vtag not the same as local tag.");
           }
         }
-        bdDTLSData::~bdDTLSData(&v46);
+        bdDTLSData::~bdDTLSData(&v34);
       }
     }
     else
@@ -1638,120 +1549,88 @@ bdDTLSAssociation::handleInitAck
 */
 __int64 bdDTLSAssociation::handleInitAck(bdDTLSAssociation *this, const bdAddr *addr, const void *data, const unsigned int size)
 {
-  bdDTLSAssociationTelemetry::bdDTLSAssociationState v16; 
+  bdDTLSAssociationTelemetry::bdDTLSAssociationState v8; 
   bdDTLSAssociationTelemetry *p_m_telemetry; 
   const bdDTLSRandom *PeerRandom; 
-  int m_localTag; 
-  int m_peerTag; 
   unsigned int newOffset; 
-  __int64 v25; 
-  bdDTLSInitAck v26; 
+  __int64 v13; 
+  bdDTLSInitAck v14; 
 
-  v25 = -2i64;
-  _RSI = this;
+  v13 = -2i64;
   if ( this->m_state != BD_DTLS_COOKIE_WAIT )
   {
     p_m_telemetry = &this->m_telemetry;
     goto LABEL_13;
   }
-  bdDTLSInitAck::bdDTLSInitAck(&v26);
-  if ( bdDTLSInitAck::deserialize(&v26, data, size, 0, &newOffset, _RSI->m_cypherSuite) )
+  bdDTLSInitAck::bdDTLSInitAck(&v14);
+  if ( bdDTLSInitAck::deserialize(&v14, data, size, 0, &newOffset, this->m_cypherSuite) )
   {
-    _RSI->m_initAck.m_type = v26.m_type;
-    _RSI->m_initAck.m_version = v26.m_version;
-    _RSI->m_initAck.m_vtag = v26.m_vtag;
-    _RSI->m_initAck.m_counter = v26.m_counter;
-    _RSI->m_initAck.m_cypherSuite = v26.m_cypherSuite;
-    _RSI->m_initAck.m_timestamp = v26.m_timestamp;
-    _RSI->m_initAck.m_signature[0] = v26.m_signature[0];
-    _RSI->m_initAck.m_signature[1] = v26.m_signature[1];
-    _RSI->m_initAck.m_signature[2] = v26.m_signature[2];
-    _RSI->m_initAck.m_signature[3] = v26.m_signature[3];
-    _RSI->m_initAck.m_signature[4] = v26.m_signature[4];
-    _RSI->m_initAck.m_signature[5] = v26.m_signature[5];
-    _RSI->m_initAck.m_signature[6] = v26.m_signature[6];
-    _RSI->m_initAck.m_signature[7] = v26.m_signature[7];
-    _RSI->m_initAck.m_signature[8] = v26.m_signature[8];
-    _RSI->m_initAck.m_signature[9] = v26.m_signature[9];
-    _RSI->m_initAck.m_signature[10] = v26.m_signature[10];
-    _RSI->m_initAck.m_signature[11] = v26.m_signature[11];
-    _RSI->m_initAck.m_signature[12] = v26.m_signature[12];
-    _RSI->m_initAck.m_signature[13] = v26.m_signature[13];
-    _RSI->m_initAck.m_signature[14] = v26.m_signature[14];
-    _RSI->m_initAck.m_signature[15] = v26.m_signature[15];
-    _RSI->m_initAck.m_initTag = v26.m_initTag;
-    _RSI->m_initAck.m_localTag = v26.m_localTag;
-    _RSI->m_initAck.m_peerTag = v26.m_peerTag;
-    _RSI->m_initAck.m_localTieTag = v26.m_localTieTag;
-    _RSI->m_initAck.m_peerTieTag = v26.m_peerTieTag;
-    __asm
+    this->m_initAck.m_type = v14.m_type;
+    this->m_initAck.m_version = v14.m_version;
+    this->m_initAck.m_vtag = v14.m_vtag;
+    this->m_initAck.m_counter = v14.m_counter;
+    this->m_initAck.m_cypherSuite = v14.m_cypherSuite;
+    this->m_initAck.m_timestamp = v14.m_timestamp;
+    this->m_initAck.m_signature[0] = v14.m_signature[0];
+    this->m_initAck.m_signature[1] = v14.m_signature[1];
+    this->m_initAck.m_signature[2] = v14.m_signature[2];
+    this->m_initAck.m_signature[3] = v14.m_signature[3];
+    this->m_initAck.m_signature[4] = v14.m_signature[4];
+    this->m_initAck.m_signature[5] = v14.m_signature[5];
+    this->m_initAck.m_signature[6] = v14.m_signature[6];
+    this->m_initAck.m_signature[7] = v14.m_signature[7];
+    this->m_initAck.m_signature[8] = v14.m_signature[8];
+    this->m_initAck.m_signature[9] = v14.m_signature[9];
+    this->m_initAck.m_signature[10] = v14.m_signature[10];
+    this->m_initAck.m_signature[11] = v14.m_signature[11];
+    this->m_initAck.m_signature[12] = v14.m_signature[12];
+    this->m_initAck.m_signature[13] = v14.m_signature[13];
+    this->m_initAck.m_signature[14] = v14.m_signature[14];
+    this->m_initAck.m_signature[15] = v14.m_signature[15];
+    this->m_initAck.m_initTag = v14.m_initTag;
+    this->m_initAck.m_localTag = v14.m_localTag;
+    this->m_initAck.m_peerTag = v14.m_peerTag;
+    this->m_initAck.m_localTieTag = v14.m_localTieTag;
+    this->m_initAck.m_peerTieTag = v14.m_peerTieTag;
+    *(__m256i *)this->m_initAck.m_localRandom.m_dtlsRandom = *(__m256i *)v14.m_localRandom.m_dtlsRandom;
+    this->m_initAck.m_localRandom.m_initialized = 1;
+    *(__m256i *)this->m_initAck.m_peerRandom.m_dtlsRandom = *(__m256i *)v14.m_peerRandom.m_dtlsRandom;
+    this->m_initAck.m_peerRandom.m_initialized = 1;
+    this->m_initAck.m_peerAddr = v14.m_peerAddr;
+    this->m_initAck.m_secID = v14.m_secID;
+    if ( this->m_initAck.m_vtag == this->m_localTag )
     {
-      vmovups ymm0, ymmword ptr [rbp+0C0h+var_160.m_localRandom.m_dtlsRandom]
-      vmovups ymmword ptr [rsi+2AAh], ymm0
-    }
-    _RSI->m_initAck.m_localRandom.m_initialized = 1;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+0C0h+var_160.m_peerRandom.m_dtlsRandom]
-      vmovups ymmword ptr [rsi+2CBh], ymm0
-    }
-    _RSI->m_initAck.m_peerRandom.m_initialized = 1;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+0C0h+var_160.m_peerAddr.m_address.inUn]
-      vmovups ymmword ptr [rsi+2F0h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+0C0h+var_160.m_peerAddr.m_address.inUn+20h]
-      vmovups ymmword ptr [rsi+310h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+0C0h+var_160.m_peerAddr.m_address.inUn+40h]
-      vmovups ymmword ptr [rsi+330h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+0C0h+var_160.m_peerAddr.m_address.inUn+60h]
-      vmovups ymmword ptr [rsi+350h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+0C0h+var_160.m_peerAddr.m_relayRoute.m_relayID]
-      vmovups xmmword ptr [rsi+370h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+0C0h+var_160.m_peerAddr.m_type]
-      vmovsd  qword ptr [rsi+380h], xmm1
-    }
-    _RSI->m_initAck.m_secID = v26.m_secID;
-    if ( _RSI->m_initAck.m_vtag == _RSI->m_localTag )
-    {
-      p_m_telemetry = &_RSI->m_telemetry;
-      if ( BD_DTLS_VERSION < 3u || (PeerRandom = bdDTLSInitAck::getPeerRandom(&_RSI->m_initAck), bdHandleAssert(_RSI->m_localRandom.m_initialized, "m_initialized", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsrandom.h", "bdDTLSRandom::operator ==", 0x50u, "bdDTLSRandom not initialized before access"), bdCryptoUtils::constTimeCompare(_RSI->m_localRandom.m_dtlsRandom, PeerRandom->m_dtlsRandom, 0x20ui64)) )
+      p_m_telemetry = &this->m_telemetry;
+      if ( BD_DTLS_VERSION < 3u || (PeerRandom = bdDTLSInitAck::getPeerRandom(&this->m_initAck), bdHandleAssert(this->m_localRandom.m_initialized, "m_initialized", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsrandom.h", "bdDTLSRandom::operator ==", 0x50u, "bdDTLSRandom not initialized before access"), bdCryptoUtils::constTimeCompare(this->m_localRandom.m_dtlsRandom, PeerRandom->m_dtlsRandom, 0x20ui64)) )
       {
-        _RSI->m_peerTag = bdDTLSInitAck::getInitTag(&_RSI->m_initAck);
-        _RAX = bdDTLSInitAck::getLocalRandom(&_RSI->m_initAck);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsi+247h], ymm0
-        }
-        _RSI->m_peerRandom.m_initialized = 1;
-        m_peerTag = _RSI->m_peerTag;
-        m_localTag = _RSI->m_localTag;
-        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleInitAck", 0x18Du, "Handle DTLS InitAck: Handling m_localTag/m_peerTag: %X/%X", m_localTag, m_peerTag);
-        bdDTLSAssociation::sendCookieEcho(_RSI, addr);
-        bdGlobalStopwatch::start(&_RSI->m_lastReceived);
-        _RSI->m_state = BD_DTLS_COOKIE_ECHOED;
-        v16 = 15;
+        this->m_peerTag = bdDTLSInitAck::getInitTag(&this->m_initAck);
+        *(__m256i *)this->m_peerRandom.m_dtlsRandom = *(__m256i *)bdDTLSInitAck::getLocalRandom(&this->m_initAck)->m_dtlsRandom;
+        this->m_peerRandom.m_initialized = 1;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleInitAck", 0x18Du, "Handle DTLS InitAck: Handling m_localTag/m_peerTag: %X/%X", this->m_localTag, this->m_peerTag);
+        bdDTLSAssociation::sendCookieEcho(this, addr);
+        bdGlobalStopwatch::start(&this->m_lastReceived);
+        this->m_state = BD_DTLS_COOKIE_ECHOED;
+        v8 = 15;
       }
       else
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleInitAck", 0x182u, "Handle DTLS InitAck: Received InitAck with invalid localExtraRandom. Ignoring");
-        v16 = 13;
+        v8 = 13;
       }
       goto LABEL_11;
     }
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleInitAck", 0x178u, "Handle DTLS InitAck: Received InitAck with invalid vtag. Ignoring");
-    v16 = 12;
+    v8 = 12;
   }
   else
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::handleInitAck", 0x19Au, "Handle DTLS InitAck: Failed to deserialize InitAck. Ignoring");
-    v16 = 14;
+    v8 = 14;
   }
-  p_m_telemetry = &_RSI->m_telemetry;
+  p_m_telemetry = &this->m_telemetry;
 LABEL_11:
-  bdDTLSAssociationTelemetry::setState(p_m_telemetry, v16);
-  bdDTLSInitAck::~bdDTLSInitAck(&v26);
+  bdDTLSAssociationTelemetry::setState(p_m_telemetry, v8);
+  bdDTLSInitAck::~bdDTLSInitAck(&v14);
 LABEL_13:
   bdDTLSAssociationTelemetry::setInitAckStageTime(p_m_telemetry);
   return 4294967294i64;
@@ -1882,121 +1761,118 @@ void bdDTLSAssociation::pump(bdDTLSAssociation *this)
 {
   bdMutex *p_m_mutex; 
   bdAddrHandle::bdAddrHandleStatus m_status; 
+  __int32 v4; 
   __int32 v5; 
-  __int32 v6; 
-  bdDTLSAssociationTelemetry::bdDTLSAssociationState v7; 
+  bdDTLSAssociationTelemetry::bdDTLSAssociationState v6; 
   bdAddr *RealAddr; 
-  bdAddr *v9; 
-  char v10; 
-  char v11; 
-  bdAddr *v12; 
-  bdDTLSAssociationTelemetry::bdDTLSAssociationState v13; 
+  bdAddr *v8; 
+  double ElapsedTimeInSeconds; 
+  bdAddr *v10; 
+  bdDTLSAssociationTelemetry::bdDTLSAssociationState v11; 
   bdDTLSAssociation::bdDTLSStatus m_state; 
-  __int32 v15; 
-  __int32 v16; 
+  __int32 v13; 
+  __int32 v14; 
+  double v15; 
+  double v16; 
   bdAddr result; 
   char str[24]; 
 
-  _RDI = this;
   p_m_mutex = &this->m_mutex;
   bdMutex::lock(&this->m_mutex);
-  m_status = _RDI->m_addrHandle.m_ptr->m_status;
+  m_status = this->m_addrHandle.m_ptr->m_status;
   if ( m_status )
   {
-    v5 = m_status - 1;
-    if ( v5 )
+    v4 = m_status - 1;
+    if ( v4 )
     {
-      v6 = v5 - 1;
-      if ( v6 )
+      v5 = v4 - 1;
+      if ( v5 )
       {
-        if ( v6 != 4 )
+        if ( v5 != 4 )
           goto LABEL_10;
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::pump", 0xFDu, "Address unregistered. Closing DTLS.");
-        _RDI->m_state = BD_DTLS_CLOSED;
-        bdDTLSAssociation::finalizeTelemetry(_RDI);
-        v7 = 5;
+        this->m_state = BD_DTLS_CLOSED;
+        bdDTLSAssociation::finalizeTelemetry(this);
+        v6 = 5;
       }
       else
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::pump", 0xF4u, "Address error.");
-        _RDI->m_state = BD_DTLS_CLOSED;
-        bdDTLSAssociation::finalizeTelemetry(_RDI);
-        v7 = 4;
+        this->m_state = BD_DTLS_CLOSED;
+        bdDTLSAssociation::finalizeTelemetry(this);
+        v6 = 4;
       }
     }
     else
     {
-      RealAddr = (bdAddr *)bdAddrHandle::getRealAddr(_RDI->m_addrHandle.m_ptr, &result);
+      RealAddr = (bdAddr *)bdAddrHandle::getRealAddr(this->m_addrHandle.m_ptr, &result);
       bdAddr::toString(RealAddr, str, 0x16ui64);
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::pump", 0xECu, "Address not resolved (%s). Shouldn't be here. Closing.", str);
-      _RDI->m_state = BD_DTLS_CLOSED;
-      bdDTLSAssociation::finalizeTelemetry(_RDI);
-      v7 = BD_DTLS_ESTABLISHED;
+      this->m_state = BD_DTLS_CLOSED;
+      bdDTLSAssociation::finalizeTelemetry(this);
+      v6 = BD_DTLS_ESTABLISHED;
     }
   }
   else
   {
-    v9 = (bdAddr *)bdAddrHandle::getRealAddr(_RDI->m_addrHandle.m_ptr, &result);
-    bdAddr::toString(v9, str, 0x16ui64);
+    v8 = (bdAddr *)bdAddrHandle::getRealAddr(this->m_addrHandle.m_ptr, &result);
+    bdAddr::toString(v8, str, 0x16ui64);
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::pump", 0xDFu, "Address not constructed (%s). Shouldn't be here. Closing.", str);
-    _RDI->m_state = BD_DTLS_CLOSED;
-    bdDTLSAssociation::finalizeTelemetry(_RDI);
-    v7 = BD_DTLS_COOKIE_ECHOED;
+    this->m_state = BD_DTLS_CLOSED;
+    bdDTLSAssociation::finalizeTelemetry(this);
+    v6 = BD_DTLS_COOKIE_ECHOED;
   }
-  bdDTLSAssociationTelemetry::setState(&_RDI->m_telemetry, v7);
+  bdDTLSAssociationTelemetry::setState(&this->m_telemetry, v6);
 LABEL_10:
-  *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&_RDI->m_lastReceived);
-  __asm { vcomiss xmm0, dword ptr [rdi+3A8h] }
-  if ( !(v10 | v11) )
+  ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_lastReceived);
+  if ( *(float *)&ElapsedTimeInSeconds > this->m_receiveTimeout )
   {
-    v12 = (bdAddr *)bdAddrHandle::getRealAddr(_RDI->m_addrHandle.m_ptr, &result);
-    bdAddr::toString(v12, str, 0x16ui64);
+    v10 = (bdAddr *)bdAddrHandle::getRealAddr(this->m_addrHandle.m_ptr, &result);
+    bdAddr::toString(v10, str, 0x16ui64);
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::pump", 0x10Au, "DTLS receive timeout. Closing connection to %s", str);
-    _RDI->m_state = BD_DTLS_CLOSED;
-    bdDTLSAssociation::finalizeTelemetry(_RDI);
-    v13 = 6;
+    this->m_state = BD_DTLS_CLOSED;
+    bdDTLSAssociation::finalizeTelemetry(this);
+    v11 = 6;
 LABEL_22:
-    bdDTLSAssociationTelemetry::setState(&_RDI->m_telemetry, v13);
+    bdDTLSAssociationTelemetry::setState(&this->m_telemetry, v11);
     goto LABEL_23;
   }
-  m_state = _RDI->m_state;
+  m_state = this->m_state;
   if ( m_state == BD_DTLS_CLOSED )
   {
-    v13 = BD_DTLS_COOKIE_WAIT;
+    v11 = BD_DTLS_COOKIE_WAIT;
     goto LABEL_22;
   }
-  v15 = m_state - 1;
-  if ( v15 )
+  v13 = m_state - 1;
+  if ( v13 )
   {
-    v16 = v15 - 1;
-    if ( v16 )
+    v14 = v13 - 1;
+    if ( v14 )
     {
-      if ( v16 == 1 )
+      if ( v14 == 1 )
       {
-        v13 = 9;
+        v11 = 9;
         goto LABEL_22;
       }
     }
     else
     {
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RDI->m_cookieTimer);
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( !(v10 | v11) )
+      v15 = bdStopwatch::getElapsedTimeInSeconds(&this->m_cookieTimer);
+      if ( *(float *)&v15 > 1.0 )
       {
-        bdDTLSAssociation::sendCookieEcho(_RDI, &_RDI->m_addr);
-        v13 = 8;
+        bdDTLSAssociation::sendCookieEcho(this, &this->m_addr);
+        v11 = 8;
         goto LABEL_22;
       }
     }
   }
   else
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RDI->m_initTimer);
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v10 | v11) )
+    v16 = bdStopwatch::getElapsedTimeInSeconds(&this->m_initTimer);
+    if ( *(float *)&v16 > 1.0 )
     {
-      bdDTLSAssociation::sendInit(_RDI);
-      v13 = BD_DTLS_ESTABLISHED|0x4;
+      bdDTLSAssociation::sendInit(this);
+      v11 = BD_DTLS_ESTABLISHED|0x4;
       goto LABEL_22;
     }
   }
@@ -2396,106 +2272,96 @@ void bdDTLSAssociation::sendInitAck(bdDTLSAssociation *this, const bdAddr *addr,
   unsigned __int16 peerTieTag; 
   unsigned __int16 localTieTag; 
   bdDTLSAssociation::bdDTLSStatus m_state; 
-  __int32 v13; 
-  __int32 v14; 
+  __int32 v10; 
+  __int32 v11; 
   unsigned __int16 m_localTag; 
   bdTrulyRandomImpl *Instance; 
-  bdSecurityID v17; 
-  bdSecurityID v18; 
+  bdSecurityID v14; 
+  bdSecurityID v15; 
   unsigned int timestamp; 
-  int v20; 
-  bdDTLSAssociationTelemetry::bdDTLSAssociationState v21; 
+  int v17; 
+  bdDTLSAssociationTelemetry::bdDTLSAssociationState v18; 
   __int64 cypherSuite; 
   bdDTLSRandom *localRandom; 
   bdDTLSRandom *peerRandom; 
-  bdSecurityID v25; 
-  __int64 v26; 
-  bdSecurityID *v27; 
-  bdDynamicHMAC v28; 
+  bdSecurityID v22; 
+  __int64 v23; 
+  bdSecurityID *v24; 
+  bdDynamicHMAC v25; 
   bdSecurityID secID; 
   bdDTLSRandom in; 
   bdDTLSRandom buffer; 
-  bdDTLSInitAck v32; 
+  bdDTLSInitAck v29; 
   char data[1296]; 
 
-  v26 = -2i64;
-  _RDI = this;
+  v23 = -2i64;
   peerTag = bdDTLSInit::getInitTag((bdDTLSInit *)init);
   peerTieTag = 0;
   localTieTag = 0;
-  _RAX = bdDTLSInit::getRandomData((bdDTLSInit *)init);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+680h+buffer.m_dtlsRandom], ymm0
-  }
+  *(__m256i *)buffer.m_dtlsRandom = *(__m256i *)bdDTLSInit::getRandomData((bdDTLSInit *)init)->m_dtlsRandom;
   buffer.m_initialized = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+226h]
-    vmovups ymmword ptr [rbp+680h+in], ymm0
-  }
+  *(__m256i *)in.m_dtlsRandom = *(__m256i *)this->m_localRandom.m_dtlsRandom;
   in.m_initialized = 1;
-  m_state = _RDI->m_state;
+  m_state = this->m_state;
   if ( m_state == BD_DTLS_CLOSED )
     goto LABEL_7;
-  v13 = m_state - 1;
-  if ( !v13 )
+  v10 = m_state - 1;
+  if ( !v10 )
     goto LABEL_7;
-  v14 = v13 - 1;
-  if ( !v14 )
+  v11 = v10 - 1;
+  if ( !v11 )
   {
-    peerTieTag = _RDI->m_peerTag;
-    localTieTag = _RDI->m_localTag;
+    peerTieTag = this->m_peerTag;
+    localTieTag = this->m_localTag;
 LABEL_7:
-    m_localTag = _RDI->m_localTag;
+    m_localTag = this->m_localTag;
     goto LABEL_8;
   }
-  if ( v14 != 1 )
+  if ( v11 != 1 )
     goto LABEL_15;
-  m_localTag = bdDTLSAssociation::makeTag(_RDI);
+  m_localTag = bdDTLSAssociation::makeTag(this);
   Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
   bdTrulyRandomImpl::getRandomUByte8(Instance, in.m_dtlsRandom, 0x20u);
   in.m_initialized = 1;
-  peerTieTag = _RDI->m_peerTag;
-  localTieTag = _RDI->m_localTag;
+  peerTieTag = this->m_peerTag;
+  localTieTag = this->m_localTag;
 LABEL_8:
   bdSecurityID::bdSecurityID(&secID);
   bdDTLSInit::getSecID((bdDTLSInit *)init, &secID);
-  v27 = &v25;
-  bdSecurityID::bdSecurityID(&v25, &secID);
-  v18 = v17;
+  v24 = &v22;
+  bdSecurityID::bdSecurityID(&v22, &secID);
+  v15 = v14;
   timestamp = bdPlatformTiming::getLoResTimeStamp();
-  bdDTLSInitAck::bdDTLSInitAck(&v32, peerTag, m_localTag, m_localTag, peerTag, localTieTag, peerTieTag, _RDI->m_cypherSuite, &in, &buffer, timestamp, addr, v18);
+  bdDTLSInitAck::bdDTLSInitAck(&v29, peerTag, m_localTag, m_localTag, peerTag, localTieTag, peerTieTag, this->m_cypherSuite, &in, &buffer, timestamp, addr, v15);
   bdHandleAssert(bdDTLSAssociation::m_cookieKey.m_initialised, "m_initialised", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdnonce.inl", "bdNonce<16>::getData", 0x26u, "Attempted to retrieve a nonce without initialising it first");
-  bdDynamicHMAC::bdDynamicHMAC(&v28, _RDI->m_hashAlgorithm, bdDTLSAssociation::m_cookieKey.m_nonce, 0x10u);
-  bdHandleAssert(v28.m_hmac != NULL, "(m_hmac != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptodynamic.h", "bdDynamicHMAC::getHMAC", 0xB9u, "HMac Object is NULL");
-  if ( bdDTLSInitAck::sign(&v32, v28.m_hmac) )
+  bdDynamicHMAC::bdDynamicHMAC(&v25, this->m_hashAlgorithm, bdDTLSAssociation::m_cookieKey.m_nonce, 0x10u);
+  bdHandleAssert(v25.m_hmac != NULL, "(m_hmac != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptodynamic.h", "bdDynamicHMAC::getHMAC", 0xB9u, "HMac Object is NULL");
+  if ( bdDTLSInitAck::sign(&v29, v25.m_hmac) )
   {
-    bdDTLSInitAck::serialize(&v32, data, 0x508u, 0, (unsigned int *)&v25);
-    v20 = bdRoutingLayer::sendTo(_RDI->m_routingLayer, addr, data, *(const unsigned int *)v25.ab);
-    if ( v20 == *(_DWORD *)v25.ab )
+    bdDTLSInitAck::serialize(&v29, data, 0x508u, 0, (unsigned int *)&v22);
+    v17 = bdRoutingLayer::sendTo(this->m_routingLayer, addr, data, *(const unsigned int *)v22.ab);
+    if ( v17 == *(_DWORD *)v22.ab )
     {
-      v21 = 36;
+      v18 = 36;
     }
     else
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::sendInitAck", 0x44Eu, "Sending DTLS InitAck: Problem sending");
-      v21 = BD_DTLS_ESTABLISHED|0x20;
+      v18 = BD_DTLS_ESTABLISHED|0x20;
     }
-    bdDTLSAssociationTelemetry::setState(&_RDI->m_telemetry, v21);
+    bdDTLSAssociationTelemetry::setState(&this->m_telemetry, v18);
     LODWORD(peerRandom) = peerTag;
     LODWORD(localRandom) = m_localTag;
-    LODWORD(cypherSuite) = _RDI->m_localTag;
+    LODWORD(cypherSuite) = this->m_localTag;
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::sendInitAck", 0x456u, "Sending DTLS InitAck: m_localTag/localTag/m_peerTag: %X/%X/%X", cypherSuite, localRandom, peerRandom);
   }
   else
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/dtls", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::sendInitAck", 0x45Au, "Failed to sign DTLS InitAck message.");
-    bdDTLSAssociationTelemetry::setState(&_RDI->m_telemetry, (const bdDTLSAssociationTelemetry::bdDTLSAssociationState)34);
+    bdDTLSAssociationTelemetry::setState(&this->m_telemetry, (const bdDTLSAssociationTelemetry::bdDTLSAssociationState)34);
   }
-  bdDynamicHMAC::~bdDynamicHMAC(&v28);
-  bdDTLSInitAck::~bdDTLSInitAck(&v32);
+  bdDynamicHMAC::~bdDynamicHMAC(&v25);
+  bdDTLSInitAck::~bdDTLSInitAck(&v29);
   bdSecurityID::~bdSecurityID(&secID);
 LABEL_15:
   bdCryptoUtils::zeroBuffer(&in, 0x20ui64);
@@ -2586,19 +2452,17 @@ void bdDTLSAssociation::updateAddress(bdDTLSAssociation *this, const bdSecurityI
   const bdEndpoint *v15; 
   bdReference<bdCommonAddr> ca; 
   bdReference<bdCommonAddr> addra; 
-  __int64 v25; 
-  const bdCommonAddr *v26; 
-  bdEndpoint v27; 
+  __int64 v19; 
+  const bdCommonAddr *v20; 
+  bdEndpoint v21; 
 
-  v25 = -2i64;
-  _RBP = addr;
-  _RSI = this;
+  v19 = -2i64;
   m_ptr = this->m_addrHandle.m_ptr;
   if ( m_ptr )
   {
     v10 = commonAddr->m_ptr;
     v11 = m_ptr->m_endpoint.m_ca.m_ptr;
-    v26 = v11;
+    v20 = v11;
     if ( v11 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
     v12 = bdCommonAddr::operator!=(v10, v11);
@@ -2606,17 +2470,17 @@ void bdDTLSAssociation::updateAddress(bdDTLSAssociation *this, const bdSecurityI
       ((void (__fastcall *)(const bdCommonAddr *, __int64))v11->~bdReferencable)(v11, 1i64);
     if ( v12 )
     {
-      v13 = bdSecurityID::operator==((bdSecurityID *)secID, &_RSI->m_addrHandle.m_ptr->m_endpoint.m_secID);
+      v13 = bdSecurityID::operator==((bdSecurityID *)secID, &this->m_addrHandle.m_ptr->m_endpoint.m_secID);
       bdHandleAssert(v13, "secID == m_addrHandle->m_endpoint.getSecID()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bddtlsassociation.cpp", "bdDTLSAssociation::updateAddress", 0x1B3u, "Security ids expected to match when updating DTLS address");
       v14 = commonAddr->m_ptr;
       addra.m_ptr = v14;
       if ( v14 )
         _InterlockedExchangeAdd((volatile signed __int32 *)&v14->m_refCount, 1u);
-      bdEndpoint::bdEndpoint(&v27, (const bdReference<bdCommonAddr>)&addra, secID);
-      bdEndpoint::operator=(&_RSI->m_addrHandle.m_ptr->m_endpoint, v15);
-      bdSecurityID::~bdSecurityID(&v27.m_secID);
-      if ( v27.m_ca.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v27.m_ca.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v27.m_ca.m_ptr )
-        ((void (__fastcall *)(bdCommonAddr *, __int64))v27.m_ca.m_ptr->~bdReferencable)(v27.m_ca.m_ptr, 1i64);
+      bdEndpoint::bdEndpoint(&v21, (const bdReference<bdCommonAddr>)&addra, secID);
+      bdEndpoint::operator=(&this->m_addrHandle.m_ptr->m_endpoint, v15);
+      bdSecurityID::~bdSecurityID(&v21.m_secID);
+      if ( v21.m_ca.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v21.m_ca.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v21.m_ca.m_ptr )
+        ((void (__fastcall *)(bdCommonAddr *, __int64))v21.m_ca.m_ptr->~bdReferencable)(v21.m_ca.m_ptr, 1i64);
     }
   }
   else
@@ -2626,24 +2490,15 @@ void bdDTLSAssociation::updateAddress(bdDTLSAssociation *this, const bdSecurityI
     ca.m_ptr = v9;
     if ( v9 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
-    bdAddressMap::getAddrHandle(m_addrMap, (const bdReference<bdCommonAddr>)&ca, secID, &_RSI->m_addrHandle);
+    bdAddressMap::getAddrHandle(m_addrMap, (const bdReference<bdCommonAddr>)&ca, secID, &this->m_addrHandle);
   }
-  bdAddrHandle::setRealAddr(_RSI->m_addrHandle.m_ptr, _RBP);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rsi+160h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+20h]
-    vmovups ymmword ptr [rsi+180h], ymm1
-    vmovups ymm0, ymmword ptr [rbp+40h]
-    vmovups ymmword ptr [rsi+1A0h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+60h]
-    vmovups ymmword ptr [rsi+1C0h], ymm1
-    vmovups xmm0, xmmword ptr [rbp+80h]
-    vmovups xmmword ptr [rsi+1E0h], xmm0
-    vmovsd  xmm1, qword ptr [rbp+90h]
-    vmovsd  qword ptr [rsi+1F0h], xmm1
-  }
+  bdAddrHandle::setRealAddr(this->m_addrHandle.m_ptr, addr);
+  *(__m256i *)&this->m_addr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&addr->m_address.inUn.m_sockaddrStorage.ss_family;
+  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 1);
+  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&this->m_addr.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 3);
+  this->m_addr.m_relayRoute = addr->m_relayRoute;
+  *(double *)&this->m_addr.m_type = *(double *)&addr->m_type;
 }
 
 /*

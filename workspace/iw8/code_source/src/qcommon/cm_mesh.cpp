@@ -14,161 +14,62 @@ bool __fastcall CM_RayTriangleIntersect(const vec3_t *orig, const vec3_t *dir, c
 CM_RayTriangleIntersect
 ==============
 */
-bool CM_RayTriangleIntersect(const vec3_t *orig, const vec3_t *dir, const vec3_t *vert1, const vec3_t *vert2, const vec3_t *vert3, float *pt, float *pu, float *pv)
+char CM_RayTriangleIntersect(const vec3_t *orig, const vec3_t *dir, const vec3_t *vert1, const vec3_t *vert2, const vec3_t *vert3, float *pt, float *pu, float *pv)
 {
-  char v36; 
-  char v37; 
-  bool result; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   vec3_t v1; 
   vec3_t cross; 
-  char v100; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps [rsp+108h+var_98], xmm13
-    vmovaps [rsp+108h+var_A8], xmm14
-    vmovaps [rsp+108h+var_B8], xmm15
-  }
-  _RAX = vert3;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r9]
-    vsubss  xmm9, xmm0, dword ptr [r8]
-    vmovss  xmm0, dword ptr [r9+4]
-    vsubss  xmm11, xmm0, dword ptr [r8+4]
-    vmovss  xmm0, dword ptr [r9+8]
-    vsubss  xmm12, xmm0, dword ptr [r8+8]
-    vmovss  xmm0, dword ptr [rax]
-    vsubss  xmm13, xmm0, dword ptr [r8]
-    vmovss  xmm0, dword ptr [rax+4]
-    vsubss  xmm14, xmm0, dword ptr [r8+4]
-    vmovss  xmm0, dword ptr [rax+8]
-    vsubss  xmm15, xmm0, dword ptr [r8+8]
-  }
-  _R15 = pt;
-  _RDI = pu;
-  _RBX = pv;
-  _RBP = orig;
-  __asm
-  {
-    vmovss  dword ptr [rsp+108h+v1+8], xmm15
-    vmovss  dword ptr [rsp+108h+v1], xmm13
-    vmovss  dword ptr [rsp+108h+v1+4], xmm14
-  }
+  v9 = vert2->v[0] - vert1->v[0];
+  v10 = vert2->v[1] - vert1->v[1];
+  v11 = vert2->v[2] - vert1->v[2];
+  v12 = vert3->v[0] - vert1->v[0];
+  v13 = vert3->v[1] - vert1->v[1];
+  v14 = vert3->v[2] - vert1->v[2];
+  v1.v[2] = v14;
+  v1.v[0] = v12;
+  v1.v[1] = v13;
   Vec3Cross(dir, &v1, &cross);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+108h+cross+4]
-    vmovss  xmm8, dword ptr [rsp+108h+cross]
-    vmovss  xmm10, dword ptr [rsp+108h+cross+8]
-    vmulss  xmm1, xmm5, xmm11
-    vmulss  xmm0, xmm8, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm12
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, cs:__real@3a83126f
-  }
-  if ( v36 )
-    goto LABEL_11;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vsubss  xmm4, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  xmm0, dword ptr [rbp+8]
-    vsubss  xmm6, xmm1, dword ptr [rsi+4]
-    vsubss  xmm7, xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm5, xmm6
-    vmulss  xmm0, xmm8, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm7
-    vaddss  xmm5, xmm2, xmm1
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm5, xmm10
-    vcomiss xmm5, xmm3
-  }
-  if ( !(v36 | v37) )
-    goto LABEL_11;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm12
-    vmulss  xmm0, xmm7, xmm11
-    vsubss  xmm8, xmm1, xmm0
-    vmulss  xmm2, xmm7, xmm9
-    vmulss  xmm0, xmm12, xmm4
-    vsubss  xmm7, xmm2, xmm0
-    vmulss  xmm0, xmm6, xmm9
-    vmulss  xmm1, xmm11, xmm4
-    vsubss  xmm9, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [r14+4]
-    vmulss  xmm0, xmm8, dword ptr [r14]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [r14+8]
-    vaddss  xmm6, xmm2, xmm1
-    vcomiss xmm6, xmm10
-    vaddss  xmm0, xmm6, xmm5
-    vcomiss xmm0, xmm3
-  }
-  if ( v36 | v37 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm4, xmm0, xmm3
-      vmulss  xmm2, xmm14, xmm7
-      vmulss  xmm1, xmm13, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm9, xmm15
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, xmm4
-      vmovss  dword ptr [r15], xmm1
-    }
-    if ( pu )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm5
-        vmovss  dword ptr [rdi], xmm0
-      }
-    }
-    if ( pv )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
-    }
-    result = 1;
-  }
-  else
-  {
-LABEL_11:
-    result = 0;
-  }
-  _R11 = &v100;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_A8]
-    vmovaps xmm15, [rsp+108h+var_B8]
-  }
-  return result;
+  v17 = (float)((float)(cross.v[1] * v10) + (float)(cross.v[0] * v9)) + (float)(cross.v[2] * v11);
+  if ( v17 < 0.001 )
+    return 0;
+  v18 = orig->v[0] - vert1->v[0];
+  v19 = orig->v[1] - vert1->v[1];
+  v20 = orig->v[2] - vert1->v[2];
+  v22 = (float)((float)(cross.v[1] * v19) + (float)(cross.v[0] * v18)) + (float)(cross.v[2] * v20);
+  v21 = v22;
+  if ( v22 < 0.0 )
+    return 0;
+  if ( v22 > v17 )
+    return 0;
+  v23 = (float)(v19 * v11) - (float)(v20 * v10);
+  v24 = (float)(v20 * v9) - (float)(v11 * v18);
+  v25 = (float)(v10 * v18) - (float)(v19 * v9);
+  v26 = (float)((float)(v24 * dir->v[1]) + (float)(v23 * dir->v[0])) + (float)(v25 * dir->v[2]);
+  if ( v26 < 0.0 || (float)(v26 + v22) > v17 )
+    return 0;
+  v27 = 1.0 / v17;
+  *pt = (float)((float)((float)(v13 * v24) + (float)(v12 * v23)) + (float)(v25 * v14)) * (float)(1.0 / v17);
+  if ( pu )
+    *pu = v27 * v21;
+  if ( pv )
+    *pv = v27 * v26;
+  return 1;
 }
 

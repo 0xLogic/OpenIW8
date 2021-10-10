@@ -716,21 +716,14 @@ void LUI_Render_ResetBlendMode(void)
 LUI_IsParallaxEnabled
 ==============
 */
-
-bool __fastcall LUI_IsParallaxEnabled(double _XMM0_8, double _XMM1_8)
+bool LUI_IsParallaxEnabled()
 {
-  char v3; 
-  char v4; 
+  double CurrentParallaxAmount; 
 
   if ( LUI_IsInExecDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 402, ASSERT_TYPE_ASSERT, "(!LUI_IsInExecDrawList())", (const char *)&queryFormat, "!LUI_IsInExecDrawList()") )
     __debugbreak();
-  _XMM0_8 = LUI_Render_GetCurrentParallaxAmount();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  return !(v3 | v4);
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+  return *(float *)&CurrentParallaxAmount > 0.0;
 }
 
 /*
@@ -738,11 +731,9 @@ bool __fastcall LUI_IsParallaxEnabled(double _XMM0_8, double _XMM1_8)
 LUI_RenderImmediate_ClearBlur
 ==============
 */
-
-void __fastcall LUI_RenderImmediate_ClearBlur(__int64 a1, double _XMM1_8)
+void LUI_RenderImmediate_ClearBlur()
 {
-  __asm { vxorps  xmm1, xmm1, xmm1; scale }
-  R_AddCmdSetUIBlur(0, *(const float *)&_XMM1);
+  R_AddCmdSetUIBlur(0, 0.0);
 }
 
 /*
@@ -750,11 +741,9 @@ void __fastcall LUI_RenderImmediate_ClearBlur(__int64 a1, double _XMM1_8)
 LUI_RenderImmediate_ClearColorOp
 ==============
 */
-
-void __fastcall LUI_RenderImmediate_ClearColorOp(__int64 a1, double _XMM1_8)
+void LUI_RenderImmediate_ClearColorOp(void)
 {
-  __asm { vxorps  xmm1, xmm1, xmm1; param }
-  R_AddCmdSetUIColorOp(0, *(const float *)&_XMM1);
+  R_AddCmdSetUIColorOp(0, 0.0);
 }
 
 /*
@@ -762,17 +751,9 @@ void __fastcall LUI_RenderImmediate_ClearColorOp(__int64 a1, double _XMM1_8)
 LUI_RenderImmediate_ClearGlitch
 ==============
 */
-
-void __fastcall LUI_RenderImmediate_ClearGlitch(double _XMM0_8)
+void LUI_RenderImmediate_ClearGlitch()
 {
-  float v2; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  R_AddCmdSetUIGlitch(0, 0, 0, 0, v2);
+  R_AddCmdSetUIGlitch(0, 0, 0, 0, 0.0);
 }
 
 /*
@@ -809,75 +790,16 @@ LUI_RenderImmediate_SetMask
 void LUI_RenderImmediate_SetMask(const LUIRenderMaskParams *data)
 {
   int renderMaskPushCount; 
-  float v25; 
-  float v26; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
 
-  _R8 = data;
   renderMaskPushCount = data->renderMaskPushCount;
   if ( renderMaskPushCount )
   {
     if ( renderMaskPushCount == 1 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+34h]
-        vmovss  xmm1, dword ptr [r8+30h]
-        vmovss  xmm3, dword ptr [r8+18h]; maskHeight
-        vmovss  xmm2, dword ptr [r8+14h]; maskWidth
-        vmovss  [rsp+78h+var_28], xmm0
-        vmovss  xmm0, dword ptr [r8+2Ch]
-        vmovss  [rsp+78h+var_30], xmm1
-        vmovss  xmm1, dword ptr [r8+28h]
-        vmovss  [rsp+78h+var_38], xmm0
-        vmovss  xmm0, dword ptr [r8+24h]
-        vmovss  [rsp+78h+var_40], xmm1
-        vmovss  xmm1, dword ptr [r8+20h]
-        vmovss  [rsp+78h+var_48], xmm0
-        vmovss  xmm0, dword ptr [r8+1Ch]
-        vmovss  [rsp+78h+var_50], xmm1
-        vmovss  xmm1, dword ptr [r8+8]; maskY
-        vmovss  [rsp+78h+var_58], xmm0
-        vmovss  xmm0, dword ptr [r8+4]; maskX
-      }
-      R_AddCmdSetSecondUIMask(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v25, v27, v29, v31, v33, v35, v37, &_R8->viewportSize, _R8->image);
-    }
+      R_AddCmdSetSecondUIMask(data->maskBounds.v[0], data->maskBounds.v[1], data->maskWidth, data->maskHeight, data->maskRotation, data->alphaScale, data->alphaOffset, data->maskUMin, data->maskVMin, data->maskUMax, data->maskVMax, &data->viewportSize, data->image);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+34h]
-      vmovss  xmm1, dword ptr [r8+30h]
-      vmovss  xmm3, dword ptr [r8+18h]; maskHeight
-      vmovss  xmm2, dword ptr [r8+14h]; maskWidth
-      vmovss  [rsp+78h+var_28], xmm0
-      vmovss  xmm0, dword ptr [r8+2Ch]
-      vmovss  [rsp+78h+var_30], xmm1
-      vmovss  xmm1, dword ptr [r8+28h]
-      vmovss  [rsp+78h+var_38], xmm0
-      vmovss  xmm0, dword ptr [r8+24h]
-      vmovss  [rsp+78h+var_40], xmm1
-      vmovss  xmm1, dword ptr [r8+20h]
-      vmovss  [rsp+78h+var_48], xmm0
-      vmovss  xmm0, dword ptr [r8+1Ch]
-      vmovss  [rsp+78h+var_50], xmm1
-      vmovss  xmm1, dword ptr [r8+8]; maskY
-      vmovss  [rsp+78h+var_58], xmm0
-      vmovss  xmm0, dword ptr [r8+4]; maskX
-    }
-    R_AddCmdSetFirstUIMask(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v26, v28, v30, v32, v34, v36, v38, &_R8->viewportSize, _R8->image);
+    R_AddCmdSetFirstUIMask(data->maskBounds.v[0], data->maskBounds.v[1], data->maskWidth, data->maskHeight, data->maskRotation, data->alphaScale, data->alphaOffset, data->maskUMin, data->maskVMin, data->maskUMax, data->maskVMax, &data->viewportSize, data->image);
   }
 }
 
@@ -888,16 +810,7 @@ LUI_RenderImmediate_SetPixelGrid
 */
 void LUI_RenderImmediate_SetPixelGrid(const LUIElementPixelGridSettings *settings)
 {
-  float v5; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-    vmovss  [rsp+38h+var_18], xmm1
-  }
-  R_AddCmdSetUIPixelGrid(settings->blockWidth, settings->blockHeight, settings->gutterWidth, settings->gutterHeight, v5);
+  R_AddCmdSetUIPixelGrid(settings->blockWidth, settings->blockHeight, settings->gutterWidth, settings->gutterHeight, (float)settings->contrast * 0.0039215689);
 }
 
 /*
@@ -905,25 +818,16 @@ void LUI_RenderImmediate_SetPixelGrid(const LUIElementPixelGridSettings *setting
 LUI_RenderImmediate_SetScissorRect
 ==============
 */
-
-void __fastcall LUI_RenderImmediate_SetScissorRect(const StencilRect *nextRect, __int64 a2, double _XMM2_8)
+void LUI_RenderImmediate_SetScissorRect(const StencilRect *nextRect)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vcvttss2si edx, dword ptr [rcx+4]; y
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vcvttss2si ecx, dword ptr [rcx]; x
-    vcvttss2si r9d, xmm2; height
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vcvttss2si r8d, xmm2; width
-  }
-  R_AddCmdSetScissorRect(_ECX, _EDX, _ER8, _ER9);
+  int v3; 
+
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
+  v3 = (int)*(float *)&_XMM2;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
+  R_AddCmdSetScissorRect((int)nextRect->left, (int)nextRect->top, (int)*(float *)&_XMM2, v3);
 }
 
 /*
@@ -933,22 +837,15 @@ LUI_Render_ApplyColorOp
 */
 void LUI_Render_ApplyColorOp(const LUIColorOpData *colorOp)
 {
-  _RBX = colorOp;
+  float param; 
+
   if ( !colorOp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 641, ASSERT_TYPE_ASSERT, "(colorOp)", (const char *)&queryFormat, "colorOp") )
     __debugbreak();
-  if ( s_curColorOp.op != _RBX->op )
-    goto LABEL_6;
-  __asm
+  if ( s_curColorOp.op != colorOp->op || s_curColorOp.param != colorOp->param )
   {
-    vmovss  xmm0, cs:s_curColorOp.param
-    vucomiss xmm0, dword ptr [rbx+4]
-  }
-  if ( s_curColorOp.op != _RBX->op )
-  {
-LABEL_6:
-    __asm { vmovss  xmm1, dword ptr [rbx+4]; param }
-    s_curColorOp = *_RBX;
-    R_AddCmdSetUIColorOp(s_curColorOp.op, *(const float *)&_XMM1);
+    param = colorOp->param;
+    s_curColorOp = *colorOp;
+    R_AddCmdSetUIColorOp(s_curColorOp.op, param);
   }
 }
 
@@ -958,154 +855,123 @@ LUI_Render_ApplyGlitch
 ==============
 */
 
-void __fastcall LUI_Render_ApplyGlitch(double intensity, double unitScale)
+void __fastcall LUI_Render_ApplyGlitch(double intensity, float unitScale)
 {
-  int v12; 
+  int v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  int v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  float v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v23; 
+  float v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v33; 
   int v34; 
-  bool v35; 
-  bool v62; 
-  bool v64; 
-  float fmt; 
-  void *retaddr; 
+  __int128 v38; 
+  float v42; 
 
-  _RAX = &retaddr;
-  __asm
+  LODWORD(_XMM9) = LODWORD(intensity);
+  if ( s_glitchAmount != *(float *)&intensity )
   {
-    vmovss  xmm2, cs:s_glitchAmount
-    vucomiss xmm2, xmm0
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm10, xmm1
-    vmovaps xmm9, xmm0
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovss  cs:s_glitchAmount, xmm0
-  }
-  v12 = Sys_Milliseconds();
-  if ( v12 % 550 >= 500 || v12 % 800 >= 700 || v12 % 2500 >= 2300 )
-  {
+    s_glitchAmount = *(float *)&intensity;
+    v4 = Sys_Milliseconds();
+    if ( v4 % 550 >= 500 || v4 % 800 >= 700 || v4 % 2500 >= 2300 )
+    {
+      v18 = (float)(v4 / 800 % 75) * 0.013333334;
+      v19 = 0i64;
+      *(float *)&v19 = (float)(v4 / 800 % 130) * 0.0069230767;
+      v12 = v19;
+      v20 = 0i64;
+      *(float *)&v20 = (float)(v4 / 800 % 170) * 0.0052941176;
+      v14 = v20;
+      v21 = 0i64;
+      *(float *)&v21 = (float)(v4 / 800 % 120) * 0.70833331;
+      v16 = v21;
+    }
+    else
+    {
+      v6 = 0i64;
+      *(float *)&v6 = (float)rand();
+      v5 = v6;
+      v8 = 0i64;
+      *(float *)&v8 = (float)rand();
+      v7 = v8;
+      v10 = 0i64;
+      *(float *)&v10 = (float)rand();
+      v9 = v10;
+      v11 = rand();
+      v13 = v5;
+      *(float *)&v13 = *(float *)&v5 * 0.000027466658;
+      v12 = v13;
+      v15 = v7;
+      *(float *)&v15 = *(float *)&v7 * 0.000027466658;
+      v14 = v15;
+      v17 = v9;
+      *(float *)&v17 = *(float *)&v9 * 0.0025940733;
+      v16 = v17;
+      v18 = (float)v11 * 0.000030518509;
+    }
+    if ( v4 % 4900 > 4700 )
+    {
+      v23 = *(_OWORD *)&intensity;
+      *(float *)&v23 = *(float *)&intensity * 1.5;
+      _XMM0 = v23;
+      __asm { vminss  xmm9, xmm0, xmm7 }
+    }
+    v24 = (float)(v18 * 2.0) + 0.1;
+    v26 = v12;
+    *(float *)&v26 = *(float *)&v12 + 0.1;
+    v25 = v26;
+    v28 = v14;
+    *(float *)&v28 = *(float *)&v14 + 0.1;
+    v27 = v28;
+    v29 = v25;
+    *(float *)&v29 = (float)(*(float *)&v25 * unitScale) * 85.0;
+    _XMM0 = v29;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm2, xmm0, cs:__real@3c5a740e
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm3, xmm0, cs:__real@3be2dafa
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm4, xmm0, cs:__real@3bad7a47
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r8d
-      vmulss  xmm8, xmm0, cs:__real@3f355555
+      vmaxss  xmm2, xmm0, xmm7
+      vminss  xmm1, xmm2, xmm4
     }
-  }
-  else
-  {
-    rand();
+    v33 = v27;
+    v34 = (int)*(float *)&_XMM1;
+    *(float *)&v33 = (float)(*(float *)&v27 * unitScale) * 85.0;
+    _XMM1 = v33;
+    __asm { vmaxss  xmm2, xmm1, xmm7 }
+    v38 = v16;
+    *(float *)&v38 = *(float *)&v16 * unitScale;
+    _XMM0 = v38;
     __asm
     {
-      vxorps  xmm8, xmm8, xmm8
-      vcvtsi2ss xmm8, xmm8, eax
+      vmaxss  xmm1, xmm0, xmm7
+      vminss  xmm3, xmm2, xmm4
+      vminss  xmm2, xmm1, xmm4
     }
-    rand();
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, eax
-    }
-    rand();
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
-    rand();
-    __asm
-    {
-      vmulss  xmm3, xmm8, cs:__real@37e66833
-      vmulss  xmm4, xmm7, cs:__real@37e66833
-      vmulss  xmm8, xmm6, cs:__real@3b2a0154
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, cs:__real@38000100
-    }
-  }
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v34 = v12 % 4900;
-  v35 = (unsigned int)v34 <= 0x125C;
-  if ( v34 > 4700 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm9, cs:__real@3fc00000
-      vminss  xmm9, xmm0, xmm7
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm2, cs:__real@40000000
-    vmovss  xmm1, cs:__real@3dcccccd
-    vaddss  xmm5, xmm0, xmm1
-    vaddss  xmm6, xmm3, xmm1
-    vaddss  xmm11, xmm4, xmm1
-    vmovss  xmm4, cs:__real@437f0000
-    vmulss  xmm1, xmm6, xmm10
-    vmulss  xmm0, xmm1, cs:__real@42aa0000
-    vmaxss  xmm2, xmm0, xmm7
-    vminss  xmm1, xmm2, xmm4
-    vmulss  xmm0, xmm11, xmm10
-    vcvttss2si ebx, xmm1
-    vmulss  xmm1, xmm0, cs:__real@42aa0000
-    vmaxss  xmm2, xmm1, xmm7
-    vmulss  xmm0, xmm8, xmm10
-    vmaxss  xmm1, xmm0, xmm7
-    vminss  xmm3, xmm2, xmm4
-    vxorps  xmm7, xmm7, xmm7
-    vminss  xmm2, xmm1, xmm4
-    vmulss  xmm0, xmm9, xmm4
-    vcomiss xmm6, xmm7
-    vmovaps xmm6, [rsp+98h+var_18]
-    vcvttss2si esi, xmm2
-    vcvttss2si edi, xmm3
-    vmulss  xmm8, xmm5, xmm10
-    vcvttss2si ebp, xmm0
-  }
-  if ( v35 )
-  {
-    v62 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 555, ASSERT_TYPE_ASSERT, "(blockWidth > 0)", (const char *)&queryFormat, "blockWidth > 0");
-    v35 = !v62;
-    if ( v62 )
+    v42 = v24 * unitScale;
+    if ( *(float *)&v25 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 555, ASSERT_TYPE_ASSERT, "(blockWidth > 0)", (const char *)&queryFormat, "blockWidth > 0") )
       __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm11, xmm7
-    vmovaps xmm11, [rsp+98h+var_68]
-  }
-  if ( v35 )
-  {
-    v64 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 556, ASSERT_TYPE_ASSERT, "(blockHeight > 0)", (const char *)&queryFormat, "blockHeight > 0");
-    v35 = !v64;
-    if ( v64 )
+    if ( *(float *)&v27 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 556, ASSERT_TYPE_ASSERT, "(blockHeight > 0)", (const char *)&queryFormat, "blockHeight > 0") )
       __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm8, xmm7
-    vmovaps xmm7, [rsp+98h+var_28]
-  }
-  if ( v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 557, ASSERT_TYPE_ASSERT, "(outMaskPitch > 0.f)", (const char *)&queryFormat, "outMaskPitch > 0.f") )
-    __debugbreak();
-  __asm { vmovss  dword ptr [rsp+98h+fmt], xmm8 }
-  R_AddCmdSetUIGlitch(_EBP, _EBX, _EDI, _ESI, fmt);
-  __asm
-  {
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm10, [rsp+98h+var_58]
+    if ( v42 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 557, ASSERT_TYPE_ASSERT, "(outMaskPitch > 0.f)", (const char *)&queryFormat, "outMaskPitch > 0.f") )
+      __debugbreak();
+    R_AddCmdSetUIGlitch((int)(float)(*(float *)&_XMM9 * 255.0), v34, (int)*(float *)&_XMM3, (int)*(float *)&_XMM2, v42);
   }
 }
 
@@ -1116,154 +982,87 @@ LUI_Render_ApplyOffsetForCameraShake
 */
 void LUI_Render_ApplyOffsetForCameraShake(const LocalClientNum_t localClientNum, vec4_t *verts, unsigned int vertCount)
 {
-  __int64 v16; 
-  __int64 v17; 
-  bool enabled; 
-  __int64 v32; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v76; 
+  __int64 v4; 
+  __int64 v5; 
+  cg_t *v6; 
+  bool v7; 
+  float v8; 
+  float v9; 
+  float width; 
+  float v11; 
+  float height; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  double v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int64 v28; 
 
-  _RBX = verts;
-  v16 = localClientNum;
-  v17 = vertCount;
+  v4 = localClientNum;
+  v5 = vertCount;
   if ( localClientNum >= (unsigned int)cg_t::ms_allocatedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", localClientNum, cg_t::ms_allocatedCount) )
     __debugbreak();
-  if ( !cg_t::ms_cgArray[v16] )
+  if ( !cg_t::ms_cgArray[v4] )
   {
-    LODWORD(v76) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v76) )
+    LODWORD(v28) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v28) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v76) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v76) )
+    LODWORD(v28) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v28) )
       __debugbreak();
   }
-  _RDI = cg_t::ms_cgArray[v16];
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1891, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v6 = cg_t::ms_cgArray[v4];
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1891, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( _RDI->refdef.droneCameraEffects.enabled )
+  if ( v6->refdef.droneCameraEffects.enabled )
   {
-    __asm
+    v7 = (float)v6->refdef.droneCameraEffects.shakeCameraOnOff != 0.0;
+    v8 = 1.0 - v6->refdef.droneCameraEffects.zoomUV;
+    v9 = FLOAT_0_5;
+    width = (float)v6->refdef.displayViewport.width;
+    v11 = (float)(1.0 - v8) * 0.5;
+    height = (float)v6->refdef.displayViewport.height;
+    if ( (_DWORD)v5 )
     {
-      vmovaps [rsp+0F8h+var_38], xmm7
-      vmovaps [rsp+0F8h+var_68], xmm10
-      vmovaps [rsp+0F8h+var_78], xmm11
-      vmovaps [rsp+0F8h+var_88], xmm12
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm1, xmm0
-      vmovaps [rsp+0F8h+var_98], xmm13
-      vmovaps [rsp+0F8h+var_A8], xmm14
-    }
-    enabled = _RDI->refdef.droneCameraEffects.enabled;
-    __asm
-    {
-      vmovss  xmm12, cs:__real@3f800000
-      vsubss  xmm10, xmm12, dword ptr [rdi+17598h]
-      vmovss  xmm7, cs:__real@3f000000
-      vxorps  xmm13, xmm13, xmm13
-      vcvtsi2ss xmm13, xmm13, rax
-      vsubss  xmm0, xmm12, xmm10
-      vxorps  xmm14, xmm14, xmm14
-      vmulss  xmm11, xmm0, xmm7
-      vcvtsi2ss xmm14, xmm14, rax
-    }
-    if ( (_DWORD)v17 )
-    {
-      __asm { vmovaps [rsp+0F8h+var_48], xmm8 }
-      v32 = v17;
-      __asm
-      {
-        vmovaps [rsp+0F8h+var_58], xmm9
-        vmovaps [rsp+0F8h+var_B8], xmm15
-        vdivss  xmm15, xmm12, xmm13
-        vmovaps [rsp+0F8h+var_28], xmm6
-        vdivss  xmm2, xmm12, xmm14
-      }
+      v13 = v5;
+      v14 = 1.0 / height;
       do
       {
-        __asm
+        v16 = (float)((float)((float)(1.0 / width) * verts->v[0]) * v8) + v11;
+        v15 = v16;
+        v17 = (float)((float)(v14 * verts->v[1]) * v8) + v11;
+        if ( v7 )
         {
-          vmulss  xmm0, xmm15, dword ptr [rbx]
-          vmulss  xmm1, xmm0, xmm10
-          vmulss  xmm0, xmm2, dword ptr [rbx+4]
-          vaddss  xmm8, xmm1, xmm11
-          vmulss  xmm1, xmm0, xmm10
-          vaddss  xmm9, xmm1, xmm11
+          v18 = fmodf_0(_mm_cvtepi32_ps((__m128i)(unsigned int)v6->refdef.time).m128_f32[0] * 0.001, 43200.0);
+          v19 = (float)((float)(sinf_0(v18 * v6->refdef.droneCameraEffects.shakeCameraVal2) + 1.0) * v9) + v6->refdef.droneCameraEffects.shakeCameraVal3;
+          v24 = j___libm_sse2_sincosf_(v21, v20, v22, v23);
+          v25 = 1.0 / v6->refdef.droneCameraEffects.shakeCameraVal1;
+          v26 = (float)(*(float *)&v24 * v25) * v19;
+          v27 = (float)(_mm_shuffle_ps((__m128)*(unsigned __int64 *)&v24, (__m128)*(unsigned __int64 *)&v24, 1).m128_f32[0] * v25) * v19;
+          v9 = FLOAT_0_5;
+          v15 = v16 - v26;
+          v17 = v17 + v27;
+          v14 = 1.0 / height;
         }
-        if ( enabled )
-        {
-          __asm
-          {
-            vmovd   xmm0, dword ptr [rdi+69B4h]
-            vmovss  xmm1, cs:__real@4728c000; Y
-            vcvtdq2ps xmm0, xmm0
-            vmulss  xmm0, xmm0, cs:__real@3a83126f; X
-          }
-          *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmulss  xmm0, xmm0, dword ptr [rdi+1756Ch]; X
-          }
-          *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-          __asm
-          {
-            vmulss  xmm3, xmm6, cs:__real@4048f5c3
-            vaddss  xmm1, xmm0, xmm12
-            vxorps  xmm0, xmm0, xmm0
-            vmulss  xmm2, xmm1, xmm7
-            vaddss  xmm7, xmm2, dword ptr [rdi+17570h]
-            vmovss  xmm0, xmm0, xmm3
-          }
-          *(double *)&_XMM0 = j___libm_sse2_sincosf_(v54, v53, v55, v56);
-          __asm
-          {
-            vdivss  xmm3, xmm12, dword ptr [rdi+17568h]
-            vmulss  xmm1, xmm0, xmm3
-            vmulss  xmm2, xmm1, xmm7
-            vshufps xmm0, xmm0, xmm0, 1
-            vmulss  xmm0, xmm0, xmm3
-            vmulss  xmm1, xmm0, xmm7
-            vmovss  xmm7, cs:__real@3f000000
-            vsubss  xmm8, xmm8, xmm2
-            vaddss  xmm9, xmm9, xmm1
-            vdivss  xmm2, xmm12, xmm14
-          }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm8, xmm13
-          vmulss  xmm1, xmm9, xmm14
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  dword ptr [rbx+4], xmm1
-        }
-        ++_RBX;
-        --v32;
+        verts->v[0] = v15 * width;
+        verts->v[1] = v17 * height;
+        ++verts;
+        --v13;
       }
-      while ( v32 );
-      __asm
-      {
-        vmovaps xmm15, [rsp+0F8h+var_B8]
-        vmovaps xmm9, [rsp+0F8h+var_58]
-        vmovaps xmm8, [rsp+0F8h+var_48]
-        vmovaps xmm6, [rsp+0F8h+var_28]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm13, [rsp+0F8h+var_98]
-      vmovaps xmm12, [rsp+0F8h+var_88]
-      vmovaps xmm11, [rsp+0F8h+var_78]
-      vmovaps xmm10, [rsp+0F8h+var_68]
-      vmovaps xmm7, [rsp+0F8h+var_38]
-      vmovaps xmm14, [rsp+0F8h+var_A8]
+      while ( v13 );
     }
   }
 }
@@ -1275,25 +1074,16 @@ LUI_Render_ApplyParallax
 */
 void LUI_Render_ApplyParallax(const vec4_t *inPosition, vec4_t *outPosition, const float *overrideAmount)
 {
-  char v8; 
-  bool v9; 
+  double CurrentParallaxAmount; 
   tmat44_t<vec4_t> outMatrix; 
 
-  _RSI = overrideAmount;
   if ( inPosition == outPosition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 242, ASSERT_TYPE_ASSERT, "(&inPosition != &outPosition)", (const char *)&queryFormat, "&inPosition != &outPosition") )
     __debugbreak();
-  v8 = 0;
-  v9 = _RSI == NULL;
-  if ( _RSI )
-    __asm { vmovss  xmm0, dword ptr [rsi] }
+  if ( overrideAmount )
+    *(float *)&CurrentParallaxAmount = *overrideAmount;
   else
-    *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( v8 | v9 )
+    CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+  if ( *(float *)&CurrentParallaxAmount <= 0.0 )
   {
     outPosition->v[0] = inPosition->v[0];
     outPosition->v[1] = inPosition->v[1];
@@ -1302,7 +1092,7 @@ void LUI_Render_ApplyParallax(const vec4_t *inPosition, vec4_t *outPosition, con
   }
   else
   {
-    LUI_GetCurrentParallaxMatrix(*(float *)&_XMM0, &outMatrix);
+    LUI_GetCurrentParallaxMatrix(*(float *)&CurrentParallaxAmount, &outMatrix);
     LUI_Matrix_MultiplyVector(&outMatrix, inPosition, outPosition);
   }
 }
@@ -1324,64 +1114,20 @@ void LUI_Render_ApplyPixelGrid(const LocalClientNum_t localClientNum, LUIElement
 LUI_Render_CalculatePixelShapeInnerRadius
 ==============
 */
-
-float __fastcall LUI_Render_CalculatePixelShapeInnerRadius(const vec2_t *const verts, double uMin, double uMax, double vMin, const float vMax)
+float LUI_Render_CalculatePixelShapeInnerRadius(const vec2_t *const verts, const float uMin, const float uMax, const float vMin, const float vMax, const float shapeWidth)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovaps [rsp+68h+var_18], xmm6
-    vsubss  xmm6, xmm0, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vsubss  xmm4, xmm0, dword ptr [rcx]
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovss  xmm1, dword ptr [rcx+1Ch]
-    vmulss  xmm0, xmm4, xmm4
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovss  xmm2, dword ptr [rcx+0Ch]
-    vsubss  xmm5, xmm2, dword ptr [rcx+4]
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps xmm9, xmm3
-    vmulss  xmm3, xmm2, xmm2
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm0
-    vsqrtss xmm0, xmm2, xmm2; X
-    vsqrtss xmm1, xmm1, xmm1; Y
-  }
-  *(float *)&_XMM0 = fminf(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+68h+vMax]
-    vmovaps xmm6, xmm0
-    vsubss  xmm1, xmm1, xmm9; Y
-    vsubss  xmm0, xmm8, xmm7; X
-  }
-  *(float *)&_XMM0 = fminf(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40000000
-    vmulss  xmm3, xmm0, [rsp+68h+shapeWidth]
-    vdivss  xmm2, xmm1, xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm0, xmm3, xmm2; val
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
-    vsubss  xmm0, xmm6, xmm0
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  return *(float *)&_XMM0;
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  double v10; 
+
+  v6 = verts[1].v[1] - verts->v[1];
+  v7 = verts[3].v[1] - verts->v[1];
+  v8 = fminf(fsqrt((float)(v6 * v6) + (float)((float)(verts[1].v[0] - verts->v[0]) * (float)(verts[1].v[0] - verts->v[0]))), fsqrt((float)(v7 * v7) + (float)((float)(verts[3].v[0] - verts->v[0]) * (float)(verts[3].v[0] - verts->v[0]))));
+  v9 = fminf(uMax - uMin, vMax - vMin);
+  v10 = I_fclamp((float)(v9 * shapeWidth) * (float)(2.0 / v8), 0.0, 1.0);
+  return 1.0 - *(float *)&v10;
 }
 
 /*
@@ -1391,60 +1137,40 @@ LUI_Render_ChooseSamplerState
 */
 __int64 LUI_Render_ChooseSamplerState(LUIQuadUV *uv, const LUIElement *element)
 {
-  unsigned __int16 v3; 
+  unsigned __int16 v2; 
+  float uMax; 
+  float vMin; 
+  float vMax; 
   int integer; 
-  bool v12; 
+  bool v8; 
   const GfxImage *image; 
   GfxPixelFormat format; 
-  const dvar_t *v16; 
+  const dvar_t *v12; 
 
-  v3 = 0;
+  v2 = 0;
   if ( uv->mode )
   {
-    v3 = 384;
+    v2 = 384;
   }
   else
   {
-    __asm
+    if ( uv->minMax.uMin >= 0.0 && uv->minMax.uMin <= 1.0 )
     {
-      vmovss  xmm2, dword ptr [rcx]
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm2, xmm1
-      vcomiss xmm2, xmm0
+      uMax = uv->minMax.uMax;
+      if ( uMax >= 0.0 && uMax <= 1.0 )
+        v2 = 128;
     }
-    if ( uv->mode == MIN_MAX )
+    vMin = uv->minMax.vMin;
+    if ( vMin >= 0.0 && vMin <= 1.0 )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rcx+4]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-      }
-      if ( uv->mode == MIN_MAX )
-        v3 = 128;
-    }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rcx+8]
-      vcomiss xmm2, xmm1
-      vcomiss xmm2, xmm0
-    }
-    if ( uv->mode == MIN_MAX )
-    {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rcx+0Ch]
-        vcomiss xmm2, xmm1
-        vcomiss xmm2, xmm0
-      }
-      if ( uv->mode == MIN_MAX )
-        v3 |= 0x100u;
+      vMax = uv->minMax.vMax;
+      if ( vMax >= 0.0 && vMax <= 1.0 )
+        v2 |= 0x100u;
     }
   }
   integer = 2;
-  v12 = (element->usageFlags & 0x2000000) != 0;
-  if ( LUIElement_IsImageLike(element) && v12 )
+  v8 = (element->usageFlags & 0x2000000) != 0;
+  if ( LUIElement_IsImageLike(element) && v8 )
     integer = 1;
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1759, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
@@ -1464,15 +1190,15 @@ __int64 LUI_Render_ChooseSamplerState(LUIQuadUV *uv, const LUIElement *element)
       }
     }
   }
-  v16 = DCONST_DVARINT_r_lui_setImageFiltering;
+  v12 = DCONST_DVARINT_r_lui_setImageFiltering;
   if ( !DCONST_DVARINT_r_lui_setImageFiltering && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lui_setImageFiltering") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.integer )
-    integer = v16->current.integer;
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.integer )
+    integer = v12->current.integer;
   if ( integer != 1 )
-    v3 |= 1u;
-  return v3;
+    v2 |= 1u;
+  return v2;
 }
 
 /*
@@ -1496,12 +1222,8 @@ void LUI_Render_ClearBlur(const LocalClientNum_t localClientNum)
 {
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 705, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  LUI_QuadCache_AddDrawListCommand(localClientNum, (void (__fastcall *)())LUI_RenderImmediate_ClearBlur);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:s_blurAmount, xmm0
-  }
+  LUI_QuadCache_AddDrawListCommand(localClientNum, LUI_RenderImmediate_ClearBlur);
+  s_blurAmount = 0.0;
   s_numBlurSettingsActive = 0;
 }
 
@@ -1528,12 +1250,8 @@ void LUI_Render_ClearGlitch(const LocalClientNum_t localClientNum)
 {
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 571, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  LUI_QuadCache_AddDrawListCommand(localClientNum, (void (__fastcall *)())LUI_RenderImmediate_ClearGlitch);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:s_glitchAmount, xmm0
-  }
+  LUI_QuadCache_AddDrawListCommand(localClientNum, LUI_RenderImmediate_ClearGlitch);
+  s_glitchAmount = 0.0;
   s_numGlitchSettingsActive = 0;
 }
 
@@ -1615,25 +1333,16 @@ void LUI_Render_CommitQuad(const LocalClientNum_t localClientNum, LUIElement *el
 {
   LUIColorSource colorSource; 
   Material *material; 
+  double CurrentParallaxAmount; 
+  float v17; 
   bool has3DTransforms; 
+  float GlitchAmount; 
+  float BlurAmount; 
   const LUIColorOpData *colorOp; 
   int scopeIndex; 
-  DrawListMode v27; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  char v37; 
-  void *retaddr; 
+  DrawListMode v23; 
   unsigned __int16 pixelShapeTypea; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1235, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( pixelShapeType == GFX_PIXEL_SHAPE_TYPE_CIRCLE )
@@ -1641,39 +1350,22 @@ void LUI_Render_CommitQuad(const LocalClientNum_t localClientNum, LUIElement *el
   else
     colorSource = isSDF;
   material = LUI_Render_GetMaterial(colorSource, (element->usageFlags & 0x200000) == 0);
-  *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm { vmovaps xmm6, xmm0 }
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+  v17 = *(float *)&CurrentParallaxAmount;
   has3DTransforms = LUI_Is3DTransformEnabled();
   pixelShapeTypea = LUI_Render_ChooseSamplerState(uv, element);
-  *(float *)&_XMM0 = LUI_Render_GetGlitchAmount();
-  __asm { vmovaps xmm7, xmm0 }
-  *(float *)&_XMM0 = LUI_Render_GetBlurAmount();
-  __asm { vmovaps xmm8, xmm0 }
+  GlitchAmount = LUI_Render_GetGlitchAmount();
+  BlurAmount = LUI_Render_GetBlurAmount();
   colorOp = LUI_Render_GetColorOp();
   if ( s_numScopeIndexSettingsActive )
     scopeIndex = s_scopeIndexSettingsStack[s_numScopeIndexSettingsActive - 1];
   else
     scopeIndex = s_numScopeIndexSettingsActive - 1;
   if ( s_drawListModeDepth )
-    v27 = s_drawListMode[s_drawListModeDepth - 1];
+    v23 = s_drawListMode[s_drawListModeDepth - 1];
   else
-    v27 = DrawListMode_Default;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0E8h+extraParam]
-    vmovss  [rsp+0E8h+var_60], xmm0
-    vmovss  [rsp+0E8h+var_90], xmm6
-    vmovss  [rsp+0E8h+var_A0], xmm8
-    vmovss  [rsp+0E8h+var_A8], xmm7
-  }
-  LUI_QuadCache_Element_CacheImageQuad(luaVM, localClientNum, element, (const vec4_t *)verts, color, uv, image, material, v33, v34, pixelShapeTypea, v35, colorOp, has3DTransforms, scopeIndex, v27 == DrawListMode_ReceivePostFXLite, colorSource, v36);
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+    v23 = DrawListMode_Default;
+  LUI_QuadCache_Element_CacheImageQuad(luaVM, localClientNum, element, (const vec4_t *)verts, color, uv, image, material, GlitchAmount, BlurAmount, pixelShapeTypea, v17, colorOp, has3DTransforms, scopeIndex, v23 == DrawListMode_ReceivePostFXLite, colorSource, extraParam);
 }
 
 /*
@@ -1683,44 +1375,21 @@ LUI_Render_DrawImage
 */
 void LUI_Render_DrawImage(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM, const vec4_t (*verts)[4], float uMin, float vMin, float uMax, float vMax, const vec4_t *color, const GfxImage *material)
 {
-  float v22; 
+  __m256i v12; 
   LUIQuadUV uv; 
   vec4_t vertsa[4]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0F8h+uMin]
-    vmovss  xmm1, [rsp+0F8h+uMax]
-  }
   uv.minMax.uMax = 0.0;
-  _RCX = vertsa;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.uMin], xmm0
-    vmovss  xmm0, [rsp+0F8h+vMin]
-  }
-  uv.minMax.vMax = 0.0;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.vMin], xmm0
-    vmovups ymm0, ymmword ptr [r9]
-    vmovups ymmword ptr [r11-78h], ymm0
-    vmovups ymm0, ymmword ptr [r9+20h]
-    vmovss  [rsp+0F8h+var_A8.minMax.uMax], xmm1
-    vmovss  xmm1, [rsp+0F8h+vMax]
-    vmovups ymmword ptr [r11-58h], ymm0
-    vmovss  [rsp+0F8h+var_A8.minMax.vMax], xmm1
-  }
-  memset(&uv.rotated, 0, 24);
+  uv.minMax.uMin = uMin;
+  memset(&uv.minMax.vMax, 0, 28);
+  uv.minMax.vMin = vMin;
+  *(__m256i *)vertsa[0].v = *(__m256i *)(*verts)[0].v;
+  v12 = *(__m256i *)(*verts)[2].v;
+  uv.minMax.uMax = uMax;
+  *(__m256i *)vertsa[2].v = v12;
+  uv.minMax.vMax = vMax;
   LUI_Render_PuffThinQuad(vertsa);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0F8h+var_B0], xmm0
-  }
-  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, v22);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, 0.0);
 }
 
 /*
@@ -1730,33 +1399,21 @@ LUI_Render_DrawImageRotatedUV
 */
 void LUI_Render_DrawImageRotatedUV(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM, const vec4_t (*verts)[4], float uCenter, float vCenter, float uScale, float vScale, float uvAngle, const vec4_t *color, const GfxImage *material)
 {
-  float v18; 
   LUIQuadUV uv; 
 
-  __asm
-  {
-    vmovss  xmm1, [rsp+88h+uCenter]
-    vmovss  xmm0, [rsp+88h+uvAngle]
-    vmovss  [rsp+88h+var_38.rotated.angle], xmm0
-    vmovss  xmm0, [rsp+88h+vCenter]
-    vmovss  [rsp+88h+var_38.rotated.uCenter], xmm1
-    vmovss  xmm1, [rsp+88h+uScale]
-    vmovss  [rsp+88h+var_38.rotated.vCenter], xmm0
-    vmovss  xmm0, [rsp+88h+vScale]
-    vmovss  [rsp+88h+var_38.rotated.uScale], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+88h+var_40], xmm1
-    vmovss  [rsp+88h+var_38.rotated.vScale], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+88h+var_38.minMax.uMin], xmm1
-    vmovss  [rsp+88h+var_38.minMax.vMin], xmm1
-    vmovss  [rsp+88h+var_38.minMax.uMax], xmm0
-    vmovss  [rsp+88h+var_38.minMax.vMax], xmm0
-  }
+  uv.rotated.angle = uvAngle;
+  uv.rotated.uCenter = uCenter;
+  uv.rotated.vCenter = vCenter;
+  uv.rotated.uScale = uScale;
+  uv.rotated.vScale = vScale;
+  uv.minMax.uMin = 0.0;
+  uv.minMax.vMin = 0.0;
+  uv.minMax.uMax = FLOAT_1_0;
+  uv.minMax.vMax = FLOAT_1_0;
   *(_WORD *)(&uv.mode + 1) = 0;
   *((_BYTE *)&uv.mode + 3) = 0;
   uv.mode = ROTATED;
-  LUI_Render_CommitQuad(localClientNum, element, luaVM, verts, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, v18);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, verts, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, 0.0);
 }
 
 /*
@@ -1766,36 +1423,21 @@ LUI_Render_DrawImageRotatedUV
 */
 void LUI_Render_DrawImageRotatedUV(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM, const vec4_t (*verts)[4], float uCenter, float vCenter, float uScale, float vScale, float uMin, float vMin, float uMax, float vMax, float uvAngle, const vec4_t *color, const GfxImage *material)
 {
-  float v25; 
   LUIQuadUV uv; 
 
-  __asm
-  {
-    vmovss  xmm1, [rsp+88h+uCenter]
-    vmovss  xmm0, [rsp+88h+uvAngle]
-    vmovss  [rsp+88h+var_38.rotated.uCenter], xmm1
-    vmovss  xmm1, [rsp+88h+uScale]
-    vmovss  [rsp+88h+var_38.rotated.angle], xmm0
-    vmovss  xmm0, [rsp+88h+vCenter]
-    vmovss  [rsp+88h+var_38.rotated.uScale], xmm1
-    vmovss  xmm1, [rsp+88h+uMin]
-    vmovss  [rsp+88h+var_38.rotated.vCenter], xmm0
-    vmovss  xmm0, [rsp+88h+vScale]
-    vmovss  [rsp+88h+var_38.minMax.uMin], xmm1
-    vmovss  xmm1, [rsp+88h+uMax]
-    vmovss  [rsp+88h+var_38.rotated.vScale], xmm0
-    vmovss  xmm0, [rsp+88h+vMin]
-    vmovss  [rsp+88h+var_38.minMax.uMax], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+88h+var_40], xmm1
-    vmovss  [rsp+88h+var_38.minMax.vMin], xmm0
-    vmovss  xmm0, [rsp+88h+vMax]
-    vmovss  [rsp+88h+var_38.minMax.vMax], xmm0
-  }
+  uv.rotated.uCenter = uCenter;
+  uv.rotated.angle = uvAngle;
+  uv.rotated.uScale = uScale;
+  uv.rotated.vCenter = vCenter;
+  uv.minMax.uMin = uMin;
+  uv.rotated.vScale = vScale;
+  uv.minMax.uMax = uMax;
+  uv.minMax.vMin = vMin;
+  uv.minMax.vMax = vMax;
   *(_WORD *)(&uv.mode + 1) = 0;
   *((_BYTE *)&uv.mode + 3) = 0;
   uv.mode = ROTATED;
-  LUI_Render_CommitQuad(localClientNum, element, luaVM, verts, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, v25);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, verts, &uv, color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, 0.0);
 }
 
 /*
@@ -1805,44 +1447,21 @@ LUI_Render_DrawImage_PixelShape
 */
 void LUI_Render_DrawImage_PixelShape(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM, const vec4_t (*verts)[4], float uMin, float vMin, float uMax, float vMax, const vec4_t *color, const GfxImage *material, const GfxPixelShapeType pixelShapeType, const float pixelWidth)
 {
-  float v24; 
+  __m256i v14; 
   LUIQuadUV uv; 
   vec4_t vertsa[4]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0F8h+uMin]
-    vmovss  xmm1, [rsp+0F8h+uMax]
-  }
   uv.minMax.uMax = 0.0;
-  _RCX = vertsa;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.uMin], xmm0
-    vmovss  xmm0, [rsp+0F8h+vMin]
-  }
-  uv.minMax.vMax = 0.0;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.vMin], xmm0
-    vmovups ymm0, ymmword ptr [r9]
-    vmovups ymmword ptr [r11-78h], ymm0
-    vmovups ymm0, ymmword ptr [r9+20h]
-    vmovss  [rsp+0F8h+var_A8.minMax.uMax], xmm1
-    vmovss  xmm1, [rsp+0F8h+vMax]
-    vmovups ymmword ptr [r11-58h], ymm0
-    vmovss  [rsp+0F8h+var_A8.minMax.vMax], xmm1
-  }
-  memset(&uv.rotated, 0, 24);
+  uv.minMax.uMin = uMin;
+  memset(&uv.minMax.vMax, 0, 28);
+  uv.minMax.vMin = vMin;
+  *(__m256i *)vertsa[0].v = *(__m256i *)(*verts)[0].v;
+  v14 = *(__m256i *)(*verts)[2].v;
+  uv.minMax.uMax = uMax;
+  *(__m256i *)vertsa[2].v = v14;
+  uv.minMax.vMax = vMax;
   LUI_Render_PuffThinQuad(vertsa);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0F8h+pixelWidth]
-    vmovss  [rsp+0F8h+var_B0], xmm0
-  }
-  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 0, pixelShapeType, v24);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 0, pixelShapeType, pixelWidth);
 }
 
 /*
@@ -1852,44 +1471,21 @@ LUI_Render_DrawImage_SDF
 */
 void LUI_Render_DrawImage_SDF(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM, const vec4_t (*verts)[4], float uMin, float vMin, float uMax, float vMax, const vec4_t *color, const GfxImage *material)
 {
-  float v22; 
+  __m256i v12; 
   LUIQuadUV uv; 
   vec4_t vertsa[4]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0F8h+uMin]
-    vmovss  xmm1, [rsp+0F8h+uMax]
-  }
   uv.minMax.uMax = 0.0;
-  _RCX = vertsa;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.uMin], xmm0
-    vmovss  xmm0, [rsp+0F8h+vMin]
-  }
-  uv.minMax.vMax = 0.0;
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_A8.minMax.vMin], xmm0
-    vmovups ymm0, ymmword ptr [r9]
-    vmovups ymmword ptr [r11-78h], ymm0
-    vmovups ymm0, ymmword ptr [r9+20h]
-    vmovss  [rsp+0F8h+var_A8.minMax.uMax], xmm1
-    vmovss  xmm1, [rsp+0F8h+vMax]
-    vmovups ymmword ptr [r11-58h], ymm0
-    vmovss  [rsp+0F8h+var_A8.minMax.vMax], xmm1
-  }
-  memset(&uv.rotated, 0, 24);
+  uv.minMax.uMin = uMin;
+  memset(&uv.minMax.vMax, 0, 28);
+  uv.minMax.vMin = vMin;
+  *(__m256i *)vertsa[0].v = *(__m256i *)(*verts)[0].v;
+  v12 = *(__m256i *)(*verts)[2].v;
+  uv.minMax.uMax = uMax;
+  *(__m256i *)vertsa[2].v = v12;
+  uv.minMax.vMax = vMax;
   LUI_Render_PuffThinQuad(vertsa);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0F8h+var_B0], xmm0
-  }
-  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 1, GFX_PIXEL_SHAPE_TYPE_NONE, v22);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])vertsa, &uv, color, material, 1, GFX_PIXEL_SHAPE_TYPE_NONE, 0.0);
 }
 
 /*
@@ -1911,77 +1507,37 @@ void LUI_Render_DrawQuadCache(lua_State *luaVM, UIQuadCache *quadCache)
 {
   bool has3DTransforms; 
   const char *v5; 
-  int v6; 
-  const FontGlowStyle *fontGlowStyle; 
-  const FontDecodeStyle *fontDecodeStyle; 
-  float tracking; 
-  float v20; 
-  float v21; 
-  float color; 
-  float iconsMaterial; 
   int flags; 
-  float v25; 
-  float v26; 
-  float v27; 
-  float v28; 
+  const FontGlowStyle *fontGlowStyle; 
+  float *fontDecodeStyle; 
 
-  _RBX = quadCache;
   has3DTransforms = (quadCache->flags & 2) != 0;
   if ( (quadCache->flags & 0x20) != 0 )
     LUI_Workers_SuspendRender();
-  if ( _RBX->type[0] )
+  if ( quadCache->type[0] )
   {
-    if ( _RBX->type[0] == 1 )
+    if ( quadCache->type[0] == 1 )
     {
-      if ( _RBX->text.textRef == -2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1403, ASSERT_TYPE_ASSERT, "(quadCache->text.textRef != (-2))", (const char *)&queryFormat, "quadCache->text.textRef != LUA_NOREF") )
+      if ( quadCache->text.textRef == -2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1403, ASSERT_TYPE_ASSERT, "(quadCache->text.textRef != (-2))", (const char *)&queryFormat, "quadCache->text.textRef != LUA_NOREF") )
         __debugbreak();
-      j_lua_rawgeti(luaVM, -10000, _RBX->text.textRef);
+      j_lua_rawgeti(luaVM, -10000, quadCache->text.textRef);
       if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1405, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
         __debugbreak();
       v5 = j_lua_tolstring(luaVM, -1, NULL);
-      v6 = _RBX->flags;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+64h]
-        vmovss  xmm1, dword ptr [rbx+60h]
-      }
-      fontGlowStyle = &_RBX->text.glowStyle;
-      __asm
-      {
-        vmovss  [rsp+0A8h+var_28], xmm0
-        vmovss  xmm0, dword ptr [rbx+5Ch]
-        vmovss  [rsp+0A8h+var_30], xmm1
-        vmovss  xmm1, dword ptr [rbx+58h]
-        vmovss  [rsp+0A8h+var_38], xmm0
-        vmovss  xmm0, dword ptr [rbx+80h]
-        vmovss  [rsp+0A8h+flags], xmm1
-      }
-      fontDecodeStyle = &_RBX->text.decodeStyle;
-      if ( (v6 & 8) == 0 )
+      flags = quadCache->flags;
+      fontGlowStyle = &quadCache->text.glowStyle;
+      fontDecodeStyle = &quadCache->image.uv.rotated.uScale;
+      if ( (flags & 8) == 0 )
         fontGlowStyle = NULL;
-      if ( (v6 & 4) == 0 )
+      if ( (flags & 4) == 0 )
         fontDecodeStyle = NULL;
-      __asm { vmovss  [rsp+0A8h+var_78], xmm0 }
-      LUI_Render_SendTextRenderCommand(v5, 0x7FFFFFFF, _RBX->text.font, _RBX->text.fontSize, (const vec4_t (*)[4])_RBX, _RBX->text.tracking, v20, &_RBX->color, _RBX->text.fontMaterial, _RBX->text.iconsMaterial, v6 & 1, fontDecodeStyle, fontGlowStyle, *(float *)&flags, v25, v27, v28, &_RBX->colorOp, has3DTransforms);
+      LUI_Render_SendTextRenderCommand(v5, 0x7FFFFFFF, quadCache->text.font, quadCache->text.fontSize, (const vec4_t (*)[4])quadCache, quadCache->text.tracking, quadCache->text.textRotation, &quadCache->color, quadCache->text.fontMaterial, quadCache->text.iconsMaterial, flags & 1, (const FontDecodeStyle *)fontDecodeStyle, fontGlowStyle, quadCache->glitchAmount, quadCache->unitScale, quadCache->blurAmount, quadCache->parallaxAmount, &quadCache->colorOp, has3DTransforms);
       j_lua_settop(luaVM, -2);
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vmovss  xmm1, dword ptr [rbx+5Ch]
-      vmovss  [rsp+0A8h+var_38], xmm0
-      vmovss  xmm0, dword ptr [rbx+64h]
-      vmovss  dword ptr [rsp+0A8h+iconsMaterial], xmm0
-      vmovss  xmm0, dword ptr [rbx+60h]
-      vmovss  dword ptr [rsp+0A8h+color], xmm0
-      vmovss  xmm0, dword ptr [rbx+58h]
-      vmovss  [rsp+0A8h+var_78], xmm1
-      vmovss  dword ptr [rsp+0A8h+tracking], xmm0
-    }
-    LUI_Render_SendQuadRenderCommand((const vec4_t (*)[4])_RBX, &_RBX->image.uv, &_RBX->color, _RBX->image.texture, _RBX->image.material, tracking, v21, color, _RBX->image.samplerState, iconsMaterial, &_RBX->colorOp, has3DTransforms, _RBX->scopeIndex, _RBX->flags, v26);
+    LUI_Render_SendQuadRenderCommand((const vec4_t (*)[4])quadCache, &quadCache->image.uv, &quadCache->color, quadCache->image.texture, quadCache->image.material, quadCache->glitchAmount, quadCache->unitScale, quadCache->blurAmount, quadCache->image.samplerState, quadCache->parallaxAmount, &quadCache->colorOp, has3DTransforms, quadCache->scopeIndex, quadCache->flags, quadCache->extraParam);
   }
 }
 
@@ -1990,170 +1546,97 @@ void LUI_Render_DrawQuadCache(lua_State *luaVM, UIQuadCache *quadCache)
 LUI_Render_DrawQuadRotated
 ==============
 */
-
-void __fastcall LUI_Render_DrawQuadRotated(const LocalClientNum_t localClientNum, LUIElement *element, double centerX, double centerY, float width, float height, float uMin, float vMin, float uMax, float vMax, float angle, float red, float green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
+void LUI_Render_DrawQuadRotated(const LocalClientNum_t localClientNum, LUIElement *element, float centerX, float centerY, float width, float height, float uMin, float vMin, float uMax, float vMax, float angle, float red, float green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
 {
-  bool v23; 
-  DrawListMode v36; 
-  unsigned int v38; 
-  const float *v39; 
-  Material *v56; 
+  bool v17; 
+  DrawListMode v20; 
+  float *v21; 
+  unsigned int v22; 
+  float *v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  Material *v28; 
+  double CurrentParallaxAmount; 
   bool has3DTransforms; 
   unsigned __int16 samplerState; 
+  float v32; 
+  float v33; 
   const LUIColorOpData *colorOp; 
   int scopeIndex; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
   float c; 
   float s; 
-  lua_State *v81; 
+  lua_State *v38; 
   vec4_t color; 
   LUIQuadUV uv; 
   vec4_t point[2]; 
+  __m256i v42; 
   vec4_t verts[2]; 
-  char v88; 
-  void *retaddr; 
+  __m256i v44; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  v23 = !element->quadCached;
-  __asm
-  {
-    vmovss  xmm0, [rbp+0E0h+red]
-    vmovss  xmm1, [rbp+0E0h+green]
-    vmovss  dword ptr [rbp+0E0h+color], xmm0
-    vmovss  xmm0, [rbp+0E0h+blue]
-    vmovss  dword ptr [rbp+0E0h+color+4], xmm1
-    vmovss  xmm1, [rbp+0E0h+alpha]
-    vmovss  dword ptr [rbp+0E0h+color+8], xmm0
-    vmovss  dword ptr [rbp+0E0h+color+0Ch], xmm1
-    vmovaps xmm9, xmm3
-    vmovaps xmm10, xmm2
-  }
-  v81 = luaVM;
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1438, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
+  v17 = !element->quadCached;
+  color.v[0] = red;
+  color.v[1] = green;
+  color.v[2] = blue;
+  color.v[3] = alpha;
+  v38 = luaVM;
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1438, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+0E0h+angle]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm7, [rbp+0E0h+height]
-    vmovss  xmm8, [rbp+0E0h+width]
-  }
-  v36 = DrawListMode_Default;
-  _RBX = &point[0].v[1];
-  v38 = 0;
-  v39 = &QUAD_BUILD[1];
+  FastSinCos(angle * 0.017453292, &s, &c);
+  v20 = DrawListMode_Default;
+  v21 = &point[0].v[1];
+  v22 = 0;
+  v23 = (float *)&QUAD_BUILD[1];
   do
   {
-    __asm
-    {
-      vmulss  xmm5, xmm8, dword ptr [rsi-4]
-      vmulss  xmm6, xmm7, dword ptr [rsi]
-      vmulss  xmm1, xmm5, [rbp+0E0h+c]
-      vmulss  xmm0, xmm6, [rbp+0E0h+s]
-      vmulss  xmm3, xmm5, [rbp+0E0h+s]
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm6, [rbp+0E0h+c]
-      vaddss  xmm2, xmm1, xmm10
-      vmovss  dword ptr [rbx-4], xmm2
-      vaddss  xmm1, xmm3, xmm0
-      vaddss  xmm2, xmm1, xmm9
-      vmovss  dword ptr [rbx], xmm2
-    }
-    _RBX[1] = 0.0;
-    _RBX[2] = 1.0;
-    LUI_ApplyTransformsToPoint(&point[v38++]);
-    _RBX += 4;
-    v39 += 2;
+    v24 = width * *(v23 - 1);
+    v25 = height * *v23;
+    v26 = v24 * s;
+    v27 = v25 * c;
+    *(v21 - 1) = (float)((float)(v24 * c) - (float)(v25 * s)) + centerX;
+    *v21 = (float)(v26 + v27) + centerY;
+    v21[1] = 0.0;
+    v21[2] = 1.0;
+    LUI_ApplyTransformsToPoint(&point[v22++]);
+    v21 += 4;
+    v23 += 2;
   }
-  while ( v38 < 4 );
-  __asm
-  {
-    vmovss  xmm0, [rbp+0E0h+uMin]
-    vmovss  xmm1, [rbp+0E0h+uMax]
-    vmovss  [rbp+0E0h+uv.minMax.uMin], xmm0
-    vmovss  xmm0, [rbp+0E0h+vMin]
-    vmovss  [rbp+0E0h+uv.minMax.vMin], xmm0
-    vmovups ymm0, ymmword ptr [rbp+0E0h+point]
-    vmovups ymmword ptr [rbp+0E0h+verts], ymm0
-    vmovups ymm0, [rbp+0E0h+var_F0]
-    vmovss  [rbp+0E0h+uv.minMax.uMax], xmm1
-    vmovss  xmm1, [rbp+0E0h+vMax]
-    vmovups [rbp+0E0h+var_B0], ymm0
-    vmovss  [rbp+0E0h+uv.minMax.vMax], xmm1
-  }
+  while ( v22 < 4 );
+  uv.minMax.uMin = uMin;
+  uv.minMax.vMin = vMin;
+  *(__m256i *)verts[0].v = *(__m256i *)point[0].v;
+  uv.minMax.uMax = uMax;
+  v44 = v42;
+  uv.minMax.vMax = vMax;
   memset(&uv.rotated, 0, 24);
   LUI_Render_PuffThinQuad(verts);
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1235, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  v56 = LUI_Render_GetMaterial(LUI_COLOR_SOURCE_IMAGE, (element->usageFlags & 0x200000) == 0);
-  *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm { vmovaps xmm9, xmm0 }
+  v28 = LUI_Render_GetMaterial(LUI_COLOR_SOURCE_IMAGE, (element->usageFlags & 0x200000) == 0);
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
   has3DTransforms = LUI_Is3DTransformEnabled();
   samplerState = LUI_Render_ChooseSamplerState(&uv, element);
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 597, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  _RDX = 0x140000000ui64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   if ( s_numGlitchSettingsActive )
-  {
-    _RCX = s_numGlitchSettingsActive - 1;
-    __asm { vmovss  xmm8, rva s_glitchSettingsStack[rdx+rcx*4] }
-  }
+    v32 = s_glitchSettingsStack[s_numGlitchSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm8, xmm8, xmm8 }
-  }
+    v32 = 0.0;
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 731, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_numBlurSettingsActive )
-  {
-    _RCX = s_numBlurSettingsActive - 1;
-    _RAX = 0x140000000ui64;
-    __asm { vmovss  xmm7, rva s_blurSettingsStack[rax+rcx*4] }
-  }
+    v33 = s_blurSettingsStack[s_numBlurSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-  }
+    v33 = 0.0;
   colorOp = LUI_Render_GetColorOp();
   if ( s_numScopeIndexSettingsActive )
     scopeIndex = s_scopeIndexSettingsStack[s_numScopeIndexSettingsActive - 1];
   else
     scopeIndex = s_numScopeIndexSettingsActive - 1;
   if ( s_drawListModeDepth )
-    v36 = s_drawListMode[s_drawListModeDepth - 1];
-  __asm
-  {
-    vmovss  [rsp+1F0h+var_168], xmm6
-    vmovss  dword ptr [rsp+1F0h+var_198], xmm9
-    vmovss  dword ptr [rsp+1F0h+var_1A8], xmm7
-    vmovss  [rsp+1F0h+var_1B0], xmm8
-  }
-  LUI_QuadCache_Element_CacheImageQuad(v81, localClientNum, element, verts, &color, &uv, material, v56, v75, v76, samplerState, v77, colorOp, has3DTransforms, scopeIndex, v36 == DrawListMode_ReceivePostFXLite, LUI_COLOR_SOURCE_IMAGE, v78);
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+    v20 = s_drawListMode[s_drawListModeDepth - 1];
+  LUI_QuadCache_Element_CacheImageQuad(v38, localClientNum, element, verts, &color, &uv, material, v28, v32, v33, samplerState, *(float *)&CurrentParallaxAmount, colorOp, has3DTransforms, scopeIndex, v20 == DrawListMode_ReceivePostFXLite, LUI_COLOR_SOURCE_IMAGE, 0.0);
 }
 
 /*
@@ -2161,183 +1644,103 @@ void __fastcall LUI_Render_DrawQuadRotated(const LocalClientNum_t localClientNum
 LUI_Render_DrawQuadRotatedRelativeToPoint
 ==============
 */
-
-void __fastcall LUI_Render_DrawQuadRotatedRelativeToPoint(const LocalClientNum_t localClientNum, LUIElement *element, double rotationCenterX, double rotationCenterY, float quadCenterX, float quadCenterY, float width, float height, float uMin, float vMin, float uMax, float vMax, float angle, float red, float green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
+void LUI_Render_DrawQuadRotatedRelativeToPoint(const LocalClientNum_t localClientNum, LUIElement *element, float rotationCenterX, float rotationCenterY, float quadCenterX, float quadCenterY, float width, float height, float uMin, float vMin, float uMax, float vMax, float angle, float red, float green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
 {
-  bool v27; 
-  DrawListMode v42; 
-  unsigned int v46; 
-  const float *v47; 
-  Material *v66; 
+  bool v19; 
+  DrawListMode v23; 
+  float *v24; 
+  float v25; 
+  float v26; 
+  unsigned int v27; 
+  float *v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  Material *v34; 
+  double CurrentParallaxAmount; 
   bool has3DTransforms; 
   unsigned __int16 samplerState; 
+  float v38; 
+  float v39; 
   const LUIColorOpData *colorOp; 
   int scopeIndex; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
   float c; 
   float s; 
-  lua_State *v93; 
+  lua_State *v44; 
   vec4_t color; 
   LUIQuadUV uv; 
   vec4_t point[2]; 
+  __m256i v48; 
   vec4_t verts[2]; 
-  char v100; 
-  void *retaddr; 
+  __m256i v50; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-  }
-  v27 = !element->quadCached;
-  __asm
-  {
-    vmovss  xmm0, [rbp+100h+red]
-    vmovss  xmm1, [rbp+100h+green]
-    vmovss  dword ptr [rbp+100h+color], xmm0
-    vmovss  xmm0, [rbp+100h+blue]
-    vmovss  dword ptr [rbp+100h+color+4], xmm1
-    vmovss  xmm1, [rbp+100h+alpha]
-    vmovss  dword ptr [rbp+100h+color+8], xmm0
-    vmovss  dword ptr [rbp+100h+color+0Ch], xmm1
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-  }
-  v93 = luaVM;
-  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1478, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
+  v19 = !element->quadCached;
+  color.v[0] = red;
+  color.v[1] = green;
+  color.v[2] = blue;
+  color.v[3] = alpha;
+  v44 = luaVM;
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1478, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+100h+angle]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm0, [rbp+100h+quadCenterX]
-    vmovss  xmm1, [rbp+100h+quadCenterY]
-    vmovss  xmm11, [rbp+100h+height]
-    vmovss  xmm12, [rbp+100h+width]
-  }
-  v42 = DrawListMode_Default;
-  _RBX = &point[0].v[1];
-  __asm
-  {
-    vsubss  xmm9, xmm0, xmm8
-    vsubss  xmm10, xmm1, xmm7
-  }
-  v46 = 0;
-  v47 = &QUAD_BUILD_0[1];
+  FastSinCos(angle * 0.017453292, &s, &c);
+  v23 = DrawListMode_Default;
+  v24 = &point[0].v[1];
+  v25 = quadCenterX - rotationCenterX;
+  v26 = quadCenterY - rotationCenterY;
+  v27 = 0;
+  v28 = (float *)&QUAD_BUILD_0[1];
   do
   {
-    __asm
-    {
-      vmulss  xmm0, xmm12, dword ptr [rsi-4]
-      vmulss  xmm1, xmm11, dword ptr [rsi]
-      vaddss  xmm6, xmm0, xmm9
-      vmulss  xmm2, xmm6, [rbp+100h+c]
-      vmulss  xmm3, xmm6, [rbp+100h+s]
-      vaddss  xmm5, xmm1, xmm10
-      vmulss  xmm0, xmm5, [rbp+100h+s]
-      vsubss  xmm1, xmm2, xmm0
-      vmulss  xmm0, xmm5, [rbp+100h+c]
-      vaddss  xmm2, xmm1, xmm8
-      vmovss  dword ptr [rbx-4], xmm2
-      vaddss  xmm1, xmm3, xmm0
-      vaddss  xmm2, xmm1, xmm7
-      vmovss  dword ptr [rbx], xmm2
-    }
-    _RBX[1] = 0.0;
-    _RBX[2] = 1.0;
-    LUI_ApplyTransformsToPoint(&point[v46++]);
-    _RBX += 4;
-    v47 += 2;
+    v29 = width * *(v28 - 1);
+    v30 = (float)(v29 + v25) * s;
+    v31 = (float)(height * *v28) + v26;
+    v32 = (float)((float)(v29 + v25) * c) - (float)(v31 * s);
+    v33 = v31 * c;
+    *(v24 - 1) = v32 + rotationCenterX;
+    *v24 = (float)(v30 + v33) + rotationCenterY;
+    v24[1] = 0.0;
+    v24[2] = 1.0;
+    LUI_ApplyTransformsToPoint(&point[v27++]);
+    v24 += 4;
+    v28 += 2;
   }
-  while ( v46 < 4 );
-  __asm
-  {
-    vmovss  xmm0, [rbp+100h+uMin]
-    vmovss  xmm1, [rbp+100h+uMax]
-    vmovss  [rbp+100h+uv.minMax.uMin], xmm0
-    vmovss  xmm0, [rbp+100h+vMin]
-    vmovss  [rbp+100h+uv.minMax.vMin], xmm0
-    vmovups ymm0, ymmword ptr [rbp+100h+point]
-    vmovups ymmword ptr [rbp+100h+verts], ymm0
-    vmovups ymm0, [rbp+100h+var_110]
-    vmovss  [rbp+100h+uv.minMax.uMax], xmm1
-    vmovss  xmm1, [rbp+100h+vMax]
-    vmovups [rbp+100h+var_D0], ymm0
-    vmovss  [rbp+100h+uv.minMax.vMax], xmm1
-  }
+  while ( v27 < 4 );
+  uv.minMax.uMin = uMin;
+  uv.minMax.vMin = vMin;
+  *(__m256i *)verts[0].v = *(__m256i *)point[0].v;
+  uv.minMax.uMax = uMax;
+  v50 = v48;
+  uv.minMax.vMax = vMax;
   memset(&uv.rotated, 0, 24);
   LUI_Render_PuffThinQuad(verts);
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1235, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  v66 = LUI_Render_GetMaterial(LUI_COLOR_SOURCE_IMAGE, (element->usageFlags & 0x200000) == 0);
-  *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm { vmovaps xmm9, xmm0 }
+  v34 = LUI_Render_GetMaterial(LUI_COLOR_SOURCE_IMAGE, (element->usageFlags & 0x200000) == 0);
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
   has3DTransforms = LUI_Is3DTransformEnabled();
   samplerState = LUI_Render_ChooseSamplerState(&uv, element);
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 597, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  _RDX = 0x140000000ui64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   if ( s_numGlitchSettingsActive )
-  {
-    _RCX = s_numGlitchSettingsActive - 1;
-    __asm { vmovss  xmm8, rva s_glitchSettingsStack[rdx+rcx*4] }
-  }
+    v38 = s_glitchSettingsStack[s_numGlitchSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm8, xmm8, xmm8 }
-  }
+    v38 = 0.0;
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 731, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_numBlurSettingsActive )
-  {
-    _RCX = s_numBlurSettingsActive - 1;
-    _RAX = 0x140000000ui64;
-    __asm { vmovss  xmm7, rva s_blurSettingsStack[rax+rcx*4] }
-  }
+    v39 = s_blurSettingsStack[s_numBlurSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-  }
+    v39 = 0.0;
   colorOp = LUI_Render_GetColorOp();
   if ( s_numScopeIndexSettingsActive )
     scopeIndex = s_scopeIndexSettingsStack[s_numScopeIndexSettingsActive - 1];
   else
     scopeIndex = s_numScopeIndexSettingsActive - 1;
   if ( s_drawListModeDepth )
-    v42 = s_drawListMode[s_drawListModeDepth - 1];
-  __asm
-  {
-    vmovss  [rsp+210h+var_188], xmm6
-    vmovss  dword ptr [rsp+210h+var_1B8], xmm9
-    vmovss  dword ptr [rsp+210h+var_1C8], xmm7
-    vmovss  [rsp+210h+var_1D0], xmm8
-  }
-  LUI_QuadCache_Element_CacheImageQuad(v93, localClientNum, element, verts, &color, &uv, material, v66, v87, v88, samplerState, v89, colorOp, has3DTransforms, scopeIndex, v42 == DrawListMode_ReceivePostFXLite, LUI_COLOR_SOURCE_IMAGE, v90);
-  _R11 = &v100;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+    v23 = s_drawListMode[s_drawListModeDepth - 1];
+  LUI_QuadCache_Element_CacheImageQuad(v44, localClientNum, element, verts, &color, &uv, material, v34, v38, v39, samplerState, *(float *)&CurrentParallaxAmount, colorOp, has3DTransforms, scopeIndex, v23 == DrawListMode_ReceivePostFXLite, LUI_COLOR_SOURCE_IMAGE, 0.0);
 }
 
 /*
@@ -2347,77 +1750,42 @@ LUI_Render_DrawText
 */
 void LUI_Render_DrawText(const LocalClientNum_t localClientNum, lua_State *luaVM, LUIElement *element, const vec4_t (*verts)[4], const vec4_t *color, GfxFont *font, const char *text, int style, char tracking, float rotation, int fontSize, FontDecodeStyle *fontDecodeStyle, FontGlowStyle *fontGlowStyle)
 {
+  double CurrentParallaxAmount; 
+  float v18; 
+  float GlitchAmount; 
+  float BlurAmount; 
   bool tintIcons; 
-  LUIColorSource v28; 
+  FontGlowStyle *v22; 
+  LUIColorSource v23; 
   Material *fontMaterial; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
   LUIColorOpData *colorOp; 
   Material *iconsMaterial; 
-  char v41; 
-  void *retaddr; 
   bool has3DTransforms; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1187, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm { vmovaps xmm6, xmm0 }
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+  v18 = *(float *)&CurrentParallaxAmount;
   has3DTransforms = LUI_Is3DTransformEnabled();
   iconsMaterial = LUI_Render_GetMaterial(LUI_COLOR_SOURCE_IMAGE, 1);
-  *(float *)&_XMM0 = LUI_Render_GetGlitchAmount();
-  __asm { vmovaps xmm7, xmm0 }
-  *(float *)&_XMM0 = LUI_Render_GetBlurAmount();
+  GlitchAmount = LUI_Render_GetGlitchAmount();
+  BlurAmount = LUI_Render_GetBlurAmount();
   tintIcons = (element->usageFlags & 0x200) != 0;
-  __asm { vmovaps xmm8, xmm0 }
-  _RBX = fontGlowStyle;
+  v22 = fontGlowStyle;
   colorOp = (LUIColorOpData *)LUI_Render_GetColorOp();
-  if ( fontGlowStyle )
+  if ( !fontGlowStyle || fontGlowStyle->glowMinDistance == fontGlowStyle->glowMaxDistance && fontGlowStyle->outlineGlowMinDistance == fontGlowStyle->outlineGlowMaxDistance )
+    v22 = NULL;
+  v23 = LUI_COLOR_SOURCE_FONTCACHE;
+  if ( v22 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx]
-      vucomiss xmm1, dword ptr [rbx+4]
-    }
-  }
-  else
-  {
-    _RBX = NULL;
-  }
-  v28 = LUI_COLOR_SOURCE_FONTCACHE;
-  if ( _RBX )
-  {
-    v28 = LUI_COLOR_SOURCE_FONTCACHE_SDF_GLOW;
+    v23 = LUI_COLOR_SOURCE_FONTCACHE_SDF_GLOW;
   }
   else if ( LUI_Is3DTransformEnabled() || FontCache_DoesGlyphUseDistanceField(fontSize) )
   {
-    v28 = LUI_COLOR_SOURCE_FONTCACHE_SDF;
+    v23 = LUI_COLOR_SOURCE_FONTCACHE_SDF;
   }
-  fontMaterial = LUI_Render_GetMaterial(v28, 1);
-  __asm
-  {
-    vmovss  xmm0, [rsp+108h+rotation]
-    vmovss  [rsp+108h+var_80], xmm6
-    vmovss  [rsp+108h+var_88], xmm8
-    vmovss  [rsp+108h+var_90], xmm7
-    vmovss  [rsp+108h+var_C8], xmm0
-  }
-  LUI_QuadCache_Element_CacheTextQuad(luaVM, localClientNum, element, (const vec4_t *)verts, color, font, text, tracking, v35, fontSize, fontMaterial, iconsMaterial, tintIcons, fontDecodeStyle, _RBX, v36, v37, v38, colorOp, has3DTransforms);
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  fontMaterial = LUI_Render_GetMaterial(v23, 1);
+  LUI_QuadCache_Element_CacheTextQuad(luaVM, localClientNum, element, (const vec4_t *)verts, color, font, text, tracking, rotation, fontSize, fontMaterial, iconsMaterial, tintIcons, fontDecodeStyle, v22, GlitchAmount, BlurAmount, v18, colorOp, has3DTransforms);
 }
 
 /*
@@ -2437,22 +1805,14 @@ bool LUI_Render_GetAsyncRenderSuspended()
 LUI_Render_GetBlurAmount
 ==============
 */
-
-float __fastcall LUI_Render_GetBlurAmount(double _XMM0_8)
+float LUI_Render_GetBlurAmount()
 {
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 731, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_numBlurSettingsActive )
-  {
-    _RCX = s_numBlurSettingsActive - 1;
-    _RAX = s_blurSettingsStack;
-    __asm { vmovss  xmm0, dword ptr [rax+rcx*4] }
-  }
+    return s_blurSettingsStack[s_numBlurSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -2531,24 +1891,22 @@ LUI_Render_GetCurrentParallaxAmount
 */
 float LUI_Render_GetCurrentParallaxAmount()
 {
-  __int64 v4; 
-  int v5; 
+  unsigned __int8 v0; 
+  __int64 v2; 
+  int v3; 
 
   if ( LUI_IsInExecDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 393, ASSERT_TYPE_ASSERT, "(!LUI_IsInExecDrawList())", (const char *)&queryFormat, "!LUI_IsInExecDrawList()") )
     __debugbreak();
-  LOBYTE(_RAX) = s_currentParallax;
+  v0 = s_currentParallax;
   if ( s_currentParallax >= 8u )
   {
-    v5 = 8;
-    LODWORD(v4) = s_currentParallax;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 394, ASSERT_TYPE_ASSERT, "(unsigned)( s_currentParallax ) < (unsigned)( 8 )", "s_currentParallax doesn't index LUI_MAX_PARALLAX\n\t%i not in [0, %i)", v4, v5) )
+    v3 = 8;
+    LODWORD(v2) = s_currentParallax;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 394, ASSERT_TYPE_ASSERT, "(unsigned)( s_currentParallax ) < (unsigned)( 8 )", "s_currentParallax doesn't index LUI_MAX_PARALLAX\n\t%i not in [0, %i)", v2, v3) )
       __debugbreak();
-    LOBYTE(_RAX) = s_currentParallax;
+    v0 = s_currentParallax;
   }
-  _RAX = (unsigned __int8)_RAX;
-  _RCX = s_parallaxAmount;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax*4] }
-  return *(float *)&_XMM0;
+  return s_parallaxAmount[v0];
 }
 
 /*
@@ -2571,30 +1929,18 @@ unsigned __int8 LUI_Render_GetCurrentRTT()
 LUI_Render_GetCurrentUnitScale
 ==============
 */
-
-float __fastcall LUI_Render_GetCurrentUnitScale(double _XMM0_8)
+float LUI_Render_GetCurrentUnitScale()
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
+  float v0; 
+
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 487, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_numUnitScaleActive <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 488, ASSERT_TYPE_ASSERT, "(s_numUnitScaleActive > 0)", (const char *)&queryFormat, "s_numUnitScaleActive > 0") )
     __debugbreak();
-  _RDX = s_numUnitScaleActive - 1;
-  _RAX = s_unitScaleStack;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm6, dword ptr [rax+rdx*4]
-    vcomiss xmm6, xmm0
-  }
-  if ( s_numUnitScaleActive == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 490, ASSERT_TYPE_ASSERT, "(unitScale > 0)", (const char *)&queryFormat, "unitScale > 0") )
+  v0 = s_unitScaleStack[s_numUnitScaleActive - 1];
+  if ( v0 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 490, ASSERT_TYPE_ASSERT, "(unitScale > 0)", (const char *)&queryFormat, "unitScale > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return v0;
 }
 
 /*
@@ -2602,22 +1948,14 @@ float __fastcall LUI_Render_GetCurrentUnitScale(double _XMM0_8)
 LUI_Render_GetGlitchAmount
 ==============
 */
-
-float __fastcall LUI_Render_GetGlitchAmount(double _XMM0_8)
+float LUI_Render_GetGlitchAmount()
 {
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 597, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_numGlitchSettingsActive )
-  {
-    _RCX = s_numGlitchSettingsActive - 1;
-    _RAX = s_glitchSettingsStack;
-    __asm { vmovss  xmm0, dword ptr [rax+rcx*4] }
-  }
+    return s_glitchSettingsStack[s_numGlitchSettingsActive - 1];
   else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -2668,47 +2006,38 @@ LUI_Render_GetViewportSize
 */
 void LUI_Render_GetViewportSize(LocalClientNum_t localClientNum, vec2_t *outSize)
 {
-  bool v9; 
+  float v3; 
+  bool v4; 
+  vec2_t *p_realViewportSize; 
   int widthOut; 
   int heightOut; 
 
-  _RBX = outSize;
   if ( s_rttDepth )
   {
     R_RTT_GetSize(localClientNum, s_rttStack[s_rttDepth - 1], &widthOut, &heightOut);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rsp+38h+widthOut]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, [rsp+38h+heightOut]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    v3 = (float)heightOut;
+    outSize->v[0] = (float)widthOut;
+    outSize->v[1] = v3;
     return;
   }
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      _RCX = &scrPlaceViewDisplay[localClientNum].realViewportSize;
+      p_realViewportSize = &scrPlaceViewDisplay[localClientNum].realViewportSize;
       goto LABEL_10;
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v9 )
+      v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v4 )
       __debugbreak();
   }
-  _RCX = &scrPlaceFull.realViewportSize;
+  p_realViewportSize = &scrPlaceFull.realViewportSize;
 LABEL_10:
-  _RBX->v[0] = _RCX->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  dword ptr [rbx+4], xmm0
-  }
+  outSize->v[0] = p_realViewportSize->v[0];
+  outSize->v[1] = p_realViewportSize->v[1];
 }
 
 /*
@@ -2716,58 +2045,29 @@ LABEL_10:
 LUI_Render_ImageFill
 ==============
 */
-
-void __fastcall LUI_Render_ImageFill(const LocalClientNum_t localClientNum, LUIElement *element, double red, double green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
+void LUI_Render_ImageFill(const LocalClientNum_t localClientNum, LUIElement *element, float red, float green, float blue, float alpha, const GfxImage *material, lua_State *luaVM)
 {
   bool v8; 
-  float v21; 
   vec4_t color; 
   LUIQuadUV uv; 
   vec4_t verts[8]; 
 
   v8 = !element->quadCached;
-  __asm
-  {
-    vmovss  xmm0, [rbp+50h+blue]
-    vmovss  xmm1, [rbp+50h+alpha]
-  }
-  _RBX = element;
-  __asm
-  {
-    vmovss  dword ptr [rsp+150h+var_100+8], xmm0
-    vmovss  dword ptr [rsp+150h+var_100+0Ch], xmm1
-    vmovss  dword ptr [rsp+150h+var_100], xmm2
-    vmovss  dword ptr [rsp+150h+var_100+4], xmm3
-  }
+  color.v[2] = blue;
+  color.v[3] = alpha;
+  color.v[0] = red;
+  color.v[1] = green;
   if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1522, ASSERT_TYPE_ASSERT, "(!element->quadCached)", (const char *)&queryFormat, "!element->quadCached") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+0D8h]; bottom
-    vmovss  xmm2, dword ptr [rbx+0D4h]; right
-    vmovss  xmm1, dword ptr [rbx+0D0h]; top
-    vmovss  xmm0, dword ptr [rbx+0CCh]; left
-  }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])&verts[4]);
-  if ( !LUIElement_IsImageLike(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1527, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
+  LUI_CoD_GenerateQuadVerts(element->left, element->top, element->right, element->bottom, (vec4_t (*)[4])&verts[4]);
+  if ( !LUIElement_IsImageLike(element) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1527, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+118h]
-    vmovups xmmword ptr [rsp+150h+uv.minMax.uMin], xmm0
-    vmovups ymm0, ymmword ptr [rbp+50h+quadVerts]
-    vmovups ymmword ptr [rbp+50h+verts], ymm0
-    vmovups ymm0, ymmword ptr [rbp+50h+quadVerts+20h]
-    vmovups [rbp+50h+var_A0], ymm0
-  }
+  uv.minMax = *(LUIQuadUVMinMax *)element->textData.textRef;
+  *(__m256i *)verts[0].v = *(__m256i *)verts[4].v;
+  *(__m256i *)verts[2].v = *(__m256i *)verts[6].v;
   memset(&uv.rotated, 0, 24);
   LUI_Render_PuffThinQuad(verts);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+150h+var_108], xmm0
-  }
-  LUI_Render_CommitQuad(localClientNum, _RBX, luaVM, (const vec4_t (*)[4])verts, &uv, &color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, v21);
+  LUI_Render_CommitQuad(localClientNum, element, luaVM, (const vec4_t (*)[4])verts, &uv, &color, material, 0, GFX_PIXEL_SHAPE_TYPE_NONE, 0.0);
 }
 
 /*
@@ -3090,89 +2390,71 @@ LUI_Render_PuffThinQuad
 */
 void LUI_Render_PuffThinQuad(vec4_t *verts)
 {
-  const dvar_t *v4; 
-  char v12; 
-  bool v13; 
-  char v14; 
-  bool v15; 
-  bool v20; 
-  char v25; 
+  const dvar_t *v1; 
+  bool v3; 
+  bool v4; 
+  float v5; 
+  bool v6; 
+  bool v7; 
+  float v8; 
+  float displayHeight; 
+  __int128 v12; 
+  float v15; 
+  float v16; 
+  float displayWidth; 
+  __int128 v19; 
 
-  v4 = DCONST_DVARBOOL_lui_forcelinedraws;
-  _RBX = verts;
+  v1 = DCONST_DVARBOOL_lui_forcelinedraws;
   if ( !DCONST_DVARBOOL_lui_forcelinedraws && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_forcelinedraws") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
-    __asm
+    v3 = COERCE_FLOAT(LODWORD(LUI_GetCurrentMenuTransform()->m[1].v[0]) & _xmm) > 0.000001;
+    v4 = LUI_Is3DTransformEnabled();
+    v5 = verts->v[1];
+    v6 = v4;
+    v7 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v5 - verts[1].v[1]) & _xmm) < 0.000001 && COERCE_FLOAT(COERCE_UNSIGNED_INT(verts->v[0] - verts[3].v[0]) & _xmm) < 0.000001;
+    if ( !v3 && !v6 && v7 )
     {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-    }
-    _RAX = LUI_GetCurrentMenuTransform();
-    __asm
-    {
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovsd  xmm7, cs:__real@3eb0c6f7a0b5ed8d
-      vmovss  xmm0, dword ptr [rax+10h]
-      vandps  xmm0, xmm0, xmm6
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, xmm7
-    }
-    v13 = !(v14 | v12);
-    v15 = LUI_Is3DTransformEnabled();
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbx+4]
-      vsubss  xmm0, xmm5, dword ptr [rbx+14h]
-      vandps  xmm0, xmm0, xmm6
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, xmm7
-    }
-    v20 = v15;
-    if ( !v14 )
-      goto LABEL_8;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm1, xmm0, dword ptr [rbx+30h]
-      vandps  xmm1, xmm1, xmm6
-      vcvtss2sd xmm1, xmm1, xmm1
-      vcomisd xmm1, xmm7
-    }
-    if ( v14 )
-      v25 = 1;
-    else
-LABEL_8:
-      v25 = 0;
-    if ( !v13 && !v20 )
-    {
-      if ( v25 )
+      v8 = verts[3].v[1] - v5;
+      _XMM8 = 0i64;
+      if ( COERCE_FLOAT(LODWORD(v8) & _xmm) < 1.0 )
       {
-        __asm
+        displayHeight = (float)vidConfig.displayHeight;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v8 * 1080.0) / displayHeight) & _xmm) > 0.5 )
         {
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  xmm4, cs:__real@3f800000
-          vmovss  xmm7, cs:__real@3f000000
-          vsubss  xmm3, xmm0, xmm5
-          vandps  xmm1, xmm3, xmm6
-          vcomiss xmm1, xmm4
-          vmovaps [rsp+78h+var_38], xmm8
-          vxorps  xmm8, xmm8, xmm8
-          vmovss  xmm5, dword ptr [rbx]
-          vmovss  xmm0, dword ptr [rbx+10h]
-          vsubss  xmm3, xmm0, xmm5
-          vandps  xmm1, xmm3, xmm6
-          vcomiss xmm1, xmm4
-          vmovaps xmm8, [rsp+78h+var_38]
+          v12 = LODWORD(verts->v[1]);
+          *(float *)&v12 = v5 - 1.0;
+          _XMM2 = v12;
+          __asm
+          {
+            vcmpltss xmm0, xmm8, xmm3
+            vblendvps xmm3, xmm2, xmm1, xmm0
+          }
+          verts[3].v[1] = *(float *)&_XMM3;
+          verts[2].v[1] = *(float *)&_XMM3;
         }
       }
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+78h+var_18]
-      vmovaps xmm7, [rsp+78h+var_28]
+      v15 = verts[1].v[0] - verts->v[0];
+      if ( COERCE_FLOAT(LODWORD(v15) & _xmm) < 1.0 )
+      {
+        v16 = v15 * 1920.0;
+        displayWidth = (float)vidConfig.displayWidth;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v16 / displayWidth) & _xmm) > 0.5 )
+        {
+          v19 = LODWORD(verts->v[0]);
+          *(float *)&v19 = verts->v[0] - 1.0;
+          _XMM2 = v19;
+          __asm
+          {
+            vcmpltss xmm0, xmm8, xmm3
+            vblendvps xmm3, xmm2, xmm1, xmm0
+          }
+          verts[1].v[0] = *(float *)&_XMM3;
+          verts[2].v[0] = *(float *)&_XMM3;
+        }
+      }
     }
   }
 }
@@ -3216,33 +2498,21 @@ void LUI_Render_PushBlendMode(const LUIBlendMode blendMode)
 LUI_Render_PushBlur
 ==============
 */
-
-void __fastcall LUI_Render_PushBlur(double amount)
+void LUI_Render_PushBlur(float amount)
 {
-  int v3; 
+  int v1; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 714, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  v3 = s_numBlurSettingsActive;
+  v1 = s_numBlurSettingsActive;
   if ( s_numBlurSettingsActive >= 1 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 715, ASSERT_TYPE_ASSERT, "(s_numBlurSettingsActive < 1)", (const char *)&queryFormat, "s_numBlurSettingsActive < LUI_MAX_NESTED_BLUR") )
       __debugbreak();
-    v3 = s_numBlurSettingsActive;
+    v1 = s_numBlurSettingsActive;
   }
-  _RAX = v3;
-  _RCX = s_blurSettingsStack;
-  s_numBlurSettingsActive = v3 + 1;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax*4], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  s_numBlurSettingsActive = v1 + 1;
+  s_blurSettingsStack[v1] = amount;
 }
 
 /*
@@ -3320,33 +2590,21 @@ void LUI_Render_PushCustomList(const LocalClientNum_t localClientNum, const unsi
 LUI_Render_PushGlitch
 ==============
 */
-
-void __fastcall LUI_Render_PushGlitch(double glitchAmount)
+void LUI_Render_PushGlitch(float glitchAmount)
 {
-  int v3; 
+  int v1; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 580, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  v3 = s_numGlitchSettingsActive;
+  v1 = s_numGlitchSettingsActive;
   if ( s_numGlitchSettingsActive >= 4 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 581, ASSERT_TYPE_ASSERT, "(s_numGlitchSettingsActive < 4)", (const char *)&queryFormat, "s_numGlitchSettingsActive < LUI_MAX_NESTED_GLITCH") )
       __debugbreak();
-    v3 = s_numGlitchSettingsActive;
+    v1 = s_numGlitchSettingsActive;
   }
-  _RAX = v3;
-  _RCX = s_glitchSettingsStack;
-  s_numGlitchSettingsActive = v3 + 1;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax*4], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  s_numGlitchSettingsActive = v1 + 1;
+  s_glitchSettingsStack[v1] = glitchAmount;
 }
 
 /*
@@ -3354,120 +2612,80 @@ void __fastcall LUI_Render_PushGlitch(double glitchAmount)
 LUI_Render_PushMask
 ==============
 */
-
-void __fastcall LUI_Render_PushMask(const LocalClientNum_t localClientNum, double maskCenterX, double maskCenterY, double maskWidth, float maskHeight, float maskRotation, float alphaScale, float alphaOffset, bool applyParallax, float maskUMin, float maskVMin, float maskUMax, float maskVMax, const vec2_t *viewportSize, GfxImage *image)
+void LUI_Render_PushMask(const LocalClientNum_t localClientNum, float maskCenterX, float maskCenterY, float maskWidth, float maskHeight, float maskRotation, float alphaScale, float alphaOffset, bool applyParallax, float maskUMin, float maskVMin, float maskUMax, float maskVMax, const vec2_t *viewportSize, GfxImage *image)
 {
-  vec2_t v28; 
-  unsigned int v29; 
-  char v40; 
-  char v41; 
+  vec2_t v16; 
+  unsigned int v17; 
+  double CurrentParallaxAmount; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   int data; 
   vec4_t vec; 
-  vec2_t v61; 
-  GfxImage *v62; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  vec2_t v34; 
+  GfxImage *v35; 
   vec4_t result; 
   tmat44_t<vec4_t> outMatrix; 
-  __int64 v65; 
-  char v66; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v65;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 294, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+20h+maskRotation]
-    vmovss  xmm1, [rbp+20h+alphaScale]
-    vmovss  xmm3, [rbp+20h+maskHeight]
-    vmulss  xmm2, xmm3, cs:__real@3f000000
-  }
-  v28 = *viewportSize;
-  v29 = s_RenderMaskPushCount;
-  __asm
-  {
-    vmovss  [rsp+120h+var_D4], xmm0
-    vmovss  xmm0, [rbp+20h+alphaOffset]
-    vmovss  [rsp+120h+var_CC], xmm0
-    vmovss  xmm0, [rbp+20h+maskVMin]
-    vmovss  [rsp+120h+var_C4], xmm0
-    vmovss  xmm0, [rbp+20h+maskVMax]
-    vmovss  [rsp+120h+var_D0], xmm1
-    vmovss  xmm1, [rbp+20h+maskUMin]
-    vmovss  dword ptr [rsp+120h+var_C0+4], xmm0
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vmovss  [rsp+120h+var_C8], xmm1
-    vmovss  xmm1, [rbp+20h+maskUMax]
-    vmovss  dword ptr [rsp+120h+var_C0], xmm1
-    vsubss  xmm1, xmm8, xmm0
-    vsubss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rsp+120h+vec+4], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+120h+var_DC], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+120h+vec+0Ch], xmm0
-    vmovss  [rsp+120h+var_D8], xmm3
-    vmovss  dword ptr [rsp+120h+vec], xmm1
-    vmovss  dword ptr [rsp+120h+vec+8], xmm6
-  }
+  v16 = *viewportSize;
+  v17 = s_RenderMaskPushCount;
+  v27 = maskRotation;
+  v29 = alphaOffset;
+  v31 = maskVMin;
+  v28 = alphaScale;
+  v33 = maskVMax;
+  v30 = maskUMin;
+  v32 = maskUMax;
+  vec.v[1] = maskCenterY - (float)(maskHeight * 0.5);
+  v25 = maskWidth;
+  vec.v[3] = FLOAT_1_0;
+  v26 = maskHeight;
+  vec.v[0] = maskCenterX - (float)(maskWidth * 0.5);
+  vec.v[2] = 0.0;
   data = s_RenderMaskPushCount;
-  v61 = v28;
-  v62 = image;
+  v34 = v16;
+  v35 = image;
   if ( applyParallax )
   {
-    *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-    __asm { vcomiss xmm0, xmm6 }
-    if ( v40 | v41 )
+    CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+    if ( *(float *)&CurrentParallaxAmount <= 0.0 )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsp+120h+vec]
-        vmovss  xmm2, dword ptr [rsp+120h+vec+4]
-        vmovss  xmm1, dword ptr [rsp+120h+vec+8]
-        vmovss  xmm0, dword ptr [rsp+120h+vec+0Ch]
-      }
+      v22 = vec.v[0];
+      v21 = vec.v[1];
+      v20 = vec.v[2];
+      v19 = vec.v[3];
     }
     else
     {
-      LUI_GetCurrentParallaxMatrix(*(float *)&_XMM0, &outMatrix);
+      LUI_GetCurrentParallaxMatrix(*(float *)&CurrentParallaxAmount, &outMatrix);
       LUI_Matrix_MultiplyVector(&outMatrix, &vec, &result);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+20h+result+0Ch]
-        vmovss  xmm1, dword ptr [rbp+20h+result+8]
-        vmovss  xmm2, dword ptr [rbp+20h+result+4]
-        vmovss  xmm3, dword ptr [rbp+20h+result]
-      }
+      v19 = result.v[3];
+      v20 = result.v[2];
+      v21 = result.v[1];
+      v22 = result.v[0];
     }
-    v29 = s_RenderMaskPushCount;
-    __asm
-    {
-      vmovss  dword ptr [rsp+120h+vec], xmm3
-      vmovss  dword ptr [rsp+120h+vec+4], xmm2
-      vmovss  dword ptr [rsp+120h+vec+8], xmm1
-      vmovss  dword ptr [rsp+120h+vec+0Ch], xmm0
-    }
+    v17 = s_RenderMaskPushCount;
+    vec.v[0] = v22;
+    vec.v[1] = v21;
+    vec.v[2] = v20;
+    vec.v[3] = v19;
   }
-  if ( v29 <= 1 )
+  if ( v17 <= 1 )
   {
     LUI_QuadCache_AddDrawListCommandInternal(localClientNum, (void (__fastcall *)(const void *))LUI_RenderImmediate_SetMask, &data, 0x48ui64, 8ui64);
     ++s_RenderMaskPushCount;
-  }
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -3476,40 +2694,25 @@ void __fastcall LUI_Render_PushMask(const LocalClientNum_t localClientNum, doubl
 LUI_Render_PushParallaxEnabled
 ==============
 */
-
-void __fastcall LUI_Render_PushParallaxEnabled(unsigned __int8 value, __int64 a2, double _XMM2_8)
+void LUI_Render_PushParallaxEnabled(unsigned __int8 value)
 {
-  unsigned __int8 v4; 
+  unsigned __int8 v2; 
+  float v3; 
 
   if ( LUI_IsInExecDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 363, ASSERT_TYPE_ASSERT, "(!LUI_IsInExecDrawList())", (const char *)&queryFormat, "!LUI_IsInExecDrawList()") )
     __debugbreak();
-  v4 = s_currentParallax + 1;
-  s_currentParallax = v4;
-  if ( v4 >= 8u )
+  v2 = s_currentParallax + 1;
+  s_currentParallax = v2;
+  if ( v2 >= 8u )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 365, ASSERT_TYPE_ASSERT, "(s_currentParallax < 8)", (const char *)&queryFormat, "s_currentParallax < LUI_MAX_PARALLAX") )
       __debugbreak();
-    v4 = s_currentParallax;
+    v2 = s_currentParallax;
   }
-  _RCX = s_parallaxAmount;
-  __asm { vxorps  xmm2, xmm2, xmm2 }
-  if ( v4 )
-  {
-    _RAX = v4;
-    __asm { vmovss  xmm2, dword ptr [rcx+rax*4-4] }
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3da0a0a1
-  }
-  _RAX = v4;
-  __asm
-  {
-    vaddss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [rcx+rax*4], xmm2
-  }
+  v3 = 0.0;
+  if ( v2 )
+    v3 = s_parallaxAmount[v2 - 1];
+  s_parallaxAmount[v2] = (float)((float)value * 0.078431375) + v3;
 }
 
 /*
@@ -3636,152 +2839,103 @@ void LUI_Render_PushScopeIndex(int index)
 LUI_Render_PushStencilRectangle
 ==============
 */
-
-void __fastcall LUI_Render_PushStencilRectangle(const LocalClientNum_t localClientNum, double left, double top, double right, float bottom)
+void LUI_Render_PushStencilRectangle(const LocalClientNum_t localClientNum, float left, float top, float right, float bottom)
 {
-  int v14; 
-  char v19; 
-  char v20; 
+  unsigned int *v6; 
+  int v7; 
+  StencilRect *v8; 
+  double CurrentParallaxAmount; 
   vec4_t vec_8; 
   vec4_t point_8; 
   vec4_t result; 
   tmat44_t<vec4_t> outMatrix; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1599, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
   if ( s_currStencilRect < 0 )
-    _RDI = NULL;
+    v6 = NULL;
   else
-    _RDI = &s_stencilRects[s_currStencilRect];
-  v14 = s_currStencilRect + 1;
-  s_currStencilRect = v14;
-  if ( v14 >= 5 )
+    v6 = (unsigned int *)&s_stencilRects[s_currStencilRect];
+  v7 = s_currStencilRect + 1;
+  s_currStencilRect = v7;
+  if ( v7 >= 5 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1606, ASSERT_TYPE_ASSERT, "(s_currStencilRect < 5)", (const char *)&queryFormat, "s_currStencilRect < MAX_STENCIL_RECT_DEPTH") )
       __debugbreak();
-    v14 = s_currStencilRect;
+    v7 = s_currStencilRect;
   }
-  if ( (unsigned int)v14 <= 4 )
+  if ( (unsigned int)v7 <= 4 )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm0, [rbp+4Fh+bottom]
-      vmovss  dword ptr [rsp+110h+point+8], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    _RBX = &s_stencilRects[v14];
-    __asm
-    {
-      vmovss  dword ptr [rbp+4Fh+point+0Ch], xmm7
-      vmovss  [rbp+4Fh+var_C8], xmm6
-      vmovss  [rbp+4Fh+var_C4], xmm1
-      vmovss  dword ptr [rsp+110h+vec+8], xmm8
-      vmovss  dword ptr [rsp+110h+vec+0Ch], xmm0
-      vmovss  dword ptr [rsp+110h+point], xmm6
-      vmovss  dword ptr [rsp+110h+point+4], xmm1
-    }
+    point_8.v[0] = left;
+    v8 = &s_stencilRects[v7];
+    point_8.v[1] = top;
+    point_8.v[2] = 0.0;
+    point_8.v[3] = FLOAT_1_0;
+    vec_8.v[0] = right;
+    vec_8.v[1] = bottom;
+    vec_8.v[2] = 0.0;
+    vec_8.v[3] = FLOAT_1_0;
     LUI_ApplyTransformsToPoint(&point_8);
     LUI_ApplyTransformsToPoint(&vec_8);
-    *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !(v19 | v20) )
+    CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+    if ( *(float *)&CurrentParallaxAmount > 0.0 )
     {
-      LUI_GetCurrentParallaxMatrix(*(float *)&_XMM0, &outMatrix);
+      LUI_GetCurrentParallaxMatrix(*(float *)&CurrentParallaxAmount, &outMatrix);
       LUI_Matrix_MultiplyVector(&outMatrix, &point_8, &result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+4Fh+result]
-        vmovdqa xmmword ptr [rsp+110h+point+8], xmm0
-      }
+      point_8 = result;
       LUI_Matrix_MultiplyVector(&outMatrix, &vec_8, &result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+4Fh+result]
-        vmovdqa xmmword ptr [rsp+110h+vec+8], xmm0
-      }
+      vec_8 = result;
     }
+    _XMM0 = LODWORD(point_8.v[0]);
+    _XMM1 = LODWORD(point_8.v[1]);
     __asm
     {
-      vmovss  xmm0, dword ptr [rsp+110h+point+8]
-      vmovss  xmm1, dword ptr [rbp+4Fh+point+0Ch]
       vmaxss  xmm3, xmm0, xmm6
       vmaxss  xmm2, xmm1, xmm6
     }
-    if ( _RDI )
+    if ( v6 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmaxss  xmm1, xmm0, xmm2
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm2, dword ptr [rdi+0Ch]
-        vminss  xmm0, xmm2, dword ptr [rsp+110h+vec+0Ch]
-        vmovss  dword ptr [rbx+0Ch], xmm0
-        vmovss  xmm1, dword ptr [rdi]
-        vmaxss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [rbx], xmm2
-        vmovss  xmm0, dword ptr [rdi+8]
-        vminss  xmm1, xmm0, dword ptr [rsp+110h+vec+8]
-      }
+      _XMM0 = v6[1];
+      __asm { vmaxss  xmm1, xmm0, xmm2 }
+      v8->top = *(float *)&_XMM1;
+      _XMM2 = v6[3];
+      __asm { vminss  xmm0, xmm2, dword ptr [rsp+110h+vec+0Ch] }
+      v8->bottom = *(float *)&_XMM0;
+      _XMM1 = *v6;
+      __asm { vmaxss  xmm2, xmm1, xmm3 }
+      v8->left = *(float *)&_XMM2;
+      _XMM0 = v6[2];
+      __asm { vminss  xmm1, xmm0, dword ptr [rsp+110h+vec+8] }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+110h+vec+0Ch]
-        vmovss  xmm1, dword ptr [rsp+110h+vec+8]
-        vmovss  dword ptr [rbx+0Ch], xmm0
-        vmovss  dword ptr [rbx+4], xmm2
-        vmovss  dword ptr [rbx], xmm3
-      }
+      *(float *)&_XMM1 = vec_8.v[0];
+      v8->bottom = vec_8.v[1];
+      v8->top = *(float *)&_XMM2;
+      v8->left = *(float *)&_XMM3;
     }
+    v8->right = *(float *)&_XMM1;
+    _XMM0 = LODWORD(v8->top);
+    _XMM1 = LODWORD(v8->bottom);
+    __asm { vmaxss  xmm3, xmm0, xmm6 }
+    _XMM0 = LODWORD(v8->left);
     __asm
     {
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  xmm1, dword ptr [rbx+0Ch]
-      vmaxss  xmm3, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rbx]
       vmaxss  xmm2, xmm1, xmm6
-      vcomiss xmm3, xmm2
       vmaxss  xmm1, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmaxss  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rbx+8], xmm4
-      vmovss  dword ptr [rbx+4], xmm3
-      vmovss  dword ptr [rbx+0Ch], xmm2
-      vmovss  dword ptr [rbx], xmm1
     }
-    if ( _RDI )
+    _XMM0 = LODWORD(v8->right);
+    __asm { vmaxss  xmm4, xmm0, xmm6 }
+    v8->right = *(float *)&_XMM4;
+    v8->top = *(float *)&_XMM3;
+    v8->bottom = *(float *)&_XMM2;
+    v8->left = *(float *)&_XMM1;
+    if ( *(float *)&_XMM3 > *(float *)&_XMM2 || *(float *)&_XMM1 > *(float *)&_XMM4 )
     {
-      *(_QWORD *)&_RBX->left = 0i64;
-      *(_QWORD *)&_RBX->right = 0i64;
+      *(_QWORD *)&v8->left = 0i64;
+      *(_QWORD *)&v8->right = 0i64;
     }
-    else
-    {
-      __asm { vcomiss xmm1, xmm4 }
-    }
-    LUI_QuadCache_AddDrawListCommandInternal(localClientNum, (void (__fastcall *)(const void *))LUI_RenderImmediate_SetScissorRect, _RBX, 0x10ui64, 4ui64);
-  }
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
+    LUI_QuadCache_AddDrawListCommandInternal(localClientNum, (void (__fastcall *)(const void *))LUI_RenderImmediate_SetScissorRect, v8, 0x10ui64, 4ui64);
   }
 }
 
@@ -3790,33 +2944,21 @@ void __fastcall LUI_Render_PushStencilRectangle(const LocalClientNum_t localClie
 LUI_Render_PushUnitScale
 ==============
 */
-
-void __fastcall LUI_Render_PushUnitScale(double unitScale)
+void LUI_Render_PushUnitScale(float unitScale)
 {
-  int v3; 
+  int v1; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-  }
   if ( !LUI_IsInBuildDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 470, ASSERT_TYPE_ASSERT, "(LUI_IsInBuildDrawList())", (const char *)&queryFormat, "LUI_IsInBuildDrawList()") )
     __debugbreak();
-  v3 = s_numUnitScaleActive + 1;
-  s_numUnitScaleActive = v3;
-  if ( v3 > 2 )
+  v1 = s_numUnitScaleActive + 1;
+  s_numUnitScaleActive = v1;
+  if ( v1 > 2 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 472, ASSERT_TYPE_ASSERT, "(s_numUnitScaleActive <= 2)", (const char *)&queryFormat, "s_numUnitScaleActive <= LUI_MAX_NESTED_UNIT_SCALE") )
       __debugbreak();
-    v3 = s_numUnitScaleActive;
+    v1 = s_numUnitScaleActive;
   }
-  _RCX = v3 - 1;
-  _RAX = s_unitScaleStack;
-  __asm
-  {
-    vmovss  dword ptr [rax+rcx*4], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  s_unitScaleStack[v1 - 1] = unitScale;
 }
 
 /*
@@ -3883,189 +3025,114 @@ void LUI_Render_ResetParallaxEnabled(void)
 LUI_Render_Send2DQuadRenderCommand
 ==============
 */
-void LUI_Render_Send2DQuadRenderCommand(const vec2_t *verts, LUIQuadUV *uv, const vec4_t *color, const GfxImage *image, Material *material, float glitchAmount, float unitScale, float blurAmount, unsigned __int16 samplerState, const LUIColorOpData *colorOp, const int scopeIndex, const bool applyScopeBufferWeight, const int flags)
+void LUI_Render_Send2DQuadRenderCommand(const vec2_t *verts, LUIQuadUV *uv, const vec4_t *color, const GfxImage *image, Material *material, float glitchAmount, float unitScale, float blurAmount, unsigned __int16 samplerState, const LUIColorOpData *colorOp, const int scopeIndex, const bool applyScopeBufferWeight, const int flags, const float extraParam)
 {
-  char v25; 
-  char v26; 
-  bool v34; 
+  __int128 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  float uMax; 
+  float vMin; 
+  float vMax; 
+  bool v27; 
   GfxPixelFormat format; 
-  int v36; 
-  float outT1; 
-  float outT1a; 
+  int v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  double v41; 
   __int64 minS; 
-  float minSa; 
-  float v93; 
-  float v94; 
-  float v95; 
-  float v96; 
-  float v97; 
+  float outT1; 
   float outS1; 
   float outT0; 
   float outS0; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
 
-  __asm
+  v47 = v19;
+  LUI_Render_ApplyGlitch(COERCE_DOUBLE((unsigned __int64)LODWORD(glitchAmount)), unitScale);
+  if ( s_blurAmount != blurAmount )
   {
-    vmovss  xmm1, [rsp+108h+unitScale]; unitScale
-    vmovss  xmm0, [rsp+108h+glitchAmount]; intensity
-  }
-  _RBX = uv;
-  _RBP = verts;
-  __asm { vmovaps [rsp+108h+var_98], xmm11 }
-  LUI_Render_ApplyGlitch(*(double *)&_XMM0, *(double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+108h+blurAmount]; scale
-    vmovss  xmm0, cs:s_blurAmount
-    vucomiss xmm0, xmm1
-    vxorps  xmm11, xmm11, xmm11
-  }
-  if ( !v26 )
-  {
-    __asm
-    {
-      vcomiss xmm1, xmm11
-      vmovss  cs:s_blurAmount, xmm1
-    }
-    R_AddCmdSetUIBlur(!(v25 | v26), *(const float *)&_XMM1);
+    s_blurAmount = blurAmount;
+    R_AddCmdSetUIBlur(blurAmount > 0.0, blurAmount);
   }
   LUI_Render_ApplyColorOp(colorOp);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  [rsp+108h+outS0], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+108h+outS1], xmm1
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  [rsp+108h+outT0], xmm0
-    vmovss  [rsp+108h+var_A8], xmm1
-  }
-  Image_Process2DTextureCoordsForAtlasing(image, &outS0, &outS1, &outT0, &v97);
-  v34 = 0;
+  uMax = uv->minMax.uMax;
+  outS0 = uv->minMax.uMin;
+  vMin = uv->minMax.vMin;
+  outS1 = uMax;
+  vMax = uv->minMax.vMax;
+  outT0 = vMin;
+  outT1 = vMax;
+  Image_Process2DTextureCoordsForAtlasing(image, &outS0, &outS1, &outT0, &outT1);
+  v27 = 0;
   if ( !LUI_IsInExecDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 853, ASSERT_TYPE_ASSERT, "(LUI_IsInExecDrawList())", (const char *)&queryFormat, "LUI_IsInExecDrawList()") )
     __debugbreak();
   if ( s_useRTT )
   {
     format = image->format;
-    v34 = (unsigned int)(format - 1) <= 2 || format == GFX_PF_BC4;
+    v27 = (unsigned int)(format - 1) <= 2 || format == GFX_PF_BC4;
   }
-  R_AddCmdUISetCodeSampler(samplerState, v34);
+  R_AddCmdUISetCodeSampler(samplerState, v27);
   R_AddCmdSetCodeTexture(4u, image);
   if ( scopeIndex >= 0 || applyScopeBufferWeight )
   {
-    v36 = 0;
+    v29 = 0;
     if ( scopeIndex > 0 )
-      v36 = scopeIndex;
-    R_AddCmdUISetScopeIndex(v36, applyScopeBufferWeight);
+      v29 = scopeIndex;
+    R_AddCmdUISetScopeIndex(v29, applyScopeBufferWeight);
   }
   if ( (flags & 0x10) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+8]
-      vmovss  xmm1, dword ptr [rbp+0Ch]
-      vsubss  xmm5, xmm1, dword ptr [rbp+4]
-      vmovss  xmm1, dword ptr [rbp+1Ch]
-      vsubss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovaps [rsp+108h+var_48], xmm6
-      vsubss  xmm6, xmm0, dword ptr [rbp+0]
-      vmovss  xmm0, dword ptr [rbp+18h]
-      vsubss  xmm4, xmm0, dword ptr [rbp+0]
-      vmulss  xmm3, xmm2, xmm2
-      vmovaps [rsp+108h+var_58], xmm7
-      vmovss  xmm7, [rsp+108h+outS0]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vmulss  xmm2, xmm5, xmm5
-      vmovaps [rsp+108h+var_68], xmm8
-      vmovss  xmm8, [rsp+108h+outT0]
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm0
-      vmovaps [rsp+108h+var_78], xmm9
-      vmovss  xmm9, [rsp+108h+outS1]
-      vsqrtss xmm0, xmm2, xmm2; X
-      vmovaps [rsp+108h+var_88], xmm10
-      vmovss  xmm10, [rsp+108h+var_A8]
-      vsqrtss xmm1, xmm1, xmm1; Y
-    }
-    *(float *)&_XMM0 = fminf(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vsubss  xmm0, xmm9, xmm7; X
-      vsubss  xmm1, xmm10, xmm8; Y
-    }
-    *(float *)&_XMM0 = fminf(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40000000
-      vmulss  xmm3, xmm0, [rsp+108h+extraParam]
-      vdivss  xmm2, xmm1, xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vmulss  xmm0, xmm3, xmm2; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f79999a; outerRadius
-      vsubss  xmm0, xmm6, xmm0
-      vsubss  xmm1, xmm0, cs:__real@3ccccccd; innerRadius
-    }
-    R_AddCmdUISetPixelShapeParams(GFX_PIXEL_SHAPE_TYPE_CIRCLE, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm10, [rsp+108h+var_88]
-      vmovaps xmm9, [rsp+108h+var_78]
-      vmovaps xmm8, [rsp+108h+var_68]
-      vmovaps xmm7, [rsp+108h+var_58]
-      vmovaps xmm6, [rsp+108h+var_48]
-    }
+    v30 = verts[1].v[0];
+    v31 = verts[1].v[1] - verts->v[1];
+    v32 = verts[3].v[1] - verts->v[1];
+    v52 = v14;
+    v33 = v30 - verts->v[0];
+    v34 = verts[3].v[0] - verts->v[0];
+    v51 = v15;
+    v35 = outS0;
+    v50 = v16;
+    v36 = outT0;
+    v49 = v17;
+    v37 = outS1;
+    v48 = v18;
+    v38 = outT1;
+    v39 = fminf(fsqrt((float)(v31 * v31) + (float)(v33 * v33)), fsqrt((float)(v32 * v32) + (float)(v34 * v34)));
+    v40 = fminf(v37 - v35, v38 - v36);
+    v41 = I_fclamp((float)(v40 * extraParam) * (float)(2.0 / v39), 0.0, 1.0);
+    R_AddCmdUISetPixelShapeParams(GFX_PIXEL_SHAPE_TYPE_CIRCLE, (float)(1.0 - *(float *)&v41) - 0.025, 0.97500002);
   }
-  __asm { vmovaps xmm11, [rsp+108h+var_98] }
-  if ( _RBX->mode )
+  if ( uv->mode )
   {
-    if ( _RBX->mode == ROTATED )
+    if ( uv->mode == ROTATED )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  xmm2, [rsp+108h+var_A8]
-        vmovss  xmm3, dword ptr [rbx+18h]; scaleFinalS
-        vmovss  xmm1, dword ptr [rbx+10h]; centerS
-        vmovss  [rsp+108h+var_C0], xmm0
-        vmovss  xmm0, [rsp+108h+outT0]
-        vmovss  [rsp+108h+var_C8], xmm2
-        vmovss  xmm2, [rsp+108h+outS1]
-        vmovss  [rsp+108h+var_D0], xmm0
-        vmovss  xmm0, [rsp+108h+outS0]
-        vmovss  dword ptr [rsp+108h+var_D8], xmm2
-        vmovss  xmm2, dword ptr [rbx+1Ch]
-        vmovss  [rsp+108h+minS], xmm0
-        vmovss  dword ptr [rsp+108h+outT1], xmm2
-        vmovss  xmm2, dword ptr [rbx+14h]; centerT
-      }
-      R_AddCmdDrawStretchPicRotateST(_RBP, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, outT1, minSa, v93, v94, v95, v96, color, material);
+      R_AddCmdDrawStretchPicRotateST(verts, uv->rotated.uCenter, uv->rotated.vCenter, uv->rotated.uScale, uv->rotated.vScale, outS0, outS1, outT0, outT1, uv->rotated.angle, color, material);
     }
     else
     {
-      LODWORD(minS) = (unsigned __int8)_RBX->mode;
+      LODWORD(minS) = (unsigned __int8)uv->mode;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 931, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected LUIQuadUVMode: %d", minS) )
         __debugbreak();
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+108h+var_A8]
-      vmovss  xmm3, [rsp+108h+outS1]; s1
-      vmovss  xmm2, [rsp+108h+outT0]; t0
-      vmovss  xmm1, [rsp+108h+outS0]; s0
-      vmovss  dword ptr [rsp+108h+outT1], xmm0
-    }
-    R_AddCmdDrawQuadPicST(_RBP, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, outT1a, color, material);
+    R_AddCmdDrawQuadPicST(verts, outS0, outT0, outS1, outT1, color, material);
   }
 }
 
@@ -4088,41 +3155,57 @@ LUI_Render_SendQuadRenderCommand
 */
 void LUI_Render_SendQuadRenderCommand(const vec4_t (*verts)[4], LUIQuadUV *uv, const vec4_t *color, const GfxImage *image, Material *material, float glitchAmount, float unitScale, float blurAmount, unsigned __int16 samplerState, float parallaxAmount, const LUIColorOpData *colorOp, bool has3DTransforms, const int scopeIndex, const int flags, const float extraParam)
 {
+  __int128 v15; 
+  __int128 v16; 
+  Material *v17; 
+  const vec4_t *v19; 
   bool v22; 
-  unsigned int v23; 
+  int v23; 
+  unsigned int v24; 
+  float *v25; 
   __int64 v26; 
-  char v35; 
-  char v36; 
-  bool v44; 
-  bool v45; 
+  float v27; 
+  float v28; 
+  float uMax; 
+  float vMin; 
+  float vMax; 
+  bool v32; 
   GfxPixelFormat format; 
-  float fmt; 
-  float fmta; 
+  vec3_t *p_vertsa; 
+  __int64 v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
   __int64 minS; 
-  float minSa; 
-  float minSb; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
   float outT1; 
   float outS1; 
   float outT0; 
   float outS0; 
-  BOOL v91; 
-  vec4_t *v92; 
-  Material *v93; 
-  LUIColorOpData *v94; 
+  BOOL v49; 
+  vec4_t *v50; 
+  Material *v51; 
+  LUIColorOpData *v52; 
   vec4_t outPosition; 
+  tmat44_t<vec4_t> outMatrix; 
   vec3_t vertsa; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  __int128 v61; 
+  __int128 v62; 
 
-  v93 = material;
-  _R14 = uv;
-  v94 = (LUIColorOpData *)colorOp;
-  _RBX = verts;
-  v92 = (vec4_t *)color;
+  v17 = material;
+  v19 = color;
+  v51 = material;
+  v52 = (LUIColorOpData *)colorOp;
+  v50 = (vec4_t *)color;
   if ( !image )
   {
     if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 986, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
@@ -4131,123 +3214,69 @@ void LUI_Render_SendQuadRenderCommand(const vec4_t (*verts)[4], LUIQuadUV *uv, c
   }
   v22 = Stream_CheckImage(image, MIP3);
   CL_UIStreaming_TouchImage(image);
-  v23 = (unsigned int)flags >> 6;
-  LOBYTE(v23) = (flags & 0x40) != 0;
-  v91 = v23;
+  v23 = flags;
+  v24 = (unsigned int)flags >> 6;
+  LOBYTE(v24) = (flags & 0x40) != 0;
+  v49 = v24;
   if ( has3DTransforms )
   {
     if ( v22 )
     {
-      __asm { vmovaps [rsp+190h+var_50], xmm6 }
-      _RDI = &vertsa.v[1];
-      __asm
-      {
-        vmovaps [rsp+190h+var_60], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-      }
+      v62 = v15;
+      v25 = &vertsa.v[1];
+      v61 = v16;
       v26 = 4i64;
-      __asm { vxorps  xmm6, xmm6, xmm6 }
       do
       {
-        LUI_Render_ApplyParallax((const vec4_t *)_RBX, &outPosition, &parallaxAmount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+90h+outPosition+0Ch]
-          vucomiss xmm0, xmm6
-        }
-        if ( v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1025, ASSERT_TYPE_ASSERT, "(tempVert[3] != 0.0f)", (const char *)&queryFormat, "tempVert[3] != 0.0f") )
+        LUI_Render_ApplyParallax((const vec4_t *)verts, &outPosition, &parallaxAmount);
+        if ( outPosition.v[3] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1025, ASSERT_TYPE_ASSERT, "(tempVert[3] != 0.0f)", (const char *)&queryFormat, "tempVert[3] != 0.0f") )
           __debugbreak();
-        __asm
-        {
-          vdivss  xmm3, xmm7, dword ptr [rbp+90h+outPosition+0Ch]
-          vmulss  xmm1, xmm3, dword ptr [rbp+90h+outPosition]
-          vmulss  xmm0, xmm3, dword ptr [rbp+90h+outPosition+4]
-          vmulss  xmm2, xmm3, dword ptr [rbp+90h+outPosition+8]
-          vmovss  dword ptr [rdi-4], xmm1
-          vmovss  dword ptr [rdi], xmm0
-          vmovss  dword ptr [rdi+4], xmm2
-        }
-        _RDI += 3;
-        _RBX = (const vec4_t (*)[4])((char *)_RBX + 16);
+        v27 = (float)(1.0 / outPosition.v[3]) * outPosition.v[1];
+        v28 = (float)(1.0 / outPosition.v[3]) * outPosition.v[2];
+        *(v25 - 1) = (float)(1.0 / outPosition.v[3]) * outPosition.v[0];
+        *v25 = v27;
+        v25[1] = v28;
+        v25 += 3;
+        verts = (const vec4_t (*)[4])((char *)verts + 16);
         --v26;
       }
       while ( v26 );
-      __asm
+      LUI_Render_ApplyGlitch(COERCE_DOUBLE((unsigned __int64)LODWORD(glitchAmount)), unitScale);
+      if ( s_blurAmount != blurAmount )
       {
-        vmovss  xmm1, [rbp+90h+unitScale]; unitScale
-        vmovss  xmm0, [rbp+90h+glitchAmount]; intensity
+        s_blurAmount = blurAmount;
+        R_AddCmdSetUIBlur(blurAmount > 0.0, blurAmount);
       }
-      LUI_Render_ApplyGlitch(*(double *)&_XMM0, *(double *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm1, [rbp+90h+blurAmount]; scale
-        vmovss  xmm0, cs:s_blurAmount
-        vucomiss xmm0, xmm1
-        vmovaps xmm7, [rsp+190h+var_60]
-      }
-      if ( !v36 )
-      {
-        __asm
-        {
-          vcomiss xmm1, xmm6
-          vmovss  cs:s_blurAmount, xmm1
-        }
-        R_AddCmdSetUIBlur(!(v35 | v36), *(const float *)&_XMM1);
-      }
-      LUI_Render_ApplyColorOp(v94);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vmovss  xmm1, dword ptr [r14+4]
-        vmovss  [rsp+190h+outS0], xmm0
-        vmovss  xmm0, dword ptr [r14+8]
-        vmovss  [rsp+190h+outS1], xmm1
-        vmovss  xmm1, dword ptr [r14+0Ch]
-        vmovss  [rsp+190h+outT0], xmm0
-        vmovss  [rsp+190h+outT1], xmm1
-      }
+      LUI_Render_ApplyColorOp(v52);
+      uMax = uv->minMax.uMax;
+      outS0 = uv->minMax.uMin;
+      vMin = uv->minMax.vMin;
+      outS1 = uMax;
+      vMax = uv->minMax.vMax;
+      outT0 = vMin;
+      outT1 = vMax;
       Image_Process2DTextureCoordsForAtlasing(image, &outS0, &outS1, &outT0, &outT1);
-      v44 = 0;
-      v45 = LUI_IsInExecDrawList();
-      __asm { vmovaps xmm6, [rsp+190h+var_50] }
-      if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 853, ASSERT_TYPE_ASSERT, "(LUI_IsInExecDrawList())", (const char *)&queryFormat, "LUI_IsInExecDrawList()") )
+      v32 = 0;
+      if ( !LUI_IsInExecDrawList() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 853, ASSERT_TYPE_ASSERT, "(LUI_IsInExecDrawList())", (const char *)&queryFormat, "LUI_IsInExecDrawList()") )
         __debugbreak();
       if ( s_useRTT )
       {
         format = image->format;
-        v44 = (unsigned int)(format - 1) <= 2 || format == GFX_PF_BC4;
+        v32 = (unsigned int)(format - 1) <= 2 || format == GFX_PF_BC4;
       }
-      R_AddCmdUISetCodeSampler(samplerState, v44);
-      R_AddCmdSetCodeTexture((unsigned __int8)v26 + 4, image);
+      R_AddCmdUISetCodeSampler(samplerState, v32);
+      R_AddCmdSetCodeTexture(4u, image);
       if ( scopeIndex >= 0 )
-        R_AddCmdUISetScopeIndex(scopeIndex, v91);
-      if ( _R14->mode )
+        R_AddCmdUISetScopeIndex(scopeIndex, v49);
+      if ( uv->mode )
       {
-        if ( _R14->mode == ROTATED )
+        if ( uv->mode == ROTATED )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14+20h]
-            vmovss  xmm2, [rsp+190h+outT1]
-            vmovss  xmm3, dword ptr [r14+18h]; scaleFinalS
-            vmovss  xmm1, dword ptr [r14+10h]; centerS
-            vmovss  dword ptr [rsp+190h+var_148], xmm0
-            vmovss  xmm0, [rsp+190h+outT0]
-            vmovss  dword ptr [rsp+190h+var_150], xmm2
-            vmovss  xmm2, [rsp+190h+outS1]
-            vmovss  [rsp+190h+var_158], xmm0
-            vmovss  xmm0, [rsp+190h+outS0]
-            vmovss  dword ptr [rsp+190h+var_160], xmm2
-            vmovss  xmm2, dword ptr [r14+1Ch]
-            vmovss  [rsp+190h+minS], xmm0
-            vmovss  dword ptr [rsp+190h+fmt], xmm2
-            vmovss  xmm2, dword ptr [r14+14h]; centerT
-          }
-          R_AddCmdDraw3DStretchPicRotateST(&vertsa, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, minSa, v80, v82, v84, v85, v92, v93);
+          R_AddCmdDraw3DStretchPicRotateST(&vertsa, uv->rotated.uCenter, uv->rotated.vCenter, uv->rotated.uScale, uv->rotated.vScale, outS0, outS1, outT0, outT1, uv->rotated.angle, v50, v51);
         }
         else
         {
-          LODWORD(minS) = (unsigned __int8)_R14->mode;
+          LODWORD(minS) = (unsigned __int8)uv->mode;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 976, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected LUIQuadUVMode: %d", minS) )
 LABEL_3:
             __debugbreak();
@@ -4255,61 +3284,54 @@ LABEL_3:
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+190h+outT1]
-          vmovss  xmm3, [rsp+190h+outS1]; s1
-          vmovss  xmm2, [rsp+190h+outT0]; t0
-          vmovss  xmm1, [rsp+190h+outS0]; s0
-          vmovss  dword ptr [rsp+190h+fmt], xmm0
-        }
-        R_AddCmdDraw3DQuadPicST(&vertsa, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v92, v93);
+        R_AddCmdDraw3DQuadPicST(&vertsa, outS0, outT0, outS1, outT1, v50, v51);
       }
     }
   }
   else
   {
-    __asm
+    if ( parallaxAmount <= 0.0 )
     {
-      vmovss  xmm0, [rbp+90h+parallaxAmount]; parallaxAmount
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+90h+verts], xmm0
-      vmovss  xmm0, dword ptr [rbx+10h]
-      vmovss  dword ptr [rbp+90h+verts+4], xmm1
-      vmovss  xmm1, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbp+90h+verts+8], xmm0
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmovss  [rbp+90h+var_94], xmm1
-      vmovss  xmm1, dword ptr [rbx+24h]
-      vmovss  [rbp+90h+var_90], xmm0
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  [rbp+90h+var_8C], xmm1
-      vmovss  xmm1, dword ptr [rbx+34h]
-      vmovss  [rbp+90h+var_88], xmm0
-      vmovss  [rbp+90h+var_84], xmm1
-    }
-    if ( v22 || (flags & 0x10) != 0 )
-    {
-      __asm
-      {
-        vmovss  xmm0, [rbp+90h+extraParam]
-        vmovss  xmm1, [rbp+90h+unitScale]
-        vmovss  [rsp+190h+var_128], xmm0
-        vmovss  xmm0, [rbp+90h+blurAmount]
-        vmovss  [rsp+190h+var_158], xmm0
-        vmovss  xmm0, [rbp+90h+glitchAmount]
-        vmovss  dword ptr [rsp+190h+var_160], xmm1
-        vmovss  [rsp+190h+minS], xmm0
-      }
-      LUI_Render_Send2DQuadRenderCommand((const vec2_t *)&vertsa, _R14, color, image, material, minSb, v81, v83, samplerState, v94, scopeIndex, v23, flags);
+      v37 = (*verts)[0].v[1];
+      vertsa.v[0] = (*verts)[0].v[0];
+      v38 = (*verts)[1].v[0];
+      vertsa.v[1] = v37;
+      v39 = (*verts)[1].v[1];
+      vertsa.v[2] = v38;
+      v40 = (*verts)[2].v[0];
+      v56 = v39;
+      v41 = (*verts)[2].v[1];
+      v57 = v40;
+      v42 = (*verts)[3].v[0];
+      v58 = v41;
+      v43 = (*verts)[3].v[1];
+      v59 = v42;
+      v60 = v43;
     }
     else
     {
-      LUI_Render_SendSpinnerRenderCommand((const vec2_t *)&vertsa);
+      LUI_GetCurrentParallaxMatrix(parallaxAmount, &outMatrix);
+      p_vertsa = &vertsa;
+      v35 = 4i64;
+      do
+      {
+        LUI_Matrix_MultiplyVector(&outMatrix, (const vec4_t *)verts, &outPosition);
+        v36 = outPosition.v[1];
+        verts = (const vec4_t (*)[4])((char *)verts + 16);
+        p_vertsa->v[0] = outPosition.v[0];
+        p_vertsa->v[1] = v36;
+        p_vertsa = (vec3_t *)((char *)p_vertsa + 8);
+        --v35;
+      }
+      while ( v35 );
+      LOBYTE(v24) = v49;
+      v19 = v50;
+      v17 = v51;
     }
+    if ( v22 || (v23 & 0x10) != 0 )
+      LUI_Render_Send2DQuadRenderCommand((const vec2_t *)&vertsa, uv, v19, image, v17, glitchAmount, unitScale, blurAmount, samplerState, v52, scopeIndex, v24, v23, extraParam);
+    else
+      LUI_Render_SendSpinnerRenderCommand((const vec2_t *)&vertsa);
   }
 }
 
@@ -4321,157 +3343,106 @@ LUI_Render_SendSpinnerRenderCommand
 void LUI_Render_SendSpinnerRenderCommand(const vec2_t *verts)
 {
   const GfxImage *SpinnerMaterial; 
-  const dvar_t *v18; 
-  const GfxImage *v19; 
-  const dvar_t *v24; 
-  const dvar_t *v26; 
-  const dvar_t *v34; 
-  const dvar_t *v44; 
-  const dvar_t *v53; 
-  float fmt; 
+  float v3; 
+  float v4; 
+  const dvar_t *v5; 
+  const GfxImage *v6; 
+  float displayHeight; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  unsigned int unsignedInt; 
+  const dvar_t *v14; 
+  int v17; 
+  unsigned int v18; 
+  __m128i v19; 
+  const dvar_t *v20; 
+  int v23; 
+  int integer; 
+  const dvar_t *v25; 
+  int width; 
+  int v27; 
+  int height; 
+  int v29; 
+  int v30; 
+  float v31; 
+  float v32; 
   vec2_t vertsa; 
-  char v93; 
-  void *retaddr; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RBX = verts;
   SpinnerMaterial = LUI_CoD_GetSpinnerMaterial();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  xmm6, cs:__real@3f000000
-    vmulss  xmm1, xmm1, xmm6
-    vaddss  xmm8, xmm1, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm9, xmm2, dword ptr [rbx+4]
-  }
-  v18 = DCONST_DVARFLT_lui_streaming_spinner_width;
-  v19 = SpinnerMaterial;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm7, xmm0, cs:__real@3ab60b61
-  }
+  v3 = (float)((float)(verts[2].v[0] - verts->v[0]) * 0.5) + verts->v[0];
+  v4 = (float)((float)(verts[2].v[1] - verts->v[1]) * 0.5) + verts->v[1];
+  v5 = DCONST_DVARFLT_lui_streaming_spinner_width;
+  v6 = SpinnerMaterial;
+  displayHeight = (float)vidConfig.displayHeight;
+  v8 = displayHeight * 0.0013888889;
   if ( !DCONST_DVARFLT_lui_streaming_spinner_width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_width") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  __asm { vmulss  xmm10, xmm7, dword ptr [rbx+28h] }
-  v24 = DCONST_DVARFLT_lui_streaming_spinner_height;
+  Dvar_CheckFrontendServerThread(v5);
+  v9 = v8 * v5->current.value;
+  v10 = DCONST_DVARFLT_lui_streaming_spinner_height;
   if ( !DCONST_DVARFLT_lui_streaming_spinner_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  __asm { vmulss  xmm0, xmm7, dword ptr [rbx+28h] }
-  v26 = DCONST_DVARINT_lui_streaming_spinner_frame_count;
-  __asm
-  {
-    vmulss  xmm3, xmm0, xmm6
-    vsubss  xmm1, xmm9, xmm3
-    vmulss  xmm2, xmm10, xmm6
-    vsubss  xmm4, xmm8, xmm2
-    vaddss  xmm0, xmm2, xmm8
-    vmovss  dword ptr [rsp+0D8h+verts+4], xmm1
-    vmovss  [rsp+0D8h+var_8C], xmm1
-    vaddss  xmm1, xmm3, xmm9
-    vmovss  [rsp+0D8h+var_84], xmm1
-    vmovss  [rsp+0D8h+var_7C], xmm1
-    vmovss  dword ptr [rsp+0D8h+verts], xmm4
-    vmovss  [rsp+0D8h+var_90], xmm0
-    vmovss  [rsp+0D8h+var_88], xmm0
-    vmovss  [rsp+0D8h+var_80], xmm4
-  }
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v8 * v10->current.value;
+  v12 = DCONST_DVARINT_lui_streaming_spinner_frame_count;
+  vertsa.v[1] = v4 - (float)(v11 * 0.5);
+  v35 = vertsa.v[1];
+  v37 = (float)(v11 * 0.5) + v4;
+  v39 = v37;
+  vertsa.v[0] = v3 - (float)(v9 * 0.5);
+  v34 = (float)(v9 * 0.5) + v3;
+  v36 = v34;
+  v38 = vertsa.v[0];
   if ( !DCONST_DVARINT_lui_streaming_spinner_frame_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_frame_count") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  _EDI = v26->current.integer;
-  v34 = DCONST_DVARFLT_lui_streaming_spinner_frame_rate;
+  Dvar_CheckFrontendServerThread(v12);
+  unsignedInt = v12->current.unsignedInt;
+  v14 = DCONST_DVARFLT_lui_streaming_spinner_frame_rate;
   if ( !DCONST_DVARFLT_lui_streaming_spinner_frame_rate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_frame_rate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovd   xmm6, edi
-    vcvtdq2ps xmm6, xmm6
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]
-    vroundss xmm1, xmm1, xmm0, 2
-    vmulss  xmm0, xmm1, cs:__real@447a0000
-    vcvttss2si ebx, xmm0
-  }
-  _EDX = Sys_Milliseconds() % _EBX;
-  __asm { vmovd   xmm1, ebx }
-  v44 = DCONST_DVARINT_lui_streaming_spinner_frame_width;
-  __asm
-  {
-    vmovd   xmm0, edx
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm2, xmm0, xmm6
-    vcvtdq2ps xmm1, xmm1
-    vdivss  xmm3, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, xmm3, 1
-    vcvttss2si r14d, xmm0
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  _XMM1 = 0i64;
+  _mm_cvtepi32_ps((__m128i)unsignedInt);
+  __asm { vroundss xmm1, xmm1, xmm0, 2 }
+  v17 = (int)(float)(*(float *)&_XMM1 * 1000.0);
+  v18 = Sys_Milliseconds() % v17;
+  v19 = (__m128i)(unsigned int)v17;
+  v20 = DCONST_DVARINT_lui_streaming_spinner_frame_width;
+  _mm_cvtepi32_ps((__m128i)v18);
+  _mm_cvtepi32_ps(v19);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, xmm3, 1 }
+  v23 = (int)*(float *)&_XMM0;
   if ( !DCONST_DVARINT_lui_streaming_spinner_frame_width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_frame_width") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v44);
-  v53 = DCONST_DVARINT_lui_streaming_spinner_frame_height;
+  Dvar_CheckFrontendServerThread(v20);
+  integer = v20->current.integer;
+  v25 = DCONST_DVARINT_lui_streaming_spinner_frame_height;
   if ( !DCONST_DVARINT_lui_streaming_spinner_frame_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_streaming_spinner_frame_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v53);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8d
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm7, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vdivss  xmm6, xmm2, xmm0
-  }
-  R_AddCmdSetCodeTexture(4u, v19);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm3, xmm3, edi
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm3, xmm3, xmm0
-    vaddss  xmm5, xmm3, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm0, xmm0, esi
-    vcvtsi2ss xmm4, xmm4, ebp
-    vdivss  xmm3, xmm4, xmm0
-    vaddss  xmm3, xmm3, xmm7; s1
-    vmovaps xmm2, xmm6; t0
-    vmovaps xmm1, xmm7; s0
-    vmovss  dword ptr [rsp+0D8h+fmt], xmm5
-  }
-  R_AddCmdDrawQuadPicST(&vertsa, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, &colorWhite, s_luiMaterials[1]);
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  Dvar_CheckFrontendServerThread(v25);
+  width = v6->width;
+  v27 = v25->current.integer;
+  height = v6->height;
+  v29 = width / integer;
+  if ( width / integer < 1 )
+    v29 = 1;
+  v30 = v6->height / v27;
+  v31 = (float)(v23 % v29) / (float)v29;
+  if ( v30 < 1 )
+    v30 = 1;
+  v32 = (float)(v23 / v29) / (float)v30;
+  R_AddCmdSetCodeTexture(4u, v6);
+  R_AddCmdDrawQuadPicST(&vertsa, v31, v32, (float)((float)integer / (float)width) + v31, (float)((float)v27 / (float)height) + v32, &colorWhite, s_luiMaterials[1]);
 }
 
 /*
@@ -4481,43 +3452,29 @@ LUI_Render_SendTextRenderCommand
 */
 void LUI_Render_SendTextRenderCommand(const char *text, int maxChars, GfxFont *font, int internalFontSize, const vec4_t (*verts)[4], char tracking, float rotation, const vec4_t *color, Material *textMaterial, Material *iconsMaterial, bool tintIcons, const FontDecodeStyle *fontDecodeStyle, const FontGlowStyle *fontGlowStyle, float glitchAmount, float unitScale, float blurAmount, float parallaxAmount, const LUIColorOpData *colorOp, bool has3DTransforms)
 {
-  bool v26; 
-  bool v27; 
+  const vec4_t (*v20)[4]; 
   bool usePost; 
-  bool v37; 
-  bool v38; 
-  __int64 v40; 
-  float *v41; 
+  float *v24; 
+  __int64 v25; 
+  float *v26; 
+  float v27; 
   int MinHeightForDistanceField; 
-  float xScale; 
-  float xScalea; 
-  float xScaleb; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  float v91; 
-  float v92; 
-  float v93; 
-  float glowStyle; 
-  float glowStylea; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
   vec4_t result; 
   tmat44_t<vec4_t> outMatrix; 
   vec3_t points; 
-  char v102; 
-  void *retaddr; 
+  float v38; 
+  float v39; 
+  float v40; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _EBX = internalFontSize;
-  _RSI = verts;
+  v20 = verts;
   if ( internalFontSize )
   {
-    v26 = internalFontSize == 0;
     if ( internalFontSize > 0 )
       goto LABEL_9;
   }
@@ -4527,158 +3484,74 @@ void LUI_Render_SendTextRenderCommand(const char *text, int maxChars, GfxFont *f
       __debugbreak();
     Com_Printf(13, "Text render font %s size is 0. The font pixelHeight is %d \n", font->fontName, (unsigned int)font->pixelHeight);
   }
-  v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1107, ASSERT_TYPE_ASSERT, "(internalFontSize > 0)", (const char *)&queryFormat, "internalFontSize > 0");
-  v26 = !v27;
-  if ( v27 )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_render.cpp", 1107, ASSERT_TYPE_ASSERT, "(internalFontSize > 0)", (const char *)&queryFormat, "internalFontSize > 0") )
     __debugbreak();
 LABEL_9:
-  __asm
+  usePost = blurAmount > 0.0;
+  LUI_Render_ApplyGlitch(COERCE_DOUBLE((unsigned __int64)LODWORD(glitchAmount)), unitScale);
+  if ( s_blurAmount != blurAmount )
   {
-    vmovss  xmm6, [rbp+80h+blurAmount]
-    vmovss  xmm1, [rbp+80h+unitScale]; unitScale
-    vmovss  xmm0, [rbp+80h+glitchAmount]; intensity
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  usePost = !v26;
-  LUI_Render_ApplyGlitch(*(double *)&_XMM0, *(double *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm0, cs:s_blurAmount
-    vucomiss xmm0, xmm6
-  }
-  if ( !v26 )
-  {
-    __asm
-    {
-      vmovaps xmm1, xmm6; scale
-      vmovss  cs:s_blurAmount, xmm6
-    }
-    R_AddCmdSetUIBlur(usePost, *(const float *)&_XMM1);
+    s_blurAmount = blurAmount;
+    R_AddCmdSetUIBlur(usePost, blurAmount);
   }
   LUI_Render_ApplyColorOp(colorOp);
   if ( has3DTransforms )
   {
-    __asm
-    {
-      vmovss  xmm6, [rbp+80h+parallaxAmount]
-      vmovaps xmm0, xmm6; parallaxAmount
-    }
-    LUI_GetCurrentParallaxMatrix(*(float *)&_XMM0, &outMatrix);
-    _RBX = &points.v[2];
-    v40 = 4i64;
-    v41 = &(*verts)[0].v[2];
+    LUI_GetCurrentParallaxMatrix(parallaxAmount, &outMatrix);
+    v24 = &points.v[2];
+    v25 = 4i64;
+    v26 = &(*verts)[0].v[2];
     do
     {
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v37 || v38 )
+      if ( parallaxAmount <= 0.0 )
       {
-        *(_RBX - 2) = *(v41 - 2);
-        *(_RBX - 1) = *(v41 - 1);
-        *_RBX = *v41;
+        *(v24 - 2) = *(v26 - 2);
+        *(v24 - 1) = *(v26 - 1);
+        *v24 = *v26;
       }
       else
       {
-        LUI_Matrix_MultiplyVector(&outMatrix, (const vec4_t *)_RSI, &result);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+80h+result]
-          vmovss  xmm1, dword ptr [rbp+80h+result+4]
-          vmovss  dword ptr [rbx-8], xmm0
-          vmovss  xmm0, dword ptr [rbp+80h+result+8]
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  dword ptr [rbx-4], xmm1
-        }
+        LUI_Matrix_MultiplyVector(&outMatrix, (const vec4_t *)v20, &result);
+        v27 = result.v[1];
+        *(v24 - 2) = result.v[0];
+        *v24 = result.v[2];
+        *(v24 - 1) = v27;
       }
-      _RSI = (const vec4_t (*)[4])((char *)_RSI + 16);
-      _RBX += 3;
-      v41 += 4;
-      v37 = v40-- == 0;
-      v38 = v40 == 0;
+      v20 = (const vec4_t (*)[4])((char *)v20 + 16);
+      v24 += 3;
+      v26 += 4;
+      --v25;
     }
-    while ( v40 );
+    while ( v25 );
     MinHeightForDistanceField = FontCache_GetMinHeightForDistanceField();
-    __asm
-    {
-      vmovss  xmm0, [rbp+80h+var_6C]
-      vsubss  xmm3, xmm0, dword ptr [rbp+80h+points]
-      vmovss  xmm1, [rbp+80h+var_68]
-      vsubss  xmm2, xmm1, dword ptr [rbp+80h+points+4]
-      vmovss  xmm0, [rbp+80h+var_64]
-      vsubss  xmm4, xmm0, dword ptr [rbp+80h+points+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vmovss  xmm0, cs:__real@3f800000
-      vsqrtss xmm5, xmm2, xmm2
-      vdivss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm5, xmm1
-      vmovss  [rsp+190h+var_160], xmm2
-      vmovss  [rsp+190h+xScale], xmm2
-    }
-    R_AddCmdDrawText3DUI(text, font, textMaterial, MinHeightForDistanceField, &points, xScale, v87, tracking, color, fontDecodeStyle, fontGlowStyle, iconsMaterial);
+    v29 = fsqrt((float)((float)((float)(v39 - points.v[1]) * (float)(v39 - points.v[1])) + (float)((float)(v38 - points.v[0]) * (float)(v38 - points.v[0]))) + (float)((float)(v40 - points.v[2]) * (float)(v40 - points.v[2])));
+    R_AddCmdDrawText3DUI(text, font, textMaterial, MinHeightForDistanceField, &points, v29 * (float)(1.0 / (float)MinHeightForDistanceField), v29 * (float)(1.0 / (float)MinHeightForDistanceField), tracking, color, fontDecodeStyle, fontGlowStyle, iconsMaterial);
   }
   else
   {
-    __asm
+    v30 = (*verts)[3].v[0];
+    v31 = (*verts)[3].v[1];
+    v32 = FLOAT_1_0;
+    v33 = _mm_cvtepi32_ps((__m128i)(unsigned int)internalFontSize).m128_f32[0];
+    v34 = fsqrt((float)((float)((*verts)[0].v[1] - v31) * (float)((*verts)[0].v[1] - v31)) + (float)((float)((*verts)[0].v[0] - v30) * (float)((*verts)[0].v[0] - v30)));
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v34 - v33) & _xmm) > 0.000001 )
+      v32 = v34 / v33;
+    if ( parallaxAmount <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  xmm5, dword ptr [rsi+30h]
-      vmovss  xmm4, dword ptr [rsi+34h]
-      vmovss  xmm6, cs:__real@3f800000
-      vsubss  xmm2, xmm0, xmm5
-      vsubss  xmm0, xmm1, xmm4
-      vmulss  xmm3, xmm0, xmm0
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm1, xmm3, xmm2
-      vmovd   xmm3, ebx
-      vcvtdq2ps xmm3, xmm3
-      vsqrtss xmm2, xmm1, xmm1
-      vsubss  xmm0, xmm2, xmm3
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-      vmovss  xmm0, [rbp+80h+parallaxAmount]; parallaxAmount
-      vcomiss xmm0, xmm7
-      vmovss  dword ptr [rbp+80h+result], xmm5
-      vmovss  dword ptr [rbp+80h+result+4], xmm4
-      vmovss  xmm0, [rbp+80h+rotation]
-    }
-    if ( fontDecodeStyle )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+190h+glowStyle], xmm0
-        vmovss  dword ptr [rsp+190h+var_150], xmm6
-        vmovss  dword ptr [rsp+190h+var_158], xmm6
-        vmovss  [rsp+190h+var_160], xmm4
-        vmovss  [rsp+190h+xScale], xmm5
-      }
-      R_AddCmdDrawTextWithEffects(text, 0x7FFFFFFF, font, textMaterial, _EBX, xScalea, v88, v90, v92, tracking, glowStyle, color, fontDecodeStyle, fontGlowStyle, usePost, iconsMaterial, tintIcons);
+      result.v[0] = (*verts)[3].v[0];
+      result.v[1] = v31;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+190h+glowStyle], xmm0
-        vmovss  dword ptr [rsp+190h+var_150], xmm6
-        vmovss  dword ptr [rsp+190h+var_158], xmm6
-        vmovss  [rsp+190h+var_160], xmm4
-        vmovss  [rsp+190h+xScale], xmm5
-      }
-      R_AddCmdDrawText(text, 0x7FFFFFFF, font, textMaterial, _EBX, xScaleb, v89, v91, v93, tracking, glowStylea, color, fontGlowStyle, usePost, tintIcons, 0, iconsMaterial);
+      LUI_GetCurrentParallaxMatrix(parallaxAmount, &outMatrix);
+      LUI_Matrix_MultiplyVector(&outMatrix, &(*verts)[3], &result);
+      v31 = result.v[1];
+      v30 = result.v[0];
     }
-  }
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    if ( fontDecodeStyle )
+      R_AddCmdDrawTextWithEffects(text, 0x7FFFFFFF, font, textMaterial, internalFontSize, v30, v31, v32, v32, tracking, rotation, color, fontDecodeStyle, fontGlowStyle, usePost, iconsMaterial, tintIcons);
+    else
+      R_AddCmdDrawText(text, 0x7FFFFFFF, font, textMaterial, internalFontSize, v30, v31, v32, v32, tracking, rotation, color, fontGlowStyle, usePost, tintIcons, 0, iconsMaterial);
   }
 }
 

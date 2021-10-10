@@ -147,29 +147,32 @@ DLog_JsonColumns
 */
 __int64 DLog_JsonColumns(DLogContext *context, DLogColumn *columns, int columnCount, Json *json)
 {
-  __int64 v7; 
-  unsigned __int8 v11; 
-  bool v12; 
-  bool v13; 
-  char v16; 
-  __int16 v17; 
-  int v18; 
-  __int64 v19; 
-  unsigned __int8 v20; 
-  unsigned __int16 v21; 
-  unsigned int v22; 
-  unsigned __int64 v23; 
-  const char *v24; 
-  __int64 v26; 
+  __int64 v5; 
+  unsigned __int8 v9; 
+  bool v10; 
+  bool v11; 
+  double v12; 
+  float v13; 
+  long double v14; 
+  char v17; 
+  __int16 v18; 
+  int v19; 
+  __int64 v20; 
+  unsigned __int8 v21; 
+  unsigned __int16 v22; 
+  unsigned int v23; 
+  unsigned __int64 v24; 
+  const char *v25; 
+  __int64 v27; 
   Json child; 
 
-  v7 = columnCount;
+  v5 = columnCount;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 868, ASSERT_TYPE_ASSERT, "(context != nullptr)", (const char *)&queryFormat, "context != nullptr") )
     __debugbreak();
   if ( !columns && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 869, ASSERT_TYPE_ASSERT, "(columns != nullptr)", (const char *)&queryFormat, "columns != nullptr") )
     __debugbreak();
-  v11 = 1;
-  if ( v7 > 0 )
+  v9 = 1;
+  if ( v5 > 0 )
   {
     do
     {
@@ -184,150 +187,140 @@ __int64 DLog_JsonColumns(DLogContext *context, DLogColumn *columns, int columnCo
           case 4:
             if ( !Json::IsBool(&child) )
               goto LABEL_13;
-            v12 = Json::ToBool(&child, 0);
-            if ( !DLog_Bool(context, columns->name, v12) )
+            v10 = Json::ToBool(&child, 0);
+            if ( !DLog_Bool(context, columns->name, v10) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 5:
             if ( Json::IsFloat(&child) )
             {
-              __asm { vxorps  xmm1, xmm1, xmm1; defaultValue }
-              *(double *)&_XMM0 = Json::ToFloat32(&child, *(float *)&_XMM1);
-              __asm { vmovaps xmm2, xmm0; value }
-              v13 = DLog_Float32(context, columns->name, *(float *)&_XMM2);
+              _XMM1 = 0i64;
+              v12 = Json::ToFloat32(&child, 0.0);
+              v11 = DLog_Float32(context, columns->name, *(float *)&v12);
               break;
             }
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            Json::ToInt64(&child, 0i64);
-            __asm
-            {
-              vxorps  xmm2, xmm2, xmm2
-              vcvtsi2ss xmm2, xmm2, rax; value
-            }
-            if ( !DLog_Float32(context, columns->name, *(float *)&_XMM2) )
+            v13 = (float)Json::ToInt64(&child, 0i64);
+            if ( !DLog_Float32(context, columns->name, v13) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 6:
             if ( Json::IsFloat(&child) )
             {
               __asm { vxorpd  xmm1, xmm1, xmm1; defaultValue }
-              *(double *)&_XMM0 = Json::ToFloat64(&child, *(long double *)&_XMM1);
-              __asm { vmovaps xmm2, xmm0; value }
-              v13 = DLog_Float64(context, columns->name, *(long double *)&_XMM2);
+              v14 = Json::ToFloat64(&child, *(long double *)&_XMM1);
+              v11 = DLog_Float64(context, columns->name, v14);
             }
             else
             {
               if ( !Json::IsInteger(&child) )
                 goto LABEL_13;
               Json::ToInt64(&child, 0i64);
-              __asm
-              {
-                vxorps  xmm2, xmm2, xmm2
-                vcvtsi2sd xmm2, xmm2, rax; value
-              }
+              _XMM2 = 0i64;
+              __asm { vcvtsi2sd xmm2, xmm2, rax; value }
               if ( DLog_Float64(context, columns->name, *(long double *)&_XMM2) )
-                v13 = 1;
+                v11 = 1;
               else
 LABEL_13:
-                v13 = 0;
+                v11 = 0;
             }
             break;
           case 7:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v16 = Json::ToInt8(&child, 0);
-            if ( !DLog_Int8(context, columns->name, v16) )
+            v17 = Json::ToInt8(&child, 0);
+            if ( !DLog_Int8(context, columns->name, v17) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 8:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v17 = Json::ToInt16(&child, 0);
-            if ( !DLog_Int16(context, columns->name, v17) )
+            v18 = Json::ToInt16(&child, 0);
+            if ( !DLog_Int16(context, columns->name, v18) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 9:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v18 = Json::ToInt32(&child, 0);
-            if ( !DLog_Int32(context, columns->name, v18) )
+            v19 = Json::ToInt32(&child, 0);
+            if ( !DLog_Int32(context, columns->name, v19) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xA:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v19 = Json::ToInt64(&child, 0i64);
-            if ( !DLog_Int64(context, columns->name, v19) )
+            v20 = Json::ToInt64(&child, 0i64);
+            if ( !DLog_Int64(context, columns->name, v20) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xB:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v20 = Json::ToUInt8(&child, 0);
-            if ( !DLog_UInt8(context, columns->name, v20) )
+            v21 = Json::ToUInt8(&child, 0);
+            if ( !DLog_UInt8(context, columns->name, v21) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xC:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v21 = Json::ToUInt16(&child, 0);
-            if ( !DLog_UInt16(context, columns->name, v21) )
+            v22 = Json::ToUInt16(&child, 0);
+            if ( !DLog_UInt16(context, columns->name, v22) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xD:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v22 = Json::ToUInt32(&child, 0);
-            if ( !DLog_UInt32(context, columns->name, v22) )
+            v23 = Json::ToUInt32(&child, 0);
+            if ( !DLog_UInt32(context, columns->name, v23) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xE:
             if ( !Json::IsInteger(&child) )
               goto LABEL_13;
-            v23 = Json::ToUInt64(&child, 0i64);
-            if ( !DLog_UInt64(context, columns->name, v23) )
+            v24 = Json::ToUInt64(&child, 0i64);
+            if ( !DLog_UInt64(context, columns->name, v24) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           case 0xF:
             if ( !Json::IsString(&child) )
               goto LABEL_13;
-            v24 = Json::ToString(&child, (const char *)&queryFormat.fmt + 3);
-            if ( !DLog_String(context, columns->name, v24, 0) )
+            v25 = Json::ToString(&child, (const char *)&queryFormat.fmt + 3);
+            if ( !DLog_String(context, columns->name, v25, 0) )
               goto LABEL_13;
-            v13 = 1;
+            v11 = 1;
             break;
           default:
-            LODWORD(v26) = columns->type;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 926, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DLog_Json: unhandled column->type %d\n", v26) )
+            LODWORD(v27) = columns->type;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 926, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DLog_Json: unhandled column->type %d\n", v27) )
               __debugbreak();
-            v11 = 0;
+            v9 = 0;
             goto LABEL_56;
         }
       }
       else
       {
 $LN20_13:
-        v13 = DLog_RecordInvalidEntry(context, columns->name);
+        v11 = DLog_RecordInvalidEntry(context, columns->name);
       }
-      v11 &= v13;
+      v9 &= v11;
 LABEL_56:
       ++columns;
-      --v7;
+      --v5;
     }
-    while ( v7 );
+    while ( v5 );
   }
-  return v11;
+  return v9;
 }
 
 /*
@@ -338,9 +331,8 @@ DLog_JsonRow
 bool DLog_JsonRow(DLogContext *context, const char *name, Json *json)
 {
   const DLogRow *row; 
-  Json v9; 
+  Json v8; 
 
-  _RSI = json;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 943, ASSERT_TYPE_ASSERT, "(context != nullptr)", (const char *)&queryFormat, "context != nullptr") )
     __debugbreak();
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 944, ASSERT_TYPE_ASSERT, "(name != nullptr)", (const char *)&queryFormat, "name != nullptr") )
@@ -348,12 +340,8 @@ bool DLog_JsonRow(DLogContext *context, const char *name, Json *json)
   if ( !DLog_BeginRow(context, name) )
     return 0;
   row = context->row;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rsp+48h+var_18.m_key], xmm0
-  }
-  if ( !DLog_JsonColumns(context, row->columns, row->columnCount, &v9) )
+  v8 = *json;
+  if ( !DLog_JsonColumns(context, row->columns, row->columnCount, &v8) )
   {
     DLog_EndRow(context);
     return 0;
@@ -594,12 +582,13 @@ DLog_LuaValue
 */
 bool DLog_LuaValue(DLogContext *context, const char *name, lua_State *luaVM, int idx)
 {
+  int v8; 
   int v9; 
   int v10; 
   int v11; 
-  int v12; 
-  const char *v14; 
-  int v16; 
+  const char *v13; 
+  long double v14; 
+  int v15; 
 
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 65, ASSERT_TYPE_ASSERT, "(context != nullptr)", (const char *)&queryFormat, "context != nullptr") )
     __debugbreak();
@@ -607,38 +596,37 @@ bool DLog_LuaValue(DLogContext *context, const char *name, lua_State *luaVM, int
     __debugbreak();
   if ( !luaVM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 67, ASSERT_TYPE_ASSERT, "(luaVM != nullptr)", (const char *)&queryFormat, "luaVM != nullptr") )
     __debugbreak();
-  v9 = j_lua_type(luaVM, idx);
-  if ( !v9 )
+  v8 = j_lua_type(luaVM, idx);
+  if ( !v8 )
     return DLog_Null(context, name);
-  v10 = v9 - 1;
-  if ( v10 )
+  v9 = v8 - 1;
+  if ( v9 )
   {
-    v11 = v10 - 2;
-    if ( v11 )
+    v10 = v9 - 2;
+    if ( v10 )
     {
-      if ( v11 == 1 )
+      if ( v10 == 1 )
       {
-        v14 = j_lua_tolstring(luaVM, idx, NULL);
-        return DLog_String(context, name, v14, 1);
+        v13 = j_lua_tolstring(luaVM, idx, NULL);
+        return DLog_String(context, name, v13, 1);
       }
       else
       {
-        v12 = j_lua_type(luaVM, -1);
-        DLog_Error(context, name, "lua type unsupported", "lua does not support type %s\n", s_luaTypeNames[v12]);
+        v11 = j_lua_type(luaVM, -1);
+        DLog_Error(context, name, "lua type unsupported", "lua does not support type %s\n", s_luaTypeNames[v11]);
         return 0;
       }
     }
     else
     {
-      *(double *)&_XMM0 = j_lua_tonumber(luaVM, idx);
-      __asm { vmovaps xmm2, xmm0; value }
-      return DLog_Float(context, name, *(long double *)&_XMM2);
+      v14 = j_lua_tonumber(luaVM, idx);
+      return DLog_Float(context, name, v14);
     }
   }
   else
   {
-    v16 = j_lua_toboolean(luaVM, idx);
-    return DLog_Bool(context, name, v16 != 0);
+    v15 = j_lua_toboolean(luaVM, idx);
+    return DLog_Bool(context, name, v15 != 0);
   }
 }
 
@@ -961,8 +949,8 @@ bool __fastcall DLog_RecordInvalidEntry(DLogContext *context, const char *name, 
 {
   const DLogColumn *column; 
   bool result; 
-  const char *v9; 
-  __int64 v10; 
+  const char *v8; 
+  __int64 v9; 
 
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 963, ASSERT_TYPE_ASSERT, "(context != nullptr)", (const char *)&queryFormat, "context != nullptr") )
     __debugbreak();
@@ -979,8 +967,7 @@ bool __fastcall DLog_RecordInvalidEntry(DLogContext *context, const char *name, 
       result = DLog_Bool(context, name, 0);
       break;
     case 5:
-      __asm { vxorps  xmm2, xmm2, xmm2; jumptable 000000014098EB92 case 5 }
-      result = DLog_Float32(context, name, *(float *)&_XMM2);
+      result = DLog_Float32(context, name, 0.0);
       break;
     case 6:
       __asm { vxorpd  xmm2, xmm2, xmm2; jumptable 000000014098EB92 case 6 }
@@ -1011,14 +998,14 @@ bool __fastcall DLog_RecordInvalidEntry(DLogContext *context, const char *name, 
       result = DLog_UInt64(context, name, 0i64);
       break;
     case 0xF:
-      v9 = "UNKNOWN";
+      v8 = "UNKNOWN";
       if ( column->stringSize < 8u )
-        v9 = (char *)&queryFormat.fmt + 3;
-      result = DLog_String(context, name, v9, 0);
+        v8 = (char *)&queryFormat.fmt + 3;
+      result = DLog_String(context, name, v8, 0);
       break;
     default:
-      LODWORD(v10) = column->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 1013, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DLog_Json: unhandled column->type %d\n", v10) )
+      LODWORD(v9) = column->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 1013, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DLog_Json: unhandled column->type %d\n", v9) )
         __debugbreak();
       return 0;
   }
@@ -1162,34 +1149,30 @@ DLog_ScrValue
 */
 bool DLog_ScrValue(DLogContext *context, const char *name, scrContext_t *scrContext, unsigned int valueId)
 {
+  scr_string_t *VariableValueAddress; 
   VariableType ValueType; 
   VariableType v10; 
   const char *NameForType; 
   const char *v12; 
-  const char *v16; 
+  const char *v14; 
 
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 314, ASSERT_TYPE_ASSERT, "(context != nullptr)", (const char *)&queryFormat, "context != nullptr") )
     __debugbreak();
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_bindings.cpp", 315, ASSERT_TYPE_ASSERT, "(name != nullptr)", (const char *)&queryFormat, "name != nullptr") )
     __debugbreak();
-  _RSI = (scr_string_t *)GetVariableValueAddress(scrContext, valueId);
+  VariableValueAddress = (scr_string_t *)GetVariableValueAddress(scrContext, valueId);
   ValueType = GetValueType(scrContext, valueId);
   switch ( ValueType )
   {
     case VAR_UNDEFINED:
       return DLog_Null(context, name);
     case VAR_STRING:
-      v16 = SL_ConvertToString(*_RSI);
-      return DLog_String(context, name, v16, 1);
+      v14 = SL_ConvertToString(*VariableValueAddress);
+      return DLog_String(context, name, v14, 1);
     case VAR_FLOAT:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi]
-        vcvtss2sd xmm2, xmm2, xmm2; value
-      }
-      return DLog_Float(context, name, *(long double *)&_XMM2);
+      return DLog_Float(context, name, *(float *)VariableValueAddress);
     case VAR_INTEGER:
-      return DLog_Int(context, name, *(int *)_RSI);
+      return DLog_Int(context, name, *(int *)VariableValueAddress);
     default:
       v10 = GetValueType(scrContext, valueId);
       NameForType = Scr_GetNameForType(v10);

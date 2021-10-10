@@ -16,88 +16,34 @@ LUIElement_Mask_Push
 */
 void LUIElement_Mask_Push(LocalClientNum_t localClientNum, LUIElement *mask, lua_State *luaVM)
 {
-  float fmt; 
-  float maskRotation; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
+  void *customElementData; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec2_t outSize; 
-  char v55; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  _RBX = mask;
   if ( !mask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_mask.cpp", 67, ASSERT_TYPE_ASSERT, "(mask)", (const char *)&queryFormat, "mask") )
     __debugbreak();
-  if ( !_RBX->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  if ( !mask->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RDI = (GfxImage **)_RBX->customElementData;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+10h]
-    vaddss  xmm0, xmm6, dword ptr [rdi]
-    vmulss  xmm7, xmm0, cs:__real@3f000000
-    vmovss  xmm5, dword ptr [rdi+14h]
-    vaddss  xmm0, xmm5, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi+8]
-    vsubss  xmm1, xmm3, dword ptr [rdi]
-    vmovss  xmm4, dword ptr [rdi+0Ch]
-    vmulss  xmm8, xmm0, cs:__real@3f000000
-    vsubss  xmm0, xmm4, dword ptr [rdi+4]
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm3, xmm6, xmm3
-    vsqrtss xmm9, xmm2, xmm2
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-  }
+  customElementData = mask->customElementData;
+  v6 = *((float *)customElementData + 4);
+  v7 = (float)(v6 + *(float *)customElementData) * 0.5;
+  v8 = *((float *)customElementData + 5);
+  v9 = *((float *)customElementData + 2);
+  v10 = *((float *)customElementData + 3);
+  v11 = (float)(v8 + *((float *)customElementData + 1)) * 0.5;
+  v12 = fsqrt((float)((float)(v10 - *((float *)customElementData + 1)) * (float)(v10 - *((float *)customElementData + 1))) + (float)((float)(v9 - *(float *)customElementData) * (float)(v9 - *(float *)customElementData)));
+  v13 = fsqrt((float)((float)(v8 - v10) * (float)(v8 - v10)) + (float)((float)(v6 - v9) * (float)(v6 - v9)));
   LUI_Render_GetViewportSize(localClientNum, &outSize);
-  if ( !LUIElement_IsImageLike(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_mask.cpp", 79, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( mask ))", (const char *)&queryFormat, "LUIElement_IsImageLike( mask )") )
+  if ( !LUIElement_IsImageLike(mask) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_mask.cpp", 79, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( mask ))", (const char *)&queryFormat, "LUIElement_IsImageLike( mask )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+124h]
-    vmovss  xmm1, dword ptr [rbx+11Ch]
-    vmovss  xmm4, dword ptr [rbx+118h]
-    vmovss  [rsp+0E8h+var_88], xmm0
-    vmovss  xmm0, dword ptr [rbx+120h]
-    vmovss  [rsp+0E8h+var_90], xmm1
-    vmovss  [rsp+0E8h+var_98], xmm0
-    vmovss  [rsp+0E8h+var_A0], xmm4
-    vmovss  xmm4, dword ptr [rdi+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0E8h+var_B0], xmm0
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-    vmovss  [rsp+0E8h+var_B8], xmm4
-    vmovss  [rsp+0E8h+maskRotation], xmm0
-    vmovaps xmm3, xmm9; maskWidth
-    vmovaps xmm2, xmm8; maskCenterY
-    vmovaps xmm1, xmm7; maskCenterX
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-  }
-  LUI_Render_PushMask(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, maskRotation, v48, v49, 0, v50, v51, v52, v53, &outSize, _RDI[4]);
-  _R11 = &v55;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  LUI_Render_PushMask(localClientNum, v7, v11, v12, v13, *((float *)customElementData + 11), *((float *)customElementData + 10), 0.0, 0, mask->imageData.uMin, mask->imageData.vMin, mask->imageData.uMax, mask->imageData.vMax, &outSize, *((GfxImage **)customElementData + 4));
 }
 
 /*
@@ -105,117 +51,64 @@ void LUIElement_Mask_Push(LocalClientNum_t localClientNum, LUIElement *mask, lua
 LUIElement_Mask_Render
 ==============
 */
-
-void __fastcall LUIElement_Mask_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha)
+void LUIElement_Mask_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha)
 {
-  bool v12; 
-  char v15; 
-  vec4_t *v17; 
-  __int64 v18; 
+  float *customElementData; 
+  double CurrentParallaxAmount; 
+  float *v7; 
+  vec4_t *v8; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   vec4_t result; 
   tmat44_t<vec4_t> outMatrix; 
   vec4_t quadVerts[4]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-18h], xmm6 }
-  _RBX = element;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RDI = _RBX->customElementData;
-  __asm { vmovss  dword ptr [rdi+28h], xmm6 }
-  if ( !LUIElement_IsImageLike(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_mask.cpp", 24, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
+  customElementData = (float *)element->customElementData;
+  customElementData[10] = alpha;
+  if ( !LUIElement_IsImageLike(element) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_mask.cpp", 24, ASSERT_TYPE_ASSERT, "(LUIElement_IsImageLike( element ))", (const char *)&queryFormat, "LUIElement_IsImageLike( element )") )
     __debugbreak();
-  _RDI[4] = _RBX->imageData.image;
-  __asm
+  *((_QWORD *)customElementData + 4) = element->imageData.image;
+  LUI_CoD_GenerateQuadVerts(element->left, element->top, element->right, element->bottom, (vec4_t (*)[4])quadVerts);
+  CurrentParallaxAmount = LUI_Render_GetCurrentParallaxAmount();
+  if ( *(float *)&CurrentParallaxAmount <= 0.0 )
   {
-    vmovss  xmm3, dword ptr [rbx+0D8h]; bottom
-    vmovss  xmm2, dword ptr [rbx+0D4h]; right
-    vmovss  xmm1, dword ptr [rbx+0D0h]; top
-    vmovss  xmm0, dword ptr [rbx+0CCh]; left
-  }
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-  *(double *)&_XMM0 = LUI_Render_GetCurrentParallaxAmount();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v15 | v12 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0E8h+quadVerts]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr [rsp+0E8h+quadVerts+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr [rsp+0E8h+quadVerts+10h]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm1, dword ptr [rsp+0E8h+quadVerts+14h]
-      vmovss  dword ptr [rdi+0Ch], xmm1
-      vmovss  xmm0, dword ptr [rsp+0E8h+quadVerts+20h]
-      vmovss  dword ptr [rdi+10h], xmm0
-      vmovss  xmm1, dword ptr [rsp+0E8h+quadVerts+24h]
-      vmovss  dword ptr [rdi+14h], xmm1
-      vmovss  xmm0, dword ptr [rsp+0E8h+quadVerts+30h]
-      vmovss  dword ptr [rdi+18h], xmm0
-      vmovss  xmm1, dword ptr [rsp+0E8h+quadVerts+34h]
-      vmovss  dword ptr [rdi+1Ch], xmm1
-    }
+    *customElementData = quadVerts[0].v[0];
+    customElementData[1] = quadVerts[0].v[1];
+    customElementData[2] = quadVerts[1].v[0];
+    customElementData[3] = quadVerts[1].v[1];
+    customElementData[4] = quadVerts[2].v[0];
+    customElementData[5] = quadVerts[2].v[1];
+    customElementData[6] = quadVerts[3].v[0];
+    customElementData[7] = quadVerts[3].v[1];
   }
   else
   {
-    LUI_GetCurrentParallaxMatrix(*(float *)&_XMM0, &outMatrix);
-    _RBX = _RDI;
-    v17 = quadVerts;
-    v18 = 4i64;
+    LUI_GetCurrentParallaxMatrix(*(float *)&CurrentParallaxAmount, &outMatrix);
+    v7 = customElementData;
+    v8 = quadVerts;
+    v9 = 4i64;
     do
     {
-      LUI_Matrix_MultiplyVector(&outMatrix, v17, &result);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0E8h+result]
-        vmovss  xmm1, dword ptr [rsp+0E8h+result+4]
-      }
-      ++v17;
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
-      ++_RBX;
-      v12 = --v18 == 0;
+      LUI_Matrix_MultiplyVector(&outMatrix, v8, &result);
+      v10 = result.v[1];
+      ++v8;
+      *v7 = result.v[0];
+      v7[1] = v10;
+      v7 += 2;
+      --v9;
     }
-    while ( v18 );
+    while ( v9 );
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm2, xmm0, dword ptr [rdi]
-    vucomiss xmm2, xmm6
-    vmovss  xmm1, dword ptr [rdi+0Ch]
-    vsubss  xmm0, xmm1, dword ptr [rdi+4]; Y
-  }
-  if ( !v12 )
-    goto LABEL_15;
-  __asm { vucomiss xmm0, xmm6 }
-  if ( v12 )
-  {
-    __asm { vmovss  dword ptr [rdi+2Ch], xmm6 }
-  }
+  v11 = customElementData[2] - *customElementData;
+  v12 = customElementData[3] - customElementData[1];
+  if ( v11 == 0.0 && v12 == 0.0 )
+    customElementData[11] = 0;
   else
-  {
-LABEL_15:
-    __asm { vmovaps xmm1, xmm2; X }
-    *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@c2652ee0
-      vmovss  dword ptr [rdi+2Ch], xmm1
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+0E8h+var_18] }
+    customElementData[11] = atan2f_0(v12, v11) * -57.295776;
 }
 
 /*

@@ -451,15 +451,16 @@ void ScriptableCL_DynentSetPose(const LocalClientNum_t localClientNum, unsigned 
   unsigned __int8 numParts; 
   const char *v22; 
   unsigned __int8 v23; 
+  DynEnt_ExtraPosePart *v24; 
   unsigned int posePart1FirstIndex; 
   int *dynEntComplexCount; 
   int *dynEntComplexBodyCount; 
   int *dynEntComplexAdditionalBoneCount; 
-  __int64 v36; 
+  __int64 v29; 
   int dynEntSimpleAdditionalBoneCount; 
   hknpBodyId result[2]; 
   vec3_t *origina; 
-  const DynEntityDef *v40; 
+  const DynEntityDef *v33; 
   vec3_t bodyPosition; 
   vec4_t bodyOrientationAsQuat; 
 
@@ -473,13 +474,13 @@ void ScriptableCL_DynentSetPose(const LocalClientNum_t localClientNum, unsigned 
   if ( Def->clientId[v4] == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 196, ASSERT_TYPE_ASSERT, "(dynEntDef->clientId[localClientNum] != 0xFFFF)", (const char *)&queryFormat, "dynEntDef->clientId[localClientNum] != DYNENT_INVALID_CLIENT_ID") )
     __debugbreak();
   PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)v4, Def->clientId[v4], DYNENT_BASIS_MODEL);
-  v40 = DynEnt_GetDef(objectId, DYNENT_BASIS_MODEL);
-  v11 = v40;
+  v33 = DynEnt_GetDef(objectId, DYNENT_BASIS_MODEL);
+  v11 = v33;
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2208, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
     __debugbreak();
   if ( !PoseFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2209, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2210, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
+  if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2210, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
     __debugbreak();
   PoseFromClientId->pose.origin.v[0] = origin->v[0];
   PoseFromClientId->pose.origin.v[1] = origin->v[1];
@@ -553,9 +554,9 @@ void ScriptableCL_DynentSetPose(const LocalClientNum_t localClientNum, unsigned 
         if ( v17 >= numParts )
         {
           v22 = Client->activeModel ? Client->activeModel->name : "Unknown";
-          LODWORD(v36) = numParts;
+          LODWORD(v29) = numParts;
           LODWORD(dynEntComplexAdditionalBoneCount) = (unsigned __int8)dynEntSimpleAdditionalBoneCount;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2262, ASSERT_TYPE_ASSERT, "(rigidBodyIdx < dynEntPose->numParts)", "%s\n\tDynEnt %s has %i rigid bodies and %i parts - there must be at least as many parts as bodies", "rigidBodyIdx < dynEntPose->numParts", v22, dynEntComplexAdditionalBoneCount, v36) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2262, ASSERT_TYPE_ASSERT, "(rigidBodyIdx < dynEntPose->numParts)", "%s\n\tDynEnt %s has %i rigid bodies and %i parts - there must be at least as many parts as bodies", "rigidBodyIdx < dynEntPose->numParts", v22, dynEntComplexAdditionalBoneCount, v29) )
             __debugbreak();
         }
         v23 = PoseFromClientId->numParts;
@@ -576,35 +577,20 @@ void ScriptableCL_DynentSetPose(const LocalClientNum_t localClientNum, unsigned 
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 242, ASSERT_TYPE_ASSERT, "(unsigned)( pose->posePart1FirstIndex + localPoseIdx - 1 ) < (unsigned)( g_dynEntExtraPosePartsAllocCount[localClientNum] )", "pose->posePart1FirstIndex + localPoseIdx - 1 doesn't index g_dynEntExtraPosePartsAllocCount[localClientNum]\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
               __debugbreak();
           }
-          _RBX = &g_dynEntPoseExtraParts[v18][v17 - 1 + PoseFromClientId->posePart1FirstIndex];
+          v24 = &g_dynEntPoseExtraParts[v18][v17 - 1 + PoseFromClientId->posePart1FirstIndex];
         }
         else
         {
-          _RBX = (DynEnt_ExtraPosePart *)PoseFromClientId;
+          v24 = (DynEnt_ExtraPosePart *)PoseFromClientId;
         }
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2264, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
+        if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2264, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0D8h+bodyPosition]
-          vmovss  dword ptr [rbx+10h], xmm0
-          vmovss  xmm1, dword ptr [rsp+0D8h+bodyPosition+4]
-          vmovss  dword ptr [rbx+14h], xmm1
-          vmovss  xmm0, dword ptr [rsp+0D8h+bodyPosition+8]
-          vmovss  dword ptr [rbx+18h], xmm0
-          vmovss  xmm1, dword ptr [rsp+0D8h+bodyOrientationAsQuat]
-          vmovss  dword ptr [rbx], xmm1
-          vmovss  xmm0, dword ptr [rsp+0D8h+bodyOrientationAsQuat+4]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmovss  xmm1, dword ptr [rsp+0D8h+bodyOrientationAsQuat+8]
-          vmovss  dword ptr [rbx+8], xmm1
-          vmovss  xmm0, dword ptr [rsp+0D8h+bodyOrientationAsQuat+0Ch]
-        }
+        v24->posePart.origin = bodyPosition;
+        v24->posePart.quat = bodyOrientationAsQuat;
         ++v17;
-        __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
       }
       while ( v17 < (unsigned __int8)dynEntSimpleAdditionalBoneCount );
-      v11 = v40;
+      v11 = v33;
     }
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
   }
@@ -928,12 +914,17 @@ ScriptableCL_RunStateEventMove
 void ScriptableCL_RunStateEventMove(const LocalClientNum_t localClientNum, const ScriptableEventParams *const eventParams, bool onTime, const ScriptableEventMoveDef *const moveDef)
 {
   unsigned int scriptableIndex; 
-  Scriptable_EventMove_Data *Data; 
-  Scriptable_EventMove_Data *v14; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  Scriptable_EventMove_Data *Data; 
+  Scriptable_EventMove_Data *v11; 
+  ScriptableInstanceContextSecure *v12; 
   const char *name; 
-  char v17; 
-  char v24; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double v17; 
+  double v18; 
+  double v19; 
   const XModel *ScriptableModel; 
   CgAntiLag *Instance; 
   vec3_t outOrigin; 
@@ -941,152 +932,57 @@ void ScriptableCL_RunStateEventMove(const LocalClientNum_t localClientNum, const
   vec3_t out_endOrigin; 
   BgAntiLagLerpMoverCmd out_cmd; 
 
-  _RBP = moveDef;
   if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2425, ASSERT_TYPE_ASSERT, "(eventParams)", (const char *)&queryFormat, "eventParams") )
     __debugbreak();
   scriptableIndex = eventParams->scriptableIndex;
-  _RBX = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-  Data = ScriptableCL_StateEventMoveGetData(_RBX, _RBP);
-  v14 = Data;
-  if ( (*((_BYTE *)_RBX + 60) & 0x20) != 0 )
+  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+  Data = ScriptableCL_StateEventMoveGetData(InstanceCommonContext, moveDef);
+  v11 = Data;
+  if ( (*((_BYTE *)InstanceCommonContext + 60) & 0x20) != 0 )
   {
     Data->startTime = 0;
-    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    if ( InstanceCommonContext->def )
-      name = InstanceCommonContext->def->name;
+    v12 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    if ( v12->def )
+      name = v12->def->name;
     else
       name = "<unknown>";
     Com_PrintError(29, "ScriptableCl RunStateEventMove: Scriptable is parented to entity, can't execute event. Index %i '%s'\n", scriptableIndex, name);
   }
   else
   {
-    __asm
+    ScriptableBg_LerpCalcEndPoints(&InstanceCommonContext->originInitial, &InstanceCommonContext->anglesInitial, moveDef, &out_endOrigin, &out_endAngles);
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
+    v14 = InstanceCommonContext->angles.v[0];
+    v15 = InstanceCommonContext->angles.v[1];
+    v16 = InstanceCommonContext->angles.v[2];
+    if ( out_endOrigin.v[0] == outOrigin.v[0] && out_endOrigin.v[1] == outOrigin.v[1] && out_endOrigin.v[2] == outOrigin.v[2] && (v17 = AngleDelta(out_endAngles.v[0], InstanceCommonContext->angles.v[0]), COERCE_FLOAT(LODWORD(v17) & _xmm) <= 0.00000011920929) && (v18 = AngleDelta(out_endAngles.v[1], v15), COERCE_FLOAT(LODWORD(v18) & _xmm) <= 0.00000011920929) && (v19 = AngleDelta(out_endAngles.v[2], v16), COERCE_FLOAT(LODWORD(v19) & _xmm) <= 0.00000011920929) )
     {
-      vmovaps [rsp+178h+var_48], xmm8
-      vmovaps [rsp+178h+var_58], xmm9
-      vmovaps [rsp+178h+var_68], xmm10
+      if ( moveDef->seconds != 0.0 )
+        v11->startTime = 0;
     }
-    ScriptableBg_LerpCalcEndPoints(&_RBX->originInitial, &_RBX->anglesInitial, _RBP, &out_endOrigin, &out_endAngles);
-    ScriptableInstanceContextSecure::GetOrigin(_RBX, scriptableIndex, &outOrigin);
-    __asm
+    else if ( moveDef->seconds == 0.0 || !onTime )
     {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endOrigin]
-      vucomiss xmm0, dword ptr [rsp+178h+outOrigin]
-      vmovss  xmm8, dword ptr [rbx+2Ch]
-      vmovss  xmm9, dword ptr [rbx+30h]
-      vmovss  xmm10, dword ptr [rbx+34h]
-    }
-    if ( !v17 )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endOrigin+4]
-      vucomiss xmm0, dword ptr [rsp+178h+outOrigin+4]
-    }
-    if ( !v17 )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endOrigin+8]
-      vucomiss xmm0, dword ptr [rsp+178h+outOrigin+8]
-    }
-    if ( !v17 )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endAngles]; angle1
-      vmovaps xmm1, xmm8; angle2
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@34000000
-    }
-    if ( !(v24 | v17) )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endAngles+4]; angle1
-      vmovaps xmm1, xmm9; angle2
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@34000000
-    }
-    if ( !(v24 | v17) )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+178h+out_endAngles+8]; angle1
-      vmovaps xmm1, xmm10; angle2
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@34000000
-    }
-    if ( v24 | v17 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm0, dword ptr [rbp+20h]
-      }
-      if ( !v17 )
-        v14->startTime = 0;
+      v11->startTime = 0;
+      ScriptableCL_SetPose(localClientNum, eventParams->scriptableIndex, InstanceCommonContext, &out_endOrigin, &out_endAngles, 1);
     }
     else
     {
-LABEL_17:
-      __asm
+      v11->startTime = CG_GetLocalClientGlobals(localClientNum)->time;
+      v11->startOrigin = outOrigin;
+      v11->startAngles.v[0] = v14;
+      v11->startAngles.v[1] = v15;
+      v11->startAngles.v[2] = v16;
+      if ( ScriptableCl_GetInstanceCollisionContext(localClientNum, eventParams->scriptableIndex)->canPush )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm0, dword ptr [rbp+20h]
+        ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
+        ScriptableBg_SetupAntilagCommand(&out_cmd, eventParams->scriptableIndex, &ScriptableModel->bounds, v11->startTime, &v11->startOrigin, &v11->startAngles, &out_endOrigin, &out_endAngles, moveDef);
+        Instance = CgAntiLag::GetInstance(localClientNum);
+        if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2476, ASSERT_TYPE_ASSERT, "(antilag)", (const char *)&queryFormat, "antilag") )
+          __debugbreak();
+        CG_EntityWorkers_EnterCriticalSection();
+        BgAntiLag::AddLerpMoverCommand(Instance, &out_cmd);
+        CG_EntityWorkers_LeaveCriticalSection();
       }
-      if ( v17 || !onTime )
-      {
-        v14->startTime = 0;
-        ScriptableCL_SetPose(localClientNum, eventParams->scriptableIndex, _RBX, &out_endOrigin, &out_endAngles, 1);
-      }
-      else
-      {
-        _RSI = &v14->startOrigin;
-        _R12 = &v14->startAngles;
-        v14->startTime = CG_GetLocalClientGlobals(localClientNum)->time;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+178h+outOrigin]
-          vmovss  dword ptr [rsi], xmm0
-          vmovss  xmm1, dword ptr [rsp+178h+outOrigin+4]
-          vmovss  dword ptr [rsi+4], xmm1
-          vmovss  xmm0, dword ptr [rsp+178h+outOrigin+8]
-          vmovss  dword ptr [rsi+8], xmm0
-          vmovss  dword ptr [r12], xmm8
-          vmovss  dword ptr [r12+4], xmm9
-          vmovss  dword ptr [r12+8], xmm10
-        }
-        if ( ScriptableCl_GetInstanceCollisionContext(localClientNum, eventParams->scriptableIndex)->canPush )
-        {
-          ScriptableModel = BG_XCompositeModel_GetScriptableModel(_RBX);
-          ScriptableBg_SetupAntilagCommand(&out_cmd, eventParams->scriptableIndex, &ScriptableModel->bounds, v14->startTime, &v14->startOrigin, &v14->startAngles, &out_endOrigin, &out_endAngles, _RBP);
-          Instance = CgAntiLag::GetInstance(localClientNum);
-          if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2476, ASSERT_TYPE_ASSERT, "(antilag)", (const char *)&queryFormat, "antilag") )
-            __debugbreak();
-          CG_EntityWorkers_EnterCriticalSection();
-          BgAntiLag::AddLerpMoverCommand(Instance, &out_cmd);
-          CG_EntityWorkers_LeaveCriticalSection();
-        }
-      }
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+178h+var_58]
-      vmovaps xmm8, [rsp+178h+var_48]
-      vmovaps xmm10, [rsp+178h+var_68]
     }
   }
 }
@@ -1099,37 +995,28 @@ ScriptableCL_SetPose
 void ScriptableCL_SetPose(const LocalClientNum_t localClientNum, unsigned int scriptableIndex, ScriptableInstanceContextSecure *context, const vec3_t *origin, const vec3_t *angles, bool warp)
 {
   __int64 v9; 
-  bool v11; 
+  bool v10; 
   ScriptableLinkType LinkType; 
-  unsigned int v15; 
+  unsigned int v12; 
   unsigned int LinkObject; 
   ScriptableCollisionClientContext *InstanceCollisionContext; 
   unsigned int scriptableCollisionPredictive; 
   unsigned int scriptableCollisionAuthoritative; 
   unsigned int scriptableCollisionDetail; 
-  int v22; 
+  int v18; 
   vec3_t outOrigin; 
-  __int64 v24; 
+  __int64 v20; 
   vec4_t quat; 
 
-  v24 = -2i64;
-  _RDI = context;
+  v20 = -2i64;
   v9 = localClientNum;
-  _R15 = angles;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 177, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableObjectiveLists ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_scriptableObjectiveLists )\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  v11 = !s_scriptableObjectiveLists[v9].changed && ScriptableCL_GetObjectiveActiveInWorldForInstance((const LocalClientNum_t)v9, scriptableIndex);
-  if ( v11 )
-    ScriptableInstanceContextSecure::GetOrigin(_RDI, scriptableIndex, &outOrigin);
-  ScriptableInstanceContextSecure::SetOrigin(_RDI, scriptableIndex, origin);
-  _RDI->angles.v[0] = angles->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  dword ptr [rdi+30h], xmm0
-    vmovss  xmm1, dword ptr [r15+8]
-    vmovss  dword ptr [rdi+34h], xmm1
-  }
+  v10 = !s_scriptableObjectiveLists[v9].changed && ScriptableCL_GetObjectiveActiveInWorldForInstance((const LocalClientNum_t)v9, scriptableIndex);
+  if ( v10 )
+    ScriptableInstanceContextSecure::GetOrigin(context, scriptableIndex, &outOrigin);
+  ScriptableInstanceContextSecure::SetOrigin(context, scriptableIndex, origin);
+  context->angles = *angles;
   AnglesToQuat(angles, &quat);
   LinkType = ScriptableCl_GetLinkType((const LocalClientNum_t)v9, scriptableIndex);
   if ( LinkType != SCRIPTABLE_LINK_ENTITY )
@@ -1141,14 +1028,13 @@ void ScriptableCL_SetPose(const LocalClientNum_t localClientNum, unsigned int sc
     }
     else if ( LinkType == SCRIPTABLE_LINK_CLIENTMODEL )
     {
-      v15 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v9, scriptableIndex);
-      CG_ClientModel_SetOrigin((const LocalClientNum_t)v9, v15, origin);
-      CG_ClientModel_SetAngles((const LocalClientNum_t)v9, v15, angles);
+      v12 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v9, scriptableIndex);
+      CG_ClientModel_SetOrigin((const LocalClientNum_t)v9, v12, origin);
+      CG_ClientModel_SetAngles((const LocalClientNum_t)v9, v12, angles);
     }
-    if ( v11 )
+    if ( v10 )
     {
-      __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-      if ( VecNCompareCustomEpsilon(outOrigin.v, origin->v, *(float *)&_XMM2, 3) )
+      if ( VecNCompareCustomEpsilon(outOrigin.v, origin->v, 0.001, 3) )
       {
 LABEL_20:
         InstanceCollisionContext = ScriptableCl_GetInstanceCollisionContext((const LocalClientNum_t)v9, scriptableIndex);
@@ -1158,13 +1044,13 @@ LABEL_20:
         if ( InstanceCollisionContext->scriptableCollisionPredictive != -1 || scriptableCollisionAuthoritative != -1 || scriptableCollisionDetail != -1 )
         {
           CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-          v22 = 3 * v9;
+          v18 = 3 * v9;
           if ( scriptableCollisionPredictive != -1 )
-            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v22 + 2), InstanceCollisionContext->scriptableCollisionPredictive, origin, &quat, WARP);
+            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v18 + 2), InstanceCollisionContext->scriptableCollisionPredictive, origin, &quat, WARP);
           if ( scriptableCollisionAuthoritative != -1 )
-            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v22 + 3), InstanceCollisionContext->scriptableCollisionAuthoritative, origin, &quat, (Scriptable_PhysicsSetPoseCmd)warp);
+            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v18 + 3), InstanceCollisionContext->scriptableCollisionAuthoritative, origin, &quat, (Scriptable_PhysicsSetPoseCmd)warp);
           if ( scriptableCollisionDetail != -1 )
-            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v22 + 4), InstanceCollisionContext->scriptableCollisionDetail, origin, &quat, WARP);
+            ScriptableBg_PhysicsSetPose((Physics_WorldId)(v18 + 4), InstanceCollisionContext->scriptableCollisionDetail, origin, &quat, WARP);
           CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
         }
         goto LABEL_30;
@@ -1188,17 +1074,11 @@ Scriptable_EventMove_Data *ScriptableCL_StateEventMoveGetData(ScriptableInstance
 {
   __int64 eventStreamBufferOffsetClient; 
 
-  _RBX = moveDef;
   if ( (!context || !moveDef) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2191, ASSERT_TYPE_ASSERT, "(context && moveDef)", (const char *)&queryFormat, "context && moveDef") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+20h]
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2192, ASSERT_TYPE_ASSERT, "(moveDef->seconds > 0.0f)", (const char *)&queryFormat, "moveDef->seconds > 0.0f") )
+  if ( moveDef->seconds <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2192, ASSERT_TYPE_ASSERT, "(moveDef->seconds > 0.0f)", (const char *)&queryFormat, "moveDef->seconds > 0.0f") )
     __debugbreak();
-  eventStreamBufferOffsetClient = _RBX->eventStreamBufferOffsetClient;
+  eventStreamBufferOffsetClient = moveDef->eventStreamBufferOffsetClient;
   if ( eventStreamBufferOffsetClient + 28 > (unsigned __int64)context->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2195, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventMove_Data ) <= context->eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventMove_Data ) <= context->eventStreamBufferSize") )
     __debugbreak();
   return (Scriptable_EventMove_Data *)&context->eventStreamBuffer[eventStreamBufferOffsetClient];
@@ -1233,16 +1113,23 @@ void ScriptableCL_StateEventMovePhysicsClearVelocity(const LocalClientNum_t loca
 ScriptableCL_UpdateStateEventMaterialOverride
 ==============
 */
-
-void __fastcall ScriptableCL_UpdateStateEventMaterialOverride(double deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, const ScriptableStateDef *state, const ScriptableEventDef *event, unsigned int eventIdx, ScriptableUpdateRequest *inOutRequest)
+void ScriptableCL_UpdateStateEventMaterialOverride(const float deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, const ScriptableStateDef *state, const ScriptableEventDef *event, unsigned int eventIdx, ScriptableUpdateRequest *inOutRequest)
 {
+  cg_t *LocalClientGlobals; 
   centity_t *Entity; 
   __int16 otherEntityNum; 
   unsigned int LinkObject; 
-  char v24; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
+  __int64 eventStreamBufferOffsetClient; 
+  unsigned __int8 *eventStreamBuffer; 
+  signed int imageValue; 
+  unsigned __int8 v18; 
+  double v19; 
+  float v20; 
   DObj *ClientDObj; 
 
-  if ( !CG_GetLocalClientGlobals(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2077, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2077, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   Entity = ScriptableCl_GetEntity(localClientNum, scriptableIndex);
   if ( Entity )
@@ -1252,61 +1139,27 @@ void __fastcall ScriptableCL_UpdateStateEventMaterialOverride(double deltaTime, 
       LinkObject = ScriptableCl_GetLinkObject(localClientNum, scriptableIndex);
       otherEntityNum = truncate_cast<short,unsigned int>(LinkObject);
     }
-    if ( (unsigned __int64)event->data.wait.eventStreamBufferOffsetClient + 5 > ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2101, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( int ) + sizeof( uint8_t ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( int ) + sizeof( uint8_t ) <= r_context.eventStreamBufferSize") )
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    eventStreamBufferOffsetClient = event->data.wait.eventStreamBufferOffsetClient;
+    if ( eventStreamBufferOffsetClient + 5 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2101, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( int ) + sizeof( uint8_t ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( int ) + sizeof( uint8_t ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    __asm
+    eventStreamBuffer = InstanceCommonContext->eventStreamBuffer;
+    imageValue = event->data.viewmodelChangeImage.imageValue;
+    v18 = eventStreamBuffer[eventStreamBufferOffsetClient + 4];
+    if ( imageValue <= 0 )
     {
-      vmovaps [rsp+68h+var_28], xmm6
-      vmovaps [rsp+68h+var_38], xmm7
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    if ( event->data.viewmodelChangeImage.imageValue <= 0 )
-    {
-      __asm { vmovaps xmm7, xmm6 }
+      v20 = FLOAT_1_0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtsi2ss xmm0, xmm0, edx
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm6; max
-      }
-      deltaTime = I_fclamp(*(float *)&deltaTime, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm7, xmm0
-      }
-      if ( v24 )
+      v19 = I_fclamp((float)(LocalClientGlobals->time - *(_DWORD *)&eventStreamBuffer[eventStreamBufferOffsetClient]) / (float)imageValue, 0.0, 1.0);
+      v20 = *(float *)&v19;
+      if ( *(float *)&v19 < 1.0 )
         inOutRequest->eventUpdateRequired = 1;
     }
     ClientDObj = Com_GetClientDObj(otherEntityNum, localClientNum);
     if ( ClientDObj )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vsubss  xmm1, xmm6, xmm7
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vmulss  xmm0, xmm1, xmm7
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si r9d, xmm2; newValue
-      }
-      R_UpdateScriptableEntityData(localClientNum, ClientDObj->entnum, event->data.materialOverride.materialOverrideType, _ER9);
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+68h+var_28]
-      vmovaps xmm7, [rsp+68h+var_38]
-    }
+      R_UpdateScriptableEntityData(localClientNum, ClientDObj->entnum, event->data.materialOverride.materialOverrideType, (int)(float)((float)((float)(1.0 - v20) * (float)v18) + (float)((float)event->data.anonymous.buffer[8] * v20)));
   }
 }
 
@@ -1930,147 +1783,122 @@ ScriptableCl_GetNearestImpactVelocity
 */
 bool ScriptableCl_GetNearestImpactVelocity(const LocalClientNum_t localClientNum, const vec3_t *scriptableCenter, vec3_t *outVelocity)
 {
-  __int64 v12; 
-  int v13; 
-  __int64 v14; 
+  __int64 v5; 
+  unsigned int v6; 
+  __int64 i; 
   CgEntitySystem *EntitySystem; 
-  __int64 v20; 
-  BgWeaponHandle *v21; 
-  __int16 v22; 
-  char v23; 
-  char v24; 
-  __int16 i; 
-  unsigned int v26; 
-  int v27; 
+  __int64 v9; 
+  BgWeaponHandle *v10; 
+  __int16 v11; 
+  float v12; 
+  __int16 j; 
+  unsigned int v14; 
+  int v15; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  CgWeaponMap *v41; 
+  __int128 v20; 
+  CgWeaponMap *v30; 
   const Weapon *Weapon; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  float v35; 
   bool result; 
-  const dvar_t *v70; 
-  __int64 v71; 
-  __int64 v72; 
-  __int64 v73; 
-  __int64 v74; 
+  const dvar_t *v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
   vec3_t outOrigin; 
-  char v77; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v5 = localClientNum;
+  v6 = 0;
+  for ( i = 0i64; ; ++i )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0F8h+var_88], xmm11
-  }
-  _R12 = outVelocity;
-  _R15 = scriptableCenter;
-  v12 = localClientNum;
-  v13 = 0;
-  v14 = 0i64;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@43200000
-    vmovsd  xmm8, cs:__real@3f30000000000000
-    vmovss  xmm11, cs:__real@80000000
-    vmovss  xmm10, cs:__real@3f800000
-  }
-  while ( 1 )
-  {
-    EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v12);
-    if ( (unsigned int)v13 >= 0x800 )
+    EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v5);
+    if ( v6 >= 0x800 )
     {
-      LODWORD(v72) = 2048;
-      LODWORD(v71) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v71, v72) )
+      LODWORD(v42) = 2048;
+      LODWORD(v41) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v41, v42) )
         __debugbreak();
     }
-    v20 = (__int64)&EntitySystem->m_entities[v14];
-    if ( (*(_BYTE *)(v20 + 648) & 1) == 0 )
+    v9 = (__int64)&EntitySystem->m_entities[i];
+    if ( (*(_BYTE *)(v9 + 648) & 1) == 0 )
       goto LABEL_46;
-    v21 = (BgWeaponHandle *)(v20 + 400);
-    if ( v20 == -400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+    v10 = (BgWeaponHandle *)(v9 + 400);
+    if ( v9 == -400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( ((*(_WORD *)(v20 + 408) - 12) & 0xFFFD) != 0 )
+    if ( ((*(_WORD *)(v9 + 408) - 12) & 0xFFFD) != 0 )
       break;
-    if ( *(_BYTE *)(v20 + 524) )
+    if ( *(_BYTE *)(v9 + 524) )
       goto LABEL_13;
 LABEL_45:
     memset(&outOrigin, 0, sizeof(outOrigin));
 LABEL_46:
-    ++v13;
-    ++v14;
-    if ( v13 >= 2048 )
-    {
-      result = 0;
-      goto LABEL_48;
-    }
+    if ( (int)++v6 >= 2048 )
+      return 0;
   }
-  v22 = *(_WORD *)(v20 + 408);
-  if ( v22 != 4 )
+  v11 = *(_WORD *)(v9 + 408);
+  if ( v11 != 4 )
   {
-    if ( !v22 )
+    if ( !v11 )
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      if ( SLOWORD(v21->m_mapEntryId) < (int)ComCharacterLimits::ms_gameData.m_clientCount )
+      if ( SLOWORD(v10->m_mapEntryId) < (int)ComCharacterLimits::ms_gameData.m_clientCount )
       {
         if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
           __debugbreak();
-        LODWORD(v74) = ComCharacterLimits::ms_gameData.m_clientCount;
-        LODWORD(v73) = SLOWORD(v21->m_mapEntryId);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1457, ASSERT_TYPE_ASSERT, "( cent->nextState.number ) >= ( ComCharacterLimits::GetClientMaxCount() )", "%s >= %s\n\t%i, %i", "cent->nextState.number", "ComCharacterLimits::GetClientMaxCount()", v73, v74) )
+        LODWORD(v44) = ComCharacterLimits::ms_gameData.m_clientCount;
+        LODWORD(v43) = SLOWORD(v10->m_mapEntryId);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1457, ASSERT_TYPE_ASSERT, "( cent->nextState.number ) >= ( ComCharacterLimits::GetClientMaxCount() )", "%s >= %s\n\t%i, %i", "cent->nextState.number", "ComCharacterLimits::GetClientMaxCount()", v43, v44) )
           __debugbreak();
       }
-      for ( i = *(_WORD *)(v20 + 672); i != *(_WORD *)(v20 + 552); ++i )
+      for ( j = *(_WORD *)(v9 + 672); j != *(_WORD *)(v9 + 552); ++j )
       {
-        v26 = *(_DWORD *)(v20 + 8i64 * (i & 3) + 560) - 108;
-        if ( v26 <= 8 )
+        v14 = *(_DWORD *)(v9 + 8i64 * (j & 3) + 560) - 108;
+        if ( v14 <= 8 )
         {
-          v27 = 291;
-          if ( _bittest(&v27, v26) )
+          v15 = 291;
+          if ( _bittest(&v15, v14) )
           {
-            if ( !*(_QWORD *)(v20 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+            if ( !*(_QWORD *)(v9 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
               __debugbreak();
-            FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(*(void (__fastcall *const *)(const vec4_t *, vec3_t *))(v20 + 48), (const cpose_t *)v20);
-            FunctionPointer_origin((const vec4_t *)(v20 + 56), &outOrigin);
-            if ( *(_BYTE *)(v20 + 2) )
+            FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(*(void (__fastcall *const *)(const vec4_t *, vec3_t *))(v9 + 48), (const cpose_t *)v9);
+            FunctionPointer_origin((const vec4_t *)(v9 + 56), &outOrigin);
+            if ( *(_BYTE *)(v9 + 2) )
             {
-              __asm
-              {
-                vmovd   xmm0, dword ptr [rsp+0F8h+outOrigin]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm8
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+0F8h+outOrigin], xmm2
-                vmovd   xmm0, dword ptr [rsp+0F8h+outOrigin+4]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm8
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+0F8h+outOrigin+4], xmm2
-                vmovd   xmm0, dword ptr [rsp+0F8h+outOrigin+8]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm8
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+0F8h+outOrigin+8], xmm2
-              }
+              _XMM0 = LODWORD(outOrigin.v[0]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v20;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              outOrigin.v[0] = *(float *)&_XMM2;
+              _XMM0 = LODWORD(outOrigin.v[1]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v20;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              outOrigin.v[1] = *(float *)&_XMM2;
+              _XMM0 = LODWORD(outOrigin.v[2]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v20;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              outOrigin.v[2] = *(float *)&_XMM2;
             }
-            if ( !CgWeaponMap::ms_instance[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+            if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
               __debugbreak();
-            v41 = CgWeaponMap::ms_instance[v12];
-            if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+            v30 = CgWeaponMap::ms_instance[v5];
+            if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
               __debugbreak();
-            if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+            if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
               __debugbreak();
-            Weapon = BgWeaponMap::GetWeapon(v41, v21[33]);
-            BG_ExplosionRadius(Weapon, 0);
-            __asm
-            {
-              vxorps  xmm7, xmm7, xmm7
-              vcvtsi2ss xmm7, xmm7, eax
-            }
+            Weapon = BgWeaponMap::GetWeapon(v30, v10[33]);
+            v12 = (float)BG_ExplosionRadius(Weapon, 0);
             goto LABEL_44;
           }
         }
@@ -2079,60 +1907,38 @@ LABEL_46:
     goto LABEL_45;
   }
 LABEL_13:
-  CG_GetPoseOrigin((const cpose_t *)v20, &outOrigin);
-  __asm { vmovaps xmm7, xmm9 }
+  CG_GetPoseOrigin((const cpose_t *)v9, &outOrigin);
+  v12 = FLOAT_160_0;
 LABEL_44:
+  v33 = LODWORD(scriptableCenter->v[0]);
+  v32 = scriptableCenter->v[0] - outOrigin.v[0];
+  outVelocity->v[0] = v32;
+  v34 = scriptableCenter->v[1] - outOrigin.v[1];
+  outVelocity->v[1] = v34;
+  v35 = scriptableCenter->v[2] - outOrigin.v[2];
+  *(float *)&v33 = fsqrt((float)((float)(v32 * v32) + (float)(v34 * v34)) + (float)(v35 * v35));
+  _XMM3 = v33;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15]
-    vsubss  xmm6, xmm0, dword ptr [rsp+0F8h+outOrigin]
-    vmovss  dword ptr [r12], xmm6
-    vmovss  xmm1, dword ptr [r15+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+0F8h+outOrigin+4]
-    vmovss  dword ptr [r12+4], xmm5
-    vmovss  xmm0, dword ptr [r15+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0F8h+outOrigin+8]
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm11
     vblendvps xmm1, xmm3, xmm10, xmm0
-    vdivss  xmm2, xmm10, xmm1
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [r12], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [r12+4], xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [r12+8], xmm0
-    vcomiss xmm3, xmm7
   }
-  if ( !(v23 | v24) )
+  outVelocity->v[0] = v32 * (float)(1.0 / *(float *)&_XMM1);
+  outVelocity->v[1] = v34 * (float)(1.0 / *(float *)&_XMM1);
+  outVelocity->v[2] = v35 * (float)(1.0 / *(float *)&_XMM1);
+  if ( *(float *)&v33 > v12 )
     goto LABEL_45;
-  v70 = DCONST_DVARBOOL_scriptable_debug_impact;
+  v40 = DCONST_DVARBOOL_scriptable_debug_impact;
   if ( !DCONST_DVARBOOL_scriptable_debug_impact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_impact") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v70);
-  if ( v70->current.enabled )
+  Dvar_CheckFrontendServerThread(v40);
+  if ( v40->current.enabled )
   {
-    CG_DebugLine(&outOrigin, _R15, &colorRed, 0, 600);
-    CG_DebugStar(_R15, &colorCyan, 0, 600);
+    CG_DebugLine(&outOrigin, scriptableCenter, &colorRed, 0, 600);
+    CG_DebugStar(scriptableCenter, &colorCyan, 0, 600);
   }
   result = 1;
   memset(&outOrigin, 0, sizeof(outOrigin));
-LABEL_48:
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
   return result;
 }
 
@@ -2692,77 +2498,72 @@ void ScriptableCl_ObjectiveRemove(const LocalClientNum_t localClientNum, unsigne
 {
   __int64 v2; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  ScriptableObjectiveList *v5; 
   unsigned __int8 count; 
   unsigned __int8 objectiveIndex; 
   unsigned __int8 v8; 
+  unsigned __int8 v9; 
   unsigned __int8 v10; 
-  unsigned __int8 v11; 
+  __int64 v11; 
+  __int64 v12; 
   __int64 v14; 
-  __int64 v15; 
-  __int64 v17; 
-  int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
+  int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
 
   v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v18 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableObjectiveLists ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_scriptableObjectiveLists )\n\t%i not in [0, %i)", localClientNum, v18) )
+    v15 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 332, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_scriptableObjectiveLists ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_scriptableObjectiveLists )\n\t%i not in [0, %i)", localClientNum, v15) )
       __debugbreak();
   }
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v2, scriptableIndex);
   if ( InstanceCommonContext->objectiveIndex )
   {
-    _RDI = &s_scriptableObjectiveLists[v2];
-    if ( !_RDI->count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 341, ASSERT_TYPE_ASSERT, "(list.count > 0)", (const char *)&queryFormat, "list.count > 0") )
+    v5 = &s_scriptableObjectiveLists[v2];
+    if ( !v5->count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 341, ASSERT_TYPE_ASSERT, "(list.count > 0)", (const char *)&queryFormat, "list.count > 0") )
       __debugbreak();
-    count = _RDI->count;
+    count = v5->count;
     if ( count )
     {
       objectiveIndex = InstanceCommonContext->objectiveIndex;
       v8 = objectiveIndex - 1;
       if ( (unsigned __int8)(objectiveIndex - 1) >= count )
       {
-        LODWORD(v17) = count;
-        LODWORD(v15) = (unsigned __int8)(objectiveIndex - 1);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 350, ASSERT_TYPE_ASSERT, "(unsigned)( objectiveIndex ) < (unsigned)( list.count )", "objectiveIndex doesn't index list.count\n\t%i not in [0, %i)", v15, v17) )
+        LODWORD(v14) = count;
+        LODWORD(v12) = (unsigned __int8)(objectiveIndex - 1);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 350, ASSERT_TYPE_ASSERT, "(unsigned)( objectiveIndex ) < (unsigned)( list.count )", "objectiveIndex doesn't index list.count\n\t%i not in [0, %i)", v12, v14) )
           __debugbreak();
       }
-      _R15 = 2i64 * v8;
-      if ( _RDI->objectives[v8].scriptableIndex != scriptableIndex )
+      if ( v5->objectives[v8].scriptableIndex != scriptableIndex )
       {
-        v20 = scriptableIndex;
-        v19 = _RDI->objectives[v8].scriptableIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 351, ASSERT_TYPE_ASSERT, "( list.objectives[objectiveIndex].scriptableIndex ) == ( scriptableIndex )", "%s == %s\n\t%i, %i", "list.objectives[objectiveIndex].scriptableIndex", "scriptableIndex", v19, v20) )
+        v17 = scriptableIndex;
+        v16 = v5->objectives[v8].scriptableIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 351, ASSERT_TYPE_ASSERT, "( list.objectives[objectiveIndex].scriptableIndex ) == ( scriptableIndex )", "%s == %s\n\t%i, %i", "list.objectives[objectiveIndex].scriptableIndex", "scriptableIndex", v16, v17) )
           __debugbreak();
       }
-      v10 = _RDI->count;
-      if ( v8 < v10 && _RDI->objectives[v8].scriptableIndex == scriptableIndex )
+      v9 = v5->count;
+      if ( v8 < v9 && v5->objectives[v8].scriptableIndex == scriptableIndex )
       {
-        v11 = v10 - 1;
-        if ( v10 > 1u )
+        v10 = v9 - 1;
+        if ( v9 > 1u )
         {
-          _RBX = 2i64 * (unsigned __int8)(v10 - 1);
-          ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v2, _RDI->objectives[(unsigned __int8)(v10 - 1)].scriptableIndex)->objectiveIndex = objectiveIndex;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+rbx*8]
-            vmovups xmmword ptr [rdi+r15*8], xmm0
-          }
-          v10 = _RDI->count;
+          ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v2, v5->objectives[(unsigned __int8)(v9 - 1)].scriptableIndex)->objectiveIndex = objectiveIndex;
+          v5->objectives[v8] = v5->objectives[v10];
+          v9 = v5->count;
         }
-        if ( v11 >= v10 )
+        if ( v10 >= v9 )
         {
-          LODWORD(v17) = v10;
-          LODWORD(v15) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 375, ASSERT_TYPE_ASSERT, "(unsigned)( lastIndex ) < (unsigned)( list.count )", "lastIndex doesn't index list.count\n\t%i not in [0, %i)", v15, v17) )
+          LODWORD(v14) = v9;
+          LODWORD(v12) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 375, ASSERT_TYPE_ASSERT, "(unsigned)( lastIndex ) < (unsigned)( list.count )", "lastIndex doesn't index list.count\n\t%i not in [0, %i)", v12, v14) )
             __debugbreak();
         }
-        v14 = v11;
-        _RDI->objectives[v14].scriptableIndex = -1;
-        _RDI->objectives[v14].settings = NULL;
-        --_RDI->count;
+        v11 = v10;
+        v5->objectives[v11].scriptableIndex = -1;
+        v5->objectives[v11].settings = NULL;
+        --v5->count;
         InstanceCommonContext->objectiveIndex = 0;
         ScriptableCl_ObjectiveChangedSet((const LocalClientNum_t)v2);
       }
@@ -2833,16 +2634,9 @@ void ScriptableCl_PlayLootFX(const LocalClientNum_t localClientNum, const unsign
       AnglesToAxis(InstanceAngles, &axis);
       if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_scriptable_loot_fx_debug, "scriptable_loot_fx_debug") )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0C8h+out_usePosition]
-          vmovss  xmm1, dword ptr [rsp+0C8h+out_usePosition+4]
-          vmovss  dword ptr [rsp+0C8h+end], xmm0
-          vmovss  xmm0, dword ptr [rsp+0C8h+out_usePosition+8]
-          vaddss  xmm2, xmm0, cs:__real@42700000
-          vmovss  dword ptr [rsp+0C8h+end+8], xmm2
-          vmovss  dword ptr [rsp+0C8h+end+4], xmm1
-        }
+        end.v[0] = out_usePosition.v[0];
+        end.v[2] = out_usePosition.v[2] + 60.0;
+        end.v[1] = out_usePosition.v[1];
         CG_DebugLine(&out_usePosition, &end, &colorRed, 0, 1000);
       }
       v13 = FX_PlayOrientedEffect(localClientNum, fxHandle, time, &out_usePosition, &axis);
@@ -2877,80 +2671,89 @@ ScriptableCl_PlayParticleFX
 */
 void ScriptableCl_PlayParticleFX(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, const unsigned int scriptableIndex, const ScriptableEventPFXDef *particleFX, unsigned int eventIdx)
 {
-  unsigned int v10; 
-  __int64 v12; 
+  unsigned int v6; 
+  __int64 v8; 
   int time; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  ScriptableInstanceContextSecure *v16; 
+  ScriptableInstanceContextSecure *v11; 
+  float v12; 
+  const ScriptableDamageEvent *damageEvent; 
+  float v14; 
+  __int128 v15; 
+  float v16; 
   ScriptableLinkType LinkType; 
   unsigned int LinkObject; 
-  int v45; 
-  ParticleSystemHandle v46; 
-  unsigned int v47; 
+  int v22; 
+  ParticleSystemHandle v23; 
+  unsigned int v24; 
   int scrTagCount; 
-  int v49; 
+  int v26; 
   unsigned __int8 BoneIdx; 
-  unsigned __int16 v51; 
-  ParticleSystemHandle v52; 
-  __int64 v53; 
+  unsigned __int16 v28; 
+  ParticleSystemHandle v29; 
+  __int64 v30; 
   __int64 eventStreamBufferOffsetClient; 
-  unsigned __int8 *v55; 
-  unsigned __int8 *v56; 
-  const dvar_t *v57; 
-  unsigned int v58; 
-  __int64 v59; 
-  ParticleSystem *v60; 
-  const ParticleSystemDef *v61; 
+  unsigned __int8 *v32; 
+  unsigned __int8 *v33; 
+  const dvar_t *v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  ParticleSystem *v37; 
+  const ParticleSystemDef *v38; 
   const char *name; 
-  ParticleSystemHandle v63; 
+  ParticleSystemHandle v40; 
   ParticleSystem *ParticleSystemPointerUnsafe; 
+  __m128 v; 
   cg_t *LocalClientGlobals; 
-  scr_string_t v73; 
+  scr_string_t v47; 
   CgWeaponMap *Instance; 
   const Weapon *CurrentWeaponForPlayer; 
-  int v76; 
+  int v50; 
   const DObj *ClientDObj; 
-  const DObj *v78; 
+  const DObj *v52; 
   unsigned int BoneIndexForDobj; 
   DObj *DObj; 
-  unsigned int v81; 
-  unsigned int v82; 
+  unsigned int v55; 
+  unsigned int v56; 
   centity_t *Entity; 
   const entityState_t *p_nextState; 
   entityType_s eType; 
   __int64 number; 
   const characterInfo_t *CharacterInfo; 
-  unsigned __int64 v88; 
-  __int64 v89; 
-  int v90; 
-  ParticleSystemHandle v91; 
-  int v92; 
-  int v93; 
-  ParticleSystem *v94; 
+  unsigned __int64 v62; 
+  __int64 v63; 
+  int v64; 
+  ParticleSystemHandle v65; 
+  int v66; 
+  int v67; 
+  ParticleSystem *v68; 
+  __m128 v70; 
   const ParticleSystemDef *particleSystemDef; 
-  const char *v103; 
-  const char *v104; 
-  __int64 v105; 
-  __int64 *v106; 
-  __int64 v107; 
-  unsigned int v108; 
-  unsigned __int64 v109; 
+  const char *v74; 
+  const char *v75; 
+  __int64 v76; 
+  __int64 *v77; 
+  __int64 v78; 
+  unsigned int v79; 
+  unsigned __int64 v80; 
+  unsigned __int64 v81; 
+  __int128 v83; 
   __int64 boneIndex; 
   __int64 spawnFlags; 
   __int64 markEntnum; 
   bool NearestImpactVelocity; 
   unsigned __int8 index[7]; 
-  __int64 v124; 
+  __int64 v91; 
   FXRegisteredDef def; 
-  int v126; 
+  int v93; 
   unsigned int pHoldrand; 
   int dobjHandle; 
   unsigned int ViewmodelDObjHandle; 
   unsigned int scriptableIndexa; 
   scr_string_t boneTag; 
-  const char ***v132; 
-  __int64 v133; 
-  __int64 v134; 
+  const char ***v99; 
+  __int64 v100; 
+  __int64 v101; 
   DObj *obj[2]; 
   float4 endPos; 
   float4 startPos; 
@@ -2958,93 +2761,59 @@ void ScriptableCl_PlayParticleFX(const LocalClientNum_t localClientNum, const Sc
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> in2; 
   char dest[256]; 
-  char v142; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v134 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v10 = scriptableIndex;
+  v101 = -2i64;
+  v6 = scriptableIndex;
   scriptableIndexa = scriptableIndex;
-  v12 = localClientNum;
-  v126 = 0;
+  v8 = localClientNum;
+  v93 = 0;
   time = CG_GetLocalClientGlobals(localClientNum)->time;
   if ( !particleFX->effectDef.particleSystemDef )
-    goto LABEL_129;
+    return;
   def.m_particleSystemDef = particleFX->effectDef.particleSystemDef;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B; tmat33_t<vec3_t> const identityMatrix33
-    vmovups ymmword ptr [rsp+2C8h+in1], ymm0
-  }
-  in1.m[2].v[2] = identityMatrix33.m[2].v[2];
-  v124 = 0i64;
-  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v12, v10);
-  v16 = InstanceCommonContext;
-  v132 = (const char ***)InstanceCommonContext;
+  in1 = identityMatrix33;
+  v91 = 0i64;
+  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v8, v6);
+  v11 = InstanceCommonContext;
+  v99 = (const char ***)InstanceCommonContext;
   NearestImpactVelocity = 0;
-  __asm
+  v12 = 0.0;
+  *(float *)obj = 0.0;
+  *((float *)obj + 1) = 0.0;
+  *(float *)&obj[1] = 0.0;
+  if ( eventParams && (damageEvent = eventParams->damageEvent) != NULL )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+2C8h+obj], xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  dword ptr [rsp+2C8h+obj+4], xmm7
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  dword ptr [rsp+2C8h+obj+8], xmm8
-  }
-  if ( eventParams && (_RCX = eventParams->damageEvent) != NULL )
-  {
+    v14 = damageEvent->end.v[0] - damageEvent->start.v[0];
+    v15 = LODWORD(damageEvent->end.v[1]);
+    *(float *)&v15 = damageEvent->end.v[1] - damageEvent->start.v[1];
+    v16 = damageEvent->end.v[2] - damageEvent->start.v[2];
+    *(float *)&v15 = fsqrt((float)((float)(*(float *)&v15 * *(float *)&v15) + (float)(v14 * v14)) + (float)(v16 * v16));
+    _XMM1 = v15;
     __asm
     {
-      vmovss  xmm0, dword ptr [rcx+44h]
-      vsubss  xmm6, xmm0, dword ptr [rcx+38h]
-      vmovss  xmm1, dword ptr [rcx+48h]
-      vsubss  xmm5, xmm1, dword ptr [rcx+3Ch]
-      vmovss  xmm0, dword ptr [rcx+4Ch]
-      vsubss  xmm4, xmm0, dword ptr [rcx+40h]
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm1, xmm2, xmm0
-      vmovss  [rsp+2C8h+boneTag], xmm1
-      vdivss  xmm0, xmm2, xmm1
-      vmulss  xmm6, xmm6, xmm0
-      vmulss  xmm7, xmm5, xmm0
-      vmulss  xmm8, xmm4, xmm0
     }
+    boneTag = _XMM1;
+    v12 = v14 * (float)(1.0 / *(float *)&_XMM1);
     NearestImpactVelocity = 1;
   }
   else if ( particleFX->allowNearestVehicleVelocity )
   {
-    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v10, (vec3_t *)&endPos);
-    NearestImpactVelocity = ScriptableCl_GetNearestImpactVelocity((const LocalClientNum_t)v12, (const vec3_t *)&endPos, (vec3_t *)obj);
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v6, (vec3_t *)&endPos);
+    NearestImpactVelocity = ScriptableCl_GetNearestImpactVelocity((const LocalClientNum_t)v8, (const vec3_t *)&endPos, (vec3_t *)obj);
     memset(&endPos, 0, 0xCui64);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rsp+2C8h+obj+8]
-      vmovss  xmm7, dword ptr [rsp+2C8h+obj+4]
-      vmovss  xmm6, dword ptr [rsp+2C8h+obj]
-    }
+    v12 = *(float *)obj;
   }
   pHoldrand = Sys_Milliseconds();
-  LinkType = ScriptableCl_GetLinkType((const LocalClientNum_t)v12, v10);
-  v133 = 2i64;
+  LinkType = ScriptableCl_GetLinkType((const LocalClientNum_t)v8, v6);
+  v100 = 2i64;
   if ( LinkType == SCRIPTABLE_LINK_NONE )
   {
-    ScriptableInstanceContextSecure::GetOrigin(v16, v10, (vec3_t *)obj);
-    AnglesToAxis(&v16->angles, &in2);
+    ScriptableInstanceContextSecure::GetOrigin(v11, v6, (vec3_t *)obj);
+    AnglesToAxis(&v11->angles, &in2);
     CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-    LODWORD(v124) = FX_PlayOrientedEffect((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &in2);
+    LODWORD(v91) = FX_PlayOrientedEffect((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &in2);
     CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
     memset(obj, 0, 0xCui64);
     goto LABEL_28;
@@ -3054,82 +2823,80 @@ void ScriptableCl_PlayParticleFX(const LocalClientNum_t localClientNum, const Sc
     if ( LinkType != SCRIPTABLE_LINK_DYNENT )
     {
       if ( LinkType != SCRIPTABLE_LINK_CLIENTMODEL )
-        goto LABEL_129;
-      if ( particleFX->useTagAngles && particleFX->scrTagCount && (LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v12, v10), v45 = truncate_cast<int,unsigned int>(LinkObject) + 2117, v45 <= 2500) )
+        return;
+      if ( particleFX->useTagAngles && particleFX->scrTagCount && (LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v8, v6), v22 = truncate_cast<int,unsigned int>(LinkObject) + 2117, v22 <= 2500) )
       {
         CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-        v46 = FX_PlayBoltedEffect((LocalClientNum_t)v12, &def, time, v45, 0, 0);
-        LODWORD(v124) = v46;
-        if ( v46 )
-          ScriptableCl_MLG_hackPFXTint((const LocalClientNum_t)v12, eventParams, v46, eventIdx);
+        v23 = FX_PlayBoltedEffect((LocalClientNum_t)v8, &def, time, v22, 0, 0);
+        LODWORD(v91) = v23;
+        if ( v23 )
+          ScriptableCl_MLG_hackPFXTint((const LocalClientNum_t)v8, eventParams, v23, eventIdx);
         CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
       }
       else
       {
-        ScriptableInstanceContextSecure::GetOrigin(v16, v10, (vec3_t *)obj);
-        AnglesToAxis(&v16->angles, &axis);
+        ScriptableInstanceContextSecure::GetOrigin(v11, v6, (vec3_t *)obj);
+        AnglesToAxis(&v11->angles, &axis);
         CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-        LODWORD(v124) = FX_PlayOrientedEffect((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &axis);
+        LODWORD(v91) = FX_PlayOrientedEffect((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &axis);
         CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
         memset(obj, 0, 0xCui64);
       }
       goto LABEL_28;
     }
-    v47 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v12, v10);
+    v24 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v8, v6);
     scrTagCount = particleFX->scrTagCount;
     if ( scrTagCount )
     {
-      v49 = BG_irand(0, scrTagCount, &pHoldrand);
-      BoneIdx = DynEnt_GetBoneIdx((LocalClientNum_t)v12, v47, particleFX->scrTagNames[v49], v16->def->name);
+      v26 = BG_irand(0, scrTagCount, &pHoldrand);
+      BoneIdx = DynEnt_GetBoneIdx((LocalClientNum_t)v8, v24, particleFX->scrTagNames[v26], v11->def->name);
       if ( BoneIdx != 0xFE )
       {
         CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-        if ( v47 == -1 || !fx_marks_dynents_ext_killswitch->current.enabled )
-          v51 = 0;
+        if ( v24 == -1 || !fx_marks_dynents_ext_killswitch->current.enabled )
+          v28 = 0;
         else
-          v51 = 2;
-        v52 = FX_PlayBoltedToDynEntEffect((LocalClientNum_t)v12, &def, time, v47, BoneIdx, v51);
-        LODWORD(v124) = v52;
-        if ( v52 )
-          ScriptableCl_MLG_hackPFXTint((const LocalClientNum_t)v12, eventParams, v52, eventIdx);
+          v28 = 2;
+        v29 = FX_PlayBoltedToDynEntEffect((LocalClientNum_t)v8, &def, time, v24, BoneIdx, v28);
+        LODWORD(v91) = v29;
+        if ( v29 )
+          ScriptableCl_MLG_hackPFXTint((const LocalClientNum_t)v8, eventParams, v29, eventIdx);
         CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
       }
 LABEL_27:
-      v16 = (ScriptableInstanceContextSecure *)v132;
+      v11 = (ScriptableInstanceContextSecure *)v99;
       goto LABEL_28;
     }
     if ( particleFX->useTagAngles )
     {
-      AnglesToAxis(&v16->angles, &in2);
+      AnglesToAxis(&v11->angles, &in2);
       MatrixMultiply(&in1, &in2, &axis);
     }
     else
     {
       MatrixCopy33(&in1, &axis);
     }
-    ScriptableInstanceContextSecure::GetOrigin(v16, v10, (vec3_t *)obj);
+    ScriptableInstanceContextSecure::GetOrigin(v11, v6, (vec3_t *)obj);
     CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-    if ( v47 == -1 || !fx_marks_dynents_ext_killswitch->current.enabled )
-      v63 = FX_PlayOrientedEffect((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &axis);
+    if ( v24 == -1 || !fx_marks_dynents_ext_killswitch->current.enabled )
+      v40 = FX_PlayOrientedEffect((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &axis);
     else
-      v63 = FX_PlayOrientedEffectWithMarkEntity((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &axis, 2u, v47, 1, 0xFEu, NULL);
-    LODWORD(v124) = v63;
-    ParticleSystemPointerUnsafe = Particle_GetParticleSystemPointerUnsafe((LocalClientNum_t)v12, v63);
+      v40 = FX_PlayOrientedEffectWithMarkEntity((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &axis, 2u, v24, 1, 0xFEu, NULL);
+    LODWORD(v91) = v40;
+    ParticleSystemPointerUnsafe = Particle_GetParticleSystemPointerUnsafe((LocalClientNum_t)v8, v40);
     if ( particleFX->scrEndTagCount && ParticleSystemPointerUnsafe )
     {
-      __asm { vmovss  xmm0, dword ptr [rsp+2C8h+obj] }
       endPos.v.m128_i32[3] = 0;
+      v = endPos.v;
+      v.m128_f32[0] = *(float *)obj;
+      _XMM3 = v;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+2C8h+endPos.v]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsp+2C8h+obj+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsp+2C8h+obj+8], 20h
-        vmovups xmmword ptr [rsp+2C8h+endPos.v], xmm3
-        vmovups xmmword ptr [rsp+2C8h+startPos.v], xmm3
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rsp+2C8h+endPos.v], xmm0
       }
+      startPos.v = _XMM3;
+      endPos.v = 0i64;
       ParticleSystem::SetBeamPos(ParticleSystemPointerUnsafe, &startPos, &endPos);
     }
     goto LABEL_55;
@@ -3138,79 +2905,79 @@ LABEL_27:
   {
     if ( !particleFX->scrTagCount )
     {
-      AnglesToAxis(&v16->angles, &in2);
+      AnglesToAxis(&v11->angles, &in2);
       MatrixMultiply(&in1, &in2, &axis);
-      ScriptableInstanceContextSecure::GetOrigin(v16, v10, (vec3_t *)obj);
+      ScriptableInstanceContextSecure::GetOrigin(v11, v6, (vec3_t *)obj);
       CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-      LODWORD(v124) = FX_PlayOrientedEffect((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &axis);
+      LODWORD(v91) = FX_PlayOrientedEffect((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &axis);
       CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
       memset(obj, 0, 0xCui64);
       goto LABEL_28;
     }
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1703, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    v73 = particleFX->scrTagNames[BG_irand(0, particleFX->scrTagCount, &pHoldrand)];
-    boneTag = v73;
-    Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v12);
+    v47 = particleFX->scrTagNames[BG_irand(0, particleFX->scrTagCount, &pHoldrand)];
+    boneTag = v47;
+    Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v8);
     endPos.v.m128_u64[0] = (unsigned __int64)Instance;
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1711, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( particleFX->isViewmodel )
     {
       CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(Instance, &LocalClientGlobals->predictedPlayerState);
-      v76 = BG_PlayerDualWieldingWeapon(Instance, &LocalClientGlobals->predictedPlayerState, CurrentWeaponForPlayer);
+      v50 = BG_PlayerDualWieldingWeapon(Instance, &LocalClientGlobals->predictedPlayerState, CurrentWeaponForPlayer);
       dobjHandle = ScriptableCL_GetViewmodelDObjHandle(WEAPON_HAND_DEFAULT);
-      ClientDObj = Com_GetClientDObj(dobjHandle, (LocalClientNum_t)v12);
-      startPos.v.m128_i32[0] = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v12, ClientDObj, v10, v73, particleFX->allowMissingTag);
-      if ( !v76 )
+      ClientDObj = Com_GetClientDObj(dobjHandle, (LocalClientNum_t)v8);
+      startPos.v.m128_i32[0] = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v8, ClientDObj, v6, v47, particleFX->allowMissingTag);
+      if ( !v50 )
       {
 LABEL_92:
         CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-        v88 = 0i64;
-        v89 = (unsigned int)(v126 + 1);
+        v62 = 0i64;
+        v63 = (unsigned int)(v93 + 1);
         while ( 1 )
         {
-          v90 = startPos.v.m128_i32[v88 / 4];
-          if ( v90 != 255 )
+          v64 = startPos.v.m128_i32[v62 / 4];
+          if ( v64 != 255 )
             break;
           if ( particleFX->useRootOnMissingTag )
           {
-            v91 = FX_PlayBoltedEffect((LocalClientNum_t)v12, &def, time, *(int *)((char *)&dobjHandle + v88), 0, 0);
+            v65 = FX_PlayBoltedEffect((LocalClientNum_t)v8, &def, time, *(int *)((char *)&dobjHandle + v62), 0, 0);
 LABEL_97:
-            *(_DWORD *)((char *)&v124 + v88) = v91;
+            *(_DWORD *)((char *)&v91 + v62) = v65;
           }
-          v88 += 4i64;
-          if ( !--v89 )
+          v62 += 4i64;
+          if ( !--v63 )
           {
             CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
-            v10 = scriptableIndexa;
+            v6 = scriptableIndexa;
             goto LABEL_27;
           }
         }
-        v91 = FX_PlayBoltedEffect((LocalClientNum_t)v12, &def, time, *(int *)((char *)&dobjHandle + v88), v90, 0);
+        v65 = FX_PlayBoltedEffect((LocalClientNum_t)v8, &def, time, *(int *)((char *)&dobjHandle + v62), v64, 0);
         goto LABEL_97;
       }
-      v126 = 1;
+      v93 = 1;
       ViewmodelDObjHandle = ScriptableCL_GetViewmodelDObjHandle(WEAPON_HAND_LEFT);
-      v78 = Com_GetClientDObj(ViewmodelDObjHandle, (LocalClientNum_t)v12);
-      BoneIndexForDobj = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v12, v78, v10, v73, particleFX->allowMissingTag);
+      v52 = Com_GetClientDObj(ViewmodelDObjHandle, (LocalClientNum_t)v8);
+      BoneIndexForDobj = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v8, v52, v6, v47, particleFX->allowMissingTag);
     }
     else
     {
-      if ( !ScriptableCl_GetDObjSafe((const LocalClientNum_t)v12, v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1737, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex )") )
+      if ( !ScriptableCl_GetDObjSafe((const LocalClientNum_t)v8, v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1737, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex )") )
         __debugbreak();
-      DObj = ScriptableCl_GetDObj((const LocalClientNum_t)v12, v10);
+      DObj = ScriptableCl_GetDObj((const LocalClientNum_t)v8, v6);
       obj[0] = DObj;
-      v81 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v12, v10);
-      dobjHandle = v81;
-      v82 = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v12, DObj, scriptableIndexa, v73, particleFX->allowMissingTag);
-      startPos.v.m128_i32[0] = v82;
-      Entity = CG_GetEntity((const LocalClientNum_t)v12, v81);
+      v55 = ScriptableCl_GetLinkObject((const LocalClientNum_t)v8, v6);
+      dobjHandle = v55;
+      v56 = ScriptableCl_GetBoneIndexForDobj((const LocalClientNum_t)v8, DObj, scriptableIndexa, v47, particleFX->allowMissingTag);
+      startPos.v.m128_i32[0] = v56;
+      Entity = CG_GetEntity((const LocalClientNum_t)v8, v55);
       if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1745, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
         __debugbreak();
       p_nextState = &Entity->nextState;
-      if ( v82 == 255 || (Entity->flags & 1) == 0 )
+      if ( v56 == 255 || (Entity->flags & 1) == 0 )
         goto LABEL_92;
       if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
@@ -3242,139 +3009,130 @@ LABEL_97:
       if ( !BG_PlayerOrEntityDualWielding((const BgWeaponMap *)endPos.v.m128_u64[0], NULL, p_nextState, CharacterInfo) )
         goto LABEL_92;
       index[0] = -2;
-      if ( !CG_Utils_GetActiveWeaponBoneIndex((LocalClientNum_t)v12, obj[0], NULL, p_nextState, WEAPON_HAND_LEFT, boneTag, index) )
+      if ( !CG_Utils_GetActiveWeaponBoneIndex((LocalClientNum_t)v8, obj[0], NULL, p_nextState, WEAPON_HAND_LEFT, boneTag, index) )
         goto LABEL_92;
-      v126 = 1;
+      v93 = 1;
       ViewmodelDObjHandle = dobjHandle;
       BoneIndexForDobj = index[0];
     }
     startPos.v.m128_i32[1] = BoneIndexForDobj;
     goto LABEL_92;
   }
-  ScriptableInstanceContextSecure::GetOrigin(v16, v10, (vec3_t *)obj);
-  v92 = particleFX->scrTagCount;
-  if ( v92 )
+  ScriptableInstanceContextSecure::GetOrigin(v11, v6, (vec3_t *)obj);
+  v66 = particleFX->scrTagCount;
+  if ( v66 )
   {
-    v93 = BG_irand(0, v92, &pHoldrand);
-    if ( !ScriptableCl_GetBonePosition((const LocalClientNum_t)v12, v10, (const scr_string_t)particleFX->scrTagNames[v93], (vec3_t *)obj, particleFX->allowMissingTag) && !particleFX->useRootOnMissingTag )
+    v67 = BG_irand(0, v66, &pHoldrand);
+    if ( !ScriptableCl_GetBonePosition((const LocalClientNum_t)v8, v6, (const scr_string_t)particleFX->scrTagNames[v67], (vec3_t *)obj, particleFX->allowMissingTag) && !particleFX->useRootOnMissingTag )
     {
       memset(obj, 0, 0xCui64);
-      goto LABEL_129;
+      return;
     }
   }
   CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-  LODWORD(v124) = FX_PlayOrientedEffect((LocalClientNum_t)v12, &def, time, (const vec3_t *)obj, &in1);
-  v94 = Particle_GetParticleSystemPointerUnsafe((LocalClientNum_t)v12, (ParticleSystemHandle)v124);
-  if ( particleFX->scrEndTagCount && v94 )
+  LODWORD(v91) = FX_PlayOrientedEffect((LocalClientNum_t)v8, &def, time, (const vec3_t *)obj, &in1);
+  v68 = Particle_GetParticleSystemPointerUnsafe((LocalClientNum_t)v8, (ParticleSystemHandle)v91);
+  if ( particleFX->scrEndTagCount && v68 )
   {
-    __asm { vmovss  xmm0, dword ptr [rsp+2C8h+obj] }
     endPos.v.m128_i32[3] = 0;
+    v70 = endPos.v;
+    v70.m128_f32[0] = *(float *)obj;
+    _XMM3 = v70;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rsp+2C8h+endPos.v]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [rsp+2C8h+obj+4], 10h
       vinsertps xmm3, xmm3, dword ptr [rsp+2C8h+obj+8], 20h
-      vmovups xmmword ptr [rsp+2C8h+endPos.v], xmm3
-      vmovups xmmword ptr [rsp+2C8h+startPos.v], xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vmovups xmmword ptr [rsp+2C8h+endPos.v], xmm0
     }
-    ParticleSystem::SetBeamPos(v94, &startPos, &endPos);
+    startPos.v = _XMM3;
+    endPos.v = 0i64;
+    ParticleSystem::SetBeamPos(v68, &startPos, &endPos);
   }
 LABEL_55:
   CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
   memset(obj, 0, 0xCui64);
 LABEL_28:
-  v53 = v12;
+  v30 = v8;
   if ( particleFX->oneshotLooping )
   {
     eventStreamBufferOffsetClient = particleFX->eventStreamBufferOffsetClient;
-    if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)v16->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1925, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize") )
+    if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)v11->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1925, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    v55 = &v16->eventStreamBuffer[eventStreamBufferOffsetClient];
-    v56 = v55;
+    v32 = &v11->eventStreamBuffer[eventStreamBufferOffsetClient];
+    v33 = v32;
     do
     {
-      *(_DWORD *)v56 = *(_DWORD *)&v56[(char *)&v124 - (char *)v55];
-      v57 = DVARBOOL_scriptable_particle_event_debug;
+      *(_DWORD *)v33 = *(_DWORD *)&v33[(char *)&v91 - (char *)v32];
+      v34 = DVARBOOL_scriptable_particle_event_debug;
       if ( !DVARBOOL_scriptable_particle_event_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_particle_event_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v57);
-      if ( v57->current.enabled && *(_DWORD *)v55 )
+      Dvar_CheckFrontendServerThread(v34);
+      if ( v34->current.enabled && *(_DWORD *)v32 )
       {
-        v58 = 0;
-        if ( g_particleSystemsGeneration[4096 * v53 + (*(_DWORD *)v55 & 0xFFF)].__all32 == *(_DWORD *)v55 )
-          v58 = *(_DWORD *)v55 & 0xFFF;
-        v59 = (v53 << 12) + v58;
-        v60 = NULL;
-        if ( g_particleSystems[0][v59] >= (ParticleSystem *)0x1000 )
-          v60 = g_particleSystems[0][v59];
-        if ( v60 && (v61 = ParticleSystem::GetDef(v60)) != NULL )
-          name = v61->name;
+        v35 = 0;
+        if ( g_particleSystemsGeneration[4096 * v30 + (*(_DWORD *)v32 & 0xFFF)].__all32 == *(_DWORD *)v32 )
+          v35 = *(_DWORD *)v32 & 0xFFF;
+        v36 = (v30 << 12) + v35;
+        v37 = NULL;
+        if ( g_particleSystems[0][v36] >= (ParticleSystem *)0x1000 )
+          v37 = g_particleSystems[0][v36];
+        if ( v37 && (v38 = ParticleSystem::GetDef(v37)) != NULL )
+          name = v38->name;
         else
           name = "Unknown";
         particleSystemDef = particleFX->effectDef.particleSystemDef;
         if ( particleSystemDef )
-          v103 = particleSystemDef->name;
+          v74 = particleSystemDef->name;
         else
-          v103 = "Unknown";
-        if ( *v132 )
-          v104 = **v132;
+          v74 = "Unknown";
+        if ( *v99 )
+          v75 = **v99;
         else
-          v104 = "Unknown";
-        LODWORD(markEntnum) = *(_DWORD *)v55;
-        LODWORD(boneIndex) = v10;
-        Com_sprintf(dest, 0x100ui64, "Scriptable\t%s\t%i\tStart-Particle\t%s\t%i\t%s\n", v104, boneIndex, v103, markEntnum, name);
+          v75 = "Unknown";
+        LODWORD(markEntnum) = *(_DWORD *)v32;
+        LODWORD(boneIndex) = v6;
+        Com_sprintf(dest, 0x100ui64, "Scriptable\t%s\t%i\tStart-Particle\t%s\t%i\t%s\n", v75, boneIndex, v74, markEntnum, name);
         Com_PrintMessage(29, dest, 0);
       }
-      v56 += 4;
-      --v133;
+      v33 += 4;
+      --v100;
     }
-    while ( v133 );
+    while ( v100 );
   }
   if ( NearestImpactVelocity )
   {
     CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-    v105 = v53 << 12;
-    v106 = &v124;
-    v107 = (unsigned int)(v126 + 1);
+    v76 = v30 << 12;
+    v77 = &v91;
+    v78 = (unsigned int)(v93 + 1);
     do
     {
-      v108 = 0;
-      if ( g_particleSystemsGeneration[v105 + (*(_DWORD *)v106 & 0xFFF)].__all32 == *(_DWORD *)v106 )
-        v108 = *(_DWORD *)v106 & 0xFFF;
-      v109 = *((_QWORD *)&g_particleSystems[0][v105] + v108);
-      _RAX = 0i64;
-      if ( v109 >= 0x1000 )
-        _RAX = v109;
-      if ( _RAX )
+      v79 = 0;
+      if ( g_particleSystemsGeneration[v76 + (*(_DWORD *)v77 & 0xFFF)].__all32 == *(_DWORD *)v77 )
+        v79 = *(_DWORD *)v77 & 0xFFF;
+      v80 = *((_QWORD *)&g_particleSystems[0][v76] + v79);
+      v81 = 0i64;
+      if ( v80 >= 0x1000 )
+        v81 = v80;
+      if ( v81 )
       {
         HIDWORD(obj[1]) = 0;
+        v83 = *(_OWORD *)obj;
+        *(float *)&v83 = v12;
+        _XMM0 = v83;
         __asm
         {
-          vmovups xmm0, xmmword ptr [rsp+2C8h+obj]
-          vmovss  xmm0, xmm0, xmm6
           vinsertps xmm0, xmm0, xmm7, 10h
           vinsertps xmm0, xmm0, xmm8, 20h ; ' '
-          vmovups xmmword ptr [rsp+2C8h+obj], xmm0
-          vmovups xmmword ptr [rax+90h], xmm0
         }
-        *(_QWORD *)(_RAX + 416) |= 0x4000ui64;
+        *(_OWORD *)obj = _XMM0;
+        *(_OWORD *)(v81 + 144) = _XMM0;
+        *(_QWORD *)(v81 + 416) |= 0x4000ui64;
       }
-      v106 = (__int64 *)((char *)v106 + 4);
-      --v107;
+      v77 = (__int64 *)((char *)v77 + 4);
+      --v78;
     }
-    while ( v107 );
+    while ( v78 );
     CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
-  }
-LABEL_129:
-  _R11 = &v142;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -3385,352 +3143,286 @@ ScriptableCl_PlaySound
 */
 void ScriptableCl_PlaySound(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptableEventSoundDef *sound)
 {
-  unsigned int v7; 
+  unsigned int v4; 
   SndAliasList *soundAliasCache; 
-  const char *v10; 
-  const char *v11; 
+  const char *v7; 
+  const char *v8; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   const char *name; 
   SndAliasList *Alias; 
-  const char *v15; 
-  ScriptableInstanceContextSecure *v16; 
+  const char *v12; 
+  ScriptableInstanceContextSecure *v13; 
   const char *aliasName; 
   const char *soundAlias; 
-  __int64 v19; 
-  signed __int64 v20; 
+  __int64 v16; 
+  signed __int64 v17; 
+  int v18; 
+  int v19; 
   int v21; 
   int v22; 
-  int v24; 
-  int v25; 
-  SndAliasList *v26; 
-  char v27; 
+  SndAliasList *v23; 
+  char v24; 
   char looping; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  ScriptableInstanceContextSecure *v32; 
-  ScriptableInstanceContextSecure *v33; 
-  unsigned __int64 count; 
-  unsigned __int64 v36; 
-  SndAlias *head; 
-  bool v38; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
+  ScriptableInstanceContextSecure *v29; 
+  ScriptableInstanceContextSecure *v30; 
+  double v31; 
+  __int64 v32; 
+  float *p_distMax; 
   scr_string_t scrTagName; 
-  bool v43; 
-  bool BonePosition; 
-  __int16 v52; 
+  __int16 v35; 
   unsigned int LinkObject; 
-  unsigned int v54; 
+  unsigned int v37; 
   ScriptableCollisionClientContext *InstanceCollisionContext; 
-  __int32 v60; 
+  __int32 v39; 
   unsigned int scriptableCollisionPredictive; 
   unsigned int RigidBodyID; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
-  hkMemoryAllocator *v64; 
-  hkMemoryAllocator *v65; 
+  hkMemoryAllocator *v43; 
+  hkMemoryAllocator *v44; 
   CgSoundSystem *SoundSystem; 
   const char *explosionReflClass; 
-  const char *v68; 
-  char v69; 
-  int v70; 
-  char v71; 
+  const char *v47; 
+  char v48; 
+  int v49; 
+  char v50; 
   unsigned __int64 ScriptableSndEntHandle; 
-  int parent; 
-  int siblings; 
-  int siblingsa; 
-  int linked; 
   vec3_t outOrigin; 
-  HavokPhysics_IgnoreBodies v82; 
-  __int64 v83; 
+  HavokPhysics_IgnoreBodies v54; 
+  __int64 v55; 
   vec3_t out; 
   Physics_RaycastExtendedData axis; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v83 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RBX = sound;
-  v7 = scriptableIndex;
+  v55 = -2i64;
+  v4 = scriptableIndex;
   if ( !sound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2750, ASSERT_TYPE_ASSERT, "(sound)", (const char *)&queryFormat, "sound") )
     __debugbreak();
-  if ( !MLG_IsCoDCasterEnabled() || !MLG_IsLocalPlayerMLGSpectator(localClientNum) || I_strcmp(_RBX->soundAlias, "mus_jugg_01") && I_strcmp(_RBX->soundAlias, "mus_jugg_01_hp") )
+  if ( !MLG_IsCoDCasterEnabled() || !MLG_IsLocalPlayerMLGSpectator(localClientNum) || I_strcmp(sound->soundAlias, "mus_jugg_01") && I_strcmp(sound->soundAlias, "mus_jugg_01_hp") )
   {
-    soundAliasCache = _RBX->soundAliasCache;
-    v10 = "<unknown>";
+    soundAliasCache = sound->soundAliasCache;
+    v7 = "<unknown>";
     if ( soundAliasCache )
     {
       aliasName = soundAliasCache->aliasName;
-      soundAlias = _RBX->soundAlias;
-      v19 = 0x7FFFFFFFi64;
+      soundAlias = sound->soundAlias;
+      v16 = 0x7FFFFFFFi64;
       if ( !soundAlias && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       if ( !aliasName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v20 = soundAlias - aliasName;
+      v17 = soundAlias - aliasName;
       do
       {
-        v21 = (unsigned __int8)aliasName[v20];
-        v22 = *(unsigned __int8 *)aliasName++;
-        if ( !v19-- )
+        v18 = (unsigned __int8)aliasName[v17];
+        v19 = *(unsigned __int8 *)aliasName++;
+        if ( !v16-- )
           break;
-        if ( v21 != v22 )
+        if ( v18 != v19 )
         {
-          v24 = v21 + 32;
-          if ( (unsigned int)(v21 - 65) > 0x19 )
-            v24 = v21;
-          v21 = v24;
-          v25 = v22 + 32;
-          if ( (unsigned int)(v22 - 65) > 0x19 )
-            v25 = v22;
-          if ( v21 != v25 )
+          v21 = v18 + 32;
+          if ( (unsigned int)(v18 - 65) > 0x19 )
+            v21 = v18;
+          v18 = v21;
+          v22 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v22 = v19;
+          if ( v18 != v22 )
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2775, ASSERT_TYPE_ASSERT, "( !I_stricmp( sound->soundAlias, sound->soundAliasCache->aliasName ) )", "Sound cache name does not match. %s vs %s", _RBX->soundAlias, _RBX->soundAliasCache->aliasName) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2775, ASSERT_TYPE_ASSERT, "( !I_stricmp( sound->soundAlias, sound->soundAliasCache->aliasName ) )", "Sound cache name does not match. %s vs %s", sound->soundAlias, sound->soundAliasCache->aliasName) )
               __debugbreak();
             break;
           }
         }
       }
-      while ( v21 );
-      v26 = _RBX->soundAliasCache;
-      if ( SND_TryFindAlias(_RBX->soundAlias) != v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2776, ASSERT_TYPE_ASSERT, "( SND_TryFindAlias( sound->soundAlias ) == sound->soundAliasCache )", "Sound cache alias does not match. %s vs %s", _RBX->soundAlias, v26->aliasName) )
+      while ( v18 );
+      v23 = sound->soundAliasCache;
+      if ( SND_TryFindAlias(sound->soundAlias) != v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2776, ASSERT_TYPE_ASSERT, "( SND_TryFindAlias( sound->soundAlias ) == sound->soundAliasCache )", "Sound cache alias does not match. %s vs %s", sound->soundAlias, v23->aliasName) )
         __debugbreak();
-      Alias = _RBX->soundAliasCache;
+      Alias = sound->soundAliasCache;
       if ( Alias )
       {
-        v7 = scriptableIndex;
+        v4 = scriptableIndex;
       }
       else
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2780, ASSERT_TYPE_ASSERT, "( ( aliasList != nullptr ) )", "( sound->soundAlias ) = %s", _RBX->soundAlias) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2780, ASSERT_TYPE_ASSERT, "( ( aliasList != nullptr ) )", "( sound->soundAlias ) = %s", sound->soundAlias) )
           __debugbreak();
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 339, ASSERT_TYPE_ASSERT, "(aliasList)", (const char *)&queryFormat, "aliasList") )
           __debugbreak();
-        v7 = scriptableIndex;
+        v4 = scriptableIndex;
       }
     }
     else
     {
-      v11 = _RBX->soundAlias;
-      InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, v7);
+      v8 = sound->soundAlias;
+      InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, v4);
       if ( InstanceCommonContext->def )
         name = InstanceCommonContext->def->name;
       else
         name = "<unknown>";
-      Com_PrintWarning(14, "Scriptable %s is trying to play sound %s which has not been cached. Performance warning.\n", name, v11);
-      Alias = SND_TryFindAlias(_RBX->soundAlias);
+      Com_PrintWarning(14, "Scriptable %s is trying to play sound %s which has not been cached. Performance warning.\n", name, v8);
+      Alias = SND_TryFindAlias(sound->soundAlias);
       if ( !Alias )
       {
-        v15 = _RBX->soundAlias;
-        v16 = ScriptableCl_GetInstanceCommonContext(localClientNum, v7);
-        if ( v16->def )
-          v10 = v16->def->name;
-        Com_PrintWarning(14, "Scriptable %s is trying to play sound %s, but we can't find the alias list\n", v10, v15);
+        v12 = sound->soundAlias;
+        v13 = ScriptableCl_GetInstanceCommonContext(localClientNum, v4);
+        if ( v13->def )
+          v7 = v13->def->name;
+        Com_PrintWarning(14, "Scriptable %s is trying to play sound %s, but we can't find the alias list\n", v7, v12);
         goto LABEL_114;
       }
     }
     if ( !Alias->head && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_alias_db.h", 340, ASSERT_TYPE_ASSERT, "(aliasList->head)", (const char *)&queryFormat, "aliasList->head") )
       __debugbreak();
-    v27 = Alias->head->flags & 1;
-    looping = _RBX->looping;
-    if ( looping == v27 )
+    v24 = Alias->head->flags & 1;
+    looping = sound->looping;
+    if ( looping == v24 )
     {
-      v33 = ScriptableCl_GetInstanceCommonContext(localClientNum, v7);
-      ScriptableInstanceContextSecure::GetOrigin(v33, v7, &outOrigin);
-      if ( v27 )
+      v30 = ScriptableCl_GetInstanceCommonContext(localClientNum, v4);
+      ScriptableInstanceContextSecure::GetOrigin(v30, v4, &outOrigin);
+      if ( v24 )
       {
-        *(double *)&_XMM0 = SND_DistSqToNearestListener(&outOrigin);
-        __asm { vmovaps xmm2, xmm0 }
+        v31 = SND_DistSqToNearestListener(&outOrigin);
         if ( Alias->count <= 0 )
           goto LABEL_114;
-        count = Alias->count;
-        v36 = 0i64;
-        head = Alias->head;
-        v38 = __CFADD__(head, 104i64) || (SndAlias *)&head->distMax == NULL;
-        _RAX = &head->distMax;
-        while ( 1 )
+        v32 = 0i64;
+        p_distMax = &Alias->head->distMax;
+        while ( *(float *)&v31 > (float)(*p_distMax * *p_distMax) )
         {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax]
-            vmulss  xmm0, xmm1, xmm1
-            vcomiss xmm2, xmm0
-          }
-          if ( v38 )
-            break;
-          ++v36;
-          _RAX += 58;
-          v38 = v36 <= count;
-          if ( (__int64)v36 >= (__int64)count )
+          ++v32;
+          p_distMax += 58;
+          if ( v32 >= Alias->count )
             goto LABEL_114;
         }
       }
-      scrTagName = _RBX->scrTagName;
-      v43 = scrTagName == 0;
-      if ( !scrTagName || (BonePosition = ScriptableCl_GetBonePosition(localClientNum, v7, scrTagName, &outOrigin, _RBX->allowMissingTag), v43 = !BonePosition, BonePosition) || (v43 = !_RBX->useRootOnMissingTag, _RBX->useRootOnMissingTag) )
+      scrTagName = sound->scrTagName;
+      if ( !scrTagName || ScriptableCl_GetBonePosition(localClientNum, v4, scrTagName, &outOrigin, sound->allowMissingTag) || sound->useRootOnMissingTag )
       {
-        __asm
+        if ( sound->worldOffset.v[0] != 0.0 || sound->worldOffset.v[1] != 0.0 || sound->worldOffset.v[2] != 0.0 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vucomiss xmm6, dword ptr [rbx+40h]
+          AnglesToAxis(&v30->angles, (tmat33_t<vec3_t> *)&axis);
+          AxisTransformVec3((const tmat33_t<vec3_t> *)&axis, &sound->worldOffset, &out);
+          outOrigin.v[0] = outOrigin.v[0] + out.v[0];
+          outOrigin.v[1] = outOrigin.v[1] + out.v[1];
+          outOrigin.v[2] = outOrigin.v[2] + out.v[2];
         }
-        if ( !v43 )
-          goto LABEL_67;
-        __asm { vucomiss xmm6, dword ptr [rbx+44h] }
-        if ( !v43 )
-          goto LABEL_67;
-        __asm { vucomiss xmm6, dword ptr [rbx+48h] }
-        if ( !v43 )
+        v35 = 2046;
+        if ( ScriptableCl_GetLinkTypeEquals(localClientNum, v4, SCRIPTABLE_LINK_ENTITY) )
         {
-LABEL_67:
-          AnglesToAxis(&v33->angles, (tmat33_t<vec3_t> *)&axis);
-          AxisTransformVec3((const tmat33_t<vec3_t> *)&axis, &_RBX->worldOffset, &out);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+130h+outOrigin]
-            vaddss  xmm1, xmm0, dword ptr [rbp+57h+out]
-            vmovss  dword ptr [rsp+130h+outOrigin], xmm1
-            vmovss  xmm2, dword ptr [rbp+57h+outOrigin+4]
-            vaddss  xmm0, xmm2, dword ptr [rbp+57h+out+4]
-            vmovss  dword ptr [rbp+57h+outOrigin+4], xmm0
-            vmovss  xmm1, dword ptr [rbp+57h+outOrigin+8]
-            vaddss  xmm2, xmm1, dword ptr [rbp+57h+out+8]
-            vmovss  dword ptr [rbp+57h+outOrigin+8], xmm2
-          }
+          LinkObject = ScriptableCl_GetLinkObject(localClientNum, v4);
+          v35 = truncate_cast<short,unsigned int>(LinkObject);
         }
-        v52 = 2046;
-        if ( ScriptableCl_GetLinkTypeEquals(localClientNum, v7, SCRIPTABLE_LINK_ENTITY) )
-        {
-          LinkObject = ScriptableCl_GetLinkObject(localClientNum, v7);
-          v52 = truncate_cast<short,unsigned int>(LinkObject);
-        }
-        v54 = 0;
-        if ( _RBX->doGroundTrace )
+        v37 = 0;
+        if ( sound->doGroundTrace )
         {
           Sys_ProfBeginNamedEvent(0xFFD2691E, "ScriptableCl_PlaySound_GroundTrace");
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+130h+outOrigin]
-            vmovss  dword ptr [rbp+57h+out], xmm0
-            vmovss  xmm1, dword ptr [rbp+57h+outOrigin+4]
-            vmovss  dword ptr [rbp+57h+out+4], xmm1
-            vmovss  xmm0, dword ptr [rbp+57h+outOrigin+8]
-            vsubss  xmm1, xmm0, dword ptr [rbx+3Ch]
-            vmovss  dword ptr [rbp+57h+out+8], xmm1
-          }
+          out.v[0] = outOrigin.v[0];
+          out.v[1] = outOrigin.v[1];
+          out.v[2] = outOrigin.v[2] - sound->groundTraceLength;
           InstanceCollisionContext = ScriptableCl_GetInstanceCollisionContext(localClientNum, scriptableIndex);
           CG_EntityWorkers_AcquireReadLock_Physics(NONE_LEGACY);
-          v60 = 3 * localClientNum + 2;
+          v39 = 3 * localClientNum + 2;
           scriptableCollisionPredictive = InstanceCollisionContext->scriptableCollisionPredictive;
-          HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v82, v52 != 2046, scriptableCollisionPredictive != -1);
-          if ( v52 != 2046 )
-            HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v82, 0, v52, 1, 1, 0, 1, 1);
+          HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v54, v35 != 2046, scriptableCollisionPredictive != -1);
+          if ( v35 != 2046 )
+            HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v54, 0, v35, 1, 1, 0, 1, 1);
           if ( scriptableCollisionPredictive != -1 )
           {
-            if ( Physics_GetNumRigidBodys((const Physics_WorldId)v60, scriptableCollisionPredictive) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2877, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( worldId, collisionInstanceId ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( worldId, collisionInstanceId ) == 1") )
+            if ( Physics_GetNumRigidBodys((const Physics_WorldId)v39, scriptableCollisionPredictive) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2877, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( worldId, collisionInstanceId ) == 1)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( worldId, collisionInstanceId ) == 1") )
               __debugbreak();
-            RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v60, scriptableCollisionPredictive, 0);
+            RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v39, scriptableCollisionPredictive, 0);
             if ( (RigidBodyID & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2879, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
               __debugbreak();
-            HavokPhysics_IgnoreBodies::SetIgnoreBody(&v82, 0, RigidBodyID);
+            HavokPhysics_IgnoreBodies::SetIgnoreBody(&v54, 0, RigidBodyID);
           }
           axis.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-          __asm { vmovss  dword ptr [rbp+57h+axis+14h], xmm6 }
+          axis.collisionBuffer = 0.0;
           *(_QWORD *)&axis.phaseSelection = 0x100000000i64;
           *(_WORD *)&axis.collectInsideHits = 256;
           axis.contents = 8391987;
-          axis.ignoreBodies = &v82;
-          ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v60);
+          axis.ignoreBodies = &v54;
+          ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v39);
           if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2889, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
             __debugbreak();
           HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-          Physics_Raycast((Physics_WorldId)v60, &outOrigin, &out, &axis, ClosestResult);
+          Physics_Raycast((Physics_WorldId)v39, &outOrigin, &out, &axis, ClosestResult);
           if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
-            v54 = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
+            v37 = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
           CG_EntityWorkers_ReleaseReadLock_Physics(NONE_LEGACY);
           Sys_ProfEndNamedEvent();
-          v64 = hkMemHeapAllocator();
-          v82.m_ignoreBodies.m_size = 0;
-          if ( v82.m_ignoreBodies.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v64, v82.m_ignoreBodies.m_data, 4, v82.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-          v82.m_ignoreBodies.m_data = NULL;
-          v82.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-          v65 = hkMemHeapAllocator();
-          v82.m_ignoreEntities.m_size = 0;
-          if ( v82.m_ignoreEntities.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v65, v82.m_ignoreEntities.m_data, 8, v82.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-          v82.m_ignoreEntities.m_capacityAndFlags = 0x80000000;
+          v43 = hkMemHeapAllocator();
+          v54.m_ignoreBodies.m_size = 0;
+          if ( v54.m_ignoreBodies.m_capacityAndFlags >= 0 )
+            hkMemoryAllocator::bufFree2(v43, v54.m_ignoreBodies.m_data, 4, v54.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+          v54.m_ignoreBodies.m_data = NULL;
+          v54.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+          v44 = hkMemHeapAllocator();
+          v54.m_ignoreEntities.m_size = 0;
+          if ( v54.m_ignoreEntities.m_capacityAndFlags >= 0 )
+            hkMemoryAllocator::bufFree2(v44, v54.m_ignoreEntities.m_data, 8, v54.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+          v54.m_ignoreEntities.m_capacityAndFlags = 0x80000000;
         }
         SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
         if ( !SoundSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2909, ASSERT_TYPE_ASSERT, "(soundSystem)", (const char *)&queryFormat, "soundSystem") )
           __debugbreak();
-        explosionReflClass = _RBX->explosionReflClass;
-        if ( explosionReflClass && *explosionReflClass && !_RBX->looping )
+        explosionReflClass = sound->explosionReflClass;
+        if ( explosionReflClass && *explosionReflClass && !sound->looping )
         {
-          if ( v52 == 2046 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2914, ASSERT_TYPE_ASSERT, "(sndEntityNum != ENTITYNUM_WORLD)", (const char *)&queryFormat, "sndEntityNum != ENTITYNUM_WORLD") )
+          if ( v35 == 2046 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2914, ASSERT_TYPE_ASSERT, "(sndEntityNum != ENTITYNUM_WORLD)", (const char *)&queryFormat, "sndEntityNum != ENTITYNUM_WORLD") )
             __debugbreak();
-          v68 = _RBX->explosionReflClass;
-          if ( v68 && (v69 = *v68) != 0 )
+          v47 = sound->explosionReflClass;
+          if ( v47 && (v48 = *v47) != 0 )
           {
-            v70 = 5381;
+            v49 = 5381;
             do
             {
-              v71 = v69 | 0x20;
-              if ( (unsigned int)(v69 - 65) >= 0x1A )
-                v71 = v69;
-              v70 = 65599 * v70 + v71;
-              v69 = *++v68;
+              v50 = v48 | 0x20;
+              if ( (unsigned int)(v48 - 65) >= 0x1A )
+                v50 = v48;
+              v49 = 65599 * v49 + v50;
+              v48 = *++v47;
             }
-            while ( *v68 );
-            if ( !v70 )
-              v70 = 1;
+            while ( *v47 );
+            if ( !v49 )
+              v49 = 1;
           }
           else
           {
-            v70 = 0;
+            v49 = 0;
           }
-          SoundSystem->PlayExplosionSoundAsync(SoundSystem, v52, &outOrigin, Alias, v54, v70);
+          SoundSystem->PlayExplosionSoundAsync(SoundSystem, v35, &outOrigin, Alias, v37, v49);
         }
-        else if ( v52 == 2046 )
+        else if ( v35 == 2046 )
         {
           ScriptableSndEntHandle = CG_GenerateScriptableSndEntHandle(localClientNum, scriptableIndex);
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  [rsp+130h+linked], xmm0
-            vmovss  dword ptr [rsp+130h+siblings], xmm0
-          }
-          ((void (__fastcall *)(CgSoundSystem *, __int64, vec3_t *, unsigned __int64, SndAliasList *, unsigned int, int, int, _DWORD))SoundSystem->PlaySurfaceSoundOnSndEntAsync)(SoundSystem, 2046i64, &outOrigin, ScriptableSndEntHandle, Alias, v54, siblingsa, linked, 0);
+          ((void (__fastcall *)(CgSoundSystem *, __int64, vec3_t *, unsigned __int64, SndAliasList *, unsigned int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSoundOnSndEntAsync)(SoundSystem, 2046i64, &outOrigin, ScriptableSndEntHandle, Alias, v37, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rsp+130h+siblings], xmm0
-            vmovss  dword ptr [rsp+130h+parent], xmm0
-          }
-          ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, unsigned int, int, int, _DWORD))SoundSystem->PlaySurfaceSoundAsync)(SoundSystem, (unsigned int)v52, &outOrigin, Alias, v54, parent, siblings, 0);
+          ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, unsigned int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSoundAsync)(SoundSystem, (unsigned int)v35, &outOrigin, Alias, v37, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
         }
       }
     }
     else
     {
-      v29 = "Fire-and-Forget";
-      v30 = "Fire-and-Forget";
+      v26 = "Fire-and-Forget";
+      v27 = "Fire-and-Forget";
       if ( looping )
-        v30 = "Looping";
-      v31 = _RBX->soundAlias;
-      v32 = ScriptableCl_GetInstanceCommonContext(localClientNum, v7);
-      if ( v32->def )
-        v10 = v32->def->name;
-      if ( v27 )
-        v29 = "Looping";
-      Com_PrintError(29, "Scriptable %s thinks sound %s is %s and it is %s\n", v10, v31, v30, v29);
+        v27 = "Looping";
+      v28 = sound->soundAlias;
+      v29 = ScriptableCl_GetInstanceCommonContext(localClientNum, v4);
+      if ( v29->def )
+        v7 = v29->def->name;
+      if ( v24 )
+        v26 = "Looping";
+      Com_PrintError(29, "Scriptable %s thinks sound %s is %s and it is %s\n", v7, v28, v27, v26);
       ScriptableCl_EnterError();
     }
   }
 LABEL_114:
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm { vmovaps xmm6, xmmword ptr [rsp+130h+var_48+8] }
 }
 
 /*
@@ -3744,38 +3436,27 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
   playerState_s *p_predictedPlayerState; 
   unsigned int scriptableIndex; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  ScriptableInstanceContextSecure *v15; 
-  Scriptable_EventAnimation_Data_MP *Data; 
+  ScriptableInstanceContextSecure *v12; 
+  Scriptable_EventAnimation_Data_MP *v13; 
   ScriptableLinkType LinkType; 
-  ScriptableLinkType v18; 
+  ScriptableLinkType v15; 
   unsigned int LinkObject; 
   const DObj *DObj; 
-  DObj *v21; 
-  XAnimTree *Tree; 
-  XAnim_s *v24; 
-  XAnimOwner v25; 
-  centity_t *Entity; 
-  XAnimTree *v27; 
-  unsigned int index; 
-  float fmta; 
-  float fmtb; 
-  float fmt; 
+  DObj *v18; 
   float goalTime; 
-  float goalTimea; 
-  float v41; 
-  float v42; 
+  XAnimTree *Tree; 
+  XAnim_s *v21; 
+  XAnimOwner v22; 
+  centity_t *Entity; 
+  XAnimTree *v24; 
+  unsigned int index; 
+  Scriptable_EventAnimation_Data_MP *Data; 
   float outRate; 
-  float outStartTime; 
-  int v45; 
+  float outStartTime[3]; 
 
-  _RDI = animation;
-  ScriptableBg_ChooseAnimationStartTimeAndRate(animation, holdrand, &outStartTime, &outRate);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0A8h+outRate]
-    vmovss  [rsp+0A8h+var_40], xmm0
-  }
-  if ( (v45 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 738, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
+  ScriptableBg_ChooseAnimationStartTimeAndRate(animation, holdrand, outStartTime, &outRate);
+  outStartTime[1] = outRate;
+  if ( (LODWORD(outRate) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 738, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80) )
   {
@@ -3785,7 +3466,7 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
       __debugbreak();
     scriptableIndex = eventParams->scriptableIndex;
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    v15 = InstanceCommonContext;
+    v12 = InstanceCommonContext;
     if ( onTime || animation->stateful )
     {
       if ( !InstanceCommonContext->def->animationTreeDef[0] )
@@ -3794,14 +3475,14 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
         return;
       }
       LinkType = ScriptableCl_GetLinkType(localClientNum, scriptableIndex);
-      v18 = LinkType;
+      v15 = LinkType;
       if ( LinkType )
       {
         if ( LinkType == SCRIPTABLE_LINK_CLIENTMODEL )
         {
-          if ( !v15->data.compositeModel )
+          if ( !v12->data.compositeModel )
           {
-            Com_PrintWarning(14, "WARNING: Scriptable %s cannot play animation %s as it's missing a model\n", v15->def->name, animation->animation->name);
+            Com_PrintWarning(14, "WARNING: Scriptable %s cannot play animation %s as it's missing a model\n", v12->def->name, animation->animation->name);
             return;
           }
           LinkObject = ScriptableCl_GetLinkObject(localClientNum, scriptableIndex);
@@ -3810,7 +3491,7 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
             ScriptableCl_UpdateModel(localClientNum, scriptableIndex, 0);
             if ( !CG_ClientModel_IsInitialized(localClientNum, LinkObject) )
             {
-              Com_PrintError(29, "Scriptable %s is trying to play animation %s but even after attempting to force a model update the clientmodel remains uninitialized\n", v15->def->name, animation->animation->name);
+              Com_PrintError(29, "Scriptable %s is trying to play animation %s but even after attempting to force a model update the clientmodel remains uninitialized\n", v12->def->name, animation->animation->name);
               ScriptableCl_EnterError();
             }
           }
@@ -3818,37 +3499,33 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
         if ( !ScriptableCl_GetDObjSafe(localClientNum, scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 807, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex )") )
           __debugbreak();
         DObj = ScriptableCl_GetDObj(localClientNum, scriptableIndex);
-        v21 = (DObj *)DObj;
+        v18 = (DObj *)DObj;
         if ( DObj )
         {
-          __asm
-          {
-            vmovaps [rsp+0A8h+var_38], xmm6
-            vmovss  xmm6, dword ptr [rdi+28h]
-          }
+          goalTime = animation->blendTime;
           Tree = DObjGetTree(DObj);
           if ( Tree )
             goto LABEL_44;
-          if ( v18 != SCRIPTABLE_LINK_ENTITY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 824, ASSERT_TYPE_ASSERT, "(linkType == SCRIPTABLE_LINK_ENTITY)", (const char *)&queryFormat, "linkType == SCRIPTABLE_LINK_ENTITY") )
+          if ( v15 != SCRIPTABLE_LINK_ENTITY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 824, ASSERT_TYPE_ASSERT, "(linkType == SCRIPTABLE_LINK_ENTITY)", (const char *)&queryFormat, "linkType == SCRIPTABLE_LINK_ENTITY") )
             __debugbreak();
-          v24 = v15->def->animationTreeDef[0];
-          if ( v24 && v24->initialized )
+          v21 = v12->def->animationTreeDef[0];
+          if ( v21 && v21->initialized )
           {
             Entity = ScriptableCl_GetEntity(localClientNum, scriptableIndex);
             if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 829, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
               __debugbreak();
-            LOBYTE(v25) = 1;
-            Tree = Com_XAnimCreateSmallTree(v24, v25);
-            DObjSetTree(v21, Tree);
-            v27 = Entity->tree;
+            LOBYTE(v22) = 1;
+            Tree = Com_XAnimCreateSmallTree(v21, v22);
+            DObjSetTree(v18, Tree);
+            v24 = Entity->tree;
             if ( Entity->nextState.eType == ET_SCRIPTMOVER )
             {
-              if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 842, ASSERT_TYPE_ASSERT, "(entity->tree == 0)", (const char *)&queryFormat, "entity->tree == NULL") )
+              if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 842, ASSERT_TYPE_ASSERT, "(entity->tree == 0)", (const char *)&queryFormat, "entity->tree == NULL") )
                 __debugbreak();
             }
             else
             {
-              if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 837, ASSERT_TYPE_ASSERT, "(entity->tree == 0)", (const char *)&queryFormat, "entity->tree == NULL") )
+              if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 837, ASSERT_TYPE_ASSERT, "(entity->tree == 0)", (const char *)&queryFormat, "entity->tree == NULL") )
                 __debugbreak();
               Entity->tree = Tree;
             }
@@ -3856,69 +3533,37 @@ void ScriptableCl_RunStateEventAnimation(const LocalClientNum_t localClientNum, 
             {
 LABEL_44:
               index = animation->animationIndex[0].index;
-              __asm
-              {
-                vmovss  xmm0, [rsp+0A8h+outRate]
-                vmovss  xmm1, cs:__real@3f800000
-              }
               if ( animation->overrideAnimation )
-              {
-                __asm
-                {
-                  vmovss  [rsp+0A8h+var_78], xmm0
-                  vmovss  [rsp+0A8h+goalTime], xmm6
-                  vmovss  dword ptr [rsp+0A8h+fmt], xmm1
-                }
-                XAnimSetCompleteGoalWeightKnob(v21, 0, XANIM_SUBTREE_DEFAULT, index, fmta, goalTime, v41, (scr_string_t)0, 4u, 0, LINEAR);
-              }
+                XAnimSetCompleteGoalWeightKnob(v18, 0, XANIM_SUBTREE_DEFAULT, index, 1.0, goalTime, outRate, (scr_string_t)0, 4u, 0, LINEAR);
               else
-              {
-                __asm
-                {
-                  vmovss  [rsp+0A8h+var_78], xmm0
-                  vmovss  [rsp+0A8h+goalTime], xmm6
-                  vmovss  dword ptr [rsp+0A8h+fmt], xmm1
-                }
-                XAnimSetCompleteGoalWeight(v21, 0, XANIM_SUBTREE_DEFAULT, index, fmtb, goalTimea, v42, (scr_string_t)0, 4u, 0, LINEAR, NULL);
-              }
-              __asm
-              {
-                vmovss  xmm0, [rsp+0A8h+outStartTime]
-                vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-              }
+                XAnimSetCompleteGoalWeight(v18, 0, XANIM_SUBTREE_DEFAULT, index, 1.0, goalTime, outRate, (scr_string_t)0, 4u, 0, LINEAR, NULL);
               if ( animation->startTimeNormalized )
-                XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmt);
+                XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, outStartTime[0]);
               else
-                XAnimSetTimeInSeconds(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmt);
+                XAnimSetTimeInSeconds(Tree, 0, XANIM_SUBTREE_DEFAULT, index, outStartTime[0]);
               if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND|WEAPON_OFFHAND_END|0x80) )
               {
-                _RBX = ScriptableCl_StateEventAnimationGetData(v15, animation);
-                _RBX->serverTime = ScriptableCl_GetFrameServerTime(localClientNum) - p_predictedPlayerState->deltaTime;
-                __asm
-                {
-                  vmovss  xmm0, [rsp+0A8h+outStartTime]
-                  vmovss  dword ptr [rbx+4], xmm0
-                  vmovss  xmm1, [rsp+0A8h+outRate]
-                  vmovss  dword ptr [rbx+8], xmm1
-                }
+                Data = ScriptableCl_StateEventAnimationGetData(v12, animation);
+                Data->serverTime = ScriptableCl_GetFrameServerTime(localClientNum) - p_predictedPlayerState->deltaTime;
+                Data->startTime = outStartTime[0];
+                Data->playBackRate = outRate;
               }
             }
           }
-          __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
         }
         else
         {
-          Com_PrintError(29, "Scriptable %s is trying to play animation %s but doesn't have a dobj\n", v15->def->name, animation->animation->name);
+          Com_PrintError(29, "Scriptable %s is trying to play animation %s but doesn't have a dobj\n", v12->def->name, animation->animation->name);
           ScriptableCl_EnterError();
         }
       }
     }
     else if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FAST_LAND|WEAPON_OFFHAND_END|0x80) )
     {
-      Data = ScriptableCl_StateEventAnimationGetData(v15, animation);
-      Data->serverTime = ScriptableCl_GetFrameServerTime(localClientNum) - p_predictedPlayerState->deltaTime;
-      Data->startTime = animation->startTimeMin;
-      Data->playBackRate = animation->playbackRateMin;
+      v13 = ScriptableCl_StateEventAnimationGetData(v12, animation);
+      v13->serverTime = ScriptableCl_GetFrameServerTime(localClientNum) - p_predictedPlayerState->deltaTime;
+      v13->startTime = animation->startTimeMin;
+      v13->playBackRate = animation->playbackRateMin;
     }
   }
 }
@@ -3930,209 +3575,130 @@ ScriptableCl_RunStateEventApplyAngularForce
 */
 void ScriptableCl_RunStateEventApplyAngularForce(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, const ScriptableEventApplyAngularForceDef *applyAngularForce)
 {
-  __int32 v14; 
+  __int32 v8; 
   unsigned int PhysInstanceId; 
   unsigned int scriptableIndex; 
-  bool v36; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v21; 
   signed int NumRigidBodys; 
   signed int i; 
   unsigned int m_serialAndIndex; 
-  __int64 v74; 
+  __int64 v27; 
   hknpBodyId result; 
   vec3_t outOrigin; 
-  __int64 v77; 
+  __int64 v30; 
   vec3_t angles; 
   vec3_t torqueVector; 
   tmat33_t<vec3_t> axis; 
-  char v81; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v77 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RBX = applyAngularForce;
-  v14 = 3 * localClientNum + 3;
+  v30 = -2i64;
+  v8 = 3 * localClientNum + 3;
   PhysInstanceId = ScriptableCl_GetPhysInstanceId(localClientNum, eventParams->scriptableIndex);
   if ( PhysInstanceId == -1 )
   {
     if ( applyAngularForce->randomRange )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+18h]; max
-        vmovss  xmm0, dword ptr [rbx+0Ch]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+1Ch]; max
-        vmovss  xmm0, dword ptr [rbx+10h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+20h]; max
-        vmovss  xmm0, dword ptr [rbx+14h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+      BG_flrand(applyAngularForce->forceVector.v[0], applyAngularForce->forceVector2.v[0], holdrand);
+      BG_flrand(applyAngularForce->forceVector.v[1], applyAngularForce->forceVector2.v[1], holdrand);
+      BG_flrand(applyAngularForce->forceVector.v[2], applyAngularForce->forceVector2.v[2], holdrand);
     }
   }
   else
   {
     CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-    if ( !Physics_IsInstanceInWorld((Physics_WorldId)v14, PhysInstanceId, 0) )
-      Physics_AddPendingBodies((Physics_WorldId)v14);
+    if ( !Physics_IsInstanceInWorld((Physics_WorldId)v8, PhysInstanceId, 0) )
+      Physics_AddPendingBodies((Physics_WorldId)v8);
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     scriptableIndex = eventParams->scriptableIndex;
-    _RAX = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+128h+angles], xmm0
-      vmovss  xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+128h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rax+34h]
-      vmovss  dword ptr [rsp+128h+angles+8], xmm0
-    }
-    ScriptableInstanceContextSecure::GetOrigin(_RAX, scriptableIndex, &outOrigin);
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    angles = InstanceCommonContext->angles;
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
     AnglesToAxis(&angles, &axis);
     if ( applyAngularForce->randomRange )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+18h]; max
-        vmovss  xmm0, dword ptr [rbx+0Ch]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm1, dword ptr [rbx+1Ch]; max
-        vmovss  xmm0, dword ptr [rbx+10h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovss  xmm1, dword ptr [rbx+20h]; max
-        vmovss  xmm0, dword ptr [rbx+14h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm5, xmm0 }
+      v12 = LODWORD(applyAngularForce->forceVector.v[0]);
+      *(double *)&v12 = BG_flrand(*(float *)&v12, applyAngularForce->forceVector2.v[0], holdrand);
+      v13 = v12;
+      v14 = LODWORD(applyAngularForce->forceVector.v[1]);
+      *(double *)&v14 = BG_flrand(*(float *)&v14, applyAngularForce->forceVector2.v[1], holdrand);
+      v15 = v14;
+      *(double *)&v14 = BG_flrand(applyAngularForce->forceVector.v[2], applyAngularForce->forceVector2.v[2], holdrand);
+      v16 = *(float *)&v14;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+0Ch]
-        vmovss  xmm7, dword ptr [rbx+10h]
-        vmovss  xmm5, dword ptr [rbx+14h]
-      }
+      v13 = LODWORD(applyAngularForce->forceVector.v[0]);
+      v15 = LODWORD(applyAngularForce->forceVector.v[1]);
+      v16 = applyAngularForce->forceVector.v[2];
     }
-    v36 = !applyAngularForce->worldSpace;
     if ( applyAngularForce->worldSpace )
     {
-      __asm
-      {
-        vmovaps xmm8, xmm6
-        vmovaps xmm9, xmm7
-      }
+      v17 = *(float *)&v13;
+      v18 = v15;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm2, xmm6, dword ptr [rsp+128h+axis]
-        vmulss  xmm1, xmm7, dword ptr [rsp+128h+axis+0Ch]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm5, dword ptr [rsp+128h+axis+18h]
-        vaddss  xmm8, xmm3, xmm0
-        vmulss  xmm4, xmm6, dword ptr [rsp+128h+axis+4]
-        vmulss  xmm0, xmm7, dword ptr [rsp+128h+axis+10h]
-        vaddss  xmm3, xmm4, xmm0
-        vmulss  xmm1, xmm5, dword ptr [rsp+128h+axis+1Ch]
-        vaddss  xmm9, xmm3, xmm1
-        vmulss  xmm4, xmm6, dword ptr [rsp+128h+axis+8]
-        vmulss  xmm1, xmm7, dword ptr [rsp+128h+axis+14h]
-        vaddss  xmm3, xmm4, xmm1
-        vmulss  xmm0, xmm5, dword ptr [rsp+128h+axis+20h]
-        vaddss  xmm5, xmm3, xmm0
-      }
+      v17 = (float)((float)(*(float *)&v13 * axis.m[0].v[0]) + (float)(*(float *)&v15 * axis.m[1].v[0])) + (float)(v16 * axis.m[2].v[0]);
+      v19 = v13;
+      *(float *)&v19 = (float)((float)(*(float *)&v13 * axis.m[0].v[1]) + (float)(*(float *)&v15 * axis.m[1].v[1])) + (float)(v16 * axis.m[2].v[1]);
+      v18 = v19;
+      v16 = (float)((float)(*(float *)&v13 * axis.m[0].v[2]) + (float)(*(float *)&v15 * axis.m[1].v[2])) + (float)(v16 * axis.m[2].v[2]);
     }
+    v21 = v18;
+    *(float *)&v21 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(v17 * v17)) + (float)(v16 * v16));
+    _XMM6 = v21;
     __asm
     {
-      vmulss  xmm1, xmm9, xmm9
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
       vcmpless xmm0, xmm6, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm6, xmm2, xmm0
-      vmovss  [rsp+128h+result.m_serialAndIndex], xmm1
-      vdivss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rsp+128h+torqueVector], xmm0
-      vmulss  xmm1, xmm9, xmm2
-      vmovss  dword ptr [rsp+128h+torqueVector+4], xmm1
-      vmulss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rsp+128h+torqueVector+8], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm6, xmm1
     }
-    if ( !v36 )
+    result.m_serialAndIndex = _XMM1;
+    torqueVector.v[0] = (float)(1.0 / *(float *)&_XMM1) * v17;
+    torqueVector.v[1] = *(float *)&v18 * (float)(1.0 / *(float *)&_XMM1);
+    torqueVector.v[2] = (float)(1.0 / *(float *)&_XMM1) * v16;
+    if ( *(float *)&v21 != 0.0 )
     {
       CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-      NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v14, PhysInstanceId);
+      NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, PhysInstanceId);
       for ( i = 0; i < NumRigidBodys; ++i )
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v14 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v74) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v74) )
+          LODWORD(v27) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v27) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v14 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v74) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v74) )
+          LODWORD(v27) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v27) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v14 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v74) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v74) )
+          LODWORD(v27) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v27) )
             __debugbreak();
         }
-        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v14, PhysInstanceId, i)->m_serialAndIndex;
+        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, PhysInstanceId, i)->m_serialAndIndex;
         if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4363, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
           __debugbreak();
-        if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v14, m_serialAndIndex) )
-        {
-          __asm { vmovaps xmm3, xmm6; magnitude }
-          Physics_ApplyAngularImpulse((Physics_WorldId)v14, m_serialAndIndex, &torqueVector, *(float *)&_XMM3);
-        }
+        if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v8, m_serialAndIndex) )
+          Physics_ApplyAngularImpulse((Physics_WorldId)v8, m_serialAndIndex, &torqueVector, *(float *)&v21);
       }
       CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     }
     memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v81;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -4143,131 +3709,85 @@ ScriptableCl_RunStateEventApplyConstantForce
 */
 void ScriptableCl_RunStateEventApplyConstantForce(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, const ScriptableEventApplyConstantForceDef *applyConstantForce)
 {
-  bool v15; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
+  float v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  float v18; 
+  double v19; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   __int64 eventStreamBufferOffsetClient; 
-  ScriptableInstanceContextSecure *v39; 
+  ScriptableInstanceContextSecure *v22; 
+  __int64 v23; 
   unsigned __int64 eventStreamBufferSize; 
-  char v52; 
-  void *retaddr; 
+  unsigned __int8 *eventStreamBuffer; 
 
-  _RAX = &retaddr;
-  __asm
+  v8 = 0.0;
+  if ( !applyConstantForce->randomRange )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  v15 = !applyConstantForce->randomRange;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
-  if ( v15 )
-  {
-    __asm { vxorps  xmm12, xmm12, xmm12 }
+    v10 = 0.0;
     goto LABEL_9;
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm1, xmm7; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm { vmovaps xmm12, xmm0 }
+  v9 = BG_flrand(0.0, 1.0, holdrand);
+  v10 = *(float *)&v9;
   if ( !applyConstantForce->randomRange )
   {
 LABEL_9:
-    __asm { vxorps  xmm11, xmm11, xmm11 }
+    v12 = 0.0;
     goto LABEL_10;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm { vmovaps xmm11, xmm0 }
+  v11 = BG_flrand(0.0, 1.0, holdrand);
+  v12 = *(float *)&v11;
   if ( !applyConstantForce->randomRange )
   {
 LABEL_10:
-    __asm { vxorps  xmm10, xmm10, xmm10 }
+    v14 = 0.0;
     goto LABEL_11;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm { vmovaps xmm10, xmm0 }
+  v13 = BG_flrand(0.0, 1.0, holdrand);
+  v14 = *(float *)&v13;
   if ( !applyConstantForce->randomRange )
   {
 LABEL_11:
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v16 = 0.0;
     goto LABEL_12;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm { vmovaps xmm9, xmm0 }
+  v15 = BG_flrand(0.0, 1.0, holdrand);
+  v16 = *(float *)&v15;
   if ( !applyConstantForce->randomRange )
   {
 LABEL_12:
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v18 = 0.0;
     goto LABEL_13;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; max
-    vxorps  xmm0, xmm0, xmm0; min
-  }
-  *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-  __asm { vmovaps xmm8, xmm0 }
+  v17 = BG_flrand(0.0, 1.0, holdrand);
+  v18 = *(float *)&v17;
   if ( applyConstantForce->randomRange )
   {
-    __asm
-    {
-      vmovaps xmm1, xmm7; max
-      vxorps  xmm0, xmm0, xmm0; min
-    }
-    *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-    __asm { vmovaps xmm6, xmm0 }
+    v19 = BG_flrand(0.0, 1.0, holdrand);
+    v8 = *(float *)&v19;
   }
 LABEL_13:
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
   eventStreamBufferOffsetClient = applyConstantForce->eventStreamBufferOffsetClient;
-  v39 = InstanceCommonContext;
-  __asm { vmovaps xmm7, [rsp+0C8h+var_28] }
-  _RBX = eventStreamBufferOffsetClient;
+  v22 = InstanceCommonContext;
+  v23 = eventStreamBufferOffsetClient;
   eventStreamBufferSize = InstanceCommonContext->eventStreamBufferSize;
   if ( eventStreamBufferOffsetClient + 24 > eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4395, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 6 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "%s <= %s\n\t%i, %i", "eventBufferOffset + 6 * sizeof( float )", "r_context.eventStreamBufferSize", eventStreamBufferOffsetClient + 24, eventStreamBufferSize) )
     __debugbreak();
-  _RAX = v39->eventStreamBuffer;
-  _R11 = &v52;
-  __asm
-  {
-    vmovss  dword ptr [rbx+rax], xmm12
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovss  dword ptr [rbx+rax+4], xmm11
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovss  dword ptr [rbx+rax+8], xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rbx+rax+0Ch], xmm9
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rbx+rax+10h], xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rbx+rax+14h], xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
-  }
+  eventStreamBuffer = v22->eventStreamBuffer;
+  *(float *)&eventStreamBuffer[v23] = v10;
+  *(float *)&eventStreamBuffer[v23 + 4] = v12;
+  *(float *)&eventStreamBuffer[v23 + 8] = v14;
+  *(float *)&eventStreamBuffer[v23 + 12] = v16;
+  *(float *)&eventStreamBuffer[v23 + 16] = v18;
+  *(float *)&eventStreamBuffer[v23 + 20] = v8;
 }
 
 /*
@@ -4277,281 +3797,149 @@ ScriptableCl_RunStateEventApplyForce
 */
 void ScriptableCl_RunStateEventApplyForce(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, const ScriptableEventApplyForceDef *applyForce)
 {
-  __int32 v17; 
+  __int32 v8; 
   unsigned int PhysInstanceId; 
   unsigned int scriptableIndex; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v27; 
   signed int NumRigidBodys; 
   signed int i; 
   unsigned int m_serialAndIndex; 
-  float fmt; 
-  __int64 v117; 
+  __int64 v33; 
   hknpBodyId result; 
   vec3_t outOrigin; 
-  __int64 v120; 
+  __int64 v36; 
   tmat33_t<vec3_t> axis; 
   vec3_t angles; 
   vec3_t normalizedDirection; 
   vec3_t position; 
-  char v125; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v120 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
-  _RBX = applyForce;
-  v17 = 3 * localClientNum + 3;
+  v36 = -2i64;
+  v8 = 3 * localClientNum + 3;
   PhysInstanceId = ScriptableCl_GetPhysInstanceId(localClientNum, eventParams->scriptableIndex);
   if ( PhysInstanceId == -1 )
   {
     if ( applyForce->randomRange )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+24h]; max
-        vmovss  xmm0, dword ptr [rbx+0Ch]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+28h]; max
-        vmovss  xmm0, dword ptr [rbx+10h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+2Ch]; max
-        vmovss  xmm0, dword ptr [rbx+14h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+30h]; max
-        vmovss  xmm0, dword ptr [rbx+18h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+34h]; max
-        vmovss  xmm0, dword ptr [rbx+1Ch]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+38h]; max
-        vmovss  xmm0, dword ptr [rbx+20h]; min
-      }
-      BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
+      BG_flrand(applyForce->forcePos.v[0], applyForce->forcePos2.v[0], holdrand);
+      BG_flrand(applyForce->forcePos.v[1], applyForce->forcePos2.v[1], holdrand);
+      BG_flrand(applyForce->forcePos.v[2], applyForce->forcePos2.v[2], holdrand);
+      BG_flrand(applyForce->forceVector.v[0], applyForce->forceVector2.v[0], holdrand);
+      BG_flrand(applyForce->forceVector.v[1], applyForce->forceVector2.v[1], holdrand);
+      BG_flrand(applyForce->forceVector.v[2], applyForce->forceVector2.v[2], holdrand);
     }
   }
   else
   {
     CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-    if ( !Physics_IsInstanceInWorld((Physics_WorldId)v17, PhysInstanceId, 0) )
-      Physics_AddPendingBodies((Physics_WorldId)v17);
+    if ( !Physics_IsInstanceInWorld((Physics_WorldId)v8, PhysInstanceId, 0) )
+      Physics_AddPendingBodies((Physics_WorldId)v8);
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     scriptableIndex = eventParams->scriptableIndex;
-    _RAX = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rbp+60h+angles], xmm0
-      vmovss  xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rbp+60h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rax+34h]
-      vmovss  dword ptr [rbp+60h+angles+8], xmm0
-    }
-    ScriptableInstanceContextSecure::GetOrigin(_RAX, scriptableIndex, &outOrigin);
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    angles = InstanceCommonContext->angles;
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
     AnglesToAxis(&angles, &axis);
     if ( applyForce->randomRange )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+24h]; max
-        vmovss  xmm0, dword ptr [rbx+0Ch]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vmovss  xmm1, dword ptr [rbx+28h]; max
-        vmovss  xmm0, dword ptr [rbx+10h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm9, xmm0
-        vmovss  xmm1, dword ptr [rbx+2Ch]; max
-        vmovss  xmm0, dword ptr [rbx+14h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm10, xmm0
-        vmovss  xmm1, dword ptr [rbx+30h]; max
-        vmovss  xmm0, dword ptr [rbx+18h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm1, dword ptr [rbx+34h]; max
-        vmovss  xmm0, dword ptr [rbx+1Ch]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovss  xmm1, dword ptr [rbx+38h]; max
-        vmovss  xmm0, dword ptr [rbx+20h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm4, xmm0 }
+      v12 = BG_flrand(applyForce->forcePos.v[0], applyForce->forcePos2.v[0], holdrand);
+      v13 = *(float *)&v12;
+      v14 = BG_flrand(applyForce->forcePos.v[1], applyForce->forcePos2.v[1], holdrand);
+      v15 = *(float *)&v14;
+      v16 = BG_flrand(applyForce->forcePos.v[2], applyForce->forcePos2.v[2], holdrand);
+      v17 = *(float *)&v16;
+      v18 = LODWORD(applyForce->forceVector.v[0]);
+      *(double *)&v18 = BG_flrand(*(float *)&v18, applyForce->forceVector2.v[0], holdrand);
+      v19 = v18;
+      v20 = LODWORD(applyForce->forceVector.v[1]);
+      *(double *)&v20 = BG_flrand(*(float *)&v20, applyForce->forceVector2.v[1], holdrand);
+      v21 = v20;
+      *(double *)&v20 = BG_flrand(applyForce->forceVector.v[2], applyForce->forceVector2.v[2], holdrand);
+      v22 = *(float *)&v20;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rbx+0Ch]
-        vmovss  xmm9, dword ptr [rbx+10h]
-        vmovss  xmm10, dword ptr [rbx+14h]
-        vmovss  xmm6, dword ptr [rbx+18h]
-        vmovss  xmm7, dword ptr [rbx+1Ch]
-        vmovss  xmm4, dword ptr [rbx+20h]
-      }
+      v13 = applyForce->forcePos.v[0];
+      v15 = applyForce->forcePos.v[1];
+      v17 = applyForce->forcePos.v[2];
+      v19 = LODWORD(applyForce->forceVector.v[0]);
+      v21 = LODWORD(applyForce->forceVector.v[1]);
+      v22 = applyForce->forceVector.v[2];
     }
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+160h+axis+0Ch]
-      vmulss  xmm1, xmm9, xmm3
-      vmovss  xmm11, dword ptr [rsp+160h+axis]
-      vmulss  xmm0, xmm11, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, dword ptr [rsp+160h+axis+18h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+160h+outOrigin]
-      vmovss  dword ptr [rbp+60h+position], xmm2
-      vmovss  xmm5, dword ptr [rsp+160h+axis+10h]
-      vmulss  xmm1, xmm9, xmm5
-      vmovss  xmm13, dword ptr [rsp+160h+axis+4]
-      vmulss  xmm0, xmm13, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, dword ptr [rsp+160h+axis+1Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+160h+outOrigin+4]
-      vmovss  dword ptr [rbp+60h+position+4], xmm2
-      vmulss  xmm1, xmm9, dword ptr [rsp+160h+axis+14h]
-      vmovss  xmm9, dword ptr [rsp+160h+axis+8]
-      vmulss  xmm0, xmm9, xmm8
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, dword ptr [rbp+60h+axis+20h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+160h+outOrigin+8]
-      vmovss  dword ptr [rbp+60h+position+8], xmm2
-    }
+    position.v[0] = (float)((float)((float)(v15 * axis.m[1].v[0]) + (float)(axis.m[0].v[0] * v13)) + (float)(v17 * axis.m[2].v[0])) + outOrigin.v[0];
+    position.v[1] = (float)((float)((float)(v15 * axis.m[1].v[1]) + (float)(axis.m[0].v[1] * v13)) + (float)(v17 * axis.m[2].v[1])) + outOrigin.v[1];
+    position.v[2] = (float)((float)((float)(v15 * axis.m[1].v[2]) + (float)(axis.m[0].v[2] * v13)) + (float)(v17 * axis.m[2].v[2])) + outOrigin.v[2];
     if ( applyForce->worldSpace )
     {
-      __asm
-      {
-        vmovaps xmm5, xmm7
-        vmovaps xmm8, xmm6
-      }
+      v23 = *(float *)&v21;
+      v24 = v19;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm1, xmm7, xmm5
-        vmulss  xmm0, xmm13, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rsp+160h+axis+1Ch]
-        vaddss  xmm5, xmm2, xmm1
-        vmulss  xmm3, xmm7, xmm3
-        vmulss  xmm0, xmm11, xmm6
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rsp+160h+axis+18h]
-        vaddss  xmm8, xmm2, xmm1
-        vmulss  xmm3, xmm7, dword ptr [rsp+160h+axis+14h]
-        vmulss  xmm0, xmm9, xmm6
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rbp+60h+axis+20h]
-        vaddss  xmm4, xmm2, xmm1
-      }
+      v23 = (float)((float)(*(float *)&v21 * axis.m[1].v[1]) + (float)(axis.m[0].v[1] * *(float *)&v19)) + (float)(v22 * axis.m[2].v[1]);
+      v25 = v21;
+      *(float *)&v25 = (float)((float)(*(float *)&v21 * axis.m[1].v[0]) + (float)(axis.m[0].v[0] * *(float *)&v19)) + (float)(v22 * axis.m[2].v[0]);
+      v24 = v25;
+      v22 = (float)((float)(*(float *)&v21 * axis.m[1].v[2]) + (float)(axis.m[0].v[2] * *(float *)&v19)) + (float)(v22 * axis.m[2].v[2]);
     }
+    v27 = v24;
+    *(float *)&v27 = fsqrt((float)((float)(*(float *)&v24 * *(float *)&v24) + (float)(v23 * v23)) + (float)(v22 * v22));
+    _XMM6 = v27;
     __asm
     {
-      vmulss  xmm1, xmm8, xmm8
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
       vcmpless xmm0, xmm6, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm6, xmm2, xmm0
-      vmovss  [rsp+160h+result.m_serialAndIndex], xmm1
-      vdivss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rbp+60h+normalizedDirection], xmm0
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rbp+60h+normalizedDirection+4], xmm1
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rbp+60h+normalizedDirection+8], xmm0
     }
+    result.m_serialAndIndex = _XMM1;
+    normalizedDirection.v[0] = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v24;
+    normalizedDirection.v[1] = v23 * (float)(1.0 / *(float *)&_XMM1);
+    normalizedDirection.v[2] = (float)(1.0 / *(float *)&_XMM1) * v22;
     CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v17, PhysInstanceId);
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, PhysInstanceId);
     for ( i = 0; i < NumRigidBodys; ++i )
     {
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v17 > 7 )
+      if ( (unsigned int)v8 > 7 )
       {
-        LODWORD(v117) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v117) )
+        LODWORD(v33) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v33) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v17 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
       {
-        LODWORD(v117) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v117) )
+        LODWORD(v33) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v33) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v17 <= 1 )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
       {
-        LODWORD(v117) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v117) )
+        LODWORD(v33) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v33) )
           __debugbreak();
       }
-      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v17, PhysInstanceId, i)->m_serialAndIndex;
+      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, PhysInstanceId, i)->m_serialAndIndex;
       if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4262, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
         __debugbreak();
-      if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v17, m_serialAndIndex) )
-      {
-        __asm { vmovss  dword ptr [rsp+160h+fmt], xmm6 }
-        Physics_ApplyImpulse((Physics_WorldId)v17, m_serialAndIndex, &position, &normalizedDirection, fmt);
-      }
+      if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v8, m_serialAndIndex) )
+        Physics_ApplyImpulse((Physics_WorldId)v8, m_serialAndIndex, &position, &normalizedDirection, *(float *)&v27);
     }
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v125;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
   }
 }
 
@@ -5044,22 +4432,28 @@ void ScriptableCl_RunStateEventLight(const LocalClientNum_t localClientNum, cons
   unsigned int scriptableIndex; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   __int64 eventStreamBufferOffsetClient; 
-  Scriptable_EventLight_Data *v16; 
-  char v17; 
-  char v18; 
   cg_t *LocalClientGlobals; 
+  float transitionMax; 
+  float transitionMin; 
+  float v15; 
+  double v16; 
+  float v17; 
+  float radiusMax; 
+  float radiusMin; 
+  double v20; 
+  float v21; 
+  float intensityScaleMax; 
+  float intensityScaleMin; 
+  double v24; 
   GfxWorld *world; 
-  ScriptableInstance *v30; 
-  unsigned int v31; 
-  __int64 v32; 
-  __int64 v33; 
-  GfxLight *v34; 
-  const ComPrimaryLight *v35; 
+  ScriptableInstance *v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  GfxLight *v30; 
+  const ComPrimaryLight *v31; 
   __int64 currentTime; 
   __int64 transitionRand; 
-  float transitionRanda; 
-  float v42; 
-  float v43; 
   ScriptableInstance *outInstance; 
   Scriptable_EventLight_Data *data; 
   int time; 
@@ -5068,110 +4462,81 @@ void ScriptableCl_RunStateEventLight(const LocalClientNum_t localClientNum, cons
   scriptableIndex = eventParams->scriptableIndex;
   if ( MapInstance )
   {
-    __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-    _RBP = light;
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
     eventStreamBufferOffsetClient = light->eventStreamBufferOffsetClient;
     if ( eventStreamBufferOffsetClient + 36 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3323, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    v16 = (Scriptable_EventLight_Data *)&InstanceCommonContext->eventStreamBuffer[eventStreamBufferOffsetClient];
-    __asm { vmovaps [rsp+0B8h+var_58], xmm8 }
-    data = v16;
+    data = (Scriptable_EventLight_Data *)&InstanceCommonContext->eventStreamBuffer[eventStreamBufferOffsetClient];
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbp+34h]; max
-      vmovss  xmm0, dword ptr [rbp+30h]; min
-      vcomiss xmm1, xmm0
-    }
+    transitionMax = light->transitionMax;
+    transitionMin = light->transitionMin;
     time = LocalClientGlobals->time;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( v17 | v18 )
+    v15 = 0.0;
+    if ( transitionMax <= transitionMin )
     {
-      __asm { vxorps  xmm8, xmm8, xmm8 }
+      v17 = 0.0;
     }
     else
     {
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm8, xmm0 }
+      v16 = BG_flrand(transitionMin, transitionMax, holdrand);
+      v17 = *(float *)&v16;
     }
-    __asm
+    radiusMax = light->radiusMax;
+    radiusMin = light->radiusMin;
+    if ( radiusMax <= radiusMin )
     {
-      vmovss  xmm1, dword ptr [rbp+14h]; max
-      vmovss  xmm0, dword ptr [rbp+10h]; min
-      vcomiss xmm1, xmm0
-      vmovaps [rsp+0B8h+var_48], xmm7
-    }
-    if ( v17 | v18 )
-    {
-      __asm { vxorps  xmm7, xmm7, xmm7 }
+      v21 = 0.0;
     }
     else
     {
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm7, xmm0 }
+      v20 = BG_flrand(radiusMin, radiusMax, holdrand);
+      v21 = *(float *)&v20;
     }
-    __asm
+    intensityScaleMax = light->intensityScaleMax;
+    intensityScaleMin = light->intensityScaleMin;
+    if ( intensityScaleMax > intensityScaleMin )
     {
-      vmovss  xmm1, dword ptr [rbp+0Ch]; max
-      vmovss  xmm0, dword ptr [rbp+8]; min
-      vcomiss xmm1, xmm0
-    }
-    if ( !(v17 | v18) )
-    {
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm { vmovaps xmm6, xmm0 }
+      v24 = BG_flrand(intensityScaleMin, intensityScaleMax, holdrand);
+      v15 = *(float *)&v24;
     }
     world = rgp.world;
     if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3366, ASSERT_TYPE_ASSERT, "(curGfxWorld)", (const char *)&queryFormat, "curGfxWorld") )
       __debugbreak();
-    v30 = outInstance;
-    v31 = 0;
-    v32 = 56i64;
+    v26 = outInstance;
+    v27 = 0;
+    v28 = 56i64;
     do
     {
-      v33 = *(unsigned __int16 *)((char *)&v30->initialDef + v32);
-      if ( !*(_WORD *)((char *)&v30->initialDef + v32) )
+      v29 = *(unsigned __int16 *)((char *)&v26->initialDef + v28);
+      if ( !*(_WORD *)((char *)&v26->initialDef + v28) )
         break;
-      if ( (unsigned int)v33 >= world->primaryLightCount )
+      if ( (unsigned int)v29 >= world->primaryLightCount )
       {
         LODWORD(transitionRand) = world->primaryLightCount;
-        LODWORD(currentTime) = *(unsigned __int16 *)((char *)&v30->initialDef + v32);
+        LODWORD(currentTime) = *(unsigned __int16 *)((char *)&v26->initialDef + v28);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3379, ASSERT_TYPE_ASSERT, "(unsigned)( lightIndex ) < (unsigned)( curGfxWorld->primaryLightCount )", "lightIndex doesn't index curGfxWorld->primaryLightCount\n\t%i not in [0, %i)", currentTime, transitionRand) )
           __debugbreak();
       }
-      v34 = &world->primaryLights[v33];
-      if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3381, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
+      v30 = &world->primaryLights[v29];
+      if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3381, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
         __debugbreak();
       if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 49, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
         __debugbreak();
-      if ( (unsigned int)v33 >= comWorld.primaryLightCount )
+      if ( (unsigned int)v29 >= comWorld.primaryLightCount )
       {
         LODWORD(transitionRand) = comWorld.primaryLightCount;
-        LODWORD(currentTime) = v33;
+        LODWORD(currentTime) = v29;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 50, ASSERT_TYPE_ASSERT, "(unsigned)( primaryLightIndex ) < (unsigned)( comWorld.primaryLightCount )", "primaryLightIndex doesn't index comWorld.primaryLightCount\n\t%i not in [0, %i)", currentTime, transitionRand) )
           __debugbreak();
       }
-      v35 = &comWorld.primaryLights[v33];
-      if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3384, ASSERT_TYPE_ASSERT, "(rawLight)", (const char *)&queryFormat, "rawLight") )
+      v31 = &comWorld.primaryLights[v29];
+      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3384, ASSERT_TYPE_ASSERT, "(rawLight)", (const char *)&queryFormat, "rawLight") )
         __debugbreak();
-      __asm
-      {
-        vmovss  [rsp+0B8h+var_78], xmm6
-        vmovss  [rsp+0B8h+var_80], xmm7
-        vmovss  [rsp+0B8h+transitionRand], xmm8
-      }
-      ScriptableCl_RunStateEventLight_Internal(v33, data, light, v34, v35, time, transitionRanda, v42, v43);
-      ++v31;
-      v32 += 2i64;
+      ScriptableCl_RunStateEventLight_Internal(v29, data, light, v30, v31, time, v17, v21, v15);
+      ++v27;
+      v28 += 2i64;
     }
-    while ( v31 < 5 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_48]
-      vmovaps xmm8, [rsp+0B8h+var_58]
-      vmovaps xmm6, [rsp+0B8h+var_38]
-    }
+    while ( v27 < 5 );
   }
   else
   {
@@ -5187,16 +4552,21 @@ ScriptableCl_RunStateEventLight_Internal
 void ScriptableCl_RunStateEventLight_Internal(const unsigned int lightIndex, Scriptable_EventLight_Data *data, const ScriptableEventLightDef *light, GfxLight *refLight, const ComPrimaryLight *rawLight, int currentTime, float transitionRand, float radiusRand, float intensityScaleRand)
 {
   GfxLight *v9; 
+  const ComPrimaryLight *v10; 
   unsigned int entityId; 
-  float v50; 
+  __m256i v15; 
+  __int128 v25; 
+  float v34; 
   RadiantLight *radiantLiveLightRaw; 
   GfxLight *radiantLiveLight; 
-  char v54[16]; 
+  __m256i v37; 
+  __m256i v38; 
+  __m256i v39; 
+  __m256i v40; 
+  __m256i v41; 
 
   v9 = refLight;
-  _RSI = rawLight;
-  _RBP = light;
-  _RDI = data;
+  v10 = rawLight;
   if ( (refLight->flags & 0x10) != 0 )
   {
     entityId = refLight->entityId;
@@ -5204,118 +4574,83 @@ void ScriptableCl_RunStateEventLight_Internal(const unsigned int lightIndex, Scr
     radiantLiveLight = NULL;
     if ( CG_LiveUpdateFindLight(entityId, &radiantLiveLight, &radiantLiveLightRaw) )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymm1, ymmword ptr [rsi+80h]
-      }
+      v15 = *(__m256i *)&rawLight->shadowArea;
       v9 = radiantLiveLight;
-      _RAX = v54;
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+60h]
-        vmovups ymmword ptr [rax+60h], ymm0
-        vmovups ymmword ptr [rax+80h], ymm1
-      }
-      _RAX = radiantLiveLightRaw;
-      _RSI = (const ComPrimaryLight *)v54;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax+14h]
-        vmovss  [rsp+118h+var_88], xmm1
-        vmovss  xmm0, dword ptr [rax+48h]
-        vmovss  [rsp+118h+var_C8], xmm0
-        vmovss  xmm1, dword ptr [rax+30h]
-        vmovss  [rsp+118h+var_B8], xmm1
-        vmovss  xmm0, dword ptr [rax+34h]
-        vmovss  [rsp+118h+var_B4], xmm0
-        vmovss  xmm1, dword ptr [rax+38h]
-        vmovss  [rsp+118h+var_B0], xmm1
-      }
+      v37 = *(__m256i *)&rawLight->spawnFlags;
+      v38 = *(__m256i *)rawLight->colorLinearSrgb.v;
+      v39 = *(__m256i *)&rawLight->up.z;
+      v40 = *(__m256i *)rawLight->bulbLength.v;
+      v41 = v15;
+      v10 = (const ComPrimaryLight *)&v37;
+      v39.m256i_i32[4] = LODWORD(radiantLiveLightRaw->radius);
+      v37.m256i_i32[4] = LODWORD(radiantLiveLightRaw->directIntensity);
+      v38.m256i_i64[0] = *(_QWORD *)radiantLiveLightRaw->directColorLinearSrgb.v;
+      v38.m256i_i32[2] = LODWORD(radiantLiveLightRaw->directColorLinearSrgb.v[2]);
     }
   }
-  __asm { vmovss  xmm1, [rsp+118h+transitionRand] }
-  _RDI->startTime = currentTime;
+  _XMM1 = LODWORD(transitionRand);
+  data->startTime = currentTime;
+  _XMM0 = LODWORD(light->transitionMax);
   __asm
   {
-    vmovss  xmm3, dword ptr [rbp+30h]
-    vmovss  xmm0, dword ptr [rbp+34h]
     vcmpless xmm2, xmm0, xmm3
     vblendvps xmm0, xmm1, xmm3, xmm2
-    vmulss  xmm0, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm0
   }
-  _RDI->transTime = _EAX;
-  if ( _RBP->useColor )
+  data->transTime = (int)(float)(*(float *)&_XMM0 * 1000.0);
+  if ( light->useColor )
   {
-    _RDI->startColorLinearSrgb.v[0] = v9->colorLinearSrgb.v[0];
-    _RDI->startColorLinearSrgb.v[1] = v9->colorLinearSrgb.v[1];
-    _RDI->startColorLinearSrgb.v[2] = v9->colorLinearSrgb.v[2];
+    data->startColorLinearSrgb.v[0] = v9->colorLinearSrgb.v[0];
+    data->startColorLinearSrgb.v[1] = v9->colorLinearSrgb.v[1];
+    data->startColorLinearSrgb.v[2] = v9->colorLinearSrgb.v[2];
   }
   if ( DVARBOOL_scriptable_light_radiusscale->current.enabled )
   {
-    _RDI->startRadius = v9->radius;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+10h]
-      vmovss  xmm0, dword ptr [rbp+14h]
-      vcmpless xmm1, xmm0, xmm2
-      vmovss  xmm0, [rsp+118h+radiusRand]
-      vblendvps xmm3, xmm0, xmm2, xmm1
-      vmovss  dword ptr [rdi+20h], xmm3
-      vmulss  xmm0, xmm3, dword ptr [rsi+50h]
-      vmaxss  xmm1, xmm0, cs:__real@3f8147ae
-      vmovss  [rsp+118h+var_F8], xmm3
-    }
+    data->startRadius = v9->radius;
+    _XMM0 = LODWORD(light->radiusMax);
+    __asm { vcmpless xmm1, xmm0, xmm2 }
+    _XMM0 = LODWORD(radiusRand);
+    __asm { vblendvps xmm3, xmm0, xmm2, xmm1 }
+    data->targetRadius = *(float *)&_XMM3;
+    v25 = _XMM3;
+    *(float *)&v25 = *(float *)&_XMM3 * v10->radius;
+    _XMM0 = v25;
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3f8147ae }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+50h]
-      vmaxss  xmm0, xmm0, cs:__real@3f8147ae
-      vmovss  dword ptr [rdi+1Ch], xmm0
-      vmovss  xmm1, dword ptr [rsi+50h]
-      vmaxss  xmm1, xmm1, cs:__real@3f8147ae
-    }
+    _XMM0 = LODWORD(v10->radius);
+    __asm { vmaxss  xmm0, xmm0, cs:__real@3f8147ae }
+    data->startRadius = *(float *)&_XMM0;
+    _XMM1 = LODWORD(v10->radius);
+    __asm { vmaxss  xmm1, xmm1, cs:__real@3f8147ae }
   }
+  data->targetRadius = *(float *)&_XMM1;
+  _XMM1 = LODWORD(intensityScaleRand);
+  data->startIntensity = v9->intensity;
+  _XMM0 = LODWORD(light->intensityScaleMax);
   __asm
   {
-    vmovss  dword ptr [rdi+20h], xmm1
-    vmovss  xmm1, [rsp+118h+intensityScaleRand]
-  }
-  _RDI->startIntensity = v9->intensity;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0Ch]
-    vmovss  xmm3, dword ptr [rbp+8]
     vcmpless xmm2, xmm0, xmm3
     vblendvps xmm0, xmm1, xmm3, xmm2
-    vmulss  xmm0, xmm0, dword ptr [rsi+10h]
-    vmovss  dword ptr [rdi+18h], xmm0
   }
-  if ( !_RBP->useStateTransitionTime && !CG_EntityWorkers_TryAddScriptableStateEventLightUpdate(lightIndex, _RDI, _RBP, _RSI) )
+  data->targetIntensity = *(float *)&_XMM0 * v10->intensity;
+  if ( !light->useStateTransitionTime && !CG_EntityWorkers_TryAddScriptableStateEventLightUpdate(lightIndex, data, light, v10) )
   {
-    v9->radius = _RDI->targetRadius;
-    v9->intensity = _RDI->targetIntensity;
-    if ( _RBP->useColor )
+    v9->radius = data->targetRadius;
+    v9->intensity = data->targetIntensity;
+    if ( light->useColor )
     {
-      v9->colorLinearSrgb.v[0] = _RBP->colorLinearSrgb.v[0];
-      v9->colorLinearSrgb.v[1] = _RBP->colorLinearSrgb.v[1];
-      v50 = _RBP->colorLinearSrgb.v[2];
+      v9->colorLinearSrgb.v[0] = light->colorLinearSrgb.v[0];
+      v9->colorLinearSrgb.v[1] = light->colorLinearSrgb.v[1];
+      v34 = light->colorLinearSrgb.v[2];
     }
     else
     {
-      v9->colorLinearSrgb.v[0] = _RSI->colorLinearSrgb.v[0];
-      v9->colorLinearSrgb.v[1] = _RSI->colorLinearSrgb.v[1];
-      v50 = _RSI->colorLinearSrgb.v[2];
+      v9->colorLinearSrgb.v[0] = v10->colorLinearSrgb.v[0];
+      v9->colorLinearSrgb.v[1] = v10->colorLinearSrgb.v[1];
+      v34 = v10->colorLinearSrgb.v[2];
     }
-    v9->colorLinearSrgb.v[2] = v50;
+    v9->colorLinearSrgb.v[2] = v34;
   }
 }
 
@@ -5538,28 +4873,18 @@ void ScriptableCl_RunStateEventScreenshake(const LocalClientNum_t localClientNum
   unsigned int scriptableIndex; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   scr_string_t scrTagName; 
+  int v11; 
+  float radius; 
   __int16 freqPitch; 
+  float durationFadeUp; 
+  float durationFadeDown; 
   __int16 pitch; 
   __int16 yaw; 
   __int16 roll; 
-  float allowMissingTag; 
-  float allowMissingTaga; 
-  float v36; 
-  float v37; 
   __int16 freqYaw; 
   vec3_t outOrigin; 
-  char v40; 
-  void *retaddr; 
   __int16 freqRoll; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RDI = screenshake;
   if ( onTime || screenshake->stateful )
   {
     isScreenShake = screenshake->isScreenShake;
@@ -5567,73 +4892,40 @@ void ScriptableCl_RunStateEventScreenshake(const LocalClientNum_t localClientNum
     scriptableIndex = eventParams->scriptableIndex;
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
     ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
-    scrTagName = _RDI->scrTagName;
-    if ( (!scrTagName || ScriptableCl_GetBonePosition(localClientNum, scriptableIndex, scrTagName, &outOrigin, _RDI->allowMissingTag) || _RDI->useRootOnMissingTag) && (isScreenShake || isEarthquake) )
+    scrTagName = screenshake->scrTagName;
+    if ( (!scrTagName || ScriptableCl_GetBonePosition(localClientNum, scriptableIndex, scrTagName, &outOrigin, screenshake->allowMissingTag) || screenshake->useRootOnMissingTag) && (isScreenShake || isEarthquake) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1Ch]
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ebp, xmm1
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, dword ptr [rdi+28h]
-      }
+      v11 = (int)(float)(screenshake->duration * 1000.0);
+      radius = (float)screenshake->radius;
       if ( isScreenShake )
       {
-        freqPitch = 100 * LOWORD(_RDI->frequencyPitch);
-        freqYaw = 100 * LOWORD(_RDI->frequencyYaw);
-        freqRoll = 100 * LOWORD(_RDI->frequencyRoll);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rdi+20h]
-          vmovss  xmm8, dword ptr [rdi+24h]
-        }
-        pitch = 100 * LOWORD(_RDI->scalePitch);
-        yaw = 100 * LOWORD(_RDI->scaleYaw);
-        roll = 100 * LOWORD(_RDI->scaleRoll);
+        freqPitch = 100 * LOWORD(screenshake->frequencyPitch);
+        freqYaw = 100 * LOWORD(screenshake->frequencyYaw);
+        freqRoll = 100 * LOWORD(screenshake->frequencyRoll);
+        durationFadeUp = screenshake->durationFadeUp;
+        durationFadeDown = screenshake->durationFadeDown;
+        pitch = 100 * LOWORD(screenshake->scalePitch);
+        yaw = 100 * LOWORD(screenshake->scaleYaw);
+        roll = 100 * LOWORD(screenshake->scaleRoll);
         if ( isEarthquake )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+2Ch]
-            vmulss  xmm1, xmm0, cs:__real@42c80000
-            vcvttss2si eax, xmm1
-          }
-          pitch = _EAX;
-          yaw = _EAX;
-          roll = _EAX;
+          pitch = (int)(float)(screenshake->scaleEarthquake * 100.0);
+          yaw = pitch;
+          roll = pitch;
         }
         CG_EntityWorkers_EnterCriticalSection();
-        __asm
-        {
-          vmovss  [rsp+0E8h+var_88], xmm8
-          vmovss  [rsp+0E8h+var_90], xmm7
-          vmovss  dword ptr [rsp+0E8h+allowMissingTag], xmm6
-        }
-        CG_StartShakeCameraWithControls(localClientNum, _EBP, 2047, &outOrigin, allowMissingTag, pitch, yaw, roll, freqPitch, freqYaw, freqRoll, v36, v37, isEarthquake);
+        CG_StartShakeCameraWithControls(localClientNum, v11, 2047, &outOrigin, radius, pitch, yaw, roll, freqPitch, freqYaw, freqRoll, durationFadeUp, durationFadeDown, isEarthquake);
       }
       else
       {
         if ( !isEarthquake && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3649, ASSERT_TYPE_ASSERT, "(isEarthquake)", (const char *)&queryFormat, "isEarthquake") )
           __debugbreak();
         CG_EntityWorkers_EnterCriticalSection();
-        __asm
-        {
-          vmovss  dword ptr [rsp+0E8h+allowMissingTag], xmm6
-          vmovss  xmm1, dword ptr [rdi+2Ch]; scale
-        }
-        CG_StartShakeCamera(localClientNum, *(float *)&_XMM1, _EBP, &outOrigin, allowMissingTaga);
+        CG_StartShakeCamera(localClientNum, screenshake->scaleEarthquake, v11, &outOrigin, radius);
       }
       CG_EntityWorkers_LeaveCriticalSection();
     }
     memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -5730,70 +5022,63 @@ ScriptableCl_RunStateEventSpawnDynent
 void ScriptableCl_RunStateEventSpawnDynent(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, const ScriptableEventSpawnDynentDef *spawnDynent)
 {
   unsigned int scriptableIndex; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
   __int64 eventStreamBufferOffsetClient; 
   unsigned __int8 *eventStreamBuffer; 
   scr_string_t scrTagName; 
-  unsigned int v22; 
+  unsigned int v12; 
   unsigned int ReservedDynent; 
-  unsigned int *v30; 
+  unsigned int *v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  float v18; 
+  double v19; 
+  float v20; 
+  double v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  double v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   const ScriptableDamageEvent *damageEvent; 
   XModel *model; 
-  const ScriptableDamageEvent *v106; 
-  bool IsExplosionMOD; 
-  bool v108; 
+  const ScriptableDamageEvent *v31; 
+  const ScriptableDamageEvent *v32; 
+  float v33; 
+  float v34; 
+  __int128 v35; 
+  float v36; 
   DynEntityClient *Client; 
   unsigned int physicsSystemId; 
   cg_t *LocalClientGlobals; 
-  char *fmt; 
-  char *fmta; 
   vec3_t outOrigin; 
-  __int64 v145; 
+  __int64 v44; 
   vec3_t pHoldrand; 
   vec3_t angVel; 
   vec3_t linVel; 
   vec3_t angles; 
   tmat43_t<vec3_t> outTransform; 
-  char v151; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v145 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-  }
+  v44 = -2i64;
   *(_QWORD *)pHoldrand.v = holdrand;
-  _RBX = spawnDynent;
   if ( onTime || spawnDynent->stateful )
   {
     scriptableIndex = eventParams->scriptableIndex;
-    _RDI = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
     eventStreamBufferOffsetClient = spawnDynent->eventStreamBufferOffsetClient;
-    if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)_RDI->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1266, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( uint ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( uint ) <= r_context.eventStreamBufferSize") )
+    if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1266, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( uint ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( uint ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
-    eventStreamBuffer = _RDI->eventStreamBuffer;
+    eventStreamBuffer = InstanceCommonContext->eventStreamBuffer;
     scrTagName = spawnDynent->scrTagName;
-    v22 = scriptableIndex;
+    v12 = scriptableIndex;
     if ( scrTagName )
     {
       if ( ScriptableCl_GetBoneTransform(localClientNum, scriptableIndex, scrTagName, &outTransform, spawnDynent->allowMissingTag) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+80h+outTransform+24h]
-          vmovss  dword ptr [rsp+180h+outOrigin], xmm0
-          vmovss  xmm1, dword ptr [rbp+80h+outTransform+28h]
-          vmovss  dword ptr [rsp+180h+outOrigin+4], xmm1
-          vmovss  xmm0, dword ptr [rbp+80h+outTransform+2Ch]
-          vmovss  dword ptr [rsp+180h+outOrigin+8], xmm0
-        }
+        outOrigin = outTransform.m[3];
         AxisToAngles((const tmat33_t<vec3_t> *)&outTransform, &angles);
         goto LABEL_11;
       }
@@ -5801,20 +5086,12 @@ void ScriptableCl_RunStateEventSpawnDynent(const LocalClientNum_t localClientNum
       {
 LABEL_46:
         memset(&outOrigin, 0, sizeof(outOrigin));
-        goto LABEL_47;
+        return;
       }
-      v22 = scriptableIndex;
+      v12 = scriptableIndex;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rbp+80h+angles], xmm0
-      vmovss  xmm1, dword ptr [rdi+30h]
-      vmovss  dword ptr [rbp+80h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+34h]
-      vmovss  dword ptr [rbp+80h+angles+8], xmm0
-    }
-    ScriptableInstanceContextSecure::GetOrigin(_RDI, v22, &outOrigin);
+    angles = InstanceCommonContext->angles;
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v12, &outOrigin);
     AnglesAndOriginToMatrix43(&angles, &outOrigin, &outTransform);
 LABEL_11:
     ScriptableCommon_AssertCountsInitialized();
@@ -5822,151 +5099,65 @@ LABEL_11:
       ReservedDynent = *(_DWORD *)&eventStreamBuffer[eventStreamBufferOffsetClient];
     else
       ReservedDynent = ScriptableCl_GetReservedDynent(localClientNum);
-    v30 = *(unsigned int **)pHoldrand.v;
+    v14 = *(unsigned int **)pHoldrand.v;
     if ( spawnDynent->randomRangeLinVel )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+44h]; max
-        vmovss  xmm0, dword ptr [rbx+2Ch]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, *(unsigned int **)pHoldrand.v);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vmovss  xmm1, dword ptr [rbx+48h]; max
-        vmovss  xmm0, dword ptr [rbx+30h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v30);
-      __asm
-      {
-        vmovaps xmm9, xmm0
-        vmovss  xmm1, dword ptr [rbx+4Ch]; max
-        vmovss  xmm0, dword ptr [rbx+34h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v30);
-      __asm { vmovaps xmm10, xmm0 }
+      v15 = BG_flrand(spawnDynent->launchLinVel.v[0], spawnDynent->launchLinVel2.v[0], *(unsigned int **)pHoldrand.v);
+      v16 = *(float *)&v15;
+      v17 = BG_flrand(spawnDynent->launchLinVel.v[1], spawnDynent->launchLinVel2.v[1], v14);
+      v18 = *(float *)&v17;
+      v19 = BG_flrand(spawnDynent->launchLinVel.v[2], spawnDynent->launchLinVel2.v[2], v14);
+      v20 = *(float *)&v19;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rbx+2Ch]
-        vmovss  xmm9, dword ptr [rbx+30h]
-        vmovss  xmm10, dword ptr [rbx+34h]
-      }
+      v16 = spawnDynent->launchLinVel.v[0];
+      v18 = spawnDynent->launchLinVel.v[1];
+      v20 = spawnDynent->launchLinVel.v[2];
     }
     if ( spawnDynent->randomRangeAngVel )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+50h]; max
-        vmovss  xmm0, dword ptr [rbx+38h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v30);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm1, dword ptr [rbx+54h]; max
-        vmovss  xmm0, dword ptr [rbx+3Ch]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v30);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovss  xmm1, dword ptr [rbx+58h]; max
-        vmovss  xmm0, dword ptr [rbx+40h]; min
-      }
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v30);
-      __asm { vmovaps xmm4, xmm0 }
+      v21 = BG_flrand(spawnDynent->launchAngVel.v[0], spawnDynent->launchAngVel2.v[0], v14);
+      v22 = *(float *)&v21;
+      v23 = BG_flrand(spawnDynent->launchAngVel.v[1], spawnDynent->launchAngVel2.v[1], v14);
+      v24 = *(float *)&v23;
+      v25 = BG_flrand(spawnDynent->launchAngVel.v[2], spawnDynent->launchAngVel2.v[2], v14);
+      v26 = *(float *)&v25;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+38h]
-        vmovss  xmm7, dword ptr [rbx+3Ch]
-        vmovss  xmm4, dword ptr [rbx+40h]
-      }
+      v22 = spawnDynent->launchAngVel.v[0];
+      v24 = spawnDynent->launchAngVel.v[1];
+      v26 = spawnDynent->launchAngVel.v[2];
     }
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbp+80h+outTransform+20h]
-      vmovss  xmm13, dword ptr [rbp+80h+outTransform+14h]
-      vmovss  xmm14, dword ptr [rbp+80h+outTransform+10h]
-      vmovss  xmm15, dword ptr [rbp+80h+outTransform+0Ch]
-      vmovss  xmm3, dword ptr [rbp+80h+outTransform+4]
-      vmovss  xmm0, dword ptr [rbp+80h+outTransform]
-    }
+    v27 = outTransform.m[0].v[1];
+    v28 = outTransform.m[0].v[0];
     if ( spawnDynent->worldSpaceLinVel )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+180h+var_108], xmm8
-        vmovss  dword ptr [rsp+180h+var_108+4], xmm9
-        vmovss  dword ptr [rbp+80h+var_108+8], xmm10
-      }
+      linVel.v[0] = v16;
+      linVel.v[1] = v18;
+      linVel.v[2] = v20;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm1, xmm8, xmm0
-        vmulss  xmm0, xmm15, xmm9
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm10, dword ptr [rbp+80h+outTransform+18h]
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+180h+var_108], xmm2
-        vmulss  xmm3, xmm8, xmm3
-        vmulss  xmm0, xmm14, xmm9
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm10, dword ptr [rbp+80h+outTransform+1Ch]
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+180h+var_108+4], xmm2
-        vmulss  xmm3, xmm8, dword ptr [rbp+80h+outTransform+8]
-        vmulss  xmm0, xmm13, xmm9
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm10, xmm5
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rbp+80h+var_108+8], xmm2
-        vmovss  xmm3, dword ptr [rbp+80h+outTransform+4]
-        vmovss  xmm0, dword ptr [rbp+80h+outTransform]
-      }
+      linVel.v[0] = (float)((float)(v16 * outTransform.m[0].v[0]) + (float)(outTransform.m[1].v[0] * v18)) + (float)(v20 * outTransform.m[2].v[0]);
+      linVel.v[1] = (float)((float)(v16 * outTransform.m[0].v[1]) + (float)(outTransform.m[1].v[1] * v18)) + (float)(v20 * outTransform.m[2].v[1]);
+      linVel.v[2] = (float)((float)(v16 * outTransform.m[0].v[2]) + (float)(outTransform.m[1].v[2] * v18)) + (float)(v20 * outTransform.m[2].v[2]);
+      v27 = outTransform.m[0].v[1];
+      v28 = outTransform.m[0].v[0];
     }
     if ( spawnDynent->worldSpaceAngVel )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+180h+var_118], xmm6
-        vmovss  dword ptr [rsp+180h+var_118+4], xmm7
-        vmovss  dword ptr [rsp+180h+var_118+8], xmm4
-      }
+      angVel.v[0] = v22;
+      angVel.v[1] = v24;
+      angVel.v[2] = v26;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm1, xmm6, xmm0
-        vmulss  xmm0, xmm15, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rbp+80h+outTransform+18h]
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+180h+var_118], xmm2
-        vmulss  xmm3, xmm6, xmm3
-        vmulss  xmm0, xmm14, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rbp+80h+outTransform+1Ch]
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+180h+var_118+4], xmm2
-        vmulss  xmm3, xmm6, dword ptr [rbp+80h+outTransform+8]
-        vmulss  xmm0, xmm13, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, xmm5
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsp+180h+var_118+8], xmm2
-      }
+      angVel.v[0] = (float)((float)(v22 * v28) + (float)(outTransform.m[1].v[0] * v24)) + (float)(v26 * outTransform.m[2].v[0]);
+      angVel.v[1] = (float)((float)(v22 * v27) + (float)(outTransform.m[1].v[1] * v24)) + (float)(v26 * outTransform.m[2].v[1]);
+      angVel.v[2] = (float)((float)(v22 * outTransform.m[0].v[2]) + (float)(outTransform.m[1].v[2] * v24)) + (float)(v26 * outTransform.m[2].v[2]);
     }
-    __asm { vxorps  xmm8, xmm8, xmm8 }
     if ( spawnDynent->allowCauseVelocity )
     {
       damageEvent = eventParams->damageEvent;
@@ -5974,15 +5165,12 @@ LABEL_11:
       {
         if ( !BG_IsExplosionMOD((meansOfDeath_t)damageEvent->mod) )
         {
-          __asm
-          {
-            vmovss  dword ptr [rsp+180h+var_108], xmm8
-            vmovss  dword ptr [rsp+180h+var_108+4], xmm8
-            vmovss  dword ptr [rbp+80h+var_108+8], xmm8
-            vmovss  dword ptr [rsp+180h+var_118], xmm8
-            vmovss  dword ptr [rsp+180h+var_118+4], xmm8
-            vmovss  dword ptr [rsp+180h+var_118+8], xmm8
-          }
+          linVel.v[0] = 0.0;
+          linVel.v[1] = 0.0;
+          linVel.v[2] = 0.0;
+          angVel.v[0] = 0.0;
+          angVel.v[1] = 0.0;
+          angVel.v[2] = 0.0;
         }
       }
     }
@@ -5995,42 +5183,27 @@ LABEL_11:
         DynEnt_ScriptablePhysicsLaunch(localClientNum, ReservedDynent, spawnDynent->model, &outOrigin, &angles, &linVel, &angVel);
         if ( spawnDynent->allowCauseVelocity )
         {
-          v106 = eventParams->damageEvent;
-          if ( v106 )
+          v31 = eventParams->damageEvent;
+          if ( v31 )
           {
-            IsExplosionMOD = BG_IsExplosionMOD((meansOfDeath_t)v106->mod);
-            v108 = !IsExplosionMOD;
-            if ( !IsExplosionMOD )
+            if ( !BG_IsExplosionMOD((meansOfDeath_t)v31->mod) )
             {
-              _RAX = eventParams->damageEvent;
+              v32 = eventParams->damageEvent;
+              v33 = v32->end.v[0] - v32->start.v[0];
+              v35 = LODWORD(v32->end.v[1]);
+              v34 = v32->end.v[1] - v32->start.v[1];
+              v36 = v32->end.v[2] - v32->start.v[2];
+              *(float *)&v35 = fsqrt((float)((float)(v34 * v34) + (float)(v33 * v33)) + (float)(v36 * v36));
+              _XMM4 = v35;
               __asm
               {
-                vmovss  xmm0, dword ptr [rax+44h]
-                vsubss  xmm5, xmm0, dword ptr [rax+38h]
-                vmovss  xmm1, dword ptr [rax+48h]
-                vsubss  xmm6, xmm1, dword ptr [rax+3Ch]
-                vmovss  xmm0, dword ptr [rax+4Ch]
-                vsubss  xmm7, xmm0, dword ptr [rax+40h]
-                vmulss  xmm2, xmm6, xmm6
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm7, xmm7
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm4, xmm2, xmm2
                 vcmpless xmm0, xmm4, cs:__real@80000000
-                vmovss  xmm2, cs:__real@3f800000
                 vblendvps xmm1, xmm4, xmm2, xmm0
-                vmovss  dword ptr [rsp+180h+pHoldrand], xmm1
-                vdivss  xmm2, xmm2, xmm1
-                vmulss  xmm0, xmm5, xmm2
-                vmovss  dword ptr [rsp+180h+pHoldrand], xmm0
-                vmulss  xmm1, xmm6, xmm2
-                vmovss  dword ptr [rsp+180h+pHoldrand+4], xmm1
-                vmulss  xmm0, xmm2, xmm7
-                vmovss  [rsp+180h+var_120], xmm0
-                vcomiss xmm4, xmm8
               }
-              if ( !v108 )
+              pHoldrand.v[0] = v33 * (float)(1.0 / *(float *)&_XMM1);
+              pHoldrand.v[1] = v34 * (float)(1.0 / *(float *)&_XMM1);
+              pHoldrand.v[2] = (float)(1.0 / *(float *)&_XMM1) * v36;
+              if ( *(float *)&v35 > 0.0 )
               {
                 Client = DynEnt_GetClient(localClientNum, ReservedDynent, DYNENT_BASIS_MODEL);
                 if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1390, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
@@ -6054,51 +5227,14 @@ LABEL_11:
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+180h+outOrigin+8]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovss  xmm3, dword ptr [rsp+180h+outOrigin+4]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovss  xmm2, dword ptr [rsp+180h+outOrigin]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+180h+fmt], xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-        }
-        Com_PrintWarning(14, "A scriptable attempted to spawn a dynent at [%.2f, %.2f, %.2f] with a model %s with no physics asset\n", _R8, _R9, fmta, model->name);
+        Com_PrintWarning(14, "A scriptable attempted to spawn a dynent at [%.2f, %.2f, %.2f] with a model %s with no physics asset\n", outOrigin.v[0], outOrigin.v[1], outOrigin.v[2], model->name);
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+180h+outOrigin+8]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovss  xmm3, dword ptr [rsp+180h+outOrigin+4]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovss  xmm2, dword ptr [rsp+180h+outOrigin]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+180h+fmt], xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning((unsigned __int8)model + 14, "A scriptable attempted to spawn a dynent at [%.2f, %.2f, %.2f] with no model\n", _R8, _R9, fmt);
+      Com_PrintWarning(14, "A scriptable attempted to spawn a dynent at [%.2f, %.2f, %.2f] with no model\n", outOrigin.v[0], outOrigin.v[1], outOrigin.v[2]);
     }
     goto LABEL_46;
-  }
-LABEL_47:
-  _R11 = &v151;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-70h]
-    vmovaps xmm15, xmmword ptr [r11-80h]
   }
 }
 
@@ -6109,150 +5245,103 @@ ScriptableCl_RunStateEventSun
 */
 void ScriptableCl_RunStateEventSun(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, const ScriptableEventSunDef *sun)
 {
-  cg_t *LocalClientGlobals; 
-  bool v10; 
+  MapEnts *mapEnts; 
+  __int64 v7; 
   int time; 
-  char v23; 
-  bool v24; 
-  double v27; 
-  double v30; 
+  float transitionMax; 
+  double v10; 
+  float v11; 
+  float intensityOverrideMax; 
+  double v13; 
+  float pitchMax; 
+  double v15; 
+  double v16; 
+  float headingMax; 
+  double v18; 
   float sunIntensityOut; 
   vec3_t sunColorLinearSrgbOut; 
   vec3_t forward; 
   vec3_t sunDirOut; 
 
-  _RBX = sun;
-  _RSI = cm.mapEnts;
-  _RDI = localClientNum;
-  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v10 = !sun->useStateTransitionTime;
-  time = LocalClientGlobals->time;
+  mapEnts = cm.mapEnts;
+  v7 = localClientNum;
+  time = CG_GetLocalClientGlobals(localClientNum)->time;
   if ( sun->useStateTransitionTime )
   {
-    _RSI->scriptableMapEnts.sunClientDatas[_RDI].startTime = time;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+30h]; max
-      vmovss  xmm0, dword ptr [rbx+2Ch]; min
-      vcomiss xmm1, xmm0
-    }
-    if ( v10 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@447a0000
-        vcvttss2si eax, xmm0
-      }
-    }
-    else
-    {
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si eax, xmm1
-      }
-    }
-    _RSI->scriptableMapEnts.sunClientDatas[_RDI].transTime = _EAX;
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].startTime = time;
+    transitionMax = sun->transitionMax;
+    *(float *)&v10 = sun->transitionMin;
+    if ( transitionMax > *(float *)&v10 )
+      v10 = BG_flrand(*(float *)&v10, transitionMax, holdrand);
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].transTime = (int)(float)(*(float *)&v10 * 1000.0);
   }
   if ( sun->useColor )
   {
     if ( R_GetSunColorOverride(&sunColorLinearSrgbOut) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+sunColorLinearSrgbOut]
-        vmovss  xmm1, dword ptr [rsp+88h+sunColorLinearSrgbOut+4]
-        vmovss  dword ptr [rdi+rsi+240h], xmm0
-        vmovss  xmm0, dword ptr [rsp+88h+sunColorLinearSrgbOut+8]
-        vmovss  dword ptr [rdi+rsi+248h], xmm0
-        vmovss  dword ptr [rdi+rsi+244h], xmm1
-      }
+      v11 = sunColorLinearSrgbOut.v[1];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startColorLinearSrgb.v[0] = sunColorLinearSrgbOut.v[0];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startColorLinearSrgb.v[2] = sunColorLinearSrgbOut.v[2];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startColorLinearSrgb.v[1] = v11;
     }
     else
     {
-      *(_QWORD *)_RSI->scriptableMapEnts.sunClientDatas[_RDI].startColorLinearSrgb.v = *(_QWORD *)sun->colorLinearSrgb.v;
-      _RSI->scriptableMapEnts.sunClientDatas[_RDI].startColorLinearSrgb.v[2] = sun->colorLinearSrgb.v[2];
+      *(_QWORD *)mapEnts->scriptableMapEnts.sunClientDatas[v7].startColorLinearSrgb.v = *(_QWORD *)sun->colorLinearSrgb.v;
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startColorLinearSrgb.v[2] = sun->colorLinearSrgb.v[2];
     }
   }
   if ( sun->useIntensity )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+10h]; max
-      vmovss  xmm0, dword ptr [rbx+0Ch]; min
-      vcomiss xmm1, xmm0
-    }
-    if ( sun->useIntensity )
-      *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-    __asm { vmovss  dword ptr [rdi+rsi+250h], xmm0 }
+    intensityOverrideMax = sun->intensityOverrideMax;
+    *(float *)&v13 = sun->intensityOverrideMin;
+    if ( intensityOverrideMax > *(float *)&v13 )
+      v13 = BG_flrand(*(float *)&v13, intensityOverrideMax, holdrand);
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].targetIntensity = *(float *)&v13;
     if ( R_GetSunIntensityOverride(&sunIntensityOut) )
-    {
-      __asm
-      {
-        vmovss  xmm0, [rsp+88h+sunIntensityOut]
-        vmovss  dword ptr [rdi+rsi+24Ch], xmm0
-      }
-    }
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startIntensity = sunIntensityOut;
     else
-    {
-      _RSI->scriptableMapEnts.sunClientDatas[_RDI].startIntensity = _RSI->scriptableMapEnts.sunClientDatas[_RDI].targetIntensity;
-    }
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startIntensity = mapEnts->scriptableMapEnts.sunClientDatas[v7].targetIntensity;
   }
-  v23 = 0;
-  v24 = !sun->useDirection;
   if ( sun->useDirection )
   {
-    __asm
+    pitchMax = sun->pitchMax;
+    *(float *)&v15 = sun->pitchMin;
+    if ( pitchMax > *(float *)&v15 )
     {
-      vmovss  xmm1, dword ptr [rbx+38h]; max
-      vmovss  xmm0, dword ptr [rbx+34h]; min
-      vcomiss xmm1, xmm0
+      v16 = BG_flrand(*(float *)&v15, pitchMax, holdrand);
+      v15 = AngleNormalize360(*(const float *)&v16);
     }
-    if ( sun->useDirection )
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[0] = *(float *)&v15;
+    headingMax = sun->headingMax;
+    *(float *)&v15 = sun->headingMin;
+    if ( headingMax > *(float *)&v15 )
     {
-      v27 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&v27);
+      v18 = BG_flrand(*(float *)&v15, headingMax, holdrand);
+      v15 = AngleNormalize360(*(const float *)&v18);
     }
-    __asm
-    {
-      vmovss  dword ptr [rdi+rsi+260h], xmm0
-      vmovss  xmm1, dword ptr [rbx+40h]; max
-      vmovss  xmm0, dword ptr [rbx+3Ch]; min
-      vcomiss xmm1, xmm0
-    }
-    if ( !(v23 | v24) )
-    {
-      v30 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, holdrand);
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&v30);
-    }
-    __asm { vmovss  dword ptr [rdi+rsi+264h], xmm0 }
-    _RSI->scriptableMapEnts.sunClientDatas[_RDI].targetAngles.v[2] = 0.0;
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[1] = *(float *)&v15;
+    mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[2] = 0.0;
     if ( R_GetSunDirectionOverride(time, &sunDirOut) )
     {
-      vectoangles(&sunDirOut, &_RSI->scriptableMapEnts.sunClientDatas[_RDI].startAngles);
+      vectoangles(&sunDirOut, &mapEnts->scriptableMapEnts.sunClientDatas[v7].startAngles);
     }
     else
     {
-      _RSI->scriptableMapEnts.sunClientDatas[_RDI].startAngles.v[0] = _RSI->scriptableMapEnts.sunClientDatas[_RDI].targetAngles.v[0];
-      _RSI->scriptableMapEnts.sunClientDatas[_RDI].startAngles.v[1] = _RSI->scriptableMapEnts.sunClientDatas[_RDI].targetAngles.v[1];
-      _RSI->scriptableMapEnts.sunClientDatas[_RDI].startAngles.v[2] = _RSI->scriptableMapEnts.sunClientDatas[_RDI].targetAngles.v[2];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startAngles.v[0] = mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[0];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startAngles.v[1] = mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[1];
+      mapEnts->scriptableMapEnts.sunClientDatas[v7].startAngles.v[2] = mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles.v[2];
     }
   }
   if ( !sun->useStateTransitionTime )
   {
     if ( sun->useDirection )
-      AngleVectors(&_RSI->scriptableMapEnts.sunClientDatas[_RDI].targetAngles, &forward, NULL, NULL);
-    __asm { vmovss  xmm1, dword ptr [rdi+rsi+250h]; intensity }
-    if ( !CG_EntityWorkers_TryAddScriptableStateEventSunUpdate(sun, *(const float *)&_XMM1, &forward) )
+      AngleVectors(&mapEnts->scriptableMapEnts.sunClientDatas[v7].targetAngles, &forward, NULL, NULL);
+    if ( !CG_EntityWorkers_TryAddScriptableStateEventSunUpdate(sun, mapEnts->scriptableMapEnts.sunClientDatas[v7].targetIntensity, &forward) )
     {
       if ( sun->useColor )
         R_SetSunColorOverride((const vec3_t *)&sun->colorLinearSrgb);
       if ( sun->useIntensity )
-      {
-        __asm { vmovss  xmm0, dword ptr [rdi+rsi+250h]; sunIntensity }
-        R_SetSunIntensityOverride(*(const float *)&_XMM0);
-      }
+        R_SetSunIntensityOverride(mapEnts->scriptableMapEnts.sunClientDatas[v7].targetIntensity);
       if ( sun->useDirection )
         R_SetSunDirectionOverride(&forward, 0);
     }
@@ -6283,17 +5372,16 @@ void ScriptableCl_RunStateEventTeamSelector(const LocalClientNum_t localClientNu
   ScriptableEventDef *eventsPass; 
   unsigned int numEvents; 
   ScriptableEventParams eventParamsa; 
-  Scriptable_TeamFilter v25; 
-  bool v26; 
-  unsigned int *v27; 
-  bool v28; 
+  Scriptable_TeamFilter v24; 
+  bool v25; 
+  unsigned int *v26; 
+  bool v27; 
 
-  v28 = onTime;
-  v27 = holdrand;
+  v27 = onTime;
+  v26 = holdrand;
   v5 = teamSelector;
   scriptableIndex = eventParams->scriptableIndex;
   v7 = onTime;
-  _RSI = eventParams;
   if ( teamSelector->testLocalPlayer )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
@@ -6317,13 +5405,13 @@ void ScriptableCl_RunStateEventTeamSelector(const LocalClientNum_t localClientNu
     if ( eventStreamBufferOffsetClient + 1 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4079, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
       __debugbreak();
     eventStreamBuffer = v16->eventStreamBuffer;
-    v7 = v28;
+    v7 = v27;
     eventStreamBuffer[eventStreamBufferOffsetClient] = DoesTeamMatch;
   }
-  v18 = _RSI->teamEvent == NULL;
-  v26 = DoesTeamMatch;
-  v25 = teamFilter;
-  LODWORD(teamSelector) = *v27;
+  v18 = eventParams->teamEvent == NULL;
+  v25 = DoesTeamMatch;
+  v24 = teamFilter;
+  LODWORD(teamSelector) = *v26;
   if ( !v18 )
   {
     v19 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
@@ -6333,12 +5421,8 @@ void ScriptableCl_RunStateEventTeamSelector(const LocalClientNum_t localClientNu
       name = "<unknown>";
     Com_Printf(16, "ScriptableCl_RunStateEventTeamSelector: Nested TeamSelector, might produce unexpected teamEvent params (%s)\n", name);
   }
-  eventParamsa.teamEvent = (const ScriptableTeamEvent *)&v25;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+98h+eventParams.context], ymm0
-  }
+  eventParamsa.teamEvent = (const ScriptableTeamEvent *)&v24;
+  *(__m256i *)&eventParamsa.context = *(__m256i *)&eventParams->context;
   if ( DoesTeamMatch )
   {
     eventsPass = v5->eventsPass;
@@ -6364,13 +5448,20 @@ void ScriptableCl_RunStateEventViewmodelShaderParam(const LocalClientNum_t local
   centity_t *Entity; 
   characterInfo_t *CharacterInfo; 
   int number; 
-  const char *name; 
+  const char *v11; 
+  ScriptableInstanceContextSecure *v12; 
+  const char *v13; 
+  shaderOverride_t *v16; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  const char *v16; 
+  __int64 eventStreamBufferOffsetClient; 
+  ScriptableInstanceContextSecure *v19; 
+  Scriptable_EventViewmodelShaderParam_Data *v20; 
+  float scrollRateX; 
+  ScriptableInstanceContextSecure *v23; 
+  const char *name; 
   char *fmt; 
 
   scriptableIndex = eventParams->scriptableIndex;
-  _RDI = viewmodelShaderParam;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3897, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
@@ -6380,45 +5471,84 @@ void ScriptableCl_RunStateEventViewmodelShaderParam(const LocalClientNum_t local
   CharacterInfo = cg_t::TryGetCharacterInfo(LocalClientGlobals, Entity->nextState.number);
   if ( CharacterInfo )
   {
-    __asm
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    if ( (int)*(float *)&_XMM2 )
     {
-      vmovaps [rsp+78h+var_38], xmm7
-      vmovaps [rsp+78h+var_48], xmm8
-      vmovss  xmm8, cs:__real@3f000000
-      vaddss  xmm1, xmm8, dword ptr [rdi+10h]
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vcvttss2si eax, xmm2
-    }
-    if ( _EAX )
-    {
-      __asm
+      v16 = &CharacterInfo->shaderOverride[(int)*(float *)&_XMM2 - 1];
+      if ( viewmodelShaderParam->transitionTime <= 0.0 )
       {
-        vmovaps [rsp+78h+var_28], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vcomiss xmm6, dword ptr [rdi+20h]
-        vmovss  xmm2, dword ptr [rdi+0Ch]; value
+        ScriptableCl_SetViewmodelShaderParam_Internal(v16, viewmodelShaderParam, viewmodelShaderParam->floatValue);
       }
-      ScriptableCl_SetViewmodelShaderParam_Internal(&CharacterInfo->shaderOverride[_EAX - 1], _RDI, *(const float *)&_XMM2);
-      __asm { vmovaps xmm6, [rsp+78h+var_28] }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+78h+var_38]
-      vmovaps xmm8, [rsp+78h+var_48]
+      else
+      {
+        InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+        eventStreamBufferOffsetClient = viewmodelShaderParam->eventStreamBufferOffsetClient;
+        v19 = InstanceCommonContext;
+        if ( eventStreamBufferOffsetClient + 32 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3931, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize") )
+          __debugbreak();
+        v20 = (Scriptable_EventViewmodelShaderParam_Data *)&v19->eventStreamBuffer[eventStreamBufferOffsetClient];
+        switch ( viewmodelShaderParam->shaderParam )
+        {
+          case Scriptable_ShaderParamType_ScrollRate_X:
+            scrollRateX = v16->scrollRateX;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_ScrollRate_Y:
+            scrollRateX = v16->scrollRateY;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_ScrollRate_R:
+            scrollRateX = v16->scrollRateR;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_Rotation:
+            scrollRateX = v16->rotation;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_Tiling_X:
+            scrollRateX = v16->tilingX;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_Tiling_Y:
+            scrollRateX = v16->tilingY;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_Alpha:
+            scrollRateX = v16->alpha;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_Emissive:
+            scrollRateX = v16->emissive;
+            goto LABEL_27;
+          case Scriptable_ShaderParamType_AtlasFrame:
+          case Scriptable_ShaderParamType_Placeholder1:
+            scrollRateX = v16->atlasTime;
+LABEL_27:
+            v20->startFloatValue = scrollRateX;
+            v20->targetFloatValue = viewmodelShaderParam->floatValue;
+            v20->startTime = CG_GetLocalClientGlobals(localClientNum)->time;
+            __asm { vroundss xmm1, xmm7, xmm4, 1 }
+            v20->transTime = (int)*(float *)&_XMM1;
+            ScriptableCl_SetViewmodelShaderParam(v16, viewmodelShaderParam, v20, 0.0);
+            break;
+          default:
+            v23 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+            if ( v23->def )
+              name = v23->def->name;
+            else
+              name = "<unknown>";
+            Com_PrintError(29, "Scriptable %s has an unknown or unset shader param type\n", name);
+            ScriptableCl_EnterError();
+            break;
+        }
+      }
     }
   }
   else
   {
     number = Entity->nextState.number;
-    name = _RDI->base->name;
-    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    if ( InstanceCommonContext->def )
-      v16 = InstanceCommonContext->def->name;
+    v11 = viewmodelShaderParam->base->name;
+    v12 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    if ( v12->def )
+      v13 = v12->def->name;
     else
-      v16 = "<unknown>";
+      v13 = "<unknown>";
     LODWORD(fmt) = number;
-    Com_PrintError(29, "Scriptable %s with event %s on a non-character entity %d.\n", v16, name, fmt);
+    Com_PrintError(29, "Scriptable %s with event %s on a non-character entity %d.\n", v13, v11, fmt);
     ScriptableCl_EnterError();
   }
 }
@@ -6494,195 +5624,175 @@ ScriptableCl_RunStateEvents_Specific
 */
 void ScriptableCl_RunStateEvents_Specific(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, unsigned int *holdrand, bool onTime, ScriptableEventDef *events, unsigned int numEvents)
 {
-  unsigned int *v13; 
-  ScriptableEventDef *v16; 
-  unsigned int v17; 
-  __int64 v18; 
+  unsigned int *v7; 
+  ScriptableEventDef *v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  ScriptableEventDef *v13; 
   const char *EventTypeName; 
-  const char *v23; 
-  char v24; 
-  char v25; 
+  const char *v15; 
   ScriptablePartDef *part; 
   unsigned int stateIdx; 
   unsigned int numStates; 
-  unsigned int v29; 
+  unsigned int v19; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   const char *name; 
-  unsigned __int8 v34; 
-  ScriptableInstanceContextSecure *v35; 
-  __int64 eventStreamBufferOffsetClient; 
+  double v22; 
+  bool v23; 
+  ScriptableInstanceContextSecure *v24; 
+  __int64 v25; 
   ScriptableEventDef *eventsA; 
   ScriptableNoteTrackClientContext *InstanceNoteTrackContext; 
-  ScriptableInstanceContextSecure *v39; 
-  __int64 v40; 
+  ScriptableInstanceContextSecure *v28; 
+  __int64 v29; 
   unsigned int scriptableIndex; 
-  ScriptableInstanceContextSecure *v42; 
+  ScriptableInstanceContextSecure *v31; 
   scr_string_t scrNotification; 
+  float playbackRateMin; 
   unsigned int LinkObject; 
   CgSoundSystem *SoundSystem; 
   ScriptableEventDef *eventsB; 
   cg_t *LocalClientGlobals; 
-  unsigned int v54; 
-  ScriptableInstanceContextSecure *v55; 
+  unsigned int v38; 
+  ScriptableInstanceContextSecure *v39; 
   scr_string_t scrTagName; 
-  const ScriptablePartDef *v57; 
-  ScriptableInstanceContextSecure *v58; 
-  const char *v59; 
-  char v61; 
-  ScriptableInstanceContextSecure *v62; 
-  __int64 v63; 
-  unsigned int v64; 
-  ScriptableInstanceContextSecure *v65; 
-  __int64 v66; 
+  const ScriptablePartDef *v41; 
+  ScriptableInstanceContextSecure *v42; 
+  const char *v43; 
+  unsigned int v44; 
+  ScriptableInstanceContextSecure *v45; 
+  __int64 v46; 
+  unsigned int v47; 
+  ScriptableInstanceContextSecure *v48; 
+  __int64 v49; 
   unsigned __int8 *eventStreamBuffer; 
-  ScriptableInstanceContextSecure *v68; 
-  const char *v69; 
-  unsigned int v70; 
-  ScriptableInstanceContextSecure *v71; 
-  const char *v72; 
-  ScriptablePartReference v73; 
+  ScriptableInstanceContextSecure *v51; 
+  const char *v52; 
+  unsigned int v53; 
+  ScriptableInstanceContextSecure *v54; 
+  const char *v55; 
+  ScriptablePartReference v56; 
   bool IsCharacterThirdPerson; 
-  ScriptableInstanceContextSecure *v75; 
+  ScriptableInstanceContextSecure *v58; 
   __int64 eventStreamBufferOffsetServer; 
-  ScriptableEventDef *v77; 
-  ScriptableInstanceContextSecure *v87; 
-  __int64 v88; 
-  unsigned __int8 v91; 
-  unsigned int v92; 
-  __int16 v93; 
+  ScriptableEventDef *v60; 
+  double v61; 
+  float v62; 
+  double v63; 
+  float v64; 
+  double v65; 
+  float v66; 
+  ScriptableInstanceContextSecure *v67; 
+  __int64 v68; 
+  __int64 v69; 
+  unsigned __int8 *v70; 
+  unsigned __int8 v71; 
+  unsigned int v72; 
+  __int16 v73; 
   const centity_t *EntityFromObjectId; 
-  bool v95; 
+  bool v75; 
   FootstepVFX *leftFootstepVFX; 
-  ScriptableInstanceContextSecure *v100; 
-  ScriptableInstanceContextSecure *v103; 
-  __int64 v104; 
+  float delayMin; 
+  float delayMax; 
+  double v79; 
+  ScriptableInstanceContextSecure *v80; 
+  __int64 eventStreamBufferOffsetClient; 
+  ScriptableInstanceContextSecure *v82; 
+  __int64 v83; 
   char *fmt; 
-  float fmta; 
   vec3_t *pos; 
   unsigned int posa; 
-  float posc; 
   unsigned int posb; 
-  float impulseVecOverride; 
-  float impulseVecOverridea; 
   __int64 randSeed; 
-  __int64 v120; 
-  float v121; 
-  unsigned int v122; 
+  __int64 v89; 
+  unsigned int v90; 
   unsigned int holdranda; 
   vec3_t outOrigin; 
   vec3_t outPosition; 
-  __int64 v126; 
-  unsigned int *v127; 
-  ScriptableEventDef *v128; 
-  __int64 v129; 
+  __int64 v94; 
+  unsigned int *v95; 
+  ScriptableEventDef *v96; 
+  __int64 v97; 
   ScriptableEventParams outParams; 
   char dest[280]; 
-  char v132; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v129 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-  }
-  v13 = holdrand;
-  v127 = holdrand;
-  v16 = events;
-  v128 = events;
-  v17 = 0;
-  v122 = 0;
+  v97 = -2i64;
+  v7 = holdrand;
+  v95 = holdrand;
+  v10 = events;
+  v96 = events;
+  v11 = 0;
+  v90 = 0;
   if ( numEvents )
   {
-    v18 = 0i64;
-    v126 = 0i64;
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f800000
-      vxorps  xmm9, xmm9, xmm9
-    }
+    v12 = 0i64;
+    v94 = 0i64;
     while ( 1 )
     {
-      _RDI = &v16[v18];
-      EventTypeName = ScriptableBg_GetEventTypeName(_RDI->type);
-      v23 = j_va("ScriptableCl_RunStateEvent %s", EventTypeName);
-      Sys_ProfBeginNamedEvent(0xFFD2691E, v23);
-      switch ( _RDI->type )
+      v13 = &v10[v12];
+      EventTypeName = ScriptableBg_GetEventTypeName(v13->type);
+      v15 = j_va("ScriptableCl_RunStateEvent %s", EventTypeName);
+      Sys_ProfBeginNamedEvent(0xFFD2691E, v15);
+      switch ( v13->type )
       {
         case Scriptable_EventType_StateChange:
-          if ( !_RDI->data.disablePhysicsSubShape.mutableShapeHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 388, ASSERT_TYPE_ASSERT, "(stateChange->part)", (const char *)&queryFormat, "stateChange->part") )
+          if ( !v13->data.disablePhysicsSubShape.mutableShapeHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 388, ASSERT_TYPE_ASSERT, "(stateChange->part)", (const char *)&queryFormat, "stateChange->part") )
             __debugbreak();
-          part = _RDI->data.stateChange.part;
+          part = v13->data.stateChange.part;
           if ( (part->flags & 4) != 0 )
             goto $LN8_100;
-          stateIdx = _RDI->data.stateChange.stateIdx;
+          stateIdx = v13->data.stateChange.stateIdx;
           numStates = part->numStates;
           if ( stateIdx < numStates )
           {
             CG_EntityWorkers_EnterCriticalSection_LegacyOnly();
-            ScriptableCl_InitEventParams(localClientNum, &outParams, eventParams->scriptableIndex, _RDI->data.stateChange.part);
-            ScriptableBg_ChangePartState(&outParams, _RDI->data.stateChange.stateIdx, onTime);
+            ScriptableCl_InitEventParams(localClientNum, &outParams, eventParams->scriptableIndex, v13->data.stateChange.part);
+            ScriptableBg_ChangePartState(&outParams, v13->data.stateChange.stateIdx, onTime);
             CG_EntityWorkers_LeaveCriticalSection_LegacyOnly();
             goto LABEL_14;
           }
-          v29 = numStates - 1;
+          v19 = numStates - 1;
           InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
           if ( InstanceCommonContext->def )
             name = InstanceCommonContext->def->name;
           else
             name = "<unknown>";
-          LODWORD(fmt) = v29;
+          LODWORD(fmt) = v19;
           Com_PrintError(29, "Scriptable %s tried to run a state change event, the state %i was outside the range 0-%i\n", name, stateIdx, fmt);
           goto LABEL_13;
         case Scriptable_EventType_Wait:
-          __asm
+          delayMin = v13->data.wait.delayMin;
+          delayMax = v13->data.wait.delayMax;
+          if ( delayMax > delayMin )
           {
-            vmovss  xmm6, dword ptr [rdi+20h]; jumptable 00000001414D64D1 case 1
-            vmovss  xmm1, dword ptr [rdi+24h]; max
-            vcomiss xmm1, xmm6
+            v79 = BG_flrand(v13->data.wait.delayMin, delayMax, v7);
+            delayMin = *(float *)&v79;
           }
-          if ( !(v24 | v25) )
-          {
-            __asm { vmovaps xmm0, xmm6; min }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v13);
-            __asm { vmovaps xmm6, xmm0 }
-          }
-          v100 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          _RSI = _RDI->data.wait.eventStreamBufferOffsetClient;
-          if ( _RSI + 4 > (unsigned __int64)v100->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 429, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v80 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          eventStreamBufferOffsetClient = v13->data.wait.eventStreamBufferOffsetClient;
+          if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)v80->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 429, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          _RAX = v100->eventStreamBuffer;
-          __asm { vmovss  dword ptr [rsi+rax], xmm6 }
-          goto LABEL_161;
+          *(float *)&v80->eventStreamBuffer[eventStreamBufferOffsetClient] = delayMin;
+          goto LABEL_162;
         case Scriptable_EventType_Random:
-          __asm
-          {
-            vmovaps xmm1, xmm10; max
-            vmovaps xmm0, xmm9; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v13);
-          __asm { vcomiss xmm0, dword ptr [rdi+20h] }
-          v34 = v24 | v25;
-          v35 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          eventStreamBufferOffsetClient = _RDI->data.random.eventStreamBufferOffsetClient;
-          if ( eventStreamBufferOffsetClient + 1 > (unsigned __int64)v35->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 451, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
+          v22 = BG_flrand(0.0, 1.0, v7);
+          v23 = *(float *)&v22 <= v13->data.wait.delayMin;
+          v24 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          v25 = v13->data.random.eventStreamBufferOffsetClient;
+          if ( v25 + 1 > (unsigned __int64)v24->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 451, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          v35->eventStreamBuffer[eventStreamBufferOffsetClient] = v34;
-          if ( v34 )
+          v24->eventStreamBuffer[v25] = v23;
+          if ( v23 )
           {
-            posa = _RDI->data.stateChange.stateIdx;
-            eventsA = _RDI->data.random.eventsA;
+            posa = v13->data.stateChange.stateIdx;
+            eventsA = v13->data.random.eventsA;
           }
           else
           {
-            posa = _RDI->data.random.eventBCount;
-            eventsA = _RDI->data.random.eventsB;
+            posa = v13->data.random.eventBCount;
+            eventsA = v13->data.random.eventsB;
           }
-          ScriptableCl_RunStateEvents_Specific(localClientNum, eventParams, v13, onTime, eventsA, posa);
+          ScriptableCl_RunStateEvents_Specific(localClientNum, eventParams, v7, onTime, eventsA, posa);
           goto LABEL_14;
         case Scriptable_EventType_Script:
         case Scriptable_EventType_ChunkDynent:
@@ -6694,112 +5804,92 @@ void ScriptableCl_RunStateEvents_Specific(const LocalClientNum_t localClientNum,
         case Scriptable_EventType_ScriptDamage:
           goto $LN8_100;
         case Scriptable_EventType_Model:
-          ScriptableCl_RunStateEventModel(localClientNum, eventParams, onTime, (const ScriptableEventModelDef *)&_RDI->data);
+          ScriptableCl_RunStateEventModel(localClientNum, eventParams, onTime, (const ScriptableEventModelDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Collision:
-          ScriptableCl_RunStateEventCollision(localClientNum, eventParams, onTime, (const ScriptableEventCollisionDef *)&_RDI->data);
+          ScriptableCl_RunStateEventCollision(localClientNum, eventParams, onTime, (const ScriptableEventCollisionDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Animation:
-          ScriptableCl_RunStateEventAnimation(localClientNum, eventParams, v13, onTime, (const ScriptableEventAnimationDef *)&_RDI->data);
+          ScriptableCl_RunStateEventAnimation(localClientNum, eventParams, v7, onTime, (const ScriptableEventAnimationDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_HideShowBone:
-          ScriptableCl_RunStateEventHideShowBone(localClientNum, eventParams, onTime, (const ScriptableEventHideShowBoneDef *)&_RDI->data);
+          ScriptableCl_RunStateEventHideShowBone(localClientNum, eventParams, onTime, (const ScriptableEventHideShowBoneDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_DisablePhysicsSubShape:
-          ScriptableCl_RunStateEventDisablePhysicsSubShape(localClientNum, eventParams, onTime, (const ScriptableEventDisablePhysicsSubShapeDef *)&_RDI->data);
+          ScriptableCl_RunStateEventDisablePhysicsSubShape(localClientNum, eventParams, onTime, (const ScriptableEventDisablePhysicsSubShapeDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_NoteTrack:
           InstanceNoteTrackContext = ScriptableCl_GetInstanceNoteTrackContext(localClientNum, eventParams->scriptableIndex);
-          InstanceNoteTrackContext->currentNoteTracks = (const ScriptableEventNoteTrackDef *)&_RDI->data;
+          InstanceNoteTrackContext->currentNoteTracks = (const ScriptableEventNoteTrackDef *)&v13->data;
           InstanceNoteTrackContext->currentNoteTrackPartDef = eventParams->partDef;
           goto $LN8_100;
         case Scriptable_EventType_SpawnDynent:
-          ScriptableCl_RunStateEventSpawnDynent(localClientNum, eventParams, v13, onTime, (const ScriptableEventSpawnDynentDef *)&_RDI->data);
+          ScriptableCl_RunStateEventSpawnDynent(localClientNum, eventParams, v7, onTime, (const ScriptableEventSpawnDynentDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_PFX:
-          if ( !onTime && !_RDI->data.anonymous.buffer[0] )
-          {
-            __asm { vcomiss xmm9, dword ptr [rdi+58h] }
-            if ( !_RDI->data.anonymous.buffer[60] )
-              goto $LN8_100;
-          }
-          ScriptableCl_PlayParticleFX(localClientNum, eventParams, eventParams->scriptableIndex, (const ScriptableEventPFXDef *)&_RDI->data, v17);
-          __asm { vcomiss xmm9, dword ptr [rdi+58h] }
-          if ( !v24 )
+          if ( !onTime && !v13->data.anonymous.buffer[0] && v13->data.spawnDynent.launchAngVel.v[2] <= 0.0 && !v13->data.anonymous.buffer[60] )
             goto $LN8_100;
-          v39 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          v40 = _RDI->data.particleFX.eventStreamBufferOffsetClient;
-          if ( v40 + 4 > (unsigned __int64)v39->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1989, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          ScriptableCl_PlayParticleFX(localClientNum, eventParams, eventParams->scriptableIndex, (const ScriptableEventPFXDef *)&v13->data, v11);
+          if ( v13->data.spawnDynent.launchAngVel.v[2] <= 0.0 )
+            goto $LN8_100;
+          v28 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          v29 = v13->data.particleFX.eventStreamBufferOffsetClient;
+          if ( v29 + 4 > (unsigned __int64)v28->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 1989, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          *(_DWORD *)&v39->eventStreamBuffer[v40] = _RDI->data.screenshake.frequencyYaw;
+          *(_DWORD *)&v28->eventStreamBuffer[v29] = v13->data.screenshake.frequencyYaw;
           goto LABEL_14;
         case Scriptable_EventType_Sound:
-          if ( (onTime || _RDI->data.anonymous.buffer[0] || _RDI->data.anonymous.buffer[32]) && !_RDI->data.anonymous.buffer[33] )
-            ScriptableCl_PlaySound(localClientNum, eventParams->scriptableIndex, (const ScriptableEventSoundDef *)&_RDI->data);
+          if ( (onTime || v13->data.anonymous.buffer[0] || v13->data.anonymous.buffer[32]) && !v13->data.anonymous.buffer[33] )
+            ScriptableCl_PlaySound(localClientNum, eventParams->scriptableIndex, (const ScriptableEventSoundDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Explosion:
-          if ( !onTime && !_RDI->data.anonymous.buffer[36] )
+          if ( !onTime && !v13->data.anonymous.buffer[36] )
             goto $LN8_100;
           scriptableIndex = eventParams->scriptableIndex;
-          v42 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-          ScriptableInstanceContextSecure::GetOrigin(v42, scriptableIndex, &outOrigin);
-          scrNotification = _RDI->data.script.scrNotification;
-          if ( !scrNotification || ScriptableCl_GetBonePosition(localClientNum, scriptableIndex, scrNotification, &outOrigin, _RDI->data.explosion.allowMissingTag) || _RDI->data.anonymous.buffer[38] )
+          v31 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+          ScriptableInstanceContextSecure::GetOrigin(v31, scriptableIndex, &outOrigin);
+          scrNotification = v13->data.script.scrNotification;
+          if ( !scrNotification || ScriptableCl_GetBonePosition(localClientNum, scriptableIndex, scrNotification, &outOrigin, v13->data.explosion.allowMissingTag) || v13->data.anonymous.buffer[38] )
           {
-            __asm { vmovss  xmm6, dword ptr [rdi+38h] }
+            playbackRateMin = v13->data.animation.playbackRateMin;
             if ( ScriptableCl_GetLinkTypeEquals(localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY) )
             {
               LinkObject = ScriptableCl_GetLinkObject(localClientNum, scriptableIndex);
               truncate_cast<short,unsigned int>(LinkObject);
             }
             CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+3Ch]
-              vmovss  [rsp+278h+var_238], xmm10
-              vmovss  dword ptr [rsp+278h+pos], xmm9
-              vmovss  dword ptr [rsp+278h+fmt], xmm0
-              vmovss  xmm3, dword ptr [rdi+40h]; innerDamage
-              vmovaps xmm2, xmm6; radius
-            }
-            Physics_ApplyRadiusForce((const Physics_WorldId)(3 * localClientNum + 3), &outOrigin, *(const float *)&_XMM2, *(const float *)&_XMM3, fmta, posc, &vec3_origin, *v13, v121);
+            Physics_ApplyRadiusForce((const Physics_WorldId)(3 * localClientNum + 3), &outOrigin, playbackRateMin, v13->data.animation.blendTime, v13->data.animation.playbackRateMax, 0.0, &vec3_origin, *v7, 1.0);
             CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
             SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
             if ( !SoundSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3209, ASSERT_TYPE_ASSERT, "(soundSystem)", (const char *)&queryFormat, "soundSystem") )
               __debugbreak();
             CG_EntityWorkers_EnterCriticalSection();
-            __asm
-            {
-              vmovaps xmm3, xmm9
-              vmovaps xmm2, xmm6
-            }
             ((void (__fastcall *)(CgSoundSystem *, vec3_t *))SoundSystem->PlayClientSideReactiveSounds)(SoundSystem, &outOrigin);
             CG_EntityWorkers_LeaveCriticalSection();
           }
           memset(&outOrigin, 0, sizeof(outOrigin));
           goto LABEL_14;
         case Scriptable_EventType_Light:
-          ScriptableCl_RunStateEventLight(localClientNum, eventParams, v13, onTime, (const ScriptableEventLightDef *)&_RDI->data);
+          ScriptableCl_RunStateEventLight(localClientNum, eventParams, v7, onTime, (const ScriptableEventLightDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Sun:
-          ScriptableCl_RunStateEventSun(localClientNum, eventParams, v13, onTime, (const ScriptableEventSunDef *)&_RDI->data);
+          ScriptableCl_RunStateEventSun(localClientNum, eventParams, v7, onTime, (const ScriptableEventSunDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Rumble:
-          if ( !onTime && !_RDI->data.anonymous.buffer[0] )
+          if ( !onTime && !v13->data.anonymous.buffer[0] )
             goto $LN8_100;
-          eventsB = _RDI->data.random.eventsB;
+          eventsB = v13->data.random.eventsB;
           if ( !eventsB || !LOBYTE(eventsB->base.name) )
             goto $LN8_100;
-          if ( CG_Rumble_IsBroadcastRumble(_RDI->data.rumble.rumbleAsset) )
+          if ( CG_Rumble_IsBroadcastRumble(v13->data.rumble.rumbleAsset) )
           {
-            v54 = eventParams->scriptableIndex;
-            v55 = ScriptableCl_GetInstanceCommonContext(localClientNum, v54);
-            ScriptableInstanceContextSecure::GetOrigin(v55, v54, &outPosition);
-            scrTagName = _RDI->data.sound.scrTagName;
-            if ( !scrTagName || ScriptableCl_GetBonePosition(localClientNum, v54, scrTagName, &outPosition, _RDI->data.rumble.allowMissingTag) || _RDI->data.anonymous.buffer[41] )
+            v38 = eventParams->scriptableIndex;
+            v39 = ScriptableCl_GetInstanceCommonContext(localClientNum, v38);
+            ScriptableInstanceContextSecure::GetOrigin(v39, v38, &outPosition);
+            scrTagName = v13->data.sound.scrTagName;
+            if ( !scrTagName || ScriptableCl_GetBonePosition(localClientNum, v38, scrTagName, &outPosition, v13->data.rumble.allowMissingTag) || v13->data.anonymous.buffer[41] )
             {
-              __asm { vmovss  dword ptr [rsp+278h+impulseVecOverride], xmm10 }
-              CG_Rumble_PlayDeferred(localClientNum, _RDI->data.rumble.rumbleAsset, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, &outPosition, impulseVecOverridea, 0);
+              CG_Rumble_PlayDeferred(localClientNum, v13->data.rumble.rumbleAsset, RUMBLELOOP_ONESHOT, RUMBLESOURCE_POS, 0, &outPosition, 1.0, 0);
               memset(&outPosition, 0, sizeof(outPosition));
             }
             else
@@ -6812,266 +5902,234 @@ void ScriptableCl_RunStateEvents_Specific(const LocalClientNum_t localClientNum,
             LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
             if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3538, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
               __debugbreak();
-            __asm { vmovss  dword ptr [rsp+278h+impulseVecOverride], xmm10 }
-            CG_Rumble_PlayDeferred(localClientNum, _RDI->data.rumble.rumbleAsset, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, impulseVecOverride, 0);
+            CG_Rumble_PlayDeferred(localClientNum, v13->data.rumble.rumbleAsset, RUMBLELOOP_ONESHOT, RUMBLESOURCE_ENTITY, LocalClientGlobals->predictedPlayerState.clientNum, NULL, 1.0, 0);
           }
           goto LABEL_14;
         case Scriptable_EventType_Screenshake:
-          ScriptableCl_RunStateEventScreenshake(localClientNum, eventParams, onTime, (const ScriptableEventScreenshakeDef *)&_RDI->data);
+          ScriptableCl_RunStateEventScreenshake(localClientNum, eventParams, onTime, (const ScriptableEventScreenshakeDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_PartDamage:
-          v57 = _RDI->data.partDamage.part;
-          if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3663, ASSERT_TYPE_ASSERT, "(partDef)", (const char *)&queryFormat, "partDef") )
+          v41 = v13->data.partDamage.part;
+          if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3663, ASSERT_TYPE_ASSERT, "(partDef)", (const char *)&queryFormat, "partDef") )
             __debugbreak();
-          if ( (v57->flags & 0x100) != 0 )
+          if ( (v41->flags & 0x100) != 0 )
           {
-            __asm { vcvttss2si rax, dword ptr [rdi+24h] }
-            if ( _RDI->data.anonymous.buffer[8] )
+            v44 = (int)v13->data.wait.delayMax;
+            if ( v13->data.anonymous.buffer[8] )
             {
-              LODWORD(_RAX) = -1;
-              goto LABEL_88;
+              v44 = -1;
+              goto LABEL_89;
             }
-            v61 = 0;
-            if ( (_DWORD)_RAX )
-LABEL_88:
-              ScriptableBg_DamagePart(eventParams, v57, 0x41u, _RAX);
-            __asm { vcomiss xmm9, dword ptr [rdi+2Ch] }
-            if ( v61 )
+            if ( v44 )
+LABEL_89:
+              ScriptableBg_DamagePart(eventParams, v41, 0x41u, v44);
+            if ( v13->data.animation.startTimeMin > 0.0 )
             {
-              v62 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-              __asm { vcomiss xmm9, dword ptr [rdi+30h] }
-              if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3695, ASSERT_TYPE_ASSERT, "(partDamage->intervalDoT > 0.f)", (const char *)&queryFormat, "partDamage->intervalDoT > 0.f") )
+              v45 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+              if ( v13->data.animation.startTimeMax <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3695, ASSERT_TYPE_ASSERT, "(partDamage->intervalDoT > 0.f)", (const char *)&queryFormat, "partDamage->intervalDoT > 0.f") )
                 __debugbreak();
-              v63 = _RDI->data.partDamage.eventStreamBufferOffsetClient;
-              if ( v63 + 4 > (unsigned __int64)v62->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3699, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+              v46 = v13->data.partDamage.eventStreamBufferOffsetClient;
+              if ( v46 + 4 > (unsigned __int64)v45->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3699, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
                 __debugbreak();
-              *(_DWORD *)&v62->eventStreamBuffer[v63] = _RDI->data.random.eventBCount;
+              *(_DWORD *)&v45->eventStreamBuffer[v46] = v13->data.random.eventBCount;
             }
             goto LABEL_14;
           }
-          v58 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          if ( v58->def )
-            v59 = v58->def->name;
+          v42 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          if ( v42->def )
+            v43 = v42->def->name;
           else
-            v59 = "<unknown>";
-          Com_PrintError(29, "Scriptable %s tried to damage a part that doesn't have any health states\n", v59);
+            v43 = "<unknown>";
+          Com_PrintError(29, "Scriptable %s tried to damage a part that doesn't have any health states\n", v43);
 LABEL_13:
           ScriptableCl_EnterError();
 LABEL_14:
-          v17 = v122;
+          v11 = v90;
 $LN8_100:
           Sys_ProfEndNamedEvent();
-          v122 = ++v17;
-          v18 = ++v126;
-          if ( v17 >= numEvents )
-            goto LABEL_162;
-          v16 = v128;
+          v90 = ++v11;
+          v12 = ++v94;
+          if ( v11 >= numEvents )
+            return;
+          v10 = v96;
           break;
         case Scriptable_EventType_SetMayhem:
-          ScriptableCl_RunStateEventSetMayhem(localClientNum, eventParams, onTime, (const ScriptableEventSetMayhemDef *)&_RDI->data);
+          ScriptableCl_RunStateEventSetMayhem(localClientNum, eventParams, onTime, (const ScriptableEventSetMayhemDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_PlayMayhem:
-          v64 = eventParams->scriptableIndex;
-          v65 = ScriptableCl_GetInstanceCommonContext(localClientNum, v64);
-          v66 = _RDI->data.playMayhem.eventStreamBufferOffsetClient;
-          if ( v66 + 4 > (unsigned __int64)v65->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3780, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v47 = eventParams->scriptableIndex;
+          v48 = ScriptableCl_GetInstanceCommonContext(localClientNum, v47);
+          v49 = v13->data.playMayhem.eventStreamBufferOffsetClient;
+          if ( v49 + 4 > (unsigned __int64)v48->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3780, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          eventStreamBuffer = v65->eventStreamBuffer;
-          if ( *(_DWORD *)&eventStreamBuffer[v66] )
+          eventStreamBuffer = v48->eventStreamBuffer;
+          if ( *(_DWORD *)&eventStreamBuffer[v49] )
           {
-            v70 = ScriptableCl_GetLinkObject(localClientNum, v64);
-            v71 = ScriptableCl_GetInstanceCommonContext(localClientNum, v64);
-            if ( v71->def )
-              v72 = v71->def->name;
+            v53 = ScriptableCl_GetLinkObject(localClientNum, v47);
+            v54 = ScriptableCl_GetInstanceCommonContext(localClientNum, v47);
+            if ( v54->def )
+              v55 = v54->def->name;
             else
-              v72 = "<unknown>";
-            LODWORD(fmt) = v70;
-            Com_sprintf(dest, 0x104ui64, "Scriptable-%s-%i", v72, fmt);
-            *(_DWORD *)&eventStreamBuffer[v66] = SL_GetString(dest, 0);
+              v55 = "<unknown>";
+            LODWORD(fmt) = v53;
+            Com_sprintf(dest, 0x104ui64, "Scriptable-%s-%i", v55, fmt);
+            *(_DWORD *)&eventStreamBuffer[v49] = SL_GetString(dest, 0);
             CG_EntityWorkers_EnterCriticalSection_Mayhem(NONE_LEGACY);
-            v73.flatId = (unsigned int)_RDI->data.stateChange.partReference;
-            if ( v73.flatId )
+            v56.flatId = (unsigned int)v13->data.stateChange.partReference;
+            if ( v56.flatId )
             {
-              if ( v73.flatId == 1 )
-                Mayhem_PauseInstance(*(scr_string_t *)&eventStreamBuffer[v66]);
+              if ( v56.flatId == 1 )
+                Mayhem_PauseInstance(*(scr_string_t *)&eventStreamBuffer[v49]);
             }
             else
             {
-              Mayhem_PlayInstance(*(scr_string_t *)&eventStreamBuffer[v66]);
+              Mayhem_PlayInstance(*(scr_string_t *)&eventStreamBuffer[v49]);
             }
             CG_EntityWorkers_LeaveCriticalSection_Mayhem(NONE_LEGACY);
-            SL_RemoveRefToString(*(scr_string_t *)&eventStreamBuffer[v66]);
-            v13 = v127;
+            SL_RemoveRefToString(*(scr_string_t *)&eventStreamBuffer[v49]);
+            v7 = v95;
           }
           else
           {
-            v68 = ScriptableCl_GetInstanceCommonContext(localClientNum, v64);
-            if ( v68->def )
-              v69 = v68->def->name;
+            v51 = ScriptableCl_GetInstanceCommonContext(localClientNum, v47);
+            if ( v51->def )
+              v52 = v51->def->name;
             else
-              v69 = "<unknown>";
-            Com_PrintError(29, "Scriptable %s tried to run a playmayhem event, but no mayhem was running for this scriptable\n", v69);
+              v52 = "<unknown>";
+            Com_PrintError(29, "Scriptable %s tried to run a playmayhem event, but no mayhem was running for this scriptable\n", v52);
             ScriptableCl_EnterError();
           }
           goto LABEL_14;
         case Scriptable_EventType_ViewmodelShaderParam:
-          ScriptableCl_RunStateEventViewmodelShaderParam(localClientNum, eventParams, onTime, (const ScriptableEventViewmodelShaderParamDef *)&_RDI->data);
+          ScriptableCl_RunStateEventViewmodelShaderParam(localClientNum, eventParams, onTime, (const ScriptableEventViewmodelShaderParamDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ClientViewSelector:
           IsCharacterThirdPerson = ScriptableCl_IsCharacterThirdPerson(localClientNum, eventParams->scriptableIndex);
-          if ( (_RDI->data.anonymous.base->flags & 0x200) != 0 )
+          if ( (v13->data.anonymous.base->flags & 0x200) != 0 )
           {
-            v75 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-            eventStreamBufferOffsetServer = _RDI->data.random.eventStreamBufferOffsetServer;
-            if ( eventStreamBufferOffsetServer + 1 > (unsigned __int64)v75->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4025, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
+            v58 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+            eventStreamBufferOffsetServer = v13->data.random.eventStreamBufferOffsetServer;
+            if ( eventStreamBufferOffsetServer + 1 > (unsigned __int64)v58->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4025, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
               __debugbreak();
-            v75->eventStreamBuffer[eventStreamBufferOffsetServer] = IsCharacterThirdPerson;
-            v17 = v122;
+            v58->eventStreamBuffer[eventStreamBufferOffsetServer] = IsCharacterThirdPerson;
+            v11 = v90;
           }
-          holdranda = *v13;
+          holdranda = *v7;
           if ( IsCharacterThirdPerson )
           {
-            posb = _RDI->data.random.eventBCount;
-            v77 = _RDI->data.random.eventsB;
+            posb = v13->data.random.eventBCount;
+            v60 = v13->data.random.eventsB;
           }
           else
           {
-            posb = _RDI->data.stateChange.partReference.flatId;
-            v77 = _RDI->data.random.eventsA;
+            posb = v13->data.stateChange.partReference.flatId;
+            v60 = v13->data.random.eventsA;
           }
-          ScriptableCl_RunStateEvents_Specific(localClientNum, eventParams, &holdranda, onTime, v77, posb);
+          ScriptableCl_RunStateEvents_Specific(localClientNum, eventParams, &holdranda, onTime, v60, posb);
           goto $LN8_100;
         case Scriptable_EventType_TeamSelector:
-          ScriptableCl_RunStateEventTeamSelector(localClientNum, eventParams, v13, onTime, (const ScriptableEventTeamSelectorDef *)&_RDI->data);
+          ScriptableCl_RunStateEventTeamSelector(localClientNum, eventParams, v7, onTime, (const ScriptableEventTeamSelectorDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ApplyForce:
-          ScriptableCl_RunStateEventApplyForce(localClientNum, eventParams, v13, onTime, (const ScriptableEventApplyForceDef *)&_RDI->data);
+          ScriptableCl_RunStateEventApplyForce(localClientNum, eventParams, v7, onTime, (const ScriptableEventApplyForceDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ApplyAngularForce:
-          ScriptableCl_RunStateEventApplyAngularForce(localClientNum, eventParams, v13, onTime, (const ScriptableEventApplyAngularForceDef *)&_RDI->data);
+          ScriptableCl_RunStateEventApplyAngularForce(localClientNum, eventParams, v7, onTime, (const ScriptableEventApplyAngularForceDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ApplyConstantForce:
-          ScriptableCl_RunStateEventApplyConstantForce(localClientNum, eventParams, v13, onTime, (const ScriptableEventApplyConstantForceDef *)&_RDI->data);
+          ScriptableCl_RunStateEventApplyConstantForce(localClientNum, eventParams, v7, onTime, (const ScriptableEventApplyConstantForceDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ApplyConstantAngularForce:
-          if ( !_RDI->data.anonymous.buffer[1] )
+          if ( !v13->data.anonymous.buffer[1] )
           {
-            __asm { vmovaps xmm8, xmm9 }
-LABEL_133:
-            __asm { vmovaps xmm7, xmm9 }
-            goto LABEL_134;
-          }
-          __asm
-          {
-            vmovaps xmm1, xmm10; max
-            vmovaps xmm0, xmm9; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v13);
-          __asm { vmovaps xmm8, xmm0 }
-          if ( !_RDI->data.anonymous.buffer[1] )
-            goto LABEL_133;
-          __asm
-          {
-            vmovaps xmm1, xmm10; max
-            vmovaps xmm0, xmm9; min
-          }
-          *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v13);
-          __asm { vmovaps xmm7, xmm0 }
-          if ( _RDI->data.anonymous.buffer[1] )
-          {
-            __asm
-            {
-              vmovaps xmm1, xmm10; max
-              vmovaps xmm0, xmm9; min
-            }
-            *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, v13);
-            __asm { vmovaps xmm6, xmm0 }
+            v62 = 0.0;
+LABEL_134:
+            v64 = 0.0;
             goto LABEL_135;
           }
-LABEL_134:
-          __asm { vmovaps xmm6, xmm9 }
-LABEL_135:
-          v87 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          v88 = _RDI->data.applyConstantAngularForce.eventStreamBufferOffsetClient;
-          _RDI = v88;
-          if ( v88 + 12 > (unsigned __int64)v87->eventStreamBufferSize )
+          v61 = BG_flrand(0.0, 1.0, v7);
+          v62 = *(float *)&v61;
+          if ( !v13->data.anonymous.buffer[1] )
+            goto LABEL_134;
+          v63 = BG_flrand(0.0, 1.0, v7);
+          v64 = *(float *)&v63;
+          if ( v13->data.anonymous.buffer[1] )
           {
-            LODWORD(v120) = v87->eventStreamBufferSize;
-            LODWORD(randSeed) = v88 + 12;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4421, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 3 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "%s <= %s\n\t%i, %i", "eventBufferOffset + 3 * sizeof( float )", "r_context.eventStreamBufferSize", randSeed, v120) )
+            v65 = BG_flrand(0.0, 1.0, v7);
+            v66 = *(float *)&v65;
+            goto LABEL_136;
+          }
+LABEL_135:
+          v66 = 0.0;
+LABEL_136:
+          v67 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          v68 = v13->data.applyConstantAngularForce.eventStreamBufferOffsetClient;
+          v69 = v68;
+          if ( v68 + 12 > (unsigned __int64)v67->eventStreamBufferSize )
+          {
+            LODWORD(v89) = v67->eventStreamBufferSize;
+            LODWORD(randSeed) = v68 + 12;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4421, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 3 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "%s <= %s\n\t%i, %i", "eventBufferOffset + 3 * sizeof( float )", "r_context.eventStreamBufferSize", randSeed, v89) )
               __debugbreak();
           }
-          _RAX = v87->eventStreamBuffer;
-          __asm
-          {
-            vmovss  dword ptr [rdi+rax], xmm8
-            vmovss  dword ptr [rdi+rax+4], xmm7
-            vmovss  dword ptr [rdi+rax+8], xmm6
-          }
+          v70 = v67->eventStreamBuffer;
+          *(float *)&v70[v69] = v62;
+          *(float *)&v70[v69 + 4] = v64;
+          *(float *)&v70[v69 + 8] = v66;
           goto LABEL_14;
         case Scriptable_EventType_CompassIcon:
-          ScriptableCL_RunStateEventCompassIcon(localClientNum, eventParams, onTime, (const ScriptableEventCompassIconDef *)&_RDI->data);
+          ScriptableCL_RunStateEventCompassIcon(localClientNum, eventParams, onTime, (const ScriptableEventCompassIconDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_MaterialOverride:
-          ScriptableCL_RunStateEventMaterialOverride(localClientNum, eventParams, onTime, (const ScriptableEventMaterialOverrideDef *)&_RDI->data);
+          ScriptableCL_RunStateEventMaterialOverride(localClientNum, eventParams, onTime, (const ScriptableEventMaterialOverrideDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_DynamicBoneNoiseCurve:
-          if ( onTime || _RDI->data.anonymous.buffer[0] )
-            ScriptableCl_SetDynamicBoneNoiseCurve(localClientNum, eventParams->scriptableIndex, (const ScriptableEventDynamicBoneNoiseCurveDef *)&_RDI->data);
+          if ( onTime || v13->data.anonymous.buffer[0] )
+            ScriptableCl_SetDynamicBoneNoiseCurve(localClientNum, eventParams->scriptableIndex, (const ScriptableEventDynamicBoneNoiseCurveDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Move:
-          ScriptableCL_RunStateEventMove(localClientNum, eventParams, onTime, (const ScriptableEventMoveDef *const)&_RDI->data);
+          ScriptableCL_RunStateEventMove(localClientNum, eventParams, onTime, (const ScriptableEventMoveDef *const)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_Footstep:
-          v91 = _RDI->data.anonymous.buffer[26];
-          v92 = ScriptableCl_GetLinkObject(localClientNum, eventParams->scriptableIndex);
-          v93 = truncate_cast<short,unsigned int>(v92);
-          EntityFromObjectId = ScriptableCl_GetEntityFromObjectId(localClientNum, v93);
+          v71 = v13->data.anonymous.buffer[26];
+          v72 = ScriptableCl_GetLinkObject(localClientNum, eventParams->scriptableIndex);
+          v73 = truncate_cast<short,unsigned int>(v72);
+          EntityFromObjectId = ScriptableCl_GetEntityFromObjectId(localClientNum, v73);
           CG_EntityWorkers_EnterCriticalSection();
-          v95 = v91 & 1;
-          if ( v95 )
-            leftFootstepVFX = _RDI->data.footstep.leftFootstepVFX;
+          v75 = v71 & 1;
+          if ( v75 )
+            leftFootstepVFX = v13->data.footstep.leftFootstepVFX;
           else
-            leftFootstepVFX = _RDI->data.footstep.rightFootstepVFX;
+            leftFootstepVFX = v13->data.footstep.rightFootstepVFX;
           LOBYTE(fmt) = 1;
-          CG_Entity_AddFootstepEvent(localClientNum, v95, EntityFromObjectId, leftFootstepVFX, (TraceGroundSource)fmt, (ScriptableFootstepFlag)(_RDI->data.anonymous.buffer[26] | 0x80));
+          CG_Entity_AddFootstepEvent(localClientNum, v75, EntityFromObjectId, leftFootstepVFX, (TraceGroundSource)fmt, (ScriptableFootstepFlag)(v13->data.anonymous.buffer[26] | 0x80));
           CG_EntityWorkers_LeaveCriticalSection();
           goto LABEL_14;
         case Scriptable_EventType_GravityArc:
-          ScriptableCL_RunStateEventGravityArc(localClientNum, eventParams, onTime, (const ScriptableEventGravityArcDef *const)&_RDI->data);
+          ScriptableCL_RunStateEventGravityArc(localClientNum, eventParams, onTime, (const ScriptableEventGravityArcDef *const)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_ViewTrigger:
-          v103 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-          v104 = _RDI->data.wait.eventStreamBufferOffsetServer;
-          if ( v104 + 1 > (unsigned __int64)v103->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2969, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
+          v82 = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
+          v83 = v13->data.wait.eventStreamBufferOffsetServer;
+          if ( v83 + 1 > (unsigned __int64)v82->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2969, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          v103->eventStreamBuffer[v104] = 0;
-LABEL_161:
+          v82->eventStreamBuffer[v83] = 0;
+LABEL_162:
           Sys_ProfEndNamedEvent();
-          goto LABEL_162;
+          return;
         case Scriptable_EventType_Objective:
-          ScriptableCl_RunStateEventObjective(localClientNum, eventParams, (const ScriptableEventObjectiveDef *)&_RDI->data);
+          ScriptableCl_RunStateEventObjective(localClientNum, eventParams, (const ScriptableEventObjectiveDef *)&v13->data);
           goto $LN8_100;
         case Scriptable_EventType_VehicleBlowUpTire:
-          ScriptableCl_RunStateVehicleEvent(localClientNum, eventParams, _RDI);
+          ScriptableCl_RunStateVehicleEvent(localClientNum, eventParams, v13);
           goto $LN8_100;
         default:
-          LODWORD(pos) = _RDI->type;
+          LODWORD(pos) = v13->type;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4916, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableCl_RunStateEvents: Unknown event type %i", pos) )
             __debugbreak();
           goto $LN8_100;
       }
     }
-  }
-LABEL_162:
-  _R11 = &v132;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
   }
 }
 
@@ -7167,13 +6225,12 @@ void ScriptableCl_SetDynamicBoneNoiseCurve(const LocalClientNum_t localClientNum
   unsigned int v15; 
   DObj *v16; 
   DObj *DObj; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v18; 
+  __int64 v19; 
 
-  _RDI = noise;
   if ( !noise && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3098, ASSERT_TYPE_ASSERT, "(noise)", (const char *)&queryFormat, "noise") )
     __debugbreak();
-  if ( _RDI->isViewmodel )
+  if ( noise->isViewmodel )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3103, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
@@ -7191,22 +6248,22 @@ void ScriptableCl_SetDynamicBoneNoiseCurve(const LocalClientNum_t localClientNum
       v13 = ViewmodelDObjHandle;
       if ( ViewmodelDObjHandle > 0x9E4 )
       {
-        LODWORD(v23) = ViewmodelDObjHandle;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v23) )
+        LODWORD(v19) = ViewmodelDObjHandle;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v19) )
           __debugbreak();
       }
       if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
       {
-        LODWORD(v23) = 2;
-        LODWORD(v22) = localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v22, v23) )
+        LODWORD(v19) = 2;
+        LODWORD(v18) = localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
       v14 = 2533 * localClientNum + v13;
       if ( v14 >= 0x13CA )
       {
-        LODWORD(v23) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v23) )
+        LODWORD(v19) = v14;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v19) )
           __debugbreak();
       }
       v15 = clientObjMap[v14];
@@ -7214,20 +6271,13 @@ void ScriptableCl_SetDynamicBoneNoiseCurve(const LocalClientNum_t localClientNum
       {
         if ( v15 >= (unsigned int)s_objCount )
         {
-          LODWORD(v23) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v23) )
+          LODWORD(v19) = v15;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v19) )
             __debugbreak();
         }
         v16 = (DObj *)s_objBuf[v15];
         if ( v16 )
-        {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi+1Ch]; rateMul
-            vmovss  xmm2, dword ptr [rdi+18h]; strengthMul
-          }
-          XAnimBonePhysics_SetCurveState(v16, _RDI->curve, *(const float *)&_XMM2, *(const float *)&_XMM3);
-        }
+          XAnimBonePhysics_SetCurveState(v16, noise->curve, noise->strengthMultiplier, noise->rateMultiplier);
       }
       ++v10;
     }
@@ -7239,14 +6289,7 @@ void ScriptableCl_SetDynamicBoneNoiseCurve(const LocalClientNum_t localClientNum
       __debugbreak();
     DObj = ScriptableCl_GetDObj(localClientNum, scriptableIndex);
     if ( DObj )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+1Ch]; rateMul
-        vmovss  xmm2, dword ptr [rdi+18h]; strengthMul
-      }
-      XAnimBonePhysics_SetCurveState(DObj, _RDI->curve, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    }
+      XAnimBonePhysics_SetCurveState(DObj, noise->curve, noise->strengthMultiplier, noise->rateMultiplier);
   }
 }
 
@@ -7255,26 +6298,11 @@ void ScriptableCl_SetDynamicBoneNoiseCurve(const LocalClientNum_t localClientNum
 ScriptableCl_SetViewmodelShaderParam
 ==============
 */
-
-void __fastcall ScriptableCl_SetViewmodelShaderParam(shaderOverride_t *shaderOverride, const ScriptableEventViewmodelShaderParamDef *viewmodelShaderParam, const Scriptable_EventViewmodelShaderParam_Data *data, double blendAmount)
+void ScriptableCl_SetViewmodelShaderParam(shaderOverride_t *shaderOverride, const ScriptableEventViewmodelShaderParamDef *viewmodelShaderParam, const Scriptable_EventViewmodelShaderParam_Data *data, float blendAmount)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3883, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, dword ptr [rbx+8]
-    vmulss  xmm0, xmm6, dword ptr [rbx+14h]
-    vaddss  xmm2, xmm2, xmm0
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  ScriptableCl_SetViewmodelShaderParam_Internal(shaderOverride, viewmodelShaderParam, *(const float *)&_XMM2);
+  ScriptableCl_SetViewmodelShaderParam_Internal(shaderOverride, viewmodelShaderParam, (float)((float)(1.0 - blendAmount) * data->startFloatValue) + (float)(blendAmount * data->targetFloatValue));
 }
 
 /*
@@ -7282,52 +6310,44 @@ void __fastcall ScriptableCl_SetViewmodelShaderParam(shaderOverride_t *shaderOve
 ScriptableCl_SetViewmodelShaderParam_Internal
 ==============
 */
-
-void __fastcall ScriptableCl_SetViewmodelShaderParam_Internal(shaderOverride_t *shaderOverride, const ScriptableEventViewmodelShaderParamDef *viewmodelShaderParam, double value)
+void ScriptableCl_SetViewmodelShaderParam_Internal(shaderOverride_t *shaderOverride, const ScriptableEventViewmodelShaderParamDef *viewmodelShaderParam, const float value)
 {
-  _RDI = shaderOverride;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   CG_EntityWorkers_EnterCriticalSection_ViewModel(NONE_LEGACY);
   switch ( viewmodelShaderParam->shaderParam )
   {
     case Scriptable_ShaderParamType_ScrollRate_X:
-      __asm { vmovss  dword ptr [rdi], xmm6; jumptable 00000001414D7E0E case 1 }
+      shaderOverride->scrollRateX = value;
       break;
     case Scriptable_ShaderParamType_ScrollRate_Y:
-      __asm { vmovss  dword ptr [rdi+4], xmm6; jumptable 00000001414D7E0E case 2 }
+      shaderOverride->scrollRateY = value;
       break;
     case Scriptable_ShaderParamType_ScrollRate_R:
-      __asm { vmovss  dword ptr [rdi+8], xmm6; jumptable 00000001414D7E0E case 3 }
+      shaderOverride->scrollRateR = value;
       break;
     case Scriptable_ShaderParamType_Rotation:
-      __asm { vmovss  dword ptr [rdi+14h], xmm6; jumptable 00000001414D7E0E case 4 }
+      shaderOverride->rotation = value;
       break;
     case Scriptable_ShaderParamType_Tiling_X:
-      __asm { vmovss  dword ptr [rdi+0Ch], xmm6; jumptable 00000001414D7E0E case 5 }
+      shaderOverride->tilingX = value;
       break;
     case Scriptable_ShaderParamType_Tiling_Y:
-      __asm { vmovss  dword ptr [rdi+10h], xmm6; jumptable 00000001414D7E0E case 6 }
+      shaderOverride->tilingY = value;
       break;
     case Scriptable_ShaderParamType_Alpha:
-      __asm { vmovss  dword ptr [rdi+18h], xmm6; jumptable 00000001414D7E0E case 7 }
+      shaderOverride->alpha = value;
       break;
     case Scriptable_ShaderParamType_Emissive:
-      __asm { vmovss  dword ptr [rdi+1Ch], xmm6; jumptable 00000001414D7E0E case 8 }
+      shaderOverride->emissive = value;
       break;
     case Scriptable_ShaderParamType_AtlasFrame:
     case Scriptable_ShaderParamType_Placeholder1:
-      __asm { vmovss  dword ptr [rdi+20h], xmm6; jumptable 00000001414D7E0E cases 9,10 }
+      shaderOverride->atlasTime = value;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 3874, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScriptableCl_SetViewmodelShaderParam_Internal passed invalid shaderParam. This should be caught by a Com_Error in the calling function.") )
         __debugbreak();
       break;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   CG_EntityWorkers_LeaveCriticalSection_ViewModel(NONE_LEGACY);
 }
 
@@ -7341,23 +6361,14 @@ void ScriptableCl_ShutdownActiveEvents(const LocalClientNum_t localClientNum, co
   unsigned int scriptableIndex; 
   ScriptablePartRuntime *PartRuntime; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  ScriptableInstanceContextSecure *v17; 
+  double v7; 
+  double v8; 
+  double v9; 
+  ScriptableInstanceContextSecure *v10; 
   const char *name; 
-  ScriptableStateDef *v19; 
-  double v24; 
-  double v25; 
-  double v26; 
+  ScriptableStateDef *v12; 
   vec3_t outOrigin; 
-  char v28; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
   if ( !eventParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5292, ASSERT_TYPE_ASSERT, "(eventParams)", (const char *)&queryFormat, "eventParams") )
     __debugbreak();
   scriptableIndex = eventParams->scriptableIndex;
@@ -7368,39 +6379,20 @@ void ScriptableCl_ShutdownActiveEvents(const LocalClientNum_t localClientNum, co
   ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
   if ( PartRuntime->stateId >= eventParams->partDef->numStates )
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+0C8h+outOrigin+8]
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovss  xmm7, dword ptr [rsp+0C8h+outOrigin+4]
-      vcvtss2sd xmm7, xmm7, xmm7
-      vmovss  xmm8, dword ptr [rsp+0C8h+outOrigin]
-      vcvtss2sd xmm8, xmm8, xmm8
-    }
-    v17 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    if ( v17->def )
-      name = v17->def->name;
+    v7 = outOrigin.v[2];
+    v8 = outOrigin.v[1];
+    v9 = outOrigin.v[0];
+    v10 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    if ( v10->def )
+      name = v10->def->name;
     else
       name = "<unknown>";
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_68], xmm6
-      vmovsd  [rsp+0C8h+var_70], xmm7
-      vmovsd  [rsp+0C8h+var_78], xmm8
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5304, ASSERT_TYPE_ASSERT, "(runtime->stateId < eventParams->partDef->numStates)", "%s\n\tState index invalid %i < %i for part %i in %s at [%.2f, %.2f, %.2f]", "runtime->stateId < eventParams->partDef->numStates", PartRuntime->stateId, eventParams->partDef->numStates, eventParams->partDef->flatId, name, v24, v25, v26) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5304, ASSERT_TYPE_ASSERT, "(runtime->stateId < eventParams->partDef->numStates)", "%s\n\tState index invalid %i < %i for part %i in %s at [%.2f, %.2f, %.2f]", "runtime->stateId < eventParams->partDef->numStates", PartRuntime->stateId, eventParams->partDef->numStates, eventParams->partDef->flatId, name, v9, v8, v7) )
       __debugbreak();
   }
-  v19 = &eventParams->partDef->states[PartRuntime->stateId];
-  ScriptableCl_StopStateEvents(localClientNum, eventParams, v19->base.events, v19->base.numEvents);
+  v12 = &eventParams->partDef->states[PartRuntime->stateId];
+  ScriptableCl_StopStateEvents(localClientNum, eventParams, v12->base.events, v12->base.numEvents);
   memset(&outOrigin, 0, sizeof(outOrigin));
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -7726,74 +6718,69 @@ ScriptableCl_StopStateEvents
 void ScriptableCl_StopStateEvents(const LocalClientNum_t localClientNum, const ScriptableEventParams *eventParams, ScriptableEventDef *events, unsigned int numEvents)
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  __int64 v12; 
+  Scriptable_EventType *p_type; 
+  __int64 v10; 
   const char *EventTypeName; 
-  const char *v15; 
-  __int64 v16; 
-  const ScriptableEventParams *v17; 
-  LocalClientNum_t v18; 
-  unsigned int v19; 
-  ScriptableEventDef *v20; 
+  const char *v12; 
+  __int64 v13; 
+  const ScriptableEventParams *v14; 
+  LocalClientNum_t v15; 
+  unsigned int v16; 
+  ScriptableEventDef *v17; 
   unsigned int scriptableIndex; 
   const DObj *DObj; 
   XAnimTree *Tree; 
-  unsigned int v25; 
-  unsigned int v27; 
-  ScriptableInstanceContextSecure *v28; 
+  unsigned int v21; 
+  unsigned int v22; 
+  ScriptableInstanceContextSecure *v23; 
   ScriptableNoteTrackClientContext *InstanceNoteTrackContext; 
-  unsigned int v30; 
-  ScriptableInstanceContextSecure *v31; 
-  __int64 v32; 
+  unsigned int v25; 
+  ScriptableInstanceContextSecure *v26; 
+  __int64 v27; 
   unsigned __int8 *eventStreamBuffer; 
   unsigned int LinkObject; 
-  ScriptableInstanceContextSecure *v35; 
+  ScriptableInstanceContextSecure *v30; 
   const char *name; 
   scr_string_t String; 
-  __int64 v38; 
-  __int64 v39; 
-  unsigned int v40; 
+  __int64 v33; 
+  __int64 v34; 
+  unsigned int v35; 
   centity_t *Entity; 
   __int16 otherEntityNum; 
-  unsigned int v43; 
+  unsigned int v38; 
   DObj *ClientDObj; 
-  DObj *v45; 
+  DObj *v40; 
   unsigned __int16 entnum; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  ScriptableInstanceContextSecure *v50; 
+  ScriptableInstanceContextSecure *v43; 
   ScriptableGravityArcRuntimeData arcData; 
   char dest[280]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, eventParams->scriptableIndex);
-  v50 = InstanceCommonContext;
+  v43 = InstanceCommonContext;
   if ( numEvents )
   {
-    _RSI = &events->type;
-    v12 = numEvents;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    p_type = &events->type;
+    v10 = numEvents;
     do
     {
-      EventTypeName = ScriptableBg_GetEventTypeName(*_RSI);
-      v15 = j_va("ScriptableCl_StopEvent %s", EventTypeName);
-      Sys_ProfBeginNamedEvent(0xFFD2691E, v15);
-      switch ( *_RSI )
+      EventTypeName = ScriptableBg_GetEventTypeName(*p_type);
+      v12 = j_va("ScriptableCl_StopEvent %s", EventTypeName);
+      Sys_ProfBeginNamedEvent(0xFFD2691E, v12);
+      switch ( *p_type )
       {
         case Scriptable_EventType_Random:
-          v16 = *((unsigned __int16 *)_RSI + 25);
-          if ( v16 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5160, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v13 = *((unsigned __int16 *)p_type + 25);
+          if ( v13 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5160, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          v17 = eventParams;
-          v18 = localClientNum;
-          if ( !InstanceCommonContext->eventStreamBuffer[v16] )
+          v14 = eventParams;
+          v15 = localClientNum;
+          if ( !InstanceCommonContext->eventStreamBuffer[v13] )
             goto LABEL_46;
-          v19 = *((_DWORD *)_RSI + 5);
+          v16 = *((_DWORD *)p_type + 5);
           goto LABEL_9;
         case Scriptable_EventType_Collision:
-          if ( *((_BYTE *)_RSI + 35) )
+          if ( *((_BYTE *)p_type + 35) )
           {
             ScriptableCl_DestroyCollision(localClientNum, eventParams->scriptableIndex);
             ScriptableCl_GetInstanceCollisionContext(localClientNum, eventParams->scriptableIndex)->collisionActiveFlags = 0;
@@ -7813,139 +6800,129 @@ void ScriptableCl_StopStateEvents(const LocalClientNum_t localClientNum, const S
                 Tree = DObjGetTree(DObj);
                 if ( Tree )
                 {
-                  v25 = *((unsigned __int16 *)_RSI + 36);
-                  if ( *((_BYTE *)_RSI + 26) )
-                  {
-                    __asm { vmovss  dword ptr [rsp+1F8h+fmt], xmm6 }
-                    XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v25, fmta);
-                  }
+                  v21 = *((unsigned __int16 *)p_type + 36);
+                  if ( *((_BYTE *)p_type + 26) )
+                    XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v21, 0.0);
                   else
-                  {
-                    __asm
-                    {
-                      vmovss  xmm0, dword ptr [rsi+30h]
-                      vmovss  dword ptr [rsp+1F8h+fmt], xmm0
-                    }
-                    XAnimClearGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v25, fmtb, LINEAR);
-                  }
+                    XAnimClearGoalWeight(Tree, 0, XANIM_SUBTREE_DEFAULT, v21, *((float *)p_type + 12), LINEAR);
                 }
               }
             }
           }
           break;
         case Scriptable_EventType_DisablePhysicsSubShape:
-          ScriptableCl_StopStateEventDisablePhysicsSubShape(localClientNum, eventParams, (const ScriptableEventDisablePhysicsSubShapeDef *)(_RSI + 2));
+          ScriptableCl_StopStateEventDisablePhysicsSubShape(localClientNum, eventParams, (const ScriptableEventDisablePhysicsSubShapeDef *)(p_type + 2));
           break;
         case Scriptable_EventType_NoteTrack:
           InstanceNoteTrackContext = ScriptableCl_GetInstanceNoteTrackContext(localClientNum, eventParams->scriptableIndex);
-          if ( (Scriptable_EventType *)InstanceNoteTrackContext->currentNoteTracks == _RSI + 2 )
+          if ( (Scriptable_EventType *)InstanceNoteTrackContext->currentNoteTracks == p_type + 2 )
           {
             InstanceNoteTrackContext->currentNoteTracks = NULL;
             InstanceNoteTrackContext->currentNoteTrackPartDef = NULL;
           }
           break;
         case Scriptable_EventType_PFX:
-          ScriptableCl_StopStateEventParticleFX(localClientNum, eventParams, (const ScriptableEventPFXDef *)(_RSI + 2));
+          ScriptableCl_StopStateEventParticleFX(localClientNum, eventParams, (const ScriptableEventPFXDef *)(p_type + 2));
           break;
         case Scriptable_EventType_SetMayhem:
-          v30 = eventParams->scriptableIndex;
-          v31 = ScriptableCl_GetInstanceCommonContext(localClientNum, v30);
-          v32 = *((unsigned __int16 *)_RSI + 12);
-          if ( v32 + 4 > (unsigned __int64)v31->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5114, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v25 = eventParams->scriptableIndex;
+          v26 = ScriptableCl_GetInstanceCommonContext(localClientNum, v25);
+          v27 = *((unsigned __int16 *)p_type + 12);
+          if ( v27 + 4 > (unsigned __int64)v26->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5114, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          eventStreamBuffer = v31->eventStreamBuffer;
-          LinkObject = ScriptableCl_GetLinkObject(localClientNum, v30);
-          v35 = ScriptableCl_GetInstanceCommonContext(localClientNum, v30);
-          if ( v35->def )
-            name = v35->def->name;
+          eventStreamBuffer = v26->eventStreamBuffer;
+          LinkObject = ScriptableCl_GetLinkObject(localClientNum, v25);
+          v30 = ScriptableCl_GetInstanceCommonContext(localClientNum, v25);
+          if ( v30->def )
+            name = v30->def->name;
           else
             name = "<unknown>";
           LODWORD(fmt) = LinkObject;
           Com_sprintf(dest, 0x104ui64, "Scriptable-%s-%i", name, fmt);
           String = SL_GetString(dest, 0);
-          *(_DWORD *)&eventStreamBuffer[v32] = String;
+          *(_DWORD *)&eventStreamBuffer[v27] = String;
           if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5126, ASSERT_TYPE_ASSERT, "(*mayhemId != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "*mayhemId != NULL_SCR_STRING") )
             __debugbreak();
           CG_EntityWorkers_EnterCriticalSection_Mayhem(NONE_LEGACY);
-          if ( Mayhem_DoesInstanceExist(*(scr_string_t *)&eventStreamBuffer[v32]) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5128, ASSERT_TYPE_ASSERT, "(Mayhem_DoesInstanceExist( *mayhemId ) == qtrue)", (const char *)&queryFormat, "Mayhem_DoesInstanceExist( *mayhemId ) == qtrue") )
+          if ( Mayhem_DoesInstanceExist(*(scr_string_t *)&eventStreamBuffer[v27]) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5128, ASSERT_TYPE_ASSERT, "(Mayhem_DoesInstanceExist( *mayhemId ) == qtrue)", (const char *)&queryFormat, "Mayhem_DoesInstanceExist( *mayhemId ) == qtrue") )
             __debugbreak();
-          Mayhem_KillInstance(*(scr_string_t *)&eventStreamBuffer[v32]);
+          Mayhem_KillInstance(*(scr_string_t *)&eventStreamBuffer[v27]);
           CG_EntityWorkers_LeaveCriticalSection_Mayhem(NONE_LEGACY);
-          SL_RemoveRefToString(*(scr_string_t *)&eventStreamBuffer[v32]);
-          *(_DWORD *)&eventStreamBuffer[v32] = 0;
-          InstanceCommonContext = v50;
+          SL_RemoveRefToString(*(scr_string_t *)&eventStreamBuffer[v27]);
+          *(_DWORD *)&eventStreamBuffer[v27] = 0;
+          InstanceCommonContext = v43;
           break;
         case Scriptable_EventType_ClientViewSelector:
-          v38 = *((unsigned __int16 *)_RSI + 24);
-          if ( v38 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5219, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v33 = *((unsigned __int16 *)p_type + 24);
+          if ( v33 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5219, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          v17 = eventParams;
-          v18 = localClientNum;
-          if ( InstanceCommonContext->eventStreamBuffer[v38] )
+          v14 = eventParams;
+          v15 = localClientNum;
+          if ( InstanceCommonContext->eventStreamBuffer[v33] )
           {
 LABEL_46:
-            v19 = *((_DWORD *)_RSI + 8);
-            v20 = (ScriptableEventDef *)*((_QWORD *)_RSI + 5);
+            v16 = *((_DWORD *)p_type + 8);
+            v17 = (ScriptableEventDef *)*((_QWORD *)p_type + 5);
           }
           else
           {
-            v19 = *((_DWORD *)_RSI + 4);
+            v16 = *((_DWORD *)p_type + 4);
 LABEL_9:
-            v20 = (ScriptableEventDef *)*((_QWORD *)_RSI + 3);
+            v17 = (ScriptableEventDef *)*((_QWORD *)p_type + 3);
           }
           goto LABEL_10;
         case Scriptable_EventType_TeamSelector:
-          v39 = *((unsigned __int16 *)_RSI + 28);
-          if ( v39 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5242, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          v34 = *((unsigned __int16 *)p_type + 28);
+          if ( v34 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5242, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
             __debugbreak();
-          v17 = eventParams;
-          v18 = localClientNum;
-          if ( InstanceCommonContext->eventStreamBuffer[v39] )
+          v14 = eventParams;
+          v15 = localClientNum;
+          if ( InstanceCommonContext->eventStreamBuffer[v34] )
           {
-            v19 = *((_DWORD *)_RSI + 6);
-            v20 = (ScriptableEventDef *)*((_QWORD *)_RSI + 4);
+            v16 = *((_DWORD *)p_type + 6);
+            v17 = (ScriptableEventDef *)*((_QWORD *)p_type + 4);
           }
           else
           {
-            v19 = *((_DWORD *)_RSI + 10);
-            v20 = (ScriptableEventDef *)*((_QWORD *)_RSI + 6);
+            v16 = *((_DWORD *)p_type + 10);
+            v17 = (ScriptableEventDef *)*((_QWORD *)p_type + 6);
           }
 LABEL_10:
-          ScriptableCl_StopStateEvents(v18, v17, v20, v19);
+          ScriptableCl_StopStateEvents(v15, v14, v17, v16);
           break;
         case Scriptable_EventType_MaterialOverride:
-          v40 = eventParams->scriptableIndex;
-          Entity = ScriptableCl_GetEntity(localClientNum, v40);
+          v35 = eventParams->scriptableIndex;
+          Entity = ScriptableCl_GetEntity(localClientNum, v35);
           if ( Entity )
           {
             if ( Entity->nextState.eType != ET_SCRIPTMOVER || (Entity->nextState.lerp.u.anonymous.data[2] & 0x100) == 0 || (otherEntityNum = Entity->nextState.otherEntityNum, otherEntityNum == 2047) )
             {
-              v43 = ScriptableCl_GetLinkObject(localClientNum, v40);
-              otherEntityNum = truncate_cast<short,unsigned int>(v43);
+              v38 = ScriptableCl_GetLinkObject(localClientNum, v35);
+              otherEntityNum = truncate_cast<short,unsigned int>(v38);
             }
             ClientDObj = Com_GetClientDObj(otherEntityNum, localClientNum);
-            v45 = ClientDObj;
+            v40 = ClientDObj;
             if ( ClientDObj )
             {
               entnum = ClientDObj->entnum;
-              if ( *((_DWORD *)_RSI + 4) == 1 )
+              if ( *((_DWORD *)p_type + 4) == 1 )
               {
                 DObjFreeMaterialOverrides(ClientDObj);
-                DObjFreeMaterialData(v45);
+                DObjFreeMaterialData(v40);
               }
               R_RemoveScriptableEntityData(localClientNum, entnum);
-              InstanceCommonContext = v50;
+              InstanceCommonContext = v43;
             }
           }
           break;
         case Scriptable_EventType_GravityArc:
-          v27 = eventParams->scriptableIndex;
-          v28 = ScriptableCl_GetInstanceCommonContext(localClientNum, v27);
-          *((_BYTE *)v28 + 61) &= ~2u;
-          ScriptableCl_GravityArcCalcData(localClientNum, v27, v28, (const ScriptableEventGravityArcDef *const)(_RSI + 2), &arcData);
-          ScriptableCL_StateEventMovePhysicsClearVelocity(localClientNum, v27);
-          ScriptableCL_SetPose(localClientNum, v27, v28, &arcData.endOrigin, &arcData.endAngles, 1);
-          InstanceCommonContext = v50;
+          v22 = eventParams->scriptableIndex;
+          v23 = ScriptableCl_GetInstanceCommonContext(localClientNum, v22);
+          *((_BYTE *)v23 + 61) &= ~2u;
+          ScriptableCl_GravityArcCalcData(localClientNum, v22, v23, (const ScriptableEventGravityArcDef *const)(p_type + 2), &arcData);
+          ScriptableCL_StateEventMovePhysicsClearVelocity(localClientNum, v22);
+          ScriptableCL_SetPose(localClientNum, v22, v23, &arcData.endOrigin, &arcData.endAngles, 1);
+          InstanceCommonContext = v43;
           break;
         case Scriptable_EventType_Objective:
           CG_EntityWorkers_EnterCriticalSection_ScriptableCl(NONE_LEGACY);
@@ -7956,12 +6933,11 @@ LABEL_10:
           break;
       }
       Sys_ProfEndNamedEvent();
-      _RSI += 44;
-      --v12;
+      p_type += 44;
+      --v10;
     }
-    while ( v12 );
+    while ( v10 );
   }
-  __asm { vmovaps xmm6, [rsp+1F8h+var_48] }
 }
 
 /*
@@ -8065,240 +7041,230 @@ void ScriptableCl_UpdateCollisionActivation(const LocalClientNum_t localClientNu
 ScriptableCl_UpdateEvent
 ==============
 */
-
-void __fastcall ScriptableCl_UpdateEvent(double deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, const ScriptableStateDef *state, const ScriptableEventDef *event, unsigned int eventIdx, unsigned int *holdrand, ScriptableUpdateRequest *inOutRequest)
+void ScriptableCl_UpdateEvent(const float deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, const ScriptableStateDef *state, const ScriptableEventDef *event, unsigned int eventIdx, unsigned int *holdrand, ScriptableUpdateRequest *inOutRequest)
 {
-  __int64 v18; 
-  ScriptableUpdateRequest *v21; 
+  __int64 v11; 
+  ScriptableUpdateRequest *v13; 
   const char *EventTypeName; 
-  const char *v23; 
-  char v24; 
+  const char *v15; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  unsigned __int64 eventStreamBufferSize; 
-  bool v28; 
-  bool v29; 
-  unsigned __int8 *eventStreamBuffer; 
-  unsigned int v35; 
-  const ScriptableEventDef *v36; 
-  ScriptableEventDef *v38; 
-  DObj *DObj; 
-  DObj *v41; 
-  XAnimTree *Tree; 
-  XAnimOwner v43; 
-  centity_t *Entity; 
-  XAnim_s *v45; 
-  cg_t *LocalClientGlobals; 
-  cg_t *v47; 
-  playerState_s *p_predictedPlayerState; 
-  int v49; 
-  char v50; 
-  unsigned int index; 
-  char v65; 
-  bool v71; 
-  bool v72; 
-  unsigned __int8 v76; 
-  bool v77; 
-  bool v78; 
-  int v80; 
-  ParticleSystem *v81; 
-  unsigned int v82; 
-  __int64 v83; 
-  ScriptableInstanceContextSecure *v84; 
-  const char *name; 
-  centity_t *v87; 
-  __int64 v106; 
   __int64 eventStreamBufferOffsetClient; 
-  const Scriptable_EventLight_Data *v114; 
+  unsigned __int8 *eventStreamBuffer; 
+  float v19; 
+  unsigned __int8 *v20; 
+  unsigned int v21; 
+  const ScriptableEventDef *v22; 
+  ScriptableEventDef *v23; 
+  DObj *DObj; 
+  DObj *v25; 
+  XAnimTree *Tree; 
+  XAnimOwner v27; 
+  centity_t *Entity; 
+  XAnim_s *v29; 
+  cg_t *LocalClientGlobals; 
+  cg_t *v31; 
+  playerState_s *p_predictedPlayerState; 
+  int v33; 
+  char v34; 
+  unsigned int index; 
+  Scriptable_EventAnimation_Data_MP *Data; 
+  float playBackRate; 
+  float v38; 
+  float v39; 
+  double Length; 
+  float v41; 
+  float v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  float v46; 
+  double v47; 
+  unsigned __int8 v48; 
+  bool v49; 
+  bool v50; 
+  __int64 v52; 
+  unsigned __int8 *v53; 
+  float v54; 
+  float v55; 
+  int v56; 
+  ParticleSystem *v57; 
+  unsigned int v58; 
+  __int64 v59; 
+  ScriptableInstanceContextSecure *v60; 
+  const char *name; 
+  centity_t *v63; 
+  __int64 beamBoneAxis; 
+  float v66; 
+  __m128 v; 
+  __m128 v72; 
+  __int64 v75; 
+  __int128 v77; 
+  __int64 v80; 
+  const Scriptable_EventLight_Data *v81; 
+  int time; 
+  __int128 v84; 
+  float v86; 
   GfxWorld *world; 
-  unsigned int v126; 
-  __int64 v127; 
-  __int64 v129; 
-  bool v216; 
-  unsigned __int64 v218; 
-  bool v219; 
-  bool v220; 
+  unsigned int v88; 
+  __int64 v89; 
+  __int64 v90; 
+  float *p_type; 
+  const ComPrimaryLight *PrimaryLight; 
+  __int128 v93; 
+  Scriptable_EventSun_Data *v98; 
+  int v99; 
+  __int128 v101; 
+  float v103; 
+  double v104; 
+  __int64 v109; 
+  unsigned __int8 *v110; 
+  float v111; 
+  float v112; 
   ScriptableEventDef *eventsB; 
-  char v227; 
-  cg_t *v228; 
-  centity_t *v229; 
+  cg_t *v114; 
+  centity_t *v115; 
   characterInfo_t *CharacterInfo; 
-  __int64 v231; 
-  unsigned __int8 *v232; 
-  const Scriptable_EventViewmodelShaderParam_Data *v233; 
-  DObj *v252; 
-  __int64 v253; 
+  __int64 v117; 
+  const Scriptable_EventViewmodelShaderParam_Data *v118; 
+  float v119; 
+  double v120; 
+  float v121; 
+  DObj *v124; 
+  __int64 v125; 
   unsigned int eventBCount; 
   ScriptableEventDef *eventsA; 
-  unsigned int v256; 
-  ScriptableEventDef *v257; 
-  unsigned int v259; 
-  const ScriptableEventDef *v260; 
-  DObj *v262; 
+  unsigned int v128; 
+  ScriptableEventDef *v129; 
+  unsigned int v130; 
+  const ScriptableEventDef *v131; 
+  DObj *v132; 
   unsigned int LinkObject; 
-  unsigned __int64 v264; 
-  DObj *v265; 
+  unsigned __int64 v134; 
+  DObj *v135; 
   unsigned int eventPassCount; 
   ScriptableEventDef *eventsPass; 
-  unsigned int v268; 
-  const ScriptableEventDef *v269; 
-  unsigned int v271; 
-  const ScriptableEventDef *v272; 
-  char v280; 
-  char v281; 
+  unsigned int v138; 
+  const ScriptableEventDef *v139; 
+  unsigned int v140; 
+  const ScriptableEventDef *v141; 
+  bool v142; 
+  bool v143; 
+  ScriptableInstanceContextSecure *v144; 
+  float v145; 
+  float v146; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  ScriptableEventDef *v314; 
-  float v315; 
-  float v316; 
+  ScriptableEventDef *v148; 
   __int64 rate; 
-  float ratea; 
-  float rateb; 
   char IsCharacterThirdPerson; 
   char DoesTeamMatch; 
-  char v322; 
+  bool v152; 
   unsigned int pHoldrand; 
-  unsigned __int8 *v324; 
-  __int64 v325; 
+  unsigned __int8 *v154; 
+  __int64 v155; 
   DObj *obj[2]; 
   float4 endPos; 
   float4 startPos; 
   tmat43_t<vec3_t> outTransform; 
-  char v330; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v325 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-  }
-  v18 = localClientNum;
-  __asm { vmovaps xmm6, xmm0 }
-  _RDI = event;
+  v155 = -2i64;
+  v11 = localClientNum;
   startPos.v.m128_u64[0] = (unsigned __int64)holdrand;
-  v21 = inOutRequest;
+  v13 = inOutRequest;
   obj[0] = (DObj *)inOutRequest;
   if ( !event && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5374, ASSERT_TYPE_ASSERT, "(event)", (const char *)&queryFormat, "event") )
     __debugbreak();
   EventTypeName = ScriptableBg_GetEventTypeName(event->type);
-  v23 = j_va("ScriptableCl_UpdateEvent %s", EventTypeName);
-  Sys_ProfBeginNamedEvent(0xFFD2691E, v23);
-  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v18, scriptableIndex);
+  v15 = j_va("ScriptableCl_UpdateEvent %s", EventTypeName);
+  Sys_ProfBeginNamedEvent(0xFFD2691E, v15);
+  InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v11, scriptableIndex);
   switch ( event->type )
   {
     case Scriptable_EventType_Wait:
-      _RDI = event->data.wait.eventStreamBufferOffsetClient;
-      eventStreamBufferSize = InstanceCommonContext->eventStreamBufferSize;
-      v28 = _RDI + 4 <= eventStreamBufferSize;
-      if ( _RDI + 4 > eventStreamBufferSize )
+      eventStreamBufferOffsetClient = event->data.wait.eventStreamBufferOffsetClient;
+      if ( eventStreamBufferOffsetClient + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5386, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+        __debugbreak();
+      eventStreamBuffer = InstanceCommonContext->eventStreamBuffer;
+      v19 = *(float *)&eventStreamBuffer[eventStreamBufferOffsetClient];
+      if ( v19 > 0.0 )
       {
-        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5386, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize");
-        v28 = !v29;
-        if ( v29 )
-          __debugbreak();
-      }
-      _RAX = InstanceCommonContext->eventStreamBuffer;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+rax]
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm0, xmm1
-      }
-      if ( !v28 )
-      {
-        __asm
+        *(float *)&eventStreamBuffer[eventStreamBufferOffsetClient] = v19 - deltaTime;
+        if ( (float)(v19 - deltaTime) <= 0.0 )
         {
-          vsubss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi+rax], xmm0
-          vcomiss xmm0, xmm1
-        }
-        if ( v28 )
-        {
-          *(_DWORD *)&_RAX[_RDI] = 0;
-          ScriptableCl_RunStateEventsFrom((const LocalClientNum_t)v18, scriptableIndex, part, eventIdx + 1, (unsigned int *)startPos.v.m128_u64[0]);
+          *(_DWORD *)&eventStreamBuffer[eventStreamBufferOffsetClient] = 0;
+          ScriptableCl_RunStateEventsFrom((const LocalClientNum_t)v11, scriptableIndex, part, eventIdx + 1, (unsigned int *)startPos.v.m128_u64[0]);
         }
         *inOutRequest = (ScriptableUpdateRequest)257;
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_Random:
       obj[0] = (DObj *)event->data.random.eventStreamBufferOffsetClient;
       if ( (XAnimTree **)((char *)&obj[0]->tree + 4) > (XAnimTree **)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5421, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
         __debugbreak();
-      eventStreamBuffer = InstanceCommonContext->eventStreamBuffer;
-      v35 = 0;
-      if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)eventStreamBuffer) )
+      v20 = InstanceCommonContext->eventStreamBuffer;
+      v21 = 0;
+      if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)v20) )
       {
         if ( event->data.stateChange.stateIdx )
         {
           while ( 1 )
           {
-            v36 = (const ScriptableEventDef *)(event->data.disablePhysicsSubShape.mutableShapeHash + 176i64 * v35);
-            if ( (v36->base.flags & 0x200) != 0 )
+            v22 = (const ScriptableEventDef *)(event->data.disablePhysicsSubShape.mutableShapeHash + 176i64 * v21);
+            if ( (v22->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v36, v35, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
+              ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v22, v21, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
               if ( inOutRequest->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++v35 >= event->data.stateChange.stateIdx )
-              goto LABEL_333;
+            if ( ++v21 >= event->data.stateChange.stateIdx )
+              goto LABEL_341;
           }
           if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5438, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-            goto LABEL_313;
+            goto LABEL_320;
         }
       }
       else if ( event->data.random.eventBCount )
       {
         while ( 1 )
         {
-          v38 = &event->data.random.eventsB[v35];
-          if ( (v38->base.flags & 0x200) != 0 )
+          v23 = &event->data.random.eventsB[v21];
+          if ( (v23->base.flags & 0x200) != 0 )
           {
-            __asm { vmovaps xmm0, xmm6; deltaTime }
-            ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v38, v35, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
+            ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v23, v21, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
             if ( inOutRequest->stopUpdatingEventsForState )
               break;
           }
-          if ( ++v35 >= event->data.random.eventBCount )
-            goto LABEL_333;
+          if ( ++v21 >= event->data.random.eventBCount )
+            goto LABEL_341;
         }
         if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5455, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-          goto LABEL_313;
+          goto LABEL_320;
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_Animation:
       inOutRequest->eventUpdateRequired = 1;
-      if ( ScriptableCl_GetDObjSafe((const LocalClientNum_t)v18, scriptableIndex) )
+      if ( ScriptableCl_GetDObjSafe((const LocalClientNum_t)v11, scriptableIndex) )
       {
-        if ( !ScriptableCl_GetDObjSafe((const LocalClientNum_t)v18, scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5475, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex )") )
+        if ( !ScriptableCl_GetDObjSafe((const LocalClientNum_t)v11, scriptableIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5475, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex ))", (const char *)&queryFormat, "ScriptableCl_GetDObjSafe( localClientNum, scriptableIndex )") )
           __debugbreak();
-        DObj = ScriptableCl_GetDObj((const LocalClientNum_t)v18, scriptableIndex);
-        v41 = DObj;
+        DObj = ScriptableCl_GetDObj((const LocalClientNum_t)v11, scriptableIndex);
+        v25 = DObj;
         obj[0] = DObj;
         if ( DObj && InstanceCommonContext->def->animationTreeDef[0] )
         {
           Tree = DObjGetTree(DObj);
           if ( Tree )
             goto LABEL_54;
-          if ( ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v18, scriptableIndex, SCRIPTABLE_LINK_ENTITY) )
+          if ( ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v11, scriptableIndex, SCRIPTABLE_LINK_ENTITY) )
           {
-            Entity = ScriptableCl_GetEntity((const LocalClientNum_t)v18, scriptableIndex);
+            Entity = ScriptableCl_GetEntity((const LocalClientNum_t)v11, scriptableIndex);
             if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5495, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
               __debugbreak();
-            v45 = InstanceCommonContext->def->animationTreeDef[0];
-            if ( v45 && v45->initialized )
+            v29 = InstanceCommonContext->def->animationTreeDef[0];
+            if ( v29 && v29->initialized )
             {
-              LOBYTE(v43) = 1;
-              Tree = Com_XAnimCreateSmallTree(v45, v43);
-              DObjSetTree(v41, Tree);
+              LOBYTE(v27) = 1;
+              Tree = Com_XAnimCreateSmallTree(v29, v27);
+              DObjSetTree(v25, Tree);
               if ( Entity->nextState.eType == ET_SCRIPTMOVER )
               {
                 if ( Entity->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5511, ASSERT_TYPE_ASSERT, "(entity->tree == 0)", (const char *)&queryFormat, "entity->tree == NULL") )
@@ -8313,177 +7279,105 @@ void __fastcall ScriptableCl_UpdateEvent(double deltaTime, const LocalClientNum_
               if ( Tree )
               {
 LABEL_54:
-                LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
+                LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
                 if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5524, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
                   __debugbreak();
-                v47 = CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-                p_predictedPlayerState = &v47->predictedPlayerState;
-                if ( v47 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5527, ASSERT_TYPE_ASSERT, "(ps != nullptr)", (const char *)&queryFormat, "ps != nullptr") )
+                v31 = CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
+                p_predictedPlayerState = &v31->predictedPlayerState;
+                if ( v31 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5527, ASSERT_TYPE_ASSERT, "(ps != nullptr)", (const char *)&queryFormat, "ps != nullptr") )
                   __debugbreak();
-                v49 = ScriptableCl_GetFrameServerTime((const LocalClientNum_t)v18) - p_predictedPlayerState->deltaTime;
+                v33 = ScriptableCl_GetFrameServerTime((const LocalClientNum_t)v11) - p_predictedPlayerState->deltaTime;
                 if ( LocalClientGlobals->inKillCam )
                   goto LABEL_66;
-                if ( (unsigned int)v18 >= 2 )
+                if ( (unsigned int)v11 >= 2 )
                 {
-                  LODWORD(v314) = v18;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 176, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableFrameKillCamTransition ) ) + 0 ) )", "localClientNum doesn't index g_scriptableFrameKillCamTransition\n\t%i not in [0, %i)", v314, 2) )
+                  LODWORD(v148) = v11;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 176, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_scriptableFrameKillCamTransition ) ) + 0 ) )", "localClientNum doesn't index g_scriptableFrameKillCamTransition\n\t%i not in [0, %i)", v148, 2) )
                     __debugbreak();
                 }
-                if ( !g_scriptableFrameKillCamTransition[v18] )
+                if ( !g_scriptableFrameKillCamTransition[v11] )
 LABEL_66:
-                  v50 = 0;
+                  v34 = 0;
                 else
-                  v50 = 1;
+                  v34 = 1;
                 index = event->data.animation.animationIndex[0].index;
-                if ( LocalClientGlobals->inKillCam || v50 )
+                if ( LocalClientGlobals->inKillCam || v34 )
                 {
-                  _R15 = ScriptableCl_StateEventAnimationGetData(InstanceCommonContext, (const ScriptableEventAnimationDef *const)&event->data);
+                  Data = ScriptableCl_StateEventAnimationGetData(InstanceCommonContext, (const ScriptableEventAnimationDef *const)&event->data);
                   if ( index )
                   {
                     if ( XAnimGetInfoIndex(Tree, 0, XANIM_SUBTREE_DEFAULT, index) )
                     {
-                      if ( !XAnimIsLooped(Tree->anims, index) && LocalClientGlobals->oldTime - LocalClientGlobals->predictedPlayerState.deltaTime <= _R15->serverTime && _R15->serverTime < v49 )
+                      if ( !XAnimIsLooped(Tree->anims, index) && LocalClientGlobals->oldTime - LocalClientGlobals->predictedPlayerState.deltaTime <= Data->serverTime && Data->serverTime < v33 )
                       {
-                        __asm
-                        {
-                          vmovss  xmm6, dword ptr [r15+8]
-                          vmovss  [rsp+180h+pHoldrand], xmm6
-                        }
-                        if ( (pHoldrand & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5556, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
+                        playBackRate = Data->playBackRate;
+                        *(float *)&pHoldrand = playBackRate;
+                        if ( (LODWORD(playBackRate) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5556, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
                           __debugbreak();
-                        __asm { vmovss  dword ptr [rsp+180h+fmt], xmm6 }
-                        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmta);
+                        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, index, playBackRate);
                       }
                     }
                     else
                     {
-                      __asm { vxorps  xmm7, xmm7, xmm7 }
-                      if ( v49 - _R15->serverTime >= 0 || XAnimIsLooped(Tree->anims, index) )
-                        __asm { vmovss  xmm6, dword ptr [r15+8] }
+                      if ( v33 - Data->serverTime >= 0 || XAnimIsLooped(Tree->anims, index) )
+                        v38 = Data->playBackRate;
                       else
-                        __asm { vxorps  xmm6, xmm6, xmm6 }
-                      __asm { vmovss  [rsp+180h+pHoldrand], xmm6 }
-                      if ( (pHoldrand & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5577, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
+                        v38 = 0.0;
+                      *(float *)&pHoldrand = v38;
+                      if ( (LODWORD(v38) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5577, ASSERT_TYPE_SANITY, "( !IS_NAN( playbackRate ) )", (const char *)&queryFormat, "!IS_NAN( playbackRate )") )
                         __debugbreak();
-                      __asm
-                      {
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm0, xmm0, r12d
-                        vmulss  xmm9, xmm0, cs:__real@3a83126f
-                        vmovss  xmm8, cs:__real@3f800000
-                      }
+                      v39 = (float)(v33 - Data->serverTime) * 0.001;
                       if ( event->data.anonymous.buffer[9] )
-                      {
-                        __asm
-                        {
-                          vmovss  [rsp+180h+rate], xmm6
-                          vmovss  dword ptr [rsp+180h+var_158], xmm7
-                          vmovss  dword ptr [rsp+180h+fmt], xmm8
-                        }
-                        XAnimSetCompleteGoalWeightKnob(obj[0], 0, XANIM_SUBTREE_DEFAULT, index, fmtb, v315, ratea, (scr_string_t)0, 4u, 0, LINEAR);
-                      }
+                        XAnimSetCompleteGoalWeightKnob(obj[0], 0, XANIM_SUBTREE_DEFAULT, index, 1.0, 0.0, v38, (scr_string_t)0, 4u, 0, LINEAR);
                       else
-                      {
-                        __asm
-                        {
-                          vmovss  [rsp+180h+rate], xmm6
-                          vmovss  dword ptr [rsp+180h+var_158], xmm7
-                          vmovss  dword ptr [rsp+180h+fmt], xmm8
-                        }
-                        XAnimSetCompleteGoalWeight(obj[0], 0, XANIM_SUBTREE_DEFAULT, index, fmtc, v316, rateb, (scr_string_t)0, 4u, 0, LINEAR, NULL);
-                      }
+                        XAnimSetCompleteGoalWeight(obj[0], 0, XANIM_SUBTREE_DEFAULT, index, 1.0, 0.0, v38, (scr_string_t)0, 4u, 0, LINEAR, NULL);
                       if ( event->data.anonymous.buffer[20] )
                       {
-                        XAnimGetLength(Tree->anims, index);
-                        __asm
-                        {
-                          vdivss  xmm1, xmm9, xmm0
-                          vmulss  xmm2, xmm1, xmm6
-                          vaddss  xmm6, xmm2, dword ptr [r15+4]
-                          vmovaps xmm0, xmm6; X
-                        }
+                        Length = XAnimGetLength(Tree->anims, index);
+                        v41 = (float)((float)(v39 / *(float *)&Length) * v38) + Data->startTime;
                         if ( XAnimIsLooped(Tree->anims, index) )
                         {
-                          __asm { vmovaps xmm1, xmm8; Y }
-                          *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-                          __asm
+                          v42 = fmodf_0(v41, 1.0);
+                          v43 = v42;
+                          if ( v42 < 0.0 )
                           {
-                            vmovaps xmm6, xmm0
-                            vcomiss xmm0, xmm7
-                          }
-                          if ( v65 )
-                          {
-                            __asm
-                            {
-                              vsubss  xmm6, xmm8, xmm0
-                              vcomiss xmm6, xmm7
-                            }
-                            if ( !v65 )
-                              __asm { vcomiss xmm6, xmm8 }
-                            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5604, ASSERT_TYPE_ASSERT, "(startTime >= 0.0f && startTime < 1.0f)", (const char *)&queryFormat, "startTime >= 0.0f && startTime < 1.0f") )
+                            v43 = 1.0 - v42;
+                            if ( ((float)(1.0 - v42) < 0.0 || (float)(1.0 - v42) >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5604, ASSERT_TYPE_ASSERT, "(startTime >= 0.0f && startTime < 1.0f)", (const char *)&queryFormat, "startTime >= 0.0f && startTime < 1.0f") )
                               __debugbreak();
                           }
                         }
                         else
                         {
-                          __asm
-                          {
-                            vmovaps xmm2, xmm8; max
-                            vxorps  xmm1, xmm1, xmm1; min
-                          }
-                          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                          __asm { vmovaps xmm6, xmm0 }
+                          v44 = I_fclamp(v41, 0.0, 1.0);
+                          v43 = *(float *)&v44;
                         }
-                        __asm { vmovss  [rsp+180h+pHoldrand], xmm6 }
-                        if ( (pHoldrand & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5611, ASSERT_TYPE_SANITY, "( !IS_NAN( startTime ) )", (const char *)&queryFormat, "!IS_NAN( startTime )") )
+                        *(float *)&pHoldrand = v43;
+                        if ( (LODWORD(v43) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5611, ASSERT_TYPE_SANITY, "( !IS_NAN( startTime ) )", (const char *)&queryFormat, "!IS_NAN( startTime )") )
                           __debugbreak();
-                        __asm { vmovss  dword ptr [rsp+180h+fmt], xmm6 }
-                        XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmtd);
+                        XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, index, v43);
                       }
                       else
                       {
-                        __asm
-                        {
-                          vmulss  xmm0, xmm9, xmm6
-                          vaddss  xmm8, xmm0, dword ptr [r15+4]
-                          vmovss  [rsp+180h+pHoldrand], xmm8
-                        }
-                        v71 = (pHoldrand & 0x7F800000) < 0x7F800000;
-                        if ( (pHoldrand & 0x7F800000) == 2139095040 )
-                        {
-                          v72 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5617, ASSERT_TYPE_SANITY, "( !IS_NAN( startTime ) )", (const char *)&queryFormat, "!IS_NAN( startTime )");
-                          v71 = 0;
-                          if ( v72 )
-                            __debugbreak();
-                        }
-                        __asm { vcomiss xmm8, xmm7 }
-                        if ( v71 )
+                        v46 = (float)(v39 * v38) + Data->startTime;
+                        v45 = v46;
+                        *(float *)&pHoldrand = v46;
+                        if ( (LODWORD(v46) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5617, ASSERT_TYPE_SANITY, "( !IS_NAN( startTime ) )", (const char *)&queryFormat, "!IS_NAN( startTime )") )
+                          __debugbreak();
+                        if ( v46 < 0.0 )
                         {
                           if ( XAnimIsLooped(Tree->anims, index) )
                           {
-                            *(double *)&_XMM0 = XAnimGetLength(Tree->anims, index);
-                            __asm
-                            {
-                              vmovaps xmm6, xmm0
-                              vmovaps xmm1, xmm0; Y
-                              vmovaps xmm0, xmm8; X
-                            }
-                            *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-                            __asm
-                            {
-                              vaddss  xmm8, xmm0, xmm6
-                              vcomiss xmm8, xmm7
-                            }
-                            if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5624, ASSERT_TYPE_ASSERT, "(startTime >= 0.0f)", (const char *)&queryFormat, "startTime >= 0.0f") )
+                            v47 = XAnimGetLength(Tree->anims, index);
+                            v45 = fmodf_0(v46, *(float *)&v47) + *(float *)&v47;
+                            if ( v45 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5624, ASSERT_TYPE_ASSERT, "(startTime >= 0.0f)", (const char *)&queryFormat, "startTime >= 0.0f") )
                               __debugbreak();
                           }
                           else
                           {
-                            __asm { vxorps  xmm8, xmm8, xmm8 }
+                            v45 = 0.0;
                           }
                         }
-                        __asm { vmovss  dword ptr [rsp+180h+fmt], xmm8 }
-                        XAnimSetTimeInSeconds(Tree, 0, XANIM_SUBTREE_DEFAULT, index, fmte);
+                        XAnimSetTimeInSeconds(Tree, 0, XANIM_SUBTREE_DEFAULT, index, v45);
                       }
                     }
                   }
@@ -8493,537 +7387,365 @@ LABEL_66:
           }
         }
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_PFX:
-      v76 = event->data.anonymous.buffer[60];
-      v77 = v76 && event->data.anonymous.buffer[69] && event->data.random.eventBCount;
-      v78 = v76 && event->data.particleFX.scrEndTagCount;
-      __asm
+      v48 = event->data.anonymous.buffer[60];
+      v49 = v48 && event->data.anonymous.buffer[69] && event->data.random.eventBCount;
+      v50 = v48 && event->data.particleFX.scrEndTagCount;
+      _XMM7 = 0i64;
+      if ( event->data.spawnDynent.launchAngVel.v[2] <= 0.0 )
       {
-        vxorps  xmm7, xmm7, xmm7
-        vcomiss xmm7, dword ptr [rdi+58h]
-      }
-      if ( v77 || v78 )
-      {
-        obj[0] = (DObj *)event->data.particleFX.eventStreamBufferOffsetClient;
-        if ( (XAnimTree **)((char *)&obj[0]->tree + 4) > (XAnimTree **)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5671, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize") )
-          __debugbreak();
-        v80 = *(_DWORD *)((char *)&obj[0]->tree + (unsigned __int64)InstanceCommonContext->eventStreamBuffer);
-        v81 = NULL;
-        v82 = 0;
-        if ( g_particleSystemsGeneration[4096 * v18 + (v80 & 0xFFF)].__all32 == v80 )
-          v82 = v80 & 0xFFF;
-        v83 = (v18 << 12) + v82;
-        if ( g_particleSystems[0][v83] >= (ParticleSystem *)0x1000 )
-          v81 = g_particleSystems[0][v83];
-        if ( v81 )
+        if ( v49 || v50 )
         {
-          inOutRequest->eventUpdateRequired = 1;
-          if ( v77 )
+          obj[0] = (DObj *)event->data.particleFX.eventStreamBufferOffsetClient;
+          if ( (XAnimTree **)((char *)&obj[0]->tree + 4) > (XAnimTree **)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5671, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( unsigned int ) <= r_context.eventStreamBufferSize") )
+            __debugbreak();
+          v56 = *(_DWORD *)((char *)&obj[0]->tree + (unsigned __int64)InstanceCommonContext->eventStreamBuffer);
+          v57 = NULL;
+          v58 = 0;
+          if ( g_particleSystemsGeneration[4096 * v11 + (v56 & 0xFFF)].__all32 == v56 )
+            v58 = v56 & 0xFFF;
+          v59 = (v11 << 12) + v58;
+          if ( g_particleSystems[0][v59] >= (ParticleSystem *)0x1000 )
+            v57 = g_particleSystems[0][v59];
+          if ( v57 )
           {
-            if ( !event->data.random.eventBCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5689, ASSERT_TYPE_ASSERT, "(event->data.particleFX.scrTagCount > 0)", (const char *)&queryFormat, "event->data.particleFX.scrTagCount > 0") )
-              __debugbreak();
-            if ( ScriptableCl_GetBoneTransform((const LocalClientNum_t)v18, scriptableIndex, *event->data.particleFX.scrTagNames, &outTransform, 1) )
+            inOutRequest->eventUpdateRequired = 1;
+            if ( v49 )
             {
-              if ( !ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v18, scriptableIndex, SCRIPTABLE_LINK_ENTITY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5695, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY ))", (const char *)&queryFormat, "ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY )") )
+              if ( !event->data.random.eventBCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5689, ASSERT_TYPE_ASSERT, "(event->data.particleFX.scrTagCount > 0)", (const char *)&queryFormat, "event->data.particleFX.scrTagCount > 0") )
                 __debugbreak();
-              __asm { vmovss  xmm8, dword ptr [rdi+6Ch] }
-              v87 = ScriptableCl_GetEntity((const LocalClientNum_t)v18, scriptableIndex);
-              if ( v87 && v87->nextState.eType == ET_MISSILE )
+              if ( ScriptableCl_GetBoneTransform((const LocalClientNum_t)v11, scriptableIndex, *event->data.particleFX.scrTagNames, &outTransform, 1) )
               {
-                __asm { vmovss  xmm1, cs:__real@461c4000; maxAbsValueSize }
-                MSG_UnpackUnsignedFloat(v87->nextState.lerp.u.anonymous.data[6], *(float *)&_XMM1, 0x10u);
+                if ( !ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v11, scriptableIndex, SCRIPTABLE_LINK_ENTITY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5695, ASSERT_TYPE_ASSERT, "(ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY ))", (const char *)&queryFormat, "ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY )") )
+                  __debugbreak();
+                _XMM8 = LODWORD(event->data.spawnDynent.launchAngVel2.v[1]);
+                v63 = ScriptableCl_GetEntity((const LocalClientNum_t)v11, scriptableIndex);
+                if ( v63 && v63->nextState.eType == ET_MISSILE )
+                {
+                  MSG_UnpackUnsignedFloat(v63->nextState.lerp.u.anonymous.data[6], 10000.0, 0x10u);
+                  __asm
+                  {
+                    vcmpltss xmm1, xmm7, xmm0
+                    vblendvps xmm8, xmm8, xmm0, xmm1
+                  }
+                }
+                if ( event->data.particleFX.beamBoneAxis >= 3u )
+                {
+                  LODWORD(v148) = event->data.particleFX.beamBoneAxis;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5709, ASSERT_TYPE_ASSERT, "(unsigned)( event->data.particleFX.beamBoneAxis ) < (unsigned)( 3 )", "event->data.particleFX.beamBoneAxis doesn't index 3\n\t%i not in [0, %i)", v148, 3) )
+                    __debugbreak();
+                }
+                beamBoneAxis = event->data.particleFX.beamBoneAxis;
+                if ( (unsigned int)beamBoneAxis >= 4 )
+                {
+                  LODWORD(rate) = 4;
+                  LODWORD(v148) = event->data.particleFX.beamBoneAxis;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v148, rate) )
+                    __debugbreak();
+                }
+                v66 = (float)(*(float *)&_XMM8 * outTransform.m[beamBoneAxis].v[0]) + outTransform.m[3].v[0];
+                endPos.v.m128_i32[3] = 0;
+                v = endPos.v;
+                v.m128_f32[0] = outTransform.m[3].v[0];
+                _XMM0 = v;
                 __asm
                 {
-                  vcmpltss xmm1, xmm7, xmm0
-                  vblendvps xmm8, xmm8, xmm0, xmm1
+                  vinsertps xmm0, xmm0, dword ptr [rbp+80h+outTransform+28h], 10h
+                  vinsertps xmm0, xmm0, dword ptr [rbp+80h+outTransform+2Ch], 20h
                 }
+                endPos.v = _XMM0;
+                *(__m128 *)obj = _XMM0;
+                endPos.v.m128_i32[3] = 0;
+                v72 = endPos.v;
+                v72.m128_f32[0] = v66;
+                _XMM0 = v72;
+                __asm
+                {
+                  vinsertps xmm0, xmm0, xmm5, 10h
+                  vinsertps xmm0, xmm0, xmm4, 20h ; ' '
+                }
+                endPos.v = _XMM0;
+                CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
+                ParticleSystem::SetBeamPos(v57, (const float4 *)obj, &endPos);
+                CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
               }
-              if ( event->data.particleFX.beamBoneAxis >= 3u )
-              {
-                LODWORD(v314) = event->data.particleFX.beamBoneAxis;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5709, ASSERT_TYPE_ASSERT, "(unsigned)( event->data.particleFX.beamBoneAxis ) < (unsigned)( 3 )", "event->data.particleFX.beamBoneAxis doesn't index 3\n\t%i not in [0, %i)", v314, 3) )
-                  __debugbreak();
-              }
-              if ( event->data.particleFX.beamBoneAxis >= 4u )
-              {
-                LODWORD(rate) = 4;
-                LODWORD(v314) = event->data.particleFX.beamBoneAxis;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 341, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v314, rate) )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vmulss  xmm0, xmm8, dword ptr [rbp+rcx*4+80h+outTransform]
-                vmovss  xmm3, dword ptr [rbp+80h+outTransform+24h]
-                vaddss  xmm6, xmm0, xmm3
-                vmulss  xmm1, xmm8, dword ptr [rbp+rcx*4+80h+outTransform+4]
-                vaddss  xmm5, xmm1, dword ptr [rbp+80h+outTransform+28h]
-                vmulss  xmm0, xmm8, dword ptr [rbp+rcx*4+80h+outTransform+8]
-                vaddss  xmm4, xmm0, dword ptr [rbp+80h+outTransform+2Ch]
-              }
-              endPos.v.m128_i32[3] = 0;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbp+80h+endPos.v]
-                vmovss  xmm0, xmm0, xmm3
-                vinsertps xmm0, xmm0, dword ptr [rbp+80h+outTransform+28h], 10h
-                vinsertps xmm0, xmm0, dword ptr [rbp+80h+outTransform+2Ch], 20h
-                vmovups xmmword ptr [rbp+80h+endPos.v], xmm0
-                vmovups xmmword ptr [rbp+80h+obj], xmm0
-              }
-              endPos.v.m128_i32[3] = 0;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbp+80h+endPos.v]
-                vmovss  xmm0, xmm0, xmm6
-                vinsertps xmm0, xmm0, xmm5, 10h
-                vinsertps xmm0, xmm0, xmm4, 20h ; ' '
-                vmovups xmmword ptr [rbp+80h+endPos.v], xmm0
-                vmovups xmmword ptr [rbp+80h+endPos.v], xmm0
-              }
+            }
+            else
+            {
+              if ( !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5731, ASSERT_TYPE_ASSERT, "(loopingWithEndTag)", (const char *)&queryFormat, "loopingWithEndTag") )
+                __debugbreak();
+              *(float *)&pHoldrand = COERCE_FLOAT(Sys_Milliseconds());
+              v75 = BG_irand(0, event->data.screenshake.radius, &pHoldrand);
               CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-              ParticleSystem::SetBeamPos(v81, (const float4 *)obj, &endPos);
+              ParticleSystem::GetBeamPos(v57, &startPos, (float4 *)obj);
+              if ( ScriptableCl_GetBonePosition((const LocalClientNum_t)v11, scriptableIndex, *((const scr_string_t *)&event->data.random.eventsB->base.name + v75), (vec3_t *)&endPos, 0) )
+              {
+                HIDWORD(obj[1]) = 0;
+                v77 = *(_OWORD *)obj;
+                *(float *)&v77 = endPos.v.m128_f32[0];
+                _XMM3 = v77;
+                __asm
+                {
+                  vinsertps xmm3, xmm3, dword ptr [rbp+80h+endPos.v+4], 10h
+                  vinsertps xmm3, xmm3, dword ptr [rbp+80h+endPos.v+8], 20h
+                }
+                *(_OWORD *)obj = _XMM3;
+                ParticleSystem::SetBeamPos(v57, &startPos, (const float4 *)obj);
+              }
               CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
             }
           }
           else
           {
-            if ( !v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5731, ASSERT_TYPE_ASSERT, "(loopingWithEndTag)", (const char *)&queryFormat, "loopingWithEndTag") )
-              __debugbreak();
-            pHoldrand = Sys_Milliseconds();
-            v106 = BG_irand(0, event->data.screenshake.radius, &pHoldrand);
-            CG_EntityWorkers_EnterCriticalSection_VFX(NONE_LEGACY);
-            ParticleSystem::GetBeamPos(v81, &startPos, (float4 *)obj);
-            if ( ScriptableCl_GetBonePosition((const LocalClientNum_t)v18, scriptableIndex, *((const scr_string_t *)&event->data.random.eventsB->base.name + v106), (vec3_t *)&endPos, 0) )
-            {
-              __asm { vmovss  xmm0, dword ptr [rbp+80h+endPos.v] }
-              HIDWORD(obj[1]) = 0;
-              __asm
-              {
-                vmovups xmm3, xmmword ptr [rbp+80h+obj]
-                vmovss  xmm3, xmm3, xmm0
-                vinsertps xmm3, xmm3, dword ptr [rbp+80h+endPos.v+4], 10h
-                vinsertps xmm3, xmm3, dword ptr [rbp+80h+endPos.v+8], 20h
-                vmovups xmmword ptr [rbp+80h+obj], xmm3
-                vmovups xmmword ptr [rbp+80h+obj], xmm3
-              }
-              ParticleSystem::SetBeamPos(v81, &startPos, (const float4 *)obj);
-            }
-            CG_EntityWorkers_LeaveCriticalSection_VFX(NONE_LEGACY);
+            v60 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v11, scriptableIndex);
+            if ( v60->def )
+              name = v60->def->name;
+            else
+              name = "<unknown>";
+            Com_PrintWarning(29, "Scriptable UpdateEvent: Missing particle system (%d %s)\n", scriptableIndex, name);
           }
         }
-        else
+        else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5754, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable_EventType_PFX is running Update when it should not be.") )
         {
-          v84 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v18, scriptableIndex);
-          if ( v84->def )
-            name = v84->def->name;
-          else
-            name = "<unknown>";
-          Com_PrintWarning(29, "Scriptable UpdateEvent: Missing particle system (%d %s)\n", scriptableIndex, name);
+          goto LABEL_320;
         }
       }
-      else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5754, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Scriptable_EventType_PFX is running Update when it should not be.") )
+      else
       {
-        goto LABEL_313;
+        v52 = event->data.particleFX.eventStreamBufferOffsetClient;
+        if ( v52 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5649, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+          __debugbreak();
+        v53 = InstanceCommonContext->eventStreamBuffer;
+        v54 = *(float *)&v53[v52];
+        *(float *)&v53[v52] = v54 - deltaTime;
+        if ( (float)(v54 - deltaTime) > 0.0 )
+          goto LABEL_234;
+        do
+        {
+          ScriptableCl_PlayParticleFX((const LocalClientNum_t)v11, NULL, scriptableIndex, (const ScriptableEventPFXDef *)&event->data, eventIdx);
+          v55 = event->data.spawnDynent.launchAngVel.v[2] + *(float *)&v53[v52];
+          *(float *)&v53[v52] = v55;
+        }
+        while ( v55 <= 0.0 );
+        BYTE1(obj[0]->tree) = 1;
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_Sound:
       inOutRequest->eventUpdateRequired = 1;
       if ( !event->data.anonymous.buffer[32] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5764, ASSERT_TYPE_ASSERT, "(event->data.sound.looping)", (const char *)&queryFormat, "event->data.sound.looping") )
         __debugbreak();
-      ScriptableCl_PlaySound((const LocalClientNum_t)v18, scriptableIndex, (const ScriptableEventSoundDef *)&event->data);
-      goto LABEL_333;
+      ScriptableCl_PlaySound((const LocalClientNum_t)v11, scriptableIndex, (const ScriptableEventSoundDef *)&event->data);
+      goto LABEL_341;
     case Scriptable_EventType_Light:
       if ( !event->data.anonymous.buffer[36] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5771, ASSERT_TYPE_ASSERT, "(event->data.light.useStateTransitionTime)", (const char *)&queryFormat, "event->data.light.useStateTransitionTime") )
         __debugbreak();
       if ( ScriptableCommon_GetMapInstance(scriptableIndex, (const ScriptableInstance **)obj) )
       {
-        eventStreamBufferOffsetClient = event->data.animation.eventStreamBufferOffsetClient;
-        if ( eventStreamBufferOffsetClient + 36 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5784, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize") )
+        v80 = event->data.animation.eventStreamBufferOffsetClient;
+        if ( v80 + 36 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5784, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventLight_Data ) <= r_context.eventStreamBufferSize") )
           __debugbreak();
-        v114 = (const Scriptable_EventLight_Data *)&InstanceCommonContext->eventStreamBuffer[eventStreamBufferOffsetClient];
-        CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-        if ( v114->transTime < 0 )
+        v81 = (const Scriptable_EventLight_Data *)&InstanceCommonContext->eventStreamBuffer[v80];
+        time = CG_GetLocalClientGlobals((const LocalClientNum_t)v11)->time;
+        if ( v81->transTime < 0 )
         {
-          LODWORD(v314) = v114->transTime;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5794, ASSERT_TYPE_ASSERT, "( ( data->transTime >= 0 ) )", "( data->transTime ) = %i", v314) )
+          LODWORD(v148) = v81->transTime;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5794, ASSERT_TYPE_ASSERT, "( ( data->transTime >= 0 ) )", "( data->transTime ) = %i", v148) )
             __debugbreak();
         }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [r15+4]
-          vmaxss  xmm1, xmm0, cs:__real@34000000
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vdivss  xmm0, xmm0, xmm1; val
-          vmovss  xmm7, cs:__real@3f800000
-          vmovaps xmm2, xmm7; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vcomiss xmm0, xmm7
-        }
-        if ( v24 )
+        v84 = 0i64;
+        *(float *)&v84 = (float)v81->transTime;
+        _XMM0 = v84;
+        __asm { vmaxss  xmm1, xmm0, cs:__real@34000000 }
+        *(float *)&v84 = (float)(time - v81->startTime) / *(float *)&_XMM1;
+        *(double *)&_XMM0 = I_fclamp(*(float *)&v84, 0.0, 1.0);
+        v86 = *(float *)&v84;
+        if ( *(float *)&_XMM0 < 1.0 )
           inOutRequest->eventUpdateRequired = 1;
         world = rgp.world;
         if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5807, ASSERT_TYPE_ASSERT, "(curGfxWorld)", (const char *)&queryFormat, "curGfxWorld") )
           __debugbreak();
-        v126 = 0;
-        v127 = 56i64;
-        __asm { vmovss  xmm8, cs:__real@3f8147ae }
+        v88 = 0;
+        v89 = 56i64;
         do
         {
-          v129 = *(unsigned __int16 *)((char *)&obj[0]->tree + v127);
-          if ( !*(_WORD *)((char *)&obj[0]->tree + v127) )
+          v90 = *(unsigned __int16 *)((char *)&obj[0]->tree + v89);
+          if ( !*(_WORD *)((char *)&obj[0]->tree + v89) )
             break;
-          __asm { vmovaps xmm0, xmm6; interpolation }
-          if ( !CG_EntityWorkers_TryAddScriptableEventLightUpdate(*(const float *)&_XMM0, *(unsigned __int16 *)((char *)&obj[0]->tree + v127), v114, event) )
+          if ( !CG_EntityWorkers_TryAddScriptableEventLightUpdate(v86, *(unsigned __int16 *)((char *)&obj[0]->tree + v89), v81, event) )
           {
-            _RBX = (__int64)&world->primaryLights[v129];
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5823, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
+            p_type = (float *)&world->primaryLights[v90].type;
+            if ( !p_type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5823, ASSERT_TYPE_ASSERT, "(refLight)", (const char *)&queryFormat, "refLight") )
               __debugbreak();
-            _R14 = Com_GetPrimaryLight(v129);
-            if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5825, ASSERT_TYPE_ASSERT, "(rawLight)", (const char *)&queryFormat, "rawLight") )
+            PrimaryLight = Com_GetPrimaryLight(v90);
+            if ( !PrimaryLight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5825, ASSERT_TYPE_ASSERT, "(rawLight)", (const char *)&queryFormat, "rawLight") )
               __debugbreak();
-            __asm { vsubss  xmm3, xmm7, xmm6 }
+            v93 = LODWORD(FLOAT_1_0);
+            *(float *)&v93 = 1.0 - v86;
             if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_scriptable_light_radiusscale, "scriptable_light_radiusscale") )
             {
-              __asm
-              {
-                vmulss  xmm1, xmm3, dword ptr [r15+1Ch]
-                vmulss  xmm0, xmm6, dword ptr [r15+20h]
-                vaddss  xmm1, xmm1, xmm0
-                vmaxss  xmm2, xmm1, xmm8
-                vmovss  dword ptr [rbx+44h], xmm2
-              }
+              *(float *)&v93 = (float)(*(float *)&v93 * v81->startRadius) + (float)(v86 * v81->targetRadius);
+              _XMM1 = v93;
+              __asm { vmaxss  xmm2, xmm1, xmm8 }
+              p_type[17] = *(float *)&_XMM2;
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r14+50h]
-                vmaxss  xmm1, xmm0, xmm8
-                vmovss  dword ptr [rbx+44h], xmm1
-              }
+              _XMM0 = LODWORD(PrimaryLight->radius);
+              __asm { vmaxss  xmm1, xmm0, xmm8 }
+              p_type[17] = *(float *)&_XMM1;
             }
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [r15+18h]
-              vmulss  xmm0, xmm3, dword ptr [r15+14h]
-              vaddss  xmm1, xmm1, xmm0
-              vmovss  dword ptr [rbx+10h], xmm1
-            }
+            p_type[4] = (float)(v86 * v81->targetIntensity) + (float)((float)(1.0 - v86) * v81->startIntensity);
             if ( event->data.anonymous.buffer[16] )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+34h]
-                vsubss  xmm1, xmm0, dword ptr [r15+8]
-                vmulss  xmm2, xmm1, xmm6
-                vaddss  xmm3, xmm2, dword ptr [r15+8]
-                vmovss  dword ptr [rbx+14h], xmm3
-                vmovss  xmm0, dword ptr [rdi+38h]
-                vsubss  xmm1, xmm0, dword ptr [r15+0Ch]
-                vmulss  xmm2, xmm1, xmm6
-                vaddss  xmm3, xmm2, dword ptr [r15+0Ch]
-                vmovss  dword ptr [rbx+18h], xmm3
-                vmovss  xmm0, dword ptr [rdi+3Ch]
-                vsubss  xmm1, xmm0, dword ptr [r15+10h]
-                vmulss  xmm2, xmm1, xmm6
-                vaddss  xmm3, xmm2, dword ptr [r15+10h]
-                vmovss  dword ptr [rbx+1Ch], xmm3
-              }
+              p_type[5] = (float)((float)(event->data.chunkDynent.launchAngVel.v[0] - v81->startColorLinearSrgb.v[0]) * v86) + v81->startColorLinearSrgb.v[0];
+              p_type[6] = (float)((float)(event->data.animation.playbackRateMin - v81->startColorLinearSrgb.v[1]) * v86) + v81->startColorLinearSrgb.v[1];
+              p_type[7] = (float)((float)(event->data.animation.playbackRateMax - v81->startColorLinearSrgb.v[2]) * v86) + v81->startColorLinearSrgb.v[2];
             }
             else
             {
-              *(float *)(_RBX + 20) = _R14->colorLinearSrgb.v[0];
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r14+24h]
-                vmovss  dword ptr [rbx+18h], xmm0
-                vmovss  xmm1, dword ptr [r14+28h]
-                vmovss  dword ptr [rbx+1Ch], xmm1
-              }
+              p_type[5] = PrimaryLight->colorLinearSrgb.v[0];
+              p_type[6] = PrimaryLight->colorLinearSrgb.v[1];
+              p_type[7] = PrimaryLight->colorLinearSrgb.v[2];
             }
           }
-          ++v126;
-          v127 += 2i64;
+          ++v88;
+          v89 += 2i64;
         }
-        while ( v126 < 5 );
+        while ( v88 < 5 );
       }
       else
       {
         Com_PrintError(29, "Can't update 'light' event for instance %i, it does not have any mapped lights\n", scriptableIndex);
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_Sun:
       if ( !event->data.anonymous.buffer[32] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5856, ASSERT_TYPE_ASSERT, "(event->data.sun.useStateTransitionTime)", (const char *)&queryFormat, "event->data.sun.useStateTransitionTime") )
         __debugbreak();
-      _RSI = &cm.mapEnts->scriptableMapEnts.sunClientDatas[v18];
-      CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-      if ( _RSI->transTime < 0 )
+      v98 = &cm.mapEnts->scriptableMapEnts.sunClientDatas[v11];
+      v99 = CG_GetLocalClientGlobals((const LocalClientNum_t)v11)->time;
+      if ( v98->transTime < 0 )
       {
-        LODWORD(v314) = _RSI->transTime;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5865, ASSERT_TYPE_ASSERT, "( ( data->transTime >= 0 ) )", "( data->transTime ) = %i", v314) )
+        LODWORD(v148) = v98->transTime;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5865, ASSERT_TYPE_ASSERT, "( ( data->transTime >= 0 ) )", "( data->transTime ) = %i", v148) )
           __debugbreak();
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+4]
-        vmaxss  xmm1, xmm0, cs:__real@34000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r14d
-        vdivss  xmm0, xmm0, xmm1; val
-        vmovss  xmm6, cs:__real@3f800000
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm10, xmm0
-        vcomiss xmm0, xmm6
-      }
-      if ( v24 )
+      v101 = 0i64;
+      *(float *)&v101 = (float)v98->transTime;
+      _XMM0 = v101;
+      __asm { vmaxss  xmm1, xmm0, cs:__real@34000000 }
+      v103 = (float)(v99 - v98->startTime) / *(float *)&_XMM1;
+      v104 = I_fclamp(v103, 0.0, 1.0);
+      if ( *(float *)&v104 < 1.0 )
         inOutRequest->eventUpdateRequired = 1;
-      if ( !CG_EntityWorkers_TryAddScriptableEventSunUpdate(*(const float *)&_XMM0, event, _RSI) )
+      if ( !CG_EntityWorkers_TryAddScriptableEventSunUpdate(*(const float *)&v104, event, v98) )
       {
         if ( event->data.anonymous.buffer[12] )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+30h]
-            vsubss  xmm1, xmm0, dword ptr [rsi+8]
-            vmulss  xmm2, xmm1, xmm10
-            vaddss  xmm3, xmm2, dword ptr [rsi+8]
-            vmovss  dword ptr [rbp+80h+endPos.v], xmm3
-            vmovss  xmm0, dword ptr [rdi+34h]
-            vsubss  xmm1, xmm0, dword ptr [rsi+0Ch]
-            vmulss  xmm2, xmm1, xmm10
-            vaddss  xmm3, xmm2, dword ptr [rsi+0Ch]
-            vmovss  dword ptr [rbp+80h+endPos.v+4], xmm3
-            vmovss  xmm0, dword ptr [rdi+38h]
-            vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-            vmulss  xmm2, xmm1, xmm10
-            vaddss  xmm3, xmm2, dword ptr [rsi+10h]
-            vmovss  dword ptr [rbp+80h+endPos.v+8], xmm3
-          }
+          endPos.v.m128_f32[0] = (float)((float)(event->data.animation.startTimeMax - v98->startColorLinearSrgb.v[0]) * v103) + v98->startColorLinearSrgb.v[0];
+          endPos.v.m128_f32[1] = (float)((float)(event->data.chunkDynent.launchAngVel.v[0] - v98->startColorLinearSrgb.v[1]) * v103) + v98->startColorLinearSrgb.v[1];
+          endPos.v.m128_f32[2] = (float)((float)(event->data.animation.playbackRateMin - v98->startColorLinearSrgb.v[2]) * v103) + v98->startColorLinearSrgb.v[2];
           R_SetSunColorOverride((const vec3_t *)&endPos);
         }
         if ( event->data.anonymous.buffer[0] )
-        {
-          __asm
-          {
-            vsubss  xmm0, xmm6, xmm10
-            vmulss  xmm2, xmm0, dword ptr [rsi+14h]
-            vmulss  xmm1, xmm10, dword ptr [rsi+18h]
-            vaddss  xmm0, xmm2, xmm1; sunIntensity
-          }
-          R_SetSunIntensityOverride(*(const float *)&_XMM0);
-        }
+          R_SetSunIntensityOverride((float)((float)(1.0 - v103) * v98->startIntensity) + (float)(v103 * v98->targetIntensity));
         if ( event->data.anonymous.buffer[60] )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+28h]
-            vsubss  xmm1, xmm0, dword ptr [rsi+1Ch]
-            vmovss  xmm9, cs:__real@3b360b61
-            vmulss  xmm3, xmm1, xmm9
-            vmovss  xmm7, cs:__real@3f000000
-            vaddss  xmm2, xmm3, xmm7
-            vxorps  xmm8, xmm8, xmm8
-            vroundss xmm0, xmm8, xmm2, 1
-            vsubss  xmm0, xmm3, xmm0
-            vmovss  xmm6, cs:__real@43b40000
-            vmulss  xmm0, xmm0, xmm6
-            vmulss  xmm1, xmm0, xmm10
-            vaddss  xmm2, xmm1, dword ptr [rsi+1Ch]
-            vmovss  dword ptr [rbp+80h+endPos.v], xmm2
-            vmovss  xmm0, dword ptr [rsi+2Ch]
-            vsubss  xmm0, xmm0, dword ptr [rsi+20h]
-            vmulss  xmm4, xmm0, xmm9
-            vaddss  xmm2, xmm4, xmm7
-            vroundss xmm3, xmm8, xmm2, 1
-            vsubss  xmm0, xmm4, xmm3
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm10
-            vaddss  xmm3, xmm2, dword ptr [rsi+20h]
-            vmovss  dword ptr [rbp+80h+endPos.v+4], xmm3
-            vmovss  xmm0, dword ptr [rsi+30h]
-            vsubss  xmm0, xmm0, dword ptr [rsi+24h]
-            vmulss  xmm3, xmm0, xmm9
-            vaddss  xmm2, xmm3, xmm7
-            vroundss xmm1, xmm8, xmm2, 1
-            vsubss  xmm0, xmm3, xmm1
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm10
-            vaddss  xmm3, xmm2, dword ptr [rsi+24h]
-            vmovss  dword ptr [rbp+80h+endPos.v+8], xmm3
-          }
+          _XMM8 = 0i64;
+          __asm { vroundss xmm0, xmm8, xmm2, 1 }
+          endPos.v.m128_f32[0] = (float)((float)((float)((float)((float)(v98->targetAngles.v[0] - v98->startAngles.v[0]) * 0.0027777778) - *(float *)&_XMM0) * 360.0) * v103) + v98->startAngles.v[0];
+          __asm { vroundss xmm3, xmm8, xmm2, 1 }
+          endPos.v.m128_f32[1] = (float)((float)((float)((float)((float)(v98->targetAngles.v[1] - v98->startAngles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v103) + v98->startAngles.v[1];
+          __asm { vroundss xmm1, xmm8, xmm2, 1 }
+          endPos.v.m128_f32[2] = (float)((float)((float)((float)((float)(v98->targetAngles.v[2] - v98->startAngles.v[2]) * 0.0027777778) - *(float *)&_XMM1) * 360.0) * v103) + v98->startAngles.v[2];
           AngleVectors((const vec3_t *)&endPos, (vec3_t *)obj, NULL, NULL);
           R_SetSunDirectionOverride((const vec3_t *)obj, 0);
         }
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_PartDamage:
-      __asm
-      {
-        vxorps  xmm7, xmm7, xmm7; jumptable 00000001414D9AEC case 19
-        vcomiss xmm7, dword ptr [rdi+2Ch]
-      }
-      if ( !v24 )
-      {
-        v216 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5905, ASSERT_TYPE_ASSERT, "(event->data.partDamage.amountDoT > 0.f)", (const char *)&queryFormat, "event->data.partDamage.amountDoT > 0.f");
-        v24 = 0;
-        if ( v216 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm7, dword ptr [rdi+30h] }
-      if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5906, ASSERT_TYPE_ASSERT, "(event->data.partDamage.intervalDoT > 0.f)", (const char *)&queryFormat, "event->data.partDamage.intervalDoT > 0.f") )
+      if ( event->data.animation.startTimeMin <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5905, ASSERT_TYPE_ASSERT, "(event->data.partDamage.amountDoT > 0.f)", (const char *)&queryFormat, "event->data.partDamage.amountDoT > 0.f") )
         __debugbreak();
-      _R13 = event->data.partDamage.eventStreamBufferOffsetClient;
-      v218 = InstanceCommonContext->eventStreamBufferSize;
-      v219 = _R13 + 4 <= v218;
-      if ( _R13 + 4 > v218 )
+      if ( event->data.animation.startTimeMax <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5906, ASSERT_TYPE_ASSERT, "(event->data.partDamage.intervalDoT > 0.f)", (const char *)&queryFormat, "event->data.partDamage.intervalDoT > 0.f") )
+        __debugbreak();
+      v109 = event->data.partDamage.eventStreamBufferOffsetClient;
+      if ( v109 + 4 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5910, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
+        __debugbreak();
+      v110 = InstanceCommonContext->eventStreamBuffer;
+      v111 = *(float *)&v110[v109];
+      if ( v111 > 0.0 )
       {
-        v220 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5910, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize");
-        v219 = !v220;
-        if ( v220 )
-          __debugbreak();
-      }
-      _R12 = InstanceCommonContext->eventStreamBuffer;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12+r13]
-        vcomiss xmm0, xmm7
-      }
-      if ( !v219 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [r12+r13], xmm0
-          vcomiss xmm0, xmm7
-        }
-        if ( v219 )
+        v112 = v111 - deltaTime;
+        *(float *)&v110[v109] = v112;
+        if ( v112 <= 0.0 )
         {
           do
           {
-            __asm
-            {
-              vaddss  xmm0, xmm0, dword ptr [rdi+30h]
-              vmovss  dword ptr [r12+r13], xmm0
-            }
+            *(float *)&v110[v109] = v112 + event->data.animation.startTimeMax;
             eventsB = event->data.random.eventsB;
             if ( !eventsB && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5928, ASSERT_TYPE_ASSERT, "(partDef)", (const char *)&queryFormat, "partDef") )
               __debugbreak();
-            ScriptableCl_InitEventParams((const LocalClientNum_t)v18, (ScriptableEventParams *)&outTransform, scriptableIndex, (const ScriptablePartDef *)eventsB);
-            __asm { vcvttss2si r9, dword ptr [rdi+2Ch]; damage }
-            ScriptableBg_DamagePart((const ScriptableEventParams *)&outTransform, (const ScriptablePartDef *)eventsB, 0x41u, _R9);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r12+r13]
-              vcomiss xmm0, xmm7
-            }
+            ScriptableCl_InitEventParams((const LocalClientNum_t)v11, (ScriptableEventParams *)&outTransform, scriptableIndex, (const ScriptablePartDef *)eventsB);
+            ScriptableBg_DamagePart((const ScriptableEventParams *)&outTransform, (const ScriptablePartDef *)eventsB, 0x41u, (int)event->data.animation.startTimeMin);
+            v112 = *(float *)&v110[v109];
           }
-          while ( v24 | v227 );
-          v21 = (ScriptableUpdateRequest *)obj[0];
+          while ( v112 <= 0.0 );
+          v13 = (ScriptableUpdateRequest *)obj[0];
         }
-        v21->eventUpdateRequired = 1;
+LABEL_234:
+        v13->eventUpdateRequired = 1;
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_ViewmodelShaderParam:
-      v228 = CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-      if ( !v228 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5951, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      v114 = CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
+      if ( !v114 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5951, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      v229 = ScriptableCl_GetEntity((const LocalClientNum_t)v18, scriptableIndex);
-      if ( !v229 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5954, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+      v115 = ScriptableCl_GetEntity((const LocalClientNum_t)v11, scriptableIndex);
+      if ( !v115 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5954, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
         __debugbreak();
-      CharacterInfo = cg_t::TryGetCharacterInfo(v228, v229->nextState.number);
+      CharacterInfo = cg_t::TryGetCharacterInfo(v114, v115->nextState.number);
       if ( CharacterInfo )
       {
-        v231 = event->data.viewmodelShaderParam.eventStreamBufferOffsetClient;
-        if ( v231 + 32 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5968, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize") )
+        v117 = event->data.viewmodelShaderParam.eventStreamBufferOffsetClient;
+        if ( v117 + 32 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5968, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( Scriptable_EventViewmodelShaderParam_Data ) <= r_context.eventStreamBufferSize") )
           __debugbreak();
-        v232 = InstanceCommonContext->eventStreamBuffer;
-        v28 = __CFADD__(v231, v232) || &v232[v231] == NULL;
-        v233 = (const Scriptable_EventViewmodelShaderParam_Data *)&v232[v231];
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+4]
-          vxorps  xmm6, xmm6, xmm6
-          vcomiss xmm0, xmm6
-        }
-        if ( !v28 )
+        v118 = (const Scriptable_EventViewmodelShaderParam_Data *)&InstanceCommonContext->eventStreamBuffer[v117];
+        if ( (float)v118->transTime > 0.0 )
         {
           inOutRequest->eventUpdateRequired = 1;
-          CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, ecx
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rsi+4]
-            vdivss  xmm0, xmm1, xmm0; X
-          }
+          v119 = (float)(CG_GetLocalClientGlobals((const LocalClientNum_t)v11)->time - v118->startTime) / (float)v118->transTime;
           if ( event->data.stateChange.partReference.flatId == 10 )
-          {
-            __asm { vmovss  xmm1, cs:__real@3f800000; Y }
-            *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          }
+            *(float *)&v120 = fmodf_0(v119, 1.0);
           else
-          {
-            __asm
-            {
-              vmovss  xmm2, cs:__real@3f800000; max
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          }
-          __asm
-          {
-            vmovaps xmm4, xmm0
-            vmovss  xmm0, dword ptr [rdi+28h]
-            vaddss  xmm2, xmm0, cs:__real@3f000000
-            vxorps  xmm0, xmm0, xmm0
-            vroundss xmm1, xmm0, xmm2, 1
-            vcvttss2si eax, xmm1
-          }
-          if ( _EAX )
-          {
-            __asm { vmovaps xmm3, xmm4; blendAmount }
-            ScriptableCl_SetViewmodelShaderParam(&CharacterInfo->shaderOverride[_EAX - 1], (const ScriptableEventViewmodelShaderParamDef *)&event->data, v233, *(double *)&_XMM3);
-          }
+            v120 = I_fclamp(v119, 0.0, 1.0);
+          v121 = *(float *)&v120;
+          _XMM0 = 0i64;
+          __asm { vroundss xmm1, xmm0, xmm2, 1 }
+          if ( (int)*(float *)&_XMM1 )
+            ScriptableCl_SetViewmodelShaderParam(&CharacterInfo->shaderOverride[(int)*(float *)&_XMM1 - 1], (const ScriptableEventViewmodelShaderParamDef *)&event->data, v118, v121);
         }
       }
       else
       {
-        LODWORD(fmt) = v229->nextState.number;
+        LODWORD(fmt) = v115->nextState.number;
         Com_PrintError(29, "Scriptable %s with event %s on a non-character entity %d.\n", InstanceCommonContext->def->name, event->data.anonymous.base->name, fmt);
         ScriptableCl_EnterError();
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_ClientViewSelector:
-      IsCharacterThirdPerson = ScriptableCl_IsCharacterThirdPerson((const LocalClientNum_t)v18, scriptableIndex);
+      IsCharacterThirdPerson = ScriptableCl_IsCharacterThirdPerson((const LocalClientNum_t)v11, scriptableIndex);
       obj[0] = (DObj *)event->data.random.eventStreamBufferOffsetServer;
       if ( (XAnimTree **)((char *)&obj[0]->tree + 4) > (XAnimTree **)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6023, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
         __debugbreak();
-      v324 = InstanceCommonContext->eventStreamBuffer;
-      pHoldrand = *(_DWORD *)startPos.v.m128_u64[0];
+      v154 = InstanceCommonContext->eventStreamBuffer;
+      pHoldrand = *(unsigned int *)startPos.v.m128_u64[0];
       inOutRequest->eventUpdateRequired = 1;
-      v252 = obj[0];
-      v253 = (__int64)v324;
-      if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)v324) != IsCharacterThirdPerson )
+      v124 = obj[0];
+      v125 = (__int64)v154;
+      if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)v154) != IsCharacterThirdPerson )
       {
-        ScriptableCl_InitEventParams((const LocalClientNum_t)v18, (ScriptableEventParams *)&outTransform, scriptableIndex, part);
-        if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)v324) )
+        ScriptableCl_InitEventParams((const LocalClientNum_t)v11, (ScriptableEventParams *)&outTransform, scriptableIndex, part);
+        if ( *((_BYTE *)&obj[0]->tree + (unsigned __int64)v154) )
         {
           eventBCount = event->data.random.eventBCount;
           eventsA = event->data.random.eventsB;
@@ -9033,93 +7755,91 @@ LABEL_66:
           eventBCount = event->data.stateChange.partReference.flatId;
           eventsA = event->data.random.eventsA;
         }
-        ScriptableCl_StopStateEvents((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, eventsA, eventBCount);
-        *((_BYTE *)&obj[0]->tree + (unsigned __int64)v324) = IsCharacterThirdPerson;
+        ScriptableCl_StopStateEvents((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, eventsA, eventBCount);
+        *((_BYTE *)&obj[0]->tree + (unsigned __int64)v154) = IsCharacterThirdPerson;
         if ( IsCharacterThirdPerson )
-          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.random.eventsB, event->data.random.eventBCount);
+          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.random.eventsB, event->data.random.eventBCount);
         else
-          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.random.eventsA, event->data.stateChange.partReference.flatId);
-        v253 = (__int64)v324;
+          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.random.eventsA, event->data.stateChange.partReference.flatId);
+        v125 = (__int64)v154;
       }
-      if ( *((_BYTE *)&v252->tree + v253) )
+      if ( *((_BYTE *)&v124->tree + v125) )
       {
-        v256 = 0;
+        v128 = 0;
         if ( event->data.random.eventBCount )
         {
           while ( 1 )
           {
-            v257 = &event->data.random.eventsB[v256];
-            if ( (v257->base.flags & 0x200) != 0 )
+            v129 = &event->data.random.eventsB[v128];
+            if ( (v129->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v257, v256, &pHoldrand, inOutRequest);
+              ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v129, v128, &pHoldrand, inOutRequest);
               if ( inOutRequest->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++v256 >= event->data.random.eventBCount )
-              goto LABEL_333;
+            if ( ++v128 >= event->data.random.eventBCount )
+              goto LABEL_341;
           }
           if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6077, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-            goto LABEL_313;
+            goto LABEL_320;
         }
       }
       else
       {
-        v259 = 0;
+        v130 = 0;
         if ( event->data.stateChange.partReference.flatId )
         {
           while ( 1 )
           {
-            v260 = (const ScriptableEventDef *)(event->data.disablePhysicsSubShape.mutableShapeHash + 176i64 * v259);
-            if ( (v260->base.flags & 0x200) != 0 )
+            v131 = (const ScriptableEventDef *)(event->data.disablePhysicsSubShape.mutableShapeHash + 176i64 * v130);
+            if ( (v131->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v260, v259, &pHoldrand, inOutRequest);
+              ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v131, v130, &pHoldrand, inOutRequest);
               if ( inOutRequest->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++v259 >= event->data.stateChange.partReference.flatId )
-              goto LABEL_333;
+            if ( ++v130 >= event->data.stateChange.partReference.flatId )
+              goto LABEL_341;
           }
           if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6094, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-            goto LABEL_313;
+            goto LABEL_320;
         }
       }
-      goto LABEL_333;
+      goto LABEL_341;
     case Scriptable_EventType_TeamSelector:
       if ( event->data.anonymous.buffer[4] )
       {
-        v262 = (DObj *)CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-        obj[0] = v262;
-        if ( !v262 )
+        v132 = (DObj *)CG_GetLocalClientGlobals((const LocalClientNum_t)v11);
+        obj[0] = v132;
+        if ( !v132 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6112, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
             __debugbreak();
-          v262 = obj[0];
+          v132 = obj[0];
         }
-        LinkObject = v262[1].skel.partBits.worldCtrl.array[3];
+        LinkObject = v132[1].skel.partBits.worldCtrl.array[3];
       }
       else
       {
-        if ( !ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v18, scriptableIndex, SCRIPTABLE_LINK_ENTITY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6118, ASSERT_TYPE_ASSERT, "( ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY ) )", "TeamSelector only works on entity scriptables for non-local-player tests") )
+        if ( !ScriptableCl_GetLinkTypeEquals((const LocalClientNum_t)v11, scriptableIndex, SCRIPTABLE_LINK_ENTITY) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6118, ASSERT_TYPE_ASSERT, "( ScriptableCl_GetLinkTypeEquals( localClientNum, scriptableIndex, SCRIPTABLE_LINK_ENTITY ) )", "TeamSelector only works on entity scriptables for non-local-player tests") )
           __debugbreak();
-        LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v18, scriptableIndex);
+        LinkObject = ScriptableCl_GetLinkObject((const LocalClientNum_t)v11, scriptableIndex);
       }
-      LODWORD(v324) = event->data.stateChange.partReference.flatId;
-      DoesTeamMatch = ScriptableCl_DoesTeamMatch((const LocalClientNum_t)v18, LinkObject, (Scriptable_TeamFilter)v324);
+      LODWORD(v154) = event->data.stateChange.partReference.flatId;
+      DoesTeamMatch = ScriptableCl_DoesTeamMatch((const LocalClientNum_t)v11, LinkObject, (Scriptable_TeamFilter)v154);
       endPos.v.m128_u64[0] = event->data.teamSelector.eventStreamBufferOffsetClient;
       if ( endPos.v.m128_u64[0] + 4 > InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6127, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= r_context.eventStreamBufferSize") )
         __debugbreak();
       obj[0] = (DObj *)InstanceCommonContext->eventStreamBuffer;
       inOutRequest->eventUpdateRequired = 1;
-      pHoldrand = *(_DWORD *)startPos.v.m128_u64[0];
-      v264 = endPos.v.m128_u64[0];
-      v265 = obj[0];
+      pHoldrand = *(unsigned int *)startPos.v.m128_u64[0];
+      v134 = endPos.v.m128_u64[0];
+      v135 = obj[0];
       if ( *((_BYTE *)&obj[0]->tree + endPos.v.m128_u64[0]) != DoesTeamMatch )
       {
-        ScriptableCl_InitEventParams((const LocalClientNum_t)v18, (ScriptableEventParams *)&outTransform, scriptableIndex, part);
+        ScriptableCl_InitEventParams((const LocalClientNum_t)v11, (ScriptableEventParams *)&outTransform, scriptableIndex, part);
         startPos.v.m128_i8[4] = DoesTeamMatch;
-        startPos.v.m128_i32[0] = (int)v324;
+        startPos.v.m128_i32[0] = (int)v154;
         if ( *(_QWORD *)&outTransform.row2.z && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6149, ASSERT_TYPE_ASSERT, "(eventParams.teamEvent == nullptr)", (const char *)&queryFormat, "eventParams.teamEvent == nullptr") )
           __debugbreak();
         *(_QWORD *)&outTransform.row2.z = &startPos;
@@ -9133,180 +7853,102 @@ LABEL_66:
           eventPassCount = event->data.teamSelector.eventFailCount;
           eventsPass = event->data.teamSelector.eventsFail;
         }
-        ScriptableCl_StopStateEvents((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, eventsPass, eventPassCount);
+        ScriptableCl_StopStateEvents((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, eventsPass, eventPassCount);
         *((_BYTE *)&obj[0]->tree + endPos.v.m128_u64[0]) = DoesTeamMatch;
         if ( DoesTeamMatch )
-          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.teamSelector.eventsPass, event->data.teamSelector.eventPassCount);
+          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.teamSelector.eventsPass, event->data.teamSelector.eventPassCount);
         else
-          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v18, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.teamSelector.eventsFail, event->data.teamSelector.eventFailCount);
-        v265 = obj[0];
+          ScriptableCl_RunStateEvents_Specific((const LocalClientNum_t)v11, (const ScriptableEventParams *)&outTransform, &pHoldrand, 0, event->data.teamSelector.eventsFail, event->data.teamSelector.eventFailCount);
+        v135 = obj[0];
       }
-      if ( *((_BYTE *)&v265->tree + v264) )
+      if ( *((_BYTE *)&v135->tree + v134) )
       {
-        v268 = 0;
+        v138 = 0;
         if ( event->data.teamSelector.eventPassCount )
         {
           while ( 1 )
           {
-            v269 = (const ScriptableEventDef *)&event->data.spawnDynent.tagName[176 * v268];
-            if ( (v269->base.flags & 0x200) != 0 )
+            v139 = (const ScriptableEventDef *)&event->data.spawnDynent.tagName[176 * v138];
+            if ( (v139->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v269, v268, &pHoldrand, inOutRequest);
+              ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v139, v138, &pHoldrand, inOutRequest);
               if ( inOutRequest->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++v268 >= event->data.teamSelector.eventPassCount )
-              goto LABEL_333;
+            if ( ++v138 >= event->data.teamSelector.eventPassCount )
+              goto LABEL_341;
           }
           if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6190, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-LABEL_313:
+LABEL_320:
             __debugbreak();
         }
       }
       else
       {
-        v271 = 0;
+        v140 = 0;
         if ( event->data.teamSelector.eventFailCount )
         {
           while ( 1 )
           {
-            v272 = (const ScriptableEventDef *)((char *)event->data.chunkDynent.part + 176 * v271);
-            if ( (v272->base.flags & 0x200) != 0 )
+            v141 = (const ScriptableEventDef *)((char *)event->data.chunkDynent.part + 176 * v140);
+            if ( (v141->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(const float *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, v272, v271, &pHoldrand, inOutRequest);
+              ScriptableCl_UpdateEvent(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, v141, v140, &pHoldrand, inOutRequest);
               if ( inOutRequest->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++v271 >= event->data.teamSelector.eventFailCount )
-              goto LABEL_333;
+            if ( ++v140 >= event->data.teamSelector.eventFailCount )
+              goto LABEL_341;
           }
           if ( !inOutRequest->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6207, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
-            goto LABEL_313;
+            goto LABEL_320;
         }
       }
-LABEL_333:
+LABEL_341:
       Sys_ProfEndNamedEvent();
-      _R11 = &v330;
-      __asm
-      {
-        vmovaps xmm6, xmmword ptr [r11-18h]
-        vmovaps xmm7, xmmword ptr [r11-28h]
-        vmovaps xmm8, xmmword ptr [r11-38h]
-        vmovaps xmm9, xmmword ptr [r11-48h]
-        vmovaps xmm10, xmmword ptr [r11-58h]
-      }
       return;
     case Scriptable_EventType_ApplyConstantForce:
-      __asm { vmovaps xmm3, xmm6; deltaTime }
-      ScriptableCl_UpdateEventApplyConstantForce((const LocalClientNum_t)v18, scriptableIndex, (const ScriptableEventApplyConstantForceDef *)&event->data, *(float *)&_XMM3, inOutRequest);
-      goto LABEL_333;
+      ScriptableCl_UpdateEventApplyConstantForce((const LocalClientNum_t)v11, scriptableIndex, (const ScriptableEventApplyConstantForceDef *)&event->data, deltaTime, inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_ApplyConstantAngularForce:
-      __asm { vmovaps xmm3, xmm6; deltaTime }
-      ScriptableCl_UpdateEventApplyConstantAngularForce((const LocalClientNum_t)v18, scriptableIndex, (const ScriptableEventApplyConstantAngularForceDef *)&event->data, *(float *)&_XMM3, inOutRequest);
-      goto LABEL_333;
+      ScriptableCl_UpdateEventApplyConstantAngularForce((const LocalClientNum_t)v11, scriptableIndex, (const ScriptableEventApplyConstantAngularForceDef *)&event->data, deltaTime, inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_MaterialOverride:
-      __asm { vmovaps xmm0, xmm6; deltaTime }
-      ScriptableCL_UpdateStateEventMaterialOverride(*(double *)&_XMM0, (const LocalClientNum_t)v18, scriptableIndex, part, state, event, eventIdx, inOutRequest);
-      goto LABEL_333;
+      ScriptableCL_UpdateStateEventMaterialOverride(deltaTime, (const LocalClientNum_t)v11, scriptableIndex, part, state, event, eventIdx, inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_Move:
-      __asm { vmovaps xmm3, xmm6; deltaTime }
-      ScriptableCl_UpdateStateEventMove((const LocalClientNum_t)v18, scriptableIndex, (const ScriptableEventMoveDef *const)&event->data, *(float *)&_XMM3, inOutRequest);
-      goto LABEL_333;
+      ScriptableCl_UpdateStateEventMove((const LocalClientNum_t)v11, scriptableIndex, (const ScriptableEventMoveDef *const)&event->data, deltaTime, inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_GravityArc:
-      __asm { vmovaps xmm3, xmm6; deltaTime }
-      ScriptableCl_UpdateStateEventGravityArc((const LocalClientNum_t)v18, scriptableIndex, (const ScriptableEventGravityArcDef *const)&event->data, *(float *)&_XMM3, inOutRequest);
-      goto LABEL_333;
+      ScriptableCl_UpdateStateEventGravityArc((const LocalClientNum_t)v11, scriptableIndex, (const ScriptableEventGravityArcDef *const)&event->data, deltaTime, inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_ViewTrigger:
-      ScriptableCl_UpdateStateEventViewTrigger((const LocalClientNum_t)v18, scriptableIndex, part, (const ScriptableEventViewTriggerDef *const)&event->data, eventIdx, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
-      goto LABEL_333;
+      ScriptableCl_UpdateStateEventViewTrigger((const LocalClientNum_t)v11, scriptableIndex, part, (const ScriptableEventViewTriggerDef *const)&event->data, eventIdx, (unsigned int *)startPos.v.m128_u64[0], inOutRequest);
+      goto LABEL_341;
     case Scriptable_EventType_Hover:
-      __asm
+      v142 = event->data.wait.delayMax > 0.00000011920929 && event->data.wait.delayMin > 0.00000011920929;
+      v143 = event->data.chunkDynent.launchLinVel.v[0] > 0.00000011920929;
+      v152 = event->data.animation.startTimeMin > 0.00000011920929;
+      if ( v142 || event->data.chunkDynent.launchLinVel.v[0] > 0.00000011920929 || event->data.animation.startTimeMin > 0.00000011920929 )
       {
-        vmovss  xmm0, cs:__real@34000000; jumptable 00000001414D9AEC case 40
-        vcomiss xmm0, dword ptr [rdi+24h]
-      }
-      if ( !v24 )
-        goto LABEL_322;
-      __asm { vcomiss xmm0, dword ptr [rdi+20h] }
-      if ( v24 )
-      {
-        v280 = 1;
-      }
-      else
-      {
-LABEL_322:
-        v280 = 0;
-        v24 = 0;
-      }
-      __asm { vcomiss xmm0, dword ptr [rdi+28h] }
-      v281 = v24;
-      __asm { vcomiss xmm0, dword ptr [rdi+2Ch] }
-      v322 = v24;
-      if ( v280 || v24 )
-      {
-        _RSI = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v18, scriptableIndex);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+14h]
-          vmovss  dword ptr [rbp+80h+endPos.v], xmm0
-          vmovss  xmm1, dword ptr [rax+18h]
-          vmovss  dword ptr [rbp+80h+endPos.v+4], xmm1
-          vmovss  xmm0, dword ptr [rax+1Ch]
-          vmovss  dword ptr [rbp+80h+endPos.v+8], xmm0
-          vmovss  xmm1, dword ptr [rax+8]
-          vmovss  dword ptr [rbp+80h+obj], xmm1
-          vmovss  xmm0, dword ptr [rax+0Ch]
-          vmovss  dword ptr [rbp+80h+obj+4], xmm0
-          vmovss  xmm1, dword ptr [rax+10h]
-          vmovss  dword ptr [rbp+80h+obj+8], xmm1
-        }
-        CG_GetLocalClientGlobals((const LocalClientNum_t)v18);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm6, xmm0, cs:__real@3a83126f
-        }
-        if ( v280 )
-        {
-          __asm { vdivss  xmm0, xmm6, dword ptr [rdi+24h]; X }
-          *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-          __asm
-          {
-            vmulss  xmm2, xmm0, dword ptr [rdi+20h]
-            vaddss  xmm2, xmm2, dword ptr [rbp+80h+obj+8]
-            vmovss  dword ptr [rbp+80h+obj+8], xmm2
-          }
-        }
-        __asm { vmovss  xmm3, cs:__real@43b40000 }
-        if ( v281 )
-        {
-          __asm
-          {
-            vdivss  xmm0, xmm6, dword ptr [rdi+28h]
-            vmulss  xmm2, xmm0, xmm3
-            vaddss  xmm2, xmm2, dword ptr [rbp+80h+endPos.v]
-            vmovss  dword ptr [rbp+80h+endPos.v], xmm2
-          }
-        }
-        if ( v322 )
-        {
-          __asm
-          {
-            vdivss  xmm0, xmm6, dword ptr [rdi+2Ch]
-            vmulss  xmm2, xmm0, xmm3
-            vaddss  xmm2, xmm2, dword ptr [rbp+80h+endPos.v+4]
-            vmovss  dword ptr [rbp+80h+endPos.v+4], xmm2
-          }
-        }
-        ScriptableCL_SetPose((const LocalClientNum_t)v18, scriptableIndex, _RSI, (const vec3_t *)obj, (const vec3_t *)&endPos, 0);
+        v144 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v11, scriptableIndex);
+        endPos.v.m128_u64[0] = *(_QWORD *)v144->anglesInitial.v;
+        endPos.v.m128_i32[2] = LODWORD(v144->anglesInitial.v[2]);
+        *(vec3_t *)obj = v144->originInitial;
+        v145 = (float)(CG_GetLocalClientGlobals((const LocalClientNum_t)v11)->time + 1200 * scriptableIndex);
+        v146 = v145 * 0.001;
+        if ( v142 )
+          *(float *)&obj[1] = (float)(sinf_0(v146 / event->data.wait.delayMax) * event->data.wait.delayMin) + *(float *)&obj[1];
+        if ( v143 )
+          endPos.v.m128_f32[0] = (float)((float)(v146 / event->data.chunkDynent.launchLinVel.v[0]) * 360.0) + endPos.v.m128_f32[0];
+        if ( v152 )
+          endPos.v.m128_f32[1] = (float)((float)(v146 / event->data.animation.startTimeMin) * 360.0) + endPos.v.m128_f32[1];
+        ScriptableCL_SetPose((const LocalClientNum_t)v11, scriptableIndex, v144, (const vec3_t *)obj, (const vec3_t *)&endPos, 0);
         inOutRequest->eventUpdateRequired = 1;
       }
-      goto LABEL_333;
+      goto LABEL_341;
     default:
-      goto LABEL_333;
+      goto LABEL_341;
   }
 }
 
@@ -9315,162 +7957,103 @@ LABEL_322:
 ScriptableCl_UpdateEventApplyConstantAngularForce
 ==============
 */
-
-void __fastcall ScriptableCl_UpdateEventApplyConstantAngularForce(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptableEventApplyConstantAngularForceDef *applyConstantAngularForce, double deltaTime, ScriptableUpdateRequest *inOutRequest)
+void ScriptableCl_UpdateEventApplyConstantAngularForce(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptableEventApplyConstantAngularForceDef *applyConstantAngularForce, float deltaTime, ScriptableUpdateRequest *inOutRequest)
 {
-  __int32 v17; 
+  __int32 v9; 
   unsigned int PhysInstanceId; 
-  unsigned int v19; 
+  unsigned int v11; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
+  ScriptableInstanceContextSecure *v13; 
   __int64 eventStreamBufferOffsetClient; 
-  bool v44; 
+  __int64 v15; 
+  unsigned __int8 *eventStreamBuffer; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  float v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  __int128 v27; 
+  __int128 v29; 
   signed int NumRigidBodys; 
   signed int i; 
   unsigned int RigidBodyID; 
   vec3_t outOrigin; 
-  __int64 v86; 
+  __int64 v36; 
   vec3_t angles; 
   vec3_t torqueVector; 
   tmat33_t<vec3_t> axis; 
-  char v90; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v86 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmm12, xmm3
-  }
-  v17 = 3 * localClientNum + 3;
+  v36 = -2i64;
+  v9 = 3 * localClientNum + 3;
   PhysInstanceId = ScriptableCl_GetPhysInstanceId(localClientNum, scriptableIndex);
-  v19 = PhysInstanceId;
-  if ( PhysInstanceId != -1 && Physics_IsInstanceInWorld((Physics_WorldId)v17, PhysInstanceId, 0) )
+  v11 = PhysInstanceId;
+  if ( PhysInstanceId != -1 && Physics_IsInstanceInWorld((Physics_WorldId)v9, PhysInstanceId, 0) )
   {
     inOutRequest->eventUpdateRequired = 1;
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    _R15 = InstanceCommonContext;
+    v13 = InstanceCommonContext;
     eventStreamBufferOffsetClient = applyConstantAngularForce->eventStreamBufferOffsetClient;
-    _R13 = eventStreamBufferOffsetClient;
+    v15 = eventStreamBufferOffsetClient;
     if ( eventStreamBufferOffsetClient + 12 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4567, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 3 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "%s <= %s\n\t%i, %i", "eventBufferOffset + 3 * sizeof( float )", "r_context.eventStreamBufferSize", eventStreamBufferOffsetClient + 12, InstanceCommonContext->eventStreamBufferSize) )
       __debugbreak();
-    _RAX = _R15->eventStreamBuffer;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+r13]
-      vmovss  xmm7, dword ptr [rax+r13+4]
-      vmovss  xmm8, dword ptr [rax+r13+8]
-      vmovss  xmm0, dword ptr [r15+2Ch]
-      vmovss  dword ptr [rsp+178h+angles], xmm0
-      vmovss  xmm1, dword ptr [r15+30h]
-      vmovss  dword ptr [rsp+178h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [r15+34h]
-      vmovss  dword ptr [rsp+178h+angles+8], xmm0
-    }
-    ScriptableInstanceContextSecure::GetOrigin(_R15, scriptableIndex, &outOrigin);
+    eventStreamBuffer = v13->eventStreamBuffer;
+    v17 = *(float *)&eventStreamBuffer[v15];
+    v18 = *(float *)&eventStreamBuffer[v15 + 4];
+    v19 = *(float *)&eventStreamBuffer[v15 + 8];
+    angles = v13->angles;
+    ScriptableInstanceContextSecure::GetOrigin(v13, scriptableIndex, &outOrigin);
     AnglesToAxis(&angles, &axis);
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3f800000
-      vsubss  xmm0, xmm11, xmm6
-      vmulss  xmm2, xmm0, dword ptr [r14+0Ch]
-      vmulss  xmm1, xmm6, dword ptr [r14+18h]
-      vaddss  xmm9, xmm2, xmm1
-      vsubss  xmm0, xmm11, xmm7
-      vmulss  xmm2, xmm0, dword ptr [r14+10h]
-      vmulss  xmm1, xmm7, dword ptr [r14+1Ch]
-      vaddss  xmm10, xmm2, xmm1
-      vsubss  xmm0, xmm11, xmm8
-      vmulss  xmm2, xmm0, dword ptr [r14+14h]
-      vmulss  xmm1, xmm8, dword ptr [r14+20h]
-      vaddss  xmm5, xmm2, xmm1
-    }
-    v44 = !applyConstantAngularForce->worldSpace;
+    v20 = LODWORD(FLOAT_1_0);
+    *(float *)&v20 = (float)((float)(1.0 - v17) * applyConstantAngularForce->forceVector.v[0]) + (float)(v17 * applyConstantAngularForce->forceVector2.v[0]);
+    v21 = v20;
+    v22 = LODWORD(FLOAT_1_0);
+    v23 = (float)((float)(1.0 - v18) * applyConstantAngularForce->forceVector.v[1]) + (float)(v18 * applyConstantAngularForce->forceVector2.v[1]);
+    v24 = (float)((float)(1.0 - v19) * applyConstantAngularForce->forceVector.v[2]) + (float)(v19 * applyConstantAngularForce->forceVector2.v[2]);
     if ( applyConstantAngularForce->worldSpace )
     {
-      __asm
-      {
-        vmovaps xmm6, xmm10
-        vmovaps xmm7, xmm9
-      }
+      *(float *)&v22 = (float)((float)(1.0 - v18) * applyConstantAngularForce->forceVector.v[1]) + (float)(v18 * applyConstantAngularForce->forceVector2.v[1]);
+      v25 = v22;
+      v26 = *(float *)&v21;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm3, xmm9, dword ptr [rsp+178h+axis+4]
-        vmulss  xmm2, xmm10, dword ptr [rsp+178h+axis+10h]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm1, xmm5, dword ptr [rsp+178h+axis+1Ch]
-        vaddss  xmm6, xmm4, xmm1
-        vmulss  xmm3, xmm9, dword ptr [rsp+178h+axis]
-        vmulss  xmm1, xmm10, dword ptr [rsp+178h+axis+0Ch]
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm0, xmm5, dword ptr [rsp+178h+axis+18h]
-        vaddss  xmm7, xmm4, xmm0
-        vmulss  xmm3, xmm9, dword ptr [rsp+178h+axis+8]
-        vmulss  xmm2, xmm10, dword ptr [rsp+178h+axis+14h]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm0, xmm5, dword ptr [rsp+178h+axis+20h]
-        vaddss  xmm5, xmm4, xmm0
-      }
+      v27 = v21;
+      *(float *)&v27 = (float)((float)(*(float *)&v21 * axis.m[0].v[1]) + (float)(v23 * axis.m[1].v[1])) + (float)(v24 * axis.m[2].v[1]);
+      v25 = v27;
+      v26 = (float)((float)(*(float *)&v21 * axis.m[0].v[0]) + (float)(v23 * axis.m[1].v[0])) + (float)(v24 * axis.m[2].v[0]);
+      v24 = (float)((float)(*(float *)&v21 * axis.m[0].v[2]) + (float)(v23 * axis.m[1].v[2])) + (float)(v24 * axis.m[2].v[2]);
     }
+    v29 = v25;
+    *(float *)&v29 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v26 * v26)) + (float)(v24 * v24));
+    _XMM3 = v29;
     __asm
     {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm1, xmm3, xmm11, xmm0
-      vdivss  xmm2, xmm11, xmm1
-      vmulss  xmm0, xmm2, xmm7
-      vmovss  dword ptr [rsp+178h+torqueVector], xmm0
-      vmulss  xmm1, xmm2, xmm6
-      vmovss  dword ptr [rsp+178h+torqueVector+4], xmm1
-      vmulss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rsp+178h+torqueVector+8], xmm0
-      vmulss  xmm6, xmm12, xmm3
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm6, xmm1
     }
-    if ( !v44 )
+    torqueVector.v[0] = (float)(1.0 / *(float *)&_XMM1) * v26;
+    torqueVector.v[1] = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v25;
+    torqueVector.v[2] = (float)(1.0 / *(float *)&_XMM1) * v24;
+    if ( (float)(deltaTime * *(float *)&v29) != 0.0 )
     {
       CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-      NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v17, v19);
+      NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v9, v11);
       for ( i = 0; i < NumRigidBodys; ++i )
       {
-        RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v17, v19, i);
+        RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v9, v11, i);
         if ( (RigidBodyID & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4621, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
           __debugbreak();
-        if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v17, RigidBodyID) )
-        {
-          __asm { vmovaps xmm3, xmm6; magnitude }
-          Physics_ApplyAngularImpulse((Physics_WorldId)v17, RigidBodyID, &torqueVector, *(float *)&_XMM3);
-        }
+        if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v9, RigidBodyID) )
+          Physics_ApplyAngularImpulse((Physics_WorldId)v9, RigidBodyID, &torqueVector, deltaTime * *(float *)&v29);
       }
       CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     }
     memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
   }
 }
 
@@ -9479,228 +8062,141 @@ void __fastcall ScriptableCl_UpdateEventApplyConstantAngularForce(const LocalCli
 ScriptableCl_UpdateEventApplyConstantForce
 ==============
 */
-
-void __fastcall ScriptableCl_UpdateEventApplyConstantForce(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptableEventApplyConstantForceDef *applyConstantForce, double deltaTime, ScriptableUpdateRequest *inOutRequest)
+void ScriptableCl_UpdateEventApplyConstantForce(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptableEventApplyConstantForceDef *applyConstantForce, float deltaTime, ScriptableUpdateRequest *inOutRequest)
 {
-  __int32 v20; 
+  __int32 v9; 
   unsigned int PhysInstanceId; 
-  unsigned int v22; 
+  unsigned int v11; 
+  ScriptableInstanceContextSecure *InstanceCommonContext; 
   __int64 eventStreamBufferOffsetClient; 
   unsigned __int64 eventStreamBufferSize; 
+  __int64 v15; 
+  unsigned __int8 *eventStreamBuffer; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  __int128 v27; 
+  float v28; 
+  __int128 v29; 
+  float v30; 
+  __int128 v31; 
+  float v32; 
+  __int128 v33; 
+  __int128 v34; 
+  float v38; 
   signed int NumRigidBodys; 
   signed int i; 
   unsigned int m_serialAndIndex; 
-  float fmt; 
-  __int64 v128; 
+  __int64 v42; 
   hknpBodyId result; 
   vec3_t outOrigin; 
-  __int64 v131; 
+  __int64 v45; 
   tmat33_t<vec3_t> axis; 
   vec3_t angles; 
   vec3_t normalizedDirection; 
   vec3_t position; 
-  char v136; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v131 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-    vmovaps xmmword ptr [rax-0E8h], xmm15
-    vmovaps xmm14, xmm3
-  }
-  v20 = 3 * localClientNum + 3;
+  v45 = -2i64;
+  v9 = 3 * localClientNum + 3;
   PhysInstanceId = ScriptableCl_GetPhysInstanceId(localClientNum, scriptableIndex);
-  v22 = PhysInstanceId;
-  if ( PhysInstanceId != -1 && Physics_IsInstanceInWorld((Physics_WorldId)v20, PhysInstanceId, 0) )
+  v11 = PhysInstanceId;
+  if ( PhysInstanceId != -1 && Physics_IsInstanceInWorld((Physics_WorldId)v9, PhysInstanceId, 0) )
   {
     inOutRequest->eventUpdateRequired = 1;
-    _R13 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
     eventStreamBufferOffsetClient = applyConstantForce->eventStreamBufferOffsetClient;
-    eventStreamBufferSize = _R13->eventStreamBufferSize;
-    _RBX = eventStreamBufferOffsetClient;
+    eventStreamBufferSize = InstanceCommonContext->eventStreamBufferSize;
+    v15 = eventStreamBufferOffsetClient;
     if ( eventStreamBufferOffsetClient + 24 > eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4460, ASSERT_TYPE_ASSERT, "( eventBufferOffset + 6 * sizeof( float ) ) <= ( r_context.eventStreamBufferSize )", "%s <= %s\n\t%i, %i", "eventBufferOffset + 6 * sizeof( float )", "r_context.eventStreamBufferSize", eventStreamBufferOffsetClient + 24, eventStreamBufferSize) )
       __debugbreak();
-    _RAX = _R13->eventStreamBuffer;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+rax]
-      vmovss  xmm7, dword ptr [rbx+rax+4]
-      vmovss  xmm8, dword ptr [rbx+rax+8]
-      vmovss  xmm9, dword ptr [rbx+rax+0Ch]
-      vmovss  xmm10, dword ptr [rbx+rax+10h]
-      vmovss  xmm12, dword ptr [rbx+rax+14h]
-      vmovss  xmm0, dword ptr [r13+2Ch]
-      vmovss  dword ptr [rbp+0B0h+angles], xmm0
-      vmovss  xmm1, dword ptr [r13+30h]
-      vmovss  dword ptr [rbp+0B0h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [r13+34h]
-      vmovss  dword ptr [rbp+0B0h+angles+8], xmm0
-    }
-    ScriptableInstanceContextSecure::GetOrigin(_R13, scriptableIndex, &outOrigin);
+    eventStreamBuffer = InstanceCommonContext->eventStreamBuffer;
+    v17 = *(float *)&eventStreamBuffer[v15];
+    v18 = *(float *)&eventStreamBuffer[v15 + 4];
+    v19 = *(float *)&eventStreamBuffer[v15 + 8];
+    v20 = *(float *)&eventStreamBuffer[v15 + 12];
+    v21 = *(float *)&eventStreamBuffer[v15 + 16];
+    v22 = *(float *)&eventStreamBuffer[v15 + 20];
+    angles = InstanceCommonContext->angles;
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &outOrigin);
     AnglesToAxis(&angles, &axis);
-    __asm
-    {
-      vmovss  xmm13, cs:__real@3f800000
-      vsubss  xmm0, xmm13, xmm6
-      vmulss  xmm2, xmm0, dword ptr [r15+0Ch]
-      vmulss  xmm1, xmm6, dword ptr [r15+24h]
-      vaddss  xmm11, xmm2, xmm1
-      vsubss  xmm0, xmm13, xmm7
-      vmulss  xmm2, xmm0, dword ptr [r15+10h]
-      vmulss  xmm1, xmm7, dword ptr [r15+28h]
-      vaddss  xmm6, xmm2, xmm1
-      vsubss  xmm0, xmm13, xmm8
-      vmulss  xmm2, xmm0, dword ptr [r15+14h]
-      vmulss  xmm1, xmm8, dword ptr [r15+2Ch]
-      vaddss  xmm5, xmm2, xmm1
-      vsubss  xmm0, xmm13, xmm9
-      vmulss  xmm2, xmm0, dword ptr [r15+18h]
-      vmulss  xmm1, xmm9, dword ptr [r15+30h]
-      vaddss  xmm7, xmm2, xmm1
-      vsubss  xmm0, xmm13, xmm10
-      vmulss  xmm2, xmm0, dword ptr [r15+1Ch]
-      vmulss  xmm1, xmm10, dword ptr [r15+34h]
-      vaddss  xmm8, xmm2, xmm1
-      vsubss  xmm0, xmm13, xmm12
-      vmulss  xmm2, xmm0, dword ptr [r15+20h]
-      vmulss  xmm1, xmm12, dword ptr [r15+38h]
-      vaddss  xmm4, xmm2, xmm1
-      vmovss  xmm9, dword ptr [rsp+1B0h+axis]
-      vmulss  xmm3, xmm11, xmm9
-      vmovss  xmm10, dword ptr [rsp+1B0h+axis+0Ch]
-      vmulss  xmm0, xmm10, xmm6
-      vaddss  xmm2, xmm3, xmm0
-      vmovss  xmm12, dword ptr [rbp+0B0h+axis+18h]
-      vmulss  xmm1, xmm5, xmm12
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+1B0h+outOrigin]
-      vmovss  dword ptr [rbp+0B0h+position], xmm2
-      vmovss  xmm3, dword ptr [rsp+1B0h+axis+4]
-      vmulss  xmm1, xmm11, xmm3
-      vmovss  xmm15, dword ptr [rbp+0B0h+axis+10h]
-      vmulss  xmm0, xmm15, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rbp+0B0h+axis+1Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+1B0h+outOrigin+4]
-      vmovss  dword ptr [rbp+0B0h+position+4], xmm2
-      vmulss  xmm1, xmm11, dword ptr [rsp+1B0h+axis+8]
-      vmovss  xmm11, dword ptr [rbp+0B0h+axis+14h]
-      vmulss  xmm0, xmm11, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rbp+0B0h+axis+20h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rsp+1B0h+outOrigin+8]
-      vmovss  dword ptr [rbp+0B0h+position+8], xmm2
-    }
+    v23 = (float)((float)(1.0 - v17) * applyConstantForce->forcePos.v[0]) + (float)(v17 * applyConstantForce->forcePos2.v[0]);
+    v24 = (float)((float)(1.0 - v18) * applyConstantForce->forcePos.v[1]) + (float)(v18 * applyConstantForce->forcePos2.v[1]);
+    v25 = (float)((float)(1.0 - v19) * applyConstantForce->forcePos.v[2]) + (float)(v19 * applyConstantForce->forcePos2.v[2]);
+    v26 = LODWORD(FLOAT_1_0);
+    *(float *)&v26 = (float)((float)(1.0 - v20) * applyConstantForce->forceVector.v[0]) + (float)(v20 * applyConstantForce->forceVector2.v[0]);
+    v27 = v26;
+    v29 = LODWORD(FLOAT_1_0);
+    *(float *)&v29 = (float)((float)(1.0 - v21) * applyConstantForce->forceVector.v[1]) + (float)(v21 * applyConstantForce->forceVector2.v[1]);
+    v28 = *(float *)&v29;
+    v30 = (float)((float)(1.0 - v22) * applyConstantForce->forceVector.v[2]) + (float)(v22 * applyConstantForce->forceVector2.v[2]);
+    position.v[0] = (float)((float)((float)(v23 * axis.m[0].v[0]) + (float)(axis.m[1].v[0] * v24)) + (float)(v25 * axis.m[2].v[0])) + outOrigin.v[0];
+    position.v[1] = (float)((float)((float)(v23 * axis.m[0].v[1]) + (float)(axis.m[1].v[1] * v24)) + (float)(v25 * axis.m[2].v[1])) + outOrigin.v[1];
+    position.v[2] = (float)((float)((float)(v23 * axis.m[0].v[2]) + (float)(axis.m[1].v[2] * v24)) + (float)(v25 * axis.m[2].v[2])) + outOrigin.v[2];
     if ( applyConstantForce->worldSpace )
     {
-      __asm
-      {
-        vmovaps xmm5, xmm8
-        vmovaps xmm6, xmm7
-      }
+      v31 = v29;
+      v32 = *(float *)&v27;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm1, xmm7, xmm3
-        vmulss  xmm0, xmm15, xmm8
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rbp+0B0h+axis+1Ch]
-        vaddss  xmm5, xmm2, xmm1
-        vmulss  xmm3, xmm7, xmm9
-        vmulss  xmm0, xmm10, xmm8
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, xmm12
-        vaddss  xmm6, xmm2, xmm1
-        vmulss  xmm3, xmm7, dword ptr [rsp+1B0h+axis+8]
-        vmulss  xmm0, xmm11, xmm8
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rbp+0B0h+axis+20h]
-        vaddss  xmm4, xmm2, xmm1
-      }
+      v33 = v27;
+      *(float *)&v33 = (float)((float)(*(float *)&v27 * axis.m[0].v[1]) + (float)(axis.m[1].v[1] * v28)) + (float)(v30 * axis.m[2].v[1]);
+      v31 = v33;
+      v32 = (float)((float)(*(float *)&v27 * axis.m[0].v[0]) + (float)(axis.m[1].v[0] * v28)) + (float)(v30 * axis.m[2].v[0]);
+      v30 = (float)((float)(*(float *)&v27 * axis.m[0].v[2]) + (float)(axis.m[1].v[2] * v28)) + (float)(v30 * axis.m[2].v[2]);
     }
+    v34 = v31;
+    *(float *)&v34 = fsqrt((float)((float)(*(float *)&v31 * *(float *)&v31) + (float)(v32 * v32)) + (float)(v30 * v30));
+    _XMM3 = v34;
     __asm
     {
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm1, xmm3, xmm13, xmm0
-      vmovss  [rsp+1B0h+result.m_serialAndIndex], xmm1
-      vdivss  xmm2, xmm13, xmm1
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rbp+0B0h+normalizedDirection], xmm0
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rbp+0B0h+normalizedDirection+4], xmm1
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rbp+0B0h+normalizedDirection+8], xmm0
-      vmulss  xmm6, xmm14, xmm3
     }
+    result.m_serialAndIndex = _XMM1;
+    normalizedDirection.v[0] = (float)(1.0 / *(float *)&_XMM1) * v32;
+    normalizedDirection.v[1] = *(float *)&v31 * (float)(1.0 / *(float *)&_XMM1);
+    normalizedDirection.v[2] = (float)(1.0 / *(float *)&_XMM1) * v30;
+    v38 = deltaTime * *(float *)&v34;
     CG_EntityWorkers_AcquireWriteLock_Physics(NONE_LEGACY);
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v20, v22);
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v9, v11);
     for ( i = 0; i < NumRigidBodys; ++i )
     {
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v20 > 7 )
+      if ( (unsigned int)v9 > 7 )
       {
-        LODWORD(v128) = v20;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v128) )
+        LODWORD(v42) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v42) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v20 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v9 - 2) <= 5 )
       {
-        LODWORD(v128) = v20;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v128) )
+        LODWORD(v42) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v42) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v20 <= 1 )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v9 <= 1 )
       {
-        LODWORD(v128) = v20;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v128) )
+        LODWORD(v42) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v42) )
           __debugbreak();
       }
-      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v20, v22, i)->m_serialAndIndex;
+      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v9, v11, i)->m_serialAndIndex;
       if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 4523, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
         __debugbreak();
-      if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v20, m_serialAndIndex) )
-      {
-        __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm6 }
-        Physics_ApplyImpulse((Physics_WorldId)v20, m_serialAndIndex, &position, &normalizedDirection, fmt);
-      }
+      if ( Physics_IsRigidBodyDynamic((Physics_WorldId)v9, m_serialAndIndex) )
+        Physics_ApplyImpulse((Physics_WorldId)v9, m_serialAndIndex, &position, &normalizedDirection, v38);
     }
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_LEGACY);
     memset(&outOrigin, 0, sizeof(outOrigin));
-  }
-  _R11 = &v136;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
   }
 }
 
@@ -9709,20 +8205,13 @@ void __fastcall ScriptableCl_UpdateEventApplyConstantForce(const LocalClientNum_
 ScriptableCl_UpdateInstanceEvents
 ==============
 */
-
-_BOOL8 __fastcall ScriptableCl_UpdateInstanceEvents(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, double deltaTime)
+_BOOL8 ScriptableCl_UpdateInstanceEvents(const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const float deltaTime)
 {
   const ScriptableDef *def; 
   bool eventUpdateRequired; 
-  unsigned int v9; 
-  _BOOL8 result; 
+  unsigned int v7; 
   ScriptableUpdateRequest inOutRequest; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   Sys_ProfBeginNamedEvent(0xFFD2691E, "ScriptableCl_UpdateInstanceEvents");
   def = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->def;
   if ( !def )
@@ -9736,21 +8225,16 @@ _BOOL8 __fastcall ScriptableCl_UpdateInstanceEvents(const LocalClientNum_t local
     __debugbreak();
   eventUpdateRequired = 0;
   inOutRequest = 0;
-  v9 = 0;
+  v7 = 0;
   if ( def->numParts )
   {
     do
-    {
-      __asm { vmovaps xmm0, xmm6; deltaTime }
-      ScriptableCl_UpdatePart(*(const float *)&_XMM0, localClientNum, scriptableIndex, &def->parts[v9++], &inOutRequest);
-    }
-    while ( v9 < def->numParts );
+      ScriptableCl_UpdatePart(deltaTime, localClientNum, scriptableIndex, &def->parts[v7++], &inOutRequest);
+    while ( v7 < def->numParts );
     eventUpdateRequired = inOutRequest.eventUpdateRequired;
   }
   Sys_ProfEndNamedEvent();
-  result = eventUpdateRequired;
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  return eventUpdateRequired;
 }
 
 /*
@@ -9989,30 +8473,22 @@ void ScriptableCl_UpdateModel(const LocalClientNum_t localClientNum, const unsig
 ScriptableCl_UpdatePart
 ==============
 */
-
-void __fastcall ScriptableCl_UpdatePart(double deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, ScriptableUpdateRequest *inOutRequest)
+void ScriptableCl_UpdatePart(const float deltaTime, const LocalClientNum_t localClientNum, const unsigned int scriptableIndex, const ScriptablePartDef *part, ScriptableUpdateRequest *inOutRequest)
 {
-  unsigned int v7; 
-  unsigned int v11; 
-  ScriptableUpdateRequest *v12; 
+  unsigned int v8; 
+  ScriptableUpdateRequest *v9; 
   ScriptablePartRuntime *PartRuntime; 
-  ScriptableStateDef *v14; 
+  ScriptableStateDef *v11; 
   unsigned int eventIdx; 
-  const ScriptableEventDef *v16; 
+  const ScriptableEventDef *v13; 
   ScriptableEventDef *event; 
   unsigned int holdrand[4]; 
   unsigned int pHoldrand; 
 
-  v7 = (unsigned int)part->flags >> 9;
-  __asm
+  if ( (part->flags & 0x200) != 0 )
   {
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps xmm6, xmm0
-  }
-  if ( (v7 & 1) != 0 )
-  {
-    v11 = 0;
-    v12 = inOutRequest;
+    v8 = 0;
+    v9 = inOutRequest;
     if ( part->numStates )
     {
       PartRuntime = ScriptableCl_GetPartRuntime(localClientNum, scriptableIndex, part);
@@ -10024,29 +8500,28 @@ void __fastcall ScriptableCl_UpdatePart(double deltaTime, const LocalClientNum_t
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6302, ASSERT_TYPE_ASSERT, "(unsigned)( runtime->stateId ) < (unsigned)( part.numStates )", "runtime->stateId doesn't index part.numStates\n\t%i not in [0, %i)", event, part->numStates) )
           __debugbreak();
       }
-      v14 = &part->states[PartRuntime->stateId];
-      if ( (v14->base.flags & 0x200) != 0 )
+      v11 = &part->states[PartRuntime->stateId];
+      if ( (v11->base.flags & 0x200) != 0 )
       {
         pHoldrand = scriptableIndex + ScriptableCl_GetFrameServerTime(localClientNum);
         BG_srand(&pHoldrand);
         eventIdx = 0;
         holdrand[0] = pHoldrand;
-        if ( v14->base.numEvents )
+        if ( v11->base.numEvents )
         {
           while ( 1 )
           {
-            v16 = &v14->base.events[eventIdx];
-            if ( (v16->base.flags & 0x200) != 0 )
+            v13 = &v11->base.events[eventIdx];
+            if ( (v13->base.flags & 0x200) != 0 )
             {
-              __asm { vmovaps xmm0, xmm6; deltaTime }
-              ScriptableCl_UpdateEvent(*(double *)&_XMM0, localClientNum, scriptableIndex, part, v14, v16, eventIdx, holdrand, v12);
-              if ( v12->stopUpdatingEventsForState )
+              ScriptableCl_UpdateEvent(deltaTime, localClientNum, scriptableIndex, part, v11, v13, eventIdx, holdrand, v9);
+              if ( v9->stopUpdatingEventsForState )
                 break;
             }
-            if ( ++eventIdx >= v14->base.numEvents )
+            if ( ++eventIdx >= v11->base.numEvents )
               goto LABEL_18;
           }
-          if ( !v12->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6283, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
+          if ( !v9->eventUpdateRequired && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 6283, ASSERT_TYPE_ASSERT, "( inOutRequest.eventUpdateRequired )", "We were asked to stop processing events, we need an update next frame") )
             __debugbreak();
         }
       }
@@ -10055,14 +8530,10 @@ LABEL_18:
     if ( part->numChildParts )
     {
       do
-      {
-        __asm { vmovaps xmm0, xmm6; deltaTime }
-        ScriptableCl_UpdatePart(*(const float *)&_XMM0, localClientNum, scriptableIndex, &part->childParts[v11++], v12);
-      }
-      while ( v11 < part->numChildParts );
+        ScriptableCl_UpdatePart(deltaTime, localClientNum, scriptableIndex, &part->childParts[v8++], v9);
+      while ( v8 < part->numChildParts );
     }
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -10075,10 +8546,11 @@ void ScriptableCl_UpdateStateEventGravityArc(const LocalClientNum_t localClientN
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   unsigned __int8 *Data; 
   int time; 
-  int v14; 
   unsigned int LinkObject; 
   ParticleSystemHandle ParticleSystemHandle; 
   ParticleManager *ParticleManager; 
+  int v14; 
+  float v15; 
   vec3_t out_result; 
   vec3_t angles; 
   vec3_t origin; 
@@ -10090,49 +8562,18 @@ void ScriptableCl_UpdateStateEventGravityArc(const LocalClientNum_t localClientN
   Data = ScriptableCl_StateEventGravityArcGetData(InstanceCommonContext, moveDef);
   time = CG_GetLocalClientGlobals(localClientNum)->time;
   ScriptableCl_GravityArcCalcData(localClientNum, scriptableIndex, InstanceCommonContext, moveDef, &arcData);
-  v14 = *(_DWORD *)Data;
   if ( time <= *(_DWORD *)Data + arcData.durationMS )
   {
-    __asm
-    {
-      vmovss  xmm2, [rbp+4Fh+arcData.gravity]; gravity
-      vmovaps [rsp+100h+var_40], xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vcvtsi2ss xmm1, xmm1, r12d
-      vdivss  xmm6, xmm1, xmm0
-    }
-    ScriptableBg_GravityArcCalcDelta(&arcData.velocity, time - v14, *(const float *)&_XMM2, &out_result);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4Fh+arcData.startOrigin]
-      vaddss  xmm1, xmm0, dword ptr [rsp+100h+out_result]
-      vmovss  xmm2, dword ptr [rbp+4Fh+arcData.startOrigin+4]
-      vaddss  xmm0, xmm2, dword ptr [rbp+4Fh+out_result+4]
-      vmovss  dword ptr [rbp+4Fh+origin], xmm1
-      vmovss  xmm1, dword ptr [rbp+4Fh+arcData.startOrigin+8]
-      vaddss  xmm2, xmm1, dword ptr [rbp+4Fh+out_result+8]
-      vmovss  dword ptr [rbp+4Fh+origin+4], xmm0
-      vmovss  xmm0, dword ptr [rbp+4Fh+arcData.endAngles]
-      vsubss  xmm1, xmm0, dword ptr [rbp+4Fh+arcData.startAngles]
-      vmovss  xmm0, dword ptr [rbp+4Fh+arcData.endAngles+4]
-      vmovss  dword ptr [rbp+4Fh+origin+8], xmm2
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+arcData.startAngles]
-      vsubss  xmm1, xmm0, dword ptr [rbp+4Fh+arcData.startAngles+4]
-      vmovss  xmm0, dword ptr [rbp+4Fh+arcData.endAngles+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rbp+4Fh+arcData.startAngles+8]
-      vmovss  dword ptr [rbp+4Fh+angles], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+arcData.startAngles+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbp+4Fh+angles+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+arcData.startAngles+8]
-      vmovss  dword ptr [rbp+4Fh+angles+8], xmm3
-    }
+    v14 = time - *(_DWORD *)Data;
+    v15 = (float)v14 / (float)arcData.durationMS;
+    ScriptableBg_GravityArcCalcDelta(&arcData.velocity, v14, arcData.gravity, &out_result);
+    origin.v[0] = arcData.startOrigin.v[0] + out_result.v[0];
+    origin.v[1] = arcData.startOrigin.v[1] + out_result.v[1];
+    origin.v[2] = arcData.startOrigin.v[2] + out_result.v[2];
+    angles.v[0] = (float)((float)(arcData.endAngles.v[0] - arcData.startAngles.v[0]) * v15) + arcData.startAngles.v[0];
+    angles.v[1] = (float)((float)(arcData.endAngles.v[1] - arcData.startAngles.v[1]) * v15) + arcData.startAngles.v[1];
+    angles.v[2] = (float)((float)(arcData.endAngles.v[2] - arcData.startAngles.v[2]) * v15) + arcData.startAngles.v[2];
     ScriptableCL_SetPose(localClientNum, scriptableIndex, InstanceCommonContext, &origin, &angles, 0);
-    __asm { vmovaps xmm6, [rsp+100h+var_40] }
     inOutRequest->eventUpdateRequired = 1;
   }
   else
@@ -10163,77 +8604,44 @@ void ScriptableCl_UpdateStateEventMove(const LocalClientNum_t localClientNum, co
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   Scriptable_EventMove_Data *Data; 
-  Scriptable_EventMove_Data *v12; 
-  char v13; 
-  ScriptableInstanceContextSecure *v14; 
+  Scriptable_EventMove_Data *v10; 
+  ScriptableInstanceContextSecure *v11; 
   const char *name; 
+  cg_t *LocalClientGlobals; 
+  float seconds; 
   int time; 
-  float fmt; 
-  float fmta; 
-  float warp; 
-  float warpa; 
-  float v29; 
-  float v30; 
   vec3_t out_endOrigin; 
   vec3_t out_endAngles; 
   vec3_t angles; 
   vec3_t origin; 
 
-  _RDI = moveDef;
   if ( !moveDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 2488, ASSERT_TYPE_ASSERT, "(moveDef)", (const char *)&queryFormat, "moveDef") )
     __debugbreak();
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-  Data = ScriptableCL_StateEventMoveGetData(InstanceCommonContext, _RDI);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rdi+20h]
-  }
-  v12 = Data;
-  if ( v13 && Data->startTime )
+  Data = ScriptableCL_StateEventMoveGetData(InstanceCommonContext, moveDef);
+  v10 = Data;
+  if ( moveDef->seconds > 0.0 && Data->startTime )
   {
     if ( (*((_BYTE *)InstanceCommonContext + 60) & 0x20) != 0 )
     {
       Data->startTime = 0;
-      v14 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-      if ( v14->def )
-        name = v14->def->name;
+      v11 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+      if ( v11->def )
+        name = v11->def->name;
       else
         name = "<unknown>";
       Com_PrintError(29, "ScriptableCl UpdateStateEventMove: Scriptable is parented to entity, can't execute event. Index %i '%s'\n", scriptableIndex, name);
     }
     else
     {
-      ScriptableBg_LerpCalcEndPoints(&InstanceCommonContext->originInitial, &InstanceCommonContext->anglesInitial, _RDI, &out_endOrigin, &out_endAngles);
-      _RAX = CG_GetLocalClientGlobals(localClientNum);
-      __asm
+      ScriptableBg_LerpCalcEndPoints(&InstanceCommonContext->originInitial, &InstanceCommonContext->anglesInitial, moveDef, &out_endOrigin, &out_endAngles);
+      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+      seconds = moveDef->seconds;
+      time = LocalClientGlobals->time;
+      if ( time < v10->startTime - (int)(float)(seconds * -1000.0) )
       {
-        vmovss  xmm2, dword ptr [rdi+20h]
-        vmulss  xmm0, xmm2, cs:__real@c47a0000
-      }
-      time = _RAX->time;
-      __asm { vcvttss2si eax, xmm0 }
-      if ( time < v12->startTime - (int)_RAX )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vmovss  xmm1, dword ptr [rdi+24h]
-          vmovss  [rsp+0C8h+var_98], xmm0
-          vmovss  dword ptr [rsp+0C8h+warp], xmm1
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm2
-        }
-        ScriptableBg_LerpVector(&v12->startOrigin, &out_endOrigin, v12->startTime, time, fmt, warp, v29, &origin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vmovss  xmm1, dword ptr [rdi+24h]
-          vmovss  [rsp+0C8h+var_98], xmm0
-          vmovss  xmm0, dword ptr [rdi+20h]
-          vmovss  dword ptr [rsp+0C8h+warp], xmm1
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-        }
-        ScriptableBg_LerpVector(&v12->startAngles, &out_endAngles, v12->startTime, time, fmta, warpa, v30, &angles);
+        ScriptableBg_LerpVector(&v10->startOrigin, &out_endOrigin, v10->startTime, time, seconds, moveDef->secondsAccel, moveDef->secondsDecel, &origin);
+        ScriptableBg_LerpVector(&v10->startAngles, &out_endAngles, v10->startTime, time, moveDef->seconds, moveDef->secondsAccel, moveDef->secondsDecel, &angles);
         ScriptableCL_SetPose(localClientNum, scriptableIndex, InstanceCommonContext, &origin, &angles, 0);
         inOutRequest->eventUpdateRequired = 1;
       }
@@ -10241,7 +8649,7 @@ void ScriptableCl_UpdateStateEventMove(const LocalClientNum_t localClientNum, co
       {
         ScriptableCL_StateEventMovePhysicsClearVelocity(localClientNum, scriptableIndex);
         ScriptableCL_SetPose(localClientNum, scriptableIndex, InstanceCommonContext, &out_endOrigin, &out_endAngles, 1);
-        v12->startTime = 0;
+        v10->startTime = 0;
       }
     }
   }
@@ -10256,41 +8664,93 @@ void ScriptableCl_UpdateStateEventViewTrigger(const LocalClientNum_t localClient
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   __int64 eventStreamBufferOffsetClient; 
-  ScriptableInstanceContextSecure *v17; 
+  ScriptableInstanceContextSecure *v12; 
   unsigned __int8 *eventStreamBuffer; 
+  bool v14; 
+  unsigned int v15; 
+  cg_t *LocalClientGlobals; 
+  RefdefView *p_view; 
+  unsigned int refdefViewOrg_aab; 
+  _DWORD *v; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  bool v25; 
+  cg_t *v26; 
+  bool v27; 
+  unsigned int v28; 
+  float v31; 
+  float v32; 
+  float v33; 
+  vec3_t outOrigin; 
 
-  _RBX = viewTriggerDef;
   if ( !viewTriggerDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5316, ASSERT_TYPE_ASSERT, "(viewTriggerDef)", (const char *)&queryFormat, "viewTriggerDef") )
     __debugbreak();
   InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-  eventStreamBufferOffsetClient = _RBX->eventStreamBufferOffsetClient;
-  v17 = InstanceCommonContext;
+  eventStreamBufferOffsetClient = viewTriggerDef->eventStreamBufferOffsetClient;
+  v12 = InstanceCommonContext;
   if ( eventStreamBufferOffsetClient + 1 > (unsigned __int64)InstanceCommonContext->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_cl.cpp", 5320, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( bool ) <= r_context.eventStreamBufferSize") )
     __debugbreak();
-  eventStreamBuffer = v17->eventStreamBuffer;
+  eventStreamBuffer = v12->eventStreamBuffer;
   if ( !eventStreamBuffer[eventStreamBufferOffsetClient] )
   {
-    __asm
+    v14 = viewTriggerDef->triggerFOVCosHalfAngle > -1.0;
+    v27 = viewTriggerDef->triggerDistanceSq > 0.0;
+    if ( viewTriggerDef->triggerDistanceSq > 0.0 || viewTriggerDef->triggerFOVCosHalfAngle > -1.0 )
     {
-      vmovaps [rsp+108h+var_58], xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+8]
-      vmovss  xmm0, cs:__real@bf800000
-      vmovaps [rsp+108h+var_68], xmm7
-      vcomiss xmm0, dword ptr [rbx+0Ch]
-      vmovaps [rsp+108h+var_78], xmm8
-      vmovaps [rsp+108h+var_88], xmm9
+      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+      p_view = &LocalClientGlobals->refdef.view;
+      if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+        __debugbreak();
+      refdefViewOrg_aab = p_view->refdefViewOrg_aab;
+      v28 = refdefViewOrg_aab;
+      v = (_DWORD *)p_view->org.org.v;
+      if ( !v )
+      {
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+          __debugbreak();
+        refdefViewOrg_aab = v28;
+      }
+      LODWORD(v31) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+      LODWORD(v32) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+      LODWORD(v20) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
+      v15 = scriptableIndex;
+      v33 = v20;
+      ScriptableInstanceContextSecure::GetOrigin(v12, scriptableIndex, &outOrigin);
+      v21 = outOrigin.v[0] - v31;
+      v22 = outOrigin.v[1] - v32;
+      v23 = outOrigin.v[2] - v33;
+      v24 = (float)((float)(v22 * v22) + (float)(v21 * v21)) + (float)(v23 * v23);
+      if ( v27 && v24 > viewTriggerDef->triggerDistanceSq )
+      {
+        v25 = 0;
+      }
+      else
+      {
+        eventStreamBuffer[eventStreamBufferOffsetClient] = 1;
+        if ( !v14 )
+          goto LABEL_24;
+        v26 = CG_GetLocalClientGlobals(localClientNum);
+        v25 = (float)((float)((float)(v22 * v26->refdef.view.axis.m[0].v[1]) + (float)(v21 * v26->refdef.view.axis.m[0].v[0])) + (float)(v23 * v26->refdef.view.axis.m[0].v[2])) >= (float)(fsqrt(v24) * viewTriggerDef->triggerFOVCosHalfAngle);
+      }
+      eventStreamBuffer[eventStreamBufferOffsetClient] = v25;
+      if ( !v25 )
+      {
+LABEL_25:
+        *inOutRequest = (ScriptableUpdateRequest)257;
+        return;
+      }
     }
-    eventStreamBuffer[eventStreamBufferOffsetClient] = 1;
-    ScriptableCl_RunStateEventsFrom(localClientNum, scriptableIndex, part, eventIdx + 1, holdrand);
-    __asm
+    else
     {
-      vmovaps xmm9, [rsp+108h+var_88]
-      vmovaps xmm8, [rsp+108h+var_78]
-      vmovaps xmm7, [rsp+108h+var_68]
-      vmovaps xmm6, [rsp+108h+var_58]
+      v15 = scriptableIndex;
+      eventStreamBuffer[eventStreamBufferOffsetClient] = 1;
     }
-    *inOutRequest = (ScriptableUpdateRequest)257;
+LABEL_24:
+    ScriptableCl_RunStateEventsFrom(localClientNum, v15, part, eventIdx + 1, holdrand);
+    goto LABEL_25;
   }
 }
 

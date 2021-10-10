@@ -72,130 +72,101 @@ RB_FilterImage
 void RB_FilterImage(GfxCmdBufContext *gfxContext, GfxImageFilter *filter, unsigned int filterOptions)
 {
   const R_RT_Surface *Surface; 
+  __m256i finalColorRt; 
   GfxCmdBufState *state; 
+  __m256i v9; 
   unsigned __int16 m_surfaceID; 
   materialCommands_t *Tess; 
-  materialCommands_t *v15; 
-  unsigned int v17; 
+  materialCommands_t *v12; 
+  unsigned int v13; 
   const Material *material; 
-  int v22; 
-  __int64 v28; 
-  R_RT_ColorHandle v29; 
-  R_RT_ColorHandle v30; 
-  R_RT_ColorHandle v31; 
-  R_RT_Handle v32; 
+  int v15; 
+  GfxCmdBufContext v16; 
+  __int64 v19; 
+  __m256i v20; 
+  __m256i v21; 
+  R_RT_ColorHandle srcColorRt; 
+  R_RT_Handle v23; 
 
-  _RSI = filter;
-  _R14 = gfxContext;
   if ( !filter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 569, ASSERT_TYPE_ASSERT, "(filter)", (const char *)&queryFormat, "filter") )
     __debugbreak();
-  if ( _RSI->passCount )
+  if ( filter->passCount )
   {
-    m_surfaceID = _RSI->srcColorRt.m_surfaceID;
+    m_surfaceID = filter->srcColorRt.m_surfaceID;
     if ( m_surfaceID )
     {
-      R_RT_Handle::GetSurface(&_RSI->srcColorRt);
+      R_RT_Handle::GetSurface(&filter->srcColorRt);
     }
-    else if ( _RSI->srcColorRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( filter->srcColorRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
     if ( !m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 587, ASSERT_TYPE_ASSERT, "(filter->srcColorRt.IsValid())", (const char *)&queryFormat, "filter->srcColorRt.IsValid()") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rbp+57h+var_C0], xmm0
-    }
-    Tess = R_GetTess((GfxCmdBufContext *)&v29);
-    v15 = Tess;
+    *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+    Tess = R_GetTess((GfxCmdBufContext *)&v20);
+    v12 = Tess;
     if ( Tess->vertexCount )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+57h+var_C0], xmm0
-      }
-      RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v29, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+      *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+      RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v20, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
     }
     else
     {
       if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
         __debugbreak();
-      v15->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-      v15->primStatsTarget = GFX_PRIM_STATS_INVALID;
+      v12->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+      v12->primStatsTarget = GFX_PRIM_STATS_INVALID;
     }
-    v17 = 0;
-    for ( LOWORD(v28) = 0; v17 < _RSI->passCount; ++v17 )
+    v13 = 0;
+    for ( LOWORD(v19) = 0; v13 < filter->passCount; ++v13 )
     {
-      __asm
+      *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+      RB_FilterPingPong((R_RT_ColorHandle *)&v23, (GfxCmdBufContext *)&v20, filter, v13, (bool *)&v19, filterOptions);
+      *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+      RB_SetupFilterPass((GfxCmdBufContext *)&v20, &filter->passes[v13]);
+      material = filter->passes[v13].material;
+      *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+      RB_FullScreenFilterInternal((GfxCmdBufContext *)&v20, material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(601)");
+      v15 = v23.m_surfaceID;
+      if ( v23.m_surfaceID )
       {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+57h+var_C0], xmm0
+        R_RT_Handle::GetSurface(&v23);
       }
-      RB_FilterPingPong((R_RT_ColorHandle *)&v32, (GfxCmdBufContext *)&v29, _RSI, v17, (bool *)&v28, filterOptions);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups xmmword ptr [rbp+57h+var_C0], xmm0
-      }
-      RB_SetupFilterPass((GfxCmdBufContext *)&v29, &_RSI->passes[v17]);
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      material = _RSI->passes[v17].material;
-      __asm { vmovups xmmword ptr [rbp+57h+var_C0], xmm0 }
-      RB_FullScreenFilterInternal((GfxCmdBufContext *)&v29, material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(601)");
-      v22 = v32.m_surfaceID;
-      if ( v32.m_surfaceID )
-      {
-        R_RT_Handle::GetSurface(&v32);
-      }
-      else if ( v32.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v32.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", v28) )
+      else if ( v23.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v23.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", v19) )
       {
         __debugbreak();
       }
-      if ( v22 )
+      if ( v15 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+57h+var_60.m_surfaceID]
-          vmovups xmm1, xmmword ptr [r14]
-          vmovups [rbp+57h+var_A0], ymm0
-          vmovups xmmword ptr [rbp+57h+var_C0], xmm1
-        }
-        R_RT_Destroy((GfxCmdBufContext *)&v29, &v30);
+        v16 = *gfxContext;
+        v21 = (__m256i)v23;
+        *(GfxCmdBufContext *)v20.m256i_i8 = v16;
+        R_RT_Destroy((GfxCmdBufContext *)&v20, (R_RT_ColorHandle *)&v21);
       }
     }
   }
   else
   {
-    *(_QWORD *)&v32.m_surfaceID = 0i64;
-    v32.m_tracking.m_allocCounter = R_RT_Handle::GetSurface(&_RSI->finalColorRt)->m_image.m_base.width;
-    Surface = R_RT_Handle::GetSurface(&_RSI->finalColorRt);
-    __asm { vmovups ymm0, ymmword ptr [rsi+1128h] }
-    *(&v32.m_tracking.m_allocCounter + 1) = Surface->m_image.m_base.height;
-    state = _R14->state;
-    __asm { vmovups [rbp+57h+var_C0], ymm0 }
-    R_AddRenderTargetTransition(state, &v29, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_R14->state);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+1108h]
-      vmovups ymm1, ymmword ptr [rsi+1128h]
-      vmovups [rbp+57h+var_80], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rbp+57h+var_C0], xmm0
-      vmovups [rbp+57h+var_A0], ymm1
-    }
-    RB_CopyRT((GfxCmdBufContext *)&v29, &v30, &v31, (const GfxViewport *)&v32, rgp.feedbackReplaceBackbufferMaterial);
+    *(_QWORD *)&v23.m_surfaceID = 0i64;
+    v23.m_tracking.m_allocCounter = R_RT_Handle::GetSurface(&filter->finalColorRt)->m_image.m_base.width;
+    Surface = R_RT_Handle::GetSurface(&filter->finalColorRt);
+    finalColorRt = (__m256i)filter->finalColorRt;
+    *(&v23.m_tracking.m_allocCounter + 1) = Surface->m_image.m_base.height;
+    state = gfxContext->state;
+    v20 = finalColorRt;
+    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v20, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(gfxContext->state);
+    v9 = (__m256i)filter->finalColorRt;
+    srcColorRt = filter->srcColorRt;
+    *(GfxCmdBufContext *)v20.m256i_i8 = *gfxContext;
+    v21 = v9;
+    RB_CopyRT((GfxCmdBufContext *)&v20, (R_RT_ColorHandle *)&v21, &srcColorRt, (const GfxViewport *)&v23, rgp.feedbackReplaceBackbufferMaterial);
   }
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups ymm0, ymmword ptr [rsi+1128h]
-    vpextrq rbx, xmm1, 1
-    vmovups [rbp+57h+var_A0], ymm0
-  }
-  R_AddRenderTargetTransition(_RBX, &v30, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  _XMM1 = *gfxContext;
+  __asm { vpextrq rbx, xmm1, 1 }
+  v21 = (__m256i)filter->finalColorRt;
+  R_AddRenderTargetTransition(_RBX, (R_RT_ColorHandle *)&v21, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(_RBX);
 }
 
@@ -211,145 +182,121 @@ R_RT_ColorHandle *RB_FilterPingPong(R_RT_ColorHandle *result, GfxCmdBufContext *
   int v13; 
   unsigned int v14; 
   __int64 v15; 
-  bool v19; 
+  bool v16; 
+  R_RT_ColorHandle *p_srcColorRt; 
   R_RT_Image *p_m_image; 
-  GfxCmdBufState *state; 
-  const dvar_t *v27; 
-  int v28; 
-  const dvar_t *v29; 
-  int v30; 
+  const dvar_t *v19; 
+  int v20; 
+  const dvar_t *v21; 
+  int v22; 
   int rtFlags; 
   __int64 rtFormat; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  bool v38; 
-  GfxCmdBufState *v39; 
-  unsigned int v41; 
-  const R_RT_Surface *v42; 
+  R_RT_Handle v27; 
+  bool v29; 
+  GfxCmdBufState *state; 
+  unsigned int v31; 
+  const R_RT_Surface *v32; 
   GfxCmdBufSourceState *source; 
-  GfxCmdBufState *v48; 
-  GfxCmdBufSourceState *v49; 
+  GfxCmdBufContext v34; 
+  GfxCmdBufContext v35; 
+  GfxCmdBufState *v36; 
+  GfxCmdBufSourceState *v37; 
   GfxCmdBufInput *p_input; 
-  unsigned int v52; 
-  const R_RT_Surface *v53; 
-  GfxCmdBufState *v55; 
+  R_RT_Handle v39; 
+  unsigned int v40; 
+  const R_RT_Surface *v41; 
+  GfxCmdBufState *v42; 
   R_RT_Handle resulta; 
-  R_RT_Handle v60; 
-  R_RT_Handle v62; 
+  R_RT_Handle v45; 
+  R_RT_Handle finalColorRt; 
+  R_RT_Handle v47; 
 
   passCount = filter->passCount;
   v9 = passIndex + 1;
-  _RDI = filter;
-  _R15 = gfxContext;
-  _RSI = result;
   if ( v9 == filter->passCount )
     v13 = 4;
   else
     v13 = (passIndex != 0) + 1;
   v14 = filterOptions & v13;
   v15 = passIndex & 1;
-  _RCX = 32 * ((unsigned int)(1 - v15) + 139i64);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+rdi]
-    vmovups ymmword ptr [rbp+50h+var_70.m_surfaceID], ymm0
-  }
+  v47 = (R_RT_Handle)filter->pingPongColorRts[(unsigned int)(1 - v15)];
   if ( v9 == passCount )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+1128h]
-      vmovups [rbp+50h+var_90], ymm0
-    }
-    v19 = v14 == 0;
-    __asm { vmovups ymmword ptr [rbp+50h+var_B0.m_surfaceID], ymm0 }
+    finalColorRt = (R_RT_Handle)filter->finalColorRt;
+    v16 = v14 == 0;
+    v45 = finalColorRt;
   }
   else
   {
-    _RAX = 32 * (v15 + 139);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+rdi]
-      vmovups [rbp+50h+var_90], ymm0
-      vmovups ymmword ptr [rbp+50h+var_B0.m_surfaceID], ymm0
-    }
+    finalColorRt = (R_RT_Handle)filter->pingPongColorRts[v15];
+    v45 = finalColorRt;
     if ( v14 || cleared[v15] )
     {
-      v19 = 0;
+      v16 = 0;
     }
     else
     {
-      v19 = 1;
+      v16 = 1;
       cleared[v15] = 1;
     }
   }
-  _RAX = &_RDI->srcColorRt;
+  p_srcColorRt = &filter->srcColorRt;
   if ( passIndex )
-    _RAX = &v62;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+50h+var_70.m_surfaceID], ymm0
-  }
-  p_m_image = &R_RT_Handle::GetSurface(&v62)->m_image;
+    p_srcColorRt = (R_RT_ColorHandle *)&v47;
+  resulta = p_srcColorRt->R_RT_Handle;
+  v47 = resulta;
+  p_m_image = &R_RT_Handle::GetSurface(&v47)->m_image;
   if ( passIndex )
   {
-    __asm { vmovups ymm0, ymmword ptr [rbp+50h+result.m_surfaceID] }
-    state = _R15->state;
-    __asm { vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_R15->state);
+    R_AddRenderTargetTransition(gfxContext->state, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(gfxContext->state);
   }
-  _RSI->m_surfaceID = 0;
-  _RSI->m_tracking.m_allocCounter = 0;
-  _RSI->m_tracking.m_name = NULL;
-  _RSI->m_tracking.m_location = NULL;
-  if ( p_m_image == &R_RT_Handle::GetSurface(&v60)->m_image )
+  result->m_surfaceID = 0;
+  result->m_tracking.m_allocCounter = 0;
+  result->m_tracking.m_name = NULL;
+  result->m_tracking.m_location = NULL;
+  if ( p_m_image == &R_RT_Handle::GetSurface(&v45)->m_image )
   {
     if ( Dvar_GetBool_Internal(r_deviceDebug) )
       goto LABEL_20;
-    v27 = DCONST_DVARBOOL_r_esramPostFX;
+    v19 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    v28 = 2112;
-    if ( !v27->current.enabled )
+    Dvar_CheckFrontendServerThread(v19);
+    v20 = 2112;
+    if ( !v19->current.enabled )
 LABEL_20:
-      v28 = 2048;
-    v29 = DCONST_DVARINT_r_dccPostFX;
+      v20 = 2048;
+    v21 = DCONST_DVARINT_r_dccPostFX;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    if ( v29->current.integer == 1 )
-      v30 = 8;
+    Dvar_CheckFrontendServerThread(v21);
+    if ( v21->current.integer == 1 )
+      v22 = 8;
     else
-      v30 = 0;
-    if ( R_RT_Handle::GetSurface(&v62)->m_image.m_base.format != g_R_RT_renderTargetFmts[(unsigned __int8)_RDI->rtFormat] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 509, ASSERT_TYPE_ASSERT, "(srcColorRt.GetFormat() == R_RT_PixelFormatFromRenderTargetFormat( filter->rtFormat ))", (const char *)&queryFormat, "srcColorRt.GetFormat() == R_RT_PixelFormatFromRenderTargetFormat( filter->rtFormat )") )
+      v22 = 0;
+    if ( R_RT_Handle::GetSurface(&v47)->m_image.m_base.format != g_R_RT_renderTargetFmts[(unsigned __int8)filter->rtFormat] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 509, ASSERT_TYPE_ASSERT, "(srcColorRt.GetFormat() == R_RT_PixelFormatFromRenderTargetFormat( filter->rtFormat ))", (const char *)&queryFormat, "srcColorRt.GetFormat() == R_RT_PixelFormatFromRenderTargetFormat( filter->rtFormat )") )
       __debugbreak();
-    rtFlags = v30 | v28;
-    rtFormat = (unsigned __int8)_RDI->rtFormat;
-    height = R_RT_Handle::GetSurface(&v62)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v62);
-    _RAX = R_RT_CreateInternal(&resulta, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[rtFormat], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "In-Place Blur Copy", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(510)");
-    __asm
+    rtFlags = v22 | v20;
+    rtFormat = (unsigned __int8)filter->rtFormat;
+    height = R_RT_Handle::GetSurface(&v47)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v47);
+    v27 = *R_RT_CreateInternal(&resulta, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[rtFormat], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "In-Place Blur Copy", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(510)");
+    v45 = v27;
+    v47 = v27;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+50h+var_B0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+50h+var_70.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v62);
-      if ( (R_RT_Handle::GetSurface(&v62)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v47);
+      if ( (R_RT_Handle::GetSurface(&v47)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+50h+var_70.m_surfaceID] }
+        v27 = v47;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+50h+var_70.m_surfaceID] }
+        v27 = v47;
       }
     }
     else
@@ -357,80 +304,62 @@ LABEL_20:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+50h+var_B0.m_surfaceID] }
-        if ( v38 )
+        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v27 = v45;
+        if ( v29 )
           __debugbreak();
       }
     }
-    v39 = _R15->state;
-    __asm
-    {
-      vmovups ymmword ptr [rsi], ymm0
-      vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v39, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_R15->state);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [rbp+50h+var_B0.m_surfaceID], ymm0
-    }
-    v41 = R_RT_Handle::GetSurface(&v60)->m_image.m_base.height;
-    v42 = R_RT_Handle::GetSurface(&v60);
-    source = _R15->source;
-    R_SetRenderTargetSize(_R15->source, v42->m_image.m_base.width, v41, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups xmm1, xmmword ptr [r15]
-      vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0
-      vmovups xmmword ptr [rbp+50h+var_70.m_surfaceID], xmm1
-    }
-    R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v62, (R_RT_ColorHandle *)&resulta, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(516)");
+    state = gfxContext->state;
+    *result = (R_RT_ColorHandle)v27;
+    resulta = v27;
+    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(gfxContext->state);
+    v45 = result->R_RT_Handle;
+    v31 = R_RT_Handle::GetSurface(&v45)->m_image.m_base.height;
+    v32 = R_RT_Handle::GetSurface(&v45);
+    source = gfxContext->source;
+    R_SetRenderTargetSize(gfxContext->source, v32->m_image.m_base.width, v31, GFX_USE_VIEWPORT_FULL);
+    v34 = *gfxContext;
+    resulta = result->R_RT_Handle;
+    *(GfxCmdBufContext *)&v47.m_surfaceID = v34;
+    R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v47, (R_RT_ColorHandle *)&resulta, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(516)");
     if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [r15] }
+    v35 = *gfxContext;
     source->input.codeImages[4] = &p_m_image->m_base;
-    __asm { vmovups xmmword ptr [rbp+50h+var_70.m_surfaceID], xmm0 }
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v62, rgp.feedbackReplaceScenebufferMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(518)");
-    __asm { vmovups ymm0, ymmword ptr [rsi] }
-    v48 = _R15->state;
-    __asm { vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(v48, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_R15->state);
-    p_m_image = &R_RT_Handle::GetSurface(_RSI)->m_image;
+    *(GfxCmdBufContext *)&v47.m_surfaceID = v35;
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v47, rgp.feedbackReplaceScenebufferMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(518)");
+    v36 = gfxContext->state;
+    resulta = result->R_RT_Handle;
+    R_AddRenderTargetTransition(v36, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(gfxContext->state);
+    p_m_image = &R_RT_Handle::GetSurface(result)->m_image;
   }
-  v49 = _R15->source;
-  if ( !_R15->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v37 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &v49->input;
+  p_input = &v37->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups ymm0, [rbp+50h+var_90] }
+  v39 = finalColorRt;
   p_input->codeImages[4] = &p_m_image->m_base;
-  __asm { vmovups ymmword ptr [rbp+50h+var_B0.m_surfaceID], ymm0 }
-  v52 = R_RT_Handle::GetSurface(&v60)->m_image.m_base.height;
-  v53 = R_RT_Handle::GetSurface(&v60);
-  R_SetRenderTargetSize(_R15->source, v53->m_image.m_base.width, v52, GFX_USE_VIEWPORT_FULL);
-  __asm { vmovups ymm0, [rbp+50h+var_90] }
-  v55 = _R15->state;
-  __asm { vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0 }
-  R_AddRenderTargetTransition(v55, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_FlushResourceTransitions(v55);
-  __asm
-  {
-    vmovups ymm0, [rbp+50h+var_90]
-    vmovups ymmword ptr [rbp+50h+result.m_surfaceID], ymm0
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rbp+50h+var_70.m_surfaceID], xmm0
-  }
-  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v62, (R_RT_ColorHandle *)&resulta, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(533)");
-  if ( v19 )
-    R_ClearScreen(v55, 0xFu, 0);
-  return _RSI;
+  v45 = v39;
+  v40 = R_RT_Handle::GetSurface(&v45)->m_image.m_base.height;
+  v41 = R_RT_Handle::GetSurface(&v45);
+  R_SetRenderTargetSize(gfxContext->source, v41->m_image.m_base.width, v40, GFX_USE_VIEWPORT_FULL);
+  v42 = gfxContext->state;
+  resulta = finalColorRt;
+  R_AddRenderTargetTransition(v42, (R_RT_ColorHandle *)&resulta, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_FlushResourceTransitions(v42);
+  resulta = finalColorRt;
+  *(GfxCmdBufContext *)&v47.m_surfaceID = *gfxContext;
+  R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v47, (R_RT_ColorHandle *)&resulta, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(533)");
+  if ( v16 )
+    R_ClearScreen(v42, 0xFu, 0);
+  return result;
 }
 
 /*
@@ -441,76 +370,58 @@ RB_GaussianFilterHdrImage
 void RB_GaussianFilterHdrImage(GfxCmdBufContext *gfxContext, unsigned int mipIndex, float radius, R_RT_ColorHandle *srcColorRt, R_RT_ColorHandle *dstColorRt, R_RT_ColorHandle *pingPongRt0, R_RT_ColorHandle *pingPongRt1, unsigned int blurWidth, unsigned int blurHeight, GfxRenderTargetFormat blurFormat, unsigned int filterOptions, const GfxViewInfo *viewInfo)
 {
   signed __int64 v12; 
-  void *v16; 
-  __int64 v22; 
-  char v33; 
+  void *v13; 
+  __int64 v16; 
+  float sceneHeight; 
+  float v18; 
+  float v19; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  float v21; 
   int width; 
   const R_RT_Surface *Surface; 
+  R_RT_ColorHandle v24; 
   unsigned __int16 m_surfaceID; 
+  R_RT_ColorHandle v26; 
   unsigned int GaussianFilterChain; 
-  int v45; 
+  GfxCmdBufContext v28; 
+  int v29; 
+  R_RT_ColorHandle *v30; 
+  GfxCmdBufContext v31; 
   int dstHeight; 
   int dstWidth; 
   int srcHeight; 
-  GfxCmdBufContext v55; 
-  R_RT_ColorHandle v56; 
+  GfxCmdBufContext v35; 
+  R_RT_ColorHandle v36; 
   GfxImageFilter filter; 
-  __int64 v58; 
-  char v61; 
+  __int64 v38; 
 
-  v16 = alloca(v12);
-  __asm
-  {
-    vmovaps [rsp+1298h+var_48], xmm6
-    vmovaps [rsp+1298h+var_58], xmm7
-  }
-  _R15 = srcColorRt;
-  _R12 = dstColorRt;
-  _RSI = gfxContext;
-  _RBP = pingPongRt0;
-  _RBX = pingPongRt1;
-  v22 = mipIndex;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, xmm2
-    vmulss  xmm6, xmm1, cs:__real@3b088889
-    vdivss  xmm7, xmm6, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel; vidConfig_t vidConfig
-  }
+  v13 = alloca(v12);
+  v16 = mipIndex;
+  sceneHeight = (float)vidConfig.sceneHeight;
+  v18 = (float)(sceneHeight * radius) * 0.0020833334;
+  v19 = v18 / vidConfig.aspectRatioScenePixel;
   if ( viewInfo )
   {
-    _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vdivss  xmm1, xmm0, dword ptr [rax+4]
-      vmulss  xmm2, xmm1, dword ptr [rax+rcx*8+4]
-      vdivss  xmm3, xmm2, dword ptr [rax+rcx*8]
-      vcomiss xmm3, cs:__real@3f800000
-    }
-    if ( v33 )
-      __asm { vmulss  xmm6, xmm3, xmm6 }
+    MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+    v21 = (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]) / MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0];
+    if ( v21 < 1.0 )
+      v18 = v21 * v18;
     else
-      __asm { vdivss  xmm7, xmm7, xmm3 }
+      v19 = v19 / v21;
   }
-  width = R_RT_Handle::GetSurface(_R15)->m_image.m_base.width;
-  srcHeight = R_RT_Handle::GetSurface(_R15)->m_image.m_base.height;
+  width = R_RT_Handle::GetSurface(srcColorRt)->m_image.m_base.width;
+  srcHeight = R_RT_Handle::GetSurface(srcColorRt)->m_image.m_base.height;
   dstWidth = R_RT_Handle::GetSurface(dstColorRt)->m_image.m_base.width;
   Surface = R_RT_Handle::GetSurface(dstColorRt);
-  __asm { vmovups ymm1, ymmword ptr [r12] }
+  v24 = *dstColorRt;
   filter.rtFormat = blurFormat;
   dstHeight = Surface->m_image.m_base.height;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [rsp+1298h+filter.srcColorRt.baseclass_0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+1298h+filter.finalColorRt.baseclass_0.m_surfaceID], ymm1
-  }
-  if ( (unsigned int)v22 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 736, ASSERT_TYPE_ASSERT, "(unsigned)( mipIndex ) < (unsigned)( ( sizeof( *array_counter( s_gaussianHDRPingPongNames ) ) + 0 ) )", "mipIndex doesn't index ARRAY_COUNT( s_gaussianHDRPingPongNames )\n\t%i not in [0, %i)", v22, 16) )
+  filter.srcColorRt = *srcColorRt;
+  filter.finalColorRt = v24;
+  if ( (unsigned int)v16 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 736, ASSERT_TYPE_ASSERT, "(unsigned)( mipIndex ) < (unsigned)( ( sizeof( *array_counter( s_gaussianHDRPingPongNames ) ) + 0 ) )", "mipIndex doesn't index ARRAY_COUNT( s_gaussianHDRPingPongNames )\n\t%i not in [0, %i)", v16, 16) )
     __debugbreak();
-  filter.pingPongNames[0] = s_gaussianHDRPingPongNames[v22][0];
-  filter.pingPongNames[1] = s_gaussianHDRPingPongNames[v22][1];
+  filter.pingPongNames[0] = s_gaussianHDRPingPongNames[v16][0];
+  filter.pingPongNames[1] = s_gaussianHDRPingPongNames[v16][1];
   if ( R_RT_Handle::IsValid(pingPongRt0) )
   {
     if ( (R_RT_Handle::GetSurface(pingPongRt0)->m_image.m_base.width != blurWidth || R_RT_Handle::GetSurface(pingPongRt0)->m_image.m_base.height != blurHeight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 741, ASSERT_TYPE_ASSERT, "(pingPongRt0.GetWidth() == blurWidth && pingPongRt0.GetHeight() == blurHeight)", (const char *)&queryFormat, "pingPongRt0.GetWidth() == blurWidth && pingPongRt0.GetHeight() == blurHeight") )
@@ -528,53 +439,33 @@ void RB_GaussianFilterHdrImage(GfxCmdBufContext *gfxContext, unsigned int mipInd
       __debugbreak();
     if ( (R_RT_Handle::GetSurface(pingPongRt1)->m_image.m_base.width != blurWidth || R_RT_Handle::GetSurface(pingPongRt1)->m_image.m_base.height != blurHeight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 743, ASSERT_TYPE_ASSERT, "(pingPongRt1.GetWidth() == blurWidth && pingPongRt1.GetHeight() == blurHeight)", (const char *)&queryFormat, "pingPongRt1.GetWidth() == blurWidth && pingPongRt1.GetHeight() == blurHeight") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+0]
-      vmovups ymm1, ymmword ptr [rbx]
-      vmovups ymmword ptr [rsp+1298h+filter.pingPongColorRts.baseclass_0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+1298h+filter.pingPongColorRts.baseclass_0.m_surfaceID+20h], ymm1
-    }
+    v26 = *pingPongRt1;
+    filter.pingPongColorRts[0] = *pingPongRt0;
+    filter.pingPongColorRts[1] = v26;
   }
   else
   {
     RB_ImageFilter_CommitPingPongRTs(&filter, blurWidth, blurHeight);
   }
-  __asm
-  {
-    vmovaps xmm1, xmm6; radiusY
-    vmovaps xmm0, xmm7; radiusX
-  }
-  GaussianFilterChain = RB_GenerateGaussianFilterChain(*(float *)&_XMM0, *(float *)&_XMM1, width, srcHeight, dstWidth, dstHeight, 0x10u, blurFormat, filterOptions, filter.passes);
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
+  GaussianFilterChain = RB_GenerateGaussianFilterChain(v19, v18, width, srcHeight, dstWidth, dstHeight, 0x10u, blurFormat, filterOptions, filter.passes);
+  v28 = *gfxContext;
   filter.passCount = GaussianFilterChain;
-  __asm { vmovups [rsp+1298h+var_1238], xmm0 }
-  RB_FilterImage(&v55, &filter, filterOptions);
+  v35 = v28;
+  RB_FilterImage(&v35, &filter, filterOptions);
   if ( !R_RT_Handle::IsValid(pingPongRt0) )
   {
-    v45 = 2;
-    _RDI = &v58;
+    v29 = 2;
+    v30 = (R_RT_ColorHandle *)&v38;
     do
     {
-      __asm { vmovups xmm1, xmmword ptr [rsi] }
-      _RDI -= 4;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups [rsp+1298h+var_1228], ymm0
-        vmovups [rsp+1298h+var_1238], xmm1
-      }
-      R_RT_Destroy(&v55, &v56);
-      --v45;
+      v31 = *gfxContext;
+      v36 = *--v30;
+      v35 = v31;
+      R_RT_Destroy(&v35, &v36);
+      --v29;
     }
-    while ( v45 );
+    while ( v29 );
     R_FlushImmediateContext();
-  }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -583,112 +474,83 @@ void RB_GaussianFilterHdrImage(GfxCmdBufContext *gfxContext, unsigned int mipInd
 RB_GaussianFilterHdrImageStep
 ==============
 */
-
-void __fastcall RB_GaussianFilterHdrImageStep(GfxCmdBufContext *gfxContext, unsigned int passIndex, double radius, R_RT_ColorHandle *srcRt, R_RT_ColorHandle *dstRt, GfxRenderTargetFormat blurFormat, unsigned int filterOptions, const GfxViewInfo *viewInfo)
+void RB_GaussianFilterHdrImageStep(GfxCmdBufContext *gfxContext, unsigned int passIndex, float radius, R_RT_ColorHandle *srcRt, R_RT_ColorHandle *dstRt, GfxRenderTargetFormat blurFormat, unsigned int filterOptions, const GfxViewInfo *viewInfo)
 {
   signed __int64 v8; 
-  void *v12; 
-  __int64 v14; 
+  void *v9; 
+  __int64 v11; 
   GfxPixelFormat format; 
-  char v28; 
+  float sceneHeight; 
+  float v15; 
+  float v16; 
+  float v17; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  float v19; 
   int dstHeight; 
   int width; 
   int height; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v36; 
+  const R_RT_Surface *v24; 
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
+  GfxCmdBufContext v28; 
   const Material *material; 
-  GfxCmdBufSourceState *v42; 
-  GfxCmdBufInput *v43; 
-  GfxCmdBufContext v47; 
+  GfxCmdBufSourceState *v30; 
+  GfxCmdBufInput *v31; 
+  GfxCmdBufContext v32; 
   unsigned int GaussianFilterChain; 
   GfxImageFilterPass filterPass[16]; 
-  GfxRenderTargetFormat v50; 
-  char v53; 
+  GfxRenderTargetFormat v35; 
 
-  v12 = alloca(v8);
-  __asm
-  {
-    vmovaps [rsp+1268h+var_48], xmm6
-    vmovaps [rsp+1268h+var_58], xmm7
-  }
-  _R14 = gfxContext;
-  v14 = passIndex;
-  __asm { vmovaps xmm6, xmm2 }
+  v9 = alloca(v8);
+  v11 = passIndex;
   format = R_RT_Handle::GetSurface(srcRt)->m_image.m_base.format;
   if ( format != R_RT_Handle::GetSurface(dstRt)->m_image.m_base.format && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 766, ASSERT_TYPE_ASSERT, "(srcRt.GetFormat() == dstRt.GetFormat())", (const char *)&queryFormat, "srcRt.GetFormat() == dstRt.GetFormat()") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm6, xmm1, cs:__real@3b088889
-    vdivss  xmm7, xmm6, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel; vidConfig_t vidConfig
-  }
+  sceneHeight = (float)vidConfig.sceneHeight;
+  v15 = (float)(sceneHeight * radius) * 0.0020833334;
+  v17 = v15 / vidConfig.aspectRatioScenePixel;
+  v16 = v15 / vidConfig.aspectRatioScenePixel;
   if ( viewInfo )
   {
-    _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vdivss  xmm1, xmm0, dword ptr [rax+4]
-      vmulss  xmm2, xmm1, dword ptr [rax+rcx*8+4]
-      vdivss  xmm3, xmm2, dword ptr [rax+rcx*8]
-      vcomiss xmm3, cs:__real@3f800000
-    }
-    if ( v28 )
-      __asm { vmulss  xmm6, xmm6, xmm3 }
+    MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+    v19 = (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]) / MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0];
+    if ( v19 < 1.0 )
+      v15 = v15 * v19;
     else
-      __asm { vdivss  xmm7, xmm7, xmm3 }
+      v16 = v17 / v19;
   }
   dstHeight = R_RT_Handle::GetSurface(dstRt)->m_image.m_base.height;
   width = R_RT_Handle::GetSurface(dstRt)->m_image.m_base.width;
   height = R_RT_Handle::GetSurface(srcRt)->m_image.m_base.height;
   Surface = R_RT_Handle::GetSurface(srcRt);
-  __asm
+  GaussianFilterChain = RB_GenerateGaussianFilterChain(v16, v15, Surface->m_image.m_base.width, height, width, dstHeight, 0x10u, blurFormat, filterOptions, filterPass);
+  v35 = blurFormat;
+  if ( (unsigned int)v11 < GaussianFilterChain )
   {
-    vmovaps xmm1, xmm6; radiusY
-    vmovaps xmm0, xmm7; radiusX
-  }
-  GaussianFilterChain = RB_GenerateGaussianFilterChain(*(float *)&_XMM0, *(float *)&_XMM1, Surface->m_image.m_base.width, height, width, dstHeight, 0x10u, blurFormat, filterOptions, filterPass);
-  v50 = blurFormat;
-  if ( (unsigned int)v14 < GaussianFilterChain )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rsp+1268h+var_1218], xmm0
-    }
-    RB_SetupFilterPass(&v47, &filterPass[v14]);
-    v36 = R_RT_Handle::GetSurface(srcRt);
-    source = _R14->source;
-    p_m_image = &v36->m_image;
-    if ( !_R14->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v32 = *gfxContext;
+    RB_SetupFilterPass(&v32, &filterPass[v11]);
+    v24 = R_RT_Handle::GetSurface(srcRt);
+    source = gfxContext->source;
+    p_m_image = &v24->m_image;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     p_input = &source->input;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    material = filterPass[v14].material;
+    v28 = *gfxContext;
+    material = filterPass[v11].material;
     p_input->codeImages[4] = &p_m_image->m_base;
-    __asm { vmovups [rsp+1268h+var_1218], xmm0 }
-    RB_FullScreenFilterInternal(&v47, material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(784)");
-    v42 = _R14->source;
-    if ( !_R14->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v32 = v28;
+    RB_FullScreenFilterInternal(&v32, material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(784)");
+    v30 = gfxContext->source;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    v43 = &v42->input;
-    if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    v31 = &v30->input;
+    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    v43->codeImages[4] = NULL;
-  }
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    v31->codeImages[4] = NULL;
   }
 }
 
@@ -697,137 +559,89 @@ void __fastcall RB_GaussianFilterHdrImageStep(GfxCmdBufContext *gfxContext, unsi
 RB_GaussianFilterImage
 ==============
 */
-
-void __fastcall RB_GaussianFilterImage(GfxCmdBufContext *gfxContext, unsigned int mipIndex, double radius, R_RT_ColorHandle *srcColorRt, R_RT_ColorHandle *dstColorRt, R_RT_ColorHandle *pingPongRt0, R_RT_ColorHandle *pingPongRt1, unsigned int blurWidth, unsigned int blurHeight, GfxRenderTargetFormat blurFormat, unsigned int filterOptions, const GfxViewInfo *viewInfo)
+void RB_GaussianFilterImage(GfxCmdBufContext *gfxContext, unsigned int mipIndex, float radius, R_RT_ColorHandle *srcColorRt, R_RT_ColorHandle *dstColorRt, R_RT_ColorHandle *pingPongRt0, R_RT_ColorHandle *pingPongRt1, unsigned int blurWidth, unsigned int blurHeight, GfxRenderTargetFormat blurFormat, unsigned int filterOptions, const GfxViewInfo *viewInfo)
 {
   signed __int64 v12; 
-  void *v19; 
-  __int64 v26; 
-  char v34; 
-  bool v35; 
-  const R_RT_Surface *Surface; 
+  void *v13; 
+  __int64 v16; 
+  float sceneHeight; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  float v23; 
+  float v24; 
+  float v25; 
+  R_RT_ColorHandle v26; 
   unsigned __int16 m_surfaceID; 
+  R_RT_ColorHandle v28; 
   unsigned int GaussianFilterChain; 
-  int v56; 
+  GfxCmdBufContext v30; 
+  int v31; 
+  R_RT_ColorHandle *v32; 
+  GfxCmdBufContext v33; 
   __int64 dstHeight; 
   int height; 
   int dstWidth; 
   int srcHeight; 
   int srcWidth; 
-  GfxCmdBufContext v71; 
-  R_RT_ColorHandle v72; 
+  GfxCmdBufContext v39; 
+  R_RT_ColorHandle v40; 
   GfxImageFilter filter; 
-  __int64 v74; 
-  char v80; 
+  __int64 v42; 
 
-  v19 = alloca(v12);
-  __asm
-  {
-    vmovaps [rsp+12C8h+var_48], xmm6
-    vmovaps [rsp+12C8h+var_58], xmm7
-    vmovaps [rsp+12C8h+var_68], xmm8
-    vmovaps [rsp+12C8h+var_78], xmm9
-    vmovaps [rsp+12C8h+var_88], xmm10
-  }
-  _RBP = dstColorRt;
-  _RSI = gfxContext;
-  _R14 = pingPongRt0;
-  _RBX = pingPongRt1;
-  _R15 = srcColorRt;
-  __asm { vmovaps xmm6, xmm2 }
-  v26 = mipIndex;
+  v13 = alloca(v12);
+  v16 = mipIndex;
   if ( !R_RT_Handle::IsValid(srcColorRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 669, ASSERT_TYPE_ASSERT, "(srcColorRt)", (const char *)&queryFormat, "srcColorRt") )
     __debugbreak();
   if ( !R_RT_Handle::IsValid(dstColorRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 670, ASSERT_TYPE_ASSERT, "(dstColorRt)", (const char *)&queryFormat, "dstColorRt") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm7, xmm1, cs:__real@3b088889
-    vdivss  xmm9, xmm7, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel; vidConfig_t vidConfig
-    vmovaps xmm6, xmm9
-    vmovaps xmm0, xmm7
-  }
-  v34 = 0;
-  v35 = viewInfo == NULL;
+  sceneHeight = (float)vidConfig.sceneHeight;
+  v18 = (float)(sceneHeight * radius) * 0.0020833334;
+  v19 = v18 / vidConfig.aspectRatioScenePixel;
+  v20 = v18 / vidConfig.aspectRatioScenePixel;
+  v21 = v18;
   if ( viewInfo )
   {
-    _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-    __asm
+    MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+    v23 = (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]) / MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0];
+    if ( v23 < 1.0 )
     {
-      vmovss  xmm0, dword ptr [rax]
-      vdivss  xmm1, xmm0, dword ptr [rax+4]
-      vmulss  xmm2, xmm1, dword ptr [rax+rcx*8+4]
-      vdivss  xmm3, xmm2, dword ptr [rax+rcx*8]
-      vcomiss xmm3, cs:__real@3f800000
-    }
-    if ( v34 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm7
-        vmovaps xmm7, xmm0
-        vmovaps xmm6, xmm9
-      }
+      v21 = v23 * v18;
+      v18 = v23 * v18;
+      v20 = v19;
     }
     else
     {
-      __asm
-      {
-        vdivss  xmm6, xmm9, xmm3
-        vmovaps xmm9, xmm6
-        vmovaps xmm0, xmm7
-      }
+      v20 = v19 / v23;
+      v19 = v19 / v23;
+      v21 = v18;
     }
   }
-  __asm
+  v24 = v21;
+  if ( v20 > 150.0 || v21 > 150.0 )
   {
-    vmovss  xmm8, cs:__real@43160000
-    vcomiss xmm6, xmm8
-    vmovaps xmm10, xmm0
+    v25 = 150.0 / fmaxf(v19, v18);
+    v19 = v25 * v20;
+    v18 = v25 * v24;
   }
-  if ( !(v34 | v35) )
-    goto LABEL_13;
-  __asm { vcomiss xmm0, xmm8 }
-  if ( !(v34 | v35) )
-  {
-LABEL_13:
-    __asm
-    {
-      vmovaps xmm1, xmm7; Y
-      vmovaps xmm0, xmm9; X
-    }
-    fmaxf(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm9, xmm1, xmm6
-      vmulss  xmm7, xmm1, xmm10
-    }
-  }
-  srcWidth = R_RT_Handle::GetSurface(_R15)->m_image.m_base.width;
-  srcHeight = R_RT_Handle::GetSurface(_R15)->m_image.m_base.height;
+  srcWidth = R_RT_Handle::GetSurface(srcColorRt)->m_image.m_base.width;
+  srcHeight = R_RT_Handle::GetSurface(srcColorRt)->m_image.m_base.height;
   dstWidth = R_RT_Handle::GetSurface(dstColorRt)->m_image.m_base.width;
-  Surface = R_RT_Handle::GetSurface(dstColorRt);
   filter.rtFormat = blurFormat;
-  __asm { vmovups ymm0, ymmword ptr [r15] }
-  height = Surface->m_image.m_base.height;
-  __asm
+  height = R_RT_Handle::GetSurface(dstColorRt)->m_image.m_base.height;
+  v26 = *dstColorRt;
+  filter.srcColorRt = *srcColorRt;
+  filter.finalColorRt = v26;
+  if ( (unsigned int)v16 >= 0x10 )
   {
-    vmovups ymm1, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rsp+12C8h+filter.srcColorRt.baseclass_0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+12C8h+filter.finalColorRt.baseclass_0.m_surfaceID], ymm1
-  }
-  if ( (unsigned int)v26 >= 0x10 )
-  {
-    LODWORD(dstHeight) = v26;
+    LODWORD(dstHeight) = v16;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 690, ASSERT_TYPE_ASSERT, "(unsigned)( mipIndex ) < (unsigned)( ( sizeof( *array_counter( s_gaussianPingPongNames ) ) + 0 ) )", "mipIndex doesn't index ARRAY_COUNT( s_gaussianPingPongNames )\n\t%i not in [0, %i)", dstHeight, 16) )
       __debugbreak();
   }
-  filter.pingPongNames[0] = s_gaussianPingPongNames[v26][0];
-  filter.pingPongNames[1] = s_gaussianPingPongNames[v26][1];
+  filter.pingPongNames[0] = s_gaussianPingPongNames[v16][0];
+  filter.pingPongNames[1] = s_gaussianPingPongNames[v16][1];
   if ( R_RT_Handle::IsValid(pingPongRt0) )
   {
     if ( (R_RT_Handle::GetSurface(pingPongRt0)->m_image.m_base.width != blurWidth || R_RT_Handle::GetSurface(pingPongRt0)->m_image.m_base.height != blurHeight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 695, ASSERT_TYPE_ASSERT, "(pingPongRt0.GetWidth() == blurWidth && pingPongRt0.GetHeight() == blurHeight)", (const char *)&queryFormat, "pingPongRt0.GetWidth() == blurWidth && pingPongRt0.GetHeight() == blurHeight") )
@@ -845,56 +659,33 @@ LABEL_13:
       __debugbreak();
     if ( (R_RT_Handle::GetSurface(pingPongRt1)->m_image.m_base.width != blurWidth || R_RT_Handle::GetSurface(pingPongRt1)->m_image.m_base.height != blurHeight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 697, ASSERT_TYPE_ASSERT, "(pingPongRt1.GetWidth() == blurWidth && pingPongRt1.GetHeight() == blurHeight)", (const char *)&queryFormat, "pingPongRt1.GetWidth() == blurWidth && pingPongRt1.GetHeight() == blurHeight") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymm1, ymmword ptr [rbx]
-      vmovups ymmword ptr [rsp+12C8h+filter.pingPongColorRts.baseclass_0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+12C8h+filter.pingPongColorRts.baseclass_0.m_surfaceID+20h], ymm1
-    }
+    v28 = *pingPongRt1;
+    filter.pingPongColorRts[0] = *pingPongRt0;
+    filter.pingPongColorRts[1] = v28;
   }
   else
   {
     RB_ImageFilter_CommitPingPongRTs(&filter, blurWidth, blurHeight);
   }
-  __asm
-  {
-    vmovaps xmm1, xmm7; radiusY
-    vmovaps xmm0, xmm9; radiusX
-  }
-  GaussianFilterChain = RB_GenerateGaussianFilterChain(*(float *)&_XMM0, *(float *)&_XMM1, srcWidth, srcHeight, dstWidth, height, 0x10u, blurFormat, filterOptions, filter.passes);
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
+  GaussianFilterChain = RB_GenerateGaussianFilterChain(v19, v18, srcWidth, srcHeight, dstWidth, height, 0x10u, blurFormat, filterOptions, filter.passes);
+  v30 = *gfxContext;
   filter.passCount = GaussianFilterChain;
-  __asm { vmovups [rsp+12C8h+var_1268], xmm0 }
-  RB_FilterImage(&v71, &filter, filterOptions);
+  v39 = v30;
+  RB_FilterImage(&v39, &filter, filterOptions);
   if ( !R_RT_Handle::IsValid(pingPongRt0) )
   {
-    v56 = 2;
-    _RDI = &v74;
+    v31 = 2;
+    v32 = (R_RT_ColorHandle *)&v42;
     do
     {
-      __asm { vmovups xmm1, xmmword ptr [rsi] }
-      _RDI -= 4;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups [rsp+12C8h+var_1258], ymm0
-        vmovups [rsp+12C8h+var_1268], xmm1
-      }
-      R_RT_Destroy(&v71, &v72);
-      --v56;
+      v33 = *gfxContext;
+      v40 = *--v32;
+      v39 = v33;
+      R_RT_Destroy(&v39, &v40);
+      --v31;
     }
-    while ( v56 );
+    while ( v31 );
     R_FlushImmediateContext();
-  }
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 
@@ -903,139 +694,91 @@ LABEL_13:
 RB_GaussianFilterPoints1D
 ==============
 */
-
-__int64 __fastcall RB_GaussianFilterPoints1D(double pixels, int srcRes, int dstRes, int tapLimit, float *tapOffsets, float *tapWeights, const int options)
+__int64 RB_GaussianFilterPoints1D(float pixels, int srcRes, int dstRes, int tapLimit, float *tapOffsets, float *tapWeights, const int options)
 {
-  int v8; 
-  char v9; 
-  char v10; 
-  __int64 result; 
+  int v7; 
+  float v8; 
+  int v10; 
+  float v11; 
+  int v12; 
+  float *v13; 
+  float v14; 
+  float v15; 
+  int v16; 
   int v17; 
-  bool v20; 
-  int v21; 
-  int v25; 
-  int v26; 
-  bool v29; 
-  unsigned int v32; 
-  float *v35; 
+  float v18; 
+  float v19; 
+  float *v20; 
+  float v21; 
+  unsigned int v22; 
 
-  v8 = tapLimit;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  *(float *)&pixels = RB_GaussianFilterPoints1DUnnormalized(*(float *)&pixels, srcRes, dstRes, tapLimit, tapOffsets, tapWeights, options);
-  __asm
+  v7 = tapLimit;
+  v8 = RB_GaussianFilterPoints1DUnnormalized(pixels, srcRes, dstRes, tapLimit, tapOffsets, tapWeights, options);
+  if ( v8 > 0.001 )
   {
-    vcomiss xmm0, cs:__real@3a83126f
-    vmovaps xmm6, xmm0
-  }
-  if ( v9 | v10 )
-  {
-    *tapWeights = 0.5;
-    result = 1i64;
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  }
-  else
-  {
-    __asm
+    if ( v8 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", v8) )
+      __debugbreak();
+    v10 = v7 - 1;
+    v11 = 0.5 / v8;
+    if ( v7 - 1 < 0 )
+      return (unsigned int)v7;
+    if ( v7 >= 4 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( v9 | v10 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+58h+var_30], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", *(double *)&v35) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm0, cs:__real@3f000000 }
-    v17 = v8 - 1;
-    __asm { vdivss  xmm3, xmm0, xmm6 }
-    if ( v8 - 1 < 0 )
-      goto LABEL_24;
-    __asm { vmovss  xmm2, cs:__real@3c23d70a }
-    v20 = (unsigned int)v8 < 4;
-    if ( v8 >= 4 )
-    {
-      v21 = v8 - 2;
-      _R8 = &tapWeights[v17 - 2];
+      v12 = v7 - 2;
+      v13 = &tapWeights[v10 - 2];
       do
       {
-        __asm
-        {
-          vmulss  xmm0, xmm3, dword ptr [r8+8]
-          vmulss  xmm1, xmm3, dword ptr [r8+4]
-          vcomiss xmm0, xmm2
-        }
-        v25 = v21 + 2;
-        v26 = v21;
-        if ( !v20 )
-          v25 = v8;
-        v8 = v21 - 1;
-        __asm
-        {
-          vcomiss xmm1, xmm2
-          vmovss  dword ptr [r8+4], xmm1
-        }
-        if ( v20 )
-          v25 = v17;
-        __asm
-        {
-          vmulss  xmm1, xmm3, dword ptr [r8]
-          vcomiss xmm1, xmm2
-          vmovss  dword ptr [r8+8], xmm0
-        }
-        if ( !v20 )
-          v26 = v25;
-        __asm
-        {
-          vmulss  xmm0, xmm3, dword ptr [r8-4]
-          vcomiss xmm0, xmm2
-          vmovss  dword ptr [r8], xmm1
-        }
-        if ( !v20 )
-          v8 = v26;
-        v17 -= 4;
-        v21 -= 4;
-        __asm { vmovss  dword ptr [r8-4], xmm0 }
-        _R8 -= 4;
-        v20 = (unsigned int)v17 < 3;
+        v14 = v11 * v13[2];
+        v15 = v11 * v13[1];
+        v16 = v12 + 2;
+        v17 = v12;
+        if ( v14 >= 0.0099999998 )
+          v16 = v7;
+        v7 = v12 - 1;
+        v13[1] = v15;
+        if ( v15 < 0.0099999998 )
+          v16 = v10;
+        v18 = v11 * *v13;
+        v13[2] = v14;
+        if ( v18 >= 0.0099999998 )
+          v17 = v16;
+        v19 = v11 * *(v13 - 1);
+        *v13 = v18;
+        if ( v19 >= 0.0099999998 )
+          v7 = v17;
+        v10 -= 4;
+        v12 -= 4;
+        *(v13 - 1) = v19;
+        v13 -= 4;
       }
-      while ( v17 >= 3 );
+      while ( v10 >= 3 );
     }
-    v29 = 0;
-    if ( v17 < 0 )
+    if ( v10 < 0 )
     {
-LABEL_24:
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
-      return (unsigned int)v8;
+      return (unsigned int)v7;
     }
     else
     {
-      _R8 = &tapWeights[v17];
+      v20 = &tapWeights[v10];
       do
       {
-        __asm
-        {
-          vmulss  xmm0, xmm3, dword ptr [r8]
-          vcomiss xmm0, xmm2
-        }
-        v32 = v17 + 1;
-        if ( !v29 )
-          v32 = v8;
-        v29 = v17-- == 0;
-        v8 = v32;
-        __asm { vmovss  dword ptr [r8], xmm0 }
-        --_R8;
+        v21 = v11 * *v20;
+        v22 = v10 + 1;
+        if ( v21 >= 0.0099999998 )
+          v22 = v7;
+        --v10;
+        v7 = v22;
+        *v20-- = v21;
       }
-      while ( v17 >= 0 );
-      result = v32;
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
+      while ( v10 >= 0 );
+      return v22;
     }
   }
-  return result;
+  else
+  {
+    *tapWeights = 0.5;
+    return 1i64;
+  }
 }
 
 /*
@@ -1043,168 +786,82 @@ LABEL_24:
 RB_GaussianFilterPoints1DUnnormalized
 ==============
 */
-
-float __fastcall RB_GaussianFilterPoints1DUnnormalized(double pixels, int srcRes, int dstRes, int tapLimit, float *tapOffsets, float *tapWeights)
+float RB_GaussianFilterPoints1DUnnormalized(float pixels, int srcRes, int dstRes, int tapLimit, float *tapOffsets, float *tapWeights)
 {
-  __int64 v78; 
-  __int64 v79; 
-  char v85; 
-  void *retaddr; 
+  float v11; 
+  int v14; 
+  int v15; 
+  float v19; 
+  __int128 v20; 
+  float *v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  float v32; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm0, xmm10
-    vmovaps [rsp+0E8h+var_88], xmm13
-    vmovaps [rsp+0E8h+var_98], xmm14
-    vmovaps xmm6, xmm0
-  }
-  if ( dstRes <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 152, ASSERT_TYPE_ASSERT, "( ( dstRes > 0 ) )", "( dstRes ) = %i", dstRes) )
+  _XMM10 = 0i64;
+  if ( pixels <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 151, ASSERT_TYPE_ASSERT, "( ( pixels > 0 ) )", "( pixels ) = %g", pixels) )
     __debugbreak();
-  if ( srcRes < dstRes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 153, ASSERT_TYPE_ASSERT, "( srcRes ) >= ( dstRes )", "%s >= %s\n\t%i, %i", "srcRes", "dstRes", srcRes, dstRes) )
-    __debugbreak();
-  __asm
+  if ( dstRes <= 0 )
   {
-    vmovss  xmm11, cs:__real@3f000000
-    vxorps  xmm13, xmm13, xmm13
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm13, xmm13, edi
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm1, xmm13, xmm0
-    vaddss  xmm2, xmm1, xmm11
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-    vcvttss2si esi, xmm4
-  }
-  if ( (int)abs32(srcRes - dstRes * _ESI) >= _ESI )
-  {
-    LODWORD(v79) = dstRes;
-    LODWORD(v78) = srcRes;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 157, ASSERT_TYPE_ASSERT, "(abs( srcRes - resolutionRatio * dstRes ) < resolutionRatio)", "%s\n\t%i %i", "abs( srcRes - resolutionRatio * dstRes ) < resolutionRatio", v78, v79) )
+    LODWORD(v29) = dstRes;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 152, ASSERT_TYPE_ASSERT, "( ( dstRes > 0 ) )", "( dstRes ) = %i", v29) )
       __debugbreak();
   }
-  _ESI = _ESI & 1;
-  _EDI = 0;
+  if ( srcRes < dstRes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 153, ASSERT_TYPE_ASSERT, "( srcRes ) >= ( dstRes )", "%s >= %s\n\t%i, %i", "srcRes", "dstRes", srcRes, dstRes) )
+    __debugbreak();
+  v11 = (float)srcRes;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  v14 = (int)*(float *)&_XMM4;
+  if ( (int)abs32(srcRes - dstRes * (int)*(float *)&_XMM4) >= (int)*(float *)&_XMM4 )
+  {
+    LODWORD(v31) = dstRes;
+    LODWORD(v30) = srcRes;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 157, ASSERT_TYPE_ASSERT, "(abs( srcRes - resolutionRatio * dstRes ) < resolutionRatio)", "%s\n\t%i %i", "abs( srcRes - resolutionRatio * dstRes ) < resolutionRatio", v30, v31) )
+      __debugbreak();
+  }
+  v15 = 0;
+  _XMM0 = v14 & 1;
   __asm
   {
-    vmovd   xmm1, edi
-    vmovd   xmm0, esi
     vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@bf000000
     vblendvps xmm0, xmm10, xmm11, xmm2
-    vmulss  xmm2, xmm6, xmm6
-    vdivss  xmm14, xmm1, xmm2
-    vmovss  [rsp+0E8h+arg_0], xmm0
-    vxorps  xmm7, xmm7, xmm7
   }
+  v19 = -0.5 / (float)(pixels * pixels);
+  v32 = *(float *)&_XMM0;
+  v20 = 0i64;
   if ( tapLimit <= 0 )
+    return 0.0;
+  v21 = tapWeights;
+  do
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v22 = _mm_cvtepi32_ps((__m128i)(unsigned int)(2 * v15)).m128_f32[0] + v32;
+    v23 = _mm_cvtepi32_ps((__m128i)(unsigned int)(2 * v15 + 1)).m128_f32[0] + v32;
+    v24 = expf_0((float)(v22 * v19) * v22);
+    v25 = expf_0((float)(v23 * v19) * v23);
+    if ( !v15 && v32 == 0.0 )
+      v24 = v24 * 0.5;
+    *v21 = v25 + v24;
+    if ( (float)(v25 + v24) == 0.0 )
+      v26 = (float)((float)(v23 + v22) * 0.5) / v11;
+    else
+      v26 = (float)((float)(v22 * v24) + (float)(v25 * v23)) / (float)((float)(v25 + v24) * v11);
+    *(float *)((char *)v21 + (char *)tapOffsets - (char *)tapWeights) = v26;
+    v27 = v20;
+    *(float *)&v27 = *(float *)&v20 + *v21;
+    v20 = v27;
+    ++v21;
+    ++v15;
   }
-  else
-  {
-    _RBX = tapWeights;
-    __asm { vmovaps [rsp+0E8h+var_38], xmm8 }
-    _RSI = (char *)tapOffsets - (char *)tapWeights;
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_48], xmm9
-      vmovaps [rsp+0E8h+var_78], xmm12
-      vmovss  xmm12, [rsp+0E8h+arg_0]
-    }
-    do
-    {
-      _EAX = 2 * _EDI;
-      __asm
-      {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vaddss  xmm8, xmm0, xmm12
-      }
-      _EAX = 2 * _EDI + 1;
-      __asm
-      {
-        vmovd   xmm1, eax
-        vmulss  xmm0, xmm8, xmm14
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm0, xmm0, xmm8; X
-        vaddss  xmm9, xmm1, xmm12
-      }
-      *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm9, xmm14
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm1, xmm9; X
-      }
-      *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-      if ( !_EDI )
-      {
-        __asm
-        {
-          vucomiss xmm12, xmm10
-          vmulss  xmm6, xmm6, xmm11
-        }
-      }
-      __asm
-      {
-        vaddss  xmm4, xmm0, xmm6
-        vucomiss xmm4, xmm10
-        vmovss  dword ptr [rbx], xmm4
-      }
-      if ( _EDI )
-      {
-        __asm
-        {
-          vmulss  xmm2, xmm8, xmm6
-          vmulss  xmm1, xmm0, xmm9
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm2, xmm4, xmm13
-          vdivss  xmm2, xmm3, xmm2
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm9, xmm8
-          vmulss  xmm1, xmm0, xmm11
-          vdivss  xmm2, xmm1, xmm13
-        }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rsi+rbx], xmm2
-        vaddss  xmm7, xmm7, dword ptr [rbx]
-      }
-      ++_RBX;
-      ++_EDI;
-    }
-    while ( _EDI < tapLimit );
-    __asm
-    {
-      vmovaps xmm12, [rsp+0E8h+var_78]
-      vmovaps xmm9, [rsp+0E8h+var_48]
-      vmovaps xmm8, [rsp+0E8h+var_38]
-      vmovaps xmm0, xmm7
-    }
-  }
-  __asm { vmovaps xmm14, [rsp+0E8h+var_98] }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return *(float *)&_XMM0;
+  while ( v15 < tapLimit );
+  return *(float *)&v27;
 }
 
 /*
@@ -1212,177 +869,96 @@ float __fastcall RB_GaussianFilterPoints1DUnnormalized(double pixels, int srcRes
 RB_GenerateGaussianFilter2D
 ==============
 */
-
-void __fastcall RB_GenerateGaussianFilter2D(double radius, int srcWidth, int srcHeight, int dstWidth, int dstHeight, GfxRenderTargetFormat rtFormat, GfxImageFilterPass *filterPass)
+void RB_GenerateGaussianFilter2D(float radius, int srcWidth, int srcHeight, int dstWidth, int dstHeight, GfxRenderTargetFormat rtFormat, GfxImageFilterPass *filterPass)
 {
-  char v16; 
-  char v17; 
-  char v30; 
-  char v31; 
-  int v42; 
-  __int64 v43; 
-  float *tapWeightsa; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  __int64 v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
   float *tapWeights; 
-  float *tapWeightsb; 
-  float v60; 
-  float tapOffsets[2]; 
-  float v63[28]; 
-  char v64; 
-  void *retaddr; 
+  float v25; 
+  float v26; 
+  float tapOffsets; 
+  float v28; 
+  float v29[28]; 
 
-  _RAX = &retaddr;
-  __asm
+  v9 = RB_GaussianFilterPoints1DUnnormalized(radius, srcWidth, dstWidth, 2, &tapOffsets, &v25);
+  if ( v9 > 0.001 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm11, xmm0
-  }
-  *(float *)&radius = RB_GaussianFilterPoints1DUnnormalized(radius, srcWidth, dstWidth, 2, tapOffsets, &v60);
-  __asm
-  {
-    vcomiss xmm0, cs:__real@3a83126f
-    vmovaps xmm7, xmm0
-    vxorps  xmm10, xmm10, xmm10
-  }
-  if ( v16 | v17 )
-  {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f000000
-      vmovss  xmm9, [rsp+0C8h+var_84]
-      vmovaps xmm8, xmm6
-    }
+    if ( v9 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", v9) )
+      __debugbreak();
+    v10 = FLOAT_0_5;
+    v11 = v26 * (float)(0.5 / v9);
+    v12 = v25 * (float)(0.5 / v9);
   }
   else
   {
-    __asm { vcomiss xmm7, xmm10 }
-    if ( v16 | v17 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+0C8h+tapWeights], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", *(double *)&tapWeightsa) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f000000
-      vmovss  xmm0, [rsp+0C8h+var_84]
-      vmovss  xmm1, [rsp+0C8h+var_88]
-      vdivss  xmm2, xmm6, xmm7
-      vmulss  xmm9, xmm0, xmm2
-      vmulss  xmm8, xmm1, xmm2
-    }
+    v10 = FLOAT_0_5;
+    v11 = v26;
+    v12 = FLOAT_0_5;
   }
-  __asm { vmovaps xmm0, xmm11; pixels }
-  *(float *)&_XMM0 = RB_GaussianFilterPoints1DUnnormalized(*(double *)&_XMM0, srcHeight, dstHeight, 2, v63, &v60);
-  __asm
+  v13 = RB_GaussianFilterPoints1DUnnormalized(radius, srcHeight, dstHeight, 2, v29, &v25);
+  if ( v13 > 0.001 )
   {
-    vcomiss xmm0, cs:__real@3a83126f
-    vmovaps xmm7, xmm0
-  }
-  if ( v30 | v31 )
-  {
-    __asm { vmovss  [rsp+0C8h+var_88], xmm6 }
+    if ( v13 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", v13) )
+      __debugbreak();
+    v26 = (float)(v10 / v13) * v26;
+    v25 = (float)(v10 / v13) * v25;
   }
   else
   {
-    __asm { vcomiss xmm7, xmm10 }
-    if ( v30 | v31 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+0C8h+tapWeights], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 203, ASSERT_TYPE_ASSERT, "( ( totalWeight > 0 ) )", "( totalWeight ) = %g", *(double *)&tapWeightsb) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vdivss  xmm3, xmm6, xmm7
-      vmulss  xmm1, xmm3, [rsp+0C8h+var_84]
-      vmulss  xmm0, xmm3, [rsp+0C8h+var_88]
-      vmovss  [rsp+0C8h+var_84], xmm1
-      vmovss  [rsp+0C8h+var_88], xmm0
-    }
+    v25 = v10;
   }
-  __asm
-  {
-    vmovss  xmm3, [rsp+0C8h+var_80]
-    vmovss  xmm4, [rsp+0C8h+var_7C]
-    vxorps  xmm5, xmm3, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm6, xmm4, cs:__xmm@80000000800000008000000080000000
-  }
-  _RBX = filterPass;
-  v42 = 0;
-  v43 = 0i64;
-  _RCX = 0i64;
+  v14 = tapOffsets;
+  v15 = v28;
+  LODWORD(v16) = LODWORD(tapOffsets) ^ _xmm;
+  LODWORD(v17) = LODWORD(v28) ^ _xmm;
+  v18 = 0;
+  v19 = 0i64;
+  v20 = 0i64;
   do
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+rcx+0C8h+var_78]
-      vmovss  xmm1, [rsp+rcx+0C8h+var_88]
-      vmulss  xmm0, xmm1, xmm8
-    }
-    v42 += 2;
-    _RAX = 2 * v43;
-    v43 += 2i64;
-    _RCX += 4i64;
-    __asm
-    {
-      vmovss  dword ptr [rax+rbx+0Ch], xmm5
-      vmovss  dword ptr [rax+rbx+10h], xmm2
-    }
-    filterPass->tapOffsetsAndWeights[_RAX].v[2] = 0.0;
-    __asm
-    {
-      vmovss  dword ptr [rax+rbx+18h], xmm0
-      vmovss  dword ptr [rax+rbx+1Ch], xmm3
-      vmovss  dword ptr [rax+rbx+20h], xmm2
-    }
-    filterPass->tapOffsetsAndWeights[_RAX + 1].v[2] = 0.0;
-    __asm
-    {
-      vmovss  dword ptr [rax+rbx+28h], xmm0
-      vmovss  dword ptr [rax+rbx+2Ch], xmm6
-      vmovss  dword ptr [rax+rbx+30h], xmm2
-    }
-    filterPass->tapOffsetsAndWeights[_RAX + 2].v[2] = 0.0;
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm9
-      vmovss  dword ptr [rax+rbx+38h], xmm0
-      vmovss  dword ptr [rax+rbx+3Ch], xmm4
-      vmovss  dword ptr [rax+rbx+40h], xmm2
-    }
-    filterPass->tapOffsetsAndWeights[_RAX + 3].v[2] = 0.0;
-    __asm { vmovss  dword ptr [rax+rbx+48h], xmm0 }
+    v21 = v29[v20];
+    v22 = *(float *)((char *)&v25 + v20 * 4);
+    v18 += 2;
+    v23 = 2 * v19;
+    v19 += 2i64;
+    ++v20;
+    filterPass->tapOffsetsAndWeights[v23].v[0] = v16;
+    filterPass->tapOffsetsAndWeights[v23].v[1] = v21;
+    filterPass->tapOffsetsAndWeights[v23].v[2] = 0.0;
+    filterPass->tapOffsetsAndWeights[v23].v[3] = v22 * v12;
+    filterPass->tapOffsetsAndWeights[v23 + 1].v[0] = v14;
+    filterPass->tapOffsetsAndWeights[v23 + 1].v[1] = v21;
+    filterPass->tapOffsetsAndWeights[v23 + 1].v[2] = 0.0;
+    filterPass->tapOffsetsAndWeights[v23 + 1].v[3] = v22 * v12;
+    filterPass->tapOffsetsAndWeights[v23 + 2].v[0] = v17;
+    filterPass->tapOffsetsAndWeights[v23 + 2].v[1] = v21;
+    filterPass->tapOffsetsAndWeights[v23 + 2].v[2] = 0.0;
+    filterPass->tapOffsetsAndWeights[v23 + 2].v[3] = v22 * v11;
+    filterPass->tapOffsetsAndWeights[v23 + 3].v[0] = v15;
+    filterPass->tapOffsetsAndWeights[v23 + 3].v[1] = v21;
+    filterPass->tapOffsetsAndWeights[v23 + 3].v[2] = 0.0;
+    filterPass->tapOffsetsAndWeights[v23 + 3].v[3] = v22 * v11;
   }
-  while ( _RCX < 8 );
-  filterPass->tapHalfCount = 2 * v42;
-  if ( 2 * v42 > 16 )
+  while ( v20 < 2 );
+  filterPass->tapHalfCount = 2 * v18;
+  if ( 2 * v18 > 16 )
   {
-    LODWORD(tapWeights) = v42;
+    LODWORD(tapWeights) = v18;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 321, ASSERT_TYPE_SANITY, "( ( filterPass->tapHalfCount <= 16 ) )", "( tapIndex ) = %i", tapWeights) )
       __debugbreak();
-  }
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
   RB_PickSymmetricFilterMaterial(filterPass->tapHalfCount, rtFormat, &filterPass->material);
 }
@@ -1395,240 +971,134 @@ RB_GenerateGaussianFilterChain
 
 __int64 __fastcall RB_GenerateGaussianFilterChain(double radiusX, double radiusY, int srcWidth, int srcHeight, int dstWidth, int dstHeight, unsigned int passLimit, GfxRenderTargetFormat rtFormat, int options, GfxImageFilterPass *filterPass)
 {
-  unsigned int v19; 
-  bool v45; 
-  char v46; 
-  __int64 v60; 
-  int *v61; 
-  __int64 v62; 
-  bool v66; 
-  GfxImageFilterPass *v67; 
-  int v69; 
-  float *v70; 
-  __int64 v71; 
-  __int64 i; 
-  float v73; 
-  __int64 result; 
-  int v83; 
-  int v84; 
+  unsigned int v10; 
+  __int128 v14; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  __int64 v23; 
+  int *v24; 
+  __int64 v25; 
+  __int128 v26; 
+  GfxImageFilterPass *v27; 
+  int v28; 
+  float *v29; 
+  __int64 v30; 
+  __int64 v31; 
+  float v32; 
+  int v34; 
+  int v35; 
   float tapOffsets[16]; 
   float tapWeights[16]; 
-  char v91; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _ER13 = dstWidth;
-  v19 = 0;
-  _ER15 = dstHeight;
-  _EBX = srcHeight;
-  _ESI = srcWidth;
-  v83 = dstWidth;
-  v84 = dstHeight;
-  __asm
-  {
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
+  v10 = 0;
+  v34 = dstWidth;
+  v35 = dstHeight;
+  _XMM7 = *(_OWORD *)&radiusY;
+  v14 = *(_OWORD *)&radiusX;
   if ( srcWidth != dstWidth || srcHeight != dstHeight )
   {
     __asm
     {
       vminss  xmm0, xmm7, xmm6
       vminss  xmm8, xmm0, cs:?GFX_GAUSSIAN_MAX_FILTER_RADIUS_2D@@3MA; float GFX_GAUSSIAN_MAX_FILTER_RADIUS_2D
-      vmulss  xmm4, xmm8, xmm8
-      vmulss  xmm1, xmm6, xmm6
-      vsubss  xmm0, xmm1, xmm4
-      vsqrtss xmm3, xmm0, xmm0
-      vmovd   xmm2, r13d
-      vcvtdq2ps xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm2
-      vmovd   xmm0, esi
-      vcvtdq2ps xmm0, xmm0
-      vdivss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vsubss  xmm2, xmm1, xmm4
-      vmovd   xmm0, r15d
-      vsqrtss xmm3, xmm2, xmm2
-      vcvtdq2ps xmm0, xmm0
-      vmovd   xmm1, ebx
-      vmulss  xmm4, xmm3, xmm0
-      vcvtdq2ps xmm1, xmm1
-      vdivss  xmm7, xmm4, xmm1
     }
+    v17 = v14;
+    *(float *)&v17 = (float)(fsqrt((float)(*(float *)&v14 * *(float *)&v14) - (float)(*(float *)&_XMM8 * *(float *)&_XMM8)) * _mm_cvtepi32_ps((__m128i)(unsigned int)dstWidth).m128_f32[0]) / _mm_cvtepi32_ps((__m128i)(unsigned int)srcWidth).m128_f32[0];
+    v14 = v17;
+    v18 = *(_OWORD *)&radiusY;
+    *(float *)&v18 = (float)(fsqrt((float)(*(float *)&radiusY * *(float *)&radiusY) - (float)(*(float *)&_XMM8 * *(float *)&_XMM8)) * _mm_cvtepi32_ps((__m128i)(unsigned int)dstHeight).m128_f32[0]) / _mm_cvtepi32_ps((__m128i)(unsigned int)srcHeight).m128_f32[0];
+    _XMM7 = v18;
     if ( !passLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 357, ASSERT_TYPE_ASSERT, "(passCount < passLimit)", (const char *)&queryFormat, "passCount < passLimit") )
       __debugbreak();
     if ( filterPass )
-    {
-      __asm { vmovaps xmm0, xmm8; radius }
-      RB_GenerateGaussianFilter2D(*(double *)&_XMM0, _ESI, _EBX, dstWidth, dstHeight, rtFormat, filterPass);
-    }
-    v19 = 1;
+      RB_GenerateGaussianFilter2D(*(float *)&_XMM8, srcWidth, srcHeight, dstWidth, dstHeight, rtFormat, filterPass);
+    v10 = 1;
   }
-  v45 = v19 < passLimit;
-  v46 = v19 <= passLimit;
-  if ( v19 >= passLimit )
+  if ( v10 >= passLimit )
+    return v10;
+  v19 = GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D;
+  while ( 1 )
   {
-    result = v19;
-  }
-  else
-  {
-    __asm
+    if ( *(float *)&v14 < 0.32950512 && *(float *)&_XMM7 < 0.32950512 )
+      return v10;
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v14 - *(float *)&_XMM7) & _xmm) < 0.32950512 )
     {
-      vmovss  xmm2, cs:?GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D@@3MA; float GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D
-      vmovaps [rsp+198h+var_88], xmm9
-      vmovaps [rsp+198h+var_98], xmm10
-      vmovss  xmm10, cs:__real@3ea8b4e5
-      vmovaps [rsp+198h+var_A8], xmm11
-      vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+198h+var_B8], xmm12
-      vmovss  xmm12, cs:__real@3f000000
-      vxorps  xmm9, xmm9, xmm9
+      v20 = (float)(*(float *)&_XMM7 + *(float *)&v14) * 0.5;
+      if ( v20 <= GFX_GAUSSIAN_MAX_FILTER_RADIUS_2D )
+        break;
     }
-    while ( 1 )
+    if ( *(float *)&v14 <= *(float *)&_XMM7 )
     {
-      __asm { vcomiss xmm6, xmm10 }
-      if ( v45 )
+      if ( *(float *)&_XMM7 > v19 )
       {
-        __asm { vcomiss xmm7, xmm10 }
-        if ( v45 )
-        {
-LABEL_31:
-          result = v19;
-          goto LABEL_32;
-        }
-      }
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm7
-        vandps  xmm0, xmm0, xmm11
-        vcomiss xmm0, xmm10
-      }
-      if ( v45 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm7, xmm6
-          vmulss  xmm0, xmm0, xmm12; radius
-          vcomiss xmm0, cs:?GFX_GAUSSIAN_MAX_FILTER_RADIUS_2D@@3MA; float GFX_GAUSSIAN_MAX_FILTER_RADIUS_2D
-        }
-        if ( v46 )
-          break;
-      }
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v46 )
-      {
-        __asm { vcomiss xmm7, xmm2 }
-        if ( v46 )
-        {
-          __asm
-          {
-            vmovaps xmm8, xmm7
-            vmovaps xmm7, xmm9
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmulss  xmm1, xmm7, xmm7
-            vmulss  xmm0, xmm2, xmm2
-            vsubss  xmm1, xmm1, xmm0
-            vsqrtss xmm7, xmm1, xmm1
-            vmovaps xmm8, xmm2
-          }
-        }
-        v60 = 12i64;
-        v61 = &v84;
-        v62 = 16i64;
+        v26 = _XMM7;
+        *(float *)&v26 = fsqrt((float)(*(float *)&_XMM7 * *(float *)&_XMM7) - (float)(v19 * v19));
+        _XMM7 = v26;
+        v21 = v19;
       }
       else
       {
-        __asm { vcomiss xmm6, xmm2 }
-        if ( v45 )
-        {
-          __asm
-          {
-            vmovaps xmm8, xmm6
-            vmovaps xmm6, xmm9
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmulss  xmm1, xmm6, xmm6
-            vmulss  xmm0, xmm2, xmm2
-            vsubss  xmm1, xmm1, xmm0
-            vsqrtss xmm6, xmm1, xmm1
-            vmovaps xmm8, xmm2
-          }
-        }
-        v60 = 16i64;
-        v61 = &v83;
-        v62 = 12i64;
+        v21 = *(float *)&_XMM7;
+        _XMM7 = 0i64;
       }
-      __asm { vcomiss xmm8, xmm9 }
-      if ( !v46 )
-      {
-        v66 = 0;
-        if ( filterPass )
-        {
-          v67 = &filterPass[v19];
-          __asm { vmovaps xmm0, xmm8; pixels }
-          v69 = RB_GaussianFilterPoints1D(*(double *)&_XMM0, *v61, *v61, 16, tapOffsets, tapWeights, 4);
-          v67->tapHalfCount = v69;
-          RB_PickSymmetricFilterMaterial(v69, rtFormat, &v67->material);
-          v70 = (float *)((char *)v67 + v62);
-          v71 = v60 - v62;
-          for ( i = 0i64; i < 16; v66 = (unsigned __int64)i < 16 )
-          {
-            *v70 = tapOffsets[i];
-            v73 = tapWeights[i++];
-            *(float *)((char *)v70 + v71) = 0.0;
-            *(float *)((char *)v70 + 20 - v62) = 0.0;
-            *(float *)((char *)v70 + 24 - v62) = v73;
-            v70 += 4;
-          }
-          __asm { vmovss  xmm2, cs:?GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D@@3MA; float GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D }
-        }
-        v46 = v66 | (v19++ == -1);
-        __asm { vcomiss xmm8, xmm9 }
-        if ( !v46 )
-        {
-          v45 = v19 < passLimit;
-          v46 = v19 <= passLimit;
-          if ( v19 < passLimit )
-            continue;
-        }
-      }
-      goto LABEL_31;
+      v23 = 12i64;
+      v24 = &v35;
+      v25 = 16i64;
     }
-    if ( filterPass )
-      RB_GenerateGaussianFilter2D(*(double *)&_XMM0, dstWidth, dstHeight, dstWidth, dstHeight, rtFormat, &filterPass[v19]);
-    result = v19 + 1;
-LABEL_32:
-    __asm
+    else
     {
-      vmovaps xmm10, [rsp+198h+var_98]
-      vmovaps xmm9, [rsp+198h+var_88]
-      vmovaps xmm11, [rsp+198h+var_A8]
-      vmovaps xmm12, [rsp+198h+var_B8]
+      if ( *(float *)&v14 >= v19 )
+      {
+        v22 = v14;
+        *(float *)&v22 = fsqrt((float)(*(float *)&v14 * *(float *)&v14) - (float)(v19 * v19));
+        v14 = v22;
+        v21 = v19;
+      }
+      else
+      {
+        v21 = *(float *)&v14;
+        v14 = 0i64;
+      }
+      v23 = 16i64;
+      v24 = &v34;
+      v25 = 12i64;
     }
+    if ( v21 > 0.0 )
+    {
+      if ( filterPass )
+      {
+        v27 = &filterPass[v10];
+        v28 = RB_GaussianFilterPoints1D(v21, *v24, *v24, 16, tapOffsets, tapWeights, 4);
+        v27->tapHalfCount = v28;
+        RB_PickSymmetricFilterMaterial(v28, rtFormat, &v27->material);
+        v29 = (float *)((char *)v27 + v25);
+        v30 = v23 - v25;
+        v31 = 0i64;
+        do
+        {
+          *v29 = tapOffsets[v31];
+          v32 = tapWeights[v31++];
+          *(float *)((char *)v29 + v30) = 0.0;
+          *(float *)((char *)v29 + 20 - v25) = 0.0;
+          *(float *)((char *)v29 + 24 - v25) = v32;
+          v29 += 4;
+        }
+        while ( v31 < 16 );
+        v19 = GFX_GAUSSIAN_MAX_FILTER_RADIUS_1D;
+      }
+      ++v10;
+      if ( v21 > 0.0 && v10 < passLimit )
+        continue;
+    }
+    return v10;
   }
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-  }
-  return result;
+  if ( filterPass )
+    RB_GenerateGaussianFilter2D(v20, dstWidth, dstHeight, dstWidth, dstHeight, rtFormat, &filterPass[v10]);
+  return v10 + 1;
 }
 
 /*
@@ -1644,9 +1114,12 @@ void RB_ImageFilter_CommitPingPongRTs(GfxImageFilter *filter, unsigned int blurW
   const dvar_t *v10; 
   int v11; 
   int rtFlags; 
+  R_RT_ColorHandle *pingPongColorRts; 
   const char **pingPongNames; 
   __int64 v15; 
-  bool v19; 
+  R_RT_Handle v16; 
+  bool v18; 
+  R_RT_Handle v19; 
   R_RT_Handle v20; 
   R_RT_Handle result; 
 
@@ -1673,30 +1146,25 @@ LABEL_10:
   if ( v10->current.integer == 1 )
     v11 = 2056;
   rtFlags = v9 | v11;
-  _RBX = filter->pingPongColorRts;
+  pingPongColorRts = filter->pingPongColorRts;
   pingPongNames = filter->pingPongNames;
   v15 = 2i64;
   do
   {
-    _RAX = R_RT_CreateInternal(&result, blurWidth, blurHeight, blurWidth, blurHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[(unsigned __int8)filter->rtFormat], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *pingPongNames, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(71)");
-    __asm
+    v16 = *R_RT_CreateInternal(&result, blurWidth, blurHeight, blurWidth, blurHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[(unsigned __int8)filter->rtFormat], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *pingPongNames, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp(71)");
+    v20 = v16;
+    v19 = v16;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rsp+128h+var_68], ymm0
-      vmovups ymmword ptr [rsp+128h+var_88.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v20);
-      if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v19);
+      if ( (R_RT_Handle::GetSurface(&v19)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+128h+var_88.m_surfaceID] }
+        v16 = v19;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+128h+var_88.m_surfaceID] }
+        v16 = v19;
       }
     }
     else
@@ -1704,14 +1172,13 @@ LABEL_10:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rsp+128h+var_68] }
-        if ( v19 )
+        v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v16 = v20;
+        if ( v18 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbx], ymm0 }
-    ++_RBX;
+    *pingPongColorRts++ = (R_RT_ColorHandle)v16;
     ++pingPongNames;
     --v15;
   }
@@ -1771,80 +1238,75 @@ void RB_SetupFilterPass(GfxCmdBufContext *gfxContext, const GfxImageFilterPass *
 {
   unsigned int tapHalfCount; 
   unsigned int v5; 
-  unsigned int v14; 
-  char *v15; 
-  __int64 v16; 
-  __int64 v17; 
+  char *v6; 
+  float v7; 
+  __int64 v8; 
+  char *v9; 
+  __int64 v10; 
+  unsigned int v11; 
+  char *v12; 
+  __int64 v13; 
+  __int64 v14; 
   GfxCmdBufSourceState *source; 
-  char *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  char v22[4]; 
-  char v23[188]; 
+  char *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  char v19[4]; 
+  char v20[188]; 
 
   tapHalfCount = filterPass->tapHalfCount;
-  _RDI = filterPass;
   if ( tapHalfCount >= 0x11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 440, ASSERT_TYPE_ASSERT, "(unsigned)( tapHalfCount ) < (unsigned)( ( sizeof( *array_counter( filterPass->tapOffsetsAndWeights ) ) + 0 ) + 1 )", "tapHalfCount doesn't index ARRAY_COUNT( filterPass->tapOffsetsAndWeights ) + 1\n\t%i not in [0, %i)", filterPass->tapHalfCount, 17) )
     __debugbreak();
-  memset_0(v22, 0, 0xC0ui64);
+  memset_0(v19, 0, 0xC0ui64);
   v5 = 0;
   if ( tapHalfCount )
   {
     do
     {
-      _R8 = 2i64 * v5;
-      _RDX = &v22[16 * ((unsigned __int64)v5 >> 1)];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+r8*8+0Ch]
-        vmovss  xmm1, dword ptr [rdi+r8*8+18h]
-      }
-      _RAX = 2 * (v5 & 1);
-      __asm
-      {
-        vmovss  dword ptr [rdx+rax*4], xmm0
-        vmovss  xmm0, dword ptr [rdi+r8*8+10h]
-        vmovss  dword ptr [rdx+rax*4+4], xmm0
-      }
-      _RCX = &v22[16 * (v5 >> 2) + 128];
-      _RAX = v5++ & 3;
-      __asm { vmovss  dword ptr [rcx+rax*4], xmm1 }
+      v6 = &v19[16 * ((unsigned __int64)v5 >> 1)];
+      v7 = filterPass->tapOffsetsAndWeights[v5].v[3];
+      v8 = 2 * (v5 & 1);
+      *(float *)&v6[4 * v8] = filterPass->tapOffsetsAndWeights[v5].v[0];
+      *(float *)&v6[4 * v8 + 4] = filterPass->tapOffsetsAndWeights[v5].v[1];
+      v9 = &v19[16 * (v5 >> 2) + 128];
+      v10 = v5++ & 3;
+      *(float *)&v9[4 * v10] = v7;
     }
     while ( v5 != tapHalfCount );
   }
-  v14 = 87;
-  v15 = v23;
-  v16 = 10338i64;
-  v17 = 12i64;
+  v11 = 87;
+  v12 = v20;
+  v13 = 10338i64;
+  v14 = 12i64;
   do
   {
     source = gfxContext->source;
-    if ( v14 >= 0xA0 )
+    if ( v11 >= 0xA0 )
     {
-      LODWORD(v21) = 160;
-      LODWORD(v20) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1362, ASSERT_TYPE_ASSERT, "(unsigned)( constant ) < (unsigned)( CONST_SRC_CODE_COUNT_FLOAT4 )", "constant doesn't index CONST_SRC_CODE_COUNT_FLOAT4\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v18) = 160;
+      LODWORD(v17) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1362, ASSERT_TYPE_ASSERT, "(unsigned)( constant ) < (unsigned)( CONST_SRC_CODE_COUNT_FLOAT4 )", "constant doesn't index CONST_SRC_CODE_COUNT_FLOAT4\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    v19 = &v15[3184i64 - (_QWORD)v23 + (_QWORD)source];
-    *(_DWORD *)v19 = *((_DWORD *)v15 - 1);
-    *((_DWORD *)v19 + 1) = *(_DWORD *)v15;
-    *((_DWORD *)v19 + 2) = *((_DWORD *)v15 + 1);
-    *((_DWORD *)v19 + 3) = *((_DWORD *)v15 + 2);
-    if ( v14 >= 0xAE )
+    v16 = &v12[3184i64 - (_QWORD)v20 + (_QWORD)source];
+    *(_DWORD *)v16 = *((_DWORD *)v12 - 1);
+    *((_DWORD *)v16 + 1) = *(_DWORD *)v12;
+    *((_DWORD *)v16 + 2) = *((_DWORD *)v12 + 1);
+    *((_DWORD *)v16 + 3) = *((_DWORD *)v12 + 2);
+    if ( v11 >= 0xAE )
     {
-      LODWORD(v21) = 174;
-      LODWORD(v20) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1277, ASSERT_TYPE_ASSERT, "(unsigned)( constant ) < (unsigned)( ( sizeof( *array_counter( source->constVersions ) ) + 0 ) )", "constant doesn't index ARRAY_COUNT( source->constVersions )\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v18) = 174;
+      LODWORD(v17) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1277, ASSERT_TYPE_ASSERT, "(unsigned)( constant ) < (unsigned)( ( sizeof( *array_counter( source->constVersions ) ) + 0 ) )", "constant doesn't index ARRAY_COUNT( source->constVersions )\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    ++*(_WORD *)((char *)source->matrices.matrix[0].m.m[0].v + v16);
-    v16 += 2i64;
-    v15 += 16;
-    ++v14;
-    --v17;
+    ++*(_WORD *)((char *)source->matrices.matrix[0].m.m[0].v + v13);
+    v13 += 2i64;
+    v12 += 16;
+    ++v11;
+    --v14;
   }
-  while ( v17 );
+  while ( v14 );
 }
 
 /*
@@ -1852,59 +1314,30 @@ void RB_SetupFilterPass(GfxCmdBufContext *gfxContext, const GfxImageFilterPass *
 RB_VirtualToSceneRadius
 ==============
 */
-
-void __fastcall RB_VirtualToSceneRadius(double radius, float *radiusX, float *radiusY, const GfxViewInfo *viewInfo)
+void RB_VirtualToSceneRadius(float radius, float *radiusX, float *radiusY, const GfxViewInfo *viewInfo)
 {
-  char v19; 
+  float sceneHeight; 
+  float v8; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  float v10; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = radiusY;
-  _RDI = radiusX;
-  __asm { vmovaps xmm6, xmm0 }
   if ( !radiusX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 91, ASSERT_TYPE_ASSERT, "(radiusX)", (const char *)&queryFormat, "radiusX") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 92, ASSERT_TYPE_ASSERT, "(radiusY)", (const char *)&queryFormat, "radiusY") )
+  if ( !radiusY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_imagefilter.cpp", 92, ASSERT_TYPE_ASSERT, "(radiusY)", (const char *)&queryFormat, "radiusY") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, cs:__real@3b088889
-    vmovss  dword ptr [rbx], xmm2
-    vdivss  xmm0, xmm2, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel; vidConfig_t vidConfig
-    vmovss  dword ptr [rdi], xmm0
-  }
+  sceneHeight = (float)vidConfig.sceneHeight;
+  v8 = (float)(sceneHeight * radius) * 0.0020833334;
+  *radiusY = v8;
+  *radiusX = v8 / vidConfig.aspectRatioScenePixel;
   if ( viewInfo )
   {
-    _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vdivss  xmm1, xmm0, dword ptr [rax+4]
-      vmulss  xmm2, xmm1, dword ptr [rax+rcx*8+4]
-      vdivss  xmm3, xmm2, dword ptr [rax+rcx*8]
-      vcomiss xmm3, cs:__real@3f800000
-    }
-    if ( v19 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm3, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm0
-      }
-    }
+    MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+    v10 = (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]) / MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0];
+    if ( v10 < 1.0 )
+      *radiusY = v10 * *radiusY;
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vdivss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rdi], xmm1
-      }
-    }
+      *radiusX = *radiusX / v10;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1914,14 +1347,9 @@ R_GenerateGaussianFilterChain
 */
 unsigned int R_GenerateGaussianFilterChain(float radius, int w, int h)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm0
-    vmulss  xmm1, xmm0, cs:__real@3b088889; radiusY
-    vdivss  xmm0, xmm1, cs:?vidConfig@@3UvidConfig_t@@A.aspectRatioScenePixel; radiusX
-  }
-  return RB_GenerateGaussianFilterChain(*(float *)&_XMM0, *(float *)&_XMM1, w, h, w, h, 0x10u, GFX_RENDERTARGET_FORMAT_INVALID, 7, NULL);
+  float sceneHeight; 
+
+  sceneHeight = (float)vidConfig.sceneHeight;
+  return RB_GenerateGaussianFilterChain((float)((float)(sceneHeight * radius) * 0.0020833334) / vidConfig.aspectRatioScenePixel, (float)(sceneHeight * radius) * 0.0020833334, w, h, w, h, 0x10u, GFX_RENDERTARGET_FORMAT_INVALID, 7, NULL);
 }
 

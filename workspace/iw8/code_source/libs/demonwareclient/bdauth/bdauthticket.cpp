@@ -60,7 +60,6 @@ bdAuthTicket::bdAuthTicket
 */
 void bdAuthTicket::bdAuthTicket(bdAuthTicket *this, unsigned __int8 type, unsigned int titleID, unsigned int timeIssued, unsigned int timeExpires, unsigned __int64 licenseID, unsigned __int64 userID, char *username, unsigned __int8 *sessionKey)
 {
-  _RBX = this;
   this->m_magicNumber = BD_MAGIC_NUMBER;
   this->m_timeExpires = timeExpires;
   this->m_type = type;
@@ -83,26 +82,20 @@ void bdAuthTicket::bdAuthTicket(bdAuthTicket *this, unsigned __int8 type, unsign
     *(_QWORD *)&this->m_username[48] = 0i64;
     *(_QWORD *)&this->m_username[56] = 0i64;
   }
-  _RAX = sessionKey;
   if ( sessionKey )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx+68h], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbx+78h], xmm1
-    }
+    *(_OWORD *)this->m_sessionKey = *(_OWORD *)sessionKey;
+    *(double *)&this->m_sessionKey[16] = *((double *)sessionKey + 2);
   }
   else
   {
-    *(_QWORD *)_RBX->m_sessionKey = 0i64;
-    *(_QWORD *)&_RBX->m_sessionKey[8] = 0i64;
-    *(_QWORD *)&_RBX->m_sessionKey[16] = 0i64;
+    *(_QWORD *)this->m_sessionKey = 0i64;
+    *(_QWORD *)&this->m_sessionKey[8] = 0i64;
+    *(_QWORD *)&this->m_sessionKey[16] = 0i64;
   }
-  *(_WORD *)_RBX->m_usingHashMagicNumber = 13141;
-  _RBX->m_usingHashMagicNumber[2] = 34;
-  *(_DWORD *)_RBX->m_hash = 0;
+  *(_WORD *)this->m_usingHashMagicNumber = 13141;
+  this->m_usingHashMagicNumber[2] = 34;
+  *(_DWORD *)this->m_hash = 0;
 }
 
 /*

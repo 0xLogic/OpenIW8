@@ -544,6 +544,8 @@ bdQoSProbe::bdQoSProbe
 */
 void bdQoSProbe::bdQoSProbe(bdQoSProbe *this, bdSocket *socket, bdNATTravClient *natTrav, bdServiceBandwidthArbitrator *bandArb)
 {
+  float v8; 
+
   bdNATTravListener::bdNATTravListener(this);
   bdPacketInterceptor::bdPacketInterceptor(&this->bdPacketInterceptor);
   this->bdNATTravListener::__vftable = (bdQoSProbe_vtbl *)&bdQoSProbe::`vftable'{for `bdNATTravListener'};
@@ -564,24 +566,15 @@ void bdQoSProbe::bdQoSProbe(bdQoSProbe *this, bdSocket *socket, bdNATTravClient 
   this->m_probeTimeout = 0.89999998;
   this->m_maxConcurrentProbes = 8;
   this->m_useMultiplePacketsPerProbe = 0;
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(&this->m_probesResolving, 4u, *(const float *)&_XMM2);
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>(&this->m_probesProbing, 4u, *(const float *)&_XMM2);
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>(&this->m_probesProcessing, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(&this->m_probesResolving, 4u, 0.75);
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>(&this->m_probesProbing, 4u, 0.75);
+  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>(&this->m_probesProcessing, 4u, 0.75);
   this->m_statsPerSession.m_data = NULL;
   *(_QWORD *)&this->m_statsPerSession.m_capacity = 0i64;
   bdGlobalStopwatch::start(&this->m_probingTimer);
   bdServiceBandwidthArbitrator::reset(this->m_bandArb);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3e4ccccd
-    vcvttss2si rdx, xmm1; bytes
-  }
-  bdServiceBandwidthArbitrator::addSliceQuota(this->m_bandArb, _RDX);
+  v8 = (float)(this->m_maxBandwidth >> 3);
+  bdServiceBandwidthArbitrator::addSliceQuota(this->m_bandArb, (int)(float)(v8 * 0.2));
 }
 
 /*
@@ -601,12 +594,9 @@ void bdQoSProbe::bdQoSProbe(bdQoSProbe *this)
   *(_QWORD *)&this->m_secids.m_capacity = 0i64;
   bdQoSReplyPacket::bdQoSReplyPacket(&this->m_replyData);
   this->m_status = BD_QOS_PROBE_UNINITIALIZED;
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(&this->m_probesResolving, 4u, *(const float *)&_XMM2);
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>(&this->m_probesProbing, 4u, *(const float *)&_XMM2);
-  __asm { vmovss  xmm2, cs:__real@3f400000; loadFactor }
-  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>(&this->m_probesProcessing, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(&this->m_probesResolving, 4u, 0.75);
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>(&this->m_probesProbing, 4u, 0.75);
+  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>(&this->m_probesProcessing, 4u, 0.75);
   this->m_statsPerSession.m_data = NULL;
   *(_QWORD *)&this->m_statsPerSession.m_capacity = 0i64;
 }
@@ -688,27 +678,14 @@ bool bdQoSProbe::acceptPacket(bdQoSProbe *this, bdSocket *__formal, bdAddr *addr
 bdQoSProbe::calculateBandwidth
 ==============
 */
-
-__int64 __fastcall bdQoSProbe::calculateBandwidth(bdQoSProbe *this, double timeDiffBetweenPackets, unsigned int packetSize)
+__int64 bdQoSProbe::calculateBandwidth(bdQoSProbe *this, float timeDiffBetweenPackets, unsigned int packetSize)
 {
-  char v3; 
-  __int64 result; 
+  float v3; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( v3 || !this->m_useMultiplePacketsPerProbe )
+  if ( timeDiffBetweenPackets == 0.0 || !this->m_useMultiplePacketsPerProbe )
     return 0xFFFFFFFFi64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vdivss  xmm1, xmm0, xmm1
-    vcvttss2si rax, xmm1
-  }
-  return result;
+  v3 = (float)(8 * packetSize + 224);
+  return (unsigned int)(int)(float)(v3 / timeDiffBetweenPackets);
 }
 
 /*
@@ -1307,21 +1284,21 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
   unsigned int m_size; 
   bdLinkedList<unsigned int>::Node *m_head; 
   bdLinkedList<unsigned int>::Node *m_tail; 
-  char v11; 
-  bool v12; 
+  double ElapsedTimeInSeconds; 
   bdServiceBandwidthArbitrator *m_bandArb; 
   unsigned int SerializedSize; 
+  bdLinkedList<unsigned int>::Node *v14; 
   bdLinkedList<unsigned int>::Node *v15; 
-  bdLinkedList<unsigned int>::Node *v16; 
   bdLinkedList<unsigned int>::Node **p_m_next; 
   bdLinkedList<unsigned int>::Node *m_next; 
-  unsigned int v19; 
-  __int64 v20; 
-  bdLinkedList<unsigned int>::Node *v21; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node **v22; 
+  unsigned int v18; 
+  __int64 v19; 
+  bdLinkedList<unsigned int>::Node *v20; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node **v21; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v22; 
   bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v23; 
   bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v24; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v25; 
+  bool v25; 
   bdLinkedList<unsigned int>::Node *v26; 
   bdQueue<unsigned int> v27; 
   __int64 v28; 
@@ -1330,26 +1307,25 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
   char str[24]; 
 
   v28 = -2i64;
-  _RSI = this;
   if ( this->m_probesProcessing.m_size )
   {
     v4 = 0;
-    m_capacity = _RSI->m_probesProcessing.m_capacity;
+    m_capacity = this->m_probesProcessing.m_capacity;
     if ( m_capacity )
     {
       do
       {
-        if ( _RSI->m_probesProcessing.m_map[v4] )
+        if ( this->m_probesProcessing.m_map[v4] )
           break;
         ++v4;
       }
       while ( v4 < m_capacity );
     }
-    m_map = _RSI->m_probesProcessing.m_map;
+    m_map = this->m_probesProcessing.m_map;
     if ( m_map[v4] )
     {
-      _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_probesProcessing.m_numIterators, 1u);
-      m_map = _RSI->m_probesProcessing.m_map;
+      _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProcessing.m_numIterators, 1u);
+      m_map = this->m_probesProcessing.m_map;
     }
     v3 = m_map[v4];
   }
@@ -1357,14 +1333,11 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
   {
     v3 = NULL;
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+190h+var_150.m_list.m_head], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v27.m_list.m_head = _XMM0;
   m_size = 0;
   v27.m_list.m_size = 0;
-  m_head = v27.m_list.m_head;
+  m_head = (bdLinkedList<unsigned int>::Node *)_XMM0;
   if ( !v3 )
     goto LABEL_48;
   m_tail = v27.m_list.m_tail;
@@ -1383,17 +1356,16 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
       probe.m_probeTimestamp = v3->m_data.m_probeTimestamp;
       probe.m_needToSendData = v3->m_data.m_needToSendData;
       probe.m_secid = v3->m_data.m_secid;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&probe.m_timer);
-      __asm { vcomiss xmm0, dword ptr [rsi+0A0h] }
-      if ( v11 | v12 && probe.m_completed )
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&probe.m_timer);
+      if ( *(float *)&ElapsedTimeInSeconds <= this->m_hostSideTimeout && probe.m_completed )
       {
-        if ( bdServiceBandwidthArbitrator::allowedSend(_RSI->m_bandArb, 0x1Cu) )
+        if ( bdServiceBandwidthArbitrator::allowedSend(this->m_bandArb, 0x1Cu) )
         {
-          m_bandArb = _RSI->m_bandArb;
-          SerializedSize = bdQoSReplyPacket::getSerializedSize(&_RSI->m_replyData);
-          if ( bdServiceBandwidthArbitrator::allowedSend(m_bandArb, SerializedSize + 28) && _RSI->m_useMultiplePacketsPerProbe && probe.m_completed )
+          m_bandArb = this->m_bandArb;
+          SerializedSize = bdQoSReplyPacket::getSerializedSize(&this->m_replyData);
+          if ( bdServiceBandwidthArbitrator::allowedSend(m_bandArb, SerializedSize + 28) && this->m_useMultiplePacketsPerProbe && probe.m_completed )
           {
-            bdQoSProbe::sendReply(_RSI, &probe.m_realAddr, &probe);
+            bdQoSProbe::sendReply(this, &probe.m_realAddr, &probe);
             bdQueue<unsigned int>::enqueue(&v27, &v3->m_key);
             m_size = v27.m_list.m_size;
             m_tail = v27.m_list.m_tail;
@@ -1405,39 +1377,39 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
       {
         bdAddr::toString(&probe.m_realAddr, str, 0x16ui64);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::checkHostProbes", 0x3A9u, "Only received one packet from %s. Timing this request out", str);
-        v15 = (bdLinkedList<unsigned int>::Node *)bdMemory::allocate(0x18ui64);
-        v16 = v15;
-        v29 = v15;
-        if ( v15 )
-          v15->m_data = v3->m_key;
+        v14 = (bdLinkedList<unsigned int>::Node *)bdMemory::allocate(0x18ui64);
+        v15 = v14;
+        v29 = v14;
+        if ( v14 )
+          v14->m_data = v3->m_key;
         else
-          v16 = NULL;
+          v15 = NULL;
         if ( m_tail )
         {
           p_m_next = &m_tail->m_next;
-          v16->m_next = m_tail->m_next;
-          v16->m_prev = m_tail;
+          v15->m_next = m_tail->m_next;
+          v15->m_prev = m_tail;
           m_next = m_tail->m_next;
           if ( m_next )
           {
-            m_next->m_prev = v16;
+            m_next->m_prev = v15;
           }
           else
           {
             bdHandleAssert(1, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
-            m_tail = v16;
-            v27.m_list.m_tail = v16;
+            m_tail = v15;
+            v27.m_list.m_tail = v15;
           }
-          *p_m_next = v16;
+          *p_m_next = v15;
         }
         else
         {
-          v16->m_next = NULL;
-          v16->m_prev = NULL;
-          m_head = v16;
-          v27.m_list.m_head = v16;
-          m_tail = v16;
-          v27.m_list.m_tail = v16;
+          v15->m_next = NULL;
+          v15->m_prev = NULL;
+          m_head = v15;
+          v27.m_list.m_head = v15;
+          m_tail = v15;
+          v27.m_list.m_tail = v15;
         }
         v27.m_list.m_size = ++m_size;
       }
@@ -1446,23 +1418,23 @@ void bdQoSProbe::checkHostProbes(bdQoSProbe *this)
         v3 = v3->m_next;
         goto LABEL_34;
       }
-      v19 = _RSI->m_probesProcessing.m_capacity;
-      v20 = ((HIBYTE(v3->m_key) ^ (16777619 * (BYTE2(v3->m_key) ^ (16777619 * ((16777619 * LOBYTE(v3->m_key)) ^ BYTE1(v3->m_key)))))) & (v19 - 1)) + 1;
-      if ( (unsigned int)v20 >= v19 )
+      v18 = this->m_probesProcessing.m_capacity;
+      v19 = ((HIBYTE(v3->m_key) ^ (16777619 * (BYTE2(v3->m_key) ^ (16777619 * ((16777619 * LOBYTE(v3->m_key)) ^ BYTE1(v3->m_key)))))) & (v18 - 1)) + 1;
+      if ( (unsigned int)v19 >= v18 )
         break;
       while ( 1 )
       {
-        v3 = _RSI->m_probesProcessing.m_map[v20];
+        v3 = this->m_probesProcessing.m_map[v19];
         if ( v3 )
           break;
-        v20 = (unsigned int)(v20 + 1);
-        if ( (unsigned int)v20 >= v19 )
+        v19 = (unsigned int)(v19 + 1);
+        if ( (unsigned int)v19 >= v18 )
           goto LABEL_33;
       }
     }
 LABEL_33:
     v3 = NULL;
-    _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_probesProcessing.m_numIterators, 0xFFFFFFFF);
+    _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProcessing.m_numIterators, 0xFFFFFFFF);
     m_size = v27.m_list.m_size;
     m_tail = v27.m_list.m_tail;
     m_head = v27.m_list.m_head;
@@ -1476,41 +1448,41 @@ LABEL_34:
     {
       bdHandleAssert(m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
       bdHandleAssert(m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
-      bdHandleAssert(_RSI->m_probesProcessing.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQosProbeHost,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
-      v21 = v27.m_list.m_head;
-      v22 = _RSI->m_probesProcessing.m_map;
-      v23 = v22[(HIBYTE(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v27.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v27.m_list.m_head->m_data))))))) & (_RSI->m_probesProcessing.m_capacity - 1)];
-      v24 = NULL;
-      if ( v23 )
+      bdHandleAssert(this->m_probesProcessing.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQosProbeHost,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
+      v20 = v27.m_list.m_head;
+      v21 = this->m_probesProcessing.m_map;
+      v22 = v21[(HIBYTE(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v27.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v27.m_list.m_head->m_data))))))) & (this->m_probesProcessing.m_capacity - 1)];
+      v23 = NULL;
+      if ( v22 )
       {
-        while ( v27.m_list.m_head->m_data != v23->m_key )
+        while ( v27.m_list.m_head->m_data != v22->m_key )
         {
-          v24 = v23;
-          v23 = v23->m_next;
-          if ( !v23 )
+          v23 = v22;
+          v22 = v22->m_next;
+          if ( !v22 )
             goto LABEL_44;
         }
-        v25 = v23->m_next;
-        if ( v24 )
-          v24->m_next = v25;
+        v24 = v22->m_next;
+        if ( v23 )
+          v23->m_next = v24;
         else
-          v22[(HIBYTE(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v27.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v27.m_list.m_head->m_data))))))) & (_RSI->m_probesProcessing.m_capacity - 1)] = v25;
-        bdMemory::deallocate(v23);
-        --_RSI->m_probesProcessing.m_size;
+          v21[(HIBYTE(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v27.m_list.m_head->m_data) ^ (16777619 * (BYTE1(v27.m_list.m_head->m_data) ^ (16777619 * LOBYTE(v27.m_list.m_head->m_data))))))) & (this->m_probesProcessing.m_capacity - 1)] = v24;
+        bdMemory::deallocate(v22);
+        --this->m_probesProcessing.m_size;
       }
 LABEL_44:
       bdHandleAssert(m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-      m_head = v21->m_next;
+      m_head = v20->m_next;
       v27.m_list.m_head = m_head;
-      if ( v21 == v27.m_list.m_tail )
-        v27.m_list.m_tail = v21->m_prev;
+      if ( v20 == v27.m_list.m_tail )
+        v27.m_list.m_tail = v20->m_prev;
       else
-        m_head->m_prev = v21->m_prev;
-      bdMemory::deallocate(v21);
-      v12 = v27.m_list.m_size == 1;
+        m_head->m_prev = v20->m_prev;
+      bdMemory::deallocate(v20);
+      v25 = v27.m_list.m_size == 1;
       m_size = --v27.m_list.m_size;
     }
-    while ( !v12 );
+    while ( !v25 );
   }
 LABEL_48:
   if ( m_head )
@@ -1587,9 +1559,9 @@ bool bdQoSProbe::getListenStats(bdQoSProbe *this, const bdSecurityID *securityID
   int v6; 
   bool v7; 
   bool result; 
+  bdQoSHostStats *m_data; 
 
   v3 = 0i64;
-  _R14 = stats;
   v6 = 0;
   if ( securityID )
     v6 = *(_DWORD *)securityID->ab;
@@ -1607,18 +1579,11 @@ bool bdQoSProbe::getListenStats(bdQoSProbe *this, const bdSecurityID *securityID
       return 0;
   }
   bdHandleAssert((unsigned int)v3 < this->m_statsPerSession.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSHostStats>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-  _RCX = this->m_statsPerSession.m_data;
-  _RDX = 9 * v3;
+  m_data = this->m_statsPerSession.m_data;
   result = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+rdx*8]
-    vmovups ymmword ptr [r14], ymm0
-    vmovups ymm1, ymmword ptr [rcx+rdx*8+20h]
-    vmovups ymmword ptr [r14+20h], ymm1
-    vmovsd  xmm0, qword ptr [rcx+rdx*8+40h]
-    vmovsd  qword ptr [r14+40h], xmm0
-  }
+  *(__m256i *)&stats->m_numDataRequestsReceived = *(__m256i *)&m_data[v3].m_numDataRequestsReceived;
+  *(__m256i *)&stats->m_numDataReplyBytesSent = *(__m256i *)&m_data[v3].m_numDataReplyBytesSent;
+  *(double *)&stats->m_secID = *(double *)&m_data[v3].m_secID;
   return result;
 }
 
@@ -1643,93 +1608,81 @@ bdQoSProbe::handleReply
 */
 char bdQoSProbe::handleReply(bdQoSProbe *this, bdQoSReplyPacket *packet, bdAddr *addr, unsigned int packetSize)
 {
-  unsigned int v10; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *p_m_data; 
+  unsigned int v9; 
   unsigned int Id; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v12; 
-  unsigned int v14; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v15; 
-  char v16; 
-  char v17; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v11; 
+  unsigned int v13; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v14; 
+  double ElapsedTime; 
+  float v16; 
+  float m_minLatency; 
   void *iterator[3]; 
   bdQoSProbe::bdQoSProbeEntryWrapper entry; 
 
   iterator[1] = (void *)-2i64;
-  _RBX = NULL;
-  v10 = this->m_useMultiplePacketsPerProbe + 1;
+  p_m_data = NULL;
+  v9 = this->m_useMultiplePacketsPerProbe + 1;
   if ( this->m_status == BD_QOS_PROBE_UNINITIALIZED )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::handleReply", 0x275u, "Cannot handle request when in uninitialized state");
     return 0;
   }
   Id = bdQoSReplyPacket::getId(packet);
-  if ( !this->m_probesProbing.m_size || (v12 = this->m_probesProbing.m_map[(HIBYTE(Id) ^ (16777619 * (BYTE2(Id) ^ (16777619 * (BYTE1(Id) ^ (16777619 * (unsigned __int8)Id)))))) & (this->m_probesProbing.m_capacity - 1)]) == NULL )
+  if ( !this->m_probesProbing.m_size || (v11 = this->m_probesProbing.m_map[(HIBYTE(Id) ^ (16777619 * (BYTE2(Id) ^ (16777619 * (BYTE1(Id) ^ (16777619 * (unsigned __int8)Id)))))) & (this->m_probesProbing.m_capacity - 1)]) == NULL )
   {
 LABEL_7:
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::handleReply", 0x2A8u, "Received probe reply with invalid id.");
     return 0;
   }
-  while ( Id != v12->m_key )
+  while ( Id != v11->m_key )
   {
-    v12 = v12->m_next;
-    if ( !v12 )
+    v11 = v11->m_next;
+    if ( !v11 )
       goto LABEL_7;
   }
   _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProbing.m_numIterators, 1u);
   bdHandleAssert(this->m_probesProbing.m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQoSProbeEntryWrapper,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
   _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProbing.m_numIterators, 0xFFFFFFFF);
-  v14 = bdQoSReplyPacket::getId(packet);
+  v13 = bdQoSReplyPacket::getId(packet);
   if ( this->m_probesProbing.m_size )
   {
-    v15 = this->m_probesProbing.m_map[(this->m_probesProbing.m_capacity - 1) & (HIBYTE(v14) ^ (16777619 * (BYTE2(v14) ^ (16777619 * (BYTE1(v14) ^ (16777619 * (unsigned __int8)v14))))))];
-    if ( v15 )
+    v14 = this->m_probesProbing.m_map[(this->m_probesProbing.m_capacity - 1) & (HIBYTE(v13) ^ (16777619 * (BYTE2(v13) ^ (16777619 * (BYTE1(v13) ^ (16777619 * (unsigned __int8)v13))))))];
+    if ( v14 )
     {
-      while ( v14 != v15->m_key )
+      while ( v13 != v14->m_key )
       {
-        v15 = v15->m_next;
-        if ( !v15 )
+        v14 = v14->m_next;
+        if ( !v14 )
           goto LABEL_15;
       }
       _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProbing.m_numIterators, 1u);
-      _RBX = &v15->m_data;
+      p_m_data = &v14->m_data;
     }
   }
 LABEL_15:
-  iterator[0] = _RBX;
-  if ( !bdSockAddr::compare(&_RBX->m_realAddr.m_address, &addr->m_address, 1) )
+  iterator[0] = p_m_data;
+  if ( !bdSockAddr::compare(&p_m_data->m_realAddr.m_address, &addr->m_address, 1) )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::handleReply", 0x2A2u, "Received probe reply with spoofed id?");
     return 0;
   }
-  ++_RBX->m_currentProbe.m_numPacketsReceived;
-  *(double *)&_XMM0 = bdQoSReplyPacket::getElapsedTime(packet);
-  __asm
+  ++p_m_data->m_currentProbe.m_numPacketsReceived;
+  ElapsedTime = bdQoSReplyPacket::getElapsedTime(packet);
+  v16 = *(float *)&ElapsedTime;
+  m_minLatency = p_m_data->m_minLatency;
+  if ( m_minLatency == 2147483600.0 || m_minLatency > v16 )
+    p_m_data->m_minLatency = v16;
+  p_m_data->m_latency = v16 + p_m_data->m_latency;
+  p_m_data->m_replies[p_m_data->m_numRepliesReceived++] = v16;
+  if ( p_m_data->m_currentProbe.m_numPacketsReceived < v9 )
   {
-    vmovaps xmm1, xmm0
-    vmovss  xmm0, dword ptr [rbx+0DCh]
-    vucomiss xmm0, cs:__real@4f000000
-  }
-  if ( v17 )
-    goto LABEL_18;
-  __asm { vcomiss xmm0, xmm1 }
-  if ( !(v16 | v17) )
-LABEL_18:
-    __asm { vmovss  dword ptr [rbx+0DCh], xmm1 }
-  __asm
-  {
-    vaddss  xmm0, xmm1, dword ptr [rbx+0D8h]
-    vmovss  dword ptr [rbx+0D8h], xmm0
-  }
-  _RAX = _RBX->m_numRepliesReceived;
-  __asm { vmovss  dword ptr [rbx+rax*4+0E0h], xmm1 }
-  ++_RBX->m_numRepliesReceived;
-  if ( _RBX->m_currentProbe.m_numPacketsReceived < v10 )
-  {
-    bdStopwatch::start(&_RBX->m_currentProbe.m_timer);
-    bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::releaseIterator(&this->m_probesProbing, _RBX);
+    bdStopwatch::start(&p_m_data->m_currentProbe.m_timer);
+    bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::releaseIterator(&this->m_probesProbing, p_m_data);
   }
   else
   {
-    bdQoSProbe::bdQoSProbeEntryWrapper::bdQoSProbeEntryWrapper(&entry, _RBX);
+    bdQoSProbe::bdQoSProbeEntryWrapper::bdQoSProbeEntryWrapper(&entry, p_m_data);
     bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::remove(&this->m_probesProbing, iterator);
     bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::releaseIterator(&this->m_probesProbing, iterator[0]);
     bdQoSProbe::singleProbeComplete(this, packet, &entry, packetSize);
@@ -1830,6 +1783,7 @@ bdQoSProbe::init
 bool bdQoSProbe::init(bdQoSProbe *this, bdSocket *socket, bdNATTravClient *natTrav, bdServiceBandwidthArbitrator *bandArb, bdRoutingLayer *routingLayer)
 {
   bool result; 
+  float v7; 
 
   if ( this->m_status )
   {
@@ -1876,14 +1830,8 @@ bool bdQoSProbe::init(bdQoSProbe *this, bdSocket *socket, bdNATTravClient *natTr
   this->m_useMultiplePacketsPerProbe = 0;
   bdGlobalStopwatch::start(&this->m_probingTimer);
   bdServiceBandwidthArbitrator::reset(this->m_bandArb);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3e4ccccd
-    vcvttss2si rdx, xmm1; bytes
-  }
-  bdServiceBandwidthArbitrator::addSliceQuota(this->m_bandArb, _RDX);
+  v7 = (float)(this->m_maxBandwidth >> 3);
+  bdServiceBandwidthArbitrator::addSliceQuota(this->m_bandArb, (int)(float)(v7 * 0.2));
   result = 1;
   this->m_status = BD_QOS_PROBE_INITIALIZED;
   return result;
@@ -2259,34 +2207,33 @@ _BOOL8 bdQoSProbe::probe(bdQoSProbe *this, bdReference<bdCommonAddr> addr, const
   bdQoSProbe *v9; 
   bool v10; 
   bdCommonAddr *v11; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v13; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v12; 
   bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *p_m_probesResolving; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v15; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v16; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v14; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v15; 
   unsigned int m_capacity; 
   unsigned int m_size; 
+  unsigned int v18; 
   unsigned int v19; 
-  unsigned int v20; 
-  __int64 v21; 
+  __int64 v20; 
   bdQoSProbe::bdQoSProbeEntryWrapper *m_data; 
-  __int64 v23; 
+  __int64 v22; 
   bdNetImpl *Instance; 
   bdSocketRouter *SocketRouter; 
-  bool v26; 
-  bdCommonAddr_vtbl *v27; 
+  bool v25; 
+  bdCommonAddr_vtbl *v26; 
   bdRoutingLayer *m_routingLayer; 
-  bdRelayAssociationListener *v29; 
-  bool v30; 
+  bdRelayAssociationListener *v28; 
+  bool v29; 
   bdNATTravClient *m_natTrav; 
   bdReference<bdCommonAddr> remote; 
-  bdReference<bdCommonAddr> v35; 
+  bdReference<bdCommonAddr> v34; 
   bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> value; 
-  __int64 v37; 
+  __int64 v36; 
   bdCommonAddr *m_ptr; 
   bdQoSProbe::bdQoSProbeEntryWrapper src; 
 
-  v37 = -2i64;
-  _R12 = key;
+  v36 = -2i64;
   v9 = this;
   m_ptr = addr.m_ptr;
   v10 = 0;
@@ -2303,24 +2250,20 @@ _BOOL8 bdQoSProbe::probe(bdQoSProbe *this, bdReference<bdCommonAddr> addr, const
         _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
     }
     src.m_id = *id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups xmmword ptr [rbp+250h+src.m_key.ab], xmm0
-    }
+    src.m_key = *key;
     src.m_listener = listener;
-    v13 = NULL;
+    v12 = NULL;
     src.m_numRepliesExpected = numProbes * (v9->m_useMultiplePacketsPerProbe + 1);
     p_m_probesResolving = &v9->m_probesResolving;
     if ( bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::containsKey(&v9->m_probesResolving, (const bdReference<bdCommonAddr> *)addr.m_ptr) )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::probe", 0xBAu, "Got multiple probes for the same address.\n");
-      if ( p_m_probesResolving->m_size && (v16 = v9->m_probesResolving.m_map[HIDWORD(addr.m_ptr->__vftable[117].~bdReferencable) & (v9->m_probesResolving.m_capacity - 1)]) != NULL )
+      if ( p_m_probesResolving->m_size && (v15 = v9->m_probesResolving.m_map[HIDWORD(addr.m_ptr->__vftable[117].~bdReferencable) & (v9->m_probesResolving.m_capacity - 1)]) != NULL )
       {
-        while ( addr.m_ptr->__vftable != (bdCommonAddr_vtbl *)v16->m_key.m_ptr )
+        while ( addr.m_ptr->__vftable != (bdCommonAddr_vtbl *)v15->m_key.m_ptr )
         {
-          v16 = v16->m_next;
-          if ( !v16 )
+          v15 = v15->m_next;
+          if ( !v15 )
             goto LABEL_15;
         }
         _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_probesResolving.m_numIterators, 1u);
@@ -2328,83 +2271,83 @@ _BOOL8 bdQoSProbe::probe(bdQoSProbe *this, bdReference<bdCommonAddr> addr, const
       else
       {
 LABEL_15:
-        v16 = NULL;
+        v15 = NULL;
       }
-      m_capacity = v16->m_data.m_capacity;
-      m_size = v16->m_data.m_size;
-      v19 = m_capacity - m_size;
+      m_capacity = v15->m_data.m_capacity;
+      m_size = v15->m_data.m_size;
+      v18 = m_capacity - m_size;
       if ( m_capacity == m_size )
       {
-        v20 = 1 - v19;
-        if ( 1 - v19 <= m_capacity )
-          v20 = v16->m_data.m_capacity;
-        v21 = m_capacity + v20;
-        if ( (_DWORD)v21 )
+        v19 = 1 - v18;
+        if ( 1 - v18 <= m_capacity )
+          v19 = v15->m_data.m_capacity;
+        v20 = m_capacity + v19;
+        if ( (_DWORD)v20 )
         {
-          v13 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(640 * v21);
-          bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v16->m_data, v13, v16->m_data.m_data, v16->m_data.m_size);
-          m_size = v16->m_data.m_size;
+          v12 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(640 * v20);
+          bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v15->m_data, v12, v15->m_data.m_data, v15->m_data.m_size);
+          m_size = v15->m_data.m_size;
         }
-        m_data = v16->m_data.m_data;
+        m_data = v15->m_data.m_data;
         if ( m_size )
         {
-          v23 = m_size;
+          v22 = m_size;
           do
           {
             bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(m_data++);
-            --v23;
+            --v22;
           }
-          while ( v23 );
-          m_data = v16->m_data.m_data;
+          while ( v22 );
+          m_data = v15->m_data.m_data;
         }
         bdMemory::deallocate(m_data);
-        v16->m_data.m_data = v13;
-        v16->m_data.m_capacity = v21;
+        v15->m_data.m_data = v12;
+        v15->m_data.m_capacity = v20;
         v9 = this;
       }
       else
       {
-        v13 = v16->m_data.m_data;
+        v12 = v15->m_data.m_data;
       }
-      bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v16->m_data, &v13[v16->m_data.m_size], &src, 1u);
-      ++v16->m_data.m_size;
-      bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::releaseIterator(p_m_probesResolving, v16);
+      bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v15->m_data, &v12[v15->m_data.m_size], &src, 1u);
+      ++v15->m_data.m_size;
+      bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::releaseIterator(p_m_probesResolving, v15);
     }
     else
     {
       value.m_capacity = 1;
       value.m_size = 1;
-      v15 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(0x280ui64);
-      value.m_data = v15;
-      bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayObject(&value, v15, &src, 1u);
+      v14 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(0x280ui64);
+      value.m_data = v14;
+      bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayObject(&value, v14, &src, 1u);
       bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::put(&v9->m_probesResolving, (const bdReference<bdCommonAddr> *)addr.m_ptr, &value);
-      bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v15);
-      bdMemory::deallocate(v15);
+      bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v14);
+      bdMemory::deallocate(v14);
     }
     Instance = bdSingleton<bdNetImpl>::getInstance();
     SocketRouter = bdNetImpl::getSocketRouter(Instance);
-    v26 = SocketRouter->shouldUseRelay(SocketRouter, (const bdReference<bdCommonAddr> *)addr.m_ptr);
-    v27 = addr.m_ptr->__vftable;
-    if ( v26 )
+    v25 = SocketRouter->shouldUseRelay(SocketRouter, (const bdReference<bdCommonAddr> *)addr.m_ptr);
+    v26 = addr.m_ptr->__vftable;
+    if ( v25 )
     {
       m_routingLayer = v9->m_routingLayer;
-      v29 = &v9->bdRelayAssociationListener;
+      v28 = &v9->bdRelayAssociationListener;
       if ( !v9 )
-        v29 = NULL;
+        v28 = NULL;
       remote.m_ptr = (bdCommonAddr *)addr.m_ptr->__vftable;
-      if ( v27 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v27[1], 1u);
-      v30 = bdRoutingLayer::connect(m_routingLayer, (const bdReference<bdCommonAddr>)&remote, v29);
+      if ( v26 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v26[1], 1u);
+      v29 = bdRoutingLayer::connect(m_routingLayer, (const bdReference<bdCommonAddr>)&remote, v28);
     }
     else
     {
       m_natTrav = v9->m_natTrav;
-      v35.m_ptr = (bdCommonAddr *)addr.m_ptr->__vftable;
-      if ( v27 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v27[1], 1u);
-      v30 = bdNATTravClient::connect(m_natTrav, (bdReference<bdCommonAddr>)&v35, v9, 0);
+      v34.m_ptr = (bdCommonAddr *)addr.m_ptr->__vftable;
+      if ( v26 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v26[1], 1u);
+      v29 = bdNATTravClient::connect(m_natTrav, (bdReference<bdCommonAddr>)&v34, v9, 0);
     }
-    v10 = v30;
+    v10 = v29;
     if ( src.m_telemetry.m_probeInfo.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&src.m_telemetry.m_probeInfo.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
       if ( src.m_telemetry.m_probeInfo.m_addr.m_ptr )
@@ -2481,68 +2424,72 @@ bdQoSProbe::processRequestPackets
 */
 char bdQoSProbe::processRequestPackets(bdQoSProbe *this, const bdQoSRequestPacket *packet, const bdAddr *addr, int packetSize)
 {
-  char v5; 
+  char v4; 
   unsigned int SecId; 
   unsigned int m_size; 
-  __int64 v11; 
-  int v12; 
+  __int64 v10; 
+  int v11; 
   unsigned int Hash; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v15; 
-  bool v16; 
-  unsigned int v17; 
-  unsigned int v24; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::Node *v14; 
+  bool v15; 
+  unsigned int v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  bdRelayRoute m_relayRoute; 
+  double v21; 
+  unsigned int v22; 
   bool RequestingData; 
+  unsigned int v24; 
+  double ElapsedTimeInSeconds; 
   unsigned int v26; 
-  unsigned int v28; 
+  unsigned int v27; 
+  bool v28; 
   unsigned int v29; 
-  bool v30; 
-  unsigned int v31; 
   unsigned int m_maxConcurrentProbes; 
   unsigned int key; 
   bdQoSProbe::bdQosProbeHost value; 
   char str[24]; 
 
-  v5 = 0;
-  _R13 = (bdAddr *)addr;
+  v4 = 0;
   if ( this->m_listenState == BD_QOS_OFF || this->m_status == BD_QOS_PROBE_UNINITIALIZED || !this->m_useMultiplePacketsPerProbe )
     return 0;
   SecId = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
   m_size = this->m_secids.m_size;
-  v11 = 0i64;
-  v12 = 0;
+  v10 = 0i64;
+  v11 = 0;
   if ( !m_size )
     return 0;
-  while ( SecId != this->m_secids.m_data[v12] )
+  while ( SecId != this->m_secids.m_data[v11] )
   {
-    if ( ++v12 >= m_size )
+    if ( ++v11 >= m_size )
       return 0;
   }
-  Hash = bdAddr::getHash(_R13);
-  if ( this->m_probesProcessing.m_size && (v15 = this->m_probesProcessing.m_map[(HIBYTE(Hash) ^ (16777619 * (BYTE2(Hash) ^ (16777619 * (BYTE1(Hash) ^ (16777619 * (unsigned __int8)Hash)))))) & (this->m_probesProcessing.m_capacity - 1)]) != NULL )
+  Hash = bdAddr::getHash((bdAddr *)addr);
+  if ( this->m_probesProcessing.m_size && (v14 = this->m_probesProcessing.m_map[(HIBYTE(Hash) ^ (16777619 * (BYTE2(Hash) ^ (16777619 * (BYTE1(Hash) ^ (16777619 * (unsigned __int8)Hash)))))) & (this->m_probesProcessing.m_capacity - 1)]) != NULL )
   {
-    while ( Hash != v15->m_key )
+    while ( Hash != v14->m_key )
     {
-      v15 = v15->m_next;
-      if ( !v15 )
+      v14 = v14->m_next;
+      if ( !v14 )
         goto LABEL_12;
     }
     _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProcessing.m_numIterators, 1u);
-    if ( !v15->m_data.m_completed )
+    if ( !v14->m_data.m_completed )
     {
-      bdStopwatch::start(&v15->m_data.m_holdTimePacket2);
+      bdStopwatch::start(&v14->m_data.m_holdTimePacket2);
       RequestingData = bdQoSRequestPacket::getRequestingData((bdQoSRequestPacket *)packet);
-      v26 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
-      bdQoSProbe::logProbeRequests(this, v26, RequestingData);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v15->m_data.m_timer);
-      __asm { vmovaps xmm1, xmm0; timeDiffBetweenPackets }
-      v28 = bdQoSProbe::calculateBandwidth(this, *(float *)&_XMM1, packetSize);
-      ++v15->m_data.m_numPacketsReceived;
-      v15->m_data.m_bandwidth = v28;
-      v15->m_data.m_completed = 1;
-      v15->m_data.m_needToSendData = bdQoSRequestPacket::getRequestingData((bdQoSRequestPacket *)packet);
-      v5 = 1;
+      v24 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
+      bdQoSProbe::logProbeRequests(this, v24, RequestingData);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&v14->m_data.m_timer);
+      v26 = bdQoSProbe::calculateBandwidth(this, *(float *)&ElapsedTimeInSeconds, packetSize);
+      ++v14->m_data.m_numPacketsReceived;
+      v14->m_data.m_bandwidth = v26;
+      v14->m_data.m_completed = 1;
+      v14->m_data.m_needToSendData = bdQoSRequestPacket::getRequestingData((bdQoSRequestPacket *)packet);
+      v4 = 1;
     }
-    bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::releaseIterator(&this->m_probesProcessing, v15);
+    bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::releaseIterator(&this->m_probesProcessing, v14);
   }
   else
   {
@@ -2551,62 +2498,58 @@ LABEL_12:
     {
       bdQoSProbe::bdQosProbeHost::bdQosProbeHost(&value);
       bdStopwatch::start(&value.m_holdTimePacket1);
-      v16 = bdQoSRequestPacket::getRequestingData((bdQoSRequestPacket *)packet);
-      v17 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
-      bdQoSProbe::logProbeRequests(this, v17, v16);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r13+0]
-        vmovups ymm1, ymmword ptr [r13+20h]
-        vmovups ymmword ptr [rsp+1A8h+value.m_realAddr.m_address.inUn], ymm0
-        vmovups ymm0, ymmword ptr [r13+40h]
-        vmovups ymmword ptr [rsp+1A8h+value.m_realAddr.m_address.inUn+20h], ymm1
-        vmovups ymm1, ymmword ptr [r13+60h]
-        vmovups ymmword ptr [rsp+1A8h+value.m_realAddr.m_address.inUn+40h], ymm0
-        vmovups xmm0, xmmword ptr [r13+80h]
-        vmovups ymmword ptr [rsp+1A8h+value.m_realAddr.m_address.inUn+60h], ymm1
-        vmovsd  xmm1, qword ptr [r13+90h]
-        vmovups xmmword ptr [rsp+1A8h+value.m_realAddr.m_relayRoute.m_relayID], xmm0
-        vmovsd  qword ptr [rsp+1A8h+value.m_realAddr.m_type], xmm1
-      }
-      v24 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
+      v15 = bdQoSRequestPacket::getRequestingData((bdQoSRequestPacket *)packet);
+      v16 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
+      bdQoSProbe::logProbeRequests(this, v16, v15);
+      v17 = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 1);
+      *(__m256i *)&value.m_realAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&addr->m_address.inUn.m_sockaddrStorage.ss_family;
+      v18 = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 2);
+      *((__m256i *)&value.m_realAddr.m_address.inUn.m_ipv6Sockaddr + 1) = v17;
+      v19 = *((__m256i *)&addr->m_address.inUn.m_ipv6Sockaddr + 3);
+      *((__m256i *)&value.m_realAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v18;
+      m_relayRoute = addr->m_relayRoute;
+      *((__m256i *)&value.m_realAddr.m_address.inUn.m_ipv6Sockaddr + 3) = v19;
+      v21 = *(double *)&addr->m_type;
+      value.m_realAddr.m_relayRoute = m_relayRoute;
+      *(double *)&value.m_realAddr.m_type = v21;
+      v22 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
       ++value.m_numPacketsReceived;
-      value.m_secid = v24;
+      value.m_secid = v22;
       bdStopwatch::start(&value.m_timer);
       value.m_id = bdQoSRequestPacket::getId((bdQoSRequestPacket *)packet);
       value.m_probeTimestamp = bdQoSRequestPacket::getTimestamp((bdQoSRequestPacket *)packet);
-      key = bdAddr::getHash(_R13);
+      key = bdAddr::getHash((bdAddr *)addr);
       bdHashMap<unsigned int,bdQoSProbe::bdQosProbeHost,bdHashingClass>::put(&this->m_probesProcessing, &key, &value);
       return 1;
     }
-    v29 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
+    v27 = bdQoSRequestPacket::getSecId((bdQoSRequestPacket *)packet);
     if ( this->m_statsPerSession.m_size )
     {
-      v30 = this->m_statsPerSession.m_size != 0;
+      v28 = this->m_statsPerSession.m_size != 0;
       while ( 1 )
       {
-        bdHandleAssert(v30, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSHostStats>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-        if ( this->m_statsPerSession.m_data[v11].m_secID == v29 )
+        bdHandleAssert(v28, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSHostStats>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+        if ( this->m_statsPerSession.m_data[v10].m_secID == v27 )
           break;
-        v11 = (unsigned int)(v11 + 1);
-        v30 = (unsigned int)v11 < this->m_statsPerSession.m_size;
-        if ( (unsigned int)v11 >= this->m_statsPerSession.m_size )
+        v10 = (unsigned int)(v10 + 1);
+        v28 = (unsigned int)v10 < this->m_statsPerSession.m_size;
+        if ( (unsigned int)v10 >= this->m_statsPerSession.m_size )
           goto LABEL_22;
       }
-      bdHandleAssert((unsigned int)v11 < this->m_statsPerSession.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSHostStats>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-      ++this->m_statsPerSession.m_data[v11].m_numSlotsFullDiscards;
+      bdHandleAssert((unsigned int)v10 < this->m_statsPerSession.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSHostStats>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+      ++this->m_statsPerSession.m_data[v10].m_numSlotsFullDiscards;
     }
     else
     {
 LABEL_22:
-      v31 = v29;
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::logProbeDiscards", 0x427u, "Can't log probe data for secID %u", v31);
+      v29 = v27;
+      bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::logProbeDiscards", 0x427u, "Can't log probe data for secID %u", v29);
     }
-    bdAddr::toString(_R13, str, 0x16ui64);
+    bdAddr::toString((bdAddr *)addr, str, 0x16ui64);
     m_maxConcurrentProbes = this->m_maxConcurrentProbes;
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::processRequestPackets", 0x470u, "Cannot process probe from %s as we have already reached max concurrent probes (%d)", str, m_maxConcurrentProbes);
   }
-  return v5;
+  return v4;
 }
 
 /*
@@ -2616,88 +2559,65 @@ bdQoSProbe::pump
 */
 void bdQoSProbe::pump(bdQoSProbe *this)
 {
-  char v7; 
-  char v8; 
+  double ElapsedTimeInSeconds; 
+  float v3; 
   bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *Iterator; 
   unsigned __int8 *p_m_key; 
   unsigned int m_key; 
+  double v7; 
   bdCommonAddr *m_ptr; 
   unsigned int m_capacity; 
-  __int64 v17; 
-  bool v20; 
+  __int64 v10; 
+  bool v11; 
   bdLinkedList<unsigned int>::Node *m_head; 
-  bool v22; 
-  const bdQoSProbe::bdQoSProbeEntryWrapper *v23; 
+  bool v13; 
+  const bdQoSProbe::bdQoSProbeEntryWrapper *v14; 
   char m_useMultiplePacketsPerProbe; 
-  unsigned int v25; 
-  bdLinkedList<unsigned int>::Node *v49; 
+  unsigned int v16; 
+  float m_numRepliesReceived; 
+  bdLinkedList<unsigned int>::Node *v18; 
   bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node **m_map; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v51; 
-  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v52; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v20; 
+  bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *v21; 
   bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *m_next; 
-  bdLinkedList<unsigned int>::Node *v54; 
-  bdLinkedList<unsigned int>::Node *v55; 
+  bdLinkedList<unsigned int>::Node *v23; 
+  bdLinkedList<unsigned int>::Node *v24; 
   bool stopProcessing[8]; 
-  bdQueue<unsigned int> v60; 
+  bdQueue<unsigned int> v26; 
   unsigned int item[2]; 
   bdReference<bdCommonAddr> addr; 
-  __int64 v63; 
-  bdQoSProbe::bdQoSProbeEntryWrapper v64; 
-  bdQoSProbeInfo v65; 
+  __int64 v29; 
+  bdQoSProbe::bdQoSProbeEntryWrapper v30; 
+  bdQoSProbeInfo v31; 
   char buf[1024]; 
-  char v67; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v63 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RDI = this;
+  v29 = -2i64;
   if ( this->m_status == BD_QOS_PROBE_INITIALIZED )
   {
-    *(double *)&_XMM0 = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_probingTimer);
-    __asm
+    ElapsedTimeInSeconds = bdGlobalStopwatch::getElapsedTimeInSeconds(&this->m_probingTimer);
+    if ( *(float *)&ElapsedTimeInSeconds > 0.2 )
     {
-      vmovss  xmm1, cs:__real@3e4ccccd
-      vcomiss xmm0, xmm1
+      v3 = (float)(this->m_maxBandwidth >> 3);
+      bdServiceBandwidthArbitrator::addSliceQuota(this->m_bandArb, (int)(float)(v3 * 0.2));
+      bdGlobalStopwatch::start(&this->m_probingTimer);
     }
-    if ( !(v7 | v8) )
+    if ( (int)this->m_probesProbing.m_size > 0 && bdServiceBandwidthArbitrator::allowedSend(this->m_bandArb, 0x1Cu) )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm1
-        vcvttss2si rdx, xmm1; bytes
-      }
-      bdServiceBandwidthArbitrator::addSliceQuota(_RDI->m_bandArb, _RDX);
-      bdGlobalStopwatch::start(&_RDI->m_probingTimer);
-    }
-    if ( (int)_RDI->m_probesProbing.m_size > 0 && bdServiceBandwidthArbitrator::allowedSend(_RDI->m_bandArb, 0x1Cu) )
-    {
-      memset(&v60, 0, 20);
+      memset(&v26, 0, 20);
       stopProcessing[0] = 0;
-      Iterator = (bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *)bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::getIterator(&_RDI->m_probesProbing);
+      Iterator = (bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::Node *)bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::getIterator(&this->m_probesProbing);
       if ( Iterator )
       {
-        while ( bdServiceBandwidthArbitrator::allowedSend(_RDI->m_bandArb, 0x1Cu) && !stopProcessing[0] )
+        while ( bdServiceBandwidthArbitrator::allowedSend(this->m_bandArb, 0x1Cu) && !stopProcessing[0] )
         {
           p_m_key = (unsigned __int8 *)&Iterator->m_key;
           m_key = Iterator->m_key;
           item[0] = m_key;
-          if ( !Iterator->m_data.m_retries )
-            goto LABEL_11;
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&Iterator->m_data.m_lastTry);
-          __asm { vcomiss xmm0, dword ptr [rdi+9Ch] }
-          if ( !(v7 | v8) )
+          if ( !Iterator->m_data.m_retries || (v7 = bdStopwatch::getElapsedTimeInSeconds(&Iterator->m_data.m_lastTry), *(float *)&v7 > this->m_probeTimeout) )
           {
-LABEL_11:
-            if ( Iterator->m_data.m_retries < _RDI->m_maxRetries )
+            if ( Iterator->m_data.m_retries < this->m_maxRetries )
             {
-              bdQoSProbe::sendRequest(_RDI, stopProcessing, &Iterator->m_data, m_key);
+              bdQoSProbe::sendRequest(this, stopProcessing, &Iterator->m_data, m_key);
             }
             else
             {
@@ -2707,236 +2627,171 @@ LABEL_11:
                 _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
               bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&addr, buf, 0x400u);
               bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::pump", 0x1A1u, " QOS retries exceeded: QoS failed to %s ", buf);
-              bdQueue<unsigned int>::enqueue(&v60, item);
+              bdQueue<unsigned int>::enqueue(&v26, item);
             }
           }
           Iterator = Iterator->m_next;
           if ( !Iterator )
           {
-            m_capacity = _RDI->m_probesProbing.m_capacity;
-            v17 = ((p_m_key[3] ^ (16777619 * (p_m_key[2] ^ (16777619 * (p_m_key[1] ^ (16777619 * *p_m_key)))))) & (m_capacity - 1)) + 1;
-            if ( (unsigned int)v17 >= m_capacity )
+            m_capacity = this->m_probesProbing.m_capacity;
+            v10 = ((p_m_key[3] ^ (16777619 * (p_m_key[2] ^ (16777619 * (p_m_key[1] ^ (16777619 * *p_m_key)))))) & (m_capacity - 1)) + 1;
+            if ( (unsigned int)v10 >= m_capacity )
             {
 LABEL_20:
               Iterator = NULL;
-              _InterlockedExchangeAdd((volatile signed __int32 *)&_RDI->m_probesProbing.m_numIterators, 0xFFFFFFFF);
+              _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProbing.m_numIterators, 0xFFFFFFFF);
               break;
             }
             while ( 1 )
             {
-              Iterator = _RDI->m_probesProbing.m_map[v17];
+              Iterator = this->m_probesProbing.m_map[v10];
               if ( Iterator )
                 break;
-              v17 = (unsigned int)(v17 + 1);
-              if ( (unsigned int)v17 >= m_capacity )
+              v10 = (unsigned int)(v10 + 1);
+              if ( (unsigned int)v10 >= m_capacity )
                 goto LABEL_20;
             }
           }
         }
       }
-      bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::releaseIterator(&_RDI->m_probesProbing, Iterator);
-      if ( v60.m_list.m_size )
+      bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::releaseIterator(&this->m_probesProbing, Iterator);
+      while ( v26.m_list.m_size )
       {
-        __asm
+        v30.m_addr.m_ptr = NULL;
+        bdSecurityID::bdSecurityID(&v30.m_id);
+        bdSecurityKey::bdSecurityKey(&v30.m_key);
+        v30.m_listener = NULL;
+        bdAddr::bdAddr(&v30.m_realAddr);
+        v30.m_retries = 0;
+        bdStopwatch::bdStopwatch(&v30.m_lastTry);
+        *(_QWORD *)&v30.m_numRepliesReceived = 0i64;
+        v30.m_latency = 0.0;
+        memset(&v30.m_bandwidthUp, 0, 24);
+        bdStopwatch::bdStopwatch(&v30.m_currentProbe.m_timer);
+        v30.m_currentProbe.m_minLatency = FLOAT_2_1474836e9;
+        v30.m_currentProbe.m_latency = FLOAT_2_1474836e9;
+        bdStopwatch::reset(&v30.m_currentProbe.m_timer);
+        bdQoSTelemetry::bdQoSTelemetry(&v30.m_telemetry);
+        bdStopwatch::reset(&v30.m_lastTry);
+        v30.m_minLatency = FLOAT_2_1474836e9;
+        v11 = v26.m_list.m_size != 0;
+        bdHandleAssert(v26.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+        m_head = v26.m_list.m_head;
+        v13 = v26.m_list.m_head != NULL;
+        bdHandleAssert(v26.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
+        v14 = (const bdQoSProbe::bdQoSProbeEntryWrapper *)bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::getIterator(&this->m_probesProbing, &m_head->m_data);
+        if ( v14 )
         {
-          vxorps  xmm7, xmm7, xmm7
-          vmovss  xmm6, cs:__real@4f000000
+          bdQoSProbe::bdQoSProbeEntryWrapper::operator=(&v30, v14);
+          bdHandleAssert(this->m_probesProbing.m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQoSProbeEntryWrapper,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
+          _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_probesProbing.m_numIterators, 0xFFFFFFFF);
         }
-        do
+        m_useMultiplePacketsPerProbe = this->m_useMultiplePacketsPerProbe;
+        v16 = v30.m_numRepliesReceived >> m_useMultiplePacketsPerProbe;
+        bdQoSProbeInfo::bdQoSProbeInfo(&v31);
+        v31.m_failureReason = BD_QOS_PROBE_FAILURE_TIMED_OUT;
+        v31.m_realAddr = v30.m_realAddr;
+        if ( v31.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v31.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v31.m_addr.m_ptr )
+          ((void (__fastcall *)(bdCommonAddr *, __int64))v31.m_addr.m_ptr->~bdReferencable)(v31.m_addr.m_ptr, 1i64);
+        v31.m_addr.m_ptr = v30.m_addr.m_ptr;
+        if ( v30.m_addr.m_ptr )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v30.m_addr.m_ptr->m_refCount, 1u);
+        v31.m_numProbesReceived = v16;
+        v31.m_numProbesExpected = v30.m_numRepliesExpected >> m_useMultiplePacketsPerProbe;
+        v31.m_numRetries = v30.m_retries;
+        v31.m_minLatency = v30.m_minLatency;
+        m_numRepliesReceived = (float)v30.m_numRepliesReceived;
+        v31.m_latency = v30.m_latency / m_numRepliesReceived;
+        *(__m256i *)v31.m_replies = *(__m256i *)v30.m_replies;
+        *(__m256i *)&v31.m_replies[8] = *(__m256i *)&v30.m_replies[8];
+        v31.m_numReplies = v30.m_numRepliesReceived;
+        bdReference<bdCommonAddr>::operator=(&v30.m_telemetry.m_probeInfo.m_addr, &v31.m_addr);
+        v30.m_telemetry.m_probeInfo.m_realAddr = v31.m_realAddr;
+        v30.m_telemetry.m_probeInfo.m_latency = v31.m_latency;
+        v30.m_telemetry.m_probeInfo.m_data = v31.m_data;
+        v30.m_telemetry.m_probeInfo.m_dataSize = v31.m_dataSize;
+        v30.m_telemetry.m_probeInfo.m_disabled = v31.m_disabled;
+        v30.m_telemetry.m_probeInfo.m_bandwidthDown = v31.m_bandwidthDown;
+        v30.m_telemetry.m_probeInfo.m_bandwidthUp = v31.m_bandwidthUp;
+        v30.m_telemetry.m_probeInfo.m_minLatency = v31.m_minLatency;
+        v30.m_telemetry.m_probeInfo.m_numReplies = v31.m_numReplies;
+        *(__m256i *)v30.m_telemetry.m_probeInfo.m_replies = *(__m256i *)v31.m_replies;
+        *(__m256i *)&v30.m_telemetry.m_probeInfo.m_replies[8] = *(__m256i *)&v31.m_replies[8];
+        v30.m_telemetry.m_probeInfo.m_numProbesReceived = v31.m_numProbesReceived;
+        v30.m_telemetry.m_probeInfo.m_numProbesExpected = v31.m_numProbesExpected;
+        v30.m_telemetry.m_probeInfo.m_numRetries = v31.m_numRetries;
+        v30.m_telemetry.m_probeInfo.m_failureReason = v31.m_failureReason;
+        v30.m_listener->onQoSProbeFail(v30.m_listener, &v31);
+        bdQoSTelemetry::setResult(&v30.m_telemetry, BD_FAILURE);
+        bdTelemetry::addQoS(&v30.m_telemetry);
+        bdHandleAssert(v11, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+        bdHandleAssert(v13, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
+        bdHandleAssert(this->m_probesProbing.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQoSProbeEntryWrapper,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
+        v18 = v26.m_list.m_head;
+        m_map = this->m_probesProbing.m_map;
+        v20 = m_map[(HIBYTE(v26.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v26.m_list.m_head->m_data) ^ (16777619 * ((16777619 * LOBYTE(v26.m_list.m_head->m_data)) ^ BYTE1(v26.m_list.m_head->m_data)))))) & (this->m_probesProbing.m_capacity - 1)];
+        v21 = NULL;
+        if ( v20 )
         {
-          v64.m_addr.m_ptr = NULL;
-          bdSecurityID::bdSecurityID(&v64.m_id);
-          bdSecurityKey::bdSecurityKey(&v64.m_key);
-          v64.m_listener = NULL;
-          bdAddr::bdAddr(&v64.m_realAddr);
-          v64.m_retries = 0;
-          bdStopwatch::bdStopwatch(&v64.m_lastTry);
-          *(_QWORD *)&v64.m_numRepliesReceived = 0i64;
-          __asm { vmovss  [rbp+770h+var_7F0.m_latency], xmm7 }
-          memset(&v64.m_bandwidthUp, 0, 24);
-          bdStopwatch::bdStopwatch(&v64.m_currentProbe.m_timer);
-          __asm
+          while ( v26.m_list.m_head->m_data != v20->m_key )
           {
-            vmovss  [rbp+770h+var_7F0.m_currentProbe.m_minLatency], xmm6
-            vmovss  [rbp+770h+var_7F0.m_currentProbe.m_latency], xmm6
+            v21 = v20;
+            v20 = v20->m_next;
+            if ( !v20 )
+              goto LABEL_38;
           }
-          bdStopwatch::reset(&v64.m_currentProbe.m_timer);
-          bdQoSTelemetry::bdQoSTelemetry(&v64.m_telemetry);
-          bdStopwatch::reset(&v64.m_lastTry);
-          __asm { vmovss  [rbp+770h+var_7F0.m_minLatency], xmm6 }
-          v20 = v60.m_list.m_size != 0;
-          bdHandleAssert(v60.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
-          m_head = v60.m_list.m_head;
-          v22 = v60.m_list.m_head != NULL;
-          bdHandleAssert(v60.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
-          v23 = (const bdQoSProbe::bdQoSProbeEntryWrapper *)bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::getIterator(&_RDI->m_probesProbing, &m_head->m_data);
-          if ( v23 )
-          {
-            bdQoSProbe::bdQoSProbeEntryWrapper::operator=(&v64, v23);
-            bdHandleAssert(_RDI->m_probesProbing.m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQoSProbeEntryWrapper,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
-            _InterlockedExchangeAdd((volatile signed __int32 *)&_RDI->m_probesProbing.m_numIterators, 0xFFFFFFFF);
-          }
-          m_useMultiplePacketsPerProbe = _RDI->m_useMultiplePacketsPerProbe;
-          v25 = v64.m_numRepliesReceived >> m_useMultiplePacketsPerProbe;
-          bdQoSProbeInfo::bdQoSProbeInfo(&v65);
-          v65.m_failureReason = BD_QOS_PROBE_FAILURE_TIMED_OUT;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+770h+var_7F0.m_realAddr.m_address.inUn]
-            vmovups ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn], ymm0
-            vmovups ymm1, ymmword ptr [rbp+770h+var_7F0.m_realAddr.m_address.inUn+20h]
-            vmovups ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbp+770h+var_7F0.m_realAddr.m_address.inUn+40h]
-            vmovups ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+40h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+770h+var_7F0.m_realAddr.m_address.inUn+60h]
-            vmovups ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+60h], ymm1
-            vmovups xmm0, xmmword ptr [rbp+770h+var_7F0.m_realAddr.m_relayRoute.m_relayID]
-            vmovups xmmword ptr [rbp+770h+var_570.m_realAddr.m_relayRoute.m_relayID], xmm0
-            vmovsd  xmm1, qword ptr [rbp+770h+var_7F0.m_realAddr.m_type]
-            vmovsd  qword ptr [rbp+770h+var_570.m_realAddr.m_type], xmm1
-          }
-          if ( v65.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v65.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v65.m_addr.m_ptr )
-            ((void (__fastcall *)(bdCommonAddr *, __int64))v65.m_addr.m_ptr->~bdReferencable)(v65.m_addr.m_ptr, 1i64);
-          v65.m_addr.m_ptr = v64.m_addr.m_ptr;
-          if ( v64.m_addr.m_ptr )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v64.m_addr.m_ptr->m_refCount, 1u);
-          v65.m_numProbesReceived = v25;
-          v65.m_numProbesExpected = v64.m_numRepliesExpected >> m_useMultiplePacketsPerProbe;
-          v65.m_numRetries = v64.m_retries;
-          __asm
-          {
-            vmovss  xmm0, [rbp+770h+var_7F0.m_minLatency]
-            vmovss  [rbp+770h+var_570.m_minLatency], xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rcx
-            vmovss  xmm0, [rbp+770h+var_7F0.m_latency]
-            vdivss  xmm1, xmm0, xmm1
-            vmovss  [rbp+770h+var_570.m_latency], xmm1
-            vmovups ymm2, ymmword ptr [rbp+770h+var_7F0.m_replies]
-            vmovups ymmword ptr [rbp+770h+var_570.m_replies], ymm2
-            vmovups ymm0, ymmword ptr [rbp+770h+var_7F0.m_replies+20h]
-            vmovups ymmword ptr [rbp+770h+var_570.m_replies+20h], ymm0
-          }
-          v65.m_numReplies = v64.m_numRepliesReceived;
-          bdReference<bdCommonAddr>::operator=(&v64.m_telemetry.m_probeInfo.m_addr, &v65.m_addr);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_address.inUn], ymm0
-            vmovups ymm1, ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+20h]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_address.inUn+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+40h]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_address.inUn+40h], ymm0
-            vmovups ymm1, ymmword ptr [rbp+770h+var_570.m_realAddr.m_address.inUn+60h]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_address.inUn+60h], ymm1
-            vmovups xmm0, xmmword ptr [rbp+770h+var_570.m_realAddr.m_relayRoute.m_relayID]
-            vmovups xmmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_relayRoute.m_relayID], xmm0
-            vmovsd  xmm1, qword ptr [rbp+770h+var_570.m_realAddr.m_type]
-            vmovsd  qword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_realAddr.m_type], xmm1
-            vmovss  xmm0, [rbp+770h+var_570.m_latency]
-            vmovss  [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_latency], xmm0
-          }
-          v64.m_telemetry.m_probeInfo.m_data = v65.m_data;
-          v64.m_telemetry.m_probeInfo.m_dataSize = v65.m_dataSize;
-          v64.m_telemetry.m_probeInfo.m_disabled = v65.m_disabled;
-          v64.m_telemetry.m_probeInfo.m_bandwidthDown = v65.m_bandwidthDown;
-          v64.m_telemetry.m_probeInfo.m_bandwidthUp = v65.m_bandwidthUp;
-          __asm
-          {
-            vmovss  xmm0, [rbp+770h+var_570.m_minLatency]
-            vmovss  [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_minLatency], xmm0
-          }
-          v64.m_telemetry.m_probeInfo.m_numReplies = v65.m_numReplies;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+770h+var_570.m_replies]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_replies], ymm0
-            vmovups ymm0, ymmword ptr [rbp+770h+var_570.m_replies+20h]
-            vmovups ymmword ptr [rbp+770h+var_7F0.m_telemetry.m_probeInfo.m_replies+20h], ymm0
-          }
-          v64.m_telemetry.m_probeInfo.m_numProbesReceived = v65.m_numProbesReceived;
-          v64.m_telemetry.m_probeInfo.m_numProbesExpected = v65.m_numProbesExpected;
-          v64.m_telemetry.m_probeInfo.m_numRetries = v65.m_numRetries;
-          v64.m_telemetry.m_probeInfo.m_failureReason = v65.m_failureReason;
-          v64.m_listener->onQoSProbeFail(v64.m_listener, &v65);
-          bdQoSTelemetry::setResult(&v64.m_telemetry, BD_FAILURE);
-          bdTelemetry::addQoS(&v64.m_telemetry);
-          bdHandleAssert(v20, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
-          bdHandleAssert(v22, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<unsigned int>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
-          bdHandleAssert(_RDI->m_probesProbing.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned int,struct bdQoSProbe::bdQoSProbeEntryWrapper,class bdHashingClass>::remove", 0xA5u, "bdHashMap::remove, another iterator is being held while removing from hashmap");
-          v49 = v60.m_list.m_head;
-          m_map = _RDI->m_probesProbing.m_map;
-          v51 = m_map[(HIBYTE(v60.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v60.m_list.m_head->m_data) ^ (16777619 * ((16777619 * LOBYTE(v60.m_list.m_head->m_data)) ^ BYTE1(v60.m_list.m_head->m_data)))))) & (_RDI->m_probesProbing.m_capacity - 1)];
-          v52 = NULL;
-          if ( v51 )
-          {
-            while ( v60.m_list.m_head->m_data != v51->m_key )
-            {
-              v52 = v51;
-              v51 = v51->m_next;
-              if ( !v51 )
-                goto LABEL_39;
-            }
-            m_next = v51->m_next;
-            if ( v52 )
-              v52->m_next = m_next;
-            else
-              m_map[(HIBYTE(v60.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v60.m_list.m_head->m_data) ^ (16777619 * ((16777619 * LOBYTE(v60.m_list.m_head->m_data)) ^ BYTE1(v60.m_list.m_head->m_data)))))) & (_RDI->m_probesProbing.m_capacity - 1)] = m_next;
-            bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(&v51->m_data);
-            bdMemory::deallocate(v51);
-            --_RDI->m_probesProbing.m_size;
-          }
-LABEL_39:
-          bdHandleAssert(v20, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-          v54 = v49->m_next;
-          v60.m_list.m_head = v54;
-          if ( v49 == v60.m_list.m_tail )
-            v60.m_list.m_tail = v49->m_prev;
+          m_next = v20->m_next;
+          if ( v21 )
+            v21->m_next = m_next;
           else
-            v54->m_prev = v49->m_prev;
-          bdMemory::deallocate(v49);
-          --v60.m_list.m_size;
-          if ( v65.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v65.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
-          {
-            if ( v65.m_addr.m_ptr )
-              ((void (__fastcall *)(bdCommonAddr *, __int64))v65.m_addr.m_ptr->~bdReferencable)(v65.m_addr.m_ptr, 1i64);
-            v65.m_addr.m_ptr = NULL;
-          }
-          if ( v64.m_telemetry.m_probeInfo.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v64.m_telemetry.m_probeInfo.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
-          {
-            if ( v64.m_telemetry.m_probeInfo.m_addr.m_ptr )
-              ((void (__fastcall *)(bdCommonAddr *, __int64))v64.m_telemetry.m_probeInfo.m_addr.m_ptr->~bdReferencable)(v64.m_telemetry.m_probeInfo.m_addr.m_ptr, 1i64);
-            v64.m_telemetry.m_probeInfo.m_addr.m_ptr = NULL;
-          }
-          bdSecurityKey::~bdSecurityKey(&v64.m_key);
-          bdSecurityID::~bdSecurityID(&v64.m_id);
-          if ( v64.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v64.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v64.m_addr.m_ptr )
-            ((void (__fastcall *)(bdCommonAddr *, __int64))v64.m_addr.m_ptr->~bdReferencable)(v64.m_addr.m_ptr, 1i64);
+            m_map[(HIBYTE(v26.m_list.m_head->m_data) ^ (16777619 * (BYTE2(v26.m_list.m_head->m_data) ^ (16777619 * ((16777619 * LOBYTE(v26.m_list.m_head->m_data)) ^ BYTE1(v26.m_list.m_head->m_data)))))) & (this->m_probesProbing.m_capacity - 1)] = m_next;
+          bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(&v20->m_data);
+          bdMemory::deallocate(v20);
+          --this->m_probesProbing.m_size;
         }
-        while ( v60.m_list.m_size );
+LABEL_38:
+        bdHandleAssert(v11, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<unsigned int>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
+        v23 = v18->m_next;
+        v26.m_list.m_head = v23;
+        if ( v18 == v26.m_list.m_tail )
+          v26.m_list.m_tail = v18->m_prev;
+        else
+          v23->m_prev = v18->m_prev;
+        bdMemory::deallocate(v18);
+        --v26.m_list.m_size;
+        if ( v31.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v31.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        {
+          if ( v31.m_addr.m_ptr )
+            ((void (__fastcall *)(bdCommonAddr *, __int64))v31.m_addr.m_ptr->~bdReferencable)(v31.m_addr.m_ptr, 1i64);
+          v31.m_addr.m_ptr = NULL;
+        }
+        if ( v30.m_telemetry.m_probeInfo.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v30.m_telemetry.m_probeInfo.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        {
+          if ( v30.m_telemetry.m_probeInfo.m_addr.m_ptr )
+            ((void (__fastcall *)(bdCommonAddr *, __int64))v30.m_telemetry.m_probeInfo.m_addr.m_ptr->~bdReferencable)(v30.m_telemetry.m_probeInfo.m_addr.m_ptr, 1i64);
+          v30.m_telemetry.m_probeInfo.m_addr.m_ptr = NULL;
+        }
+        bdSecurityKey::~bdSecurityKey(&v30.m_key);
+        bdSecurityID::~bdSecurityID(&v30.m_id);
+        if ( v30.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v30.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v30.m_addr.m_ptr )
+          ((void (__fastcall *)(bdCommonAddr *, __int64))v30.m_addr.m_ptr->~bdReferencable)(v30.m_addr.m_ptr, 1i64);
       }
-      if ( v60.m_list.m_head )
+      if ( v26.m_list.m_head )
       {
         do
         {
-          v55 = v60.m_list.m_head->m_next;
-          bdMemory::deallocate(v60.m_list.m_head);
-          v60.m_list.m_head = v55;
+          v24 = v26.m_list.m_head->m_next;
+          bdMemory::deallocate(v26.m_list.m_head);
+          v26.m_list.m_head = v24;
         }
-        while ( v55 );
+        while ( v24 );
       }
     }
-    bdQoSProbe::checkHostProbes(_RDI);
+    bdQoSProbe::checkHostProbes(this);
   }
   else
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::pump", 0x1D0u, "Cannot pump class before it has been initialized.");
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -2981,9 +2836,12 @@ void bdQoSProbe::registerSecId(bdQoSProbe *this, const bdSecurityID *secid)
   unsigned int v15; 
   __int64 v16; 
   __int64 v17; 
-  unsigned int v23; 
-  _BYTE v28[64]; 
-  __int64 v29; 
+  bdQoSHostStats *v18; 
+  char *v19; 
+  unsigned int v20; 
+  bdQoSHostStats *v21; 
+  _BYTE v22[64]; 
+  double v23; 
 
   bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::registerSecId", 0x2D8u, "Registering new security ID with listener.");
   v4 = NULL;
@@ -3014,8 +2872,8 @@ void bdQoSProbe::registerSecId(bdQoSProbe *this, const bdSecurityID *secid)
     m_data = this->m_secids.m_data;
   }
   m_data[this->m_secids.m_size++] = v5;
-  memset(v28, 0, sizeof(v28));
-  LODWORD(v29) = v5;
+  memset(v22, 0, sizeof(v22));
+  LODWORD(v23) = v5;
   v11 = 0;
   if ( this->m_statsPerSession.m_size )
   {
@@ -3047,23 +2905,17 @@ LABEL_15:
         v17 = this->m_statsPerSession.m_size;
         if ( (_DWORD)v17 )
         {
-          _RCX = v4;
-          _RDX = (char *)((char *)this->m_statsPerSession.m_data - (char *)v4);
+          v18 = v4;
+          v19 = (char *)((char *)this->m_statsPerSession.m_data - (char *)v4);
           do
           {
-            if ( _RCX )
+            if ( v18 )
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rdx+rcx]
-                vmovups ymmword ptr [rcx], ymm0
-                vmovups ymm1, ymmword ptr [rdx+rcx+20h]
-                vmovups ymmword ptr [rcx+20h], ymm1
-                vmovsd  xmm0, qword ptr [rdx+rcx+40h]
-                vmovsd  qword ptr [rcx+40h], xmm0
-              }
+              *(__m256i *)&v18->m_numDataRequestsReceived = *(__m256i *)((char *)&v18->m_numDataRequestsReceived + (_QWORD)v19);
+              *(__m256i *)&v18->m_numDataReplyBytesSent = *(__m256i *)((char *)&v18->m_numDataReplyBytesSent + (_QWORD)v19);
+              *(double *)&v18->m_secID = *(double *)((char *)&v18->m_secID + (_QWORD)v19);
             }
-            ++_RCX;
+            ++v18;
             --v17;
           }
           while ( v17 );
@@ -3078,21 +2930,16 @@ LABEL_15:
     {
       v4 = this->m_statsPerSession.m_data;
     }
-    v23 = v13;
-    if ( &v4[v13] )
+    v20 = v13;
+    v21 = &v4[v13];
+    if ( v21 )
     {
-      __asm
-      {
-        vmovups ymm0, [rsp+0B8h+var_68]
-        vmovups ymmword ptr [rdx], ymm0
-        vmovups ymm1, [rsp+0B8h+var_48]
-        vmovups ymmword ptr [rdx+20h], ymm1
-        vmovsd  xmm0, [rsp+0B8h+var_28]
-        vmovsd  qword ptr [rdx+40h], xmm0
-      }
-      v23 = this->m_statsPerSession.m_size;
+      *(__m256i *)&v21->m_numDataRequestsReceived = *(__m256i *)v22;
+      *(__m256i *)&v21->m_numDataReplyBytesSent = *(__m256i *)&v22[32];
+      *(double *)&v21->m_secID = v23;
+      v20 = this->m_statsPerSession.m_size;
     }
-    this->m_statsPerSession.m_size = v23 + 1;
+    this->m_statsPerSession.m_size = v20 + 1;
   }
 }
 
@@ -3103,70 +2950,70 @@ bdQoSProbe::sendReply
 */
 char bdQoSProbe::sendReply(bdQoSProbe *this, const bdAddr *addr, const bdQoSProbe::bdQosProbeHost *probe)
 {
-  bool v8; 
-  unsigned int v9; 
-  bool v11; 
+  double ElapsedTimeInSeconds; 
+  bool v7; 
+  unsigned int v8; 
+  double v9; 
+  bool v10; 
   bool m_needToSendData; 
   unsigned int m_secid; 
-  int v14; 
+  int v13; 
+  unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
   unsigned int __formal; 
   unsigned int length[3]; 
   char data[1296]; 
-  char v21[1296]; 
+  char v20[1296]; 
 
   bdQoSReplyPacket::setId(&this->m_replyData, probe->m_id);
   bdQoSReplyPacket::setTimestamp(&this->m_replyData, probe->m_probeTimestamp);
   bdQoSReplyPacket::setBandwidth(&this->m_replyData, probe->m_bandwidth);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&probe->m_holdTimePacket1);
-  __asm { vmovaps xmm1, xmm0; hostProcessingTime }
-  bdQoSReplyPacket::setHostProcessingTime(&this->m_replyData, *(float *)&_XMM1);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&probe->m_holdTimePacket1);
+  bdQoSReplyPacket::setHostProcessingTime(&this->m_replyData, *(float *)&ElapsedTimeInSeconds);
   bdQoSReplyPacket::setHasData(&this->m_replyData, probe->m_needToSendData);
   __formal = 0;
   length[0] = 0;
-  v8 = bdQoSReplyPacket::serialize(&this->m_replyData, data, 0x508u, 0, &__formal);
-  v9 = __formal;
+  v7 = bdQoSReplyPacket::serialize(&this->m_replyData, data, 0x508u, 0, &__formal);
+  v8 = __formal;
   if ( this->m_useMultiplePacketsPerProbe )
   {
-    if ( !v8 )
+    if ( !v7 )
     {
 LABEL_5:
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::sendReply", 0x1F0u, "Failed to put the reply packet into a buffer.");
       return 0;
     }
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&probe->m_holdTimePacket2);
-    __asm { vmovaps xmm1, xmm0; hostProcessingTime }
-    bdQoSReplyPacket::setHostProcessingTime(&this->m_replyData, *(float *)&_XMM1);
-    v8 = bdQoSReplyPacket::serialize(&this->m_replyData, v21, 0x508u, 0, length);
-    v9 += length[0];
+    v9 = bdStopwatch::getElapsedTimeInSeconds(&probe->m_holdTimePacket2);
+    bdQoSReplyPacket::setHostProcessingTime(&this->m_replyData, *(float *)&v9);
+    v7 = bdQoSReplyPacket::serialize(&this->m_replyData, v20, 0x508u, 0, length);
+    v8 += length[0];
   }
-  if ( !v8 )
+  if ( !v7 )
     goto LABEL_5;
-  v11 = bdServiceBandwidthArbitrator::allowedSend(this->m_bandArb, v9);
+  v10 = bdServiceBandwidthArbitrator::allowedSend(this->m_bandArb, v8);
   m_needToSendData = probe->m_needToSendData;
   m_secid = probe->m_secid;
-  if ( !v11 )
+  if ( !v10 )
   {
     bdQoSProbe::logProbeReplyFailures(this, m_secid, m_needToSendData);
-    v17 = v9;
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::sendReply", 0x20Cu, "[QOS] Fail. Unable to send QoS reply with %d bytes of data\n", v17);
+    v16 = v8;
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::sendReply", 0x20Cu, "[QOS] Fail. Unable to send QoS reply with %d bytes of data\n", v16);
     return 0;
   }
   bdQoSProbe::logProbeReplys(this, m_secid, m_needToSendData);
-  v14 = bdRoutingLayer::sendTo(this->m_routingLayer, addr, data, __formal);
+  v13 = bdRoutingLayer::sendTo(this->m_routingLayer, addr, data, __formal);
   if ( !this->m_useMultiplePacketsPerProbe )
     goto LABEL_11;
-  if ( v14 > 0 )
+  if ( v13 > 0 )
   {
     bdQoSProbe::logProbeReplys(this, probe->m_secid, probe->m_needToSendData);
-    v14 = bdRoutingLayer::sendTo(this->m_routingLayer, addr, v21, length[0]);
+    v13 = bdRoutingLayer::sendTo(this->m_routingLayer, addr, v20, length[0]);
 LABEL_11:
-    if ( v14 > 0 )
+    if ( v13 > 0 )
     {
-      v16 = v9;
-      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::sendReply", 0x1FFu, "[QOS] Success. Sent QoS reply with %d bytes of data\n", v16);
-      bdServiceBandwidthArbitrator::send(this->m_bandArb, v9);
+      v15 = v8;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/qos", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdqos\\bdqosprobe.cpp", "bdQoSProbe::sendReply", 0x1FFu, "[QOS] Success. Sent QoS reply with %d bytes of data\n", v15);
+      bdServiceBandwidthArbitrator::send(this->m_bandArb, v8);
       return 1;
     }
   }
@@ -3303,27 +3150,27 @@ _BOOL8 bdQoSProbe::setProbeAsFailed(bdQoSProbe *this, bdReference<bdCommonAddr> 
   bool v10; 
   bdQoSTelemetry::bdQoSTelemetryResultType v11; 
   bdCommonAddr *v12; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v20; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v21; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v13; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v14; 
   __int64 m_size; 
-  bool v24; 
+  bool v17; 
   bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> value; 
   bdReference<bdCommonAddr> addr; 
-  bdCommonAddr *v27; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *v28; 
-  __int64 v29; 
-  bdCommonAddr *v30; 
-  bdQoSProbeInfo v31; 
+  bdCommonAddr *v20; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *v21; 
+  __int64 v22; 
+  bdCommonAddr *v23; 
+  bdQoSProbeInfo v24; 
   char buf[1024]; 
 
-  v29 = -2i64;
+  v22 = -2i64;
   m_ptr = (const bdReference<bdCommonAddr> *)remote.m_ptr;
-  v27 = remote.m_ptr;
-  v30 = remote.m_ptr;
+  v20 = remote.m_ptr;
+  v23 = remote.m_ptr;
   p_m_probesResolving = &this->m_probesResolving;
-  v28 = &this->m_probesResolving;
+  v21 = &this->m_probesResolving;
   v6 = bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::containsKey(&this->m_probesResolving, (const bdReference<bdCommonAddr> *)remote.m_ptr);
-  v24 = v6;
+  v17 = v6;
   if ( v6 )
   {
     v7 = m_ptr->m_ptr;
@@ -3344,76 +3191,61 @@ _BOOL8 bdQoSProbe::setProbeAsFailed(bdQoSProbe *this, bdReference<bdCommonAddr> 
       m_data = value.m_data;
       do
       {
-        bdQoSProbeInfo::bdQoSProbeInfo(&v31);
+        bdQoSProbeInfo::bdQoSProbeInfo(&v24);
         if ( didUseRelay )
         {
-          v31.m_failureReason = BD_QOS_PROBE_FAILURE_RELAY;
+          v24.m_failureReason = BD_QOS_PROBE_FAILURE_RELAY;
           v10 = v8 < value.m_size;
           bdHandleAssert(v8 < value.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
           v11 = 4;
         }
         else
         {
-          v31.m_failureReason = BD_QOS_PROBE_FAILURE_NAT_TRAVERSAL;
+          v24.m_failureReason = BD_QOS_PROBE_FAILURE_NAT_TRAVERSAL;
           v10 = v8 < value.m_size;
           bdHandleAssert(v8 < value.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
           v11 = BD_FAILURE|BD_SUCCESS;
         }
         bdQoSTelemetry::setResult(&m_data->m_telemetry, v11);
         bdHandleAssert(v10, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-        if ( m_data != (bdQoSProbe::bdQoSProbeEntryWrapper *)&v31 )
+        if ( m_data != (bdQoSProbe::bdQoSProbeEntryWrapper *)&v24 )
         {
-          if ( v31.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v31.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v31.m_addr.m_ptr )
-            ((void (__fastcall *)(bdCommonAddr *, __int64))v31.m_addr.m_ptr->~bdReferencable)(v31.m_addr.m_ptr, 1i64);
+          if ( v24.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v24.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v24.m_addr.m_ptr )
+            ((void (__fastcall *)(bdCommonAddr *, __int64))v24.m_addr.m_ptr->~bdReferencable)(v24.m_addr.m_ptr, 1i64);
           v12 = m_data->m_addr.m_ptr;
-          v31.m_addr.m_ptr = v12;
+          v24.m_addr.m_ptr = v12;
           if ( v12 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
         }
         bdHandleAssert(v10, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-        _RAX = bdCommonAddr::getPublicAddr(m_data->m_addr.m_ptr);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+4F0h+var_560.m_realAddr.m_address.inUn], ymm0
-          vmovups ymm1, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rbp+4F0h+var_560.m_realAddr.m_address.inUn+20h], ymm1
-          vmovups ymm0, ymmword ptr [rax+40h]
-          vmovups ymmword ptr [rbp+4F0h+var_560.m_realAddr.m_address.inUn+40h], ymm0
-          vmovups ymm1, ymmword ptr [rax+60h]
-          vmovups ymmword ptr [rbp+4F0h+var_560.m_realAddr.m_address.inUn+60h], ymm1
-          vmovups xmm0, xmmword ptr [rax+80h]
-          vmovups xmmword ptr [rbp+4F0h+var_560.m_realAddr.m_relayRoute.m_relayID], xmm0
-          vmovsd  xmm1, qword ptr [rax+90h]
-          vmovsd  qword ptr [rbp+4F0h+var_560.m_realAddr.m_type], xmm1
-        }
+        v24.m_realAddr = *bdCommonAddr::getPublicAddr(m_data->m_addr.m_ptr);
         bdHandleAssert(v10, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-        m_data->m_listener->onQoSProbeFail(m_data->m_listener, &v31);
+        m_data->m_listener->onQoSProbeFail(m_data->m_listener, &v24);
         bdHandleAssert(v10, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
         bdTelemetry::addQoS(&m_data->m_telemetry);
-        if ( v31.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v31.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v31.m_addr.m_ptr )
-          ((void (__fastcall *)(bdCommonAddr *, __int64))v31.m_addr.m_ptr->~bdReferencable)(v31.m_addr.m_ptr, 1i64);
+        if ( v24.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v24.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v24.m_addr.m_ptr )
+          ((void (__fastcall *)(bdCommonAddr *, __int64))v24.m_addr.m_ptr->~bdReferencable)(v24.m_addr.m_ptr, 1i64);
         ++v8;
         ++m_data;
       }
       while ( v8 < value.m_size );
-      m_ptr = (const bdReference<bdCommonAddr> *)v27;
+      m_ptr = (const bdReference<bdCommonAddr> *)v20;
     }
-    bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::remove(v28, m_ptr);
-    v20 = value.m_data;
+    bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::remove(v21, m_ptr);
+    v13 = value.m_data;
     if ( value.m_size )
     {
-      v21 = value.m_data;
+      v14 = value.m_data;
       m_size = value.m_size;
       do
       {
-        bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v21++);
+        bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v14++);
         --m_size;
       }
       while ( m_size );
     }
-    bdMemory::deallocate(v20);
-    v6 = v24;
+    bdMemory::deallocate(v13);
+    v6 = v17;
   }
   if ( m_ptr->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
   {
@@ -3436,146 +3268,113 @@ _BOOL8 bdQoSProbe::setProbeAsProbing(bdQoSProbe *this, bdReference<bdCommonAddr>
   unsigned int v10; 
   bdQoSProbe::bdQoSProbeEntryWrapper *m_data; 
   __int64 m_size; 
-  bool v20; 
-  unsigned int v28; 
-  bool v35; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v43; 
-  unsigned int v45; 
-  unsigned int v46; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v13; 
+  bool v14; 
+  unsigned int v15; 
+  bool v16; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v17; 
+  unsigned int v19; 
+  unsigned int v20; 
   unsigned int key[2]; 
   bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> value; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *v49; 
-  __int64 v51; 
-  bool v56; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *v23; 
+  bdRelayRoute m_relayRoute; 
+  __int64 v25; 
+  __m256i v26; 
+  __m256i v27; 
+  __m256i v28; 
+  __m256i v29; 
+  bool v30; 
 
-  v51 = -2i64;
-  _R14 = realAddr;
+  v25 = -2i64;
   p_m_probesResolving = &this->m_probesResolving;
-  v49 = &this->m_probesResolving;
+  v23 = &this->m_probesResolving;
   v9 = bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::containsKey(&this->m_probesResolving, (const bdReference<bdCommonAddr> *)remote.m_ptr);
-  v56 = v9;
+  v30 = v9;
   if ( v9 )
   {
     value.m_data = NULL;
     *(_QWORD *)&value.m_capacity = 0i64;
     bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::get(p_m_probesResolving, (const bdReference<bdCommonAddr> *)remote.m_ptr, &value);
     v10 = 0;
-    v45 = 0;
+    v19 = 0;
     m_data = value.m_data;
     m_size = value.m_size;
     if ( value.m_size )
     {
-      _R13 = value.m_data;
+      v13 = value.m_data;
       if ( didUseRelay )
       {
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r14]
-            vmovups [rsp+128h+var_B8], ymm0
-            vmovups ymm0, ymmword ptr [r14+20h]
-            vmovups [rsp+128h+var_98], ymm0
-            vmovups ymm0, ymmword ptr [r14+40h]
-            vmovups [rsp+128h+var_78], ymm0
-            vmovups ymm0, ymmword ptr [r14+60h]
-            vmovups [rsp+128h+var_58], ymm0
-            vmovups xmm0, xmmword ptr [r14+80h]
-            vmovups [rsp+128h+var_D0], xmm0
-            vmovsd  xmm0, qword ptr [r14+90h]
-            vmovsd  qword ptr [rsp+128h+key], xmm0
-          }
-          v20 = v10 < (unsigned int)m_size;
+          v26 = *(__m256i *)&realAddr->m_address.inUn.m_sockaddrStorage.ss_family;
+          v27 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 1);
+          v28 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 2);
+          v29 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 3);
+          m_relayRoute = realAddr->m_relayRoute;
+          *(double *)key = *(double *)&realAddr->m_type;
+          v14 = v10 < (unsigned int)m_size;
           bdHandleAssert(v10 < (unsigned int)m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-          __asm { vmovups ymm0, [rsp+128h+var_B8] }
-          _RAX = 40i64;
-          __asm
-          {
-            vmovups ymmword ptr [rax+r13], ymm0
-            vmovups ymm1, [rsp+128h+var_98]
-            vmovups ymmword ptr [rax+r13+20h], ymm1
-            vmovups ymm0, [rsp+128h+var_78]
-            vmovups ymmword ptr [rax+r13+40h], ymm0
-            vmovups ymm1, [rsp+128h+var_58]
-            vmovups ymmword ptr [rax+r13+60h], ymm1
-            vmovups xmm0, [rsp+128h+var_D0]
-            vmovups xmmword ptr [rax+r13+80h], xmm0
-            vmovsd  xmm0, qword ptr [rsp+128h+key]
-            vmovsd  qword ptr [rax+r13+90h], xmm0
-          }
-          bdHandleAssert(v20, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+          *(__m256i *)&v13->m_realAddr.m_address.inUn.m_sockaddrStorage.ss_family = v26;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 1) = v27;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v28;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 3) = v29;
+          v13->m_realAddr.m_relayRoute = m_relayRoute;
+          *(double *)&v13->m_realAddr.m_type = *(double *)key;
+          bdHandleAssert(v14, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
           key[0] = this->m_nextProbeId;
           this->m_nextProbeId = key[0] + 1;
-          bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, key, _R13);
-          bdHandleAssert(v20, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-          bdQoSTelemetry::setRelayEstablished(&_R13->m_telemetry, (const bdReference<bdCommonAddr> *)remote.m_ptr, _R14);
-          v10 = v45 + 1;
-          v45 = v10;
-          ++_R13;
+          bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, key, v13);
+          bdHandleAssert(v14, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+          bdQoSTelemetry::setRelayEstablished(&v13->m_telemetry, (const bdReference<bdCommonAddr> *)remote.m_ptr, realAddr);
+          v10 = v19 + 1;
+          v19 = v10;
+          ++v13;
         }
         while ( v10 < (unsigned int)m_size );
       }
       else
       {
-        v28 = 0;
-        v46 = 0;
+        v15 = 0;
+        v20 = 0;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r14]
-            vmovups [rsp+128h+var_58], ymm0
-            vmovups ymm0, ymmword ptr [r14+20h]
-            vmovups [rsp+128h+var_78], ymm0
-            vmovups ymm0, ymmword ptr [r14+40h]
-            vmovups [rsp+128h+var_98], ymm0
-            vmovups ymm0, ymmword ptr [r14+60h]
-            vmovups [rsp+128h+var_B8], ymm0
-            vmovups xmm0, xmmword ptr [r14+80h]
-            vmovups [rsp+128h+var_D0], xmm0
-            vmovsd  xmm0, qword ptr [r14+90h]
-            vmovsd  qword ptr [rsp+128h+key], xmm0
-          }
-          v35 = v28 < (unsigned int)m_size;
-          bdHandleAssert(v28 < (unsigned int)m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-          __asm { vmovups ymm0, [rsp+128h+var_58] }
-          _RAX = 40i64;
-          __asm
-          {
-            vmovups ymmword ptr [rax+r13], ymm0
-            vmovups ymm1, [rsp+128h+var_78]
-            vmovups ymmword ptr [rax+r13+20h], ymm1
-            vmovups ymm0, [rsp+128h+var_98]
-            vmovups ymmword ptr [rax+r13+40h], ymm0
-            vmovups ymm1, [rsp+128h+var_B8]
-            vmovups ymmword ptr [rax+r13+60h], ymm1
-            vmovups xmm0, [rsp+128h+var_D0]
-            vmovups xmmword ptr [rax+r13+80h], xmm0
-            vmovsd  xmm0, qword ptr [rsp+128h+key]
-            vmovsd  qword ptr [rax+r13+90h], xmm0
-          }
-          bdHandleAssert(v35, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+          v29 = *(__m256i *)&realAddr->m_address.inUn.m_sockaddrStorage.ss_family;
+          v28 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 1);
+          v27 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 2);
+          v26 = *((__m256i *)&realAddr->m_address.inUn.m_ipv6Sockaddr + 3);
+          m_relayRoute = realAddr->m_relayRoute;
+          *(double *)key = *(double *)&realAddr->m_type;
+          v16 = v15 < (unsigned int)m_size;
+          bdHandleAssert(v15 < (unsigned int)m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+          *(__m256i *)&v13->m_realAddr.m_address.inUn.m_sockaddrStorage.ss_family = v29;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 1) = v28;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v27;
+          *((__m256i *)&v13->m_realAddr.m_address.inUn.m_ipv6Sockaddr + 3) = v26;
+          v13->m_realAddr.m_relayRoute = m_relayRoute;
+          *(double *)&v13->m_realAddr.m_type = *(double *)key;
+          bdHandleAssert(v16, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
           key[0] = this->m_nextProbeId;
           this->m_nextProbeId = key[0] + 1;
-          bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, key, _R13);
-          bdHandleAssert(v35, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
-          bdQoSTelemetry::setResolved(&_R13->m_telemetry, (const bdReference<bdCommonAddr> *)remote.m_ptr, _R14);
-          v28 = v46 + 1;
-          v46 = v28;
-          ++_R13;
+          bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, key, v13);
+          bdHandleAssert(v16, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>::operator []", 0x68u, "bdArray<T>::operator[], rangecheck failed");
+          bdQoSTelemetry::setResolved(&v13->m_telemetry, (const bdReference<bdCommonAddr> *)remote.m_ptr, realAddr);
+          v15 = v20 + 1;
+          v20 = v15;
+          ++v13;
         }
-        while ( v28 < (unsigned int)m_size );
+        while ( v15 < (unsigned int)m_size );
       }
-      v9 = v56;
+      v9 = v30;
       m_data = value.m_data;
     }
-    bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::remove(v49, (const bdReference<bdCommonAddr> *)remote.m_ptr);
+    bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::remove(v23, (const bdReference<bdCommonAddr> *)remote.m_ptr);
     if ( (_DWORD)m_size )
     {
-      v43 = m_data;
+      v17 = m_data;
       do
       {
-        bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v43++);
+        bdQoSProbe::bdQoSProbeEntryWrapper::~bdQoSProbeEntryWrapper(v17++);
         --m_size;
       }
       while ( m_size );
@@ -3596,10 +3395,9 @@ _BOOL8 bdQoSProbe::setProbeAsProbing(bdQoSProbe *this, bdReference<bdCommonAddr>
 bdQoSProbe::setProbeTimeout
 ==============
 */
-
-void __fastcall bdQoSProbe::setProbeTimeout(bdQoSProbe *this, double probeTimeout)
+void bdQoSProbe::setProbeTimeout(bdQoSProbe *this, float probeTimeout)
 {
-  __asm { vmovss  dword ptr [rcx+9Ch], xmm1 }
+  this->m_probeTimeout = probeTimeout;
 }
 
 /*
@@ -3632,80 +3430,58 @@ bdQoSProbe::singleProbeComplete
 */
 void bdQoSProbe::singleProbeComplete(bdQoSProbe *this, bdQoSReplyPacket *packet, bdQoSProbe::bdQoSProbeEntryWrapper *entry, unsigned int packetSize)
 {
-  char v10; 
-  unsigned int v15; 
+  double ElapsedTimeInSeconds; 
+  float v9; 
+  int v10; 
+  unsigned int v11; 
   unsigned int m_numRepliesReceived; 
-  unsigned int v17; 
+  unsigned int v13; 
   bdCommonAddr *m_ptr; 
-  unsigned int v26; 
+  __int64 v15; 
+  float v16; 
   unsigned int key; 
-  __int64 v34; 
+  __int64 v18; 
   bdQoSProbeInfo __that; 
 
-  v34 = -2i64;
-  _RBX = entry;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&entry->m_currentProbe.m_timer);
-  __asm
+  v18 = -2i64;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&entry->m_currentProbe.m_timer);
+  if ( *(float *)&ElapsedTimeInSeconds == 0.0 || !this->m_useMultiplePacketsPerProbe )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v10 || !this->m_useMultiplePacketsPerProbe )
-  {
-    LODWORD(_RCX) = -1;
+    v10 = -1;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rcx
-      vdivss  xmm0, xmm1, xmm0
-      vcvttss2si rcx, xmm0
-    }
+    v9 = (float)(8 * packetSize + 224);
+    v10 = (int)(float)(v9 / *(float *)&ElapsedTimeInSeconds);
   }
-  _RBX->m_bandwidthDown += _RCX;
-  _RBX->m_bandwidthUp += bdQoSReplyPacket::getBandwidth(packet);
-  v15 = this->m_useMultiplePacketsPerProbe + 1;
-  m_numRepliesReceived = _RBX->m_numRepliesReceived;
-  if ( m_numRepliesReceived < _RBX->m_numRepliesExpected )
+  entry->m_bandwidthDown += v10;
+  entry->m_bandwidthUp += bdQoSReplyPacket::getBandwidth(packet);
+  v11 = this->m_useMultiplePacketsPerProbe + 1;
+  m_numRepliesReceived = entry->m_numRepliesReceived;
+  if ( m_numRepliesReceived < entry->m_numRepliesExpected )
   {
-    _RBX->m_retries = 0;
-    *(_QWORD *)&_RBX->m_currentProbe.m_numPacketsReceived = 0i64;
-    *(_QWORD *)&_RBX->m_currentProbe.m_bandwidthDown = 0i64;
-    _RBX->m_currentProbe.m_minLatency = 2147483600.0;
-    _RBX->m_currentProbe.m_latency = 2147483600.0;
-    bdStopwatch::reset(&_RBX->m_currentProbe.m_timer);
-    bdStopwatch::reset(&_RBX->m_lastTry);
+    entry->m_retries = 0;
+    *(_QWORD *)&entry->m_currentProbe.m_numPacketsReceived = 0i64;
+    *(_QWORD *)&entry->m_currentProbe.m_bandwidthDown = 0i64;
+    entry->m_currentProbe.m_minLatency = 2147483600.0;
+    entry->m_currentProbe.m_latency = 2147483600.0;
+    bdStopwatch::reset(&entry->m_currentProbe.m_timer);
+    bdStopwatch::reset(&entry->m_lastTry);
     key = this->m_nextProbeId;
     this->m_nextProbeId = key + 1;
-    bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, &key, _RBX);
+    bdHashMap<unsigned int,bdQoSProbe::bdQoSProbeEntryWrapper,bdHashingClass>::put(&this->m_probesProbing, &key, entry);
   }
   else
   {
-    v17 = m_numRepliesReceived / v15;
+    v13 = m_numRepliesReceived / v11;
     bdQoSProbeInfo::bdQoSProbeInfo(&__that);
     __that.m_failureReason = BD_QOS_PROBE_SUCCESS;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+28h]
-      vmovups ymmword ptr [rsp+190h+__that.m_realAddr.m_address.inUn], ymm0
-      vmovups ymm1, ymmword ptr [rbx+48h]
-      vmovups ymmword ptr [rsp+190h+__that.m_realAddr.m_address.inUn+20h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+68h]
-      vmovups ymmword ptr [rsp+190h+__that.m_realAddr.m_address.inUn+40h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+88h]
-      vmovups ymmword ptr [rbp+90h+__that.m_realAddr.m_address.inUn+60h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+0A8h]
-      vmovups xmmword ptr [rbp+90h+__that.m_realAddr.m_relayRoute.m_relayID], xmm0
-      vmovsd  xmm1, qword ptr [rbx+0B8h]
-      vmovsd  qword ptr [rbp+90h+__that.m_realAddr.m_type], xmm1
-    }
-    if ( _RBX != (bdQoSProbe::bdQoSProbeEntryWrapper *)&__that )
+    __that.m_realAddr = entry->m_realAddr;
+    if ( entry != (bdQoSProbe::bdQoSProbeEntryWrapper *)&__that )
     {
       if ( __that.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&__that.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && __that.m_addr.m_ptr )
         ((void (__fastcall *)(bdCommonAddr *, __int64))__that.m_addr.m_ptr->~bdReferencable)(__that.m_addr.m_ptr, 1i64);
-      m_ptr = _RBX->m_addr.m_ptr;
+      m_ptr = entry->m_addr.m_ptr;
       __that.m_addr.m_ptr = m_ptr;
       if ( m_ptr )
         _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
@@ -3713,39 +3489,27 @@ void bdQoSProbe::singleProbeComplete(bdQoSProbe *this, bdQoSReplyPacket *packet,
     __that.m_data = bdQoSReplyPacket::getData(packet);
     __that.m_dataSize = bdQoSReplyPacket::getDataSize(packet);
     __that.m_disabled = !bdQoSReplyPacket::getEnabled(packet);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0DCh]
-      vmovss  [rbp+90h+__that.m_minLatency], xmm0
-    }
-    v26 = _RBX->m_numRepliesReceived;
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovss  xmm0, dword ptr [rbx+0D8h]
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  [rbp+90h+__that.m_latency], xmm1
-      vmovups ymm0, ymmword ptr [rbx+0E0h]
-      vmovups ymmword ptr [rbp+90h+__that.m_replies], ymm0
-      vmovups ymm1, ymmword ptr [rbx+100h]
-      vmovups ymmword ptr [rbp+90h+__that.m_replies+20h], ymm1
-    }
-    __that.m_numReplies = v26;
-    __that.m_numProbesReceived = v17;
-    __that.m_numProbesExpected = _RBX->m_numRepliesExpected / v15;
-    __that.m_numRetries = _RBX->m_retries;
+    __that.m_minLatency = entry->m_minLatency;
+    v15 = entry->m_numRepliesReceived;
+    v16 = (float)v15;
+    __that.m_latency = entry->m_latency / v16;
+    *(__m256i *)__that.m_replies = *(__m256i *)entry->m_replies;
+    *(__m256i *)&__that.m_replies[8] = *(__m256i *)&entry->m_replies[8];
+    __that.m_numReplies = v15;
+    __that.m_numProbesReceived = v13;
+    __that.m_numProbesExpected = entry->m_numRepliesExpected / v11;
+    __that.m_numRetries = entry->m_retries;
     if ( this->m_useMultiplePacketsPerProbe )
     {
-      __that.m_bandwidthUp = _RBX->m_bandwidthUp / v17;
-      __that.m_bandwidthDown = _RBX->m_bandwidthDown / v17;
+      __that.m_bandwidthUp = entry->m_bandwidthUp / v13;
+      __that.m_bandwidthDown = entry->m_bandwidthDown / v13;
     }
     else
     {
       *(_QWORD *)&__that.m_bandwidthDown = -1i64;
     }
-    bdQoSProbeInfo::operator=(&_RBX->m_telemetry.m_probeInfo, &__that);
-    _RBX->m_listener->onQoSProbeSuccess(_RBX->m_listener, &__that);
+    bdQoSProbeInfo::operator=(&entry->m_telemetry.m_probeInfo, &__that);
+    entry->m_listener->onQoSProbeSuccess(entry->m_listener, &__that);
     if ( __that.m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&__that.m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
       if ( __that.m_addr.m_ptr )

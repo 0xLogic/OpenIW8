@@ -148,21 +148,9 @@ bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID
 */
 void bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID(bdObjectStoreCacheAwareObjectID *this, const bdObjectStoreObjectID *objectID, const char *const cachedObjectVersion, const char *const cachedChecksum)
 {
-  _RBX = objectID;
-  _RBP = this;
   bdObjectStoreObjectID::bdObjectStoreObjectID(&this->m_objectID);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rbp+60h], xmm1
-  }
-  bdObjectStoreCacheAwareObjectID::initialize(_RBP, cachedObjectVersion, cachedChecksum);
+  this->m_objectID = *objectID;
+  bdObjectStoreCacheAwareObjectID::initialize(this, cachedObjectVersion, cachedChecksum);
 }
 
 /*
@@ -172,23 +160,16 @@ bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID
 */
 void bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID(bdObjectStoreCacheAwareObjectID *this, const bdUserAccountID *owner, const char *const objectName, const char *const cachedObjectVersion, const char *const cachedChecksum)
 {
-  bdObjectStoreObjectID v14; 
+  __int64 v9; 
+  bdObjectStoreObjectID v10; 
 
-  _RBP = this;
   bdObjectStoreObjectID::bdObjectStoreObjectID(&this->m_objectID);
-  bdObjectStoreObjectID::bdObjectStoreObjectID(&v14, owner, objectName, USER_OWNER_TYPE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups xmm1, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbp+60h], xmm1
-  }
-  bdObjectStoreCacheAwareObjectID::initialize(_RBP, cachedObjectVersion, cachedChecksum);
+  bdObjectStoreObjectID::bdObjectStoreObjectID(&v10, owner, objectName, USER_OWNER_TYPE);
+  *(__m256i *)&this->m_objectID.m_ownerType = *(__m256i *)v9;
+  *(__m256i *)&this->m_objectID.m_owner[28] = *(__m256i *)(v9 + 32);
+  *(__m256i *)&this->m_objectID.m_objectName[30] = *(__m256i *)(v9 + 64);
+  *(_OWORD *)&this->m_objectID.m_objectName[62] = *(_OWORD *)(v9 + 96);
+  bdObjectStoreCacheAwareObjectID::initialize(this, cachedObjectVersion, cachedChecksum);
 }
 
 /*
@@ -198,23 +179,16 @@ bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID
 */
 void bdObjectStoreCacheAwareObjectID::bdObjectStoreCacheAwareObjectID(bdObjectStoreCacheAwareObjectID *this, const char *const owner, const char *const objectName, const char *const cachedObjectVersion, const char *const cachedChecksum)
 {
-  bdObjectStoreObjectID v14; 
+  __int64 v9; 
+  bdObjectStoreObjectID v10; 
 
-  _RBP = this;
   bdObjectStoreObjectID::bdObjectStoreObjectID(&this->m_objectID);
-  bdObjectStoreObjectID::bdObjectStoreObjectID(&v14, owner, objectName, USER_OWNER_TYPE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+20h], ymm1
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+40h], ymm0
-    vmovups xmm1, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbp+60h], xmm1
-  }
-  bdObjectStoreCacheAwareObjectID::initialize(_RBP, cachedObjectVersion, cachedChecksum);
+  bdObjectStoreObjectID::bdObjectStoreObjectID(&v10, owner, objectName, USER_OWNER_TYPE);
+  *(__m256i *)&this->m_objectID.m_ownerType = *(__m256i *)v9;
+  *(__m256i *)&this->m_objectID.m_owner[28] = *(__m256i *)(v9 + 32);
+  *(__m256i *)&this->m_objectID.m_objectName[30] = *(__m256i *)(v9 + 64);
+  *(_OWORD *)&this->m_objectID.m_objectName[62] = *(_OWORD *)(v9 + 96);
+  bdObjectStoreCacheAwareObjectID::initialize(this, cachedObjectVersion, cachedChecksum);
 }
 
 /*

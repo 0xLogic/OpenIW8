@@ -30,84 +30,76 @@ DLog_AutoFill_TelemetryHeader
 void DLog_AutoFill_TelemetryHeader(DLogContext *context, const DLogEvent *event)
 {
   unsigned int BuildNumberAsInt; 
-  const char *v7; 
+  const char *v5; 
   DWServicesAccess *Instance; 
   unsigned int TitleID; 
-  unsigned __int8 v10; 
+  unsigned __int8 EventSampleType; 
   __int64 Env; 
-  int v12; 
-  __int64 v14; 
-  const char ***v15; 
+  int v10; 
+  float v11; 
+  __int64 v12; 
+  DLogChannelRef *v13; 
   DLogSample EventChannelSample; 
-  DLogSampleType EventSampleType; 
-  unsigned int v19; 
+  double EventSampleRate; 
+  unsigned int v16; 
   const char *name; 
-  int v21; 
+  int v18; 
   unsigned int UTC; 
-  const char *v25; 
+  const char *v20; 
   char dest[32]; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  _RDI = event;
   BuildNumberAsInt = j_getBuildNumberAsInt();
   Com_sprintf<32>((char (*)[32])dest, "%s.%i", "8.24", BuildNumberAsInt);
-  v7 = Online_Telemetry_Platform();
-  v25 = v7;
+  v5 = Online_Telemetry_Platform();
+  v20 = v5;
   Instance = DWServicesAccess::GetInstance();
   TitleID = DWServicesAccess::GetTitleID(Instance);
-  v10 = 0;
+  EventSampleType = 0;
   Env = DLog_GetEnv();
-  v12 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( _RDI->channelRefCount > 0 )
+  v10 = 0;
+  v11 = 0.0;
+  if ( event->channelRefCount > 0 )
   {
-    v14 = 0i64;
+    v12 = 0i64;
     while ( 1 )
     {
-      v15 = (const char ***)&_RDI->channelRefs[v14];
-      if ( !strncmp(**v15, "glutton", 7ui64) )
+      v13 = &event->channelRefs[v12];
+      if ( !strncmp(v13->channel->name, "glutton", 7ui64) )
         break;
+      ++v10;
       ++v12;
-      ++v14;
-      if ( v12 >= _RDI->channelRefCount )
+      if ( v10 >= event->channelRefCount )
         goto LABEL_10;
     }
-    EventChannelSample = DLog_GetEventChannelSample(_RDI->name, **v15, (DLogEnv)Env, *((DLogSample *)v15 + Env + 16));
+    EventChannelSample = DLog_GetEventChannelSample(event->name, v13->channel->name, (DLogEnv)Env, v13->sample[Env]);
     if ( EventChannelSample == DLOG_SAMPLE_GROUP )
     {
-      EventSampleType = DLog_GetEventSampleType(_RDI->name, _RDI->sampleGroup.type);
-      __asm { vmovss  xmm1, dword ptr [rdi+5Ch]; sampleRate }
-      v10 = EventSampleType;
-      *(double *)&_XMM0 = DLog_GetEventSampleRate(_RDI->name, *(float *)&_XMM1);
-      __asm { vmovaps xmm6, xmm0 }
+      EventSampleType = DLog_GetEventSampleType(event->name, event->sampleGroup.type);
+      EventSampleRate = DLog_GetEventSampleRate(event->name, event->sampleGroup.rate);
+      v11 = *(float *)&EventSampleRate;
 LABEL_10:
-      v7 = v25;
+      v5 = v20;
       goto LABEL_11;
     }
-    v7 = v25;
-    v10 = 0;
+    v5 = v20;
+    EventSampleType = 0;
     if ( EventChannelSample == DLOG_SAMPLE_ALL )
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
+      v11 = FLOAT_1_0;
   }
 LABEL_11:
-  v19 = j_getBuildNumberAsInt();
-  name = _RDI->name;
-  v21 = v19;
+  v16 = j_getBuildNumberAsInt();
+  name = event->name;
+  v18 = v16;
   UTC = DLog_GetUTC();
   if ( DLog_IsActive() )
   {
-    if ( DLog_BeginRow(context, "telemetry") && DLog_UInt32(context, "utc_timestamp_sent", UTC) && DLog_String(context, "action_type", name, 0) && DLog_String(context, "build_version", dest, 0) && DLog_Int32(context, "changelist_number", v21) && DLog_UInt32(context, "title_id", TitleID) && DLog_String(context, "platform", v7, 0) && DLog_UInt8(context, "glutton_sample_type", v10) )
-    {
-      __asm { vmovaps xmm2, xmm6; value }
-      if ( DLog_Float32(context, "glutton_sample_rate", *(float *)&_XMM2) )
-        DLog_EndRow(context);
-    }
+    if ( DLog_BeginRow(context, "telemetry") && DLog_UInt32(context, "utc_timestamp_sent", UTC) && DLog_String(context, "action_type", name, 0) && DLog_String(context, "build_version", dest, 0) && DLog_Int32(context, "changelist_number", v18) && DLog_UInt32(context, "title_id", TitleID) && DLog_String(context, "platform", v5, 0) && DLog_UInt8(context, "glutton_sample_type", EventSampleType) && DLog_Float32(context, "glutton_sample_rate", v11) )
+      DLog_EndRow(context);
   }
   else
   {
     context->error = DLOG_ERROR_NOT_ACTIVE;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*

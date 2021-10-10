@@ -636,85 +636,55 @@ LABEL_9:
 Dvar_RegisterFloat_f
 ==============
 */
-
-void __fastcall Dvar_RegisterFloat_f(double _XMM0_8)
+void Dvar_RegisterFloat_f()
 {
-  const char *v4; 
-  const char *v5; 
-  char v9; 
-  char v10; 
+  const char *v0; 
+  const char *v1; 
+  double v2; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
   const dvar_t *VarByName; 
   unsigned __int8 type; 
   const char *UnobfuscatedName; 
-  double flags; 
 
   if ( Cmd_Argc() != 5 )
   {
-    v4 = Cmd_Argv(0);
-    Com_Printf(0, "USAGE: %s <name> <default> <min> <max>\n", v4);
+    v0 = Cmd_Argv(0);
+    Com_Printf(0, "USAGE: %s <name> <default> <min> <max>\n", v0);
     return;
   }
-  __asm
+  v1 = Cmd_Argv(1);
+  v2 = Cmd_ArgFloat(2);
+  v3 = *(float *)&v2;
+  v4 = Cmd_ArgFloat(3);
+  v5 = *(float *)&v4;
+  v6 = Cmd_ArgFloat(4);
+  if ( v5 > *(float *)&v6 )
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
+    Com_Printf(0, "dvar %s: min %g should not be greater than max %g\n", v1, v5, *(float *)&v6);
+    return;
   }
-  v5 = Cmd_Argv(1);
-  _XMM0_8 = Cmd_ArgFloat(2);
-  __asm { vmovaps xmm8, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(3);
-  __asm { vmovaps xmm6, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(4);
-  __asm
+  VarByName = Dvar_FindVarByName(v1);
+  if ( !VarByName )
+    goto LABEL_8;
+  type = VarByName->type;
+  if ( type == 9 )
   {
-    vcomiss xmm6, xmm0
-    vmovaps xmm7, xmm0
-  }
-  if ( v9 | v10 )
-  {
-    VarByName = Dvar_FindVarByName(v5);
-    if ( VarByName )
+    if ( (VarByName->flags & 0x100) != 0 )
     {
-      type = VarByName->type;
-      if ( type == 9 )
-      {
-        if ( (VarByName->flags & 0x100) != 0 )
-          goto LABEL_8;
-      }
-      else if ( type == 1 )
-      {
-        goto LABEL_9;
-      }
-      UnobfuscatedName = Dvar_DevGetUnobfuscatedName(VarByName->name);
-      Com_Printf(0, "dvar '%s' is not an float dvar\n", UnobfuscatedName);
-      goto LABEL_9;
-    }
 LABEL_8:
-    __asm
-    {
-      vmovaps xmm3, xmm7; max
-      vmovaps xmm2, xmm6; min
-      vmovaps xmm1, xmm8; value
+      Dvar_RegisterSuperUserFloat(v1, v3, v5, *(float *)&v6, 0x100u, "External Dvar (SuperUser)");
+      return;
     }
-    Dvar_RegisterSuperUserFloat(v5, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x100u, "External Dvar (SuperUser)");
-    goto LABEL_9;
+LABEL_11:
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(VarByName->name);
+    Com_Printf(0, "dvar '%s' is not an float dvar\n", UnobfuscatedName);
+    return;
   }
-  __asm
-  {
-    vcvtss2sd xmm3, xmm6, xmm6
-    vcvtss2sd xmm1, xmm7, xmm0
-    vmovq   r9, xmm3
-    vmovsd  qword ptr [rsp+68h+flags], xmm1
-  }
-  Com_Printf(0, "dvar %s: min %g should not be greater than max %g\n", v5, *(double *)&_XMM3, flags);
-LABEL_9:
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
+  if ( type != 1 )
+    goto LABEL_11;
 }
 
 /*
@@ -776,67 +746,50 @@ LABEL_12:
 Dvar_RegisterVec3Color_f
 ==============
 */
-
-void __fastcall Dvar_RegisterVec3Color_f(double _XMM0_8)
+void Dvar_RegisterVec3Color_f()
 {
-  const char *v4; 
-  const char *v5; 
+  const char *v0; 
+  const char *v1; 
+  double v2; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
   const dvar_t *VarByName; 
   unsigned __int8 type; 
   const char *UnobfuscatedName; 
-  float v19; 
 
   if ( Cmd_Argc() != 5 )
   {
-    v4 = Cmd_Argv(0);
-    Com_Printf(0, "USAGE: %s <name> <defaultx> <defaulty> <defaultz>\n", v4);
+    v0 = Cmd_Argv(0);
+    Com_Printf(0, "USAGE: %s <name> <defaultx> <defaulty> <defaultz>\n", v0);
     return;
   }
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
-  v5 = Cmd_Argv(1);
-  _XMM0_8 = Cmd_ArgFloat(2);
-  __asm { vmovaps xmm6, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(3);
-  __asm { vmovaps xmm7, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(4);
-  __asm { vmovaps xmm8, xmm0 }
-  VarByName = Dvar_FindVarByName(v5);
+  v1 = Cmd_Argv(1);
+  v2 = Cmd_ArgFloat(2);
+  v3 = *(float *)&v2;
+  v4 = Cmd_ArgFloat(3);
+  v5 = *(float *)&v4;
+  v6 = Cmd_ArgFloat(4);
+  VarByName = Dvar_FindVarByName(v1);
   if ( !VarByName )
     goto LABEL_6;
   type = VarByName->type;
-  if ( type != 9 )
+  if ( type == 9 )
   {
-    if ( type == 11 )
-      goto LABEL_7;
+    if ( (VarByName->flags & 0x100) != 0 )
+    {
+LABEL_6:
+      Dvar_RegisterSuperUserVec3Color(v1, v3, v5, *(float *)&v6, 1.0, 0x100u, "External Dvar (SuperUser)");
+      return;
+    }
 LABEL_9:
     UnobfuscatedName = Dvar_DevGetUnobfuscatedName(VarByName->name);
     Com_Printf(0, "dvar '%s' is not an float 3 color dvar\n", UnobfuscatedName);
-    goto LABEL_7;
+    return;
   }
-  if ( (VarByName->flags & 0x100) == 0 )
+  if ( type != 11 )
     goto LABEL_9;
-LABEL_6:
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovaps xmm3, xmm8; z
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+78h+var_58], xmm0
-  }
-  Dvar_RegisterSuperUserVec3Color(v5, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v19, 0x100u, "External Dvar (SuperUser)");
-LABEL_7:
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
 }
 
 /*
@@ -844,97 +797,63 @@ LABEL_7:
 Dvar_RegisterVec3_f
 ==============
 */
-
-void __fastcall Dvar_RegisterVec3_f(double _XMM0_8)
+void Dvar_RegisterVec3_f()
 {
-  const char *v6; 
-  const char *v7; 
-  char v13; 
-  char v14; 
+  const char *v0; 
+  const char *v1; 
+  double v2; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
   const dvar_t *VarByName; 
   unsigned __int8 type; 
   const char *UnobfuscatedName; 
-  double v29; 
-  float v30; 
-  float v31; 
 
   if ( Cmd_Argc() != 7 )
   {
-    v6 = Cmd_Argv(0);
-    Com_Printf(0, "USAGE: %s <name> <defaultx> <defaulty> <defaultz>  <min> <max>\n", v6);
+    v0 = Cmd_Argv(0);
+    Com_Printf(0, "USAGE: %s <name> <defaultx> <defaulty> <defaultz>  <min> <max>\n", v0);
     return;
   }
-  __asm
+  v1 = Cmd_Argv(1);
+  v2 = Cmd_ArgFloat(2);
+  v3 = *(float *)&v2;
+  v4 = Cmd_ArgFloat(3);
+  v5 = *(float *)&v4;
+  v6 = Cmd_ArgFloat(4);
+  v7 = *(float *)&v6;
+  v8 = Cmd_ArgFloat(5);
+  v9 = *(float *)&v8;
+  v10 = Cmd_ArgFloat(6);
+  if ( v9 > *(float *)&v10 )
   {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps [rsp+98h+var_58], xmm10
+    Com_Printf(0, "dvar %s: min %g should not be greater than max %g\n", v1, v9, *(float *)&v10);
+    return;
   }
-  v7 = Cmd_Argv(1);
-  _XMM0_8 = Cmd_ArgFloat(2);
-  __asm { vmovaps xmm8, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(3);
-  __asm { vmovaps xmm9, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(4);
-  __asm { vmovaps xmm10, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(5);
-  __asm { vmovaps xmm6, xmm0 }
-  _XMM0_8 = Cmd_ArgFloat(6);
-  __asm
+  VarByName = Dvar_FindVarByName(v1);
+  if ( !VarByName )
+    goto LABEL_8;
+  type = VarByName->type;
+  if ( type == 9 )
   {
-    vcomiss xmm6, xmm0
-    vmovaps xmm7, xmm0
-  }
-  if ( v13 | v14 )
-  {
-    VarByName = Dvar_FindVarByName(v7);
-    if ( VarByName )
+    if ( (VarByName->flags & 0x100) != 0 )
     {
-      type = VarByName->type;
-      if ( type == 9 )
-      {
-        if ( (VarByName->flags & 0x100) != 0 )
-          goto LABEL_8;
-      }
-      else if ( type == 3 )
-      {
-        goto LABEL_9;
-      }
-      UnobfuscatedName = Dvar_DevGetUnobfuscatedName(VarByName->name);
-      Com_Printf(0, "dvar '%s' is not an float 3 dvar\n", UnobfuscatedName);
-      goto LABEL_9;
-    }
 LABEL_8:
-    __asm
-    {
-      vmovss  [rsp+98h+var_70], xmm7
-      vmovaps xmm3, xmm10; z
-      vmovaps xmm2, xmm9; y
-      vmovaps xmm1, xmm8; x
-      vmovss  dword ptr [rsp+98h+var_78], xmm6
+      Dvar_RegisterSuperUserVec3(v1, v3, v5, v7, v9, *(float *)&v10, 0x100u, "External Dvar (SuperUser)");
+      return;
     }
-    Dvar_RegisterSuperUserVec3(v7, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v30, v31, 0x100u, "External Dvar (SuperUser)");
-    goto LABEL_9;
+LABEL_11:
+    UnobfuscatedName = Dvar_DevGetUnobfuscatedName(VarByName->name);
+    Com_Printf(0, "dvar '%s' is not an float 3 dvar\n", UnobfuscatedName);
+    return;
   }
-  __asm
-  {
-    vcvtss2sd xmm3, xmm6, xmm6
-    vcvtss2sd xmm1, xmm7, xmm0
-    vmovq   r9, xmm3
-    vmovsd  [rsp+98h+var_78], xmm1
-  }
-  Com_Printf(0, "dvar %s: min %g should not be greater than max %g\n", v7, *(double *)&_XMM3, v29);
-LABEL_9:
-  __asm
-  {
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm10, [rsp+98h+var_58]
-  }
+  if ( type != 3 )
+    goto LABEL_11;
 }
 
 /*
@@ -1357,66 +1276,42 @@ void Dvar_TogglePrint_f(void)
 Dvar_ToggleSimple
 ==============
 */
-
-bool __fastcall Dvar_ToggleSimple(const dvar_t *dvar, __int64 a2, double _XMM2_8)
+bool Dvar_ToggleSimple(const dvar_t *dvar)
 {
-  bool v4; 
-  bool v5; 
   bool result; 
   int stringCount; 
   int max; 
   __int64 min; 
-  unsigned __int64 v10; 
+  unsigned __int64 v6; 
   const char *UnobfuscatedName; 
-  int v17; 
-  __int64 v18; 
+  int v12; 
+  __int64 v13; 
 
-  _RBX = dvar;
-  v4 = dvar == NULL;
-  if ( !dvar )
-  {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dvar_cmds.cpp", 101, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  switch ( _RBX->type )
+  if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dvar_cmds.cpp", 101, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+    __debugbreak();
+  switch ( dvar->type )
   {
     case 0u:
-      Dvar_SetBoolFromSource(_RBX, !_RBX->current.enabled, DVAR_SOURCE_EXTERNAL);
+      Dvar_SetBoolFromSource(dvar, !dvar->current.enabled, DVAR_SOURCE_EXTERNAL);
       result = 1;
       break;
     case 1u:
-      __asm
+      LODWORD(_XMM1) = dvar->domain.enumeration.stringCount;
+      if ( *(float *)&_XMM1 > 0.0 || (_XMM3 = LODWORD(FLOAT_1_0), dvar->domain.value.max < 1.0) )
       {
-        vmovss  xmm1, dword ptr [rbx+58h]; jumptable 00000001413D5F45 case 1
-        vxorps  xmm2, xmm2, xmm2
-        vcomiss xmm1, xmm2
+        if ( *(float *)&_XMM1 == dvar->current.value )
+          LODWORD(_XMM1) = dvar->domain.integer.max;
       }
-      if ( !v4 )
-        goto LABEL_29;
-      __asm
+      else
       {
-        vmovss  xmm3, cs:__real@3f800000
-        vcomiss xmm3, dword ptr [rbx+5Ch]
-      }
-      if ( v4 )
-      {
+        _XMM0 = dvar->current.unsignedInt;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx+28h]
           vcmpneqss xmm1, xmm0, xmm2
           vblendvps xmm1, xmm3, xmm2, xmm1
         }
       }
-      else
-      {
-LABEL_29:
-        __asm { vucomiss xmm1, dword ptr [rbx+28h] }
-        if ( v4 )
-          __asm { vmovss  xmm1, dword ptr [rbx+5Ch]; value }
-      }
-      Dvar_SetFloatFromSource(_RBX, *(float *)&_XMM1, DVAR_SOURCE_EXTERNAL);
+      Dvar_SetFloatFromSource(dvar, *(float *)&_XMM1, DVAR_SOURCE_EXTERNAL);
       result = 1;
       break;
     case 2u:
@@ -1425,65 +1320,65 @@ LABEL_29:
     case 9u:
     case 0xAu:
     case 0xBu:
-      UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_RBX->name);
-      Dvar_Printf(_RBX, 0, "'toggle' with no arguments makes no sense for dvar '%s'\n", UnobfuscatedName);
+      UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
+      Dvar_Printf(dvar, 0, "'toggle' with no arguments makes no sense for dvar '%s'\n", UnobfuscatedName);
       result = 0;
       break;
     case 5u:
-      stringCount = _RBX->domain.enumeration.stringCount;
-      if ( stringCount > 0 || _RBX->domain.integer.max < 1 )
+      stringCount = dvar->domain.enumeration.stringCount;
+      if ( stringCount > 0 || dvar->domain.integer.max < 1 )
       {
-        if ( _RBX->current.integer == stringCount )
-          max = _RBX->domain.integer.max;
+        if ( dvar->current.integer == stringCount )
+          max = dvar->domain.integer.max;
         else
-          max = _RBX->domain.enumeration.stringCount;
+          max = dvar->domain.enumeration.stringCount;
       }
       else
       {
-        max = _RBX->current.integer == 0;
+        max = dvar->current.integer == 0;
       }
       goto LABEL_12;
     case 6u:
-      min = _RBX->domain.integer64.min;
-      if ( min > 0 || _RBX->domain.integer64.max < 1 )
+      min = dvar->domain.integer64.min;
+      if ( min > 0 || dvar->domain.integer64.max < 1 )
       {
-        if ( _RBX->current.integer64 == min )
-          min = _RBX->domain.integer64.max;
+        if ( dvar->current.integer64 == min )
+          min = dvar->domain.integer64.max;
       }
       else
       {
-        min = _RBX->current.integer64 == 0;
+        min = dvar->current.integer64 == 0;
       }
-      Dvar_SetInt64FromSource(_RBX, min, DVAR_SOURCE_EXTERNAL);
+      Dvar_SetInt64FromSource(dvar, min, DVAR_SOURCE_EXTERNAL);
       result = 1;
       break;
     case 7u:
-      v10 = _RBX->domain.unsignedInt64.min;
-      if ( v10 || !_RBX->domain.integer64.max )
+      v6 = dvar->domain.unsignedInt64.min;
+      if ( v6 || !dvar->domain.integer64.max )
       {
-        if ( _RBX->current.integer64 == v10 )
-          v10 = _RBX->domain.unsignedInt64.max;
+        if ( dvar->current.integer64 == v6 )
+          v6 = dvar->domain.unsignedInt64.max;
       }
       else
       {
-        LOBYTE(v10) = _RBX->current.integer64 == 0;
+        LOBYTE(v6) = dvar->current.integer64 == 0;
       }
-      Dvar_SetUInt64FromSource(_RBX, v10, DVAR_SOURCE_EXTERNAL);
+      Dvar_SetUInt64FromSource(dvar, v6, DVAR_SOURCE_EXTERNAL);
       result = 1;
       break;
     case 8u:
-      v17 = _RBX->domain.enumeration.stringCount;
-      if ( v17 )
+      v12 = dvar->domain.enumeration.stringCount;
+      if ( v12 )
       {
-        max = (_RBX->current.integer + 1) % v17;
+        max = (dvar->current.integer + 1) % v12;
 LABEL_12:
-        Dvar_SetIntFromSource(_RBX, max, DVAR_SOURCE_EXTERNAL);
+        Dvar_SetIntFromSource(dvar, max, DVAR_SOURCE_EXTERNAL);
       }
       result = 1;
       break;
     default:
-      LODWORD(v18) = _RBX->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dvar_cmds.cpp", 193, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled case %i", v18) )
+      LODWORD(v13) = dvar->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dvar_cmds.cpp", 193, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "unhandled case %i", v13) )
         __debugbreak();
       result = 0;
       break;

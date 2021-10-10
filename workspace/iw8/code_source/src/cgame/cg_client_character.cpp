@@ -175,10 +175,10 @@ void CG_ClientCharacter_AttachIKTarget(const LocalClientNum_t localClientNum, co
   unsigned __int16 *v13; 
   __int64 v14; 
   XModel *ikTargetRight; 
-  int v19; 
-  __int64 v20; 
-  unsigned __int16 v21; 
-  unsigned __int16 v22; 
+  int v16; 
+  __int64 v17; 
+  unsigned __int16 v18; 
+  unsigned __int16 v19; 
   XAnimIKTagRequest result; 
   XAnimIKTagRequest tagRequest; 
 
@@ -212,33 +212,26 @@ void CG_ClientCharacter_AttachIKTarget(const LocalClientNum_t localClientNum, co
     __debugbreak();
   if ( XAnimWeaponIKModelsContainer::GetXModelCount((XAnimWeaponIKModelsContainer *)weaponIKModels) >= 1 )
   {
-    _RAX = XAnimIKSetupTagRequest(&result, r_heldWeapon, 0, 0, 0, isDualWielding);
-    __asm
+    tagRequest = *XAnimIKSetupTagRequest(&result, r_heldWeapon, 0, 0, 0, isDualWielding);
+    v16 = XAnimIKAttachTargetToWeapon(targetType, ikTargetRight, weaponIKModels, &tagRequest, models, modelCount, dobjModelTypes);
+    if ( v16 >= 0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+118h+tagRequest.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+118h+tagRequest.weapon.attachmentVariationIndices+5], ymm1
-    }
-    v19 = XAnimIKAttachTargetToWeapon(targetType, ikTargetRight, weaponIKModels, &tagRequest, models, modelCount, dobjModelTypes);
-    if ( v19 >= 0 )
-    {
-      v20 = 2i64;
+      v17 = 2i64;
       do
       {
         if ( *v13 != 0xFFFF )
         {
-          v21 = *v13;
-          if ( truncate_cast<unsigned short,int>(v19) < v21 )
-            *v13 = v21 + 1;
+          v18 = *v13;
+          if ( truncate_cast<unsigned short,int>(v16) < v18 )
+            *v13 = v18 + 1;
         }
         ++v13;
-        --v20;
+        --v17;
       }
-      while ( v20 );
-      v22 = *stowWeapIndex;
-      if ( truncate_cast<unsigned short,int>(v19) < v22 )
-        *stowWeapIndex = v22 + 1;
+      while ( v17 );
+      v19 = *stowWeapIndex;
+      if ( truncate_cast<unsigned short,int>(v16) < v19 )
+        *stowWeapIndex = v19 + 1;
     }
   }
 }
@@ -300,7 +293,7 @@ void CG_ClientCharacter_BuildDObj(const LocalClientNum_t localClientNum, const c
   XAnimTree *CurrentAnimTree; 
   DObj *v55; 
   Weapon *v56; 
-  Weapon *v64; 
+  Weapon *v57; 
   DObjModel *outDObjModel; 
   __int64 attachBoneName; 
   __int64 maxDObjModels; 
@@ -309,12 +302,12 @@ void CG_ClientCharacter_BuildDObj(const LocalClientNum_t localClientNum, const c
   unsigned __int16 stowWeapIndex[2]; 
   LocalClientNum_t localClientNuma; 
   unsigned __int16 heldWeapIndex[4]; 
-  unsigned __int16 v80; 
-  const UICharacterState *v81; 
+  unsigned __int16 v66; 
+  const UICharacterState *v67; 
   centity_t *centa; 
   Weapon *r_weapon; 
   Weapon *weapon; 
-  Weapon *v85; 
+  Weapon *v71; 
   entityState_t *p_nextState; 
   DObjStickerSlotList result; 
   DObjStickerSlotList stickerSlots; 
@@ -325,7 +318,7 @@ void CG_ClientCharacter_BuildDObj(const LocalClientNum_t localClientNum, const c
   v6 = r_heldWeapon;
   v7 = localClientNum;
   localClientNuma = localClientNum;
-  v85 = (Weapon *)r_weaponAccessory;
+  v71 = (Weapon *)r_weaponAccessory;
   weapon = (Weapon *)r_stowWeapon;
   r_weapon = (Weapon *)r_heldWeapon;
   centa = (centity_t *)cent;
@@ -377,7 +370,7 @@ void CG_ClientCharacter_BuildDObj(const LocalClientNum_t localClientNum, const c
   State = CL_UICharacter_GetState((const LocalClientNum_t)v7, cent->nextState.clientNum);
   v13 = CgWeaponMap::ms_instance[v7] == NULL;
   v14 = State;
-  v81 = State;
+  v67 = State;
   if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   v15 = BG_PlayerOrEntityDualWielding(CgWeaponMap::ms_instance[v7], NULL, &cent->nextState, NULL);
@@ -479,7 +472,7 @@ LABEL_112:
   }
   v38 = modelCount[0];
   v39 = heldWeapIndex;
-  v80 = modelCount[0];
+  v66 = modelCount[0];
   v40 = 2i64;
   do
   {
@@ -495,11 +488,11 @@ LABEL_112:
     --v40;
   }
   while ( v40 );
-  v42 = (__int64)v81;
+  v42 = (__int64)v67;
   v43 = localClientNuma;
   v44 = weapon;
-  if ( v85->weaponIdx )
-    CG_Weapons_BuildDObj(WEAPON_HAND_LEFT, v85, 0, 0, (loadState & 8) == 0, v18, (scr_string_t)0, 0x20u, models, modelCount, NULL);
+  if ( v71->weaponIdx )
+    CG_Weapons_BuildDObj(WEAPON_HAND_LEFT, v71, 0, 0, (loadState & 8) == 0, v18, (scr_string_t)0, 0x20u, models, modelCount, NULL);
   if ( *(_BYTE *)(v42 + 4853) || (v45 = r_weapon, !r_weapon->weaponIdx) || !memcmp_0(r_weapon, v44, 0x3Cui64) )
   {
     v47 = 0;
@@ -542,8 +535,8 @@ LABEL_112:
     }
     while ( v50 != v49 + 9384 );
     v49 = *(_QWORD *)heldWeapIndex;
-    v38 = v80;
-    v42 = (__int64)v81;
+    v38 = v66;
+    v42 = (__int64)v67;
     v48 = centa;
   }
   if ( modelCount[0] )
@@ -562,49 +555,19 @@ LABEL_112:
       CG_ClientCharacter_SetHidePartBits(v55, r_weapon, (const CharacterModelType (*)[32])dobjModelTypes, CHAR_MODEL_WEAPON_HELD, 0, v38 - 1);
       CG_ClientCharacter_SetHidePartBits(v55, v56, (const CharacterModelType (*)[32])dobjModelTypes, CHAR_MODEL_WEAPON_HELD_LEFT, 0, v38 - 1);
       centa = (centity_t *)0xD0000000Ci64;
-      _RAX = CG_Weapons_BuildStickerSlotList(&result, v53, (const CharacterModelType *)&centa, 2, v56);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply+40h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.slots.overrideMaterial], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rbp+0C60h+stickerSlots.slots.overrideMaterial+20h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  [rbp+0C60h+stickerSlots.slots.overrideMaterial+30h], xmm1
-      }
+      stickerSlots = *CG_Weapons_BuildStickerSlotList(&result, v53, (const CharacterModelType *)&centa, 2, v56);
       DObjSetStickerMaterialOverrides(v55, dobjModelTypes, &stickerSlots);
     }
     if ( (loadState & 4) != 0 )
     {
-      v64 = weapon;
+      v57 = weapon;
       CG_ClientCharacter_SetHidePartBits(v55, weapon, (const CharacterModelType (*)[32])dobjModelTypes, CHAR_MODEL_WEAPON_STOWED, 0, modelCount[0] - 1);
       localClientNuma = 15;
-      _RAX = CG_Weapons_BuildStickerSlotList(&result, v53, (const CharacterModelType *)&localClientNuma, 1, v64);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.modelTypeToApply+40h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rbp+0C60h+stickerSlots.slots.overrideMaterial], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rbp+0C60h+stickerSlots.slots.overrideMaterial+20h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  [rbp+0C60h+stickerSlots.slots.overrideMaterial+30h], xmm1
-      }
+      stickerSlots = *CG_Weapons_BuildStickerSlotList(&result, v53, (const CharacterModelType *)&localClientNuma, 1, v57);
       DObjSetStickerMaterialOverrides(v55, dobjModelTypes, &stickerSlots);
     }
     if ( (loadState & 8) != 0 )
-      CG_ClientCharacter_SetHidePartBits(v55, v85, (const CharacterModelType (*)[32])dobjModelTypes, CHAR_MODEL_WEAPON_HELD_LEFT, v38, modelCount[0] - 1);
+      CG_ClientCharacter_SetHidePartBits(v55, v71, (const CharacterModelType (*)[32])dobjModelTypes, CHAR_MODEL_WEAPON_HELD_LEFT, v38, modelCount[0] - 1);
     CG_Entity_CreateCloth(v53, p_nextState->number);
   }
   *(_BYTE *)(v49 + 4858) &= ~1u;
@@ -1392,27 +1355,21 @@ void CG_ClientCharacter_PlayAnimFromWeaponTable(const LocalClientNum_t localClie
   CGCharacterState *CharacterState; 
   XAnimTree *animTree; 
   const char *WeaponBaseName; 
-  const char *v10; 
-  AttachmentSlot v11; 
-  const char *v12; 
-  __int64 v13; 
+  const char *v9; 
+  AttachmentSlot v10; 
+  const char *v11; 
+  __int64 v12; 
   const WeaponAttachment *WeaponPrimaryAttachment; 
-  const char *v15; 
-  __int64 v16; 
-  const char *v17; 
+  const char *v14; 
+  __int64 v15; 
+  const char *v16; 
   unsigned int AnimIndex; 
   unsigned int weaponTableAnimIndex; 
-  float fmt; 
-  float fmta; 
-  float goalTime; 
-  float goalTimea; 
-  float v27; 
-  float v28; 
   DObj *obj; 
   char *lookupKeys[3]; 
   StringTable *tablePtr; 
   int lookupColumns; 
-  int v34; 
+  int v23; 
 
   CharacterState = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
   if ( !CharacterState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1311, ASSERT_TYPE_ASSERT, "(characterState)", (const char *)&queryFormat, "characterState") )
@@ -1431,76 +1388,53 @@ void CG_ClientCharacter_PlayAnimFromWeaponTable(const LocalClientNum_t localClie
         StringTable_GetAsset(off_147F9F6D8, (const StringTable **)&tablePtr);
         if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1278, ASSERT_TYPE_SANITY, "( table )", (const char *)&queryFormat, "table") )
           __debugbreak();
-        v10 = StringTable_Lookup(tablePtr, 0, WeaponBaseName, 1);
-        v11 = ATT_SLOT_RECEIVER;
+        v9 = StringTable_Lookup(tablePtr, 0, WeaponBaseName, 1);
+        v10 = ATT_SLOT_RECEIVER;
         lookupColumns = 0;
-        v12 = v10;
-        v34 = 2;
-        v13 = -1i64;
+        v11 = v9;
+        v23 = 2;
+        v12 = -1i64;
         while ( 1 )
         {
-          WeaponPrimaryAttachment = BG_GetWeaponPrimaryAttachment(r_heldWeapon, v11);
+          WeaponPrimaryAttachment = BG_GetWeaponPrimaryAttachment(r_heldWeapon, v10);
           if ( WeaponPrimaryAttachment )
           {
             lookupKeys[1] = (char *)WeaponPrimaryAttachment->szInternalName;
             lookupKeys[0] = (char *)WeaponBaseName;
-            v15 = StringTable_MultipleKeyLookup(tablePtr, &lookupColumns, (const char **)lookupKeys, 2, 1);
-            v16 = -1i64;
+            v14 = StringTable_MultipleKeyLookup(tablePtr, &lookupColumns, (const char **)lookupKeys, 2, 1);
+            v15 = -1i64;
             do
-              ++v16;
-            while ( v15[v16] );
-            if ( v16 )
+              ++v15;
+            while ( v14[v15] );
+            if ( v15 )
               break;
           }
-          if ( (unsigned int)++v11 >= ATT_SLOT_OTHER )
+          if ( (unsigned int)++v10 >= ATT_SLOT_OTHER )
             goto LABEL_23;
         }
-        v12 = v15;
+        v11 = v14;
 LABEL_23:
-        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1298, ASSERT_TYPE_SANITY, "( animName )", (const char *)&queryFormat, "animName") )
+        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1298, ASSERT_TYPE_SANITY, "( animName )", (const char *)&queryFormat, "animName") )
           __debugbreak();
         do
-          ++v13;
-        while ( v12[v13] );
-        v17 = NULL;
-        if ( v13 )
-          v17 = v12;
-        if ( v17 )
+          ++v12;
+        while ( v11[v12] );
+        v16 = NULL;
+        if ( v12 )
+          v16 = v11;
+        if ( v16 )
         {
-          AnimIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, v17);
+          AnimIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, v16);
           if ( AnimIndex )
           {
 LABEL_34:
             weaponTableAnimIndex = CharacterState->weaponTableAnimIndex;
             if ( weaponTableAnimIndex != AnimIndex )
             {
-              __asm
-              {
-                vmovaps [rsp+0C8h+var_48], xmm6
-                vxorps  xmm6, xmm6, xmm6
-              }
               if ( weaponTableAnimIndex )
-              {
-                __asm
-                {
-                  vmovss  [rsp+0C8h+var_98], xmm6
-                  vmovss  [rsp+0C8h+goalTime], xmm6
-                  vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-                }
-                XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, weaponTableAnimIndex, fmt, goalTime, v27, (scr_string_t)0, 0, 0, LINEAR, NULL);
-              }
+                XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, weaponTableAnimIndex, 0.0, 0.0, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
               if ( AnimIndex )
-              {
-                __asm
-                {
-                  vmovss  xmm0, cs:__real@3f800000
-                  vmovss  [rsp+0C8h+var_98], xmm0
-                  vmovss  [rsp+0C8h+goalTime], xmm6
-                  vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-                }
-                XAnimSetCompleteGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, AnimIndex, fmta, goalTimea, v28, (scr_string_t)0, 0, 0, LINEAR, NULL);
-              }
-              __asm { vmovaps xmm6, [rsp+0C8h+var_48] }
+                XAnimSetCompleteGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, AnimIndex, 1.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
               CharacterState->weaponTableAnimIndex = AnimIndex;
             }
             CharacterState->flags &= ~4u;
@@ -1523,43 +1457,26 @@ LABEL_34:
 CG_ClientCharacter_PlayAnimation
 ==============
 */
-
-void __fastcall CG_ClientCharacter_PlayAnimation(const LocalClientNum_t localClientNum, const centity_t *cent, const char *animName, double blendTime, const float startTime)
+void CG_ClientCharacter_PlayAnimation(const LocalClientNum_t localClientNum, const centity_t *cent, const char *animName, const float blendTime, const float startTime)
 {
   int number; 
   DObj *ClientDObj; 
-  char *v15; 
-  const char **v16; 
-  __int64 v17; 
-  const char *v18; 
-  int v19; 
-  unsigned int v21; 
-  __int64 v22; 
-  char v26; 
-  char v27; 
-  unsigned __int8 v28; 
-  unsigned int *v30; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  char *v10; 
+  const char **v11; 
+  __int64 v12; 
+  const char *v13; 
+  int v14; 
+  unsigned int v15; 
+  __int64 v16; 
   float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float v41; 
-  float v42; 
-  float v43; 
+  unsigned __int8 v18; 
+  unsigned int *v19; 
   unsigned int animIndex; 
   XAnimTree *tree; 
   CGCharacterState *CharacterState; 
-  __int64 v48[6]; 
-  char v49[24]; 
+  __int64 v24[6]; 
+  char v25[24]; 
 
-  __asm
-  {
-    vmovaps [rsp+158h+var_88], xmm9
-    vmovaps xmm9, xmm3
-  }
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 991, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 992, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName") )
@@ -1567,109 +1484,65 @@ void __fastcall CG_ClientCharacter_PlayAnimation(const LocalClientNum_t localCli
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 993, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   number = cent->nextState.number;
-  v48[0] = (__int64)"ik_node";
-  v48[1] = (__int64)"proc_node";
-  v48[2] = (__int64)"ik_fingers_l";
-  v48[3] = (__int64)"ik_fingers_r";
-  v48[4] = (__int64)"add_weapon_placement";
-  v48[5] = (__int64)"clothnode";
+  v24[0] = (__int64)"ik_node";
+  v24[1] = (__int64)"proc_node";
+  v24[2] = (__int64)"ik_fingers_l";
+  v24[3] = (__int64)"ik_fingers_r";
+  v24[4] = (__int64)"add_weapon_placement";
+  v24[5] = (__int64)"clothnode";
   ClientDObj = Com_GetClientDObj(number, localClientNum);
   if ( ClientDObj )
   {
-    __asm
-    {
-      vmovaps [rsp+158h+var_58], xmm6
-      vmovaps [rsp+158h+var_68], xmm7
-      vmovaps [rsp+158h+var_78], xmm8
-    }
     CharacterState = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
     animIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, animName);
     tree = CG_ClientCharacter_GetCurrentAnimTree(localClientNum, cent);
     if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1012, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
       __debugbreak();
-    v15 = v49;
-    v16 = (const char **)v48;
-    v17 = 6i64;
+    v10 = v25;
+    v11 = (const char **)v24;
+    v12 = 6i64;
     do
     {
-      v18 = *v16;
-      v19 = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, *v16);
-      if ( !v19 )
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442782C8, 1352i64, v18);
-      *(_DWORD *)v15 = v19;
-      ++v16;
-      v15 += 4;
-      --v17;
+      v13 = *v11;
+      v14 = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, *v11);
+      if ( !v14 )
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442782C8, 1352i64, v13);
+      *(_DWORD *)v10 = v14;
+      ++v11;
+      v10 += 4;
+      --v12;
     }
-    while ( v17 );
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    v21 = CharacterState->animIndex;
-    v22 = 6i64;
-    __asm
+    while ( v12 );
+    v15 = CharacterState->animIndex;
+    v16 = 6i64;
+    goalTime = 0.0;
+    if ( v15 )
     {
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm8, xmm8, xmm8
-    }
-    if ( v21 )
-    {
-      if ( XAnimIsLooped(tree->anims, v21) || !XAnimHasFinished(tree, 0, XANIM_SUBTREE_DEFAULT, CharacterState->animIndex) )
-        __asm { vmovaps xmm8, xmm9 }
-      __asm
-      {
-        vmovss  [rsp+158h+var_128], xmm6
-        vmovss  [rsp+158h+goalTime], xmm8
-        vmovss  dword ptr [rsp+158h+fmt], xmm7
-      }
-      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, CharacterState->animIndex, fmt, goalTime, v41, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      if ( XAnimIsLooped(tree->anims, v15) || !XAnimHasFinished(tree, 0, XANIM_SUBTREE_DEFAULT, CharacterState->animIndex) )
+        goalTime = blendTime;
+      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, CharacterState->animIndex, 0.0, goalTime, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
     }
     if ( animIndex )
     {
-      __asm
-      {
-        vmovss  [rsp+158h+var_128], xmm6
-        vmovss  [rsp+158h+goalTime], xmm8
-        vmovss  dword ptr [rsp+158h+fmt], xmm6
-      }
-      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, animIndex, fmta, goalTimea, v42, (scr_string_t)0, 5u, 0, LINEAR, NULL);
-      __asm
-      {
-        vmovss  xmm0, [rsp+158h+startTime]
-        vcomiss xmm0, xmm7
-      }
-      v28 = localClientNum;
-      if ( !(v26 | v27) )
-      {
-        __asm { vmovss  [rsp+158h+goalTime], xmm0 }
-        CG_ClientCharacter_SetAnimationTime(localClientNum, cent->nextState.number, ClientDObj, tree, animIndex, goalTimeb);
-      }
+      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, animIndex, 1.0, goalTime, 1.0, (scr_string_t)0, 5u, 0, LINEAR, NULL);
+      v18 = localClientNum;
+      if ( startTime > 0.0 )
+        CG_ClientCharacter_SetAnimationTime(localClientNum, cent->nextState.number, ClientDObj, tree, animIndex, startTime);
       CharacterState->animIndex = animIndex;
     }
     else
     {
-      v28 = localClientNum;
+      v18 = localClientNum;
     }
-    __asm { vmovaps xmm8, [rsp+158h+var_78] }
-    v30 = (unsigned int *)v49;
+    v19 = (unsigned int *)v25;
     do
     {
-      __asm
-      {
-        vmovss  [rsp+158h+var_128], xmm6
-        vmovss  [rsp+158h+goalTime], xmm7
-        vmovss  dword ptr [rsp+158h+fmt], xmm6
-      }
-      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *v30++, fmtb, goalTimec, v43, (scr_string_t)0, 0, 0, LINEAR, NULL);
-      --v22;
+      XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *v19++, 1.0, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+      --v16;
     }
-    while ( v22 );
-    XAnimSetByteGameParameterByName(ClientDObj, scr_const.xanimClothLCN, v28);
-    __asm
-    {
-      vmovaps xmm7, [rsp+158h+var_68]
-      vmovaps xmm6, [rsp+158h+var_58]
-    }
+    while ( v16 );
+    XAnimSetByteGameParameterByName(ClientDObj, scr_const.xanimClothLCN, v18);
   }
-  __asm { vmovaps xmm9, [rsp+158h+var_88] }
 }
 
 /*
@@ -1677,35 +1550,17 @@ void __fastcall CG_ClientCharacter_PlayAnimation(const LocalClientNum_t localCli
 CG_ClientCharacter_PlayFacialAnimation
 ==============
 */
-
-DObj *__fastcall CG_ClientCharacter_PlayFacialAnimation(const LocalClientNum_t localClientNum, const centity_t *cent, const char *animName, double blendTime, const float startTime)
+DObj *CG_ClientCharacter_PlayFacialAnimation(const LocalClientNum_t localClientNum, const centity_t *cent, const char *animName, const float blendTime, const float startTime)
 {
   DObj *result; 
-  DObj *v14; 
+  DObj *v9; 
   CGCharacterState *CharacterState; 
   unsigned int AnimIndex; 
   XAnimTree *CurrentAnimTree; 
   unsigned int facialAnimIndex; 
-  unsigned int noteFacialAnimIndex; 
-  char v24; 
-  char v25; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
   float goalTime; 
-  float goalTimea; 
-  float goalTimeb; 
-  float goalTimec; 
-  float v38; 
-  float v39; 
-  float v40; 
-  char v45; 
+  unsigned int noteFacialAnimIndex; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_58], xmm9
-    vmovaps xmm9, xmm3
-  }
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1378, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1379, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName") )
@@ -1713,82 +1568,37 @@ DObj *__fastcall CG_ClientCharacter_PlayFacialAnimation(const LocalClientNum_t l
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1380, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   result = Com_GetClientDObj(cent->nextState.number, localClientNum);
-  v14 = result;
+  v9 = result;
   if ( result )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_28], xmm6
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vmovaps [rsp+0B8h+var_48], xmm8
-    }
     CharacterState = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
     AnimIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, animName);
     CurrentAnimTree = CG_ClientCharacter_GetCurrentAnimTree(localClientNum, cent);
     if ( !CurrentAnimTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1390, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
       __debugbreak();
     facialAnimIndex = CharacterState->facialAnimIndex;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm6, xmm6, xmm6
-    }
+    goalTime = 0.0;
     if ( facialAnimIndex )
     {
       if ( XAnimIsLooped(CurrentAnimTree->anims, facialAnimIndex) || !XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, CharacterState->facialAnimIndex) )
-        __asm { vmovaps xmm6, xmm9 }
-      __asm
-      {
-        vmovss  [rsp+0B8h+var_88], xmm8
-        vmovss  [rsp+0B8h+goalTime], xmm6
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-      }
-      XAnimSetCompleteGoalWeight(v14, 0, XANIM_SUBTREE_DEFAULT, CharacterState->facialAnimIndex, fmt, goalTime, v38, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        goalTime = blendTime;
+      XAnimSetCompleteGoalWeight(v9, 0, XANIM_SUBTREE_DEFAULT, CharacterState->facialAnimIndex, 0.0, goalTime, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
     }
     noteFacialAnimIndex = CharacterState->noteFacialAnimIndex;
     if ( noteFacialAnimIndex )
     {
       if ( XAnimIsLooped(CurrentAnimTree->anims, noteFacialAnimIndex) || !XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, CharacterState->noteFacialAnimIndex) )
-        __asm { vmovaps xmm6, xmm9 }
-      __asm
-      {
-        vmovss  [rsp+0B8h+var_88], xmm8
-        vmovss  [rsp+0B8h+goalTime], xmm6
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-      }
-      XAnimSetCompleteGoalWeight(v14, 0, XANIM_SUBTREE_DEFAULT, CharacterState->noteFacialAnimIndex, fmta, goalTimea, v39, (scr_string_t)0, 0, 0, LINEAR, NULL);
+        goalTime = blendTime;
+      XAnimSetCompleteGoalWeight(v9, 0, XANIM_SUBTREE_DEFAULT, CharacterState->noteFacialAnimIndex, 0.0, goalTime, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
     }
     if ( AnimIndex )
     {
-      __asm
-      {
-        vmovss  [rsp+0B8h+var_88], xmm8
-        vmovss  [rsp+0B8h+goalTime], xmm6
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm8
-      }
-      XAnimSetCompleteGoalWeight(v14, 0, XANIM_SUBTREE_DEFAULT, AnimIndex, fmtb, goalTimeb, v40, (scr_string_t)0, 5u, 0, LINEAR, NULL);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0B8h+startTime]
-        vcomiss xmm0, xmm7
-      }
-      if ( !(v24 | v25) )
-      {
-        __asm { vmovss  [rsp+0B8h+goalTime], xmm0 }
-        CG_ClientCharacter_SetAnimationTime(localClientNum, cent->nextState.number, v14, CurrentAnimTree, AnimIndex, goalTimec);
-      }
+      XAnimSetCompleteGoalWeight(v9, 0, XANIM_SUBTREE_DEFAULT, AnimIndex, 1.0, goalTime, 1.0, (scr_string_t)0, 5u, 0, LINEAR, NULL);
+      if ( startTime > 0.0 )
+        CG_ClientCharacter_SetAnimationTime(localClientNum, cent->nextState.number, v9, CurrentAnimTree, AnimIndex, startTime);
     }
-    __asm { vmovaps xmm8, [rsp+0B8h+var_48] }
-    result = (DObj *)AnimIndex;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_38]
-      vmovaps xmm6, [rsp+0B8h+var_28]
-    }
+    return (DObj *)AnimIndex;
   }
-  _R11 = &v45;
-  __asm { vmovaps xmm9, xmmword ptr [r11-40h] }
   return result;
 }
 
@@ -1810,20 +1620,23 @@ CG_ClientCharacter_ProcessAnimation
 void CG_ClientCharacter_ProcessAnimation(const LocalClientNum_t localClientNum, centity_t *cent)
 {
   XAnimTree *CurrentAnimTree; 
+  CGCharacterState *CharacterState; 
+  const UICharacterState *State; 
   unsigned int animQueueEnd; 
   unsigned int i; 
   char v9; 
+  __int64 v10; 
   unsigned int animIndex; 
-  char v17; 
-  char v18; 
-  char v19; 
-  char v20; 
-  unsigned int v21; 
+  char v12; 
+  char v13; 
+  char v14; 
+  char v15; 
+  unsigned int v16; 
   unsigned int animQueueStart; 
-  unsigned int v23; 
-  float fmt; 
-  __int64 v28; 
-  __int64 v29; 
+  unsigned int v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1070, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1832,119 +1645,105 @@ void CG_ClientCharacter_ProcessAnimation(const LocalClientNum_t localClientNum, 
   CurrentAnimTree = CG_ClientCharacter_GetCurrentAnimTree(localClientNum, cent);
   if ( CurrentAnimTree && Com_GetClientDObj(cent->nextState.number, localClientNum) )
   {
-    _RBX = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
-    _RDI = CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum);
-    if ( _RBX->currentState.animState.animQueueEnd > _RDI->animState.animQueueEnd )
+    CharacterState = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
+    State = CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum);
+    if ( CharacterState->currentState.animState.animQueueEnd > State->animState.animQueueEnd )
     {
-      LODWORD(v28) = _RBX->currentState.animState.animQueueEnd;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1089, ASSERT_TYPE_ASSERT, "( currentState->animState.animQueueEnd ) <= ( requestedState->animState.animQueueEnd )", "currentState->animState.animQueueEnd not in [0, requestedState->animState.animQueueEnd]\n\t%u not in [0, %u]", v28, _RDI->animState.animQueueEnd) )
+      LODWORD(v20) = CharacterState->currentState.animState.animQueueEnd;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1089, ASSERT_TYPE_ASSERT, "( currentState->animState.animQueueEnd ) <= ( requestedState->animState.animQueueEnd )", "currentState->animState.animQueueEnd not in [0, requestedState->animState.animQueueEnd]\n\t%u not in [0, %u]", v20, State->animState.animQueueEnd) )
         __debugbreak();
     }
-    animQueueEnd = _RBX->currentState.animState.animQueueEnd;
-    for ( i = _RDI->animState.animQueueEnd; animQueueEnd < i; i = _RDI->animState.animQueueEnd )
+    animQueueEnd = CharacterState->currentState.animState.animQueueEnd;
+    for ( i = State->animState.animQueueEnd; animQueueEnd < i; i = State->animState.animQueueEnd )
     {
       v9 = animQueueEnd++;
-      _RCX = 136i64 * (v9 & 7);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+rcx+28h]
-        vmovups ymmword ptr [rbx+rcx+28h], ymm0
-        vmovups ymm1, ymmword ptr [rdi+rcx+48h]
-        vmovups ymmword ptr [rbx+rcx+48h], ymm1
-        vmovups ymm0, ymmword ptr [rdi+rcx+68h]
-        vmovups ymmword ptr [rbx+rcx+68h], ymm0
-        vmovups ymm1, ymmword ptr [rdi+rcx+88h]
-        vmovups ymmword ptr [rbx+rcx+88h], ymm1
-        vmovsd  xmm0, qword ptr [rdi+rcx+0A8h]
-        vmovsd  qword ptr [rbx+rcx+0A8h], xmm0
-      }
+      v10 = v9 & 7;
+      *(__m256i *)CharacterState->currentState.animState.animQueue[v10].animName = *(__m256i *)State->animState.animQueue[v10].animName;
+      *(__m256i *)&CharacterState->currentState.animState.animQueue[v10].animName[32] = *(__m256i *)&State->animState.animQueue[v10].animName[32];
+      *(__m256i *)CharacterState->currentState.animState.animQueue[v10].startNoteName = *(__m256i *)State->animState.animQueue[v10].startNoteName;
+      *(__m256i *)&CharacterState->currentState.animState.animQueue[v10].startNoteName[32] = *(__m256i *)&State->animState.animQueue[v10].startNoteName[32];
+      *(double *)&CharacterState->currentState.animState.animQueue[v10].blendTime = *(double *)&State->animState.animQueue[v10].blendTime;
     }
-    animIndex = _RBX->animIndex;
-    if ( animIndex && _RBX->currentState.animState.animQueueStart == _RDI->animState.animQueueStart )
+    animIndex = CharacterState->animIndex;
+    if ( animIndex && CharacterState->currentState.animState.animQueueStart == State->animState.animQueueStart )
     {
-      v17 = 0;
-      if ( i - _RBX->currentQueueIndex > 8 )
+      v12 = 0;
+      if ( i - CharacterState->currentQueueIndex > 8 )
       {
-        v18 = 1;
+        v13 = 1;
 LABEL_20:
-        if ( !XAnimIsLooped(CurrentAnimTree->anims, animIndex) && XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, _RBX->animIndex) )
+        if ( !XAnimIsLooped(CurrentAnimTree->anims, animIndex) && XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, CharacterState->animIndex) )
         {
-          v19 = 1;
+          v14 = 1;
 LABEL_24:
-          if ( !v18 && !v19 )
+          if ( !v13 && !v14 )
           {
-            v20 = 0;
+            v15 = 0;
 LABEL_28:
-            v21 = _RDI->animState.animQueueEnd;
-            _RBX->currentState.animState.animQueueEnd = v21;
-            animQueueStart = _RDI->animState.animQueueStart;
-            _RBX->currentState.animState.animQueueStart = animQueueStart;
-            if ( v20 && v21 )
+            v16 = State->animState.animQueueEnd;
+            CharacterState->currentState.animState.animQueueEnd = v16;
+            animQueueStart = State->animState.animQueueStart;
+            CharacterState->currentState.animState.animQueueStart = animQueueStart;
+            if ( v15 && v16 )
             {
-              if ( v17 )
-                _RBX->currentQueueIndex = animQueueStart;
+              if ( v12 )
+                CharacterState->currentQueueIndex = animQueueStart;
               else
-                animQueueStart = _RBX->currentQueueIndex;
-              if ( v21 - animQueueStart <= 8 )
+                animQueueStart = CharacterState->currentQueueIndex;
+              if ( v16 - animQueueStart <= 8 )
               {
-                if ( v19 )
+                if ( v14 )
                 {
-                  if ( animQueueStart == v21 - 1 )
+                  if ( animQueueStart == v16 - 1 )
                   {
                     Com_PrintError(16, "UI Character animation has finished but there are no additional animations to play. This will cause the non-looping animation to play again.\n");
-                    animQueueStart = _RBX->currentQueueIndex;
+                    animQueueStart = CharacterState->currentQueueIndex;
                   }
                   else
                   {
-                    _RBX->currentQueueIndex = ++animQueueStart;
+                    CharacterState->currentQueueIndex = ++animQueueStart;
                   }
                 }
               }
               else
               {
                 Com_PrintError(16, "UI Character animation queue overflow\n");
-                if ( _RBX->currentQueueIndex < _RBX->currentState.animState.animQueueStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1122, ASSERT_TYPE_ASSERT, "(characterState->currentQueueIndex >= currentState->animState.animQueueStart)", (const char *)&queryFormat, "characterState->currentQueueIndex >= currentState->animState.animQueueStart") )
+                if ( CharacterState->currentQueueIndex < CharacterState->currentState.animState.animQueueStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1122, ASSERT_TYPE_ASSERT, "(characterState->currentQueueIndex >= currentState->animState.animQueueStart)", (const char *)&queryFormat, "characterState->currentQueueIndex >= currentState->animState.animQueueStart") )
                   __debugbreak();
-                animQueueStart = _RBX->currentState.animState.animQueueEnd - 8;
-                _RBX->currentQueueIndex = animQueueStart;
+                animQueueStart = CharacterState->currentState.animState.animQueueEnd - 8;
+                CharacterState->currentQueueIndex = animQueueStart;
               }
-              v23 = _RBX->currentState.animState.animQueueEnd;
-              if ( _RBX->currentState.animState.animQueueStart > animQueueStart || animQueueStart > v23 - 1 )
+              v18 = CharacterState->currentState.animState.animQueueEnd;
+              if ( CharacterState->currentState.animState.animQueueStart > animQueueStart || animQueueStart > v18 - 1 )
               {
-                LODWORD(v29) = _RBX->currentState.animState.animQueueStart;
-                LODWORD(v28) = animQueueStart;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1139, ASSERT_TYPE_ASSERT, "( currentState->animState.animQueueStart ) <= ( characterState->currentQueueIndex ) && ( characterState->currentQueueIndex ) <= ( currentState->animState.animQueueEnd - 1 )", "characterState->currentQueueIndex not in [currentState->animState.animQueueStart, currentState->animState.animQueueEnd - 1]\n\t%i not in [%i, %i]", v28, v29, v23 - 1) )
+                LODWORD(v21) = CharacterState->currentState.animState.animQueueStart;
+                LODWORD(v20) = animQueueStart;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1139, ASSERT_TYPE_ASSERT, "( currentState->animState.animQueueStart ) <= ( characterState->currentQueueIndex ) && ( characterState->currentQueueIndex ) <= ( currentState->animState.animQueueEnd - 1 )", "characterState->currentQueueIndex not in [currentState->animState.animQueueStart, currentState->animState.animQueueEnd - 1]\n\t%i not in [%i, %i]", v20, v21, v18 - 1) )
                   __debugbreak();
               }
-              _R8 = _RBX->currentState.animState.animQueue[_RBX->currentQueueIndex & 7].animName;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r8+84h]
-                vmovss  xmm3, dword ptr [r8+80h]; blendTime
-                vmovss  dword ptr [rsp+68h+fmt], xmm0
-              }
-              CG_ClientCharacter_PlayAnimation(localClientNum, cent, _R8, *(double *)&_XMM3, fmt);
-              CL_UICharacter_SetCurrentQueueIndex(localClientNum, cent->nextState.clientNum, _RBX->currentQueueIndex);
+              v19 = CharacterState->currentQueueIndex & 7;
+              CG_ClientCharacter_PlayAnimation(localClientNum, cent, CharacterState->currentState.animState.animQueue[v19].animName, CharacterState->currentState.animState.animQueue[v19].blendTime, CharacterState->currentState.animState.animQueue[v19].startTime);
+              CL_UICharacter_SetCurrentQueueIndex(localClientNum, cent->nextState.clientNum, CharacterState->currentQueueIndex);
             }
             return;
           }
 LABEL_27:
-          v20 = 1;
+          v15 = 1;
           goto LABEL_28;
         }
 LABEL_23:
-        v19 = 0;
-        if ( v17 )
+        v14 = 0;
+        if ( v12 )
           goto LABEL_27;
         goto LABEL_24;
       }
     }
     else
     {
-      v17 = 1;
+      v12 = 1;
     }
-    v18 = 0;
-    if ( v17 )
+    v13 = 0;
+    if ( v12 )
       goto LABEL_23;
     goto LABEL_20;
   }
@@ -2051,23 +1850,22 @@ void CG_ClientCharacter_ProcessEntity(const LocalClientNum_t localClientNum, cen
   __int64 v10; 
   const char *v11; 
   const DObj *ClientDObj; 
-  unsigned int v15; 
-  XAssetHeader v19; 
-  const char **v20; 
+  unsigned int v13; 
+  XAssetHeader v14; 
+  const char **v15; 
   Weapon *r_weaponAccessory; 
   Weapon *r_weaponAccessorya; 
-  float v23; 
   unsigned int scriptableIndex[2]; 
   vec3_t outOrigin; 
   unsigned int outInstanceIndex[2]; 
-  __int64 v27; 
-  GfxSceneHudOutlineInfo v28; 
-  shaderOverride_t v29; 
+  __int64 v21; 
+  GfxSceneHudOutlineInfo v22; 
+  shaderOverride_t v23; 
   Weapon outHeldWeapon; 
   Weapon outAccessoryWeapon; 
   Weapon outStowWeapon; 
 
-  v27 = -2i64;
+  v21 = -2i64;
   v3 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1774, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -2115,31 +1913,11 @@ void CG_ClientCharacter_ProcessEntity(const LocalClientNum_t localClientNum, cen
     if ( ClientDObj )
     {
       CG_GetPoseOrigin(&cent->pose, &outOrigin);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1D0h+outOrigin+8]
-        vaddss  xmm1, xmm0, cs:__real@42000000
-        vmovss  dword ptr [rsp+1D0h+outOrigin+8], xmm1
-      }
-      v15 = p_nextState->number;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_1.color
-        vmovups [rbp+0D0h+var_150], ymm0
-      }
-      v28.characterEVOffset = NULL_HUDOUTLINE_INFO_1.characterEVOffset;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE.scrollRateX
-        vmovups [rbp+0D0h+var_120], ymm0
-      }
-      v29.atlasTime = NULL_SHADER_OVERRIDE.atlasTime;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+1D0h+var_190], xmm0
-      }
-      CG_Entity_AddDObjToScene((const LocalClientNum_t)v3, ClientDObj, &cent->pose, v15, 0, &v29, &v28, &outOrigin, v23, 0);
+      outOrigin.v[2] = outOrigin.v[2] + 32.0;
+      v13 = p_nextState->number;
+      memset(&v22, 0, sizeof(v22));
+      memset(&v23, 0, sizeof(v23));
+      CG_Entity_AddDObjToScene((const LocalClientNum_t)v3, ClientDObj, &cent->pose, v13, 0, &v23, &v22, &outOrigin, 0.0, 0);
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
     if ( ScriptableCl_GetIndexForEntity((const LocalClientNum_t)v3, cent, scriptableIndex) )
@@ -2151,14 +1929,14 @@ void CG_ClientCharacter_ProcessEntity(const LocalClientNum_t localClientNum, cen
     {
       if ( !NetConstStrings_GetClientCharacterName(cent->nextState.lerp.u.primaryLight.packedColorB_Fov, (const char **)&outOrigin) )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144278DE0, 422i64, cent->nextState.lerp.u.primaryLight.packedColorB_Fov);
-      v19.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_CLIENTCHARACTER, *(const char **)outOrigin.v, 0).physicsLibrary;
-      if ( !v19.physicsLibrary )
+      v14.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_CLIENTCHARACTER, *(const char **)outOrigin.v, 0).physicsLibrary;
+      if ( !v14.physicsLibrary )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E1B9D8, 423i64, *(_QWORD *)outOrigin.v);
-      v20 = *(const char ***)&v19.physicsLibrary->isMaterialList;
-      if ( v20 && !ScriptableCl_BindEntityReservedDef((const LocalClientNum_t)v3, p_nextState->number, *(const ScriptableDef *const *)&v19.physicsLibrary->isMaterialList) )
+      v15 = *(const char ***)&v14.physicsLibrary->isMaterialList;
+      if ( v15 && !ScriptableCl_BindEntityReservedDef((const LocalClientNum_t)v3, p_nextState->number, *(const ScriptableDef *const *)&v14.physicsLibrary->isMaterialList) )
       {
         LODWORD(r_weaponAccessorya) = p_nextState->number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ClientCharacter could not bind to %i scriptable %s (Character %s). Please bug this with a dump.\n", r_weaponAccessorya, *v20, v19.physicsLibrary->name) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ClientCharacter could not bind to %i scriptable %s (Character %s). Please bug this with a dump.\n", r_weaponAccessorya, *v15, v14.physicsLibrary->name) )
           __debugbreak();
       }
     }
@@ -2173,21 +1951,17 @@ CG_ClientCharacter_ProcessFacialAnimation
 void CG_ClientCharacter_ProcessFacialAnimation(const LocalClientNum_t localClientNum, centity_t *cent)
 {
   const XAnimTree *CurrentAnimTree; 
-  int v9; 
-  bool v10; 
-  char v16; 
+  CGCharacterState *CharacterState; 
+  UICharacterAnimItem *p_facialAnim; 
+  int v7; 
+  bool v8; 
+  char v9; 
   unsigned int noteFacialAnimIndex; 
-  bool v21; 
+  bool v11; 
   const char *animName; 
   unsigned int facialAnimIndex; 
-  unsigned int v28; 
+  unsigned int v14; 
   const DObj *ClientDObj; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float goalTime; 
-  float v38; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1438, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -2196,105 +1970,52 @@ void CG_ClientCharacter_ProcessFacialAnimation(const LocalClientNum_t localClien
   CurrentAnimTree = CG_ClientCharacter_GetCurrentAnimTree(localClientNum, cent);
   if ( CurrentAnimTree )
   {
-    __asm
+    CharacterState = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
+    p_facialAnim = &CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum)->animState.facialAnim;
+    v7 = memcmp_0(&CharacterState->currentState.animState.facialAnim, p_facialAnim, 0x88ui64);
+    v8 = v7 != 0;
+    if ( v7 )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovaps [rsp+0A8h+var_48], xmm7
+      *(__m256i *)CharacterState->currentState.animState.facialAnim.animName = *(__m256i *)p_facialAnim->animName;
+      *(__m256i *)&CharacterState->currentState.animState.facialAnim.animName[32] = *(__m256i *)&p_facialAnim->animName[32];
+      *(__m256i *)CharacterState->currentState.animState.facialAnim.startNoteName = *(__m256i *)p_facialAnim->startNoteName;
+      *(__m256i *)&CharacterState->currentState.animState.facialAnim.startNoteName[32] = *(__m256i *)&p_facialAnim->startNoteName[32];
+      *(double *)&CharacterState->currentState.animState.facialAnim.blendTime = *(double *)&p_facialAnim->blendTime;
     }
-    _RSI = CG_ClientCharacter_GetCharacterState(localClientNum, cent);
-    _RBP = &CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum)->animState.facialAnim;
-    v9 = memcmp_0(&_RSI->currentState.animState.facialAnim, _RBP, 0x88ui64);
-    v10 = v9 != 0;
+    v9 = CharacterState->noteFacialAnim.animName[0];
     if ( v9 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+0]
-        vmovups ymmword ptr [rsi+468h], ymm0
-        vmovups ymm1, ymmword ptr [rbp+20h]
-        vmovups ymmword ptr [rsi+488h], ymm1
-        vmovups ymm0, ymmword ptr [rbp+40h]
-        vmovups ymmword ptr [rsi+4A8h], ymm0
-        vmovups ymm1, ymmword ptr [rbp+60h]
-        vmovups ymmword ptr [rsi+4C8h], ymm1
-        vmovsd  xmm0, qword ptr [rbp+80h]
-        vmovsd  qword ptr [rsi+4E8h], xmm0
-      }
+      CharacterState->noteFacialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, CharacterState->noteFacialAnim.animName, 0.2, 0.0);
+      CharacterState->noteFacialAnim.animName[0] = 0;
     }
-    v16 = _RSI->noteFacialAnim.animName[0];
-    __asm
+    noteFacialAnimIndex = CharacterState->noteFacialAnimIndex;
+    v11 = noteFacialAnimIndex && XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, noteFacialAnimIndex);
+    if ( v8 )
     {
-      vmovss  xmm7, cs:__real@3e4ccccd
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( v16 )
-    {
-      __asm
-      {
-        vmovaps xmm3, xmm7; blendTime
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-      }
-      _RSI->noteFacialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, _RSI->noteFacialAnim.animName, *(double *)&_XMM3, fmt);
-      _RSI->noteFacialAnim.animName[0] = 0;
-    }
-    noteFacialAnimIndex = _RSI->noteFacialAnimIndex;
-    v21 = noteFacialAnimIndex && XAnimHasFinished(CurrentAnimTree, 0, XANIM_SUBTREE_DEFAULT, noteFacialAnimIndex);
-    if ( v10 )
-    {
-      animName = _RSI->currentState.animState.facialAnim.animName;
-      if ( v16 )
-      {
-        _RSI->facialAnimIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, animName);
-      }
+      animName = CharacterState->currentState.animState.facialAnim.animName;
+      if ( v9 )
+        CharacterState->facialAnimIndex = CG_ClientCharacter_GetAnimIndex(localClientNum, cent, animName);
       else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+4ECh]
-          vmovss  xmm3, dword ptr [rsi+4E8h]; blendTime
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-        }
-        *(_QWORD *)&_RSI->facialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, animName, *(double *)&_XMM3, fmta);
-      }
+        *(_QWORD *)&CharacterState->facialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, animName, CharacterState->currentState.animState.facialAnim.blendTime, CharacterState->currentState.animState.facialAnim.startTime);
     }
-    else if ( v21 )
+    else if ( v11 )
     {
-      facialAnimIndex = _RSI->facialAnimIndex;
+      facialAnimIndex = CharacterState->facialAnimIndex;
       if ( facialAnimIndex && XAnimIsLooped(CurrentAnimTree->anims, facialAnimIndex) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+4ECh]
-          vmovss  xmm3, dword ptr [rsi+4E8h]; blendTime
-          vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-        }
-        _RSI->facialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, _RSI->currentState.animState.facialAnim.animName, *(double *)&_XMM3, fmtb);
+        CharacterState->facialAnimIndex = (unsigned int)CG_ClientCharacter_PlayFacialAnimation(localClientNum, cent, CharacterState->currentState.animState.facialAnim.animName, CharacterState->currentState.animState.facialAnim.blendTime, CharacterState->currentState.animState.facialAnim.startTime);
       }
       else
       {
         Com_PrintWarning(16, "ProcessFacialAnimation - Blending out of a notetrack triggered anim but there is nothing to blend back to ( this will cause a pop ). To fix - Play a facial idle anim using lua function PlayCharacterFacialAnim on the character that triggering facial anims from their taunt anim notetrack.");
-        v28 = _RSI->noteFacialAnimIndex;
+        v14 = CharacterState->noteFacialAnimIndex;
         if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1361, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
           __debugbreak();
         ClientDObj = Com_GetClientDObj(cent->nextState.number, localClientNum);
-        if ( ClientDObj && v28 )
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  [rsp+0A8h+var_78], xmm0
-            vmovss  [rsp+0A8h+goalTime], xmm7
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-          }
-          XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, v28, fmtc, goalTime, v38, (scr_string_t)0, 0, 1, LINEAR, NULL);
-        }
+        if ( ClientDObj && v14 )
+          XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, v14, 0.0, 0.2, 1.0, (scr_string_t)0, 0, 1, LINEAR, NULL);
       }
-      _RSI->noteFacialAnimIndex = 0;
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+0A8h+var_38]
-      vmovaps xmm7, [rsp+0A8h+var_48]
+      CharacterState->noteFacialAnimIndex = 0;
     }
   }
 }
@@ -2306,172 +2027,130 @@ CG_ClientCharacter_ProcessFingerPoseAnimation
 */
 void CG_ClientCharacter_ProcessFingerPoseAnimation(const LocalClientNum_t localClientNum, const centity_t *const cent, const Weapon *r_heldWeapon, const bool isDualWield)
 {
-  __int64 v6; 
+  __int64 v4; 
+  CGCharacterState *CharacterState; 
   const DObj *ClientDObj; 
   __int64 animTree; 
-  const dvar_t *v13; 
+  const dvar_t *v11; 
   unsigned __int8 flags; 
-  XAnimParts *v15; 
-  XAnimParts *v16; 
+  XAnimParts *v13; 
+  XAnimParts *v14; 
   unsigned int *fingerPoseAnimIndex; 
+  __int64 v16; 
+  unsigned int *v17; 
+  unsigned int v18; 
   __int64 v19; 
-  unsigned int *v20; 
-  unsigned int v22; 
-  __int64 v23; 
   const XAnimInfo *AnimInfo; 
-  unsigned int v25; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float outFingerPoseLeftAnim; 
-  float outFingerPoseLeftAnima; 
-  float outFingerPoseLeftAnimb; 
-  float outFingerPoseLeftAnimSecondary; 
-  float outFingerPoseLeftAnimSecondarya; 
-  float outFingerPoseLeftAnimSecondaryb; 
-  __int64 v40; 
+  unsigned int v21; 
+  __int64 v22; 
   XAnimParts *outFingerPoseRightAnim; 
-  XAnimParts *v42; 
+  XAnimParts *outFingerPoseLeftAnimSecondary; 
   XAnimParts *outFingerPoseRightAnimSecondary; 
   XAnimParts *outAltOverrideAnim; 
-  __int64 v45; 
-  XAnimParts *v48; 
+  __int64 v27; 
+  XAnimParts *outFingerPoseLeftAnim; 
 
-  v6 = localClientNum;
+  v4 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1154, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1155, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  _RDI = CG_ClientCharacter_GetCharacterState((const LocalClientNum_t)v6, cent);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1158, ASSERT_TYPE_ASSERT, "(characterState)", (const char *)&queryFormat, "characterState") )
+  CharacterState = CG_ClientCharacter_GetCharacterState((const LocalClientNum_t)v4, cent);
+  if ( !CharacterState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1158, ASSERT_TYPE_ASSERT, "(characterState)", (const char *)&queryFormat, "characterState") )
     __debugbreak();
-  ClientDObj = Com_GetClientDObj(cent->nextState.number, (LocalClientNum_t)v6);
+  ClientDObj = Com_GetClientDObj(cent->nextState.number, (LocalClientNum_t)v4);
   if ( ClientDObj )
   {
-    animTree = (__int64)_RDI->animTree;
-    v45 = animTree;
+    animTree = (__int64)CharacterState->animTree;
+    v27 = animTree;
     if ( animTree )
     {
       if ( *(_WORD *)(animTree + 20) )
       {
-        v13 = DCONST_DVARBOOL_xanim_finger_pose_disable;
-        __asm { vmovaps [rsp+0D0h+var_30], xmm6 }
-        v40 = 0i64;
+        v11 = DCONST_DVARBOOL_xanim_finger_pose_disable;
+        v22 = 0i64;
         if ( !DCONST_DVARBOOL_xanim_finger_pose_disable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_finger_pose_disable") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v13);
-        if ( v13->current.enabled || !r_heldWeapon->weaponIdx )
+        Dvar_CheckFrontendServerThread(v11);
+        if ( v11->current.enabled || !r_heldWeapon->weaponIdx )
         {
-          _RDI->flags |= 2u;
+          CharacterState->flags |= 2u;
         }
         else
         {
-          flags = _RDI->flags;
-          if ( s_characterAnimDataShared[v6].checkAnimPackagesLoaded )
+          flags = CharacterState->flags;
+          if ( s_characterAnimDataShared[v4].checkAnimPackagesLoaded )
           {
-            _RDI->flags = flags | 2;
+            CharacterState->flags = flags | 2;
           }
           else if ( (flags & 2) != 0 )
           {
             outFingerPoseRightAnim = NULL;
             outFingerPoseRightAnimSecondary = NULL;
-            v48 = NULL;
-            v42 = NULL;
+            outFingerPoseLeftAnim = NULL;
+            outFingerPoseLeftAnimSecondary = NULL;
             outAltOverrideAnim = NULL;
-            if ( BG_Get3PWeaponAnims(r_heldWeapon, isDualWield, 0, &outFingerPoseRightAnim, &outFingerPoseRightAnimSecondary, &v48, &v42, &outAltOverrideAnim) )
+            if ( BG_Get3PWeaponAnims(r_heldWeapon, isDualWield, 0, &outFingerPoseRightAnim, &outFingerPoseRightAnimSecondary, &outFingerPoseLeftAnim, &outFingerPoseLeftAnimSecondary, &outAltOverrideAnim) )
             {
-              v15 = v48;
-              v16 = outFingerPoseRightAnim;
-              if ( v42 )
-                v15 = v42;
-              v48 = v15;
+              v13 = outFingerPoseLeftAnim;
+              v14 = outFingerPoseRightAnim;
+              if ( outFingerPoseLeftAnimSecondary )
+                v13 = outFingerPoseLeftAnimSecondary;
+              outFingerPoseLeftAnim = v13;
               if ( outFingerPoseRightAnimSecondary )
-                v16 = outFingerPoseRightAnimSecondary;
-              outFingerPoseRightAnim = v16;
-              if ( v16 )
+                v14 = outFingerPoseRightAnimSecondary;
+              outFingerPoseRightAnim = v14;
+              if ( v14 )
               {
-                HIDWORD(v40) = CG_ClientCharacter_GetAnimIndex((const LocalClientNum_t)v6, cent, v16->name);
-                if ( !HIDWORD(v40) )
+                HIDWORD(v22) = CG_ClientCharacter_GetAnimIndex((const LocalClientNum_t)v4, cent, v14->name);
+                if ( !HIDWORD(v22) )
                   Com_PrintWarning(16, "ProcessFingerPoseAnimation : %s missing in client_character.atr", outFingerPoseRightAnim->name);
-                v15 = v48;
+                v13 = outFingerPoseLeftAnim;
               }
-              if ( v15 )
+              if ( v13 )
               {
-                LODWORD(v40) = CG_ClientCharacter_GetAnimIndex((const LocalClientNum_t)v6, cent, v15->name);
-                if ( !(_DWORD)v40 )
-                  Com_PrintWarning(16, "ProcessFingerPoseAnimation : %s missing in client_character.atr", v48->name);
+                LODWORD(v22) = CG_ClientCharacter_GetAnimIndex((const LocalClientNum_t)v4, cent, v13->name);
+                if ( !(_DWORD)v22 )
+                  Com_PrintWarning(16, "ProcessFingerPoseAnimation : %s missing in client_character.atr", outFingerPoseLeftAnim->name);
               }
             }
-            _RDI->flags &= ~2u;
+            CharacterState->flags &= ~2u;
           }
           else
           {
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rdi+1310h]
-              vmovsd  [rbp+57h+var_70], xmm0
-            }
+            v22 = *(_QWORD *)CharacterState->fingerPoseAnimIndex;
           }
         }
-        fingerPoseAnimIndex = _RDI->fingerPoseAnimIndex;
-        v19 = 2i64;
-        v20 = _RDI->fingerPoseAnimIndex;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        fingerPoseAnimIndex = CharacterState->fingerPoseAnimIndex;
+        v16 = 2i64;
+        v17 = CharacterState->fingerPoseAnimIndex;
         do
         {
-          v22 = *(unsigned int *)((char *)v20 + (char *)&v40 - (char *)_RDI->fingerPoseAnimIndex);
-          if ( *v20 != v22 )
+          v18 = *(unsigned int *)((char *)v17 + (char *)&v22 - (char *)CharacterState->fingerPoseAnimIndex);
+          if ( *v17 != v18 )
           {
-            __asm
-            {
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnimSecondary], xmm6
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnim], xmm6
-              vmovss  dword ptr [rsp+0D0h+fmt], xmm6
-            }
-            XAnimSetGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *v20, fmt, outFingerPoseLeftAnim, outFingerPoseLeftAnimSecondary, (scr_string_t)0, 0, 0, LINEAR, NULL);
-            *v20 = v22;
+            XAnimSetGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *v17, 0.0, 0.0, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+            *v17 = v18;
           }
-          ++v20;
-          --v19;
+          ++v17;
+          --v16;
         }
-        while ( v19 );
-        if ( _RDI->fingerPoseAnimIndex[1] || *fingerPoseAnimIndex )
+        while ( v16 );
+        if ( CharacterState->fingerPoseAnimIndex[1] || *fingerPoseAnimIndex )
         {
-          v23 = v45;
-          __asm { vmovaps [rsp+0D0h+var_40], xmm7 }
-          v48 = NULL;
+          v19 = v27;
+          outFingerPoseLeftAnim = NULL;
           outAltOverrideAnim = NULL;
-          if ( !*(_WORD *)(v45 + 20) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1248, ASSERT_TYPE_ASSERT, "(animTree->children)", (const char *)&queryFormat, "animTree->children") )
+          if ( !*(_WORD *)(v27 + 20) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1248, ASSERT_TYPE_ASSERT, "(animTree->children)", (const char *)&queryFormat, "animTree->children") )
             __debugbreak();
-          AnimInfo = GetAnimInfo(*(_WORD *)(v23 + 20));
-          BG_CalcFingerPoseWeights(AnimInfo, (float *)&v48, (float *)&outAltOverrideAnim);
-          v25 = _RDI->fingerPoseAnimIndex[1];
-          __asm { vmovss  xmm7, cs:__real@3f800000 }
-          if ( v25 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+arg_8+4]
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnimSecondary], xmm7
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnim], xmm6
-              vmovss  dword ptr [rsp+0D0h+fmt], xmm0
-            }
-            XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, v25, fmta, outFingerPoseLeftAnima, outFingerPoseLeftAnimSecondarya, (scr_string_t)0, 0, 0, LINEAR, NULL);
-          }
+          AnimInfo = GetAnimInfo(*(_WORD *)(v19 + 20));
+          BG_CalcFingerPoseWeights(AnimInfo, (float *)&outFingerPoseLeftAnim, (float *)&outAltOverrideAnim);
+          v21 = CharacterState->fingerPoseAnimIndex[1];
+          if ( v21 )
+            XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, v21, *((float *)&outFingerPoseLeftAnim + 1), 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
           if ( *fingerPoseAnimIndex )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+arg_8]
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnimSecondary], xmm7
-              vmovss  dword ptr [rsp+0D0h+outFingerPoseLeftAnim], xmm6
-              vmovss  dword ptr [rsp+0D0h+fmt], xmm0
-            }
-            XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *fingerPoseAnimIndex, fmtb, outFingerPoseLeftAnimb, outFingerPoseLeftAnimSecondaryb, (scr_string_t)0, 0, 0, LINEAR, NULL);
-          }
-          __asm { vmovaps xmm7, [rsp+0D0h+var_40] }
+            XAnimSetCompleteGoalWeight(ClientDObj, 0, XANIM_SUBTREE_DEFAULT, *fingerPoseAnimIndex, *(float *)&outFingerPoseLeftAnim, 0.0, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
         }
-        __asm { vmovaps xmm6, [rsp+0D0h+var_30] }
       }
     }
   }
@@ -2544,19 +2223,19 @@ void CG_ClientCharacter_ProcessNoteTrack(const LocalClientNum_t localClientNum, 
   DObj *ClientDObj; 
   unsigned int currentQueueIndex; 
   unsigned int v64; 
+  __int64 animName; 
   const char *v66; 
-  float fmt; 
   char **outParam; 
   char **outTarget; 
   char *outCommand; 
   char *modelName; 
   char *attachTag; 
-  const XAnimNotify *v75; 
+  const XAnimNotify *v72; 
   char targetBuf[272]; 
   char paramBuf[272]; 
   char commandBuf[272]; 
 
-  v75 = notify;
+  v72 = notify;
   v4 = (int)entityIndex;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 2007, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
@@ -2612,7 +2291,7 @@ void CG_ClientCharacter_ProcessNoteTrack(const LocalClientNum_t localClientNum, 
         if ( !v17 )
         {
 LABEL_34:
-          CG_ClientCharacter_CreateNoteModel(localClientNum, (const centity_t *const)v7, CharacterState, modelName, attachTag, v75->animParts);
+          CG_ClientCharacter_CreateNoteModel(localClientNum, (const centity_t *const)v7, CharacterState, modelName, attachTag, v72->animParts);
           return;
         }
         if ( v16 != v18 )
@@ -2660,7 +2339,7 @@ LABEL_34:
       while ( v25 );
       v30 = modelName;
       v31 = attachTag;
-      animParts = v75->animParts;
+      animParts = v72->animParts;
       if ( !modelName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1945, ASSERT_TYPE_ASSERT, "(modelName)", (const char *)&queryFormat, "modelName") )
         __debugbreak();
       if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 1946, ASSERT_TYPE_ASSERT, "(attachTag)", (const char *)&queryFormat, "attachTag") )
@@ -2796,17 +2475,11 @@ LABEL_105:
       {
         if ( v64 != CharacterState->currentState.animState.animQueueEnd )
         {
-          _RDI = CharacterState->currentState.animState.animQueue[v64 & 7].animName;
-          v66 = SL_ConvertToString(v75->noteName);
-          if ( !I_strcmp(v66, _RDI + 64) )
+          animName = (__int64)CharacterState->currentState.animState.animQueue[v64 & 7].animName;
+          v66 = SL_ConvertToString(v72->noteName);
+          if ( !I_strcmp(v66, (const char *)(animName + 64)) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+84h]
-              vmovss  xmm3, dword ptr [rdi+80h]; blendTime
-              vmovss  dword ptr [rsp+3D8h+fmt], xmm0
-            }
-            CG_ClientCharacter_PlayAnimation(localClientNum, (const centity_t *)v7, _RDI, *(double *)&_XMM3, fmt);
+            CG_ClientCharacter_PlayAnimation(localClientNum, (const centity_t *)v7, (const char *)animName, *(const float *)(animName + 128), *(const float *)(animName + 132));
             ++CharacterState->currentQueueIndex;
           }
         }
@@ -2822,145 +2495,70 @@ CG_ClientCharacter_ProcessPose
 */
 void CG_ClientCharacter_ProcessPose(const LocalClientNum_t localClientNum, centity_t *cent)
 {
-  const dvar_t *v12; 
-  char v17; 
+  const UICharacterState *State; 
+  CGCharacterState *CurrentState; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
+  float value; 
+  float v9; 
+  float v10; 
   vec3_t outOrigin; 
   float s[2]; 
-  __int64 v61; 
+  __int64 v13; 
   vec3_t end; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
-  char v66; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v61 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
+  v13 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 891, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 892, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
-  _RSI = CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum);
-  _R15 = CG_ClientCharacter_GetCurrentState(localClientNum, cent);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmulss  xmm0, xmm0, cs:__real@bc8efa35; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, s, &s[1]);
+  State = CL_UICharacter_GetState(localClientNum, cent->nextState.clientNum);
+  CurrentState = CG_ClientCharacter_GetCurrentState(localClientNum, cent);
+  FastSinCos(State->poseState.rotation.v[1] * -0.017453292, s, &s[1]);
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  v12 = DVARBOOL_rc_draw_axis;
+  v6 = DVARBOOL_rc_draw_axis;
   if ( !DVARBOOL_rc_draw_axis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "rc_draw_axis") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin]
-      vmovss  dword ptr [rsp+150h+end], xmm0
-      vmovss  xmm1, dword ptr [rsp+150h+outOrigin+4]
-      vmovss  dword ptr [rsp+150h+end+4], xmm1
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin+8]
-      vaddss  xmm2, xmm0, cs:__real@42c00000
-      vmovss  dword ptr [rsp+150h+end+8], xmm2
-    }
+    end.v[0] = outOrigin.v[0];
+    end.v[1] = outOrigin.v[1];
+    end.v[2] = outOrigin.v[2] + 96.0;
     CL_AddDebugLine(&outOrigin, &end, &colorRed, 0, 1, 0);
   }
-  _RDI = DVARVEC3_rc_override;
+  v7 = DVARVEC3_rc_override;
   if ( !DVARVEC3_rc_override && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "rc_override") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  v9 = v7->current.vector.v[1];
+  v10 = v7->current.vector.v[2];
+  if ( value == 0.0 && v9 == 0.0 && v10 == 0.0 )
   {
-    vmovss  xmm7, dword ptr [rdi+28h]
-    vmovss  xmm6, dword ptr [rdi+2Ch]
-    vmovss  xmm8, dword ptr [rdi+30h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm7, xmm0
-  }
-  if ( !v17 )
-    goto LABEL_19;
-  __asm { vucomiss xmm6, xmm0 }
-  if ( !v17 )
-    goto LABEL_19;
-  __asm { vucomiss xmm8, xmm0 }
-  if ( v17 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin]
-      vsubss  xmm2, xmm0, dword ptr [rsi+4]
-      vmovss  dword ptr [rsp+150h+outOrigin], xmm2
-      vmovss  xmm4, [rsp+150h+s]
-      vmulss  xmm1, xmm4, dword ptr [rsi+8]
-      vmovss  xmm3, [rsp+150h+s+4]
-      vmulss  xmm0, xmm3, dword ptr [rsi+4]
-      vaddss  xmm1, xmm1, xmm0
-      vaddss  xmm1, xmm1, xmm2
-      vmovss  dword ptr [rsp+150h+outOrigin], xmm1
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin+4]
-      vsubss  xmm2, xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+150h+outOrigin+4], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vmulss  xmm0, xmm4, dword ptr [rsi+4]
-      vsubss  xmm1, xmm1, xmm0
-      vaddss  xmm1, xmm1, xmm2
-      vmovss  dword ptr [rsp+150h+outOrigin+4], xmm1
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin+8]
-      vaddss  xmm1, xmm0, dword ptr [rsi+0Ch]
-      vmovss  dword ptr [rsp+150h+outOrigin+8], xmm1
-    }
+    outOrigin.v[0] = outOrigin.v[0] - State->poseState.offset.v[0];
+    outOrigin.v[0] = (float)((float)(s[0] * State->poseState.offset.v[1]) + (float)(s[1] * State->poseState.offset.v[0])) + outOrigin.v[0];
+    outOrigin.v[1] = outOrigin.v[1] - State->poseState.offset.v[1];
+    outOrigin.v[1] = (float)((float)(s[1] * State->poseState.offset.v[1]) - (float)(s[0] * State->poseState.offset.v[0])) + outOrigin.v[1];
+    outOrigin.v[2] = outOrigin.v[2] + State->poseState.offset.v[2];
   }
   else
   {
-LABEL_19:
-    __asm
-    {
-      vmulss  xmm1, xmm6, [rsp+150h+s]
-      vmulss  xmm0, xmm7, [rsp+150h+s+4]
-      vaddss  xmm3, xmm1, xmm0
-      vmovss  xmm1, dword ptr [rsp+150h+outOrigin]
-      vsubss  xmm2, xmm1, xmm7
-      vaddss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rsp+150h+outOrigin], xmm0
-      vmulss  xmm3, xmm6, [rsp+150h+s+4]
-      vmulss  xmm1, xmm7, [rsp+150h+s]
-      vsubss  xmm4, xmm3, xmm1
-      vmovss  xmm0, dword ptr [rsp+150h+outOrigin+4]
-      vsubss  xmm2, xmm0, xmm6
-      vaddss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rsp+150h+outOrigin+4], xmm1
-      vaddss  xmm2, xmm8, dword ptr [rsp+150h+outOrigin+8]
-      vmovss  dword ptr [rsp+150h+outOrigin+8], xmm2
-    }
+    outOrigin.v[0] = (float)((float)(v9 * s[0]) + (float)(value * s[1])) + (float)(outOrigin.v[0] - value);
+    outOrigin.v[1] = (float)((float)(v9 * s[1]) - (float)(value * s[0])) + (float)(outOrigin.v[1] - v9);
+    outOrigin.v[2] = v10 + outOrigin.v[2];
   }
   CG_SetPoseOrigin(&cent->pose, &outOrigin);
   AnglesToAxis(&cent->pose.angles, &axis);
-  AnglesToAxis(&_RSI->poseState.rotation, &in2);
+  AnglesToAxis(&State->poseState.rotation, &in2);
   MatrixMultiply(&axis, &in2, &out);
   AxisToAngles(&out, &cent->pose.angles);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+4]
-    vmovups xmmword ptr [r15+4], xmm0
-    vmovsd  xmm1, qword ptr [rsi+14h]
-    vmovsd  qword ptr [r15+14h], xmm1
-  }
+  *(_OWORD *)CurrentState->currentState.poseState.offset.v = *(_OWORD *)State->poseState.offset.v;
+  *(double *)&CurrentState->currentState.poseState.rotation.y = *(double *)&State->poseState.rotation.y;
   memset(&outOrigin, 0, sizeof(outOrigin));
-  _R11 = &v66;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -2975,8 +2573,8 @@ void CG_ClientCharacter_Reset(const LocalClientNum_t localClientNum)
   __int64 v3; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *mp_left; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
   XAnimTree **p_animTree; 
 
   v1 = localClientNum;
@@ -3009,30 +2607,26 @@ void CG_ClientCharacter_Reset(const LocalClientNum_t localClientNum)
     --v3;
   }
   while ( v3 );
-  __asm { vmovaps ymm0, cs:__ymm@ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff }
-  v7 = v1;
+  v6 = v1;
   s_characterAnimTreeData.numEntries = 0;
-  s_characterAnimDataShared[v7].ikTargetLeft = NULL;
-  v8 = (unsigned int)(unsigned __int8)v3 + 20;
-  s_characterAnimDataShared[v7].ikTargetRight = NULL;
-  s_characterAnimDataShared[v7].checkAnimPackagesLoaded = 0;
+  s_characterAnimDataShared[v6].ikTargetLeft = NULL;
+  v7 = 20i64;
+  s_characterAnimDataShared[v6].ikTargetRight = NULL;
+  s_characterAnimDataShared[v6].checkAnimPackagesLoaded = 0;
   p_animTree = &s_characterState[v1][0].animTree;
-  __asm
-  {
-    vmovups ymmword ptr cs:s_characterAnimDataInstance.treeDataIndex, ymm0
-    vmovups ymmword ptr cs:s_characterAnimDataInstance.treeDataIndex+20h, ymm0
-    vmovups ymmword ptr cs:s_characterAnimDataInstance.treeDataIndex+40h, ymm0
-    vmovups ymmword ptr cs:s_characterAnimDataInstance.treeDataIndex+60h, ymm0
-  }
+  *(__m256i *)&s_characterAnimDataInstance[0].treeDataIndex = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  *(__m256i *)&s_characterAnimDataInstance[8].treeDataIndex = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  *(__m256i *)&s_characterAnimDataInstance[16].treeDataIndex = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  *(__m256i *)&s_characterAnimDataInstance[24].treeDataIndex = _ymm_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
   do
   {
     if ( *p_animTree )
       XAnimFreeTree(*p_animTree, NULL);
     memset_0(p_animTree - 608, 0, 0x24A8ui64);
     p_animTree += 1173;
-    --v8;
+    --v7;
   }
-  while ( v8 );
+  while ( v7 );
 }
 
 /*
@@ -3077,116 +2671,73 @@ CG_ClientCharacter_ResolveRequestedWeapons
 */
 void CG_ClientCharacter_ResolveRequestedWeapons(const LocalClientNum_t localClientNum, const UICharacterState *character, Weapon *outHeldWeapon, Weapon *outStowWeapon, Weapon *outAccessoryWeapon)
 {
-  int v13; 
-  int v21; 
-  int v29; 
-  __int64 v35; 
+  Weapon *WeaponForName; 
+  __int128 v10; 
+  double v11; 
+  int v12; 
+  Weapon *v13; 
+  __int128 v14; 
+  double v15; 
+  int v16; 
+  Weapon *v17; 
+  __int128 v18; 
+  double v19; 
+  int v20; 
+  __int64 v21; 
   Weapon result; 
 
-  _RBX = outStowWeapon;
-  _RDI = outHeldWeapon;
   if ( !character && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 810, ASSERT_TYPE_ASSERT, "(character)", (const char *)&queryFormat, "character") )
     __debugbreak();
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v35) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 811, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v35, 2) )
+    LODWORD(v21) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 811, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v21, 2) )
       __debugbreak();
   }
   if ( character->modelState.heldWeapon[0] )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&result, character->modelState.heldWeapon);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v13 = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rdi], ymm1
-      vmovups xmmword ptr [rdi+20h], xmm2
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->weaponCamo = v13;
+    WeaponForName = CG_Weapons_GetWeaponForName(&result, character->modelState.heldWeapon);
+    v10 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+    v11 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+    v12 = *(_DWORD *)&WeaponForName->weaponCamo;
+    *(__m256i *)&outHeldWeapon->weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+    *(_OWORD *)&outHeldWeapon->attachmentVariationIndices[5] = v10;
+    *(double *)&outHeldWeapon->attachmentVariationIndices[21] = v11;
+    *(_DWORD *)&outHeldWeapon->weaponCamo = v12;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *outHeldWeapon = NULL_WEAPON;
   }
   if ( character->modelState.stowedWeapon[0] )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&result, character->modelState.stowedWeapon);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v21 = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm1
-      vmovups xmmword ptr [rbx+20h], xmm2
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = v21;
+    v13 = CG_Weapons_GetWeaponForName(&result, character->modelState.stowedWeapon);
+    v14 = *(_OWORD *)&v13->attachmentVariationIndices[5];
+    v15 = *(double *)&v13->attachmentVariationIndices[21];
+    v16 = *(_DWORD *)&v13->weaponCamo;
+    *(__m256i *)&outStowWeapon->weaponIdx = *(__m256i *)&v13->weaponIdx;
+    *(_OWORD *)&outStowWeapon->attachmentVariationIndices[5] = v14;
+    *(double *)&outStowWeapon->attachmentVariationIndices[21] = v15;
+    *(_DWORD *)&outStowWeapon->weaponCamo = v16;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *outStowWeapon = NULL_WEAPON;
   }
   if ( character->modelState.accessoryWeapon[0] )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&result, character->modelState.accessoryWeapon);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v29 = *(_DWORD *)&_RAX->weaponCamo;
-    _RAX = outAccessoryWeapon;
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm1
-      vmovups xmmword ptr [rax+20h], xmm2
-      vmovsd  qword ptr [rax+30h], xmm0
-    }
-    *(_DWORD *)&outAccessoryWeapon->weaponCamo = v29;
+    v17 = CG_Weapons_GetWeaponForName(&result, character->modelState.accessoryWeapon);
+    v18 = *(_OWORD *)&v17->attachmentVariationIndices[5];
+    v19 = *(double *)&v17->attachmentVariationIndices[21];
+    v20 = *(_DWORD *)&v17->weaponCamo;
+    *(__m256i *)&outAccessoryWeapon->weaponIdx = *(__m256i *)&v17->weaponIdx;
+    *(_OWORD *)&outAccessoryWeapon->attachmentVariationIndices[5] = v18;
+    *(double *)&outAccessoryWeapon->attachmentVariationIndices[21] = v19;
+    *(_DWORD *)&outAccessoryWeapon->weaponCamo = v20;
   }
   else
   {
-    __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-    _RCX = outAccessoryWeapon;
-    __asm
-    {
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups xmmword ptr [rcx+20h], xmm1
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovsd  qword ptr [rcx+30h], xmm0
-    }
-    *(_DWORD *)&outAccessoryWeapon->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *outAccessoryWeapon = NULL_WEAPON;
   }
 }
 
@@ -3197,99 +2748,38 @@ CG_ClientCharacter_SetAnimationTime
 */
 void CG_ClientCharacter_SetAnimationTime(const LocalClientNum_t localClientNum, const unsigned int entityIndex, DObj *const dobj, XAnimTree *const animTree, const unsigned int animIndex, const float time)
 {
-  bool v16; 
-  bool v17; 
-  char v22; 
-  char v23; 
+  __int128 v6; 
+  __int128 v7; 
+  double v13; 
+  float v14; 
   const XAnim_s *Anims; 
   const XAnimParts *Parts; 
-  bool v32; 
-  unsigned __int64 notifyCount; 
-  float fmt; 
-  double v40; 
-  double v41; 
-  double v42; 
-  double v43; 
-  double v44; 
-  double v45; 
+  unsigned __int64 i; 
+  XAnimNotifyInfo *v18; 
+  float v19; 
   XAnimNotify notify; 
-  char v50; 
-  void *retaddr; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
+  v23 = v6;
+  v22 = v7;
+  v21 = _XMM11;
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 945, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
   if ( !animTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 946, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
     __debugbreak();
-  v16 = animIndex == 0;
-  if ( !animIndex )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 947, ASSERT_TYPE_ASSERT, "(animIndex != 0)", (const char *)&queryFormat, "animIndex != 0");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+0C8h+time]
-    vmovsd  xmm10, cs:__real@3ff0000000000000
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm6, xmm9
-    vxorpd  xmm11, xmm11, xmm11
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( !v16 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_90], xmm10
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_98], xmm11
-      vmovsd  [rsp+0C8h+var_A0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 948, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( time ) && ( time ) <= ( 1.0f )", "time not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v40, v42, v44) )
-      __debugbreak();
-  }
-  *(double *)&_XMM0 = XAnimGetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm
-  {
-    vcomiss xmm0, xmm9
-    vmovaps xmm9, [rsp+0C8h+var_48]
-    vmovaps xmm7, xmm0
-  }
-  if ( v22 )
-    goto LABEL_32;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v22 | v23) )
-  {
-LABEL_32:
-    __asm
-    {
-      vmovsd  [rsp+0C8h+var_90], xmm10
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm11
-      vmovsd  [rsp+0C8h+var_A0], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 951, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( currentTime ) && ( currentTime ) <= ( 1.0f )", "currentTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v41, v43, v45) )
-      __debugbreak();
-  }
-  __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm6 }
-  XAnimSetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex, fmt);
-  __asm
-  {
-    vcomiss xmm6, xmm7
-    vmovaps xmm11, [rsp+0C8h+var_68]
-    vmovaps xmm10, [rsp+0C8h+var_58]
-  }
-  if ( !(v22 | v16) )
+  if ( !animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 947, ASSERT_TYPE_ASSERT, "(animIndex != 0)", (const char *)&queryFormat, "animIndex != 0") )
+    __debugbreak();
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( (time < 0.0 || time > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 948, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( time ) && ( time ) <= ( 1.0f )", "time not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", time, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
+  v13 = XAnimGetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  v14 = *(float *)&v13;
+  if ( (*(float *)&v13 < 0.0 || *(float *)&v13 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 951, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( currentTime ) && ( currentTime ) <= ( 1.0f )", "currentTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v13, *(double *)&_XMM11, DOUBLE_1_0) )
+    __debugbreak();
+  XAnimSetTime(animTree, 0, XANIM_SUBTREE_DEFAULT, animIndex, time);
+  if ( time > *(float *)&v13 )
   {
     Anims = XAnimGetAnims(animTree);
     if ( !Anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 963, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
@@ -3297,42 +2787,20 @@ LABEL_32:
     Parts = XAnimGetParts(Anims, animIndex);
     if ( !Parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_character.cpp", 965, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
       __debugbreak();
-    _RBX = 0i64;
-    v32 = Parts->notifyCount == 0;
-    if ( Parts->notifyCount )
+    for ( i = 0i64; i < Parts->notifyCount; ++i )
     {
-      do
+      v18 = Parts->notify;
+      v19 = v18[i].time;
+      if ( v14 <= v19 && v19 <= time )
       {
-        _RAX = Parts->notify;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rbx*8+4]
-          vcomiss xmm7, xmm0
-        }
-        if ( v32 )
-        {
-          __asm { vcomiss xmm0, xmm6 }
-          if ( v32 )
-          {
-            notify.noteName = _RAX[_RBX].name;
-            notify.notifyName = 0;
-            __asm { vmovss  [rsp+0C8h+notify.timeFrac], xmm6 }
-            notify.notifyType = 5;
-            notify.animParts = Parts;
-            CG_ClientCharacter_ProcessNoteTrack(localClientNum, entityIndex, &notify);
-          }
-        }
-        notifyCount = Parts->notifyCount;
-        v32 = ++_RBX <= notifyCount;
+        notify.noteName = v18[i].name;
+        notify.notifyName = 0;
+        notify.timeFrac = time;
+        notify.notifyType = 5;
+        notify.animParts = Parts;
+        CG_ClientCharacter_ProcessNoteTrack(localClientNum, entityIndex, &notify);
       }
-      while ( _RBX < notifyCount );
     }
-  }
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 

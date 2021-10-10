@@ -1242,8 +1242,7 @@ SND_GetLoadProgress
 */
 float SND_GetLoadProgress()
 {
-  __asm { vmovss  xmm0, cs:?g_sb@@3USndBankGlobals@@A.assetLoadPercent; SndBankGlobals g_sb }
-  return *(float *)&_XMM0;
+  return g_sb.assetLoadPercent;
 }
 
 /*

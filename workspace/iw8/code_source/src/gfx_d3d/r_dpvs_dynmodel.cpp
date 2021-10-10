@@ -71,134 +71,83 @@ R_CullDynModelInCell
 */
 void R_CullDynModelInCell(const unsigned int *dynEntCellBits, unsigned int dynEntClientWordCount, DynEntityPose *dynModelList, const DpvsPlane *planes, int planeCount, unsigned __int8 *dynEntVisData)
 {
-  unsigned int v16; 
-  unsigned int v20; 
+  unsigned int v6; 
+  unsigned int v8; 
+  unsigned int v9; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  vec3_t *v20; 
   unsigned int v21; 
-  int v22; 
-  __int64 v23; 
-  int v25; 
-  bool v32; 
-  unsigned int v61; 
-  void *retaddr; 
-  const unsigned int *v72; 
-  unsigned int v73; 
+  const unsigned int *v22; 
+  unsigned int v23; 
 
   if ( dynEntClientWordCount )
   {
-    _R11 = &retaddr;
-    v73 = dynEntClientWordCount;
-    v72 = dynEntCellBits;
-    v16 = 0;
-    _R14 = dynModelList;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps [rsp+118h+var_A8], xmm12
-      vmovaps [rsp+118h+var_B8], xmm13
-      vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+118h+var_C8], xmm14
-      vxorps  xmm14, xmm14, xmm14
-    }
-    v61 = 0;
+    v23 = dynEntClientWordCount;
+    v22 = dynEntCellBits;
+    v6 = 0;
+    v21 = 0;
     do
     {
-      v20 = *dynEntCellBits;
-      v21 = __lzcnt(*dynEntCellBits);
-      if ( v21 < 0x20 )
+      v8 = *dynEntCellBits;
+      v9 = __lzcnt(*dynEntCellBits);
+      if ( v9 < 0x20 )
       {
-        v22 = 32 * v16;
+        v10 = 32 * v6;
         do
         {
-          v23 = v22 + v21;
-          if ( ((0x80000000 >> v21) & v20) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_dynmodel.cpp", 32, ASSERT_TYPE_ASSERT, "(bits & bit)", (const char *)&queryFormat, "bits & bit") )
+          v11 = v10 + v9;
+          if ( ((0x80000000 >> v9) & v8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_dpvs_dynmodel.cpp", 32, ASSERT_TYPE_ASSERT, "(bits & bit)", (const char *)&queryFormat, "bits & bit") )
             __debugbreak();
-          v20 &= ~(0x80000000 >> v21);
-          if ( !dynEntVisData[v23] )
+          v8 &= ~(0x80000000 >> v9);
+          if ( !dynEntVisData[v11] )
           {
-            _RCX = 112i64 * (unsigned int)v23;
-            v25 = 0;
+            v12 = (unsigned int)v11;
+            v13 = 0;
             if ( planeCount <= 0 )
             {
 LABEL_13:
-              dynEntVisData[v23] = 1;
+              dynEntVisData[v11] = 1;
             }
             else
             {
-              __asm
+              v14 = dynModelList[v12].bounds.halfSize.v[0];
+              v15 = dynModelList[v12].bounds.midPoint.v[0];
+              v16 = dynModelList[v12].bounds.midPoint.v[1];
+              v17 = dynModelList[v12].bounds.halfSize.v[1];
+              v18 = dynModelList[v12].bounds.midPoint.v[2];
+              v19 = dynModelList[v12].bounds.halfSize.v[2];
+              v20 = &planes->coeffs.xyz + 1;
+              while ( (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(v20[-1].v[0]) & _xmm) * v14) + (float)((float)(v15 * v20[-1].v[0]) + v20->v[0])) + (float)(v16 * v20[-1].v[1])) + (float)(COERCE_FLOAT(LODWORD(v20[-1].v[1]) & _xmm) * v17)) + (float)(v18 * v20[-1].v[2])) + (float)(COERCE_FLOAT(LODWORD(v20[-1].v[2]) & _xmm) * v19)) > 0.0 )
               {
-                vmovss  xmm7, dword ptr [rcx+r14+30h]
-                vmovss  xmm8, dword ptr [rcx+r14+24h]
-                vmovss  xmm9, dword ptr [rcx+r14+28h]
-                vmovss  xmm10, dword ptr [rcx+r14+34h]
-                vmovss  xmm11, dword ptr [rcx+r14+2Ch]
-                vmovss  xmm12, dword ptr [rcx+r14+38h]
-              }
-              v32 = __CFADD__(planes, 12i64) || &planes->coeffs.xyz + 1 == NULL;
-              _RCX = &planes->coeffs.xyz + 1;
-              while ( 1 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [rcx-0Ch]
-                  vmovss  xmm5, dword ptr [rcx-8]
-                  vmovss  xmm6, dword ptr [rcx-4]
-                  vandps  xmm0, xmm1, xmm13
-                  vmulss  xmm2, xmm0, xmm7
-                  vmulss  xmm0, xmm8, xmm1
-                  vaddss  xmm1, xmm0, dword ptr [rcx]
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm2, xmm9, xmm5
-                  vmulss  xmm1, xmm11, xmm6
-                  vaddss  xmm4, xmm3, xmm2
-                  vandps  xmm5, xmm5, xmm13
-                  vmulss  xmm0, xmm5, xmm10
-                  vaddss  xmm2, xmm4, xmm0
-                  vandps  xmm6, xmm6, xmm13
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm6, xmm12
-                  vaddss  xmm1, xmm3, xmm0
-                  vcomiss xmm1, xmm14
-                }
-                if ( v32 )
-                  break;
-                ++v25;
-                _RCX = (vec3_t *)((char *)_RCX + 16);
-                v32 = v25 <= (unsigned int)planeCount;
-                if ( v25 >= planeCount )
+                ++v13;
+                v20 = (vec3_t *)((char *)v20 + 16);
+                if ( v13 >= planeCount )
                   goto LABEL_13;
               }
             }
           }
-          v21 = __lzcnt(v20);
+          v9 = __lzcnt(v8);
         }
-        while ( v21 < 0x20 );
-        v16 = v61;
-        dynEntCellBits = v72;
-        dynEntClientWordCount = v73;
+        while ( v9 < 0x20 );
+        v6 = v21;
+        dynEntCellBits = v22;
+        dynEntClientWordCount = v23;
       }
-      ++v16;
+      ++v6;
       ++dynEntCellBits;
-      v61 = v16;
-      v72 = dynEntCellBits;
+      v21 = v6;
+      v22 = dynEntCellBits;
     }
-    while ( v16 < dynEntClientWordCount );
-    __asm
-    {
-      vmovaps xmm14, [rsp+118h+var_C8]
-      vmovaps xmm13, [rsp+118h+var_B8]
-      vmovaps xmm12, [rsp+118h+var_A8]
-      vmovaps xmm11, [rsp+118h+var_98]
-      vmovaps xmm10, [rsp+118h+var_88]
-      vmovaps xmm9, [rsp+118h+var_78]
-      vmovaps xmm8, [rsp+118h+var_68]
-      vmovaps xmm7, [rsp+118h+var_58]
-      vmovaps xmm6, [rsp+118h+var_48]
-    }
+    while ( v6 < dynEntClientWordCount );
   }
 }
 

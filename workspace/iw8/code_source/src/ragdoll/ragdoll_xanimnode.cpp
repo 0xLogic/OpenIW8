@@ -40,59 +40,73 @@ Ragdoll_XAnimNode_Calc
 */
 void Ragdoll_XAnimNode_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
-  XAnimCalcAnimInfo *v19; 
-  int v21; 
+  XAnimCalcAnimInfo *v8; 
+  int v10; 
   Ragdoll *Ragdoll; 
-  const char ***models; 
+  Ragdoll *v12; 
+  float v13; 
+  __int128 v15; 
   __int64 numBones; 
-  __int64 v35; 
-  bool v36; 
-  int v37; 
-  bool v38; 
-  BoneOrientation *v42; 
+  float value; 
+  XAnimCalcBuffer *v20; 
+  __int64 v21; 
+  int v22; 
+  __m128 v24; 
+  BoneOrientation *v25; 
   scr_string_t *boneNames; 
   unsigned __int16 *p_animBone; 
-  unsigned int v46; 
-  const char *v47; 
-  int v86; 
+  vec4_t *p_orientation; 
+  unsigned int v29; 
+  const char *v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v; 
+  __m128 v42; 
+  float v46; 
+  float v47; 
+  int v48; 
   const BoneOrientation *PhysicsPoseBoneOrientations; 
-  unsigned __int16 *v89; 
-  int v91; 
-  const dvar_t *v92; 
-  const dvar_t *v95; 
+  unsigned __int16 *v50; 
+  float *v51; 
+  int v52; 
+  const dvar_t *v53; 
+  float v54; 
+  const dvar_t *v55; 
   __int64 localClientNum; 
+  double v57; 
+  double v58; 
+  double v59; 
+  double v60; 
+  double v61; 
+  double v62; 
+  __int128 v64; 
   const float4 *fmt; 
-  char *fmta; 
   float4 *outModelTranslation; 
-  float4 *outModelTranslationa; 
-  __int64 v140; 
-  float v141; 
-  double calcMode; 
-  double v143; 
-  __int64 v144; 
-  double v145; 
-  int v146; 
-  int v147; 
-  int v148; 
-  int v149; 
-  int v150; 
-  int v151; 
-  int v152; 
-  int v154; 
-  int v155; 
+  __int64 v69; 
+  __int64 v70; 
+  float v71; 
+  int v72; 
+  int v73; 
   int entityNum; 
-  __int64 v157; 
-  int v159; 
-  __int64 v160; 
+  __int64 v75; 
+  int v77; 
+  XAnimCalcBuffer *calcBuffer; 
+  __int64 v79; 
   DObjPartBits *partBits; 
-  __int128 v163; 
-  float4 v164; 
+  XAnimCalcBuffer outTempCalcBuffer; 
+  __int128 v83; 
+  float4 v84; 
   float4 outModelQuat; 
   vec4_t rotation; 
-  float4 v167; 
-  float4 v168; 
+  float4 v87; 
+  float4 v88; 
 
-  v19 = animCalcInfo;
+  v8 = animCalcInfo;
   if ( !obj )
   {
     outModelTranslation = (float4 *)"obj";
@@ -105,17 +119,17 @@ void Ragdoll_XAnimNode_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, con
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 69, ASSERT_TYPE_ASSERT, "(obj->numModels > 0)", (const char *)&queryFormat) )
       __debugbreak();
   }
-  v21 = *(_DWORD *)nodeData;
-  partBits = &v19->ignorePartBits;
+  v10 = *(_DWORD *)nodeData;
+  partBits = &v8->ignorePartBits;
   if ( *(_DWORD *)nodeData )
   {
-    if ( (unsigned int)(v21 - 1) >= 0x40 )
+    if ( (unsigned int)(v10 - 1) >= 0x40 )
     {
-      LODWORD(outModelTranslation) = v21 - 1;
+      LODWORD(outModelTranslation) = v10 - 1;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 65, ASSERT_TYPE_ASSERT, "(unsigned)( ragdollHandle - 1 ) < (unsigned)( 64 )", "ragdollHandle - 1 doesn't index RAGDOLL_MAX\n\t%i not in [0, %i)", outModelTranslation, 64) )
         __debugbreak();
     }
-    Ragdoll = Ragdoll_GetRagdoll(v21);
+    Ragdoll = Ragdoll_GetRagdoll(v10);
     if ( !Ragdoll )
     {
       outModelTranslation = (float4 *)"ragdoll";
@@ -125,255 +139,179 @@ void Ragdoll_XAnimNode_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, con
     if ( Ragdoll->allocated )
     {
       Profile_Begin(541);
-      _RDI = Ragdoll_GetRagdoll(*(_DWORD *)nodeData);
-      if ( !_RDI )
+      v12 = Ragdoll_GetRagdoll(*(_DWORD *)nodeData);
+      if ( !v12 )
       {
         outModelTranslation = (float4 *)"ragdoll";
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 90, ASSERT_TYPE_ASSERT, "(ragdoll)", (const char *)&queryFormat) )
           __debugbreak();
       }
-      if ( Ragdoll_PoseValid(_RDI) )
+      if ( Ragdoll_PoseValid(v12) )
       {
-        models = (const char ***)obj->models;
-        __asm { vmovaps [rsp+1F0h+var_40], xmm6 }
-        if ( strncmp(_RDI->xmodelAtCreate, **models, 0x100ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 105, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tRagdoll has detected a change in model from %s to %s at running time %ims - this is not allowed", "false", _RDI->xmodelAtCreate, **(const char ***)obj->models, _RDI->state.msec) )
+        if ( strncmp(v12->xmodelAtCreate, **(const char ***)obj->models, 0x100ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 105, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tRagdoll has detected a change in model from %s to %s at running time %ims - this is not allowed", "false", v12->xmodelAtCreate, **(const char ***)obj->models, v12->state.msec) )
           __debugbreak();
-        _RAX = g_activeRefDef;
-        __asm { vmovaps [rsp+1F0h+var_90], xmm11 }
         if ( g_activeRefDef )
         {
+          v13 = g_activeRefDef->viewOffset.v[0];
+          HIDWORD(v83) = 0;
+          v15 = v83;
+          *(float *)&v15 = v13;
+          _XMM11 = v15;
           __asm
           {
-            vmovss  xmm0, dword ptr [rax+7Ch]
-            vmovss  xmm1, dword ptr [rax+80h]
-            vmovss  xmm2, dword ptr [rax+84h]
-          }
-          HIDWORD(v163) = 0;
-          __asm
-          {
-            vmovups xmm11, xmmword ptr [rbp-50h]
-            vmovss  xmm11, xmm11, xmm0
             vinsertps xmm11, xmm11, xmm1, 10h
             vinsertps xmm11, xmm11, xmm2, 20h ; ' '
-            vmovups xmmword ptr [rbp-50h], xmm11
           }
+          v83 = (__int128)_XMM11;
         }
         else
         {
-          __asm { vxorps  xmm11, xmm11, xmm11 }
+          _XMM11 = 0i64;
         }
-        if ( !_RDI )
+        if ( !v12 )
         {
           outModelTranslation = (float4 *)"ragdoll";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 79, ASSERT_TYPE_ASSERT, "(ragdoll)", (const char *)&queryFormat) )
             __debugbreak();
         }
-        numBones = _RDI->state.numBones;
-        v155 = _RDI->state.numBones;
-        if ( _RDI == (Ragdoll *)-4016i64 )
+        numBones = v12->state.numBones;
+        v73 = v12->state.numBones;
+        if ( v12 == (Ragdoll *)-4016i64 )
         {
           outModelTranslation = (float4 *)"bones";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 124, ASSERT_TYPE_ASSERT, "(bones)", (const char *)&queryFormat) )
             __debugbreak();
         }
-        _RAX = ragdoll_animNodeOverrideWeight;
-        __asm
+        value = ragdoll_animNodeOverrideWeight->current.value;
+        v71 = value;
+        if ( value >= 1.0 )
         {
-          vmovss  xmm6, dword ptr [rax+28h]
-          vcomiss xmm6, cs:__real@3f800000
-          vmovss  [rsp+1F0h+var_19C], xmm6
+          ++destBuffer->refCount;
+          v20 = destBuffer;
         }
-        ++destBuffer->refCount;
-        __asm
+        else
         {
-          vmovaps [rsp+1F0h+var_50], xmm7
-          vmovaps [rsp+1F0h+var_60], xmm8
-          vmovaps [rsp+1F0h+var_70], xmm9
-          vmovaps [rsp+1F0h+var_80], xmm10
-          vmovaps [rsp+1F0h+var_A0], xmm12
+          v20 = XAnimAllocOrReuseCalcBuffer(v8, obj, destBuffer, &outTempCalcBuffer);
         }
-        XAnimClearCalcBufferIfEmpty(v19, obj, destBuffer);
-        v35 = numBones;
-        v157 = numBones;
-        v36 = Ragdoll_RequiresAnimationPose(*(_DWORD *)nodeData);
-        v37 = 0;
-        v159 = 0;
-        v38 = !v36;
-        if ( v36 )
+        calcBuffer = v20;
+        XAnimClearCalcBufferIfEmpty(v8, obj, v20);
+        v21 = numBones;
+        v75 = numBones;
+        v22 = 0;
+        v77 = 0;
+        if ( Ragdoll_RequiresAnimationPose(*(_DWORD *)nodeData) )
         {
           if ( DObjGetRootBoneCount(obj) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 162, ASSERT_TYPE_ASSERT, "(DObjGetRootBoneCount( obj ) == 1)", (const char *)&queryFormat, "DObjGetRootBoneCount( obj ) == 1") )
             __debugbreak();
-          XAnimGetLocalBoneTransform(v19, obj, destBuffer, 0, &outModelQuat, &v164);
+          XAnimGetLocalBoneTransform(v8, obj, destBuffer, 0, &outModelQuat, &v84);
+          _XMM1 = _mm128_add_ps(_XMM11, v84.v);
+          v24 = _mm128_mul_ps(outModelQuat.v, (__m128)_xmm);
+          *(float *)&v83 = _XMM1.m128_f32[0];
           __asm
           {
-            vaddps  xmm1, xmm11, xmmword ptr [rbp+0F0h+var_130.v]
-            vmovups xmm2, xmmword ptr [rbp+0F0h+outModelQuat.v]
-            vmulps  xmm12, xmm2, cs:__xmm@3f800000bf800000bf800000bf800000
-            vmovss  dword ptr [rbp+0F0h+var_140], xmm1
             vextractps dword ptr [rbp+0F0h+var_140+4], xmm1, 1
             vextractps dword ptr [rbp+0F0h+var_140+8], xmm1, 2
-            vmovups xmmword ptr [rbp+0F0h+rotation], xmm2
           }
-          Ragdoll_SetAnimPoseRootOrientation(_RDI, &rotation, (const vec3_t *)&v163);
-          v42 = Ragdoll_GetAnimPoseBoneOrientationsForWrite(_RDI);
-          if ( !v42 )
+          rotation = (vec4_t)outModelQuat.v;
+          Ragdoll_SetAnimPoseRootOrientation(v12, &rotation, (const vec3_t *)&v83);
+          v25 = Ragdoll_GetAnimPoseBoneOrientationsForWrite(v12);
+          if ( !v25 )
           {
             outModelTranslation = (float4 *)"animBoneOrientations";
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 181, ASSERT_TYPE_ASSERT, "(animBoneOrientations)", (const char *)&queryFormat) )
               __debugbreak();
           }
-          v154 = 0;
-          if ( v35 > 0 )
+          v72 = 0;
+          if ( v21 > 0 )
           {
-            boneNames = _RDI->boneNames;
-            v160 = v157;
-            p_animBone = &_RDI->state.bones[0].animBone;
-            _RBX = &v42->orientation;
+            boneNames = v12->boneNames;
+            v79 = v75;
+            p_animBone = &v12->state.bones[0].animBone;
+            p_orientation = &v25->orientation;
             do
             {
-              v46 = *p_animBone;
-              if ( v46 >= obj->numBones )
+              v29 = *p_animBone;
+              if ( v29 >= obj->numBones )
               {
-                v47 = SL_ConvertToString(*boneNames);
-                LODWORD(v144) = v46;
-                LODWORD(v140) = *(_DWORD *)nodeData;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 196, ASSERT_TYPE_ASSERT, "(boneIdx < obj->numBones)", "%s\n\tRagdoll %i using model %s used to have bone %s as %i, but this is out of range now", "boneIdx < obj->numBones", v140, _RDI->xmodelAtCreate, v47, v144) )
+                v30 = SL_ConvertToString(*boneNames);
+                LODWORD(v70) = v29;
+                LODWORD(v69) = *(_DWORD *)nodeData;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 196, ASSERT_TYPE_ASSERT, "(boneIdx < obj->numBones)", "%s\n\tRagdoll %i using model %s used to have bone %s as %i, but this is out of range now", "boneIdx < obj->numBones", v69, v12->xmodelAtCreate, v30, v70) )
                   __debugbreak();
               }
-              if ( XAnimTestPartBit(partBits, v46) )
+              if ( XAnimTestPartBit(partBits, v29) )
               {
-                v86 = v154;
+                v48 = v72;
               }
               else
               {
-                XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v46, &v168, &v167);
+                XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v29, &v88, &v87);
+                v31 = _mm128_sub_ps(v87.v, v84.v);
+                v32 = _mm_shuffle_ps(v24, v24, 201);
+                v33 = _mm_shuffle_ps(v24, v24, 210);
+                v34 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v31, v31, 210), v32), _mm128_mul_ps(_mm_shuffle_ps(v31, v31, 201), v33));
+                v35 = _mm128_add_ps(v34, v34);
+                v36 = _mm_shuffle_ps(v24, v24, 255);
+                v37 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v35, v35, 210), v32), _mm128_mul_ps(_mm_shuffle_ps(v35, v35, 201), v33)), _mm128_add_ps(_mm128_mul_ps(v36, v35), v31));
+                v = v88.v;
+                _XMM0 = _mm128_mul_ps(v88.v, v24);
                 __asm
                 {
-                  vmovups xmm0, xmmword ptr [rbp+0F0h+var_100.v]
-                  vsubps  xmm5, xmm0, xmmword ptr [rbp+0F0h+var_130.v]
-                  vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-                  vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-                  vshufps xmm6, xmm12, xmm12, 0C9h ; 'É'
-                  vmulps  xmm3, xmm0, xmm6
-                  vshufps xmm8, xmm12, xmm12, 0D2h ; 'Ò'
-                  vmulps  xmm2, xmm1, xmm8
-                  vsubps  xmm0, xmm3, xmm2
-                  vaddps  xmm4, xmm0, xmm0
-                  vshufps xmm10, xmm12, xmm12, 0FFh
-                  vmulps  xmm0, xmm10, xmm4
-                  vaddps  xmm5, xmm0, xmm5
-                  vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-                  vmulps  xmm2, xmm0, xmm8
-                  vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm1, xmm6
-                  vsubps  xmm1, xmm3, xmm2
-                  vaddps  xmm9, xmm1, xmm5
-                  vmovups xmm5, xmmword ptr [rbp+0F0h+var_F0.v]
-                  vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm0, xmm6
-                  vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-                  vmulps  xmm2, xmm1, xmm8
-                  vsubps  xmm6, xmm3, xmm2
-                  vmulps  xmm0, xmm5, xmm12
                   vinsertps xmm1, xmm0, xmm0, 8
                   vhaddps xmm2, xmm1, xmm1
-                  vshufps xmm7, xmm5, xmm5, 0FFh
-                  vmulps  xmm0, xmm7, xmm10
-                  vmulps  xmm1, xmm5, xmm10
-                  vmulps  xmm4, xmm12, xmm7
-                  vaddps  xmm1, xmm4, xmm1
-                  vhaddps xmm3, xmm2, xmm2
-                  vsubps  xmm2, xmm0, xmm3
-                  vaddps  xmm0, xmm6, xmm1
-                  vmovss  [rsp+1F0h+var_1A0], xmm9
-                  vblendps xmm6, xmm2, xmm0, 7
-                  vshufps xmm0, xmm9, xmm9, 55h ; 'U'
-                  vshufps xmm1, xmm9, xmm9, 0AAh ; 'ª'
-                  vmovss  dword ptr [rbx-8], xmm0
-                  vmovss  dword ptr [rbx-0Ch], xmm9
-                  vmovss  dword ptr [rbx-4], xmm1
                 }
-                if ( (v146 & 0x7F800000) == 2139095040 )
-                  goto LABEL_103;
-                __asm { vmovss  [rsp+1F0h+var_1A0], xmm0 }
-                if ( (v147 & 0x7F800000) == 2139095040 )
-                  goto LABEL_103;
-                __asm { vmovss  [rsp+1F0h+var_1A0], xmm1 }
-                if ( (v148 & 0x7F800000) == 2139095040 )
+                v42 = _mm_shuffle_ps(v, v, 255);
+                __asm { vhaddps xmm3, xmm2, xmm2 }
+                _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v42, v36), _XMM3);
+                _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 210), v32), _mm128_mul_ps(_mm_shuffle_ps(v, v, 201), v33)), _mm128_add_ps(_mm128_mul_ps(v24, v42), _mm128_mul_ps(v88.v, v36)));
+                __asm { vblendps xmm6, xmm2, xmm0, 7 }
+                LODWORD(v46) = _mm_shuffle_ps(v37, v37, 85).m128_u32[0];
+                LODWORD(v47) = _mm_shuffle_ps(v37, v37, 170).m128_u32[0];
+                p_orientation[-1].v[2] = v46;
+                p_orientation[-1].v[1] = v37.m128_f32[0];
+                p_orientation[-1].v[3] = v47;
+                if ( (v37.m128_i32[0] & 0x7F800000) == 2139095040 || (LODWORD(v46) & 0x7F800000) == 2139095040 || (LODWORD(v47) & 0x7F800000) == 2139095040 )
                 {
-LABEL_103:
                   outModelTranslation = (float4 *)"!IS_NAN( ( animBoneOrientation->origin )[0] ) && !IS_NAN( ( animBoneOrientation->origin )[1] ) && !IS_NAN( ( animBoneOrientation->origin )[2] )";
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 213, ASSERT_TYPE_SANITY, "( !IS_NAN( ( animBoneOrientation->origin )[0] ) && !IS_NAN( ( animBoneOrientation->origin )[1] ) && !IS_NAN( ( animBoneOrientation->origin )[2] ) )", (const char *)&queryFormat) )
                     __debugbreak();
                 }
-                __asm
+                *p_orientation = _XMM6;
+                if ( (LODWORD(_XMM6.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(p_orientation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(p_orientation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(p_orientation->v[3]) & 0x7F800000) == 2139095040 )
                 {
-                  vmovss  [rsp+1F0h+var_1A0], xmm6
-                  vmovups xmmword ptr [rbx], xmm6
-                }
-                if ( (v149 & 0x7F800000) == 2139095040 )
-                  goto LABEL_104;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+4]
-                  vmovss  [rsp+1F0h+var_1A0], xmm0
-                }
-                if ( (v150 & 0x7F800000) == 2139095040 )
-                  goto LABEL_104;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+8]
-                  vmovss  [rsp+1F0h+var_1A0], xmm0
-                }
-                if ( (v151 & 0x7F800000) == 2139095040 )
-                  goto LABEL_104;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+0Ch]
-                  vmovss  [rsp+1F0h+var_1A0], xmm0
-                }
-                if ( (v152 & 0x7F800000) == 2139095040 )
-                {
-LABEL_104:
                   outModelTranslation = (float4 *)"!IS_NAN( ( animBoneOrientation->orientation )[0] ) && !IS_NAN( ( animBoneOrientation->orientation )[1] ) && !IS_NAN( ( animBoneOrientation->orientation )[2] ) && !IS_NAN( ( animBoneOrientation->orientation )[3] )";
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 215, ASSERT_TYPE_SANITY, "( !IS_NAN( ( animBoneOrientation->orientation )[0] ) && !IS_NAN( ( animBoneOrientation->orientation )[1] ) && !IS_NAN( ( animBoneOrientation->orientation )[2] ) && !IS_NAN( ( animBoneOrientation->orientation )[3] ) )", (const char *)&queryFormat) )
                     __debugbreak();
                 }
-                Ragdoll_SetDebugAnimationPoseBone(_RDI, (const BoneOrientation *)&_RBX[-1].xyz.y, v37);
-                v86 = ++v154;
+                Ragdoll_SetDebugAnimationPoseBone(v12, (const BoneOrientation *)&p_orientation[-1].xyz.y, v22);
+                v48 = ++v72;
               }
-              ++v37;
+              ++v22;
               ++boneNames;
-              _RBX = (vec4_t *)((char *)_RBX + 28);
+              p_orientation = (vec4_t *)((char *)p_orientation + 28);
               p_animBone += 24;
-              --v160;
+              --v79;
             }
-            while ( v160 );
-            if ( v86 )
+            while ( v79 );
+            if ( v48 )
             {
-              if ( v86 != v155 )
+              if ( v48 != v73 )
               {
                 outModelTranslation = (float4 *)"numCalculatedBones == 0 || numCalculatedBones == numBones";
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 224, ASSERT_TYPE_ASSERT, "(numCalculatedBones == 0 || numCalculatedBones == numBones)", (const char *)&queryFormat) )
                   __debugbreak();
               }
             }
-            v19 = animCalcInfo;
-            v35 = v157;
-            __asm { vmovss  xmm6, [rsp+1F0h+var_19C] }
+            v8 = animCalcInfo;
+            v21 = v75;
+            value = v71;
           }
-          v38 = 1;
-          v37 = 0;
+          v22 = 0;
         }
-        __asm
+        if ( value > 0.0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm6, xmm0
-        }
-        if ( !v38 )
-        {
-          PhysicsPoseBoneOrientations = Ragdoll_GetPhysicsPoseBoneOrientations(_RDI);
-          if ( !Ragdoll_PoseValid(_RDI) )
+          PhysicsPoseBoneOrientations = Ragdoll_GetPhysicsPoseBoneOrientations(v12);
+          if ( !Ragdoll_PoseValid(v12) )
           {
             outModelTranslation = (float4 *)"Ragdoll_PoseValid( ragdoll )";
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 231, ASSERT_TYPE_ASSERT, "(Ragdoll_PoseValid( ragdoll ))", (const char *)&queryFormat) )
@@ -385,160 +323,94 @@ LABEL_104:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll_xanimnode.cpp", 232, ASSERT_TYPE_ASSERT, "(boneOrientations)", (const char *)&queryFormat) )
               __debugbreak();
           }
-          if ( v35 > 0 )
+          if ( v21 > 0 )
           {
-            __asm { vmovaps [rsp+1F0h+var_B0], xmm13 }
-            v89 = &_RDI->state.bones[0].animBone;
-            __asm { vmovaps [rsp+1F0h+var_C0], xmm14 }
-            _RBX = &PhysicsPoseBoneOrientations->origin.v[2];
-            __asm { vmovaps [rsp+1F0h+var_D0], xmm15 }
+            v50 = &v12->state.bones[0].animBone;
+            v51 = &PhysicsPoseBoneOrientations->origin.v[2];
             do
             {
-              v91 = *v89;
-              if ( !XAnimTestPartBit(partBits, v91) )
+              v52 = *v50;
+              if ( !XAnimTestPartBit(partBits, v52) )
               {
                 if ( !Com_GameMode_SupportsFeature(WEAPON_RECHAMBERING|0x100) )
-                  goto LABEL_95;
-                v92 = DVARBOOL_physics_killswitchEnableRagdollFrameDelayFixOnMovers;
+                  goto LABEL_98;
+                v53 = DVARBOOL_physics_killswitchEnableRagdollFrameDelayFixOnMovers;
                 if ( !DVARBOOL_physics_killswitchEnableRagdollFrameDelayFixOnMovers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_killswitchEnableRagdollFrameDelayFixOnMovers") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v92);
-                if ( v92->current.enabled )
+                Dvar_CheckFrontendServerThread(v53);
+                if ( v53->current.enabled )
                 {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rdi+1Ch]
-                    vaddss  xmm6, xmm0, dword ptr [rbx-8]
-                  }
-                  v95 = DCONST_DVARBOOL_ragdoll_debugRagdollMoverOffset;
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rdi+24h]
-                    vmovss  xmm1, dword ptr [rdi+20h]
-                    vaddss  xmm8, xmm0, dword ptr [rbx]
-                    vaddss  xmm7, xmm1, dword ptr [rbx-4]
-                  }
+                  v54 = v12->associatedMoverOffset.v[0] + *(v51 - 2);
+                  v55 = DCONST_DVARBOOL_ragdoll_debugRagdollMoverOffset;
                   if ( !DCONST_DVARBOOL_ragdoll_debugRagdollMoverOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ragdoll_debugRagdollMoverOffset") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(v95);
-                  if ( v95->current.enabled && !v37 )
+                  Dvar_CheckFrontendServerThread(v55);
+                  if ( v55->current.enabled && !v22 )
                   {
-                    localClientNum = _RDI->localClientNum;
-                    __asm
-                    {
-                      vmovss  xmm9, dword ptr [rbx]
-                      vmovss  xmm10, dword ptr [rbx-4]
-                      vmovss  xmm12, dword ptr [rbx-8]
-                      vmovss  xmm13, dword ptr [rdi+24h]
-                      vmovss  xmm14, dword ptr [rdi+20h]
-                      vmovss  xmm15, dword ptr [rdi+1Ch]
-                    }
-                    entityNum = _RDI->entityNum;
-                    __asm
-                    {
-                      vcvtss2sd xmm9, xmm9, xmm9
-                      vcvtss2sd xmm10, xmm10, xmm10
-                      vcvtss2sd xmm12, xmm12, xmm12
-                      vcvtss2sd xmm13, xmm13, xmm13
-                      vcvtss2sd xmm14, xmm14, xmm14
-                      vcvtss2sd xmm15, xmm15, xmm15
-                    }
+                    localClientNum = v12->localClientNum;
+                    entityNum = v12->entityNum;
+                    v57 = *v51;
+                    v58 = *(v51 - 1);
+                    v59 = *(v51 - 2);
+                    v60 = v12->associatedMoverOffset.v[2];
+                    v61 = v12->associatedMoverOffset.v[1];
+                    v62 = v12->associatedMoverOffset.v[0];
                     if ( (unsigned int)localClientNum >= cg_t::ms_allocatedCount )
                     {
-                      LODWORD(v140) = cg_t::ms_allocatedCount;
-                      LODWORD(outModelTranslation) = _RDI->localClientNum;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", outModelTranslation, v140) )
+                      LODWORD(v69) = cg_t::ms_allocatedCount;
+                      LODWORD(outModelTranslation) = v12->localClientNum;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", outModelTranslation, v69) )
                         __debugbreak();
                     }
                     if ( !cg_t::ms_cgArray[localClientNum] )
                     {
-                      LODWORD(v140) = localClientNum;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v140) )
+                      LODWORD(v69) = localClientNum;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v69) )
                         __debugbreak();
                     }
                     if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
                     {
-                      LODWORD(v140) = localClientNum;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v140) )
+                      LODWORD(v69) = localClientNum;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v69) )
                         __debugbreak();
                     }
-                    __asm
-                    {
-                      vmovsd  [rsp+1F0h+var_1A8], xmm9
-                      vmovsd  [rsp+1F0h+var_1B0], xmm10
-                      vmovsd  qword ptr [rsp+1F0h+calcMode], xmm12
-                    }
-                    LODWORD(v140) = entityNum;
-                    __asm
-                    {
-                      vmovaps xmm3, xmm15
-                      vmovsd  [rsp+1F0h+outModelTranslation], xmm13
-                      vmovq   r9, xmm3
-                      vmovsd  [rsp+1F0h+fmt], xmm14
-                    }
-                    Com_Printf(20, "[%d] RAGDOLL ANIM NODE: Mover offset [%6.2f %6.2f %6.2f] applied to ragdoll %d. Ragdoll Root Bone [%6.2f %6.2f %6.2f] \n", (unsigned int)cg_t::ms_cgArray[localClientNum]->time, *(double *)&_XMM3, *(double *)&fmta, *(double *)&outModelTranslationa, v140, calcMode, v143, v145);
+                    LODWORD(v69) = entityNum;
+                    Com_Printf(20, "[%d] RAGDOLL ANIM NODE: Mover offset [%6.2f %6.2f %6.2f] applied to ragdoll %d. Ragdoll Root Bone [%6.2f %6.2f %6.2f] \n", (unsigned int)cg_t::ms_cgArray[localClientNum]->time, v62, v61, v60, v69, v59, v58, v57);
                   }
                 }
                 else
                 {
-LABEL_95:
-                  __asm
-                  {
-                    vmovss  xmm6, dword ptr [rbx-8]
-                    vmovss  xmm7, dword ptr [rbx-4]
-                    vmovss  xmm8, dword ptr [rbx]
-                  }
+LABEL_98:
+                  v54 = *(v51 - 2);
                 }
+                HIDWORD(v83) = 0;
+                v64 = v83;
+                *(float *)&v64 = v54;
+                _XMM1 = v64;
                 __asm
                 {
-                  vmovss  xmm2, [rbp+0F0h+weightScale]
-                  vmovups xmm0, xmmword ptr [rbx+4]
-                }
-                HIDWORD(v163) = 0;
-                __asm
-                {
-                  vmovups xmm1, [rbp+0F0h+var_140]
-                  vmovss  xmm1, xmm1, xmm6
                   vinsertps xmm1, xmm1, xmm7, 10h
                   vinsertps xmm1, xmm1, xmm8, 20h ; ' '
-                  vmovups [rbp+0F0h+var_140], xmm1
-                  vsubps  xmm1, xmm1, xmm11
-                  vmovss  dword ptr [rsp+1F0h+var_1C0], xmm2
                 }
-                XAnimSetLocalBoneTransform(animCalcInfo, obj, destBuffer, v91, fmt, outModelTranslation, v141);
-                v37 = v159;
+                v83 = (__int128)_XMM1;
+                _mm128_sub_ps(_XMM1, _XMM11);
+                XAnimSetLocalBoneTransform(animCalcInfo, obj, calcBuffer, v52, fmt, outModelTranslation, weightScale);
+                v22 = v77;
               }
-              ++v37;
-              _RBX += 7;
-              v89 += 24;
-              v159 = v37;
-              --v157;
+              ++v22;
+              v51 += 7;
+              v50 += 24;
+              v77 = v22;
+              --v75;
             }
-            while ( v157 );
-            __asm { vmovss  xmm6, [rsp+1F0h+var_19C] }
-            v19 = animCalcInfo;
-            __asm
-            {
-              vmovaps xmm15, [rsp+1F0h+var_D0]
-              vmovaps xmm14, [rsp+1F0h+var_C0]
-              vmovaps xmm13, [rsp+1F0h+var_B0]
-            }
+            while ( v75 );
+            value = v71;
+            v8 = animCalcInfo;
           }
-          __asm { vmovaps xmm2, xmm6; weightScale }
-          XAnimCalcFinalizeBuffer(v19, obj, *(float *)&_XMM2, destBuffer, destBuffer, bNormQuat, 1, EASE_IN_QUAD);
+          XAnimCalcFinalizeBuffer(v8, obj, value, calcBuffer, destBuffer, bNormQuat, 1, EASE_IN_QUAD);
         }
-        XAnimFreeCalcBuffer(v19, obj, destBuffer);
+        XAnimFreeCalcBuffer(v8, obj, calcBuffer);
         Profile_EndInternal(NULL);
-        __asm
-        {
-          vmovaps xmm12, [rsp+1F0h+var_A0]
-          vmovaps xmm11, [rsp+1F0h+var_90]
-          vmovaps xmm10, [rsp+1F0h+var_80]
-          vmovaps xmm9, [rsp+1F0h+var_70]
-          vmovaps xmm8, [rsp+1F0h+var_60]
-          vmovaps xmm7, [rsp+1F0h+var_50]
-          vmovaps xmm6, [rsp+1F0h+var_40]
-        }
       }
       else
       {

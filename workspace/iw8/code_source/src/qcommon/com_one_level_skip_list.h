@@ -386,341 +386,291 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AddKey
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AddKey(OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey> *this, const CgDistanceCacheMpKey *key)
 {
+  CgDistanceCacheMpKey *m_linkKeys; 
   __int64 v5; 
+  float distanceSq; 
+  __int64 v7; 
+  float v8; 
   unsigned __int16 v9; 
-  bool v11; 
-  bool v12; 
-  bool v13; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   unsigned __int16 nextPageIndex; 
-  __int64 v18; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v14; 
+  __int64 v15; 
   unsigned __int8 keyCount; 
+  float v17; 
+  float v18; 
   signed __int32 lock; 
-  unsigned __int8 v24; 
-  signed __int32 v28; 
-  signed __int32 v29; 
-  signed __int32 v30; 
-  signed __int32 v31; 
-  signed __int32 v32; 
-  unsigned __int16 v33; 
-  __int64 v34; 
+  unsigned __int8 v20; 
+  float v21; 
+  float v22; 
+  signed __int32 v23; 
+  signed __int32 v24; 
+  signed __int32 v25; 
+  signed __int32 v26; 
+  signed __int32 v27; 
+  unsigned __int16 v28; 
+  CgDistanceCacheMpKey v29; 
+  CgDistanceCacheMpKey *keys; 
+  __int64 v31; 
+  __int64 v32; 
+  float v33; 
+  unsigned __int16 v34; 
+  unsigned __int16 v35; 
   __int64 v36; 
-  unsigned __int16 v40; 
-  unsigned __int16 v41; 
-  __int64 v42; 
+  CgDistanceCacheMpKey v37; 
+  __int64 v38; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v39; 
+  const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *Page; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v41; 
   __int64 v43; 
   __int64 v44; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v45; 
-  const OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *Page; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *v47; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
+  __int64 v45; 
+  __int64 v46; 
   unsigned __int16 outNextPageIndex; 
-  __int64 v54; 
-  __int64 v55; 
+  CgDistanceCacheMpKey v48; 
+  CgDistanceCacheMpKey v49; 
 
-  _R9 = this->m_linkKeys;
-  _R14 = key;
-  _R15 = this;
+  m_linkKeys = this->m_linkKeys;
   v5 = 5i64;
-  __asm { vmovss  xmm1, dword ptr [rdx+4] }
+  distanceSq = key->distanceSq;
   do
   {
-    _RCX = v5 >> 1;
-    __asm
+    v7 = v5 >> 1;
+    v8 = m_linkKeys[v5 >> 1].distanceSq;
+    if ( v8 < distanceSq || v8 == distanceSq && m_linkKeys[v7].index < key->index )
     {
-      vmovss  xmm0, dword ptr [r9+rcx*8+4]
-      vcomiss xmm0, xmm1
-    }
-    if ( v5 & 1 )
-      goto LABEL_6;
-    __asm { vucomiss xmm0, xmm1 }
-    if ( v5 >> 1 )
-      goto LABEL_5;
-    if ( _R9[_RCX].index < key->index )
-    {
-LABEL_6:
-      _R9 += _RCX + 1;
-      v5 += -1 - _RCX;
+      m_linkKeys += v7 + 1;
+      v5 += -1 - v7;
     }
     else
     {
-LABEL_5:
       v5 >>= 1;
     }
   }
   while ( v5 > 0 );
-  v9 = truncate_cast<unsigned short,__int64>(((char *)_R9 - (char *)_R15 - 364) >> 3);
-  LOWORD(_RBX) = v9;
+  v9 = truncate_cast<unsigned short,__int64>(((char *)m_linkKeys - (char *)this - 364) >> 3);
+  LOWORD(v10) = v9;
   if ( v9 == 5 )
     return 0;
-  v11 = v9 < 5u;
-  v12 = v9 == 5;
-  if ( v9 >= 5u )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5);
-    v11 = 0;
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [r14+4] }
-  _RBX = (unsigned __int16)_RBX;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+rbx*8+170h]
-    vcomiss xmm0, xmm1
-  }
-  if ( !v11 )
-  {
-    __asm { vucomiss xmm0, xmm1 }
-    if ( (!v12 || _R14->index >= _R15->m_linkKeys[_RBX].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
-      __debugbreak();
-  }
-  nextPageIndex = _R15->m_linkPageIndices[_RBX];
+  if ( v9 >= 5u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5) )
+    __debugbreak();
+  v11 = key->distanceSq;
+  v10 = (unsigned __int16)v10;
+  v12 = this->m_linkKeys[(unsigned __int16)v10].distanceSq;
+  if ( v11 >= v12 && (v11 != v12 || key->index >= this->m_linkKeys[v10].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
+    __debugbreak();
+  nextPageIndex = this->m_linkPageIndices[v10];
   outNextPageIndex = nextPageIndex;
   if ( nextPageIndex == 6 )
   {
-    LODWORD(v52) = 6;
-    LODWORD(v51) = 6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 6;
+    LODWORD(v45) = 6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI = NULL;
+  v14 = NULL;
   if ( nextPageIndex == 6 )
-    goto LABEL_76;
+    goto LABEL_78;
   while ( 1 )
   {
     if ( nextPageIndex >= 6u )
     {
-      LODWORD(v50) = 6;
-      LODWORD(v49) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v49, v50) )
+      LODWORD(v44) = 6;
+      LODWORD(v43) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v18 = nextPageIndex;
-    keyCount = _R15->m_pages[v18].meta.keyCount;
-    _RSI = &_R15->m_pages[v18];
-    if ( keyCount < 7u )
-      goto LABEL_31;
-    __asm { vmovss  xmm0, dword ptr [r14+4] }
-    _RCX = keyCount;
-    __asm
+    v15 = nextPageIndex;
+    keyCount = this->m_pages[v15].meta.keyCount;
+    v14 = &this->m_pages[v15];
+    if ( keyCount < 7u || (v17 = key->distanceSq, v18 = *((float *)&v14->lock + 2 * keyCount), v17 < v18) || v17 == v18 && key->index < *(volatile int *)((char *)&this->m_nextFreePage + 8 * keyCount + v15 * 60) )
     {
-      vmovss  xmm1, dword ptr [rsi+rcx*8]
-      vcomiss xmm0, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( keyCount == 7 && _R14->index < _RSI->keys[6].index )
-    {
-LABEL_31:
       while ( 1 )
       {
-        lock = _RSI->lock;
-        if ( (_RSI->lock & 0xFF000000) == 0 )
+        lock = v14->lock;
+        if ( (v14->lock & 0xFF000000) == 0 )
         {
-          if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+          if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
             __debugbreak();
-          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, lock | 0xFF000000, lock) )
+          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)v14, lock | 0xFF000000, lock) )
             break;
         }
         Sys_Sleep(0);
       }
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
         __debugbreak();
-      v24 = _RSI->meta.keyCount;
-      if ( v24 < 7u )
-        goto LABEL_75;
-      __asm { vmovss  xmm0, dword ptr [r14+4] }
-      _RCX = v24;
-      __asm
+      v20 = v14->meta.keyCount;
+      if ( v20 < 7u )
+        goto LABEL_77;
+      v21 = key->distanceSq;
+      v22 = *((float *)&v14->lock + 2 * v20);
+      if ( v21 < v22 || v21 == v22 && key->index < *((_DWORD *)v14 + 2 * v20 - 1) )
+        goto LABEL_77;
+      v23 = v14->lock;
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+        __debugbreak();
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
+        __debugbreak();
+      v24 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v23 & 0xFFFFFF, v23);
+      if ( v23 != v24 )
       {
-        vmovss  xmm1, dword ptr [rsi+rcx*8]
-        vcomiss xmm0, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( v24 == 7 && _R14->index < _RSI->keys[6].index )
-        goto LABEL_75;
-      v28 = _RSI->lock;
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
-        __debugbreak();
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
-        __debugbreak();
-      v29 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v28 & 0xFFFFFF, v28);
-      if ( v28 != v29 )
-      {
-        LODWORD(v52) = v28;
-        LODWORD(v51) = v29;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+        LODWORD(v46) = v23;
+        LODWORD(v45) = v24;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
           __debugbreak();
       }
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    if ( _RSI->meta.nextPageIndex == 6 )
+    nextPageIndex = v14->meta.nextPageIndex;
+    if ( v14->meta.nextPageIndex == 6 )
       break;
-LABEL_69:
+LABEL_71:
     outNextPageIndex = nextPageIndex;
     if ( nextPageIndex == 6 )
     {
-      _RSI = NULL;
-      goto LABEL_76;
+      v14 = NULL;
+      goto LABEL_78;
     }
   }
   while ( 1 )
   {
-    v30 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 )
+    v25 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 )
     {
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
         __debugbreak();
-      if ( v30 == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v30 | 0xFF000000, v30) )
+      if ( v25 == _InterlockedCompareExchange((volatile signed __int32 *)v14, v25 | 0xFF000000, v25) )
         break;
     }
     Sys_Sleep(0);
   }
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  if ( _RSI->meta.nextPageIndex != 6 )
+  if ( v14->meta.nextPageIndex != 6 )
   {
-    v31 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+    v26 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+    if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
       __debugbreak();
-    v32 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v31 & 0xFFFFFF, v31);
-    if ( v31 != v32 )
+    v27 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v26 & 0xFFFFFF, v26);
+    if ( v26 != v27 )
     {
-      LODWORD(v52) = v31;
-      LODWORD(v51) = v32;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+      LODWORD(v46) = v26;
+      LODWORD(v45) = v27;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
         __debugbreak();
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    goto LABEL_69;
+    nextPageIndex = v14->meta.nextPageIndex;
+    goto LABEL_71;
   }
-  v33 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AllocPage(_R15);
-  if ( v33 == 6 )
+  v28 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::AllocPage(this);
+  if ( v28 == 6 )
   {
-    LODWORD(v52) = 6;
-    LODWORD(v51) = 6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 6;
+    LODWORD(v45) = 6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI->meta.nextPageIndex = v33;
-  _RSI = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockNextPage(_R15, _RSI, &outNextPageIndex);
-LABEL_75:
-  if ( _RSI )
-    goto LABEL_79;
-LABEL_76:
+  v14->meta.nextPageIndex = v28;
+  v14 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockNextPage(this, v14, &outNextPageIndex);
+LABEL_77:
+  if ( v14 )
+    goto LABEL_81;
+LABEL_78:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 269, ASSERT_TYPE_ASSERT, "(mutablePage)", (const char *)&queryFormat, "mutablePage") )
     __debugbreak();
-LABEL_79:
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+LABEL_81:
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  v34 = (__int64)*_R14;
-  v54 = (__int64)*_R14;
+  v29 = *key;
+  v48 = *key;
   while ( 1 )
   {
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    _R8 = _RSI->keys;
-    v36 = (8i64 * _RSI->meta.keyCount) >> 3;
-    if ( v36 > 0 )
+    keys = v14->keys;
+    v31 = (8i64 * v14->meta.keyCount) >> 3;
+    while ( v31 > 0 )
     {
-      __asm { vmovss  xmm1, dword ptr [rsp+98h+arg_10+4] }
-      do
+      v32 = v31 >> 1;
+      v33 = keys[v31 >> 1].distanceSq;
+      if ( v33 < v48.distanceSq || v33 == v48.distanceSq && keys[v32].index < v29.index )
       {
-        _RDX = v36 >> 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+rdx*8+4]
-          vcomiss xmm0, xmm1
-        }
-        if ( v36 & 1 )
-          goto LABEL_92;
-        __asm { vucomiss xmm0, xmm1 }
-        if ( v36 >> 1 )
-          goto LABEL_91;
-        if ( _R8[_RDX].index < (unsigned int)v34 )
-        {
-LABEL_92:
-          _R8 += _RDX + 1;
-          v36 += -1 - _RDX;
-        }
-        else
-        {
-LABEL_91:
-          v36 >>= 1;
-        }
+        keys += v32 + 1;
+        v31 += -1 - v32;
       }
-      while ( v36 > 0 );
+      else
+      {
+        v31 >>= 1;
+      }
     }
-    v40 = truncate_cast<unsigned char,__int64>(((char *)_R8 - (char *)_RSI - 4) >> 3);
-    v41 = _RSI->meta.keyCount;
-    v55 = v34;
-    if ( v40 < v41 )
+    v34 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)v14 - 4) >> 3);
+    v35 = v14->meta.keyCount;
+    v49 = v29;
+    if ( v34 < v35 )
     {
       do
       {
-        v42 = v40;
-        v43 = v34;
-        ++v40;
-        v34 = (__int64)_RSI->keys[v42];
-        _RSI->keys[v42] = (CgDistanceCacheMpKey)v43;
-        v41 = _RSI->meta.keyCount;
+        v36 = v34;
+        v37 = v29;
+        ++v34;
+        v29 = v14->keys[v36];
+        v14->keys[v36] = v37;
+        v35 = v14->meta.keyCount;
       }
-      while ( v40 < v41 );
-      v55 = v34;
+      while ( v34 < v35 );
+      v49 = v29;
     }
-    if ( v40 < 7u )
+    if ( v34 < 7u )
       break;
-    v54 = v34;
-    if ( (_BYTE)v41 == 7 && _RSI->meta.nextPageIndex == 6 )
+    v48 = v29;
+    if ( (_BYTE)v35 == 7 && v14->meta.nextPageIndex == 6 )
     {
-      if ( _R15->m_nextFreePage == 6 )
+      if ( this->m_nextFreePage == 6 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEBF0, 5843i64);
-      if ( ((unsigned __int8)_R15 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", _R15) )
+      if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", this) )
         __debugbreak();
-      v44 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&_R15->m_nextFreePage, 1u));
-      v45 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockPage(_R15, &_R15->m_pages[v44]);
-      v45->meta.nextPageIndex = 6;
-      v45->meta.keyCount = 0;
-      OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, v45);
-      if ( (_DWORD)v44 == 6 )
+      v38 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&this->m_nextFreePage, 1u));
+      v39 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockPage(this, &this->m_pages[v38]);
+      v39->meta.nextPageIndex = 6;
+      v39->meta.keyCount = 0;
+      OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(this, v39);
+      if ( (_DWORD)v38 == 6 )
       {
-        LODWORD(v52) = 6;
-        LODWORD(v51) = 6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 6;
+        LODWORD(v45) = 6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      if ( _RSI->meta.nextPageIndex != 6 )
+      if ( v14->meta.nextPageIndex != 6 )
       {
-        LODWORD(v52) = 6;
-        LODWORD(v51) = _RSI->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 6;
+        LODWORD(v45) = v14->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      _RSI->meta.nextPageIndex = v44;
+      v14->meta.nextPageIndex = v38;
     }
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( _RSI->meta.nextPageIndex == 6 )
+    if ( v14->meta.nextPageIndex == 6 )
     {
-      LODWORD(v52) = 6;
-      LODWORD(v51) = 6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+      LODWORD(v46) = 6;
+      LODWORD(v45) = 6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
         __debugbreak();
     }
-    outNextPageIndex = _RSI->meta.nextPageIndex;
-    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::GetPage(_R15, outNextPageIndex);
-    v47 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockPage(_R15, Page);
-    OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
-    _RSI = v47;
+    outNextPageIndex = v14->meta.nextPageIndex;
+    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::GetPage(this, outNextPageIndex);
+    v41 = OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::LockPage(this, Page);
+    OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
+    v14 = v41;
   }
-  _RSI->keys[(unsigned __int8)v41] = (CgDistanceCacheMpKey)v34;
-  ++_RSI->meta.keyCount;
-  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
+  v14->keys[(unsigned __int8)v35] = v29;
+  ++v14->meta.keyCount;
+  OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
   return 0;
 }
 
@@ -731,341 +681,291 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::AddKey
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::AddKey(OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey> *this, const CgDistanceCacheMpKey *key)
 {
+  CgDistanceCacheMpKey *m_linkKeys; 
   __int64 v5; 
+  float distanceSq; 
+  __int64 v7; 
+  float v8; 
   unsigned __int16 v9; 
-  bool v11; 
-  bool v12; 
-  bool v13; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   unsigned __int16 nextPageIndex; 
-  __int64 v18; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *v14; 
+  __int64 v15; 
   unsigned __int8 keyCount; 
+  float v17; 
+  float v18; 
   signed __int32 lock; 
-  unsigned __int8 v24; 
-  signed __int32 v28; 
-  signed __int32 v29; 
-  signed __int32 v30; 
-  signed __int32 v31; 
-  signed __int32 v32; 
-  unsigned __int16 v33; 
-  __int64 v34; 
+  unsigned __int8 v20; 
+  float v21; 
+  float v22; 
+  signed __int32 v23; 
+  signed __int32 v24; 
+  signed __int32 v25; 
+  signed __int32 v26; 
+  signed __int32 v27; 
+  unsigned __int16 v28; 
+  CgDistanceCacheMpKey v29; 
+  CgDistanceCacheMpKey *keys; 
+  __int64 v31; 
+  __int64 v32; 
+  float v33; 
+  unsigned __int16 v34; 
+  unsigned __int16 v35; 
   __int64 v36; 
-  unsigned __int16 v40; 
-  unsigned __int16 v41; 
-  __int64 v42; 
+  CgDistanceCacheMpKey v37; 
+  __int64 v38; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *v39; 
+  const OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *Page; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *v41; 
   __int64 v43; 
   __int64 v44; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *v45; 
-  const OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *Page; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *v47; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
+  __int64 v45; 
+  __int64 v46; 
   unsigned __int16 outNextPageIndex; 
-  __int64 v54; 
-  __int64 v55; 
+  CgDistanceCacheMpKey v48; 
+  CgDistanceCacheMpKey v49; 
 
-  _R9 = this->m_linkKeys;
-  _R14 = key;
-  _R15 = this;
+  m_linkKeys = this->m_linkKeys;
   v5 = 5i64;
-  __asm { vmovss  xmm1, dword ptr [rdx+4] }
+  distanceSq = key->distanceSq;
   do
   {
-    _RCX = v5 >> 1;
-    __asm
+    v7 = v5 >> 1;
+    v8 = m_linkKeys[v5 >> 1].distanceSq;
+    if ( v8 < distanceSq || v8 == distanceSq && m_linkKeys[v7].index < key->index )
     {
-      vmovss  xmm0, dword ptr [r9+rcx*8+4]
-      vcomiss xmm0, xmm1
-    }
-    if ( v5 & 1 )
-      goto LABEL_6;
-    __asm { vucomiss xmm0, xmm1 }
-    if ( v5 >> 1 )
-      goto LABEL_5;
-    if ( _R9[_RCX].index < key->index )
-    {
-LABEL_6:
-      _R9 += _RCX + 1;
-      v5 += -1 - _RCX;
+      m_linkKeys += v7 + 1;
+      v5 += -1 - v7;
     }
     else
     {
-LABEL_5:
       v5 >>= 1;
     }
   }
   while ( v5 > 0 );
-  v9 = truncate_cast<unsigned short,__int64>(((char *)_R9 - (char *)_R15 - 664) >> 3);
-  LOWORD(_RBX) = v9;
+  v9 = truncate_cast<unsigned short,__int64>(((char *)m_linkKeys - (char *)this - 664) >> 3);
+  LOWORD(v10) = v9;
   if ( v9 == 5 )
     return 0;
-  v11 = v9 < 5u;
-  v12 = v9 == 5;
-  if ( v9 >= 5u )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5);
-    v11 = 0;
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [r14+4] }
-  _RBX = (unsigned __int16)_RBX;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+rbx*8+29Ch]
-    vcomiss xmm0, xmm1
-  }
-  if ( !v11 )
-  {
-    __asm { vucomiss xmm0, xmm1 }
-    if ( (!v12 || _R14->index >= _R15->m_linkKeys[_RBX].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
-      __debugbreak();
-  }
-  nextPageIndex = _R15->m_linkPageIndices[_RBX];
+  if ( v9 >= 5u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5) )
+    __debugbreak();
+  v11 = key->distanceSq;
+  v10 = (unsigned __int16)v10;
+  v12 = this->m_linkKeys[(unsigned __int16)v10].distanceSq;
+  if ( v11 >= v12 && (v11 != v12 || key->index >= this->m_linkKeys[v10].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
+    __debugbreak();
+  nextPageIndex = this->m_linkPageIndices[v10];
   outNextPageIndex = nextPageIndex;
   if ( nextPageIndex == 11 )
   {
-    LODWORD(v52) = 11;
-    LODWORD(v51) = 11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 11;
+    LODWORD(v45) = 11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI = NULL;
+  v14 = NULL;
   if ( nextPageIndex == 11 )
-    goto LABEL_76;
+    goto LABEL_78;
   while ( 1 )
   {
     if ( nextPageIndex >= 0xBu )
     {
-      LODWORD(v50) = 11;
-      LODWORD(v49) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v49, v50) )
+      LODWORD(v44) = 11;
+      LODWORD(v43) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v18 = nextPageIndex;
-    keyCount = _R15->m_pages[v18].meta.keyCount;
-    _RSI = &_R15->m_pages[v18];
-    if ( keyCount < 7u )
-      goto LABEL_31;
-    __asm { vmovss  xmm0, dword ptr [r14+4] }
-    _RCX = keyCount;
-    __asm
+    v15 = nextPageIndex;
+    keyCount = this->m_pages[v15].meta.keyCount;
+    v14 = &this->m_pages[v15];
+    if ( keyCount < 7u || (v17 = key->distanceSq, v18 = *((float *)&v14->lock + 2 * keyCount), v17 < v18) || v17 == v18 && key->index < *(volatile int *)((char *)&this->m_nextFreePage + 8 * keyCount + v15 * 60) )
     {
-      vmovss  xmm1, dword ptr [rsi+rcx*8]
-      vcomiss xmm0, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( keyCount == 7 && _R14->index < _RSI->keys[6].index )
-    {
-LABEL_31:
       while ( 1 )
       {
-        lock = _RSI->lock;
-        if ( (_RSI->lock & 0xFF000000) == 0 )
+        lock = v14->lock;
+        if ( (v14->lock & 0xFF000000) == 0 )
         {
-          if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+          if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
             __debugbreak();
-          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, lock | 0xFF000000, lock) )
+          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)v14, lock | 0xFF000000, lock) )
             break;
         }
         Sys_Sleep(0);
       }
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
         __debugbreak();
-      v24 = _RSI->meta.keyCount;
-      if ( v24 < 7u )
-        goto LABEL_75;
-      __asm { vmovss  xmm0, dword ptr [r14+4] }
-      _RCX = v24;
-      __asm
+      v20 = v14->meta.keyCount;
+      if ( v20 < 7u )
+        goto LABEL_77;
+      v21 = key->distanceSq;
+      v22 = *((float *)&v14->lock + 2 * v20);
+      if ( v21 < v22 || v21 == v22 && key->index < *((_DWORD *)v14 + 2 * v20 - 1) )
+        goto LABEL_77;
+      v23 = v14->lock;
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+        __debugbreak();
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
+        __debugbreak();
+      v24 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v23 & 0xFFFFFF, v23);
+      if ( v23 != v24 )
       {
-        vmovss  xmm1, dword ptr [rsi+rcx*8]
-        vcomiss xmm0, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( v24 == 7 && _R14->index < _RSI->keys[6].index )
-        goto LABEL_75;
-      v28 = _RSI->lock;
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
-        __debugbreak();
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
-        __debugbreak();
-      v29 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v28 & 0xFFFFFF, v28);
-      if ( v28 != v29 )
-      {
-        LODWORD(v52) = v28;
-        LODWORD(v51) = v29;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+        LODWORD(v46) = v23;
+        LODWORD(v45) = v24;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
           __debugbreak();
       }
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    if ( _RSI->meta.nextPageIndex == 11 )
+    nextPageIndex = v14->meta.nextPageIndex;
+    if ( v14->meta.nextPageIndex == 11 )
       break;
-LABEL_69:
+LABEL_71:
     outNextPageIndex = nextPageIndex;
     if ( nextPageIndex == 11 )
     {
-      _RSI = NULL;
-      goto LABEL_76;
+      v14 = NULL;
+      goto LABEL_78;
     }
   }
   while ( 1 )
   {
-    v30 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 )
+    v25 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 )
     {
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
         __debugbreak();
-      if ( v30 == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v30 | 0xFF000000, v30) )
+      if ( v25 == _InterlockedCompareExchange((volatile signed __int32 *)v14, v25 | 0xFF000000, v25) )
         break;
     }
     Sys_Sleep(0);
   }
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  if ( _RSI->meta.nextPageIndex != 11 )
+  if ( v14->meta.nextPageIndex != 11 )
   {
-    v31 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+    v26 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+    if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
       __debugbreak();
-    v32 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v31 & 0xFFFFFF, v31);
-    if ( v31 != v32 )
+    v27 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v26 & 0xFFFFFF, v26);
+    if ( v26 != v27 )
     {
-      LODWORD(v52) = v31;
-      LODWORD(v51) = v32;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+      LODWORD(v46) = v26;
+      LODWORD(v45) = v27;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
         __debugbreak();
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    goto LABEL_69;
+    nextPageIndex = v14->meta.nextPageIndex;
+    goto LABEL_71;
   }
-  v33 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::AllocPage(_R15);
-  if ( v33 == 11 )
+  v28 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::AllocPage(this);
+  if ( v28 == 11 )
   {
-    LODWORD(v52) = 11;
-    LODWORD(v51) = 11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 11;
+    LODWORD(v45) = 11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI->meta.nextPageIndex = v33;
-  _RSI = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockNextPage(_R15, _RSI, &outNextPageIndex);
-LABEL_75:
-  if ( _RSI )
-    goto LABEL_79;
-LABEL_76:
+  v14->meta.nextPageIndex = v28;
+  v14 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockNextPage(this, v14, &outNextPageIndex);
+LABEL_77:
+  if ( v14 )
+    goto LABEL_81;
+LABEL_78:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 269, ASSERT_TYPE_ASSERT, "(mutablePage)", (const char *)&queryFormat, "mutablePage") )
     __debugbreak();
-LABEL_79:
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+LABEL_81:
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  v34 = (__int64)*_R14;
-  v54 = (__int64)*_R14;
+  v29 = *key;
+  v48 = *key;
   while ( 1 )
   {
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    _R8 = _RSI->keys;
-    v36 = (8i64 * _RSI->meta.keyCount) >> 3;
-    if ( v36 > 0 )
+    keys = v14->keys;
+    v31 = (8i64 * v14->meta.keyCount) >> 3;
+    while ( v31 > 0 )
     {
-      __asm { vmovss  xmm1, dword ptr [rsp+98h+arg_10+4] }
-      do
+      v32 = v31 >> 1;
+      v33 = keys[v31 >> 1].distanceSq;
+      if ( v33 < v48.distanceSq || v33 == v48.distanceSq && keys[v32].index < v29.index )
       {
-        _RDX = v36 >> 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+rdx*8+4]
-          vcomiss xmm0, xmm1
-        }
-        if ( v36 & 1 )
-          goto LABEL_92;
-        __asm { vucomiss xmm0, xmm1 }
-        if ( v36 >> 1 )
-          goto LABEL_91;
-        if ( _R8[_RDX].index < (unsigned int)v34 )
-        {
-LABEL_92:
-          _R8 += _RDX + 1;
-          v36 += -1 - _RDX;
-        }
-        else
-        {
-LABEL_91:
-          v36 >>= 1;
-        }
+        keys += v32 + 1;
+        v31 += -1 - v32;
       }
-      while ( v36 > 0 );
+      else
+      {
+        v31 >>= 1;
+      }
     }
-    v40 = truncate_cast<unsigned char,__int64>(((char *)_R8 - (char *)_RSI - 4) >> 3);
-    v41 = _RSI->meta.keyCount;
-    v55 = v34;
-    if ( v40 < v41 )
+    v34 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)v14 - 4) >> 3);
+    v35 = v14->meta.keyCount;
+    v49 = v29;
+    if ( v34 < v35 )
     {
       do
       {
-        v42 = v40;
-        v43 = v34;
-        ++v40;
-        v34 = (__int64)_RSI->keys[v42];
-        _RSI->keys[v42] = (CgDistanceCacheMpKey)v43;
-        v41 = _RSI->meta.keyCount;
+        v36 = v34;
+        v37 = v29;
+        ++v34;
+        v29 = v14->keys[v36];
+        v14->keys[v36] = v37;
+        v35 = v14->meta.keyCount;
       }
-      while ( v40 < v41 );
-      v55 = v34;
+      while ( v34 < v35 );
+      v49 = v29;
     }
-    if ( v40 < 7u )
+    if ( v34 < 7u )
       break;
-    v54 = v34;
-    if ( (_BYTE)v41 == 7 && _RSI->meta.nextPageIndex == 11 )
+    v48 = v29;
+    if ( (_BYTE)v35 == 7 && v14->meta.nextPageIndex == 11 )
     {
-      if ( _R15->m_nextFreePage == 11 )
+      if ( this->m_nextFreePage == 11 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEBF0, 5843i64);
-      if ( ((unsigned __int8)_R15 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", _R15) )
+      if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", this) )
         __debugbreak();
-      v44 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&_R15->m_nextFreePage, 1u));
-      v45 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockPage(_R15, &_R15->m_pages[v44]);
-      v45->meta.nextPageIndex = 11;
-      v45->meta.keyCount = 0;
-      OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, v45);
-      if ( (_DWORD)v44 == 11 )
+      v38 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&this->m_nextFreePage, 1u));
+      v39 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockPage(this, &this->m_pages[v38]);
+      v39->meta.nextPageIndex = 11;
+      v39->meta.keyCount = 0;
+      OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(this, v39);
+      if ( (_DWORD)v38 == 11 )
       {
-        LODWORD(v52) = 11;
-        LODWORD(v51) = 11;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 11;
+        LODWORD(v45) = 11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      if ( _RSI->meta.nextPageIndex != 11 )
+      if ( v14->meta.nextPageIndex != 11 )
       {
-        LODWORD(v52) = 11;
-        LODWORD(v51) = _RSI->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 11;
+        LODWORD(v45) = v14->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      _RSI->meta.nextPageIndex = v44;
+      v14->meta.nextPageIndex = v38;
     }
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( _RSI->meta.nextPageIndex == 11 )
+    if ( v14->meta.nextPageIndex == 11 )
     {
-      LODWORD(v52) = 11;
-      LODWORD(v51) = 11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+      LODWORD(v46) = 11;
+      LODWORD(v45) = 11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
         __debugbreak();
     }
-    outNextPageIndex = _RSI->meta.nextPageIndex;
-    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::GetPage(_R15, outNextPageIndex);
-    v47 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockPage(_R15, Page);
-    OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
-    _RSI = v47;
+    outNextPageIndex = v14->meta.nextPageIndex;
+    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::GetPage(this, outNextPageIndex);
+    v41 = OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::LockPage(this, Page);
+    OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
+    v14 = v41;
   }
-  _RSI->keys[(unsigned __int8)v41] = (CgDistanceCacheMpKey)v34;
-  ++_RSI->meta.keyCount;
-  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
+  v14->keys[(unsigned __int8)v35] = v29;
+  ++v14->meta.keyCount;
+  OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
   return 0;
 }
 
@@ -1076,350 +976,298 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AddKe
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AddKey(OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey> *this, const CgDistanceCacheMpKey *key)
 {
+  CgDistanceCacheMpKey *m_linkKeys; 
   __int64 v5; 
-  CgDistanceCacheMpKey *v9; 
-  unsigned __int16 v10; 
-  bool v12; 
-  bool v13; 
-  bool v14; 
+  float distanceSq; 
+  float v7; 
+  CgDistanceCacheMpKey *v8; 
+  unsigned __int16 v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   unsigned __int16 nextPageIndex; 
-  __int64 v19; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *v14; 
+  __int64 v15; 
   unsigned __int8 keyCount; 
+  float v17; 
+  float v18; 
   signed __int32 lock; 
-  unsigned __int8 v25; 
-  signed __int32 v29; 
-  signed __int32 v30; 
-  signed __int32 v31; 
-  signed __int32 v32; 
-  signed __int32 v33; 
+  unsigned __int8 v20; 
+  float v21; 
+  float v22; 
+  signed __int32 v23; 
+  signed __int32 v24; 
+  signed __int32 v25; 
+  signed __int32 v26; 
+  signed __int32 v27; 
+  unsigned __int16 v28; 
+  CgDistanceCacheMpKey v29; 
+  CgDistanceCacheMpKey *keys; 
+  __int64 v31; 
+  __int64 v32; 
+  float v33; 
   unsigned __int16 v34; 
-  __int64 v35; 
-  __int64 v37; 
-  unsigned __int16 v41; 
-  unsigned __int16 v42; 
+  unsigned __int16 v35; 
+  __int64 v36; 
+  CgDistanceCacheMpKey v37; 
+  __int64 v38; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *v39; 
+  unsigned __int16 v40; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *v41; 
   __int64 v43; 
   __int64 v44; 
   __int64 v45; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *v46; 
-  unsigned __int16 v47; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *v48; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
-  __int64 v53; 
+  __int64 v46; 
   unsigned __int16 outNextPageIndex; 
-  __int64 v55; 
-  __int64 v56; 
+  CgDistanceCacheMpKey v48; 
+  CgDistanceCacheMpKey v49; 
 
-  _R9 = this->m_linkKeys;
-  _R14 = key;
-  _R15 = this;
+  m_linkKeys = this->m_linkKeys;
   v5 = 5i64;
-  __asm { vmovss  xmm1, dword ptr [rdx+4] }
+  distanceSq = key->distanceSq;
   do
   {
-    _RCX = v5 >> 1;
-    __asm
+    v7 = m_linkKeys[v5 >> 1].distanceSq;
+    v8 = &m_linkKeys[v5 >> 1];
+    if ( v7 < distanceSq || v7 == distanceSq && v8->index < key->index )
     {
-      vmovss  xmm0, dword ptr [r9+rcx*8+4]
-      vcomiss xmm0, xmm1
-    }
-    v9 = &_R9[v5 >> 1];
-    if ( v5 & 1 )
-      goto LABEL_6;
-    __asm { vucomiss xmm0, xmm1 }
-    if ( v5 >> 1 )
-      goto LABEL_5;
-    if ( v9->index < _R14->index )
-    {
-LABEL_6:
-      _R9 = v9 + 1;
-      v5 += -1 - _RCX;
+      m_linkKeys = v8 + 1;
+      v5 += -1 - (v5 >> 1);
     }
     else
     {
-LABEL_5:
       v5 >>= 1;
     }
   }
   while ( v5 > 0 );
-  v10 = truncate_cast<unsigned short,__int64>(((char *)_R9 - (char *)_R15 - 15724) >> 3);
-  LOWORD(_RBX) = v10;
-  if ( v10 == 5 )
+  v9 = truncate_cast<unsigned short,__int64>(((char *)m_linkKeys - (char *)this - 15724) >> 3);
+  LOWORD(v10) = v9;
+  if ( v9 == 5 )
     return 0;
-  v12 = v10 < 5u;
-  v13 = v10 == 5;
-  if ( v10 >= 5u )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v10, 5);
-    v12 = 0;
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [r14+4] }
-  _RBX = (unsigned __int16)_RBX;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+rbx*8+3D70h]
-    vcomiss xmm0, xmm1
-  }
-  if ( !v12 )
-  {
-    __asm { vucomiss xmm0, xmm1 }
-    if ( (!v13 || _R14->index >= _R15->m_linkKeys[_RBX].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
-      __debugbreak();
-  }
-  nextPageIndex = _R15->m_linkPageIndices[_RBX];
+  if ( v9 >= 5u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5) )
+    __debugbreak();
+  v11 = key->distanceSq;
+  v10 = (unsigned __int16)v10;
+  v12 = this->m_linkKeys[(unsigned __int16)v10].distanceSq;
+  if ( v11 >= v12 && (v11 != v12 || key->index >= this->m_linkKeys[v10].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
+    __debugbreak();
+  nextPageIndex = this->m_linkPageIndices[v10];
   outNextPageIndex = nextPageIndex;
   if ( nextPageIndex == 262 )
   {
-    LODWORD(v53) = 262;
-    LODWORD(v52) = 262;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v52, v53) )
+    LODWORD(v46) = 262;
+    LODWORD(v45) = 262;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI = NULL;
+  v14 = NULL;
   if ( nextPageIndex == 262 )
-    goto LABEL_76;
+    goto LABEL_78;
   while ( 1 )
   {
     if ( nextPageIndex >= 0x106u )
     {
-      LODWORD(v51) = 262;
-      LODWORD(v50) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v50, v51) )
+      LODWORD(v44) = 262;
+      LODWORD(v43) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v19 = nextPageIndex;
-    keyCount = _R15->m_pages[v19].meta.keyCount;
-    _RSI = &_R15->m_pages[v19];
-    if ( keyCount < 7u )
-      goto LABEL_31;
-    __asm { vmovss  xmm0, dword ptr [r14+4] }
-    _RCX = keyCount;
-    __asm
+    v15 = nextPageIndex;
+    keyCount = this->m_pages[v15].meta.keyCount;
+    v14 = &this->m_pages[v15];
+    if ( keyCount < 7u || (v17 = key->distanceSq, v18 = *((float *)&v14->lock + 2 * keyCount), v17 < v18) || v17 == v18 && key->index < *(volatile int *)((char *)&this->m_nextFreePage + 8 * keyCount + v15 * 60) )
     {
-      vmovss  xmm1, dword ptr [rsi+rcx*8]
-      vcomiss xmm0, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( keyCount == 7 && _R14->index < _RSI->keys[6].index )
-    {
-LABEL_31:
       while ( 1 )
       {
-        lock = _RSI->lock;
-        if ( (_RSI->lock & 0xFF000000) == 0 )
+        lock = v14->lock;
+        if ( (v14->lock & 0xFF000000) == 0 )
         {
-          if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+          if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
             __debugbreak();
-          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, lock | 0xFF000000, lock) )
+          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)v14, lock | 0xFF000000, lock) )
             break;
         }
         Sys_Sleep(0);
       }
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
         __debugbreak();
-      v25 = _RSI->meta.keyCount;
-      if ( v25 < 7u )
-        goto LABEL_75;
-      __asm { vmovss  xmm0, dword ptr [r14+4] }
-      _RCX = v25;
-      __asm
+      v20 = v14->meta.keyCount;
+      if ( v20 < 7u )
+        goto LABEL_77;
+      v21 = key->distanceSq;
+      v22 = *((float *)&v14->lock + 2 * v20);
+      if ( v21 < v22 || v21 == v22 && key->index < *((_DWORD *)v14 + 2 * v20 - 1) )
+        goto LABEL_77;
+      v23 = v14->lock;
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+        __debugbreak();
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
+        __debugbreak();
+      v24 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v23 & 0xFFFFFF, v23);
+      if ( v23 != v24 )
       {
-        vmovss  xmm1, dword ptr [rsi+rcx*8]
-        vcomiss xmm0, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( v25 == 7 && _R14->index < _RSI->keys[6].index )
-        goto LABEL_75;
-      v29 = _RSI->lock;
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
-        __debugbreak();
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
-        __debugbreak();
-      v30 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v29 & 0xFFFFFF, v29);
-      if ( v29 != v30 )
-      {
-        LODWORD(v53) = v29;
-        LODWORD(v52) = v30;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v52, v53) )
+        LODWORD(v46) = v23;
+        LODWORD(v45) = v24;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
           __debugbreak();
       }
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    if ( _RSI->meta.nextPageIndex == 262 )
+    nextPageIndex = v14->meta.nextPageIndex;
+    if ( v14->meta.nextPageIndex == 262 )
       break;
-LABEL_69:
+LABEL_71:
     outNextPageIndex = nextPageIndex;
     if ( nextPageIndex == 262 )
     {
-      _RSI = NULL;
-      goto LABEL_76;
+      v14 = NULL;
+      goto LABEL_78;
     }
   }
   while ( 1 )
   {
-    v31 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 )
+    v25 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 )
     {
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
         __debugbreak();
-      if ( v31 == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v31 | 0xFF000000, v31) )
+      if ( v25 == _InterlockedCompareExchange((volatile signed __int32 *)v14, v25 | 0xFF000000, v25) )
         break;
     }
     Sys_Sleep(0);
   }
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  if ( _RSI->meta.nextPageIndex != 262 )
+  if ( v14->meta.nextPageIndex != 262 )
   {
-    v32 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+    v26 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+    if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
       __debugbreak();
-    v33 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v32 & 0xFFFFFF, v32);
-    if ( v32 != v33 )
+    v27 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v26 & 0xFFFFFF, v26);
+    if ( v26 != v27 )
     {
-      LODWORD(v53) = v32;
-      LODWORD(v52) = v33;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v52, v53) )
+      LODWORD(v46) = v26;
+      LODWORD(v45) = v27;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
         __debugbreak();
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    goto LABEL_69;
+    nextPageIndex = v14->meta.nextPageIndex;
+    goto LABEL_71;
   }
-  v34 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AllocPage(_R15);
-  if ( v34 == 262 )
+  v28 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::AllocPage(this);
+  if ( v28 == 262 )
   {
-    LODWORD(v53) = 262;
-    LODWORD(v52) = 262;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v52, v53) )
+    LODWORD(v46) = 262;
+    LODWORD(v45) = 262;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI->meta.nextPageIndex = v34;
-  _RSI = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockNextPage(_R15, _RSI, &outNextPageIndex);
-LABEL_75:
-  if ( _RSI )
-    goto LABEL_79;
-LABEL_76:
+  v14->meta.nextPageIndex = v28;
+  v14 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockNextPage(this, v14, &outNextPageIndex);
+LABEL_77:
+  if ( v14 )
+    goto LABEL_81;
+LABEL_78:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 269, ASSERT_TYPE_ASSERT, "(mutablePage)", (const char *)&queryFormat, "mutablePage") )
     __debugbreak();
-LABEL_79:
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+LABEL_81:
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  v35 = (__int64)*_R14;
-  v55 = (__int64)*_R14;
+  v29 = *key;
+  v48 = *key;
   while ( 1 )
   {
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    _R8 = _RSI->keys;
-    v37 = (8i64 * _RSI->meta.keyCount) >> 3;
-    if ( v37 > 0 )
+    keys = v14->keys;
+    v31 = (8i64 * v14->meta.keyCount) >> 3;
+    while ( v31 > 0 )
     {
-      __asm { vmovss  xmm1, dword ptr [rsp+98h+arg_10+4] }
-      do
+      v32 = v31 >> 1;
+      v33 = keys[v31 >> 1].distanceSq;
+      if ( v33 < v48.distanceSq || v33 == v48.distanceSq && keys[v32].index < v29.index )
       {
-        _RDX = v37 >> 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+rdx*8+4]
-          vcomiss xmm0, xmm1
-        }
-        if ( v37 & 1 )
-          goto LABEL_92;
-        __asm { vucomiss xmm0, xmm1 }
-        if ( v37 >> 1 )
-          goto LABEL_91;
-        if ( _R8[_RDX].index < (unsigned int)v35 )
-        {
-LABEL_92:
-          _R8 += _RDX + 1;
-          v37 += -1 - _RDX;
-        }
-        else
-        {
-LABEL_91:
-          v37 >>= 1;
-        }
+        keys += v32 + 1;
+        v31 += -1 - v32;
       }
-      while ( v37 > 0 );
+      else
+      {
+        v31 >>= 1;
+      }
     }
-    v41 = truncate_cast<unsigned char,__int64>(((char *)_R8 - (char *)_RSI - 4) >> 3);
-    v42 = _RSI->meta.keyCount;
-    v56 = v35;
-    if ( v41 < v42 )
+    v34 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)v14 - 4) >> 3);
+    v35 = v14->meta.keyCount;
+    v49 = v29;
+    if ( v34 < v35 )
     {
       do
       {
-        v43 = v41;
-        v44 = v35;
-        ++v41;
-        v35 = (__int64)_RSI->keys[v43];
-        _RSI->keys[v43] = (CgDistanceCacheMpKey)v44;
-        v42 = _RSI->meta.keyCount;
+        v36 = v34;
+        v37 = v29;
+        ++v34;
+        v29 = v14->keys[v36];
+        v14->keys[v36] = v37;
+        v35 = v14->meta.keyCount;
       }
-      while ( v41 < v42 );
-      v56 = v35;
+      while ( v34 < v35 );
+      v49 = v29;
     }
-    if ( v41 < 7u )
+    if ( v34 < 7u )
       break;
-    v55 = v35;
-    if ( (_BYTE)v42 == 7 && _RSI->meta.nextPageIndex == 262 )
+    v48 = v29;
+    if ( (_BYTE)v35 == 7 && v14->meta.nextPageIndex == 262 )
     {
-      if ( _R15->m_nextFreePage == 262 )
+      if ( this->m_nextFreePage == 262 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEBF0, 5843i64);
-      if ( ((unsigned __int8)_R15 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", _R15) )
+      if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", this) )
         __debugbreak();
-      v45 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&_R15->m_nextFreePage, 1u));
-      v46 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockPage(_R15, &_R15->m_pages[v45]);
-      v46->meta.nextPageIndex = 262;
-      v46->meta.keyCount = 0;
-      OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, v46);
-      if ( (_WORD)v45 == 262 )
+      v38 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&this->m_nextFreePage, 1u));
+      v39 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockPage(this, &this->m_pages[v38]);
+      v39->meta.nextPageIndex = 262;
+      v39->meta.keyCount = 0;
+      OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(this, v39);
+      if ( (_WORD)v38 == 262 )
       {
-        LODWORD(v53) = 262;
-        LODWORD(v52) = 262;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v52, v53) )
+        LODWORD(v46) = 262;
+        LODWORD(v45) = 262;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      if ( _RSI->meta.nextPageIndex != 262 )
+      if ( v14->meta.nextPageIndex != 262 )
       {
-        LODWORD(v53) = 262;
-        LODWORD(v52) = _RSI->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v52, v53) )
+        LODWORD(v46) = 262;
+        LODWORD(v45) = v14->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      _RSI->meta.nextPageIndex = v45;
+      v14->meta.nextPageIndex = v38;
     }
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( _RSI->meta.nextPageIndex == 262 )
+    if ( v14->meta.nextPageIndex == 262 )
     {
-      LODWORD(v53) = 262;
-      LODWORD(v52) = 262;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v52, v53) )
+      LODWORD(v46) = 262;
+      LODWORD(v45) = 262;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
         __debugbreak();
     }
-    v47 = _RSI->meta.nextPageIndex;
-    outNextPageIndex = v47;
-    if ( v47 >= 0x106u )
+    v40 = v14->meta.nextPageIndex;
+    outNextPageIndex = v40;
+    if ( v40 >= 0x106u )
     {
-      LODWORD(v51) = 262;
-      LODWORD(v50) = v47;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v50, v51) )
+      LODWORD(v44) = 262;
+      LODWORD(v43) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v48 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockPage(_R15, &_R15->m_pages[v47]);
-    OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
-    _RSI = v48;
+    v41 = OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::LockPage(this, &this->m_pages[v40]);
+    OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
+    v14 = v41;
   }
-  _RSI->keys[(unsigned __int8)v42] = (CgDistanceCacheMpKey)v35;
-  ++_RSI->meta.keyCount;
-  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
+  v14->keys[(unsigned __int8)v35] = v29;
+  ++v14->meta.keyCount;
+  OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
   return 0;
 }
 
@@ -1430,341 +1278,291 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::AddKey
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::AddKey(OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey> *this, const CgDistanceCacheMpKey *key)
 {
+  CgDistanceCacheMpKey *m_linkKeys; 
   __int64 v5; 
+  float distanceSq; 
+  __int64 v7; 
+  float v8; 
   unsigned __int16 v9; 
-  bool v11; 
-  bool v12; 
-  bool v13; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   unsigned __int16 nextPageIndex; 
-  __int64 v18; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *v14; 
+  __int64 v15; 
   unsigned __int8 keyCount; 
+  float v17; 
+  float v18; 
   signed __int32 lock; 
-  unsigned __int8 v24; 
-  signed __int32 v28; 
-  signed __int32 v29; 
-  signed __int32 v30; 
-  signed __int32 v31; 
-  signed __int32 v32; 
-  unsigned __int16 v33; 
-  __int64 v34; 
+  unsigned __int8 v20; 
+  float v21; 
+  float v22; 
+  signed __int32 v23; 
+  signed __int32 v24; 
+  signed __int32 v25; 
+  signed __int32 v26; 
+  signed __int32 v27; 
+  unsigned __int16 v28; 
+  CgDistanceCacheMpKey v29; 
+  CgDistanceCacheMpKey *keys; 
+  __int64 v31; 
+  __int64 v32; 
+  float v33; 
+  unsigned __int16 v34; 
+  unsigned __int16 v35; 
   __int64 v36; 
-  unsigned __int16 v40; 
-  unsigned __int16 v41; 
-  __int64 v42; 
+  CgDistanceCacheMpKey v37; 
+  __int64 v38; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *v39; 
+  const OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *Page; 
+  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *v41; 
   __int64 v43; 
   __int64 v44; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *v45; 
-  const OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *Page; 
-  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *v47; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
+  __int64 v45; 
+  __int64 v46; 
   unsigned __int16 outNextPageIndex; 
-  __int64 v54; 
-  __int64 v55; 
+  CgDistanceCacheMpKey v48; 
+  CgDistanceCacheMpKey v49; 
 
-  _R9 = this->m_linkKeys;
-  _R14 = key;
-  _R15 = this;
+  m_linkKeys = this->m_linkKeys;
   v5 = 5i64;
-  __asm { vmovss  xmm1, dword ptr [rdx+4] }
+  distanceSq = key->distanceSq;
   do
   {
-    _RCX = v5 >> 1;
-    __asm
+    v7 = v5 >> 1;
+    v8 = m_linkKeys[v5 >> 1].distanceSq;
+    if ( v8 < distanceSq || v8 == distanceSq && m_linkKeys[v7].index < key->index )
     {
-      vmovss  xmm0, dword ptr [r9+rcx*8+4]
-      vcomiss xmm0, xmm1
-    }
-    if ( v5 & 1 )
-      goto LABEL_6;
-    __asm { vucomiss xmm0, xmm1 }
-    if ( v5 >> 1 )
-      goto LABEL_5;
-    if ( _R9[_RCX].index < key->index )
-    {
-LABEL_6:
-      _R9 += _RCX + 1;
-      v5 += -1 - _RCX;
+      m_linkKeys += v7 + 1;
+      v5 += -1 - v7;
     }
     else
     {
-LABEL_5:
       v5 >>= 1;
     }
   }
   while ( v5 > 0 );
-  v9 = truncate_cast<unsigned short,__int64>(((char *)_R9 - (char *)_R15 - 1984) >> 3);
-  LOWORD(_RBX) = v9;
+  v9 = truncate_cast<unsigned short,__int64>(((char *)m_linkKeys - (char *)this - 1984) >> 3);
+  LOWORD(v10) = v9;
   if ( v9 == 5 )
     return 0;
-  v11 = v9 < 5u;
-  v12 = v9 == 5;
-  if ( v9 >= 5u )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5);
-    v11 = 0;
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [r14+4] }
-  _RBX = (unsigned __int16)_RBX;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+rbx*8+7C4h]
-    vcomiss xmm0, xmm1
-  }
-  if ( !v11 )
-  {
-    __asm { vucomiss xmm0, xmm1 }
-    if ( (!v12 || _R14->index >= _R15->m_linkKeys[_RBX].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
-      __debugbreak();
-  }
-  nextPageIndex = _R15->m_linkPageIndices[_RBX];
+  if ( v9 >= 5u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 223, ASSERT_TYPE_ASSERT, "( linkIndex ) < ( LINK_COUNT )", "%s < %s\n\t%i, %i", "linkIndex", "LINK_COUNT", v9, 5) )
+    __debugbreak();
+  v11 = key->distanceSq;
+  v10 = (unsigned __int16)v10;
+  v12 = this->m_linkKeys[(unsigned __int16)v10].distanceSq;
+  if ( v11 >= v12 && (v11 != v12 || key->index >= this->m_linkKeys[v10].index) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 224, ASSERT_TYPE_ASSERT, "(m_compare( key, m_linkKeys[linkIndex] ))", (const char *)&queryFormat, "m_compare( key, m_linkKeys[linkIndex] )") )
+    __debugbreak();
+  nextPageIndex = this->m_linkPageIndices[v10];
   outNextPageIndex = nextPageIndex;
   if ( nextPageIndex == 33 )
   {
-    LODWORD(v52) = 33;
-    LODWORD(v51) = 33;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 33;
+    LODWORD(v45) = 33;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 229, ASSERT_TYPE_ASSERT, "( pageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "pageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI = NULL;
+  v14 = NULL;
   if ( nextPageIndex == 33 )
-    goto LABEL_76;
+    goto LABEL_78;
   while ( 1 )
   {
     if ( nextPageIndex >= 0x21u )
     {
-      LODWORD(v50) = 33;
-      LODWORD(v49) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v49, v50) )
+      LODWORD(v44) = 33;
+      LODWORD(v43) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v43, v44) )
         __debugbreak();
     }
-    v18 = nextPageIndex;
-    keyCount = _R15->m_pages[v18].meta.keyCount;
-    _RSI = &_R15->m_pages[v18];
-    if ( keyCount < 7u )
-      goto LABEL_31;
-    __asm { vmovss  xmm0, dword ptr [r14+4] }
-    _RCX = keyCount;
-    __asm
+    v15 = nextPageIndex;
+    keyCount = this->m_pages[v15].meta.keyCount;
+    v14 = &this->m_pages[v15];
+    if ( keyCount < 7u || (v17 = key->distanceSq, v18 = *((float *)&v14->lock + 2 * keyCount), v17 < v18) || v17 == v18 && key->index < *(volatile int *)((char *)&this->m_nextFreePage + 8 * keyCount + v15 * 60) )
     {
-      vmovss  xmm1, dword ptr [rsi+rcx*8]
-      vcomiss xmm0, xmm1
-      vucomiss xmm0, xmm1
-    }
-    if ( keyCount == 7 && _R14->index < _RSI->keys[6].index )
-    {
-LABEL_31:
       while ( 1 )
       {
-        lock = _RSI->lock;
-        if ( (_RSI->lock & 0xFF000000) == 0 )
+        lock = v14->lock;
+        if ( (v14->lock & 0xFF000000) == 0 )
         {
-          if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+          if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
             __debugbreak();
-          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, lock | 0xFF000000, lock) )
+          if ( lock == _InterlockedCompareExchange((volatile signed __int32 *)v14, lock | 0xFF000000, lock) )
             break;
         }
         Sys_Sleep(0);
       }
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
         __debugbreak();
-      v24 = _RSI->meta.keyCount;
-      if ( v24 < 7u )
-        goto LABEL_75;
-      __asm { vmovss  xmm0, dword ptr [r14+4] }
-      _RCX = v24;
-      __asm
+      v20 = v14->meta.keyCount;
+      if ( v20 < 7u )
+        goto LABEL_77;
+      v21 = key->distanceSq;
+      v22 = *((float *)&v14->lock + 2 * v20);
+      if ( v21 < v22 || v21 == v22 && key->index < *((_DWORD *)v14 + 2 * v20 - 1) )
+        goto LABEL_77;
+      v23 = v14->lock;
+      if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+        __debugbreak();
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
+        __debugbreak();
+      v24 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v23 & 0xFFFFFF, v23);
+      if ( v23 != v24 )
       {
-        vmovss  xmm1, dword ptr [rsi+rcx*8]
-        vcomiss xmm0, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( v24 == 7 && _R14->index < _RSI->keys[6].index )
-        goto LABEL_75;
-      v28 = _RSI->lock;
-      if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
-        __debugbreak();
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
-        __debugbreak();
-      v29 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v28 & 0xFFFFFF, v28);
-      if ( v28 != v29 )
-      {
-        LODWORD(v52) = v28;
-        LODWORD(v51) = v29;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+        LODWORD(v46) = v23;
+        LODWORD(v45) = v24;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
           __debugbreak();
       }
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    if ( _RSI->meta.nextPageIndex == 33 )
+    nextPageIndex = v14->meta.nextPageIndex;
+    if ( v14->meta.nextPageIndex == 33 )
       break;
-LABEL_69:
+LABEL_71:
     outNextPageIndex = nextPageIndex;
     if ( nextPageIndex == 33 )
     {
-      _RSI = NULL;
-      goto LABEL_76;
+      v14 = NULL;
+      goto LABEL_78;
     }
   }
   while ( 1 )
   {
-    v30 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 )
+    v25 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 )
     {
-      if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+      if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
         __debugbreak();
-      if ( v30 == _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v30 | 0xFF000000, v30) )
+      if ( v25 == _InterlockedCompareExchange((volatile signed __int32 *)v14, v25 | 0xFF000000, v25) )
         break;
     }
     Sys_Sleep(0);
   }
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 308, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  if ( _RSI->meta.nextPageIndex != 33 )
+  if ( v14->meta.nextPageIndex != 33 )
   {
-    v31 = _RSI->lock;
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
+    v26 = v14->lock;
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", _RSI) )
+    if ( ((unsigned __int8)v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v14) )
       __debugbreak();
-    v32 = _InterlockedCompareExchange((volatile signed __int32 *)_RSI, v31 & 0xFFFFFF, v31);
-    if ( v31 != v32 )
+    v27 = _InterlockedCompareExchange((volatile signed __int32 *)v14, v26 & 0xFFFFFF, v26);
+    if ( v26 != v27 )
     {
-      LODWORD(v52) = v31;
-      LODWORD(v51) = v32;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v51, v52) )
+      LODWORD(v46) = v26;
+      LODWORD(v45) = v27;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v45, v46) )
         __debugbreak();
     }
-    nextPageIndex = _RSI->meta.nextPageIndex;
-    goto LABEL_69;
+    nextPageIndex = v14->meta.nextPageIndex;
+    goto LABEL_71;
   }
-  v33 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::AllocPage(_R15);
-  if ( v33 == 33 )
+  v28 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::AllocPage(this);
+  if ( v28 == 33 )
   {
-    LODWORD(v52) = 33;
-    LODWORD(v51) = 33;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+    LODWORD(v46) = 33;
+    LODWORD(v45) = 33;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 255, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
       __debugbreak();
   }
-  _RSI->meta.nextPageIndex = v33;
-  _RSI = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockNextPage(_R15, _RSI, &outNextPageIndex);
-LABEL_75:
-  if ( _RSI )
-    goto LABEL_79;
-LABEL_76:
+  v14->meta.nextPageIndex = v28;
+  v14 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockNextPage(this, v14, &outNextPageIndex);
+LABEL_77:
+  if ( v14 )
+    goto LABEL_81;
+LABEL_78:
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 269, ASSERT_TYPE_ASSERT, "(mutablePage)", (const char *)&queryFormat, "mutablePage") )
     __debugbreak();
-LABEL_79:
-  if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
+LABEL_81:
+  if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 270, ASSERT_TYPE_ASSERT, "(mutablePage->lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "mutablePage->lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  v34 = (__int64)*_R14;
-  v54 = (__int64)*_R14;
+  v29 = *key;
+  v48 = *key;
   while ( 1 )
   {
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    _R8 = _RSI->keys;
-    v36 = (8i64 * _RSI->meta.keyCount) >> 3;
-    if ( v36 > 0 )
+    keys = v14->keys;
+    v31 = (8i64 * v14->meta.keyCount) >> 3;
+    while ( v31 > 0 )
     {
-      __asm { vmovss  xmm1, dword ptr [rsp+98h+arg_10+4] }
-      do
+      v32 = v31 >> 1;
+      v33 = keys[v31 >> 1].distanceSq;
+      if ( v33 < v48.distanceSq || v33 == v48.distanceSq && keys[v32].index < v29.index )
       {
-        _RDX = v36 >> 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+rdx*8+4]
-          vcomiss xmm0, xmm1
-        }
-        if ( v36 & 1 )
-          goto LABEL_92;
-        __asm { vucomiss xmm0, xmm1 }
-        if ( v36 >> 1 )
-          goto LABEL_91;
-        if ( _R8[_RDX].index < (unsigned int)v34 )
-        {
-LABEL_92:
-          _R8 += _RDX + 1;
-          v36 += -1 - _RDX;
-        }
-        else
-        {
-LABEL_91:
-          v36 >>= 1;
-        }
+        keys += v32 + 1;
+        v31 += -1 - v32;
       }
-      while ( v36 > 0 );
+      else
+      {
+        v31 >>= 1;
+      }
     }
-    v40 = truncate_cast<unsigned char,__int64>(((char *)_R8 - (char *)_RSI - 4) >> 3);
-    v41 = _RSI->meta.keyCount;
-    v55 = v34;
-    if ( v40 < v41 )
+    v34 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)v14 - 4) >> 3);
+    v35 = v14->meta.keyCount;
+    v49 = v29;
+    if ( v34 < v35 )
     {
       do
       {
-        v42 = v40;
-        v43 = v34;
-        ++v40;
-        v34 = (__int64)_RSI->keys[v42];
-        _RSI->keys[v42] = (CgDistanceCacheMpKey)v43;
-        v41 = _RSI->meta.keyCount;
+        v36 = v34;
+        v37 = v29;
+        ++v34;
+        v29 = v14->keys[v36];
+        v14->keys[v36] = v37;
+        v35 = v14->meta.keyCount;
       }
-      while ( v40 < v41 );
-      v55 = v34;
+      while ( v34 < v35 );
+      v49 = v29;
     }
-    if ( v40 < 7u )
+    if ( v34 < 7u )
       break;
-    v54 = v34;
-    if ( (_BYTE)v41 == 7 && _RSI->meta.nextPageIndex == 33 )
+    v48 = v29;
+    if ( (_BYTE)v35 == 7 && v14->meta.nextPageIndex == 33 )
     {
-      if ( _R15->m_nextFreePage == 33 )
+      if ( this->m_nextFreePage == 33 )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CFEBF0, 5843i64);
-      if ( ((unsigned __int8)_R15 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", _R15) )
+      if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", this) )
         __debugbreak();
-      v44 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&_R15->m_nextFreePage, 1u));
-      v45 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockPage(_R15, &_R15->m_pages[v44]);
-      v45->meta.nextPageIndex = 33;
-      v45->meta.keyCount = 0;
-      OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, v45);
-      if ( (_DWORD)v44 == 33 )
+      v38 = truncate_cast<unsigned short,int>(_InterlockedExchangeAdd(&this->m_nextFreePage, 1u));
+      v39 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockPage(this, &this->m_pages[v38]);
+      v39->meta.nextPageIndex = 33;
+      v39->meta.keyCount = 0;
+      OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(this, v39);
+      if ( (_DWORD)v38 == 33 )
       {
-        LODWORD(v52) = 33;
-        LODWORD(v51) = 33;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 33;
+        LODWORD(v45) = 33;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 278, ASSERT_TYPE_ASSERT, "( newPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "newPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      if ( _RSI->meta.nextPageIndex != 33 )
+      if ( v14->meta.nextPageIndex != 33 )
       {
-        LODWORD(v52) = 33;
-        LODWORD(v51) = _RSI->meta.nextPageIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+        LODWORD(v46) = 33;
+        LODWORD(v45) = v14->meta.nextPageIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 279, ASSERT_TYPE_ASSERT, "( mutablePage->meta.nextPageIndex ) == ( PAGE_COUNT )", "%s == %s\n\t%i, %i", "mutablePage->meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
           __debugbreak();
       }
-      _RSI->meta.nextPageIndex = v44;
+      v14->meta.nextPageIndex = v38;
     }
-    if ( (_RSI->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
+    if ( (v14->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 336, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
       __debugbreak();
-    if ( _RSI->meta.nextPageIndex == 33 )
+    if ( v14->meta.nextPageIndex == 33 )
     {
-      LODWORD(v52) = 33;
-      LODWORD(v51) = 33;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v51, v52) )
+      LODWORD(v46) = 33;
+      LODWORD(v45) = 33;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 337, ASSERT_TYPE_ASSERT, "( page.meta.nextPageIndex ) != ( PAGE_COUNT )", "%s != %s\n\t%i, %i", "page.meta.nextPageIndex", "PAGE_COUNT", v45, v46) )
         __debugbreak();
     }
-    outNextPageIndex = _RSI->meta.nextPageIndex;
-    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::GetPage(_R15, outNextPageIndex);
-    v47 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockPage(_R15, Page);
-    OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
-    _RSI = v47;
+    outNextPageIndex = v14->meta.nextPageIndex;
+    Page = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::GetPage(this, outNextPageIndex);
+    v41 = OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::LockPage(this, Page);
+    OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
+    v14 = v41;
   }
-  _RSI->keys[(unsigned __int8)v41] = (CgDistanceCacheMpKey)v34;
-  ++_RSI->meta.keyCount;
-  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(_R15, _RSI);
+  v14->keys[(unsigned __int8)v35] = v29;
+  ++v14->meta.keyCount;
+  OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(this, v14);
   return 0;
 }
 
@@ -1883,7 +1681,11 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::InsertIn
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::InsertIntoLockedPageWithOverflow(OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey> *this, OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Page *page, CgDistanceCacheMpKey *inOutKey)
 {
+  CgDistanceCacheMpKey *keys; 
   __int64 v6; 
+  float distanceSq; 
+  __int64 v8; 
+  float v9; 
   unsigned __int8 v10; 
   CgDistanceCacheMpKey v11; 
   unsigned __int16 v12; 
@@ -1892,43 +1694,31 @@ bool OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Ins
   CgDistanceCacheMpKey v15; 
   bool result; 
 
-  _RDI = inOutKey;
   if ( (page->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  _R9 = page->keys;
+  keys = page->keys;
   v6 = (8i64 * page->meta.keyCount) >> 3;
   if ( v6 > 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rdi+4] }
+    distanceSq = inOutKey->distanceSq;
     do
     {
-      _RDX = v6 >> 1;
-      __asm
+      v8 = v6 >> 1;
+      v9 = keys[v6 >> 1].distanceSq;
+      if ( v9 < distanceSq || v9 == distanceSq && keys[v8].index < inOutKey->index )
       {
-        vmovss  xmm0, dword ptr [r9+rdx*8+4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v6 & 1 )
-        goto LABEL_10;
-      __asm { vucomiss xmm0, xmm1 }
-      if ( v6 >> 1 )
-        goto LABEL_9;
-      if ( _R9[_RDX].index < _RDI->index )
-      {
-LABEL_10:
-        _R9 += _RDX + 1;
-        v6 += -1 - _RDX;
+        keys += v8 + 1;
+        v6 += -1 - v8;
       }
       else
       {
-LABEL_9:
         v6 >>= 1;
       }
     }
     while ( v6 > 0 );
   }
-  v10 = truncate_cast<unsigned char,__int64>(((char *)_R9 - (char *)page - 4) >> 3);
-  v11 = *_RDI;
+  v10 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)page - 4) >> 3);
+  v11 = *inOutKey;
   v12 = v10;
   for ( i = page->meta.keyCount; v12 < i; i = page->meta.keyCount )
   {
@@ -1941,7 +1731,7 @@ LABEL_9:
   if ( v12 >= 7u )
   {
     result = 1;
-    *_RDI = v11;
+    *inOutKey = v11;
   }
   else
   {
@@ -1959,7 +1749,11 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::InsertI
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::InsertIntoLockedPageWithOverflow(OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey> *this, OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Page *page, CgDistanceCacheMpKey *inOutKey)
 {
+  CgDistanceCacheMpKey *keys; 
   __int64 v6; 
+  float distanceSq; 
+  __int64 v8; 
+  float v9; 
   unsigned __int8 v10; 
   CgDistanceCacheMpKey v11; 
   unsigned __int16 v12; 
@@ -1968,43 +1762,31 @@ bool OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::In
   CgDistanceCacheMpKey v15; 
   bool result; 
 
-  _RDI = inOutKey;
   if ( (page->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  _R9 = page->keys;
+  keys = page->keys;
   v6 = (8i64 * page->meta.keyCount) >> 3;
   if ( v6 > 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rdi+4] }
+    distanceSq = inOutKey->distanceSq;
     do
     {
-      _RDX = v6 >> 1;
-      __asm
+      v8 = v6 >> 1;
+      v9 = keys[v6 >> 1].distanceSq;
+      if ( v9 < distanceSq || v9 == distanceSq && keys[v8].index < inOutKey->index )
       {
-        vmovss  xmm0, dword ptr [r9+rdx*8+4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v6 & 1 )
-        goto LABEL_10;
-      __asm { vucomiss xmm0, xmm1 }
-      if ( v6 >> 1 )
-        goto LABEL_9;
-      if ( _R9[_RDX].index < _RDI->index )
-      {
-LABEL_10:
-        _R9 += _RDX + 1;
-        v6 += -1 - _RDX;
+        keys += v8 + 1;
+        v6 += -1 - v8;
       }
       else
       {
-LABEL_9:
         v6 >>= 1;
       }
     }
     while ( v6 > 0 );
   }
-  v10 = truncate_cast<unsigned char,__int64>(((char *)_R9 - (char *)page - 4) >> 3);
-  v11 = *_RDI;
+  v10 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)page - 4) >> 3);
+  v11 = *inOutKey;
   v12 = v10;
   for ( i = page->meta.keyCount; v12 < i; i = page->meta.keyCount )
   {
@@ -2017,7 +1799,7 @@ LABEL_9:
   if ( v12 >= 7u )
   {
     result = 1;
-    *_RDI = v11;
+    *inOutKey = v11;
   }
   else
   {
@@ -2035,7 +1817,11 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Inser
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::InsertIntoLockedPageWithOverflow(OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey> *this, OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Page *page, CgDistanceCacheMpKey *inOutKey)
 {
+  CgDistanceCacheMpKey *keys; 
   __int64 v6; 
+  float distanceSq; 
+  __int64 v8; 
+  float v9; 
   unsigned __int8 v10; 
   CgDistanceCacheMpKey v11; 
   unsigned __int16 v12; 
@@ -2044,43 +1830,31 @@ bool OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::
   CgDistanceCacheMpKey v15; 
   bool result; 
 
-  _RDI = inOutKey;
   if ( (page->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  _R9 = page->keys;
+  keys = page->keys;
   v6 = (8i64 * page->meta.keyCount) >> 3;
   if ( v6 > 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rdi+4] }
+    distanceSq = inOutKey->distanceSq;
     do
     {
-      _RDX = v6 >> 1;
-      __asm
+      v8 = v6 >> 1;
+      v9 = keys[v6 >> 1].distanceSq;
+      if ( v9 < distanceSq || v9 == distanceSq && keys[v8].index < inOutKey->index )
       {
-        vmovss  xmm0, dword ptr [r9+rdx*8+4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v6 & 1 )
-        goto LABEL_10;
-      __asm { vucomiss xmm0, xmm1 }
-      if ( v6 >> 1 )
-        goto LABEL_9;
-      if ( _R9[_RDX].index < _RDI->index )
-      {
-LABEL_10:
-        _R9 += _RDX + 1;
-        v6 += -1 - _RDX;
+        keys += v8 + 1;
+        v6 += -1 - v8;
       }
       else
       {
-LABEL_9:
         v6 >>= 1;
       }
     }
     while ( v6 > 0 );
   }
-  v10 = truncate_cast<unsigned char,__int64>(((char *)_R9 - (char *)page - 4) >> 3);
-  v11 = *_RDI;
+  v10 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)page - 4) >> 3);
+  v11 = *inOutKey;
   v12 = v10;
   for ( i = page->meta.keyCount; v12 < i; i = page->meta.keyCount )
   {
@@ -2093,7 +1867,7 @@ LABEL_9:
   if ( v12 >= 7u )
   {
     result = 1;
-    *_RDI = v11;
+    *inOutKey = v11;
   }
   else
   {
@@ -2111,7 +1885,11 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Insert
 */
 bool OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::InsertIntoLockedPageWithOverflow(OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey> *this, OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Page *page, CgDistanceCacheMpKey *inOutKey)
 {
+  CgDistanceCacheMpKey *keys; 
   __int64 v6; 
+  float distanceSq; 
+  __int64 v8; 
+  float v9; 
   unsigned __int8 v10; 
   CgDistanceCacheMpKey v11; 
   unsigned __int16 v12; 
@@ -2120,43 +1898,31 @@ bool OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::I
   CgDistanceCacheMpKey v15; 
   bool result; 
 
-  _RDI = inOutKey;
   if ( (page->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 352, ASSERT_TYPE_ASSERT, "(page.lock & PAGE_LOCK_MASK)", (const char *)&queryFormat, "page.lock & PAGE_LOCK_MASK") )
     __debugbreak();
-  _R9 = page->keys;
+  keys = page->keys;
   v6 = (8i64 * page->meta.keyCount) >> 3;
   if ( v6 > 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rdi+4] }
+    distanceSq = inOutKey->distanceSq;
     do
     {
-      _RDX = v6 >> 1;
-      __asm
+      v8 = v6 >> 1;
+      v9 = keys[v6 >> 1].distanceSq;
+      if ( v9 < distanceSq || v9 == distanceSq && keys[v8].index < inOutKey->index )
       {
-        vmovss  xmm0, dword ptr [r9+rdx*8+4]
-        vcomiss xmm0, xmm1
-      }
-      if ( v6 & 1 )
-        goto LABEL_10;
-      __asm { vucomiss xmm0, xmm1 }
-      if ( v6 >> 1 )
-        goto LABEL_9;
-      if ( _R9[_RDX].index < _RDI->index )
-      {
-LABEL_10:
-        _R9 += _RDX + 1;
-        v6 += -1 - _RDX;
+        keys += v8 + 1;
+        v6 += -1 - v8;
       }
       else
       {
-LABEL_9:
         v6 >>= 1;
       }
     }
     while ( v6 > 0 );
   }
-  v10 = truncate_cast<unsigned char,__int64>(((char *)_R9 - (char *)page - 4) >> 3);
-  v11 = *_RDI;
+  v10 = truncate_cast<unsigned char,__int64>(((char *)keys - (char *)page - 4) >> 3);
+  v11 = *inOutKey;
   v12 = v10;
   for ( i = page->meta.keyCount; v12 < i; i = page->meta.keyCount )
   {
@@ -2169,7 +1935,7 @@ LABEL_9:
   if ( v12 >= 7u )
   {
     result = 1;
-    *_RDI = v11;
+    *inOutKey = v11;
   }
   else
   {
@@ -2526,6 +2292,7 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Validate
 */
 char OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Validate(OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey> *this)
 {
+  float *v1; 
   unsigned __int16 v3; 
   unsigned __int16 nextPageIndex; 
   bool v5; 
@@ -2533,17 +2300,19 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Val
   signed __int32 lock; 
   unsigned __int8 keyCount; 
   unsigned __int8 v9; 
-  bool v10; 
-  bool v11; 
-  signed __int32 v17; 
-  signed __int32 v18; 
+  float distanceSq; 
+  CgDistanceCacheMpKey *v11; 
+  float v12; 
+  float v13; 
+  signed __int32 v14; 
+  signed __int32 v15; 
   char *fmt; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
 
-  _RBP = NULL;
+  v1 = NULL;
   v3 = 0;
   while ( 1 )
   {
@@ -2551,7 +2320,7 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::Val
     v5 = nextPageIndex < 6u;
     if ( nextPageIndex != 6 )
       break;
-LABEL_34:
+LABEL_37:
     if ( ++v3 >= 5u )
       return 1;
   }
@@ -2559,9 +2328,9 @@ LABEL_34:
   {
     if ( !v5 )
     {
-      LODWORD(v22) = 6;
-      LODWORD(v21) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v19) = 6;
+      LODWORD(v18) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     v6 = &this->m_pages[nextPageIndex];
@@ -2582,66 +2351,51 @@ LABEL_34:
     keyCount = this->m_pages[nextPageIndex].meta.keyCount;
     if ( keyCount )
       break;
-LABEL_24:
-    v17 = v6->lock;
+LABEL_27:
+    v14 = v6->lock;
     nextPageIndex = v6->meta.nextPageIndex;
     if ( (v6->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
     if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v6) )
       __debugbreak();
-    v18 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v17 & 0xFFFFFF, v17);
-    if ( v17 != v18 )
+    v15 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v14 & 0xFFFFFF, v14);
+    if ( v14 != v15 )
     {
-      LODWORD(v24) = v17;
-      LODWORD(v23) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v23, v24) )
+      LODWORD(v21) = v14;
+      LODWORD(v20) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v20, v21) )
         __debugbreak();
     }
     v5 = nextPageIndex < 6u;
     if ( nextPageIndex == 6 )
-      goto LABEL_34;
+      goto LABEL_37;
   }
   v9 = 0;
-  v10 = 0;
-  v11 = keyCount == 0;
-  _R10 = &this->m_linkKeys[v3];
-  __asm { vmovss  xmm2, dword ptr [r10+4] }
+  distanceSq = this->m_linkKeys[v3].distanceSq;
   while ( 1 )
   {
-    _RDX = &v6->keys[v9];
-    __asm
+    v11 = &v6->keys[v9];
+    v12 = v6->keys[v9].distanceSq;
+    if ( v12 >= distanceSq && (v12 != distanceSq || v11->index >= this->m_linkKeys[v3].index) )
     {
-      vmovss  xmm0, dword ptr [rdx+4]
-      vcomiss xmm0, xmm2
-    }
-    if ( !v10 )
-    {
-      __asm { vucomiss xmm0, xmm2 }
-      if ( !v11 || _RDX->index >= _R10->index )
-        break;
-    }
-    if ( _RBP )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+4]
-        vcomiss xmm1, xmm0
-        vucomiss xmm1, xmm0
-      }
-      LODWORD(v21) = v9;
-      LODWORD(fmt) = nextPageIndex;
-      Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", _RBP, v3, fmt, v21, &v6->keys[v9]);
+      Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
       OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
       return 0;
     }
+    if ( v1 )
+    {
+      v13 = v1[1];
+      if ( v13 >= v12 && (v13 != v12 || *(_DWORD *)v1 >= v11->index) )
+        break;
+    }
     ++v9;
-    _RBP = _RDX;
-    v10 = v9 < keyCount;
-    v11 = v9 == keyCount;
+    v1 = (float *)v11;
     if ( v9 >= keyCount )
-      goto LABEL_24;
+      goto LABEL_27;
   }
-  Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
+  LODWORD(v18) = v9;
+  LODWORD(fmt) = nextPageIndex;
+  Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", v1, v3, fmt, v18, &v6->keys[v9]);
   OneLevelSkipList<CgDistanceCacheMpKey,5,8,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
   return 0;
 }
@@ -2653,6 +2407,7 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Validat
 */
 char OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Validate(OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey> *this)
 {
+  float *v1; 
   unsigned __int16 v3; 
   unsigned __int16 nextPageIndex; 
   bool v5; 
@@ -2660,17 +2415,19 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Va
   signed __int32 lock; 
   unsigned __int8 keyCount; 
   unsigned __int8 v9; 
-  bool v10; 
-  bool v11; 
-  signed __int32 v17; 
-  signed __int32 v18; 
+  float distanceSq; 
+  CgDistanceCacheMpKey *v11; 
+  float v12; 
+  float v13; 
+  signed __int32 v14; 
+  signed __int32 v15; 
   char *fmt; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
 
-  _RBP = NULL;
+  v1 = NULL;
   v3 = 0;
   while ( 1 )
   {
@@ -2678,7 +2435,7 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::Va
     v5 = nextPageIndex < 0xBu;
     if ( nextPageIndex != 11 )
       break;
-LABEL_34:
+LABEL_37:
     if ( ++v3 >= 5u )
       return 1;
   }
@@ -2686,9 +2443,9 @@ LABEL_34:
   {
     if ( !v5 )
     {
-      LODWORD(v22) = 11;
-      LODWORD(v21) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v19) = 11;
+      LODWORD(v18) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     v6 = &this->m_pages[nextPageIndex];
@@ -2709,66 +2466,51 @@ LABEL_34:
     keyCount = this->m_pages[nextPageIndex].meta.keyCount;
     if ( keyCount )
       break;
-LABEL_24:
-    v17 = v6->lock;
+LABEL_27:
+    v14 = v6->lock;
     nextPageIndex = v6->meta.nextPageIndex;
     if ( (v6->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
     if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v6) )
       __debugbreak();
-    v18 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v17 & 0xFFFFFF, v17);
-    if ( v17 != v18 )
+    v15 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v14 & 0xFFFFFF, v14);
+    if ( v14 != v15 )
     {
-      LODWORD(v24) = v17;
-      LODWORD(v23) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v23, v24) )
+      LODWORD(v21) = v14;
+      LODWORD(v20) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v20, v21) )
         __debugbreak();
     }
     v5 = nextPageIndex < 0xBu;
     if ( nextPageIndex == 11 )
-      goto LABEL_34;
+      goto LABEL_37;
   }
   v9 = 0;
-  v10 = 0;
-  v11 = keyCount == 0;
-  _R10 = &this->m_linkKeys[v3];
-  __asm { vmovss  xmm2, dword ptr [r10+4] }
+  distanceSq = this->m_linkKeys[v3].distanceSq;
   while ( 1 )
   {
-    _RDX = &v6->keys[v9];
-    __asm
+    v11 = &v6->keys[v9];
+    v12 = v6->keys[v9].distanceSq;
+    if ( v12 >= distanceSq && (v12 != distanceSq || v11->index >= this->m_linkKeys[v3].index) )
     {
-      vmovss  xmm0, dword ptr [rdx+4]
-      vcomiss xmm0, xmm2
-    }
-    if ( !v10 )
-    {
-      __asm { vucomiss xmm0, xmm2 }
-      if ( !v11 || _RDX->index >= _R10->index )
-        break;
-    }
-    if ( _RBP )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+4]
-        vcomiss xmm1, xmm0
-        vucomiss xmm1, xmm0
-      }
-      LODWORD(v21) = v9;
-      LODWORD(fmt) = nextPageIndex;
-      Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", _RBP, v3, fmt, v21, &v6->keys[v9]);
+      Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
       OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
       return 0;
     }
+    if ( v1 )
+    {
+      v13 = v1[1];
+      if ( v13 >= v12 && (v13 != v12 || *(_DWORD *)v1 >= v11->index) )
+        break;
+    }
     ++v9;
-    _RBP = _RDX;
-    v10 = v9 < keyCount;
-    v11 = v9 == keyCount;
+    v1 = (float *)v11;
     if ( v9 >= keyCount )
-      goto LABEL_24;
+      goto LABEL_27;
   }
-  Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
+  LODWORD(v18) = v9;
+  LODWORD(fmt) = nextPageIndex;
+  Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", v1, v3, fmt, v18, &v6->keys[v9]);
   OneLevelSkipList<CgDistanceCacheMpKey,5,48,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
   return 0;
 }
@@ -2780,6 +2522,7 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Valid
 */
 char OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::Validate(OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey> *this)
 {
+  float *v1; 
   unsigned __int16 v3; 
   unsigned __int16 nextPageIndex; 
   bool v5; 
@@ -2787,17 +2530,19 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::
   signed __int32 lock; 
   unsigned __int8 keyCount; 
   unsigned __int8 v9; 
-  bool v10; 
-  bool v11; 
-  signed __int32 v17; 
-  signed __int32 v18; 
+  float distanceSq; 
+  CgDistanceCacheMpKey *v11; 
+  float v12; 
+  float v13; 
+  signed __int32 v14; 
+  signed __int32 v15; 
   char *fmt; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
 
-  _RBP = NULL;
+  v1 = NULL;
   v3 = 0;
   while ( 1 )
   {
@@ -2805,7 +2550,7 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::
     v5 = nextPageIndex < 0x106u;
     if ( nextPageIndex != 262 )
       break;
-LABEL_34:
+LABEL_37:
     if ( ++v3 >= 5u )
       return 1;
   }
@@ -2813,9 +2558,9 @@ LABEL_34:
   {
     if ( !v5 )
     {
-      LODWORD(v22) = 262;
-      LODWORD(v21) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v19) = 262;
+      LODWORD(v18) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     v6 = &this->m_pages[nextPageIndex];
@@ -2836,66 +2581,51 @@ LABEL_34:
     keyCount = this->m_pages[nextPageIndex].meta.keyCount;
     if ( keyCount )
       break;
-LABEL_24:
-    v17 = v6->lock;
+LABEL_27:
+    v14 = v6->lock;
     nextPageIndex = v6->meta.nextPageIndex;
     if ( (v6->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
     if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v6) )
       __debugbreak();
-    v18 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v17 & 0xFFFFFF, v17);
-    if ( v17 != v18 )
+    v15 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v14 & 0xFFFFFF, v14);
+    if ( v14 != v15 )
     {
-      LODWORD(v24) = v17;
-      LODWORD(v23) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v23, v24) )
+      LODWORD(v21) = v14;
+      LODWORD(v20) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v20, v21) )
         __debugbreak();
     }
     v5 = nextPageIndex < 0x106u;
     if ( nextPageIndex == 262 )
-      goto LABEL_34;
+      goto LABEL_37;
   }
   v9 = 0;
-  v10 = 0;
-  v11 = keyCount == 0;
-  _R10 = &this->m_linkKeys[v3];
-  __asm { vmovss  xmm2, dword ptr [r10+4] }
+  distanceSq = this->m_linkKeys[v3].distanceSq;
   while ( 1 )
   {
-    _RDX = &v6->keys[v9];
-    __asm
+    v11 = &v6->keys[v9];
+    v12 = v6->keys[v9].distanceSq;
+    if ( v12 >= distanceSq && (v12 != distanceSq || v11->index >= this->m_linkKeys[v3].index) )
     {
-      vmovss  xmm0, dword ptr [rdx+4]
-      vcomiss xmm0, xmm2
-    }
-    if ( !v10 )
-    {
-      __asm { vucomiss xmm0, xmm2 }
-      if ( !v11 || _RDX->index >= _R10->index )
-        break;
-    }
-    if ( _RBP )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+4]
-        vcomiss xmm1, xmm0
-        vucomiss xmm1, xmm0
-      }
-      LODWORD(v21) = v9;
-      LODWORD(fmt) = nextPageIndex;
-      Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", _RBP, v3, fmt, v21, &v6->keys[v9]);
+      Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
       OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
       return 0;
     }
+    if ( v1 )
+    {
+      v13 = v1[1];
+      if ( v13 >= v12 && (v13 != v12 || *(_DWORD *)v1 >= v11->index) )
+        break;
+    }
     ++v9;
-    _RBP = _RDX;
-    v10 = v9 < keyCount;
-    v11 = v9 == keyCount;
+    v1 = (float *)v11;
     if ( v9 >= keyCount )
-      goto LABEL_24;
+      goto LABEL_27;
   }
-  Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
+  LODWORD(v18) = v9;
+  LODWORD(fmt) = nextPageIndex;
+  Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", v1, v3, fmt, v18, &v6->keys[v9]);
   OneLevelSkipList<CgDistanceCacheMpKey,5,1800,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
   return 0;
 }
@@ -2907,6 +2637,7 @@ OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Valida
 */
 char OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::Validate(OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey> *this)
 {
+  float *v1; 
   unsigned __int16 v3; 
   unsigned __int16 nextPageIndex; 
   bool v5; 
@@ -2914,17 +2645,19 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::V
   signed __int32 lock; 
   unsigned __int8 keyCount; 
   unsigned __int8 v9; 
-  bool v10; 
-  bool v11; 
-  signed __int32 v17; 
-  signed __int32 v18; 
+  float distanceSq; 
+  CgDistanceCacheMpKey *v11; 
+  float v12; 
+  float v13; 
+  signed __int32 v14; 
+  signed __int32 v15; 
   char *fmt; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
 
-  _RBP = NULL;
+  v1 = NULL;
   v3 = 0;
   while ( 1 )
   {
@@ -2932,7 +2665,7 @@ char OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::V
     v5 = nextPageIndex < 0x21u;
     if ( nextPageIndex != 33 )
       break;
-LABEL_34:
+LABEL_37:
     if ( ++v3 >= 5u )
       return 1;
   }
@@ -2940,9 +2673,9 @@ LABEL_34:
   {
     if ( !v5 )
     {
-      LODWORD(v22) = 33;
-      LODWORD(v21) = nextPageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v21, v22) )
+      LODWORD(v19) = 33;
+      LODWORD(v18) = nextPageIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 293, ASSERT_TYPE_ASSERT, "(unsigned)( pageIndex ) < (unsigned)( PAGE_COUNT )", "pageIndex doesn't index PAGE_COUNT\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     v6 = &this->m_pages[nextPageIndex];
@@ -2963,66 +2696,51 @@ LABEL_34:
     keyCount = this->m_pages[nextPageIndex].meta.keyCount;
     if ( keyCount )
       break;
-LABEL_24:
-    v17 = v6->lock;
+LABEL_27:
+    v14 = v6->lock;
     nextPageIndex = v6->meta.nextPageIndex;
     if ( (v6->lock & 0xFF000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 322, ASSERT_TYPE_ASSERT, "(value & PAGE_LOCK_MASK)", (const char *)&queryFormat, "value & PAGE_LOCK_MASK") )
       __debugbreak();
     if ( ((unsigned __int8)v6 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", v6) )
       __debugbreak();
-    v18 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v17 & 0xFFFFFF, v17);
-    if ( v17 != v18 )
+    v15 = _InterlockedCompareExchange((volatile signed __int32 *)v6, v14 & 0xFFFFFF, v14);
+    if ( v14 != v15 )
     {
-      LODWORD(v24) = v17;
-      LODWORD(v23) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v23, v24) )
+      LODWORD(v21) = v14;
+      LODWORD(v20) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_one_level_skip_list.h", 329, ASSERT_TYPE_ASSERT, "( returnedValue ) == ( value )", "%s == %s\n\t%i, %i", "returnedValue", (const char *)&stru_143CE7590, v20, v21) )
         __debugbreak();
     }
     v5 = nextPageIndex < 0x21u;
     if ( nextPageIndex == 33 )
-      goto LABEL_34;
+      goto LABEL_37;
   }
   v9 = 0;
-  v10 = 0;
-  v11 = keyCount == 0;
-  _R10 = &this->m_linkKeys[v3];
-  __asm { vmovss  xmm2, dword ptr [r10+4] }
+  distanceSq = this->m_linkKeys[v3].distanceSq;
   while ( 1 )
   {
-    _RDX = &v6->keys[v9];
-    __asm
+    v11 = &v6->keys[v9];
+    v12 = v6->keys[v9].distanceSq;
+    if ( v12 >= distanceSq && (v12 != distanceSq || v11->index >= this->m_linkKeys[v3].index) )
     {
-      vmovss  xmm0, dword ptr [rdx+4]
-      vcomiss xmm0, xmm2
-    }
-    if ( !v10 )
-    {
-      __asm { vucomiss xmm0, xmm2 }
-      if ( !v11 || _RDX->index >= _R10->index )
-        break;
-    }
-    if ( _RBP )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+4]
-        vcomiss xmm1, xmm0
-        vucomiss xmm1, xmm0
-      }
-      LODWORD(v21) = v9;
-      LODWORD(fmt) = nextPageIndex;
-      Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", _RBP, v3, fmt, v21, &v6->keys[v9]);
+      Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
       OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
       return 0;
     }
+    if ( v1 )
+    {
+      v13 = v1[1];
+      if ( v13 >= v12 && (v13 != v12 || *(_DWORD *)v1 >= v11->index) )
+        break;
+    }
     ++v9;
-    _RBP = _RDX;
-    v10 = v9 < keyCount;
-    v11 = v9 == keyCount;
+    v1 = (float *)v11;
     if ( v9 >= keyCount )
-      goto LABEL_24;
+      goto LABEL_27;
   }
-  Com_PrintError(1, "key at 0x%p >= link key [%d] (0x%p)\n", &v6->keys[v9], v3, &this->m_linkKeys[v3]);
+  LODWORD(v18) = v9;
+  LODWORD(fmt) = nextPageIndex;
+  Com_PrintError(1, "key at 0x%p >= link[%d], page [%d], key [%d] (0x%p)\n", v1, v3, fmt, v18, &v6->keys[v9]);
   OneLevelSkipList<CgDistanceCacheMpKey,5,200,CgDistanceCacheMpCompareKey>::UnlockPage(this, v6);
   return 0;
 }

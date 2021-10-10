@@ -287,88 +287,58 @@ Con_DrawSay
 */
 void Con_DrawSay(LocalClientNum_t localClientNum, int x, int y)
 {
-  const dvar_t *v4; 
-  __int64 v6; 
+  const dvar_t *v3; 
+  __int64 v5; 
   PlayerKeyState *KeyState; 
+  const char *v8; 
   const char *v9; 
   const char *v10; 
-  const char *v11; 
-  bool v12; 
-  const ScreenPlacement *v13; 
+  bool v11; 
+  const ScreenPlacement *v12; 
+  PlayerKeyState *v13; 
+  float v14; 
   GfxFont *FontHandle; 
-  float fmt; 
-  float ya; 
-  float v36; 
-  float v37; 
+  double v16; 
+  int v17; 
+  float v18; 
 
-  v4 = DVARBOOL_cl_textChatEnabled;
-  v6 = localClientNum;
+  v3 = DVARBOOL_cl_textChatEnabled;
+  v5 = localClientNum;
   if ( !DVARBOOL_cl_textChatEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_textChatEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled && CL_Keys_IsCatcherActive((LocalClientNum_t)v6, 32) )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled && CL_Keys_IsCatcherActive((LocalClientNum_t)v5, 32) )
   {
-    __asm { vmovaps [rsp+88h+var_28], xmm6 }
-    KeyState = CL_Keys_GetKeyState((LocalClientNum_t)v6);
-    v9 = "EXE/SAYTEAM";
+    KeyState = CL_Keys_GetKeyState((LocalClientNum_t)v5);
+    v8 = "EXE/SAYTEAM";
     if ( !KeyState->chat_team )
-      v9 = "EXE/SAY";
-    v10 = SEH_SafeTranslateString(v9);
-    v11 = j_va("%s: ", v10);
+      v8 = "EXE/SAY";
+    v9 = SEH_SafeTranslateString(v8);
+    v10 = j_va("%s: ", v9);
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        v13 = &scrPlaceViewDisplay[v6];
+        v12 = &scrPlaceViewDisplay[v5];
         goto LABEL_15;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v12 )
+        v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v11 )
         __debugbreak();
     }
-    v13 = &scrPlaceFull;
+    v12 = &scrPlaceFull;
 LABEL_15:
-    _RDI = CL_Keys_GetKeyState((LocalClientNum_t)v6);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+10h]
-      vmulss  xmm6, xmm0, cs:__real@3caaaaab
-      vmovaps xmm2, xmm6; scale
-      vmovaps xmm1, xmm6; scale
-    }
-    FontHandle = UI_GetFontHandle(v13, 0, *(float *)&_XMM2);
-    *(double *)&_XMM0 = R_NormalizedTextScale(FontHandle, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
-    R_TextHeight(FontHandle);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm2, xmm1, xmm6
-      vcvttss2si ecx, xmm2
-      vmovss  [rsp+88h+var_40], xmm6
-      vmovss  [rsp+88h+var_48], xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ecx
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, r14d
-      vmovss  [rsp+88h+y], xmm1
-      vmovss  dword ptr [rsp+88h+fmt], xmm2
-    }
-    CL_DrawText(v13, v11, 0x7FFFFFFF, FontHandle, fmt, ya, 8, 8, v36, v37, &colorWhite, 3);
-    R_TextWidth(v11, 0, FontHandle);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm6
-      vcvttss2si r8d, xmm1
-    }
-    CL_Keys_DrawField((LocalClientNum_t)v6, &_RDI->chatField, x + _ER8, y, 8, 8);
-    __asm { vmovaps xmm6, [rsp+88h+var_28] }
+    v13 = CL_Keys_GetKeyState((LocalClientNum_t)v5);
+    v14 = v13->chatField.charHeight * 0.020833334;
+    FontHandle = UI_GetFontHandle(v12, 0, v14);
+    v16 = R_NormalizedTextScale(FontHandle, v14);
+    v17 = R_TextHeight(FontHandle);
+    CL_DrawText(v12, v10, 0x7FFFFFFF, FontHandle, (float)x, (float)(y + (int)(float)((float)v17 * *(float *)&v16)), 8, 8, *(float *)&v16, *(float *)&v16, &colorWhite, 3);
+    v18 = (float)R_TextWidth(v10, 0, FontHandle);
+    CL_Keys_DrawField((LocalClientNum_t)v5, &v13->chatField, x + (int)(float)(v18 * *(float *)&v16), y, 8, 8);
   }
 }
 
@@ -493,8 +463,9 @@ SetupChatField
 void SetupChatField(const LocalClientNum_t localClientNum, int teamChat, int widthInPixels)
 {
   __int64 v4; 
-  int v14; 
-  int v15; 
+  PlayerKeyState *KeyState; 
+  int v11; 
+  int v12; 
   int height; 
   float aspect; 
   int width; 
@@ -502,26 +473,20 @@ void SetupChatField(const LocalClientNum_t localClientNum, int teamChat, int wid
   v4 = localClientNum;
   CL_GetScreenDimensions(&width, &height, &aspect);
   CL_Keys_GetKeyState((LocalClientNum_t)v4)->chat_team = teamChat;
-  _RBX = CL_Keys_GetKeyState((LocalClientNum_t)v4);
-  CL_Keys_ClearField(&_RBX->chatField);
-  _RBX->chatField.widthInPixels = widthInPixels;
-  _EAX = 768;
-  _RBX->chatField.fixedSize = 0;
-  __asm
-  {
-    vmovd   xmm0, [rsp+58h+height]
-    vmovss  xmm2, cs:__real@41600000
-    vmovd   xmm1, eax
-    vpcmpgtd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@41900000
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  dword ptr [rbx+10h], xmm0
-  }
+  KeyState = CL_Keys_GetKeyState((LocalClientNum_t)v4);
+  CL_Keys_ClearField(&KeyState->chatField);
+  KeyState->chatField.widthInPixels = widthInPixels;
+  KeyState->chatField.fixedSize = 0;
+  _XMM0 = (unsigned int)height;
+  __asm { vpcmpgtd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_18_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  KeyState->chatField.charHeight = *(float *)&_XMM0;
   if ( (unsigned int)v4 >= 2 )
   {
-    v15 = 2;
-    v14 = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
+    v12 = 2;
+    v11 = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   clientUIActives[v4].keyCatchers ^= 0x20u;

@@ -142,11 +142,9 @@ void XB3_HwZlib_DecompressAsync(XB3_HwZlib_Context *context, const void *in, uns
   int v10; 
   unsigned __int32 v11; 
   unsigned int dmaErrorCodeNextIndex; 
-  HRESULT v14; 
-  const char *v15; 
-  __int128 v16; 
+  HRESULT v13; 
+  const char *v14; 
 
-  _R14 = context;
   if ( !in && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_hw_zlib_decompress.cpp", 39, ASSERT_TYPE_ASSERT, "(in)", (const char *)&queryFormat, "in") )
     __debugbreak();
   if ( !out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_hw_zlib_decompress.cpp", 40, ASSERT_TYPE_ASSERT, "(out)", (const char *)&queryFormat, "out") )
@@ -181,26 +179,21 @@ LABEL_19:
     __debugbreak();
   ProfLoad_DB_Begin("LZDecompressMemory");
   Sys_EnterCriticalSection(CRITSECT_GFX_COPY_QUEUE);
-  v16 = 0ui64;
-  __asm
-  {
-    vmovups xmm0, [rsp+68h+var_18]
-    vmovups xmmword ptr [r14], xmm0
-  }
+  *context = 0ui64;
   dmaErrorCodeNextIndex = s_xb3HwZlibGlob.dmaErrorCodeNextIndex;
-  _R14->dmaErrorCodeIndex = s_xb3HwZlibGlob.dmaErrorCodeNextIndex;
+  context->dmaErrorCodeIndex = s_xb3HwZlibGlob.dmaErrorCodeNextIndex;
   s_xb3HwZlibGlob.dmaErrorCodes[dmaErrorCodeNextIndex] = 205;
   s_xb3HwZlibGlob.dmaErrorCodeNextIndex = (LOWORD(s_xb3HwZlibGlob.dmaErrorCodeNextIndex) + 1) & 0x3FFF;
   if ( !g_dx.copyCommandList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_hw_zlib_decompress.cpp", 65, ASSERT_TYPE_ASSERT, "(g_dx.copyCommandList)", (const char *)&queryFormat, "g_dx.copyCommandList") )
     __debugbreak();
-  v14 = ((__int64 (__fastcall *)(ID3D12XboxDmaCommandList *, void *, const void *, unsigned __int64))g_dx.copyCommandList->m_pFunction[9].QueryInterface)(g_dx.copyCommandList, out, in, inSize);
-  if ( v14 < 0 )
+  v13 = ((__int64 (__fastcall *)(ID3D12XboxDmaCommandList *, void *, const void *, unsigned __int64))g_dx.copyCommandList->m_pFunction[9].QueryInterface)(g_dx.copyCommandList, out, in, inSize);
+  if ( v13 < 0 )
   {
-    v15 = R_ErrorDescription(v14);
-    Sys_Error((const ObfuscateErrorText)&stru_1441E4220, 70i64, v15);
+    v14 = R_ErrorDescription(v13);
+    Sys_Error((const ObfuscateErrorText)&stru_1441E4220, 70i64, v14);
   }
-  ((void (__fastcall *)(ID3D12XboxDmaCommandList *, unsigned int *))g_dx.copyCommandList->m_pFunction[8].Release)(g_dx.copyCommandList, &s_xb3HwZlibGlob.dmaErrorCodes[_R14->dmaErrorCodeIndex]);
-  _R14->fence = R_FlushCopyCommandList();
+  ((void (__fastcall *)(ID3D12XboxDmaCommandList *, unsigned int *))g_dx.copyCommandList->m_pFunction[8].Release)(g_dx.copyCommandList, &s_xb3HwZlibGlob.dmaErrorCodes[context->dmaErrorCodeIndex]);
+  context->fence = R_FlushCopyCommandList();
   Sys_LeaveCriticalSection(CRITSECT_GFX_COPY_QUEUE);
   ProfLoad_DB_End();
 }

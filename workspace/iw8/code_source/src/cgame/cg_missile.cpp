@@ -1077,108 +1077,102 @@ void CheckGrenadeDanger(const gentity_s *grenadeEnt)
 {
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  int v9; 
-  scrContext_t *v10; 
-  __int64 v11; 
-  __int64 v12; 
-  gentity_s *v13; 
+  float v4; 
+  float v5; 
+  int v6; 
+  scrContext_t *v7; 
+  __int64 v8; 
+  __int64 v9; 
+  gentity_s *v10; 
   unsigned __int16 number; 
+  __int64 v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  const gentity_s *v15; 
   __int64 v16; 
-  unsigned int v17; 
-  __int64 v18; 
-  const gentity_s *v19; 
-  __int64 v21; 
-  __int64 v22; 
-  const Weapon *v24; 
+  __int64 v17; 
+  const Weapon *v18; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   if ( !grenadeEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 209, ASSERT_TYPE_ASSERT, "( grenadeEnt )", (const char *)&queryFormat, "grenadeEnt") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   WeaponForEntity = BG_GetWeaponForEntity(Instance, &grenadeEnt->s);
-  v24 = WeaponForEntity;
+  v18 = WeaponForEntity;
   if ( !WeaponForEntity->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 212, ASSERT_TYPE_ASSERT, "( !BG_IsNullWeapon( r_grenadeWeapon ) )", (const char *)&queryFormat, "!BG_IsNullWeapon( r_grenadeWeapon )") )
     __debugbreak();
-  BG_ExplosionRadius(WeaponForEntity, grenadeEnt->s.inAltWeaponMode);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, xmm0
-  }
-  v9 = 0;
-  v10 = ScriptContext_Server();
+  v4 = (float)BG_ExplosionRadius(WeaponForEntity, grenadeEnt->s.inAltWeaponMode);
+  v5 = v4 * v4;
+  v6 = 0;
+  v7 = ScriptContext_Server();
   if ( level.maxclients > 0 )
   {
-    v11 = 0i64;
-    v12 = 0i64;
+    v8 = 0i64;
+    v9 = 0i64;
     do
     {
-      if ( (unsigned int)v9 >= 0x800 )
+      if ( (unsigned int)v6 >= 0x800 )
       {
-        LODWORD(v22) = 2048;
-        LODWORD(v21) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v17) = 2048;
+        LODWORD(v16) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v12].r.isInUse != g_entityIsInUse[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v9].r.isInUse != g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v11] )
+      if ( g_entityIsInUse[v8] )
       {
-        v13 = &g_entities[v12];
-        if ( !g_entities[v12].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 224, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
+        v10 = &g_entities[v9];
+        if ( !g_entities[v9].client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 224, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
           __debugbreak();
-        __asm { vmovaps xmm1, xmm6; radiusSquared }
-        if ( G_Combat_IsWithinDamageRadius(&grenadeEnt->r.currentOrigin, *(float *)&_XMM1, v13) )
+        if ( G_Combat_IsWithinDamageRadius(&grenadeEnt->r.currentOrigin, v5, v10) )
         {
-          GScr_Weapon_AddParam(v10, WeaponForEntity, 0);
+          GScr_Weapon_AddParam(v7, WeaponForEntity, 0);
           number = grenadeEnt->parent.number;
           if ( !number )
             goto LABEL_38;
-          v16 = number;
-          v17 = number - 1;
-          if ( v17 >= 0x800 )
+          v12 = number;
+          v13 = number - 1;
+          if ( v13 >= 0x800 )
           {
-            LODWORD(v22) = 2048;
-            LODWORD(v21) = v17;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, v22) )
+            LODWORD(v17) = 2048;
+            LODWORD(v16) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v16, v17) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          v18 = v16 - 1;
-          if ( g_entities[v18].r.isInUse != g_entityIsInUse[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          v14 = v12 - 1;
+          if ( g_entities[v14].r.isInUse != g_entityIsInUse[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v18] )
+          if ( !g_entityIsInUse[v14] )
           {
-            LODWORD(v22) = grenadeEnt->parent.number - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v22) )
+            LODWORD(v17) = grenadeEnt->parent.number - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v17) )
               __debugbreak();
           }
           if ( grenadeEnt->parent.number )
           {
-            v19 = EntHandle::ent(&grenadeEnt->parent);
-            GScr_AddEntity(v19);
+            v15 = EntHandle::ent(&grenadeEnt->parent);
+            GScr_AddEntity(v15);
           }
           else
           {
 LABEL_38:
-            Scr_AddUndefined(v10);
+            Scr_AddUndefined(v7);
           }
           GScr_AddEntity(grenadeEnt);
-          GScr_Notify(v13, scr_const.grenadedanger, 3u);
-          WeaponForEntity = v24;
+          GScr_Notify(v10, scr_const.grenadedanger, 3u);
+          WeaponForEntity = v18;
         }
       }
+      ++v6;
+      ++v8;
       ++v9;
-      ++v11;
-      ++v12;
     }
-    while ( v9 < level.maxclients );
+    while ( v6 < level.maxclients );
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -1188,117 +1182,87 @@ DrawAttractorDebug
 */
 void DrawAttractorDebug(BgMissile *this)
 {
-  const dvar_t *v4; 
-  __int64 v6; 
-  unsigned __int16 v10; 
-  __int64 v14; 
-  const vec4_t *v18; 
+  const dvar_t *v1; 
+  float *v2; 
+  __int64 v3; 
+  unsigned __int16 v4; 
+  float v5; 
+  float v6; 
+  __int64 v7; 
+  gentity_s *v8; 
+  const vec4_t *v9; 
   __int64 duration; 
-  __int64 v26; 
+  __int64 v11; 
   vec3_t center; 
   vec3_t dir; 
-  vec3_t v29; 
-  vec3_t v30; 
+  vec3_t v14; 
+  vec3_t v15; 
 
-  v4 = DVARBOOL_missileDebugAttractors;
+  v1 = DVARBOOL_missileDebugAttractors;
   if ( !DVARBOOL_missileDebugAttractors && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileDebugAttractors") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
-    _RDI = &attrGlob.attractors[0].origin.v[2];
-    v6 = 32i64;
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_38], xmm6
-      vmovaps [rsp+0E8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vmovaps [rsp+0E8h+var_58], xmm8
-      vmovss  xmm8, cs:__real@41200000
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v2 = &attrGlob.attractors[0].origin.v[2];
+    v3 = 32i64;
     do
     {
-      __asm
+      dir.v[0] = FLOAT_1_0;
+      dir.v[1] = 0.0;
+      dir.v[2] = 0.0;
+      v14.v[0] = 0.0;
+      v14.v[1] = FLOAT_1_0;
+      v14.v[2] = 0.0;
+      v15.v[0] = 0.0;
+      v15.v[1] = 0.0;
+      v15.v[2] = FLOAT_1_0;
+      if ( *((_BYTE *)v2 - 16) )
       {
-        vmovss  dword ptr [rsp+0E8h+dir], xmm7
-        vmovss  dword ptr [rsp+0E8h+dir+4], xmm6
-        vmovss  dword ptr [rsp+0E8h+dir+8], xmm6
-        vmovss  dword ptr [rsp+0E8h+var_88], xmm6
-        vmovss  dword ptr [rsp+0E8h+var_88+4], xmm7
-        vmovss  dword ptr [rsp+0E8h+var_88+8], xmm6
-        vmovss  dword ptr [rsp+0E8h+var_78], xmm6
-        vmovss  dword ptr [rsp+0E8h+var_78+4], xmm6
-        vmovss  dword ptr [rsp+0E8h+var_78+8], xmm7
-      }
-      if ( *((_BYTE *)_RDI - 16) )
-      {
-        v10 = *((_WORD *)_RDI - 7);
-        if ( v10 == 2047 )
+        v4 = *((_WORD *)v2 - 7);
+        if ( v4 == 2047 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi-8]
-            vmovss  xmm1, dword ptr [rdi-4]
-            vmovss  dword ptr [rsp+0E8h+center], xmm0
-            vmovss  xmm0, dword ptr [rdi]
-            vmovss  dword ptr [rsp+0E8h+center+4], xmm1
-          }
+          v5 = *(v2 - 1);
+          center.v[0] = *(v2 - 2);
+          v6 = *v2;
+          center.v[1] = v5;
         }
         else
         {
-          if ( v10 >= 0x800u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1039, ASSERT_TYPE_ASSERT, "( attrGlob.attractors[attractorIndex].entnum < ( 2048 ) )", (const char *)&queryFormat, "attrGlob.attractors[attractorIndex].entnum < MAX_GENTITIES") )
+          if ( v4 >= 0x800u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1039, ASSERT_TYPE_ASSERT, "( attrGlob.attractors[attractorIndex].entnum < ( 2048 ) )", (const char *)&queryFormat, "attrGlob.attractors[attractorIndex].entnum < MAX_GENTITIES") )
             __debugbreak();
-          v14 = *((unsigned __int16 *)_RDI - 7);
-          _RSI = &g_entities[v14];
-          if ( (unsigned int)v14 >= 0x800 )
+          v7 = *((unsigned __int16 *)v2 - 7);
+          v8 = &g_entities[v7];
+          if ( (unsigned int)v7 >= 0x800 )
           {
-            LODWORD(v26) = 2048;
-            LODWORD(duration) = *((unsigned __int16 *)_RDI - 7);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v26) )
+            LODWORD(v11) = 2048;
+            LODWORD(duration) = *((unsigned __int16 *)v2 - 7);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v11) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          if ( g_entities[(int)v14].r.isInUse != g_entityIsInUse[(int)v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          if ( g_entities[(int)v7].r.isInUse != g_entityIsInUse[(int)v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[(int)v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1041, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( attrGlob.attractors[attractorIndex].entnum ) )", (const char *)&queryFormat, "G_IsEntityInUse( attrGlob.attractors[attractorIndex].entnum )") )
+          if ( !g_entityIsInUse[(int)v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1041, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( attrGlob.attractors[attractorIndex].entnum ) )", (const char *)&queryFormat, "G_IsEntityInUse( attrGlob.attractors[attractorIndex].entnum )") )
             __debugbreak();
-          if ( !GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&_RSI->flags, ACTIVE, 0x14u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1042, ASSERT_TYPE_ASSERT, "( attractorEnt->flags.TestFlag( BgEntityFlagsCommon::MISSILE_ATTRACTOR_OR_REPULSOR ) )", (const char *)&queryFormat, "attractorEnt->flags.TestFlag( BgEntityFlagsCommon::MISSILE_ATTRACTOR_OR_REPULSOR )") )
+          if ( !GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&v8->flags, ACTIVE, 0x14u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1042, ASSERT_TYPE_ASSERT, "( attractorEnt->flags.TestFlag( BgEntityFlagsCommon::MISSILE_ATTRACTOR_OR_REPULSOR ) )", (const char *)&queryFormat, "attractorEnt->flags.TestFlag( BgEntityFlagsCommon::MISSILE_ATTRACTOR_OR_REPULSOR )") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+130h]
-            vmovss  dword ptr [rsp+0E8h+center], xmm0
-            vmovss  xmm1, dword ptr [rsi+134h]
-            vmovss  dword ptr [rsp+0E8h+center+4], xmm1
-            vmovss  xmm0, dword ptr [rsi+138h]
-          }
+          *(_QWORD *)center.v = *(_QWORD *)v8->r.currentOrigin.v;
+          v6 = v8->r.currentOrigin.v[2];
         }
-        v18 = &colorOrange;
-        if ( *((_BYTE *)_RDI - 15) )
-          v18 = &colorGreen;
-        __asm
-        {
-          vmovaps xmm1, xmm8; radius
-          vmovss  dword ptr [rsp+0E8h+center+8], xmm0
-        }
-        G_DebugCircleEx(&center, *(float *)&_XMM1, &dir, v18, 0, 1);
-        __asm { vmovaps xmm1, xmm8; radius }
-        G_DebugCircleEx(&center, *(float *)&_XMM1, &v29, v18, 0, 1);
-        __asm { vmovaps xmm1, xmm8; radius }
-        G_DebugCircleEx(&center, *(float *)&_XMM1, &v30, v18, 0, 1);
+        v9 = &colorOrange;
+        if ( *((_BYTE *)v2 - 15) )
+          v9 = &colorGreen;
+        center.v[2] = v6;
+        G_DebugCircleEx(&center, 10.0, &dir, v9, 0, 1);
+        G_DebugCircleEx(&center, 10.0, &v14, v9, 0, 1);
+        G_DebugCircleEx(&center, 10.0, &v15, v9, 0, 1);
       }
-      _RDI += 7;
-      --v6;
+      v2 += 7;
+      --v3;
     }
-    while ( v6 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0E8h+var_58]
-      vmovaps xmm7, [rsp+0E8h+var_48]
-      vmovaps xmm6, [rsp+0E8h+var_38]
-    }
+    while ( v3 );
   }
 }
 
@@ -1340,36 +1304,30 @@ void MissileTrajectoryClientControlled(gentity_s *ent, vec3_t *result)
 {
   gclient_s *client; 
   unsigned __int64 buttons; 
+  __int128 v6; 
+  float v8; 
+  __int128 v9; 
   int flags; 
-  char v26; 
-  char v28; 
-  const dvar_t *v31; 
-  const dvar_t *v35; 
+  const dvar_t *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float value; 
+  const dvar_t *v15; 
+  const dvar_t *v17; 
+  __int128 v19; 
   vec3_t trBase; 
-  __int64 v62; 
+  __int64 v21; 
   vec3_t forward; 
-  char v64; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v62 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  _R14 = result;
-  _RBX = ent;
+  v21 = -2i64;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1584, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( (_RBX->c.item[0].weapon.attachmentVariationIndices[5] & 0x80u) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1585, ASSERT_TYPE_ASSERT, "(ent->c.missile.flags & MISSILEFLAG_CLIENT_CONTROLLED)", (const char *)&queryFormat, "ent->c.missile.flags & MISSILEFLAG_CLIENT_CONTROLLED") )
+  if ( (ent->c.item[0].weapon.attachmentVariationIndices[5] & 0x80u) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_missile.cpp", 1585, ASSERT_TYPE_ASSERT, "(ent->c.missile.flags & MISSILEFLAG_CLIENT_CONTROLLED)", (const char *)&queryFormat, "ent->c.missile.flags & MISSILEFLAG_CLIENT_CONTROLLED") )
     __debugbreak();
-  _RBX->clipmask &= ~0x800u;
-  if ( !EntHandle::isDefined(&_RBX->remoteControlledOwner) )
+  ent->clipmask &= ~0x800u;
+  if ( !EntHandle::isDefined(&ent->remoteControlledOwner) )
     goto LABEL_11;
-  client = EntHandle::ent(&_RBX->remoteControlledOwner)->client;
+  client = EntHandle::ent(&ent->remoteControlledOwner)->client;
   if ( !client )
   {
     Com_PrintError(17, "Missile has a remote-control owner that isn't a client.");
@@ -1381,140 +1339,76 @@ LABEL_11:
   if ( (buttons & 0x40000) == 0 )
     goto LABEL_11;
 LABEL_12:
-  AngleVectors(&_RBX->s.lerp.apos.trBase, &forward, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+forward+4]
-    vmulss  xmm3, xmm0, dword ptr [rbx+2Ch]
-    vmovss  xmm1, dword ptr [rsp+0C8h+forward]
-    vmulss  xmm2, xmm1, dword ptr [rbx+28h]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm0, dword ptr [rsp+0C8h+forward+8]
-    vmulss  xmm1, xmm0, dword ptr [rbx+30h]
-    vaddss  xmm6, xmm4, xmm1
-  }
+  AngleVectors(&ent->s.lerp.apos.trBase, &forward, NULL, NULL);
+  v6 = LODWORD(forward.v[1]);
+  *(float *)&v6 = (float)((float)(forward.v[1] * ent->s.lerp.pos.trDelta.v[1]) + (float)(forward.v[0] * ent->s.lerp.pos.trDelta.v[0])) + (float)(forward.v[2] * ent->s.lerp.pos.trDelta.v[2]);
+  _XMM6 = v6;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-  }
-  flags = _RBX->c.missile.flags;
-  __asm { vmovss  xmm7, cs:__real@3a83126f }
+  v9 = 0i64;
+  *(float *)&v9 = (float)level.frameDuration;
+  v8 = *(float *)&v9;
+  flags = ent->c.missile.flags;
   if ( (flags & 0x60) == 32 && (buttons & 1) != 0 )
   {
-    _RBP = DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange;
+    v11 = DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange;
     if ( !DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSpeedTargetRange") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = v11->current.vector.v[1];
+    if ( (float)(v12 - *(float *)&_XMM6) > 500.0 )
     {
-      vmovss  xmm8, dword ptr [rbp+2Ch]
-      vsubss  xmm0, xmm8, xmm6
-      vcomiss xmm0, cs:__real@43fa0000
+      ent->c.missile.flags |= 0x40u;
+      G_Utils_AddEvent(ent, 0x8Du, 0);
     }
-    if ( !(v28 | v26) )
-    {
-      _RBX->c.missile.flags |= 0x40u;
-      G_Utils_AddEvent(_RBX, 0x8Du, 0);
-    }
-    __asm { vmovaps xmm6, xmm8 }
+    *(float *)&_XMM6 = v12;
   }
   else
   {
     if ( (flags & 0x200) != 0 && (buttons & 0x40001) == 0x40000 )
-      _RBX->c.missile.flags = flags | 0x20;
-    _RBP = DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange;
+      ent->c.missile.flags = flags | 0x20;
+    v13 = DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange;
     if ( !DCONST_DVARMPVEC2_missileRemoteSpeedTargetRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSpeedTargetRange") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
+    Dvar_CheckFrontendServerThread(v13);
+    value = v13->current.value;
+    if ( (float)(value - *(float *)&_XMM6) <= 0.001 )
     {
-      vmovss  xmm8, dword ptr [rbp+28h]
-      vsubss  xmm0, xmm8, xmm6
-      vcomiss xmm0, xmm7
-    }
-    if ( v28 | v26 )
-    {
-      if ( v28 )
+      if ( (float)(value - *(float *)&_XMM6) < 0.001 )
       {
-        v35 = DCONST_DVARMPFLT_missileRemoteSpeedDown;
+        v17 = DCONST_DVARMPFLT_missileRemoteSpeedDown;
         if ( !DCONST_DVARMPFLT_missileRemoteSpeedDown && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSpeedDown") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v35);
-        __asm
-        {
-          vmulss  xmm0, xmm9, dword ptr [rbp+28h]
-          vmulss  xmm1, xmm0, xmm7
-          vsubss  xmm2, xmm6, xmm1
-          vmaxss  xmm6, xmm2, xmm8
-        }
+        Dvar_CheckFrontendServerThread(v17);
+        v19 = _XMM6;
+        *(float *)&v19 = *(float *)&_XMM6 - (float)((float)(v8 * v17->current.value) * 0.001);
+        _XMM2 = v19;
+        __asm { vmaxss  xmm6, xmm2, xmm8 }
       }
     }
     else
     {
-      v31 = DCONST_DVARMPFLT_missileRemoteSpeedUp;
+      v15 = DCONST_DVARMPFLT_missileRemoteSpeedUp;
       if ( !DCONST_DVARMPFLT_missileRemoteSpeedUp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "missileRemoteSpeedUp") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      __asm
-      {
-        vmulss  xmm0, xmm9, dword ptr [rbp+28h]
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm2, xmm1, xmm6
-        vminss  xmm6, xmm2, xmm8
-      }
+      Dvar_CheckFrontendServerThread(v15);
+      *(float *)&v9 = (float)((float)(*(float *)&v9 * v15->current.value) * 0.001) + *(float *)&_XMM6;
+      _XMM2 = v9;
+      __asm { vminss  xmm6, xmm2, xmm8 }
     }
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+forward+4]
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmovss  xmm1, dword ptr [rsp+0C8h+forward+8]
-    vmovss  dword ptr [rbx+30h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+0C8h+forward]
-    vmovss  dword ptr [rbx+28h], xmm1
-    vmulss  xmm0, xmm6, dword ptr [rbx+2Ch]
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmulss  xmm1, xmm6, dword ptr [rbx+30h]
-    vmovss  dword ptr [rbx+30h], xmm1
-  }
-  Trajectory_GetTrBase(&_RBX->s.lerp.pos, &trBase);
-  __asm
-  {
-    vmulss  xmm0, xmm9, dword ptr [rbx+28h]
-    vmulss  xmm2, xmm0, xmm7
-    vaddss  xmm2, xmm2, dword ptr [rsp+0C8h+trBase]
-    vmovss  dword ptr [rsp+0C8h+trBase], xmm2
-    vmulss  xmm0, xmm9, dword ptr [rbx+2Ch]
-    vmulss  xmm2, xmm0, xmm7
-    vaddss  xmm2, xmm2, dword ptr [rsp+0C8h+trBase+4]
-    vmovss  dword ptr [rsp+0C8h+trBase+4], xmm2
-    vmulss  xmm0, xmm9, dword ptr [rbx+30h]
-    vmulss  xmm2, xmm0, xmm7
-    vaddss  xmm2, xmm2, dword ptr [rsp+0C8h+trBase+8]
-    vmovss  dword ptr [rsp+0C8h+trBase+8], xmm2
-  }
-  Trajectory_SetTrBase(&_RBX->s.lerp.pos, &trBase);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+trBase]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm1, dword ptr [rsp+0C8h+trBase+4]
-    vmovss  dword ptr [r14+4], xmm1
-    vmovss  xmm0, dword ptr [rsp+0C8h+trBase+8]
-    vmovss  dword ptr [r14+8], xmm0
-  }
+  ent->s.lerp.pos.trDelta.v[1] = forward.v[1];
+  ent->s.lerp.pos.trDelta.v[2] = forward.v[2];
+  ent->s.lerp.pos.trDelta.v[0] = *(float *)&_XMM6 * forward.v[0];
+  ent->s.lerp.pos.trDelta.v[1] = *(float *)&_XMM6 * ent->s.lerp.pos.trDelta.v[1];
+  ent->s.lerp.pos.trDelta.v[2] = *(float *)&_XMM6 * ent->s.lerp.pos.trDelta.v[2];
+  Trajectory_GetTrBase(&ent->s.lerp.pos, &trBase);
+  trBase.v[0] = (float)((float)(v8 * ent->s.lerp.pos.trDelta.v[0]) * 0.001) + trBase.v[0];
+  trBase.v[1] = (float)((float)(v8 * ent->s.lerp.pos.trDelta.v[1]) * 0.001) + trBase.v[1];
+  trBase.v[2] = (float)((float)(v8 * ent->s.lerp.pos.trDelta.v[2]) * 0.001) + trBase.v[2];
+  Trajectory_SetTrBase(&ent->s.lerp.pos, &trBase);
+  *result = trBase;
   memset(&trBase, 0, sizeof(trBase));
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -1754,26 +1648,22 @@ CgMissile::DebugLineWithDuration
 void CgMissile::DebugLineWithDuration(CgMissile *this, const BgEntityData *entityData, const vec3_t *start, const vec3_t *end, const vec4_t *color, int depthTest, int duration)
 {
   const CgPredictedEntity *Entity; 
-  vec4_t v13; 
+  vec4_t v10; 
+  vec4_t v11; 
 
-  _RBX = color;
   Entity = CgEntityData::GetEntity((CgEntityData *)entityData);
   if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 2064, ASSERT_TYPE_ASSERT, "(predictedEntity)", (const char *)&queryFormat, "predictedEntity") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsp+68h+var_38], xmm0
-  }
+  v11 = *color;
   if ( &colorCyan != color )
   {
     if ( Entity->predictionState == CLIENT_TRAJECTORY_ENTITY )
-      __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
+      v10 = colorYellow;
     else
-      __asm { vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; vec4_t const colorMagenta }
-    __asm { vmovups xmmword ptr [rsp+68h+var_38], xmm0 }
+      v10 = colorMagenta;
+    v11 = v10;
   }
-  CG_DebugLine(start, end, &v13, depthTest, duration);
+  CG_DebugLine(start, end, &v11, depthTest, duration);
 }
 
 /*
@@ -2032,9 +1922,7 @@ float CgMissile::GetDoorAngle(CgMissile *this, BgEntityData *entityData)
   Components = BgEntityData::GetComponents(entityData);
   if ( !Components && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1906, ASSERT_TYPE_ASSERT, "(c)", (const char *)&queryFormat, "c") )
     __debugbreak();
-  _RAX = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)this->m_localClientNum, Components->missile.doorScriptableIndex);
-  __asm { vmovss  xmm0, dword ptr [rax+30h] }
-  return *(float *)&_XMM0;
+  return ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)this->m_localClientNum, Components->missile.doorScriptableIndex)->angles.v[1];
 }
 
 /*
@@ -2194,19 +2082,22 @@ void CgMissile::GetMuzzleOrientation(CgMissile *this, const int entNum, BgWeapon
   CgWeaponSystem *v10; 
   bool (__fastcall *SimulateBulletFire_Orientation)(CgWeaponSystem *, centity_t *, const Weapon *, bool, const TagPair, bool, bool, PlayerHandIndex, const bool, const CgFireEventHighPrecisionData *, orientation_t *, float *, vec3_t *); 
   _QWORD *v12; 
-  __int64 v18; 
-  __int64 v19; 
-  TagPair v20; 
-  int v21[3]; 
-  char v24[16]; 
+  float v13; 
+  __m256i v14; 
+  __int64 v15; 
+  __int64 v16; 
+  TagPair v17; 
+  int v18[3]; 
+  __m256i v19; 
+  float v20; 
+  char v21[16]; 
 
-  _RDI = outWP;
   if ( !outWP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 774, ASSERT_TYPE_ASSERT, "(outWP)", (const char *)&queryFormat, "outWP") )
     __debugbreak();
   if ( (unsigned int)entNum >= 0x800 )
   {
-    LODWORD(v18) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 775, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
+    LODWORD(v15) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 775, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, 2048) )
       __debugbreak();
   }
   if ( !outSpread && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 776, ASSERT_TYPE_ASSERT, "(outSpread)", (const char *)&queryFormat, "outSpread") )
@@ -2215,45 +2106,39 @@ void CgMissile::GetMuzzleOrientation(CgMissile *this, const int entNum, BgWeapon
   m_localClientNum = this->m_localClientNum;
   if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE )
   {
-    LODWORD(v19) = this->m_localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v19) )
+    LODWORD(v16) = this->m_localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v16) )
       __debugbreak();
   }
   if ( (unsigned int)m_localClientNum >= CgWeaponSystem::ms_allocatedCount )
   {
-    LODWORD(v19) = CgWeaponSystem::ms_allocatedCount;
-    LODWORD(v18) = m_localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v18, v19) )
+    LODWORD(v16) = CgWeaponSystem::ms_allocatedCount;
+    LODWORD(v15) = m_localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
   if ( !CgWeaponSystem::ms_weaponSystemArray[m_localClientNum] )
   {
-    LODWORD(v19) = m_localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v19) )
+    LODWORD(v16) = m_localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v16) )
       __debugbreak();
   }
   v10 = CgWeaponSystem::ms_weaponSystemArray[m_localClientNum];
   if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 781, ASSERT_TYPE_ASSERT, "(weaponSystem)", (const char *)&queryFormat, "weaponSystem") )
     __debugbreak();
   SimulateBulletFire_Orientation = v10->SimulateBulletFire_Orientation;
-  TagPair::TagPair(&v20);
-  LOBYTE(v19) = 1;
-  LOBYTE(v18) = 1;
-  if ( !((unsigned __int8 (__fastcall *)(CgWeaponSystem *, centity_t *, Weapon *, bool, _QWORD, _DWORD, _DWORD, _DWORD, char, _QWORD, int *, float *, char *))SimulateBulletFire_Orientation)(v10, Entity, &_RDI->weapon, _RDI->isAlternate, *v12, v18, v19, 0, 1, 0i64, v21, outSpread, v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 790, ASSERT_TYPE_ASSERT, "(fireOrientationFound)", (const char *)&queryFormat, "fireOrientationFound") )
+  TagPair::TagPair(&v17);
+  LOBYTE(v16) = 1;
+  LOBYTE(v15) = 1;
+  if ( !((unsigned __int8 (__fastcall *)(CgWeaponSystem *, centity_t *, Weapon *, bool, _QWORD, _DWORD, _DWORD, _DWORD, char, _QWORD, int *, float *, char *))SimulateBulletFire_Orientation)(v10, Entity, &outWP->weapon, outWP->isAlternate, *v12, v15, v16, 0, 1, 0i64, v18, outSpread, v21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 790, ASSERT_TYPE_ASSERT, "(fireOrientationFound)", (const char *)&queryFormat, "fireOrientationFound") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+0F8h+var_80]
-    vmovss  xmm1, [rsp+0F8h+var_7C]
-    vmovss  dword ptr [rdi+28h], xmm1
-    vmovups ymm1, [rsp+0F8h+var_74]
-    vmovss  dword ptr [rdi+24h], xmm0
-    vmovss  xmm0, [rsp+0F8h+var_78]
-    vmovss  dword ptr [rdi+2Ch], xmm0
-    vmovups ymmword ptr [rdi], ymm1
-    vmovss  xmm1, [rsp+0F8h+var_54]
-    vmovss  dword ptr [rdi+20h], xmm1
-  }
+  v13 = *(float *)v18;
+  outWP->muzzleTrace.v[1] = *(float *)&v18[1];
+  v14 = v19;
+  outWP->muzzleTrace.v[0] = v13;
+  outWP->muzzleTrace.v[2] = *(float *)&v18[2];
+  *(__m256i *)outWP->forward.v = v14;
+  outWP->up.v[2] = v20;
 }
 
 /*
@@ -2407,77 +2292,52 @@ CgMissile::GrenadeLauncherFire
 void CgMissile::GrenadeLauncherFire(CgMissile *this, const int creatorEntNum, const int gameTime, const Weapon *r_grenade, const PlayerHandIndex hand, const BgWeaponParms *wp)
 {
   cg_t *LocalClientGlobals; 
+  __int128 v10; 
   int serverTime; 
   __int64 m_localClientNum; 
+  CgPredictedEntity *Entity; 
+  CgPredictedEntity *v17; 
   CgPredictedEntitySystem *System; 
+  const playerState_s *v19; 
+  __int128 v20; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
   int fuseTime; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
-  int v85; 
-  int v86; 
   bool isAlternate; 
-  int v88; 
-  int v89; 
-  __int64 v90; 
+  int v33; 
+  int v34; 
+  __int64 v35; 
   CgEntityMissileComponentData outComponentData; 
   CgEntityData outEntityData; 
   vec3_t inOutVel; 
   vec3_t dir; 
-  char v95; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v90 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
+  v35 = -2i64;
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 668, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  this->GetScaledProjectileSpeed(this, creatorEntNum, &wp->weapon, wp->isAlternate, &v88, &v89);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, [rsp+180h+var_108]
-    vmulss  xmm0, xmm2, dword ptr [rdi]
-    vmovss  dword ptr [rbp+80h+inOutVel], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [rbp+80h+inOutVel+4], xmm1
-    vmulss  xmm2, xmm2, dword ptr [rdi+8]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+180h+var_104]
-    vaddss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rbp+80h+inOutVel+8], xmm0
-  }
+  this->GetScaledProjectileSpeed(this, creatorEntNum, &wp->weapon, wp->isAlternate, &v33, &v34);
+  inOutVel.v[0] = (float)v33 * wp->forward.v[0];
+  inOutVel.v[1] = (float)v33 * wp->forward.v[1];
+  inOutVel.v[2] = (float)v34 + (float)((float)v33 * wp->forward.v[2]);
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 680, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
+  v10 = LODWORD(inOutVel.v[1]);
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(inOutVel.v[0] * inOutVel.v[0])) + (float)(inOutVel.v[2] * inOutVel.v[2]));
+  _XMM3 = v10;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbp+80h+inOutVel+4]
-    vmulss  xmm1, xmm6, xmm6
-    vmovss  xmm4, dword ptr [rbp+80h+inOutVel]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm5, dword ptr [rbp+80h+inOutVel+8]
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm7, xmm0
-    vmovss  [rsp+180h+var_110], xmm1
-    vdivss  xmm2, xmm7, xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rbp+80h+dir], xmm0
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+80h+dir+4], xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+80h+dir+8], xmm0
   }
+  dir.v[0] = inOutVel.v[0] * (float)(1.0 / *(float *)&_XMM1);
+  dir.v[1] = inOutVel.v[1] * (float)(1.0 / *(float *)&_XMM1);
+  dir.v[2] = inOutVel.v[2] * (float)(1.0 / *(float *)&_XMM1);
   CgMissile::AddVelocityForMoverClient(this, LocalClientGlobals, gameTime, &dir, &inOutVel);
   CgEntityData::CgEntityData(&outEntityData);
   CgEntityMissileComponentData::CgEntityMissileComponentData(&outComponentData);
@@ -2490,101 +2350,51 @@ void CgMissile::GrenadeLauncherFire(CgMissile *this, const int creatorEntNum, co
   BgMissile::FireGrenade(this, CgWeaponMap::ms_instance[m_localClientNum], creatorEntNum, &wp->muzzleTrace, &inOutVel, &wp->weapon, isAlternate, hand, 0, serverTime, fuseTime, 0, &outEntityData, &outComponentData);
   if ( CgEntityData::IsEmpty(&outEntityData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 689, ASSERT_TYPE_ASSERT, "(!entityData.IsEmpty())", (const char *)&queryFormat, "!entityData.IsEmpty()") )
     __debugbreak();
-  _RSI = CgEntityData::GetEntity(&outEntityData);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 692, ASSERT_TYPE_ASSERT, "(missileEnt)", (const char *)&queryFormat, "missileEnt") )
+  Entity = CgEntityData::GetEntity(&outEntityData);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 692, ASSERT_TYPE_ASSERT, "(missileEnt)", (const char *)&queryFormat, "missileEnt") )
     __debugbreak();
-  _RSI->flags.m_flags[0] |= 0x4000u;
-  if ( CgMissile::SpawnClientTrajectoryEnt(this, _RSI, wp, hand, &inOutVel, 0) )
+  Entity->flags.m_flags[0] |= 0x4000u;
+  v17 = CgMissile::SpawnClientTrajectoryEnt(this, Entity, wp, hand, &inOutVel, 0);
+  if ( v17 )
   {
-    if ( !this->GetPlayerState(this, (unsigned int)creatorEntNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 708, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    v19 = this->GetPlayerState(this, (unsigned int)creatorEntNum);
+    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 708, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
+    v20 = LODWORD(inOutVel.v[1]);
+    *(float *)&v20 = fsqrt((float)((float)(*(float *)&v20 * *(float *)&v20) + (float)(inOutVel.v[0] * inOutVel.v[0])) + (float)(inOutVel.v[2] * inOutVel.v[2]));
+    _XMM3 = v20;
     __asm
     {
-      vmovss  xmm6, dword ptr [rbp+80h+inOutVel+4]
-      vmulss  xmm1, xmm6, xmm6
-      vmovss  xmm4, dword ptr [rbp+80h+inOutVel]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm5, dword ptr [rbp+80h+inOutVel+8]
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm1, xmm3, xmm7, xmm0
-      vmovss  [rsp+180h+var_110], xmm1
-      vdivss  xmm0, xmm7, xmm1
-      vmulss  xmm4, xmm4, xmm0
-      vmovss  dword ptr [rbp+80h+inOutVel], xmm4
-      vmulss  xmm1, xmm6, xmm0
-      vmovss  dword ptr [rbp+80h+inOutVel+4], xmm1
-      vmulss  xmm3, xmm5, xmm0
-      vmovss  dword ptr [rbp+80h+inOutVel+8], xmm3
-      vmulss  xmm1, xmm1, dword ptr [rbx+40h]
-      vmulss  xmm0, xmm4, dword ptr [rbx+3Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rbx+44h]
-      vaddss  xmm6, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm6
-      vaddss  xmm2, xmm0, dword ptr [rsi+28h]
-      vmovss  dword ptr [rsi+28h], xmm2
-      vmulss  xmm0, xmm6, dword ptr [rbp+80h+inOutVel+4]
-      vaddss  xmm3, xmm0, dword ptr [rsi+2Ch]
-      vmovss  dword ptr [rsi+2Ch], xmm3
-      vmulss  xmm0, xmm6, dword ptr [rbp+80h+inOutVel+8]
-      vaddss  xmm4, xmm0, dword ptr [rsi+30h]
-      vmovss  dword ptr [rsi+30h], xmm4
-      vmovss  [rsp+180h+var_110], xmm2
     }
-    if ( (v81 & 0x7F800000) == 2139095040 )
-      goto LABEL_37;
-    __asm { vmovss  [rsp+180h+var_110], xmm3 }
-    if ( (v82 & 0x7F800000) == 2139095040 )
-      goto LABEL_37;
-    __asm { vmovss  [rsp+180h+var_110], xmm4 }
-    if ( (v83 & 0x7F800000) == 2139095040 )
-    {
-LABEL_37:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 715, ASSERT_TYPE_SANITY, "( !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbp+80h+inOutVel]
-      vaddss  xmm2, xmm1, dword ptr [rdi+28h]
-      vmovss  dword ptr [rdi+28h], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rbp+80h+inOutVel+4]
-      vaddss  xmm4, xmm1, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rdi+2Ch], xmm4
-      vmulss  xmm1, xmm6, dword ptr [rbp+80h+inOutVel+8]
-      vaddss  xmm3, xmm1, dword ptr [rdi+30h]
-      vmovss  dword ptr [rdi+30h], xmm3
-      vmovss  [rsp+180h+var_110], xmm2
-    }
-    if ( (v84 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm { vmovss  [rsp+180h+var_110], xmm4 }
-    if ( (v85 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm { vmovss  [rsp+180h+var_110], xmm3 }
-    if ( (v86 & 0x7F800000) == 2139095040 )
-    {
-LABEL_38:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 718, ASSERT_TYPE_SANITY, "( !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] )") )
-        __debugbreak();
-    }
+    inOutVel.v[0] = inOutVel.v[0] * (float)(1.0 / *(float *)&_XMM1);
+    inOutVel.v[1] = inOutVel.v[1] * (float)(1.0 / *(float *)&_XMM1);
+    inOutVel.v[2] = inOutVel.v[2] * (float)(1.0 / *(float *)&_XMM1);
+    v24 = (float)((float)(inOutVel.v[1] * v19->velocity.v[1]) + (float)(inOutVel.v[0] * v19->velocity.v[0])) + (float)(inOutVel.v[2] * v19->velocity.v[2]);
+    v25 = (float)(inOutVel.v[0] * v24) + Entity->s.lerp.pos.trDelta.v[0];
+    Entity->s.lerp.pos.trDelta.v[0] = v25;
+    v26 = (float)(v24 * inOutVel.v[1]) + Entity->s.lerp.pos.trDelta.v[1];
+    Entity->s.lerp.pos.trDelta.v[1] = v26;
+    v27 = (float)(v24 * inOutVel.v[2]) + Entity->s.lerp.pos.trDelta.v[2];
+    Entity->s.lerp.pos.trDelta.v[2] = v27;
+    if ( ((LODWORD(v25) & 0x7F800000) == 2139095040 || (LODWORD(v26) & 0x7F800000) == 2139095040 || (LODWORD(v27) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 715, ASSERT_TYPE_SANITY, "( !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] )") )
+      __debugbreak();
+    v28 = (float)(v24 * inOutVel.v[0]) + v17->s.lerp.pos.trDelta.v[0];
+    v17->s.lerp.pos.trDelta.v[0] = v28;
+    v29 = (float)(v24 * inOutVel.v[1]) + v17->s.lerp.pos.trDelta.v[1];
+    v17->s.lerp.pos.trDelta.v[1] = v29;
+    v30 = (float)(v24 * inOutVel.v[2]) + v17->s.lerp.pos.trDelta.v[2];
+    v17->s.lerp.pos.trDelta.v[2] = v30;
+    if ( ((LODWORD(v28) & 0x7F800000) == 2139095040 || (LODWORD(v29) & 0x7F800000) == 2139095040 || (LODWORD(v30) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 718, ASSERT_TYPE_SANITY, "( !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] )") )
+      __debugbreak();
   }
   else
   {
     System = CgPredictedEntitySystem::GetSystem((const LocalClientNum_t)this->m_localClientNum);
     if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 702, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
       __debugbreak();
-    CgPredictedEntitySystem::FreePredictedEntity(System, _RSI);
-  }
-  _R11 = &v95;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    CgPredictedEntitySystem::FreePredictedEntity(System, Entity);
   }
 }
 
@@ -2839,35 +2649,40 @@ CgMissile::OnWeaponFire
 */
 void CgMissile::OnWeaponFire(CgMissile *this, centity_t *cent, int event, const TagPair weaponFlashTagPair, const Weapon *r_weapon, const bool isAlternate, const PlayerHandIndex hand, const bool isPlayerView)
 {
+  const Weapon *AltWeapon; 
   cg_t *LocalClientGlobals; 
   const WeaponHand *ViewModelHand; 
   CgWeaponMap *Instance; 
   CgMissile_vtbl *v14; 
   __int64 number; 
   __int64 v16; 
+  __int64 v17; 
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v18; 
   weapType_t WeaponType; 
   CgPredictedEntitySystem *System; 
-  int v23; 
-  centity_t *v25; 
+  __int128 v21; 
+  int v22; 
+  double v23; 
+  centity_t *v24; 
   unsigned int time; 
   weapClass_t WeaponClass; 
-  int weapLockFlags; 
-  __int64 *v29; 
+  int v27; 
+  __int64 *v28; 
+  float v29; 
+  double Float_Internal_DebugName; 
   void (__fastcall *GrenadeLauncherFire)(BgMissile *, const int, const int, const Weapon *, const PlayerHandIndex, const BgWeaponParms *); 
   int fmt; 
-  int v45; 
   float outSpread[2]; 
   BgWeaponMap *weaponMap; 
-  centity_t *v48; 
+  centity_t *v35; 
   BgWeaponParms outWP; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
-  int v53; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  int v40; 
 
-  _R14 = r_weapon;
-  v48 = cent;
+  AltWeapon = r_weapon;
+  v35 = cent;
   if ( isPlayerView )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
@@ -2885,7 +2700,7 @@ void CgMissile::OnWeaponFire(CgMissile *this, centity_t *cent, int event, const 
         number = (unsigned int)cent->nextState.number;
         weaponMap = Instance;
         v16 = (__int64)v14->GetPlayerState(this, number);
-        _RBX = (const playerState_s *)v16;
+        v17 = v16;
         if ( v16 )
         {
           v18 = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)(v16 + 376);
@@ -2902,38 +2717,28 @@ void CgMissile::OnWeaponFire(CgMissile *this, centity_t *cent, int event, const 
             if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(v18, ACTIVE, 0xBu) )
             {
               WeaponType = BG_GetWeaponType(r_weapon, isAlternate);
-              if ( (unsigned int)(WeaponType - 3) <= 1 && BgMissile::ShouldBePredicted(weaponMap, _RBX, r_weapon, isAlternate) )
+              if ( (unsigned int)(WeaponType - 3) <= 1 && BgMissile::ShouldBePredicted(weaponMap, (const playerState_s *)v17, r_weapon, isAlternate) )
               {
                 System = CgPredictedEntitySystem::GetSystem((const LocalClientNum_t)this->m_localClientNum);
                 if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 865, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
                   __debugbreak();
                 if ( CgPredictedEntitySystem::CanSpawnNewEntities(System) )
                 {
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [r14]
-                    vmovups xmm1, xmmword ptr [r14+20h]
-                  }
-                  v23 = *(_DWORD *)&r_weapon->weaponCamo;
-                  __asm
-                  {
-                    vmovups ymmword ptr [rbp+70h+outWP.weapon.weaponIdx], ymm0
-                    vmovsd  xmm0, qword ptr [r14+30h]
-                  }
-                  *(_DWORD *)&outWP.weapon.weaponCamo = v23;
-                  __asm
-                  {
-                    vmovsd  qword ptr [rbp+70h+outWP.weapon.attachmentVariationIndices+15h], xmm0
-                    vmovups xmmword ptr [rbp+70h+outWP.weapon.attachmentVariationIndices+5], xmm1
-                  }
+                  v21 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+                  v22 = *(_DWORD *)&r_weapon->weaponCamo;
+                  *(__m256i *)&outWP.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+                  v23 = *(double *)&r_weapon->attachmentVariationIndices[21];
+                  *(_DWORD *)&outWP.weapon.weaponCamo = v22;
+                  *(double *)&outWP.weapon.attachmentVariationIndices[21] = v23;
+                  *(_OWORD *)&outWP.weapon.attachmentVariationIndices[5] = v21;
                   outWP.isAlternate = isAlternate;
-                  v25 = v48;
+                  v24 = v35;
                   outWP.weapDef = BG_WeaponDef(r_weapon, isAlternate);
-                  CgMissile::GetMuzzleOrientation(this, v48->nextState.number, &outWP, outSpread);
+                  CgMissile::GetMuzzleOrientation(this, v35->nextState.number, &outWP, outSpread);
                   time = LocalClientGlobals->time;
                   if ( WeaponType == WEAPTYPE_GRENADE )
                   {
-                    this->ThrowGrenade(this, v25->nextState.number, time, &outWP);
+                    this->ThrowGrenade(this, v24->nextState.number, time, &outWP);
                     return;
                   }
                   if ( WeaponType != WEAPTYPE_PROJECTILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 890, ASSERT_TYPE_ASSERT, "(weaponType == WEAPTYPE_PROJECTILE)", (const char *)&queryFormat, "weaponType == WEAPTYPE_PROJECTILE") )
@@ -2941,92 +2746,61 @@ void CgMissile::OnWeaponFire(CgMissile *this, centity_t *cent, int event, const 
                   WeaponClass = BG_GetWeaponClass(&outWP.weapon, outWP.isAlternate);
                   if ( WeaponClass != WEAPCLASS_GRENADE && WeaponClass != WEAPCLASS_THROWINGKNIFE )
                   {
-                    weapLockFlags = _RBX->weapCommon.weapLockFlags;
-                    if ( (weapLockFlags & 2) == 0 )
+                    v27 = *(_DWORD *)(v17 + 4252);
+                    if ( (v27 & 2) == 0 )
                     {
-                      if ( !_RBX->airburstMarkDistance )
-                        goto LABEL_52;
-                      __asm
-                      {
-                        vxorps  xmm1, xmm1, xmm1
-                        vxorps  xmm0, xmm0, xmm0
-                        vcvtsi2ss xmm1, xmm1, dword ptr [rax+70Ch]
-                        vcomiss xmm1, xmm0
-                      }
-                      if ( !_RBX->airburstMarkDistance )
-                        goto LABEL_52;
-                      if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|WEAPON_OFFHAND_END) && BG_WeaponDef(r_weapon, 0)->isAirburstWeapon )
+                      if ( *(_WORD *)(v17 + 778) && (float)outWP.weapDef->iProjectileSpeed > 0.0 && Com_GameMode_SupportsFeature(WEAPON_INSPECT|WEAPON_OFFHAND_END) && BG_WeaponDef(r_weapon, 0)->isAirburstWeapon )
                       {
                         if ( !Com_GameMode_SupportsFeature(WEAPON_INSPECT|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 939, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::WEAPON_AIRBURST ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::WEAPON_AIRBURST )") )
                           __debugbreak();
-                        v29 = &v50;
-                        v50 = 0i64;
-                        v51 = 0i64;
-                        v52 = 0i64;
-                        v53 = 0;
-                        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_airburstAdjustDistance, "airburstAdjustDistance");
-                        __asm
-                        {
-                          vxorps  xmm1, xmm1, xmm1
-                          vcvtsi2ss xmm1, xmm1, eax
-                          vaddss  xmm2, xmm1, xmm0
-                          vxorps  xmm0, xmm0, xmm0
-                          vcvtsi2ss xmm0, xmm0, dword ptr [rax+70Ch]
-                          vdivss  xmm1, xmm2, xmm0
-                          vmovss  dword ptr [rbp+70h+var_50], xmm1
-                        }
+                        v28 = &v37;
+                        v37 = 0i64;
+                        v38 = 0i64;
+                        v39 = 0i64;
+                        v40 = 0;
+                        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_airburstAdjustDistance, "airburstAdjustDistance");
+                        *(float *)&v39 = (float)((float)*(unsigned __int16 *)(v17 + 778) + *(float *)&Float_Internal_DebugName) / (float)outWP.weapDef->iProjectileSpeed;
                       }
                       else
                       {
-LABEL_52:
-                        v29 = NULL;
+                        v28 = NULL;
                       }
                       goto LABEL_53;
                     }
-                    v29 = &v50;
-                    v53 = 1;
-                    v50 = 0i64;
-                    v51 = 0i64;
-                    v52 = 0i64;
-                    if ( (weapLockFlags & 0x40) != 0 )
+                    v28 = &v37;
+                    v40 = 1;
+                    v37 = 0i64;
+                    v38 = 0i64;
+                    v39 = 0i64;
+                    if ( (v27 & 0x40) != 0 )
                     {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx+10A4h]
-                        vmovss  xmm1, dword ptr [rbx+10A8h]
-                        vmovss  dword ptr [rbp+70h+var_60+4], xmm0
-                        vmovss  xmm0, dword ptr [rbx+10ACh]
-                        vmovss  dword ptr [rbp+70h+var_58+4], xmm0
-                        vmovss  dword ptr [rbp+70h+var_58], xmm1
-                      }
+                      v29 = *(float *)(v17 + 4264);
+                      HIDWORD(v37) = *(_DWORD *)(v17 + 4260);
+                      HIDWORD(v38) = *(_DWORD *)(v17 + 4268);
+                      *(float *)&v38 = v29;
                     }
                     else
                     {
-                      if ( (CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, _RBX->weapCommon.weapLockedEntnum)->flags & 1) != 0 )
+                      if ( (CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, *(_DWORD *)(v17 + 4256))->flags & 1) != 0 )
                       {
-                        LODWORD(v50) = _RBX->weapCommon.weapLockedEntnum;
+                        LODWORD(v37) = *(_DWORD *)(v17 + 4256);
                         goto LABEL_42;
                       }
-                      v29 = NULL;
+                      v28 = NULL;
                     }
-                    LODWORD(v50) = 2047;
+                    LODWORD(v37) = 2047;
 LABEL_42:
-                    if ( (_RBX->weapCommon.weapLockFlags & 4) != 0 )
-                      BYTE1(v53) = 1;
+                    if ( (*(_BYTE *)(v17 + 4252) & 4) != 0 )
+                      BYTE1(v40) = 1;
 LABEL_53:
-                    __asm
-                    {
-                      vmovss  xmm0, [rsp+170h+outSpread]
-                      vmovss  dword ptr [rsp+170h+var_140], xmm0
-                    }
                     LOBYTE(fmt) = outWP.isAlternate;
-                    ((void (__fastcall *)(CgMissile *, _QWORD, _QWORD, const Weapon *, int, const PlayerHandIndex, int, BgWeaponParms *, vec3_t *, __int64 *, _BYTE))this->RocketLauncherFire)(this, (unsigned int)v25->nextState.number, time, r_weapon, fmt, hand, v45, &outWP, &vec3_origin, v29, 0);
+                    ((void (__fastcall *)(CgMissile *, _QWORD, _QWORD, const Weapon *, int, const PlayerHandIndex, _DWORD, BgWeaponParms *, vec3_t *, __int64 *, _BYTE))this->RocketLauncherFire)(this, (unsigned int)v24->nextState.number, time, r_weapon, fmt, hand, LODWORD(outSpread[0]), &outWP, &vec3_origin, v28, 0);
                     return;
                   }
                   GrenadeLauncherFire = this->GrenadeLauncherFire;
                   if ( outWP.isAlternate )
-                    _R14 = BG_GetAltWeapon(r_weapon);
-                  GrenadeLauncherFire(this, v25->nextState.number, time, _R14, hand, &outWP);
+                    AltWeapon = BG_GetAltWeapon(r_weapon);
+                  GrenadeLauncherFire(this, v24->nextState.number, time, AltWeapon, hand, &outWP);
                 }
               }
             }
@@ -3050,78 +2824,77 @@ void CgMissile::PreAddPacketEntitiesUpdateMissile(CgMissile *this, CgPredictedEn
   int ServerTimeFromPredictionKey; 
   int creationServerTime; 
   cg_t *LocalClientGlobals; 
-  const entityState_t *p_s; 
+  CgPredictedEntity *clientTrajectoryEntity; 
   CgWeaponMap *Instance; 
   const Weapon *r_weapon; 
-  CgPredictedEntity *clientTrajectoryEntity; 
+  CgPredictedEntity *v17; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1217, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( timeElapsed < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1218, ASSERT_TYPE_ASSERT, "(timeElapsed >= 0)", (const char *)&queryFormat, "timeElapsed >= 0") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808000, "CgMissile::PreAddPacketEntitiesUpdateMissile");
-  if ( _RBX->predictionState != CLIENT_TRAJECTORY_ENTITY )
+  if ( ent->predictionState != CLIENT_TRAJECTORY_ENTITY )
   {
     System = CgPredictedEntitySystem::GetSystem((const LocalClientNum_t)this->m_localClientNum);
     if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1229, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
       __debugbreak();
     serverEnt = NULL;
-    serverEntNum = _RBX->serverEntNum;
+    serverEntNum = ent->serverEntNum;
     if ( serverEntNum != 2047 )
     {
       serverEnt = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, serverEntNum);
       if ( (serverEnt->flags & 1) == 0 )
-        goto LABEL_38;
+        goto LABEL_39;
     }
-    if ( _RBX->serverEntTime && !serverEnt )
-      goto LABEL_38;
-    ServerTimeFromPredictionKey = BgPredictedEntitySystem::GetServerTimeFromPredictionKey((const unsigned int *)&_RBX->s.lerp.u);
+    if ( ent->serverEntTime && !serverEnt )
+      goto LABEL_39;
+    ServerTimeFromPredictionKey = BgPredictedEntitySystem::GetServerTimeFromPredictionKey((const unsigned int *)&ent->s.lerp.u);
     creationServerTime = ServerTimeFromPredictionKey;
-    if ( _RBX->eventInfo.freeAfterEvent || (unsigned int)(updateTime - ServerTimeFromPredictionKey) > 0x2710 )
-      goto LABEL_36;
+    if ( ent->eventInfo.freeAfterEvent || (unsigned int)(updateTime - ServerTimeFromPredictionKey) > 0x2710 )
+      goto LABEL_37;
     LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1270, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    if ( DELETE_ENTITIES_WITH_NO_SERVER_VERSION && LocalClientGlobals->time >= creationServerTime + 400 && _RBX->serverEntNum == 2047 )
-      goto LABEL_38;
-    p_s = &_RBX->clientTrajectoryEntity->s;
-    if ( p_s && CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, p_s, NULL) )
-      _RBX->u.missile.clientTrajectoryBlendOutRatio = 1.0;
-    if ( CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, &_RBX->s, NULL) )
+    if ( DELETE_ENTITIES_WITH_NO_SERVER_VERSION && LocalClientGlobals->time >= creationServerTime + 400 && ent->serverEntNum == 2047 )
+      goto LABEL_39;
+    clientTrajectoryEntity = ent->clientTrajectoryEntity;
+    if ( clientTrajectoryEntity && CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, &clientTrajectoryEntity->s, NULL) )
+      ent->u.missile.clientTrajectoryBlendOutRatio = 1.0;
+    if ( CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, &ent->s, NULL) )
     {
-LABEL_36:
+LABEL_37:
       if ( !serverEnt )
       {
-LABEL_38:
-        CgPredictedEntitySystem::FreePredictedEntity(System, _RBX);
-        goto LABEL_39;
+LABEL_39:
+        CgPredictedEntitySystem::FreePredictedEntity(System, ent);
+        goto LABEL_40;
       }
-LABEL_37:
-      CgMissile::ServerEntHandOff(this, _RBX, serverEnt);
-      goto LABEL_38;
+LABEL_38:
+      CgMissile::ServerEntHandOff(this, ent, serverEnt);
+      goto LABEL_39;
     }
     Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1307, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    r_weapon = BG_GetWeaponForEntity(Instance, &_RBX->s);
-    CgMissile::UpdatePredictionBlendRatios(this, _RBX, prevUpdateTime, updateTime, timeElapsed, r_weapon, _RBX->s.inAltWeaponMode, creationServerTime, serverEnt);
-    clientTrajectoryEntity = _RBX->clientTrajectoryEntity;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( clientTrajectoryEntity )
-      __asm { vcomiss xmm6, dword ptr [rbx+198h] }
-    __asm { vcomiss xmm6, dword ptr [rbx+19Ch] }
-    if ( !clientTrajectoryEntity )
+    r_weapon = BG_GetWeaponForEntity(Instance, &ent->s);
+    CgMissile::UpdatePredictionBlendRatios(this, ent, prevUpdateTime, updateTime, timeElapsed, r_weapon, ent->s.inAltWeaponMode, creationServerTime, serverEnt);
+    v17 = ent->clientTrajectoryEntity;
+    if ( v17 && ent->u.missile.clientTrajectoryBlendOutRatio >= 1.0 )
+    {
+      ent->u.missile.clientTrajectoryBlendOutRatio = 1.0;
+      CgPredictedEntitySystem::FreePredictedEntity(System, v17);
+      ent->clientTrajectoryEntity = NULL;
+    }
+    if ( ent->u.missile.serverTrajectoryBlendInRatio >= 1.0 )
     {
       if ( !serverEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1323, ASSERT_TYPE_ASSERT, "(serverEnt)", (const char *)&queryFormat, "serverEnt") )
         __debugbreak();
-      goto LABEL_37;
+      goto LABEL_38;
     }
   }
-LABEL_39:
+LABEL_40:
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -3183,18 +2956,8 @@ void CgMissile::RocketLauncherFire(CgMissile *this, const int creatorEntNum, con
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 735, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  __asm { vmovss  xmm3, [rsp+188h+spread]; spread }
-  BgMissile::CalculateRocketLaunchTransform(this, wp, v15->serverTime, *(const float *)&_XMM3, &outLaunchPos, &dir);
-  _RAX = gunVel;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rsp+188h+inOutVel], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+188h+inOutVel+4], xmm1
-    vmovss  xmm0, dword ptr [rax+8]
-    vmovss  dword ptr [rsp+188h+inOutVel+8], xmm0
-  }
+  BgMissile::CalculateRocketLaunchTransform(this, wp, v15->serverTime, spread, &outLaunchPos, &dir);
+  inOutVel = *gunVel;
   CgMissile::AddVelocityForMoverClient(this, LocalClientGlobals, gameTime, &dir, &inOutVel);
   CgEntityData::CgEntityData(&outEntityData);
   CgEntityMissileComponentData::CgEntityMissileComponentData(&outComponentData);
@@ -3448,27 +3211,22 @@ CgMissile::SetEntityWeapon
 */
 void CgMissile::SetEntityWeapon(CgMissile *this, BgWeaponMap *weaponMap, BgEntityData *entityData, const Weapon *weapon)
 {
-  _RDI = weapon;
+  CgPredictedEntity *Entity; 
+
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1123, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !entityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1124, ASSERT_TYPE_ASSERT, "(entityData)", (const char *)&queryFormat, "entityData") )
     __debugbreak();
-  BgMissile::SetEntityWeapon(this, weaponMap, entityData, _RDI);
+  BgMissile::SetEntityWeapon(this, weaponMap, entityData, weapon);
   if ( !entityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1128, ASSERT_TYPE_ASSERT, "(entityData)", (const char *)&queryFormat, "entityData") )
     __debugbreak();
-  _RBX = CgEntityData::GetEntity((CgEntityData *)entityData);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1132, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  Entity = CgEntityData::GetEntity((CgEntityData *)entityData);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1132, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+300h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+320h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+330h], xmm0
-  }
-  *(_DWORD *)&_RBX->entityWeapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+  *(__m256i *)&Entity->entityWeapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)&Entity->entityWeapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)&Entity->entityWeapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&Entity->entityWeapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
 }
 
 /*
@@ -3481,6 +3239,7 @@ CgPredictedEntity *CgMissile::SpawnClientTrajectoryEnt(CgMissile *this, CgPredic
   cg_t *LocalClientGlobals; 
   CgPredictedEntitySystem *System; 
   CgPredictedEntity *v12; 
+  CgPredictedEntity *v13; 
   const WeaponHand *ViewModelHand; 
   const DObj **p_viewModelDObj; 
   const cpose_t *ViewModelPoseForHand; 
@@ -3492,13 +3251,13 @@ CgPredictedEntity *CgMissile::SpawnClientTrajectoryEnt(CgMissile *this, CgPredic
   scr_string_t outTagName; 
   TagPair result; 
   vec3_t *dir; 
-  __int64 v30; 
-  CgEntityMissileComponentData v31; 
-  CgEntityData v32; 
+  __int64 v25; 
+  CgEntityMissileComponentData v26; 
+  CgEntityData v27; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> outTagMat; 
 
-  v30 = -2i64;
+  v25 = -2i64;
   dir = (vec3_t *)vTossVel;
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 460, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
@@ -3511,7 +3270,7 @@ CgPredictedEntity *CgMissile::SpawnClientTrajectoryEnt(CgMissile *this, CgPredic
   if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 467, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
     __debugbreak();
   v12 = CgPredictedEntitySystem::SpawnClientTrajectoryEntity(System, parentEnt);
-  _RDI = v12;
+  v13 = v12;
   if ( v12 )
   {
     ViewModelHand = cg_t::GetViewModelHand(LocalClientGlobals, hand);
@@ -3553,41 +3312,28 @@ CgPredictedEntity *CgMissile::SpawnClientTrajectoryEnt(CgMissile *this, CgPredic
         __debugbreak();
       BG_GetWeaponFlashTagname(&result, &wp->weapon, wp->isAlternate, 0);
       if ( !TagPair::GetTagNameAndBoneIndex(&result, *p_viewModelDObj, &outTagName, outBoneIndex) )
-        return _RDI;
+        return v13;
       WorldTagMatrix = CG_DObjGetWorldBoneMatrix(ViewModelPoseForHand, *p_viewModelDObj, outBoneIndex[0], &outTagMat, &outOrigin);
     }
     if ( WorldTagMatrix )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+168h+outOrigin]
-        vmovss  dword ptr [rdi+33Ch], xmm0
-        vmovss  xmm1, dword ptr [rsp+168h+outOrigin+4]
-        vmovss  dword ptr [rdi+340h], xmm1
-        vmovss  xmm0, dword ptr [rsp+168h+outOrigin+8]
-        vmovss  dword ptr [rdi+344h], xmm0
-      }
-      AxisToAngles(&outTagMat, &_RDI->currentAngles);
+      v13->currentOrigin = outOrigin;
+      AxisToAngles(&outTagMat, &v13->currentAngles);
       if ( isRocket )
       {
-        Trajectory_SetTrBase(&_RDI->s.lerp.pos, &_RDI->currentOrigin);
+        Trajectory_SetTrBase(&v13->s.lerp.pos, &v13->currentOrigin);
       }
       else
       {
-        CgEntityMissileComponentData::CgEntityMissileComponentData(&v31, _RDI);
-        CgEntityData::CgEntityData(&v32, _RDI, &v31);
-        BgMissile::InitGrenadeMovement(this, &v32, &outOrigin, dir, p_weapon, 1, LocalClientGlobals->time);
-        _RDI->s.lerp.apos.trBase.v[0] = _RDI->currentAngles.v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+34Ch]
-          vmovss  dword ptr [rdi+44h], xmm0
-          vmovss  xmm1, dword ptr [rdi+350h]
-          vmovss  dword ptr [rdi+48h], xmm1
-        }
+        CgEntityMissileComponentData::CgEntityMissileComponentData(&v26, v13);
+        CgEntityData::CgEntityData(&v27, v13, &v26);
+        BgMissile::InitGrenadeMovement(this, &v27, &outOrigin, dir, p_weapon, 1, LocalClientGlobals->time);
+        v13->s.lerp.apos.trBase.v[0] = v13->currentAngles.v[0];
+        v13->s.lerp.apos.trBase.v[1] = v13->currentAngles.v[1];
+        v13->s.lerp.apos.trBase.v[2] = v13->currentAngles.v[2];
       }
     }
-    return _RDI;
+    return v13;
   }
   return v12;
 }
@@ -3755,226 +3501,127 @@ CgMissile::ThrowGrenade
 */
 void CgMissile::ThrowGrenade(CgMissile *this, const int creatorEntNum, const int gameTime, const BgWeaponParms *wp)
 {
-  int clientNum; 
-  const WeaponDef *weapDef; 
   cg_t *LocalClientGlobals; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  float v14; 
+  cg_t *v15; 
+  __int128 v16; 
   int fuseTime; 
   __int64 m_localClientNum; 
+  CgPredictedEntity *Entity; 
+  CgPredictedEntity *v23; 
   CgPredictedEntitySystem *System; 
+  __int128 v25; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
   int serverTime; 
-  int v102; 
-  int v103; 
-  int v104; 
-  int v105; 
-  int v106; 
-  int v107; 
   bool isAlternate; 
-  int v109; 
-  int v110; 
-  __int64 v111; 
+  int v38; 
+  int v39; 
+  __int64 v40; 
   CgEntityMissileComponentData outComponentData; 
   CgEntityData outEntityData; 
   vec3_t inOutVel; 
   vec3_t dir; 
-  char v116; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v111 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _RBX = wp;
+  v40 = -2i64;
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 602, ASSERT_TYPE_ASSERT, "(wp)", (const char *)&queryFormat, "wp") )
     __debugbreak();
-  clientNum = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->predictedPlayerState.clientNum;
-  if ( clientNum != creatorEntNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 605, ASSERT_TYPE_ASSERT, "( ps->clientNum ) == ( creatorEntNum )", "%s == %s\n\t%i, %i", "ps->clientNum", "creatorEntNum", clientNum, creatorEntNum) )
-    __debugbreak();
-  this->GetScaledProjectileSpeed(this, creatorEntNum, &_RBX->weapon, _RBX->isAlternate, &v109, &v110);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, [rsp+1A0h+var_128]
-    vmovss  xmm6, dword ptr [rbx]
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rbp+0A0h+inOutVel], xmm0
-    vmovss  xmm7, dword ptr [rbx+4]
-    vmulss  xmm1, xmm7, xmm2
-    vmovss  dword ptr [rbp+0A0h+inOutVel+4], xmm1
-    vmulss  xmm2, xmm2, dword ptr [rbx+8]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+1A0h+var_124]
-    vaddss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rbp+0A0h+inOutVel+8], xmm0
-  }
-  weapDef = _RBX->weapDef;
-  if ( weapDef->iProjectileSpeedForward )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm8, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm8, xmm1
-    }
-    if ( !weapDef->iProjectileSpeedForward && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
-      __debugbreak();
-    __asm
-    {
-      vmovaps xmm1, xmm8
-      vrsqrtss xmm4, xmm1, xmm1
-    }
-    _RAX = _RBX->weapDef;
-    __asm
-    {
-      vmovd   xmm3, dword ptr [rax+714h]
-      vcvtdq2ps xmm3, xmm3
-      vmulss  xmm0, xmm6, xmm4
-      vmulss  xmm2, xmm0, xmm3
-      vaddss  xmm2, xmm2, dword ptr [rbp+0A0h+inOutVel]
-      vmovss  dword ptr [rbp+0A0h+inOutVel], xmm2
-      vmulss  xmm0, xmm7, xmm4
-      vmulss  xmm3, xmm0, xmm3
-      vaddss  xmm2, xmm3, dword ptr [rbp+0A0h+inOutVel+4]
-      vmovss  dword ptr [rbp+0A0h+inOutVel+4], xmm2
-    }
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 627, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  if ( LocalClientGlobals->predictedPlayerState.clientNum != creatorEntNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 605, ASSERT_TYPE_ASSERT, "( ps->clientNum ) == ( creatorEntNum )", "%s == %s\n\t%i, %i", "ps->clientNum", "creatorEntNum", LocalClientGlobals->predictedPlayerState.clientNum, creatorEntNum) )
     __debugbreak();
+  this->GetScaledProjectileSpeed(this, creatorEntNum, &wp->weapon, wp->isAlternate, &v38, &v39);
+  v9 = LODWORD(wp->forward.v[0]);
+  inOutVel.v[0] = *(float *)&v9 * (float)v38;
+  v10 = wp->forward.v[1];
+  inOutVel.v[1] = v10 * (float)v38;
+  inOutVel.v[2] = (float)v39 + (float)((float)v38 * wp->forward.v[2]);
+  if ( wp->weapDef->iProjectileSpeedForward )
+  {
+    v11 = v9;
+    *(float *)&v11 = (float)(*(float *)&v9 * *(float *)&v9) + (float)(v10 * v10);
+    if ( *(float *)&v11 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+      __debugbreak();
+    _XMM1 = v11;
+    __asm { vrsqrtss xmm4, xmm1, xmm1 }
+    v14 = _mm_cvtepi32_ps((__m128i)(unsigned int)wp->weapDef->iProjectileSpeedForward).m128_f32[0];
+    inOutVel.v[0] = (float)((float)(*(float *)&v9 * *(float *)&_XMM4) * v14) + inOutVel.v[0];
+    inOutVel.v[1] = (float)((float)(v10 * *(float *)&_XMM4) * v14) + inOutVel.v[1];
+  }
+  v15 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 627, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    __debugbreak();
+  v16 = LODWORD(inOutVel.v[1]);
+  *(float *)&v16 = fsqrt((float)((float)(*(float *)&v16 * *(float *)&v16) + (float)(inOutVel.v[0] * inOutVel.v[0])) + (float)(inOutVel.v[2] * inOutVel.v[2]));
+  _XMM3 = v16;
   __asm
   {
-    vmovss  xmm6, dword ptr [rbp+0A0h+inOutVel+4]
-    vmulss  xmm1, xmm6, xmm6
-    vmovss  xmm4, dword ptr [rbp+0A0h+inOutVel]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm5, dword ptr [rbp+0A0h+inOutVel+8]
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
-    vmovss  xmm8, cs:__real@80000000
     vcmpless xmm0, xmm3, xmm8
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm7, xmm0
-    vmovss  [rsp+1A0h+var_130], xmm1
-    vdivss  xmm2, xmm7, xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rbp+0A0h+dir], xmm0
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+0A0h+dir+4], xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rbp+0A0h+dir+8], xmm0
   }
-  CgMissile::AddVelocityForMoverClient(this, LocalClientGlobals, gameTime, &dir, &inOutVel);
+  dir.v[0] = inOutVel.v[0] * (float)(1.0 / *(float *)&_XMM1);
+  dir.v[1] = inOutVel.v[1] * (float)(1.0 / *(float *)&_XMM1);
+  dir.v[2] = inOutVel.v[2] * (float)(1.0 / *(float *)&_XMM1);
+  CgMissile::AddVelocityForMoverClient(this, v15, gameTime, &dir, &inOutVel);
   CgEntityData::CgEntityData(&outEntityData);
   CgEntityMissileComponentData::CgEntityMissileComponentData(&outComponentData);
-  fuseTime = BG_WeaponFuseTime(&_RBX->weapon, _RBX->isAlternate);
-  serverTime = LocalClientGlobals->time;
-  isAlternate = _RBX->isAlternate;
+  fuseTime = BG_WeaponFuseTime(&wp->weapon, wp->isAlternate);
+  serverTime = v15->time;
+  isAlternate = wp->isAlternate;
   m_localClientNum = this->m_localClientNum;
   if ( !CgWeaponMap::ms_instance[m_localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  BgMissile::FireGrenade(this, CgWeaponMap::ms_instance[m_localClientNum], creatorEntNum, &_RBX->muzzleTrace, &inOutVel, &_RBX->weapon, isAlternate, WEAPON_HAND_DEFAULT, 1, serverTime, fuseTime, 0, &outEntityData, &outComponentData);
+  BgMissile::FireGrenade(this, CgWeaponMap::ms_instance[m_localClientNum], creatorEntNum, &wp->muzzleTrace, &inOutVel, &wp->weapon, isAlternate, WEAPON_HAND_DEFAULT, 1, serverTime, fuseTime, 0, &outEntityData, &outComponentData);
   if ( CgEntityData::IsEmpty(&outEntityData) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 636, ASSERT_TYPE_ASSERT, "(!entityData.IsEmpty())", (const char *)&queryFormat, "!entityData.IsEmpty()") )
     __debugbreak();
-  _RSI = CgEntityData::GetEntity(&outEntityData);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 639, ASSERT_TYPE_ASSERT, "(missileEnt)", (const char *)&queryFormat, "missileEnt") )
+  Entity = CgEntityData::GetEntity(&outEntityData);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 639, ASSERT_TYPE_ASSERT, "(missileEnt)", (const char *)&queryFormat, "missileEnt") )
     __debugbreak();
-  if ( CgMissile::SpawnClientTrajectoryEnt(this, _RSI, _RBX, WEAPON_HAND_DEFAULT, &inOutVel, 0) )
+  v23 = CgMissile::SpawnClientTrajectoryEnt(this, Entity, wp, WEAPON_HAND_DEFAULT, &inOutVel, 0);
+  if ( v23 )
   {
+    v25 = LODWORD(inOutVel.v[1]);
+    *(float *)&v25 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(inOutVel.v[0] * inOutVel.v[0])) + (float)(inOutVel.v[2] * inOutVel.v[2]));
+    _XMM3 = v25;
     __asm
     {
-      vmovss  xmm6, dword ptr [rbp+0A0h+inOutVel+4]
-      vmulss  xmm1, xmm6, xmm6
-      vmovss  xmm4, dword ptr [rbp+0A0h+inOutVel]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm5, dword ptr [rbp+0A0h+inOutVel+8]
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, xmm8
       vblendvps xmm1, xmm3, xmm7, xmm0
-      vmovss  [rsp+1A0h+var_130], xmm1
-      vdivss  xmm0, xmm7, xmm1
-      vmulss  xmm4, xmm4, xmm0
-      vmovss  dword ptr [rbp+0A0h+inOutVel], xmm4
-      vmulss  xmm1, xmm6, xmm0
-      vmovss  dword ptr [rbp+0A0h+inOutVel+4], xmm1
-      vmulss  xmm3, xmm5, xmm0
-      vmovss  dword ptr [rbp+0A0h+inOutVel+8], xmm3
-      vmulss  xmm1, xmm1, dword ptr [r13+48h]
-      vmulss  xmm0, xmm4, dword ptr [r13+44h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [r13+4Ch]
-      vaddss  xmm6, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm6
-      vaddss  xmm2, xmm0, dword ptr [rsi+28h]
-      vmovss  dword ptr [rsi+28h], xmm2
-      vmulss  xmm0, xmm6, dword ptr [rbp+0A0h+inOutVel+4]
-      vaddss  xmm3, xmm0, dword ptr [rsi+2Ch]
-      vmovss  dword ptr [rsi+2Ch], xmm3
-      vmulss  xmm0, xmm6, dword ptr [rbp+0A0h+inOutVel+8]
-      vaddss  xmm4, xmm0, dword ptr [rsi+30h]
-      vmovss  dword ptr [rsi+30h], xmm4
-      vmovss  [rsp+1A0h+var_130], xmm2
     }
-    if ( (v102 & 0x7F800000) == 2139095040 )
-      goto LABEL_42;
-    __asm { vmovss  [rsp+1A0h+var_130], xmm3 }
-    if ( (v103 & 0x7F800000) == 2139095040 )
-      goto LABEL_42;
-    __asm { vmovss  [rsp+1A0h+var_130], xmm4 }
-    if ( (v104 & 0x7F800000) == 2139095040 )
-    {
-LABEL_42:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 659, ASSERT_TYPE_SANITY, "( !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbp+0A0h+inOutVel]
-      vaddss  xmm2, xmm1, dword ptr [rbx+28h]
-      vmovss  dword ptr [rbx+28h], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rbp+0A0h+inOutVel+4]
-      vaddss  xmm4, xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rbx+2Ch], xmm4
-      vmulss  xmm1, xmm6, dword ptr [rbp+0A0h+inOutVel+8]
-      vaddss  xmm3, xmm1, dword ptr [rbx+30h]
-      vmovss  dword ptr [rbx+30h], xmm3
-      vmovss  [rsp+1A0h+var_130], xmm2
-    }
-    if ( (v105 & 0x7F800000) == 2139095040 )
-      goto LABEL_43;
-    __asm { vmovss  [rsp+1A0h+var_130], xmm4 }
-    if ( (v106 & 0x7F800000) == 2139095040 )
-      goto LABEL_43;
-    __asm { vmovss  [rsp+1A0h+var_130], xmm3 }
-    if ( (v107 & 0x7F800000) == 2139095040 )
-    {
-LABEL_43:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 662, ASSERT_TYPE_SANITY, "( !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] )") )
-        __debugbreak();
-    }
+    inOutVel.v[0] = inOutVel.v[0] * (float)(1.0 / *(float *)&_XMM1);
+    inOutVel.v[1] = inOutVel.v[1] * (float)(1.0 / *(float *)&_XMM1);
+    inOutVel.v[2] = inOutVel.v[2] * (float)(1.0 / *(float *)&_XMM1);
+    v29 = (float)((float)(inOutVel.v[1] * LocalClientGlobals->predictedPlayerState.velocity.v[1]) + (float)(inOutVel.v[0] * LocalClientGlobals->predictedPlayerState.velocity.v[0])) + (float)(inOutVel.v[2] * LocalClientGlobals->predictedPlayerState.velocity.v[2]);
+    v30 = (float)(inOutVel.v[0] * v29) + Entity->s.lerp.pos.trDelta.v[0];
+    Entity->s.lerp.pos.trDelta.v[0] = v30;
+    v31 = (float)(v29 * inOutVel.v[1]) + Entity->s.lerp.pos.trDelta.v[1];
+    Entity->s.lerp.pos.trDelta.v[1] = v31;
+    v32 = (float)(v29 * inOutVel.v[2]) + Entity->s.lerp.pos.trDelta.v[2];
+    Entity->s.lerp.pos.trDelta.v[2] = v32;
+    if ( ((LODWORD(v30) & 0x7F800000) == 2139095040 || (LODWORD(v31) & 0x7F800000) == 2139095040 || (LODWORD(v32) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 659, ASSERT_TYPE_SANITY, "( !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( missileEnt->s.lerp.pos.trDelta )[2] )") )
+      __debugbreak();
+    v33 = (float)(v29 * inOutVel.v[0]) + v23->s.lerp.pos.trDelta.v[0];
+    v23->s.lerp.pos.trDelta.v[0] = v33;
+    v34 = (float)(v29 * inOutVel.v[1]) + v23->s.lerp.pos.trDelta.v[1];
+    v23->s.lerp.pos.trDelta.v[1] = v34;
+    v35 = (float)(v29 * inOutVel.v[2]) + v23->s.lerp.pos.trDelta.v[2];
+    v23->s.lerp.pos.trDelta.v[2] = v35;
+    if ( ((LODWORD(v33) & 0x7F800000) == 2139095040 || (LODWORD(v34) & 0x7F800000) == 2139095040 || (LODWORD(v35) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 662, ASSERT_TYPE_SANITY, "( !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( clientTrajectoryEnt->s.lerp.pos.trDelta )[2] )") )
+      __debugbreak();
   }
   else
   {
     System = CgPredictedEntitySystem::GetSystem((const LocalClientNum_t)this->m_localClientNum);
     if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 649, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
       __debugbreak();
-    CgPredictedEntitySystem::FreePredictedEntity(System, _RSI);
-  }
-  _R11 = &v116;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
+    CgPredictedEntitySystem::FreePredictedEntity(System, Entity);
   }
 }
 
@@ -4009,24 +3656,23 @@ void CgMissile::UpdateCosmetics(CgMissile *this, DObj *missileObj, CgPredictedEn
   __int64 m_localClientNum; 
   const Weapon *WeaponForEntity; 
   bool inAltWeaponMode; 
-  bool v11; 
-  FxCombinedDef v12; 
+  bool v10; 
+  FxCombinedDef v11; 
   int centFlags; 
   unsigned __int64 PredictedEntSndEntHandle; 
-  unsigned __int64 v18; 
-  int v21; 
-  FxCombinedDef v22; 
-  int v23; 
-  FxCombinedDef v24; 
+  unsigned __int64 v14; 
+  int v15; 
+  FxCombinedDef v16; 
+  int v17; 
+  FxCombinedDef v18; 
   vec3_t outOrigin; 
-  __int64 v27; 
+  __int64 v20; 
   vec3_t org; 
   unsigned __int8 inOutIndex; 
   FXRegisteredDef modelIndex; 
   FXRegisteredDef def; 
 
-  v27 = -2i64;
-  __asm { vmovaps [rsp+80h+var_10], xmm6 }
+  v20 = -2i64;
   if ( !missileEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1393, ASSERT_TYPE_ASSERT, "(missileEnt)", (const char *)&queryFormat, "missileEnt") )
     __debugbreak();
   if ( Sys_IsMainThreadEntityWorker() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1395, ASSERT_TYPE_ASSERT, "(!Sys_IsMainThreadEntityWorker())", "%s\n\tReplace sound calls with the CG sound system to avoid threading issues, since it adds to the worker output queues", "!Sys_IsMainThreadEntityWorker()") )
@@ -4040,95 +3686,83 @@ void CgMissile::UpdateCosmetics(CgMissile *this, DObj *missileObj, CgPredictedEn
   if ( (missileEnt->s.lerp.u.anonymous.data[4] & 0x200) != 0 )
     missileEnt->centFlags |= 0x200u;
   inOutIndex = -2;
-  v11 = DObjGetBoneIndexInternal_54(missileObj, scr_const.tag_fx, &inOutIndex, (int *)&modelIndex) != 0;
-  v12.particleSystemDef = BG_ProjTrailEffect(WeaponForEntity, inAltWeaponMode).particleSystemDef;
-  def.m_particleSystemDef = v12.particleSystemDef;
+  v10 = DObjGetBoneIndexInternal_54(missileObj, scr_const.tag_fx, &inOutIndex, (int *)&modelIndex) != 0;
+  v11.particleSystemDef = BG_ProjTrailEffect(WeaponForEntity, inAltWeaponMode).particleSystemDef;
+  def.m_particleSystemDef = v11.particleSystemDef;
   centFlags = missileEnt->centFlags;
   if ( (centFlags & 0x202) == 0 )
   {
     if ( !CgMissile::JavelinSoftLaunch(this, WeaponForEntity, &missileEnt->s, LocalClientGlobals->time) )
     {
       missileEnt->centFlags |= 2u;
-      if ( def.m_particleSystemDef && v11 )
+      if ( def.m_particleSystemDef && v10 )
         FX_PlayBoltedToPredictedEnt((const LocalClientNum_t)this->m_localClientNum, &def, LocalClientGlobals->time, missileEnt->s.number, inOutIndex, 0);
       goto LABEL_22;
     }
     centFlags = missileEnt->centFlags;
-    v12.particleSystemDef = def.m_particleSystemDef;
+    v11.particleSystemDef = def.m_particleSystemDef;
   }
   if ( (centFlags & 0x202) == 514 )
   {
     missileEnt->centFlags = centFlags & 0xFFFFFFFD;
-    if ( v12.particleSystemDef )
+    if ( v11.particleSystemDef )
     {
-      if ( v11 )
+      if ( v10 )
         FX_StopBoltedEffects(this->m_localClientNum, &def, missileEnt->s.number, inOutIndex);
     }
   }
 LABEL_22:
   modelIndex.m_particleSystemDef = (const ParticleSystemDef *)BG_GetWeaponSoundWithFallback(WeaponForEntity, inAltWeaponMode, 40i64);
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
   if ( modelIndex.m_particleSystemDef )
   {
     PredictedEntSndEntHandle = CG_GeneratePredictedEntSndEntHandle((const LocalClientNum_t)this->m_localClientNum, missileEnt->predictedEntNum);
     CG_GetPoseOrigin(&missileEnt->pose, &outOrigin);
-    __asm
-    {
-      vmovaps xmm3, xmm6; pitch
-      vmovaps xmm2, xmm6; volumeScale
-    }
-    SND_PlayScaledSoundAlias((const SndAliasList *)modelIndex.m_particleSystemDef, PredictedEntSndEntHandle, *(const float *)&_XMM2, *(const float *)&_XMM3, &outOrigin, 0, SASYS_CGAME);
+    SND_PlayScaledSoundAlias((const SndAliasList *)modelIndex.m_particleSystemDef, PredictedEntSndEntHandle, 1.0, 1.0, &outOrigin, 0, SASYS_CGAME);
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
   if ( (missileEnt->centFlags & 0x800) == 0 && !CgMissile::JavelinSoftLaunch(this, WeaponForEntity, &missileEnt->s, LocalClientGlobals->time) )
   {
     missileEnt->centFlags |= 0x800u;
     modelIndex.m_particleSystemDef = BG_ProjIgnitionEffect(WeaponForEntity, inAltWeaponMode).particleSystemDef;
-    if ( modelIndex.m_particleSystemDef && v11 )
+    if ( modelIndex.m_particleSystemDef && v10 )
       FX_PlayBoltedToPredictedEnt((const LocalClientNum_t)this->m_localClientNum, &modelIndex, LocalClientGlobals->time, missileEnt->s.number, inOutIndex, 0);
     *(_QWORD *)outOrigin.v = BG_ProjIgnitionSound(WeaponForEntity, inAltWeaponMode);
     if ( *(_QWORD *)outOrigin.v )
     {
-      v18 = CG_GeneratePredictedEntSndEntHandle((const LocalClientNum_t)this->m_localClientNum, missileEnt->predictedEntNum);
+      v14 = CG_GeneratePredictedEntSndEntHandle((const LocalClientNum_t)this->m_localClientNum, missileEnt->predictedEntNum);
       CG_GetPoseOrigin(&missileEnt->pose, &org);
-      __asm
-      {
-        vmovaps xmm3, xmm6; pitch
-        vmovaps xmm2, xmm6; volumeScale
-      }
-      SND_PlayScaledSoundAlias(*(const SndAliasList **)outOrigin.v, v18, *(const float *)&_XMM2, *(const float *)&_XMM3, &org, 0, SASYS_CGAME);
+      SND_PlayScaledSoundAlias(*(const SndAliasList **)outOrigin.v, v14, 1.0, 1.0, &org, 0, SASYS_CGAME);
       memset(&org, 0, sizeof(org));
     }
   }
-  v21 = missileEnt->centFlags;
-  if ( (v21 & 0x400) == 0 )
+  v15 = missileEnt->centFlags;
+  if ( (v15 & 0x400) == 0 )
   {
-    missileEnt->centFlags = v21 | 0x400;
-    v22.particleSystemDef = BG_ProjBeaconEffect(WeaponForEntity, inAltWeaponMode).particleSystemDef;
-    if ( v22.particleSystemDef )
+    missileEnt->centFlags = v15 | 0x400;
+    v16.particleSystemDef = BG_ProjBeaconEffect(WeaponForEntity, inAltWeaponMode).particleSystemDef;
+    if ( v16.particleSystemDef )
     {
-      if ( v11 )
+      if ( v10 )
       {
-        modelIndex.m_particleSystemDef = v22.particleSystemDef;
+        modelIndex.m_particleSystemDef = v16.particleSystemDef;
         FX_PlayBoltedToPredictedEnt((const LocalClientNum_t)this->m_localClientNum, &modelIndex, LocalClientGlobals->time, missileEnt->s.number, inOutIndex, 0);
       }
     }
   }
-  v23 = missileEnt->centFlags;
-  if ( (v23 & 0x40000) == 0 )
+  v17 = missileEnt->centFlags;
+  if ( (v17 & 0x40000) == 0 )
   {
-    missileEnt->centFlags = v23 | 0x40000;
-    v24.particleSystemDef = BG_ProjBodyEffect(WeaponForEntity, 0).particleSystemDef;
-    if ( v24.particleSystemDef )
+    missileEnt->centFlags = v17 | 0x40000;
+    v18.particleSystemDef = BG_ProjBodyEffect(WeaponForEntity, 0).particleSystemDef;
+    if ( v18.particleSystemDef )
     {
-      if ( v11 )
+      if ( v10 )
       {
-        modelIndex.m_particleSystemDef = v24.particleSystemDef;
+        modelIndex.m_particleSystemDef = v18.particleSystemDef;
         FX_PlayBoltedToPredictedEnt((const LocalClientNum_t)this->m_localClientNum, &modelIndex, LocalClientGlobals->time, missileEnt->s.number, inOutIndex, 0);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+80h+var_10] }
 }
 
 /*
@@ -4138,50 +3772,43 @@ CgMissile::UpdateMissilePrediction
 */
 void CgMissile::UpdateMissilePrediction(CgMissile *this, CgPredictedEntity *ent, const int prevUpdateTime, const int updateTime, const int timeElapsed)
 {
+  __int128 v5; 
   CgPredictedEntitySystem *System; 
   centity_t *Entity; 
   int serverEntNum; 
   CgWeaponMap *Instance; 
   CgPredictedEntity *clientTrajectoryEntity; 
   CgEntitySystem *EntitySystem; 
-  unsigned int v22; 
-  char v28; 
+  unsigned int v15; 
+  __int128 v16; 
+  float clientTrajectoryBlendOutRatio; 
+  CgPredictedEntity *v18; 
+  __int128 v20; 
   const cpose_t *PoseExtended; 
-  char v65; 
-  float v91; 
-  float v92; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float serverTrajectoryBlendInRatio; 
+  __int128 v28; 
   DObj *missileObj; 
-  CgEntityMissileComponentData v95; 
-  GfxSceneHudOutlineInfo v96; 
-  CgEntityData v97; 
-  GfxSceneEntityMutableShaderData v98; 
+  CgEntityMissileComponentData v32; 
+  GfxSceneHudOutlineInfo v33; 
+  CgEntityData v34; 
+  GfxSceneEntityMutableShaderData v35; 
   vec3_t newOrigin; 
   vec4_t qb; 
   vec3_t outOrigin; 
   vec4_t quat; 
   vec4_t qa; 
-  shaderOverride_t v104; 
+  shaderOverride_t v41; 
   vec3_t angles; 
   vec3_t outLightingOrigin; 
   GfxSceneEntityMutableShaderData entityMutableShaderData; 
-  char v108; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-  }
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 961, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808000, "CgMissile::UpdateMissilePrediction");
-  if ( _RBX->predictionState == CLIENT_TRAJECTORY_ENTITY || (missileObj = CgMissile::GetMissileDObj(this, _RBX)) == NULL )
+  if ( ent->predictionState == CLIENT_TRAJECTORY_ENTITY || (missileObj = CgMissile::GetMissileDObj(this, ent)) == NULL )
   {
     Sys_ProfEndNamedEvent();
   }
@@ -4191,224 +3818,103 @@ void CgMissile::UpdateMissilePrediction(CgMissile *this, CgPredictedEntity *ent,
     if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 981, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
       __debugbreak();
     Entity = NULL;
-    serverEntNum = _RBX->serverEntNum;
+    serverEntNum = ent->serverEntNum;
     if ( serverEntNum != 2047 )
     {
       Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, serverEntNum);
       if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 987, ASSERT_TYPE_ASSERT, "(CENextValid( serverEnt ))", (const char *)&queryFormat, "CENextValid( serverEnt )") )
         __debugbreak();
     }
-    CgEntityMissileComponentData::CgEntityMissileComponentData(&v95, _RBX);
-    CgEntityData::CgEntityData(&v97, _RBX, &v95);
+    CgEntityMissileComponentData::CgEntityMissileComponentData(&v32, ent);
+    CgEntityData::CgEntityData(&v34, ent, &v32);
     Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 994, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    BgMissile::Tick(this, Instance, &v97, prevUpdateTime, updateTime, timeElapsed);
-    clientTrajectoryEntity = _RBX->clientTrajectoryEntity;
-    if ( _RBX->isInUse )
+    BgMissile::Tick(this, Instance, &v34, prevUpdateTime, updateTime, timeElapsed);
+    clientTrajectoryEntity = ent->clientTrajectoryEntity;
+    if ( ent->isInUse )
     {
       if ( clientTrajectoryEntity )
       {
-        CgEntityMissileComponentData::CgEntityMissileComponentData((CgEntityMissileComponentData *)&v104, clientTrajectoryEntity);
-        CgEntityData::CgEntityData((CgEntityData *)&v98, _RBX->clientTrajectoryEntity, &v95);
-        BgMissile::Tick(this, Instance, (BgEntityData *)&v98, prevUpdateTime, updateTime, timeElapsed);
-        *(_QWORD *)&v104.scrollRateX = &BgEntityComponentData::`vftable';
+        CgEntityMissileComponentData::CgEntityMissileComponentData((CgEntityMissileComponentData *)&v41, clientTrajectoryEntity);
+        CgEntityData::CgEntityData((CgEntityData *)&v35, ent->clientTrajectoryEntity, &v32);
+        BgMissile::Tick(this, Instance, (BgEntityData *)&v35, prevUpdateTime, updateTime, timeElapsed);
+        *(_QWORD *)&v41.scrollRateX = &BgEntityComponentData::`vftable';
       }
-      if ( !CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, &_RBX->s, NULL) )
+      if ( !CG_Entity_IsNoDraw((const LocalClientNum_t)this->m_localClientNum, &ent->s, NULL) )
       {
         EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)this->m_localClientNum);
         if ( !EntitySystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1024, ASSERT_TYPE_ASSERT, "(entitySystem)", (const char *)&queryFormat, "entitySystem") )
           __debugbreak();
-        v22 = EntitySystem->GetRenderFlagForRefEntity(EntitySystem, &_RBX->s);
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_missileRotationBlendScale, "cg_missileRotationBlendScale");
-        __asm
+        v15 = EntitySystem->GetRenderFlagForRefEntity(EntitySystem, &ent->s);
+        *(double *)&v5 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_missileRotationBlendScale, "cg_missileRotationBlendScale");
+        v16 = v5;
+        if ( 1.0 == ent->u.missile.clientTrajectoryBlendOutRatio )
         {
-          vmovaps xmm11, xmm0
-          vmovss  xmm10, cs:__real@3f800000
-          vucomiss xmm10, dword ptr [rbx+198h]
-        }
-        if ( v65 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+33Ch]
-            vmovss  dword ptr [rbp+2B0h+newOrigin], xmm1
-            vmovss  xmm2, dword ptr [rbx+340h]
-            vmovss  dword ptr [rbp+2B0h+newOrigin+4], xmm2
-            vmovss  xmm1, dword ptr [rbx+344h]
-            vmovss  dword ptr [rbp+2B0h+newOrigin+8], xmm1
-          }
-          AnglesToQuat(&_RBX->currentAngles, &quat);
+          newOrigin = ent->currentOrigin;
+          AnglesToQuat(&ent->currentAngles, &quat);
         }
         else
         {
-          if ( !_RBX->clientTrajectoryEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1047, ASSERT_TYPE_ASSERT, "(ent->clientTrajectoryEntity)", (const char *)&queryFormat, "ent->clientTrajectoryEntity") )
+          if ( !ent->clientTrajectoryEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1047, ASSERT_TYPE_ASSERT, "(ent->clientTrajectoryEntity)", (const char *)&queryFormat, "ent->clientTrajectoryEntity") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rbx+198h]
-            vmovss  xmm0, dword ptr [rbx+33Ch]
-            vsubss  xmm1, xmm0, dword ptr [rax+33Ch]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+33Ch]
-            vmovss  dword ptr [rbp+2B0h+newOrigin], xmm3
-            vmovss  xmm0, dword ptr [rbx+340h]
-            vsubss  xmm1, xmm0, dword ptr [rax+340h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+340h]
-            vmovss  dword ptr [rbp+2B0h+newOrigin+4], xmm3
-            vmovss  xmm0, dword ptr [rbx+344h]
-            vsubss  xmm1, xmm0, dword ptr [rax+344h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+344h]
-            vmovss  dword ptr [rbp+2B0h+newOrigin+8], xmm3
-          }
-          AnglesToQuat(&_RBX->currentAngles, &qb);
-          AnglesToQuat(&_RBX->clientTrajectoryEntity->currentAngles, &qa);
-          __asm
-          {
-            vmulss  xmm0, xmm11, dword ptr [rbx+198h]
-            vminss  xmm2, xmm0, xmm10; frac
-          }
+          clientTrajectoryBlendOutRatio = ent->u.missile.clientTrajectoryBlendOutRatio;
+          v18 = ent->clientTrajectoryEntity;
+          newOrigin.v[0] = (float)((float)(ent->currentOrigin.v[0] - v18->currentOrigin.v[0]) * clientTrajectoryBlendOutRatio) + v18->currentOrigin.v[0];
+          newOrigin.v[1] = (float)((float)(ent->currentOrigin.v[1] - v18->currentOrigin.v[1]) * clientTrajectoryBlendOutRatio) + v18->currentOrigin.v[1];
+          newOrigin.v[2] = (float)((float)(ent->currentOrigin.v[2] - v18->currentOrigin.v[2]) * clientTrajectoryBlendOutRatio) + v18->currentOrigin.v[2];
+          AnglesToQuat(&ent->currentAngles, &qb);
+          AnglesToQuat(&ent->clientTrajectoryEntity->currentAngles, &qa);
+          v20 = v5;
+          *(float *)&v20 = *(float *)&v5 * ent->u.missile.clientTrajectoryBlendOutRatio;
+          _XMM0 = v20;
+          __asm { vminss  xmm2, xmm0, xmm10; frac }
           QuatLerp(&qa, &qb, *(float *)&_XMM2, &quat);
         }
-        __asm
-        {
-          vxorps  xmm9, xmm9, xmm9
-          vcomiss xmm9, dword ptr [rbx+19Ch]
-        }
-        if ( v28 )
+        if ( ent->u.missile.serverTrajectoryBlendInRatio > 0.0 )
         {
           if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1063, ASSERT_TYPE_ASSERT, "(serverEnt)", (const char *)&queryFormat, "serverEnt") )
             __debugbreak();
-          PoseExtended = CG_GetPoseExtended(this->m_localClientNum, _RBX->serverEntNum, 0);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rbp+2B0h+newOrigin]
-            vmovss  xmm7, dword ptr [rbp+2B0h+newOrigin+4]
-            vmovss  xmm8, dword ptr [rbp+2B0h+newOrigin+8]
-          }
+          PoseExtended = CG_GetPoseExtended(this->m_localClientNum, ent->serverEntNum, 0);
+          v23 = newOrigin.v[0];
+          v24 = newOrigin.v[1];
+          v25 = newOrigin.v[2];
           CG_GetPoseOrigin(PoseExtended, (vec3_t *)&qb);
-          __asm
-          {
-            vmovss  xmm4, dword ptr [rbx+19Ch]
-            vmovss  xmm0, dword ptr [rbp+2B0h+qb]
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm4
-            vaddss  xmm3, xmm2, xmm6
-            vmovss  dword ptr [rbp+2B0h+newOrigin], xmm3
-            vmovss  xmm0, dword ptr [rbp+2B0h+qb+4]
-            vsubss  xmm1, xmm0, xmm7
-            vmulss  xmm2, xmm1, xmm4
-            vaddss  xmm3, xmm2, xmm7
-            vmovss  dword ptr [rbp+2B0h+newOrigin+4], xmm3
-            vmovss  xmm0, dword ptr [rbp+2B0h+qb+8]
-            vsubss  xmm1, xmm0, xmm8
-            vmulss  xmm2, xmm1, xmm4
-            vaddss  xmm3, xmm2, xmm8
-            vmovss  dword ptr [rbp+2B0h+newOrigin+8], xmm3
-            vmovups xmm0, xmmword ptr [rbp+2B0h+quat]
-            vmovdqa xmmword ptr [rbp+2B0h+var_1B0], xmm0
-          }
+          serverTrajectoryBlendInRatio = ent->u.missile.serverTrajectoryBlendInRatio;
+          newOrigin.v[0] = (float)((float)(qb.v[0] - v23) * serverTrajectoryBlendInRatio) + v23;
+          newOrigin.v[1] = (float)((float)(qb.v[1] - v24) * serverTrajectoryBlendInRatio) + v24;
+          newOrigin.v[2] = (float)((float)(qb.v[2] - v25) * serverTrajectoryBlendInRatio) + v25;
+          *(vec4_t *)&v41.scrollRateX = quat;
           AnglesToQuat(&PoseExtended->angles, &qa);
-          __asm
-          {
-            vmulss  xmm0, xmm11, dword ptr [rbx+19Ch]
-            vminss  xmm2, xmm0, xmm10; frac
-          }
-          QuatLerp((const vec4_t *)&v104, &qa, *(float *)&_XMM2, &quat);
+          v28 = v16;
+          *(float *)&v28 = *(float *)&v16 * ent->u.missile.serverTrajectoryBlendInRatio;
+          _XMM0 = v28;
+          __asm { vminss  xmm2, xmm0, xmm10; frac }
+          QuatLerp((const vec4_t *)&v41, &qa, *(float *)&_XMM2, &quat);
           memset(&qb, 0, 0xCui64);
         }
         QuatToAngles(&quat, &angles);
-        CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-        CgPredictedEntitySystem::UpdatePose(System, _RBX, &newOrigin, &angles);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2B0h+outOrigin]
-          vucomiss xmm0, xmm9
-        }
-        if ( v65 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+2B0h+outOrigin+4]
-            vucomiss xmm0, xmm9
-          }
-          if ( v65 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+2B0h+outOrigin+8]
-              vucomiss xmm0, xmm9
-            }
-            if ( v65 )
-              CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-          }
-        }
-        CG_GetPoseOrigin(&_RBX->pose, (vec3_t *)&qb);
-        this->DrawMissileDebug(this, &v97, &outOrigin, (const vec3_t *)&qb, &colorCyan);
+        CG_GetPoseOrigin(&ent->pose, &outOrigin);
+        CgPredictedEntitySystem::UpdatePose(System, ent, &newOrigin, &angles);
+        if ( outOrigin.v[0] == 0.0 && outOrigin.v[1] == 0.0 && outOrigin.v[2] == 0.0 )
+          CG_GetPoseOrigin(&ent->pose, &outOrigin);
+        CG_GetPoseOrigin(&ent->pose, (vec3_t *)&qb);
+        this->DrawMissileDebug(this, &v34, &outOrigin, (const vec3_t *)&qb, &colorCyan);
         memset(&qb, 0, 0xCui64);
-        CgMissile::UpdateCosmetics(this, missileObj, _RBX);
-        CG_Entity_CalcLightingOrigin(&_RBX->pose, missileObj, &outLightingOrigin);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_2.scrollRateX
-          vmovups ymmword ptr [rbp+2B0h+var_1B0], ymm0
-        }
-        v104.atlasTime = NULL_SHADER_OVERRIDE_2.atlasTime;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_3.color
-          vmovups ymmword ptr [rsp+70h], ymm0
-        }
-        v96.characterEVOffset = NULL_HUDOUTLINE_INFO_3.characterEVOffset;
-        __asm { vmovss  [rsp+3B0h+var_380], xmm9 }
-        _RAX = CG_Entity_GetMutableShaderData(&v98, (const LocalClientNum_t)this->m_localClientNum, missileObj, 0, &v96, &v104, v91);
-        _RCX = &entityMutableShaderData;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rax+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rax+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rax+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-          vmovups xmm0, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rcx+70h], xmm0
-          vmovups xmm1, xmmword ptr [rax+80h]
-          vmovups xmmword ptr [rcx+80h], xmm1
-          vmovups xmm0, xmmword ptr [rax+90h]
-          vmovups xmmword ptr [rcx+90h], xmm0
-          vmovups xmm1, xmmword ptr [rax+0A0h]
-          vmovups xmmword ptr [rcx+0A0h], xmm1
-          vmovss  [rsp+3B0h+var_380], xmm9
-        }
-        R_AddDObjToScene(missileObj, &_RBX->pose, _RBX->s.number, v22, &entityMutableShaderData, &outLightingOrigin, v92);
+        CgMissile::UpdateCosmetics(this, missileObj, ent);
+        CG_Entity_CalcLightingOrigin(&ent->pose, missileObj, &outLightingOrigin);
+        memset(&v41, 0, sizeof(v41));
+        memset(&v33, 0, sizeof(v33));
+        entityMutableShaderData = *CG_Entity_GetMutableShaderData(&v35, (const LocalClientNum_t)this->m_localClientNum, missileObj, 0, &v33, &v41, 0.0);
+        R_AddDObjToScene(missileObj, &ent->pose, ent->s.number, v15, &entityMutableShaderData, &outLightingOrigin, 0.0);
         Sys_ProfEndNamedEvent();
       }
     }
-    else if ( clientTrajectoryEntity && clientTrajectoryEntity->isInUse )
+    else if ( clientTrajectoryEntity )
     {
-      CgPredictedEntitySystem::FreePredictedEntity(System, clientTrajectoryEntity);
+      if ( clientTrajectoryEntity->isInUse )
+        CgPredictedEntitySystem::FreePredictedEntity(System, clientTrajectoryEntity);
     }
-  }
-  _R11 = &v108;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
   }
 }
 
@@ -4429,116 +3935,88 @@ CgMissile::UpdatePredictionBlendRatios
 */
 void CgMissile::UpdatePredictionBlendRatios(CgMissile *this, CgPredictedEntity *ent, const int prevUpdateTime, const int updateTime, const int timeElapsed, const Weapon *r_weapon, const bool isAlternate, const int creationServerTime, centity_t *serverEnt)
 {
-  bool v14; 
-  bool v15; 
   int ClientTrajectoryBlendOutTime; 
-  bool v18; 
+  bool v12; 
   CgPredictedEntity *clientTrajectoryEntity; 
-  bool v20; 
-  const dvar_t *v21; 
+  bool v14; 
+  const dvar_t *v15; 
   int integer; 
-  int v28; 
-  const dvar_t *v29; 
-  int v30; 
+  __int128 v17; 
+  int v20; 
+  const dvar_t *v21; 
+  int v22; 
+  __int128 v23; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1151, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  v14 = timeElapsed == 0;
-  if ( timeElapsed < 0 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1152, ASSERT_TYPE_ASSERT, "(timeElapsed >= 0)", (const char *)&queryFormat, "timeElapsed >= 0");
-    v14 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm6, dword ptr [rbx+198h]
-  }
-  if ( !v14 )
+  if ( timeElapsed < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1152, ASSERT_TYPE_ASSERT, "(timeElapsed >= 0)", (const char *)&queryFormat, "timeElapsed >= 0") )
+    __debugbreak();
+  if ( ent->u.missile.clientTrajectoryBlendOutRatio < 1.0 )
   {
     ClientTrajectoryBlendOutTime = BG_PredictionGetClientTrajectoryBlendOutTime(r_weapon, isAlternate);
-    v18 = _RBX->u.missile.hasImpact || _RBX->s.lerp.pos.trType == TR_STATIONARY;
-    clientTrajectoryEntity = _RBX->clientTrajectoryEntity;
-    v20 = clientTrajectoryEntity && (clientTrajectoryEntity->u.missile.hasImpact || clientTrajectoryEntity->s.lerp.pos.trType == TR_STATIONARY);
-    if ( v18 || v20 )
+    v12 = ent->u.missile.hasImpact || ent->s.lerp.pos.trType == TR_STATIONARY;
+    clientTrajectoryEntity = ent->clientTrajectoryEntity;
+    v14 = clientTrajectoryEntity && (clientTrajectoryEntity->u.missile.hasImpact || clientTrajectoryEntity->s.lerp.pos.trType == TR_STATIONARY);
+    if ( v12 || v14 )
     {
-      v21 = DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs;
+      v15 = DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs;
       if ( !DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_missileQuickServerEntBlendInTimeMs") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      integer = v21->current.integer;
+      Dvar_CheckFrontendServerThread(v15);
+      integer = v15->current.integer;
       if ( ClientTrajectoryBlendOutTime < integer )
         integer = ClientTrajectoryBlendOutTime;
       ClientTrajectoryBlendOutTime = integer;
     }
-    v14 = ClientTrajectoryBlendOutTime == 0;
     if ( ClientTrajectoryBlendOutTime > 0 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, [rsp+58h+timeElapsed]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm1, xmm1, xmm0
-        vaddss  xmm2, xmm1, dword ptr [rbx+198h]
-        vminss  xmm3, xmm2, xmm6
-        vmovss  dword ptr [rbx+198h], xmm3
-      }
+      v17 = 0i64;
+      *(float *)&v17 = (float)((float)timeElapsed / (float)ClientTrajectoryBlendOutTime) + ent->u.missile.clientTrajectoryBlendOutRatio;
+      _XMM2 = v17;
+      __asm { vminss  xmm3, xmm2, xmm6 }
+      ent->u.missile.clientTrajectoryBlendOutRatio = *(float *)&_XMM3;
     }
     else
     {
-      _RBX->u.missile.clientTrajectoryBlendOutRatio = 1.0;
+      ent->u.missile.clientTrajectoryBlendOutRatio = 1.0;
     }
   }
-  __asm { vcomiss xmm6, dword ptr [rbx+19Ch] }
-  if ( !v14 )
+  if ( ent->u.missile.serverTrajectoryBlendInRatio < 1.0 )
   {
-    if ( _RBX->serverEntNum == 2047 )
+    if ( ent->serverEntNum == 2047 )
     {
-      _RBX->u.missile.serverTrajectoryBlendInRatio = 0.0;
+      ent->u.missile.serverTrajectoryBlendInRatio = 0.0;
     }
     else
     {
       if ( !serverEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.cpp", 1185, ASSERT_TYPE_ASSERT, "(serverEnt)", (const char *)&queryFormat, "serverEnt") )
         __debugbreak();
-      v28 = BG_PredictionGetServerTrajectoryBlendInTime(r_weapon, isAlternate) + creationServerTime - _RBX->serverEntTime;
+      v20 = BG_PredictionGetServerTrajectoryBlendInTime(r_weapon, isAlternate) + creationServerTime - ent->serverEntTime;
       if ( CG_Entity_GetLinkToParent(this->m_localClientNum, serverEnt) || serverEnt->nextState.lerp.pos.trType == TR_STATIONARY )
       {
-        v29 = DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs;
+        v21 = DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs;
         if ( !DCONST_DVARINT_cg_missileQuickServerEntBlendInTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_missileQuickServerEntBlendInTimeMs") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v29);
-        v30 = v29->current.integer;
-        if ( v28 < v30 )
-          v30 = v28;
-        v28 = v30;
+        Dvar_CheckFrontendServerThread(v21);
+        v22 = v21->current.integer;
+        if ( v20 < v22 )
+          v22 = v20;
+        v20 = v22;
       }
-      if ( v28 > 0 )
+      if ( v20 > 0 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, [rsp+58h+timeElapsed]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vdivss  xmm1, xmm1, xmm0
-          vaddss  xmm2, xmm1, dword ptr [rbx+19Ch]
-          vminss  xmm3, xmm2, xmm6
-          vmovss  dword ptr [rbx+19Ch], xmm3
-        }
+        v23 = 0i64;
+        *(float *)&v23 = (float)((float)timeElapsed / (float)v20) + ent->u.missile.serverTrajectoryBlendInRatio;
+        _XMM2 = v23;
+        __asm { vminss  xmm3, xmm2, xmm6 }
+        ent->u.missile.serverTrajectoryBlendInRatio = *(float *)&_XMM3;
       }
       else
       {
-        _RBX->u.missile.serverTrajectoryBlendInRatio = 1.0;
+        ent->u.missile.serverTrajectoryBlendInRatio = 1.0;
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*

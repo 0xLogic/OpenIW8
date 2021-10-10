@@ -673,7 +673,7 @@ void __fastcall CL_MainMP_GetClientMatchData_f(double _XMM0_8)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( cls.matchData.def[0] )
   {
     Asset = Com_DDL_LoadAsset(cls.matchData.def);
@@ -734,7 +734,7 @@ void __fastcall CL_MainMP_GetCodcasterClientMatchData_f(double _XMM0_8)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   if ( cls.codcasterClientMatchData.def[0] )
   {
     Asset = Com_DDL_LoadAsset(cls.codcasterClientMatchData.def);
@@ -899,82 +899,79 @@ void CL_MainMP_PlayAgainAbort_f()
 CL_MainMP_StartLobby_f
 ==============
 */
-
-void __fastcall CL_MainMP_StartLobby_f(double _XMM0_8)
+void CL_MainMP_StartLobby_f()
 {
-  const dvar_t *v1; 
-  int v2; 
-  LocalClientNum_t v3; 
+  const dvar_t *v0; 
+  int v1; 
+  LocalClientNum_t v2; 
   PartyData *PartyData; 
+  PartyData *v4; 
   PartyData *v5; 
-  PartyData *v6; 
   int Flags; 
-  const dvar_t *v8; 
-  int v9; 
+  const dvar_t *v7; 
+  int v8; 
+  const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v11; 
   int integer; 
-  PartyData *v13; 
+  PartyData *v12; 
+  __int128 v16; 
   PartyActiveClient outPartyActiveClient; 
 
   Sys_ProfBeginNamedEvent(0xFFFFFF00, "Start Lobby");
-  v1 = DVARBOOL_onlinegame;
+  v0 = DVARBOOL_onlinegame;
   if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v1);
-  if ( !v1->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_onlinegame, \"onlinegame\" ))", "%s\n\tStarting a lobby outside of the online game section", "Dvar_GetBool( onlinegame )") )
+  Dvar_CheckFrontendServerThread(v0);
+  if ( !v0->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_onlinegame, \"onlinegame\" ))", "%s\n\tStarting a lobby outside of the online game section", "Dvar_GetBool( onlinegame )") )
     __debugbreak();
   __rdtsc();
   Lobby_GetPartyData();
-  v2 = Cmd_LocalControllerIndex();
-  v3 = Cmd_LocalClientNum();
-  if ( v3 )
+  v1 = Cmd_LocalControllerIndex();
+  v2 = Cmd_LocalClientNum();
+  if ( v2 )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442140F0, 507i64);
-  GamerProfile_UpdateProfileAndSaveIfNeeded(v2);
+  GamerProfile_UpdateProfileAndSaveIfNeeded(v1);
   if ( Party_GetSecondaryActiveClient(&g_partyData, &outPartyActiveClient) )
     GamerProfile_UpdateProfileAndSaveIfNeeded(outPartyActiveClient.localControllerIndex);
   Com_Printf(14, "CL_MainMP_StartLobby_f was called, calling Party_StopParty\n");
   PartyData = Lobby_GetPartyData();
   Party_Sleep(PartyData);
+  v4 = Lobby_GetPartyData();
+  Party_StopParty(v4);
   v5 = Lobby_GetPartyData();
-  Party_StopParty(v5);
-  v6 = Lobby_GetPartyData();
-  Party_Awake(v6, v2, 1);
+  Party_Awake(v5, v1, 1);
   Party_ResetTweakDvars();
-  Playlist_RunRules(v2, 0);
+  Playlist_RunRules(v1, 0);
   Voice_DisableLocalMics(&g_partyData);
   Flags = PartyHost_GetCreateFlags();
-  v8 = DVARINT_party_maxplayers;
-  v9 = Flags;
+  v7 = DVARINT_party_maxplayers;
+  v8 = Flags;
   if ( !DVARINT_party_maxplayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( !Online_CanHostServer(v8->current.integer) )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !Online_CanHostServer(v7->current.integer) )
   {
-    v10 = DVARINT_party_maxplayers;
+    v9 = DVARINT_party_maxplayers;
     if ( !DVARINT_party_maxplayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    Com_PrintWarning(14, "Unable to host a game for party_maxplayers (%i)!\n", v10->current.unsignedInt);
+    Dvar_CheckFrontendServerThread(v9);
+    Com_PrintWarning(14, "Unable to host a game for party_maxplayers (%i)!\n", v9->current.unsignedInt);
   }
-  v11 = DVARINT_party_maxplayers;
+  v10 = DVARINT_party_maxplayers;
   if ( !DVARINT_party_maxplayers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_maxplayers") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
-  v13 = Lobby_GetPartyData();
-  PartyHost_StartParty(v13, v3, v2, v9, integer, PARTY_HOST_CLIENT);
+  Dvar_CheckFrontendServerThread(v10);
+  integer = v10->current.integer;
+  v12 = Lobby_GetPartyData();
+  PartyHost_StartParty(v12, v2, v1, v8, integer, PARTY_HOST_CLIENT);
   __rdtsc();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   r8, xmm2
-  }
-  Com_Printf(14, "CL_MainMP_StartLobby_f took %f ms (no remote screen).\n", *(double *)&_XMM2);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v16 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v16;
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  Com_Printf(14, "CL_MainMP_StartLobby_f took %f ms (no remote screen).\n", *(float *)&_XMM2);
   Sys_ProfEndNamedEvent();
 }
 
@@ -1610,94 +1607,91 @@ void CL_LANInfoResponsePacket(const LocalClientNum_t localClientNum, netadr_t *f
   const char *v8; 
   const char *v9; 
   int v10; 
-  unsigned int ProtocolVersion; 
-  bool v13; 
+  bool v11; 
   int addrHandleIndex; 
+  const char *v13; 
+  const char *v14; 
   const char *v15; 
-  const char *v16; 
+  bool v16; 
   const char *v17; 
-  bool v18; 
-  const char *v19; 
   int ControllerFromClient; 
+  const char *v19; 
+  char v20; 
   const char *v21; 
-  char v22; 
-  const char *v23; 
   bool IsCoopGameType; 
-  int v25; 
-  int v26; 
+  int v23; 
+  int v24; 
   int *p_time; 
-  __int16 v28; 
+  __int16 v26; 
   unsigned __int16 *p_port; 
-  int v33; 
-  const char *v34; 
-  int v35; 
-  const char *v36; 
-  __int64 v37; 
-  const char *v38; 
-  __int64 v39; 
-  const char *v40; 
-  int v42; 
-  int v43; 
-  netadr_t v44; 
+  __int128 v28; 
+  __int64 v29; 
+  int v30; 
+  const char *v31; 
+  int v32; 
+  const char *v33; 
+  __int64 v34; 
+  const char *v35; 
+  __int64 v36; 
+  const char *v37; 
+  int v38; 
+  int v39; 
+  netadr_t v40; 
   char dest[1024]; 
   char string[1024]; 
 
-  _RDI = from;
   if ( Live_IsInSystemlinkLobby() && CL_IsLocalClientActive(localClientNum) && localClientNum == LOCAL_CLIENT_0 )
   {
     v8 = MSG_ReadString(msg, string, 0x400u);
     v9 = Info_ValueForKey(v8, "protocol");
     v10 = atoi(v9);
-    ProtocolVersion = GetProtocolVersion();
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v13 = v10 == ProtocolVersion;
-    addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+888h+var_868], xmm0 }
-    v44.addrHandleIndex = addrHandleIndex;
-    if ( v13 )
+    v11 = v10 == GetProtocolVersion();
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v40.type = *(_OWORD *)&from->type;
+    v40.addrHandleIndex = addrHandleIndex;
+    if ( v11 )
     {
-      v16 = NET_AdrToString(&v44);
-      Com_Printf(25, "Received LAN Info Response from %s - %s\n", v16, v8);
-      v17 = Info_ValueForKey(v8, "dedicated");
-      v18 = atoi(v17) == 1;
-      v19 = Info_ValueForKey(v8, "crossplay");
-      if ( atoi(v19) == 1 && !Dvar_GetBool_Internal_DebugName(DVARBOOL_online_lan_cross_play, "online_lan_cross_play") )
+      v14 = NET_AdrToString(&v40);
+      Com_Printf(25, "Received LAN Info Response from %s - %s\n", v14, v8);
+      v15 = Info_ValueForKey(v8, "dedicated");
+      v16 = atoi(v15) == 1;
+      v17 = Info_ValueForKey(v8, "crossplay");
+      if ( atoi(v17) == 1 && !Dvar_GetBool_Internal_DebugName(DVARBOOL_online_lan_cross_play, "online_lan_cross_play") )
       {
         Com_Printf(25, "Received cross play override from LAN server, setting online_lan_cross_play to true\n");
         Dvar_SetBool_Internal(DVARBOOL_online_lan_cross_play, 1);
       }
       ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-      if ( Live_IsCrossPlayEnabled(ControllerFromClient) || v18 || (v21 = Info_ValueForKey(v8, "platform"), v22 = atoi(v21), v22 == (unsigned __int8)GetClientPlatform()) )
+      if ( Live_IsCrossPlayEnabled(ControllerFromClient) || v16 || (v19 = Info_ValueForKey(v8, "platform"), v20 = atoi(v19), v20 == (unsigned __int8)GetClientPlatform()) )
       {
-        v23 = Info_ValueForKey(v8, "gametype");
-        IsCoopGameType = Com_GameMode_IsCoopGameType(v23);
+        v21 = Info_ValueForKey(v8, "gametype");
+        IsCoopGameType = Com_GameMode_IsCoopGameType(v21);
         if ( ((unsigned __int8)Com_GameMode_GetActiveGameMode() != LONG || IsCoopGameType) && ((unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG || !IsCoopGameType) )
         {
-          v25 = 0;
-          v26 = 0;
+          v23 = 0;
+          v24 = 0;
           p_time = &cl_pinglist[0].time;
           do
           {
-            v28 = *((_WORD *)p_time - 8);
-            if ( v28 && !*p_time && *(_DWORD *)_RDI->ip == *(_DWORD *)cl_pinglist[v26].adr.ip && v28 == _RDI->port )
+            v26 = *((_WORD *)p_time - 8);
+            if ( v26 && !*p_time && *(_DWORD *)from->ip == *(_DWORD *)cl_pinglist[v24].adr.ip && v26 == from->port )
             {
-              v39 = v26;
-              cl_pinglist[v39].time = time - cl_pinglist[v39].start + 1;
-              v40 = Info_ValueForKey(v8, "hostname");
-              Com_DPrintf(14, "ping time %dms from %s\n", (unsigned int)cl_pinglist[v39].time, v40);
-              Core_strcpy(cl_pinglist[v39].info, 0x400ui64, v8);
-              __asm { vmovups xmm0, xmmword ptr [rdi] }
-              v42 = _RDI->addrHandleIndex;
-              v43 = cl_pinglist[v39].time;
-              __asm { vmovups [rsp+888h+var_868], xmm0 }
-              v44.addrHandleIndex = v42;
-              CL_SetServerInfoByAddress(&v44, v8, v43);
+              v36 = v24;
+              cl_pinglist[v36].time = time - cl_pinglist[v36].start + 1;
+              v37 = Info_ValueForKey(v8, "hostname");
+              Com_DPrintf(14, "ping time %dms from %s\n", (unsigned int)cl_pinglist[v36].time, v37);
+              Core_strcpy(cl_pinglist[v36].info, 0x400ui64, v8);
+              v38 = from->addrHandleIndex;
+              v39 = cl_pinglist[v36].time;
+              *(_OWORD *)&v40.type = *(_OWORD *)&from->type;
+              v40.addrHandleIndex = v38;
+              CL_SetServerInfoByAddress(&v40, v8, v39);
               return;
             }
-            ++v26;
+            ++v24;
             p_time += 263;
           }
-          while ( v26 < 16 );
+          while ( v24 < 16 );
           if ( !cls.pingUpdateSource )
           {
             p_port = &cls.localServers[0].adr.port;
@@ -1705,38 +1699,37 @@ void CL_LANInfoResponsePacket(const LocalClientNum_t localClientNum, netadr_t *f
             {
               if ( !*p_port )
                 break;
-              if ( *(_DWORD *)_RDI->ip == *(_DWORD *)cls.localServers[v25].adr.ip && *p_port == _RDI->port )
+              if ( *(_DWORD *)from->ip == *(_DWORD *)cls.localServers[v23].adr.ip && *p_port == from->port )
                 return;
-              ++v25;
+              ++v23;
               p_port += 114;
             }
-            while ( v25 < 64 );
-            if ( v25 != 64 )
+            while ( v23 < 64 );
+            if ( v23 != 64 )
             {
-              __asm { vmovups xmm0, xmmword ptr [rdi] }
-              cls.numlocalservers = v25 + 1;
-              _RBP = 0x140000000ui64;
-              _RBX = v25;
-              v33 = _RDI->addrHandleIndex;
-              __asm { vmovups xmmword ptr [rbx+rbp+10AD9A7Ch], xmm0 }
-              cls.localServers[_RBX].adr.addrHandleIndex = v33;
-              cls.localServers[_RBX].isDedicated = v18;
-              v34 = Info_ValueForKey(v8, "isLobby");
-              v35 = atoi(v34);
-              cls.localServers[_RBX].isLobby = truncate_cast<unsigned char,int>(v35);
-              CL_SetServerInfo(&cls.localServers[_RBX], v8, 1);
-              v36 = MSG_ReadString(msg, string, 0x400u);
-              Core_strcpy(dest, 0x400ui64, v36);
+              v28 = *(_OWORD *)&from->type;
+              cls.numlocalservers = v23 + 1;
+              v29 = v23;
+              v30 = from->addrHandleIndex;
+              *(_OWORD *)&cls.localServers[v29].adr.type = v28;
+              cls.localServers[v29].adr.addrHandleIndex = v30;
+              cls.localServers[v29].isDedicated = v16;
+              v31 = Info_ValueForKey(v8, "isLobby");
+              v32 = atoi(v31);
+              cls.localServers[v29].isLobby = truncate_cast<unsigned char,int>(v32);
+              CL_SetServerInfo(&cls.localServers[v29], v8, 1);
+              v33 = MSG_ReadString(msg, string, 0x400u);
+              Core_strcpy(dest, 0x400ui64, v33);
               if ( dest[0] )
               {
-                v37 = -1i64;
+                v34 = -1i64;
                 do
-                  ++v37;
-                while ( dest[v37] );
-                v38 = "laninfo: %s";
-                if ( dest[(unsigned int)(v37 - 1)] != 10 )
-                  v38 = "laninfo: %s\n";
-                Com_Printf(14, v38, dest);
+                  ++v34;
+                while ( dest[v34] );
+                v35 = "laninfo: %s";
+                if ( dest[(unsigned int)(v34 - 1)] != 10 )
+                  v35 = "laninfo: %s\n";
+                Com_Printf(14, v35, dest);
               }
             }
           }
@@ -1745,8 +1738,8 @@ void CL_LANInfoResponsePacket(const LocalClientNum_t localClientNum, netadr_t *f
     }
     else
     {
-      v15 = NET_AdrToString(&v44);
-      Com_Printf(25, "Received LAN Info Response from %s - %s but protocol does not match (could be different build configs)\n", v15, v8);
+      v13 = NET_AdrToString(&v40);
+      Com_Printf(25, "Received LAN Info Response from %s - %s but protocol does not match (could be different build configs)\n", v13, v8);
     }
   }
 }
@@ -2323,228 +2316,172 @@ void CL_MainMP_CheckSplitscreenOnlineStats(int controllerIndex)
 CL_MainMP_CheckTimeout
 ==============
 */
-
-void __fastcall CL_MainMP_CheckTimeout(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void CL_MainMP_CheckTimeout(LocalClientNum_t localClientNum)
 {
+  ClActiveClientMP *ClientMP; 
   ClConnectionDataMP *ClientConnectionData; 
   connstate_t LocalClientGameConnectionState; 
-  const dvar_t *v10; 
-  int v11; 
-  char v16; 
-  char v17; 
-  __int64 lastPacketTime; 
-  const char *v19; 
-  int realtime; 
-  unsigned int v27; 
-  int v32; 
-  int v35; 
+  const dvar_t *v5; 
+  int v6; 
+  int v7; 
+  float v8; 
+  double v9; 
+  double v10; 
+  __int64 realtime; 
+  const char *v12; 
+  int v13; 
+  int v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  unsigned int v18; 
+  int lastPacketTime; 
+  float v20; 
+  double Float_Internal_DebugName; 
+  float connectPacketCount; 
+  double v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  float v27; 
+  double v28; 
+  double v29; 
+  int v30; 
+  float v31; 
+  double v32; 
   char *fmt; 
-  __int64 v46; 
+  __int64 v34; 
 
-  if ( CL_GetLocalClientGameConnectionState(localClientNum) )
+  if ( CL_GetLocalClientGameConnectionState(localClientNum) == CA_DISCONNECTED )
   {
-    _RSI = ClActiveClientMP::GetClientMP(localClientNum);
-    ClientConnectionData = ClConnectionMP::GetClientConnectionData(localClientNum);
-    LocalClientGameConnectionState = CL_GetLocalClientGameConnectionState(localClientNum);
-    v10 = DVARBOOL_no_server_timeout;
-    v11 = LocalClientGameConnectionState;
-    if ( !DVARBOOL_no_server_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "no_server_timeout") )
-      __debugbreak();
-    __asm
+    if ( localClientNum < SLODWORD(cl_maxLocalClients) )
+      ClActiveClientMP::GetClientMP(localClientNum)->timeoutcount = 0;
+    return;
+  }
+  ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
+  ClientConnectionData = ClConnectionMP::GetClientConnectionData(localClientNum);
+  LocalClientGameConnectionState = CL_GetLocalClientGameConnectionState(localClientNum);
+  v5 = DVARBOOL_no_server_timeout;
+  v6 = LocalClientGameConnectionState;
+  if ( !DVARBOOL_no_server_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "no_server_timeout") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
+    goto LABEL_48;
+  if ( CL_Demo_IsPlayingServer(localClientNum) )
+    return;
+  if ( !CL_CGameMP_IsServerSavingReplay(localClientNum) )
+  {
+    if ( v6 <= 8 || (v14 = ClientConnectionData->lastPacketTime, v14 <= 0) )
     {
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovaps [rsp+78h+var_38], xmm7
-    }
-    Dvar_CheckFrontendServerThread(v10);
-    if ( !v10->current.enabled )
-    {
-      if ( CL_Demo_IsPlayingServer(localClientNum) )
-        goto LABEL_49;
-      if ( CL_CGameMP_IsServerSavingReplay(localClientNum) )
+      v18 = v6 - 2;
+      if ( (unsigned int)(v6 - 2) > 6 || (lastPacketTime = ClientConnectionData->lastPacketTime, lastPacketTime <= 0) )
       {
-        if ( ClientConnectionData->lastPacketTime <= 0 )
-          goto LABEL_49;
-        __asm
+        if ( (unsigned int)(v6 - 1) > 1 || ClientConnectionData->lastPacketTime )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-        __asm
-        {
-          vmovss  xmm7, cs:__real@44fa0000
-          vmulss  xmm0, xmm0, xmm7
-          vcomiss xmm6, xmm0
-        }
-        if ( v16 | v17 )
-          goto LABEL_49;
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-        lastPacketTime = (unsigned int)ClientConnectionData->lastPacketTime;
-        v19 = "Server timed out during connstate %d with CL_IsServerSavingReplay due to realtime %d - lastPacketTime %d > cl_connectTimeout %d (*2)\n";
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vcvttss2si eax, xmm1
-        }
-        LODWORD(v46) = _EAX;
-        realtime = cls.realtime;
-        goto LABEL_42;
-      }
-      __asm { vmovss  xmm7, cs:__real@447a0000 }
-      if ( v11 <= 8 || ClientConnectionData->lastPacketTime <= 0 )
-      {
-        v27 = v11 - 2;
-        if ( (unsigned int)(v11 - 2) > 6 || ClientConnectionData->lastPacketTime <= 0 )
-        {
-          if ( (unsigned int)(v11 - 1) > 1 || ClientConnectionData->lastPacketTime )
-          {
-            __asm { vxorps  xmm2, xmm2, xmm2 }
-          }
-          else
-          {
-            __asm
-            {
-              vxorps  xmm6, xmm6, xmm6
-              vcvtsi2ss xmm6, xmm6, dword ptr [rbx+2491Ch]
-            }
-            Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts");
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vdivss  xmm2, xmm6, xmm0
-            }
-          }
+          v17 = 0.0;
         }
         else
         {
-          __asm
-          {
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, eax
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm7
-            vdivss  xmm2, xmm6, xmm1
-          }
+          connectPacketCount = (float)ClientConnectionData->connectPacketCount;
+          v17 = connectPacketCount / (float)Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts");
         }
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vdivss  xmm2, xmm6, xmm1
-        }
-        v27 = v11 - 2;
-      }
-      __asm { vmovss  dword ptr [rsi+1FB40h], xmm2 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-      v32 = ClientConnectionData->lastPacketTime;
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@c47a0000
-        vcvttss2si eax, xmm1
-      }
-      v35 = cls.realtime - v32;
-      if ( v27 <= 6 && v32 > 0 && v35 > s_maxTimeExpired )
-      {
-        LODWORD(v46) = s_maxTimeExpired;
-        LODWORD(fmt) = cls.realtime - v32;
-        Com_Printf(14, "CL_MainMP_CheckTimeout during connstate %d timer has %d left on it, timeExpired %d s_maxTimeExpired %d\n", (unsigned int)v11, (unsigned int)(ClientConnectionData->lastPacketTime - _EAX - cls.realtime), fmt, v46);
-        s_maxTimeExpired = v35;
-      }
-      if ( (!Com_MP_GetShouldClientPause() || !Com_MP_GetIsLocalServerPaused()) && (!CL_Pause_IsGamePaused() || !sv_paused->current.integer) && v11 > 8 && ClientConnectionData->lastPacketTime > 0 )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vcomiss xmm6, xmm1
-        }
-        if ( !(v16 | v17) )
-        {
-          if ( ++_RSI->timeoutcount > 5 )
-          {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
-            v19 = "Server timed out during connstate %d due to realtime %d - lastPacketTime %d > cl_timeout %d\n";
-LABEL_41:
-            lastPacketTime = (unsigned int)cls.realtime;
-            __asm
-            {
-              vmulss  xmm1, xmm0, xmm7
-              vcvttss2si eax, xmm1
-            }
-            LODWORD(v46) = _EAX;
-            realtime = ClientConnectionData->lastPacketTime;
-LABEL_42:
-            LODWORD(fmt) = realtime;
-            Com_Printf(14, v19, (unsigned int)v11, lastPacketTime, fmt, v46);
-            CL_MainMP_ServerTimedOut(localClientNum);
-            goto LABEL_49;
-          }
-          goto LABEL_49;
-        }
-      }
-      if ( v27 <= 6 && ClientConnectionData->lastPacketTime > 0 )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
-        }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm7
-          vcomiss xmm6, xmm1
-        }
-        if ( !(v16 | v17) )
-        {
-          if ( ++_RSI->timeoutcount > 5 )
-          {
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-            v19 = "Server timed out during connstate %d due to realtime %d - lastPacketTime %d > cl_connectTimeout %d\n";
-            goto LABEL_41;
-          }
-LABEL_49:
-          __asm
-          {
-            vmovaps xmm6, [rsp+78h+var_28]
-            vmovaps xmm7, [rsp+78h+var_38]
-          }
-          return;
-        }
-      }
-      if ( (unsigned int)(v11 - 1) <= 1 && !ClientConnectionData->lastPacketTime && ClientConnectionData->connectPacketCount > Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts") )
-      {
-        if ( ++_RSI->timeoutcount > 5 )
-        {
-          LODWORD(fmt) = Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts");
-          Com_Printf(14, "Server timed out during connstate %d due to connectPacketCount %d > cl_connectionAttempts %d\n", (unsigned int)v11, (unsigned int)ClientConnectionData->connectPacketCount, fmt);
-          CL_MainMP_ServerTimedOut(localClientNum);
-        }
-        goto LABEL_49;
+        v20 = (float)(cls.realtime - lastPacketTime);
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+        v17 = v20 / (float)(*(float *)&Float_Internal_DebugName * 1000.0);
       }
     }
-    _RSI->timeoutcount = 0;
-    goto LABEL_49;
+    else
+    {
+      v15 = (float)(cls.realtime - v14);
+      v16 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
+      v17 = v15 / (float)(*(float *)&v16 * 1000.0);
+      v18 = v6 - 2;
+    }
+    ClientMP->disconnectPercentage = v17;
+    v23 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+    v24 = ClientConnectionData->lastPacketTime;
+    v25 = cls.realtime - v24;
+    if ( v18 <= 6 && v24 > 0 && v25 > s_maxTimeExpired )
+    {
+      LODWORD(v34) = s_maxTimeExpired;
+      LODWORD(fmt) = cls.realtime - v24;
+      Com_Printf(14, "CL_MainMP_CheckTimeout during connstate %d timer has %d left on it, timeExpired %d s_maxTimeExpired %d\n", (unsigned int)v6, (unsigned int)(ClientConnectionData->lastPacketTime - (int)(float)(*(float *)&v23 * -1000.0) - cls.realtime), fmt, v34);
+      s_maxTimeExpired = v25;
+    }
+    if ( (!Com_MP_GetShouldClientPause() || !Com_MP_GetIsLocalServerPaused()) && (!CL_Pause_IsGamePaused() || !sv_paused->current.integer) && v6 > 8 )
+    {
+      v26 = ClientConnectionData->lastPacketTime;
+      if ( v26 > 0 )
+      {
+        v27 = (float)(cls.realtime - v26);
+        v28 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
+        if ( v27 > (float)(*(float *)&v28 * 1000.0) )
+        {
+          if ( ++ClientMP->timeoutcount <= 5 )
+            return;
+          v29 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_timeout, "cl_timeout");
+          v12 = "Server timed out during connstate %d due to realtime %d - lastPacketTime %d > cl_timeout %d\n";
+LABEL_41:
+          realtime = (unsigned int)cls.realtime;
+          LODWORD(v34) = (int)(float)(*(float *)&v29 * 1000.0);
+          v13 = ClientConnectionData->lastPacketTime;
+          goto LABEL_42;
+        }
+      }
+    }
+    if ( v18 <= 6 )
+    {
+      v30 = ClientConnectionData->lastPacketTime;
+      if ( v30 > 0 )
+      {
+        v31 = (float)(cls.realtime - v30);
+        v32 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+        if ( v31 > (float)(*(float *)&v32 * 1000.0) )
+        {
+          if ( ++ClientMP->timeoutcount <= 5 )
+            return;
+          v29 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+          v12 = "Server timed out during connstate %d due to realtime %d - lastPacketTime %d > cl_connectTimeout %d\n";
+          goto LABEL_41;
+        }
+      }
+    }
+    if ( (unsigned int)(v6 - 1) <= 1 && !ClientConnectionData->lastPacketTime && ClientConnectionData->connectPacketCount > Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts") )
+    {
+      if ( ++ClientMP->timeoutcount > 5 )
+      {
+        LODWORD(fmt) = Dvar_GetInt_Internal_DebugName(DVARINT_cl_connectionAttempts, "cl_connectionAttempts");
+        Com_Printf(14, "Server timed out during connstate %d due to connectPacketCount %d > cl_connectionAttempts %d\n", (unsigned int)v6, (unsigned int)ClientConnectionData->connectPacketCount, fmt);
+        CL_MainMP_ServerTimedOut(localClientNum);
+      }
+      return;
+    }
+LABEL_48:
+    ClientMP->timeoutcount = 0;
+    return;
   }
-  if ( localClientNum < SLODWORD(cl_maxLocalClients) )
-    ClActiveClientMP::GetClientMP(localClientNum)->timeoutcount = 0;
+  v7 = ClientConnectionData->lastPacketTime;
+  if ( v7 > 0 )
+  {
+    v8 = (float)(cls.realtime - v7);
+    v9 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+    if ( v8 > (float)(*(float *)&v9 * 2000.0) )
+    {
+      v10 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+      realtime = (unsigned int)ClientConnectionData->lastPacketTime;
+      v12 = "Server timed out during connstate %d with CL_IsServerSavingReplay due to realtime %d - lastPacketTime %d > cl_connectTimeout %d (*2)\n";
+      LODWORD(v34) = (int)(float)(*(float *)&v10 * 2000.0);
+      v13 = cls.realtime;
+LABEL_42:
+      LODWORD(fmt) = v13;
+      Com_Printf(14, v12, (unsigned int)v6, realtime, fmt, v34);
+      CL_MainMP_ServerTimedOut(localClientNum);
+    }
+  }
 }
 
 /*
@@ -2682,120 +2619,119 @@ void CL_MainMP_ClearState(LocalClientNum_t localClientNum)
 CL_MainMP_ClientFrame
 ==============
 */
-void CL_MainMP_ClientFrame(LocalClientNum_t localClientNum, double a2, double a3)
+void CL_MainMP_ClientFrame(LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
-  __int64 v4; 
-  bool v5; 
+  __int64 v1; 
+  __int64 v2; 
+  bool v3; 
   PartyData *ActiveParty; 
-  __int64 v7; 
+  __int64 v5; 
   const char *UserInfoString; 
-  const char *v9; 
-  __int64 v10; 
+  const char *v7; 
   int ControllerFromClient; 
   ClConnectionDataMP *ClientConnectionData; 
-  __int64 v13; 
-  __int64 v15; 
-  int v16; 
+  __int64 v10; 
+  __int64 v12; 
+  int v13; 
 
-  v3 = localClientNum;
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v16 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v16) )
+    v13 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v13) )
       __debugbreak();
   }
-  v4 = v3;
-  v5 = CL_IsLocalClientConnectedToAnyServer((const LocalClientNum_t)v3) && !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v3);
-  CL_DevJoin_Frame((const LocalClientNum_t)v3);
-  if ( clientUIActives[v4].isRunning )
+  v2 = v1;
+  v3 = CL_IsLocalClientConnectedToAnyServer((const LocalClientNum_t)v1) && !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v1);
+  CL_DevJoin_Frame((const LocalClientNum_t)v1);
+  if ( clientUIActives[v2].isRunning )
   {
-    CL_DevGuiFrame((LocalClientNum_t)v3);
-    if ( clientUIActives[v4].active || Com_FrontEnd_IsInFrontEnd() )
+    CL_DevGuiFrame((LocalClientNum_t)v1);
+    if ( clientUIActives[v2].active || Com_FrontEnd_IsInFrontEnd() )
     {
       if ( !Party_PartiesAcrossGamemodesFeatureEnabled() )
       {
         Profile_Begin(489);
-        CL_VoiceFrame((LocalClientNum_t)v3);
+        CL_VoiceFrame((LocalClientNum_t)v1);
         Profile_EndInternal(NULL);
         ActiveParty = Live_GetActiveParty();
-        PeerMesh_Frame(ActiveParty, (const LocalClientNum_t)v3);
+        PeerMesh_Frame(ActiveParty, (const LocalClientNum_t)v1);
       }
-      CL_MigrationFrame((const LocalClientNum_t)v3);
-      if ( CL_GetLocalClientMigrationState((const LocalClientNum_t)v3) != CMSTATE_LIMBO )
+      CL_MigrationFrame((const LocalClientNum_t)v1);
+      if ( CL_GetLocalClientMigrationState((const LocalClientNum_t)v1) != CMSTATE_LIMBO )
       {
-        CL_StreamSync_Update((const LocalClientNum_t)v3);
-        CL_UpdateColor((LocalClientNum_t)v3);
-        if ( (unsigned int)v3 >= 2 )
+        CL_StreamSync_Update((const LocalClientNum_t)v1);
+        CL_UpdateColor((LocalClientNum_t)v1);
+        if ( (unsigned int)v1 >= 2 )
         {
-          LODWORD(v15) = 2;
-          LODWORD(v13) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v15) )
+          LODWORD(v12) = 2;
+          LODWORD(v10) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v12) )
             __debugbreak();
         }
-        if ( clientUIActives[v4].connectionState >= CA_CHALLENGING && !CL_Pause_IsGamePaused() )
+        if ( clientUIActives[v2].connectionState >= CA_CHALLENGING && !CL_Pause_IsGamePaused() )
         {
-          v7 = tls_index;
+          v5 = tls_index;
           if ( (*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) & 0x200) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3740, ASSERT_TYPE_ASSERT, "(dvar_allowedModifiedFlags & (1 << 9))", (const char *)&queryFormat, "dvar_allowedModifiedFlags & DVAR_USERINFO") )
             __debugbreak();
-          if ( (*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v7) + 1048i64) & 0x200) != 0 )
+          if ( (*(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v5) + 1048i64) & 0x200) != 0 )
           {
-            UserInfoString = CL_MainMP_GetUserInfoString((LocalClientNum_t)v3);
+            UserInfoString = CL_MainMP_GetUserInfoString((LocalClientNum_t)v1);
             Com_Printf(25, "Sending userinfo: '%s'\n", UserInfoString);
-            v9 = j_va("userinfo \"%s\"", UserInfoString);
-            CL_Main_AddReliableCommand((LocalClientNum_t)v3, v9);
+            v7 = j_va("userinfo \"%s\"", UserInfoString);
+            CL_Main_AddReliableCommand((LocalClientNum_t)v1, v7);
           }
         }
-        if ( (unsigned int)v3 >= 2 )
+        if ( (unsigned int)v1 >= 2 )
         {
-          LODWORD(v15) = 2;
-          LODWORD(v13) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v15) )
+          LODWORD(v12) = 2;
+          LODWORD(v10) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v12) )
             __debugbreak();
         }
-        if ( clientUIActives[v4].connectionState == CA_STARTING )
+        if ( clientUIActives[v2].connectionState == CA_STARTING )
         {
           if ( !Com_GameStart_UseNewLoadingSystem() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2496, ASSERT_TYPE_ASSERT, "(Com_GameStart_UseNewLoadingSystem())", "%s\n\tShould not be in the Starting state without the GameStart system", "Com_GameStart_UseNewLoadingSystem()") )
             __debugbreak();
           if ( !Com_GameStart_IsActive() || Com_GameStart_CanStartGame() )
           {
             Com_Printf(14, "Setting state to CA_CONNECTED in CL_MainMP_CheckForGameStart\n");
-            if ( (unsigned int)v3 >= 2 )
+            if ( (unsigned int)v1 >= 2 )
             {
-              LODWORD(v15) = 2;
-              LODWORD(v13) = v3;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v15) )
+              LODWORD(v12) = 2;
+              LODWORD(v10) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v12) )
                 __debugbreak();
             }
-            Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v4].connectionState, 3i64);
-            clientUIActives[v4].connectionState = CA_CONNECTED;
+            Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v2].connectionState, 3i64);
+            clientUIActives[v2].connectionState = CA_CONNECTED;
           }
         }
-        CL_MainMP_CheckForResend((LocalClientNum_t)v3);
-        CL_MainMP_CheckTimeout((LocalClientNum_t)v3, v10, a3);
-        if ( (clientUIActives[v4].keyCatchers & 0xC40) != 0 && CL_Mgr_IsClientActive((LocalClientNum_t)v3) )
+        CL_MainMP_CheckForResend((LocalClientNum_t)v1);
+        CL_MainMP_CheckTimeout((LocalClientNum_t)v1);
+        if ( (clientUIActives[v2].keyCatchers & 0xC40) != 0 && CL_Mgr_IsClientActive((LocalClientNum_t)v1) )
         {
-          ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
-          CL_GamepadRepeatScrollingButtons((LocalClientNum_t)v3, ControllerFromClient);
+          ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
+          CL_GamepadRepeatScrollingButtons((LocalClientNum_t)v1, ControllerFromClient);
         }
-        Online_Telemetry_Frame((const LocalClientNum_t)v3);
-        CL_CGameMP_SetCGameTime((LocalClientNum_t)v3);
-        if ( CL_IsLocalClientConnectedToAnyServer((const LocalClientNum_t)v3) && !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v3) )
-          CL_InputMP_CreateNewCommands((LocalClientNum_t)v3, a2);
-        if ( v5 )
+        Online_Telemetry_Frame((const LocalClientNum_t)v1);
+        CL_CGameMP_SetCGameTime((LocalClientNum_t)v1);
+        if ( CL_IsLocalClientConnectedToAnyServer((const LocalClientNum_t)v1) && !CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v1) )
+          CL_InputMP_CreateNewCommands((LocalClientNum_t)v1);
+        if ( v3 )
         {
-          CL_InputMP_SavePredictedData((const LocalClientNum_t)v3);
-          if ( CL_InputMP_ReadyToSendPacket((LocalClientNum_t)v3) )
+          CL_InputMP_SavePredictedData((const LocalClientNum_t)v1);
+          if ( CL_InputMP_ReadyToSendPacket((LocalClientNum_t)v1) )
           {
             if ( !Com_GameMode_SupportsFeature(WEAPON_SCOPE_TOGGLE_ON|WEAPON_FIRING|0x80) || !Com_MP_GetIsLocalServerPaused() )
-              CL_InputMP_WritePacket((LocalClientNum_t)v3);
+              CL_InputMP_WritePacket((LocalClientNum_t)v1);
           }
         }
-        CG_MainMP_Frame((LocalClientNum_t)v3);
-        CL_MainMP_TogglePauseResumeGame((LocalClientNum_t)v3);
-        if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v3) >= CA_CONNECTED )
+        CG_MainMP_Frame((LocalClientNum_t)v1);
+        CL_MainMP_TogglePauseResumeGame((LocalClientNum_t)v1);
+        if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v1) >= CA_CONNECTED )
         {
-          ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v3);
+          ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v1);
           ClNetperfTelemetry::Frame(&ClientConnectionData->netperfTelemetry);
         }
       }
@@ -3047,6 +2983,7 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
   int v16; 
   int addrHandleIndex; 
   connstate_t v20; 
+  __int128 v21; 
   const char *v22; 
   const char *v23; 
   __int64 v24; 
@@ -3055,6 +2992,7 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
   int v27; 
   int v28; 
   int v29; 
+  __int128 v30; 
   bool result; 
   const char *v32; 
   __int64 v33; 
@@ -3063,6 +3001,7 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
   int v36; 
   int v37; 
   int v38; 
+  __int128 v39; 
   const char *v40; 
   __int64 v41; 
   int v42; 
@@ -3070,6 +3009,7 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
   int v44; 
   int v45; 
   int v46; 
+  __int128 v47; 
   const char *v48; 
   int v49; 
   __int64 v50; 
@@ -3078,16 +3018,16 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
   int v53; 
   __int64 connectionState; 
   unsigned int Long; 
-  int v57; 
+  int v56; 
   ClConnectionDataMP *ClientConnectionData; 
-  const char *v60; 
+  __int128 v58; 
+  const char *v59; 
   char *fmt; 
+  __int64 v61; 
   __int64 v62; 
-  __int64 v63; 
-  netadr_t v64; 
+  netadr_t v63; 
 
   v6 = localClientNum;
-  _R13 = from;
   if ( !c && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3184, ASSERT_TYPE_ASSERT, "(c)", (const char *)&queryFormat, "c") )
     __debugbreak();
   v9 = "challengeResponse";
@@ -3127,10 +3067,10 @@ bool CL_MainMP_ConnectionlessPacket_ConnectHandshake(LocalClientNum_t localClien
           if ( !v26 )
           {
 LABEL_38:
-            __asm { vmovups xmm0, xmmword ptr [r13+0] }
-            v64.addrHandleIndex = _R13->addrHandleIndex;
-            __asm { vmovups [rsp+88h+var_48], xmm0 }
-            return CL_MainMP_HandleConnectResponse((const LocalClientNum_t)v6, &v64, msg, time);
+            v30 = *(_OWORD *)&from->type;
+            v63.addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v63.type = v30;
+            return CL_MainMP_HandleConnectResponse((const LocalClientNum_t)v6, &v63, msg, time);
           }
           if ( v25 != v27 )
           {
@@ -3160,10 +3100,10 @@ LABEL_38:
           if ( !v35 )
           {
 LABEL_50:
-            __asm { vmovups xmm0, xmmword ptr [r13+0] }
-            v64.addrHandleIndex = _R13->addrHandleIndex;
-            __asm { vmovups [rsp+88h+var_48], xmm0 }
-            return CL_MainMP_HandleStatsResponse((const LocalClientNum_t)v6, &v64, msg, time);
+            v39 = *(_OWORD *)&from->type;
+            v63.addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v63.type = v39;
+            return CL_MainMP_HandleStatsResponse((const LocalClientNum_t)v6, &v63, msg, time);
           }
           if ( v34 != v36 )
           {
@@ -3193,10 +3133,10 @@ LABEL_50:
           if ( !v43 )
           {
 LABEL_62:
-            __asm { vmovups xmm0, xmmword ptr [r13+0] }
-            v64.addrHandleIndex = _R13->addrHandleIndex;
-            __asm { vmovups [rsp+88h+var_48], xmm0 }
-            return CL_MainMP_HandleMatchRulesResponse((const LocalClientNum_t)v6, &v64, msg, time);
+            v47 = *(_OWORD *)&from->type;
+            v63.addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v63.type = v47;
+            return CL_MainMP_HandleMatchRulesResponse((const LocalClientNum_t)v6, &v63, msg, time);
           }
           if ( v42 != v44 )
           {
@@ -3238,28 +3178,24 @@ LABEL_62:
           }
         }
         while ( v49 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r13+0]
-          vmovups [rsp+88h+var_48], xmm0
-        }
+        *(_OWORD *)&v63.type = *(_OWORD *)&from->type;
         if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3137, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
           __debugbreak();
-        if ( v64.localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3139, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
+        if ( v63.localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3139, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
           __debugbreak();
         if ( (unsigned int)v6 >= 2 )
         {
-          LODWORD(v62) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v62, 2) )
+          LODWORD(v61) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v61, 2) )
             __debugbreak();
         }
         if ( clientUIActives[v6].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3142, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tShouldn't receive starting reply from the front-end server", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
           __debugbreak();
         if ( (unsigned int)v6 >= 2 )
         {
-          LODWORD(v63) = 2;
-          LODWORD(v62) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v62, v63) )
+          LODWORD(v62) = 2;
+          LODWORD(v61) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v61, v62) )
             __debugbreak();
         }
         connectionState = (unsigned int)clientUIActives[v6].connectionState;
@@ -3275,55 +3211,52 @@ LABEL_62:
     }
   }
   while ( v12 );
-  addrHandleIndex = _R13->addrHandleIndex;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups [rsp+88h+var_48], xmm0
-  }
+  addrHandleIndex = from->addrHandleIndex;
+  _XMM0 = *(_OWORD *)&from->type;
+  *(_OWORD *)&v63.type = *(_OWORD *)&from->type;
   if ( !msg )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2830, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
       __debugbreak();
-    __asm { vmovups xmm0, [rsp+88h+var_48] }
+    _XMM0 = *(_OWORD *)&v63.type;
   }
   __asm { vpextrd rax, xmm0, 3 }
   if ( (_DWORD)_RAX != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2832, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
     __debugbreak();
   if ( (unsigned int)v6 >= 2 )
   {
-    LODWORD(v62) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v62, 2) )
+    LODWORD(v61) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v61, 2) )
       __debugbreak();
   }
   v20 = clientUIActives[v6].connectionState;
   if ( v20 == CA_CONNECTING )
   {
     Long = MSG_ReadLong(msg);
-    v57 = Long;
+    v56 = Long;
     if ( !msg->overflowed && msg->readcount == msg->cursize + msg->splitSize )
     {
       Com_Printf(14, "Challenge received: %d\n", Long);
       ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v6);
-      ClientConnectionData->challenge = v57;
+      ClientConnectionData->challenge = v56;
       CL_SetLocalClientConnectionState((const LocalClientNum_t)v6, CA_CHALLENGING);
       result = 1;
       ClientConnectionData->connectPacketCount = 0;
       ClientConnectionData->connectLastSendTime = -99999;
       return result;
     }
-    __asm { vmovups xmm0, xmmword ptr [r13+0] }
-    v64.addrHandleIndex = addrHandleIndex;
-    __asm { vmovups [rsp+88h+var_48], xmm0 }
-    v60 = NET_AdrToString(&v64);
-    Com_Printf(14, "Challenge received with invalid data from %s. Ignored.\n", v60);
+    v58 = *(_OWORD *)&from->type;
+    v63.addrHandleIndex = addrHandleIndex;
+    *(_OWORD *)&v63.type = v58;
+    v59 = NET_AdrToString(&v63);
+    Com_Printf(14, "Challenge received with invalid data from %s. Ignored.\n", v59);
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r13+0] }
-    v64.addrHandleIndex = addrHandleIndex;
-    __asm { vmovups [rsp+88h+var_48], xmm0 }
-    v22 = NET_AdrToString(&v64);
+    v21 = *(_OWORD *)&from->type;
+    v63.addrHandleIndex = addrHandleIndex;
+    *(_OWORD *)&v63.type = v21;
+    v22 = NET_AdrToString(&v63);
     LODWORD(fmt) = v20;
     Com_Printf(14, "Challenge received for local client %d from %s when not in CA_CONNECTING state (current state= %u) -- ignored.\n", (unsigned int)v6, v22, fmt);
   }
@@ -3356,6 +3289,7 @@ char CL_MainMP_ConnectionlessPacket_GameServer(LocalClientNum_t localClientNum, 
   int v23; 
   PartyData *v24; 
   PartyData *v25; 
+  __int128 v26; 
   const char *v27; 
   __int64 v28; 
   int v29; 
@@ -3400,6 +3334,7 @@ char CL_MainMP_ConnectionlessPacket_GameServer(LocalClientNum_t localClientNum, 
   int v69; 
   int v70; 
   const char *v71; 
+  __int128 v72; 
   const char *v73; 
   __int64 v74; 
   int v75; 
@@ -3431,12 +3366,12 @@ char CL_MainMP_ConnectionlessPacket_GameServer(LocalClientNum_t localClientNum, 
   int v101; 
   int v102; 
   const char *v103; 
+  __int128 v104; 
   netadr_t v105; 
   char mapName[64]; 
   char dest[2480]; 
 
   v5 = localClientNum;
-  _R15 = from;
   if ( !c && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3242, ASSERT_TYPE_ASSERT, "(c)", (const char *)&queryFormat, "c") )
     __debugbreak();
   v8 = "hostquit";
@@ -3466,7 +3401,7 @@ char CL_MainMP_ConnectionlessPacket_GameServer(LocalClientNum_t localClientNum, 
     }
   }
   while ( v11 );
-  if ( !Lobby_AreWeServer() && (PartyData = Lobby_GetPartyData(), PartyData->inParty) && NetConnection::operator==(&PartyData->currentHost.connections[v5], _R15) )
+  if ( !Lobby_AreWeServer() && (PartyData = Lobby_GetPartyData(), PartyData->inParty) && NetConnection::operator==(&PartyData->currentHost.connections[v5], from) )
   {
     if ( !CL_AllLocalClientsDisconnected() )
       Com_Error_impl(ERR_DISCONNECT, (const ObfuscateErrorText)&stru_144009380);
@@ -3502,7 +3437,7 @@ LABEL_21:
     }
   }
   while ( v19 );
-  if ( !Lobby_AreWeServer() && (v24 = Lobby_GetPartyData(), v24->inParty) && NetConnection::operator==(&v24->currentHost.connections[v5], _R15) )
+  if ( !Lobby_AreWeServer() && (v24 = Lobby_GetPartyData(), v24->inParty) && NetConnection::operator==(&v24->currentHost.connections[v5], from) )
   {
     v25 = Lobby_GetPartyData();
     Party_StopParty(v25);
@@ -3513,9 +3448,9 @@ LABEL_21:
     Com_PrintError(14, "Got BEST_OF_ROUNDS_DONE from non-host\n");
   }
 LABEL_37:
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  v105.addrHandleIndex = _R15->addrHandleIndex;
-  __asm { vmovups [rsp+0A88h+var_A58], xmm0 }
+  v26 = *(_OWORD *)&from->type;
+  v105.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v105.type = v26;
   if ( CL_MigrationPacket((const LocalClientNum_t)v5, c, &v105, msg) )
     return 1;
   v27 = "print";
@@ -3582,7 +3517,7 @@ LABEL_49:
   if ( !CL_IsLocalClientDisconnectedFromAnyServer((const LocalClientNum_t)v5) )
   {
     v44 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v5);
-    if ( NetConnection::CompareAddr(&v44->serverConnection, _R15) )
+    if ( NetConnection::CompareAddr(&v44->serverConnection, from) )
     {
       v45 = MSG_ReadBigString(msg);
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&queryFormat, v45);
@@ -3607,7 +3542,7 @@ LABEL_76:
       if ( !CL_IsLocalClientDisconnectedFromAnyServer((const LocalClientNum_t)v5) )
       {
         v53 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v5);
-        if ( NetConnection::CompareAddr(&v53->serverConnection, _R15) )
+        if ( NetConnection::CompareAddr(&v53->serverConnection, from) )
         {
           StringLine = MSG_ReadStringLine(msg, dest, 0x400u);
           Core_strcpy(mapName, 0x40ui64, StringLine);
@@ -3648,7 +3583,7 @@ LABEL_93:
       if ( CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v5) )
       {
         v63 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v5);
-        v63->isServerRestarting = NetConnection::CompareAddr(&v63->serverConnection, _R15);
+        v63->isServerRestarting = NetConnection::CompareAddr(&v63->serverConnection, from);
       }
       return 1;
     }
@@ -3682,17 +3617,17 @@ LABEL_93:
 LABEL_106:
       if ( Cmd_Argc() <= 1 )
       {
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v105.addrHandleIndex = _R15->addrHandleIndex;
-        __asm { vmovups [rsp+0A88h+var_A58], xmm0 }
+        v104 = *(_OWORD *)&from->type;
+        v105.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v105.type = v104;
         CL_MainMP_DisconnectPacket((LocalClientNum_t)v5, &v105, NULL);
       }
       else
       {
         v71 = Cmd_Argv(1);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v105.addrHandleIndex = _R15->addrHandleIndex;
-        __asm { vmovups [rsp+0A88h+var_A58], xmm0 }
+        v72 = *(_OWORD *)&from->type;
+        v105.addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v105.type = v72;
         CL_MainMP_DisconnectPacket((LocalClientNum_t)v5, &v105, v71);
       }
       return 1;
@@ -3728,7 +3663,7 @@ LABEL_119:
       v80 = Cmd_Argv(1);
       v81 = j_va((const char *)&queryFormat, v80);
       LocalNetIDFromLocalClientNum = NET_GetLocalNetIDFromLocalClientNum((const LocalClientNum_t)v5);
-      NET_OutOfBandPrint(LocalNetIDFromLocalClientNum, _R15, v81);
+      NET_OutOfBandPrint(LocalNetIDFromLocalClientNum, from, v81);
       return 1;
     }
     if ( v75 != v77 )
@@ -3783,7 +3718,7 @@ LABEL_138:
       if ( !CL_IsLocalClientDisconnectedFromAnyServer((const LocalClientNum_t)v5) )
       {
         v95 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v5);
-        v96 = CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v5) && NetConnection::CompareAddr(&v95->serverConnection, _R15);
+        v96 = CL_IsLocalClientConnectionActiveForAnyServer((const LocalClientNum_t)v5) && NetConnection::CompareAddr(&v95->serverConnection, from);
         v95->isServerSavingReplay = v96;
         v95->replayRequestor = Cmd_ArgInt(1);
         v103 = Cmd_Argv(2);
@@ -4236,161 +4171,156 @@ void CL_MainMP_DisconnectPacket(LocalClientNum_t localClientNum, netadr_t *from,
 CL_MainMP_Disconnect_Internal
 ==============
 */
-
-void __fastcall CL_MainMP_Disconnect_Internal(LocalClientNum_t localClientNum, double _XMM1_8)
+void CL_MainMP_Disconnect_Internal(LocalClientNum_t localClientNum)
 {
+  __int64 v1; 
   __int64 v2; 
-  __int64 v3; 
   int ControllerFromClient; 
   bool IsLocalClientDisconnectedFromAnyServer; 
+  bool v5; 
   bool v6; 
-  bool v7; 
-  char v8; 
+  char v7; 
   ClConnectionDataMP *ClientConnectionData; 
-  int v10; 
-  bool v11; 
-  __int64 v12; 
+  int v9; 
+  bool v10; 
+  __int64 v11; 
   ClActiveClientMP *ClientMP; 
-  const dvar_t *v18; 
+  const dvar_t *v13; 
   PartyData *PartyData; 
-  const dvar_t *v20; 
-  PartyData *v21; 
-  PartyData *v22; 
-  const dvar_t *v23; 
-  __int64 v24; 
-  __int64 v25; 
-  bool v26; 
-  bool v27; 
+  const dvar_t *v15; 
+  PartyData *v16; 
+  PartyData *v17; 
+  const dvar_t *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  bool v21; 
+  bool v22; 
   int LocalClientAnyConnectionState; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 1177, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  if ( (unsigned int)v2 >= 2 )
+  if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v24) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, 2) )
+    LODWORD(v19) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v19, 2) )
       __debugbreak();
   }
-  v3 = v2;
-  if ( clientUIActives[v2].isRunning )
+  v2 = v1;
+  if ( clientUIActives[v1].isRunning )
   {
-    if ( CL_Mgr_IsClientActive((LocalClientNum_t)v2) )
-      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
+    if ( CL_Mgr_IsClientActive((LocalClientNum_t)v1) )
+      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
     else
       ControllerFromClient = -1;
-    Com_Printf(14, "CL_MainMP_Disconnect called for local client %i\n", (unsigned int)v2);
-    LocalClientAnyConnectionState = CL_GetLocalClientAnyConnectionState((const LocalClientNum_t)v2);
-    IsLocalClientDisconnectedFromAnyServer = CL_IsLocalClientDisconnectedFromAnyServer((const LocalClientNum_t)v2);
-    v6 = !IsLocalClientDisconnectedFromAnyServer;
-    v7 = (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v2) != INACTIVE;
-    v26 = v7;
-    v27 = !IsLocalClientDisconnectedFromAnyServer && !v7;
-    if ( IsLocalClientDisconnectedFromAnyServer || !ClConnection::HasClientConnection((const LocalClientNum_t)v2) )
+    Com_Printf(14, "CL_MainMP_Disconnect called for local client %i\n", (unsigned int)v1);
+    LocalClientAnyConnectionState = CL_GetLocalClientAnyConnectionState((const LocalClientNum_t)v1);
+    IsLocalClientDisconnectedFromAnyServer = CL_IsLocalClientDisconnectedFromAnyServer((const LocalClientNum_t)v1);
+    v5 = !IsLocalClientDisconnectedFromAnyServer;
+    v6 = (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v1) != INACTIVE;
+    v21 = v6;
+    v22 = !IsLocalClientDisconnectedFromAnyServer && !v6;
+    if ( IsLocalClientDisconnectedFromAnyServer || !ClConnection::HasClientConnection((const LocalClientNum_t)v1) )
     {
-      v8 = 0;
+      v7 = 0;
       ClientConnectionData = NULL;
     }
     else
     {
-      v8 = 1;
-      ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v2);
+      v7 = 1;
+      ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v1);
     }
     if ( !IsLocalClientDisconnectedFromAnyServer )
-      CL_UICharacter_Reset((const LocalClientNum_t)v2);
-    v10 = 0;
+      CL_UICharacter_Reset((const LocalClientNum_t)v1);
+    v9 = 0;
     Sys_HeapOptimize();
     if ( !IsLocalClientDisconnectedFromAnyServer && cls.m_activeGameMapName[0] )
       BB_RecordSystemMemoryFootprint(cls.m_activeGameMapName, 1);
-    v11 = v26;
-    if ( v26 )
+    v10 = v21;
+    if ( v21 )
     {
-      v10 = 1;
+      v9 = 1;
     }
     else
     {
-      if ( v8 && CL_Demo_IsPlayingServer((LocalClientNum_t)v2) )
-        v10 = 1;
+      if ( v7 && CL_Demo_IsPlayingServer((LocalClientNum_t)v1) )
+        v9 = 1;
       R_Cinematic_StopPlayback(0);
-      if ( (Session_IsValid(&g_serverSession) || Live_IsInSystemlinkLobby() && CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v2)) && ClientConnectionData && LocalClientAnyConnectionState >= 3 && ClientConnectionData->reliableSequence - ClientConnectionData->reliableAcknowledge <= 128 )
+      if ( (Session_IsValid(&g_serverSession) || Live_IsInSystemlinkLobby() && CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v1)) && ClientConnectionData && LocalClientAnyConnectionState >= 3 && ClientConnectionData->reliableSequence - ClientConnectionData->reliableAcknowledge <= 128 )
       {
-        CL_Main_AddReliableCommand((LocalClientNum_t)v2, "disconnect");
-        v12 = 3i64;
+        CL_Main_AddReliableCommand((LocalClientNum_t)v1, "disconnect");
+        v11 = 3i64;
         do
         {
-          CL_InputMP_WritePacket((LocalClientNum_t)v2);
-          --v12;
+          CL_InputMP_WritePacket((LocalClientNum_t)v1);
+          --v11;
         }
-        while ( v12 );
+        while ( v11 );
         FakeLag_FlushPackets();
-        v11 = 0;
+        v10 = 0;
       }
-      if ( v8 )
+      if ( v7 )
       {
-        ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2);
+        ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1);
         ClActiveClientMP::PrintAdjustTime(ClientMP);
       }
     }
-    CL_LatencyProfileMP_Shutdown((const LocalClientNum_t)v2);
-    CL_StreamSync_Shutdown((const LocalClientNum_t)v2);
-    CL_MainMP_ClearClientState((LocalClientNum_t)v2);
-    Com_ClientDObjClearAllSkel((LocalClientNum_t)v2);
-    CL_Input_ClearKeys((LocalClientNum_t)v2);
+    CL_LatencyProfileMP_Shutdown((const LocalClientNum_t)v1);
+    CL_StreamSync_Shutdown((const LocalClientNum_t)v1);
+    CL_MainMP_ClearClientState((LocalClientNum_t)v1);
+    Com_ClientDObjClearAllSkel((LocalClientNum_t)v1);
+    CL_Input_ClearKeys((LocalClientNum_t)v1);
     if ( ControllerFromClient != -1 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-      GPad_SetLowRumble(ControllerFromClient, *(float *)&_XMM1);
-      __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-      GPad_SetHighRumble(ControllerFromClient, *(float *)&_XMM1);
-      __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-      GPad_SetLeftTriggerRumble(ControllerFromClient, *(float *)&_XMM1);
-      __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-      GPad_SetRightTriggerRumble(ControllerFromClient, *(float *)&_XMM1);
+      GPad_SetLowRumble(ControllerFromClient, 0.0);
+      GPad_SetHighRumble(ControllerFromClient, 0.0);
+      GPad_SetLeftTriggerRumble(ControllerFromClient, 0.0);
+      GPad_SetRightTriggerRumble(ControllerFromClient, 0.0);
     }
-    if ( v27 )
+    if ( v22 )
     {
-      if ( !v10 )
-        LiveStorage_EndGame((const LocalClientNum_t)v2);
-      CL_Streaming_CancelLoadingRequests((const LocalClientNum_t)v2);
+      if ( !v9 )
+        LiveStorage_EndGame((const LocalClientNum_t)v1);
+      CL_Streaming_CancelLoadingRequests((const LocalClientNum_t)v1);
     }
-    if ( v6 && ClientConnectionData )
+    if ( v5 && ClientConnectionData )
     {
-      CL_MainMP_DlogNetperf((LocalClientNum_t)v2, v11);
-      ClConnectionMP::ClearClientConnection((const LocalClientNum_t)v2);
-      ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2)->serverId = 0;
+      CL_MainMP_DlogNetperf((LocalClientNum_t)v1, v10);
+      ClConnectionMP::ClearClientConnection((const LocalClientNum_t)v1);
+      ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1)->serverId = 0;
     }
     cl_serverLoadingMap = 0;
-    clientUIActives[v3].frontEndSceneState[0] = 0;
-    if ( (unsigned int)v2 >= 2 )
+    clientUIActives[v2].frontEndSceneState[0] = 0;
+    if ( (unsigned int)v1 >= 2 )
     {
-      LODWORD(v25) = 2;
-      LODWORD(v24) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
+      LODWORD(v20) = 2;
+      LODWORD(v19) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v3].connectionState, 0i64);
-    clientUIActives[v3].connectionState = CA_DISCONNECTED;
-    Online_Telemetry_ResetInputSession((const LocalClientNum_t)v2);
-    if ( !(_DWORD)v2 )
+    Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v2].connectionState, 0i64);
+    clientUIActives[v2].connectionState = CA_DISCONNECTED;
+    Online_Telemetry_ResetInputSession((const LocalClientNum_t)v1);
+    if ( !(_DWORD)v1 )
       NetStats_Stop();
     R_Cinematic_SetUseAlternativeAsyncCore(0);
-    if ( (unsigned int)v2 >= 2 )
+    if ( (unsigned int)v1 >= 2 )
     {
-      LODWORD(v25) = 2;
-      LODWORD(v24) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( client ) < (unsigned)( 2 )", "client doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
+      LODWORD(v20) = 2;
+      LODWORD(v19) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( client ) < (unsigned)( 2 )", "client doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v19, v20) )
         __debugbreak();
     }
-    CL_UpdateMigrationProfile(clientUIActives[v3].migrationState, CMSTATE_INACTIVE);
-    clientUIActives[v3].migrationState = CMSTATE_INACTIVE;
+    CL_UpdateMigrationProfile(clientUIActives[v2].migrationState, CMSTATE_INACTIVE);
+    clientUIActives[v2].migrationState = CMSTATE_INACTIVE;
     Physics_WaitForAllCommandsToFinish();
-    DynEntCl_Shutdown((LocalClientNum_t)v2);
-    ScriptableCl_Shutdown((const LocalClientNum_t)v2);
+    DynEntCl_Shutdown((LocalClientNum_t)v1);
+    ScriptableCl_Shutdown((const LocalClientNum_t)v1);
     R_EndDelayedSceneModels(0);
-    SND_DisconnectListener((LocalClientNum_t)v2);
-    if ( v27 )
+    SND_DisconnectListener((LocalClientNum_t)v1);
+    if ( v22 )
     {
-      clientUIActives[v3].keyCatchers &= 1u;
+      clientUIActives[v2].keyCatchers &= 1u;
       CL_SetupScreenPlacements();
       if ( ControllerFromClient != -1 )
       {
@@ -4398,11 +4328,11 @@ void __fastcall CL_MainMP_Disconnect_Internal(LocalClientNum_t localClientNum, d
         XB3GameEvent_MultiplayerRoundEnd(ControllerFromClient);
       }
     }
-    CG_Main_FreePhysics((LocalClientNum_t)v2);
-    CG_Main_FreeRagdolls((LocalClientNum_t)v2);
-    if ( Ragdoll_IsRegistered((LocalClientNum_t)v2) )
-      Ragdoll_Unregister((LocalClientNum_t)v2);
-    CG_Main_FreeCloth((LocalClientNum_t)v2);
+    CG_Main_FreePhysics((LocalClientNum_t)v1);
+    CG_Main_FreeRagdolls((LocalClientNum_t)v1);
+    if ( Ragdoll_IsRegistered((LocalClientNum_t)v1) )
+      Ragdoll_Unregister((LocalClientNum_t)v1);
+    CG_Main_FreeCloth((LocalClientNum_t)v1);
     if ( CL_AllLocalClientsDisconnected() )
     {
       cls.m_serverFrameDuration = 0;
@@ -4410,53 +4340,53 @@ void __fastcall CL_MainMP_Disconnect_Internal(LocalClientNum_t localClientNum, d
       ClStatic::SetActiveGameType(&cls, (const char *)&queryFormat.fmt + 3);
       ClStatic::SetActiveHardcoreMode(&cls, 0);
       cls.serverId = 0;
-      if ( v27 )
+      if ( v22 )
       {
-        v18 = DVARBOOL_onlinegame;
+        v13 = DVARBOOL_onlinegame;
         if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v18);
-        if ( v18->current.enabled )
+        Dvar_CheckFrontendServerThread(v13);
+        if ( v13->current.enabled )
         {
           PartyData = Lobby_GetPartyData();
           Party_SaveGameLobbyId(PartyData);
         }
-        v20 = DVARBOOL_onlinegame;
+        v15 = DVARBOOL_onlinegame;
         if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v20);
-        if ( !v20->current.enabled && !Com_IsAnyLocalServerRunning() )
+        Dvar_CheckFrontendServerThread(v15);
+        if ( !v15->current.enabled && !Com_IsAnyLocalServerRunning() )
         {
           Com_Printf(14, "CL_MainMP_Disconnect was called, calling Party_StopParty\n");
-          v21 = Lobby_GetPartyData();
-          Party_StopParty(v21);
+          v16 = Lobby_GetPartyData();
+          Party_StopParty(v16);
           if ( !Live_IsInSystemlinkLobby() )
             Party_StopParty(&g_partyData);
         }
         Dvar_SetBool_Internal(DVARBOOL_should_show_post_game_survey, 0);
         if ( !Com_FrontEnd_IsInFrontEnd() )
         {
-          v22 = Lobby_GetPartyData();
-          if ( PartyHost_IsMatchChosenForSurvey(v22) )
+          v17 = Lobby_GetPartyData();
+          if ( PartyHost_IsMatchChosenForSurvey(v17) )
             Dvar_SetBool_Internal(DVARBOOL_should_show_post_game_survey, 1);
         }
       }
       if ( !Com_IsAnyLocalServerRunning() && !Com_IsAnyLocalServerStarting() )
         NetConstStrings_Clear();
     }
-    if ( v27 )
+    if ( v22 )
     {
-      v23 = DVARBOOL_systemlink;
+      v18 = DVARBOOL_systemlink;
       if ( !DVARBOOL_systemlink && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "systemlink") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v23);
-      if ( v23->current.enabled && !Live_IsInSystemlinkLobby() )
+      Dvar_CheckFrontendServerThread(v18);
+      if ( v18->current.enabled && !Live_IsInSystemlinkLobby() )
         Party_StopParty(&g_partyData);
-      Cbuf_AddText((LocalClientNum_t)v2, "updategamerprofile\n");
+      Cbuf_AddText((LocalClientNum_t)v1, "updategamerprofile\n");
     }
     MSG_UserCmd_ClearWriteData();
     CL_ShutdownDebugData();
-    Com_Printf(14, "CL_MainMP_Disconnect_Internal: Complete for local client %i\n", (unsigned int)v2);
+    Com_Printf(14, "CL_MainMP_Disconnect_Internal: Complete for local client %i\n", (unsigned int)v1);
   }
 }
 
@@ -4470,6 +4400,7 @@ char CL_MainMP_DispatchConnectionlessPacket(LocalClientNum_t localClientNum, net
   const char *v8; 
   bool v9; 
   const char *v10; 
+  __int128 v11; 
   int addrHandleIndex; 
   const char *v13; 
   __int64 v14; 
@@ -4486,20 +4417,19 @@ char CL_MainMP_DispatchConnectionlessPacket(LocalClientNum_t localClientNum, net
   int v26; 
   int v27; 
   int v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
   netadr_t v32[3]; 
 
-  _RDI = from;
   v8 = Cmd_Argv(0);
-  v9 = (_RDI->flags & 1) == 0;
+  v9 = (from->flags & 1) == 0;
   v10 = v8;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+78h+var_48], xmm0
-  }
+  v11 = *(_OWORD *)&from->type;
+  *(_OWORD *)&v32[0].type = *(_OWORD *)&from->type;
   if ( !v9 )
   {
-    addrHandleIndex = _RDI->addrHandleIndex;
+    addrHandleIndex = from->addrHandleIndex;
     v13 = "inforesponse";
     v14 = 0x7FFFFFFFi64;
     v15 = 0x7FFFFFFFi64;
@@ -4507,8 +4437,8 @@ char CL_MainMP_DispatchConnectionlessPacket(LocalClientNum_t localClientNum, net
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      addrHandleIndex = _RDI->addrHandleIndex;
-      __asm { vmovups xmm0, [rsp+78h+var_48] }
+      addrHandleIndex = from->addrHandleIndex;
+      v11 = *(_OWORD *)&v32[0].type;
     }
     while ( 1 )
     {
@@ -4520,7 +4450,7 @@ char CL_MainMP_DispatchConnectionlessPacket(LocalClientNum_t localClientNum, net
       {
 LABEL_14:
         v32[0].addrHandleIndex = addrHandleIndex;
-        __asm { vmovups [rsp+78h+var_48], xmm0 }
+        *(_OWORD *)&v32[0].type = v11;
         CL_LANInfoResponsePacket(localClientNum, v32, msg, time);
         return 1;
       }
@@ -4565,28 +4495,28 @@ LABEL_14:
       }
     }
     while ( v24 );
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v32[0].addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_48], xmm0 }
+    v29 = *(_OWORD *)&from->type;
+    v32[0].addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v32[0].type = v29;
     PartyHost_LANInfoRequestPacket(localClientNum, v32, msg);
     return 1;
   }
-  v32[0].addrHandleIndex = _RDI->addrHandleIndex;
+  v32[0].addrHandleIndex = from->addrHandleIndex;
   if ( CL_MainMP_ConnectionlessPacket_ConnectHandshake(localClientNum, v32, msg, time, v8) )
     return 1;
   if ( !Party_PartiesAcrossGamemodesFeatureEnabled() )
   {
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v32[0].addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_48], xmm0 }
+    v30 = *(_OWORD *)&from->type;
+    v32[0].addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v32[0].type = v30;
     if ( CL_Main_ConnectionlessPacket_Universal(localClientNum, v32, msg, time, v10) )
       return 1;
   }
   if ( !(unsigned __int8)CL_GetLocalClientFrontEntState(localClientNum) )
   {
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v32[0].addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_48], xmm0 }
+    v31 = *(_OWORD *)&from->type;
+    v32[0].addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v32[0].type = v31;
     if ( CL_MainMP_ConnectionlessPacket_GameServer(localClientNum, v32, msg, time, v10) )
       return 1;
   }
@@ -5332,26 +5262,26 @@ bool CL_MainMP_HandleConnectResponse(const LocalClientNum_t localClientNum, cons
   __int64 v4; 
   connstate_t connectionState; 
   int addrHandleIndex; 
-  const char *v10; 
-  unsigned __int64 v11; 
-  const char *v13; 
+  const char *v9; 
+  unsigned __int64 v10; 
+  __int128 v11; 
+  const char *v12; 
   ClConnectionDataMP *ClientConnectionData; 
-  bool v15; 
+  bool v14; 
   bool ShouldRequestMatchRules; 
-  int v17; 
+  int v16; 
   bool result; 
-  int v20; 
-  const char *v21; 
+  int v18; 
+  const char *v19; 
   NetchanTelemetry *serverTelemetry; 
+  netadr_t v21; 
+  netadr_t v22; 
   netadr_t v23; 
-  netadr_t v24; 
-  netadr_t v25; 
 
   v4 = localClientNum;
-  _RSI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2999, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
-  if ( _RSI->localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3001, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
+  if ( from->localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3001, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
     __debugbreak();
   if ( (unsigned int)v4 >= 2 )
   {
@@ -5362,39 +5292,37 @@ bool CL_MainMP_HandleConnectResponse(const LocalClientNum_t localClientNum, cons
   connectionState = clientUIActives[v4].connectionState;
   if ( connectionState != CA_CHALLENGING )
   {
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-    v23.addrHandleIndex = addrHandleIndex;
-    v10 = NET_AdrToString(&v23);
-    Com_Printf(14, "CL_MainMP_HandleConnectResponse: Unexpected connect response packet while not connecting or duplicate (%i vs %i) from %s. Ignored.\n", (unsigned int)connectionState, 2i64, v10);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v21.type = *(_OWORD *)&from->type;
+    v21.addrHandleIndex = addrHandleIndex;
+    v9 = NET_AdrToString(&v21);
+    Com_Printf(14, "CL_MainMP_HandleConnectResponse: Unexpected connect response packet while not connecting or duplicate (%i vs %i) from %s. Ignored.\n", (unsigned int)connectionState, 2i64, v9);
     return 0;
   }
-  v11 = CL_MainMP_ParseStatsRequest(msg);
+  v10 = CL_MainMP_ParseStatsRequest(msg);
   if ( msg->overflowed || msg->readcount != msg->cursize + msg->splitSize )
   {
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v20 = _RSI->addrHandleIndex;
-    __asm { vmovups [rsp+0B8h+var_38], xmm0 }
-    v25.addrHandleIndex = v20;
-    v21 = NET_AdrToString(&v25);
-    Com_Printf(14, "CL_MainMP_HandleConnectResponse: Connect response packet has invalid data from %s. Ignored.\n", v21);
+    v18 = from->addrHandleIndex;
+    *(_OWORD *)&v23.type = *(_OWORD *)&from->type;
+    v23.addrHandleIndex = v18;
+    v19 = NET_AdrToString(&v23);
+    Com_Printf(14, "CL_MainMP_HandleConnectResponse: Connect response packet has invalid data from %s. Ignored.\n", v19);
     return 0;
   }
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v24.addrHandleIndex = _RSI->addrHandleIndex;
-  __asm { vmovups [rsp+0B8h+var_58], xmm0 }
-  v13 = NET_AdrToString(&v24);
-  Com_Printf(14, "CL_MainMP_HandleConnectResponse: Received connect response with statsPacketsNeeded = '%zu' from '%s'\n", v11, v13);
+  v11 = *(_OWORD *)&from->type;
+  v22.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v22.type = v11;
+  v12 = NET_AdrToString(&v22);
+  Com_Printf(14, "CL_MainMP_HandleConnectResponse: Received connect response with statsPacketsNeeded = '%zu' from '%s'\n", v10, v12);
   ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v4);
   if ( !ClientConnectionData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3023, ASSERT_TYPE_ASSERT, "(clcData)", (const char *)&queryFormat, "clcData") )
     __debugbreak();
-  v15 = (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v4) == INACTIVE;
+  v14 = (unsigned __int8)CL_GetLocalClientFrontEntState((const LocalClientNum_t)v4) == INACTIVE;
   Netchan_Setup((netsrc_t)v4, &ClientConnectionData->netchan, &ClientConnectionData->serverConnection, ClientConnectionData->netchanBuffer, 0x40000, NULL);
   if ( !ClientConnectionData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2868, ASSERT_TYPE_ASSERT, "(clcData)", (const char *)&queryFormat, "clcData") )
     __debugbreak();
-  ClientConnectionData->statPacketsToSend = v11;
-  if ( v11 )
+  ClientConnectionData->statPacketsToSend = v10;
+  if ( v10 )
   {
     *(_QWORD *)ClientConnectionData->statGroupSendTime = 0i64;
     *(_QWORD *)&ClientConnectionData->statGroupSendTime[2] = 0i64;
@@ -5402,12 +5330,12 @@ bool CL_MainMP_HandleConnectResponse(const LocalClientNum_t localClientNum, cons
   }
   CL_StreamSync_ClientSetup((const LocalClientNum_t)v4);
   ShouldRequestMatchRules = CL_MainMP_ShouldRequestMatchRules((const LocalClientNum_t)v4, ClientConnectionData);
-  v17 = -1;
+  v16 = -1;
   if ( ShouldRequestMatchRules )
-    v17 = 0;
-  ClientConnectionData->currentGamestatePacket = v17;
+    v16 = 0;
+  ClientConnectionData->currentGamestatePacket = v16;
   CL_MainMP_ConnectTransitionNextState((const LocalClientNum_t)v4, ClientConnectionData);
-  if ( v15 && !SV_IsDemoPlayingNext() )
+  if ( v14 && !SV_IsDemoPlayingNext() )
     LiveStorage_BeginGame((const LocalClientNum_t)v4);
   ClientConnectionData->lastPacketTime = cls.realtime;
   result = 1;
@@ -5431,16 +5359,26 @@ char CL_MainMP_HandleDisconnectError_Dev(const LocalClientNum_t localClientNum, 
   int CmdNumber; 
   int v10; 
   __int64 v11; 
+  usercmd_s *v12; 
+  usercmd_s *p_cmd; 
   __int64 v14; 
-  unsigned int v23; 
-  unsigned __int8 *v24; 
-  __int64 v25; 
+  unsigned int v15; 
+  unsigned __int8 *v16; 
+  __int64 v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned __int8 *v23; 
+  unsigned int v24; 
+  unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
   unsigned int v28; 
   unsigned int v29; 
   unsigned int v30; 
-  unsigned __int8 *v31; 
+  unsigned int v31; 
   unsigned int v32; 
   unsigned int v33; 
   unsigned int v34; 
@@ -5462,21 +5400,13 @@ char CL_MainMP_HandleDisconnectError_Dev(const LocalClientNum_t localClientNum, 
   unsigned int v50; 
   unsigned int v51; 
   unsigned int v52; 
-  unsigned int v53; 
-  unsigned int v54; 
-  unsigned int v55; 
-  unsigned int v56; 
-  unsigned int v57; 
-  unsigned int v58; 
-  unsigned int v59; 
-  unsigned int v60; 
   char *fmt; 
   ClOutPacketMP outPacket; 
-  __int64 v64; 
+  __int64 v56; 
   CmdPredict outCmdPredict; 
   usercmd_s cmd; 
 
-  v64 = -2i64;
+  v56 = -2i64;
   v3 = localClientNum;
   if ( I_strnicmp("checksumfailed", message, 0xEui64) )
     return 0;
@@ -5505,42 +5435,28 @@ char CL_MainMP_HandleDisconnectError_Dev(const LocalClientNum_t localClientNum, 
   v11 = 2i64;
   if ( p_cmdNumber > v10 - 128 && p_cmdNumber > 0 )
   {
-    _RBX = &v8->cmds[p_cmdNumber & 0x7F];
+    v12 = &v8->cmds[p_cmdNumber & 0x7F];
     memset(&outPacket, 0, 4ui64);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
       __debugbreak();
-    _RAX = &cmd;
+    p_cmd = &cmd;
     v14 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX = (usercmd_s *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
+      *(_OWORD *)&p_cmd->buttons = *(_OWORD *)&v12->buttons;
+      *(_OWORD *)&p_cmd->commandTime = *(_OWORD *)&v12->commandTime;
+      *(_OWORD *)(&p_cmd->angles.xy + 1) = *(_OWORD *)(&v12->angles.xy + 1);
+      *(_OWORD *)&p_cmd->weapon.weaponOthers = *(_OWORD *)&v12->weapon.weaponOthers;
+      *(_OWORD *)&p_cmd->weapon.attachmentVariationIndices[1] = *(_OWORD *)&v12->weapon.attachmentVariationIndices[1];
+      *(_OWORD *)&p_cmd->weapon.attachmentVariationIndices[17] = *(_OWORD *)&v12->weapon.attachmentVariationIndices[17];
+      *(_OWORD *)&p_cmd->offHand.weaponIdx = *(_OWORD *)&v12->offHand.weaponIdx;
+      p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+      *(_OWORD *)&p_cmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v12->offHand.weaponAttachments[2];
+      v12 = (usercmd_s *)((char *)v12 + 128);
       --v14;
     }
     while ( v14 );
-    _RAX->buttons = _RBX->buttons;
+    p_cmd->buttons = v12->buttons;
   }
   else
   {
@@ -5549,59 +5465,59 @@ char CL_MainMP_HandleDisconnectError_Dev(const LocalClientNum_t localClientNum, 
   }
   if ( !ClActiveClientMP::GetPredictedData(ClientMP, p_cmdNumber, &outCmdPredict) )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442166F0, 513i64);
-  v23 = -1;
-  v24 = (unsigned __int8 *)&cmd.buttons + 2;
-  v25 = 44i64;
+  v15 = -1;
+  v16 = (unsigned __int8 *)&cmd.buttons + 2;
+  v17 = 44i64;
   do
   {
-    v26 = (v23 >> 8) ^ g_crc32Table[*(v24 - 2) ^ (unsigned __int64)(unsigned __int8)v23];
-    v27 = (v26 >> 8) ^ g_crc32Table[*(v24 - 1) ^ (unsigned __int64)(unsigned __int8)v26];
-    v28 = (v27 >> 8) ^ g_crc32Table[*v24 ^ (unsigned __int64)(unsigned __int8)v27];
-    v29 = (v28 >> 8) ^ g_crc32Table[v24[1] ^ (unsigned __int64)(unsigned __int8)v28];
-    v30 = (v29 >> 8) ^ g_crc32Table[v24[2] ^ (unsigned __int64)(unsigned __int8)v29];
-    v23 = (v30 >> 8) ^ g_crc32Table[v24[3] ^ (unsigned __int64)(unsigned __int8)v30];
-    v24 += 6;
-    --v25;
+    v18 = (v15 >> 8) ^ g_crc32Table[*(v16 - 2) ^ (unsigned __int64)(unsigned __int8)v15];
+    v19 = (v18 >> 8) ^ g_crc32Table[*(v16 - 1) ^ (unsigned __int64)(unsigned __int8)v18];
+    v20 = (v19 >> 8) ^ g_crc32Table[*v16 ^ (unsigned __int64)(unsigned __int8)v19];
+    v21 = (v20 >> 8) ^ g_crc32Table[v16[1] ^ (unsigned __int64)(unsigned __int8)v20];
+    v22 = (v21 >> 8) ^ g_crc32Table[v16[2] ^ (unsigned __int64)(unsigned __int8)v21];
+    v15 = (v22 >> 8) ^ g_crc32Table[v16[3] ^ (unsigned __int64)(unsigned __int8)v22];
+    v16 += 6;
+    --v17;
   }
-  while ( v25 );
-  v31 = (unsigned __int8 *)&outCmdPredict.origin.x + 2;
+  while ( v17 );
+  v23 = (unsigned __int8 *)&outCmdPredict.origin.x + 2;
   do
   {
-    v32 = (v23 >> 8) ^ g_crc32Table[(unsigned __int8)v23 ^ (unsigned __int64)*(v31 - 2)];
-    v33 = (v32 >> 8) ^ g_crc32Table[(unsigned __int8)v32 ^ (unsigned __int64)*(v31 - 1)];
-    v34 = (v33 >> 8) ^ g_crc32Table[*v31 ^ (unsigned __int64)(unsigned __int8)v33];
-    v35 = (v34 >> 8) ^ g_crc32Table[(unsigned __int8)v34 ^ (unsigned __int64)v31[1]];
-    v36 = (v35 >> 8) ^ g_crc32Table[(unsigned __int8)v35 ^ (unsigned __int64)v31[2]];
-    v37 = (v36 >> 8) ^ g_crc32Table[(unsigned __int8)v36 ^ (unsigned __int64)v31[3]];
-    v38 = (v37 >> 8) ^ g_crc32Table[(unsigned __int8)v37 ^ (unsigned __int64)v31[4]];
-    v39 = (v38 >> 8) ^ g_crc32Table[(unsigned __int8)v38 ^ (unsigned __int64)v31[5]];
-    v40 = (v39 >> 8) ^ g_crc32Table[(unsigned __int8)v39 ^ (unsigned __int64)v31[6]];
-    v41 = (v40 >> 8) ^ g_crc32Table[(unsigned __int8)v40 ^ (unsigned __int64)v31[7]];
-    v42 = (v41 >> 8) ^ g_crc32Table[(unsigned __int8)v41 ^ (unsigned __int64)v31[8]];
-    v43 = (v42 >> 8) ^ g_crc32Table[(unsigned __int8)v42 ^ (unsigned __int64)v31[9]];
-    v44 = (v43 >> 8) ^ g_crc32Table[(unsigned __int8)v43 ^ (unsigned __int64)v31[10]];
-    v45 = (v44 >> 8) ^ g_crc32Table[(unsigned __int8)v44 ^ (unsigned __int64)v31[11]];
-    v46 = (v45 >> 8) ^ g_crc32Table[(unsigned __int8)v45 ^ (unsigned __int64)v31[12]];
-    v47 = (v46 >> 8) ^ g_crc32Table[(unsigned __int8)v46 ^ (unsigned __int64)v31[13]];
-    v48 = (v47 >> 8) ^ g_crc32Table[(unsigned __int8)v47 ^ (unsigned __int64)v31[14]];
-    v49 = (v48 >> 8) ^ g_crc32Table[(unsigned __int8)v48 ^ (unsigned __int64)v31[15]];
-    v50 = (v49 >> 8) ^ g_crc32Table[(unsigned __int8)v49 ^ (unsigned __int64)v31[16]];
-    v51 = (v50 >> 8) ^ g_crc32Table[(unsigned __int8)v50 ^ (unsigned __int64)v31[17]];
-    v52 = (v51 >> 8) ^ g_crc32Table[(unsigned __int8)v51 ^ (unsigned __int64)v31[18]];
-    v53 = (v52 >> 8) ^ g_crc32Table[(unsigned __int8)v52 ^ (unsigned __int64)v31[19]];
-    v54 = (v53 >> 8) ^ g_crc32Table[(unsigned __int8)v53 ^ (unsigned __int64)v31[20]];
-    v55 = (v54 >> 8) ^ g_crc32Table[(unsigned __int8)v54 ^ (unsigned __int64)v31[21]];
-    v56 = (v55 >> 8) ^ g_crc32Table[(unsigned __int8)v55 ^ (unsigned __int64)v31[22]];
-    v57 = (v56 >> 8) ^ g_crc32Table[(unsigned __int8)v56 ^ (unsigned __int64)v31[23]];
-    v58 = (v57 >> 8) ^ g_crc32Table[(unsigned __int8)v57 ^ (unsigned __int64)v31[24]];
-    v59 = (v58 >> 8) ^ g_crc32Table[(unsigned __int8)v58 ^ (unsigned __int64)v31[25]];
-    v60 = (v59 >> 8) ^ g_crc32Table[(unsigned __int8)v59 ^ (unsigned __int64)v31[26]];
-    v23 = (v60 >> 8) ^ g_crc32Table[(unsigned __int8)v60 ^ (unsigned __int64)v31[27]];
-    v31 += 30;
+    v24 = (v15 >> 8) ^ g_crc32Table[(unsigned __int8)v15 ^ (unsigned __int64)*(v23 - 2)];
+    v25 = (v24 >> 8) ^ g_crc32Table[(unsigned __int8)v24 ^ (unsigned __int64)*(v23 - 1)];
+    v26 = (v25 >> 8) ^ g_crc32Table[*v23 ^ (unsigned __int64)(unsigned __int8)v25];
+    v27 = (v26 >> 8) ^ g_crc32Table[(unsigned __int8)v26 ^ (unsigned __int64)v23[1]];
+    v28 = (v27 >> 8) ^ g_crc32Table[(unsigned __int8)v27 ^ (unsigned __int64)v23[2]];
+    v29 = (v28 >> 8) ^ g_crc32Table[(unsigned __int8)v28 ^ (unsigned __int64)v23[3]];
+    v30 = (v29 >> 8) ^ g_crc32Table[(unsigned __int8)v29 ^ (unsigned __int64)v23[4]];
+    v31 = (v30 >> 8) ^ g_crc32Table[(unsigned __int8)v30 ^ (unsigned __int64)v23[5]];
+    v32 = (v31 >> 8) ^ g_crc32Table[(unsigned __int8)v31 ^ (unsigned __int64)v23[6]];
+    v33 = (v32 >> 8) ^ g_crc32Table[(unsigned __int8)v32 ^ (unsigned __int64)v23[7]];
+    v34 = (v33 >> 8) ^ g_crc32Table[(unsigned __int8)v33 ^ (unsigned __int64)v23[8]];
+    v35 = (v34 >> 8) ^ g_crc32Table[(unsigned __int8)v34 ^ (unsigned __int64)v23[9]];
+    v36 = (v35 >> 8) ^ g_crc32Table[(unsigned __int8)v35 ^ (unsigned __int64)v23[10]];
+    v37 = (v36 >> 8) ^ g_crc32Table[(unsigned __int8)v36 ^ (unsigned __int64)v23[11]];
+    v38 = (v37 >> 8) ^ g_crc32Table[(unsigned __int8)v37 ^ (unsigned __int64)v23[12]];
+    v39 = (v38 >> 8) ^ g_crc32Table[(unsigned __int8)v38 ^ (unsigned __int64)v23[13]];
+    v40 = (v39 >> 8) ^ g_crc32Table[(unsigned __int8)v39 ^ (unsigned __int64)v23[14]];
+    v41 = (v40 >> 8) ^ g_crc32Table[(unsigned __int8)v40 ^ (unsigned __int64)v23[15]];
+    v42 = (v41 >> 8) ^ g_crc32Table[(unsigned __int8)v41 ^ (unsigned __int64)v23[16]];
+    v43 = (v42 >> 8) ^ g_crc32Table[(unsigned __int8)v42 ^ (unsigned __int64)v23[17]];
+    v44 = (v43 >> 8) ^ g_crc32Table[(unsigned __int8)v43 ^ (unsigned __int64)v23[18]];
+    v45 = (v44 >> 8) ^ g_crc32Table[(unsigned __int8)v44 ^ (unsigned __int64)v23[19]];
+    v46 = (v45 >> 8) ^ g_crc32Table[(unsigned __int8)v45 ^ (unsigned __int64)v23[20]];
+    v47 = (v46 >> 8) ^ g_crc32Table[(unsigned __int8)v46 ^ (unsigned __int64)v23[21]];
+    v48 = (v47 >> 8) ^ g_crc32Table[(unsigned __int8)v47 ^ (unsigned __int64)v23[22]];
+    v49 = (v48 >> 8) ^ g_crc32Table[(unsigned __int8)v48 ^ (unsigned __int64)v23[23]];
+    v50 = (v49 >> 8) ^ g_crc32Table[(unsigned __int8)v49 ^ (unsigned __int64)v23[24]];
+    v51 = (v50 >> 8) ^ g_crc32Table[(unsigned __int8)v50 ^ (unsigned __int64)v23[25]];
+    v52 = (v51 >> 8) ^ g_crc32Table[(unsigned __int8)v51 ^ (unsigned __int64)v23[26]];
+    v15 = (v52 >> 8) ^ g_crc32Table[(unsigned __int8)v52 ^ (unsigned __int64)v23[27]];
+    v23 += 30;
     --v11;
   }
   while ( v11 );
-  Com_PrintError(15, "CL_DisconnectError: server failed reading baseline command for sequence %d with checksum %d\n", v4, ~v23);
+  Com_PrintError(15, "CL_DisconnectError: server failed reading baseline command for sequence %d with checksum %d\n", v4, ~v15);
   MSG_UserCmd_PrintCommandFields(&cmd);
   MSG_UserCmd_PrintPredictedFields(&outCmdPredict);
   Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144216820, 514i64);
@@ -5952,30 +5868,29 @@ bool CL_MainMP_HandleStatsResponse(const LocalClientNum_t localClientNum, const 
   ClConnectionDataMP *v11; 
   bool result; 
   int addrHandleIndex; 
-  const char *v15; 
+  const char *v14; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  netadr_t v18; 
+  netadr_t v17; 
 
   v4 = localClientNum;
-  _RBP = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3052, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
-  if ( _RBP->localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3054, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
+  if ( from->localNetID != NS_MAXCLIENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3054, ASSERT_TYPE_ASSERT, "(from.localNetID == NS_SERVER)", (const char *)&queryFormat, "from.localNetID == NS_SERVER") )
     __debugbreak();
   if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v16) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, 2) )
+    LODWORD(v15) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, 2) )
       __debugbreak();
   }
   if ( clientUIActives[v4].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 3057, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tShouldn't receive stats responses from the front-end server", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
     __debugbreak();
   if ( (unsigned int)v4 >= 2 )
   {
-    LODWORD(v17) = 2;
-    LODWORD(v16) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
+    LODWORD(v16) = 2;
+    LODWORD(v15) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
   connectionState = (unsigned int)clientUIActives[v4].connectionState;
@@ -5988,12 +5903,11 @@ bool CL_MainMP_HandleStatsResponse(const LocalClientNum_t localClientNum, const 
   v9 = v8;
   if ( msg->overflowed || msg->readcount != msg->cursize + msg->splitSize )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbp+0] }
-    addrHandleIndex = _RBP->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_38], xmm0 }
-    v18.addrHandleIndex = addrHandleIndex;
-    v15 = NET_AdrToString(&v18);
-    Com_Printf(14, "connectResponse packet has invalid data from %s. Ignored.\n", v15);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v17.type = *(_OWORD *)&from->type;
+    v17.addrHandleIndex = addrHandleIndex;
+    v14 = NET_AdrToString(&v17);
+    Com_Printf(14, "connectResponse packet has invalid data from %s. Ignored.\n", v14);
     return 0;
   }
   Com_Printf(14, "Received stats response with statPacketsNeeded = %zu\n", v8);
@@ -6697,35 +6611,35 @@ void CL_MainMP_MapLoading_AlreadyConnected()
 CL_MainMP_MapLoading_Internal
 ==============
 */
-void CL_MainMP_MapLoading_Internal(const bool isFrontEndLoad, double a2)
+void CL_MainMP_MapLoading_Internal(const bool isFrontEndLoad)
 {
+  int v1; 
   int v3; 
-  int v5; 
   int *p_keyCatchers; 
   int i; 
   int ControllerFromClient; 
-  __int64 v9; 
+  __int64 v7; 
+  __int64 v8; 
+  int v9; 
   __int64 v10; 
   int v11; 
-  __int64 v12; 
+  int v12; 
   int v13; 
-  int v14; 
-  int v15; 
-  const dvar_t *v16; 
+  const dvar_t *v14; 
 
-  v3 = 0;
+  v1 = 0;
   g_waitingForServer = 0;
   if ( !isFrontEndLoad )
   {
-    v5 = 0;
+    v3 = 0;
     p_keyCatchers = &clientUIActives[0].keyCatchers;
     do
     {
-      Con_Close((LocalClientNum_t)v5++);
+      Con_Close((LocalClientNum_t)v3++);
       *p_keyCatchers = 0;
       p_keyCatchers += 110;
     }
-    while ( v5 < 2 );
+    while ( v3 < 2 );
     if ( !SV_IsDemoPlayingNext() )
     {
       for ( i = 0; i < 2; ++i )
@@ -6741,30 +6655,30 @@ void CL_MainMP_MapLoading_Internal(const bool isFrontEndLoad, double a2)
   cl_serverLoadingMap = 1;
   if ( clientUIActives[0].connectionState >= CA_CONNECTED )
   {
-    v9 = 0x7FFFFFFFi64;
-    v10 = 0i64;
+    v7 = 0x7FFFFFFFi64;
+    v8 = 0i64;
     do
     {
-      v11 = (unsigned __int8)cls.servername[v10];
-      v12 = v9;
-      v13 = (unsigned __int8)net_interface[v10++];
-      --v9;
-      if ( !v12 )
+      v9 = (unsigned __int8)cls.servername[v8];
+      v10 = v7;
+      v11 = (unsigned __int8)net_interface[v8++];
+      --v7;
+      if ( !v10 )
         break;
-      if ( v11 != v13 )
+      if ( v9 != v11 )
       {
-        v14 = v11 + 32;
+        v12 = v9 + 32;
+        if ( (unsigned int)(v9 - 65) > 0x19 )
+          v12 = v9;
+        v9 = v12;
+        v13 = v11 + 32;
         if ( (unsigned int)(v11 - 65) > 0x19 )
-          v14 = v11;
-        v11 = v14;
-        v15 = v13 + 32;
-        if ( (unsigned int)(v13 - 65) > 0x19 )
-          v15 = v13;
-        if ( v11 != v15 )
+          v13 = v11;
+        if ( v9 != v13 )
           goto LABEL_23;
       }
     }
-    while ( v11 );
+    while ( v9 );
     if ( isFrontEndLoad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 870, ASSERT_TYPE_ASSERT, "(!isFrontEndLoad)", (const char *)&queryFormat, "!isFrontEndLoad") )
       __debugbreak();
     CL_MainMP_MapLoading_AlreadyConnected();
@@ -6784,34 +6698,33 @@ LABEL_23:
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442156E0, 509i64);
   do
   {
-    if ( CL_IsLocalClientActive((LocalClientNum_t)v3) )
+    if ( CL_IsLocalClientActive((LocalClientNum_t)v1) )
     {
       if ( Com_FrontEndScene_IsActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 1482, ASSERT_TYPE_ASSERT, "(!Com_FrontEndScene_IsActive())", "%s\n\tDisconnect called while front end scene is still active", "!Com_FrontEndScene_IsActive()") )
         __debugbreak();
-      CL_MainMP_Disconnect_Internal((LocalClientNum_t)v3, a2);
-      CL_SetLocalClientActive((LocalClientNum_t)v3, 1);
-      CL_MainMP_MapLoading_SetupClientForConnection((LocalClientNum_t)v3, 0);
+      CL_MainMP_Disconnect_Internal((LocalClientNum_t)v1);
+      CL_SetLocalClientActive((LocalClientNum_t)v1, 1);
+      CL_MainMP_MapLoading_SetupClientForConnection((LocalClientNum_t)v1, 0);
     }
-    ++v3;
+    ++v1;
   }
-  while ( v3 < 2 );
+  while ( v1 < 2 );
   if ( !SV_IsDemoPlaying() && !SV_IsDemoPlayingNext() )
   {
     if ( Com_FrontEndScene_IsActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 750, ASSERT_TYPE_ASSERT, "(!Com_FrontEndScene_IsActive())", "%s\n\tShouldn't check onlinegame and session information while in the frontend scene", "!Com_FrontEndScene_IsActive()") )
       __debugbreak();
     if ( !SV_IsDemoPlayingNext() )
     {
-      v16 = DVARBOOL_onlinegame;
+      v14 = DVARBOOL_onlinegame;
       if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      if ( v16->current.enabled && !XSESSION_INFO::IsValidSessionId(&g_serverSession.dyn.sessionInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 753, ASSERT_TYPE_ASSERT, "(SV_IsDemoPlayingNext() || !Dvar_GetBool_Internal_DebugName( DVARBOOL_onlinegame, \"onlinegame\" ) || g_serverSession.dyn.sessionInfo.IsValidSessionId())", (const char *)&queryFormat, "SV_IsDemoPlayingNext() || !Dvar_GetBool( onlinegame ) || g_serverSession.dyn.sessionInfo.IsValidSessionId()") )
+      Dvar_CheckFrontendServerThread(v14);
+      if ( v14->current.enabled && !XSESSION_INFO::IsValidSessionId(&g_serverSession.dyn.sessionInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 753, ASSERT_TYPE_ASSERT, "(SV_IsDemoPlayingNext() || !Dvar_GetBool_Internal_DebugName( DVARBOOL_onlinegame, \"onlinegame\" ) || g_serverSession.dyn.sessionInfo.IsValidSessionId())", (const char *)&queryFormat, "SV_IsDemoPlayingNext() || !Dvar_GetBool( onlinegame ) || g_serverSession.dyn.sessionInfo.IsValidSessionId()") )
         __debugbreak();
     }
   }
 LABEL_48:
-  __asm { vxorps  xmm0, xmm0, xmm0; volume }
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(0.0, 0);
   CL_StreamSync_Start();
 }
 
@@ -7169,746 +7082,99 @@ void CL_MainMP_PrepareForMapRestart(LocalClientNum_t localClientNum, const char 
 CL_MainMP_RegisterDvars
 ==============
 */
-
-void __fastcall CL_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void CL_MainMP_RegisterDvars()
 {
-  const dvar_t *v23; 
-  const dvar_t *v27; 
-  const dvar_t *v31; 
-  const dvar_t *v40; 
-  const dvar_t *v44; 
-  const dvar_t *v48; 
-  const dvar_t *v63; 
-  const dvar_t *v67; 
-  const dvar_t *v73; 
-  const dvar_t *v77; 
-  const dvar_t *v81; 
-  const dvar_t *v85; 
-  const dvar_t *v95; 
-  const dvar_t *v99; 
-  const dvar_t *v103; 
-  const dvar_t *v110; 
-  const dvar_t *v114; 
-  const dvar_t *v118; 
-  const dvar_t *v122; 
-  const dvar_t *v126; 
-  const dvar_t *v130; 
-  const dvar_t *v134; 
-  const dvar_t *v138; 
-  const dvar_t *v142; 
-  const dvar_t *v146; 
-  const dvar_t *v150; 
-  const dvar_t *v154; 
-  const dvar_t *v158; 
-  const dvar_t *v166; 
-  const dvar_t *v170; 
-  const dvar_t *v181; 
-  const dvar_t *v186; 
-  const dvar_t *v198; 
-  const dvar_t *v203; 
-  const dvar_t *v210; 
-  const dvar_t *v214; 
-  const dvar_t *v218; 
-  const dvar_t *v228; 
-  const dvar_t *v235; 
-  const dvar_t *v239; 
-  const dvar_t *v243; 
-  const dvar_t *v247; 
-  const dvar_t *v251; 
-  const dvar_t *v255; 
-  const dvar_t *v259; 
-  const dvar_t *v263; 
-  const dvar_t *v268; 
-  const dvar_t *v272; 
-  const dvar_t *v276; 
-  const dvar_t *v283; 
-  const dvar_t *v287; 
-  const dvar_t *v294; 
-  const dvar_t *v304; 
-  const dvar_t *v311; 
-  const dvar_t *v315; 
-  const dvar_t *v330; 
-  const dvar_t *v344; 
-  const dvar_t *v358; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float flagsd; 
-  float flagse; 
-  float flagsf; 
-  float description; 
-  float descriptiona; 
-  char v395; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0E8h+var_88], xmm13
-    vmovaps [rsp+0E8h+var_98], xmm14
-    vmovaps [rsp+0E8h+var_A8], xmm15
-  }
   DVARBOOL_cl_nodelta = Dvar_RegisterBool("NKPOPSNOQS", 0, 0, "The server does not send snapshot deltas");
-  __asm
-  {
-    vmovss  xmm15, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3e4ccccd; value
-  }
   DCONST_DVARINT_cl_migrationPingTime = Dvar_RegisterInt("cl_migrationPingTime", 10, 1, 1000, 0x40004u, "how many seconds between client pings.  used to determine hosting suitability.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm6, cs:__real@40000000
-    vmovss  xmm9, cs:__real@3e800000
-  }
-  DVARFLT_cl_migrationPacketLoss = Dvar_RegisterFloat("LOPTROQTTK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "percent of migration packets to drop");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm1, xmm9; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v23 = Dvar_RegisterFloat("LMNLTPTQR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  DVARFLT_cl_transientWorldMemoryFreeMulMP = v23;
-  v27 = Dvar_RegisterFloat("NRMKPMKOQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3ecccccd; value
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldMemoryFreeMulCP = v27;
-  v31 = Dvar_RegisterFloat("OMPLNRSPOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f266666; value
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldMemoryFreeMulBR = v31;
-  DVARFLT_cl_transientWorldMemoryFreeMulBRLobby = Dvar_RegisterFloat("MROLOMMTTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
+  DVARFLT_cl_migrationPacketLoss = Dvar_RegisterFloat("LOPTROQTTK", 0.2, 0.0, 1.0, 4u, "percent of migration packets to drop");
+  DVARFLT_cl_transientWorldMemoryFreeMulMP = Dvar_RegisterFloat("LMNLTPTQR", 0.25, 0.0, 2.0, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
+  DVARFLT_cl_transientWorldMemoryFreeMulCP = Dvar_RegisterFloat("NRMKPMKOQP", 0.25, 0.0, 2.0, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
+  DVARFLT_cl_transientWorldMemoryFreeMulBR = Dvar_RegisterFloat("OMPLNRSPOM", 0.40000001, 0.0, 2.0, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
+  DVARFLT_cl_transientWorldMemoryFreeMulBRLobby = Dvar_RegisterFloat("MROLOMMTTM", 0.64999998, 0.0, 2.0, 0, "Multiplier to apply to the amount of free memory, for what the tile streamer can use");
   DCONST_DVARINT_cl_transientWorldOverrideTileBudgetMB = Dvar_RegisterInt("cl_transientWorldOverrideTileBudgetMB", 0, 0, 0x2000, 0x40004u, "Override the tile budget for dev purposes. 0==use default calced budget");
   DCONST_DVARBOOL_cl_transientWorldIgnoreStreamHints = Dvar_RegisterBool("cl_transientWorldIgnoreStreamHints", 0, 0x40004u, "Ignore stream hint positions and only use the primary view positions for streaming (for A/B tests)");
   DCONST_DVARINT_cl_transientWorldMemoryFrontendEstimateMB = Dvar_RegisterInt("cl_transientWorldMemoryFrontendEstimateMB", 200, 0, 0x2000, 0x40004u, "Estimated size of the back-to-frontend memory we need when devmapping");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@48f42400
-    vmovss  xmm12, cs:__real@bf800000
-    vmovss  xmm1, cs:__real@458ca000; value
-  }
   DCONST_DVARBOOL_cl_transientWorldVisibleRadiusOverride = Dvar_RegisterBool("cl_transientWorldVisibleRadiusOverride", 0, 0x40004u, "Use override dvars cl_transientWorldVisibleRadiusLvl0 and cl_transientWorldVisibleRadiusLvl1 for transient visibility radius");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm12; min
-  }
-  v40 = Dvar_RegisterFloat("cl_transientWorldVisibleRadiusLvl0", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World LOD0 visible radius");
-  __asm { vmovss  xmm1, cs:__real@46c35000; value }
-  DCONST_DVARFLT_cl_transientWorldVisibleRadiusLvl0 = v40;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm12; min
-  }
-  v44 = Dvar_RegisterFloat("cl_transientWorldVisibleRadiusLvl1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World LOD1 visible radius");
-  __asm { vmovss  xmm1, cs:__real@44bb8000; value }
-  DCONST_DVARFLT_cl_transientWorldVisibleRadiusLvl1 = v44;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v48 = Dvar_RegisterFloat("cl_transientWorldVisibleFacingDistAdd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Move visibility circle in the direction the player is facing by this amount");
-  __asm
-  {
-    vmovss  xmm14, cs:__real@42c80000
-    vmovss  xmm13, cs:__real@3a83126f
-    vmovss  xmm1, cs:__real@3f400000; value
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleFacingDistAdd = v48;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleSplit2Multiplier = Dvar_RegisterFloat("cl_transientWorldVisibleSplit2Multiplier", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World 2-player splitscreen visible radius multiplier");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleZMultiplierLvl0 = Dvar_RegisterFloat("cl_transientWorldVisibleZMultiplierLvl0", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World Z Multiplier for visibility distances - Lod0");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleZMultiplierLvl1 = Dvar_RegisterFloat("cl_transientWorldVisibleZMultiplierLvl1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World Z Multiplier for visibility distances - Lod1");
-  __asm { vmovss  xmm1, cs:__real@3f0ccccd; value }
+  DCONST_DVARFLT_cl_transientWorldVisibleRadiusLvl0 = Dvar_RegisterFloat("cl_transientWorldVisibleRadiusLvl0", 4500.0, -1.0, 500000.0, 0x40004u, "Transient World LOD0 visible radius");
+  DCONST_DVARFLT_cl_transientWorldVisibleRadiusLvl1 = Dvar_RegisterFloat("cl_transientWorldVisibleRadiusLvl1", 25000.0, -1.0, 500000.0, 0x40004u, "Transient World LOD1 visible radius");
+  DCONST_DVARFLT_cl_transientWorldVisibleFacingDistAdd = Dvar_RegisterFloat("cl_transientWorldVisibleFacingDistAdd", 1500.0, 0.0, 500000.0, 0x40004u, "Move visibility circle in the direction the player is facing by this amount");
+  DCONST_DVARFLT_cl_transientWorldVisibleSplit2Multiplier = Dvar_RegisterFloat("cl_transientWorldVisibleSplit2Multiplier", 0.75, 0.001, 100.0, 0x40004u, "Transient World 2-player splitscreen visible radius multiplier");
+  DCONST_DVARFLT_cl_transientWorldVisibleZMultiplierLvl0 = Dvar_RegisterFloat("cl_transientWorldVisibleZMultiplierLvl0", 1.0, 0.001, 100.0, 0x40004u, "Transient World Z Multiplier for visibility distances - Lod0");
+  DCONST_DVARFLT_cl_transientWorldVisibleZMultiplierLvl1 = Dvar_RegisterFloat("cl_transientWorldVisibleZMultiplierLvl1", 1.0, 0.001, 100.0, 0x40004u, "Transient World Z Multiplier for visibility distances - Lod1");
   DVARBOOL_cl_transientWorldVisibleFacingCircleSweep = Dvar_RegisterBool("MOSOTQRPLP", 0, 0, "Push a circle in the facing direction. If disabled, we'll use cl_transientWorldVisibleFacingDistAdd, as part of the LOD0 and LOD1 radius.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  v63 = Dvar_RegisterFloat("cl_transientWorldStreamSyncRadiusMulLv0", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World StreamSync Radius Multiplier LOD0");
-  __asm { vmovss  xmm1, cs:__real@3e4ccccd; value }
-  DCONST_DVARFLT_cl_transientWorldStreamSyncRadiusMulLv0 = v63;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  v67 = Dvar_RegisterFloat("cl_transientWorldStreamSyncRadiusMulLv1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World StreamSync Radius Multiplier LOD1");
-  __asm
-  {
-    vmovss  xmm15, cs:__real@49742400
-    vmovss  xmm10, cs:__real@38d1b717
-    vmovss  xmm1, cs:__real@459c4000; value
-  }
-  DCONST_DVARFLT_cl_transientWorldStreamSyncRadiusMulLv1 = v67;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v73 = Dvar_RegisterFloat("POKRTSLMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z distance over which we'll start to add to our distance to 'push out' LOD0 tiles");
-  __asm { vmovss  xmm1, cs:__real@461c4000; value }
-  DVARFLT_cl_transientWorldLoadZLOD0AdjustStartZ = v73;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v77 = Dvar_RegisterFloat("NPKRMNSKRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Z distance we'll max out the 'MaxAddition' contribution here.");
-  __asm { vmovss  xmm1, cs:__real@461c4000; value }
-  DVARFLT_cl_transientWorldLoadZLOD0AdjustEndZ = v77;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v81 = Dvar_RegisterFloat("MMSRMPTSNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Linear distance away that we'll start to apply an addition for LOD0 tiles");
-  __asm { vmovss  xmm1, cs:__real@469c4000; value }
-  DVARFLT_cl_transientWorldLoadZLOD0AdjustStartDist = v81;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v85 = Dvar_RegisterFloat("MNRSPPTRRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Linear distance away that we'll max out the 'MaxAddition' contribution here.");
-  __asm { vmovss  xmm1, cs:__real@48742400; value }
-  DVARFLT_cl_transientWorldLoadZLOD0AdjustEndDist = v85;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  DVARFLT_cl_transientWorldLoadZLOD0AdjustMaxAddition = Dvar_RegisterFloat("MRKPLKOPNR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max addition we'll apply to load decision distances for LOD0 tiles for 'cl_transientWorldLoadZ'.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm9; value
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYMultiplierAddLOD1 = Dvar_RegisterFloat("cl_transientWorldLoadXYMultiplierAddLOD1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Transient World XY Multiplier for loading - Lod1. Adds mul*sqxy to the dists.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovss  xmm1, cs:__real@46c35000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v95 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBegin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance to start making LOD1 priority loading fall off");
-  __asm { vmovss  xmm1, cs:__real@46ea6000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBegin = v95;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v99 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBeginBR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance to start making LOD1 priority loading fall off. BR only.");
-  __asm { vmovss  xmm1, cs:__real@47927c00; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBR = v99;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v103 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBeginBRLobby", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance to start making LOD1 priority loading fall off. BR only in lobby.");
-  __asm { vmovss  xmm1, cs:__real@43480000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBRLobby = v103;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffMultiplier = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffMultiplier", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Multiplier to apply after the cl_transientWorldLoadXYLOD1FalloffBegin distance");
-  __asm { vmovss  xmm1, cs:__real@47927c00; value }
+  DCONST_DVARFLT_cl_transientWorldStreamSyncRadiusMulLv0 = Dvar_RegisterFloat("cl_transientWorldStreamSyncRadiusMulLv0", 0.55000001, 0.001, 100.0, 0x40004u, "Transient World StreamSync Radius Multiplier LOD0");
+  DCONST_DVARFLT_cl_transientWorldStreamSyncRadiusMulLv1 = Dvar_RegisterFloat("cl_transientWorldStreamSyncRadiusMulLv1", 0.2, 0.001, 100.0, 0x40004u, "Transient World StreamSync Radius Multiplier LOD1");
+  DVARFLT_cl_transientWorldLoadZLOD0AdjustStartZ = Dvar_RegisterFloat("POKRTSLMN", 5000.0, 0.000099999997, 1000000.0, 0, "Z distance over which we'll start to add to our distance to 'push out' LOD0 tiles");
+  DVARFLT_cl_transientWorldLoadZLOD0AdjustEndZ = Dvar_RegisterFloat("NPKRMNSKRM", 10000.0, 0.000099999997, 1000000.0, 0, "Z distance we'll max out the 'MaxAddition' contribution here.");
+  DVARFLT_cl_transientWorldLoadZLOD0AdjustStartDist = Dvar_RegisterFloat("MMSRMPTSNP", 10000.0, 0.000099999997, 1000000.0, 0, "Linear distance away that we'll start to apply an addition for LOD0 tiles");
+  DVARFLT_cl_transientWorldLoadZLOD0AdjustEndDist = Dvar_RegisterFloat("MNRSPPTRRM", 20000.0, 0.000099999997, 1000000.0, 0, "Linear distance away that we'll max out the 'MaxAddition' contribution here.");
+  DVARFLT_cl_transientWorldLoadZLOD0AdjustMaxAddition = Dvar_RegisterFloat("MRKPLKOPNR", 250000.0, 0.000099999997, 1000000.0, 0, "Max addition we'll apply to load decision distances for LOD0 tiles for 'cl_transientWorldLoadZ'.");
+  DCONST_DVARFLT_cl_transientWorldLoadXYMultiplierAddLOD1 = Dvar_RegisterFloat("cl_transientWorldLoadXYMultiplierAddLOD1", 0.25, 0.001, 100.0, 0x40004u, "Transient World XY Multiplier for loading - Lod1. Adds mul*sqxy to the dists.");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBegin = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBegin", 25000.0, 0.0, 1000000.0, 0x40004u, "Distance to start making LOD1 priority loading fall off");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBR = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBeginBR", 30000.0, 0.0, 1000000.0, 0x40004u, "Distance to start making LOD1 priority loading fall off. BR only.");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBRLobby = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffBeginBRLobby", 75000.0, 0.0, 1000000.0, 0x40004u, "Distance to start making LOD1 priority loading fall off. BR only in lobby.");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1FalloffMultiplier = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1FalloffMultiplier", 200.0, 0.0, 1000000.0, 0x40004u, "Multiplier to apply after the cl_transientWorldLoadXYLOD1FalloffBegin distance");
   DVARBOOL_cl_transientWorldLoadXYLOD1FalloffPlaneEnabled = Dvar_RegisterBool("LPKNMLSRN", 1, 0, "Increase LOD1 falloff if we're in the BR plane ride, or hinting for the ride");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v110 = Dvar_RegisterFloat("NKMRKQMOSN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance to start making LOD1 priority loading fall off. BR only for plane.");
-  __asm { vmovss  xmm1, cs:__real@468ca000; value }
-  DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBRPlane = v110;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v114 = Dvar_RegisterFloat("MQRNKOQNOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "If over this height in Z pos, we're in the BR plane");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@3f350529; value
-  }
-  DVARFLT_cl_transientWorldBRPlaneZThreshold = v114;
-  __asm { vmovaps xmm2, xmm12; min }
-  v118 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirDotStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp up starting at this FOV");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@3f51b3d0; value
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirDotStart = v118;
-  __asm { vmovaps xmm2, xmm12; min }
-  v122 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirDotEnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp up finishing at this FOV");
-  __asm { vmovss  xmm1, cs:__real@451c4000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirDotEnd = v122;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v126 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirNearDistStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp starting near the camera at this distance");
-  __asm { vmovss  xmm1, cs:__real@459c4000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirNearDistStart = v126;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v130 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirNearDistEnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp finishing near the camera at this distance");
-  __asm { vmovss  xmm1, cs:__real@46ea6000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirNearDistEnd = v130;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v134 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirFarDistStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp down starting away the camera at this distance");
-  __asm { vmovss  xmm1, cs:__real@47435000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirFarDistStart = v134;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v138 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirFarDistEnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp down finishing away the camera at this distance");
-  __asm { vmovss  xmm1, cs:__real@44fa0000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirFarDistEnd = v138;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v142 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirZStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Z pos we'll start to boost LOD1 at");
-  __asm { vmovss  xmm1, cs:__real@45fa0000; value }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirZStart = v142;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  v146 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirZEnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Z pos we'll max out at boosting LOD1");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3dcccccd; value
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirZEnd = v146;
-  __asm { vmovaps xmm2, xmm10; min }
-  v150 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Multiplier to apply to LOD1 distances when in the range, ramp starting as the camera faces down");
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierStart = v150;
-  __asm
-  {
-    vmovaps xmm2, xmm12; min
-    vmovaps xmm1, xmm12; value
-  }
-  v154 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierStartViewZ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Multiplier to apply to LOD1 distances ramp starting as the camera faces down angle");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3f4ccccd; value
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierStartViewZ = v154;
-  __asm { vmovaps xmm2, xmm10; min }
-  v158 = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinish", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Multiplier to apply to LOD1 distances when in the range, ramp finishing as the camera faces down");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf350529; value
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinish = v158;
-  __asm { vmovaps xmm2, xmm12; min }
-  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinishViewZ = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinishViewZ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Multiplier to apply to LOD1 distances ramp finishing as the camera faces dow angle");
-  __asm { vmovss  xmm6, cs:__real@461c4000 }
+  DVARFLT_cl_transientWorldLoadXYLOD1FalloffBeginBRPlane = Dvar_RegisterFloat("NKMRKQMOSN", 75000.0, 0.0, 1000000.0, 0, "Distance to start making LOD1 priority loading fall off. BR only for plane.");
+  DVARFLT_cl_transientWorldBRPlaneZThreshold = Dvar_RegisterFloat("MQRNKOQNOK", 18000.0, 0.0, 1000000.0, 0, "If over this height in Z pos, we're in the BR plane");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirDotStart = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirDotStart", 0.70710999, -1.0, 1.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp up starting at this FOV");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirDotEnd = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirDotEnd", 0.81914997, -1.0, 1.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp up finishing at this FOV");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirNearDistStart = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirNearDistStart", 2500.0, 0.0, 1000000.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp starting near the camera at this distance");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirNearDistEnd = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirNearDistEnd", 5000.0, 0.0, 1000000.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp finishing near the camera at this distance");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirFarDistStart = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirFarDistStart", 30000.0, 0.0, 1000000.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp down starting away the camera at this distance");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirFarDistEnd = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirFarDistEnd", 50000.0, 0.0, 1000000.0, 0x40004u, "Allow a LOD1 boost of priorities when we're in the air, ramp down finishing away the camera at this distance");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirZStart = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirZStart", 2000.0, 0.000099999997, 1000000.0, 0x40004u, "Z pos we'll start to boost LOD1 at");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirZEnd = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirZEnd", 8000.0, 0.000099999997, 1000000.0, 0x40004u, "Z pos we'll max out at boosting LOD1");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierStart = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierStart", 0.1, 0.000099999997, 10.0, 0x40004u, "Multiplier to apply to LOD1 distances when in the range, ramp starting as the camera faces down");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierStartViewZ = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierStartViewZ", -1.0, -1.0, 1.0, 0x40004u, "Multiplier to apply to LOD1 distances ramp starting as the camera faces down angle");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinish = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinish", 0.80000001, 0.000099999997, 10.0, 0x40004u, "Multiplier to apply to LOD1 distances when in the range, ramp finishing as the camera faces down");
+  DCONST_DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinishViewZ = Dvar_RegisterFloat("cl_transientWorldLoadXYLOD1BoostInAirMultiplierFinishViewZ", -0.70710999, -1.0, 1.0, 0x40004u, "Multiplier to apply to LOD1 distances ramp finishing as the camera faces dow angle");
   DVARBOOL_cl_transientWorldLoadXYLOD1BoostInAirBRMethodEnabled = Dvar_RegisterBool("NOQRQOQSKS", 1, 0, "Enable alternate BR method of LOD1 boost in air");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  v166 = Dvar_RegisterFloat("NNOLSPSORR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max distance to subtract for the LOD1 boost, when in BR.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@44fa0000; value
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirBRDistance = v166;
-  v170 = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirZStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Z pos we'll start to boost LOD1 at");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@45fa0000; value
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirZStart = v170;
-  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirZEnd = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirZEnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Z pos we'll max out at boosting LOD1");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm10; min
-    vmovaps xmm1, xmm6; value
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirMaxAdd = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirMaxAdd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max visibility addition when we're at the highest Z point");
+  DVARFLT_cl_transientWorldLoadXYLOD1BoostInAirBRDistance = Dvar_RegisterFloat("NNOLSPSORR", 10000.0, 0.0, 1000000.0, 0, "Max distance to subtract for the LOD1 boost, when in BR.");
+  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirZStart = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirZStart", 2000.0, 0.000099999997, 1000000.0, 0x40004u, "Z pos we'll start to boost LOD1 at");
+  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirZEnd = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirZEnd", 8000.0, 0.000099999997, 1000000.0, 0x40004u, "Z pos we'll max out at boosting LOD1");
+  DCONST_DVARFLT_cl_transientWorldVisibleLOD1BoostInAirMaxAdd = Dvar_RegisterFloat("cl_transientWorldVisibleLOD1BoostInAirMaxAdd", 10000.0, 0.000099999997, 1000000.0, 0x40004u, "Max visibility addition when we're at the highest Z point");
   DCONST_DVARBOOL_cl_transientWorldLoadDistEnabled = Dvar_RegisterBool("cl_transientWorldLoadDistEnabled", 1, 0x40004u, "Enables limiting load distance based on cutoffs specified in gsc");
-  __asm
-  {
-    vmovaps xmm2, xmm12; min
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm1, xmm1, xmm1; value
-    vxorps  xmm12, xmm12, xmm12
-  }
-  v181 = Dvar_RegisterFloat("cl_transientWorldLoadDistForceValue", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Force load distance for all stream positions for testing, or 0 for default");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@47c35000
-    vmovss  xmm3, cs:__real@469c4000; z
-  }
-  DCONST_DVARFLT_cl_transientWorldLoadDistForceValue = v181;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+description], xmm10
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0E8h+flags], xmm12
-  }
-  v186 = Dvar_RegisterVec3("cl_transientWorldLoadDefaultPos", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, 0x40004u, "Default position to start loading transients when not provided any streaming info yet");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@447a0000
-    vmovss  xmm1, cs:__real@3f400000; value
-  }
-  DCONST_DVARVEC3_cl_transientWorldLoadDefaultPos = v186;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cl_transientWorldOnTopOfHighLODFactor = Dvar_RegisterFloat("cl_transientWorldOnTopOfHighLODFactor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "When on top of a grid square, how much to scale out the distance to deprioritize the load");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm11, cs:__real@44fa0000
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD0Min = Dvar_RegisterFloat("NQRKPOPLLR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips");
-  __asm
-  {
-    vmovaps xmm1, xmm11; value
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v198 = Dvar_RegisterFloat("TMMPLPSKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the min delay");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@40800000
-    vmovaps xmm1, xmm8; value
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD0MinDistance = v198;
-  v203 = Dvar_RegisterFloat("MPSOOTLNOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips");
-  __asm { vmovss  xmm1, cs:__real@459c4000; value }
-  DVARFLT_cl_transientWorldSwitchDelayLOD0Max = v203;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD0MaxDistance = Dvar_RegisterFloat("NNSKQOMQMK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the max delay");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  v210 = Dvar_RegisterFloat("NKNKQNTPQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD1Min = v210;
-  v214 = Dvar_RegisterFloat("MNTTNLMOKR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the min delay");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD1MinDistance = v214;
-  v218 = Dvar_RegisterFloat("NSLRMNQORK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLOD1Max = v218;
-  DVARFLT_cl_transientWorldSwitchDelayLOD1MaxDistance = Dvar_RegisterFloat("NNOPQMLNLN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the max delay");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0Min = Dvar_RegisterFloat("TQMSKKKTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips (when zoomed)");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@459c4000; value
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v228 = Dvar_RegisterFloat("NSLPPROQQT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the min delay (when zoomed)");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0MinDistance = v228;
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0Max = Dvar_RegisterFloat("MOPTLNSSTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips (when zoomed)");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  v235 = Dvar_RegisterFloat("NRQNRRPPRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the max delay (when zoomed)");
-  __asm { vmovss  xmm1, cs:__real@3e2b020c; value }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0MaxDistance = v235;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v239 = Dvar_RegisterFloat("NQTORMMOPP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips (when zoomed)");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1Min = v239;
-  v243 = Dvar_RegisterFloat("LMQOSKPSKS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the min delay (when zoomed)");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3e2b020c; value
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1MinDistance = v243;
-  v247 = Dvar_RegisterFloat("MTKSLMPPOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips (when zoomed)");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1Max = v247;
-  v251 = Dvar_RegisterFloat("MPKQTRSQOQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance at which we use the max delay (when zoomed)");
-  __asm { vmovss  xmm1, cs:__real@41800000; value }
-  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1MaxDistance = v251;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v255 = Dvar_RegisterFloat("NPLKRKQTLQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Switch delay to use when moving from a high detail lod to a lower detail one. e.g. LOD0->LOD1");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@3d4ccccd; value
-  }
-  DVARFLT_cl_transientWorldSwitchDelayLowerLod = v255;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v259 = Dvar_RegisterFloat("NLQKKTOKOR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "ADS fraction of when to begin loading higher quality Proxy LODs, should be <= cl_transientWorldZoomCutoffVisibility");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@3f000000; value
-  }
-  DVARFLT_cl_transientWorldZoomCutoffLoad = v259;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v263 = Dvar_RegisterFloat("NPTSPKORSN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "ADS fraction of when to begin toggling visibility of higher quality Proxy LODs, should be >= cl_transientWorldZoomCutoffLoad");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42b40000
-    vmovss  xmm1, cs:__real@41b80000; value
-  }
-  DVARFLT_cl_transientWorldZoomCutoffVisibility = v263;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v268 = Dvar_RegisterFloat("NOTLLMMTSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Determines which sniper scopes will make zoomed tiles visible (scope must have fov lower or equal to this value)");
-  __asm { vmovss  xmm1, cs:__real@41b80000; value }
-  DVARFLT_cl_transientWorldZoomVisibilityFovCutoff = v268;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v272 = Dvar_RegisterFloat("MRNKMRQMSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Determines which sniper scopes will make zoomed tiles load (scope must have fov lower or equal to this value, this should be lower than visibility cutoff.)");
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  DVARFLT_cl_transientWorldZoomLoadFovCutoff = v272;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v276 = Dvar_RegisterFloat("LPLLQNKMRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Horizontal padding around frustum to make zoomed tiles visible");
-  __asm { vmovss  xmm1, cs:__real@3f800000; value }
-  DVARFLT_cl_transientWorldZoomFovXPadding = v276;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldZoomFovYPadding = Dvar_RegisterFloat("RTQRSLKPP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Vertical padding around frustum to make zoomed tiles visible");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  v283 = Dvar_RegisterFloat("MOPQNKNST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance to make LOD0 zoomed tiles visible");
-  __asm { vmovss  xmm1, cs:__real@471c4000; value }
-  DVARFLT_cl_transientWorldZoomLOD0Dist = v283;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v287 = Dvar_RegisterFloat("NPKRRSQMKO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance to make LOD1 zoomed tiles visible");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  DVARFLT_cl_transientWorldZoomLOD1Dist = v287;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  DVARFLT_cl_transientWorldLoadXYMultiplierZoomLOD = Dvar_RegisterFloat("NKKQSMTRRL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Load curve for zoomed in tiles. Should be smaller than load curve for regular tiles.");
-  __asm { vmovss  xmm1, cs:__real@466a6000; value }
+  DCONST_DVARFLT_cl_transientWorldLoadDistForceValue = Dvar_RegisterFloat("cl_transientWorldLoadDistForceValue", 0.0, -1.0, 1000000.0, 0x40004u, "Force load distance for all stream positions for testing, or 0 for default");
+  DCONST_DVARVEC3_cl_transientWorldLoadDefaultPos = Dvar_RegisterVec3("cl_transientWorldLoadDefaultPos", 0.0, 0.0, 20000.0, 0.0, 100000.0, 0x40004u, "Default position to start loading transients when not provided any streaming info yet");
+  DCONST_DVARFLT_cl_transientWorldOnTopOfHighLODFactor = Dvar_RegisterFloat("cl_transientWorldOnTopOfHighLODFactor", 0.75, 0.0, 1000.0, 0x40004u, "When on top of a grid square, how much to scale out the distance to deprioritize the load");
+  DVARFLT_cl_transientWorldSwitchDelayLOD0Min = Dvar_RegisterFloat("NQRKPOPLLR", 0.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips");
+  DVARFLT_cl_transientWorldSwitchDelayLOD0MinDistance = Dvar_RegisterFloat("TMMPLPSKM", 2000.0, 0.0, 100000.0, 0, "Distance at which we use the min delay");
+  DVARFLT_cl_transientWorldSwitchDelayLOD0Max = Dvar_RegisterFloat("MPSOOTLNOR", 4.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips");
+  DVARFLT_cl_transientWorldSwitchDelayLOD0MaxDistance = Dvar_RegisterFloat("NNSKQOMQMK", 5000.0, 0.0, 100000.0, 0, "Distance at which we use the max delay");
+  DVARFLT_cl_transientWorldSwitchDelayLOD1Min = Dvar_RegisterFloat("NKNKQNTPQK", 4.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips");
+  DVARFLT_cl_transientWorldSwitchDelayLOD1MinDistance = Dvar_RegisterFloat("MNTTNLMOKR", 0.0, 0.0, 100000.0, 0, "Distance at which we use the min delay");
+  DVARFLT_cl_transientWorldSwitchDelayLOD1Max = Dvar_RegisterFloat("NSLRMNQORK", 4.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips");
+  DVARFLT_cl_transientWorldSwitchDelayLOD1MaxDistance = Dvar_RegisterFloat("NNOPQMLNLN", 0.0, 0.0, 100000.0, 0, "Distance at which we use the max delay");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0Min = Dvar_RegisterFloat("TQMSKKKTS", 0.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0MinDistance = Dvar_RegisterFloat("NSLPPROQQT", 5000.0, 0.0, 100000.0, 0, "Distance at which we use the min delay (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0Max = Dvar_RegisterFloat("MOPTLNSSTM", 4.0, 0.0, 100.0, 0, "Seconds of delay switching to LOD0, to allow streamer to load mips (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD0MaxDistance = Dvar_RegisterFloat("NRQNRRPPRT", 10000.0, 0.0, 100000.0, 0, "Distance at which we use the max delay (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1Min = Dvar_RegisterFloat("NQTORMMOPP", 0.167, 0.0, 100.0, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1MinDistance = Dvar_RegisterFloat("LMQOSKPSKS", 0.0, 0.0, 100000.0, 0, "Distance at which we use the min delay (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1Max = Dvar_RegisterFloat("MTKSLMPPOP", 0.167, 0.0, 100.0, 0, "Seconds of delay switching to LOD1, to allow streamer to load mips (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayZoomLOD1MaxDistance = Dvar_RegisterFloat("MPKQTRSQOQ", 0.0, 0.0, 100000.0, 0, "Distance at which we use the max delay (when zoomed)");
+  DVARFLT_cl_transientWorldSwitchDelayLowerLod = Dvar_RegisterFloat("NPLKRKQTLQ", 16.0, 0.0, 100.0, 0, "Switch delay to use when moving from a high detail lod to a lower detail one. e.g. LOD0->LOD1");
+  DVARFLT_cl_transientWorldZoomCutoffLoad = Dvar_RegisterFloat("NLQKKTOKOR", 0.050000001, 0.0, 1.0, 0, "ADS fraction of when to begin loading higher quality Proxy LODs, should be <= cl_transientWorldZoomCutoffVisibility");
+  DVARFLT_cl_transientWorldZoomCutoffVisibility = Dvar_RegisterFloat("NPTSPKORSN", 0.5, 0.0, 1.0, 0, "ADS fraction of when to begin toggling visibility of higher quality Proxy LODs, should be >= cl_transientWorldZoomCutoffLoad");
+  DVARFLT_cl_transientWorldZoomVisibilityFovCutoff = Dvar_RegisterFloat("NOTLLMMTSK", 23.0, 0.0, 90.0, 0, "Determines which sniper scopes will make zoomed tiles visible (scope must have fov lower or equal to this value)");
+  DVARFLT_cl_transientWorldZoomLoadFovCutoff = Dvar_RegisterFloat("MRNKMRQMSO", 23.0, 0.0, 90.0, 0, "Determines which sniper scopes will make zoomed tiles load (scope must have fov lower or equal to this value, this should be lower than visibility cutoff.)");
+  DVARFLT_cl_transientWorldZoomFovXPadding = Dvar_RegisterFloat("LPLLQNKMRO", 1.0, 0.0, 90.0, 0, "Horizontal padding around frustum to make zoomed tiles visible");
+  DVARFLT_cl_transientWorldZoomFovYPadding = Dvar_RegisterFloat("RTQRSLKPP", 1.0, 0.0, 90.0, 0, "Vertical padding around frustum to make zoomed tiles visible");
+  DVARFLT_cl_transientWorldZoomLOD0Dist = Dvar_RegisterFloat("MOPQNKNST", 10000.0, 0.0, 1000000.0, 0, "Distance to make LOD0 zoomed tiles visible");
+  DVARFLT_cl_transientWorldZoomLOD1Dist = Dvar_RegisterFloat("NPKRRSQMKO", 40000.0, 0.0, 1000000.0, 0, "Distance to make LOD1 zoomed tiles visible");
+  DVARFLT_cl_transientWorldLoadXYMultiplierZoomLOD = Dvar_RegisterFloat("NKKQSMTRRL", 0.0099999998, 0.001, 100.0, 0, "Load curve for zoomed in tiles. Should be smaller than load curve for regular tiles.");
   DVARBOOL_cl_transientWorldZoomFixedDist = Dvar_RegisterBool("PTTNNPMO", 1, 0, "When enabled, sniper scopes will used a fixed distance instead of fov scaled distance when making zoomed tiles visible.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v294 = Dvar_RegisterFloat("MLQSPSTNNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Fixed distance to make LOD0 zoomed tiles visible");
-  __asm { vmovss  xmm1, cs:__real@476a6000; value }
-  DVARFLT_cl_transientWorldZoomLOD0FixedDist = v294;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldZoomLOD1FixedDist = Dvar_RegisterFloat("NLTOOOSOQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Fixed distance to make LOD1 zoomed tiles visible");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  DCONST_DVARFLT_cl_transientWorldVisibleHintLvl0 = Dvar_RegisterFloat("cl_transientWorldVisibleHintLvl0", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance to hint LOD1 transient to streamer before we switch to it");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v304 = Dvar_RegisterFloat("cl_transientWorldVisibleHintLvl1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance to hint LOD2 transient to streamer before we switch to it");
-  __asm { vmovss  xmm1, cs:__real@44bb8000; value }
-  DCONST_DVARFLT_cl_transientWorldVisibleHintLvl1 = v304;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldVisibleHintLOD0Addition = Dvar_RegisterFloat("LOPMQLPKL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Distance to hint LOD0 transient TA streaming, beyond the actual rendered distance, to deal with camera rotation");
+  DVARFLT_cl_transientWorldZoomLOD0FixedDist = Dvar_RegisterFloat("MLQSPSTNNP", 15000.0, 0.0, 1000000.0, 0, "Fixed distance to make LOD0 zoomed tiles visible");
+  DVARFLT_cl_transientWorldZoomLOD1FixedDist = Dvar_RegisterFloat("NLTOOOSOQQ", 60000.0, 0.0, 1000000.0, 0, "Fixed distance to make LOD1 zoomed tiles visible");
+  DCONST_DVARFLT_cl_transientWorldVisibleHintLvl0 = Dvar_RegisterFloat("cl_transientWorldVisibleHintLvl0", 1000.0, 0.0, 1000000.0, 0x40004u, "Distance to hint LOD1 transient to streamer before we switch to it");
+  DCONST_DVARFLT_cl_transientWorldVisibleHintLvl1 = Dvar_RegisterFloat("cl_transientWorldVisibleHintLvl1", 1000.0, 0.0, 1000000.0, 0x40004u, "Distance to hint LOD2 transient to streamer before we switch to it");
+  DVARFLT_cl_transientWorldVisibleHintLOD0Addition = Dvar_RegisterFloat("LOPMQLPKL", 1500.0, 0.0, 1000000.0, 0, "Distance to hint LOD0 transient TA streaming, beyond the actual rendered distance, to deal with camera rotation");
   DVARBOOL_cl_transientWorldHintPredictedStreamPositions = Dvar_RegisterBool("LQKKNSKPKQ", 1, 0, "Enables hinting transient loads based on proximity to predicted stream positions (streamRender == false)");
   DVARBOOL_cl_transientWorldStreamLookAheadEnabled = Dvar_RegisterBool("MQMQPNRSRM", 1, 0, "Enables transient stream load lookahead based on player velocity");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  v311 = Dvar_RegisterFloat("PLQNSNTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Time in seconds to look ahead for loadstreaming, based on velocity");
-  __asm { vmovss  xmm1, cs:__real@437a0000; value }
-  DVARFLT_cl_transientWorldStreamLookAheadTime = v311;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v315 = Dvar_RegisterFloat("LOMSTRTLML", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Min distance we'll hint to stream ahead based on velocity. Less than this won't hint.");
-  __asm { vmovss  xmm1, cs:__real@46435000; value }
-  DVARFLT_cl_transientWorldStreamLookAheadMinDist = v315;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transientWorldStreamLookAheadMaxDist = Dvar_RegisterFloat("PKNPMMMTP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max distance we'll stream ahead based on velocity. We'll cap to this.");
+  DVARFLT_cl_transientWorldStreamLookAheadTime = Dvar_RegisterFloat("PLQNSNTQ", 4.0, 0.0, 1000000.0, 0, "Time in seconds to look ahead for loadstreaming, based on velocity");
+  DVARFLT_cl_transientWorldStreamLookAheadMinDist = Dvar_RegisterFloat("LOMSTRTLML", 250.0, 0.0, 1000000.0, 0, "Min distance we'll hint to stream ahead based on velocity. Less than this won't hint.");
+  DVARFLT_cl_transientWorldStreamLookAheadMaxDist = Dvar_RegisterFloat("PKNPMMMTP", 12500.0, 0.0, 1000000.0, 0, "Max distance we'll stream ahead based on velocity. We'll cap to this.");
   DCONST_DVARBOOL_cl_transientWorldSpilloverPriorities = Dvar_RegisterBool("cl_transientWorldSpilloverPriorities", 1, 0x40004u, "Enable the spillover priorities feature for transient tiles");
   DVARBOOL_cl_transientWorldFallingHintEnabled = Dvar_RegisterBool("STQLSKNMQ", 1, 0, "When player is parachuting with a hint below themselves, enables keeping nearby LOD0 tiles visible");
   DCONST_DVARBOOL_cl_transientWorldIgnoreTransientSkip = Dvar_RegisterBool("cl_transientWorldIgnoreTransientSkip", 0, 0x40004u, "Ignore transient skip flags and load LOD0 transients that are designed to be skipped due to submap export");
@@ -7916,57 +7182,19 @@ void __fastcall CL_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARINT_cl_transientWorldForceVisibleLOD = Dvar_RegisterInt("cl_transientWorldForceVisibleLOD", -1, -1, 3, 0x40004u, "Force rendered LOD level to this level. (-1=auto vis default), 0,1,2 for forcing. 3==draw no transients");
   DCONST_DVARBOOL_cl_transientWorldSoakTest = Dvar_RegisterBool("cl_transientWorldSoakTest", 0, 0x40004u, "Soak test transient world tech");
   DCONST_DVARBOOL_cl_transientWorldDebugDelay = Dvar_RegisterBool("cl_transientWorldDebugDelay", 0, 0x40004u, "Debug the cell visibility delays, delays never count down. Use alongside cl_transientWorldOverlayDrawDelayValues to tune delay values.");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@ff7fffff
-    vmovss  xmm7, cs:__real@7f7fffff
-  }
   DCONST_DVARBOOL_cl_transientWorldDebugHintPosActive = Dvar_RegisterBool("cl_transientWorldDebugHintPosActive", 0, 0x40004u, "Hint at a specific position : cl_transientWorldDebugHintPos");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0E8h+description], xmm7
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0E8h+flags], xmm0
-  }
-  DCONST_DVARVEC3_cl_transientWorldDebugHintPos = Dvar_RegisterVec3("cl_transientWorldDebugHintPos", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, descriptiona, 0x40004u, "Debug position to hint at. cl_transientWorldDebugHintPosActive needs to be enabled.");
+  DCONST_DVARVEC3_cl_transientWorldDebugHintPos = Dvar_RegisterVec3("cl_transientWorldDebugHintPos", 0.0, 0.0, 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Debug position to hint at. cl_transientWorldDebugHintPosActive needs to be enabled.");
   DVARBOOL_cl_transientWorldOverlay = Dvar_RegisterBool("NNKRRSTKSP", 0, 0, "Draw a debug overlay for the transient world system.");
   DVARBOOL_cl_transientWorldOverlayTransientIndex = Dvar_RegisterBool("LTQOKSTPLT", 1, 0, "Draw transient index numbers on overlay");
   DCONST_DVARBOOL_cl_transientWorldOverlayStreamSync = Dvar_RegisterBool("cl_transientWorldOverlayStreamSync", 1, 0x40004u, "Draw transient stream sync gating circles on the overlay");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@00800000; min
-    vmovss  xmm2, cs:__real@42a00000; y
-    vmovss  xmm1, cs:__real@41c80000; x
-  }
   DCONST_DVARINT_cl_transientWorldOverlayStreamSyncTimeout = Dvar_RegisterInt("cl_transientWorldOverlayStreamSyncTimeout", 1000, 0, 0x7FFFFFFF, 0x40004u, "Amount of time to draw stream sync requests after they stop");
-  __asm { vmovss  [rsp+0E8h+flags], xmm7 }
-  DVARVEC2_cl_transientWorldOverlayOffset = Dvar_RegisterVec2("LQTLROROLQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, 0, "Draw offset for transient world overlay.");
+  DVARVEC2_cl_transientWorldOverlayOffset = Dvar_RegisterVec2("LQTLROROLQ", 25.0, 80.0, 1.1754944e-38, 3.4028235e38, 0, "Draw offset for transient world overlay.");
   DVARBOOL_cl_transientWorldOverlayPriorityList = Dvar_RegisterBool("LPTTPPTLQP", 0, 0, "Draw list of top X priority values.");
   DVARBOOL_cl_transientWorldOverlayPriorityColors = Dvar_RegisterBool("LKKMTTKPR", 0, 0, "Draw colors of cells based on priority list.");
   DCONST_DVARBOOL_cl_transientWorldOverlayPriorityColorsRequested = Dvar_RegisterBool("cl_transientWorldOverlayPriorityColorsRequested", 0, 0x40004u, "Draw colors of cells based on priority list, only requested tiles");
-  __asm { vmovss  xmm3, cs:__real@3f800000; max }
   DVARBOOL_cl_transientWorldOverlayBounds = Dvar_RegisterBool("MRLTMKMSOS", 0, 0, "Draw the real bounds in the transient world overlay.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v330 = Dvar_RegisterFloat("MLRLSSMSQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Zoom mode for overlay, 0 = full map, 0..1 = zoom in around the player");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@43af0000
-    vmovss  xmm3, cs:__real@00800000; min
-  }
-  DVARFLT_cl_transientWorldOverlayZoom = v330;
-  __asm
-  {
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0E8h+flags], xmm7
-  }
-  DVARVEC2_cl_transientWorldOverlayZoomScreenSize = Dvar_RegisterVec2("OKNQNRKOTT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, 0, "When using overlay zoom, the screen size of the overlay");
+  DVARFLT_cl_transientWorldOverlayZoom = Dvar_RegisterFloat("MLRLSSMSQ", 0.0, 0.0, 1.0, 0, "Zoom mode for overlay, 0 = full map, 0..1 = zoom in around the player");
+  DVARVEC2_cl_transientWorldOverlayZoomScreenSize = Dvar_RegisterVec2("OKNQNRKOTT", 350.0, 350.0, 1.1754944e-38, 3.4028235e38, 0, "When using overlay zoom, the screen size of the overlay");
   DCONST_DVARBOOL_cl_transientWorldStreamProgress = Dvar_RegisterBool("cl_transientWorldStreamProgress", 0, 0x40004u, "Print how long it takes to stream transient proxy images.");
   DCONST_DVARINT_cl_transientWorldOverlayLodCount = Dvar_RegisterInt("cl_transientWorldOverlayLodCount", 3, 1, 3, 0x40004u, "Maximum number of LOD levels to draw for the map. 1==Just LOD0");
   DCONST_DVARBOOL_cl_transientWorldOverlayDrawCellNumbers = Dvar_RegisterBool("cl_transientWorldOverlayDrawCellNumbers", 0, 0x40004u, "Draw all cell numbers, not just visible ones");
@@ -7975,55 +7203,13 @@ void __fastcall CL_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARBOOL_cl_transientWorldOverlayPriorityListSkipLod1 = Dvar_RegisterBool("cl_transientWorldOverlayPriorityListSkipLod1", 0, 0x40004u, "Skip LOD1 entries in the priority list debug overlay.");
   DCONST_DVARBOOL_cl_transientWorldOverlayDrawLOD1Indices = Dvar_RegisterBool("cl_transientWorldOverlayDrawLOD1Indices", 0, 0x40004u, "Draw LOD1 indices for tiles when we draw LOD0 numbers. Use cl_transientWorldOverlayZoom to keep these legible.");
   DCONST_DVARBOOL_cl_transientWorldOverlayDrawZBoundsTopValue = Dvar_RegisterBool("cl_transientWorldOverlayDrawZBoundsTopValue", 0, 0x40004u, "Draw the top Z value of the tile bounds, when drawing LOD0 numbers in cells. Use cl_transientWorldOverlayZoom to keep these legible.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42700000; y
-    vmovss  xmm1, cs:__real@43c80000; x
-  }
   DCONST_DVARINT_cl_transientWorldPriorityGraph = Dvar_RegisterEnum("cl_transientWorldPriorityGraph", cl_transientWorldPriorityGraphType, 0, 0x40004u, "Draw a debug overlay priority graph.");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovss  [rsp+0E8h+flags], xmm11
-  }
-  DCONST_DVARVEC2_cl_transientWorldPriorityScreenOffset = Dvar_RegisterVec2("cl_transientWorldPriorityScreenOffset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsd, 0x40004u, "Screen position for priority graph.");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0E8h+flags], xmm11
-  }
-  DCONST_DVARVEC2_cl_transientWorldPriorityScreenSize = Dvar_RegisterVec2("cl_transientWorldPriorityScreenSize", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagse, 0x40004u, "Screen size for priority graph.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v344 = Dvar_RegisterFloat("cl_transientWorldPriorityGraphXMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min X axis value for priority graph.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3dcccccd; min
-    vmovss  xmm1, cs:__real@461c4000; value
-  }
-  DCONST_DVARFLT_cl_transientWorldPriorityGraphXMin = v344;
-  __asm { vmovaps xmm3, xmm10; max }
-  DCONST_DVARFLT_cl_transientWorldPriorityGraphXMax = Dvar_RegisterFloat("cl_transientWorldPriorityGraphXMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max X axis value for priority graph.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cl_transientWorldPriorityGraphYMin = Dvar_RegisterFloat("cl_transientWorldPriorityGraphYMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min Y axis value for priority graph, or 0 for auto.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cl_transientWorldPriorityGraphYMax = Dvar_RegisterFloat("cl_transientWorldPriorityGraphYMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max Y axis value for priority graph, or 0 for auto.");
+  DCONST_DVARVEC2_cl_transientWorldPriorityScreenOffset = Dvar_RegisterVec2("cl_transientWorldPriorityScreenOffset", 400.0, 60.0, 0.0, 2000.0, 0x40004u, "Screen position for priority graph.");
+  DCONST_DVARVEC2_cl_transientWorldPriorityScreenSize = Dvar_RegisterVec2("cl_transientWorldPriorityScreenSize", 350.0, 350.0, 0.0, 2000.0, 0x40004u, "Screen size for priority graph.");
+  DCONST_DVARFLT_cl_transientWorldPriorityGraphXMin = Dvar_RegisterFloat("cl_transientWorldPriorityGraphXMin", 0.0, 0.0, 100000.0, 0x40004u, "Min X axis value for priority graph.");
+  DCONST_DVARFLT_cl_transientWorldPriorityGraphXMax = Dvar_RegisterFloat("cl_transientWorldPriorityGraphXMax", 10000.0, 0.1, 100000.0, 0x40004u, "Max X axis value for priority graph.");
+  DCONST_DVARFLT_cl_transientWorldPriorityGraphYMin = Dvar_RegisterFloat("cl_transientWorldPriorityGraphYMin", 0.0, 0.0, 100000.0, 0x40004u, "Min Y axis value for priority graph, or 0 for auto.");
+  DCONST_DVARFLT_cl_transientWorldPriorityGraphYMax = Dvar_RegisterFloat("cl_transientWorldPriorityGraphYMax", 0.0, 0.0, 100000.0, 0x40004u, "Max Y axis value for priority graph, or 0 for auto.");
   DCONST_DVARINT_cl_transientWorldPriorityGraphLabels = Dvar_RegisterEnum("cl_transientWorldPriorityGraphLabels", cl_transientWorldPriorityLabelType, 0, 0x40004u, "Draw labels for priority graph.");
   DCONST_DVARINT_cl_transientWorldPriorityGraphLod = Dvar_RegisterInt("cl_transientWorldPriorityGraphLod", 2, 0, 2, 0x40004u, "LOD to draw for priority graph (0=LOD0, 1=LOD1, 2=Both).");
   DCONST_DVARBOOL_cl_transientWorldPriorityGraphHighlightInFrustum = Dvar_RegisterBool("cl_transientWorldPriorityGraphHighlightInFrustum", 0, 0x40004u, "Highlight tiles that are in the current view frustum on the priority graph");
@@ -8043,37 +7229,14 @@ void __fastcall CL_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARINT_cl_streamSync_connectTimeout = Dvar_RegisterInt("cl_streamSync_connectTimeout", 300000, 0, 1200000, 0x40004u, "Number of milliseconds to wait for the stream sync to complete before aborting");
   DCONST_DVARBOOL_cl_streamSync_devVerbose = Dvar_RegisterBool("cl_streamSync_devVerbose", 0, 0x40004u, "More spam on the client for transient");
   DCONST_DVARBOOL_cl_streamSync_devClearOnRequest = Dvar_RegisterBool("cl_streamSync_devClearOnRequest", 0, 0x40004u, "When set, will clear all transients on the next streamsync request (to test unloads)");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@45610000
-    vmovss  xmm1, cs:__real@42480000; value
-  }
   DVARBOOL_cl_hudDrawsBehindUI = Dvar_RegisterBool("MRQRLKPNT", 1, 0, "Should the HUD draw when the UI is up?");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v358 = Dvar_RegisterFloat("LTMROMSOLS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds with no received packets until a timeout occurs");
-  __asm { vmovss  xmm1, cs:__real@43480000; value }
-  DVARFLT_cl_timeout = v358;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_connectTimeout = Dvar_RegisterFloat("LQKLPMTKMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Timeout time in seconds while connecting to a server");
+  DVARFLT_cl_timeout = Dvar_RegisterFloat("LTMROMSOLS", 50.0, 0.0, 3600.0, 0, "Seconds with no received packets until a timeout occurs");
+  DVARFLT_cl_connectTimeout = Dvar_RegisterFloat("LQKLPMTKMO", 200.0, 0.0, 3600.0, 0, "Timeout time in seconds while connecting to a server");
   DVARINT_cl_retransmitTimeout = Dvar_RegisterInt("NMRRMROKNT", 1000, 100, 5000, 0, "Timeout time in milliseconds before retransmitting request while connecting to a server");
   DVARINT_cl_connectionAttempts = Dvar_RegisterInt("LMROKRKONR", 70, 0, 100, 0, "Maximum number of connection attempts before aborting");
   DVARBOOL_cl_transmission_error_enabled = Dvar_RegisterBool("NPSTTRSRPK", 1, 0, "Whether to fail on transmission errors");
-  __asm { vmovss  xmm1, cs:__real@42200000; value }
   DVARINT_cl_inhibit_stats_upload = Dvar_RegisterInt("OLRSMNPLNK", 1, 0, 1, 0, "Inhibit upload of stats during demo playback");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_migrationTimeout = Dvar_RegisterFloat("LOQMTLSRSQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Seconds to wait to hear from new host during host migration before timeout occurs");
+  DVARFLT_cl_migrationTimeout = Dvar_RegisterFloat("LOQMTLSRSQ", 40.0, 0.0, 3600.0, 0, "Seconds to wait to hear from new host during host migration before timeout occurs");
   DVARBOOL_cl_shownuments = Dvar_RegisterBool("MKOKTNNNQS", 0, 0, "Show the number of entities");
   DVARBOOL_cl_showTimeDelta = Dvar_RegisterBool("NLOLRMNTOR", 0, 0, "Enable debugging information for time delta");
   DVARINT_cl_maxpackets = Dvar_RegisterInt("MQQPKLNPRS", 0, 0, 100, 0, "Maximum number of packets sent per frame");
@@ -8103,46 +7266,15 @@ void __fastcall CL_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARBOOL_cl_uistreaming_images = Dvar_RegisterBool("cl_uistreaming_images", 1, 0x40004u, "Enables UIStreaming streamed images to be cached and touched.");
   DVARINT_dw_profanity_check_wait_count = Dvar_RegisterInt("NQONSPMOMS", 2000, 0, 0x7FFFFFFF, 0, "Indirectly controls the profanity check timeout.");
   DVARINT_mp_bots_sec_before_lobby_autofill = Dvar_RegisterInt("NLLMRMSTLT", 15, 0, 300, 0, "Time in seconds before adding MP bots to the local game in order to launch");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@459c4000
-    vmovss  xmm3, cs:__real@c47a0000; min
-  }
   DVARBOOL_estrangedClientList = Dvar_RegisterBool("MNOKLTPSTP", 1, 0, "Whether to draw the list of clients we can't connect to");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0E8h+flags], xmm0
-  }
-  DVARVEC2_estrangedClientPos = Dvar_RegisterVec2("OSKKORQSP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsf, 0, "Where to draw the messages about who you can't connect to");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43fa0000; max
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
+  DVARVEC2_estrangedClientPos = Dvar_RegisterVec2("OSKKORQSP", 0.0, 0.0, -1000.0, 5000.0, 0, "Where to draw the messages about who you can't connect to");
   DVARINT_estrangedClientHeight = Dvar_RegisterInt("QSNPSPRTO", 12, 0, 500, 0, "How far to space each line of the list of clients you can't connect to");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_estrangedClientSize = Dvar_RegisterFloat("LOLOKLQQSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Font scale for space each line of the list of clients you can't connect to");
+  DVARFLT_estrangedClientSize = Dvar_RegisterFloat("LOLOKLQQSS", 1.0, 0.0, 500.0, 0, "Font scale for space each line of the list of clients you can't connect to");
   DVARBOOL_cl_voice_allow_jip_talking = Dvar_RegisterBool("MMMSRMPSKS", 0, 0, "Allow sending voice from players who are joining a match in-progress but are still pre-loading the map. These players will send to everybody in the match since they don't have team assignments yet");
   DVARBOOL_cl_voice_squad_only_in_lobby = Dvar_RegisterBool("NSMPTPRLNQ", 1, 0, "Only send voice to squad mates when in the front end lobby");
   DVARBOOL_cl_voice_direct_send_to_private_party = Dvar_RegisterBool("NNSKKSSNPN", 1, 0, "Route packets directly to private party members instead of through the DS");
   DVARBOOL_voice_on_screen_debug = Dvar_RegisterBool("MPTQQNOTPQ", 0, 0, "On screen voice debugging");
   DVARINT_cl_deathMessageWidth = Dvar_RegisterInt("OKKPTLMPRM", 320, 1, 640, 0, "Pixel width of the obituary area");
-  __asm { vmovaps xmm14, [rsp+0E8h+var_98] }
-  _R11 = &v395;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0E8h+var_A8]
-  }
   CG_MainMP_RegisterDvars();
 }
 
@@ -8153,53 +7285,48 @@ CL_MainMP_SendStatsGroupBuffer
 */
 void CL_MainMP_SendStatsGroupBuffer(const StatsGroup statsGroup, const LocalClientNum_t localClientNum, ClConnectionDataMP *clcData, const unsigned __int8 *payload, const int payloadSize)
 {
-  StatsGroup v9; 
+  StatsGroup v8; 
+  int v11; 
   int packetNum; 
   char StatsGroupBitOffset; 
   unsigned __int64 statPacketsToSend; 
-  int v19; 
-  int v20; 
+  int v15; 
+  int v16; 
   char *fmt; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   msg_t buf; 
-  statPacketHeader_t v27; 
+  statPacketHeader_t v23; 
   unsigned __int8 data[1264]; 
 
-  v9 = statsGroup;
+  v8 = statsGroup;
   if ( !clcData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2100, ASSERT_TYPE_ASSERT, "(clcData)", (const char *)&queryFormat, "clcData") )
     __debugbreak();
   if ( payloadSize <= 0 )
   {
-    LODWORD(v22) = payloadSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2101, ASSERT_TYPE_ASSERT, "( ( 0 < payloadSize ) )", "( payloadSize ) = %i", v22) )
+    LODWORD(v18) = payloadSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2101, ASSERT_TYPE_ASSERT, "( ( 0 < payloadSize ) )", "( payloadSize ) = %i", v18) )
       __debugbreak();
   }
   if ( !payload && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2102, ASSERT_TYPE_ASSERT, "(payload)", (const char *)&queryFormat, "payload") )
     __debugbreak();
-  __asm
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 2 }
+  v23.statsGroup = v8;
+  v11 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 > Com_PlayerData_GetStatsGroupMaxPackets(v8) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vmulss  xmm2, xmm0, cs:__real@3a554c72
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 2
-  }
-  v27.statsGroup = v9;
-  __asm { vcvttss2si esi, xmm4 }
-  if ( _ESI > Com_PlayerData_GetStatsGroupMaxPackets(v9) )
-  {
-    LODWORD(v22) = _ESI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2107, ASSERT_TYPE_ASSERT, "( ( static_cast< unsigned int >( packetsNeeded ) <= Com_PlayerData_GetStatsGroupMaxPackets( statsGroup ) ) )", "( packetsNeeded ) = %i", v22) )
+    LODWORD(v18) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2107, ASSERT_TYPE_ASSERT, "( ( static_cast< unsigned int >( packetsNeeded ) <= Com_PlayerData_GetStatsGroupMaxPackets( statsGroup ) ) )", "( packetsNeeded ) = %i", v18) )
       __debugbreak();
   }
-  LODWORD(fmt) = _ESI;
-  Com_Printf(14, "%s - Sending statsGroup %d in %d fragments\n", "CL_MainMP_SendStatsGroupBuffer", (unsigned int)v27.statsGroup, fmt);
+  LODWORD(fmt) = v11;
+  Com_Printf(14, "%s - Sending statsGroup %d in %d fragments\n", "CL_MainMP_SendStatsGroupBuffer", (unsigned int)v23.statsGroup, fmt);
   packetNum = 0;
-  StatsGroupBitOffset = Com_PlayerData_GetStatsGroupBitOffset(v9);
-  v27.packetNum = 0;
-  if ( _ESI > 0 )
+  StatsGroupBitOffset = Com_PlayerData_GetStatsGroupBitOffset(v8);
+  v23.packetNum = 0;
+  if ( v11 > 0 )
   {
     do
     {
@@ -8207,39 +7334,39 @@ void CL_MainMP_SendStatsGroupBuffer(const StatsGroup statsGroup, const LocalClie
       if ( _bittest64((const __int64 *)&statPacketsToSend, (unsigned __int8)(packetNum + StatsGroupBitOffset)) )
       {
         MSG_Init(&buf, data, 1252);
-        v27.moreFragments = v27.packetNum != _ESI - 1;
+        v23.moreFragments = v23.packetNum != v11 - 1;
         if ( buf.cursize )
         {
-          LODWORD(v22) = buf.cursize;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2125, ASSERT_TYPE_ASSERT, "( ( fragmentedMsg.cursize == 0 ) )", "( fragmentedMsg.cursize ) = %i", v22) )
+          LODWORD(v18) = buf.cursize;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2125, ASSERT_TYPE_ASSERT, "( ( fragmentedMsg.cursize == 0 ) )", "( fragmentedMsg.cursize ) = %i", v18) )
             __debugbreak();
         }
-        statPacketHeader_t::SerializeToMsg(&v27, &buf);
-        v19 = 1229;
-        if ( payloadSize - 1229 * v27.packetNum < 1229 )
-          v19 = payloadSize - 1229 * v27.packetNum;
-        MSG_WriteData(&buf, &payload[1229 * v27.packetNum], v19);
+        statPacketHeader_t::SerializeToMsg(&v23, &buf);
+        v15 = 1229;
+        if ( payloadSize - 1229 * v23.packetNum < 1229 )
+          v15 = payloadSize - 1229 * v23.packetNum;
+        MSG_WriteData(&buf, &payload[1229 * v23.packetNum], v15);
         if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2133, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &fragmentedMsg ))", "%s\n\tNot enough bytes to write to, need to increase stats buffer size", "!MSG_IsOverflowed( &fragmentedMsg )") )
           __debugbreak();
         if ( clcData->connectLastSendTime != cls.realtime )
         {
-          LODWORD(v24) = cls.realtime;
-          LODWORD(v23) = clcData->connectLastSendTime;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2134, ASSERT_TYPE_ASSERT, "( clcData->connectLastSendTime ) == ( cls.realtime )", "%s == %s\n\t%i, %i", "clcData->connectLastSendTime", "cls.realtime", v23, v24) )
+          LODWORD(v20) = cls.realtime;
+          LODWORD(v19) = clcData->connectLastSendTime;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_main_mp.cpp", 2134, ASSERT_TYPE_ASSERT, "( clcData->connectLastSendTime ) == ( cls.realtime )", "%s == %s\n\t%i, %i", "clcData->connectLastSendTime", "cls.realtime", v19, v20) )
             __debugbreak();
         }
-        v20 = NetConnection::SendUnreliable(&clcData->serverConnection, buf.data, buf.cursize);
-        if ( v20 < 0 )
-          CL_MainMP_TransmissionError(localClientNum, v20);
-        packetNum = v27.packetNum;
+        v16 = NetConnection::SendUnreliable(&clcData->serverConnection, buf.data, buf.cursize);
+        if ( v16 < 0 )
+          CL_MainMP_TransmissionError(localClientNum, v16);
+        packetNum = v23.packetNum;
       }
-      v27.packetNum = ++packetNum;
+      v23.packetNum = ++packetNum;
     }
-    while ( packetNum < _ESI );
-    v9 = statsGroup;
+    while ( packetNum < v11 );
+    v8 = statsGroup;
   }
   memset(data, 0, 0x4E4ui64);
-  clcData->statGroupSendTime[v9] = cls.realtime;
+  clcData->statGroupSendTime[v8] = cls.realtime;
 }
 
 /*
@@ -8517,12 +7644,12 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
   const BG_SynchronizedPlayerInfo *v4; 
   bool pauseStatusChanged; 
   int Int_Internal_DebugName; 
-  int v9; 
-  int v10; 
+  int v7; 
+  int v8; 
   unsigned int IndexByName; 
   OmnvarData *Data; 
   const OmnvarDef *Def; 
-  lua_State *v14; 
+  lua_State *v12; 
   int ControllerFromClient; 
 
   if ( localClientNum != LOCAL_CLIENT_INVALID )
@@ -8553,9 +7680,7 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
           CL_PlayerInfosMP_SetPlayerInfo(clientNum, v4);
           if ( !Lobby_AreWeHost() )
             LUI_CoD_PausedByCodcaster(localClientNum);
-          _RCX = DVARFLT_cl_timeout;
-          __asm { vmovss  xmm1, dword ptr [rcx+5Ch]; value }
-          Dvar_SetFloat_Internal(DVARFLT_cl_timeout, *(float *)&_XMM1);
+          Dvar_SetFloat_Internal(DVARFLT_cl_timeout, DVARFLT_cl_timeout->domain.value.max);
           Dvar_SetInt_Internal(DVARINT_sv_timeout, DVARINT_sv_timeout->domain.integer.max);
         }
         else if ( pauseStatusChanged )
@@ -8567,8 +7692,8 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
               if ( Lobby_AreWeHost() )
               {
                 CL_Pause_UnpauseGame();
-                v10 = Dvar_GetInt_Internal_DebugName(DVARINT_mlg_game_pause_server_delay, "mlg_game_pause_server_delay");
-                Sys_Sleep(v10);
+                v8 = Dvar_GetInt_Internal_DebugName(DVARINT_mlg_game_pause_server_delay, "mlg_game_pause_server_delay");
+                Sys_Sleep(v8);
                 CL_Pause_SetPauseReason((CLPauseReason)2048);
               }
               if ( !Lobby_AreWeHost() )
@@ -8583,9 +7708,9 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
               Def = BG_Omnvar_GetDef(IndexByName);
               Data->current.integer = cl_countdown - Def->minvalue;
               G_Omnvar_MarkChanged(Data);
-              v14 = LUI_luaVM;
+              v12 = LUI_luaVM;
               ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-              LUI_NotifyOmnvarChanged(ControllerFromClient, Def, Data, v14);
+              LUI_NotifyOmnvarChanged(ControllerFromClient, Def, Data, v12);
               --cl_countdown;
               cl_timer = Sys_Milliseconds();
             }
@@ -8598,9 +7723,7 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
                 CL_Pause_UnpauseGame();
                 v4->pauseStatusChanged = 0;
                 CL_PlayerInfosMP_SetPlayerInfo(clientNum, v4);
-                _RCX = DVARFLT_cl_timeout;
-                __asm { vmovss  xmm1, dword ptr [rcx+48h]; value }
-                Dvar_SetFloat_Internal(DVARFLT_cl_timeout, *(float *)&_XMM1);
+                Dvar_SetFloat_Internal(DVARFLT_cl_timeout, DVARFLT_cl_timeout->reset.value);
                 Dvar_SetInt_Internal(DVARINT_sv_timeout, DVARINT_sv_timeout->reset.integer);
               }
             }
@@ -8612,8 +7735,8 @@ void CL_MainMP_TogglePauseResumeGame(LocalClientNum_t localClientNum)
         }
         else if ( v4->shouldPauseGame )
         {
-          v9 = Dvar_GetInt_Internal_DebugName(DVARINT_mlg_game_paused_heartbeat_period, "mlg_game_paused_heartbeat_period");
-          if ( Sys_Milliseconds() - g_partyData.inactiveKeepaliveTime >= v9 )
+          v7 = Dvar_GetInt_Internal_DebugName(DVARINT_mlg_game_paused_heartbeat_period, "mlg_game_paused_heartbeat_period");
+          if ( Sys_Milliseconds() - g_partyData.inactiveKeepaliveTime >= v7 )
             Party_SendKeepAlives(&g_partyData, localClientNum);
         }
       }
@@ -8897,21 +8020,24 @@ void CL_SetServerInfo(ClServerInfo *server, const char *info, int ping)
   bdSecurityKey *Key; 
   const char *v18; 
   const char *v19; 
-  int v22; 
+  __m256i v20; 
+  int v21; 
+  __int128 v22; 
   char dest[32]; 
-  int v27; 
+  __m256i v24; 
+  __int128 v25; 
+  int v26; 
 
   if ( server )
   {
     v3 = ping;
-    _RBP = server;
     if ( info )
     {
       v6 = Info_ValueForKey(info, "clients");
-      _RBP->clients = atoi(v6);
+      server->clients = atoi(v6);
       v7 = Info_ValueForKey(info, "hostname");
       v8 = -1i64;
-      if ( _RBP->isDedicated )
+      if ( server->isDedicated )
       {
         v9 = -1i64;
         do
@@ -8920,21 +8046,21 @@ void CL_SetServerInfo(ClServerInfo *server, const char *info, int ping)
         if ( !(_DWORD)v9 )
           v7 = SEH_SafeTranslateString("NETWORK/DEDICATED_SERVER");
       }
-      Core_strcpy_truncate(_RBP->hostName, 0x24ui64, v7);
+      Core_strcpy_truncate(server->hostName, 0x24ui64, v7);
       v10 = Info_ValueForKey(info, "mapname");
-      Core_strcpy_truncate(_RBP->mapName, 0x24ui64, v10);
+      Core_strcpy_truncate(server->mapName, 0x24ui64, v10);
       v11 = Info_ValueForKey(info, "maxclients");
-      _RBP->maxClients = atoi(v11);
+      server->maxClients = atoi(v11);
       v12 = Info_ValueForKey(info, "gametype");
-      Core_strcpy_truncate(_RBP->gameType, 0x10ui64, v12);
+      Core_strcpy_truncate(server->gameType, 0x10ui64, v12);
       v13 = Info_ValueForKey(info, "minping");
-      _RBP->minPing = atoi(v13);
+      server->minPing = atoi(v13);
       v14 = Info_ValueForKey(info, "maxping");
-      _RBP->maxPing = atoi(v14);
+      server->maxPing = atoi(v14);
       v15 = Info_ValueForKey(info, "secid");
       v16 = (bdSecurityID)StringToInt64(v15);
-      *XSECURITY_INFO::GetId(&_RBP->xninfo) = v16;
-      Key = XSECURITY_INFO::GetKey(&_RBP->xninfo);
+      *XSECURITY_INFO::GetId(&server->xninfo) = v16;
+      Key = XSECURITY_INFO::GetKey(&server->xninfo);
       v18 = Info_ValueForKey(info, "seckey");
       StringToInt128(v18, Key->ab);
       v19 = Info_ValueForKey(info, "hostaddr");
@@ -8942,22 +8068,15 @@ void CL_SetServerInfo(ClServerInfo *server, const char *info, int ping)
         ++v8;
       while ( v19[v8] );
       bdBase64::decode(v19, v8, dest, 0x71u);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0D8h+dest]
-        vmovups ymm1, [rsp+0D8h+var_98]
-      }
-      v22 = v27;
-      __asm
-      {
-        vmovups ymmword ptr [rbp+0], ymm0
-        vmovups xmm0, [rsp+0D8h+var_78]
-        vmovups ymmword ptr [rbp+20h], ymm1
-        vmovups xmmword ptr [rbp+40h], xmm0
-      }
-      *(_DWORD *)&_RBP->xnaddr.addrBuff[80] = v22;
+      v20 = v24;
+      v21 = v26;
+      *(__m256i *)server->xnaddr.addrBuff = *(__m256i *)dest;
+      v22 = v25;
+      *(__m256i *)&server->xnaddr.addrBuff[32] = v20;
+      *(_OWORD *)&server->xnaddr.addrBuff[64] = v22;
+      *(_DWORD *)&server->xnaddr.addrBuff[80] = v21;
     }
-    _RBP->ping = v3;
+    server->ping = v3;
   }
 }
 
@@ -8968,103 +8087,97 @@ CL_SetServerInfoByAddress
 */
 void CL_SetServerInfoByAddress(netadr_t *from, const char *info, int ping)
 {
+  ClServerInfo *localServers; 
   __int16 v4; 
   int addrHandleIndex; 
-  int v10; 
+  __int128 v8; 
+  int v9; 
+  const char *v10; 
   const char *v11; 
-  const char *v12; 
-  __int64 v13; 
+  __int64 v12; 
+  const char *v13; 
   const char *v14; 
   const char *v15; 
   const char *v16; 
   const char *v17; 
   const char *v18; 
-  const char *v19; 
-  bdSecurityID v20; 
+  bdSecurityID v19; 
   bdSecurityKey *Key; 
+  const char *v21; 
   const char *v22; 
-  const char *v23; 
-  __int64 v24; 
-  int v27; 
-  netadr_t v29; 
-  netadr_t v30; 
+  __int64 v23; 
+  __m256i v24; 
+  int v25; 
+  __int128 v26; 
+  netadr_t v27; 
+  netadr_t v28; 
   char dest[32]; 
-  int v34; 
+  __m256i v30; 
+  __int128 v31; 
+  int v32; 
 
-  _RSI = cls.localServers;
+  localServers = cls.localServers;
   v4 = ping;
-  _R14 = from;
   do
   {
-    __asm { vmovups xmm0, xmmword ptr [rsi+6Ch] }
-    addrHandleIndex = _RSI->adr.addrHandleIndex;
-    __asm
-    {
-      vmovups [rsp+118h+var_F8], xmm0
-      vmovups xmm0, xmmword ptr [r14]
-    }
-    v29.addrHandleIndex = addrHandleIndex;
-    v10 = _R14->addrHandleIndex;
-    __asm { vmovups [rsp+118h+var_D8], xmm0 }
-    v30.addrHandleIndex = v10;
-    if ( NET_CompareAdr(&v30, &v29) && _RSI )
+    addrHandleIndex = localServers->adr.addrHandleIndex;
+    *(_OWORD *)&v27.type = *(_OWORD *)&localServers->adr.type;
+    v8 = *(_OWORD *)&from->type;
+    v27.addrHandleIndex = addrHandleIndex;
+    v9 = from->addrHandleIndex;
+    *(_OWORD *)&v28.type = v8;
+    v28.addrHandleIndex = v9;
+    if ( NET_CompareAdr(&v28, &v27) && localServers )
     {
       if ( info )
       {
-        v11 = Info_ValueForKey(info, "clients");
-        _RSI->clients = atoi(v11);
-        v12 = Info_ValueForKey(info, "hostname");
-        if ( _RSI->isDedicated )
+        v10 = Info_ValueForKey(info, "clients");
+        localServers->clients = atoi(v10);
+        v11 = Info_ValueForKey(info, "hostname");
+        if ( localServers->isDedicated )
         {
-          v13 = -1i64;
+          v12 = -1i64;
           do
-            ++v13;
-          while ( v12[v13] );
-          if ( !(_DWORD)v13 )
-            v12 = SEH_SafeTranslateString("NETWORK/DEDICATED_SERVER");
+            ++v12;
+          while ( v11[v12] );
+          if ( !(_DWORD)v12 )
+            v11 = SEH_SafeTranslateString("NETWORK/DEDICATED_SERVER");
         }
-        Core_strcpy_truncate(_RSI->hostName, 0x24ui64, v12);
-        v14 = Info_ValueForKey(info, "mapname");
-        Core_strcpy_truncate(_RSI->mapName, 0x24ui64, v14);
-        v15 = Info_ValueForKey(info, "maxclients");
-        _RSI->maxClients = atoi(v15);
-        v16 = Info_ValueForKey(info, "gametype");
-        Core_strcpy_truncate(_RSI->gameType, 0x10ui64, v16);
-        v17 = Info_ValueForKey(info, "minping");
-        _RSI->minPing = atoi(v17);
-        v18 = Info_ValueForKey(info, "maxping");
-        _RSI->maxPing = atoi(v18);
-        v19 = Info_ValueForKey(info, "secid");
-        v20 = (bdSecurityID)StringToInt64(v19);
-        *XSECURITY_INFO::GetId(&_RSI->xninfo) = v20;
-        Key = XSECURITY_INFO::GetKey(&_RSI->xninfo);
-        v22 = Info_ValueForKey(info, "seckey");
-        StringToInt128(v22, Key->ab);
-        v23 = Info_ValueForKey(info, "hostaddr");
-        v24 = -1i64;
+        Core_strcpy_truncate(localServers->hostName, 0x24ui64, v11);
+        v13 = Info_ValueForKey(info, "mapname");
+        Core_strcpy_truncate(localServers->mapName, 0x24ui64, v13);
+        v14 = Info_ValueForKey(info, "maxclients");
+        localServers->maxClients = atoi(v14);
+        v15 = Info_ValueForKey(info, "gametype");
+        Core_strcpy_truncate(localServers->gameType, 0x10ui64, v15);
+        v16 = Info_ValueForKey(info, "minping");
+        localServers->minPing = atoi(v16);
+        v17 = Info_ValueForKey(info, "maxping");
+        localServers->maxPing = atoi(v17);
+        v18 = Info_ValueForKey(info, "secid");
+        v19 = (bdSecurityID)StringToInt64(v18);
+        *XSECURITY_INFO::GetId(&localServers->xninfo) = v19;
+        Key = XSECURITY_INFO::GetKey(&localServers->xninfo);
+        v21 = Info_ValueForKey(info, "seckey");
+        StringToInt128(v21, Key->ab);
+        v22 = Info_ValueForKey(info, "hostaddr");
+        v23 = -1i64;
         do
-          ++v24;
-        while ( v23[v24] );
-        bdBase64::decode(v23, v24, dest, 0x71u);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+118h+dest]
-          vmovups ymm1, [rsp+118h+var_98]
-        }
-        v27 = v34;
-        __asm
-        {
-          vmovups ymmword ptr [rsi], ymm0
-          vmovups xmm0, [rsp+118h+var_78]
-          vmovups ymmword ptr [rsi+20h], ymm1
-          vmovups xmmword ptr [rsi+40h], xmm0
-        }
-        *(_DWORD *)&_RSI->xnaddr.addrBuff[80] = v27;
+          ++v23;
+        while ( v22[v23] );
+        bdBase64::decode(v22, v23, dest, 0x71u);
+        v24 = v30;
+        v25 = v32;
+        *(__m256i *)localServers->xnaddr.addrBuff = *(__m256i *)dest;
+        v26 = v31;
+        *(__m256i *)&localServers->xnaddr.addrBuff[32] = v24;
+        *(_OWORD *)&localServers->xnaddr.addrBuff[64] = v26;
+        *(_DWORD *)&localServers->xnaddr.addrBuff[80] = v25;
       }
-      _RSI->ping = v4;
+      localServers->ping = v4;
     }
-    ++_RSI;
+    ++localServers;
   }
-  while ( (__int64)_RSI < (__int64)cls.matchData.def );
+  while ( (__int64)localServers < (__int64)cls.matchData.def );
 }
 

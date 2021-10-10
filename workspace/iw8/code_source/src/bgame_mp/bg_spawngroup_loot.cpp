@@ -351,56 +351,39 @@ unsigned __int16 BG_SpawnGroup_Loot_ComputeIntegralPercentage(const unsigned int
 BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2
 ==============
 */
-
-void __fastcall BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(BG_SpawnGroup_Loot_CurrentZone *currentZone, const SpawnGroupPoint *const point, double disable_distance2)
+void BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(BG_SpawnGroup_Loot_CurrentZone *currentZone, const SpawnGroupPoint *const point, float disable_distance2)
 {
   unsigned __int16 pointCount; 
   unsigned __int16 i; 
-  unsigned __int16 v9; 
-  char v22; 
-  __int64 v24; 
-  __int64 v25; 
-  void *retaddr; 
+  unsigned __int16 v8; 
+  const SpawnGroupPoint *v9; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
+  __int64 v13; 
 
   if ( point )
   {
-    _RAX = &retaddr;
-    __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
     pointCount = currentZone->pointCount;
-    __asm { vmovaps xmm6, xmm2 }
     if ( pointCount )
     {
       for ( i = pointCount - 1; i; --i )
       {
-        v9 = currentZone->pointCount;
-        if ( i >= v9 )
+        v8 = currentZone->pointCount;
+        if ( i >= v8 )
         {
-          LODWORD(v25) = v9;
-          LODWORD(v24) = i;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 903, ASSERT_TYPE_ASSERT, "(unsigned)( distanceCheckIndex ) < (unsigned)( currentZone.pointCount )", "distanceCheckIndex doesn't index currentZone.pointCount\n\t%i not in [0, %i)", v24, v25) )
+          LODWORD(v13) = v8;
+          LODWORD(v12) = i;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 903, ASSERT_TYPE_ASSERT, "(unsigned)( distanceCheckIndex ) < (unsigned)( currentZone.pointCount )", "distanceCheckIndex doesn't index currentZone.pointCount\n\t%i not in [0, %i)", v12, v13) )
             __debugbreak();
         }
-        _RAX = BG_SpawnGroup_Loot_GetPoint(currentZone->points[i]);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vsubss  xmm3, xmm0, dword ptr [rbp+0]
-          vmovss  xmm1, dword ptr [rax+4]
-          vsubss  xmm2, xmm1, dword ptr [rbp+4]
-          vmovss  xmm0, dword ptr [rax+8]
-          vsubss  xmm4, xmm0, dword ptr [rbp+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm6
-        }
-        if ( v22 )
+        v9 = BG_SpawnGroup_Loot_GetPoint(currentZone->points[i]);
+        v10 = v9->origin.v[1] - point->origin.v[1];
+        v11 = v9->origin.v[2] - point->origin.v[2];
+        if ( (float)((float)((float)(v10 * v10) + (float)((float)(v9->origin.v[0] - point->origin.v[0]) * (float)(v9->origin.v[0] - point->origin.v[0]))) + (float)(v11 * v11)) < disable_distance2 )
           BG_SpawnGroup_Loot_UshortArrayRemove(currentZone->points, &currentZone->pointCount, i);
       }
     }
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
   }
 }
 
@@ -411,88 +394,85 @@ BG_SpawnGroup_Loot_FindOverlappingNodes
 */
 void BG_SpawnGroup_Loot_FindOverlappingNodes()
 {
+  __int64 v0; 
+  __int64 v1; 
+  __int64 v2; 
+  __int64 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
   __int64 pointCount; 
-  __int64 v5; 
+  __int64 v8; 
+  __int64 v9; 
+  SpawnGroupPoint *points; 
   __int64 v11; 
   __int64 v12; 
-  SpawnGroupPoint *points; 
+  SpawnGroupPoint *v13; 
   unsigned __int16 cluster; 
   const vec3_t *p_origin; 
-  unsigned __int16 v21; 
-  bool v29; 
-  char *v30; 
-  void *retaddr; 
+  float v16; 
+  unsigned __int16 v17; 
+  float v18; 
+  float v19; 
+  char *v20; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
 
-  _R11 = &retaddr;
   pointCount = cm.mapEnts->spawnGroupLoot.pointCount;
   if ( cm.mapEnts->spawnGroupLoot.pointCount )
   {
-    v5 = 0i64;
-    _R14 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+78h+var_38], xmm6
-      vmovss  xmm6, cs:__real@45992000
-      vmovaps [rsp+78h+var_48], xmm7
-      vmovss  xmm7, cs:__real@43800000
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovss  xmm8, cs:__real@44fd2000
-    }
+    v8 = 0i64;
+    v27 = v0;
+    v26 = v1;
+    v25 = v2;
+    v24 = v3;
+    v9 = 0i64;
+    v23 = v4;
+    v22 = v5;
+    v21 = v6;
     do
     {
-      _R12 = cm.mapEnts->spawnGroupLoot.points;
-      if ( _R12[_R14].cluster != 0xFFFB )
+      points = cm.mapEnts->spawnGroupLoot.points;
+      if ( points[v9].cluster != 0xFFFB )
       {
         v11 = 0i64;
         v12 = 0i64;
         do
         {
-          if ( v11 != v5 )
+          if ( v11 != v8 )
           {
-            points = cm.mapEnts->spawnGroupLoot.points;
-            cluster = points[v12].cluster;
-            p_origin = &points[v12].origin;
+            v13 = cm.mapEnts->spawnGroupLoot.points;
+            cluster = v13[v12].cluster;
+            p_origin = &v13[v12].origin;
             if ( cluster != 0xFFFB )
             {
-              __asm
+              v17 = points[v9].cluster;
+              v19 = FLOAT_2025_0;
+              if ( (unsigned __int16)(v17 + 4) > 1u || (unsigned __int16)(cluster + 4) > 1u )
               {
-                vmovss  xmm0, dword ptr [r14+r12]
-                vsubss  xmm3, xmm0, dword ptr [rdx]
-                vmovss  xmm1, dword ptr [r14+r12+4]
-                vsubss  xmm2, xmm1, dword ptr [rdx+4]
-                vmovss  xmm0, dword ptr [r14+r12+8]
-              }
-              v21 = _R12[_R14].cluster;
-              __asm
-              {
-                vsubss  xmm4, xmm0, dword ptr [rdx+8]
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm2, xmm2, xmm2
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm5, xmm3, xmm0
-                vmovaps xmm1, xmm8
-              }
-              if ( (unsigned __int16)(v21 + 4) > 1u || (v29 = cluster == 0xFFFC, (unsigned __int16)(cluster + 4) > 1u) )
-              {
-                v29 = v21 == 0xFFFC;
-                if ( v21 == 0xFFFC || v21 == 0xFFFD || (v29 = cluster == 0xFFFC, (unsigned __int16)(cluster + 4) <= 1u) )
-                  __asm { vmovaps xmm1, xmm7 }
+                if ( v17 == 0xFFFC || v17 == 0xFFFD || (unsigned __int16)(cluster + 4) <= 1u )
+                  v19 = FLOAT_256_0;
               }
               else
               {
-                __asm { vmovaps xmm1, xmm6 }
+                v19 = FLOAT_4900_0;
               }
-              __asm { vcomiss xmm5, xmm1 }
-              if ( v29 )
+              v16 = points[v9].origin.v[1] - p_origin->v[1];
+              v18 = points[v9].origin.v[2] - p_origin->v[2];
+              if ( (float)((float)((float)(v16 * v16) + (float)((float)(points[v9].origin.v[0] - p_origin->v[0]) * (float)(points[v9].origin.v[0] - p_origin->v[0]))) + (float)(v18 * v18)) < v19 )
               {
                 if ( !s_lootNodeErrorsPerPoint[v11] )
                   s_lootNodeErrorsPerPoint[v11] = 3;
-                v30 = vtos(p_origin);
+                v20 = vtos(p_origin);
                 if ( (unsigned __int16)(cluster + 4) > 1u )
-                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[3], v30);
+                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[3], v20, v21, v22, v23, v24, v25, v26, v27);
                 else
-                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[3], v30);
+                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[3], v20);
               }
             }
           }
@@ -501,16 +481,10 @@ void BG_SpawnGroup_Loot_FindOverlappingNodes()
         }
         while ( v11 < pointCount );
       }
-      ++v5;
-      ++_R14;
+      ++v8;
+      ++v9;
     }
-    while ( v5 < pointCount );
-    __asm
-    {
-      vmovaps xmm8, [rsp+78h+var_58]
-      vmovaps xmm7, [rsp+78h+var_48]
-      vmovaps xmm6, [rsp+78h+var_38]
-    }
+    while ( v8 < pointCount );
   }
 }
 
@@ -1902,36 +1876,34 @@ void BG_SpawnGroup_Loot_ReportCounts(const BG_SpawnGroup_Loot_Table *table, cons
 {
   unsigned __int16 itemCount; 
   unsigned __int16 itemCountCache; 
-  unsigned __int16 v17; 
-  unsigned int v18; 
+  unsigned __int16 v11; 
+  int v12; 
+  float v13; 
   BG_SpawnGroup_Loot_Caches *cacheBuffer; 
-  __int64 v22; 
-  unsigned __int64 v23; 
+  __int64 v15; 
+  unsigned __int64 v16; 
   unsigned __int8 i; 
-  __int64 v25; 
+  __int64 v18; 
   const char *name; 
   unsigned __int8 setCount; 
-  unsigned int v28; 
+  unsigned int v21; 
   unsigned int itemCountInGlobalZone; 
-  __int64 v30; 
+  __int64 v23; 
   unsigned __int16 *itemCountByZone; 
-  bool v45; 
+  float v25; 
+  float v26; 
+  bool v27; 
   unsigned __int16 j; 
-  unsigned __int16 v47; 
-  const char *v52; 
-  bool v53; 
+  unsigned __int16 v29; 
+  const char *v30; 
+  bool v31; 
   unsigned __int8 k; 
-  unsigned __int16 v56; 
-  bool v61; 
+  unsigned __int16 v33; 
+  bool v34; 
   unsigned __int16 *itemCountByRarity; 
-  unsigned __int16 v64; 
-  bool v69; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  const char *v79; 
+  unsigned __int16 v36; 
+  bool v37; 
+  const char *v38; 
   DLogContext context; 
   char buffer[4096]; 
 
@@ -1941,212 +1913,127 @@ void BG_SpawnGroup_Loot_ReportCounts(const BG_SpawnGroup_Loot_Table *table, cons
     itemCountCache = counts->itemCountCache;
     if ( itemCountCache <= itemCount )
     {
-      __asm
-      {
-        vmovaps [rsp+1230h+var_60], xmm7
-        vmovss  xmm7, cs:__real@42c80000
-        vmovaps [rsp+1230h+var_70], xmm8
-      }
-      v79 = (char *)&queryFormat.fmt + 3;
-      v17 = 0;
-      v18 = (unsigned __int16)(itemCount - itemCountCache);
-      __asm
-      {
-        vxorps  xmm8, xmm8, xmm8
-        vcvtsi2ss xmm8, xmm8, r14d
-      }
+      v38 = (char *)&queryFormat.fmt + 3;
+      v11 = 0;
+      v12 = (unsigned __int16)(itemCount - itemCountCache);
+      v13 = (float)v12;
       if ( cacheTypeIndex )
       {
         cacheBuffer = loot->cacheBuffer;
-        v22 = (__int64)&cacheBuffer->cacheTypes[cacheTypeIndex];
-        v23 = (unsigned __int64)cacheBuffer->cacheTypes[cacheTypeIndex].itemDefIndex << 8;
-        v79 = *(const char **)((char *)&table->itemDefs[0].name + v23);
+        v15 = (__int64)&cacheBuffer->cacheTypes[cacheTypeIndex];
+        v16 = (unsigned __int64)cacheBuffer->cacheTypes[cacheTypeIndex].itemDefIndex << 8;
+        v38 = *(const char **)((char *)&table->itemDefs[0].name + v16);
         Com_Printf(29, "\n\nCache Pre-Selection\n");
         Com_Printf(29, "==============================================================\n");
-        Com_Printf(29, " CacheType = %s\n", *(const char **)((char *)&table->itemDefs[0].name + v23));
-        for ( i = 0; i < *(_BYTE *)(v22 + 3); ++i )
+        Com_Printf(29, " CacheType = %s\n", *(const char **)((char *)&table->itemDefs[0].name + v16));
+        for ( i = 0; i < *(_BYTE *)(v15 + 3); ++i )
         {
-          v25 = *(unsigned __int8 *)(i + v22);
-          name = table->sets[v25].name;
-          if ( table->sets[v25].inheritance )
-            Com_Printf(29, " CacheSet[%d] = %s (inherits from %s)\n", i, name, table->sets[v25].inheritance);
+          v18 = *(unsigned __int8 *)(i + v15);
+          name = table->sets[v18].name;
+          if ( table->sets[v18].inheritance )
+            Com_Printf(29, " CacheSet[%d] = %s (inherits from %s)\n", i, name, table->sets[v18].inheritance);
           else
             Com_Printf(29, " CacheSet[%d] = %s\n", i, name);
         }
-        Com_Printf(29, " Total Items Choosen For All Caches = %d\n", v18);
+        Com_Printf(29, " Total Items Choosen For All Caches = %d\n", (unsigned int)v12);
       }
       else if ( setIndex && cm.mapEnts->spawnGroupLoot.zoneCount )
       {
         setCount = table->setCount;
         if ( setIndex >= setCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 1876, ASSERT_TYPE_ASSERT, "(unsigned)( setIndex ) < (unsigned)( table->setCount )", "setIndex doesn't index table->setCount\n\t%i not in [0, %i)", setIndex, setCount) )
           __debugbreak();
-        v28 = 0;
+        v21 = 0;
         itemCountInGlobalZone = 0;
-        v79 = table->sets[setIndex].name;
+        v38 = table->sets[setIndex].name;
         if ( table->setForZoneDefault == setIndex )
         {
           itemCountInGlobalZone = loot->itemCountInGlobalZone;
-          v28 = 1;
+          v21 = 1;
         }
         if ( cm.mapEnts->spawnGroupLoot.zoneCount )
         {
-          v30 = 0i64;
+          v23 = 0i64;
           itemCountByZone = loot->itemCountByZone;
           do
           {
-            if ( table->setForZone[v30] == setIndex )
+            if ( table->setForZone[v23] == setIndex )
             {
               itemCountInGlobalZone += *itemCountByZone;
-              ++v28;
+              ++v21;
             }
-            ++v30;
+            ++v23;
             ++itemCountByZone;
           }
-          while ( v30 < cm.mapEnts->spawnGroupLoot.zoneCount );
+          while ( v23 < cm.mapEnts->spawnGroupLoot.zoneCount );
         }
         Com_Printf(29, "\n\nSet %s\n", table->sets[setIndex].name);
         Com_Printf(29, "==============================================================\n");
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, rax
-          vcvtsi2ss xmm0, xmm0, r9d
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, xmm7
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmovsd  [rsp+1230h+fmt], xmm3
-        }
-        Com_Printf(29, " Zones = %d / %d ( %5.1f percent )\n", v28, cm.mapEnts->spawnGroupLoot.zoneCount, *(double *)&fmt);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, rax
-          vcvtsi2ss xmm0, xmm0, r9d
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, xmm7
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmovsd  [rsp+1230h+fmt], xmm3
-        }
-        Com_Printf(29, " Items = %d / %d ( %5.1f percent )\n", itemCountInGlobalZone, loot->itemCounts.itemCount, *(double *)&fmta);
+        v25 = (float)v21;
+        Com_Printf(29, " Zones = %d / %d ( %5.1f percent )\n", v21, cm.mapEnts->spawnGroupLoot.zoneCount, (float)((float)(v25 / (float)cm.mapEnts->spawnGroupLoot.zoneCount) * 100.0));
+        v26 = (float)itemCountInGlobalZone;
+        Com_Printf(29, " Items = %d / %d ( %5.1f percent )\n", itemCountInGlobalZone, loot->itemCounts.itemCount, (float)((float)(v26 / (float)loot->itemCounts.itemCount) * 100.0));
       }
-      __asm { vmovaps [rsp+1230h+var_50], xmm6 }
-      Com_Printf(131101, "\nItems %s\n", v79);
+      Com_Printf(131101, "\nItems %s\n", v38);
       Com_Printf(131101, "--------------------------------------------------------------\n");
-      v45 = writeToDlog;
+      v27 = writeToDlog;
       for ( j = 0; j < table->itemDefCount; ++j )
       {
-        v47 = counts->itemCountByDef[j];
-        if ( v47 )
+        v29 = counts->itemCountByDef[j];
+        if ( v29 )
         {
-          __asm
+          if ( v27 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vdivss  xmm1, xmm0, xmm8
-            vmulss  xmm6, xmm1, xmm7
-          }
-          if ( v45 )
-          {
-            v52 = table->itemDefs[(unsigned __int64)j].name;
+            v30 = table->itemDefs[(unsigned __int64)j].name;
             if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
             {
-              v53 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_item");
+              v31 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_item");
               context.autoEndEvent = 1;
-              if ( v53 && DLog_String(&context, "loot_name", v52, 0) && DLog_UInt16(&context, "loot_count", v47) )
-              {
-                __asm { vmovaps xmm2, xmm6; value }
-                if ( DLog_Float32(&context, "loot_spawn_percent", *(float *)&_XMM2) )
-                  DLog_RecordContext(&context);
-              }
+              if ( v31 && DLog_String(&context, "loot_name", v30, 0) && DLog_UInt16(&context, "loot_count", v29) && DLog_Float32(&context, "loot_spawn_percent", (float)((float)v29 / v13) * 100.0) )
+                DLog_RecordContext(&context);
             }
-            v45 = writeToDlog;
+            v27 = writeToDlog;
           }
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+1230h+fmt], xmm0
-          }
-          Com_Printf(131101, " Item %30s %5d (%5.1f percent)\n", table->itemDefs[(unsigned __int64)j].name, counts->itemCountByDef[j], *(double *)&fmtb);
+          Com_Printf(131101, " Item %30s %5d (%5.1f percent)\n", table->itemDefs[(unsigned __int64)j].name, counts->itemCountByDef[j], (float)((float)((float)v29 / v13) * 100.0));
         }
       }
-      Com_Printf(131101, "\nTypes %s\n", v79);
+      Com_Printf(131101, "\nTypes %s\n", v38);
       Com_Printf(131101, "--------------------------------------------------------------\n");
       for ( k = 1; k < table->itemTypeCount; ++k )
       {
-        v56 = counts->itemCountByType[k];
-        if ( v56 )
+        v33 = counts->itemCountByType[k];
+        if ( v33 )
         {
-          __asm
+          if ( v27 && DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vdivss  xmm1, xmm0, xmm8
-            vmulss  xmm6, xmm1, xmm7
-          }
-          if ( v45 && DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
-          {
-            v61 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_type");
+            v34 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_type");
             context.autoEndEvent = 1;
-            if ( v61 && DLog_UInt16(&context, "loot_type", k) && DLog_UInt16(&context, "loot_type_count", v56) )
-            {
-              __asm { vmovaps xmm2, xmm6; value }
-              if ( DLog_Float32(&context, "loot_type_percent", *(float *)&_XMM2) )
-                DLog_RecordContext(&context);
-            }
+            if ( v34 && DLog_UInt16(&context, "loot_type", k) && DLog_UInt16(&context, "loot_type_count", v33) && DLog_Float32(&context, "loot_type_percent", (float)((float)v33 / v13) * 100.0) )
+              DLog_RecordContext(&context);
           }
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+1230h+fmt], xmm0
-          }
-          Com_Printf(131101, " Type %30s %5d (%5.1f percent)\n", table->itemTypes[k], counts->itemCountByType[k], *(double *)&fmtc);
+          Com_Printf(131101, " Type %30s %5d (%5.1f percent)\n", table->itemTypes[k], counts->itemCountByType[k], (float)((float)((float)v33 / v13) * 100.0));
         }
       }
-      Com_Printf(131101, "\nRarities %s\n", v79);
+      Com_Printf(131101, "\nRarities %s\n", v38);
       Com_Printf(131101, "--------------------------------------------------------------\n");
       itemCountByRarity = counts->itemCountByRarity;
       do
       {
-        v64 = *itemCountByRarity;
+        v36 = *itemCountByRarity;
         if ( *itemCountByRarity )
         {
-          __asm
+          if ( v27 && DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vdivss  xmm1, xmm0, xmm8
-            vmulss  xmm6, xmm1, xmm7
-          }
-          if ( v45 && DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
-          {
-            v69 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_rarity");
+            v37 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_rarity");
             context.autoEndEvent = 1;
-            if ( v69 && DLog_UInt16(&context, "loot_rarity", v17) && DLog_UInt16(&context, "loot_rarity_count", v64) )
-            {
-              __asm { vmovaps xmm2, xmm6; value }
-              if ( DLog_Float32(&context, "loot_rarity_percent", *(float *)&_XMM2) )
-                DLog_RecordContext(&context);
-            }
+            if ( v37 && DLog_UInt16(&context, "loot_rarity", v11) && DLog_UInt16(&context, "loot_rarity_count", v36) && DLog_Float32(&context, "loot_rarity_percent", (float)((float)v36 / v13) * 100.0) )
+              DLog_RecordContext(&context);
           }
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+1230h+fmt], xmm0
-          }
-          Com_Printf(131101, " Rarity level %2d                      %5d (%5.1f percent)\n", v17, *itemCountByRarity, *(double *)&fmtd);
+          Com_Printf(131101, " Rarity level %2d                      %5d (%5.1f percent)\n", v11, *itemCountByRarity, (float)((float)((float)v36 / v13) * 100.0));
         }
-        ++v17;
+        ++v11;
         ++itemCountByRarity;
       }
-      while ( v17 < 8u );
-      __asm
-      {
-        vmovaps xmm8, [rsp+1230h+var_70]
-        vmovaps xmm7, [rsp+1230h+var_60]
-        vmovaps xmm6, [rsp+1230h+var_50]
-      }
+      while ( v11 < 8u );
     }
   }
 }
@@ -2159,172 +2046,106 @@ BG_SpawnGroup_Loot_ReportZones
 void BG_SpawnGroup_Loot_ReportZones(BG_SpawnGroup_Loot_Table *table, BG_SpawnGroup_Loot *loot)
 {
   signed __int64 v2; 
-  void *v7; 
+  void *v3; 
   MapEnts *mapEnts; 
+  float v7; 
   BG_SpawnGroup_Loot_Set *Set; 
-  unsigned __int16 itemCountInGlobalZone; 
+  int itemCountInGlobalZone; 
   const char **p_name; 
   const char *name; 
-  bool v22; 
-  __int64 v24; 
+  bool v12; 
+  __int64 v13; 
+  __int64 v14; 
   unsigned __int16 *itemCountByZone; 
-  __int64 v27; 
+  __int64 v16; 
   unsigned __int8 setForZoneDefault; 
-  BG_SpawnGroup_Loot_Set *v29; 
-  unsigned __int16 v30; 
-  scr_string_t v33; 
-  const char *v36; 
-  const char *v37; 
-  const char *v38; 
-  bool v39; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  double v55; 
-  __int64 v56; 
-  __int64 v57; 
-  double v58; 
-  MapEnts *v59; 
+  BG_SpawnGroup_Loot_Set *v18; 
+  int v19; 
+  scr_string_t v20; 
+  float v21; 
+  const char *v22; 
+  const char *v23; 
+  const char *v24; 
+  bool v25; 
+  SpawnGroupZone *zones; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
+  MapEnts *v32; 
   DLogContext context; 
   char buffer[4096]; 
-  char v65; 
 
-  v7 = alloca(v2);
-  __asm
-  {
-    vmovaps [rsp+1248h+var_48], xmm6
-    vmovaps [rsp+1248h+var_58], xmm7
-    vmovaps [rsp+1248h+var_68], xmm8
-  }
+  v3 = alloca(v2);
   mapEnts = cm.mapEnts;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, eax
-  }
-  v59 = cm.mapEnts;
+  v7 = (float)(unsigned __int16)(loot->itemCounts.itemCount - loot->itemCounts.itemCountCache);
+  v32 = cm.mapEnts;
   Com_Printf(131101, "\nSpawned Zones\n");
   Com_Printf(131101, "==============================================================\n");
-  __asm { vmovss  xmm8, cs:__real@42c80000 }
   if ( loot->itemCountInGlobalZone )
   {
     Set = BG_SpawnGroup_Loot_GetSet(table, table->setForZoneDefault);
     itemCountInGlobalZone = loot->itemCountInGlobalZone;
     p_name = &Set->name;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-    }
     name = Set->name;
-    __asm
-    {
-      vdivss  xmm1, xmm0, xmm7
-      vmulss  xmm6, xmm1, xmm8
-    }
     if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
     {
-      v22 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_zone");
+      v12 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_zone");
       context.autoEndEvent = 1;
-      if ( v22 && DLog_String(&context, "loot_zone_name", "global", 0) && DLog_String(&context, "loot_set_name", name, 0) && DLog_UInt16(&context, "loot_zone_count", itemCountInGlobalZone) )
-      {
-        __asm { vmovaps xmm2, xmm6; value }
-        if ( DLog_Float32(&context, "loot_zone_percent", *(float *)&_XMM2) )
-          DLog_RecordContext(&context);
-      }
+      if ( v12 && DLog_String(&context, "loot_zone_name", "global", 0) && DLog_String(&context, "loot_set_name", name, 0) && DLog_UInt16(&context, "loot_zone_count", itemCountInGlobalZone) && DLog_Float32(&context, "loot_zone_percent", (float)((float)itemCountInGlobalZone / v7) * 100.0) )
+        DLog_RecordContext(&context);
     }
-    __asm
-    {
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+1248h+var_1218], xmm0
-    }
-    Com_Printf(131101, " Zone %30s %5d items %23d caches (%5d cp) (%5.1f percent) with set %s\n", "global", (unsigned __int16)(loot->itemCountInGlobalZone - loot->cacheCountInGlobalZone), loot->cacheCountInGlobalZone, loot->cachePointCountInGlobalZone, v55, *p_name);
+    Com_Printf(131101, " Zone %30s %5d items %23d caches (%5d cp) (%5.1f percent) with set %s\n", "global", (unsigned __int16)(loot->itemCountInGlobalZone - loot->cacheCountInGlobalZone), loot->cacheCountInGlobalZone, loot->cachePointCountInGlobalZone, (float)((float)((float)itemCountInGlobalZone / v7) * 100.0), *p_name);
   }
-  v24 = 0i64;
-  _RDI = 0i64;
+  v13 = 0i64;
+  v14 = 0i64;
   itemCountByZone = loot->itemCountByZone;
-  v27 = 1000i64;
+  v16 = 1000i64;
   do
   {
     if ( *itemCountByZone )
     {
-      setForZoneDefault = table->setForZone[v24];
+      setForZoneDefault = table->setForZone[v13];
       if ( !setForZoneDefault )
         setForZoneDefault = table->setForZoneDefault;
-      v29 = BG_SpawnGroup_Loot_GetSet(table, setForZoneDefault);
-      v30 = *itemCountByZone;
-      __asm
+      v18 = BG_SpawnGroup_Loot_GetSet(table, setForZoneDefault);
+      v19 = *itemCountByZone;
+      v20 = mapEnts->spawnGroupLoot.zones[v14].name;
+      v21 = (float)((float)v19 / v7) * 100.0;
+      if ( v20 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-      }
-      v33 = mapEnts->spawnGroupLoot.zones[_RDI].name;
-      __asm
-      {
-        vdivss  xmm1, xmm0, xmm7
-        vmulss  xmm6, xmm1, xmm8
-      }
-      if ( v33 )
-      {
-        v37 = SL_ConvertToString(v33);
-        v30 = *itemCountByZone;
-        v36 = v37;
+        v23 = SL_ConvertToString(v20);
+        LOWORD(v19) = *itemCountByZone;
+        v22 = v23;
       }
       else
       {
-        v36 = "unnamed";
+        v22 = "unnamed";
       }
-      v38 = v29->name;
+      v24 = v18->name;
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
       {
-        v39 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_zone");
+        v25 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_zone");
         context.autoEndEvent = 1;
-        if ( v39 && DLog_String(&context, "loot_zone_name", v36, 0) && DLog_String(&context, "loot_set_name", v38, 0) && DLog_UInt16(&context, "loot_zone_count", v30) )
-        {
-          __asm { vmovaps xmm2, xmm6; value }
-          if ( DLog_Float32(&context, "loot_zone_percent", *(float *)&_XMM2) )
-            DLog_RecordContext(&context);
-        }
+        if ( v25 && DLog_String(&context, "loot_zone_name", v22, 0) && DLog_String(&context, "loot_set_name", v24, 0) && DLog_UInt16(&context, "loot_zone_count", v19) && DLog_Float32(&context, "loot_zone_percent", v21) )
+          DLog_RecordContext(&context);
       }
-      __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-      _R9 = v59->spawnGroupLoot.zones;
-      __asm { vmovsd  [rsp+1248h+var_1200], xmm0 }
-      LODWORD(v57) = itemCountByZone[2000];
-      LODWORD(v56) = itemCountByZone[1000];
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+r9+24h]
-        vmovss  xmm2, dword ptr [rdi+r9+20h]
-      }
-      LODWORD(v54) = (unsigned __int16)(_R9[_RDI].pointCount - v57);
-      LODWORD(v53) = _R9[_RDI].clusterCount;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-      }
-      LODWORD(v52) = (unsigned __int16)(*itemCountByZone - v56);
-      __asm
-      {
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      Com_Printf(131101, " Zone at  %12.3f %12.3f  %5d items (%5d c %5d p) %5d caches (%5d cp) (%5.1f percent) %s with set %s\n", *(double *)&_XMM2, *(double *)&_XMM3, v52, v53, v54, v56, v57, v58, v36, v38);
-      mapEnts = v59;
+      zones = v32->spawnGroupLoot.zones;
+      LODWORD(v31) = itemCountByZone[2000];
+      LODWORD(v30) = itemCountByZone[1000];
+      LODWORD(v29) = (unsigned __int16)(zones[v14].pointCount - v31);
+      LODWORD(v28) = zones[v14].clusterCount;
+      LODWORD(v27) = (unsigned __int16)(*itemCountByZone - v30);
+      Com_Printf(131101, " Zone at  %12.3f %12.3f  %5d items (%5d c %5d p) %5d caches (%5d cp) (%5.1f percent) %s with set %s\n", zones[v14].bounds.midPoint.v[0], zones[v14].bounds.midPoint.v[1], v27, v28, v29, v30, v31, v21, v22, v24);
+      mapEnts = v32;
     }
-    ++v24;
+    ++v13;
     ++itemCountByZone;
-    ++_RDI;
-    --v27;
+    ++v14;
+    --v16;
   }
-  while ( v27 );
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( v16 );
 }
 
 /*
@@ -2361,60 +2182,62 @@ BG_SpawnGroup_Loot_Spawn
 */
 void BG_SpawnGroup_Loot_Spawn(BG_SpawnGroup_Loot *loot, unsigned int seed, const StringTable *lootTable, const StringTable *zoneMapTable, const char *lootTableFilter, BG_SpawnGroup_Loot_Table *table, bool printResultsToConsole)
 {
-  BG_SpawnGroup_Loot_Table *v9; 
-  BG_SpawnGroup_Loot *v12; 
+  BG_SpawnGroup_Loot_Table *v7; 
+  BG_SpawnGroup_Loot *v10; 
   MapEnts *mapEnts; 
-  unsigned int v14; 
+  unsigned int v12; 
   unsigned __int16 *cacheCountByZone; 
   unsigned __int16 *itemCountByDef; 
-  __int64 v17; 
+  __int64 v15; 
   BG_SpawnGroup_Loot_Caches *cacheBuffer; 
-  unsigned __int8 v19; 
-  __int64 v20; 
-  BG_SpawnGroup_Loot_Caches *v21; 
-  bool v22; 
+  unsigned __int8 v17; 
+  __int64 v18; 
+  BG_SpawnGroup_Loot_Caches *v19; 
+  bool v20; 
   unsigned __int16 i; 
-  int v24; 
-  unsigned __int8 *v25; 
-  MapEnts *v26; 
-  int v27; 
-  __int64 v28; 
-  __int64 v29; 
+  int v22; 
+  unsigned __int8 *v23; 
+  MapEnts *v24; 
+  signed int v25; 
+  __int64 v26; 
+  __int64 v27; 
   SpawnGroupZone *zones; 
-  unsigned int v31; 
-  unsigned __int16 v32; 
+  unsigned int v29; 
+  unsigned __int16 v30; 
   unsigned __int16 pointCount; 
-  __int64 v34; 
-  int zoneCount; 
+  __int64 v32; 
+  signed int zoneCount; 
   unsigned int cachePointCountInGlobalZone; 
-  __int64 v37; 
-  int v38; 
-  int v39; 
-  BG_SpawnGroup_Loot_Counts *v40; 
-  BG_SpawnGroup_Loot *v41; 
+  __int64 v35; 
+  unsigned int v36; 
+  int v37; 
+  BG_SpawnGroup_Loot_Counts *v38; 
+  BG_SpawnGroup_Loot *v39; 
+  float v40; 
+  float v41; 
   unsigned __int8 j; 
   unsigned __int16 itemCount; 
-  unsigned __int16 v59; 
-  unsigned __int16 v60; 
-  bool v61; 
-  BG_SpawnGroup_Loot_Caches *v62; 
-  unsigned __int8 v63; 
+  unsigned __int16 v44; 
+  unsigned __int16 v45; 
+  bool v46; 
+  BG_SpawnGroup_Loot_Caches *v47; 
+  unsigned __int8 v48; 
   char *fmt; 
   __int64 writeToDlog; 
-  __int64 v66; 
+  __int64 v51; 
   unsigned int pHoldrand; 
-  int v68; 
+  unsigned int v53; 
   BG_SpawnGroup_Loot *loota; 
   BG_SpawnGroup_Loot_Counts *counts; 
-  BG_SpawnGroup_Loot_Table *v71; 
+  BG_SpawnGroup_Loot_Table *v56; 
   DLogContext context; 
   char buffer[4096]; 
 
-  v9 = table;
+  v7 = table;
   loota = loot;
-  v12 = loot;
+  v10 = loot;
   pHoldrand = seed;
-  v71 = table;
+  v56 = table;
   if ( (!table || !loot || !lootTable) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 2039, ASSERT_TYPE_ASSERT, "(table && loot && lootTable)", (const char *)&queryFormat, "table && loot && lootTable") )
     __debugbreak();
   mapEnts = cm.mapEnts;
@@ -2428,20 +2251,20 @@ void BG_SpawnGroup_Loot_Spawn(BG_SpawnGroup_Loot *loot, unsigned int seed, const
       Com_Printf(131101, "[SPAWNGROUP_LOOT] Filter: %s\n", lootTableFilter);
       Com_Printf(131101, "[SPAWNGROUP_LOOT] ZoneMap: %s\n", zoneMapTable->name);
     }
-    if ( BG_SpawnGroup_Loot_ParseTable(table, lootTable, zoneMapTable, lootTableFilter, v12->cacheBuffer) )
+    if ( BG_SpawnGroup_Loot_ParseTable(table, lootTable, zoneMapTable, lootTableFilter, v10->cacheBuffer) )
     {
-      v14 = 0;
-      counts = &v12->itemCounts;
-      *(_DWORD *)&v12->itemCounts.itemCount = 0;
-      memset_0(v12->itemCounts.itemCountByType, 0, 0x204ui64);
-      memset_0(v12->itemCountByZone, 0, sizeof(v12->itemCountByZone));
-      cacheCountByZone = v12->cacheCountByZone;
-      memset_0(v12->cacheCountByZone, 0, sizeof(v12->cacheCountByZone));
-      memset_0(v12->cachePointCountByZone, 0, sizeof(v12->cachePointCountByZone));
-      *(_DWORD *)&v12->itemCountInGlobalZone = 0;
-      itemCountByDef = v12->itemCountsBySet[1].itemCountByDef;
-      v12->cachePointCountInGlobalZone = 0;
-      v17 = 29i64;
+      v12 = 0;
+      counts = &v10->itemCounts;
+      *(_DWORD *)&v10->itemCounts.itemCount = 0;
+      memset_0(v10->itemCounts.itemCountByType, 0, 0x204ui64);
+      memset_0(v10->itemCountByZone, 0, sizeof(v10->itemCountByZone));
+      cacheCountByZone = v10->cacheCountByZone;
+      memset_0(v10->cacheCountByZone, 0, sizeof(v10->cacheCountByZone));
+      memset_0(v10->cachePointCountByZone, 0, sizeof(v10->cachePointCountByZone));
+      *(_DWORD *)&v10->itemCountInGlobalZone = 0;
+      itemCountByDef = v10->itemCountsBySet[1].itemCountByDef;
+      v10->cachePointCountInGlobalZone = 0;
+      v15 = 29i64;
       do
       {
         *((_DWORD *)itemCountByDef - 26) = 0;
@@ -2450,28 +2273,28 @@ void BG_SpawnGroup_Loot_Spawn(BG_SpawnGroup_Loot *loot, unsigned int seed, const
         *((_QWORD *)itemCountByDef + 50) = 0i64;
         *((_QWORD *)itemCountByDef + 51) = 0i64;
         itemCountByDef += 260;
-        --v17;
+        --v15;
       }
-      while ( v17 );
-      cacheBuffer = v12->cacheBuffer;
+      while ( v15 );
+      cacheBuffer = v10->cacheBuffer;
       if ( cacheBuffer )
       {
-        v19 = 0;
+        v17 = 0;
         if ( cacheBuffer->cacheTypeCount )
         {
           do
           {
-            v20 = v19;
-            v21 = v12->cacheBuffer;
-            *(_DWORD *)&v21->cacheTypes[v20].contents.itemCount = 0;
-            memset_0(v21->cacheTypes[v20].contents.itemCountByType, 0, 0x204ui64);
-            ++v19;
+            v18 = v17;
+            v19 = v10->cacheBuffer;
+            *(_DWORD *)&v19->cacheTypes[v18].contents.itemCount = 0;
+            memset_0(v19->cacheTypes[v18].contents.itemCountByType, 0, 0x204ui64);
+            ++v17;
           }
-          while ( v19 < v12->cacheBuffer->cacheTypeCount );
+          while ( v17 < v10->cacheBuffer->cacheTypeCount );
         }
       }
       BG_srand(&pHoldrand);
-      v22 = printResultsToConsole;
+      v20 = printResultsToConsole;
       if ( printResultsToConsole )
       {
         Com_Printf(131101, "[SPAWNGROUP_LOOT] Table Has %d itemDefs\n", table->itemDefCount);
@@ -2482,163 +2305,144 @@ void BG_SpawnGroup_Loot_Spawn(BG_SpawnGroup_Loot *loot, unsigned int seed, const
         Com_Printf(131101, "[SPAWNGROUP_LOOT] Map Has %d points\n", mapEnts->spawnGroupLoot.pointCount);
       }
       Sys_ProfBeginNamedEvent(0xFFF5F5DC, "BG_SpawnGroup_Loot_SpawnZone");
-      BG_SpawnGroup_Loot_SpawnZone(v12, table, -1, &pHoldrand, printResultsToConsole);
+      BG_SpawnGroup_Loot_SpawnZone(v10, table, -1, &pHoldrand, printResultsToConsole);
       for ( i = 0; i < mapEnts->spawnGroupLoot.zoneCount; ++i )
-        BG_SpawnGroup_Loot_SpawnZone(v12, table, i, &pHoldrand, printResultsToConsole);
-      v24 = 1;
-      v12->itemCounts.itemCountCache = 0;
+        BG_SpawnGroup_Loot_SpawnZone(v10, table, i, &pHoldrand, printResultsToConsole);
+      v22 = 1;
+      v10->itemCounts.itemCountCache = 0;
       if ( table->cacheSetCount > 1u )
       {
-        v25 = &table->cacheSets[1];
+        v23 = &table->cacheSets[1];
         do
         {
-          BG_SpawnGroup_Loot_SpawnCachesMatchingSet(*v25++, v12, table, &pHoldrand, printResultsToConsole);
-          ++v24;
+          BG_SpawnGroup_Loot_SpawnCachesMatchingSet(*v23++, v10, table, &pHoldrand, printResultsToConsole);
+          ++v22;
         }
-        while ( v24 < table->cacheSetCount );
+        while ( v22 < table->cacheSetCount );
       }
-      v26 = cm.mapEnts;
-      v27 = 0;
-      v68 = 0;
+      v24 = cm.mapEnts;
+      v25 = 0;
+      v53 = 0;
       if ( cm.mapEnts->spawnGroupLoot.zoneCount )
       {
-        v28 = 0i64;
-        v29 = 0i64;
+        v26 = 0i64;
+        v27 = 0i64;
         do
         {
-          if ( v29 >= 1000 )
+          if ( v27 >= 1000 )
             break;
-          if ( v9->cacheFixedForZone[v28] )
+          if ( v7->cacheFixedForZone[v26] )
           {
-            zones = v26->spawnGroupLoot.zones;
-            v31 = 0;
-            if ( zones[v29].pointCount )
+            zones = v24->spawnGroupLoot.zones;
+            v29 = 0;
+            if ( zones[v27].pointCount )
             {
               do
               {
-                v32 = zones[v29].points[v31];
-                pointCount = v26->spawnGroupLoot.pointCount;
-                if ( v32 >= pointCount )
+                v30 = zones[v27].points[v29];
+                pointCount = v24->spawnGroupLoot.pointCount;
+                if ( v30 >= pointCount )
                 {
-                  LODWORD(v66) = pointCount;
-                  LODWORD(writeToDlog) = v32;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 1621, ASSERT_TYPE_ASSERT, "(unsigned)( pointIndex ) < (unsigned)( group.pointCount )", "pointIndex doesn't index group.pointCount\n\t%i not in [0, %i)", writeToDlog, v66) )
+                  LODWORD(v51) = pointCount;
+                  LODWORD(writeToDlog) = v30;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 1621, ASSERT_TYPE_ASSERT, "(unsigned)( pointIndex ) < (unsigned)( group.pointCount )", "pointIndex doesn't index group.pointCount\n\t%i not in [0, %i)", writeToDlog, v51) )
                     __debugbreak();
                 }
-                v34 = (__int64)&v26->spawnGroupLoot.points[v32];
-                if ( *(_WORD *)(v34 + 24) == 0xFFFD )
-                  *(_WORD *)(v34 + 24) = -4;
-                ++v31;
+                v32 = (__int64)&v24->spawnGroupLoot.points[v30];
+                if ( *(_WORD *)(v32 + 24) == 0xFFFD )
+                  *(_WORD *)(v32 + 24) = -4;
+                ++v29;
               }
-              while ( v31 < zones[v29].pointCount );
-              v9 = v71;
-              v14 = 0;
-              v27 = v68;
+              while ( v29 < zones[v27].pointCount );
+              v7 = v56;
+              v12 = 0;
+              v25 = v53;
             }
           }
-          zoneCount = v26->spawnGroupLoot.zoneCount;
+          zoneCount = v24->spawnGroupLoot.zoneCount;
+          ++v25;
+          ++v26;
+          v53 = v25;
           ++v27;
-          ++v28;
-          v68 = v27;
-          ++v29;
         }
-        while ( v27 < zoneCount );
-        v12 = loota;
-        v22 = printResultsToConsole;
+        while ( v25 < zoneCount );
+        v10 = loota;
+        v20 = printResultsToConsole;
         cacheCountByZone = loota->cacheCountByZone;
       }
-      if ( v12->cacheBuffer )
-        BG_SpawnGroup_Loot_PickAllCacheContents(v12, v9, &pHoldrand, v22);
+      if ( v10->cacheBuffer )
+        BG_SpawnGroup_Loot_PickAllCacheContents(v10, v7, &pHoldrand, v20);
       Sys_ProfEndNamedEvent();
-      if ( v22 )
+      if ( v20 )
       {
-        cachePointCountInGlobalZone = v12->cachePointCountInGlobalZone;
-        v37 = 1000i64;
-        v38 = 1;
+        cachePointCountInGlobalZone = v10->cachePointCountInGlobalZone;
+        v35 = 1000i64;
+        v36 = 1;
         do
         {
-          v39 = cacheCountByZone[1000];
-          cachePointCountInGlobalZone += v39;
-          if ( (_WORD)v39 )
+          v37 = cacheCountByZone[1000];
+          cachePointCountInGlobalZone += v37;
+          if ( (_WORD)v37 )
           {
-            ++v38;
+            ++v36;
             if ( !*cacheCountByZone )
-              ++v14;
+              ++v12;
           }
           ++cacheCountByZone;
-          --v37;
+          --v35;
         }
-        while ( v37 );
-        v68 = v38;
+        while ( v35 );
+        v53 = v36;
         Com_Printf(131101, "[SPAWNGROUP_LOOT] Map Has %d cache points\n", cachePointCountInGlobalZone);
-        v40 = counts;
+        v38 = counts;
         Com_Printf(131101, "[SPAWNGROUP_LOOT] Spawned %d items\n", counts->itemCount);
-        v41 = loota;
+        v39 = loota;
         if ( cachePointCountInGlobalZone )
         {
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm1, xmm1, r8d
-            vcvtsi2ss xmm0, xmm0, rax
-            vdivss  xmm1, xmm1, xmm0
-            vmulss  xmm2, xmm1, cs:__real@42c80000
-            vcvtss2sd xmm3, xmm2, xmm2
-            vmovq   r9, xmm3
-          }
-          Com_Printf(131101, "[SPAWNGROUP_LOOT] Spawned %d caches (%5.1f percent)\n", loota->itemCounts.itemCountCache, *(double *)&_XMM3);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vdivss  xmm1, xmm1, xmm0
-            vcvtss2sd xmm2, xmm1, xmm1
-            vmovq   r8, xmm2
-          }
-          Com_Printf(131101, "[SPAWNGROUP_LOOT] Average %5.1f caches per zone\n", *(double *)&_XMM2);
-          Com_Printf(131101, "[SPAWNGROUP_LOOT] Cache Zones Empty = %d\n", v14);
+          v40 = (float)cachePointCountInGlobalZone;
+          Com_Printf(131101, "[SPAWNGROUP_LOOT] Spawned %d caches (%5.1f percent)\n", loota->itemCounts.itemCountCache, (float)((float)((float)loota->itemCounts.itemCountCache / v40) * 100.0));
+          v41 = (float)v53;
+          Com_Printf(131101, "[SPAWNGROUP_LOOT] Average %5.1f caches per zone\n", (float)((float)v39->itemCounts.itemCountCache / v41));
+          Com_Printf(131101, "[SPAWNGROUP_LOOT] Cache Zones Empty = %d\n", v12);
         }
-        BG_SpawnGroup_Loot_ReportCounts(v9, v41, v40, 0, 0, 1);
-        BG_SpawnGroup_Loot_ReportZones(v9, v41);
-        for ( j = 1; j < v9->setCount; ++j )
+        BG_SpawnGroup_Loot_ReportCounts(v7, v39, v38, 0, 0, 1);
+        BG_SpawnGroup_Loot_ReportZones(v7, v39);
+        for ( j = 1; j < v7->setCount; ++j )
         {
-          if ( (v9->sets[j].flags & 4) == 0 )
-            BG_SpawnGroup_Loot_ReportCounts(v9, v41, &v41->itemCountsBySet[j], 0, j, 1);
+          if ( (v7->sets[j].flags & 4) == 0 )
+            BG_SpawnGroup_Loot_ReportCounts(v7, v39, &v39->itemCountsBySet[j], 0, j, 1);
         }
-        itemCount = v40->itemCount;
-        v59 = cm.mapEnts->spawnGroupLoot.zoneCount;
-        v60 = cm.mapEnts->spawnGroupLoot.pointCount;
+        itemCount = v38->itemCount;
+        v44 = cm.mapEnts->spawnGroupLoot.zoneCount;
+        v45 = cm.mapEnts->spawnGroupLoot.pointCount;
         if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
         {
-          v61 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_total");
+          v46 = DLog_BeginEvent(&context, "dlog_event_loot_spawn_summary_total");
           context.autoEndEvent = 1;
-          if ( v61 && DLog_UInt16(&context, "total_count_items", itemCount) && DLog_UInt16(&context, "total_count_points", v60) && DLog_UInt16(&context, "total_count_zones", v59) )
+          if ( v46 && DLog_UInt16(&context, "total_count_items", itemCount) && DLog_UInt16(&context, "total_count_points", v45) && DLog_UInt16(&context, "total_count_zones", v44) )
             DLog_RecordContext(&context);
         }
-        v62 = v41->cacheBuffer;
-        if ( v62 )
+        v47 = v39->cacheBuffer;
+        if ( v47 )
         {
-          v63 = 1;
-          if ( v62->cacheTypeCount > 1u )
+          v48 = 1;
+          if ( v47->cacheTypeCount > 1u )
           {
             do
             {
-              BG_SpawnGroup_Loot_ReportCounts(v9, v41, &v41->cacheBuffer->cacheTypes[v63].contents, v63, 0, 0);
-              ++v63;
+              BG_SpawnGroup_Loot_ReportCounts(v7, v39, &v39->cacheBuffer->cacheTypes[v48].contents, v48, 0, 0);
+              ++v48;
             }
-            while ( v63 < v41->cacheBuffer->cacheTypeCount );
+            while ( v48 < v39->cacheBuffer->cacheTypeCount );
           }
         }
       }
       else
       {
-        v40 = counts;
+        v38 = counts;
       }
       LODWORD(fmt) = cm.mapEnts->spawnGroupLoot.zoneCount;
-      Com_Printf(29, "[SPAWNGROUP_LOOT] Finished - total of %d items out of %d points and %d zones\n\n", v40->itemCount, cm.mapEnts->spawnGroupLoot.pointCount, fmt);
+      Com_Printf(29, "[SPAWNGROUP_LOOT] Finished - total of %d items out of %d points and %d zones\n\n", v38->itemCount, cm.mapEnts->spawnGroupLoot.pointCount, fmt);
     }
   }
 }
@@ -2683,237 +2487,221 @@ BG_SpawnGroup_Loot_SpawnCachesMatchingSet
 */
 void BG_SpawnGroup_Loot_SpawnCachesMatchingSet(unsigned __int8 cacheSetIndex, BG_SpawnGroup_Loot *const loot, const BG_SpawnGroup_Loot_Table *const table, unsigned int *seed, bool printResultsToConsole)
 {
-  const BG_SpawnGroup_Loot_Table *v9; 
-  unsigned __int8 v11; 
+  const BG_SpawnGroup_Loot_Table *v6; 
+  unsigned __int8 v8; 
   unsigned __int8 setCount; 
   BG_SpawnGroup_Loot_CurrentZone *m_ptr; 
-  unsigned __int16 v14; 
-  unsigned __int16 v15; 
-  __int64 v18; 
-  unsigned int v19; 
-  SpawnGroupZone *v20; 
-  unsigned int v21; 
-  unsigned __int16 v22; 
+  unsigned __int16 v11; 
+  unsigned __int16 v12; 
+  const dvar_t *v13; 
+  float value; 
+  __int64 v15; 
+  unsigned int v16; 
+  SpawnGroupZone *v17; 
+  unsigned int v18; 
+  unsigned __int16 v19; 
   unsigned __int16 pointCount; 
   unsigned __int16 cluster; 
-  int v25; 
-  unsigned __int16 v26; 
-  const BG_SpawnGroup_Loot_SetReq *v27; 
-  unsigned __int16 v28; 
-  int v29; 
+  int v22; 
+  unsigned __int16 v23; 
+  const BG_SpawnGroup_Loot_SetReq *v24; 
+  unsigned __int16 v25; 
+  int v26; 
   unsigned __int16 point; 
-  unsigned __int16 v31; 
-  unsigned __int16 v32; 
-  SpawnGroupPoint *v33; 
+  unsigned __int16 v28; 
+  unsigned __int16 v29; 
+  SpawnGroupPoint *v30; 
   unsigned __int16 zone; 
-  unsigned __int16 v36; 
-  unsigned __int16 v37; 
+  unsigned __int16 v33; 
+  unsigned __int16 v34; 
+  unsigned __int16 *v35; 
+  __int64 v36; 
+  SpawnGroupPoint *v37; 
   unsigned __int16 v38; 
-  unsigned __int16 *v40; 
+  unsigned __int16 v39; 
+  const SpawnGroupPoint *v40; 
   __int64 v41; 
-  SpawnGroupPoint *v42; 
+  __int64 v42; 
   unsigned __int16 v44; 
-  unsigned __int16 v45; 
-  const SpawnGroupPoint *v46; 
-  char v47; 
-  char v48; 
-  __int64 v53; 
-  __int64 v54; 
-  unsigned __int16 v56; 
-  __int16 v57; 
-  unsigned int v58; 
-  const BG_SpawnGroup_Loot_Set *v59; 
-  Mem_LargeLocal v61; 
-  __int16 v62[1000]; 
-  char v63; 
-  void *retaddr; 
+  __int16 v45; 
+  unsigned int v46; 
+  const BG_SpawnGroup_Loot_Set *v47; 
+  Mem_LargeLocal v49; 
+  __int16 v50[1000]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v9 = table;
-  v11 = cacheSetIndex;
+  v6 = table;
+  v8 = cacheSetIndex;
   setCount = table->setCount;
   if ( cacheSetIndex >= setCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 1436, ASSERT_TYPE_ASSERT, "(unsigned)( cacheSetIndex ) < (unsigned)( table->setCount )", "cacheSetIndex doesn't index table->setCount\n\t%i not in [0, %i)", cacheSetIndex, setCount) )
     __debugbreak();
-  v59 = &v9->sets[v11];
-  Mem_LargeLocal::Mem_LargeLocal(&v61, 0x1E040ui64, "BG_SpawnGroup_Loot_CurrentZone currentZone");
-  m_ptr = (BG_SpawnGroup_Loot_CurrentZone *)v61.m_ptr;
-  v14 = 0;
-  v15 = 0;
-  v56 = 0;
-  memset_0(v61.m_ptr, 0, 0x1E040ui64);
+  v47 = &v6->sets[v8];
+  Mem_LargeLocal::Mem_LargeLocal(&v49, 0x1E040ui64, "BG_SpawnGroup_Loot_CurrentZone currentZone");
+  m_ptr = (BG_SpawnGroup_Loot_CurrentZone *)v49.m_ptr;
+  v11 = 0;
+  v12 = 0;
+  v44 = 0;
+  memset_0(v49.m_ptr, 0, 0x1E040ui64);
   m_ptr->loot = loot;
-  m_ptr->table = v9;
+  m_ptr->table = v6;
   m_ptr->seed = seed;
   m_ptr->zoneid = -2;
   m_ptr->printResultsToConsole = printResultsToConsole;
-  m_ptr->typeCount = v9->itemTypeCount;
-  BG_SpawnGroup_Loot_BeginCurrentZoneForSet(m_ptr, v59);
+  m_ptr->typeCount = v6->itemTypeCount;
+  BG_SpawnGroup_Loot_BeginCurrentZoneForSet(m_ptr, v47);
   BG_SpawnGroup_Loot_ValidateZone(m_ptr);
-  _RDI = DCONST_DVARFLT_bg_spawngroup_loot_disable_cache_distance;
+  v13 = DCONST_DVARFLT_bg_spawngroup_loot_disable_cache_distance;
   if ( !DCONST_DVARFLT_bg_spawngroup_loot_disable_cache_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_spawngroup_loot_disable_cache_distance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  v18 = (__int64)&v9->sets[v11];
-  if ( v9->sets[v11].reqCount )
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  v15 = (__int64)&v6->sets[v8];
+  if ( v6->sets[v8].reqCount )
   {
-    v19 = 0;
-    v58 = 0;
+    v16 = 0;
+    v46 = 0;
     if ( cm.mapEnts->spawnGroupLoot.zoneCount )
     {
       do
       {
-        if ( table->cacheSetForZone[v19] == v11 )
+        if ( table->cacheSetForZone[v16] == v8 )
         {
-          v20 = &cm.mapEnts->spawnGroupLoot.zones[v19];
+          v17 = &cm.mapEnts->spawnGroupLoot.zones[v16];
           BG_SpawnGroup_Loot_ResetZonePoints(m_ptr);
-          v21 = 0;
-          if ( v20->pointCount )
+          v18 = 0;
+          if ( v17->pointCount )
           {
             do
             {
-              v22 = v20->points[v21];
+              v19 = v17->points[v18];
               pointCount = cm.mapEnts->spawnGroupLoot.pointCount;
-              if ( v22 >= pointCount )
+              if ( v19 >= pointCount )
               {
-                LODWORD(v54) = pointCount;
-                LODWORD(v53) = v22;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v53, v54) )
+                LODWORD(v42) = pointCount;
+                LODWORD(v41) = v19;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v41, v42) )
                   __debugbreak();
               }
-              cluster = cm.mapEnts->spawnGroupLoot.points[v22].cluster;
+              cluster = cm.mapEnts->spawnGroupLoot.points[v19].cluster;
               if ( cluster == 0xFFFC || cluster == 0xFFFD )
-                BG_SpawnGroup_Loot_AddZonePoint(m_ptr, v22);
-              ++v21;
+                BG_SpawnGroup_Loot_AddZonePoint(m_ptr, v19);
+              ++v18;
             }
-            while ( v21 < v20->pointCount );
-            v15 = v56;
-            v18 = (__int64)v59;
+            while ( v18 < v17->pointCount );
+            v12 = v44;
+            v15 = (__int64)v47;
           }
           if ( m_ptr->pointCount )
           {
-            v25 = 0;
-            v26 = 0;
-            v57 = 0;
-            if ( *(_WORD *)(v18 + 3472) )
+            v22 = 0;
+            v23 = 0;
+            v45 = 0;
+            if ( *(_WORD *)(v15 + 3472) )
             {
               do
               {
-                v27 = (const BG_SpawnGroup_Loot_SetReq *)(v18 + 24i64 * v26 + 3232);
-                if ( (!v27->def || !v27->def->disabled) && ((unsigned __int16)(*(_WORD *)(v18 + 24i64 * v26 + 3246) - 1) > 0x62u || BG_irand(0, 100, m_ptr->seed) < *(unsigned __int16 *)(v18 + 24i64 * v26 + 3246)) )
+                v24 = (const BG_SpawnGroup_Loot_SetReq *)(v15 + 24i64 * v23 + 3232);
+                if ( (!v24->def || !v24->def->disabled) && ((unsigned __int16)(*(_WORD *)(v15 + 24i64 * v23 + 3246) - 1) > 0x62u || BG_irand(0, 100, m_ptr->seed) < *(unsigned __int16 *)(v15 + 24i64 * v23 + 3246)) )
                 {
-                  v28 = *(_WORD *)(v18 + 24i64 * v26 + 3250);
-                  if ( v28 )
-                    v29 = BG_irand(*(unsigned __int16 *)(v18 + 24i64 * v26 + 3248), v28, m_ptr->seed);
+                  v25 = *(_WORD *)(v15 + 24i64 * v23 + 3250);
+                  if ( v25 )
+                    v26 = BG_irand(*(unsigned __int16 *)(v15 + 24i64 * v23 + 3248), v25, m_ptr->seed);
                   else
-                    v29 = *(unsigned __int16 *)(v18 + 24i64 * v26 + 3248);
-                  if ( v29 > 0 )
+                    v26 = *(unsigned __int16 *)(v15 + 24i64 * v23 + 3248);
+                  if ( v26 > 0 )
                   {
                     do
                     {
                       if ( !m_ptr->pointCount )
                         break;
-                      BG_SpawnGroup_Loot_SpawnAnItem(m_ptr, v27);
+                      BG_SpawnGroup_Loot_SpawnAnItem(m_ptr, v24);
                       if ( m_ptr->item.pointFound )
                       {
                         point = m_ptr->item.point;
-                        v62[v15++] = point;
-                        v31 = cm.mapEnts->spawnGroupLoot.pointCount;
-                        if ( point >= v31 )
+                        v50[v12++] = point;
+                        v28 = cm.mapEnts->spawnGroupLoot.pointCount;
+                        if ( point >= v28 )
                         {
-                          LODWORD(v54) = v31;
-                          LODWORD(v53) = point;
-                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v53, v54) )
+                          LODWORD(v42) = v28;
+                          LODWORD(v41) = point;
+                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v41, v42) )
                             __debugbreak();
                         }
                         BG_SpawnGroup_Loot_TrackCacheSpawned(loot, &cm.mapEnts->spawnGroupLoot.points[point]);
                       }
-                      ++v25;
+                      ++v22;
                     }
-                    while ( v25 < v29 );
-                    v56 = v15;
-                    v26 = v57;
-                    v18 = (__int64)v59;
+                    while ( v22 < v26 );
+                    v44 = v12;
+                    v23 = v45;
+                    v15 = (__int64)v47;
                   }
-                  v25 = 0;
+                  v22 = 0;
                 }
-                v57 = ++v26;
+                v45 = ++v23;
               }
-              while ( v26 < *(_WORD *)(v18 + 3472) );
-              v19 = v58;
+              while ( v23 < *(_WORD *)(v15 + 3472) );
+              v16 = v46;
             }
-            v11 = cacheSetIndex;
+            v8 = cacheSetIndex;
           }
         }
-        v58 = ++v19;
+        v46 = ++v16;
       }
-      while ( v19 < cm.mapEnts->spawnGroupLoot.zoneCount );
-      v14 = 0;
+      while ( v16 < cm.mapEnts->spawnGroupLoot.zoneCount );
+      v11 = 0;
     }
-    v9 = table;
+    v6 = table;
   }
-  if ( *(_DWORD *)(v18 + 4500) && m_ptr->itemCount && (m_ptr->typeChanceTotal || (*(_BYTE *)(v18 + 4504) & 2) == 0) )
+  if ( *(_DWORD *)(v15 + 4500) && m_ptr->itemCount && (m_ptr->typeChanceTotal || (*(_BYTE *)(v15 + 4504) & 2) == 0) )
   {
     BG_SpawnGroup_Loot_ResetZonePoints(m_ptr);
-    v32 = 0;
+    v29 = 0;
     if ( cm.mapEnts->spawnGroupLoot.pointCount )
     {
       do
       {
-        v33 = &cm.mapEnts->spawnGroupLoot.points[v32];
-        if ( v33->cluster == 0xFFFC || v33->cluster == 0xFFFD )
+        v30 = &cm.mapEnts->spawnGroupLoot.points[v29];
+        if ( v30->cluster == 0xFFFC || v30->cluster == 0xFFFD )
         {
-          zone = v33->zone;
-          if ( zone ? v9->setForZone[zone + 999] == v11 : v9->cacheSetForZoneDefault == v11 )
+          zone = v30->zone;
+          if ( zone ? v6->setForZone[zone + 999] == v8 : v6->cacheSetForZoneDefault == v8 )
           {
-            ++v14;
+            ++v11;
             if ( !loot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 311, ASSERT_TYPE_ASSERT, "(loot)", (const char *)&queryFormat, "loot") )
               __debugbreak();
-            v36 = v33->zone;
-            if ( v36 )
-              ++loot->cacheCountByZone[v36 + 999];
+            v33 = v30->zone;
+            if ( v33 )
+              ++loot->cacheCountByZone[v33 + 999];
             else
               ++loot->cachePointCountInGlobalZone;
-            if ( !BG_SpawnGroup_Loot_GetPointHasCurrentlySpawnedItem(loot->pointToDefBuffer, v32) )
-              BG_SpawnGroup_Loot_AddZonePoint(m_ptr, v32);
+            if ( !BG_SpawnGroup_Loot_GetPointHasCurrentlySpawnedItem(loot->pointToDefBuffer, v29) )
+              BG_SpawnGroup_Loot_AddZonePoint(m_ptr, v29);
           }
         }
-        ++v32;
+        ++v29;
       }
-      while ( v32 < cm.mapEnts->spawnGroupLoot.pointCount );
-      v15 = v56;
+      while ( v29 < cm.mapEnts->spawnGroupLoot.pointCount );
+      v12 = v44;
     }
     if ( m_ptr->pointCount )
     {
-      v37 = BG_SpawnGroup_Loot_ComputeIntegralPercentage(m_ptr->set->chanceLootCache, m_ptr->set->chanceLocationMax, v14);
-      v38 = v37;
-      if ( v37 >= v15 )
+      v34 = BG_SpawnGroup_Loot_ComputeIntegralPercentage(m_ptr->set->chanceLootCache, m_ptr->set->chanceLocationMax, v11);
+      if ( v34 >= v12 )
       {
-        __asm
+        if ( value > 0.0 && v12 )
         {
-          vxorps  xmm6, xmm6, xmm6
-          vcomiss xmm7, xmm6
-        }
-        if ( v37 > v15 && v15 )
-        {
-          v40 = (unsigned __int16 *)v62;
-          v41 = v15;
+          v35 = (unsigned __int16 *)v50;
+          v36 = v12;
           do
           {
-            v42 = BG_SpawnGroup_Loot_GetPoint(*v40);
-            __asm { vmovaps xmm2, xmm7; disable_distance2 }
-            BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(m_ptr, v42, *(double *)&_XMM2);
-            ++v40;
-            --v41;
+            v37 = BG_SpawnGroup_Loot_GetPoint(*v35);
+            BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(m_ptr, v37, value);
+            ++v35;
+            --v36;
           }
-          while ( v41 );
+          while ( v36 );
         }
-        while ( v15 < v38 )
+        while ( v12 < v34 )
         {
           if ( !m_ptr->pointCount )
             break;
@@ -2925,36 +2713,26 @@ void BG_SpawnGroup_Loot_SpawnCachesMatchingSet(unsigned __int8 cacheSetIndex, BG
           if ( m_ptr->item.pointFound )
           {
 LABEL_75:
-            v44 = m_ptr->item.point;
-            v45 = cm.mapEnts->spawnGroupLoot.pointCount;
-            if ( v44 >= v45 )
+            v38 = m_ptr->item.point;
+            v39 = cm.mapEnts->spawnGroupLoot.pointCount;
+            if ( v38 >= v39 )
             {
-              LODWORD(v54) = v45;
-              LODWORD(v53) = v44;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v53, v54) )
+              LODWORD(v42) = v39;
+              LODWORD(v41) = v38;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_spawngroup_loot.cpp", 337, ASSERT_TYPE_ASSERT, "(unsigned)( pointid ) < (unsigned)( cm.mapEnts->spawnGroupLoot.pointCount )", "pointid doesn't index cm.mapEnts->spawnGroupLoot.pointCount\n\t%i not in [0, %i)", v41, v42) )
                 __debugbreak();
             }
-            v46 = &cm.mapEnts->spawnGroupLoot.points[v44];
-            BG_SpawnGroup_Loot_TrackCacheSpawned(loot, v46);
-            v48 = v47 | (v15++ == 0xFFFF);
-            __asm { vcomiss xmm7, xmm6 }
-            if ( !v48 )
-            {
-              __asm { vmovaps xmm2, xmm7; disable_distance2 }
-              BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(m_ptr, v46, *(double *)&_XMM2);
-            }
+            v40 = &cm.mapEnts->spawnGroupLoot.points[v38];
+            BG_SpawnGroup_Loot_TrackCacheSpawned(loot, v40);
+            ++v12;
+            if ( value > 0.0 )
+              BG_SpawnGroup_Loot_DisableAllPointsWithinRadius2(m_ptr, v40, value);
           }
         }
       }
     }
   }
-  Mem_LargeLocal::~Mem_LargeLocal(&v61);
-  _R11 = &v63;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  Mem_LargeLocal::~Mem_LargeLocal(&v49);
 }
 
 /*
@@ -3326,250 +3104,204 @@ BG_SpawnGroup_Loot_ValidateNodes
 */
 void BG_SpawnGroup_Loot_ValidateNodes()
 {
+  __int128 v0; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
   MapEnts *mapEnts; 
+  int v5; 
   int v6; 
-  int v7; 
-  _BYTE *v11; 
-  __int64 v13; 
-  unsigned __int16 v18; 
-  unsigned __int16 v23; 
-  char *v24; 
-  char *v25; 
+  _BYTE *v7; 
+  __int64 v8; 
+  SpawnGroupPoint *v9; 
+  float v10; 
+  float v11; 
+  unsigned __int16 v12; 
+  unsigned __int16 v13; 
+  char *v14; 
+  char *v15; 
   unsigned __int16 cluster; 
-  char *v27; 
-  char *v28; 
-  const char *v29; 
+  char *v17; 
+  char *v18; 
+  const char *v19; 
   __int64 pointCount; 
-  __int64 v35; 
-  __int64 v38; 
-  __int64 v39; 
-  SpawnGroupPoint *v40; 
-  unsigned __int16 v41; 
-  unsigned __int16 v47; 
-  bool v55; 
-  char *v56; 
-  __int64 v60; 
+  __int64 v21; 
+  __int64 v22; 
+  SpawnGroupPoint *points; 
+  __int64 v24; 
+  __int64 v25; 
+  SpawnGroupPoint *v26; 
+  unsigned __int16 v27; 
+  float v28; 
+  unsigned __int16 v29; 
+  float v30; 
+  float v31; 
+  char *v32; 
+  __int64 v33; 
   SpawnGroupCluster *clusters; 
-  const char *v62; 
-  const char *v63; 
+  const char *v35; 
+  const char *v36; 
   vec3_t start; 
   vec3_t end; 
   Bounds bounds; 
   trace_t results; 
-  void *retaddr; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-  }
+  v44 = v0;
+  v43 = v1;
+  v42 = v2;
   Com_Printf(29, "BG_SpawnGroup_Loot_ValidateNodes\n");
   Com_Printf(29, "==============================================================\n");
   mapEnts = cm.mapEnts;
+  v5 = 0;
   v6 = 0;
-  v7 = 0;
   if ( cm.mapEnts->spawnGroupLoot.pointCount )
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@41500000
-      vmovss  xmm6, cs:__real@41000000
-      vmovss  xmm7, cs:__real@3f800000
-      vmovaps [rsp+178h+var_68], xmm9
-    }
-    v11 = s_lootNodeErrorsPerPoint;
-    __asm { vmovss  xmm9, cs:__real@42000000 }
-    v13 = 0i64;
+    v41 = v3;
+    v7 = s_lootNodeErrorsPerPoint;
+    v8 = 0i64;
     do
     {
-      _RBX = &mapEnts->spawnGroupLoot.points[v13];
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+8]
-        vmovss  xmm2, dword ptr [rbx]
-        vmovss  xmm1, dword ptr [rbx+4]
-      }
-      v18 = _RBX->cluster + 5;
-      __asm
-      {
-        vsubss  xmm0, xmm3, xmm9
-        vmovss  dword ptr [rsp+178h+end], xmm2
-        vmovss  dword ptr [rsp+178h+end+4], xmm1
-        vmovss  dword ptr [rsp+178h+end+8], xmm0
-        vmovss  dword ptr [rsp+178h+start], xmm2
-        vmovss  dword ptr [rsp+178h+start+4], xmm1
-        vmovss  dword ptr [rsp+178h+start+8], xmm3
-      }
-      if ( v18 <= 2u )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm3, xmm8
-          vmovss  dword ptr [rsp+178h+start+8], xmm0
-        }
-      }
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@41000000000000000000000000000000
-        vmovss  dword ptr [rsp+178h+var_F8.halfSize+4], xmm6
-        vmovss  dword ptr [rsp+178h+var_F8.halfSize+8], xmm6
-        vmovups xmmword ptr [rsp+178h+var_F8.midPoint], xmm0
-      }
+      v9 = &mapEnts->spawnGroupLoot.points[v8];
+      v10 = v9->origin.v[2];
+      v11 = v9->origin.v[1];
+      v12 = v9->cluster + 5;
+      end.v[0] = v9->origin.v[0];
+      end.v[1] = v11;
+      end.v[2] = v10 - 32.0;
+      start.v[0] = end.v[0];
+      start.v[1] = v11;
+      start.v[2] = v10;
+      if ( v12 <= 2u )
+        start.v[2] = v10 + 13.0;
+      bounds.halfSize.v[1] = FLOAT_8_0;
+      bounds.halfSize.v[2] = FLOAT_8_0;
+      *(_OWORD *)bounds.midPoint.v = _xmm;
       PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_FIRST, &results, &start, &end, &bounds, 2047, 1, 131089, 0, NULL, All);
       if ( results.startsolid || results.allsolid )
       {
-        cluster = _RBX->cluster;
-        *v11 = 1;
+        cluster = v9->cluster;
+        *v7 = 1;
         if ( (unsigned __int16)(cluster + 4) > 1u )
         {
-          v28 = vtos(&_RBX->origin);
-          v29 = "[SPAWNGROUP_LOOT] ERROR: Quest node %s at %s.\n";
+          v18 = vtos(&v9->origin);
+          v19 = "[SPAWNGROUP_LOOT] ERROR: Quest node %s at %s.\n";
           if ( cluster != 0xFFFB )
-            v29 = "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n";
-          Com_PrintError(29, v29, lootNodeErrorStrTable[1], v28);
+            v19 = "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n";
+          Com_PrintError(29, v19, lootNodeErrorStrTable[1], v18);
         }
         else
         {
-          v27 = vtos(&_RBX->origin);
-          Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[1], v27);
+          v17 = vtos(&v9->origin);
+          Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[1], v17);
+        }
+      }
+      else if ( results.fraction == 1.0 )
+      {
+        v13 = v9->cluster;
+        *v7 = 2;
+        if ( (unsigned __int16)(v13 + 4) > 1u )
+        {
+          v15 = vtos(&v9->origin);
+          if ( v13 == 0xFFFB )
+            Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Quest node %s at %s.\n", lootNodeErrorStrTable[2], v15);
+          else
+            Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[2], v15);
+        }
+        else
+        {
+          v14 = vtos(&v9->origin);
+          Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[2], v14);
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+178h+results.fraction]
-          vucomiss xmm0, xmm7
-        }
-        v23 = _RBX->cluster;
-        *v11 = 2;
-        if ( (unsigned __int16)(v23 + 4) > 1u )
-        {
-          v25 = vtos(&_RBX->origin);
-          if ( v23 == 0xFFFB )
-            Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Quest node %s at %s.\n", lootNodeErrorStrTable[2], v25);
-          else
-            Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[2], v25);
-        }
-        else
-        {
-          v24 = vtos(&_RBX->origin);
-          Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[2], v24);
-        }
+        *v7 = 0;
       }
       mapEnts = cm.mapEnts;
+      ++v6;
+      ++v8;
       ++v7;
-      ++v13;
-      ++v11;
     }
-    while ( v7 < cm.mapEnts->spawnGroupLoot.pointCount );
-    __asm { vmovaps xmm9, [rsp+178h+var_68] }
+    while ( v6 < cm.mapEnts->spawnGroupLoot.pointCount );
   }
   pointCount = mapEnts->spawnGroupLoot.pointCount;
   if ( mapEnts->spawnGroupLoot.pointCount )
   {
-    __asm
-    {
-      vmovss  xmm8, cs:__real@44fd2000
-      vmovss  xmm6, cs:__real@45992000
-      vmovss  xmm7, cs:__real@43800000
-    }
-    v35 = 0i64;
-    _R14 = 0i64;
+    v21 = 0i64;
+    v22 = 0i64;
     do
     {
-      _R13 = mapEnts->spawnGroupLoot.points;
-      if ( _R13[_R14].cluster != 0xFFFB )
+      points = mapEnts->spawnGroupLoot.points;
+      if ( points[v22].cluster != 0xFFFB )
       {
-        v38 = 0i64;
-        v39 = 0i64;
+        v24 = 0i64;
+        v25 = 0i64;
         do
         {
-          if ( v38 != v35 )
+          if ( v24 != v21 )
           {
-            v40 = &mapEnts->spawnGroupLoot.points[v39];
-            v41 = v40->cluster;
-            if ( v41 != 0xFFFB )
+            v26 = &mapEnts->spawnGroupLoot.points[v25];
+            v27 = v26->cluster;
+            if ( v27 != 0xFFFB )
             {
-              __asm
+              v29 = points[v22].cluster;
+              v31 = FLOAT_2025_0;
+              if ( (unsigned __int16)(v29 + 4) > 1u || (unsigned __int16)(v27 + 4) > 1u )
               {
-                vmovss  xmm0, dword ptr [r14+r13]
-                vsubss  xmm3, xmm0, dword ptr [r8]
-                vmovss  xmm1, dword ptr [r14+r13+4]
-                vsubss  xmm2, xmm1, dword ptr [r8+4]
-                vmovss  xmm0, dword ptr [r14+r13+8]
-              }
-              v47 = _R13[_R14].cluster;
-              __asm
-              {
-                vsubss  xmm4, xmm0, dword ptr [r8+8]
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm2, xmm2, xmm2
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm5, xmm3, xmm0
-                vmovaps xmm1, xmm8
-              }
-              if ( (unsigned __int16)(v47 + 4) > 1u || (v55 = v41 == 0xFFFC, (unsigned __int16)(v41 + 4) > 1u) )
-              {
-                v55 = v47 == 0xFFFC;
-                if ( v47 == 0xFFFC || v47 == 0xFFFD || (v55 = v41 == 0xFFFC, (unsigned __int16)(v41 + 4) <= 1u) )
-                  __asm { vmovaps xmm1, xmm7 }
+                if ( v29 == 0xFFFC || v29 == 0xFFFD || (unsigned __int16)(v27 + 4) <= 1u )
+                  v31 = FLOAT_256_0;
               }
               else
               {
-                __asm { vmovaps xmm1, xmm6 }
+                v31 = FLOAT_4900_0;
               }
-              __asm { vcomiss xmm5, xmm1 }
-              if ( v55 )
+              v28 = points[v22].origin.v[1] - v26->origin.v[1];
+              v30 = points[v22].origin.v[2] - v26->origin.v[2];
+              if ( (float)((float)((float)(v28 * v28) + (float)((float)(points[v22].origin.v[0] - v26->origin.v[0]) * (float)(points[v22].origin.v[0] - v26->origin.v[0]))) + (float)(v30 * v30)) < v31 )
               {
-                if ( !s_lootNodeErrorsPerPoint[v38] )
-                  s_lootNodeErrorsPerPoint[v38] = 3;
-                v56 = vtos(&v40->origin);
-                if ( (unsigned __int16)(v41 + 4) > 1u )
-                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[3], v56);
+                if ( !s_lootNodeErrorsPerPoint[v24] )
+                  s_lootNodeErrorsPerPoint[v24] = 3;
+                v32 = vtos(&v26->origin);
+                if ( (unsigned __int16)(v27 + 4) > 1u )
+                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot  node %s at %s.\n", lootNodeErrorStrTable[3], v32);
                 else
-                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[3], v56);
+                  Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Cache node %s at %s.\n", lootNodeErrorStrTable[3], v32);
                 mapEnts = cm.mapEnts;
               }
             }
           }
-          ++v38;
-          ++v39;
+          ++v24;
+          ++v25;
         }
-        while ( v38 < pointCount );
-        v6 = 0;
+        while ( v24 < pointCount );
+        v5 = 0;
       }
-      ++v35;
-      ++_R14;
+      ++v21;
+      ++v22;
     }
-    while ( v35 < pointCount );
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+178h+var_58]
-    vmovaps xmm7, [rsp+178h+var_48]
-    vmovaps xmm6, [rsp+178h+var_38]
+    while ( v21 < pointCount );
   }
   if ( mapEnts->spawnGroupLoot.clusterCount )
   {
-    v60 = 0i64;
+    v33 = 0i64;
     do
     {
       clusters = mapEnts->spawnGroupLoot.clusters;
-      if ( !clusters[v60].pointCount )
+      if ( !clusters[v33].pointCount )
       {
-        v62 = lootClusterErrorStrTable[1];
-        v63 = vtos(&clusters[v60].bounds.midPoint);
-        Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot cluster centered at %s %s.\n", v63, v62);
+        v35 = lootClusterErrorStrTable[1];
+        v36 = vtos(&clusters[v33].bounds.midPoint);
+        Com_PrintError(29, "[SPAWNGROUP_LOOT] ERROR: Loot cluster centered at %s %s.\n", v36, v35);
         mapEnts = cm.mapEnts;
       }
-      ++v6;
-      ++v60;
+      ++v5;
+      ++v33;
     }
-    while ( v6 < mapEnts->spawnGroupLoot.clusterCount );
+    while ( v5 < mapEnts->spawnGroupLoot.clusterCount );
   }
 }
 

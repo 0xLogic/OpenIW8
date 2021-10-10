@@ -1771,162 +1771,130 @@ unsigned __int64 IWString_NormalizePathPossiblyUNC(char *outPath, const char *pa
 IWString_ParseFloat64
 ==============
 */
-
-const char *__fastcall IWString_ParseFloat64(long double *outValue, const char *text, unsigned __int64 textLen, double _XMM3_8)
+const char *IWString_ParseFloat64(long double *outValue, const char *text, unsigned __int64 textLen)
 {
-  char v5; 
-  const char *v6; 
-  __int64 v7; 
+  char v4; 
+  const char *v5; 
+  __int64 v6; 
   const char *i; 
-  int v9; 
-  unsigned int v10; 
-  const char *v11; 
-  int v12; 
-  __int64 v13; 
-  const char *v14; 
-  char v15; 
-  const char *v16; 
+  int v8; 
+  unsigned int v9; 
+  const char *v10; 
+  int v11; 
+  __int64 v12; 
+  const char *v13; 
+  char v14; 
+  const char *v15; 
+  unsigned int v16; 
   unsigned int v17; 
-  unsigned int v18; 
-  int v19; 
+  int v18; 
+  __int128 v22; 
 
-  _RSI = outValue;
   if ( !textLen )
     return 0i64;
-  v5 = *text;
-  v6 = &text[textLen];
-  v7 = 0i64;
+  v4 = *text;
+  v5 = &text[textLen];
+  v6 = 0i64;
   i = &text[((*text - 43) & 0xFD) == 0];
+  v8 = 0;
   v9 = 0;
-  v10 = 0;
-  v11 = NULL;
-  if ( i == v6 )
+  v10 = NULL;
+  if ( i == v5 )
     return 0i64;
   do
   {
-    v12 = *i;
-    v13 = (unsigned int)(v12 - 48);
-    if ( (unsigned int)v13 < 0xA )
+    v11 = *i;
+    v12 = (unsigned int)(v11 - 48);
+    if ( (unsigned int)v12 < 0xA )
     {
-      if ( v10 >= 0x13 )
+      if ( v9 >= 0x13 )
       {
+        ++v8;
         ++v9;
-        ++v10;
       }
       else
       {
-        ++v10;
-        v7 = v13 + 10 * v7;
+        ++v9;
+        v6 = v12 + 10 * v6;
       }
       continue;
     }
-    if ( v11 || v12 != 46 )
+    if ( v10 || v11 != 46 )
       break;
-    v11 = i;
+    v10 = i;
   }
-  while ( ++i != v6 );
-  if ( !v10 )
+  while ( ++i != v5 );
+  if ( !v9 )
     return 0i64;
-  if ( v11 )
-    v9 += (_DWORD)v11 - (_DWORD)i + 1;
-  if ( i == v6 || *i + ((unsigned int)(*i - 65) < 0x1A ? 0x20 : 0) != 101 )
+  if ( v10 )
+    v8 += (_DWORD)v10 - (_DWORD)i + 1;
+  if ( i == v5 || *i + ((unsigned int)(*i - 65) < 0x1A ? 0x20 : 0) != 101 )
     goto LABEL_26;
-  v14 = i + 1;
-  if ( v14 == v6 )
+  v13 = i + 1;
+  if ( v13 == v5 )
     return 0i64;
-  v15 = *v14;
-  v16 = &v14[((*v14 - 43) & 0xFD) == 0];
-  if ( v16 == v6 )
+  v14 = *v13;
+  v15 = &v13[((*v13 - 43) & 0xFD) == 0];
+  if ( v15 == v5 )
     return 0i64;
-  v17 = *v16 - 48;
-  if ( v17 > 9 )
+  v16 = *v15 - 48;
+  if ( v16 > 9 )
     return 0i64;
-  for ( i = v16 + 1; i != v6; ++i )
+  for ( i = v15 + 1; i != v5; ++i )
   {
-    v18 = *i - 48;
-    if ( v18 > 9 )
+    v17 = *i - 48;
+    if ( v17 > 9 )
       break;
-    v17 = v18 + 10 * v17;
-    if ( v17 > 0x8000 )
+    v16 = v17 + 10 * v16;
+    if ( v16 > 0x8000 )
       return 0i64;
   }
-  v19 = -v17;
-  if ( v15 != 45 )
-    v19 = v17;
-  v9 += v19;
+  v18 = -v16;
+  if ( v14 != 45 )
+    v18 = v16;
+  v8 += v18;
 LABEL_26:
-  if ( !v7 )
+  if ( !v6 )
   {
-    *_RSI = 0.0;
+    *outValue = 0.0;
     return i;
   }
-  __asm
+  _XMM3 = 0i64;
+  __asm { vcvtsi2sd xmm3, xmm3, rdi }
+  if ( v6 < 0 )
   {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2sd xmm3, xmm3, rdi
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&_XMM3 + 1);
+    *(double *)&v22 = *(double *)&_XMM3 + 1.844674407370955e19;
+    _XMM3 = v22;
   }
-  if ( v7 < 0 )
-    __asm { vaddsd  xmm3, xmm3, cs:__real@43f0000000000000 }
-  _RAX = 45i64;
+  __asm { vxorpd  xmm2, xmm3, cs:__xmm@80000000000000008000000000000000 }
+  _XMM0 = (unsigned __int64)v4;
   __asm
   {
-    vxorpd  xmm2, xmm3, cs:__xmm@80000000000000008000000000000000
-    vmovq   xmm1, rax
-  }
-  _RAX = v5;
-  __asm
-  {
-    vmovq   xmm0, rax
     vpcmpeqq xmm1, xmm0, xmm1
     vblendvpd xmm4, xmm3, xmm2, xmm1
-    vmovsd  [rsp+8+arg_10], xmm4
   }
-  if ( !v9 )
+  if ( !v8 )
   {
 LABEL_39:
-    __asm { vmovsd  qword ptr [rsi], xmm4 }
+    *outValue = *(double *)&_XMM4;
     return i;
   }
-  if ( v9 >= 0 )
+  if ( v8 >= 0 )
   {
-    if ( (unsigned int)v9 > 0x135 )
+    if ( (unsigned int)v8 > 0x135 )
     {
-      __asm
-      {
-        vmovsd  xmm0, cs:__real@7ff0000000000000
-        vmulsd  xmm4, xmm4, xmm0
-        vmovsd  qword ptr [rsi], xmm4
-      }
+      *outValue = *(double *)&_XMM4 * INFINITY;
       return i;
     }
-    _RAX = v9;
-    _RCX = s_powersOf10;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rcx+rax*8]
-      vmulsd  xmm4, xmm4, xmm0
-    }
+    *(double *)&_XMM4 = *(double *)&_XMM4 * s_powersOf10[v8];
     goto LABEL_39;
   }
-  if ( (unsigned int)-v9 <= 0x135 )
-  {
-    _RAX = &s_powersOfOneOver10[-v9];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmulsd  xmm4, xmm4, xmm0
-      vmovsd  qword ptr [rsi], xmm4
-    }
-  }
+  if ( (unsigned int)-v8 <= 0x135 )
+    *(long double *)&_XMM0 = s_powersOfOneOver10[-v8];
   else
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmulsd  xmm4, xmm4, xmm0
-      vmovsd  qword ptr [rsi], xmm4
-    }
-  }
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+  *outValue = *(double *)&_XMM4 * *(double *)&_XMM0;
   return i;
 }
 

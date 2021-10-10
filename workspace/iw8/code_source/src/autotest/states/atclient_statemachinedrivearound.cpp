@@ -164,23 +164,17 @@ ExitVehicle
 */
 void ExitVehicle(const LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   AutomatedInput_Record records; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   Com_Printf(14, "Exit Vehicle\n");
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
   records.keys.keyBits.array[0] = 0x10000000;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  memset(&records.keys.keyBits.array[1], 0, 24);
-  __asm
-  {
-    vmovss  [rsp+68h+records.deferTimeSeconds], xmm0
-    vmovss  [rsp+68h+records.holdTimeSeconds], xmm1
-    vmovups xmmword ptr [rsp+68h+records.moveStick], xmm0
-  }
-  CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
-  s_exitVehicleTimeMS[v2] = Sys_Milliseconds();
+  memset(&records.keys.keyBits.array[1], 0, 40);
+  records.deferTimeSeconds = 0.0;
+  records.holdTimeSeconds = FLOAT_1_0;
+  CL_Input_AddAutomatedSequence((LocalClientNum_t)v1, &records, 1);
+  s_exitVehicleTimeMS[v1] = Sys_Milliseconds();
 }
 
 /*
@@ -191,29 +185,24 @@ SelectClosestVehicle
 __int64 SelectClosestVehicle(const LocalClientNum_t localClientNum)
 {
   signed __int64 v1; 
-  void *v4; 
+  void *v2; 
+  float v3; 
   unsigned __int16 number; 
   __int64 VehicleList; 
   ClActiveClientMP *ClientMP; 
-  __int64 v10; 
-  const playerState_s *v11; 
+  __int64 v8; 
+  const playerState_s *v9; 
   entityState_t *p_vehicles; 
-  char v13; 
-  __int64 result; 
+  double DistSqToEntity; 
   entityState_t vehicles; 
-  char v19; 
 
-  v4 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+30B8h+var_18], xmm6
-    vmovss  xmm6, cs:__real@7f7fffff
-  }
+  v2 = alloca(v1);
+  v3 = FLOAT_3_4028235e38;
   number = 2047;
   VehicleList = ATClient_GetVehicleList(localClientNum, &vehicles, 50);
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-  v10 = VehicleList;
-  v11 = ClientMP->GetPlayerState(ClientMP);
+  v8 = VehicleList;
+  v9 = ClientMP->GetPlayerState(ClientMP);
   if ( (int)VehicleList > 0 )
   {
     p_vehicles = &vehicles;
@@ -221,23 +210,19 @@ __int64 SelectClosestVehicle(const LocalClientNum_t localClientNum)
     {
       if ( !p_vehicles->staticState.vehiclePlayer.playerIndex )
       {
-        *(double *)&_XMM0 = ATClient_GetDistSqToEntity(v11, p_vehicles);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( v13 )
+        DistSqToEntity = ATClient_GetDistSqToEntity(v9, p_vehicles);
+        if ( *(float *)&DistSqToEntity < v3 )
         {
           number = p_vehicles->number;
-          __asm { vmovaps xmm6, xmm0 }
+          v3 = *(float *)&DistSqToEntity;
         }
       }
       ++p_vehicles;
-      --v10;
+      --v8;
     }
-    while ( v10 );
+    while ( v8 );
   }
-  result = number;
-  _R11 = &v19;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return number;
 }
 
 /*
@@ -247,92 +232,58 @@ UpdateDriveVehicleState
 */
 void UpdateDriveVehicleState(const LocalClientNum_t localClientNum, int msec)
 {
-  bool IsTargetingEnemy; 
-  char v13; 
-  const dvar_t *v15; 
-  __int16 v16; 
-  LocalClientNum_t v17; 
-  __int16 v20; 
+  __int64 v2; 
+  const dvar_t *v4; 
+  __int16 v5; 
+  LocalClientNum_t v6; 
+  float integer; 
+  __int16 v8; 
   const entityState_t *EntityState; 
   int RandomEnemy; 
-  vec3_t v26; 
+  vec3_t v11; 
   vec3_t trBase; 
   AutomatedInput_Record records; 
-  char v29; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = localClientNum;
-  _R14 = 0x140000000ui64;
+  v2 = localClientNum;
   if ( s_internalState[localClientNum] != DriveAroundInternalState_DriveVehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinedrivearound.cpp", 218, ASSERT_TYPE_ASSERT, "(s_internalState[localClientNum] == DriveAroundInternalState_DriveVehicle)", (const char *)&queryFormat, "s_internalState[localClientNum] == DriveAroundInternalState_DriveVehicle") )
     __debugbreak();
-  __asm
+  s_driveInputTimerMS[v2] = s_driveInputTimerMS[v2] - (float)msec;
+  if ( ATClient_IsTargetingEnemy((const LocalClientNum_t)v2) )
   {
-    vmovss  xmm0, rva s_driveInputTimerMS[r14+rbx*4]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, esi
-    vsubss  xmm1, xmm0, xmm1
-    vmovss  rva s_driveInputTimerMS[r14+rbx*4], xmm1
-  }
-  IsTargetingEnemy = ATClient_IsTargetingEnemy((const LocalClientNum_t)_RBX);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v13 = 0;
-  if ( IsTargetingEnemy )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f000000 }
     records.keys.keyBits.array[0] = 4096;
-    __asm
-    {
-      vmovss  [rsp+0B8h+records.holdTimeSeconds], xmm0
-      vxorps  xmm0, xmm0, xmm0
-    }
-    memset(&records.keys.keyBits.array[1], 0, 24);
-    __asm
-    {
-      vmovss  [rsp+0B8h+records.deferTimeSeconds], xmm6
-      vmovups xmmword ptr [rsp+0B8h+records.moveStick], xmm0
-    }
-    CL_Input_AddAutomatedSequence((LocalClientNum_t)_RBX, &records, 1);
+    records.holdTimeSeconds = FLOAT_0_5;
+    memset(&records.keys.keyBits.array[1], 0, 40);
+    records.deferTimeSeconds = 0.0;
+    CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
   }
-  __asm { vcomiss xmm6, rva s_driveInputTimerMS[r14+rbx*4] }
-  if ( !v13 )
+  if ( s_driveInputTimerMS[v2] <= 0.0 )
   {
-    v15 = DVARINT_ATClient_DriveToTargetInputDurationMS;
+    v4 = DVARINT_ATClient_DriveToTargetInputDurationMS;
     if ( !DVARINT_ATClient_DriveToTargetInputDurationMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_DriveToTargetInputDurationMS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    v16 = s_destination[_RBX];
-    v17 = (int)_RBX;
-    __asm
+    Dvar_CheckFrontendServerThread(v4);
+    v5 = s_destination[v2];
+    v6 = (int)v2;
+    integer = (float)v4->current.integer;
+    v8 = 2047;
+    s_driveInputTimerMS[v2] = integer;
+    if ( v5 != 2047 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rsi+28h]
-    }
-    v20 = 2047;
-    __asm { vmovss  rva s_driveInputTimerMS[r14+rbx*4], xmm0 }
-    if ( v16 != 2047 )
-    {
-      EntityState = ATClient_GetEntityState((const LocalClientNum_t)_RBX, v16);
+      EntityState = ATClient_GetEntityState((const LocalClientNum_t)v2, v5);
       if ( EntityState )
       {
         Trajectory_GetTrBase(&EntityState->lerp.pos, &trBase);
-        __asm { vmovsd  xmm0, qword ptr [rsp+0B8h+trBase] }
-        v26.v[2] = trBase.v[2];
-        __asm { vmovsd  [rsp+0B8h+var_78], xmm0 }
-        ATClient_DriveTo((const LocalClientNum_t)_RBX, &v26);
-        goto LABEL_17;
+        v11 = trBase;
+        ATClient_DriveTo((const LocalClientNum_t)v2, &v11);
+        return;
       }
-      v17 = (int)_RBX;
+      v6 = (int)v2;
     }
-    RandomEnemy = ATClient_GetRandomEnemy(v17);
+    RandomEnemy = ATClient_GetRandomEnemy(v6);
     if ( RandomEnemy != -1 )
-      v20 = RandomEnemy;
-    s_destination[_RBX] = v20;
+      v8 = RandomEnemy;
+    s_destination[v2] = v8;
   }
-LABEL_17:
-  _R11 = &v29;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -342,14 +293,21 @@ UpdateGoToVehicleState
 */
 void UpdateGoToVehicleState(const LocalClientNum_t localClientNum)
 {
+  __int128 v1; 
   __int64 v2; 
   const entityState_t *EntityState; 
   ClActiveClientMP *ClientMP; 
-  char v18; 
-  const dvar_t *v21; 
-  vec3_t v23; 
+  float *v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  const dvar_t *v11; 
+  vec3_t v12; 
   vec3_t trBase; 
   AutomatedInput_Record records; 
+  __int128 v15; 
 
   v2 = localClientNum;
   if ( s_internalState[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinedrivearound.cpp", 151, ASSERT_TYPE_ASSERT, "(s_internalState[localClientNum] == DriveAroundInternalState_GoToVehicle)", (const char *)&queryFormat, "s_internalState[localClientNum] == DriveAroundInternalState_GoToVehicle") )
@@ -363,63 +321,37 @@ void UpdateGoToVehicleState(const LocalClientNum_t localClientNum)
   }
   else
   {
-    __asm { vmovaps [rsp+0C8h+var_28], xmm6 }
+    v15 = v1;
     ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2);
-    ClientMP->GetPlayerState(ClientMP);
+    v5 = (float *)ClientMP->GetPlayerState(ClientMP);
     Trajectory_GetTrBase(&EntityState->lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0C8h+trBase]
-      vsubss  xmm3, xmm0, dword ptr [rbx+30h]
-      vmovss  xmm1, dword ptr [rsp+0C8h+trBase+4]
-      vsubss  xmm2, xmm1, dword ptr [rbx+34h]
-      vmovss  xmm0, dword ptr [rsp+0C8h+trBase+8]
-      vsubss  xmm4, xmm0, dword ptr [rbx+38h]
-    }
-    _RBX = DVARFLT_ATClient_MaxDistSqToEnterVehicle;
-    __asm
-    {
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm6, xmm3, xmm0
-    }
+    v6 = trBase.v[0] - v5[12];
+    v7 = trBase.v[1] - v5[13];
+    v8 = trBase.v[2] - v5[14];
+    v9 = DVARFLT_ATClient_MaxDistSqToEnterVehicle;
+    v10 = (float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v8 * v8);
     if ( !DVARFLT_ATClient_MaxDistSqToEnterVehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_MaxDistSqToEnterVehicle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v10 >= v9->current.value )
     {
-      vcomiss xmm6, dword ptr [rbx+28h]
-      vmovaps xmm6, [rsp+0C8h+var_28]
-    }
-    if ( v18 )
-    {
-      Com_Printf(14, "Enter Vehicle\n");
-      __asm { vmovss  xmm1, cs:__real@3f000000 }
-      records.keys.keyBits.array[0] = 0x10000000;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      memset(&records.keys.keyBits.array[1], 0, 24);
-      __asm
-      {
-        vmovss  [rsp+0C8h+records.deferTimeSeconds], xmm0
-        vmovss  [rsp+0C8h+records.holdTimeSeconds], xmm1
-        vmovups xmmword ptr [rsp+0C8h+records.moveStick], xmm0
-      }
-      CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
-      v21 = DVARINT_ATClient_EnterVehicleDurationMS;
-      s_internalState[v2] = DriveAroundInternalState_EnterVehicle;
-      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_EnterVehicleDurationMS") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      s_enterVehicleTimerMS[v2] = v21->current.integer;
+      v12 = trBase;
+      ATClient_WalkTo((const LocalClientNum_t)v2, &v12);
     }
     else
     {
-      __asm { vmovsd  xmm0, qword ptr [rsp+0C8h+trBase] }
-      v23.v[2] = trBase.v[2];
-      __asm { vmovsd  [rsp+0C8h+var_88], xmm0 }
-      ATClient_WalkTo((const LocalClientNum_t)v2, &v23);
+      Com_Printf(14, "Enter Vehicle\n");
+      records.keys.keyBits.array[0] = 0x10000000;
+      memset(&records.keys.keyBits.array[1], 0, 40);
+      records.deferTimeSeconds = 0.0;
+      records.holdTimeSeconds = FLOAT_0_5;
+      CL_Input_AddAutomatedSequence((LocalClientNum_t)v2, &records, 1);
+      v11 = DVARINT_ATClient_EnterVehicleDurationMS;
+      s_internalState[v2] = DriveAroundInternalState_EnterVehicle;
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_EnterVehicleDurationMS") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v11);
+      s_enterVehicleTimerMS[v2] = v11->current.integer;
     }
   }
 }

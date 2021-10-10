@@ -60,8 +60,6 @@ bdSessionID::bdSessionID
 */
 void bdSessionID::bdSessionID(bdSessionID *this, const bdSessionID *other, int a3)
 {
-  _RSI = other;
-  _RDI = this;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdSessionID::`vbtable'{for `bdTaskResult'};
@@ -70,16 +68,12 @@ void bdSessionID::bdSessionID(bdSessionID *this, const bdSessionID *other, int a
     *(_DWORD *)this->gap30 = 0;
   }
   bdTaskResult::bdTaskResult(this);
-  bdSerializable::bdSerializable((bdSerializable *)(&_RDI->__vftable + 2));
-  _RDI->__vftable = (bdSessionID_vtbl *)&bdSessionID::`vftable'{for `bdTaskResult'};
-  *((_QWORD *)&_RDI->__vftable + 2) = &bdSessionID::`vftable'{for `bdSerializable'};
-  *(bdSessionID_vtbl **)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8) = (bdSessionID_vtbl *)&bdSessionID::`vftable'{for `bdReferencable'};
-  bdSecurityID::bdSecurityID((bdSecurityID *)_RDI->_bytes_20);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi+20h]
-    vmovsd  qword ptr [rdi+20h], xmm0
-  }
+  bdSerializable::bdSerializable((bdSerializable *)(&this->__vftable + 2));
+  this->__vftable = (bdSessionID_vtbl *)&bdSessionID::`vftable'{for `bdTaskResult'};
+  *((_QWORD *)&this->__vftable + 2) = &bdSessionID::`vftable'{for `bdSerializable'};
+  *(bdSessionID_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdSessionID_vtbl *)&bdSessionID::`vftable'{for `bdReferencable'};
+  bdSecurityID::bdSecurityID((bdSecurityID *)this->_bytes_20);
+  *(double *)this->_bytes_20 = *(double *)other->_bytes_20;
 }
 
 /*

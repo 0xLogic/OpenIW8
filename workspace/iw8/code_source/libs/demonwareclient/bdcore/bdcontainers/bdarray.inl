@@ -2279,206 +2279,171 @@ bdArray<bdObjectStoreErrorWrappedObject>::copyConstructArrayArray
 */
 void bdArray<bdObjectStoreErrorWrappedObject>::copyConstructArrayArray(bdArray<bdObjectStoreErrorWrappedObject> *this, bdObjectStoreErrorWrappedObject *dest, const bdObjectStoreErrorWrappedObject *src, const unsigned int n)
 {
+  unsigned int *p_m_capacity; 
   signed __int64 v5; 
   signed __int64 v6; 
+  signed __int64 v7; 
   signed __int64 v8; 
   signed __int64 v9; 
   signed __int64 v10; 
+  signed __int64 v11; 
+  signed __int64 v12; 
   signed __int64 v13; 
   signed __int64 v14; 
   __int64 v15; 
-  __int64 v28; 
-  void *v41; 
-  __int64 v42; 
-  void *v43; 
-  __int64 v44; 
-  signed __int64 v50; 
-  signed __int64 v51; 
-  signed __int64 v52; 
-  signed __int64 v53; 
-  signed __int64 v54; 
-  signed __int64 v55; 
-  signed __int64 v56; 
-  signed __int64 v57; 
-  signed __int64 v58; 
-  signed __int64 v59; 
-  signed __int64 v60; 
-  signed __int64 v61; 
-  signed __int64 v62; 
-  signed __int64 v63; 
-  signed __int64 v64; 
-  signed __int64 v65; 
-  signed __int64 v66; 
-  signed __int64 v67; 
-  signed __int64 v68; 
-  signed __int64 v69; 
-  signed __int64 v70; 
+  _OWORD *v16; 
+  unsigned int *v17; 
+  __int64 v18; 
+  __m256i *v19; 
+  __int64 v20; 
+  __m256i *v21; 
+  __int64 v22; 
+  __m256i *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  signed __int64 v26; 
+  signed __int64 v27; 
+  signed __int64 v28; 
+  signed __int64 v29; 
+  signed __int64 v30; 
+  signed __int64 v31; 
+  signed __int64 v32; 
+  signed __int64 v33; 
+  signed __int64 v34; 
+  signed __int64 v35; 
+  signed __int64 v36; 
+  signed __int64 v37; 
+  signed __int64 v38; 
+  signed __int64 v39; 
+  signed __int64 v40; 
+  signed __int64 v41; 
+  signed __int64 v42; 
+  signed __int64 v43; 
+  signed __int64 v44; 
+  signed __int64 v45; 
 
   if ( n )
   {
-    _RBX = &src->m_object.m_metadata.m_tags.m_capacity;
+    p_m_capacity = &src->m_object.m_metadata.m_tags.m_capacity;
     v5 = (char *)dest - (char *)src;
-    v62 = v5 + 4;
+    v37 = v5 + 4;
     v6 = v5 + 8;
-    _RBP = v5 + 12;
+    v7 = v5 + 12;
     v8 = v5 + 48;
     v9 = v5 + 56;
     v10 = v5 + 64;
-    v64 = v5 + 72;
-    v65 = v5 + 76;
-    v66 = v5 + 80;
-    v67 = v5 + 84;
-    _R11 = v5 - 3424;
-    v70 = v5 - 3424;
-    v50 = v5 - 3312;
-    v51 = v5 - 3279;
-    v52 = v5 - 3240;
-    v53 = v5 - 3232;
-    v54 = v5 - 3224;
-    v55 = v5 - 3216;
-    v56 = v5 - 3208;
-    v57 = v5 - 3200;
-    _R8 = v5 - 2176;
-    v68 = v5 - 2176;
+    v39 = v5 + 72;
+    v40 = v5 + 76;
+    v41 = v5 + 80;
+    v42 = v5 + 84;
+    v11 = v5 - 3424;
+    v45 = v5 - 3424;
+    v25 = v5 - 3312;
+    v26 = v5 - 3279;
+    v27 = v5 - 3240;
+    v28 = v5 - 3232;
+    v29 = v5 - 3224;
+    v30 = v5 - 3216;
+    v31 = v5 - 3208;
+    v32 = v5 - 3200;
+    v12 = v5 - 2176;
+    v43 = v5 - 2176;
     v13 = v5 - 2111;
-    v69 = v5 - 2111;
-    v58 = v5 - 60;
-    v59 = v5 - 56;
-    v60 = v5 - 48;
-    v61 = v5 - 15;
-    v63 = v5 - 8;
+    v44 = v5 - 2111;
+    v33 = v5 - 60;
+    v34 = v5 - 56;
+    v35 = v5 - 48;
+    v36 = v5 - 15;
+    v38 = v5 - 8;
     v14 = v5 - 3440;
     v15 = n;
     do
     {
-      _RAX = (char *)_RBX + v14;
-      if ( (unsigned int *)((char *)_RBX + v14) )
+      if ( (unsigned int *)((char *)p_m_capacity + v14) )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx-0D70h]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups ymm0, ymmword ptr [rbx-0D60h]
-          vmovups ymmword ptr [r11+rbx], ymm0
-          vmovups ymm1, ymmword ptr [rbx-0D40h]
-          vmovups ymmword ptr [r11+rbx+20h], ymm1
-          vmovups ymm0, ymmword ptr [rbx-0D20h]
-          vmovups ymmword ptr [r11+rbx+40h], ymm0
-          vmovups xmm1, xmmword ptr [rbx-0D00h]
-          vmovups xmmword ptr [r11+rbx+60h], xmm1
-          vmovups ymm0, ymmword ptr [rbx-0CF0h]
-        }
-        _RCX = v50;
-        __asm { vmovups ymmword ptr [rcx+rbx], ymm0 }
-        *((_BYTE *)_RBX + v50 + 32) = *((_BYTE *)_RBX - 3280);
-        __asm { vmovups ymm0, ymmword ptr [rbx-0CCFh] }
-        _RCX = v51;
-        __asm { vmovups ymmword ptr [rcx+rbx], ymm0 }
-        *((_BYTE *)_RBX + v51 + 32) = *((_BYTE *)_RBX - 3247);
-        *(_QWORD *)((char *)_RBX + v52) = *((_QWORD *)_RBX - 405);
-        *(_QWORD *)((char *)_RBX + v53) = *((_QWORD *)_RBX - 404);
-        *(unsigned int *)((char *)_RBX + v54) = *(_RBX - 806);
-        *(_QWORD *)((char *)_RBX + v55) = *((_QWORD *)_RBX - 402);
-        *(_QWORD *)((char *)_RBX + v56) = *((_QWORD *)_RBX - 401);
-        _RCX = (char *)_RBX + v57;
-        _RAX = _RBX - 800;
-        v28 = 8i64;
+        *(_OWORD *)((char *)p_m_capacity + v14) = *((_OWORD *)p_m_capacity - 215);
+        *(__m256i *)((char *)p_m_capacity + v11) = *((__m256i *)p_m_capacity - 107);
+        *(__m256i *)((char *)p_m_capacity + v11 + 32) = *((__m256i *)p_m_capacity - 106);
+        *(__m256i *)((char *)p_m_capacity + v11 + 64) = *((__m256i *)p_m_capacity - 105);
+        *(_OWORD *)((char *)p_m_capacity + v11 + 96) = *((_OWORD *)p_m_capacity - 208);
+        *(__m256i *)((char *)p_m_capacity + v25) = *(__m256i *)(p_m_capacity - 828);
+        *((_BYTE *)p_m_capacity + v25 + 32) = *((_BYTE *)p_m_capacity - 3280);
+        *(__m256i *)((char *)p_m_capacity + v26) = *(__m256i *)((char *)p_m_capacity - 3279);
+        *((_BYTE *)p_m_capacity + v26 + 32) = *((_BYTE *)p_m_capacity - 3247);
+        *(_QWORD *)((char *)p_m_capacity + v27) = *((_QWORD *)p_m_capacity - 405);
+        *(_QWORD *)((char *)p_m_capacity + v28) = *((_QWORD *)p_m_capacity - 404);
+        *(unsigned int *)((char *)p_m_capacity + v29) = *(p_m_capacity - 806);
+        *(_QWORD *)((char *)p_m_capacity + v30) = *((_QWORD *)p_m_capacity - 402);
+        *(_QWORD *)((char *)p_m_capacity + v31) = *((_QWORD *)p_m_capacity - 401);
+        v16 = (_OWORD *)((char *)p_m_capacity + v32);
+        v17 = p_m_capacity - 800;
+        v18 = 8i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 128;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 32;
-          --v28;
+          *v16 = *(_OWORD *)v17;
+          v16[1] = *((_OWORD *)v17 + 1);
+          v16[2] = *((_OWORD *)v17 + 2);
+          v16[3] = *((_OWORD *)v17 + 3);
+          v16[4] = *((_OWORD *)v17 + 4);
+          v16[5] = *((_OWORD *)v17 + 5);
+          v16[6] = *((_OWORD *)v17 + 6);
+          v16 += 8;
+          *(v16 - 1) = *((_OWORD *)v17 + 7);
+          v17 += 32;
+          --v18;
         }
-        while ( v28 );
-        __asm
+        while ( v18 );
+        *(__m256i *)((char *)p_m_capacity + v12) = *((__m256i *)p_m_capacity - 68);
+        *(__m256i *)((char *)p_m_capacity + v12 + 32) = *((__m256i *)p_m_capacity - 67);
+        *((_BYTE *)p_m_capacity + v12 + 64) = *((_BYTE *)p_m_capacity - 2112);
+        memcpy_0((char *)p_m_capacity + v13, (char *)p_m_capacity - 2111, 0x800ui64);
+        *(unsigned int *)((char *)p_m_capacity + v33) = *(p_m_capacity - 15);
+        *(_QWORD *)((char *)p_m_capacity + v34) = *((_QWORD *)p_m_capacity - 7);
+        *(__m256i *)((char *)p_m_capacity + v35) = *(__m256i *)(p_m_capacity - 12);
+        *((_BYTE *)p_m_capacity + v35 + 32) = *((_BYTE *)p_m_capacity - 16);
+        *((_BYTE *)p_m_capacity + v36) = *((_BYTE *)p_m_capacity - 15);
+        *(unsigned int *)((char *)p_m_capacity + v37 - 4) = *p_m_capacity;
+        *(unsigned int *)((char *)p_m_capacity + v37) = p_m_capacity[1];
+        v19 = NULL;
+        v20 = *p_m_capacity;
+        if ( (_DWORD)v20 )
         {
-          vmovups ymm0, ymmword ptr [rbx-880h]
-          vmovups ymmword ptr [r8+rbx], ymm0
-          vmovups ymm1, ymmword ptr [rbx-860h]
-          vmovups ymmword ptr [r8+rbx+20h], ymm1
-        }
-        *((_BYTE *)_RBX + _R8 + 64) = *((_BYTE *)_RBX - 2112);
-        memcpy_0((char *)_RBX + v13, (char *)_RBX - 2111, 0x800ui64);
-        *(unsigned int *)((char *)_RBX + v58) = *(_RBX - 15);
-        *(_QWORD *)((char *)_RBX + v59) = *((_QWORD *)_RBX - 7);
-        __asm { vmovups ymm0, ymmword ptr [rbx-30h] }
-        _R11 = v60;
-        __asm { vmovups ymmword ptr [rbx+r11], ymm0 }
-        *((_BYTE *)_RBX + v60 + 32) = *((_BYTE *)_RBX - 16);
-        *((_BYTE *)_RBX + v61) = *((_BYTE *)_RBX - 15);
-        *(unsigned int *)((char *)_RBX + v62 - 4) = *_RBX;
-        *(unsigned int *)((char *)_RBX + v62) = _RBX[1];
-        v41 = NULL;
-        v42 = *_RBX;
-        if ( (_DWORD)v42 )
-        {
-          v43 = bdMemory::allocate(66 * v42);
-          v41 = v43;
-          v44 = _RBX[1];
-          if ( (_DWORD)v44 )
+          v21 = (__m256i *)bdMemory::allocate(66 * v20);
+          v19 = v21;
+          v22 = p_m_capacity[1];
+          if ( (_DWORD)v22 )
           {
-            _RCX = v43;
-            _R8 = *((_QWORD *)_RBX - 1) - (_QWORD)v43;
+            v23 = v21;
+            v24 = *((_QWORD *)p_m_capacity - 1) - (_QWORD)v21;
             do
             {
-              if ( _RCX )
+              if ( v23 )
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [r8+rcx]
-                  vmovups ymmword ptr [rcx], ymm0
-                  vmovups ymm1, ymmword ptr [r8+rcx+20h]
-                  vmovups ymmword ptr [rcx+20h], ymm1
-                }
-                _RCX[32] = *(_WORD *)((char *)_RCX + _R8 + 64);
+                *v23 = *(__m256i *)((char *)v23 + v24);
+                v23[1] = *(__m256i *)((char *)&v23[1] + v24);
+                v23[2].m256i_i16[0] = *(__int16 *)((char *)v23[2].m256i_i16 + v24);
               }
-              _RCX += 33;
-              --v44;
+              v23 = (__m256i *)((char *)v23 + 66);
+              --v22;
             }
-            while ( v44 );
+            while ( v22 );
           }
         }
-        *(_QWORD *)((char *)_RBX + v63) = v41;
-        *(unsigned int *)((char *)_RBX + v6) = _RBX[2];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+0Ch]
-          vmovups ymmword ptr [rbx+rbp], ymm0
-        }
-        *(_QWORD *)((char *)_RBX + v8) = *((_QWORD *)_RBX + 6);
-        *(_QWORD *)((char *)_RBX + v9) = *((_QWORD *)_RBX + 7);
-        *(_QWORD *)((char *)_RBX + v10) = *((_QWORD *)_RBX + 8);
-        *(unsigned int *)((char *)_RBX + v64) = _RBX[18];
-        *((_BYTE *)_RBX + v65) = *((_BYTE *)_RBX + 76);
-        *(unsigned int *)((char *)_RBX + v66) = _RBX[20];
-        *(unsigned int *)((char *)_RBX + v67) = _RBX[21];
-        _R8 = v68;
-        v13 = v69;
-        _R11 = v70;
+        *(_QWORD *)((char *)p_m_capacity + v38) = v19;
+        *(unsigned int *)((char *)p_m_capacity + v6) = p_m_capacity[2];
+        *(__m256i *)((char *)p_m_capacity + v7) = *(__m256i *)(p_m_capacity + 3);
+        *(_QWORD *)((char *)p_m_capacity + v8) = *((_QWORD *)p_m_capacity + 6);
+        *(_QWORD *)((char *)p_m_capacity + v9) = *((_QWORD *)p_m_capacity + 7);
+        *(_QWORD *)((char *)p_m_capacity + v10) = *((_QWORD *)p_m_capacity + 8);
+        *(unsigned int *)((char *)p_m_capacity + v39) = p_m_capacity[18];
+        *((_BYTE *)p_m_capacity + v40) = *((_BYTE *)p_m_capacity + 76);
+        *(unsigned int *)((char *)p_m_capacity + v41) = p_m_capacity[20];
+        *(unsigned int *)((char *)p_m_capacity + v42) = p_m_capacity[21];
+        v12 = v43;
+        v13 = v44;
+        v11 = v45;
       }
-      _RBX += 882;
+      p_m_capacity += 882;
       --v15;
     }
     while ( v15 );
@@ -2861,12 +2826,14 @@ void bdArray<bdClansUserMembershipProposal>::pushBack(bdArray<bdClansUserMembers
   char *v13; 
   __int64 v14; 
   __int64 v15; 
+  _OWORD *v16; 
+  char *v17; 
   __int64 v18; 
-  unsigned int v27; 
-  bdClansUserMembershipProposal *v28; 
-  bdClansUserMembershipProposal *v29; 
+  unsigned int v19; 
+  bdClansUserMembershipProposal *v20; 
+  bdClansUserMembershipProposal *v21; 
   bdClansUserMembershipProposal *__that; 
-  unsigned int v32; 
+  unsigned int v24; 
 
   __that = (bdClansUserMembershipProposal *)value;
   v2 = this;
@@ -2880,13 +2847,13 @@ void bdArray<bdClansUserMembershipProposal>::pushBack(bdArray<bdClansUserMembers
       v6 = 1;
     v7 = m_capacity + v6 == 0;
     v8 = m_capacity + v6;
-    v32 = v8;
+    v24 = v8;
     v9 = NULL;
     if ( !v7 )
     {
       v10 = (char *)bdMemory::allocate(1224 * v8);
       v9 = (bdClansUserMembershipProposal *)v10;
-      v29 = (bdClansUserMembershipProposal *)v10;
+      v21 = (bdClansUserMembershipProposal *)v10;
       m_size = v2->m_size;
       m_data = v2->m_data;
       if ( m_size )
@@ -2908,35 +2875,21 @@ void bdArray<bdClansUserMembershipProposal>::pushBack(bdArray<bdClansUserMembers
             bdStructUserDetails::bdStructUserDetails((bdStructUserDetails *)(v12 + 8), (const bdStructUserDetails *)&v12[v14 + 8]);
             *((_WORD *)v12 + 84) = *(_WORD *)&v12[v14 + 168];
             *((_DWORD *)v12 + 43) = *(_DWORD *)&v12[v14 + 172];
-            _RCX = v12 + 176;
-            _RAX = (__int64)&v12[v14 + 176];
+            v16 = v12 + 176;
+            v17 = &v12[v14 + 176];
             v18 = 8i64;
             do
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rcx], xmm0
-                vmovups xmm1, xmmword ptr [rax+10h]
-                vmovups xmmword ptr [rcx+10h], xmm1
-                vmovups xmm0, xmmword ptr [rax+20h]
-                vmovups xmmword ptr [rcx+20h], xmm0
-                vmovups xmm1, xmmword ptr [rax+30h]
-                vmovups xmmword ptr [rcx+30h], xmm1
-                vmovups xmm0, xmmword ptr [rax+40h]
-                vmovups xmmword ptr [rcx+40h], xmm0
-                vmovups xmm1, xmmword ptr [rax+50h]
-                vmovups xmmword ptr [rcx+50h], xmm1
-                vmovups xmm0, xmmword ptr [rax+60h]
-                vmovups xmmword ptr [rcx+60h], xmm0
-              }
-              _RCX += 128;
-              __asm
-              {
-                vmovups xmm1, xmmword ptr [rax+70h]
-                vmovups xmmword ptr [rcx-10h], xmm1
-              }
-              _RAX += 128i64;
+              *v16 = *(_OWORD *)v17;
+              v16[1] = *((_OWORD *)v17 + 1);
+              v16[2] = *((_OWORD *)v17 + 2);
+              v16[3] = *((_OWORD *)v17 + 3);
+              v16[4] = *((_OWORD *)v17 + 4);
+              v16[5] = *((_OWORD *)v17 + 5);
+              v16[6] = *((_OWORD *)v17 + 6);
+              v16 += 8;
+              *(v16 - 1) = *((_OWORD *)v17 + 7);
+              v17 += 128;
               --v18;
             }
             while ( v18 );
@@ -2947,13 +2900,13 @@ void bdArray<bdClansUserMembershipProposal>::pushBack(bdArray<bdClansUserMembers
         while ( v15 );
         v2 = this;
         m_size = this->m_size;
-        v9 = v29;
+        v9 = v21;
       }
     }
     bdArray<bdClansUserMembershipProposal>::destruct(v2, v2->m_data, m_size);
     bdMemory::deallocate(v2->m_data);
     v2->m_data = v9;
-    v2->m_capacity = v32;
+    v2->m_capacity = v24;
     m_size = v2->m_size;
     value = __that;
   }
@@ -2961,14 +2914,14 @@ void bdArray<bdClansUserMembershipProposal>::pushBack(bdArray<bdClansUserMembers
   {
     v9 = v2->m_data;
   }
-  v27 = m_size;
-  v28 = &v9[m_size];
-  if ( v28 )
+  v19 = m_size;
+  v20 = &v9[m_size];
+  if ( v20 )
   {
-    bdClansUserMembershipProposal::bdClansUserMembershipProposal(v28, value);
-    v27 = v2->m_size;
+    bdClansUserMembershipProposal::bdClansUserMembershipProposal(v20, value);
+    v19 = v2->m_size;
   }
-  v2->m_size = v27 + 1;
+  v2->m_size = v19 + 1;
 }
 
 /*
@@ -3013,14 +2966,25 @@ void bdArray<bdObjectStoreTag>::operator=(bdArray<bdObjectStoreTag> *this, const
   __int64 v7; 
   bdObjectStoreTag *v8; 
   __int64 v9; 
-  __int16 v14; 
-  __int64 v16; 
-  bdObjectStoreTag *v17; 
-  unsigned int v22; 
-  __int16 v25; 
-  unsigned int v29; 
-  unsigned int v30; 
-  __int64 v33; 
+  __int64 v10; 
+  __m256i v11; 
+  __m256i v12; 
+  __int16 v13; 
+  bdObjectStoreTag *v14; 
+  __int64 v15; 
+  bdObjectStoreTag *v16; 
+  __m256i *v17; 
+  signed __int64 v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  __int16 v21; 
+  __m256i v22; 
+  bdObjectStoreTag *m_data; 
+  unsigned int v24; 
+  unsigned int v25; 
+  __m256i *v26; 
+  char *v27; 
+  __int64 v28; 
 
   if ( this != a )
   {
@@ -3032,64 +2996,51 @@ void bdArray<bdObjectStoreTag>::operator=(bdArray<bdObjectStoreTag> *this, const
       v8 = NULL;
       if ( m_size <= (unsigned int)v7 )
       {
-        v22 = 0;
+        v19 = 0;
         if ( m_size )
         {
-          _R15 = 0i64;
+          v20 = 0i64;
           do
           {
-            bdHandleAssert(v22 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreTag>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-            _RAX = a->m_data;
-            ++_R15;
-            ++v22;
-            v25 = *(_WORD *)&a->m_data[_R15 - 1].m_value[31];
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r15+rax-42h]
-              vmovups ymm1, ymmword ptr [r15+rax-22h]
-            }
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [r15+rax-42h], ymm0
-              vmovups ymmword ptr [r15+rax-22h], ymm1
-            }
-            *(_WORD *)&_RAX[_R15 - 1].m_value[31] = v25;
+            bdHandleAssert(v19 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreTag>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
+            ++v20;
+            ++v19;
+            v21 = *(_WORD *)&a->m_data[v20 - 1].m_value[31];
+            v22 = *(__m256i *)&a->m_data[v20 - 1].m_key[32];
+            m_data = this->m_data;
+            *(__m256i *)m_data[v20 - 1].m_key = *(__m256i *)a->m_data[v20 - 1].m_key;
+            *(__m256i *)&m_data[v20 - 1].m_key[32] = v22;
+            *(_WORD *)&m_data[v20 - 1].m_value[31] = v21;
           }
-          while ( v22 < m_size );
+          while ( v19 < m_size );
           m_capacity = this->m_capacity;
         }
         this->m_size = m_size;
         if ( m_capacity > 4 * m_size )
         {
-          v29 = m_capacity - (m_capacity >> 1);
-          this->m_capacity = v29;
-          if ( v29 )
+          v24 = m_capacity - (m_capacity >> 1);
+          this->m_capacity = v24;
+          if ( v24 )
           {
-            v8 = (bdObjectStoreTag *)bdMemory::allocate(66i64 * v29);
-            v30 = this->m_size;
-            if ( v30 )
+            v8 = (bdObjectStoreTag *)bdMemory::allocate(66i64 * v24);
+            v25 = this->m_size;
+            if ( v25 )
             {
-              _RCX = v8;
-              _R8 = (char *)this->m_data - (char *)v8;
-              v33 = v30;
+              v26 = (__m256i *)v8;
+              v27 = (char *)((char *)this->m_data - (char *)v8);
+              v28 = v25;
               do
               {
-                if ( _RCX )
+                if ( v26 )
                 {
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [r8+rcx]
-                    vmovups ymmword ptr [rcx], ymm0
-                    vmovups ymm1, ymmword ptr [r8+rcx+20h]
-                    vmovups ymmword ptr [rcx+20h], ymm1
-                  }
-                  *(_WORD *)&_RCX->m_value[31] = *(_WORD *)&_RCX->m_value[_R8 + 31];
+                  *v26 = *(__m256i *)((char *)v26 + (_QWORD)v27);
+                  v26[1] = *(__m256i *)((char *)v26 + (_QWORD)v27 + 32);
+                  v26[2].m256i_i16[0] = *(__int16 *)((char *)v26[2].m256i_i16 + (_QWORD)v27);
                 }
-                ++_RCX;
-                --v33;
+                v26 = (__m256i *)((char *)v26 + 66);
+                --v28;
               }
-              while ( v33 );
+              while ( v28 );
             }
           }
           bdMemory::deallocate(this->m_data);
@@ -3105,48 +3056,36 @@ void bdArray<bdObjectStoreTag>::operator=(bdArray<bdObjectStoreTag> *this, const
             bdHandleAssert((unsigned int)v8 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreTag>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
             v9 = (unsigned int)v8;
             LODWORD(v8) = (_DWORD)v8 + 1;
-            _RDX = v9;
-            _RAX = a->m_data;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdx+rax]
-              vmovups ymm1, ymmword ptr [rdx+rax+20h]
-            }
-            v14 = *(_WORD *)&a->m_data[_RDX].m_value[31];
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [rdx+rax], ymm0
-              vmovups ymmword ptr [rdx+rax+20h], ymm1
-            }
-            *(_WORD *)&_RAX[_RDX].m_value[31] = v14;
+            v10 = v9;
+            v11 = *(__m256i *)a->m_data[v9].m_key;
+            v12 = *(__m256i *)&a->m_data[v9].m_key[32];
+            v13 = *(_WORD *)&a->m_data[v9].m_value[31];
+            v14 = this->m_data;
+            *(__m256i *)v14[v10].m_key = v11;
+            *(__m256i *)&v14[v10].m_key[32] = v12;
+            *(_WORD *)&v14[v10].m_value[31] = v13;
             v7 = this->m_size;
           }
           while ( (unsigned int)v8 < (unsigned int)v7 );
         }
-        v16 = m_size - (unsigned int)v7;
-        v17 = &a->m_data[v7];
-        _RAX = &this->m_data[v7];
-        if ( (_DWORD)v16 )
+        v15 = m_size - (unsigned int)v7;
+        v16 = &a->m_data[v7];
+        v17 = (__m256i *)&this->m_data[v7];
+        if ( (_DWORD)v15 )
         {
-          _R8 = (char *)v17 - (char *)_RAX;
+          v18 = (char *)v16 - (char *)v17;
           do
           {
-            if ( _RAX )
+            if ( v17 )
             {
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [r8+rax]
-                vmovups ymmword ptr [rax], ymm0
-                vmovups ymm1, ymmword ptr [r8+rax+20h]
-                vmovups ymmword ptr [rax+20h], ymm1
-              }
-              *(_WORD *)&_RAX->m_value[31] = *(_WORD *)&_RAX->m_value[_R8 + 31];
+              *v17 = *(__m256i *)((char *)v17 + v18);
+              v17[1] = *(__m256i *)((char *)&v17[1] + v18);
+              v17[2].m256i_i16[0] = *(__int16 *)((char *)v17[2].m256i_i16 + v18);
             }
-            ++_RAX;
-            --v16;
+            v17 = (__m256i *)((char *)v17 + 66);
+            --v15;
           }
-          while ( v16 );
+          while ( v15 );
         }
         this->m_size = m_size;
       }
@@ -3175,6 +3114,7 @@ bdObjectStoreTag *bdArray<bdObjectStoreTag>::uninitializedCopy(bdArray<bdObjectS
   bdObjectStoreTag *result; 
   unsigned int m_size; 
   bdObjectStoreTag *v6; 
+  signed __int64 v7; 
   __int64 v8; 
 
   m_capacity = a->m_capacity;
@@ -3185,20 +3125,15 @@ bdObjectStoreTag *bdArray<bdObjectStoreTag>::uninitializedCopy(bdArray<bdObjectS
   v6 = result;
   if ( m_size )
   {
-    _R9 = (char *)a->m_data - (char *)result;
+    v7 = (char *)a->m_data - (char *)result;
     v8 = m_size;
     do
     {
       if ( result )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r9+rax]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm1, ymmword ptr [r9+rax+20h]
-          vmovups ymmword ptr [rax+20h], ymm1
-        }
-        *(_WORD *)&result->m_value[31] = *(_WORD *)&result->m_value[_R9 + 31];
+        *(__m256i *)result->m_key = *(__m256i *)&result->m_key[v7];
+        *(__m256i *)&result->m_key[32] = *(__m256i *)&result->m_key[v7 + 32];
+        *(_WORD *)&result->m_value[31] = *(_WORD *)&result->m_value[v7 + 31];
       }
       ++result;
       --v8;
@@ -3856,9 +3791,11 @@ void bdArray<bdChannelInfo>::increaseCapacity(bdArray<bdChannelInfo> *this, cons
   __int64 v7; 
   char *v8; 
   unsigned int m_size; 
+  bdReferencable *v10; 
+  signed __int64 v11; 
   __int64 v12; 
   bdReferencable *v13; 
-  unsigned int v16; 
+  unsigned int v15; 
 
   v2 = this;
   v3 = 0;
@@ -3868,7 +3805,7 @@ void bdArray<bdChannelInfo>::increaseCapacity(bdArray<bdChannelInfo> *this, cons
     v5 = increase;
   v6 = m_capacity + v5 == 0;
   v7 = m_capacity + v5;
-  v16 = v7;
+  v15 = v7;
   v8 = NULL;
   if ( !v6 )
   {
@@ -3876,37 +3813,33 @@ void bdArray<bdChannelInfo>::increaseCapacity(bdArray<bdChannelInfo> *this, cons
     m_size = v2->m_size;
     if ( m_size )
     {
-      _RBX = (bdReferencable *)(v8 + 80);
-      _RBP = (char *)v2->m_data - v8;
+      v10 = (bdReferencable *)(v8 + 80);
+      v11 = (char *)v2->m_data - v8;
       v12 = m_size;
       do
       {
-        v13 = _RBX - 5;
-        if ( _RBX != (bdReferencable *)80 )
+        v13 = v10 - 5;
+        if ( v10 != (bdReferencable *)80 )
         {
-          *(_QWORD *)&_RBX[-5].m_refCount.m_value._My_val = &bdChannelInfo::`vbtable'{for `bdTaskResult'};
-          *(_QWORD *)&_RBX[-4].m_refCount.m_value._My_val = &bdChannelInfo::`vbtable'{for `bdStructBufferSerializable'};
-          bdReferencable::bdReferencable(_RBX, (const bdReferencable *)((char *)&_RBX->m_refCount + _RBP + *(int *)(*(_QWORD *)((char *)&_RBX[-4] + _RBP - 8) + 4i64) - 80));
+          *(_QWORD *)&v10[-5].m_refCount.m_value._My_val = &bdChannelInfo::`vbtable'{for `bdTaskResult'};
+          *(_QWORD *)&v10[-4].m_refCount.m_value._My_val = &bdChannelInfo::`vbtable'{for `bdStructBufferSerializable'};
+          bdReferencable::bdReferencable(v10, (const bdReferencable *)((char *)&v10->m_refCount + v11 + *(int *)(*(_QWORD *)((char *)&v10[-4] + v11 - 8) + 4i64) - 80));
           v3 |= 1u;
-          bdTaskResult::bdTaskResult((bdTaskResult *)&_RBX[-5], (const bdTaskResult *)((char *)&_RBX[-5] + _RBP));
-          bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&_RBX[-4], (const bdStructBufferSerializable *)((char *)&_RBX[-4] + _RBP));
+          bdTaskResult::bdTaskResult((bdTaskResult *)&v10[-5], (const bdTaskResult *)((char *)&v10[-5] + v11));
+          bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&v10[-4], (const bdStructBufferSerializable *)((char *)&v10[-4] + v11));
           v13->__vftable = (bdReferencable_vtbl *)&bdChannelInfo::`vftable'{for `bdTaskResult'};
-          _RBX[-4].__vftable = (bdReferencable_vtbl *)&bdChannelInfo::`vftable'{for `bdStructBufferSerializable'};
-          *(_QWORD *)((char *)&v13->m_refCount.m_value._My_val + *(int *)(*(_QWORD *)&_RBX[-5].m_refCount.m_value._My_val + 4i64)) = &bdChannelInfo::`vftable'{for `bdReferencable'};
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx+rbp-30h]
-            vmovups xmmword ptr [rbx-30h], xmm0
-          }
-          _RBX[-2].__vftable = *(bdReferencable_vtbl **)((char *)&_RBX[-2].__vftable + _RBP);
-          _RBX[-2].m_refCount.m_value._My_val = *(_DWORD *)((char *)&_RBX[-1] + _RBP - 8);
-          *((_DWORD *)&_RBX[-2].m_refCount + 1) = *(_DWORD *)((char *)&_RBX[-1] + _RBP - 4);
-          _RBX[-1].__vftable = *(bdReferencable_vtbl **)((char *)&_RBX[-1].__vftable + _RBP);
-          LOBYTE(_RBX[-1].m_refCount.m_value._My_val) = *((_BYTE *)_RBX + _RBP - 8);
-          BYTE1(_RBX[-1].m_refCount.m_value._My_val) = *((_BYTE *)_RBX + _RBP - 7);
-          *((_DWORD *)&_RBX[-1].m_refCount + 1) = *(_DWORD *)((char *)_RBX + _RBP - 4);
+          v10[-4].__vftable = (bdReferencable_vtbl *)&bdChannelInfo::`vftable'{for `bdStructBufferSerializable'};
+          *(_QWORD *)((char *)&v13->m_refCount.m_value._My_val + *(int *)(*(_QWORD *)&v10[-5].m_refCount.m_value._My_val + 4i64)) = &bdChannelInfo::`vftable'{for `bdReferencable'};
+          v10[-3] = *(bdReferencable *)((char *)v10 + v11 - 48);
+          v10[-2].__vftable = *(bdReferencable_vtbl **)((char *)&v10[-2].__vftable + v11);
+          v10[-2].m_refCount.m_value._My_val = *(_DWORD *)((char *)&v10[-1] + v11 - 8);
+          *((_DWORD *)&v10[-2].m_refCount + 1) = *(_DWORD *)((char *)&v10[-1] + v11 - 4);
+          v10[-1].__vftable = *(bdReferencable_vtbl **)((char *)&v10[-1].__vftable + v11);
+          LOBYTE(v10[-1].m_refCount.m_value._My_val) = *((_BYTE *)v10 + v11 - 8);
+          BYTE1(v10[-1].m_refCount.m_value._My_val) = *((_BYTE *)v10 + v11 - 7);
+          *((_DWORD *)&v10[-1].m_refCount + 1) = *(_DWORD *)((char *)v10 + v11 - 4);
         }
-        _RBX += 6;
+        v10 += 6;
         --v12;
       }
       while ( v12 );
@@ -3916,7 +3849,7 @@ void bdArray<bdChannelInfo>::increaseCapacity(bdArray<bdChannelInfo> *this, cons
   bdArray<bdChannelInfo>::destruct(v2, v2->m_data, v2->m_size);
   bdMemory::deallocate(v2->m_data);
   v2->m_data = (bdChannelInfo *)v8;
-  v2->m_capacity = v16;
+  v2->m_capacity = v15;
 }
 
 /*
@@ -3977,6 +3910,7 @@ void bdArray<bdChannelMember>::pushBack(bdArray<bdChannelMember> *this, const bd
   unsigned int v8; 
   bdChannelMember *m_data; 
   char *v10; 
+  bdReferencable *v11; 
   signed __int64 v12; 
   signed __int64 v13; 
   signed __int64 v14; 
@@ -3985,14 +3919,14 @@ void bdArray<bdChannelMember>::pushBack(bdArray<bdChannelMember> *this, const bd
   signed __int64 v17; 
   bdReferencable *v18; 
   const bdTaskResult *v19; 
-  unsigned int v23; 
-  bdChannelMember *v24; 
-  signed __int64 v25; 
-  signed __int64 v26; 
-  signed __int64 v27; 
-  bdChannelMember *v28; 
+  unsigned int v20; 
+  bdChannelMember *v21; 
+  signed __int64 v22; 
+  signed __int64 v23; 
+  signed __int64 v24; 
+  bdChannelMember *v25; 
   bdChannelMember *__that; 
-  unsigned int v31; 
+  unsigned int v28; 
 
   __that = (bdChannelMember *)value;
   v2 = this;
@@ -4006,61 +3940,55 @@ void bdArray<bdChannelMember>::pushBack(bdArray<bdChannelMember> *this, const bd
       v6 = 1;
     v7 = m_capacity + v6 == 0;
     v8 = m_capacity + v6;
-    v31 = v8;
+    v28 = v8;
     m_data = NULL;
     if ( !v7 )
     {
       v10 = (char *)bdMemory::allocate((unsigned __int64)v8 << 7);
       m_data = (bdChannelMember *)v10;
-      v28 = (bdChannelMember *)v10;
+      v25 = (bdChannelMember *)v10;
       LODWORD(m_size) = v2->m_size;
       if ( (_DWORD)m_size )
       {
-        _RBX = (bdReferencable *)(v10 + 112);
+        v11 = (bdReferencable *)(v10 + 112);
         v12 = (char *)v2->m_data - v10;
         v13 = v12 - 104;
-        v25 = v12 - 72;
-        v26 = v12 - 8;
+        v22 = v12 - 72;
+        v23 = v12 - 8;
         v14 = v12 - 112;
-        v27 = v12 - 112;
+        v24 = v12 - 112;
         v15 = (unsigned int)m_size;
         v16 = v12 - 96;
         v17 = v12 - 80;
         do
         {
-          v18 = _RBX - 7;
-          if ( _RBX != (bdReferencable *)112 )
+          v18 = v11 - 7;
+          if ( v11 != (bdReferencable *)112 )
           {
-            *(_QWORD *)&_RBX[-7].m_refCount.m_value._My_val = &bdChannelMember::`vbtable'{for `bdTaskResult'};
-            *(_QWORD *)&_RBX[-6].m_refCount.m_value._My_val = &bdChannelMember::`vbtable'{for `bdStructBufferSerializable'};
-            v19 = (const bdTaskResult *)((char *)_RBX + v14);
-            bdReferencable::bdReferencable(_RBX, (const bdReferencable *)((char *)&_RBX->m_refCount + v14 + SHIDWORD((*(bdReferencable_vtbl **)((char *)&_RBX->__vftable + v13))->~bdReferencable)));
+            *(_QWORD *)&v11[-7].m_refCount.m_value._My_val = &bdChannelMember::`vbtable'{for `bdTaskResult'};
+            *(_QWORD *)&v11[-6].m_refCount.m_value._My_val = &bdChannelMember::`vbtable'{for `bdStructBufferSerializable'};
+            v19 = (const bdTaskResult *)((char *)v11 + v14);
+            bdReferencable::bdReferencable(v11, (const bdReferencable *)((char *)&v11->m_refCount + v14 + SHIDWORD((*(bdReferencable_vtbl **)((char *)&v11->__vftable + v13))->~bdReferencable)));
             v3 |= 1u;
-            bdTaskResult::bdTaskResult((bdTaskResult *)&_RBX[-7], v19);
-            bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&_RBX[-6], (const bdStructBufferSerializable *)((char *)_RBX + v16));
+            bdTaskResult::bdTaskResult((bdTaskResult *)&v11[-7], v19);
+            bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&v11[-6], (const bdStructBufferSerializable *)((char *)v11 + v16));
             v18->__vftable = (bdReferencable_vtbl *)&bdChannelMember::`vftable'{for `bdTaskResult'};
-            _RBX[-6].__vftable = (bdReferencable_vtbl *)&bdChannelMember::`vftable'{for `bdStructBufferSerializable'};
-            *(_QWORD *)((char *)&v18->m_refCount.m_value._My_val + *(int *)(*(_QWORD *)&_RBX[-7].m_refCount.m_value._My_val + 4i64)) = &bdChannelMember::`vftable'{for `bdReferencable'};
-            _RBX[-5].__vftable = *(bdReferencable_vtbl **)((char *)&_RBX->__vftable + v17);
-            _R8 = v25;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r8+rbx]
-              vmovups ymmword ptr [rbx-48h], ymm0
-              vmovups ymm1, ymmword ptr [r8+rbx+20h]
-              vmovups ymmword ptr [rbx-28h], ymm1
-            }
-            _RBX[-1].m_refCount.m_value._My_val = *(_DWORD *)((char *)&_RBX->__vftable + v26);
-            v14 = v27;
+            v11[-6].__vftable = (bdReferencable_vtbl *)&bdChannelMember::`vftable'{for `bdStructBufferSerializable'};
+            *(_QWORD *)((char *)&v18->m_refCount.m_value._My_val + *(int *)(*(_QWORD *)&v11[-7].m_refCount.m_value._My_val + 4i64)) = &bdChannelMember::`vftable'{for `bdReferencable'};
+            v11[-5].__vftable = *(bdReferencable_vtbl **)((char *)&v11->__vftable + v17);
+            *(__m256i *)&v11[-5].m_refCount.m_value._My_val = *(__m256i *)((char *)&v11->__vftable + v22);
+            *(__m256i *)&v11[-3].m_refCount.m_value._My_val = *(__m256i *)((char *)&v11[2].__vftable + v22);
+            v11[-1].m_refCount.m_value._My_val = *(_DWORD *)((char *)&v11->__vftable + v23);
+            v14 = v24;
           }
-          _RBX += 8;
+          v11 += 8;
           --v15;
         }
         while ( v15 );
         v2 = this;
         LODWORD(m_size) = this->m_size;
-        m_data = v28;
-        v8 = v31;
+        m_data = v25;
+        v8 = v28;
       }
     }
     bdArray<bdChannelMember>::destruct(v2, v2->m_data, m_size);
@@ -4074,14 +4002,14 @@ void bdArray<bdChannelMember>::pushBack(bdArray<bdChannelMember> *this, const bd
   {
     m_data = v2->m_data;
   }
-  v23 = m_size;
-  v24 = &m_data[m_size];
-  if ( v24 )
+  v20 = m_size;
+  v21 = &m_data[m_size];
+  if ( v21 )
   {
-    bdChannelMember::bdChannelMember(v24, value);
-    v23 = v2->m_size;
+    bdChannelMember::bdChannelMember(v21, value);
+    v20 = v2->m_size;
   }
-  v2->m_size = v23 + 1;
+  v2->m_size = v20 + 1;
 }
 
 /*
@@ -4096,8 +4024,12 @@ void bdArray<bdClansGroupInfo>::copyConstructArrayArray(bdArray<bdClansGroupInfo
   signed __int64 v6; 
   __int64 v7; 
   _QWORD *v8; 
+  _OWORD *v9; 
+  bdStructUserAccountID *v10; 
   __int64 v11; 
-  __int64 v22; 
+  _OWORD *v12; 
+  _OWORD *v13; 
+  __int64 v14; 
 
   if ( n )
   {
@@ -4122,70 +4054,42 @@ void bdArray<bdClansGroupInfo>::copyConstructArrayArray(bdArray<bdClansGroupInfo
         *(_QWORD *)((char *)&p_m_value[-6] + v6 - 8) = *(_QWORD *)&p_m_value[-7]._bytes_48[8];
         *v8 = &bdClansGroupInfo::`vftable'{for `bdStructBufferSerializable'};
         *(_QWORD *)((char *)v8 + *(int *)(*(_QWORD *)((char *)&p_m_value[-6] + v6 - 40) + 4i64) + 8) = &bdClansGroupInfo::`vftable'{for `bdReferencable'};
-        _RAX = (__int64)&p_m_value[-6] + v6;
-        _RCX = p_m_value - 6;
+        v9 = (_OWORD *)((char *)&p_m_value[-6] + v6);
+        v10 = p_m_value - 6;
         v11 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx]
-            vmovups xmmword ptr [rax], xmm0
-            vmovups xmm1, xmmword ptr [rcx+10h]
-            vmovups xmmword ptr [rax+10h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+20h]
-            vmovups xmmword ptr [rax+20h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+30h]
-            vmovups xmmword ptr [rax+30h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+40h]
-            vmovups xmmword ptr [rax+40h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+50h]
-            vmovups xmmword ptr [rax+50h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+60h]
-            vmovups xmmword ptr [rax+60h], xmm0
-          }
-          _RAX += 128i64;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+70h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          _RCX = (bdStructUserAccountID *)((char *)_RCX + 128);
+          *v9 = *(_OWORD *)&v10->__vftable;
+          v9[1] = *((_OWORD *)&v10->__vftable + 1);
+          v9[2] = *(_OWORD *)v10->_bytes_20;
+          v9[3] = *(_OWORD *)&v10->m_userID;
+          v9[4] = *(_OWORD *)&v10->gap38[8];
+          v9[5] = *(_OWORD *)&v10->_bytes_48[8];
+          v9[6] = *(_OWORD *)(&v10[1].__vftable + 1);
+          v9 += 8;
+          *(v9 - 1) = *(_OWORD *)(&v10[1].__vftable + 3);
+          v10 = (bdStructUserAccountID *)((char *)v10 + 128);
           --v11;
         }
         while ( v11 );
-        _RCX = (__int64)&p_m_value[-3] + v6 - 8;
-        _RAX = &p_m_value[-4]._bytes_48[8];
-        v22 = 2i64;
+        v12 = (_OWORD *)((char *)&p_m_value[-3] + v6 - 8);
+        v13 = &p_m_value[-4]._bytes_48[8];
+        v14 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 128i64;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 128;
-          --v22;
+          *v12 = *v13;
+          v12[1] = v13[1];
+          v12[2] = v13[2];
+          v12[3] = v13[3];
+          v12[4] = v13[4];
+          v12[5] = v13[5];
+          v12[6] = v13[6];
+          v12 += 8;
+          *(v12 - 1) = v13[7];
+          v13 += 8;
+          --v14;
         }
-        while ( v22 );
+        while ( v14 );
         *(_WORD *)((char *)p_m_value + v6 - 16) = *(_WORD *)p_m_value[-1]._bytes_48;
         *((_BYTE *)p_m_value + v6 - 8) = p_m_value[-1]._bytes_48[8];
         bdStructUserAccountID::bdStructUserAccountID((bdStructUserAccountID *)((char *)p_m_value + v6), p_m_value);
@@ -4387,6 +4291,8 @@ void bdArray<bdClansGroupMembershipProposal>::copyConstructArrayArray(bdArray<bd
   signed __int64 v7; 
   __int64 v8; 
   bdClansGroupIdentifier_vtbl **v9; 
+  _OWORD *v10; 
+  _OWORD *v11; 
   __int64 v12; 
 
   if ( n )
@@ -4421,35 +4327,21 @@ void bdArray<bdClansGroupMembershipProposal>::copyConstructArrayArray(bdArray<bd
         v5[4] = *(bdClansGroupIdentifier_vtbl **)((char *)v5 + v7 + 32);
         v5[7] = *(bdClansGroupIdentifier_vtbl **)((char *)v5 + v7 + 56);
         *((_DWORD *)v5 + 16) = *(_DWORD *)((char *)v5 + v7 + 64);
-        _RCX = (char *)v5 + 68;
-        _RAX = (__int64)v5 + v7 + 68;
+        v10 = (_OWORD *)((char *)v5 + 68);
+        v11 = (_OWORD *)((char *)v5 + v7 + 68);
         v12 = 8i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 128;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 128i64;
+          *v10 = *v11;
+          v10[1] = v11[1];
+          v10[2] = v11[2];
+          v10[3] = v11[3];
+          v10[4] = v11[4];
+          v10[5] = v11[5];
+          v10[6] = v11[6];
+          v10 += 8;
+          *(v10 - 1) = v11[7];
+          v11 += 8;
           --v12;
         }
         while ( v12 );
@@ -4544,6 +4436,8 @@ void bdArray<bdClansUserMembershipProposal>::copyConstructArrayArray(bdArray<bdC
   signed __int64 v6; 
   signed __int64 v7; 
   __int64 v8; 
+  _OWORD *v9; 
+  _OWORD *v10; 
   __int64 v11; 
 
   if ( n )
@@ -4566,35 +4460,21 @@ void bdArray<bdClansUserMembershipProposal>::copyConstructArrayArray(bdArray<bdC
         bdStructUserDetails::bdStructUserDetails((bdStructUserDetails *)(v5 + 1), (const bdStructUserDetails *)((char *)v5 + v7 + 8));
         *((_WORD *)v5 + 84) = *(_WORD *)((char *)v5 + v7 + 168);
         *((_DWORD *)v5 + 43) = *(_DWORD *)((char *)v5 + v7 + 172);
-        _RCX = v5 + 22;
-        _RAX = (__int64)v5 + v7 + 176;
+        v9 = v5 + 22;
+        v10 = (_OWORD *)((char *)v5 + v7 + 176);
         v11 = 8i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 16;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 128i64;
+          *v9 = *v10;
+          v9[1] = v10[1];
+          v9[2] = v10[2];
+          v9[3] = v10[3];
+          v9[4] = v10[4];
+          v9[5] = v10[5];
+          v9[6] = v10[6];
+          v9 += 8;
+          *(v9 - 1) = v10[7];
+          v10 += 8;
           --v11;
         }
         while ( v11 );
@@ -4942,194 +4822,159 @@ bdArray<bdObjectStoreErrorWrappedMetadata>::copyConstructArrayArray
 */
 void bdArray<bdObjectStoreErrorWrappedMetadata>::copyConstructArrayArray(bdArray<bdObjectStoreErrorWrappedMetadata> *this, bdObjectStoreErrorWrappedMetadata *dest, const bdObjectStoreErrorWrappedMetadata *src, const unsigned int n)
 {
+  unsigned int *p_m_capacity; 
   signed __int64 v5; 
   signed __int64 v6; 
+  signed __int64 v7; 
   signed __int64 v8; 
   signed __int64 v9; 
   signed __int64 v10; 
+  signed __int64 v11; 
+  signed __int64 v12; 
   signed __int64 v13; 
   signed __int64 v14; 
   __int64 v15; 
-  __int64 v28; 
-  void *v41; 
-  __int64 v42; 
-  void *v43; 
-  __int64 v44; 
-  signed __int64 v50; 
-  signed __int64 v51; 
-  signed __int64 v52; 
-  signed __int64 v53; 
-  signed __int64 v54; 
-  signed __int64 v55; 
-  signed __int64 v56; 
-  signed __int64 v57; 
-  signed __int64 v58; 
-  signed __int64 v59; 
-  signed __int64 v60; 
-  signed __int64 v61; 
-  signed __int64 v62; 
-  signed __int64 v63; 
-  signed __int64 v64; 
-  signed __int64 v65; 
-  signed __int64 v66; 
+  _OWORD *v16; 
+  unsigned int *v17; 
+  __int64 v18; 
+  __m256i *v19; 
+  __int64 v20; 
+  __m256i *v21; 
+  __int64 v22; 
+  __m256i *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  signed __int64 v26; 
+  signed __int64 v27; 
+  signed __int64 v28; 
+  signed __int64 v29; 
+  signed __int64 v30; 
+  signed __int64 v31; 
+  signed __int64 v32; 
+  signed __int64 v33; 
+  signed __int64 v34; 
+  signed __int64 v35; 
+  signed __int64 v36; 
+  signed __int64 v37; 
+  signed __int64 v38; 
+  signed __int64 v39; 
+  signed __int64 v40; 
+  signed __int64 v41; 
 
   if ( n )
   {
-    _RBX = &src->m_metadata.m_tags.m_capacity;
+    p_m_capacity = &src->m_metadata.m_tags.m_capacity;
     v5 = (char *)dest - (char *)src;
-    v62 = v5 + 4;
+    v37 = v5 + 4;
     v6 = v5 + 8;
-    _RBP = v5 + 12;
+    v7 = v5 + 12;
     v8 = v5 + 48;
     v9 = v5 + 52;
     v10 = v5 + 56;
-    _R11 = v5 - 3424;
-    v66 = v5 - 3424;
-    v50 = v5 - 3312;
-    v51 = v5 - 3279;
-    v52 = v5 - 3240;
-    v53 = v5 - 3232;
-    v54 = v5 - 3224;
-    v55 = v5 - 3216;
-    v56 = v5 - 3208;
-    v57 = v5 - 3200;
-    _R8 = v5 - 2176;
-    v64 = v5 - 2176;
+    v11 = v5 - 3424;
+    v41 = v5 - 3424;
+    v25 = v5 - 3312;
+    v26 = v5 - 3279;
+    v27 = v5 - 3240;
+    v28 = v5 - 3232;
+    v29 = v5 - 3224;
+    v30 = v5 - 3216;
+    v31 = v5 - 3208;
+    v32 = v5 - 3200;
+    v12 = v5 - 2176;
+    v39 = v5 - 2176;
     v13 = v5 - 2111;
-    v65 = v5 - 2111;
-    v58 = v5 - 60;
-    v59 = v5 - 56;
-    v60 = v5 - 48;
-    v61 = v5 - 15;
-    v63 = v5 - 8;
+    v40 = v5 - 2111;
+    v33 = v5 - 60;
+    v34 = v5 - 56;
+    v35 = v5 - 48;
+    v36 = v5 - 15;
+    v38 = v5 - 8;
     v14 = v5 - 3440;
     v15 = n;
     do
     {
-      _RAX = (char *)_RBX + v14;
-      if ( (unsigned int *)((char *)_RBX + v14) )
+      if ( (unsigned int *)((char *)p_m_capacity + v14) )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx-0D70h]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups ymm0, ymmword ptr [rbx-0D60h]
-          vmovups ymmword ptr [r11+rbx], ymm0
-          vmovups ymm1, ymmword ptr [rbx-0D40h]
-          vmovups ymmword ptr [r11+rbx+20h], ymm1
-          vmovups ymm0, ymmword ptr [rbx-0D20h]
-          vmovups ymmword ptr [r11+rbx+40h], ymm0
-          vmovups xmm1, xmmword ptr [rbx-0D00h]
-          vmovups xmmword ptr [r11+rbx+60h], xmm1
-          vmovups ymm0, ymmword ptr [rbx-0CF0h]
-        }
-        _RCX = v50;
-        __asm { vmovups ymmword ptr [rcx+rbx], ymm0 }
-        *((_BYTE *)_RBX + v50 + 32) = *((_BYTE *)_RBX - 3280);
-        __asm { vmovups ymm0, ymmword ptr [rbx-0CCFh] }
-        _RCX = v51;
-        __asm { vmovups ymmword ptr [rcx+rbx], ymm0 }
-        *((_BYTE *)_RBX + v51 + 32) = *((_BYTE *)_RBX - 3247);
-        *(_QWORD *)((char *)_RBX + v52) = *((_QWORD *)_RBX - 405);
-        *(_QWORD *)((char *)_RBX + v53) = *((_QWORD *)_RBX - 404);
-        *(unsigned int *)((char *)_RBX + v54) = *(_RBX - 806);
-        *(_QWORD *)((char *)_RBX + v55) = *((_QWORD *)_RBX - 402);
-        *(_QWORD *)((char *)_RBX + v56) = *((_QWORD *)_RBX - 401);
-        _RCX = (char *)_RBX + v57;
-        _RAX = _RBX - 800;
-        v28 = 8i64;
+        *(_OWORD *)((char *)p_m_capacity + v14) = *((_OWORD *)p_m_capacity - 215);
+        *(__m256i *)((char *)p_m_capacity + v11) = *((__m256i *)p_m_capacity - 107);
+        *(__m256i *)((char *)p_m_capacity + v11 + 32) = *((__m256i *)p_m_capacity - 106);
+        *(__m256i *)((char *)p_m_capacity + v11 + 64) = *((__m256i *)p_m_capacity - 105);
+        *(_OWORD *)((char *)p_m_capacity + v11 + 96) = *((_OWORD *)p_m_capacity - 208);
+        *(__m256i *)((char *)p_m_capacity + v25) = *(__m256i *)(p_m_capacity - 828);
+        *((_BYTE *)p_m_capacity + v25 + 32) = *((_BYTE *)p_m_capacity - 3280);
+        *(__m256i *)((char *)p_m_capacity + v26) = *(__m256i *)((char *)p_m_capacity - 3279);
+        *((_BYTE *)p_m_capacity + v26 + 32) = *((_BYTE *)p_m_capacity - 3247);
+        *(_QWORD *)((char *)p_m_capacity + v27) = *((_QWORD *)p_m_capacity - 405);
+        *(_QWORD *)((char *)p_m_capacity + v28) = *((_QWORD *)p_m_capacity - 404);
+        *(unsigned int *)((char *)p_m_capacity + v29) = *(p_m_capacity - 806);
+        *(_QWORD *)((char *)p_m_capacity + v30) = *((_QWORD *)p_m_capacity - 402);
+        *(_QWORD *)((char *)p_m_capacity + v31) = *((_QWORD *)p_m_capacity - 401);
+        v16 = (_OWORD *)((char *)p_m_capacity + v32);
+        v17 = p_m_capacity - 800;
+        v18 = 8i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 128;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 32;
-          --v28;
+          *v16 = *(_OWORD *)v17;
+          v16[1] = *((_OWORD *)v17 + 1);
+          v16[2] = *((_OWORD *)v17 + 2);
+          v16[3] = *((_OWORD *)v17 + 3);
+          v16[4] = *((_OWORD *)v17 + 4);
+          v16[5] = *((_OWORD *)v17 + 5);
+          v16[6] = *((_OWORD *)v17 + 6);
+          v16 += 8;
+          *(v16 - 1) = *((_OWORD *)v17 + 7);
+          v17 += 32;
+          --v18;
         }
-        while ( v28 );
-        __asm
+        while ( v18 );
+        *(__m256i *)((char *)p_m_capacity + v12) = *((__m256i *)p_m_capacity - 68);
+        *(__m256i *)((char *)p_m_capacity + v12 + 32) = *((__m256i *)p_m_capacity - 67);
+        *((_BYTE *)p_m_capacity + v12 + 64) = *((_BYTE *)p_m_capacity - 2112);
+        memcpy_0((char *)p_m_capacity + v13, (char *)p_m_capacity - 2111, 0x800ui64);
+        *(unsigned int *)((char *)p_m_capacity + v33) = *(p_m_capacity - 15);
+        *(_QWORD *)((char *)p_m_capacity + v34) = *((_QWORD *)p_m_capacity - 7);
+        *(__m256i *)((char *)p_m_capacity + v35) = *(__m256i *)(p_m_capacity - 12);
+        *((_BYTE *)p_m_capacity + v35 + 32) = *((_BYTE *)p_m_capacity - 16);
+        *((_BYTE *)p_m_capacity + v36) = *((_BYTE *)p_m_capacity - 15);
+        *(unsigned int *)((char *)p_m_capacity + v37 - 4) = *p_m_capacity;
+        *(unsigned int *)((char *)p_m_capacity + v37) = p_m_capacity[1];
+        v19 = NULL;
+        v20 = *p_m_capacity;
+        if ( (_DWORD)v20 )
         {
-          vmovups ymm0, ymmword ptr [rbx-880h]
-          vmovups ymmword ptr [r8+rbx], ymm0
-          vmovups ymm1, ymmword ptr [rbx-860h]
-          vmovups ymmword ptr [r8+rbx+20h], ymm1
-        }
-        *((_BYTE *)_RBX + _R8 + 64) = *((_BYTE *)_RBX - 2112);
-        memcpy_0((char *)_RBX + v13, (char *)_RBX - 2111, 0x800ui64);
-        *(unsigned int *)((char *)_RBX + v58) = *(_RBX - 15);
-        *(_QWORD *)((char *)_RBX + v59) = *((_QWORD *)_RBX - 7);
-        __asm { vmovups ymm0, ymmword ptr [rbx-30h] }
-        _R11 = v60;
-        __asm { vmovups ymmword ptr [r11+rbx], ymm0 }
-        *((_BYTE *)_RBX + v60 + 32) = *((_BYTE *)_RBX - 16);
-        *((_BYTE *)_RBX + v61) = *((_BYTE *)_RBX - 15);
-        *(unsigned int *)((char *)_RBX + v62 - 4) = *_RBX;
-        *(unsigned int *)((char *)_RBX + v62) = _RBX[1];
-        v41 = NULL;
-        v42 = *_RBX;
-        if ( (_DWORD)v42 )
-        {
-          v43 = bdMemory::allocate(66 * v42);
-          v41 = v43;
-          v44 = _RBX[1];
-          if ( (_DWORD)v44 )
+          v21 = (__m256i *)bdMemory::allocate(66 * v20);
+          v19 = v21;
+          v22 = p_m_capacity[1];
+          if ( (_DWORD)v22 )
           {
-            _RCX = v43;
-            _R8 = *((_QWORD *)_RBX - 1) - (_QWORD)v43;
+            v23 = v21;
+            v24 = *((_QWORD *)p_m_capacity - 1) - (_QWORD)v21;
             do
             {
-              if ( _RCX )
+              if ( v23 )
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [r8+rcx]
-                  vmovups ymmword ptr [rcx], ymm0
-                  vmovups ymm1, ymmword ptr [r8+rcx+20h]
-                  vmovups ymmword ptr [rcx+20h], ymm1
-                }
-                _RCX[32] = *(_WORD *)((char *)_RCX + _R8 + 64);
+                *v23 = *(__m256i *)((char *)v23 + v24);
+                v23[1] = *(__m256i *)((char *)&v23[1] + v24);
+                v23[2].m256i_i16[0] = *(__int16 *)((char *)v23[2].m256i_i16 + v24);
               }
-              _RCX += 33;
-              --v44;
+              v23 = (__m256i *)((char *)v23 + 66);
+              --v22;
             }
-            while ( v44 );
+            while ( v22 );
           }
         }
-        *(_QWORD *)((char *)_RBX + v63) = v41;
-        *(unsigned int *)((char *)_RBX + v6) = _RBX[2];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+0Ch]
-          vmovups ymmword ptr [rbx+rbp], ymm0
-        }
-        *(unsigned int *)((char *)_RBX + v8) = _RBX[12];
-        *(unsigned int *)((char *)_RBX + v9) = _RBX[13];
-        *((_BYTE *)_RBX + v10) = *((_BYTE *)_RBX + 56);
-        _R8 = v64;
-        v13 = v65;
-        _R11 = v66;
+        *(_QWORD *)((char *)p_m_capacity + v38) = v19;
+        *(unsigned int *)((char *)p_m_capacity + v6) = p_m_capacity[2];
+        *(__m256i *)((char *)p_m_capacity + v7) = *(__m256i *)(p_m_capacity + 3);
+        *(unsigned int *)((char *)p_m_capacity + v8) = p_m_capacity[12];
+        *(unsigned int *)((char *)p_m_capacity + v9) = p_m_capacity[13];
+        *((_BYTE *)p_m_capacity + v10) = *((_BYTE *)p_m_capacity + 56);
+        v12 = v39;
+        v13 = v40;
+        v11 = v41;
       }
-      _RBX += 876;
+      p_m_capacity += 876;
       --v15;
     }
     while ( v15 );
@@ -5202,12 +5047,14 @@ void bdArray<bdObjectStoreValidationToken>::increaseCapacity(bdArray<bdObjectSto
   bdObjectStoreValidationToken *v8; 
   unsigned int m_size; 
   bdObjectStoreValidationToken *m_data; 
+  char *v11; 
   signed __int64 v12; 
+  signed __int64 v13; 
   __int64 v14; 
-  unsigned int v19; 
-  bdObjectStoreValidationToken *v20; 
-  bdValidationTokenResult *v21; 
-  __int64 v22; 
+  unsigned int v15; 
+  bdObjectStoreValidationToken *v16; 
+  bdValidationTokenResult *v17; 
+  __int64 v18; 
 
   v2 = this;
   v3 = 0;
@@ -5225,60 +5072,53 @@ void bdArray<bdObjectStoreValidationToken>::increaseCapacity(bdArray<bdObjectSto
     m_data = v2->m_data;
     if ( m_size )
     {
-      _RDI = (char *)(&v8->m_validationTokenResult.__vftable + 1);
+      v11 = (char *)(&v8->m_validationTokenResult.__vftable + 1);
       v12 = (char *)v8 - (char *)m_data;
-      _R15 = (char *)m_data - (char *)v8;
+      v13 = (char *)m_data - (char *)v8;
       v14 = m_size;
       do
       {
-        if ( _RDI != (char *)8 )
+        if ( v11 != (char *)8 )
         {
-          *(_QWORD *)_RDI = &bdValidationTokenResult::`vbtable';
-          bdReferencable::bdReferencable((bdReferencable *)&_RDI[_R15 + 10272 + v12], (const bdReferencable *)&_RDI[_R15 + *(int *)(*(_QWORD *)&_RDI[_R15] + 4i64)]);
+          *(_QWORD *)v11 = &bdValidationTokenResult::`vbtable';
+          bdReferencable::bdReferencable((bdReferencable *)&v11[v13 + 10272 + v12], (const bdReferencable *)&v11[v13 + *(int *)(*(_QWORD *)&v11[v13] + 4i64)]);
           v3 |= 1u;
-          bdTaskResult::bdTaskResult((bdTaskResult *)(_RDI - 8), (const bdTaskResult *)&_RDI[_R15 - 8]);
-          *((_QWORD *)_RDI - 1) = &bdValidationTokenResult::`vftable'{for `bdTaskResult'};
-          *(_QWORD *)&_RDI[*(int *)(*(_QWORD *)_RDI + 4i64)] = &bdValidationTokenResult::`vftable'{for `bdReferencable'};
-          *((_QWORD *)_RDI + 1) = *(_QWORD *)&_RDI[_R15 + 8];
-          *((_QWORD *)_RDI + 2) = *(_QWORD *)&_RDI[_R15 + 16];
-          memcpy_0(_RDI + 24, &_RDI[_R15 + 24], 0x2800ui64);
-          *((_DWORD *)_RDI + 2566) = *(_DWORD *)&_RDI[_R15 + 10264];
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r15+rdi+2830h]
-            vmovups ymmword ptr [rdi+2830h], ymm0
-            vmovups ymm1, ymmword ptr [r15+rdi+2850h]
-            vmovups ymmword ptr [rdi+2850h], ymm1
-            vmovups ymm0, ymmword ptr [r15+rdi+2870h]
-            vmovups ymmword ptr [rdi+2870h], ymm0
-            vmovups xmm1, xmmword ptr [r15+rdi+2890h]
-            vmovups xmmword ptr [rdi+2890h], xmm1
-          }
+          bdTaskResult::bdTaskResult((bdTaskResult *)(v11 - 8), (const bdTaskResult *)&v11[v13 - 8]);
+          *((_QWORD *)v11 - 1) = &bdValidationTokenResult::`vftable'{for `bdTaskResult'};
+          *(_QWORD *)&v11[*(int *)(*(_QWORD *)v11 + 4i64)] = &bdValidationTokenResult::`vftable'{for `bdReferencable'};
+          *((_QWORD *)v11 + 1) = *(_QWORD *)&v11[v13 + 8];
+          *((_QWORD *)v11 + 2) = *(_QWORD *)&v11[v13 + 16];
+          memcpy_0(v11 + 24, &v11[v13 + 24], 0x2800ui64);
+          *((_DWORD *)v11 + 2566) = *(_DWORD *)&v11[v13 + 10264];
+          *(__m256i *)(v11 + 10288) = *(__m256i *)&v11[v13 + 10288];
+          *(__m256i *)(v11 + 10320) = *(__m256i *)&v11[v13 + 10320];
+          *(__m256i *)(v11 + 10352) = *(__m256i *)&v11[v13 + 10352];
+          *((_OWORD *)v11 + 649) = *(_OWORD *)&v11[v13 + 10384];
         }
-        _RDI += 10408;
+        v11 += 10408;
         --v14;
       }
       while ( v14 );
       v2 = this;
     }
   }
-  v19 = v2->m_size;
-  v20 = v2->m_data;
-  if ( v19 )
+  v15 = v2->m_size;
+  v16 = v2->m_data;
+  if ( v15 )
   {
-    v21 = (bdValidationTokenResult *)&v20->m_validationTokenResult.gap2824[4];
-    v22 = v19;
+    v17 = (bdValidationTokenResult *)&v16->m_validationTokenResult.gap2824[4];
+    v18 = v15;
     do
     {
-      bdValidationTokenResult::~bdValidationTokenResult(v21);
-      bdReferencable::~bdReferencable((bdReferencable *)v21);
-      v21 = (bdValidationTokenResult *)((char *)v21 + 10408);
-      --v22;
+      bdValidationTokenResult::~bdValidationTokenResult(v17);
+      bdReferencable::~bdReferencable((bdReferencable *)v17);
+      v17 = (bdValidationTokenResult *)((char *)v17 + 10408);
+      --v18;
     }
-    while ( v22 );
-    v20 = v2->m_data;
+    while ( v18 );
+    v16 = v2->m_data;
   }
-  bdMemory::deallocate(v20);
+  bdMemory::deallocate(v16);
   v2->m_data = v8;
   v2->m_capacity = v7;
 }
@@ -5737,6 +5577,8 @@ void bdArray<bdObjectStoreTag>::increaseCapacity(bdArray<bdObjectStoreTag> *this
   bdObjectStoreTag *v5; 
   unsigned int v6; 
   unsigned int m_size; 
+  __m256i *v8; 
+  char *v9; 
   __int64 v10; 
 
   m_capacity = this->m_capacity;
@@ -5751,23 +5593,18 @@ void bdArray<bdObjectStoreTag>::increaseCapacity(bdArray<bdObjectStoreTag> *this
     m_size = this->m_size;
     if ( m_size )
     {
-      _RCX = v5;
-      _R8 = (char *)this->m_data - (char *)v5;
+      v8 = (__m256i *)v5;
+      v9 = (char *)((char *)this->m_data - (char *)v5);
       v10 = m_size;
       do
       {
-        if ( _RCX )
+        if ( v8 )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r8+rcx]
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm1, ymmword ptr [r8+rcx+20h]
-            vmovups ymmword ptr [rcx+20h], ymm1
-          }
-          *(_WORD *)&_RCX->m_value[31] = *(_WORD *)&_RCX->m_value[_R8 + 31];
+          *v8 = *(__m256i *)((char *)v8 + (_QWORD)v9);
+          v8[1] = *(__m256i *)((char *)v8 + (_QWORD)v9 + 32);
+          v8[2].m256i_i16[0] = *(__int16 *)((char *)v8[2].m256i_i16 + (_QWORD)v9);
         }
-        ++_RCX;
+        v8 = (__m256i *)((char *)v8 + 66);
         --v10;
       }
       while ( v10 );
@@ -5790,21 +5627,32 @@ void bdArray<bdObjectStoreCacheAwareObjectID>::operator=(bdArray<bdObjectStoreCa
   bdObjectStoreCacheAwareObjectID *v6; 
   unsigned int v7; 
   bdObjectStoreCacheAwareObjectID *v8; 
-  __int64 v10; 
+  __int64 v9; 
+  bdObjectStoreCacheAwareObjectID *v10; 
+  bdObjectStoreCacheAwareObjectID *v11; 
+  unsigned int v12; 
+  __int64 v13; 
+  bdObjectStoreCacheAwareObjectID *v14; 
+  bdObjectStoreCacheAwareObjectID *v15; 
+  bdObjectStoreCacheAwareObjectID *v16; 
+  unsigned int v17; 
   __int64 v18; 
-  __int64 v27; 
-  unsigned int v28; 
-  __int64 v29; 
-  __int64 v38; 
-  __int64 v47; 
-  bdObjectStoreCacheAwareObjectID *v48; 
-  unsigned int v49; 
-  __int64 v50; 
   unsigned int m_capacity; 
-  unsigned int v52; 
+  unsigned int v20; 
   bdObjectStoreCacheAwareObjectID *m_data; 
-  char v54[176]; 
-  __int64 v55; 
+  __m256i v22; 
+  __m256i v23; 
+  __m256i v24; 
+  __m256i v25; 
+  __m256i v26; 
+  __m256i v27; 
+  __m256i v28; 
+  __m256i v29; 
+  __m256i v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int64 v33; 
+  __int64 v34; 
 
   if ( this != a )
   {
@@ -5815,77 +5663,55 @@ void bdArray<bdObjectStoreCacheAwareObjectID>::operator=(bdArray<bdObjectStoreCa
       v8 = NULL;
       if ( (unsigned int)m_size <= v7 )
       {
-        v28 = 0;
+        v12 = 0;
         if ( (_DWORD)m_size )
         {
-          v29 = 0i64;
+          v13 = 0i64;
           do
           {
-            bdHandleAssert(v28 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreCacheAwareObjectID>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-            _RCX = v54;
-            _RAX = &a->m_data[v29];
-            ++v28;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymm0, ymmword ptr [rax+80h]
-              vmovups ymmword ptr [rcx+80h], ymm0
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-            }
-            v38 = *(_QWORD *)&_RAX->m_cachedChecksum[31];
-            __asm { vmovups xmmword ptr [rcx+0A0h], xmm0 }
-            v55 = v38;
-            _RAX = v54;
-            __asm { vmovups ymm0, ymmword ptr [rax] }
-            _RCX = &this->m_data[v29++];
-            __asm
-            {
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymm0, ymmword ptr [rax+80h]
-              vmovups ymmword ptr [rcx+80h], ymm0
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-            }
-            v47 = v55;
-            __asm { vmovups xmmword ptr [rcx+0A0h], xmm0 }
-            *(_QWORD *)&_RCX->m_cachedChecksum[31] = v47;
+            bdHandleAssert(v12 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreCacheAwareObjectID>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", *(_OWORD *)v22.m256i_i8, v22.m256i_i64[2], v22.m256i_i64[3]);
+            v14 = &a->m_data[v13];
+            ++v12;
+            v22 = *(__m256i *)&v14->m_objectID.m_ownerType;
+            v24 = *(__m256i *)&v14->m_objectID.m_owner[28];
+            v26 = *(__m256i *)&v14->m_objectID.m_objectName[30];
+            v28 = *(__m256i *)&v14->m_objectID.m_objectName[62];
+            v30 = *(__m256i *)&v14->m_cachedObjectVersion[16];
+            v32 = *(_OWORD *)&v14->m_cachedChecksum[15];
+            v34 = *(_QWORD *)&v14->m_cachedChecksum[31];
+            v15 = &this->m_data[v13++];
+            *(__m256i *)&v15->m_objectID.m_ownerType = *(__m256i *)&v14->m_objectID.m_ownerType;
+            *(__m256i *)&v15->m_objectID.m_owner[28] = v24;
+            *(__m256i *)&v15->m_objectID.m_objectName[30] = v26;
+            *(__m256i *)&v15->m_objectID.m_objectName[62] = v28;
+            *(__m256i *)&v15->m_cachedObjectVersion[16] = v30;
+            *(_OWORD *)&v15->m_cachedChecksum[15] = v32;
+            *(_QWORD *)&v15->m_cachedChecksum[31] = v34;
           }
-          while ( v28 < (unsigned int)m_size );
+          while ( v12 < (unsigned int)m_size );
           v7 = this->m_size;
         }
-        v48 = &this->m_data[m_size];
-        v49 = v7 - m_size;
-        if ( v49 )
+        v16 = &this->m_data[m_size];
+        v17 = v7 - m_size;
+        if ( v17 )
         {
-          v50 = v49;
+          v18 = v17;
           do
           {
-            bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(v48++);
-            --v50;
+            bdObjectStoreCacheAwareObjectID::~bdObjectStoreCacheAwareObjectID(v16++);
+            --v18;
           }
-          while ( v50 );
+          while ( v18 );
         }
         m_capacity = this->m_capacity;
         this->m_size = m_size;
         if ( m_capacity > 4 * (int)m_size )
         {
-          v52 = m_capacity - (m_capacity >> 1);
-          this->m_capacity = v52;
-          if ( v52 )
+          v20 = m_capacity - (m_capacity >> 1);
+          this->m_capacity = v20;
+          if ( v20 )
           {
-            v8 = (bdObjectStoreCacheAwareObjectID *)bdMemory::allocate(184i64 * v52);
+            v8 = (bdObjectStoreCacheAwareObjectID *)bdMemory::allocate(184i64 * v20);
             bdArray<bdObjectStoreCacheAwareObjectID>::copyConstructArrayArray(this, v8, this->m_data, this->m_size);
             m_size = this->m_size;
           }
@@ -5910,47 +5736,25 @@ void bdArray<bdObjectStoreCacheAwareObjectID>::operator=(bdArray<bdObjectStoreCa
         {
           do
           {
-            bdHandleAssert((unsigned int)v8 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreCacheAwareObjectID>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-            _RCX = v54;
-            v10 = (unsigned int)v8;
+            bdHandleAssert((unsigned int)v8 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdObjectStoreCacheAwareObjectID>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", *(_OWORD *)v22.m256i_i8, v22.m256i_i64[2], v22.m256i_i64[3]);
+            v9 = (unsigned int)v8;
             LODWORD(v8) = (_DWORD)v8 + 1;
-            _RAX = &a->m_data[v10];
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymm0, ymmword ptr [rax+80h]
-              vmovups ymmword ptr [rcx+80h], ymm0
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-            }
-            v18 = *(_QWORD *)&_RAX->m_cachedChecksum[31];
-            __asm { vmovups xmmword ptr [rcx+0A0h], xmm0 }
-            v55 = v18;
-            _RAX = v54;
-            __asm { vmovups ymm0, ymmword ptr [rax] }
-            _RCX = &this->m_data[v10];
-            __asm
-            {
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymm0, ymmword ptr [rax+80h]
-              vmovups ymmword ptr [rcx+80h], ymm0
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-            }
-            v27 = v55;
-            __asm { vmovups xmmword ptr [rcx+0A0h], xmm0 }
-            *(_QWORD *)&_RCX->m_cachedChecksum[31] = v27;
+            v10 = &a->m_data[v9];
+            v22 = *(__m256i *)&v10->m_objectID.m_ownerType;
+            v23 = *(__m256i *)&v10->m_objectID.m_owner[28];
+            v25 = *(__m256i *)&v10->m_objectID.m_objectName[30];
+            v27 = *(__m256i *)&v10->m_objectID.m_objectName[62];
+            v29 = *(__m256i *)&v10->m_cachedObjectVersion[16];
+            v31 = *(_OWORD *)&v10->m_cachedChecksum[15];
+            v33 = *(_QWORD *)&v10->m_cachedChecksum[31];
+            v11 = &this->m_data[v9];
+            *(__m256i *)&v11->m_objectID.m_ownerType = *(__m256i *)&v10->m_objectID.m_ownerType;
+            *(__m256i *)&v11->m_objectID.m_owner[28] = v23;
+            *(__m256i *)&v11->m_objectID.m_objectName[30] = v25;
+            *(__m256i *)&v11->m_objectID.m_objectName[62] = v27;
+            *(__m256i *)&v11->m_cachedObjectVersion[16] = v29;
+            *(_OWORD *)&v11->m_cachedChecksum[15] = v31;
+            *(_QWORD *)&v11->m_cachedChecksum[31] = v33;
             v7 = this->m_size;
           }
           while ( (unsigned int)v8 < v7 );
@@ -6012,45 +5816,16 @@ bdArray<bdObjectStoreCacheAwareObjectID>::copyConstructArrayArray
 */
 void bdArray<bdObjectStoreCacheAwareObjectID>::copyConstructArrayArray(bdArray<bdObjectStoreCacheAwareObjectID> *this, bdObjectStoreCacheAwareObjectID *dest, const bdObjectStoreCacheAwareObjectID *src, __int64 n)
 {
+  signed __int64 v4; 
+
   if ( (_DWORD)n )
   {
-    _R8 = (char *)src - (char *)dest;
+    v4 = (char *)src - (char *)dest;
     n = (unsigned int)n;
     do
     {
       if ( dest )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r8+rdx]
-          vmovups xmmword ptr [rdx], xmm0
-          vmovups xmm1, xmmword ptr [r8+rdx+10h]
-          vmovups xmmword ptr [rdx+10h], xmm1
-          vmovups xmm0, xmmword ptr [r8+rdx+20h]
-          vmovups xmmword ptr [rdx+20h], xmm0
-          vmovups xmm1, xmmword ptr [r8+rdx+30h]
-          vmovups xmmword ptr [rdx+30h], xmm1
-          vmovups xmm0, xmmword ptr [r8+rdx+40h]
-          vmovups xmmword ptr [rdx+40h], xmm0
-          vmovups xmm1, xmmword ptr [r8+rdx+50h]
-        }
-        _RAX = (char *)dest + _R8;
-        __asm
-        {
-          vmovups xmmword ptr [rdx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rdx+60h], xmm0
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rdx+70h], xmm1
-          vmovups xmm0, xmmword ptr [rax+80h]
-          vmovups xmmword ptr [rdx+80h], xmm0
-          vmovups xmm1, xmmword ptr [rax+90h]
-          vmovups xmmword ptr [rdx+90h], xmm1
-          vmovups xmm0, xmmword ptr [rax+0A0h]
-          vmovups xmmword ptr [rdx+0A0h], xmm0
-        }
-        *(_QWORD *)&dest->m_cachedChecksum[31] = *(_QWORD *)&dest->m_cachedChecksum[_R8 + 31];
-      }
+        *dest = *(bdObjectStoreCacheAwareObjectID *)((char *)dest + v4);
       ++dest;
       --n;
     }
@@ -6219,110 +5994,73 @@ bdArray<bdObjectStoreObject>::copyConstructArrayArray
 */
 void bdArray<bdObjectStoreObject>::copyConstructArrayArray(bdArray<bdObjectStoreObject> *this, bdObjectStoreObject *dest, const bdObjectStoreObject *src, const unsigned int n)
 {
+  unsigned int *p_m_capacity; 
+  signed __int64 v5; 
   __int64 v6; 
-  __int64 v17; 
+  unsigned int *v7; 
+  _OWORD *v8; 
+  __int64 v9; 
 
   if ( n )
   {
-    _RDI = &dest->m_metadata.m_tags.m_capacity;
-    _RSI = (char *)src - (char *)dest;
+    p_m_capacity = &dest->m_metadata.m_tags.m_capacity;
+    v5 = (char *)src - (char *)dest;
     v6 = n;
     do
     {
-      _RAX = _RDI - 860;
-      if ( _RDI != (unsigned int *)3440 )
+      if ( p_m_capacity != (unsigned int *)3440 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi+rdi-0D70h]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups ymm0, ymmword ptr [rsi+rdi-0D60h]
-          vmovups ymmword ptr [rdi-0D60h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+rdi-0D40h]
-          vmovups ymmword ptr [rdi-0D40h], ymm1
-          vmovups ymm0, ymmword ptr [rsi+rdi-0D20h]
-          vmovups ymmword ptr [rdi-0D20h], ymm0
-          vmovups xmm1, xmmword ptr [rsi+rdi-0D00h]
-          vmovups xmmword ptr [rdi-0D00h], xmm1
-          vmovups ymm0, ymmword ptr [rsi+rdi-0CF0h]
-          vmovups ymmword ptr [rdi-0CF0h], ymm0
-        }
-        *((_BYTE *)_RDI - 3280) = *((_BYTE *)_RDI + _RSI - 3280);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+rdi-0CCFh]
-          vmovups ymmword ptr [rdi-0CCFh], ymm0
-        }
-        *((_BYTE *)_RDI - 3247) = *((_BYTE *)_RDI + _RSI - 3247);
-        *((_QWORD *)_RDI - 405) = *(_QWORD *)((char *)_RDI + _RSI - 3240);
-        *((_QWORD *)_RDI - 404) = *(_QWORD *)((char *)_RDI + _RSI - 3232);
-        *(_RDI - 806) = *(unsigned int *)((char *)_RDI + _RSI - 3224);
-        *((_QWORD *)_RDI - 402) = *(_QWORD *)((char *)_RDI + _RSI - 3216);
-        *((_QWORD *)_RDI - 401) = *(_QWORD *)((char *)_RDI + _RSI - 3208);
-        _RCX = _RDI - 800;
-        _RAX = (__int64)_RDI + _RSI - 3200;
-        v17 = 8i64;
+        *((_OWORD *)p_m_capacity - 215) = *(_OWORD *)((char *)p_m_capacity + v5 - 3440);
+        *((__m256i *)p_m_capacity - 107) = *(__m256i *)((char *)p_m_capacity + v5 - 3424);
+        *((__m256i *)p_m_capacity - 106) = *(__m256i *)((char *)p_m_capacity + v5 - 3392);
+        *((__m256i *)p_m_capacity - 105) = *(__m256i *)((char *)p_m_capacity + v5 - 3360);
+        *((_OWORD *)p_m_capacity - 208) = *(_OWORD *)((char *)p_m_capacity + v5 - 3328);
+        *(__m256i *)(p_m_capacity - 828) = *(__m256i *)((char *)p_m_capacity + v5 - 3312);
+        *((_BYTE *)p_m_capacity - 3280) = *((_BYTE *)p_m_capacity + v5 - 3280);
+        *(__m256i *)((char *)p_m_capacity - 3279) = *(__m256i *)((char *)p_m_capacity + v5 - 3279);
+        *((_BYTE *)p_m_capacity - 3247) = *((_BYTE *)p_m_capacity + v5 - 3247);
+        *((_QWORD *)p_m_capacity - 405) = *(_QWORD *)((char *)p_m_capacity + v5 - 3240);
+        *((_QWORD *)p_m_capacity - 404) = *(_QWORD *)((char *)p_m_capacity + v5 - 3232);
+        *(p_m_capacity - 806) = *(unsigned int *)((char *)p_m_capacity + v5 - 3224);
+        *((_QWORD *)p_m_capacity - 402) = *(_QWORD *)((char *)p_m_capacity + v5 - 3216);
+        *((_QWORD *)p_m_capacity - 401) = *(_QWORD *)((char *)p_m_capacity + v5 - 3208);
+        v7 = p_m_capacity - 800;
+        v8 = (_OWORD *)((char *)p_m_capacity + v5 - 3200);
+        v9 = 8i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rax+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rax+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rax+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 32;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rax+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RAX += 128i64;
-          --v17;
+          *(_OWORD *)v7 = *v8;
+          *((_OWORD *)v7 + 1) = v8[1];
+          *((_OWORD *)v7 + 2) = v8[2];
+          *((_OWORD *)v7 + 3) = v8[3];
+          *((_OWORD *)v7 + 4) = v8[4];
+          *((_OWORD *)v7 + 5) = v8[5];
+          *((_OWORD *)v7 + 6) = v8[6];
+          v7 += 32;
+          *((_OWORD *)v7 - 1) = v8[7];
+          v8 += 8;
+          --v9;
         }
-        while ( v17 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+rdi-880h]
-          vmovups ymmword ptr [rdi-880h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+rdi-860h]
-          vmovups ymmword ptr [rdi-860h], ymm1
-        }
-        *((_BYTE *)_RDI - 2112) = *((_BYTE *)_RDI + _RSI - 2112);
-        memcpy_0((char *)_RDI - 2111, (char *)_RDI + _RSI - 2111, 0x800ui64);
-        *(_RDI - 15) = *(unsigned int *)((char *)_RDI + _RSI - 60);
-        *((_QWORD *)_RDI - 7) = *(_QWORD *)((char *)_RDI + _RSI - 56);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+rdi-30h]
-          vmovups ymmword ptr [rdi-30h], ymm0
-        }
-        *((_BYTE *)_RDI - 16) = *((_BYTE *)_RDI + _RSI - 16);
-        *((_BYTE *)_RDI - 15) = *((_BYTE *)_RDI + _RSI - 15);
-        *_RDI = *(unsigned int *)((char *)_RDI + _RSI);
-        _RDI[1] = *(unsigned int *)((char *)_RDI + _RSI + 4);
-        *((_QWORD *)_RDI - 1) = bdArray<bdObjectStoreTag>::uninitializedCopy((bdArray<bdObjectStoreTag> *)(_RDI - 2), (const bdArray<bdObjectStoreTag> *)((char *)_RDI + _RSI - 8));
-        _RDI[2] = *(unsigned int *)((char *)_RDI + _RSI + 8);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+rdi+0Ch]
-          vmovups ymmword ptr [rdi+0Ch], ymm0
-        }
-        *((_QWORD *)_RDI + 6) = *(_QWORD *)((char *)_RDI + _RSI + 48);
-        *((_QWORD *)_RDI + 7) = *(_QWORD *)((char *)_RDI + _RSI + 56);
-        *((_QWORD *)_RDI + 8) = *(_QWORD *)((char *)_RDI + _RSI + 64);
+        while ( v9 );
+        *((__m256i *)p_m_capacity - 68) = *(__m256i *)((char *)p_m_capacity + v5 - 2176);
+        *((__m256i *)p_m_capacity - 67) = *(__m256i *)((char *)p_m_capacity + v5 - 2144);
+        *((_BYTE *)p_m_capacity - 2112) = *((_BYTE *)p_m_capacity + v5 - 2112);
+        memcpy_0((char *)p_m_capacity - 2111, (char *)p_m_capacity + v5 - 2111, 0x800ui64);
+        *(p_m_capacity - 15) = *(unsigned int *)((char *)p_m_capacity + v5 - 60);
+        *((_QWORD *)p_m_capacity - 7) = *(_QWORD *)((char *)p_m_capacity + v5 - 56);
+        *(__m256i *)(p_m_capacity - 12) = *(__m256i *)((char *)p_m_capacity + v5 - 48);
+        *((_BYTE *)p_m_capacity - 16) = *((_BYTE *)p_m_capacity + v5 - 16);
+        *((_BYTE *)p_m_capacity - 15) = *((_BYTE *)p_m_capacity + v5 - 15);
+        *p_m_capacity = *(unsigned int *)((char *)p_m_capacity + v5);
+        p_m_capacity[1] = *(unsigned int *)((char *)p_m_capacity + v5 + 4);
+        *((_QWORD *)p_m_capacity - 1) = bdArray<bdObjectStoreTag>::uninitializedCopy((bdArray<bdObjectStoreTag> *)(p_m_capacity - 2), (const bdArray<bdObjectStoreTag> *)((char *)p_m_capacity + v5 - 8));
+        p_m_capacity[2] = *(unsigned int *)((char *)p_m_capacity + v5 + 8);
+        *(__m256i *)(p_m_capacity + 3) = *(__m256i *)((char *)p_m_capacity + v5 + 12);
+        *((_QWORD *)p_m_capacity + 6) = *(_QWORD *)((char *)p_m_capacity + v5 + 48);
+        *((_QWORD *)p_m_capacity + 7) = *(_QWORD *)((char *)p_m_capacity + v5 + 56);
+        *((_QWORD *)p_m_capacity + 8) = *(_QWORD *)((char *)p_m_capacity + v5 + 64);
       }
-      _RDI += 878;
+      p_m_capacity += 878;
       --v6;
     }
     while ( v6 );
@@ -6563,72 +6301,66 @@ bdArray<bdAchievementState>::copyConstructArrayArray
 void bdArray<bdAchievementState>::copyConstructArrayArray(bdArray<bdAchievementState> *this, bdAchievementState *dest, const bdAchievementState *src, const unsigned int n)
 {
   int v4; 
+  unsigned int *p_m_size; 
+  signed __int64 v6; 
   __int64 v7; 
   unsigned int *v8; 
-  unsigned int *v12; 
-  unsigned int v13; 
+  unsigned int *v9; 
+  unsigned int v10; 
   unsigned int i; 
-  __int64 v15; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned int *v14; 
 
   if ( n )
   {
     v4 = 0;
-    _RBX = &dest->m_multiProgress.m_size;
-    _R14 = (char *)src - (char *)dest;
+    p_m_size = &dest->m_multiProgress.m_size;
+    v6 = (char *)src - (char *)dest;
     v7 = n;
     do
     {
-      v8 = _RBX - 132;
-      if ( _RBX != (unsigned int *)528 )
+      v8 = p_m_size - 132;
+      if ( p_m_size != (unsigned int *)528 )
       {
-        *((_QWORD *)_RBX - 65) = &bdAchievementState::`vbtable';
-        bdReferencable::bdReferencable((bdReferencable *)(_RBX + 2), (const bdReferencable *)((char *)_RBX + _R14 + *(int *)(*(_QWORD *)((char *)_RBX + _R14 - 520) + 4i64) - 520));
+        *((_QWORD *)p_m_size - 65) = &bdAchievementState::`vbtable';
+        bdReferencable::bdReferencable((bdReferencable *)(p_m_size + 2), (const bdReferencable *)((char *)p_m_size + v6 + *(int *)(*(_QWORD *)((char *)p_m_size + v6 - 520) + 4i64) - 520));
         v4 |= 1u;
-        bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(_RBX - 132), (const bdStructBufferSerializable *)((char *)_RBX + _R14 - 528));
+        bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(p_m_size - 132), (const bdStructBufferSerializable *)((char *)p_m_size + v6 - 528));
         *(_QWORD *)v8 = &bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
-        *(_QWORD *)((char *)v8 + *(int *)(*((_QWORD *)_RBX - 65) + 4i64) + 8) = &bdAchievementState::`vftable'{for `bdReferencable'};
-        *((_QWORD *)_RBX - 64) = *(_QWORD *)((char *)_RBX + _R14 - 512);
-        __asm
+        *(_QWORD *)((char *)v8 + *(int *)(*((_QWORD *)p_m_size - 65) + 4i64) + 8) = &bdAchievementState::`vftable'{for `bdReferencable'};
+        *((_QWORD *)p_m_size - 64) = *(_QWORD *)((char *)p_m_size + v6 - 512);
+        *(__m256i *)(p_m_size - 126) = *(__m256i *)((char *)p_m_size + v6 - 504);
+        *(__m256i *)(p_m_size - 118) = *(__m256i *)((char *)p_m_size + v6 - 472);
+        *(__m256i *)(p_m_size - 110) = *(__m256i *)((char *)p_m_size + v6 - 440);
+        *(p_m_size - 102) = *(unsigned int *)((char *)p_m_size + v6 - 408);
+        *((_BYTE *)p_m_size - 404) = *((_BYTE *)p_m_size + v6 - 404);
+        *((_WORD *)p_m_size - 201) = *(_WORD *)((char *)p_m_size + v6 - 402);
+        *(p_m_size - 100) = *(unsigned int *)((char *)p_m_size + v6 - 400);
+        *(p_m_size - 99) = *(unsigned int *)((char *)p_m_size + v6 - 396);
+        *(p_m_size - 98) = *(unsigned int *)((char *)p_m_size + v6 - 392);
+        *((_QWORD *)p_m_size - 48) = *(_QWORD *)((char *)p_m_size + v6 - 384);
+        *((_QWORD *)p_m_size - 47) = *(_QWORD *)((char *)p_m_size + v6 - 376);
+        *((_QWORD *)p_m_size - 46) = *(_QWORD *)((char *)p_m_size + v6 - 368);
+        *(p_m_size - 90) = *(unsigned int *)((char *)p_m_size + v6 - 360);
+        v9 = p_m_size - 88;
+        `eh vector vbase constructor iterator'(p_m_size - 88, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+        *p_m_size = 0;
+        v10 = *(unsigned int *)((char *)p_m_size + v6);
+        *p_m_size = v10;
+        for ( i = 0; i < *p_m_size; ++i )
         {
-          vmovups ymm0, ymmword ptr [r14+rbx-1F8h]
-          vmovups ymmword ptr [rbx-1F8h], ymm0
-          vmovups ymm1, ymmword ptr [r14+rbx-1D8h]
-          vmovups ymmword ptr [rbx-1D8h], ymm1
-          vmovups ymm0, ymmword ptr [r14+rbx-1B8h]
-          vmovups ymmword ptr [rbx-1B8h], ymm0
-        }
-        *(_RBX - 102) = *(unsigned int *)((char *)_RBX + _R14 - 408);
-        *((_BYTE *)_RBX - 404) = *((_BYTE *)_RBX + _R14 - 404);
-        *((_WORD *)_RBX - 201) = *(_WORD *)((char *)_RBX + _R14 - 402);
-        *(_RBX - 100) = *(unsigned int *)((char *)_RBX + _R14 - 400);
-        *(_RBX - 99) = *(unsigned int *)((char *)_RBX + _R14 - 396);
-        *(_RBX - 98) = *(unsigned int *)((char *)_RBX + _R14 - 392);
-        *((_QWORD *)_RBX - 48) = *(_QWORD *)((char *)_RBX + _R14 - 384);
-        *((_QWORD *)_RBX - 47) = *(_QWORD *)((char *)_RBX + _R14 - 376);
-        *((_QWORD *)_RBX - 46) = *(_QWORD *)((char *)_RBX + _R14 - 368);
-        *(_RBX - 90) = *(unsigned int *)((char *)_RBX + _R14 - 360);
-        v12 = _RBX - 88;
-        `eh vector vbase constructor iterator'(_RBX - 88, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-        *_RBX = 0;
-        v13 = *(unsigned int *)((char *)_RBX + _R14);
-        *_RBX = v13;
-        for ( i = 0; i < *_RBX; ++i )
-        {
-          v15 = 22i64 * i;
-          _RDI = (__int64)&_RBX[v15 - 88] + _R14;
-          _RSI = &v12[v15];
-          bdReferencable::operator=((bdReferencable *)((char *)&v12[v15 + 2] + *(int *)(*(_QWORD *)&v12[v15 + 2] + 4i64)), (const bdReferencable *)(*(int *)(*(_QWORD *)(_RDI + 8) + 4i64) + _RDI + 8));
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi+10h]
-            vmovups ymmword ptr [rsi+10h], ymm0
-          }
-          *((_BYTE *)_RSI + 48) = *(_BYTE *)(_RDI + 48);
-          *((_QWORD *)_RSI + 7) = *(_QWORD *)(_RDI + 56);
-          *((_QWORD *)_RSI + 8) = *(_QWORD *)(_RDI + 64);
+          v12 = 22i64 * i;
+          v13 = (__int64)&p_m_size[v12 - 88] + v6;
+          v14 = &v9[v12];
+          bdReferencable::operator=((bdReferencable *)((char *)&v9[v12 + 2] + *(int *)(*(_QWORD *)&v9[v12 + 2] + 4i64)), (const bdReferencable *)(*(int *)(*(_QWORD *)(v13 + 8) + 4i64) + v13 + 8));
+          *(__m256i *)(v14 + 4) = *(__m256i *)(v13 + 16);
+          *((_BYTE *)v14 + 48) = *(_BYTE *)(v13 + 48);
+          *((_QWORD *)v14 + 7) = *(_QWORD *)(v13 + 56);
+          *((_QWORD *)v14 + 8) = *(_QWORD *)(v13 + 64);
         }
       }
-      _RBX += 138;
+      p_m_size += 138;
       --v7;
     }
     while ( v7 );
@@ -6875,13 +6607,15 @@ void bdArray<GeneralChannelRequest>::pushBack(bdArray<GeneralChannelRequest> *th
   GeneralChannelRequest *v9; 
   char *v10; 
   GeneralChannelRequest *m_data; 
+  char *v12; 
   char *v13; 
+  __int64 v14; 
   __int64 v15; 
-  unsigned int v17; 
+  unsigned int v16; 
+  GeneralChannelRequest *v17; 
   GeneralChannelRequest *v18; 
-  GeneralChannelRequest *v19; 
   GeneralChannelRequest *__that; 
-  unsigned int v22; 
+  unsigned int v21; 
 
   __that = (GeneralChannelRequest *)value;
   v2 = this;
@@ -6895,52 +6629,48 @@ void bdArray<GeneralChannelRequest>::pushBack(bdArray<GeneralChannelRequest> *th
       v6 = 1;
     v7 = m_capacity + v6 == 0;
     v8 = m_capacity + v6;
-    v22 = v8;
+    v21 = v8;
     v9 = NULL;
     if ( !v7 )
     {
       v10 = (char *)bdMemory::allocate((unsigned __int64)v8 << 6);
       v9 = (GeneralChannelRequest *)v10;
-      v19 = (GeneralChannelRequest *)v10;
+      v18 = (GeneralChannelRequest *)v10;
       m_size = v2->m_size;
       m_data = v2->m_data;
       if ( m_size )
       {
-        _RBX = v10 + 8;
+        v12 = v10 + 8;
         v13 = (char *)(v10 - (char *)m_data);
-        _R12 = (char *)m_data - v10;
+        v14 = (char *)m_data - v10;
         v15 = m_size;
         do
         {
-          if ( _RBX != (_QWORD *)8 )
+          if ( v12 != (char *)8 )
           {
-            *_RBX = &GeneralChannelRequest::`vbtable';
-            bdReferencable::bdReferencable((bdReferencable *)&v13[(_QWORD)_RBX + _R12 + 40], (const bdReferencable *)((char *)_RBX + _R12 + *(int *)(*(_QWORD *)((char *)_RBX + _R12) + 4i64)));
+            *(_QWORD *)v12 = &GeneralChannelRequest::`vbtable';
+            bdReferencable::bdReferencable((bdReferencable *)&v12[v14 + 40 + (_QWORD)v13], (const bdReferencable *)&v12[v14 + *(int *)(*(_QWORD *)&v12[v14] + 4i64)]);
             v3 |= 1u;
-            bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(_RBX - 1), (const bdStructBufferSerializable *)((char *)_RBX + _R12 - 8));
-            *(_RBX - 1) = &GeneralChannelRequest::`vftable'{for `bdStructBufferSerializable'};
-            *(_QWORD *)((char *)_RBX + *(int *)(*_RBX + 4i64)) = &GeneralChannelRequest::`vftable'{for `bdReferencable'};
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r12+rbx+8]
-              vmovups xmmword ptr [rbx+8], xmm0
-            }
-            _RBX[3] = *(_QWORD *)((char *)_RBX + _R12 + 24);
-            _RBX[4] = *(_QWORD *)((char *)_RBX + _R12 + 32);
+            bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(v12 - 8), (const bdStructBufferSerializable *)&v12[v14 - 8]);
+            *((_QWORD *)v12 - 1) = &GeneralChannelRequest::`vftable'{for `bdStructBufferSerializable'};
+            *(_QWORD *)&v12[*(int *)(*(_QWORD *)v12 + 4i64)] = &GeneralChannelRequest::`vftable'{for `bdReferencable'};
+            *(_OWORD *)(v12 + 8) = *(_OWORD *)&v12[v14 + 8];
+            *((_QWORD *)v12 + 3) = *(_QWORD *)&v12[v14 + 24];
+            *((_QWORD *)v12 + 4) = *(_QWORD *)&v12[v14 + 32];
           }
-          _RBX += 8;
+          v12 += 64;
           --v15;
         }
         while ( v15 );
         v2 = this;
         m_size = this->m_size;
-        v9 = v19;
+        v9 = v18;
       }
     }
     bdArray<GeneralChannelRequest>::destruct(v2, v2->m_data, m_size);
     bdMemory::deallocate(v2->m_data);
     v2->m_data = v9;
-    v2->m_capacity = v22;
+    v2->m_capacity = v21;
     m_size = v2->m_size;
     value = __that;
   }
@@ -6948,14 +6678,14 @@ void bdArray<GeneralChannelRequest>::pushBack(bdArray<GeneralChannelRequest> *th
   {
     v9 = v2->m_data;
   }
-  v17 = m_size;
-  v18 = &v9[(unsigned __int64)m_size];
-  if ( v18 )
+  v16 = m_size;
+  v17 = &v9[(unsigned __int64)m_size];
+  if ( v17 )
   {
-    GeneralChannelRequest::GeneralChannelRequest(v18, value);
-    v17 = v2->m_size;
+    GeneralChannelRequest::GeneralChannelRequest(v17, value);
+    v16 = v2->m_size;
   }
-  v2->m_size = v17 + 1;
+  v2->m_size = v16 + 1;
 }
 
 /*
@@ -7023,16 +6753,26 @@ void bdArray<bdSockAddr>::operator=(bdArray<bdSockAddr> *this, const bdArray<bdS
   unsigned int m_capacity; 
   unsigned int v6; 
   bdSockAddr *v7; 
-  bdSockAddr *v15; 
-  signed __int64 v16; 
+  unsigned __int64 v8; 
+  __m256i v9; 
+  __m256i v10; 
+  __m256i v11; 
+  bdSockAddr *v12; 
+  bdSockAddr *v13; 
+  signed __int64 v14; 
+  __int64 v15; 
+  unsigned int v16; 
   __int64 v17; 
-  unsigned int v18; 
-  unsigned int v26; 
-  __int64 v27; 
+  __m256i v18; 
+  __m256i v19; 
+  __m256i v20; 
+  bdSockAddr *m_data; 
+  unsigned int v22; 
+  __int64 v23; 
 
   if ( this != a )
   {
-    v27 = -2i64;
+    v23 = -2i64;
     m_size = a->m_size;
     m_capacity = this->m_capacity;
     if ( m_size <= m_capacity )
@@ -7041,43 +6781,35 @@ void bdArray<bdSockAddr>::operator=(bdArray<bdSockAddr> *this, const bdArray<bdS
       v7 = NULL;
       if ( m_size <= v6 )
       {
-        v18 = 0;
+        v16 = 0;
         if ( m_size )
         {
-          _R12 = 0i64;
+          v17 = 0i64;
           do
           {
-            bdHandleAssert(v18 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v27);
-            _RAX = a->m_data;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r12+rax]
-              vmovups ymm1, ymmword ptr [r12+rax+20h]
-              vmovups ymm2, ymmword ptr [r12+rax+40h]
-              vmovups ymm3, ymmword ptr [r12+rax+60h]
-            }
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [r12+rax], ymm0
-              vmovups ymmword ptr [r12+rax+20h], ymm1
-              vmovups ymmword ptr [r12+rax+40h], ymm2
-              vmovups ymmword ptr [r12+rax+60h], ymm3
-            }
-            ++v18;
-            _R12 += 128i64;
+            bdHandleAssert(v16 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v23);
+            v18 = *((__m256i *)&a->m_data[v17].inUn.m_ipv6Sockaddr + 1);
+            v19 = *((__m256i *)&a->m_data[v17].inUn.m_ipv6Sockaddr + 2);
+            v20 = *((__m256i *)&a->m_data[v17].inUn.m_ipv6Sockaddr + 3);
+            m_data = this->m_data;
+            *(__m256i *)&m_data[v17].inUn.m_sockaddrStorage.ss_family = *(__m256i *)&a->m_data[v17].inUn.m_sockaddrStorage.ss_family;
+            *((__m256i *)&m_data[v17].inUn.m_ipv6Sockaddr + 1) = v18;
+            *((__m256i *)&m_data[v17].inUn.m_ipv6Sockaddr + 2) = v19;
+            *((__m256i *)&m_data[v17].inUn.m_ipv6Sockaddr + 3) = v20;
+            ++v16;
+            ++v17;
           }
-          while ( v18 < m_size );
+          while ( v16 < m_size );
           m_capacity = this->m_capacity;
         }
         this->m_size = m_size;
         if ( m_capacity > 4 * m_size )
         {
-          v26 = m_capacity - (m_capacity >> 1);
-          this->m_capacity = v26;
-          if ( v26 )
+          v22 = m_capacity - (m_capacity >> 1);
+          this->m_capacity = v22;
+          if ( v22 )
           {
-            v7 = (bdSockAddr *)bdMemory::allocate((unsigned __int64)v26 << 7);
+            v7 = (bdSockAddr *)bdMemory::allocate((unsigned __int64)v22 << 7);
             bdArray<bdSockAddr>::copyConstructArrayArray(this, v7, this->m_data, this->m_size);
           }
           bdMemory::deallocate(this->m_data);
@@ -7090,42 +6822,34 @@ void bdArray<bdSockAddr>::operator=(bdArray<bdSockAddr> *this, const bdArray<bdS
         {
           do
           {
-            bdHandleAssert((unsigned int)v7 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v27);
-            _RCX = (unsigned __int64)(unsigned int)v7 << 7;
-            _RAX = a->m_data;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx+rax]
-              vmovups ymm1, ymmword ptr [rcx+rax+20h]
-              vmovups ymm2, ymmword ptr [rcx+rax+40h]
-              vmovups ymm3, ymmword ptr [rcx+rax+60h]
-            }
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [rcx+rax], ymm0
-              vmovups ymmword ptr [rcx+rax+20h], ymm1
-              vmovups ymmword ptr [rcx+rax+40h], ymm2
-              vmovups ymmword ptr [rcx+rax+60h], ymm3
-            }
+            bdHandleAssert((unsigned int)v7 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdSockAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v23);
+            v8 = (unsigned __int64)(unsigned int)v7 << 7;
+            v9 = *(__m256i *)((char *)&a->m_data->inUn.m_ipv6Sockaddr + v8 + 32);
+            v10 = *(__m256i *)((char *)&a->m_data->inUn.m_ipv6Sockaddr + v8 + 64);
+            v11 = *(__m256i *)((char *)&a->m_data->inUn.m_ipv6Sockaddr + v8 + 96);
+            v12 = this->m_data;
+            *(__m256i *)((char *)&v12->inUn.m_sockaddrStorage.ss_family + v8) = *(__m256i *)((char *)&a->m_data->inUn.m_sockaddrStorage.ss_family + v8);
+            *(__m256i *)((char *)&v12->inUn.m_ipv6Sockaddr + v8 + 32) = v9;
+            *(__m256i *)((char *)&v12->inUn.m_ipv6Sockaddr + v8 + 64) = v10;
+            *(__m256i *)((char *)&v12->inUn.m_ipv6Sockaddr + v8 + 96) = v11;
             LODWORD(v7) = (_DWORD)v7 + 1;
             v6 = this->m_size;
           }
           while ( (unsigned int)v7 < v6 );
         }
-        v15 = &this->m_data[(unsigned __int64)v6];
+        v13 = &this->m_data[(unsigned __int64)v6];
         if ( m_size != v6 )
         {
-          v16 = (char *)a->m_data - (char *)this->m_data;
-          v17 = m_size - v6;
+          v14 = (char *)a->m_data - (char *)this->m_data;
+          v15 = m_size - v6;
           do
           {
-            if ( v15 )
-              bdSockAddr::bdSockAddr(v15, (bdSockAddr *)((char *)v15 + v16));
-            ++v15;
-            --v17;
+            if ( v13 )
+              bdSockAddr::bdSockAddr(v13, (bdSockAddr *)((char *)v13 + v14));
+            ++v13;
+            --v15;
           }
-          while ( v17 );
+          while ( v15 );
         }
         this->m_size = m_size;
       }
@@ -7690,78 +7414,66 @@ bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray
 */
 void bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> *this, bdQoSProbe::bdQoSProbeEntryWrapper *dest, const bdQoSProbe::bdQoSProbeEntryWrapper *src, const unsigned int n)
 {
+  bdAddr *p_m_realAddr; 
+  signed __int64 v5; 
   __int64 v6; 
   __int64 v7; 
-  __int64 v11; 
+  __int64 v8; 
 
   if ( n )
   {
-    _RBX = &src->m_telemetry.m_probeInfo.m_realAddr;
-    _RDI = (char *)dest - (char *)src;
+    p_m_realAddr = &src->m_telemetry.m_probeInfo.m_realAddr;
+    v5 = (char *)dest - (char *)src;
     v6 = n;
     do
     {
-      if ( (bdAddr *)((char *)_RBX + _RDI) != (bdAddr *)360 )
+      if ( (bdAddr *)((char *)p_m_realAddr + v5) != (bdAddr *)360 )
       {
-        v7 = *((_QWORD *)&_RBX[-3].m_address.inUn.m_ipv6Sockaddr + 12);
-        *(_QWORD *)((char *)&_RBX[-2] + _RDI - 56) = v7;
+        v7 = *((_QWORD *)&p_m_realAddr[-3].m_address.inUn.m_ipv6Sockaddr + 12);
+        *(_QWORD *)((char *)&p_m_realAddr[-2] + v5 - 56) = v7;
         if ( v7 )
           _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 1u);
-        bdSecurityID::bdSecurityID((bdSecurityID *)((char *)&_RBX[-2] + _RDI - 48), (const bdSecurityID *)&_RBX[-3].m_address.inUn.m_ipv6Sockaddr + 13);
-        bdSecurityKey::bdSecurityKey((bdSecurityKey *)((char *)&_RBX[-2] + _RDI - 40), (const bdSecurityKey *)&_RBX[-3].m_address.inUn.m_ipv6Sockaddr + 7);
-        *(_QWORD *)((char *)&_RBX[-2] + _RDI - 24) = _RBX[-3].m_relayRoute.m_relayID;
-        bdAddr::bdAddr((bdAddr *)((char *)_RBX + _RDI - 320), (bdAddr *)((char *)_RBX - 320));
-        *(_DWORD *)((char *)&_RBX[-1] + _RDI - 16) = _RBX[-2].m_relayRoute.m_relayRoutingID;
-        *(_QWORD *)((char *)&_RBX[-1] + _RDI - 8) = *(_QWORD *)&_RBX[-2].m_type;
-        *(_DWORD *)((char *)&_RBX[-1].m_address.inUn.m_sockaddrStorage.ss_family + _RDI) = *(_DWORD *)&_RBX[-1].m_address.inUn.m_sockaddrStorage.ss_family;
-        *(_DWORD *)((char *)_RBX + _RDI - 148) = _RBX[-1].m_address.inUn.m_ipv4Sockaddr.sin_addr.S_un.S_addr;
-        *(_DWORD *)((char *)_RBX + _RDI - 144) = *(_DWORD *)_RBX[-1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Byte;
-        *(_DWORD *)((char *)_RBX + _RDI - 140) = *(_DWORD *)&_RBX[-1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[2];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx-88h]
-          vmovups ymmword ptr [rdi+rbx-88h], ymm0
-          vmovups ymm1, ymmword ptr [rbx-68h]
-          vmovups ymmword ptr [rdi+rbx-68h], ymm1
-        }
-        *(_DWORD *)((char *)_RBX + _RDI - 72) = *((_DWORD *)&_RBX[-1].m_address.inUn.m_ipv6Sockaddr + 20);
-        *(_DWORD *)((char *)_RBX + _RDI - 68) = *((_DWORD *)&_RBX[-1].m_address.inUn.m_ipv6Sockaddr + 21);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx-40h]
-          vmovups ymmword ptr [rdi+rbx-40h], ymm0
-        }
-        *(_QWORD *)((char *)_RBX + _RDI - 32) = *((_QWORD *)&_RBX[-1].m_address.inUn.m_ipv6Sockaddr + 15);
-        *(_DWORD *)((char *)_RBX + _RDI - 24) = _RBX[-1].m_relayRoute.m_relayID;
-        *(_DWORD *)((char *)_RBX + _RDI - 20) = HIDWORD(_RBX[-1].m_relayRoute.m_relayID);
-        *(_DWORD *)((char *)_RBX + _RDI - 16) = _RBX[-1].m_relayRoute.m_relayRoutingID;
-        v11 = *(_QWORD *)&_RBX[-1].m_type;
-        *(_QWORD *)((char *)_RBX + _RDI - 8) = v11;
-        if ( v11 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)(v11 + 8), 1u);
-        bdAddr::bdAddr((bdAddr *)((char *)_RBX + _RDI), _RBX);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_sockaddrStorage.ss_family + _RDI) = *(_DWORD *)&_RBX[1].m_address.inUn.m_sockaddrStorage.ss_family;
-        *(_QWORD *)&_RBX[1].m_address.inUn.m_sockaddrStorage.__ss_pad1[_RDI + 6] = _RBX[1].m_address.inUn.m_sockaddrStorage.__ss_align;
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[4] + _RDI) = *(_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[4];
-        _RBX[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[_RDI + 4] = _RBX[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[4];
-        *(unsigned int *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr.sin6_scope_id + _RDI) = _RBX[1].m_address.inUn.m_ipv6Sockaddr.sin6_scope_id;
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 28) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 7);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 32) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 8);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 36) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 9);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+0C0h]
-          vmovups ymmword ptr [rdi+rbx+0C0h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+0E0h]
-          vmovups ymmword ptr [rdi+rbx+0E0h], ymm1
-        }
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 104) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 26);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 108) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 27);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 112) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 28);
-        *(_DWORD *)((char *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + _RDI + 116) = *((_DWORD *)&_RBX[1].m_address.inUn.m_ipv6Sockaddr + 29);
-        _RBX[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[_RDI + 104] = _RBX[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[104];
+        bdSecurityID::bdSecurityID((bdSecurityID *)((char *)&p_m_realAddr[-2] + v5 - 48), (const bdSecurityID *)&p_m_realAddr[-3].m_address.inUn.m_ipv6Sockaddr + 13);
+        bdSecurityKey::bdSecurityKey((bdSecurityKey *)((char *)&p_m_realAddr[-2] + v5 - 40), (const bdSecurityKey *)&p_m_realAddr[-3].m_address.inUn.m_ipv6Sockaddr + 7);
+        *(_QWORD *)((char *)&p_m_realAddr[-2] + v5 - 24) = p_m_realAddr[-3].m_relayRoute.m_relayID;
+        bdAddr::bdAddr((bdAddr *)((char *)p_m_realAddr + v5 - 320), (bdAddr *)((char *)p_m_realAddr - 320));
+        *(_DWORD *)((char *)&p_m_realAddr[-1] + v5 - 16) = p_m_realAddr[-2].m_relayRoute.m_relayRoutingID;
+        *(_QWORD *)((char *)&p_m_realAddr[-1] + v5 - 8) = *(_QWORD *)&p_m_realAddr[-2].m_type;
+        *(_DWORD *)((char *)&p_m_realAddr[-1].m_address.inUn.m_sockaddrStorage.ss_family + v5) = *(_DWORD *)&p_m_realAddr[-1].m_address.inUn.m_sockaddrStorage.ss_family;
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 148) = p_m_realAddr[-1].m_address.inUn.m_ipv4Sockaddr.sin_addr.S_un.S_addr;
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 144) = *(_DWORD *)p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Byte;
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 140) = *(_DWORD *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[2];
+        *(__m256i *)((char *)p_m_realAddr + v5 - 136) = *(__m256i *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[4];
+        *(__m256i *)((char *)p_m_realAddr + v5 - 104) = *(__m256i *)((char *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr + 48);
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 72) = *((_DWORD *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr + 20);
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 68) = *((_DWORD *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr + 21);
+        *(__m256i *)((char *)p_m_realAddr + v5 - 64) = *(__m256i *)((char *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr + 88);
+        *(_QWORD *)((char *)p_m_realAddr + v5 - 32) = *((_QWORD *)&p_m_realAddr[-1].m_address.inUn.m_ipv6Sockaddr + 15);
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 24) = p_m_realAddr[-1].m_relayRoute.m_relayID;
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 20) = HIDWORD(p_m_realAddr[-1].m_relayRoute.m_relayID);
+        *(_DWORD *)((char *)p_m_realAddr + v5 - 16) = p_m_realAddr[-1].m_relayRoute.m_relayRoutingID;
+        v8 = *(_QWORD *)&p_m_realAddr[-1].m_type;
+        *(_QWORD *)((char *)p_m_realAddr + v5 - 8) = v8;
+        if ( v8 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)(v8 + 8), 1u);
+        bdAddr::bdAddr((bdAddr *)((char *)p_m_realAddr + v5), p_m_realAddr);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.ss_family + v5) = *(_DWORD *)&p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.ss_family;
+        *(_QWORD *)&p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_pad1[v5 + 6] = p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_align;
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[4] + v5) = *(_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr.sin6_addr.u.Word[4];
+        p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[v5 + 4] = p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[4];
+        *(unsigned int *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr.sin6_scope_id + v5) = p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr.sin6_scope_id;
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 28) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 7);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 32) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 8);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 36) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 9);
+        *(__m256i *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 40) = *(__m256i *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 40);
+        *(__m256i *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 72) = *(__m256i *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 72);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 104) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 26);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 108) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 27);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 112) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 28);
+        *(_DWORD *)((char *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + v5 + 116) = *((_DWORD *)&p_m_realAddr[1].m_address.inUn.m_ipv6Sockaddr + 29);
+        p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[v5 + 104] = p_m_realAddr[1].m_address.inUn.m_sockaddrStorage.__ss_pad2[104];
       }
-      _RBX = (bdAddr *)((char *)_RBX + 640);
+      p_m_realAddr = (bdAddr *)((char *)p_m_realAddr + 640);
       --v6;
     }
     while ( v6 );
@@ -7776,78 +7488,64 @@ bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayObject
 void bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayObject(bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> *this, bdQoSProbe::bdQoSProbeEntryWrapper *dest, const bdQoSProbe::bdQoSProbeEntryWrapper *src, const unsigned int n)
 {
   unsigned int v6; 
+  float *p_m_latency; 
   bdCommonAddr *m_ptr; 
-  bdCommonAddr *v12; 
+  bdCommonAddr *v9; 
 
   if ( n )
   {
-    _RDI = src;
     v6 = 0;
-    _RBX = &dest->m_telemetry.m_probeInfo.m_latency;
+    p_m_latency = &dest->m_telemetry.m_probeInfo.m_latency;
     do
     {
-      if ( _RBX != (float *)512 )
+      if ( p_m_latency != (float *)512 )
       {
-        m_ptr = _RDI->m_addr.m_ptr;
-        *((_QWORD *)_RBX - 64) = _RDI->m_addr.m_ptr;
+        m_ptr = src->m_addr.m_ptr;
+        *((_QWORD *)p_m_latency - 64) = src->m_addr.m_ptr;
         if ( m_ptr )
           _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-        bdSecurityID::bdSecurityID((bdSecurityID *)_RBX - 63, &_RDI->m_id);
-        bdSecurityKey::bdSecurityKey((bdSecurityKey *)_RBX - 31, &_RDI->m_key);
-        *((_QWORD *)_RBX - 60) = _RDI->m_listener;
-        bdAddr::bdAddr((bdAddr *)(_RBX - 118), &_RDI->m_realAddr);
-        *(_RBX - 80) = *(float *)&_RDI->m_retries;
-        *((_QWORD *)_RBX - 39) = _RDI->m_lastTry.m_start;
-        *(_RBX - 76) = *(float *)&_RDI->m_numRepliesReceived;
-        *(_RBX - 75) = *(float *)&_RDI->m_numRepliesExpected;
-        *(_RBX - 74) = _RDI->m_latency;
-        *(_RBX - 73) = _RDI->m_minLatency;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+0E0h]
-          vmovups ymmword ptr [rbx-120h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+100h]
-          vmovups ymmword ptr [rbx-100h], ymm1
-        }
-        *(_RBX - 56) = *(float *)&_RDI->m_bandwidthUp;
-        *(_RBX - 55) = *(float *)&_RDI->m_bandwidthDown;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+128h]
-          vmovups ymmword ptr [rbx-0D8h], ymm0
-        }
-        *((_QWORD *)_RBX - 23) = _RDI->m_telemetry.m_age.m_start;
-        *(_RBX - 44) = *(float *)&_RDI->m_telemetry.m_duration;
-        *(_RBX - 43) = *(float *)&_RDI->m_telemetry.m_msToNatTravResolve;
-        *(_RBX - 42) = *(float *)&_RDI->m_telemetry.m_msToRelayEstablished;
-        v12 = _RDI->m_telemetry.m_probeInfo.m_addr.m_ptr;
-        *((_QWORD *)_RBX - 20) = v12;
-        if ( v12 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
-        bdAddr::bdAddr((bdAddr *)_RBX - 1, &_RDI->m_telemetry.m_probeInfo.m_realAddr);
-        *_RBX = _RDI->m_telemetry.m_probeInfo.m_latency;
-        *((_QWORD *)_RBX + 1) = _RDI->m_telemetry.m_probeInfo.m_data;
-        _RBX[4] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_dataSize;
-        *((_BYTE *)_RBX + 20) = _RDI->m_telemetry.m_probeInfo.m_disabled;
-        _RBX[6] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_bandwidthDown;
-        _RBX[7] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_bandwidthUp;
-        _RBX[8] = _RDI->m_telemetry.m_probeInfo.m_minLatency;
-        _RBX[9] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_numReplies;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+228h]
-          vmovups ymmword ptr [rbx+28h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+248h]
-          vmovups ymmword ptr [rbx+48h], ymm1
-        }
-        _RBX[26] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_numProbesReceived;
-        _RBX[27] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_numProbesExpected;
-        _RBX[28] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_numRetries;
-        _RBX[29] = *(float *)&_RDI->m_telemetry.m_probeInfo.m_failureReason;
-        *((_BYTE *)_RBX + 120) = _RDI->m_telemetry.m_result;
+        bdSecurityID::bdSecurityID((bdSecurityID *)p_m_latency - 63, &src->m_id);
+        bdSecurityKey::bdSecurityKey((bdSecurityKey *)p_m_latency - 31, &src->m_key);
+        *((_QWORD *)p_m_latency - 60) = src->m_listener;
+        bdAddr::bdAddr((bdAddr *)(p_m_latency - 118), &src->m_realAddr);
+        *(p_m_latency - 80) = *(float *)&src->m_retries;
+        *((_QWORD *)p_m_latency - 39) = src->m_lastTry.m_start;
+        *(p_m_latency - 76) = *(float *)&src->m_numRepliesReceived;
+        *(p_m_latency - 75) = *(float *)&src->m_numRepliesExpected;
+        *(p_m_latency - 74) = src->m_latency;
+        *(p_m_latency - 73) = src->m_minLatency;
+        *((__m256i *)p_m_latency - 9) = *(__m256i *)src->m_replies;
+        *((__m256i *)p_m_latency - 8) = *(__m256i *)&src->m_replies[8];
+        *(p_m_latency - 56) = *(float *)&src->m_bandwidthUp;
+        *(p_m_latency - 55) = *(float *)&src->m_bandwidthDown;
+        *(bdQoSProbe::bdQosProbeClient *)(p_m_latency - 54) = src->m_currentProbe;
+        *((_QWORD *)p_m_latency - 23) = src->m_telemetry.m_age.m_start;
+        *(p_m_latency - 44) = *(float *)&src->m_telemetry.m_duration;
+        *(p_m_latency - 43) = *(float *)&src->m_telemetry.m_msToNatTravResolve;
+        *(p_m_latency - 42) = *(float *)&src->m_telemetry.m_msToRelayEstablished;
+        v9 = src->m_telemetry.m_probeInfo.m_addr.m_ptr;
+        *((_QWORD *)p_m_latency - 20) = v9;
+        if ( v9 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
+        bdAddr::bdAddr((bdAddr *)p_m_latency - 1, &src->m_telemetry.m_probeInfo.m_realAddr);
+        *p_m_latency = src->m_telemetry.m_probeInfo.m_latency;
+        *((_QWORD *)p_m_latency + 1) = src->m_telemetry.m_probeInfo.m_data;
+        p_m_latency[4] = *(float *)&src->m_telemetry.m_probeInfo.m_dataSize;
+        *((_BYTE *)p_m_latency + 20) = src->m_telemetry.m_probeInfo.m_disabled;
+        p_m_latency[6] = *(float *)&src->m_telemetry.m_probeInfo.m_bandwidthDown;
+        p_m_latency[7] = *(float *)&src->m_telemetry.m_probeInfo.m_bandwidthUp;
+        p_m_latency[8] = src->m_telemetry.m_probeInfo.m_minLatency;
+        p_m_latency[9] = *(float *)&src->m_telemetry.m_probeInfo.m_numReplies;
+        *(__m256i *)(p_m_latency + 10) = *(__m256i *)src->m_telemetry.m_probeInfo.m_replies;
+        *(__m256i *)(p_m_latency + 18) = *(__m256i *)&src->m_telemetry.m_probeInfo.m_replies[8];
+        p_m_latency[26] = *(float *)&src->m_telemetry.m_probeInfo.m_numProbesReceived;
+        p_m_latency[27] = *(float *)&src->m_telemetry.m_probeInfo.m_numProbesExpected;
+        p_m_latency[28] = *(float *)&src->m_telemetry.m_probeInfo.m_numRetries;
+        p_m_latency[29] = *(float *)&src->m_telemetry.m_probeInfo.m_failureReason;
+        *((_BYTE *)p_m_latency + 120) = src->m_telemetry.m_result;
       }
       ++v6;
-      _RBX += 160;
+      p_m_latency += 160;
     }
     while ( v6 < n );
   }
@@ -7936,17 +7634,31 @@ void bdArray<bdAddr>::operator=(bdArray<bdAddr> *this, const bdArray<bdAddr> *a)
   __int64 v11; 
   __int64 v12; 
   bdAddr *v13; 
-  bdAddr *v23; 
-  bdAddr *v24; 
-  signed __int64 v25; 
+  __int64 v14; 
+  __m256i v15; 
+  __m256i v16; 
+  __m256i v17; 
+  bdRelayRoute v18; 
+  double v19; 
+  bdAddr *v20; 
+  bdAddr *v21; 
+  bdAddr *v22; 
+  signed __int64 v23; 
+  __int64 v24; 
+  unsigned int v25; 
   __int64 v26; 
-  unsigned int v27; 
-  unsigned int v37; 
-  __int64 v38; 
+  __m256i v27; 
+  __m256i v28; 
+  __m256i v29; 
+  bdRelayRoute m_relayRoute; 
+  double v31; 
+  bdAddr *m_data; 
+  unsigned int v33; 
+  __int64 v34; 
 
   if ( this != a )
   {
-    v38 = -2i64;
+    v34 = -2i64;
     m_size = a->m_size;
     m_capacity = this->m_capacity;
     if ( m_size <= m_capacity )
@@ -7955,47 +7667,39 @@ void bdArray<bdAddr>::operator=(bdArray<bdAddr> *this, const bdArray<bdAddr> *a)
       v13 = NULL;
       if ( m_size <= (unsigned int)v12 )
       {
-        v27 = 0;
+        v25 = 0;
         if ( m_size )
         {
-          _R12 = 0i64;
+          v26 = 0i64;
           do
           {
-            bdHandleAssert(v27 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v38);
-            _RAX = a->m_data;
-            __asm
-            {
-              vmovups ymm1, ymmword ptr [r12+rax]
-              vmovups ymm2, ymmword ptr [r12+rax+20h]
-              vmovups ymm3, ymmword ptr [r12+rax+40h]
-              vmovups ymm4, ymmword ptr [r12+rax+60h]
-              vmovups xmm5, xmmword ptr [r12+rax+80h]
-              vmovsd  xmm0, qword ptr [r12+rax+90h]
-            }
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [r12+rax], ymm1
-              vmovups ymmword ptr [r12+rax+20h], ymm2
-              vmovups ymmword ptr [r12+rax+40h], ymm3
-              vmovups ymmword ptr [r12+rax+60h], ymm4
-              vmovups xmmword ptr [r12+rax+80h], xmm5
-              vmovsd  qword ptr [r12+rax+90h], xmm0
-            }
-            ++v27;
-            _R12 += 152i64;
+            bdHandleAssert(v25 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v34);
+            v27 = *((__m256i *)&a->m_data[v26].m_address.inUn.m_ipv6Sockaddr + 1);
+            v28 = *((__m256i *)&a->m_data[v26].m_address.inUn.m_ipv6Sockaddr + 2);
+            v29 = *((__m256i *)&a->m_data[v26].m_address.inUn.m_ipv6Sockaddr + 3);
+            m_relayRoute = a->m_data[v26].m_relayRoute;
+            v31 = *(double *)&a->m_data[v26].m_type;
+            m_data = this->m_data;
+            *(__m256i *)&m_data[v26].m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&a->m_data[v26].m_address.inUn.m_sockaddrStorage.ss_family;
+            *((__m256i *)&m_data[v26].m_address.inUn.m_ipv6Sockaddr + 1) = v27;
+            *((__m256i *)&m_data[v26].m_address.inUn.m_ipv6Sockaddr + 2) = v28;
+            *((__m256i *)&m_data[v26].m_address.inUn.m_ipv6Sockaddr + 3) = v29;
+            m_data[v26].m_relayRoute = m_relayRoute;
+            *(double *)&m_data[v26].m_type = v31;
+            ++v25;
+            ++v26;
           }
-          while ( v27 < m_size );
+          while ( v25 < m_size );
           m_capacity = this->m_capacity;
         }
         this->m_size = m_size;
         if ( m_capacity > 4 * m_size )
         {
-          v37 = m_capacity - (m_capacity >> 1);
-          this->m_capacity = v37;
-          if ( v37 )
+          v33 = m_capacity - (m_capacity >> 1);
+          this->m_capacity = v33;
+          if ( v33 )
           {
-            v13 = (bdAddr *)bdMemory::allocate(152i64 * v37);
+            v13 = (bdAddr *)bdMemory::allocate(152i64 * v33);
             bdArray<bdAddr>::copyConstructArrayArray(this, v13, this->m_data, this->m_size);
           }
           bdMemory::deallocate(this->m_data);
@@ -8008,47 +7712,39 @@ void bdArray<bdAddr>::operator=(bdArray<bdAddr> *this, const bdArray<bdAddr> *a)
         {
           do
           {
-            bdHandleAssert((unsigned int)v13 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v38);
-            _RCX = 152i64 * (unsigned int)v13;
-            _RAX = a->m_data;
-            __asm
-            {
-              vmovups ymm1, ymmword ptr [rcx+rax]
-              vmovups ymm2, ymmword ptr [rcx+rax+20h]
-              vmovups ymm3, ymmword ptr [rcx+rax+40h]
-              vmovups ymm4, ymmword ptr [rcx+rax+60h]
-              vmovups xmm5, xmmword ptr [rcx+rax+80h]
-              vmovsd  xmm0, qword ptr [rcx+rax+90h]
-            }
-            _RAX = this->m_data;
-            __asm
-            {
-              vmovups ymmword ptr [rcx+rax], ymm1
-              vmovups ymmword ptr [rcx+rax+20h], ymm2
-              vmovups ymmword ptr [rcx+rax+40h], ymm3
-              vmovups ymmword ptr [rcx+rax+60h], ymm4
-              vmovups xmmword ptr [rcx+rax+80h], xmm5
-              vmovsd  qword ptr [rcx+rax+90h], xmm0
-            }
+            bdHandleAssert((unsigned int)v13 < a->m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAddr>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed", v34);
+            v14 = (unsigned int)v13;
+            v15 = *((__m256i *)&a->m_data[v14].m_address.inUn.m_ipv6Sockaddr + 1);
+            v16 = *((__m256i *)&a->m_data[v14].m_address.inUn.m_ipv6Sockaddr + 2);
+            v17 = *((__m256i *)&a->m_data[v14].m_address.inUn.m_ipv6Sockaddr + 3);
+            v18 = a->m_data[v14].m_relayRoute;
+            v19 = *(double *)&a->m_data[v14].m_type;
+            v20 = this->m_data;
+            *(__m256i *)&v20[v14].m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&a->m_data[v14].m_address.inUn.m_sockaddrStorage.ss_family;
+            *((__m256i *)&v20[v14].m_address.inUn.m_ipv6Sockaddr + 1) = v15;
+            *((__m256i *)&v20[v14].m_address.inUn.m_ipv6Sockaddr + 2) = v16;
+            *((__m256i *)&v20[v14].m_address.inUn.m_ipv6Sockaddr + 3) = v17;
+            v20[v14].m_relayRoute = v18;
+            *(double *)&v20[v14].m_type = v19;
             LODWORD(v13) = (_DWORD)v13 + 1;
             v12 = this->m_size;
           }
           while ( (unsigned int)v13 < (unsigned int)v12 );
         }
-        v23 = &a->m_data[v12];
-        v24 = &this->m_data[v12];
+        v21 = &a->m_data[v12];
+        v22 = &this->m_data[v12];
         if ( m_size != (_DWORD)v12 )
         {
-          v25 = (char *)v23 - (char *)v24;
-          v26 = m_size - (unsigned int)v12;
+          v23 = (char *)v21 - (char *)v22;
+          v24 = m_size - (unsigned int)v12;
           do
           {
-            if ( v24 )
-              bdAddr::bdAddr(v24, (bdAddr *)((char *)v24 + v25));
-            ++v24;
-            --v26;
+            if ( v22 )
+              bdAddr::bdAddr(v22, (bdAddr *)((char *)v22 + v23));
+            ++v22;
+            --v24;
           }
-          while ( v26 );
+          while ( v24 );
         }
         this->m_size = m_size;
       }

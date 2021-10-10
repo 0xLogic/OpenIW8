@@ -72,456 +72,309 @@ bdUnoAccountInfo::bdUnoAccountInfo
 void bdUnoAccountInfo::bdUnoAccountInfo(bdUnoAccountInfo *this, const bdUnoAccountInfo *__that)
 {
   __int64 v3; 
-  __int64 v15; 
-  __int64 v24; 
-  __int64 v26; 
+  char *m_email; 
+  char *v6; 
+  __int64 v7; 
+  __int128 v8; 
+  __int64 v9; 
+  char *m_firstName; 
+  __int64 v11; 
+  char *v12; 
+  __int128 v13; 
+  __int64 v14; 
+  char *m_lastName; 
+  char *v16; 
+  __int128 v17; 
+  char *m_parentEmail; 
+  char *v19; 
+  __int128 v20; 
+  char *m_address1; 
+  __int64 v22; 
+  char *v23; 
+  __int128 v24; 
+  char *m_address2; 
+  char *v26; 
+  __int64 v27; 
+  __int128 v28; 
+  char v29; 
+  char *m_state; 
+  char *v31; 
+  __int64 v32; 
+  __int128 v33; 
+  char *m_city; 
+  char *v35; 
+  __int128 v36; 
   __int64 v37; 
-  __int64 v61; 
-  __int64 v74; 
-  char v84; 
-  __int64 v87; 
-  __int64 v120; 
-  __int64 v121; 
+  __int64 v38; 
+  char *m_accessToken; 
+  char *v40; 
+  __int128 v41; 
+  char *m_refreshToken; 
+  char *v43; 
+  __int128 v44; 
 
-  _R8 = this;
   this->__vftable = (bdUnoAccountInfo_vtbl *)&bdUnoAccountInfo::`vftable';
   v3 = 2i64;
-  _R9 = __that;
   this->m_userID = __that->m_userID;
   this->m_accountType = __that->m_accountType;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+14h]
-    vmovups ymmword ptr [rcx+14h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+34h]
-    vmovups ymmword ptr [rcx+34h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+54h]
-    vmovups ymmword ptr [rcx+54h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+74h]
-    vmovups ymmword ptr [rcx+74h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+94h]
-    vmovups xmmword ptr [rcx+94h], xmm0
-  }
+  *(__m256i *)this->m_username = *(__m256i *)__that->m_username;
+  *(__m256i *)&this->m_username[32] = *(__m256i *)&__that->m_username[32];
+  *(__m256i *)&this->m_username[64] = *(__m256i *)&__that->m_username[64];
+  *(__m256i *)&this->m_username[96] = *(__m256i *)&__that->m_username[96];
+  *(_OWORD *)&this->m_username[128] = *(_OWORD *)&__that->m_username[128];
   *(_DWORD *)&this->m_username[144] = *(_DWORD *)&__that->m_username[144];
   *(_WORD *)&this->m_username[148] = *(_WORD *)&__that->m_username[148];
   this->m_username[150] = __that->m_username[150];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+0ABh]
-    vmovups ymmword ptr [rcx+0ABh], ymm0
-    vmovups ymm1, ymmword ptr [rdx+0CBh]
-    vmovups ymmword ptr [rcx+0CBh], ymm1
-    vmovups ymm0, ymmword ptr [rdx+0EBh]
-    vmovups ymmword ptr [rcx+0EBh], ymm0
-  }
+  *(__m256i *)this->m_password = *(__m256i *)__that->m_password;
+  *(__m256i *)&this->m_password[32] = *(__m256i *)&__that->m_password[32];
+  *(__m256i *)&this->m_password[64] = *(__m256i *)&__that->m_password[64];
   *(_DWORD *)&this->m_password[96] = *(_DWORD *)&__that->m_password[96];
   this->m_password[100] = __that->m_password[100];
-  _RAX = this->m_email;
-  _RCX = __that->m_email;
-  v15 = 2i64;
+  m_email = this->m_email;
+  v6 = __that->m_email;
+  v7 = 2i64;
   do
   {
-    _RAX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v15;
+    m_email += 128;
+    v8 = *(_OWORD *)v6;
+    v6 += 128;
+    *((_OWORD *)m_email - 8) = v8;
+    *((_OWORD *)m_email - 7) = *((_OWORD *)v6 - 7);
+    *((_OWORD *)m_email - 6) = *((_OWORD *)v6 - 6);
+    *((_OWORD *)m_email - 5) = *((_OWORD *)v6 - 5);
+    *((_OWORD *)m_email - 4) = *((_OWORD *)v6 - 4);
+    *((_OWORD *)m_email - 3) = *((_OWORD *)v6 - 3);
+    *((_OWORD *)m_email - 2) = *((_OWORD *)v6 - 2);
+    *((_OWORD *)m_email - 1) = *((_OWORD *)v6 - 1);
+    --v7;
   }
-  while ( v15 );
-  v24 = 3i64;
-  _RCX = _R8->m_firstName;
-  v26 = 3i64;
-  _RAX = _R9->m_firstName;
+  while ( v7 );
+  v9 = 3i64;
+  m_firstName = this->m_firstName;
+  v11 = 3i64;
+  v12 = __that->m_firstName;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v26;
+    m_firstName += 128;
+    v13 = *(_OWORD *)v12;
+    v12 += 128;
+    *((_OWORD *)m_firstName - 8) = v13;
+    *((_OWORD *)m_firstName - 7) = *((_OWORD *)v12 - 7);
+    *((_OWORD *)m_firstName - 6) = *((_OWORD *)v12 - 6);
+    *((_OWORD *)m_firstName - 5) = *((_OWORD *)v12 - 5);
+    *((_OWORD *)m_firstName - 4) = *((_OWORD *)v12 - 4);
+    *((_OWORD *)m_firstName - 3) = *((_OWORD *)v12 - 3);
+    *((_OWORD *)m_firstName - 2) = *((_OWORD *)v12 - 2);
+    *((_OWORD *)m_firstName - 1) = *((_OWORD *)v12 - 1);
+    --v11;
   }
-  while ( v26 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  v37 = 3i64;
-  _RCX[16] = _RAX[16];
-  _RCX = _R8->m_lastName;
-  _RAX = _R9->m_lastName;
+  while ( v11 );
+  *(_OWORD *)m_firstName = *(_OWORD *)v12;
+  v14 = 3i64;
+  m_firstName[16] = v12[16];
+  m_lastName = this->m_lastName;
+  v16 = __that->m_lastName;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v37;
+    m_lastName += 128;
+    v17 = *(_OWORD *)v16;
+    v16 += 128;
+    *((_OWORD *)m_lastName - 8) = v17;
+    *((_OWORD *)m_lastName - 7) = *((_OWORD *)v16 - 7);
+    *((_OWORD *)m_lastName - 6) = *((_OWORD *)v16 - 6);
+    *((_OWORD *)m_lastName - 5) = *((_OWORD *)v16 - 5);
+    *((_OWORD *)m_lastName - 4) = *((_OWORD *)v16 - 4);
+    *((_OWORD *)m_lastName - 3) = *((_OWORD *)v16 - 3);
+    *((_OWORD *)m_lastName - 2) = *((_OWORD *)v16 - 2);
+    *((_OWORD *)m_lastName - 1) = *((_OWORD *)v16 - 1);
+    --v14;
   }
-  while ( v37 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  _RCX[16] = _RAX[16];
-  _RCX = _R9->m_parentEmail;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r9+532h]
-    vmovsd  qword ptr [r8+532h], xmm0
-  }
-  *(_DWORD *)&_R8->m_dateOfBirth[8] = *(_DWORD *)&_R9->m_dateOfBirth[8];
-  _R8->m_dateOfBirth[12] = _R9->m_dateOfBirth[12];
-  _R8->m_over18 = _R9->m_over18;
-  _R8->m_isChild = _R9->m_isChild;
-  _RAX = _R8->m_parentEmail;
+  while ( v14 );
+  *(_OWORD *)m_lastName = *(_OWORD *)v16;
+  m_lastName[16] = v16[16];
+  m_parentEmail = __that->m_parentEmail;
+  *(double *)this->m_dateOfBirth = *(double *)__that->m_dateOfBirth;
+  *(_DWORD *)&this->m_dateOfBirth[8] = *(_DWORD *)&__that->m_dateOfBirth[8];
+  this->m_dateOfBirth[12] = __that->m_dateOfBirth[12];
+  this->m_over18 = __that->m_over18;
+  this->m_isChild = __that->m_isChild;
+  v19 = this->m_parentEmail;
   do
   {
-    _RAX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v19 += 128;
+    v20 = *(_OWORD *)m_parentEmail;
+    m_parentEmail += 128;
+    *((_OWORD *)v19 - 8) = v20;
+    *((_OWORD *)v19 - 7) = *((_OWORD *)m_parentEmail - 7);
+    *((_OWORD *)v19 - 6) = *((_OWORD *)m_parentEmail - 6);
+    *((_OWORD *)v19 - 5) = *((_OWORD *)m_parentEmail - 5);
+    *((_OWORD *)v19 - 4) = *((_OWORD *)m_parentEmail - 4);
+    *((_OWORD *)v19 - 3) = *((_OWORD *)m_parentEmail - 3);
+    *((_OWORD *)v19 - 2) = *((_OWORD *)m_parentEmail - 2);
+    *((_OWORD *)v19 - 1) = *((_OWORD *)m_parentEmail - 1);
     --v3;
   }
   while ( v3 );
-  _RCX = _R8->m_address1;
-  _R8->m_gender = _R9->m_gender;
-  v61 = 3i64;
-  _R8->m_emailVerified = _R9->m_emailVerified;
-  _R8->m_parentEmailVerified = _R9->m_parentEmailVerified;
-  _R8->m_dateOfBirthValidated = _R9->m_dateOfBirthValidated;
-  _RAX = _R9->m_address1;
+  m_address1 = this->m_address1;
+  this->m_gender = __that->m_gender;
+  v22 = 3i64;
+  this->m_emailVerified = __that->m_emailVerified;
+  this->m_parentEmailVerified = __that->m_parentEmailVerified;
+  this->m_dateOfBirthValidated = __that->m_dateOfBirthValidated;
+  v23 = __that->m_address1;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v61;
+    m_address1 += 128;
+    v24 = *(_OWORD *)v23;
+    v23 += 128;
+    *((_OWORD *)m_address1 - 8) = v24;
+    *((_OWORD *)m_address1 - 7) = *((_OWORD *)v23 - 7);
+    *((_OWORD *)m_address1 - 6) = *((_OWORD *)v23 - 6);
+    *((_OWORD *)m_address1 - 5) = *((_OWORD *)v23 - 5);
+    *((_OWORD *)m_address1 - 4) = *((_OWORD *)v23 - 4);
+    *((_OWORD *)m_address1 - 3) = *((_OWORD *)v23 - 3);
+    *((_OWORD *)m_address1 - 2) = *((_OWORD *)v23 - 2);
+    *((_OWORD *)m_address1 - 1) = *((_OWORD *)v23 - 1);
+    --v22;
   }
-  while ( v61 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  _RDX = _R8->m_address2;
-  _RCX[16] = _RAX[16];
-  _RAX = _R9->m_address2;
-  v74 = 3i64;
+  while ( v22 );
+  *(_OWORD *)m_address1 = *(_OWORD *)v23;
+  m_address2 = this->m_address2;
+  m_address1[16] = v23[16];
+  v26 = __that->m_address2;
+  v27 = 3i64;
   do
   {
-    _RDX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
-    --v74;
+    m_address2 += 128;
+    v28 = *(_OWORD *)v26;
+    v26 += 128;
+    *((_OWORD *)m_address2 - 8) = v28;
+    *((_OWORD *)m_address2 - 7) = *((_OWORD *)v26 - 7);
+    *((_OWORD *)m_address2 - 6) = *((_OWORD *)v26 - 6);
+    *((_OWORD *)m_address2 - 5) = *((_OWORD *)v26 - 5);
+    *((_OWORD *)m_address2 - 4) = *((_OWORD *)v26 - 4);
+    *((_OWORD *)m_address2 - 3) = *((_OWORD *)v26 - 3);
+    *((_OWORD *)m_address2 - 2) = *((_OWORD *)v26 - 2);
+    *((_OWORD *)m_address2 - 1) = *((_OWORD *)v26 - 1);
+    --v27;
   }
-  while ( v74 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdx], xmm0
-  }
-  v84 = _RAX[16];
-  _RAX = _R9->m_state;
-  _RDX[16] = v84;
-  _RCX = _R8->m_state;
-  v87 = 3i64;
+  while ( v27 );
+  *(_OWORD *)m_address2 = *(_OWORD *)v26;
+  v29 = v26[16];
+  m_state = __that->m_state;
+  m_address2[16] = v29;
+  v31 = this->m_state;
+  v32 = 3i64;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v87;
+    v31 += 128;
+    v33 = *(_OWORD *)m_state;
+    m_state += 128;
+    *((_OWORD *)v31 - 8) = v33;
+    *((_OWORD *)v31 - 7) = *((_OWORD *)m_state - 7);
+    *((_OWORD *)v31 - 6) = *((_OWORD *)m_state - 6);
+    *((_OWORD *)v31 - 5) = *((_OWORD *)m_state - 5);
+    *((_OWORD *)v31 - 4) = *((_OWORD *)m_state - 4);
+    *((_OWORD *)v31 - 3) = *((_OWORD *)m_state - 3);
+    *((_OWORD *)v31 - 2) = *((_OWORD *)m_state - 2);
+    *((_OWORD *)v31 - 1) = *((_OWORD *)m_state - 1);
+    --v32;
   }
-  while ( v87 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  _RCX[16] = _RAX[16];
-  _RCX = _R8->m_city;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9+0AFEh]
-    vmovups xmmword ptr [r8+0AFEh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0B0Eh]
-    vmovups xmmword ptr [r8+0B0Eh], xmm1
-    vmovups xmm0, xmmword ptr [r9+0B1Eh]
-    vmovups xmmword ptr [r8+0B1Eh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0B2Eh]
-    vmovups xmmword ptr [r8+0B2Eh], xmm1
-    vmovups xmm0, xmmword ptr [r9+0B3Eh]
-    vmovups xmmword ptr [r8+0B3Eh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0B4Eh]
-    vmovups xmmword ptr [r8+0B4Eh], xmm1
-    vmovups xmm0, xmmword ptr [r9+0B5Eh]
-    vmovups xmmword ptr [r8+0B5Eh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0B6Eh]
-    vmovups xmmword ptr [r8+0B6Eh], xmm1
-    vmovups xmm0, xmmword ptr [r9+0B7Eh]
-    vmovups xmmword ptr [r8+0B7Eh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0B8Eh]
-    vmovups xmmword ptr [r8+0B8Eh], xmm1
-    vmovups xmm0, xmmword ptr [r9+0B9Eh]
-    vmovups xmmword ptr [r8+0B9Eh], xmm0
-    vmovups xmm1, xmmword ptr [r9+0BAEh]
-    vmovups xmmword ptr [r8+0BAEh], xmm1
-  }
-  *(_QWORD *)&_R8->m_zipCode[192] = *(_QWORD *)&_R9->m_zipCode[192];
-  _R8->m_zipCode[200] = _R9->m_zipCode[200];
-  _RAX = _R9->m_city;
+  while ( v32 );
+  *(_OWORD *)v31 = *(_OWORD *)m_state;
+  v31[16] = m_state[16];
+  m_city = this->m_city;
+  *(_OWORD *)this->m_zipCode = *(_OWORD *)__that->m_zipCode;
+  *(_OWORD *)&this->m_zipCode[16] = *(_OWORD *)&__that->m_zipCode[16];
+  *(_OWORD *)&this->m_zipCode[32] = *(_OWORD *)&__that->m_zipCode[32];
+  *(_OWORD *)&this->m_zipCode[48] = *(_OWORD *)&__that->m_zipCode[48];
+  *(_OWORD *)&this->m_zipCode[64] = *(_OWORD *)&__that->m_zipCode[64];
+  *(_OWORD *)&this->m_zipCode[80] = *(_OWORD *)&__that->m_zipCode[80];
+  *(_OWORD *)&this->m_zipCode[96] = *(_OWORD *)&__that->m_zipCode[96];
+  *(_OWORD *)&this->m_zipCode[112] = *(_OWORD *)&__that->m_zipCode[112];
+  *(_OWORD *)&this->m_zipCode[128] = *(_OWORD *)&__that->m_zipCode[128];
+  *(_OWORD *)&this->m_zipCode[144] = *(_OWORD *)&__that->m_zipCode[144];
+  *(_OWORD *)&this->m_zipCode[160] = *(_OWORD *)&__that->m_zipCode[160];
+  *(_OWORD *)&this->m_zipCode[176] = *(_OWORD *)&__that->m_zipCode[176];
+  *(_QWORD *)&this->m_zipCode[192] = *(_QWORD *)&__that->m_zipCode[192];
+  this->m_zipCode[200] = __that->m_zipCode[200];
+  v35 = __that->m_city;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v24;
+    m_city += 128;
+    v36 = *(_OWORD *)v35;
+    v35 += 128;
+    *((_OWORD *)m_city - 8) = v36;
+    *((_OWORD *)m_city - 7) = *((_OWORD *)v35 - 7);
+    *((_OWORD *)m_city - 6) = *((_OWORD *)v35 - 6);
+    *((_OWORD *)m_city - 5) = *((_OWORD *)v35 - 5);
+    *((_OWORD *)m_city - 4) = *((_OWORD *)v35 - 4);
+    *((_OWORD *)m_city - 3) = *((_OWORD *)v35 - 3);
+    *((_OWORD *)m_city - 2) = *((_OWORD *)v35 - 2);
+    *((_OWORD *)m_city - 1) = *((_OWORD *)v35 - 1);
+    --v9;
   }
-  while ( v24 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  v120 = 8i64;
-  _RCX[16] = _RAX[16];
-  v121 = 8i64;
-  _RCX = _R9->m_tokens.m_accessToken;
-  *(_WORD *)_R8->m_country = *(_WORD *)_R9->m_country;
-  _R8->m_country[2] = _R9->m_country[2];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9+0D5Bh]
-    vmovups ymmword ptr [r8+0D5Bh], ymm0
-    vmovups xmm1, xmmword ptr [r9+0D7Bh]
-    vmovups xmmword ptr [r8+0D7Bh], xmm1
-  }
-  *(_WORD *)&_R8->m_mobile[48] = *(_WORD *)&_R9->m_mobile[48];
-  _R8->m_mobile[50] = _R9->m_mobile[50];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9+0D8Eh]
-    vmovups ymmword ptr [r8+0D8Eh], ymm0
-    vmovups xmm1, xmmword ptr [r9+0DAEh]
-    vmovups xmmword ptr [r8+0DAEh], xmm1
-  }
-  *(_WORD *)&_R8->m_phone[48] = *(_WORD *)&_R9->m_phone[48];
-  _R8->m_phone[50] = _R9->m_phone[50];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9+0DC1h]
-    vmovups xmmword ptr [r8+0DC1h], xmm0
-  }
-  *(_DWORD *)&_R8->m_createdTime[16] = *(_DWORD *)&_R9->m_createdTime[16];
-  _R8->m_createdTime[20] = _R9->m_createdTime[20];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r9+0DD6h]
-    vmovups xmmword ptr [r8+0DD6h], xmm0
-  }
-  *(_DWORD *)&_R8->m_updatedTime[16] = *(_DWORD *)&_R9->m_updatedTime[16];
-  _R8->m_updatedTime[20] = _R9->m_updatedTime[20];
-  _R8->m_tokens.__vftable = (bdUnoTokens_vtbl *)&bdUnoTokens::`vftable';
-  _RAX = _R8->m_tokens.m_accessToken;
+  while ( v9 );
+  *(_OWORD *)m_city = *(_OWORD *)v35;
+  v37 = 8i64;
+  m_city[16] = v35[16];
+  v38 = 8i64;
+  m_accessToken = __that->m_tokens.m_accessToken;
+  *(_WORD *)this->m_country = *(_WORD *)__that->m_country;
+  this->m_country[2] = __that->m_country[2];
+  *(__m256i *)this->m_mobile = *(__m256i *)__that->m_mobile;
+  *(_OWORD *)&this->m_mobile[32] = *(_OWORD *)&__that->m_mobile[32];
+  *(_WORD *)&this->m_mobile[48] = *(_WORD *)&__that->m_mobile[48];
+  this->m_mobile[50] = __that->m_mobile[50];
+  *(__m256i *)this->m_phone = *(__m256i *)__that->m_phone;
+  *(_OWORD *)&this->m_phone[32] = *(_OWORD *)&__that->m_phone[32];
+  *(_WORD *)&this->m_phone[48] = *(_WORD *)&__that->m_phone[48];
+  this->m_phone[50] = __that->m_phone[50];
+  *(_OWORD *)this->m_createdTime = *(_OWORD *)__that->m_createdTime;
+  *(_DWORD *)&this->m_createdTime[16] = *(_DWORD *)&__that->m_createdTime[16];
+  this->m_createdTime[20] = __that->m_createdTime[20];
+  *(_OWORD *)this->m_updatedTime = *(_OWORD *)__that->m_updatedTime;
+  *(_DWORD *)&this->m_updatedTime[16] = *(_DWORD *)&__that->m_updatedTime[16];
+  this->m_updatedTime[20] = __that->m_updatedTime[20];
+  this->m_tokens.__vftable = (bdUnoTokens_vtbl *)&bdUnoTokens::`vftable';
+  v40 = this->m_tokens.m_accessToken;
   do
   {
-    _RAX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v121;
+    v40 += 128;
+    v41 = *(_OWORD *)m_accessToken;
+    m_accessToken += 128;
+    *((_OWORD *)v40 - 8) = v41;
+    *((_OWORD *)v40 - 7) = *((_OWORD *)m_accessToken - 7);
+    *((_OWORD *)v40 - 6) = *((_OWORD *)m_accessToken - 6);
+    *((_OWORD *)v40 - 5) = *((_OWORD *)m_accessToken - 5);
+    *((_OWORD *)v40 - 4) = *((_OWORD *)m_accessToken - 4);
+    *((_OWORD *)v40 - 3) = *((_OWORD *)m_accessToken - 3);
+    *((_OWORD *)v40 - 2) = *((_OWORD *)m_accessToken - 2);
+    *((_OWORD *)v40 - 1) = *((_OWORD *)m_accessToken - 1);
+    --v38;
   }
-  while ( v121 );
-  _RCX = _R9->m_tokens.m_refreshToken;
-  _R8->m_tokens.m_accessTokenExpiry = _R9->m_tokens.m_accessTokenExpiry;
-  _RAX = _R8->m_tokens.m_refreshToken;
+  while ( v38 );
+  m_refreshToken = __that->m_tokens.m_refreshToken;
+  this->m_tokens.m_accessTokenExpiry = __that->m_tokens.m_accessTokenExpiry;
+  v43 = this->m_tokens.m_refreshToken;
   do
   {
-    _RAX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v120;
+    v43 += 128;
+    v44 = *(_OWORD *)m_refreshToken;
+    m_refreshToken += 128;
+    *((_OWORD *)v43 - 8) = v44;
+    *((_OWORD *)v43 - 7) = *((_OWORD *)m_refreshToken - 7);
+    *((_OWORD *)v43 - 6) = *((_OWORD *)m_refreshToken - 6);
+    *((_OWORD *)v43 - 5) = *((_OWORD *)m_refreshToken - 5);
+    *((_OWORD *)v43 - 4) = *((_OWORD *)m_refreshToken - 4);
+    *((_OWORD *)v43 - 3) = *((_OWORD *)m_refreshToken - 3);
+    *((_OWORD *)v43 - 2) = *((_OWORD *)m_refreshToken - 2);
+    *((_OWORD *)v43 - 1) = *((_OWORD *)m_refreshToken - 1);
+    --v37;
   }
-  while ( v120 );
-  _R8->m_tokens.m_refreshTokenExpiry = _R9->m_tokens.m_refreshTokenExpiry;
-  _R8->m_subscriptionOptIn = _R9->m_subscriptionOptIn;
+  while ( v37 );
+  this->m_tokens.m_refreshTokenExpiry = __that->m_tokens.m_refreshTokenExpiry;
+  this->m_subscriptionOptIn = __that->m_subscriptionOptIn;
 }
 
 /*

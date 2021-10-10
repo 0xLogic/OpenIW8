@@ -35,95 +35,76 @@ __int64 luaopen_string(lua_State *L)
 lj_ffh_string_byte
 ==============
 */
-
-__int64 __fastcall lj_ffh_string_byte(lua_State *L, double _XMM1_8)
+__int64 lj_ffh_string_byte(lua_State *L)
 {
   signed int len; 
-  int v5; 
-  int v6; 
-  bool v7; 
-  bool v8; 
-  signed int v10; 
+  int v3; 
+  int v4; 
+  bool v5; 
+  bool v6; 
+  signed int v8; 
+  __int64 v9; 
+  __int64 v18; 
 
   len = j_lj_lib_checkstr(L, 1)->len;
-  v5 = j_lj_lib_optint(L, 2, 1);
-  v6 = j_lj_lib_optint(L, 3, v5);
-  if ( v6 < 0 )
-    v6 += len + 1;
-  v7 = v5 == 0;
-  v8 = v5 < 0;
-  if ( v5 < 0 )
+  v3 = j_lj_lib_optint(L, 2, 1);
+  v4 = j_lj_lib_optint(L, 3, v3);
+  if ( v4 < 0 )
+    v4 += len + 1;
+  v5 = v3 == 0;
+  v6 = v3 < 0;
+  if ( v3 < 0 )
   {
-    v5 += len + 1;
-    v7 = v5 == 0;
-    v8 = v5 < 0;
+    v3 += len + 1;
+    v5 = v3 == 0;
+    v6 = v3 < 0;
   }
-  if ( v8 || v7 )
-    v5 = 1;
-  if ( v6 <= len )
-    len = v6;
-  if ( v5 > len )
+  if ( v6 || v5 )
+    v3 = 1;
+  if ( v4 <= len )
+    len = v4;
+  if ( v3 > len )
     return 1i64;
-  v10 = len - (v5 - 1);
-  if ( (unsigned int)v10 > 0x1F40 )
+  v8 = len - (v3 - 1);
+  if ( (unsigned int)v8 > 0x1F40 )
     j_lj_err_caller(L, LJ_ERR_STRSLC);
-  if ( (signed __int64)(L->maxstack.ptr64 - (unsigned __int64)L->top) <= 8i64 * (unsigned int)v10 )
-    j_lj_state_growstack(L, v10);
-  _RCX = 0i64;
-  if ( v10 >= 4i64 )
+  if ( (signed __int64)(L->maxstack.ptr64 - (unsigned __int64)L->top) <= 8i64 * (unsigned int)v8 )
+    j_lj_state_growstack(L, v8);
+  v9 = 0i64;
+  if ( v8 >= 4i64 )
   {
     do
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, eax
-      }
-      _RAX = L->base;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rax+rcx*8-10h], xmm0
-        vcvtsi2sd xmm1, xmm1, eax
-      }
-      _RAX = L->base;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rax+rcx*8-8], xmm1
-        vcvtsi2sd xmm0, xmm0, eax
-      }
-      _RAX = L->base;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rax+rcx*8], xmm0
-        vcvtsi2sd xmm1, xmm1, eax
-      }
-      _RAX = L->base;
-      __asm { vmovsd  qword ptr [rax+rcx*8+8], xmm1 }
-      _RCX += 4i64;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, eax }
+      _XMM1 = 0i64;
+      L->base[v9 - 2].n = *(double *)&_XMM0;
+      __asm { vcvtsi2sd xmm1, xmm1, eax }
+      _XMM0 = 0i64;
+      L->base[v9 - 1].n = *(double *)&_XMM1;
+      __asm { vcvtsi2sd xmm0, xmm0, eax }
+      _XMM1 = 0i64;
+      L->base[v9].n = *(double *)&_XMM0;
+      __asm { vcvtsi2sd xmm1, xmm1, eax }
+      L->base[v9 + 1].n = *(double *)&_XMM1;
+      v9 += 4i64;
     }
-    while ( _RCX < v10 - 3i64 );
+    while ( v9 < v8 - 3i64 );
   }
-  if ( _RCX < v10 )
+  if ( v9 < v8 )
   {
-    _RDX = 8 * _RCX - 16;
+    v18 = 8 * v9 - 16;
     do
     {
-      _RDX += 8i64;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, eax
-      }
-      _RAX = L->base;
-      ++_RCX;
-      __asm { vmovsd  qword ptr [rdx+rax-8], xmm0 }
+      v18 += 8i64;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, eax }
+      ++v9;
+      *(double *)((char *)&L->base[-1].n + v18) = *(double *)&_XMM0;
     }
-    while ( _RCX < v10 );
+    while ( v9 < v8 );
   }
-  return (unsigned int)(v10 + 1);
+  return (unsigned int)(v8 + 1);
 }
 
 /*
@@ -181,13 +162,9 @@ __int64 lj_ffh_string_sub(lua_State *L)
   j_lj_lib_checkstr(L, 1);
   j_lj_lib_checkint(L, 2);
   j_lj_lib_optint(L, 3, -1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, eax
-  }
-  _RAX = L->base;
-  __asm { vmovsd  qword ptr [rax+10h], xmm0 }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  L->base[2].n = *(double *)&_XMM0;
   return 0i64;
 }
 
@@ -472,90 +449,90 @@ lj_cf_string_format
 */
 __int64 lj_cf_string_format(lua_State *L)
 {
-  signed __int64 v3; 
+  signed __int64 v2; 
+  int v3; 
   int v4; 
-  int v5; 
-  unsigned __int64 v6; 
-  GCstr *v7; 
-  const unsigned __int8 *v8; 
+  unsigned __int64 v5; 
+  GCstr *v6; 
+  const unsigned __int8 *v7; 
   unsigned int i; 
-  GCstr *v13; 
-  int v14; 
-  const void *v15; 
-  int v16; 
-  signed __int64 v17; 
+  long double v9; 
+  long double v10; 
+  long double v11; 
+  GCstr *v12; 
+  int v13; 
+  const void *v14; 
+  int v15; 
+  signed __int64 v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
-  GCstr *v21; 
-  FormatState v22; 
+  GCstr *v20; 
+  FormatState v21; 
 
-  v3 = L->top - L->base;
-  v4 = 0;
+  v2 = L->top - L->base;
+  v3 = 0;
   do
   {
-    v5 = 1;
-    v6 = L->glref.ptr64 + 152;
-    *(_QWORD *)v6 = *(_QWORD *)(L->glref.ptr64 + 168);
-    *(_QWORD *)(v6 + 24) = L;
-    v7 = j_lj_lib_checkstr(L, 1);
-    v8 = (const unsigned __int8 *)&v7[1] + v7->len;
-    v22.p = (const unsigned __int8 *)&v7[1];
-    v22.e = v8;
-    if ( *v8 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_strfmt.h", 82, "*fs->e == 0") )
+    v4 = 1;
+    v5 = L->glref.ptr64 + 152;
+    *(_QWORD *)v5 = *(_QWORD *)(L->glref.ptr64 + 168);
+    *(_QWORD *)(v5 + 24) = L;
+    v6 = j_lj_lib_checkstr(L, 1);
+    v7 = (const unsigned __int8 *)&v6[1] + v6->len;
+    v21.p = (const unsigned __int8 *)&v6[1];
+    v21.e = v7;
+    if ( *v7 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_strfmt.h", 82, "*fs->e == 0") )
       __debugbreak();
-    for ( i = j_lj_strfmt_parse(&v22); i; i = j_lj_strfmt_parse(&v22) )
+    for ( i = j_lj_strfmt_parse(&v21); i; i = j_lj_strfmt_parse(&v21) )
     {
       if ( i == 2 )
       {
-        j_lj_buf_putmem((SBuf *)v6, v22.str, v22.len);
+        j_lj_buf_putmem((SBuf *)v5, v21.str, v21.len);
       }
       else
       {
         if ( i == 1 )
         {
-          v21 = j_lj_str_new(L, v22.str, v22.len);
-          j_lj_err_callerv(L, LJ_ERR_STRFMT, &v21[1]);
+          v20 = j_lj_str_new(L, v21.str, v21.len);
+          j_lj_err_callerv(L, LJ_ERR_STRFMT, &v20[1]);
         }
-        if ( ++v5 > (int)v3 )
-          j_luaL_argerror(L, v5, lj_obj_typename[0]);
+        if ( ++v4 > (int)v2 )
+          j_luaL_argerror(L, v4, lj_obj_typename[0]);
         switch ( i & 0xF )
         {
           case 3u:
-            *(double *)&_XMM0 = j_lj_lib_checknum(L, v5);
-            __asm { vmovaps xmm2, xmm0; n }
-            j_lj_strfmt_putfnum_int((SBuf *)v6, i, *(long double *)&_XMM2);
+            v9 = j_lj_lib_checknum(L, v4);
+            j_lj_strfmt_putfnum_int((SBuf *)v5, i, v9);
             break;
           case 4u:
-            *(double *)&_XMM0 = j_lj_lib_checknum(L, v5);
-            __asm { vmovaps xmm2, xmm0; n }
-            j_lj_strfmt_putfnum_uint((SBuf *)v6, i, *(long double *)&_XMM2);
+            v10 = j_lj_lib_checknum(L, v4);
+            j_lj_strfmt_putfnum_uint((SBuf *)v5, i, v10);
             break;
           case 5u:
-            *(double *)&_XMM0 = j_lj_lib_checknum(L, v5);
-            __asm { vmovaps xmm2, xmm0; n }
-            j_lj_strfmt_putfnum((SBuf *)v6, i, *(long double *)&_XMM2);
+            v11 = j_lj_lib_checknum(L, v4);
+            j_lj_strfmt_putfnum((SBuf *)v5, i, v11);
             break;
           case 6u:
-            v13 = string_fmt_tostring(L, v5, v4);
-            if ( v13 )
+            v12 = string_fmt_tostring(L, v4, v3);
+            if ( v12 )
             {
               if ( (i & 0x10) != 0 )
-                j_lj_strfmt_putquoted((SBuf *)v6, v13);
+                j_lj_strfmt_putquoted((SBuf *)v5, v12);
               else
-                j_lj_strfmt_putfstr((SBuf *)v6, i, v13);
+                j_lj_strfmt_putfstr((SBuf *)v5, i, v12);
             }
             else
             {
-              v4 = 1;
+              v3 = 1;
             }
             break;
           case 7u:
-            v14 = j_lj_lib_checkint(L, v5);
-            j_lj_strfmt_putfchar((SBuf *)v6, i, v14);
+            v13 = j_lj_lib_checkint(L, v4);
+            j_lj_strfmt_putfchar((SBuf *)v5, i, v13);
             break;
           case 8u:
-            v15 = j_lj_obj_ptr(&L->base[v5 - 1]);
-            j_lj_strfmt_putptr((SBuf *)v6, v15);
+            v14 = j_lj_obj_ptr(&L->base[v4 - 1]);
+            j_lj_strfmt_putptr((SBuf *)v5, v14);
             break;
           default:
             if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lib_string.c", 720, "0") )
@@ -564,16 +541,16 @@ __int64 lj_cf_string_format(lua_State *L)
         }
       }
     }
-    v16 = v4++;
+    v15 = v3++;
   }
-  while ( v16 == 1 );
-  v17 = (unsigned __int64)j_lj_str_new(L, *(const char **)(v6 + 16), (unsigned int)(*(_DWORD *)v6 - *(_DWORD *)(v6 + 16))) | 0xFFFD800000000000ui64;
-  L->top[-1].u64 = v17;
-  v18 = v17 >> 47;
-  if ( (unsigned int)(v17 >> 47) + 4 > 0xFFFFFFF6 )
+  while ( v15 == 1 );
+  v16 = (unsigned __int64)j_lj_str_new(L, *(const char **)(v5 + 16), (unsigned int)(*(_DWORD *)v5 - *(_DWORD *)(v5 + 16))) | 0xFFFD800000000000ui64;
+  L->top[-1].u64 = v16;
+  v17 = v16 >> 47;
+  if ( (unsigned int)(v16 >> 47) + 4 > 0xFFFFFFF6 )
   {
-    v19 = v17 & 0x7FFFFFFFFFFFi64;
-    if ( ~(_DWORD)v18 != *(unsigned __int8 *)(v19 + 9) || (*(_BYTE *)(v19 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+    v18 = v16 & 0x7FFFFFFFFFFFi64;
+    if ( ~(_DWORD)v17 != *(unsigned __int8 *)(v18 + 9) || (*(_BYTE *)(v18 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();
@@ -1033,101 +1010,86 @@ str_find_aux
 */
 __int64 str_find_aux(lua_State *L, int find)
 {
+  GCstr *v4; 
   GCstr *v5; 
-  GCstr *v6; 
-  int v7; 
+  int v6; 
   __int64 len; 
-  int v9; 
-  bool v10; 
+  int v8; 
+  bool v9; 
+  int v10; 
   int v11; 
-  int v12; 
-  unsigned int v13; 
-  TValue *v14; 
+  unsigned int v12; 
+  TValue *v13; 
   __int64 result; 
   char gcptr64; 
-  __int64 v23; 
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
+  __int64 v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
+  TValue *top; 
+  TValue *v27; 
   MatchState ms; 
 
-  v5 = j_lj_lib_checkstr(L, 1);
-  v6 = j_lj_lib_checkstr(L, 2);
-  v7 = j_lj_lib_optint(L, 3, 1);
-  len = v5->len;
-  v9 = v7;
-  v10 = v7 < 0;
-  v11 = v5->len;
-  if ( !v10 )
-    v11 = -1;
-  v12 = v9 + v11;
-  v13 = 0;
-  if ( v12 >= 0 )
-    v13 = v12;
-  if ( v13 <= (unsigned int)len )
-    len = v13;
-  if ( !find || ((v14 = L->base + 3, v14 >= L->top) || (unsigned int)(v14->it64 >> 47) >= 0xFFFFFFFE) && j_lj_str_haspattern(v6) )
+  v4 = j_lj_lib_checkstr(L, 1);
+  v5 = j_lj_lib_checkstr(L, 2);
+  v6 = j_lj_lib_optint(L, 3, 1);
+  len = v4->len;
+  v8 = v6;
+  v9 = v6 < 0;
+  v10 = v4->len;
+  if ( !v9 )
+    v10 = -1;
+  v11 = v8 + v10;
+  v12 = 0;
+  if ( v11 >= 0 )
+    v12 = v11;
+  if ( v12 <= (unsigned int)len )
+    len = v12;
+  if ( !find || ((v13 = L->base + 3, v13 >= L->top) || (unsigned int)(v13->it64 >> 47) >= 0xFFFFFFFE) && j_lj_str_haspattern(v5) )
   {
-    gcptr64 = v6[1].nextgc.gcptr64;
-    ms.src_init = (const char *)&v5[1];
-    v23 = v5->len;
-    v24 = (char *)&v5[1] + len;
+    gcptr64 = v5[1].nextgc.gcptr64;
+    ms.src_init = (const char *)&v4[1];
+    v20 = v4->len;
+    v21 = (char *)&v4[1] + len;
     ms.L = L;
-    ms.src_end = (char *)&v5[1] + v23;
+    ms.src_end = (char *)&v4[1] + v20;
     while ( 1 )
     {
       *(_QWORD *)&ms.level = 0i64;
-      v25 = match(&ms, v24, (const char *)&v6[1] + (gcptr64 == 94));
-      if ( v25 )
+      v22 = match(&ms, v21, (const char *)&v5[1] + (gcptr64 == 94));
+      if ( v22 )
         break;
-      v26 = v24++;
-      if ( v26 >= ms.src_end || gcptr64 == 94 )
+      v23 = v21++;
+      if ( v23 >= ms.src_end || gcptr64 == 94 )
         goto LABEL_17;
     }
     if ( find )
     {
-      _RCX = L->top;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      L->top = _RCX + 1;
-      __asm
-      {
-        vcvtsi2sd xmm0, xmm0, ebx
-        vmovsd  qword ptr [rcx], xmm0
-      }
-      _RCX = L->top;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, r8d
-      }
-      L->top = _RCX + 1;
-      __asm { vmovsd  qword ptr [rcx], xmm0 }
+      top = L->top;
+      _XMM0 = 0i64;
+      L->top = top + 1;
+      __asm { vcvtsi2sd xmm0, xmm0, ebx }
+      top->u64 = *(unsigned __int64 *)&_XMM0;
+      v27 = L->top;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, r8d }
+      L->top = v27 + 1;
+      v27->u64 = *(unsigned __int64 *)&_XMM0;
       return (unsigned int)push_captures(&ms, NULL, NULL) + 2;
     }
     else
     {
-      return push_captures(&ms, v24, v25);
+      return push_captures(&ms, v21, v22);
     }
   }
-  else if ( j_lj_str_find((const char *)&v5[1] + len, (const char *)&v6[1], v5->len - (int)len, v6->len) )
+  else if ( j_lj_str_find((const char *)&v4[1] + len, (const char *)&v5[1], v4->len - (int)len, v5->len) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, eax
-    }
-    _RAX = L->top;
-    __asm
-    {
-      vmovsd  qword ptr [rax-10h], xmm0
-      vxorps  xmm0, xmm0, xmm0
-    }
-    _RAX = L->top;
-    __asm
-    {
-      vcvtsi2sd xmm0, xmm0, ecx
-      vmovsd  qword ptr [rax-8], xmm0
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, eax }
+    L->top[-2].n = *(double *)&_XMM0;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, ecx }
+    L->top[-1].n = *(double *)&_XMM0;
     return 2i64;
   }
   else

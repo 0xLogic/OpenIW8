@@ -1733,28 +1733,19 @@ bdLobbyService::bdLobbyService
 void bdLobbyService::bdLobbyService(bdLobbyService *this, const bdLobbyServicesConnectionInfo *connectionInfo)
 {
   const char *Address; 
-  bdGetHostByNameConfig *v22; 
-  bdGetHostByNameConfig v25; 
+  bdGetHostByNameConfig *v5; 
+  bdGetHostByNameConfig v6; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   bdLobbyConnectionListener::bdLobbyConnectionListener(this);
   this->__vftable = (bdLobbyService_vtbl *)&bdLobbyService::`vftable';
   this->m_taskManager = NULL;
   this->m_restTaskManager = NULL;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f400000
-    vmovaps xmm2, xmm6; loadFactor
-  }
-  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, 0.75);
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, 0.75);
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, 0.75);
   this->m_profiles = NULL;
   this->m_messaging = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, 0.75);
   this->m_statsManager = NULL;
   this->m_titleUtilitiesManager = NULL;
   this->m_eventLogManager = NULL;
@@ -1787,32 +1778,21 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this, const bdLobbyServicesC
   this->m_CODO = NULL;
   this->m_CODOTeamMarketplace = NULL;
   this->m_relayService = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, 0.75);
   this->m_DDL = NULL;
   this->m_serverInventory = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, 0.75);
   this->m_matchScheduler = NULL;
   this->m_mlg = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, 0.75);
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, 0.75);
+  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, 0.75);
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, 0.75);
   bdGetHostByName::bdGetHostByName(&this->m_LSGLookup, 0);
   this->m_LSGPort = bdLobbyServicesConnectionInfo::getPort((bdLobbyServicesConnectionInfo *)connectionInfo);
   bdAddr::bdAddr(&this->m_resolvedLSGAddress);
@@ -1842,9 +1822,8 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this, const bdLobbyServicesC
   Address = bdLobbyServicesConnectionInfo::getAddress((bdLobbyServicesConnectionInfo *)connectionInfo);
   bdStrlcpy(this->m_LSGAddress, Address, 0xFFui64);
   this->m_lastPumpTime = 0;
-  bdGetHostByNameConfig::bdGetHostByNameConfig(&v25);
-  bdGetHostByName::start(&this->m_LSGLookup, this->m_LSGAddress, LODWORD(v22->m_timeout));
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
+  bdGetHostByNameConfig::bdGetHostByNameConfig(&v6);
+  bdGetHostByName::start(&this->m_LSGLookup, this->m_LSGAddress, LODWORD(v5->m_timeout));
 }
 
 /*
@@ -1854,28 +1833,19 @@ bdLobbyService::bdLobbyService
 */
 void bdLobbyService::bdLobbyService(bdLobbyService *this, const char *lsgAddress, const unsigned __int16 lsgPort)
 {
-  bdGetHostByNameConfig *v23; 
-  bdGetHostByNameConfig v26; 
+  bdGetHostByNameConfig *v6; 
+  bdGetHostByNameConfig v7; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   bdLobbyConnectionListener::bdLobbyConnectionListener(this);
   this->__vftable = (bdLobbyService_vtbl *)&bdLobbyService::`vftable';
   this->m_taskManager = NULL;
   this->m_restTaskManager = NULL;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f400000
-    vmovaps xmm2, xmm6; loadFactor
-  }
-  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, 0.75);
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, 0.75);
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, 0.75);
   this->m_profiles = NULL;
   this->m_messaging = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, 0.75);
   this->m_statsManager = NULL;
   this->m_titleUtilitiesManager = NULL;
   this->m_eventLogManager = NULL;
@@ -1908,32 +1878,21 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this, const char *lsgAddress
   this->m_CODO = NULL;
   this->m_CODOTeamMarketplace = NULL;
   this->m_relayService = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, 0.75);
   this->m_DDL = NULL;
   this->m_serverInventory = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, 0.75);
   this->m_matchScheduler = NULL;
   this->m_mlg = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, 0.75);
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, 0.75);
+  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, 0.75);
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, 0.75);
   bdGetHostByName::bdGetHostByName(&this->m_LSGLookup, 0);
   this->m_LSGPort = lsgPort;
   bdAddr::bdAddr(&this->m_resolvedLSGAddress);
@@ -1962,9 +1921,8 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this, const char *lsgAddress
   this->m_uploadThrottleBucketSize = 10000;
   bdStrlcpy(this->m_LSGAddress, lsgAddress, 0xFFui64);
   this->m_lastPumpTime = 0;
-  bdGetHostByNameConfig::bdGetHostByNameConfig(&v26);
-  bdGetHostByName::start(&this->m_LSGLookup, this->m_LSGAddress, LODWORD(v23->m_timeout));
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
+  bdGetHostByNameConfig::bdGetHostByNameConfig(&v7);
+  bdGetHostByName::start(&this->m_LSGLookup, this->m_LSGAddress, LODWORD(v6->m_timeout));
 }
 
 /*
@@ -1974,25 +1932,16 @@ bdLobbyService::bdLobbyService
 */
 void bdLobbyService::bdLobbyService(bdLobbyService *this)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   bdLobbyConnectionListener::bdLobbyConnectionListener(this);
   this->__vftable = (bdLobbyService_vtbl *)&bdLobbyService::`vftable';
   this->m_taskManager = NULL;
   this->m_restTaskManager = NULL;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f400000
-    vmovaps xmm2, xmm6; loadFactor
-  }
-  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(&this->m_services, 4u, 0.75);
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>(&this->m_pushHandlers, 4u, 0.75);
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(&this->m_demonataPushHandlers, 4u, 0.75);
   this->m_profiles = NULL;
   this->m_messaging = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(&this->m_matchmakings, 4u, 0.75);
   this->m_statsManager = NULL;
   this->m_titleUtilitiesManager = NULL;
   this->m_eventLogManager = NULL;
@@ -2025,32 +1974,21 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this)
   this->m_CODO = NULL;
   this->m_CODOTeamMarketplace = NULL;
   this->m_relayService = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(&this->m_marketingCommsManagers, 4u, 0.75);
   this->m_DDL = NULL;
   this->m_serverInventory = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(&this->m_redeemableCodeServiceManagers, 4u, 0.75);
   this->m_matchScheduler = NULL;
   this->m_mlg = NULL;
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, *(const float *)&_XMM2);
-  __asm { vmovaps xmm2, xmm6; loadFactor }
-  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, *(const float *)&_XMM2);
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(&this->m_marketplaceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(&this->m_rewardManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(&this->m_publisherVariablesManagers, 4u, 0.75);
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(&this->m_storageManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(&this->m_teamsManagers, 4u, 0.75);
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(&this->m_teamShowcaseManagers, 4u, 0.75);
+  bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(&this->m_mailManagers, 4u, 0.75);
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(&this->m_richPresenceManagers, 4u, 0.75);
+  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(&this->m_playerVoteManagers, 4u, 0.75);
   bdGetHostByName::bdGetHostByName(&this->m_LSGLookup, 0);
   this->m_LSGPort = 0;
   bdAddr::bdAddr(&this->m_resolvedLSGAddress);
@@ -2077,7 +2015,6 @@ void bdLobbyService::bdLobbyService(bdLobbyService *this)
   *(_WORD *)&this->m_markTasksThrottled = 0;
   this->m_uploadThrottleBytesPerMs = 100;
   this->m_uploadThrottleBucketSize = 10000;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -4064,102 +4001,82 @@ bdLobbyService::connect
 bool bdLobbyService::connect(bdLobbyService *this, bdAddr *lobbyServiceAddr, const bdAuthInfo *authInfo, unsigned __int64 maxSendBufSize, unsigned __int64 maxRecvBufSize, const bool useEncryption)
 {
   bdLobbyConnection *m_ptr; 
-  bdLobbyConnection *v27; 
-  bdAddr *v28; 
-  bdLobbyConnection *v29; 
-  bdLobbyConnection *v30; 
-  bdLobbyConnection *v31; 
-  bdLobbyConnection *v32; 
-  bool v33; 
-  bdLobbyConnection *v34; 
+  bdLobbyConnection *v12; 
+  bdAddr *v13; 
+  bdLobbyConnection *v14; 
+  bdLobbyConnection *v15; 
+  bdLobbyConnection *v16; 
+  bdLobbyConnection *v17; 
+  bool v18; 
+  bdLobbyConnection *v19; 
   bdTokenBucket *ThrottleBucket; 
-  bdTokenBucket *v36; 
-  bdTokenBucket *v37; 
-  bdAddr v38; 
+  bdTokenBucket *v21; 
+  bdTokenBucket *v22; 
+  bdAddr v23; 
 
-  _RDI = authInfo;
-  _RBX = this;
   if ( authInfo )
   {
     m_ptr = this->m_lobbyConnection.m_ptr;
     if ( m_ptr )
     {
       bdLobbyConnection::disconnect(m_ptr);
-      bdLobbyService::cleanup(_RBX);
+      bdLobbyService::cleanup(this);
     }
-    _RBX->m_encryptedConnection = useEncryption;
-    __asm
+    this->m_encryptedConnection = useEncryption;
+    *(_OWORD *)&this->m_authInfo.m_titleID = *(_OWORD *)&authInfo->m_titleID;
+    *(_OWORD *)&this->m_authInfo.m_data[8] = *(_OWORD *)&authInfo->m_data[8];
+    *(_OWORD *)&this->m_authInfo.m_data[24] = *(_OWORD *)&authInfo->m_data[24];
+    *(_OWORD *)&this->m_authInfo.m_data[40] = *(_OWORD *)&authInfo->m_data[40];
+    *(_OWORD *)&this->m_authInfo.m_data[56] = *(_OWORD *)&authInfo->m_data[56];
+    *(_OWORD *)&this->m_authInfo.m_data[72] = *(_OWORD *)&authInfo->m_data[72];
+    *(_OWORD *)&this->m_authInfo.m_data[88] = *(_OWORD *)&authInfo->m_data[88];
+    *(_OWORD *)&this->m_authInfo.m_data[104] = *(_OWORD *)&authInfo->m_data[104];
+    *(_OWORD *)&this->m_authInfo.m_data[120] = *(_OWORD *)&authInfo->m_data[120];
+    *(_OWORD *)&this->m_authInfo.m_sessionKey[8] = *(_OWORD *)&authInfo->m_sessionKey[8];
+    *(_OWORD *)&this->m_authInfo.m_userID = *(_OWORD *)&authInfo->m_userID;
+    *(_OWORD *)&this->m_authInfo.m_accountType[8] = *(_OWORD *)&authInfo->m_accountType[8];
+    *(_OWORD *)&this->m_authInfo.m_clientID[14] = *(_OWORD *)&authInfo->m_clientID[14];
+    *(_OWORD *)&this->m_authInfo.m_clientID[30] = *(_OWORD *)&authInfo->m_clientID[30];
+    *(_OWORD *)&this->m_authInfo.m_clientID[46] = *(_OWORD *)&authInfo->m_clientID[46];
+    *(_QWORD *)&this->m_authInfo.m_clientID[62] = *(_QWORD *)&authInfo->m_clientID[62];
+    v12 = (bdLobbyConnection *)bdMemory::allocate(0x798ui64);
+    if ( v12 )
     {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx+728h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+10h]
-      vmovups xmmword ptr [rbx+738h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+748h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+30h]
-      vmovups xmmword ptr [rbx+758h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [rbx+768h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+50h]
-      vmovups xmmword ptr [rbx+778h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+60h]
-      vmovups xmmword ptr [rbx+788h], xmm0
-      vmovups xmm0, xmmword ptr [rdi+70h]
-      vmovups xmmword ptr [rbx+798h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rbx+7A8h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+90h]
-      vmovups xmmword ptr [rbx+7B8h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+0A0h]
-      vmovups xmmword ptr [rbx+7C8h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+0B0h]
-      vmovups xmmword ptr [rbx+7D8h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+0C0h]
-      vmovups xmmword ptr [rbx+7E8h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+0D0h]
-      vmovups xmmword ptr [rbx+7F8h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+0E0h]
-      vmovups xmmword ptr [rbx+808h], xmm1
-    }
-    *(_QWORD *)&_RBX->m_authInfo.m_clientID[62] = *(_QWORD *)&_RDI->m_clientID[62];
-    v27 = (bdLobbyConnection *)bdMemory::allocate(0x798ui64);
-    if ( v27 )
-    {
-      bdAddr::bdAddr(&v38, lobbyServiceAddr);
-      bdLobbyConnection::bdLobbyConnection(v27, v28, _RBX, 1, !useEncryption, maxSendBufSize, maxRecvBufSize);
-      v30 = v29;
+      bdAddr::bdAddr(&v23, lobbyServiceAddr);
+      bdLobbyConnection::bdLobbyConnection(v12, v13, this, 1, !useEncryption, maxSendBufSize, maxRecvBufSize);
+      v15 = v14;
     }
     else
     {
-      v30 = NULL;
+      v15 = NULL;
     }
-    v31 = _RBX->m_lobbyConnection.m_ptr;
-    if ( v31 )
+    v16 = this->m_lobbyConnection.m_ptr;
+    if ( v16 )
     {
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v31->m_refCount, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v16->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        v32 = _RBX->m_lobbyConnection.m_ptr;
-        if ( v32 )
-          ((void (__fastcall *)(bdLobbyConnection *, __int64))v32->~bdReferencable)(v32, 1i64);
+        v17 = this->m_lobbyConnection.m_ptr;
+        if ( v17 )
+          ((void (__fastcall *)(bdLobbyConnection *, __int64))v17->~bdReferencable)(v17, 1i64);
       }
     }
-    _RBX->m_lobbyConnection.m_ptr = v30;
-    if ( v30 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
-    _RBX->m_lobbyConnectionEstablished = 0;
-    v33 = bdLobbyConnection::connect(_RBX->m_lobbyConnection.m_ptr, &_RBX->m_authInfo);
-    v34 = _RBX->m_lobbyConnection.m_ptr;
-    if ( v34 )
+    this->m_lobbyConnection.m_ptr = v15;
+    if ( v15 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_refCount, 1u);
+    this->m_lobbyConnectionEstablished = 0;
+    v18 = bdLobbyConnection::connect(this->m_lobbyConnection.m_ptr, &this->m_authInfo);
+    v19 = this->m_lobbyConnection.m_ptr;
+    if ( v19 )
     {
-      ThrottleBucket = bdLobbyConnection::getThrottleBucket(v34);
-      bdTokenBucket::setTokensRestricted(ThrottleBucket, _RBX->m_uploadThrottled);
-      v36 = bdLobbyConnection::getThrottleBucket(_RBX->m_lobbyConnection.m_ptr);
-      bdTokenBucket::setRates(v36, _RBX->m_uploadThrottleBytesPerMs, _RBX->m_uploadThrottleBucketSize);
-      v37 = bdLobbyConnection::getThrottleBucket(_RBX->m_lobbyConnection.m_ptr);
-      bdTokenBucket::setMinFragment(v37, 0x258u);
-      bdLobbyConnection::setTasksAreThrottled(_RBX->m_lobbyConnection.m_ptr, _RBX->m_markTasksThrottled);
+      ThrottleBucket = bdLobbyConnection::getThrottleBucket(v19);
+      bdTokenBucket::setTokensRestricted(ThrottleBucket, this->m_uploadThrottled);
+      v21 = bdLobbyConnection::getThrottleBucket(this->m_lobbyConnection.m_ptr);
+      bdTokenBucket::setRates(v21, this->m_uploadThrottleBytesPerMs, this->m_uploadThrottleBucketSize);
+      v22 = bdLobbyConnection::getThrottleBucket(this->m_lobbyConnection.m_ptr);
+      bdTokenBucket::setMinFragment(v22, 0x258u);
+      bdLobbyConnection::setTasksAreThrottled(this->m_lobbyConnection.m_ptr, this->m_markTasksThrottled);
     }
-    return v33;
+    return v18;
   }
   else
   {
@@ -4284,7 +4201,7 @@ bdAchievementClient *bdLobbyService::getAchievementsEngineClientService(bdLobbyS
   bdAchievementsEngineService *v7; 
   bdAchievementsEngineService *v8; 
   bdAchievementClient *v9; 
-  bdAchievementClient *v11; 
+  bdAchievementClient *v10; 
 
   m_ptr = this->m_lobbyConnection.m_ptr;
   if ( m_ptr && (Status = bdLobbyConnection::getStatus(m_ptr), this->m_lobbyConnectionEstablished) && Status == BD_NOT_CONNECTED )
@@ -4304,9 +4221,8 @@ bdAchievementClient *bdLobbyService::getAchievementsEngineClientService(bdLobbyS
       v9 = (bdAchievementClient *)bdMemory::allocate(0x920D8ui64);
       if ( v9 )
       {
-        __asm { vmovss  xmm3, cs:__real@40a00000; flushIntervalSeconds }
-        bdAchievementClient::bdAchievementClient(v9, this->m_achievementsEngineService, context, *(float *)&_XMM3, 3);
-        m_achievementsEngineClientService = v11;
+        bdAchievementClient::bdAchievementClient(v9, this->m_achievementsEngineService, context, 5.0, 3);
+        m_achievementsEngineClientService = v10;
       }
       this->m_achievementsEngineClientService = m_achievementsEngineClientService;
     }
@@ -12243,56 +12159,35 @@ void bdLobbyService::onDisconnect(bdLobbyService *this, bdReference<bdLobbyConne
 bdLobbyService::pump
 ==============
 */
-
-void __fastcall bdLobbyService::pump(bdLobbyService *this, double _XMM1_8, double _XMM2_8)
+void bdLobbyService::pump(bdLobbyService *this)
 {
   unsigned int LoResTimeStamp; 
-  char v6; 
-  char v12; 
+  float LoResElapsedTime; 
+  float m_lastPumpTime; 
   bdLobbyConnection *m_ptr; 
-  bdRemoteTaskManager *v15; 
-  unsigned int v16; 
-  bdRemoteTaskManager *v17; 
+  bdRemoteTaskManager *v6; 
+  unsigned int v7; 
+  bdRemoteTaskManager *v8; 
   bdRemoteTaskManager *m_taskManager; 
   bdRESTTaskManager *m_restTaskManager; 
   unsigned int line; 
   char *format; 
-  __int64 v22; 
-  double v23; 
+  __int64 v13; 
   unsigned __int64 u; 
   bdReference<bdByteBuffer> message; 
-  bdReference<bdByteBuffer> v26; 
-  __int64 v27; 
+  bdReference<bdByteBuffer> v16; 
+  __int64 v17; 
   unsigned __int8 type; 
-  unsigned int v29; 
+  unsigned int v19; 
   bdReference<bdByteBuffer> payload; 
   bdReference<bdByteBuffer> buffer; 
 
-  v27 = -2i64;
+  v17 = -2i64;
   LoResTimeStamp = bdPlatformTiming::getLoResTimeStamp();
-  bdPlatformTiming::getLoResElapsedTime(this->m_lastPumpTime, LoResTimeStamp);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rdx
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rdx
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( !v12 )
-  {
-    __asm { vcomiss xmm2, cs:__real@41200000 }
-    if ( !v6 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm2, xmm2
-        vmovsd  [rsp+68h+var_30], xmm0
-      }
-      bdLogMessage(BD_LOG_WARNING, "warn/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x170u, "\nSTARVATION - bdLobbyService has been starved for %.2f seconds\n", v23);
-    }
-  }
+  LoResElapsedTime = (float)bdPlatformTiming::getLoResElapsedTime(this->m_lastPumpTime, LoResTimeStamp);
+  m_lastPumpTime = (float)this->m_lastPumpTime;
+  if ( m_lastPumpTime != 0.0 && LoResElapsedTime >= 10.0 )
+    bdLogMessage(BD_LOG_WARNING, "warn/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x170u, "\nSTARVATION - bdLobbyService has been starved for %.2f seconds\n", LoResElapsedTime);
   this->m_lastPumpTime = LoResTimeStamp;
   m_ptr = this->m_lobbyConnection.m_ptr;
   if ( m_ptr )
@@ -12321,16 +12216,16 @@ LABEL_34:
       {
         case 1u:
           bdLogMessage(BD_LOG_INFO, "info/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x190u, "Received message of type: BD_LOBBY_SERVICE_TASK_REPLY");
-          v17 = this->m_taskManager;
-          if ( !v17 || !payload.m_ptr )
+          v8 = this->m_taskManager;
+          if ( !v8 || !payload.m_ptr )
           {
             format = "Null message or no task manager.";
             line = 408;
             goto LABEL_32;
           }
-          v26.m_ptr = payload.m_ptr;
+          v16.m_ptr = payload.m_ptr;
           _InterlockedExchangeAdd((volatile signed __int32 *)&payload.m_ptr->m_refCount, 1u);
-          bdRemoteTaskManager::handleLSGTaskReply(v17, (const bdReference<bdByteBuffer>)&v26);
+          bdRemoteTaskManager::handleLSGTaskReply(v8, (const bdReference<bdByteBuffer>)&v16);
           break;
         case 2u:
           bdLogMessage(BD_LOG_INFO, "info/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x19Eu, "Received message of type: BD_LOBBY_SERVICE_PUSH_MESSAGE");
@@ -12340,12 +12235,12 @@ LABEL_34:
           bdLobbyService::handlePushMessage(this, (bdReference<bdByteBuffer>)&message);
           break;
         case 3u:
-          if ( bdByteBuffer::readUInt32(payload.m_ptr, &v29) )
+          if ( bdByteBuffer::readUInt32(payload.m_ptr, &v19) )
           {
-            v16 = v29;
-            this->m_errorCode = v29;
-            LODWORD(v22) = v16;
-            bdLogMessage(BD_LOG_INFO, "info/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x1A8u, "Received LSG error: %u", v22);
+            v7 = v19;
+            this->m_errorCode = v19;
+            LODWORD(v13) = v7;
+            bdLogMessage(BD_LOG_INFO, "info/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x1A8u, "Received LSG error: %u", v13);
           }
           else
           {
@@ -12372,8 +12267,8 @@ LABEL_34:
           goto LABEL_32;
         case 5u:
           bdLogMessage(BD_LOG_INFO, "info/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x182u, "Received message of type: BD_LSG_SERVICE_TASK_REPLY");
-          v15 = this->m_taskManager;
-          if ( !v15 || !payload.m_ptr )
+          v6 = this->m_taskManager;
+          if ( !v6 || !payload.m_ptr )
           {
             format = "Null message or no task manager.";
             line = 394;
@@ -12383,11 +12278,11 @@ LABEL_32:
           }
           buffer.m_ptr = payload.m_ptr;
           _InterlockedExchangeAdd((volatile signed __int32 *)&payload.m_ptr->m_refCount, 1u);
-          bdRemoteTaskManager::handleTaskReply(v15, (const bdReference<bdByteBuffer>)&buffer);
+          bdRemoteTaskManager::handleTaskReply(v6, (const bdReference<bdByteBuffer>)&buffer);
           break;
         default:
-          LODWORD(v22) = type;
-          bdLogMessage(BD_LOG_WARNING, "warn/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x1C8u, "Received unknown message type: %u.", v22);
+          LODWORD(v13) = type;
+          bdLogMessage(BD_LOG_WARNING, "warn/", "lobby service", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbyservice.cpp", "bdLobbyService::pump", 0x1C8u, "Received unknown message type: %u.", v13);
           break;
       }
       m_ptr = this->m_lobbyConnection.m_ptr;
@@ -12509,132 +12404,125 @@ bdLobbyService::registerPushMessageHandler
 */
 char bdLobbyService::registerPushMessageHandler(bdLobbyService *this, bdPushMessageHandler *handler)
 {
-  bdPushMessageHandler *v3; 
-  bdLobbyService *v4; 
-  char v5; 
+  bdPushMessageHandler *v2; 
+  bdLobbyService *v3; 
+  char v4; 
   unsigned int i; 
-  __int64 v7; 
+  __int64 v6; 
   __int64 m_capacity; 
-  __int64 v9; 
+  __int64 v8; 
   bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **m_map; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v11; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v10; 
   unsigned int m_size; 
   unsigned int PowerOf2; 
-  __int64 v14; 
-  unsigned int v15; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **v19; 
-  __int64 v20; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v21; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v22; 
-  _DWORD *v23; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v24; 
-  __int64 v26; 
-  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **v27; 
-  __int64 v28; 
-  unsigned int v31; 
-  _DWORD *v32; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **v15; 
+  __int64 v16; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v17; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v18; 
+  _DWORD *v19; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *v20; 
+  __int64 v22; 
+  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **v23; 
+  __int64 v24; 
+  unsigned int v27; 
+  _DWORD *v28; 
 
-  v28 = -2i64;
-  v3 = handler;
-  v4 = this;
-  v5 = 1;
+  v24 = -2i64;
+  v2 = handler;
+  v3 = this;
+  v4 = 1;
   if ( !handler )
     return 0;
-  v26 = 0i64;
-  v31 = 0;
-  handler->getEventTypes(handler, (const bdEventType **)&v26, &v31);
-  for ( i = 0; i < v31; v4 = this )
+  v22 = 0i64;
+  v27 = 0;
+  handler->getEventTypes(handler, (const bdEventType **)&v22, &v27);
+  for ( i = 0; i < v27; v3 = this )
   {
-    if ( v5 )
+    if ( v4 )
     {
-      v7 = v26;
-      bdHandleAssert(v4->m_pushHandlers.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<enum bdEventType,class bdPushMessageHandler *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap");
-      LODWORD(v32) = *(unsigned __int8 *)(v7 + 4i64 * i + 3) ^ (16777619 * (*(unsigned __int8 *)(v7 + 4i64 * i + 2) ^ (16777619 * (*(unsigned __int8 *)(v7 + 4i64 * i + 1) ^ (16777619 * *(unsigned __int8 *)(v7 + 4i64 * i))))));
-      m_capacity = v4->m_pushHandlers.m_capacity;
-      v9 = (unsigned int)v32 & ((_DWORD)m_capacity - 1);
-      m_map = v4->m_pushHandlers.m_map;
-      v27 = m_map;
-      v11 = m_map[v9];
-      if ( !v11 )
+      v6 = v22;
+      bdHandleAssert(v3->m_pushHandlers.m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<enum bdEventType,class bdPushMessageHandler *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap");
+      LODWORD(v28) = *(unsigned __int8 *)(v6 + 4i64 * i + 3) ^ (16777619 * (*(unsigned __int8 *)(v6 + 4i64 * i + 2) ^ (16777619 * (*(unsigned __int8 *)(v6 + 4i64 * i + 1) ^ (16777619 * *(unsigned __int8 *)(v6 + 4i64 * i))))));
+      m_capacity = v3->m_pushHandlers.m_capacity;
+      v8 = (unsigned int)v28 & ((_DWORD)m_capacity - 1);
+      m_map = v3->m_pushHandlers.m_map;
+      v23 = m_map;
+      v10 = m_map[v8];
+      if ( !v10 )
       {
 LABEL_7:
-        m_size = v4->m_pushHandlers.m_size;
-        if ( m_size + 1 > v4->m_pushHandlers.m_threshold )
+        m_size = v3->m_pushHandlers.m_size;
+        if ( m_size + 1 > v3->m_pushHandlers.m_threshold )
         {
           PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-          v14 = PowerOf2;
-          v15 = v4->m_pushHandlers.m_capacity;
-          if ( PowerOf2 > v15 )
+          v13 = v3->m_pushHandlers.m_capacity;
+          if ( PowerOf2 > v13 )
           {
-            v4->m_pushHandlers.m_capacity = PowerOf2;
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rcx
-              vmulss  xmm0, xmm0, dword ptr [rdi+40h]
-              vcvttss2si rax, xmm0
-            }
-            v4->m_pushHandlers.m_threshold = _RAX;
-            v19 = (bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8 * v14);
-            v4->m_pushHandlers.m_map = v19;
-            v4->m_pushHandlers.m_size = 0;
-            memset_0(v19, 0, 8i64 * v4->m_pushHandlers.m_capacity);
+            v3->m_pushHandlers.m_capacity = PowerOf2;
+            v14 = (float)PowerOf2;
+            v3->m_pushHandlers.m_threshold = (int)(float)(v14 * v3->m_pushHandlers.m_loadFactor);
+            v15 = (bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+            v3->m_pushHandlers.m_map = v15;
+            v3->m_pushHandlers.m_size = 0;
+            memset_0(v15, 0, 8i64 * v3->m_pushHandlers.m_capacity);
             if ( (_DWORD)m_capacity )
             {
-              v20 = m_capacity;
+              v16 = m_capacity;
               do
               {
-                v21 = *m_map;
-                while ( v21 )
+                v17 = *m_map;
+                while ( v17 )
                 {
-                  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::put(&v4->m_pushHandlers, &v21->m_key, &v21->m_data);
-                  v22 = v21;
-                  v21 = v21->m_next;
-                  bdMemory::deallocate(v22);
+                  bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::put(&v3->m_pushHandlers, &v17->m_key, &v17->m_data);
+                  v18 = v17;
+                  v17 = v17->m_next;
+                  bdMemory::deallocate(v18);
                 }
                 ++m_map;
-                --v20;
+                --v16;
               }
-              while ( v20 );
-              m_map = v27;
-              v3 = handler;
+              while ( v16 );
+              m_map = v23;
+              v2 = handler;
             }
             bdMemory::deallocate(m_map);
-            v15 = this->m_pushHandlers.m_capacity;
+            v13 = this->m_pushHandlers.m_capacity;
           }
-          v9 = (unsigned int)v32 & (v15 - 1);
-          m_size = v4->m_pushHandlers.m_size;
+          v8 = (unsigned int)v28 & (v13 - 1);
+          m_size = v3->m_pushHandlers.m_size;
         }
-        v4->m_pushHandlers.m_size = m_size + 1;
-        v23 = bdMemory::allocate(0x18ui64);
-        v32 = v23;
-        if ( v23 )
+        v3->m_pushHandlers.m_size = m_size + 1;
+        v19 = bdMemory::allocate(0x18ui64);
+        v28 = v19;
+        if ( v19 )
         {
-          v24 = v4->m_pushHandlers.m_map[v9];
-          *(_QWORD *)v23 = v3;
-          v23[2] = *(_DWORD *)(v7 + 4i64 * i);
-          *((_QWORD *)v23 + 2) = v24;
-          v4->m_pushHandlers.m_map[(unsigned int)v9] = (bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *)v23;
+          v20 = v3->m_pushHandlers.m_map[v8];
+          *(_QWORD *)v19 = v2;
+          v19[2] = *(_DWORD *)(v6 + 4i64 * i);
+          *((_QWORD *)v19 + 2) = v20;
+          v3->m_pushHandlers.m_map[(unsigned int)v8] = (bdHashMap<enum bdEventType,bdPushMessageHandler *,bdHashingClass>::Node *)v19;
         }
         else
         {
-          v4->m_pushHandlers.m_map[(unsigned int)v9] = NULL;
+          v3->m_pushHandlers.m_map[(unsigned int)v8] = NULL;
         }
-        v5 = 1;
+        v4 = 1;
         goto LABEL_22;
       }
-      while ( *(_DWORD *)(v7 + 4i64 * i) != v11->m_key )
+      while ( *(_DWORD *)(v6 + 4i64 * i) != v10->m_key )
       {
-        v11 = v11->m_next;
-        if ( !v11 )
+        v10 = v10->m_next;
+        if ( !v10 )
           goto LABEL_7;
       }
     }
-    v5 = 0;
+    v4 = 0;
 LABEL_22:
     ++i;
   }
-  return v5;
+  return v4;
 }
 
 /*

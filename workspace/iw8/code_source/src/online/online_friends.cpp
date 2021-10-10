@@ -1036,8 +1036,7 @@ void Online_Friends::OnSignedIn(Online_Friends *this, const int controllerIndex,
     if ( !DVARINT_friend_xuid_resolve_backoff_ms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "friend_xuid_resolve_backoff_ms") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v15);
-    __asm { vmovss  xmm3, cs:__real@40000000; factor }
-    Online_Backoff::Init(&this->m_friendResolverBackoff, v15->current.integer, 5, *(float *)&_XMM3, enabled, successDelay);
+    Online_Backoff::Init(&this->m_friendResolverBackoff, v15->current.integer, 5, 2.0, enabled, successDelay);
   }
 }
 
@@ -1080,12 +1079,7 @@ Online_Friends::OutputCurrentState
 void Online_Friends::OutputCurrentState(Online_Friends *this, const int controllerIndex)
 {
   Com_Printf(25, "FRIENDS DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@409208f800000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_1154_2421875);
   Com_Printf(25, "FRIENDS DUMP END\n");
 }
 
@@ -2500,18 +2494,22 @@ void Online_Friends::FavoriteFriends_ResetStats(Online_Friends *this, const int 
   unsigned __int64 m_id; 
   _DWORD *v25; 
   const XUID *v26; 
+  char *v27; 
+  FavoriteFriend *v28; 
   __int64 v29; 
+  __m256i v30; 
+  FavoriteFriend v31; 
   char *fmt; 
-  __int64 v36; 
-  __int64 v37; 
+  __int64 v33; 
+  __int64 v34; 
   XUID xuid; 
   XUID result; 
-  Online_Friends *v40; 
+  Online_Friends *v37; 
   XUID favoriteFriendXUIDs[16]; 
-  FavoriteFriend v42[16]; 
+  FavoriteFriend v39[16]; 
 
   v2 = controllerIndex;
-  v40 = this;
+  v37 = this;
   if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_friends.cpp", 1130, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
     __debugbreak();
   Com_Printf(25, "FavoriteFriends_ResetStats called for controller %d\n", (unsigned int)v2);
@@ -2532,15 +2530,15 @@ void Online_Friends::FavoriteFriends_ResetStats(Online_Friends *this, const int 
   while ( v7 );
   if ( (unsigned int)v2 >= 8 )
   {
-    LODWORD(v37) = 8;
-    LODWORD(v36) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_friends.cpp", 1068, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v36, v37) )
+    LODWORD(v34) = 8;
+    LODWORD(v33) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_friends.cpp", 1068, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v33, v34) )
       __debugbreak();
   }
   Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData called for controller %d\n", (unsigned int)v2);
   if ( Online_PlayerData_GetFavoriteFriends(v2, favoriteFriendXUIDs) )
   {
-    v8 = v42;
+    v8 = v39;
     v9 = 16i64;
     do
     {
@@ -2549,7 +2547,7 @@ void Online_Friends::FavoriteFriends_ResetStats(Online_Friends *this, const int 
     }
     while ( v9 );
     v10 = 0;
-    p_m_indexInOriginalList = &v42[0].m_indexInOriginalList;
+    p_m_indexInOriginalList = &v39[0].m_indexInOriginalList;
     v12 = 16i64;
     do
     {
@@ -2561,15 +2559,15 @@ void Online_Friends::FavoriteFriends_ResetStats(Online_Friends *this, const int 
       --v12;
     }
     while ( v12 );
-    v14 = v40;
-    p_m_friendType = &v42[0].m_friendType;
+    v14 = v37;
+    p_m_friendType = &v39[0].m_friendType;
     v16 = v2;
     do
     {
       xuid.m_id = favoriteFriendXUIDs[v3].m_id;
       if ( XUID::IsValid(&xuid) )
       {
-        XUID::operator=(&v42[v10].m_xuid, &xuid);
+        XUID::operator=(&v39[v10].m_xuid, &xuid);
         v17 = XUID::ToUint64(&xuid);
         Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData: Adding xuid in player data %llu at index %d in temp list\n", v17, v10);
         UserIndexFromXuid = Online_Friends::FavoriteFriends_GetUserIndexFromXuid(v14, v2, xuid);
@@ -2608,33 +2606,24 @@ void Online_Friends::FavoriteFriends_ResetStats(Online_Friends *this, const int 
       --m_id;
     }
     while ( m_id );
-    _RDX = v23 + 1179784;
-    _RAX = v42;
+    v27 = v23 + 1179784;
+    v28 = v39;
     v29 = 2i64;
     do
     {
-      _RDX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX += 8;
-      __asm
-      {
-        vmovups ymmword ptr [rdx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rdx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rdx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v27 += 128;
+      v30 = *(__m256i *)&v28->m_xuid.m_id;
+      v31 = v28[7];
+      v28 += 8;
+      *((__m256i *)v27 - 4) = v30;
+      *((__m256i *)v27 - 3) = *(__m256i *)&v28[-6].m_xuid.m_id;
+      *((__m256i *)v27 - 2) = *(__m256i *)&v28[-4].m_xuid.m_id;
+      *((FavoriteFriend *)v27 - 2) = v28[-2];
+      *((FavoriteFriend *)v27 - 1) = v31;
       --v29;
     }
     while ( v29 );
-    v40->m_favoriteFriendCountTotal[v16] = v10;
+    v37->m_favoriteFriendCountTotal[v16] = v10;
     Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData Found %d users\n", v10);
   }
   else
@@ -3004,19 +2993,23 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
   unsigned __int64 m_id; 
   _DWORD *v23; 
   const XUID *v24; 
+  char *v25; 
+  FavoriteFriend *v26; 
   __int64 v27; 
+  __m256i v28; 
+  FavoriteFriend v29; 
   char *fmt; 
   XUID result; 
-  Online_Friends *v35; 
-  XUID v36; 
+  Online_Friends *v32; 
+  XUID v33; 
   XUID favoriteFriendXUIDs[16]; 
-  FavoriteFriend v38[16]; 
+  FavoriteFriend v35[16]; 
 
   v2 = controllerIndex;
-  v36.m_id = 16i64;
+  v33.m_id = 16i64;
   v3 = favoriteFriendXUIDs;
   v4 = 16i64;
-  v35 = this;
+  v32 = this;
   do
   {
     XUID::XUID(v3++);
@@ -3028,7 +3021,7 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
   Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData called for controller %d\n", (unsigned int)v2);
   if ( Online_PlayerData_GetFavoriteFriends(v2, favoriteFriendXUIDs) )
   {
-    v5 = v38;
+    v5 = v35;
     v6 = 16i64;
     do
     {
@@ -3037,7 +3030,7 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
     }
     while ( v6 );
     v7 = 0i64;
-    p_m_indexInOriginalList = &v38[0].m_indexInOriginalList;
+    p_m_indexInOriginalList = &v35[0].m_indexInOriginalList;
     v9 = 0;
     v10 = 16i64;
     do
@@ -3050,15 +3043,15 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
       --v10;
     }
     while ( v10 );
-    v12 = v35;
-    p_m_friendType = &v38[0].m_friendType;
+    v12 = v32;
+    p_m_friendType = &v35[0].m_friendType;
     v14 = v2;
     do
     {
       result.m_id = favoriteFriendXUIDs[v7].m_id;
       if ( XUID::IsValid(&result) )
       {
-        XUID::operator=(&v38[v9].m_xuid, &result);
+        XUID::operator=(&v35[v9].m_xuid, &result);
         v15 = XUID::ToUint64(&result);
         Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData: Adding xuid in player data %llu at index %d in temp list\n", v15, v9);
         UserIndexFromXuid = Online_Friends::FavoriteFriends_GetUserIndexFromXuid(v12, v2, result);
@@ -3085,11 +3078,11 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
     while ( v7 < 16 );
     Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData: Found %d users in player data\n", v9);
     v21 = (char *)v12 + 256 * v14;
-    m_id = v36.m_id;
+    m_id = v33.m_id;
     v23 = v21 + 1179796;
     do
     {
-      v24 = XUID::NullXUID(&v36);
+      v24 = XUID::NullXUID(&v33);
       XUID::operator=((XUID *)(v23 - 3), v24);
       *(v23 - 1) = 0;
       *v23 = -1;
@@ -3097,33 +3090,24 @@ void Online_Friends::FavoriteFriends_UpdateLocalCacheFromPlayerData(Online_Frien
       --m_id;
     }
     while ( m_id );
-    _RDX = v21 + 1179784;
-    _RAX = v38;
+    v25 = v21 + 1179784;
+    v26 = v35;
     v27 = 2i64;
     do
     {
-      _RDX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX += 8;
-      __asm
-      {
-        vmovups ymmword ptr [rdx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rdx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rdx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v25 += 128;
+      v28 = *(__m256i *)&v26->m_xuid.m_id;
+      v29 = v26[7];
+      v26 += 8;
+      *((__m256i *)v25 - 4) = v28;
+      *((__m256i *)v25 - 3) = *(__m256i *)&v26[-6].m_xuid.m_id;
+      *((__m256i *)v25 - 2) = *(__m256i *)&v26[-4].m_xuid.m_id;
+      *((FavoriteFriend *)v25 - 2) = v26[-2];
+      *((FavoriteFriend *)v25 - 1) = v29;
       --v27;
     }
     while ( v27 );
-    v35->m_favoriteFriendCountTotal[v14] = v9;
+    v32->m_favoriteFriendCountTotal[v14] = v9;
     Com_Printf(25, "FavoriteFriends_UpdateLocalCacheFromPlayerData Found %d users\n", v9);
   }
   else

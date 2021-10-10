@@ -17,74 +17,69 @@ std::_Integer_to_chars<__int64>
 std::to_chars_result *std::_Integer_to_chars<__int64>(std::to_chars_result *result, char *_First, char *const _Last, const __int64 _Raw_value, const int _Base)
 {
   char *v5; 
-  __int64 *v8; 
+  __int64 *v7; 
+  char v8; 
   char v9; 
   char v10; 
-  char v11; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  unsigned __int64 v14; 
-  char *v15; 
-  __int128 v18; 
-  __int64 v19[3]; 
+  unsigned __int64 v13; 
+  char *v14; 
+  std::to_chars_result v16; 
+  __int64 v17[3]; 
 
   v5 = _First;
-  _RSI = result;
   if ( _Raw_value < 0 )
   {
     if ( _First == _Last )
     {
-      *(_QWORD *)&v18 = _Last;
-      DWORD2(v18) = 132;
-      __asm
-      {
-        vmovups xmm0, [rsp+88h+var_68]
-        vmovups xmmword ptr [rcx], xmm0
-      }
-      return _RSI;
+      v16.ptr = _Last;
+      v16.ec = value_too_large;
+      *result = v16;
+      return result;
     }
     v5 = _First + 1;
     *_First = 45;
     _Raw_value = -_Raw_value;
   }
-  v8 = v19;
+  v7 = v17;
   switch ( _Base )
   {
     case 2:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        v9 = (_Raw_value & 1) + 48;
+        v7 = (__int64 *)((char *)v7 - 1);
+        v8 = (_Raw_value & 1) + 48;
         _Raw_value = (unsigned __int64)_Raw_value >> 1;
-        *(_BYTE *)v8 = v9;
+        *(_BYTE *)v7 = v8;
       }
       while ( _Raw_value );
       break;
     case 4:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        v10 = (_Raw_value & 3) + 48;
+        v7 = (__int64 *)((char *)v7 - 1);
+        v9 = (_Raw_value & 3) + 48;
         _Raw_value = (unsigned __int64)_Raw_value >> 2;
-        *(_BYTE *)v8 = v10;
+        *(_BYTE *)v7 = v9;
       }
       while ( _Raw_value );
       break;
     case 8:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        v11 = (_Raw_value & 7) + 48;
+        v7 = (__int64 *)((char *)v7 - 1);
+        v10 = (_Raw_value & 7) + 48;
         _Raw_value = (unsigned __int64)_Raw_value >> 3;
-        *(_BYTE *)v8 = v11;
+        *(_BYTE *)v7 = v10;
       }
       while ( _Raw_value );
       break;
     case 10:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        *(_BYTE *)v8 = _Raw_value % 0xAui64 + 48;
+        v7 = (__int64 *)((char *)v7 - 1);
+        *(_BYTE *)v7 = _Raw_value % 0xAui64 + 48;
         _Raw_value /= 0xAui64;
       }
       while ( _Raw_value );
@@ -92,51 +87,47 @@ std::to_chars_result *std::_Integer_to_chars<__int64>(std::to_chars_result *resu
     case 16:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        v12 = _Raw_value & 0xF;
+        v7 = (__int64 *)((char *)v7 - 1);
+        v11 = _Raw_value & 0xF;
         _Raw_value = (unsigned __int64)_Raw_value >> 4;
-        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v12];
+        *(_BYTE *)v7 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v11];
       }
       while ( _Raw_value );
       break;
     case 32:
       do
       {
-        v8 = (__int64 *)((char *)v8 - 1);
-        v13 = _Raw_value & 0x1F;
+        v7 = (__int64 *)((char *)v7 - 1);
+        v12 = _Raw_value & 0x1F;
         _Raw_value = (unsigned __int64)_Raw_value >> 5;
-        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v13];
+        *(_BYTE *)v7 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v12];
       }
       while ( _Raw_value );
       break;
     default:
       do
       {
-        v14 = _Raw_value % (unsigned __int64)_Base;
-        v8 = (__int64 *)((char *)v8 - 1);
+        v13 = _Raw_value % (unsigned __int64)_Base;
+        v7 = (__int64 *)((char *)v7 - 1);
         _Raw_value /= (unsigned __int64)_Base;
-        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v14];
+        *(_BYTE *)v7 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v13];
       }
       while ( _Raw_value );
       break;
   }
-  v15 = (char *)((char *)v19 - (char *)v8);
-  if ( _Last - v5 >= (char *)v19 - (char *)v8 )
+  v14 = (char *)((char *)v17 - (char *)v7);
+  if ( _Last - v5 >= (char *)v17 - (char *)v7 )
   {
-    memcpy_0(v5, v8, (char *)v19 - (char *)v8);
-    DWORD2(v18) = 0;
-    *(_QWORD *)&v18 = &v15[(_QWORD)v5];
+    memcpy_0(v5, v7, (char *)v17 - (char *)v7);
+    v16.ec = 0;
+    v16.ptr = &v14[(_QWORD)v5];
   }
   else
   {
-    *(_QWORD *)&v18 = _Last;
-    DWORD2(v18) = 132;
+    v16.ptr = _Last;
+    v16.ec = value_too_large;
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_68]
-    vmovups xmmword ptr [rsi], xmm0
-  }
-  return _RSI;
+  *result = v16;
+  return result;
 }
 

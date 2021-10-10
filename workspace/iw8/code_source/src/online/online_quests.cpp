@@ -548,56 +548,49 @@ LUI_CoD_LuaCall_GetProgression
 */
 __int64 LUI_CoD_LuaCall_GetProgression(lua_State *const luaVM)
 {
-  int v3; 
-  unsigned __int64 v4; 
-  unsigned int Progression; 
+  int v2; 
+  unsigned __int64 v3; 
+  __int64 Progression; 
+  const char *v5; 
   const char *v6; 
-  const char *v7; 
-  unsigned int v15; 
+  float v7; 
+  unsigned int v8; 
+  float v9; 
+  unsigned int v10; 
   StringTable *tablePtr; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: Quests.GetProgression( <controllerIndex>, <quest_id> )\n");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
-  Progression = OnlineQuests::GetProgression(&OnlineQuests::s_instance, v3, v4);
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
+  Progression = OnlineQuests::GetProgression(&OnlineQuests::s_instance, v2, v3);
   StringTable_GetAsset("quest_challenges.csv", (const StringTable **)&tablePtr);
   if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 870, ASSERT_TYPE_ASSERT, "(table)", (const char *)&queryFormat, "table") )
     __debugbreak();
-  v6 = j_va("%lu", v4);
-  v7 = StringTable_Lookup(tablePtr, 0, v6, 18);
-  if ( I_stricmp(v7, "sec") )
+  v5 = j_va("%lu", v3);
+  v6 = StringTable_Lookup(tablePtr, 0, v5, 18);
+  if ( I_stricmp(v6, "sec") )
   {
-    if ( I_stricmp(v7, "min") )
+    if ( I_stricmp(v6, "min") )
     {
-      LODWORD(_RAX) = Progression;
+      v8 = Progression;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rbx
-        vmulss  xmm1, xmm0, cs:__real@378bcf65
-        vcvttss2si rax, xmm1
-      }
+      v9 = (float)Progression;
+      v8 = (int)(float)(v9 * 0.000016666667);
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvttss2si rax, xmm1
-    }
+    v7 = (float)Progression;
+    v8 = (int)(float)(v7 * 0.001);
   }
-  j_lua_pushinteger(luaVM, (unsigned int)_RAX);
+  j_lua_pushinteger(luaVM, v8);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v15 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v15);
+    v10 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v10);
   }
   return 1i64;
 }
@@ -1403,44 +1396,36 @@ OnlineQuests::ConvertProgress
 */
 __int64 OnlineQuests::ConvertProgress(const unsigned __int64 id, const unsigned int progress)
 {
+  __int64 v2; 
+  const char *v4; 
   const char *v5; 
-  const char *v6; 
-  __int64 result; 
+  float v6; 
+  float v8; 
   StringTable *tablePtr; 
 
+  v2 = progress;
   StringTable_GetAsset("quest_challenges.csv", (const StringTable **)&tablePtr);
   if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 870, ASSERT_TYPE_ASSERT, "(table)", (const char *)&queryFormat, "table") )
     __debugbreak();
-  v5 = j_va("%lu", id);
-  v6 = StringTable_Lookup(tablePtr, 0, v5, 18);
-  if ( I_stricmp(v6, "sec") )
+  v4 = j_va("%lu", id);
+  v5 = StringTable_Lookup(tablePtr, 0, v4, 18);
+  if ( I_stricmp(v5, "sec") )
   {
-    if ( I_stricmp(v6, "min") )
+    if ( I_stricmp(v5, "min") )
     {
-      return progress;
+      return (unsigned int)v2;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rbx
-        vmulss  xmm1, xmm0, cs:__real@378bcf65
-        vcvttss2si rax, xmm1
-      }
+      v8 = (float)v2;
+      return (unsigned int)(int)(float)(v8 * 0.000016666667);
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvttss2si rax, xmm1
-    }
+    v6 = (float)v2;
+    return (unsigned int)(int)(float)(v6 * 0.001);
   }
-  return result;
 }
 
 /*
@@ -1686,71 +1671,71 @@ void OnlineQuests::HandleCompletion(OnlineQuests *this, const XUID xuid, bdJSOND
   __int64 v19; 
   StatsSource ActiveStatsSource; 
   char *v22; 
-  const char *v25; 
+  const char *v23; 
+  unsigned __int64 v24; 
+  int v25; 
   unsigned __int64 v26; 
-  int v27; 
-  unsigned __int64 v28; 
   unsigned __int64 UserId; 
-  bool v30; 
-  const char *v31; 
-  StringTable *v32; 
+  bool v28; 
+  const char *v29; 
+  StringTable *v30; 
+  __int64 v31; 
+  unsigned int v32; 
   __int64 v33; 
-  unsigned int v34; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v34; 
   unsigned int i; 
-  __int64 v38; 
-  __int64 v39; 
-  char v40; 
-  char v41; 
+  __int64 v36; 
+  __int64 v37; 
+  char v38; 
+  char v39; 
   unsigned int j; 
-  __int64 v44; 
-  __int64 v45; 
-  unsigned int v46; 
+  __int64 v42; 
+  __int64 v43; 
+  unsigned int v44; 
+  unsigned int v45; 
   unsigned int v47; 
-  unsigned int v49; 
-  unsigned int v50; 
-  int v51; 
-  const char *v52; 
-  unsigned int v53; 
+  unsigned int v48; 
+  int v49; 
+  const char *v50; 
+  unsigned int v51; 
   QUEST_ACTIVATION_TYPE TypeFromID; 
-  QUEST_ACTIVATION_TYPE v55; 
-  unsigned int v56; 
+  QUEST_ACTIVATION_TYPE v53; 
+  unsigned int v54; 
+  __int64 v55; 
+  __int64 v56; 
   __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
   StringTable *tablePtr; 
-  unsigned int v62; 
+  unsigned int v60; 
   unsigned __int64 value; 
   int navStringCount[2]; 
-  __int64 v65; 
+  __int64 v63; 
   DDLState fromState; 
-  unsigned __int64 v67; 
-  bdJSONDeserializer v68; 
+  unsigned __int64 v65; 
+  bdJSONDeserializer v66; 
   DDLContext context; 
-  __int64 v70; 
-  DLogContext v71; 
+  __int64 v68; 
+  DLogContext v69; 
   char *navStrings[16]; 
   DDLState result; 
-  char v74[64]; 
+  char v72[64]; 
   char buffer[4096]; 
 
-  v70 = -2i64;
+  v68 = -2i64;
   v5 = complete;
-  bdJSONDeserializer::bdJSONDeserializer(&v68);
+  bdJSONDeserializer::bdJSONDeserializer(&v66);
   PortForLocalXUID = Live_GetPortForLocalXUID(xuid);
   v10 = PortForLocalXUID;
-  v65 = PortForLocalXUID;
+  v63 = PortForLocalXUID;
   this->m_totalRewards[PortForLocalXUID] = 0;
   ClientFromController = CL_Mgr_GetClientFromController(PortForLocalXUID);
   v12 = (StringTable *)(int)ClientFromController;
   tablePtr = (StringTable *)(int)ClientFromController;
   if ( !bdJSONDeserializer::getUInt64(json, "id_", &value) )
   {
-    v32 = v12;
+    v30 = v12;
     goto LABEL_41;
   }
-  if ( bdJSONDeserializer::getUInt32(json, "progress", &v62) )
+  if ( bdJSONDeserializer::getUInt32(json, "progress", &v60) )
   {
     v13 = 0;
     v14 = 0;
@@ -1764,8 +1749,8 @@ void OnlineQuests::HandleCompletion(OnlineQuests *this, const XUID xuid, bdJSOND
       v18 = (char *)this + 24 * v17 + 24 * v14;
       if ( value == *((_QWORD *)v18 + 28) )
       {
-        Com_Printf(25, "Updated Mission %lu with Progress %d\n", value, v62);
-        *((_DWORD *)v18 + 58) = v62;
+        Com_Printf(25, "Updated Mission %lu with Progress %d\n", value, v60);
+        *((_DWORD *)v18 + 58) = v60;
         v13 = 1;
       }
       ++v14;
@@ -1781,36 +1766,28 @@ LABEL_10:
         __debugbreak();
       if ( this->m_totalQuests[(_QWORD)v12] < 0x3E8 )
       {
-        Com_Printf(25, "Adding Mission %lu with Progress %d\n", value, v62);
+        Com_Printf(25, "Adding Mission %lu with Progress %d\n", value, v60);
         v19 = (__int64)v12;
         this->m_quests[(_QWORD)v12][this->m_totalQuests[(_QWORD)v12]].id = value;
         this->m_quests[v19][this->m_totalQuests[(_QWORD)v12]].type = OnlineQuests::GetTypeFromID(&OnlineQuests::s_instance, value);
-        this->m_quests[v19][this->m_totalQuests[(_QWORD)v12]++].progress = v62;
+        this->m_quests[v19][this->m_totalQuests[(_QWORD)v12]++].progress = v60;
       }
     }
   }
   if ( !v5 )
     goto LABEL_40;
-  bdJSONDeserializer::getString(json, (const char *const)&stru_143C9A1A4, v74, 0x40u);
+  bdJSONDeserializer::getString(json, (const char *const)&stru_143C9A1A4, v72, 0x40u);
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+1270h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(v10);
   if ( CL_PlayerData_GetDDLBuffer(&context, v10, ActiveStatsSource, STATSGROUP_RANKED) )
   {
-    v22 = j_va("rankedMatchData.missionComplete.%s", v74);
+    v22 = j_va("rankedMatchData.missionComplete.%s", v72);
     Com_ParseNavStrings(v22, (const char **)navStrings, 16, navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+1370h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount[0], (const char **)navStrings) )
       DDL_SetBool(&fromState, &context, 1);
   }
@@ -1822,48 +1799,48 @@ LABEL_10:
     StringTable_GetAsset("quest_challenges.csv", (const StringTable **)navStringCount);
     if ( !*(_QWORD *)navStringCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 473, ASSERT_TYPE_ASSERT, "(quest_challenges)", (const char *)&queryFormat, "quest_challenges") )
       __debugbreak();
-    v25 = StringTable_Lookup(*(const StringTable **)navStringCount, 1, v74, 8);
-    bdJSONDeserializer::getUInt64(json, "completionTimestamp", &v67);
-    v26 = v67;
-    v27 = atoi(v25);
-    v28 = value;
+    v23 = StringTable_Lookup(*(const StringTable **)navStringCount, 1, v72, 8);
+    bdJSONDeserializer::getUInt64(json, "completionTimestamp", &v65);
+    v24 = v65;
+    v25 = atoi(v23);
+    v26 = value;
     UserId = DLog_GetUserId(v10);
-    if ( DLog_IsActive() && DLog_CreateContext(&v71, UserId, buffer, 4096) )
+    if ( DLog_IsActive() && DLog_CreateContext(&v69, UserId, buffer, 4096) )
     {
       if ( DLog_IsActive() )
       {
-        v30 = DLog_BeginEvent(&v71, "dlog_event_challenge_complete");
-        v71.autoEndEvent = 1;
-        if ( v30 && DLog_UInt64(&v71, "challenge_id", v28) && DLog_Int32(&v71, "xp_gained", v27) && DLog_UInt64(&v71, "timestamp", v26) )
-          DLog_RecordContext(&v71);
+        v28 = DLog_BeginEvent(&v69, "dlog_event_challenge_complete");
+        v69.autoEndEvent = 1;
+        if ( v28 && DLog_UInt64(&v69, "challenge_id", v26) && DLog_Int32(&v69, "xp_gained", v25) && DLog_UInt64(&v69, "timestamp", v24) )
+          DLog_RecordContext(&v69);
       }
       else
       {
-        v71.error = DLOG_ERROR_NOT_ACTIVE;
+        v69.error = DLOG_ERROR_NOT_ACTIVE;
       }
     }
-    v31 = StringTable_Lookup(*(const StringTable **)navStringCount, 1, v74, 15);
-    v32 = tablePtr;
-    if ( !I_strcmp(v31, "1") )
+    v29 = StringTable_Lookup(*(const StringTable **)navStringCount, 1, v72, 15);
+    v30 = tablePtr;
+    if ( !I_strcmp(v29, "1") )
     {
-      v33 = 0i64;
-      v34 = this->m_totalQuests[(_QWORD)tablePtr];
-      if ( v34 )
+      v31 = 0i64;
+      v32 = this->m_totalQuests[(_QWORD)tablePtr];
+      if ( v32 )
       {
         while ( 1 )
         {
-          v35 = (unsigned int)v33;
-          if ( this->m_quests[(_QWORD)tablePtr][v33].id == value )
+          v33 = (unsigned int)v31;
+          if ( this->m_quests[(_QWORD)tablePtr][v31].id == value )
             break;
-          v33 = (unsigned int)(v33 + 1);
-          if ( (unsigned int)v33 >= v34 )
+          v31 = (unsigned int)(v31 + 1);
+          if ( (unsigned int)v31 >= v32 )
           {
             this->m_needToCheckAndActivate[v10] = 1;
             goto LABEL_41;
           }
         }
         Com_Printf(25, "Deactivating Mission %lu, it is the last one in the set.\n", value);
-        this->m_quests[(_QWORD)tablePtr][v35].active = 0;
+        this->m_quests[(_QWORD)tablePtr][v33].active = 0;
       }
       this->m_needToCheckAndActivate[v10] = 1;
     }
@@ -1871,29 +1848,29 @@ LABEL_10:
   else
   {
 LABEL_40:
-    v32 = tablePtr;
+    v30 = tablePtr;
   }
 LABEL_41:
-  v36 = v10;
-  if ( bdJSONDeserializer::hasKey(json, "triggers") && bdJSONDeserializer::getArray(json, "triggers", &v68) )
+  v34 = v10;
+  if ( bdJSONDeserializer::hasKey(json, "triggers") && bdJSONDeserializer::getArray(json, "triggers", &v66) )
   {
-    for ( i = 0; i < v68.m_count; v36 = v65 )
+    for ( i = 0; i < v66.m_count; v34 = v63 )
     {
       bdJSONDeserializer::bdJSONDeserializer((bdJSONDeserializer *)&fromState);
-      bdJSONDeserializer::getElementByIndex(&v68, i, (bdJSONDeserializer *)&fromState);
+      bdJSONDeserializer::getElementByIndex(&v66, i, (bdJSONDeserializer *)&fromState);
       bdJSONDeserializer::getString((bdJSONDeserializer *)&fromState, "type", (char *const)&result.isValid, 0x20u);
-      v38 = 0x7FFFFFFFi64;
-      v39 = 0i64;
+      v36 = 0x7FFFFFFFi64;
+      v37 = 0i64;
       do
       {
-        v40 = *(&result.isValid + v39);
-        v41 = aGrantProduct[v39++];
-        if ( !v38-- )
+        v38 = *(&result.isValid + v37);
+        v39 = aGrantProduct[v37++];
+        if ( !v36-- )
           break;
-        if ( v40 != v41 )
+        if ( v38 != v39 )
           goto LABEL_51;
       }
-      while ( v40 );
+      while ( v38 );
       bdJSONDeserializer::getObject((bdJSONDeserializer *)&fromState, "inventory", (bdJSONDeserializer *)&fromState);
       bdJSONDeserializer::getArray((bdJSONDeserializer *)&fromState, "granted_items", (bdJSONDeserializer *)&fromState);
       for ( j = 0; j < HIDWORD(fromState.ddlDef); ++j )
@@ -1903,86 +1880,86 @@ LABEL_41:
         bdJSONDeserializer::bdJSONDeserializer((bdJSONDeserializer *)&context);
         bdJSONDeserializer::getElementByIndex((bdJSONDeserializer *)&fromState, j, (bdJSONDeserializer *)&context);
         bdJSONDeserializer::getInt32((bdJSONDeserializer *)&context, (const char *const)&valueOut, navStringCount);
-        this->m_rewards[v36][this->m_totalRewards[v36]++] = navStringCount[0];
+        this->m_rewards[v34][this->m_totalRewards[v34]++] = navStringCount[0];
         bdJSONDeserializer::~bdJSONDeserializer((bdJSONDeserializer *)&context);
       }
 LABEL_51:
-      v44 = 0x7FFFFFFFi64;
-      v45 = 0i64;
+      v42 = 0x7FFFFFFFi64;
+      v43 = 0i64;
       while ( 1 )
       {
-        v46 = *((unsigned __int8 *)&result.isValid + v45);
-        v47 = (unsigned __int8)aActivateAchiev[v45++];
-        if ( !v44-- )
+        v44 = *((unsigned __int8 *)&result.isValid + v43);
+        v45 = (unsigned __int8)aActivateAchiev[v43++];
+        if ( !v42-- )
         {
 LABEL_60:
-          v51 = 0;
+          v49 = 0;
           goto LABEL_61;
         }
-        if ( v46 != v47 )
+        if ( v44 != v45 )
         {
-          v49 = v46 + 32;
-          if ( v46 - 65 > 0x19 )
-            v49 = v46;
-          v46 = v49;
-          v50 = v47 + 32;
-          if ( v47 - 65 > 0x19 )
-            v50 = v47;
-          if ( v46 != v50 )
+          v47 = v44 + 32;
+          if ( v44 - 65 > 0x19 )
+            v47 = v44;
+          v44 = v47;
+          v48 = v45 + 32;
+          if ( v45 - 65 > 0x19 )
+            v48 = v45;
+          if ( v44 != v48 )
             break;
         }
-        if ( !v46 )
+        if ( !v44 )
           goto LABEL_60;
       }
-      v51 = 1;
-      if ( v46 < v50 )
-        v51 = -1;
+      v49 = 1;
+      if ( v44 < v48 )
+        v49 = -1;
 LABEL_61:
-      if ( !v51 && bdJSONDeserializer::getString((bdJSONDeserializer *)&fromState, (const char *const)&stru_143C9A1A4, v74, 0x40u) )
+      if ( !v49 && bdJSONDeserializer::getString((bdJSONDeserializer *)&fromState, (const char *const)&stru_143C9A1A4, v72, 0x40u) )
       {
-        if ( this->m_totalQuests[(_QWORD)v32] >= 0x3E8 )
+        if ( this->m_totalQuests[(_QWORD)v30] >= 0x3E8 )
         {
-          LODWORD(v59) = 1000;
-          LODWORD(v58) = this->m_totalQuests[(_QWORD)v32];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 541, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalQuests[localClientNum] ) < (unsigned)( 1000 )", "m_totalQuests[localClientNum] doesn't index MAX_PROGRESSION_QUESTS\n\t%i not in [0, %i)", v58, v59) )
+          LODWORD(v57) = 1000;
+          LODWORD(v56) = this->m_totalQuests[(_QWORD)v30];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 541, ASSERT_TYPE_ASSERT, "(unsigned)( m_totalQuests[localClientNum] ) < (unsigned)( 1000 )", "m_totalQuests[localClientNum] doesn't index MAX_PROGRESSION_QUESTS\n\t%i not in [0, %i)", v56, v57) )
             __debugbreak();
         }
-        if ( this->m_totalQuests[(_QWORD)v32] < 0x3E8 )
+        if ( this->m_totalQuests[(_QWORD)v30] < 0x3E8 )
         {
           StringTable_GetAsset("quest_challenges.csv", (const StringTable **)&tablePtr);
           if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_quests.cpp", 546, ASSERT_TYPE_ASSERT, "(quest_challenges)", (const char *)&queryFormat, "quest_challenges") )
             __debugbreak();
-          v52 = StringTable_Lookup(tablePtr, 1, v74, 0);
-          v53 = atoi(v52);
-          Com_Printf(25, "QUESTS: %s (%d) has been unlocked, activated and added\n", v74, v53);
+          v50 = StringTable_Lookup(tablePtr, 1, v72, 0);
+          v51 = atoi(v50);
+          Com_Printf(25, "QUESTS: %s (%d) has been unlocked, activated and added\n", v72, v51);
           TypeFromID = OnlineQuests::GetTypeFromID(&OnlineQuests::s_instance, value);
-          v55 = TypeFromID;
+          v53 = TypeFromID;
           if ( (unsigned int)TypeFromID <= QUEST_ACTIVATION_TYPE_BR || (unsigned int)(TypeFromID - 3) <= 1 )
           {
-            v56 = 0;
-            if ( this->m_totalQuests[(_QWORD)v32] )
+            v54 = 0;
+            if ( this->m_totalQuests[(_QWORD)v30] )
             {
-              v57 = (__int64)v32;
+              v55 = (__int64)v30;
               do
               {
-                if ( this->m_quests[v57][v56].type == TypeFromID )
-                  this->m_quests[v57][v56].active = 0;
-                ++v56;
+                if ( this->m_quests[v55][v54].type == TypeFromID )
+                  this->m_quests[v55][v54].active = 0;
+                ++v54;
               }
-              while ( v56 < this->m_totalQuests[(_QWORD)v32] );
+              while ( v54 < this->m_totalQuests[(_QWORD)v30] );
             }
           }
-          this->m_quests[(_QWORD)v32][this->m_totalQuests[(_QWORD)v32]].id = atoi(v52);
-          this->m_quests[(_QWORD)v32][this->m_totalQuests[(_QWORD)v32]].type = v55;
-          this->m_quests[(_QWORD)v32][this->m_totalQuests[(_QWORD)v32]].progress = 0;
-          this->m_quests[(_QWORD)v32][this->m_totalQuests[(_QWORD)v32]++].active = 1;
+          this->m_quests[(_QWORD)v30][this->m_totalQuests[(_QWORD)v30]].id = atoi(v50);
+          this->m_quests[(_QWORD)v30][this->m_totalQuests[(_QWORD)v30]].type = v53;
+          this->m_quests[(_QWORD)v30][this->m_totalQuests[(_QWORD)v30]].progress = 0;
+          this->m_quests[(_QWORD)v30][this->m_totalQuests[(_QWORD)v30]++].active = 1;
         }
       }
       bdJSONDeserializer::~bdJSONDeserializer((bdJSONDeserializer *)&fromState);
       ++i;
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v68);
+  bdJSONDeserializer::~bdJSONDeserializer(&v66);
 }
 
 /*
@@ -2040,7 +2017,7 @@ void OnlineQuests::MissionComplete(OnlineQuests *this, const int controllerIndex
 
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+138h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
@@ -2048,12 +2025,7 @@ void OnlineQuests::MissionComplete(OnlineQuests *this, const int controllerIndex
   {
     v8 = j_va("rankedMatchData.missionComplete.%s", name);
     Com_ParseNavStrings(v8, (const char **)navStrings, 16, &navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+138h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) )
       DDL_SetBool(&fromState, &context, 1);
   }

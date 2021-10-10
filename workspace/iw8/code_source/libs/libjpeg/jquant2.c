@@ -65,126 +65,122 @@ find_best_colors
 */
 void find_best_colors(jpeg_decompress_struct *cinfo, int minc0, int minc1, int minc2, int numcolors, unsigned __int8 *colorlist, unsigned __int8 *bestcolor)
 {
-  int v8; 
-  unsigned __int8 *v9; 
-  int v10; 
-  jpeg_decompress_struct *v11; 
-  __int64 v12; 
+  int v7; 
+  unsigned __int8 *v8; 
+  int v9; 
+  jpeg_decompress_struct *v10; 
+  __int64 v11; 
   unsigned __int8 **colormap; 
-  int v14; 
-  __int64 v15; 
+  int v13; 
+  __int64 v14; 
+  int v15; 
   int v16; 
   int v17; 
   int v18; 
-  int v19; 
-  unsigned __int8 *v20; 
+  unsigned __int8 *v19; 
+  int v20; 
   int v21; 
   int v22; 
-  int v23; 
-  int *v24; 
+  int *v23; 
+  int v24; 
   int v25; 
   int v26; 
-  int v27; 
   int i; 
+  int v28; 
   int v29; 
   int v30; 
-  int v31; 
-  int v33; 
-  __int64 v35; 
-  _BYTE v37[512]; 
+  int v32; 
+  __int64 v34; 
+  _BYTE v36[512]; 
 
-  __asm { vmovaps ymm0, cs:__ymm@7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff7fffffff }
-  v8 = minc2;
-  v9 = bestcolor;
-  v10 = minc0;
-  v11 = cinfo;
-  v33 = minc1;
-  __asm
-  {
-    vmovups [rsp+260h+var_230], ymm0
-    vmovups [rsp+260h+var_210], ymm0
-    vmovups [rsp+260h+var_1F0], ymm0
-    vmovups [rbp+160h+var_1D0], ymm0
-    vmovups [rbp+160h+var_1B0], ymm0
-    vmovups [rbp+160h+var_190], ymm0
-    vmovups [rbp+160h+var_170], ymm0
-    vmovups [rbp+160h+var_150], ymm0
-    vmovups [rbp+160h+var_130], ymm0
-    vmovups [rbp+160h+var_110], ymm0
-    vmovups [rbp+160h+var_F0], ymm0
-    vmovups [rbp+160h+var_D0], ymm0
-    vmovups [rbp+160h+var_B0], ymm0
-    vmovups [rbp+160h+var_90], ymm0
-    vmovups [rbp+160h+var_70], ymm0
-    vmovups [rbp+160h+var_50], ymm0
-  }
+  v7 = minc2;
+  v8 = bestcolor;
+  v9 = minc0;
+  v10 = cinfo;
+  v32 = minc1;
+  *(__m256i *)v36 = _ymm;
+  *(__m256i *)&v36[32] = _ymm;
+  *(__m256i *)&v36[64] = _ymm;
+  *(__m256i *)&v36[96] = _ymm;
+  *(__m256i *)&v36[128] = _ymm;
+  *(__m256i *)&v36[160] = _ymm;
+  *(__m256i *)&v36[192] = _ymm;
+  *(__m256i *)&v36[224] = _ymm;
+  *(__m256i *)&v36[256] = _ymm;
+  *(__m256i *)&v36[288] = _ymm;
+  *(__m256i *)&v36[320] = _ymm;
+  *(__m256i *)&v36[352] = _ymm;
+  *(__m256i *)&v36[384] = _ymm;
+  *(__m256i *)&v36[416] = _ymm;
+  *(__m256i *)&v36[448] = _ymm;
+  *(__m256i *)&v36[480] = _ymm;
   if ( numcolors > 0 )
   {
-    v12 = 0i64;
-    v35 = 0i64;
+    v11 = 0i64;
+    v34 = 0i64;
     do
     {
-      colormap = v11->colormap;
-      v14 = 3;
-      v15 = colorlist[v12];
-      v16 = v10 - (*colormap)[v15];
-      v17 = 3 * (minc1 - colormap[1][v15]);
-      v18 = 8 * (3 * v17 + 18);
-      v19 = 2 * (v8 - colormap[2][v15]);
-      v20 = v9;
-      v21 = v19 * v19;
-      v22 = (v8 - colormap[2][v15]) << 6;
-      v23 = v16 * v16 + v17 * v17 + v21;
-      v24 = (int *)v37;
-      v25 = 16 * (v16 + 4);
+      colormap = v10->colormap;
+      v13 = 3;
+      v14 = colorlist[v11];
+      v15 = v9 - (*colormap)[v14];
+      v16 = 3 * (minc1 - colormap[1][v14]);
+      v17 = 8 * (3 * v16 + 18);
+      v18 = 2 * (v7 - colormap[2][v14]);
+      v19 = v8;
+      v20 = v18 * v18;
+      v21 = (v7 - colormap[2][v14]) << 6;
+      v22 = v15 * v15 + v16 * v16 + v20;
+      v23 = (int *)v36;
+      v24 = 16 * (v15 + 4);
       do
       {
-        v26 = v23;
-        v27 = v18;
+        v25 = v22;
+        v26 = v17;
         for ( i = 7; i >= 0; --i )
         {
-          if ( v26 < *v24 )
+          if ( v25 < *v23 )
           {
-            *v24 = v26;
-            *v20 = v15;
+            *v23 = v25;
+            *v19 = v14;
           }
-          v29 = v26 + v22 + 256;
-          if ( v29 < v24[1] )
+          v28 = v25 + v21 + 256;
+          if ( v28 < v23[1] )
           {
-            v24[1] = v29;
-            v20[1] = v15;
+            v23[1] = v28;
+            v19[1] = v14;
           }
-          v30 = v29 + v22 + 768;
-          if ( v30 < v24[2] )
+          v29 = v28 + v21 + 768;
+          if ( v29 < v23[2] )
           {
-            v24[2] = v30;
-            v20[2] = v15;
+            v23[2] = v29;
+            v19[2] = v14;
           }
-          v31 = v30 + v22 + 1280;
-          if ( v31 < v24[3] )
+          v30 = v29 + v21 + 1280;
+          if ( v30 < v23[3] )
           {
-            v24[3] = v31;
-            v20[3] = v15;
+            v23[3] = v30;
+            v19[3] = v14;
           }
-          v26 += v27;
-          v24 += 4;
-          v27 += 288;
-          v20 += 4;
+          v25 += v26;
+          v23 += 4;
+          v26 += 288;
+          v19 += 4;
         }
-        v23 += v25;
-        v25 += 128;
-        --v14;
+        v22 += v24;
+        v24 += 128;
+        --v13;
       }
-      while ( v14 >= 0 );
-      v12 = v35 + 1;
-      v8 = minc2;
-      minc1 = v33;
-      v10 = minc0;
-      v11 = cinfo;
-      v9 = bestcolor;
-      v35 = v12;
+      while ( v13 >= 0 );
+      v11 = v34 + 1;
+      v7 = minc2;
+      minc1 = v32;
+      v9 = minc0;
+      v10 = cinfo;
+      v8 = bestcolor;
+      v34 = v11;
     }
-    while ( v12 < numcolors );
+    while ( v11 < numcolors );
   }
 }
 

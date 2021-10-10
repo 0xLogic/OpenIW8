@@ -228,71 +228,53 @@ CL_ParseMP_CopyOldEntity
 */
 void CL_ParseMP_CopyOldEntity(ClActiveClientMP *cl, ClSnapshot *frame, entityState_t *oldES, const ClSnapshot *const oldFrame)
 {
+  entityState_t *v8; 
   unsigned int number; 
-  unsigned __int64 v25; 
-  unsigned int v26; 
-  __int64 v27; 
+  unsigned __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
 
-  _RBX = oldES;
   if ( (frame->info.snapFlags & 8) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 383, ASSERT_TYPE_ASSERT, "(!( frame->info.snapFlags & (1<<3) ))", (const char *)&queryFormat, "!( frame->info.snapFlags & SNAPFLAG_BASELINE )") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RDX = &cl->parseEntities[cl->parseEntitiesIndex % cl->parseEntitiesCount];
-  __asm
-  {
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rdx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rdx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rdx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rdx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [rdx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rdx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [rdx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [rdx+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0B0h]
-    vmovups xmmword ptr [rdx+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0C0h]
-    vmovups xmmword ptr [rdx+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0D0h]
-    vmovups xmmword ptr [rdx+0D0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0E0h]
-    vmovups xmmword ptr [rdx+0E0h], xmm1
-  }
-  *(_QWORD *)&_RDX->partBits.array[6] = *(_QWORD *)&_RBX->partBits.array[6];
+  v8 = &cl->parseEntities[cl->parseEntitiesIndex % cl->parseEntitiesCount];
+  *(_OWORD *)&v8->number = *(_OWORD *)&oldES->number;
+  *(_OWORD *)&v8->lerp.pos.trType = *(_OWORD *)&oldES->lerp.pos.trType;
+  *(_OWORD *)&v8->lerp.pos.trBase.y = *(_OWORD *)&oldES->lerp.pos.trBase.y;
+  *(_OWORD *)&v8->lerp.pos.trDelta.z = *(_OWORD *)&oldES->lerp.pos.trDelta.z;
+  *(_OWORD *)v8->lerp.apos.trBase.v = *(_OWORD *)oldES->lerp.apos.trBase.v;
+  *(_OWORD *)&v8->lerp.apos.trDelta.y = *(_OWORD *)&oldES->lerp.apos.trDelta.y;
+  *(_OWORD *)&v8->lerp.u.vehicle.bodyPitch = *(_OWORD *)&oldES->lerp.u.vehicle.bodyPitch;
+  *(LerpEntityStateInfoVolumeGrapple *)((char *)&v8->lerp.u.infoVolumeGrapple + 24) = *(LerpEntityStateInfoVolumeGrapple *)((char *)&oldES->lerp.u.infoVolumeGrapple + 24);
+  *(_OWORD *)&v8->staticState.turret.carrierEntNum = *(_OWORD *)&oldES->staticState.turret.carrierEntNum;
+  *(_OWORD *)&v8->clientNum = *(_OWORD *)&oldES->clientNum;
+  *(_OWORD *)&v8->events[0].eventType = *(_OWORD *)&oldES->events[0].eventType;
+  *(_OWORD *)&v8->events[2].eventType = *(_OWORD *)&oldES->events[2].eventType;
+  *(_OWORD *)&v8->index.brushModel = *(_OWORD *)&oldES->index.brushModel;
+  *(_OWORD *)&v8->animInfo.selectAnim = *(_OWORD *)&oldES->animInfo.selectAnim;
+  *(_OWORD *)&v8->partBits.array[2] = *(_OWORD *)&oldES->partBits.array[2];
+  *(_QWORD *)&v8->partBits.array[6] = *(_QWORD *)&oldES->partBits.array[6];
   if ( !oldFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 392, ASSERT_TYPE_ASSERT, "(oldFrame != nullptr)", (const char *)&queryFormat, "oldFrame != nullptr") )
     __debugbreak();
-  number = _RBX->number;
+  number = oldES->number;
   if ( number >= 0x800 )
   {
-    LODWORD(v27) = number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, 2048) )
+    LODWORD(v12) = number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v12, 2048) )
       __debugbreak();
   }
-  v25 = (unsigned __int64)number >> 5;
-  v26 = 0x80000000 >> (number & 0x1F);
-  if ( (v26 & oldFrame->entitiesLoD.array[v25]) != 0 )
+  v10 = (unsigned __int64)number >> 5;
+  v11 = 0x80000000 >> (number & 0x1F);
+  if ( (v11 & oldFrame->entitiesLoD.array[v10]) != 0 )
   {
     if ( number >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", number, 2048) )
       __debugbreak();
-    frame->entitiesLoD.array[v25] |= v26;
+    frame->entitiesLoD.array[v10] |= v11;
   }
   else
   {
     if ( number >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", number, 2048) )
       __debugbreak();
-    frame->entitiesLoD.array[v25] &= ~v26;
+    frame->entitiesLoD.array[v10] &= ~v11;
   }
   ++cl->parseEntitiesIndex;
   ++frame->numEntities;
@@ -306,7 +288,8 @@ CL_ParseMP_DeltaAgent
 void CL_ParseMP_DeltaAgent(ClActiveClientMP *cl, msg_t *msg, const int time, ClSnapshot *frame, int newnum, agentState_s *old, int unchanged)
 {
   unsigned int v11; 
-  unsigned int v29; 
+  agentState_s *v12; 
+  unsigned int v13; 
   __int64 agentBits; 
 
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 168, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -329,50 +312,15 @@ LABEL_26:
   }
   if ( !cl->parseAgentsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 884, ASSERT_TYPE_ASSERT, "(cl->parseAgentsCount)", (const char *)&queryFormat, "cl->parseAgentsCount") )
     __debugbreak();
-  _RBX = &cl->parseAgents[cl->parseAgentsIndex % cl->parseAgentsCount];
+  v12 = &cl->parseAgents[cl->parseAgentsIndex % cl->parseAgentsCount];
   if ( unchanged )
   {
-    _RCX = old;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmmword ptr [rbx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovups xmmword ptr [rbx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+30h]
-      vmovups xmmword ptr [rbx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+40h]
-      vmovups xmmword ptr [rbx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+50h]
-      vmovups xmmword ptr [rbx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rbx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rbx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+80h]
-      vmovups xmmword ptr [rbx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+90h]
-      vmovups xmmword ptr [rbx+90h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+0A0h]
-      vmovups xmmword ptr [rbx+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+0B0h]
-      vmovups xmmword ptr [rbx+0B0h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+0C0h]
-      vmovups xmmword ptr [rbx+0C0h], xmm1
-      vmovups xmm0, xmmword ptr [rcx+0D0h]
-      vmovups xmmword ptr [rbx+0D0h], xmm0
-      vmovups xmm1, xmmword ptr [rcx+0E0h]
-      vmovups xmmword ptr [rbx+0E0h], xmm1
-    }
-    *(_QWORD *)&_RBX->serverDobjHeldWeapon.m_mapEntryId = *(_QWORD *)&old->serverDobjHeldWeapon.m_mapEntryId;
-    *(_DWORD *)&_RBX->serverDobjHideWeapon = *(_DWORD *)&old->serverDobjHideWeapon;
+    *v12 = *old;
   }
   else
   {
-    v29 = ComCharacterLimits::GetAgentBits();
-    if ( MSG_ReadDeltaAgent(msg, time, old, _RBX, newnum, v29) )
+    v13 = ComCharacterLimits::GetAgentBits();
+    if ( MSG_ReadDeltaAgent(msg, time, old, v12, newnum, v13) )
       return;
   }
   ++cl->parseAgentsIndex;
@@ -387,54 +335,43 @@ CL_ParseMP_DeltaClient
 void CL_ParseMP_DeltaClient(const LocalClientNum_t localClientNum, ClActiveClientMP *cl, msg_t *msg, const int time, ClSnapshot *frame, int newnum, clientState_t *old, int unchanged)
 {
   __int64 v10; 
+  clientState_t *v12; 
+  clientState_t *v13; 
   __int64 v14; 
-  unsigned int v24; 
+  __int128 v15; 
+  unsigned int v16; 
   PartyData *GameParty; 
   __int64 clientBits; 
 
   v10 = localClientNum;
-  _RBX = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
+  v12 = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
   if ( unchanged )
   {
-    _RAX = old;
+    v13 = old;
     v14 = 3i64;
     do
     {
-      _RBX = (clientState_t *)((char *)_RBX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = (clientState_t *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rbx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rbx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rbx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rbx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rbx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rbx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rbx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rbx-10h], xmm1
-      }
+      v12 = (clientState_t *)((char *)v12 + 128);
+      v15 = *(_OWORD *)&v13->clientIndex;
+      v13 = (clientState_t *)((char *)v13 + 128);
+      *(_OWORD *)&v12[-1].mount.normalIndex = v15;
+      *(_OWORD *)&v12[-1].perkIconName = *(_OWORD *)&v13[-1].perkIconName;
+      *(_OWORD *)&v12[-1].doorState[0].angle = *(_OWORD *)&v13[-1].doorState[0].angle;
+      *(_OWORD *)&v12[-1].doorState[1].owner = *(_OWORD *)&v13[-1].doorState[1].owner;
+      *(_OWORD *)&v12[-1].footstepActionType = *(_OWORD *)&v13[-1].footstepActionType;
+      *(_OWORD *)&v12[-1].playerASM_scripted_anim_start_time = *(_OWORD *)&v13[-1].playerASM_scripted_anim_start_time;
+      *(_OWORD *)&v12[-1].vehicleAnimStateSeat = *(_OWORD *)&v13[-1].vehicleAnimStateSeat;
+      *(_OWORD *)&v12[-1].movingPlatform = *(_OWORD *)&v13[-1].movingPlatform;
       --v14;
     }
     while ( v14 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-    }
-    *(_QWORD *)&_RBX->doNotSimulateTracers = *(_QWORD *)&_RAX->doNotSimulateTracers;
+    *(_OWORD *)&v12->clientIndex = *(_OWORD *)&v13->clientIndex;
+    *(_QWORD *)&v12->doNotSimulateTracers = *(_QWORD *)&v13->doNotSimulateTracers;
   }
   else
   {
-    v24 = ComCharacterLimits::GetClientBits();
-    if ( MSG_ReadDeltaClient(msg, time, old, _RBX, newnum, v24) )
+    v16 = ComCharacterLimits::GetClientBits();
+    if ( MSG_ReadDeltaClient(msg, time, old, v12, newnum, v16) )
       return;
     if ( (unsigned int)v10 >= 2 )
     {
@@ -447,21 +384,21 @@ void CL_ParseMP_DeltaClient(const LocalClientNum_t localClientNum, ClActiveClien
       GameParty = Live_GetGameParty();
       if ( Session_IsValid(GameParty->session) && PeerMesh_IsEnabled(GameParty) )
       {
-        if ( !PeerMesh_IsHostConnectivitySet(GameParty, _RBX->voiceConnectivityBits) )
+        if ( !PeerMesh_IsHostConnectivitySet(GameParty, v12->voiceConnectivityBits) )
         {
-          LODWORD(clientBits) = _RBX->voiceConnectivityBits;
+          LODWORD(clientBits) = v12->voiceConnectivityBits;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 437, ASSERT_TYPE_ASSERT, "( ( PeerMesh_IsHostConnectivitySet( party, state->voiceConnectivityBits ) ) )", "( state->voiceConnectivityBits ) = %i", clientBits) )
             __debugbreak();
         }
-        if ( Party_IsHost(GameParty, newnum) && _RBX->voiceConnectivityBits != -1 )
+        if ( Party_IsHost(GameParty, newnum) && v12->voiceConnectivityBits != -1 )
         {
-          LODWORD(clientBits) = _RBX->voiceConnectivityBits;
+          LODWORD(clientBits) = v12->voiceConnectivityBits;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 438, ASSERT_TYPE_ASSERT, "( ( !Party_IsHost( party, clientNum ) || ( state->voiceConnectivityBits == (0xFFFFFFFF) ) ) )", "( state->voiceConnectivityBits ) = %i", clientBits) )
             __debugbreak();
         }
         if ( Party_IsMemberRegistered(GameParty, newnum) )
         {
-          PeerMesh_SetClientConnectivity(GameParty, newnum, _RBX->voiceConnectivityBits);
+          PeerMesh_SetClientConnectivity(GameParty, newnum, v12->voiceConnectivityBits);
           if ( Party_MemberHasLoopbackAddr(GameParty, newnum) )
             PeerMesh_SyncLocalConnectivity(GameParty, (const LocalClientNum_t)v10);
         }
@@ -731,93 +668,35 @@ CL_ParseMP_GetPredictedPlayerInformationForCommandTime
 */
 char CL_ParseMP_GetPredictedPlayerInformationForCommandTime(const ClActiveClientMP *cl, const int commandTime, playerState_s *to)
 {
+  __int128 v6; 
+  float v7; 
   int movementDir; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
   int outPredictedTime[3]; 
   ClPredictResultMP outPredictedData; 
 
-  _RBX = to;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 133, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 134, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 134, ASSERT_TYPE_ASSERT, "(to)", (const char *)&queryFormat, "to") )
     __debugbreak();
   if ( ClActiveClientMP::FindPredictedDataForTime((ClActiveClientMP *)cl, commandTime, outPredictedTime, &outPredictedData) )
   {
     if ( outPredictedTime[0] != commandTime )
       Com_Printf(14, "CL_ParseMP_GetPredictedPlayerInformationForCommandTime() Couldn't find exact match for commandTime %i, using commandTime %i\n", (unsigned int)commandTime, (unsigned int)outPredictedTime[0]);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+118h+outPredictedData.origin]
-      vmovss  xmm1, dword ptr [rsp+118h+outPredictedData.velocity+4]
-    }
-    _RBX->inputTime = outPredictedData.inputTime;
+    v6 = *(_OWORD *)outPredictedData.origin.v;
+    v7 = outPredictedData.velocity.v[1];
+    to->inputTime = outPredictedData.inputTime;
     movementDir = outPredictedData.movementDir;
-    __asm
-    {
-      vmovups xmmword ptr [rbx+30h], xmm0
-      vmovss  xmm0, dword ptr [rsp+118h+outPredictedData.velocity+8]
-      vmovss  dword ptr [rbx+44h], xmm0
-      vmovss  dword ptr [rbx+40h], xmm1
-    }
-    _RBX->movementDir = movementDir;
-    _RBX->movementDirPrecise = outPredictedData.movementDirPrecise;
-    _RBX->footstepCount = outPredictedData.footstepCount;
-    _RBX->lastStandMoveStopTime = outPredictedData.lastStandMoveStopTime;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v17 & 0x7F800000) == 2139095040 )
-      goto LABEL_24;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v18 & 0x7F800000) == 2139095040 )
-      goto LABEL_24;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v19 & 0x7F800000) == 2139095040 )
-    {
-LABEL_24:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 152, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to->origin )[0] ) && !IS_NAN( ( to->origin )[1] ) && !IS_NAN( ( to->origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to->origin )[0] ) && !IS_NAN( ( to->origin )[1] ) && !IS_NAN( ( to->origin )[2] )") )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v20 & 0x7F800000) == 2139095040 )
-      goto LABEL_25;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+40h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v21 & 0x7F800000) == 2139095040 )
-      goto LABEL_25;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+44h]
-      vmovss  [rsp+118h+var_E8], xmm0
-    }
-    if ( (v22 & 0x7F800000) == 2139095040 )
-    {
-LABEL_25:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 153, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to->velocity )[0] ) && !IS_NAN( ( to->velocity )[1] ) && !IS_NAN( ( to->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to->velocity )[0] ) && !IS_NAN( ( to->velocity )[1] ) && !IS_NAN( ( to->velocity )[2] )") )
-        __debugbreak();
-    }
+    *(_OWORD *)to->origin.v = v6;
+    to->velocity.v[2] = outPredictedData.velocity.v[2];
+    to->velocity.v[1] = v7;
+    to->movementDir = movementDir;
+    to->movementDirPrecise = outPredictedData.movementDirPrecise;
+    to->footstepCount = outPredictedData.footstepCount;
+    to->lastStandMoveStopTime = outPredictedData.lastStandMoveStopTime;
+    if ( ((LODWORD(to->origin.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(to->origin.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(to->origin.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 152, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to->origin )[0] ) && !IS_NAN( ( to->origin )[1] ) && !IS_NAN( ( to->origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to->origin )[0] ) && !IS_NAN( ( to->origin )[1] ) && !IS_NAN( ( to->origin )[2] )") )
+      __debugbreak();
+    if ( ((LODWORD(to->velocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(to->velocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(to->velocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 153, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to->velocity )[0] ) && !IS_NAN( ( to->velocity )[1] ) && !IS_NAN( ( to->velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to->velocity )[0] ) && !IS_NAN( ( to->velocity )[1] ) && !IS_NAN( ( to->velocity )[2] )") )
+      __debugbreak();
     return 1;
   }
   else
@@ -1190,80 +1069,76 @@ CL_ParseMP_ParseGamestate
 */
 void CL_ParseMP_ParseGamestate(LocalClientNum_t localClientNum, msg_t *msg)
 {
-  __int64 v4; 
+  __int64 v3; 
   ClConnectionDataMP *ClientConnectionData; 
   ClActiveClientMP *ClientMP; 
-  bool v8; 
+  bool v6; 
   int Byte; 
-  unsigned __int16 v10; 
+  unsigned __int16 v8; 
   unsigned int DataChecksum; 
   int Long; 
   unsigned __int64 Int64; 
   int Bit; 
-  unsigned int v15; 
-  unsigned int v16; 
+  unsigned int v13; 
+  unsigned int v14; 
   unsigned int DvarChecksum; 
   __int64 Checksum; 
   __int64 Bits; 
-  const char *v20; 
-  unsigned int v21; 
-  fileHandle_t *v22; 
-  fileHandle_t v23; 
+  const char *v18; 
+  unsigned int v19; 
+  fileHandle_t *v20; 
+  fileHandle_t v21; 
   int i; 
   ClConfigStringsMP *ClConfigStringsMP; 
   const char *ConfigString; 
-  int v27; 
-  char *v28; 
-  ClActiveClientMP *v29; 
+  int v25; 
+  char *v26; 
+  ClActiveClientMP *v27; 
+  const char *v28; 
+  ClConnectionDataMP *v29; 
   const char *v30; 
-  ClConnectionDataMP *v31; 
-  const char *v32; 
   char *m_ptr; 
-  char *v34; 
-  char *v35; 
+  char *v32; 
+  char *v33; 
   char *fmt; 
-  __int64 v37; 
-  __int64 v38; 
-  char v39; 
+  __int64 v35; 
+  __int64 v36; 
+  char v37; 
   char *head[3]; 
   BG_SynchronizedPlayerInfo playerInfo; 
   Mem_LargeLocal gametype; 
   Mem_LargeLocal string; 
 
   head[1] = (char *)-2i64;
-  v4 = localClientNum;
+  v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  v39 = clientUIActives[v4].frontEndSceneState[0];
-  if ( !v39 )
-    Con_Close((LocalClientNum_t)v4);
-  ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v4);
+  v37 = clientUIActives[v3].frontEndSceneState[0];
+  if ( !v37 )
+    Con_Close((LocalClientNum_t)v3);
+  ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v3);
   head[0] = (char *)ClientConnectionData;
   ClientConnectionData->connectPacketCount = 0;
-  CL_MainMP_ClearState((LocalClientNum_t)v4);
+  CL_MainMP_ClearState((LocalClientNum_t)v3);
   MSG_ClearLastReferencedEntity(msg);
   ClientConnectionData->serverCommandSequence = MSG_ReadLong(msg);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr cs:?cls@@3UClStatic@@A.mapCenter, xmm0; ClStatic cls
-    vmovss  dword ptr cs:?cls@@3UClStatic@@A.mapCenter+4, xmm0; ClStatic cls
-    vmovss  dword ptr cs:?cls@@3UClStatic@@A.mapCenter+8, xmm0; ClStatic cls
-  }
+  cls.mapCenter.v[0] = 0.0;
+  cls.mapCenter.v[1] = 0.0;
+  cls.mapCenter.v[2] = 0.0;
   MSG_ReadString(msg, (char *)&string, 0x24u);
-  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
+  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v3);
   ClientMP->mapcrc = MSG_ReadLong(msg);
   MSG_ReadString(msg, (char *)&gametype, 0x24u);
-  v8 = MSG_ReadBit(msg) != 0;
+  v6 = MSG_ReadBit(msg) != 0;
   Byte = MSG_ReadByte(msg);
   ClientMP->svCmdMaxDurationMsec = MSG_ReadByte(msg);
   LODWORD(ClientMP) = MSG_ReadShort(msg);
   cls.m_serverFrameDuration = Byte;
   ClStatic::SetGameMapName(&cls, (const char *)&string);
   ClStatic::SetActiveGameType(&cls, (const char *)&gametype);
-  ClStatic::SetActiveHardcoreMode(&cls, v8);
-  v10 = truncate_cast<unsigned short,int>((int)ClientMP);
-  ClStatic::SetWeaponMapRuntimeMaxEntries(&cls, v10);
+  ClStatic::SetActiveHardcoreMode(&cls, v6);
+  v8 = truncate_cast<unsigned short,int>((int)ClientMP);
+  ClStatic::SetWeaponMapRuntimeMaxEntries(&cls, v8);
   DataChecksum = BG_Omnvar_GetDataChecksum();
   Long = MSG_ReadLong(msg);
   if ( DataChecksum != Long )
@@ -1271,10 +1146,10 @@ void CL_ParseMP_ParseGamestate(LocalClientNum_t localClientNum, msg_t *msg)
     LODWORD(fmt) = Long;
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1442218C8, 6144i64, DataChecksum, fmt);
   }
-  CL_ParseMP_ParseCharacterCounts((LocalClientNum_t)v4, msg);
+  CL_ParseMP_ParseCharacterCounts((LocalClientNum_t)v3, msg);
   cls.m_scriptableNetChecksum = MSG_ReadLong(msg);
   Int64 = MSG_ReadInt64(msg);
-  ScriptableCl_SetChangeQueueIndex((const LocalClientNum_t)v4, Int64);
+  ScriptableCl_SetChangeQueueIndex((const LocalClientNum_t)v3, Int64);
   cls.spawnGroupLootSeed = 0;
   cls.spawnGroupLootTable[0] = 0;
   Bit = MSG_ReadBit(msg);
@@ -1287,18 +1162,18 @@ void CL_ParseMP_ParseGamestate(LocalClientNum_t localClientNum, msg_t *msg)
     MSG_ReadString(msg, cls.spawnGroupLootTableZones, 0x40u);
     MSG_ReadString(msg, cls.spawnGroupLootTableFilter, 0x400u);
   }
-  v15 = MSG_ReadLong(msg);
-  v16 = MSG_ReadLong(msg);
+  v13 = MSG_ReadLong(msg);
+  v14 = MSG_ReadLong(msg);
   if ( !NetConstStrings_AreStringsLoaded() )
   {
-    if ( (unsigned int)v4 >= 2 )
+    if ( (unsigned int)v3 >= 2 )
     {
-      LODWORD(v38) = 2;
-      LODWORD(v37) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v37, v38) )
+      LODWORD(v36) = 2;
+      LODWORD(v35) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v35, v36) )
         __debugbreak();
     }
-    if ( clientUIActives[v4].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2492, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tRebuilding NCS map for front-end scene", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
+    if ( clientUIActives[v3].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2492, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", "%s\n\tRebuilding NCS map for front-end scene", "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
       __debugbreak();
     NetConstStrings_BuildStringMap();
     BgDynamicLimits::UpdateDynamicValues();
@@ -1306,36 +1181,36 @@ void CL_ParseMP_ParseGamestate(LocalClientNum_t localClientNum, msg_t *msg)
   }
   DvarChecksum = NetConstStrings_GetDvarChecksum();
   Checksum = (unsigned int)NetConstStrings_GetChecksum();
-  LODWORD(v37) = v16;
-  LODWORD(fmt) = v15;
-  Com_Printf(14, "CL_ParseMP_ParseNetConstStrings: Comparing our checksums %x, %x against server %x, %x\n", DvarChecksum, Checksum, fmt, v37);
-  if ( DvarChecksum != v15 )
+  LODWORD(v35) = v14;
+  LODWORD(fmt) = v13;
+  Com_Printf(14, "CL_ParseMP_ParseNetConstStrings: Comparing our checksums %x, %x against server %x, %x\n", DvarChecksum, Checksum, fmt, v35);
+  if ( DvarChecksum != v13 )
   {
-    Com_PrintError(16, "Our Network Dvar checkum %x does not match the server %x. Network dvars must be available on all platforms. Look for recent DVAR_FLAGS_SERVER_REPLICATION changes that impacts the client and server differently.\n", DvarChecksum, v15);
+    Com_PrintError(16, "Our Network Dvar checkum %x does not match the server %x. Network dvars must be available on all platforms. Look for recent DVAR_FLAGS_SERVER_REPLICATION changes that impacts the client and server differently.\n", DvarChecksum, v13);
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144221780);
   }
-  if ( (_DWORD)Checksum != v16 )
+  if ( (_DWORD)Checksum != v14 )
   {
-    Com_PrintError(16, "Our NetConstString checkum %x does not match the server %x. Please collect both server and client logs and look for the checksum details.\n", (unsigned int)Checksum, v16);
+    Com_PrintError(16, "Our NetConstString checkum %x does not match the server %x. Please collect both server and client logs and look for the checksum details.\n", (unsigned int)Checksum, v14);
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144221780);
   }
   CL_ParseMP_InitWeaponMapSize();
   while ( 1 )
   {
     Bits = MSG_ReadBits(msg, 4u);
-    v21 = Bits;
+    v19 = Bits;
     if ( (unsigned __int64)(Bits + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum svc_ops_e __cdecl truncate_cast_impl<enum svc_ops_e,__int64>(__int64)", "signed", (int)Bits, "signed", Bits) )
       __debugbreak();
-    if ( v21 == 1 )
+    if ( v19 == 1 )
       break;
-    if ( v21 == 3 )
+    if ( v19 == 3 )
     {
       ClConfigStringsMP = ClConfigStringsMP::GetClConfigStringsMP();
-      ClConfigStringsMP::ParseConfigStrings(ClConfigStringsMP, (LocalClientNum_t)v4, msg);
+      ClConfigStringsMP::ParseConfigStrings(ClConfigStringsMP, (LocalClientNum_t)v3, msg);
       ConfigString = CL_GetConfigString(534);
       j_sscanf(ConfigString, "%f %f %f", &cls.mapCenter, &cls.mapCenter.y, &cls.mapCenter.z);
     }
-    else if ( v21 == 8 )
+    else if ( v19 == 8 )
     {
       bdSecurityID::bdSecurityID(&playerInfo.partyId);
       XUID::XUID(&playerInfo.xuid);
@@ -1357,65 +1232,65 @@ void CL_ParseMP_ParseGamestate(LocalClientNum_t localClientNum, msg_t *msg)
     }
     else
     {
-      v22 = FS_FOpenFileWrite((fileHandle_t *)&stru_144018080, v20);
-      v23.handle.handle = (__int64)v22;
-      if ( v22 != (fileHandle_t *)-1i64 )
+      v20 = FS_FOpenFileWrite((fileHandle_t *)&stru_144018080, v18);
+      v21.handle.handle = (__int64)v20;
+      if ( v20 != (fileHandle_t *)-1i64 )
       {
-        FS_Write(msg->data, msg->cursize, (fileHandle_t)v22);
-        FS_FCloseFile(v23);
+        FS_Write(msg->data, msg->cursize, (fileHandle_t)v20);
+        FS_FCloseFile(v21);
       }
-      Com_PrintError(1, "CL_ParseGamestate: bad command byte %d\n", v21);
+      Com_PrintError(1, "CL_ParseGamestate: bad command byte %d\n", v19);
       MSG_Discard(msg);
     }
   }
-  v27 = MSG_ReadLong(msg);
-  v28 = head[0];
-  *((_DWORD *)head[0] + 33032) = v27;
-  if ( v27 < 0 || v27 >= cls.maxClients )
+  v25 = MSG_ReadLong(msg);
+  v26 = head[0];
+  *((_DWORD *)head[0] + 33032) = v25;
+  if ( v25 < 0 || v25 >= cls.maxClients )
   {
-    Com_PrintError(1, "CL_ParseGamestate: bad clientNum %i\n", (unsigned int)v27);
-    *((_DWORD *)v28 + 33032) = 0;
+    Com_PrintError(1, "CL_ParseGamestate: bad clientNum %i\n", (unsigned int)v25);
+    *((_DWORD *)v26 + 33032) = 0;
     MSG_Discard(msg);
   }
   else
   {
-    *((_DWORD *)v28 + 37512) = MSG_ReadLong(msg);
-    if ( !v39 )
+    *((_DWORD *)v26 + 37512) = MSG_ReadLong(msg);
+    if ( !v37 )
       DB_SyncLevelLoad();
-    v29 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
-    v30 = CL_GetConfigString(530);
-    cls.serverId = atoi(v30);
-    v29->serverId = cls.serverId;
-    v31 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v4);
-    if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2406, ASSERT_TYPE_ASSERT, "(clcData)", "%s\n\tNull connection data when matchId updated", "clcData") )
+    v27 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v3);
+    v28 = CL_GetConfigString(530);
+    cls.serverId = atoi(v28);
+    v27->serverId = cls.serverId;
+    v29 = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v3);
+    if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2406, ASSERT_TYPE_ASSERT, "(clcData)", "%s\n\tNull connection data when matchId updated", "clcData") )
       __debugbreak();
     head[0] = NULL;
-    v32 = CL_GetConfigString(536);
-    j_sscanf(v32, "%llx", head);
-    v31->currentMatchId = (unsigned __int64)head[0];
+    v30 = CL_GetConfigString(536);
+    j_sscanf(v30, "%llx", head);
+    v29->currentMatchId = (unsigned __int64)head[0];
     Mem_LargeLocal::Mem_LargeLocal(&string, 0x2000ui64, "snapshot_key_t key");
     m_ptr = (char *)string.m_ptr;
     Mem_LargeLocal::Mem_LargeLocal(&gametype, 0x2000ui64, "snapshot_value_t value");
-    v34 = (char *)gametype.m_ptr;
-    v35 = (char *)CL_GetConfigString(529);
+    v32 = (char *)gametype.m_ptr;
+    v33 = (char *)CL_GetConfigString(529);
     if ( !Com_IsAnyLocalServerRunning() )
     {
-      head[0] = v35;
+      head[0] = v33;
       while ( head[0] )
       {
-        Info_NextPair((const char **)head, m_ptr, v34);
+        Info_NextPair((const char **)head, m_ptr, v32);
         if ( !*m_ptr )
           break;
-        Dvar_SetFromStringByNameFromSource(m_ptr, v34, DVAR_SOURCE_INTERNAL);
+        Dvar_SetFromStringByNameFromSource(m_ptr, v32, DVAR_SOURCE_INTERNAL);
       }
     }
     Mem_LargeLocal::~Mem_LargeLocal(&gametype);
     Mem_LargeLocal::~Mem_LargeLocal(&string);
-    CL_MainMP_InitializeGamestate((LocalClientNum_t)v4);
+    CL_MainMP_InitializeGamestate((LocalClientNum_t)v3);
     if ( !cls.m_activeGameTypeName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 309, ASSERT_TYPE_ASSERT, "(m_activeGameTypeName[0])", "%s\n\tRequested gametype before it was set", "m_activeGameTypeName[0]") )
       __debugbreak();
     MSG_SetupNetFieldListsForGame(cls.m_activeGameTypeName);
-    CL_LoadMigrationPers((LocalClientNum_t)v4);
+    CL_LoadMigrationPers((LocalClientNum_t)v3);
     CL_Pause_UnpauseGame();
     OnlineAutoTest::InGameSucceeded();
   }
@@ -1570,174 +1445,146 @@ CL_ParseMP_ParseOverlayBits
 void CL_ParseMP_ParseOverlayBits(LocalClientNum_t localClientNum, msg_t *msg)
 {
   __int64 Long; 
-  const char *v6; 
-  __int64 v7; 
-  const char *v8; 
-  __int64 v9; 
-  const char *v10; 
-  int v11; 
-  unsigned int v12; 
-  const char *v16; 
-  __int64 v17; 
-  const char *v18; 
-  __int64 v19; 
+  const char *v5; 
+  __int64 v6; 
+  const char *v7; 
+  __int64 v8; 
+  const char *v9; 
+  int v10; 
+  unsigned int v11; 
+  float v12; 
+  const char *v13; 
+  __int64 v14; 
+  const char *v15; 
+  __int64 v16; 
+  const char *v17; 
+  unsigned int v18; 
+  unsigned __int8 ActiveGameMode; 
   const char *v20; 
-  unsigned int v22; 
+  unsigned int v21; 
+  unsigned __int8 v22; 
+  const char *v23; 
+  unsigned int v24; 
+  unsigned __int8 v25; 
   const char *v26; 
   unsigned int v27; 
-  unsigned __int8 ActiveGameMode; 
+  float v28; 
   const char *v29; 
-  unsigned int v30; 
-  const char *v38; 
-  unsigned int v39; 
-  const char *v44; 
-  __int64 v45; 
-  const char *v46; 
-  __int64 v47; 
-  const char *v48; 
+  __int64 v30; 
+  const char *v31; 
+  __int64 v32; 
+  const char *v33; 
   int Byte; 
   __int64 Bits; 
-  int v51; 
-  __int64 v52; 
-  int v53; 
-  __int64 v54; 
-  int v55; 
+  int v36; 
+  __int64 v37; 
+  int v38; 
+  __int64 v39; 
+  int v40; 
   __int64 i; 
-  unsigned __int8 v57; 
-  int *v58; 
-  int v59; 
-  unsigned __int8 v60; 
+  unsigned __int8 v42; 
+  int *v43; 
+  int v44; 
+  unsigned __int8 v45; 
   int oldestKillcamTime; 
   int val; 
-  int v63; 
-  int v64[10]; 
+  int v48; 
+  int v49[10]; 
 
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1374, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
   if ( MSG_ReadBit(msg) )
   {
     Long = (unsigned int)MSG_ReadLong(msg);
-    v6 = j_va("Server FPS drop - frame time %i ms", Long);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SERVERFPS, 3000, v6, Long);
+    v5 = j_va("Server FPS drop - frame time %i ms", Long);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SERVERFPS, 3000, v5, Long);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v7 = (unsigned int)MSG_ReadLong(msg);
-    v8 = j_va("Havok server world %i bytes - budget %i", v7, 7340032i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_HAVOKSERVERMEM, 3000, v8, v7);
+    v6 = (unsigned int)MSG_ReadLong(msg);
+    v7 = j_va("Havok server world %i bytes - budget %i", v6, 7340032i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_HAVOKSERVERMEM, 3000, v7, v6);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v9 = (unsigned int)MSG_ReadLong(msg);
-    v10 = j_va("Snapshot sent %i entities - max %i", v9, (unsigned int)cls.maxEntitiesInSnapshotForClient);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SNAPSHOTENTS, 3000, v10, v9);
+    v8 = (unsigned int)MSG_ReadLong(msg);
+    v9 = j_va("Snapshot sent %i entities - max %i", v8, (unsigned int)cls.maxEntitiesInSnapshotForClient);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SNAPSHOTENTS, 3000, v9, v8);
   }
-  v11 = 0;
+  v10 = 0;
   if ( MSG_ReadBit(msg) )
     StatMon_Warning(STATMON_CLASS_WARNING, STATMON_TYPE_SCRIPTERROR, 3000, "Script Error", 0);
   if ( MSG_ReadBit(msg) )
   {
-    v12 = MSG_ReadLong(msg);
-    Live_GetNecessaryBandwidth(cls.maxClients);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3f4ccccd
-      vcvttss2si r8d, xmm1
-    }
-    v16 = j_va("Bandwidth Exceeded - size %i - max %i", v12, _R8);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BANDWIDTHEXCEEDED, 3000, v16, v12);
+    v11 = MSG_ReadLong(msg);
+    v12 = (float)(Live_GetNecessaryBandwidth(cls.maxClients) / 8) * 0.80000001;
+    v13 = j_va("Bandwidth Exceeded - size %i - max %i", v11, (unsigned int)(int)v12);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BANDWIDTHEXCEEDED, 3000, v13, v11);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v17 = (unsigned int)MSG_ReadLong(msg);
-    v18 = j_va("Gamestate Exceeded - size %i - max %i", v17, 4000i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_GAMESTATEEXCEEDED, 20000, v18, v17);
+    v14 = (unsigned int)MSG_ReadLong(msg);
+    v15 = j_va("Gamestate Exceeded - size %i - max %i", v14, 4000i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_GAMESTATEEXCEEDED, 20000, v15, v14);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v19 = (unsigned int)MSG_ReadLong(msg);
-    v20 = j_va("Bandwidth Limited - size %i", v19);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BANDWIDTHLIMITED, 3000, v20, v19);
+    v16 = (unsigned int)MSG_ReadLong(msg);
+    v17 = j_va("Bandwidth Limited - size %i", v16);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BANDWIDTHLIMITED, 3000, v17, v16);
   }
-  _R14 = 0x140000000ui64;
   if ( MSG_ReadBit(msg) )
   {
-    v22 = MSG_ReadLong(msg);
-    _RCX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
-    __asm
-    {
-      vmovss  xmm0, ds:rva g_budgetsMaxPhysicsServerWorldsAverageTimeGameplay_0[r14+rcx*4]
-      vaddss  xmm1, xmm0, ds:rva g_budgetsMaxPhysicsServerWorldsAverageTimeBase_0[r14+rcx*4]
-      vcvttss2si r8d, xmm1
-    }
-    v26 = j_va("Physics Server World Update:%i - max:%i", v22, _R8);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_WORLD_SERVER_UPDATE_TIME, 3000, v26, v22);
+    v18 = MSG_ReadLong(msg);
+    ActiveGameMode = Com_GameMode_GetActiveGameMode();
+    v20 = j_va("Physics Server World Update:%i - max:%i", v18, (unsigned int)(int)(float)(g_budgetsMaxPhysicsServerWorldsAverageTimeGameplay_0[ActiveGameMode] + g_budgetsMaxPhysicsServerWorldsAverageTimeBase_0[ActiveGameMode]));
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_WORLD_SERVER_UPDATE_TIME, 3000, v20, v18);
+  }
+  if ( MSG_ReadBit(msg) )
+  {
+    v21 = MSG_ReadLong(msg);
+    v22 = Com_GameMode_GetActiveGameMode();
+    v23 = j_va("PMove Server Traces:%i - max:%i", v21, (unsigned int)(10 * (g_budgetsMaxPlayersPerMode_0[v22] + g_budgetsMaxAgentsPerMode_0[v22])));
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PMOVE_SERVER_TRACE_COUNT, 3000, v23, v21);
+  }
+  if ( MSG_ReadBit(msg) )
+  {
+    v24 = MSG_ReadLong(msg);
+    v25 = Com_GameMode_GetActiveGameMode();
+    v26 = j_va("PMove Server Time:%ius - max:%ius", v24, (unsigned int)(int)(float)((float)((float)g_budgetsMaxAgentsPerMode_0[v25] * 125.0) + (float)((float)g_budgetsMaxPlayersPerMode_0[v25] * 250.0)));
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PMOVE_SERVER_TIME, 3000, v26, v24);
   }
   if ( MSG_ReadBit(msg) )
   {
     v27 = MSG_ReadLong(msg);
-    ActiveGameMode = Com_GameMode_GetActiveGameMode();
-    v29 = j_va("PMove Server Traces:%i - max:%i", v27, (unsigned int)(10 * (g_budgetsMaxPlayersPerMode_0[ActiveGameMode] + g_budgetsMaxAgentsPerMode_0[ActiveGameMode])));
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PMOVE_SERVER_TRACE_COUNT, 3000, v29, v27);
+    v28 = (float)g_budgetsWeaponMaxPelletsPerFrame_0[(unsigned __int8)Com_GameMode_GetActiveGameMode()] * 100.0;
+    v29 = j_va("Bullet Server Time:%ius - max:%ius", v27, (unsigned int)(int)v28);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BULLET_SERVER_TIME, 3000, v29, v27);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v30 = MSG_ReadLong(msg);
-    Com_GameMode_GetActiveGameMode();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ds:rva g_budgetsMaxAgentsPerMode_0[r14+rcx*4]
-      vmulss  xmm2, xmm0, cs:__real@42fa0000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ds:rva g_budgetsMaxPlayersPerMode_0[r14+rcx*4]
-      vmulss  xmm1, xmm0, cs:__real@437a0000
-      vaddss  xmm2, xmm2, xmm1
-      vcvttss2si r8d, xmm2
-    }
-    v38 = j_va("PMove Server Time:%ius - max:%ius", v30, _R8);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PMOVE_SERVER_TIME, 3000, v38, v30);
+    v30 = (unsigned int)MSG_ReadLong(msg);
+    v31 = j_va("Scriptables changed %i server/client states this frame - budget %i", v30, 128i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTABLE_STATE_CHANGE_SC, 3000, v31, v30);
   }
   if ( MSG_ReadBit(msg) )
   {
-    v39 = MSG_ReadLong(msg);
-    Com_GameMode_GetActiveGameMode();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ds:rva g_budgetsWeaponMaxPelletsPerFrame_0[r14+rcx*4]
-      vmulss  xmm1, xmm0, cs:__real@42c80000
-      vcvttss2si r8d, xmm1
-    }
-    v44 = j_va("Bullet Server Time:%ius - max:%ius", v39, _R8);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_BULLET_SERVER_TIME, 3000, v44, v39);
-  }
-  if ( MSG_ReadBit(msg) )
-  {
-    v45 = (unsigned int)MSG_ReadLong(msg);
-    v46 = j_va("Scriptables changed %i server/client states this frame - budget %i", v45, 128i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_SCRIPTABLE_STATE_CHANGE_SC, 3000, v46, v45);
-  }
-  if ( MSG_ReadBit(msg) )
-  {
-    v47 = (unsigned int)MSG_ReadLong(msg);
-    v48 = j_va("Changed %i propagation portals states - budget %i", v47, 10i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PROPAGATION_PORTAL_STATE_CHANGE, 3000, v48, v47);
+    v32 = (unsigned int)MSG_ReadLong(msg);
+    v33 = j_va("Changed %i propagation portals states - budget %i", v32, 10i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PROPAGATION_PORTAL_STATE_CHANGE, 3000, v33, v32);
   }
   Byte = MSG_ReadByte(msg);
   Bits = MSG_ReadBits(msg, 0xBu);
-  v51 = truncate_cast<int,__int64>(Bits);
-  v52 = MSG_ReadBits(msg, 0xBu);
-  v53 = truncate_cast<int,__int64>(v52);
-  v54 = MSG_ReadBits(msg, 0xBu);
-  v55 = truncate_cast<int,__int64>(v54);
+  v36 = truncate_cast<int,__int64>(Bits);
+  v37 = MSG_ReadBits(msg, 0xBu);
+  v38 = truncate_cast<int,__int64>(v37);
+  v39 = MSG_ReadBits(msg, 0xBu);
+  v40 = truncate_cast<int,__int64>(v39);
   oldestKillcamTime = MSG_ReadLong(msg);
   val = MSG_ReadByte(msg);
   for ( i = 0i64; i < 10; ++i )
-    v64[i] = MSG_ReadByte(msg);
-  v63 = MSG_ReadByte(msg);
+    v49[i] = MSG_ReadByte(msg);
+  v48 = MSG_ReadByte(msg);
   if ( msg->overflowed )
   {
     Com_PrintError(14, "CL_ParseMP_ParseOverlayBits overflowed\n");
@@ -1745,22 +1592,22 @@ void CL_ParseMP_ParseOverlayBits(LocalClientNum_t localClientNum, msg_t *msg)
   else
   {
     CG_DrawNetMP_TrackServerBandwidth(Byte);
-    CG_DrawNetMP_TrackServerEntities(v51, v53, v55);
+    CG_DrawNetMP_TrackServerEntities(v36, v38, v40);
     CG_DrawNetMP_TrackKillcamTime(oldestKillcamTime);
-    v57 = truncate_cast<unsigned char,int>(val);
-    CG_DrawDebugMP_UpdateSnapshotFullPercent(localClientNum, v57);
-    v58 = v64;
+    v42 = truncate_cast<unsigned char,int>(val);
+    CG_DrawDebugMP_UpdateSnapshotFullPercent(localClientNum, v42);
+    v43 = v49;
     do
     {
-      v59 = *v58;
-      if ( (*v58 < 0 || (unsigned int)v59 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v59, "signed", v59) )
+      v44 = *v43;
+      if ( (*v43 < 0 || (unsigned int)v44 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v44, "signed", v44) )
         __debugbreak();
-      CG_DrawDebugMP_UpdateSnapshotBufferUsage(localClientNum, v11++, v59);
-      ++v58;
+      CG_DrawDebugMP_UpdateSnapshotBufferUsage(localClientNum, v10++, v44);
+      ++v43;
     }
-    while ( v11 < 10 );
-    v60 = truncate_cast<unsigned char,int>(v63);
-    CG_DrawDebugMP_UpdateHudOutlineUsage(localClientNum, v60);
+    while ( v10 < 10 );
+    v45 = truncate_cast<unsigned char,int>(v48);
+    CG_DrawDebugMP_UpdateHudOutlineUsage(localClientNum, v45);
   }
 }
 
@@ -1950,14 +1797,19 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
   bool v15; 
   bool v16; 
   const dvar_t *v17; 
+  clientState_t *v18; 
   __int64 v19; 
-  const dvar_t *v30; 
-  const dvar_t *v31; 
-  const dvar_t *v32; 
-  __int64 v34; 
-  const dvar_t *v44; 
-  int v48; 
-  clientState_t v49; 
+  clientState_t *v20; 
+  __int128 v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  clientState_t *v25; 
+  __int64 v26; 
+  __int128 v27; 
+  const dvar_t *v28; 
+  int v32; 
+  clientState_t v33; 
 
   v6 = newframe;
   v7 = 0i64;
@@ -1981,7 +1833,7 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
     clientIndex = 99999;
   }
   ClientBits = ComCharacterLimits::GetClientBits();
-  v48 = ClientBits;
+  v32 = ClientBits;
   if ( !msg->overflowed )
   {
     while ( MSG_ReadBit(msg) )
@@ -2002,40 +1854,29 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
           Dvar_CheckFrontendServerThread(v17);
           if ( v17->current.integer == 3 )
             Com_Printf(14, "%3i:  unchanged: %i\n", (unsigned int)msg->readcount, (unsigned int)clientIndex);
-          _RAX = old;
+          v18 = old;
           v19 = 3i64;
-          _RDX = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
+          v20 = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
           do
           {
-            _RDX = (clientState_t *)((char *)_RDX + 128);
-            __asm { vmovups xmm0, xmmword ptr [rax] }
-            _RAX = (clientState_t *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups xmmword ptr [rdx-80h], xmm0
-              vmovups xmm1, xmmword ptr [rax-70h]
-              vmovups xmmword ptr [rdx-70h], xmm1
-              vmovups xmm0, xmmword ptr [rax-60h]
-              vmovups xmmword ptr [rdx-60h], xmm0
-              vmovups xmm1, xmmword ptr [rax-50h]
-              vmovups xmmword ptr [rdx-50h], xmm1
-              vmovups xmm0, xmmword ptr [rax-40h]
-              vmovups xmmword ptr [rdx-40h], xmm0
-              vmovups xmm1, xmmword ptr [rax-30h]
-              vmovups xmmword ptr [rdx-30h], xmm1
-              vmovups xmm0, xmmword ptr [rax-20h]
-              vmovups xmmword ptr [rdx-20h], xmm0
-              vmovups xmm1, xmmword ptr [rax-10h]
-              vmovups xmmword ptr [rdx-10h], xmm1
-            }
+            v20 = (clientState_t *)((char *)v20 + 128);
+            v21 = *(_OWORD *)&v18->clientIndex;
+            v18 = (clientState_t *)((char *)v18 + 128);
+            *(_OWORD *)&v20[-1].mount.normalIndex = v21;
+            *(_OWORD *)&v20[-1].perkIconName = *(_OWORD *)&v18[-1].perkIconName;
+            *(_OWORD *)&v20[-1].doorState[0].angle = *(_OWORD *)&v18[-1].doorState[0].angle;
+            *(_OWORD *)&v20[-1].doorState[1].owner = *(_OWORD *)&v18[-1].doorState[1].owner;
+            *(_OWORD *)&v20[-1].footstepActionType = *(_OWORD *)&v18[-1].footstepActionType;
+            *(_OWORD *)&v20[-1].playerASM_scripted_anim_start_time = *(_OWORD *)&v18[-1].playerASM_scripted_anim_start_time;
+            *(_OWORD *)&v20[-1].vehicleAnimStateSeat = *(_OWORD *)&v18[-1].vehicleAnimStateSeat;
+            *(_OWORD *)&v20[-1].movingPlatform = *(_OWORD *)&v18[-1].movingPlatform;
             --v19;
           }
           while ( v19 );
-          __asm { vmovups xmm0, xmmword ptr [rax] }
           v6 = newframe;
           ++v7;
-          __asm { vmovups xmmword ptr [rdx], xmm0 }
-          *(_QWORD *)&_RDX->doNotSimulateTracers = *(_QWORD *)&_RAX->doNotSimulateTracers;
+          *(_OWORD *)&v20->clientIndex = *(_OWORD *)&v18->clientIndex;
+          *(_QWORD *)&v20->doNotSimulateTracers = *(_QWORD *)&v18->doNotSimulateTracers;
           ++cl->parseClientsIndex;
           ++newframe->numClients;
           if ( v7 < oldframe->numClients )
@@ -2054,11 +1895,11 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
       }
       if ( v15 )
       {
-        v30 = DVARINT_cl_shownet;
+        v22 = DVARINT_cl_shownet;
         if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v30);
-        if ( v30->current.integer == 3 )
+        Dvar_CheckFrontendServerThread(v22);
+        if ( v22->current.integer == 3 )
           Com_Printf(14, "%3i:  delta: %i\n", (unsigned int)msg->readcount, (unsigned int)newnum);
         CL_ParseMP_DeltaClient(localClientNum, cl, msg, time, v6, newnum, old, 0);
         if ( ++v7 < oldframe->numClients )
@@ -2075,17 +1916,17 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
       {
         if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 824, ASSERT_TYPE_ASSERT, "(oldnum > newnum)", (const char *)&queryFormat, "oldnum > newnum") )
           __debugbreak();
-        v31 = DVARINT_cl_shownet;
+        v23 = DVARINT_cl_shownet;
         if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v31);
-        if ( v31->current.integer == 3 )
+        Dvar_CheckFrontendServerThread(v23);
+        if ( v23->current.integer == 3 )
           Com_Printf(14, "%3i:  baseline: %i\n", (unsigned int)msg->readcount, (unsigned int)newnum);
-        memset_0(&v49, 0, sizeof(v49));
+        memset_0(&v33, 0, sizeof(v33));
         v6 = newframe;
-        CL_ParseMP_DeltaClient(localClientNum, cl, msg, time, newframe, newnum, &v49, 0);
+        CL_ParseMP_DeltaClient(localClientNum, cl, msg, time, newframe, newnum, &v33, 0);
       }
-      ClientBits = v48;
+      ClientBits = v32;
       if ( msg->overflowed )
         break;
     }
@@ -2096,45 +1937,34 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
     {
       if ( msg->overflowed )
         break;
-      v32 = DVARINT_cl_shownet;
+      v24 = DVARINT_cl_shownet;
       if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      if ( v32->current.integer == 3 )
+      Dvar_CheckFrontendServerThread(v24);
+      if ( v24->current.integer == 3 )
         Com_Printf(14, "%3i:  unchanged: %i\n", (unsigned int)msg->readcount, (unsigned int)clientIndex);
-      _RAX = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
-      v34 = 3i64;
+      v25 = &cl->parseClients[cl->parseClientsIndex % cl->parseClientsCount];
+      v26 = 3i64;
       do
       {
-        _RAX = (clientState_t *)((char *)_RAX + 128);
-        __asm { vmovups xmm0, xmmword ptr [rbx] }
+        v25 = (clientState_t *)((char *)v25 + 128);
+        v27 = *(_OWORD *)&old->clientIndex;
         old = (clientState_t *)((char *)old + 128);
-        __asm
-        {
-          vmovups xmmword ptr [rax-80h], xmm0
-          vmovups xmm1, xmmword ptr [rbx-70h]
-          vmovups xmmword ptr [rax-70h], xmm1
-          vmovups xmm0, xmmword ptr [rbx-60h]
-          vmovups xmmword ptr [rax-60h], xmm0
-          vmovups xmm1, xmmword ptr [rbx-50h]
-          vmovups xmmword ptr [rax-50h], xmm1
-          vmovups xmm0, xmmword ptr [rbx-40h]
-          vmovups xmmword ptr [rax-40h], xmm0
-          vmovups xmm1, xmmword ptr [rbx-30h]
-          vmovups xmmword ptr [rax-30h], xmm1
-          vmovups xmm0, xmmword ptr [rbx-20h]
-          vmovups xmmword ptr [rax-20h], xmm0
-          vmovups xmm1, xmmword ptr [rbx-10h]
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
-        --v34;
+        *(_OWORD *)&v25[-1].mount.normalIndex = v27;
+        *(_OWORD *)&v25[-1].perkIconName = *(_OWORD *)&old[-1].perkIconName;
+        *(_OWORD *)&v25[-1].doorState[0].angle = *(_OWORD *)&old[-1].doorState[0].angle;
+        *(_OWORD *)&v25[-1].doorState[1].owner = *(_OWORD *)&old[-1].doorState[1].owner;
+        *(_OWORD *)&v25[-1].footstepActionType = *(_OWORD *)&old[-1].footstepActionType;
+        *(_OWORD *)&v25[-1].playerASM_scripted_anim_start_time = *(_OWORD *)&old[-1].playerASM_scripted_anim_start_time;
+        *(_OWORD *)&v25[-1].vehicleAnimStateSeat = *(_OWORD *)&old[-1].vehicleAnimStateSeat;
+        *(_OWORD *)&v25[-1].movingPlatform = *(_OWORD *)&old[-1].movingPlatform;
+        --v26;
       }
-      while ( v34 );
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
+      while ( v26 );
       v6 = newframe;
       ++v7;
-      __asm { vmovups xmmword ptr [rax], xmm0 }
-      *(_QWORD *)&_RAX->doNotSimulateTracers = *(_QWORD *)&old->doNotSimulateTracers;
+      *(_OWORD *)&v25->clientIndex = *(_OWORD *)&old->clientIndex;
+      *(_QWORD *)&v25->doNotSimulateTracers = *(_QWORD *)&old->doNotSimulateTracers;
       ++cl->parseClientsIndex;
       ++newframe->numClients;
       if ( v7 >= oldframe->numClients )
@@ -2144,11 +1974,11 @@ char CL_ParseMP_ParsePacketClients(const LocalClientNum_t localClientNum, ClActi
     }
     while ( old->clientIndex != 99999 );
   }
-  v44 = DVARBOOL_cl_shownuments;
+  v28 = DVARBOOL_cl_shownuments;
   if ( !DVARBOOL_cl_shownuments && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownuments") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v44);
-  if ( v44->current.enabled )
+  Dvar_CheckFrontendServerThread(v28);
+  if ( v28->current.enabled )
     Com_Printf(14, "Clients in packet: %i\n", v6->numClients);
   return 1;
 }
@@ -2161,52 +1991,44 @@ CL_ParseMP_ParsePacketEntities
 void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 time, ClSnapshot *oldframe, ClSnapshot *newframe)
 {
   __int64 noDeltaUseCount; 
-  int v13; 
+  int v9; 
   int serverTime; 
-  __int64 v15; 
+  __int64 v11; 
   entityState_t *EntityStateForFrame; 
   int number; 
   int EntityIndex; 
-  __int64 v19; 
-  bool v20; 
-  bool v21; 
-  const dvar_t *v22; 
+  __int64 v15; 
+  bool v16; 
+  bool v17; 
+  const dvar_t *v18; 
   const char *EntityTypeName; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  __int16 v22; 
+  entityState_t *Entity; 
   const dvar_t *v24; 
-  const dvar_t *v25; 
-  __int16 v26; 
-  const dvar_t *v44; 
-  ClActiveClientMP *v45; 
-  float v47; 
-  const char *v60; 
-  const dvar_t *v61; 
+  ClActiveClientMP *v25; 
+  float v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  const char *v30; 
+  const dvar_t *v31; 
   __int64 numEntities; 
   char *fmt; 
-  char *fmta; 
   __int64 newnum; 
-  double newnuma; 
   entityState_t *oldES; 
-  entityState_t *oldESa; 
-  __int64 v73; 
+  __int64 v36; 
   int timea[2]; 
-  int v75[4]; 
-  ClActiveClientMP *v76; 
-  __int64 v77; 
-  __int64 v78; 
-  entityState_t v79; 
-  char v80; 
-  void *retaddr; 
+  int v38[4]; 
+  ClActiveClientMP *v39; 
+  __int64 v40; 
+  __int64 v41; 
+  entityState_t v42; 
 
-  _RAX = &retaddr;
-  v78 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
+  v41 = -2i64;
   timea[0] = time;
-  v76 = cl;
+  v39 = cl;
   if ( !newframe )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 511, ASSERT_TYPE_ASSERT, "(newframe)", (const char *)&queryFormat, "newframe") )
@@ -2217,8 +2039,8 @@ void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 ti
   if ( (newframe->info.snapFlags & 8) == 0 )
     noDeltaUseCount = cl->parseEntitiesIndex;
   newframe->parseEntitiesIndex = noDeltaUseCount;
-  v13 = 0;
-  v77 = 0i64;
+  v9 = 0;
+  v40 = 0i64;
   newframe->numEntities = 0;
   *(_QWORD *)newframe->entitiesLoD.array = -1i64;
   *(_QWORD *)&newframe->entitiesLoD.array[2] = -1i64;
@@ -2261,7 +2083,7 @@ void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 ti
     LODWORD(fmt) = serverTime;
     Com_Printf(14, "New snapshot time %i, serverTime %i, oldframe time is %i\n", time, (unsigned int)newframe->info.serverTime, fmt);
   }
-  v15 = 0i64;
+  v11 = 0i64;
   EntityStateForFrame = NULL;
   if ( oldframe )
   {
@@ -2283,47 +2105,47 @@ void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 ti
   {
     while ( 1 )
     {
-      memset_0(&v79, 0, sizeof(v79));
+      memset_0(&v42, 0, sizeof(v42));
       EntityIndex = MSG_ReadEntityIndex(msg, 11);
-      v19 = EntityIndex;
+      v15 = EntityIndex;
       if ( (unsigned int)EntityIndex > 0x7FF )
       {
         LODWORD(newnum) = EntityIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 567, ASSERT_TYPE_ASSERT, "( ( newnum >= 0 && newnum < ( 2048 ) ) )", "( newnum ) = %i", newnum) )
           __debugbreak();
       }
-      if ( msg->overflowed || (_DWORD)v19 == 2047 )
+      if ( msg->overflowed || (_DWORD)v15 == 2047 )
         break;
       if ( msg->readcount > msg->cursize )
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14421F9D8, 291i64);
-      v20 = number == (_DWORD)v19;
-      v21 = number <= (int)v19;
-      if ( number < (int)v19 )
+      v16 = number == (_DWORD)v15;
+      v17 = number <= (int)v15;
+      if ( number < (int)v15 )
       {
         do
         {
           if ( msg->overflowed )
             break;
-          v22 = DVARINT_cl_shownet;
+          v18 = DVARINT_cl_shownet;
           if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v22);
-          if ( v22->current.integer == 3 )
+          Dvar_CheckFrontendServerThread(v18);
+          if ( v18->current.integer == 3 )
             Com_Printf(14, "%3i:  unchanged: %i\n", (unsigned int)msg->readcount, (unsigned int)number);
-          CL_ParseMP_CopyOldEntity(v76, newframe, EntityStateForFrame, oldframe);
+          CL_ParseMP_CopyOldEntity(v39, newframe, EntityStateForFrame, oldframe);
           if ( msg_dumpEnts->current.enabled )
           {
             EntityTypeName = BG_GetEntityTypeName((const entityType_s)EntityStateForFrame->eType);
             Com_Printf(14, "%3i: unchanged ent, eType %s\n", (unsigned int)number, EntityTypeName);
           }
-          if ( ++v15 < oldframe->numEntities )
+          if ( ++v11 < oldframe->numEntities )
           {
-            EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v76, oldframe, v15);
+            EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v39, oldframe, v11);
             if ( number >= EntityStateForFrame->number )
             {
-              LODWORD(v73) = EntityStateForFrame->number;
+              LODWORD(v36) = EntityStateForFrame->number;
               LODWORD(oldES) = number;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 606, ASSERT_TYPE_ASSERT, "(oldnum < oldstate->number)", "%s\n\toldnum is going from %i to %i on index %lld in frame at %p", "oldnum < oldstate->number", oldES, v73, v15, oldframe) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 606, ASSERT_TYPE_ASSERT, "(oldnum < oldstate->number)", "%s\n\toldnum is going from %i to %i on index %lld in frame at %p", "oldnum < oldstate->number", oldES, v36, v11, oldframe) )
                 __debugbreak();
             }
             number = EntityStateForFrame->number;
@@ -2333,22 +2155,22 @@ void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 ti
             number = 99999;
           }
         }
-        while ( number < (int)v19 );
-        v20 = number == (_DWORD)v19;
-        v21 = number <= (int)v19;
+        while ( number < (int)v15 );
+        v16 = number == (_DWORD)v15;
+        v17 = number <= (int)v15;
       }
-      if ( v20 )
+      if ( v16 )
       {
-        v24 = DVARINT_cl_shownet;
+        v20 = DVARINT_cl_shownet;
         if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v24);
-        if ( v24->current.integer == 3 )
-          Com_Printf(14, "%3i:  delta: %i\n", (unsigned int)msg->readcount, (unsigned int)v19);
-        CL_ParseMP_DeltaEntity(v76, msg, timea[0], oldframe, newframe, v19, EntityStateForFrame);
-        if ( ++v15 < oldframe->numEntities )
+        Dvar_CheckFrontendServerThread(v20);
+        if ( v20->current.integer == 3 )
+          Com_Printf(14, "%3i:  delta: %i\n", (unsigned int)msg->readcount, (unsigned int)v15);
+        CL_ParseMP_DeltaEntity(v39, msg, timea[0], oldframe, newframe, v15, EntityStateForFrame);
+        if ( ++v11 < oldframe->numEntities )
         {
-          EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v76, oldframe, v15);
+          EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v39, oldframe, v11);
           number = EntityStateForFrame->number;
         }
         else
@@ -2358,170 +2180,94 @@ void CL_ParseMP_ParsePacketEntities(ClActiveClientMP *cl, msg_t *msg, __int64 ti
       }
       else
       {
-        if ( v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 640, ASSERT_TYPE_ASSERT, "(oldnum > newnum)", (const char *)&queryFormat, "oldnum > newnum") )
+        if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 640, ASSERT_TYPE_ASSERT, "(oldnum > newnum)", (const char *)&queryFormat, "oldnum > newnum") )
           __debugbreak();
-        v25 = DVARINT_cl_shownet;
+        v21 = DVARINT_cl_shownet;
         if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v25);
-        if ( v25->current.integer == 3 )
-          Com_Printf(14, "%3i:  baseline: %i\n", (unsigned int)msg->readcount, (unsigned int)v19);
+        Dvar_CheckFrontendServerThread(v21);
+        if ( v21->current.integer == 3 )
+          Com_Printf(14, "%3i:  baseline: %i\n", (unsigned int)msg->readcount, (unsigned int)v15);
         if ( (newframe->info.snapFlags & 0x10) != 0 )
         {
-          v26 = truncate_cast<short,int>(v19);
-          _RAX = NetConstBaselines_GetEntity(v26);
-          _RCX = &v79;
-          if ( _RAX )
-          {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rax+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rax+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rax+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rax+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rcx+70h], xmm1
-              vmovups xmm0, xmmword ptr [rax+80h]
-              vmovups xmmword ptr [rcx+80h], xmm0
-              vmovups xmm1, xmmword ptr [rax+90h]
-              vmovups xmmword ptr [rcx+90h], xmm1
-              vmovups xmm0, xmmword ptr [rax+0A0h]
-              vmovups xmmword ptr [rcx+0A0h], xmm0
-              vmovups xmm1, xmmword ptr [rax+0B0h]
-              vmovups xmmword ptr [rcx+0B0h], xmm1
-              vmovups xmm0, xmmword ptr [rax+0C0h]
-              vmovups xmmword ptr [rcx+0C0h], xmm0
-              vmovups xmm1, xmmword ptr [rax+0D0h]
-              vmovups xmmword ptr [rcx+0D0h], xmm1
-              vmovups xmm0, xmmword ptr [rax+0E0h]
-              vmovups xmmword ptr [rcx+0E0h], xmm0
-            }
-            *(_QWORD *)&v79.partBits.array[6] = *(_QWORD *)&_RAX->partBits.array[6];
-          }
+          v22 = truncate_cast<short,int>(v15);
+          Entity = (entityState_t *)NetConstBaselines_GetEntity(v22);
+          if ( Entity )
+            v42 = *Entity;
           else
-          {
-            memset_0(&v79, 0, sizeof(v79));
-          }
+            memset_0(&v42, 0, sizeof(v42));
         }
-        if ( (unsigned int)(v19 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v19, "signed", v19) )
+        if ( (unsigned int)(v15 + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v15, "signed", v15) )
           __debugbreak();
-        v79.number = v19;
-        CL_ParseMP_DeltaEntity(v76, msg, timea[0], oldframe, newframe, v19, &v79);
+        v42.number = v15;
+        CL_ParseMP_DeltaEntity(v39, msg, timea[0], oldframe, newframe, v15, &v42);
       }
-      v13 = v77 + 1;
-      v77 = (unsigned int)(v77 + 1);
+      v9 = v40 + 1;
+      v40 = (unsigned int)(v40 + 1);
       if ( msg->overflowed )
         goto LABEL_70;
     }
-    v13 = v77;
+    v9 = v40;
   }
 LABEL_70:
   if ( number != 99999 )
   {
     while ( !msg->overflowed )
     {
-      v44 = DVARINT_cl_shownet;
+      v24 = DVARINT_cl_shownet;
       if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v44);
-      if ( v44->current.integer == 3 )
+      Dvar_CheckFrontendServerThread(v24);
+      if ( v24->current.integer == 3 )
         Com_Printf(14, "%3i:  unchanged: %i\n", (unsigned int)msg->readcount, (unsigned int)number);
-      v45 = v76;
-      CL_ParseMP_CopyOldEntity(v76, newframe, EntityStateForFrame, oldframe);
-      ++v15;
+      v25 = v39;
+      CL_ParseMP_CopyOldEntity(v39, newframe, EntityStateForFrame, oldframe);
+      ++v11;
       if ( msg_dumpEnts->current.enabled )
       {
-        _RDI = &EntityStateForFrame->lerp.pos;
         if ( EntityStateForFrame == (entityState_t *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
           __debugbreak();
-        if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+        if ( EntityStateForFrame->lerp.pos.trType == TR_LINEAR_STOP_SECURE )
         {
-          *(_QWORD *)timea = v75;
-          v47 = EntityStateForFrame->lerp.pos.trBase.v[1];
-          v75[2] = s_trbase_aab_Z ^ LODWORD(v47) ^ LODWORD(EntityStateForFrame->lerp.pos.trBase.v[2]);
-          v75[1] = s_trbase_aab_Y ^ LODWORD(EntityStateForFrame->lerp.pos.trBase.v[0]) ^ LODWORD(v47);
-          v75[0] = LODWORD(EntityStateForFrame->lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
+          *(_QWORD *)timea = v38;
+          v26 = EntityStateForFrame->lerp.pos.trBase.v[1];
+          v38[2] = s_trbase_aab_Z ^ LODWORD(v26) ^ LODWORD(EntityStateForFrame->lerp.pos.trBase.v[2]);
+          v38[1] = s_trbase_aab_Y ^ LODWORD(EntityStateForFrame->lerp.pos.trBase.v[0]) ^ LODWORD(v26);
+          v38[0] = LODWORD(EntityStateForFrame->lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
           memset(timea, 0, sizeof(timea));
-          __asm
+          timea[0] = v38[0];
+          if ( (v38[0] & 0x7F800000) == 2139095040 || (timea[0] = v38[1], (v38[1] & 0x7F800000) == 2139095040) || (timea[0] = v38[2], (v38[2] & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, [rsp+1F8h+var_1A0]
-            vmovss  [rsp+1F8h+time], xmm0
-          }
-          if ( (timea[0] & 0x7F800000) == 2139095040 )
-            goto LABEL_105;
-          __asm
-          {
-            vmovss  xmm0, [rsp+1F8h+var_19C]
-            vmovss  [rsp+1F8h+time], xmm0
-          }
-          if ( (timea[0] & 0x7F800000) == 2139095040 )
-            goto LABEL_105;
-          __asm
-          {
-            vmovss  xmm0, [rsp+1F8h+var_198]
-            vmovss  [rsp+1F8h+time], xmm0
-          }
-          if ( (timea[0] & 0x7F800000) == 2139095040 )
-          {
-LABEL_105:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
               __debugbreak();
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+0Ch]
-            vmovss  [rsp+1F8h+var_1A0], xmm0
-            vmovss  xmm1, dword ptr [rdi+10h]
-            vmovss  [rsp+1F8h+var_19C], xmm1
-            vmovss  xmm0, dword ptr [rdi+14h]
-            vmovss  [rsp+1F8h+var_198], xmm0
-          }
+          v38[0] = LODWORD(EntityStateForFrame->lerp.pos.trBase.v[0]);
+          v38[1] = LODWORD(EntityStateForFrame->lerp.pos.trBase.v[1]);
+          v38[2] = LODWORD(EntityStateForFrame->lerp.pos.trBase.v[2]);
         }
-        __asm
-        {
-          vmovss  xmm6, [rsp+1F8h+var_198]
-          vcvtss2sd xmm6, xmm6, xmm6
-          vmovss  xmm7, [rsp+1F8h+var_19C]
-          vcvtss2sd xmm7, xmm7, xmm7
-          vmovss  xmm8, [rsp+1F8h+var_1A0]
-          vcvtss2sd xmm8, xmm8, xmm8
-        }
-        v60 = BG_GetEntityTypeName((const entityType_s)EntityStateForFrame->eType);
-        __asm
-        {
-          vmovsd  [rsp+1F8h+oldES], xmm6
-          vmovsd  qword ptr [rsp+1F8h+newnum], xmm7
-          vmovsd  [rsp+1F8h+fmt], xmm8
-        }
-        Com_Printf(14, "%3i: unchanged ent, eType %s at %f, %f, %f\n", (unsigned int)number, v60, *(double *)&fmta, newnuma, *(double *)&oldESa);
-        memset(v75, 0, 0xCui64);
-        v45 = v76;
+        v27 = *(float *)&v38[2];
+        v28 = *(float *)&v38[1];
+        v29 = *(float *)v38;
+        v30 = BG_GetEntityTypeName((const entityType_s)EntityStateForFrame->eType);
+        Com_Printf(14, "%3i: unchanged ent, eType %s at %f, %f, %f\n", (unsigned int)number, v30, v29, v28, v27);
+        memset(v38, 0, 0xCui64);
+        v25 = v39;
       }
-      if ( v15 >= oldframe->numEntities )
+      if ( v11 >= oldframe->numEntities )
         break;
-      EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v45, oldframe, v15);
+      EntityStateForFrame = CL_ParseMP_GetEntityStateForFrame(v25, oldframe, v11);
       number = EntityStateForFrame->number;
     }
-    v13 = v77;
+    v9 = v40;
   }
-  v61 = DVARBOOL_cl_shownuments;
+  v31 = DVARBOOL_cl_shownuments;
   if ( !DVARBOOL_cl_shownuments && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownuments") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v61);
-  if ( v61->current.enabled || msg_dumpEnts->current.enabled )
+  Dvar_CheckFrontendServerThread(v31);
+  if ( v31->current.enabled || msg_dumpEnts->current.enabled )
     Com_Printf(14, "Entities in packet for serverTime %i: %i\n", (unsigned int)newframe->info.serverTime, newframe->numEntities);
   if ( (newframe->info.snapFlags & 8) != 0 )
   {
@@ -2529,14 +2275,7 @@ LABEL_105:
     if ( numEntities != cls.nextNoDeltaEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 719, ASSERT_TYPE_ASSERT, "( static_cast<SnapshotEntryIndex>(newframe->numEntities) ) == ( cls.nextNoDeltaEntity )", "%s == %s\n\t%lli, %lli", "static_cast<SnapshotEntryIndex>(newframe->numEntities)", "cls.nextNoDeltaEntity", numEntities, cls.nextNoDeltaEntity) )
       __debugbreak();
   }
-  CG_DrawNetMP_TrackClientEntities(v13);
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  CG_DrawNetMP_TrackClientEntities(v9);
 }
 
 /*
@@ -2549,12 +2288,14 @@ void CL_ParseMP_ParsePacketWeapons(ClActiveClientMP *cl, msg_t *msg, ClSnapshot 
   msg_t *v8; 
   __int64 v10; 
   WeaponMapEntry *WeaponEntryForFrame; 
+  WeaponMapEntry *v12; 
   int index; 
   int WeaponMapEntry_Index; 
+  WeaponMapEntry *v15; 
+  WeaponMapEntry *v16; 
+  int v17; 
+  int v18; 
   WeaponMapEntry *v19; 
-  int v20; 
-  int v21; 
-  WeaponMapEntry *v22; 
 
   v8 = msg;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1136, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
@@ -2575,7 +2316,7 @@ void CL_ParseMP_ParsePacketWeapons(ClActiveClientMP *cl, msg_t *msg, ClSnapshot 
   MSG_ClearLastReferencedEntity(v8);
   v10 = 0i64;
   WeaponEntryForFrame = CL_ParseMP_GetWeaponEntryForFrame(cl, oldframe, 0i64, oldWeaponsAreNoDelta);
-  _RDI = WeaponEntryForFrame;
+  v12 = WeaponEntryForFrame;
   if ( !WeaponEntryForFrame )
     goto LABEL_15;
   index = WeaponEntryForFrame->index;
@@ -2584,32 +2325,26 @@ void CL_ParseMP_ParsePacketWeapons(ClActiveClientMP *cl, msg_t *msg, ClSnapshot 
     WeaponMapEntry_Index = MSG_ReadWeaponMapEntry_Index(v8);
     while ( index < WeaponMapEntry_Index )
     {
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1165, ASSERT_TYPE_ASSERT, "(oldWeaponMapEntry)", (const char *)&queryFormat, "oldWeaponMapEntry") )
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1165, ASSERT_TYPE_ASSERT, "(oldWeaponMapEntry)", (const char *)&queryFormat, "oldWeaponMapEntry") )
         __debugbreak();
       if ( newWeaponsAreNoDelta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1166, ASSERT_TYPE_ASSERT, "(!newWeaponsAreNoDelta)", (const char *)&queryFormat, "!newWeaponsAreNoDelta") )
         __debugbreak();
       ++v10;
-      __asm { vmovups ymm0, ymmword ptr [rdi] }
-      _RCX = &cl->parseWeaponMapEntries[cl->parseWeaponMapEntriesIdx % cl->parseWeaponMapEntriesCount];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdi+30h]
-        vmovsd  qword ptr [rcx+30h], xmm0
-      }
-      *(_DWORD *)&_RCX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RDI->weapon.attachmentVariationIndices[27];
-      *(_WORD *)&_RCX->weapon.scopeVariation = *(_WORD *)&_RDI->weapon.scopeVariation;
+      v15 = &cl->parseWeaponMapEntries[cl->parseWeaponMapEntriesIdx % cl->parseWeaponMapEntriesCount];
+      *(__m256i *)&v15->index = *(__m256i *)&v12->index;
+      *(_OWORD *)&v15->weapon.attachmentVariationIndices[3] = *(_OWORD *)&v12->weapon.attachmentVariationIndices[3];
+      *(double *)&v15->weapon.attachmentVariationIndices[19] = *(double *)&v12->weapon.attachmentVariationIndices[19];
+      *(_DWORD *)&v15->weapon.attachmentVariationIndices[27] = *(_DWORD *)&v12->weapon.attachmentVariationIndices[27];
+      *(_WORD *)&v15->weapon.scopeVariation = *(_WORD *)&v12->weapon.scopeVariation;
       ++cl->parseWeaponMapEntriesIdx;
       ++newframe->numWeaponMapEntries;
-      v19 = CL_ParseMP_GetWeaponEntryForFrame(cl, oldframe, v10, oldWeaponsAreNoDelta);
-      _RDI = v19;
-      if ( v19 )
+      v16 = CL_ParseMP_GetWeaponEntryForFrame(cl, oldframe, v10, oldWeaponsAreNoDelta);
+      v12 = v16;
+      if ( v16 )
       {
-        if ( v19->index <= index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1177, ASSERT_TYPE_ASSERT, "(!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex)", "%s\n\tWeapons entries must be monotonically increasing within a snapshot.", "!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex") )
+        if ( v16->index <= index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1177, ASSERT_TYPE_ASSERT, "(!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex)", "%s\n\tWeapons entries must be monotonically increasing within a snapshot.", "!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex") )
           __debugbreak();
-        index = _RDI->index;
+        index = v12->index;
       }
       else
       {
@@ -2622,20 +2357,20 @@ void CL_ParseMP_ParsePacketWeapons(ClActiveClientMP *cl, msg_t *msg, ClSnapshot 
       break;
     if ( index <= WeaponMapEntry_Index )
     {
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1192, ASSERT_TYPE_ASSERT, "(oldWeaponMapEntry)", (const char *)&queryFormat, "oldWeaponMapEntry") )
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1192, ASSERT_TYPE_ASSERT, "(oldWeaponMapEntry)", (const char *)&queryFormat, "oldWeaponMapEntry") )
         __debugbreak();
       if ( index != WeaponMapEntry_Index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1193, ASSERT_TYPE_ASSERT, "(oldWeaponMapIndex == newWeaponMapIndex)", (const char *)&queryFormat, "oldWeaponMapIndex == newWeaponMapIndex") )
         __debugbreak();
-      v21 = WeaponMapEntry_Index;
+      v18 = WeaponMapEntry_Index;
       v8 = msg;
-      CL_ParseMP_DeltaWeapon(cl, msg, newframe, v21, _RDI, newWeaponsAreNoDelta);
-      v22 = CL_ParseMP_GetWeaponEntryForFrame(cl, oldframe, ++v10, oldWeaponsAreNoDelta);
-      _RDI = v22;
-      if ( v22 )
+      CL_ParseMP_DeltaWeapon(cl, msg, newframe, v18, v12, newWeaponsAreNoDelta);
+      v19 = CL_ParseMP_GetWeaponEntryForFrame(cl, oldframe, ++v10, oldWeaponsAreNoDelta);
+      v12 = v19;
+      if ( v19 )
       {
-        if ( v22->index <= index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1201, ASSERT_TYPE_ASSERT, "(!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex)", "%s\n\tWeapons entries must be monotonically increasing within a snapshot.", "!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex") )
+        if ( v19->index <= index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 1201, ASSERT_TYPE_ASSERT, "(!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex)", "%s\n\tWeapons entries must be monotonically increasing within a snapshot.", "!oldWeaponMapEntry || oldWeaponMapEntry->index > oldWeaponMapIndex") )
           __debugbreak();
-        index = _RDI->index;
+        index = v12->index;
       }
       else
       {
@@ -2645,9 +2380,9 @@ LABEL_15:
     }
     else
     {
-      v20 = WeaponMapEntry_Index;
+      v17 = WeaponMapEntry_Index;
       v8 = msg;
-      CL_ParseMP_DeltaWeapon(cl, msg, newframe, v20, NULL, newWeaponsAreNoDelta);
+      CL_ParseMP_DeltaWeapon(cl, msg, newframe, v17, NULL, newWeaponsAreNoDelta);
     }
   }
 }
@@ -2683,23 +2418,23 @@ void CL_ParseMP_ParseServerMessage(LocalClientNum_t localClientNum, msg_t *msg)
   __int64 v3; 
   const dvar_t *v5; 
   unsigned int v6; 
-  signed int compressionFlags; 
+  int compressionFlags; 
   bool BitsCompress; 
+  __int128 v9; 
   char *fmt; 
-  __int64 v13; 
-  __int64 v14; 
+  __int64 v11; 
+  __int64 v12; 
   msg_t buf; 
   unsigned __int8 data[148448]; 
 
   v2 = DVARINT_cl_shownet;
   v3 = localClientNum;
-  _RBX = msg;
   if ( !DVARINT_cl_shownet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_shownet") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v2);
   if ( v2->current.integer == 1 )
   {
-    Com_Printf(14, "%i ", (unsigned int)_RBX->cursize);
+    Com_Printf(14, "%i ", (unsigned int)msg->cursize);
   }
   else
   {
@@ -2712,25 +2447,25 @@ void CL_ParseMP_ParseServerMessage(LocalClientNum_t localClientNum, msg_t *msg)
   }
   if ( (unsigned int)v3 >= 2 )
   {
-    LODWORD(v14) = 2;
-    LODWORD(v13) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v14) )
+    LODWORD(v12) = 2;
+    LODWORD(v11) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
   if ( clientUIActives[v3].connectionState == CA_DISCONNECTED )
   {
     Com_Printf(25, "Throwing out server message since our connection state is disconnected\n");
-    MSG_Discard(_RBX);
+    MSG_Discard(msg);
     return;
   }
-  v6 = _RBX->cursize - _RBX->readcount;
+  v6 = msg->cursize - msg->readcount;
   if ( v6 > 0x243D8 )
   {
-    LODWORD(fmt) = _RBX->cursize - _RBX->readcount;
+    LODWORD(fmt) = msg->cursize - msg->readcount;
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144221F38, 294i64, 148440i64, fmt);
   }
   MSG_Init(&buf, data, 148440);
-  compressionFlags = _RBX->compressionFlags;
+  compressionFlags = msg->compressionFlags;
   buf.compressionFlags = compressionFlags;
   if ( compressionFlags >= 0 )
   {
@@ -2738,32 +2473,27 @@ void CL_ParseMP_ParseServerMessage(LocalClientNum_t localClientNum, msg_t *msg)
     {
       if ( (compressionFlags & 0xC0000000) != 0 )
       {
-        LODWORD(v14) = compressionFlags;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2981, ASSERT_TYPE_ASSERT, "(( msg->compressionFlags & 0xc0000000u ) == 0)", "%s\n\tInvalid compression flags 0x%x", "( msg->compressionFlags & USE_COMPRESSION_MASK ) == 0", v14) )
+        LODWORD(v12) = compressionFlags;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 2981, ASSERT_TYPE_ASSERT, "(( msg->compressionFlags & 0xc0000000u ) == 0)", "%s\n\tInvalid compression flags 0x%x", "( msg->compressionFlags & USE_COMPRESSION_MASK ) == 0", v12) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups ymmword ptr [rsp+24498h+buf.overflowed], ymm0
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rsp+70h], xmm0
-        vmovups xmmword ptr [rsp+24498h+buf.splitSize], xmm1
-      }
+      v9 = *(_OWORD *)&msg->splitSize;
+      *(__m256i *)&buf.overflowed = *(__m256i *)&msg->overflowed;
+      *(_QWORD *)&buf.targetLocalNetID = *(_QWORD *)&msg->targetLocalNetID;
+      *(_OWORD *)&buf.splitSize = v9;
       goto LABEL_28;
     }
-    BitsCompress = MSG_ReadBitsCompress(&_RBX->data[_RBX->readcount], buf.data, v6, buf.maxsize, &buf.cursize);
+    BitsCompress = MSG_ReadBitsCompress(&msg->data[msg->readcount], buf.data, v6, buf.maxsize, &buf.cursize);
   }
   else
   {
-    buf.cursize = j_LZ4_decompress_safe((const char *)&_RBX->data[_RBX->readcount], (char *)buf.data, v6, buf.maxsize);
+    buf.cursize = j_LZ4_decompress_safe((const char *)&msg->data[msg->readcount], (char *)buf.data, v6, buf.maxsize);
     BitsCompress = buf.cursize > 0;
   }
   if ( !BitsCompress )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144222028, 295i64);
 LABEL_28:
-  CL_ParseMP_ParseMessage((LocalClientNum_t)v3, &buf, _RBX);
+  CL_ParseMP_ParseMessage((LocalClientNum_t)v3, &buf, msg);
 }
 
 /*
@@ -2801,6 +2531,11 @@ void CL_ParseMP_ParseSnapshot(LocalClientNum_t localClientNum, msg_t *msg)
   unsigned __int64 scriptableChangeEndSequence; 
   const ScriptableReplicatedLimits *ReplicatedLimits; 
   bool SnapshotChanges; 
+  bitarray<384> *v31; 
+  __m256i v32; 
+  __int128 v33; 
+  __int64 v34; 
+  bitarray<384> *parseUmbraGateStates; 
   int overflowed; 
   int parseScriptedCameraIndex; 
   BgScriptedCameraState *v38; 
@@ -3119,19 +2854,13 @@ LABEL_49:
   *((_QWORD *)m_ptr + 11820) = ClientMP->parseUmbraGateStatesIndex;
   if ( p_noDeltaSnapshot )
     v8 = &ClientMP->parseUmbraGateStates[p_noDeltaSnapshot->parseUmbraGateStatesIndex % ClientMP->parseUmbraGateStatesCount];
-  _RAX = MSG_ReadDeltaUmbraGateState(&result, msg, v8);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-  }
-  _RCX = 6 * (*((_QWORD *)m_ptr + 11820) % (__int64)ClientMP->parseUmbraGateStatesCount);
-  _RAX = ClientMP->parseUmbraGateStates;
-  __asm
-  {
-    vmovups ymmword ptr [rax+rcx*8], ymm0
-    vmovups xmmword ptr [rax+rcx*8+20h], xmm1
-  }
+  v31 = MSG_ReadDeltaUmbraGateState(&result, msg, v8);
+  v32 = *(__m256i *)v31->array;
+  v33 = *(_OWORD *)&v31->array[8];
+  v34 = *((_QWORD *)m_ptr + 11820) % (__int64)ClientMP->parseUmbraGateStatesCount;
+  parseUmbraGateStates = ClientMP->parseUmbraGateStates;
+  *(__m256i *)parseUmbraGateStates[v34].array = v32;
+  *(_OWORD *)&parseUmbraGateStates[v34].array[8] = v33;
   ++ClientMP->parseUmbraGateStatesIndex;
   overflowed = msg->overflowed;
   if ( msg->overflowed )
@@ -3272,32 +3001,55 @@ CL_ParseMP_ReadDeltaPlayerState
 */
 void CL_ParseMP_ReadDeltaPlayerState(const LocalClientNum_t localClientNum, msg_t *msg, const int time, const playerState_s *from, playerState_s *to)
 {
-  const ClActiveClientMP *ClientMP; 
-  ClActiveClientMP *v13; 
-  unsigned int commandTime; 
+  __int128 v5; 
+  const ClActiveClientMP *v8; 
+  ClActiveClientMP *ClientMP; 
+  __int64 commandTime; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   ClActiveClientMP *v15; 
+  unsigned int v16; 
+  ClActiveClientMP *v17; 
+  __m256i v18; 
+  float v19; 
   int v20; 
   ClActiveClientMP *v21; 
+  float v22; 
+  float v23; 
   bool outRecvOriginAndVelocity; 
   bool outRecvVehicleState; 
   int outPredictedTime[3]; 
   ClPredictResultMP outPredictedData; 
+  __int128 v28; 
 
-  _RDI = to;
   MSG_ReadDeltaPlayerstate(msg, time, from, to, 0, &outRecvOriginAndVelocity, &outRecvVehicleState);
   if ( outRecvOriginAndVelocity )
   {
-    _RAX = msg_logPredictionPositionErrors;
-    __asm
+    if ( msg_logPredictionPositionErrors->current.value > 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rax+28h]
+      ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
+      if ( ClActiveClientMP::FindPredictedDataForTime(ClientMP, to->commandTime, outPredictedTime, &outPredictedData) )
+      {
+        commandTime = (unsigned int)to->commandTime;
+        if ( outPredictedTime[0] == (_DWORD)commandTime )
+        {
+          v11 = (float)(to->origin.v[1] - outPredictedData.origin.v[1]) * (float)(to->origin.v[1] - outPredictedData.origin.v[1]);
+          v12 = (float)(to->origin.v[2] - outPredictedData.origin.v[2]) * (float)(to->origin.v[2] - outPredictedData.origin.v[2]);
+          v28 = v5;
+          v13 = to->origin.v[0];
+          v14 = (float)((float)((float)(v13 - outPredictedData.origin.v[0]) * (float)(v13 - outPredictedData.origin.v[0])) + v11) + v12;
+          if ( v14 < (float)(msg_logPredictionPositionErrors->current.value * msg_logPredictionPositionErrors->current.value) && v14 > 0.0099999998 )
+            Com_Printf(14, "Origin corrected by server. Time ( %i ) from (%.2f,%.2f,%.2f) to (%.2f,%.2f,%.2f) (%.2f away)\n", commandTime, outPredictedData.origin.v[0], outPredictedData.origin.v[1], outPredictedData.origin.v[2], v13, to->origin.v[1], to->origin.v[2], fsqrt(v14));
+        }
+      }
     }
   }
   else
   {
-    ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-    if ( !CL_ParseMP_GetPredictedPlayerInformationForCommandTime(ClientMP, to->commandTime, to) )
+    v8 = ClActiveClientMP::GetClientMP(localClientNum);
+    if ( !CL_ParseMP_GetPredictedPlayerInformationForCommandTime(v8, to->commandTime, to) )
     {
       Com_PrintError(25, "Unable to find the origin we sent, delta is not going to work\n");
       to->origin = from->origin;
@@ -3306,51 +3058,39 @@ void CL_ParseMP_ReadDeltaPlayerState(const LocalClientNum_t localClientNum, msg_
       to->movementDirPrecise = from->movementDirPrecise;
     }
   }
-  if ( !outRecvVehicleState )
+  if ( !outRecvVehicleState && to->vehicleState.entity != 2047 )
   {
-    _RBX = &to->vehicleState;
-    if ( to->vehicleState.entity != 2047 )
+    v15 = ClActiveClientMP::GetClientMP(localClientNum);
+    v16 = to->commandTime;
+    v17 = v15;
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 172, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
+      __debugbreak();
+    if ( to == (playerState_s *)-288i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 173, ASSERT_TYPE_ASSERT, "(predictedPlayerVehState)", (const char *)&queryFormat, "predictedPlayerVehState") )
+      __debugbreak();
+    if ( ClActiveClientMP::FindPredictedDataForTime(v17, v16, outPredictedTime, &outPredictedData) )
     {
-      v13 = ClActiveClientMP::GetClientMP(localClientNum);
-      commandTime = to->commandTime;
-      v15 = v13;
-      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 172, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
-        __debugbreak();
-      if ( to == (playerState_s *)-288i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_parse_mp.cpp", 173, ASSERT_TYPE_ASSERT, "(predictedPlayerVehState)", (const char *)&queryFormat, "predictedPlayerVehState") )
-        __debugbreak();
-      if ( ClActiveClientMP::FindPredictedDataForTime(v15, commandTime, outPredictedTime, &outPredictedData) )
-      {
-        if ( outPredictedTime[0] != commandTime )
-          Com_Printf(14, "CL_ParseMP_GetPredictedVehicleForCommandTime() Couldn't find exact match for commandTime %i, using commandTime %i\n", commandTime, (unsigned int)outPredictedTime[0]);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+70h+outPredictedData.vehicle.origin]
-          vmovss  xmm1, dword ptr [rbp+70h+outPredictedData.vehicle.gunAngles+4]
-        }
-        to->vehicleState.flags = outPredictedData.vehicle.flags;
-        to->vehicleState.targetEntity = outPredictedData.vehicle.targetEntity;
-        __asm
-        {
-          vmovups ymmword ptr [rbx+0Ch], ymm0
-          vmovups ymm0, ymmword ptr [rbp+70h+outPredictedData.vehicle.velocity+8]
-          vmovups ymmword ptr [rbx+2Ch], ymm0
-          vmovss  xmm0, dword ptr [rbp+70h+outPredictedData.vehicle.gunAngles]
-          vmovss  dword ptr [rbx+4Ch], xmm0
-          vmovss  dword ptr [rbx+50h], xmm1
-        }
-      }
-      else
-      {
-        to->vehicleState.flags = from->vehicleState.flags;
-        to->vehicleState.origin = from->vehicleState.origin;
-        to->vehicleState.angles = from->vehicleState.angles;
-        to->vehicleState.velocity = from->vehicleState.velocity;
-        to->vehicleState.angVelocity = from->vehicleState.angVelocity;
-        to->vehicleState.tilt = from->vehicleState.tilt;
-        to->vehicleState.tiltVelocity = from->vehicleState.tiltVelocity;
-        to->vehicleState.gunAngles = from->vehicleState.gunAngles;
-        to->vehicleState.targetEntity = from->vehicleState.targetEntity;
-      }
+      if ( outPredictedTime[0] != v16 )
+        Com_Printf(14, "CL_ParseMP_GetPredictedVehicleForCommandTime() Couldn't find exact match for commandTime %i, using commandTime %i\n", v16, (unsigned int)outPredictedTime[0]);
+      v18 = *(__m256i *)outPredictedData.vehicle.origin.v;
+      v19 = outPredictedData.vehicle.gunAngles.v[1];
+      to->vehicleState.flags = outPredictedData.vehicle.flags;
+      to->vehicleState.targetEntity = outPredictedData.vehicle.targetEntity;
+      *(__m256i *)to->vehicleState.origin.v = v18;
+      *(__m256i *)&to->vehicleState.velocity.z = *(__m256i *)&outPredictedData.vehicle.velocity.z;
+      to->vehicleState.gunAngles.v[0] = outPredictedData.vehicle.gunAngles.v[0];
+      to->vehicleState.gunAngles.v[1] = v19;
+    }
+    else
+    {
+      to->vehicleState.flags = from->vehicleState.flags;
+      to->vehicleState.origin = from->vehicleState.origin;
+      to->vehicleState.angles = from->vehicleState.angles;
+      to->vehicleState.velocity = from->vehicleState.velocity;
+      to->vehicleState.angVelocity = from->vehicleState.angVelocity;
+      to->vehicleState.tilt = from->vehicleState.tilt;
+      to->vehicleState.tiltVelocity = from->vehicleState.tiltVelocity;
+      to->vehicleState.gunAngles = from->vehicleState.gunAngles;
+      to->vehicleState.targetEntity = from->vehicleState.targetEntity;
     }
   }
   if ( CL_Demo_IsPlayingAny(localClientNum) )
@@ -3359,19 +3099,12 @@ void CL_ParseMP_ReadDeltaPlayerState(const LocalClientNum_t localClientNum, msg_
     v21 = ClActiveClientMP::GetClientMP(localClientNum);
     if ( ClActiveClientMP::FindPredictedDataForTime(v21, v20, outPredictedTime, &outPredictedData) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+70h+outPredictedData.viewangles]
-        vmovss  xmm1, dword ptr [rbp+70h+outPredictedData.viewangles+4]
-      }
+      v22 = outPredictedData.viewangles.v[0];
+      v23 = outPredictedData.viewangles.v[1];
       to->inputTime = outPredictedData.inputTime;
-      __asm
-      {
-        vmovss  dword ptr [rdi+1D8h], xmm0
-        vmovss  xmm0, dword ptr [rbp+70h+outPredictedData.viewangles+8]
-        vmovss  dword ptr [rdi+1E0h], xmm0
-        vmovss  dword ptr [rdi+1DCh], xmm1
-      }
+      to->viewangles.v[0] = v22;
+      to->viewangles.v[2] = outPredictedData.viewangles.v[2];
+      to->viewangles.v[1] = v23;
     }
     else
     {
@@ -3387,60 +3120,38 @@ CL_ParseMP_ResetTrBase
 */
 void CL_ParseMP_ResetTrBase(entityState_t *es, const trType_t trTypeSet)
 {
-  unsigned int v7; 
-  unsigned int v8; 
-  unsigned int v9; 
+  trajectory_t_secure *p_pos; 
+  unsigned int v4; 
+  unsigned int v5; 
+  unsigned int v6; 
   vec3_t trBase; 
-  __int64 v13; 
-  int v14; 
+  __int64 v8; 
+  float v9; 
 
-  _RBX = &es->lerp.pos;
+  p_pos = &es->lerp.pos;
   Trajectory_GetTrBase(&es->lerp.pos, &trBase);
-  _RBX->trType = trTypeSet;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj", -2i64) )
+  p_pos->trType = trTypeSet;
+  if ( !p_pos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj", -2i64) )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rsp+58h+trBase] }
-  if ( _RBX->trType == TR_LINEAR_STOP_SECURE )
+  if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
   {
-    __asm { vmovss  [rsp+58h+arg_8], xmm0 }
-    if ( (v14 & 0x7F800000) == 2139095040 )
-      goto LABEL_15;
-    __asm
+    v9 = trBase.v[0];
+    if ( (LODWORD(trBase.v[0]) & 0x7F800000) == 2139095040 || (v9 = trBase.v[1], (LODWORD(trBase.v[1]) & 0x7F800000) == 2139095040) || (v9 = trBase.v[2], (LODWORD(trBase.v[2]) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+4]
-      vmovss  [rsp+58h+arg_8], xmm0
-    }
-    if ( (v14 & 0x7F800000) == 2139095040 )
-      goto LABEL_15;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+8]
-      vmovss  [rsp+58h+arg_8], xmm0
-    }
-    if ( (v14 & 0x7F800000) == 2139095040 )
-    {
-LABEL_15:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 24, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
         __debugbreak();
     }
-    v7 = LODWORD(trBase.v[0]) ^ ~s_trbase_aab_X;
-    v8 = v7 ^ LODWORD(trBase.v[1]) ^ s_trbase_aab_Y;
-    v9 = v8 ^ LODWORD(trBase.v[2]) ^ s_trbase_aab_Z;
-    LODWORD(_RBX->trBase.v[0]) = v7;
-    LODWORD(_RBX->trBase.v[1]) = v8;
-    LODWORD(_RBX->trBase.v[2]) = v9;
-    memset(&v13, 0, sizeof(v13));
+    v4 = LODWORD(trBase.v[0]) ^ ~s_trbase_aab_X;
+    v5 = v4 ^ LODWORD(trBase.v[1]) ^ s_trbase_aab_Y;
+    v6 = v5 ^ LODWORD(trBase.v[2]) ^ s_trbase_aab_Z;
+    LODWORD(p_pos->trBase.v[0]) = v4;
+    LODWORD(p_pos->trBase.v[1]) = v5;
+    LODWORD(p_pos->trBase.v[2]) = v6;
+    memset(&v8, 0, sizeof(v8));
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rbx+0Ch], xmm0
-      vmovss  xmm1, dword ptr [rsp+58h+trBase+4]
-      vmovss  dword ptr [rbx+10h], xmm1
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+8]
-      vmovss  dword ptr [rbx+14h], xmm0
-    }
+    p_pos->trBase = trBase;
   }
   memset(&trBase, 0, sizeof(trBase));
 }

@@ -757,38 +757,15 @@ FontGlowStyle *R_Font_GetLegacyFontStyle(int stylePacked)
 R_Font_MeasureGlyph
 ==============
 */
-
-float __fastcall R_Font_MeasureGlyph(unsigned int unicodeCodePoint, GfxFont *font, int fontSize, double scale)
+float R_Font_MeasureGlyph(unsigned int unicodeCodePoint, GfxFont *font, int fontSize, float scale)
 {
   FontIconRenderInfo outIcon; 
   CachedGlyph outGlyph; 
-  char v20; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm2, xmm3; fontScale
-    vmovaps xmm6, xmm3
-  }
-  if ( FontIcons_GetIcon(unicodeCodePoint, fontSize, *(float *)&_XMM2, 0, &outIcon) )
-  {
-    __asm { vmulss  xmm0, xmm6, [rsp+0A8h+var_70] }
-  }
-  else
-  {
-    R_GetCharacterGlyph(font, fontSize, unicodeCodePoint, &outGlyph);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, xmm6
-    }
-  }
-  _R11 = &v20;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return *(float *)&_XMM0;
+  if ( FontIcons_GetIcon(unicodeCodePoint, fontSize, scale, 0, &outIcon) )
+    return scale * outIcon.advance;
+  R_GetCharacterGlyph(font, fontSize, unicodeCodePoint, &outGlyph);
+  return (float)outGlyph.dx * scale;
 }
 
 /*
@@ -806,90 +783,65 @@ _BOOL8 R_Font_UsePost(int stylePacked)
 R_Font_WordWrap
 ==============
 */
-
-void __fastcall R_Font_WordWrap(const char *text, double boxWidth, GfxFont *font, int fontSize, float scale, char tracking, int maxLines, bool leftToRight, TextLine *outLines, int *outLineCount)
+void R_Font_WordWrap(const char *text, float boxWidth, GfxFont *font, int fontSize, float scale, char tracking, int maxLines, bool leftToRight, TextLine *outLines, int *outLineCount)
 {
-  int v12; 
-  TextLine *v17; 
-  int v18; 
-  char *v19; 
-  bool v20; 
-  char *v21; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v27; 
-  int *v28; 
-  __int64 v29; 
-  float v32; 
-  float v33; 
+  int v10; 
+  TextLine *v14; 
+  int v15; 
+  char *v16; 
+  bool v17; 
+  char *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  int *v22; 
+  __int64 v23; 
 
-  v12 = maxLines;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps xmm6, xmm1
-  }
+  v10 = maxLines;
   memset_0(outLines, 0, 24i64 * maxLines);
-  v17 = outLines;
-  v18 = 0;
-  v19 = strchr_0(text, 10);
-  v20 = leftToRight;
-  v21 = v19;
-  __asm { vmovss  xmm7, [rsp+0A8h+scale] }
-  if ( v19 )
+  v14 = outLines;
+  v15 = 0;
+  v16 = strchr_0(text, 10);
+  v17 = leftToRight;
+  v18 = v16;
+  if ( v16 )
   {
-    while ( v18 < v12 )
+    while ( v15 < v10 )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+0A8h+var_80], xmm7
-        vmovaps xmm2, xmm6; boxWidth
-      }
-      R_Font_WordWrap_Internal(text, v21 - 1, *(const float *)&_XMM2, font, fontSize, v32, tracking, v12 - v18, v20, v17, &maxLines);
-      text = v21 + 1;
-      v18 += maxLines;
-      v17 += maxLines;
-      v21 = strchr_0(v21 + 1, 10);
-      if ( !v21 )
+      R_Font_WordWrap_Internal(text, v18 - 1, boxWidth, font, fontSize, scale, tracking, v10 - v15, v17, v14, &maxLines);
+      text = v18 + 1;
+      v15 += maxLines;
+      v14 += maxLines;
+      v18 = strchr_0(v18 + 1, 10);
+      if ( !v18 )
         goto LABEL_4;
     }
   }
   else
   {
 LABEL_4:
-    if ( v18 < v12 )
+    if ( v15 < v10 )
     {
-      v24 = -1i64;
-      v25 = -1i64;
+      v19 = -1i64;
+      v20 = -1i64;
       do
-        ++v25;
-      while ( text[v25] );
-      if ( (_DWORD)v25 )
-        v24 = (unsigned int)(v25 - 1);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0A8h+var_80], xmm7
-        vmovaps xmm2, xmm6; boxWidth
-      }
-      R_Font_WordWrap_Internal(text, &text[v24], *(const float *)&_XMM2, font, fontSize, v33, tracking, v12 - v18, v20, v17, &maxLines);
-      v18 += maxLines;
-      v17 += maxLines;
+        ++v20;
+      while ( text[v20] );
+      if ( (_DWORD)v20 )
+        v19 = (unsigned int)(v20 - 1);
+      R_Font_WordWrap_Internal(text, &text[v19], boxWidth, font, fontSize, scale, tracking, v10 - v15, v17, v14, &maxLines);
+      v15 += maxLines;
+      v14 += maxLines;
     }
   }
-  v27 = (unsigned __int128)(((char *)v17 - (char *)outLines) * (__int128)0x2AAAAAAAAAAAAAABi64) >> 64;
-  v28 = outLineCount;
-  v29 = ((unsigned __int64)v27 >> 63) + (v27 >> 2);
-  *outLineCount = v29;
-  if ( (_DWORD)v29 != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 780, ASSERT_TYPE_ASSERT, "(*outLineCount == linesUsed)", (const char *)&queryFormat, "*outLineCount == linesUsed") )
+  v21 = (unsigned __int128)(((char *)v14 - (char *)outLines) * (__int128)0x2AAAAAAAAAAAAAABi64) >> 64;
+  v22 = outLineCount;
+  v23 = ((unsigned __int64)v21 >> 63) + (v21 >> 2);
+  *outLineCount = v23;
+  if ( (_DWORD)v23 != v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 780, ASSERT_TYPE_ASSERT, "(*outLineCount == linesUsed)", (const char *)&queryFormat, "*outLineCount == linesUsed") )
     __debugbreak();
-  if ( *v28 > v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 781, ASSERT_TYPE_ASSERT, "(*outLineCount <= maxLines)", (const char *)&queryFormat, "*outLineCount <= maxLines") )
+  if ( *v22 > v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 781, ASSERT_TYPE_ASSERT, "(*outLineCount <= maxLines)", (const char *)&queryFormat, "*outLineCount <= maxLines") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
 }
 
 /*
@@ -897,411 +849,348 @@ LABEL_4:
 R_Font_WordWrap_Internal
 ==============
 */
-
-void __fastcall R_Font_WordWrap_Internal(const char *const textStart, const char *const textEnd, double boxWidth, GfxFont *const font, const int fontSize, const float scale, const char tracking, const int maxLines, const bool leftToRight, TextLine *outLines, int *outLineCount)
+void R_Font_WordWrap_Internal(const char *const textStart, const char *const textEnd, const float boxWidth, GfxFont *const font, const int fontSize, const float scale, const char tracking, const int maxLines, const bool leftToRight, TextLine *outLines, int *outLineCount)
 {
+  const char *v11; 
+  const char *v12; 
+  TextLine *v13; 
+  __int64 v14; 
+  size_t v15; 
+  int *v16; 
+  TextLine *v17; 
   const char *v18; 
-  const char *v19; 
-  TextLine *v21; 
-  __int64 v22; 
-  size_t v23; 
-  int *v24; 
-  const char *v26; 
-  bool v27; 
-  char *v28; 
-  char *v33; 
-  char v34; 
-  char v35; 
-  int v36; 
-  unsigned int v37; 
-  const unsigned __int8 *v38; 
-  char v39; 
+  bool v19; 
+  char *v20; 
+  float v21; 
+  float v22; 
+  char *v23; 
+  char v24; 
+  char v25; 
+  int v26; 
+  unsigned int v27; 
+  const unsigned __int8 *v28; 
+  char v29; 
   int GlyphFromUTF8; 
-  char *v41; 
-  char v42; 
-  char v43; 
-  char v44; 
-  int v45; 
-  bool v52; 
-  char v53; 
-  bool v54; 
-  char v55; 
-  int v56; 
-  bool v57; 
-  TextLine *v64; 
-  int v65; 
-  char *v66; 
-  char *v67; 
-  size_t v68; 
+  char *v31; 
+  char v32; 
+  char v33; 
+  char v34; 
+  int v35; 
+  float advance; 
+  float v37; 
+  bool v38; 
+  char v39; 
+  char v40; 
+  int v41; 
+  bool v42; 
+  TextLine *v43; 
+  int v44; 
+  char *v45; 
+  char *v46; 
+  size_t v47; 
   FontIconRenderInfo outIcon; 
   CachedGlyph outGlyph; 
 
-  __asm { vmovaps [rsp+148h+var_98], xmm11 }
-  v18 = textEnd;
-  v19 = textStart;
-  __asm { vmovaps xmm11, xmm2 }
+  v11 = textEnd;
+  v12 = textStart;
   if ( !textStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 507, ASSERT_TYPE_ASSERT, "(textStart)", (const char *)&queryFormat, "textStart") )
     __debugbreak();
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 508, ASSERT_TYPE_ASSERT, "(textEnd)", (const char *)&queryFormat, "textEnd") )
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 508, ASSERT_TYPE_ASSERT, "(textEnd)", (const char *)&queryFormat, "textEnd") )
     __debugbreak();
-  v21 = outLines;
+  v13 = outLines;
   if ( !outLines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 509, ASSERT_TYPE_ASSERT, "(outLines)", (const char *)&queryFormat, "outLines") )
     __debugbreak();
-  v22 = maxLines;
+  v14 = maxLines;
   if ( maxLines <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 510, ASSERT_TYPE_ASSERT, "(maxLines > 0)", (const char *)&queryFormat, "maxLines > 0") )
     __debugbreak();
-  v23 = 24 * v22;
-  v68 = v23;
-  memset_0(v21, 0, v23);
-  v24 = outLineCount;
+  v15 = 24 * v14;
+  v47 = v15;
+  memset_0(v13, 0, v15);
+  v16 = outLineCount;
   if ( outLineCount )
     *outLineCount = 0;
-  _RCX = v21;
-  v64 = v21;
-  if ( v18 < v19 )
+  v17 = v13;
+  v43 = v13;
+  if ( v11 < v12 )
   {
-    if ( *v19 == 10 )
+    if ( *v12 == 10 )
     {
-      v21->textLeft = v19;
-      v21->textRight = v19;
-      if ( v24 )
-        *v24 = 1;
+      v13->textLeft = v12;
+      v13->textRight = v12;
+      if ( v16 )
+        *v16 = 1;
     }
-    goto LABEL_154;
+    return;
   }
-  v26 = v18;
-  v27 = leftToRight;
-  __asm { vmovaps [rsp+148h+var_58], xmm7 }
+  v18 = v11;
+  v19 = leftToRight;
   if ( leftToRight )
-    v26 = v19;
-  __asm
+    v18 = v12;
+  v20 = NULL;
+  v46 = (char *)v18;
+  v45 = NULL;
+  v44 = 0;
+  v21 = 0.0;
+  v22 = 0.0;
+  if ( v18 >= v12 )
   {
-    vmovaps [rsp+148h+var_68], xmm8
-    vmovaps [rsp+148h+var_78], xmm9
-  }
-  v28 = NULL;
-  v67 = (char *)v26;
-  v66 = NULL;
-  v65 = 0;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( v26 >= v19 )
-  {
-    __asm
+    v23 = (char *)v18;
+    do
     {
-      vmovaps [rsp+148h+var_88], xmm10
-      vmovss  xmm10, [rsp+148h+scale]
-      vmovaps [rsp+148h+var_48], xmm6
-    }
-    v33 = (char *)v26;
-    while ( 1 )
-    {
-      if ( v33 > v18 || _RCX >= (TextLine *)((char *)v21 + v23) )
-      {
-LABEL_151:
-        __asm
-        {
-          vmovaps xmm6, [rsp+148h+var_48]
-          vmovaps xmm10, [rsp+148h+var_88]
-        }
+      if ( v23 > v11 || v17 >= (TextLine *)((char *)v13 + v15) )
         break;
-      }
-      v34 = 0;
-      if ( v27 )
+      v24 = 0;
+      if ( v19 )
       {
-        if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\string.h", 134, ASSERT_TYPE_ASSERT, "(utf8Stream)", (const char *)&queryFormat, "utf8Stream") )
+        if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\string.h", 134, ASSERT_TYPE_ASSERT, "(utf8Stream)", (const char *)&queryFormat, "utf8Stream") )
           __debugbreak();
-        v35 = *v33;
-        v36 = 0;
+        v25 = *v23;
+        v26 = 0;
         maxLines = 0;
-        v37 = -1;
-        if ( v35 >= 0 )
+        v27 = -1;
+        if ( v25 >= 0 )
         {
-          v37 = (unsigned __int8)v35;
-          v36 = 1;
+          v27 = (unsigned __int8)v25;
+          v26 = 1;
           maxLines = 1;
           goto LABEL_52;
         }
-        if ( (v35 & 0xE0) == 0xC0 )
+        if ( (v25 & 0xE0) == 0xC0 )
         {
-          v37 = v33[1] & 0x7F | ((v35 & 0x1F) << 6);
-          if ( v37 < 0x80 )
+          v27 = v23[1] & 0x7F | ((v25 & 0x1F) << 6);
+          if ( v27 < 0x80 )
             goto LABEL_33;
-          v36 = 2;
+          v26 = 2;
           maxLines = 2;
-          if ( v37 > 0xFFFF )
-            v37 = 32;
+          if ( v27 > 0xFFFF )
+            v27 = 32;
         }
-        else if ( (v35 & 0xF0) == 0xE0 )
+        else if ( (v25 & 0xF0) == 0xE0 )
         {
-          v37 = v33[2] & 0x7F | ((v33[1] & 0x7F | ((v35 & 0xF) << 6)) << 6);
-          if ( v37 - 2048 <= 0xCFFF || v37 >= 0xE000 )
+          v27 = v23[2] & 0x7F | ((v23[1] & 0x7F | ((v25 & 0xF) << 6)) << 6);
+          if ( v27 - 2048 <= 0xCFFF || v27 >= 0xE000 )
           {
-            v36 = 3;
+            v26 = 3;
             maxLines = 3;
-            if ( v37 > 0xFFFF )
-              v37 = 32;
+            if ( v27 > 0xFFFF )
+              v27 = 32;
           }
           else
           {
-            v37 = -1;
+            v27 = -1;
           }
         }
-        else if ( (v35 & 0xF8) == 0xF0 )
+        else if ( (v25 & 0xF8) == 0xF0 )
         {
-          v37 = v33[3] & 0x7F | ((v33[2] & 0x7F | ((v33[1] & 0x7F | ((v35 & 7) << 6)) << 6)) << 6);
-          if ( v37 - 0x10000 > 0xFFFFE )
+          v27 = v23[3] & 0x7F | ((v23[2] & 0x7F | ((v23[1] & 0x7F | ((v25 & 7) << 6)) << 6)) << 6);
+          if ( v27 - 0x10000 > 0xFFFFE )
           {
 LABEL_33:
-            v37 = -1;
+            v27 = -1;
             goto LABEL_52;
           }
-          v36 = 4;
+          v26 = 4;
           maxLines = 4;
-          if ( v37 > 0xFFFF )
-            v37 = 32;
+          if ( v27 > 0xFFFF )
+            v27 = 32;
         }
       }
       else
       {
-        v38 = (const unsigned __int8 *)v33;
-        if ( (*v33 & 0xC0) == 0x80 )
+        v28 = (const unsigned __int8 *)v23;
+        if ( (*v23 & 0xC0) == 0x80 )
         {
           do
-            v39 = *--v38;
-          while ( (v39 & 0xC0) == 0x80 );
+            v29 = *--v28;
+          while ( (v29 & 0xC0) == 0x80 );
         }
-        GlyphFromUTF8 = GetGlyphFromUTF8(v38, (int *)&maxLines);
-        v36 = maxLines;
-        v37 = GlyphFromUTF8;
+        GlyphFromUTF8 = GetGlyphFromUTF8(v28, (int *)&maxLines);
+        v26 = maxLines;
+        v27 = GlyphFromUTF8;
       }
 LABEL_52:
-      v41 = v33;
-      if ( (v37 & 0x80000000) == 0 )
+      v31 = v23;
+      if ( (v27 & 0x80000000) == 0 )
       {
-        if ( v27 )
-          v33 += v36;
+        if ( v19 )
+          v23 += v26;
         else
-          v33 -= v36;
+          v23 -= v26;
       }
       else
       {
-        v34 = 1;
+        v24 = 1;
       }
-      v42 = v34;
-      v43 = v34;
-      v44 = 0;
-      if ( v33 >= v19 && v33 <= textEnd )
+      v32 = v24;
+      v33 = v24;
+      v34 = 0;
+      if ( v23 >= v12 && v23 <= textEnd )
       {
         if ( leftToRight )
         {
-          if ( v37 == 94 && v33 && *v33 != 94 && (unsigned __int8)(*v33 - 39) <= 0x17u )
+          if ( v27 == 94 && v23 && *v23 != 94 && (unsigned __int8)(*v23 - 39) <= 0x17u )
           {
-            v44 = 1;
-            ++v33;
+            v34 = 1;
+            ++v23;
             goto LABEL_71;
           }
         }
-        else if ( *v33 == 94 && v37 != 94 && v37 - 39 <= 0x17 )
+        else if ( *v23 == 94 && v27 != 94 && v27 - 39 <= 0x17 )
         {
-          v44 = 1;
-          --v33;
+          v34 = 1;
+          --v23;
           goto LABEL_70;
         }
-        v44 = 0;
+        v34 = 0;
       }
 LABEL_70:
-      if ( (v37 & 0x80000000) != 0 )
-        goto LABEL_125;
+      if ( (v27 & 0x80000000) != 0 )
+        goto LABEL_126;
 LABEL_71:
-      if ( v37 - 30 <= 1 || v44 )
-        goto LABEL_125;
-      v45 = ++v65;
-      __asm { vmovaps xmm2, xmm10; fontScale }
-      if ( FontIcons_GetIcon(v37, fontSize, *(float *)&_XMM2, 0, &outIcon) )
+      if ( v27 - 30 <= 1 || v34 )
+        goto LABEL_126;
+      v35 = ++v44;
+      if ( FontIcons_GetIcon(v27, fontSize, scale, 0, &outIcon) )
       {
-        __asm { vmovss  xmm0, [rsp+148h+outIcon.advance] }
+        advance = outIcon.advance;
       }
       else
       {
-        R_GetCharacterGlyph(font, fontSize, v37, &outGlyph);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-        }
+        R_GetCharacterGlyph(font, fontSize, v27, &outGlyph);
+        advance = (float)outGlyph.dx;
       }
-      __asm
+      v37 = (float)(advance * scale) + v22;
+      if ( v35 > 1 )
+        v37 = (float)((float)(advance * scale) + v22) + (float)((float)tracking * scale);
+      v38 = v27 != 160 && v27 != 8239 && v27 != 65279 && R_IsSpace(v27);
+      if ( v27 == 10 || v37 > boxWidth )
       {
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm6, xmm1, xmm7
-      }
-      if ( v45 > 1 )
-      {
-        __asm
+        v39 = 1;
+        if ( !v20 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm10
-          vaddss  xmm6, xmm6, xmm1
-        }
-      }
-      v52 = v37 != 160 && v37 != 8239 && v37 != 65279 && R_IsSpace(v37);
-      if ( v37 == 10 )
-        goto LABEL_108;
-      __asm { vcomiss xmm6, xmm11 }
-      if ( v37 > 0xA )
-      {
-LABEL_108:
-        v53 = 1;
-        v54 = v28 == NULL;
-        if ( !v28 )
-        {
-          v55 = 1;
+          v40 = 1;
           goto LABEL_87;
         }
       }
       else
       {
-        v53 = 0;
+        v39 = 0;
       }
-      v55 = 0;
-      v54 = 1;
+      v40 = 0;
 LABEL_87:
-      __asm { vucomiss xmm7, xmm9 }
-      v57 = 0;
-      if ( !v54 )
+      v42 = 0;
+      if ( v22 != 0.0 )
       {
-        if ( v55 || !Language_UsesSpace() && (v37 == 160 || v37 == 8239 || v37 == 65279 || !R_IsSpace(v37)) && (v37 - 65281 > 0x1E || (v56 = 1174415361, !_bittest(&v56, v37 - 65281))) && v37 - 12289 > 1 && (v37 - 13312 <= 0x19BF || v37 - 19968 <= 0x51FF || v37 - 12352 <= 0x5F || v37 - 12448 <= 0x5F || v37 - 11904 <= 0x15F || v37 - 12272 <= 0x4F || v37 - 12736 <= 0x2F || v37 - 12800 <= 0x1FF || v37 - 63744 <= 0x1FF || v37 - 65072 <= 0x1F) )
-          v57 = 1;
+        if ( v40 || !Language_UsesSpace() && (v27 == 160 || v27 == 8239 || v27 == 65279 || !R_IsSpace(v27)) && (v27 - 65281 > 0x1E || (v41 = 1174415361, !_bittest(&v41, v27 - 65281))) && v27 - 12289 > 1 && (v27 - 13312 <= 0x19BF || v27 - 19968 <= 0x51FF || v27 - 12352 <= 0x5F || v27 - 12448 <= 0x5F || v27 - 11904 <= 0x15F || v27 - 12272 <= 0x4F || v27 - 12736 <= 0x2F || v27 - 12800 <= 0x1FF || v27 - 63744 <= 0x1FF || v27 - 65072 <= 0x1F) )
+          v42 = 1;
       }
-      if ( v52 || v37 == 10 )
+      if ( v38 || v27 == 10 )
       {
-        v66 = v33;
+        v45 = v23;
       }
       else
       {
-        if ( !v57 )
+        if ( !v42 )
           goto LABEL_117;
-        v66 = v41;
+        v45 = v31;
       }
-      __asm { vmovaps xmm8, xmm7 }
-      v28 = v41;
+      v21 = v22;
+      v20 = v31;
 LABEL_117:
-      if ( v28 )
+      if ( v20 && boxWidth > 0.0 && v39 )
       {
-        __asm { vcomiss xmm11, xmm9 }
-        if ( v53 )
+        v24 = 1;
+LABEL_121:
+        v33 = v32;
+        if ( v20 )
         {
-          v34 = 1;
-LABEL_120:
-          v43 = v42;
-          if ( v28 )
-          {
-            v33 = v28;
-          }
-          else if ( v42 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 670, ASSERT_TYPE_ASSERT, "(endText)", (const char *)&queryFormat, "endText") )
-          {
-LABEL_129:
-            __asm { vmovaps xmm8, xmm7 }
-          }
-          else
-          {
-            __debugbreak();
-            __asm { vmovaps xmm8, xmm7 }
-          }
-          _RCX = v64;
-          __asm { vmovss  dword ptr [rcx+10h], xmm8 }
-          if ( v33 == v67 )
-          {
-            if ( v28 )
-            {
-              v64->textLeft = v28;
-              v64->textRight = v28;
-              goto LABEL_137;
-            }
-          }
-          else
-          {
-            if ( leftToRight )
-            {
-              v64->textLeft = v67;
-              v64->textRight = v33 - 1;
-            }
-            else
-            {
-              v64->textLeft = v33 + 1;
-              v64->textRight = v67;
-            }
-LABEL_137:
-            _RCX = ++v64;
-          }
-          v28 = NULL;
-          v19 = textStart;
-          v33 = v66;
-          v18 = textEnd;
-          v67 = v66;
-          v66 = NULL;
-          __asm
-          {
-            vmovaps xmm7, xmm9
-            vmovaps xmm8, xmm9
-          }
-          goto LABEL_140;
+          v23 = v20;
         }
+        else if ( v32 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 670, ASSERT_TYPE_ASSERT, "(endText)", (const char *)&queryFormat, "endText") )
+        {
+LABEL_130:
+          v21 = v22;
+        }
+        else
+        {
+          __debugbreak();
+          v21 = v22;
+        }
+        v17 = v43;
+        v43->pixelWidth = v21;
+        if ( v23 == v46 )
+        {
+          if ( v20 )
+          {
+            v43->textLeft = v20;
+            v43->textRight = v20;
+            goto LABEL_138;
+          }
+        }
+        else
+        {
+          if ( leftToRight )
+          {
+            v43->textLeft = v46;
+            v43->textRight = v23 - 1;
+          }
+          else
+          {
+            v43->textLeft = v23 + 1;
+            v43->textRight = v46;
+          }
+LABEL_138:
+          v17 = ++v43;
+        }
+        v20 = NULL;
+        v12 = textStart;
+        v23 = v45;
+        v11 = textEnd;
+        v46 = v45;
+        v45 = NULL;
+        v22 = 0.0;
+        v21 = 0.0;
+        goto LABEL_141;
       }
-      v19 = textStart;
-      v34 = 0;
-      __asm { vmovaps xmm7, xmm6 }
-LABEL_125:
-      if ( v34 )
-        goto LABEL_120;
-      v18 = textEnd;
-      if ( v33 > textEnd || v33 < v19 )
+      v12 = textStart;
+      v24 = 0;
+      v22 = v37;
+LABEL_126:
+      if ( v24 )
+        goto LABEL_121;
+      v11 = textEnd;
+      if ( v23 > textEnd || v23 < v12 )
       {
-        v28 = NULL;
-        v43 = 1;
-        v34 = 1;
-        v66 = NULL;
-        goto LABEL_129;
+        v20 = NULL;
+        v33 = 1;
+        v24 = 1;
+        v45 = NULL;
+        goto LABEL_130;
       }
-      _RCX = v64;
-LABEL_140:
-      if ( v43 )
+      v17 = v43;
+LABEL_141:
+      if ( v33 )
       {
-        if ( !v34 )
+        if ( !v24 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 728, ASSERT_TYPE_ASSERT, "(endLine)", (const char *)&queryFormat, "endLine") )
             __debugbreak();
-          _RCX = v64;
+          v17 = v43;
         }
-        v21 = outLines;
-        goto LABEL_151;
+        v13 = outLines;
+        break;
       }
-      if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 722, ASSERT_TYPE_ASSERT, "(endText)", (const char *)&queryFormat, "endText") )
+      if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 722, ASSERT_TYPE_ASSERT, "(endText)", (const char *)&queryFormat, "endText") )
         __debugbreak();
-      _RCX = v64;
-      v21 = outLines;
-      v27 = leftToRight;
-      v23 = v68;
-      if ( v33 < v19 )
-        goto LABEL_151;
+      v17 = v43;
+      v13 = outLines;
+      v19 = leftToRight;
+      v15 = v47;
     }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+148h+var_78]
-    vmovaps xmm8, [rsp+148h+var_68]
-    vmovaps xmm7, [rsp+148h+var_58]
+    while ( v23 >= v12 );
   }
   if ( outLineCount )
-    *outLineCount = _RCX - v21;
-LABEL_154:
-  __asm { vmovaps xmm11, [rsp+148h+var_98] }
+    *outLineCount = v17 - v13;
 }
 
 /*
@@ -1487,27 +1376,13 @@ __int64 R_LetterWidth(unsigned int letter, GfxFont *font)
 R_NormalizedTextScale
 ==============
 */
-
-float __fastcall R_NormalizedTextScale(GfxFont *font, double scale)
+float R_NormalizedTextScale(GfxFont *font, float scale)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !font && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1097, ASSERT_TYPE_ASSERT, "(font)", (const char *)&queryFormat, "font") )
     __debugbreak();
   if ( font->pixelHeight <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1098, ASSERT_TYPE_ASSERT, "(font->pixelHeight > 0)", (const char *)&queryFormat, "font->pixelHeight > 0") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:__real@42400000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-    vdivss  xmm0, xmm1, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)(scale * 48.0) / (float)font->pixelHeight;
 }
 
 /*
@@ -1864,115 +1739,95 @@ __int64 R_TextHeight(GfxFont *font)
 R_TextLineBreakPosition
 ==============
 */
-
-const char *__fastcall R_TextLineBreakPosition(const char *text, int pixelsAvailable, GfxFont *font, double scale, int *charCount)
+char *R_TextLineBreakPosition(const char *text, int pixelsAvailable, GfxFont *font, float scale, int *charCount)
 {
-  GfxFont *v8; 
+  GfxFont *v5; 
+  char *v6; 
+  int *v7; 
+  bool v8; 
   char *v9; 
-  int *v11; 
-  bool v12; 
-  const char *v13; 
   unsigned int CharFromString; 
-  int v15; 
+  int v11; 
   __int64 ttfCount; 
-  int v17; 
+  int v13; 
   int pixelHeight; 
-  __int64 v19; 
-  __int64 v20; 
-  int v21; 
+  __int64 v15; 
+  __int64 v16; 
+  int v17; 
   TTFDef **ttfDefs; 
-  bool v23; 
-  const char *result; 
-  char *v29; 
+  float v19; 
+  char *v21; 
   CachedGlyph glyphOut; 
   char *texta; 
-  int v33; 
-  GfxFont *v34; 
+  int v24; 
+  GfxFont *v25; 
 
-  v34 = font;
-  v33 = pixelsAvailable;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  v8 = font;
-  v9 = (char *)text;
-  __asm { vmovaps xmm6, xmm3 }
+  v25 = font;
+  v24 = pixelsAvailable;
+  v5 = font;
+  v6 = (char *)text;
   if ( !text && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1264, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1265, ASSERT_TYPE_ASSERT, "(font)", (const char *)&queryFormat, "font") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1265, ASSERT_TYPE_ASSERT, "(font)", (const char *)&queryFormat, "font") )
     __debugbreak();
-  v11 = charCount;
+  v7 = charCount;
   if ( !charCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1266, ASSERT_TYPE_ASSERT, "(charCount)", (const char *)&queryFormat, "charCount") )
     __debugbreak();
-  *v11 = 0;
-  texta = v9;
-  v12 = *v9 == 0;
+  *v7 = 0;
+  texta = v6;
+  v8 = *v6 == 0;
   LODWORD(charCount) = 0;
-  if ( !v12 )
+  if ( !v8 )
   {
     while ( 1 )
     {
-      v29 = v9;
-      v13 = v9;
+      v21 = v6;
+      v9 = v6;
       CharFromString = SEH_ReadCharFromString((const char **)&texta);
-      v15 = CharFromString;
+      v11 = CharFromString;
       if ( CharFromString == 10 || CharFromString == 13 )
         break;
-      v9 = texta;
+      v6 = texta;
       if ( CharFromString == 94 && texta && (unsigned __int8)(*texta - 39) <= 0x17u )
       {
-        v9 = ++texta;
+        v6 = ++texta;
       }
       else
       {
-        ttfCount = v8->ttfCount;
-        v17 = 0;
-        pixelHeight = v8->pixelHeight;
-        v19 = 0i64;
-        v20 = ttfCount;
+        ttfCount = v5->ttfCount;
+        v13 = 0;
+        pixelHeight = v5->pixelHeight;
+        v15 = 0i64;
+        v16 = ttfCount;
         if ( (int)ttfCount > 0 )
         {
-          v21 = ttfCount - 1;
-          ttfDefs = v34->ttfDefs;
+          v17 = ttfCount - 1;
+          ttfDefs = v25->ttfDefs;
           do
           {
-            if ( FontCache_GetCachedGlyph(*ttfDefs, pixelHeight, v15, FONT_CACHE_FX_NONE, v17 == v21, &glyphOut) )
+            if ( FontCache_GetCachedGlyph(*ttfDefs, pixelHeight, v11, FONT_CACHE_FX_NONE, v13 == v17, &glyphOut) )
               break;
-            ++v17;
-            ++v19;
+            ++v13;
+            ++v15;
             ++ttfDefs;
           }
-          while ( v19 < v20 );
-          v9 = texta;
-          v13 = v29;
+          while ( v15 < v16 );
+          v6 = texta;
+          v9 = v21;
         }
-        v23 = __CFADD__(glyphOut.dx, (_DWORD)charCount) || glyphOut.dx + (_DWORD)charCount == 0;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, [rsp+0B8h+arg_8]
-          vmulss  xmm2, xmm0, xmm6
-          vcomiss xmm2, xmm1
-        }
+        v19 = (float)(glyphOut.dx + (int)charCount);
         LODWORD(charCount) = glyphOut.dx + (_DWORD)charCount;
-        if ( !v23 )
-        {
-          result = v13;
-          goto LABEL_29;
-        }
-        ++*v11;
-        v8 = v34;
+        if ( (float)(v19 * scale) > (float)v24 )
+          return v9;
+        ++*v7;
+        v5 = v25;
       }
-      if ( !*v9 )
-        goto LABEL_28;
+      if ( !*v6 )
+        return v6;
     }
-    v9 = texta;
+    return texta;
   }
-LABEL_28:
-  result = v9;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
-  return result;
+  return v6;
 }
 
 /*
@@ -1980,91 +1835,75 @@ LABEL_29:
 R_TextLineWrapPosition
 ==============
 */
-const char *R_TextLineWrapPosition(const char *text, int bufferSize, int pixelsAvailable, GfxFont *font, float scale)
+char *R_TextLineWrapPosition(const char *text, int bufferSize, int pixelsAvailable, GfxFont *font, float scale)
 {
-  int v11; 
-  int v12; 
-  char *v13; 
-  const char *v14; 
-  const char *v15; 
+  int v9; 
+  int v10; 
+  char *v11; 
+  const char *v12; 
+  const char *v13; 
+  float v14; 
   unsigned int CharFromString; 
-  unsigned int v18; 
-  const char *result; 
+  unsigned int v16; 
   CachedGlyph outGlyph; 
   char *texta; 
 
   if ( !text && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1208, ASSERT_TYPE_ASSERT, "(text)", (const char *)&queryFormat, "text") )
     __debugbreak();
-  v11 = 0;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  v12 = 0x7FFFFFFF;
-  v13 = (char *)text;
+  v9 = 0;
+  v10 = 0x7FFFFFFF;
+  v11 = (char *)text;
   if ( bufferSize > 0 )
-    v12 = bufferSize;
+    v10 = bufferSize;
   texta = (char *)text;
-  v14 = NULL;
-  v15 = NULL;
+  v12 = NULL;
+  v13 = NULL;
   if ( *text )
   {
-    __asm { vmovss  xmm6, [rsp+0A8h+scale] }
+    v14 = scale;
     do
     {
-      v15 = v13;
+      v13 = v11;
       CharFromString = SEH_ReadCharFromString((const char **)&texta);
-      v13 = texta;
-      v18 = CharFromString;
+      v11 = texta;
+      v16 = CharFromString;
       if ( CharFromString == 13 )
       {
-        v11 = 0;
+        v9 = 0;
       }
       else
       {
         if ( CharFromString == 10 )
-          goto LABEL_26;
+          return v11;
         if ( CharFromString == 94 && texta && (unsigned __int8)(*texta - 39) <= 0x17u )
         {
-          v13 = ++texta;
+          v11 = ++texta;
         }
         else
         {
           if ( font )
           {
             R_GetCharacterGlyph(font, font->pixelHeight, CharFromString, &outGlyph);
-            v13 = texta;
-            v11 += outGlyph.dx;
+            v11 = texta;
+            v9 += outGlyph.dx;
           }
-          if ( v15 != text && v18 < 0x100 && v18 - 9 <= 0x17 )
-            v14 = v15;
+          if ( v13 != text && v16 < 0x100 && v16 - 9 <= 0x17 )
+            v12 = v13;
         }
-        if ( v14 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, r14d
-            vxorps  xmm1, xmm1, xmm1
-            vmulss  xmm2, xmm0, xmm6
-            vcvtsi2ss xmm1, xmm1, r13d
-            vcomiss xmm2, xmm1
-          }
-          result = v14;
-          goto LABEL_27;
-        }
-        if ( v13 - text > v12 )
-          goto LABEL_28;
+        if ( v12 && (float)((float)v9 * v14) > (float)pixelsAvailable )
+          return (char *)v12;
+        if ( v11 - text > v10 )
+          goto LABEL_29;
       }
     }
-    while ( *v13 );
+    while ( *v11 );
   }
-  if ( v13 - text == v12 )
-LABEL_28:
-    result = v15;
-  else
-LABEL_26:
-    result = v13;
-LABEL_27:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  if ( v11 - text != v10 )
+    return v11;
+LABEL_29:
+  if ( v12 )
+    return (char *)v12;
+  return (char *)v13;
 }
 
 /*
@@ -2163,16 +2002,16 @@ R_TextWidth
 */
 __int64 R_TextWidth(const char *text, int maxChars, GfxFont *font, int textHeight, char tracking, int allowGpadAnySize)
 {
-  int v10; 
-  unsigned int v11; 
+  int v9; 
+  unsigned int v10; 
+  int v11; 
   int v12; 
-  int v13; 
-  char v14; 
+  char v13; 
   unsigned int CharFromString; 
-  unsigned int v17; 
-  char *v18; 
-  int v21; 
-  __int64 result; 
+  unsigned int v15; 
+  char *v16; 
+  int advance; 
+  int v18; 
   FontIconRenderInfo outIcon; 
   CachedGlyph outGlyph; 
   char *texta; 
@@ -2184,31 +2023,21 @@ __int64 R_TextWidth(const char *text, int maxChars, GfxFont *font, int textHeigh
     __debugbreak();
   if ( textHeight < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font.cpp", 1115, ASSERT_TYPE_ASSERT, "(textHeight >= 0)", (const char *)&queryFormat, "textHeight >= 0") )
     __debugbreak();
+  v9 = 0;
   v10 = 0;
-  v11 = 0;
-  v12 = 0x7FFFFFFF;
+  v11 = 0x7FFFFFFF;
   if ( maxChars > 0 )
-    v12 = maxChars;
-  v13 = 0;
+    v11 = maxChars;
+  v12 = 0;
   if ( *texta )
   {
-    v14 = tracking;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-    }
+    v13 = tracking;
     while ( 1 )
     {
-      if ( v13 >= v12 )
-      {
-LABEL_33:
-        result = v11;
-        __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
-        return result;
-      }
+      if ( v12 >= v11 )
+        return v10;
       CharFromString = SEH_ReadCharFromString((const char **)&texta);
-      v17 = CharFromString;
+      v15 = CharFromString;
       if ( CharFromString == 13 || CharFromString == 10 )
         break;
       if ( CharFromString != 94 )
@@ -2216,37 +2045,36 @@ LABEL_33:
         if ( CharFromString - 30 > 1 )
         {
 LABEL_22:
-          __asm { vmovaps xmm2, xmm6; fontScale }
-          if ( FontIcons_GetIcon(CharFromString, textHeight, *(float *)&_XMM2, allowGpadAnySize, &outIcon) )
+          if ( FontIcons_GetIcon(CharFromString, textHeight, 1.0, allowGpadAnySize, &outIcon) )
           {
-            __asm { vcvttss2si eax, [rsp+0C8h+outIcon.advance] }
+            advance = (int)outIcon.advance;
           }
           else
           {
-            R_GetCharacterGlyph(font, textHeight, v17, &outGlyph);
-            _EAX = outGlyph.dx;
+            R_GetCharacterGlyph(font, textHeight, v15, &outGlyph);
+            advance = outGlyph.dx;
           }
-          v10 += _EAX;
-          if ( v13 > 0 )
-            v10 += v14;
-          ++v13;
-          v21 = v10;
-          if ( (int)v11 >= v10 )
-            v21 = v11;
-          v11 = v21;
+          v9 += advance;
+          if ( v12 > 0 )
+            v9 += v13;
+          ++v12;
+          v18 = v9;
+          if ( (int)v10 >= v9 )
+            v18 = v10;
+          v10 = v18;
         }
 LABEL_31:
-        v18 = texta;
+        v16 = texta;
         goto LABEL_32;
       }
       if ( !texta || (unsigned __int8)(*texta - 39) > 0x17u )
         goto LABEL_22;
-      v18 = ++texta;
+      v16 = ++texta;
 LABEL_32:
-      if ( !*v18 )
-        goto LABEL_33;
+      if ( !*v16 )
+        return v10;
     }
-    v10 = 0;
+    v9 = 0;
     goto LABEL_31;
   }
   return 0i64;

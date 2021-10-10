@@ -75,129 +75,52 @@ void FX_SpriteDirectContinue(GfxCodeSurfGlob *codeSurfGlob, const char *name, Fx
 FX_CullCylinder
 ==============
 */
-bool FX_CullCylinder(const FxCamera *camera, unsigned int frustumPlaneCount, const float4 *midPoint, const float4 *centerAxis, float halfHeight, float radius)
+char FX_CullCylinder(const FxCamera *camera, unsigned int frustumPlaneCount, const float4 *midPoint, const float4 *centerAxis, float halfHeight, float radius)
 {
-  unsigned int v15; 
-  bool v21; 
-  bool v36; 
-  bool result; 
-  unsigned int v63; 
-  double v64; 
-  int v65; 
-  double v66; 
-  double v67; 
+  int v10; 
+  float4 *i; 
+  __m128 v; 
+  float v13; 
+  float v14; 
+  unsigned int v24; 
+  int v25; 
 
-  __asm { vmovaps [rsp+0D8h+var_68], xmm9 }
-  _RBP = centerAxis;
   if ( !camera->isValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_draw_util.h", 92, ASSERT_TYPE_ASSERT, "(camera->isValid)", (const char *)&queryFormat, "camera->isValid") )
     __debugbreak();
   if ( frustumPlaneCount != camera->frustumPlaneCount && frustumPlaneCount != 5 )
   {
-    v65 = camera->frustumPlaneCount;
-    v63 = frustumPlaneCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_draw_util.h", 93, ASSERT_TYPE_ASSERT, "(frustumPlaneCount == camera->frustumPlaneCount || frustumPlaneCount == 5)", "%s\n\t%i, %i", "frustumPlaneCount == camera->frustumPlaneCount || frustumPlaneCount == 5", v63, v65) )
+    v25 = camera->frustumPlaneCount;
+    v24 = frustumPlaneCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_draw_util.h", 93, ASSERT_TYPE_ASSERT, "(frustumPlaneCount == camera->frustumPlaneCount || frustumPlaneCount == 5)", "%s\n\t%i, %i", "frustumPlaneCount == camera->frustumPlaneCount || frustumPlaneCount == 5", v24, v25) )
       __debugbreak();
   }
-  __asm { vmovss  xmm0, [rsp+0D8h+radius] }
-  v15 = 0;
-  __asm
+  v10 = 0;
+  if ( !frustumPlaneCount )
+    return 0;
+  for ( i = camera->frustum; ; ++i )
   {
-    vmovaps [rsp+0D8h+var_38], xmm6
-    vmovaps [rsp+0D8h+var_48], xmm7
-    vmovaps [rsp+0D8h+var_58], xmm8
-    vmovaps [rsp+0D8h+var_78], xmm10
-    vmulss  xmm9, xmm0, xmm0
-  }
-  if ( frustumPlaneCount )
-  {
+    v = i->v;
+    v13 = _mm_shuffle_ps(v, v, 85).m128_f32[0];
+    v14 = _mm_shuffle_ps(v, v, 170).m128_f32[0];
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v13 * v13) + (float)(v.m128_f32[0] * v.m128_f32[0])) + (float)(v14 * v14)) - 1.0) & _xmm) >= 0.0040000002 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 127, ASSERT_TYPE_ASSERT, "(Particle_Vec3IsNormalized( normalVec ))", "%s\n\t%g %g %g", "Particle_Vec3IsNormalized( normalVec )", v.m128_f32[0], v13, v14) )
+      __debugbreak();
+    _XMM1 = _mm128_mul_ps(i->v, midPoint->v);
+    __asm { vinsertps xmm2, xmm1, xmm1, 8 }
+    _XMM1 = _mm128_mul_ps(centerAxis->v, i->v);
     __asm
     {
-      vmovss  xmm10, [rsp+0D8h+halfHeight]
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  xmm8, cs:__real@3b83126f
+      vhaddps xmm0, xmm2, xmm2
+      vhaddps xmm3, xmm0, xmm0
+      vinsertps xmm2, xmm1, xmm1, 8
+      vhaddps xmm0, xmm2, xmm2
     }
-    v21 = __CFADD__(camera, 16i64);
-    _RBX = camera->frustum;
-    while ( 1 )
-    {
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rbx]
-        vmulss  xmm0, xmm3, xmm3
-        vshufps xmm4, xmm3, xmm3, 55h ; 'U'
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vshufps xmm5, xmm3, xmm3, 0AAh ; 'ª'
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm2, xmm1
-        vsubss  xmm0, xmm2, xmm7
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, xmm8
-      }
-      if ( !v21 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm5, xmm5
-          vmovsd  [rsp+0D8h+var_98], xmm0
-          vcvtss2sd xmm1, xmm4, xmm4
-          vmovsd  [rsp+0D8h+var_A0], xmm1
-          vcvtss2sd xmm2, xmm3, xmm3
-          vmovsd  [rsp+0D8h+var_A8], xmm2
-        }
-        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 127, ASSERT_TYPE_ASSERT, "(Particle_Vec3IsNormalized( normalVec ))", "%s\n\t%g %g %g", "Particle_Vec3IsNormalized( normalVec )", v64, v66, v67);
-        v21 = 0;
-        if ( v36 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmulps  xmm1, xmm0, xmmword ptr [r14]
-        vinsertps xmm2, xmm1, xmm1, 8
-        vmovups xmm1, xmmword ptr [rbp+0]
-        vmulps  xmm1, xmm1, xmmword ptr [rbx]
-        vshufps xmm4, xmm0, xmm0, 0FFh
-        vhaddps xmm0, xmm2, xmm2
-        vhaddps xmm3, xmm0, xmm0
-        vinsertps xmm2, xmm1, xmm1, 8
-        vhaddps xmm0, xmm2, xmm2
-        vsubps  xmm1, xmm3, xmm4
-        vhaddps xmm4, xmm0, xmm0
-        vandps  xmm0, xmm4, xmm6
-        vmulss  xmm0, xmm0, xmm10
-        vaddss  xmm2, xmm0, xmm1
-        vandps  xmm1, xmm2, xmm6
-        vmulss  xmm3, xmm1, xmm2
-        vmulss  xmm0, xmm4, xmm9
-        vmulss  xmm1, xmm0, xmm4
-        vsubss  xmm2, xmm1, xmm9
-        vcomiss xmm3, xmm2
-      }
-      if ( v21 )
-        break;
-      ++v15;
-      ++_RBX;
-      v21 = v15 < frustumPlaneCount;
-      if ( v15 >= frustumPlaneCount )
-        goto LABEL_15;
-    }
-    result = 1;
+    _XMM1.m128_f32[0] = _mm128_sub_ps(_XMM3, _mm_shuffle_ps(i->v, i->v, 255)).m128_f32[0];
+    __asm { vhaddps xmm4, xmm0, xmm0 }
+    if ( (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(COERCE_FLOAT(_XMM4 & _xmm) * halfHeight) + _XMM1.m128_f32[0]) & _xmm) * (float)((float)(COERCE_FLOAT(_XMM4 & _xmm) * halfHeight) + _XMM1.m128_f32[0])) < (float)((float)((float)(*(float *)&_XMM4 * (float)(radius * radius)) * *(float *)&_XMM4) - (float)(radius * radius)) )
+      break;
+    if ( ++v10 >= frustumPlaneCount )
+      return 0;
   }
-  else
-  {
-LABEL_15:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm10, [rsp+0D8h+var_78]
-    vmovaps xmm8, [rsp+0D8h+var_58]
-    vmovaps xmm7, [rsp+0D8h+var_48]
-    vmovaps xmm6, [rsp+0D8h+var_38]
-    vmovaps xmm9, [rsp+0D8h+var_68]
-  }
-  return result;
+  return 1;
 }
 

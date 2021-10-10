@@ -83,17 +83,20 @@ void CG_Train_EvalSnapshotEnt(const LocalClientNum_t localClientNum, const centi
   unsigned __int64 i; 
   __int64 v15; 
   __int64 v16; 
-  __int64 *v19; 
+  __int64 *v17; 
+  __int64 *v18; 
+  __int64 **v19; 
   __int64 *v20; 
-  __int64 **v21; 
-  int v25; 
-  __int64 v26; 
+  __int128 v21; 
+  double v22; 
+  int v23; 
+  __int64 v24; 
   bool outIsComposite; 
-  __int128 v28; 
+  __int128 v26; 
+  __int64 v27; 
+  __int64 v28; 
   __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  _BYTE v32[28]; 
+  _BYTE v30[28]; 
 
   v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 102, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -114,8 +117,8 @@ void CG_Train_EvalSnapshotEnt(const LocalClientNum_t localClientNum, const centi
     {
       if ( *FirstModelName )
       {
-        v30 = 616 * v3;
-        v31 = v3;
+        v28 = 616 * v3;
+        v29 = v3;
         v10 = (unsigned int)number % 0x1Dui64;
         if ( v10 >= 0x1D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
@@ -158,84 +161,73 @@ LABEL_24:
             {
               if ( (unsigned __int64)++v15 >= 1 )
               {
-                LODWORD(v26) = number;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 162, ASSERT_TYPE_ASSERT, "( foundInIgnoredList || (trainCarIndex >= 0) )", "Unknown train model '%s' used in entity %u.", v9, v26) )
+                LODWORD(v24) = number;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 162, ASSERT_TYPE_ASSERT, "( foundInIgnoredList || (trainCarIndex >= 0) )", "Unknown train model '%s' used in entity %u.", v9, v24) )
                   __debugbreak();
                 break;
               }
             }
           }
-          v16 = v30;
-          if ( *(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v30) < 9 )
+          v16 = v28;
+          if ( *(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v28) < 9 )
             goto LABEL_43;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 164, ASSERT_TYPE_ASSERT, "( s_TrainCarInfoMap[localClientNum].size() < MAX_TRACKED_TRAIN_ENTS )", "Received more entities with train cars than expected.") )
             __debugbreak();
           if ( *(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v16) < 9 )
           {
 LABEL_43:
-            *(_WORD *)v32 = number;
-            DWORD2(v28) = 0;
-            HIDWORD(v28) = v13;
-            v29 = (unsigned int)snapshotTime;
-            *(_QWORD *)&v28 = 0i64;
-            __asm
-            {
-              vmovups xmm0, [rsp+0D8h+var_90]
-              vmovsd  xmm1, [rsp+0D8h+var_80]
-              vmovups [rsp+0D8h+var_68+4], xmm0
-              vmovsd  [rsp+0D8h+var_54], xmm1
-            }
+            *(_WORD *)v30 = number;
+            DWORD2(v26) = 0;
+            HIDWORD(v26) = v13;
+            v27 = (unsigned int)snapshotTime;
+            *(_QWORD *)&v26 = 0i64;
+            *(_OWORD *)&v30[4] = v26;
+            *(_QWORD *)&v30[20] = (unsigned int)snapshotTime;
             if ( v10 >= 0x1D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
-            v19 = *(__int64 **)((char *)&s_TrainCarInfoMap[0].m_buckets.ntl::internal::hash_table<short,TrainCarInfo,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<short,TrainCarInfo>,9,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::hash<short>,ntl::equal_to<short>,ntl::integral_constant<bool,1> >::m_data[v10].m_listHead.m_sentinel.mp_next + v16);
-            v20 = (__int64 *)((char *)&s_TrainCarInfoMap[0].m_buckets.ntl::internal::hash_table<short,TrainCarInfo,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<short,TrainCarInfo>,9,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::hash<short>,ntl::equal_to<short>,ntl::integral_constant<bool,1> >::m_data[v10] + v16);
-            if ( v19 == v20 )
+            v17 = *(__int64 **)((char *)&s_TrainCarInfoMap[0].m_buckets.ntl::internal::hash_table<short,TrainCarInfo,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<short,TrainCarInfo>,9,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::hash<short>,ntl::equal_to<short>,ntl::integral_constant<bool,1> >::m_data[v10].m_listHead.m_sentinel.mp_next + v16);
+            v18 = (__int64 *)((char *)&s_TrainCarInfoMap[0].m_buckets.ntl::internal::hash_table<short,TrainCarInfo,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<short,TrainCarInfo>,9,8>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::hash<short>,ntl::equal_to<short>,ntl::integral_constant<bool,1> >::m_data[v10] + v16);
+            if ( v17 == v18 )
             {
 LABEL_52:
-              v21 = (__int64 **)((char *)&s_TrainCarInfoMap[0].m_freelist + v16);
+              v19 = (__int64 **)((char *)&s_TrainCarInfoMap[0].m_freelist + v16);
               if ( !*(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)((char *)&s_TrainCarInfoMap[0].m_freelist.m_head.mp_next + v16) )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                   __debugbreak();
-                if ( !*v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+                if ( !*v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                   __debugbreak();
               }
-              if ( *v21 == (__int64 *)v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 9ui64) )
+              if ( *v19 == (__int64 *)v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 9ui64) )
                 __debugbreak();
-              _RCX = *v21;
-              __asm
-              {
-                vmovups xmm0, [rsp+0D8h+var_68]
-                vmovsd  xmm1, qword ptr [rsp+80h]
-              }
-              *v21 = (__int64 *)**v21;
-              v25 = *(_DWORD *)&v32[24];
-              __asm
-              {
-                vmovups xmmword ptr [rcx+8], xmm0
-                vmovsd  qword ptr [rcx+18h], xmm1
-              }
-              *_RCX = 0i64;
-              *((_DWORD *)_RCX + 8) = v25;
-              *_RCX = *v20;
-              *v20 = (__int64)_RCX;
+              v20 = *v19;
+              v21 = *(_OWORD *)v30;
+              v22 = *(double *)&v30[16];
+              *v19 = (__int64 *)**v19;
+              v23 = *(_DWORD *)&v30[24];
+              *(_OWORD *)(v20 + 1) = v21;
+              *((double *)v20 + 3) = v22;
+              *v20 = 0i64;
+              *((_DWORD *)v20 + 8) = v23;
+              *v20 = *v18;
+              *v18 = (__int64)v20;
               ++*(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v16);
             }
             else
             {
               while ( 1 )
               {
-                if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+                if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                   __debugbreak();
-                if ( *((_WORD *)v19 + 4) == number )
+                if ( *((_WORD *)v17 + 4) == number )
                   break;
-                v19 = (__int64 *)*v19;
-                if ( v19 == v20 )
+                v17 = (__int64 *)*v17;
+                if ( v17 == v18 )
                   goto LABEL_52;
               }
             }
             if ( v13 >= 0 )
-              s_TrainCarEntNums[v31][v13] = number;
+              s_TrainCarEntNums[v29][v13] = number;
           }
         }
       }
@@ -380,6 +372,7 @@ void CG_Train_PreRender(const LocalClientNum_t localClientNum, const centity_t *
   const DObj *v13; 
   centity_t *v14; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v20; 
   __int64 v29; 
   __int64 v30; 
   unsigned __int8 inOutIndex[4]; 
@@ -479,25 +472,33 @@ LABEL_23:
               FunctionPointer_origin(&v14->pose.origin.origin.origin, &origin);
               if ( v14->pose.isPosePrecise )
               {
+                _XMM0 = LODWORD(origin.v[0]);
+                _XMM2 = LODWORD(origin.v[1]);
+                __asm { vcvtdq2pd xmm0, xmm0 }
+                *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+                *(double *)&v20 = *(double *)&_XMM0 * 0.000244140625;
+                _XMM0 = v20;
                 __asm
                 {
-                  vmovsd  xmm3, cs:__real@3f30000000000000
-                  vmovd   xmm0, dword ptr [rsp+0F8h+origin]
-                  vmovd   xmm2, dword ptr [rsp+0F8h+origin+4]
-                  vcvtdq2pd xmm0, xmm0
-                  vmulsd  xmm0, xmm0, xmm3
                   vcvtsd2ss xmm1, xmm0, xmm0
                   vcvtdq2pd xmm2, xmm2
-                  vmulsd  xmm0, xmm2, xmm3
-                  vmovd   xmm2, dword ptr [rsp+0F8h+origin+8]
-                  vmovss  dword ptr [rsp+0F8h+origin], xmm1
-                  vcvtsd2ss xmm1, xmm0, xmm0
-                  vcvtdq2pd xmm2, xmm2
-                  vmulsd  xmm0, xmm2, xmm3
-                  vmovss  dword ptr [rsp+0F8h+origin+4], xmm1
-                  vcvtsd2ss xmm1, xmm0, xmm0
-                  vmovss  dword ptr [rsp+0F8h+origin+8], xmm1
                 }
+                *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM2 + 1);
+                *(double *)&v20 = *(double *)&_XMM2 * 0.000244140625;
+                _XMM0 = v20;
+                _XMM2 = LODWORD(origin.v[2]);
+                origin.v[0] = *(float *)&_XMM1;
+                __asm
+                {
+                  vcvtsd2ss xmm1, xmm0, xmm0
+                  vcvtdq2pd xmm2, xmm2
+                }
+                *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM2 + 1);
+                *(double *)&v20 = *(double *)&_XMM2 * 0.000244140625;
+                _XMM0 = v20;
+                origin.v[1] = *(float *)&_XMM1;
+                __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                origin.v[2] = *(float *)&_XMM1;
               }
               AnglesAndOriginToMatrix43(&v14->pose.angles, &origin, &result);
               MatrixTransposeTransformVector43(&outWorldTransform.m[3], &result, (vec3_t *)v7 + 1);
@@ -525,13 +526,16 @@ void CG_Train_SnapshotFinishSetNextSnap(const LocalClientNum_t localClientNum, c
   unsigned __int64 *v8; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> > *v9; 
   ntl::internal::hash_table_node<short,TrainCarInfo> *mp_next; 
-  __int64 v12; 
+  __int64 v11; 
   ntl::internal::hash_table_node<short,TrainCarInfo> *mp_node; 
-  ntl::internal::hash_table_node<short,TrainCarInfo> *v17; 
+  ntl::internal::hash_table_node<short,TrainCarInfo> *v13; 
+  ntl::internal::hash_table_node<short,TrainCarInfo> *v14; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> > *mp_bucket; 
-  ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &> v21; 
-  ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &> v22; 
-  ntl::internal::slist_head_base<ntl::internal::hash_table_node<short,TrainCarInfo> > *v23; 
+  __int128 v16; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> > *v17; 
+  ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &> v18; 
+  ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> >,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &> v19; 
+  ntl::internal::slist_head_base<ntl::internal::hash_table_node<short,TrainCarInfo> > *p_m_listHead; 
 
   v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 71, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -559,78 +563,64 @@ void CG_Train_SnapshotFinishSetNextSnap(const LocalClientNum_t localClientNum, c
       }
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 305, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
         __debugbreak();
-      v21.mp_node = mp_next;
-      v21.mp_array = v7;
-      v21.mp_bucket = v9;
+      v18.mp_node = mp_next;
+      v18.mp_array = v7;
+      v18.mp_bucket = v9;
       while ( mp_next )
       {
         if ( mp_next->second.lastSnapshotTime == snapshotTime )
         {
           mp_next = (ntl::internal::hash_table_node<short,TrainCarInfo> *)mp_next->mp_next;
-          v21.mp_node = mp_next;
+          v18.mp_node = mp_next;
           if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 130, ASSERT_TYPE_ASSERT, "( mp_bucket )", (const char *)&queryFormat, "mp_bucket") )
             __debugbreak();
           if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> > *)v9->m_listHead.m_sentinel.mp_next == v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 131, ASSERT_TYPE_ASSERT, "( mp_bucket->empty() == false )", (const char *)&queryFormat, "mp_bucket->empty() == false") )
             __debugbreak();
           if ( mp_next != (ntl::internal::hash_table_node<short,TrainCarInfo> *)v9 )
             continue;
-          ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &>::set_next_used_bucket(&v21);
+          ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &>::set_next_used_bucket(&v18);
         }
         else
         {
           if ( mp_next->second.carIndex >= 0 )
             s_TrainCarEntNums[v6][mp_next->second.carIndex] = 2047;
-          __asm { vmovsd  xmm1, [rbp+57h+var_80.mp_bucket] }
-          v12 = 616 * v6;
-          __asm
+          v11 = 616 * v6;
+          p_m_listHead = &v18.mp_bucket->m_listHead;
+          mp_node = v18.mp_node;
+          v19 = v18;
+          v13 = v18.mp_node;
+          if ( !v18.mp_node )
           {
-            vmovsd  [rbp+57h+var_28], xmm1
-            vmovups xmm1, xmmword ptr [rbp+57h+var_80.mp_node]
-            vmovsd  xmm0, [rbp+57h+var_80.mp_bucket]
-            vmovq   rbx, xmm1
-            vmovups xmmword ptr [rbp+57h+var_68.mp_node], xmm1
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 145, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+              __debugbreak();
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 127, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+              __debugbreak();
           }
-          mp_node = v22.mp_node;
-          __asm { vmovsd  [rbp+57h+var_68.mp_bucket], xmm0 }
-          if ( !_RBX )
-          {
-            if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 145, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") || (__debugbreak(), !mp_node) )
-            {
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 127, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
-                __debugbreak();
-            }
-          }
-          v17 = (ntl::internal::hash_table_node<short,TrainCarInfo> *)mp_node->mp_next;
-          mp_bucket = v22.mp_bucket;
-          v22.mp_node = v17;
-          if ( !v22.mp_bucket && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 130, ASSERT_TYPE_ASSERT, "( mp_bucket )", (const char *)&queryFormat, "mp_bucket") )
+          v14 = (ntl::internal::hash_table_node<short,TrainCarInfo> *)v13->mp_next;
+          mp_bucket = v19.mp_bucket;
+          v19.mp_node = v14;
+          if ( !v19.mp_bucket && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 130, ASSERT_TYPE_ASSERT, "( mp_bucket )", (const char *)&queryFormat, "mp_bucket") )
             __debugbreak();
           if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo> > *)mp_bucket->m_listHead.m_sentinel.mp_next == mp_bucket && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table_iterator.h", 131, ASSERT_TYPE_ASSERT, "( mp_bucket->empty() == false )", (const char *)&queryFormat, "mp_bucket->empty() == false") )
             __debugbreak();
-          if ( v17 == (ntl::internal::hash_table_node<short,TrainCarInfo> *)mp_bucket )
-            ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &>::set_next_used_bucket(&v22);
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 348, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
+          if ( v14 == (ntl::internal::hash_table_node<short,TrainCarInfo> *)mp_bucket )
+            ntl::internal::hash_table_iterator<ntl::pair<short,TrainCarInfo>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,29>,ntl::intrusive_slist<ntl::internal::hash_table_node<short,TrainCarInfo>>,ntl::internal::hash_table_node<short,TrainCarInfo>,ntl::pair<short,TrainCarInfo> *,ntl::pair<short,TrainCarInfo> &>::set_next_used_bucket(&v19);
+          if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 348, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
             __debugbreak();
-          ntl::internal::slist_head_base<ntl::internal::hash_table_node<short,TrainCarInfo>>::remove(v23, _RBX);
-          _RBX->mp_next = NULL;
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
+          ntl::internal::slist_head_base<ntl::internal::hash_table_node<short,TrainCarInfo>>::remove(p_m_listHead, mp_node);
+          mp_node->mp_next = NULL;
+          if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
             __debugbreak();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+57h+var_68.mp_node]
-            vmovsd  xmm1, [rbp+57h+var_68.mp_bucket]
-          }
-          _RBX->mp_next = *(ntl::internal::slist_node_base **)((char *)&s_TrainCarInfoMap[0].m_freelist.m_head.mp_next + v12);
-          *(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)((char *)&s_TrainCarInfoMap[0].m_freelist.m_head.mp_next + v12) = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)_RBX;
-          --*(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v12);
-          __asm
-          {
-            vmovups xmmword ptr [rbp+57h+var_80.mp_node], xmm0
-            vmovsd  [rbp+57h+var_80.mp_bucket], xmm1
-          }
+          v16 = *(_OWORD *)&v19.mp_node;
+          v17 = v19.mp_bucket;
+          mp_node->mp_next = *(ntl::internal::slist_node_base **)((char *)&s_TrainCarInfoMap[0].m_freelist.m_head.mp_next + v11);
+          *(ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)((char *)&s_TrainCarInfoMap[0].m_freelist.m_head.mp_next + v11) = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_node;
+          --*(unsigned __int64 *)((char *)&s_TrainCarInfoMap[0].m_currentNumItems + v11);
+          *(_OWORD *)&v18.mp_node = v16;
+          v18.mp_bucket = v17;
         }
-        mp_next = v21.mp_node;
-        v9 = v21.mp_bucket;
+        mp_next = v18.mp_node;
+        v9 = v18.mp_bucket;
       }
     }
   }
@@ -641,320 +631,187 @@ void CG_Train_SnapshotFinishSetNextSnap(const LocalClientNum_t localClientNum, c
 CG_Train_TryDoTrainPoseController
 ==============
 */
-bool CG_Train_TryDoTrainPoseController(const cpose_t *pose, const DObj *obj, DObjPartBits *partBits)
+char CG_Train_TryDoTrainPoseController(const cpose_t *pose, const DObj *obj, DObjPartBits *partBits)
 {
-  const dvar_t *v11; 
-  const dvar_t *v12; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
   int entnum; 
-  unsigned __int64 v14; 
-  __int16 v15; 
+  unsigned __int64 v11; 
+  __int16 v12; 
   LocalClientNum_t LocalClientNumForDobj; 
+  char *v14; 
+  unsigned __int64 v15; 
+  char *v16; 
   char *v17; 
-  unsigned __int64 v18; 
-  char *v19; 
-  _QWORD *v20; 
-  bool v82; 
-  bool result; 
+  float v18; 
+  float transWeight; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   float *outT2; 
-  __int64 v108; 
-  unsigned __int8 v109[4]; 
+  __int64 v32; 
+  unsigned __int8 v33[4]; 
   int modelIndex; 
   unsigned __int8 inOutIndex; 
-  unsigned __int8 v112; 
-  unsigned __int8 v113[2]; 
-  float v114; 
+  unsigned __int8 v36; 
+  unsigned __int8 v37[2]; 
+  float v38; 
   float outT1; 
   vec3_t p1; 
   vec3_t p2; 
   vec3_t sphereCenter; 
-  DObjAnimMat v119; 
+  DObjAnimMat v43; 
   vec3_t vec; 
   tmat43_t<vec3_t> in; 
   vec3_t angles; 
-  vec3_t v123; 
+  vec3_t v47; 
   DObjAnimMat outMat; 
-  DObjAnimMat v125; 
-  DObjAnimMat v126; 
+  DObjAnimMat v49; 
+  DObjAnimMat v50; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v128; 
+  tmat43_t<vec3_t> v52; 
   tmat43_t<vec3_t> out; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 289, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  v11 = DVARBOOL_cg_train_killswitch_enabled;
+  v8 = DVARBOOL_cg_train_killswitch_enabled;
   if ( !DVARBOOL_cg_train_killswitch_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_train_killswitch_enabled") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+2A0h+var_40], xmm6
-    vmovaps [rsp+2A0h+var_50], xmm7
-  }
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled )
-    goto LABEL_45;
-  v12 = DVARBOOL_cg_train_killswitch_enable_pose_controller;
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
+    return 0;
+  v9 = DVARBOOL_cg_train_killswitch_enable_pose_controller;
   if ( !DVARBOOL_cg_train_killswitch_enable_pose_controller && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_train_killswitch_enable_pose_controller") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( !v12->current.enabled )
-    goto LABEL_45;
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
+    return 0;
   entnum = (__int16)obj->entnum;
-  v14 = (unsigned int)(entnum - 1);
-  v15 = entnum - 1;
-  if ( (unsigned int)v14 >= 0x800 )
+  v11 = (unsigned int)(entnum - 1);
+  v12 = entnum - 1;
+  if ( (unsigned int)v11 >= 0x800 )
   {
-    LODWORD(v108) = 2048;
+    LODWORD(v32) = 2048;
     LODWORD(outT2) = (__int16)(entnum - 1);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( ( 2048 ) )", "entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outT2, v108) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_train.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( ( 2048 ) )", "entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outT2, v32) )
       __debugbreak();
   }
-  LocalClientNumForDobj = CG_Entity_GetLocalClientNumForDobj(v15, obj);
+  LocalClientNumForDobj = CG_Entity_GetLocalClientNumForDobj(v12, obj);
   if ( LocalClientNumForDobj == LOCAL_CLIENT_INVALID )
-    goto LABEL_45;
-  v17 = (char *)&s_TrainCarInfoMap[0].m_buckets + 616 * LocalClientNumForDobj;
-  v18 = v14 % 0x1D;
-  if ( v18 >= 0x1D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+    return 0;
+  v14 = (char *)&s_TrainCarInfoMap[0].m_buckets + 616 * LocalClientNumForDobj;
+  v15 = v11 % 0x1D;
+  if ( v15 >= 0x1D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
     __debugbreak();
-  v19 = &v17[8 * v18];
-  v20 = *(_QWORD **)v19;
-  if ( *(char **)v19 == v19 )
+  v16 = &v14[8 * v15];
+  v17 = *(char **)v16;
+  if ( *(char **)v16 == v16 )
   {
 LABEL_25:
-    v20 = NULL;
+    v17 = NULL;
   }
   else
   {
     while ( 1 )
     {
-      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( *((_WORD *)v20 + 4) == v15 )
+      if ( *((_WORD *)v17 + 4) == v12 )
         break;
-      v20 = (_QWORD *)*v20;
-      if ( v20 == (_QWORD *)v19 )
+      v17 = *(char **)v17;
+      if ( v17 == v16 )
         goto LABEL_25;
     }
   }
-  if ( !v20 )
-    goto LABEL_45;
-  if ( !*((_BYTE *)v20 + 32) )
-    goto LABEL_45;
+  if ( !v17 )
+    return 0;
+  if ( !v17[32] )
+    return 0;
   inOutIndex = -2;
   if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_link_start, &inOutIndex, &modelIndex) )
-    goto LABEL_45;
-  v112 = -2;
-  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_link_end, &v112, &modelIndex) )
-    goto LABEL_45;
-  v109[0] = -2;
-  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_base, v109, &modelIndex) )
-    goto LABEL_45;
-  v113[0] = -2;
-  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_connect, v113, &modelIndex) )
-    goto LABEL_45;
-  __asm
-  {
-    vmovaps [rsp+2A0h+var_60], xmm8
-    vmovaps [rsp+2A0h+var_70], xmm9
-    vmovaps [rsp+2A0h+var_80], xmm10
-    vmovaps [rsp+2A0h+var_90], xmm11
-  }
+    return 0;
+  v36 = -2;
+  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_link_end, &v36, &modelIndex) )
+    return 0;
+  v33[0] = -2;
+  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_base, v33, &modelIndex) )
+    return 0;
+  v37[0] = -2;
+  if ( !DObjGetBoneIndexInternal_3(obj, scr_const.tag_front_connect, v37, &modelIndex) )
+    return 0;
+  v56 = v3;
+  v55 = v4;
+  v54 = v5;
   DObjGetBasePoseMatrix(obj, inOutIndex, &outMat);
-  __asm
+  p1 = outMat.trans;
+  DObjGetBasePoseMatrix(obj, v36, &v49);
+  p2 = v49.trans;
+  DObjGetBasePoseMatrix(obj, v33[0], &v43);
+  modelIndex = SLODWORD(v43.quat.v[0]);
+  if ( (LODWORD(v43.quat.v[0]) & 0x7F800000) == 2139095040 || (modelIndex = SLODWORD(v43.quat.v[1]), (LODWORD(v43.quat.v[1]) & 0x7F800000) == 2139095040) || (v18 = v43.quat.v[2], modelIndex = SLODWORD(v43.quat.v[2]), (LODWORD(v43.quat.v[2]) & 0x7F800000) == 2139095040) || (modelIndex = SLODWORD(v43.quat.v[3]), (LODWORD(v43.quat.v[3]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbp+1A0h+outMat.trans]
-    vmovss  xmm1, dword ptr [rbp+1A0h+outMat.trans+4]
-    vmovss  dword ptr [rsp+2A0h+p1], xmm0
-    vmovss  xmm0, dword ptr [rbp+1A0h+outMat.trans+8]
-    vmovss  dword ptr [rsp+2A0h+p1+8], xmm0
-    vmovss  dword ptr [rsp+2A0h+p1+4], xmm1
-  }
-  DObjGetBasePoseMatrix(obj, v112, &v125);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_170.trans]
-    vmovss  xmm1, dword ptr [rbp+1A0h+var_170.trans+4]
-    vmovss  dword ptr [rsp+2A0h+p2], xmm0
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_170.trans+8]
-    vmovss  dword ptr [rsp+2A0h+p2+8], xmm0
-    vmovss  dword ptr [rsp+2A0h+p2+4], xmm1
-  }
-  DObjGetBasePoseMatrix(obj, v109[0], &v119);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_210.quat]
-    vmovss  [rsp+2A0h+modelIndex], xmm0
-  }
-  if ( (modelIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_210.quat+4]
-    vmovss  [rsp+2A0h+modelIndex], xmm0
-  }
-  if ( (modelIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+1A0h+var_210.quat+8]
-    vmovss  [rsp+2A0h+modelIndex], xmm5
-  }
-  if ( (modelIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_210.quat+0Ch]
-    vmovss  [rsp+2A0h+modelIndex], xmm0
-  }
-  if ( (modelIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_49:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
       __debugbreak();
-    __asm { vmovss  xmm5, dword ptr [rbp+1A0h+var_210.quat+8] }
+    v18 = v43.quat.v[2];
   }
-  __asm
-  {
-    vmovss  xmm4, [rbp+1A0h+var_210.transWeight]
-    vmovss  [rsp+2A0h+modelIndex], xmm4
-  }
-  if ( (modelIndex & 0x7F800000) == 2139095040 )
+  transWeight = v43.transWeight;
+  modelIndex = SLODWORD(v43.transWeight);
+  if ( (LODWORD(v43.transWeight) & 0x7F800000) == 2139095040 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbp+1A0h+var_210.quat+8]
-      vmovss  xmm4, [rbp+1A0h+var_210.transWeight]
-    }
+    v18 = v43.quat.v[2];
+    transWeight = v43.transWeight;
   }
-  __asm
-  {
-    vmulss  xmm1, xmm4, dword ptr [rbp+1A0h+var_210.quat]
-    vmulss  xmm11, xmm1, dword ptr [rbp+1A0h+var_210.quat]
-    vmovss  xmm2, dword ptr [rbp+1A0h+var_210.quat+4]
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_210.quat+0Ch]
-    vmulss  xmm9, xmm0, xmm1
-    vmulss  xmm8, xmm5, xmm1
-    vmulss  xmm6, xmm2, xmm1
-    vmulss  xmm3, xmm2, xmm4
-    vmulss  xmm7, xmm5, xmm3
-    vmulss  xmm10, xmm2, xmm3
-    vmulss  xmm3, xmm0, xmm3
-    vmulss  xmm4, xmm5, xmm4
-    vmulss  xmm2, xmm0, xmm4
-    vmulss  xmm5, xmm5, xmm4
-    vmovss  xmm4, cs:__real@3f800000
-    vaddss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rbp+1A0h+in+4], xmm1
-    vsubss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+1A0h+in+0Ch], xmm1
-    vaddss  xmm1, xmm7, xmm9
-    vmovss  dword ptr [rbp+1A0h+in+14h], xmm1
-    vsubss  xmm1, xmm7, xmm9
-    vmovss  dword ptr [rbp+1A0h+in+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+1A0h+var_210.trans]
-    vaddss  xmm0, xmm5, xmm10
-    vsubss  xmm0, xmm4, xmm0
-    vmovss  dword ptr [rbp+1A0h+in], xmm0
-    vsubss  xmm0, xmm8, xmm3
-    vmovss  dword ptr [rbp+1A0h+in+8], xmm0
-    vaddss  xmm0, xmm5, xmm11
-    vsubss  xmm0, xmm4, xmm0
-    vmovss  dword ptr [rbp+1A0h+in+10h], xmm0
-    vaddss  xmm0, xmm3, xmm8
-    vmovss  dword ptr [rbp+1A0h+in+18h], xmm0
-    vaddss  xmm0, xmm10, xmm11
-    vsubss  xmm0, xmm4, xmm0
-    vmovss  dword ptr [rbp+1A0h+in+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+1A0h+var_210.trans+4]
-    vmovss  dword ptr [rbp+1A0h+in+24h], xmm1
-    vmovss  xmm1, dword ptr [rbp+1A0h+var_210.trans+8]
-    vmovss  dword ptr [rbp+1A0h+in+28h], xmm0
-    vmovss  dword ptr [rbp+1A0h+in+2Ch], xmm1
-  }
-  DObjGetBasePoseMatrix(obj, v113[0], &v126);
-  __asm
-  {
-    vmovaps xmm11, [rsp+2A0h+var_90]
-    vmovaps xmm10, [rsp+2A0h+var_80]
-    vmovaps xmm9, [rsp+2A0h+var_70]
-    vmovss  xmm6, dword ptr [rbp+1A0h+var_150.trans]
-    vmovss  xmm7, dword ptr [rbp+1A0h+var_150.trans+4]
-    vmovss  xmm8, dword ptr [rbp+1A0h+var_150.trans+8]
-    vsubss  xmm2, xmm6, dword ptr [rbp+1A0h+in+24h]
-    vsubss  xmm3, xmm8, dword ptr [rbp+1A0h+in+2Ch]
-  }
-  _RAX = (char *)v20 + 12;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rsp+2A0h+sphereCenter], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  dword ptr [rsp+2A0h+sphereCenter+4], xmm1
-    vmovss  xmm0, dword ptr [rax+8]
-    vsubss  xmm1, xmm7, dword ptr [rbp+1A0h+in+28h]
-    vmovss  dword ptr [rbp+1A0h+sphereCenter+8], xmm0
-    vmovss  xmm0, cs:__real@ff7fffff
-    vmulss  xmm1, xmm1, xmm1
-    vmovss  [rsp+2A0h+outT1], xmm0
-    vmovss  [rsp+2A0h+var_254], xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2; radius
-  }
-  v82 = IntersectLineSegmentSphere(&p1, &p2, &sphereCenter, *(float *)&_XMM3, &outT1, &v114);
-  __asm { vmovaps xmm8, [rsp+2A0h+var_60] }
-  if ( v82 )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+2A0h+var_254]
-      vminss  xmm7, xmm0, [rsp+2A0h+outT1]
-      vmovss  xmm1, dword ptr [rsp+2A0h+p2]
-      vsubss  xmm0, xmm1, dword ptr [rsp+2A0h+p1]
-      vmulss  xmm2, xmm0, xmm7
-      vaddss  xmm6, xmm2, dword ptr [rsp+2A0h+p1]
-      vmovss  xmm0, dword ptr [rsp+2A0h+p2+4]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2A0h+p1+4]
-      vmovss  xmm0, dword ptr [rsp+2A0h+p2+8]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm5, xmm2, dword ptr [rsp+2A0h+p1+4]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2A0h+p1+8]
-      vmovss  xmm0, dword ptr [rsp+2A0h+sphereCenter]
-      vmulss  xmm2, xmm1, xmm7
-      vaddss  xmm4, xmm2, dword ptr [rsp+2A0h+p1+8]
-      vmovss  xmm2, dword ptr [rsp+2A0h+sphereCenter+4]
-      vsubss  xmm1, xmm0, xmm6
-      vsubss  xmm0, xmm2, xmm5
-      vmovss  dword ptr [rbp+1A0h+vec], xmm1
-      vmovss  xmm1, dword ptr [rbp+1A0h+sphereCenter+8]
-      vsubss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rbp+1A0h+vec+8], xmm2
-      vmovss  [rbp+1A0h+var_10C], xmm6
-      vmovss  [rbp+1A0h+var_108], xmm5
-      vmovss  [rbp+1A0h+var_104], xmm4
-      vmovss  dword ptr [rbp+1A0h+vec+4], xmm0
-    }
-    vectoangles(&vec, &angles);
-    AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-    MatrixInverseOrthogonal43(&in, &out);
-    MatrixMultiply43(&axis, &out, &v128);
-    AxisToAngles((const tmat33_t<vec3_t> *)&v128, &v123);
-    DObjSetLocalTag(obj, partBits, v109[0], &v128.m[3], &v123);
-    result = 1;
-  }
-  else
-  {
-LABEL_45:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+2A0h+var_50]
-    vmovaps xmm6, [rsp+2A0h+var_40]
-  }
-  return result;
+  v20 = (float)(transWeight * v43.quat.v[0]) * v43.quat.v[0];
+  v21 = v43.quat.v[3] * (float)(transWeight * v43.quat.v[0]);
+  v22 = v18 * (float)(transWeight * v43.quat.v[0]);
+  v23 = v43.quat.v[1] * (float)(transWeight * v43.quat.v[0]);
+  v24 = v18 * (float)(v43.quat.v[1] * transWeight);
+  v25 = v43.quat.v[1] * (float)(v43.quat.v[1] * transWeight);
+  v26 = v43.quat.v[3] * (float)(v43.quat.v[1] * transWeight);
+  v27 = v18 * transWeight;
+  in.m[0].v[1] = (float)(v43.quat.v[3] * v27) + v23;
+  in.m[1].v[0] = v23 - (float)(v43.quat.v[3] * v27);
+  in.m[1].v[2] = v24 + v21;
+  in.m[2].v[1] = v24 - v21;
+  in.m[0].v[0] = 1.0 - (float)((float)(v18 * v27) + v25);
+  in.m[0].v[2] = v22 - v26;
+  in.m[1].v[1] = 1.0 - (float)((float)(v18 * v27) + v20);
+  in.m[2].v[0] = v26 + v22;
+  in.m[2].v[2] = 1.0 - (float)(v25 + v20);
+  in.m[3] = v43.trans;
+  DObjGetBasePoseMatrix(obj, v37[0], &v50);
+  sphereCenter = *(vec3_t *)(v17 + 1);
+  outT1 = FLOAT_N3_4028235e38;
+  v38 = FLOAT_N3_4028235e38;
+  if ( !IntersectLineSegmentSphere(&p1, &p2, &sphereCenter, fsqrt((float)((float)((float)(v50.trans.v[1] - in.m[3].v[1]) * (float)(v50.trans.v[1] - in.m[3].v[1])) + (float)((float)(v50.trans.v[0] - in.m[3].v[0]) * (float)(v50.trans.v[0] - in.m[3].v[0]))) + (float)((float)(v50.trans.v[2] - in.m[3].v[2]) * (float)(v50.trans.v[2] - in.m[3].v[2]))), &outT1, &v38) )
+    return 0;
+  _XMM0 = LODWORD(v38);
+  __asm { vminss  xmm7, xmm0, [rsp+2A0h+outT1] }
+  vec.v[0] = sphereCenter.v[0] - (float)((float)((float)(p2.v[0] - p1.v[0]) * *(float *)&_XMM7) + p1.v[0]);
+  vec.v[2] = sphereCenter.v[2] - (float)((float)((float)(p2.v[2] - p1.v[2]) * *(float *)&_XMM7) + p1.v[2]);
+  axis.m[3].v[0] = (float)((float)(p2.v[0] - p1.v[0]) * *(float *)&_XMM7) + p1.v[0];
+  axis.m[3].v[1] = (float)((float)(p2.v[1] - p1.v[1]) * *(float *)&_XMM7) + p1.v[1];
+  axis.m[3].v[2] = (float)((float)(p2.v[2] - p1.v[2]) * *(float *)&_XMM7) + p1.v[2];
+  vec.v[1] = sphereCenter.v[1] - axis.m[3].v[1];
+  vectoangles(&vec, &angles);
+  AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
+  MatrixInverseOrthogonal43(&in, &out);
+  MatrixMultiply43(&axis, &out, &v52);
+  AxisToAngles((const tmat33_t<vec3_t> *)&v52, &v47);
+  DObjSetLocalTag(obj, partBits, v33[0], &v52.m[3], &v47);
+  return 1;
 }
 

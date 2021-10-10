@@ -673,47 +673,51 @@ ProcessDvarFloatRequest
 */
 char ProcessDvarFloatRequest(const int controllerindex_in, const unsigned __int16 functionid_in, const bdArray<bdAntiCheatChallengeParam> *bdchallengeparams_in, __int64 *bdchallengeresponse_in)
 {
-  signed __int64 v6; 
+  signed __int64 v4; 
   __int64 m_size; 
-  const char *v10; 
+  const char *v8; 
+  int v9; 
+  char *v10; 
   char *v11; 
   __int64 v12; 
+  double FloatSafe; 
+  __int64 v14; 
   char dvarName[64]; 
 
-  v6 = (signed __int64)bdchallengeparams_in;
+  v4 = (signed __int64)bdchallengeparams_in;
   m_size = bdchallengeparams_in->m_size;
   if ( (_DWORD)m_size == 1 )
   {
     bdHandleAssert(1, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAntiCheatChallengeParam>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-    v10 = *(const char **)(*(_QWORD *)v6 + 8i64);
-    if ( v10 )
+    v8 = *(const char **)(*(_QWORD *)v4 + 8i64);
+    if ( v8 )
     {
-      bdHandleAssert(*(_DWORD *)(v6 + 12) != 0, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAntiCheatChallengeParam>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
-      LODWORD(v6) = *(_DWORD *)(*(_QWORD *)v6 + 16i64);
-      v11 = strstr_0(v10, "~");
-      if ( v11 )
+      bdHandleAssert(*(_DWORD *)(v4 + 12) != 0, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdarray.inl", "bdArray<class bdAntiCheatChallengeParam>::operator []", 0x70u, "bdArray<T>::operator[], rangecheck failed");
+      v9 = 0;
+      LODWORD(v4) = *(_DWORD *)(*(_QWORD *)v4 + 16i64);
+      v10 = strstr_0(v8, "~");
+      v11 = v10;
+      if ( v10 )
       {
-        v6 = v11 - v10;
-        if ( (unsigned __int64)(v11 - v10 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v6, "signed", v6) )
+        v4 = v10 - v8;
+        if ( (unsigned __int64)(v10 - v8 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v4, "signed", v4) )
           __debugbreak();
       }
-      memcpy_0(dvarName, v10, (int)v6);
-      if ( (unsigned __int64)(int)v6 >= 0x40 )
+      memcpy_0(dvarName, v8, (int)v4);
+      if ( (unsigned __int64)(int)v4 >= 0x40 )
       {
         j___report_rangecheckfailure(v12);
         JUMPOUT(0x140B72996i64);
       }
-      dvarName[(int)v6] = 0;
-      *(double *)&_XMM0 = Dvar_GetFloatSafe(dvarName);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebp
-        vmulss  xmm0, xmm0, xmm1
-        vcvttss2si r9, xmm0
-      }
-      *bdchallengeresponse_in = _R9;
-      Com_Printf(25, "Challenge/Response: Responding to dvar float check, \"%s\" = %llu.\n", dvarName, _R9);
+      dvarName[(int)v4] = 0;
+      if ( v11 )
+        v9 = *(_DWORD *)&v8[(int)v4 + 1];
+      FloatSafe = Dvar_GetFloatSafe(dvarName);
+      if ( !v9 )
+        v9 = 1;
+      v14 = (unsigned int)(int)(float)(*(float *)&FloatSafe * (float)v9);
+      *bdchallengeresponse_in = v14;
+      Com_Printf(25, "Challenge/Response: Responding to dvar float check, \"%s\" = %llu.\n", dvarName, v14);
       return 1;
     }
     else
@@ -923,13 +927,13 @@ void ChallengeResponseHSM_default::SetResponseDataBlob(ChallengeResponseHSM_defa
   bdAntiCheatResponses *p_responses; 
   Online_PatchStreamer *Instance; 
   int ConsoleDetails; 
-  int v5; 
-  char v7[4]; 
-  int v8; 
+  int v4; 
+  char v5[4]; 
+  int v6; 
   unsigned __int8 consoleExternalIP[4]; 
   unsigned __int8 consoleInternalIP[4]; 
   unsigned __int16 dataptr_in[2]; 
-  __int16 v12; 
+  __int16 v10; 
   float lat; 
   float lon; 
   LiveAntiCheatQuickBuf liveanticheatquickbuf_in; 
@@ -947,33 +951,29 @@ void ChallengeResponseHSM_default::SetResponseDataBlob(ChallengeResponseHSM_defa
   Instance = Online_PatchStreamer::GetInstance();
   dataptr_in[0] = Online_PatchStreamer::GetPatchManifestVersion(Instance, MOVEMENT);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, dataptr_in, 2, 1);
-  v8 = 0;
+  v6 = 0;
   machineIDHigh = 0i64;
   machineIDLow = 0i64;
   *(_DWORD *)consoleInternalIP = 0;
   *(_DWORD *)consoleExternalIP = 0;
   macAddress = 0i64;
   ConsoleDetails = Live_GetConsoleDetails(1, consoleInternalIP, consoleExternalIP, &machineIDHigh, &machineIDLow, &macAddress);
-  v5 = 0;
+  v4 = 0;
   if ( ConsoleDetails )
-    v5 = *(_DWORD *)consoleExternalIP;
-  v8 = v5;
-  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &v8, 4, 0);
+    v4 = *(_DWORD *)consoleExternalIP;
+  v6 = v4;
+  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &v6, 4, 0);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &machineIDHigh, 8, 1);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &macAddress, 8, 1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+57h+lat], xmm0
-    vmovss  [rbp+57h+lon], xmm0
-  }
+  lat = 0.0;
+  lon = 0.0;
   LiveRegionInfo_GetLatLong(&lat, &lon);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &lat, 4, 1);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &lon, 4, 1);
-  v12 = 0;
-  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &v12, 2, 1);
-  v7[0] = 1;
-  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, v7, 1, 1);
+  v10 = 0;
+  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &v10, 2, 1);
+  v5[0] = 1;
+  LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, v5, 1, 1);
   LiveAntiCheatQuickBuf_WriteData(&liveanticheatquickbuf_in, &machineIDLow, 8, 1);
   bdAntiCheatResponses::setLogMessage(p_responses, liveanticheatquickbuf_in.bufferptr, liveanticheatquickbuf_in.numbytestraversed);
 }

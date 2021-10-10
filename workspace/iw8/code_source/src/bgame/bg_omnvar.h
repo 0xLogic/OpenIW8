@@ -57,21 +57,18 @@ Omnvar_GetFloat
 */
 float Omnvar_GetFloat(const OmnvarDef *def, const OmnvarData *data)
 {
-  _RDI = data;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 215, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 216, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 216, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( def->type == OMNVAR_TYPE_FLOAT )
-    goto LABEL_11;
+    return data->current.value;
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 217, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
     __debugbreak();
   if ( def->type == OMNVAR_TYPE_FLOAT )
-LABEL_11:
-    __asm { vmovss  xmm0, dword ptr [rdi+4] }
+    return data->current.value;
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*

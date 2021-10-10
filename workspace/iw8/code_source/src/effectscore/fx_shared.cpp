@@ -236,196 +236,189 @@ CG_Particle_CreateFxPhysicsObjects
 */
 void CG_Particle_CreateFxPhysicsObjects(LocalClientNum_t localClientNum)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  Physics_WorldId v7; 
+  Physics_WorldId v6; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v10; 
-  char v14; 
+  ParticleDeferredPhysicsCreateData *v9; 
+  double FixedMemoryPoolUsage; 
   unsigned int *flags; 
   int physicsRefId; 
   const XModel *pModel; 
-  int v18; 
+  int v14; 
   int Ref; 
   const PhysicsAsset *physicsAsset; 
-  int v21; 
-  char v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  unsigned int *v27; 
-  signed int v28; 
-  unsigned int v29; 
+  int v17; 
+  float value; 
+  double InstantiatiationPenetrationDepthForAsset; 
+  unsigned int v20; 
+  unsigned int v21; 
+  unsigned int *v22; 
+  signed int v23; 
+  unsigned int v24; 
   unsigned int m_serialAndIndex; 
-  int v31; 
+  int v26; 
+  float v27; 
+  int v28; 
+  float v29; 
+  float v30; 
   hknpWorld *world; 
   void (__fastcall *onImpactCB)(Physics_SimpleCollisionCallback_Data *); 
-  ntl::fixed_map<unsigned int,Particle_OnImpactCBData,2048,ntl::less<unsigned int,unsigned int> > *v46; 
+  Particle_OnImpactCBData onImpactData; 
+  ntl::fixed_map<unsigned int,Particle_OnImpactCBData,2048,ntl::less<unsigned int,unsigned int> > *v34; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
-  ntl::red_black_tree_node_base *v49; 
-  ntl::red_black_tree_node_base *v50; 
-  bool v52; 
+  ntl::red_black_tree_node_base *v37; 
+  ntl::red_black_tree_node_base *v38; 
+  ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *mp_node; 
+  bool v40; 
   ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> >,ntl::pair<unsigned int,Particle_OnImpactCBData> *,ntl::pair<unsigned int,Particle_OnImpactCBData> &> *inserted; 
   ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *i; 
-  ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *v55; 
-  unsigned int *v56; 
-  bool v57; 
-  int v61; 
-  int v62; 
-  __int64 v63; 
-  __int64 v64; 
+  ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *v43; 
+  unsigned int *v44; 
+  bool v45; 
+  int v46; 
+  int v47; 
+  __int64 v48; 
+  __int64 v49; 
   const ParticleEmitter **p_pParticleEmitterOwner; 
-  unsigned int v66; 
-  __int64 v67; 
-  ParticleSystem *v68; 
-  __int64 v69; 
+  unsigned int v51; 
+  __int64 v52; 
+  ParticleSystem *v53; 
+  __int64 v54; 
   ParticleSystemFlags m_flags; 
   const ParticleSystemDef *Def; 
-  ParticleState *v72; 
-  volatile int v73; 
-  const ParticleEmitter **v74; 
-  __int64 v75; 
-  ParticleModulePhysicsLight *v76; 
-  volatile int v77; 
-  ParticleDeferredPhysicsGlassCreateData *v78; 
-  unsigned __int64 v79; 
-  const char *v80; 
+  ParticleState *v57; 
+  volatile int v58; 
+  const ParticleEmitter **v59; 
+  __int64 v60; 
+  ParticleModulePhysicsLight *v61; 
+  volatile int v62; 
+  ParticleDeferredPhysicsGlassCreateData *v63; 
+  unsigned __int64 v64; 
+  const char *v65; 
   __int64 j; 
-  __int64 v82; 
-  char *v83; 
+  __int64 v67; 
+  char *v68; 
   __int64 ignoreSystems; 
   __int64 add; 
-  int v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  int v90; 
-  int v91; 
-  signed int v92; 
-  int v93; 
+  signed int v71; 
+  int v72; 
   Physics_WorldId worldId; 
   int NumRigidBodys; 
   unsigned int *p_instanceId; 
-  __int64 v98; 
-  __int64 v99; 
+  __int64 v77; 
+  __int64 v78; 
   hknpBodyId result; 
-  unsigned __int64 v101; 
+  unsigned __int64 v80; 
   Physics_InstantiateShapeOverride shapeOverride; 
-  __int128 v103; 
-  ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> >,ntl::pair<unsigned int,Particle_OnImpactCBData> *,ntl::pair<unsigned int,Particle_OnImpactCBData> &> v104; 
-  ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> >,ntl::pair<unsigned int,Particle_OnImpactCBData> *,ntl::pair<unsigned int,Particle_OnImpactCBData> &> v105; 
-  int v106[4]; 
-  int v107[4]; 
+  __int128 v82; 
+  ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> >,ntl::pair<unsigned int,Particle_OnImpactCBData> *,ntl::pair<unsigned int,Particle_OnImpactCBData> &> v83; 
+  ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> >,ntl::pair<unsigned int,Particle_OnImpactCBData> *,ntl::pair<unsigned int,Particle_OnImpactCBData> &> v84; 
+  int v85[4]; 
+  int v86[4]; 
   ntl::pair<unsigned int,Particle_OnImpactCBData> r_element; 
+  __int128 v88; 
+  __int128 v89; 
+  __int128 v90; 
 
-  v5 = localClientNum;
+  v4 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 401, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   Profile2_UpdateEntry(89);
-  v101 = (unsigned __int64)&dword_14FDE8134 & 3;
+  v80 = (unsigned __int64)&dword_14FDE8134 & 3;
   if ( ((unsigned __int8)&dword_14FDE8134 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8134) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8134);
   Sys_ProfBeginNamedEvent(0xFFEEE8AA, "vfx create physics");
   Profile_Begin(655);
-  v99 = v5;
-  v6 = v5;
-  if ( g_particleDeferredPhysicsCreateListCount[v5] >= 0x801u )
+  v78 = v4;
+  v5 = v4;
+  if ( g_particleDeferredPhysicsCreateListCount[v4] >= 0x801u )
   {
     LODWORD(add) = 2049;
-    LODWORD(ignoreSystems) = g_particleDeferredPhysicsCreateListCount[v5];
+    LODWORD(ignoreSystems) = g_particleDeferredPhysicsCreateListCount[v4];
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 407, ASSERT_TYPE_ASSERT, "(unsigned)( g_particleDeferredPhysicsCreateListCount[localClientNum] ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_LIST_MAX + 1 )", "g_particleDeferredPhysicsCreateListCount[localClientNum] doesn't index PARTICLE_DEFERRED_PHYSICS_LIST_MAX + 1\n\t%i not in [0, %i)", ignoreSystems, add) )
       __debugbreak();
   }
-  if ( g_particleDeferredPhysicsFXCreateListCount[v5] >= 0x801u )
+  if ( g_particleDeferredPhysicsFXCreateListCount[v4] >= 0x801u )
   {
     LODWORD(add) = 2049;
-    LODWORD(ignoreSystems) = g_particleDeferredPhysicsFXCreateListCount[v5];
+    LODWORD(ignoreSystems) = g_particleDeferredPhysicsFXCreateListCount[v4];
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 408, ASSERT_TYPE_ASSERT, "(unsigned)( g_particleDeferredPhysicsFXCreateListCount[localClientNum] ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_FX_LIST_MAX + 1 )", "g_particleDeferredPhysicsFXCreateListCount[localClientNum] doesn't index PARTICLE_DEFERRED_PHYSICS_FX_LIST_MAX + 1\n\t%i not in [0, %i)", ignoreSystems, add) )
       __debugbreak();
   }
-  if ( g_particleDeferredPhysicsGlassCreateListCount[v5] >= 0x801u )
+  if ( g_particleDeferredPhysicsGlassCreateListCount[v4] >= 0x801u )
   {
     LODWORD(add) = 2049;
-    LODWORD(ignoreSystems) = g_particleDeferredPhysicsGlassCreateListCount[v5];
+    LODWORD(ignoreSystems) = g_particleDeferredPhysicsGlassCreateListCount[v4];
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 409, ASSERT_TYPE_ASSERT, "(unsigned)( g_particleDeferredPhysicsGlassCreateListCount[localClientNum] ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_GLASS_LIST_MAX + 1 )", "g_particleDeferredPhysicsGlassCreateListCount[localClientNum] doesn't index PARTICLE_DEFERRED_PHYSICS_GLASS_LIST_MAX + 1\n\t%i not in [0, %i)", ignoreSystems, add) )
       __debugbreak();
   }
-  if ( g_particleDeferredPhysicsRayCastCreateListCount[v5] >= 0x801u )
+  if ( g_particleDeferredPhysicsRayCastCreateListCount[v4] >= 0x801u )
   {
     LODWORD(add) = 2049;
-    LODWORD(ignoreSystems) = g_particleDeferredPhysicsRayCastCreateListCount[v5];
+    LODWORD(ignoreSystems) = g_particleDeferredPhysicsRayCastCreateListCount[v4];
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 410, ASSERT_TYPE_ASSERT, "(unsigned)( g_particleDeferredPhysicsRayCastCreateListCount[localClientNum] ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_RAY_CAST_LIST_MAX + 1 )", "g_particleDeferredPhysicsRayCastCreateListCount[localClientNum] doesn't index PARTICLE_DEFERRED_PHYSICS_RAY_CAST_LIST_MAX + 1\n\t%i not in [0, %i)", ignoreSystems, add) )
       __debugbreak();
   }
-  v93 = 0;
-  v7 = 3 * v5 + 3;
-  worldId = 3 * v5 + 4;
-  if ( g_particleDeferredPhysicsCreateListCount[v5] > 0 )
+  v72 = 0;
+  v6 = 3 * v4 + 3;
+  worldId = 3 * v4 + 4;
+  if ( g_particleDeferredPhysicsCreateListCount[v4] > 0 )
   {
-    v8 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+1A0h+var_38+8], xmm6
-      vmovaps [rsp+1A0h+var_48+8], xmm7
-      vmovaps [rsp+1A0h+var_58+8], xmm8
-      vmovss  xmm8, cs:__real@3d000000
-    }
-    v10 = v5 << 11;
-    v98 = 0i64;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v7 = 0i64;
+    v90 = v1;
+    v89 = v2;
+    v88 = v3;
+    v8 = v4 << 11;
+    v77 = 0i64;
     while ( 1 )
     {
-      _R15 = &g_particleDeferredPhysicsCreateList[0][v10 + v8];
-      if ( _R15->state )
+      v9 = &g_particleDeferredPhysicsCreateList[0][v8 + v7];
+      if ( v9->state )
         break;
 LABEL_147:
-      ++v98;
-      v57 = v93 + 1 < g_particleDeferredPhysicsCreateListCount[v6];
-      v8 = v98;
-      ++v93;
-      if ( !v57 )
-      {
-        __asm
-        {
-          vmovaps xmm8, [rsp+1A0h+var_58+8]
-          vmovaps xmm7, [rsp+1A0h+var_48+8]
-          vmovaps xmm6, [rsp+1A0h+var_38+8]
-        }
-        goto LABEL_149;
-      }
+      ++v77;
+      v45 = v72 + 1 < g_particleDeferredPhysicsCreateListCount[v5];
+      v7 = v77;
+      ++v72;
+      if ( !v45 )
+        goto LABEL_148;
     }
-    *(double *)&_XMM0 = Physics_GetFixedMemoryPoolUsage(v7);
-    _RAX = particle_physics_memory_threshold;
-    __asm { vcomiss xmm0, dword ptr [rax+28h] }
-    if ( !(v24 | v14) )
+    FixedMemoryPoolUsage = Physics_GetFixedMemoryPoolUsage(v6);
+    if ( *(float *)&FixedMemoryPoolUsage > particle_physics_memory_threshold->current.value )
     {
-      flags = _R15->flags;
+      flags = v9->flags;
       if ( flags )
       {
         *flags &= ~2u;
-        *_R15->flags |= 0x40u;
+        *v9->flags |= 0x40u;
       }
 LABEL_145:
-      _R15->physicsInstanceID->createListIndex = -1;
-      _R15->state = PARTICLE_DEFERRED_PHYSICS_INVALID;
+      v9->physicsInstanceID->createListIndex = -1;
+      v9->state = PARTICLE_DEFERRED_PHYSICS_INVALID;
       goto LABEL_146;
     }
-    if ( _R15->state != PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 433, ASSERT_TYPE_ASSERT, "(pDeferredPhysicsData->state == ParticleDeferredPhysicsCreateData::PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION)", (const char *)&queryFormat, "pDeferredPhysicsData->state == ParticleDeferredPhysicsCreateData::PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION") )
+    if ( v9->state != PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 433, ASSERT_TYPE_ASSERT, "(pDeferredPhysicsData->state == ParticleDeferredPhysicsCreateData::PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION)", (const char *)&queryFormat, "pDeferredPhysicsData->state == ParticleDeferredPhysicsCreateData::PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION") )
       __debugbreak();
-    physicsRefId = _R15->physicsRefId;
-    pModel = _R15->pModel;
-    p_instanceId = &_R15->physicsInstanceID->instanceId;
+    physicsRefId = v9->physicsRefId;
+    pModel = v9->pModel;
+    p_instanceId = &v9->physicsInstanceID->instanceId;
     if ( physicsRefId >= 0x400000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 441, ASSERT_TYPE_ASSERT, "(physicsRefId < g_PhysicsMaxNumSupportedParticles)", (const char *)&queryFormat, "physicsRefId < g_PhysicsMaxNumSupportedParticles") )
       __debugbreak();
     if ( (physicsRefId < 0 || (unsigned int)physicsRefId > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)physicsRefId, "signed", physicsRefId) )
       __debugbreak();
-    v18 = physicsRefId >> 16;
-    if ( (physicsRefId >> 16 < 0 || (unsigned int)v18 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", BYTE2(physicsRefId), "signed", v18) )
+    v14 = physicsRefId >> 16;
+    if ( (physicsRefId >> 16 < 0 || (unsigned int)v14 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", BYTE2(physicsRefId), "signed", v14) )
       __debugbreak();
     Ref = Physics_MakeRef(Physics_RefSystem_Particles, Physics_RelationshipSystem_None, BYTE2(physicsRefId), physicsRefId);
     physicsAsset = pModel->physicsAsset;
-    v21 = Ref;
+    v17 = Ref;
     shapeOverride.customShape = NULL;
     shapeOverride.shapeOverride = -1;
     shapeOverride.physicsAssetAddendum = NULL;
@@ -435,389 +428,334 @@ LABEL_145:
     shapeOverride.overrideTensor = 0;
     if ( particle_physics_doPenetrationTest->current.enabled )
     {
-      _RCX = particle_physics_allowedPenetrationDepth;
-      __asm { vmovss  xmm6, dword ptr [rcx+28h] }
-      *(double *)&_XMM0 = Physics_GetInstantiatiationPenetrationDepthForAsset(v7, physicsAsset, &_R15->position, &_R15->quat, &shapeOverride, 0);
-      __asm { vcomiss xmm0, xmm6 }
-      if ( !(v24 | v14) )
-        goto LABEL_42;
-      __asm { vcomiss xmm0, xmm7 }
-      if ( v24 )
+      value = particle_physics_allowedPenetrationDepth->current.value;
+      InstantiatiationPenetrationDepthForAsset = Physics_GetInstantiatiationPenetrationDepthForAsset(v6, physicsAsset, &v9->position, &v9->quat, &shapeOverride, 0);
+      if ( *(float *)&InstantiatiationPenetrationDepthForAsset > value || *(float *)&InstantiatiationPenetrationDepthForAsset < 0.0 )
       {
-LABEL_42:
-        Particle_ClearPendingPhysicsData(_R15);
+        Particle_ClearPendingPhysicsData(v9);
 LABEL_146:
-        v10 = v6 << 11;
+        v8 = v5 << 11;
         goto LABEL_147;
       }
     }
-    v25 = Physics_InstantiateAsset(v7, pModel, physicsAsset, v21, &_R15->position, &_R15->quat, 1, 0, 0, &shapeOverride, Physics_InstantiationForceTypeNone, Physics_InstantiationFilterTypeNone, 0);
-    *p_instanceId = v25;
-    if ( v25 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 466, ASSERT_TYPE_ASSERT, "(physicsInstanceID->instanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceID->instanceId != PHYSICSINSTANCEID_INVALID") )
+    v20 = Physics_InstantiateAsset(v6, pModel, physicsAsset, v17, &v9->position, &v9->quat, 1, 0, 0, &shapeOverride, Physics_InstantiationForceTypeNone, Physics_InstantiationFilterTypeNone, 0);
+    *p_instanceId = v20;
+    if ( v20 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 466, ASSERT_TYPE_ASSERT, "(physicsInstanceID->instanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceID->instanceId != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v26 = Physics_InstantiateAsset(worldId, pModel, physicsAsset, v21, &_R15->position, &_R15->quat, 1, 0, 0, &shapeOverride, Physics_InstantiationForceTypeKeyframedAtMost, Physics_InstantiationFilterTypeNone, 0);
-    v27 = p_instanceId;
-    p_instanceId[1] = v26;
-    if ( v26 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 468, ASSERT_TYPE_ASSERT, "(physicsInstanceID->detailInstanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceID->detailInstanceId != PHYSICSINSTANCEID_INVALID") )
+    v21 = Physics_InstantiateAsset(worldId, pModel, physicsAsset, v17, &v9->position, &v9->quat, 1, 0, 0, &shapeOverride, Physics_InstantiationForceTypeKeyframedAtMost, Physics_InstantiationFilterTypeNone, 0);
+    v22 = p_instanceId;
+    p_instanceId[1] = v21;
+    if ( v21 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 468, ASSERT_TYPE_ASSERT, "(physicsInstanceID->detailInstanceId != 0xFFFFFFFF)", (const char *)&queryFormat, "physicsInstanceID->detailInstanceId != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v28 = 0;
-    NumRigidBodys = Physics_GetNumRigidBodys(v7, *p_instanceId);
-    v92 = 0;
+    v23 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys(v6, *p_instanceId);
+    v71 = 0;
     if ( NumRigidBodys <= 0 )
     {
 LABEL_143:
-      v56 = _R15->flags;
-      if ( v56 )
+      v44 = v9->flags;
+      if ( v44 )
       {
-        *v56 &= ~2u;
-        *_R15->flags |= 0x40u;
+        *v44 &= ~2u;
+        *v9->flags |= 0x40u;
       }
       goto LABEL_145;
     }
     while ( 1 )
     {
-      v29 = *v27;
+      v24 = *v22;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v7 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)v6 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", add) )
           __debugbreak();
       }
-      if ( v29 == -1 )
+      if ( v24 == -1 )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", add) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v7 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", add) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v7 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= PHYSICS_WORLD_ID_SERVER_DETAIL )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", add) )
           __debugbreak();
       }
-      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, v7, v29, v28)->m_serialAndIndex;
-      v31 = m_serialAndIndex & 0xFFFFFF;
+      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, v6, v24, v23)->m_serialAndIndex;
+      v26 = m_serialAndIndex & 0xFFFFFF;
       if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 475, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
         __debugbreak();
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 368, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Set Rigid Body LinAngVel when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v7 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+      if ( (unsigned int)v6 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 369, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Set Rigid Body LinAngVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", add) )
           __debugbreak();
       }
-      if ( v31 == 0xFFFFFF )
+      if ( v26 == 0xFFFFFF )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 370, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", "%s\n\tPhysics: Trying to Set Rigid Body LinAngVel with invalid Body in world %i", "Physics_IsRigidBodyIdValid( bodyId )", add) )
           __debugbreak();
       }
-      __asm
+      if ( (LODWORD(v9->velocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v9->velocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v9->velocity.v[2]) & 0x7F800000) == 2139095040 )
       {
-        vmovss  xmm0, dword ptr [r15+1Ch]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v86 & 0x7F800000) == 2139095040 )
-        goto LABEL_210;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+20h]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v87 & 0x7F800000) == 2139095040 )
-        goto LABEL_210;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+24h]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v88 & 0x7F800000) == 2139095040 )
-      {
-LABEL_210:
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 371, ASSERT_TYPE_ASSERT, "(!IS_NAN( linVel[0] ) && !IS_NAN( linVel[1] ) && !IS_NAN( linVel[2] ))", "%s\n\tPhysics: Trying to Set Rigid Body LinAngVel in world %i with nan linVel", "!IS_NAN( linVel[0] ) && !IS_NAN( linVel[1] ) && !IS_NAN( linVel[2] )", add) )
           __debugbreak();
       }
-      __asm
+      if ( (LODWORD(v9->angularVelocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v9->angularVelocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v9->angularVelocity.v[2]) & 0x7F800000) == 2139095040 )
       {
-        vmovss  xmm0, dword ptr [r15+28h]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v89 & 0x7F800000) == 2139095040 )
-        goto LABEL_211;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+2Ch]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v90 & 0x7F800000) == 2139095040 )
-        goto LABEL_211;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+30h]
-        vmovss  [rsp+1A0h+var_130], xmm0
-      }
-      if ( (v91 & 0x7F800000) == 2139095040 )
-      {
-LABEL_211:
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 372, ASSERT_TYPE_ASSERT, "(!IS_NAN( angVel[0] ) && !IS_NAN( angVel[1] ) && !IS_NAN( angVel[2] ))", "%s\n\tPhysics: Trying to Set Rigid Body LinAngVel in world %i with nan angVel", "!IS_NAN( angVel[0] ) && !IS_NAN( angVel[1] ) && !IS_NAN( angVel[2] )", add) )
           __debugbreak();
       }
-      __asm
+      v27 = 0.03125 * v9->velocity.v[0];
+      *(float *)&v28 = 0.03125 * v9->velocity.v[2];
+      *(float *)&v86[1] = 0.03125 * v9->velocity.v[1];
+      v85[0] = LODWORD(v9->angularVelocity.v[0]);
+      v29 = v9->angularVelocity.v[2];
+      *(float *)v86 = v27;
+      v30 = v9->angularVelocity.v[1];
+      *(float *)&v85[2] = v29;
+      v86[2] = v28;
+      *(float *)&v86[3] = 0.0;
+      *(float *)&v85[1] = v30;
+      *(float *)&v85[3] = 0.0;
+      if ( (unsigned int)v6 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
       {
-        vmulss  xmm0, xmm8, dword ptr [r15+20h]
-        vmulss  xmm1, xmm8, dword ptr [r15+1Ch]
-        vmulss  xmm2, xmm8, dword ptr [r15+24h]
-        vmovss  [rbp+0A0h+var_7C], xmm0
-        vmovss  xmm0, dword ptr [r15+28h]
-        vmovss  [rbp+0A0h+var_90], xmm0
-        vmovss  xmm0, dword ptr [r15+30h]
-        vmovss  [rbp+0A0h+var_80], xmm1
-        vmovss  xmm1, dword ptr [r15+2Ch]
-        vmovss  [rbp+0A0h+var_88], xmm0
-        vmovss  [rbp+0A0h+var_78], xmm2
-        vmovss  [rbp+0A0h+var_74], xmm7
-        vmovss  [rbp+0A0h+var_8C], xmm1
-        vmovss  [rbp+0A0h+var_84], xmm7
-      }
-      if ( (unsigned int)v7 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-      {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 485, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Set Rigid Body LinAngVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", add) )
           __debugbreak();
       }
-      if ( v31 == 0xFFFFFF )
+      if ( v26 == 0xFFFFFF )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 486, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Set Rigid Body LinAngVel with invalid body id for world %i", "bodyId.isValid()", add) )
           __debugbreak();
       }
-      world = HavokPhysics_GetMutableWorld(v7)->world;
+      world = HavokPhysics_GetMutableWorld(v6)->world;
       if ( !world )
       {
-        LODWORD(add) = v7;
+        LODWORD(add) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 490, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics SetRigidBodyLinAngVel %i: world is NULL", "world", add) )
           __debugbreak();
       }
-      ((void (__fastcall *)(hknpWorldWriter *, _QWORD, int *, int *, _DWORD))world->setBodyVelocity)(&world->hknpWorldWriter, m_serialAndIndex, v107, v106, 0);
-      onImpactCB = _R15->onImpactCB;
+      ((void (__fastcall *)(hknpWorldWriter *, _QWORD, int *, int *, _DWORD))world->setBodyVelocity)(&world->hknpWorldWriter, m_serialAndIndex, v86, v85, 0);
+      onImpactCB = v9->onImpactCB;
       if ( !onImpactCB )
         goto LABEL_142;
-      Physics_SimpleCollisionCallback_RegisterBody(v7, m_serialAndIndex, onImpactCB);
-      __asm { vmovups xmm6, xmmword ptr [r15+50h] }
-      v46 = &g_physicsBodyToParticleIDMap[v6];
-      mp_parent = v46->m_endNodeBase.mp_parent;
-      p_m_endNodeBase = &v46->m_endNodeBase;
-      v49 = &v46->m_endNodeBase;
-      v50 = mp_parent;
-      while ( v50 )
+      Physics_SimpleCollisionCallback_RegisterBody(v6, m_serialAndIndex, onImpactCB);
+      onImpactData = v9->onImpactData;
+      v34 = &g_physicsBodyToParticleIDMap[v5];
+      mp_parent = v34->m_endNodeBase.mp_parent;
+      p_m_endNodeBase = &v34->m_endNodeBase;
+      v37 = &v34->m_endNodeBase;
+      v38 = mp_parent;
+      while ( v38 )
       {
-        if ( v50[1].m_color < m_serialAndIndex )
+        if ( v38[1].m_color < m_serialAndIndex )
         {
-          v50 = v50->mp_right;
+          v38 = v38->mp_right;
         }
         else
         {
-          v49 = v50;
-          v50 = v50->mp_left;
+          v37 = v38;
+          v38 = v38->mp_left;
         }
       }
-      if ( v49 != p_m_endNodeBase )
+      if ( v37 != p_m_endNodeBase )
       {
-        _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)&v46->m_endNodeBase;
-        if ( m_serialAndIndex >= v49[1].m_color )
-          _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)v49;
-        if ( _RBX != p_m_endNodeBase )
+        mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)&v34->m_endNodeBase;
+        if ( m_serialAndIndex >= v37[1].m_color )
+          mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)v37;
+        if ( mp_node != p_m_endNodeBase )
         {
-          if ( !_RBX )
+          if ( !mp_node )
             goto LABEL_139;
           goto LABEL_141;
         }
       }
       r_element.first = m_serialAndIndex;
-      v103 = 0ui64;
-      v52 = 1;
-      __asm
-      {
-        vmovups xmm0, [rbp+0A0h+var_B0]
-        vmovups xmmword ptr [rbp+0A0h+r_element.second.particleSystemHandle], xmm0
-      }
+      v82 = 0ui64;
+      v40 = 1;
+      r_element.second = 0ui64;
       while ( mp_parent )
       {
         p_m_endNodeBase = mp_parent;
-        v52 = m_serialAndIndex < mp_parent[1].m_color;
+        v40 = m_serialAndIndex < mp_parent[1].m_color;
         if ( m_serialAndIndex >= mp_parent[1].m_color )
           mp_parent = mp_parent->mp_right;
         else
           mp_parent = mp_parent->mp_left;
       }
-      _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase;
-      if ( v52 )
+      mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase;
+      if ( v40 )
       {
-        if ( p_m_endNodeBase == v46->m_endNodeBase.mp_left )
+        if ( p_m_endNodeBase == v34->m_endNodeBase.mp_left )
         {
-          inserted = ntl::red_black_tree<unsigned int,ntl::pair<unsigned int,Particle_OnImpactCBData>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData>>,2048,8>,ntl::return_pair_first<unsigned int,Particle_OnImpactCBData>,ntl::less<unsigned int,unsigned int>>::insert_node(&g_physicsBodyToParticleIDMap[v6], &v104, p_m_endNodeBase, &r_element, 1, 0);
+          inserted = ntl::red_black_tree<unsigned int,ntl::pair<unsigned int,Particle_OnImpactCBData>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData>>,2048,8>,ntl::return_pair_first<unsigned int,Particle_OnImpactCBData>,ntl::less<unsigned int,unsigned int>>::insert_node(&g_physicsBodyToParticleIDMap[v5], &v83, p_m_endNodeBase, &r_element, 1, 0);
 LABEL_118:
-          _RBX = inserted->mp_node;
+          mp_node = inserted->mp_node;
           goto LABEL_138;
         }
         if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         if ( p_m_endNodeBase->m_color || p_m_endNodeBase->mp_parent->mp_parent != p_m_endNodeBase )
         {
-          _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_left;
-          if ( _RBX )
+          mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_left;
+          if ( mp_node )
           {
-            for ( i = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)_RBX->mp_right; i; i = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)i->mp_right )
-              _RBX = i;
+            for ( i = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)mp_node->mp_right; i; i = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)i->mp_right )
+              mp_node = i;
           }
           else
           {
-            _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_parent;
-            if ( p_m_endNodeBase == _RBX->mp_left )
+            mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_parent;
+            if ( p_m_endNodeBase == mp_node->mp_left )
             {
               do
               {
-                v55 = _RBX;
-                _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)_RBX->mp_parent;
+                v43 = mp_node;
+                mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)mp_node->mp_parent;
               }
-              while ( v55 == _RBX->mp_left );
+              while ( v43 == mp_node->mp_left );
             }
           }
         }
         else
         {
-          _RBX = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_right;
+          mp_node = (ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData> > *)p_m_endNodeBase->mp_right;
         }
       }
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( _RBX->m_element.first < m_serialAndIndex )
+      if ( mp_node->m_element.first < m_serialAndIndex )
       {
-        inserted = ntl::red_black_tree<unsigned int,ntl::pair<unsigned int,Particle_OnImpactCBData>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData>>,2048,8>,ntl::return_pair_first<unsigned int,Particle_OnImpactCBData>,ntl::less<unsigned int,unsigned int>>::insert_node(&g_physicsBodyToParticleIDMap[v6], &v105, p_m_endNodeBase, &r_element, 0, 0);
+        inserted = ntl::red_black_tree<unsigned int,ntl::pair<unsigned int,Particle_OnImpactCBData>,ntl::fixed_pool_allocator<ntl::red_black_tree_node<ntl::pair<unsigned int,Particle_OnImpactCBData>>,2048,8>,ntl::return_pair_first<unsigned int,Particle_OnImpactCBData>,ntl::less<unsigned int,unsigned int>>::insert_node(&g_physicsBodyToParticleIDMap[v5], &v84, p_m_endNodeBase, &r_element, 0, 0);
         goto LABEL_118;
       }
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\map\\map.h", 87, ASSERT_TYPE_ASSERT, "( retVal.second )", (const char *)&queryFormat, "retVal.second") )
         __debugbreak();
 LABEL_138:
-      if ( !_RBX )
+      if ( !mp_node )
       {
 LABEL_139:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
       }
 LABEL_141:
-      v28 = v92;
-      __asm { vmovups xmmword ptr [rbx+24h], xmm6 }
+      v23 = v71;
+      mp_node->m_element.second = onImpactData;
 LABEL_142:
-      v27 = p_instanceId;
-      v92 = ++v28;
-      if ( v28 >= NumRigidBodys )
+      v22 = p_instanceId;
+      v71 = ++v23;
+      if ( v23 >= NumRigidBodys )
         goto LABEL_143;
     }
   }
-LABEL_149:
-  v61 = 2048;
-  v62 = 2048;
-  if ( g_particleDeferredPhysicsFXPipelineCreateListCount[v6] < 2048 )
-    v62 = g_particleDeferredPhysicsFXPipelineCreateListCount[v6];
-  v63 = v62;
-  if ( v62 > 0 )
+LABEL_148:
+  v46 = 2048;
+  v47 = 2048;
+  if ( g_particleDeferredPhysicsFXPipelineCreateListCount[v5] < 2048 )
+    v47 = g_particleDeferredPhysicsFXPipelineCreateListCount[v5];
+  v48 = v47;
+  if ( v47 > 0 )
   {
-    v64 = v6 << 12;
-    p_pParticleEmitterOwner = &g_particleDeferredPhysicsFXPipelineCreateList[v6][0].pParticleEmitterOwner;
+    v49 = v5 << 12;
+    p_pParticleEmitterOwner = &g_particleDeferredPhysicsFXPipelineCreateList[v5][0].pParticleEmitterOwner;
     do
     {
-      v66 = 0;
-      if ( g_particleSystemsGeneration[v64 + ((_DWORD)p_pParticleEmitterOwner[1] & 0xFFF)].__all32 == *((_DWORD *)p_pParticleEmitterOwner + 2) )
-        v66 = (_DWORD)p_pParticleEmitterOwner[1] & 0xFFF;
-      v67 = v66;
-      v68 = NULL;
-      v69 = v64 + v67;
-      if ( g_particleSystems[0][v69] >= (ParticleSystem *)0x1000 )
-        v68 = g_particleSystems[0][v69];
-      if ( v68 )
+      v51 = 0;
+      if ( g_particleSystemsGeneration[v49 + ((_DWORD)p_pParticleEmitterOwner[1] & 0xFFF)].__all32 == *((_DWORD *)p_pParticleEmitterOwner + 2) )
+        v51 = (_DWORD)p_pParticleEmitterOwner[1] & 0xFFF;
+      v52 = v51;
+      v53 = NULL;
+      v54 = v49 + v52;
+      if ( g_particleSystems[0][v54] >= (ParticleSystem *)0x1000 )
+        v53 = g_particleSystems[0][v54];
+      if ( v53 )
       {
-        m_flags = v68->m_flags;
+        m_flags = v53->m_flags;
         if ( (m_flags & 0xD0070) != 0 )
         {
-          Def = ParticleSystem::GetDef(v68);
+          Def = ParticleSystem::GetDef(v53);
           Com_PrintWarning(21, "VFX: Trying to request a Havok FX pipeline for a system with invalid flags: %s (0x%16llx)\n", Def->name, m_flags);
         }
         else if ( ((*p_pParticleEmitterOwner)->m_flags & 0x40) == 0 )
         {
-          v72 = (ParticleState *)*(p_pParticleEmitterOwner - 1);
-          if ( !v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 520, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
+          v57 = (ParticleState *)*(p_pParticleEmitterOwner - 1);
+          if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 520, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
             __debugbreak();
-          if ( !ParticleState::UsesPhysicsFX(v72) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 521, ASSERT_TYPE_ASSERT, "(pParticleState->UsesPhysicsFX())", (const char *)&queryFormat, "pParticleState->UsesPhysicsFX()") )
+          if ( !ParticleState::UsesPhysicsFX(v57) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 521, ASSERT_TYPE_ASSERT, "(pParticleState->UsesPhysicsFX())", (const char *)&queryFormat, "pParticleState->UsesPhysicsFX()") )
             __debugbreak();
-          if ( v72->m_physicsFXPipelineInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 522, ASSERT_TYPE_ASSERT, "(pParticleState->GetPhysicsFXPipelineInstance() == nullptr)", (const char *)&queryFormat, "pParticleState->GetPhysicsFXPipelineInstance() == nullptr") )
+          if ( v57->m_physicsFXPipelineInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 522, ASSERT_TYPE_ASSERT, "(pParticleState->GetPhysicsFXPipelineInstance() == nullptr)", (const char *)&queryFormat, "pParticleState->GetPhysicsFXPipelineInstance() == nullptr") )
             __debugbreak();
-          ParticleState::RequestPhysicsPipelineInstance(v72);
+          ParticleState::RequestPhysicsPipelineInstance(v57);
         }
       }
       p_pParticleEmitterOwner += 3;
-      --v63;
+      --v48;
     }
-    while ( v63 );
-    v6 = v99;
-    v61 = 2048;
+    while ( v48 );
+    v5 = v78;
+    v46 = 2048;
   }
-  v73 = 0;
-  if ( g_particleDeferredPhysicsFXCreateListCount[v6] > 0 )
+  v58 = 0;
+  if ( g_particleDeferredPhysicsFXCreateListCount[v5] > 0 )
   {
-    v74 = &g_particleDeferredPhysicsFXCreateList[v6][0].pParticleEmitterOwner;
+    v59 = &g_particleDeferredPhysicsFXCreateList[v5][0].pParticleEmitterOwner;
     do
     {
-      v75 = (v6 << 12) + ((_DWORD)v74[1] & 0xFFF);
-      if ( g_particleSystemsGeneration[v75].__all32 == *((_DWORD *)v74 + 2) && g_particleSystems[0][v75] >= (ParticleSystem *)0x1000 && ((*v74)->m_flags & 0x40) == 0 )
+      v60 = (v5 << 12) + ((_DWORD)v59[1] & 0xFFF);
+      if ( g_particleSystemsGeneration[v60].__all32 == *((_DWORD *)v59 + 2) && g_particleSystems[0][v60] >= (ParticleSystem *)0x1000 && ((*v59)->m_flags & 0x40) == 0 )
       {
-        v76 = (ParticleModulePhysicsLight *)*(v74 - 4);
-        if ( !v76 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 540, ASSERT_TYPE_ASSERT, "(pModulePhysicsLight)", (const char *)&queryFormat, "pModulePhysicsLight") )
+        v61 = (ParticleModulePhysicsLight *)*(v59 - 4);
+        if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 540, ASSERT_TYPE_ASSERT, "(pModulePhysicsLight)", (const char *)&queryFormat, "pModulePhysicsLight") )
           __debugbreak();
-        ParticleModulePhysicsLight::CreatePhysicsParticles(v76, (ParticleData *)*(v74 - 3), *((_DWORD *)v74 - 4), *((_DWORD *)v74 - 3), (ParticleState *)*(v74 - 1));
+        ParticleModulePhysicsLight::CreatePhysicsParticles(v61, (ParticleData *)*(v59 - 3), *((_DWORD *)v59 - 4), *((_DWORD *)v59 - 3), (ParticleState *)*(v59 - 1));
       }
-      ++v73;
-      v74 += 6;
+      ++v58;
+      v59 += 6;
     }
-    while ( v73 < g_particleDeferredPhysicsFXCreateListCount[v6] );
-    v61 = 2048;
+    while ( v58 < g_particleDeferredPhysicsFXCreateListCount[v5] );
+    v46 = 2048;
   }
-  v77 = 0;
-  if ( g_particleDeferredPhysicsGlassCreateListCount[v6] > 0 )
+  v62 = 0;
+  if ( g_particleDeferredPhysicsGlassCreateListCount[v5] > 0 )
   {
-    v78 = g_particleDeferredPhysicsGlassCreateList[v6];
+    v63 = g_particleDeferredPhysicsGlassCreateList[v5];
     do
     {
-      if ( !v78->skipCreation )
-        Glass_CreatePhysicsFromDeferredData(v78, v7);
-      ++v77;
-      ++v78;
+      if ( !v63->skipCreation )
+        Glass_CreatePhysicsFromDeferredData(v63, v6);
+      ++v62;
+      ++v63;
     }
-    while ( v77 < g_particleDeferredPhysicsGlassCreateListCount[v6] );
+    while ( v62 < g_particleDeferredPhysicsGlassCreateListCount[v5] );
   }
   Profile2_UpdateEntry(91);
-  v79 = (unsigned __int64)&dword_14FDE813C & 3;
+  v64 = (unsigned __int64)&dword_14FDE813C & 3;
   if ( ((unsigned __int8)&dword_14FDE813C & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE813C) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE813C);
-  v80 = j_va("vfx ray cast (%d)", (unsigned int)g_particleDeferredPhysicsRayCastCreateListCount[v6]);
-  Sys_ProfBeginNamedEvent(0xFFEEE8AA, v80);
-  if ( g_particleDeferredPhysicsRayCastCreateListCount[v6] < 2048 )
-    v61 = g_particleDeferredPhysicsRayCastCreateListCount[v6];
-  if ( v61 > 0 )
+  v65 = j_va("vfx ray cast (%d)", (unsigned int)g_particleDeferredPhysicsRayCastCreateListCount[v5]);
+  Sys_ProfBeginNamedEvent(0xFFEEE8AA, v65);
+  if ( g_particleDeferredPhysicsRayCastCreateListCount[v5] < 2048 )
+    v46 = g_particleDeferredPhysicsRayCastCreateListCount[v5];
+  if ( v46 > 0 )
   {
-    for ( j = 0i64; j < v61; ++j )
+    for ( j = 0i64; j < v46; ++j )
     {
       if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
       {
@@ -826,28 +764,28 @@ LABEL_149:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.h", 616, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", ignoreSystems, add) )
           __debugbreak();
       }
-      v82 = g_particleDeferredPhysicsRayCastIndex[v6] + 2 * v6;
-      g_particleDeferredPhysicsRayCastResultValid[0][v82] = 1;
-      v83 = (char *)g_particleDeferredPhysicsRayCastCreateList + 294912 * v82 + 144 * j;
-      Particle_WorldTrace((trace_t *)v83, (const vec3_t *)(v83 + 88), (const vec3_t *)(v83 + 100), (const Bounds *)(v83 + 112), *((_DWORD *)v83 + 34));
+      v67 = g_particleDeferredPhysicsRayCastIndex[v5] + 2 * v5;
+      g_particleDeferredPhysicsRayCastResultValid[0][v67] = 1;
+      v68 = (char *)g_particleDeferredPhysicsRayCastCreateList + 294912 * v67 + 144 * j;
+      Particle_WorldTrace((trace_t *)v68, (const vec3_t *)(v68 + 88), (const vec3_t *)(v68 + 100), (const Bounds *)(v68 + 112), *((_DWORD *)v68 + 34));
     }
-    v79 = (unsigned __int64)&dword_14FDE813C & 3;
+    v64 = (unsigned __int64)&dword_14FDE813C & 3;
   }
   Sys_ProfEndNamedEvent();
   Profile2_UpdateEntry(91);
-  if ( v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE813C) )
+  if ( v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE813C) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE813C);
-  g_particleDeferredPhysicsCreateListCount[v6] = 0;
-  g_particleDeferredPhysicsFXCreateListCount[v6] = 0;
-  g_particleDeferredPhysicsFXPipelineCreateListCount[v6] = 0;
-  g_particleDeferredPhysicsGlassCreateListCount[v6] = 0;
-  g_particleDeferredPhysicsRayCastCreateListCount[v6] = 0;
-  g_particleDeferredPhysicsRayCastIndex[v6] = ((unsigned __int8)g_particleDeferredPhysicsRayCastIndex[v6] - 1) & 1;
+  g_particleDeferredPhysicsCreateListCount[v5] = 0;
+  g_particleDeferredPhysicsFXCreateListCount[v5] = 0;
+  g_particleDeferredPhysicsFXPipelineCreateListCount[v5] = 0;
+  g_particleDeferredPhysicsGlassCreateListCount[v5] = 0;
+  g_particleDeferredPhysicsRayCastCreateListCount[v5] = 0;
+  g_particleDeferredPhysicsRayCastIndex[v5] = ((unsigned __int8)g_particleDeferredPhysicsRayCastIndex[v5] - 1) & 1;
   Profile_EndInternal(NULL);
   Sys_ProfEndNamedEvent();
   Profile2_UpdateEntry(89);
-  if ( v101 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8134) )
+  if ( v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8134) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8134);
 }
@@ -1189,20 +1127,14 @@ void CG_Particle_ProcessFxPhysicsObjectRequestsWork(const void *const cmdInfo)
 FX_ConvertDecalTime
 ==============
 */
-
-char __fastcall FX_ConvertDecalTime(double editorDecalTime, unsigned __int16 *outConvertedValue, double _XMM2_8)
+char FX_ConvertDecalTime(float editorDecalTime, unsigned __int16 *outConvertedValue)
 {
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@41000000
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 2
-    vcvttss2si eax, xmm2
-  }
-  if ( _EAX > 0xFFFF )
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 2 }
+  if ( (unsigned int)(int)*(float *)&_XMM2 > 0xFFFF )
     return 0;
   if ( outConvertedValue )
-    *outConvertedValue = _EAX;
+    *outConvertedValue = (int)*(float *)&_XMM2;
   return 1;
 }
 
@@ -1534,199 +1466,131 @@ Particle_WorldTrace
 void Particle_WorldTrace(trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int brushmask)
 {
   hkMonitorStream *Value; 
-  hkMonitorStream *v11; 
+  hkMonitorStream *v10; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
-  char v16; 
-  char v17; 
+  float v12; 
   hknpShape *ShapeCapsuleUpAxis; 
+  double ShapecastHitFraction; 
   int RaycastHitRef; 
   unsigned __int16 ShapecastHitHitGlassId; 
-  int v27; 
-  unsigned __int16 v28; 
+  int v19; 
+  unsigned __int16 v20; 
   unsigned int RaycastHitBodyId; 
+  double RaycastHitFraction; 
   unsigned __int16 RaycastHitGlassId; 
   int EntityNum; 
-  unsigned __int16 v35; 
+  unsigned __int16 v25; 
   const char *RigidBodyName; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
   Physics_ShapecastExtendedData extendedData; 
-  __int64 v45; 
-  hkMonitorStream *v46; 
+  __int64 v28; 
+  hkMonitorStream *v29; 
   char optionalInplaceBuffer[432]; 
 
-  v45 = -2i64;
-  __asm { vmovaps [rsp+2A0h+var_50], xmm6 }
-  _RDI = bounds;
-  _RSI = results;
+  v28 = -2i64;
   Profile_Begin(220);
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v11 = Value;
+  v10 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtParticle_WorldTrace");
-  v46 = v11;
+  v29 = v10;
   ClosestResult = PhysicsQuery_GetClosestResult(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE);
   HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+0Ch]; radius
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm3, xmm6
-  }
-  if ( v16 | v17 )
+  v12 = bounds->halfSize.v[0];
+  if ( v12 <= 0.0 )
   {
     *(_QWORD *)&extendedData.accuracy = 0i64;
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rsp+2A0h+extendedData.ignoreBodies+4], xmm6 }
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = brushmask;
     Physics_Raycast(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, start, end, (Physics_RaycastExtendedData *)&extendedData, ClosestResult);
-    _RSI->fraction = 1.0;
+    results->fraction = 1.0;
     if ( !HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
       goto LABEL_33;
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
-    __asm { vmovss  dword ptr [rsi], xmm0 }
-    HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, &_RSI->normal);
-    _RSI->surfaceFlags = HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+10h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v41 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+14h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v42 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+18h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v43 & 0x7F800000) == 2139095040 )
-    {
-LABEL_38:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 347, ASSERT_TYPE_SANITY, "( !IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] )") )
-        __debugbreak();
-    }
-    _RSI->contents = HavokPhysics_CollisionQueryResult::GetRaycastHitContents(ClosestResult, 0);
+    RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
+    results->fraction = *(float *)&RaycastHitFraction;
+    HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, &results->normal);
+    results->surfaceFlags = HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0);
+    if ( ((LODWORD(results->normal.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(results->normal.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(results->normal.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 347, ASSERT_TYPE_SANITY, "( !IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] )") )
+      __debugbreak();
+    results->contents = HavokPhysics_CollisionQueryResult::GetRaycastHitContents(ClosestResult, 0);
     RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(ClosestResult, 0);
     RaycastHitGlassId = HavokPhysics_CollisionQueryResult::GetRaycastHitGlassId(ClosestResult, 0);
     if ( RaycastHitGlassId )
     {
-      _RSI->hitId = RaycastHitGlassId;
-      _RSI->hitType = TRACE_HITTYPE_GLASS;
+      results->hitId = RaycastHitGlassId;
+      results->hitType = TRACE_HITTYPE_GLASS;
       goto LABEL_33;
     }
     if ( !Physics_IsServerEntitylessScriptable(RaycastHitRef) && !Physics_IsClientEntitylessScriptable(RaycastHitRef) )
     {
       EntityNum = Physics_GetEntityNum(RaycastHitRef);
-      v35 = truncate_cast<unsigned short,int>(EntityNum);
-      _RSI->hitId = v35;
-      _RSI->hitType = Physics_GetHitTypeByEntId(v35);
+      v25 = truncate_cast<unsigned short,int>(EntityNum);
+      results->hitId = v25;
+      results->hitType = Physics_GetHitTypeByEntId(v25);
       RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(ClosestResult, 0);
       goto LABEL_29;
     }
 LABEL_32:
-    _RSI->hitType = TRACE_HITTYPE_SCRIPTABLE;
-    _RSI->hitId = RaycastHitRef & 0x3FFFFF;
+    results->hitType = TRACE_HITTYPE_SCRIPTABLE;
+    results->hitId = RaycastHitRef & 0x3FFFFF;
     goto LABEL_33;
   }
-  __asm { vsubss  xmm2, xmm0, xmm3; halfHeight }
-  ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, &_RDI->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, optionalInplaceBuffer, 432, Temporary);
+  ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, &bounds->midPoint, bounds->halfSize.v[2] - v12, v12, optionalInplaceBuffer, 432, Temporary);
   if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 284, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  [rsp+2A0h+extendedData.startTolerance], xmm6
-    vmovss  xmm0, cs:__real@3c83126f
-    vmovss  [rsp+2A0h+extendedData.accuracy], xmm0
-  }
+  extendedData.startTolerance = 0.0;
+  _XMM0 = LODWORD(FLOAT_0_016000001);
+  extendedData.accuracy = FLOAT_0_016000001;
   extendedData.simplifyStart = 0;
   extendedData.ignoreBodies = NULL;
-  __asm
-  {
-    vmovss  [rsp+2A0h+extendedData.collisionBuffer], xmm6
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+2A0h+extendedData.nonBrushShape], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
   extendedData.phaseSelection = All;
   extendedData.permitOutwardTrace = 0;
   extendedData.contents = brushmask;
   Physics_Shapecast(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, ClosestResult, NULL);
-  _RSI->fraction = 1.0;
+  results->fraction = 1.0;
   if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
   {
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(ClosestResult, 0);
-    __asm { vmovss  dword ptr [rsi], xmm0 }
-    HavokPhysics_CollisionQueryResult::GetShapecastHitHitContactNormal(ClosestResult, 0, &_RSI->normal);
-    _RSI->surfaceFlags = HavokPhysics_CollisionQueryResult::GetShapecastHitHitSurfFlags(ClosestResult, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+10h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v38 & 0x7F800000) == 2139095040 )
-      goto LABEL_39;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+14h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v39 & 0x7F800000) == 2139095040 )
-      goto LABEL_39;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+18h]
-      vmovss  [rsp+2A0h+var_260], xmm0
-    }
-    if ( (v40 & 0x7F800000) == 2139095040 )
-    {
-LABEL_39:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 300, ASSERT_TYPE_SANITY, "( !IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] )") )
-        __debugbreak();
-    }
-    _RSI->contents = HavokPhysics_CollisionQueryResult::GetShapecastHitHitContents(ClosestResult, 0);
+    ShapecastHitFraction = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(ClosestResult, 0);
+    results->fraction = *(float *)&ShapecastHitFraction;
+    HavokPhysics_CollisionQueryResult::GetShapecastHitHitContactNormal(ClosestResult, 0, &results->normal);
+    results->surfaceFlags = HavokPhysics_CollisionQueryResult::GetShapecastHitHitSurfFlags(ClosestResult, 0);
+    if ( ((LODWORD(results->normal.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(results->normal.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(results->normal.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.cpp", 300, ASSERT_TYPE_SANITY, "( !IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( results->normal )[0] ) && !IS_NAN( ( results->normal )[1] ) && !IS_NAN( ( results->normal )[2] )") )
+      __debugbreak();
+    results->contents = HavokPhysics_CollisionQueryResult::GetShapecastHitHitContents(ClosestResult, 0);
     RaycastHitRef = HavokPhysics_CollisionQueryResult::GetShapecastHitRef(ClosestResult, 0);
     ShapecastHitHitGlassId = HavokPhysics_CollisionQueryResult::GetShapecastHitHitGlassId(ClosestResult, 0);
     if ( ShapecastHitHitGlassId )
     {
-      _RSI->hitId = ShapecastHitHitGlassId;
-      _RSI->hitType = TRACE_HITTYPE_GLASS;
+      results->hitId = ShapecastHitHitGlassId;
+      results->hitType = TRACE_HITTYPE_GLASS;
       goto LABEL_33;
     }
     if ( !Physics_IsServerEntitylessScriptable(RaycastHitRef) && !Physics_IsClientEntitylessScriptable(RaycastHitRef) )
     {
-      v27 = Physics_GetEntityNum(RaycastHitRef);
-      v28 = truncate_cast<unsigned short,int>(v27);
-      _RSI->hitId = v28;
-      _RSI->hitType = Physics_GetHitTypeByEntId(v28);
+      v19 = Physics_GetEntityNum(RaycastHitRef);
+      v20 = truncate_cast<unsigned short,int>(v19);
+      results->hitId = v20;
+      results->hitType = Physics_GetHitTypeByEntId(v20);
       RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(ClosestResult, 0);
 LABEL_29:
       RigidBodyName = Physics_GetRigidBodyName(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, RaycastHitBodyId);
       if ( Physics_GetRefSystem(RaycastHitRef) == Physics_RefSystem_Ragdoll )
         RigidBodyName = Physics_GetRagdollBoneName(RigidBodyName);
-      _RSI->partName = SL_FindString(RigidBodyName);
+      results->partName = SL_FindString(RigidBodyName);
       goto LABEL_33;
     }
     goto LABEL_32;
   }
 LABEL_33:
   Profile_EndInternal(NULL);
-  if ( v11 )
-    hkMonitorStream::timerEnd(v11, "Et");
-  __asm { vmovaps xmm6, [rsp+2A0h+var_50] }
+  if ( v10 )
+    hkMonitorStream::timerEnd(v10, "Et");
 }
 
 /*

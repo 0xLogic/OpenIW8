@@ -652,11 +652,12 @@ G_PlayerEventsMP_GameAISoundEvent
 void G_PlayerEventsMP_GameAISoundEvent(gentity_s *const ent, const entity_event_t eventType)
 {
   bool v4; 
-  unsigned int v8; 
-  unsigned int v9; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  unsigned int v6; 
+  unsigned int v7; 
   bitarray<224> *p_result; 
   const playerState_s *EntityPlayerStateConst; 
-  ai_event_t v12; 
+  ai_event_t v10; 
   bitarray<224> result; 
   vec3_t vOriginOut; 
 
@@ -668,32 +669,27 @@ void G_PlayerEventsMP_GameAISoundEvent(gentity_s *const ent, const entity_event_
   {
     v4 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+78h+result.array], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rsp+78h+result.array+10h], xmm1
-    }
-    v8 = _RAX->array[6] & 0xFFEFFFFF;
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    *(_OWORD *)result.array = *(_OWORD *)AllCombatTeamFlags->array;
+    *(_QWORD *)&result.array[4] = *(_QWORD *)&AllCombatTeamFlags->array[4];
+    v6 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
     if ( v4 )
       result.array[0] &= ~0x8000000u;
-    result.array[6] = v8 & 0xFF9FFFFF;
+    result.array[6] = v6 & 0xFF9FFFFF;
   }
   else
   {
     Com_Teams_GetEnemyTeamFlags(&result, ent->sentient->eTeam);
   }
-  v9 = 0;
+  v7 = 0;
   p_result = &result;
   while ( !p_result->array[0] )
   {
-    ++v9;
+    ++v7;
     p_result = (bitarray<224> *)((char *)p_result + 4);
-    if ( v9 >= 7 )
+    if ( v7 >= 7 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 183, ASSERT_TYPE_ASSERT, "( teamFlags.anyBitsOn() )", "Team flags changed in between event queuing and execution") )
         __debugbreak();
@@ -706,15 +702,15 @@ void G_PlayerEventsMP_GameAISoundEvent(gentity_s *const ent, const entity_event_
   Sentient_GetOrigin(ent->sentient, &vOriginOut);
   if ( (unsigned int)(eventType - 173) <= 1 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerStateConst->pm_flags, ACTIVE, 1u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ent->s.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x19u) )
   {
-    v12 = AI_EV_FOOTSTEP_WALK;
+    v10 = AI_EV_FOOTSTEP_WALK;
   }
   else
   {
-    v12 = AI_EV_FOOTSTEP;
+    v10 = AI_EV_FOOTSTEP;
     if ( eventType == EV_FOOTSTEP_SPRINT )
-      v12 = AI_EV_FOOTSTEP_SPRINT;
+      v10 = AI_EV_FOOTSTEP_SPRINT;
   }
-  Actor_BroadcastPointEvent(ent, v12, &result, &vOriginOut);
+  Actor_BroadcastPointEvent(ent, v10, &result, &vOriginOut);
 }
 
 /*
@@ -724,45 +720,28 @@ G_PlayerEventsMP_GamePainLandingEvent
 */
 void G_PlayerEventsMP_GamePainLandingEvent(gentity_s *const ent, const unsigned int eventParm)
 {
-  char v12; 
-  char v13; 
+  float v4; 
+  const playerState_s *EntityPlayerStateConst; 
   unsigned int viewDip; 
   unsigned int weaponRattleType; 
   unsigned int clothType; 
   int isSoftLanding; 
-  void *retaddr; 
   GExtraDamageParams extraParams; 
   unsigned int damage; 
   unsigned int surfType; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-18h], xmm6 }
   if ( eventParm > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", (int)eventParm, "unsigned", eventParm) )
     __debugbreak();
   BG_UnpackHardLandingEventParm(eventParm, &damage, &isSoftLanding, &clothType, &weaponRattleType, &viewDip, &surfType);
-  __asm
+  v4 = (float)damage;
+  if ( (float)(v4 * 0.0099999998) > 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm6, xmm0, cs:__real@3c23d70a
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm6, xmm1
-  }
-  if ( !(v12 | v13) )
-  {
-    if ( !G_GetEntityPlayerStateConst(ent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 162, ASSERT_TYPE_ASSERT, "( ps != nullptr )", (const char *)&queryFormat, "ps != nullptr") )
+    EntityPlayerStateConst = G_GetEntityPlayerStateConst(ent);
+    if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 162, ASSERT_TYPE_ASSERT, "( ps != nullptr )", (const char *)&queryFormat, "ps != nullptr") )
       __debugbreak();
     extraParams = 0;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+260h]
-      vmulss  xmm1, xmm0, xmm6
-      vcvttss2si eax, xmm1
-    }
-    G_CombatMP_Damage(ent, NULL, NULL, NULL, NULL, _EAX, 0, 13, &NULL_WEAPON, 0, HITLOC_NONE, 0, (scr_string_t)0, 0, NULL, &extraParams);
+    G_CombatMP_Damage(ent, NULL, NULL, NULL, NULL, (int)(float)((float)EntityPlayerStateConst->stats[2] * (float)(v4 * 0.0099999998)), 0, 13, &NULL_WEAPON, 0, HITLOC_NONE, 0, (scr_string_t)0, 0, NULL, &extraParams);
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
 }
 
 /*
@@ -1671,7 +1650,7 @@ void GPlayerEventsMP::PMoveGrenadeSuicideEvent(GClientTaskQueue *outTaskQueue, c
   GWeaponMap *Instance; 
   __int64 eventType; 
   bool HasUnderbarrelAmmo; 
-  int v17; 
+  int v10; 
   int IsClipCompatible; 
   char *debugTaskName; 
   AmmoStore result; 
@@ -1679,11 +1658,11 @@ void GPlayerEventsMP::PMoveGrenadeSuicideEvent(GClientTaskQueue *outTaskQueue, c
   bitarray<64> perks; 
   int grenadeTimeLeft; 
   int HeldGrenadeFuse; 
-  int v25; 
+  int v18; 
   __int16 throwbackGrenadeOwner; 
-  char v27; 
-  bool v28; 
-  bool v29; 
+  char v20; 
+  bool v21; 
+  bool v22; 
   AmmoStore r_clip2; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 864, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
@@ -1695,47 +1674,30 @@ void GPlayerEventsMP::PMoveGrenadeSuicideEvent(GClientTaskQueue *outTaskQueue, c
   {
     Instance = GWeaponMap::GetInstance();
     eventType = playerEvent->eventItem.eventType;
-    _RAX = BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)playerEvent->eventItem.eventParm);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+168h+r_weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+168h+r_weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+168h+r_weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    r_weapon = *BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)playerEvent->eventItem.eventParm);
     perks = client->ps.perks;
     grenadeTimeLeft = client->ps.grenadeTimeLeft;
     throwbackGrenadeOwner = client->ps.throwbackGrenadeOwner;
-    if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 1u) || (v27 = 0, BG_IsUsingOffhandGestureWeapon(&client->ps)) )
-      v27 = 1;
-    v28 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x1Bu));
-    v29 = BG_ThrowingBackGrenade(&client->ps);
+    if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 1u) || (v20 = 0, BG_IsUsingOffhandGestureWeapon(&client->ps)) )
+      v20 = 1;
+    v21 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&client->ps.weapCommon.weapFlags, ACTIVE, 0x1Bu));
+    v22 = BG_ThrowingBackGrenade(&client->ps);
     HasUnderbarrelAmmo = BG_HasUnderbarrelAmmo(&r_weapon);
     HeldGrenadeFuse = BG_GetHeldGrenadeFuse(&r_weapon, HasUnderbarrelAmmo, &client->ps);
-    _RAX = BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+168h+r_clip2.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+168h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-    }
+    r_clip2 = *BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
     BG_HasLadderHand(&client->ps);
-    v17 = 0;
+    v10 = 0;
     while ( 1 )
     {
-      IsClipCompatible = BG_IsClipCompatible(&client->ps.weapCommon.ammoInClip[v17].clipIndex, &r_clip2);
+      IsClipCompatible = BG_IsClipCompatible(&client->ps.weapCommon.ammoInClip[v10].clipIndex, &r_clip2);
       if ( IsClipCompatible )
         break;
-      if ( (unsigned int)++v17 >= 0xF )
+      if ( (unsigned int)++v10 >= 0xF )
         goto LABEL_23;
     }
-    IsClipCompatible = client->ps.weapCommon.ammoInClip[v17].ammoCount[0];
+    IsClipCompatible = client->ps.weapCommon.ammoInClip[v10].ammoCount[0];
 LABEL_23:
-    v25 = IsClipCompatible;
+    v18 = IsClipCompatible;
     if ( G_Main_GetEntHandlerList(ent)->die )
       client->ps.stats[0] = 0;
     if ( (unsigned int)eventType >= 0xE3 )
@@ -1868,10 +1830,10 @@ void GPlayerEventsMP::PMoveSwitchOffhandEvent(GClientTaskQueue *outTaskQueue, co
   const playerState_s *EntityPlayerStateConst; 
   GWeaponMap *Instance; 
   int eventType; 
-  unsigned __int16 v13; 
+  unsigned __int16 v9; 
   void (__fastcall *GameHandlerForEvent)(gentity_s *, GClientTaskQueue *); 
   Weapon r_weapon; 
-  unsigned __int16 v16; 
+  unsigned __int16 v12; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 1043, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -1880,22 +1842,12 @@ void GPlayerEventsMP::PMoveSwitchOffhandEvent(GClientTaskQueue *outTaskQueue, co
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   eventType = playerEvent->eventItem.eventType;
-  _RAX = BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)playerEvent->eventItem.eventParm);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+98h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+98h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+98h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)playerEvent->eventItem.eventParm);
   if ( G_Active_CanDoGrenadePickup(EntityPlayerStateConst, &r_weapon) )
-    v13 = truncate_cast<unsigned short,unsigned int>(EntityPlayerStateConst->cursorHintEntIndex);
+    v9 = truncate_cast<unsigned short,unsigned int>(EntityPlayerStateConst->cursorHintEntIndex);
   else
-    v13 = 2047;
-  v16 = v13;
+    v9 = 2047;
+  v12 = v9;
   GameHandlerForEvent = GPlayerEventsMP::GetGameHandlerForEvent((const entity_event_t)eventType);
   GClientTaskQueue::AddTaskInternal(outTaskQueue, GameHandlerForEvent, &r_weapon, 0x3Eu, 2u, "GameEventSwitchOffhand");
 }
@@ -1964,84 +1916,80 @@ void GPlayerEventsMP::PMoveWeaponFireEvent(GClientTaskQueue *outTaskQueue, const
 {
   GWeaponMap *Instance; 
   gclient_s *client; 
-  BgWeaponMap *v8; 
+  BgWeaponMap *v7; 
   __int64 eventType; 
   int eventTime; 
-  int v11; 
+  int v10; 
   const Weapon *Weapon; 
   bool AltWeaponModeAsStoredInEntityState; 
   int EquippedWeaponIndex; 
-  __int64 v16; 
+  __int64 v14; 
   PlayerHandIndex HandFromWeaponEvent; 
+  __int32 v16; 
+  __int32 v17; 
   __int32 v18; 
   __int32 v19; 
-  __int32 v20; 
-  __int32 v21; 
   char *WeaponName; 
   weapType_t WeaponType; 
   weapClass_t WeaponClass; 
   vec3_t *outKickAVel; 
   bool *outKickNeedsToCrossCenter; 
-  bool v27; 
+  bool v25; 
   unsigned int eventParm; 
-  GClientTaskQueue *v29; 
+  GClientTaskQueue *v27; 
   vec3_t kickAngles; 
   vec3_t kickAVel; 
   GWeaponFireParms outParams; 
-  int v33; 
-  int v34; 
+  int v31; 
+  int v32; 
   char output[512]; 
 
-  v29 = outTaskQueue;
+  v27 = outTaskQueue;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 511, ASSERT_TYPE_ASSERT, "( ent != nullptr )", (const char *)&queryFormat, "ent != nullptr") )
     __debugbreak();
   if ( !ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 512, ASSERT_TYPE_ASSERT, "( ent->client != nullptr )", (const char *)&queryFormat, "ent->client != nullptr") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   client = ent->client;
-  v8 = Instance;
+  v7 = Instance;
   eventType = playerEvent->eventItem.eventType;
   eventTime = playerEvent->eventTime;
-  v11 = playerEvent->eventItem.eventType;
+  v10 = playerEvent->eventItem.eventType;
   eventParm = playerEvent->eventItem.eventParm;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+388h+kickAngles], xmm0
-    vmovss  dword ptr [rsp+388h+kickAngles+4], xmm0
-    vmovss  dword ptr [rsp+388h+kickAngles+8], xmm0
-  }
-  G_ActiveMP_FireRecoil(ent, &client->ps, Instance, v11, &kickAngles, &kickAVel, &v27);
+  kickAngles.v[0] = 0.0;
+  kickAngles.v[1] = 0.0;
+  kickAngles.v[2] = 0.0;
+  G_ActiveMP_FireRecoil(ent, &client->ps, Instance, v10, &kickAngles, &kickAVel, &v25);
   if ( SV_BotIsBot(ent->s.number) )
     SV_BotSetFireRecoil(ent->s.number, &kickAVel);
   if ( !BG_IsTurretActive(&client->ps) && !BG_IsVehicleActive(&client->ps) || !ent->active )
   {
-    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    Weapon = BgWeaponMap::GetWeapon(v8, ent->s.weaponHandle);
+    Weapon = BgWeaponMap::GetWeapon(v7, ent->s.weaponHandle);
     if ( Weapon->weaponIdx )
     {
-      AltWeaponModeAsStoredInEntityState = BG_GetAltWeaponModeAsStoredInEntityState(&client->ps, v8);
-      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v8, &client->ps, Weapon);
-      v16 = EquippedWeaponIndex;
+      AltWeaponModeAsStoredInEntityState = BG_GetAltWeaponModeAsStoredInEntityState(&client->ps, v7);
+      EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v7, &client->ps, Weapon);
+      v14 = EquippedWeaponIndex;
       if ( EquippedWeaponIndex >= 0 )
       {
         HandFromWeaponEvent = BG_GetHandFromWeaponEvent(eventType);
-        BG_Heat_ApplyFireHeat(&ent->client->weaponHeat[v16][HandFromWeaponEvent], Weapon, AltWeaponModeAsStoredInEntityState, playerEvent->eventTime);
+        BG_Heat_ApplyFireHeat(&ent->client->weaponHeat[v14][HandFromWeaponEvent], Weapon, AltWeaponModeAsStoredInEntityState, playerEvent->eventTime);
       }
-      v18 = BG_GetWeaponType(Weapon, AltWeaponModeAsStoredInEntityState) - 2;
-      if ( v18 )
+      v16 = BG_GetWeaponType(Weapon, AltWeaponModeAsStoredInEntityState) - 2;
+      if ( v16 )
       {
-        v19 = v18 - 1;
-        if ( v19 )
+        v17 = v16 - 1;
+        if ( v17 )
         {
-          v20 = v19 - 1;
-          if ( v20 )
+          v18 = v17 - 1;
+          if ( v18 )
           {
-            v21 = v20 - 5;
-            if ( v21 )
+            v19 = v18 - 5;
+            if ( v19 )
             {
-              if ( v21 == 1 )
+              if ( v19 == 1 )
               {
                 G_Weapon_SetupWeaponParams(ent, eventType, &outParams);
                 G_Deploy_Update(&client->ps, &outParams);
@@ -2072,8 +2020,8 @@ void GPlayerEventsMP::PMoveWeaponFireEvent(GClientTaskQueue *outTaskQueue, const
         G_Weapon_SetupBulletParams(ent, eventTime, eventType, eventParm, &outParams);
       }
 LABEL_30:
-      v33 = eventType;
-      v34 = eventTime;
+      v31 = eventType;
+      v32 = eventTime;
       if ( (unsigned int)eventType >= 0xE3 )
       {
         LODWORD(outKickNeedsToCrossCenter) = 227;
@@ -2085,7 +2033,7 @@ LABEL_30:
         __debugbreak();
       if ( GPlayerEventsMP::ms_gameEventHandlers[eventType] != GPlayerEventsMP::GameWeaponFireEvent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_player_events_mp.cpp", 611, ASSERT_TYPE_ASSERT, "( GetGameHandlerForEvent( eventType ) == handler )", (const char *)&queryFormat, "GetGameHandlerForEvent( eventType ) == handler") )
         __debugbreak();
-      GClientTaskQueue::AddTaskInternal(v29, GPlayerEventsMP::GameWeaponFireEvent, &outParams, 0xC8u, 8u, "GameEventWeaponFire");
+      GClientTaskQueue::AddTaskInternal(v27, GPlayerEventsMP::GameWeaponFireEvent, &outParams, 0xC8u, 8u, "GameEventWeaponFire");
     }
   }
 }

@@ -423,6 +423,7 @@ DynEntCL_AddEntity
 void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, DynEntityBasis basis, bool addTransients, const bool addPhysicsImmediately, const bool associateScriptables)
 {
   __int64 v6; 
+  DynEntityDef *Def; 
   unsigned __int16 v10; 
   DynEntityClient *v11; 
   unsigned __int16 v12; 
@@ -434,44 +435,45 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
   unsigned int v18; 
   int v19; 
   int v20; 
-  const DynEntityDef *Def; 
+  const DynEntityDef *v21; 
+  DynEntityPose *PoseFromClientId; 
   const DynEntityProps *EntityProps; 
   unsigned __int8 NumPosePartsFromDef; 
   unsigned __int8 numParts; 
-  unsigned __int8 v28; 
-  unsigned __int8 v29; 
-  __int64 v30; 
-  int v31; 
-  DynEnt_ExtraPosePart *v32; 
-  unsigned __int16 v33; 
+  unsigned __int8 v26; 
+  unsigned __int8 v27; 
+  __int64 v28; 
+  int v29; 
+  DynEnt_ExtraPosePart *v30; 
+  unsigned __int16 v31; 
   DynEntityType type; 
   unsigned int scriptableMapIndex; 
   unsigned int runtimeInstanceCount; 
   int HasShadow; 
-  bool v38; 
-  unsigned __int8 v41; 
-  unsigned __int8 v42; 
-  int v43; 
-  DynEnt_ExtraPosePart *v44; 
-  DynEntityType v45; 
-  const DynEntityDef *v46; 
-  unsigned __int16 v47; 
+  bool v36; 
+  unsigned __int8 v37; 
+  unsigned __int8 v38; 
+  int v39; 
+  DynEnt_ExtraPosePart *v40; 
+  DynEntityType v41; 
+  const DynEntityDef *v42; 
+  unsigned __int16 v43; 
   const XModel *activeModel; 
   const PhysicsAsset *physicsAsset; 
-  const XModel *v50; 
+  const XModel *v46; 
   const cmodel_t *BrushModel; 
   __int64 addAsHidden; 
   XModel *detailModel; 
   __int64 useInitialPose; 
   __int64 matchPose; 
-  DynEntityListId v56; 
-  DynEntityListId v57; 
-  DynEntityListId v58; 
+  DynEntityListId v52; 
+  DynEntityListId v53; 
+  DynEntityListId v54; 
   unsigned int localId; 
   unsigned int val; 
-  const DynEntityProps *v61; 
+  const DynEntityProps *v57; 
   volatile int *p_locked; 
-  unsigned __int16 v63; 
+  unsigned __int16 v59; 
   bool ShouldResetPoseOnAdd; 
   DynEntityListId associateScriptablesa; 
 
@@ -479,15 +481,15 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
   Profile_Begin(784);
   localId = dynEntId & 0x7FFFF;
   val = dynEntId >> 19;
-  v56 = truncate_cast<enum DynEntityListId,unsigned int>(dynEntId >> 19);
-  _RSI = (DynEntityDef *)DynEnt_GetDef(v56, dynEntId & 0x7FFFF, basis);
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 485, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
+  v52 = truncate_cast<enum DynEntityListId,unsigned int>(dynEntId >> 19);
+  Def = (DynEntityDef *)DynEnt_GetDef(v52, dynEntId & 0x7FFFF, basis);
+  if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 485, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
     __debugbreak();
-  v10 = _RSI->clientId[v6];
-  v63 = v10;
-  ShouldResetPoseOnAdd = DynEntCL_ShouldResetPoseOnAdd((LocalClientNum_t)v6, _RSI);
-  v11 = DynEntCL_AddEntity_SetupClient((const LocalClientNum_t)v6, dynEntId, basis, _RSI, v10 == 0xFFFF, 0);
-  v12 = _RSI->clientId[v6];
+  v10 = Def->clientId[v6];
+  v59 = v10;
+  ShouldResetPoseOnAdd = DynEntCL_ShouldResetPoseOnAdd((LocalClientNum_t)v6, Def);
+  v11 = DynEntCL_AddEntity_SetupClient((const LocalClientNum_t)v6, dynEntId, basis, Def, v10 == 0xFFFF, 0);
+  v12 = Def->clientId[v6];
   v13 = v11;
   if ( (unsigned int)v6 >= 2 )
   {
@@ -552,50 +554,45 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
       __debugbreak();
   }
   v19 = v13->dynEntDefId & 0x7FFFF;
-  v57 = truncate_cast<enum DynEntityListId,unsigned int>(v13->dynEntDefId >> 19);
-  if ( _RSI != DynEnt_GetDef(v57, v19, basis) )
+  v53 = truncate_cast<enum DynEntityListId,unsigned int>(v13->dynEntDefId >> 19);
+  if ( Def != DynEnt_GetDef(v53, v19, basis) )
   {
     v20 = v13->dynEntDefId & 0x7FFFF;
-    v58 = truncate_cast<enum DynEntityListId,unsigned int>(v13->dynEntDefId >> 19);
-    Def = DynEnt_GetDef(v58, v20, basis);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 494, ASSERT_TYPE_ASSERT, "( dynEntDef ) == ( DynEnt_GetDef( dynEntClient->dynEntDefId, basis ) )", "%s == %s\n\t%p, %p", "dynEntDef", "DynEnt_GetDef( dynEntClient->dynEntDefId, basis )", _RSI, Def) )
+    v54 = truncate_cast<enum DynEntityListId,unsigned int>(v13->dynEntDefId >> 19);
+    v21 = DynEnt_GetDef(v54, v20, basis);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 494, ASSERT_TYPE_ASSERT, "( dynEntDef ) == ( DynEnt_GetDef( dynEntClient->dynEntDefId, basis ) )", "%s == %s\n\t%p, %p", "dynEntDef", "DynEnt_GetDef( dynEntClient->dynEntDefId, basis )", Def, v21) )
       __debugbreak();
   }
-  _RBX = DynEnt_GetPoseFromClientId((LocalClientNum_t)v6, v12, basis);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 497, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
+  PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)v6, v12, basis);
+  if ( !PoseFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 497, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
   p_locked = &v13->locked;
   Sys_WaitInterlockedCompareExchange(&v13->locked, 1, 0);
-  EntityProps = DynEnt_GetEntityProps((const DynEntityType)_RSI->type);
-  v61 = EntityProps;
-  if ( v63 == 0xFFFF )
+  EntityProps = DynEnt_GetEntityProps((const DynEntityType)Def->type);
+  v57 = EntityProps;
+  if ( v59 == 0xFFFF )
   {
     *(_DWORD *)&v13->physicsSetupNext = -1;
     *(_QWORD *)&v13->physicsSystemId = -1i64;
-    memset_0(_RBX, 0, sizeof(DynEntityPose));
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+10h]
-      vmovups xmmword ptr [rbx+3Ch], xmm0
-      vmovsd  xmm1, qword ptr [rsi+20h]
-      vmovsd  qword ptr [rbx+4Ch], xmm1
-    }
-    _RBX->pose.origin.v[2] = _RSI->initialPose.origin.v[2];
+    memset_0(PoseFromClientId, 0, sizeof(DynEntityPose));
+    PoseFromClientId->pose.quat = Def->initialPose.quat;
+    *(double *)PoseFromClientId->pose.origin.v = *(double *)Def->initialPose.origin.v;
+    PoseFromClientId->pose.origin.v[2] = Def->initialPose.origin.v[2];
     NumPosePartsFromDef = DynEnt_GetNumPosePartsFromDef(dynEntId, basis);
-    _RBX->numParts = NumPosePartsFromDef;
+    PoseFromClientId->numParts = NumPosePartsFromDef;
     if ( NumPosePartsFromDef )
     {
-      _RBX->posePart0.origin.v[0] = _RBX->pose.origin.v[0];
-      _RBX->posePart0.origin.v[1] = _RBX->pose.origin.v[1];
-      _RBX->posePart0.origin.v[2] = _RBX->pose.origin.v[2];
-      _RBX->posePart0.quat.v[0] = _RBX->pose.quat.v[0];
-      _RBX->posePart0.quat.v[1] = _RBX->pose.quat.v[1];
-      _RBX->posePart0.quat.v[2] = _RBX->pose.quat.v[2];
-      _RBX->posePart0.quat.v[3] = _RBX->pose.quat.v[3];
-      numParts = _RBX->numParts;
+      PoseFromClientId->posePart0.origin.v[0] = PoseFromClientId->pose.origin.v[0];
+      PoseFromClientId->posePart0.origin.v[1] = PoseFromClientId->pose.origin.v[1];
+      PoseFromClientId->posePart0.origin.v[2] = PoseFromClientId->pose.origin.v[2];
+      PoseFromClientId->posePart0.quat.v[0] = PoseFromClientId->pose.quat.v[0];
+      PoseFromClientId->posePart0.quat.v[1] = PoseFromClientId->pose.quat.v[1];
+      PoseFromClientId->posePart0.quat.v[2] = PoseFromClientId->pose.quat.v[2];
+      PoseFromClientId->posePart0.quat.v[3] = PoseFromClientId->pose.quat.v[3];
+      numParts = PoseFromClientId->numParts;
       if ( numParts > 1u )
       {
-        v28 = numParts - 1;
+        v26 = numParts - 1;
         if ( g_dynEntPoseExtraPosePartsNextFree[v6] == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 528, ASSERT_TYPE_ASSERT, "(g_dynEntPoseExtraPosePartsNextFree[localClientNum] != DYNENT_EXTRA_POSE_PART_INVALID_INDEX)", (const char *)&queryFormat, "g_dynEntPoseExtraPosePartsNextFree[localClientNum] != DYNENT_EXTRA_POSE_PART_INVALID_INDEX") )
           __debugbreak();
         if ( g_dynEntPoseExtraPosePartsNextFree[v6] >= g_dynEntExtraPosePartsAllocCount[v6] )
@@ -607,92 +604,87 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
         }
         if ( basis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 532, ASSERT_TYPE_ASSERT, "(basis == DYNENT_BASIS_MODEL)", (const char *)&queryFormat, "basis == DYNENT_BASIS_MODEL") )
           __debugbreak();
-        if ( v28 > g_dynEntPoseExtraPosePartsStride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 534, ASSERT_TYPE_ASSERT, "(numExtraParts <= g_dynEntPoseExtraPosePartsStride)", (const char *)&queryFormat, "numExtraParts <= g_dynEntPoseExtraPosePartsStride") )
+        if ( v26 > g_dynEntPoseExtraPosePartsStride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 534, ASSERT_TYPE_ASSERT, "(numExtraParts <= g_dynEntPoseExtraPosePartsStride)", (const char *)&queryFormat, "numExtraParts <= g_dynEntPoseExtraPosePartsStride") )
           __debugbreak();
-        v29 = 0;
-        v30 = g_dynEntPoseExtraPosePartsNextFree[v6];
-        _RBX->posePart1FirstIndex = v30;
-        for ( g_dynEntPoseExtraPosePartsNextFree[v6] = g_dynEntPoseExtraParts[v6][v30].nextFreeIndex; v29 < v28; v32->posePart.quat.v[3] = _RBX->pose.quat.v[3] )
+        v27 = 0;
+        v28 = g_dynEntPoseExtraPosePartsNextFree[v6];
+        PoseFromClientId->posePart1FirstIndex = v28;
+        for ( g_dynEntPoseExtraPosePartsNextFree[v6] = g_dynEntPoseExtraParts[v6][v28].nextFreeIndex; v27 < v26; v30->posePart.quat.v[3] = PoseFromClientId->pose.quat.v[3] )
         {
-          v31 = v29++;
-          v32 = &g_dynEntPoseExtraParts[v6][_RBX->posePart1FirstIndex + v31];
-          v32->posePart.origin.v[0] = _RBX->pose.origin.v[0];
-          v32->posePart.origin.v[1] = _RBX->pose.origin.v[1];
-          v32->posePart.origin.v[2] = _RBX->pose.origin.v[2];
-          v32->nextFreeIndex = LODWORD(_RBX->pose.quat.v[0]);
-          v32->posePart.quat.v[1] = _RBX->pose.quat.v[1];
-          v32->posePart.quat.v[2] = _RBX->pose.quat.v[2];
+          v29 = v27++;
+          v30 = &g_dynEntPoseExtraParts[v6][PoseFromClientId->posePart1FirstIndex + v29];
+          v30->posePart.origin.v[0] = PoseFromClientId->pose.origin.v[0];
+          v30->posePart.origin.v[1] = PoseFromClientId->pose.origin.v[1];
+          v30->posePart.origin.v[2] = PoseFromClientId->pose.origin.v[2];
+          v30->nextFreeIndex = LODWORD(PoseFromClientId->pose.quat.v[0]);
+          v30->posePart.quat.v[1] = PoseFromClientId->pose.quat.v[1];
+          v30->posePart.quat.v[2] = PoseFromClientId->pose.quat.v[2];
         }
       }
-      EntityProps = v61;
+      EntityProps = v57;
     }
   }
   else if ( ShouldResetPoseOnAdd )
   {
-    v38 = _RBX->numParts == 0;
-    __asm
+    v36 = PoseFromClientId->numParts == 0;
+    PoseFromClientId->pose.quat = Def->initialPose.quat;
+    *(double *)PoseFromClientId->pose.origin.v = *(double *)Def->initialPose.origin.v;
+    PoseFromClientId->pose.origin.v[2] = Def->initialPose.origin.v[2];
+    if ( !v36 )
     {
-      vmovups xmm0, xmmword ptr [rsi+10h]
-      vmovups xmmword ptr [rbx+3Ch], xmm0
-      vmovsd  xmm1, qword ptr [rsi+20h]
-      vmovsd  qword ptr [rbx+4Ch], xmm1
-    }
-    _RBX->pose.origin.v[2] = _RSI->initialPose.origin.v[2];
-    if ( !v38 )
-    {
-      v41 = 0;
-      _RBX->posePart0.origin.v[0] = _RBX->pose.origin.v[0];
-      _RBX->posePart0.origin.v[1] = _RBX->pose.origin.v[1];
-      _RBX->posePart0.origin.v[2] = _RBX->pose.origin.v[2];
-      _RBX->posePart0.quat.v[0] = _RBX->pose.quat.v[0];
-      _RBX->posePart0.quat.v[1] = _RBX->pose.quat.v[1];
-      _RBX->posePart0.quat.v[2] = _RBX->pose.quat.v[2];
-      _RBX->posePart0.quat.v[3] = _RBX->pose.quat.v[3];
-      v42 = _RBX->numParts - 1;
-      if ( _RBX->numParts != 1 )
+      v37 = 0;
+      PoseFromClientId->posePart0.origin.v[0] = PoseFromClientId->pose.origin.v[0];
+      PoseFromClientId->posePart0.origin.v[1] = PoseFromClientId->pose.origin.v[1];
+      PoseFromClientId->posePart0.origin.v[2] = PoseFromClientId->pose.origin.v[2];
+      PoseFromClientId->posePart0.quat.v[0] = PoseFromClientId->pose.quat.v[0];
+      PoseFromClientId->posePart0.quat.v[1] = PoseFromClientId->pose.quat.v[1];
+      PoseFromClientId->posePart0.quat.v[2] = PoseFromClientId->pose.quat.v[2];
+      PoseFromClientId->posePart0.quat.v[3] = PoseFromClientId->pose.quat.v[3];
+      v38 = PoseFromClientId->numParts - 1;
+      if ( PoseFromClientId->numParts != 1 )
       {
         do
         {
-          v43 = v41++;
-          v44 = &g_dynEntPoseExtraParts[v6][_RBX->posePart1FirstIndex + v43];
-          v44->posePart.origin.v[0] = _RBX->pose.origin.v[0];
-          v44->posePart.origin.v[1] = _RBX->pose.origin.v[1];
-          v44->posePart.origin.v[2] = _RBX->pose.origin.v[2];
-          v44->nextFreeIndex = LODWORD(_RBX->pose.quat.v[0]);
-          v44->posePart.quat.v[1] = _RBX->pose.quat.v[1];
-          v44->posePart.quat.v[2] = _RBX->pose.quat.v[2];
-          v44->posePart.quat.v[3] = _RBX->pose.quat.v[3];
+          v39 = v37++;
+          v40 = &g_dynEntPoseExtraParts[v6][PoseFromClientId->posePart1FirstIndex + v39];
+          v40->posePart.origin.v[0] = PoseFromClientId->pose.origin.v[0];
+          v40->posePart.origin.v[1] = PoseFromClientId->pose.origin.v[1];
+          v40->posePart.origin.v[2] = PoseFromClientId->pose.origin.v[2];
+          v40->nextFreeIndex = LODWORD(PoseFromClientId->pose.quat.v[0]);
+          v40->posePart.quat.v[1] = PoseFromClientId->pose.quat.v[1];
+          v40->posePart.quat.v[2] = PoseFromClientId->pose.quat.v[2];
+          v40->posePart.quat.v[3] = PoseFromClientId->pose.quat.v[3];
         }
-        while ( v41 < v42 );
+        while ( v37 < v38 );
         v18 = dynEntId;
       }
     }
   }
-  *(_QWORD *)&_RBX->lastGpuLightGridRequest.lgvFrame = -1i64;
-  *(_QWORD *)&_RBX->lastGpuLightGridRequest.lgvNumProbes = 0i64;
+  *(_QWORD *)&PoseFromClientId->lastGpuLightGridRequest.lgvFrame = -1i64;
+  *(_QWORD *)&PoseFromClientId->lastGpuLightGridRequest.lgvNumProbes = 0i64;
   if ( (v13->flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 567, ASSERT_TYPE_ASSERT, "(!(dynEntClient->flags & (1 << 0)))", (const char *)&queryFormat, "!(dynEntClient->flags & DYNENT_CL_ACTIVE)") )
     __debugbreak();
-  v33 = v63;
+  v31 = v59;
   v13->flags = 32;
-  if ( v63 == 0xFFFF )
+  if ( v59 == 0xFFFF )
   {
-    v13->activeModel = _RSI->baseModel;
-    if ( (_RSI->collisionFlags & 2) != 0 )
+    v13->activeModel = Def->baseModel;
+    if ( (Def->collisionFlags & 2) != 0 )
       v13->flags = 16416;
   }
   *(_QWORD *)&v13->physicsSystemId = -1i64;
   v13->numPhysicsBodies = 0;
   v13->singlePhysicsBody = 0xFFFFFF;
   v13->detailBoundBody = 0xFFFFFF;
-  if ( !DynEntDef_IsSpatial(_RSI) )
-    _RSI->clientActiveMask |= 1 << v6;
+  if ( !DynEntDef_IsSpatial(Def) )
+    Def->clientActiveMask |= 1 << v6;
   if ( associateScriptables )
   {
-    type = _RSI->type;
+    type = Def->type;
     if ( type == DYNENT_TYPE_SCRIPTABLEINST )
     {
       ScriptableCommon_AssertCountsInitialized();
-      scriptableMapIndex = _RSI->scriptableMapIndex;
+      scriptableMapIndex = Def->scriptableMapIndex;
       if ( scriptableMapIndex < g_scriptableWorldCounts.totalInstanceCount )
       {
         ScriptableCl_AssociateDynEntInstance((const LocalClientNum_t)v6, v18, scriptableMapIndex);
@@ -700,44 +692,44 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
         runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
         if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
           __debugbreak();
-        HasShadow = ScriptableCl_HasShadow(_RSI->scriptableMapIndex + runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount);
-        v33 = v63;
+        HasShadow = ScriptableCl_HasShadow(Def->scriptableMapIndex + runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount);
+        v31 = v59;
         if ( !HasShadow )
           v13->flags |= 8u;
       }
     }
     else if ( type == DYNENT_TYPE_SCRIPTABLEPHYSICS )
     {
-      ScriptableCl_AssociateDynEntPhysics((const LocalClientNum_t)v6, v18, _RSI->scriptableMapIndex, _RSI->scriptableSubIndex);
+      ScriptableCl_AssociateDynEntPhysics((const LocalClientNum_t)v6, v18, Def->scriptableMapIndex, Def->scriptableSubIndex);
     }
   }
   if ( EntityProps->linked )
   {
-    if ( !_RSI->linkTo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 617, ASSERT_TYPE_ASSERT, "(dynEntDef->linkTo)", (const char *)&queryFormat, "dynEntDef->linkTo") )
+    if ( !Def->linkTo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 617, ASSERT_TYPE_ASSERT, "(dynEntDef->linkTo)", (const char *)&queryFormat, "dynEntDef->linkTo") )
       __debugbreak();
     v13->flags |= 4u;
   }
-  v45 = _RSI->type;
-  if ( v45 == DYNENT_TYPE_CLUTTER_NOSHADOW )
+  v41 = Def->type;
+  if ( v41 == DYNENT_TYPE_CLUTTER_NOSHADOW )
   {
     v13->flags |= 8u;
-    v45 = _RSI->type;
+    v41 = Def->type;
   }
-  if ( v45 == DYNENT_TYPE_LINKED_NOSHADOW )
+  if ( v41 == DYNENT_TYPE_LINKED_NOSHADOW )
     v13->flags |= 8u;
-  if ( _RSI->distantShadows )
+  if ( Def->distantShadows )
     v13->flags |= 0x200u;
-  if ( _RSI->noSpotShadows )
+  if ( Def->noSpotShadows )
     v13->flags |= 0x400u;
   FX_InitDynEntMarks(v13);
-  if ( (v33 == 0xFFFF || (associateScriptablesa = truncate_cast<enum DynEntityListId,unsigned int>(val), v46 = DynEnt_GetDef(associateScriptablesa, localId, basis), !DynEntDef_IsSpatial(v46))) && EntityProps->initInactive || _RSI->transientIndexStored && (_RSI->isTransient = 1, v13->flags |= 0x10u, !addTransients) )
+  if ( (v31 == 0xFFFF || (associateScriptablesa = truncate_cast<enum DynEntityListId,unsigned int>(val), v42 = DynEnt_GetDef(associateScriptablesa, localId, basis), !DynEntDef_IsSpatial(v42))) && EntityProps->initInactive || Def->transientIndexStored && (Def->isTransient = 1, v13->flags |= 0x10u, !addTransients) )
   {
     Profile_EndInternal(NULL);
     DynEntCL_Unlock(v13);
     return;
   }
-  v47 = v13->flags | 0x41;
-  v13->flags = v47;
+  v43 = v13->flags | 0x41;
+  v13->flags = v43;
   if ( basis )
   {
     if ( basis != DYNENT_BASIS_BRUSH )
@@ -746,20 +738,20 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 696, ASSERT_TYPE_ASSERT, "( ( basis == DYNENT_BASIS_BRUSH ) )", "( basis ) = %i", addAsHidden) )
         __debugbreak();
     }
-    if ( _RSI->isTransient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 697, ASSERT_TYPE_ASSERT, "(!dynEntDef->isTransient)", (const char *)&queryFormat, "!dynEntDef->isTransient") )
+    if ( Def->isTransient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 697, ASSERT_TYPE_ASSERT, "(!dynEntDef->isTransient)", (const char *)&queryFormat, "!dynEntDef->isTransient") )
       __debugbreak();
     if ( (v13->flags & 2) == 0 )
     {
-      BrushModel = CM_GetBrushModel(_RSI->brushModel);
+      BrushModel = CM_GetBrushModel(Def->brushModel);
       if ( !BrushModel->physicsAsset )
       {
-        LODWORD(detailModel) = _RSI->brushModel;
+        LODWORD(detailModel) = Def->brushModel;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 705, ASSERT_TYPE_ASSERT, "(cmodel->physicsAsset)", "%s\n\tDynEnt: Missing Physics asset for brush %i.", "cmodel->physicsAsset", detailModel) )
           __debugbreak();
       }
       if ( BrushModel->physicsShapeOverrideIdx == 0xFFFF )
       {
-        LODWORD(detailModel) = _RSI->brushModel;
+        LODWORD(detailModel) = Def->brushModel;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 706, ASSERT_TYPE_ASSERT, "(cmodel->physicsShapeOverrideIdx != static_cast<ushort>( -1 ))", "%s\n\tDynEnt: No Physics shape override for brush %i.", "cmodel->physicsShapeOverrideIdx != static_cast<ushort>( PHYSICSSHAPE_OVERRIDEID_INVALID )", detailModel) )
           __debugbreak();
       }
@@ -769,16 +761,16 @@ void DynEntCL_AddEntity(LocalClientNum_t localClientNum, unsigned int dynEntId, 
     goto LABEL_124;
   }
   activeModel = v13->activeModel;
-  if ( (v47 & 2) == 0 )
+  if ( (v43 & 2) == 0 )
   {
     if ( activeModel )
     {
       physicsAsset = activeModel->physicsAsset;
       if ( activeModel->detailCollision )
       {
-        v50 = v13->activeModel;
+        v46 = v13->activeModel;
 LABEL_106:
-        DynEnt_SetupPhysics((LocalClientNum_t)v6, v18, DYNENT_BASIS_MODEL, activeModel, physicsAsset, -1, v50, ShouldResetPoseOnAdd, !ShouldResetPoseOnAdd, addPhysicsImmediately);
+        DynEnt_SetupPhysics((LocalClientNum_t)v6, v18, DYNENT_BASIS_MODEL, activeModel, physicsAsset, -1, v46, ShouldResetPoseOnAdd, !ShouldResetPoseOnAdd, addPhysicsImmediately);
         goto LABEL_107;
       }
     }
@@ -786,7 +778,7 @@ LABEL_106:
     {
       physicsAsset = NULL;
     }
-    v50 = NULL;
+    v46 = NULL;
     goto LABEL_106;
   }
 LABEL_107:
@@ -1202,60 +1194,67 @@ DynEntCL_AddWorkerCmd
 */
 void DynEntCL_AddWorkerCmd(LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v2; 
-  __int64 v3; 
+  LocalClientNum_t v1; 
+  __int64 v2; 
   DynEntityListId dynEntityListsCount; 
   DynEntityListId *dynEntListIds; 
-  __int64 v6; 
-  DynEntityListId v7; 
-  unsigned __int64 v8; 
-  char *v9; 
-  unsigned __int64 v10; 
-  unsigned int v11; 
-  __int64 v12; 
-  bitarray<1536> *v14; 
-  char v15; 
-  bitarray<1536> *v17; 
-  unsigned int v18; 
-  char v19; 
-  const dvar_t *v20; 
+  __int64 v5; 
+  DynEntityListId v6; 
+  unsigned __int64 v7; 
+  char *v8; 
+  unsigned __int64 v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  __m256i *v12; 
+  __m256i *v13; 
+  char v14; 
+  __m256i *v15; 
+  bitarray<1536> *v16; 
+  unsigned int v17; 
+  char v18; 
+  const dvar_t *v19; 
   char enabled; 
-  char v22; 
-  unsigned __int8 v23; 
-  SpatialPartition_PopulationSort_ClientData **v24; 
-  SpatialPartition_PopulationSort_ClientData *v25; 
-  char v26; 
-  const dvar_t *v58; 
-  bool v60; 
-  float v64; 
-  float v66; 
+  char v21; 
+  unsigned __int8 v22; 
+  SpatialPartition_PopulationSort_ClientData **v23; 
+  SpatialPartition_PopulationSort_ClientData *v24; 
+  char v25; 
+  __m256i v26; 
+  __m256i v27; 
+  cg_t *v28; 
+  double v29; 
+  const dvar_t *v30; 
+  float v31; 
+  float v32; 
+  __m256i v33; 
+  __m256i *v34; 
+  __m256i v35; 
   DynEntitySpatialPopulationType i; 
-  SpatialPartition_PopulationSort_ClientData *v83; 
+  SpatialPartition_PopulationSort_ClientData *v37; 
   bool updated; 
-  unsigned __int8 v86; 
-  SpatialPartition_PopulationSort_ClientData **v87; 
-  SpatialPartition_PopulationSort_ClientData *v88; 
-  WorkerCmdType v89; 
-  __int64 v104; 
-  __int64 v106; 
-  __int64 v107; 
-  char v108; 
-  char v109; 
-  __int64 v110; 
-  __int64 v111; 
-  bitarray<1536> *v112; 
+  unsigned __int8 v39; 
+  SpatialPartition_PopulationSort_ClientData **v40; 
+  SpatialPartition_PopulationSort_ClientData *v41; 
+  WorkerCmdType v42; 
+  __m256i v43; 
+  __m256i v44; 
+  __m256i v45; 
+  __int64 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  char v49; 
+  char v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __m256i *v53; 
   vec3_t viewPos; 
   vec3_t lookAtDir; 
   LocalClientNum_t data; 
-  char v116; 
-  unsigned int v117; 
-  char v118[184]; 
-  char v119; 
-  char v120[196]; 
+  _BYTE v57[392]; 
 
+  v1 = localClientNum;
+  v52 = localClientNum;
   v2 = localClientNum;
-  v111 = localClientNum;
-  v3 = localClientNum;
   if ( localClientNum == LOCAL_CLIENT_0 )
   {
     if ( cm.mapEnts )
@@ -1270,535 +1269,432 @@ void DynEntCL_AddWorkerCmd(LocalClientNum_t localClientNum)
     }
     if ( dynEntityListsCount )
     {
-      v6 = (unsigned __int16)dynEntityListsCount;
+      v5 = (unsigned __int16)dynEntityListsCount;
       do
       {
-        v7 = *dynEntListIds;
+        v6 = *dynEntListIds;
         if ( *dynEntListIds >= DEFAULT_DYNENTITY_LIST_ID )
         {
-          LODWORD(v107) = 1536;
-          LODWORD(v106) = (unsigned __int16)v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 117, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v106, v107) )
+          LODWORD(v48) = 1536;
+          LODWORD(v47) = (unsigned __int16)v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 117, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( MAX_MAP_TRANSIENT_ZONES )", "index doesn't index MAX_DYNENTITY_LIST_DEFS\n\t%i not in [0, %i)", v47, v48) )
             __debugbreak();
         }
-        v8 = (unsigned __int64)(unsigned __int16)v7 << 6;
-        v9 = (char *)g_dynEntityLists + v8;
-        if ( *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v8) == DEFAULT_DYNENTITY_LIST_ID )
-          v9 = NULL;
-        if ( v9 && *((_WORD *)v9 + 4) == 1537 )
+        v7 = (unsigned __int64)(unsigned __int16)v6 << 6;
+        v8 = (char *)g_dynEntityLists + v7;
+        if ( *(DynEntityListId *)((char *)&g_dynEntityLists[0].index + v7) == DEFAULT_DYNENTITY_LIST_ID )
+          v8 = NULL;
+        if ( v8 && *((_WORD *)v8 + 4) == 1537 )
         {
-          v10 = *(unsigned __int16 *)dynEntListIds;
-          if ( (unsigned int)v10 >= 0x600 )
+          v9 = *(unsigned __int16 *)dynEntListIds;
+          if ( (unsigned int)v9 >= 0x600 )
           {
-            LODWORD(v107) = 1536;
-            LODWORD(v106) = *(unsigned __int16 *)dynEntListIds;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v106, v107) )
+            LODWORD(v48) = 1536;
+            LODWORD(v47) = *(unsigned __int16 *)dynEntListIds;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v47, v48) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (v10 & 0x1F)) & s_dynEntListHasDeferredRemove[v3].array[v10 >> 5]) == 0 )
-            *((_WORD *)v9 + 4) = 1536;
+          if ( ((0x80000000 >> (v9 & 0x1F)) & s_dynEntListHasDeferredRemove[v2].array[v9 >> 5]) == 0 )
+            *((_WORD *)v8 + 4) = 1536;
         }
         ++dynEntListIds;
-        --v6;
+        --v5;
       }
-      while ( v6 );
-      v2 = (int)v3;
+      while ( v5 );
+      v1 = (int)v2;
     }
   }
-  v11 = 0;
-  v12 = v3;
-  v110 = v3;
-  _RBX = &s_dynEntListHasDeferredAdd[v3];
-  v14 = _RBX;
-  while ( !v14->array[0] )
+  v10 = 0;
+  v11 = v2;
+  v51 = v2;
+  v12 = (__m256i *)&s_dynEntListHasDeferredAdd[v2];
+  v13 = v12;
+  while ( !v13->m256i_i32[0] )
   {
-    ++v11;
-    v14 = (bitarray<1536> *)((char *)v14 + 4);
-    if ( v11 >= 0x30 )
+    ++v10;
+    v13 = (__m256i *)((char *)v13 + 4);
+    if ( v10 >= 0x30 )
     {
-      v15 = 0;
+      v14 = 0;
       goto LABEL_26;
     }
   }
-  v15 = 1;
+  v14 = 1;
 LABEL_26:
-  _RSI = &s_dynEntListHasDeferredRemove[v12];
-  v112 = &s_dynEntListHasDeferredRemove[v12];
-  v17 = &s_dynEntListHasDeferredRemove[v12];
-  v18 = 0;
-  while ( !v17->array[0] )
+  v15 = (__m256i *)&s_dynEntListHasDeferredRemove[v11];
+  v53 = (__m256i *)&s_dynEntListHasDeferredRemove[v11];
+  v16 = &s_dynEntListHasDeferredRemove[v11];
+  v17 = 0;
+  while ( !v16->array[0] )
   {
-    ++v18;
-    v17 = (bitarray<1536> *)((char *)v17 + 4);
-    if ( v18 >= 0x30 )
+    ++v17;
+    v16 = (bitarray<1536> *)((char *)v16 + 4);
+    if ( v17 >= 0x30 )
     {
-      v19 = 0;
+      v18 = 0;
       goto LABEL_31;
     }
   }
-  v19 = 1;
+  v18 = 1;
 LABEL_31:
-  v108 = v19;
-  DynEntCL_Spatial_MarkIfMissingCollisionTiles(v2);
-  v20 = DCONST_DVARBOOL_dynEnt_spatialEnabled;
+  v49 = v18;
+  DynEntCL_Spatial_MarkIfMissingCollisionTiles(v1);
+  v19 = DCONST_DVARBOOL_dynEnt_spatialEnabled;
   if ( !DCONST_DVARBOOL_dynEnt_spatialEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_spatialEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  enabled = v20->current.enabled;
-  v22 = s_dynentSpatialLastEnabled[v3];
-  v109 = enabled;
-  if ( enabled == v22 )
+  Dvar_CheckFrontendServerThread(v19);
+  enabled = v19->current.enabled;
+  v21 = s_dynentSpatialLastEnabled[v2];
+  v50 = enabled;
+  if ( enabled != v21 )
   {
-    __asm { vmovaps [rsp+260h+var_30], xmm6 }
-    if ( v2 >= (unsigned int)cg_t::ms_allocatedCount )
+    if ( v21 )
     {
-      LODWORD(v107) = cg_t::ms_allocatedCount;
-      LODWORD(v106) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v106, v107) )
-        __debugbreak();
-    }
-    if ( !cg_t::ms_cgArray[v3] )
-    {
-      LODWORD(v107) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v107) )
-        __debugbreak();
-    }
-    if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
-    {
-      LODWORD(v107) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v107) )
-        __debugbreak();
-    }
-    _RAX = cg_t::ms_cgArray[v3];
-    if ( !_RAX->renderingThirdPerson || _RAX->playerTeleported )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+699Ch]
-        vmovss  dword ptr [rsp+260h+viewPos], xmm0
-        vmovss  xmm1, dword ptr [rax+69A0h]
-        vmovss  dword ptr [rsp+260h+viewPos+4], xmm1
-        vmovss  xmm2, dword ptr [rax+69A4h]
-        vmovss  dword ptr [rsp+260h+viewPos+8], xmm2
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+59680h]
-        vmovss  dword ptr [rsp+260h+viewPos], xmm0
-        vmovss  xmm1, dword ptr [rax+59684h]
-        vmovss  dword ptr [rsp+260h+viewPos+4], xmm1
-        vmovss  xmm0, dword ptr [rax+59688h]
-        vmovss  dword ptr [rsp+260h+viewPos+8], xmm0
-      }
-    }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+6944h]
-      vmovss  dword ptr [rsp+260h+lookAtDir], xmm1
-      vmovss  xmm2, dword ptr [rax+6948h]
-      vmovss  dword ptr [rsp+260h+lookAtDir+4], xmm2
-      vmovss  xmm1, dword ptr [rax+694Ch]
-      vmovss  xmm2, cs:__real@43340000; max
-      vmovss  dword ptr [rbp+160h+lookAtDir+8], xmm1
-      vmovss  xmm1, cs:__real@42b40000; min
-      vmovss  xmm0, dword ptr [rax+17FF8h]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    v58 = DVARBOOL_dynEnt_debugFreezeCamera;
-    __asm { vmovaps xmm6, xmm0 }
-    if ( !DVARBOOL_dynEnt_debugFreezeCamera && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_debugFreezeCamera") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v58);
-    v60 = !v58->current.enabled;
-    _RCX = 3 * v3;
-    _R13 = 0x140000000ui64;
-    if ( v60 )
-    {
-      __asm { vmovsd  xmm0, qword ptr [rsp+260h+viewPos] }
-      v66 = viewPos.v[2];
-      __asm { vmovsd  qword ptr rva s_dynentLastCameraPos[r13+rcx*4], xmm0 }
-      s_dynentLastCameraPos[v3].v[2] = v66;
-    }
-    else
-    {
-      __asm { vmovsd  xmm0, qword ptr rva s_dynentLastCameraPos[r13+rcx*4] }
-      v64 = s_dynentLastCameraPos[v3].v[2];
-      __asm { vmovsd  qword ptr [rsp+260h+viewPos], xmm0 }
-      viewPos.v[2] = v64;
-    }
-    if ( v109 )
-    {
-      if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_ADD_DYNENT_SPATIAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1699, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_DYNENT_SPATIAL ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_DYNENT_SPATIAL )") )
-        __debugbreak();
-      data = v2;
-      v116 = 0;
-      v117 = DynEnt_MaxSpatialActivatedTotal(v2);
-      if ( v19 )
-      {
-        __asm { vmovups ymm0, ymmword ptr [rsi] }
-        v116 |= 0x10u;
-        _RAX = v120;
-        __asm
-        {
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [rsi+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [rsi+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-          vmovups ymm0, ymmword ptr [rsi+60h]
-          vmovups ymmword ptr [rax+60h], ymm0
-        }
-        _RSI = &_RSI->array[32];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi]
-          vmovups ymmword ptr [rax+80h], ymm0
-          vmovups ymm0, ymmword ptr [rsi+20h]
-          vmovups ymmword ptr [rax+0A0h], ymm0
-        }
-        *(_QWORD *)s_dynEntListHasDeferredRemove[v3].array = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[2] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[4] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[6] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[8] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[10] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[12] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[14] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[16] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[18] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[20] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[22] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[24] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[26] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[28] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[30] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[32] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[34] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[36] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[38] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[40] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[42] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[44] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredRemove[v3].array[46] = 0i64;
-      }
-      if ( v15 )
-      {
-        __asm { vmovups ymm0, ymmword ptr [rbx] }
-        v116 |= 8u;
-        _RAX = v118;
-        __asm
-        {
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [rbx+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-          vmovups ymm0, ymmword ptr [rbx+60h]
-          vmovups ymmword ptr [rax+60h], ymm0
-          vmovups ymm0, ymmword ptr [rbx+80h]
-          vmovups ymmword ptr [rax+80h], ymm0
-          vmovups ymm0, ymmword ptr [rbx+0A0h]
-          vmovups ymmword ptr [rax+0A0h], ymm0
-        }
-        *(_QWORD *)s_dynEntListHasDeferredAdd[v3].array = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[2] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[4] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[6] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[8] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[10] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[12] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[14] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[16] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[18] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[20] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[22] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[24] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[26] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[28] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[30] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[32] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[34] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[36] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[38] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[40] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[42] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[44] = 0i64;
-        *(_QWORD *)&s_dynEntListHasDeferredAdd[v3].array[46] = 0i64;
-      }
-      for ( i = DYNENT_SPATIAL_POPULATION_DENSE_TYPE; (unsigned __int8)i < DYNENT_SPATIAL_POPULATION_TYPE_COUNT; ++i )
-      {
-        if ( (unsigned int)v2 >= LOCAL_CLIENT_COUNT )
-        {
-          LODWORD(v107) = 2;
-          LODWORD(v106) = v2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v106, v107) )
-            __debugbreak();
-        }
-        v83 = g_dynEntSpatialSortClientData[v3][(unsigned __int8)i];
-        if ( !v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1721, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
-          __debugbreak();
-        DynEnt_AddWorkerCmd_UpdateSpatialClientDataSettings(v83, i);
-        Sys_ProfBeginNamedEvent(0xFFFFA500, "DynEntCL_Spatial_SortByDistanceAndView");
-        __asm { vmovaps xmm3, xmm6; fovInDegrees }
-        DynEntCL_Spatial_SortByDistanceAndView(v83, &viewPos, &lookAtDir, *(const float *)&_XMM3);
-        Sys_ProfEndNamedEvent();
-        Sys_ProfBeginNamedEvent(0xFFFFA500, "DynEntCL_Spatial_UpdateNeeded");
-        updated = DynEntCL_Spatial_UpdateNeeded(v83);
-        Sys_ProfEndNamedEvent();
-        if ( updated )
-          v116 |= 2 << i;
-        if ( i == DYNENT_SPATIAL_POPULATION_SPARSE_OCCLUDER_TYPE && DynEntCL_Spatial_CollisionUpdateNeeded(v83) )
-          v116 |= 0x20u;
-      }
-      if ( !v116 )
-        goto LABEL_105;
-      v86 = 0;
-      v87 = g_dynEntSpatialSortClientData[v2];
+      data = v1;
+      *(_DWORD *)&v57[4] = DynEnt_MaxSpatialActivatedTotal(v1);
+      v22 = 0;
+      v23 = g_dynEntSpatialSortClientData[v2];
       do
       {
-        if ( (unsigned int)v2 >= LOCAL_CLIENT_COUNT )
+        if ( (unsigned int)v1 >= LOCAL_CLIENT_COUNT )
         {
-          LODWORD(v107) = 2;
-          LODWORD(v106) = v2;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v106, v107) )
+          LODWORD(v48) = 2;
+          LODWORD(v47) = v1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v47, v48) )
             __debugbreak();
         }
-        v88 = *v87;
-        if ( !*v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1750, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
-          __debugbreak();
-        ++v86;
-        v88->jobInProgress = 1;
-        ++v87;
+        v24 = *v23;
+        if ( !*v23 )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1641, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
+            __debugbreak();
+          v24 = NULL;
+        }
+        ++v22;
+        v24->jobInProgress = 1;
+        ++v23;
       }
-      while ( v86 < 2u );
-      v89 = WRKCMD_ADD_DYNENT_SPATIAL;
+      while ( v22 < 2u );
+      v2 = v52;
+      v25 = 1;
+      v57[0] = 1;
+      if ( v49 )
+      {
+        v26 = *v53;
+        v57[0] = 17;
+        *(__m256i *)&v57[200] = v26;
+        *(__m256i *)&v57[232] = v53[1];
+        *(__m256i *)&v57[264] = v53[2];
+        *(__m256i *)&v57[296] = v53[3];
+        *(__m256i *)&v57[328] = v53[4];
+        *(__m256i *)&v57[360] = v53[5];
+        *(_QWORD *)s_dynEntListHasDeferredRemove[v52].array = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[2] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[4] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[6] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[8] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[10] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[12] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[14] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[16] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[18] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[20] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[22] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[24] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[26] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[28] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[30] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[32] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[34] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[36] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[38] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[40] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[42] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[44] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredRemove[v52].array[46] = 0i64;
+        v25 = v57[0];
+      }
+      if ( v14 )
+      {
+        v27 = *(__m256i *)s_dynEntListHasDeferredAdd[v51].array;
+        v57[0] = v25 | 8;
+        *(__m256i *)&v57[8] = v27;
+        *(__m256i *)&v57[40] = *(__m256i *)&s_dynEntListHasDeferredAdd[v51].array[8];
+        *(__m256i *)&v57[72] = *(__m256i *)&s_dynEntListHasDeferredAdd[v51].array[16];
+        *(__m256i *)&v57[104] = *(__m256i *)&s_dynEntListHasDeferredAdd[v51].array[24];
+        *(__m256i *)&v57[136] = *(__m256i *)&s_dynEntListHasDeferredAdd[v51].array[32];
+        *(__m256i *)&v57[168] = *(__m256i *)&s_dynEntListHasDeferredAdd[v51].array[40];
+        *(_QWORD *)s_dynEntListHasDeferredAdd[v52].array = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[2] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[4] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[6] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[8] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[10] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[12] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[14] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[16] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[18] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[20] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[22] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[24] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[26] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[28] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[30] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[32] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[34] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[36] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[38] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[40] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[42] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[44] = 0i64;
+        *(_QWORD *)&s_dynEntListHasDeferredAdd[v52].array[46] = 0i64;
+      }
+      Sys_AddWorkerCmd(WRKCMD_ADD_DYNENT_SPATIAL, &data);
+      enabled = v50;
     }
-    else
-    {
-      if ( !v15 && !v19 )
-        goto LABEL_105;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymm1, ymmword ptr [rbx+80h]
-      }
-      data = v2;
-      _RAX = &v116;
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+60h]
-        vmovups ymmword ptr [rax+60h], ymm0
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rax+80h], ymm1
-        vmovups ymm1, ymmword ptr [rbx+0A0h]
-        vmovups ymmword ptr [rax+0A0h], ymm1
-      }
-      _RAX = &v119;
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+60h]
-        vmovups ymmword ptr [rax+60h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+80h]
-        vmovups ymmword ptr [rax+80h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+0A0h]
-        vmovups ymmword ptr [rax+0A0h], ymm0
-      }
-      v104 = v3;
-      *(_QWORD *)s_dynEntListHasDeferredRemove[v104].array = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[2] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[4] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[6] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[8] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[10] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[12] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[14] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[16] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[18] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[20] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[22] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[24] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[26] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[28] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[30] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[32] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[34] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[36] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[38] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[40] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[42] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[44] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v104].array[46] = 0i64;
-      *(_QWORD *)s_dynEntListHasDeferredAdd[v104].array = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[2] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[4] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[6] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[8] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[10] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[12] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[14] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[16] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[18] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[20] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[22] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[24] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[26] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[28] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[30] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[32] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[34] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[36] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[38] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[40] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[42] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[44] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v104].array[46] = 0i64;
-      v89 = WRKCMD_DYNENT_DEFERRED_ADD_REMOVE;
-    }
-    Sys_AddWorkerCmd(v89, &data);
-LABEL_105:
-    __asm { vmovaps xmm6, [rsp+260h+var_30] }
+    s_dynentSpatialLastEnabled[v2] = enabled;
     return;
   }
-  if ( v22 )
+  if ( v1 >= (unsigned int)cg_t::ms_allocatedCount )
   {
-    data = v2;
-    v117 = DynEnt_MaxSpatialActivatedTotal(v2);
-    v23 = 0;
-    v24 = g_dynEntSpatialSortClientData[v3];
+    LODWORD(v48) = cg_t::ms_allocatedCount;
+    LODWORD(v47) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v47, v48) )
+      __debugbreak();
+  }
+  if ( !cg_t::ms_cgArray[v2] )
+  {
+    LODWORD(v48) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v48) )
+      __debugbreak();
+  }
+  if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
+  {
+    LODWORD(v48) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v48) )
+      __debugbreak();
+  }
+  v28 = cg_t::ms_cgArray[v2];
+  if ( !v28->renderingThirdPerson || v28->playerTeleported )
+    viewPos = v28->refdef.viewOffset;
+  else
+    viewPos = v28->lastFrameViewPos;
+  lookAtDir = v28->refdef.view.axis.m[0];
+  v29 = I_fclamp(v28->lastViewFov, 90.0, 180.0);
+  v30 = DVARBOOL_dynEnt_debugFreezeCamera;
+  if ( !DVARBOOL_dynEnt_debugFreezeCamera && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dynEnt_debugFreezeCamera") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v30);
+  if ( v30->current.enabled )
+  {
+    v31 = s_dynentLastCameraPos[v2].v[2];
+    *(_QWORD *)viewPos.v = *(_QWORD *)s_dynentLastCameraPos[v2].v;
+    viewPos.v[2] = v31;
+  }
+  else
+  {
+    v32 = viewPos.v[2];
+    *(double *)s_dynentLastCameraPos[v2].v = *(double *)viewPos.v;
+    s_dynentLastCameraPos[v2].v[2] = v32;
+  }
+  if ( !v50 )
+  {
+    if ( !v14 && !v18 )
+      return;
+    v43 = *v12;
+    v44 = v12[4];
+    data = v1;
+    *(__m256i *)v57 = v43;
+    *(__m256i *)&v57[32] = v12[1];
+    *(__m256i *)&v57[64] = v12[2];
+    *(__m256i *)&v57[96] = v12[3];
+    v45 = *v15;
+    *(__m256i *)&v57[128] = v44;
+    *(__m256i *)&v57[160] = v12[5];
+    *(__m256i *)&v57[192] = v45;
+    *(__m256i *)&v57[224] = v15[1];
+    *(__m256i *)&v57[256] = v15[2];
+    *(__m256i *)&v57[288] = v15[3];
+    *(__m256i *)&v57[320] = v15[4];
+    *(__m256i *)&v57[352] = v15[5];
+    v46 = v2;
+    *(_QWORD *)s_dynEntListHasDeferredRemove[v46].array = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[2] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[4] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[6] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[8] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[10] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[12] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[14] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[16] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[18] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[20] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[22] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[24] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[26] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[28] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[30] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[32] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[34] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[36] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[38] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[40] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[42] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[44] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v46].array[46] = 0i64;
+    *(_QWORD *)s_dynEntListHasDeferredAdd[v46].array = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[2] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[4] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[6] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[8] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[10] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[12] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[14] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[16] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[18] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[20] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[22] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[24] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[26] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[28] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[30] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[32] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[34] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[36] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[38] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[40] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[42] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[44] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v46].array[46] = 0i64;
+    v42 = WRKCMD_DYNENT_DEFERRED_ADD_REMOVE;
+LABEL_104:
+    Sys_AddWorkerCmd(v42, &data);
+    return;
+  }
+  if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_ADD_DYNENT_SPATIAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1699, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_DYNENT_SPATIAL ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_DYNENT_SPATIAL )") )
+    __debugbreak();
+  data = v1;
+  v57[0] = 0;
+  *(_DWORD *)&v57[4] = DynEnt_MaxSpatialActivatedTotal(v1);
+  if ( v18 )
+  {
+    v33 = *v15;
+    v57[0] |= 0x10u;
+    *(__m256i *)&v57[200] = v33;
+    *(__m256i *)&v57[232] = v15[1];
+    *(__m256i *)&v57[264] = v15[2];
+    *(__m256i *)&v57[296] = v15[3];
+    v34 = v15 + 4;
+    *(__m256i *)&v57[328] = *v34;
+    *(__m256i *)&v57[360] = v34[1];
+    *(_QWORD *)s_dynEntListHasDeferredRemove[v2].array = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[2] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[4] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[6] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[8] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[10] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[12] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[14] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[16] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[18] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[20] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[22] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[24] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[26] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[28] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[30] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[32] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[34] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[36] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[38] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[40] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[42] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[44] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredRemove[v2].array[46] = 0i64;
+  }
+  if ( v14 )
+  {
+    v35 = *v12;
+    v57[0] |= 8u;
+    *(__m256i *)&v57[8] = v35;
+    *(__m256i *)&v57[40] = v12[1];
+    *(__m256i *)&v57[72] = v12[2];
+    *(__m256i *)&v57[104] = v12[3];
+    *(__m256i *)&v57[136] = v12[4];
+    *(__m256i *)&v57[168] = v12[5];
+    *(_QWORD *)s_dynEntListHasDeferredAdd[v2].array = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[2] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[4] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[6] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[8] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[10] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[12] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[14] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[16] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[18] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[20] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[22] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[24] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[26] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[28] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[30] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[32] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[34] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[36] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[38] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[40] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[42] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[44] = 0i64;
+    *(_QWORD *)&s_dynEntListHasDeferredAdd[v2].array[46] = 0i64;
+  }
+  for ( i = DYNENT_SPATIAL_POPULATION_DENSE_TYPE; (unsigned __int8)i < DYNENT_SPATIAL_POPULATION_TYPE_COUNT; ++i )
+  {
+    if ( (unsigned int)v1 >= LOCAL_CLIENT_COUNT )
+    {
+      LODWORD(v48) = 2;
+      LODWORD(v47) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v47, v48) )
+        __debugbreak();
+    }
+    v37 = g_dynEntSpatialSortClientData[v2][(unsigned __int8)i];
+    if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1721, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
+      __debugbreak();
+    DynEnt_AddWorkerCmd_UpdateSpatialClientDataSettings(v37, i);
+    Sys_ProfBeginNamedEvent(0xFFFFA500, "DynEntCL_Spatial_SortByDistanceAndView");
+    DynEntCL_Spatial_SortByDistanceAndView(v37, &viewPos, &lookAtDir, *(const float *)&v29);
+    Sys_ProfEndNamedEvent();
+    Sys_ProfBeginNamedEvent(0xFFFFA500, "DynEntCL_Spatial_UpdateNeeded");
+    updated = DynEntCL_Spatial_UpdateNeeded(v37);
+    Sys_ProfEndNamedEvent();
+    if ( updated )
+      v57[0] |= 2 << i;
+    if ( i == DYNENT_SPATIAL_POPULATION_SPARSE_OCCLUDER_TYPE && DynEntCL_Spatial_CollisionUpdateNeeded(v37) )
+      v57[0] |= 0x20u;
+  }
+  if ( v57[0] )
+  {
+    v39 = 0;
+    v40 = g_dynEntSpatialSortClientData[v1];
     do
     {
-      if ( (unsigned int)v2 >= LOCAL_CLIENT_COUNT )
+      if ( (unsigned int)v1 >= LOCAL_CLIENT_COUNT )
       {
-        LODWORD(v107) = 2;
-        LODWORD(v106) = v2;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v106, v107) )
+        LODWORD(v48) = 2;
+        LODWORD(v47) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_spatial.h", 110, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v47, v48) )
           __debugbreak();
       }
-      v25 = *v24;
-      if ( !*v24 )
-      {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1641, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
-          __debugbreak();
-        v25 = NULL;
-      }
-      ++v23;
-      v25->jobInProgress = 1;
-      ++v24;
+      v41 = *v40;
+      if ( !*v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1750, ASSERT_TYPE_ASSERT, "(spatialClientData)", (const char *)&queryFormat, "spatialClientData") )
+        __debugbreak();
+      ++v39;
+      v41->jobInProgress = 1;
+      ++v40;
     }
-    while ( v23 < 2u );
-    v3 = v111;
-    v26 = 1;
-    _RSI = v112;
-    v116 = 1;
-    if ( v108 )
-    {
-      __asm { vmovups ymm0, ymmword ptr [rsi] }
-      v116 = 17;
-      _RAX = v120;
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+60h]
-        vmovups ymmword ptr [rax+60h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+80h]
-        vmovups ymmword ptr [rax+80h], ymm0
-        vmovups ymm0, ymmword ptr [rsi+0A0h]
-        vmovups ymmword ptr [rax+0A0h], ymm0
-      }
-      *(_QWORD *)s_dynEntListHasDeferredRemove[v111].array = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[2] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[4] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[6] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[8] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[10] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[12] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[14] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[16] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[18] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[20] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[22] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[24] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[26] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[28] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[30] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[32] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[34] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[36] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[38] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[40] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[42] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[44] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredRemove[v111].array[46] = 0i64;
-      v26 = v116;
-    }
-    _R13 = 0x140000000ui64;
-    if ( v15 )
-    {
-      _R8 = v110 * 192;
-      __asm { vmovups ymm0, ymmword ptr [r8+r13+115DEC20h] }
-      v116 = v26 | 8;
-      _RDX = &s_dynEntListHasDeferredAdd[v110];
-      _RAX = v118;
-      __asm
-      {
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rdx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+60h]
-        vmovups ymmword ptr [rax+60h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+80h]
-        vmovups ymmword ptr [rax+80h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+0A0h]
-        vmovups ymmword ptr [rax+0A0h], ymm0
-      }
-      *(_QWORD *)s_dynEntListHasDeferredAdd[v111].array = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[2] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[4] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[6] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[8] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[10] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[12] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[14] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[16] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[18] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[20] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[22] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[24] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[26] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[28] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[30] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[32] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[34] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[36] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[38] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[40] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[42] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[44] = 0i64;
-      *(_QWORD *)&s_dynEntListHasDeferredAdd[v111].array[46] = 0i64;
-    }
-    Sys_AddWorkerCmd(WRKCMD_ADD_DYNENT_SPATIAL, &data);
-    enabled = v109;
+    while ( v39 < 2u );
+    v42 = WRKCMD_ADD_DYNENT_SPATIAL;
+    goto LABEL_104;
   }
-  s_dynentSpatialLastEnabled[v3] = enabled;
 }
 
 /*
@@ -3226,79 +3122,70 @@ DynEntCL_VerifyClientLists
 void DynEntCL_VerifyClientLists(const LocalClientNum_t localClientNum)
 {
   __int64 v3; 
-  DynEntityBasis v5; 
-  bitarray<65536> *v7; 
-  __int64 v8; 
-  bitarray<65536> *v9; 
+  DynEntityBasis v4; 
+  bitarray<65536> *v6; 
+  __int64 v7; 
+  bitarray<65536> *v8; 
+  __int64 v9; 
   __int64 v10; 
-  __int64 v12; 
+  __int64 v11; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   v3 = 2i64 * (int)localClientNum;
-  _R14 = &s_hiddenDynEntsDebugList;
-  v5 = DYNENT_BASIS_MODEL;
+  v4 = DYNENT_BASIS_MODEL;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    v7 = &s_noEvictDynEntsDebugList;
-    v8 = 128i64;
+    v6 = &s_noEvictDynEntsDebugList;
+    v7 = 128i64;
     do
     {
-      *(_QWORD *)v7->array = 0i64;
-      *(_QWORD *)&v7->array[2] = 0i64;
-      *(_QWORD *)&v7->array[4] = 0i64;
-      v7 = (bitarray<65536> *)((char *)v7 + 64);
-      *(_QWORD *)&v7[-1].array[2038] = 0i64;
-      *(_QWORD *)&v7[-1].array[2040] = 0i64;
-      *(_QWORD *)&v7[-1].array[2042] = 0i64;
-      *(_QWORD *)&v7[-1].array[2044] = 0i64;
-      *(_QWORD *)&v7[-1].array[2046] = 0i64;
-      --v8;
+      *(_QWORD *)v6->array = 0i64;
+      *(_QWORD *)&v6->array[2] = 0i64;
+      *(_QWORD *)&v6->array[4] = 0i64;
+      v6 = (bitarray<65536> *)((char *)v6 + 64);
+      *(_QWORD *)&v6[-1].array[2038] = 0i64;
+      *(_QWORD *)&v6[-1].array[2040] = 0i64;
+      *(_QWORD *)&v6[-1].array[2042] = 0i64;
+      *(_QWORD *)&v6[-1].array[2044] = 0i64;
+      *(_QWORD *)&v6[-1].array[2046] = 0i64;
+      --v7;
     }
-    while ( v8 );
-    v9 = &s_hiddenDynEntsDebugList;
-    v10 = 128i64;
+    while ( v7 );
+    v8 = &s_hiddenDynEntsDebugList;
+    v9 = 128i64;
     do
     {
-      *(_QWORD *)v9->array = 0i64;
-      *(_QWORD *)&v9->array[2] = 0i64;
-      *(_QWORD *)&v9->array[4] = 0i64;
-      v9 = (bitarray<65536> *)((char *)v9 + 64);
-      *(_QWORD *)&v9[-1].array[2038] = 0i64;
-      *(_QWORD *)&v9[-1].array[2040] = 0i64;
-      *(_QWORD *)&v9[-1].array[2042] = 0i64;
-      *(_QWORD *)&v9[-1].array[2044] = 0i64;
-      *(_QWORD *)&v9[-1].array[2046] = 0i64;
-      --v10;
+      *(_QWORD *)v8->array = 0i64;
+      *(_QWORD *)&v8->array[2] = 0i64;
+      *(_QWORD *)&v8->array[4] = 0i64;
+      v8 = (bitarray<65536> *)((char *)v8 + 64);
+      *(_QWORD *)&v8[-1].array[2038] = 0i64;
+      *(_QWORD *)&v8[-1].array[2040] = 0i64;
+      *(_QWORD *)&v8[-1].array[2042] = 0i64;
+      *(_QWORD *)&v8[-1].array[2044] = 0i64;
+      *(_QWORD *)&v8[-1].array[2046] = 0i64;
+      --v9;
     }
-    while ( v10 );
-    DynEntCL_VerifyClientLists_CheckList(localClientNum, v5, g_dynEntNoEvictClientHead[0][v3], g_dynEntNoEvictClientTail[0][v3], &s_noEvictDynEntsDebugList, 0x20u, 0x100u);
-    DynEntCL_VerifyClientLists_CheckList(localClientNum, v5, g_dynEntHiddenClientHead[0][v3], g_dynEntHiddenClientTail[0][v3], &s_hiddenDynEntsDebugList, 0x100u, 0x20u);
-    _RAX = 0i64;
-    v12 = 256i64;
-    __asm
-    {
-      vmovdqu xmm2, xmm6
-      vmovdqu xmm3, xmm6
-    }
+    while ( v9 );
+    DynEntCL_VerifyClientLists_CheckList(localClientNum, v4, g_dynEntNoEvictClientHead[0][v3], g_dynEntNoEvictClientTail[0][v3], &s_noEvictDynEntsDebugList, 0x20u, 0x100u);
+    DynEntCL_VerifyClientLists_CheckList(localClientNum, v4, g_dynEntHiddenClientHead[0][v3], g_dynEntHiddenClientTail[0][v3], &s_hiddenDynEntsDebugList, 0x100u, 0x20u);
+    v10 = 0i64;
+    v11 = 256i64;
     do
     {
+      _XMM1 = *(_OWORD *)&s_hiddenDynEntsDebugList.array[v10];
+      __asm { vpand   xmm1, xmm1, xmmword ptr [rax+r15] }
+      v10 += 8i64;
+      __asm { vpor    xmm2, xmm1, xmm2 }
+      _XMM1 = *(_OWORD *)&s_hiddenDynEntsDebugList.array[v10 - 4];
       __asm
       {
-        vmovdqu xmm1, xmmword ptr [rax+r14]
-        vpand   xmm1, xmm1, xmmword ptr [rax+r15]
-      }
-      _RAX += 32i64;
-      __asm
-      {
-        vpor    xmm2, xmm1, xmm2
-        vmovdqu xmm1, xmmword ptr [rax+r14-10h]
         vpand   xmm1, xmm1, xmmword ptr [rax+r15-10h]
         vpor    xmm3, xmm1, xmm3
       }
-      --v12;
+      --v11;
     }
-    while ( v12 );
+    while ( v11 );
     __asm
     {
       vpor    xmm1, xmm2, xmm3
@@ -3306,15 +3193,16 @@ void DynEntCL_VerifyClientLists(const LocalClientNum_t localClientNum)
       vpor    xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpor    xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1847, ASSERT_TYPE_ASSERT, "(!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList ))", (const char *)&queryFormat, "!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList )") )
-      __debugbreak();
-    ++v5;
+    if ( (_DWORD)_XMM0 )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1847, ASSERT_TYPE_ASSERT, "(!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList ))", (const char *)&queryFormat, "!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList )") )
+        __debugbreak();
+    }
+    ++v4;
     ++v3;
   }
-  while ( (unsigned __int8)v5 < DYNENT_BASIS_COUNT );
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  while ( (unsigned __int8)v4 < DYNENT_BASIS_COUNT );
 }
 
 /*
@@ -3474,21 +3362,21 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
   const dvar_t *v54; 
   unsigned int j; 
   DynEntityBasis v56; 
-  __int64 v59; 
-  bitarray<65536> *v60; 
-  __int64 v61; 
-  bitarray<65536> *v62; 
+  __int64 v58; 
+  bitarray<65536> *v59; 
+  __int64 v60; 
+  bitarray<65536> *v61; 
+  __int64 v62; 
   __int64 v63; 
   __int64 v64; 
   __int64 v65; 
   __int64 requiredFlag; 
   __int64 invalidFlag; 
-  __int64 v84; 
-  __int64 v85; 
-  unsigned int v88; 
-  unsigned int v89; 
+  __int64 v79; 
+  __int64 v80; 
+  unsigned int v82; 
+  unsigned int v83; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
   v2 = localClientNum;
   if ( !DynEnt_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1003, ASSERT_TYPE_ASSERT, "(DynEnt_IsInitialized())", "%s\n\tTrying to init DynEntity client data when DynEnt system has not been initialized\n", "DynEnt_IsInitialized()") )
     __debugbreak();
@@ -3564,20 +3452,20 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
     do
     {
       mapEnts = cm.mapEnts;
-      v88 = s_dynEntsClientsAllocated;
+      v82 = s_dynEntsClientsAllocated;
       if ( cm.mapEnts && s_dynEntsClientsAllocated )
       {
         v20 = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
         if ( v20 > *(_DWORD *)((char *)&cm.mapEnts->name + v18) )
         {
-          LODWORD(v85) = *(_DWORD *)((char *)&cm.mapEnts->name + v18);
-          LODWORD(v84) = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 363, ASSERT_TYPE_ASSERT, "( noSpatialCount ) <= ( mapEnts->dynEntCount[basis] )", "%s <= %s\n\t%u, %u", "noSpatialCount", "mapEnts->dynEntCount[basis]", v84, v85) )
+          LODWORD(v80) = *(_DWORD *)((char *)&cm.mapEnts->name + v18);
+          LODWORD(v79) = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 363, ASSERT_TYPE_ASSERT, "( noSpatialCount ) <= ( mapEnts->dynEntCount[basis] )", "%s <= %s\n\t%u, %u", "noSpatialCount", "mapEnts->dynEntCount[basis]", v79, v80) )
             __debugbreak();
         }
         v21 = *(_DWORD *)((char *)&mapEnts->name + v18) - v20 + 10;
-        if ( v21 > mapEnts->dynEntMaxClientHistoryCount / v88 )
-          v21 = mapEnts->dynEntMaxClientHistoryCount / v88;
+        if ( v21 > mapEnts->dynEntMaxClientHistoryCount / v82 )
+          v21 = mapEnts->dynEntMaxClientHistoryCount / v82;
         v22 = truncate_cast<unsigned short,unsigned int>(v21);
         v23 = truncate_cast<unsigned short,int>(v20 + v22);
         v12 = (char *)&word_1515DE9B8[2 * v2];
@@ -3589,20 +3477,20 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
       if ( *(_WORD *)&v12[v13] != v23 )
       {
         v24 = cm.mapEnts;
-        v89 = s_dynEntsClientsAllocated;
+        v83 = s_dynEntsClientsAllocated;
         if ( cm.mapEnts && s_dynEntsClientsAllocated )
         {
           v25 = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
           if ( v25 > *(_DWORD *)((char *)&cm.mapEnts->name + v18) )
           {
-            LODWORD(v85) = *(_DWORD *)((char *)&cm.mapEnts->name + v18);
-            LODWORD(v84) = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 363, ASSERT_TYPE_ASSERT, "( noSpatialCount ) <= ( mapEnts->dynEntCount[basis] )", "%s <= %s\n\t%u, %u", "noSpatialCount", "mapEnts->dynEntCount[basis]", v84, v85) )
+            LODWORD(v80) = *(_DWORD *)((char *)&cm.mapEnts->name + v18);
+            LODWORD(v79) = *(unsigned __int16 *)((char *)&cm.mapEnts->name + v13);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 363, ASSERT_TYPE_ASSERT, "( noSpatialCount ) <= ( mapEnts->dynEntCount[basis] )", "%s <= %s\n\t%u, %u", "noSpatialCount", "mapEnts->dynEntCount[basis]", v79, v80) )
               __debugbreak();
           }
           v26 = *(_DWORD *)((char *)&v24->name + v18) - v25 + 10;
-          if ( v26 > v24->dynEntMaxClientHistoryCount / v89 )
-            v26 = v24->dynEntMaxClientHistoryCount / v89;
+          if ( v26 > v24->dynEntMaxClientHistoryCount / v83 )
+            v26 = v24->dynEntMaxClientHistoryCount / v83;
           v27 = truncate_cast<unsigned short,unsigned int>(v26);
           v28 = truncate_cast<unsigned short,int>(v25 + v27);
         }
@@ -3610,9 +3498,9 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
         {
           v28 = 0;
         }
-        LODWORD(v85) = v28;
-        LODWORD(v84) = word_1515DE9B8[2 * v2 + (unsigned __int64)v13 / 2];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1068, ASSERT_TYPE_ASSERT, "( g_dynEntClientEntsAllocCount[localClientNum][basis] ) == ( DynEnt_GetClientDataCount( basis, s_dynEntsClientsAllocated, true ) )", "%s == %s\n\t%u, %u", "g_dynEntClientEntsAllocCount[localClientNum][basis]", "DynEnt_GetClientDataCount( basis, s_dynEntsClientsAllocated, true )", v84, v85) )
+        LODWORD(v80) = v28;
+        LODWORD(v79) = word_1515DE9B8[2 * v2 + (unsigned __int64)v13 / 2];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1068, ASSERT_TYPE_ASSERT, "( g_dynEntClientEntsAllocCount[localClientNum][basis] ) == ( DynEnt_GetClientDataCount( basis, s_dynEntsClientsAllocated, true ) )", "%s == %s\n\t%u, %u", "g_dynEntClientEntsAllocCount[localClientNum][basis]", "DynEnt_GetClientDataCount( basis, s_dynEntsClientsAllocated, true )", v79, v80) )
           __debugbreak();
         v12 = (char *)&word_1515DE9B8[2 * v2];
       }
@@ -3635,9 +3523,9 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
       if ( g_dynEntPoseExtraPosePartsStride != v31 )
       {
         v32 = (unsigned __int8)v29 <= 1u ? 0 : (unsigned __int8)v29 - 1;
-        LODWORD(v85) = v32;
-        LODWORD(v84) = g_dynEntPoseExtraPosePartsStride;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1075, ASSERT_TYPE_ASSERT, "( g_dynEntPoseExtraPosePartsStride ) == ( (maxPosePartCount > 1) ? (maxPosePartCount - 1) : 0 )", "%s == %s\n\t%u, %u", "g_dynEntPoseExtraPosePartsStride", "(maxPosePartCount > 1) ? (maxPosePartCount - 1) : 0", v84, v85) )
+        LODWORD(v80) = v32;
+        LODWORD(v79) = g_dynEntPoseExtraPosePartsStride;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1075, ASSERT_TYPE_ASSERT, "( g_dynEntPoseExtraPosePartsStride ) == ( (maxPosePartCount > 1) ? (maxPosePartCount - 1) : 0 )", "%s == %s\n\t%u, %u", "g_dynEntPoseExtraPosePartsStride", "(maxPosePartCount > 1) ? (maxPosePartCount - 1) : 0", v79, v80) )
           __debugbreak();
       }
       v33 = g_dynEntClientEntsAllocCount[localClientNum][0];
@@ -3646,9 +3534,9 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
         v33 = v30;
       if ( g_dynEntExtraPosePartsAllocCount[localClientNum] != v33 * g_dynEntPoseExtraPosePartsStride )
       {
-        LODWORD(v85) = v33 * g_dynEntPoseExtraPosePartsStride;
-        LODWORD(v84) = g_dynEntExtraPosePartsAllocCount[localClientNum];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1078, ASSERT_TYPE_ASSERT, "( g_dynEntExtraPosePartsAllocCount[localClientNum] ) == ( extraPartsCount )", "%s == %s\n\t%u, %u", "g_dynEntExtraPosePartsAllocCount[localClientNum]", "extraPartsCount", v84, v85) )
+        LODWORD(v80) = v33 * g_dynEntPoseExtraPosePartsStride;
+        LODWORD(v79) = g_dynEntExtraPosePartsAllocCount[localClientNum];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1078, ASSERT_TYPE_ASSERT, "( g_dynEntExtraPosePartsAllocCount[localClientNum] ) == ( extraPartsCount )", "%s == %s\n\t%u, %u", "g_dynEntExtraPosePartsAllocCount[localClientNum]", "extraPartsCount", v79, v80) )
           __debugbreak();
       }
     }
@@ -3830,71 +3718,62 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
     }
   }
   v56 = DYNENT_BASIS_MODEL;
-  _R14 = &s_hiddenDynEntsDebugList;
   __asm { vpxor   xmm6, xmm6, xmm6 }
-  v59 = 0i64;
+  v58 = 0i64;
   do
   {
-    v60 = &s_noEvictDynEntsDebugList;
-    v61 = 128i64;
+    v59 = &s_noEvictDynEntsDebugList;
+    v60 = 128i64;
     do
     {
-      *(_QWORD *)v60->array = 0i64;
-      *(_QWORD *)&v60->array[2] = 0i64;
-      *(_QWORD *)&v60->array[4] = 0i64;
-      v60 = (bitarray<65536> *)((char *)v60 + 64);
-      *(_QWORD *)&v60[-1].array[2038] = 0i64;
-      *(_QWORD *)&v60[-1].array[2040] = 0i64;
-      *(_QWORD *)&v60[-1].array[2042] = 0i64;
-      *(_QWORD *)&v60[-1].array[2044] = 0i64;
-      *(_QWORD *)&v60[-1].array[2046] = 0i64;
-      --v61;
+      *(_QWORD *)v59->array = 0i64;
+      *(_QWORD *)&v59->array[2] = 0i64;
+      *(_QWORD *)&v59->array[4] = 0i64;
+      v59 = (bitarray<65536> *)((char *)v59 + 64);
+      *(_QWORD *)&v59[-1].array[2038] = 0i64;
+      *(_QWORD *)&v59[-1].array[2040] = 0i64;
+      *(_QWORD *)&v59[-1].array[2042] = 0i64;
+      *(_QWORD *)&v59[-1].array[2044] = 0i64;
+      *(_QWORD *)&v59[-1].array[2046] = 0i64;
+      --v60;
     }
-    while ( v61 );
-    v62 = &s_hiddenDynEntsDebugList;
-    v63 = 128i64;
+    while ( v60 );
+    v61 = &s_hiddenDynEntsDebugList;
+    v62 = 128i64;
     do
     {
-      *(_QWORD *)v62->array = 0i64;
-      *(_QWORD *)&v62->array[2] = 0i64;
-      *(_QWORD *)&v62->array[4] = 0i64;
-      v62 = (bitarray<65536> *)((char *)v62 + 64);
-      *(_QWORD *)&v62[-1].array[2038] = 0i64;
-      *(_QWORD *)&v62[-1].array[2040] = 0i64;
-      *(_QWORD *)&v62[-1].array[2042] = 0i64;
-      *(_QWORD *)&v62[-1].array[2044] = 0i64;
-      *(_QWORD *)&v62[-1].array[2046] = 0i64;
-      --v63;
+      *(_QWORD *)v61->array = 0i64;
+      *(_QWORD *)&v61->array[2] = 0i64;
+      *(_QWORD *)&v61->array[4] = 0i64;
+      v61 = (bitarray<65536> *)((char *)v61 + 64);
+      *(_QWORD *)&v61[-1].array[2038] = 0i64;
+      *(_QWORD *)&v61[-1].array[2040] = 0i64;
+      *(_QWORD *)&v61[-1].array[2042] = 0i64;
+      *(_QWORD *)&v61[-1].array[2044] = 0i64;
+      *(_QWORD *)&v61[-1].array[2046] = 0i64;
+      --v62;
     }
-    while ( v63 );
-    v64 = v59 + 2i64 * (int)v2;
-    DynEntCL_VerifyClientLists_CheckList((const LocalClientNum_t)v2, v56, g_dynEntNoEvictClientHead[0][v64], g_dynEntNoEvictClientTail[0][v64], &s_noEvictDynEntsDebugList, 0x20u, 0x100u);
-    DynEntCL_VerifyClientLists_CheckList((const LocalClientNum_t)v2, v56, g_dynEntHiddenClientHead[0][v64], g_dynEntHiddenClientTail[0][v64], &s_hiddenDynEntsDebugList, 0x100u, 0x20u);
-    v65 = 256i64;
-    _RAX = 0i64;
-    __asm
-    {
-      vmovdqu xmm2, xmm6
-      vmovdqu xmm3, xmm6
-    }
+    while ( v62 );
+    v63 = v58 + 2i64 * (int)v2;
+    DynEntCL_VerifyClientLists_CheckList((const LocalClientNum_t)v2, v56, g_dynEntNoEvictClientHead[0][v63], g_dynEntNoEvictClientTail[0][v63], &s_noEvictDynEntsDebugList, 0x20u, 0x100u);
+    DynEntCL_VerifyClientLists_CheckList((const LocalClientNum_t)v2, v56, g_dynEntHiddenClientHead[0][v63], g_dynEntHiddenClientTail[0][v63], &s_hiddenDynEntsDebugList, 0x100u, 0x20u);
+    v64 = 256i64;
+    v65 = 0i64;
     do
     {
+      _XMM1 = *(_OWORD *)&s_hiddenDynEntsDebugList.array[v65];
+      __asm { vpand   xmm1, xmm1, xmmword ptr [rax+rdx] }
+      v65 += 8i64;
+      __asm { vpor    xmm2, xmm1, xmm2 }
+      _XMM1 = *(_OWORD *)&s_hiddenDynEntsDebugList.array[v65 - 4];
       __asm
       {
-        vmovdqu xmm1, xmmword ptr [rax+r14]
-        vpand   xmm1, xmm1, xmmword ptr [rax+rdx]
-      }
-      _RAX += 32i64;
-      __asm
-      {
-        vpor    xmm2, xmm1, xmm2
-        vmovdqu xmm1, xmmword ptr [rax+r14-10h]
         vpand   xmm1, xmm1, xmmword ptr [rax+rdx-10h]
         vpor    xmm3, xmm1, xmm3
       }
-      --v65;
+      --v64;
     }
-    while ( v65 );
+    while ( v64 );
     __asm
     {
       vpor    xmm1, xmm3, xmm2
@@ -3902,15 +3781,16 @@ void DynEntCl_InitEntities(LocalClientNum_t localClientNum)
       vpor    xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpor    xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1847, ASSERT_TYPE_ASSERT, "(!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList ))", (const char *)&queryFormat, "!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList )") )
-      __debugbreak();
+    if ( (_DWORD)_XMM0 )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.cpp", 1847, ASSERT_TYPE_ASSERT, "(!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList ))", (const char *)&queryFormat, "!s_noEvictDynEntsDebugList.testAnyBits( s_hiddenDynEntsDebugList )") )
+        __debugbreak();
+    }
     ++v56;
-    ++v59;
+    ++v58;
   }
   while ( (unsigned __int8)v56 < DYNENT_BASIS_COUNT );
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*

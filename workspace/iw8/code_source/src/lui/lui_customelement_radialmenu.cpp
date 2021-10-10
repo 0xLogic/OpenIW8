@@ -294,7 +294,8 @@ __int64 LUIElement_RadialMenu_GetBigRadius(lua_State *const luaVM)
 {
   unsigned int v2; 
   LUIElement *v3; 
-  unsigned int v7; 
+  RadialMenuOptions *Data; 
+  unsigned int v5; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
@@ -302,15 +303,10 @@ __int64 LUIElement_RadialMenu_GetBigRadius(lua_State *const luaVM)
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
     v3 = LUI_ToElement(luaVM, 1);
-    _RSI = LUIElement_RadialMenu_GetData(v3, luaVM);
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 868, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+    Data = LUIElement_RadialMenu_GetData(v3, luaVM);
+    if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 868, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+0ECh]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    j_lua_pushnumber(luaVM, Data->radialMenuBigRadius);
   }
   else
   {
@@ -318,8 +314,8 @@ __int64 LUIElement_RadialMenu_GetBigRadius(lua_State *const luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v7);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v5);
   }
   return v2;
 }
@@ -366,10 +362,12 @@ LUIElement_RadialMenu_SetSelection
 */
 __int64 LUIElement_RadialMenu_SetSelection(lua_State *const luaVM)
 {
-  LUIElement *v3; 
+  LUIElement *v2; 
+  RadialMenuOptions *Data; 
+  int v4; 
   int v5; 
-  int v6; 
-  unsigned int v17; 
+  float v6; 
+  unsigned int v7; 
   float c; 
   float s; 
 
@@ -377,42 +375,27 @@ __int64 LUIElement_RadialMenu_SetSelection(lua_State *const luaVM)
     j_luaL_error(luaVM, "USAGE: element:SetSelection( index )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    v3 = LUI_ToElement(luaVM, 1);
-    _RDI = LUIElement_RadialMenu_GetData(v3, luaVM);
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 905, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+    v2 = LUI_ToElement(luaVM, 1);
+    Data = LUIElement_RadialMenu_GetData(v2, luaVM);
+    if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 905, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
       __debugbreak();
-    v5 = lua_tointeger32(luaVM, 2);
-    _RDI->selectedItem = v5;
-    v6 = v5;
-    _RDI->lastSelectedItem = v5;
-    if ( v5 != -1 )
+    v4 = lua_tointeger32(luaVM, 2);
+    Data->selectedItem = v4;
+    v5 = v4;
+    Data->lastSelectedItem = v4;
+    if ( v4 != -1 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, dword ptr [rdi+0E4h]
-        vaddss  xmm1, xmm0, cs:__real@43870000
-        vcvttss2si ecx, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm
-      {
-        vmovss  xmm0, [rsp+48h+c]
-        vmovss  xmm1, [rsp+48h+s]
-        vmovss  dword ptr [rdi+0D4h], xmm0
-        vmovss  dword ptr [rdi+0D8h], xmm1
-      }
+      FastSinCos((float)((int)(float)((float)((float)v4 * Data->itemAngle) + 270.0) % 360) * 0.017453292, &s, &c);
+      v6 = s;
+      Data->lastGamepadOffset.v[0] = c;
+      Data->lastGamepadOffset.v[1] = v6;
     }
-    LUIElement_RadialMenu_SelectionChanged(v3, _RDI, luaVM, v6);
+    LUIElement_RadialMenu_SelectionChanged(v2, Data, luaVM, v5);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v17 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v17);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }
@@ -422,38 +405,34 @@ __int64 LUIElement_RadialMenu_SetSelection(lua_State *const luaVM)
 LUIElement_RadialMenu_GetLastUsedItem
 ==============
 */
-
-__int64 __fastcall LUIElement_RadialMenu_GetLastUsedItem(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_RadialMenu_GetLastUsedItem(lua_State *const luaVM)
 {
-  unsigned int v3; 
-  LUIElement *v4; 
-  unsigned int v7; 
+  unsigned int v2; 
+  LUIElement *v3; 
+  unsigned int v6; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetLastUsedItem()");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
-    v4 = LUI_ToElement(luaVM, 1);
-    if ( !LUIElement_RadialMenu_GetData(v4, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 941, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+    v3 = LUI_ToElement(luaVM, 1);
+    if ( !LUIElement_RadialMenu_GetData(v3, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 941, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, dword ptr [rsi+0C8h]; n
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rsi+0C8h]; n }
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -464,9 +443,9 @@ LUIElement_RadialMenu_CreateItem
 LUIElement *LUIElement_RadialMenu_CreateItem(LUIElement *radialMenu, RadialMenuOptions *radialMenuData, lua_State *luaVM, const int index)
 {
   int buildArrowFunction; 
-  int v13; 
-  int v14; 
-  LUIElement *v15; 
+  int v9; 
+  int v10; 
+  LUIElement *v11; 
 
   if ( !LUI_ElementHasWeakTableEntry(radialMenu, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 974, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( radialMenu, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( radialMenu, luaVM )") )
     __debugbreak();
@@ -481,34 +460,28 @@ LUIElement *LUIElement_RadialMenu_CreateItem(LUIElement *radialMenu, RadialMenuO
   j_lua_remove(luaVM, -2);
   if ( index <= -1 )
   {
-    v13 = 0;
+    v9 = 0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vcvtss2sd xmm1, xmm0, xmm0; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v13 = 1;
+    j_lua_pushnumber(luaVM, (float)index);
+    v9 = 1;
   }
-  v14 = LuaShared_PCall(luaVM, v13, 1);
-  if ( v14 )
+  v10 = LuaShared_PCall(luaVM, v9, 1);
+  if ( v10 )
   {
     LUI_ReportError("Error while creating UI radial menu content.\n", luaVM);
-    LUI_HandleLuaError(v14);
+    LUI_HandleLuaError(v10);
     return 0i64;
   }
   else
   {
     if ( !j_lua_isuserdata(luaVM, -1) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, -1 )");
-    v15 = LUI_ToElement(luaVM, -1);
+    v11 = LUI_ToElement(luaVM, -1);
     j_lua_settop(luaVM, -2);
-    LUI_LUIElement_AddElement(radialMenu, v15, luaVM);
-    return v15;
+    LUI_LUIElement_AddElement(radialMenu, v11, luaVM);
+    return v11;
   }
 }
 
@@ -533,152 +506,90 @@ RadialMenuOptions *LUIElement_RadialMenu_GetData(LUIElement *element, lua_State 
 LUIElement_RadialMenu_Layout
 ==============
 */
-
-void __fastcall LUIElement_RadialMenu_Layout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_RadialMenu_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  lua_State *v12; 
-  int v15; 
+  lua_State *v5; 
+  int v8; 
+  RadialMenuOptions *Data; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v19; 
-  int v20; 
+  const dvar_t *v11; 
+  int v12; 
   __int64 numItems; 
   LUIElement **items; 
-  LUIElement *v39; 
+  float v15; 
+  float itemDistanceFromCenter; 
+  LUIElement *v17; 
+  LUIElement *v18; 
   float s; 
   float c[3]; 
 
-  v12 = luaVM;
-  __asm { vmovaps [rsp+0D8h+var_88], xmm11 }
-  v15 = deltaTime;
-  __asm { vmovaps xmm11, xmm2 }
-  _RBX = LUIElement_RadialMenu_GetData(element, luaVM);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 114, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+  v5 = luaVM;
+  v8 = deltaTime;
+  Data = LUIElement_RadialMenu_GetData(element, luaVM);
+  if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 114, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
     __debugbreak();
   if ( !Com_FrontEnd_IsInFrontEnd() )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    if ( _RBX->deactivateTime != -1 )
+    if ( Data->deactivateTime != -1 )
     {
-      if ( _RBX->selectedItem == -1 )
+      if ( Data->selectedItem == -1 )
         goto LABEL_11;
-      v19 = DVARINT_cg_radialMenu_deactivationDelay;
+      v11 = DVARINT_cg_radialMenu_deactivationDelay;
       if ( !DVARINT_cg_radialMenu_deactivationDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_deactivationDelay") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      if ( LocalClientGlobals->time > _RBX->deactivateTime + v19->current.integer )
+      Dvar_CheckFrontendServerThread(v11);
+      if ( LocalClientGlobals->time > Data->deactivateTime + v11->current.integer )
       {
 LABEL_11:
         CL_Keys_RemoveCatcher(localClientNum, -257);
-        _RBX->deactivateTime = -1;
+        Data->deactivateTime = -1;
       }
     }
   }
-  if ( _RBX->radialMenuActive )
+  if ( Data->radialMenuActive )
   {
-    v20 = 0;
-    numItems = _RBX->numItems;
+    v12 = 0;
+    numItems = Data->numItems;
     if ( numItems > 0 )
     {
-      __asm { vmovaps [rsp+0D8h+var_38], xmm6 }
-      items = _RBX->items;
-      __asm
-      {
-        vmovss  xmm6, cs:__real@42b40000
-        vmovaps [rsp+0D8h+var_48], xmm7
-        vmovss  xmm7, cs:__real@41c80000
-        vmovaps [rsp+0D8h+var_58], xmm8
-        vmovss  xmm8, cs:__real@43870000
-        vmovaps [rsp+0D8h+var_68], xmm9
-        vmovss  xmm9, cs:__real@3c8efa35
-        vmovaps [rsp+0D8h+var_78], xmm10
-        vmovss  xmm10, cs:__real@bf800000
-      }
+      items = Data->items;
       do
       {
-        __asm
+        v15 = (float)((int)(float)((float)((float)v12 * Data->itemAngle) + 270.0) % 360);
+        if ( Data->drawCircleInCode )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm1, xmm0, dword ptr [rbx+0E4h]
-          vaddss  xmm2, xmm1, xmm8
-          vcvttss2si ecx, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-        }
-        if ( _RBX->drawCircleInCode )
-        {
-          __asm { vmulss  xmm0, xmm0, xmm9; radians }
-          FastSinCos(*(const float *)&_XMM0, &s, c);
-          __asm
-          {
-            vmulss  xmm1, xmm10, [rsp+0D8h+s]
-            vmovss  xmm3, dword ptr [rbx+0A0h]
-          }
-          _RDX = *items;
-          v39 = *items;
-          __asm
-          {
-            vmulss  xmm2, xmm1, xmm3
-            vmulss  xmm1, xmm3, [rsp+0D8h+c]
-            vmovss  [rsp+0D8h+s], xmm2
-            vmovss  [rsp+0D8h+c], xmm1
-            vsubss  xmm0, xmm1, xmm7
-            vmovss  dword ptr [rdx], xmm0
-            vaddss  xmm2, xmm7, [rsp+0D8h+c]
-            vmovss  dword ptr [rdx+4], xmm2
-          }
-          v39->currentAnimationState.position.x.anchors[0] = 0.5;
-          v39->currentAnimationState.position.x.anchors[1] = 0.5;
-          __asm
-          {
-            vmovss  xmm0, [rsp+0D8h+s]
-            vsubss  xmm1, xmm0, xmm7
-            vmovss  dword ptr [rdx+18h], xmm1
-            vaddss  xmm0, xmm7, [rsp+0D8h+s]
-            vmovss  dword ptr [rdx+1Ch], xmm0
-          }
-          _RDX->currentAnimationState.position.y.anchors[0] = 0.5;
-          _RDX->currentAnimationState.position.y.anchors[1] = 0.5;
+          FastSinCos(v15 * 0.017453292, &s, c);
+          itemDistanceFromCenter = Data->itemDistanceFromCenter;
+          v17 = *items;
+          v18 = *items;
+          s = (float)(-1.0 * s) * itemDistanceFromCenter;
+          c[0] = itemDistanceFromCenter * c[0];
+          v17->currentAnimationState.position.x.offsets[0] = c[0] - 25.0;
+          v17->currentAnimationState.position.x.offsets[1] = c[0] + 25.0;
+          v18->currentAnimationState.position.x.anchors[0] = 0.5;
+          v18->currentAnimationState.position.x.anchors[1] = 0.5;
+          v17->currentAnimationState.position.y.offsets[0] = s - 25.0;
+          v17->currentAnimationState.position.y.offsets[1] = s + 25.0;
+          v17->currentAnimationState.position.y.anchors[0] = 0.5;
+          v17->currentAnimationState.position.y.anchors[1] = 0.5;
         }
         else
         {
-          _RAX = *items;
-          __asm
-          {
-            vsubss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rax+30h], xmm0
-          }
+          (*items)->currentAnimationState.zRot = v15 - 90.0;
         }
-        ++v20;
+        ++v12;
         ++items;
         --numItems;
       }
       while ( numItems );
-      v12 = luaVM;
-      v15 = deltaTime;
-      __asm
-      {
-        vmovaps xmm10, [rsp+0D8h+var_78]
-        vmovaps xmm9, [rsp+0D8h+var_68]
-        vmovaps xmm8, [rsp+0D8h+var_58]
-        vmovaps xmm7, [rsp+0D8h+var_48]
-        vmovaps xmm6, [rsp+0D8h+var_38]
-      }
+      v5 = luaVM;
+      v8 = deltaTime;
     }
-    if ( !_RBX->drawCircleInCode )
-    {
-      __asm { vmovss  xmm0, dword ptr [rbx+98h] }
-      _RAX = _RBX->arrow;
-      __asm
-      {
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [rax+30h], xmm1
-      }
-    }
-    __asm { vmovaps xmm2, xmm11; unitScale }
-    LUIElement_DefaultLayout(localClientNum, element, *(float *)&_XMM2, v15, v12);
+    if ( !Data->drawCircleInCode )
+      Data->arrow->currentAnimationState.zRot = COERCE_FLOAT(LODWORD(Data->arrowRotation) ^ _xmm);
+    LUIElement_DefaultLayout(localClientNum, element, unitScale, v8, v5);
   }
-  __asm { vmovaps xmm11, [rsp+0D8h+var_88] }
 }
 
 /*
@@ -688,552 +599,303 @@ LUIElement_RadialMenu_Render
 */
 void LUIElement_RadialMenu_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  __int64 v19; 
-  int numItems; 
-  bool v23; 
+  __int64 v9; 
+  RadialMenuOptions *Data; 
+  bool v12; 
   vec2_t *p_realViewportSize; 
+  float top; 
+  float left; 
+  float v16; 
+  float height; 
+  __int128 bottom_low; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   LocalClientNum_t ClientFromController; 
   clientUIActive_t *LocalClientUIGlobals; 
-  int v47; 
-  unsigned int v49; 
-  bool v58; 
-  char v62; 
-  char v63; 
-  vec2_t v70; 
-  unsigned int v116; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  int v29; 
+  float v30; 
+  float v31; 
+  bool v32; 
+  bool v33; 
+  vec2_t lastGamepadOffset; 
+  const dvar_t *v38; 
+  const dvar_t *v39; 
+  const dvar_t *v40; 
+  float value; 
+  float v42; 
+  float v43; 
+  float v44; 
+  cg_t *LocalClientGlobals; 
+  bool v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float halfItemAngle; 
+  float v52; 
+  float v53; 
   RumbleInfo *RumbleByName; 
-  __int64 v120; 
+  __int64 v55; 
   int numItemsRumbled; 
-  bool v125; 
-  const char *v153; 
+  int v57; 
+  float v58; 
+  const dvar_t *v59; 
+  const dvar_t *v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  const dvar_t *v65; 
+  const char *v66; 
+  float v67; 
+  float v68; 
+  const dvar_t *v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  const dvar_t *v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
   const GfxImage *imgExpandedSelection; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  float height; 
-  float heighta; 
-  float heightb; 
-  float heightc; 
-  float heightd; 
-  float heighte; 
-  float heightf; 
-  float heightg; 
-  float heighth; 
-  float heighti; 
-  float heightj; 
-  float heightk; 
-  float heightl; 
-  float heightm; 
-  float heightn; 
-  float uMin; 
-  float uMina; 
-  float uMinb; 
-  float uMinc; 
-  float uMind; 
-  float uMine; 
-  float uMinf; 
-  float uMing; 
-  float uMinh; 
-  float uMini; 
-  float uMinj; 
-  float uMink; 
-  float uMinl; 
-  float uMinm; 
-  float uMinn; 
-  float v278; 
-  float v279; 
-  float v280; 
-  float v281; 
-  float v282; 
-  float v283; 
-  float v284; 
-  float v285; 
-  float v286; 
-  float v287; 
-  float v288; 
-  float v289; 
-  float v290; 
-  float v291; 
-  float v292; 
-  float applyParallax; 
-  float applyParallaxa; 
-  float applyParallaxb; 
-  float applyParallaxc; 
-  float applyParallaxd; 
-  float applyParallaxe; 
-  float applyParallaxf; 
-  float applyParallaxg; 
-  float applyParallaxh; 
-  float applyParallaxi; 
-  float applyParallaxj; 
-  float applyParallaxk; 
-  float v305; 
-  float v306; 
-  float v307; 
-  float v308; 
-  float v309; 
-  float v310; 
-  float v311; 
-  float v312; 
-  float v313; 
-  float v314; 
-  float v315; 
-  float v316; 
-  float v317; 
-  float v318; 
-  float v319; 
-  float v320; 
-  float v321; 
-  float v322; 
-  float v323; 
-  float v324; 
-  float v325; 
-  float v326; 
-  float v327; 
-  float v328; 
-  float v329; 
-  float v330; 
-  float v331; 
-  float v332; 
-  float v333; 
-  float v334; 
-  float v335; 
-  float v336; 
-  float v337; 
-  float v338; 
-  float v339; 
-  float v340; 
-  float v341; 
-  float v342; 
-  float v343; 
-  float v344; 
-  float v345; 
-  float v346; 
-  float v347; 
-  float v348; 
-  float v349; 
-  float v350; 
-  float v351; 
-  float v352; 
-  float v353; 
-  float v354; 
-  float v355; 
-  float v356; 
-  float v357; 
-  float v358; 
-  float v359; 
-  float v360; 
-  float v361; 
-  float v362; 
-  float v363; 
-  float v364; 
+  float width; 
+  float v82; 
+  float v83; 
+  float v84; 
+  const dvar_t *v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
   float viewportSize; 
   float viewportSizea; 
-  float viewportSizeb; 
-  float viewportSizec; 
-  float viewportSized; 
-  float viewportSizee; 
-  float viewportSizef; 
-  float viewportSizeg; 
-  float viewportSizeh; 
-  float viewportSizei; 
-  float viewportSizej; 
-  float viewportSizek; 
-  float image; 
-  float imagea; 
-  float imageb; 
-  float imagec; 
-  float imaged; 
-  float imagee; 
-  float imagef; 
-  float imageg; 
-  float imageh; 
-  float imagei; 
-  float imagej; 
-  float imagek; 
-  float material; 
-  float v390; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
   int errorCode; 
   int errorCodea; 
-  int v398; 
-  clientUIActive_t *v401; 
-  vec2_t v402; 
+  int errorCodeb; 
+  int v99; 
+  float v100; 
+  clientUIActive_t *v101; 
+  vec2_t v102; 
   float outX[4]; 
   LUIElement elementa; 
 
-  _R13 = element;
-  v19 = localClientNum;
-  _RBX = root;
-  _RDI = LUIElement_RadialMenu_GetData(element, luaVM);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 240, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+  v9 = localClientNum;
+  Data = LUIElement_RadialMenu_GetData(element, luaVM);
+  if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 240, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
     __debugbreak();
-  if ( _RDI->radialMenuActive )
+  if ( Data->radialMenuActive )
   {
-    numItems = _RDI->numItems;
-    __asm
-    {
-      vmovaps [rsp+300h+var_50], xmm7
-      vmovaps [rsp+300h+var_60], xmm8
-      vmovaps [rsp+300h+var_70], xmm9
-      vmovaps [rsp+300h+var_80], xmm10
-      vmovaps [rsp+300h+var_90], xmm11
-      vmovaps [rsp+300h+var_A0], xmm12
-      vmovaps [rsp+300h+var_B0], xmm13
-      vmovaps [rsp+300h+var_D0], xmm15
-    }
-    errorCode = numItems;
+    errorCode = Data->numItems;
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        p_realViewportSize = &scrPlaceViewDisplay[v19].realViewportSize;
+        p_realViewportSize = &scrPlaceViewDisplay[v9].realViewportSize;
 LABEL_12:
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r13+0D0h]
-          vmovss  xmm3, dword ptr [r13+0CCh]
-          vmovss  xmm0, dword ptr [r13+0D4h]
-          vmovss  xmm1, dword ptr [r13+0D8h]
-          vsubss  xmm10, xmm0, xmm3
-          vmulss  xmm0, xmm10, cs:__real@3f000000
-          vsubss  xmm15, xmm1, xmm2
-          vmulss  xmm1, xmm15, cs:__real@3f000000
-          vaddss  xmm8, xmm0, xmm3
-          vmovss  xmm0, dword ptr [rbx+0D8h]
-          vsubss  xmm7, xmm0, dword ptr [rbx+0D0h]
-          vaddss  xmm9, xmm1, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm1, xmm0, cs:__real@3a72b9d6
-          vmulss  xmm2, xmm1, xmm7
-          vdivss  xmm11, xmm15, xmm2
-          vxorps  xmm12, xmm12, xmm12
-          vmovss  [rbp+1E0h+var_244], xmm11
-          vmovss  [rbp+1E0h+var_258], xmm10
-          vmovss  [rbp+1E0h+var_250], xmm15
-          vmovss  [rbp+1E0h+var_25C], xmm8
-          vmovss  [rbp+1E0h+var_260], xmm9
-          vmovss  [rbp+1E0h+var_248], xmm7
-          vmovss  dword ptr [rbp+1E0h+var_238], xmm12
-          vmovss  dword ptr [rbp+1E0h+var_238+4], xmm12
-        }
-        ClientFromController = CL_Mgr_GetClientFromController(_RDI->controllerIndex);
+        top = element->top;
+        left = element->left;
+        v16 = element->right - left;
+        bottom_low = LODWORD(element->bottom);
+        height = element->bottom - top;
+        v19 = (float)(v16 * 0.5) + left;
+        v20 = root->bottom - root->top;
+        v21 = (float)(height * 0.5) + top;
+        v22 = height / (float)((float)((float)Data->imgLargeCircleOutline->height * 0.00092592591) * v20);
+        v95 = v16;
+        v94 = v19;
+        v93 = v21;
+        v100 = v20;
+        v102 = 0i64;
+        ClientFromController = CL_Mgr_GetClientFromController(Data->controllerIndex);
         LocalClientUIGlobals = CL_GetLocalClientUIGlobals(ClientFromController);
-        v401 = LocalClientUIGlobals;
-        v398 = 1;
+        v101 = LocalClientUIGlobals;
+        v99 = 1;
         if ( LocalClientUIGlobals->lastInputType == GAMEPAD )
         {
-          *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_X);
-          __asm { vmovss  dword ptr [rbp+1E0h+var_238], xmm0 }
-          *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_Y);
-          __asm { vmovss  dword ptr [rbp+1E0h+var_238+4], xmm0 }
-          if ( _RDI->useBothThumbsticks )
+          v25 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_X);
+          v102.v[0] = *(float *)&v25;
+          v26 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_Y);
+          v102.v[1] = *(float *)&v26;
+          if ( Data->useBothThumbsticks )
           {
-            *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_X);
-            __asm
-            {
-              vaddss  xmm0, xmm0, dword ptr [rbp+1E0h+var_238]
-              vmovss  dword ptr [rbp+1E0h+var_238], xmm0
-            }
-            *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_Y);
-            __asm
-            {
-              vaddss  xmm0, xmm0, dword ptr [rbp+1E0h+var_238+4]
-              vmovss  dword ptr [rbp+1E0h+var_238+4], xmm0
-            }
+            v27 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_X);
+            v102.v[0] = *(float *)&v27 + v102.v[0];
+            v28 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_Y);
+            v102.v[1] = *(float *)&v28 + v102.v[1];
           }
-          LocalClientUIGlobals = v401;
+          LocalClientUIGlobals = v101;
         }
-        v47 = 0;
-        __asm { vmovss  xmm13, cs:__real@3f800000 }
-        v49 = LocalClientUIGlobals->lastInputType - 1;
-        __asm { vmovaps [rsp+300h+var_40], xmm6 }
-        if ( v49 <= 1 )
+        v29 = 0;
+        if ( (unsigned int)(LocalClientUIGlobals->lastInputType - 1) <= 1 )
         {
-          LUI_CoD_GetRootSpaceMousePosition(_RDI->controllerIndex, outX, &outX[1]);
-          __asm
+          LUI_CoD_GetRootSpaceMousePosition(Data->controllerIndex, outX, &outX[1]);
+          v30 = (float)((float)(height * 0.5) + top) - outX[1];
+          v31 = outX[0] - v19;
+          *(float *)&bottom_low = (float)(v30 * v30) + (float)(v31 * v31);
+          v32 = !Data->disableInfiniteOuterRadius || *(float *)&bottom_low < (float)((float)((float)(v20 * Data->radialMenuBigRadius) * v22) * (float)((float)(v20 * Data->radialMenuBigRadius) * v22));
+          v33 = 0;
+          if ( *(float *)&bottom_low > (float)((float)((float)(v20 * Data->radialMenuSmallRadius) * v22) * (float)((float)(v20 * Data->radialMenuSmallRadius) * v22)) )
+            v33 = v32;
+          if ( v33 )
           {
-            vmovss  xmm0, [rbp+1E0h+outX]
-            vsubss  xmm5, xmm9, [rbp+1E0h+outX+4]
-            vsubss  xmm4, xmm0, xmm8
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm3, xmm1, xmm0
-            vmulss  xmm0, xmm7, dword ptr [rdi+0F0h]
-            vmulss  xmm1, xmm0, xmm11
-            vmulss  xmm6, xmm1, xmm1
-          }
-          v58 = !_RDI->disableInfiniteOuterRadius;
-          if ( _RDI->disableInfiniteOuterRadius )
-          {
+            *(float *)&bottom_low = fsqrt(*(float *)&bottom_low);
+            _XMM1 = bottom_low;
             __asm
             {
-              vmulss  xmm0, xmm7, dword ptr [rdi+0ECh]
-              vmulss  xmm1, xmm0, xmm11
-              vmulss  xmm2, xmm1, xmm1
-              vcomiss xmm3, xmm2
-            }
-            v62 = 0;
-            v58 = 1;
-          }
-          else
-          {
-            v62 = 1;
-          }
-          __asm { vcomiss xmm3, xmm6 }
-          v63 = 0;
-          if ( !v58 )
-            v63 = v62;
-          if ( v63 )
-          {
-            __asm
-            {
-              vsqrtss xmm1, xmm3, xmm3
               vcmpless xmm0, xmm1, cs:__real@80000000
               vblendvps xmm0, xmm1, xmm13, xmm0
-              vdivss  xmm1, xmm13, xmm0
-              vmulss  xmm0, xmm4, xmm1
-              vmulss  xmm1, xmm5, xmm1
-              vmovss  dword ptr [rbp+1E0h+var_238+4], xmm1
-              vmovss  dword ptr [rbp+1E0h+var_238], xmm0
             }
-            _RDI->isMouseInside = 1;
+            v102.v[1] = v30 * (float)(1.0 / *(float *)&_XMM0);
+            v102.v[0] = v31 * (float)(1.0 / *(float *)&_XMM0);
+            Data->isMouseInside = 1;
           }
           else
           {
-            _RDI->isMouseInside = 0;
+            Data->isMouseInside = 0;
           }
         }
-        if ( _RDI->allowNavigation )
+        if ( Data->allowNavigation )
         {
-          v70 = v402;
+          lastGamepadOffset = v102;
         }
         else
         {
-          __asm
-          {
-            vmovss  [rbp+1E0h+outX], xmm12
-            vmovss  [rbp+1E0h+outX+4], xmm12
-          }
-          v70 = *(vec2_t *)outX;
-          v402 = *(vec2_t *)outX;
+          outX[0] = 0.0;
+          outX[1] = 0.0;
+          lastGamepadOffset = *(vec2_t *)outX;
+          v102 = *(vec2_t *)outX;
         }
         *(_DWORD *)&elementa.pixelGrid.blockWidth = 16843266;
         elementa.pixelGrid.contrast = -1;
-        if ( _RDI->drawCircleInCode )
+        if ( Data->drawCircleInCode )
         {
-          __asm
-          {
-            vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-            vmovups xmmword ptr [rbp+1E0h+outX], xmm0
-            vmovaps xmm0, xmm13; amount
-          }
-          LUI_Render_PushBlur(*(float *)&_XMM0);
-          __asm
-          {
-            vmovss  dword ptr [rsp+300h+image], xmm13
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm13
-            vmovss  [rsp+300h+var_2A0], xmm13
-            vmovss  [rsp+300h+var_2A8], xmm13
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm15
-            vmovaps xmm3, xmm9; centerY
-            vmovaps xmm2, xmm8; centerX
-            vmovss  dword ptr [rsp+300h+fmt], xmm10
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmt, height, uMin, v278, applyParallax, v305, v320, v335, v350, viewportSize, image, _RDI->imgLargeCircle, luaVM);
+          *(_OWORD *)outX = _xmm;
+          LUI_Render_PushBlur(1.0);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v19, v21, v16, height, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, Data->imgLargeCircle, luaVM);
           LUI_Render_PopBlur();
-          _RSI = DCONST_DVARVEC4_cg_radialMenu_color_bg_blur_darkening;
+          v38 = DCONST_DVARVEC4_cg_radialMenu_color_bg_blur_darkening;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_bg_blur_darkening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_bg_blur_darkening") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsi+2Ch]
-            vmovss  xmm3, dword ptr [rsi+28h]
-            vmovss  xmm0, dword ptr [rsi+34h]
-            vmovss  xmm1, dword ptr [rsi+30h]
-            vmovss  dword ptr [rsp+300h+image], xmm0
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm1
-            vmovss  [rsp+300h+var_2A0], xmm2
-            vmovss  [rsp+300h+var_2A8], xmm3
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm15
-            vmovaps xmm3, xmm9; centerY
-            vmovaps xmm2, xmm8; centerX
-            vmovss  dword ptr [rsp+300h+fmt], xmm10
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmta, heighta, uMina, v279, applyParallaxa, v306, v321, v336, v351, viewportSizea, imagea, _RDI->imgSmallCircle, luaVM);
-          _RSI = DCONST_DVARVEC4_cg_radialMenu_color_bg_outline_blur_darkening;
+          Dvar_CheckFrontendServerThread(v38);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v19, v21, v16, height, 0.0, 0.0, 1.0, 1.0, 0.0, v38->current.value, v38->current.vector.v[1], v38->current.vector.v[2], v38->current.vector.v[3], Data->imgSmallCircle, luaVM);
+          v39 = DCONST_DVARVEC4_cg_radialMenu_color_bg_outline_blur_darkening;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_bg_outline_blur_darkening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_bg_outline_blur_darkening") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsi+2Ch]
-            vmovss  xmm3, dword ptr [rsi+28h]
-            vmovss  xmm0, dword ptr [rsi+34h]
-            vmovss  xmm1, dword ptr [rsi+30h]
-            vmovss  dword ptr [rsp+300h+image], xmm0
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm1
-            vmovss  [rsp+300h+var_2A0], xmm2
-            vmovss  [rsp+300h+var_2A8], xmm3
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm15
-            vmovaps xmm3, xmm9; centerY
-            vmovaps xmm2, xmm8; centerX
-            vmovss  dword ptr [rsp+300h+fmt], xmm10
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, heightb, uMinb, v280, applyParallaxb, v307, v322, v337, v352, viewportSizeb, imageb, _RDI->imgLargeCircleOutline, luaVM);
-          _RSI = DCONST_DVARVEC4_cg_radialMenu_color_bg_pixel_grid;
+          Dvar_CheckFrontendServerThread(v39);
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v19, v21, v16, height, 0.0, 0.0, 1.0, 1.0, 0.0, v39->current.value, v39->current.vector.v[1], v39->current.vector.v[2], v39->current.vector.v[3], Data->imgLargeCircleOutline, luaVM);
+          v40 = DCONST_DVARVEC4_cg_radialMenu_color_bg_pixel_grid;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_bg_pixel_grid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_bg_pixel_grid") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm
+          Dvar_CheckFrontendServerThread(v40);
+          value = v40->current.value;
+          v42 = v40->current.vector.v[1];
+          v43 = v40->current.vector.v[2];
+          v44 = v40->current.vector.v[3];
+          LUI_Render_PushPixelGrid((const LocalClientNum_t)v9, &elementa);
+          v87 = v42;
+          v19 = (float)(v16 * 0.5) + left;
+          v86 = value;
+          v21 = (float)(height * 0.5) + top;
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v16, height, 0.0, 0.0, 1.0, 1.0, 0.0, v86, v87, v43, v44, Data->imgSmallCircle, luaVM);
+          LUI_Render_PopPixelGrid((const LocalClientNum_t)v9);
+          v29 = 0;
+        }
+        if ( COERCE_FLOAT(LODWORD(v102.v[0]) & _xmm) >= 0.2 || COERCE_FLOAT(LODWORD(v102.v[1]) & _xmm) >= 0.2 )
+        {
+          if ( Data->keepSelectionWhileInDeadZone && Data->autoDisableKeepDeadZoneSelection )
+            Data->keepSelectionWhileInDeadZone = 0;
+          goto LABEL_62;
+        }
+        if ( Data->keepSelectionWhileInDeadZone )
+        {
+          if ( Data->lastSelectedItem != -1 )
           {
-            vmovss  xmm9, dword ptr [rsi+28h]
-            vmovss  xmm8, dword ptr [rsi+2Ch]
-            vmovss  xmm7, dword ptr [rsi+30h]
-            vmovss  xmm6, dword ptr [rsi+34h]
+            lastGamepadOffset = Data->lastGamepadOffset;
+            v102 = lastGamepadOffset;
           }
-          LUI_Render_PushPixelGrid((const LocalClientNum_t)v19, &elementa);
-          __asm
+          goto LABEL_62;
+        }
+        if ( !Com_FrontEnd_IsInFrontEnd() )
+        {
+          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
+          if ( LocalClientGlobals )
           {
-            vmovss  dword ptr [rsp+300h+image], xmm6
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm7
-            vmovss  [rsp+300h+var_2A0], xmm8
-            vmovss  xmm8, [rbp+1E0h+var_25C]
-            vmovss  [rsp+300h+var_2A8], xmm9
-            vmovss  xmm9, [rbp+1E0h+var_260]
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm15
-            vmovaps xmm3, xmm9; centerY
-            vmovaps xmm2, xmm8; centerX
-            vmovss  dword ptr [rsp+300h+fmt], xmm10
+            if ( Data->selectedItem != -1 )
+            {
+              if ( Data->selectionHoldTime == -1 )
+              {
+                lastGamepadOffset = Data->lastGamepadOffset;
+                v102 = lastGamepadOffset;
+                Data->selectionHoldTime = LocalClientGlobals->time;
+                goto LABEL_62;
+              }
+LABEL_53:
+              if ( LocalClientGlobals->time > Data->selectionHoldTime + Dvar_GetInt_Internal_DebugName(DVARINT_cg_radialMenu_selectionHold, "cg_radialMenu_selectionHold") )
+              {
+                v46 = Data->selectedItem == -1;
+                Data->selectionHoldTime = -1;
+                if ( !v46 )
+                  LUIElement_RadialMenu_SelectionChanged(element, Data, luaVM, -1);
+                Data->selectedItem = -1;
+                return;
+              }
+              goto LABEL_57;
+            }
+            if ( Data->selectionHoldTime != -1 )
+              goto LABEL_53;
           }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, heightc, uMinc, v281, applyParallaxc, v308, v323, v338, v353, viewportSizec, imagec, _RDI->imgSmallCircle, luaVM);
-          LUI_Render_PopPixelGrid((const LocalClientNum_t)v19);
-          v47 = 0;
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+1E0h+var_238]
-          vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm2, cs:__real@3e4ccccd
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( _RDI->keepSelectionWhileInDeadZone && _RDI->autoDisableKeepDeadZoneSelection )
-          _RDI->keepSelectionWhileInDeadZone = 0;
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbp+1E0h+var_238]; X
-          vmovss  xmm0, dword ptr [rbp+1E0h+var_238+4]; Y
-          vmovaps [rsp+300h+var_C0], xmm14
-        }
-        *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm { vmulss  xmm0, xmm0, cs:__real@42652ee0; angle }
-        *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-        __asm
-        {
-          vmovaps xmm14, xmm0
-          vxorps  xmm6, xmm6, xmm6
-          vxorps  xmm10, xmm10, xmm10
-        }
+LABEL_57:
+        if ( Data->selectedItem == -1 )
+          return;
+        lastGamepadOffset = Data->lastGamepadOffset;
+        v102 = lastGamepadOffset;
+LABEL_62:
+        v47 = atan2f_0(v102.v[1], v102.v[0]) * 57.295776;
+        AngleNormalize360(v47);
+        v48 = v47;
+        v49 = 0.0;
+        v50 = 0.0;
         if ( errorCode > 0 )
         {
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rdi+0E4h]
-            vmovss  xmm4, dword ptr [rdi+0E8h]
-            vmovss  xmm7, cs:__real@43870000
-          }
+          halfItemAngle = Data->halfItemAngle;
           do
           {
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, esi
-              vmulss  xmm0, xmm1, xmm5
-              vaddss  xmm3, xmm0, xmm7
-              vsubss  xmm2, xmm3, xmm4
-              vcvttss2si ecx, xmm2
-              vxorps  xmm6, xmm6, xmm6
-              vaddss  xmm0, xmm4, xmm3
-              vxorps  xmm10, xmm10, xmm10
-              vcvtsi2ss xmm6, xmm6, ecx
-              vcvttss2si ecx, xmm0
-            }
-            v116 = 360 * ((int)_ECX / 360);
-            __asm
-            {
-              vcvtsi2ss xmm10, xmm10, ecx
-              vcomiss xmm6, xmm10
-            }
-            if ( _ECX > v116 )
-            {
-              __asm { vcomiss xmm14, xmm6 }
-              if ( _ECX >= v116 )
-                break;
-              __asm { vcomiss xmm14, xmm10 }
-              if ( _ECX <= v116 )
-                break;
-            }
-            __asm { vcomiss xmm14, xmm6 }
-            if ( _ECX >= v116 )
-            {
-              __asm { vcomiss xmm14, xmm10 }
-              if ( _ECX <= v116 )
-                break;
-            }
-            ++v47;
+            v52 = (float)((float)v29 * Data->itemAngle) + 270.0;
+            v49 = (float)((int)(float)(v52 - halfItemAngle) % 360);
+            v53 = (float)((int)(float)(halfItemAngle + v52) % 360);
+            v50 = v53;
+            if ( v49 > v53 && (v48 >= v49 || v48 <= v53) )
+              break;
+            if ( v48 >= v49 && v48 <= v53 )
+              break;
+            ++v29;
           }
-          while ( v47 < errorCode );
+          while ( v29 < errorCode );
         }
-        if ( _RDI->selectionStyleFunction != -2 )
+        if ( Data->selectionStyleFunction != -2 )
         {
-          if ( !LUI_ElementHasWeakTableEntry(_R13, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 208, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( radialMenu, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( radialMenu, luaVM )") )
+          if ( !LUI_ElementHasWeakTableEntry(element, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 208, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( radialMenu, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( radialMenu, luaVM )") )
             __debugbreak();
-          LUI_PutElementOnTopOfStack(_R13, luaVM);
+          LUI_PutElementOnTopOfStack(element, luaVM);
           j_lua_getfield(luaVM, -1, "_functionRefs");
-          j_lua_rawgeti(luaVM, -1, _RDI->selectionStyleFunction);
+          j_lua_rawgeti(luaVM, -1, Data->selectionStyleFunction);
           j_lua_remove(luaVM, -2);
           j_lua_remove(luaVM, -2);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, esi
-            vcvtss2sd xmm1, xmm0, xmm0; n
-          }
-          j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+          j_lua_pushnumber(luaVM, (float)v29);
           errorCodea = LuaShared_PCall(luaVM, 1, 1);
           if ( errorCodea )
           {
@@ -1244,403 +906,150 @@ LABEL_12:
           {
             if ( !j_lua_isnumber(luaVM, -1) )
               j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )");
-            v398 = lua_tointeger32(luaVM, -1);
+            v99 = lua_tointeger32(luaVM, -1);
             j_lua_settop(luaVM, -2);
           }
         }
-        if ( _RDI->selectedItem != v47 )
+        if ( Data->selectedItem != v29 )
         {
-          LUIElement_RadialMenu_SelectionChanged(_R13, _RDI, luaVM, v47);
+          LUIElement_RadialMenu_SelectionChanged(element, Data, luaVM, v29);
           if ( !Com_FrontEnd_IsInFrontEnd() )
           {
-            *(_QWORD *)outX = CG_GetLocalClientGlobals((const LocalClientNum_t)v19);
+            *(_QWORD *)outX = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
             RumbleByName = Rumble_GetRumbleByName("ui_haptic");
-            v120 = *(_QWORD *)outX;
-            if ( *(_DWORD *)(*(_QWORD *)outX + 26092i64) - _RDI->timeOfLastRumble < RumbleByName->duration )
-              numItemsRumbled = _RDI->numItemsRumbled;
+            v55 = *(_QWORD *)outX;
+            if ( *(_DWORD *)(*(_QWORD *)outX + 26092i64) - Data->timeOfLastRumble < RumbleByName->duration )
+              numItemsRumbled = Data->numItemsRumbled;
             else
               numItemsRumbled = 0;
-            _RDI->numItemsRumbled = numItemsRumbled + 1;
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, ecx
-              vdivss  xmm2, xmm13, xmm0; scale
-            }
-            _RDI->timeOfLastRumble = *(_DWORD *)(v120 + 26092);
-            CG_Rumble_PlayOnClientScaledWithUpdate((LocalClientNum_t)v19, RumbleByName, *(float *)&_XMM2);
+            v57 = numItemsRumbled + 1;
+            Data->numItemsRumbled = v57;
+            Data->timeOfLastRumble = *(_DWORD *)(v55 + 26092);
+            CG_Rumble_PlayOnClientScaledWithUpdate((LocalClientNum_t)v9, RumbleByName, 1.0 / (float)v57);
           }
         }
-        v125 = !_RDI->drawCircleInCode;
-        __asm
+        v46 = !Data->drawCircleInCode;
+        v58 = v49 + 180.0;
+        *(float *)&errorCodeb = v49 + 180.0;
+        Data->selectedItem = v29;
+        Data->lastSelectedItem = v29;
+        Data->lastGamepadOffset = lastGamepadOffset;
+        if ( v46 )
         {
-          vaddss  xmm11, xmm6, cs:__real@43340000
-          vmovss  [rbp+1E0h+errorCode], xmm11
-        }
-        _RDI->selectedItem = v47;
-        _RDI->lastSelectedItem = v47;
-        _RDI->lastGamepadOffset = v70;
-        if ( v125 )
-        {
-          __asm
-          {
-            vmovss  xmm0, cs:__real@42b40000
-            vsubss  xmm1, xmm0, xmm14
-            vmovss  dword ptr [rdi+98h], xmm1
-          }
-LABEL_104:
-          __asm
-          {
-            vmovaps xmm14, [rsp+300h+var_C0]
-            vmovaps xmm6, [rsp+300h+var_40]
-            vmovaps xmm12, [rsp+300h+var_A0]
-            vmovaps xmm11, [rsp+300h+var_90]
-            vmovaps xmm10, [rsp+300h+var_80]
-            vmovaps xmm9, [rsp+300h+var_70]
-            vmovaps xmm8, [rsp+300h+var_60]
-            vmovaps xmm7, [rsp+300h+var_50]
-            vmovaps xmm13, [rsp+300h+var_B0]
-            vmovaps xmm15, [rsp+300h+var_D0]
-          }
+          Data->arrowRotation = 90.0 - v48;
           return;
         }
-        __asm
-        {
-          vmovss  xmm6, [rbp+1E0h+var_258]
-          vmovss  [rsp+300h+var_2A0], xmm13
-          vmovss  [rsp+300h+var_2A8], xmm13
-          vmovss  [rsp+300h+var_2B0], xmm12
-          vmovss  [rsp+300h+var_2B8], xmm12
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm13
-          vmovss  [rsp+300h+height], xmm11
-          vmovaps xmm3, xmm6; maskWidth
-          vmovaps xmm2, xmm9; maskCenterY
-          vmovaps xmm1, xmm8; maskCenterX
-          vmovss  dword ptr [rsp+300h+fmt], xmm15
-        }
-        LUI_Render_PushMask((const LocalClientNum_t)v19, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, heightd, uMind, v282, 1, v309, v324, v339, v354, p_realViewportSize, (GfxImage *)_RDI->imgLargeCircleHalfMask);
-        __asm
-        {
-          vmovss  [rsp+300h+var_2A0], xmm13
-          vmovss  [rsp+300h+var_2A8], xmm13
-          vmovss  [rsp+300h+var_2B0], xmm12
-          vmovss  [rsp+300h+var_2B8], xmm12
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm13
-          vmovss  [rsp+300h+height], xmm10
-          vmovaps xmm3, xmm6; maskWidth
-          vmovaps xmm2, xmm9; maskCenterY
-          vmovaps xmm1, xmm8; maskCenterX
-          vmovss  dword ptr [rsp+300h+fmt], xmm15
-        }
-        LUI_Render_PushMask((const LocalClientNum_t)v19, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, heighte, uMine, v283, 1, v310, v325, v340, v355, p_realViewportSize, (GfxImage *)_RDI->imgLargeCircleHalfMask);
-        _RBX = DCONST_DVARVEC4_cg_radialMenu_color_masked_foreground;
+        LUI_Render_PushMask((const LocalClientNum_t)v9, v19, v21, v95, height, v58, 1.0, 0.0, 1, 0.0, 0.0, 1.0, 1.0, p_realViewportSize, (GfxImage *)Data->imgLargeCircleHalfMask);
+        LUI_Render_PushMask((const LocalClientNum_t)v9, v19, v21, v95, height, v50, 1.0, 0.0, 1, 0.0, 0.0, 1.0, 1.0, p_realViewportSize, (GfxImage *)Data->imgLargeCircleHalfMask);
+        v59 = DCONST_DVARVEC4_cg_radialMenu_color_masked_foreground;
         if ( !DCONST_DVARVEC4_cg_radialMenu_color_masked_foreground && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_masked_foreground") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+2Ch]
-          vmovss  xmm3, dword ptr [rbx+28h]
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  xmm1, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+300h+image], xmm0
-          vmovss  dword ptr [rsp+300h+viewportSize], xmm1
-          vmovss  [rsp+300h+var_2A0], xmm2
-          vmovss  [rsp+300h+var_2A8], xmm3
-          vmovss  [rsp+300h+var_2B0], xmm12
-          vmovss  [rsp+300h+var_2B8], xmm13
-          vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm12
-          vmovss  [rsp+300h+height], xmm15
-          vmovaps xmm3, xmm9; centerY
-          vmovaps xmm2, xmm8; centerX
-          vmovss  dword ptr [rsp+300h+fmt], xmm6
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, heightf, uMinf, v284, applyParallaxd, v311, v326, v341, v356, viewportSized, imaged, _RDI->imgSmallCircle, luaVM);
-        _RBX = DCONST_DVARVEC4_cg_radialMenu_color_outline_circles;
+        Dvar_CheckFrontendServerThread(v59);
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v19, v21, v95, height, 0.0, 0.0, 1.0, 1.0, 0.0, v59->current.value, v59->current.vector.v[1], v59->current.vector.v[2], v59->current.vector.v[3], Data->imgSmallCircle, luaVM);
+        v60 = DCONST_DVARVEC4_cg_radialMenu_color_outline_circles;
         if ( !DCONST_DVARVEC4_cg_radialMenu_color_outline_circles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_outline_circles") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
+        Dvar_CheckFrontendServerThread(v60);
+        v61 = v60->current.value;
+        v62 = v60->current.vector.v[1];
+        v63 = v60->current.vector.v[2];
+        v64 = v60->current.vector.v[3];
+        if ( Data->useOuterCircleOutline )
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v95, height, 0.0, 0.0, 1.0, 1.0, 0.0, v61, v62, v63, v64, Data->imgLargeCircleOutline, luaVM);
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v95, height, 0.0, 0.0, 1.0, 1.0, 0.0, v61, v62, v63, v64, Data->imgSmallCircleOutline, luaVM);
+        if ( v99 == 1 )
         {
-          vmovss  xmm6, dword ptr [rbx+28h]
-          vmovss  xmm7, dword ptr [rbx+2Ch]
-          vmovss  xmm8, dword ptr [rbx+30h]
-          vmovss  xmm9, dword ptr [rbx+34h]
-        }
-        if ( _RDI->useOuterCircleOutline )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rbp+1E0h+var_258]
-            vmovss  xmm3, [rbp+1E0h+var_260]; centerY
-            vmovss  xmm2, [rbp+1E0h+var_25C]; centerX
-            vmovss  dword ptr [rsp+300h+image], xmm9
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm8
-            vmovss  [rsp+300h+var_2A0], xmm7
-            vmovss  [rsp+300h+var_2A8], xmm6
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm15
-            vmovss  dword ptr [rsp+300h+fmt], xmm0
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, heightg, uMing, v285, applyParallaxe, v312, v327, v342, v357, viewportSizee, imagee, _RDI->imgLargeCircleOutline, luaVM);
-        }
-        __asm
-        {
-          vmovss  xmm0, [rbp+1E0h+var_258]
-          vmovss  xmm3, [rbp+1E0h+var_260]; centerY
-          vmovss  xmm2, [rbp+1E0h+var_25C]; centerX
-          vmovss  dword ptr [rsp+300h+image], xmm9
-          vmovss  dword ptr [rsp+300h+viewportSize], xmm8
-          vmovss  [rsp+300h+var_2A0], xmm7
-          vmovss  [rsp+300h+var_2A8], xmm6
-          vmovss  [rsp+300h+var_2B0], xmm12
-          vmovss  [rsp+300h+var_2B8], xmm13
-          vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm12
-          vmovss  [rsp+300h+height], xmm15
-          vmovss  dword ptr [rsp+300h+fmt], xmm0
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmth, heighth, uMinh, v286, applyParallaxf, v313, v328, v343, v358, viewportSizef, imagef, _RDI->imgSmallCircleOutline, luaVM);
-        if ( v398 == 1 )
-        {
-          _RBX = DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_glow;
+          v65 = DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_glow;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_glow )
           {
-            v153 = "cg_radialMenu_color_select_pixel_grid_glow";
-            goto LABEL_82;
+            v66 = "cg_radialMenu_color_select_pixel_grid_glow";
+            goto LABEL_100;
           }
         }
         else
         {
-          if ( v398 )
+          if ( v99 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 519, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown selection style.") )
               __debugbreak();
-            goto LABEL_87;
+            goto LABEL_105;
           }
-          _RBX = DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_plain;
+          v65 = DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_plain;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_select_pixel_grid_plain )
           {
-            v153 = "cg_radialMenu_color_select_pixel_grid_plain";
-LABEL_82:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v153) )
+            v66 = "cg_radialMenu_color_select_pixel_grid_plain";
+LABEL_100:
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v66) )
               __debugbreak();
           }
         }
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
+        Dvar_CheckFrontendServerThread(v65);
+        v61 = v65->current.value;
+        v62 = v65->current.vector.v[1];
+        v63 = v65->current.vector.v[2];
+        v64 = v65->current.vector.v[3];
+LABEL_105:
+        LUI_Render_PushPixelGrid((const LocalClientNum_t)v9, &elementa);
+        viewportSize = v63;
+        v67 = (float)(height * 0.5) + top;
+        v88 = v62;
+        v68 = v94;
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v95, height, 0.0, 0.0, 1.0, 1.0, 0.0, v61, v88, viewportSize, v64, Data->imgSmallCircle, luaVM);
+        LUI_Render_PopPixelGrid((const LocalClientNum_t)v9);
+        LUI_Render_PopMask((const LocalClientNum_t)v9);
+        LUI_Render_PopMask((const LocalClientNum_t)v9);
+        if ( v99 == 1 )
         {
-          vmovss  xmm6, dword ptr [rbx+28h]
-          vmovss  xmm7, dword ptr [rbx+2Ch]
-          vmovss  xmm8, dword ptr [rbx+30h]
-          vmovss  xmm9, dword ptr [rbx+34h]
-        }
-LABEL_87:
-        LUI_Render_PushPixelGrid((const LocalClientNum_t)v19, &elementa);
-        __asm
-        {
-          vmovss  dword ptr [rsp+300h+image], xmm9
-          vmovss  dword ptr [rsp+300h+viewportSize], xmm8
-          vmovss  xmm8, [rbp+1E0h+var_260]
-          vmovss  [rsp+300h+var_2A0], xmm7
-          vmovss  xmm7, [rbp+1E0h+var_25C]
-          vmovss  [rsp+300h+var_2A8], xmm6
-          vmovss  xmm6, [rbp+1E0h+var_258]
-          vmovss  [rsp+300h+var_2B0], xmm12
-          vmovss  [rsp+300h+var_2B8], xmm13
-          vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm12
-          vmovss  [rsp+300h+height], xmm15
-          vmovaps xmm3, xmm8; centerY
-          vmovaps xmm2, xmm7; centerX
-          vmovss  dword ptr [rsp+300h+fmt], xmm6
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmti, heighti, uMini, v287, applyParallaxg, v314, v329, v344, v359, viewportSizeg, imageg, _RDI->imgSmallCircle, luaVM);
-        LUI_Render_PopPixelGrid((const LocalClientNum_t)v19);
-        LUI_Render_PopMask((const LocalClientNum_t)v19);
-        LUI_Render_PopMask((const LocalClientNum_t)v19);
-        __asm { vmovss  xmm15, cs:__real@42b40000 }
-        if ( v398 == 1 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rbp+1E0h+var_250]
-            vmovss  [rsp+300h+var_2A0], xmm13
-            vmovss  [rsp+300h+var_2A8], xmm13
-            vmovss  [rsp+300h+var_2B0], xmm12
-            vmovss  [rsp+300h+var_2B8], xmm12
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm13
-            vmovss  [rsp+300h+height], xmm12
-            vmovaps xmm3, xmm6; maskWidth
-            vmovaps xmm2, xmm8; maskCenterY
-            vmovaps xmm1, xmm7; maskCenterX
-            vmovss  dword ptr [rsp+300h+fmt], xmm0
-          }
-          LUI_Render_PushMask((const LocalClientNum_t)v19, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtj, heightj, uMinj, v288, 1, v315, v330, v345, v360, p_realViewportSize, (GfxImage *)_RDI->imgSmallCircleFullMask);
-          _RBX = DCONST_DVARVEC4_cg_radialMenu_color_edge_glow_lines;
+          LUI_Render_PushMask((const LocalClientNum_t)v9, v94, v93, v95, height, 0.0, 1.0, 0.0, 1, 0.0, 0.0, 1.0, 1.0, p_realViewportSize, (GfxImage *)Data->imgSmallCircleFullMask);
+          v69 = DCONST_DVARVEC4_cg_radialMenu_color_edge_glow_lines;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_edge_glow_lines && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_edge_glow_lines") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RBX);
-          __asm
-          {
-            vxorps  xmm0, xmm11, cs:__xmm@80000000800000008000000080000000
-            vmovss  xmm6, dword ptr [rbx+34h]
-            vmovss  xmm7, dword ptr [rbx+30h]
-            vmovss  xmm8, dword ptr [rbx+2Ch]
-            vmovss  xmm9, dword ptr [rbx+28h]
-            vmovss  xmm11, [rbp+1E0h+var_250]
-            vmovss  xmm3, [rbp+1E0h+var_260]; centerY
-            vmovss  xmm2, [rbp+1E0h+var_25C]; centerX
-            vmovss  dword ptr [rsp+300h+image], xmm6
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm7
-            vmovss  [rsp+300h+var_2A0], xmm8
-            vmovss  [rsp+300h+var_2A8], xmm9
-            vsubss  xmm1, xmm0, xmm15
-            vmovss  xmm0, [rbp+1E0h+var_258]
-            vmovss  [rsp+300h+var_2B0], xmm1
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm11
-            vmovss  dword ptr [rsp+300h+fmt], xmm0
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtk, heightk, uMink, v289, applyParallaxh, v316, v331, v346, v361, viewportSizeh, imageh, _RDI->imgEdgeBlur, luaVM);
-          __asm
-          {
-            vmovss  dword ptr [rsp+300h+image], xmm6
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm7
-            vmovss  xmm7, [rbp+1E0h+var_25C]
-            vmovss  [rsp+300h+var_2A0], xmm8
-            vmovss  xmm8, [rbp+1E0h+var_260]
-            vmovss  [rsp+300h+var_2A8], xmm9
-            vsubss  xmm0, xmm15, xmm10
-            vmovss  [rsp+300h+var_2B0], xmm0
-            vmovss  xmm0, [rbp+1E0h+var_258]
-            vmovss  [rsp+300h+var_2B8], xmm13
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-            vmovss  [rsp+300h+var_2C8], xmm12
-            vmovss  [rsp+300h+uMin], xmm12
-            vmovss  [rsp+300h+height], xmm11
-            vmovaps xmm3, xmm8; centerY
-            vmovaps xmm2, xmm7; centerX
-            vmovss  dword ptr [rsp+300h+fmt], xmm0
-          }
-          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtl, heightl, uMinl, v290, applyParallaxi, v317, v332, v347, v362, viewportSizei, imagei, _RDI->imgEdgeBlur, luaVM);
-          LUI_Render_PopMask((const LocalClientNum_t)v19);
+          Dvar_CheckFrontendServerThread(v69);
+          v70 = v69->current.vector.v[3];
+          v71 = v69->current.vector.v[2];
+          v72 = v69->current.vector.v[1];
+          v73 = v69->current.value;
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v95, height, 0.0, 0.0, 1.0, 1.0, COERCE_FLOAT(LODWORD(v58) ^ _xmm) - 90.0, v73, v72, v71, v70, Data->imgEdgeBlur, luaVM);
+          viewportSizea = v71;
+          v68 = v94;
+          v89 = v72;
+          v67 = (float)(height * 0.5) + top;
+          LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v94, v93, v95, height, 0.0, 0.0, 1.0, 1.0, 90.0 - v50, v73, v89, viewportSizea, v70, Data->imgEdgeBlur, luaVM);
+          LUI_Render_PopMask((const LocalClientNum_t)v9);
         }
-        if ( (unsigned int)(v401->lastInputType - 1) <= 1 && !_RDI->disableInfiniteOuterRadius && _RDI->imgExpandedSelection )
+        if ( (unsigned int)(v101->lastInputType - 1) <= 1 && !Data->disableInfiniteOuterRadius && Data->imgExpandedSelection )
         {
-          _RBX = DCONST_DVARVEC4_cg_radialMenu_color_expanded_selection;
+          v74 = DCONST_DVARVEC4_cg_radialMenu_color_expanded_selection;
           if ( !DCONST_DVARVEC4_cg_radialMenu_color_expanded_selection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_expanded_selection") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RBX);
-          __asm
-          {
-            vmovss  xmm0, [rbp+1E0h+var_248]
-            vmulss  xmm0, xmm0, dword ptr [rdi+0ECh]
-            vmulss  xmm7, xmm0, [rbp+1E0h+var_244]
-            vmovss  xmm0, cs:__real@40490fdb
-            vmovss  xmm11, dword ptr [rbx+28h]
-            vmovss  xmm10, dword ptr [rbx+2Ch]
-            vmovss  xmm9, dword ptr [rbx+30h]
-            vmovss  xmm8, dword ptr [rbx+34h]
-          }
-          imgExpandedSelection = _RDI->imgExpandedSelection;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, dword ptr [rdi+48h]
-            vdivss  xmm2, xmm0, xmm1
-            vmovss  xmm1, cs:__real@3fc90fdb
-            vxorps  xmm6, xmm6, xmm6
-            vsubss  xmm0, xmm1, xmm2; X
-            vcvtsi2ss xmm6, xmm6, eax
-          }
-          *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-          __asm
-          {
-            vsubss  xmm2, xmm6, cs:__real@43a38000
-            vmovss  dword ptr [rsp+300h+var_280], xmm8
-            vmovss  xmm8, [rbp+1E0h+var_260]
-            vmovss  dword ptr [rsp+300h+material], xmm9
-            vmovss  dword ptr [rsp+300h+image], xmm10
-            vmovss  dword ptr [rsp+300h+viewportSize], xmm11
-            vmulss  xmm1, xmm0, xmm7
-            vmulss  xmm3, xmm1, cs:__real@40000000
-            vmovss  xmm0, [rbp+1E0h+errorCode]
-            vxorps  xmm4, xmm0, cs:__xmm@80000000800000008000000080000000
-            vaddss  xmm1, xmm15, dword ptr [rdi+0E8h]
-            vmovss  xmm0, [rbp+1E0h+var_260]
-            vdivss  xmm5, xmm3, xmm2
-            vmulss  xmm6, xmm6, xmm5
-            vmulss  xmm2, xmm6, cs:__real@3f000000
-            vsubss  xmm0, xmm0, xmm2
-            vsubss  xmm3, xmm0, xmm7
-            vmovss  xmm7, [rbp+1E0h+var_25C]
-            vsubss  xmm4, xmm4, xmm1
-            vmulss  xmm1, xmm5, cs:__real@42480000
-            vmovss  [rsp+300h+var_2A0], xmm4
-            vmovss  [rsp+300h+var_2A8], xmm13
-            vmovss  [rsp+300h+var_2B0], xmm13
-            vmovss  [rsp+300h+var_2B8], xmm12
-            vmovss  dword ptr [rsp+300h+applyParallax], xmm12
-            vaddss  xmm2, xmm3, xmm1
-            vmovss  [rsp+300h+var_2C8], xmm6
-            vmovss  [rsp+300h+uMin], xmm6
-            vmovss  [rsp+300h+height], xmm2
-            vmovaps xmm2, xmm7; rotationCenterX
-            vmovaps xmm3, xmm8; rotationCenterY
-            vmovss  dword ptr [rsp+300h+fmt], xmm7
-          }
-          LUI_Render_DrawQuadRotatedRelativeToPoint((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtm, heightm, uMinm, v291, applyParallaxj, v318, v333, v348, v363, viewportSizej, imagej, material, v390, imgExpandedSelection, luaVM);
+          Dvar_CheckFrontendServerThread(v74);
+          v75 = (float)(v100 * Data->radialMenuBigRadius) * v22;
+          v76 = v74->current.value;
+          v77 = v74->current.vector.v[1];
+          v78 = v74->current.vector.v[2];
+          v79 = v74->current.vector.v[3];
+          imgExpandedSelection = Data->imgExpandedSelection;
+          width = (float)imgExpandedSelection->width;
+          v92 = v79;
+          v67 = (float)(height * 0.5) + top;
+          v82 = (float)((float)(cosf_0(1.5707964 - (float)(3.1415927 / (float)Data->numItems)) * v75) * 2.0) / (float)(width - 327.0);
+          v83 = width * v82;
+          v84 = (float)(v93 - (float)(v83 * 0.5)) - v75;
+          v68 = v94;
+          LUI_Render_DrawQuadRotatedRelativeToPoint((const LocalClientNum_t)v9, element, v94, v93, v94, v84 + (float)(v82 * 50.0), v83, v83, 0.0, 0.0, 1.0, 1.0, COERCE_FLOAT(errorCodeb ^ _xmm) - (float)(Data->halfItemAngle + 90.0), v76, v77, v78, v92, imgExpandedSelection, luaVM);
         }
-        _RBX = DCONST_DVARVEC4_cg_radialMenu_color_selection_arrow;
+        v85 = DCONST_DVARVEC4_cg_radialMenu_color_selection_arrow;
         if ( !DCONST_DVARVEC4_cg_radialMenu_color_selection_arrow && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_radialMenu_color_selection_arrow") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  xmm1, dword ptr [rbx+30h]
-          vmovss  xmm5, dword ptr [rbx+2Ch]
-          vmovss  xmm6, dword ptr [rbx+28h]
-          vmovss  dword ptr [rsp+300h+image], xmm0
-          vmovss  xmm0, [rbp+1E0h+var_250]
-          vmovss  dword ptr [rsp+300h+viewportSize], xmm1
-          vmovss  [rsp+300h+var_2A0], xmm5
-          vmovss  [rsp+300h+var_2A8], xmm6
-          vsubss  xmm4, xmm15, xmm14
-          vmovss  [rsp+300h+var_2B0], xmm4
-          vmovss  [rsp+300h+var_2B8], xmm13
-          vmovss  dword ptr [rsp+300h+applyParallax], xmm13
-          vmovss  [rsp+300h+var_2C8], xmm12
-          vmovss  [rsp+300h+uMin], xmm12
-          vmovss  [rsp+300h+height], xmm0
-          vmovss  xmm0, [rbp+1E0h+var_258]
-          vmovaps xmm3, xmm8; centerY
-          vmovaps xmm2, xmm7; centerX
-          vmovss  dword ptr [rsp+300h+fmt], xmm0
-        }
-        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v19, _R13, *(float *)&_XMM2, *(float *)&_XMM3, fmtn, heightn, uMinn, v292, applyParallaxk, v319, v334, v349, v364, viewportSizek, imagek, _RDI->imgSelectionArrow, luaVM);
-        goto LABEL_104;
+        Dvar_CheckFrontendServerThread(v85);
+        LUI_Render_DrawQuadRotated((const LocalClientNum_t)v9, element, v68, v67, v95, height, 0.0, 0.0, 1.0, 1.0, 90.0 - v48, v85->current.value, v85->current.vector.v[1], v85->current.vector.v[2], v85->current.vector.v[3], Data->imgSelectionArrow, luaVM);
+        return;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v23 )
+        v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v12 )
         __debugbreak();
     }
     p_realViewportSize = &scrPlaceFull.realViewportSize;
@@ -1655,7 +1064,7 @@ LUIElement_RadialMenu_SelectionChanged
 */
 void LUIElement_RadialMenu_SelectionChanged(LUIElement *radialMenu, RadialMenuOptions *radialMenuData, lua_State *luaVM, const int index)
 {
-  int v11; 
+  int v8; 
 
   if ( !LUI_ElementHasWeakTableEntry(radialMenu, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 185, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( radialMenu, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( radialMenu, luaVM )") )
     __debugbreak();
@@ -1664,18 +1073,12 @@ void LUIElement_RadialMenu_SelectionChanged(LUIElement *radialMenu, RadialMenuOp
   j_lua_rawgeti(luaVM, -1, radialMenuData->selectionChangedFunction);
   j_lua_remove(luaVM, -2);
   j_lua_remove(luaVM, -2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vcvtss2sd xmm1, xmm0, xmm0; n
-  }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  v11 = LuaShared_PCall(luaVM, 1, 0);
-  if ( v11 )
+  j_lua_pushnumber(luaVM, (float)index);
+  v8 = LuaShared_PCall(luaVM, 1, 0);
+  if ( v8 )
   {
     LUI_ReportError("Error while trying to run the selectionChanged function on a radial menu.\n", luaVM);
-    LUI_HandleLuaError(v11);
+    LUI_HandleLuaError(v8);
   }
 }
 
@@ -1692,7 +1095,10 @@ __int64 LUIElement_RadialMenu_SetActive_impl(lua_State *const luaVM)
   LocalClientNum_t ClientFromController; 
   clientUIActive_t *LocalClientUIGlobals; 
   int v7; 
-  LocalClientNum_t v17; 
+  LUIElement *CurrentRoot; 
+  int v9; 
+  int v10; 
+  LocalClientNum_t v11; 
 
   if ( (j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 1) && (j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 1 || j_lua_type(luaVM, 3) != 1) )
     j_luaL_error(luaVM, "USAGE: element:SetActive( false, [true] )");
@@ -1727,20 +1133,11 @@ __int64 LUIElement_RadialMenu_SetActive_impl(lua_State *const luaVM)
         Data->selectedItem = -1;
         LUIElement_RadialMenu_SelectionChanged(v2, Data, luaVM, -1);
         IN_CenterMouse(controllerIndex);
-        _RAX = LUI_CoD_GetCurrentRoot(luaVM);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+0D4h]
-          vsubss  xmm1, xmm0, dword ptr [rax+0CCh]
-          vmulss  xmm1, xmm1, cs:__real@3f000000
-          vmovss  xmm0, dword ptr [rax+0D8h]
-          vsubss  xmm2, xmm0, dword ptr [rax+0D0h]
-          vcvttss2si edi, xmm1
-          vmulss  xmm1, xmm2, cs:__real@3f000000
-          vcvttss2si ebx, xmm1
-        }
-        v17 = CL_Mgr_GetClientFromController(controllerIndex);
-        LUI_CoD_MouseMove(v17, _EDI, _EBX, 0);
+        CurrentRoot = LUI_CoD_GetCurrentRoot(luaVM);
+        v9 = (int)(float)((float)(CurrentRoot->right - CurrentRoot->left) * 0.5);
+        v10 = (int)(float)((float)(CurrentRoot->bottom - CurrentRoot->top) * 0.5);
+        v11 = CL_Mgr_GetClientFromController(controllerIndex);
+        LUI_CoD_MouseMove(v11, v9, v10, 0);
       }
     }
   }
@@ -1795,21 +1192,23 @@ __int64 LUI_LuaCall_LUIElement_SetupRadialMenu(lua_State *luaVM)
 LUI_LuaCall_LUIElement_SetupRadialMenu_impl
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  char v7; 
-  char v8; 
-  bool v10; 
-  bool v11; 
-  bool v12; 
-  int v13; 
-  int v14; 
-  int v20; 
-  const char *v21; 
-  _QWORD *v27; 
+  LUIElement *v2; 
+  _QWORD *v3; 
+  int v4; 
+  double v5; 
+  bool v6; 
+  bool v7; 
+  bool v8; 
+  int v9; 
+  int v10; 
+  float v11; 
+  int v12; 
+  const char *v13; 
+  __int64 v14; 
+  float v15; 
+  _QWORD *v16; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
@@ -1817,24 +1216,24 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const 
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( j_lua_type(luaVM, 2) != 5 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_istable( luaVM, 2 )");
-  v4 = LUI_ToElement(luaVM, 1);
-  v4->usageFlags |= 3u;
-  v4->layoutFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, float, int, lua_State *))LUIElement_RadialMenu_Layout;
-  v4->renderFunction = LUIElement_RadialMenu_Render;
-  LUI_LUIElement_RegisterMethods(v4, luaVM, s_radialMenuMethods);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
+  v2 = LUI_ToElement(luaVM, 1);
+  v2->usageFlags |= 3u;
+  v2->layoutFunction = LUIElement_RadialMenu_Layout;
+  v2->renderFunction = LUIElement_RadialMenu_Render;
+  LUI_LUIElement_RegisterMethods(v2, luaVM, s_radialMenuMethods);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
-  LUI_PutElementOnTopOfStack(v4, luaVM);
-  _RDI = j_lua_newuserdata(luaVM, 0x100ui64);
+  LUI_PutElementOnTopOfStack(v2, luaVM);
+  v3 = j_lua_newuserdata(luaVM, 0x100ui64);
   j_lua_setfield(luaVM, -2, "_customElementData");
   j_lua_settop(luaVM, -2);
-  if ( v4->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
+  if ( v2->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
     __debugbreak();
-  v4->customElementData = _RDI;
-  memset_0(_RDI, 0, 0x100ui64);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 1039, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
+  v2->customElementData = v3;
+  memset_0(v3, 0, 0x100ui64);
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 1039, ASSERT_TYPE_ASSERT, "(options)", (const char *)&queryFormat, "options") )
     __debugbreak();
-  memset_0(_RDI, 0, 0x100ui64);
+  memset_0(v3, 0, 0x100ui64);
   j_lua_pushlstring(luaVM, "_functionRefs", 0xDui64);
   j_lua_createtable(luaVM, 0, 2);
   j_lua_settable(luaVM, 1);
@@ -1842,11 +1241,11 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const 
   j_lua_getfield(luaVM, 2, "buildChild");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    *((_DWORD *)_RDI + 41) = j_luaL_ref(luaVM, -2);
+    *((_DWORD *)v3 + 41) = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    *((_DWORD *)_RDI + 41) = -2;
+    *((_DWORD *)v3 + 41) = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
@@ -1854,11 +1253,11 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const 
   j_lua_getfield(luaVM, 2, "buildArrow");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    *((_DWORD *)_RDI + 42) = j_luaL_ref(luaVM, -2);
+    *((_DWORD *)v3 + 42) = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    *((_DWORD *)_RDI + 42) = -2;
+    *((_DWORD *)v3 + 42) = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
@@ -1866,11 +1265,11 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const 
   j_lua_getfield(luaVM, 2, "selectionChanged");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    *((_DWORD *)_RDI + 43) = j_luaL_ref(luaVM, -2);
+    *((_DWORD *)v3 + 43) = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    *((_DWORD *)_RDI + 43) = -2;
+    *((_DWORD *)v3 + 43) = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
@@ -1878,144 +1277,115 @@ __int64 __fastcall LUI_LuaCall_LUIElement_SetupRadialMenu_impl(lua_State *const 
   j_lua_getfield(luaVM, 2, "selectionStyle");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    *((_DWORD *)_RDI + 44) = j_luaL_ref(luaVM, -2);
+    *((_DWORD *)v3 + 44) = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    *((_DWORD *)_RDI + 44) = -2;
+    *((_DWORD *)v3 + 44) = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "numItems");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v6 = lua_tointeger32(luaVM, -1);
-    *((_DWORD *)_RDI + 18) = v6;
-    if ( v6 <= 0 || (v6 & 1) != 0 )
+    v4 = lua_tointeger32(luaVM, -1);
+    *((_DWORD *)v3 + 18) = v4;
+    if ( v4 <= 0 || (v4 & 1) != 0 )
       Com_PrintError(13, "The radial menu number of items must be a positive, even number!");
   }
   else
   {
-    *((_DWORD *)_RDI + 18) = defaultNumItems;
+    *((_DWORD *)v3 + 18) = defaultNumItems;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "itemDistanceFromCenter");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovss  dword ptr [rdi+0A0h], xmm0
-    }
-    if ( v7 | v8 )
+    v5 = lui_tonumber32(luaVM, -1);
+    *((float *)v3 + 40) = *(float *)&v5;
+    if ( *(float *)&v5 <= 0.0 )
       Com_PrintError(13, "The radial menu item distance from center should be a positive number!");
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:defaultIconDistanceFromCenter
-      vmovss  dword ptr [rdi+0A0h], xmm0
-    }
+    *((float *)v3 + 40) = defaultIconDistanceFromCenter;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "keepSelectionWhileInDeadZone");
-  v10 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
-  *((_BYTE *)_RDI + 205) = v10;
+  v6 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) > 0;
+  *((_BYTE *)v3 + 205) = v6;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "useOuterCircleOutline");
-  v11 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
-  *((_BYTE *)_RDI + 207) = v11;
+  v7 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
+  *((_BYTE *)v3 + 207) = v7;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "drawCircleInCode");
-  v12 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
-  *((_BYTE *)_RDI + 210) = v12;
+  v8 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) > 0;
+  *((_BYTE *)v3 + 210) = v8;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "controllerIndex");
-  v13 = 0;
+  v9 = 0;
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v14 = j_lua_tointeger(luaVM, -1);
+    v10 = j_lua_tointeger(luaVM, -1);
   }
   else
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_radialmenu.cpp", 1178, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Radial menu expects a controller index") )
       __debugbreak();
-    v14 = 0;
+    v10 = 0;
   }
-  *((_DWORD *)_RDI + 39) = v14;
-  __asm
+  *((_DWORD *)v3 + 39) = v10;
+  v11 = 360.0 / (float)*((int *)v3 + 18);
+  v3[24] = -1i64;
+  *((float *)v3 + 58) = v11 * 0.5;
+  *((float *)v3 + 57) = v11;
+  *((_DWORD *)v3 + 50) = 0;
+  v3[23] = -1i64;
+  *((_BYTE *)v3 + 204) = 0;
+  *((_BYTE *)v3 + 211) = 0;
+  *((_BYTE *)v3 + 206) = 0;
+  *((_BYTE *)v3 + 209) = 1;
+  *(_QWORD *)((char *)v3 + 220) = 0i64;
+  *((_DWORD *)v3 + 59) = 1047146830;
+  *((_DWORD *)v3 + 60) = 1039317462;
+  *v3 = Image_Register("radial_base", IMAGE_TRACK_HUD);
+  v3[1] = Image_Register("radial_select_line", IMAGE_TRACK_HUD);
+  v3[2] = Image_Register("radial_base_mask", IMAGE_TRACK_HUD);
+  v3[3] = Image_Register("radial_expanded", IMAGE_TRACK_HUD);
+  v3[4] = Image_Register("radial_expanded_fill", IMAGE_TRACK_HUD);
+  v3[5] = Image_Register("radial_expanded_mask_half", IMAGE_TRACK_HUD);
+  v3[6] = Image_Register("radial_select_arrow", IMAGE_TRACK_HUD);
+  v3[7] = Image_Register("radial_select_edge_blur", IMAGE_TRACK_HUD);
+  v12 = *((_DWORD *)v3 + 18);
+  v3[8] = 0i64;
+  if ( v12 == 4 )
   {
-    vmovss  xmm0, cs:__real@43b40000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rdi+48h]
-    vdivss  xmm2, xmm0, xmm1
-    vmulss  xmm1, xmm2, cs:__real@3f000000
-  }
-  _RDI[24] = -1i64;
-  __asm
-  {
-    vmovss  dword ptr [rdi+0E8h], xmm1
-    vmovss  dword ptr [rdi+0E4h], xmm2
-  }
-  *((_DWORD *)_RDI + 50) = 0;
-  _RDI[23] = -1i64;
-  *((_BYTE *)_RDI + 204) = 0;
-  *((_BYTE *)_RDI + 211) = 0;
-  *((_BYTE *)_RDI + 206) = 0;
-  *((_BYTE *)_RDI + 209) = 1;
-  *(_QWORD *)((char *)_RDI + 220) = 0i64;
-  *((_DWORD *)_RDI + 59) = 1047146830;
-  *((_DWORD *)_RDI + 60) = 1039317462;
-  *_RDI = Image_Register("radial_base", IMAGE_TRACK_HUD);
-  _RDI[1] = Image_Register("radial_select_line", IMAGE_TRACK_HUD);
-  _RDI[2] = Image_Register("radial_base_mask", IMAGE_TRACK_HUD);
-  _RDI[3] = Image_Register("radial_expanded", IMAGE_TRACK_HUD);
-  _RDI[4] = Image_Register("radial_expanded_fill", IMAGE_TRACK_HUD);
-  _RDI[5] = Image_Register("radial_expanded_mask_half", IMAGE_TRACK_HUD);
-  _RDI[6] = Image_Register("radial_select_arrow", IMAGE_TRACK_HUD);
-  _RDI[7] = Image_Register("radial_select_edge_blur", IMAGE_TRACK_HUD);
-  v20 = *((_DWORD *)_RDI + 18);
-  _RDI[8] = 0i64;
-  if ( v20 == 4 )
-  {
-    v21 = "radial_expanded_kbm_4";
+    v13 = "radial_expanded_kbm_4";
   }
   else
   {
-    if ( v20 != 8 )
+    if ( v12 != 8 )
       goto LABEL_56;
-    v21 = "radial_expanded_kbm_8";
+    v13 = "radial_expanded_kbm_8";
   }
-  _RDI[8] = Image_Register(v21, IMAGE_TRACK_HUD);
+  v3[8] = Image_Register(v13, IMAGE_TRACK_HUD);
 LABEL_56:
-  if ( _RDI[8] )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm2, xmm1, xmm0
-    }
-  }
+  v14 = v3[8];
+  if ( v14 )
+    v15 = (float)*(unsigned __int16 *)(v14 + 36) / (float)*(unsigned __int16 *)(v14 + 38);
   else
+    v15 = FLOAT_1_0;
+  *((float *)v3 + 61) = v15;
+  if ( *((int *)v3 + 18) > 0 )
   {
-    __asm { vmovss  xmm2, cs:__real@3f800000 }
-  }
-  __asm { vmovss  dword ptr [rdi+0F4h], xmm2 }
-  if ( *((int *)_RDI + 18) > 0 )
-  {
-    v27 = _RDI + 10;
+    v16 = v3 + 10;
     do
-      *v27++ = LUIElement_RadialMenu_CreateItem(v4, (RadialMenuOptions *)_RDI, luaVM, v13++);
-    while ( v13 < *((_DWORD *)_RDI + 18) );
+      *v16++ = LUIElement_RadialMenu_CreateItem(v2, (RadialMenuOptions *)v3, luaVM, v9++);
+    while ( v9 < *((_DWORD *)v3 + 18) );
   }
-  if ( !*((_BYTE *)_RDI + 210) )
-    _RDI[18] = LUIElement_RadialMenu_CreateItem(v4, (RadialMenuOptions *)_RDI, luaVM, -1);
+  if ( !*((_BYTE *)v3 + 210) )
+    v3[18] = LUIElement_RadialMenu_CreateItem(v2, (RadialMenuOptions *)v3, luaVM, -1);
   return 0i64;
 }
 

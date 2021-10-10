@@ -40,8 +40,9 @@ __int64 SND_AddDeferredPlayback(const SndPlayParams *playParams)
 {
   unsigned __int8 v2; 
   unsigned __int64 v3; 
+  __m256i v4; 
+  __m256i *v5; 
 
-  _RDI = playParams;
   if ( !playParams->aliasList && !playParams->aliasId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_deferred_playback.cpp", 35, ASSERT_TYPE_ASSERT, "(playParams.aliasList || playParams.aliasId != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "playParams.aliasList || playParams.aliasId != SND_INVALID_HASH") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_AddDeferredPlayback");
@@ -55,19 +56,13 @@ __int64 SND_AddDeferredPlayback(const SndPlayParams *playParams)
   while ( _InterlockedCompareExchange(s_deferredPlaybackFence, 1, 0) == 1 );
   if ( (unsigned __int64)s_numdeferredPlaybacks < 0x100 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
+    v4 = *(__m256i *)&playParams->aliasList;
     v2 = 1;
-    _RAX = &s_deferredPlaybacks[(unsigned __int64)(unsigned __int8)(s_numdeferredPlaybacks++ + s_deferredPlaybackReadHead)];
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rax+20h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rax+60h], ymm1
-    }
+    v5 = (__m256i *)&s_deferredPlaybacks[(unsigned __int64)(unsigned __int8)(s_numdeferredPlaybacks++ + s_deferredPlaybackReadHead)];
+    *v5 = v4;
+    v5[1] = *(__m256i *)&playParams->sndEnt;
+    v5[2] = *(__m256i *)&playParams->system;
+    v5[3] = *(__m256i *)&playParams->startOffsetFraction;
   }
   if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", s_deferredPlaybackFence) )
     __debugbreak();
@@ -95,6 +90,10 @@ SND_DeferredPlaybackWorker
 void SND_DeferredPlaybackWorker(const void *const cmdInfo)
 {
   unsigned __int64 v1; 
+  __m256i *v2; 
+  __m256i v3; 
+  __m256i v4; 
+  __m256i v5; 
   SndPlayParams inParams; 
 
   if ( SND_Active() )
@@ -110,22 +109,15 @@ void SND_DeferredPlaybackWorker(const void *const cmdInfo)
         if ( _InterlockedCompareExchange(s_deferredPlaybackFence, 1, 0) != 1 )
         {
           --s_numdeferredPlaybacks;
-          _RAX = &s_deferredPlaybacks[(__int64)s_deferredPlaybackReadHead];
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymm1, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rsp+0C8h+inParams.aliasList], ymm0
-            vmovups ymm0, ymmword ptr [rax+40h]
-            vmovups ymmword ptr [rsp+0C8h+inParams.sndEnt], ymm1
-            vmovups ymm1, ymmword ptr [rax+60h]
-          }
+          v2 = (__m256i *)&s_deferredPlaybacks[(__int64)s_deferredPlaybackReadHead];
+          v3 = v2[1];
+          *(__m256i *)&inParams.aliasList = *v2;
+          v4 = v2[2];
+          *(__m256i *)&inParams.sndEnt = v3;
+          v5 = v2[3];
           s_deferredPlaybackReadHead = (unsigned __int8)(s_deferredPlaybackReadHead + 1);
-          __asm
-          {
-            vmovups ymmword ptr [rsp+0C8h+inParams.system], ymm0
-            vmovups ymmword ptr [rsp+0C8h+inParams.startOffsetFraction], ymm1
-          }
+          *(__m256i *)&inParams.system = v4;
+          *(__m256i *)&inParams.startOffsetFraction = v5;
           if ( v1 )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", s_deferredPlaybackFence) )

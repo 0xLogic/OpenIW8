@@ -119,685 +119,401 @@ ScriptableBg_DrawDebug
 */
 void ScriptableBg_DrawDebug(const ScreenPlacement *scrPlace, const ScriptableBg_DrawDebugInfo *const debugInfo)
 {
-  const dvar_t *v8; 
-  const ScreenPlacement *v10; 
-  const dvar_t *v14; 
-  const dvar_t *v19; 
-  const dvar_t *v21; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  const dvar_t *v6; 
+  const ScreenPlacement *v8; 
+  float integer; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
   const ScriptableDef *def; 
-  unsigned int v23; 
+  unsigned int v14; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   const ScriptableDef **p_def; 
-  char v38; 
-  const dvar_t *v39; 
-  char v44; 
+  const dvar_t *v17; 
+  float v18; 
   unsigned int NumPools; 
-  unsigned int v50; 
-  char v52; 
-  int v57; 
-  char v58; 
-  int v63; 
-  char v64; 
-  const dvar_t *v70; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v71; 
-  char v72; 
-  __int64 v76; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v78; 
-  __int64 v79; 
-  unsigned __int64 v80; 
-  __int64 v81; 
-  char v83; 
-  char v88; 
-  const dvar_t *v93; 
-  unsigned int v94; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v98; 
-  const char *i; 
-  const char **v100; 
-  int v101; 
-  const char *v102; 
-  char v103; 
-  const dvar_t *v109; 
-  const dvar_t *v110; 
-  unsigned __int64 integer; 
-  const ScriptableDef *v112; 
-  const char *v113; 
-  char v114; 
-  const dvar_t *v122; 
-  char v123; 
-  unsigned int v128; 
-  unsigned int v129; 
+  unsigned int v20; 
+  float v21; 
+  int i; 
+  float v23; 
+  int j; 
+  float v25; 
+  const dvar_t *v26; 
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v27; 
+  float v28; 
+  __int64 v29; 
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v30; 
+  __int64 v31; 
+  unsigned __int64 v32; 
+  __int64 v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  const dvar_t *v37; 
+  unsigned int v38; 
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v39; 
+  const char *k; 
+  const char **v41; 
+  int v42; 
+  const char *v43; 
+  float v44; 
+  const dvar_t *v45; 
+  const dvar_t *v46; 
+  unsigned __int64 v47; 
+  const ScriptableDef *v48; 
+  const char *v49; 
+  float v50; 
+  float v51; 
+  const dvar_t *v52; 
+  float v53; 
+  unsigned int v54; 
+  unsigned int v55; 
   unsigned int runtimeInstanceCount; 
-  unsigned int v131; 
-  __int64 v132; 
-  char v134; 
-  unsigned int v142; 
-  const ScriptableDef *v143; 
-  const char *v144; 
-  unsigned int v145; 
-  unsigned int v146; 
-  const char *v147; 
-  bool v148; 
-  const char *v149; 
-  __int64 v150; 
+  unsigned int v57; 
+  __int64 v58; 
+  float v59; 
+  unsigned int v60; 
+  const ScriptableDef *v61; 
+  const char *v62; 
+  unsigned int v63; 
+  unsigned int v64; 
+  const char *v65; 
+  bool v66; 
+  const char *v67; 
+  __int64 v68; 
   scr_string_t script_noteworthy; 
   const char *name; 
-  const char *v153; 
-  const dvar_t *v157; 
-  const dvar_t *v158; 
-  signed int v159; 
-  char v162; 
-  const dvar_t *v168; 
-  char v169; 
-  unsigned int v174; 
-  float v175; 
-  __int64 v176; 
-  unsigned __int64 v177; 
-  __int64 v178; 
-  unsigned int v179; 
-  unsigned int v180; 
-  unsigned int v181; 
-  unsigned int v182; 
-  __int64 v183; 
-  char v185; 
-  char v190; 
-  char v195; 
-  const dvar_t *v201; 
-  char v202; 
-  char v208; 
-  char v213; 
-  const dvar_t *v220; 
-  const dvar_t *v226; 
-  int v227; 
-  const dvar_t *v228; 
+  const char *v71; 
+  float v72; 
+  const dvar_t *v73; 
+  const dvar_t *v74; 
+  signed int v75; 
+  float v76; 
+  const dvar_t *v77; 
+  float v78; 
+  unsigned int v79; 
+  float v80; 
+  __int64 v81; 
+  unsigned __int64 v82; 
+  __int64 v83; 
+  unsigned int v84; 
+  unsigned int v85; 
+  unsigned int v86; 
+  unsigned int v87; 
+  __int64 v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  const dvar_t *v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  const dvar_t *v96; 
+  const dvar_t *v97; 
+  int v98; 
+  const dvar_t *v99; 
   char *fmt; 
-  float fmta; 
+  char *fmta; 
   char *fmtb; 
-  char *fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
   __int64 charHeight; 
-  float charHeighta; 
+  __int64 charHeighta; 
   __int64 charHeightb; 
-  __int64 charHeightc; 
-  float charHeightd; 
-  float charHeighte; 
   __int64 shadow; 
-  __int64 v244; 
-  float v245; 
-  float v246; 
-  float v247; 
-  float v248; 
-  float v249; 
-  float v250; 
-  float v251; 
-  float v252; 
-  float v253; 
-  float v254; 
-  float v255; 
-  float v256; 
-  float v257; 
-  float v258; 
-  float v259; 
-  float v260; 
-  float v261; 
-  float v262; 
-  float v263; 
+  __int64 v107; 
   float y; 
   float x; 
   unsigned int used; 
-  unsigned int v267; 
-  unsigned int v268; 
+  unsigned int v111; 
+  unsigned int v112; 
   unsigned int capacity; 
   unsigned int elementSize; 
-  const ScreenPlacement *v271; 
+  const ScreenPlacement *v115; 
   vec3_t outOrigin; 
   char dest[256]; 
+  __int128 v118; 
+  __int128 v119; 
+  __int128 v120; 
+  __int128 v121; 
 
-  __asm { vmovaps [rsp+220h+var_40], xmm6 }
-  v8 = DVARINT_scriptable_debugDisplayOffsetX;
-  v271 = scrPlace;
-  _RSI = debugInfo;
-  v10 = scrPlace;
+  v6 = DVARINT_scriptable_debugDisplayOffsetX;
+  v115 = scrPlace;
+  v8 = scrPlace;
   if ( !DVARINT_scriptable_debugDisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugDisplayOffsetX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-  }
-  v14 = DVARINT_scriptable_debugDisplayOffsetY;
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  [rsp+220h+x], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  integer = (float)v6->current.integer;
+  v10 = DVARINT_scriptable_debugDisplayOffsetY;
+  x = integer + 8.0;
   if ( !DVARINT_scriptable_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugDisplayOffsetY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  [rsp+220h+y], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v10);
+  y = (float)v10->current.integer + 8.0;
   if ( cm.mapEnts && g_svScriptablesInitialized )
   {
-    v19 = DCONST_DVARBOOL_scriptable_debug_inspectLookAt;
+    v11 = DCONST_DVARBOOL_scriptable_debug_inspectLookAt;
     if ( !DCONST_DVARBOOL_scriptable_debug_inspectLookAt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_inspectLookAt") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    if ( v19->current.enabled )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v11->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@41400000
-        vmovss  [rsp+220h+charHeight], xmm6
-        vmovss  dword ptr [rsp+220h+fmt], xmm0
-      }
-      ScriptableBg_DrawLookedAtInstanceInfo(v10, _RSI, &x, &y, fmta, charHeighta);
-      goto LABEL_270;
+      ScriptableBg_DrawLookedAtInstanceInfo(v8, debugInfo, &x, &y, 12.0, 8.0);
+      return;
     }
-    v21 = DCONST_DVARBOOL_scriptable_debug_drawInWorld;
-    __asm
-    {
-      vmovaps [rsp+220h+var_50], xmm7
-      vmovaps [rsp+220h+var_60], xmm8
-      vmovaps [rsp+220h+var_70], xmm9
-      vmovaps [rsp+220h+var_80], xmm10
-    }
+    v12 = DCONST_DVARBOOL_scriptable_debug_drawInWorld;
+    v121 = v2;
+    v120 = v3;
+    v119 = v4;
+    v118 = v5;
     if ( !DCONST_DVARBOOL_scriptable_debug_drawInWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_drawInWorld") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
+    Dvar_CheckFrontendServerThread(v12);
     def = NULL;
-    if ( v21->current.enabled )
+    if ( v12->current.enabled )
     {
-      v23 = 0;
+      v14 = 0;
       ScriptableCommon_AssertCountsInitialized();
       if ( g_scriptableWorldCounts.totalInstanceCount )
       {
-        __asm { vmovss  xmm7, cs:__real@48800000 }
         do
         {
-          InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v23);
+          InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v14);
           p_def = &InstanceCommonContext->def;
           if ( InstanceCommonContext->def )
           {
-            ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v23, &outOrigin);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsi]
-              vsubss  xmm3, xmm0, dword ptr [rsp+220h+outOrigin]
-              vmovss  xmm1, dword ptr [rsi+4]
-              vsubss  xmm2, xmm1, dword ptr [rsp+220h+outOrigin+4]
-              vmovss  xmm0, dword ptr [rsi+8]
-              vsubss  xmm4, xmm0, dword ptr [rbp+120h+outOrigin+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vcomiss xmm2, xmm7
-            }
-            if ( v44 | v38 )
-              ScriptableBg_DrawDebugScriptableInstanceInWorld(v23, *p_def);
+            ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v14, &outOrigin);
+            if ( (float)((float)((float)((float)(debugInfo->viewPos.v[1] - outOrigin.v[1]) * (float)(debugInfo->viewPos.v[1] - outOrigin.v[1])) + (float)((float)(debugInfo->viewPos.v[0] - outOrigin.v[0]) * (float)(debugInfo->viewPos.v[0] - outOrigin.v[0]))) + (float)((float)(debugInfo->viewPos.v[2] - outOrigin.v[2]) * (float)(debugInfo->viewPos.v[2] - outOrigin.v[2]))) <= 262144.0 )
+              ScriptableBg_DrawDebugScriptableInstanceInWorld(v14, *p_def);
           }
-          ++v23;
+          ++v14;
           ScriptableCommon_AssertCountsInitialized();
         }
-        while ( v23 < g_scriptableWorldCounts.totalInstanceCount );
+        while ( v14 < g_scriptableWorldCounts.totalInstanceCount );
       }
     }
-    v39 = DVARBOOL_scriptable_debug_reserved;
+    v17 = DVARBOOL_scriptable_debug_reserved;
     if ( !DVARBOOL_scriptable_debug_reserved && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_reserved") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v39);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@41400000
-      vmovss  xmm7, cs:__real@44870000
-      vmovss  xmm10, cs:__real@c1400000
-      vxorps  xmm8, xmm8, xmm8
-    }
-    if ( v39->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.enabled )
     {
       Com_sprintf(dest, 0x100ui64, "Reserved Scriptable Event Buffer Usage");
-      __asm
+      v18 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v18 = y;
       }
-      if ( !(v44 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v44 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v245, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
+      y = v18 + 8.0;
       NumPools = Scriptable_Bg_EventStreamBuffer_GetNumPools();
-      v50 = 0;
-      __asm
+      v20 = 0;
+      for ( x = x + 12.0; v20 < NumPools; ++v20 )
       {
-        vaddss  xmm1, xmm9, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
-      }
-      if ( NumPools )
-      {
-        do
+        Scriptable_Bg_EventStreamBuffer_GetPoolSizes(1, LOCAL_CLIENT_0, v20, &elementSize, &capacity, &used);
+        LODWORD(shadow) = used;
+        LODWORD(charHeighta) = capacity;
+        LODWORD(fmta) = elementSize;
+        Com_sprintf(dest, 0x100ui64, "Pool %i Server : ElementSize:%i Capacity:%i used:%i", v20, fmta, charHeighta, shadow);
+        v21 = y;
+        if ( y > 0.0 && y < 1080.0 )
         {
-          Scriptable_Bg_EventStreamBuffer_GetPoolSizes(1, LOCAL_CLIENT_0, v50, &elementSize, &capacity, &used);
-          LODWORD(shadow) = used;
-          LODWORD(charHeightb) = capacity;
-          LODWORD(fmtb) = elementSize;
-          Com_sprintf(dest, 0x100ui64, "Pool %i Server : ElementSize:%i Capacity:%i used:%i", v50, fmtb, charHeightb, shadow);
-          __asm
-          {
-            vmovss  xmm0, [rsp+220h+y]
-            vcomiss xmm0, xmm8
-          }
-          if ( !(v52 | v38) )
-          {
-            __asm { vcomiss xmm0, xmm7 }
-            if ( v52 )
-            {
-              __asm
-              {
-                vmovss  xmm1, [rsp+220h+x]; x
-                vmovss  [rsp+220h+var_1E8], xmm6
-                vmovaps xmm2, xmm0; y
-              }
-              CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v246, 0);
-              __asm { vmovss  xmm0, [rsp+220h+y] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  [rsp+220h+y], xmm0
-          }
-          v57 = 0;
-          do
-          {
-            Scriptable_Bg_EventStreamBuffer_GetPoolSizes(0, (LocalClientNum_t)v57, v50, (unsigned int *)&outOrigin, &v268, &v267);
-            LODWORD(shadow) = v267;
-            LODWORD(charHeightc) = v268;
-            *(float *)&fmtc = outOrigin.v[0];
-            Com_sprintf(dest, 0x100ui64, "       Client%i: ElementSize:%i Capacity:%i used:%i", (unsigned int)v57, fmtc, charHeightc, shadow);
-            __asm
-            {
-              vmovss  xmm0, [rsp+220h+y]
-              vcomiss xmm0, xmm8
-            }
-            if ( !(v58 | v38) )
-            {
-              __asm { vcomiss xmm0, xmm7 }
-              if ( v58 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, [rsp+220h+x]; x
-                  vmovss  [rsp+220h+var_1E8], xmm6
-                  vmovaps xmm2, xmm0; y
-                }
-                CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v247, 0);
-                __asm { vmovss  xmm0, [rsp+220h+y] }
-              }
-            }
-            ++v57;
-            __asm
-            {
-              vaddss  xmm0, xmm0, xmm6
-              vmovss  [rsp+220h+y], xmm0
-            }
-          }
-          while ( v57 < 2 );
-          ++v50;
+          CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+          v21 = y;
         }
-        while ( v50 < NumPools );
+        y = v21 + 8.0;
+        for ( i = 0; i < 2; ++i )
+        {
+          Scriptable_Bg_EventStreamBuffer_GetPoolSizes(0, (LocalClientNum_t)i, v20, (unsigned int *)&outOrigin, &v112, &v111);
+          LODWORD(shadow) = v111;
+          LODWORD(charHeightb) = v112;
+          *(float *)&fmtb = outOrigin.v[0];
+          Com_sprintf(dest, 0x100ui64, "       Client%i: ElementSize:%i Capacity:%i used:%i", (unsigned int)i, fmtb, charHeightb, shadow);
+          v23 = y;
+          if ( y > 0.0 && y < 1080.0 )
+          {
+            CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+            v23 = y;
+          }
+          y = v23 + 8.0;
+        }
       }
-      v63 = 0;
-      do
+      for ( j = 0; j < 2; ++j )
       {
-        Scriptable_BG_EventStreamBuffer_GetCharacterPoolSize((LocalClientNum_t)v63, &v267, &v268, (unsigned int *)&outOrigin);
+        Scriptable_BG_EventStreamBuffer_GetCharacterPoolSize((LocalClientNum_t)j, &v111, &v112, (unsigned int *)&outOrigin);
         *(float *)&shadow = outOrigin.v[0];
-        LODWORD(charHeight) = v268;
-        LODWORD(fmt) = v267;
-        Com_sprintf(dest, 0x100ui64, "Character Pool Client%i: ElementSize:%i Capacity:%i used:%i", (unsigned int)v63, fmt, charHeight, shadow);
-        __asm
+        LODWORD(charHeight) = v112;
+        LODWORD(fmt) = v111;
+        Com_sprintf(dest, 0x100ui64, "Character Pool Client%i: ElementSize:%i Capacity:%i used:%i", (unsigned int)j, fmt, charHeight, shadow);
+        v25 = y;
+        if ( y > 0.0 && y < 1080.0 )
         {
-          vmovss  xmm0, [rsp+220h+y]
-          vcomiss xmm0, xmm8
+          CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+          v25 = y;
         }
-        if ( !(v64 | v38) )
-        {
-          __asm { vcomiss xmm0, xmm7 }
-          if ( v64 )
-          {
-            __asm
-            {
-              vmovss  xmm1, [rsp+220h+x]; x
-              vmovss  [rsp+220h+var_1E8], xmm6
-              vmovaps xmm2, xmm0; y
-            }
-            CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v248, 0);
-            __asm { vmovss  xmm0, [rsp+220h+y] }
-          }
-        }
-        ++v63;
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  [rsp+220h+y], xmm0
-        }
+        y = v25 + 8.0;
       }
-      while ( v63 < 2 );
-      __asm
-      {
-        vaddss  xmm1, xmm10, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
-      }
+      x = x + -12.0;
     }
-    v70 = DVARBOOL_scriptable_debug_defs;
+    v26 = DVARBOOL_scriptable_debug_defs;
     if ( !DVARBOOL_scriptable_debug_defs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_defs") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v70);
-    v71 = &g_scriptableDefVector;
-    if ( v70->current.enabled )
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = &g_scriptableDefVector;
+    if ( v26->current.enabled )
     {
       Com_sprintf(dest, 0x100ui64, "Scriptable Definitions %zu", g_scriptableDefVector.m_size);
-      __asm
+      v28 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v28 = y;
       }
-      if ( !(v72 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v72 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v249, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      v76 = 0i64;
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
-      v78 = &g_scriptableDefVector;
-      v79 = 0i64;
-      v80 = g_scriptableDefVector.m_size & 0x1FFFFFFFFFFFFFFFi64;
+      v29 = 0i64;
+      y = v28 + 8.0;
+      v30 = &g_scriptableDefVector;
+      v31 = 0i64;
+      v32 = g_scriptableDefVector.m_size & 0x1FFFFFFFFFFFFFFFi64;
       if ( &g_scriptableDefVector > (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size) )
-        v80 = 0i64;
-      if ( v80 )
+        v32 = 0i64;
+      if ( v32 )
       {
         do
         {
-          v81 = *(_QWORD *)v78->m_data.m_buffer;
-          v78 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v78 + 8);
-          ++v79;
-          v76 = (unsigned int)(*(_DWORD *)(v81 + 64) + v76);
+          v33 = *(_QWORD *)v30->m_data.m_buffer;
+          v30 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v30 + 8);
+          ++v31;
+          v29 = (unsigned int)(*(_DWORD *)(v33 + 64) + v29);
         }
-        while ( v79 != v80 );
+        while ( v31 != v32 );
       }
-      __asm
+      x = x + 12.0;
+      Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", v29);
+      v34 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vaddss  xmm1, xmm9, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v34 = y;
       }
-      Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", v76);
-      __asm
-      {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
-      }
-      if ( !(v83 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v83 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v250, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
+      v35 = v34 + 8.0;
+      y = v35;
       Com_sprintf(dest, 0x100ui64, "Runtime buffer memory cost for server/client in brackets");
-      __asm
+      v36 = v34 + 8.0;
+      if ( v35 > 0.0 && v35 < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v36 = y;
       }
-      if ( !(v88 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v88 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v251, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm { vmovss  xmm1, [rsp+220h+x] }
-      v93 = DVARSTR_scriptabledebug_scriptablefilter;
-      v94 = 0;
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vsubss  xmm2, xmm1, xmm9
-        vmovss  [rsp+220h+y], xmm0
-        vaddss  xmm0, xmm2, xmm9
-        vmovss  [rsp+220h+x], xmm0
-      }
+      v37 = DVARSTR_scriptabledebug_scriptablefilter;
+      v38 = 0;
+      y = v36 + 8.0;
+      x = (float)(x - 12.0) + 12.0;
       if ( !DVARSTR_scriptabledebug_scriptablefilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptabledebug_scriptablefilter") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v93);
-      v98 = &g_scriptableDefVector;
-      for ( i = v93->current.string; v98 != (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size); ++v94 )
+      Dvar_CheckFrontendServerThread(v37);
+      v39 = &g_scriptableDefVector;
+      for ( k = v37->current.string; v39 != (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size); ++v38 )
       {
-        v100 = *(const char ***)v98->m_data.m_buffer;
-        if ( I_strempty(i) || I_stristr(*v100, i) )
+        v41 = *(const char ***)v39->m_data.m_buffer;
+        if ( I_strempty(k) || I_stristr(*v41, k) )
         {
-          v101 = *((_DWORD *)v100 + 4);
-          if ( (v101 & 4) != 0 )
+          v42 = *((_DWORD *)v41 + 4);
+          if ( (v42 & 4) != 0 )
           {
-            v102 = "Server Controlled";
+            v43 = "Server Controlled";
           }
           else
           {
-            v102 = "Server Instance";
-            if ( (v101 & 2) == 0 )
-              v102 = "Client Only";
+            v43 = "Server Instance";
+            if ( (v42 & 2) == 0 )
+              v43 = "Client Only";
           }
-          LODWORD(v244) = *((unsigned __int16 *)v100 + 29);
-          LODWORD(shadow) = *((unsigned __int16 *)v100 + 28);
-          Com_sprintf(dest, 0x100ui64, "%i %s %s (S:%i C:%i)", v94, v102, *v100, shadow, v244);
-          __asm
+          LODWORD(v107) = *((unsigned __int16 *)v41 + 29);
+          LODWORD(shadow) = *((unsigned __int16 *)v41 + 28);
+          Com_sprintf(dest, 0x100ui64, "%i %s %s (S:%i C:%i)", v38, v43, *v41, shadow, v107);
+          v44 = y;
+          if ( y > 0.0 && y < 1080.0 )
           {
-            vmovss  xmm0, [rsp+220h+y]
-            vcomiss xmm0, xmm8
+            CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+            v44 = y;
           }
-          if ( !(v103 | v38) )
-          {
-            __asm { vcomiss xmm0, xmm7 }
-            if ( v103 )
-            {
-              __asm
-              {
-                vmovss  xmm1, [rsp+220h+x]; x
-                vmovss  [rsp+220h+var_1E8], xmm6
-                vmovaps xmm2, xmm0; y
-              }
-              CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v252, 0);
-              __asm { vmovss  xmm0, [rsp+220h+y] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  [rsp+220h+y], xmm0
-          }
+          y = v44 + 8.0;
         }
-        v98 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v98 + 8);
+        v39 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v39 + 8);
       }
-      __asm
-      {
-        vaddss  xmm1, xmm10, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
-      }
+      x = x + -12.0;
     }
-    v109 = DVARINT_scriptable_debug_defId;
+    v45 = DVARINT_scriptable_debug_defId;
     if ( !DVARINT_scriptable_debug_defId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_defId") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v109);
-    if ( v109->current.integer >= 0 )
+    Dvar_CheckFrontendServerThread(v45);
+    if ( v45->current.integer >= 0 )
     {
-      v110 = DVARINT_scriptable_debug_defId;
+      v46 = DVARINT_scriptable_debug_defId;
       if ( !DVARINT_scriptable_debug_defId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_defId") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v110);
-      integer = v110->current.integer;
-      if ( (integer & 0x80000000) != 0i64 || integer >= g_scriptableDefVector.m_size )
+      Dvar_CheckFrontendServerThread(v46);
+      v47 = v46->current.integer;
+      if ( (v47 & 0x80000000) != 0i64 || v47 >= g_scriptableDefVector.m_size )
       {
-        v112 = NULL;
+        v48 = NULL;
       }
       else
       {
-        if ( integer >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+        if ( v47 >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
           __debugbreak();
-        v112 = *(const ScriptableDef **)&g_scriptableDefVector.m_data.m_buffer[8 * integer];
+        v48 = *(const ScriptableDef **)&g_scriptableDefVector.m_data.m_buffer[8 * v47];
       }
-      v113 = "Not found";
-      if ( v112 )
-        v113 = (char *)&queryFormat.fmt + 3;
-      Com_sprintf(dest, 0x100ui64, "Scriptable Definition %i %s", (unsigned int)integer, v113);
-      __asm
+      v49 = "Not found";
+      if ( v48 )
+        v49 = (char *)&queryFormat.fmt + 3;
+      Com_sprintf(dest, 0x100ui64, "Scriptable Definition %i %s", (unsigned int)v47, v49);
+      v50 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v50 = y;
       }
-      if ( !(v114 | v38) )
+      v51 = x + 12.0;
+      x = x + 12.0;
+      y = v50 + 8.0;
+      if ( v48 )
       {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v114 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v253, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
+        ScriptableBg_DrawDebugScriptableDef(v48, v8, &x, &y, 12.0, 8.0);
+        v51 = x;
       }
-      __asm
-      {
-        vmovss  xmm1, [rsp+220h+x]
-        vaddss  xmm2, xmm1, xmm9
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+x], xmm2
-        vmovss  [rsp+220h+y], xmm0
-      }
-      if ( v112 )
-      {
-        __asm
-        {
-          vmovss  [rsp+220h+charHeight], xmm6
-          vmovss  dword ptr [rsp+220h+fmt], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableDef(v112, v10, &x, &y, fmtd, charHeightd);
-        __asm { vmovss  xmm2, [rsp+220h+x] }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm2, xmm10
-        vmovss  [rsp+220h+x], xmm0
-      }
+      x = v51 + -12.0;
     }
-    v122 = DVARBOOL_scriptable_debug_instances;
+    v52 = DVARBOOL_scriptable_debug_instances;
     if ( !DVARBOOL_scriptable_debug_instances && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_instances") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v122);
-    if ( v122->current.enabled )
+    Dvar_CheckFrontendServerThread(v52);
+    if ( v52->current.enabled )
     {
       ScriptableCommon_AssertCountsInitialized();
       Com_sprintf(dest, 0x100ui64, "Scriptable Instances %i", g_scriptableWorldCounts.totalInstanceCount);
-      __asm
+      v53 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v53 = y;
       }
-      if ( !(v123 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v123 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v254, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
-      v128 = 0;
-      v129 = 0;
+      y = v53 + 8.0;
+      v54 = 0;
+      v55 = 0;
       ScriptableCommon_AssertCountsInitialized();
       if ( g_scriptableWorldCounts.totalInstanceCount )
       {
         do
         {
           ScriptableCommon_AssertCountsInitialized();
-          if ( v129 >= g_scriptableWorldCounts.totalInstanceCount )
+          if ( v55 >= g_scriptableWorldCounts.totalInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
             LODWORD(shadow) = g_scriptableWorldCounts.totalInstanceCount;
-            LODWORD(charHeight) = v129;
+            LODWORD(charHeight) = v55;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 129, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", charHeight, shadow) )
               __debugbreak();
           }
@@ -807,569 +523,359 @@ void ScriptableBg_DrawDebug(const ScreenPlacement *scrPlace, const ScriptableBg_
           runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
           if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
             __debugbreak();
-          v131 = runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
-          if ( v129 >= v131 )
+          v57 = runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
+          if ( v55 >= v57 )
           {
-            v132 = v129 - v131;
-            if ( (unsigned int)v132 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
+            v58 = v55 - v57;
+            if ( (unsigned int)v58 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
             {
               LODWORD(shadow) = cm.mapEnts->scriptableMapEnts.mapInstanceCount;
-              LODWORD(charHeight) = v129 - v131;
+              LODWORD(charHeight) = v55 - v57;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 142, ASSERT_TYPE_ASSERT, "(unsigned)( mapInstanceIndex ) < (unsigned)( cm.mapEnts->scriptableMapEnts.mapInstanceCount )", "mapInstanceIndex doesn't index cm.mapEnts->scriptableMapEnts.mapInstanceCount\n\t%i not in [0, %i)", charHeight, shadow) )
                 __debugbreak();
             }
-            v128 += cm.mapEnts->scriptableMapEnts.mapInstances[v132].ffMemCost;
+            v54 += cm.mapEnts->scriptableMapEnts.mapInstances[v58].ffMemCost;
           }
           else
           {
             *(_QWORD *)outOrigin.v = 0i64;
           }
-          ++v129;
+          ++v55;
           ScriptableCommon_AssertCountsInitialized();
         }
-        while ( v129 < g_scriptableWorldCounts.totalInstanceCount );
-        v10 = v271;
-        v71 = &g_scriptableDefVector;
+        while ( v55 < g_scriptableWorldCounts.totalInstanceCount );
+        v8 = v115;
+        v27 = &g_scriptableDefVector;
       }
-      __asm
+      x = x + 12.0;
+      Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", v54);
+      v59 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vaddss  xmm1, xmm9, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v59 = y;
       }
-      Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", v128);
-      __asm
-      {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
-      }
-      if ( !(v134 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v134 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v255, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vmovss  xmm1, [rsp+220h+x]
-        vaddss  xmm0, xmm0, xmm6
-        vsubss  xmm2, xmm1, xmm9
-        vmovss  [rsp+220h+y], xmm0
-        vaddss  xmm0, xmm2, xmm9
-        vmovss  [rsp+220h+x], xmm0
-      }
-      v142 = 0;
+      y = v59 + 8.0;
+      x = (float)(x - 12.0) + 12.0;
+      v60 = 0;
       ScriptableCommon_AssertCountsInitialized();
       if ( g_scriptableWorldCounts.totalInstanceCount )
       {
         while ( 1 )
         {
           ScriptableCommon_AssertCountsInitialized();
-          if ( v142 < g_scriptableWorldCounts.serverInstanceCount )
-            def = ScriptableSv_GetInstanceCommonContext(v142)->def;
-          v143 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v142)->def;
+          if ( v60 < g_scriptableWorldCounts.serverInstanceCount )
+            def = ScriptableSv_GetInstanceCommonContext(v60)->def;
+          v61 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v60)->def;
           ScriptableCommon_AssertCountsInitialized();
-          if ( v142 >= g_scriptableWorldCounts.runtimeInstanceCount )
+          if ( v60 >= g_scriptableWorldCounts.runtimeInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
-            v144 = "Fixed Server";
-            if ( v142 >= g_scriptableWorldCounts.serverInstanceCount )
-              v144 = "Fixed Client Only";
+            v62 = "Fixed Server";
+            if ( v60 >= g_scriptableWorldCounts.serverInstanceCount )
+              v62 = "Fixed Client Only";
           }
           else
           {
-            v144 = "Reserved";
+            v62 = "Reserved";
           }
           ScriptableCommon_AssertCountsInitialized();
-          if ( v142 >= g_scriptableWorldCounts.totalInstanceCount )
+          if ( v60 >= g_scriptableWorldCounts.totalInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
             LODWORD(shadow) = g_scriptableWorldCounts.totalInstanceCount;
-            LODWORD(charHeight) = v142;
+            LODWORD(charHeight) = v60;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 129, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", charHeight, shadow) )
               __debugbreak();
           }
           if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 131, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
             __debugbreak();
           ScriptableCommon_AssertCountsInitialized();
-          v145 = g_scriptableWorldCounts.runtimeInstanceCount;
+          v63 = g_scriptableWorldCounts.runtimeInstanceCount;
           if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
             __debugbreak();
-          v146 = v145 + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
-          if ( v142 >= v146 )
+          v64 = v63 + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
+          if ( v60 >= v64 )
           {
-            v150 = v142 - v146;
-            if ( (unsigned int)v150 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
+            v68 = v60 - v64;
+            if ( (unsigned int)v68 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
             {
               LODWORD(shadow) = cm.mapEnts->scriptableMapEnts.mapInstanceCount;
-              LODWORD(charHeight) = v142 - v146;
+              LODWORD(charHeight) = v60 - v64;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 142, ASSERT_TYPE_ASSERT, "(unsigned)( mapInstanceIndex ) < (unsigned)( cm.mapEnts->scriptableMapEnts.mapInstanceCount )", "mapInstanceIndex doesn't index cm.mapEnts->scriptableMapEnts.mapInstanceCount\n\t%i not in [0, %i)", charHeight, shadow) )
                 __debugbreak();
             }
-            script_noteworthy = cm.mapEnts->scriptableMapEnts.mapInstances[v150].script_noteworthy;
+            script_noteworthy = cm.mapEnts->scriptableMapEnts.mapInstances[v68].script_noteworthy;
             if ( script_noteworthy )
             {
-              v147 = SL_ConvertToString(script_noteworthy);
-              goto LABEL_149;
+              v65 = SL_ConvertToString(script_noteworthy);
+              goto LABEL_148;
             }
           }
           else
           {
             *(_QWORD *)outOrigin.v = 0i64;
           }
-          v147 = (char *)&queryFormat.fmt + 3;
-LABEL_149:
+          v65 = (char *)&queryFormat.fmt + 3;
+LABEL_148:
           ScriptableCommon_AssertCountsInitialized();
-          if ( v142 < g_scriptableWorldCounts.serverInstanceCount )
+          if ( v60 < g_scriptableWorldCounts.serverInstanceCount )
           {
-            v148 = def || v143;
+            v66 = def || v61;
             if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 81, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
               __debugbreak();
             ScriptableCommon_AssertCountsInitialized();
-            if ( v142 >= g_scriptableWorldCounts.serverInstanceCount )
+            if ( v60 >= g_scriptableWorldCounts.serverInstanceCount )
             {
               ScriptableCommon_AssertCountsInitialized();
               LODWORD(shadow) = g_scriptableWorldCounts.serverInstanceCount;
-              LODWORD(charHeight) = v142;
+              LODWORD(charHeight) = v60;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 82, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", charHeight, shadow) )
                 __debugbreak();
             }
-            if ( v143 )
-              name = v143->name;
+            if ( v61 )
+              name = v61->name;
             else
               name = "Unassigned";
             if ( def )
-              v153 = def->name;
+              v71 = def->name;
             else
-              v153 = "Unassigned";
-            LODWORD(v244) = g_scriptableSv_instanceContexts[v142].commonContext.linkedObjectIndex;
-            LODWORD(charHeight) = v244;
-            Com_sprintf(dest, 0x100ui64, "%i %s S(%i):%s C(%i):%s %s", v142, v144, charHeight, v153, v244, name, v147);
+              v71 = "Unassigned";
+            LODWORD(v107) = g_scriptableSv_instanceContexts[v60].commonContext.linkedObjectIndex;
+            LODWORD(charHeight) = v107;
+            Com_sprintf(dest, 0x100ui64, "%i %s S(%i):%s C(%i):%s %s", v60, v62, charHeight, v71, v107, name, v65);
           }
           else
           {
-            v148 = v143 != NULL;
+            v66 = v61 != NULL;
             ScriptableCommon_AssertCountsInitialized();
-            if ( v142 >= g_scriptableWorldCounts.totalInstanceCount )
+            if ( v60 >= g_scriptableWorldCounts.totalInstanceCount )
             {
               ScriptableCommon_AssertCountsInitialized();
               LODWORD(shadow) = g_scriptableWorldCounts.totalInstanceCount;
-              LODWORD(charHeight) = v142;
+              LODWORD(charHeight) = v60;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", charHeight, shadow) )
                 __debugbreak();
             }
             if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 115, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
               __debugbreak();
-            if ( v143 )
-              v149 = v143->name;
+            if ( v61 )
+              v67 = v61->name;
             else
-              v149 = "Unassigned";
-            LODWORD(charHeight) = g_scriptableCl_instanceContexts[0][v142].commonContext.linkedObjectIndex;
-            Com_sprintf(dest, 0x100ui64, "%i %s C(%i):%s %s", v142, v144, charHeight, v149, v147);
+              v67 = "Unassigned";
+            LODWORD(charHeight) = g_scriptableCl_instanceContexts[0][v60].commonContext.linkedObjectIndex;
+            Com_sprintf(dest, 0x100ui64, "%i %s C(%i):%s %s", v60, v62, charHeight, v67, v65);
           }
-          if ( v148 )
+          if ( v66 )
           {
-            __asm
+            v72 = y;
+            if ( y > 0.0 && y < 1080.0 )
             {
-              vmovss  xmm0, [rsp+220h+y]
-              vcomiss xmm0, xmm8
-              vcomiss xmm0, xmm7
-              vaddss  xmm0, xmm0, xmm6
-              vmovss  [rsp+220h+y], xmm0
+              CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+              v72 = y;
             }
+            y = v72 + 8.0;
           }
-          ++v142;
+          ++v60;
           ScriptableCommon_AssertCountsInitialized();
           def = NULL;
-          if ( v142 >= g_scriptableWorldCounts.totalInstanceCount )
+          if ( v60 >= g_scriptableWorldCounts.totalInstanceCount )
           {
-            v71 = &g_scriptableDefVector;
+            v27 = &g_scriptableDefVector;
             break;
           }
         }
       }
-      __asm
-      {
-        vaddss  xmm1, xmm10, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
-      }
+      x = x + -12.0;
     }
-    v157 = DVARINT_scriptable_debug_instanceId;
+    v73 = DVARINT_scriptable_debug_instanceId;
     if ( !DVARINT_scriptable_debug_instanceId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_instanceId") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v157);
-    if ( v157->current.integer >= 0 )
+    Dvar_CheckFrontendServerThread(v73);
+    if ( v73->current.integer >= 0 )
     {
-      v158 = DVARINT_scriptable_debug_instanceId;
+      v74 = DVARINT_scriptable_debug_instanceId;
       if ( !DVARINT_scriptable_debug_instanceId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_instanceId") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v158);
-      v159 = v158->current.integer;
-      if ( v159 < 0 || (ScriptableCommon_AssertCountsInitialized(), v159 >= (int)g_scriptableWorldCounts.totalInstanceCount) )
+      Dvar_CheckFrontendServerThread(v74);
+      v75 = v74->current.integer;
+      if ( v75 < 0 || (ScriptableCommon_AssertCountsInitialized(), v75 >= (int)g_scriptableWorldCounts.totalInstanceCount) )
       {
-        __asm
+        x = x + 12.0;
+        Com_sprintf(dest, 0x100ui64, "Scriptable Instance %i NOT FOUND", (unsigned int)v75);
+        v76 = y;
+        if ( y > 0.0 && y < 1080.0 )
         {
-          vaddss  xmm1, xmm9, [rsp+220h+x]
-          vmovss  [rsp+220h+x], xmm1
+          CG_DrawStringExt(v8, x, y, dest, &colorRed, 0, 1, 8.0, 0);
+          v76 = y;
         }
-        Com_sprintf(dest, 0x100ui64, "Scriptable Instance %i NOT FOUND", (unsigned int)v159);
-        __asm
-        {
-          vmovss  xmm0, [rsp+220h+y]
-          vcomiss xmm0, xmm8
-        }
-        if ( !(v162 | v38) )
-        {
-          __asm { vcomiss xmm0, xmm7 }
-          if ( v162 )
-          {
-            __asm
-            {
-              vmovss  xmm1, [rsp+220h+x]; x
-              vmovss  [rsp+220h+var_1E8], xmm6
-              vmovaps xmm2, xmm0; y
-            }
-            CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, v256, 0);
-            __asm { vmovss  xmm0, [rsp+220h+y] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  [rsp+220h+y], xmm0
-        }
+        y = v76 + 8.0;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm1, xmm9, [rsp+220h+x]
-          vmovss  [rsp+220h+charHeight], xmm6
-          vmovss  [rsp+220h+x], xmm1
-          vmovss  dword ptr [rsp+220h+fmt], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableInstance(v159, v10, &x, &y, fmte, charHeighte);
+        x = x + 12.0;
+        ScriptableBg_DrawDebugScriptableInstance(v75, v8, &x, &y, 12.0, 8.0);
       }
-      __asm
-      {
-        vaddss  xmm1, xmm10, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
-      }
+      x = x + -12.0;
     }
-    v168 = DVARBOOL_scriptable_debug_memory;
+    v77 = DVARBOOL_scriptable_debug_memory;
     if ( !DVARBOOL_scriptable_debug_memory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_memory") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v168);
-    if ( v168->current.enabled )
+    Dvar_CheckFrontendServerThread(v77);
+    if ( v77->current.enabled )
     {
       Com_sprintf(dest, 0x100ui64, "Scriptable Memory Summary");
-      __asm
+      v78 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v78 = y;
       }
-      if ( !(v169 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v169 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v257, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
-      v174 = 0;
+      y = v78 + 8.0;
+      v79 = 0;
       used = 0;
-      v175 = *(float *)&cm.mapEnts->scriptableMapEnts.ffMemCost;
-      v176 = 0i64;
-      outOrigin.v[0] = v175;
-      v177 = g_scriptableDefVector.m_size & 0x1FFFFFFFFFFFFFFFi64;
+      v80 = *(float *)&cm.mapEnts->scriptableMapEnts.ffMemCost;
+      v81 = 0i64;
+      outOrigin.v[0] = v80;
+      v82 = g_scriptableDefVector.m_size & 0x1FFFFFFFFFFFFFFFi64;
       if ( &g_scriptableDefVector > (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size) )
-        v177 = 0i64;
-      if ( v177 )
+        v82 = 0i64;
+      if ( v82 )
       {
         do
         {
-          v178 = *(_QWORD *)v71->m_data.m_buffer;
-          v71 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v71 + 8);
-          ++v176;
-          v174 += *(_DWORD *)(v178 + 64);
+          v83 = *(_QWORD *)v27->m_data.m_buffer;
+          v27 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v27 + 8);
+          ++v81;
+          v79 += *(_DWORD *)(v83 + 64);
         }
-        while ( v176 != v177 );
-        used = v174;
+        while ( v81 != v82 );
+        used = v79;
       }
-      v179 = 0;
-      v180 = 0;
+      v84 = 0;
+      v85 = 0;
       ScriptableCommon_AssertCountsInitialized();
       if ( g_scriptableWorldCounts.totalInstanceCount )
       {
         do
         {
           ScriptableCommon_AssertCountsInitialized();
-          if ( v180 >= g_scriptableWorldCounts.totalInstanceCount )
+          if ( v85 >= g_scriptableWorldCounts.totalInstanceCount )
           {
             ScriptableCommon_AssertCountsInitialized();
             LODWORD(shadow) = g_scriptableWorldCounts.totalInstanceCount;
-            LODWORD(charHeight) = v180;
+            LODWORD(charHeight) = v85;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 129, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", charHeight, shadow) )
               __debugbreak();
           }
           if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 131, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
             __debugbreak();
           ScriptableCommon_AssertCountsInitialized();
-          v181 = g_scriptableWorldCounts.runtimeInstanceCount;
+          v86 = g_scriptableWorldCounts.runtimeInstanceCount;
           if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
             __debugbreak();
-          v182 = v181 + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
-          if ( v180 >= v182 )
+          v87 = v86 + cm.mapEnts->scriptableMapEnts.lootInstanceCount;
+          if ( v85 >= v87 )
           {
-            v183 = v180 - v182;
-            if ( (unsigned int)v183 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
+            v88 = v85 - v87;
+            if ( (unsigned int)v88 >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
             {
               LODWORD(shadow) = cm.mapEnts->scriptableMapEnts.mapInstanceCount;
-              LODWORD(charHeight) = v180 - v182;
+              LODWORD(charHeight) = v85 - v87;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 142, ASSERT_TYPE_ASSERT, "(unsigned)( mapInstanceIndex ) < (unsigned)( cm.mapEnts->scriptableMapEnts.mapInstanceCount )", "mapInstanceIndex doesn't index cm.mapEnts->scriptableMapEnts.mapInstanceCount\n\t%i not in [0, %i)", charHeight, shadow) )
                 __debugbreak();
             }
-            v179 += cm.mapEnts->scriptableMapEnts.mapInstances[v183].ffMemCost;
+            v84 += cm.mapEnts->scriptableMapEnts.mapInstances[v88].ffMemCost;
           }
-          ++v180;
+          ++v85;
           ScriptableCommon_AssertCountsInitialized();
         }
-        while ( v180 < g_scriptableWorldCounts.totalInstanceCount );
-        v174 = used;
-        v175 = outOrigin.v[0];
-        v10 = v271;
+        while ( v85 < g_scriptableWorldCounts.totalInstanceCount );
+        v79 = used;
+        v80 = outOrigin.v[0];
+        v8 = v115;
       }
-      __asm
+      x = x + 12.0;
+      Com_sprintf(dest, 0x100ui64, "FastFile: MapEnts   %i", v80);
+      v89 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vaddss  xmm1, xmm9, [rsp+220h+x]
-        vmovss  [rsp+220h+x], xmm1
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v89 = y;
       }
-      Com_sprintf(dest, 0x100ui64, "FastFile: MapEnts   %i", v175);
-      __asm
+      y = v89 + 8.0;
+      Com_sprintf(dest, 0x100ui64, "FastFile: Defs      %i", v79);
+      v90 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v90 = y;
       }
-      if ( !(v185 | v38) )
+      y = v90 + 8.0;
+      Com_sprintf(dest, 0x100ui64, "FastFile: Instances %i", v84);
+      v91 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v185 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v258, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v91 = y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "FastFile: Defs      %i", v174);
-      __asm
-      {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
-      }
-      if ( !(v190 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v190 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v259, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "FastFile: Instances %i", v179);
-      __asm
-      {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
-      }
-      if ( !(v195 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v195 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v260, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm2, xmm10, [rsp+220h+x]
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-        vmovss  [rsp+220h+x], xmm2
-      }
+      y = v91 + 8.0;
+      x = x + -12.0;
     }
-    v201 = DVARBOOL_scriptable_debugReservedCount;
+    v92 = DVARBOOL_scriptable_debugReservedCount;
     if ( !DVARBOOL_scriptable_debugReservedCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugReservedCount") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v201);
-    if ( v201->current.enabled )
+    Dvar_CheckFrontendServerThread(v92);
+    if ( v92->current.enabled )
     {
       Com_sprintf(dest, 0x100ui64, "Scriptable Reserved Counts");
-      __asm
+      v93 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v93 = y;
       }
-      if ( !(v202 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v202 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v261, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm2, xmm9, [rsp+220h+x]
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-        vmovss  [rsp+220h+x], xmm2
-      }
+      y = v93 + 8.0;
+      x = x + 12.0;
       Com_sprintf(dest, 0x100ui64, "Current %i", g_scriptableClReservedCurrentCount[0]);
-      __asm
+      v94 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v94 = y;
       }
-      if ( !(v208 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v208 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v262, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-      }
+      y = v94 + 8.0;
       Com_sprintf(dest, 0x100ui64, "Max %i", g_scriptableClReservedMaxCount[0]);
-      __asm
+      v95 = y;
+      if ( y > 0.0 && y < 1080.0 )
       {
-        vmovss  xmm0, [rsp+220h+y]
-        vcomiss xmm0, xmm8
+        CG_DrawStringExt(v8, x, y, dest, &colorWhite, 0, 1, 8.0, 0);
+        v95 = y;
       }
-      if ( !(v213 | v38) )
-      {
-        __asm { vcomiss xmm0, xmm7 }
-        if ( v213 )
-        {
-          __asm
-          {
-            vmovss  xmm1, [rsp+220h+x]; x
-            vmovss  [rsp+220h+var_1E8], xmm6
-            vmovaps xmm2, xmm0; y
-          }
-          CG_DrawStringExt(v10, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v263, 0);
-          __asm { vmovss  xmm0, [rsp+220h+y] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm2, xmm10, [rsp+220h+x]
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  [rsp+220h+y], xmm0
-        vmovss  [rsp+220h+x], xmm2
-      }
+      y = v95 + 8.0;
+      x = x + -12.0;
     }
-    __asm
-    {
-      vmovaps xmm3, xmm9; tabWidth
-      vmovss  dword ptr [rsp+220h+fmt], xmm6
-    }
-    Scriptable_Analytics_DebugDraw(v10, &x, &y, *(float *)&_XMM3, fmtf);
-    v220 = DVARINT_scriptable_debugDisplayOffsetY;
-    __asm
-    {
-      vmovaps xmm10, [rsp+220h+var_80]
-      vmovaps xmm9, [rsp+220h+var_70]
-      vmovaps xmm8, [rsp+220h+var_60]
-      vmovaps xmm7, [rsp+220h+var_50]
-    }
+    Scriptable_Analytics_DebugDraw(v8, &x, &y, 12.0, 8.0);
+    v96 = DVARINT_scriptable_debugDisplayOffsetY;
     if ( !DVARINT_scriptable_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugDisplayOffsetY") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v220);
-    __asm { vcvttss2si eax, [rsp+220h+y] }
-    v226 = DVARINT_scriptable_debugDisplayOffsetY;
-    v227 = v220->current.integer - _EAX + 200;
-    if ( v227 > 0 )
-      v227 = 0;
+    Dvar_CheckFrontendServerThread(v96);
+    v97 = DVARINT_scriptable_debugDisplayOffsetY;
+    v98 = v96->current.integer - (int)y + 200;
+    if ( v98 > 0 )
+      v98 = 0;
     if ( !DVARINT_scriptable_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugDisplayOffsetY") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v226);
-    if ( v226->current.integer > v227 )
-      v227 = v226->current.integer;
-    v228 = DVARINT_scriptable_debugDisplayOffsetY;
+    Dvar_CheckFrontendServerThread(v97);
+    if ( v97->current.integer > v98 )
+      v98 = v97->current.integer;
+    v99 = DVARINT_scriptable_debugDisplayOffsetY;
     if ( !DVARINT_scriptable_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debugDisplayOffsetY") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v228);
-    if ( v228->current.integer != v227 )
-      Dvar_SetInt_Internal(DVARINT_scriptable_debugDisplayOffsetY, v227);
+    Dvar_CheckFrontendServerThread(v99);
+    if ( v99->current.integer != v98 )
+      Dvar_SetInt_Internal(DVARINT_scriptable_debugDisplayOffsetY, v98);
   }
-LABEL_270:
-  __asm { vmovaps xmm6, [rsp+220h+var_40] }
 }
 
 /*
@@ -1379,239 +885,122 @@ ScriptableBg_DrawDebugScriptableDef
 */
 void ScriptableBg_DrawDebugScriptableDef(const ScriptableDef *def, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  char v21; 
-  const char **p_name; 
-  char v27; 
-  char v35; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  ScriptableDef *nextScriptableDef; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   int flags; 
-  char v42; 
-  char v43; 
+  float v20; 
+  float v21; 
   __int64 maxNumDynEntsRequired; 
-  char v49; 
+  float v23; 
+  float v24; 
   unsigned __int16 eventStreamSizeRequiredServer; 
   unsigned __int16 eventStreamSizeRequiredClient; 
-  char v56; 
-  char v57; 
+  float v27; 
+  float v28; 
   __int64 numParts; 
-  const char *v63; 
-  char v64; 
+  const char *v30; 
+  float v31; 
+  float v32; 
   char *fmt; 
-  float fmta; 
   __int64 forceColor; 
-  int forceColora; 
-  int forceColorb; 
-  int shadow; 
-  float v83; 
-  float v84; 
-  float v85; 
-  float v86; 
-  float v87; 
-  float v88; 
-  float v89; 
   char dest[256]; 
-  char v91; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RBX = y;
-  _RSI = x;
-  _RDI = def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2014, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, _RDI->name);
-  __asm
+  Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, def->name);
+  v10 = *y;
+  v11 = *y;
+  if ( *y > 0.0 && v10 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm6, [rsp+1D8h+charHeight]
-    vmovss  xmm7, cs:__real@44870000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm2, xmm8
-    vmovaps xmm0, xmm2
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
+    CG_DrawStringExt(scrPlace, *x, v10, dest, &colorWhite, 0, 1, charHeight, 0);
+    v11 = *y;
   }
-  Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", _RDI->ffMemCost);
-  __asm
+  *y = v11 + charHeight;
+  Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", def->ffMemCost);
+  v12 = *y;
+  v13 = *y;
+  if ( *y > 0.0 && v12 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vcomiss xmm2, xmm8
-    vmovaps xmm0, xmm2
+    CG_DrawStringExt(scrPlace, *x, v12, dest, &colorWhite, 0, 1, charHeight, 0);
+    v13 = *y;
   }
-  if ( !(v21 | v43) )
+  *y = v13 + charHeight;
+  nextScriptableDef = def->nextScriptableDef;
+  if ( nextScriptableDef )
   {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v21 )
+    Com_sprintf(dest, 0x100ui64, "Next Scriptable %s", nextScriptableDef->name);
+    v15 = *y;
+    v16 = *y;
+    if ( *y > 0.0 && v15 < 1080.0 )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]; x
-        vmovss  [rsp+1D8h+var_1A0], xmm6
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v83, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
+      CG_DrawStringExt(scrPlace, *x, v15, dest, &colorWhite, 0, 1, charHeight, 0);
+      v16 = *y;
     }
+    *y = v16 + charHeight;
   }
-  __asm
+  if ( def->networkLODRangeOverride )
   {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
+    Com_sprintf(dest, 0x100ui64, "Network LOD override distance %.2f", def->networkLODRangeOverrideDistance);
+    v17 = *y;
+    v18 = *y;
+    if ( *y > 0.0 && v17 < 1080.0 )
+    {
+      CG_DrawStringExt(scrPlace, *x, v17, dest, &colorWhite, 0, 1, charHeight, 0);
+      v18 = *y;
+    }
+    *y = v18 + charHeight;
   }
-  p_name = &_RDI->nextScriptableDef->name;
-  if ( p_name )
-  {
-    Com_sprintf(dest, 0x100ui64, "Next Scriptable %s", *p_name);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm8
-      vmovaps xmm0, xmm2
-    }
-    if ( !(v27 | v43) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v27 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi]; x
-          vmovss  [rsp+1D8h+var_1A0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v84, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-  }
-  if ( _RDI->networkLODRangeOverride )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+60h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x100ui64, "Network LOD override distance %.2f", *(double *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm8
-      vmovaps xmm0, xmm2
-    }
-    if ( !(v35 | v43) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v35 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi]; x
-          vmovss  [rsp+1D8h+var_1A0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v85, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-  }
-  flags = _RDI->flags;
-  __asm { vmovss  xmm9, [rsp+1D8h+tabWidth] }
+  flags = def->flags;
   if ( flags )
   {
-    __asm
-    {
-      vmovss  [rsp+1D8h+forceColor], xmm6
-      vmovss  dword ptr [rsp+1D8h+fmt], xmm9
-    }
-    ScriptableBg_DrawDefFlags(flags, scrPlace, _RSI, _RBX, fmta, *(float *)&forceColora);
-    flags = _RDI->flags;
+    ScriptableBg_DrawDefFlags(flags, scrPlace, x, y, tabWidth, charHeight);
+    flags = def->flags;
   }
   if ( (flags & 4) != 0 )
   {
-    LODWORD(forceColor) = _RDI->partCount;
-    LODWORD(fmt) = _RDI->serverInstancedPartCount;
-    Com_sprintf(dest, 0x100ui64, "Part Total: ServerControlled:%i ServerInstanced:%i Overall:%i", _RDI->serverControlledPartCount, fmt, forceColor);
+    LODWORD(forceColor) = def->partCount;
+    LODWORD(fmt) = def->serverInstancedPartCount;
+    Com_sprintf(dest, 0x100ui64, "Part Total: ServerControlled:%i ServerInstanced:%i Overall:%i", def->serverControlledPartCount, fmt, forceColor);
   }
   else if ( (flags & 2) != 0 )
   {
-    LODWORD(fmt) = _RDI->partCount;
-    Com_sprintf(dest, 0x100ui64, "Part Total: ServerInstanced:%i Overall:%i", _RDI->serverInstancedPartCount, fmt);
+    LODWORD(fmt) = def->partCount;
+    Com_sprintf(dest, 0x100ui64, "Part Total: ServerInstanced:%i Overall:%i", def->serverInstancedPartCount, fmt);
   }
   else
   {
-    Com_sprintf(dest, 0x100ui64, "Part Total:%i", _RDI->partCount);
+    Com_sprintf(dest, 0x100ui64, "Part Total:%i", def->partCount);
   }
-  __asm
+  v20 = *y;
+  v21 = *y;
+  if ( *y > 0.0 && v20 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vcomiss xmm2, xmm8
-    vmovaps xmm0, xmm2
+    CG_DrawStringExt(scrPlace, *x, v20, dest, &colorWhite, 0, 1, charHeight, 0);
+    v21 = *y;
   }
-  if ( !(v42 | v43) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v42 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]; x
-        vmovss  [rsp+1D8h+var_1A0], xmm6
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v86, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
-  maxNumDynEntsRequired = _RDI->maxNumDynEntsRequired;
+  *y = v21 + charHeight;
+  maxNumDynEntsRequired = def->maxNumDynEntsRequired;
   if ( (_DWORD)maxNumDynEntsRequired )
   {
     Com_sprintf(dest, 0x100ui64, "Number of Dynents Required %i", maxNumDynEntsRequired);
-    __asm
+    v23 = *y;
+    v24 = *y;
+    if ( *y > 0.0 && v23 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm8
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v23, dest, &colorWhite, 0, 1, charHeight, 0);
+      v24 = *y;
     }
-    if ( !(v49 | v43) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v49 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi]; x
-          vmovss  [rsp+1D8h+var_1A0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v87, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
+    *y = v24 + charHeight;
   }
-  eventStreamSizeRequiredServer = _RDI->eventStreamSizeRequiredServer;
-  eventStreamSizeRequiredClient = _RDI->eventStreamSizeRequiredClient;
+  eventStreamSizeRequiredServer = def->eventStreamSizeRequiredServer;
+  eventStreamSizeRequiredClient = def->eventStreamSizeRequiredClient;
   if ( eventStreamSizeRequiredServer )
   {
     if ( eventStreamSizeRequiredClient )
@@ -1627,86 +1016,36 @@ void ScriptableBg_DrawDebugScriptableDef(const ScriptableDef *def, const ScreenP
   else
   {
     if ( !eventStreamSizeRequiredClient )
-      goto LABEL_42;
+      goto LABEL_45;
     Com_sprintf(dest, 0x100ui64, "Event Stream Size: Client:%i", eventStreamSizeRequiredClient);
   }
-  __asm
+  v27 = *y;
+  v28 = *y;
+  if ( *y > 0.0 && v27 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vcomiss xmm2, xmm8
-    vmovaps xmm0, xmm2
+    CG_DrawStringExt(scrPlace, *x, v27, dest, &colorWhite, 0, 1, charHeight, 0);
+    v28 = *y;
   }
-  if ( !(v56 | v57) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v56 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi]; x
-        vmovss  [rsp+1D8h+var_1A0], xmm6
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v88, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
-LABEL_42:
-  numParts = _RDI->numParts;
+  *y = v28 + charHeight;
+LABEL_45:
+  numParts = def->numParts;
   if ( (_DWORD)numParts )
   {
-    v63 = "Parts";
+    v30 = "Parts";
     if ( (_DWORD)numParts == 1 )
-      v63 = "Part";
-    Com_sprintf(dest, 0x100ui64, "%i %s", numParts, v63);
-    __asm
+      v30 = "Part";
+    Com_sprintf(dest, 0x100ui64, "%i %s", numParts, v30);
+    v31 = *y;
+    v32 = *y;
+    if ( *y > 0.0 && v31 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm8
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v31, dest, &colorWhite, 0, 1, charHeight, 0);
+      v32 = *y;
     }
-    if ( !(v64 | v43) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v64 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi]; x
-          vmovss  [rsp+1D8h+var_1A0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v89, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm1, xmm9, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  [rsp+1D8h+shadow], xmm6
-      vmovss  [rsp+1D8h+forceColor], xmm9
-    }
-    ScriptableBg_DrawDebugScriptablePartsDef(_RDI->parts, _RDI->numParts, scrPlace, _RSI, _RBX, *(float *)&forceColorb, *(float *)&shadow);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm9
-      vmovss  dword ptr [rsi], xmm1
-    }
-  }
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
+    *y = v32 + charHeight;
+    *x = tabWidth + *x;
+    ScriptableBg_DrawDebugScriptablePartsDef(def->parts, def->numParts, scrPlace, x, y, tabWidth, charHeight);
+    *x = *x - tabWidth;
   }
 }
 
@@ -1718,5394 +1057,2398 @@ ScriptableBg_DrawDebugScriptableEventDef
 void ScriptableBg_DrawDebugScriptableEventDef(const ScriptableEventDef *event, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   __int64 type; 
-  __int64 v19; 
+  float v11; 
+  float v12; 
+  __int64 v13; 
   int flags; 
-  char v26; 
-  bool v27; 
-  const char **p_name; 
-  char v29; 
-  char v34; 
-  char v35; 
-  char v40; 
-  char v41; 
+  ScriptablePartDef *part; 
+  float v16; 
+  float v17; 
+  float delayMin; 
+  float delayMax; 
+  double v20; 
+  float v21; 
+  float v22; 
   int eventStreamBufferOffsetClient; 
   __int64 eventStreamBufferOffsetServer; 
-  char v54; 
-  char v60; 
-  char v69; 
+  float v25; 
+  float v26; 
+  float v28; 
+  float v29; 
+  float v31; 
+  float v32; 
   const char *notification; 
-  char v78; 
-  const char **v83; 
-  char v84; 
-  const char *v89; 
-  char v90; 
-  const char *v95; 
-  char v96; 
-  char v101; 
-  unsigned int label; 
+  float v34; 
+  float v35; 
+  ScriptablePartDef *v36; 
+  float v37; 
+  float v38; 
+  const char *v39; 
+  float v40; 
+  float v41; 
+  const char *v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  int param; 
   const cmodel_t *BrushModel; 
-  const char **v108; 
-  char v109; 
-  char v114; 
-  const char *v119; 
-  char v120; 
-  const char *v125; 
-  char v126; 
-  const char *v131; 
-  char v132; 
+  const char **p_name; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  const char *v54; 
+  float v55; 
+  float v56; 
+  const char *v57; 
+  float v58; 
+  float v59; 
+  const char *v60; 
+  float v61; 
+  float v62; 
   ScriptableEventDef *eventsB; 
-  char v138; 
-  const char **v143; 
-  char v144; 
-  char v149; 
-  char v154; 
-  bool v159; 
-  char v160; 
-  bool v161; 
-  char v170; 
-  char v171; 
-  const char *v177; 
-  char v178; 
-  char v179; 
-  char v188; 
-  char v189; 
-  char v198; 
-  char v203; 
+  float v64; 
+  float v65; 
+  const char *v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float startTimeMin; 
+  float startTimeMax; 
+  double v77; 
+  float v78; 
+  float v79; 
+  const char *v80; 
+  float v81; 
+  float v82; 
+  float playbackRateMin; 
+  float playbackRateMax; 
+  double v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float v91; 
   __int64 eventAtEndCount; 
-  const char *v209; 
-  char v210; 
-  const char *v218; 
-  const char *v219; 
-  const char *v220; 
-  char v221; 
-  const char *v226; 
-  char v227; 
+  const char *v93; 
+  float v94; 
+  float v95; 
+  const char *v96; 
+  const char *v97; 
+  const char *v98; 
+  float v99; 
+  float v100; 
+  const char *v101; 
+  float v102; 
+  float v103; 
   __int64 flatId; 
-  const char *v233; 
-  char v234; 
-  const char **v242; 
-  char v243; 
-  char v248; 
-  char v253; 
-  char v265; 
-  const char *v273; 
-  char v278; 
-  const char **v283; 
-  char v284; 
+  const char *v105; 
+  float v106; 
+  float v107; 
+  ScriptablePartDef *v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  float v115; 
+  float v116; 
+  float blendTime; 
+  float v118; 
+  float v119; 
+  const char *v120; 
+  float v121; 
+  float v122; 
+  ScriptablePartDef *v123; 
+  float v124; 
+  float v125; 
   const char *tagName; 
-  char v290; 
-  const char *v295; 
-  char v296; 
-  char v301; 
-  const char *v306; 
-  char v319; 
-  char v320; 
-  const char *v331; 
-  char v344; 
-  char v345; 
+  float v127; 
+  float v128; 
+  const char *v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  float v133; 
+  const char *v134; 
+  float v135; 
+  float v136; 
+  const char *v137; 
+  float v138; 
+  float v139; 
   const char *effectAlias; 
-  char v357; 
+  float v141; 
+  float v142; 
   const ParticleSystemDef *particleSystemDef; 
-  char v363; 
-  const char *v368; 
-  char v369; 
-  const char **v374; 
-  char v375; 
-  unsigned int v380; 
-  scr_string_t v381; 
-  const char *v382; 
-  char v383; 
-  const char *v388; 
-  char v389; 
-  const char *v394; 
-  char v395; 
-  char v403; 
-  const char *v408; 
-  char v409; 
-  char v414; 
-  const char *soundAlias; 
-  char v420; 
-  const char *v425; 
-  char v426; 
-  const char *v431; 
-  char v432; 
-  char v437; 
-  const char *v442; 
-  char v443; 
-  bool v449; 
-  char v453; 
-  char v463; 
+  float v144; 
+  float v145; 
+  ScriptableEventDef *eventsAtEnd; 
+  float v147; 
+  float v148; 
+  const ParticleSystemDef *v149; 
+  float v150; 
+  float v151; 
+  unsigned int v152; 
+  scr_string_t v153; 
+  const char *v154; 
+  float v155; 
+  float v156; 
+  const char *v157; 
+  float v158; 
+  float v159; 
+  const char *v160; 
+  float v161; 
+  float v162; 
+  float v163; 
+  float v164; 
+  const char *v165; 
+  float v166; 
+  float v167; 
+  float v168; 
+  float v169; 
+  ScriptableEventDef *v170; 
+  float v171; 
+  float v172; 
+  ScriptablePartDef *v173; 
+  float v174; 
+  float v175; 
+  const char *v176; 
+  float v177; 
+  float v178; 
+  float v179; 
+  float v180; 
+  ScriptableEventDef *v181; 
+  float v182; 
+  float v183; 
+  float v184; 
+  float v185; 
+  float v186; 
+  float v187; 
+  float v188; 
   const char *name; 
-  char v469; 
-  char v477; 
-  char v485; 
-  char v490; 
-  const char *v495; 
-  char v496; 
-  bool v497; 
-  char v498; 
-  const char *v503; 
-  char v513; 
-  char v527; 
-  char v528; 
-  char v538; 
-  char v539; 
-  char v555; 
-  char v569; 
-  char v570; 
-  char v586; 
-  char v595; 
-  char v596; 
-  char v607; 
-  char v608; 
-  char v627; 
-  const char *v632; 
-  char v633; 
-  const char *v638; 
-  char v639; 
-  const char *v644; 
-  char v645; 
-  const char *v650; 
-  char v651; 
-  const char *v656; 
-  char v657; 
-  char v662; 
-  char v667; 
-  char v679; 
-  char v684; 
-  char v692; 
-  const char **v697; 
-  char v698; 
-  char v703; 
-  bool v704; 
-  char v717; 
-  const char **v722; 
-  const char *v723; 
-  char v724; 
+  float v190; 
+  float v191; 
+  float v192; 
+  float v193; 
+  float v194; 
+  float v195; 
+  float v196; 
+  float v197; 
+  const char *v198; 
+  float v199; 
+  float v200; 
+  float v201; 
+  const char *v202; 
+  float v203; 
+  float v204; 
+  float v205; 
+  float v206; 
+  float v207; 
+  float v208; 
+  float v209; 
+  double v210; 
+  float v211; 
+  float v212; 
+  float v213; 
+  float v214; 
+  double v215; 
+  float v216; 
+  float v217; 
+  float v218; 
+  float v219; 
+  float v220; 
+  float v221; 
+  double v222; 
+  float v223; 
+  float v224; 
+  double v225; 
+  float v226; 
+  float v227; 
+  float v228; 
+  float v229; 
+  float v230; 
+  float v231; 
+  double v232; 
+  float v233; 
+  float v234; 
+  float v235; 
+  float v236; 
+  float v237; 
+  float v238; 
+  float v239; 
+  float v240; 
+  float v241; 
+  float v242; 
+  ScriptableEventDef *v243; 
+  float v244; 
+  float v245; 
+  const char *v246; 
+  float v247; 
+  float v248; 
+  const char *v249; 
+  float v250; 
+  float v251; 
+  ScriptablePartDef *v252; 
+  float v253; 
+  float v254; 
+  const char *v255; 
+  float v256; 
+  float v257; 
+  float v258; 
+  float v259; 
+  float v260; 
+  float v261; 
+  float v262; 
+  float v263; 
+  float v264; 
+  float v265; 
+  float v266; 
+  float v267; 
+  ScriptableEventDef *v268; 
+  float v269; 
+  float v270; 
+  float v271; 
+  float v272; 
+  float v273; 
+  float v274; 
+  float v275; 
+  float v276; 
+  const char *v277; 
+  const char *v278; 
+  float v279; 
+  float v280; 
   __int64 tireIndex; 
-  char v730; 
-  __int64 v735; 
-  char v736; 
-  char v744; 
-  char v752; 
-  __int64 v757; 
-  char v759; 
-  char v768; 
-  __int64 v776; 
-  char v777; 
-  char v782; 
-  char v788; 
-  char v797; 
-  int v805; 
-  const char *v806; 
-  char v807; 
-  const char *v812; 
-  char v826; 
-  const char *v843; 
-  char v844; 
-  char v845; 
-  char v852; 
-  const char *v863; 
-  char v900; 
-  const char *v917; 
-  char v918; 
-  char v919; 
-  char v926; 
-  const char *v937; 
-  char v968; 
-  char v980; 
-  const char *v985; 
-  char v986; 
-  const char *v991; 
-  char v992; 
-  char v1004; 
-  char v1012; 
-  char v1020; 
-  const char *v1025; 
-  const char *v1026; 
-  char v1027; 
-  const char *v1032; 
-  char v1033; 
-  const char *v1038; 
-  char v1043; 
-  const char *v1049; 
-  char v1052; 
-  char v1057; 
-  char v1062; 
-  char v1067; 
-  char v1072; 
-  char v1077; 
-  const char *v1082; 
-  char v1083; 
-  const char *v1088; 
-  char v1092; 
-  char v1100; 
-  char v1108; 
-  char v1116; 
-  char v1124; 
-  char v1132; 
-  const char *v1137; 
-  char v1138; 
+  float v282; 
+  float v283; 
+  __int64 v284; 
+  float v285; 
+  float v286; 
+  float v287; 
+  float v288; 
+  float v289; 
+  float v290; 
+  float v291; 
+  __int64 v292; 
+  float v294; 
+  float v295; 
+  float v297; 
+  float v298; 
+  __int64 v299; 
+  float v300; 
+  float v301; 
+  float v302; 
+  float v303; 
+  float v305; 
+  float v306; 
+  float v308; 
+  float v309; 
+  int v310; 
+  const char *v311; 
+  float v312; 
+  float v313; 
+  const char *v314; 
+  double v315; 
+  float v316; 
+  float v317; 
+  double v318; 
+  const char *v319; 
+  float v320; 
+  float v321; 
+  float v322; 
+  float v323; 
+  float v324; 
+  double v325; 
+  float v326; 
+  float v327; 
+  double v328; 
+  const char *v329; 
+  float v330; 
+  float v331; 
+  float v332; 
+  float v333; 
+  float v334; 
+  float v335; 
+  float v336; 
+  float v337; 
+  const char *v338; 
+  float v339; 
+  float v340; 
+  const char *v341; 
+  float v342; 
+  float v343; 
+  float v344; 
+  float v345; 
+  float v346; 
+  float v347; 
+  float v348; 
+  float v349; 
+  const char *v350; 
+  const char *v351; 
+  float v352; 
+  float v353; 
+  const char *v354; 
+  float v355; 
+  float v356; 
+  const char *v357; 
+  float v358; 
+  float v359; 
+  float v360; 
+  const char *v361; 
+  float v362; 
+  float v363; 
+  float v364; 
+  float v365; 
+  float v366; 
+  float v367; 
+  float v368; 
+  float v369; 
+  float v370; 
+  float v371; 
+  float v372; 
+  float v373; 
+  const char *v374; 
+  float v375; 
+  float v376; 
+  const char *v377; 
+  float v378; 
+  float v379; 
+  float v380; 
+  float v381; 
+  float v382; 
+  float v383; 
+  float v384; 
+  float v385; 
+  float v386; 
+  float v387; 
+  float v388; 
+  float v389; 
+  const char *v390; 
+  float v391; 
+  float v392; 
+  float v393; 
+  float v394; 
   char *fmt; 
-  float fmtf; 
-  char *fmtg; 
-  char *fmth; 
-  char *fmti; 
-  char *fmtj; 
   char *fmta; 
-  char *fmtk; 
-  char *fmtl; 
-  char *fmtm; 
-  char *fmtn; 
-  char *fmto; 
-  char *fmtp; 
-  char *fmtq; 
-  char *fmtr; 
-  char *fmts; 
-  char *fmtt; 
-  char *fmtu; 
-  char *fmtv; 
-  char *fmtw; 
-  char *fmtx; 
-  char *fmty; 
   char *fmtb; 
-  char *fmtc; 
-  char *fmtz; 
-  char *fmtba; 
-  char *fmtbb; 
-  char *fmtbc; 
-  char *fmtd; 
-  char *fmtbd; 
-  char *fmtbe; 
-  char *fmtbf; 
-  char *fmtbg; 
-  char *fmte; 
-  char *fmtbh; 
-  char *fmtbi; 
-  char *fmtbj; 
-  char *fmtbk; 
+  double fmtc; 
+  double fmtd; 
   __int64 forceColor; 
-  int forceColorn; 
-  int forceColoro; 
-  int forceColorp; 
-  int forceColorq; 
-  int forceColorr; 
-  double forceColors; 
   __int64 forceColora; 
   __int64 forceColorb; 
-  __int64 forceColorc; 
-  __int64 forceColord; 
-  __int64 forceColore; 
-  double forceColort; 
-  double forceColoru; 
-  double forceColorv; 
-  __int64 forceColorf; 
-  __int64 forceColorg; 
-  int forceColorw; 
-  int forceColorx; 
-  int forceColory; 
-  int forceColorz; 
-  double forceColorba; 
-  double forceColorh; 
-  double forceColorbb; 
-  __int64 forceColori; 
-  __int64 forceColorj; 
-  double forceColorbc; 
-  double forceColork; 
-  double forceColorbd; 
-  __int64 forceColorl; 
-  __int64 forceColorm; 
-  double forceColorbe; 
-  double forceColorbf; 
-  double forceColorbg; 
+  double forceColorc; 
+  double forceColord; 
+  double forceColore; 
+  double forceColorf; 
   __int64 shadow; 
-  int shadowk; 
-  int shadowl; 
-  int shadowm; 
-  int shadown; 
-  __int64 shadowa; 
-  __int64 shadowb; 
-  __int64 shadowc; 
-  __int64 shadowd; 
-  double shadowo; 
-  double shadowp; 
-  int shadowq; 
-  int shadowr; 
-  int shadows; 
-  int shadowt; 
-  double shadowu; 
-  double shadowe; 
-  __int64 shadowf; 
-  __int64 shadowg; 
-  double shadowv; 
-  double shadowh; 
-  __int64 shadowi; 
-  __int64 shadowj; 
-  float v1246; 
-  float v1247; 
-  float v1248; 
-  float v1249; 
-  float v1250; 
-  float v1251; 
-  float v1252; 
-  float v1253; 
-  float v1254; 
-  float v1255; 
-  float v1256; 
-  float v1257; 
-  float v1258; 
-  float v1259; 
-  float v1260; 
-  float v1261; 
-  float v1262; 
-  float v1263; 
-  float v1264; 
-  float v1265; 
-  float v1266; 
-  float v1267; 
-  float v1268; 
-  float v1269; 
-  float v1270; 
-  float v1271; 
-  float v1272; 
-  float v1273; 
-  float v1274; 
-  float v1275; 
-  float v1276; 
-  float v1277; 
-  float v1278; 
-  float v1279; 
-  float v1280; 
-  float v1281; 
-  float v1282; 
-  float v1283; 
-  __int64 v1284; 
-  float v1285; 
-  __int64 v1286; 
-  float v1287; 
-  float v1288; 
-  float v1289; 
-  float v1290; 
-  float v1291; 
-  float v1292; 
-  float v1293; 
-  float v1294; 
-  float v1295; 
-  float v1296; 
-  float v1297; 
-  float v1298; 
-  float v1299; 
-  float v1300; 
-  float v1301; 
-  float v1302; 
-  float v1303; 
-  float v1304; 
-  float v1305; 
-  float v1306; 
-  float v1307; 
-  float v1308; 
-  float v1309; 
-  float v1310; 
-  float v1311; 
-  float v1312; 
-  float v1313; 
-  float v1314; 
-  float v1315; 
-  float v1316; 
-  float v1317; 
-  float v1318; 
-  float v1319; 
-  float v1320; 
-  float v1321; 
-  float v1322; 
-  float v1323; 
-  float v1324; 
-  float v1325; 
-  float v1326; 
-  float v1327; 
-  float v1328; 
-  float v1329; 
-  float v1330; 
-  float v1331; 
-  float v1332; 
-  float v1333; 
-  float v1334; 
-  float v1335; 
-  float v1336; 
-  float v1337; 
-  float v1338; 
-  float v1339; 
-  float v1340; 
-  float v1341; 
-  float v1342; 
-  float v1343; 
-  float v1344; 
-  float v1345; 
-  double v1346; 
-  float v1347; 
-  double v1348; 
-  float v1349; 
-  float v1350; 
-  __int64 v1351; 
-  double v1352; 
-  float v1353; 
-  double v1354; 
-  float v1355; 
-  float v1356; 
-  __int64 v1357; 
-  float v1358; 
-  float v1359; 
-  float v1360; 
-  float v1361; 
-  float v1362; 
-  float v1363; 
-  float v1364; 
-  float v1365; 
-  float v1366; 
-  float v1367; 
-  float v1368; 
-  float v1369; 
-  float v1370; 
-  float v1371; 
-  float v1372; 
-  float v1373; 
-  float v1374; 
-  float v1375; 
-  float v1376; 
-  float v1377; 
-  float v1378; 
-  float v1379; 
-  float v1380; 
-  float v1381; 
-  float v1382; 
-  __int64 adjust; 
-  __int64 adjusta; 
-  double adjustf; 
-  double adjustb; 
-  __int64 adjustc; 
-  double adjustg; 
-  double adjustd; 
-  __int64 adjuste; 
-  __int64 v1391; 
-  __int64 v1392; 
-  double v1393; 
-  __int64 v1394; 
-  double v1395; 
-  __int64 v1396; 
-  const char *v1397; 
-  __int64 v1398[2]; 
-  __int128 v1399; 
-  __int128 v1400; 
-  __int64 v1401[14]; 
-  __int64 v1402[14]; 
+  double shadowa; 
+  double shadowb; 
+  double shadowc; 
+  double shadowd; 
+  double v412; 
+  double v413; 
+  double adjust; 
+  double adjusta; 
+  double v416; 
+  double v417; 
+  const char *v418; 
+  __int64 v419[2]; 
+  __int128 v420; 
+  __int128 v421; 
+  __int64 v422[14]; 
+  __int64 v423[14]; 
   char dest[256]; 
-  char v1404; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
-  _RDI = y;
-  _R15 = x;
-  _R14 = event;
-  __asm { vmovss  xmm6, [rbp+200h+charHeight] }
   if ( event->base.name && *event->base.name )
   {
     type = event->type;
     if ( (unsigned int)type >= 0x2C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 3287, ASSERT_TYPE_ASSERT, "(unsigned)( eventType ) < (unsigned)( ( sizeof( *array_counter( s_scriptable_eventTypeNames ) ) + 0 ) )", "eventType doesn't index s_scriptable_eventTypeNames\n\t%i not in [0, %i)", type, 44) )
       __debugbreak();
-    Com_sprintf(dest, 0x100ui64, "Name:%s Type:%s", _R14->base.name, s_scriptable_eventTypeNames[type]);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]
-      vmovaps xmm0, xmm2
-    }
+    Com_sprintf(dest, 0x100ui64, "Name:%s Type:%s", event->base.name, s_scriptable_eventTypeNames[type]);
+    v11 = *y;
+    v12 = *y;
   }
   else
   {
-    v19 = event->type;
-    if ( (unsigned int)v19 >= 0x2C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 3287, ASSERT_TYPE_ASSERT, "(unsigned)( eventType ) < (unsigned)( ( sizeof( *array_counter( s_scriptable_eventTypeNames ) ) + 0 ) )", "eventType doesn't index s_scriptable_eventTypeNames\n\t%i not in [0, %i)", v19, 44) )
+    v13 = event->type;
+    if ( (unsigned int)v13 >= 0x2C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 3287, ASSERT_TYPE_ASSERT, "(unsigned)( eventType ) < (unsigned)( ( sizeof( *array_counter( s_scriptable_eventTypeNames ) ) + 0 ) )", "eventType doesn't index s_scriptable_eventTypeNames\n\t%i not in [0, %i)", v13, 44) )
       __debugbreak();
-    Com_sprintf(dest, 0x100ui64, "Type:%s", s_scriptable_eventTypeNames[v19]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovaps xmm2, xmm0; y
-    }
+    Com_sprintf(dest, 0x100ui64, "Type:%s", s_scriptable_eventTypeNames[v13]);
+    v12 = *y;
+    v11 = *y;
   }
-  __asm
+  if ( v11 > 0.0 && v11 < 1080.0 )
   {
-    vmovss  xmm7, cs:__real@44870000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm2, xmm8
-    vmovss  xmm9, [rbp+200h+tabWidth]
-    vaddss  xmm0, xmm6, xmm0
-    vmovss  dword ptr [rdi], xmm0
+    CG_DrawStringExt(scrPlace, *x, v11, dest, &colorWhite, 0, 1, charHeight, 0);
+    v12 = *y;
   }
-  flags = _R14->base.flags;
-  v26 = 0;
-  v27 = flags == 0;
+  *y = charHeight + v12;
+  flags = event->base.flags;
   if ( flags )
-  {
-    __asm
-    {
-      vmovss  [rsp+300h+forceColor], xmm6
-      vmovss  dword ptr [rsp+300h+fmt], xmm9
-    }
-    ScriptableBg_DrawDefFlags(flags, scrPlace, _R15, _RDI, fmtf, *(float *)&forceColorn);
-  }
-  switch ( _R14->type )
+    ScriptableBg_DrawDefFlags(flags, scrPlace, x, y, tabWidth, charHeight);
+  switch ( event->type )
   {
     case Scriptable_EventType_StateChange:
-      p_name = &_R14->data.stateChange.part->name;
-      if ( p_name && *p_name )
+      part = event->data.stateChange.part;
+      if ( part && part->name )
       {
-        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", *p_name);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", part->name);
+        v16 = *y;
+        v17 = *y;
+        if ( *y > 0.0 && v16 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v16, dest, &colorWhite, 0, 1, charHeight, 0);
+          v17 = *y;
         }
-        if ( !(v29 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v29 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1246, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v17 + charHeight;
       }
-      Com_sprintf(dest, 0x100ui64, "State:%i", _R14->data.stateChange.stateIdx);
-      goto LABEL_742;
+      Com_sprintf(dest, 0x100ui64, "State:%i", event->data.stateChange.stateIdx);
+      goto LABEL_744;
     case Scriptable_EventType_Wait:
-      __asm
+      delayMin = event->data.wait.delayMin;
+      delayMax = event->data.wait.delayMax;
+      v20 = delayMin;
+      if ( delayMax > delayMin )
       {
-        vmovss  xmm0, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 1
-        vmovss  xmm1, dword ptr [r14+24h]
-        vcomiss xmm1, xmm0
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      if ( v26 | v27 )
-      {
-        Com_sprintf(dest, 0x100ui64, "Time:%.3f", *(double *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]
-          vmovaps xmm0, xmm2
-        }
+        Com_sprintf(dest, 0x100ui64, "Random Time between %.3f and %.3f", v20, delayMax);
+        v22 = *y;
+        v21 = *y;
       }
       else
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm1, xmm1
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "Random Time between %.3f and %.3f", *(double *)&_XMM3, *(double *)&fmtg);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovaps xmm2, xmm0; y
-        }
+        Com_sprintf(dest, 0x100ui64, "Time:%.3f", v20);
+        v21 = *y;
+        v22 = *y;
       }
-      __asm { vcomiss xmm2, xmm8 }
-      if ( !(v40 | v41) )
+      if ( v21 > 0.0 && v21 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v40 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1247, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v21, dest, &colorWhite, 0, 1, charHeight, 0);
+        v22 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm6, xmm0
-        vmovss  dword ptr [rdi], xmm0
-      }
-      eventStreamBufferOffsetClient = _R14->data.wait.eventStreamBufferOffsetClient;
-      eventStreamBufferOffsetServer = _R14->data.wait.eventStreamBufferOffsetServer;
-      goto LABEL_28;
+      *y = charHeight + v22;
+      eventStreamBufferOffsetClient = event->data.wait.eventStreamBufferOffsetClient;
+      eventStreamBufferOffsetServer = event->data.wait.eventStreamBufferOffsetServer;
+      goto LABEL_31;
     case Scriptable_EventType_Random:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Threshold:%.3f", event->data.wait.delayMin);
+      v25 = *y;
+      v26 = *y;
+      if ( *y > 0.0 && v25 < 1080.0 )
       {
-        vmovss  xmm3, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v25, dest, &colorWhite, 0, 1, charHeight, 0);
+        v26 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Threshold:%.3f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v54 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v54 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1248, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _R14->data.stateChange.stateIdx )
+      *y = v26 + charHeight;
+      if ( event->data.stateChange.stateIdx )
       {
         Com_sprintf(dest, 0x100ui64, "<= threshold %i %s");
-        __asm
+        v28 = *y;
+        v29 = *y;
+        if ( *y > 0.0 && v28 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v28, dest, &colorWhite, 0, 1, charHeight, 0);
+          v29 = *y;
         }
-        if ( !(v60 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v60 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1249, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.random.eventsA, _R14->data.stateChange.stateIdx, scrPlace, _R15, _RDI, *(float *)&forceColoro, *(float *)&shadowk);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v29 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.random.eventsA, event->data.stateChange.stateIdx, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      if ( _R14->data.random.eventBCount )
+      if ( event->data.random.eventBCount )
       {
         Com_sprintf(dest, 0x100ui64, "> threshold %i %s");
-        __asm
+        v31 = *y;
+        v32 = *y;
+        if ( *y > 0.0 && v31 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v31, dest, &colorWhite, 0, 1, charHeight, 0);
+          v32 = *y;
         }
-        if ( !(v69 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v69 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1250, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.random.eventsB, _R14->data.random.eventBCount, scrPlace, _R15, _RDI, *(float *)&forceColorp, *(float *)&shadowl);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v32 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.random.eventsB, event->data.random.eventBCount, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      eventStreamBufferOffsetClient = _R14->data.random.eventStreamBufferOffsetClient;
-      eventStreamBufferOffsetServer = _R14->data.random.eventStreamBufferOffsetServer;
-      goto LABEL_28;
+      eventStreamBufferOffsetClient = event->data.random.eventStreamBufferOffsetClient;
+      eventStreamBufferOffsetServer = event->data.random.eventStreamBufferOffsetServer;
+      goto LABEL_31;
     case Scriptable_EventType_Script:
-      notification = _R14->data.script.notification;
+      notification = event->data.script.notification;
       if ( notification && *notification )
       {
-        LODWORD(fmt) = _R14->data.script.scrNotification;
+        LODWORD(fmt) = event->data.script.scrNotification;
         Com_sprintf(dest, 0x100ui64, "Name:%s Script:%i", notification, fmt);
-        __asm
+        v34 = *y;
+        v35 = *y;
+        if ( *y > 0.0 && v34 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v34, dest, &colorWhite, 0, 1, charHeight, 0);
+          v35 = *y;
         }
-        if ( !(v78 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v78 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1251, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v35 + charHeight;
       }
-      Com_sprintf(dest, 0x100ui64, "Param:%i", _R14->data.objective.settings.label);
-      Com_sprintf(dest, 0x100ui64, "Notify Callback:%i", _R14->data.anonymous.buffer[16]);
-      goto LABEL_742;
+      Com_sprintf(dest, 0x100ui64, "Param:%i", event->data.objective.settings.label);
+      Com_sprintf(dest, 0x100ui64, "Notify Callback:%i", event->data.anonymous.buffer[16]);
+      goto LABEL_744;
     case Scriptable_EventType_Model:
-      v83 = &_R14->data.stateChange.part->name;
-      if ( _R14->data.anonymous.buffer[0] == 2 )
+      v36 = event->data.stateChange.part;
+      if ( event->data.anonymous.buffer[0] == 2 )
       {
-        if ( !v83 )
-          goto LABEL_58;
+        if ( !v36 )
+          goto LABEL_61;
       }
-      else if ( !v83 )
+      else if ( !v36 )
       {
-        goto LABEL_58;
+        goto LABEL_61;
       }
-      Com_sprintf(dest, 0x100ui64, "Name:%s", *v83);
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Name:%s", v36->name);
+      v37 = *y;
+      v38 = *y;
+      if ( *y > 0.0 && v37 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v37, dest, &colorWhite, 0, 1, charHeight, 0);
+        v38 = *y;
       }
-      if ( !(v84 | v27) )
+      *y = v38 + charHeight;
+LABEL_61:
+      v39 = "Movable";
+      if ( event->data.anonymous.buffer[19] )
+        v39 = "Never Moves";
+      Com_sprintf(dest, 0x100ui64, v39);
+      v40 = *y;
+      v41 = *y;
+      if ( *y > 0.0 && v40 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v84 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1252, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v40, dest, &colorWhite, 0, 1, charHeight, 0);
+        v41 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-LABEL_58:
-      v89 = "Movable";
-      if ( _R14->data.anonymous.buffer[19] )
-        v89 = "Never Moves";
-      Com_sprintf(dest, 0x100ui64, v89);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v90 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v90 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1253, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[20] )
-        goto LABEL_747;
+      *y = v41 + charHeight;
+      if ( !event->data.anonymous.buffer[20] )
+        return;
       Com_sprintf(dest, 0x100ui64, "Dynamic Simulation");
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_Collision:
-      v95 = _R14->data.script.notification;
-      if ( !v95 || !*v95 )
+      v42 = event->data.script.notification;
+      if ( !v42 || !*v42 )
       {
         Com_sprintf(dest, 0x100ui64, "Reset collision");
-        goto LABEL_742;
+        goto LABEL_744;
       }
-      Com_sprintf(dest, 0x100ui64, "Name:%s", v95);
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Name:%s", v42);
+      v43 = *y;
+      v44 = *y;
+      if ( *y > 0.0 && v43 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v43, dest, &colorWhite, 0, 1, charHeight, 0);
+        v44 = *y;
       }
-      if ( !(v96 | v27) )
+      *y = v44 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Clipmap Model Index:%i", event->data.objective.settings.label);
+      v45 = *y;
+      v46 = *y;
+      if ( *y > 0.0 && v45 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v96 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1254, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v45, dest, &colorWhite, 0, 1, charHeight, 0);
+        v46 = *y;
       }
-      __asm
+      *y = v46 + charHeight;
+      param = event->data.script.param;
+      if ( (unsigned int)(param + 2) > 1 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Clipmap Model Index:%i", _R14->data.objective.settings.label);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v101 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v101 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1255, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      label = _R14->data.objective.settings.label;
-      if ( label + 2 > 1 )
-      {
-        BrushModel = CM_GetBrushModel(label);
+        BrushModel = CM_GetBrushModel(param);
         if ( !BrushModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 382, ASSERT_TYPE_ASSERT, "(clipmapModel)", (const char *)&queryFormat, "clipmapModel") )
           __debugbreak();
-        v108 = &BrushModel->physicsAsset->name;
-        if ( v108 )
+        p_name = &BrushModel->physicsAsset->name;
+        if ( p_name )
         {
           LODWORD(fmt) = BrushModel->physicsShapeOverrideIdx;
-          Com_sprintf(dest, 0x100ui64, "Asset:%s Shape:%i", *v108, fmt);
-          __asm
+          Com_sprintf(dest, 0x100ui64, "Asset:%s Shape:%i", *p_name, fmt);
+          v50 = *y;
+          v51 = *y;
+          if ( *y > 0.0 && v50 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v50, dest, &colorWhite, 0, 1, charHeight, 0);
+            v51 = *y;
           }
-          if ( !(v109 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v109 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1256, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          *y = v51 + charHeight;
         }
       }
-      if ( _R14->data.anonymous.buffer[8] )
+      if ( event->data.anonymous.buffer[8] )
       {
         Com_sprintf(dest, 0x100ui64, "Creates AI Obstacle");
-        __asm
+        v52 = *y;
+        v53 = *y;
+        if ( *y > 0.0 && v52 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v52, dest, &colorWhite, 0, 1, charHeight, 0);
+          v53 = *y;
         }
-        if ( !(v114 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v114 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1257, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v53 + charHeight;
       }
-      v119 = "Movable";
-      if ( _R14->data.anonymous.buffer[16] )
-        v119 = "Never Moves";
-      Com_sprintf(dest, 0x100ui64, v119);
-      __asm
+      v54 = "Movable";
+      if ( event->data.anonymous.buffer[16] )
+        v54 = "Never Moves";
+      Com_sprintf(dest, 0x100ui64, v54);
+      v55 = *y;
+      v56 = *y;
+      if ( *y > 0.0 && v55 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v55, dest, &colorWhite, 0, 1, charHeight, 0);
+        v56 = *y;
       }
-      if ( !(v120 | v27) )
+      *y = v56 + charHeight;
+      v57 = "No Push";
+      if ( event->data.anonymous.buffer[17] )
+        v57 = "Can Push";
+      Com_sprintf(dest, 0x100ui64, v57);
+      v58 = *y;
+      v59 = *y;
+      if ( *y > 0.0 && v58 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v120 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1258, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v58, dest, &colorWhite, 0, 1, charHeight, 0);
+        v59 = *y;
       }
-      __asm
+      *y = v59 + charHeight;
+      v60 = "No Touch";
+      if ( event->data.anonymous.buffer[18] )
+        v60 = "Can Touch";
+      Com_sprintf(dest, 0x100ui64, v60);
+      v61 = *y;
+      v62 = *y;
+      if ( *y > 0.0 && v61 < 1080.0 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
+        CG_DrawStringExt(scrPlace, *x, v61, dest, &colorWhite, 0, 1, charHeight, 0);
+        v62 = *y;
       }
-      v125 = "No Push";
-      if ( _R14->data.anonymous.buffer[17] )
-        v125 = "Can Push";
-      Com_sprintf(dest, 0x100ui64, v125);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v126 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v126 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1259, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v131 = "No Touch";
-      if ( _R14->data.anonymous.buffer[18] )
-        v131 = "Can Touch";
-      Com_sprintf(dest, 0x100ui64, v131);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v132 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v132 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1260, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      eventsB = _R14->data.random.eventsB;
+      *y = v62 + charHeight;
+      eventsB = event->data.random.eventsB;
       if ( eventsB )
       {
         Com_sprintf(dest, 0x100ui64, "Model: %s", eventsB->base.name);
-        goto LABEL_742;
+        goto LABEL_744;
       }
-      goto LABEL_747;
+      return;
     case Scriptable_EventType_Animation:
-      if ( _R14->data.anonymous.buffer[8] )
+      if ( event->data.anonymous.buffer[8] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v64 = *y;
+        v65 = *y;
+        if ( *y > 0.0 && v64 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v64, dest, &colorWhite, 0, 1, charHeight, 0);
+          v65 = *y;
         }
-        if ( !(v138 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v138 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1261, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v65 + charHeight;
       }
-      v143 = (const char **)_R14->data.script.notification;
-      if ( v143 )
+      v66 = event->data.script.notification;
+      if ( v66 )
       {
-        Com_sprintf(dest, 0x100ui64, "Name:%s", *v143);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Name:%s", *(const char **)v66);
+        v67 = *y;
+        v68 = *y;
+        if ( *y > 0.0 && v67 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v67, dest, &colorWhite, 0, 1, charHeight, 0);
+          v68 = *y;
         }
-        if ( !(v144 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v144 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1262, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v68 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[9] )
+      if ( event->data.anonymous.buffer[9] )
       {
         Com_sprintf(dest, 0x100ui64, "Override");
-        __asm
+        v69 = *y;
+        v70 = *y;
+        if ( *y > 0.0 && v69 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v69, dest, &colorWhite, 0, 1, charHeight, 0);
+          v70 = *y;
         }
-        if ( !(v149 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v149 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1263, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v70 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[10] )
+      if ( event->data.anonymous.buffer[10] )
       {
         Com_sprintf(dest, 0x100ui64, "PauseOnExit");
-        __asm
+        v71 = *y;
+        v72 = *y;
+        if ( *y > 0.0 && v71 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v71, dest, &colorWhite, 0, 1, charHeight, 0);
+          v72 = *y;
         }
-        if ( !(v154 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v154 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1264, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v72 + charHeight;
       }
-      v159 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80);
-      v160 = 0;
-      v161 = !v159;
-      if ( v159 )
+      if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80) && event->data.anonymous.buffer[11] )
       {
-        v160 = 0;
-        v161 = _R14->data.anonymous.buffer[11] == 0;
-        if ( _R14->data.anonymous.buffer[11] )
+        Com_sprintf(dest, 0x100ui64, "ClientOnly (this option only available in MP)");
+        v73 = *y;
+        v74 = *y;
+        if ( *y > 0.0 && v73 < 1080.0 )
         {
-          Com_sprintf(dest, 0x100ui64, "ClientOnly (this option only available in MP)");
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v160 | v161) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v160 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1265, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          CG_DrawStringExt(scrPlace, *x, v73, dest, &colorWhite, 0, 1, charHeight, 0);
+          v74 = *y;
         }
+        *y = v74 + charHeight;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+2Ch]
-        vmovss  xmm1, dword ptr [r14+30h]
-        vcomiss xmm1, xmm0
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      if ( v160 | v161 )
-      {
-        Com_sprintf(dest, 0x100ui64, "StartTime:%.3f", *(double *)&_XMM3);
-      }
+      startTimeMin = event->data.animation.startTimeMin;
+      startTimeMax = event->data.animation.startTimeMax;
+      v77 = startTimeMin;
+      if ( startTimeMax > startTimeMin )
+        Com_sprintf(dest, 0x100ui64, "StartTime Random between: %.3f and %.3f", v77, startTimeMax);
       else
+        Com_sprintf(dest, 0x100ui64, "StartTime:%.3f", v77);
+      v78 = *y;
+      v79 = *y;
+      if ( *y > 0.0 && v78 < 1080.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm1, xmm1
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "StartTime Random between: %.3f and %.3f", *(double *)&_XMM3, *(double *)&fmth);
+        CG_DrawStringExt(scrPlace, *x, v78, dest, &colorWhite, 0, 1, charHeight, 0);
+        v79 = *y;
       }
-      __asm
+      *y = v79 + charHeight;
+      v80 = "Seconds";
+      if ( event->data.anonymous.buffer[20] )
+        v80 = "Normalized form";
+      Com_sprintf(dest, 0x100ui64, "StartTime in %s", v80);
+      v81 = *y;
+      v82 = *y;
+      if ( *y > 0.0 && v81 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v81, dest, &colorWhite, 0, 1, charHeight, 0);
+        v82 = *y;
       }
-      if ( !(v170 | v171) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v170 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1266, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v177 = "Seconds";
-      if ( _R14->data.anonymous.buffer[20] )
-        v177 = "Normalized form";
-      Com_sprintf(dest, 0x100ui64, "StartTime in %s", v177);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v178 | v179) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v178 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1267, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+38h]
-        vmovss  xmm2, dword ptr [r14+3Ch]
-        vcomiss xmm2, xmm1
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      if ( v178 | v179 )
-      {
-        Com_sprintf(dest, 0x100ui64, "Playback Rate:%.3f", *(double *)&_XMM3);
-      }
+      *y = v82 + charHeight;
+      playbackRateMin = event->data.animation.playbackRateMin;
+      playbackRateMax = event->data.animation.playbackRateMax;
+      v85 = playbackRateMin;
+      if ( playbackRateMax > playbackRateMin )
+        Com_sprintf(dest, 0x100ui64, "Playback Rate Random between: %.3f and %.3f", v85, playbackRateMax);
       else
+        Com_sprintf(dest, 0x100ui64, "Playback Rate:%.3f", v85);
+      v86 = *y;
+      v87 = *y;
+      if ( *y > 0.0 && v86 < 1080.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm2, xmm2
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "Playback Rate Random between: %.3f and %.3f", *(double *)&_XMM3, *(double *)&fmti);
+        CG_DrawStringExt(scrPlace, *x, v86, dest, &colorWhite, 0, 1, charHeight, 0);
+        v87 = *y;
       }
-      __asm
+      *y = v87 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Blend Time:%.3f", event->data.animation.blendTime);
+      v88 = *y;
+      v89 = *y;
+      if ( *y > 0.0 && v88 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v88, dest, &colorWhite, 0, 1, charHeight, 0);
+        v89 = *y;
       }
-      if ( !(v188 | v189) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v188 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1268, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+40h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "Blend Time:%.3f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v198 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v198 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1269, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
+      *y = v89 + charHeight;
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING|0x80) )
       {
-        Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", _R14->data.animation.eventStreamBufferOffsetClient);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", event->data.animation.eventStreamBufferOffsetClient);
+        v90 = *y;
+        v91 = *y;
+        if ( *y > 0.0 && v90 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v90, dest, &colorWhite, 0, 1, charHeight, 0);
+          v91 = *y;
         }
-        if ( !(v203 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v203 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1270, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v91 + charHeight;
       }
-      eventAtEndCount = _R14->data.animation.eventAtEndCount;
+      eventAtEndCount = event->data.animation.eventAtEndCount;
       if ( (_DWORD)eventAtEndCount )
       {
-        v209 = "Events";
+        v93 = "Events";
         if ( (_DWORD)eventAtEndCount == 1 )
-          v209 = "Event";
-        Com_sprintf(dest, 0x100ui64, "At End, execute %i %s", eventAtEndCount, v209);
-        __asm
+          v93 = "Event";
+        Com_sprintf(dest, 0x100ui64, "At End, execute %i %s", eventAtEndCount, v93);
+        v94 = *y;
+        v95 = *y;
+        if ( *y > 0.0 && v94 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v94, dest, &colorWhite, 0, 1, charHeight, 0);
+          v95 = *y;
         }
-        if ( !(v210 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v210 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1271, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.animation.eventsAtEnd, _R14->data.animation.eventAtEndCount, scrPlace, _R15, _RDI, *(float *)&forceColorq, *(float *)&shadowm);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v95 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.animation.eventsAtEnd, event->data.animation.eventAtEndCount, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      goto LABEL_747;
+      return;
     case Scriptable_EventType_HideShowBone:
-      v218 = _R14->data.script.notification;
-      if ( !v218 || !*v218 )
-        goto LABEL_747;
-      v219 = "Only";
-      if ( _R14->data.anonymous.buffer[14] )
-        v219 = "And Children";
-      v220 = "Show";
-      if ( _R14->data.anonymous.buffer[12] )
-        v220 = "Hide";
-      LODWORD(forceColor) = _R14->data.script.scrNotification;
-      Com_sprintf(dest, 0x100ui64, "%s Bone:%s Script:%i %s", v220, v218, forceColor, v219);
-      __asm
+      v96 = event->data.script.notification;
+      if ( !v96 || !*v96 )
+        return;
+      v97 = "Only";
+      if ( event->data.anonymous.buffer[14] )
+        v97 = "And Children";
+      v98 = "Show";
+      if ( event->data.anonymous.buffer[12] )
+        v98 = "Hide";
+      LODWORD(forceColor) = event->data.script.scrNotification;
+      Com_sprintf(dest, 0x100ui64, "%s Bone:%s Script:%i %s", v98, v96, forceColor, v97);
+      v99 = *y;
+      v100 = *y;
+      if ( *y > 0.0 && v99 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v99, dest, &colorWhite, 0, 1, charHeight, 0);
+        v100 = *y;
       }
-      if ( !(v221 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v221 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1272, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[13] )
-        goto LABEL_747;
+      *y = v100 + charHeight;
+      if ( !event->data.anonymous.buffer[13] )
+        return;
       Com_sprintf(dest, 0x100ui64, "Allow missing tag");
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_DisablePhysicsSubShape:
-      v226 = _R14->data.script.notification;
-      if ( !v226 || !*v226 )
-        goto LABEL_747;
-      Com_sprintf(dest, 0x100ui64, "Disable Sub-Shape:%s Hash:%zu", v226, _R14->data.disablePhysicsSubShape.mutableShapeHash);
-      __asm
+      v101 = event->data.script.notification;
+      if ( !v101 || !*v101 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "Disable Sub-Shape:%s Hash:%zu", v101, event->data.disablePhysicsSubShape.mutableShapeHash);
+      v102 = *y;
+      v103 = *y;
+      if ( *y > 0.0 && v102 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v102, dest, &colorWhite, 0, 1, charHeight, 0);
+        v103 = *y;
       }
-      if ( !(v227 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v227 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1273, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[16] )
-        goto LABEL_747;
+      *y = v103 + charHeight;
+      if ( !event->data.anonymous.buffer[16] )
+        return;
       Com_sprintf(dest, 0x100ui64, "Allow missing shape");
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_NoteTrack:
-      flatId = _R14->data.stateChange.partReference.flatId;
+      flatId = event->data.stateChange.partReference.flatId;
       if ( (_DWORD)flatId )
       {
-        v233 = "NoteTracks";
+        v105 = "NoteTracks";
         if ( (_DWORD)flatId == 1 )
-          v233 = "NoteTrack";
-        Com_sprintf(dest, 0x100ui64, "%i %s", flatId, v233);
-        __asm
+          v105 = "NoteTrack";
+        Com_sprintf(dest, 0x100ui64, "%i %s", flatId, v105);
+        v106 = *y;
+        v107 = *y;
+        if ( *y > 0.0 && v106 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v106, dest, &colorWhite, 0, 1, charHeight, 0);
+          v107 = *y;
         }
-        if ( !(v234 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v234 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1274, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableNoteTracksDef(_R14->data.noteTrack.noteTracks, _R14->data.stateChange.partReference.flatId, scrPlace, _R15, _RDI, *(float *)&forceColorr, *(float *)&shadown);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v107 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableNoteTracksDef(event->data.noteTrack.noteTracks, event->data.stateChange.partReference.flatId, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      goto LABEL_747;
+      return;
     case Scriptable_EventType_ChunkDynent:
-      v242 = &_R14->data.chunkDynent.part->name;
-      if ( v242 && *v242 )
+      v108 = event->data.chunkDynent.part;
+      if ( v108 && v108->name )
       {
-        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", *v242);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", v108->name);
+        v109 = *y;
+        v110 = *y;
+        if ( *y > 0.0 && v109 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v109, dest, &colorWhite, 0, 1, charHeight, 0);
+          v110 = *y;
         }
-        if ( !(v243 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v243 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1275, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v110 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[4] )
+      if ( event->data.anonymous.buffer[4] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v111 = *y;
+        v112 = *y;
+        if ( *y > 0.0 && v111 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v111, dest, &colorWhite, 0, 1, charHeight, 0);
+          v112 = *y;
         }
-        if ( !(v248 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v248 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1276, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v112 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[5] )
+      if ( event->data.anonymous.buffer[5] )
       {
         Com_sprintf(dest, 0x100ui64, "Allow Cause to Drive Velocity");
-        __asm
+        v113 = *y;
+        v114 = *y;
+        if ( *y > 0.0 && v113 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v113, dest, &colorWhite, 0, 1, charHeight, 0);
+          v114 = *y;
         }
-        if ( !(v253 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v253 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1277, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v114 + charHeight;
       }
-      __asm
+      Com_sprintf(dest, 0x100ui64, "LinVel: (%.2f, %.2f, %.2f)", event->data.chunkDynent.launchLinVel.v[0], event->data.animation.startTimeMin, event->data.animation.startTimeMax);
+      v115 = *y;
+      v116 = *y;
+      if ( *y > 0.0 && v115 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+30h]
-        vmovss  xmm3, dword ptr [r14+28h]
-        vmovss  xmm1, dword ptr [r14+2Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm1
+        CG_DrawStringExt(scrPlace, *x, v115, dest, &colorWhite, 0, 1, charHeight, 0);
+        v116 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "LinVel: (%.2f, %.2f, %.2f)", *(double *)&_XMM3, *(double *)&fmtj, forceColors);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v265 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v265 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1278, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+3Ch]
-        vmovss  xmm2, dword ptr [r14+38h]
-        vmovss  xmm3, dword ptr [r14+34h]
-      }
-      v273 = "AngVel: (%.2f, %.2f, %.2f)";
-      goto LABEL_208;
+      *y = v116 + charHeight;
+      blendTime = event->data.animation.playbackRateMax;
+      v118 = event->data.animation.playbackRateMin;
+      v119 = event->data.chunkDynent.launchAngVel.v[0];
+      v120 = "AngVel: (%.2f, %.2f, %.2f)";
+      goto LABEL_211;
     case Scriptable_EventType_SpawnDynent:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v121 = *y;
+        v122 = *y;
+        if ( *y > 0.0 && v121 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v121, dest, &colorWhite, 0, 1, charHeight, 0);
+          v122 = *y;
         }
-        if ( !(v278 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v278 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1279, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v122 + charHeight;
       }
-      v283 = &_R14->data.stateChange.part->name;
-      if ( v283 )
+      v123 = event->data.stateChange.part;
+      if ( v123 )
       {
-        Com_sprintf(dest, 0x100ui64, "Model: %s", *v283);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Model: %s", v123->name);
+        v124 = *y;
+        v125 = *y;
+        if ( *y > 0.0 && v124 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v124, dest, &colorWhite, 0, 1, charHeight, 0);
+          v125 = *y;
         }
-        if ( !(v284 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v284 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1280, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v125 + charHeight;
       }
-      tagName = _R14->data.spawnDynent.tagName;
+      tagName = event->data.spawnDynent.tagName;
       if ( tagName && *tagName )
       {
-        LODWORD(fmt) = _R14->data.spawnDynent.scrTagName;
+        LODWORD(fmt) = event->data.spawnDynent.scrTagName;
         Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", tagName, fmt);
-        __asm
+        v127 = *y;
+        v128 = *y;
+        if ( *y > 0.0 && v127 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v127, dest, &colorWhite, 0, 1, charHeight, 0);
+          v128 = *y;
         }
-        if ( !(v290 | v27) )
+        *y = v128 + charHeight;
+        if ( event->data.anonymous.buffer[86] )
         {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v290 )
+          v129 = "ignore event";
+          if ( event->data.anonymous.buffer[87] )
+            v129 = "use root";
+          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v129);
+          v130 = *y;
+          v131 = *y;
+          if ( *y > 0.0 && v130 < 1080.0 )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1281, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
+            CG_DrawStringExt(scrPlace, *x, v130, dest, &colorWhite, 0, 1, charHeight, 0);
+            v131 = *y;
           }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
-        if ( _R14->data.anonymous.buffer[86] )
-        {
-          v295 = "ignore event";
-          if ( _R14->data.anonymous.buffer[87] )
-            v295 = "use root";
-          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v295);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v296 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v296 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1282, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          *y = v131 + charHeight;
         }
       }
-      if ( _R14->data.anonymous.buffer[28] )
+      if ( event->data.anonymous.buffer[28] )
       {
         Com_sprintf(dest, 0x100ui64, "Allow Cause to Drive Velocity");
-        __asm
+        v132 = *y;
+        v133 = *y;
+        if ( *y > 0.0 && v132 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v132, dest, &colorWhite, 0, 1, charHeight, 0);
+          v133 = *y;
         }
-        if ( !(v301 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v301 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1283, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v133 + charHeight;
       }
-      v306 = "LocalSpace";
-      if ( _R14->data.anonymous.buffer[32] )
+      v134 = "LocalSpace";
+      if ( event->data.anonymous.buffer[32] )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+64h]
-          vmovss  xmm1, dword ptr [r14+60h]
-          vmovss  xmm2, dword ptr [r14+5Ch]
-          vmovss  xmm3, dword ptr [r14+4Ch]
-          vmovss  xmm4, dword ptr [r14+48h]
-          vmovss  xmm5, dword ptr [r14+44h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2B8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+300h+adjust], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+300h+var_2C8], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        if ( _R14->data.anonymous.buffer[30] )
-          v306 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s LinVel: (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", v306, fmtk, forceColorb, shadowa, v1284, adjust, v1391);
+        if ( event->data.anonymous.buffer[30] )
+          v134 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s LinVel: (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", v134, event->data.spawnDynent.launchLinVel.v[0], event->data.spawnDynent.launchLinVel.v[1], event->data.spawnDynent.launchLinVel.v[2], event->data.spawnDynent.launchLinVel2.v[0], event->data.spawnDynent.launchLinVel2.v[1], event->data.spawnDynent.launchLinVel2.v[2]);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+4Ch]
-          vmovss  xmm1, dword ptr [r14+48h]
-          vmovss  xmm2, dword ptr [r14+44h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-        }
-        if ( _R14->data.anonymous.buffer[30] )
-          v306 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm2 }
-        Com_sprintf(dest, 0x100ui64, "%s LinVel: (%.2f, %.2f, %.2f)", v306, fmtl, forceColorc, shadowb);
+        if ( event->data.anonymous.buffer[30] )
+          v134 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s LinVel: (%.2f, %.2f, %.2f)", v134, event->data.spawnDynent.launchLinVel.v[0], event->data.spawnDynent.launchLinVel.v[1], event->data.spawnDynent.launchLinVel.v[2]);
       }
-      __asm
+      v135 = *y;
+      v136 = *y;
+      if ( *y > 0.0 && v135 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v135, dest, &colorWhite, 0, 1, charHeight, 0);
+        v136 = *y;
       }
-      if ( !(v319 | v320) )
+      *y = v136 + charHeight;
+      v137 = "LocalSpace";
+      if ( event->data.anonymous.buffer[33] )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v319 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1285, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v331 = "LocalSpace";
-      if ( _R14->data.anonymous.buffer[33] )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+70h]
-          vmovss  xmm1, dword ptr [r14+6Ch]
-          vmovss  xmm2, dword ptr [r14+68h]
-          vmovss  xmm3, dword ptr [r14+58h]
-          vmovss  xmm4, dword ptr [r14+54h]
-          vmovss  xmm5, dword ptr [r14+50h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2B8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+300h+adjust], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+300h+var_2C8], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        if ( _R14->data.anonymous.buffer[31] )
-          v331 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s AngVel: (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", v331, fmtm, forceColord, shadowc, v1286, adjusta, v1392);
+        if ( event->data.anonymous.buffer[31] )
+          v137 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s AngVel: (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", v137, event->data.spawnDynent.launchAngVel.v[0], event->data.spawnDynent.launchAngVel.v[1], event->data.spawnDynent.launchAngVel.v[2], event->data.spawnDynent.launchAngVel2.v[0], event->data.spawnDynent.launchAngVel2.v[1], event->data.spawnDynent.launchAngVel2.v[2]);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+58h]
-          vmovss  xmm1, dword ptr [r14+54h]
-          vmovss  xmm2, dword ptr [r14+50h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-        }
-        if ( _R14->data.anonymous.buffer[31] )
-          v331 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm2 }
-        Com_sprintf(dest, 0x100ui64, "%s AngVel: (%.2f, %.2f, %.2f)", v331, fmtn, forceColore, shadowd);
+        if ( event->data.anonymous.buffer[31] )
+          v137 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s AngVel: (%.2f, %.2f, %.2f)", v137, event->data.spawnDynent.launchAngVel.v[0], event->data.spawnDynent.launchAngVel.v[1], event->data.spawnDynent.launchAngVel.v[2]);
       }
-      __asm
+      v138 = *y;
+      v139 = *y;
+      if ( *y > 0.0 && v138 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v138, dest, &colorWhite, 0, 1, charHeight, 0);
+        v139 = *y;
       }
-      if ( !(v344 | v345) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v344 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1287, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      effectAlias = _R14->data.spawnDynent.effectAlias;
+      *y = v139 + charHeight;
+      effectAlias = event->data.spawnDynent.effectAlias;
       if ( effectAlias && *effectAlias )
       {
         Com_sprintf(dest, 0x100ui64, "Effect Alias:%s", effectAlias);
-        __asm
+        v141 = *y;
+        v142 = *y;
+        if ( *y > 0.0 && v141 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v141, dest, &colorWhite, 0, 1, charHeight, 0);
+          v142 = *y;
         }
-        if ( !(v357 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v357 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1288, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v142 + charHeight;
       }
-      particleSystemDef = _R14->data.spawnDynent.effectDef.particleSystemDef;
+      particleSystemDef = event->data.spawnDynent.effectDef.particleSystemDef;
       if ( !particleSystemDef )
-        goto LABEL_747;
+        return;
       Com_sprintf(dest, 0x100ui64, "Effect Def:%s", particleSystemDef->name);
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_PFX:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v144 = *y;
+        v145 = *y;
+        if ( *y > 0.0 && v144 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v144, dest, &colorWhite, 0, 1, charHeight, 0);
+          v145 = *y;
         }
-        if ( !(v363 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v363 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1289, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v145 + charHeight;
       }
-      v368 = _R14->data.particleFX.effectAlias;
-      if ( v368 && *v368 )
+      eventsAtEnd = event->data.animation.eventsAtEnd;
+      if ( eventsAtEnd && LOBYTE(eventsAtEnd->base.name) )
       {
-        Com_sprintf(dest, 0x100ui64, "Effect Alias:%s", v368);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Effect Alias:%s", (const char *)eventsAtEnd);
+        v147 = *y;
+        v148 = *y;
+        if ( *y > 0.0 && v147 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v147, dest, &colorWhite, 0, 1, charHeight, 0);
+          v148 = *y;
         }
-        if ( !(v369 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v369 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1290, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v148 + charHeight;
       }
-      v374 = &_R14->data.particleFX.effectDef.particleSystemDef->name;
-      if ( v374 )
+      v149 = event->data.particleFX.effectDef.particleSystemDef;
+      if ( v149 )
       {
-        Com_sprintf(dest, 0x100ui64, "Effect Def:%s", *v374);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Effect Def:%s", v149->name);
+        v150 = *y;
+        v151 = *y;
+        if ( *y > 0.0 && v150 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v150, dest, &colorWhite, 0, 1, charHeight, 0);
+          v151 = *y;
         }
-        if ( !(v375 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v375 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1291, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v151 + charHeight;
       }
-      if ( _R14->data.random.eventBCount )
+      if ( event->data.random.eventBCount )
       {
-        v380 = 0;
-        LODWORD(v1397) = 0;
+        v152 = 0;
+        LODWORD(v418) = 0;
         do
         {
-          v381 = *(_DWORD *)(_R14->data.disablePhysicsSubShape.mutableShapeHash + 4i64 * v380);
-          v382 = SL_ConvertToString(v381);
-          LODWORD(fmt) = v381;
-          Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v382, fmt);
-          __asm
+          v153 = *(_DWORD *)(event->data.disablePhysicsSubShape.mutableShapeHash + 4i64 * v152);
+          v154 = SL_ConvertToString(v153);
+          LODWORD(fmt) = v153;
+          Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v154, fmt);
+          v155 = *y;
+          v156 = *y;
+          if ( *y > 0.0 && v155 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v155, dest, &colorWhite, 0, 1, charHeight, 0);
+            v156 = *y;
           }
-          if ( !(v383 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v383 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1292, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          v380 = (_DWORD)v1397 + 1;
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
-          LODWORD(v1397) = v380;
+          v152 = (_DWORD)v418 + 1;
+          *y = v156 + charHeight;
+          LODWORD(v418) = v152;
         }
-        while ( v380 < _R14->data.random.eventBCount );
-        if ( _R14->data.anonymous.buffer[64] )
+        while ( v152 < event->data.random.eventBCount );
+        if ( event->data.anonymous.buffer[64] )
         {
-          v388 = "ignore event";
-          if ( _R14->data.anonymous.buffer[65] )
-            v388 = "use root";
-          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v388);
-          __asm
+          v157 = "ignore event";
+          if ( event->data.anonymous.buffer[65] )
+            v157 = "use root";
+          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v157);
+          v158 = *y;
+          v159 = *y;
+          if ( *y > 0.0 && v158 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v158, dest, &colorWhite, 0, 1, charHeight, 0);
+            v159 = *y;
           }
-          if ( !(v389 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v389 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1293, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          *y = v159 + charHeight;
         }
       }
-      v394 = "Don't use tag angles";
-      if ( _R14->data.anonymous.buffer[36] )
-        v394 = "Use Tag Angles";
-      Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, v394);
-      __asm
+      v160 = "Don't use tag angles";
+      if ( event->data.anonymous.buffer[36] )
+        v160 = "Use Tag Angles";
+      Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, v160);
+      v161 = *y;
+      v162 = *y;
+      if ( *y > 0.0 && v161 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v161, dest, &colorWhite, 0, 1, charHeight, 0);
+        v162 = *y;
       }
-      if ( !(v395 | v27) )
+      *y = v162 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Loop Rate:%.2f", event->data.spawnDynent.launchAngVel.v[2]);
+      v163 = *y;
+      v164 = *y;
+      if ( *y > 0.0 && v163 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v395 )
+        CG_DrawStringExt(scrPlace, *x, v163, dest, &colorWhite, 0, 1, charHeight, 0);
+        v164 = *y;
+      }
+      *y = v164 + charHeight;
+      if ( event->data.anonymous.buffer[60] )
+      {
+        v165 = "Stop on exit";
+        if ( event->data.anonymous.buffer[68] )
+          v165 = "Kill on exit";
+        Com_sprintf(dest, 0x100ui64, "Oneshot Looping %s", v165);
+        v166 = *y;
+        v167 = *y;
+        if ( *y > 0.0 && v166 < 1080.0 )
         {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1294, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
+          CG_DrawStringExt(scrPlace, *x, v166, dest, &colorWhite, 0, 1, charHeight, 0);
+          v167 = *y;
         }
+        *y = v167 + charHeight;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+58h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "Loop Rate:%.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v403 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v403 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1295, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _R14->data.anonymous.buffer[60] )
-      {
-        v408 = "Stop on exit";
-        if ( _R14->data.anonymous.buffer[68] )
-          v408 = "Kill on exit";
-        Com_sprintf(dest, 0x100ui64, "Oneshot Looping %s", v408);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v409 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v409 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1296, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
-      }
-      if ( !_R14->data.anonymous.buffer[67] )
-        goto LABEL_747;
+      if ( !event->data.anonymous.buffer[67] )
+        return;
       Com_sprintf(dest, 0x100ui64, "Is a viewmodel effect");
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_Sound:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v168 = *y;
+        v169 = *y;
+        if ( *y > 0.0 && v168 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v168, dest, &colorWhite, 0, 1, charHeight, 0);
+          v169 = *y;
         }
-        if ( !(v414 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v414 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1297, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v169 + charHeight;
       }
-      soundAlias = _R14->data.sound.soundAlias;
-      if ( soundAlias && *soundAlias )
+      v170 = event->data.random.eventsB;
+      if ( v170 && LOBYTE(v170->base.name) )
       {
-        Com_sprintf(dest, 0x100ui64, "Sound Alias:%s", soundAlias);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Sound Alias:%s", (const char *)v170);
+        v171 = *y;
+        v172 = *y;
+        if ( *y > 0.0 && v171 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v171, dest, &colorWhite, 0, 1, charHeight, 0);
+          v172 = *y;
         }
-        if ( !(v420 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v420 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1298, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v172 + charHeight;
       }
-      v425 = _R14->data.sound.tagName;
-      if ( v425 && *v425 )
+      v173 = event->data.stateChange.part;
+      if ( v173 && LOBYTE(v173->name) )
       {
-        LODWORD(fmt) = _R14->data.random.eventBCount;
-        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v425, fmt);
-        __asm
+        LODWORD(fmt) = event->data.random.eventBCount;
+        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", (const char *)v173, fmt);
+        v174 = *y;
+        v175 = *y;
+        if ( *y > 0.0 && v174 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v174, dest, &colorWhite, 0, 1, charHeight, 0);
+          v175 = *y;
         }
-        if ( !(v426 | v27) )
+        *y = v175 + charHeight;
+        if ( event->data.anonymous.buffer[34] )
         {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v426 )
+          v176 = "ignore event";
+          if ( event->data.anonymous.buffer[35] )
+            v176 = "use root";
+          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v176);
+          v177 = *y;
+          v178 = *y;
+          if ( *y > 0.0 && v177 < 1080.0 )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1299, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
+            CG_DrawStringExt(scrPlace, *x, v177, dest, &colorWhite, 0, 1, charHeight, 0);
+            v178 = *y;
           }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
-        if ( _R14->data.anonymous.buffer[34] )
-        {
-          v431 = "ignore event";
-          if ( _R14->data.anonymous.buffer[35] )
-            v431 = "use root";
-          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v431);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v432 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v432 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1300, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          *y = v178 + charHeight;
         }
       }
-      if ( _R14->data.anonymous.buffer[32] )
+      if ( event->data.anonymous.buffer[32] )
       {
         Com_sprintf(dest, 0x100ui64, "Looping");
-        __asm
+        v179 = *y;
+        v180 = *y;
+        if ( *y > 0.0 && v179 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v179, dest, &colorWhite, 0, 1, charHeight, 0);
+          v180 = *y;
         }
-        if ( !(v437 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v437 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1301, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v180 + charHeight;
       }
-      v442 = _R14->data.particleFX.effectAlias;
-      if ( v442 && *v442 )
+      v181 = event->data.animation.eventsAtEnd;
+      if ( v181 && LOBYTE(v181->base.name) )
       {
-        Com_sprintf(dest, 0x100ui64, "Explosion Refl Class:%s", v442);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Explosion Refl Class:%s", (const char *)v181);
+        v182 = *y;
+        v183 = *y;
+        if ( *y > 0.0 && v182 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v182, dest, &colorWhite, 0, 1, charHeight, 0);
+          v183 = *y;
         }
-        if ( !(v443 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v443 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1302, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm6, xmm0
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = charHeight + v183;
       }
-      v449 = _R14->data.anonymous.buffer[48] == 0;
-      if ( _R14->data.anonymous.buffer[48] )
+      if ( event->data.anonymous.buffer[48] )
       {
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Ground Trace of %.2f", event->data.spawnDynent.launchAngVel.v[1]);
+        v184 = *y;
+        v185 = *y;
+        if ( *y > 0.0 && v184 < 1080.0 )
         {
-          vmovss  xmm3, dword ptr [r14+54h]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
+          CG_DrawStringExt(scrPlace, *x, v184, dest, &colorWhite, 0, 1, charHeight, 0);
+          v185 = *y;
         }
-        Com_sprintf(dest, 0x100ui64, "Ground Trace of %.2f", *(double *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v453 | v449) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v453 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1303, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v185 + charHeight;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r14+58h]
-        vucomiss xmm2, xmm8
-      }
-      if ( v449 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14+5Ch] }
-        if ( v449 )
-        {
-          __asm { vucomiss xmm8, dword ptr [r14+60h] }
-          if ( v449 )
-            goto LABEL_747;
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+60h]
-        vmovss  xmm1, dword ptr [r14+5Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovsd  [rsp+300h+fmt], xmm1
-        vcvtss2sd xmm3, xmm2, xmm2
-      }
-      v273 = "World Offset: (%.2f %.2f %.2f)";
-      goto LABEL_209;
+      v186 = event->data.spawnDynent.launchAngVel.v[2];
+      if ( v186 == 0.0 && event->data.spawnDynent.launchLinVel2.v[0] == 0.0 && event->data.spawnDynent.launchLinVel2.v[1] == 0.0 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "World Offset: (%.2f %.2f %.2f)", v186, event->data.spawnDynent.launchLinVel2.v[0], event->data.spawnDynent.launchLinVel2.v[1]);
+      goto LABEL_744;
     case Scriptable_EventType_Explosion:
-      if ( _R14->data.anonymous.buffer[36] )
+      if ( event->data.anonymous.buffer[36] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v196 = *y;
+        v197 = *y;
+        if ( *y > 0.0 && v196 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v196, dest, &colorWhite, 0, 1, charHeight, 0);
+          v197 = *y;
         }
-        if ( !(v490 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v490 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1308, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v197 + charHeight;
       }
-      v495 = _R14->data.script.notification;
-      v496 = 0;
-      v497 = v495 == NULL;
-      if ( v495 && (v496 = 0, v497 = *v495 == 0, *v495) )
+      v198 = event->data.script.notification;
+      if ( v198 && *v198 )
       {
-        LODWORD(fmt) = _R14->data.script.scrNotification;
-        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v495, fmt);
-        __asm
+        LODWORD(fmt) = event->data.script.scrNotification;
+        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v198, fmt);
+        v199 = *y;
+        v200 = *y;
+        if ( *y > 0.0 && v199 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v199, dest, &colorWhite, 0, 1, charHeight, 0);
+          v200 = *y;
         }
-        if ( !(v498 | v27) )
+        v201 = v200 + charHeight;
+        *y = v200 + charHeight;
+        if ( event->data.anonymous.buffer[37] )
         {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v498 )
+          v202 = "ignore event";
+          if ( event->data.anonymous.buffer[38] )
+            v202 = "use root";
+          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v202);
+          v203 = *y;
+          v204 = *y;
+          if ( *y > 0.0 && v203 < 1080.0 )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1309, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
+            CG_DrawStringExt(scrPlace, *x, v203, dest, &colorWhite, 0, 1, charHeight, 0);
+            v204 = *y;
           }
-        }
-        __asm
-        {
-          vaddss  xmm2, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm2
-        }
-        v496 = 0;
-        v497 = _R14->data.anonymous.buffer[37] == 0;
-        if ( _R14->data.anonymous.buffer[37] )
-        {
-          v503 = "ignore event";
-          if ( _R14->data.anonymous.buffer[38] )
-            v503 = "use root";
-          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v503);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v496 | v497) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v496 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1310, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm2, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm2
-          }
+          v201 = v204 + charHeight;
+          *y = v204 + charHeight;
         }
       }
       else
       {
-        __asm { vmovss  xmm2, dword ptr [rdi]; y }
+        v201 = *y;
       }
-      __asm
+      v205 = v201;
+      if ( v201 > 0.0 && v201 < 1080.0 )
       {
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v201, dest, &colorWhite, 0, 1, charHeight, 0);
+        v205 = *y;
       }
-      if ( !(v496 | v497) )
+      *y = v205 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Radius:%.2f", event->data.animation.playbackRateMin);
+      v206 = *y;
+      v207 = *y;
+      if ( *y > 0.0 && v206 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v496 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1311, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v206, dest, &colorWhite, 0, 1, charHeight, 0);
+        v207 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+38h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "Radius:%.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v513 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v513 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1312, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+3Ch]
-        vmovss  xmm1, dword ptr [r14+40h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm1
-      }
-      Com_sprintf(dest, 0x100ui64, "Damage: Outer:%.2f Inner:%.2f", *(double *)&_XMM3, *(double *)&fmto);
-      goto LABEL_742;
+      *y = v207 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Damage: Outer:%.2f Inner:%.2f", event->data.animation.playbackRateMax, event->data.animation.blendTime);
+      goto LABEL_744;
     case Scriptable_EventType_Light:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 15
-        vmovss  xmm1, dword ptr [r14+24h]
-        vcomiss xmm1, xmm0
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      if ( v26 | v27 )
-      {
-        Com_sprintf(dest, 0x100ui64, "Intensity Scale:%.2f", *(double *)&_XMM3);
-      }
+      v208 = event->data.wait.delayMin;
+      v209 = event->data.wait.delayMax;
+      v210 = v208;
+      if ( v209 > v208 )
+        Com_sprintf(dest, 0x100ui64, "Intensity Scale randomly selected between %.2f and %.2f", v210, v209);
       else
+        Com_sprintf(dest, 0x100ui64, "Intensity Scale:%.2f", v210);
+      v211 = *y;
+      v212 = *y;
+      if ( *y > 0.0 && v211 < 1080.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm1, xmm1
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "Intensity Scale randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtp);
+        CG_DrawStringExt(scrPlace, *x, v211, dest, &colorWhite, 0, 1, charHeight, 0);
+        v212 = *y;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v527 | v528) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v527 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1313, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+28h]
-        vmovss  xmm2, dword ptr [r14+2Ch]
-        vcomiss xmm2, xmm1
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      if ( v527 | v528 )
-      {
-        Com_sprintf(dest, 0x100ui64, "Radius:%.2f", *(double *)&_XMM3);
-      }
+      *y = v212 + charHeight;
+      v213 = event->data.chunkDynent.launchLinVel.v[0];
+      v214 = event->data.animation.startTimeMin;
+      v215 = v213;
+      if ( v214 > v213 )
+        Com_sprintf(dest, 0x100ui64, "Radius randomly selected between %.2f and %.2f", v215, v214);
       else
+        Com_sprintf(dest, 0x100ui64, "Radius:%.2f", v215);
+      v216 = *y;
+      v217 = *y;
+      if ( *y > 0.0 && v216 < 1080.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm2, xmm2
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "Radius randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtq);
+        CG_DrawStringExt(scrPlace, *x, v216, dest, &colorWhite, 0, 1, charHeight, 0);
+        v217 = *y;
       }
-      __asm
+      *y = v217 + charHeight;
+      if ( event->data.anonymous.buffer[16] )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        v420 = *(_OWORD *)((char *)&event->data.addModel.model + 4);
+        LinearToGammaColor_Srgb((vec3_t *)&v420);
+        Com_sprintf(dest, 0x100ui64, "Color: R:%.2f G:%.2f B:%.2f A:%.2f", *(float *)&v420, *((float *)&v420 + 1), *((float *)&v420 + 2), *((float *)&v420 + 3));
+        v218 = *y;
+        v219 = *y;
+        if ( *y > 0.0 && v218 < 1080.0 )
+        {
+          CG_DrawStringExt(scrPlace, *x, v218, dest, &colorWhite, 0, 1, charHeight, 0);
+          v219 = *y;
+        }
+        *y = v219 + charHeight;
       }
-      if ( !(v538 | v539) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v538 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1314, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _R14->data.anonymous.buffer[16] )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14+34h]
-          vmovups [rsp+300h+var_2A0+8], xmm0
-        }
-        LinearToGammaColor_Srgb((vec3_t *)&v1399);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+300h+var_290+4]
-          vmovss  xmm1, dword ptr [rsp+300h+var_290]
-          vmovss  xmm3, dword ptr [rsp+300h+var_2A0+8]
-          vmovss  xmm2, dword ptr [rsp+300h+var_2A0+0Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-          vmovq   r9, xmm3
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-        Com_sprintf(dest, 0x100ui64, "Color: R:%.2f G:%.2f B:%.2f A:%.2f", *(double *)&_XMM3, *(double *)&fmtr, forceColort, shadowo);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v555 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v555 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1315, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
-      }
-      if ( !_R14->data.anonymous.buffer[36] )
-        goto LABEL_747;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+48h]
-        vmovss  xmm1, dword ptr [r14+4Ch]
-        vcomiss xmm1, xmm0
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      if ( _R14->data.anonymous.buffer[36] )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm1, xmm1
-          vmovsd  [rsp+300h+fmt], xmm0
-        }
-        Com_sprintf(dest, 0x100ui64, "Transmission Time randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmts);
-      }
+      if ( !event->data.anonymous.buffer[36] )
+        return;
+      v220 = event->data.spawnDynent.launchLinVel.v[1];
+      v221 = event->data.spawnDynent.launchLinVel.v[2];
+      v222 = v220;
+      if ( v221 > v220 )
+        Com_sprintf(dest, 0x100ui64, "Transmission Time randomly selected between %.2f and %.2f", v222, v221);
       else
-      {
-        Com_sprintf(dest, 0x100ui64, "Transmission Time:%.2f", *(double *)&_XMM3);
-      }
-      goto LABEL_742;
+        Com_sprintf(dest, 0x100ui64, "Transmission Time:%.2f", v222);
+      goto LABEL_744;
     case Scriptable_EventType_Sun:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+24h]
-          vmovss  xmm1, dword ptr [r14+28h]
-          vcomiss xmm1, xmm0
-          vcvtss2sd xmm3, xmm0, xmm0
-          vmovq   r9, xmm3
-        }
-        if ( _R14->data.anonymous.buffer[0] )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm1, xmm1
-            vmovsd  [rsp+300h+fmt], xmm0
-          }
-          Com_sprintf(dest, 0x100ui64, "Intensity Override randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtt);
-        }
+        v223 = event->data.wait.delayMax;
+        v224 = event->data.chunkDynent.launchLinVel.v[0];
+        v225 = v223;
+        if ( v224 > v223 )
+          Com_sprintf(dest, 0x100ui64, "Intensity Override randomly selected between %.2f and %.2f", v225, v224);
         else
+          Com_sprintf(dest, 0x100ui64, "Intensity Override:%.2f", v225);
+        v226 = *y;
+        v227 = *y;
+        if ( *y > 0.0 && v226 < 1080.0 )
         {
-          Com_sprintf(dest, 0x100ui64, "Intensity Override:%.2f", *(double *)&_XMM3);
+          CG_DrawStringExt(scrPlace, *x, v226, dest, &colorWhite, 0, 1, charHeight, 0);
+          v227 = *y;
         }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v569 | v570) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v569 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1316, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v227 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[12] )
+      if ( event->data.anonymous.buffer[12] )
       {
-        __asm
+        v421 = *(_OWORD *)&event->data.viewmodelShaderParam.placeHolderValue3;
+        LinearToGammaColor_Srgb((vec3_t *)&v421);
+        Com_sprintf(dest, 0x100ui64, "Color: R:%.2f G:%.2f B:%.2f A:%.2f", *(float *)&v421, *((float *)&v421 + 1), *((float *)&v421 + 2), *((float *)&v421 + 3));
+        v228 = *y;
+        v229 = *y;
+        if ( *y > 0.0 && v228 < 1080.0 )
         {
-          vmovups xmm0, xmmword ptr [r14+30h]
-          vmovups [rsp+300h+var_290+8], xmm0
+          CG_DrawStringExt(scrPlace, *x, v228, dest, &colorWhite, 0, 1, charHeight, 0);
+          v229 = *y;
         }
-        LinearToGammaColor_Srgb((vec3_t *)&v1400);
-        __asm
-        {
-          vmovss  xmm0, [rbp+200h+var_27C]
-          vmovss  xmm1, [rbp+200h+var_280]
-          vmovss  xmm3, dword ptr [rsp+300h+var_290+8]
-          vmovss  xmm2, dword ptr [rsp+300h+var_290+0Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-          vmovq   r9, xmm3
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-        Com_sprintf(dest, 0x100ui64, "Color: R:%.2f G:%.2f B:%.2f A:%.2f", *(double *)&_XMM3, *(double *)&fmtu, forceColoru, shadowp);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v586 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v586 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1317, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v229 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[32] )
+      if ( event->data.anonymous.buffer[32] )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+44h]
-          vmovss  xmm1, dword ptr [r14+48h]
-          vcomiss xmm1, xmm0
-          vcvtss2sd xmm3, xmm0, xmm0
-          vmovq   r9, xmm3
-        }
-        if ( _R14->data.anonymous.buffer[32] )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm1, xmm1
-            vmovsd  [rsp+300h+fmt], xmm0
-          }
-          Com_sprintf(dest, 0x100ui64, "Transmission Time randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtv);
-        }
+        v230 = event->data.spawnDynent.launchLinVel.v[0];
+        v231 = event->data.spawnDynent.launchLinVel.v[1];
+        v232 = v230;
+        if ( v231 > v230 )
+          Com_sprintf(dest, 0x100ui64, "Transmission Time randomly selected between %.2f and %.2f", v232, v231);
         else
+          Com_sprintf(dest, 0x100ui64, "Transmission Time:%.2f", v232);
+        v233 = *y;
+        v234 = *y;
+        if ( *y > 0.0 && v233 < 1080.0 )
         {
-          Com_sprintf(dest, 0x100ui64, "Transmission Time:%.2f", *(double *)&_XMM3);
+          CG_DrawStringExt(scrPlace, *x, v233, dest, &colorWhite, 0, 1, charHeight, 0);
+          v234 = *y;
         }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v595 | v596) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v595 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1318, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v234 + charHeight;
       }
-      if ( !_R14->data.anonymous.buffer[60] )
-        goto LABEL_747;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+50h]
-        vmovss  xmm1, dword ptr [r14+4Ch]
-        vcomiss xmm0, xmm1
-        vmovss  xmm9, cs:__real@42652ee0
-      }
-      if ( _R14->data.anonymous.buffer[60] )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm1, xmm9
-          vmulss  xmm0, xmm0, xmm9
-          vcvtss2sd xmm3, xmm1, xmm1
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-        Com_sprintf(dest, 0x100ui64, "Pitch randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtw);
-      }
+      if ( !event->data.anonymous.buffer[60] )
+        return;
+      v235 = event->data.spawnDynent.launchAngVel.v[0];
+      v236 = event->data.spawnDynent.launchLinVel.v[2];
+      if ( v235 > v236 )
+        Com_sprintf(dest, 0x100ui64, "Pitch randomly selected between %.2f and %.2f", (float)(v236 * 57.295776), (float)(v235 * 57.295776));
       else
+        Com_sprintf(dest, 0x100ui64, "Pitch:%.2f", v236);
+      v237 = *y;
+      v238 = *y;
+      if ( *y > 0.0 && v237 < 1080.0 )
       {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm1, xmm1
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(dest, 0x100ui64, "Pitch:%.2f", *(double *)&_XMM3);
+        CG_DrawStringExt(scrPlace, *x, v237, dest, &colorWhite, 0, 1, charHeight, 0);
+        v238 = *y;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v607 | v608) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v607 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1319, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm2, dword ptr [r14+58h]
-        vmovss  xmm1, dword ptr [r14+54h]
-        vcomiss xmm2, xmm1
-      }
-      if ( v607 | v608 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm1, xmm1
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(dest, 0x100ui64, "Heading:%.2f", *(double *)&_XMM3);
-      }
+      *y = v238 + charHeight;
+      v239 = event->data.spawnDynent.launchAngVel.v[2];
+      v240 = event->data.spawnDynent.launchAngVel.v[1];
+      if ( v239 > v240 )
+        Com_sprintf(dest, 0x100ui64, "Heading randomly selected between %.2f and %.2f", (float)(v240 * 57.295776), (float)(v239 * 57.295776));
       else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm1, xmm9
-          vmulss  xmm0, xmm2, xmm9
-          vcvtss2sd xmm3, xmm1, xmm1
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-        Com_sprintf(dest, 0x100ui64, "Heading randomly selected between %.2f and %.2f", *(double *)&_XMM3, *(double *)&fmtx);
-      }
-      goto LABEL_742;
+        Com_sprintf(dest, 0x100ui64, "Heading:%.2f", v240);
+      goto LABEL_744;
     case Scriptable_EventType_Rumble:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v241 = *y;
+        v242 = *y;
+        if ( *y > 0.0 && v241 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v241, dest, &colorWhite, 0, 1, charHeight, 0);
+          v242 = *y;
         }
-        if ( !(v627 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v627 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1320, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v242 + charHeight;
       }
-      v632 = _R14->data.sound.soundAlias;
-      if ( v632 && *v632 )
+      v243 = event->data.random.eventsB;
+      if ( v243 && LOBYTE(v243->base.name) )
       {
-        Com_sprintf(dest, 0x100ui64, "Rumble: %s", v632);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Rumble: %s", (const char *)v243);
+        v244 = *y;
+        v245 = *y;
+        if ( *y > 0.0 && v244 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v244, dest, &colorWhite, 0, 1, charHeight, 0);
+          v245 = *y;
         }
-        if ( !(v633 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v633 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1321, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v245 + charHeight;
       }
-      v638 = _R14->data.sound.tagName;
-      if ( !v638 || !*v638 )
-        goto LABEL_747;
-      LODWORD(fmt) = _R14->data.random.eventBCount;
-      Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v638, fmt);
-      __asm
+      v246 = event->data.sound.tagName;
+      if ( !v246 || !*v246 )
+        return;
+      LODWORD(fmt) = event->data.random.eventBCount;
+      Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v246, fmt);
+      v247 = *y;
+      v248 = *y;
+      if ( *y > 0.0 && v247 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v247, dest, &colorWhite, 0, 1, charHeight, 0);
+        v248 = *y;
       }
-      if ( !(v639 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v639 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1322, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[40] )
-        goto LABEL_747;
-      v644 = "ignore event";
-      if ( _R14->data.anonymous.buffer[41] )
-        v644 = "use root";
-      goto LABEL_469;
+      *y = v248 + charHeight;
+      if ( !event->data.anonymous.buffer[40] )
+        return;
+      v249 = "ignore event";
+      if ( event->data.anonymous.buffer[41] )
+        v249 = "use root";
+      goto LABEL_471;
     case Scriptable_EventType_Screenshake:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v250 = *y;
+        v251 = *y;
+        if ( *y > 0.0 && v250 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v250, dest, &colorWhite, 0, 1, charHeight, 0);
+          v251 = *y;
         }
-        if ( !(v645 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v645 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1323, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v251 + charHeight;
       }
-      v650 = _R14->data.sound.tagName;
-      if ( v650 && *v650 )
+      v252 = event->data.stateChange.part;
+      if ( v252 && LOBYTE(v252->name) )
       {
-        LODWORD(fmt) = _R14->data.random.eventBCount;
-        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v650, fmt);
-        __asm
+        LODWORD(fmt) = event->data.random.eventBCount;
+        Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", (const char *)v252, fmt);
+        v253 = *y;
+        v254 = *y;
+        if ( *y > 0.0 && v253 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v253, dest, &colorWhite, 0, 1, charHeight, 0);
+          v254 = *y;
         }
-        if ( !(v651 | v27) )
+        *y = v254 + charHeight;
+        if ( event->data.anonymous.buffer[64] )
         {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v651 )
+          v255 = "ignore event";
+          if ( event->data.anonymous.buffer[65] )
+            v255 = "use root";
+          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v255);
+          v256 = *y;
+          v257 = *y;
+          if ( *y > 0.0 && v256 < 1080.0 )
           {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1324, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
+            CG_DrawStringExt(scrPlace, *x, v256, dest, &colorWhite, 0, 1, charHeight, 0);
+            v257 = *y;
           }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
-        if ( _R14->data.anonymous.buffer[64] )
-        {
-          v656 = "ignore event";
-          if ( _R14->data.anonymous.buffer[65] )
-            v656 = "use root";
-          Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v656);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v657 | v27) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v657 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1325, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
+          *y = v257 + charHeight;
         }
       }
-      if ( _R14->data.anonymous.buffer[1] )
+      if ( event->data.anonymous.buffer[1] )
       {
         Com_sprintf(dest, 0x100ui64, "Earthquake");
-        __asm
+        v258 = *y;
+        v259 = *y;
+        if ( *y > 0.0 && v258 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v258, dest, &colorWhite, 0, 1, charHeight, 0);
+          v259 = *y;
         }
-        if ( !(v662 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v662 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1326, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v259 + charHeight;
       }
-      if ( _R14->data.anonymous.buffer[2] )
+      if ( event->data.anonymous.buffer[2] )
       {
         Com_sprintf(dest, 0x100ui64, "ScreenShake");
-        __asm
+        v260 = *y;
+        v261 = *y;
+        if ( *y > 0.0 && v260 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v260, dest, &colorWhite, 0, 1, charHeight, 0);
+          v261 = *y;
         }
-        if ( !(v667 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v667 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1327, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v261 + charHeight;
       }
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Duration:%.2f Up:%.2f Down:%.2f", event->data.chunkDynent.launchAngVel.v[0], event->data.animation.playbackRateMin, event->data.animation.playbackRateMax);
+      v262 = *y;
+      v263 = *y;
+      if ( *y > 0.0 && v262 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+3Ch]
-        vmovss  xmm3, dword ptr [r14+34h]
-        vmovss  xmm1, dword ptr [r14+38h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm1
+        CG_DrawStringExt(scrPlace, *x, v262, dest, &colorWhite, 0, 1, charHeight, 0);
+        v263 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Duration:%.2f Up:%.2f Down:%.2f", *(double *)&_XMM3, *(double *)&fmty, forceColorv);
-      __asm
+      *y = v263 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Radius:%d", event->data.particleFX.scrEndTagCount);
+      v264 = *y;
+      v265 = *y;
+      if ( *y > 0.0 && v264 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v264, dest, &colorWhite, 0, 1, charHeight, 0);
+        v265 = *y;
       }
-      if ( !(v679 | v27) )
+      *y = v265 + charHeight;
+      LODWORD(shadow) = event->data.screenshake.scaleRoll;
+      LODWORD(forceColora) = event->data.screenshake.scaleYaw;
+      LODWORD(fmta) = event->data.screenshake.scalePitch;
+      Com_sprintf(dest, 0x100ui64, "Scale: Earthquake%.2f Pitch:%d Yaw:%d Roll:%d", event->data.spawnDynent.launchLinVel.v[0], fmta, forceColora, shadow);
+      v266 = *y;
+      v267 = *y;
+      if ( *y > 0.0 && v266 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v679 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1328, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v266, dest, &colorWhite, 0, 1, charHeight, 0);
+        v267 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Radius:%d", _R14->data.particleFX.scrEndTagCount);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v684 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v684 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1329, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+44h]
-      }
-      LODWORD(shadow) = _R14->data.screenshake.scaleRoll;
-      LODWORD(forceColorf) = _R14->data.screenshake.scaleYaw;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      LODWORD(fmtb) = _R14->data.screenshake.scalePitch;
-      Com_sprintf(dest, 0x100ui64, "Scale: Earthquake%.2f Pitch:%d Yaw:%d Roll:%d", *(double *)&_XMM3, fmtb, forceColorf, shadow);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v692 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v692 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1330, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      LODWORD(forceColorg) = _R14->data.screenshake.frequencyRoll;
-      LODWORD(fmtc) = _R14->data.screenshake.frequencyYaw;
-      Com_sprintf(dest, 0x100ui64, "Frequency: Pitch:%d Yaw:%d Roll:%d", (unsigned int)_R14->data.screenshake.frequencyPitch, fmtc, forceColorg);
-      goto LABEL_742;
+      *y = v267 + charHeight;
+      LODWORD(forceColorb) = event->data.screenshake.frequencyRoll;
+      LODWORD(fmtb) = event->data.screenshake.frequencyYaw;
+      Com_sprintf(dest, 0x100ui64, "Frequency: Pitch:%d Yaw:%d Roll:%d", (unsigned int)event->data.screenshake.frequencyPitch, fmtb, forceColorb);
+      goto LABEL_744;
     case Scriptable_EventType_PartDamage:
-      v697 = &_R14->data.random.eventsB->base.name;
-      if ( v697 && *v697 )
+      v268 = event->data.random.eventsB;
+      if ( v268 && v268->base.name )
       {
-        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", *v697);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Referenced part: %s", v268->base.name);
+        v269 = *y;
+        v270 = *y;
+        if ( *y > 0.0 && v269 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v269, dest, &colorWhite, 0, 1, charHeight, 0);
+          v270 = *y;
         }
-        if ( !(v698 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v698 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1331, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v270 + charHeight;
       }
-      v703 = 0;
-      v704 = _R14->data.anonymous.buffer[8] == 0;
-      if ( _R14->data.anonymous.buffer[8] )
+      if ( event->data.anonymous.buffer[8] )
       {
         Com_sprintf(dest, 0x100ui64, "Destroy");
-        goto LABEL_742;
+        goto LABEL_744;
       }
-      __asm
+      v271 = event->data.wait.delayMax;
+      if ( v271 > 0.0 )
       {
-        vmovss  xmm0, dword ptr [r14+24h]
-        vcomiss xmm0, xmm8
-      }
-      if ( _R14->data.anonymous.buffer[8] )
-      {
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Immediate Amount:%.2f", v271);
+        v272 = *y;
+        v273 = *y;
+        if ( *y > 0.0 && v272 < 1080.0 )
         {
-          vcvtss2sd xmm3, xmm0, xmm0
-          vmovq   r9, xmm3
+          CG_DrawStringExt(scrPlace, *x, v272, dest, &colorWhite, 0, 1, charHeight, 0);
+          v273 = *y;
         }
-        Com_sprintf(dest, 0x100ui64, "Immediate Amount:%.2f", *(double *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v703 | v704) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v703 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1332, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v273 + charHeight;
       }
-      __asm
+      v274 = event->data.animation.startTimeMin;
+      if ( v274 <= 0.0 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "Over Time: Amount:%.2f every %.2f seconds", v274, event->data.animation.startTimeMax);
+      v275 = *y;
+      v276 = *y;
+      if ( *y > 0.0 && v275 < 1080.0 )
       {
-        vmovss  xmm1, dword ptr [r14+2Ch]
-        vcomiss xmm1, xmm8
+        CG_DrawStringExt(scrPlace, *x, v275, dest, &colorWhite, 0, 1, charHeight, 0);
+        v276 = *y;
       }
-      if ( v703 | v704 )
-        goto LABEL_747;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+30h]
-        vcvtss2sd xmm3, xmm1, xmm1
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Over Time: Amount:%.2f every %.2f seconds", *(double *)&_XMM3, *(double *)&fmtz);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v717 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v717 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1333, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      eventStreamBufferOffsetClient = _R14->data.partDamage.eventStreamBufferOffsetClient;
-      eventStreamBufferOffsetServer = _R14->data.partDamage.eventStreamBufferOffsetServer;
-      goto LABEL_28;
+      *y = v276 + charHeight;
+      eventStreamBufferOffsetClient = event->data.partDamage.eventStreamBufferOffsetClient;
+      eventStreamBufferOffsetServer = event->data.partDamage.eventStreamBufferOffsetServer;
+      goto LABEL_31;
     case Scriptable_EventType_SetMayhem:
-      v722 = (const char **)_R14->data.script.notification;
-      if ( v722 )
-        v723 = *v722;
+      v277 = event->data.script.notification;
+      if ( v277 )
+        v278 = *(const char **)v277;
       else
-        v723 = "None";
-      Com_sprintf(dest, 0x100ui64, "Mayhem asset name:%s", v723);
-      __asm
+        v278 = "None";
+      Com_sprintf(dest, 0x100ui64, "Mayhem asset name:%s", v278);
+      v279 = *y;
+      v280 = *y;
+      if ( *y > 0.0 && v279 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v279, dest, &colorWhite, 0, 1, charHeight, 0);
+        v280 = *y;
       }
-      if ( !(v724 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v724 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1334, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", _R14->data.wait.eventStreamBufferOffsetServer);
-      goto LABEL_742;
+      *y = v280 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", event->data.wait.eventStreamBufferOffsetServer);
+      goto LABEL_744;
     case Scriptable_EventType_PlayMayhem:
-      tireIndex = _R14->data.vehicleBlowUpTire.tireIndex;
-      v1398[0] = (__int64)"Play";
-      v1398[1] = (__int64)"Pause";
-      Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, v1398[tireIndex]);
-      __asm
+      tireIndex = event->data.vehicleBlowUpTire.tireIndex;
+      v419[0] = (__int64)"Play";
+      v419[1] = (__int64)"Pause";
+      Com_sprintf(dest, 0x100ui64, (const char *)&queryFormat, v419[tireIndex]);
+      v282 = *y;
+      v283 = *y;
+      if ( *y > 0.0 && v282 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v282, dest, &colorWhite, 0, 1, charHeight, 0);
+        v283 = *y;
       }
-      if ( !(v730 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v730 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1335, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", _R14->data.playMayhem.eventStreamBufferOffsetClient);
-      goto LABEL_742;
+      *y = v283 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", event->data.playMayhem.eventStreamBufferOffsetClient);
+      goto LABEL_744;
     case Scriptable_EventType_ViewmodelShaderParam:
-      v735 = _R14->data.vehicleBlowUpTire.tireIndex;
-      v1402[0] = (__int64)"Unknown";
-      v1402[1] = (__int64)"ScrollRateX";
-      v1402[2] = (__int64)"ScrollRateY";
-      v1402[3] = (__int64)"ScrollRateRot";
-      v1402[4] = (__int64)"Rotation";
-      v1402[5] = (__int64)"TilingX";
-      v1402[6] = (__int64)"TilingY";
-      v1402[7] = (__int64)"Alpha";
-      v1402[8] = (__int64)"Emissive";
-      v1402[9] = (__int64)"Atlas Frame";
-      v1402[10] = (__int64)"Placeholder 1";
-      v1402[11] = (__int64)"Placeholder 2";
-      v1402[12] = (__int64)"Placeholder 3";
-      v1402[13] = (__int64)"Placeholder 4";
-      Com_sprintf(dest, 0x100ui64, "Param: %s", (const char *)v1402[v735]);
-      __asm
+      v284 = event->data.vehicleBlowUpTire.tireIndex;
+      v423[0] = (__int64)"Unknown";
+      v423[1] = (__int64)"ScrollRateX";
+      v423[2] = (__int64)"ScrollRateY";
+      v423[3] = (__int64)"ScrollRateRot";
+      v423[4] = (__int64)"Rotation";
+      v423[5] = (__int64)"TilingX";
+      v423[6] = (__int64)"TilingY";
+      v423[7] = (__int64)"Alpha";
+      v423[8] = (__int64)"Emissive";
+      v423[9] = (__int64)"Atlas Frame";
+      v423[10] = (__int64)"Placeholder 1";
+      v423[11] = (__int64)"Placeholder 2";
+      v423[12] = (__int64)"Placeholder 3";
+      v423[13] = (__int64)"Placeholder 4";
+      Com_sprintf(dest, 0x100ui64, "Param: %s", (const char *)v423[v284]);
+      v285 = *y;
+      v286 = *y;
+      if ( *y > 0.0 && v285 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v285, dest, &colorWhite, 0, 1, charHeight, 0);
+        v286 = *y;
       }
-      if ( !(v736 | v27) )
+      *y = v286 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Values: %.2f", event->data.wait.delayMax);
+      v287 = *y;
+      v288 = *y;
+      if ( *y > 0.0 && v287 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v736 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1336, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v287, dest, &colorWhite, 0, 1, charHeight, 0);
+        v288 = *y;
       }
-      __asm
+      *y = v288 + charHeight;
+      v289 = event->data.animation.playbackRateMin;
+      if ( v289 < 0.0 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "TransitionTime %.2f", v289);
+      v290 = *y;
+      v291 = *y;
+      if ( *y > 0.0 && v290 < 1080.0 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+24h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v290, dest, &colorWhite, 0, 1, charHeight, 0);
+        v291 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Values: %.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v744 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v744 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1337, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+38h]
-        vcomiss xmm1, xmm8
-      }
-      if ( v744 )
-        goto LABEL_747;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "TransitionTime %.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v752 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v752 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1338, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", _R14->data.viewmodelShaderParam.eventStreamBufferOffsetClient);
-      goto LABEL_742;
+      *y = v291 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", event->data.viewmodelShaderParam.eventStreamBufferOffsetClient);
+      goto LABEL_744;
     case Scriptable_EventType_ViewmodelChangeImage:
-      v757 = _R14->data.vehicleBlowUpTire.tireIndex;
-      v1397 = "Unknown";
-      LODWORD(fmt) = _R14->data.stateChange.stateIdx;
-      Com_sprintf(dest, 0x100ui64, "%s to %i", v1398[v757 - 1], fmt);
-      goto LABEL_742;
+      v292 = event->data.vehicleBlowUpTire.tireIndex;
+      v418 = "Unknown";
+      LODWORD(fmt) = event->data.stateChange.stateIdx;
+      Com_sprintf(dest, 0x100ui64, "%s to %i", v419[v292 - 1], fmt);
+      goto LABEL_744;
     case Scriptable_EventType_ClientViewSelector:
-      if ( _R14->data.stateChange.partReference.flatId )
+      if ( event->data.stateChange.partReference.flatId )
       {
         Com_sprintf(dest, 0x100ui64, "First Person: %i %s");
-        __asm
+        v294 = *y;
+        v295 = *y;
+        if ( *y > 0.0 && v294 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v294, dest, &colorWhite, 0, 1, charHeight, 0);
+          v295 = *y;
         }
-        if ( !(v759 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v759 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1339, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.random.eventsA, _R14->data.stateChange.partReference.flatId, scrPlace, _R15, _RDI, *(float *)&forceColorw, *(float *)&shadowq);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v295 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.random.eventsA, event->data.stateChange.partReference.flatId, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      if ( _R14->data.random.eventBCount )
+      if ( event->data.random.eventBCount )
       {
         Com_sprintf(dest, 0x100ui64, "Third Person: %i %s");
-        __asm
+        v297 = *y;
+        v298 = *y;
+        if ( *y > 0.0 && v297 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v297, dest, &colorWhite, 0, 1, charHeight, 0);
+          v298 = *y;
         }
-        if ( !(v768 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v768 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1340, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.random.eventsB, _R14->data.random.eventBCount, scrPlace, _R15, _RDI, *(float *)&forceColorx, *(float *)&shadowr);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v298 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.random.eventsB, event->data.random.eventBCount, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      if ( (_R14->base.flags & 0x200) == 0 )
-        goto LABEL_747;
-      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", _R14->data.random.eventStreamBufferOffsetServer);
-      goto LABEL_742;
+      if ( (event->base.flags & 0x200) == 0 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "Client Event Buffer Offset :%i", event->data.random.eventStreamBufferOffsetServer);
+      goto LABEL_744;
     case Scriptable_EventType_TeamSelector:
-      v776 = _R14->data.vehicleBlowUpTire.tireIndex;
-      v1401[0] = (__int64)"All";
-      v1401[1] = (__int64)"Bad";
-      v1401[2] = (__int64)"Axis";
-      v1401[3] = (__int64)"Allies";
-      v1401[4] = (__int64)"Three";
-      v1401[5] = (__int64)"Neutral";
-      v1401[6] = (__int64)"Dead";
-      v1401[7] = (__int64)"My_Team";
-      v1401[8] = (__int64)"Enemy_Team";
-      v1401[9] = (__int64)"All_But_My_Team";
-      v1401[10] = (__int64)"All_But_Enemy_Team";
-      v1401[11] = (__int64)"Enemy_Team_And_Me";
-      v1401[12] = (__int64)"Just_Me";
-      Com_sprintf(dest, 0x100ui64, "Team Filter: %s", (const char *)v1401[v776]);
-      __asm
+      v299 = event->data.vehicleBlowUpTire.tireIndex;
+      v422[0] = (__int64)"All";
+      v422[1] = (__int64)"Bad";
+      v422[2] = (__int64)"Axis";
+      v422[3] = (__int64)"Allies";
+      v422[4] = (__int64)"Three";
+      v422[5] = (__int64)"Neutral";
+      v422[6] = (__int64)"Dead";
+      v422[7] = (__int64)"My_Team";
+      v422[8] = (__int64)"Enemy_Team";
+      v422[9] = (__int64)"All_But_My_Team";
+      v422[10] = (__int64)"All_But_Enemy_Team";
+      v422[11] = (__int64)"Enemy_Team_And_Me";
+      v422[12] = (__int64)"Just_Me";
+      Com_sprintf(dest, 0x100ui64, "Team Filter: %s", (const char *)v422[v299]);
+      v300 = *y;
+      v301 = *y;
+      if ( *y > 0.0 && v300 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v300, dest, &colorWhite, 0, 1, charHeight, 0);
+        v301 = *y;
       }
-      if ( !(v777 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v777 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1341, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( _R14->data.anonymous.buffer[4] )
+      *y = v301 + charHeight;
+      if ( event->data.anonymous.buffer[4] )
       {
         Com_sprintf(dest, 0x100ui64, "Test local player, rather than scriptable");
-        __asm
+        v302 = *y;
+        v303 = *y;
+        if ( *y > 0.0 && v302 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v302, dest, &colorWhite, 0, 1, charHeight, 0);
+          v303 = *y;
         }
-        if ( !(v782 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v782 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1342, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v303 + charHeight;
       }
-      if ( _R14->data.teamSelector.eventPassCount )
+      if ( event->data.teamSelector.eventPassCount )
       {
         Com_sprintf(dest, 0x100ui64, "First Person: %i %s");
-        __asm
+        v305 = *y;
+        v306 = *y;
+        if ( *y > 0.0 && v305 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v305, dest, &colorWhite, 0, 1, charHeight, 0);
+          v306 = *y;
         }
-        if ( !(v788 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v788 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1343, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.teamSelector.eventsPass, _R14->data.teamSelector.eventPassCount, scrPlace, _R15, _RDI, *(float *)&forceColory, *(float *)&shadows);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v306 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.teamSelector.eventsPass, event->data.teamSelector.eventPassCount, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      if ( _R14->data.teamSelector.eventFailCount )
+      if ( event->data.teamSelector.eventFailCount )
       {
         Com_sprintf(dest, 0x100ui64, "Third Person: %i %s");
-        __asm
+        v308 = *y;
+        v309 = *y;
+        if ( *y > 0.0 && v308 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v308, dest, &colorWhite, 0, 1, charHeight, 0);
+          v309 = *y;
         }
-        if ( !(v797 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v797 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1344, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-          vmovss  [rsp+300h+shadow], xmm6
-          vmovss  [rsp+300h+forceColor], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(_R14->data.teamSelector.eventsFail, _R14->data.teamSelector.eventFailCount, scrPlace, _R15, _RDI, *(float *)&forceColorz, *(float *)&shadowt);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15]
-          vsubss  xmm1, xmm0, xmm9
-          vmovss  dword ptr [r15], xmm1
-        }
+        *y = v309 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(event->data.teamSelector.eventsFail, event->data.teamSelector.eventFailCount, scrPlace, x, y, tabWidth, charHeight);
+        *x = *x - tabWidth;
       }
-      v805 = _R14->base.flags;
-      if ( (v805 & 0x200) == 0 )
-        goto LABEL_747;
-      eventStreamBufferOffsetClient = _R14->data.teamSelector.eventStreamBufferOffsetClient;
-      if ( (v805 & 2) != 0 )
+      v310 = event->base.flags;
+      if ( (v310 & 0x200) == 0 )
+        return;
+      eventStreamBufferOffsetClient = event->data.teamSelector.eventStreamBufferOffsetClient;
+      if ( (v310 & 2) != 0 )
       {
-        eventStreamBufferOffsetServer = _R14->data.teamSelector.eventStreamBufferOffsetServer;
-        goto LABEL_28;
+        eventStreamBufferOffsetServer = event->data.teamSelector.eventStreamBufferOffsetServer;
+        goto LABEL_31;
       }
-      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Client:%i", _R14->data.teamSelector.eventStreamBufferOffsetClient);
-      goto LABEL_742;
+      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Client:%i", event->data.teamSelector.eventStreamBufferOffsetClient);
+      goto LABEL_744;
     case Scriptable_EventType_AddModel:
-      v806 = _R14->data.script.notification;
-      if ( v806 && *v806 )
+      v311 = event->data.script.notification;
+      if ( v311 && *v311 )
       {
-        LODWORD(fmt) = _R14->data.script.scrNotification;
-        Com_sprintf(dest, 0x100ui64, "Attach to Bone:%s Script:%i", v806, fmt);
-        __asm
+        LODWORD(fmt) = event->data.script.scrNotification;
+        Com_sprintf(dest, 0x100ui64, "Attach to Bone:%s Script:%i", v311, fmt);
+        v312 = *y;
+        v313 = *y;
+        if ( *y > 0.0 && v312 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v312, dest, &colorWhite, 0, 1, charHeight, 0);
+          v313 = *y;
         }
-        if ( !(v807 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v807 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1345, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v313 + charHeight;
       }
-      v812 = _R14->data.spawnDynent.tagName;
-      if ( !v812 )
-        goto LABEL_747;
-      Com_sprintf(dest, 0x100ui64, "Name:%s", *(_QWORD *)v812);
-      goto LABEL_742;
+      v314 = event->data.spawnDynent.tagName;
+      if ( !v314 )
+        return;
+      Com_sprintf(dest, 0x100ui64, "Name:%s", *(_QWORD *)v314);
+      goto LABEL_744;
     case Scriptable_EventType_ApplyForce:
-      __asm
+      v315 = event->data.wait.delayMax;
+      if ( event->data.anonymous.buffer[1] )
       {
-        vmovss  xmm3, dword ptr [r14+24h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v315, event->data.chunkDynent.launchLinVel.v[0], event->data.animation.startTimeMin, event->data.animation.playbackRateMax, event->data.animation.blendTime, event->data.spawnDynent.launchLinVel.v[0]);
+        v316 = *y;
+        v317 = *y;
+        if ( *y > 0.0 && v316 < 1080.0 )
+        {
+          CG_DrawStringExt(scrPlace, *x, v316, dest, &colorWhite, 0, 1, charHeight, 0);
+          v317 = *y;
+        }
+        *y = v317 + charHeight;
+        v416 = event->data.spawnDynent.launchAngVel.v[0];
+        adjust = event->data.spawnDynent.launchLinVel.v[2];
+        v412 = event->data.spawnDynent.launchLinVel.v[1];
+        shadowa = event->data.animation.playbackRateMin;
+        v318 = event->data.animation.startTimeMax;
+        forceColorc = event->data.chunkDynent.launchAngVel.v[0];
+        v319 = "Localspace";
+        if ( event->data.anonymous.buffer[0] )
+          v319 = "Worldspace";
+        goto LABEL_598;
       }
-      if ( _R14->data.anonymous.buffer[1] )
+      Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f)", v315, event->data.chunkDynent.launchLinVel.v[0], event->data.animation.startTimeMin);
+      v322 = *y;
+      v323 = *y;
+      if ( *y > 0.0 && v322 < 1080.0 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+44h]
-          vmovss  xmm1, dword ptr [r14+40h]
-          vmovss  xmm2, dword ptr [r14+3Ch]
-          vmovss  xmm4, dword ptr [r14+2Ch]
-          vmovss  xmm5, dword ptr [r14+28h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+adjust], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+300h+var_2C8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+shadow], xmm2
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-          vmovsd  [rsp+300h+fmt], xmm5
-        }
-        Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtba, forceColorba, shadowu, v1346, adjustf);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v826 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v826 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1347, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vmovss  xmm1, dword ptr [r14+50h]
-          vmovss  xmm2, dword ptr [r14+4Ch]
-          vmovss  xmm0, dword ptr [r14+48h]
-          vmovss  xmm3, dword ptr [r14+38h]
-          vmovss  xmm4, dword ptr [r14+34h]
-          vmovss  xmm5, dword ptr [r14+30h]
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+300h+var_2B8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+adjust], xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2C8], xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        v843 = "Localspace";
-        if ( _R14->data.anonymous.buffer[0] )
-          v843 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v843, *(double *)&fmtbb, forceColorh, shadowe, v1348, adjustb, v1393);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]
-          vmovaps xmm0, xmm2
-        }
-        goto LABEL_604;
+        CG_DrawStringExt(scrPlace, *x, v322, dest, &colorWhite, 0, 1, charHeight, 0);
+        v323 = *y;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+2Ch]
-        vmovss  xmm1, dword ptr [r14+28h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovsd  [rsp+300h+fmt], xmm1
-      }
-      Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbc, forceColorbb);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v852 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v852 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1349, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+38h]
-        vmovss  xmm2, dword ptr [r14+34h]
-        vmovss  xmm0, dword ptr [r14+30h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+shadow], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm2
-        vmovsd  [rsp+300h+fmt], xmm0
-      }
-      v863 = "Localspace";
-      goto LABEL_601;
+      *y = v323 + charHeight;
+      shadowb = event->data.animation.playbackRateMin;
+      forceColord = event->data.chunkDynent.launchAngVel.v[0];
+      fmtc = event->data.animation.startTimeMax;
+      v319 = "Localspace";
+      goto LABEL_603;
     case Scriptable_EventType_ApplyAngularForce:
-      v863 = "Localspace";
-      if ( _R14->data.anonymous.buffer[1] )
+      v319 = "Localspace";
+      if ( event->data.anonymous.buffer[1] )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+38h]
-          vmovss  xmm1, dword ptr [r14+34h]
-          vmovss  xmm2, dword ptr [r14+30h]
-          vmovss  xmm3, dword ptr [r14+2Ch]
-          vmovss  xmm4, dword ptr [r14+28h]
-          vmovss  xmm5, dword ptr [r14+24h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2B8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+300h+adjust], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+300h+var_2C8], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        if ( _R14->data.anonymous.buffer[0] )
-          v863 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v863, fmtbd, forceColorj, shadowg, v1351, adjustc, v1394);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]
-          vmovaps xmm0, xmm2
-        }
+        v416 = event->data.animation.playbackRateMin;
+        adjust = event->data.chunkDynent.launchAngVel.v[0];
+        v412 = event->data.animation.startTimeMax;
+        shadowa = event->data.animation.startTimeMin;
+        v318 = event->data.wait.delayMax;
+        forceColorc = event->data.chunkDynent.launchLinVel.v[0];
+        if ( event->data.anonymous.buffer[0] )
+          v319 = "Worldspace";
+LABEL_598:
+        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v319, v318, forceColorc, shadowa, v412, adjust, v416);
+        v320 = *y;
+        v321 = *y;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+2Ch]
-          vmovss  xmm1, dword ptr [r14+28h]
-          vmovss  xmm2, dword ptr [r14+24h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-LABEL_601:
-        if ( _R14->data.anonymous.buffer[0] )
-          v863 = "Worldspace";
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f)", v863, fmtd, forceColori, shadowf);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovaps xmm2, xmm0; y
-        }
+        shadowb = event->data.animation.startTimeMin;
+        forceColord = event->data.chunkDynent.launchLinVel.v[0];
+        fmtc = event->data.wait.delayMax;
+LABEL_603:
+        if ( event->data.anonymous.buffer[0] )
+          v319 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f)", v319, fmtc, forceColord, shadowb);
+        v321 = *y;
+        v320 = *y;
       }
-LABEL_604:
-      __asm { vcomiss xmm2, xmm8 }
-      if ( !(v844 | v845) )
+      if ( v320 > 0.0 && v320 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v844 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1350, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v320, dest, &colorWhite, 0, 1, charHeight, 0);
+        v321 = *y;
       }
-      __asm { vaddss  xmm0, xmm6, xmm0 }
-      goto LABEL_746;
+      v324 = charHeight + v321;
+      goto LABEL_748;
     case Scriptable_EventType_ApplyConstantForce:
-      __asm
+      v325 = event->data.wait.delayMax;
+      if ( event->data.anonymous.buffer[1] )
       {
-        vmovss  xmm3, dword ptr [r14+24h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v325, event->data.chunkDynent.launchLinVel.v[0], event->data.animation.startTimeMin, event->data.animation.playbackRateMax, event->data.animation.blendTime, event->data.spawnDynent.launchLinVel.v[0]);
+        v326 = *y;
+        v327 = *y;
+        if ( *y > 0.0 && v326 < 1080.0 )
+        {
+          CG_DrawStringExt(scrPlace, *x, v326, dest, &colorWhite, 0, 1, charHeight, 0);
+          v327 = *y;
+        }
+        *y = v327 + charHeight;
+        v417 = event->data.spawnDynent.launchAngVel.v[0];
+        adjusta = event->data.spawnDynent.launchLinVel.v[2];
+        v413 = event->data.spawnDynent.launchLinVel.v[1];
+        shadowc = event->data.animation.playbackRateMin;
+        v328 = event->data.animation.startTimeMax;
+        forceColore = event->data.chunkDynent.launchAngVel.v[0];
+        v329 = "Localspace";
+        if ( event->data.anonymous.buffer[0] )
+          v329 = "Worldspace";
+        goto LABEL_621;
       }
-      if ( _R14->data.anonymous.buffer[1] )
+      Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f)", v325, event->data.chunkDynent.launchLinVel.v[0], event->data.animation.startTimeMin);
+      v332 = *y;
+      v333 = *y;
+      if ( *y > 0.0 && v332 < 1080.0 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+44h]
-          vmovss  xmm1, dword ptr [r14+40h]
-          vmovss  xmm2, dword ptr [r14+3Ch]
-          vmovss  xmm4, dword ptr [r14+2Ch]
-          vmovss  xmm5, dword ptr [r14+28h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+adjust], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+300h+var_2C8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+shadow], xmm2
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-          vmovsd  [rsp+300h+fmt], xmm5
-        }
-        Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbe, forceColorbc, shadowv, v1352, adjustg);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v900 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v900 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1353, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vmovss  xmm1, dword ptr [r14+50h]
-          vmovss  xmm2, dword ptr [r14+4Ch]
-          vmovss  xmm0, dword ptr [r14+48h]
-          vmovss  xmm3, dword ptr [r14+38h]
-          vmovss  xmm4, dword ptr [r14+34h]
-          vmovss  xmm5, dword ptr [r14+30h]
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+300h+var_2B8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+adjust], xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2C8], xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        v917 = "Localspace";
-        if ( _R14->data.anonymous.buffer[0] )
-          v917 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v917, *(double *)&fmtbf, forceColork, shadowh, v1354, adjustd, v1395);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]
-          vmovaps xmm0, xmm2
-        }
-        goto LABEL_627;
+        CG_DrawStringExt(scrPlace, *x, v332, dest, &colorWhite, 0, 1, charHeight, 0);
+        v333 = *y;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+2Ch]
-        vmovss  xmm1, dword ptr [r14+28h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovsd  [rsp+300h+fmt], xmm1
-      }
-      Com_sprintf(dest, 0x100ui64, "Position: (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbg, forceColorbd);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v926 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v926 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1355, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+38h]
-        vmovss  xmm2, dword ptr [r14+34h]
-        vmovss  xmm0, dword ptr [r14+30h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+shadow], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm2
-        vmovsd  [rsp+300h+fmt], xmm0
-      }
-      v937 = "Localspace";
-      goto LABEL_624;
+      *y = v333 + charHeight;
+      shadowd = event->data.animation.playbackRateMin;
+      forceColorf = event->data.chunkDynent.launchAngVel.v[0];
+      fmtd = event->data.animation.startTimeMax;
+      v329 = "Localspace";
+      goto LABEL_626;
     case Scriptable_EventType_ApplyConstantAngularForce:
-      v937 = "Localspace";
-      if ( _R14->data.anonymous.buffer[1] )
+      v329 = "Localspace";
+      if ( event->data.anonymous.buffer[1] )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+38h]
-          vmovss  xmm1, dword ptr [r14+34h]
-          vmovss  xmm2, dword ptr [r14+30h]
-          vmovss  xmm3, dword ptr [r14+2Ch]
-          vmovss  xmm4, dword ptr [r14+28h]
-          vmovss  xmm5, dword ptr [r14+24h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+300h+var_2B8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+300h+adjust], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+300h+var_2C8], xmm2
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+300h+shadow], xmm3
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm4
-        }
-        if ( _R14->data.anonymous.buffer[0] )
-          v937 = "Worldspace";
-        __asm { vmovsd  [rsp+300h+fmt], xmm5 }
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v937, fmtbh, forceColorm, shadowj, v1357, adjuste, v1396);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]
-          vmovaps xmm0, xmm2
-        }
+        v417 = event->data.animation.playbackRateMin;
+        adjusta = event->data.chunkDynent.launchAngVel.v[0];
+        v413 = event->data.animation.startTimeMax;
+        shadowc = event->data.animation.startTimeMin;
+        v328 = event->data.wait.delayMax;
+        forceColore = event->data.chunkDynent.launchLinVel.v[0];
+        if ( event->data.anonymous.buffer[0] )
+          v329 = "Worldspace";
+LABEL_621:
+        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f) to (%.2f %.2f %.2f)", v329, v328, forceColore, shadowc, v413, adjusta, v417);
+        v330 = *y;
+        v331 = *y;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+2Ch]
-          vmovss  xmm1, dword ptr [r14+28h]
-          vmovss  xmm2, dword ptr [r14+24h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+300h+shadow], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-          vmovsd  [rsp+300h+fmt], xmm2
-        }
-LABEL_624:
-        if ( _R14->data.anonymous.buffer[0] )
-          v937 = "Worldspace";
-        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f)", v937, fmte, forceColorl, shadowi);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovaps xmm2, xmm0; y
-        }
+        shadowd = event->data.animation.startTimeMin;
+        forceColorf = event->data.chunkDynent.launchLinVel.v[0];
+        fmtd = event->data.wait.delayMax;
+LABEL_626:
+        if ( event->data.anonymous.buffer[0] )
+          v329 = "Worldspace";
+        Com_sprintf(dest, 0x100ui64, "%s Vector: (%.2f %.2f %.2f)", v329, fmtd, forceColorf, shadowd);
+        v331 = *y;
+        v330 = *y;
       }
-LABEL_627:
-      __asm { vcomiss xmm2, xmm8 }
-      if ( !(v918 | v919) )
+      if ( v330 > 0.0 && v330 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v918 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1356, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v330, dest, &colorWhite, 0, 1, charHeight, 0);
+        v331 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm6, xmm0
-        vmovss  dword ptr [rdi], xmm0
-      }
-      eventStreamBufferOffsetClient = _R14->data.applyConstantForce.eventStreamBufferOffsetClient;
-      eventStreamBufferOffsetServer = _R14->data.applyConstantForce.eventStreamBufferOffsetServer;
-LABEL_28:
+      *y = charHeight + v331;
+      eventStreamBufferOffsetClient = event->data.applyConstantForce.eventStreamBufferOffsetClient;
+      eventStreamBufferOffsetServer = event->data.applyConstantForce.eventStreamBufferOffsetServer;
+LABEL_31:
       LODWORD(fmt) = eventStreamBufferOffsetClient;
       Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Server:%i Client:%i", eventStreamBufferOffsetServer, fmt);
-LABEL_742:
-      __asm
+LABEL_744:
+      v393 = *y;
+      v394 = *y;
+      if ( *y > 0.0 && v393 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v393, dest, &colorWhite, 0, 1, charHeight, 0);
+        v394 = *y;
       }
-      if ( !(v34 | v35) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v34 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1382, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-LABEL_746:
-      __asm { vmovss  dword ptr [rdi], xmm0 }
-LABEL_747:
-      _R11 = &v1404;
-      __asm
-      {
-        vmovaps xmm6, xmmword ptr [r11-18h]
-        vmovaps xmm7, xmmword ptr [r11-28h]
-        vmovaps xmm8, xmmword ptr [r11-38h]
-        vmovaps xmm9, xmmword ptr [r11-48h]
-      }
+      v324 = v394 + charHeight;
+LABEL_748:
+      *y = v324;
       return;
     case Scriptable_EventType_DynamicBoneNoiseCurve:
-      if ( _R14->data.anonymous.buffer[0] )
+      if ( event->data.anonymous.buffer[0] )
       {
         Com_sprintf(dest, 0x100ui64, "Stateful");
-        __asm
+        v187 = *y;
+        v188 = *y;
+        if ( *y > 0.0 && v187 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v187, dest, &colorWhite, 0, 1, charHeight, 0);
+          v188 = *y;
         }
-        if ( !(v463 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v463 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1304, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v188 + charHeight;
       }
-      name = _R14->data.stateChange.part->name;
+      name = event->data.stateChange.part->name;
       if ( name && *name )
       {
         Com_sprintf(dest, 0x100ui64, "XAnimCurve: %s", name);
-        __asm
+        v190 = *y;
+        v191 = *y;
+        if ( *y > 0.0 && v190 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v190, dest, &colorWhite, 0, 1, charHeight, 0);
+          v191 = *y;
         }
-        if ( !(v469 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v469 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1305, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v191 + charHeight;
       }
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Strength Multiplier: %.2f", event->data.animation.startTimeMax);
+      v192 = *y;
+      v193 = *y;
+      if ( *y > 0.0 && v192 < 1080.0 )
       {
-        vmovss  xmm3, dword ptr [r14+30h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v192, dest, &colorWhite, 0, 1, charHeight, 0);
+        v193 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Strength Multiplier: %.2f", *(double *)&_XMM3);
-      __asm
+      *y = v193 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "Rate Multiplier: %.2f", event->data.chunkDynent.launchAngVel.v[0]);
+      v194 = *y;
+      v195 = *y;
+      if ( *y > 0.0 && v194 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v194, dest, &colorWhite, 0, 1, charHeight, 0);
+        v195 = *y;
       }
-      if ( !(v477 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v477 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1306, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+34h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "Rate Multiplier: %.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v485 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v485 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1307, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[24] )
-        goto LABEL_747;
+      *y = v195 + charHeight;
+      if ( !event->data.anonymous.buffer[24] )
+        return;
       Com_sprintf(dest, 0x100ui64, "Is Viewmodel");
-      goto LABEL_742;
+      goto LABEL_744;
     case Scriptable_EventType_Move:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "orignOffset: (%.2f %.2f %.2f)", event->data.wait.delayMin, event->data.wait.delayMax, event->data.chunkDynent.launchLinVel.v[0]);
+      v334 = *y;
+      v335 = *y;
+      if ( *y > 0.0 && v334 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+28h]; jumptable 00000001414B9E7C case 34
-        vmovss  xmm3, dword ptr [r14+20h]
-        vmovss  xmm1, dword ptr [r14+24h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm1
+        CG_DrawStringExt(scrPlace, *x, v334, dest, &colorWhite, 0, 1, charHeight, 0);
+        v335 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "orignOffset: (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbi, forceColorbe);
-      __asm
+      *y = v335 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "angleOffset: (%.2f %.2f %.2f)", event->data.animation.startTimeMin, event->data.animation.startTimeMax, event->data.chunkDynent.launchAngVel.v[0]);
+      v336 = *y;
+      v337 = *y;
+      if ( *y > 0.0 && v336 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v336, dest, &colorWhite, 0, 1, charHeight, 0);
+        v337 = *y;
       }
-      if ( !(v968 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v968 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1358, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+34h]
-        vmovss  xmm3, dword ptr [r14+2Ch]
-        vmovss  xmm2, dword ptr [r14+30h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm2
-      }
-      Com_sprintf(dest, 0x100ui64, "angleOffset: (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbj, forceColorbf);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v980 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v980 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1359, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [r14+40h]
-        vmovss  xmm2, dword ptr [r14+3Ch]
-        vmovss  xmm3, dword ptr [r14+38h]
-      }
-      v273 = "seconds: %.2f, accel %.2f decel %.2f";
-LABEL_208:
-      __asm
-      {
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm1
-        vmovsd  [rsp+300h+fmt], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-      }
-LABEL_209:
-      __asm { vmovq   r9, xmm3 }
-      Com_sprintf(dest, 0x100ui64, v273, _R9, fmta, forceColora);
-      goto LABEL_742;
+      *y = v337 + charHeight;
+      blendTime = event->data.animation.blendTime;
+      v118 = event->data.animation.playbackRateMax;
+      v119 = event->data.animation.playbackRateMin;
+      v120 = "seconds: %.2f, accel %.2f decel %.2f";
+LABEL_211:
+      Com_sprintf(dest, 0x100ui64, v120, v119, v118, blendTime);
+      goto LABEL_744;
     case Scriptable_EventType_Footstep:
-      v985 = _R14->data.spawnDynent.tagName;
-      if ( v985 && *v985 )
+      v338 = event->data.spawnDynent.tagName;
+      if ( v338 && *v338 )
       {
-        Com_sprintf(dest, 0x100ui64, "Sound Alias:%s", v985);
-        __asm
+        Com_sprintf(dest, 0x100ui64, "Sound Alias:%s", v338);
+        v339 = *y;
+        v340 = *y;
+        if ( *y > 0.0 && v339 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v339, dest, &colorWhite, 0, 1, charHeight, 0);
+          v340 = *y;
         }
-        if ( !(v986 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v986 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1360, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v340 + charHeight;
       }
-      v991 = _R14->data.script.notification;
-      if ( !v991 || !*v991 )
-        goto LABEL_747;
-      LODWORD(fmt) = _R14->data.script.scrNotification;
-      Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v991, fmt);
-      __asm
+      v341 = event->data.script.notification;
+      if ( !v341 || !*v341 )
+        return;
+      LODWORD(fmt) = event->data.script.scrNotification;
+      Com_sprintf(dest, 0x100ui64, "TagName: %s Script:%i", v341, fmt);
+      v342 = *y;
+      v343 = *y;
+      if ( *y > 0.0 && v342 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v342, dest, &colorWhite, 0, 1, charHeight, 0);
+        v343 = *y;
       }
-      if ( !(v992 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v992 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1361, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      if ( !_R14->data.anonymous.buffer[24] )
-        goto LABEL_747;
-      v644 = "ignore event";
-      if ( _R14->data.anonymous.buffer[25] )
-        v644 = "use root";
-LABEL_469:
-      Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v644);
-      goto LABEL_742;
+      *y = v343 + charHeight;
+      if ( !event->data.anonymous.buffer[24] )
+        return;
+      v249 = "ignore event";
+      if ( event->data.anonymous.buffer[25] )
+        v249 = "use root";
+LABEL_471:
+      Com_sprintf(dest, 0x100ui64, "Allow missing tag - %s", v249);
+      goto LABEL_744;
     case Scriptable_EventType_GravityArc:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "angleOffset: (%.2f %.2f %.2f)", event->data.wait.delayMin, event->data.wait.delayMax, event->data.chunkDynent.launchLinVel.v[0]);
+      v344 = *y;
+      v345 = *y;
+      if ( *y > 0.0 && v344 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+28h]; jumptable 00000001414B9E7C case 36
-        vmovss  xmm3, dword ptr [r14+20h]
-        vmovss  xmm1, dword ptr [r14+24h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+300h+forceColor], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+300h+fmt], xmm1
+        CG_DrawStringExt(scrPlace, *x, v344, dest, &colorWhite, 0, 1, charHeight, 0);
+        v345 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "angleOffset: (%.2f %.2f %.2f)", *(double *)&_XMM3, *(double *)&fmtbk, forceColorbg);
-      __asm
+      *y = v345 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "gravityScale: %.2f", event->data.animation.startTimeMin);
+      v346 = *y;
+      v347 = *y;
+      if ( *y > 0.0 && v346 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v346, dest, &colorWhite, 0, 1, charHeight, 0);
+        v347 = *y;
       }
-      if ( !(v1004 | v27) )
+      *y = v347 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "upwardVelocity: %.2f", event->data.animation.startTimeMax);
+      v348 = *y;
+      v349 = *y;
+      if ( *y > 0.0 && v348 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1004 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1362, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v348, dest, &colorWhite, 0, 1, charHeight, 0);
+        v349 = *y;
       }
-      __asm
+      *y = v349 + charHeight;
+      v350 = "n";
+      v351 = "n";
+      if ( event->data.anonymous.buffer[24] )
+        v351 = "y";
+      Com_sprintf(dest, 0x100ui64, "endAtInitialPose: %s", v351);
+      v352 = *y;
+      v353 = *y;
+      if ( *y > 0.0 && v352 < 1080.0 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+2Ch]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v352, dest, &colorWhite, 0, 1, charHeight, 0);
+        v353 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "gravityScale: %.2f", *(double *)&_XMM3);
-      __asm
+      *y = v353 + charHeight;
+      v354 = "n";
+      if ( event->data.anonymous.buffer[25] )
+        v354 = "y";
+      Com_sprintf(dest, 0x100ui64, "randomSpin: %s", v354);
+      v355 = *y;
+      v356 = *y;
+      if ( *y > 0.0 && v355 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v355, dest, &colorWhite, 0, 1, charHeight, 0);
+        v356 = *y;
       }
-      if ( !(v1012 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1012 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1363, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+30h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "upwardVelocity: %.2f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1020 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1020 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1364, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v1025 = "n";
-      v1026 = "n";
-      if ( _R14->data.anonymous.buffer[24] )
-        v1026 = "y";
-      Com_sprintf(dest, 0x100ui64, "endAtInitialPose: %s", v1026);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1027 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1027 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1365, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v1032 = "n";
-      if ( _R14->data.anonymous.buffer[25] )
-        v1032 = "y";
-      Com_sprintf(dest, 0x100ui64, "randomSpin: %s", v1032);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1033 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1033 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1366, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v1038 = "playLootTrailFX: %s";
-      if ( _R14->data.anonymous.buffer[26] )
-        v1025 = "y";
-      goto LABEL_679;
+      *y = v356 + charHeight;
+      v357 = "playLootTrailFX: %s";
+      if ( event->data.anonymous.buffer[26] )
+        v350 = "y";
+      goto LABEL_681;
     case Scriptable_EventType_ViewTrigger:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Trigger distance: %.3f", fsqrt(event->data.wait.delayMin));
+      v358 = *y;
+      v359 = *y;
+      if ( *y > 0.0 && v358 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 37
-        vsqrtss xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v358, dest, &colorWhite, 0, 1, charHeight, 0);
+        v359 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Trigger distance: %.3f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1043 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1043 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1367, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+24h]
-      }
-      v1049 = "Trigger FOV cos(0.5 angle): %.3f";
-      goto LABEL_684;
+      *y = v359 + charHeight;
+      v360 = event->data.wait.delayMax;
+      v361 = "Trigger FOV cos(0.5 angle): %.3f";
+      goto LABEL_686;
     case Scriptable_EventType_Objective:
-      Com_sprintf(dest, 0x100ui64, "state: %d", _R14->data.anonymous.buffer[2]);
-      __asm
+      Com_sprintf(dest, 0x100ui64, "state: %d", event->data.anonymous.buffer[2]);
+      v362 = *y;
+      v363 = *y;
+      if ( *y > 0.0 && v362 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v362, dest, &colorWhite, 0, 1, charHeight, 0);
+        v363 = *y;
       }
-      if ( !(v1052 | v27) )
+      *y = v363 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "background: %d", event->data.anonymous.buffer[3]);
+      v364 = *y;
+      v365 = *y;
+      if ( *y > 0.0 && v364 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1052 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1368, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v364, dest, &colorWhite, 0, 1, charHeight, 0);
+        v365 = *y;
       }
-      __asm
+      *y = v365 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "zOffset: %d", event->data.stateChange.stateIdx);
+      v366 = *y;
+      v367 = *y;
+      if ( *y > 0.0 && v366 < 1080.0 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
+        CG_DrawStringExt(scrPlace, *x, v366, dest, &colorWhite, 0, 1, charHeight, 0);
+        v367 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "background: %d", _R14->data.anonymous.buffer[3]);
-      __asm
+      *y = v367 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "description: %s", event->data.sound.soundAlias);
+      v368 = *y;
+      v369 = *y;
+      if ( *y > 0.0 && v368 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v368, dest, &colorWhite, 0, 1, charHeight, 0);
+        v369 = *y;
       }
-      if ( !(v1057 | v27) )
+      *y = v369 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "icon: %s", event->data.objective.icon);
+      v370 = *y;
+      v371 = *y;
+      if ( *y > 0.0 && v370 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1057 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1369, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v370, dest, &colorWhite, 0, 1, charHeight, 0);
+        v371 = *y;
       }
-      __asm
+      *y = v371 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "label: %s", event->data.particleFX.effectAlias);
+      v372 = *y;
+      v373 = *y;
+      if ( *y > 0.0 && v372 < 1080.0 )
       {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
+        CG_DrawStringExt(scrPlace, *x, v372, dest, &colorWhite, 0, 1, charHeight, 0);
+        v373 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "zOffset: %d", _R14->data.stateChange.stateIdx);
-      __asm
+      *y = v373 + charHeight;
+      v350 = "no";
+      v374 = "no";
+      if ( event->data.anonymous.buffer[9] )
+        v374 = "yes";
+      Com_sprintf(dest, 0x100ui64, "always show in world: %s", v374);
+      v375 = *y;
+      v376 = *y;
+      if ( *y > 0.0 && v375 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v375, dest, &colorWhite, 0, 1, charHeight, 0);
+        v376 = *y;
       }
-      if ( !(v1062 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1062 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1370, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "description: %s", _R14->data.sound.soundAlias);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1067 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1067 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1371, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "icon: %s", _R14->data.objective.icon);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1072 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1072 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1372, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      Com_sprintf(dest, 0x100ui64, "label: %s", _R14->data.particleFX.effectAlias);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1077 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1077 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1373, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v1025 = "no";
-      v1082 = "no";
-      if ( _R14->data.anonymous.buffer[9] )
-        v1082 = "yes";
-      Com_sprintf(dest, 0x100ui64, "always show in world: %s", v1082);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1083 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1083 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1374, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      v1038 = "always snap to edge: %s";
-      if ( _R14->data.anonymous.buffer[10] )
-        v1025 = "yes";
-LABEL_679:
-      Com_sprintf(dest, 0x100ui64, v1038, v1025);
-      goto LABEL_742;
+      *y = v376 + charHeight;
+      v357 = "always snap to edge: %s";
+      if ( event->data.anonymous.buffer[10] )
+        v350 = "yes";
+LABEL_681:
+      Com_sprintf(dest, 0x100ui64, v357, v350);
+      goto LABEL_744;
     case Scriptable_EventType_SpatialDisable:
-      v1088 = "no";
-      if ( _R14->data.anonymous.buffer[0] )
-        v1088 = "yes";
-      Com_sprintf(dest, 0x100ui64, "Disabled: %s", v1088);
-      goto LABEL_742;
+      v377 = "no";
+      if ( event->data.anonymous.buffer[0] )
+        v377 = "yes";
+      Com_sprintf(dest, 0x100ui64, "Disabled: %s", v377);
+      goto LABEL_744;
     case Scriptable_EventType_Hover:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "amplitudeUpDown: %f", event->data.wait.delayMin);
+      v378 = *y;
+      v379 = *y;
+      if ( *y > 0.0 && v378 < 1080.0 )
       {
-        vmovss  xmm3, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 40
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v378, dest, &colorWhite, 0, 1, charHeight, 0);
+        v379 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "amplitudeUpDown: %f", *(double *)&_XMM3);
-      __asm
+      *y = v379 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "frequencyUpDown: %f", event->data.wait.delayMax);
+      v380 = *y;
+      v381 = *y;
+      if ( *y > 0.0 && v380 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v380, dest, &colorWhite, 0, 1, charHeight, 0);
+        v381 = *y;
       }
-      if ( !(v1092 | v27) )
+      *y = v381 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "frequencyPitch: %f", event->data.chunkDynent.launchLinVel.v[0]);
+      v382 = *y;
+      v383 = *y;
+      if ( *y > 0.0 && v382 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1092 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1375, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v382, dest, &colorWhite, 0, 1, charHeight, 0);
+        v383 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+24h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "frequencyUpDown: %f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1100 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1100 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1376, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+28h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "frequencyPitch: %f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1108 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1108 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1377, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+2Ch]
-      }
-      v1049 = "frequencyYaw: %f";
-      goto LABEL_684;
+      *y = v383 + charHeight;
+      v360 = event->data.animation.startTimeMin;
+      v361 = "frequencyYaw: %f";
+      goto LABEL_686;
     case Scriptable_EventType_VehicleBlowUpTire:
-      Com_sprintf(dest, 0x100ui64, "tireIndex: %d", _R14->data.stateChange.partReference.flatId);
-      goto LABEL_742;
+      Com_sprintf(dest, 0x100ui64, "tireIndex: %d", event->data.stateChange.partReference.flatId);
+      goto LABEL_744;
     case Scriptable_EventType_Dlc1:
-      __asm
+      Com_sprintf(dest, 0x100ui64, "dlcFloat0: %f", event->data.wait.delayMin);
+      v384 = *y;
+      v385 = *y;
+      if ( *y > 0.0 && v384 < 1080.0 )
       {
-        vmovss  xmm3, dword ptr [r14+20h]; jumptable 00000001414B9E7C case 42
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
+        CG_DrawStringExt(scrPlace, *x, v384, dest, &colorWhite, 0, 1, charHeight, 0);
+        v385 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "dlcFloat0: %f", *(double *)&_XMM3);
-      __asm
+      *y = v385 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "dlcFloat1: %f", event->data.wait.delayMax);
+      v386 = *y;
+      v387 = *y;
+      if ( *y > 0.0 && v386 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v386, dest, &colorWhite, 0, 1, charHeight, 0);
+        v387 = *y;
       }
-      if ( !(v1116 | v27) )
+      *y = v387 + charHeight;
+      Com_sprintf(dest, 0x100ui64, "dlcFloat2: %f", event->data.chunkDynent.launchLinVel.v[0]);
+      v388 = *y;
+      v389 = *y;
+      if ( *y > 0.0 && v388 < 1080.0 )
       {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1116 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1378, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
+        CG_DrawStringExt(scrPlace, *x, v388, dest, &colorWhite, 0, 1, charHeight, 0);
+        v389 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+24h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "dlcFloat1: %f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1124 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1124 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1379, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+28h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "dlcFloat2: %f", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v1132 | v27) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v1132 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1380, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm3, dword ptr [r14+2Ch]
-      }
-      v1049 = "dlcFloat3: %f";
-LABEL_684:
-      __asm
-      {
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, v1049, _R9);
-      goto LABEL_742;
+      *y = v389 + charHeight;
+      v360 = event->data.animation.startTimeMin;
+      v361 = "dlcFloat3: %f";
+LABEL_686:
+      Com_sprintf(dest, 0x100ui64, v361, v360);
+      goto LABEL_744;
     case Scriptable_EventType_ScriptDamage:
-      v1137 = _R14->data.script.notification;
-      if ( v1137 && *v1137 )
+      v390 = event->data.script.notification;
+      if ( v390 && *v390 )
       {
-        LODWORD(fmt) = _R14->data.script.scrNotification;
-        Com_sprintf(dest, 0x100ui64, "Name:%s Script:%i", v1137, fmt);
-        __asm
+        LODWORD(fmt) = event->data.script.scrNotification;
+        Com_sprintf(dest, 0x100ui64, "Name:%s Script:%i", v390, fmt);
+        v391 = *y;
+        v392 = *y;
+        if ( *y > 0.0 && v391 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v391, dest, &colorWhite, 0, 1, charHeight, 0);
+          v392 = *y;
         }
-        if ( !(v1138 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v1138 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  dword ptr [rsp+300h+var_2C8], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v1381, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v392 + charHeight;
       }
-      Com_sprintf(dest, 0x100ui64, "Param:%i", _R14->data.objective.settings.label);
-      goto LABEL_742;
+      Com_sprintf(dest, 0x100ui64, "Param:%i", event->data.objective.settings.label);
+      goto LABEL_744;
     default:
-      goto LABEL_747;
+      return;
   }
 }
 
@@ -7116,94 +3459,40 @@ ScriptableBg_DrawDebugScriptableEventsDef
 */
 void ScriptableBg_DrawDebugScriptableEventsDef(const ScriptableEventDef *events, const unsigned int numEvents, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const dvar_t *v11; 
-  const ScriptableEventDef *v16; 
+  const dvar_t *v7; 
+  const ScriptableEventDef *v11; 
   const char *string; 
-  unsigned int v18; 
+  unsigned int i; 
   const char *name; 
-  char v24; 
-  char v27; 
-  float fmt; 
-  int forceColor; 
-  float v39; 
+  float v15; 
+  float v16; 
   char dest[256]; 
 
-  v11 = DVARSTR_scriptabledebug_eventfilter;
-  _RBP = x;
-  _R14 = y;
-  v16 = events;
+  v7 = DVARSTR_scriptabledebug_eventfilter;
+  v11 = events;
   if ( !DVARSTR_scriptabledebug_eventfilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptabledebug_eventfilter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  string = v11->current.string;
-  v18 = 0;
-  if ( numEvents )
+  Dvar_CheckFrontendServerThread(v7);
+  string = v7->current.string;
+  for ( i = 0; i < numEvents; ++v11 )
   {
-    __asm
+    name = v11->base.name;
+    if ( !v11->base.name || !*name || I_strempty(string) || I_stristr(name, string) )
     {
-      vmovaps [rsp+1E8h+var_48], xmm6
-      vmovss  xmm6, [rsp+1E8h+charHeight]
-      vmovaps [rsp+1E8h+var_58], xmm7
-      vmovss  xmm7, [rsp+1E8h+tabWidth]
-      vmovaps [rsp+1E8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@44870000
-      vmovaps [rsp+1E8h+var_78], xmm9
-      vxorps  xmm9, xmm9, xmm9
-    }
-    do
-    {
-      name = v16->base.name;
-      if ( !v16->base.name || !*name || I_strempty(string) || I_stristr(name, string) )
+      Com_sprintf(dest, 0x100ui64, "Event %i", i);
+      v15 = *y;
+      v16 = *y;
+      if ( *y > 0.0 && v15 < 1080.0 )
       {
-        Com_sprintf(dest, 0x100ui64, "Event %i", v18);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14]; y
-          vcomiss xmm2, xmm9
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v24 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm8 }
-          if ( v24 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbp+0]; x
-              vmovss  [rsp+1E8h+var_1B0], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v39, 0);
-            __asm { vmovss  xmm0, dword ptr [r14] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [r14], xmm0
-          vaddss  xmm1, xmm7, dword ptr [rbp+0]
-          vmovss  [rsp+1E8h+forceColor], xmm6
-          vmovss  dword ptr [rbp+0], xmm1
-          vmovss  dword ptr [rsp+1E8h+fmt], xmm7
-        }
-        ScriptableBg_DrawDebugScriptableEventDef(&events[v18], scrPlace, _RBP, y, fmt, *(float *)&forceColor);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0]
-          vsubss  xmm1, xmm0, xmm7
-          vmovss  dword ptr [rbp+0], xmm1
-        }
+        CG_DrawStringExt(scrPlace, *x, v15, dest, &colorWhite, 0, 1, charHeight, 0);
+        v16 = *y;
       }
-      ++v18;
-      ++v16;
+      *y = v16 + charHeight;
+      *x = tabWidth + *x;
+      ScriptableBg_DrawDebugScriptableEventDef(&events[i], scrPlace, x, y, tabWidth, charHeight);
+      *x = *x - tabWidth;
     }
-    while ( v18 < numEvents );
-    __asm
-    {
-      vmovaps xmm9, [rsp+1E8h+var_78]
-      vmovaps xmm8, [rsp+1E8h+var_68]
-      vmovaps xmm7, [rsp+1E8h+var_58]
-      vmovaps xmm6, [rsp+1E8h+var_48]
-    }
+    ++i;
   }
 }
 
@@ -7214,751 +3503,395 @@ ScriptableBg_DrawDebugScriptableInstance
 */
 void ScriptableBg_DrawDebugScriptableInstance(const unsigned int instanceId, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  unsigned int v15; 
+  unsigned int v9; 
   ScriptableInstanceContext *InstanceCommonContext; 
-  ScriptableInstanceContextSecure *v21; 
-  ScriptableDef *v22; 
-  unsigned int v40; 
-  char v45; 
-  char v62; 
+  ScriptableInstanceContextSecure *v11; 
+  ScriptableDef *v12; 
+  ScriptableInstanceContext *v13; 
+  const XModel *ScriptableModel; 
+  unsigned int v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   bool MapInstance; 
-  ScriptableInstance *v68; 
+  ScriptableInstance *v21; 
   unsigned __int16 ffMemCost; 
-  char v70; 
+  float v23; 
+  float v24; 
   unsigned __int8 flags; 
   bool IsStandaloneRequested; 
-  const char *v77; 
-  const char *v78; 
-  const char *v79; 
-  char v80; 
-  int v85; 
+  const char *v27; 
+  const char *v28; 
+  const char *v29; 
+  float v30; 
+  float v31; 
+  int v32; 
   scr_string_t targetname; 
-  const char *v87; 
-  char v88; 
+  const char *v34; 
+  float v35; 
+  float v36; 
   scr_string_t script_linkname; 
-  const char *v94; 
-  char v95; 
+  const char *v38; 
+  float v39; 
+  float v40; 
   scr_string_t script_linkto; 
-  const char *v101; 
-  char v102; 
+  const char *v42; 
+  float v43; 
+  float v44; 
   scr_string_t script_noteworthy; 
-  const char *v108; 
-  char v109; 
+  const char *v46; 
+  float v47; 
+  float v48; 
   unsigned __int16 *lightIndices; 
-  __int64 v115; 
-  char v116; 
-  ScriptableDef *v124; 
-  char v126; 
-  char v132; 
-  bool v137; 
-  bool v138; 
-  char v161; 
+  __int64 v50; 
+  float v51; 
+  float v52; 
+  ScriptableDef *v53; 
+  ScriptableInstanceContext *v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
   ScriptableDataType dataType; 
   const XCompositeModelDef *compositeModel; 
-  const char *v168; 
-  char v169; 
-  ScriptableInstanceServerContext *v174; 
+  const char *v66; 
+  float v67; 
+  float v68; 
+  ScriptableInstanceServerContext *v69; 
   const XModel *model; 
-  const char *v176; 
-  char v177; 
-  const char *v182; 
-  char v183; 
-  const char *v188; 
-  char v189; 
-  char v194; 
-  bool v199; 
-  float v200; 
-  unsigned int v201; 
-  __int64 v202; 
-  _BYTE *v203; 
-  ScriptableDef *v207; 
-  ScriptableInstanceContextSecure *v208; 
-  char v209; 
-  char v215; 
-  char v220; 
-  char v243; 
-  ScriptableDataType v248; 
-  const XCompositeModelDef *v249; 
-  const char *v250; 
-  char v251; 
-  unsigned __int64 v256; 
-  ScriptableInstanceClientContext *v257; 
-  const char *v258; 
-  const char *v259; 
-  char v260; 
-  char v261; 
-  const char *v262; 
-  const char *v263; 
-  char v268; 
-  char v269; 
-  bool v274; 
-  float v275; 
-  const ScriptablePartDef *v276; 
-  int depthTesta; 
-  double depthTestb; 
+  const char *v71; 
+  float v72; 
+  float v73; 
+  const char *v74; 
+  float v75; 
+  float v76; 
+  const char *v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  bool v82; 
+  float v83; 
+  unsigned int v84; 
+  __int64 v85; 
+  _BYTE *v86; 
+  ScriptableDef *v87; 
+  ScriptableInstanceContextSecure *v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  ScriptableDataType v97; 
+  const XCompositeModelDef *v98; 
+  const char *v99; 
+  float v100; 
+  float v101; 
+  unsigned __int64 v102; 
+  ScriptableInstanceClientContext *v103; 
+  const char *v104; 
+  const char *v105; 
+  const char *v106; 
+  const char *v107; 
+  float v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  bool v112; 
+  float v113; 
+  const ScriptablePartDef *v114; 
   __int64 depthTest; 
-  int depthTestc; 
-  double depthTestd; 
-  double depthTeste; 
-  double durationa; 
   __int64 duration; 
-  int durationb; 
-  double durationc; 
-  double durationd; 
   __int64 vertAlign; 
-  float color; 
-  float colora; 
-  float colorb; 
-  float colorc; 
-  float colord; 
-  float colore; 
-  float colorf; 
-  float colorg; 
-  float colorh; 
-  float colori; 
-  float colorj; 
-  float colork; 
-  float colorl; 
-  float colorm; 
-  float colorn; 
-  float coloro; 
-  float colorp; 
-  float colorq; 
-  float colorr; 
-  float colors; 
-  float colort; 
-  float coloru; 
-  float colorv; 
-  float colorw; 
-  float colorx; 
-  float v323; 
-  float v324; 
-  float v325; 
-  float v326; 
-  bool v327; 
+  bool v118; 
   ScriptableLinkType linkedObjectType; 
-  bool v329; 
-  ScriptableLinkType v330; 
-  bool v331; 
-  char v332; 
+  bool v120; 
+  ScriptableLinkType v121; 
+  bool v122; 
+  char v123; 
   unsigned int linkedObjectIndex; 
-  float v335; 
-  unsigned int v336; 
+  float v126; 
+  unsigned int v127; 
   vec3_t runtime; 
-  ScriptableInstanceContextSecure *v338; 
+  ScriptableInstanceContextSecure *v129; 
   ScriptableDef *def; 
   ScriptableInstance *outInstance; 
   ScriptableInstanceContextSecure *context; 
-  __int64 v342; 
+  __int64 v133; 
   vec3_t outOrigin; 
   vec3_t origin; 
   vec3_t angles; 
   Bounds bounds; 
   tmat33_t<vec3_t> axis; 
   char dest[256]; 
-  char v349; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v342 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  _RBX = y;
-  _R14 = x;
-  v15 = instanceId;
+  v133 = -2i64;
+  v9 = instanceId;
   ScriptableCommon_AssertCountsInitialized();
-  if ( v15 >= g_scriptableWorldCounts.totalInstanceCount )
-    goto LABEL_217;
-  if ( ScriptableBg_ServerContextIsPrimary(v15) )
+  if ( v9 >= g_scriptableWorldCounts.totalInstanceCount )
+    return;
+  if ( ScriptableBg_ServerContextIsPrimary(v9) )
   {
-    _RAX = ScriptableSv_GetInstanceCommonContext(v15);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+20h]
-      vmovss  dword ptr [rbp+1B0h+outOrigin], xmm0
-      vmovss  xmm1, dword ptr [rax+24h]
-      vmovss  dword ptr [rbp+1B0h+outOrigin+4], xmm1
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rbp+1B0h+outOrigin+8], xmm0
-    }
-    InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v15);
+    outOrigin = ScriptableSv_GetInstanceCommonContext(v9)->origin;
+    InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v9);
   }
   else
   {
-    v21 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v15);
-    ScriptableInstanceContextSecure::GetOrigin(v21, v15, &outOrigin);
-    InstanceCommonContext = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v15);
+    v11 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v9);
+    ScriptableInstanceContextSecure::GetOrigin(v11, v9, &outOrigin);
+    InstanceCommonContext = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v9);
   }
-  v22 = (ScriptableDef *)InstanceCommonContext->def;
-  def = v22;
-  if ( !v22 )
-    goto LABEL_217;
-  if ( ScriptableBg_ServerContextIsPrimary(v15) )
+  v12 = (ScriptableDef *)InstanceCommonContext->def;
+  def = v12;
+  if ( !v12 )
+    return;
+  if ( ScriptableBg_ServerContextIsPrimary(v9) )
   {
-    _RDI = ScriptableSv_GetInstanceCommonContext(v15);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+20h]
-      vmovss  dword ptr [rbp+1B0h+origin], xmm0
-      vmovss  xmm1, dword ptr [rax+24h]
-      vmovss  dword ptr [rbp+1B0h+origin+4], xmm1
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rbp+1B0h+origin+8], xmm0
-      vmovss  xmm1, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rbp+1B0h+angles], xmm1
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  dword ptr [rbp+1B0h+angles+4], xmm0
-      vmovss  xmm1, dword ptr [rax+34h]
-      vmovss  dword ptr [rbp+1B0h+angles+8], xmm1
-    }
+    v13 = ScriptableSv_GetInstanceCommonContext(v9);
+    origin = v13->origin;
   }
   else
   {
-    _RDI = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v15);
-    ScriptableInstanceContextSecure::GetOrigin(_RDI, v15, &origin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+2Ch]
-      vmovss  dword ptr [rbp+1B0h+angles], xmm0
-      vmovss  xmm1, dword ptr [rdi+30h]
-      vmovss  dword ptr [rbp+1B0h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+34h]
-      vmovss  dword ptr [rbp+1B0h+angles+8], xmm0
-    }
+    v13 = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v9);
+    ScriptableInstanceContextSecure::GetOrigin(v13, v9, &origin);
   }
-  _RAX = BG_XCompositeModel_GetScriptableModel(_RDI);
-  __asm { vmovss  xmm12, cs:__real@3f800000 }
-  if ( _RAX )
+  angles = v13->angles;
+  ScriptableModel = BG_XCompositeModel_GetScriptableModel(v13);
+  if ( ScriptableModel )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+2Ch]
-      vmovups xmmword ptr [rbp+1B0h+bounds.midPoint], xmm0
-      vmovsd  xmm1, qword ptr [rax+3Ch]
-      vmovsd  qword ptr [rbp+1B0h+bounds.halfSize+4], xmm1
-    }
+    bounds = ScriptableModel->bounds;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1B0h+origin]
-      vmovss  dword ptr [rbp+1B0h+bounds.midPoint], xmm0
-      vmovss  xmm1, dword ptr [rbp+1B0h+origin+4]
-      vmovss  dword ptr [rbp+1B0h+bounds.midPoint+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+1B0h+origin+8]
-      vmovss  dword ptr [rbp+1B0h+bounds.midPoint+8], xmm0
-      vmovss  dword ptr [rbp+1B0h+bounds.halfSize], xmm12
-      vmovss  dword ptr [rbp+1B0h+bounds.halfSize+4], xmm12
-      vmovss  dword ptr [rbp+1B0h+bounds.halfSize+8], xmm12
-    }
+    bounds.midPoint = origin;
+    bounds.halfSize.v[0] = FLOAT_1_0;
+    bounds.halfSize.v[1] = FLOAT_1_0;
+    bounds.halfSize.v[2] = FLOAT_1_0;
   }
   AnglesToAxis(&angles, &axis);
-  v40 = 0;
+  v15 = 0;
   CG_DebugBoxOriented(&origin, &bounds, &axis, &colorGreen, 0, 0);
-  __asm { vmovss  xmm1, cs:__real@40000000; radius }
-  CG_DebugSphere(&origin, *(float *)&_XMM1, &colorRed, 0, 1);
-  __asm
+  CG_DebugSphere(&origin, 2.0, &colorRed, 0, 1);
+  CG_Draw2DRect(scrPlace, *x, *y, 300.0, 300.0, 1, 1, &colorBlackFaded, cgMedia.whiteMaterial);
+  Com_sprintf(dest, 0x100ui64, "Scriptable Instance: %i %s", v9, v12->name);
+  v16 = *y;
+  v17 = *y;
+  if ( *y > 0.0 && v16 < 1080.0 )
   {
-    vmovss  xmm3, cs:__real@43960000; width
-    vmovss  [rsp+2B0h+depthTest], xmm3
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [r14]; x
+    CG_DrawStringExt(scrPlace, *x, v16, dest, &colorYellow, 0, 1, charHeight, 0);
+    v17 = *y;
   }
-  CG_Draw2DRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&depthTesta, 1, 1, &colorBlackFaded, cgMedia.whiteMaterial);
-  Com_sprintf(dest, 0x100ui64, "Scriptable Instance: %i %s", v15, v22->name);
-  __asm
+  *y = v17 + charHeight;
+  *x = tabWidth + *x;
+  Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", outOrigin.v[0], outOrigin.v[1], outOrigin.v[2]);
+  v18 = *y;
+  v19 = *y;
+  if ( *y > 0.0 && v18 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovaps xmm0, xmm2
-    vxorps  xmm10, xmm10, xmm10
-    vmovss  xmm6, [rbp+1B0h+charHeight]
-    vmovss  xmm7, cs:__real@44870000
-    vcomiss xmm2, xmm10
+    CG_DrawStringExt(scrPlace, *x, v18, dest, &colorWhite, 0, 1, charHeight, 0);
+    v19 = *y;
   }
-  if ( !(v45 | v138) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v45 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, color, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm11, [rbp+1B0h+tabWidth]
-    vaddss  xmm0, xmm11, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm1, dword ptr [rbp+1B0h+outOrigin+8]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovss  xmm2, dword ptr [rbp+1B0h+outOrigin+4]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovss  xmm3, dword ptr [rbp+1B0h+outOrigin]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  qword ptr [rsp+2B0h+duration], xmm1
-    vmovsd  qword ptr [rsp+2B0h+depthTest], xmm2
-    vmovq   r9, xmm3
-  }
-  Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", *(double *)&_XMM3, depthTestb, durationa);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovaps xmm0, xmm2
-    vcomiss xmm2, xmm10
-  }
-  if ( !(v62 | v138) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v62 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colora, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
-  MapInstance = ScriptableCommon_GetMapInstance(v15, (const ScriptableInstance **)&outInstance);
-  v327 = MapInstance;
+  *y = v19 + charHeight;
+  MapInstance = ScriptableCommon_GetMapInstance(v9, (const ScriptableInstance **)&outInstance);
+  v118 = MapInstance;
   *(_QWORD *)runtime.v = (char *)&queryFormat.fmt + 3;
-  v68 = outInstance;
+  v21 = outInstance;
   if ( MapInstance )
   {
     if ( !outInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2503, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    ffMemCost = v68->ffMemCost;
+    ffMemCost = v21->ffMemCost;
     if ( ffMemCost )
     {
       Com_sprintf(dest, 0x100ui64, "FastFile MemCost %i", ffMemCost);
-      __asm
+      v23 = *y;
+      v24 = *y;
+      if ( *y > 0.0 && v23 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v23, dest, &colorWhite, 0, 1, charHeight, 0);
+        v24 = *y;
       }
-      if ( !(v70 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v70 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorb, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v24 + charHeight;
     }
-    if ( v68->flags )
+    if ( v21->flags )
     {
-      flags = v68->flags;
+      flags = v21->flags;
       IsStandaloneRequested = ScriptableDef_IsStandaloneRequested(def);
-      v77 = (char *)&queryFormat.fmt + 3;
+      v27 = (char *)&queryFormat.fmt + 3;
       if ( IsStandaloneRequested )
-        v77 = "noEntity ";
-      v78 = (char *)&queryFormat.fmt + 3;
+        v27 = "noEntity ";
+      v28 = (char *)&queryFormat.fmt + 3;
       if ( (flags & 2) != 0 )
-        v78 = "noShadow ";
-      v79 = (char *)&queryFormat.fmt + 3;
+        v28 = "noShadow ";
+      v29 = (char *)&queryFormat.fmt + 3;
       if ( (flags & 1) != 0 )
-        v79 = "noCollision ";
-      Com_sprintf(dest, 0x100ui64, "InstFlags: %s%s%s", v79, v78, v77);
-      __asm
+        v29 = "noCollision ";
+      Com_sprintf(dest, 0x100ui64, "InstFlags: %s%s%s", v29, v28, v27);
+      v30 = *y;
+      v31 = *y;
+      if ( *y > 0.0 && v30 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v30, dest, &colorWhite, 0, 1, charHeight, 0);
+        v31 = *y;
       }
-      if ( !(v80 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v80 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorc, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
-      MapInstance = v327;
+      *y = v31 + charHeight;
+      MapInstance = v118;
     }
   }
-  v85 = def->flags;
-  if ( v85 )
-  {
-    __asm
-    {
-      vmovss  [rsp+2B0h+duration], xmm6
-      vmovss  [rsp+2B0h+depthTest], xmm11
-    }
-    ScriptableBg_DrawDefFlags(v85, scrPlace, _R14, _RBX, *(float *)&depthTestc, *(float *)&durationb);
-  }
+  v32 = def->flags;
+  if ( v32 )
+    ScriptableBg_DrawDefFlags(v32, scrPlace, x, y, tabWidth, charHeight);
   if ( MapInstance )
   {
-    if ( !v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2531, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2531, ASSERT_TYPE_ASSERT, "(instance)", (const char *)&queryFormat, "instance") )
       __debugbreak();
-    targetname = v68->targetname;
+    targetname = v21->targetname;
     if ( targetname )
     {
-      v87 = SL_ConvertToString(targetname);
-      Com_sprintf(dest, 0x100ui64, "targetname: %s", v87);
-      __asm
+      v34 = SL_ConvertToString(targetname);
+      Com_sprintf(dest, 0x100ui64, "targetname: %s", v34);
+      v35 = *y;
+      v36 = *y;
+      if ( *y > 0.0 && v35 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v35, dest, &colorWhite, 0, 1, charHeight, 0);
+        v36 = *y;
       }
-      if ( !(v88 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v88 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colord, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v36 + charHeight;
     }
-    script_linkname = v68->script_linkname;
+    script_linkname = v21->script_linkname;
     if ( script_linkname )
     {
-      v94 = SL_ConvertToString(script_linkname);
-      Com_sprintf(dest, 0x100ui64, "script_linkname: %s", v94);
-      __asm
+      v38 = SL_ConvertToString(script_linkname);
+      Com_sprintf(dest, 0x100ui64, "script_linkname: %s", v38);
+      v39 = *y;
+      v40 = *y;
+      if ( *y > 0.0 && v39 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v39, dest, &colorWhite, 0, 1, charHeight, 0);
+        v40 = *y;
       }
-      if ( !(v95 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v95 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colore, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v40 + charHeight;
     }
-    script_linkto = v68->script_linkto;
+    script_linkto = v21->script_linkto;
     if ( script_linkto )
     {
-      v101 = SL_ConvertToString(script_linkto);
-      Com_sprintf(dest, 0x100ui64, "script_linkto: %s", v101);
-      __asm
+      v42 = SL_ConvertToString(script_linkto);
+      Com_sprintf(dest, 0x100ui64, "script_linkto: %s", v42);
+      v43 = *y;
+      v44 = *y;
+      if ( *y > 0.0 && v43 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v43, dest, &colorWhite, 0, 1, charHeight, 0);
+        v44 = *y;
       }
-      if ( !(v102 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v102 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorf, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v44 + charHeight;
     }
-    script_noteworthy = v68->script_noteworthy;
+    script_noteworthy = v21->script_noteworthy;
     if ( script_noteworthy )
     {
-      v108 = SL_ConvertToString(script_noteworthy);
-      Com_sprintf(dest, 0x100ui64, "script_noteworthy: %s", v108);
-      __asm
+      v46 = SL_ConvertToString(script_noteworthy);
+      Com_sprintf(dest, 0x100ui64, "script_noteworthy: %s", v46);
+      v47 = *y;
+      v48 = *y;
+      if ( *y > 0.0 && v47 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v47, dest, &colorWhite, 0, 1, charHeight, 0);
+        v48 = *y;
       }
-      if ( !(v109 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v109 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorg, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v48 + charHeight;
     }
-    lightIndices = v68->lightIndices;
-    v115 = 5i64;
+    lightIndices = v21->lightIndices;
+    v50 = 5i64;
     do
     {
       if ( *lightIndices )
       {
         Com_sprintf(dest, 0x100ui64, "Light Index: %i", *lightIndices);
-        __asm
+        v51 = *y;
+        v52 = *y;
+        if ( *y > 0.0 && v51 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rbx]; y
-          vmovaps xmm0, xmm2
-          vcomiss xmm2, xmm10
+          CG_DrawStringExt(scrPlace, *x, v51, dest, &colorWhite, 0, 1, charHeight, 0);
+          v52 = *y;
         }
-        if ( !(v116 | v138) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v116 )
-          {
-            __asm
-            {
-              vmovss  dword ptr [rsp+2B0h+color], xmm6
-              vmovss  xmm1, dword ptr [r14]; x
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorh, 0);
-            __asm { vmovss  xmm0, dword ptr [rbx] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rbx], xmm0
-        }
+        *y = v52 + charHeight;
       }
       ++lightIndices;
-      --v115;
+      --v50;
     }
-    while ( v115 );
-    v15 = instanceId;
+    while ( v50 );
+    v9 = instanceId;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm1, xmm0, xmm11
-    vmovss  dword ptr [r14], xmm1
-    vaddss  xmm0, xmm6, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *x = *x - tabWidth;
+  *y = charHeight + *y;
   ScriptableCommon_AssertCountsInitialized();
-  if ( v15 >= g_scriptableWorldCounts.serverInstanceCount )
-    v124 = NULL;
+  if ( v9 >= g_scriptableWorldCounts.serverInstanceCount )
+    v53 = NULL;
   else
-    v124 = (ScriptableDef *)ScriptableSv_GetInstanceCommonContext(v15)->def;
-  v338 = (ScriptableInstanceContextSecure *)v124;
-  if ( v124 && (v124->flags & 2) != 0 )
+    v53 = (ScriptableDef *)ScriptableSv_GetInstanceCommonContext(v9)->def;
+  v129 = (ScriptableInstanceContextSecure *)v53;
+  if ( v53 && (v53->flags & 2) != 0 )
   {
-    _R13 = ScriptableSv_GetInstanceCommonContext(v15);
-    context = _R13;
-    linkedObjectType = _R13->linkedObjectType;
-    linkedObjectIndex = _R13->linkedObjectIndex;
+    v54 = ScriptableSv_GetInstanceCommonContext(v9);
+    context = v54;
+    linkedObjectType = v54->linkedObjectType;
+    linkedObjectIndex = v54->linkedObjectIndex;
     Com_sprintf(dest, 0x100ui64, "Server");
-    __asm
+    v55 = *y;
+    v56 = *y;
+    if ( *y > 0.0 && v55 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovaps xmm0, xmm2
-      vcomiss xmm2, xmm10
+      CG_DrawStringExt(scrPlace, *x, v55, dest, &colorYellow, 0, 1, charHeight, 0);
+      v56 = *y;
     }
-    if ( !(v126 | v138) )
+    *y = v56 + charHeight;
+    *x = tabWidth + *x;
+    Com_sprintf(dest, 0x100ui64, "Part ID %i", v54->partStateIndex);
+    v57 = *y;
+    v58 = *y;
+    if ( *y > 0.0 && v57 < 1080.0 )
     {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v126 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+2B0h+color], xmm6
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, colori, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
+      CG_DrawStringExt(scrPlace, *x, v57, dest, &colorYellow, 0, 1, charHeight, 0);
+      v58 = *y;
     }
-    __asm
+    *y = v58 + charHeight;
+    if ( v53 != def )
     {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm1, xmm11, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm1
+      Com_sprintf(dest, 0x100ui64, "Def: %s", v53->name);
+      v59 = *y;
+      v60 = *y;
+      if ( *y > 0.0 && v59 < 1080.0 )
+      {
+        CG_DrawStringExt(scrPlace, *x, v59, dest, &colorRed, 0, 1, charHeight, 0);
+        v60 = *y;
+      }
+      *y = v60 + charHeight;
     }
-    Com_sprintf(dest, 0x100ui64, "Part ID %i", _R13->partStateIndex);
-    __asm
+    v61 = v54->origin.v[0];
+    if ( (float)((float)((float)((float)(outOrigin.v[1] - v54->origin.v[1]) * (float)(outOrigin.v[1] - v54->origin.v[1])) + (float)((float)(outOrigin.v[0] - v61) * (float)(outOrigin.v[0] - v61))) + (float)((float)(outOrigin.v[2] - v54->origin.v[2]) * (float)(outOrigin.v[2] - v54->origin.v[2]))) > 1.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovaps xmm0, xmm2
-      vcomiss xmm2, xmm10
+      Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", v61, v54->origin.v[1], v54->origin.v[2]);
+      v62 = *y;
+      v63 = *y;
+      if ( *y > 0.0 && v62 < 1080.0 )
+      {
+        CG_DrawStringExt(scrPlace, *x, v62, dest, &colorRed, 0, 1, charHeight, 0);
+        v63 = *y;
+      }
+      *y = v63 + charHeight;
     }
-    if ( !(v132 | v138) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v132 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+2B0h+color], xmm6
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, colorj, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-    v137 = v124 < def;
-    v138 = v124 == def;
-    if ( v124 != def )
-    {
-      Com_sprintf(dest, 0x100ui64, "Def: %s", v124->name);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
-      }
-      if ( !v137 && !v138 )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v137 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, colork, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
-    }
-    __asm
-    {
-      vmovss  xmm5, dword ptr [r13+20h]
-      vmovss  xmm0, dword ptr [rbp+1B0h+outOrigin]
-      vsubss  xmm3, xmm0, xmm5
-      vmovss  xmm1, dword ptr [rbp+1B0h+outOrigin+4]
-      vsubss  xmm2, xmm1, dword ptr [r13+24h]
-      vmovss  xmm0, dword ptr [rbp+1B0h+outOrigin+8]
-      vsubss  xmm4, xmm0, dword ptr [r13+28h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm12
-    }
-    if ( !v137 && !v138 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+28h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovss  xmm1, dword ptr [r13+24h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm3, xmm5, xmm5
-        vmovsd  qword ptr [rsp+2B0h+duration], xmm0
-        vmovsd  qword ptr [rsp+2B0h+depthTest], xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", *(double *)&_XMM3, depthTestd, durationc);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
-      }
-      if ( !(v161 | v138) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v161 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, colorl, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
-    }
-    dataType = _R13->dataType;
-    compositeModel = _R13->data.compositeModel;
+    dataType = v54->dataType;
+    compositeModel = v54->data.compositeModel;
     if ( dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
     {
       if ( !compositeModel )
@@ -7967,180 +3900,101 @@ LABEL_103:
         if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
           __debugbreak();
         ScriptableCommon_AssertCountsInitialized();
-        if ( v15 >= g_scriptableWorldCounts.serverInstanceCount )
+        if ( v9 >= g_scriptableWorldCounts.serverInstanceCount )
         {
           ScriptableCommon_AssertCountsInitialized();
           LODWORD(vertAlign) = g_scriptableWorldCounts.serverInstanceCount;
-          LODWORD(duration) = v15;
+          LODWORD(duration) = v9;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", duration, vertAlign) )
             __debugbreak();
         }
-        v174 = g_scriptableSv_instanceContexts;
-        if ( g_scriptableSv_instanceContexts[v15].collisionContext.scriptableCollisionMain != -1 )
+        v69 = g_scriptableSv_instanceContexts;
+        if ( g_scriptableSv_instanceContexts[v9].collisionContext.scriptableCollisionMain != -1 )
         {
-          if ( g_scriptableSv_instanceContexts[v15].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2624, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
+          if ( g_scriptableSv_instanceContexts[v9].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2624, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
             __debugbreak();
-          model = v174[v15].collisionContext.model;
+          model = v69[v9].collisionContext.model;
           if ( model )
             *(_QWORD *)runtime.v = model->name;
-          v176 = "Movable";
-          if ( v174[v15].collisionContext.neverMoves )
-            v176 = "Never Moves";
-          LODWORD(depthTest) = v174[v15].collisionContext.scriptableCollisionDetail;
-          Com_sprintf(dest, 0x100ui64, "Collision: %i %i %s %s", v174[v15].collisionContext.scriptableCollisionMain, depthTest, v176, *(const char **)runtime.v);
-          __asm
+          v71 = "Movable";
+          if ( v69[v9].collisionContext.neverMoves )
+            v71 = "Never Moves";
+          LODWORD(depthTest) = v69[v9].collisionContext.scriptableCollisionDetail;
+          Com_sprintf(dest, 0x100ui64, "Collision: %i %i %s %s", v69[v9].collisionContext.scriptableCollisionMain, depthTest, v71, *(const char **)runtime.v);
+          v72 = *y;
+          v73 = *y;
+          if ( *y > 0.0 && v72 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rbx]; y
-            vmovaps xmm0, xmm2
-            vcomiss xmm2, xmm10
+            CG_DrawStringExt(scrPlace, *x, v72, dest, &colorWhite, 0, 1, charHeight, 0);
+            v73 = *y;
           }
-          if ( !(v177 | v138) )
+          *y = v73 + charHeight;
+          v74 = "No Push";
+          if ( v69[v9].collisionContext.canPush )
+            v74 = "Can Push";
+          Com_sprintf(dest, 0x100ui64, v74);
+          v75 = *y;
+          v76 = *y;
+          if ( *y > 0.0 && v75 < 1080.0 )
           {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v177 )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rsp+2B0h+color], xmm6
-                vmovss  xmm1, dword ptr [r14]; x
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorn, 0);
-              __asm { vmovss  xmm0, dword ptr [rbx] }
-            }
+            CG_DrawStringExt(scrPlace, *x, v75, dest, &colorWhite, 0, 1, charHeight, 0);
+            v76 = *y;
           }
-          __asm
+          *y = v76 + charHeight;
+          v77 = "No Touch";
+          if ( v69[v9].collisionContext.canTouch )
+            v77 = "Can Touch";
+          Com_sprintf(dest, 0x100ui64, v77);
+          v78 = *y;
+          v79 = *y;
+          if ( *y > 0.0 && v78 < 1080.0 )
           {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rbx], xmm0
+            CG_DrawStringExt(scrPlace, *x, v78, dest, &colorWhite, 0, 1, charHeight, 0);
+            v79 = *y;
           }
-          v182 = "No Push";
-          if ( v174[v15].collisionContext.canPush )
-            v182 = "Can Push";
-          Com_sprintf(dest, 0x100ui64, v182);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx]; y
-            vmovaps xmm0, xmm2
-            vcomiss xmm2, xmm10
-          }
-          if ( !(v183 | v138) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v183 )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rsp+2B0h+color], xmm6
-                vmovss  xmm1, dword ptr [r14]; x
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, coloro, 0);
-              __asm { vmovss  xmm0, dword ptr [rbx] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rbx], xmm0
-          }
-          v188 = "No Touch";
-          if ( v174[v15].collisionContext.canTouch )
-            v188 = "Can Touch";
-          Com_sprintf(dest, 0x100ui64, v188);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rbx]; y
-            vmovaps xmm0, xmm2
-            vcomiss xmm2, xmm10
-          }
-          if ( !(v189 | v138) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v189 )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rsp+2B0h+color], xmm6
-                vmovss  xmm1, dword ptr [r14]; x
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorp, 0);
-              __asm { vmovss  xmm0, dword ptr [rbx] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rbx], xmm0
-          }
+          *y = v79 + charHeight;
         }
         if ( linkedObjectType == SCRIPTABLE_LINK_ENTITY )
         {
           if ( linkedObjectIndex >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2640, ASSERT_TYPE_ASSERT, "(linkedObject < ( 2048 ))", (const char *)&queryFormat, "linkedObject < MAX_GENTITIES") )
             __debugbreak();
           Com_sprintf(dest, 0x100ui64, "Entity: %i", linkedObjectIndex);
-          __asm
+          v80 = *y;
+          v81 = *y;
+          if ( *y > 0.0 && v80 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rbx]; y
-            vmovaps xmm0, xmm2
-            vcomiss xmm2, xmm10
+            CG_DrawStringExt(scrPlace, *x, v80, dest, &colorWhite, 0, 1, charHeight, 0);
+            v81 = *y;
           }
-          if ( !(v194 | v138) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v194 )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rsp+2B0h+color], xmm6
-                vmovss  xmm1, dword ptr [r14]; x
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorq, 0);
-              __asm { vmovss  xmm0, dword ptr [rbx] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rbx], xmm0
-          }
+          *y = v81 + charHeight;
         }
         *(_QWORD *)runtime.v = g_svScriptableRuntimePartStates;
         ScriptableCommon_AssertCountsInitialized();
-        v199 = v15 < g_scriptableWorldCounts.runtimeInstanceCount;
-        v329 = v15 < g_scriptableWorldCounts.runtimeInstanceCount;
-        v200 = v338->anglesInitial.v[0];
-        v335 = v200;
-        v201 = 0;
-        if ( v200 != 0.0 )
+        v82 = v9 < g_scriptableWorldCounts.runtimeInstanceCount;
+        v120 = v9 < g_scriptableWorldCounts.runtimeInstanceCount;
+        v83 = v129->anglesInitial.v[0];
+        v126 = v83;
+        v84 = 0;
+        if ( v83 != 0.0 )
         {
-          v202 = *(_QWORD *)&v338->anglesInitial.y;
-          v203 = (_BYTE *)(v202 + 12);
+          v85 = *(_QWORD *)&v129->anglesInitial.y;
+          v86 = (_BYTE *)(v85 + 12);
           do
           {
-            if ( (*v203 & 2) != 0 )
+            if ( (*v86 & 2) != 0 )
             {
-              __asm
-              {
-                vmovss  dword ptr [rsp+2B0h+var_258], xmm6
-                vmovss  [rsp+2B0h+var_260], xmm11
-              }
-              ScriptableBg_DrawDebugScriptableInstanceContextPartState(v15, 1, v199, (const ScriptablePartDef *)(v202 + 104i64 * v201), v201, context, *(const ScriptablePartRuntime **)runtime.v, scrPlace, _R14, _RBX, v323, v325);
-              v200 = v335;
-              v199 = v329;
+              ScriptableBg_DrawDebugScriptableInstanceContextPartState(v9, 1, v82, (const ScriptablePartDef *)(v85 + 104i64 * v84), v84, context, *(const ScriptablePartRuntime **)runtime.v, scrPlace, x, y, tabWidth, charHeight);
+              v83 = v126;
+              v82 = v120;
             }
-            ++v201;
-            v203 += 104;
+            ++v84;
+            v86 += 104;
           }
-          while ( v201 < LODWORD(v200) );
-          v40 = 0;
+          while ( v84 < LODWORD(v83) );
+          v15 = 0;
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14]
-          vsubss  xmm1, xmm0, xmm11
-          vmovss  dword ptr [r14], xmm1
-          vaddss  xmm0, xmm6, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm0
-        }
+        *x = *x - tabWidth;
+        *y = charHeight + *y;
         goto LABEL_146;
       }
     }
@@ -8148,375 +4002,190 @@ LABEL_103:
     {
       goto LABEL_103;
     }
-    v168 = "Model: %s";
+    v66 = "Model: %s";
     if ( dataType == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
-      v168 = "CompositeModel: %s";
-    Com_sprintf(dest, 0x100ui64, v168, compositeModel->name);
-    __asm
+      v66 = "CompositeModel: %s";
+    Com_sprintf(dest, 0x100ui64, v66, compositeModel->name);
+    v67 = *y;
+    v68 = *y;
+    if ( *y > 0.0 && v67 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovaps xmm0, xmm2
-      vcomiss xmm2, xmm10
+      CG_DrawStringExt(scrPlace, *x, v67, dest, &colorWhite, 0, 1, charHeight, 0);
+      v68 = *y;
     }
-    if ( !(v169 | v138) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v169 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+2B0h+color], xmm6
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorm, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
+    *y = v68 + charHeight;
     goto LABEL_103;
   }
 LABEL_146:
-  v207 = (ScriptableDef *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v15)->def;
-  context = (ScriptableInstanceContextSecure *)v207;
-  if ( !v207 )
-    goto LABEL_217;
-  v208 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v15);
-  v338 = v208;
-  v330 = v208->linkedObjectType;
-  v336 = v208->linkedObjectIndex;
+  v87 = (ScriptableDef *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v9)->def;
+  context = (ScriptableInstanceContextSecure *)v87;
+  if ( !v87 )
+    return;
+  v88 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v9);
+  v129 = v88;
+  v121 = v88->linkedObjectType;
+  v127 = v88->linkedObjectIndex;
   Com_sprintf(dest, 0x100ui64, "Client");
-  __asm
+  v89 = *y;
+  v90 = *y;
+  if ( *y > 0.0 && v89 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovaps xmm0, xmm2
-    vcomiss xmm2, xmm10
+    CG_DrawStringExt(scrPlace, *x, v89, dest, &colorYellow, 0, 1, charHeight, 0);
+    v90 = *y;
   }
-  if ( !(v209 | v138) )
+  *y = v90 + charHeight;
+  *x = tabWidth + *x;
+  Com_sprintf(dest, 0x100ui64, "Part ID %i", v88->partStateIndex);
+  v91 = *y;
+  v92 = *y;
+  if ( *y > 0.0 && v91 < 1080.0 )
   {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v209 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, colorr, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
+    CG_DrawStringExt(scrPlace, *x, v91, dest, &colorYellow, 0, 1, charHeight, 0);
+    v92 = *y;
   }
-  __asm
+  *y = v92 + charHeight;
+  if ( v87 != def )
   {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-    vaddss  xmm1, xmm11, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm1
+    Com_sprintf(dest, 0x100ui64, "Def:%s", v87->name);
+    v93 = *y;
+    v94 = *y;
+    if ( *y > 0.0 && v93 < 1080.0 )
+    {
+      CG_DrawStringExt(scrPlace, *x, v93, dest, &colorRed, 0, 1, charHeight, 0);
+      v94 = *y;
+    }
+    *y = v94 + charHeight;
   }
-  Com_sprintf(dest, 0x100ui64, "Part ID %i", v208->partStateIndex);
-  __asm
+  ScriptableInstanceContextSecure::GetOrigin(v88, v9, &runtime);
+  if ( (float)((float)((float)((float)(outOrigin.v[1] - runtime.v[1]) * (float)(outOrigin.v[1] - runtime.v[1])) + (float)((float)(outOrigin.v[0] - runtime.v[0]) * (float)(outOrigin.v[0] - runtime.v[0]))) + (float)((float)(outOrigin.v[2] - runtime.v[2]) * (float)(outOrigin.v[2] - runtime.v[2]))) > 1.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovaps xmm0, xmm2
-    vcomiss xmm2, xmm10
+    Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", runtime.v[0], runtime.v[1], runtime.v[2]);
+    v95 = *y;
+    v96 = *y;
+    if ( *y > 0.0 && v95 < 1080.0 )
+    {
+      CG_DrawStringExt(scrPlace, *x, v95, dest, &colorRed, 0, 1, charHeight, 0);
+      v96 = *y;
+    }
+    *y = v96 + charHeight;
   }
-  if ( !(v215 | v138) )
+  v97 = v88->dataType;
+  v98 = v88->data.compositeModel;
+  if ( v97 == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
   {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v215 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorYellow, 0, 1, colors, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
-  if ( v207 != def )
-  {
-    Com_sprintf(dest, 0x100ui64, "Def:%s", v207->name);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovaps xmm0, xmm2
-      vcomiss xmm2, xmm10
-    }
-    if ( !(v220 | v138) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v220 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+2B0h+color], xmm6
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, colort, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-  }
-  ScriptableInstanceContextSecure::GetOrigin(v208, v15, &runtime);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+2B0h+runtime]
-    vmovss  xmm0, dword ptr [rbp+1B0h+outOrigin]
-    vsubss  xmm3, xmm0, xmm5
-    vmovss  xmm1, dword ptr [rbp+1B0h+outOrigin+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+2B0h+runtime+4]
-    vmovss  xmm0, dword ptr [rbp+1B0h+outOrigin+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+2B0h+var_240]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, xmm12
-  }
-  if ( !(v45 | v138) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+2B0h+var_240]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rsp+2B0h+runtime+4]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vcvtss2sd xmm3, xmm5, xmm5
-      vmovsd  qword ptr [rsp+2B0h+duration], xmm0
-      vmovsd  qword ptr [rsp+2B0h+depthTest], xmm1
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x100ui64, "Origin: %.2f, %.2f, %.2f", *(double *)&_XMM3, depthTeste, durationd);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovaps xmm0, xmm2
-      vcomiss xmm2, xmm10
-    }
-    if ( !(v243 | v138) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v243 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+2B0h+color], xmm6
-          vmovss  xmm1, dword ptr [r14]; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorRed, 0, 1, coloru, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-  }
-  v248 = v208->dataType;
-  v249 = v208->data.compositeModel;
-  if ( v248 == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
-  {
-    if ( !v249 )
+    if ( !v98 )
       goto LABEL_173;
   }
-  else if ( !v249 )
+  else if ( !v98 )
   {
     goto LABEL_173;
   }
-  v250 = "Model:%s";
-  if ( v248 == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
-    v250 = "CompositeModel:%s";
-  Com_sprintf(dest, 0x100ui64, v250, v249->name);
-  __asm
+  v99 = "Model:%s";
+  if ( v97 == SCRIPTABLE_DATA_TYPE_XCOMPOSITEMODEL )
+    v99 = "CompositeModel:%s";
+  Com_sprintf(dest, 0x100ui64, v99, v98->name);
+  v100 = *y;
+  v101 = *y;
+  if ( *y > 0.0 && v100 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovaps xmm0, xmm2
-    vcomiss xmm2, xmm10
+    CG_DrawStringExt(scrPlace, *x, v100, dest, &colorWhite, 0, 1, charHeight, 0);
+    v101 = *y;
   }
-  if ( !(v251 | v138) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v251 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorv, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *y = v101 + charHeight;
 LABEL_173:
   ScriptableCommon_AssertCountsInitialized();
-  if ( v15 >= g_scriptableWorldCounts.totalInstanceCount )
+  if ( v9 >= g_scriptableWorldCounts.totalInstanceCount )
   {
     ScriptableCommon_AssertCountsInitialized();
     LODWORD(vertAlign) = g_scriptableWorldCounts.totalInstanceCount;
-    LODWORD(duration) = v15;
+    LODWORD(duration) = v9;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 123, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableId ) < (unsigned)( ScriptableCommon_GetTotalInstanceCount() )", "scriptableId doesn't index ScriptableCommon_GetTotalInstanceCount()\n\t%i not in [0, %i)", duration, vertAlign) )
       __debugbreak();
   }
   if ( !g_scriptableCl_instanceContexts[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_utility.h", 125, ASSERT_TYPE_ASSERT, "(g_scriptableCl_instanceContexts[localClientNum])", (const char *)&queryFormat, "g_scriptableCl_instanceContexts[localClientNum]") )
     __debugbreak();
-  v256 = v15;
-  v257 = g_scriptableCl_instanceContexts[0];
-  v332 = g_scriptableCl_instanceContexts[0][v256].collisionContext.collisionActiveFlags & 1;
-  if ( g_scriptableCl_instanceContexts[0][v256].collisionContext.scriptableCollisionPredictive == -1 )
+  v102 = v9;
+  v103 = g_scriptableCl_instanceContexts[0];
+  v123 = g_scriptableCl_instanceContexts[0][v102].collisionContext.collisionActiveFlags & 1;
+  if ( g_scriptableCl_instanceContexts[0][v102].collisionContext.scriptableCollisionPredictive == -1 )
   {
-    if ( g_scriptableCl_instanceContexts[0][v256].collisionContext.scriptableCollisionAuthoritative == -1 )
+    if ( g_scriptableCl_instanceContexts[0][v102].collisionContext.scriptableCollisionAuthoritative == -1 )
       goto LABEL_204;
-    if ( g_scriptableCl_instanceContexts[0][v256].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2710, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
+    if ( g_scriptableCl_instanceContexts[0][v102].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2710, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v262 = "Inactive";
-    if ( v332 )
-      v262 = "Active";
-    v263 = "Movable";
-    if ( v257[v256].collisionContext.neverMoves )
-      v263 = "Never Moves";
-    LODWORD(depthTest) = v257[v256].collisionContext.scriptableCollisionDetail;
-    Com_sprintf(dest, 0x100ui64, "Collision Instance:%i %i %s %s", v257[v256].collisionContext.scriptableCollisionAuthoritative, depthTest, v263, v262);
+    v106 = "Inactive";
+    if ( v123 )
+      v106 = "Active";
+    v107 = "Movable";
+    if ( v103[v102].collisionContext.neverMoves )
+      v107 = "Never Moves";
+    LODWORD(depthTest) = v103[v102].collisionContext.scriptableCollisionDetail;
+    Com_sprintf(dest, 0x100ui64, "Collision Instance:%i %i %s %s", v103[v102].collisionContext.scriptableCollisionAuthoritative, depthTest, v107, v106);
   }
   else
   {
-    if ( g_scriptableCl_instanceContexts[0][v256].collisionContext.scriptableCollisionAuthoritative == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2702, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionAuthoritative != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionAuthoritative != PHYSICSINSTANCEID_INVALID") )
+    if ( g_scriptableCl_instanceContexts[0][v102].collisionContext.scriptableCollisionAuthoritative == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2702, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionAuthoritative != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionAuthoritative != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    if ( v257[v256].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2703, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
+    if ( v103[v102].collisionContext.scriptableCollisionDetail == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2703, ASSERT_TYPE_ASSERT, "(collisionContext.scriptableCollisionDetail != 0xFFFFFFFF)", (const char *)&queryFormat, "collisionContext.scriptableCollisionDetail != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v258 = "Inactive";
-    if ( v332 )
-      v258 = "Active";
-    v259 = "Movable";
-    if ( v257[v256].collisionContext.neverMoves )
-      v259 = "Never Moves";
-    LODWORD(duration) = v257[v256].collisionContext.scriptableCollisionDetail;
-    LODWORD(depthTest) = v257[v256].collisionContext.scriptableCollisionAuthoritative;
-    Com_sprintf(dest, 0x100ui64, "Collision Instance:%i %i %i %s %s", v257[v256].collisionContext.scriptableCollisionPredictive, depthTest, duration, v259, v258);
+    v104 = "Inactive";
+    if ( v123 )
+      v104 = "Active";
+    v105 = "Movable";
+    if ( v103[v102].collisionContext.neverMoves )
+      v105 = "Never Moves";
+    LODWORD(duration) = v103[v102].collisionContext.scriptableCollisionDetail;
+    LODWORD(depthTest) = v103[v102].collisionContext.scriptableCollisionAuthoritative;
+    Com_sprintf(dest, 0x100ui64, "Collision Instance:%i %i %i %s %s", v103[v102].collisionContext.scriptableCollisionPredictive, depthTest, duration, v105, v104);
   }
-  __asm
+  v108 = *y;
+  v109 = *y;
+  if ( *y > 0.0 && v108 < 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vcomiss xmm2, xmm10
-    vmovaps xmm0, xmm2
+    CG_DrawStringExt(scrPlace, *x, v108, dest, &colorWhite, 0, 1, charHeight, 0);
+    v109 = *y;
   }
-  if ( !(v260 | v261) )
-  {
-    __asm { vcomiss xmm2, xmm7 }
-    if ( v260 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+color], xmm6
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorw, 0);
-      __asm { vmovss  xmm0, dword ptr [rbx] }
-    }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *y = v109 + charHeight;
 LABEL_204:
-  switch ( v330 )
+  switch ( v121 )
   {
     case SCRIPTABLE_LINK_ENTITY:
-      Com_sprintf(dest, 0x100ui64, "Entity:%i", v336);
+      Com_sprintf(dest, 0x100ui64, "Entity:%i", v127);
       goto LABEL_210;
     case SCRIPTABLE_LINK_DYNENT:
-      Com_sprintf(dest, 0x100ui64, "Dynent:%i", v336);
+      Com_sprintf(dest, 0x100ui64, "Dynent:%i", v127);
       goto LABEL_210;
     case SCRIPTABLE_LINK_CLIENTMODEL:
-      Com_sprintf(dest, 0x100ui64, "ClientModel:%i", v336);
+      Com_sprintf(dest, 0x100ui64, "ClientModel:%i", v127);
 LABEL_210:
-      __asm
+      v110 = *y;
+      v111 = *y;
+      if ( *y > 0.0 && v110 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vmovaps xmm0, xmm2
-        vcomiss xmm2, xmm10
+        CG_DrawStringExt(scrPlace, *x, v110, dest, &colorWhite, 0, 1, charHeight, 0);
+        v111 = *y;
       }
-      if ( !(v268 | v269) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v268 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+2B0h+color], xmm6
-            vmovss  xmm1, dword ptr [r14]; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, colorx, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v111 + charHeight;
       break;
   }
   outInstance = (ScriptableInstance *)g_ScriptableClRuntimePartStates[0];
   ScriptableCommon_AssertCountsInitialized();
-  v274 = v15 < g_scriptableWorldCounts.runtimeInstanceCount;
-  v331 = v15 < g_scriptableWorldCounts.runtimeInstanceCount;
-  v275 = context->anglesInitial.v[0];
-  v276 = *(const ScriptablePartDef **)&context->anglesInitial.y;
-  if ( v275 != 0.0 )
+  v112 = v9 < g_scriptableWorldCounts.runtimeInstanceCount;
+  v122 = v9 < g_scriptableWorldCounts.runtimeInstanceCount;
+  v113 = context->anglesInitial.v[0];
+  v114 = *(const ScriptablePartDef **)&context->anglesInitial.y;
+  if ( v113 != 0.0 )
   {
     do
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+2B0h+var_258], xmm6
-        vmovss  [rsp+2B0h+var_260], xmm11
-      }
-      ScriptableBg_DrawDebugScriptableInstanceContextPartState(v15, 0, v274, v276++, v40++, v338, (const ScriptablePartRuntime *)outInstance, scrPlace, _R14, _RBX, v324, v326);
-      v274 = v331;
+      ScriptableBg_DrawDebugScriptableInstanceContextPartState(v9, 0, v112, v114++, v15++, v129, (const ScriptablePartRuntime *)outInstance, scrPlace, x, y, tabWidth, charHeight);
+      v112 = v122;
     }
-    while ( v40 < LODWORD(v275) );
+    while ( v15 < LODWORD(v113) );
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm1, xmm0, xmm11
-    vmovss  dword ptr [r14], xmm1
-    vaddss  xmm0, xmm6, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *x = *x - tabWidth;
+  *y = charHeight + *y;
   memset(&runtime, 0, sizeof(runtime));
-LABEL_217:
-  _R11 = &v349;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm10, xmmword ptr [r11-38h]
-    vmovaps xmm11, xmmword ptr [r11-48h]
-    vmovaps xmm12, xmmword ptr [r11-58h]
-  }
 }
 
 /*
@@ -8526,543 +4195,490 @@ ScriptableBg_DrawDebugScriptableInstanceContextPartState
 */
 void ScriptableBg_DrawDebugScriptableInstanceContextPartState(const unsigned int instanceId, bool server, bool reserved, const ScriptablePartDef *part, const unsigned int partIdx, const ScriptableInstanceContextSecure *context, const ScriptablePartRuntime *runtime, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const ScriptablePartDef *v16; 
-  bool v18; 
-  unsigned int v20; 
+  const ScriptablePartDef *v12; 
+  float *v13; 
+  bool v14; 
+  float *v15; 
+  unsigned int v16; 
   const char *name; 
-  const ScriptablePartRuntime *v22; 
-  const ScriptableInstanceContextSecure *v23; 
+  const ScriptablePartRuntime *v18; 
+  const ScriptableInstanceContextSecure *v19; 
   scr_string_t scrName; 
-  unsigned int v26; 
+  unsigned int v21; 
   unsigned int serverInstanceFlatId; 
-  __int64 v28; 
+  __int64 v23; 
   unsigned int reservedStateListHeader; 
-  __int64 v30; 
-  unsigned int v31; 
-  ScriptablePartRuntime *v32; 
+  __int64 v25; 
+  unsigned int v26; 
+  ScriptablePartRuntime *v27; 
   unsigned __int16 stateId; 
-  int v34; 
-  __int64 v35; 
-  const char *v36; 
-  const char *v37; 
-  int v38; 
+  int v29; 
+  __int64 v30; 
+  const char *v31; 
+  const char *v32; 
+  int v33; 
   int Time; 
-  unsigned int v40; 
+  unsigned int v35; 
+  __int64 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
   __int64 v41; 
   __int64 v42; 
   __int64 v43; 
-  __int64 v44; 
+  unsigned int v44; 
   __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
+  int v47; 
   __int64 v48; 
-  unsigned int v49; 
+  int v49; 
   __int64 v50; 
-  __int64 v51; 
-  int v52; 
-  __int64 v53; 
-  int v54; 
-  __int64 v55; 
-  int v56; 
-  __int64 v57; 
-  int v58; 
-  __int64 v59; 
+  int v51; 
+  __int64 v52; 
+  int v53; 
+  __int64 v54; 
+  int v55; 
+  __int64 v56; 
+  int v57; 
+  __int64 v58; 
+  int v59; 
   int v60; 
-  __int64 v61; 
+  int v61; 
   int v62; 
-  __int64 v63; 
+  int v63; 
   int v64; 
   int v65; 
-  int v66; 
+  __int64 v66; 
   int v67; 
   int v68; 
   int v69; 
   int v70; 
-  __int64 v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  char *v76; 
+  char *v71; 
   unsigned __int16 eventStreamBufferOffsetServer; 
-  const ScreenPlacement *v88; 
-  char v94; 
-  char v97; 
-  char v102; 
+  __int64 v73; 
+  unsigned __int8 *eventStreamBuffer; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float *v78; 
+  const ScreenPlacement *v79; 
+  const vec4_t *v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v85; 
   unsigned int numChildParts; 
   ScriptablePartDef *childParts; 
   int *p_flags; 
   __int64 forceColor; 
   __int64 shadow; 
-  ScreenPlacement *v116; 
-  float v117; 
-  float v118; 
-  double adjust; 
-  float v120; 
-  float v121; 
-  bool v123; 
-  int v125; 
-  const char *v127; 
-  __int64 v128; 
-  __int64 v129; 
-  __int64 v130; 
-  __int64 v131; 
-  __int64 v132; 
-  __int64 v133; 
-  __int64 v134; 
-  __int64 v135; 
+  bool v92; 
+  int v94; 
+  const char *v96; 
+  int *v97; 
+  __int64 v98; 
+  __int64 v99; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102; 
+  __int64 v103; 
+  __int64 v104; 
   char dest[256]; 
 
-  __asm { vmovaps [rsp+278h+var_78], xmm9 }
-  v16 = part;
-  _R14 = x;
-  v18 = server;
-  _R13 = y;
-  v20 = instanceId;
+  v12 = part;
+  v13 = x;
+  v14 = server;
+  v15 = y;
+  v16 = instanceId;
   name = part->name;
-  v22 = runtime;
-  v23 = context;
-  v123 = reserved;
-  v127 = name;
+  v18 = runtime;
+  v19 = context;
+  v92 = reserved;
+  v96 = name;
   if ( !name || !*name )
   {
-    scrName = v16->scrName;
+    scrName = v12->scrName;
     if ( scrName )
     {
       name = SL_ConvertToString(scrName);
-      v23 = context;
-      reserved = v123;
-      v22 = runtime;
+      v19 = context;
+      reserved = v92;
+      v18 = runtime;
     }
     else
     {
       name = (char *)&queryFormat.fmt + 3;
     }
-    v127 = name;
+    v96 = name;
   }
-  __asm { vmovss  xmm9, [rsp+278h+tabWidth] }
-  v26 = 0;
-  __asm { vmovaps [rsp+278h+var_58], xmm6 }
-  v128 = 0i64;
-  if ( v16->numStates )
+  v21 = 0;
+  v97 = NULL;
+  if ( !v12->numStates )
   {
-    if ( v18 )
-      serverInstanceFlatId = v16->serverInstanceFlatId;
-    else
-      serverInstanceFlatId = v16->flatId;
-    v28 = v23->partStateIndex + serverInstanceFlatId;
-    if ( reserved )
+    Com_sprintf(dest, 0x100ui64, "Part[%2i] %10s, empty", partIdx, name);
+    v83 = *y;
+    v76 = charHeight;
+    v84 = *y;
+    if ( *y > 0.0 && v83 < 1080.0 )
     {
-      reservedStateListHeader = v23->reservedStateListHeader;
-      if ( (_DWORD)v28 )
+      CG_DrawStringExt(scrPlace, *x, v83, dest, &colorWhite, 0, 1, charHeight, 0);
+      v84 = *y;
+    }
+    v82 = v84 + charHeight;
+    goto LABEL_187;
+  }
+  if ( v14 )
+    serverInstanceFlatId = v12->serverInstanceFlatId;
+  else
+    serverInstanceFlatId = v12->flatId;
+  v23 = v19->partStateIndex + serverInstanceFlatId;
+  if ( reserved )
+  {
+    reservedStateListHeader = v19->reservedStateListHeader;
+    if ( (_DWORD)v23 )
+    {
+      v25 = (unsigned int)v23;
+      v26 = g_scriptableSVReservedPartRuntimeCount;
+      do
       {
-        v30 = (unsigned int)v28;
-        v31 = g_scriptableSVReservedPartRuntimeCount;
-        do
+        if ( reservedStateListHeader >= v26 )
         {
-          if ( reservedStateListHeader >= v31 )
-          {
-            LODWORD(shadow) = v31;
-            LODWORD(forceColor) = reservedStateListHeader;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2124, ASSERT_TYPE_ASSERT, "(unsigned)( reservedStateIdx ) < (unsigned)( g_scriptableSVReservedPartRuntimeCount )", "reservedStateIdx doesn't index g_scriptableSVReservedPartRuntimeCount\n\t%i not in [0, %i)", forceColor, shadow) )
-              __debugbreak();
-            v31 = g_scriptableSVReservedPartRuntimeCount;
-          }
-          v32 = g_scriptableSVReservedPartRuntimes;
-          if ( !v18 )
-            v32 = g_scriptableClReservedPartRuntimes[0];
-          reservedStateListHeader = v32[reservedStateListHeader].nextRuntime;
-          --v30;
+          LODWORD(shadow) = v26;
+          LODWORD(forceColor) = reservedStateListHeader;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2124, ASSERT_TYPE_ASSERT, "(unsigned)( reservedStateIdx ) < (unsigned)( g_scriptableSVReservedPartRuntimeCount )", "reservedStateIdx doesn't index g_scriptableSVReservedPartRuntimeCount\n\t%i not in [0, %i)", forceColor, shadow) )
+            __debugbreak();
+          v26 = g_scriptableSVReservedPartRuntimeCount;
         }
-        while ( v30 );
+        v27 = g_scriptableSVReservedPartRuntimes;
+        if ( !v14 )
+          v27 = g_scriptableClReservedPartRuntimes[0];
+        reservedStateListHeader = v27[reservedStateListHeader].nextRuntime;
+        --v25;
       }
-      else
-      {
-        v31 = g_scriptableSVReservedPartRuntimeCount;
-      }
-      if ( reservedStateListHeader >= v31 )
-      {
-        LODWORD(shadow) = v31;
-        LODWORD(forceColor) = reservedStateListHeader;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2128, ASSERT_TYPE_ASSERT, "(unsigned)( reservedStateIdx ) < (unsigned)( g_scriptableSVReservedPartRuntimeCount )", "reservedStateIdx doesn't index g_scriptableSVReservedPartRuntimeCount\n\t%i not in [0, %i)", forceColor, shadow) )
-          __debugbreak();
-      }
-      if ( v18 )
-        stateId = g_scriptableSVReservedPartRuntimes[reservedStateListHeader].stateId;
-      else
-        stateId = g_scriptableClReservedPartRuntimes[0][reservedStateListHeader].stateId;
+      while ( v25 );
     }
     else
     {
-      stateId = v22[v28].stateId;
+      v26 = g_scriptableSVReservedPartRuntimeCount;
     }
-    v34 = stateId;
-    v125 = stateId;
-    v35 = (__int64)&v16->states[stateId];
-    v36 = *(const char **)v35;
-    if ( *(_DWORD *)(v35 + 24) == 1 )
+    if ( reservedStateListHeader >= v26 )
     {
-      if ( !v36 )
-        v36 = *(const char **)(v35 + 112);
-      v128 = v35 + 40;
+      LODWORD(shadow) = v26;
+      LODWORD(forceColor) = reservedStateListHeader;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2128, ASSERT_TYPE_ASSERT, "(unsigned)( reservedStateIdx ) < (unsigned)( g_scriptableSVReservedPartRuntimeCount )", "reservedStateIdx doesn't index g_scriptableSVReservedPartRuntimeCount\n\t%i not in [0, %i)", forceColor, shadow) )
+        __debugbreak();
     }
-    else if ( *(_DWORD *)(v35 + 24) == 2 || *(_DWORD *)(v35 + 24) == 3 )
-    {
-      if ( v36 )
-        goto LABEL_41;
-      v36 = *(const char **)(v35 + 40);
-    }
-    v37 = (char *)&queryFormat.fmt + 3;
-    if ( v36 )
-      v37 = v36;
-    v36 = v37;
+    if ( v14 )
+      stateId = g_scriptableSVReservedPartRuntimes[reservedStateListHeader].stateId;
+    else
+      stateId = g_scriptableClReservedPartRuntimes[0][reservedStateListHeader].stateId;
+  }
+  else
+  {
+    stateId = v18[v23].stateId;
+  }
+  v29 = stateId;
+  v94 = stateId;
+  v30 = (__int64)&v12->states[stateId];
+  v31 = *(const char **)v30;
+  if ( *(_DWORD *)(v30 + 24) == 1 )
+  {
+    if ( !v31 )
+      v31 = *(const char **)(v30 + 112);
+    v97 = (int *)(v30 + 40);
+    goto LABEL_38;
+  }
+  if ( *(_DWORD *)(v30 + 24) != 2 && *(_DWORD *)(v30 + 24) != 3 )
+  {
+LABEL_38:
+    v32 = (char *)&queryFormat.fmt + 3;
+    if ( v31 )
+      v32 = v31;
+    v31 = v32;
+    goto LABEL_41;
+  }
+  if ( !v31 )
+  {
+    v31 = *(const char **)(v30 + 40);
+    goto LABEL_38;
+  }
 LABEL_41:
-    v38 = 0;
-    if ( v18 )
+  v33 = 0;
+  if ( v14 )
+  {
+    Time = G_Main_GetTime();
+  }
+  else
+  {
+    if ( !cg_t::ms_allocatedCount )
     {
-      Time = G_Main_GetTime();
+      LODWORD(shadow) = cg_t::ms_allocatedCount;
+      LODWORD(forceColor) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", forceColor, shadow) )
+        __debugbreak();
     }
+    if ( !cg_t::ms_cgArray[0] )
+    {
+      LODWORD(shadow) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", shadow) )
+        __debugbreak();
+    }
+    if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
+    {
+      LODWORD(shadow) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", shadow) )
+        __debugbreak();
+    }
+    Time = cg_t::ms_cgArray[0]->time;
+  }
+  v35 = partIdx;
+  if ( Time )
+  {
+    v36 = 15i64 * v14;
+    v98 = v36 + 8;
+    v37 = v36 + 1;
+    v99 = v36 + 9;
+    v38 = v36 + 2;
+    v100 = v36 + 10;
+    v39 = v36 + 3;
+    v101 = v36 + 11;
+    v40 = v36 + 4;
+    v102 = v36 + 12;
+    v41 = v36 + 5;
+    v103 = v36 + 13;
+    v42 = v36 + 6;
+    v43 = v36 + 7;
+    v104 = v36 + 14;
+    v44 = instanceId;
+    v45 = v36;
+    v35 = partIdx;
+    if ( s_recentStateChanges[0][v45].instance == instanceId )
+    {
+      v44 = instanceId;
+      if ( s_recentStateChanges[0][v45].partId == partIdx )
+      {
+        v35 = partIdx;
+        if ( Time - s_recentStateChanges[0][v45].time <= 10000 )
+          v33 = Time - s_recentStateChanges[0][v45].time;
+        v44 = instanceId;
+      }
+    }
+    v46 = v37;
+    if ( s_recentStateChanges[0][v46].instance == v44 && s_recentStateChanges[0][v46].partId == v35 )
+    {
+      v47 = Time - s_recentStateChanges[0][v46].time;
+      if ( v47 <= 10000 && (!v33 || v47 < v33) )
+        v33 = Time - s_recentStateChanges[0][v46].time;
+    }
+    v48 = v38;
+    if ( s_recentStateChanges[0][v48].instance == instanceId && s_recentStateChanges[0][v48].partId == v35 )
+    {
+      v49 = Time - s_recentStateChanges[0][v48].time;
+      if ( v49 <= 10000 && (!v33 || v49 < v33) )
+        v33 = Time - s_recentStateChanges[0][v48].time;
+    }
+    v50 = v39;
+    if ( s_recentStateChanges[0][v50].instance == instanceId && s_recentStateChanges[0][v50].partId == v35 )
+    {
+      v51 = Time - s_recentStateChanges[0][v50].time;
+      if ( v51 <= 10000 && (!v33 || v51 < v33) )
+        v33 = Time - s_recentStateChanges[0][v50].time;
+    }
+    v52 = v40;
+    if ( s_recentStateChanges[0][v52].instance == instanceId && s_recentStateChanges[0][v52].partId == v35 )
+    {
+      v53 = Time - s_recentStateChanges[0][v52].time;
+      if ( v53 <= 10000 && (!v33 || v53 < v33) )
+        v33 = Time - s_recentStateChanges[0][v52].time;
+    }
+    v54 = v41;
+    if ( s_recentStateChanges[0][v54].instance == instanceId && s_recentStateChanges[0][v54].partId == v35 )
+    {
+      v55 = Time - s_recentStateChanges[0][v54].time;
+      if ( v55 <= 10000 && (!v33 || v55 < v33) )
+        v33 = Time - s_recentStateChanges[0][v54].time;
+    }
+    v56 = v42;
+    if ( s_recentStateChanges[0][v56].instance == instanceId && s_recentStateChanges[0][v56].partId == v35 )
+    {
+      v57 = Time - s_recentStateChanges[0][v56].time;
+      if ( v57 <= 10000 && (!v33 || v57 < v33) )
+        v33 = Time - s_recentStateChanges[0][v56].time;
+    }
+    v58 = v43;
+    if ( s_recentStateChanges[0][v58].instance == instanceId && s_recentStateChanges[0][v58].partId == v35 )
+    {
+      v59 = Time - s_recentStateChanges[0][v58].time;
+      if ( v59 <= 10000 && (!v33 || v59 < v33) )
+        v33 = Time - s_recentStateChanges[0][v58].time;
+    }
+    if ( s_recentStateChanges[0][v98].instance == instanceId && s_recentStateChanges[0][v98].partId == v35 )
+    {
+      v60 = Time - s_recentStateChanges[0][v98].time;
+      if ( v60 <= 10000 && (!v33 || v60 < v33) )
+        v33 = Time - s_recentStateChanges[0][v98].time;
+    }
+    if ( s_recentStateChanges[0][v99].instance == instanceId && s_recentStateChanges[0][v99].partId == v35 )
+    {
+      v61 = Time - s_recentStateChanges[0][v99].time;
+      if ( v61 <= 10000 && (!v33 || v61 < v33) )
+        v33 = Time - s_recentStateChanges[0][v99].time;
+    }
+    if ( s_recentStateChanges[0][v100].instance == instanceId && s_recentStateChanges[0][v100].partId == v35 )
+    {
+      v62 = Time - s_recentStateChanges[0][v100].time;
+      if ( v62 <= 10000 && (!v33 || v62 < v33) )
+        v33 = Time - s_recentStateChanges[0][v100].time;
+    }
+    if ( s_recentStateChanges[0][v101].instance == instanceId && s_recentStateChanges[0][v101].partId == v35 )
+    {
+      v63 = Time - s_recentStateChanges[0][v101].time;
+      if ( v63 <= 10000 && (!v33 || v63 < v33) )
+        v33 = Time - s_recentStateChanges[0][v101].time;
+    }
+    if ( s_recentStateChanges[0][v102].instance == instanceId && s_recentStateChanges[0][v102].partId == v35 )
+    {
+      v64 = Time - s_recentStateChanges[0][v102].time;
+      if ( v64 <= 10000 && (!v33 || v64 < v33) )
+        v33 = Time - s_recentStateChanges[0][v102].time;
+    }
+    if ( s_recentStateChanges[0][v103].instance == instanceId && s_recentStateChanges[0][v103].partId == v35 )
+    {
+      v65 = Time - s_recentStateChanges[0][v103].time;
+      if ( v65 <= 10000 && (!v33 || v65 < v33) )
+        v33 = Time - s_recentStateChanges[0][v103].time;
+    }
+    v66 = v104;
+    if ( s_recentStateChanges[0][v104].instance == instanceId && s_recentStateChanges[0][v66].partId == v35 )
+    {
+      v67 = Time - s_recentStateChanges[0][v66].time;
+      if ( v67 <= 10000 && (!v33 || v67 < v33) )
+        v33 = v67;
+    }
+    v14 = server;
+    v29 = v94;
+    v12 = part;
+  }
+  v68 = *(_DWORD *)(v30 + 24);
+  if ( !v68 )
+    goto LABEL_164;
+  v69 = v68 - 1;
+  if ( !v69 )
+  {
+    if ( v14 )
+      eventStreamBufferOffsetServer = v12->eventStreamBufferOffsetServer;
     else
-    {
-      if ( !cg_t::ms_allocatedCount )
-      {
-        LODWORD(shadow) = cg_t::ms_allocatedCount;
-        LODWORD(forceColor) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", forceColor, shadow) )
-          __debugbreak();
-      }
-      if ( !cg_t::ms_cgArray[0] )
-      {
-        LODWORD(shadow) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", shadow) )
-          __debugbreak();
-      }
-      if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
-      {
-        LODWORD(shadow) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", shadow) )
-          __debugbreak();
-      }
-      Time = cg_t::ms_cgArray[0]->time;
-    }
-    v40 = partIdx;
-    if ( Time )
-    {
-      v41 = 15i64 * v18;
-      v129 = v41 + 8;
-      v42 = v41 + 1;
-      v130 = v41 + 9;
-      v43 = v41 + 2;
-      v131 = v41 + 10;
-      v44 = v41 + 3;
-      v132 = v41 + 11;
-      v45 = v41 + 4;
-      v133 = v41 + 12;
-      v46 = v41 + 5;
-      v134 = v41 + 13;
-      v47 = v41 + 6;
-      v48 = v41 + 7;
-      v135 = v41 + 14;
-      v49 = instanceId;
-      v50 = v41;
-      v40 = partIdx;
-      if ( s_recentStateChanges[0][v50].instance == instanceId )
-      {
-        v49 = instanceId;
-        if ( s_recentStateChanges[0][v50].partId == partIdx )
-        {
-          v40 = partIdx;
-          if ( Time - s_recentStateChanges[0][v50].time <= 10000 )
-            v38 = Time - s_recentStateChanges[0][v50].time;
-          v49 = instanceId;
-        }
-      }
-      v51 = v42;
-      if ( s_recentStateChanges[0][v51].instance == v49 && s_recentStateChanges[0][v51].partId == v40 )
-      {
-        v52 = Time - s_recentStateChanges[0][v51].time;
-        if ( v52 <= 10000 && (!v38 || v52 < v38) )
-          v38 = Time - s_recentStateChanges[0][v51].time;
-      }
-      v53 = v43;
-      if ( s_recentStateChanges[0][v53].instance == instanceId && s_recentStateChanges[0][v53].partId == v40 )
-      {
-        v54 = Time - s_recentStateChanges[0][v53].time;
-        if ( v54 <= 10000 && (!v38 || v54 < v38) )
-          v38 = Time - s_recentStateChanges[0][v53].time;
-      }
-      v55 = v44;
-      if ( s_recentStateChanges[0][v55].instance == instanceId && s_recentStateChanges[0][v55].partId == v40 )
-      {
-        v56 = Time - s_recentStateChanges[0][v55].time;
-        if ( v56 <= 10000 && (!v38 || v56 < v38) )
-          v38 = Time - s_recentStateChanges[0][v55].time;
-      }
-      v57 = v45;
-      if ( s_recentStateChanges[0][v57].instance == instanceId && s_recentStateChanges[0][v57].partId == v40 )
-      {
-        v58 = Time - s_recentStateChanges[0][v57].time;
-        if ( v58 <= 10000 && (!v38 || v58 < v38) )
-          v38 = Time - s_recentStateChanges[0][v57].time;
-      }
-      v59 = v46;
-      if ( s_recentStateChanges[0][v59].instance == instanceId && s_recentStateChanges[0][v59].partId == v40 )
-      {
-        v60 = Time - s_recentStateChanges[0][v59].time;
-        if ( v60 <= 10000 && (!v38 || v60 < v38) )
-          v38 = Time - s_recentStateChanges[0][v59].time;
-      }
-      v61 = v47;
-      if ( s_recentStateChanges[0][v61].instance == instanceId && s_recentStateChanges[0][v61].partId == v40 )
-      {
-        v62 = Time - s_recentStateChanges[0][v61].time;
-        if ( v62 <= 10000 && (!v38 || v62 < v38) )
-          v38 = Time - s_recentStateChanges[0][v61].time;
-      }
-      v63 = v48;
-      if ( s_recentStateChanges[0][v63].instance == instanceId && s_recentStateChanges[0][v63].partId == v40 )
-      {
-        v64 = Time - s_recentStateChanges[0][v63].time;
-        if ( v64 <= 10000 && (!v38 || v64 < v38) )
-          v38 = Time - s_recentStateChanges[0][v63].time;
-      }
-      if ( s_recentStateChanges[0][v129].instance == instanceId && s_recentStateChanges[0][v129].partId == v40 )
-      {
-        v65 = Time - s_recentStateChanges[0][v129].time;
-        if ( v65 <= 10000 && (!v38 || v65 < v38) )
-          v38 = Time - s_recentStateChanges[0][v129].time;
-      }
-      if ( s_recentStateChanges[0][v130].instance == instanceId && s_recentStateChanges[0][v130].partId == v40 )
-      {
-        v66 = Time - s_recentStateChanges[0][v130].time;
-        if ( v66 <= 10000 && (!v38 || v66 < v38) )
-          v38 = Time - s_recentStateChanges[0][v130].time;
-      }
-      if ( s_recentStateChanges[0][v131].instance == instanceId && s_recentStateChanges[0][v131].partId == v40 )
-      {
-        v67 = Time - s_recentStateChanges[0][v131].time;
-        if ( v67 <= 10000 && (!v38 || v67 < v38) )
-          v38 = Time - s_recentStateChanges[0][v131].time;
-      }
-      if ( s_recentStateChanges[0][v132].instance == instanceId && s_recentStateChanges[0][v132].partId == v40 )
-      {
-        v68 = Time - s_recentStateChanges[0][v132].time;
-        if ( v68 <= 10000 && (!v38 || v68 < v38) )
-          v38 = Time - s_recentStateChanges[0][v132].time;
-      }
-      if ( s_recentStateChanges[0][v133].instance == instanceId && s_recentStateChanges[0][v133].partId == v40 )
-      {
-        v69 = Time - s_recentStateChanges[0][v133].time;
-        if ( v69 <= 10000 && (!v38 || v69 < v38) )
-          v38 = Time - s_recentStateChanges[0][v133].time;
-      }
-      if ( s_recentStateChanges[0][v134].instance == instanceId && s_recentStateChanges[0][v134].partId == v40 )
-      {
-        v70 = Time - s_recentStateChanges[0][v134].time;
-        if ( v70 <= 10000 && (!v38 || v70 < v38) )
-          v38 = Time - s_recentStateChanges[0][v134].time;
-      }
-      v71 = v135;
-      if ( s_recentStateChanges[0][v135].instance == instanceId && s_recentStateChanges[0][v71].partId == v40 )
-      {
-        v72 = Time - s_recentStateChanges[0][v71].time;
-        if ( v72 <= 10000 && (!v38 || v72 < v38) )
-          v38 = v72;
-      }
-      v18 = server;
-      v34 = v125;
-      v16 = part;
-    }
-    v73 = *(_DWORD *)(v35 + 24);
-    if ( v73 )
-    {
-      v74 = v73 - 1;
-      if ( !v74 )
-      {
-        if ( v18 )
-          eventStreamBufferOffsetServer = v16->eventStreamBufferOffsetServer;
-        else
-          eventStreamBufferOffsetServer = v16->eventStreamBufferOffsetClient;
-        _RSI = eventStreamBufferOffsetServer;
-        _RBP = context->eventStreamBuffer;
-        if ( *(char *)(v35 + 8) >= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2217, ASSERT_TYPE_ASSERT, "(stateDef->base.flags & (1 << 7))", (const char *)&queryFormat, "stateDef->base.flags & SCRIPTABLE_DEFFLAG_HAS_HEALTH") )
-          __debugbreak();
-        if ( _RSI + 4 > (unsigned __int64)context->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2218, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= context->eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= context->eventStreamBufferSize") )
-          __debugbreak();
-        __asm { vmovss  xmm6, dword ptr [rsi+rbp] }
-        if ( !v128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2222, ASSERT_TYPE_ASSERT, "(pMaxHealth)", (const char *)&queryFormat, "pMaxHealth") )
-          __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi]
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  qword ptr [rsp+278h+adjust], xmm1
-          vcvtss2sd xmm2, xmm6, xmm6
-          vmovsd  [rsp+278h+var_240], xmm2
-        }
-        LODWORD(forceColor) = v125;
-        Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] H - %s | Health %.2f / %.2f", v40, v127, forceColor, v36, *(double *)&v116, adjust);
-LABEL_165:
-        _R13 = y;
-        __asm
-        {
-          vmovss  xmm6, [rsp+278h+charHeight]
-          vmovss  xmm2, dword ptr [r13+0]; y
-        }
-        if ( !v38 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcomiss xmm2, xmm0
-          }
-LABEL_175:
-          _R14 = x;
-          __asm { vaddss  xmm0, xmm6, dword ptr [r13+0] }
-          v20 = instanceId;
-          v16 = part;
-          goto LABEL_181;
-        }
-        __asm
-        {
-          vmovaps [rsp+278h+var_68], xmm7
-          vxorps  xmm7, xmm7, xmm7
-        }
-        if ( v38 >= 1000 )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( (unsigned int)v38 > 0x3E8 )
-          {
-            __asm { vcomiss xmm2, cs:__real@44870000 }
-            _RSI = x;
-            v88 = scrPlace;
-            goto LABEL_172;
-          }
-        }
-        else
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( (unsigned int)v38 > 0x3E8 )
-          {
-            __asm { vcomiss xmm2, cs:__real@44870000 }
-            _RSI = x;
-            v88 = scrPlace;
-LABEL_172:
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, ebx
-              vmulss  xmm1, xmm0, cs:__real@3a83126f
-              vcvtss2sd xmm3, xmm1, xmm1
-              vmovq   r9, xmm3
-            }
-            Com_sprintf(dest, 0x100ui64, "%3.1f", *(double *)&_XMM3);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [r13+0]; y
-              vcomiss xmm2, xmm7
-              vmovaps xmm7, [rsp+278h+var_68]
-            }
-            if ( !(v94 | v97) )
-            {
-              __asm { vcomiss xmm2, cs:__real@44870000 }
-              if ( v94 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rsi]
-                  vmovss  dword ptr [rsp+278h+var_240], xmm6
-                  vsubss  xmm1, xmm0, xmm9; x
-                }
-                CG_DrawStringExt(v88, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v117, 0);
-              }
-            }
-            goto LABEL_175;
-          }
-        }
-        v88 = scrPlace;
-        _RSI = x;
-        goto LABEL_172;
-      }
-      v75 = v74 - 1;
-      if ( v75 )
-      {
-        if ( v75 == 1 )
-        {
-          v76 = (char *)&queryFormat.fmt + 3;
-          if ( *(_QWORD *)(v35 + 112) )
-            v76 = *(char **)(v35 + 112);
-          LODWORD(forceColor) = v34;
-          Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] U - %s | %s", v40, v127, forceColor, v36, v76);
-        }
-        goto LABEL_165;
-      }
-    }
-    LODWORD(forceColor) = v34;
-    Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] S - %s", v40, v127, forceColor, v36);
+      eventStreamBufferOffsetServer = v12->eventStreamBufferOffsetClient;
+    v73 = eventStreamBufferOffsetServer;
+    eventStreamBuffer = context->eventStreamBuffer;
+    if ( *(char *)(v30 + 8) >= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2217, ASSERT_TYPE_ASSERT, "(stateDef->base.flags & (1 << 7))", (const char *)&queryFormat, "stateDef->base.flags & SCRIPTABLE_DEFFLAG_HAS_HEALTH") )
+      __debugbreak();
+    if ( v73 + 4 > (unsigned __int64)context->eventStreamBufferSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2218, ASSERT_TYPE_ASSERT, "(eventBufferOffset + sizeof( float ) <= context->eventStreamBufferSize)", (const char *)&queryFormat, "eventBufferOffset + sizeof( float ) <= context->eventStreamBufferSize") )
+      __debugbreak();
+    v75 = *(float *)&eventStreamBuffer[v73];
+    if ( !v97 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_game_bg_debug.cpp", 2222, ASSERT_TYPE_ASSERT, "(pMaxHealth)", (const char *)&queryFormat, "pMaxHealth") )
+      __debugbreak();
+    LODWORD(forceColor) = v94;
+    Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] H - %s | Health %.2f / %.2f", v35, v96, forceColor, v31, v75, (float)*v97);
     goto LABEL_165;
   }
-  Com_sprintf(dest, 0x100ui64, "Part[%2i] %10s, empty", partIdx, name);
-  __asm
+  v70 = v69 - 1;
+  if ( v70 )
   {
-    vmovss  xmm2, dword ptr [r13+0]; y
-    vmovss  xmm6, [rsp+278h+charHeight]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps xmm1, xmm2
-  }
-  if ( !(v102 | v97) )
-  {
-    __asm { vcomiss xmm2, cs:__real@44870000 }
-    if ( v102 )
+    if ( v70 == 1 )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14]; x
-        vmovss  dword ptr [rsp+278h+var_240], xmm6
-      }
-      CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v118, 0);
-      __asm { vmovss  xmm1, dword ptr [r13+0] }
+      v71 = (char *)&queryFormat.fmt + 3;
+      if ( *(_QWORD *)(v30 + 112) )
+        v71 = *(char **)(v30 + 112);
+      LODWORD(forceColor) = v29;
+      Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] U - %s | %s", v35, v96, forceColor, v31, v71);
     }
   }
-  __asm { vaddss  xmm0, xmm1, xmm6 }
-LABEL_181:
-  __asm
+  else
   {
-    vmovss  dword ptr [r13+0], xmm0
-    vaddss  xmm0, xmm9, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
+LABEL_164:
+    LODWORD(forceColor) = v29;
+    Com_sprintf(dest, 0x100ui64, "Part[%2i] %15s, State[%i] S - %s", v35, v96, forceColor, v31);
   }
-  numChildParts = v16->numChildParts;
+LABEL_165:
+  v15 = y;
+  v76 = charHeight;
+  v77 = *y;
+  if ( v33 )
+  {
+    if ( v33 >= 1000 )
+    {
+      if ( v77 > 0.0 )
+      {
+        v78 = x;
+        v79 = scrPlace;
+        if ( v77 >= 1080.0 )
+          goto LABEL_175;
+        v80 = &colorOrange;
+        goto LABEL_170;
+      }
+    }
+    else if ( v77 > 0.0 )
+    {
+      v78 = x;
+      v79 = scrPlace;
+      if ( v77 >= 1080.0 )
+      {
+LABEL_175:
+        Com_sprintf(dest, 0x100ui64, "%3.1f", (float)((float)v33 * 0.001));
+        v81 = *y;
+        if ( *y > 0.0 && v81 < 1080.0 )
+          CG_DrawStringExt(v79, *v78 - tabWidth, v81, dest, &colorWhite, 0, 1, charHeight, 0);
+        goto LABEL_178;
+      }
+      v80 = &colorRed;
+LABEL_170:
+      CG_DrawStringExt(v79, *v78, v77, dest, v80, 0, 1, charHeight, 0);
+      goto LABEL_175;
+    }
+    v79 = scrPlace;
+    v78 = x;
+    goto LABEL_175;
+  }
+  if ( v77 <= 0.0 )
+  {
+LABEL_178:
+    v13 = x;
+LABEL_179:
+    v82 = charHeight + *y;
+    v16 = instanceId;
+    v12 = part;
+    goto LABEL_187;
+  }
+  v13 = x;
+  if ( v77 >= 1080.0 )
+    goto LABEL_179;
+  CG_DrawStringExt(scrPlace, *x, v77, dest, &colorWhite, 0, 1, charHeight, 0);
+  v82 = charHeight + *y;
+  v16 = instanceId;
+  v12 = part;
+LABEL_187:
+  *v15 = v82;
+  v85 = tabWidth + *v13;
+  *v13 = v85;
+  numChildParts = v12->numChildParts;
   if ( numChildParts )
   {
-    childParts = v16->childParts;
+    childParts = v12->childParts;
     p_flags = &childParts->flags;
     do
     {
-      if ( !v18 || (*(_BYTE *)p_flags & 2) != 0 )
-      {
-        __asm
-        {
-          vmovss  [rsp+278h+var_220], xmm6
-          vmovss  [rsp+278h+var_228], xmm9
-        }
-        ScriptableBg_DrawDebugScriptableInstanceContextPartState(v20, v18, v123, &childParts[v26], v26, context, runtime, scrPlace, _R14, _R13, v120, v121);
-      }
-      ++v26;
+      if ( !v14 || (*(_BYTE *)p_flags & 2) != 0 )
+        ScriptableBg_DrawDebugScriptableInstanceContextPartState(v16, v14, v92, &childParts[v21], v21, context, runtime, scrPlace, v13, v15, tabWidth, v76);
+      ++v21;
       p_flags += 26;
     }
-    while ( v26 < numChildParts );
-    __asm { vmovss  xmm0, dword ptr [r14] }
+    while ( v21 < numChildParts );
+    v85 = *v13;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+278h+var_58]
-    vsubss  xmm1, xmm0, xmm9
-    vmovss  dword ptr [r14], xmm1
-    vmovaps xmm9, [rsp+278h+var_78]
-  }
+  *v13 = v85 - tabWidth;
 }
 
 /*
@@ -9072,10 +4688,11 @@ ScriptableBg_DrawDebugScriptableInstanceInWorld
 */
 void ScriptableBg_DrawDebugScriptableInstanceInWorld(const unsigned int instanceId, const ScriptableDef *def)
 {
+  ScriptableInstanceContext *InstanceCommonContext; 
   const XModel *ScriptableModel; 
   int flags; 
-  const vec4_t *v26; 
-  const char *v27; 
+  const vec4_t *v7; 
+  const char *v8; 
   vec3_t outOrigin; 
   vec3_t xyz; 
   vec3_t angles; 
@@ -9084,90 +4701,47 @@ void ScriptableBg_DrawDebugScriptableInstanceInWorld(const unsigned int instance
 
   if ( ScriptableBg_ServerContextIsPrimary(instanceId) )
   {
-    _RBX = ScriptableSv_GetInstanceCommonContext(instanceId);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+20h]
-      vmovss  dword ptr [rbp+57h+outOrigin], xmm0
-      vmovss  xmm1, dword ptr [rax+24h]
-      vmovss  dword ptr [rbp+57h+outOrigin+4], xmm1
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rbp+57h+outOrigin+8], xmm0
-      vmovss  xmm1, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rbp+57h+angles], xmm1
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  dword ptr [rbp+57h+angles+4], xmm0
-      vmovss  xmm1, dword ptr [rax+34h]
-      vmovss  dword ptr [rbp+57h+angles+8], xmm1
-    }
+    InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(instanceId);
+    outOrigin = InstanceCommonContext->origin;
   }
   else
   {
-    _RBX = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, instanceId);
-    ScriptableInstanceContextSecure::GetOrigin(_RBX, instanceId, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rbp+57h+angles], xmm0
-      vmovss  xmm1, dword ptr [rbx+30h]
-      vmovss  dword ptr [rbp+57h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vmovss  dword ptr [rbp+57h+angles+8], xmm0
-    }
+    InstanceCommonContext = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, instanceId);
+    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, instanceId, &outOrigin);
   }
-  ScriptableModel = BG_XCompositeModel_GetScriptableModel(_RBX);
+  angles = InstanceCommonContext->angles;
+  ScriptableModel = BG_XCompositeModel_GetScriptableModel(InstanceCommonContext);
   if ( ScriptableModel )
   {
     AnglesToAxis(&angles, &axis);
     MatrixTransformVector(&ScriptableModel->bounds.midPoint, &axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+out]
-      vaddss  xmm1, xmm0, dword ptr [rbp+57h+outOrigin]
-      vmovss  xmm2, dword ptr [rbp+57h+out+4]
-      vaddss  xmm0, xmm2, dword ptr [rbp+57h+outOrigin+4]
-      vmovss  dword ptr [rbp+57h+xyz], xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+out+8]
-      vaddss  xmm2, xmm1, dword ptr [rbp+57h+outOrigin+8]
-      vmovss  dword ptr [rbp+57h+xyz+8], xmm2
-      vmovss  dword ptr [rbp+57h+xyz+4], xmm0
-    }
+    xyz.v[0] = out.v[0] + outOrigin.v[0];
+    xyz.v[2] = out.v[2] + outOrigin.v[2];
+    xyz.v[1] = out.v[1] + outOrigin.v[1];
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+57h+outOrigin]
-      vmovsd  qword ptr [rbp+57h+xyz], xmm0
-    }
-    xyz.v[2] = outOrigin.v[2];
+    xyz = outOrigin;
   }
-  __asm { vmovss  xmm2, cs:__real@3e99999a; scale }
-  CL_AddDebugStringCentered(&xyz, &colorRed, *(float *)&_XMM2, def->name, 0, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+xyz+8]
-    vaddss  xmm1, xmm0, cs:__real@c0000000
-  }
+  CL_AddDebugStringCentered(&xyz, &colorRed, 0.30000001, def->name, 0, 0);
   flags = def->flags;
-  v26 = &colorCyan;
-  v27 = "Client Only";
-  __asm { vmovss  dword ptr [rbp+57h+xyz+8], xmm1 }
+  v7 = &colorCyan;
+  v8 = "Client Only";
+  xyz.v[2] = xyz.v[2] + -2.0;
   if ( (flags & 4) != 0 )
   {
-    v27 = "Server Controlled";
+    v8 = "Server Controlled";
 LABEL_11:
-    v26 = &colorOrange;
+    v7 = &colorOrange;
     goto LABEL_12;
   }
   if ( (flags & 2) != 0 )
   {
-    v27 = "Server Instance";
+    v8 = "Server Instance";
     goto LABEL_11;
   }
 LABEL_12:
-  __asm { vmovss  xmm2, cs:__real@3e19999a; scale }
-  CL_AddDebugStringCentered(&xyz, v26, *(float *)&_XMM2, v27, 0, 0);
+  CL_AddDebugStringCentered(&xyz, v7, 0.15000001, v8, 0, 0);
 }
 
 /*
@@ -9178,178 +4752,79 @@ ScriptableBg_DrawDebugScriptableNoteTracksDef
 void ScriptableBg_DrawDebugScriptableNoteTracksDef(const ScriptableNoteTrackDef *noteTracks, const unsigned int numNoteTracks, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   unsigned int *p_numEvents; 
-  unsigned int v20; 
-  char v22; 
-  char v25; 
-  int v29; 
-  const char *v30; 
-  char v31; 
-  __int64 v36; 
-  const char *v37; 
-  char v38; 
+  unsigned int i; 
+  float v12; 
+  float v13; 
+  int v14; 
+  const char *v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  const char *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   vec4_t *setColor; 
-  float setColora; 
-  int forceColor; 
-  int forceColora; 
-  int shadow; 
-  float v56; 
-  float v57; 
-  float v58; 
   char string[256]; 
   char dest[256]; 
-  void *retaddr; 
 
   if ( numNoteTracks )
   {
-    _R11 = &retaddr;
-    _RDI = y;
-    _RBX = x;
     p_numEvents = &noteTracks->numEvents;
-    __asm
+    for ( i = 0; i < numNoteTracks; ++i )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, [rsp+2D8h+charHeight]
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovss  xmm7, [rsp+2D8h+tabWidth]
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovss  xmm8, cs:__real@44870000
-      vmovaps xmmword ptr [r11-78h], xmm9
-    }
-    v20 = 0;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    do
-    {
-      Com_sprintf(dest, 0x100ui64, "NoteTrack %i", v20);
-      __asm
+      Com_sprintf(dest, 0x100ui64, "NoteTrack %i", i);
+      v12 = *y;
+      v13 = *y;
+      if ( *y > 0.0 && v12 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm9
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v12, dest, &colorWhite, 0, 1, charHeight, 0);
+        v13 = *y;
       }
-      if ( !(v22 | v25) )
-      {
-        __asm { vcomiss xmm2, xmm8 }
-        if ( v22 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx]; x
-            vmovss  [rsp+2D8h+var_2A0], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v56, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-        vaddss  xmm1, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rbx], xmm1
-      }
-      v29 = *(p_numEvents - 5);
-      if ( v29 )
-      {
-        __asm
-        {
-          vmovss  [rsp+2D8h+forceColor], xmm6
-          vmovss  dword ptr [rsp+2D8h+setColor], xmm7
-        }
-        ScriptableBg_DrawDefFlags(v29, scrPlace, _RBX, y, setColora, *(float *)&forceColor);
-      }
-      v30 = *(const char **)(p_numEvents - 3);
-      if ( v30 && *v30 )
+      *y = v13 + charHeight;
+      *x = tabWidth + *x;
+      v14 = *(p_numEvents - 5);
+      if ( v14 )
+        ScriptableBg_DrawDefFlags(v14, scrPlace, x, y, tabWidth, charHeight);
+      v15 = *(const char **)(p_numEvents - 3);
+      if ( v15 && *v15 )
       {
         LODWORD(setColor) = *(p_numEvents - 1);
-        Com_sprintf(string, 0x100ui64, "Name:%s Script:%i", v30, setColor);
-        __asm
+        Com_sprintf(string, 0x100ui64, "Name:%s Script:%i", v15, setColor);
+        v16 = *y;
+        v17 = *y;
+        if ( *y > 0.0 && v16 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm9
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v16, string, &colorWhite, 0, 1, charHeight, 0);
+          v17 = *y;
         }
-        if ( !(v31 | v25) )
-        {
-          __asm { vcomiss xmm2, xmm8 }
-          if ( v31 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbx]; x
-              vmovss  [rsp+2D8h+var_2A0], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, string, &colorWhite, 0, 1, v57, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v17 + charHeight;
       }
-      v36 = *p_numEvents;
-      if ( (_DWORD)v36 )
+      v18 = *p_numEvents;
+      if ( (_DWORD)v18 )
       {
-        v37 = "Events";
-        if ( (_DWORD)v36 == 1 )
-          v37 = "Event";
-        Com_sprintf(string, 0x100ui64, "%i %s", v36, v37);
-        __asm
+        v19 = "Events";
+        if ( (_DWORD)v18 == 1 )
+          v19 = "Event";
+        Com_sprintf(string, 0x100ui64, "%i %s", v18, v19);
+        v20 = *y;
+        v21 = *y;
+        if ( *y > 0.0 && v20 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm9
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v20, string, &colorWhite, 0, 1, charHeight, 0);
+          v21 = *y;
         }
-        if ( !(v38 | v25) )
-        {
-          __asm { vcomiss xmm2, xmm8 }
-          if ( v38 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbx]; x
-              vmovss  [rsp+2D8h+var_2A0], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, string, &colorWhite, 0, 1, v58, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm7, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm1
-          vmovss  [rsp+2D8h+shadow], xmm6
-          vmovss  [rsp+2D8h+forceColor], xmm7
-        }
-        ScriptableBg_DrawDebugScriptableEventsDef(*(const ScriptableEventDef **)(p_numEvents + 1), *p_numEvents, scrPlace, _RBX, y, *(float *)&forceColora, *(float *)&shadow);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vsubss  xmm1, xmm0, xmm7
-        }
+        *y = v21 + charHeight;
+        *x = tabWidth + *x;
+        ScriptableBg_DrawDebugScriptableEventsDef(*(const ScriptableEventDef **)(p_numEvents + 1), *p_numEvents, scrPlace, x, y, tabWidth, charHeight);
+        v22 = *x - tabWidth;
       }
       else
       {
-        __asm { vmovss  xmm1, dword ptr [rbx] }
+        v22 = *x;
       }
-      ++v20;
       p_numEvents += 8;
-      __asm
-      {
-        vsubss  xmm0, xmm1, xmm7
-        vmovss  dword ptr [rbx], xmm0
-      }
-    }
-    while ( v20 < numNoteTracks );
-    __asm
-    {
-      vmovaps xmm9, [rsp+2D8h+var_78]
-      vmovaps xmm8, [rsp+2D8h+var_68]
-      vmovaps xmm7, [rsp+2D8h+var_58]
-      vmovaps xmm6, [rsp+2D8h+var_48]
+      *x = v22 - tabWidth;
     }
   }
 }
@@ -9361,461 +4836,246 @@ ScriptableBg_DrawDebugScriptablePartDef
 */
 void ScriptableBg_DrawDebugScriptablePartDef(const ScriptablePartDef *part, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const dvar_t *v11; 
-  const ScriptablePartDef *v12; 
+  const dvar_t *v6; 
+  const ScriptablePartDef *v7; 
   const char *name; 
-  const char *v17; 
-  unsigned int v18; 
-  const char *v23; 
-  char v24; 
+  const char *v12; 
+  unsigned int v13; 
+  const char *v14; 
+  float v15; 
+  float v16; 
   int flags; 
-  char v30; 
-  char v31; 
+  float v18; 
+  float v19; 
   const char *tagName; 
-  char v37; 
+  float v21; 
+  float v22; 
   __int64 numDamageTagOverrides; 
-  char v43; 
-  unsigned int v49; 
+  float v24; 
+  float v25; 
+  float v26; 
+  unsigned int v27; 
   ScriptableDamageTagOverride *damageTagOverrides; 
-  char v51; 
+  float v29; 
+  float v30; 
   __int64 numStates; 
-  const char *v58; 
-  char v59; 
-  const dvar_t *v65; 
+  const char *v32; 
+  float v33; 
+  float v34; 
+  const dvar_t *v35; 
   const ScriptableStateDef *states; 
-  const char *v67; 
-  const char *v68; 
-  char v69; 
+  const char *v37; 
+  const char *v38; 
+  float v39; 
+  float v40; 
   __int64 numChildParts; 
-  const char *v80; 
-  char v81; 
-  int v89; 
-  char v90; 
-  char v91; 
+  const char *v42; 
+  float v43; 
+  float v44; 
+  int v45; 
+  float v46; 
+  float v47; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
   __int64 forceColor; 
-  int forceColora; 
-  int forceColorb; 
-  int forceColorc; 
-  int shadow; 
-  float v109; 
-  float v110; 
-  float v111; 
-  float v112; 
-  float v113; 
-  float v114; 
-  float v115; 
-  float v116; 
-  float v117; 
-  unsigned int v118; 
+  unsigned int v50; 
   char dest[256]; 
   char string[256]; 
-  char v122; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
-  v11 = DVARSTR_scriptabledebug_partfilter;
-  v12 = part;
-  _RBX = y;
-  _RDI = x;
+  v6 = DVARSTR_scriptabledebug_partfilter;
+  v7 = part;
   if ( !DVARSTR_scriptabledebug_partfilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptabledebug_partfilter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  name = v12->name;
-  v17 = v11->current.string;
-  v18 = 0;
-  __asm
+  Dvar_CheckFrontendServerThread(v6);
+  name = v7->name;
+  v12 = v6->current.string;
+  v13 = 0;
+  if ( !v7->name || !*name || !v12 || !*v12 || I_stristr(name, v12) )
   {
-    vmovss  xmm6, [rsp+2F8h+charHeight]
-    vmovss  xmm7, [rsp+2F8h+tabWidth]
-    vmovss  xmm8, cs:__real@44870000
-    vxorps  xmm9, xmm9, xmm9
-  }
-  if ( !v12->name || !*name || !v17 || !*v17 || I_stristr(name, v17) )
-  {
-    v23 = v12->name;
-    if ( v12->name && *v23 )
+    v14 = v7->name;
+    if ( v7->name && *v14 )
     {
-      LODWORD(fmt) = v12->scrName;
-      Com_sprintf(dest, 0x100ui64, "Name:%s Script:%i", v23, fmt);
-      __asm
+      LODWORD(fmt) = v7->scrName;
+      Com_sprintf(dest, 0x100ui64, "Name:%s Script:%i", v14, fmt);
+      v15 = *y;
+      v16 = *y;
+      if ( *y > 0.0 && v15 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vcomiss xmm2, xmm9
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v15, dest, &colorWhite, 0, 1, charHeight, 0);
+        v16 = *y;
       }
-      if ( !(v24 | v31) )
-      {
-        __asm { vcomiss xmm2, xmm8 }
-        if ( v24 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi]; x
-            vmovss  [rsp+2F8h+var_2C0], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v109, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v16 + charHeight;
     }
-    flags = v12->flags;
+    flags = v7->flags;
     if ( flags )
     {
-      __asm
-      {
-        vmovss  [rsp+2F8h+forceColor], xmm6
-        vmovss  dword ptr [rsp+2F8h+fmt], xmm7
-      }
-      ScriptableBg_DrawDefFlags(flags, scrPlace, _RDI, _RBX, fmta, *(float *)&forceColora);
-      flags = v12->flags;
+      ScriptableBg_DrawDefFlags(flags, scrPlace, x, y, tabWidth, charHeight);
+      flags = v7->flags;
     }
     if ( (flags & 4) != 0 )
     {
-      LODWORD(forceColor) = v12->flatId;
-      LODWORD(fmt) = v12->serverInstanceFlatId;
-      Com_sprintf(dest, 0x100ui64, "Flat Id: ServerControlled:%i ServerInstanced:%i Overall:%i", v12->serverControlledFlatId, fmt, forceColor);
+      LODWORD(forceColor) = v7->flatId;
+      LODWORD(fmt) = v7->serverInstanceFlatId;
+      Com_sprintf(dest, 0x100ui64, "Flat Id: ServerControlled:%i ServerInstanced:%i Overall:%i", v7->serverControlledFlatId, fmt, forceColor);
     }
     else if ( (flags & 2) != 0 )
     {
-      LODWORD(fmt) = v12->flatId;
-      Com_sprintf(dest, 0x100ui64, "Flat Id: ServerInstanced:%i Overall:%i", v12->serverInstanceFlatId, fmt);
+      LODWORD(fmt) = v7->flatId;
+      Com_sprintf(dest, 0x100ui64, "Flat Id: ServerInstanced:%i Overall:%i", v7->serverInstanceFlatId, fmt);
     }
     else
     {
-      Com_sprintf(dest, 0x100ui64, "Flat Id:%i", v12->flatId);
+      Com_sprintf(dest, 0x100ui64, "Flat Id:%i", v7->flatId);
     }
-    __asm
+    v18 = *y;
+    v19 = *y;
+    if ( *y > 0.0 && v18 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm9
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v18, dest, &colorWhite, 0, 1, charHeight, 0);
+      v19 = *y;
     }
-    if ( !(v30 | v31) )
-    {
-      __asm { vcomiss xmm2, xmm8 }
-      if ( v30 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi]; x
-          vmovss  [rsp+2F8h+var_2C0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v110, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-    tagName = v12->tagName;
+    *y = v19 + charHeight;
+    tagName = v7->tagName;
     if ( tagName && *tagName )
     {
-      LODWORD(fmt) = v12->scrTagName;
+      LODWORD(fmt) = v7->scrTagName;
       Com_sprintf(dest, 0x100ui64, "Tag:%s Script:%i", tagName, fmt);
-      __asm
+      v21 = *y;
+      v22 = *y;
+      if ( *y > 0.0 && v21 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vcomiss xmm2, xmm9
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v21, dest, &colorWhite, 0, 1, charHeight, 0);
+        v22 = *y;
       }
-      if ( !(v37 | v31) )
-      {
-        __asm { vcomiss xmm2, xmm8 }
-        if ( v37 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi]; x
-            vmovss  [rsp+2F8h+var_2C0], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v111, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-      }
+      *y = v22 + charHeight;
     }
-    numDamageTagOverrides = v12->numDamageTagOverrides;
+    numDamageTagOverrides = v7->numDamageTagOverrides;
     if ( (_DWORD)numDamageTagOverrides )
     {
       Com_sprintf(dest, 0x100ui64, "%i Damage Tag Overrides", numDamageTagOverrides);
-      __asm
+      v24 = *y;
+      v25 = *y;
+      if ( *y > 0.0 && v24 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vcomiss xmm2, xmm9
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v24, dest, &colorWhite, 0, 1, charHeight, 0);
+        v25 = *y;
       }
-      if ( !(v43 | v31) )
-      {
-        __asm { vcomiss xmm2, xmm8 }
-        if ( v43 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi]; x
-            vmovss  [rsp+2F8h+var_2C0], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v112, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-        vaddss  xmm1, xmm7, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-      v49 = 0;
-      if ( v12->numDamageTagOverrides )
+      *y = v25 + charHeight;
+      v26 = tabWidth + *x;
+      *x = v26;
+      v27 = 0;
+      if ( v7->numDamageTagOverrides )
       {
         do
         {
-          damageTagOverrides = v12->damageTagOverrides;
-          LODWORD(forceColor) = damageTagOverrides[v49].scrTag;
-          Com_sprintf(dest, 0x100ui64, "%i Tag:%s Script:%i", v49, damageTagOverrides[v49].tag, forceColor);
-          __asm
+          damageTagOverrides = v7->damageTagOverrides;
+          LODWORD(forceColor) = damageTagOverrides[v27].scrTag;
+          Com_sprintf(dest, 0x100ui64, "%i Tag:%s Script:%i", v27, damageTagOverrides[v27].tag, forceColor);
+          v29 = *y;
+          v30 = *y;
+          if ( *y > 0.0 && v29 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rbx]; y
-            vcomiss xmm2, xmm9
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v29, dest, &colorWhite, 0, 1, charHeight, 0);
+            v30 = *y;
           }
-          if ( !(v51 | v31) )
-          {
-            __asm { vcomiss xmm2, xmm8 }
-            if ( v51 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rdi]; x
-                vmovss  [rsp+2F8h+var_2C0], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v113, 0);
-              __asm { vmovss  xmm0, dword ptr [rbx] }
-            }
-          }
-          __asm { vaddss  xmm0, xmm0, xmm6 }
-          ++v49;
-          __asm { vmovss  dword ptr [rbx], xmm0 }
+          ++v27;
+          *y = v30 + charHeight;
         }
-        while ( v49 < v12->numDamageTagOverrides );
-        __asm { vmovss  xmm1, dword ptr [rdi] }
+        while ( v27 < v7->numDamageTagOverrides );
+        v26 = *x;
       }
-      __asm
-      {
-        vsubss  xmm0, xmm1, xmm7
-        vmovss  dword ptr [rdi], xmm0
-      }
+      *x = v26 - tabWidth;
     }
-    numStates = v12->numStates;
+    numStates = v7->numStates;
     if ( (_DWORD)numStates )
     {
-      v58 = "States";
+      v32 = "States";
       if ( (_DWORD)numStates == 1 )
-        v58 = "State";
-      Com_sprintf(dest, 0x100ui64, "%i %s", numStates, v58);
-      __asm
+        v32 = "State";
+      Com_sprintf(dest, 0x100ui64, "%i %s", numStates, v32);
+      v33 = *y;
+      v34 = *y;
+      if ( *y > 0.0 && v33 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rbx]; y
-        vcomiss xmm2, xmm9
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v33, dest, &colorWhite, 0, 1, charHeight, 0);
+        v34 = *y;
       }
-      if ( !(v59 | v31) )
-      {
-        __asm { vcomiss xmm2, xmm8 }
-        if ( v59 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi]; x
-            vmovss  [rsp+2F8h+var_2C0], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v114, 0);
-          __asm { vmovss  xmm0, dword ptr [rbx] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx], xmm0
-        vaddss  xmm1, xmm7, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-      v65 = DVARSTR_scriptabledebug_statefilter;
-      states = v12->states;
-      v118 = v12->numStates;
+      *y = v34 + charHeight;
+      *x = tabWidth + *x;
+      v35 = DVARSTR_scriptabledebug_statefilter;
+      states = v7->states;
+      v50 = v7->numStates;
       if ( !DVARSTR_scriptabledebug_statefilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptabledebug_statefilter") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v65);
-      v67 = v65->current.string;
-      if ( v118 )
+      Dvar_CheckFrontendServerThread(v35);
+      v37 = v35->current.string;
+      if ( v50 )
       {
         do
         {
-          v68 = states->base.name;
-          if ( !states->base.name || !*v68 || I_strempty(v67) || I_stristr(v68, v67) )
+          v38 = states->base.name;
+          if ( !states->base.name || !*v38 || I_strempty(v37) || I_stristr(v38, v37) )
           {
-            Com_sprintf(string, 0x100ui64, "State %i", v18);
-            __asm
+            Com_sprintf(string, 0x100ui64, "State %i", v13);
+            v39 = *y;
+            v40 = *y;
+            if ( *y > 0.0 && v39 < 1080.0 )
             {
-              vmovss  xmm2, dword ptr [rbx]; y
-              vcomiss xmm2, xmm9
-              vmovaps xmm0, xmm2
+              CG_DrawStringExt(scrPlace, *x, v39, string, &colorWhite, 0, 1, charHeight, 0);
+              v40 = *y;
             }
-            if ( !(v69 | v31) )
-            {
-              __asm { vcomiss xmm2, xmm8 }
-              if ( v69 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [rdi]; x
-                  vmovss  [rsp+2F8h+var_2C0], xmm6
-                }
-                CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, string, &colorWhite, 0, 1, v115, 0);
-                __asm { vmovss  xmm0, dword ptr [rbx] }
-              }
-            }
-            __asm
-            {
-              vaddss  xmm0, xmm0, xmm6
-              vmovss  dword ptr [rbx], xmm0
-              vaddss  xmm1, xmm7, dword ptr [rdi]
-              vmovss  [rsp+2F8h+forceColor], xmm6
-              vmovss  dword ptr [rdi], xmm1
-              vmovss  dword ptr [rsp+2F8h+fmt], xmm7
-            }
-            ScriptableBg_DrawDebugScriptableStateDef(states, scrPlace, _RDI, _RBX, fmtb, *(float *)&forceColorb);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vsubss  xmm1, xmm0, xmm7
-              vmovss  dword ptr [rdi], xmm1
-            }
+            *y = v40 + charHeight;
+            *x = tabWidth + *x;
+            ScriptableBg_DrawDebugScriptableStateDef(states, scrPlace, x, y, tabWidth, charHeight);
+            *x = *x - tabWidth;
           }
-          ++v18;
+          ++v13;
           ++states;
         }
-        while ( v18 < v118 );
-        v12 = part;
+        while ( v13 < v50 );
+        v7 = part;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vsubss  xmm1, xmm0, xmm7
-        vmovss  dword ptr [rdi], xmm1
-      }
+      *x = *x - tabWidth;
     }
   }
-  numChildParts = v12->numChildParts;
+  numChildParts = v7->numChildParts;
   if ( (_DWORD)numChildParts )
   {
-    v80 = "Parts";
+    v42 = "Parts";
     if ( (_DWORD)numChildParts == 1 )
-      v80 = "Part";
-    Com_sprintf(dest, 0x100ui64, "%i %s", numChildParts, v80);
-    __asm
+      v42 = "Part";
+    Com_sprintf(dest, 0x100ui64, "%i %s", numChildParts, v42);
+    v43 = *y;
+    v44 = *y;
+    if ( *y > 0.0 && v43 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm9
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v43, dest, &colorWhite, 0, 1, charHeight, 0);
+      v44 = *y;
     }
-    if ( !(v81 | v31) )
-    {
-      __asm { vcomiss xmm2, xmm8 }
-      if ( v81 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi]; x
-          vmovss  [rsp+2F8h+var_2C0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v116, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm1, xmm7, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  [rsp+2F8h+shadow], xmm6
-      vmovss  [rsp+2F8h+forceColor], xmm7
-    }
-    ScriptableBg_DrawDebugScriptablePartsDef(v12->childParts, v12->numChildParts, scrPlace, _RDI, _RBX, *(float *)&forceColorc, *(float *)&shadow);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm7
-      vmovss  dword ptr [rdi], xmm1
-    }
+    *y = v44 + charHeight;
+    *x = tabWidth + *x;
+    ScriptableBg_DrawDebugScriptablePartsDef(v7->childParts, v7->numChildParts, scrPlace, x, y, tabWidth, charHeight);
+    *x = *x - tabWidth;
   }
-  v89 = v12->flags;
-  if ( (v89 & 0x100) != 0 )
+  v45 = v7->flags;
+  if ( (v45 & 0x100) != 0 )
   {
-    if ( (v89 & 2) != 0 )
+    if ( (v45 & 2) != 0 )
     {
-      LODWORD(fmt) = v12->eventStreamBufferOffsetClient;
-      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Server:%i Client:%i", v12->eventStreamBufferOffsetServer, fmt);
+      LODWORD(fmt) = v7->eventStreamBufferOffsetClient;
+      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Server:%i Client:%i", v7->eventStreamBufferOffsetServer, fmt);
     }
     else
     {
-      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Client:%i", v12->eventStreamBufferOffsetClient);
+      Com_sprintf(dest, 0x100ui64, "Event Buffer Offset: Client:%i", v7->eventStreamBufferOffsetClient);
     }
-    __asm
+    v46 = *y;
+    v47 = *y;
+    if ( *y > 0.0 && v46 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vcomiss xmm2, xmm9
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v46, dest, &colorWhite, 0, 1, charHeight, 0);
+      v47 = *y;
     }
-    if ( !(v90 | v91) )
-    {
-      __asm { vcomiss xmm2, xmm8 }
-      if ( v90 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi]; x
-          vmovss  [rsp+2F8h+var_2C0], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v117, 0);
-        __asm { vmovss  xmm0, dword ptr [rbx] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-  }
-  _R11 = &v122;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
+    *y = v47 + charHeight;
   }
 }
 
@@ -9826,95 +5086,38 @@ ScriptableBg_DrawDebugScriptablePartsDef
 */
 void ScriptableBg_DrawDebugScriptablePartsDef(const ScriptablePartDef *parts, const unsigned int numParts, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const dvar_t *v11; 
+  const dvar_t *v7; 
   const char *string; 
-  unsigned int v18; 
+  unsigned int i; 
   const char *name; 
-  char v24; 
-  char v27; 
-  float fmt; 
-  int forceColor; 
-  float v39; 
+  float v15; 
+  float v16; 
   char dest[256]; 
 
-  v11 = DVARSTR_scriptabledebug_partfilter;
-  _RSI = x;
-  _RDI = y;
+  v7 = DVARSTR_scriptabledebug_partfilter;
   if ( !DVARSTR_scriptabledebug_partfilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptabledebug_partfilter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  string = v11->current.string;
-  v18 = 0;
-  if ( numParts )
+  Dvar_CheckFrontendServerThread(v7);
+  string = v7->current.string;
+  for ( i = 0; i < numParts; *x = *x - tabWidth )
   {
-    __asm
+    name = parts->name;
+    if ( !parts->name || !*name || I_strempty(string) || I_stristr(name, string) )
     {
-      vmovaps [rsp+1D8h+var_48], xmm6
-      vmovss  xmm6, [rsp+1D8h+charHeight]
-      vmovaps [rsp+1D8h+var_58], xmm7
-      vmovss  xmm7, [rsp+1D8h+tabWidth]
-      vmovaps [rsp+1D8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@44870000
-      vmovaps [rsp+1D8h+var_78], xmm9
-      vxorps  xmm9, xmm9, xmm9
-    }
-    do
-    {
-      name = parts->name;
-      if ( !parts->name || !*name || I_strempty(string) || I_stristr(name, string) )
+      Com_sprintf(dest, 0x100ui64, "Part %i", i);
+      v15 = *y;
+      v16 = *y;
+      if ( *y > 0.0 && v15 < 1080.0 )
       {
-        Com_sprintf(dest, 0x100ui64, "Part %i", v18);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm9
-          vmovaps xmm0, xmm2
-        }
-        if ( !(v24 | v27) )
-        {
-          __asm { vcomiss xmm2, xmm8 }
-          if ( v24 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi]; x
-              vmovss  [rsp+1D8h+var_1A0], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v39, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        CG_DrawStringExt(scrPlace, *x, v15, dest, &colorWhite, 0, 1, charHeight, 0);
+        v16 = *y;
       }
-      __asm
-      {
-        vaddss  xmm0, xmm7, dword ptr [rsi]
-        vmovss  [rsp+1D8h+forceColor], xmm6
-        vmovss  dword ptr [rsi], xmm0
-        vmovss  dword ptr [rsp+1D8h+fmt], xmm7
-      }
-      ScriptableBg_DrawDebugScriptablePartDef(parts, scrPlace, _RSI, y, fmt, *(float *)&forceColor);
-      __asm { vmovss  xmm0, dword ptr [rsi] }
-      ++v18;
-      ++parts;
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm7
-        vmovss  dword ptr [rsi], xmm1
-      }
+      *y = v16 + charHeight;
     }
-    while ( v18 < numParts );
-    __asm
-    {
-      vmovaps xmm9, [rsp+1D8h+var_78]
-      vmovaps xmm8, [rsp+1D8h+var_68]
-      vmovaps xmm7, [rsp+1D8h+var_58]
-      vmovaps xmm6, [rsp+1D8h+var_48]
-    }
+    *x = tabWidth + *x;
+    ScriptableBg_DrawDebugScriptablePartDef(parts, scrPlace, x, y, tabWidth, charHeight);
+    ++i;
+    ++parts;
   }
 }
 
@@ -9926,710 +5129,366 @@ ScriptableBg_DrawDebugScriptableStateDef
 void ScriptableBg_DrawDebugScriptableStateDef(const ScriptableStateDef *state, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   const char *name; 
+  float v11; 
+  float v12; 
   int flags; 
-  const char *v25; 
-  char v26; 
-  char v36; 
-  char v48; 
-  char v53; 
+  const char *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   const char *hintStringDisabled; 
   const char *hintIcon; 
-  const char *v60; 
-  char v61; 
-  char v62; 
-  const char *v63; 
-  char v64; 
+  const char *v25; 
+  const char *v26; 
+  float v27; 
+  float v28; 
   __int64 validAttackerTeams; 
-  const char *v70; 
-  char v71; 
-  char v72; 
+  const char *v30; 
+  float v31; 
+  float v32; 
   __int64 numWeaponClasses; 
-  char v78; 
-  unsigned int v84; 
-  char v85; 
+  float v34; 
+  float v35; 
+  float v36; 
+  unsigned int v37; 
+  float v38; 
+  float v39; 
   __int64 numWeapons; 
-  char v92; 
-  unsigned int v98; 
-  const char **p_szInternalName; 
-  const char *v100; 
-  char v101; 
+  float v41; 
+  float v42; 
+  float v43; 
+  unsigned int v44; 
+  WeaponCompleteDef *v45; 
+  const char *szInternalName; 
+  float v47; 
+  float v48; 
   __int64 minimumDamage; 
-  char v108; 
-  char v122; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
   const char *script_id; 
-  char v128; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
   __int64 numEvents; 
-  const char *v138; 
-  char v139; 
-  float setColor; 
-  vec4_t *setColora; 
-  vec4_t *setColorb; 
-  vec4_t *setColorc; 
-  int forceColor; 
-  double forceColora; 
-  double forceColorb; 
-  int forceColorc; 
+  const char *v60; 
+  float v61; 
+  float v62; 
   __int64 shadow; 
-  double shadowa; 
-  int shadowb; 
-  float v163; 
-  float v164; 
-  float v165; 
-  float v166; 
-  float v167; 
-  float v168; 
-  float v169; 
-  float v170; 
-  float v171; 
-  float v172; 
-  float v173; 
-  float v174; 
-  float v175; 
-  float v176; 
-  float v177; 
-  const char *v178; 
-  __int64 v179[4]; 
-  __int64 v180[7]; 
-  __int64 v181[10]; 
-  __int64 v182[14]; 
-  __int64 v183[16]; 
+  const char *v64; 
+  __int64 v65[4]; 
+  __int64 v66[7]; 
+  __int64 v67[10]; 
+  __int64 v68[14]; 
+  __int64 v69[16]; 
   char dest[256]; 
-  char v185; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovss  xmm6, [rbp+280h+charHeight]
-  }
-  v179[0] = (__int64)"Simple";
-  v181[0] = (__int64)"All";
-  v179[1] = (__int64)"Health";
-  _R14 = state;
-  v180[0] = (__int64)"All";
-  v179[2] = (__int64)"Scripted";
-  v181[4] = (__int64)"None";
-  v179[3] = (__int64)"Usable";
-  _RDI = y;
-  v180[5] = (__int64)"None";
-  v181[1] = (__int64)"Splash Only";
-  _R15 = x;
-  v182[0] = (__int64)"All";
-  v181[2] = (__int64)"No Splash";
-  v181[3] = (__int64)"No Melee";
-  v181[5] = (__int64)"Melee Only";
-  v181[6] = (__int64)"Melee and Splash Only";
-  v181[7] = (__int64)"Crush Only";
-  v181[8] = (__int64)"Crush and Splash Only";
-  v180[1] = (__int64)"No Player";
-  v180[2] = (__int64)"Player Only";
-  v180[3] = (__int64)"No AI";
-  v180[4] = (__int64)"AI Only";
-  v182[1] = (__int64)"Bad";
-  v182[2] = (__int64)"Axis";
-  v182[3] = (__int64)"Allies";
-  v182[4] = (__int64)"Three";
-  v182[5] = (__int64)"Neutral";
-  v182[6] = (__int64)"Dead";
-  v182[7] = (__int64)"My_Team";
-  v182[8] = (__int64)"Enemy_Team";
-  v182[9] = (__int64)"All_But_My_Team";
-  v182[10] = (__int64)"All_But_Enemy_Team";
-  v182[11] = (__int64)"Enemy_Team_And_Me";
-  v182[12] = (__int64)"Just_Me";
-  v183[0] = (__int64)"RIFLE";
-  v183[1] = (__int64)"SNIPER";
-  v183[2] = (__int64)"MG";
-  v183[3] = (__int64)"SMG";
-  v183[4] = (__int64)"SPREAD";
-  v183[5] = (__int64)"PISTOL";
-  v183[6] = (__int64)"GRENADE";
+  v65[0] = (__int64)"Simple";
+  v67[0] = (__int64)"All";
+  v65[1] = (__int64)"Health";
+  v66[0] = (__int64)"All";
+  v65[2] = (__int64)"Scripted";
+  v67[4] = (__int64)"None";
+  v65[3] = (__int64)"Usable";
+  v66[5] = (__int64)"None";
+  v67[1] = (__int64)"Splash Only";
+  v68[0] = (__int64)"All";
+  v67[2] = (__int64)"No Splash";
+  v67[3] = (__int64)"No Melee";
+  v67[5] = (__int64)"Melee Only";
+  v67[6] = (__int64)"Melee and Splash Only";
+  v67[7] = (__int64)"Crush Only";
+  v67[8] = (__int64)"Crush and Splash Only";
+  v66[1] = (__int64)"No Player";
+  v66[2] = (__int64)"Player Only";
+  v66[3] = (__int64)"No AI";
+  v66[4] = (__int64)"AI Only";
+  v68[1] = (__int64)"Bad";
+  v68[2] = (__int64)"Axis";
+  v68[3] = (__int64)"Allies";
+  v68[4] = (__int64)"Three";
+  v68[5] = (__int64)"Neutral";
+  v68[6] = (__int64)"Dead";
+  v68[7] = (__int64)"My_Team";
+  v68[8] = (__int64)"Enemy_Team";
+  v68[9] = (__int64)"All_But_My_Team";
+  v68[10] = (__int64)"All_But_Enemy_Team";
+  v68[11] = (__int64)"Enemy_Team_And_Me";
+  v68[12] = (__int64)"Just_Me";
+  v69[0] = (__int64)"RIFLE";
+  v69[1] = (__int64)"SNIPER";
+  v69[2] = (__int64)"MG";
+  v69[3] = (__int64)"SMG";
+  v69[4] = (__int64)"SPREAD";
+  v69[5] = (__int64)"PISTOL";
+  v69[6] = (__int64)"GRENADE";
   name = state->base.name;
-  v183[7] = (__int64)"ROCKETLAUNCHER";
-  v183[8] = (__int64)"TURRET";
-  v183[9] = (__int64)"THROWINGKNIFE";
-  v183[10] = (__int64)"NON_PLAYER";
-  v183[11] = (__int64)"ITEM";
-  v183[12] = (__int64)"BEAM";
-  v183[13] = (__int64)"BALL";
-  v183[14] = (__int64)"NONE";
+  v69[7] = (__int64)"ROCKETLAUNCHER";
+  v69[8] = (__int64)"TURRET";
+  v69[9] = (__int64)"THROWINGKNIFE";
+  v69[10] = (__int64)"NON_PLAYER";
+  v69[11] = (__int64)"ITEM";
+  v69[12] = (__int64)"BEAM";
+  v69[13] = (__int64)"BALL";
+  v69[14] = (__int64)"NONE";
   if ( name && *name )
   {
-    Com_sprintf(dest, 0x100ui64, "Name:%s Type:%s", name, (const char *)v179[state->type]);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]
-      vmovaps xmm0, xmm2
-    }
+    Com_sprintf(dest, 0x100ui64, "Name:%s Type:%s", name, (const char *)v65[state->type]);
+    v11 = *y;
+    v12 = *y;
   }
   else
   {
-    Com_sprintf(dest, 0x100ui64, "Type:%s", (const char *)v179[state->type]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovaps xmm2, xmm0; y
-    }
+    Com_sprintf(dest, 0x100ui64, "Type:%s", (const char *)v65[state->type]);
+    v12 = *y;
+    v11 = *y;
   }
-  __asm
+  if ( v11 > 0.0 && v11 < 1080.0 )
   {
-    vmovss  xmm7, cs:__real@44870000
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm2, xmm8
-    vmovss  xmm9, [rbp+280h+tabWidth]
-    vaddss  xmm0, xmm6, xmm0
-    vmovss  dword ptr [rdi], xmm0
+    CG_DrawStringExt(scrPlace, *x, v11, dest, &colorWhite, 0, 1, charHeight, 0);
+    v12 = *y;
   }
-  flags = _R14->base.flags;
+  *y = charHeight + v12;
+  flags = state->base.flags;
   if ( flags )
-  {
-    __asm
-    {
-      vmovss  [rsp+380h+forceColor], xmm6
-      vmovss  dword ptr [rsp+380h+setColor], xmm9
-    }
-    ScriptableBg_DrawDefFlags(flags, scrPlace, _R15, _RDI, setColor, *(float *)&forceColor);
-  }
-  switch ( _R14->type )
+    ScriptableBg_DrawDefFlags(flags, scrPlace, x, y, tabWidth, charHeight);
+  switch ( state->type )
   {
     case Scriptable_StateType_Health:
-      Com_sprintf(dest, 0x100ui64, "Health:%i", (unsigned int)_R14->data.health.health);
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Health:%i", (unsigned int)state->data.health.health);
+      v27 = *y;
+      v28 = *y;
+      if ( *y > 0.0 && v27 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v27, dest, &colorWhite, 0, 1, charHeight, 0);
+        v28 = *y;
       }
-      if ( !(v64 | v62) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v64 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  [rsp+380h+var_348], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v167, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      validAttackerTeams = _R14->data.health.validAttackerTeams;
-      v70 = (const char *)v181[_R14->data.health.validDamageCause];
+      *y = v28 + charHeight;
+      validAttackerTeams = state->data.health.validAttackerTeams;
+      v30 = (const char *)v67[state->data.health.validDamageCause];
       if ( (_DWORD)validAttackerTeams )
-        Com_sprintf(dest, 0x100ui64, "ValidCause:%s ValidAttacker:%s ValidAttackerTeam:%s", v70, (const char *)v180[_R14->data.health.validAttackers], (const char *)v182[validAttackerTeams]);
+        Com_sprintf(dest, 0x100ui64, "ValidCause:%s ValidAttacker:%s ValidAttackerTeam:%s", v30, (const char *)v66[state->data.health.validAttackers], (const char *)v68[validAttackerTeams]);
       else
-        Com_sprintf(dest, 0x100ui64, "ValidCause:%s ValidAttacker:%s", v70, (const char *)v180[_R14->data.health.validAttackers]);
-      __asm
+        Com_sprintf(dest, 0x100ui64, "ValidCause:%s ValidAttacker:%s", v30, (const char *)v66[state->data.health.validAttackers]);
+      v31 = *y;
+      v32 = *y;
+      if ( *y > 0.0 && v31 < 1080.0 )
       {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
+        CG_DrawStringExt(scrPlace, *x, v31, dest, &colorWhite, 0, 1, charHeight, 0);
+        v32 = *y;
       }
-      if ( !(v71 | v72) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v71 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  [rsp+380h+var_348], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v168, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      numWeaponClasses = _R14->data.health.numWeaponClasses;
+      *y = v32 + charHeight;
+      numWeaponClasses = state->data.health.numWeaponClasses;
       if ( (_DWORD)numWeaponClasses )
       {
         Com_sprintf(dest, 0x100ui64, "Weapon Class Filter: %i entries", numWeaponClasses);
-        __asm
+        v34 = *y;
+        v35 = *y;
+        if ( *y > 0.0 && v34 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v34, dest, &colorWhite, 0, 1, charHeight, 0);
+          v35 = *y;
         }
-        if ( !(v78 | v62) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v78 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  [rsp+380h+var_348], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v169, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-        }
-        v84 = 0;
-        if ( _R14->data.health.numWeaponClasses )
+        *y = v35 + charHeight;
+        v36 = tabWidth + *x;
+        *x = v36;
+        v37 = 0;
+        if ( state->data.health.numWeaponClasses )
         {
           do
           {
-            Com_sprintf(dest, 0x100ui64, "%i %s", v84, (const char *)v183[_R14->data.health.weaponClasses[v84]]);
-            __asm
+            Com_sprintf(dest, 0x100ui64, "%i %s", v37, (const char *)v69[state->data.health.weaponClasses[v37]]);
+            v38 = *y;
+            v39 = *y;
+            if ( *y > 0.0 && v38 < 1080.0 )
             {
-              vmovss  xmm2, dword ptr [rdi]; y
-              vcomiss xmm2, xmm8
-              vmovaps xmm0, xmm2
+              CG_DrawStringExt(scrPlace, *x, v38, dest, &colorWhite, 0, 1, charHeight, 0);
+              v39 = *y;
             }
-            if ( !(v85 | v62) )
-            {
-              __asm { vcomiss xmm2, xmm7 }
-              if ( v85 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [r15]; x
-                  vmovss  [rsp+380h+var_348], xmm6
-                }
-                CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v170, 0);
-                __asm { vmovss  xmm0, dword ptr [rdi] }
-              }
-            }
-            __asm { vaddss  xmm0, xmm0, xmm6 }
-            ++v84;
-            __asm { vmovss  dword ptr [rdi], xmm0 }
+            ++v37;
+            *y = v39 + charHeight;
           }
-          while ( v84 < _R14->data.health.numWeaponClasses );
-          __asm { vmovss  xmm1, dword ptr [r15] }
+          while ( v37 < state->data.health.numWeaponClasses );
+          v36 = *x;
         }
-        __asm
-        {
-          vsubss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [r15], xmm0
-        }
+        *x = v36 - tabWidth;
       }
-      numWeapons = _R14->data.health.numWeapons;
+      numWeapons = state->data.health.numWeapons;
       if ( (_DWORD)numWeapons )
       {
         Com_sprintf(dest, 0x100ui64, "Weapon Filter: %i entries", numWeapons);
-        __asm
+        v41 = *y;
+        v42 = *y;
+        if ( *y > 0.0 && v41 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v41, dest, &colorWhite, 0, 1, charHeight, 0);
+          v42 = *y;
         }
-        if ( !(v92 | v62) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v92 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  [rsp+380h+var_348], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v171, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-          vaddss  xmm1, xmm9, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm1
-        }
-        v98 = 0;
-        if ( _R14->data.health.numWeapons )
+        *y = v42 + charHeight;
+        v43 = tabWidth + *x;
+        *x = v43;
+        v44 = 0;
+        if ( state->data.health.numWeapons )
         {
           do
           {
-            p_szInternalName = &_R14->data.health.weapons[v98]->szInternalName;
-            if ( p_szInternalName )
-              v100 = *p_szInternalName;
+            v45 = state->data.health.weapons[v44];
+            if ( v45 )
+              szInternalName = v45->szInternalName;
             else
-              v100 = "UNKNOWN";
-            Com_sprintf(dest, 0x100ui64, "%i %s", v98, v100);
-            __asm
+              szInternalName = "UNKNOWN";
+            Com_sprintf(dest, 0x100ui64, "%i %s", v44, szInternalName);
+            v47 = *y;
+            v48 = *y;
+            if ( *y > 0.0 && v47 < 1080.0 )
             {
-              vmovss  xmm2, dword ptr [rdi]; y
-              vcomiss xmm2, xmm8
-              vmovaps xmm0, xmm2
+              CG_DrawStringExt(scrPlace, *x, v47, dest, &colorWhite, 0, 1, charHeight, 0);
+              v48 = *y;
             }
-            if ( !(v101 | v62) )
-            {
-              __asm { vcomiss xmm2, xmm7 }
-              if ( v101 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [r15]; x
-                  vmovss  [rsp+380h+var_348], xmm6
-                }
-                CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v172, 0);
-                __asm { vmovss  xmm0, dword ptr [rdi] }
-              }
-            }
-            __asm { vaddss  xmm0, xmm0, xmm6 }
-            ++v98;
-            __asm { vmovss  dword ptr [rdi], xmm0 }
+            ++v44;
+            *y = v48 + charHeight;
           }
-          while ( v98 < _R14->data.health.numWeapons );
-          __asm { vmovss  xmm1, dword ptr [r15] }
+          while ( v44 < state->data.health.numWeapons );
+          v43 = *x;
         }
-        __asm
-        {
-          vsubss  xmm0, xmm1, xmm9
-          vmovss  dword ptr [r15], xmm0
-        }
+        *x = v43 - tabWidth;
       }
-      minimumDamage = (unsigned int)_R14->data.health.minimumDamage;
+      minimumDamage = (unsigned int)state->data.health.minimumDamage;
       if ( (int)minimumDamage > 0 )
       {
         Com_sprintf(dest, 0x100ui64, "Minimum Damage: %i", minimumDamage);
-        __asm
+        v50 = *y;
+        v51 = *y;
+        if ( *y > 0.0 && v50 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v50, dest, &colorWhite, 0, 1, charHeight, 0);
+          v51 = *y;
         }
-        if ( !(v108 | v62) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v108 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  [rsp+380h+var_348], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v173, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v51 + charHeight;
       }
-      __asm
+      Com_sprintf(dest, 0x100ui64, "Damage Propagation: ToParent:%.3f ToChild:%.3f FromParent:%.3f FromChild:%.3f", state->data.health.damagePropagationToParent, state->data.health.damagePropagationToChild, state->data.health.damagePropagationFromParent, state->data.health.damagePropagationFromChild);
+      v52 = *y;
+      v53 = *y;
+      if ( *y > 0.0 && v52 < 1080.0 )
       {
-        vmovss  xmm0, dword ptr [r14+68h]
-        vmovss  xmm1, dword ptr [r14+64h]
-        vmovss  xmm3, dword ptr [r14+5Ch]
-        vmovss  xmm2, dword ptr [r14+60h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+380h+shadow], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  qword ptr [rsp+380h+forceColor], xmm1
-        vmovq   r9, xmm3
-        vmovsd  [rsp+380h+setColor], xmm2
+        CG_DrawStringExt(scrPlace, *x, v52, dest, &colorWhite, 0, 1, charHeight, 0);
+        v53 = *y;
       }
-      Com_sprintf(dest, 0x100ui64, "Damage Propagation: ToParent:%.3f ToChild:%.3f FromParent:%.3f FromChild:%.3f", *(double *)&_XMM3, *(double *)&setColorc, forceColorb, shadowa);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vcomiss xmm2, xmm8
-        vmovaps xmm0, xmm2
-      }
-      if ( !(v122 | v62) )
-      {
-        __asm { vcomiss xmm2, xmm7 }
-        if ( v122 )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15]; x
-            vmovss  [rsp+380h+var_348], xmm6
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v174, 0);
-          __asm { vmovss  xmm0, dword ptr [rdi] }
-        }
-      }
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rdi], xmm0
-      }
-      script_id = _R14->data.health.script_id;
+      *y = v53 + charHeight;
+      script_id = state->data.health.script_id;
       if ( script_id && *script_id )
       {
         Com_sprintf(dest, 0x100ui64, "ScriptId:%s", script_id);
-        __asm
+        v55 = *y;
+        v56 = *y;
+        if ( *y > 0.0 && v55 < 1080.0 )
         {
-          vmovss  xmm2, dword ptr [rdi]; y
-          vcomiss xmm2, xmm8
-          vmovaps xmm0, xmm2
+          CG_DrawStringExt(scrPlace, *x, v55, dest, &colorWhite, 0, 1, charHeight, 0);
+          v56 = *y;
         }
-        if ( !(v128 | v62) )
-        {
-          __asm { vcomiss xmm2, xmm7 }
-          if ( v128 )
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r15]; x
-              vmovss  [rsp+380h+var_348], xmm6
-            }
-            CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v175, 0);
-            __asm { vmovss  xmm0, dword ptr [rdi] }
-          }
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm0, xmm6
-          vmovss  dword ptr [rdi], xmm0
-        }
+        *y = v56 + charHeight;
       }
       Com_sprintf(dest, 0x100ui64, "Splash Damage is%s localized");
-      goto LABEL_82;
+      goto LABEL_85;
     case Scriptable_StateType_Scripted:
-      v63 = _R14->data.scripted.script_id;
-      if ( !v63 || !*v63 )
+      v26 = state->data.scripted.script_id;
+      if ( !v26 || !*v26 )
         break;
       Com_sprintf(dest, 0x100ui64, "ScriptId:%s");
-      goto LABEL_82;
+      goto LABEL_85;
     case Scriptable_StateType_Usable:
-      v25 = _R14->data.scripted.script_id;
-      if ( v25 )
+      v14 = state->data.scripted.script_id;
+      if ( v14 )
       {
-        if ( *v25 )
+        if ( *v14 )
         {
-          Com_sprintf(dest, 0x100ui64, "ScriptId:%s", v25);
-          __asm
+          Com_sprintf(dest, 0x100ui64, "ScriptId:%s", v14);
+          v15 = *y;
+          v16 = *y;
+          if ( *y > 0.0 && v15 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v15, dest, &colorWhite, 0, 1, charHeight, 0);
+            v16 = *y;
           }
-          if ( !(v26 | v62) )
+          *y = v16 + charHeight;
+          Com_sprintf(dest, 0x100ui64, "Use FOV: %.3f Face:%.3f", state->data.usable.useFOV, state->data.usable.faceFOV);
+          v17 = *y;
+          v18 = *y;
+          if ( *y > 0.0 && v17 < 1080.0 )
           {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v26 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  [rsp+380h+var_348], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v163, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
+            CG_DrawStringExt(scrPlace, *x, v17, dest, &colorWhite, 0, 1, charHeight, 0);
+            v18 = *y;
           }
-          __asm
+          *y = v18 + charHeight;
+          LODWORD(shadow) = state->data.usable.useRadiusMinimized;
+          Com_sprintf(dest, 0x100ui64, "Use Radius: %.3f Auto:%.3f Display:%.3f Minimized:%d", state->data.usable.useRadius, state->data.usable.useRadiusAuto, state->data.usable.useRadiusDisplay, shadow);
+          v19 = *y;
+          v20 = *y;
+          if ( *y > 0.0 && v19 < 1080.0 )
           {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-            vmovss  xmm3, dword ptr [r14+38h]
-            vmovss  xmm1, dword ptr [r14+34h]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovq   r9, xmm3
-            vmovsd  [rsp+380h+setColor], xmm1
+            CG_DrawStringExt(scrPlace, *x, v19, dest, &colorWhite, 0, 1, charHeight, 0);
+            v20 = *y;
           }
-          Com_sprintf(dest, 0x100ui64, "Use FOV: %.3f Face:%.3f", *(double *)&_XMM3, *(double *)&setColora);
-          __asm
+          *y = v20 + charHeight;
+          Com_sprintf(dest, 0x100ui64, "Priority:%d", (unsigned int)state->data.usable.priority);
+          v21 = *y;
+          v22 = *y;
+          if ( *y > 0.0 && v21 < 1080.0 )
           {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
+            CG_DrawStringExt(scrPlace, *x, v21, dest, &colorWhite, 0, 1, charHeight, 0);
+            v22 = *y;
           }
-          if ( !(v36 | v62) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v36 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  [rsp+380h+var_348], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v164, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-            vmovss  xmm0, dword ptr [r14+44h]
-            vmovss  xmm3, dword ptr [r14+3Ch]
-            vmovss  xmm1, dword ptr [r14+40h]
-          }
-          LODWORD(shadow) = _R14->data.usable.useRadiusMinimized;
-          __asm
-          {
-            vcvtss2sd xmm0, xmm0, xmm0
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  qword ptr [rsp+380h+forceColor], xmm0
-            vmovq   r9, xmm3
-            vmovsd  [rsp+380h+setColor], xmm1
-          }
-          Com_sprintf(dest, 0x100ui64, "Use Radius: %.3f Auto:%.3f Display:%.3f Minimized:%d", *(double *)&_XMM3, *(double *)&setColorb, forceColora, shadow);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v48 | v62) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v48 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  [rsp+380h+var_348], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v165, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
-          Com_sprintf(dest, 0x100ui64, "Priority:%d", (unsigned int)_R14->data.usable.priority);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rdi]; y
-            vcomiss xmm2, xmm8
-            vmovaps xmm0, xmm2
-          }
-          if ( !(v53 | v62) )
-          {
-            __asm { vcomiss xmm2, xmm7 }
-            if ( v53 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15]; x
-                vmovss  [rsp+380h+var_348], xmm6
-              }
-              CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v166, 0);
-              __asm { vmovss  xmm0, dword ptr [rdi] }
-            }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [rdi], xmm0
-          }
-          if ( _R14->data.health.script_id )
+          *y = v22 + charHeight;
+          if ( state->data.health.script_id )
           {
             hintStringDisabled = (char *)&queryFormat.fmt + 3;
             hintIcon = (char *)&queryFormat.fmt + 3;
-            if ( _R14->data.usable.hintIcon )
-              hintIcon = _R14->data.usable.hintIcon;
-            if ( _R14->data.usable.hintStringDisabled )
-              hintStringDisabled = _R14->data.usable.hintStringDisabled;
-            v178 = hintStringDisabled;
-            v60 = SL_ConvertToString(_R14->data.usable.hintTag);
-            Com_sprintf(dest, 0x100ui64, "Hint String: %s Tag:%s Disabled:%s Icon:%s", _R14->data.health.script_id, v60, v178, hintIcon);
-LABEL_82:
-            __asm
+            if ( state->data.usable.hintIcon )
+              hintIcon = state->data.usable.hintIcon;
+            if ( state->data.usable.hintStringDisabled )
+              hintStringDisabled = state->data.usable.hintStringDisabled;
+            v64 = hintStringDisabled;
+            v25 = SL_ConvertToString(state->data.usable.hintTag);
+            Com_sprintf(dest, 0x100ui64, "Hint String: %s Tag:%s Disabled:%s Icon:%s", state->data.health.script_id, v25, v64, hintIcon);
+LABEL_85:
+            v57 = *y;
+            v58 = *y;
+            if ( *y > 0.0 && v57 < 1080.0 )
             {
-              vmovss  xmm2, dword ptr [rdi]; y
-              vcomiss xmm2, xmm8
-              vmovaps xmm0, xmm2
+              CG_DrawStringExt(scrPlace, *x, v57, dest, &colorWhite, 0, 1, charHeight, 0);
+              v58 = *y;
             }
-            if ( !(v61 | v62) )
-            {
-              __asm { vcomiss xmm2, xmm7 }
-              if ( v61 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [r15]; x
-                  vmovss  [rsp+380h+var_348], xmm6
-                }
-                CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v176, 0);
-                __asm { vmovss  xmm0, dword ptr [rdi] }
-              }
-            }
-            __asm
-            {
-              vaddss  xmm0, xmm0, xmm6
-              vmovss  dword ptr [rdi], xmm0
-            }
+            *y = v58 + charHeight;
           }
         }
       }
       break;
   }
-  numEvents = _R14->base.numEvents;
+  numEvents = state->base.numEvents;
   if ( (_DWORD)numEvents )
   {
-    v138 = "Events";
+    v60 = "Events";
     if ( (_DWORD)numEvents == 1 )
-      v138 = "Event";
-    Com_sprintf(dest, 0x100ui64, "%i %s", numEvents, v138);
-    __asm
+      v60 = "Event";
+    Com_sprintf(dest, 0x100ui64, "%i %s", numEvents, v60);
+    v61 = *y;
+    v62 = *y;
+    if ( *y > 0.0 && v61 < 1080.0 )
     {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vcomiss xmm2, xmm8
-      vmovaps xmm0, xmm2
+      CG_DrawStringExt(scrPlace, *x, v61, dest, &colorWhite, 0, 1, charHeight, 0);
+      v62 = *y;
     }
-    if ( !(v139 | v62) )
-    {
-      __asm { vcomiss xmm2, xmm7 }
-      if ( v139 )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r15]; x
-          vmovss  [rsp+380h+var_348], xmm6
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v177, 0);
-        __asm { vmovss  xmm0, dword ptr [rdi] }
-      }
-    }
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm0
-      vaddss  xmm1, xmm9, dword ptr [r15]
-      vmovss  dword ptr [r15], xmm1
-      vmovss  dword ptr [rsp+380h+shadow], xmm6
-      vmovss  [rsp+380h+forceColor], xmm9
-    }
-    ScriptableBg_DrawDebugScriptableEventsDef(_R14->base.events, _R14->base.numEvents, scrPlace, _R15, _RDI, *(float *)&forceColorc, *(float *)&shadowb);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15]
-      vsubss  xmm1, xmm0, xmm9
-      vmovss  dword ptr [r15], xmm1
-    }
-  }
-  _R11 = &v185;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
+    *y = v62 + charHeight;
+    *x = tabWidth + *x;
+    ScriptableBg_DrawDebugScriptableEventsDef(state->base.events, state->base.numEvents, scrPlace, x, y, tabWidth, charHeight);
+    *x = *x - tabWidth;
   }
 }
 
@@ -10640,27 +5499,24 @@ ScriptableBg_DrawDefFlags
 */
 void ScriptableBg_DrawDefFlags(const int flags, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const char *v12; 
-  char v13; 
-  char v16; 
-  float v21; 
+  const char *v10; 
+  float v11; 
+  float v12; 
   char dest[512]; 
 
-  _RBP = x;
   dest[0] = 0;
-  _RDI = y;
   I_strcat(dest, 0x200ui64, "Flags:");
   if ( (flags & 4) != 0 )
   {
-    v12 = " | Server-Controlled";
+    v10 = " | Server-Controlled";
   }
   else
   {
     if ( (flags & 2) == 0 )
       goto LABEL_6;
-    v12 = " | Server-Instanced";
+    v10 = " | Server-Instanced";
   }
-  I_strcat(dest, 0x200ui64, v12);
+  I_strcat(dest, 0x200ui64, v10);
 LABEL_6:
   if ( (flags & 8) != 0 )
     I_strcat(dest, 0x200ui64, " | Controls-Sun");
@@ -10687,37 +5543,17 @@ LABEL_6:
   if ( (flags & 0x100000) != 0 )
     I_strcat(dest, 0x200ui64, " | Is-Double-Door");
   I_strcat(dest, 0x200ui64, " |");
-  __asm
+  v11 = *y;
+  if ( *y <= 0.0 || v11 >= 1080.0 )
   {
-    vmovss  xmm2, dword ptr [rdi]; y
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  if ( v13 | v16 )
-    goto LABEL_33;
-  __asm { vcomiss xmm2, cs:__real@44870000 }
-  if ( !v13 )
-  {
-LABEL_33:
-    __asm { vaddss  xmm1, xmm2, [rsp+288h+charHeight] }
+    v12 = v11 + charHeight;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbp+0]; x
-      vmovaps [rsp+288h+var_28], xmm6
-      vmovss  xmm6, [rsp+288h+charHeight]
-      vmovss  [rsp+288h+var_250], xmm6
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v21, 0);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovaps xmm6, [rsp+288h+var_28]
-    }
+    CG_DrawStringExt(scrPlace, *x, v11, dest, &colorWhite, 0, 1, charHeight, 0);
+    v12 = charHeight + *y;
   }
-  __asm { vmovss  dword ptr [rdi], xmm1 }
+  *y = v12;
 }
 
 /*
@@ -10727,263 +5563,130 @@ ScriptableBg_DrawLookedAtInstanceInfo
 */
 void ScriptableBg_DrawLookedAtInstanceInfo(const ScreenPlacement *scrPlace, const ScriptableBg_DrawDebugInfo *const debugInfo, float *x, float *y, float tabWidth, float charHeight)
 {
-  unsigned int v23; 
-  unsigned int v24; 
+  const dvar_t *v6; 
+  float value; 
+  float v11; 
+  float v12; 
+  float v13; 
+  unsigned int v14; 
+  unsigned int v15; 
   const ScriptableDef *def; 
-  const ScriptableDef *v29; 
-  char v30; 
+  const ScriptableDef *v17; 
+  char v18; 
   ScriptableInstanceContext *InstanceCommonContext; 
-  ScriptableInstanceContextSecure *v36; 
-  const ScriptableDef *v37; 
-  bool v99; 
-  ScriptableInstanceContext *v100; 
-  float fmt; 
+  ScriptableInstanceContextSecure *v20; 
+  const ScriptableDef *v21; 
+  float v22; 
+  __int128 v23; 
+  ScriptableInstanceContext *v27; 
+  const XModel *ScriptableModel; 
+  ScriptableInstanceContext *v29; 
   float t; 
-  float v114; 
   float *ya; 
   vec3_t rayDir; 
   vec3_t outOrigin; 
   vec3_t angles; 
-  vec3_t v119; 
-  __int128 v120; 
+  vec3_t origin; 
+  __int128 v36; 
+  __int64 v37; 
   vec3_t boxOrigin; 
   tmat33_t<vec3_t> axis; 
-  char v131; 
 
-  __asm
-  {
-    vmovaps [rsp+1A0h+var_70], xmm8
-    vmovaps [rsp+1A0h+var_A0], xmm11
-  }
-  _RBX = DCONST_DVARFLT_scriptable_debug_inspectLookAtDistance;
+  v6 = DCONST_DVARFLT_scriptable_debug_inspectLookAtDistance;
   ya = y;
-  _R14 = debugInfo;
   if ( !DCONST_DVARFLT_scriptable_debug_inspectLookAtDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptable_debug_inspectLookAtDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm1, dword ptr [r14+0Ch]
-    vmovss  xmm8, cs:__real@7f7fffff
-    vmovss  dword ptr [rsp+1A0h+rayDir], xmm1
-    vmovss  xmm1, dword ptr [r14+14h]
-    vmulss  xmm11, xmm0, xmm0
-    vmovss  xmm0, dword ptr [r14+10h]
-    vmovss  dword ptr [rsp+1A0h+rayDir+4], xmm0
-    vmovss  dword ptr [rsp+1A0h+rayDir+8], xmm1
-  }
-  v23 = 0;
-  v24 = -1;
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  v11 = FLOAT_3_4028235e38;
+  rayDir.v[0] = debugInfo->forward.v[0];
+  v12 = debugInfo->forward.v[2];
+  v13 = value * value;
+  rayDir.v[1] = debugInfo->forward.v[1];
+  rayDir.v[2] = v12;
+  v14 = 0;
+  v15 = -1;
   ScriptableCommon_AssertCountsInitialized();
   if ( g_scriptableWorldCounts.totalInstanceCount )
   {
-    __asm
-    {
-      vmovaps [rsp+1A0h+var_80], xmm9
-      vmovss  xmm9, cs:__real@41200000
-      vmovaps [rsp+1A0h+var_90], xmm10
-      vmovss  xmm10, cs:__real@3f800000
-      vmovaps [rsp+1A0h+var_B0], xmm12
-      vmovss  xmm12, cs:__real@80000000
-      vmovaps [rsp+1A0h+var_50], xmm6
-      vmovaps [rsp+1A0h+var_60], xmm7
-    }
     do
     {
       ScriptableCommon_AssertCountsInitialized();
-      if ( v23 < g_scriptableWorldCounts.serverInstanceCount && ((def = ScriptableSv_GetInstanceCommonContext(v23)->def, (v29 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v23)->def) == NULL) || (v29->flags & 6) != 0 ? (v30 = 1) : (v30 = 0), def && (def->flags & 2) != 0 && v30) )
+      if ( v14 < g_scriptableWorldCounts.serverInstanceCount && ((def = ScriptableSv_GetInstanceCommonContext(v14)->def, (v17 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v14)->def) == NULL) || (v17->flags & 6) != 0 ? (v18 = 1) : (v18 = 0), def && (def->flags & 2) != 0 && v18) )
       {
-        _RAX = ScriptableSv_GetInstanceCommonContext(v23);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+20h]
-          vmovss  dword ptr [rsp+1A0h+outOrigin], xmm0
-          vmovss  xmm1, dword ptr [rax+24h]
-          vmovss  dword ptr [rsp+1A0h+outOrigin+4], xmm1
-          vmovss  xmm0, dword ptr [rax+28h]
-          vmovss  dword ptr [rsp+1A0h+outOrigin+8], xmm0
-        }
-        InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v23);
+        outOrigin = ScriptableSv_GetInstanceCommonContext(v14)->origin;
+        InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v14);
       }
       else
       {
-        v36 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v23);
-        ScriptableInstanceContextSecure::GetOrigin(v36, v23, &outOrigin);
-        InstanceCommonContext = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v23);
+        v20 = ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v14);
+        ScriptableInstanceContextSecure::GetOrigin(v20, v14, &outOrigin);
+        InstanceCommonContext = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v14);
       }
-      v37 = InstanceCommonContext->def;
+      v21 = InstanceCommonContext->def;
       if ( InstanceCommonContext->def )
       {
-        __asm
+        v22 = (float)((float)((float)(debugInfo->viewPos.v[1] - outOrigin.v[1]) * (float)(debugInfo->viewPos.v[1] - outOrigin.v[1])) + (float)((float)(debugInfo->viewPos.v[0] - outOrigin.v[0]) * (float)(debugInfo->viewPos.v[0] - outOrigin.v[0]))) + (float)((float)(debugInfo->viewPos.v[2] - outOrigin.v[2]) * (float)(debugInfo->viewPos.v[2] - outOrigin.v[2]));
+        if ( v22 >= 1.0 && v22 <= v13 )
         {
-          vmovss  xmm0, dword ptr [r14]
-          vsubss  xmm3, xmm0, dword ptr [rsp+1A0h+outOrigin]
-          vmovss  xmm1, dword ptr [r14+4]
-          vmovss  xmm0, dword ptr [r14+8]
-          vsubss  xmm2, xmm1, dword ptr [rsp+1A0h+outOrigin+4]
-          vsubss  xmm4, xmm0, dword ptr [rsp+1A0h+outOrigin+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm5, xmm3, xmm0
-          vcomiss xmm5, xmm10
-          vcomiss xmm5, xmm11
-        }
-        if ( !InstanceCommonContext->def )
-        {
-          ScriptableBg_DrawDebugScriptableInstanceInWorld(v23, InstanceCommonContext->def);
+          ScriptableBg_DrawDebugScriptableInstanceInWorld(v14, InstanceCommonContext->def);
+          v23 = LODWORD(rayDir.v[1]);
+          *(float *)&v23 = fsqrt((float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(rayDir.v[0] * rayDir.v[0])) + (float)(rayDir.v[2] * rayDir.v[2]));
+          _XMM3 = v23;
           __asm
           {
-            vmovss  xmm4, dword ptr [rsp+1A0h+rayDir]
-            vmovss  xmm6, dword ptr [rsp+1A0h+rayDir+4]
-            vmovss  xmm5, dword ptr [rsp+1A0h+rayDir+8]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm0, xmm2, xmm1
-            vsqrtss xmm3, xmm0, xmm0
             vcmpless xmm0, xmm3, xmm12
             vblendvps xmm0, xmm3, xmm10, xmm0
-            vdivss  xmm2, xmm10, xmm0
-            vmulss  xmm0, xmm4, xmm2
-            vmovss  dword ptr [rsp+1A0h+rayDir], xmm0
-            vmulss  xmm0, xmm5, xmm2
-            vmulss  xmm1, xmm6, xmm2
-            vmovss  dword ptr [rsp+1A0h+rayDir+8], xmm0
-            vmovss  dword ptr [rsp+1A0h+rayDir+4], xmm1
           }
-          if ( ScriptableBg_ServerContextIsPrimary(v23) )
+          rayDir.v[0] = rayDir.v[0] * (float)(1.0 / *(float *)&_XMM0);
+          rayDir.v[2] = rayDir.v[2] * (float)(1.0 / *(float *)&_XMM0);
+          rayDir.v[1] = rayDir.v[1] * (float)(1.0 / *(float *)&_XMM0);
+          if ( ScriptableBg_ServerContextIsPrimary(v14) )
           {
-            _RDI = ScriptableSv_GetInstanceCommonContext(v23);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+20h]
-              vmovss  dword ptr [rbp+0A0h+var_120], xmm0
-              vmovss  xmm1, dword ptr [rax+24h]
-              vmovss  dword ptr [rbp+0A0h+var_120+4], xmm1
-              vmovss  xmm0, dword ptr [rax+28h]
-              vmovss  dword ptr [rbp+0A0h+var_120+8], xmm0
-              vmovss  xmm1, dword ptr [rax+2Ch]
-              vmovss  dword ptr [rsp+1A0h+angles], xmm1
-              vmovss  xmm0, dword ptr [rax+30h]
-              vmovss  dword ptr [rsp+1A0h+angles+4], xmm0
-              vmovss  xmm1, dword ptr [rax+34h]
-              vmovss  dword ptr [rsp+1A0h+angles+8], xmm1
-            }
+            v27 = ScriptableSv_GetInstanceCommonContext(v14);
+            origin = v27->origin;
           }
           else
           {
-            _RDI = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v23);
-            ScriptableInstanceContextSecure::GetOrigin(_RDI, v23, &v119);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+2Ch]
-              vmovss  dword ptr [rsp+1A0h+angles], xmm0
-              vmovss  xmm1, dword ptr [rdi+30h]
-              vmovss  dword ptr [rsp+1A0h+angles+4], xmm1
-              vmovss  xmm0, dword ptr [rdi+34h]
-              vmovss  dword ptr [rsp+1A0h+angles+8], xmm0
-            }
+            v27 = (ScriptableInstanceContext *)ScriptableCl_GetInstanceCommonContext(LOCAL_CLIENT_0, v14);
+            ScriptableInstanceContextSecure::GetOrigin(v27, v14, &origin);
           }
-          if ( BG_XCompositeModel_GetScriptableModel(_RDI) )
+          angles = v27->angles;
+          ScriptableModel = BG_XCompositeModel_GetScriptableModel(v27);
+          if ( ScriptableModel )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax+2Ch]
-              vmovups [rbp+0A0h+var_110], xmm0
-              vmovsd  xmm1, qword ptr [rax+3Ch]
-              vmovsd  [rbp+0A0h+var_100], xmm1
-            }
+            v36 = *(_OWORD *)ScriptableModel->bounds.midPoint.v;
+            v37 = *(_QWORD *)&ScriptableModel->bounds.halfSize.y;
           }
           else
           {
-            __asm
-            {
-              vmovups xmm0, cs:__xmm@41200000000000000000000000000000
-              vmovups [rbp+0A0h+var_110], xmm0
-              vmovss  dword ptr [rbp+0A0h+var_100], xmm9
-              vmovss  dword ptr [rbp+0A0h+var_100+4], xmm9
-            }
+            v36 = _xmm;
+            *(float *)&v37 = FLOAT_10_0;
+            *((float *)&v37 + 1) = FLOAT_10_0;
           }
           AnglesToAxis(&angles, &axis);
-          __asm
+          boxOrigin.v[0] = (float)((float)((float)(*((float *)&v36 + 1) * axis.m[1].v[0]) + (float)(*(float *)&v36 * axis.m[0].v[0])) + (float)(*((float *)&v36 + 2) * axis.m[2].v[0])) + origin.v[0];
+          boxOrigin.v[1] = (float)((float)((float)(*((float *)&v36 + 1) * axis.m[1].v[1]) + (float)(*(float *)&v36 * axis.m[0].v[1])) + (float)(*((float *)&v36 + 2) * axis.m[2].v[1])) + origin.v[1];
+          boxOrigin.v[2] = (float)((float)((float)(*((float *)&v36 + 1) * axis.m[1].v[2]) + (float)(*(float *)&v36 * axis.m[0].v[2])) + (float)(*((float *)&v36 + 2) * axis.m[2].v[2])) + origin.v[2];
+          if ( IntersectRayBox(&debugInfo->viewPos, &rayDir, &boxOrigin, (const vec3_t *)&v36 + 1, &axis, &t) )
           {
-            vmovss  xmm7, dword ptr [rbp+0A0h+var_110+4]
-            vmovss  xmm6, dword ptr [rbp+0A0h+var_110]
-            vmovss  xmm5, dword ptr [rbp+0A0h+var_110+8]
-            vmulss  xmm2, xmm7, dword ptr [rbp+0A0h+axis+0Ch]
-            vmulss  xmm0, xmm6, dword ptr [rbp+0A0h+axis]
-            vmulss  xmm4, xmm7, dword ptr [rbp+0A0h+axis+10h]
-            vmulss  xmm1, xmm5, dword ptr [rbp+0A0h+axis+1Ch]
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm0, xmm5, dword ptr [rbp+0A0h+axis+18h]
-            vaddss  xmm2, xmm3, xmm0
-            vaddss  xmm3, xmm2, dword ptr [rbp+0A0h+var_120]
-            vmulss  xmm2, xmm6, dword ptr [rbp+0A0h+axis+4]
-            vmovss  dword ptr [rbp+0A0h+boxOrigin], xmm3
-            vaddss  xmm3, xmm4, xmm2
-            vmulss  xmm4, xmm7, dword ptr [rbp+0A0h+axis+14h]
-            vaddss  xmm2, xmm3, xmm1
-            vaddss  xmm3, xmm2, dword ptr [rbp+0A0h+var_120+4]
-            vmulss  xmm2, xmm6, dword ptr [rbp+0A0h+axis+8]
-            vmulss  xmm1, xmm5, dword ptr [rbp+0A0h+axis+20h]
-            vmovss  dword ptr [rbp+0A0h+boxOrigin+4], xmm3
-            vaddss  xmm3, xmm4, xmm2
-            vaddss  xmm2, xmm3, xmm1
-            vaddss  xmm3, xmm2, dword ptr [rbp+0A0h+var_120+8]
-            vmovss  dword ptr [rbp+0A0h+boxOrigin+8], xmm3
-          }
-          if ( IntersectRayBox(&_R14->viewPos, &rayDir, &boxOrigin, (const vec3_t *)&v120 + 1, &axis, &v114) )
-          {
-            v99 = 0;
-            if ( (v37->flags & 6) == 0 || (v100 = ScriptableSv_GetInstanceCommonContext(v23), v99 = v100->linkedObjectType == SCRIPTABLE_LINK_NONE, v100->linkedObjectType != SCRIPTABLE_LINK_ENTITY) || (v99 = 0, v100->linkedObjectIndex) )
+            if ( (v21->flags & 6) == 0 || (v29 = ScriptableSv_GetInstanceCommonContext(v14), v29->linkedObjectType != SCRIPTABLE_LINK_ENTITY) || v29->linkedObjectIndex )
             {
-              __asm
+              if ( t < v11 )
               {
-                vmovss  xmm0, [rsp+1A0h+var_160]
-                vcomiss xmm0, xmm8
-              }
-              if ( v99 )
-              {
-                __asm { vmovaps xmm8, xmm0 }
-                v24 = v23;
+                v11 = t;
+                v15 = v14;
               }
             }
           }
         }
       }
-      ++v23;
+      ++v14;
       ScriptableCommon_AssertCountsInitialized();
     }
-    while ( v23 < g_scriptableWorldCounts.totalInstanceCount );
-    __asm
-    {
-      vmovaps xmm12, [rsp+1A0h+var_B0]
-      vmovaps xmm10, [rsp+1A0h+var_90]
-      vmovaps xmm9, [rsp+1A0h+var_80]
-      vmovaps xmm7, [rsp+1A0h+var_60]
-      vmovaps xmm6, [rsp+1A0h+var_50]
-    }
-    if ( v24 != -1 )
-    {
-      __asm
-      {
-        vmovss  xmm0, [rbp+0A0h+charHeight]
-        vmovss  xmm1, [rbp+0A0h+tabWidth]
-        vmovss  dword ptr [rsp+1A0h+t], xmm0
-        vmovss  dword ptr [rsp+1A0h+fmt], xmm1
-      }
-      ScriptableBg_DrawDebugScriptableInstance(v24, scrPlace, x, ya, fmt, t);
-    }
-  }
-  _R11 = &v131;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm11, xmmword ptr [r11-78h]
+    while ( v14 < g_scriptableWorldCounts.totalInstanceCount );
+    if ( v15 != -1 )
+      ScriptableBg_DrawDebugScriptableInstance(v15, scrPlace, x, ya, tabWidth, charHeight);
   }
 }
 

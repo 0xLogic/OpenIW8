@@ -928,27 +928,27 @@ void ProcessSubscriptionsComplete(GenericTask *task, eTaskManagerTaskState state
   unsigned __int64 m_userID; 
   const bdUserPresenceV3 *v21; 
   RemoteUserPresenceData *p_presenceData; 
-  RemoteUserSubscribedPresenceData *v24; 
-  unsigned __int8 v25; 
-  int v26; 
+  RemoteUserSubscribedPresenceData *v23; 
+  unsigned __int8 v24; 
+  int v25; 
   XUID result; 
-  unsigned __int64 v28; 
-  unsigned __int64 *v29; 
-  bdSubscribeToUsersPresenceResponseV3 *v30; 
-  GenericTask *v31; 
-  __int64 v32; 
-  bdUserPresenceInfoV3 *v33; 
-  bdUserPresenceInfoV3 v34; 
-  bdUserAccountID v35; 
+  unsigned __int64 v27; 
+  unsigned __int64 *v28; 
+  bdSubscribeToUsersPresenceResponseV3 *v29; 
+  GenericTask *v30; 
+  __int64 v31; 
+  bdUserPresenceInfoV3 *v32; 
+  bdUserPresenceInfoV3 v33; 
+  bdUserAccountID v34; 
   bdUserPresenceInfoV3 outPresenceInfo; 
 
-  v32 = -2i64;
-  v31 = task;
+  v31 = -2i64;
+  v30 = task;
   m_controllerIndex = task->m_controllerIndex;
   if ( (unsigned int)m_controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_presence_notifications.cpp", 291, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", m_controllerIndex, 8) )
     __debugbreak();
   v4 = 187240 * m_controllerIndex;
-  v28 = 187240 * m_controllerIndex;
+  v27 = 187240 * m_controllerIndex;
   v5 = &s_dwSubscribePresenceStore[m_controllerIndex];
   if ( state )
   {
@@ -959,7 +959,7 @@ void ProcessSubscriptionsComplete(GenericTask *task, eTaskManagerTaskState state
   else
   {
     SubscribeToUsersPresenceResponse = getSubscribeToUsersPresenceResponse();
-    v30 = SubscribeToUsersPresenceResponse;
+    v29 = SubscribeToUsersPresenceResponse;
     v7 = s_currentProcessedUsersCount;
     if ( (unsigned int)(s_currentProcessedUsersCount + *(_DWORD *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v4)) > 0x79E )
     {
@@ -968,22 +968,22 @@ void ProcessSubscriptionsComplete(GenericTask *task, eTaskManagerTaskState state
       v7 = s_currentProcessedUsersCount;
     }
     v8 = 0;
-    v26 = 0;
+    v25 = 0;
     if ( v7 > 0 )
     {
       p_m_userID = &s_currentProcessedUsers[0].m_userID;
-      v29 = &s_currentProcessedUsers[0].m_userID;
+      v28 = &s_currentProcessedUsers[0].m_userID;
       do
       {
         XUID::FromUniversalId(&result, *p_m_userID);
         v10 = 0;
-        v25 = 0;
+        v24 = 0;
         v11 = 0;
         if ( *(int *)((char *)&s_dwSubscribePresenceStore[0].pendingSubs.users[1950].xuid.m_id + v4) > 0 )
         {
           v12 = (char *)&s_dwSubscribePresenceStore[0].pendingSubs + v4;
           p_typeMask = &v5->pendingSubs.users[0].typeMask;
-          v14 = v28;
+          v14 = v27;
           do
           {
             if ( XUID::operator==((XUID *)&v12[16 * v11], &result) )
@@ -992,65 +992,59 @@ void ProcessSubscriptionsComplete(GenericTask *task, eTaskManagerTaskState state
             p_typeMask += 16;
           }
           while ( v11 < *(_DWORD *)((char *)&s_dwSubscribePresenceStore[0].pendingSubs.users[1950].xuid.m_id + v14) );
-          v25 = v10;
-          SubscribeToUsersPresenceResponse = v30;
-          p_m_userID = v29;
-          v8 = v26;
+          v24 = v10;
+          SubscribeToUsersPresenceResponse = v29;
+          p_m_userID = v28;
+          v8 = v25;
         }
         v15 = 0;
         if ( bdSubscribeToUsersPresenceResponseV3::getNumUsers(SubscribeToUsersPresenceResponse) )
         {
-          v16 = v28;
+          v16 = v27;
           do
           {
             UserPresence = bdSubscribeToUsersPresenceResponseV3::getUserPresence(SubscribeToUsersPresenceResponse, v15);
-            User = bdUserPresenceV3::getUser(UserPresence, &v35);
+            User = bdUserPresenceV3::getUser(UserPresence, &v34);
             v19 = XUID::ToUint64(&result);
             m_userID = User->m_userID;
-            bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v35.gap38);
-            bdReferencable::~bdReferencable((bdReferencable *)v35.gap38);
+            bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v34.gap38);
+            bdReferencable::~bdReferencable((bdReferencable *)v34.gap38);
             if ( v19 == m_userID )
             {
               bdUserPresenceInfoV3::bdUserPresenceInfoV3(&outPresenceInfo);
               v21 = bdSubscribeToUsersPresenceResponseV3::getUserPresence(SubscribeToUsersPresenceResponse, v15);
               Social_GetReleventPresenceInfo(v21, &outPresenceInfo);
               p_presenceData = &v5->subscribedPresence[(__int64)*(int *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v16)].presenceData;
-              v33 = &v34;
-              v34.m_online = outPresenceInfo.m_online;
-              v34.m_platform.m_hasValue = outPresenceInfo.m_platform.m_hasValue;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbp+540h+outPresenceInfo.m_platform.m_value.m_buffer]
-                vmovups [rbp+540h+var_5BE], xmm0
-              }
-              v34.m_platform.m_value.m_buffer[16] = outPresenceInfo.m_platform.m_value.m_buffer[16];
-              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&v34.m_titleToken, &outPresenceInfo.m_titleToken);
-              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&v34.m_presenceToken, &outPresenceInfo.m_presenceToken);
-              v34.m_titleID.m_hasValue = outPresenceInfo.m_titleID.m_hasValue;
-              v34.m_titleID.m_value = outPresenceInfo.m_titleID.m_value;
-              v34.m_data.m_hasValue = outPresenceInfo.m_data.m_hasValue;
-              bdPresenceData::bdPresenceData(&v34.m_data.m_value, &outPresenceInfo.m_data.m_value);
-              v34.m_updateTime.m_hasValue = outPresenceInfo.m_updateTime.m_hasValue;
-              v34.m_updateTime.m_value = outPresenceInfo.m_updateTime.m_value;
-              CopyBdPresenceInfoToRemoteUserPresenceData(&v34, p_presenceData);
+              v32 = &v33;
+              v33.m_online = outPresenceInfo.m_online;
+              v33.m_platform = outPresenceInfo.m_platform;
+              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&v33.m_titleToken, &outPresenceInfo.m_titleToken);
+              bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&v33.m_presenceToken, &outPresenceInfo.m_presenceToken);
+              v33.m_titleID.m_hasValue = outPresenceInfo.m_titleID.m_hasValue;
+              v33.m_titleID.m_value = outPresenceInfo.m_titleID.m_value;
+              v33.m_data.m_hasValue = outPresenceInfo.m_data.m_hasValue;
+              bdPresenceData::bdPresenceData(&v33.m_data.m_value, &outPresenceInfo.m_data.m_value);
+              v33.m_updateTime.m_hasValue = outPresenceInfo.m_updateTime.m_hasValue;
+              v33.m_updateTime.m_value = outPresenceInfo.m_updateTime.m_value;
+              CopyBdPresenceInfoToRemoteUserPresenceData(&v33, p_presenceData);
               bdUserPresenceInfoV3::~bdUserPresenceInfoV3(&outPresenceInfo);
             }
             ++v15;
           }
           while ( v15 < bdSubscribeToUsersPresenceResponseV3::getNumUsers(SubscribeToUsersPresenceResponse) );
-          v10 = v25;
-          p_m_userID = v29;
-          v8 = v26;
+          v10 = v24;
+          p_m_userID = v28;
+          v8 = v25;
         }
-        v4 = v28;
-        s_dwSubscribePresenceStore[v28 / 0x2DB68].subscribedPresence[(__int64)s_dwSubscribePresenceStore[v28 / 0x2DB68].numSubscribed].typeMask = v10;
+        v4 = v27;
+        s_dwSubscribePresenceStore[v27 / 0x2DB68].subscribedPresence[(__int64)s_dwSubscribePresenceStore[v27 / 0x2DB68].numSubscribed].typeMask = v10;
         XUID::operator=(&v5->subscribedPresence[(__int64)*(int *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v4)].presenceData.xuid, &result);
-        v24 = &v5->subscribedPresence[(__int64)*(int *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v4)];
-        CheckOnlineStatusChange(v31->m_controllerIndex, v24, v24->presenceData.presence.m_crossTitlePresenceData.online, result);
+        v23 = &v5->subscribedPresence[(__int64)*(int *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v4)];
+        CheckOnlineStatusChange(v30->m_controllerIndex, v23, v23->presenceData.presence.m_crossTitlePresenceData.online, result);
         ++*(_DWORD *)((char *)&s_dwSubscribePresenceStore[0].subscribedPresence[1950].presenceData.xuid.m_id + v4);
-        v26 = ++v8;
+        v25 = ++v8;
         p_m_userID += 9;
-        v29 = p_m_userID;
+        v28 = p_m_userID;
         v7 = s_currentProcessedUsersCount;
       }
       while ( v8 < s_currentProcessedUsersCount );
@@ -1155,7 +1149,9 @@ void ProcessUnsubscriptionsComplete(GenericTask *task, eTaskManagerTaskState sta
   int v5; 
   unsigned __int64 *p_m_userID; 
   int v7; 
+  RemoteUserSubscribePresenceStore *v8; 
   const XUID *v9; 
+  __int64 v10; 
   XUID result; 
 
   m_controllerIndex = task->m_controllerIndex;
@@ -1179,28 +1175,23 @@ void ProcessUnsubscriptionsComplete(GenericTask *task, eTaskManagerTaskState sta
         v7 = 0;
         if ( v4->numSubscribed > 0 )
         {
-          _RDI = v4;
+          v8 = v4;
           while ( 1 )
           {
             v9 = XUID::FromUniversalId(&result, *p_m_userID);
             if ( XUID::operator==(&v4->subscribedPresence[(__int64)v7].presenceData.xuid, v9) )
               break;
             ++v7;
-            _RDI = (RemoteUserSubscribePresenceStore *)((char *)_RDI + 64);
+            v8 = (RemoteUserSubscribePresenceStore *)((char *)v8 + 64);
             if ( v7 >= v4->numSubscribed )
               goto LABEL_16;
           }
-          _RBX = (__int64)&v4->subscribedPresence[(__int64)v4->numSubscribed - 1];
-          XUID::operator=((XUID *)_RDI, (const XUID *)_RBX);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx+8]
-            vmovups ymmword ptr [rdi+8], ymm0
-            vmovups xmm1, xmmword ptr [rbx+28h]
-            vmovups xmmword ptr [rdi+28h], xmm1
-          }
-          _RDI->subscribedPresence[0].typeMask = *(_BYTE *)(_RBX + 56);
-          _RDI->subscribedPresence[0].trackOnline = *(_BYTE *)(_RBX + 57);
+          v10 = (__int64)&v4->subscribedPresence[(__int64)v4->numSubscribed - 1];
+          XUID::operator=((XUID *)v8, (const XUID *)v10);
+          *(__m256i *)&v8->subscribedPresence[0].presenceData.presence.m_crossTitlePresenceData.platformId = *(__m256i *)(v10 + 8);
+          *(_OWORD *)&v8->subscribedPresence[0].presenceData.presence.m_clanTag[4] = *(_OWORD *)(v10 + 40);
+          v8->subscribedPresence[0].typeMask = *(_BYTE *)(v10 + 56);
+          v8->subscribedPresence[0].trackOnline = *(_BYTE *)(v10 + 57);
           --v4->numSubscribed;
         }
 LABEL_16:

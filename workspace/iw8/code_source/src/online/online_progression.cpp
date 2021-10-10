@@ -655,27 +655,23 @@ void OnlineProgression::OutputCurrentState(OnlineProgression *this, const int co
 LUI_CoD_LuaCall_GetPlayerXP
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetPlayerXP(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetPlayerXP(lua_State *const luaVM)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerXP( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerXP( <controllerIndex> )\n");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
   if ( (OnlineProgression::s_instance.m_playerProgression[lui_tointeger32(luaVM, 1)].xp & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v4);
   }
   return 1i64;
 }
@@ -685,27 +681,23 @@ __int64 __fastcall LUI_CoD_LuaCall_GetPlayerXP(lua_State *const luaVM, double _X
 LUI_CoD_LuaCall_GetPlayerRank
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetPlayerRank(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetPlayerRank(lua_State *const luaVM)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerRank( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerRank( <controllerIndex> )\n");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
   if ( (OnlineProgression::s_instance.m_playerProgression[lui_tointeger32(luaVM, 1)].rank & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v4);
   }
   return 1i64;
 }
@@ -715,12 +707,11 @@ __int64 __fastcall LUI_CoD_LuaCall_GetPlayerRank(lua_State *const luaVM, double 
 LUI_CoD_LuaCall_GetSeasonXP
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetSeasonXP(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetSeasonXP(lua_State *const luaVM)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  unsigned int v7; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonXP( <controllerIndex><season> )\n");
@@ -728,20 +719,17 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonXP(lua_State *const luaVM, double _X
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonXP( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonXP( <season> )\n");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rcx
-  }
-  if ( (OnlineProgression::GetSeasonProgression(&OnlineProgression::s_instance, v3, v4)->xp & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rcx }
+  if ( (OnlineProgression::GetSeasonProgression(&OnlineProgression::s_instance, v2, v3)->xp & 0x8000000000000000ui64) != 0i64 )
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v6);
   }
   return 1i64;
 }
@@ -751,12 +739,11 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonXP(lua_State *const luaVM, double _X
 LUI_CoD_LuaCall_GetSeasonRank
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetSeasonRank(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetSeasonRank(lua_State *const luaVM)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  unsigned int v7; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonRank( <controllerIndex><season> )\n");
@@ -764,20 +751,17 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonRank(lua_State *const luaVM, double 
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonRank( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonRank( <season> )\n");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rcx
-  }
-  if ( (OnlineProgression::GetSeasonProgression(&OnlineProgression::s_instance, v3, v4)->rank & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rcx }
+  if ( (OnlineProgression::GetSeasonProgression(&OnlineProgression::s_instance, v2, v3)->rank & 0x8000000000000000ui64) != 0i64 )
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v6);
   }
   return 1i64;
 }
@@ -787,12 +771,11 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonRank(lua_State *const luaVM, double 
 LUI_CoD_LuaCall_GetSeasonChallengeProgress
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetSeasonChallengeProgress(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetSeasonChallengeProgress(lua_State *const luaVM)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  unsigned int v7; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonChallengeProgress( <controllerIndex><challenge_id> )\n");
@@ -800,20 +783,17 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonChallengeProgress(lua_State *const l
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonChallengeProgress( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetSeasonChallengeProgress( <challenge_id> )\n");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
-  if ( (OnlineProgression::GetSeasonChallengeProgress(&OnlineProgression::s_instance, v3, v4) & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
+  if ( (OnlineProgression::GetSeasonChallengeProgress(&OnlineProgression::s_instance, v2, v3) & 0x8000000000000000ui64) != 0i64 )
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v6);
   }
   return 1i64;
 }
@@ -823,13 +803,12 @@ __int64 __fastcall LUI_CoD_LuaCall_GetSeasonChallengeProgress(lua_State *const l
 LUI_CoD_LuaCall_GetTokenAmount
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetTokenAmount(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetTokenAmount(lua_State *const luaVM)
 {
-  int v3; 
-  unsigned int v4; 
+  int v2; 
+  unsigned int v3; 
   Online_Loot *Instance; 
-  unsigned int v8; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetTokenAmount( <controllerIndex><token_id> )\n");
@@ -837,20 +816,17 @@ __int64 __fastcall LUI_CoD_LuaCall_GetTokenAmount(lua_State *const luaVM, double
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetTokenAmount( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetTokenAmount( <token_id> )\n");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
   Instance = Online_Loot::GetInstance();
-  Online_Loot::GetItemQuantity(Instance, v3, v4);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax; n
-  }
+  Online_Loot::GetItemQuantity(Instance, v2, v3);
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v8);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
   }
   return 1i64;
 }
@@ -888,44 +864,35 @@ __int64 LUI_CoD_LuaCall_ActivateToken(lua_State *const luaVM)
 LUI_CoD_LuaCall_GetTokenExpirations
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetTokenExpirations(lua_State *const luaVM, long double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetTokenExpirations(lua_State *const luaVM)
 {
-  __int64 v5; 
-  __int64 *v6; 
-  unsigned int v8; 
-  __int64 result; 
+  __int64 v2; 
+  __int64 *v3; 
+  unsigned int v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetTokenExpirations( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetTokenExpirations( <controllerIndex> )\n");
-  __asm { vmovsd  xmm6, cs:__real@43f0000000000000 }
-  v5 = 4i64;
-  v6 = (__int64 *)OnlineProgression::s_instance.m_tokenExpiryTime[lui_tointeger32(luaVM, 1)];
+  v2 = 4i64;
+  v3 = (__int64 *)OnlineProgression::s_instance.m_tokenExpiryTime[lui_tointeger32(luaVM, 1)];
   do
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax
-    }
-    if ( *v6 < 0 )
-      __asm { vaddsd  xmm1, xmm1, xmm6; n }
-    j_lua_pushnumber(luaVM, _XMM1_8);
-    ++v6;
-    --v5;
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax }
+    if ( *v3 < 0 )
+      *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
+    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    ++v3;
+    --v2;
   }
-  while ( v5 );
+  while ( v2 );
   if ( j_lua_gettop(luaVM) < 4 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v8);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 4i64, v6);
   }
-  result = 4i64;
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+  return 4i64;
 }
 
 /*
@@ -952,27 +919,23 @@ __int64 LUI_CoD_LuaCall_CheckSinglePlayerRewards(lua_State *const luaVM)
 LUI_CoD_LuaCall_GetPlayerLevelXP
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetPlayerLevelXP(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetPlayerLevelXP(lua_State *const luaVM)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerLevelXP( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerLevelXP( <controllerIndex> )\n");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
   if ( (OnlineProgression::s_instance.m_levelProgression[lui_tointeger32(luaVM, 1)].xp & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v4);
   }
   return 1i64;
 }
@@ -982,27 +945,23 @@ __int64 __fastcall LUI_CoD_LuaCall_GetPlayerLevelXP(lua_State *const luaVM, doub
 LUI_CoD_LuaCall_GetPlayerLevelRank
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetPlayerLevelRank(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetPlayerLevelRank(lua_State *const luaVM)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerLevel( <controllerIndex> )\n");
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.GetPlayerLevel( <controllerIndex> )\n");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
   if ( (OnlineProgression::s_instance.m_levelProgression[lui_tointeger32(luaVM, 1)].rank & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000; n }
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v4);
   }
   return 1i64;
 }
@@ -1149,11 +1108,8 @@ __int64 __fastcall LUI_CoD_LuaCall_GetPlayerTrialEventRewarded(lua_State *const 
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_progression.cpp", 546, ASSERT_TYPE_ASSERT, "(unsigned)( trialId ) < (unsigned)( 6 )", "trialId doesn't index ONLINE_GAMES_OF_SUMMER_MAX_TRIALS\n\t%i not in [0, %i)", v9, v11) )
         __debugbreak();
     }
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, dword ptr [rax+rdx*4]
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rax+rdx*4] }
   }
   else
   {
@@ -1371,22 +1327,21 @@ OnlineProgression::CheckSinglePlayerRewards
 void OnlineProgression::CheckSinglePlayerRewards(OnlineProgression *this, const int controllerIndex)
 {
   Online_Loot *Instance; 
+  int v4; 
   __int64 RowCount; 
-  int v6; 
-  __int64 v7; 
-  __int64 v9; 
-  char v10; 
+  __int64 i; 
+  char v7; 
   const char *ColumnValueForRow; 
-  int v12; 
-  Online_Loot *v13; 
-  OnlineChallengesManager *v14; 
+  int v9; 
+  Online_Loot *v10; 
+  OnlineChallengesManager *v11; 
   unsigned __int64 timestamp; 
-  const char *v16; 
+  const char *v13; 
   const XUID *Xuid; 
-  __int128 v18; 
+  GamerProfileDataUnion u; 
   GamerProfileData result; 
   StringTable *tablePtr; 
-  XUID v21; 
+  XUID v18; 
 
   if ( dwGetLogOnStatus(controllerIndex) == DW_LIVE_CONNECTED )
   {
@@ -1396,41 +1351,32 @@ void OnlineProgression::CheckSinglePlayerRewards(OnlineProgression *this, const 
       StringTable_GetAsset("sp_reward_ids.csv", (const StringTable **)&tablePtr);
       if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_progression.cpp", 968, ASSERT_TYPE_ASSERT, "(rewardTable)", (const char *)&queryFormat, "rewardTable") )
         __debugbreak();
+      v4 = 0;
       RowCount = StringTable_GetRowCount(tablePtr);
-      _RAX = GamerProfile_GetDataByName(&result, controllerIndex, "missionhighestdifficulty");
-      v6 = 0;
-      v7 = RowCount;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups [rsp+88h+var_58], xmm0
-      }
+      u = GamerProfile_GetDataByName(&result, controllerIndex, "missionhighestdifficulty")->u;
       if ( (int)RowCount > 0 )
       {
-        v9 = 0i64;
-        do
+        for ( i = 0i64; i < RowCount; ++i )
         {
-          if ( v6 >= 64 )
+          if ( v4 >= 64 )
             break;
-          v10 = *(_BYTE *)(v9 + *((_QWORD *)&v18 + 1));
-          ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v6, 1);
-          v12 = atoi(ColumnValueForRow);
-          if ( v10 != 48 )
+          v7 = u.stringVal[i];
+          ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v4, 1);
+          v9 = atoi(ColumnValueForRow);
+          if ( v7 != 48 )
           {
-            v13 = Online_Loot::GetInstance();
-            if ( !Online_Loot::GetItemQuantity(v13, controllerIndex, v12) )
+            v10 = Online_Loot::GetInstance();
+            if ( !Online_Loot::GetItemQuantity(v10, controllerIndex, v9) )
             {
-              v14 = OnlineChallengesManager::GetInstance();
+              v11 = OnlineChallengesManager::GetInstance();
               timestamp = LiveStorage_GetUTC();
-              v16 = j_va("%d", (unsigned int)v6);
-              Xuid = Live_GetXuid(&v21, controllerIndex);
-              OnlineChallengesManager::RecordEventForPlayer(v14, controllerIndex, (const XUID)Xuid->m_id, "sp_mission_complete", v16, timestamp);
+              v13 = j_va("%d", (unsigned int)v4);
+              Xuid = Live_GetXuid(&v18, controllerIndex);
+              OnlineChallengesManager::RecordEventForPlayer(v11, controllerIndex, (const XUID)Xuid->m_id, "sp_mission_complete", v13, timestamp);
             }
           }
-          ++v6;
-          ++v9;
+          ++v4;
         }
-        while ( v9 < v7 );
       }
     }
   }
@@ -1689,22 +1635,21 @@ __int64 LUI_CoD_LuaCall_CheckSinglePlayerRewards_impl(lua_State *const luaVM)
 {
   int v2; 
   Online_Loot *Instance; 
+  int v4; 
   __int64 RowCount; 
-  int v6; 
-  __int64 v7; 
-  __int64 v9; 
-  char v10; 
+  __int64 i; 
+  char v7; 
   const char *ColumnValueForRow; 
-  int v12; 
-  Online_Loot *v13; 
-  OnlineChallengesManager *v14; 
+  int v9; 
+  Online_Loot *v10; 
+  OnlineChallengesManager *v11; 
   unsigned __int64 timestamp; 
-  const char *v16; 
+  const char *v13; 
   const XUID *Xuid; 
-  __int128 v19; 
+  GamerProfileDataUnion u; 
   GamerProfileData result; 
   StringTable *tablePtr; 
-  XUID v22; 
+  XUID v19; 
 
   if ( j_lua_gettop(luaVM) != 1 )
     j_luaL_error(luaVM, "USAGE: OnlineProgression.CheckSinglePlayerRewards( <controllerIndex> )\n");
@@ -1719,41 +1664,32 @@ __int64 LUI_CoD_LuaCall_CheckSinglePlayerRewards_impl(lua_State *const luaVM)
   StringTable_GetAsset("sp_reward_ids.csv", (const StringTable **)&tablePtr);
   if ( !tablePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_progression.cpp", 968, ASSERT_TYPE_ASSERT, "(rewardTable)", (const char *)&queryFormat, "rewardTable") )
     __debugbreak();
+  v4 = 0;
   RowCount = StringTable_GetRowCount(tablePtr);
-  _RAX = GamerProfile_GetDataByName(&result, v2, "missionhighestdifficulty");
-  v6 = 0;
-  v7 = RowCount;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rsp+88h+var_58], xmm0
-  }
+  u = GamerProfile_GetDataByName(&result, v2, "missionhighestdifficulty")->u;
   if ( (int)RowCount <= 0 )
     return 0i64;
-  v9 = 0i64;
-  do
+  for ( i = 0i64; i < RowCount; ++i )
   {
-    if ( v6 >= 64 )
+    if ( v4 >= 64 )
       break;
-    v10 = *(_BYTE *)(v9 + *((_QWORD *)&v19 + 1));
-    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v6, 1);
-    v12 = atoi(ColumnValueForRow);
-    if ( v10 != 48 )
+    v7 = u.stringVal[i];
+    ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v4, 1);
+    v9 = atoi(ColumnValueForRow);
+    if ( v7 != 48 )
     {
-      v13 = Online_Loot::GetInstance();
-      if ( !Online_Loot::GetItemQuantity(v13, v2, v12) )
+      v10 = Online_Loot::GetInstance();
+      if ( !Online_Loot::GetItemQuantity(v10, v2, v9) )
       {
-        v14 = OnlineChallengesManager::GetInstance();
+        v11 = OnlineChallengesManager::GetInstance();
         timestamp = LiveStorage_GetUTC();
-        v16 = j_va("%d", (unsigned int)v6);
-        Xuid = Live_GetXuid(&v22, v2);
-        OnlineChallengesManager::RecordEventForPlayer(v14, v2, (const XUID)Xuid->m_id, "sp_mission_complete", v16, timestamp);
+        v13 = j_va("%d", (unsigned int)v4);
+        Xuid = Live_GetXuid(&v19, v2);
+        OnlineChallengesManager::RecordEventForPlayer(v11, v2, (const XUID)Xuid->m_id, "sp_mission_complete", v13, timestamp);
       }
     }
-    ++v6;
-    ++v9;
+    ++v4;
   }
-  while ( v9 < v7 );
   return 0i64;
 }
 
@@ -1886,45 +1822,47 @@ void OnlineProgression::OnGetProgressionComplete(OnlineProgression *this, const 
   unsigned __int64 v8; 
   PlayerProgression *v9; 
   unsigned int v10; 
+  const bdAchievementProgress *MultiProgress; 
   unsigned __int64 AchievementCurrentProgress; 
   const char *TargetName; 
   const char *Name; 
-  const char *v16; 
-  __int64 v17; 
-  const char *v18; 
-  signed __int64 v19; 
+  const char *v15; 
+  __int64 v16; 
+  const char *v17; 
+  signed __int64 v18; 
+  int v19; 
   int v20; 
-  int v21; 
+  int v22; 
   int v23; 
-  int v24; 
-  const dvar_t *v25; 
-  const char *v26; 
-  __int64 v27; 
-  const char *v28; 
-  signed __int64 v29; 
+  const dvar_t *v24; 
+  const char *v25; 
+  __int64 v26; 
+  const char *v27; 
+  signed __int64 v28; 
+  int v29; 
   int v30; 
-  int v31; 
+  int v32; 
   int v33; 
-  int v34; 
-  _QWORD *v35; 
-  PlayerProgression *v36; 
-  const dvar_t *v37; 
-  unsigned int v38; 
+  _QWORD *v34; 
+  PlayerProgression *v35; 
+  const dvar_t *v36; 
+  unsigned int v37; 
   bdAchievementState *i; 
-  unsigned __int64 v42; 
+  const bdAchievementProgress *v39; 
+  unsigned __int64 v40; 
+  const char *v41; 
+  const char *v42; 
   const char *v43; 
   const char *v44; 
   const char *v45; 
   const char *v46; 
-  const char *v47; 
-  const char *v48; 
-  const dvar_t *v49; 
-  int v50; 
-  SeasonChallenge *v51; 
+  const dvar_t *v47; 
+  int v48; 
+  SeasonChallenge *v49; 
   unsigned int Progress; 
-  unsigned int v53; 
-  int v54; 
-  bdAchievementProgress v58; 
+  unsigned int v51; 
+  int v52; 
+  bdAchievementProgress v56; 
 
   v4 = controllerIndex;
   v6 = 0;
@@ -1938,106 +1876,102 @@ void OnlineProgression::OnGetProgressionComplete(OnlineProgression *this, const 
     {
       do
       {
-        _RBX = bdAchievementState::getMultiProgress(state, v10);
-        *((_QWORD *)&v58.__vftable + 1) = &bdAchievementProgress::`vbtable';
-        bdReferencable::bdReferencable((bdReferencable *)v58.gap48, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
+        MultiProgress = bdAchievementState::getMultiProgress(state, v10);
+        *((_QWORD *)&v56.__vftable + 1) = &bdAchievementProgress::`vbtable';
+        bdReferencable::bdReferencable((bdReferencable *)v56.gap48, (const bdReferencable *)((char *)&MultiProgress->__vftable + *(int *)(*((_QWORD *)&MultiProgress->__vftable + 1) + 4i64) + 8));
         v6 |= 1u;
-        bdStructBufferSerializable::bdStructBufferSerializable(&v58, _RBX);
-        v58.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
-        *(_QWORD *)&v58.m_targetName[*(int *)(*((_QWORD *)&v58.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+10h]
-          vmovups ymmword ptr [rbp+57h+var_A0+10h], ymm0
-        }
-        v58.m_targetName[16] = _RBX->m_targetName[16];
-        v58.m_currentProgress = _RBX->m_currentProgress;
-        v58.m_targetProgress = _RBX->m_targetProgress;
-        AchievementCurrentProgress = bdAchievementProgress::getAchievementCurrentProgress(&v58);
-        TargetName = bdAchievementProgress::getTargetName(&v58);
+        bdStructBufferSerializable::bdStructBufferSerializable(&v56, MultiProgress);
+        v56.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
+        *(_QWORD *)&v56.m_targetName[*(int *)(*((_QWORD *)&v56.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
+        *(bdStructBufferSerializable *)((char *)&v56.bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&MultiProgress->bdStructBufferSerializable + 16);
+        v56.m_targetName[16] = MultiProgress->m_targetName[16];
+        v56.m_currentProgress = MultiProgress->m_currentProgress;
+        v56.m_targetProgress = MultiProgress->m_targetProgress;
+        AchievementCurrentProgress = bdAchievementProgress::getAchievementCurrentProgress(&v56);
+        TargetName = bdAchievementProgress::getTargetName(&v56);
         Name = bdAchievementState::getName(state);
         Com_Printf(25, "(%s) %s = %ld\n", Name, TargetName, AchievementCurrentProgress);
-        v16 = bdAchievementProgress::getTargetName(&v58);
-        v17 = 0x7FFFFFFFi64;
-        v18 = "xp";
-        if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v15 = bdAchievementProgress::getTargetName(&v56);
+        v16 = 0x7FFFFFFFi64;
+        v17 = "xp";
+        if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v19 = v16 - "xp";
+        v18 = v15 - "xp";
         while ( 1 )
         {
-          v20 = (unsigned __int8)v18[v19];
-          v21 = *(unsigned __int8 *)v18++;
-          if ( !v17-- )
+          v19 = (unsigned __int8)v17[v18];
+          v20 = *(unsigned __int8 *)v17++;
+          if ( !v16-- )
           {
 LABEL_15:
-            v9->xp = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+            v9->xp = bdAchievementProgress::getAchievementCurrentProgress(&v56);
             goto LABEL_16;
           }
-          if ( v20 != v21 )
+          if ( v19 != v20 )
           {
+            v22 = v19 + 32;
+            if ( (unsigned int)(v19 - 65) > 0x19 )
+              v22 = v19;
+            v19 = v22;
             v23 = v20 + 32;
             if ( (unsigned int)(v20 - 65) > 0x19 )
               v23 = v20;
-            v20 = v23;
-            v24 = v21 + 32;
-            if ( (unsigned int)(v21 - 65) > 0x19 )
-              v24 = v21;
-            if ( v20 != v24 )
+            if ( v19 != v23 )
               break;
           }
-          if ( !v20 )
+          if ( !v19 )
             goto LABEL_15;
         }
-        v26 = bdAchievementProgress::getTargetName(&v58);
-        v27 = 0x7FFFFFFFi64;
-        v28 = "rank";
-        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v25 = bdAchievementProgress::getTargetName(&v56);
+        v26 = 0x7FFFFFFFi64;
+        v27 = "rank";
+        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v29 = v26 - "rank";
+        v28 = v25 - "rank";
         do
         {
-          v30 = (unsigned __int8)v28[v29];
-          v31 = *(unsigned __int8 *)v28++;
-          if ( !v27-- )
+          v29 = (unsigned __int8)v27[v28];
+          v30 = *(unsigned __int8 *)v27++;
+          if ( !v26-- )
             break;
-          if ( v30 != v31 )
+          if ( v29 != v30 )
           {
+            v32 = v29 + 32;
+            if ( (unsigned int)(v29 - 65) > 0x19 )
+              v32 = v29;
+            v29 = v32;
             v33 = v30 + 32;
             if ( (unsigned int)(v30 - 65) > 0x19 )
               v33 = v30;
-            v30 = v33;
-            v34 = v31 + 32;
-            if ( (unsigned int)(v31 - 65) > 0x19 )
-              v34 = v31;
-            if ( v30 != v34 )
+            if ( v29 != v33 )
               goto LABEL_16;
           }
         }
-        while ( v30 );
-        v9->rank = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+        while ( v29 );
+        v9->rank = bdAchievementProgress::getAchievementCurrentProgress(&v56);
 LABEL_16:
-        bdStructFixedSizeString<32>::~bdStructFixedSizeString<32>((bdStructFixedSizeString<32> *)(&v58.__vftable + 2));
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v58.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)v58.gap48);
+        bdStructFixedSizeString<32>::~bdStructFixedSizeString<32>((bdStructFixedSizeString<32> *)(&v56.__vftable + 2));
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v56.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)v56.gap48);
         ++v10;
       }
       while ( v10 < bdAchievementState::getNumMultiProgresses(state) );
       LODWORD(v4) = controllerIndex;
     }
-    v25 = DVARBOOL_online_challenge_update_player_data_once_when_done;
+    v24 = DVARBOOL_online_challenge_update_player_data_once_when_done;
     if ( !DVARBOOL_online_challenge_update_player_data_once_when_done && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_update_player_data_once_when_done") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( !v25->current.enabled )
+    Dvar_CheckFrontendServerThread(v24);
+    if ( !v24->current.enabled )
       OnlineProgression::UpdatePlayerStats(this, v4);
   }
   else if ( Id - 1001001 > 6 )
   {
-    v50 = this->m_seasonChallengeCount[v4];
-    if ( v50 <= 0 )
+    v48 = this->m_seasonChallengeCount[v4];
+    if ( v48 <= 0 )
     {
 LABEL_61:
-      if ( (unsigned int)v50 >= 0x2BC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_progression.cpp", 299, ASSERT_TYPE_ASSERT, "(unsigned)( m_seasonChallengeCount[controllerIndex] ) < (unsigned)( ( 100 * 7 ) )", "m_seasonChallengeCount[controllerIndex] doesn't index MAX_SEASON_CHALLENGES\n\t%i not in [0, %i)", this->m_seasonChallengeCount[v4], 700) )
+      if ( (unsigned int)v48 >= 0x2BC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_progression.cpp", 299, ASSERT_TYPE_ASSERT, "(unsigned)( m_seasonChallengeCount[controllerIndex] ) < (unsigned)( ( 100 * 7 ) )", "m_seasonChallengeCount[controllerIndex] doesn't index MAX_SEASON_CHALLENGES\n\t%i not in [0, %i)", this->m_seasonChallengeCount[v4], 700) )
         __debugbreak();
       if ( this->m_seasonChallengeCount[v4] < 700 )
       {
@@ -2049,87 +1983,83 @@ LABEL_61:
     }
     else
     {
-      v51 = this->m_seasonChallenges[v4];
-      while ( Id != v51->id )
+      v49 = this->m_seasonChallenges[v4];
+      while ( Id != v49->id )
       {
         ++v6;
-        ++v51;
-        if ( v6 >= v50 )
+        ++v49;
+        if ( v6 >= v48 )
           goto LABEL_61;
       }
-      v53 = bdAchievementState::getProgress(state);
-      Com_Printf(25, "Updated Season Challenge %lu with Progress %d\n", v8, v53);
+      v51 = bdAchievementState::getProgress(state);
+      Com_Printf(25, "Updated Season Challenge %lu with Progress %d\n", v8, v51);
       this->m_seasonChallenges[v4][v6].progress = bdAchievementState::getProgress(state);
     }
   }
   else
   {
-    v35 = (_QWORD *)((char *)&this[-128] + 112 * v4 + 16 * Id - 70096);
-    v36 = &this->m_levelProgression[v4];
-    v37 = DVARINT_current_season;
+    v34 = (_QWORD *)((char *)&this[-128] + 112 * v4 + 16 * Id - 70096);
+    v35 = &this->m_levelProgression[v4];
+    v36 = DVARINT_current_season;
     if ( !DVARINT_current_season && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "current_season") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    v54 = v37->current.integer + 1001001;
-    v38 = 0;
-    for ( i = state; v38 < bdAchievementState::getNumMultiProgresses(state); i = state )
+    Dvar_CheckFrontendServerThread(v36);
+    v52 = v36->current.integer + 1001001;
+    v37 = 0;
+    for ( i = state; v37 < bdAchievementState::getNumMultiProgresses(state); i = state )
     {
-      _RBX = bdAchievementState::getMultiProgress(i, v38);
-      *((_QWORD *)&v58.__vftable + 1) = &bdAchievementProgress::`vbtable';
-      bdReferencable::bdReferencable((bdReferencable *)v58.gap48, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
+      v39 = bdAchievementState::getMultiProgress(i, v37);
+      *((_QWORD *)&v56.__vftable + 1) = &bdAchievementProgress::`vbtable';
+      bdReferencable::bdReferencable((bdReferencable *)v56.gap48, (const bdReferencable *)((char *)&v39->__vftable + *(int *)(*((_QWORD *)&v39->__vftable + 1) + 4i64) + 8));
       v6 |= 2u;
-      bdStructBufferSerializable::bdStructBufferSerializable(&v58, _RBX);
-      v58.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
-      *(_QWORD *)&v58.m_targetName[*(int *)(*((_QWORD *)&v58.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
-      __asm
+      bdStructBufferSerializable::bdStructBufferSerializable(&v56, v39);
+      v56.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
+      *(_QWORD *)&v56.m_targetName[*(int *)(*((_QWORD *)&v56.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
+      *(bdStructBufferSerializable *)((char *)&v56.bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&v39->bdStructBufferSerializable + 16);
+      v56.m_targetName[16] = v39->m_targetName[16];
+      v56.m_currentProgress = v39->m_currentProgress;
+      v56.m_targetProgress = v39->m_targetProgress;
+      v40 = bdAchievementProgress::getAchievementCurrentProgress(&v56);
+      v41 = bdAchievementProgress::getTargetName(&v56);
+      v42 = bdAchievementState::getName(state);
+      Com_Printf(25, "(%s) %s = %ld\n", v42, v41, v40);
+      v43 = bdAchievementProgress::getTargetName(&v56);
+      if ( I_stricmp(v43, "xp") )
       {
-        vmovups ymm0, ymmword ptr [rbx+10h]
-        vmovups ymmword ptr [rbp+57h+var_A0+10h], ymm0
-      }
-      v58.m_targetName[16] = _RBX->m_targetName[16];
-      v58.m_currentProgress = _RBX->m_currentProgress;
-      v58.m_targetProgress = _RBX->m_targetProgress;
-      v42 = bdAchievementProgress::getAchievementCurrentProgress(&v58);
-      v43 = bdAchievementProgress::getTargetName(&v58);
-      v44 = bdAchievementState::getName(state);
-      Com_Printf(25, "(%s) %s = %ld\n", v44, v43, v42);
-      v45 = bdAchievementProgress::getTargetName(&v58);
-      if ( I_stricmp(v45, "xp") )
-      {
-        v46 = bdAchievementProgress::getTargetName(&v58);
-        if ( I_stricmp(v46, "rank") )
+        v44 = bdAchievementProgress::getTargetName(&v56);
+        if ( I_stricmp(v44, "rank") )
         {
-          v47 = bdAchievementProgress::getTargetName(&v58);
-          if ( I_stricmp(v47, "level_xp") )
+          v45 = bdAchievementProgress::getTargetName(&v56);
+          if ( I_stricmp(v45, "level_xp") )
           {
-            v48 = bdAchievementProgress::getTargetName(&v58);
-            if ( !I_stricmp(v48, "level") && v8 == v54 )
-              v36->rank = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+            v46 = bdAchievementProgress::getTargetName(&v56);
+            if ( !I_stricmp(v46, "level") && v8 == v52 )
+              v35->rank = bdAchievementProgress::getAchievementCurrentProgress(&v56);
           }
-          else if ( v8 == v54 )
+          else if ( v8 == v52 )
           {
-            v36->xp = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+            v35->xp = bdAchievementProgress::getAchievementCurrentProgress(&v56);
           }
         }
         else
         {
-          v35[1] = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+          v34[1] = bdAchievementProgress::getAchievementCurrentProgress(&v56);
         }
       }
       else
       {
-        *v35 = bdAchievementProgress::getAchievementCurrentProgress(&v58);
+        *v34 = bdAchievementProgress::getAchievementCurrentProgress(&v56);
       }
-      bdStructFixedSizeString<32>::~bdStructFixedSizeString<32>((bdStructFixedSizeString<32> *)(&v58.__vftable + 2));
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v58.__vftable + 2));
-      bdReferencable::~bdReferencable((bdReferencable *)v58.gap48);
-      ++v38;
+      bdStructFixedSizeString<32>::~bdStructFixedSizeString<32>((bdStructFixedSizeString<32> *)(&v56.__vftable + 2));
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v56.__vftable + 2));
+      bdReferencable::~bdReferencable((bdReferencable *)v56.gap48);
+      ++v37;
     }
-    v49 = DVARBOOL_online_challenge_update_player_data_once_when_done;
+    v47 = DVARBOOL_online_challenge_update_player_data_once_when_done;
     if ( !DVARBOOL_online_challenge_update_player_data_once_when_done && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_update_player_data_once_when_done") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v49);
-    if ( !v49->current.enabled )
+    Dvar_CheckFrontendServerThread(v47);
+    if ( !v47->current.enabled )
       OnlineProgression::UpdatePlayerStats(this, controllerIndex);
   }
 }
@@ -2708,12 +2638,12 @@ void OnlineProgression::UpdatePlayerStats(OnlineProgression *this, const int con
   __int64 v3; 
   StatsSource ActiveStatsSource; 
   char *v7; 
-  char *v10; 
-  const dvar_t *v13; 
-  __int64 v14; 
+  char *v8; 
+  const dvar_t *v9; 
+  __int64 v10; 
   int rank; 
-  int v16; 
-  int v17; 
+  int v12; 
+  int v13; 
   int navStringCount; 
   DDLState fromState; 
   DDLContext context; 
@@ -2725,48 +2655,38 @@ void OnlineProgression::UpdatePlayerStats(OnlineProgression *this, const int con
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+160h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   if ( CL_PlayerData_GetDDLBuffer(&context, v3, ActiveStatsSource, STATSGROUP_RANKEDLOADOUTS) )
   {
     v7 = j_va("squadMembers.player_xp");
     Com_ParseNavStrings(v7, (const char **)navStrings, 16, &navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+160h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) && DDL_GetType(&fromState) == DDL_INT_TYPE )
       DDL_SetInt(&fromState, &context, this->m_playerProgression[v3].xp);
-    v10 = j_va("squadMembers.season_rank");
-    Com_ParseNavStrings(v10, (const char **)navStrings, 16, &navStringCount);
-    _RAX = DDL_GetRootState(&result, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+160h+fromState.isValid], ymm0
-    }
+    v8 = j_va("squadMembers.season_rank");
+    Com_ParseNavStrings(v8, (const char **)navStrings, 16, &navStringCount);
+    fromState = *DDL_GetRootState(&result, context.def);
     if ( DDL_MoveToPath(&fromState, &fromState, navStringCount, (const char **)navStrings) && DDL_GetType(&fromState) == DDL_INT_TYPE )
     {
-      v13 = DVARINT_current_season;
+      v9 = DVARINT_current_season;
       if ( !DVARINT_current_season && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "current_season") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v13);
-      v14 = 7 * v3 + v13->current.integer;
-      if ( this->m_seasonProgression[0][v14].xp )
+      Dvar_CheckFrontendServerThread(v9);
+      v10 = 7 * v3 + v9->current.integer;
+      if ( this->m_seasonProgression[0][v10].xp )
       {
-        rank = this->m_seasonProgression[0][v14].rank;
-        v16 = 100;
-        v17 = rank + 1;
-        if ( v17 < 100 )
-          v16 = v17;
+        rank = this->m_seasonProgression[0][v10].rank;
+        v12 = 100;
+        v13 = rank + 1;
+        if ( v13 < 100 )
+          v12 = v13;
       }
       else
       {
-        v16 = 0;
+        v12 = 0;
       }
-      DDL_SetInt(&fromState, &context, v16);
+      DDL_SetInt(&fromState, &context, v12);
     }
   }
 }

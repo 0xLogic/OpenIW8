@@ -1047,43 +1047,44 @@ OnlineScheduledChallenges::ConvertProgressToTarget
 unsigned __int64 OnlineScheduledChallenges::ConvertProgressToTarget(const int kind, const unsigned __int64 id, const unsigned __int64 progress)
 {
   const char *ConversionType; 
-  unsigned __int64 result; 
+  float v5; 
+  float v6; 
+  float v7; 
+  unsigned __int64 v8; 
+  float v10; 
+  float v11; 
 
   ConversionType = OnlineScheduledChallenges::GetConversionType(kind, id);
-  if ( !I_stricmp(ConversionType, "sec") )
+  if ( I_stricmp(ConversionType, "sec") )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
-    }
+    if ( I_stricmp(ConversionType, "min") )
+      return progress;
+    v10 = (float)(__int64)progress;
     if ( (progress & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm { vmulss  xmm0, xmm0, cs:__real@3a83126f }
-LABEL_5:
-    __asm
     {
-      vmovss  xmm1, cs:__real@5f000000
-      vcomiss xmm0, xmm1
-      vsubss  xmm0, xmm0, xmm1
-      vcomiss xmm0, xmm1
-      vcvttss2si rax, xmm0
+      v11 = (float)(__int64)progress;
+      v10 = v11 + 1.8446744e19;
     }
-    return result;
+    v7 = v10 * 0.000016666667;
   }
-  if ( !I_stricmp(ConversionType, "min") )
+  else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
-    }
+    v5 = (float)(__int64)progress;
     if ( (progress & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm { vmulss  xmm0, xmm0, cs:__real@378bcf65 }
-    goto LABEL_5;
+    {
+      v6 = (float)(__int64)progress;
+      v5 = v6 + 1.8446744e19;
+    }
+    v7 = v5 * 0.001;
   }
-  return progress;
+  v8 = 0i64;
+  if ( v7 >= 9.223372e18 )
+  {
+    v7 = v7 - 9.223372e18;
+    if ( v7 < 9.223372e18 )
+      v8 = 0x8000000000000000ui64;
+  }
+  return v8 + (unsigned int)(int)v7;
 }
 
 /*

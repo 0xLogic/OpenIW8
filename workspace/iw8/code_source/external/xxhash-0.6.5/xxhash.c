@@ -466,13 +466,7 @@ CoD_XXH32_copyState
 */
 void CoD_XXH32_copyState(XXH32_state_s *dstState, const XXH32_state_s *srcState)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-  }
+  *dstState = *srcState;
 }
 
 /*
@@ -635,21 +629,17 @@ CoD_XXH32_reset
 */
 __int64 CoD_XXH32_reset(XXH32_state_s *statePtr, unsigned int seed)
 {
-  _BYTE v6[40]; 
+  __m256i v5; 
 
-  *(_DWORD *)&v6[16] = seed;
-  *(_QWORD *)v6 = 0i64;
-  *(_DWORD *)&v6[8] = seed + 606290984;
-  *(_DWORD *)&v6[12] = seed - 2048144777;
-  *(_DWORD *)&v6[20] = seed + 1640531535;
-  __asm
-  {
-    vpxor   xmm1, xmm1, xmm1
-    vmovdqu xmmword ptr [rsp+38h+var_38+18h], xmm1
-    vmovups ymm0, [rsp+38h+var_38]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovhpd qword ptr [rcx+20h], xmm1
-  }
+  v5.m256i_i32[4] = seed;
+  v5.m256i_i64[0] = 0i64;
+  v5.m256i_i32[2] = seed + 606290984;
+  v5.m256i_i32[3] = seed - 2048144777;
+  v5.m256i_i32[5] = seed + 1640531535;
+  __asm { vpxor   xmm1, xmm1, xmm1 }
+  v5.m256i_i64[3] = _XMM1;
+  *(__m256i *)&statePtr->total_len_32 = v5;
+  __asm { vmovhpd qword ptr [rcx+20h], xmm1 }
   statePtr->memsize = 0;
   return 0i64;
 }
@@ -802,17 +792,7 @@ CoD_XXH64_copyState
 */
 void CoD_XXH64_copyState(XXH64_state_s *dstState, const XXH64_state_s *srcState)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovsd  xmm1, qword ptr [rdx+50h]
-    vmovsd  qword ptr [rcx+50h], xmm1
-  }
+  *dstState = *srcState;
 }
 
 /*
@@ -869,29 +849,22 @@ CoD_XXH64_reset
 */
 __int64 CoD_XXH64_reset(XXH64_state_s *statePtr, unsigned __int64 seed)
 {
+  __int128 v4; 
   __int64 result; 
-  __m256i v8; 
-  __m256i v9; 
+  __m256i v6; 
+  __m256i v7; 
+  __int128 v8; 
 
-  _RDI = statePtr;
-  memset_0(&v8, 0, 0x58ui64);
-  v8.m256i_i64[3] = seed;
-  v8.m256i_i64[1] = seed + 0x60EA27EEADC0B5D6i64;
-  v8.m256i_i64[2] = seed - 0x3D4D51C2D82B14B1i64;
-  __asm
-  {
-    vmovups ymm0, [rsp+88h+var_68]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm0, [rsp+88h+var_28]
-  }
-  v9.m256i_i64[0] = seed + 0x61C8864E7A143579i64;
+  memset_0(&v6, 0, 0x58ui64);
+  v6.m256i_i64[3] = seed;
+  v6.m256i_i64[1] = seed + 0x60EA27EEADC0B5D6i64;
+  v6.m256i_i64[2] = seed - 0x3D4D51C2D82B14B1i64;
+  *(__m256i *)&statePtr->total_len = v6;
+  v4 = v8;
+  v7.m256i_i64[0] = seed + 0x61C8864E7A143579i64;
   result = 0i64;
-  __asm
-  {
-    vmovups ymm1, [rsp+88h+var_48]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups xmmword ptr [rdi+40h], xmm0
-  }
+  *(__m256i *)&statePtr->v4 = v7;
+  *(_OWORD *)&statePtr->mem64[3] = v4;
   return result;
 }
 

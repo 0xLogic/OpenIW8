@@ -1362,196 +1362,110 @@ DynamicSubsamplePattern
 */
 void DynamicSubsamplePattern(const refdef_t *refdef, const GfxViewportFeatures *viewportFeatures, const vec2_t scale, unsigned int frameCount, vec2_t *outOffset, float *cameraMotion)
 {
-  char v15; 
-  __int64 v21; 
+  char v8; 
+  __int64 v9; 
+  GfxCamera *p_camera; 
+  float v11; 
+  __int64 v12; 
+  __m256i v13; 
+  float value; 
+  float v15; 
+  double v16; 
   int integer; 
-  int v59; 
-  int v60; 
-  int v61; 
+  int v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   vec4_t vec; 
   vec3_t origin; 
-  vec4_t v88; 
-  vec4_t v89; 
+  vec4_t v30; 
+  vec4_t v31; 
   GfxCamera camera; 
-  tmat44_t<vec4_t> v91; 
+  tmat44_t<vec4_t> v33; 
   tmat44_t<vec4_t> out; 
   tmat44_t<vec4_t> mat; 
   tmat44_t<vec4_t> in2; 
   tmat44_t<vec4_t> mtx; 
   tmat44_t<vec4_t> in1; 
-  char v98; 
-  void *retaddr; 
+  __m256i v39; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovups ymm0, cs:__ymm@3e000000bec00000be0000003ec000003ec000003e000000bec00000be000000
-  }
-  _RBX = outOffset;
-  _RDI = cameraMotion;
-  v15 = frameCount;
-  __asm { vmovups [rbp+1F0h+var_90], ymm0 }
+  v8 = frameCount;
+  v39 = _ymm;
   R_SetCameraForView(&refdef->view, &camera);
   MatrixForViewerOrthogonalNoOrigin(&camera.axis, &mtx);
-  __asm
-  {
-    vmovss  xmm2, [rbp+1F0h+camera.zPlanes+8]; zNear
-    vmovss  xmm1, dword ptr [rbp+1F0h+camera.___u3]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rbp+1F0h+camera.___u2]; tanHalfFovX
-  }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &in2);
+  InfinitePerspectiveMatrix(camera.tanHalfFovX, camera.tanHalfFovY, camera.zPlanes[2], &in2);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
-  _R12 = 0x140000000ui64;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  v21 = (int)viewportFeatures->m_viewportType + 2i64 * (int)refdef->localClientNum;
-  if ( g_previousFrameViewParmsIsValid[0][v21] )
+  v9 = (int)viewportFeatures->m_viewportType + 2i64 * (int)refdef->localClientNum;
+  if ( g_previousFrameViewParmsIsValid[0][v9] )
   {
-    _RDX = &g_previousFrameViewParms[0][v21].viewParms.camera;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vsubss  xmm1, xmm0, dword ptr [rsp+2F0h+camera.origin]
-      vmovss  xmm2, dword ptr [rdx+4]
-      vsubss  xmm0, xmm2, dword ptr [rsp+2F0h+camera.origin+4]
-      vmovss  dword ptr [rsp+2F0h+origin], xmm1
-      vmovss  xmm1, dword ptr [rdx+8]
-      vsubss  xmm2, xmm1, dword ptr [rsp+2F0h+camera.origin+8]
-      vmovss  dword ptr [rsp+2F0h+origin+8], xmm2
-      vmovss  dword ptr [rsp+2F0h+origin+4], xmm0
-    }
-    MatrixForViewerOrthogonal(&origin, &_RDX->axis, &in1);
-    _RAX = 384 * ((int)viewportFeatures->m_viewportType + 2i64 * (int)refdef->localClientNum);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax+r12+13B7E370h]
-      vmovups ymm0, ymmword ptr [rax+r12+13B7E350h]
-      vmovups ymmword ptr [rbp+1F0h+var_210+20h], ymm1
-      vmovss  dword ptr [rbp+1F0h+var_210+20h], xmm8
-      vmovss  dword ptr [rbp+1F0h+var_210+24h], xmm8
-      vmovups ymmword ptr [rbp+1F0h+var_210], ymm0
-    }
-    MatrixMultiply44Aligned(&in1, &v91, &mat);
+    p_camera = &g_previousFrameViewParms[0][v9].viewParms.camera;
+    v11 = p_camera->origin.v[1] - camera.origin.v[1];
+    origin.v[0] = p_camera->origin.v[0] - camera.origin.v[0];
+    origin.v[2] = p_camera->origin.v[2] - camera.origin.v[2];
+    origin.v[1] = v11;
+    MatrixForViewerOrthogonal(&origin, &p_camera->axis, &in1);
+    v12 = (int)viewportFeatures->m_viewportType + 2i64 * (int)refdef->localClientNum;
+    v13 = *(__m256i *)g_previousFrameViewParms[0][v12].viewParms.projectionMatrix.m.m[0].v;
+    *(__m256i *)v33.row2.v = *(__m256i *)g_previousFrameViewParms[0][v12].viewParms.projectionMatrix.m.row2.v;
+    v33.m[2].v[0] = 0.0;
+    v33.m[2].v[1] = 0.0;
+    *(__m256i *)v33.m[0].v = v13;
+    MatrixMultiply44Aligned(&in1, &v33, &mat);
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1F0h+out]
-      vmovups ymm1, ymmword ptr [rbp+1F0h+out+20h]
-      vmovups ymmword ptr [rbp+1F0h+mat], ymm0
-      vmovups ymmword ptr [rbp+1F0h+mat+20h], ymm1
-    }
+    mat = out;
   }
-  _RAX = r_smaaDynamicSubpixelPatternDistance;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm3, dword ptr [rax+28h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+2F0h+camera.axis]
-    vmulss  xmm0, xmm3, dword ptr [rbp+1F0h+camera.axis+4]
-    vmulss  xmm2, xmm3, dword ptr [rbp+1F0h+camera.axis+8]
-    vmovss  dword ptr [rsp+2F0h+vec], xmm1
-    vmovss  dword ptr [rsp+2F0h+vec+4], xmm0
-    vmovss  dword ptr [rsp+2F0h+vec+8], xmm2
-    vmovss  dword ptr [rsp+2F0h+vec+0Ch], xmm7
-  }
-  MatrixTransformVector44Aligned(&vec, &out, &v88);
-  MatrixTransformVector44Aligned(&vec, &mat, &v89);
-  __asm
-  {
-    vdivss  xmm4, xmm7, dword ptr [rsp+2F0h+var_2A0+0Ch]
-    vmulss  xmm3, xmm4, dword ptr [rsp+2F0h+var_2A0]
-    vdivss  xmm5, xmm7, dword ptr [rsp+2F0h+var_290+0Ch]
-    vmulss  xmm2, xmm5, dword ptr [rsp+2F0h+var_290]
-    vmulss  xmm4, xmm4, dword ptr [rsp+2F0h+var_2A0+4]
-    vsubss  xmm0, xmm3, xmm2
-    vdivss  xmm6, xmm0, dword ptr [rsp+2F0h+var_2D0]
-    vmulss  xmm2, xmm5, dword ptr [rsp+2F0h+var_290+4]
-    vdivss  xmm0, xmm7, dword ptr [rsp+2F0h+var_2D0+4]
-    vsubss  xmm3, xmm4, xmm2
-    vmulss  xmm2, xmm3, xmm0
-    vmulss  xmm4, xmm2, xmm2
-    vmulss  xmm3, xmm6, xmm6
-    vaddss  xmm0, xmm4, xmm3
-    vsqrtss xmm0, xmm0, xmm0; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm0
-    vmovaps xmm5, xmm0
-  }
+  value = r_smaaDynamicSubpixelPatternDistance->current.value;
+  vec.v[0] = value * camera.axis.m[0].v[0];
+  vec.v[1] = value * camera.axis.m[0].v[1];
+  vec.v[2] = value * camera.axis.m[0].v[2];
+  vec.v[3] = FLOAT_1_0;
+  MatrixTransformVector44Aligned(&vec, &out, &v30);
+  MatrixTransformVector44Aligned(&vec, &mat, &v31);
+  v15 = (float)((float)((float)(1.0 / v30.v[3]) * v30.v[0]) - (float)((float)(1.0 / v31.v[3]) * v31.v[0])) / scale.v[0];
+  v16 = I_fclamp(fsqrt((float)((float)((float)((float)((float)(1.0 / v30.v[3]) * v30.v[1]) - (float)((float)(1.0 / v31.v[3]) * v31.v[1])) * (float)(1.0 / scale.v[1])) * (float)((float)((float)((float)(1.0 / v30.v[3]) * v30.v[1]) - (float)((float)(1.0 / v31.v[3]) * v31.v[1])) * (float)(1.0 / scale.v[1]))) + (float)(v15 * v15)), 0.0, 1.0);
+  *cameraMotion = *(float *)&v16;
   integer = r_smaaDynamicSubpixelPattern->current.integer;
   if ( !integer )
     goto LABEL_12;
-  v59 = integer - 1;
-  if ( !v59 )
+  v18 = integer - 1;
+  if ( !v18 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx]
-      vmovss  xmm2, dword ptr [rbx+4]
-      vmulss  xmm0, xmm5, xmm1
-      vsubss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rbx], xmm1
-      vsubss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-    goto LABEL_13;
+    v26 = outOffset->v[1];
+    outOffset->v[0] = outOffset->v[0] - (float)(*(float *)&v16 * outOffset->v[0]);
+    outOffset->v[1] = v26 - (float)(*(float *)&v16 * v26);
+    return;
   }
-  v60 = v59 - 1;
-  if ( !v60 )
+  v19 = v18 - 1;
+  if ( !v19 )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm5, cs:__real@3f000000
-      vsubss  xmm1, xmm7, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm2, dword ptr [rbx]
-      vmulss  xmm0, xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  dword ptr [rbx+4], xmm0
-    }
+    v23 = (float)(1.0 - *(float *)&v16) + (float)(*(float *)&v16 * 0.5);
+    v24 = v23 * outOffset->v[0];
+    v25 = v23 * outOffset->v[1];
+    outOffset->v[0] = v24;
+    outOffset->v[1] = v25;
 LABEL_12:
     *cameraMotion = 0.0;
-    goto LABEL_13;
+    return;
   }
-  v61 = v60 - 1;
-  if ( v61 )
+  v20 = v19 - 1;
+  if ( v20 )
   {
-    if ( v61 == 1 )
+    if ( v20 == 1 )
       *outOffset = 0i64;
   }
   else
   {
-    _RAX = v15 & 3;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+rax*8+1F0h+var_90]
-      vsubss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  xmm0, dword ptr [rbp+rax*8+1F0h+var_90+4]
-      vmulss  xmm2, xmm1, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbx]
-      vsubss  xmm1, xmm0, dword ptr [rbx+4]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rbx], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx+4], xmm3
-    }
-  }
-LABEL_13:
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    v21 = v8 & 3;
+    v22 = (float)(*(float *)&v39.m256i_i32[2 * v21 + 1] - outOffset->v[1]) * *(float *)&v16;
+    outOffset->v[0] = (float)((float)(*(float *)&v39.m256i_i32[2 * v21] - outOffset->v[0]) * *(float *)&v16) + outOffset->v[0];
+    outOffset->v[1] = v22 + outOffset->v[1];
   }
 }
 
@@ -1564,36 +1478,17 @@ void GetSecureVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst, co
 {
   float v5; 
   float v6; 
-  __int64 v10; 
+  __int64 v7; 
 
   v5 = from->v[1];
   v6 = from->v[0];
   LODWORD(to->v[2]) = zConst ^ LODWORD(v5) ^ (unsigned int)from ^ LODWORD(from->v[2]);
   LODWORD(to->v[1]) = yConst ^ LODWORD(v6) ^ LODWORD(v5) ^ (unsigned int)from;
-  memset(&v10, 0, sizeof(v10));
+  memset(&v7, 0, sizeof(v7));
   LODWORD(to->v[0]) = LODWORD(v6) ^ (unsigned int)from ^ ~xConst;
-  __asm
+  zConst = LODWORD(to->v[0]);
+  if ( (zConst & 0x7F800000) == 2139095040 || (zConst = LODWORD(to->v[1]), (zConst & 0x7F800000) == 2139095040) || (zConst = LODWORD(to->v[2]), (zConst & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11570, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
       __debugbreak();
   }
@@ -1799,8 +1694,8 @@ void R_AccumulateMaterialRenderTechflags(const Material *material, GfxViewMateri
   const char *v15; 
   const char *v16; 
   const char *v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
 
   if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 534, ASSERT_TYPE_ASSERT, "(mtl)", (const char *)&queryFormat, "mtl") )
     __debugbreak();
@@ -1809,8 +1704,8 @@ void R_AccumulateMaterialRenderTechflags(const Material *material, GfxViewMateri
     __debugbreak();
   if ( (unsigned int)p1_low >= rgp.materialCount )
   {
-    LODWORD(v19) = p1_low;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v19, rgp.materialCount) )
+    LODWORD(v18) = p1_low;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v18, rgp.materialCount) )
       __debugbreak();
   }
   if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != material )
@@ -1818,9 +1713,9 @@ void R_AccumulateMaterialRenderTechflags(const Material *material, GfxViewMateri
     name = material->name;
     if ( (unsigned int)p1_low >= rgp.materialCount )
     {
-      LODWORD(v20) = rgp.materialCount;
-      LODWORD(v19) = p1_low;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v19) = rgp.materialCount;
+      LODWORD(v18) = p1_low;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
     MaterialAtIndex = DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]);
@@ -1864,8 +1759,7 @@ LABEL_36:
         if ( v12 )
           v15 = "D";
         v17 = j_va("%s %s", v15, v16);
-        __asm { vmovss  xmm3, cs:__real@40a00000; size }
-        R_AddDebugString(&frontEndDataOut->debugGlobals, origin, &colorCyan, *(float *)&_XMM3, v17);
+        R_AddDebugString(&frontEndDataOut->debugGlobals, origin, &colorCyan, 5.0, v17);
       }
       return;
     }
@@ -2026,20 +1920,10 @@ R_AddDObjToScene
 */
 void R_AddDObjToScene(const DObj *obj, const cpose_t *pose, unsigned int entnum, unsigned int renderFlags, const GfxSceneEntityMutableShaderData *entityMutableShaderData, const vec3_t *lightingOrigin, float materialTime)
 {
-  float v8; 
-  float materialTimea; 
-
-  __asm { vmovss  xmm0, [rsp+58h+materialTime] }
   if ( g_delayedSceneModelGlob.delayingActive )
-  {
-    __asm { vmovss  [rsp+58h+var_28], xmm0 }
-    R_AddDObjToSceneDelayed(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, v8, 0, 0);
-  }
+    R_AddDObjToSceneDelayed(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTime, 0, 0);
   else
-  {
-    __asm { vmovss  [rsp+58h+materialTime], xmm0 }
-    R_AddDObjToSceneInternal(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTimea);
-  }
+    R_AddDObjToSceneInternal(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTime);
 }
 
 /*
@@ -2050,9 +1934,11 @@ R_AddDObjToSceneDelayed
 void R_AddDObjToSceneDelayed(const DObj *obj, const cpose_t *pose, unsigned int entnum, unsigned int renderFlags, const GfxSceneEntityMutableShaderData *entityMutableShaderData, const vec3_t *lightingOrigin, float materialTime, int isViewModel, int isMarkableViewModel)
 {
   unsigned int dobjCount; 
+  DelayedSceneDObj *v14; 
   __int16 v15; 
   unsigned int v16; 
   unsigned int v17; 
+  __int128 v18; 
   unsigned int fmt; 
 
   if ( !scene.allowAddDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2158, ASSERT_TYPE_ASSERT, "(scene.allowAddDObj)", (const char *)&queryFormat, "scene.allowAddDObj") )
@@ -2074,48 +1960,33 @@ void R_AddDObjToSceneDelayed(const DObj *obj, const cpose_t *pose, unsigned int 
     }
   }
   g_delayedSceneModelGlob.dobjCount = dobjCount + 1;
-  _RBX = &g_delayedSceneModelGlob.dobjs[dobjCount];
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2162, ASSERT_TYPE_ASSERT, "(dobjInfo != 0)", (const char *)&queryFormat, "dobjInfo != NULL") )
+  v14 = &g_delayedSceneModelGlob.dobjs[dobjCount];
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2162, ASSERT_TYPE_ASSERT, "(dobjInfo != 0)", (const char *)&queryFormat, "dobjInfo != NULL") )
     __debugbreak();
-  _RBX->obj = obj;
-  _RBX->pose = pose;
+  v14->obj = obj;
+  v14->pose = pose;
   v15 = truncate_cast<short,unsigned int>(entnum);
   v16 = s_lighting2_aab_Y;
   v17 = s_lighting2_aab_X;
-  _RBX->entityNum = v15;
+  v14->entityNum = v15;
   fmt = s_lighting2_aab_Z;
-  _RBX->renderFlags = renderFlags;
-  SetSecureVec3(lightingOrigin, &_RBX->lightingOrigin.lightingOrigin, v17, v16, fmt);
-  _RAX = entityMutableShaderData;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+materialTime]
-    vmovss  dword ptr [rbx+0D4h], xmm0
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx+18h], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rbx+28h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+38h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rbx+48h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+58h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rbx+68h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rbx+78h], xmm0
-    vmovups xmm0, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rbx+88h], xmm0
-    vmovups xmm1, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rbx+98h], xmm1
-    vmovups xmm0, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rbx+0A8h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0A0h]
-  }
-  _RBX->isViewModel = isViewModel != 0;
-  _RBX->isMarkableViewModel = isMarkableViewModel != 0;
-  __asm { vmovups xmmword ptr [rbx+0B8h], xmm1 }
+  v14->renderFlags = renderFlags;
+  SetSecureVec3(lightingOrigin, &v14->lightingOrigin.lightingOrigin, v17, v16, fmt);
+  v14->materialTime = materialTime;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.dataCount = *(_OWORD *)&entityMutableShaderData->dataCount;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[0].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[0].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[1].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[1].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[2].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[2].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[3].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[3].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[4].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[4].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[5].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[5].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[6].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[6].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.modelShaderData[7].transitionFactor = *(_OWORD *)&entityMutableShaderData->modelShaderData[7].transitionFactor;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.hudOutlineInfo.drawOccludedPixels = *(_OWORD *)&entityMutableShaderData->hudOutlineInfo.drawOccludedPixels;
+  v18 = *(_OWORD *)&entityMutableShaderData->hudOutlineInfo.temperatureBase;
+  v14->isViewModel = isViewModel != 0;
+  v14->isMarkableViewModel = isMarkableViewModel != 0;
+  *(_OWORD *)&v14->sceneEntityMutableShaderData.hudOutlineInfo.temperatureBase = v18;
   R_TryDispatchDelayedSceneBatch();
 }
 
@@ -2126,85 +1997,78 @@ R_AddDObjToSceneInternal
 */
 void R_AddDObjToSceneInternal(const DObj *obj, const cpose_t *pose, unsigned int entnum, unsigned int renderFlags, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData, const vec3_t *lightingOrigin, float materialTime)
 {
+  __int64 v8; 
   __int64 v11; 
-  __int64 v15; 
-  bool v16; 
-  unsigned int v17; 
-  unsigned __int16 v18; 
-  int v20; 
+  bool v12; 
+  unsigned int v13; 
+  unsigned __int16 v14; 
+  int v15; 
   DObjMaterialData *materialData; 
-  bool v22; 
-  unsigned int v23; 
-  bool v24; 
-  unsigned __int16 v25; 
-  bool v26; 
-  bool v27; 
-  unsigned __int32 v29; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
+  bool v17; 
+  unsigned int v18; 
+  bool v19; 
+  unsigned __int16 v20; 
+  unsigned __int32 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
   bool HasProceduralBones; 
-  unsigned __int32 v36; 
-  GfxSceneModel *v37; 
+  unsigned __int32 v27; 
+  GfxSceneModel *v28; 
   const XModel *Model; 
-  unsigned int v39; 
-  unsigned int v60; 
-  unsigned __int8 *v61; 
-  __int64 v71; 
+  unsigned int v30; 
+  cpose_t *v31; 
+  unsigned int v32; 
+  unsigned __int8 *v33; 
+  float value; 
+  __int64 v35; 
   __int64 useDepthHack; 
-  __int64 v93; 
-  char v94; 
-  unsigned __int16 v95; 
+  __int64 v37; 
+  char v38; 
+  unsigned __int16 v39; 
   unsigned int renderFlagsa; 
   unsigned int gfxEntDataIndexBase; 
-  unsigned int v98; 
-  GfxSceneEntityMutableShaderData *v99; 
+  unsigned int v42; 
+  GfxSceneEntityMutableShaderData *v43; 
   GfxPackedEntityData *gfxPackedEntityData; 
   SecureVec3 tmpOrg; 
   cpose_t *posea; 
-  __int64 v103; 
-  __int64 v104; 
+  __int64 v47; 
+  __int64 v48; 
   vec3_t angles; 
-  Bounds v106; 
+  Bounds v50; 
   SecureBoundsAccess tmpBounds; 
   Bounds bounds; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v104 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  v11 = entnum;
+  v48 = -2i64;
+  v8 = entnum;
   posea = (cpose_t *)pose;
-  _R15 = sceneEntityMutableShaderData;
-  v99 = (GfxSceneEntityMutableShaderData *)sceneEntityMutableShaderData;
+  v43 = (GfxSceneEntityMutableShaderData *)sceneEntityMutableShaderData;
   gfxEntDataIndexBase = 0;
   gfxPackedEntityData = NULL;
   if ( g_delayedSceneModelGlob.delayingActive )
   {
-    v15 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-    if ( *(_DWORD *)(v15 + 1728) )
+    v11 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+    if ( *(_DWORD *)(v11 + 1728) )
       goto LABEL_8;
-    v16 = *(_DWORD *)(v15 + 1724) == 0;
+    v12 = *(_DWORD *)(v11 + 1724) == 0;
   }
   else
   {
-    v16 = !Sys_IsMainThread();
+    v12 = !Sys_IsMainThread();
   }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1733, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
+  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1733, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
     __debugbreak();
 LABEL_8:
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1734, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1735, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
-  if ( (unsigned int)v11 >= gfxCfg.entCount )
+  if ( (unsigned int)v8 >= gfxCfg.entCount )
   {
-    LODWORD(useDepthHack) = v11;
+    LODWORD(useDepthHack) = v8;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1736, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( gfxCfg.entCount )", "entnum doesn't index gfxCfg.entCount\n\t%i not in [0, %i)", useDepthHack, gfxCfg.entCount) )
       __debugbreak();
   }
@@ -2214,198 +2078,140 @@ LABEL_8:
     __debugbreak();
   if ( r_drawEntities->current.enabled )
   {
-    v17 = (renderFlags >> 12) & 1;
+    v13 = (renderFlags >> 12) & 1;
     if ( rg.needVelocity )
       renderFlags |= 0x200u;
     renderFlagsa = renderFlags;
-    v18 = truncate_cast<unsigned short,unsigned int>(sceneEntityMutableShaderData->hudOutlineInfo.mapEntLookup);
-    v95 = v18;
-    if ( !v18 || r_showModelLMapSModels->current.enabled || !rgp.world->gfxMapEntLookup[v18].lmapLookup )
+    v14 = truncate_cast<unsigned short,unsigned int>(sceneEntityMutableShaderData->hudOutlineInfo.mapEntLookup);
+    v39 = v14;
+    if ( !v14 || r_showModelLMapSModels->current.enabled || !rgp.world->gfxMapEntLookup[v14].lmapLookup )
     {
       if ( (!obj->models || !obj->numModels) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1762, ASSERT_TYPE_ASSERT, "(obj->models && obj->numModels)", (const char *)&queryFormat, "obj->models && obj->numModels") )
         __debugbreak();
       if ( obj->models )
       {
         R_SetHudOutlineRenderFlags(&sceneEntityMutableShaderData->hudOutlineInfo, &renderFlagsa);
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-        v20 = 1;
-        __asm { vucomiss xmm6, dword ptr [r15+8Ch] }
-        if ( !v16 )
+        v15 = 1;
+        if ( sceneEntityMutableShaderData->hudOutlineInfo.scopeStencil != 0.0 )
           scene.hudOutlineMasked = 1;
         materialData = obj->materialData;
-        v22 = materialData && materialData->camoAsset[0];
-        v23 = renderFlagsa;
-        if ( v22 )
-          goto LABEL_45;
-        if ( (renderFlagsa & 2) != 0 )
-          goto LABEL_45;
-        if ( sceneEntityMutableShaderData->modelShaderData[0].transitionFactor )
-          goto LABEL_45;
-        if ( sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale )
-          goto LABEL_45;
-        __asm { vucomiss xmm6, dword ptr [r15+0A8h] }
-        v94 = 0;
-        if ( sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale )
-LABEL_45:
-          v94 = 1;
-        v24 = R_UsesEyeSensor(obj) != 0;
-        if ( v94 )
+        v17 = materialData && materialData->camoAsset[0];
+        v18 = renderFlagsa;
+        if ( v17 || (renderFlagsa & 2) != 0 || sceneEntityMutableShaderData->modelShaderData[0].transitionFactor || sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale || (v38 = 0, sceneEntityMutableShaderData->hudOutlineInfo.characterEVOffset != 0.0) )
+          v38 = 1;
+        v19 = R_UsesEyeSensor(obj) != 0;
+        if ( v38 )
           R_AllocPackedEntityData(sceneEntityMutableShaderData->dataCount, &gfxEntDataIndexBase, &gfxPackedEntityData);
-        v103 = v11;
-        v25 = scene.dpvs.sceneDObjIndex[v11];
-        v26 = v25 == 0xFFFF;
-        if ( v25 != 0xFFFF )
+        v47 = v8;
+        v20 = scene.dpvs.sceneDObjIndex[v8];
+        if ( v20 != 0xFFFF )
         {
-          LODWORD(useDepthHack) = v25;
-          v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1790, ASSERT_TYPE_ASSERT, "( ( scene.dpvs.sceneDObjIndex[entnum] == (65535) ) )", "( scene.dpvs.sceneDObjIndex[entnum] ) = %i", useDepthHack);
-          v26 = !v27;
-          if ( v27 )
+          LODWORD(useDepthHack) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1790, ASSERT_TYPE_ASSERT, "( ( scene.dpvs.sceneDObjIndex[entnum] == (65535) ) )", "( scene.dpvs.sceneDObjIndex[entnum] ) = %i", useDepthHack) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  xmm7, [rbp+80h+materialTime]
-          vucomiss xmm7, xmm6
-        }
-        if ( !v26 || sceneEntityMutableShaderData->modelShaderData[0].baseEmissiveAndTransitionFactor || sceneEntityMutableShaderData->hudOutlineInfo.temperatureSet || (v23 & 3) != 0 || v24 )
+        if ( materialTime != 0.0 || sceneEntityMutableShaderData->modelShaderData[0].baseEmissiveAndTransitionFactor || sceneEntityMutableShaderData->hudOutlineInfo.temperatureSet || (v18 & 3) != 0 || v19 )
         {
           if ( ((unsigned __int8)&scene.gfxEntCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &scene.gfxEntCount) )
             __debugbreak();
-          v29 = _InterlockedExchangeAdd(&scene.gfxEntCount, 1u);
-          if ( v29 >= 0x400 )
+          v21 = _InterlockedExchangeAdd(&scene.gfxEntCount, 1u);
+          if ( v21 >= 0x400 )
           {
             scene.gfxEntCount = 1024;
             R_WarnOncePerFrame(R_WARN_KNOWN_SPECIAL_MODELS, 1024i64);
-            goto LABEL_122;
+            return;
           }
-          _R8 = v29;
-          _R9 = &scene;
-          v23 = renderFlagsa;
-          scene.gfxEnts[_R8].renderFlags = renderFlagsa & 3;
-          __asm { vmovss  dword ptr [r9+r8*4+33FA78h], xmm7 }
-          R_PackScriptedColorEmissive(&scene.gfxEnts[v29].scriptablePackedColorEmissive, v99);
-          if ( *(_BYTE *)(v32 + 152) )
+          v22 = v21;
+          v18 = renderFlagsa;
+          scene.gfxEnts[v22].renderFlags = renderFlagsa & 3;
+          scene.gfxEnts[v22].materialTime = materialTime;
+          R_PackScriptedColorEmissive(&scene.gfxEnts[v21].scriptablePackedColorEmissive, v43);
+          if ( *(_BYTE *)(v23 + 152) )
           {
-            *(_DWORD *)(v34 + 4 * v33 + 3406476) = *(_DWORD *)(v32 + 160);
-            *(_DWORD *)(v34 + 4 * v33 + 3406480) = *(_DWORD *)(v32 + 164);
+            *(_DWORD *)(v25 + 4 * v24 + 3406476) = *(_DWORD *)(v23 + 160);
+            *(_DWORD *)(v25 + 4 * v24 + 3406480) = *(_DWORD *)(v23 + 164);
           }
           else
           {
-            *(_DWORD *)(v34 + 4 * v33 + 3406476) = 0;
-            *(_DWORD *)(v34 + 4 * v33 + 3406480) = 1065353216;
+            *(_DWORD *)(v25 + 4 * v24 + 3406476) = 0;
+            *(_DWORD *)(v25 + 4 * v24 + 3406480) = 1065353216;
           }
-          *(_DWORD *)(v34 + 4 * v33 + 3406484) = *(_DWORD *)(v32 + 172);
+          *(_DWORD *)(v25 + 4 * v24 + 3406484) = *(_DWORD *)(v23 + 172);
         }
         else
         {
-          LOWORD(v29) = 0;
+          LOWORD(v21) = 0;
         }
         HasProceduralBones = DObjHasProceduralBones(obj);
-        if ( v17 || DObjGetTree(obj) || DObjGetNumModels(obj) != 1 || HasProceduralBones || obj->blendShapeWeightCount )
+        if ( v13 || DObjGetTree(obj) || DObjGetNumModels(obj) != 1 || HasProceduralBones || obj->blendShapeWeightCount )
         {
-          v60 = R_AllocSceneDObj();
-          v98 = v60;
-          if ( v60 < 0x200 )
+          v32 = R_AllocSceneDObj();
+          v42 = v32;
+          if ( v32 < 0x200 )
           {
-            v61 = &scene.sceneDObjVisData[-1424][1424 * v60];
-            *((_WORD *)v61 + 704) = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
+            v33 = &scene.sceneDObjVisData[-1424][1424 * v32];
+            *((_WORD *)v33 + 704) = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
             if ( !DObjGetModel(obj, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1915, ASSERT_TYPE_ASSERT, "(DObjGetModel( obj, 0 ))", (const char *)&queryFormat, "DObjGetModel( obj, 0 )") )
               __debugbreak();
-            *((_QWORD *)v61 + 174) = obj;
+            *((_QWORD *)v33 + 174) = obj;
             obj->validation |= 1u;
-            if ( (unsigned int)v11 >= 0x1000 )
+            if ( (unsigned int)v8 >= 0x1000 )
             {
-              LODWORD(v93) = 4096;
-              LODWORD(useDepthHack) = v11;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1924, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v93) )
+              LODWORD(v37) = 4096;
+              LODWORD(useDepthHack) = v8;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1924, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v37) )
                 __debugbreak();
             }
-            if ( v23 >= 0x100000 )
+            if ( v18 >= 0x100000 )
             {
-              LODWORD(v93) = 0x100000;
-              LODWORD(useDepthHack) = v23;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1925, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v93) )
+              LODWORD(v37) = 0x100000;
+              LODWORD(useDepthHack) = v18;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1925, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v37) )
                 __debugbreak();
             }
-            *((_WORD *)v61 + 706) = v95;
-            *((_DWORD *)v61 + 346) &= 0xFFC00000;
-            *((_DWORD *)v61 + 346) |= v29 & 0x3FF | ((v11 & 0xFFF) << 10);
-            *((_DWORD *)v61 + 347) &= 0xFFF00000;
-            *((_DWORD *)v61 + 347) |= v23 & 0xFFFFF;
-            *((_QWORD *)v61 + 175) = posea;
+            *((_WORD *)v33 + 706) = v39;
+            *((_DWORD *)v33 + 346) &= 0xFFC00000;
+            *((_DWORD *)v33 + 346) |= v21 & 0x3FF | ((v8 & 0xFFF) << 10);
+            *((_DWORD *)v33 + 347) &= 0xFFF00000;
+            *((_DWORD *)v33 + 347) |= v18 & 0xFFFFF;
+            *((_QWORD *)v33 + 175) = posea;
             if ( !obj->lastGpuLightGridRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1933, ASSERT_TYPE_ASSERT, "(obj->lastGpuLightGridRequest)", (const char *)&queryFormat, "obj->lastGpuLightGridRequest") )
               __debugbreak();
-            *((_QWORD *)v61 + 177) = obj->lastGpuLightGridRequest;
-            if ( *((_DWORD *)v61 + 18) )
+            *((_QWORD *)v33 + 177) = obj->lastGpuLightGridRequest;
+            if ( *((_DWORD *)v33 + 18) )
             {
-              LODWORD(useDepthHack) = *((_DWORD *)v61 + 18);
+              LODWORD(useDepthHack) = *((_DWORD *)v33 + 18);
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1936, ASSERT_TYPE_SANITY, "( ( sceneEnt->cull.state == CULL_STATE_OUT ) )", "( sceneEnt->cull.state ) = %i", useDepthHack) )
                 __debugbreak();
             }
-            R_SetupSceneEntBounds((GfxSceneEntity *)v61, &tmpOrg, &tmpBounds);
-            _RAX = r_animEstimatedBoundsScale;
-            __asm
+            R_SetupSceneEntBounds((GfxSceneEntity *)v33, &tmpOrg, &tmpBounds);
+            value = r_animEstimatedBoundsScale->current.value;
+            tmpBounds.halfSize.v[0] = value * tmpBounds.halfSize.v[0];
+            tmpBounds.halfSize.v[1] = value * tmpBounds.halfSize.v[1];
+            tmpBounds.halfSize.v[2] = value * tmpBounds.halfSize.v[2];
+            GfxSceneEntity_SetBounds((GfxSceneEntityCull *)(v33 + 72), &tmpBounds);
+            GfxSceneEntity_SetLightingOrigin((GfxSceneEntity *)v33, lightingOrigin);
+            if ( v38 )
             {
-              vmovss  xmm3, dword ptr [rax+28h]
-              vmulss  xmm1, xmm3, dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize]
-              vmovss  dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize], xmm1
-              vmulss  xmm0, xmm3, dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize+4]
-              vmovss  dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize+4], xmm0
-              vmulss  xmm2, xmm3, dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize+8]
-              vmovss  dword ptr [rbp+80h+tmpBounds.baseclass_0.halfSize+8], xmm2
-            }
-            GfxSceneEntity_SetBounds((GfxSceneEntityCull *)(v61 + 72), &tmpBounds);
-            _R15 = lightingOrigin;
-            GfxSceneEntity_SetLightingOrigin((GfxSceneEntity *)v61, lightingOrigin);
-            if ( v94 )
-            {
-              _RCX = *obj->models;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rcx+2Ch]
-                vmovups xmmword ptr [rbp+80h+var_E0.midPoint], xmm0
-                vmovsd  xmm1, qword ptr [rcx+3Ch]
-                vmovsd  qword ptr [rbp+80h+var_E0.halfSize+4], xmm1
-              }
+              v50 = (*obj->models)->bounds;
               if ( obj->numModels > 1u )
               {
-                v71 = 1i64;
+                v35 = 1i64;
                 do
                 {
-                  Bounds_Expand(&v106, &obj->models[v71]->bounds);
-                  ++v20;
-                  ++v71;
+                  Bounds_Expand(&v50, &obj->models[v35]->bounds);
+                  ++v15;
+                  ++v35;
                 }
-                while ( v20 < obj->numModels );
+                while ( v15 < obj->numModels );
               }
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+80h+var_E0.midPoint]
-                vaddss  xmm1, xmm0, dword ptr [rsp+180h+tmpOrg.___u0]
-                vmovss  dword ptr [rbp+80h+var_E0.midPoint], xmm1
-                vmovss  xmm2, dword ptr [rbp+80h+var_E0.midPoint+4]
-                vaddss  xmm0, xmm2, dword ptr [rsp+180h+tmpOrg.___u0+4]
-                vmovss  dword ptr [rbp+80h+var_E0.midPoint+4], xmm0
-                vmovss  xmm1, dword ptr [rbp+80h+var_E0.midPoint+8]
-                vaddss  xmm2, xmm1, dword ptr [rsp+180h+tmpOrg.___u0+8]
-                vmovss  dword ptr [rbp+80h+var_E0.midPoint+8], xmm2
-                vmovss  xmm0, dword ptr [r15]
-                vsubss  xmm3, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg
-                vmovss  xmm1, dword ptr [r15+4]
-                vsubss  xmm2, xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4; r_globals_t rg
-                vmovss  xmm0, dword ptr [r15+8]
-                vsubss  xmm4, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8; r_globals_t rg
-                vmulss  xmm2, xmm2, xmm2
-                vmulss  xmm1, xmm3, xmm3
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm2, xmm2, xmm2; distanceToCamera
-              }
-              R_SetEntityShaderData(gfxPackedEntityData, v99, *(float *)&_XMM2, &v106, obj->entnum, renderFlagsa & 1);
+              v50.midPoint.v[0] = v50.midPoint.v[0] + tmpOrg.x;
+              v50.midPoint.v[1] = v50.midPoint.v[1] + tmpOrg.y;
+              v50.midPoint.v[2] = v50.midPoint.v[2] + tmpOrg.z;
+              R_SetEntityShaderData(gfxPackedEntityData, v43, fsqrt((float)((float)((float)(lightingOrigin->v[1] - rg.viewOrg.v[1]) * (float)(lightingOrigin->v[1] - rg.viewOrg.v[1])) + (float)((float)(lightingOrigin->v[0] - rg.viewOrg.v[0]) * (float)(lightingOrigin->v[0] - rg.viewOrg.v[0]))) + (float)((float)(lightingOrigin->v[2] - rg.viewOrg.v[2]) * (float)(lightingOrigin->v[2] - rg.viewOrg.v[2]))), &v50, obj->entnum, renderFlagsa & 1);
             }
-            scene.dpvs.sceneDObjIndex[v103] = v98;
-            R_InitSceneEntity((GfxSceneEntity *)v61);
+            scene.dpvs.sceneDObjIndex[v47] = v42;
+            R_InitSceneEntity((GfxSceneEntity *)v33);
             memset(&tmpBounds, 0, sizeof(tmpBounds));
             memset(&tmpOrg, 0, sizeof(tmpOrg));
           }
@@ -2418,94 +2224,60 @@ LABEL_45:
             __debugbreak();
           if ( ((unsigned __int8)&scene.sceneModelCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &scene.sceneModelCount) )
             __debugbreak();
-          v36 = _InterlockedExchangeAdd(&scene.sceneModelCount, 1u);
-          if ( v36 < 0x400 )
+          v27 = _InterlockedExchangeAdd(&scene.sceneModelCount, 1u);
+          if ( v27 < 0x400 )
           {
-            v37 = &scene.sceneModel[v36];
-            v37->gfxPackedEntityIndexBase = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
+            v28 = &scene.sceneModel[v27];
+            v28->gfxPackedEntityIndexBase = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
             Model = DObjGetModel(obj, 0);
-            v37->model = Model;
-            v37->obj = obj;
+            v28->model = Model;
+            v28->obj = obj;
             obj->validation |= 1u;
-            if ( (unsigned int)v11 >= 0x1000 )
+            if ( (unsigned int)v8 >= 0x1000 )
             {
-              LODWORD(v93) = 4096;
-              LODWORD(useDepthHack) = v11;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1865, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v93) )
+              LODWORD(v37) = 4096;
+              LODWORD(useDepthHack) = v8;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1865, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v37) )
                 __debugbreak();
             }
-            v39 = renderFlagsa;
+            v30 = renderFlagsa;
             if ( renderFlagsa >= 0x100000 )
             {
-              LODWORD(v93) = 0x100000;
+              LODWORD(v37) = 0x100000;
               LODWORD(useDepthHack) = renderFlagsa;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1866, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v93) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1866, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v37) )
                 __debugbreak();
             }
-            v37->mapEntLookup = v95;
-            *((_DWORD *)v37 + 30) &= 0xFFC00000;
-            *((_DWORD *)v37 + 30) |= v29 & 0x3FF | ((v11 & 0xFFF) << 10);
-            *((_DWORD *)v37 + 31) &= 0xFFF00000;
-            *((_DWORD *)v37 + 31) |= v39 & 0xFFFFF;
-            scene.dpvs.sceneXModelIndex[v103] = v36;
+            v28->mapEntLookup = v39;
+            *((_DWORD *)v28 + 30) &= 0xFFC00000;
+            *((_DWORD *)v28 + 30) |= v21 & 0x3FF | ((v8 & 0xFFF) << 10);
+            *((_DWORD *)v28 + 31) &= 0xFFF00000;
+            *((_DWORD *)v28 + 31) |= v30 & 0xFFFFF;
+            scene.dpvs.sceneXModelIndex[v47] = v27;
             if ( !obj->lastGpuLightGridRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1875, ASSERT_TYPE_ASSERT, "(obj->lastGpuLightGridRequest)", (const char *)&queryFormat, "obj->lastGpuLightGridRequest") )
               __debugbreak();
-            v37->lastGpuLightGridRequest = obj->lastGpuLightGridRequest;
+            v28->lastGpuLightGridRequest = obj->lastGpuLightGridRequest;
             XModelGetRadius(Model);
-            _R12 = posea;
-            CG_GetPoseOrigin(posea, &v37->placement.base.origin);
-            if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+            v31 = posea;
+            CG_GetPoseOrigin(posea, &v28->placement.base.origin);
+            if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r12+48h]
-              vmovss  dword ptr [rbp+80h+angles], xmm0
-              vmovss  xmm1, dword ptr [r12+4Ch]
-              vmovss  dword ptr [rbp+80h+angles+4], xmm1
-              vmovss  xmm0, dword ptr [r12+50h]
-              vmovss  dword ptr [rbp+80h+angles+8], xmm0
-            }
-            AnglesToQuat(&angles, &v37->placement.base.quat);
-            v37->placement.scale = 1.0;
-            CG_GetPrevPoseOrigin(_R12, &v37->prevPlacement.base.origin);
-            if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 636, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+            angles = v31->angles;
+            AnglesToQuat(&angles, &v28->placement.base.quat);
+            v28->placement.scale = 1.0;
+            CG_GetPrevPoseOrigin(v31, &v28->prevPlacement.base.origin);
+            if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 636, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r12+78h]
-              vmovss  dword ptr [rbp+80h+angles], xmm0
-              vmovss  xmm1, dword ptr [r12+7Ch]
-              vmovss  dword ptr [rbp+80h+angles+4], xmm1
-              vmovss  xmm0, dword ptr [r12+80h]
-              vmovss  dword ptr [rbp+80h+angles+8], xmm0
-            }
-            AnglesToQuat(&angles, &v37->prevPlacement.base.quat);
-            v37->prevPlacement.scale = 1.0;
+            angles = v31->prevAngles;
+            AnglesToQuat(&angles, &v28->prevPlacement.base.quat);
+            v28->prevPlacement.scale = 1.0;
             XModelGetBounds(Model, &bounds);
-            QuatToAxis(&v37->placement.base.quat, &axis);
-            Bounds_Transform(&bounds, &v37->placement.base.origin, &axis, &v37->bounds);
-            _RCX = lightingOrigin;
-            v37->lightingOrigin = *lightingOrigin;
-            if ( v94 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rcx]
-                vsubss  xmm4, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg
-                vmovss  xmm1, dword ptr [rcx+4]
-                vsubss  xmm2, xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4; r_globals_t rg
-                vmovss  xmm0, dword ptr [rcx+8]
-                vsubss  xmm3, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8; r_globals_t rg
-                vmulss  xmm1, xmm2, xmm2
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm3, xmm3
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm2, xmm2, xmm2; distanceToCamera
-              }
-              R_SetEntityShaderData(gfxPackedEntityData, v99, *(float *)&_XMM2, &v37->bounds, obj->entnum, v39 & 1);
-            }
-            R_InitSceneModel(v37);
+            QuatToAxis(&v28->placement.base.quat, &axis);
+            Bounds_Transform(&bounds, &v28->placement.base.origin, &axis, &v28->bounds);
+            v28->lightingOrigin = *lightingOrigin;
+            if ( v38 )
+              R_SetEntityShaderData(gfxPackedEntityData, v43, fsqrt((float)((float)((float)(lightingOrigin->v[1] - rg.viewOrg.v[1]) * (float)(lightingOrigin->v[1] - rg.viewOrg.v[1])) + (float)((float)(lightingOrigin->v[0] - rg.viewOrg.v[0]) * (float)(lightingOrigin->v[0] - rg.viewOrg.v[0]))) + (float)((float)(lightingOrigin->v[2] - rg.viewOrg.v[2]) * (float)(lightingOrigin->v[2] - rg.viewOrg.v[2]))), &v28->bounds, obj->entnum, v30 & 1);
+            R_InitSceneModel(v28);
           }
           else
           {
@@ -2515,12 +2287,6 @@ LABEL_45:
         }
       }
     }
-  }
-LABEL_122:
-  __asm
-  {
-    vmovaps xmm6, [rsp+180h+var_50]
-    vmovaps xmm7, [rsp+180h+var_60]
   }
 }
 
@@ -2630,42 +2396,34 @@ R_AddDelayedDObjsToScene
 */
 void R_AddDelayedDObjsToScene(const DelayedSceneDObj *dobjs, unsigned int count)
 {
+  unsigned __int8 *p_isViewModel; 
   __int64 v3; 
   const DObj **v4; 
-  unsigned int v6; 
-  const GfxSceneEntityMutableShaderData *v7; 
-  unsigned int v8; 
-  const cpose_t *v9; 
-  float v10; 
-  float v11; 
+  unsigned int v5; 
+  const GfxSceneEntityMutableShaderData *v6; 
+  unsigned int v7; 
+  const cpose_t *v8; 
   vec3_t to; 
 
   if ( count )
   {
-    _RBX = &dobjs->isViewModel;
+    p_isViewModel = &dobjs->isViewModel;
     v3 = count;
     do
     {
-      v4 = (const DObj **)(_RBX - 18);
-      if ( _RBX == (unsigned __int8 *)18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11736, ASSERT_TYPE_ASSERT, "(sceneDObj)", (const char *)&queryFormat, "sceneDObj") )
+      v4 = (const DObj **)(p_isViewModel - 18);
+      if ( p_isViewModel == (unsigned __int8 *)18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11736, ASSERT_TYPE_ASSERT, "(sceneDObj)", (const char *)&queryFormat, "sceneDObj") )
         __debugbreak();
-      GetSecureVec3((const vec3_t *)(_RBX + 182), &to, s_lighting2_aab_X, s_lighting2_aab_Y, s_lighting2_aab_Z);
-      __asm { vmovss  xmm0, dword ptr [rbx+0C2h] }
-      v6 = *((__int16 *)_RBX - 1);
-      v7 = (const GfxSceneEntityMutableShaderData *)(_RBX + 6);
-      v8 = *(_DWORD *)(_RBX + 2);
-      v9 = *(const cpose_t **)(_RBX - 10);
-      if ( *_RBX )
-      {
-        __asm { vmovss  [rsp+78h+var_48], xmm0 }
-        R_AddViewmodelDObjToSceneInternal(*v4, v9, v6, v8, v7, &to, v10, _RBX[1]);
-      }
+      GetSecureVec3((const vec3_t *)(p_isViewModel + 182), &to, s_lighting2_aab_X, s_lighting2_aab_Y, s_lighting2_aab_Z);
+      v5 = *((__int16 *)p_isViewModel - 1);
+      v6 = (const GfxSceneEntityMutableShaderData *)(p_isViewModel + 6);
+      v7 = *(_DWORD *)(p_isViewModel + 2);
+      v8 = *(const cpose_t **)(p_isViewModel - 10);
+      if ( *p_isViewModel )
+        R_AddViewmodelDObjToSceneInternal(*v4, v8, v5, v7, v6, &to, *(float *)(p_isViewModel + 194), p_isViewModel[1]);
       else
-      {
-        __asm { vmovss  [rsp+78h+var_48], xmm0 }
-        R_AddDObjToSceneInternal(*v4, v9, v6, v8, v7, &to, v11);
-      }
-      _RBX += 216;
+        R_AddDObjToSceneInternal(*v4, v8, v5, v7, v6, &to, *(float *)(p_isViewModel + 194));
+      p_isViewModel += 216;
       --v3;
     }
     while ( v3 );
@@ -2704,22 +2462,21 @@ void R_AddDrawCall(GfxViewInfo *viewInfo, const R_RT_Group *rtGroup, GfxDrawList
 {
   __int64 v6; 
   __int64 v9; 
+  __m256i v10; 
   const char *m_location; 
-  __int64 v19; 
+  __int64 v13; 
   __int64 data[2]; 
-  int v21; 
-  char v22; 
-  __int16 v23; 
-  int v24; 
-  __int16 v26; 
-  int v27; 
-  __int128 v28; 
+  int v15; 
+  __m256i v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  _BYTE v20[72]; 
 
   v6 = drawListType;
-  _RDI = rtGroup;
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5009, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
     __debugbreak();
-  if ( ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 || _RDI) && r_smp_backend->current.enabled && r_cmdbuf_worker->current.enabled && !Stream_BackendQueue_IsInForcedFlush() && ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) != 0 || (unsigned int)(v6 - 14) > 4 && (unsigned int)(v6 - 79) > 4 && (unsigned int)(v6 - 84) > 4) )
+  if ( ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 || rtGroup) && r_smp_backend->current.enabled && r_cmdbuf_worker->current.enabled && !Stream_BackendQueue_IsInForcedFlush() && ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) != 0 || (unsigned int)(v6 - 14) > 4 && (unsigned int)(v6 - 79) > 4 && (unsigned int)(v6 - 84) > 4) )
   {
     if ( !r_glob.allowAddDrawCall && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5036, ASSERT_TYPE_ASSERT, "(r_glob.allowAddDrawCall)", (const char *)&queryFormat, "r_glob.allowAddDrawCall") )
       __debugbreak();
@@ -2727,55 +2484,43 @@ void R_AddDrawCall(GfxViewInfo *viewInfo, const R_RT_Group *rtGroup, GfxDrawList
     frontEndDataOut->cmdBufValid[v6] = 1;
     if ( frontEndDataOut->drawOutput[v6].cmdCount )
     {
-      LODWORD(v19) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5040, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].cmdCount ) )", "( drawListType ) = %i", v19) )
+      LODWORD(v13) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5040, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].cmdCount ) )", "( drawListType ) = %i", v13) )
         __debugbreak();
     }
     frontEndDataOut->drawOutput[v9].cmdCount = 1;
     if ( frontEndDataOut->drawOutput[v9].inCmdCount )
     {
-      LODWORD(v19) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5044, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].inCmdCount ) )", "( drawListType ) = %i", v19) )
+      LODWORD(v13) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5044, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].inCmdCount ) )", "( drawListType ) = %i", v13) )
         __debugbreak();
     }
     frontEndDataOut->drawOutput[v9].inCmdCount = 1;
     data[0] = (__int64)frontEndDataOut;
-    v21 = v6;
+    v15 = v6;
     data[1] = (__int64)viewInfo;
-    if ( _RDI )
+    if ( rtGroup )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovups ymm1, ymmword ptr [rdi+80h]
-      }
-      m_location = _RDI->m_vrsRt.m_tracking.m_location;
-      _RCX = &v22;
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rdi+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rdi+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rdi+60h]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymmword ptr [rcx+80h], ymm1
-        vmovups ymm1, ymmword ptr [rdi+0A0h]
-        vmovups ymmword ptr [rcx+0A0h], ymm1
-      }
-      *((_QWORD *)&v28 + 1) = m_location;
+      v10 = *(__m256i *)&rtGroup->m_colorRts[3].m_tracking.m_location;
+      m_location = rtGroup->m_vrsRt.m_tracking.m_location;
+      v16 = *(__m256i *)&rtGroup->m_colorRtCount;
+      v17 = *(__m256i *)&rtGroup->m_colorRts[0].m_tracking.m_location;
+      v18 = *(__m256i *)&rtGroup->m_colorRts[1].m_tracking.m_location;
+      v19 = *(__m256i *)&rtGroup->m_colorRts[2].m_tracking.m_location;
+      *(__m256i *)v20 = v10;
+      *(__m256i *)&v20[32] = *(__m256i *)&rtGroup->m_depthRt.m_tracking.m_location;
+      *(_QWORD *)&v20[64] = m_location;
     }
     else
     {
-      v22 = 0;
+      v16.m256i_i8[0] = 0;
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      v23 = 0;
-      v24 = 0;
-      __asm { vmovdqu [rsp+158h+var_78], xmm0 }
-      v26 = 0;
-      v27 = 0;
-      __asm { vmovdqu [rsp+158h+var_58], xmm0 }
+      *(_WORD *)&v20[8] = 0;
+      *(_DWORD *)&v20[16] = 0;
+      *(_OWORD *)&v20[24] = _XMM0;
+      *(_WORD *)&v20[40] = 0;
+      *(_DWORD *)&v20[48] = 0;
+      *(_OWORD *)&v20[56] = _XMM0;
     }
     Sys_AddWorkerCmd((WorkerCmdType)wrkrCmdType, data);
   }
@@ -2793,18 +2538,16 @@ void R_AddDrawCalls(GfxViewInfo *viewInfo, const R_RT_Group *rtGroup, GfxDrawLis
   __int64 v11; 
   __int64 v12; 
   const char *m_location; 
-  __int64 v21; 
+  __int64 v14; 
   __int64 data[2]; 
-  GfxDrawListType v23; 
-  char v24; 
-  __int16 v25; 
-  int v26; 
-  __int16 v28; 
-  int v29; 
-  __int128 v30; 
+  GfxDrawListType v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
+  __m256i v20; 
+  _BYTE v21[72]; 
 
   v6 = drawListBegin;
-  _R15 = rtGroup;
   if ( drawListBegin < drawListEnd )
   {
     v10 = drawListBegin;
@@ -2814,59 +2557,49 @@ void R_AddDrawCalls(GfxViewInfo *viewInfo, const R_RT_Group *rtGroup, GfxDrawLis
     {
       if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5009, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
         __debugbreak();
-      if ( ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 || _R15) && r_smp_backend->current.enabled && r_cmdbuf_worker->current.enabled && !Stream_BackendQueue_IsInForcedFlush() && ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) != 0 || (unsigned int)(v6 - 79 + 65) > 4 && (unsigned int)(v6 - 79) > 4 && (unsigned int)(v6 - 84) > 4) )
+      if ( ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 || rtGroup) && r_smp_backend->current.enabled && r_cmdbuf_worker->current.enabled && !Stream_BackendQueue_IsInForcedFlush() && ((*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) != 0 || (unsigned int)(v6 - 79 + 65) > 4 && (unsigned int)(v6 - 79) > 4 && (unsigned int)(v6 - 84) > 4) )
       {
         if ( !r_glob.allowAddDrawCall && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5036, ASSERT_TYPE_ASSERT, "(r_glob.allowAddDrawCall)", (const char *)&queryFormat, "r_glob.allowAddDrawCall") )
           __debugbreak();
         *(unsigned int *)((char *)&frontEndDataOut->mesh[0].indexCount + v11) = 1;
         if ( frontEndDataOut->drawOutput[v10].cmdCount )
         {
-          LODWORD(v21) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5040, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].cmdCount ) )", "( drawListType ) = %i", v21) )
+          LODWORD(v14) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5040, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].cmdCount ) )", "( drawListType ) = %i", v14) )
             __debugbreak();
         }
         *(volatile int *)((char *)&frontEndDataOut->drawOutput[0].cmdCount + v12) = 1;
         if ( frontEndDataOut->drawOutput[v10].inCmdCount )
         {
-          LODWORD(v21) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5044, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].inCmdCount ) )", "( drawListType ) = %i", v21) )
+          LODWORD(v14) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5044, ASSERT_TYPE_ASSERT, "( ( !frontEndDataOut->drawOutput[drawListType].inCmdCount ) )", "( drawListType ) = %i", v14) )
             __debugbreak();
         }
         *(volatile int *)((char *)&frontEndDataOut->drawOutput[0].inCmdCount + v12) = 1;
         data[0] = (__int64)frontEndDataOut;
-        v23 = v6;
+        v16 = v6;
         data[1] = (__int64)viewInfo;
-        if ( _R15 )
+        if ( rtGroup )
         {
-          __asm { vmovups ymm0, ymmword ptr [r15] }
-          m_location = _R15->m_vrsRt.m_tracking.m_location;
-          _RCX = &v24;
-          __asm
-          {
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm0, ymmword ptr [r15+20h]
-            vmovups ymmword ptr [rcx+20h], ymm0
-            vmovups ymm0, ymmword ptr [r15+40h]
-            vmovups ymmword ptr [rcx+40h], ymm0
-            vmovups ymm0, ymmword ptr [r15+60h]
-            vmovups ymmword ptr [rcx+60h], ymm0
-            vmovups ymm0, ymmword ptr [r15+80h]
-            vmovups ymmword ptr [rcx+80h], ymm0
-            vmovups ymm0, ymmword ptr [r15+0A0h]
-            vmovups ymmword ptr [rcx+0A0h], ymm0
-          }
-          *((_QWORD *)&v30 + 1) = m_location;
+          m_location = rtGroup->m_vrsRt.m_tracking.m_location;
+          v17 = *(__m256i *)&rtGroup->m_colorRtCount;
+          v18 = *(__m256i *)&rtGroup->m_colorRts[0].m_tracking.m_location;
+          v19 = *(__m256i *)&rtGroup->m_colorRts[1].m_tracking.m_location;
+          v20 = *(__m256i *)&rtGroup->m_colorRts[2].m_tracking.m_location;
+          *(__m256i *)v21 = *(__m256i *)&rtGroup->m_colorRts[3].m_tracking.m_location;
+          *(__m256i *)&v21[32] = *(__m256i *)&rtGroup->m_depthRt.m_tracking.m_location;
+          *(_QWORD *)&v21[64] = m_location;
         }
         else
         {
-          v24 = 0;
+          v17.m256i_i8[0] = 0;
           __asm { vpxor   xmm0, xmm0, xmm0 }
-          v25 = 0;
-          v26 = 0;
-          __asm { vmovdqu [rsp+158h+var_78], xmm0 }
-          v28 = 0;
-          v29 = 0;
-          __asm { vmovdqu [rsp+158h+var_58], xmm0 }
+          *(_WORD *)&v21[8] = 0;
+          *(_DWORD *)&v21[16] = 0;
+          *(_OWORD *)&v21[24] = _XMM0;
+          *(_WORD *)&v21[40] = 0;
+          *(_DWORD *)&v21[48] = 0;
+          *(_OWORD *)&v21[56] = _XMM0;
         }
         Sys_AddWorkerCmd((WorkerCmdType)wrkrCmdType, data);
       }
@@ -2886,123 +2619,79 @@ R_AddDynamicLights
 */
 void R_AddDynamicLights(const void *const cmd)
 {
-  GfxViewInfo *v3; 
-  GfxBackEndData *v4; 
-  unsigned int v5; 
-  char v9; 
-  __int64 v10; 
+  GfxViewInfo *v1; 
+  GfxBackEndData *v2; 
+  unsigned int i; 
+  __int64 v4; 
+  __int64 v5; 
   int DynamicOmniLight; 
+  __int64 v10; 
   int DynamicSpotLight; 
-  unsigned int v36; 
-  unsigned int v37; 
+  __int64 v12; 
+  unsigned int v13; 
+  unsigned int v14; 
 
-  v3 = *(GfxViewInfo **)cmd;
-  v4 = (GfxBackEndData *)*((_QWORD *)cmd + 1);
+  v1 = *(GfxViewInfo **)cmd;
+  v2 = (GfxBackEndData *)*((_QWORD *)cmd + 1);
   if ( scene.dynamicOmniLightLimit > 0 )
   {
-    v5 = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount;
-    if ( v5 < rgp.world->primaryLightCount )
+    for ( i = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount; i < rgp.world->primaryLightCount; ++i )
     {
-      _R14 = &scene;
-      __asm
+      v4 = i;
+      v5 = (__int64)&v2->sceneLights[v4];
+      if ( v2->sceneLights[v4].radius >= 1.01 && (v2->sceneLights[v4].flags & 0x10) == 0 )
       {
-        vmovaps [rsp+48h+var_18], xmm6
-        vmovaps [rsp+48h+var_28], xmm7
-        vmovss  xmm7, cs:__real@3f8147ae
-        vxorps  xmm6, xmm6, xmm6
-      }
-      do
-      {
-        v10 = v5;
-        _RBX = &v4->sceneLights[v10];
-        __asm { vcomiss xmm7, dword ptr [rbx+44h] }
-        if ( ((152 * (unsigned __int128)v5) >> 64 != 0) | v9 && (v4->sceneLights[v10].flags & 0x10) == 0 )
+        _XMM0 = LODWORD(v2->sceneLights[v4].colorLinearSrgb.v[1]);
+        __asm
         {
-          __asm
+          vmaxss  xmm1, xmm0, dword ptr [rbx+14h]
+          vmaxss  xmm2, xmm1, dword ptr [rbx+1Ch]
+        }
+        if ( (float)(*(float *)&_XMM2 * v2->sceneLights[v4].intensity) != 0.0 || v2->viewInfo[v2->viewInfoIndex].thermalParams.useNightAndThermalVisionCombo && v2->sceneLights[v4].irIntensity > 0.0 )
+        {
+          if ( *(_BYTE *)v5 == 2 )
           {
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vmaxss  xmm1, xmm0, dword ptr [rbx+14h]
-            vmaxss  xmm2, xmm1, dword ptr [rbx+1Ch]
-            vmulss  xmm3, xmm2, dword ptr [rbx+10h]
-            vucomiss xmm3, xmm6
-          }
-          if ( (v4->sceneLights[v10].flags & 0x10) != 0 )
-          {
-            if ( _RBX->type == 2 )
+            DynamicSpotLight = R_AllocateDynamicSpotLight();
+            if ( DynamicSpotLight >= 0 )
             {
-              DynamicSpotLight = R_AllocateDynamicSpotLight();
-              if ( DynamicSpotLight >= 0 )
-              {
-                __asm { vmovsd  xmm0, qword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
-                _RCX = DynamicSpotLight;
-                __asm { vmovsd  qword ptr [rcx+r14+31FBB4h], xmm0 }
-                scene.dynamicSpotLight[_RCX].debugColorGammaSrgb.v[2] = colorYellow.v[2];
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rcx+r14+31FA90h], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rcx+r14+31FAB0h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rcx+r14+31FAD0h], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+60h]
-                  vmovups ymmword ptr [rcx+r14+31FAF0h], ymm1
-                  vmovups xmm0, xmmword ptr [rbx+80h]
-                  vmovups xmmword ptr [rcx+r14+31FB10h], xmm0
-                  vmovsd  xmm1, qword ptr [rbx+90h]
-                  vmovsd  qword ptr [rcx+r14+31FB20h], xmm1
-                }
-              }
-            }
-            else if ( _RBX->type == 3 )
-            {
-              DynamicOmniLight = R_AllocateDynamicOmniLight();
-              if ( DynamicOmniLight >= 0 )
-              {
-                __asm { vmovsd  xmm0, qword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
-                _RCX = DynamicOmniLight;
-                __asm { vmovsd  qword ptr [rcx+r14+3247C4h], xmm0 }
-                scene.dynamicOmniLight[_RCX].debugColorGammaSrgb.v[2] = colorYellow.v[2];
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rcx+r14+3246A0h], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rcx+r14+3246C0h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rcx+r14+3246E0h], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+60h]
-                  vmovups ymmword ptr [rcx+r14+324700h], ymm1
-                  vmovups xmm0, xmmword ptr [rbx+80h]
-                  vmovups xmmword ptr [rcx+r14+324720h], xmm0
-                  vmovsd  xmm1, qword ptr [rbx+90h]
-                  vmovsd  qword ptr [rcx+r14+324730h], xmm1
-                }
-                if ( _RBX->canUseShadowMap )
-                  R_CalcSpotLightPlanesAndBoundingBox(_RBX, (vec4_t (*)[6])scene.dynamicOmniLight[_RCX].planes, &scene.dynamicOmniLight[_RCX].bounds);
-              }
+              v12 = DynamicSpotLight;
+              *(double *)scene.dynamicSpotLight[v12].debugColorGammaSrgb.v = *(double *)colorYellow.v;
+              scene.dynamicSpotLight[v12].debugColorGammaSrgb.v[2] = colorYellow.v[2];
+              *(__m256i *)&scene.dynamicSpotLight[v12].lightCommon.type = *(__m256i *)v5;
+              *(__m256i *)scene.dynamicSpotLight[v12].lightCommon.dir.v = *(__m256i *)(v5 + 32);
+              *(__m256i *)&scene.dynamicSpotLight[v12].lightCommon.origin.z = *(__m256i *)(v5 + 64);
+              *(__m256i *)&scene.dynamicSpotLight[v12].lightCommon.cosHalfFovOuter = *(__m256i *)(v5 + 96);
+              *(_OWORD *)&scene.dynamicSpotLight[v12].lightCommon.shadowArea = *(_OWORD *)(v5 + 128);
+              scene.dynamicSpotLight[v12].lightCommon.def = *(GfxLightDef **)(v5 + 144);
             }
           }
-          else if ( v4->viewInfo[v4->viewInfoIndex].thermalParams.useNightAndThermalVisionCombo )
+          else if ( *(_BYTE *)v5 == 3 )
           {
-            __asm { vcomiss xmm6, dword ptr [rbx+8] }
+            DynamicOmniLight = R_AllocateDynamicOmniLight();
+            if ( DynamicOmniLight >= 0 )
+            {
+              v10 = DynamicOmniLight;
+              *(double *)scene.dynamicOmniLight[v10].debugColorGammaSrgb.v = *(double *)colorYellow.v;
+              scene.dynamicOmniLight[v10].debugColorGammaSrgb.v[2] = colorYellow.v[2];
+              *(__m256i *)&scene.dynamicOmniLight[v10].lightCommon.type = *(__m256i *)v5;
+              *(__m256i *)scene.dynamicOmniLight[v10].lightCommon.dir.v = *(__m256i *)(v5 + 32);
+              *(__m256i *)&scene.dynamicOmniLight[v10].lightCommon.origin.z = *(__m256i *)(v5 + 64);
+              *(__m256i *)&scene.dynamicOmniLight[v10].lightCommon.cosHalfFovOuter = *(__m256i *)(v5 + 96);
+              *(_OWORD *)&scene.dynamicOmniLight[v10].lightCommon.shadowArea = *(_OWORD *)(v5 + 128);
+              scene.dynamicOmniLight[v10].lightCommon.def = *(GfxLightDef **)(v5 + 144);
+              if ( *(_BYTE *)(v5 + 1) )
+                R_CalcSpotLightPlanesAndBoundingBox((const GfxLight *)v5, (vec4_t (*)[6])scene.dynamicOmniLight[v10].planes, &scene.dynamicOmniLight[v10].bounds);
+            }
           }
         }
-        ++v5;
-      }
-      while ( v5 < rgp.world->primaryLightCount );
-      __asm
-      {
-        vmovaps xmm7, [rsp+48h+var_28]
-        vmovaps xmm6, [rsp+48h+var_18]
       }
     }
-    v36 = R_ChooseVisibleDynamicSpotLights(v4, v3);
-    v4->dynamicLightCount += v36;
-    v4->dynamicSpotLightCount = v36;
-    v37 = R_ChooseVisibleDynamicOmniLights(v4, v3);
-    v4->dynamicLightCount += v37;
-    v4->dynamicOmniLightCount = v37;
+    v13 = R_ChooseVisibleDynamicSpotLights(v2, v1);
+    v2->dynamicLightCount += v13;
+    v2->dynamicSpotLightCount = v13;
+    v14 = R_ChooseVisibleDynamicOmniLights(v2, v1);
+    v2->dynamicLightCount += v14;
+    v2->dynamicOmniLightCount = v14;
   }
 }
 
@@ -3013,113 +2702,69 @@ R_AddDynamicLightsWithShadowmap
 */
 void R_AddDynamicLightsWithShadowmap(GfxViewInfo *viewInfo, GfxBackEndData *backEndDataOut)
 {
-  unsigned int v6; 
-  char v10; 
-  __int64 v11; 
+  unsigned int i; 
+  __int64 v5; 
+  GfxLight *v6; 
   int DynamicOmniLight; 
+  __int64 v11; 
   int DynamicSpotLight; 
-  unsigned int v37; 
+  __int64 v13; 
+  unsigned int v14; 
 
-  v6 = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount;
-  if ( v6 < rgp.world->primaryLightCount )
+  for ( i = rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount; i < rgp.world->primaryLightCount; ++i )
   {
-    _R14 = &scene;
-    __asm
+    v5 = i;
+    v6 = &backEndDataOut->sceneLights[v5];
+    if ( backEndDataOut->sceneLights[v5].radius >= 1.01 && (backEndDataOut->sceneLights[v5].flags & 0x10) == 0 )
     {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-      vmovss  xmm7, cs:__real@3f8147ae
-      vxorps  xmm6, xmm6, xmm6
-    }
-    do
-    {
-      v11 = v6;
-      _RBX = &backEndDataOut->sceneLights[v11];
-      __asm { vcomiss xmm7, dword ptr [rbx+44h] }
-      if ( ((152 * (unsigned __int128)v6) >> 64 != 0) | v10 && (backEndDataOut->sceneLights[v11].flags & 0x10) == 0 )
+      _XMM0 = LODWORD(backEndDataOut->sceneLights[v5].colorLinearSrgb.v[1]);
+      __asm
       {
-        __asm
+        vmaxss  xmm1, xmm0, dword ptr [rbx+14h]
+        vmaxss  xmm2, xmm1, dword ptr [rbx+1Ch]
+      }
+      if ( (float)(*(float *)&_XMM2 * backEndDataOut->sceneLights[v5].intensity) != 0.0 || backEndDataOut->viewInfo[backEndDataOut->viewInfoIndex].thermalParams.useNightAndThermalVisionCombo && backEndDataOut->sceneLights[v5].irIntensity > 0.0 )
+      {
+        if ( v6->type == 2 )
         {
-          vmovss  xmm0, dword ptr [rbx+18h]
-          vmaxss  xmm1, xmm0, dword ptr [rbx+14h]
-          vmaxss  xmm2, xmm1, dword ptr [rbx+1Ch]
-          vmulss  xmm3, xmm2, dword ptr [rbx+10h]
-          vucomiss xmm3, xmm6
-        }
-        if ( (backEndDataOut->sceneLights[v11].flags & 0x10) != 0 )
-        {
-          if ( _RBX->type == 2 )
+          DynamicSpotLight = R_AllocateDynamicSpotLight();
+          if ( DynamicSpotLight >= 0 )
           {
-            DynamicSpotLight = R_AllocateDynamicSpotLight();
-            if ( DynamicSpotLight >= 0 )
-            {
-              __asm { vmovsd  xmm0, qword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
-              _RCX = DynamicSpotLight;
-              __asm { vmovsd  qword ptr [rcx+r14+31FBB4h], xmm0 }
-              scene.dynamicSpotLight[_RCX].debugColorGammaSrgb.v[2] = colorYellow.v[2];
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbx]
-                vmovups ymmword ptr [rcx+r14+31FA90h], ymm0
-                vmovups ymm1, ymmword ptr [rbx+20h]
-                vmovups ymmword ptr [rcx+r14+31FAB0h], ymm1
-                vmovups ymm0, ymmword ptr [rbx+40h]
-                vmovups ymmword ptr [rcx+r14+31FAD0h], ymm0
-                vmovups ymm1, ymmword ptr [rbx+60h]
-                vmovups ymmword ptr [rcx+r14+31FAF0h], ymm1
-                vmovups xmm0, xmmword ptr [rbx+80h]
-                vmovups xmmword ptr [rcx+r14+31FB10h], xmm0
-                vmovsd  xmm1, qword ptr [rbx+90h]
-                vmovsd  qword ptr [rcx+r14+31FB20h], xmm1
-              }
-            }
-          }
-          else if ( _RBX->type == 3 )
-          {
-            DynamicOmniLight = R_AllocateDynamicOmniLight();
-            if ( DynamicOmniLight >= 0 )
-            {
-              __asm { vmovsd  xmm0, qword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
-              _RCX = DynamicOmniLight;
-              __asm { vmovsd  qword ptr [rcx+r14+3247C4h], xmm0 }
-              scene.dynamicOmniLight[_RCX].debugColorGammaSrgb.v[2] = colorYellow.v[2];
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbx]
-                vmovups ymmword ptr [rcx+r14+3246A0h], ymm0
-                vmovups ymm1, ymmword ptr [rbx+20h]
-                vmovups ymmword ptr [rcx+r14+3246C0h], ymm1
-                vmovups ymm0, ymmword ptr [rbx+40h]
-                vmovups ymmword ptr [rcx+r14+3246E0h], ymm0
-                vmovups ymm1, ymmword ptr [rbx+60h]
-                vmovups ymmword ptr [rcx+r14+324700h], ymm1
-                vmovups xmm0, xmmword ptr [rbx+80h]
-                vmovups xmmword ptr [rcx+r14+324720h], xmm0
-                vmovsd  xmm1, qword ptr [rbx+90h]
-                vmovsd  qword ptr [rcx+r14+324730h], xmm1
-              }
-              if ( _RBX->canUseShadowMap )
-                R_CalcSpotLightPlanesAndBoundingBox(_RBX, (vec4_t (*)[6])scene.dynamicOmniLight[_RCX].planes, &scene.dynamicOmniLight[_RCX].bounds);
-            }
+            v13 = DynamicSpotLight;
+            *(double *)scene.dynamicSpotLight[v13].debugColorGammaSrgb.v = *(double *)colorYellow.v;
+            scene.dynamicSpotLight[v13].debugColorGammaSrgb.v[2] = colorYellow.v[2];
+            *(__m256i *)&scene.dynamicSpotLight[v13].lightCommon.type = *(__m256i *)&v6->type;
+            *(__m256i *)scene.dynamicSpotLight[v13].lightCommon.dir.v = *(__m256i *)v6->dir.v;
+            *(__m256i *)&scene.dynamicSpotLight[v13].lightCommon.origin.z = *(__m256i *)&v6->origin.z;
+            *(__m256i *)&scene.dynamicSpotLight[v13].lightCommon.cosHalfFovOuter = *(__m256i *)&v6->cosHalfFovOuter;
+            *(_OWORD *)&scene.dynamicSpotLight[v13].lightCommon.shadowArea = *(_OWORD *)&v6->shadowArea;
+            scene.dynamicSpotLight[v13].lightCommon.def = v6->def;
           }
         }
-        else if ( backEndDataOut->viewInfo[backEndDataOut->viewInfoIndex].thermalParams.useNightAndThermalVisionCombo )
+        else if ( v6->type == 3 )
         {
-          __asm { vcomiss xmm6, dword ptr [rbx+8] }
+          DynamicOmniLight = R_AllocateDynamicOmniLight();
+          if ( DynamicOmniLight >= 0 )
+          {
+            v11 = DynamicOmniLight;
+            *(double *)scene.dynamicOmniLight[v11].debugColorGammaSrgb.v = *(double *)colorYellow.v;
+            scene.dynamicOmniLight[v11].debugColorGammaSrgb.v[2] = colorYellow.v[2];
+            *(__m256i *)&scene.dynamicOmniLight[v11].lightCommon.type = *(__m256i *)&v6->type;
+            *(__m256i *)scene.dynamicOmniLight[v11].lightCommon.dir.v = *(__m256i *)v6->dir.v;
+            *(__m256i *)&scene.dynamicOmniLight[v11].lightCommon.origin.z = *(__m256i *)&v6->origin.z;
+            *(__m256i *)&scene.dynamicOmniLight[v11].lightCommon.cosHalfFovOuter = *(__m256i *)&v6->cosHalfFovOuter;
+            *(_OWORD *)&scene.dynamicOmniLight[v11].lightCommon.shadowArea = *(_OWORD *)&v6->shadowArea;
+            scene.dynamicOmniLight[v11].lightCommon.def = v6->def;
+            if ( v6->canUseShadowMap )
+              R_CalcSpotLightPlanesAndBoundingBox(v6, (vec4_t (*)[6])scene.dynamicOmniLight[v11].planes, &scene.dynamicOmniLight[v11].bounds);
+          }
         }
       }
-      ++v6;
-    }
-    while ( v6 < rgp.world->primaryLightCount );
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovaps xmm6, [rsp+48h+var_18]
     }
   }
-  v37 = R_ChooseVisibleDynamicSpotLights(backEndDataOut, viewInfo);
-  backEndDataOut->dynamicLightCount += v37;
-  backEndDataOut->dynamicSpotLightCount = v37;
+  v14 = R_ChooseVisibleDynamicSpotLights(backEndDataOut, viewInfo);
+  backEndDataOut->dynamicLightCount += v14;
+  backEndDataOut->dynamicSpotLightCount = v14;
 }
 
 /*
@@ -3141,225 +2786,115 @@ void R_AddDynamicOmniLights(GfxViewInfo *viewInfo, GfxBackEndData *backEndDataOu
 R_AddOmniLightToScene
 ==============
 */
-
-bool __fastcall R_AddOmniLightToScene(const vec3_t *org, double radius, const vec3_t *colorLinearSrgb, double intensity, const ParticleModuleInitLightOmni *pModuleInitLightOmni, GfxLightDef *lightDef)
+char R_AddOmniLightToScene(const vec3_t *org, float radius, const vec3_t *colorLinearSrgb, float intensity, const ParticleModuleInitLightOmni *pModuleInitLightOmni, GfxLightDef *lightDef)
 {
-  const dvar_t *v15; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float m_intensityIR; 
   int DynamicOmniLight; 
-  const dvar_t *v35; 
+  __int64 v13; 
+  GfxLightDef *dlightDef; 
+  const char *iesProfile; 
+  float m_bulbLength; 
+  const dvar_t *v17; 
+  float value; 
   vec2_t *p_fadeOffsetRt; 
-  char v39; 
-  bool v41; 
-  char v45; 
-  bool v48; 
-  bool result; 
-  double v66; 
-  double v67; 
-  char v72; 
+  float m_fovOuter; 
+  float v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  bool v25; 
 
-  _RSI = colorLinearSrgb;
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps [rsp+98h+var_48], xmm8
-    vmovaps [rsp+98h+var_58], xmm9
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm3
-  }
+  v8 = radius;
+  v9 = intensity;
   if ( !rgp.world )
-    goto LABEL_32;
+    return 0;
   if ( !rg.inFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2485, ASSERT_TYPE_ASSERT, "(rg.inFrame)", (const char *)&queryFormat, "rg.inFrame") )
     __debugbreak();
-  _RBX = pModuleInitLightOmni;
   if ( pModuleInitLightOmni->m_scriptScale )
   {
-    __asm
-    {
-      vmulss  xmm8, xmm8, dword ptr [rax+28h]
-      vmulss  xmm7, xmm7, dword ptr [rax+28h]
-    }
+    v8 = radius * fx_lights_radius_scale->current.value;
+    v9 = intensity * fx_lights_intensity_scale->current.value;
   }
-  __asm { vcomiss xmm8, cs:__real@3f8147ae }
-  v15 = DCONST_DVARBOOL_r_pureIRLightHack;
-  __asm { vmovss  xmm9, dword ptr [rbx+34h] }
+  if ( v8 < 1.01 )
+    return 0;
+  v10 = DCONST_DVARBOOL_r_pureIRLightHack;
+  m_intensityIR = pModuleInitLightOmni->m_intensityIR;
   if ( !DCONST_DVARBOOL_r_pureIRLightHack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_pureIRLightHack") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v15->current.enabled )
-    __asm { vcomiss xmm6, dword ptr [rbx+34h] }
-  __asm
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled && pModuleInitLightOmni->m_intensityIR > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vaddss  xmm2, xmm1, dword ptr [rsi+8]
-    vmulss  xmm3, xmm2, xmm7
-    vaddss  xmm0, xmm3, dword ptr [rbx+34h]
-    vcomiss xmm0, xmm6
+    m_intensityIR = m_intensityIR + v9;
+    v9 = 0.0;
   }
-  if ( !v15->current.enabled )
-    goto LABEL_32;
+  if ( (float)((float)((float)((float)(colorLinearSrgb->v[1] + colorLinearSrgb->v[0]) + colorLinearSrgb->v[2]) * v9) + pModuleInitLightOmni->m_intensityIR) <= 0.0 )
+    return 0;
   DynamicOmniLight = R_AllocateDynamicOmniLight();
-  if ( DynamicOmniLight >= 0 )
-  {
-    _RDI = DynamicOmniLight;
-    _RBP = &scene;
-    memset_0(&scene.dynamicOmniLight[_RDI].lightCommon.canUseShadowMap, 0, 0x8Fui64);
-    _R8 = rgp.dlightDef;
-    scene.dynamicOmniLight[_RDI].lightCommon.type = 3;
-    if ( lightDef )
-      _R8 = lightDef;
-    scene.dynamicOmniLight[_RDI].lightCommon.def = _R8;
-    if ( _R8->iesProfile )
-      __asm { vucomiss xmm6, dword ptr [r8+18h] }
-    __asm { vmovss  xmm3, cs:__real@43f6b0cf }
-    scene.dynamicOmniLight[_RDI].lightCommon.colorLinearSrgb.v[0] = _RSI->v[0];
-    scene.dynamicOmniLight[_RDI].lightCommon.colorLinearSrgb.v[1] = _RSI->v[1];
-    scene.dynamicOmniLight[_RDI].lightCommon.colorLinearSrgb.v[2] = _RSI->v[2];
-    __asm
-    {
-      vmulss  xmm0, xmm7, dword ptr [rbx+2Ch]
-      vmulss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rdi+rbp+3246B0h], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rbx+30h]
-      vmovss  dword ptr [rdi+rbp+3246A4h], xmm2
-      vmulss  xmm0, xmm9, xmm3
-      vmovss  dword ptr [rdi+rbp+3246A8h], xmm0
-      vmovss  xmm1, dword ptr [rbx+38h]
-      vmulss  xmm2, xmm1, cs:__real@45340001
-      vmovss  dword ptr [rdi+rbp+3246ACh], xmm2
-    }
-    scene.dynamicOmniLight[_RDI].lightCommon.tonemappingScaleFactor = pModuleInitLightOmni->m_toneMappingScaleFactor;
-    scene.dynamicOmniLight[_RDI].lightCommon.origin.v[0] = org->v[0];
-    scene.dynamicOmniLight[_RDI].lightCommon.origin.v[1] = org->v[1];
-    scene.dynamicOmniLight[_RDI].lightCommon.origin.v[2] = org->v[2];
-    __asm { vmovss  dword ptr [rdi+rbp+3246E4h], xmm8 }
-    scene.dynamicOmniLight[_RDI].lightCommon.bulbRadius = pModuleInitLightOmni->m_bulbRadius;
-    __asm { vmovss  xmm0, dword ptr [rbx+24h] }
-    v35 = r_VFXOmniLightFalloffEnable;
-    __asm
-    {
-      vmovss  dword ptr [rdi+rbp+3246F4h], xmm0
-      vmovss  dword ptr [rdi+rbp+3246F8h], xmm0
-      vmovss  dword ptr [rdi+rbp+3246FCh], xmm0
-    }
-    if ( v35->current.enabled )
-    {
-      _RAX = r_VFXOmniLightFalloff;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    }
-    p_fadeOffsetRt = &scene.dynamicOmniLight[_RDI].lightCommon.fadeOffsetRt;
-    __asm { vmovss  dword ptr [rdi+rbp+324724h], xmm0 }
-    *p_fadeOffsetRt = 0i64;
-    R_LightFadeOffsetRuntimeEncoding(p_fadeOffsetRt, 3u);
-    scene.dynamicOmniLight[_RDI].lightCommon.cosHalfFovCollimation = 0.0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vcomiss xmm0, dword ptr [rbx+18h]
-    }
-    if ( !v39 )
-    {
-      v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2573, ASSERT_TYPE_ASSERT, "(pModuleInitLightOmni->m_fovOuter > pModuleInitLightOmni->m_fovInner)", (const char *)&queryFormat, "pModuleInitLightOmni->m_fovOuter > pModuleInitLightOmni->m_fovInner");
-      v39 = 0;
-      if ( v41 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vcomiss xmm0, cs:__real@3fc90fdb
-    }
-    if ( !v39 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_70], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2574, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightOmni->m_fovOuter < ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightOmni->m_fovOuter ) = %g", v66) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm0, dword ptr [rbx+1Ch]; X }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rdi+rbp+324704h], xmm0
-      vmovss  xmm0, dword ptr [rbx+18h]; X
-    }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  dword ptr [rdi+rbp+324700h], xmm0
-    }
-    if ( v45 | v48 )
-      goto LABEL_29;
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !v45 )
-    {
-LABEL_29:
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_70], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2577, ASSERT_TYPE_ASSERT, "( ( dl->cosHalfFovOuter > 0.0f && dl->cosHalfFovOuter < 1.0f ) )", "( dl->cosHalfFovOuter ) = %g", v67) )
-        __debugbreak();
-    }
-    *(_WORD *)&scene.dynamicOmniLight[_RDI].lightCommon.canUseShadowMap = 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+3Ch]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rdi+rbp+324718h], xmm0
-      vmovss  xmm0, dword ptr [rbx+40h]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rdi+rbp+32471Ch], xmm0
-      vmovss  xmm0, dword ptr [rbx+44h]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [rdi+rbp+324720h], xmm0 }
-    v48 = !pModuleInitLightOmni->m_disableVolumetric;
-    __asm { vmovsd  xmm0, qword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen }
-    scene.dynamicOmniLight[_RDI].lightCommon.flags = 8;
-    scene.dynamicOmniLight[_RDI].lightCommon.isVolumetric = v48;
-    __asm { vmovsd  qword ptr [rdi+rbp+3247C4h], xmm0 }
-    scene.dynamicOmniLight[_RDI].debugColorGammaSrgb.v[2] = colorGreen.v[2];
-    result = 1;
-  }
+  if ( DynamicOmniLight < 0 )
+    return 0;
+  v13 = DynamicOmniLight;
+  memset_0(&scene.dynamicOmniLight[v13].lightCommon.canUseShadowMap, 0, 0x8Fui64);
+  dlightDef = rgp.dlightDef;
+  scene.dynamicOmniLight[v13].lightCommon.type = 3;
+  if ( lightDef )
+    dlightDef = lightDef;
+  scene.dynamicOmniLight[v13].lightCommon.def = dlightDef;
+  iesProfile = dlightDef->iesProfile;
+  if ( iesProfile && dlightDef->coordScale == 0.0 )
+    Com_Printf(8, "ERROR: Found invalid lightDef %s ies %s\n", dlightDef->name, iesProfile);
+  scene.dynamicOmniLight[v13].lightCommon.colorLinearSrgb.v[0] = colorLinearSrgb->v[0];
+  scene.dynamicOmniLight[v13].lightCommon.colorLinearSrgb.v[1] = colorLinearSrgb->v[1];
+  scene.dynamicOmniLight[v13].lightCommon.colorLinearSrgb.v[2] = colorLinearSrgb->v[2];
+  scene.dynamicOmniLight[v13].lightCommon.intensity = (float)(v9 * pModuleInitLightOmni->m_brightness) * 493.38132;
+  scene.dynamicOmniLight[v13].lightCommon.uvIntensity = 493.38132 * pModuleInitLightOmni->m_intensityUV;
+  scene.dynamicOmniLight[v13].lightCommon.irIntensity = m_intensityIR * 493.38132;
+  scene.dynamicOmniLight[v13].lightCommon.heatIntensity = pModuleInitLightOmni->m_intensityHeat * 2880.0002;
+  scene.dynamicOmniLight[v13].lightCommon.tonemappingScaleFactor = pModuleInitLightOmni->m_toneMappingScaleFactor;
+  scene.dynamicOmniLight[v13].lightCommon.origin.v[0] = org->v[0];
+  scene.dynamicOmniLight[v13].lightCommon.origin.v[1] = org->v[1];
+  scene.dynamicOmniLight[v13].lightCommon.origin.v[2] = org->v[2];
+  scene.dynamicOmniLight[v13].lightCommon.radius = v8;
+  scene.dynamicOmniLight[v13].lightCommon.bulbRadius = pModuleInitLightOmni->m_bulbRadius;
+  m_bulbLength = pModuleInitLightOmni->m_bulbLength;
+  v17 = r_VFXOmniLightFalloffEnable;
+  scene.dynamicOmniLight[v13].lightCommon.bulbLength.v[0] = m_bulbLength;
+  scene.dynamicOmniLight[v13].lightCommon.bulbLength.v[1] = m_bulbLength;
+  scene.dynamicOmniLight[v13].lightCommon.bulbLength.v[2] = m_bulbLength;
+  if ( v17->current.enabled )
+    value = r_VFXOmniLightFalloff->current.value;
   else
-  {
-LABEL_32:
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
-  return result;
+    value = pModuleInitLightOmni->m_distanceFalloff;
+  p_fadeOffsetRt = &scene.dynamicOmniLight[v13].lightCommon.fadeOffsetRt;
+  scene.dynamicOmniLight[v13].lightCommon.distanceFalloff = value;
+  *p_fadeOffsetRt = 0i64;
+  R_LightFadeOffsetRuntimeEncoding(p_fadeOffsetRt, 3u);
+  scene.dynamicOmniLight[v13].lightCommon.cosHalfFovCollimation = 0.0;
+  if ( pModuleInitLightOmni->m_fovInner >= pModuleInitLightOmni->m_fovOuter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2573, ASSERT_TYPE_ASSERT, "(pModuleInitLightOmni->m_fovOuter > pModuleInitLightOmni->m_fovInner)", (const char *)&queryFormat, "pModuleInitLightOmni->m_fovOuter > pModuleInitLightOmni->m_fovInner") )
+    __debugbreak();
+  m_fovOuter = pModuleInitLightOmni->m_fovOuter;
+  if ( m_fovOuter >= 1.5707964 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2574, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightOmni->m_fovOuter < ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightOmni->m_fovOuter ) = %g", m_fovOuter) )
+    __debugbreak();
+  scene.dynamicOmniLight[v13].lightCommon.cosHalfFovInner = cosf_0(pModuleInitLightOmni->m_fovInner);
+  v21 = cosf_0(pModuleInitLightOmni->m_fovOuter);
+  scene.dynamicOmniLight[v13].lightCommon.cosHalfFovOuter = v21;
+  if ( (v21 <= 0.0 || v21 >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2577, ASSERT_TYPE_ASSERT, "( ( dl->cosHalfFovOuter > 0.0f && dl->cosHalfFovOuter < 1.0f ) )", "( dl->cosHalfFovOuter ) = %g", v21) )
+    __debugbreak();
+  *(_WORD *)&scene.dynamicOmniLight[v13].lightCommon.canUseShadowMap = 0;
+  v22 = I_fclamp(pModuleInitLightOmni->m_shadowSoftness, 0.0, 1.0);
+  scene.dynamicOmniLight[v13].lightCommon.shadowSoftness = *(float *)&v22;
+  v23 = I_fclamp(pModuleInitLightOmni->m_shadowBias, 0.0, 1.0);
+  scene.dynamicOmniLight[v13].lightCommon.shadowBias = *(float *)&v23;
+  v24 = I_fclamp(pModuleInitLightOmni->m_shadowArea, 0.0, 1.0);
+  scene.dynamicOmniLight[v13].lightCommon.shadowArea = *(float *)&v24;
+  v25 = !pModuleInitLightOmni->m_disableVolumetric;
+  scene.dynamicOmniLight[v13].lightCommon.flags = 8;
+  scene.dynamicOmniLight[v13].lightCommon.isVolumetric = v25;
+  *(double *)scene.dynamicOmniLight[v13].debugColorGammaSrgb.v = *(double *)colorGreen.v;
+  scene.dynamicOmniLight[v13].debugColorGammaSrgb.v[2] = colorGreen.v[2];
+  return 1;
 }
 
 /*
@@ -3370,9 +2905,9 @@ R_AddReflectionProbeInstanceToScene
 void R_AddReflectionProbeInstanceToScene(const GfxReflectionProbeInstance *reflectionProbeInstance)
 {
   __int64 sceneReflectionProbeInstanceCount; 
-  __int64 v10; 
+  __int64 v3; 
+  __int64 v4; 
 
-  _RDI = reflectionProbeInstance;
   if ( !rg.inFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2413, ASSERT_TYPE_ASSERT, "(rg.inFrame)", (const char *)&queryFormat, "rg.inFrame") )
     __debugbreak();
   sceneReflectionProbeInstanceCount = scene.sceneReflectionProbeInstanceCount;
@@ -3380,8 +2915,8 @@ void R_AddReflectionProbeInstanceToScene(const GfxReflectionProbeInstance *refle
   {
     if ( scene.sceneReflectionProbeInstanceCount != 128 )
     {
-      LODWORD(v10) = scene.sceneReflectionProbeInstanceCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2422, ASSERT_TYPE_ASSERT, "( ( scene.sceneReflectionProbeInstanceCount == 128 ) )", "( scene.sceneReflectionProbeInstanceCount ) = %i", v10) )
+      LODWORD(v4) = scene.sceneReflectionProbeInstanceCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2422, ASSERT_TYPE_ASSERT, "( ( scene.sceneReflectionProbeInstanceCount == 128 ) )", "( scene.sceneReflectionProbeInstanceCount ) = %i", v4) )
         __debugbreak();
     }
     R_WarnOncePerFrame(R_WARN_KNOWN_REFLECTION_PROBE_VOLUMES);
@@ -3392,21 +2927,12 @@ void R_AddReflectionProbeInstanceToScene(const GfxReflectionProbeInstance *refle
   }
   if ( (unsigned int)sceneReflectionProbeInstanceCount < 0x80 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
-    _RAX = scene.sceneReflectionProbeInstances;
-    _RCX = 18 * sceneReflectionProbeInstanceCount;
-    __asm
-    {
-      vmovups ymmword ptr [rax+rcx*8], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rax+rcx*8+20h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rax+rcx*8+40h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rax+rcx*8+60h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rax+rcx*8+80h], xmm0
-    }
+    v3 = sceneReflectionProbeInstanceCount;
+    *(__m256i *)&scene.sceneReflectionProbeInstances[v3].reflectionProbeInstance.livePath = *(__m256i *)&reflectionProbeInstance->livePath;
+    *(__m256i *)&scene.sceneReflectionProbeInstances[v3].reflectionProbeInstance.probeRotation.xyz.z = *(__m256i *)&reflectionProbeInstance->probeRotation.xyz.z;
+    *(__m256i *)scene.sceneReflectionProbeInstances[v3].reflectionProbeInstance.volumeObb.yAxis.v = *(__m256i *)reflectionProbeInstance->volumeObb.yAxis.v;
+    *(__m256i *)&scene.sceneReflectionProbeInstances[v3].reflectionProbeInstance.volumeObb.halfSize.z = *(__m256i *)&reflectionProbeInstance->volumeObb.halfSize.z;
+    *(_OWORD *)scene.sceneReflectionProbeInstances[v3].reflectionProbeInstance.expandProjectionPos.v = *(_OWORD *)reflectionProbeInstance->expandProjectionPos.v;
   }
 }
 
@@ -3447,290 +2973,154 @@ R_AddSpotLightToScene
 ==============
 */
 
-bool __fastcall R_AddSpotLightToScene(const vec3_t *org, const vec3_t *dir, const vec3_t *up, double radius, const vec3_t *colorLinearSrgb, float intensity, const ParticleModuleInitLightSpot *pModuleInitLightSpot, GfxLightDef *lightDef)
+char __fastcall R_AddSpotLightToScene(const vec3_t *org, const vec3_t *dir, const vec3_t *up, double radius, const vec3_t *colorLinearSrgb, float intensity, const ParticleModuleInitLightSpot *pModuleInitLightSpot, GfxLightDef *lightDef)
 {
-  const dvar_t *v19; 
+  __int128 v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float m_intensityIR; 
   int DynamicSpotLight; 
+  __int64 v17; 
+  GfxLightDef *dlightDef; 
+  const char *iesProfile; 
+  vec3_t *p_dir; 
   vec3_t *p_up; 
   float m_toneMappingScaleFactor; 
-  const dvar_t *v51; 
+  float m_bulbLength; 
+  const dvar_t *v25; 
+  float v26; 
+  float value; 
   vec2_t *p_fadeOffsetRt; 
-  bool v60; 
-  char v63; 
-  bool v65; 
-  char v71; 
-  bool v75; 
-  bool v76; 
-  bool result; 
-  double v92; 
-  double v93; 
-  double v94; 
+  float m_fovCollimation; 
+  float m_fovOuter; 
+  float v35; 
+  bool v36; 
+  bool v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  bool v41; 
   vec3_t cross; 
 
-  __asm { vmovaps [rsp+0C8h+var_58], xmm8 }
-  _RBX = pModuleInitLightSpot;
-  _RBP = dir;
-  __asm { vmovaps xmm8, xmm3 }
+  _XMM8 = *(_OWORD *)&radius;
   if ( !pModuleInitLightSpot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2605, ASSERT_TYPE_ASSERT, "(pModuleInitLightSpot)", (const char *)&queryFormat, "pModuleInitLightSpot") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_38], xmm6
-    vmovaps [rsp+0C8h+var_48], xmm7
-    vmovaps [rsp+0C8h+var_68], xmm9
-  }
   if ( !rgp.world )
-    goto LABEL_49;
+    return 0;
   if ( !rg.inFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2619, ASSERT_TYPE_ASSERT, "(rg.inFrame)", (const char *)&queryFormat, "rg.inFrame") )
     __debugbreak();
   if ( pModuleInitLightSpot->m_scriptScale )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+0C8h+intensity]
-      vmulss  xmm8, xmm8, dword ptr [rax+28h]
-      vmulss  xmm7, xmm0, dword ptr [rax+28h]
-    }
+    v12 = *(_OWORD *)&radius;
+    *(float *)&v12 = *(float *)&radius * fx_lights_radius_scale->current.value;
+    _XMM8 = v12;
+    v13 = intensity * fx_lights_intensity_scale->current.value;
   }
   else
   {
-    __asm { vmovss  xmm7, [rsp+0C8h+intensity] }
+    v13 = intensity;
   }
-  __asm { vcomiss xmm8, cs:__real@3f8147ae }
-  v19 = DCONST_DVARBOOL_r_pureIRLightHack;
-  __asm { vmovss  xmm9, dword ptr [rbx+38h] }
+  if ( *(float *)&_XMM8 < 1.01 )
+    return 0;
+  v14 = DCONST_DVARBOOL_r_pureIRLightHack;
+  m_intensityIR = pModuleInitLightSpot->m_intensityIR;
   if ( !DCONST_DVARBOOL_r_pureIRLightHack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_pureIRLightHack") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v19->current.enabled )
-    __asm { vcomiss xmm6, dword ptr [rbx+38h] }
-  _RSI = colorLinearSrgb;
-  __asm
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.enabled && pModuleInitLightSpot->m_intensityIR > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vaddss  xmm2, xmm1, dword ptr [rsi+8]
-    vmulss  xmm3, xmm2, xmm7
-    vaddss  xmm0, xmm3, dword ptr [rbx+38h]
-    vcomiss xmm0, xmm6
+    m_intensityIR = m_intensityIR + v13;
+    v13 = 0.0;
   }
-  if ( !v19->current.enabled )
-    goto LABEL_49;
-  __asm { vucomiss xmm6, dword ptr [rbx+18h] }
-  if ( !v19->current.enabled )
-    goto LABEL_49;
+  if ( (float)((float)((float)((float)(colorLinearSrgb->v[0] + colorLinearSrgb->v[1]) + colorLinearSrgb->v[2]) * v13) + pModuleInitLightSpot->m_intensityIR) <= 0.0 )
+    return 0;
+  if ( pModuleInitLightSpot->m_fovOuter == 0.0 )
+    return 0;
   DynamicSpotLight = R_AllocateDynamicSpotLight();
-  if ( DynamicSpotLight >= 0 )
-  {
-    _RDI = DynamicSpotLight;
-    _R12 = &scene;
-    memset_0(&scene.dynamicSpotLight[_RDI].lightCommon.canUseShadowMap, 0, 0x8Fui64);
-    _R8 = rgp.dlightDef;
-    scene.dynamicSpotLight[_RDI].lightCommon.type = 2;
-    if ( lightDef )
-      _R8 = lightDef;
-    scene.dynamicSpotLight[_RDI].lightCommon.def = _R8;
-    if ( _R8->iesProfile )
-      __asm { vucomiss xmm6, dword ptr [r8+18h] }
-    _RCX = &scene.dynamicSpotLight[_RDI].lightCommon.dir;
-    __asm { vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000 }
-    scene.dynamicSpotLight[_RDI].lightCommon.origin.v[0] = org->v[0];
-    p_up = &scene.dynamicSpotLight[_RDI].lightCommon.up;
-    scene.dynamicSpotLight[_RDI].lightCommon.origin.v[1] = org->v[1];
-    scene.dynamicSpotLight[_RDI].lightCommon.origin.v[2] = org->v[2];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vxorps  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rcx], xmm0
-      vmovss  xmm1, dword ptr [rbp+4]
-      vxorps  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rcx+4], xmm2
-      vmovss  xmm0, dword ptr [rbp+8]
-      vxorps  xmm1, xmm0, xmm3
-      vmovss  xmm3, cs:__real@43f6b0cf
-      vmovss  dword ptr [rcx+8], xmm1
-    }
-    p_up->v[0] = up->v[0];
-    p_up->v[1] = up->v[1];
-    p_up->v[2] = up->v[2];
-    scene.dynamicSpotLight[_RDI].lightCommon.colorLinearSrgb = *colorLinearSrgb;
-    __asm
-    {
-      vmulss  xmm0, xmm7, dword ptr [rbx+30h]
-      vmulss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rdi+r12+31FAA0h], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rbx+34h]
-      vmovss  dword ptr [rdi+r12+31FA94h], xmm2
-      vmulss  xmm0, xmm9, xmm3
-      vmovss  dword ptr [rdi+r12+31FA98h], xmm0
-      vmovss  xmm1, dword ptr [rbx+3Ch]
-      vmulss  xmm2, xmm1, cs:__real@45340001
-      vmaxss  xmm0, xmm8, cs:__real@3f8147ae
-      vmovss  dword ptr [rdi+r12+31FA9Ch], xmm2
-    }
-    m_toneMappingScaleFactor = pModuleInitLightSpot->m_toneMappingScaleFactor;
-    __asm { vmovss  dword ptr [rdi+r12+31FAD4h], xmm0 }
-    scene.dynamicSpotLight[_RDI].lightCommon.tonemappingScaleFactor = m_toneMappingScaleFactor;
-    scene.dynamicSpotLight[_RDI].lightCommon.bulbRadius = pModuleInitLightSpot->m_bulbRadius;
-    Vec3Cross(_RCX, p_up, &cross);
-    __asm { vmovss  xmm3, dword ptr [rbx+24h] }
-    v51 = r_VFXOmniLightFalloffEnable;
-    __asm
-    {
-      vmulss  xmm1, xmm3, dword ptr [rsp+0C8h+cross]
-      vmulss  xmm0, xmm3, dword ptr [rsp+0C8h+cross+4]
-      vmulss  xmm2, xmm3, dword ptr [rsp+0C8h+cross+8]
-      vmovss  dword ptr [rdi+r12+31FAE4h], xmm1
-      vmovss  dword ptr [rdi+r12+31FAE8h], xmm0
-      vmovss  dword ptr [rdi+r12+31FAECh], xmm2
-    }
-    if ( v51->current.enabled )
-    {
-      _RAX = r_VFXSpotLightFalloff;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    }
-    p_fadeOffsetRt = &scene.dynamicSpotLight[_RDI].lightCommon.fadeOffsetRt;
-    __asm { vmovss  dword ptr [rdi+r12+31FB14h], xmm0 }
-    *p_fadeOffsetRt = 0i64;
-    R_LightFadeOffsetRuntimeEncoding(p_fadeOffsetRt, 2u);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  xmm7, cs:__real@3fc90fdb
-      vcomiss xmm0, xmm7
-    }
-    if ( !(v63 | v60) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0C8h+var_A0], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2719, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightSpot->m_fovCollimation <= ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightSpot->m_fovCollimation ) = %g", v92) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm0, dword ptr [rbx+2Ch]; X }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rdi+r12+31FB18h], xmm0
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vcomiss xmm1, dword ptr [rbx+18h]
-    }
-    if ( !v63 )
-    {
-      v65 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2721, ASSERT_TYPE_ASSERT, "(pModuleInitLightSpot->m_fovOuter > pModuleInitLightSpot->m_fovInner)", (const char *)&queryFormat, "pModuleInitLightSpot->m_fovOuter > pModuleInitLightSpot->m_fovInner");
-      v63 = 0;
-      if ( v65 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vcomiss xmm0, xmm7
-    }
-    if ( !v63 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0C8h+var_A0], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2722, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightSpot->m_fovOuter < ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightSpot->m_fovOuter ) = %g", v93) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vminss  xmm0, xmm0, dword ptr [rbx+2Ch]; X
-    }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  dword ptr [rdi+r12+31FAF4h], xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vminss  xmm0, xmm1, dword ptr [rbx+18h]; X
-    }
-    *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  dword ptr [rdi+r12+31FAF0h], xmm0
-    }
-    if ( v71 | v60 )
-      goto LABEL_53;
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !v71 )
-    {
-LABEL_53:
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0C8h+var_A0], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2725, ASSERT_TYPE_ASSERT, "( ( dl->cosHalfFovOuter > 0.0f && dl->cosHalfFovOuter < 1.0f ) )", "( dl->cosHalfFovOuter ) = %g", v94) )
-        __debugbreak();
-    }
-    v75 = r_spotLightShadows->current.enabled && !pModuleInitLightSpot->m_disableShadowMap;
-    scene.dynamicSpotLight[_RDI].lightCommon.canUseShadowMap = v75;
-    v76 = v75 && !pModuleInitLightSpot->m_disableDynamicShadows && r_spotLightEntityShadows->current.enabled;
-    scene.dynamicSpotLight[_RDI].lightCommon.needsDynamicShadows = v76;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+40h]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rdi+r12+31FB08h], xmm0
-      vmovss  xmm0, dword ptr [rbx+44h]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rdi+r12+31FB0Ch], xmm0
-      vmovss  xmm0, dword ptr [rbx+48h]; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rdi+r12+31FB10h], xmm0
-      vmovsd  xmm0, qword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-    }
-    scene.dynamicSpotLight[_RDI].lightCommon.shadowNearPlaneBias = pModuleInitLightSpot->m_shadowNearPlane;
-    v60 = !pModuleInitLightSpot->m_disableVolumetric;
-    scene.dynamicSpotLight[_RDI].lightCommon.flags = 8;
-    scene.dynamicSpotLight[_RDI].lightCommon.isVolumetric = v60;
-    __asm { vmovsd  qword ptr [rdi+r12+31FBB4h], xmm0 }
-    scene.dynamicSpotLight[_RDI].debugColorGammaSrgb.v[2] = colorGreen.v[2];
-    result = 1;
-  }
+  if ( DynamicSpotLight < 0 )
+    return 0;
+  v17 = DynamicSpotLight;
+  memset_0(&scene.dynamicSpotLight[v17].lightCommon.canUseShadowMap, 0, 0x8Fui64);
+  dlightDef = rgp.dlightDef;
+  scene.dynamicSpotLight[v17].lightCommon.type = 2;
+  if ( lightDef )
+    dlightDef = lightDef;
+  scene.dynamicSpotLight[v17].lightCommon.def = dlightDef;
+  iesProfile = dlightDef->iesProfile;
+  if ( iesProfile && dlightDef->coordScale == 0.0 )
+    Com_Printf(8, "ERROR: Found invalid lightDef %s ies %s\n", dlightDef->name, iesProfile);
+  p_dir = &scene.dynamicSpotLight[v17].lightCommon.dir;
+  scene.dynamicSpotLight[v17].lightCommon.origin.v[0] = org->v[0];
+  p_up = &scene.dynamicSpotLight[v17].lightCommon.up;
+  scene.dynamicSpotLight[v17].lightCommon.origin.v[1] = org->v[1];
+  scene.dynamicSpotLight[v17].lightCommon.origin.v[2] = org->v[2];
+  p_dir->v[0] = COERCE_FLOAT(LODWORD(dir->v[0]) ^ _xmm);
+  p_dir->v[1] = COERCE_FLOAT(LODWORD(dir->v[1]) ^ _xmm);
+  p_dir->v[2] = COERCE_FLOAT(LODWORD(dir->v[2]) ^ _xmm);
+  p_up->v[0] = up->v[0];
+  p_up->v[1] = up->v[1];
+  p_up->v[2] = up->v[2];
+  scene.dynamicSpotLight[v17].lightCommon.colorLinearSrgb = *colorLinearSrgb;
+  scene.dynamicSpotLight[v17].lightCommon.intensity = (float)(v13 * pModuleInitLightSpot->m_brightness) * 493.38132;
+  scene.dynamicSpotLight[v17].lightCommon.uvIntensity = 493.38132 * pModuleInitLightSpot->m_intensityUV;
+  scene.dynamicSpotLight[v17].lightCommon.irIntensity = m_intensityIR * 493.38132;
+  __asm { vmaxss  xmm0, xmm8, cs:__real@3f8147ae }
+  scene.dynamicSpotLight[v17].lightCommon.heatIntensity = pModuleInitLightSpot->m_intensityHeat * 2880.0002;
+  m_toneMappingScaleFactor = pModuleInitLightSpot->m_toneMappingScaleFactor;
+  scene.dynamicSpotLight[v17].lightCommon.radius = *(float *)&_XMM0;
+  scene.dynamicSpotLight[v17].lightCommon.tonemappingScaleFactor = m_toneMappingScaleFactor;
+  scene.dynamicSpotLight[v17].lightCommon.bulbRadius = pModuleInitLightSpot->m_bulbRadius;
+  Vec3Cross(p_dir, p_up, &cross);
+  m_bulbLength = pModuleInitLightSpot->m_bulbLength;
+  v25 = r_VFXOmniLightFalloffEnable;
+  *(float *)&_XMM0 = m_bulbLength * cross.v[1];
+  v26 = m_bulbLength * cross.v[2];
+  scene.dynamicSpotLight[v17].lightCommon.bulbLength.v[0] = m_bulbLength * cross.v[0];
+  scene.dynamicSpotLight[v17].lightCommon.bulbLength.v[1] = *(float *)&_XMM0;
+  scene.dynamicSpotLight[v17].lightCommon.bulbLength.v[2] = v26;
+  if ( v25->current.enabled )
+    value = r_VFXSpotLightFalloff->current.value;
   else
-  {
-LABEL_49:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0C8h+var_68]
-    vmovaps xmm7, [rsp+0C8h+var_48]
-    vmovaps xmm6, [rsp+0C8h+var_38]
-    vmovaps xmm8, [rsp+0C8h+var_58]
-  }
-  return result;
+    value = pModuleInitLightSpot->m_distanceFalloff;
+  p_fadeOffsetRt = &scene.dynamicSpotLight[v17].lightCommon.fadeOffsetRt;
+  scene.dynamicSpotLight[v17].lightCommon.distanceFalloff = value;
+  *p_fadeOffsetRt = 0i64;
+  R_LightFadeOffsetRuntimeEncoding(p_fadeOffsetRt, 2u);
+  m_fovCollimation = pModuleInitLightSpot->m_fovCollimation;
+  if ( m_fovCollimation > 1.5707964 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2719, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightSpot->m_fovCollimation <= ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightSpot->m_fovCollimation ) = %g", m_fovCollimation) )
+    __debugbreak();
+  scene.dynamicSpotLight[v17].lightCommon.cosHalfFovCollimation = cosf_0(pModuleInitLightSpot->m_fovCollimation);
+  if ( pModuleInitLightSpot->m_fovInner >= pModuleInitLightSpot->m_fovOuter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2721, ASSERT_TYPE_ASSERT, "(pModuleInitLightSpot->m_fovOuter > pModuleInitLightSpot->m_fovInner)", (const char *)&queryFormat, "pModuleInitLightSpot->m_fovOuter > pModuleInitLightSpot->m_fovInner") )
+    __debugbreak();
+  m_fovOuter = pModuleInitLightSpot->m_fovOuter;
+  if ( m_fovOuter >= 1.5707964 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2722, ASSERT_TYPE_ASSERT, "( ( pModuleInitLightSpot->m_fovOuter < ( ( 90.0f ) * ( M_PI_F / 180.0f ) ) ) )", "( pModuleInitLightSpot->m_fovOuter ) = %g", m_fovOuter) )
+    __debugbreak();
+  _XMM0 = LODWORD(pModuleInitLightSpot->m_fovInner);
+  __asm { vminss  xmm0, xmm0, dword ptr [rbx+2Ch]; X }
+  scene.dynamicSpotLight[v17].lightCommon.cosHalfFovInner = cosf_0(*(float *)&_XMM0);
+  _XMM1 = LODWORD(pModuleInitLightSpot->m_fovCollimation);
+  __asm { vminss  xmm0, xmm1, dword ptr [rbx+18h]; X }
+  v35 = cosf_0(*(float *)&_XMM0);
+  scene.dynamicSpotLight[v17].lightCommon.cosHalfFovOuter = v35;
+  if ( (v35 <= 0.0 || v35 >= 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2725, ASSERT_TYPE_ASSERT, "( ( dl->cosHalfFovOuter > 0.0f && dl->cosHalfFovOuter < 1.0f ) )", "( dl->cosHalfFovOuter ) = %g", v35) )
+    __debugbreak();
+  v36 = r_spotLightShadows->current.enabled && !pModuleInitLightSpot->m_disableShadowMap;
+  scene.dynamicSpotLight[v17].lightCommon.canUseShadowMap = v36;
+  v37 = v36 && !pModuleInitLightSpot->m_disableDynamicShadows && r_spotLightEntityShadows->current.enabled;
+  scene.dynamicSpotLight[v17].lightCommon.needsDynamicShadows = v37;
+  v38 = I_fclamp(pModuleInitLightSpot->m_shadowSoftness, 0.0, 1.0);
+  scene.dynamicSpotLight[v17].lightCommon.shadowSoftness = *(float *)&v38;
+  v39 = I_fclamp(pModuleInitLightSpot->m_shadowBias, 0.0, 1.0);
+  scene.dynamicSpotLight[v17].lightCommon.shadowBias = *(float *)&v39;
+  v40 = I_fclamp(pModuleInitLightSpot->m_shadowArea, 0.0, 1.0);
+  scene.dynamicSpotLight[v17].lightCommon.shadowArea = *(float *)&v40;
+  scene.dynamicSpotLight[v17].lightCommon.shadowNearPlaneBias = pModuleInitLightSpot->m_shadowNearPlane;
+  v41 = !pModuleInitLightSpot->m_disableVolumetric;
+  scene.dynamicSpotLight[v17].lightCommon.flags = 8;
+  scene.dynamicSpotLight[v17].lightCommon.isVolumetric = v41;
+  *(double *)scene.dynamicSpotLight[v17].debugColorGammaSrgb.v = *(double *)colorGreen.v;
+  scene.dynamicSpotLight[v17].debugColorGammaSrgb.v[2] = colorGreen.v[2];
+  return 1;
 }
 
 /*
@@ -3740,248 +3130,226 @@ R_AddSpotShadows
 */
 void R_AddSpotShadows(const void *const cmd)
 {
-  GfxViewInfo *v3; 
-  unsigned int v5; 
+  GfxViewInfo *v1; 
+  GfxBackEndData *v2; 
+  unsigned int v3; 
   GfxWorld *world; 
   unsigned int sceneLightCount; 
   unsigned int primaryLightCount; 
-  int v9; 
-  __int64 v10; 
-  unsigned int v11; 
-  unsigned int v12; 
+  int v7; 
+  __int64 v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  int v11; 
+  int v12; 
   int v13; 
-  int v14; 
-  int v15; 
   unsigned int primaryLightVisDataCount; 
-  int v17; 
+  int v15; 
   unsigned int *primaryLightVisData; 
-  __int64 v19; 
+  __int64 v17; 
+  unsigned int v18; 
+  unsigned int v19; 
   unsigned int v20; 
-  unsigned int v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  bool v25; 
+  __int64 v21; 
+  __int64 v22; 
+  float v23; 
   GfxShadowGeometry *shadowGeomOptimized; 
-  bool v31; 
-  bool IsPrimaryLightLoaded; 
-  bool v35; 
-  unsigned __int64 v36; 
+  bool v25; 
+  bool v26; 
+  unsigned __int64 v27; 
   unsigned int *PrimaryLightMotionBits; 
-  __int64 v38; 
-  __int64 v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  unsigned int *v45; 
-  GfxViewInfo *v46; 
+  __int64 v29; 
+  __int64 v30; 
+  int v31; 
+  int v32; 
+  int v33; 
+  int v34; 
+  int v35; 
+  unsigned int *v36; 
+  GfxViewInfo *v37; 
   GfxViewParms *viewParmsDpvs; 
   unsigned int sceneLightIsUsed[208]; 
   unsigned int motionBits[204]; 
 
-  v3 = *(GfxViewInfo **)cmd;
-  _RBP = (GfxBackEndData *)*((_QWORD *)cmd + 1);
-  v46 = *(GfxViewInfo **)cmd;
+  v1 = *(GfxViewInfo **)cmd;
+  v2 = (GfxBackEndData *)*((_QWORD *)cmd + 1);
+  v37 = *(GfxViewInfo **)cmd;
   viewParmsDpvs = (GfxViewParms *)*((_QWORD *)cmd + 2);
   if ( (*(_BYTE *)(*(_QWORD *)cmd + 15540i64) & 2) != 0 )
   {
-    v5 = (_RBP->sceneLightCount + 31) >> 5;
-    if ( v5 > 0xCD && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 7471, ASSERT_TYPE_ASSERT, "(elemCount <= ( sizeof( *array_counter( sceneLightIsUsed ) ) + 0 ))", (const char *)&queryFormat, "elemCount <= ARRAY_COUNT( sceneLightIsUsed )") )
+    v3 = (v2->sceneLightCount + 31) >> 5;
+    if ( v3 > 0xCD && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 7471, ASSERT_TYPE_ASSERT, "(elemCount <= ( sizeof( *array_counter( sceneLightIsUsed ) ) + 0 ))", (const char *)&queryFormat, "elemCount <= ARRAY_COUNT( sceneLightIsUsed )") )
       __debugbreak();
-    memset_0(sceneLightIsUsed, 0, 4i64 * v5);
+    memset_0(sceneLightIsUsed, 0, 4i64 * v3);
     world = rgp.world;
-    sceneLightCount = _RBP->sceneLightCount;
+    sceneLightCount = v2->sceneLightCount;
     primaryLightCount = rgp.world->primaryLightCount;
     if ( primaryLightCount < sceneLightCount )
     {
-      v9 = __ROL4__(1, primaryLightCount);
+      v7 = __ROL4__(1, primaryLightCount);
       do
       {
-        v10 = (int)primaryLightCount++;
-        sceneLightIsUsed[v10 >> 5] |= v9;
-        v9 = __ROL4__(v9, 1);
+        v8 = (int)primaryLightCount++;
+        sceneLightIsUsed[v8 >> 5] |= v7;
+        v7 = __ROL4__(v7, 1);
       }
       while ( primaryLightCount < sceneLightCount );
       primaryLightCount = world->primaryLightCount;
     }
-    v11 = primaryLightCount - rgp.world->movingScriptablePrimaryLightCount - 1;
-    v12 = rgp.world->lastSunPrimaryLightIndex + 1;
-    if ( r_debugDrawTransientLights->current.integer && v12 <= v11 )
+    v9 = primaryLightCount - rgp.world->movingScriptablePrimaryLightCount - 1;
+    v10 = rgp.world->lastSunPrimaryLightIndex + 1;
+    if ( r_debugDrawTransientLights->current.integer && v10 <= v9 )
     {
       do
       {
-        if ( r_offloadPrimaryLights->current.integer && !R_IsPrimaryLightLoaded(_RBP, v12) )
-          _RBP->sceneLights[v12].flags |= 0x80u;
-        ++v12;
+        if ( r_offloadPrimaryLights->current.integer && !R_IsPrimaryLightLoaded(v2, v10) )
+          v2->sceneLights[v10].flags |= 0x80u;
+        ++v10;
       }
-      while ( v12 <= v11 );
+      while ( v10 <= v9 );
     }
     if ( r_umbraSpotShadowSelection->current.integer )
     {
+      v11 = 0;
+      v12 = 0;
       v13 = 0;
-      v14 = 0;
-      __asm { vmovaps [rsp+738h+var_48], xmm7 }
-      v15 = 0;
       primaryLightVisDataCount = rgp.world->dpvs.primaryLightVisDataCount;
-      v17 = 0;
+      v15 = 0;
       primaryLightVisData = rgp.world->dpvs.primaryLightVisData;
-      LODWORD(v19) = 0;
-      v45 = primaryLightVisData;
-      v43 = 0;
-      v41 = 0;
-      v42 = 0;
-      v40 = 0;
-      v44 = 0;
+      LODWORD(v17) = 0;
+      v36 = primaryLightVisData;
+      v34 = 0;
+      v32 = 0;
+      v33 = 0;
+      v31 = 0;
+      v35 = 0;
       if ( primaryLightVisDataCount )
-        v20 = *primaryLightVisData;
+        v18 = *primaryLightVisData;
       else
-        v20 = 0;
-      __asm
-      {
-        vmovaps [rsp+738h+var_38], xmm6
-        vxorps  xmm7, xmm7, xmm7
-      }
+        v18 = 0;
       while ( 1 )
       {
-        v22 = v20;
-        if ( !v20 )
+        v19 = v18;
+        if ( !v18 )
           break;
-LABEL_23:
-        v23 = __lzcnt(v22);
-        v24 = v23 + 32 * (_DWORD)v19;
-        if ( v23 >= 0x20 )
+LABEL_22:
+        v20 = __lzcnt(v19);
+        v21 = v20 + 32 * (_DWORD)v17;
+        if ( v20 >= 0x20 )
         {
-          LODWORD(v39) = 32;
-          LODWORD(v38) = v23;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v38, v39) )
+          LODWORD(v30) = 32;
+          LODWORD(v29) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v29, v30) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> v23) & v22) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_visdata_inline.h", 53, ASSERT_TYPE_ASSERT, "(visdata & bit)", (const char *)&queryFormat, "visdata & bit") )
+        if ( ((0x80000000 >> v20) & v19) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_visdata_inline.h", 53, ASSERT_TYPE_ASSERT, "(visdata & bit)", (const char *)&queryFormat, "visdata & bit") )
           __debugbreak();
-        v14 = v43;
-        v20 = v22 & ~(0x80000000 >> v23);
-        if ( (unsigned int)v24 > v11 )
+        v12 = v34;
+        v18 = v19 & ~(0x80000000 >> v20);
+        if ( (unsigned int)v21 > v9 )
         {
-          v13 = v42;
-          v17 = v40;
-          v15 = v41;
-          goto LABEL_51;
+          v11 = v33;
+          v15 = v31;
+          v13 = v32;
+          goto LABEL_50;
         }
-        v14 = v43 + 1;
-        _RDI = (unsigned int)v24;
-        ++v43;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+rbp+53A018h]
-          vaddss  xmm1, xmm0, dword ptr [rdi+rbp+53A014h]
-          vaddss  xmm6, xmm1, dword ptr [rdi+rbp+53A01Ch]
-          vucomiss xmm6, xmm7
-        }
-        if ( v25 )
-          goto LABEL_32;
-        __asm { vucomiss xmm7, dword ptr [rdi+rbp+53A010h] }
-        if ( v25 )
-LABEL_32:
-          v15 = ++v41;
+        v12 = v34 + 1;
+        v22 = (unsigned int)v21;
+        ++v34;
+        v23 = (float)(v2->sceneLights[v22].colorLinearSrgb.v[1] + v2->sceneLights[v22].colorLinearSrgb.v[0]) + v2->sceneLights[v22].colorLinearSrgb.v[2];
+        if ( v23 == 0.0 || v2->sceneLights[v22].intensity == 0.0 )
+          v13 = ++v32;
         else
-          v15 = v41;
+          v13 = v32;
         if ( r_umbraSpotShadowSelection->current.integer == 2 )
         {
           shadowGeomOptimized = rgp.world->shadowGeomOptimized;
           if ( shadowGeomOptimized )
           {
-            if ( !shadowGeomOptimized[v24].surfaceCount )
+            if ( !shadowGeomOptimized[v21].surfaceCount )
             {
-              v25 = shadowGeomOptimized[v24].smodelCount == 0;
-              primaryLightVisData = v45;
-              v13 = v42;
-              v17 = v40;
+              v25 = shadowGeomOptimized[v21].smodelCount == 0;
+              primaryLightVisData = v36;
+              v11 = v33;
+              v15 = v31;
               if ( v25 )
                 continue;
             }
           }
         }
-        v31 = r_offloadPrimaryLights->current.integer == 0;
-        if ( !r_offloadPrimaryLights->current.integer || (IsPrimaryLightLoaded = R_IsPrimaryLightLoaded(_RBP, v24), v31 = !IsPrimaryLightLoaded, IsPrimaryLightLoaded) )
+        if ( !r_offloadPrimaryLights->current.integer || R_IsPrimaryLightLoaded(v2, v21) )
         {
-          __asm { vucomiss xmm6, xmm7 }
-          v17 = v40;
-          if ( !v31 )
+          v15 = v31;
+          if ( v23 != 0.0 )
           {
-            if ( _RBP->sceneLights[_RDI].needsDynamicShadows )
+            if ( v2->sceneLights[v22].needsDynamicShadows )
             {
-              v17 = ++v40;
+              v15 = ++v31;
             }
-            else if ( _RBP->sceneLights[_RDI].canUseShadowMap )
+            else if ( v2->sceneLights[v22].canUseShadowMap )
             {
-              ++v44;
+              ++v35;
             }
           }
-          if ( (unsigned int)v24 >= 0x19A0 )
+          if ( (unsigned int)v21 >= 0x19A0 )
           {
-            LODWORD(v39) = 6560;
-            LODWORD(v38) = v24;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v38, v39) )
+            LODWORD(v30) = 6560;
+            LODWORD(v29) = v21;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 22, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v29, v30) )
               __debugbreak();
           }
-          v15 = v41;
-          v14 = v43;
-          primaryLightVisData = v45;
-          sceneLightIsUsed[(__int64)(int)v24 >> 5] |= 1 << (v24 & 0x1F);
-          v13 = v42;
+          v13 = v32;
+          v12 = v34;
+          primaryLightVisData = v36;
+          sceneLightIsUsed[(__int64)(int)v21 >> 5] |= 1 << (v21 & 0x1F);
+          v11 = v33;
         }
         else
         {
-          v17 = v40;
-          v13 = v42 + 1;
-          primaryLightVisData = v45;
-          v15 = v41;
-          v14 = v43;
-          ++v42;
+          v15 = v31;
+          v11 = v33 + 1;
+          primaryLightVisData = v36;
+          v13 = v32;
+          v12 = v34;
+          ++v33;
         }
       }
       while ( 1 )
       {
-        v19 = (unsigned int)(v19 + 1);
-        if ( (unsigned int)v19 >= primaryLightVisDataCount )
+        v17 = (unsigned int)(v17 + 1);
+        if ( (unsigned int)v17 >= primaryLightVisDataCount )
           break;
-        v22 = primaryLightVisData[v19];
-        if ( v22 )
-          goto LABEL_23;
+        v19 = primaryLightVisData[v17];
+        if ( v19 )
+          goto LABEL_22;
       }
-LABEL_51:
-      __asm
-      {
-        vmovaps xmm7, [rsp+738h+var_48]
-        vmovaps xmm6, [rsp+738h+var_38]
-      }
+LABEL_50:
       if ( rg.stats )
       {
-        rg.stats->numPrimaryLights = v14;
-        rg.stats->numDisabledPrimaryLights = v15;
-        rg.stats->numOffloadedPrimaryLights = v13;
-        rg.stats->numDynamicOmniLights = _RBP->dynamicOmniLightCount;
-        rg.stats->numDynamicSpotLights = _RBP->dynamicSpotLightCount;
-        rg.stats->numPirmaryLightsNeedDynShadow = v17;
-        rg.stats->numPirmaryLightsNeedStaticShadow = v44;
+        rg.stats->numPrimaryLights = v12;
+        rg.stats->numDisabledPrimaryLights = v13;
+        rg.stats->numOffloadedPrimaryLights = v11;
+        rg.stats->numDynamicOmniLights = v2->dynamicOmniLightCount;
+        rg.stats->numDynamicSpotLights = v2->dynamicSpotLightCount;
+        rg.stats->numPirmaryLightsNeedDynShadow = v15;
+        rg.stats->numPirmaryLightsNeedStaticShadow = v35;
       }
-      v3 = v46;
+      v1 = v37;
     }
-    v35 = (unsigned int)(sm_showOverlay->current.integer - 5) <= 2;
+    v26 = (unsigned int)(sm_showOverlay->current.integer - 5) <= 2;
     Sys_ProfBeginNamedEvent(0xFF708090, "R_PopulateMotionBits");
-    R_PopulateMotionBits(v3->clientIndex);
+    R_PopulateMotionBits(v1->clientIndex);
     Sys_ProfEndNamedEvent();
-    v36 = (unsigned __int64)rgp.world->staticSpotOmniPrimaryLightCountAligned >> 3;
-    PrimaryLightMotionBits = R_GetPrimaryLightMotionBits(v3->clientIndex);
-    memcpy_0(motionBits, PrimaryLightMotionBits, v36);
+    v27 = (unsigned __int64)rgp.world->staticSpotOmniPrimaryLightCountAligned >> 3;
+    PrimaryLightMotionBits = R_GetPrimaryLightMotionBits(v1->clientIndex);
+    memcpy_0(motionBits, PrimaryLightMotionBits, v27);
     Sys_ProfBeginNamedEvent(0xFF708090, "choose lights");
-    R_ChooseShadowedLights(_RBP, v3, viewParmsDpvs, sceneLightIsUsed);
+    R_ChooseShadowedLights(v2, v1, viewParmsDpvs, sceneLightIsUsed);
     Sys_ProfEndNamedEvent();
     if ( rg.stats )
-      rg.stats->numSpotShadowmaps = _RBP->spotShadowUpdateCount;
-    if ( v35 )
-      R_DrawSpotShadowDebug(_RBP, v3, motionBits);
+      rg.stats->numSpotShadowmaps = v2->spotShadowUpdateCount;
+    if ( v26 )
+      R_DrawSpotShadowDebug(v2, v1, motionBits);
   }
 }
 
@@ -3992,20 +3360,10 @@ R_AddViewmodelDObjToScene
 */
 void R_AddViewmodelDObjToScene(const DObj *obj, const cpose_t *pose, unsigned int entnum, unsigned int renderFlags, const GfxSceneEntityMutableShaderData *entityMutableShaderData, const vec3_t *lightingOrigin, float materialTime, int markableViewmodel)
 {
-  float v9; 
-  float materialTimea; 
-
-  __asm { vmovss  xmm0, [rsp+58h+materialTime] }
   if ( g_delayedSceneModelGlob.delayingActive )
-  {
-    __asm { vmovss  [rsp+58h+var_28], xmm0 }
-    R_AddDObjToSceneDelayed(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, v9, 1, markableViewmodel);
-  }
+    R_AddDObjToSceneDelayed(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTime, 1, markableViewmodel);
   else
-  {
-    __asm { vmovss  [rsp+58h+materialTime], xmm0 }
-    R_AddViewmodelDObjToSceneInternal(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTimea, markableViewmodel);
-  }
+    R_AddViewmodelDObjToSceneInternal(obj, pose, entnum, renderFlags, entityMutableShaderData, lightingOrigin, materialTime, markableViewmodel);
 }
 
 /*
@@ -4015,91 +3373,97 @@ R_AddViewmodelDObjToSceneInternal
 */
 void R_AddViewmodelDObjToSceneInternal(const DObj *obj, const cpose_t *pose, unsigned int entnum, unsigned int renderFlags, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData, const vec3_t *lightingOrigin, float materialTime, int markableViewmodel)
 {
+  __int64 v9; 
+  const GfxSceneEntityMutableShaderData *v12; 
+  int v13; 
   __int64 v14; 
-  int v18; 
-  __int64 v19; 
-  bool v20; 
-  unsigned int v21; 
+  bool v15; 
+  unsigned int v16; 
   DObjMaterialData *materialData; 
-  bool v24; 
-  unsigned int v25; 
-  unsigned __int16 v26; 
-  bool v27; 
-  bool v28; 
-  unsigned __int32 v30; 
-  unsigned int v41; 
-  unsigned __int8 *v42; 
-  bool v43; 
+  bool v18; 
+  unsigned int v19; 
+  unsigned __int16 v20; 
+  unsigned __int32 v21; 
+  __int64 v22; 
+  unsigned int v28; 
+  unsigned __int8 *v29; 
+  bool v30; 
   int NumModels; 
-  __int64 v45; 
-  __int64 v46; 
+  __int64 v32; 
+  __int64 v33; 
   const XModel *Model; 
-  BOOL v49; 
+  const XModel *v35; 
+  BOOL v36; 
   unsigned int BestUsableLodOverrideLowest; 
-  unsigned __int8 v51; 
-  __int16 v55; 
-  unsigned int v56; 
+  unsigned __int8 v38; 
+  double MaterialLodForDist; 
+  float *v40; 
+  __int16 v41; 
+  int v42; 
   const XModel **models; 
-  unsigned int v62; 
-  __int64 *v64; 
-  __int64 v65; 
+  const XModel *v44; 
+  unsigned int v45; 
+  __int64 *v46; 
+  __int64 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __int64 v50; 
+  __m128 v52; 
+  __m128 v56; 
+  float v59; 
+  __m128 v61; 
+  float v64; 
+  __m128 v66; 
   int sceneDObjMarkableViewmodelIndex; 
   unsigned int sceneDObjFirstViewmodelIndex; 
   unsigned int sceneDObjViewmodelCount; 
   __int64 useDepthHack; 
-  __int64 v126; 
-  char v127; 
-  bool v128; 
+  __int64 v77; 
+  char v78; 
+  bool v79; 
   unsigned int renderFlagsa; 
-  unsigned int v130; 
-  unsigned int v131; 
+  int v81; 
+  unsigned int v82; 
   unsigned int gfxEntDataIndexBase; 
-  unsigned int v133; 
+  unsigned int v84; 
   unsigned int val; 
-  unsigned __int8 *v135; 
+  float *v86; 
   SecureVec3 tmpOrg; 
   GfxPackedEntityData *gfxPackedEntityData; 
-  const GfxSceneEntityMutableShaderData *v138; 
-  __int64 v139; 
-  const cpose_t *v140; 
-  __int64 v141; 
-  __int128 v144; 
-  __int128 v145; 
-  __int128 v146; 
-  __int128 v147; 
+  const GfxSceneEntityMutableShaderData *v89; 
+  __int64 v90; 
+  const cpose_t *v91; 
+  __int64 v92; 
+  __int128 v93; 
+  __int64 v94; 
+  __m128 v95; 
+  __m128 v96; 
+  __m128 v97; 
+  __m128 v98; 
   SecureBoundsAccess tmpBounds; 
   MaterialLodSettings materialLodSettings; 
-  char v150; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v141 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v14 = entnum;
-  v133 = entnum;
-  v140 = pose;
-  _R13 = sceneEntityMutableShaderData;
-  v138 = sceneEntityMutableShaderData;
-  v18 = 0;
+  v92 = -2i64;
+  v9 = entnum;
+  v84 = entnum;
+  v91 = pose;
+  v12 = sceneEntityMutableShaderData;
+  v89 = sceneEntityMutableShaderData;
+  v13 = 0;
   gfxEntDataIndexBase = 0;
   gfxPackedEntityData = NULL;
   if ( g_delayedSceneModelGlob.delayingActive )
   {
-    v19 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-    if ( *(_DWORD *)(v19 + 1728) )
+    v14 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+    if ( *(_DWORD *)(v14 + 1728) )
       goto LABEL_8;
-    v20 = *(_DWORD *)(v19 + 1724) == 0;
+    v15 = *(_DWORD *)(v14 + 1724) == 0;
   }
   else
   {
-    v20 = !Sys_IsMainThread();
+    v15 = !Sys_IsMainThread();
   }
-  if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1982, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
+  if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1982, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
     __debugbreak();
 LABEL_8:
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1983, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
@@ -4108,9 +3472,9 @@ LABEL_8:
     __debugbreak();
   if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1985, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
-  if ( (unsigned int)v14 >= gfxCfg.entCount )
+  if ( (unsigned int)v9 >= gfxCfg.entCount )
   {
-    LODWORD(useDepthHack) = v14;
+    LODWORD(useDepthHack) = v9;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1986, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( gfxCfg.entCount )", "entnum doesn't index gfxCfg.entCount\n\t%i not in [0, %i)", useDepthHack, gfxCfg.entCount) )
       __debugbreak();
   }
@@ -4119,332 +3483,264 @@ LABEL_8:
   if ( r_drawEntities->current.enabled )
   {
     if ( rg.needVelocity )
-      v21 = renderFlags | 0x200;
+      v16 = renderFlags | 0x200;
     else
-      v21 = renderFlags & 0xFFFFFDFF;
-    renderFlagsa = v21;
+      v16 = renderFlags & 0xFFFFFDFF;
+    renderFlagsa = v16;
     R_SetHudOutlineRenderFlags(&sceneEntityMutableShaderData->hudOutlineInfo, &renderFlagsa);
     val = sceneEntityMutableShaderData->hudOutlineInfo.mapEntLookup;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm6, dword ptr [r13+8Ch]
-    }
-    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2008, ASSERT_TYPE_ASSERT, "(sceneEntityMutableShaderData.hudOutlineInfo.scopeStencil == 0.f)", (const char *)&queryFormat, "sceneEntityMutableShaderData.hudOutlineInfo.scopeStencil == 0.f") )
+    if ( sceneEntityMutableShaderData->hudOutlineInfo.scopeStencil != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2008, ASSERT_TYPE_ASSERT, "(sceneEntityMutableShaderData.hudOutlineInfo.scopeStencil == 0.f)", (const char *)&queryFormat, "sceneEntityMutableShaderData.hudOutlineInfo.scopeStencil == 0.f") )
       __debugbreak();
     materialData = obj->materialData;
-    v24 = materialData && materialData->camoAsset[0];
-    v25 = renderFlagsa;
-    if ( v24 )
-      goto LABEL_40;
-    if ( (renderFlagsa & 2) != 0 )
-      goto LABEL_40;
-    if ( sceneEntityMutableShaderData->modelShaderData[0].transitionFactor )
-      goto LABEL_40;
-    if ( sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale )
-      goto LABEL_40;
-    __asm { vucomiss xmm6, dword ptr [r13+0A8h] }
-    if ( sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale )
+    v18 = materialData && materialData->camoAsset[0];
+    v19 = renderFlagsa;
+    if ( v18 || (renderFlagsa & 2) != 0 || sceneEntityMutableShaderData->modelShaderData[0].transitionFactor || sceneEntityMutableShaderData->modelShaderData[0].flagAmplitudeScale || sceneEntityMutableShaderData->hudOutlineInfo.characterEVOffset != 0.0 )
     {
-LABEL_40:
-      v127 = 1;
+      v78 = 1;
       R_AllocPackedEntityData(sceneEntityMutableShaderData->dataCount, &gfxEntDataIndexBase, &gfxPackedEntityData);
     }
     else
     {
-      v127 = 0;
+      v78 = 0;
     }
-    v139 = v14;
-    v26 = scene.dpvs.sceneDObjIndex[v14];
-    v27 = v26 == 0xFFFF;
-    if ( v26 != 0xFFFF )
+    v90 = v9;
+    v20 = scene.dpvs.sceneDObjIndex[v9];
+    if ( v20 != 0xFFFF )
     {
-      LODWORD(useDepthHack) = v26;
-      v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2020, ASSERT_TYPE_ASSERT, "( ( scene.dpvs.sceneDObjIndex[entnum] == (65535) ) )", "( scene.dpvs.sceneDObjIndex[entnum] ) = %i", useDepthHack);
-      v27 = !v28;
-      if ( v28 )
+      LODWORD(useDepthHack) = v20;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2020, ASSERT_TYPE_ASSERT, "( ( scene.dpvs.sceneDObjIndex[entnum] == (65535) ) )", "( scene.dpvs.sceneDObjIndex[entnum] ) = %i", useDepthHack) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm7, [rbp+0A0h+materialTime]
-      vucomiss xmm7, xmm6
-    }
-    if ( !v27 || sceneEntityMutableShaderData->modelShaderData[0].baseEmissiveAndTransitionFactor || sceneEntityMutableShaderData->hudOutlineInfo.temperatureSet || (v25 & 3) != 0 )
+    if ( materialTime != 0.0 || sceneEntityMutableShaderData->modelShaderData[0].baseEmissiveAndTransitionFactor || sceneEntityMutableShaderData->hudOutlineInfo.temperatureSet || (v19 & 3) != 0 )
     {
       if ( ((unsigned __int8)&scene.gfxEntCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &scene.gfxEntCount) )
         __debugbreak();
-      v30 = _InterlockedExchangeAdd(&scene.gfxEntCount, 1u);
-      v131 = v30;
-      if ( v30 >= 0x400 )
+      v21 = _InterlockedExchangeAdd(&scene.gfxEntCount, 1u);
+      v82 = v21;
+      if ( v21 >= 0x400 )
       {
         scene.gfxEntCount = 1024;
         R_WarnOncePerFrame(R_WARN_KNOWN_SPECIAL_MODELS, 1024i64);
-        goto LABEL_102;
+        return;
       }
-      _RCX = v30;
-      _RDX = &scene;
-      __asm { vmovss  dword ptr [rdx+rcx*4+33FA78h], xmm7 }
-      v25 = renderFlagsa;
-      scene.gfxEnts[_RCX].renderFlags = renderFlagsa & 3;
-      LODWORD(v135) = -1;
+      v22 = v21;
+      scene.gfxEnts[v22].materialTime = materialTime;
+      v19 = renderFlagsa;
+      scene.gfxEnts[v22].renderFlags = renderFlagsa & 3;
+      LODWORD(v86) = -1;
+      _XMM0 = _xmm;
+      __asm { vcvtps2ph xmm0, xmm0, 0 }
+      scene.gfxEnts[v22].scriptablePackedColorEmissive = _XMM0;
+      scene.gfxEnts[v22].scriptablePackedColorEmissive.v[2] = 2015232960;
+      _XMM2 = 0i64;
       __asm
       {
-        vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-        vcvtps2ph xmm0, xmm0, 0
-        vmovups xmmword ptr [rdx+rcx*4+33FA7Ch], xmm0
-      }
-      scene.gfxEnts[_RCX].scriptablePackedColorEmissive.v[2] = 2015232960;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, cs:__real@3b808081
-        vxorps  xmm2, xmm2, xmm2
         vinsertps xmm2, xmm2, xmm1, 0
         vcvtps2ph xmm0, xmm2, 0
-        vmovss  [rsp+1A0h+var_140], xmm0
       }
-      scene.gfxEnts[_RCX].scriptablePackedColorEmissive.v[3] = v130;
+      v81 = _XMM0;
+      scene.gfxEnts[v22].scriptablePackedColorEmissive.v[3] = _XMM0;
       if ( sceneEntityMutableShaderData->hudOutlineInfo.temperatureSet )
       {
-        scene.gfxEnts[_RCX].scriptableTemperature = sceneEntityMutableShaderData->hudOutlineInfo.temperatureBase;
-        scene.gfxEnts[_RCX].scriptableTemperatureScale = sceneEntityMutableShaderData->hudOutlineInfo.temperatureScale;
+        scene.gfxEnts[v21].scriptableTemperature = sceneEntityMutableShaderData->hudOutlineInfo.temperatureBase;
+        scene.gfxEnts[v21].scriptableTemperatureScale = sceneEntityMutableShaderData->hudOutlineInfo.temperatureScale;
       }
       else
       {
-        scene.gfxEnts[_RCX].scriptableTemperature = 0.0;
-        scene.gfxEnts[_RCX].scriptableTemperatureScale = 1.0;
+        scene.gfxEnts[v21].scriptableTemperature = 0.0;
+        scene.gfxEnts[v21].scriptableTemperatureScale = 1.0;
       }
-      scene.gfxEnts[_RCX].eyeSensorPupilSize = 0.0;
+      scene.gfxEnts[v21].eyeSensorPupilSize = 0.0;
     }
     else
     {
-      v131 = 0;
+      v82 = 0;
     }
-    if ( (v25 & 0x10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2060, ASSERT_TYPE_ASSERT, "(!(renderFlags & (1 << 4)))", (const char *)&queryFormat, "!(renderFlags & RF_NODRAW)") )
+    if ( (v19 & 0x10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2060, ASSERT_TYPE_ASSERT, "(!(renderFlags & (1 << 4)))", (const char *)&queryFormat, "!(renderFlags & RF_NODRAW)") )
       __debugbreak();
-    v41 = R_AllocSceneDObj();
-    v130 = v41;
-    if ( v41 < 0x200 )
+    v28 = R_AllocSceneDObj();
+    v81 = v28;
+    if ( v28 < 0x200 )
     {
-      v42 = &scene.sceneDObjVisData[-1424][1424 * v41];
-      *((_WORD *)v42 + 704) = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
+      v29 = &scene.sceneDObjVisData[-1424][1424 * v28];
+      *((_WORD *)v29 + 704) = truncate_cast<unsigned short,unsigned int>(gfxEntDataIndexBase);
       R_SetMaterialLodSettings(&materialLodSettings);
-      v43 = Com_GameMode_SupportsFeature(WEAPON_CHARGING_OUT|0x80);
-      v128 = v43;
+      v30 = Com_GameMode_SupportsFeature(WEAPON_CHARGING_OUT|0x80);
+      v79 = v30;
       NumModels = DObjGetNumModels(obj);
       if ( NumModels > 0 )
       {
-        v45 = 0i64;
-        v135 = v42 + 368;
-        v46 = NumModels;
+        v32 = 0i64;
+        v86 = (float *)(v29 + 368);
+        v33 = NumModels;
         do
         {
-          Model = DObjGetModel(obj, v18);
-          _R14 = Model;
-          v49 = v43 && (Model->flags & 0x20) != 0;
-          BestUsableLodOverrideLowest = XModelGetBestUsableLodOverrideLowest(Model, 0, v49, 1);
-          v51 = BestUsableLodOverrideLowest;
+          Model = DObjGetModel(obj, v13);
+          v35 = Model;
+          v36 = v30 && (Model->flags & 0x20) != 0;
+          BestUsableLodOverrideLowest = XModelGetBestUsableLodOverrideLowest(Model, 0, v36, 1);
+          v38 = BestUsableLodOverrideLowest;
           if ( BestUsableLodOverrideLowest > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)BestUsableLodOverrideLowest, "unsigned", BestUsableLodOverrideLowest) )
             __debugbreak();
-          v42[v45 + 112] = v51;
-          __asm
-          {
-            vmovaps xmm1, xmm6; dist
-            vmovss  xmm0, dword ptr [r14+28h]; radius
-          }
-          *(double *)&_XMM0 = XModelGetMaterialLodForDist(*(float *)&_XMM0, *(float *)&_XMM1, &materialLodSettings);
-          _RBX = (__int64)v135;
-          __asm { vmovss  dword ptr [rbx], xmm0 }
-          ++v18;
-          ++v45;
-          v135 = (unsigned __int8 *)(_RBX + 4);
-          v43 = v128;
+          v29[v32 + 112] = v38;
+          MaterialLodForDist = XModelGetMaterialLodForDist(v35->radius, 0.0, &materialLodSettings);
+          v40 = v86;
+          *v86 = *(float *)&MaterialLodForDist;
+          ++v13;
+          ++v32;
+          v86 = v40 + 1;
+          v30 = v79;
         }
-        while ( v45 < v46 );
-        _R13 = v138;
-        v25 = renderFlagsa;
-        LODWORD(v14) = v133;
+        while ( v32 < v33 );
+        v12 = v89;
+        v19 = renderFlagsa;
+        LODWORD(v9) = v84;
       }
-      *((_QWORD *)v42 + 174) = obj;
+      *((_QWORD *)v29 + 174) = obj;
       obj->validation |= 1u;
-      v55 = v131;
-      if ( v131 >= 0x400 )
+      v41 = v82;
+      if ( v82 >= 0x400 )
       {
-        LODWORD(v126) = 1024;
-        LODWORD(useDepthHack) = v131;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2099, ASSERT_TYPE_ASSERT, "(unsigned)( gfxEntIndex ) < (unsigned)( (1 << 10) )", "gfxEntIndex doesn't index GFX_SPECIAL_ENTITY_LIMIT\n\t%i not in [0, %i)", useDepthHack, v126) )
+        LODWORD(v77) = 1024;
+        LODWORD(useDepthHack) = v82;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2099, ASSERT_TYPE_ASSERT, "(unsigned)( gfxEntIndex ) < (unsigned)( (1 << 10) )", "gfxEntIndex doesn't index GFX_SPECIAL_ENTITY_LIMIT\n\t%i not in [0, %i)", useDepthHack, v77) )
           __debugbreak();
       }
-      if ( (unsigned int)v14 >= 0x1000 )
+      if ( (unsigned int)v9 >= 0x1000 )
       {
-        LODWORD(v126) = 4096;
-        LODWORD(useDepthHack) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2100, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v126) )
+        LODWORD(v77) = 4096;
+        LODWORD(useDepthHack) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2100, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( (1 << 12) )", "entnum doesn't index SCENE_ENTNUM_LIMIT\n\t%i not in [0, %i)", useDepthHack, v77) )
           __debugbreak();
       }
-      if ( v25 >= 0x100000 )
+      if ( v19 >= 0x100000 )
       {
-        LODWORD(v126) = 0x100000;
-        LODWORD(useDepthHack) = v25;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2101, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v126) )
+        LODWORD(v77) = 0x100000;
+        LODWORD(useDepthHack) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2101, ASSERT_TYPE_ASSERT, "(unsigned)( renderFlags ) < (unsigned)( (1 << 20) )", "renderFlags doesn't index RENDERFX_FLAGS_LIMIT\n\t%i not in [0, %i)", useDepthHack, v77) )
           __debugbreak();
       }
-      *((_DWORD *)v42 + 346) &= 0xFFFFFC00;
-      *((_DWORD *)v42 + 346) |= v55 & 0x3FF;
-      *((_WORD *)v42 + 706) = truncate_cast<unsigned short,unsigned int>(val);
-      *((_DWORD *)v42 + 346) &= 0xFFC003FF;
-      *((_DWORD *)v42 + 346) |= (v14 & 0xFFF) << 10;
-      *((_DWORD *)v42 + 347) &= 0xFFF00000;
-      *((_DWORD *)v42 + 347) |= v25 & 0xFFFFF;
-      v56 = v130;
-      scene.dpvs.sceneDObjIndex[v139] = v130;
-      *((_QWORD *)v42 + 175) = v140;
+      *((_DWORD *)v29 + 346) &= 0xFFFFFC00;
+      *((_DWORD *)v29 + 346) |= v41 & 0x3FF;
+      *((_WORD *)v29 + 706) = truncate_cast<unsigned short,unsigned int>(val);
+      *((_DWORD *)v29 + 346) &= 0xFFC003FF;
+      *((_DWORD *)v29 + 346) |= (v9 & 0xFFF) << 10;
+      *((_DWORD *)v29 + 347) &= 0xFFF00000;
+      *((_DWORD *)v29 + 347) |= v19 & 0xFFFFF;
+      v42 = v81;
+      scene.dpvs.sceneDObjIndex[v90] = v81;
+      *((_QWORD *)v29 + 175) = v91;
       if ( !obj->lastGpuLightGridRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2111, ASSERT_TYPE_ASSERT, "(obj->lastGpuLightGridRequest)", (const char *)&queryFormat, "obj->lastGpuLightGridRequest") )
         __debugbreak();
-      *((_QWORD *)v42 + 177) = obj->lastGpuLightGridRequest;
-      if ( *((_DWORD *)v42 + 18) )
+      *((_QWORD *)v29 + 177) = obj->lastGpuLightGridRequest;
+      if ( *((_DWORD *)v29 + 18) )
       {
-        LODWORD(useDepthHack) = *((_DWORD *)v42 + 18);
+        LODWORD(useDepthHack) = *((_DWORD *)v29 + 18);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2114, ASSERT_TYPE_SANITY, "( ( sceneEnt->cull.state == CULL_STATE_OUT ) )", "( sceneEnt->cull.state ) = %i", useDepthHack) )
           __debugbreak();
       }
-      R_SetupSceneEntBounds((GfxSceneEntity *)v42, &tmpOrg, &tmpBounds);
-      _RBX = lightingOrigin;
-      GfxSceneEntity_SetLightingOrigin((GfxSceneEntity *)v42, lightingOrigin);
-      if ( v127 )
+      R_SetupSceneEntBounds((GfxSceneEntity *)v29, &tmpOrg, &tmpBounds);
+      GfxSceneEntity_SetLightingOrigin((GfxSceneEntity *)v29, lightingOrigin);
+      if ( v78 )
       {
         models = obj->models;
-        _RAX = *models;
-        __asm
+        v44 = *models;
+        v93 = *(_OWORD *)(*models)->bounds.midPoint.v;
+        v94 = *(_QWORD *)&v44->bounds.halfSize.y;
+        v45 = obj->numModels;
+        if ( v45 > 1 )
         {
-          vmovups xmm0, xmmword ptr [rax+2Ch]
-          vmovups [rbp+0A0h+var_E8], xmm0
-          vmovsd  xmm1, qword ptr [rax+3Ch]
-          vmovsd  [rbp+0A0h+var_D8], xmm1
-        }
-        v62 = obj->numModels;
-        if ( v62 > 1 )
-        {
-          __asm { vmovups xmm7, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf }
-          v64 = (__int64 *)(models + 1);
-          v65 = v62 - 1;
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rbp+0A0h+var_D8+4]
-            vmovss  xmm5, dword ptr [rbp+0A0h+var_D8]
-            vmovss  xmm4, dword ptr [rbp+0A0h+var_E8+0Ch]
-            vmovss  xmm2, dword ptr [rbp+0A0h+var_E8+8]
-            vmovss  xmm1, dword ptr [rbp+0A0h+var_E8+4]
-            vmovss  xmm0, dword ptr [rbp+0A0h+var_E8]
-          }
+          v46 = (__int64 *)(models + 1);
+          v47 = v45 - 1;
+          v48.m128_i32[0] = HIDWORD(v93);
+          v49.m128_i32[0] = v93;
           do
           {
-            _RAX = *v64;
-            HIDWORD(v144) = 0;
+            v50 = *v46;
+            v95.m128_i32[3] = 0;
+            v52 = v95;
+            v52.m128_f32[0] = v49.m128_f32[0];
+            _XMM6 = v52;
             __asm
             {
-              vmovups xmm6, xmmword ptr [rbp-30h]
-              vmovss  xmm6, xmm6, xmm0
               vinsertps xmm6, xmm6, xmm1, 10h
               vinsertps xmm6, xmm6, xmm2, 20h ; ' '
-              vmovups xmmword ptr [rbp-30h], xmm6
             }
-            HIDWORD(v145) = 0;
+            v95 = _XMM6;
+            v96.m128_i32[3] = 0;
+            v56 = v96;
+            v56.m128_f32[0] = v48.m128_f32[0];
+            _XMM3 = v56;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rbp-20h]
-              vmovss  xmm3, xmm3, xmm4
               vinsertps xmm3, xmm3, xmm5, 10h
               vinsertps xmm3, xmm3, xmm8, 20h ; ' '
-              vmovups xmmword ptr [rbp-20h], xmm3
-              vmovss  xmm0, dword ptr [rax+2Ch]
             }
-            HIDWORD(v146) = 0;
+            v96 = _XMM3;
+            v59 = *(float *)(v50 + 44);
+            v97.m128_i32[3] = 0;
+            v61 = v97;
+            v61.m128_f32[0] = v59;
+            _XMM5 = v61;
             __asm
             {
-              vmovups xmm5, xmmword ptr [rbp-10h]
-              vmovss  xmm5, xmm5, xmm0
               vinsertps xmm5, xmm5, dword ptr [rax+30h], 10h
               vinsertps xmm5, xmm5, dword ptr [rax+34h], 20h ; ' '
-              vmovups xmmword ptr [rbp-10h], xmm5
-              vmovss  xmm0, dword ptr [rax+38h]
-              vmovss  xmm1, dword ptr [rax+3Ch]
-              vmovss  xmm2, dword ptr [rax+40h]
             }
-            HIDWORD(v147) = 0;
+            v97 = _XMM5;
+            v64 = *(float *)(v50 + 56);
+            v98.m128_i32[3] = 0;
+            v66 = v98;
+            v66.m128_f32[0] = v64;
+            _XMM4 = v66;
             __asm
             {
-              vmovups xmm4, xmmword ptr [rbp+0]
-              vmovss  xmm4, xmm4, xmm0
               vinsertps xmm4, xmm4, xmm1, 10h
               vinsertps xmm4, xmm4, xmm2, 20h ; ' '
-              vmovups xmmword ptr [rbp+0], xmm4
-              vsubps  xmm2, xmm6, xmm3
-              vaddps  xmm3, xmm6, xmm3
-              vsubps  xmm0, xmm5, xmm4
-              vaddps  xmm1, xmm5, xmm4
+            }
+            v98 = _XMM4;
+            _mm128_sub_ps(_XMM6, _XMM3);
+            _mm128_add_ps(_XMM6, _XMM3);
+            _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+            _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+            __asm
+            {
               vminps  xmm4, xmm0, xmm2
               vmaxps  xmm0, xmm1, xmm3
-              vaddps  xmm1, xmm0, xmm4
-              vmulps  xmm0, xmm7, xmm1
-              vsubps  xmm4, xmm0, xmm4
-              vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-              vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-              vshufps xmm5, xmm4, xmm4, 55h ; 'U'
-              vshufps xmm8, xmm4, xmm4, 0AAh ; 'ª'
             }
-            ++v64;
-            --v65;
+            v49 = _mm128_mul_ps(g_oneHalf.v, _mm128_add_ps(_XMM0, _XMM4));
+            v48 = _mm128_sub_ps(v49, _XMM4);
+            _mm_shuffle_ps(v49, v49, 85);
+            _mm_shuffle_ps(v49, v49, 170);
+            _mm_shuffle_ps(v48, v48, 85);
+            _mm_shuffle_ps(v48, v48, 170);
+            ++v46;
+            --v47;
           }
-          while ( v65 );
+          while ( v47 );
         }
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx]
-          vsubss  xmm3, xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg
-          vmovss  xmm0, dword ptr [rbx+4]
-          vsubss  xmm2, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4; r_globals_t rg
-          vmovss  xmm1, dword ptr [rbx+8]
-          vsubss  xmm4, xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8; r_globals_t rg
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm1
-          vsqrtss xmm2, xmm2, xmm2; distanceToCamera
-        }
-        R_SetEntityShaderData(gfxPackedEntityData, _R13, *(float *)&_XMM2, &tmpBounds, obj->entnum, renderFlagsa & 1);
+        R_SetEntityShaderData(gfxPackedEntityData, v12, fsqrt((float)((float)((float)(lightingOrigin->v[1] - rg.viewOrg.v[1]) * (float)(lightingOrigin->v[1] - rg.viewOrg.v[1])) + (float)((float)(lightingOrigin->v[0] - rg.viewOrg.v[0]) * (float)(lightingOrigin->v[0] - rg.viewOrg.v[0]))) + (float)((float)(lightingOrigin->v[2] - rg.viewOrg.v[2]) * (float)(lightingOrigin->v[2] - rg.viewOrg.v[2]))), &tmpBounds, obj->entnum, renderFlagsa & 1);
       }
       sceneDObjMarkableViewmodelIndex = scene.sceneDObjMarkableViewmodelIndex;
       if ( markableViewmodel )
-        sceneDObjMarkableViewmodelIndex = v56;
+        sceneDObjMarkableViewmodelIndex = v42;
       scene.sceneDObjMarkableViewmodelIndex = sceneDObjMarkableViewmodelIndex;
       sceneDObjFirstViewmodelIndex = scene.sceneDObjFirstViewmodelIndex;
       sceneDObjViewmodelCount = scene.sceneDObjViewmodelCount;
       if ( !scene.sceneDObjViewmodelCount )
-        sceneDObjFirstViewmodelIndex = v56;
+        sceneDObjFirstViewmodelIndex = v42;
       scene.sceneDObjFirstViewmodelIndex = sceneDObjFirstViewmodelIndex;
-      if ( v56 != scene.sceneDObjViewmodelCount + sceneDObjFirstViewmodelIndex )
+      if ( v42 != scene.sceneDObjViewmodelCount + sceneDObjFirstViewmodelIndex )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2142, ASSERT_TYPE_ASSERT, "(sceneEntIndex == scene.sceneDObjFirstViewmodelIndex + scene.sceneDObjViewmodelCount)", (const char *)&queryFormat, "sceneEntIndex == scene.sceneDObjFirstViewmodelIndex + scene.sceneDObjViewmodelCount") )
           __debugbreak();
         sceneDObjViewmodelCount = scene.sceneDObjViewmodelCount;
       }
       scene.sceneDObjViewmodelCount = sceneDObjViewmodelCount + 1;
-      CG_Entity_PredictiveSkinCEntity((GfxSceneEntity *)v42, 1);
+      CG_Entity_PredictiveSkinCEntity((GfxSceneEntity *)v29, 1);
       memset(&tmpBounds, 0, sizeof(tmpBounds));
       memset(&tmpOrg, 0, sizeof(tmpOrg));
     }
-  }
-LABEL_102:
-  _R11 = &v150;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -4456,10 +3752,11 @@ R_AddVolumetricToScene
 void R_AddVolumetricToScene(const GfxVolumetric *volumetric)
 {
   __int64 sceneVolumetricCount; 
+  GfxSceneVolumetric *v3; 
   __int64 v4; 
-  __int64 v13; 
+  __int128 v5; 
+  __int64 v6; 
 
-  _RBX = volumetric;
   if ( !rg.inFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2372, ASSERT_TYPE_ASSERT, "(rg.inFrame)", (const char *)&queryFormat, "rg.inFrame") )
     __debugbreak();
   sceneVolumetricCount = scene.sceneVolumetricCount;
@@ -4467,8 +3764,8 @@ void R_AddVolumetricToScene(const GfxVolumetric *volumetric)
   {
     if ( scene.sceneVolumetricCount != 128 )
     {
-      LODWORD(v13) = scene.sceneVolumetricCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2381, ASSERT_TYPE_ASSERT, "( ( scene.sceneVolumetricCount == 128 ) )", "( scene.sceneVolumetricCount ) = %i", v13) )
+      LODWORD(v6) = scene.sceneVolumetricCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2381, ASSERT_TYPE_ASSERT, "( ( scene.sceneVolumetricCount == 128 ) )", "( scene.sceneVolumetricCount ) = %i", v6) )
         __debugbreak();
     }
     R_WarnOncePerFrame(R_WARN_KNOWN_VOLUMETRICS);
@@ -4479,35 +3776,25 @@ void R_AddVolumetricToScene(const GfxVolumetric *volumetric)
   }
   if ( (unsigned int)sceneVolumetricCount < 0x80 )
   {
-    _RDX = &scene.sceneVolumetrics[sceneVolumetricCount];
+    v3 = &scene.sceneVolumetrics[sceneVolumetricCount];
     v4 = 2i64;
     do
     {
-      _RDX = (GfxSceneVolumetric *)((char *)_RDX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      _RBX = (const GfxVolumetric *)((char *)_RBX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rbx-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rbx-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v3 = (GfxSceneVolumetric *)((char *)v3 + 128);
+      v5 = *(_OWORD *)&volumetric->livePath;
+      volumetric = (const GfxVolumetric *)((char *)volumetric + 128);
+      *(_OWORD *)v3[-1].volumetric.masks[0].scroll.v = v5;
+      *(_OWORD *)&v3[-1].volumetric.masks[1].image = *(_OWORD *)&volumetric[-1].masks[1].image;
+      *(_OWORD *)v3[-1].volumetric.masks[1].offset.v = *(_OWORD *)volumetric[-1].masks[1].offset.v;
+      *(_OWORD *)&v3[-1].volumetric.masks[2].type = *(_OWORD *)&volumetric[-1].masks[2].type;
+      *(_OWORD *)v3[-1].volumetric.masks[2].scale.v = *(_OWORD *)volumetric[-1].masks[2].scale.v;
+      *(_OWORD *)v3[-1].volumetric.masks[2].scroll.v = *(_OWORD *)volumetric[-1].masks[2].scroll.v;
+      *(_OWORD *)&v3[-1].volumetric.masks[3].image = *(_OWORD *)&volumetric[-1].masks[3].image;
+      *(_OWORD *)v3[-1].volumetric.masks[3].offset.v = *(_OWORD *)volumetric[-1].masks[3].offset.v;
       --v4;
     }
     while ( v4 );
-    _RDX->volumetric.livePath = _RBX->livePath;
+    v3->volumetric.livePath = volumetric->livePath;
   }
 }
 
@@ -4732,19 +4019,15 @@ R_ApplySubPixelOffset
 */
 void R_ApplySubPixelOffset(const vec2_t *offset, const GfxMatrix *in, GfxMatrix *out)
 {
+  float v6; 
   tmat44_t<vec4_t> outa; 
 
-  _RSI = offset;
   if ( in == out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 2753, ASSERT_TYPE_ASSERT, "(&in != &out)", (const char *)&queryFormat, "&in != &out") )
     __debugbreak();
   MatrixIdentity44(&outa);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+88h+out+30h], xmm0
-    vmovss  dword ptr [rsp+88h+out+34h], xmm1
-  }
+  v6 = offset->v[1];
+  outa.m[3].v[0] = offset->v[0];
+  outa.m[3].v[1] = v6;
   MatrixMultiply44Aligned(&in->m, &outa, &out->m);
 }
 
@@ -4762,126 +4045,116 @@ void R_AssignSceneParmsViewports(GfxSceneParms *sceneParms, const refdef_t *refd
   unsigned int v11; 
   unsigned int x; 
   unsigned int y; 
-  unsigned __int16 v17; 
-  unsigned int v18; 
-  unsigned __int16 v19; 
+  unsigned __int16 v14; 
+  unsigned int v15; 
+  unsigned __int16 v16; 
   unsigned int width; 
-  unsigned __int16 v21; 
+  unsigned __int16 v18; 
+  unsigned int v19; 
+  GfxViewport displayViewport; 
+  unsigned int v21; 
   unsigned int v22; 
+  unsigned int v23; 
   unsigned int v24; 
   unsigned int v25; 
   unsigned int v26; 
   unsigned int v27; 
   unsigned int v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
   bool vrs; 
   bool vrsEmissiveOnly; 
   bool halfResEmissive; 
+  unsigned int v32; 
+  unsigned int v33; 
+  unsigned __int16 v34; 
   unsigned int v35; 
-  unsigned int v36; 
-  unsigned __int16 v37; 
-  unsigned int v38; 
 
   sceneParms->resolution = refdef->resolution;
-  _RBX = refdef;
-  _R13 = sceneParms;
   if ( useDisplayViewportDims )
   {
     R_DisplayToSceneViewport(&sceneParms->sceneViewport, &refdef->displayViewport, GFX_RESOLUTION_STEP_NONE);
-    v7 = truncate_cast<unsigned short,unsigned int>(_R13->sceneViewport.width);
-    height = _R13->sceneViewport.height;
-    _R13->resolution.sceneWidthStep0 = v7;
-    _R13->resolution.sceneHeightStep0 = truncate_cast<unsigned short,unsigned int>(height);
+    v7 = truncate_cast<unsigned short,unsigned int>(sceneParms->sceneViewport.width);
+    height = sceneParms->sceneViewport.height;
+    sceneParms->resolution.sceneWidthStep0 = v7;
+    sceneParms->resolution.sceneHeightStep0 = truncate_cast<unsigned short,unsigned int>(height);
     v9 = DVARINT_r_sceneResMin;
     if ( !DVARINT_r_sceneResMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResMin") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v9);
-    R_DisplayToSceneViewport(&_R13->sceneViewport, &_RBX->displayViewport, (GfxResolutionStep)v9->current.enabled);
-    v10 = truncate_cast<unsigned short,unsigned int>(_R13->sceneViewport.width);
-    v11 = _R13->sceneViewport.height;
-    _R13->maxSceneRtWidth = v10;
-    _R13->maxSceneRtHeight = truncate_cast<unsigned short,unsigned int>(v11);
-    R_DisplayToSceneViewport(&_R13->sceneViewport, &_RBX->displayViewport, step);
-    x = _R13->sceneViewport.x;
-    y = _R13->sceneViewport.y;
-    *(_QWORD *)&_R13->sceneViewport.x = 0i64;
-    if ( _RBX->useScissorViewport )
+    R_DisplayToSceneViewport(&sceneParms->sceneViewport, &refdef->displayViewport, (GfxResolutionStep)v9->current.enabled);
+    v10 = truncate_cast<unsigned short,unsigned int>(sceneParms->sceneViewport.width);
+    v11 = sceneParms->sceneViewport.height;
+    sceneParms->maxSceneRtWidth = v10;
+    sceneParms->maxSceneRtHeight = truncate_cast<unsigned short,unsigned int>(v11);
+    R_DisplayToSceneViewport(&sceneParms->sceneViewport, &refdef->displayViewport, step);
+    x = sceneParms->sceneViewport.x;
+    y = sceneParms->sceneViewport.y;
+    *(_QWORD *)&sceneParms->sceneViewport.x = 0i64;
+    if ( refdef->useScissorViewport )
     {
-      R_DisplayToSceneViewport(&_R13->scissorViewport, &_RBX->scissorViewport, step);
-      _R13->scissorViewport.x -= x;
-      _R13->scissorViewport.y -= y;
+      R_DisplayToSceneViewport(&sceneParms->scissorViewport, &refdef->scissorViewport, step);
+      sceneParms->scissorViewport.x -= x;
+      sceneParms->scissorViewport.y -= y;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r13+0A40h]
-        vmovups xmmword ptr [r13+0A80h], xmm0
-      }
+      sceneParms->scissorViewport = sceneParms->sceneViewport;
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx+0A40h], xmm0
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx+0A80h], xmm0
-    }
-    v17 = truncate_cast<unsigned short,unsigned int>(sceneParms->sceneViewport.width);
-    v18 = _R13->sceneViewport.height;
-    _R13->resolution.sceneWidthStep0 = v17;
-    v19 = truncate_cast<unsigned short,unsigned int>(v18);
-    width = _R13->sceneViewport.width;
-    _R13->resolution.sceneHeightStep0 = v19;
-    v21 = truncate_cast<unsigned short,unsigned int>(width);
-    v22 = _R13->sceneViewport.height;
-    _R13->maxSceneRtWidth = v21;
-    _R13->maxSceneRtHeight = truncate_cast<unsigned short,unsigned int>(v22);
+    sceneParms->sceneViewport = refdef->displayViewport;
+    sceneParms->scissorViewport = refdef->displayViewport;
+    v14 = truncate_cast<unsigned short,unsigned int>(sceneParms->sceneViewport.width);
+    v15 = sceneParms->sceneViewport.height;
+    sceneParms->resolution.sceneWidthStep0 = v14;
+    v16 = truncate_cast<unsigned short,unsigned int>(v15);
+    width = sceneParms->sceneViewport.width;
+    sceneParms->resolution.sceneHeightStep0 = v16;
+    v18 = truncate_cast<unsigned short,unsigned int>(width);
+    v19 = sceneParms->sceneViewport.height;
+    sceneParms->maxSceneRtWidth = v18;
+    sceneParms->maxSceneRtHeight = truncate_cast<unsigned short,unsigned int>(v19);
   }
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  v24 = _R13->sceneViewport.width;
-  v25 = _R13->sceneViewport.height;
-  v26 = _R13->scissorViewport.width;
-  v27 = _R13->scissorViewport.height;
-  v28 = _R13->sceneViewport.x;
-  v29 = _R13->sceneViewport.y;
-  v30 = _R13->scissorViewport.x;
-  v31 = _R13->scissorViewport.y;
-  __asm { vmovups xmmword ptr [r13+0A70h], xmm0 }
+  displayViewport = refdef->displayViewport;
+  v21 = sceneParms->sceneViewport.width;
+  v22 = sceneParms->sceneViewport.height;
+  v23 = sceneParms->scissorViewport.width;
+  v24 = sceneParms->scissorViewport.height;
+  v25 = sceneParms->sceneViewport.x;
+  v26 = sceneParms->sceneViewport.y;
+  v27 = sceneParms->scissorViewport.x;
+  v28 = sceneParms->scissorViewport.y;
+  sceneParms->displayViewport = displayViewport;
   vrs = rg.vrs;
   vrsEmissiveOnly = rg.vrsEmissiveOnly;
   halfResEmissive = rg.halfResEmissive;
-  v35 = rg.vrs;
-  _R13->sceneGeoViewport.x = v28;
-  _R13->sceneGeoViewport.y = v29;
-  ++v35;
-  _R13->scissorGeoViewport.x = v30;
-  _R13->scissorGeoViewport.y = v31;
-  _R13->sceneGeoViewport.width = v24 / v35;
-  _R13->sceneEmissiveViewport.x = v28;
-  _R13->sceneEmissiveViewport.y = v29;
-  _R13->sceneGeoViewport.height = v25 / v35;
-  _R13->scissorEmissiveViewport.x = v30;
-  _R13->scissorGeoViewport.width = v26 / v35;
-  _R13->scissorEmissiveViewport.y = v31;
-  _R13->scissorGeoViewport.height = v27 / v35;
-  v36 = (vrs || vrsEmissiveOnly || halfResEmissive) + 1;
-  _R13->sceneEmissiveViewport.width = v24 / v36;
-  _R13->sceneEmissiveViewport.height = v25 / v36;
-  _R13->scissorEmissiveViewport.width = v26 / v36;
-  _R13->scissorEmissiveViewport.height = v27 / v36;
-  if ( v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10543, ASSERT_TYPE_ASSERT, "(sceneParms->sceneViewport.x == 0)", (const char *)&queryFormat, "sceneParms->sceneViewport.x == 0") )
+  v32 = rg.vrs;
+  sceneParms->sceneGeoViewport.x = v25;
+  sceneParms->sceneGeoViewport.y = v26;
+  ++v32;
+  sceneParms->scissorGeoViewport.x = v27;
+  sceneParms->scissorGeoViewport.y = v28;
+  sceneParms->sceneGeoViewport.width = v21 / v32;
+  sceneParms->sceneEmissiveViewport.x = v25;
+  sceneParms->sceneEmissiveViewport.y = v26;
+  sceneParms->sceneGeoViewport.height = v22 / v32;
+  sceneParms->scissorEmissiveViewport.x = v27;
+  sceneParms->scissorGeoViewport.width = v23 / v32;
+  sceneParms->scissorEmissiveViewport.y = v28;
+  sceneParms->scissorGeoViewport.height = v24 / v32;
+  v33 = (vrs || vrsEmissiveOnly || halfResEmissive) + 1;
+  sceneParms->sceneEmissiveViewport.width = v21 / v33;
+  sceneParms->sceneEmissiveViewport.height = v22 / v33;
+  sceneParms->scissorEmissiveViewport.width = v23 / v33;
+  sceneParms->scissorEmissiveViewport.height = v24 / v33;
+  if ( v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10543, ASSERT_TYPE_ASSERT, "(sceneParms->sceneViewport.x == 0)", (const char *)&queryFormat, "sceneParms->sceneViewport.x == 0") )
     __debugbreak();
-  if ( _R13->sceneViewport.y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10544, ASSERT_TYPE_ASSERT, "(sceneParms->sceneViewport.y == 0)", (const char *)&queryFormat, "sceneParms->sceneViewport.y == 0") )
+  if ( sceneParms->sceneViewport.y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10544, ASSERT_TYPE_ASSERT, "(sceneParms->sceneViewport.y == 0)", (const char *)&queryFormat, "sceneParms->sceneViewport.y == 0") )
     __debugbreak();
-  v37 = truncate_cast<unsigned short,unsigned int>(_R13->sceneViewport.width);
-  v38 = _R13->sceneViewport.height;
-  _R13->sceneRtWidth = v37;
-  _R13->sceneRtHeight = truncate_cast<unsigned short,unsigned int>(v38);
+  v34 = truncate_cast<unsigned short,unsigned int>(sceneParms->sceneViewport.width);
+  v35 = sceneParms->sceneViewport.height;
+  sceneParms->sceneRtWidth = v34;
+  sceneParms->sceneRtHeight = truncate_cast<unsigned short,unsigned int>(v35);
 }
 
 /*
@@ -4914,20 +4187,10 @@ void R_BuildWorldViewProjectionMatrixForPoint(const vec3_t *point, GfxMatrix *ou
 
   v4 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
   MatrixIdentity33(&out);
-  __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-  MatrixSet44(&in1, point, &out, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+in1+30h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+100h]
-    vmovss  xmm2, dword ptr [rsp+98h+in1+34h]
-    vmovss  dword ptr [rsp+98h+in1+30h], xmm1
-    vsubss  xmm0, xmm2, dword ptr [rdi+104h]
-    vmovss  xmm1, dword ptr [rsp+98h+in1+38h]
-    vmovss  dword ptr [rsp+98h+in1+34h], xmm0
-    vsubss  xmm2, xmm1, dword ptr [rdi+108h]
-    vmovss  dword ptr [rsp+98h+in1+38h], xmm2
-  }
+  MatrixSet44(&in1, point, &out, 1.0);
+  in1.m[3].v[0] = in1.m[3].v[0] - v4->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  in1.m[3].v[1] = in1.m[3].v[1] - v4->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  in1.m[3].v[2] = in1.m[3].v[2] - v4->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
   MatrixMultiply44Aligned(&in1, &v4->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &outWVPMatrix->m);
 }
 
@@ -5120,7 +4383,7 @@ R_ClearSceneView
 */
 void R_ClearSceneView(LocalClientNum_t localClientNum)
 {
-  __int64 v6; 
+  __int64 v2; 
   volatile int *superTerrainSunShadowSurfCount; 
 
   if ( !rg.inFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9730, ASSERT_TYPE_ASSERT, "(rg.inFrame)", (const char *)&queryFormat, "rg.inFrame") )
@@ -5135,15 +4398,8 @@ void R_ClearSceneView(LocalClientNum_t localClientNum)
   scene.visDynamicSpotLightCount = 0;
   scene.visDynamicOmniLightCount = 0;
   memset_0(&scene.addedDynamicLightCount, 0, 0x104ui64);
-  _RAX = sm_lightScore_eyeProjectDist;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  _RAX = sm_lightScore_spotProjectFrac;
-  __asm
-  {
-    vmovss  cs:?scene@@3UGfxScene@@A.sceneSMLightScoreEyeProjectDist, xmm0; GfxScene scene
-    vmovss  xmm1, dword ptr [rax+28h]
-    vmovss  cs:?scene@@3UGfxScene@@A.sceneSMlightScorespotProjectFrac, xmm1; GfxScene scene
-  }
+  LODWORD(scene.sceneSMLightScoreEyeProjectDist) = sm_lightScore_eyeProjectDist->current.integer;
+  LODWORD(scene.sceneSMlightScorespotProjectFrac) = sm_lightScore_spotProjectFrac->current.integer;
   memset_0((void *)scene.drawSurfCount, 0, sizeof(scene.drawSurfCount));
   if ( rgp.world )
     R_ClearDpvsSceneView();
@@ -5164,16 +4420,16 @@ void R_ClearSceneView(LocalClientNum_t localClientNum)
   scene.sceneDObjModelCountValidRead = 0;
   if ( ((unsigned __int8)&scene.allowDynamicStreamUpdateIterateSceneModels & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &scene.allowDynamicStreamUpdateIterateSceneModels) )
     __debugbreak();
-  v6 = 3i64;
+  v2 = 3i64;
   _InterlockedExchange(&scene.allowDynamicStreamUpdateIterateSceneModels, 0);
   superTerrainSunShadowSurfCount = scene.superTerrainSunShadowSurfCount;
   scene.superTerrainSurfCount = 0;
   do
   {
     *superTerrainSunShadowSurfCount++ = 0;
-    --v6;
+    --v2;
   }
-  while ( v6 );
+  while ( v2 );
   scene.updateSound = 0;
 }
 
@@ -5222,110 +4478,69 @@ R_DisplayToSceneViewport
 */
 void R_DisplayToSceneViewport(GfxViewport *outSceneViewport, const GfxViewport *displayViewport, GfxResolutionStep step)
 {
-  bool v10; 
-  unsigned int displayWidth; 
-  unsigned int displayHeight; 
+  signed int displayWidth; 
+  signed int displayHeight; 
+  unsigned int v8; 
   unsigned int sceneHeight; 
   unsigned int sceneWidth; 
   const vec2_t *MatchingDynamicResolutionTable; 
-  char v60; 
-  void *retaddr; 
+  signed int y; 
+  int v13; 
+  signed int v14; 
+  float v15; 
+  float v16; 
+  unsigned int v17; 
+  float v18; 
+  float v19; 
+  unsigned int v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   unsigned int outWidth; 
   unsigned int outHeight; 
 
-  _RAX = &retaddr;
-  v10 = !rg.sceneResNative;
   displayWidth = vidConfig.displayWidth;
   displayHeight = vidConfig.displayHeight;
-  __asm
+  if ( rg.sceneResNative )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
+    v8 = vidConfig.displayWidth;
+    outWidth = vidConfig.displayWidth;
+    outHeight = vidConfig.displayHeight;
   }
-  if ( v10 )
+  else if ( rg.sceneResDynamic )
   {
-    if ( rg.sceneResDynamic )
-    {
-      sceneHeight = vidConfig.sceneHeight;
-      sceneWidth = vidConfig.sceneWidth;
-      MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-      R_RT_AdjustForDynamicResolution(MatchingDynamicResolutionTable, sceneWidth, sceneHeight, step, &outWidth, &outHeight);
-    }
-    else
-    {
-      outWidth = vidConfig.sceneWidth;
-      outHeight = vidConfig.sceneHeight;
-    }
+    sceneHeight = vidConfig.sceneHeight;
+    sceneWidth = vidConfig.sceneWidth;
+    MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+    R_RT_AdjustForDynamicResolution(MatchingDynamicResolutionTable, sceneWidth, sceneHeight, step, &outWidth, &outHeight);
+    v8 = outWidth;
   }
   else
   {
-    outWidth = displayWidth;
-    outHeight = displayHeight;
+    v8 = vidConfig.sceneWidth;
+    outWidth = vidConfig.sceneWidth;
+    outHeight = vidConfig.sceneHeight;
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vdivss  xmm8, xmm6, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [r15]
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm1, xmm8; X
-  }
-  *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-  __asm
-  {
-    vcvttss2si esi, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, r14d
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm7, xmm6, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ebx
-    vmulss  xmm1, xmm2, xmm0
-    vmulss  xmm0, xmm1, xmm7; X
-  }
-  *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-  __asm
-  {
-    vcvttss2si ebx, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtsi2ss xmm1, xmm1, edi
-    vmulss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm1, xmm8; X
-  }
-  *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm2, xmm2, ebp
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm2, xmm2, xmm1
-    vmovaps xmm6, xmm0
-    vmulss  xmm0, xmm2, xmm7; X
-  }
-  *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-  __asm { vmovaps xmm7, [rsp+88h+var_48] }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vcvttss2si eax, xmm6
-    vmovaps xmm6, [rsp+88h+var_38]
-  }
-  outSceneViewport->width = _EAX - _ESI;
-  __asm { vcvttss2si eax, xmm0 }
-  outSceneViewport->y = _EBX;
-  outSceneViewport->height = _EAX - _EBX;
-  outSceneViewport->x = _ESI;
+  y = displayViewport->y;
+  v13 = y + displayViewport->height;
+  v14 = displayViewport->x + displayViewport->width;
+  v15 = 1.0 / (float)displayWidth;
+  v16 = (float)v8;
+  v17 = (int)roundf((float)((float)(int)displayViewport->x * v16) * v15);
+  v18 = (float)outHeight;
+  v19 = 1.0 / (float)displayHeight;
+  v20 = (int)roundf((float)((float)y * v18) * v19);
+  v21 = (float)outWidth;
+  v22 = roundf((float)((float)v14 * v21) * v15);
+  v23 = (float)outHeight;
+  v24 = v22;
+  v25 = roundf((float)((float)v13 * v23) * v19);
+  outSceneViewport->width = (int)v24 - v17;
+  outSceneViewport->y = v20;
+  outSceneViewport->height = (int)v25 - v20;
+  outSceneViewport->x = v17;
 }
 
 /*
@@ -5335,10 +4550,10 @@ R_DrawLightsAndObjectsPass3
 */
 void R_DrawLightsAndObjectsPass3(GfxViewInfo *viewInfo)
 {
-  R_RT_DepthHandle v7; 
-  R_RT_DepthHandle v8; 
+  R_RT_DepthHandle v2; 
+  R_RT_DepthHandle v3; 
   R_RT_DepthHandle result; 
-  R_RT_DepthHandle v10; 
+  R_RT_DepthHandle v5; 
 
   Sys_ProfBeginNamedEvent(0xFFFFA07A, "R_DrawLightsAndObjectsPass3");
   frontEndDataOut->gfxEntCount = scene.gfxEntCount;
@@ -5363,21 +4578,9 @@ void R_DrawLightsAndObjectsPass3(GfxViewInfo *viewInfo)
     R_MergeAndEmitSunShadowMapsSurfs(viewInfo);
     if ( (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 )
     {
-      _RAX = R_SunShadowCache_GetBackFaceDepthArrayRtDraw3D(&result);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups [rsp+0C8h+var_98], ymm0
-      }
-      _RAX = R_SunShadowCache_GetDepthArrayRtDraw3D(&v10);
-      __asm
-      {
-        vmovups ymm0, [rsp+0C8h+var_98]
-        vmovups [rsp+0C8h+var_98], ymm0
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups [rsp+0C8h+var_78], ymm0
-      }
-      R_GenerateSortedSunShadowCacheSurfs(viewInfo, NULL, &v8, &v7, D3D12XBOX_RESOURCE_STATE_PRESERVE_COMPRESSED_DEPTH|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+      v2 = *R_SunShadowCache_GetBackFaceDepthArrayRtDraw3D(&result);
+      v3 = *R_SunShadowCache_GetDepthArrayRtDraw3D(&v5);
+      R_GenerateSortedSunShadowCacheSurfs(viewInfo, NULL, &v3, &v2, D3D12XBOX_RESOURCE_STATE_PRESERVE_COMPRESSED_DEPTH|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
     }
     if ( r_sunshadowmap_cmdbuf_worker->current.enabled && (viewInfo->useDynamicSunShadows || !viewInfo->useCachedSunShadow) )
     {
@@ -5400,11 +4603,8 @@ R_DumpLODInfo
 void R_DumpLODInfo(const RefdefView *view, bool dynRes)
 {
   const dvar_t *v4; 
-  double v20; 
-  double v21; 
-  double v22; 
-  double v23; 
-  BOOL v24; 
+  cg_t *LocalClientGlobals; 
+  BOOL v6; 
   vec3_t outOrg; 
 
   v4 = DCONST_DVARBOOL_r_debugLodInfo;
@@ -5413,34 +4613,10 @@ void R_DumpLODInfo(const RefdefView *view, bool dynRes)
   Dvar_CheckFrontendServerThread(v4);
   if ( v4->current.enabled )
   {
-    _RDI = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+    LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
     RefdefView_GetOrg(view, &outOrg);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rdi+40h]
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm5, dword ptr [rdi+3Ch]
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rsp+78h+outOrg+8]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm3, dword ptr [rsp+78h+outOrg+4]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsp+78h+outOrg]
-      vcvtss2sd xmm2, xmm2, xmm2
-    }
-    v24 = dynRes;
-    __asm
-    {
-      vmovsd  [rsp+78h+var_40], xmm4
-      vmovsd  [rsp+78h+var_48], xmm5
-      vmovsd  [rsp+78h+var_50], xmm0
-      vmovsd  [rsp+78h+var_58], xmm1
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "DumpLodInfo: viewOrg %f %f %f, playerOrg %f %f %f, dynRes %d\n", *(double *)&_XMM2, *(double *)&_XMM3, v20, v21, v22, v23, v24);
+    v6 = dynRes;
+    Com_Printf(14, "DumpLodInfo: viewOrg %f %f %f, playerOrg %f %f %f, dynRes %d\n", outOrg.v[0], outOrg.v[1], outOrg.v[2], LocalClientGlobals->predictedPlayerState.origin.v[0], LocalClientGlobals->predictedPlayerState.origin.v[1], LocalClientGlobals->predictedPlayerState.origin.v[2], v6);
     memset(&outOrg, 0, sizeof(outOrg));
   }
 }
@@ -5469,12 +4645,10 @@ bool R_DynamicLightFrustumTestSphere(unsigned int dynLightIndex, const Sphere *s
 {
   __int64 v3; 
 
-  _RDI = sphere;
   v3 = dynLightIndex;
   if ( dynLightIndex >= scene.addedDynamicLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11321, ASSERT_TYPE_ASSERT, "(dynLightIndex < scene.addedDynamicLightCount)", (const char *)&queryFormat, "dynLightIndex < scene.addedDynamicLightCount") )
     __debugbreak();
-  __asm { vmovss  xmm2, dword ptr [rdi+0Ch]; radius }
-  return R_SphereInPlanes((const vec4_t (*)[6])scene.sceneDynamicLight[v3]->planes, &_RDI->origin, *(const float *)&_XMM2) != 0;
+  return R_SphereInPlanes((const vec4_t (*)[6])scene.sceneDynamicLight[v3]->planes, &sphere->origin, sphere->radius) != 0;
 }
 
 /*
@@ -5528,71 +4702,40 @@ R_Estimate3DTextSize
 */
 __int64 R_Estimate3DTextSize(const vec3_t *top, const vec3_t *bottom)
 {
-  __int64 result; 
+  __m128 v3; 
+  __m128 v4; 
+  GfxViewInfo *v5; 
+  float width; 
+  float height; 
+  float v8; 
   vec4_t out; 
-  vec4_t v43; 
+  vec4_t v13; 
   vec4_t vec; 
   GfxMatrix outWVPMatrix; 
 
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_18], xmm6
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovups xmmword ptr [rsp+0D8h+vec], xmm0
-  }
+  vec = (vec4_t)_xmm;
   R_BuildWorldViewProjectionMatrixForPoint(top, &outWVPMatrix);
   MatrixTransformVector44Aligned(&vec, &outWVPMatrix.m, &out);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vdivss  xmm1, xmm6, dword ptr [rsp+0D8h+out+0Ch]
-    vshufps xmm1, xmm1, xmm1, 0
-    vmulps  xmm1, xmm1, xmmword ptr [rsp+0D8h+out]
-    vmovups xmmword ptr [rsp+0D8h+out], xmm1
-  }
+  v3 = (__m128)LODWORD(FLOAT_1_0);
+  v3.m128_f32[0] = 1.0 / out.v[3];
+  out = (vec4_t)_mm128_mul_ps(_mm_shuffle_ps(v3, v3, 0), (__m128)out);
   R_BuildWorldViewProjectionMatrixForPoint(bottom, &outWVPMatrix);
-  MatrixTransformVector44Aligned(&vec, &outWVPMatrix.m, &v43);
-  __asm
-  {
-    vdivss  xmm1, xmm6, dword ptr [rsp+0D8h+var_98+0Ch]
-    vmovss  xmm6, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vshufps xmm1, xmm1, xmm1, 0
-    vmulps  xmm5, xmm1, xmmword ptr [rsp+0D8h+var_98]
-    vmovups xmmword ptr [rsp+0D8h+var_98], xmm5
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm4, xmm1, dword ptr [rsp+0D8h+out]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+0D8h+out], xmm4
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm2, xmm0, xmm6
-    vmulss  xmm3, xmm2, dword ptr [rsp+0D8h+out+4]
-    vmovss  dword ptr [rsp+0D8h+out+4], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm5, xmm1
-    vsubss  xmm5, xmm0, xmm4
-    vmovss  dword ptr [rsp+0D8h+var_98], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, dword ptr [rsp+0D8h+var_98+4]
-    vsubss  xmm3, xmm2, xmm3
-    vmulss  xmm4, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm1, xmm4, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm2, cs:__real@3daaaaab
-    vaddss  xmm4, xmm3, xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm4, 1
-    vcvttss2si eax, xmm3
-  }
-  result = (unsigned int)(12 * _EAX);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
-  return result;
+  MatrixTransformVector44Aligned(&vec, &outWVPMatrix.m, &v13);
+  v4 = (__m128)LODWORD(FLOAT_1_0);
+  v4.m128_f32[0] = 1.0 / v13.v[3];
+  v13 = (vec4_t)_mm128_mul_ps(_mm_shuffle_ps(v4, v4, 0), (__m128)v13);
+  v5 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
+  width = (float)v5->sceneViewport.width;
+  out.v[0] = (float)(width * 0.5) * out.v[0];
+  height = (float)v5->sceneViewport.height;
+  out.v[1] = (float)(height * 0.5) * out.v[1];
+  v8 = (float)v5->sceneViewport.width;
+  v13.v[0] = v13.v[0] * (float)(v8 * 0.5);
+  v4.m128_f32[0] = (float)v5->sceneViewport.height;
+  fsqrt((float)((float)((float)((float)(v4.m128_f32[0] * 0.5) * v13.v[1]) - out.v[1]) * (float)((float)((float)(v4.m128_f32[0] * 0.5) * v13.v[1]) - out.v[1])) + (float)((float)(v13.v[0] - out.v[0]) * (float)(v13.v[0] - out.v[0])));
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm4, 1 }
+  return (unsigned int)(12 * (int)*(float *)&_XMM3);
 }
 
 /*
@@ -5602,76 +4745,48 @@ R_EyeHighlight_SetInfo
 */
 void R_EyeHighlight_SetInfo(GfxViewInfo *viewInfo, __int64 a2, __int64 a3, __int64 a4)
 {
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
+  float eyeHighlightIntensity; 
+  float v5; 
+  float v6; 
+  float v7; 
+  double v9; 
+  __int128 eyeHighlightPitch_low; 
+  __m128 v11; 
+  __m128 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  float eyeHighlightBulbRadius; 
   vec4_t vec; 
   vec4_t out; 
   tmat44_t<vec4_t> dst; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm7
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovss  xmm0, dword ptr [rcx+648h]
-    vmulss  xmm10, xmm0, dword ptr [rcx+64Ch]
-    vmulss  xmm9, xmm0, dword ptr [rcx+650h]
-    vmulss  xmm8, xmm0, dword ptr [rcx+654h]
-    vmovss  xmm0, dword ptr [rcx+660h]
-    vmulss  xmm0, xmm0, cs:__real@3fc90fdb
-  }
-  _RBX = viewInfo;
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(viewInfo, a2, a3, a4);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+65Ch]
-    vmovss  dword ptr [rsp+0D8h+vec], xmm0
-    vmovups xmm7, xmm0
-    vmulss  xmm0, xmm1, cs:__real@3fc90fdb
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(v20, v19, v21, v22);
-  __asm
-  {
-    vshufps xmm2, xmm0, xmm0, 1
-    vshufps xmm1, xmm7, xmm7, 1
-    vmovss  dword ptr [rsp+0D8h+vec+4], xmm0
-    vmulss  xmm0, xmm2, xmm1
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+0D8h+vec+8], xmm1
-    vmovss  dword ptr [rsp+0D8h+vec+0Ch], xmm2
-  }
-  MatrixInverse44Aligned((const tmat44_t<vec4_t> *)_RBX, &dst);
+  eyeHighlightIntensity = viewInfo->eyeVirtualHighlight.eyeHighlightIntensity;
+  v5 = eyeHighlightIntensity * viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[0];
+  v6 = eyeHighlightIntensity * viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[1];
+  v7 = eyeHighlightIntensity * viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[2];
+  v9 = j___libm_sse2_sincosf_(viewInfo, a2, a3, a4);
+  eyeHighlightPitch_low = LODWORD(viewInfo->eyeVirtualHighlight.eyeHighlightPitch);
+  vec.v[0] = *(float *)&v9;
+  v11 = (__m128)*(unsigned __int64 *)&v9;
+  v12.m128_u64[1] = *((_QWORD *)&eyeHighlightPitch_low + 1);
+  *(double *)v12.m128_u64 = j___libm_sse2_sincosf_(v14, v13, v15, v16);
+  vec.v[1] = v12.m128_f32[0];
+  LODWORD(vec.v[2]) = COERCE_UNSIGNED_INT(_mm_shuffle_ps(v12, v12, 1).m128_f32[0] * _mm_shuffle_ps(v11, v11, 1).m128_f32[0]) ^ _xmm;
+  vec.v[3] = 0.0;
+  MatrixInverse44Aligned((const tmat44_t<vec4_t> *)viewInfo, &dst);
   MatrixTransformVector44Aligned(&vec, &dst, &out);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+658h]
-    vmovss  xmm0, dword ptr [rsp+0D8h+out]
-    vmovss  xmm1, dword ptr [rsp+0D8h+out+4]
-    vmovss  dword ptr [rbx+18C0h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0D8h+out+8]
-    vmovss  dword ptr [rbx+18C8h], xmm0
-    vmovss  dword ptr [rbx+18C4h], xmm1
-    vmovss  dword ptr [rbx+18CCh], xmm2
-    vmovss  dword ptr [rbx+18D0h], xmm10
-    vmovss  dword ptr [rbx+18D4h], xmm9
-    vmovss  dword ptr [rbx+18D8h], xmm8
-  }
-  _RBX->input.sceneConstants.eyeHighlightParams2.v[3] = 0.0;
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-  }
+  eyeHighlightBulbRadius = viewInfo->eyeVirtualHighlight.eyeHighlightBulbRadius;
+  *(float *)&eyeHighlightPitch_low = out.v[1];
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[0] = out.v[0];
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[2] = out.v[2];
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[1] = *(float *)&eyeHighlightPitch_low;
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[3] = eyeHighlightBulbRadius;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[0] = v5;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[1] = v6;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[2] = v7;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[3] = 0.0;
 }
 
 /*
@@ -5842,27 +4957,28 @@ R_GenerateDrawSurfsCmd
 void R_GenerateDrawSurfsCmd(const void *const cmd)
 {
   __int64 v2; 
+  __int64 v3; 
   __int64 v4; 
   unsigned int FrustumWords; 
-  int v8; 
-  unsigned int v10; 
+  int v7; 
+  unsigned int v9; 
   GfxBspSurfListOut out; 
   SceneEntCmd sceneEntCmd; 
 
   Sys_ProfBeginNamedEvent(0xFF708090, "R_GenerateDrawSurfsCmd");
   v2 = *((_QWORD *)cmd + 1);
-  _RDI = *((_QWORD *)cmd + 98);
+  v3 = *((_QWORD *)cmd + 98);
   if ( *(_DWORD *)cmd )
   {
     if ( *(_DWORD *)cmd == 1 )
     {
-      R_ST_SetFrameDataResources((GfxCmdBufInput *)(_RDI + 3760));
+      R_ST_SetFrameDataResources((GfxCmdBufInput *)(v3 + 3760));
       Sys_ProfBeginNamedEvent(0xFF708090, "R_DrawBspLightsAndObjectsPass2");
       if ( !*(_BYTE *)(v2 + 21) && Sys_ExistsWorkerCmdsOfType(WRKCMD_ADD_BSP) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 7660, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_BSP ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_BSP )") )
         __debugbreak();
       Sys_ProfBeginNamedEvent(0xFF708090, "bsp surfaces");
       out.drawlistType = DRAWLIST_PREPASS_COUNT;
-      out.bspSurfList = (GfxBspSurfList *)(_RDI + 18640);
+      out.bspSurfList = (GfxBspSurfList *)(v3 + 18640);
       *(_QWORD *)&out.missingTransient = 0i64;
       R_AddAllBspDrawSurfacesCameraNonlit(rgp.world->surfaces.emissiveSurfsBegin, rgp.world->surfaces.emissiveSurfsEnd, &out);
       Sys_ProfEndNamedEvent();
@@ -5874,52 +4990,48 @@ void R_GenerateDrawSurfsCmd(const void *const cmd)
         if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_ADD_SUPER_TERRAIN) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 7688, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_SUPER_TERRAIN ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_ADD_SUPER_TERRAIN )") )
           __debugbreak();
       }
-      R_DrawLightsAndObjectsPass3((GfxViewInfo *)_RDI);
-      Sys_AddWorkerCmd(WRKCMD_UGB_MAKE_XSURFS_RESIDENT_DISPATCH, (const void *const)(_RDI + 11696));
-      R_GenerateGPUArgs(*(const GfxBackEndData **)(_RDI + 11696), 1u);
-      R_GenerateGPUArgs(*(const GfxBackEndData **)(_RDI + 11696), 0);
+      R_DrawLightsAndObjectsPass3((GfxViewInfo *)v3);
+      Sys_AddWorkerCmd(WRKCMD_UGB_MAKE_XSURFS_RESIDENT_DISPATCH, (const void *const)(v3 + 11696));
+      R_GenerateGPUArgs(*(const GfxBackEndData **)(v3 + 11696), 1u);
+      R_GenerateGPUArgs(*(const GfxBackEndData **)(v3 + 11696), 0);
       if ( !Sys_IsRendererReady(NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8519, ASSERT_TYPE_ASSERT, "(Sys_IsRendererReady( nullptr ))", (const char *)&queryFormat, "Sys_IsRendererReady( nullptr )") )
         __debugbreak();
       R_IssueRenderCommandsBegin(*(_DWORD *)(v2 + 2512));
       R_FinishFrontendComputeCmdList();
       R_IssueRenderCommandsShadow();
-      R_SubmitSurfaces((GfxViewInfo *)_RDI);
+      R_SubmitSurfaces((GfxViewInfo *)v3);
     }
     else if ( *(_DWORD *)cmd == 2 )
     {
       R_DecalVolumesGrid_AddCommand(*((const GfxViewInfo **)cmd + 98));
-      R_SubmitFXandTransparencies((GfxViewInfo *)_RDI);
+      R_SubmitFXandTransparencies((GfxViewInfo *)v3);
       R_IssueRenderCommandsOpaque();
     }
     else
     {
       if ( *(_DWORD *)cmd != 3 )
       {
-        v10 = *(_DWORD *)cmd;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8547, ASSERT_TYPE_ASSERT, "( ( drawSurfsCmd->type == GENERATE_DRAWSURFS3 ) )", "( drawSurfsCmd->type ) = %i", v10) )
+        v9 = *(_DWORD *)cmd;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8547, ASSERT_TYPE_ASSERT, "( ( drawSurfsCmd->type == GENERATE_DRAWSURFS3 ) )", "( drawSurfsCmd->type ) = %i", v9) )
           __debugbreak();
       }
-      R_SubmitEmissive((GfxViewInfo *)_RDI);
+      R_SubmitEmissive((GfxViewInfo *)v3);
       R_IssueRenderCommandsEmissive();
     }
   }
   else
   {
-    v4 = *(_QWORD *)(_RDI + 11696);
-    *(_DWORD *)(_RDI + 11984) = R_GetFrustumLightWords(*(_DWORD *)(v4 + 1088724));
-    *(_DWORD *)(_RDI + 11988) = R_VOL_GetFrustumWords(*(_DWORD *)(v4 + 1088732));
+    v4 = *(_QWORD *)(v3 + 11696);
+    *(_DWORD *)(v3 + 11984) = R_GetFrustumLightWords(*(_DWORD *)(v4 + 1088724));
+    *(_DWORD *)(v3 + 11988) = R_VOL_GetFrustumWords(*(_DWORD *)(v4 + 1088732));
     FrustumWords = R_ReflectionProbe_GetFrustumWords(*(_DWORD *)(v4 + 31488));
-    __asm { vmovss  xmm0, dword ptr [rdi+2ED4h] }
-    *(_DWORD *)(_RDI + 11992) = FrustumWords;
-    __asm { vmovss  xmm1, dword ptr [rdi+2ED8h] }
-    v8 = *(_DWORD *)(_RDI + 11984);
-    __asm
-    {
-      vmovss  dword ptr [rdi+1BF8h], xmm1
-      vmovss  dword ptr [rdi+1BF4h], xmm0
-    }
-    *(_DWORD *)(_RDI + 7152) = v8;
-    *(_DWORD *)(_RDI + 7164) = 0;
+    _XMM0 = *(unsigned int *)(v3 + 11988);
+    *(_DWORD *)(v3 + 11992) = FrustumWords;
+    v7 = *(_DWORD *)(v3 + 11984);
+    *(float *)(v3 + 7160) = *(float *)(v3 + 11992);
+    *(float *)(v3 + 7156) = *(float *)&_XMM0;
+    *(_DWORD *)(v3 + 7152) = v7;
+    *(_DWORD *)(v3 + 7164) = 0;
     R_ReflectionProbe_AddProbesToDraw();
     if ( ((unsigned __int8)&scene.allowDynamicStreamUpdateIterateSceneModels & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &scene.allowDynamicStreamUpdateIterateSceneModels) )
       __debugbreak();
@@ -5935,8 +5047,8 @@ void R_GenerateDrawSurfsCmd(const void *const cmd)
     *(_QWORD *)&sceneEntCmd.sceneDObjBegin = 0i64;
     *(_QWORD *)&sceneEntCmd.sceneDynBrushBegin = 0i64;
     *(&sceneEntCmd.sceneDynBrushEnd + 1) = 0;
-    __asm { vmovdqu xmmword ptr [rsp+88h+sceneEntCmd.sceneBrushBegin], xmm0 }
-    sceneEntCmd.viewInfo = (const GfxViewInfo *)_RDI;
+    *(_OWORD *)&sceneEntCmd.sceneBrushBegin = _XMM0;
+    sceneEntCmd.viewInfo = (const GfxViewInfo *)v3;
     sceneEntCmd.sortSurfs = 1;
     if ( !scene.sceneDObjModelCountValidRead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8486, ASSERT_TYPE_ASSERT, "(scene.sceneDObjModelCountValidRead)", (const char *)&queryFormat, "scene.sceneDObjModelCountValidRead") )
       __debugbreak();
@@ -5948,7 +5060,7 @@ void R_GenerateDrawSurfsCmd(const void *const cmd)
     Sys_ProfEndNamedEvent();
     Sys_AddWorkerCmd(WRKCMD_ADD_SCENE_ENT, &sceneEntCmd);
   }
-  R_TG_SetupPhase((GfxViewInfo *)_RDI, frontEndDataOut->smpFrame, *(_DWORD *)cmd);
+  R_TG_SetupPhase((GfxViewInfo *)v3, frontEndDataOut->smpFrame, *(_DWORD *)cmd);
   Sys_ProfEndNamedEvent();
   if ( *(_DWORD *)cmd != 3 )
   {
@@ -5965,108 +5077,120 @@ R_GenerateSortedDrawSurfs
 void R_GenerateSortedDrawSurfs(LocalClientNum_t localClientNum, const GfxSceneParms *sceneParms, const GfxViewParms *viewParmsDpvs, const GfxViewParmsSet *viewParmsSet, const GfxViewportFeatures *viewportFeatures)
 {
   __int64 viewInfoIndex; 
-  GfxViewInfo *v19; 
+  GfxViewInfo *v10; 
   unsigned int primaryLightCount; 
-  const dvar_t *v21; 
-  GfxBackEndData *v22; 
+  const dvar_t *v12; 
+  GfxBackEndData *v13; 
   unsigned int i; 
-  __int64 v24; 
-  float v32; 
-  GfxBackEndData *v61; 
+  __int64 v15; 
+  GfxViewInfo *v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  GfxViewInfo *v20; 
+  float value; 
+  float integer; 
+  float v25; 
+  float v26; 
+  float v27; 
+  GfxViewInfo *v28; 
+  float biasWithoutFovScale; 
+  float scaleWithoutFovScale; 
+  float bias; 
+  GfxBackEndData *v32; 
   FxGlassVisInfo *GlassVisInfo; 
-  GfxViewportFeatures *v66; 
-  __int64 v76; 
-  __int64 v79; 
+  float v34; 
+  float v35; 
+  GfxViewportFeatures *v36; 
+  float v37; 
+  GfxViewInfo *v39; 
+  float v40; 
+  __int64 v41; 
+  const GfxViewParmsSet *v42; 
+  char *v43; 
+  __int64 v44; 
+  __m256i v45; 
+  vec4_t v46; 
   unsigned int sceneVolumetricCount; 
-  unsigned int v85; 
-  __int64 v86; 
-  __int64 v88; 
-  LocalClientNum_t *v97; 
-  const dvar_t *v98; 
+  unsigned int v48; 
+  __int64 v49; 
+  GfxVolumetric *v50; 
+  __int64 v51; 
+  GfxSceneVolumetric *v52; 
+  __int128 v53; 
+  LocalClientNum_t *v54; 
+  const dvar_t *v55; 
   unsigned __int64 j; 
   unsigned __int64 k; 
-  GfxViewportFeatures *v101; 
-  const dvar_t *v102; 
+  GfxViewportFeatures *v58; 
+  const dvar_t *v59; 
   unsigned __int64 m; 
   unsigned __int64 n; 
-  int v105; 
+  int v62; 
   CgDrawSystem *DrawSystem; 
-  const dvar_t *v108; 
+  const dvar_t *v65; 
   ClGameModeApplication *ActiveClientApplication; 
-  int v110; 
-  __int64 v111; 
+  int v67; 
+  __int64 v68; 
+  char *v69; 
+  __m256i v70; 
+  vec4_t v71; 
+  char *v72; 
+  __m256i v73; 
+  vec4_t v74; 
   GfxImage *iesLookupTexture; 
   GfxCmdBufInput *p_input; 
-  GfxViewInfo *v126; 
-  CgDrawSystem *v127; 
-  __int64 v132; 
+  GfxViewInfo *v77; 
+  CgDrawSystem *v78; 
+  float v79; 
+  __int64 v80; 
   GfxViewInfo *viewInfo; 
-  GfxViewportFeatures *v134; 
-  LocalClientNum_t v135; 
-  vec3_t v136; 
-  GfxBackEndData *v137; 
+  GfxViewportFeatures *v82; 
+  LocalClientNum_t v83; 
+  vec3_t v84; 
+  GfxBackEndData *v85; 
   SceneEntCmd sceneEntCmd; 
   FxSystem *System; 
-  LocalClientNum_t v140; 
-  __int64 v141[2]; 
-  __int64 v142[2]; 
-  __int64 v143[2]; 
-  __int64 v144[2]; 
-  __int64 v145[4]; 
+  LocalClientNum_t v88; 
+  __int64 v89[2]; 
+  __int64 v90[2]; 
+  __int64 v91[2]; 
+  __int64 v92[2]; 
+  __int64 v93[4]; 
   FxGenerateModelMarksCmd genModelMarksCmd; 
   int data[4]; 
-  FxGlassVisInfo *v148; 
-  GfxViewInfo *v149; 
-  int v153[2]; 
-  LocalClientNum_t *v154; 
-  char v155; 
-  char v156; 
-  GfxViewInfo *v157; 
-  char v158[384]; 
-  GfxBackEndData *v159; 
+  FxGlassVisInfo *v96; 
+  GfxViewInfo *v97; 
+  float v98; 
+  float v99; 
+  int v100; 
+  int v101[2]; 
+  LocalClientNum_t *v102; 
+  char v103; 
+  char v104; 
+  GfxViewInfo *v105; 
+  char v106[384]; 
+  GfxBackEndData *v107; 
   FxGenerateGlassVertsCmd genGlassVertsCmd; 
   FxGenerateVertsCmd genVertsCmd; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _R14 = viewportFeatures;
-  _RDI = viewParmsSet;
-  _RSI = viewParmsDpvs;
-  *(_QWORD *)v136.v = sceneParms;
-  _R15 = sceneParms;
-  v134 = (GfxViewportFeatures *)viewportFeatures;
+  *(_QWORD *)v84.v = sceneParms;
+  v82 = (GfxViewportFeatures *)viewportFeatures;
   if ( frontEndDataOut->viewInfoCount != rg.viewInfoCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8879, ASSERT_TYPE_ASSERT, "(frontEndDataOut->viewInfoCount == rg.viewInfoCount)", (const char *)&queryFormat, "frontEndDataOut->viewInfoCount == rg.viewInfoCount") )
     __debugbreak();
   viewInfoIndex = (int)frontEndDataOut->viewInfoIndex;
   if ( (unsigned int)viewInfoIndex >= 6 )
   {
-    LODWORD(v132) = frontEndDataOut->viewInfoIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( viewInfoIndex ) < (unsigned)( 6 )", "viewInfoIndex doesn't index GFX_MAX_CLIENT_VIEWINFOS\n\t%i not in [0, %i)", v132, 6) )
+    LODWORD(v80) = frontEndDataOut->viewInfoIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5339, ASSERT_TYPE_ASSERT, "(unsigned)( viewInfoIndex ) < (unsigned)( 6 )", "viewInfoIndex doesn't index GFX_MAX_CLIENT_VIEWINFOS\n\t%i not in [0, %i)", v80, 6) )
       __debugbreak();
   }
   viewInfo = &frontEndDataOut->viewInfo[viewInfoIndex];
   viewInfo->viewInfoIndex = frontEndDataOut->viewInfoIndex;
   viewInfo->clientIndex = localClientNum;
-  _RAX = viewInfo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rax+3C88h], ymm0
-    vmovups xmm1, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [rax+3CA8h], xmm1
-  }
-  viewInfo->ssrFade = _R15->ssrFade;
-  _RAX = viewInfo;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15+318h]
-    vmovups xmmword ptr [rax+37D4h], xmm0
-  }
+  viewInfo->viewportFeatures = *viewportFeatures;
+  viewInfo->ssrFade = sceneParms->ssrFade;
+  viewInfo->ssrSourceSceneViewport = sceneParms->ssrSourceSceneViewport;
   viewInfo->ssrMode = rg.ssrMode;
   viewInfo->ssrWaterTrace = 0;
   Sys_ProfBeginNamedEvent(0xFF404040, "wait next frame data backend setup done");
@@ -6081,187 +5205,119 @@ void R_GenerateSortedDrawSurfs(LocalClientNum_t localClientNum, const GfxScenePa
     __debugbreak();
   if ( !rg.correctedLodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8910, ASSERT_TYPE_ASSERT, "(rg.correctedLodParms.valid)", (const char *)&queryFormat, "rg.correctedLodParms.valid") )
     __debugbreak();
-  v19 = viewInfo;
+  v10 = viewInfo;
   primaryLightCount = rgp.world->primaryLightCount;
   frontEndDataOut->sceneLightCount = primaryLightCount;
   if ( primaryLightCount )
     memcpy_0(frontEndDataOut->sceneLights, rgp.world->primaryLights, 152i64 * rgp.world->primaryLightCount);
-  v21 = sm_spotDynamics;
+  v12 = sm_spotDynamics;
   if ( !sm_spotDynamics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  v22 = frontEndDataOut;
-  if ( !v21->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = frontEndDataOut;
+  if ( !v12->current.enabled )
   {
-    for ( i = 0; i < frontEndDataOut->sceneLightCount; v22 = frontEndDataOut )
+    for ( i = 0; i < frontEndDataOut->sceneLightCount; v13 = frontEndDataOut )
     {
-      v24 = i++;
-      v22->sceneLights[v24].needsDynamicShadows = 0;
+      v15 = i++;
+      v13->sceneLights[v15].needsDynamicShadows = 0;
     }
   }
-  v22->localClientNum = _R15->localClientNum;
+  v13->localClientNum = sceneParms->localClientNum;
   frontEndDataOut->spotShadowCount = 0;
   frontEndDataOut->spotShadowUpdateCount = 0;
-  R_SetupViewInfo(v19, _R15, _RDI);
+  R_SetupViewInfo(v10, sceneParms, viewParmsSet);
   if ( CL_StreamViews_HasAdditionalViewsSet() )
-  {
-    __asm { vmovss  xmm1, cs:__real@43dc0000; ypos }
-    R_PerformanceWarning("STREAM", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("STREAM", 440.0);
   if ( R_Cinematic_IsStarted() )
-  {
-    __asm { vmovss  xmm1, cs:__real@43c80000; ypos }
-    R_PerformanceWarning("BINK", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("BINK", 400.0);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH) && CG_PIP_IsActive(localClientNum) )
-  {
-    __asm { vmovss  xmm1, cs:__real@442f0000; ypos }
-    R_PerformanceWarning("PIP", *(float *)&_XMM1);
-  }
-  _RCX = viewInfo;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+14Ch]
-    vmovss  xmm1, dword ptr [rdi+148h]
-    vmovss  xmm0, dword ptr [rdi+144h]
-  }
-  v32 = _RDI->frames[0].viewParms.camera.zPlanes[0];
-  __asm
-  {
-    vmovss  dword ptr [rcx+2374h], xmm0
-    vmovss  dword ptr [rcx+2378h], xmm1
-    vmovss  dword ptr [rcx+237Ch], xmm2
-  }
-  _RCX->input.sceneConstants.zPlanes.v[0] = v32;
+    R_PerformanceWarning("PIP", 700.0);
+  v16 = viewInfo;
+  v17 = viewParmsSet->frames[0].viewParms.camera.zPlanes[3];
+  v18 = viewParmsSet->frames[0].viewParms.camera.zPlanes[2];
+  v19 = viewParmsSet->frames[0].viewParms.camera.zPlanes[0];
+  viewInfo->input.sceneConstants.zPlanes.v[1] = viewParmsSet->frames[0].viewParms.camera.zPlanes[1];
+  v16->input.sceneConstants.zPlanes.v[2] = v18;
+  v16->input.sceneConstants.zPlanes.v[3] = v17;
+  v16->input.sceneConstants.zPlanes.v[0] = v19;
   R_SetupDustConstants(viewInfo);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r15+7ECh]; boneSizeThreshold
-    vmovss  xmm2, dword ptr [r15+7E8h]; fadeDistance
-    vmovss  xmm1, dword ptr [r15+7E4h]; cullDistance
-  }
-  R_MDAO_SetupGlobalFrameData(viewInfo, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RCX = viewInfo;
-  _RAX = r_tessellationHeightScale;
+  R_MDAO_SetupGlobalFrameData(viewInfo, sceneParms->mdaoCullDistance, sceneParms->mdaoFadeoutDistance, sceneParms->mdaoBoneSizeThreshold);
+  v20 = viewInfo;
   if ( r_tessellationHeightAuto->current.enabled )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmulss  xmm4, xmm0, cs:__real@bb800000
-    }
-  }
+    value = r_tessellationHeightScale->current.value * -0.00390625;
   else
-  {
-    __asm { vmovss  xmm4, dword ptr [rax+28h] }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.tessellationFactor; r_globals_t rg
-    vmaxss  xmm5, xmm0, cs:__real@3727c5ac
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, dword ptr [rax+28h]
-  }
-  _RAX = r_tessellationHybrid;
-  __asm { vmovss  xmm7, dword ptr [rax+28h] }
+    value = r_tessellationHeightScale->current.value;
+  _XMM0 = LODWORD(rg.tessellationFactor);
+  __asm { vmaxss  xmm5, xmm0, cs:__real@3727c5ac }
+  integer = (float)r_subdomainLimit->current.integer;
+  v25 = r_tessellationHybrid->current.value;
   if ( rg.tessellation != 1 )
   {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v26 = 0.0;
     goto LABEL_39;
   }
-  __asm
-  {
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.tessellationCutoffFalloff; r_globals_t rg
-    vcomiss xmm1, cs:__real@3a83126f
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.tessellationCutoffDistance; r_globals_t rg
-    vsubss  xmm3, xmm0, xmm1
-  }
-  if ( rg.tessellation <= 1u )
+  v26 = rg.tessellationCutoffDistance - rg.tessellationCutoffFalloff;
+  if ( rg.tessellationCutoffFalloff <= 0.001 )
   {
 LABEL_39:
-    __asm { vxorps  xmm2, xmm2, xmm2 }
+    v27 = 0.0;
     goto LABEL_40;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm0, xmm1
-  }
+  v27 = 1.0 / rg.tessellationCutoffFalloff;
 LABEL_40:
-  _RAX = r_tessellationLodBias;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  dword ptr [rcx+1FD4h], xmm0
-    vmovss  dword ptr [rcx+1FD0h], xmm5
-    vmovss  dword ptr [rcx+1FD8h], xmm4
-    vmovss  dword ptr [rcx+1FDCh], xmm7
-  }
-  _RAX = r_tessellationEyeScale;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  dword ptr [rcx+1FECh], xmm0
-    vmovss  dword ptr [rcx+1FE0h], xmm6
-    vmovss  dword ptr [rcx+1FE4h], xmm3
-    vmovss  dword ptr [rcx+1FE8h], xmm2
-  }
+  viewInfo->input.sceneConstants.tessellationParms.v[1] = r_tessellationLodBias->current.value;
+  v20->input.sceneConstants.tessellationParms.v[0] = *(float *)&_XMM5;
+  v20->input.sceneConstants.tessellationParms.v[2] = value;
+  v20->input.sceneConstants.tessellationParms.v[3] = v25;
+  v20->input.sceneConstants.tessellationParms2.v[3] = r_tessellationEyeScale->current.value;
+  v20->input.sceneConstants.tessellationParms2.v[0] = integer;
+  v20->input.sceneConstants.tessellationParms2.v[1] = v26;
+  v20->input.sceneConstants.tessellationParms2.v[2] = v27;
   R_GP_InitFrame(frontEndDataOut, viewInfo);
-  R_ST_SetSceneConstants(viewInfo, &_RSI->camera.origin);
+  R_ST_SetSceneConstants(viewInfo, &viewParmsDpvs->camera.origin);
   R_ST_ClutterSetSceneConstants(viewInfo);
-  _RAX = viewInfo;
-  __asm
-  {
-    vmovss  xmm3, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.clutterRamp.biasWithoutFovScale; r_globals_t rg
-    vmovss  xmm2, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.clutterRamp.scaleWithoutFovScale; r_globals_t rg
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.bias; r_globals_t rg
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ramp.scale; r_globals_t rg
-    vmovss  dword ptr [rax+2670h], xmm0
-    vmovss  dword ptr [rax+2674h], xmm1
-    vmovss  dword ptr [rax+2678h], xmm2
-    vmovss  dword ptr [rax+267Ch], xmm3
-  }
+  v28 = viewInfo;
+  biasWithoutFovScale = rg.correctedLodParms.clutterRamp.biasWithoutFovScale;
+  scaleWithoutFovScale = rg.correctedLodParms.clutterRamp.scaleWithoutFovScale;
+  bias = rg.correctedLodParms.ramp.bias;
+  viewInfo->input.sceneConstants.lodScaleParams.v[0] = rg.correctedLodParms.ramp.scale;
+  v28->input.sceneConstants.lodScaleParams.v[1] = bias;
+  v28->input.sceneConstants.lodScaleParams.v[2] = scaleWithoutFovScale;
+  v28->input.sceneConstants.lodScaleParams.v[3] = biasWithoutFovScale;
   R_TG_SetupPhase(viewInfo, frontEndDataOut->smpFrame, 5u);
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6896, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   R_ReleaseThreadOwnership();
-  _R14 = viewInfo;
-  v61 = frontEndDataOut;
+  v32 = frontEndDataOut;
   r_glob.allowAddDrawCall = 1;
   R_ClearDpvsCellVisibility(viewInfo->viewInfoIndex);
-  R_SetupWorldSurfacesDpvs(_RSI, viewInfo->viewInfoIndex);
-  R_SetViewFrustumPlanes(_R14, _R14->viewInfoIndex);
+  R_SetupWorldSurfacesDpvs(viewParmsDpvs, viewInfo->viewInfoIndex);
+  R_SetViewFrustumPlanes(viewInfo, viewInfo->viewInfoIndex);
   R_Umbra_Reset();
   R_DrawViewModelSceneEnt();
   Sys_ProfBeginNamedEvent(0xFF708090, "draw surfs");
   Profile_Begin(57);
-  R_AddWorldSurfacesDpvs(_RSI, viewInfo);
+  R_AddWorldSurfacesDpvs(viewParmsDpvs, viewInfo);
   Profile_EndInternal(NULL);
   Sys_ProfEndNamedEvent();
   GlassVisInfo = FX_GetGlassVisInfo();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+100h]
-    vmovss  xmm1, dword ptr [r14+104h]
-    vmovss  [rbp+780h+data], xmm0
-    vmovss  xmm0, dword ptr [r14+108h]
-  }
-  v148 = GlassVisInfo;
-  __asm
-  {
-    vmovss  [rbp+780h+var_6F8], xmm0
-    vmovss  [rbp+780h+var_6FC], xmm1
-  }
+  v34 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  data[0] = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0]);
+  v35 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  v96 = GlassVisInfo;
+  *(float *)&data[2] = v35;
+  *(float *)&data[1] = v34;
   Sys_AddWorkerCmd(WRKCMD_GLASS_PIECE_LIGHT, data);
   if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
-    R_SetupSunShadowMaps(v61, viewInfo, &_RSI->camera, &v61->sunShadow);
-    R_SetShadowConstants(viewInfo, &v61->sunShadow);
-    R_SunShadowMaps(viewInfo, &v61->sunShadow);
+    R_SetupSunShadowMaps(v32, viewInfo, &viewParmsDpvs->camera, &v32->sunShadow);
+    R_SetShadowConstants(viewInfo, &v32->sunShadow);
+    R_SunShadowMaps(viewInfo, &v32->sunShadow);
   }
   if ( fx_umbra_culling->current.enabled )
   {
-    v140 = localClientNum;
+    v88 = localClientNum;
     System = FX_GetSystem(localClientNum);
     Sys_AddWorkerCmd(WRKCMD_UMBRA_CULL_PARTICLE_SPRITE_CAMERA, &System);
     FX_FillGenerateVertsCmd(localClientNum, GFX_CODE_SURFLIST_EMISSIVE, &genVertsCmd);
@@ -6269,8 +5325,8 @@ LABEL_40:
   }
   R_SetGlobalLightingConstants(frontEndDataOut, viewInfo);
   R_InitializeDrawLists(viewInfo);
-  v66 = v134;
-  if ( (*((_DWORD *)v134 + 10) & 0x2000) != 0 )
+  v36 = v82;
+  if ( (*((_DWORD *)v82 + 10) & 0x2000) != 0 )
   {
     CG_DrawMaterial_Update(localClientNum);
     CG_DrawRange_Update(localClientNum);
@@ -6288,139 +5344,102 @@ LABEL_40:
   Sys_AddWorkerCmd(WRKCMD_ADD_STATICMODEL_DISPATCH, &viewInfo);
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9024, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm
+  v37 = viewParmsDpvs->camera.origin.v[1];
+  v98 = viewParmsDpvs->camera.origin.v[0];
+  _XMM0 = LODWORD(viewParmsDpvs->camera.origin.v[2]);
+  v97 = viewInfo;
+  v100 = _XMM0;
+  v99 = v37;
+  Sys_AddWorkerCmd(WRKCMD_ADD_SUPER_TERRAIN, &v97);
+  if ( (*((_DWORD *)v36 + 10) & 0x2000000) != 0 )
   {
-    vmovss  xmm0, dword ptr [rsi+100h]
-    vmovss  xmm1, dword ptr [rsi+104h]
-    vmovss  [rbp+780h+var_6E0], xmm0
-    vmovss  xmm0, dword ptr [rsi+108h]
-  }
-  v149 = viewInfo;
-  __asm
-  {
-    vmovss  [rbp+780h+var_6D8], xmm0
-    vmovss  [rbp+780h+var_6DC], xmm1
-  }
-  Sys_AddWorkerCmd(WRKCMD_ADD_SUPER_TERRAIN, &v149);
-  if ( (*((_DWORD *)v66 + 10) & 0x2000000) != 0 )
-  {
-    _RBX = viewInfo;
+    v39 = viewInfo;
     FX_FillGenerateGlassVertsCmd(&genGlassVertsCmd, viewInfo->input.data);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+100h]
-      vmovss  xmm1, dword ptr [rbx+104h]
-      vmovss  dword ptr [rbp+780h+genGlassVertsCmd.viewOrg], xmm0
-      vmovss  xmm0, dword ptr [rbx+108h]
-      vmovss  dword ptr [rbp+780h+genGlassVertsCmd.viewOrg+4], xmm1
-      vmovups ymm1, ymmword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.origin; r_globals_t rg
-      vmovss  dword ptr [rbp+780h+genGlassVertsCmd.viewOrg+8], xmm0
-      vmovups ymm0, ymmword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.clutterRamp.scale; r_globals_t rg
-      vmovups ymmword ptr [rbp+780h+genGlassVertsCmd.lodParms.origin], ymm1
-      vmovups xmm1, xmmword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.invFovScale; r_globals_t rg
-    }
-    *(_DWORD *)&genGlassVertsCmd.lodParms.valid = *(_DWORD *)&rg.lodParms.valid;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+780h+genGlassVertsCmd.lodParms.clutterRamp.scale], ymm0
-      vmovups xmmword ptr [rbp+780h+genGlassVertsCmd.lodParms.invFovScale], xmm1
-    }
+    v40 = v39->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+    genGlassVertsCmd.viewOrg.v[0] = v39->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+    _XMM0 = LODWORD(v39->viewParmsSet.frames[0].viewParms.camera.origin.v[2]);
+    genGlassVertsCmd.viewOrg.v[1] = v40;
+    genGlassVertsCmd.viewOrg.v[2] = *(float *)&_XMM0;
+    genGlassVertsCmd.lodParms = rg.lodParms;
     Sys_AddWorkerCmd(WRKCMD_GENERATE_GLASS_VERTS, &genGlassVertsCmd);
   }
-  v141[0] = (__int64)viewInfo;
-  v141[1] = (__int64)frontEndDataOut;
-  Sys_AddWorkerCmd(WRKCMD_ADD_DYNAMIC_LIGHTS, v141);
-  v76 = 3i64;
-  if ( R_ReflectionProbeRelighting_ShouldUpdate(v66) )
+  v89[0] = (__int64)viewInfo;
+  v89[1] = (__int64)frontEndDataOut;
+  Sys_AddWorkerCmd(WRKCMD_ADD_DYNAMIC_LIGHTS, v89);
+  v41 = 3i64;
+  if ( R_ReflectionProbeRelighting_ShouldUpdate(v36) )
   {
-    _RAX = _RDI;
-    _RCX = v158;
-    v79 = 3i64;
+    v42 = viewParmsSet;
+    v43 = v106;
+    v44 = 3i64;
     do
     {
-      _RCX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (const GfxViewParmsSet *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v79;
+      v43 += 128;
+      v45 = *(__m256i *)v42->frames[0].viewParms.viewMatrix.m.m[0].v;
+      v46 = v42->frames[0].viewParms.projectionMatrix.m.m[3];
+      v42 = (const GfxViewParmsSet *)((char *)v42 + 128);
+      *((__m256i *)v43 - 4) = v45;
+      *((__m256i *)v43 - 3) = *(__m256i *)&v42[-1].frames[2].viewParms.camera.axis.row1.z;
+      *((__m256i *)v43 - 2) = *(__m256i *)v42[-1].frames[2].viewParms.camera.zPlanes;
+      _XMM0 = *(_OWORD *)&v42[-1].frames[2].viewParms.camera.visibilityQueryDistance;
+      *((_OWORD *)v43 - 2) = _XMM0;
+      *((vec4_t *)v43 - 1) = v46;
+      --v44;
     }
-    while ( v79 );
-    v159 = frontEndDataOut;
-    Sys_AddWorkerCmd(WRKCMD_REFLECTION_PROBE_RELIGHTING, v158);
+    while ( v44 );
+    v107 = frontEndDataOut;
+    Sys_AddWorkerCmd(WRKCMD_REFLECTION_PROBE_RELIGHTING, v106);
   }
-  v142[0] = (__int64)viewInfo;
-  v142[1] = (__int64)frontEndDataOut;
-  Sys_AddWorkerCmd(WRKCMD_GENERATE_REFLECTION_PROBE_BUFFER, v142);
-  if ( (*((_DWORD *)v66 + 10) & 0x100) != 0 )
+  v90[0] = (__int64)viewInfo;
+  v90[1] = (__int64)frontEndDataOut;
+  Sys_AddWorkerCmd(WRKCMD_GENERATE_REFLECTION_PROBE_BUFFER, v90);
+  if ( (*((_DWORD *)v36 + 10) & 0x100) != 0 )
     R_DecalVolumeAddCommand(viewInfo, frontEndDataOut);
   sceneVolumetricCount = scene.sceneVolumetricCount;
-  v85 = 0;
-  v86 = 0i64;
+  v48 = 0;
+  v49 = 0i64;
   if ( scene.sceneVolumetricCount )
   {
-    while ( v85 < 0x80 )
+    while ( v48 < 0x80 )
     {
-      if ( scene.sceneVolumetricVisData[v86] == 1 )
+      if ( scene.sceneVolumetricVisData[v49] == 1 )
       {
-        _R8 = &frontEndDataOut->sceneVolumetrics[v85];
-        v88 = 2i64;
-        _RAX = &scene.sceneVolumetrics[(unsigned int)v86];
+        v50 = &frontEndDataOut->sceneVolumetrics[v48];
+        v51 = 2i64;
+        v52 = &scene.sceneVolumetrics[(unsigned int)v49];
         do
         {
-          _R8 = (GfxVolumetric *)((char *)_R8 + 128);
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          _RAX = (GfxSceneVolumetric *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups xmmword ptr [r8-80h], xmm0
-            vmovups xmm1, xmmword ptr [rax-70h]
-            vmovups xmmword ptr [r8-70h], xmm1
-            vmovups xmm0, xmmword ptr [rax-60h]
-            vmovups xmmword ptr [r8-60h], xmm0
-            vmovups xmm1, xmmword ptr [rax-50h]
-            vmovups xmmword ptr [r8-50h], xmm1
-            vmovups xmm0, xmmword ptr [rax-40h]
-            vmovups xmmword ptr [r8-40h], xmm0
-            vmovups xmm1, xmmword ptr [rax-30h]
-            vmovups xmmword ptr [r8-30h], xmm1
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [r8-20h], xmm0
-            vmovups xmm1, xmmword ptr [rax-10h]
-            vmovups xmmword ptr [r8-10h], xmm1
-          }
-          --v88;
+          v50 = (GfxVolumetric *)((char *)v50 + 128);
+          v53 = *(_OWORD *)&v52->volumetric.livePath;
+          v52 = (GfxSceneVolumetric *)((char *)v52 + 128);
+          *(_OWORD *)v50[-1].masks[0].scroll.v = v53;
+          *(_OWORD *)&v50[-1].masks[1].image = *(_OWORD *)&v52[-1].volumetric.masks[1].image;
+          *(_OWORD *)v50[-1].masks[1].offset.v = *(_OWORD *)v52[-1].volumetric.masks[1].offset.v;
+          *(_OWORD *)&v50[-1].masks[2].type = *(_OWORD *)&v52[-1].volumetric.masks[2].type;
+          *(_OWORD *)v50[-1].masks[2].scale.v = *(_OWORD *)v52[-1].volumetric.masks[2].scale.v;
+          *(_OWORD *)v50[-1].masks[2].scroll.v = *(_OWORD *)v52[-1].volumetric.masks[2].scroll.v;
+          _XMM0 = *(_OWORD *)&v52[-1].volumetric.masks[3].image;
+          *(_OWORD *)&v50[-1].masks[3].image = _XMM0;
+          *(_OWORD *)v50[-1].masks[3].offset.v = *(_OWORD *)v52[-1].volumetric.masks[3].offset.v;
+          --v51;
         }
-        while ( v88 );
-        ++v85;
-        _R8->livePath = _RAX->volumetric.livePath;
+        while ( v51 );
+        ++v48;
+        v50->livePath = v52->volumetric.livePath;
         sceneVolumetricCount = scene.sceneVolumetricCount;
       }
-      v86 = (unsigned int)(v86 + 1);
-      if ( (unsigned int)v86 >= sceneVolumetricCount )
+      v49 = (unsigned int)(v49 + 1);
+      if ( (unsigned int)v49 >= sceneVolumetricCount )
         goto LABEL_74;
     }
     R_WarnOncePerFrame(R_WARN_VOLUMETRIC_VOLUME_LIMIT);
   }
 LABEL_74:
-  frontEndDataOut->sceneVolumetricCount = v85;
-  v137 = frontEndDataOut;
-  Sys_AddWorkerCmd(WRKCMD_GENERATE_VOLUMETRICS_BUFFER, &v137);
-  v97 = *(LocalClientNum_t **)v136.v;
-  if ( *(_BYTE *)(*(_QWORD *)v136.v + 21i64) )
+  frontEndDataOut->sceneVolumetricCount = v48;
+  v85 = frontEndDataOut;
+  Sys_AddWorkerCmd(WRKCMD_GENERATE_VOLUMETRICS_BUFFER, &v85);
+  v54 = *(LocalClientNum_t **)v84.v;
+  if ( *(_BYTE *)(*(_QWORD *)v84.v + 21i64) )
   {
     R_WaitForCellStatic();
     Sys_WaitWorkerCmdsOfType(WRKCMD_ADD_BSP);
@@ -6430,33 +5449,33 @@ LABEL_74:
     Sys_WaitWorkerCmdsOfType(WRKCMD_PROCESS_SMODEL_COLLECTIONS);
     Sys_WaitWorkerCmdsOfType(WRKCMD_ADD_SUPER_TERRAIN);
   }
-  v145[0] = (__int64)viewInfo;
-  v145[1] = (__int64)frontEndDataOut;
-  v145[2] = (__int64)_RSI;
-  Sys_AddWorkerCmd(WRKCMD_ADD_SPOT_SHADOWS, v145);
-  v143[0] = (__int64)viewInfo;
-  v143[1] = (__int64)frontEndDataOut;
-  Sys_AddWorkerCmd(WRKCMD_FINALIZE_LIGHTING, v143);
-  v144[0] = (__int64)viewInfo;
-  v144[1] = (__int64)frontEndDataOut;
-  Sys_AddWorkerCmd(WRKCMD_GENERATE_FRUSTUM_LIGHT_BUFFER, v144);
+  v93[0] = (__int64)viewInfo;
+  v93[1] = (__int64)frontEndDataOut;
+  v93[2] = (__int64)viewParmsDpvs;
+  Sys_AddWorkerCmd(WRKCMD_ADD_SPOT_SHADOWS, v93);
+  v91[0] = (__int64)viewInfo;
+  v91[1] = (__int64)frontEndDataOut;
+  Sys_AddWorkerCmd(WRKCMD_FINALIZE_LIGHTING, v91);
+  v92[0] = (__int64)viewInfo;
+  v92[1] = (__int64)frontEndDataOut;
+  Sys_AddWorkerCmd(WRKCMD_GENERATE_FRUSTUM_LIGHT_BUFFER, v92);
   if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
     Sys_AddWorkerCmd(WRKCMD_ADD_BSP_SUNSHADOW, &viewInfo);
     Sys_AddWorkerCmd(WRKCMD_ADD_STATICMODEL_SUNSHADOW, &viewInfo);
     Sys_AddWorkerCmd(WRKCMD_ADD_SUPER_TERRAIN_SUNSHADOW, &viewInfo);
   }
-  v135 = localClientNum;
-  Sys_AddWorkerCmd(WRKCMD_R_CG_UPDATE_UMBRA_CMD, &v135);
+  v83 = localClientNum;
+  Sys_AddWorkerCmd(WRKCMD_R_CG_UPDATE_UMBRA_CMD, &v83);
   LUI_CoD_UpdateFrame(localClientNum);
   R_RTT_CopyContext(localClientNum, &frontEndDataOut->rttContext);
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8070, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v98 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
+  v55 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
   if ( !DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_frontendWaitWorkerCmdsOnlyOfType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v98);
-  if ( v98->current.enabled )
+  Dvar_CheckFrontendServerThread(v55);
+  if ( v55->current.enabled )
   {
     for ( j = 0i64; j < 0x14; j += 4i64 )
       Sys_WaitWorkerCmdsOnlyOfType(*(WorkerCmdType *)((char *)&unk_144437A98 + j));
@@ -6466,37 +5485,37 @@ LABEL_74:
     for ( k = 0i64; k < 0x14; k += 4i64 )
       Sys_WaitWorkerCmdsOfType(*(WorkerCmdType *)((char *)&unk_144437A98 + k));
   }
-  v101 = v134;
+  v58 = v82;
   Sys_ProfBeginNamedEvent(0xFF708090, "draw all dyn ent");
   R_DrawAllDynEnt(localClientNum, viewInfo);
   Sys_ProfEndNamedEvent();
   R_AddSpotShadowDynEnts(viewInfo->clientIndex);
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 8070, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v102 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
+  v59 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
   if ( !DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_frontendWaitWorkerCmdsOnlyOfType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v102);
-  if ( v102->current.enabled )
+  Dvar_CheckFrontendServerThread(v59);
+  if ( v59->current.enabled )
   {
     for ( m = 0i64; m < 0x1C; m += 4i64 )
       Sys_WaitWorkerCmdsOnlyOfType(*(WorkerCmdType *)((char *)&unk_144437AB0 + m));
-    v101 = v134;
+    v58 = v82;
   }
   else
   {
     for ( n = 0i64; n < 0x1C; n += 4i64 )
       Sys_WaitWorkerCmdsOfType(*(WorkerCmdType *)((char *)&unk_144437AB0 + n));
-    v97 = *(LocalClientNum_t **)v136.v;
+    v54 = *(LocalClientNum_t **)v84.v;
   }
-  v105 = *((_DWORD *)v101 + 10);
-  if ( (v105 & 0x200) != 0 )
+  v62 = *((_DWORD *)v58 + 10);
+  if ( (v62 & 0x200) != 0 )
   {
     DrawSystem = CgDrawSystem::GetDrawSystem(localClientNum);
     DrawSystem->PreDraw2D(DrawSystem);
-    v105 = *((_DWORD *)v101 + 10);
+    v62 = *((_DWORD *)v58 + 10);
   }
-  if ( (v105 & 0x400) != 0 )
+  if ( (v62 & 0x400) != 0 )
     Com_CSpline_DebugRender(localClientNum);
   Sys_ProfBeginNamedEvent(0xFF708090, "draw all scene ent");
   *(_QWORD *)&sceneEntCmd.sortSurfs = 0i64;
@@ -6506,32 +5525,32 @@ LABEL_74:
   sceneEntCmd.viewInfo = viewInfo;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   sceneEntCmd.sceneDObjEnd = scene.sceneDObjCount;
-  __asm { vmovdqu xmmword ptr [rbp+780h+sceneEntCmd.sceneDynModelBegin], xmm0 }
+  *(_OWORD *)&sceneEntCmd.sceneDynModelBegin = _XMM0;
   if ( !scene.sceneDObjModelCountValidRead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9235, ASSERT_TYPE_ASSERT, "(scene.sceneDObjModelCountValidRead)", (const char *)&queryFormat, "scene.sceneDObjModelCountValidRead") )
     __debugbreak();
   sceneEntCmd.sceneModelEnd = scene.sceneDObjModelCount;
   sceneEntCmd.sceneBrushEnd = scene.sceneBrushCount;
   R_DrawAllSceneEnt(&sceneEntCmd);
   Sys_ProfEndNamedEvent();
-  v108 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
+  v65 = DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType;
   if ( !DVARBOOL_r_frontendWaitWorkerCmdsOnlyOfType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_frontendWaitWorkerCmdsOnlyOfType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v108);
-  if ( v108->current.enabled )
+  Dvar_CheckFrontendServerThread(v65);
+  if ( v65->current.enabled )
     Sys_WaitWorkerCmdsOnlyOfType(WRKCMD_ADD_SCENE_ENT);
   else
     Sys_WaitWorkerCmdsOfType(WRKCMD_ADD_SCENE_ENT);
   Sys_AddWorkerCmd(WRKCMD_ADD_SCENE_ENT, &sceneEntCmd);
-  if ( (*((_DWORD *)v101 + 10) & 0x800) != 0 && ClGameModeApplication::HasActiveApplicationGameMode() )
+  if ( (*((_DWORD *)v58 + 10) & 0x800) != 0 && ClGameModeApplication::HasActiveApplicationGameMode() )
   {
     ActiveClientApplication = ClGameModeApplication::GetActiveClientApplication();
     ActiveClientApplication->RenderSceneCallback(ActiveClientApplication, localClientNum);
   }
   R_WaitForCellStatic();
-  v110 = *((_DWORD *)v101 + 10);
-  if ( (v110 & 0x1000000) != 0 )
+  v67 = *((_DWORD *)v58 + 10);
+  if ( (v67 & 0x1000000) != 0 )
   {
-    FX_FillGenerateModelMarksCmd(*v97, &genModelMarksCmd);
+    FX_FillGenerateModelMarksCmd(*v54, &genModelMarksCmd);
     genModelMarksCmd.sceneDrawData.smodelVisLods = rgp.world->dpvs.smodelVisData[0];
     genModelMarksCmd.sceneDrawData.dObjVisData = scene.sceneDObjVisData[0];
     genModelMarksCmd.sceneDrawData.brushVisData = scene.sceneBrushVisData[0];
@@ -6546,79 +5565,61 @@ LABEL_74:
     if ( !scene.sceneDObjModelCountValidRead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6856, ASSERT_TYPE_ASSERT, "(scene.sceneDObjModelCountValidRead)", (const char *)&queryFormat, "scene.sceneDObjModelCountValidRead") )
       __debugbreak();
     Sys_AddWorkerCmd(WRKCMD_GENERATE_DYN_MARK_VERTS, &genModelMarksCmd);
-    v110 = *((_DWORD *)v101 + 10);
+    v67 = *((_DWORD *)v58 + 10);
   }
-  if ( (v110 & 0x2000000) != 0 )
+  if ( (v67 & 0x2000000) != 0 )
   {
-    LODWORD(v134) = viewInfo->clientIndex;
-    Sys_AddWorkerCmd(WRKCMD_GENERATE_GLASS_MARK_VERTS, &v134);
-    v110 = *((_DWORD *)v101 + 10);
+    LODWORD(v82) = viewInfo->clientIndex;
+    Sys_AddWorkerCmd(WRKCMD_GENERATE_GLASS_MARK_VERTS, &v82);
+    v67 = *((_DWORD *)v58 + 10);
   }
-  if ( (v110 & 0x100) != 0 )
+  if ( (v67 & 0x100) != 0 )
     R_DecalVolumeFinalizeMarks(frontEndDataOut);
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9289, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
     __debugbreak();
-  v111 = 3i64;
+  v68 = 3i64;
   frontEndDataOut->beginReady = 1;
-  _RAX = &v155;
-  v153[0] = 0;
-  v153[1] = localClientNum;
-  v154 = v97;
+  v69 = &v103;
+  v101[0] = 0;
+  v101[1] = localClientNum;
+  v102 = v54;
   do
   {
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups xmm1, xmmword ptr [rsi+70h]
-    }
-    _RSI = (const GfxViewParms *)((char *)_RSI + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rsi-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rsi-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rsi-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v111;
+    v69 += 128;
+    v70 = *(__m256i *)viewParmsDpvs->viewMatrix.m.m[0].v;
+    v71 = viewParmsDpvs->projectionMatrix.m.m[3];
+    viewParmsDpvs = (const GfxViewParms *)((char *)viewParmsDpvs + 128);
+    *((__m256i *)v69 - 4) = v70;
+    *((__m256i *)v69 - 3) = *(__m256i *)&viewParmsDpvs[-1].camera.axis.row1.z;
+    *((__m256i *)v69 - 2) = *(__m256i *)viewParmsDpvs[-1].camera.zPlanes;
+    *((_OWORD *)v69 - 2) = *(_OWORD *)&viewParmsDpvs[-1].camera.visibilityQueryDistance;
+    *((vec4_t *)v69 - 1) = v71;
+    --v68;
   }
-  while ( v111 );
-  _RAX = &v156;
+  while ( v68 );
+  v72 = &v104;
   do
   {
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups xmm1, xmmword ptr [rdi+70h]
-    }
-    _RDI = (const GfxViewParmsSet *)((char *)_RDI + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rdi-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rdi-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rdi-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    --v76;
+    v72 += 128;
+    v73 = *(__m256i *)viewParmsSet->frames[0].viewParms.viewMatrix.m.m[0].v;
+    v74 = viewParmsSet->frames[0].viewParms.projectionMatrix.m.m[3];
+    viewParmsSet = (const GfxViewParmsSet *)((char *)viewParmsSet + 128);
+    *((__m256i *)v72 - 4) = v73;
+    *((__m256i *)v72 - 3) = *(__m256i *)&viewParmsSet[-1].frames[2].viewParms.camera.axis.row1.z;
+    *((__m256i *)v72 - 2) = *(__m256i *)viewParmsSet[-1].frames[2].viewParms.camera.zPlanes;
+    *((_OWORD *)v72 - 2) = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.visibilityQueryDistance;
+    *((vec4_t *)v72 - 1) = v74;
+    --v41;
   }
-  while ( v76 );
-  v157 = viewInfo;
+  while ( v41 );
+  v105 = viewInfo;
   Stream_UpdateForClient(viewInfo);
   iesLookupTexture = g_worldDraw->iesLookupTexture;
   p_input = &viewInfo->input;
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[37] = iesLookupTexture;
-  Sys_AddWorkerCmd(WRKCMD_GENERATE_DRAWSURFS, v153);
+  Sys_AddWorkerCmd(WRKCMD_GENERATE_DRAWSURFS, v101);
   if ( rg.showXModelRanking )
   {
     Sys_WaitWorkerCmdsOfType(WRKCMD_ADD_SCENE_ENT);
@@ -6658,14 +5659,14 @@ LABEL_74:
     Sys_WaitWorkerCmdsOfType(WRKCMD_PROCESS_SMODEL_COLLECTIONS);
     CG_DrawHits_PostWork(localClientNum);
   }
-  v126 = viewInfo;
+  v77 = viewInfo;
   if ( (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x800000) == 0 )
   {
     Sys_ProfBeginNamedEvent(0xFFFFD700, "draw 2D");
     Profile_Begin(480);
-    v127 = CgDrawSystem::GetDrawSystem(localClientNum);
-    CG_HudLighting_DrawBegin(localClientNum, &v126->viewParmsSet.frames[0].viewParms.camera.origin, &v126->viewParmsSet.frames[0].viewParms.camera.axis);
-    v127->Draw2D(v127, &v126->viewParmsSet.frames[0].viewParms.camera.origin, &v126->viewParmsSet.frames[0].viewParms.camera.axis);
+    v78 = CgDrawSystem::GetDrawSystem(localClientNum);
+    CG_HudLighting_DrawBegin(localClientNum, &v77->viewParmsSet.frames[0].viewParms.camera.origin, &v77->viewParmsSet.frames[0].viewParms.camera.axis);
+    v78->Draw2D(v78, &v77->viewParmsSet.frames[0].viewParms.camera.origin, &v77->viewParmsSet.frames[0].viewParms.camera.axis);
     CG_HudLighting_DrawEnd();
     Profile_EndInternal(NULL);
     Sys_ProfEndNamedEvent();
@@ -6674,20 +5675,13 @@ LABEL_74:
   Sys_WaitFrontendWorkerCmds();
   Com_ClientDObjClearSubmitted(localClientNum);
   R_LGV_KickOffPacking(frontEndDataOut);
-  _RAX = viewInfo;
-  __asm { vmovsd  xmm0, qword ptr [rax+100h] }
-  *(float *)&_RAX = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
-  __asm { vmovsd  qword ptr [rsp+880h+var_820], xmm0 }
-  LODWORD(v136.v[2]) = (_DWORD)_RAX;
-  R_LGV_DrawVolumes(&v136);
+  v79 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  *(_QWORD *)v84.v = *(_QWORD *)viewInfo->viewParms.camera.origin.v;
+  v84.v[2] = v79;
+  R_LGV_DrawVolumes(&v84);
   R_PerformanceWarningsForView(viewInfo);
-  if ( (*((_DWORD *)v101 + 10) & 0x1000) != 0 )
+  if ( (*((_DWORD *)v58 + 10) & 0x1000) != 0 )
     R_ShowCull();
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+880h+var_58+8]
-    vmovaps xmm7, [rsp+880h+var_68+8]
-  }
 }
 
 /*
@@ -6697,19 +5691,20 @@ R_GenerateSortedSunShadowCacheSurfs
 */
 void R_GenerateSortedSunShadowCacheSurfs(GfxViewInfo *viewInfo, R_RT_Group *rtGroup, R_RT_DepthHandle *sunshadowCacheRt, R_RT_DepthHandle *sunshadowCacheBackfaceRt, D3D12_RESOURCE_STATES sunShadowCacheBeforeState)
 {
+  R_RT_DepthHandle *v5; 
   unsigned int firstCachedSunShadowPartition; 
   GfxSunShadow *p_sunShadow; 
   char *v10; 
   unsigned int v11; 
   GfxSunShadow *v12; 
+  R_RT_DepthHandle v13; 
   unsigned int v14; 
   unsigned int v15; 
   int v16; 
   char *v17; 
   unsigned int i; 
 
-  _RDI = sunshadowCacheRt;
-  _R13 = viewInfo;
+  v5 = sunshadowCacheRt;
   if ( r_sunshadowmap_cmdbuf_worker->current.enabled )
   {
     if ( viewInfo->useCachedSunShadow )
@@ -6729,25 +5724,25 @@ void R_GenerateSortedSunShadowCacheSurfs(GfxViewInfo *viewInfo, R_RT_Group *rtGr
           __debugbreak();
         if ( !R_IsCachedSunShadowPartition(v12, firstCachedSunShadowPartition) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sunshadow.h", 377, ASSERT_TYPE_ASSERT, "(R_IsCachedSunShadowPartition( sunShadow, partitionIndex ))", (const char *)&queryFormat, "R_IsCachedSunShadowPartition( sunShadow, partitionIndex )") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rdi] }
+        v13 = *v5;
         v14 = firstCachedSunShadowPartition - v12->firstCachedSunShadowPartition;
         v15 = 0;
-        __asm { vmovups ymmword ptr [r13+6450h], ymm0 }
+        viewInfo->sunshadowCacheRt = v13;
         v16 = 10 * v14 + 45;
-        _R13->sunShadowCacheBeforeState = sunShadowCacheBeforeState;
+        viewInfo->sunShadowCacheBeforeState = sunShadowCacheBeforeState;
         if ( v11 )
         {
           v17 = v10 + 2528;
           do
           {
             if ( *(v17 - 4) || *(_QWORD *)v17 || v17[8] )
-              R_AddDrawCall(_R13, rtGroup, (GfxDrawListType)(v15 + v16), 0x5Du);
+              R_AddDrawCall(viewInfo, rtGroup, (GfxDrawListType)(v15 + v16), 0x5Du);
             ++v15;
             v17 += 864;
           }
           while ( v15 < v11 );
         }
-        _RDI = sunshadowCacheRt;
+        v5 = sunshadowCacheRt;
       }
     }
   }
@@ -6841,14 +5836,15 @@ R_RT_ColorHandle *R_GetResolvedSceneRt(R_RT_ColorHandle *result, LocalClientNum_
   GfxRenderTargetId v11; 
   unsigned int v12; 
   unsigned int v13; 
-  bool v23; 
-  __int16 v24; 
-  R_RT_Handle v31; 
+  __m256i v14; 
+  unsigned __int16 m_surfaceID; 
+  bool v17; 
+  __int16 v18; 
+  R_RT_Handle v20; 
   R_RT_ColorHandle resulta; 
-  R_RT_Handle v33; 
+  R_RT_Handle v22; 
 
   v9 = clientIndex;
-  _RDI = result;
   if ( (unsigned int)clientIndex >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5654, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( 2 )", "clientIndex doesn't index 2\n\t%i not in [0, %i)", clientIndex, 2) )
     __debugbreak();
   v11 = v9 + 6;
@@ -6856,62 +5852,44 @@ R_RT_ColorHandle *R_GetResolvedSceneRt(R_RT_ColorHandle *result, LocalClientNum_
   v13 = sceneHeight >> 1;
   if ( R_RT_HaveGlobal(v11) )
   {
-    _RAX = R_RT_GetGlobalColor(&resulta, v11);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi], ymm0
-    }
-    if ( R_RT_Handle::GetSurface(_RDI)->m_image.m_base.width == v12 && R_RT_Handle::GetSurface(_RDI)->m_image.m_base.height == v13 && R_RT_Handle::GetSurface(_RDI)->m_image.m_base.levelCount == 4 )
+    *result = *R_RT_GetGlobalColor(&resulta, v11);
+    if ( R_RT_Handle::GetSurface(result)->m_image.m_base.width == v12 && R_RT_Handle::GetSurface(result)->m_image.m_base.height == v13 && R_RT_Handle::GetSurface(result)->m_image.m_base.levelCount == 4 )
     {
       *needsClear = teleported;
-      return _RDI;
+      return result;
     }
     R_SyncRenderThread();
-    __asm
+    v20 = result->R_RT_Handle;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+118h+var_78.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v31);
-      if ( (R_RT_Handle::GetSurface(&v31)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame") )
+      R_RT_Handle::GetSurface(&v20);
+      if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+118h+var_78.m_surfaceID]
-        vmovups ymmword ptr [rsp+118h+result.baseclass_0.m_surfaceID], ymm0
-      }
+      resulta = (R_RT_ColorHandle)v20;
       R_RT_DestroyInternal(&resulta);
     }
-    else if ( v31.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
   }
-  _RAX = R_RT_CreateInternal(&v33, v12, v13, v12, v13, 1u, 1u, 4u, g_R_RT_renderTargetFmts[3], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Resolved Scene", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5681)");
-  __asm
+  v14 = *(__m256i *)R_RT_CreateInternal(&v22, v12, v13, v12, v13, 1u, 1u, 4u, g_R_RT_renderTargetFmts[3], R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Resolved Scene", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5681)");
+  m_surfaceID = _XMM0;
+  resulta = (R_RT_ColorHandle)v14;
+  v20 = (R_RT_Handle)v14;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rsp+118h+result.baseclass_0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+118h+var_78.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v31);
-    if ( (R_RT_Handle::GetSurface(&v31)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v20);
+    if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LOWORD(_EBX) = v31.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+118h+var_78.m_surfaceID] }
+      m_surfaceID = v20.m_surfaceID;
+      v14 = (__m256i)v20;
       __debugbreak();
     }
     else
     {
-      LOWORD(_EBX) = v31.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+118h+var_78.m_surfaceID] }
+      m_surfaceID = v20.m_surfaceID;
+      v14 = (__m256i)v20;
     }
   }
   else
@@ -6919,34 +5897,22 @@ R_RT_ColorHandle *R_GetResolvedSceneRt(R_RT_ColorHandle *result, LocalClientNum_
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rsp+118h+result.baseclass_0.m_surfaceID] }
-      if ( v23 )
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v14 = (__m256i)resulta;
+      if ( v17 )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rdi], ymm0 }
-  v24 = _EBX & 0x7FFF;
-  if ( v24 )
-    resulta.m_surfaceID = v24 | 0x8000;
+  *(__m256i *)result = v14;
+  v18 = m_surfaceID & 0x7FFF;
+  if ( v18 )
+    resulta.m_surfaceID = v18 | 0x8000;
   else
     resulta.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+118h+var_78.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rsp+118h+var_78.m_tracking.m_location]
-  }
-  _RCX = g_R_RT_globals;
-  _RAX = 32i64 * (unsigned __int8)v11;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+118h+result.baseclass_0.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rsp+118h+result.baseclass_0.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rsp+118h+result.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [rax+rcx], ymm0
-  }
+  resulta.m_tracking = v20.m_tracking;
+  g_R_RT_globals[(unsigned __int8)v11] = (R_RT_Handle)resulta;
   *needsClear = 1;
-  return _RDI;
+  return result;
 }
 
 /*
@@ -6976,27 +5942,24 @@ R_GetSceneLODScale
 */
 float R_GetSceneLODScale(const RenderMemMode memMode)
 {
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  __int32 v11; 
-  __int32 v12; 
+  __int32 v6; 
+  __int32 v7; 
+  float v8; 
+  double v9; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   if ( memMode )
   {
-    v4 = memMode - 1;
-    if ( v4 )
+    v3 = memMode - 1;
+    if ( v3 )
     {
-      v5 = v4 - 1;
-      if ( v5 )
+      v4 = v3 - 1;
+      if ( v4 )
       {
-        if ( v5 == 1 )
+        if ( v4 == 1 )
         {
-          __asm { vmovsd  xmm7, cs:__real@3fe56ca68de7d7f8 }
+          *(double *)&_XMM7 = DOUBLE_0_6695130130381122;
         }
         else
         {
@@ -7007,56 +5970,48 @@ float R_GetSceneLODScale(const RenderMemMode memMode)
       }
       else
       {
-        __asm { vmovsd  xmm7, cs:__real@3fe92c3f4d626302 }
+        *(double *)&_XMM7 = DOUBLE_0_7866512786305011;
       }
     }
     else
     {
-      __asm { vmovsd  xmm7, cs:__real@3fe1318ef5664511 }
+      *(double *)&_XMM7 = DOUBLE_0_5372996132811371;
     }
   }
   else
   {
-    __asm { vmovsd  xmm7, cs:__real@3fde0298ea8c7b05 }
+    *(double *)&_XMM7 = DOUBLE_0_4689085283770711;
   }
   if ( memMode )
   {
-    v11 = memMode - 1;
-    if ( v11 )
+    v6 = memMode - 1;
+    if ( v6 )
     {
-      v12 = v11 - 1;
-      if ( !v12 || v12 == 1 )
+      v7 = v6 - 1;
+      if ( !v7 || v7 == 1 )
       {
-        __asm { vmovss  xmm6, cs:__real@3f6e147b }
+        v8 = FLOAT_0_93000001;
       }
       else
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11458, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown LODScalePlatform") )
           __debugbreak();
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v8 = 0.0;
       }
     }
     else
     {
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
+      v8 = FLOAT_1_0;
     }
   }
   else
   {
-    __asm { vmovss  xmm6, cs:__real@3fca3d71 }
+    v8 = FLOAT_1_58;
   }
-  __asm { vmovsd  xmm0, cs:__real@3fe462e13057f5b3; X }
-  *(double *)&_XMM0 = atan_0(*(double *)&_XMM0);
-  *(double *)&_XMM0 = sin_0(*(double *)&_XMM0);
-  __asm
-  {
-    vdivsd  xmm1, xmm0, xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vcvtsd2ss xmm2, xmm1, xmm1
-    vmulss  xmm0, xmm2, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  v9 = atan_0(0.6370702690325544);
+  _XMM1 = COERCE_UNSIGNED_INT64(sin_0(v9) / *(double *)&_XMM7);
+  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+  return *(float *)&_XMM2 * v8;
 }
 
 /*
@@ -7066,146 +6021,111 @@ R_GetSceneSubPixelOffset
 */
 void R_GetSceneSubPixelOffset(const refdef_t *refdef, const GfxViewportFeatures *viewportFeatures, vec2_t *outOffset, float *cameraMotion)
 {
+  const dvar_t *v8; 
+  float value; 
+  float v10; 
+  float height; 
+  __int64 width; 
+  float v13; 
+  float v14; 
+  float v15; 
   GfxResolutionStep step; 
-  GfxResolutionStep v26; 
   PostAAMode m_postAAMode; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   unsigned int frameCount; 
   SMAATemporalUpsampleMode SMAATemporalUpsampleMode; 
-  __int32 v38; 
-  __int64 v39; 
-  __int64 v40; 
-  vec2_t v41; 
-  __int64 v42; 
+  __int32 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  vec2_t v27; 
+  __int64 v28; 
+  float v29; 
+  double v30; 
+  float v31; 
   GfxViewport outSceneViewport; 
-  GfxViewport v55; 
+  GfxViewport v33; 
   vec2_t scale; 
-  __int128 v57; 
-  __int128 v58; 
+  __int128 v35; 
+  __int128 v36; 
 
-  _RBX = outOffset;
-  _RDI = refdef;
   if ( R_Screenshot_InterleavedMode() )
   {
-    R_DisplayToSceneViewport(&outSceneViewport, &_RDI->displayViewport, _RDI->resolution.step);
-    _RAX = r_screenShotPixelOffset;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rax+28h]
-      vmovss  dword ptr [rbx], xmm3
-      vmovss  xmm1, dword ptr [rax+2Ch]
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rbx+4], xmm1
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm4, xmm1, cs:__real@40000000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm3, xmm0
-      vmulss  xmm5, xmm1, cs:__real@40000000
-    }
+    R_DisplayToSceneViewport(&outSceneViewport, &refdef->displayViewport, refdef->resolution.step);
+    v8 = r_screenShotPixelOffset;
+    value = r_screenShotPixelOffset->current.value;
+    outOffset->v[0] = value;
+    v10 = v8->current.vector.v[1];
+    height = (float)outSceneViewport.height;
+    width = outSceneViewport.width;
+    outOffset->v[1] = v10;
+    v13 = (float)(v10 / height) * 2.0;
+    v14 = (float)width;
+    v15 = (float)(value / v14) * 2.0;
   }
   else if ( R_PostAAHasTemporalSupersampling(viewportFeatures->m_postAAMode) )
   {
-    step = _RDI->resolution.step;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovaps [rsp+0C8h+var_48], xmm7
-    }
-    R_DisplayToSceneViewport(&v55, &_RDI->displayViewport, step);
-    __asm { vmovss  xmm1, cs:__real@40000000 }
-    v26 = _RDI->resolution.step;
+    R_DisplayToSceneViewport(&v33, &refdef->displayViewport, refdef->resolution.step);
+    step = refdef->resolution.step;
     m_postAAMode = viewportFeatures->m_postAAMode;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm6, xmm1, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm7, xmm1, xmm0
-      vmovups xmm0, cs:__xmm@be8000003e8000003e800000be800000
-      vmovups xmm1, cs:__xmm@000000003e80000000000000be800000
-    }
+    v18 = (float)v33.width;
+    v19 = 2.0 / v18;
+    v20 = (float)v33.height;
+    v21 = 2.0 / v20;
     frameCount = frontEndDataOut->frameCount;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C8h+scale], xmm6
-      vmovss  dword ptr [rsp+0C8h+scale+4], xmm7
-      vmovups [rsp+0C8h+var_70], xmm0
-      vmovups [rsp+0C8h+var_60], xmm1
-    }
-    SMAATemporalUpsampleMode = R_GetSMAATemporalUpsampleMode(m_postAAMode, v26);
+    scale.v[0] = v19;
+    scale.v[1] = 2.0 / v20;
+    v35 = _xmm_be8000003e8000003e800000be800000;
+    v36 = _xmm;
+    SMAATemporalUpsampleMode = R_GetSMAATemporalUpsampleMode(m_postAAMode, step);
     if ( SMAATemporalUpsampleMode )
     {
-      v38 = SMAATemporalUpsampleMode - 1;
-      if ( v38 )
+      v24 = SMAATemporalUpsampleMode - 1;
+      if ( v24 )
       {
-        if ( v38 == 1 )
+        if ( v24 == 1 )
         {
-          v39 = frameCount & 1;
-          _RBX->v[0] = *((float *)&v57 + 2 * v39);
-          _RBX->v[1] = *((float *)&v57 + 2 * v39 + 1);
+          v25 = frameCount & 1;
+          outOffset->v[0] = *((float *)&v35 + 2 * v25);
+          outOffset->v[1] = *((float *)&v35 + 2 * v25 + 1);
         }
       }
       else
       {
-        v40 = frameCount & 1;
-        _RBX->v[0] = *((float *)&v58 + 2 * v40);
-        _RBX->v[1] = *((float *)&v58 + 2 * v40 + 1);
+        v26 = frameCount & 1;
+        outOffset->v[0] = *((float *)&v36 + 2 * v26);
+        outOffset->v[1] = *((float *)&v36 + 2 * v26 + 1);
       }
     }
     else
     {
-      v41 = scale;
-      v42 = frameCount & 1;
-      _RBX->v[0] = *((float *)&v57 + 2 * v42);
-      _RBX->v[1] = *((float *)&v57 + 2 * v42 + 1);
-      DynamicSubsamplePattern(_RDI, viewportFeatures, v41, frameCount, _RBX, cameraMotion);
+      v27 = scale;
+      v28 = frameCount & 1;
+      outOffset->v[0] = *((float *)&v35 + 2 * v28);
+      outOffset->v[1] = *((float *)&v35 + 2 * v28 + 1);
+      DynamicSubsamplePattern(refdef, viewportFeatures, v27, frameCount, outOffset, cameraMotion);
       if ( r_smaaQuincunx->current.enabled )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vmovss  xmm1, dword ptr [rbx+4]
-          vaddss  xmm0, xmm0, cs:__real@3e800000
-          vsubss  xmm2, xmm1, cs:__real@3e800000
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  dword ptr [rbx+4], xmm2
-        }
+        v29 = outOffset->v[1];
+        outOffset->v[0] = outOffset->v[0] + 0.25;
+        outOffset->v[1] = v29 - 0.25;
       }
     }
-    _RAX = r_blur;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0B0h]; blurRadiusFromScript
-      vmovss  xmm1, dword ptr [rax+28h]; blurRadiusFromDvar
-    }
-    *(double *)&_XMM0 = RB_UsingAAWithBlurScale(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rbx]
-      vmulss  xmm0, xmm0, dword ptr [rbx+4]
-      vmulss  xmm4, xmm0, xmm7
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmulss  xmm5, xmm1, xmm6
-      vmovaps xmm6, [rsp+0C8h+var_38]
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v30 = RB_UsingAAWithBlurScale(refdef->blurRadius, r_blur->current.value);
+    v31 = *(float *)&v30 * outOffset->v[0];
+    v13 = (float)(*(float *)&v30 * outOffset->v[1]) * v21;
+    v15 = v31 * v19;
+    outOffset->v[0] = v31;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm4, xmm4, xmm4
-      vxorps  xmm5, xmm5, xmm5
-    }
+    v13 = 0.0;
+    v15 = 0.0;
   }
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm5
-    vmovss  dword ptr [rbx+4], xmm4
-  }
+  outOffset->v[0] = v15;
+  outOffset->v[1] = v13;
 }
 
 /*
@@ -7235,6 +6155,10 @@ R_HudOutlineApplyToRefdef
 */
 void R_HudOutlineApplyToRefdef(refdef_t *refdef, const GfxScopeHudOutlineInfo *outlineInfo)
 {
+  float v4; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
   const dvar_t *v8; 
   const dvar_t *v9; 
   const dvar_t *v10; 
@@ -7243,179 +6167,190 @@ void R_HudOutlineApplyToRefdef(refdef_t *refdef, const GfxScopeHudOutlineInfo *o
   const dvar_t *v13; 
   const dvar_t *v14; 
   const dvar_t *v15; 
+  const dvar_t *v16; 
+  float value; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
   const dvar_t *v25; 
   const dvar_t *v26; 
   const dvar_t *v27; 
   const dvar_t *v28; 
-  const dvar_t *v29; 
-  const dvar_t *v30; 
-  const dvar_t *v31; 
-  const dvar_t *v32; 
 
-  __asm
+  if ( outlineInfo->friendColor.v[3] == 0.0 )
   {
-    vmovaps [rsp+68h+var_28], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rdx+6Ch]
+    v5 = DVARVEC4_r_hudOutlineColorInScope;
+    if ( !DVARVEC4_r_hudOutlineColorInScope && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineColorInScope") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v5);
+    LODWORD(refdef->hudOutline.scopeFriendColor.v[0]) = v5->current.integer;
+    refdef->hudOutline.scopeFriendColor.v[1] = v5->current.vector.v[1];
+    refdef->hudOutline.scopeFriendColor.v[2] = v5->current.vector.v[2];
+    v4 = v5->current.vector.v[3];
   }
-  _RDI = outlineInfo;
-  _RBX = refdef;
-  *(_QWORD *)refdef->hudOutline.scopeFriendColor.v = *(_QWORD *)outlineInfo->friendColor.v;
-  refdef->hudOutline.scopeFriendColor.v[2] = outlineInfo->friendColor.v[2];
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rdx+6Ch]
-    vmovss  dword ptr [rbx+10794h], xmm0
-    vucomiss xmm6, dword ptr [rdi+5Ch]
+    *(_QWORD *)refdef->hudOutline.scopeFriendColor.v = *(_QWORD *)outlineInfo->friendColor.v;
+    refdef->hudOutline.scopeFriendColor.v[2] = outlineInfo->friendColor.v[2];
+    v4 = outlineInfo->friendColor.v[3];
   }
-  *(_QWORD *)refdef->hudOutline.scopeFoeColor.v = *(_QWORD *)outlineInfo->foeColor.v;
-  refdef->hudOutline.scopeFoeColor.v[2] = outlineInfo->foeColor.v[2];
-  __asm
+  refdef->hudOutline.scopeFriendColor.v[3] = v4;
+  if ( outlineInfo->foeColor.v[3] == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+5Ch]
-    vmovss  dword ptr [rbx+10784h], xmm0
+    v7 = DVARVEC4_r_hudOutlineColorInScopeFoe;
+    if ( !DVARVEC4_r_hudOutlineColorInScopeFoe && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineColorInScopeFoe") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v7);
+    LODWORD(refdef->hudOutline.scopeFoeColor.v[0]) = v7->current.integer;
+    refdef->hudOutline.scopeFoeColor.v[1] = v7->current.vector.v[1];
+    refdef->hudOutline.scopeFoeColor.v[2] = v7->current.vector.v[2];
+    v6 = v7->current.vector.v[3];
   }
+  else
+  {
+    refdef->hudOutline.scopeFoeColor.v[0] = outlineInfo->foeColor.v[0];
+    refdef->hudOutline.scopeFoeColor.v[1] = outlineInfo->foeColor.v[1];
+    refdef->hudOutline.scopeFoeColor.v[2] = outlineInfo->foeColor.v[2];
+    v6 = outlineInfo->foeColor.v[3];
+  }
+  refdef->hudOutline.scopeFoeColor.v[3] = v6;
   v8 = DVARBOOL_r_hudOutlineEnable;
   if ( !DVARBOOL_r_hudOutlineEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineEnable") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v8);
-  _RBX->hudOutline.enable = v8->current.enabled;
+  refdef->hudOutline.enable = v8->current.enabled;
   v9 = DVARFLT_r_hudOutlineWidth;
   if ( !DVARFLT_r_hudOutlineWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v9);
-  LODWORD(_RBX->hudOutline.width) = v9->current.integer;
-  _RBX->hudOutline.depthTestInScope = _RDI->depthTest;
-  _RBX->hudOutline.fillInScope = _RDI->fill;
+  LODWORD(refdef->hudOutline.width) = v9->current.integer;
+  refdef->hudOutline.depthTestInScope = outlineInfo->depthTest;
+  refdef->hudOutline.fillInScope = outlineInfo->fill;
   v10 = DVARFLT_r_hudOutlineOccludedColorFromFill;
   if ( !DVARFLT_r_hudOutlineOccludedColorFromFill && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineOccludedColorFromFill") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v10);
-  LODWORD(_RBX->hudOutline.occludedColorFromFill) = v10->current.integer;
+  LODWORD(refdef->hudOutline.occludedColorFromFill) = v10->current.integer;
   v11 = DVARVEC4_r_hudOutlineFillColor0;
   if ( !DVARVEC4_r_hudOutlineFillColor0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineFillColor0") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
-  LODWORD(_RBX->hudOutline.fillColor0.v[0]) = v11->current.integer;
-  _RBX->hudOutline.fillColor0.v[1] = v11->current.vector.v[1];
-  _RBX->hudOutline.fillColor0.v[2] = v11->current.vector.v[2];
-  _RBX->hudOutline.fillColor0.v[3] = v11->current.vector.v[3];
+  LODWORD(refdef->hudOutline.fillColor0.v[0]) = v11->current.integer;
+  refdef->hudOutline.fillColor0.v[1] = v11->current.vector.v[1];
+  refdef->hudOutline.fillColor0.v[2] = v11->current.vector.v[2];
+  refdef->hudOutline.fillColor0.v[3] = v11->current.vector.v[3];
   v12 = DVARVEC4_r_hudOutlineFillColor1;
   if ( !DVARVEC4_r_hudOutlineFillColor1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineFillColor1") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v12);
-  LODWORD(_RBX->hudOutline.fillColor1.v[0]) = v12->current.integer;
-  _RBX->hudOutline.fillColor1.v[1] = v12->current.vector.v[1];
-  _RBX->hudOutline.fillColor1.v[2] = v12->current.vector.v[2];
-  _RBX->hudOutline.fillColor1.v[3] = v12->current.vector.v[3];
+  LODWORD(refdef->hudOutline.fillColor1.v[0]) = v12->current.integer;
+  refdef->hudOutline.fillColor1.v[1] = v12->current.vector.v[1];
+  refdef->hudOutline.fillColor1.v[2] = v12->current.vector.v[2];
+  refdef->hudOutline.fillColor1.v[3] = v12->current.vector.v[3];
   v13 = DVARVEC4_r_hudOutlineOccludedOutlineColor;
   if ( !DVARVEC4_r_hudOutlineOccludedOutlineColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineOccludedOutlineColor") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v13);
-  LODWORD(_RBX->hudOutline.occludedOutlineColor.v[0]) = v13->current.integer;
-  _RBX->hudOutline.occludedOutlineColor.v[1] = v13->current.vector.v[1];
-  _RBX->hudOutline.occludedOutlineColor.v[2] = v13->current.vector.v[2];
-  _RBX->hudOutline.occludedOutlineColor.v[3] = v13->current.vector.v[3];
+  LODWORD(refdef->hudOutline.occludedOutlineColor.v[0]) = v13->current.integer;
+  refdef->hudOutline.occludedOutlineColor.v[1] = v13->current.vector.v[1];
+  refdef->hudOutline.occludedOutlineColor.v[2] = v13->current.vector.v[2];
+  refdef->hudOutline.occludedOutlineColor.v[3] = v13->current.vector.v[3];
   v14 = DVARVEC4_r_hudOutlineOccludedInlineColor;
   if ( !DVARVEC4_r_hudOutlineOccludedInlineColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineOccludedInlineColor") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v14);
-  LODWORD(_RBX->hudOutline.occludedInlineColor.v[0]) = v14->current.integer;
-  _RBX->hudOutline.occludedInlineColor.v[1] = v14->current.vector.v[1];
-  _RBX->hudOutline.occludedInlineColor.v[2] = v14->current.vector.v[2];
-  _RBX->hudOutline.occludedInlineColor.v[3] = v14->current.vector.v[3];
+  LODWORD(refdef->hudOutline.occludedInlineColor.v[0]) = v14->current.integer;
+  refdef->hudOutline.occludedInlineColor.v[1] = v14->current.vector.v[1];
+  refdef->hudOutline.occludedInlineColor.v[2] = v14->current.vector.v[2];
+  refdef->hudOutline.occludedInlineColor.v[3] = v14->current.vector.v[3];
   v15 = DVARVEC4_r_hudOutlineOccludedInteriorColor;
   if ( !DVARVEC4_r_hudOutlineOccludedInteriorColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineOccludedInteriorColor") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v15);
-  LODWORD(_RBX->hudOutline.occludedInteriorColor.v[0]) = v15->current.integer;
-  _RBX->hudOutline.occludedInteriorColor.v[1] = v15->current.vector.v[1];
-  _RBX->hudOutline.occludedInteriorColor.v[2] = v15->current.vector.v[2];
-  _RBX->hudOutline.occludedInteriorColor.v[3] = v15->current.vector.v[3];
-  _RSI = DVARFLT_r_shimmerEffectTimeOff;
+  LODWORD(refdef->hudOutline.occludedInteriorColor.v[0]) = v15->current.integer;
+  refdef->hudOutline.occludedInteriorColor.v[1] = v15->current.vector.v[1];
+  refdef->hudOutline.occludedInteriorColor.v[2] = v15->current.vector.v[2];
+  refdef->hudOutline.occludedInteriorColor.v[3] = v15->current.vector.v[3];
+  v16 = DVARFLT_r_shimmerEffectTimeOff;
   if ( !DVARFLT_r_shimmerEffectTimeOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectTimeOff") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  _RSI = DVARFLT_r_shimmerEffectTimeOn;
+  Dvar_CheckFrontendServerThread(v16);
+  value = v16->current.value;
+  v18 = DVARFLT_r_shimmerEffectTimeOn;
   if ( !DVARFLT_r_shimmerEffectTimeOn && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectTimeOn") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+28h]
-    vmovss  xmm0, cs:__real@3f800000
-    vaddss  xmm1, xmm6, xmm3
-    vdivss  xmm2, xmm0, xmm1
-    vmovss  dword ptr [rbx+10840h], xmm1
-    vmulss  xmm1, xmm2, xmm6
-    vmulss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rbx+10844h], xmm1
-    vmovss  dword ptr [rbx+10848h], xmm0
-  }
-  v25 = DVARFLT_r_shimmerEffectFarDistance;
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v18->current.value;
+  v20 = 1.0 / (float)(value + v19);
+  refdef->hudOutline.shimmerTextureProperties.v[0] = value + v19;
+  refdef->hudOutline.shimmerTextureProperties.v[1] = v20 * value;
+  refdef->hudOutline.shimmerTextureProperties.v[2] = v20 * v19;
+  v21 = DVARFLT_r_shimmerEffectFarDistance;
   if ( !DVARFLT_r_shimmerEffectFarDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectFarDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  LODWORD(_RBX->hudOutline.shimmerTextureProperties.v[3]) = v25->current.integer;
-  v26 = DVARFLT_r_shimmerEffectInteriorFillIntensityNear;
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(refdef->hudOutline.shimmerTextureProperties.v[3]) = v21->current.integer;
+  v22 = DVARFLT_r_shimmerEffectInteriorFillIntensityNear;
   if ( !DVARFLT_r_shimmerEffectInteriorFillIntensityNear && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectInteriorFillIntensityNear") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  LODWORD(_RBX->hudOutline.shimmerTextureProperties1.v[0]) = v26->current.integer;
-  v27 = DVARFLT_r_shimmerEffectInteriorFillIntensityFar;
+  Dvar_CheckFrontendServerThread(v22);
+  LODWORD(refdef->hudOutline.shimmerTextureProperties1.v[0]) = v22->current.integer;
+  v23 = DVARFLT_r_shimmerEffectInteriorFillIntensityFar;
   if ( !DVARFLT_r_shimmerEffectInteriorFillIntensityFar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectInteriorFillIntensityFar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v27);
-  LODWORD(_RBX->hudOutline.shimmerTextureProperties1.v[1]) = v27->current.integer;
-  v28 = DVARFLT_r_shimmerEffectColorAnimIntensity;
+  Dvar_CheckFrontendServerThread(v23);
+  LODWORD(refdef->hudOutline.shimmerTextureProperties1.v[1]) = v23->current.integer;
+  v24 = DVARFLT_r_shimmerEffectColorAnimIntensity;
   if ( !DVARFLT_r_shimmerEffectColorAnimIntensity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectColorAnimIntensity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v28);
-  *(_QWORD *)&_RBX->hudOutline.shimmerTextureProperties1.xyz.z = v28->current.unsignedInt;
-  v29 = DVARFLT_r_shimmerEffectInteriorLineStrength;
+  Dvar_CheckFrontendServerThread(v24);
+  *(_QWORD *)&refdef->hudOutline.shimmerTextureProperties1.xyz.z = v24->current.unsignedInt;
+  v25 = DVARFLT_r_shimmerEffectInteriorLineStrength;
   if ( !DVARFLT_r_shimmerEffectInteriorLineStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectInteriorLineStrength") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  LODWORD(_RBX->hudOutline.shimmerTextureProperties2.v[0]) = v29->current.integer;
-  v30 = DVARFLT_r_shimmerEffectExteriorLineStrength;
+  Dvar_CheckFrontendServerThread(v25);
+  LODWORD(refdef->hudOutline.shimmerTextureProperties2.v[0]) = v25->current.integer;
+  v26 = DVARFLT_r_shimmerEffectExteriorLineStrength;
   if ( !DVARFLT_r_shimmerEffectExteriorLineStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_shimmerEffectExteriorLineStrength") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v30);
-  LODWORD(_RBX->hudOutline.shimmerTextureProperties2.v[1]) = v30->current.integer;
-  *(_QWORD *)&_RBX->hudOutline.shimmerTextureProperties2.xyz.z = 0i64;
-  v31 = DVARFLT_r_snapshotEffectAlphaIntensity;
+  Dvar_CheckFrontendServerThread(v26);
+  LODWORD(refdef->hudOutline.shimmerTextureProperties2.v[1]) = v26->current.integer;
+  *(_QWORD *)&refdef->hudOutline.shimmerTextureProperties2.xyz.z = 0i64;
+  v27 = DVARFLT_r_snapshotEffectAlphaIntensity;
   if ( !DVARFLT_r_snapshotEffectAlphaIntensity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_snapshotEffectAlphaIntensity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v31);
-  LODWORD(_RBX->hudOutline.snapshotEffectProperties.v[0]) = v31->current.integer;
-  _RBX->hudOutline.scopeWidth = _RDI->width;
-  _RBX->hudOutline.scopeFillColor0.v[0] = _RDI->fillColor0.v[0];
-  _RBX->hudOutline.scopeFillColor0.v[1] = _RDI->fillColor0.v[1];
-  _RBX->hudOutline.scopeFillColor0.v[2] = _RDI->fillColor0.v[2];
-  _RBX->hudOutline.scopeFillColor0.v[3] = _RDI->fillColor0.v[3];
-  _RBX->hudOutline.scopeFillColor1.v[0] = _RDI->fillColor1.v[0];
-  _RBX->hudOutline.scopeFillColor1.v[1] = _RDI->fillColor1.v[1];
-  _RBX->hudOutline.scopeFillColor1.v[2] = _RDI->fillColor1.v[2];
-  _RBX->hudOutline.scopeFillColor1.v[3] = _RDI->fillColor1.v[3];
-  _RBX->hudOutline.scopeOccludedOutlineColor.v[0] = _RDI->occludedOutlineColor.v[0];
-  _RBX->hudOutline.scopeOccludedOutlineColor.v[1] = _RDI->occludedOutlineColor.v[1];
-  _RBX->hudOutline.scopeOccludedOutlineColor.v[2] = _RDI->occludedOutlineColor.v[2];
-  _RBX->hudOutline.scopeOccludedOutlineColor.v[3] = _RDI->occludedOutlineColor.v[3];
-  _RBX->hudOutline.scopeOccludedInlineColor.v[0] = _RDI->occludedInlineColor.v[0];
-  _RBX->hudOutline.scopeOccludedInlineColor.v[1] = _RDI->occludedInlineColor.v[1];
-  _RBX->hudOutline.scopeOccludedInlineColor.v[2] = _RDI->occludedInlineColor.v[2];
-  _RBX->hudOutline.scopeOccludedInlineColor.v[3] = _RDI->occludedInlineColor.v[3];
-  _RBX->hudOutline.scopeOccludedInteriorColor.v[0] = _RDI->occludedInteriorColor.v[0];
-  _RBX->hudOutline.scopeOccludedInteriorColor.v[1] = _RDI->occludedInteriorColor.v[1];
-  _RBX->hudOutline.scopeOccludedInteriorColor.v[2] = _RDI->occludedInteriorColor.v[2];
-  _RBX->hudOutline.scopeOccludedInteriorColor.v[3] = _RDI->occludedInteriorColor.v[3];
-  v32 = DVARBOOL_r_hudOutlineEnable;
+  Dvar_CheckFrontendServerThread(v27);
+  LODWORD(refdef->hudOutline.snapshotEffectProperties.v[0]) = v27->current.integer;
+  refdef->hudOutline.scopeWidth = outlineInfo->width;
+  refdef->hudOutline.scopeFillColor0.v[0] = outlineInfo->fillColor0.v[0];
+  refdef->hudOutline.scopeFillColor0.v[1] = outlineInfo->fillColor0.v[1];
+  refdef->hudOutline.scopeFillColor0.v[2] = outlineInfo->fillColor0.v[2];
+  refdef->hudOutline.scopeFillColor0.v[3] = outlineInfo->fillColor0.v[3];
+  refdef->hudOutline.scopeFillColor1.v[0] = outlineInfo->fillColor1.v[0];
+  refdef->hudOutline.scopeFillColor1.v[1] = outlineInfo->fillColor1.v[1];
+  refdef->hudOutline.scopeFillColor1.v[2] = outlineInfo->fillColor1.v[2];
+  refdef->hudOutline.scopeFillColor1.v[3] = outlineInfo->fillColor1.v[3];
+  refdef->hudOutline.scopeOccludedOutlineColor.v[0] = outlineInfo->occludedOutlineColor.v[0];
+  refdef->hudOutline.scopeOccludedOutlineColor.v[1] = outlineInfo->occludedOutlineColor.v[1];
+  refdef->hudOutline.scopeOccludedOutlineColor.v[2] = outlineInfo->occludedOutlineColor.v[2];
+  refdef->hudOutline.scopeOccludedOutlineColor.v[3] = outlineInfo->occludedOutlineColor.v[3];
+  refdef->hudOutline.scopeOccludedInlineColor.v[0] = outlineInfo->occludedInlineColor.v[0];
+  refdef->hudOutline.scopeOccludedInlineColor.v[1] = outlineInfo->occludedInlineColor.v[1];
+  refdef->hudOutline.scopeOccludedInlineColor.v[2] = outlineInfo->occludedInlineColor.v[2];
+  refdef->hudOutline.scopeOccludedInlineColor.v[3] = outlineInfo->occludedInlineColor.v[3];
+  refdef->hudOutline.scopeOccludedInteriorColor.v[0] = outlineInfo->occludedInteriorColor.v[0];
+  refdef->hudOutline.scopeOccludedInteriorColor.v[1] = outlineInfo->occludedInteriorColor.v[1];
+  refdef->hudOutline.scopeOccludedInteriorColor.v[2] = outlineInfo->occludedInteriorColor.v[2];
+  refdef->hudOutline.scopeOccludedInteriorColor.v[3] = outlineInfo->occludedInteriorColor.v[3];
+  v28 = DVARBOOL_r_hudOutlineEnable;
   if ( !DVARBOOL_r_hudOutlineEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v32);
-  _RBX->hudOutline.mode = v32->current.enabled ? 2 : 0;
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  Dvar_CheckFrontendServerThread(v28);
+  refdef->hudOutline.mode = v28->current.enabled ? 2 : 0;
 }
 
 /*
@@ -7423,34 +6358,36 @@ void R_HudOutlineApplyToRefdef(refdef_t *refdef, const GfxScopeHudOutlineInfo *o
 R_InitDaltonizeOptions
 ==============
 */
-
-void __fastcall R_InitDaltonizeOptions(GfxDaltonizeOptions *options, const GfxDaltonizeType mode, double intensity, const unsigned __int8 enabledTargets, const unsigned __int8 curTarget)
+void R_InitDaltonizeOptions(GfxDaltonizeOptions *options, const GfxDaltonizeType mode, const float intensity, const unsigned __int8 enabledTargets, const unsigned __int8 curTarget)
 {
-  bool v7; 
+  bool v6; 
+  GfxDaltonizeType v7; 
   bool enabled; 
 
-  v7 = (enabledTargets & curTarget) != 0;
+  v6 = (enabledTargets & curTarget) != 0;
   if ( r_daltonizeForceMode->current.integer )
   {
     mode = (unsigned __int8)r_daltonizeForceMode->current.integer;
-    v7 = 1;
+    v6 = 1;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( mode == R_DALTONIZE_NONE || !v7 )
-    __asm { vxorps  xmm2, xmm2, xmm2 }
-  __asm { vcomiss xmm2, xmm0 }
+  if ( mode == R_DALTONIZE_NONE || !v6 )
+    intensity = 0.0;
+  v7 = R_DALTONIZE_NONE;
+  if ( intensity > 0.0 )
+    v7 = mode;
   enabled = r_colorblindMode->current.enabled;
-  options->m_correctionMode = R_DALTONIZE_NONE;
-  if ( enabled )
+  if ( enabled || v7 )
   {
+    options->m_correctionMode = v7;
     options->m_enabled = 1;
-    __asm { vmovss  dword ptr [rcx+4], xmm2 }
+    options->m_correctionScale = intensity;
     options->m_simulationMode = enabled;
   }
   else
   {
+    options->m_correctionMode = R_DALTONIZE_NONE;
     options->m_enabled = 0;
-    __asm { vmovss  dword ptr [rcx+4], xmm2 }
+    options->m_correctionScale = intensity;
     options->m_simulationMode = R_DALTONIZE_NONE;
   }
 }
@@ -7604,234 +6541,128 @@ R_InitSceneModel
 */
 void R_InitSceneModel(GfxSceneModel *sceneModel)
 {
-  __int64 v8; 
-  bool v9; 
-  char v14; 
-  char v15; 
-  int v50; 
+  __int64 v2; 
+  bool v3; 
+  const dvar_t *v4; 
+  const XModel *model; 
+  float value; 
+  float scale; 
+  bool v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  double MaterialLodForDist; 
   unsigned int UsableLodForDist; 
-  char v60; 
-  int v62; 
-  bool v63; 
-  char v65; 
-  char v66; 
-  __int64 v74; 
-  double v75; 
-  __int64 v76; 
-  __int64 v77; 
-  double v78; 
+  char v24; 
+  float materialLod; 
+  unsigned int v26; 
+  bool v27; 
+  bool v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
   vec3_t out; 
   MaterialLodSettings materialLodSettings; 
-  char v81; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RDI = sceneModel;
   if ( g_delayedSceneModelGlob.delayingActive )
   {
-    v8 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-    if ( *(_DWORD *)(v8 + 1728) )
+    v2 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
+    if ( *(_DWORD *)(v2 + 1728) )
       goto LABEL_8;
-    v9 = *(_DWORD *)(v8 + 1724) == 0;
+    v3 = *(_DWORD *)(v2 + 1724) == 0;
   }
   else
   {
-    v9 = !Sys_IsMainThread();
+    v3 = !Sys_IsMainThread();
   }
-  if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1002, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
+  if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1002, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
     __debugbreak();
 LABEL_8:
   if ( !rg.lodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1003, ASSERT_TYPE_ASSERT, "(rg.lodParms.valid)", (const char *)&queryFormat, "rg.lodParms.valid") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_r_sceneModelAccurateLODRadiusThreshold;
-  _RSI = _RDI->model;
+  v4 = DCONST_DVARFLT_r_sceneModelAccurateLODRadiusThreshold;
+  model = sceneModel->model;
   if ( !DCONST_DVARFLT_r_sceneModelAccurateLODRadiusThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneModelAccurateLODRadiusThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  scale = sceneModel->placement.scale;
+  v8 = value < model->radius;
+  if ( value >= model->radius )
   {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vcomiss xmm0, dword ptr [rsi+28h]
-    vmovss  xmm10, dword ptr [rdi+54h]
-  }
-  v15 = v14;
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  if ( v14 )
-  {
-    QuatTransform(&_RDI->placement.base.quat, &_RSI->bounds.halfSize, &out);
-    __asm
-    {
-      vmulss  xmm1, xmm10, dword ptr [rdi+48h]
-      vaddss  xmm3, xmm1, dword ptr [rsp+0D8h+out]
-      vmulss  xmm1, xmm10, dword ptr [rdi+4Ch]
-      vaddss  xmm2, xmm1, dword ptr [rsp+0D8h+out+4]
-      vmulss  xmm1, xmm10, dword ptr [rdi+50h]
-      vaddss  xmm4, xmm1, dword ptr [rsp+0D8h+out+8]
-      vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg
-      vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4; r_globals_t rg
-      vsubss  xmm3, xmm1, xmm3
-      vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8; r_globals_t rg
-      vsubss  xmm2, xmm0, xmm2
-      vsubss  xmm4, xmm1, xmm4
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm10, dword ptr [rsi+28h]
-      vaddss  xmm2, xmm3, xmm1
-      vsqrtss xmm4, xmm2, xmm2
-      vsubss  xmm1, xmm4, xmm0
-      vmaxss  xmm6, xmm1, xmm9
-    }
+    v14 = rg.correctedLodParms.origin.v[0] - sceneModel->placement.base.origin.v[0];
+    v15 = rg.correctedLodParms.origin.v[2] - sceneModel->placement.base.origin.v[2];
+    v16 = rg.correctedLodParms.origin.v[1] - sceneModel->placement.base.origin.v[1];
+    v17 = I_fres(sceneModel->placement.scale);
+    *(float *)&_XMM6 = *(float *)&v17 * fsqrt((float)((float)(v16 * v16) + (float)(v14 * v14)) + (float)(v15 * v15));
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin; r_globals_t rg
-      vsubss  xmm8, xmm1, dword ptr [rdi+48h]
-      vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+8; r_globals_t rg
-      vmovss  xmm2, dword ptr cs:?rg@@3Ur_globals_t@@A.correctedLodParms.origin+4; r_globals_t rg
-      vsubss  xmm7, xmm1, dword ptr [rdi+50h]
-      vsubss  xmm6, xmm2, dword ptr [rdi+4Ch]
-      vmovaps xmm0, xmm10; val
-    }
-    *(double *)&_XMM0 = I_fres(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm8, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm7, xmm7
-      vaddss  xmm3, xmm3, xmm2
-      vsqrtss xmm1, xmm3, xmm3
-      vmulss  xmm6, xmm0, xmm1
-    }
+    QuatTransform(&sceneModel->placement.base.quat, &model->bounds.halfSize, &out);
+    v9 = rg.correctedLodParms.origin.v[0] - (float)((float)(scale * sceneModel->placement.base.origin.v[0]) + out.v[0]);
+    v10 = LODWORD(rg.correctedLodParms.origin.v[1]);
+    *(float *)&v10 = rg.correctedLodParms.origin.v[1] - (float)((float)(scale * sceneModel->placement.base.origin.v[1]) + out.v[1]);
+    v11 = rg.correctedLodParms.origin.v[2] - (float)((float)(scale * sceneModel->placement.base.origin.v[2]) + out.v[2]);
+    *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v9 * v9)) + (float)(v11 * v11)) - (float)(scale * model->radius);
+    _XMM1 = v10;
+    __asm { vmaxss  xmm6, xmm1, xmm9 }
   }
-  v50 = (*((_DWORD *)_RDI + 30) >> 10) & 0xFFF;
-  if ( v50 != gfxCfg.entnumNone )
+  if ( ((*((_DWORD *)sceneModel + 30) >> 10) & 0xFFF) != gfxCfg.entnumNone )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+54h]
-      vucomiss xmm0, cs:__real@3f800000
-    }
-    if ( v50 != gfxCfg.entnumNone )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_B0], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1022, ASSERT_TYPE_ASSERT, "( ( sceneModel->placement.scale == 1.0f ) )", "( sceneModel->placement.scale ) = %g", v75) )
-        __debugbreak();
-    }
+    v18 = sceneModel->placement.scale;
+    if ( v18 != 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1022, ASSERT_TYPE_ASSERT, "( ( sceneModel->placement.scale == 1.0f ) )", "( sceneModel->placement.scale ) = %g", v18) )
+      __debugbreak();
   }
-  __asm
-  {
-    vmulss  xmm1, xmm6, cs:?rg@@3Ur_globals_t@@A.lodParms.ramp.scale; r_globals_t rg
-    vaddss  xmm7, xmm1, cs:?rg@@3Ur_globals_t@@A.lodParms.ramp.bias; r_globals_t rg
-    vmulss  xmm8, xmm6, cs:?rg@@3Ur_globals_t@@A.lodParms.cappedLodScale; r_globals_t rg
-  }
-  R_MDAO_ResetVolumesProcessed(_RDI);
+  v19 = (float)(*(float *)&_XMM6 * rg.lodParms.ramp.scale) + rg.lodParms.ramp.bias;
+  v20 = *(float *)&_XMM6 * rg.lodParms.cappedLodScale;
+  R_MDAO_ResetVolumesProcessed(sceneModel);
   R_SetMaterialLodSettings(&materialLodSettings);
-  if ( v15 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+  if ( v8 )
+    v21 = 0.0;
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+54h]
-      vmulss  xmm0, xmm0, dword ptr [rsi+28h]; radius
-    }
-  }
-  __asm { vmovaps xmm1, xmm6; dist }
-  *(double *)&_XMM0 = XModelGetMaterialLodForDist(*(float *)&_XMM0, *(float *)&_XMM1, &materialLodSettings);
-  __asm
-  {
-    vmovaps xmm2, xmm8; cullDist
-    vmovaps xmm1, xmm7; dist
-    vmovss  dword ptr [rdi+8Ch], xmm0
-  }
-  UsableLodForDist = XModelGetUsableLodForDist(_RSI, *(const float *)&_XMM1, *(const float *)&_XMM2);
-  v60 = UsableLodForDist;
+    v21 = sceneModel->placement.scale * model->radius;
+  MaterialLodForDist = XModelGetMaterialLodForDist(v21, *(float *)&_XMM6, &materialLodSettings);
+  sceneModel->materialLod = *(float *)&MaterialLodForDist;
+  UsableLodForDist = XModelGetUsableLodForDist(model, v19, v20);
+  v24 = UsableLodForDist;
   if ( UsableLodForDist > 0x10 )
   {
-    LODWORD(v76) = 16;
-    LODWORD(v74) = UsableLodForDist;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1050, ASSERT_TYPE_ASSERT, "( lod ) <= ( (1 << 4) )", "lod not in [0, XMODELDRAWINFO_LOD_LIMIT]\n\t%u not in [0, %u]", v74, v76) )
+    LODWORD(v30) = 16;
+    LODWORD(v29) = UsableLodForDist;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1050, ASSERT_TYPE_ASSERT, "( lod ) <= ( (1 << 4) )", "lod not in [0, XMODELDRAWINFO_LOD_LIMIT]\n\t%u not in [0, %u]", v29, v30) )
       __debugbreak();
   }
-  *(_DWORD *)&_RDI->info &= 0xFFFFFFE1;
-  __asm { vmovss  xmm0, dword ptr [rdi+8Ch] }
-  v62 = 2 * (v60 & 0xF);
-  v63 = (v62 | *(_DWORD *)&_RDI->info) == 0;
-  *(_DWORD *)&_RDI->info |= v62;
-  __asm
+  *(_DWORD *)&sceneModel->info &= 0xFFFFFFE1;
+  materialLod = sceneModel->materialLod;
+  *(_DWORD *)&sceneModel->info |= 2 * (v24 & 0xF);
+  v26 = (int)materialLod;
+  v27 = materialLod >= 0.0 && materialLod <= 16777216.0;
+  v28 = materialLod >= 0.0 && materialLod <= 4294967300.0;
+  if ( (!v27 || !v28) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", v26, materialLod) )
+    __debugbreak();
+  if ( v26 > 1 )
   {
-    vcomiss xmm0, xmm9
-    vcvttss2si rbx, xmm0
-    vcomiss xmm0, cs:__real@4b800000
-  }
-  if ( v63 )
-  {
-    v65 = 1;
-  }
-  else
-  {
-    v65 = 0;
-    v63 = 1;
-  }
-  __asm
-  {
-    vcomiss xmm0, xmm9
-    vcomiss xmm0, cs:__real@4f800000
-  }
-  v66 = v63;
-  if ( !v65 || !v66 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned int __cdecl float_to_integral_cast<unsigned int,float>(float)", (unsigned int)_RBX, v78) )
+    LODWORD(v31) = (int)materialLod;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v31, 1) )
       __debugbreak();
   }
-  if ( (unsigned int)_RBX > 1 )
+  if ( v26 > 2 )
   {
-    LODWORD(v77) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 201, ASSERT_TYPE_ASSERT, "( retVal ) <= ( MAX_MATERIAL_LOD )", "%s <= %s\n\t%u, %u", "retVal", "MAX_MATERIAL_LOD", v77, 1) )
+    LODWORD(v30) = 2;
+    LODWORD(v29) = (int)materialLod;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1054, ASSERT_TYPE_ASSERT, "( materialLod ) <= ( (1 << 1) )", "materialLod not in [0, XMODELDRAWINFO_MATERIAL_LOD_LIMIT]\n\t%u not in [0, %u]", v29, v30) )
       __debugbreak();
   }
-  if ( (unsigned int)_RBX > 2 )
-  {
-    LODWORD(v76) = 2;
-    LODWORD(v74) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1054, ASSERT_TYPE_ASSERT, "( materialLod ) <= ( (1 << 1) )", "materialLod not in [0, XMODELDRAWINFO_MATERIAL_LOD_LIMIT]\n\t%u not in [0, %u]", v74, v76) )
-      __debugbreak();
-  }
-  *(_DWORD *)&_RDI->info &= 0xFFFFFFDE;
-  *(_DWORD *)&_RDI->info |= (32 * (_RBX & 1)) | ((*((_DWORD *)_RDI + 30) & 0x3FF) != 0);
-  _R11 = &v81;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  *(_DWORD *)&sceneModel->info &= 0xFFFFFFDE;
+  *(_DWORD *)&sceneModel->info |= (32 * ((int)materialLod & 1)) | ((*((_DWORD *)sceneModel + 30) & 0x3FF) != 0);
 }
 
 /*
@@ -8110,22 +6941,11 @@ unsigned int R_LinkBModelEntity_NoCull(unsigned int localClientNum, unsigned int
 R_LinkDObjEntity
 ==============
 */
-
-unsigned int __fastcall R_LinkDObjEntity(unsigned int localClientNum, unsigned int entnum, const vec3_t *origin, double radius)
+unsigned int R_LinkDObjEntity(unsigned int localClientNum, unsigned int entnum, const vec3_t *origin, float radius)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
-  R_FilterDObjIntoCells(localClientNum, entnum, origin, *(float *)&radius);
+  R_FilterDObjIntoCells(localClientNum, entnum, origin, radius);
   R_UnlinkEntityFromPrimaryLights(localClientNum, entnum);
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return R_LinkSphereEntityToPrimaryLights(localClientNum, entnum, origin, *(float *)&_XMM3);
+  return R_LinkSphereEntityToPrimaryLights(localClientNum, entnum, origin, radius);
 }
 
 /*
@@ -8133,21 +6953,10 @@ unsigned int __fastcall R_LinkDObjEntity(unsigned int localClientNum, unsigned i
 R_LinkDObjEntity_NoCull
 ==============
 */
-
-unsigned int __fastcall R_LinkDObjEntity_NoCull(unsigned int localClientNum, unsigned int entnum, const vec3_t *origin, double radius)
+unsigned int R_LinkDObjEntity_NoCull(unsigned int localClientNum, unsigned int entnum, const vec3_t *origin, float radius)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   R_UnlinkEntityFromPrimaryLights(localClientNum, entnum);
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return R_LinkSphereEntityToPrimaryLights(localClientNum, entnum, origin, *(float *)&_XMM3);
+  return R_LinkSphereEntityToPrimaryLights(localClientNum, entnum, origin, radius);
 }
 
 /*
@@ -8221,16 +7030,12 @@ void R_PIP_SetViewInfoIndex(const GfxViewport *vport)
 {
   unsigned int v2; 
 
-  _RBX = vport;
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_HIGH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5307, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PICTURE_IN_PICTURE ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PICTURE_IN_PICTURE )") )
     __debugbreak();
   v2 = rg.pipInfoCount++;
   frontEndDataOut->pipInfoCount = rg.pipInfoCount;
   frontEndDataOut->viewInfoIndex = v2 + 5;
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  _RDX = 25744i64 * (v2 + 5);
-  _RCX = frontEndDataOut->viewInfo;
-  __asm { vmovups xmmword ptr [rdx+rcx+4B0h], xmm0 }
+  frontEndDataOut->viewInfo[v2 + 5].displayViewport = *vport;
 }
 
 /*
@@ -8350,33 +7155,21 @@ LABEL_23:
 R_PackScriptedColorEmissive
 ==============
 */
-
-void __fastcall R_PackScriptedColorEmissive(base_vec4_t<unsigned int> *outScriptablePackedColorEmissive, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData, double _XMM2_8)
+void R_PackScriptedColorEmissive(base_vec4_t<unsigned int> *outScriptablePackedColorEmissive, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData)
 {
-  unsigned int v15; 
-
-  _EAX = -1;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpmovzxbd xmm1, xmm0
-    vcvtdq2ps xmm3, xmm1
-    vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-    vcvtps2ph xmm1, xmm0, 0
-    vmovups xmmword ptr [rcx], xmm1
-    vxorps  xmm0, xmm0, xmm0
-  }
+  _XMM0 = 0xFFFFFFFF;
+  __asm { vpmovzxbd xmm1, xmm0 }
+  _XMM0 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
+  __asm { vcvtps2ph xmm1, xmm0, 0 }
+  *outScriptablePackedColorEmissive = _XMM1;
   outScriptablePackedColorEmissive->v[2] = 2015232960;
+  _XMM2 = 0i64;
   __asm
   {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-    vxorps  xmm2, xmm2, xmm2
     vinsertps xmm2, xmm2, xmm1, 0
     vcvtps2ph xmm0, xmm2, 0
-    vmovss  [rsp+18h+var_18], xmm0
   }
-  outScriptablePackedColorEmissive->v[3] = v15;
+  outScriptablePackedColorEmissive->v[3] = _XMM0;
 }
 
 /*
@@ -8386,154 +7179,103 @@ R_PerformanceWarningsForView
 */
 void R_PerformanceWarningsForView(const GfxViewInfo *viewInfo)
 {
-  const char *v4; 
+  const char *v2; 
   const GfxBackEndData *data; 
   __int64 spotShadowUpdateCount; 
-  char v10; 
   const char *VariantString; 
-  char v26[8]; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
+  char v6[8]; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
   char text[8]; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
   char dest[64]; 
 
-  _RBX = viewInfo;
   if ( viewInfo->motionBlur.enabled )
+    R_PerformanceWarning("MBLUR-HQ", 300.0);
+  if ( R_Blur_Enabled(viewInfo) )
+    R_PerformanceWarning("BLUR", 320.0);
+  if ( R_Lens_GetEnabled(viewInfo) && R_Lens_GetScopeEnabled(viewInfo) )
   {
-    __asm { vmovss  xmm1, cs:__real@43960000; ypos }
-    R_PerformanceWarning("MBLUR-HQ", *(float *)&_XMM1);
+    v2 = "LENS & SCOPE";
   }
-  if ( R_Blur_Enabled(_RBX) )
+  else if ( R_Lens_GetEnabled(viewInfo) )
   {
-    __asm { vmovss  xmm1, cs:__real@43a00000; ypos }
-    R_PerformanceWarning("BLUR", *(float *)&_XMM1);
-  }
-  if ( R_Lens_GetEnabled(_RBX) && R_Lens_GetScopeEnabled(_RBX) )
-  {
-    v4 = "LENS & SCOPE";
-  }
-  else if ( R_Lens_GetEnabled(_RBX) )
-  {
-    v4 = "LENS";
+    v2 = "LENS";
   }
   else
   {
-    if ( !R_Lens_GetScopeEnabled(_RBX) )
+    if ( !R_Lens_GetScopeEnabled(viewInfo) )
       goto LABEL_13;
-    v4 = "SCOPE";
+    v2 = "SCOPE";
   }
-  __asm { vmovss  xmm1, cs:__real@43be0000; ypos }
-  R_PerformanceWarning(v4, *(float *)&_XMM1);
+  R_PerformanceWarning(v2, 380.0);
 LABEL_13:
-  if ( R_DOF_GetEnabled(_RBX) )
-  {
-    __asm { vmovss  xmm1, cs:__real@43b40000; ypos }
-    R_PerformanceWarning("DOF", *(float *)&_XMM1);
-  }
-  if ( (*((_BYTE *)&_RBX->viewportFeatures + 44) & 4) != 0 )
-  {
-    __asm { vmovss  xmm1, cs:__real@44020000; ypos }
-    R_PerformanceWarning("SUN SHADOW", *(float *)&_XMM1);
-  }
-  data = _RBX->input.data;
+  if ( R_DOF_GetEnabled(viewInfo) )
+    R_PerformanceWarning("DOF", 360.0);
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
+    R_PerformanceWarning("SUN SHADOW", 520.0);
+  data = viewInfo->input.data;
   spotShadowUpdateCount = data->spotShadowUpdateCount;
-  v10 = 0;
   if ( (_DWORD)spotShadowUpdateCount )
   {
     Com_sprintf<64>((char (*)[64])dest, "SPOT SHADOW : %d / %d", spotShadowUpdateCount, data->spotShadowUpdateLimit);
-    __asm { vmovss  xmm1, cs:__real@44070000; ypos }
-    R_PerformanceWarning(dest, *(float *)&_XMM1);
+    R_PerformanceWarning(dest, 540.0);
   }
-  __asm
+  if ( viewInfo->sunshadowSampleSizeNear > 0.25 )
   {
-    vmovss  xmm0, cs:__real@3e800000
-    vcomiss xmm0, dword ptr [rbx+3C48h]
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vmovss  xmm3, cs:?rg@@3Ur_globals_t@@A.sunSampleSizeNear; r_globals_t rg
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
     *(_QWORD *)text = 0i64;
-    v35 = 0i64;
-    v36 = 0i64;
-    v37 = 0i64;
-    v38 = 0i64;
-    v39 = 0i64;
-    v40 = 0i64;
-    v41 = 0i64;
-    Com_sprintf(text, 0x40ui64, "sm_sunSampleSizeNear: %0.2f", *(double *)&_XMM3);
-    __asm { vmovss  xmm1, cs:__real@440c0000; ypos }
-    R_PerformanceWarning(text, *(float *)&_XMM1);
+    v15 = 0i64;
+    v16 = 0i64;
+    v17 = 0i64;
+    v18 = 0i64;
+    v19 = 0i64;
+    v20 = 0i64;
+    v21 = 0i64;
+    Com_sprintf(text, 0x40ui64, "sm_sunSampleSizeNear: %0.2f", rg.sunSampleSizeNear);
+    R_PerformanceWarning(text, 560.0);
   }
   if ( sm_dynlightAllSModels->current.enabled )
-  {
-    __asm { vmovss  xmm1, cs:__real@44110000; ypos }
-    R_PerformanceWarning("sm_dynlightAllSModels", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("sm_dynlightAllSModels", 580.0);
   if ( r_ssao && r_ssao->current.enabled )
   {
-    *(_QWORD *)v26 = 0i64;
-    v27 = 0i64;
-    v28 = 0i64;
-    v29 = 0i64;
-    v30 = 0i64;
-    v31 = 0i64;
-    v32 = 0i64;
-    v33 = 0i64;
+    *(_QWORD *)v6 = 0i64;
+    v7 = 0i64;
+    v8 = 0i64;
+    v9 = 0i64;
+    v10 = 0i64;
+    v11 = 0i64;
+    v12 = 0i64;
+    v13 = 0i64;
     VariantString = Dvar_GetVariantString("MNRQQOMSMM");
     if ( VariantString && *VariantString )
-      Com_sprintf(v26, 0x40ui64, (const char *)&queryFormat, VariantString);
+      Com_sprintf(v6, 0x40ui64, (const char *)&queryFormat, VariantString);
     else
-      Com_sprintf(v26, 0x40ui64, "SSAO: %d", r_ssao->current.unsignedInt);
-    __asm { vmovss  xmm1, cs:__real@441b0000; ypos }
-    R_PerformanceWarning(v26, *(float *)&_XMM1);
+      Com_sprintf(v6, 0x40ui64, "SSAO: %d", r_ssao->current.unsignedInt);
+    R_PerformanceWarning(v6, 620.0);
   }
   if ( frontEndDataOut->reflectionProbeRelightingData.reflectionProbeRelightingIndex != -1 )
-  {
-    __asm { vmovss  xmm1, cs:__real@44160000; ypos }
-    R_PerformanceWarning("REFPROBE RELIGHT", *(float *)&_XMM1);
-  }
-  if ( R_VOL_AnyVisible(_RBX) )
-  {
-    __asm { vmovss  xmm1, cs:__real@44200000; ypos }
-    R_PerformanceWarning("VOLUMETRICS", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("REFPROBE RELIGHT", 600.0);
+  if ( R_VOL_AnyVisible(viewInfo) )
+    R_PerformanceWarning("VOLUMETRICS", 640.0);
   if ( rg.vrsEmissiveOnly )
-  {
-    __asm { vmovss  xmm1, cs:__real@44250000; ypos }
-    R_PerformanceWarning("Emissive Half MS", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("Emissive Half MS", 660.0);
   if ( rg.halfResEmissive )
-  {
-    __asm { vmovss  xmm1, cs:__real@44250000; ypos }
-    R_PerformanceWarning("Emissive Half BI", *(float *)&_XMM1);
-  }
-  if ( (_RBX->matRenderFeatures & 1) != 0 )
-  {
-    __asm { vmovss  xmm1, cs:__real@43f00000; ypos }
-    R_PerformanceWarning("REFRACTION", *(float *)&_XMM1);
-  }
-  if ( (_RBX->matRenderFeatures & 2) != 0 )
-  {
-    __asm { vmovss  xmm1, cs:__real@43fa0000; ypos }
-    R_PerformanceWarning("SSR / FX DISTORT", *(float *)&_XMM1);
-  }
+    R_PerformanceWarning("Emissive Half BI", 660.0);
+  if ( (viewInfo->matRenderFeatures & 1) != 0 )
+    R_PerformanceWarning("REFRACTION", 480.0);
+  if ( (viewInfo->matRenderFeatures & 2) != 0 )
+    R_PerformanceWarning("SSR / FX DISTORT", 500.0);
 }
 
 /*
@@ -8557,37 +7299,52 @@ R_RenderScene
 */
 void R_RenderScene(const refdef_t *refdef, float lodOverride, unsigned int drawType, const GfxViewportFeatures *viewportFeaturesRequest)
 {
-  unsigned int v8; 
-  unsigned int v9; 
-  int v10; 
+  unsigned int v6; 
+  unsigned int v7; 
+  int v8; 
   __int64 localClientNum; 
-  char v12; 
-  bool v15; 
-  bool v16; 
-  bool v17; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v38; 
-  char v45; 
-  bool v46; 
-  __int16 Flags; 
-  int v48; 
-  int v49; 
+  GfxSceneParms *m_ptr; 
   GfxViewParmsSet *p_viewParmsSet; 
-  __int64 v51; 
-  __int64 v54; 
-  __int64 v62; 
+  GfxViewParms *p_viewParms; 
+  __int64 v13; 
+  __int64 v14; 
+  GfxViewParmsSet::Frame *v15; 
+  GfxViewParms *v16; 
+  __int64 v17; 
+  double DisplayBlacklevel; 
+  char v19; 
+  bool v20; 
+  __int16 Flags; 
+  int v22; 
+  int v23; 
+  GfxViewParmsSet *v24; 
+  __int64 v25; 
+  __m256i *v26; 
+  GfxViewParmsSet *v27; 
+  __int64 v28; 
+  __m256i *v29; 
+  GfxViewParmsSet::Frame *v30; 
+  __int64 v31; 
+  __m256i *v32; 
   int DynamicOmniLight; 
+  __int64 v34; 
+  vec3_t *v35; 
   int DynamicSpotLight; 
-  __int64 v94; 
+  __int64 v37; 
+  vec3_t *p_debugColorGammaSrgb; 
+  GfxHudOutlineState *p_hudOutline; 
+  GfxHudOutlineState *v40; 
+  __int64 v41; 
+  __m256i *v42; 
+  GfxViewParmsSet *v43; 
   unsigned int *scriptIndex; 
   unsigned int *scriptIndexa; 
   unsigned int *permutationOverride; 
-  GfxSceneParms *m_ptr; 
-  GfxViewParmsSet *v117; 
+  GfxSceneParms *v47; 
+  GfxViewParmsSet *v48; 
   vec3_t outOrg; 
-  __int64 v119; 
-  Mem_LargeLocal v120; 
+  __int64 v50; 
+  Mem_LargeLocal v51; 
   GfxViewParms viewParms; 
   GfxViewportFeatures features; 
   GfxSceneViewParms outOffset; 
@@ -8596,58 +7353,30 @@ void R_RenderScene(const refdef_t *refdef, float lodOverride, unsigned int drawT
   tmat44_t<vec4_t> out; 
   tmat44_t<vec4_t> mtx; 
   GfxViewParmsSet viewParmsSet; 
-  char v129; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v119 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RSI = refdef;
+  v50 = -2i64;
   R_SetupViewportFeatures(viewportFeaturesRequest, &features);
-  v8 = *((_DWORD *)&features + 11) & 0xFFFFFDFF | (R_GpuLightGrid_DataAvailable() << 9);
-  *((_DWORD *)&features + 11) = v8;
-  v9 = 0;
-  if ( !fx_gpu_lighting->current.enabled || (v10 = 1024, s_world.voxelTreeCount <= 0) )
-    v10 = 0;
-  *((_DWORD *)&features + 11) = v10 | v8 & 0xFFFFFBFF;
-  localClientNum = _RSI->localClientNum;
-  Mem_LargeLocal::Mem_LargeLocal(&v120, 0xAE8ui64, "GfxSceneParms sceneParms");
-  _R15 = (GfxSceneParms *)v120.m_ptr;
-  m_ptr = (GfxSceneParms *)v120.m_ptr;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rsi+10h]
-  }
-  if ( !v12 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10703, ASSERT_TYPE_ASSERT, "(refdef->view.tanHalfFovX > 0)", (const char *)&queryFormat, "refdef->view.tanHalfFovX > 0");
-    v12 = 0;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, dword ptr [rsi+14h] }
-  if ( !v12 )
-  {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10704, ASSERT_TYPE_ASSERT, "(refdef->view.tanHalfFovY > 0)", (const char *)&queryFormat, "refdef->view.tanHalfFovY > 0");
-    v12 = 0;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, dword ptr [rsi+4Ch] }
-  if ( !v12 )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10705, ASSERT_TYPE_ASSERT, "(refdef->view.depthHackFov.tanHalfFovX > 0.0f)", (const char *)&queryFormat, "refdef->view.depthHackFov.tanHalfFovX > 0.0f");
-    v12 = 0;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, dword ptr [rsi+50h] }
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10706, ASSERT_TYPE_ASSERT, "(refdef->view.depthHackFov.tanHalfFovY > 0.0f)", (const char *)&queryFormat, "refdef->view.depthHackFov.tanHalfFovY > 0.0f") )
+  v6 = *((_DWORD *)&features + 11) & 0xFFFFFDFF | (R_GpuLightGrid_DataAvailable() << 9);
+  *((_DWORD *)&features + 11) = v6;
+  v7 = 0;
+  if ( !fx_gpu_lighting->current.enabled || (v8 = 1024, s_world.voxelTreeCount <= 0) )
+    v8 = 0;
+  *((_DWORD *)&features + 11) = v8 | v6 & 0xFFFFFBFF;
+  localClientNum = refdef->localClientNum;
+  Mem_LargeLocal::Mem_LargeLocal(&v51, 0xAE8ui64, "GfxSceneParms sceneParms");
+  m_ptr = (GfxSceneParms *)v51.m_ptr;
+  v47 = (GfxSceneParms *)v51.m_ptr;
+  if ( refdef->view.fov.tanHalfFovX <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10703, ASSERT_TYPE_ASSERT, "(refdef->view.tanHalfFovX > 0)", (const char *)&queryFormat, "refdef->view.tanHalfFovX > 0") )
     __debugbreak();
-  if ( !_RSI->displayViewport.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10707, ASSERT_TYPE_ASSERT, "(refdef->displayViewport.height > 0)", (const char *)&queryFormat, "refdef->displayViewport.height > 0") )
+  if ( refdef->view.fov.tanHalfFovY <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10704, ASSERT_TYPE_ASSERT, "(refdef->view.tanHalfFovY > 0)", (const char *)&queryFormat, "refdef->view.tanHalfFovY > 0") )
     __debugbreak();
-  if ( !_RSI->displayViewport.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10708, ASSERT_TYPE_ASSERT, "(refdef->displayViewport.width > 0)", (const char *)&queryFormat, "refdef->displayViewport.width > 0") )
+  if ( refdef->view.depthHackFov.tanHalfFovX <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10705, ASSERT_TYPE_ASSERT, "(refdef->view.depthHackFov.tanHalfFovX > 0.0f)", (const char *)&queryFormat, "refdef->view.depthHackFov.tanHalfFovX > 0.0f") )
+    __debugbreak();
+  if ( refdef->view.depthHackFov.tanHalfFovY <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10706, ASSERT_TYPE_ASSERT, "(refdef->view.depthHackFov.tanHalfFovY > 0.0f)", (const char *)&queryFormat, "refdef->view.depthHackFov.tanHalfFovY > 0.0f") )
+    __debugbreak();
+  if ( !refdef->displayViewport.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10707, ASSERT_TYPE_ASSERT, "(refdef->displayViewport.height > 0)", (const char *)&queryFormat, "refdef->displayViewport.height > 0") )
+    __debugbreak();
+  if ( !refdef->displayViewport.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10708, ASSERT_TYPE_ASSERT, "(refdef->displayViewport.width > 0)", (const char *)&queryFormat, "refdef->displayViewport.width > 0") )
     __debugbreak();
   if ( (unsigned int)localClientNum >= gfxCfg.maxClientViews )
   {
@@ -8664,328 +7393,209 @@ void R_RenderScene(const refdef_t *refdef, float lodOverride, unsigned int drawT
   R_AddCmdProjectionSet2D();
   if ( (*((_BYTE *)&features + 40) & 2) != 0 && !r_useShellshockPostfx->current.enabled )
     CG_View_DrawShellshockBlend((LocalClientNum_t)localClientNum);
-  RefdefView_GetOrg(&_RSI->view, &rg.viewOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir, xmm0; r_globals_t rg
-    vmovss  xmm1, dword ptr [rsi+28h]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir+4, xmm1; r_globals_t rg
-    vmovss  xmm0, dword ptr [rsi+2Ch]
-    vmovss  dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir+8, xmm0; r_globals_t rg
-  }
-  R_SetCameraForView(&_RSI->view, &camera);
+  RefdefView_GetOrg(&refdef->view, &rg.viewOrg);
+  rg.viewDir = refdef->view.axis.m[0];
+  R_SetCameraForView(&refdef->view, &camera);
   MatrixForViewerOrthogonal(&camera.origin, &camera.axis, &mtx);
-  __asm
-  {
-    vmovss  xmm2, [rbp+730h+camera.zPlanes+8]; zNear
-    vmovss  xmm1, dword ptr [rbp+730h+camera.___u3]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rbp+730h+camera.___u2]; tanHalfFovX
-  }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &in2);
+  InfinitePerspectiveMatrix(camera.tanHalfFovX, camera.tanHalfFovY, camera.zPlanes[2], &in2);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
   MatrixCopy44(&out, &rg.viewProjMatrix);
-  __asm
-  {
-    vmovss  xmm2, [rbp+730h+camera.zPlanes]; zNear
-    vmovss  xmm1, dword ptr [rbp+730h+camera.___u3]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rbp+730h+camera.___u2]; tanHalfFovX
-  }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &in2);
+  InfinitePerspectiveMatrix(camera.tanHalfFovX, camera.tanHalfFovY, camera.zPlanes[0], &in2);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
   MatrixCopy44(&out, &rg.viewProjMatrixDepthHack);
-  R_GetSceneSubPixelOffset(_RSI, &features, &outOffset.subpixelOffset, &outOffset.cameraMotion);
-  R_SetViewParmsForScene(_RSI, &outOffset, &viewParms);
-  _RAX = &viewParmsSet;
-  _RCX = &viewParms;
-  v29 = 3i64;
-  v30 = 3i64;
+  R_GetSceneSubPixelOffset(refdef, &features, &outOffset.subpixelOffset, &outOffset.cameraMotion);
+  R_SetViewParmsForScene(refdef, &outOffset, &viewParms);
+  p_viewParmsSet = &viewParmsSet;
+  p_viewParms = &viewParms;
+  v13 = 3i64;
+  v14 = 3i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX = (GfxViewParmsSet *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX = (GfxViewParms *)((char *)_RCX + 128);
-    --v30;
+    *(__m256i *)p_viewParmsSet->frames[0].viewParms.viewMatrix.m.m[0].v = *(__m256i *)p_viewParms->viewMatrix.m.m[0].v;
+    *(__m256i *)p_viewParmsSet->frames[0].viewParms.viewMatrix.m.row2.v = *(__m256i *)p_viewParms->viewMatrix.m.row2.v;
+    *(__m256i *)p_viewParmsSet->frames[0].viewParms.projectionMatrix.m.m[0].v = *(__m256i *)p_viewParms->projectionMatrix.m.m[0].v;
+    p_viewParmsSet->frames[0].viewParms.projectionMatrix.m.row2 = p_viewParms->projectionMatrix.m.row2;
+    p_viewParmsSet = (GfxViewParmsSet *)((char *)p_viewParmsSet + 128);
+    *(vec4_t *)&p_viewParmsSet[-1].frames[2].viewParms.cameraMotion = p_viewParms->projectionMatrix.m.row3;
+    p_viewParms = (GfxViewParms *)((char *)p_viewParms + 128);
+    --v14;
   }
-  while ( v30 );
-  R_SetViewParmsForScene(_RSI, NULL, &viewParms);
-  _RAX = &viewParmsSet.frames[2];
-  _RCX = &viewParms;
-  v38 = 3i64;
+  while ( v14 );
+  R_SetViewParmsForScene(refdef, NULL, &viewParms);
+  v15 = &viewParmsSet.frames[2];
+  v16 = &viewParms;
+  v17 = 3i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX = (GfxViewParmsSet::Frame *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX = (GfxViewParms *)((char *)_RCX + 128);
-    --v38;
+    *(__m256i *)v15->viewParms.viewMatrix.m.m[0].v = *(__m256i *)v16->viewMatrix.m.m[0].v;
+    *(__m256i *)v15->viewParms.viewMatrix.m.row2.v = *(__m256i *)v16->viewMatrix.m.row2.v;
+    *(__m256i *)v15->viewParms.projectionMatrix.m.m[0].v = *(__m256i *)v16->projectionMatrix.m.m[0].v;
+    v15->viewParms.projectionMatrix.m.row2 = v16->projectionMatrix.m.row2;
+    v15 = (GfxViewParmsSet::Frame *)((char *)v15 + 128);
+    *(vec4_t *)&v15[-1].viewParms.cameraMotion = v16->projectionMatrix.m.row3;
+    v16 = (GfxViewParms *)((char *)v16 + 128);
+    --v17;
   }
-  while ( v38 );
-  R_SetSceneParms(_RSI, _R15);
-  R_AssignSceneParmsViewports(_R15, _RSI, *((_BYTE *)&features + 40) & 1, _RSI->resolution.step);
-  _R15->drawType = drawType;
-  *(double *)&_XMM0 = R_GetDisplayBlacklevel((*((_WORD *)&features + 20) & 0x4000) != 0);
-  __asm { vmovss  dword ptr [r15+7FCh], xmm0 }
-  _R15->ssrFade = _RSI->ssrFade;
+  while ( v17 );
+  R_SetSceneParms(refdef, m_ptr);
+  R_AssignSceneParmsViewports(m_ptr, refdef, *((_BYTE *)&features + 40) & 1, refdef->resolution.step);
+  m_ptr->drawType = drawType;
+  DisplayBlacklevel = R_GetDisplayBlacklevel((*((_WORD *)&features + 20) & 0x4000) != 0);
+  m_ptr->blackLevel = *(float *)&DisplayBlacklevel;
+  m_ptr->ssrFade = refdef->ssrFade;
   if ( (*((_BYTE *)&features + 40) & 1) != 0 )
-  {
-    R_DisplayToSceneViewport(&_R15->ssrSourceSceneViewport, &_RSI->ssrSourceDisplayViewport, _RSI->resolution.step);
-  }
+    R_DisplayToSceneViewport(&m_ptr->ssrSourceSceneViewport, &refdef->ssrSourceDisplayViewport, refdef->resolution.step);
   else
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+334h]
-      vmovups xmmword ptr [r15+318h], xmm0
-    }
-  }
-  RefdefView_GetOrg(&_RSI->view, &outOrg);
-  R_UpdateActiveStage(rgp.world->primaryLights, &_R15->stageInfo, &outOrg);
-  v45 = *((_BYTE *)&features + 40);
+    m_ptr->ssrSourceSceneViewport = refdef->ssrSourceDisplayViewport;
+  RefdefView_GetOrg(&refdef->view, &outOrg);
+  R_UpdateActiveStage(rgp.world->primaryLights, &m_ptr->stageInfo, &outOrg);
+  v19 = *((_BYTE *)&features + 40);
   if ( (*((_BYTE *)&features + 40) & 4) != 0 && !(_DWORD)localClientNum )
   {
     if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10788, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
       __debugbreak();
-    R_LightTweak_Update(rgp.world->primaryLights, &_R15->stageInfo);
-    v45 = *((_BYTE *)&features + 40);
+    R_LightTweak_Update(rgp.world->primaryLights, &m_ptr->stageInfo);
+    v19 = *((_BYTE *)&features + 40);
   }
-  if ( (v45 & 0x10) != 0 )
+  if ( (v19 & 0x10) != 0 )
   {
     if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10795, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
       __debugbreak();
-    R_UpdateFrameSun(rgp.world->primaryLights, &features, &_R15->stageInfo);
+    R_UpdateFrameSun(rgp.world->primaryLights, &features, &m_ptr->stageInfo);
   }
-  v46 = R_TG_SetScript(_R15->maxSceneRtWidth, _R15->maxSceneRtHeight, vidConfig.displayWidth, vidConfig.displayHeight, &features, &features.m_taskGraphIndex, &features.m_taskGraphPermutation);
-  *((_DWORD *)&features + 11) = *((_DWORD *)&features + 11) & 0xFFFFFEFF | (v46 << 8);
+  v20 = R_TG_SetScript(m_ptr->maxSceneRtWidth, m_ptr->maxSceneRtHeight, vidConfig.displayWidth, vidConfig.displayHeight, &features, &features.m_taskGraphIndex, &features.m_taskGraphPermutation);
+  *((_DWORD *)&features + 11) = *((_DWORD *)&features + 11) & 0xFFFFFEFF | (v20 << 8);
   if ( (*((_WORD *)&features + 22) & 0x100) != 0 )
   {
     Flags = R_TG_GetFlags(&features);
-    v48 = -1;
-    if ( (Flags & 0x80u) == 0 || (v49 = -1, features.m_taskGraphIndex == -1) )
-      v49 = -536870913;
-    *((_DWORD *)&features + 10) = (*((_DWORD *)&features + 10) ^ (*((_WORD *)&features + 20) ^ (unsigned __int16)(8 * Flags)) & 0x100) & v49 & (((features.m_taskGraphIndex != -1) << 30) | 0xBFFFFFFF);
+    v22 = -1;
+    if ( (Flags & 0x80u) == 0 || (v23 = -1, features.m_taskGraphIndex == -1) )
+      v23 = -536870913;
+    *((_DWORD *)&features + 10) = (*((_DWORD *)&features + 10) ^ (*((_WORD *)&features + 20) ^ (unsigned __int16)(8 * Flags)) & 0x100) & v23 & (((features.m_taskGraphIndex != -1) << 30) | 0xBFFFFFFF);
     if ( (Flags & 0x100) == 0 || features.m_taskGraphIndex == -1 )
-      v48 = -131073;
-    *((_DWORD *)&features + 11) &= v48;
+      v22 = -131073;
+    *((_DWORD *)&features + 11) &= v22;
   }
-  if ( scene.def.time != _RSI->time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10818, ASSERT_TYPE_ASSERT, "(scene.def.time == refdef->time)", (const char *)&queryFormat, "scene.def.time == refdef->time") )
+  if ( scene.def.time != refdef->time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10818, ASSERT_TYPE_ASSERT, "(scene.def.time == refdef->time)", (const char *)&queryFormat, "scene.def.time == refdef->time") )
     __debugbreak();
   if ( !rg.lodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10820, ASSERT_TYPE_ASSERT, "(rg.lodParms.valid)", (const char *)&queryFormat, "rg.lodParms.valid") )
     __debugbreak();
-  p_viewParmsSet = &viewParmsSet;
+  v24 = &viewParmsSet;
   if ( r_lockPvs->current.enabled )
-    p_viewParmsSet = (GfxViewParmsSet *)&lockPvsViewParms;
-  v117 = p_viewParmsSet;
+    v24 = (GfxViewParmsSet *)&lockPvsViewParms;
+  v48 = v24;
   if ( (unsigned __int64)(int)features.m_viewportType >= R_VIEWPORT_TYPE_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10824, ASSERT_TYPE_ASSERT, "(viewportFeatures.m_viewportType < ( sizeof( *array_counter( g_previousFrameViewParmsIsValid[0] ) ) + 0 ))", (const char *)&queryFormat, "viewportFeatures.m_viewportType < ARRAY_COUNT( g_previousFrameViewParmsIsValid[0] )") )
     __debugbreak();
   outOffset.subpixelOffset = (vec2_t)(2 * localClientNum);
-  v51 = 2 * localClientNum + (int)features.m_viewportType;
-  if ( !g_previousFrameViewParmsIsValid[0][v51] )
+  v25 = 2 * localClientNum + (int)features.m_viewportType;
+  if ( !g_previousFrameViewParmsIsValid[0][v25] )
   {
-    _RCX = (char *)g_previousFrameViewParms + 384 * v51;
-    _RAX = &viewParmsSet;
-    v54 = 3i64;
+    v26 = (__m256i *)((char *)g_previousFrameViewParms + 384 * v25);
+    v27 = &viewParmsSet;
+    v28 = 3i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RAX = (GfxViewParmsSet *)((char *)_RAX + 128);
-      --v54;
+      *v26 = *(__m256i *)v27->frames[0].viewParms.viewMatrix.m.m[0].v;
+      v26[1] = *(__m256i *)v27->frames[0].viewParms.viewMatrix.m.row2.v;
+      v26[2] = *(__m256i *)v27->frames[0].viewParms.projectionMatrix.m.m[0].v;
+      *(vec4_t *)v26[3].m256i_i8 = v27->frames[0].viewParms.projectionMatrix.m.row2;
+      v26 += 4;
+      *(vec4_t *)&v26[-1].m256i_u64[2] = v27->frames[0].viewParms.projectionMatrix.m.row3;
+      v27 = (GfxViewParmsSet *)((char *)v27 + 128);
+      --v28;
     }
-    while ( v54 );
-    g_previousFrameViewParmsIsValid[0][v51] = 1;
+    while ( v28 );
+    g_previousFrameViewParmsIsValid[0][v25] = 1;
   }
-  _RCX = (char *)g_previousFrameViewParms + 384 * v51;
-  _RAX = &viewParmsSet.frames[1];
-  v62 = 3i64;
+  v29 = (__m256i *)((char *)g_previousFrameViewParms + 384 * v25);
+  v30 = &viewParmsSet.frames[1];
+  v31 = 3i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [rcx+20h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx+60h]
-      vmovups xmmword ptr [rax+60h], xmm0
-    }
-    _RAX = (GfxViewParmsSet::Frame *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rcx+70h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    _RCX += 128;
-    --v62;
+    *(__m256i *)v30->viewParms.viewMatrix.m.m[0].v = *v29;
+    *(__m256i *)v30->viewParms.viewMatrix.m.row2.v = v29[1];
+    *(__m256i *)v30->viewParms.projectionMatrix.m.m[0].v = v29[2];
+    v30->viewParms.projectionMatrix.m.row2 = *(vec4_t *)v29[3].m256i_i8;
+    v30 = (GfxViewParmsSet::Frame *)((char *)v30 + 128);
+    *(_OWORD *)&v30[-1].viewParms.cameraMotion = *(_OWORD *)&v29[3].m256i_u64[2];
+    v29 += 4;
+    --v31;
   }
-  while ( v62 );
-  if ( _RSI->radiantLiveLightCount )
+  while ( v31 );
+  if ( refdef->radiantLiveLightCount )
   {
-    _R15 = 0x140000000ui64;
     do
     {
-      _RBX = &_RSI->radiantLiveLights[v9];
-      if ( _RBX->type == 2 )
+      v32 = (__m256i *)&refdef->radiantLiveLights[v7];
+      if ( v32->m256i_i8[0] == 2 )
       {
         DynamicSpotLight = R_AllocateDynamicSpotLight();
         if ( DynamicSpotLight >= 0 )
         {
-          _RDI = DynamicSpotLight;
-          _RCX = &scene.dynamicSpotLight[_RDI].debugColorGammaSrgb;
-          _RCX->v[0] = _RSI->radiantLiveLights[v9].colorLinearSrgb.v[0];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vmovss  dword ptr [rcx+4], xmm0
-            vmovss  xmm1, dword ptr [rbx+1Ch]
-            vmovss  dword ptr [rcx+8], xmm1
-          }
-          LinearToGammaColor_Srgb(&scene.dynamicSpotLight[_RDI].debugColorGammaSrgb);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rdi+r15+13EE4490h], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rdi+r15+13EE44B0h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rdi+r15+13EE44D0h], ymm0
-            vmovups ymm1, ymmword ptr [rbx+60h]
-            vmovups ymmword ptr [rdi+r15+13EE44F0h], ymm1
-            vmovups xmm0, xmmword ptr [rbx+80h]
-            vmovups xmmword ptr [rdi+r15+13EE4510h], xmm0
-            vmovsd  xmm1, qword ptr [rbx+90h]
-            vmovsd  qword ptr [rdi+r15+13EE4520h], xmm1
-          }
+          v37 = DynamicSpotLight;
+          p_debugColorGammaSrgb = &scene.dynamicSpotLight[v37].debugColorGammaSrgb;
+          p_debugColorGammaSrgb->v[0] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[0];
+          p_debugColorGammaSrgb->v[1] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[1];
+          p_debugColorGammaSrgb->v[2] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[2];
+          LinearToGammaColor_Srgb(&scene.dynamicSpotLight[v37].debugColorGammaSrgb);
+          *(__m256i *)&scene.dynamicSpotLight[v37].lightCommon.type = *v32;
+          *(__m256i *)scene.dynamicSpotLight[v37].lightCommon.dir.v = *(__m256i *)refdef->radiantLiveLights[v7].dir.v;
+          *(__m256i *)&scene.dynamicSpotLight[v37].lightCommon.origin.z = *(__m256i *)&refdef->radiantLiveLights[v7].origin.z;
+          *(__m256i *)&scene.dynamicSpotLight[v37].lightCommon.cosHalfFovOuter = *(__m256i *)&refdef->radiantLiveLights[v7].cosHalfFovOuter;
+          *(_OWORD *)&scene.dynamicSpotLight[v37].lightCommon.shadowArea = *(_OWORD *)&refdef->radiantLiveLights[v7].shadowArea;
+          scene.dynamicSpotLight[v37].lightCommon.def = refdef->radiantLiveLights[v7].def;
         }
       }
-      else if ( _RBX->type == 3 )
+      else if ( v32->m256i_i8[0] == 3 )
       {
         DynamicOmniLight = R_AllocateDynamicOmniLight();
         if ( DynamicOmniLight >= 0 )
         {
-          _RDI = DynamicOmniLight;
-          _RCX = &scene.dynamicOmniLight[_RDI].debugColorGammaSrgb;
-          _RCX->v[0] = _RSI->radiantLiveLights[v9].colorLinearSrgb.v[0];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vmovss  dword ptr [rcx+4], xmm0
-            vmovss  xmm1, dword ptr [rbx+1Ch]
-            vmovss  dword ptr [rcx+8], xmm1
-          }
-          LinearToGammaColor_Srgb(&scene.dynamicOmniLight[_RDI].debugColorGammaSrgb);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rdi+r15+13EE90A0h], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rdi+r15+13EE90C0h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rdi+r15+13EE90E0h], ymm0
-            vmovups ymm1, ymmword ptr [rbx+60h]
-            vmovups ymmword ptr [rdi+r15+13EE9100h], ymm1
-            vmovups xmm0, xmmword ptr [rbx+80h]
-            vmovups xmmword ptr [rdi+r15+13EE9120h], xmm0
-            vmovsd  xmm1, qword ptr [rbx+90h]
-            vmovsd  qword ptr [rdi+r15+13EE9130h], xmm1
-          }
-          if ( _RSI->radiantLiveLights[v9].canUseShadowMap )
-            R_CalcSpotLightPlanesAndBoundingBox(&_RSI->radiantLiveLights[v9], (vec4_t (*)[6])scene.dynamicOmniLight[_RDI].planes, &scene.dynamicOmniLight[_RDI].bounds);
+          v34 = DynamicOmniLight;
+          v35 = &scene.dynamicOmniLight[v34].debugColorGammaSrgb;
+          v35->v[0] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[0];
+          v35->v[1] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[1];
+          v35->v[2] = refdef->radiantLiveLights[v7].colorLinearSrgb.v[2];
+          LinearToGammaColor_Srgb(&scene.dynamicOmniLight[v34].debugColorGammaSrgb);
+          *(__m256i *)&scene.dynamicOmniLight[v34].lightCommon.type = *v32;
+          *(__m256i *)scene.dynamicOmniLight[v34].lightCommon.dir.v = *(__m256i *)refdef->radiantLiveLights[v7].dir.v;
+          *(__m256i *)&scene.dynamicOmniLight[v34].lightCommon.origin.z = *(__m256i *)&refdef->radiantLiveLights[v7].origin.z;
+          *(__m256i *)&scene.dynamicOmniLight[v34].lightCommon.cosHalfFovOuter = *(__m256i *)&refdef->radiantLiveLights[v7].cosHalfFovOuter;
+          *(_OWORD *)&scene.dynamicOmniLight[v34].lightCommon.shadowArea = *(_OWORD *)&refdef->radiantLiveLights[v7].shadowArea;
+          scene.dynamicOmniLight[v34].lightCommon.def = refdef->radiantLiveLights[v7].def;
+          if ( refdef->radiantLiveLights[v7].canUseShadowMap )
+            R_CalcSpotLightPlanesAndBoundingBox(&refdef->radiantLiveLights[v7], (vec4_t (*)[6])scene.dynamicOmniLight[v34].planes, &scene.dynamicOmniLight[v34].bounds);
         }
       }
-      ++v9;
+      ++v7;
     }
-    while ( v9 < _RSI->radiantLiveLightCount );
-    _R15 = m_ptr;
-    p_viewParmsSet = v117;
+    while ( v7 < refdef->radiantLiveLightCount );
+    m_ptr = v47;
+    v24 = v48;
   }
-  _RCX = &_R15->hudOutline;
-  _RAX = &_RSI->hudOutline;
-  v94 = 2i64;
+  p_hudOutline = &m_ptr->hudOutline;
+  v40 = &refdef->hudOutline;
+  v41 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (GfxHudOutlineState *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (GfxHudOutlineState *)((char *)_RAX + 128);
-    --v94;
+    *(_OWORD *)&p_hudOutline->enable = *(_OWORD *)&v40->enable;
+    *(vec4_t *)((char *)&p_hudOutline->scopeFoeColor + 8) = *(vec4_t *)((char *)&v40->scopeFoeColor + 8);
+    *(vec4_t *)((char *)&p_hudOutline->scopeFriendColor + 8) = *(vec4_t *)((char *)&v40->scopeFriendColor + 8);
+    *(vec4_t *)((char *)&p_hudOutline->fillColor0 + 4) = *(vec4_t *)((char *)&v40->fillColor0 + 4);
+    *(vec4_t *)((char *)&p_hudOutline->fillColor1 + 4) = *(vec4_t *)((char *)&v40->fillColor1 + 4);
+    *(vec4_t *)((char *)&p_hudOutline->occludedOutlineColor + 4) = *(vec4_t *)((char *)&v40->occludedOutlineColor + 4);
+    *(vec4_t *)((char *)&p_hudOutline->occludedInlineColor + 4) = *(vec4_t *)((char *)&v40->occludedInlineColor + 4);
+    p_hudOutline = (GfxHudOutlineState *)((char *)p_hudOutline + 128);
+    *(vec4_t *)((char *)&p_hudOutline[-1].snapshotEffectProperties + 8) = *(vec4_t *)((char *)&v40->occludedInteriorColor + 4);
+    v40 = (GfxHudOutlineState *)((char *)v40 + 128);
+    --v41;
   }
-  while ( v94 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  *(_QWORD *)&_RCX->scopeFoeColor.xyz.z = *(_QWORD *)&_RAX->scopeFoeColor.xyz.z;
-  if ( scene.hudOutlineMasked != (unsigned __int8)v94 && _RSI->hudOutline.mode == 2 )
-    _R15->hudOutline.mode = 3;
-  R_GenerateSortedDrawSurfs((LocalClientNum_t)localClientNum, _R15, (const GfxViewParms *)p_viewParmsSet, &viewParmsSet, &features);
+  while ( v41 );
+  *(_OWORD *)&p_hudOutline->enable = *(_OWORD *)&v40->enable;
+  *(_QWORD *)&p_hudOutline->scopeFoeColor.xyz.z = *(_QWORD *)&v40->scopeFoeColor.xyz.z;
+  if ( scene.hudOutlineMasked && refdef->hudOutline.mode == 2 )
+    m_ptr->hudOutline.mode = 3;
+  R_GenerateSortedDrawSurfs((LocalClientNum_t)localClientNum, m_ptr, (const GfxViewParms *)v24, &viewParmsSet, &features);
   if ( R_ReflectionProbeRelighting_ShouldUpdate(&features) )
     R_ReflectionProbeRelighting_CopyCurrentRadiometricScale();
   if ( LUI_Workers_Active() )
@@ -8999,41 +7609,28 @@ void R_RenderScene(const refdef_t *refdef, float lodOverride, unsigned int drawT
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10871, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( g_previousFrameViewParms ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( g_previousFrameViewParms )\n\t%i not in [0, %i)", scriptIndexa, permutationOverride) )
         __debugbreak();
     }
-    _RAX = (char *)g_previousFrameViewParms + 384 * *(_QWORD *)&outOffset.subpixelOffset + 384 * features.m_viewportType;
-    _RDX = &viewParmsSet;
+    v42 = (__m256i *)((char *)g_previousFrameViewParms + 384 * *(_QWORD *)&outOffset.subpixelOffset + 384 * features.m_viewportType);
+    v43 = &viewParmsSet;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdx]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rdx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rdx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups xmm0, xmmword ptr [rdx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rdx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RDX = (GfxViewParmsSet *)((char *)_RDX + 128);
-      --v29;
+      *v42 = *(__m256i *)v43->frames[0].viewParms.viewMatrix.m.m[0].v;
+      v42[1] = *(__m256i *)v43->frames[0].viewParms.viewMatrix.m.row2.v;
+      v42[2] = *(__m256i *)v43->frames[0].viewParms.projectionMatrix.m.m[0].v;
+      *(vec4_t *)v42[3].m256i_i8 = v43->frames[0].viewParms.projectionMatrix.m.row2;
+      v42 += 4;
+      *(vec4_t *)&v42[-1].m256i_u64[2] = v43->frames[0].viewParms.projectionMatrix.m.row3;
+      v43 = (GfxViewParmsSet *)((char *)v43 + 128);
+      --v13;
     }
-    while ( v29 );
+    while ( v13 );
   }
   Profile_EndCSV(8);
   Profile_EndInternal(NULL);
   if ( (*((_WORD *)&features + 20) & 0x100) != 0 )
-    R_DrawDecalVolumesDebug(frontEndDataOut, (const GfxViewParms *)&viewParmsSet, _R15->displayViewport.width, _R15->displayViewport.height);
-  R_ReflectionProbe_ShowStats(frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex].input.data, (const GfxViewParms *)&viewParmsSet, _R15->displayViewport.width, _R15->displayViewport.height);
+    R_DrawDecalVolumesDebug(frontEndDataOut, (const GfxViewParms *)&viewParmsSet, m_ptr->displayViewport.width, m_ptr->displayViewport.height);
+  R_ReflectionProbe_ShowStats(frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex].input.data, (const GfxViewParms *)&viewParmsSet, m_ptr->displayViewport.width, m_ptr->displayViewport.height);
   memset(&outOrg, 0, sizeof(outOrg));
-  Mem_LargeLocal::~Mem_LargeLocal(&v120);
-  _R11 = &v129;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  Mem_LargeLocal::~Mem_LargeLocal(&v51);
 }
 
 /*
@@ -9161,15 +7758,13 @@ bool R_SceneLightFrustumTestSphere(unsigned int sceneLightIndex, const Sphere *s
   unsigned int v4; 
   __int64 v5; 
 
-  _RBX = sphere;
   if ( sceneLightIndex < rgp.world->primaryLightCount )
     return R_PrimaryLightFrustumTestSphere(sceneLightIndex, sphere);
   v4 = R_SceneLightIndexToDynLightIndex(sceneLightIndex);
   v5 = v4;
   if ( v4 >= scene.addedDynamicLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11321, ASSERT_TYPE_ASSERT, "(dynLightIndex < scene.addedDynamicLightCount)", (const char *)&queryFormat, "dynLightIndex < scene.addedDynamicLightCount") )
     __debugbreak();
-  __asm { vmovss  xmm2, dword ptr [rbx+0Ch]; radius }
-  return R_SphereInPlanes((const vec4_t (*)[6])scene.sceneDynamicLight[v5]->planes, &_RBX->origin, *(const float *)&_XMM2) != 0;
+  return R_SphereInPlanes((const vec4_t (*)[6])scene.sceneDynamicLight[v5]->planes, &sphere->origin, sphere->radius) != 0;
 }
 
 /*
@@ -9179,195 +7774,53 @@ R_SceneSetupWeaponScope
 */
 void R_SceneSetupWeaponScope(const GfxScopeInfo *scope)
 {
-  _RBX = scope;
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v4; 
+
   if ( r_scope_tweak->current.enabled )
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rcx+4]
-      vmovsd  qword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensPos, xmm0; GfxScene scene
-    }
-    scene.scope.scopeLensPos.v[2] = scope->scopeLensPos.v[2];
+    scene.scope.scopeLensPos = scope->scopeLensPos;
     MatrixCopy33(&scope->scopeLensAxis, &scene.scope.scopeLensAxis);
-    _RAX = r_scope_inner;
-    _RDI = DCONST_DVARFLT_r_scope_relief_hip_movement_scale;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    _RAX = r_scope_inner_mag;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensInnerDisk, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_outer;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensInnerDiskMag, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_outer_mag;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensOuterRing, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_radius;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensOuterRingMag, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_fade_start;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensRadius, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_fade_end;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeStart, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_color_red;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeEnd, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_color_green;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensColorRed, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_color_blue;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensColorGreen, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_color_brightness;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensColorBlue, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_focus;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeLensBrightness, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_focus_scale;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_focusDistance, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_outoffocus;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_focuseUVScale, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_outoffocus_scale;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_outOfFocusDistance, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_movement_scale_min;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_outOfFocuseUVScale, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_movement_scale_max;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleMovementScale, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_movement_clamp;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedMovementScale, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_maxMovement, xmm1; GfxScene scene
-    }
+    v2 = DCONST_DVARFLT_r_scope_relief_hip_movement_scale;
+    LODWORD(scene.scope.scopeLensInnerDisk) = r_scope_inner->current.integer;
+    LODWORD(scene.scope.scopeLensInnerDiskMag) = r_scope_inner_mag->current.integer;
+    LODWORD(scene.scope.scopeLensOuterRing) = r_scope_outer->current.integer;
+    LODWORD(scene.scope.scopeLensOuterRingMag) = r_scope_outer_mag->current.integer;
+    LODWORD(scene.scope.scopeLensRadius) = r_scope_radius->current.integer;
+    LODWORD(scene.scope.scopeLensFadeStart) = r_scope_fade_start->current.integer;
+    LODWORD(scene.scope.scopeLensFadeEnd) = r_scope_fade_end->current.integer;
+    LODWORD(scene.scope.scopeLensColorRed) = r_scope_color_red->current.integer;
+    LODWORD(scene.scope.scopeLensColorGreen) = r_scope_color_green->current.integer;
+    LODWORD(scene.scope.scopeLensColorBlue) = r_scope_color_blue->current.integer;
+    LODWORD(scene.scope.scopeLensBrightness) = r_scope_color_brightness->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_focusDistance) = r_scope_relief_focus->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_focuseUVScale) = r_scope_relief_focus_scale->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_outOfFocusDistance) = r_scope_relief_outoffocus->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_outOfFocuseUVScale) = r_scope_relief_outoffocus_scale->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_idleMovementScale) = r_scope_relief_movement_scale_min->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_fullSpeedMovementScale) = r_scope_relief_movement_scale_max->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_maxMovement) = r_scope_relief_movement_clamp->current.integer;
     if ( !DCONST_DVARFLT_r_scope_relief_hip_movement_scale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_scope_relief_hip_movement_scale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARFLT_r_scope_relief_hip_movement_clamp;
-    __asm { vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_hipMovementScale, xmm0; GfxScene scene }
+    Dvar_CheckFrontendServerThread(v2);
+    value = v2->current.value;
+    v4 = DCONST_DVARFLT_r_scope_relief_hip_movement_clamp;
+    scene.scope.scopeEyeRelief_hipMovementScale = value;
     if ( !DCONST_DVARFLT_r_scope_relief_hip_movement_clamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_scope_relief_hip_movement_clamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-    _RAX = r_scope_relief_sway_freq_min;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_hipMaxMovement, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_sway_amount_min;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleSway_freq, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_sway_freq_max;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleSway_movement, xmm0; GfxScene scene
-      vmovss  xmm1, dword ptr [rax+28h]
-    }
-    _RAX = r_scope_relief_sway_amount_max;
-    __asm
-    {
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedSway_freq, xmm1; GfxScene scene
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedSway_movement, xmm0; GfxScene scene
-    }
-    scene.scope.adsSmoothFade = _RBX->adsSmoothFade;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+64h]
-      vmovups xmmword ptr cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeOutFrac, xmm0; GfxScene scene
-    }
+    Dvar_CheckFrontendServerThread(v4);
+    LODWORD(scene.scope.scopeEyeRelief_hipMaxMovement) = v4->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_idleSway_freq) = r_scope_relief_sway_freq_min->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_idleSway_movement) = r_scope_relief_sway_amount_min->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_fullSpeedSway_freq) = r_scope_relief_sway_freq_max->current.integer;
+    LODWORD(scene.scope.scopeEyeRelief_fullSpeedSway_movement) = r_scope_relief_sway_amount_max->current.integer;
+    scene.scope.adsSmoothFade = scope->adsSmoothFade;
+    *(_OWORD *)&scene.scope.scopeFadeInfo[0].fadeOutFrac = *(_OWORD *)&scope->scopeFadeInfo[0].fadeOutFrac;
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RCX = &scene.scope;
-    __asm
-    {
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rcx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+80h]
-      vmovups xmmword ptr [rcx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+90h]
-      vmovups xmmword ptr [rcx+90h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+0A0h]
-      vmovups xmmword ptr [rcx+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+0B0h]
-      vmovups xmmword ptr [rcx+0B0h], xmm0
-    }
-    scene.scope.dofPhysicalFocusDistance = _RBX->dofPhysicalFocusDistance;
+    scene.scope = *scope;
   }
 }
 
@@ -9378,38 +7831,61 @@ R_ScopeDistortionTransform
 */
 void R_ScopeDistortionTransform(const GfxViewInfo *viewInfo, const vec2_t *screenPos, vec2_t *screenPosOut)
 {
+  float x; 
+  float width; 
+  float v5; 
+  float y; 
+  float v7; 
+  float height; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float scopeLensOuterRingMag; 
+  float v14; 
+  float v15; 
+  float v16; 
+  vec4_t scopeLensBounds; 
+
   *screenPosOut = *screenPos;
-  __asm
+  x = (float)viewInfo->displayViewport.x;
+  width = (float)viewInfo->displayViewport.width;
+  v5 = (float)(screenPos->v[0] - x) / width;
+  y = (float)viewInfo->displayViewport.y;
+  v7 = screenPos->v[1] - y;
+  height = (float)viewInfo->displayViewport.height;
+  v9 = v7 / height;
+  scopeLensBounds = viewInfo->input.sceneConstants.scopeLensBounds;
+  if ( viewInfo->scopeLensDistortionEnabled && v5 > scopeLensBounds.v[0] && v5 < scopeLensBounds.v[2] && v9 > scopeLensBounds.v[1] && v9 < scopeLensBounds.v[3] )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps [rsp+68h+var_58], xmm10
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm9, xmm9, rax
-    vsubss  xmm1, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rdx+4]
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, rax
-    vdivss  xmm3, xmm1, xmm10
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vsubss  xmm2, xmm0, xmm1
-    vmovups xmm0, xmmword ptr [rcx+2330h]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm4, xmm2, xmm1
-    vmovups [rsp+68h+var_68], xmm0
-  }
-  if ( viewInfo->scopeLensDistortionEnabled )
-  {
-    __asm { vcomiss xmm3, dword ptr [rsp+68h+var_68] }
-    if ( viewInfo->scopeLensDistortionEnabled )
-      __asm { vcomiss xmm3, dword ptr [rsp+68h+var_68+8] }
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmovaps xmm10, [rsp+68h+var_58]
+    v10 = viewInfo->input.sceneConstants.scopeLensPos.v[0];
+    v11 = viewInfo->input.sceneConstants.scopeLensPos.v[1];
+    v12 = v9 - v11;
+    scopeLensOuterRingMag = FLOAT_1_0;
+    v14 = fsqrt((float)((float)((float)(v9 - v11) * viewInfo->input.sceneConstants.scopeLensPos.v[3]) * (float)((float)(v9 - v11) * viewInfo->input.sceneConstants.scopeLensPos.v[3])) + (float)((float)((float)(v5 - v10) * viewInfo->input.sceneConstants.scopeLensPos.v[2]) * (float)((float)(v5 - v10) * viewInfo->input.sceneConstants.scopeLensPos.v[2])));
+    if ( v14 < 1.0 )
+    {
+      if ( v14 > scene.scope.scopeLensInnerDisk )
+      {
+        if ( v14 < scene.scope.scopeLensOuterRing )
+        {
+          if ( scene.scope.scopeLensInnerDisk < scene.scope.scopeLensOuterRing )
+            scopeLensOuterRingMag = (float)((float)(1.0 - (float)((float)(v14 - scene.scope.scopeLensInnerDisk) / (float)(scene.scope.scopeLensOuterRing - scene.scope.scopeLensInnerDisk))) * scene.scope.scopeLensInnerDiskMag) + (float)((float)((float)(v14 - scene.scope.scopeLensInnerDisk) / (float)(scene.scope.scopeLensOuterRing - scene.scope.scopeLensInnerDisk)) * scene.scope.scopeLensOuterRingMag);
+        }
+        else
+        {
+          scopeLensOuterRingMag = scene.scope.scopeLensOuterRingMag;
+        }
+      }
+      else
+      {
+        scopeLensOuterRingMag = scene.scope.scopeLensInnerDiskMag;
+      }
+      screenPosOut->v[0] = (float)((float)((float)((float)(v5 - v10) * scopeLensOuterRingMag) + v10) * width) + x;
+      v15 = (float)viewInfo->displayViewport.height;
+      v16 = (float)viewInfo->displayViewport.y;
+      screenPosOut->v[1] = (float)((float)((float)(v12 * scopeLensOuterRingMag) + v11) * v15) + v16;
+    }
   }
 }
 
@@ -9420,84 +7896,39 @@ R_SetCameraForView
 */
 void R_SetCameraForView(const RefdefView *view, GfxCamera *camera)
 {
-  char v6; 
-  char v9; 
-  bool v13; 
-  bool v15; 
-  bool v16; 
+  float zNear; 
+  __int128 zNear_low; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = camera;
-  _RDI = view;
   RefdefView_GetOrg(view, &camera->origin);
-  AxisCopy(&_RDI->axis, &_RBX->axis);
-  _RBX->tanHalfFovX = _RDI->fov.tanHalfFovX;
-  _RBX->tanHalfFovY = _RDI->fov.tanHalfFovY;
-  __asm
+  AxisCopy(&view->axis, &camera->axis);
+  camera->tanHalfFovX = view->fov.tanHalfFovX;
+  camera->tanHalfFovY = view->fov.tanHalfFovY;
+  camera->depthHackFoV = view->depthHackFov;
+  Dvar_GetVec4_Internal(r_zPlanes, (vec4_t *)camera->zPlanes);
+  zNear = view->zNear;
+  if ( zNear != 0.0 )
   {
-    vmovsd  xmm0, qword ptr [rdi+3Ch]
-    vmovsd  qword ptr [rbx+38h], xmm0
+    camera->zPlanes[2] = zNear;
+    zNear_low = LODWORD(view->zNear);
+    *(float *)&zNear_low = view->zNear + 0.00000011920929;
+    _XMM1 = zNear_low;
+    __asm { vmaxss  xmm2, xmm1, dword ptr [rbx+4Ch] }
+    camera->zPlanes[3] = *(float *)&_XMM2;
   }
-  Dvar_GetVec4_Internal(r_zPlanes, (vec4_t *)_RBX->zPlanes);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+38h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( !v9 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbx+48h], xmm0
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vaddss  xmm1, xmm0, cs:__real@34000000
-      vmaxss  xmm2, xmm1, dword ptr [rbx+4Ch]
-      vmovss  dword ptr [rbx+4Ch], xmm2
-    }
-  }
-  __asm { vcomiss xmm6, dword ptr [rbx+40h] }
-  if ( !v6 )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3653, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR] > 0.0f)", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR] > 0.0f");
-    v6 = 0;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vcomiss xmm0, dword ptr [rbx+44h]
-  }
-  if ( !v6 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3654, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_VIEWMODEL_ZFAR] > camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR])", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_VIEWMODEL_ZFAR] > camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR]");
-    v6 = 0;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm6, dword ptr [rbx+48h] }
-  if ( !v6 )
-  {
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3655, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_SCENE_ZNEAR] > 0.0f)", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_SCENE_ZNEAR] > 0.0f");
-    v6 = 0;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vcomiss xmm0, dword ptr [rbx+4Ch]
-  }
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3656, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_SCENE_ZFAR] > camera->zPlanes[R_ZPLANES_SCENE_ZNEAR])", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_SCENE_ZFAR] > camera->zPlanes[R_ZPLANES_SCENE_ZNEAR]") )
+  if ( camera->zPlanes[0] <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3653, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR] > 0.0f)", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR] > 0.0f") )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  _RBX->focalLength = _RDI->focalLength;
-  _RBX->visibilityOffset.v[0] = _RDI->visibilityOffset.v[0];
-  _RBX->visibilityOffset.v[1] = _RDI->visibilityOffset.v[1];
-  _RBX->visibilityOffset.v[2] = _RDI->visibilityOffset.v[2];
-  _RBX->visibilityQueryDistance = _RDI->visibilityQueryDistance;
-  _RBX->visibilityOffsetApplyToRefPoint = _RDI->visibilityOffsetApplyToRefPoint;
+  if ( camera->zPlanes[0] >= camera->zPlanes[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3654, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_VIEWMODEL_ZFAR] > camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR])", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_VIEWMODEL_ZFAR] > camera->zPlanes[R_ZPLANES_VIEWMODEL_ZNEAR]") )
+    __debugbreak();
+  if ( camera->zPlanes[2] <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3655, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_SCENE_ZNEAR] > 0.0f)", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_SCENE_ZNEAR] > 0.0f") )
+    __debugbreak();
+  if ( camera->zPlanes[2] >= camera->zPlanes[3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3656, ASSERT_TYPE_ASSERT, "(camera->zPlanes[R_ZPLANES_SCENE_ZFAR] > camera->zPlanes[R_ZPLANES_SCENE_ZNEAR])", (const char *)&queryFormat, "camera->zPlanes[R_ZPLANES_SCENE_ZFAR] > camera->zPlanes[R_ZPLANES_SCENE_ZNEAR]") )
+    __debugbreak();
+  camera->focalLength = view->focalLength;
+  camera->visibilityOffset.v[0] = view->visibilityOffset.v[0];
+  camera->visibilityOffset.v[1] = view->visibilityOffset.v[1];
+  camera->visibilityOffset.v[2] = view->visibilityOffset.v[2];
+  camera->visibilityQueryDistance = view->visibilityQueryDistance;
+  camera->visibilityOffsetApplyToRefPoint = view->visibilityOffsetApplyToRefPoint;
 }
 
 /*
@@ -9505,375 +7936,255 @@ void R_SetCameraForView(const RefdefView *view, GfxCamera *camera)
 R_SetEntityShaderData
 ==============
 */
-
-void __fastcall R_SetEntityShaderData(GfxPackedEntityData *rawEntityShaderData, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData, double distanceToCamera, const Bounds *bounds, unsigned int entNum, bool useDepthHack)
+void R_SetEntityShaderData(GfxPackedEntityData *rawEntityShaderData, const GfxSceneEntityMutableShaderData *sceneEntityMutableShaderData, float distanceToCamera, const Bounds *bounds, unsigned int entNum, bool useDepthHack)
 {
-  GfxPackedEntityData *v18; 
+  GfxPackedEntityData *v8; 
   tmat44_t<vec4_t> *p_viewProjMatrixDepthHack; 
-  int v23; 
-  char v55; 
-  char v56; 
-  int v80; 
-  unsigned int v83; 
-  unsigned int v86; 
-  int v89; 
+  int v11; 
+  float v28; 
+  bool v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v33; 
+  float scopeStencil; 
+  float v36; 
+  int v37; 
+  double v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  int v41; 
   unsigned int color; 
-  __int64 v91; 
-  int v95; 
+  __int64 v43; 
+  GfxPackedEntityData *v44; 
+  _OWORD *v; 
+  int v46; 
   unsigned int *albedoMapScaleBias; 
-  int v97; 
-  int v98; 
-  int v99; 
-  int v100; 
-  __int64 v101; 
-  int v102; 
-  int v103; 
-  int v104; 
-  __int64 v113; 
-  __int64 v114; 
-  __int64 v115; 
+  int v48; 
+  int v49; 
+  int v50; 
+  int v51; 
+  __int64 v52; 
+  int v53; 
+  int v54; 
+  int v55; 
+  __int64 v56; 
+  __int64 v57; 
+  __int64 v58; 
   unsigned int blendMapChannels; 
-  __int64 v141; 
-  unsigned int v142; 
-  int v143; 
-  __int64 v144; 
-  int v145; 
+  double v60; 
+  double v61; 
+  double v62; 
+  double v63; 
+  __int64 v64; 
+  unsigned int v65; 
+  int v66; 
+  __int64 v67; 
+  int v68; 
   vec4_t vec; 
   vec4_t out; 
-  void *retaddr; 
 
   if ( rawEntityShaderData )
   {
-    _R11 = &retaddr;
-    __asm { vmovaps xmmword ptr [r11-0C8h], xmm14 }
-    _RDI = bounds;
-    _RSI = sceneEntityMutableShaderData;
-    v18 = rawEntityShaderData;
-    __asm { vmovaps xmm14, xmm2 }
-    if ( sceneEntityMutableShaderData && sceneEntityMutableShaderData->dataCount <= 8u )
+    v8 = rawEntityShaderData;
+    if ( sceneEntityMutableShaderData )
     {
-      p_viewProjMatrixDepthHack = &rg.viewProjMatrixDepthHack;
-      if ( !useDepthHack )
-        p_viewProjMatrixDepthHack = &rg.viewProjMatrix;
-      __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-      _ER15 = 0;
-      __asm
+      if ( sceneEntityMutableShaderData->dataCount <= 8u )
       {
-        vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovaps xmmword ptr [r11-58h], xmm7
-      }
-      v23 = 0;
-      __asm
-      {
-        vmovss  xmm7, cs:__real@3f800000
-        vmovaps xmmword ptr [r11-68h], xmm8
-        vmovss  xmm8, cs:__real@7f7fffff
-        vmovaps xmmword ptr [r11-78h], xmm9
-        vmovss  xmm9, cs:__real@ff7fffff
-        vmovaps xmmword ptr [r11-88h], xmm10
-        vmovaps xmmword ptr [r11-98h], xmm11
-        vmovaps xmmword ptr [r11-0A8h], xmm12
-        vmovaps xmmword ptr [r11-0B8h], xmm13
-        vmovss  xmm13, cs:__real@3c23d70a
-        vmovaps xmm10, xmm8
-        vmovaps xmm11, xmm9
-        vxorps  xmm12, xmm12, xmm12
-      }
-      do
-      {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rdi+0Ch]
-          vxorps  xmm3, xmm4, xmm6
-          vmovd   xmm1, r15d
-        }
-        _EAX = v23 & 1;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vblendvps xmm1, xmm4, xmm3, xmm2
-          vaddss  xmm0, xmm1, dword ptr [rdi]
-          vmovss  xmm4, dword ptr [rdi+10h]
-          vmovss  dword ptr [rsp+158h+vec], xmm0
-          vmovd   xmm1, r15d
-          vxorps  xmm3, xmm4, xmm6
-        }
-        _EAX = v23 & 2;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vblendvps xmm1, xmm4, xmm3, xmm2
-          vaddss  xmm0, xmm1, dword ptr [rdi+4]
-          vmovss  xmm4, dword ptr [rdi+14h]
-          vmovss  dword ptr [rsp+158h+vec+4], xmm0
-          vmovd   xmm1, r15d
-        }
-        _EAX = v23 & 4;
-        __asm
-        {
-          vmovd   xmm0, eax
-          vpcmpeqd xmm2, xmm0, xmm1
-          vxorps  xmm3, xmm4, xmm6
-          vblendvps xmm1, xmm4, xmm3, xmm2
-          vaddss  xmm0, xmm1, dword ptr [rdi+8]
-          vmovss  dword ptr [rsp+158h+vec+8], xmm0
-          vmovss  dword ptr [rsp+158h+vec+0Ch], xmm7
-        }
-        MatrixTransformVector44(&vec, p_viewProjMatrixDepthHack, &out);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+158h+out+0Ch]
-          vcomiss xmm0, xmm12
-        }
-        if ( v55 )
-        {
-          __asm
-          {
-            vsubss  xmm4, xmm13, xmm0
-            vmulss  xmm3, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir+4; r_globals_t rg
-            vmulss  xmm2, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir; r_globals_t rg
-            vaddss  xmm2, xmm2, dword ptr [rsp+158h+vec]
-            vmovss  dword ptr [rsp+158h+vec], xmm2
-            vaddss  xmm2, xmm3, dword ptr [rsp+158h+vec+4]
-            vmulss  xmm3, xmm4, dword ptr cs:?rg@@3Ur_globals_t@@A.viewDir+8; r_globals_t rg
-            vmovss  dword ptr [rsp+158h+vec+4], xmm2
-            vaddss  xmm2, xmm3, dword ptr [rsp+158h+vec+8]
-            vmovss  dword ptr [rsp+158h+vec+8], xmm2
-          }
-          MatrixTransformVector44(&vec, p_viewProjMatrixDepthHack, &out);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+158h+out+0Ch]
-            vcomiss xmm0, xmm12
-          }
-        }
-        if ( !(v55 | v56) )
-        {
-          __asm
-          {
-            vdivss  xmm0, xmm7, xmm0
-            vmulss  xmm1, xmm0, dword ptr [rsp+158h+out]
-            vmulss  xmm0, xmm0, dword ptr [rsp+158h+out+4]
-            vxorps  xmm2, xmm0, xmm6
-            vmovss  dword ptr [rsp+158h+out+4], xmm2
-            vminss  xmm10, xmm2, xmm10
-            vmaxss  xmm11, xmm2, xmm11
-            vmovss  dword ptr [rsp+158h+out], xmm1
-            vminss  xmm8, xmm1, xmm8
-            vmaxss  xmm9, xmm1, xmm9
-          }
-        }
-        ++v23;
-      }
-      while ( v23 < 8 );
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f000000
-        vaddss  xmm0, xmm8, xmm7
-        vmulss  xmm6, xmm0, xmm2
-        vaddss  xmm0, xmm10, xmm7
-        vmulss  xmm8, xmm0, xmm2
-        vaddss  xmm0, xmm11, xmm7
-        vmulss  xmm10, xmm0, xmm2
-        vmovss  xmm0, dword ptr [rsi+8Ch]; val
-        vucomiss xmm0, xmm12
-        vaddss  xmm1, xmm9, xmm7
-        vmulss  xmm9, xmm1, xmm2
-      }
-      if ( v23 == 8 || (v80 = 1, _RSI->hudOutlineInfo.color) )
-        v80 = 0;
-      __asm
-      {
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm12; min
-      }
-      v143 = v80;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      v83 = 0;
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@437f0000
-        vcvttss2si r8, xmm1
-      }
-      v142 = 0;
-      if ( _RSI->dataCount )
-      {
-        v86 = (unsigned __int8)entNum;
-        __asm
-        {
-          vmovss  xmm13, cs:__real@3b808081
-          vmovss  xmm11, cs:__real@3c010204
-        }
-        v89 = (_DWORD)_R8 << 24;
-        v145 = v89;
+        p_viewProjMatrixDepthHack = &rg.viewProjMatrixDepthHack;
+        if ( !useDepthHack )
+          p_viewProjMatrixDepthHack = &rg.viewProjMatrix;
+        v11 = 0;
+        *(float *)&_XMM8 = FLOAT_3_4028235e38;
+        *(float *)&_XMM9 = FLOAT_N3_4028235e38;
+        *(float *)&_XMM10 = FLOAT_3_4028235e38;
+        *(float *)&_XMM11 = FLOAT_N3_4028235e38;
         do
         {
-          color = _RSI->hudOutlineInfo.color;
-          v91 = v83;
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          _RBX = &v18[v83];
-          *(_QWORD *)vec.v = _RBX;
-          _RBX->outlineColor = color;
-          _R14 = (_QWORD *)_RBX->uvRotate[0].v;
-          _RBX->outlinePropertyFlags = v80;
-          v95 = v80 | (_RSI->hudOutlineInfo.fill ? 2 : 0);
-          albedoMapScaleBias = _RBX->albedoMapScaleBias;
-          _RBX->outlinePropertyFlags = v95;
-          v97 = v95 | (_RSI->hudOutlineInfo.drawOccludedPixels ? 4 : 0);
-          _RBX->outlinePropertyFlags = v97;
-          v98 = v97 | (_RSI->hudOutlineInfo.drawNonOccludedPixels ? 8 : 0);
-          _RBX->outlinePropertyFlags = v98;
-          v99 = v98 | (_RSI->hudOutlineInfo.useAlternateColor ? 0x10 : 0);
-          _RBX->outlinePropertyFlags = v99;
-          v100 = v99 | (_RSI->hudOutlineInfo.forSpectator ? 0x20 : 0);
-          _RBX->outlinePropertyFlags = v100;
-          v101 = v91;
-          v102 = v100 | (_RSI->hudOutlineInfo.specialActive ? 0x40 : 0);
-          _RBX->outlinePropertyFlags = v102;
-          v103 = v102 | ((_RSI->hudOutlineInfo.renderMode & 0xF) << 16);
-          _RBX->outlinePropertyFlags = v103;
-          v104 = _RSI->hudOutlineInfo.lineWidth & 0xF;
-          _RBX->outlinePropertyFlags2 = v86;
-          _RBX->outlinePropertyFlags = v89 | v103 | (v104 << 20);
+          _XMM4 = LODWORD(bounds->halfSize.v[0]);
+          _XMM0 = v11 & 1;
           __asm
           {
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm13
-            vmovss  dword ptr [rbx+98h], xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm11
-            vmovss  dword ptr [rbx+9Ch], xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm11
-            vmovss  dword ptr [rbx+0A0h], xmm1
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm1, xmm4, xmm3, xmm2
           }
-          _RBX->characterEVOffset = _RSI->hudOutlineInfo.characterEVOffset;
-          if ( _RSI->modelShaderData[v101].camoAsset )
+          _XMM4 = LODWORD(bounds->halfSize.v[1]);
+          vec.v[0] = *(float *)&_XMM1 + bounds->midPoint.v[0];
+          _XMM0 = v11 & 2;
+          __asm
           {
-            v113 = 3i64;
-            v144 = 28i64 - (_QWORD)_RBX;
-            v114 = 16i64 - (_QWORD)_RBX;
-            *(_QWORD *)out.v = -32i64 - (_QWORD)_RBX;
-            v115 = 4i64 - (_QWORD)_RBX;
-            do
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm1, xmm4, xmm3, xmm2
+          }
+          _XMM4 = LODWORD(bounds->halfSize.v[2]);
+          vec.v[1] = *(float *)&_XMM1 + bounds->midPoint.v[1];
+          _XMM0 = v11 & 4;
+          __asm
+          {
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm1, xmm4, xmm3, xmm2
+          }
+          vec.v[2] = *(float *)&_XMM1 + bounds->midPoint.v[2];
+          vec.v[3] = FLOAT_1_0;
+          MatrixTransformVector44(&vec, p_viewProjMatrixDepthHack, &out);
+          v28 = out.v[3];
+          v29 = out.v[3] <= 0.0;
+          if ( out.v[3] < 0.0 )
+          {
+            vec.v[0] = (float)((float)(0.0099999998 - out.v[3]) * rg.viewDir.v[0]) + vec.v[0];
+            vec.v[1] = (float)((float)(0.0099999998 - out.v[3]) * rg.viewDir.v[1]) + vec.v[1];
+            vec.v[2] = (float)((float)(0.0099999998 - out.v[3]) * rg.viewDir.v[2]) + vec.v[2];
+            MatrixTransformVector44(&vec, p_viewProjMatrixDepthHack, &out);
+            v28 = out.v[3];
+            v29 = out.v[3] <= 0.0;
+          }
+          if ( !v29 )
+          {
+            v31 = LODWORD(FLOAT_1_0);
+            *(float *)&v31 = 1.0 / v28;
+            v30 = v31;
+            *(float *)&v31 = *(float *)&v31 * out.v[0];
+            _XMM1 = v31;
+            v33 = v30;
+            *(float *)&v33 = *(float *)&v30 * out.v[1];
+            _XMM2 = v33 ^ (unsigned int)_xmm;
+            LODWORD(out.v[1]) = COERCE_UNSIGNED_INT(*(float *)&v30 * out.v[1]) ^ _xmm;
+            __asm
             {
-              *(albedoMapScaleBias - 3) = *(_DWORD *)((char *)&_RSI->modelShaderData[v101].camoAsset->name + v115 + (unsigned __int64)albedoMapScaleBias);
-              if ( *(int *)((char *)albedoMapScaleBias + v114 + (unsigned __int64)_RSI->modelShaderData[v101].camoAsset) < 0 )
-              {
-                LODWORD(v141) = *(unsigned int *)((char *)albedoMapScaleBias + v114 + (unsigned __int64)_RSI->modelShaderData[v101].camoAsset);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1562, ASSERT_TYPE_ASSERT, "( ( ( sceneEntityMutableShaderData->modelShaderData[dataIndex].camoAsset->albedoMapScaleBias[camoLayerIndex] & ENTITY_DATA_CAMO_LAYER_VALID ) == 0 ) )", "( sceneEntityMutableShaderData->modelShaderData[dataIndex].camoAsset->albedoMapScaleBias[camoLayerIndex] ) = %u", v141) )
-                  __debugbreak();
-              }
-              *albedoMapScaleBias = *(_DWORD *)((char *)&_RSI->modelShaderData[v101].camoAsset->name + (unsigned __int64)albedoMapScaleBias + v114) | 0x80000000;
-              albedoMapScaleBias[3] = *(_DWORD *)((char *)&_RSI->modelShaderData[v101].camoAsset->name + v144 + (unsigned __int64)albedoMapScaleBias);
-              ++albedoMapScaleBias;
-              _RAX = (char *)_RSI->modelShaderData[v101].camoAsset + *(_QWORD *)out.v;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax+r14]
-                vmovups xmmword ptr [r14-30h], xmm0
-              }
-              _RAX = (char *)_RSI->modelShaderData[v101].camoAsset + v114;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax+r14]
-                vmovups xmmword ptr [r14], xmm0
-              }
-              _R14 += 2;
-              --v113;
+              vminss  xmm10, xmm2, xmm10
+              vmaxss  xmm11, xmm2, xmm11
             }
-            while ( v113 );
-            _RBX = *(GfxPackedEntityData **)vec.v;
-            blendMapChannels = _RSI->modelShaderData[v101].camoAsset->blendMapChannels;
+            out.v[0] = *(float *)&_XMM1;
+            __asm
+            {
+              vminss  xmm8, xmm1, xmm8
+              vmaxss  xmm9, xmm1, xmm9
+            }
           }
-          else
-          {
-            _RBX->colorTint[0] = 0;
-            blendMapChannels = 0;
-            *albedoMapScaleBias = 0;
-            _RBX->normalMapScaleBias[0] = 0;
-            _RBX->uvScaleOffset[0].v[0] = 1.0;
-            *(_QWORD *)&_RBX->uvScaleOffset[0].xyz.y = 1065353216i64;
-            _RBX->uvScaleOffset[0].v[3] = 0.0;
-            *_R14 = 1065353216i64;
-            _RBX->uvRotate[0].v[2] = 0.0;
-            _RBX->uvRotate[0].v[3] = 1.0;
-            *(_QWORD *)&_RBX->colorTint[1] = 0i64;
-            *(_QWORD *)&_RBX->albedoMapScaleBias[1] = 0i64;
-            *(_QWORD *)&_RBX->normalMapScaleBias[1] = 0i64;
-            _RBX->uvScaleOffset[1].v[0] = 1.0;
-            *(_QWORD *)&_RBX->uvScaleOffset[1].xyz.y = 1065353216i64;
-            _RBX->uvScaleOffset[1].v[3] = 0.0;
-            *(_QWORD *)_RBX->uvRotate[1].v = 1065353216i64;
-            _RBX->uvRotate[1].v[2] = 0.0;
-            _RBX->uvRotate[1].v[3] = 1.0;
-            _RBX->uvScaleOffset[2].v[0] = 1.0;
-            *(_QWORD *)&_RBX->uvScaleOffset[2].xyz.y = 1065353216i64;
-            _RBX->uvScaleOffset[2].v[3] = 0.0;
-            *(_QWORD *)_RBX->uvRotate[2].v = 1065353216i64;
-            _RBX->uvRotate[2].v[2] = 0.0;
-            _RBX->uvRotate[2].v[3] = 1.0;
-          }
-          _RBX->blendMapChannels = blendMapChannels;
-          __asm
-          {
-            vmovaps xmm2, xmm7; max
-            vmovaps xmm1, xmm12; min
-            vmovaps xmm0, xmm6; val
-            vmovss  dword ptr [rbx+94h], xmm14
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  dword ptr [rbx+0A8h], xmm0
-            vmovaps xmm0, xmm9; val
-            vmovaps xmm2, xmm7; max
-            vmovaps xmm1, xmm12; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  dword ptr [rbx+0B0h], xmm0
-            vmovaps xmm0, xmm8; val
-            vmovaps xmm2, xmm7; max
-            vmovaps xmm1, xmm12; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  dword ptr [rbx+0ACh], xmm0
-            vmovaps xmm0, xmm10; val
-            vmovaps xmm2, xmm7; max
-            vmovaps xmm1, xmm12; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          v89 = v145;
-          v83 = v142 + 1;
-          v80 = v143;
-          v86 = (unsigned __int8)entNum;
-          v18 = rawEntityShaderData;
-          __asm { vmovss  dword ptr [rbx+0B4h], xmm0 }
-          v142 = v83;
+          ++v11;
         }
-        while ( v83 < _RSI->dataCount );
-      }
-      __asm
-      {
-        vmovaps xmm12, [rsp+158h+var_A8]
-        vmovaps xmm11, [rsp+158h+var_98]
-        vmovaps xmm10, [rsp+158h+var_88]
-        vmovaps xmm9, [rsp+158h+var_78]
-        vmovaps xmm8, [rsp+158h+var_68]
-        vmovaps xmm7, [rsp+158h+var_58]
-        vmovaps xmm6, [rsp+158h+var_48]
-        vmovaps xmm13, [rsp+158h+var_B8]
+        while ( v11 < 8 );
+        scopeStencil = sceneEntityMutableShaderData->hudOutlineInfo.scopeStencil;
+        v36 = (float)(*(float *)&_XMM9 + 1.0) * 0.5;
+        if ( scopeStencil == 0.0 || (v37 = 1, sceneEntityMutableShaderData->hudOutlineInfo.color) )
+          v37 = 0;
+        v66 = v37;
+        v38 = I_fclamp(scopeStencil, 0.0, 1.0);
+        v39 = 0;
+        v65 = 0;
+        if ( sceneEntityMutableShaderData->dataCount )
+        {
+          v40 = (unsigned __int8)entNum;
+          v41 = (int)(float)(*(float *)&v38 * 255.0) << 24;
+          v68 = v41;
+          do
+          {
+            color = sceneEntityMutableShaderData->hudOutlineInfo.color;
+            v43 = v39;
+            v44 = &v8[v39];
+            *(_QWORD *)vec.v = v44;
+            v44->outlineColor = color;
+            v = (_OWORD *)v44->uvRotate[0].v;
+            v44->outlinePropertyFlags = v37;
+            v46 = v37 | (sceneEntityMutableShaderData->hudOutlineInfo.fill ? 2 : 0);
+            albedoMapScaleBias = v44->albedoMapScaleBias;
+            v44->outlinePropertyFlags = v46;
+            v48 = v46 | (sceneEntityMutableShaderData->hudOutlineInfo.drawOccludedPixels ? 4 : 0);
+            v44->outlinePropertyFlags = v48;
+            v49 = v48 | (sceneEntityMutableShaderData->hudOutlineInfo.drawNonOccludedPixels ? 8 : 0);
+            v44->outlinePropertyFlags = v49;
+            v50 = v49 | (sceneEntityMutableShaderData->hudOutlineInfo.useAlternateColor ? 0x10 : 0);
+            v44->outlinePropertyFlags = v50;
+            v51 = v50 | (sceneEntityMutableShaderData->hudOutlineInfo.forSpectator ? 0x20 : 0);
+            v44->outlinePropertyFlags = v51;
+            v52 = v43;
+            v53 = v51 | (sceneEntityMutableShaderData->hudOutlineInfo.specialActive ? 0x40 : 0);
+            v44->outlinePropertyFlags = v53;
+            v54 = v53 | ((sceneEntityMutableShaderData->hudOutlineInfo.renderMode & 0xF) << 16);
+            v44->outlinePropertyFlags = v54;
+            v55 = sceneEntityMutableShaderData->hudOutlineInfo.lineWidth & 0xF;
+            v44->outlinePropertyFlags2 = v40;
+            v44->outlinePropertyFlags = v41 | v54 | (v55 << 20);
+            v44->transitionFactor = (float)sceneEntityMutableShaderData->modelShaderData[v52].transitionFactor * 0.0039215689;
+            v44->flagAmplitudeScale = (float)sceneEntityMutableShaderData->modelShaderData[v52].flagAmplitudeScale * 0.0078740157;
+            v44->prevFlagAmplitudeScale = (float)sceneEntityMutableShaderData->modelShaderData[v52].prevFlagAmplitudeScale * 0.0078740157;
+            v44->characterEVOffset = sceneEntityMutableShaderData->hudOutlineInfo.characterEVOffset;
+            if ( sceneEntityMutableShaderData->modelShaderData[v52].camoAsset )
+            {
+              v56 = 3i64;
+              v67 = 28i64 - (_QWORD)v44;
+              v57 = 16i64 - (_QWORD)v44;
+              *(_QWORD *)out.v = -32i64 - (_QWORD)v44;
+              v58 = 4i64 - (_QWORD)v44;
+              do
+              {
+                *(albedoMapScaleBias - 3) = *(_DWORD *)((char *)&sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->name + v58 + (unsigned __int64)albedoMapScaleBias);
+                if ( *(int *)((char *)albedoMapScaleBias + v57 + (unsigned __int64)sceneEntityMutableShaderData->modelShaderData[v52].camoAsset) < 0 )
+                {
+                  LODWORD(v64) = *(unsigned int *)((char *)albedoMapScaleBias + v57 + (unsigned __int64)sceneEntityMutableShaderData->modelShaderData[v52].camoAsset);
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1562, ASSERT_TYPE_ASSERT, "( ( ( sceneEntityMutableShaderData->modelShaderData[dataIndex].camoAsset->albedoMapScaleBias[camoLayerIndex] & ENTITY_DATA_CAMO_LAYER_VALID ) == 0 ) )", "( sceneEntityMutableShaderData->modelShaderData[dataIndex].camoAsset->albedoMapScaleBias[camoLayerIndex] ) = %u", v64) )
+                    __debugbreak();
+                }
+                *albedoMapScaleBias = *(_DWORD *)((char *)&sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->name + (unsigned __int64)albedoMapScaleBias + v57) | 0x80000000;
+                albedoMapScaleBias[3] = *(_DWORD *)((char *)&sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->name + v67 + (unsigned __int64)albedoMapScaleBias);
+                ++albedoMapScaleBias;
+                *(v - 3) = *(_OWORD *)((char *)&sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->name + *(_QWORD *)out.v + (unsigned __int64)v);
+                *v = *(_OWORD *)((char *)&sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->name + v57 + (unsigned __int64)v);
+                ++v;
+                --v56;
+              }
+              while ( v56 );
+              v44 = *(GfxPackedEntityData **)vec.v;
+              blendMapChannels = sceneEntityMutableShaderData->modelShaderData[v52].camoAsset->blendMapChannels;
+            }
+            else
+            {
+              v44->colorTint[0] = 0;
+              blendMapChannels = 0;
+              *albedoMapScaleBias = 0;
+              v44->normalMapScaleBias[0] = 0;
+              v44->uvScaleOffset[0].v[0] = 1.0;
+              *(_QWORD *)&v44->uvScaleOffset[0].xyz.y = 1065353216i64;
+              v44->uvScaleOffset[0].v[3] = 0.0;
+              *(_QWORD *)v = 1065353216i64;
+              v44->uvRotate[0].v[2] = 0.0;
+              v44->uvRotate[0].v[3] = 1.0;
+              *(_QWORD *)&v44->colorTint[1] = 0i64;
+              *(_QWORD *)&v44->albedoMapScaleBias[1] = 0i64;
+              *(_QWORD *)&v44->normalMapScaleBias[1] = 0i64;
+              v44->uvScaleOffset[1].v[0] = 1.0;
+              *(_QWORD *)&v44->uvScaleOffset[1].xyz.y = 1065353216i64;
+              v44->uvScaleOffset[1].v[3] = 0.0;
+              *(_QWORD *)v44->uvRotate[1].v = 1065353216i64;
+              v44->uvRotate[1].v[2] = 0.0;
+              v44->uvRotate[1].v[3] = 1.0;
+              v44->uvScaleOffset[2].v[0] = 1.0;
+              *(_QWORD *)&v44->uvScaleOffset[2].xyz.y = 1065353216i64;
+              v44->uvScaleOffset[2].v[3] = 0.0;
+              *(_QWORD *)v44->uvRotate[2].v = 1065353216i64;
+              v44->uvRotate[2].v[2] = 0.0;
+              v44->uvRotate[2].v[3] = 1.0;
+            }
+            v44->blendMapChannels = blendMapChannels;
+            v44->distance = distanceToCamera;
+            v60 = I_fclamp((float)(*(float *)&_XMM8 + 1.0) * 0.5, 0.0, 1.0);
+            v44->minX = *(float *)&v60;
+            v61 = I_fclamp(v36, 0.0, 1.0);
+            v44->maxX = *(float *)&v61;
+            v62 = I_fclamp((float)(*(float *)&_XMM10 + 1.0) * 0.5, 0.0, 1.0);
+            v44->minY = *(float *)&v62;
+            v63 = I_fclamp((float)(*(float *)&_XMM11 + 1.0) * 0.5, 0.0, 1.0);
+            v41 = v68;
+            v39 = v65 + 1;
+            v37 = v66;
+            v40 = (unsigned __int8)entNum;
+            v8 = rawEntityShaderData;
+            v44->maxY = *(float *)&v63;
+            v65 = v39;
+          }
+          while ( v39 < sceneEntityMutableShaderData->dataCount );
+        }
       }
     }
-    __asm { vmovaps xmm14, [rsp+158h+var_C8] }
   }
 }
 
@@ -9884,121 +8195,89 @@ R_SetForwardPlusClusterInfo
 */
 void R_SetForwardPlusClusterInfo(GfxViewInfo *viewInfo, unsigned int frustumWidth, unsigned int frustumHeight)
 {
-  unsigned __int64 v8; 
-  __int64 v9; 
+  unsigned __int64 v4; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  unsigned int FrustumDepth; 
+  float v9; 
   __int64 width; 
-  unsigned __int64 v21; 
+  unsigned __int64 v11; 
   __int64 height; 
-  unsigned __int64 v23; 
-  __int64 v24; 
+  unsigned __int64 v13; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  unsigned int v23; 
+  unsigned int v24; 
   unsigned int v25; 
-  __int64 v26; 
-  __int64 v33; 
-  __int64 v34; 
-  unsigned int v45; 
-  unsigned int v46; 
-  unsigned int v47; 
-  unsigned int v48; 
-  unsigned int v49; 
-  __int128 v50; 
-  char v53; 
+  unsigned int v26; 
+  unsigned int v27; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RBX = viewInfo;
-  __asm { vmovaps [rsp+88h+var_48], xmm7 }
-  v8 = frustumHeight;
-  v9 = frustumWidth;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm7, xmm7, r14
-    vmovaps [rsp+88h+var_58], xmm8
-    vcvtsi2ss xmm6, xmm6, rsi
-  }
-  R_VOL_GetFrustumDepth();
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  dword ptr [rbx+2480h], xmm7
-    vmovss  dword ptr [rbx+2484h], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+2488h], xmm0
-    vdivss  xmm0, xmm8, xmm0
-    vmovss  dword ptr [rbx+247Ch], xmm0
-    vdivss  xmm2, xmm8, xmm7
-    vmovss  dword ptr [rbx+2474h], xmm2
-    vdivss  xmm1, xmm8, xmm6
-    vmovss  dword ptr [rbx+2478h], xmm1
-  }
-  width = _RBX->sceneViewport.width;
-  _RBX->frustumGrid.voxelCountX = v9;
-  _RBX->frustumGrid.voxelCountY = v8;
-  if ( !(_DWORD)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0", v50) )
+  v4 = frustumHeight;
+  v5 = frustumWidth;
+  v6 = (float)frustumWidth;
+  v7 = (float)frustumHeight;
+  FrustumDepth = R_VOL_GetFrustumDepth();
+  viewInfo->input.sceneConstants.frustumSize.v[0] = v6;
+  viewInfo->input.sceneConstants.frustumSize.v[1] = v7;
+  v9 = (float)FrustumDepth;
+  viewInfo->input.sceneConstants.frustumSize.v[2] = v9;
+  viewInfo->input.sceneConstants.invFrustumSize.v[2] = 1.0 / v9;
+  viewInfo->input.sceneConstants.invFrustumSize.v[0] = 1.0 / v6;
+  viewInfo->input.sceneConstants.invFrustumSize.v[1] = 1.0 / v7;
+  width = viewInfo->sceneViewport.width;
+  viewInfo->frustumGrid.voxelCountX = v5;
+  viewInfo->frustumGrid.voxelCountY = v4;
+  if ( !(_DWORD)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
     __debugbreak();
-  v21 = width + v9 - 1;
-  height = _RBX->sceneViewport.height;
-  _RBX->frustumGrid.voxelSizeX = v21 / (unsigned int)v9;
-  if ( !(_DWORD)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
+  v11 = width + v5 - 1;
+  height = viewInfo->sceneViewport.height;
+  viewInfo->frustumGrid.voxelSizeX = v11 / (unsigned int)v5;
+  if ( !(_DWORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
     __debugbreak();
-  v23 = height + v8 - 1;
-  v24 = (unsigned int)(v9 * _RBX->frustumGrid.voxelSizeX);
-  v25 = v23 / v8;
-  _RBX->frustumGrid.voxelSizeY = v25;
-  v26 = (unsigned int)v8 * v25;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  dword ptr [rbx+1BE0h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rcx
-    vmovss  dword ptr [rbx+1BE4h], xmm1
-    vdivss  xmm1, xmm8, xmm1
-    vmovss  dword ptr [rbx+1BECh], xmm1
-    vdivss  xmm0, xmm8, xmm0
-    vmovss  dword ptr [rbx+1BE8h], xmm0
-  }
-  v33 = 4 * _RBX->frustumGrid.voxelSizeX;
-  v34 = 4 * _RBX->frustumGrid.voxelSizeY;
-  if ( !(_DWORD)v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
+  v13 = height + v4 - 1;
+  v14 = (unsigned int)(v5 * viewInfo->frustumGrid.voxelSizeX);
+  v15 = v13 / v4;
+  viewInfo->frustumGrid.voxelSizeY = v15;
+  v16 = (unsigned int)v4 * v15;
+  v17 = (float)(unsigned int)v14;
+  viewInfo->input.sceneConstants.frustumGridReferenceSize.v[0] = v17;
+  v18 = (float)(unsigned int)v16;
+  viewInfo->input.sceneConstants.frustumGridReferenceSize.v[1] = v18;
+  viewInfo->input.sceneConstants.frustumGridReferenceSize.v[3] = 1.0 / v18;
+  viewInfo->input.sceneConstants.frustumGridReferenceSize.v[2] = 1.0 / v17;
+  v19 = 4 * viewInfo->frustumGrid.voxelSizeX;
+  v20 = 4 * viewInfo->frustumGrid.voxelSizeY;
+  if ( !(_DWORD)v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
     __debugbreak();
-  _RBX->frustumGrid.clusterCountX = (v24 + v33 - 1) / (unsigned __int64)(unsigned int)v33;
-  if ( !(_DWORD)v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
+  viewInfo->frustumGrid.clusterCountX = (v14 + v19 - 1) / (unsigned __int64)(unsigned int)v19;
+  if ( !(_DWORD)v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 699, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
-  _R11 = &v53;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _RBX->frustumGrid.clusterCountY = (v26 + v34 - 1) / (unsigned __int64)(unsigned int)v34;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+1BD0h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  dword ptr [rbx+1BD4h], xmm1
-    vdivss  xmm1, xmm8, xmm1
-    vmovss  dword ptr [rbx+1BDCh], xmm1
-    vdivss  xmm0, xmm8, xmm0
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rbx+1BD8h], xmm0
-  }
-  v45 = _RBX->sceneViewport.width;
-  v46 = _RBX->sceneViewport.height;
-  *(_QWORD *)&_RBX->frustumGrid.lightWords = 0i64;
-  _RBX->frustumGrid.probeWords = 0;
-  v47 = 2 * ((v45 + 63) >> 6);
-  v48 = v47 * ((v46 + 63) >> 6);
-  _RBX->input.sceneConstants.stencilMaskStrideDwords = v47;
-  v49 = (v45 + 255) >> 8;
-  _RBX->input.sceneConstants.stencilMaskStrideBlocks = v49;
-  _RBX->input.sceneConstants.stencilMaskPitchDwords = v48;
-  _RBX->input.sceneConstants.stencilMaskPitchBlocks = v49 * ((v46 + 127) >> 7);
+  viewInfo->frustumGrid.clusterCountY = (v16 + v20 - 1) / (unsigned __int64)(unsigned int)v20;
+  v21 = (float)(unsigned int)v19;
+  viewInfo->input.sceneConstants.frustumGridClusterSize.v[0] = v21;
+  v22 = (float)(unsigned int)v20;
+  viewInfo->input.sceneConstants.frustumGridClusterSize.v[1] = v22;
+  viewInfo->input.sceneConstants.frustumGridClusterSize.v[3] = 1.0 / v22;
+  viewInfo->input.sceneConstants.frustumGridClusterSize.v[2] = 1.0 / v21;
+  v23 = viewInfo->sceneViewport.width;
+  v24 = viewInfo->sceneViewport.height;
+  *(_QWORD *)&viewInfo->frustumGrid.lightWords = 0i64;
+  viewInfo->frustumGrid.probeWords = 0;
+  v25 = 2 * ((v23 + 63) >> 6);
+  v26 = v25 * ((v24 + 63) >> 6);
+  viewInfo->input.sceneConstants.stencilMaskStrideDwords = v25;
+  v27 = (v23 + 255) >> 8;
+  viewInfo->input.sceneConstants.stencilMaskStrideBlocks = v27;
+  viewInfo->input.sceneConstants.stencilMaskPitchDwords = v26;
+  viewInfo->input.sceneConstants.stencilMaskPitchBlocks = v27 * ((v24 + 127) >> 7);
 }
 
 /*
@@ -10009,23 +8288,19 @@ R_SetForwardPlusClusterWordsInfo
 void R_SetForwardPlusClusterWordsInfo(GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
   unsigned int FrustumWords; 
+  float v5; 
   unsigned int lightWords; 
 
-  _RDI = viewInfo;
   viewInfo->frustumGrid.lightWords = R_GetFrustumLightWords(data->frustumLightsIndex);
-  _RDI->frustumGrid.volumetricWords = R_VOL_GetFrustumWords(data->volumetricsIndex);
+  viewInfo->frustumGrid.volumetricWords = R_VOL_GetFrustumWords(data->volumetricsIndex);
   FrustumWords = R_ReflectionProbe_GetFrustumWords(data->reflectionProbeFrameIndex);
-  __asm { vmovss  xmm0, dword ptr [rdi+2ED4h] }
-  _RDI->frustumGrid.probeWords = FrustumWords;
-  __asm { vmovss  xmm1, dword ptr [rdi+2ED8h] }
-  lightWords = _RDI->frustumGrid.lightWords;
-  __asm
-  {
-    vmovss  dword ptr [rdi+1BF8h], xmm1
-    vmovss  dword ptr [rdi+1BF4h], xmm0
-  }
-  LODWORD(_RDI->input.sceneConstants.frustumGridClusterParams.v[0]) = lightWords;
-  _RDI->input.sceneConstants.frustumGridClusterParams.v[3] = 0.0;
+  v5 = *(float *)&viewInfo->frustumGrid.volumetricWords;
+  viewInfo->frustumGrid.probeWords = FrustumWords;
+  lightWords = viewInfo->frustumGrid.lightWords;
+  viewInfo->input.sceneConstants.frustumGridClusterParams.v[2] = *(float *)&viewInfo->frustumGrid.probeWords;
+  viewInfo->input.sceneConstants.frustumGridClusterParams.v[1] = v5;
+  LODWORD(viewInfo->input.sceneConstants.frustumGridClusterParams.v[0]) = lightWords;
+  viewInfo->input.sceneConstants.frustumGridClusterParams.v[3] = 0.0;
 }
 
 /*
@@ -10033,503 +8308,335 @@ void R_SetForwardPlusClusterWordsInfo(GfxViewInfo *viewInfo, const GfxBackEndDat
 R_SetGlobalLightingConstants
 ==============
 */
-
-void __fastcall R_SetGlobalLightingConstants(const GfxBackEndData *data, GfxViewInfo *viewInfo, double _XMM2_8, double _XMM3_8)
+void R_SetGlobalLightingConstants(const GfxBackEndData *data, GfxViewInfo *viewInfo)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  float v8; 
+  float v9; 
+  const GfxBackEndData *v11; 
+  float dynamicSpotLightCount; 
+  unsigned int v13; 
+  float dynamicOmniLightCount; 
+  float v15; 
+  float primaryLightCount; 
+  const GfxBackEndData *v17; 
   __int64 activePrimarySunLight; 
-  char v41; 
-  bool IsUsingGlobalBuffer; 
+  __int64 v19; 
+  float uvIntensity; 
+  float intensity; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float irIntensity; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  float heatIntensity; 
+  float v29; 
+  float v32; 
+  float v34; 
+  const GfxBackEndData *v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  const GfxBackEndData *v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  GfxWorld *world; 
   int heightfieldCount; 
-  bool v127; 
-  const dvar_t *v161; 
-  unsigned int v163; 
-  bool v164; 
-  const dvar_t *v165; 
-  __int64 v167; 
-  unsigned __int16 *v168; 
+  GfxHeightfield *heightfields; 
+  __int64 voxelTreeZoneIndex; 
+  GfxHeightfield *v47; 
+  GfxImage *image; 
+  float width; 
+  float height; 
+  __int128 v54; 
+  const dvar_t *v59; 
+  int v60; 
+  bool v61; 
+  const dvar_t *v62; 
+  unsigned int skyIlluminationRadialDistanceBias; 
+  __int64 v64; 
+  unsigned __int16 *v65; 
   char *fmt; 
   float outRadiometricScale; 
   float outPrevFrameRadiometricScale[3]; 
   tmat44_t<vec4_t> in; 
-  tmat44_t<vec4_t> v227; 
-  char v233; 
-  void *retaddr; 
+  tmat44_t<vec4_t> csmLookupMatrix; 
+  __int128 v92; 
+  __int128 v93; 
+  __int128 v94; 
+  __int128 v95; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-  }
+  v95 = v2;
+  v94 = v3;
+  v93 = v4;
+  v92 = v5;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4824, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4825, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
+  if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4825, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm { vmovaps [rsp+190h+var_60], xmm8 }
-  R_Tonemap_GetRadiometricScale(data, _RBX, &outRadiometricScale, outPrevFrameRadiometricScale);
-  __asm
-  {
-    vmovss  xmm1, [rsp+190h+outPrevFrameRadiometricScale]
-    vmovss  xmm0, [rsp+190h+outRadiometricScale]
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr [rbx+1B50h], xmm0
-    vmovss  dword ptr [rbx+1B58h], xmm1
-    vdivss  xmm0, xmm6, xmm0
-    vmovss  dword ptr [rbx+1B54h], xmm0
-    vdivss  xmm0, xmm6, xmm1
-    vmovss  dword ptr [rbx+1B5Ch], xmm0
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm3, xmm3, rax
-  }
-  _ER14 = 0;
-  __asm
-  {
-    vcvtsi2ss xmm2, xmm2, rax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, rax
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+1B70h], xmm0
-    vmovss  dword ptr [rbx+1B74h], xmm3
-    vmovss  dword ptr [rbx+1B78h], xmm2
-    vmovss  dword ptr [rbx+1B7Ch], xmm1
-  }
-  _RDI = _RBX->input.data;
-  activePrimarySunLight = _RDI->activePrimarySunLight;
+  R_Tonemap_GetRadiometricScale(data, viewInfo, &outRadiometricScale, outPrevFrameRadiometricScale);
+  v8 = outPrevFrameRadiometricScale[0];
+  v9 = outRadiometricScale;
+  _XMM6 = LODWORD(FLOAT_1_0);
+  viewInfo->input.sceneConstants.radiometricScale.v[0] = outRadiometricScale;
+  viewInfo->input.sceneConstants.radiometricScale.v[2] = v8;
+  viewInfo->input.sceneConstants.radiometricScale.v[1] = 1.0 / v9;
+  viewInfo->input.sceneConstants.radiometricScale.v[3] = 1.0 / v8;
+  v11 = viewInfo->input.data;
+  dynamicSpotLightCount = (float)v11->dynamicSpotLightCount;
+  v13 = 0;
+  dynamicOmniLightCount = (float)v11->dynamicOmniLightCount;
+  v15 = (float)(rgp.world->lastSunPrimaryLightIndex + 1);
+  primaryLightCount = (float)rgp.world->primaryLightCount;
+  viewInfo->input.sceneConstants.packedLightCount.v[0] = primaryLightCount;
+  viewInfo->input.sceneConstants.packedLightCount.v[1] = dynamicSpotLightCount;
+  viewInfo->input.sceneConstants.packedLightCount.v[2] = dynamicOmniLightCount;
+  viewInfo->input.sceneConstants.packedLightCount.v[3] = v15;
+  v17 = viewInfo->input.data;
+  activePrimarySunLight = v17->activePrimarySunLight;
   if ( (_DWORD)activePrimarySunLight )
   {
-    _RSI = 152 * activePrimarySunLight;
-    __asm { vmovss  xmm7, dword ptr [rsi+rdi+53A004h] }
-    if ( (_RDI->sceneLights[activePrimarySunLight].flags & 0x4000) == 0 )
-      __asm { vmulss  xmm7, xmm7, dword ptr [rbx+0D6Ch] }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+rdi+53A010h]
-      vmulss  xmm12, xmm0, dword ptr [rsi+rdi+53A014h]
-      vmulss  xmm11, xmm0, dword ptr [rsi+rdi+53A018h]
-      vmulss  xmm10, xmm0, dword ptr [rsi+rdi+53A01Ch]
-      vxorps  xmm8, xmm8, xmm8
-    }
-    if ( _RBX->thermalParams.useNightAndThermalVisionCombo )
-      __asm { vmovss  xmm9, dword ptr [rsi+rdi+53A008h] }
+    v19 = activePrimarySunLight;
+    uvIntensity = v17->sceneLights[activePrimarySunLight].uvIntensity;
+    if ( (v17->sceneLights[activePrimarySunLight].flags & 0x4000) == 0 )
+      uvIntensity = uvIntensity * viewInfo->lightUVIntensityScale;
+    intensity = v17->sceneLights[v19].intensity;
+    v22 = intensity * v17->sceneLights[v19].colorLinearSrgb.v[0];
+    v23 = intensity * v17->sceneLights[v19].colorLinearSrgb.v[1];
+    v24 = intensity * v17->sceneLights[v19].colorLinearSrgb.v[2];
+    if ( viewInfo->thermalParams.useNightAndThermalVisionCombo )
+      irIntensity = v17->sceneLights[v19].irIntensity;
     else
-      __asm { vxorps  xmm9, xmm9, xmm9 }
-    _R15 = DVARFLT_r_sunIntensityHeatOverride;
-    if ( !DVARFLT_r_sunIntensityHeatOverride )
-      goto LABEL_19;
-    Dvar_CheckFrontendServerThread(DVARFLT_r_sunIntensityHeatOverride);
-    __asm { vcomiss xmm8, dword ptr [r15+28h] }
-    if ( v41 )
+      irIntensity = 0.0;
+    v26 = DVARFLT_r_sunIntensityHeatOverride;
+    if ( DVARFLT_r_sunIntensityHeatOverride && (Dvar_CheckFrontendServerThread(DVARFLT_r_sunIntensityHeatOverride), v26->current.value > 0.0) )
     {
-      _R15 = DVARFLT_r_sunIntensityHeatOverride;
+      v27 = DVARFLT_r_sunIntensityHeatOverride;
       if ( !DVARFLT_r_sunIntensityHeatOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sunIntensityHeatOverride") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R15);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+28h]
-        vmulss  xmm4, xmm0, cs:__real@3f0e38e4
-      }
+      Dvar_CheckFrontendServerThread(v27);
+      heatIntensity = v27->current.value * 0.55555558;
     }
     else
     {
-LABEL_19:
-      __asm { vmovss  xmm4, dword ptr [rsi+rdi+53A00Ch] }
+      heatIntensity = v17->sceneLights[v19].heatIntensity;
     }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@bf800000
-      vmovss  xmm5, dword ptr [rsi+rdi+53A024h]
-      vmovd   xmm1, r14d
-    }
-    _EAX = *((_DWORD *)&_RBX->viewportFeatures + 11) & 4;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, dword ptr [rsi+rdi+53A028h]
-      vblendvps xmm0, xmm6, xmm2, xmm3
-      vmovss  xmm2, dword ptr [rsi+rdi+53A020h]
-    }
+    v29 = v17->sceneLights[v19].dir.v[1];
+    _XMM0 = *((_DWORD *)&viewInfo->viewportFeatures + 11) & 4;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    v32 = v17->sceneLights[v19].dir.v[2];
+    __asm { vblendvps xmm0, xmm6, xmm2, xmm3 }
+    v34 = v17->sceneLights[v19].dir.v[0];
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm4, xmm4, xmm4
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm10, xmm10, xmm10
-      vxorps  xmm11, xmm11, xmm11
-      vxorps  xmm12, xmm12, xmm12
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm1, xmm6
-      vxorps  xmm5, xmm5, xmm5
-      vxorps  xmm2, xmm2, xmm2
-    }
+    heatIntensity = 0.0;
+    irIntensity = 0.0;
+    uvIntensity = 0.0;
+    v24 = 0.0;
+    v23 = 0.0;
+    v22 = 0.0;
+    LODWORD(_XMM0) = 0;
+    v32 = FLOAT_1_0;
+    v29 = 0.0;
+    v34 = 0.0;
   }
-  _R8 = &_RBX->input.sceneConstants.sunLightDir;
-  __asm
+  viewInfo->input.sceneConstants.sunLightDir.v[0] = v34;
+  viewInfo->input.sceneConstants.sunLightDir.v[1] = v29;
+  viewInfo->input.sceneConstants.sunLightDir.v[2] = v32;
+  viewInfo->input.sceneConstants.sunLightDir.v[3] = *(float *)&_XMM0;
+  viewInfo->input.sceneConstants.sunLightColorAndUV.v[0] = v22;
+  viewInfo->input.sceneConstants.sunLightColorAndUV.v[1] = v23;
+  viewInfo->input.sceneConstants.sunLightColorAndUV.v[2] = v24;
+  viewInfo->input.sceneConstants.sunLightColorAndUV.v[3] = uvIntensity;
+  viewInfo->input.sceneConstants.sunLightIrAndHeat.v[0] = irIntensity;
+  viewInfo->input.sceneConstants.sunLightIrAndHeat.v[1] = heatIntensity;
+  viewInfo->input.sceneConstants.sunLightIrAndHeat.v[2] = 0.0;
+  viewInfo->input.sceneConstants.sunLightIrAndHeat.v[3] = 0.0;
+  v35 = viewInfo->input.data;
+  v36 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  v37 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  v38 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  in = (tmat44_t<vec4_t>)v35->sunShadow.lookupMatrix;
+  in.m[3].v[0] = (float)((float)((float)(v36 * v35->sunShadow.lookupMatrix.m.m[1].v[0]) + (float)(v37 * v35->sunShadow.lookupMatrix.m.m[0].v[0])) + (float)(v38 * v35->sunShadow.lookupMatrix.m.m[2].v[0])) + v35->sunShadow.lookupMatrix.m.m[3].v[0];
+  in.m[3].v[1] = (float)((float)((float)(v37 * v35->sunShadow.lookupMatrix.m.m[0].v[1]) + (float)(v36 * v35->sunShadow.lookupMatrix.m.m[1].v[1])) + (float)(v38 * v35->sunShadow.lookupMatrix.m.m[2].v[1])) + v35->sunShadow.lookupMatrix.m.m[3].v[1];
+  in.m[3].v[2] = (float)((float)((float)(v37 * v35->sunShadow.lookupMatrix.m.m[0].v[2]) + (float)(v36 * v35->sunShadow.lookupMatrix.m.m[1].v[2])) + (float)(v38 * v35->sunShadow.lookupMatrix.m.m[2].v[2])) + v35->sunShadow.lookupMatrix.m.m[3].v[2];
+  in.m[3].v[3] = (float)((float)((float)(v37 * v35->sunShadow.lookupMatrix.m.m[0].v[3]) + (float)(v36 * v35->sunShadow.lookupMatrix.m.m[1].v[3])) + (float)(v38 * v35->sunShadow.lookupMatrix.m.m[2].v[3])) + v35->sunShadow.lookupMatrix.m.m[3].v[3];
+  MatrixTranspose44Aligned(&in, &viewInfo->input.sceneConstants.sunShadowLookupMatrix.m);
+  if ( R_CompressedSunShadow_IsUsingGlobalBuffer() )
   {
-    vmovss  dword ptr [r8], xmm2
-    vmovss  dword ptr [r8+4], xmm5
-    vmovss  dword ptr [r8+8], xmm1
-    vmovss  dword ptr [r8+0Ch], xmm0
+    v39 = viewInfo->input.data;
+    v40 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+    v41 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+    v42 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+    csmLookupMatrix = (tmat44_t<vec4_t>)v39->sunShadow.csmLookupMatrix;
+    csmLookupMatrix.m[3].v[0] = (float)((float)((float)(v40 * v39->sunShadow.csmLookupMatrix.m.m[1].v[0]) + (float)(v41 * v39->sunShadow.csmLookupMatrix.m.m[0].v[0])) + (float)(v42 * v39->sunShadow.csmLookupMatrix.m.m[2].v[0])) + v39->sunShadow.csmLookupMatrix.m.m[3].v[0];
+    csmLookupMatrix.m[3].v[1] = (float)((float)((float)(v41 * v39->sunShadow.csmLookupMatrix.m.m[0].v[1]) + (float)(v40 * v39->sunShadow.csmLookupMatrix.m.m[1].v[1])) + (float)(v42 * v39->sunShadow.csmLookupMatrix.m.m[2].v[1])) + v39->sunShadow.csmLookupMatrix.m.m[3].v[1];
+    csmLookupMatrix.m[3].v[2] = (float)((float)((float)(v41 * v39->sunShadow.csmLookupMatrix.m.m[0].v[2]) + (float)(v40 * v39->sunShadow.csmLookupMatrix.m.m[1].v[2])) + (float)(v42 * v39->sunShadow.csmLookupMatrix.m.m[2].v[2])) + v39->sunShadow.csmLookupMatrix.m.m[3].v[2];
+    csmLookupMatrix.m[3].v[3] = (float)((float)((float)(v41 * v39->sunShadow.csmLookupMatrix.m.m[0].v[3]) + (float)(v40 * v39->sunShadow.csmLookupMatrix.m.m[1].v[3])) + (float)(v42 * v39->sunShadow.csmLookupMatrix.m.m[2].v[3])) + v39->sunShadow.csmLookupMatrix.m.m[3].v[3];
+    MatrixTranspose44Aligned(&csmLookupMatrix, &viewInfo->input.sceneConstants.compressedSunShadowLookupMatrix.m);
   }
-  _RDX = &_RBX->input.sceneConstants.sunLightColorAndUV;
-  __asm
-  {
-    vmovss  dword ptr [rdx], xmm12
-    vmovss  dword ptr [rdx+4], xmm11
-    vmovss  dword ptr [rdx+8], xmm10
-    vmovss  dword ptr [rdx+0Ch], xmm7
-  }
-  _RCX = &_RBX->input.sceneConstants.sunLightIrAndHeat;
-  __asm
-  {
-    vmovss  dword ptr [rcx], xmm9
-    vmovss  dword ptr [rcx+4], xmm4
-  }
-  _RBX->input.sceneConstants.sunLightIrAndHeat.v[2] = 0.0;
-  _RBX->input.sceneConstants.sunLightIrAndHeat.v[3] = 0.0;
-  _RAX = _RBX->input.data;
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+104h]
-    vmovss  xmm3, dword ptr [rbx+100h]
-    vmovss  xmm5, dword ptr [rbx+108h]
-    vmovups ymm0, ymmword ptr [rax+0E2700h]
-    vmovups ymmword ptr [rsp+190h+in], ymm0
-    vmovups ymm1, ymmword ptr [rax+0E2720h]
-    vmovups ymmword ptr [rbp+90h+in+20h], ymm1
-  }
-  in.row2 = *(vec4_t *)_RT0.m256i_i8;
-  __asm
-  {
-    vmulss  xmm1, xmm4, dword ptr [rax+0E2710h]
-    vmulss  xmm0, xmm3, dword ptr [rax+0E2700h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rax+0E2720h]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rax+0E2730h]
-    vmovss  dword ptr [rbp+90h+in+30h], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rax+0E2704h]
-    vmulss  xmm0, xmm4, dword ptr [rax+0E2714h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rax+0E2724h]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rax+0E2734h]
-    vmovss  dword ptr [rbp+90h+in+34h], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rax+0E2708h]
-    vmulss  xmm0, xmm4, dword ptr [rax+0E2718h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rax+0E2728h]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rax+0E2738h]
-    vmovss  dword ptr [rbp+90h+in+38h], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rax+0E270Ch]
-    vmulss  xmm0, xmm4, dword ptr [rax+0E271Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rax+0E272Ch]
-    vaddss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rax+0E273Ch]
-    vmovss  dword ptr [rbp+90h+in+3Ch], xmm2
-  }
-  MatrixTranspose44Aligned(&in, &_RBX->input.sceneConstants.sunShadowLookupMatrix.m);
-  IsUsingGlobalBuffer = R_CompressedSunShadow_IsUsingGlobalBuffer();
-  __asm
-  {
-    vmovaps xmm12, [rsp+190h+var_A0]
-    vmovaps xmm11, [rsp+190h+var_90]
-    vmovaps xmm10, [rsp+190h+var_80]
-    vmovaps xmm9, [rsp+190h+var_70]
-  }
-  if ( IsUsingGlobalBuffer )
-  {
-    _RAX = _RBX->input.data;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx+104h]
-      vmovss  xmm3, dword ptr [rbx+100h]
-      vmovss  xmm5, dword ptr [rbx+108h]
-      vmovups ymm0, ymmword ptr [rax+0E2740h]
-      vmovups ymmword ptr [rbp+90h+var_F0], ymm0
-      vmovups ymm1, ymmword ptr [rax+0E2760h]
-      vmovups ymmword ptr [rbp+90h+var_F0+20h], ymm1
-    }
-    v227.row2 = *(vec4_t *)_RT0.m256i_i8;
-    __asm
-    {
-      vmulss  xmm1, xmm4, dword ptr [rax+0E2750h]
-      vmulss  xmm0, xmm3, dword ptr [rax+0E2740h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rax+0E2760h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rax+0E2770h]
-      vmovss  dword ptr [rbp+90h+var_F0+30h], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rax+0E2744h]
-      vmulss  xmm0, xmm4, dword ptr [rax+0E2754h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rax+0E2764h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rax+0E2774h]
-      vmovss  dword ptr [rbp+90h+var_F0+34h], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rax+0E2748h]
-      vmulss  xmm0, xmm4, dword ptr [rax+0E2758h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rax+0E2768h]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rax+0E2778h]
-      vmovss  dword ptr [rbp+90h+var_F0+38h], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rax+0E274Ch]
-      vmulss  xmm0, xmm4, dword ptr [rax+0E275Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, dword ptr [rax+0E276Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rax+0E277Ch]
-      vmovss  dword ptr [rbp+90h+var_F0+3Ch], xmm2
-    }
-    MatrixTranspose44Aligned(&v227, &_RBX->input.sceneConstants.compressedSunShadowLookupMatrix.m);
-  }
-  _RCX = rgp.world;
+  world = rgp.world;
   heightfieldCount = rgp.world->heightfieldCount;
-  v127 = heightfieldCount == 0;
   if ( heightfieldCount )
   {
     if ( heightfieldCount != rgp.world->voxelTreeCount )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4906, ASSERT_TYPE_ASSERT, "(rgp.world->heightfieldCount == rgp.world->voxelTreeCount)", (const char *)&queryFormat, "rgp.world->heightfieldCount == rgp.world->voxelTreeCount") )
         __debugbreak();
-      _RCX = rgp.world;
+      world = rgp.world;
     }
-    __asm
-    {
-      vxorps  xmm4, xmm4, xmm4
-      vxorps  xmm3, xmm3, xmm3
-    }
-    _RAX = _RCX->heightfields;
-    _R8 = 96i64 * (int)_RBX->input.voxelTreeZoneIndex;
-    v127 = __CFSHL__(3i64 * (int)_RBX->input.voxelTreeZoneIndex, 5) || _R8 == 0;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r8+rax+18h]
-      vmovups ymmword ptr cs:?g_drawConsts@@3UGfxDrawConsts@@A.outdoorLookupMatrix, ymm0; GfxDrawConsts g_drawConsts
-      vmovups ymm1, ymmword ptr [r8+rax+38h]
-      vmovups ymmword ptr cs:?g_drawConsts@@3UGfxDrawConsts@@A.outdoorLookupMatrix+20h, ymm1; GfxDrawConsts g_drawConsts
-    }
-    _RDX = _RCX->heightfields;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+rdx+14h]
-      vmulss  xmm2, xmm0, cs:__real@40000000
-      vcvtsi2ss xmm4, xmm4, eax
-      vcvtsi2ss xmm3, xmm3, eax
-    }
-    _RAX = r_outdoorFeather;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+28h]
-      vmaxss  xmm0, xmm1, xmm6
-      vdivss  xmm2, xmm2, xmm0
-      vmovss  dword ptr [rbx+2020h], xmm2
-      vmovss  dword ptr [rbx+2028h], xmm4
-      vmovss  dword ptr [rbx+202Ch], xmm3
-    }
-    _RBX->input.sceneConstants.outdoorFeatherParms.v[1] = 0.0;
-    _RCX = rgp.world;
+    heightfields = world->heightfields;
+    voxelTreeZoneIndex = (int)viewInfo->input.voxelTreeZoneIndex;
+    *(__m256i *)g_drawConsts.outdoorLookupMatrix.m[0].v = *(__m256i *)heightfields[voxelTreeZoneIndex].lookupMatrix.m[0].v;
+    *(__m256i *)g_drawConsts.outdoorLookupMatrix.row2.v = *(__m256i *)heightfields[voxelTreeZoneIndex].lookupMatrix.row2.v;
+    v47 = world->heightfields;
+    image = v47[voxelTreeZoneIndex].image;
+    width = (float)image->width;
+    height = (float)image->height;
+    _XMM1 = r_outdoorFeather->current.unsignedInt;
+    __asm { vmaxss  xmm0, xmm1, xmm6 }
+    viewInfo->input.sceneConstants.outdoorFeatherParms.v[0] = (float)(v47[voxelTreeZoneIndex].bounds.halfSize.v[2] * 2.0) / *(float *)&_XMM0;
+    viewInfo->input.sceneConstants.outdoorFeatherParms.v[2] = width;
+    viewInfo->input.sceneConstants.outdoorFeatherParms.v[3] = height;
+    viewInfo->input.sceneConstants.outdoorFeatherParms.v[1] = 0.0;
+    world = rgp.world;
   }
-  __asm
+  if ( world->precomputedSkyIllumination.boxMax.v[0] > world->precomputedSkyIllumination.boxMin.v[0] && r_enablePrecomputedSkyIllumination->current.enabled )
   {
-    vmovss  xmm0, dword ptr [rcx+3A10h]
-    vcomiss xmm0, dword ptr [rcx+3A00h]
-  }
-  if ( v127 || !r_enablePrecomputedSkyIllumination->current.enabled )
-  {
-    *(_QWORD *)_RBX->input.sceneConstants.skyFlags.v = 0i64;
-    *((_QWORD *)&_RBX->input.sceneConstants.skyFlags.xyz.xy + 1) = 0i64;
-  }
-  else
-  {
+    viewInfo->input.sceneConstants.skyBoxMin = world->precomputedSkyIllumination.boxMin;
+    viewInfo->input.sceneConstants.skyBoxMax = world->precomputedSkyIllumination.boxMax;
+    v54 = LODWORD(FLOAT_1_0);
+    *(float *)&v54 = 1.0 / (float)(world->precomputedSkyIllumination.boxMax.v[0] - world->precomputedSkyIllumination.boxMin.v[0]);
+    _XMM4 = v54;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rcx+3A00h]
-      vmovups xmmword ptr [rbx+2490h], xmm0
-      vmovups xmm0, xmmword ptr [rcx+3A10h]
-      vmovups xmmword ptr [rbx+24A0h], xmm0
-      vmovss  xmm1, dword ptr [rcx+3A10h]
-      vsubss  xmm2, xmm1, dword ptr [rcx+3A00h]
-      vmovss  xmm0, dword ptr [rcx+3A14h]
-      vsubss  xmm1, xmm0, dword ptr [rcx+3A04h]
-      vmovss  xmm0, dword ptr [rcx+3A18h]
-      vdivss  xmm4, xmm6, xmm2
-      vsubss  xmm2, xmm0, dword ptr [rcx+3A08h]
-      vdivss  xmm3, xmm6, xmm1
       vinsertps xmm4, xmm4, xmm3, 10h
-      vdivss  xmm1, xmm6, xmm2
       vinsertps xmm4, xmm4, xmm1, 20h ; ' '
       vinsertps xmm4, xmm4, xmm8, 30h ; '0'
-      vmovups xmmword ptr [rbx+24B0h], xmm4
-      vmovups xmm0, xmmword ptr [rcx+3A30h]
-      vmovups xmmword ptr [rbx+24D0h], xmm0
-      vmovups [rsp+190h+var_150], xmm4
-      vmovaps [rsp+190h+var_150], xmm0
-      vmovups xmm0, xmmword ptr [rcx+3A20h]
-      vmovups xmmword ptr [rbx+24C0h], xmm0
     }
-    _RBX->input.sceneConstants.skyFlags.v[0] = 1;
-    __asm { vmovaps [rsp+190h+var_150], xmm0 }
-    _RBX->input.sceneConstants.skyFlags.v[1] = r_enablePrecomputedSkyIlluminationMask->current.enabled;
-    LOBYTE(_ER14) = r_showPrecomputedSkyIlluminationMask->current.enabled;
-    _RBX->input.sceneConstants.skyFlags.v[2] = _ER14;
-    v161 = DVARINT_r_precomputedSkyIlluminationRadialDistance;
+    viewInfo->input.sceneConstants.skyBoxSizeInv = _XMM4;
+    viewInfo->input.sceneConstants.skyHeightConsts = world->precomputedSkyIllumination.heightConsts;
+    _XMM0 = world->precomputedSkyIllumination.SVDCoefficientMinMax;
+    viewInfo->input.sceneConstants.skySVDCoefficientMinMax = _XMM0;
+    viewInfo->input.sceneConstants.skyFlags.v[0] = 1;
+    viewInfo->input.sceneConstants.skyFlags.v[1] = r_enablePrecomputedSkyIlluminationMask->current.enabled;
+    LOBYTE(v13) = r_showPrecomputedSkyIlluminationMask->current.enabled;
+    viewInfo->input.sceneConstants.skyFlags.v[2] = v13;
+    v59 = DVARINT_r_precomputedSkyIlluminationRadialDistance;
     if ( !DVARINT_r_precomputedSkyIlluminationRadialDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_precomputedSkyIlluminationRadialDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v161);
-    __asm { vcvttss2si ecx, dword ptr [rbx+644h] }
-    v163 = _ECX + v161->current.integer;
-    v164 = s_radialDist == v163;
-    _RBX->input.sceneConstants.skyFlags.v[3] = v163;
-    if ( !v164 )
+    Dvar_CheckFrontendServerThread(v59);
+    v60 = (int)viewInfo->skyIlluminationRadialDistanceBias + v59->current.integer;
+    v61 = s_radialDist == v60;
+    viewInfo->input.sceneConstants.skyFlags.v[3] = v60;
+    if ( !v61 )
     {
-      v165 = DVARINT_r_precomputedSkyIlluminationRadialDistance;
-      __asm { vcvttss2si r14d, dword ptr [rbx+644h] }
+      v62 = DVARINT_r_precomputedSkyIlluminationRadialDistance;
+      skyIlluminationRadialDistanceBias = (int)viewInfo->skyIlluminationRadialDistanceBias;
       if ( !DVARINT_r_precomputedSkyIlluminationRadialDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_precomputedSkyIlluminationRadialDistance") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v165);
-      LODWORD(fmt) = v163;
-      Com_Printf(8, "sky illumination radial distance %d + %d = %d\n", v165->current.unsignedInt, _ER14, fmt);
-      s_radialDist = _RBX->input.sceneConstants.skyFlags.v[3];
+      Dvar_CheckFrontendServerThread(v62);
+      LODWORD(fmt) = v60;
+      Com_Printf(8, "sky illumination radial distance %d + %d = %d\n", v62->current.unsignedInt, skyIlluminationRadialDistanceBias, fmt);
+      s_radialDist = viewInfo->input.sceneConstants.skyFlags.v[3];
     }
-    if ( R_GetNumActiveLightGrids(_RBX->input.data) > 0 )
+    if ( R_GetNumActiveLightGrids(viewInfo->input.data) > 0 )
     {
-      v167 = (__int64)*R_GetActiveLightGridsList(_RBX->input.data);
-      if ( !v167 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4969, ASSERT_TYPE_ASSERT, "(lightGrid)", (const char *)&queryFormat, "lightGrid") )
+      v64 = (__int64)*R_GetActiveLightGridsList(viewInfo->input.data);
+      if ( !v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4969, ASSERT_TYPE_ASSERT, "(lightGrid)", (const char *)&queryFormat, "lightGrid") )
         __debugbreak();
-      v168 = (unsigned __int16 *)(*(_QWORD *)(v167 + 136) + 92i64 * _RBX->input.voxelTreeZoneIndex);
-      if ( v168 )
+      v65 = (unsigned __int16 *)(*(_QWORD *)(v64 + 136) + 92i64 * viewInfo->input.voxelTreeZoneIndex);
+      if ( v65 )
       {
-        *(double *)&_XMM0 = FloatFromHalf(v168[32]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[23]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[14]);
+        FloatFromHalf(v65[32]);
+        FloatFromHalf(v65[23]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[14]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+24F0h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[18]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[17]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[16]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[15]);
+        viewInfo->input.sceneConstants.skySHDC = _XMM1;
+        FloatFromHalf(v65[18]);
+        FloatFromHalf(v65[17]);
+        FloatFromHalf(v65[16]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[15]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2500h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[22]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[21]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[20]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[19]);
+        viewInfo->input.sceneConstants.skySHr1 = _XMM1;
+        FloatFromHalf(v65[22]);
+        FloatFromHalf(v65[21]);
+        FloatFromHalf(v65[20]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[19]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2510h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[27]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[26]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[25]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[24]);
+        viewInfo->input.sceneConstants.skySHr2 = _XMM1;
+        FloatFromHalf(v65[27]);
+        FloatFromHalf(v65[26]);
+        FloatFromHalf(v65[25]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[24]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2520h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[31]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[30]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[29]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[28]);
+        viewInfo->input.sceneConstants.skySHg1 = _XMM1;
+        FloatFromHalf(v65[31]);
+        FloatFromHalf(v65[30]);
+        FloatFromHalf(v65[29]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[28]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2530h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[36]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[35]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[34]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[33]);
+        viewInfo->input.sceneConstants.skySHg2 = _XMM1;
+        FloatFromHalf(v65[36]);
+        FloatFromHalf(v65[35]);
+        FloatFromHalf(v65[34]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[33]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2540h], xmm1
         }
-        *(double *)&_XMM0 = FloatFromHalf(v168[40]);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[39]);
-        __asm { vmovaps xmm7, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[38]);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = FloatFromHalf(v168[37]);
+        viewInfo->input.sceneConstants.skySHb1 = _XMM1;
+        FloatFromHalf(v65[40]);
+        FloatFromHalf(v65[39]);
+        FloatFromHalf(v65[38]);
+        *(double *)_XMM0.v = FloatFromHalf(v65[37]);
         __asm
         {
-          vmovaps xmm1, xmm0
           vinsertps xmm1, xmm0, xmm6, 10h
           vinsertps xmm1, xmm1, xmm7, 20h ; ' '
           vinsertps xmm1, xmm1, xmm8, 30h ; '0'
-          vmovups xmmword ptr [rbx+2550h], xmm1
         }
+        viewInfo->input.sceneConstants.skySHb2 = _XMM1;
       }
     }
   }
-  __asm { vmovaps xmm8, [rsp+190h+var_60] }
-  _R11 = &v233;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    *(_QWORD *)viewInfo->input.sceneConstants.skyFlags.v = 0i64;
+    *((_QWORD *)&viewInfo->input.sceneConstants.skyFlags.xyz.xy + 1) = 0i64;
   }
 }
 
@@ -10558,22 +8665,10 @@ void R_SetGlobalViewProjectionMatrix(const refdef_t *refdef)
 
   R_SetCameraForView(&refdef->view, &camera);
   MatrixForViewerOrthogonal(&camera.origin, &camera.axis, &mtx);
-  __asm
-  {
-    vmovss  xmm2, [rsp+168h+camera.zPlanes+8]; zNear
-    vmovss  xmm1, dword ptr [rsp+168h+camera.___u3]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rsp+168h+camera.___u2]; tanHalfFovX
-  }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &in2);
+  InfinitePerspectiveMatrix(camera.tanHalfFovX, camera.tanHalfFovY, camera.zPlanes[2], &in2);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
   MatrixCopy44(&out, &rg.viewProjMatrix);
-  __asm
-  {
-    vmovss  xmm2, [rsp+168h+camera.zPlanes]; zNear
-    vmovss  xmm1, dword ptr [rsp+168h+camera.___u3]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rsp+168h+camera.___u2]; tanHalfFovX
-  }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &in2);
+  InfinitePerspectiveMatrix(camera.tanHalfFovX, camera.tanHalfFovY, camera.zPlanes[0], &in2);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
   MatrixCopy44(&out, &rg.viewProjMatrixDepthHack);
 }
@@ -10585,29 +8680,19 @@ R_SetHudOutlineRenderFlags
 */
 void R_SetHudOutlineRenderFlags(const GfxSceneHudOutlineInfo *hudOutlineInfo, unsigned int *renderFlags)
 {
-  const dvar_t *v3; 
-  char v6; 
-  unsigned int v8; 
+  const dvar_t *v2; 
+  unsigned int v5; 
 
-  v3 = DVARBOOL_r_hudOutlineEnable;
-  _RDI = hudOutlineInfo;
+  v2 = DVARBOOL_r_hudOutlineEnable;
   if ( !DVARBOOL_r_hudOutlineEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.enabled && (*renderFlags & 0x8000) == 0 )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled && (*renderFlags & 0x8000) == 0 && (hudOutlineInfo->scopeStencil != 0.0 || hudOutlineInfo->color) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+4]
-    }
-    if ( !v6 || _RDI->color )
-    {
-      v8 = *renderFlags | 2;
-      *renderFlags = v8;
-      if ( _RDI->drawOccludedPixels )
-        *renderFlags = v8 | 0x40000;
-    }
+    v5 = *renderFlags | 2;
+    *renderFlags = v5;
+    if ( hudOutlineInfo->drawOccludedPixels )
+      *renderFlags = v5 | 0x40000;
   }
 }
 
@@ -10616,10 +8701,9 @@ void R_SetHudOutlineRenderFlags(const GfxSceneHudOutlineInfo *hudOutlineInfo, un
 R_SetInvViewScale
 ==============
 */
-
-void __fastcall R_SetInvViewScale(double invViewScale)
+void R_SetInvViewScale(float invViewScale)
 {
-  __asm { vmovss  cs:?rg@@3Ur_globals_t@@A.invViewScale, xmm0; r_globals_t rg }
+  rg.invViewScale = invViewScale;
 }
 
 /*
@@ -10629,78 +8713,68 @@ R_SetLightScaleInfo
 */
 void R_SetLightScaleInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
+  const dvar_t *v2; 
+  float value; 
+  const dvar_t *v6; 
+  float v7; 
+  float v8; 
+  float specularColorScale; 
+  const dvar_t *v10; 
+  float v11; 
   const dvar_t *v12; 
-  int integer; 
+  unsigned int v13; 
   const dvar_t *v14; 
-  const dvar_t *v25; 
-  int v26; 
-  int v31; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
 
-  _RDI = r_secondaryDiffuseScale;
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  _RBX = viewInfo;
+  v2 = r_secondaryDiffuseScale;
   if ( !r_secondaryDiffuseScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  _RDI = r_secondarySpecularScale;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v6 = r_secondarySpecularScale;
   if ( !r_secondarySpecularScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm6, cs:?s_world@@3UGfxWorld@@A.draw.bakedLightScale; GfxWorld s_world
-    vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.specularColorScale; r_globals_t rg
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.diffuseColorScale; r_globals_t rg
-    vmovss  dword ptr [rbx+1B60h], xmm0
-    vmovss  dword ptr [rbx+1B64h], xmm1
-    vmovss  dword ptr [rbx+1B68h], xmm2
-    vmovss  dword ptr [rbx+1B6Ch], xmm3
-  }
-  _RBX->lightUVIntensityScale = sceneParms->lightUVIntensityScale;
-  v12 = r_materialLodOverride;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.value;
+  v8 = value * s_world.draw.bakedLightScale;
+  specularColorScale = rg.specularColorScale;
+  viewInfo->input.sceneConstants.lightingScale.v[0] = rg.diffuseColorScale;
+  viewInfo->input.sceneConstants.lightingScale.v[1] = specularColorScale;
+  viewInfo->input.sceneConstants.lightingScale.v[2] = v8;
+  viewInfo->input.sceneConstants.lightingScale.v[3] = v7;
+  viewInfo->lightUVIntensityScale = sceneParms->lightUVIntensityScale;
+  v10 = r_materialLodOverride;
   if ( !r_materialLodOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 627, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  integer = v12->current.integer;
-  v14 = r_reflectionProbeForceNoParallax;
-  v31 = integer;
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.value;
+  v12 = r_reflectionProbeForceNoParallax;
+  v22 = v11;
   if ( !r_reflectionProbeForceNoParallax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  _EAX = 0;
-  __asm { vmovd   xmm1, eax }
-  _EAX = v14->current.color[0];
-  _RDI = r_rimLightingLerp;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm2, xmm2, xmm2
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  [rsp+58h+arg_8], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.color[0];
+  v14 = r_rimLightingLerp;
+  _XMM0 = v13;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   if ( !r_rimLightingLerp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  v25 = r_globalSecondarySelfVisScale;
+  Dvar_CheckFrontendServerThread(v14);
+  v19 = v14->current.value;
+  v20 = r_globalSecondarySelfVisScale;
   if ( !r_globalSecondarySelfVisScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  v26 = v25->current.integer;
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+arg_0]
-    vmovss  xmm1, [rsp+58h+arg_8]
-    vmovss  dword ptr [rbx+2448h], xmm6
-    vmovaps xmm6, [rsp+58h+var_28]
-    vmovss  dword ptr [rbx+2444h], xmm0
-    vmovss  dword ptr [rbx+244Ch], xmm1
-  }
-  LODWORD(_RBX->input.sceneConstants.debugLightingScale.v[0]) = v26;
+  Dvar_CheckFrontendServerThread(v20);
+  v21 = v20->current.value;
+  viewInfo->input.sceneConstants.debugLightingScale.v[2] = v19;
+  viewInfo->input.sceneConstants.debugLightingScale.v[1] = v22;
+  viewInfo->input.sceneConstants.debugLightingScale.v[3] = *(float *)&_XMM0;
+  viewInfo->input.sceneConstants.debugLightingScale.v[0] = v21;
 }
 
 /*
@@ -10708,81 +8782,36 @@ void R_SetLightScaleInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 R_SetLodOrigin
 ==============
 */
-
-void __fastcall R_SetLodOrigin(const refdef_t *refdef, double lodOverride, __int64 a3, double _XMM3_8)
+void R_SetLodOrigin(const refdef_t *refdef, float lodOverride)
 {
+  const dvar_t *v3; 
+  float value; 
   int time; 
 
-  _RBX = refdef;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
   if ( r_lockPvs->modified )
   {
     Dvar_ClearModified(r_lockPvs);
-    R_SetViewParmsForScene(_RBX, NULL, &lockPvsViewParms);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+14h]
-      vmovss  dword ptr cs:lockPvsViewParms.camera.___u3, xmm0
-    }
+    R_SetViewParmsForScene(refdef, NULL, &lockPvsViewParms);
+    lockPvsViewParms.camera.tanHalfFovY = refdef->view.fov.tanHalfFovY;
   }
-  if ( !g_previousFrameViewParmsIsValid[_RBX->localClientNum][0] )
+  if ( !g_previousFrameViewParmsIsValid[refdef->localClientNum][0] )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  cs:?rg@@3Ur_globals_t@@A.lodParms.ugbInvFovScaleModifier, xmm0; r_globals_t rg
-      vmovss  cs:?rg@@3Ur_globals_t@@A.correctedLodParms.ugbInvFovScaleModifier, xmm0; r_globals_t rg
-    }
+    rg.lodParms.ugbInvFovScaleModifier = FLOAT_1_0;
+    rg.correctedLodParms.ugbInvFovScaleModifier = FLOAT_1_0;
   }
-  R_DumpLODInfo(&_RBX->view, 0);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; dynResScale
-    vmovaps xmm2, xmm7; lodOverride
-  }
-  R_UpdateLodParmsInternal(&_RBX->view, &rg.lodParms, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RSI = DVARFLT_r_sceneResLodScale;
+  R_DumpLODInfo(&refdef->view, 0);
+  R_UpdateLodParmsInternal(&refdef->view, &rg.lodParms, lodOverride, 0.0);
+  v3 = DVARFLT_r_sceneResLodScale;
   if ( !DVARFLT_r_sceneResLodScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResLodScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  R_DumpLODInfo(&_RBX->view, 1);
-  __asm
-  {
-    vmovaps xmm3, xmm6; dynResScale
-    vmovaps xmm2, xmm7; lodOverride
-  }
-  R_UpdateLodParmsInternal(&_RBX->view, &rg.correctedLodParms, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+88h]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffsetPrev, xmm0; GfxScene scene
-    vmovss  xmm1, dword ptr [rbx+8Ch]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffsetPrev+4, xmm1; GfxScene scene
-    vmovss  xmm0, dword ptr [rbx+90h]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffsetPrev+8, xmm0; GfxScene scene
-    vmovss  xmm1, dword ptr [rbx+7Ch]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset, xmm1; GfxScene scene
-    vmovss  xmm0, dword ptr [rbx+80h]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4, xmm0; GfxScene scene
-    vmovss  xmm1, dword ptr [rbx+84h]
-    vmovss  dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8, xmm1; GfxScene scene
-  }
-  time = _RBX->time;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  cs:?scene@@3UGfxScene@@A.def.floatTime, xmm1; GfxScene scene
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  R_DumpLODInfo(&refdef->view, 1);
+  R_UpdateLodParmsInternal(&refdef->view, &rg.correctedLodParms, lodOverride, value);
+  scene.def.viewOffsetPrev = refdef->viewOffsetPrev;
+  scene.def.viewOffset = refdef->viewOffset;
+  time = refdef->time;
+  scene.def.floatTime = (float)time * 0.001;
   scene.def.time = time;
 }
 
@@ -10793,91 +8822,75 @@ R_SetPerceptualInfo
 */
 void R_SetPerceptualInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
-  bool v5; 
+  bool v4; 
+  const dvar_t *v5; 
   const dvar_t *v6; 
-  bool v9; 
-  const dvar_t *v16; 
-  const char *v17; 
+  const dvar_t *v7; 
+  float value; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
+  const char *v11; 
 
-  _RBP = sceneParms;
-  _RBX = viewInfo;
-  v5 = viewInfo->thermalParams.useNightAndThermalVisionCombo && !viewInfo->thermalParams.useScopedNVG;
-  v6 = DCONST_DVARBOOL_r_veilUseTweaks;
+  v4 = viewInfo->thermalParams.useNightAndThermalVisionCombo && !viewInfo->thermalParams.useScopedNVG;
+  v5 = DCONST_DVARBOOL_r_veilUseTweaks;
   if ( !DCONST_DVARBOOL_r_veilUseTweaks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_veilUseTweaks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    if ( v5 )
+    if ( v4 )
     {
-      _RDI = DCONST_DVARFLT_r_nvg_veilStrength;
+      v6 = DCONST_DVARFLT_r_nvg_veilStrength;
       if ( !DCONST_DVARFLT_r_nvg_veilStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_nvg_veilStrength") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rdi+28h]
-      }
-      _RBX->perceptual.veilEnabled = v9;
-      _RDI = DCONST_DVARFLT_r_nvg_veilStrength;
+      Dvar_CheckFrontendServerThread(v6);
+      viewInfo->perceptual.veilEnabled = v6->current.value > 0.0;
+      v7 = DCONST_DVARFLT_r_nvg_veilStrength;
       if ( !DCONST_DVARFLT_r_nvg_veilStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_nvg_veilStrength") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
     }
     else
     {
-      _RDI = DCONST_DVARFLT_r_veilStrength;
+      v9 = DCONST_DVARFLT_r_veilStrength;
       if ( !DCONST_DVARFLT_r_veilStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_veilStrength") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rdi+28h]
-      }
-      _RBX->perceptual.veilEnabled = v9;
-      _RDI = DCONST_DVARFLT_r_veilStrength;
+      Dvar_CheckFrontendServerThread(v9);
+      viewInfo->perceptual.veilEnabled = v9->current.value > 0.0;
+      v7 = DCONST_DVARFLT_r_veilStrength;
       if ( !DCONST_DVARFLT_r_veilStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_veilStrength") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm0, dword ptr [rdi+28h] }
     }
+    Dvar_CheckFrontendServerThread(v7);
+    value = v7->current.value;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbp+2E8h]
-    }
-    _RBX->perceptual.veilEnabled = 0;
-    __asm { vmovss  xmm0, dword ptr [rbp+2E8h] }
+    viewInfo->perceptual.veilEnabled = sceneParms->perceptual.veilStrength > 0.0;
+    value = sceneParms->perceptual.veilStrength;
   }
-  __asm { vmovss  dword ptr [rbx+3860h], xmm0 }
-  if ( v5 )
+  viewInfo->perceptual.veilStrength = value;
+  if ( v4 )
   {
-    v16 = DCONST_DVARBOOL_r_nvg_veil;
+    v10 = DCONST_DVARBOOL_r_nvg_veil;
     if ( DCONST_DVARBOOL_r_nvg_veil )
       goto LABEL_32;
-    v17 = "r_nvg_veil";
+    v11 = "r_nvg_veil";
   }
   else
   {
-    v16 = DCONST_DVARBOOL_r_veil;
+    v10 = DCONST_DVARBOOL_r_veil;
     if ( DCONST_DVARBOOL_r_veil )
       goto LABEL_32;
-    v17 = "r_veil";
+    v11 = "r_veil";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v17) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v11) )
     __debugbreak();
 LABEL_32:
-  Dvar_CheckFrontendServerThread(v16);
-  if ( rg.debugShaderEnabled || !v16->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( rg.debugShaderEnabled || !v10->current.enabled )
   {
-    _RBX->perceptual.veilEnabled = 0;
-    _RBX->perceptual.veilStrength = 0.0;
+    viewInfo->perceptual.veilEnabled = 0;
+    viewInfo->perceptual.veilStrength = 0.0;
   }
 }
 
@@ -10888,310 +8901,169 @@ R_SetSceneParms
 */
 void R_SetSceneParms(const refdef_t *refdef, GfxSceneParms *sceneParms)
 {
-  __int64 v8; 
-  __int64 v82; 
+  float blurRadius; 
+  GfxFog *p_fog; 
+  __int64 v6; 
+  GfxFog *v7; 
+  __int128 v8; 
+  GfxShieldEffectState *p_shieldEffect; 
+  GfxShieldEffectState *v10; 
+  __int64 v11; 
+  __int128 v12; 
 
-  _RBX = sceneParms;
-  _RDI = refdef;
   if ( !refdef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9841, ASSERT_TYPE_ASSERT, "(refdef)", (const char *)&queryFormat, "refdef") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9842, ASSERT_TYPE_ASSERT, "(sceneParms)", (const char *)&queryFormat, "sceneParms") )
+  if ( !sceneParms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9842, ASSERT_TYPE_ASSERT, "(sceneParms)", (const char *)&queryFormat, "sceneParms") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+0B0h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  _RCX = &_RBX->fog;
-  _RBX->lightUVIntensityScale = _RDI->lightTweakUVIntensityScale;
-  v8 = 2i64;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+10C9Ch]
-    vmovsd  qword ptr [rbx+7D8h], xmm0
-  }
-  _RBX->chromaticAberration.aberration = _RDI->chromaticAberration.aberration;
-  _RAX = &_RDI->fog;
+  blurRadius = refdef->blurRadius;
+  if ( blurRadius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 9843, ASSERT_TYPE_ASSERT, "( ( refdef->blurRadius >= 0.0f ) )", "( refdef->blurRadius ) = %g", blurRadius) )
+    __debugbreak();
+  p_fog = &sceneParms->fog;
+  sceneParms->lightUVIntensityScale = refdef->lightTweakUVIntensityScale;
+  v6 = 2i64;
+  *(double *)&sceneParms->chromaticAberration.radius = *(double *)&refdef->chromaticAberration.radius;
+  sceneParms->chromaticAberration.aberration = refdef->chromaticAberration.aberration;
+  v7 = &refdef->fog;
   do
   {
-    _RCX = (GfxFog *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxFog *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v8;
+    p_fog = (GfxFog *)((char *)p_fog + 128);
+    v8 = *(_OWORD *)v7->maxOpticalDepth.v;
+    v7 = (GfxFog *)((char *)v7 + 128);
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[3].data.fogStartDist = v8;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[4].image = *(_OWORD *)&v7[-1].fogSplineBlendEntry[4].image;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[4].data.fogMaxDistance = *(_OWORD *)&v7[-1].fogSplineBlendEntry[4].data.fogMaxDistance;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[5].data.fogStartDist = *(_OWORD *)&v7[-1].fogSplineBlendEntry[5].data.fogStartDist;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[6].image = *(_OWORD *)&v7[-1].fogSplineBlendEntry[6].image;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[6].data.fogMaxDistance = *(_OWORD *)&v7[-1].fogSplineBlendEntry[6].data.fogMaxDistance;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[7].data.fogStartDist = *(_OWORD *)&v7[-1].fogSplineBlendEntry[7].data.fogStartDist;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendCount = *(_OWORD *)&v7[-1].fogSplineBlendCount;
+    --v6;
   }
-  while ( v8 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
-  *(_QWORD *)_RCX->mieCoeffs.v = *(_QWORD *)_RAX->mieCoeffs.v;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+1E0h]
-    vmovups xmmword ptr [rbx+928h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+1F0h]
-    vmovups xmmword ptr [rbx+938h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+200h]
-    vmovups xmmword ptr [rbx+948h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+210h]
-    vmovups xmmword ptr [rbx+958h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+220h]
-    vmovups xmmword ptr [rbx+968h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+230h]
-    vmovups xmmword ptr [rbx+978h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+240h]
-    vmovups xmmword ptr [rbx+988h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+250h]
-    vmovups xmmword ptr [rbx+998h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+260h]
-    vmovups xmmword ptr [rbx+9A8h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+270h]
-    vmovups xmmword ptr [rbx+9B8h], xmm1
-  }
-  _RBX->brCircle.densityScrollingSpeed = _RDI->brCircle.densityScrollingSpeed;
-  _RBX->frameTime = _RDI->frameTime;
-  _RBX->localClientNum = _RDI->localClientNum;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+0A0h]
-    vmovsd  qword ptr [rbx+4], xmm0
-  }
-  _RBX->dualViewScopeState.hipFstop = _RDI->dualViewScopeState.hipFstop;
-  _RBX->blurRadius = _RDI->blurRadius;
-  _RBX->uiBlur = _RDI->uiBlur;
-  _RBX->daltonizeMode = _RDI->daltonizeMode;
-  _RBX->daltonizeTargets = _RDI->daltonizeTargets;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+288h]
-    vmovups ymmword ptr [rbx+18h], ymm0
-  }
-  _RBX->dofPhysical.viewModelFocusDistance = _RDI->dofPhysical.viewModelFocusDistance;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+10BD0h]
-    vmovups xmmword ptr [rbx+0AD8h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+2ECh]
-    vmovups xmmword ptr [rbx+3Ch], xmm0
-  }
-  _RBX->lensProfile.UVScale = _RDI->lensProfile.UVScale;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+10F28h]
-    vmovsd  qword ptr [rbx+0ABCh], xmm0
-  }
-  _RBX->radialMotionBlur.strength = _RDI->radialMotionBlur.strength;
-  _RBX->viewmodelMotionBlurOverride = _RDI->viewmodelMotionBlurOverride;
-  _RBX->worldMotionBlurOverride = _RDI->worldMotionBlurOverride;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+10E3Ch]
-    vmovups ymmword ptr [rbx+0F4h], ymm0
-    vmovsd  xmm1, qword ptr [rdi+10E5Ch]
-    vmovsd  qword ptr [rbx+114h], xmm1
-    vmovups ymm0, ymmword ptr [rdi+10E64h]
-    vmovups ymmword ptr [rbx+11Ch], ymm0
-    vmovups ymm1, ymmword ptr [rdi+10E84h]
-    vmovups ymmword ptr [rbx+13Ch], ymm1
-    vmovups xmm0, xmmword ptr [rdi+10EA4h]
-    vmovups xmmword ptr [rbx+15Ch], xmm0
-  }
-  _RBX->sunshadowSoftness = _RDI->sunshadowSoftness;
-  _RBX->sunshadowSampleSizeNear = _RDI->sunshadowSampleSizeNear;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+10EBCh]
-    vmovups ymmword ptr [rbx+16Ch], ymm0
-    vmovups xmm1, xmmword ptr [rdi+10EDCh]
-    vmovups xmmword ptr [rbx+18Ch], xmm1
-    vmovsd  xmm0, qword ptr [rdi+10EECh]
-    vmovsd  qword ptr [rbx+19Ch], xmm0
-    vmovups ymm0, ymmword ptr [rdi+10B78h]
-    vmovups ymmword ptr [rbx+748h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+10B98h]
-    vmovups ymmword ptr [rbx+768h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+10BB8h]
-    vmovups xmmword ptr [rbx+788h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10BC8h]
-    vmovsd  qword ptr [rbx+798h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10BE0h]
-    vmovups xmmword ptr [rbx+7A0h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10BF0h]
-    vmovsd  qword ptr [rbx+7B0h], xmm1
-  }
-  _RBX->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = _RDI->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+10BFCh]
-    vmovups xmmword ptr [rbx+7BCh], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10C0Ch]
-    vmovsd  qword ptr [rbx+7CCh], xmm1
-  }
-  _RBX->eyeVirtualHighlight.eyeHighlightHeading = _RDI->eyeVirtualHighlight.eyeHighlightHeading;
-  _RBX->mdaoCullDistance = _RDI->mdaoCullDistance;
-  _RBX->mdaoFadeoutDistance = _RDI->mdaoFadeoutDistance;
-  _RBX->mdaoBoneSizeThreshold = _RDI->mdaoBoneSizeThreshold;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+300h]
-    vmovups ymmword ptr [rbx+0A08h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+320h]
-    vmovups xmmword ptr [rbx+0A28h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+10760h]
-    vmovsd  qword ptr [rbx+1A4h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+10C88h]
-    vmovups xmmword ptr [rbx+1ACh], xmm0
-  }
-  _RBX->analogEffects.analogChromaSeparationEffectAmount = _RDI->analogEffects.analogChromaSeparationEffectAmount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+10C18h]
-    vmovups ymmword ptr [rbx+80h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+10C38h]
-    vmovups ymmword ptr [rbx+0A0h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+10C58h]
-    vmovups ymmword ptr [rbx+0C0h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+10C78h]
-    vmovups xmmword ptr [rbx+0E0h], xmm1
-  }
-  _RBX->playerTeleported = _RDI->playerTeleported;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+10CC8h]
-    vmovups xmmword ptr [rbx+1C0h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10CD8h]
-    vmovups xmmword ptr [rbx+1D0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10CE8h]
-    vmovups xmmword ptr [rbx+1E0h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10CF8h]
-    vmovups xmmword ptr [rbx+1F0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10D08h]
-    vmovups xmmword ptr [rbx+200h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10D18h]
-    vmovups xmmword ptr [rbx+210h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10D28h]
-    vmovups xmmword ptr [rbx+220h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10D38h]
-    vmovups xmmword ptr [rbx+230h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10D48h]
-    vmovups xmmword ptr [rbx+240h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10D58h]
-    vmovups xmmword ptr [rbx+250h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10D68h]
-    vmovups xmmword ptr [rbx+260h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10D78h]
-    vmovups xmmword ptr [rbx+270h], xmm1
-  }
-  _RBX->nvgColorGrading = _RDI->nvgColorGrading;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+10D90h]
-    vmovss  dword ptr [rbx+288h], xmm0
-    vmovups ymm0, ymmword ptr [rdi+10D94h]
-    vmovups ymmword ptr [rbx+28Ch], ymm0
-    vmovups ymm1, ymmword ptr [rdi+10DB4h]
-    vmovups ymmword ptr [rbx+2ACh], ymm1
-    vmovups xmm0, xmmword ptr [rdi+10DD4h]
-    vmovups xmmword ptr [rbx+2CCh], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10DE4h]
-    vmovsd  qword ptr [rbx+2DCh], xmm1
-  }
-  _RCX = &_RBX->shieldEffect;
-  _RBX->perceptual = _RDI->perceptual;
-  _RDX = &_RDI->shieldEffect;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+10DF4h]
-    vmovups xmmword ptr [rbx+2ECh], xmm0
-    vmovups xmm0, xmmword ptr [rdi+10E24h]
-    vmovups xmmword ptr [rbx+2FCh], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10E34h]
-    vmovsd  qword ptr [rbx+30Ch], xmm1
-  }
-  v82 = 5i64;
+  while ( v6 );
+  *(_OWORD *)p_fog->maxOpticalDepth.v = *(_OWORD *)v7->maxOpticalDepth.v;
+  *(_OWORD *)p_fog->rayleighCoeffs.v = *(_OWORD *)v7->rayleighCoeffs.v;
+  *(_QWORD *)p_fog->mieCoeffs.v = *(_QWORD *)v7->mieCoeffs.v;
+  *(_OWORD *)sceneParms->brCircle.volumetricInnerColor.v = *(_OWORD *)refdef->brCircle.volumetricInnerColor.v;
+  *(_OWORD *)&sceneParms->brCircle.volumetricOuterColor.y = *(_OWORD *)&refdef->brCircle.volumetricOuterColor.y;
+  *(_OWORD *)&sceneParms->brCircle.distanceInnerColor.z = *(_OWORD *)&refdef->brCircle.distanceInnerColor.z;
+  *(_OWORD *)sceneParms->brCircle.perceptualTint.v = *(_OWORD *)refdef->brCircle.perceptualTint.v;
+  *(_OWORD *)&sceneParms->brCircle.position.y = *(_OWORD *)&refdef->brCircle.position.y;
+  *(_OWORD *)&sceneParms->brCircle.fogInset = *(_OWORD *)&refdef->brCircle.fogInset;
+  *(_OWORD *)&sceneParms->brCircle.distanceHeightFalloff = *(_OWORD *)&refdef->brCircle.distanceHeightFalloff;
+  *(_OWORD *)&sceneParms->brCircle.skyDistanceMultiplier = *(_OWORD *)&refdef->brCircle.skyDistanceMultiplier;
+  *(_OWORD *)&sceneParms->brCircle.distanceHeightViewBlend = *(_OWORD *)&refdef->brCircle.distanceHeightViewBlend;
+  *(_OWORD *)&sceneParms->brCircle.densityNoiseScale = *(_OWORD *)&refdef->brCircle.densityNoiseScale;
+  sceneParms->brCircle.densityScrollingSpeed = refdef->brCircle.densityScrollingSpeed;
+  sceneParms->frameTime = refdef->frameTime;
+  sceneParms->localClientNum = refdef->localClientNum;
+  *(double *)&sceneParms->dualViewScopeState.m_fade = *(double *)&refdef->dualViewScopeState.m_fade;
+  sceneParms->dualViewScopeState.hipFstop = refdef->dualViewScopeState.hipFstop;
+  sceneParms->blurRadius = refdef->blurRadius;
+  sceneParms->uiBlur = refdef->uiBlur;
+  sceneParms->daltonizeMode = refdef->daltonizeMode;
+  sceneParms->daltonizeTargets = refdef->daltonizeTargets;
+  *(__m256i *)&sceneParms->dofPhysical.enabled = *(__m256i *)&refdef->dofPhysical.enabled;
+  sceneParms->dofPhysical.viewModelFocusDistance = refdef->dofPhysical.viewModelFocusDistance;
+  sceneParms->shellshock = refdef->shellshock;
+  *(_OWORD *)&sceneParms->lensProfile.mode = *(_OWORD *)&refdef->lensProfile.mode;
+  sceneParms->lensProfile.UVScale = refdef->lensProfile.UVScale;
+  *(double *)&sceneParms->radialMotionBlur.enabled = *(double *)&refdef->radialMotionBlur.enabled;
+  sceneParms->radialMotionBlur.strength = refdef->radialMotionBlur.strength;
+  sceneParms->viewmodelMotionBlurOverride = refdef->viewmodelMotionBlurOverride;
+  sceneParms->worldMotionBlurOverride = refdef->worldMotionBlurOverride;
+  *(__m256i *)&sceneParms->volumeLightScatter.enabled = *(__m256i *)&refdef->volumeLightScatter.enabled;
+  *(double *)&sceneParms->volumeLightScatter.depthAttenuation.y = *(double *)&refdef->volumeLightScatter.depthAttenuation.y;
+  *(__m256i *)&sceneParms->volumetrics.enabled = *(__m256i *)&refdef->volumetrics.enabled;
+  *(__m256i *)&sceneParms->volumetrics.omniBrightness = *(__m256i *)&refdef->volumetrics.omniBrightness;
+  *(_OWORD *)&sceneParms->volumetrics.heightFogBaseHeight = *(_OWORD *)&refdef->volumetrics.heightFogBaseHeight;
+  sceneParms->sunshadowSoftness = refdef->sunshadowSoftness;
+  sceneParms->sunshadowSampleSizeNear = refdef->sunshadowSampleSizeNear;
+  *(__m256i *)&sceneParms->cloudShadow.lookupMatrix[0][0] = *(__m256i *)&refdef->cloudShadow.lookupMatrix[0][0];
+  *(_OWORD *)&sceneParms->cloudShadow.scale = *(_OWORD *)&refdef->cloudShadow.scale;
+  *(double *)&sceneParms->cloudShadow.min = *(double *)&refdef->cloudShadow.min;
+  *(__m256i *)&sceneParms->thermalParams.useNightAndThermalVisionCombo = *(__m256i *)&refdef->thermalParams.useNightAndThermalVisionCombo;
+  *(__m256i *)&sceneParms->thermalParams.thermalFogExtinctionWeight = *(__m256i *)&refdef->thermalParams.thermalFogExtinctionWeight;
+  *(_OWORD *)&sceneParms->thermalParams.thermalHotColor.z = *(_OWORD *)&refdef->thermalParams.thermalHotColor.z;
+  sceneParms->thermalParams.thermalRadiationLut = refdef->thermalParams.thermalRadiationLut;
+  *(_OWORD *)&sceneParms->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal = *(_OWORD *)&refdef->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal;
+  *(double *)&sceneParms->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta = *(double *)&refdef->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta;
+  sceneParms->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = refdef->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta;
+  *(_OWORD *)&sceneParms->eyeVirtualHighlight.eyeHighlightIntensity = *(_OWORD *)&refdef->eyeVirtualHighlight.eyeHighlightIntensity;
+  *(double *)&sceneParms->eyeVirtualHighlight.eyeHighlightBulbRadius = *(double *)&refdef->eyeVirtualHighlight.eyeHighlightBulbRadius;
+  sceneParms->eyeVirtualHighlight.eyeHighlightHeading = refdef->eyeVirtualHighlight.eyeHighlightHeading;
+  sceneParms->mdaoCullDistance = refdef->mdaoCullDistance;
+  sceneParms->mdaoFadeoutDistance = refdef->mdaoFadeoutDistance;
+  sceneParms->mdaoBoneSizeThreshold = refdef->mdaoBoneSizeThreshold;
+  *(__m256i *)sceneParms->waterSheetingFx.distortionScale.v = *(__m256i *)refdef->waterSheetingFx.distortionScale.v;
+  *(_OWORD *)&sceneParms->waterSheetingFx.startMSec = *(_OWORD *)&refdef->waterSheetingFx.startMSec;
+  sceneParms->digitalDistort = refdef->digitalDistort;
+  *(_OWORD *)&sceneParms->analogEffects.analogRewindAmount = *(_OWORD *)&refdef->analogEffects.analogRewindAmount;
+  sceneParms->analogEffects.analogChromaSeparationEffectAmount = refdef->analogEffects.analogChromaSeparationEffectAmount;
+  *(__m256i *)&sceneParms->droneCameraEffects.pixelSize = *(__m256i *)&refdef->droneCameraEffects.pixelSize;
+  *(__m256i *)&sceneParms->droneCameraEffects.deformScreenThreshold = *(__m256i *)&refdef->droneCameraEffects.deformScreenThreshold;
+  *(__m256i *)&sceneParms->droneCameraEffects.scanline2_InterpolationPower = *(__m256i *)&refdef->droneCameraEffects.scanline2_InterpolationPower;
+  *(_OWORD *)&sceneParms->droneCameraEffects.zoomUV = *(_OWORD *)&refdef->droneCameraEffects.zoomUV;
+  sceneParms->playerTeleported = refdef->playerTeleported;
+  *(_OWORD *)&sceneParms->colorGrading.clutSet.m_clutCount = *(_OWORD *)&refdef->colorGrading.clutSet.m_clutCount;
+  *(_OWORD *)sceneParms->colorGrading.clutSet.m_clutArray = *(_OWORD *)refdef->colorGrading.clutSet.m_clutArray;
+  *(_OWORD *)&sceneParms->colorGrading.clutSet.m_clutArray[2] = *(_OWORD *)&refdef->colorGrading.clutSet.m_clutArray[2];
+  *(_OWORD *)&sceneParms->colorGrading.clutSet.m_clutArray[4] = *(_OWORD *)&refdef->colorGrading.clutSet.m_clutArray[4];
+  *(_OWORD *)&sceneParms->colorGrading.clutSet.m_clutArray[6] = *(_OWORD *)&refdef->colorGrading.clutSet.m_clutArray[6];
+  *(_OWORD *)sceneParms->colorGrading.colorGradingAnalytical.keyPositions = *(_OWORD *)refdef->colorGrading.colorGradingAnalytical.keyPositions;
+  *(_OWORD *)&sceneParms->colorGrading.colorGradingAnalytical.keyMidpoints[1] = *(_OWORD *)&refdef->colorGrading.colorGradingAnalytical.keyMidpoints[1];
+  *(_OWORD *)&sceneParms->colorGrading.colorGradingAnalytical.key[0].saturation = *(_OWORD *)&refdef->colorGrading.colorGradingAnalytical.key[0].saturation;
+  *(_OWORD *)&sceneParms->colorGrading.colorGradingAnalytical.key[1].saturation = *(_OWORD *)&refdef->colorGrading.colorGradingAnalytical.key[1].saturation;
+  *(_OWORD *)&sceneParms->colorGrading.colorGradingAnalytical.key[2].saturation = *(_OWORD *)&refdef->colorGrading.colorGradingAnalytical.key[2].saturation;
+  *(_OWORD *)&sceneParms->colorGrading.colorGradingAnalytical.lift.z = *(_OWORD *)&refdef->colorGrading.colorGradingAnalytical.lift.z;
+  *(_OWORD *)sceneParms->colorGrading.colorGradingAnalytical.gain.v = *(_OWORD *)refdef->colorGrading.colorGradingAnalytical.gain.v;
+  sceneParms->nvgColorGrading = refdef->nvgColorGrading;
+  sceneParms->ssao.strength = refdef->ssao.strength;
+  *(__m256i *)&sceneParms->tonemap.enabled = *(__m256i *)&refdef->tonemap.enabled;
+  *(__m256i *)&sceneParms->tonemap.midEv = *(__m256i *)&refdef->tonemap.midEv;
+  *(_OWORD *)&sceneParms->tonemap.localStrength = *(_OWORD *)&refdef->tonemap.localStrength;
+  *(double *)&sceneParms->tonemap.whitePoint.z = *(double *)&refdef->tonemap.whitePoint.z;
+  p_shieldEffect = &sceneParms->shieldEffect;
+  sceneParms->perceptual = refdef->perceptual;
+  v10 = &refdef->shieldEffect;
+  sceneParms->whiteBalance = refdef->whiteBalance;
+  *(_OWORD *)&sceneParms->rimLighting.rimLightScale = *(_OWORD *)&refdef->rimLighting.rimLightScale;
+  *(double *)&sceneParms->rimLighting.EVCompBounds = *(double *)&refdef->rimLighting.EVCompBounds;
+  v11 = 5i64;
   do
   {
-    _RCX = (GfxShieldEffectState *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rdx] }
-    _RDX = (GfxShieldEffectState *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rdx-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v82;
+    p_shieldEffect = (GfxShieldEffectState *)((char *)p_shieldEffect + 128);
+    v12 = *(_OWORD *)&v10->m_shieldEffectmode;
+    v10 = (GfxShieldEffectState *)((char *)v10 + 128);
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[25].m_maxRadius = v12;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[26].m_startTimeMS = *(_OWORD *)&v10[-1].m_shieldHitArray[26].m_startTimeMS;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[27].m_elapsedTimeNormalized = *(_OWORD *)&v10[-1].m_shieldHitArray[27].m_elapsedTimeNormalized;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[28].m_yPos = *(_OWORD *)&v10[-1].m_shieldHitArray[28].m_yPos;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[29].m_xPos = *(_OWORD *)&v10[-1].m_shieldHitArray[29].m_xPos;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[29].m_maxRadius = *(_OWORD *)&v10[-1].m_shieldHitArray[29].m_maxRadius;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[30].m_startTimeMS = *(_OWORD *)&v10[-1].m_shieldHitArray[30].m_startTimeMS;
+    *(_OWORD *)&p_shieldEffect[-1].m_shieldHitArray[31].m_elapsedTimeNormalized = *(_OWORD *)&v10[-1].m_shieldHitArray[31].m_elapsedTimeNormalized;
+    --v11;
   }
-  while ( v82 );
-  *(_QWORD *)&_RCX->m_shieldEffectmode = *(_QWORD *)&_RDX->m_shieldEffectmode;
-  _RCX->m_shieldHitArray[0].m_xPos = _RDX->m_shieldHitArray[0].m_xPos;
-  _RBX->skyBlendAmount = _RDI->skyBlendAmount;
-  _RBX->skyBlendFeather = _RDI->skyBlendFeather;
-  _RBX->skyIlluminationRadialDistanceBias = _RDI->skyIlluminationRadialDistanceBias;
-  _RBX->deferredScreenshotIndex = _RDI->deferredScreenshotIndex;
-  *(_DWORD *)&_RBX->sceneRtWidth = 0;
-  _RBX->visionSetToolConnected = _RDI->visionSetToolConnected;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+10F34h]
-    vmovups ymmword ptr [rbx+448h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+10F54h]
-    vmovups ymmword ptr [rbx+468h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+10F74h]
-    vmovups xmmword ptr [rbx+488h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10F84h]
-    vmovsd  qword ptr [rbx+498h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+10E08h]
-    vmovups xmmword ptr [rbx+72Ch], xmm0
-    vmovsd  xmm1, qword ptr [rdi+10E18h]
-    vmovsd  qword ptr [rbx+73Ch], xmm1
-  }
-  _RBX->dustParmas.dustSmoothMax = _RDI->dust.dustSmoothMax;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+10888h]
-    vmovups ymmword ptr [rbx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdi+108A8h]
-    vmovups xmmword ptr [rbx+70h], xmm1
-    vmovss  xmm0, dword ptr [rdi+10F94h]
-    vmovss  dword ptr [rbx+0AD0h], xmm0
-    vmovss  xmm1, dword ptr [rdi+10F98h]
-    vmovss  dword ptr [rbx+0AD4h], xmm1
-  }
+  while ( v11 );
+  *(_QWORD *)&p_shieldEffect->m_shieldEffectmode = *(_QWORD *)&v10->m_shieldEffectmode;
+  p_shieldEffect->m_shieldHitArray[0].m_xPos = v10->m_shieldHitArray[0].m_xPos;
+  sceneParms->skyBlendAmount = refdef->skyBlendAmount;
+  sceneParms->skyBlendFeather = refdef->skyBlendFeather;
+  sceneParms->skyIlluminationRadialDistanceBias = refdef->skyIlluminationRadialDistanceBias;
+  sceneParms->deferredScreenshotIndex = refdef->deferredScreenshotIndex;
+  *(_DWORD *)&sceneParms->sceneRtWidth = 0;
+  sceneParms->visionSetToolConnected = refdef->visionSetToolConnected;
+  *(__m256i *)&sceneParms->depthScanParams.enabled = *(__m256i *)&refdef->depthScanParams.enabled;
+  *(__m256i *)&sceneParms->depthScanParams.scrollParams.xyz.z = *(__m256i *)&refdef->depthScanParams.scrollParams.xyz.z;
+  *(vec4_t *)((char *)&sceneParms->depthScanParams.outlineColor + 8) = *(vec4_t *)((char *)&refdef->depthScanParams.outlineColor + 8);
+  *(double *)&sceneParms->depthScanParams.overlayColor.xyz.z = *(double *)&refdef->depthScanParams.overlayColor.xyz.z;
+  *(_OWORD *)&sceneParms->dustParmas.dustHeading = *(_OWORD *)&refdef->dust.dustHeading;
+  *(double *)&sceneParms->dustParmas.dustPowerCurve = *(double *)&refdef->dust.dustPowerCurve;
+  sceneParms->dustParmas.dustSmoothMax = refdef->dust.dustSmoothMax;
+  *(__m256i *)&sceneParms->vignette.intensity = *(__m256i *)&refdef->vignette.intensity;
+  *(_OWORD *)sceneParms->vignette.offset.v = *(_OWORD *)refdef->vignette.offset.v;
+  sceneParms->decalVolumes.drawDistance = refdef->decalVolumes.drawDistance;
+  sceneParms->lightingFraction.bias = refdef->lightingFraction.bias;
 }
 
 /*
@@ -11201,192 +9073,99 @@ R_SetScreenSpaceReflectionInfo
 */
 void R_SetScreenSpaceReflectionInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
-  bool v14; 
-  char v131; 
-  void *retaddr; 
+  float value; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float height; 
+  float v10; 
+  float width; 
+  __int64 v12; 
+  float v13; 
+  float x; 
+  float v15; 
+  float y; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v37; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _ESI = 0;
-  v14 = rg.ssrMode < 2u;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RDI = viewInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-  }
-  viewInfo->input.sceneConstants.ssrMaskWrite = !v14;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps [rsp+0D8h+var_A8], xmm15
-  }
+  viewInfo->input.sceneConstants.ssrMaskWrite = rg.ssrMode >= 2u;
   MatrixTranspose44Aligned(&viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &viewInfo->input.sceneConstants.ssrViewProjectionMatrix.m);
-  _RAX = r_ssrPositionCorrection;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+100h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+280h]
-    vmovss  xmm2, dword ptr [rdi+104h]
-    vmovss  xmm5, dword ptr [rax+28h]
-    vsubss  xmm0, xmm2, dword ptr [rdi+284h]
-    vmulss  xmm3, xmm0, xmm5
-    vmulss  xmm4, xmm1, xmm5
-    vmovss  xmm1, dword ptr [rdi+108h]
-    vsubss  xmm2, xmm1, dword ptr [rdi+288h]
-    vmovss  dword ptr [rdi+20B0h], xmm4
-    vmovss  dword ptr [rdi+20B4h], xmm3
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rdi+20B8h], xmm0
-    vmovss  dword ptr [rdi+20BCh], xmm5
-  }
-  _RDI->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR0 = _RDI->prevFrameViewParms.viewProjectionMatrix.m.m[0];
-  _RDI->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR1 = _RDI->prevFrameViewParms.viewProjectionMatrix.m.row1;
-  _RDI->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR2 = _RDI->prevFrameViewParms.viewProjectionMatrix.m.row2;
-  _RDI->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR3 = _RDI->prevFrameViewParms.viewProjectionMatrix.m.row3;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm10, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm15, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm14, xmm0, xmm15
-    vmovss  xmm7, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm10
-    vmulss  xmm11, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm2, xmm0, xmm15
-    vaddss  xmm12, xmm1, xmm11
-    vxorps  xmm3, xmm3, xmm3
-    vmulss  xmm1, xmm14, xmm7
-    vaddss  xmm13, xmm2, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vcvtsi2ss xmm3, xmm3, rax
-    vaddss  xmm0, xmm2, xmm7
-    vmulss  xmm6, xmm0, xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rdi+2280h], xmm6
-    vaddss  xmm1, xmm3, xmm7
-    vmulss  xmm5, xmm1, xmm15
-    vaddss  xmm1, xmm0, xmm2
-    vsubss  xmm2, xmm1, xmm7
-    vmovss  dword ptr [rdi+2284h], xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm1, xmm0, xmm3
-    vmulss  xmm4, xmm2, xmm10
-    vsubss  xmm2, xmm1, xmm7
-    vmovss  dword ptr [rdi+2288h], xmm4
-    vmovss  xmm4, cs:__real@40000000
-    vmulss  xmm3, xmm2, xmm15
-    vmovss  dword ptr [rdi+228Ch], xmm3
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm2, xmm2, rax
-    vaddss  xmm0, xmm2, xmm7
-    vmulss  xmm8, xmm0, xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm3, xmm3, rax
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm1, xmm3, xmm7
-    vmulss  xmm9, xmm1, xmm15
-    vaddss  xmm1, xmm0, xmm2
-    vsubss  xmm2, xmm1, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm1, xmm0, xmm3
-    vmulss  xmm6, xmm2, xmm10
-    vmovss  xmm10, cs:__real@3f800000
-    vsubss  xmm2, xmm1, xmm7
-    vmulss  xmm7, xmm2, xmm15
-    vsubss  xmm0, xmm6, xmm8
-    vdivss  xmm3, xmm10, xmm0
-    vsubss  xmm1, xmm7, xmm9
-    vdivss  xmm5, xmm10, xmm1
-    vmulss  xmm0, xmm11, xmm4
-    vmulss  xmm1, xmm0, xmm3
-    vmulss  xmm2, xmm14, xmm5
-    vmulss  xmm0, xmm12, xmm4
-    vmovss  dword ptr [rdi+20D0h], xmm1
-    vmovss  dword ptr [rdi+20D4h], xmm2
-    vsubss  xmm1, xmm0, xmm8
-    vsubss  xmm2, xmm1, xmm6
-    vmulss  xmm3, xmm2, xmm3
-    vmovss  dword ptr [rdi+20D8h], xmm3
-    vmulss  xmm0, xmm13, xmm4
-    vsubss  xmm1, xmm9, xmm0
-    vaddss  xmm2, xmm1, xmm7
-    vmulss  xmm3, xmm2, xmm5
-    vmovss  dword ptr [rdi+20DCh], xmm3
-  }
-  _ECX = rg.ssrMode;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm4, xmm0, xmm15
-    vmovd   xmm0, ecx
-    vmovd   xmm1, esi
-    vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vblendvps xmm0, xmm10, xmm3, xmm2
-    vmovss  [rsp+0D8h+var_B8], xmm0
-  }
+  value = r_ssrPositionCorrection->current.value;
+  v5 = (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[1]) * value;
+  v6 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[2];
+  viewInfo->input.sceneConstants.prevEyePositionTransform.v[0] = (float)(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[0]) * value;
+  viewInfo->input.sceneConstants.prevEyePositionTransform.v[1] = v5;
+  viewInfo->input.sceneConstants.prevEyePositionTransform.v[2] = v6 * value;
+  viewInfo->input.sceneConstants.prevEyePositionTransform.v[3] = value;
+  viewInfo->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR0 = viewInfo->prevFrameViewParms.viewProjectionMatrix.m.m[0];
+  viewInfo->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR1 = viewInfo->prevFrameViewParms.viewProjectionMatrix.m.row1;
+  viewInfo->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR2 = viewInfo->prevFrameViewParms.viewProjectionMatrix.m.row2;
+  viewInfo->input.sceneConstants.ssrPrevFrameViewProjectionMatrixR3 = viewInfo->prevFrameViewParms.viewProjectionMatrix.m.row3;
+  v7 = 1.0 / (float)sceneParms->sceneRtWidth;
+  v8 = 1.0 / (float)sceneParms->sceneRtHeight;
+  height = (float)viewInfo->sceneViewport.height;
+  v10 = height * v8;
+  width = (float)viewInfo->sceneViewport.width;
+  v12 = 3573i64;
+  v13 = (float)(width * v7) * 0.5;
+  x = (float)viewInfo->sceneViewport.x;
+  v15 = x * v7;
+  y = (float)viewInfo->sceneViewport.y;
+  v17 = (float)(y * v8) + (float)(v10 * 0.5);
+  v18 = (float)viewInfo->scissorViewport.x;
+  v19 = (float)viewInfo->scissorViewport.y;
+  v20 = (float)viewInfo->scissorViewport.width;
+  v21 = viewInfo->scissorViewport.height;
+  viewInfo->input.sceneConstants.distortionSampleLimitsPS.v[0] = (float)(v18 + 0.5) * v7;
+  viewInfo->input.sceneConstants.distortionSampleLimitsPS.v[1] = (float)(v19 + 0.5) * v8;
+  v22 = (float)v21;
+  viewInfo->input.sceneConstants.distortionSampleLimitsPS.v[2] = (float)((float)(v20 + v18) - 0.5) * v7;
+  viewInfo->input.sceneConstants.distortionSampleLimitsPS.v[3] = (float)((float)(v22 + v19) - 0.5) * v8;
+  if ( !viewInfo->ssrSourceSceneViewport.width )
+    v12 = 304i64;
+  v23 = (float)LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[0].v[v12]);
+  v24 = (float)(v23 + 0.5) * v7;
+  v25 = (float)LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[0].v[v12 + 1]);
+  v26 = (float)LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[0].v[v12 + 2]);
+  v27 = (float)(v25 + 0.5) * v8;
+  v28 = (float)LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[0].v[v12 + 3]);
+  v29 = (float)((float)(v26 + v23) - 0.5) * v7;
+  _XMM10 = LODWORD(FLOAT_1_0);
+  v31 = (float)((float)(v28 + v25) - 0.5) * v8;
+  v32 = 1.0 / (float)(v29 - v24);
+  v33 = 1.0 / (float)(v31 - v27);
+  viewInfo->input.sceneConstants.ssrClipToFadeScaleOffsetPS.v[0] = (float)(v13 * 2.0) * v32;
+  viewInfo->input.sceneConstants.ssrClipToFadeScaleOffsetPS.v[1] = v10 * v33;
+  viewInfo->input.sceneConstants.ssrClipToFadeScaleOffsetPS.v[2] = (float)((float)((float)((float)(v15 + v13) * 2.0) - v24) - v29) * v32;
+  viewInfo->input.sceneConstants.ssrClipToFadeScaleOffsetPS.v[3] = (float)((float)(v27 - (float)(v17 * 2.0)) + v31) * v33;
+  v34 = (float)sceneParms->sceneRtWidth * v8;
+  _XMM0 = rg.ssrMode;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  v37 = 0.0;
+  __asm { vblendvps xmm0, xmm10, xmm3, xmm2 }
   if ( rg.ssrMode )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+37D0h]
-      vmulss  xmm3, xmm0, dword ptr [rax+28h]
-    }
-  }
-  __asm
-  {
-    vmovss  xmm1, [rsp+0D8h+var_B8]
-    vmovaps xmm14, [rsp+0D8h+var_98]
-  }
-  _R11 = &v131;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0D8h+var_A8]
-    vmulss  xmm0, xmm3, xmm4
-  }
-  _RDI->input.sceneConstants.ssrFadePS.v[3] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rdi+20C0h], xmm0
-    vmovss  dword ptr [rdi+20C8h], xmm1
-    vmovss  dword ptr [rdi+20C4h], xmm4
-  }
+    v37 = viewInfo->ssrFade * r_ssrFadeInStrength->current.value;
+  viewInfo->input.sceneConstants.ssrFadePS.v[3] = 0.0;
+  viewInfo->input.sceneConstants.ssrFadePS.v[0] = v37 * v34;
+  viewInfo->input.sceneConstants.ssrFadePS.v[2] = *(float *)&_XMM0;
+  viewInfo->input.sceneConstants.ssrFadePS.v[1] = v34;
 }
 
 /*
@@ -11397,257 +9176,159 @@ R_SetShadowConstants
 void R_SetShadowConstants(GfxViewInfo *viewInfo, const GfxSunShadow *sunShadow)
 {
   GfxSunShadowProjection *p_sunProj; 
-  __int64 v7; 
-  float *v8; 
+  __int64 v5; 
+  float *v6; 
   vec2_t *eyeOffset; 
-  signed __int64 v10; 
+  signed __int64 v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   float v13; 
+  float v14; 
+  float MapSize; 
+  float v16; 
+  float value; 
   float v18; 
-  char v38; 
+  const dvar_t *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v26; 
+  float v27; 
+  __int128 v29; 
   unsigned int firstCachedSunShadowPartition; 
-  unsigned int v54; 
-  __int128 v64; 
+  float v32; 
+  __int128 v34; 
+  unsigned int v36; 
+  float v37; 
+  __int128 v39; 
+  unsigned __int64 v41; 
 
-  _RDI = sunShadow;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   p_sunProj = &sunShadow->sunProj;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  _RBX = viewInfo;
-  v7 = 4i64;
-  v8 = &viewInfo->input.sceneConstants.sunshadowSwitchPartition[0].v[2];
+  v5 = 4i64;
+  v6 = &viewInfo->input.sceneConstants.sunshadowSwitchPartition[0].v[2];
   eyeOffset = p_sunProj->eyeOffset;
-  v10 = (char *)p_sunProj - (char *)_RBX;
+  v8 = (char *)p_sunProj - (char *)viewInfo;
   do
   {
     ++eyeOffset;
-    *(v8 - 2) = *(float *)((char *)v8 + v10 - 7432);
-    *(v8 - 1) = *(float *)((char *)v8 + v10 - 7428);
-    *v8 = *(float *)((char *)v8 + v10 - 7424);
-    v8[1] = *(float *)((char *)v8 + v10 - 7420);
-    v8 += 4;
-    v8[10] = eyeOffset[-1].v[0];
-    v8[11] = eyeOffset[-1].v[1];
-    v8[26] = *(float *)((char *)v8 + v10 - 7352);
-    v8[27] = *(float *)((char *)v8 + v10 - 7348);
-    v8[28] = *(float *)((char *)v8 + v10 - 7344);
-    v8[29] = *(float *)((char *)v8 + v10 - 7340);
-    --v7;
+    *(v6 - 2) = *(float *)((char *)v6 + v8 - 7432);
+    *(v6 - 1) = *(float *)((char *)v6 + v8 - 7428);
+    *v6 = *(float *)((char *)v6 + v8 - 7424);
+    v6[1] = *(float *)((char *)v6 + v8 - 7420);
+    v6 += 4;
+    v6[10] = eyeOffset[-1].v[0];
+    v6[11] = eyeOffset[-1].v[1];
+    v6[26] = *(float *)((char *)v6 + v8 - 7352);
+    v6[27] = *(float *)((char *)v6 + v8 - 7348);
+    v6[28] = *(float *)((char *)v6 + v8 - 7344);
+    v6[29] = *(float *)((char *)v6 + v8 - 7340);
+    --v5;
   }
-  while ( v7 );
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+4F44h]
-    vmovss  xmm0, dword ptr [rdi+4F3Ch]
-  }
-  v13 = _RDI->cloudShadow.lookupMatrix[0][0];
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+4F4Ch]
-    vmovss  dword ptr [rbx+1E34h], xmm0
-    vmovss  dword ptr [rbx+1E38h], xmm1
-    vmovss  dword ptr [rbx+1E3Ch], xmm2
-  }
-  _RBX->input.sceneConstants.cloudShadowLookupMatrixR0.v[0] = v13;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+4F50h]
-    vmovss  xmm1, dword ptr [rdi+4F48h]
-    vmovss  xmm0, dword ptr [rdi+4F40h]
-  }
-  v18 = _RDI->cloudShadow.lookupMatrix[0][1];
-  __asm
-  {
-    vmovss  dword ptr [rbx+1E44h], xmm0
-    vmovss  dword ptr [rbx+1E48h], xmm1
-    vmovss  dword ptr [rbx+1E4Ch], xmm3
-  }
-  _RBX->input.sceneConstants.cloudShadowLookupMatrixR1.v[0] = v18;
-  R_SetCloudShadowParams(&_RDI->cloudShadow, _RBX);
-  R_SunShadow_GetMapSize();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+1DC0h], xmm0
-    vmovss  dword ptr [rbx+1DC4h], xmm0
-    vdivss  xmm0, xmm7, xmm0
-    vmovss  dword ptr [rbx+1DC8h], xmm0
-    vmovss  dword ptr [rbx+1DCCh], xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
+  while ( v5 );
+  v9 = sunShadow->cloudShadow.lookupMatrix[2][0];
+  v10 = sunShadow->cloudShadow.lookupMatrix[0][0];
+  v11 = sunShadow->cloudShadow.lookupMatrix[3][0];
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR0.v[1] = sunShadow->cloudShadow.lookupMatrix[1][0];
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR0.v[2] = v9;
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR0.v[3] = v11;
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR0.v[0] = v10;
+  v12 = sunShadow->cloudShadow.lookupMatrix[3][1];
+  v13 = sunShadow->cloudShadow.lookupMatrix[2][1];
+  v14 = sunShadow->cloudShadow.lookupMatrix[0][1];
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR1.v[1] = sunShadow->cloudShadow.lookupMatrix[1][1];
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR1.v[2] = v13;
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR1.v[3] = v12;
+  viewInfo->input.sceneConstants.cloudShadowLookupMatrixR1.v[0] = v14;
+  R_SetCloudShadowParams(&sunShadow->cloudShadow, viewInfo);
+  MapSize = (float)R_SunShadow_GetMapSize();
+  viewInfo->input.sceneConstants.sunShadowMapSize.v[0] = MapSize;
+  viewInfo->input.sceneConstants.sunShadowMapSize.v[1] = MapSize;
+  viewInfo->input.sceneConstants.sunShadowMapSize.v[2] = 1.0 / MapSize;
+  viewInfo->input.sceneConstants.sunShadowMapSize.v[3] = 1.0 / MapSize;
   if ( sm_sunPoissonFiltering->current.enabled )
   {
-    _RBX->input.sceneConstants.sunShadowMapFilterRadius.v[0] = _RDI->filterRadius.v[0];
-    _RBX->input.sceneConstants.sunShadowMapFilterRadius.v[1] = _RDI->filterRadius.v[1];
-    _RBX->input.sceneConstants.sunShadowMapFilterRadius.v[2] = _RDI->filterRadius.v[2];
-    __asm { vmovss  xmm0, dword ptr [rdi+4F98h] }
+    viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v[0] = sunShadow->filterRadius.v[0];
+    viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v[1] = sunShadow->filterRadius.v[1];
+    viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v[2] = sunShadow->filterRadius.v[2];
+    v16 = sunShadow->filterRadius.v[3];
   }
   else
   {
-    *(_QWORD *)_RBX->input.sceneConstants.sunShadowMapFilterRadius.v = 0i64;
-    _RBX->input.sceneConstants.sunShadowMapFilterRadius.v[2] = 0.0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    *(_QWORD *)viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v = 0i64;
+    viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v[2] = 0.0;
+    v16 = 0.0;
   }
-  __asm { vmovss  dword ptr [rbx+1DDCh], xmm0 }
-  if ( !sm_sunStageBounds->current.enabled )
-    goto LABEL_10;
-  if ( !_RBX->stageInfo.activeStageValid )
-    goto LABEL_10;
-  _RAX = sm_sunStageBoundsFeather;
-  __asm
+  viewInfo->input.sceneConstants.sunShadowMapFilterRadius.v[3] = v16;
+  if ( sm_sunStageBounds->current.enabled && viewInfo->stageInfo.activeStageValid && (value = sm_sunStageBoundsFeather->current.value, value > 0.0) )
   {
-    vmovss  xmm1, dword ptr [rax+28h]
-    vcomiss xmm1, xmm6
-  }
-  if ( _RBX->stageInfo.activeStageValid )
-  {
-    __asm { vdivss  xmm2, xmm7, xmm1 }
+    v18 = 1.0 / value;
   }
   else
   {
-LABEL_10:
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm2, xmm2, xmm2
-    }
+    value = 0.0;
+    v18 = 0.0;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.sdfShadowPenumbra; r_globals_t rg
-    vmovss  dword ptr [rbx+1C70h], xmm0
-    vmovss  dword ptr [rbx+1C74h], xmm1
-    vmovss  dword ptr [rbx+1C78h], xmm2
-  }
-  _RBX->input.sceneConstants.staticSunShadowPenumbra.v[3] = 0.0;
-  _RSI = r_sunShadowParams;
+  viewInfo->input.sceneConstants.staticSunShadowPenumbra.v[0] = rg.sdfShadowPenumbra;
+  viewInfo->input.sceneConstants.staticSunShadowPenumbra.v[1] = value;
+  viewInfo->input.sceneConstants.staticSunShadowPenumbra.v[2] = v18;
+  viewInfo->input.sceneConstants.staticSunShadowPenumbra.v[3] = 0.0;
+  v19 = r_sunShadowParams;
   if ( !r_sunShadowParams && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 669, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v19->current.vector.v[3];
+  v21 = v19->current.value;
+  v22 = v19->current.vector.v[1];
+  v23 = v19->current.vector.v[2] * 0.000015258789;
+  viewInfo->input.sceneConstants.sunShadowParams.v[0] = v21;
+  viewInfo->input.sceneConstants.sunShadowParams.v[1] = v22;
+  viewInfo->input.sceneConstants.sunShadowParams.v[2] = v23;
+  viewInfo->input.sceneConstants.sunShadowParams.v[3] = v20;
+  _XMM0 = LODWORD(sunShadow->lightDir.v[2]);
+  __asm { vmaxss  xmm1, xmm0, cs:__real@34000000 }
+  v26 = 1.0 / *(float *)&_XMM1;
+  if ( !rg.useCachedSunShadow || sunShadow->firstCachedSunShadowPartition || (v27 = (float)(1.0 / *(float *)&_XMM1) * sunShadow->partitionCache[-sunShadow->firstCachedSunShadowPartition].cachedLODRefDistance, v27 <= 0.0) )
   {
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vmovss  xmm3, dword ptr [rsi+34h]
-    vmovss  xmm4, dword ptr [rsi+28h]
-    vmovss  xmm2, dword ptr [rsi+2Ch]
-    vmulss  xmm1, xmm0, cs:__real@37800000
-    vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rbx+1C60h], xmm4
-    vmovss  dword ptr [rbx+1C64h], xmm2
-    vmovss  dword ptr [rbx+1C68h], xmm1
-    vmovss  dword ptr [rbx+1C6Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+4F74h]
-    vmaxss  xmm1, xmm0, cs:__real@34000000
-    vdivss  xmm3, xmm7, xmm1
-  }
-  if ( !rg.useCachedSunShadow )
-    goto LABEL_18;
-  if ( _RDI->firstCachedSunShadowPartition )
-    goto LABEL_18;
-  __asm
-  {
-    vmulss  xmm0, xmm3, dword ptr [rcx+rdi+9B0h]
-    vcomiss xmm0, xmm6
-  }
-  if ( ((8656 * (unsigned __int128)(unsigned int)-_RDI->firstCachedSunShadowPartition) >> 64 != 0) | v38 )
-  {
-LABEL_18:
-    __asm { vmovups xmm0, cs:__xmm@00000000000000003f80000000000000 }
+    _XMM0 = (vec4_t)_xmm;
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm4, xmm0
-      vxorps  xmm1, xmm0, xmm5
-    }
-    *((_QWORD *)&v64 + 1) = 0i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+30h]
-      vmovss  xmm0, xmm0, xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vinsertps xmm0, xmm0, xmm2, 10h
-      vmovups xmmword ptr [rsp+30h], xmm0
-    }
+    v29 = v41;
+    LODWORD(v29) = COERCE_UNSIGNED_INT(v21 / v27) ^ _xmm;
+    _XMM0 = v29;
+    __asm { vinsertps xmm0, xmm0, xmm2, 10h }
+    v41 = *(_QWORD *)_XMM0.v;
   }
-  __asm { vmovups xmmword ptr [rbx+1E00h], xmm0 }
-  if ( !rg.useCachedSunShadow )
-    goto LABEL_24;
-  firstCachedSunShadowPartition = _RDI->firstCachedSunShadowPartition;
-  if ( firstCachedSunShadowPartition > 1 )
-    goto LABEL_24;
-  if ( !_RDI->lastCachedSunShadowPartition )
-    goto LABEL_24;
-  __asm
+  viewInfo->input.sceneConstants.sunShadowDepthBlend[0] = _XMM0;
+  if ( rg.useCachedSunShadow && (firstCachedSunShadowPartition = sunShadow->firstCachedSunShadowPartition, firstCachedSunShadowPartition <= 1) && sunShadow->lastCachedSunShadowPartition && (v32 = v26 * sunShadow->partitionCache[1 - firstCachedSunShadowPartition].cachedLODRefDistance, v32 > 0.0) )
   {
-    vmulss  xmm0, xmm3, dword ptr [rcx+rdi+9B0h]
-    vcomiss xmm0, xmm6
-  }
-  if ( !(((8656 * (unsigned __int128)(1 - firstCachedSunShadowPartition)) >> 64 != 0) | v38) )
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm4, xmm0
-      vxorps  xmm1, xmm0, xmm5
-    }
-    *((_QWORD *)&v64 + 1) = 0i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+30h]
-      vmovss  xmm0, xmm0, xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vinsertps xmm0, xmm0, xmm2, 10h
-      vmovups xmmword ptr [rsp+30h], xmm0
-    }
+    v34 = v41;
+    LODWORD(v34) = COERCE_UNSIGNED_INT(v21 / v32) ^ _xmm;
+    _XMM0 = v34;
+    __asm { vinsertps xmm0, xmm0, xmm2, 10h }
+    v41 = *(_QWORD *)_XMM0.v;
   }
   else
   {
-LABEL_24:
-    __asm { vmovups xmm0, cs:__xmm@00000000000000003f80000000000000 }
+    _XMM0 = (vec4_t)_xmm;
   }
-  __asm { vmovups xmmword ptr [rbx+1E10h], xmm0 }
-  if ( !rg.useCachedSunShadow )
-    goto LABEL_30;
-  v54 = _RDI->firstCachedSunShadowPartition;
-  if ( v54 > 2 )
-    goto LABEL_30;
-  if ( _RDI->lastCachedSunShadowPartition < 2u )
-    goto LABEL_30;
-  __asm
+  viewInfo->input.sceneConstants.sunShadowDepthBlend[1] = _XMM0;
+  if ( rg.useCachedSunShadow && (v36 = sunShadow->firstCachedSunShadowPartition, v36 <= 2) && sunShadow->lastCachedSunShadowPartition >= 2u && (v37 = v26 * sunShadow->partitionCache[2 - v36].cachedLODRefDistance, v37 > 0.0) )
   {
-    vmulss  xmm0, xmm3, dword ptr [rcx+rdi+9B0h]
-    vcomiss xmm0, xmm6
-  }
-  if ( ((8656 * (unsigned __int128)(2 - v54)) >> 64 != 0) | v38 )
-  {
-LABEL_30:
-    __asm { vmovups xmm0, cs:__xmm@00000000000000003f80000000000000 }
+    v39 = v41;
+    LODWORD(v39) = COERCE_UNSIGNED_INT(v21 / v37) ^ _xmm;
+    _XMM0 = v39;
+    __asm { vinsertps xmm0, xmm0, xmm2, 10h }
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm4, xmm0
-      vxorps  xmm1, xmm0, xmm5
-    }
-    *((_QWORD *)&v64 + 1) = 0i64;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+30h]
-      vmovss  xmm0, xmm0, xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vinsertps xmm0, xmm0, xmm2, 10h
-    }
+    _XMM0 = (vec4_t)_xmm;
   }
-  __asm
-  {
-    vmovups xmmword ptr [rbx+1E20h], xmm0
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  R_CompressedSunShadow_GetShaderGlobals(_RBX, _RDI, &_RBX->input.sceneConstants.compressedSunShadowParams0, &_RBX->input.sceneConstants.compressedSunShadowParams1);
+  viewInfo->input.sceneConstants.sunShadowDepthBlend[2] = _XMM0;
+  R_CompressedSunShadow_GetShaderGlobals(viewInfo, sunShadow, &viewInfo->input.sceneConstants.compressedSunShadowParams0, &viewInfo->input.sceneConstants.compressedSunShadowParams1);
 }
 
 /*
@@ -11657,6 +9338,7 @@ R_SetTonemapInfo
 */
 void R_SetTonemapInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
+  const dvar_t *v4; 
   const dvar_t *v5; 
   const dvar_t *v6; 
   const dvar_t *v7; 
@@ -11667,193 +9349,174 @@ void R_SetTonemapInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
   const dvar_t *v12; 
   const dvar_t *v13; 
   const dvar_t *v14; 
+  float value; 
+  const dvar_t *v16; 
   const dvar_t *v17; 
+  const dvar_t *v18; 
+  float localEvBounds; 
   const dvar_t *v20; 
   GfxColorimetry DisplayColorimetry; 
-  const dvar_t *v29; 
-  const dvar_t *v33; 
-  const dvar_t *v34; 
-  char v35; 
+  double UniversalExposureAdjust; 
+  float v23; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  char v27; 
 
-  _RDI = sceneParms;
-  _RBX = viewInfo;
-  v5 = DVARBOOL_r_tonemapUseTweaks;
+  v4 = DVARBOOL_r_tonemapUseTweaks;
   if ( !DVARBOOL_r_tonemapUseTweaks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapUseTweaks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
-    v6 = DVARBOOL_r_tonemap;
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
+    v5 = DVARBOOL_r_tonemap;
     if ( !DVARBOOL_r_tonemap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v6);
-    _RBX->tonemap.enabled = v6->current.enabled;
-    v7 = DVARBOOL_r_tonemapAuto;
+    Dvar_CheckFrontendServerThread(v5);
+    viewInfo->tonemap.enabled = v5->current.enabled;
+    v6 = DVARBOOL_r_tonemapAuto;
     if ( !DVARBOOL_r_tonemapAuto && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapAuto") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    _RBX->tonemap.autoExposure = v7->current.enabled;
-    v8 = DVARBOOL_r_tonemapBlend;
+    Dvar_CheckFrontendServerThread(v6);
+    viewInfo->tonemap.autoExposure = v6->current.enabled;
+    v7 = DVARBOOL_r_tonemapBlend;
     if ( !DVARBOOL_r_tonemapBlend && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapBlend") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    _RBX->tonemap.blendExposure = v8->current.enabled;
-    v9 = DCONST_DVARBOOL_r_tonemapLockAutoExposureAdjust;
+    Dvar_CheckFrontendServerThread(v7);
+    viewInfo->tonemap.blendExposure = v7->current.enabled;
+    v8 = DCONST_DVARBOOL_r_tonemapLockAutoExposureAdjust;
     if ( !DCONST_DVARBOOL_r_tonemapLockAutoExposureAdjust && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapLockAutoExposureAdjust") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    _RBX->tonemap.lockAutoExposureAdjust = v9->current.enabled;
-    v10 = DCONST_DVARFLT_r_tonemapAutoExposureAdjust;
+    Dvar_CheckFrontendServerThread(v8);
+    viewInfo->tonemap.lockAutoExposureAdjust = v8->current.enabled;
+    v9 = DCONST_DVARFLT_r_tonemapAutoExposureAdjust;
     if ( !DCONST_DVARFLT_r_tonemapAutoExposureAdjust && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapAutoExposureAdjust") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    LODWORD(_RBX->tonemap.userAutoExposureAdjust) = v10->current.integer;
-    v11 = DCONST_DVARFLT_r_tonemapMaxExposure;
+    Dvar_CheckFrontendServerThread(v9);
+    LODWORD(viewInfo->tonemap.userAutoExposureAdjust) = v9->current.integer;
+    v10 = DCONST_DVARFLT_r_tonemapMaxExposure;
     if ( !DCONST_DVARFLT_r_tonemapMaxExposure && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapMaxExposure") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    LODWORD(_RBX->tonemap.userMaxExposure) = v11->current.integer;
-    v12 = DVARFLT_r_tonemapExposure;
+    Dvar_CheckFrontendServerThread(v10);
+    LODWORD(viewInfo->tonemap.userMaxExposure) = v10->current.integer;
+    v11 = DVARFLT_r_tonemapExposure;
     if ( !DVARFLT_r_tonemapExposure && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapExposure") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    LODWORD(_RBX->tonemap.userExposure) = v12->current.integer;
-    v13 = DVARFLT_r_tonemapExposureAdjust;
+    Dvar_CheckFrontendServerThread(v11);
+    LODWORD(viewInfo->tonemap.userExposure) = v11->current.integer;
+    v12 = DVARFLT_r_tonemapExposureAdjust;
     if ( !DVARFLT_r_tonemapExposureAdjust && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapExposureAdjust") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    LODWORD(_RBX->tonemap.userExposureAdjust) = v13->current.integer;
-    v14 = DVARFLT_r_tonemapAdaptSpeed;
+    Dvar_CheckFrontendServerThread(v12);
+    LODWORD(viewInfo->tonemap.userExposureAdjust) = v12->current.integer;
+    v13 = DVARFLT_r_tonemapAdaptSpeed;
     if ( !DVARFLT_r_tonemapAdaptSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapAdaptSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    LODWORD(_RBX->tonemap.adaptSpeed) = v14->current.integer;
-    _RBX->tonemap.darkEv = _RDI->tonemap.darkEv;
-    _RBX->tonemap.midEv = _RDI->tonemap.midEv;
-    _RBX->tonemap.lightEv = _RDI->tonemap.lightEv;
-    _RBX->tonemap.darkExposureAdjust = _RDI->tonemap.darkExposureAdjust;
-    _RBX->tonemap.midExposureAdjust = _RDI->tonemap.midExposureAdjust;
-    _RBX->tonemap.lightExposureAdjust = _RDI->tonemap.lightExposureAdjust;
-    _RBX->tonemap.minExposureAdjust = _RDI->tonemap.minExposureAdjust;
-    _RBX->tonemap.maxExposureAdjust = _RDI->tonemap.maxExposureAdjust;
-    _RSI = DVARFLT_r_tonemapGrainStrength;
+    Dvar_CheckFrontendServerThread(v13);
+    LODWORD(viewInfo->tonemap.adaptSpeed) = v13->current.integer;
+    viewInfo->tonemap.darkEv = sceneParms->tonemap.darkEv;
+    viewInfo->tonemap.midEv = sceneParms->tonemap.midEv;
+    viewInfo->tonemap.lightEv = sceneParms->tonemap.lightEv;
+    viewInfo->tonemap.darkExposureAdjust = sceneParms->tonemap.darkExposureAdjust;
+    viewInfo->tonemap.midExposureAdjust = sceneParms->tonemap.midExposureAdjust;
+    viewInfo->tonemap.lightExposureAdjust = sceneParms->tonemap.lightExposureAdjust;
+    viewInfo->tonemap.minExposureAdjust = sceneParms->tonemap.minExposureAdjust;
+    viewInfo->tonemap.maxExposureAdjust = sceneParms->tonemap.maxExposureAdjust;
+    v14 = DVARFLT_r_tonemapGrainStrength;
     if ( !DVARFLT_r_tonemapGrainStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapGrainStrength") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-    v17 = DVARFLT_r_filmGrainAtten;
+    Dvar_CheckFrontendServerThread(v14);
+    value = v14->current.value;
+    v16 = DVARFLT_r_filmGrainAtten;
     if ( !DVARFLT_r_filmGrainAtten && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_filmGrainAtten") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-      vmovaps xmm6, [rsp+68h+var_28]
-      vmovss  dword ptr [rbx+383Ch], xmm0
-    }
-    v20 = DVARFLT_r_tonemapLocalStrength;
+    Dvar_CheckFrontendServerThread(v16);
+    viewInfo->tonemap.grainStrength = value * v16->current.value;
+    v17 = DVARFLT_r_tonemapLocalStrength;
     if ( !DVARFLT_r_tonemapLocalStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapLocalStrength") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    LODWORD(_RBX->tonemap.localStrength) = v20->current.integer;
-    _RSI = DVARFLT_r_tonemapLocalEvBounds;
+    Dvar_CheckFrontendServerThread(v17);
+    LODWORD(viewInfo->tonemap.localStrength) = v17->current.integer;
+    v18 = DVARFLT_r_tonemapLocalEvBounds;
     if ( !DVARFLT_r_tonemapLocalEvBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapLocalEvBounds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vmovss  xmm0, dword ptr [rsi+28h] }
+    Dvar_CheckFrontendServerThread(v18);
+    localEvBounds = v18->current.value;
   }
   else
   {
-    _RBX->tonemap.enabled = _RDI->tonemap.enabled;
-    _RBX->tonemap.autoExposure = _RDI->tonemap.autoExposure;
-    _RBX->tonemap.blendExposure = _RDI->tonemap.blendExposure;
-    _RBX->tonemap.lockAutoExposureAdjust = _RDI->tonemap.lockAutoExposureAdjust;
-    _RBX->tonemap.userAutoExposureAdjust = _RDI->tonemap.userAutoExposureAdjust;
-    _RBX->tonemap.userMaxExposure = _RDI->tonemap.userMaxExposure;
-    _RBX->tonemap.userExposure = _RDI->tonemap.userExposure;
-    _RBX->tonemap.userExposureAdjust = _RDI->tonemap.userExposureAdjust;
-    _RBX->tonemap.adaptSpeed = _RDI->tonemap.adaptSpeed;
-    _RBX->tonemap.darkEv = _RDI->tonemap.darkEv;
-    _RBX->tonemap.midEv = _RDI->tonemap.midEv;
-    _RBX->tonemap.lightEv = _RDI->tonemap.lightEv;
-    _RBX->tonemap.darkExposureAdjust = _RDI->tonemap.darkExposureAdjust;
-    _RBX->tonemap.midExposureAdjust = _RDI->tonemap.midExposureAdjust;
-    _RBX->tonemap.lightExposureAdjust = _RDI->tonemap.lightExposureAdjust;
-    _RBX->tonemap.minExposureAdjust = _RDI->tonemap.minExposureAdjust;
-    _RBX->tonemap.maxExposureAdjust = _RDI->tonemap.maxExposureAdjust;
-    _RSI = DVARFLT_r_filmGrainAtten;
+    viewInfo->tonemap.enabled = sceneParms->tonemap.enabled;
+    viewInfo->tonemap.autoExposure = sceneParms->tonemap.autoExposure;
+    viewInfo->tonemap.blendExposure = sceneParms->tonemap.blendExposure;
+    viewInfo->tonemap.lockAutoExposureAdjust = sceneParms->tonemap.lockAutoExposureAdjust;
+    viewInfo->tonemap.userAutoExposureAdjust = sceneParms->tonemap.userAutoExposureAdjust;
+    viewInfo->tonemap.userMaxExposure = sceneParms->tonemap.userMaxExposure;
+    viewInfo->tonemap.userExposure = sceneParms->tonemap.userExposure;
+    viewInfo->tonemap.userExposureAdjust = sceneParms->tonemap.userExposureAdjust;
+    viewInfo->tonemap.adaptSpeed = sceneParms->tonemap.adaptSpeed;
+    viewInfo->tonemap.darkEv = sceneParms->tonemap.darkEv;
+    viewInfo->tonemap.midEv = sceneParms->tonemap.midEv;
+    viewInfo->tonemap.lightEv = sceneParms->tonemap.lightEv;
+    viewInfo->tonemap.darkExposureAdjust = sceneParms->tonemap.darkExposureAdjust;
+    viewInfo->tonemap.midExposureAdjust = sceneParms->tonemap.midExposureAdjust;
+    viewInfo->tonemap.lightExposureAdjust = sceneParms->tonemap.lightExposureAdjust;
+    viewInfo->tonemap.minExposureAdjust = sceneParms->tonemap.minExposureAdjust;
+    viewInfo->tonemap.maxExposureAdjust = sceneParms->tonemap.maxExposureAdjust;
+    v20 = DVARFLT_r_filmGrainAtten;
     if ( !DVARFLT_r_filmGrainAtten && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_filmGrainAtten") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+28h]
-      vmulss  xmm1, xmm0, dword ptr [rdi+2C8h]
-      vmovss  dword ptr [rbx+383Ch], xmm1
-    }
-    _RBX->tonemap.localStrength = _RDI->tonemap.localStrength;
-    __asm { vmovss  xmm0, dword ptr [rdi+2D0h] }
+    Dvar_CheckFrontendServerThread(v20);
+    viewInfo->tonemap.grainStrength = v20->current.value * sceneParms->tonemap.grainStrength;
+    viewInfo->tonemap.localStrength = sceneParms->tonemap.localStrength;
+    localEvBounds = sceneParms->tonemap.localEvBounds;
   }
-  __asm { vmovss  dword ptr [rbx+3844h], xmm0 }
+  viewInfo->tonemap.localEvBounds = localEvBounds;
   DisplayColorimetry = R_GetDisplayColorimetry();
-  _RBX->tonemap.tonemapModeExposureAdjust = 0.0;
-  *(double *)&_XMM0 = R_Tonemap_GetUniversalExposureAdjust();
-  __asm
-  {
-    vaddss  xmm1, xmm0, dword ptr [rbx+3818h]
-    vmovss  dword ptr [rbx+3818h], xmm1
-    vaddss  xmm0, xmm1, dword ptr [rcx+28h]
-    vmovss  dword ptr [rbx+3818h], xmm0
-  }
-  v29 = DVARFLT_r_tonemapFocus;
+  viewInfo->tonemap.tonemapModeExposureAdjust = 0.0;
+  UniversalExposureAdjust = R_Tonemap_GetUniversalExposureAdjust();
+  v23 = *(float *)&UniversalExposureAdjust + viewInfo->tonemap.tonemapModeExposureAdjust;
+  viewInfo->tonemap.tonemapModeExposureAdjust = v23;
+  viewInfo->tonemap.tonemapModeExposureAdjust = v23 + r_colorimetryUniversalTonemapExposureAdjust->current.value;
+  v24 = DVARFLT_r_tonemapFocus;
   if ( !DVARFLT_r_tonemapFocus && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapFocus") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  LODWORD(_RBX->tonemap.focus) = v29->current.integer;
+  Dvar_CheckFrontendServerThread(v24);
+  LODWORD(viewInfo->tonemap.focus) = v24->current.integer;
   if ( DisplayColorimetry == GFX_COLORIMETRY_BT2020_PQ )
-  {
-    _RAX = r_hdrFilmGrainStrengthScale;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+383Ch]
-      vmovss  dword ptr [rbx+383Ch], xmm1
-    }
-  }
-  v33 = DVARBOOL_r_tonemapUseTweaks;
+    viewInfo->tonemap.grainStrength = r_hdrFilmGrainStrengthScale->current.value * viewInfo->tonemap.grainStrength;
+  v25 = DVARBOOL_r_tonemapUseTweaks;
   if ( !DVARBOOL_r_tonemapUseTweaks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapUseTweaks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v33);
-  if ( !v33->current.enabled )
+  Dvar_CheckFrontendServerThread(v25);
+  if ( !v25->current.enabled )
     goto LABEL_63;
-  v34 = DVARBOOL_r_tonemapAdaptOnPause;
+  v26 = DVARBOOL_r_tonemapAdaptOnPause;
   if ( !DVARBOOL_r_tonemapAdaptOnPause && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapAdaptOnPause") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  if ( v34->current.enabled )
-    v35 = 1;
+  Dvar_CheckFrontendServerThread(v26);
+  if ( v26->current.enabled )
+    v27 = 1;
   else
 LABEL_63:
-    v35 = 0;
-  if ( !((unsigned __int8)v35 | _RDI->visionSetToolConnected) && !_RDI->frameTime )
-    _RBX->tonemap.adaptSpeed = 0.0;
-  _RBX->tonemap.whitePoint.v[0] = _RDI->tonemap.whitePoint.v[0];
-  _RBX->tonemap.whitePoint.v[1] = _RDI->tonemap.whitePoint.v[1];
-  _RBX->tonemap.whitePoint.v[2] = _RDI->tonemap.whitePoint.v[2];
+    v27 = 0;
+  if ( !((unsigned __int8)v27 | sceneParms->visionSetToolConnected) && !sceneParms->frameTime )
+    viewInfo->tonemap.adaptSpeed = 0.0;
+  viewInfo->tonemap.whitePoint.v[0] = sceneParms->tonemap.whitePoint.v[0];
+  viewInfo->tonemap.whitePoint.v[1] = sceneParms->tonemap.whitePoint.v[1];
+  viewInfo->tonemap.whitePoint.v[2] = sceneParms->tonemap.whitePoint.v[2];
   if ( rg.debugShaderEnabled )
   {
-    _RBX->tonemap.blendExposure = 0;
+    viewInfo->tonemap.blendExposure = 0;
     if ( !rg.debugShaderLightingData )
     {
-      _RBX->tonemap.autoExposure = 0;
-      *(_QWORD *)&_RBX->tonemap.userExposure = 1092964166i64;
-      _RBX->tonemap.whitePoint.v[0] = 1.0;
-      _RBX->tonemap.whitePoint.v[1] = 1.0;
-      _RBX->tonemap.whitePoint.v[2] = 1.0;
+      viewInfo->tonemap.autoExposure = 0;
+      *(_QWORD *)&viewInfo->tonemap.userExposure = 1092964166i64;
+      viewInfo->tonemap.whitePoint.v[0] = 1.0;
+      viewInfo->tonemap.whitePoint.v[1] = 1.0;
+      viewInfo->tonemap.whitePoint.v[2] = 1.0;
     }
   }
-  R_UpdateTonemapParms(_RBX, _RDI);
+  R_UpdateTonemapParms(viewInfo, sceneParms);
 }
 
 /*
@@ -11863,232 +9526,161 @@ R_SetVelocityInfo
 */
 void R_SetVelocityInfo(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigned int sceneHeight)
 {
-  __int64 v13; 
-  __int64 v29; 
-  _BYTE v62[32]; 
-  char v63[56]; 
+  __int64 v3; 
+  __int64 v5; 
+  __m256i v6; 
+  __m256i v7; 
+  __m256i v8; 
+  GfxViewParms *DepthHackViewParms; 
+  char *v10; 
+  __int64 v11; 
+  __m256i v12; 
+  vec4_t v13; 
+  __m256i v14; 
+  __m256i v15; 
+  float v16; 
+  GfxViewParms *v17; 
+  char *v18; 
+  __int64 v19; 
+  __m256i v20; 
+  vec4_t v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  char v27[56]; 
+  tmat44_t<vec4_t> v28; 
   GfxViewParms result; 
   vec3_t origin; 
-  tmat44_t<vec4_t> v68; 
-  tmat44_t<vec4_t> v69; 
+  tmat44_t<vec4_t> v31; 
+  tmat44_t<vec4_t> v32; 
   tmat44_t<vec4_t> in1; 
   tmat44_t<vec4_t> out; 
-  tmat44_t<vec4_t> v72; 
-  tmat44_t<vec4_t> v73; 
+  tmat44_t<vec4_t> v35; 
+  tmat44_t<vec4_t> v36; 
   tmat44_t<vec4_t> mtx; 
   tmat44_t<vec4_t> in2; 
-  tmat44_t<vec4_t> v76; 
-  tmat44_t<vec4_t> v77; 
+  tmat44_t<vec4_t> v39; 
+  tmat44_t<vec4_t> v40; 
   tmat44_t<vec4_t> mat; 
-  tmat44_t<vec4_t> v79; 
+  tmat44_t<vec4_t> v42; 
   tmat44_t<vec4_t> dst; 
-  tmat44_t<vec4_t> v81; 
-  tmat44_t<vec4_t> v82; 
-  char v83; 
-  void *retaddr; 
+  tmat44_t<vec4_t> v44; 
+  tmat44_t<vec4_t> v45; 
 
-  _RAX = &retaddr;
-  __asm
+  v3 = sceneHeight;
+  v5 = sceneWidth;
+  if ( viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0] == 0.0 && viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1] == 0.0 && viewInfo->viewParmsSet.frames[1].viewParms.subpixelOffset.v[0] == 0.0 && viewInfo->viewParmsSet.frames[1].viewParms.subpixelOffset.v[1] == 0.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rcx+168h]
-  }
-  _RDI = viewInfo;
-  if ( (unsigned __int64)v62 != _security_cookie )
-    goto LABEL_8;
-  __asm { vucomiss xmm6, dword ptr [rcx+16Ch] }
-  if ( (unsigned __int64)v62 != _security_cookie )
-    goto LABEL_8;
-  __asm { vucomiss xmm6, dword ptr [rcx+2E8h] }
-  if ( (unsigned __int64)v62 != _security_cookie )
-    goto LABEL_8;
-  __asm { vucomiss xmm6, dword ptr [rcx+2ECh] }
-  if ( (unsigned __int64)v62 != _security_cookie )
-  {
-LABEL_8:
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rcx+60h]
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymmword ptr [rbp+620h+var_2F0+20h], ymm1
-      vmovups ymm1, ymmword ptr [rcx+1E0h]
-      vmovups ymmword ptr [rbp+620h+in1+20h], ymm1
-      vmovups ymmword ptr [rbp+620h+var_2F0], ymm0
-      vmovups ymm0, ymmword ptr [rcx+1C0h]
-      vmovss  dword ptr [rbp+620h+in1+20h], xmm6
-      vmovss  dword ptr [rbp+620h+in1+24h], xmm6
-      vmovss  dword ptr [rbp+620h+var_2F0+20h], xmm6
-      vmovss  dword ptr [rbp+620h+var_2F0+24h], xmm6
-      vmovups ymmword ptr [rbp+620h+in1], ymm0
-    }
-    MatrixIdentity44(&out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+168h]
-      vmovss  xmm1, dword ptr [rdi+16Ch]
-      vmovss  dword ptr [rbp+620h+out+30h], xmm0
-      vmovss  dword ptr [rbp+620h+out+34h], xmm1
-    }
-    MatrixMultiply44Aligned(&in1, &out, &in2);
-    _RAX = R_GetDepthHackViewParms(&result, &_RDI->viewParmsSet.frames[1].viewParms);
-    _RCX = v63;
-    v29 = 3i64;
+    v6 = *(__m256i *)viewInfo->viewParms.projectionMatrix.m.row2.v;
+    *(__m256i *)v35.m[0].v = *(__m256i *)viewInfo->viewParms.projectionMatrix.m.m[0].v;
+    v7 = *(__m256i *)viewInfo->prevFrameViewParms.projectionMatrix.m.m[0].v;
+    *(__m256i *)v35.row2.v = v6;
+    v8 = *(__m256i *)viewInfo->prevFrameViewParms.projectionMatrix.m.row2.v;
+    *(__m256i *)in2.m[0].v = v7;
+    *(__m256i *)in2.row2.v = v8;
+    *(__m256i *)in1.m[0].v = v7;
+    *(__m256i *)in1.row2.v = v8;
+    DepthHackViewParms = R_GetDepthHackViewParms(&result, &viewInfo->viewParmsSet.frames[1].viewParms);
+    v10 = v27;
+    v11 = 3i64;
     do
     {
-      _RCX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (GfxViewParms *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v29;
+      v10 += 128;
+      v12 = *(__m256i *)DepthHackViewParms->viewMatrix.m.m[0].v;
+      v13 = DepthHackViewParms->projectionMatrix.m.m[3];
+      DepthHackViewParms = (GfxViewParms *)((char *)DepthHackViewParms + 128);
+      *((__m256i *)v10 - 4) = v12;
+      *((__m256i *)v10 - 3) = *(__m256i *)&DepthHackViewParms[-1].camera.axis.row1.z;
+      *((__m256i *)v10 - 2) = *(__m256i *)DepthHackViewParms[-1].camera.zPlanes;
+      *((_OWORD *)v10 - 2) = *(_OWORD *)&DepthHackViewParms[-1].camera.visibilityQueryDistance;
+      *((vec4_t *)v10 - 1) = v13;
+      --v11;
     }
-    while ( v29 );
-    __asm
-    {
-      vmovups ymm1, [rbp+620h+var_6A0]
-      vmovups ymm0, ymmword ptr [rsp+720h+var_6C8+8]
-      vmovups ymmword ptr [rbp+620h+var_2B0+20h], ymm1
-      vmovss  dword ptr [rbp+620h+var_2B0+20h], xmm6
-      vmovss  dword ptr [rbp+620h+var_2B0+24h], xmm6
-      vmovups ymmword ptr [rbp+620h+var_2B0], ymm0
-    }
-    MatrixIdentity44(&out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+168h]
-      vmovss  xmm1, dword ptr [rdi+16Ch]
-      vmovss  dword ptr [rbp+620h+out+30h], xmm0
-      vmovss  dword ptr [rbp+620h+out+34h], xmm1
-    }
-    MatrixMultiply44Aligned(&v73, &out, &v76);
+    while ( v11 );
+    v39 = v28;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+40h]
-      vmovups ymm1, ymmword ptr [rcx+60h]
-      vmovups ymmword ptr [rbp+620h+var_2F0], ymm0
-      vmovups ymm0, ymmword ptr [rcx+1C0h]
-      vmovups ymmword ptr [rbp+620h+var_2F0+20h], ymm1
-      vmovups ymm1, ymmword ptr [rcx+1E0h]
-      vmovups ymmword ptr [rbp+620h+in2], ymm0
-      vmovups ymmword ptr [rbp+620h+in2+20h], ymm1
-      vmovups ymmword ptr [rbp+620h+in1], ymm0
-      vmovups ymmword ptr [rbp+620h+in1+20h], ymm1
-    }
-    _RAX = R_GetDepthHackViewParms(&result, &viewInfo->viewParmsSet.frames[1].viewParms);
-    _RCX = v63;
-    v13 = 3i64;
+    v14 = *(__m256i *)viewInfo->viewParms.projectionMatrix.m.m[0].v;
+    *(__m256i *)v35.row2.v = *(__m256i *)viewInfo->viewParms.projectionMatrix.m.row2.v;
+    *(__m256i *)in1.row2.v = *(__m256i *)viewInfo->prevFrameViewParms.projectionMatrix.m.row2.v;
+    *(__m256i *)v35.m[0].v = v14;
+    v15 = *(__m256i *)viewInfo->prevFrameViewParms.projectionMatrix.m.m[0].v;
+    in1.m[2].v[0] = 0.0;
+    in1.m[2].v[1] = 0.0;
+    v35.m[2].v[0] = 0.0;
+    v35.m[2].v[1] = 0.0;
+    *(__m256i *)in1.m[0].v = v15;
+    MatrixIdentity44(&out);
+    v16 = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1];
+    out.m[3].v[0] = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0];
+    out.m[3].v[1] = v16;
+    MatrixMultiply44Aligned(&in1, &out, &in2);
+    v17 = R_GetDepthHackViewParms(&result, &viewInfo->viewParmsSet.frames[1].viewParms);
+    v18 = v27;
+    v19 = 3i64;
     do
     {
-      _RCX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (GfxViewParms *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v13;
+      v18 += 128;
+      v20 = *(__m256i *)v17->viewMatrix.m.m[0].v;
+      v21 = v17->projectionMatrix.m.m[3];
+      v17 = (GfxViewParms *)((char *)v17 + 128);
+      *((__m256i *)v18 - 4) = v20;
+      *((__m256i *)v18 - 3) = *(__m256i *)&v17[-1].camera.axis.row1.z;
+      *((__m256i *)v18 - 2) = *(__m256i *)v17[-1].camera.zPlanes;
+      *((_OWORD *)v18 - 2) = *(_OWORD *)&v17[-1].camera.visibilityQueryDistance;
+      *((vec4_t *)v18 - 1) = v21;
+      --v19;
     }
-    while ( v13 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+720h+var_6C8+8]
-      vmovups ymm1, [rbp+620h+var_6A0]
-      vmovups ymmword ptr [rbp+620h+var_1F0], ymm0
-      vmovups ymmword ptr [rbp+620h+var_1F0+20h], ymm1
-    }
+    while ( v19 );
+    v36 = v28;
+    v36.m[2].v[0] = 0.0;
+    v36.m[2].v[1] = 0.0;
+    MatrixIdentity44(&out);
+    v22 = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1];
+    out.m[3].v[0] = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0];
+    out.m[3].v[1] = v22;
+    MatrixMultiply44Aligned(&v36, &out, &v39);
   }
-  MatrixForViewerOrthogonalNoOrigin(&_RDI->viewParmsSet.frames[1].viewParms.camera.axis, &mtx);
-  MatrixMultiply44Aligned(&mtx, &in2, &_RDI->prevViewProjectionMatrix.m);
-  MatrixMultiply44Aligned(&mtx, &v76, &_RDI->prevDepthHackViewProjectionMatrix.m);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+280h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+100h]
-    vmovss  xmm2, dword ptr [rdi+284h]
-    vsubss  xmm0, xmm2, dword ptr [rdi+104h]
-    vmovss  dword ptr [rbp+620h+origin], xmm1
-    vmovss  xmm1, dword ptr [rdi+288h]
-    vsubss  xmm2, xmm1, dword ptr [rdi+108h]
-    vmovss  dword ptr [rbp+620h+origin+8], xmm2
-    vmovss  dword ptr [rbp+620h+origin+4], xmm0
-  }
-  MatrixForViewerOrthogonal(&origin, &_RDI->viewParmsSet.frames[1].viewParms.camera.axis, &mtx);
-  MatrixMultiply44Aligned(&mtx, &in1, &v79);
-  __asm
-  {
-    vmovss  dword ptr [rbp+620h+origin], xmm6
-    vmovss  dword ptr [rbp+620h+origin+4], xmm6
-    vmovss  dword ptr [rbp+620h+origin+8], xmm6
-  }
-  MatrixForViewerOrthogonal(&origin, &_RDI->viewParmsSet.frames[0].viewParms.camera.axis, &v77);
-  MatrixMultiply44Aligned(&v77, &v72, &mat);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@40000000
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, r14
-    vdivss  xmm1, xmm0, xmm2
-    vmovss  xmm0, cs:__real@c0000000
-    vmulss  xmm2, xmm2, cs:__real@3f000000
-    vmovss  dword ptr [rbp+620h+var_3B0], xmm1
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, rsi
-    vdivss  xmm1, xmm0, xmm4
-    vmovaps ymm0, cs:__ymm@3f800000000000003f800000bf800000000000003f8208210000000000000000
-    vmovups ymmword ptr [rbp+620h+var_3B0+20h], ymm0
-    vmulss  xmm0, xmm4, cs:__real@bf000000
-    vmovss  dword ptr [rbp+620h+var_3F0+14h], xmm0
-    vmovups xmm0, cs:__xmm@000000003f7c00000000000000000000
-    vmovups xmmword ptr [rbp+620h+var_3F0+20h], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rbp+620h+var_3B0+14h], xmm1
-    vmulss  xmm1, xmm4, cs:__real@3f000000
-    vmovss  dword ptr [rbp+620h+var_3F0+3Ch], xmm0
-    vmovss  dword ptr [rbp+620h+var_3B0+18h], xmm6
-    vmovss  dword ptr [rbp+620h+var_3B0+1Ch], xmm6
-    vmovss  dword ptr [rbp+620h+var_3F0], xmm2
-    vmovss  dword ptr [rbp+620h+var_3F0+18h], xmm6
-    vmovss  dword ptr [rbp+620h+var_3F0+1Ch], xmm6
-    vmovss  dword ptr [rbp+620h+var_3F0+30h], xmm2
-    vmovss  dword ptr [rbp+620h+var_3F0+34h], xmm1
-    vmovss  dword ptr [rbp+620h+var_3F0+38h], xmm6
-    vmovups xmmword ptr [rbp+620h+var_3B0+4], xmm6
-    vmovups xmmword ptr [rbp+620h+var_3F0+4], xmm6
-  }
+  MatrixForViewerOrthogonalNoOrigin(&viewInfo->viewParmsSet.frames[1].viewParms.camera.axis, &mtx);
+  MatrixMultiply44Aligned(&mtx, &in2, &viewInfo->prevViewProjectionMatrix.m);
+  MatrixMultiply44Aligned(&mtx, &v39, &viewInfo->prevDepthHackViewProjectionMatrix.m);
+  v23 = viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[1] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  origin.v[0] = viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[0] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  origin.v[2] = viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[2] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  origin.v[1] = v23;
+  MatrixForViewerOrthogonal(&origin, &viewInfo->viewParmsSet.frames[1].viewParms.camera.axis, &mtx);
+  MatrixMultiply44Aligned(&mtx, &in1, &v42);
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  MatrixForViewerOrthogonal(&origin, &viewInfo->viewParmsSet.frames[0].viewParms.camera.axis, &v40);
+  MatrixMultiply44Aligned(&v40, &v35, &mat);
+  v24 = (float)v5;
+  v25 = v24 * 0.5;
+  v32.m[0].v[0] = 2.0 / v24;
+  v26 = (float)v3;
+  *(__m256i *)v32.row2.v = _ymm;
+  v31.m[1].v[1] = v26 * -0.5;
+  v31.row2 = (vec4_t)_xmm;
+  v32.m[1].v[1] = -2.0 / v26;
+  v31.m[3].v[3] = FLOAT_1_0;
+  v32.m[1].v[2] = 0.0;
+  v32.m[1].v[3] = 0.0;
+  v31.m[0].v[0] = v25;
+  v31.m[1].v[2] = 0.0;
+  v31.m[1].v[3] = 0.0;
+  v31.m[3].v[0] = v25;
+  v31.m[3].v[1] = v26 * 0.5;
+  v31.m[3].v[2] = 0.0;
+  *(vec4_t *)((char *)&v32.row0 + 4) = 0i64;
+  *(vec4_t *)((char *)&v31.row0 + 4) = 0i64;
   MatrixInverse44Aligned(&mat, &dst);
-  MatrixMultiply44Aligned(&dst, &v79, &v81);
-  MatrixMultiply44Aligned(&v69, &v81, &v82);
-  MatrixMultiply44Aligned(&v82, &v68, &_RDI->curToPrevPixelMatrix.m);
-  _R11 = &v83;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  MatrixMultiply44Aligned(&dst, &v42, &v44);
+  MatrixMultiply44Aligned(&v32, &v44, &v45);
+  MatrixMultiply44Aligned(&v45, &v31, &viewInfo->curToPrevPixelMatrix.m);
 }
 
 /*
@@ -12098,62 +9690,37 @@ R_SetViewParmsForScene
 */
 void R_SetViewParmsForScene(const refdef_t *refdef, const GfxSceneViewParms *sceneViewParms, GfxViewParms *viewParms)
 {
-  char v9; 
+  __m256i v6; 
+  float v7; 
   tmat44_t<vec4_t> out; 
   GfxMatrix in; 
   tmat44_t<vec4_t> dst; 
 
-  _RDI = viewParms;
   memset_0(viewParms, 0, sizeof(GfxViewParms));
   if ( sceneViewParms )
   {
-    _RDI->subpixelOffset.v[0] = sceneViewParms->subpixelOffset.v[0];
-    _RDI->subpixelOffset.v[1] = sceneViewParms->subpixelOffset.v[1];
-    _RDI->cameraMotion = sceneViewParms->cameraMotion;
+    viewParms->subpixelOffset.v[0] = sceneViewParms->subpixelOffset.v[0];
+    viewParms->subpixelOffset.v[1] = sceneViewParms->subpixelOffset.v[1];
+    viewParms->cameraMotion = sceneViewParms->cameraMotion;
   }
-  R_SetCameraForView(&refdef->view, &_RDI->camera);
-  MatrixForViewerOrthogonalNoOrigin(&_RDI->camera.axis, &_RDI->viewMatrix.m);
-  __asm
+  R_SetCameraForView(&refdef->view, &viewParms->camera);
+  MatrixForViewerOrthogonalNoOrigin(&viewParms->camera.axis, &viewParms->viewMatrix.m);
+  InfinitePerspectiveMatrix(viewParms->camera.tanHalfFovX, viewParms->camera.tanHalfFovY, viewParms->camera.zPlanes[2], &viewParms->projectionMatrix.m);
+  if ( viewParms->subpixelOffset.v[0] != 0.0 || viewParms->subpixelOffset.v[1] != 0.0 )
   {
-    vmovss  xmm2, dword ptr [rdi+148h]; zNear
-    vmovss  xmm1, dword ptr [rdi+134h]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rdi+130h]; tanHalfFovX
+    v6 = *(__m256i *)viewParms->projectionMatrix.m.row2.v;
+    *(__m256i *)in.m.m[0].v = *(__m256i *)viewParms->projectionMatrix.m.m[0].v;
+    *(__m256i *)in.m.row2.v = v6;
+    R_ApplySubPixelOffset(&viewParms->subpixelOffset, &in, &viewParms->projectionMatrix);
   }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &_RDI->projectionMatrix.m);
-  _RCX = &_RDI->subpixelOffset;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rcx]
-  }
-  if ( !v9 )
-    goto LABEL_5;
-  __asm { vucomiss xmm0, dword ptr [rcx+4] }
-  if ( !v9 )
-  {
-LABEL_5:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rsp+108h+in.m], ymm0
-      vmovups ymmword ptr [rsp+108h+in.m+20h], ymm1
-    }
-    R_ApplySubPixelOffset(_RCX, &in, &_RDI->projectionMatrix);
-  }
-  MatrixMultiply44Aligned(&_RDI->viewMatrix.m, &_RDI->projectionMatrix.m, &_RDI->viewProjectionMatrix.m);
-  MatrixInverse44Aligned(&_RDI->viewProjectionMatrix.m, &dst);
+  MatrixMultiply44Aligned(&viewParms->viewMatrix.m, &viewParms->projectionMatrix.m, &viewParms->viewProjectionMatrix.m);
+  MatrixInverse44Aligned(&viewParms->viewProjectionMatrix.m, &dst);
   MatrixIdentity44(&out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+100h]
-    vmovss  xmm1, dword ptr [rdi+104h]
-    vmovss  dword ptr [rsp+108h+out+30h], xmm0
-    vmovss  xmm0, dword ptr [rdi+108h]
-    vmovss  dword ptr [rsp+108h+out+38h], xmm0
-    vmovss  dword ptr [rsp+108h+out+34h], xmm1
-  }
-  MatrixMultiply44Aligned(&dst, &out, &_RDI->inverseViewProjectionMatrix.m);
+  v7 = viewParms->camera.origin.v[1];
+  out.m[3].v[0] = viewParms->camera.origin.v[0];
+  out.m[3].v[2] = viewParms->camera.origin.v[2];
+  out.m[3].v[1] = v7;
+  MatrixMultiply44Aligned(&dst, &out, &viewParms->inverseViewProjectionMatrix.m);
 }
 
 /*
@@ -12163,25 +9730,18 @@ R_SetVolumeLightScatterInfo
 */
 void R_SetVolumeLightScatterInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
-  _RDI = sceneParms;
-  _RBX = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3475, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3476, ASSERT_TYPE_ASSERT, "(sceneParms)", (const char *)&queryFormat, "sceneParms") )
+  if ( !sceneParms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3476, ASSERT_TYPE_ASSERT, "(sceneParms)", (const char *)&queryFormat, "sceneParms") )
     __debugbreak();
-  if ( (*((_DWORD *)&_RBX->viewportFeatures + 10) & 0x40000) != 0 )
+  if ( (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x40000) != 0 )
   {
-    _RBX->volumeLightScatter.enabled = 0;
+    viewInfo->volumeLightScatter.enabled = 0;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+0F4h]
-      vmovups ymmword ptr [rbx+2E40h], ymm0
-      vmovsd  xmm1, qword ptr [rdi+114h]
-      vmovsd  qword ptr [rbx+2E60h], xmm1
-    }
+    *(__m256i *)&viewInfo->volumeLightScatter.enabled = *(__m256i *)&sceneParms->volumeLightScatter.enabled;
+    *(double *)&viewInfo->volumeLightScatter.depthAttenuation.y = *(double *)&sceneParms->volumeLightScatter.depthAttenuation.y;
   }
 }
 
@@ -12201,11 +9761,7 @@ void R_SetWhiteBalanceInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParm
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx+2ECh]
-      vmovups xmmword ptr [rcx+3864h], xmm0
-    }
+    viewInfo->whiteBalance = sceneParms->whiteBalance;
   }
 }
 
@@ -12214,28 +9770,13 @@ void R_SetWhiteBalanceInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParm
 R_SetWorstCaseMinObjectContribution
 ==============
 */
-
-void __fastcall R_SetWorstCaseMinObjectContribution(double umbraWorstCaseMinObjectContribution, double _XMM1_8)
+void R_SetWorstCaseMinObjectContribution(const float umbraWorstCaseMinObjectContribution)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.umbraWorstCaseMinObjectContribution; r_globals_t rg
-    vucomiss xmm6, xmm0
-    vcvtss2sd xmm3, xmm6, xmm6
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-  }
-  Com_Printf(14, "R_SetWorstCaseMinObjectContribution changing from %f to %f\n", *(double *)&_XMM2, *(double *)&_XMM3);
-  __asm
-  {
-    vmovss  cs:?rg@@3Ur_globals_t@@A.umbraWorstCaseMinObjectContribution, xmm6; r_globals_t rg
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  if ( umbraWorstCaseMinObjectContribution < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10366, ASSERT_TYPE_ASSERT, "( umbraWorstCaseMinObjectContribution ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "umbraWorstCaseMinObjectContribution", "0.f", umbraWorstCaseMinObjectContribution, 0.0) )
+    __debugbreak();
+  if ( umbraWorstCaseMinObjectContribution != rg.umbraWorstCaseMinObjectContribution )
+    Com_Printf(14, "R_SetWorstCaseMinObjectContribution changing from %f to %f\n", rg.umbraWorstCaseMinObjectContribution, umbraWorstCaseMinObjectContribution);
+  rg.umbraWorstCaseMinObjectContribution = umbraWorstCaseMinObjectContribution;
 }
 
 /*
@@ -12280,188 +9821,172 @@ R_SetupDustConstants
 */
 void R_SetupDustConstants(GfxViewInfo *viewInfo)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  float dustPitch; 
+  float dustHeading; 
+  float v13; 
+  float dustSmoothMax; 
+  float dustSmoothMin; 
   float dustTiling; 
-  char v24; 
-  int v78; 
+  float v17; 
+  bool v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  float v34; 
+  float v35; 
+  float v36; 
+  __int128 v37; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  int v47; 
   Material *dustMaterial; 
-  __int64 v88; 
+  __int64 v49; 
   GfxImage *image; 
   TextureSemantic semantic; 
   vec3_t angles; 
   vec3_t forward; 
-  void *retaddr; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+0A14h]
-    vmovss  xmm1, dword ptr [rcx+0A10h]
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-  }
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-78h], xmm11
-    vmovaps xmmword ptr [r11-88h], xmm12
-    vmovaps xmmword ptr [r11-98h], xmm13
-    vxorps  xmm10, xmm10, xmm10
-    vmovaps [rsp+118h+var_A8], xmm14
-    vmovaps [rsp+118h+var_B8], xmm15
-    vmovss  dword ptr [rsp+118h+angles], xmm0
-    vmovss  dword ptr [rsp+118h+angles+4], xmm1
-    vmovss  dword ptr [rsp+118h+angles+8], xmm10
-  }
+  dustPitch = viewInfo->dustParams.dustPitch;
+  dustHeading = viewInfo->dustParams.dustHeading;
+  v62 = v1;
+  v61 = v2;
+  v60 = v3;
+  v59 = v4;
+  v58 = v5;
+  v57 = v6;
+  v56 = v7;
+  v13 = 0.0;
+  v55 = v8;
+  v54 = v9;
+  angles.v[0] = dustPitch;
+  angles.v[1] = dustHeading;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, &forward, NULL, NULL);
-  __asm
+  dustSmoothMax = viewInfo->dustParams.dustSmoothMax;
+  dustSmoothMin = viewInfo->dustParams.dustSmoothMin;
+  dustTiling = viewInfo->dustParams.dustTiling;
+  v17 = forward.v[0];
+  v18 = forward.v[0] == 0.0;
+  v19 = LODWORD(forward.v[1]);
+  v20 = LODWORD(forward.v[2]);
+  viewInfo->input.sceneConstants.dustShaderTiling.v[1] = viewInfo->dustParams.dustIntensity;
+  viewInfo->input.sceneConstants.dustShaderTiling.v[2] = dustSmoothMin;
+  viewInfo->input.sceneConstants.dustShaderTiling.v[3] = dustSmoothMax;
+  viewInfo->input.sceneConstants.dustShaderTiling.v[0] = dustTiling;
+  viewInfo->input.sceneConstants.dustShaderDirection.v[3] = viewInfo->dustParams.dustPowerCurve;
+  viewInfo->input.sceneConstants.dustShaderDirection.v[0] = v17;
+  viewInfo->input.sceneConstants.dustShaderDirection.v[1] = *(float *)&v19;
+  viewInfo->input.sceneConstants.dustShaderDirection.v[2] = *(float *)&v20;
+  if ( v18 )
   {
-    vmovss  xmm0, dword ptr [rbx+0A1Ch]
-    vmovss  xmm2, dword ptr [rbx+0A28h]
-    vmovss  xmm1, dword ptr [rbx+0A24h]
-  }
-  dustTiling = _RBX->dustParams.dustTiling;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+118h+forward]
-    vucomiss xmm5, xmm10
-    vmovss  xmm11, dword ptr [rsp+118h+forward+4]
-    vmovss  xmm6, dword ptr [rsp+118h+forward+8]
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  dword ptr [rbx+1964h], xmm0
-    vmovss  dword ptr [rbx+1968h], xmm1
-    vmovss  dword ptr [rbx+196Ch], xmm2
-  }
-  _RBX->input.sceneConstants.dustShaderTiling.v[0] = dustTiling;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0A20h]
-    vmovss  dword ptr [rbx+193Ch], xmm0
-    vmovss  dword ptr [rbx+1930h], xmm5
-    vmovss  dword ptr [rbx+1934h], xmm11
-    vmovss  dword ptr [rbx+1938h], xmm6
-  }
-  if ( v24 )
-  {
+    v37 = v20;
+    *(float *)&v37 = fsqrt((float)(*(float *)&v20 * *(float *)&v20) + (float)(COERCE_FLOAT(LODWORD(v17) ^ _xmm) * COERCE_FLOAT(LODWORD(v17) ^ _xmm)));
+    _XMM2 = v37;
     __asm
     {
-      vxorps  xmm3, xmm5, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm3, xmm3
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm15, xmm1, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm14, xmm1, xmm6
-      vmovss  [rsp+118h+var_E8], xmm0
-      vmulss  xmm0, xmm5, xmm15
-      vmulss  xmm1, xmm6, xmm14
-      vsubss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm11, xmm14
-      vxorps  xmm5, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm7, xmm11, xmm15
-      vmulss  xmm2, xmm7, xmm7
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm3, xmm1
-      vsqrtss xmm4, xmm2, xmm2
-      vcmpless xmm0, xmm4, cs:__real@80000000
-      vmovss  xmm2, [rsp+118h+var_E8]
-      vblendvps xmm0, xmm4, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm10, xmm1, xmm7
-      vmulss  xmm12, xmm1, xmm6
-      vmulss  xmm13, xmm1, xmm5
     }
+    v36 = (float)(1.0 / *(float *)&_XMM0) * COERCE_FLOAT(LODWORD(v17) ^ _xmm);
+    v34 = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v20;
+    v41 = (float)(*(float *)&v20 * v34) - (float)(v17 * v36);
+    LODWORD(v42) = COERCE_UNSIGNED_INT(*(float *)&v19 * v34) ^ _xmm;
+    v43 = v19;
+    *(float *)&v43 = fsqrt((float)((float)((float)(*(float *)&v19 * v36) * (float)(*(float *)&v19 * v36)) + (float)(v41 * v41)) + (float)(v42 * v42));
+    _XMM4 = v43;
+    __asm { vcmpless xmm0, xmm4, cs:__real@80000000 }
+    v35 = 0.0;
+    __asm { vblendvps xmm0, xmm4, xmm9, xmm0 }
+    v13 = (float)(1.0 / *(float *)&_XMM0) * (float)(*(float *)&v19 * v36);
+    v26 = (float)(1.0 / *(float *)&_XMM0) * v41;
+    v25 = (float)(1.0 / *(float *)&_XMM0) * v42;
   }
   else
   {
+    v21 = v19 ^ _xmm;
+    *(float *)&v21 = fsqrt((float)(*(float *)&v21 * *(float *)&v21) + (float)(*(float *)&v20 * *(float *)&v20));
+    _XMM2 = v21;
     __asm
     {
-      vxorps  xmm3, xmm11, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm13, xmm3, xmm1
-      vmulss  xmm12, xmm6, xmm1
-      vmulss  xmm7, xmm5, xmm13
-      vmulss  xmm1, xmm6, xmm12
-      vmulss  xmm0, xmm11, xmm13
-      vsubss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm12
-      vxorps  xmm5, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm3, xmm1
-      vsqrtss xmm4, xmm2, xmm2
+    }
+    v25 = COERCE_FLOAT(v19 ^ _xmm) * (float)(1.0 / *(float *)&_XMM0);
+    v26 = *(float *)&v20 * (float)(1.0 / *(float *)&_XMM0);
+    v27 = v17 * v25;
+    v28 = v20;
+    v29 = (float)(*(float *)&v20 * v26) - (float)(*(float *)&v19 * v25);
+    LODWORD(v30) = COERCE_UNSIGNED_INT(v17 * v26) ^ _xmm;
+    *(float *)&v28 = fsqrt((float)((float)(v29 * v29) + (float)(v27 * v27)) + (float)(v30 * v30));
+    _XMM4 = v28;
+    __asm
+    {
       vcmpless xmm0, xmm4, cs:__real@80000000
       vblendvps xmm0, xmm4, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm14, xmm6, xmm1
-      vmulss  xmm2, xmm7, xmm1
-      vmulss  xmm15, xmm5, xmm1
     }
+    v34 = v29 * (float)(1.0 / *(float *)&_XMM0);
+    v35 = v27 * (float)(1.0 / *(float *)&_XMM0);
+    v36 = v30 * (float)(1.0 / *(float *)&_XMM0);
   }
-  __asm { vmovaps xmm11, [rsp+118h+var_78] }
-  v78 = 0;
-  __asm
-  {
-    vmovaps xmm9, [rsp+118h+var_58]
-    vmovaps xmm7, [rsp+118h+var_48]
-    vmovaps xmm6, [rsp+118h+var_38]
-    vmovss  dword ptr [rbx+1940h], xmm14
-    vmovaps xmm14, [rsp+118h+var_A8]
-    vmovss  dword ptr [rbx+1948h], xmm15
-    vmovaps xmm15, [rsp+118h+var_B8]
-  }
-  _RBX->input.sceneConstants.dustShaderTangent.v[3] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+1944h], xmm2
-    vmovss  dword ptr [rbx+1950h], xmm10
-    vmovaps xmm10, [rsp+118h+var_68]
-    vmovss  dword ptr [rbx+1954h], xmm12
-    vmovaps xmm12, [rsp+118h+var_88]
-    vmovss  dword ptr [rbx+1958h], xmm13
-    vmovaps xmm13, [rsp+118h+var_98]
-  }
-  _RBX->input.sceneConstants.dustShaderBinormal.v[3] = 0.0;
+  v47 = 0;
+  viewInfo->input.sceneConstants.dustShaderTangent.v[0] = v34;
+  viewInfo->input.sceneConstants.dustShaderTangent.v[2] = v36;
+  viewInfo->input.sceneConstants.dustShaderTangent.v[3] = 0.0;
+  viewInfo->input.sceneConstants.dustShaderTangent.v[1] = v35;
+  viewInfo->input.sceneConstants.dustShaderBinormal.v[0] = v13;
+  viewInfo->input.sceneConstants.dustShaderBinormal.v[1] = v26;
+  viewInfo->input.sceneConstants.dustShaderBinormal.v[2] = v25;
+  viewInfo->input.sceneConstants.dustShaderBinormal.v[3] = 0.0;
   dustMaterial = rgp.world->dustMaterial;
   if ( dustMaterial && dustMaterial->textureCount )
   {
-    v88 = 0i64;
+    v49 = 0i64;
     do
     {
-      image = dustMaterial->textureTable[v88].image;
+      image = dustMaterial->textureTable[v49].image;
       semantic = image->semantic;
       if ( semantic == TS_METALNESS_MAP )
       {
-        if ( _RBX == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+        if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
           __debugbreak();
-        _RBX->input.codeImages[10] = image;
+        viewInfo->input.codeImages[10] = image;
       }
       else if ( semantic == TS_NORMAL_OCCLUSION_GLOSS_MAP )
       {
-        if ( _RBX == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+        if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
           __debugbreak();
-        _RBX->input.codeImages[11] = image;
+        viewInfo->input.codeImages[11] = image;
       }
-      ++v78;
-      ++v88;
+      ++v47;
+      ++v49;
       dustMaterial = rgp.world->dustMaterial;
     }
-    while ( v78 < dustMaterial->textureCount );
+    while ( v47 < dustMaterial->textureCount );
   }
 }
 
@@ -12579,55 +10104,31 @@ R_SetupPerspectiveViewProjectionMatrices
 */
 void R_SetupPerspectiveViewProjectionMatrices(GfxViewParms *viewParms, R_ZPLANES zPlaneNear)
 {
-  char v7; 
+  __int64 v3; 
+  __m256i v4; 
+  float v5; 
   tmat44_t<vec4_t> out; 
   GfxMatrix in; 
   tmat44_t<vec4_t> dst; 
 
-  _RDI = viewParms;
-  _RBX = zPlaneNear;
+  v3 = zPlaneNear;
   MatrixForViewerOrthogonalNoOrigin(&viewParms->camera.axis, &viewParms->viewMatrix.m);
-  __asm
+  InfinitePerspectiveMatrix(viewParms->camera.tanHalfFovX, viewParms->camera.tanHalfFovY, viewParms->camera.zPlanes[v3], &viewParms->projectionMatrix.m);
+  if ( viewParms->subpixelOffset.v[0] != 0.0 || viewParms->subpixelOffset.v[1] != 0.0 )
   {
-    vmovss  xmm2, dword ptr [rdi+rbx*4+140h]; zNear
-    vmovss  xmm1, dword ptr [rdi+134h]; tanHalfFovY
-    vmovss  xmm0, dword ptr [rdi+130h]; tanHalfFovX
+    v4 = *(__m256i *)viewParms->projectionMatrix.m.row2.v;
+    *(__m256i *)in.m.m[0].v = *(__m256i *)viewParms->projectionMatrix.m.m[0].v;
+    *(__m256i *)in.m.row2.v = v4;
+    R_ApplySubPixelOffset(&viewParms->subpixelOffset, &in, &viewParms->projectionMatrix);
   }
-  InfinitePerspectiveMatrix(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &_RDI->projectionMatrix.m);
-  _RCX = &_RDI->subpixelOffset;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rcx]
-  }
-  if ( !v7 )
-    goto LABEL_3;
-  __asm { vucomiss xmm0, dword ptr [rcx+4] }
-  if ( !v7 )
-  {
-LABEL_3:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rsp+0F8h+in.m], ymm0
-      vmovups ymmword ptr [rsp+0F8h+in.m+20h], ymm1
-    }
-    R_ApplySubPixelOffset(_RCX, &in, &_RDI->projectionMatrix);
-  }
-  MatrixMultiply44Aligned(&_RDI->viewMatrix.m, &_RDI->projectionMatrix.m, &_RDI->viewProjectionMatrix.m);
-  MatrixInverse44Aligned(&_RDI->viewProjectionMatrix.m, &dst);
+  MatrixMultiply44Aligned(&viewParms->viewMatrix.m, &viewParms->projectionMatrix.m, &viewParms->viewProjectionMatrix.m);
+  MatrixInverse44Aligned(&viewParms->viewProjectionMatrix.m, &dst);
   MatrixIdentity44(&out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+100h]
-    vmovss  xmm1, dword ptr [rdi+104h]
-    vmovss  dword ptr [rsp+0F8h+out+30h], xmm0
-    vmovss  xmm0, dword ptr [rdi+108h]
-    vmovss  dword ptr [rsp+0F8h+out+38h], xmm0
-    vmovss  dword ptr [rsp+0F8h+out+34h], xmm1
-  }
-  MatrixMultiply44Aligned(&dst, &out, &_RDI->inverseViewProjectionMatrix.m);
+  v5 = viewParms->camera.origin.v[1];
+  out.m[3].v[0] = viewParms->camera.origin.v[0];
+  out.m[3].v[2] = viewParms->camera.origin.v[2];
+  out.m[3].v[1] = v5;
+  MatrixMultiply44Aligned(&dst, &out, &viewParms->inverseViewProjectionMatrix.m);
 }
 
 /*
@@ -12674,20 +10175,18 @@ void R_SetupSceneCmdBufInput(GfxViewInfo *viewInfo)
   GfxWorld *world; 
   int heightfieldCount; 
   GfxImage *image; 
-  char v41; 
-  char v42; 
   GfxImage *heightMap; 
   GfxImage *detailMask; 
   GfxImage *SVDCoefficient; 
   GfxImage *SVDBasis; 
-  GfxImage *v47; 
-  GfxImage *v48; 
+  GfxImage *v43; 
+  GfxImage *v44; 
   GfxImage *blackImage3D; 
   const GfxImage *LightmapAtlasTexture; 
-  const GfxImage *v51; 
-  const GfxImage *v52; 
+  const GfxImage *v47; 
+  const GfxImage *v48; 
   const GfxImage *LightGridVolumeAtlasTexture; 
-  const GfxImage *v54; 
+  const GfxImage *v50; 
   GfxImage *MagmaHeightfield; 
 
   p_input = &viewInfo->input;
@@ -12890,22 +10389,16 @@ void R_SetupSceneCmdBufInput(GfxViewInfo *viewInfo)
     p_input->codePersistentImages[16] = image;
   }
   R_ST_SetCodeResources(p_input);
-  _RAX = rgp.world;
-  __asm
+  if ( rgp.world->precomputedSkyIllumination.boxMax.v[0] <= rgp.world->precomputedSkyIllumination.boxMin.v[0] )
   {
-    vmovss  xmm0, dword ptr [rax+3A10h]
-    vcomiss xmm0, dword ptr [rax+3A00h]
-  }
-  if ( v41 | v42 )
-  {
-    v47 = rgp.blackImage;
+    v43 = rgp.blackImage;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    p_input->codePersistentImages[17] = v47;
-    v48 = rgp.blackImage;
+    p_input->codePersistentImages[17] = v43;
+    v44 = rgp.blackImage;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    p_input->codePersistentImages[18] = v48;
+    p_input->codePersistentImages[18] = v44;
     blackImage3D = rgp.blackImage3D;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
@@ -12935,22 +10428,22 @@ void R_SetupSceneCmdBufInput(GfxViewInfo *viewInfo)
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[28] = LightmapAtlasTexture;
-  v51 = R_GetLightmapAtlasTexture(viewInfo->input.data, rgp.world->draw.lightmapType, 1u);
+  v47 = R_GetLightmapAtlasTexture(viewInfo->input.data, rgp.world->draw.lightmapType, 1u);
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[29] = v51;
-  v52 = R_GetLightmapAtlasTexture(viewInfo->input.data, rgp.world->draw.lightmapType, 2u);
+  p_input->codePersistentImages[29] = v47;
+  v48 = R_GetLightmapAtlasTexture(viewInfo->input.data, rgp.world->draw.lightmapType, 2u);
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[30] = v52;
+  p_input->codePersistentImages[30] = v48;
   LightGridVolumeAtlasTexture = R_GetLightGridVolumeAtlasTexture(viewInfo->input.data, LIGHTGRID_VOLUME_ATLAS_TEXTURE_DC);
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[23] = LightGridVolumeAtlasTexture;
-  v54 = R_GetLightGridVolumeAtlasTexture(viewInfo->input.data, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
+  v50 = R_GetLightGridVolumeAtlasTexture(viewInfo->input.data, LIGHTGRID_VOLUME_ATLAS_TEXTURE_HIGH_BANDS);
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[24] = v54;
+  p_input->codePersistentImages[24] = v50;
   MagmaHeightfield = (GfxImage *)Particle_GetMagmaHeightfield();
   if ( !MagmaHeightfield )
     MagmaHeightfield = rgp.blackImage;
@@ -12966,104 +10459,46 @@ R_SetupSceneEntBounds
 */
 void R_SetupSceneEntBounds(GfxSceneEntity *sceneEnt, SecureVec3 *tmpOrg, SecureBoundsAccess *tmpBounds)
 {
-  int v25; 
-  int v26; 
-  int v27; 
+  const cpose_t *pose; 
+  double Radius; 
   vec3_t outOrigin; 
-  __int64 v29; 
+  __int64 v9; 
   vec3_t angles; 
   vec4_t quat; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v29 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _R14 = tmpBounds;
-  _RSI = tmpOrg;
-  _RDI = sceneEnt;
+  v9 = -2i64;
   if ( !sceneEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1685, ASSERT_TYPE_ASSERT, "(sceneEnt)", (const char *)&queryFormat, "sceneEnt") )
     __debugbreak();
-  if ( !_RDI->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1686, ASSERT_TYPE_ASSERT, "(sceneEnt->obj)", (const char *)&queryFormat, "sceneEnt->obj") )
+  if ( !sceneEnt->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1686, ASSERT_TYPE_ASSERT, "(sceneEnt->obj)", (const char *)&queryFormat, "sceneEnt->obj") )
     __debugbreak();
-  if ( !_RDI->info.pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1687, ASSERT_TYPE_ASSERT, "(sceneEnt->info.pose)", (const char *)&queryFormat, "sceneEnt->info.pose") )
+  if ( !sceneEnt->info.pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1687, ASSERT_TYPE_ASSERT, "(sceneEnt->info.pose)", (const char *)&queryFormat, "sceneEnt->info.pose") )
     __debugbreak();
-  _RBX = _RDI->info.pose;
-  *(double *)&_XMM0 = DObjGetRadius(_RDI->obj);
-  __asm { vmovaps xmm6, xmm0 }
-  CG_GetPoseOrigin(_RBX, (vec3_t *)_RSI);
-  SetSecureVec3((const vec3_t *)_RSI, &_RDI->placement.placement.origin, s_origin_aab_X, s_origin_aab_Y, s_origin_aab_Z);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+  pose = sceneEnt->info.pose;
+  Radius = DObjGetRadius(sceneEnt->obj);
+  CG_GetPoseOrigin(pose, (vec3_t *)tmpOrg);
+  SetSecureVec3((const vec3_t *)tmpOrg, &sceneEnt->placement.placement.origin, s_origin_aab_X, s_origin_aab_Y, s_origin_aab_Z);
+  if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vmovss  dword ptr [rsp+0B8h+angles], xmm0
-    vmovss  xmm1, dword ptr [rbx+4Ch]
-    vmovss  dword ptr [rsp+0B8h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vmovss  dword ptr [rsp+0B8h+angles+8], xmm0
-  }
+  angles = pose->angles;
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0B8h+quat]
-    vmovups xmmword ptr [rdi+0Ch], xmm0
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+0B8h+var_88], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1701, ASSERT_TYPE_ASSERT, "(!IS_NAN( tmpOrg.x ) && !IS_NAN( tmpOrg.y ) && !IS_NAN( tmpOrg.z ))", (const char *)&queryFormat, "!IS_NAN( tmpOrg.x ) && !IS_NAN( tmpOrg.y ) && !IS_NAN( tmpOrg.z )") )
-      __debugbreak();
-  }
-  CG_GetPrevPoseOrigin(_RBX, &outOrigin);
-  SetSecureVec3(&outOrigin, &_RDI->prevPlacement.prevPlacement.origin, s_ps_origin_aab_X, s_ps_origin_aab_Y, s_ps_origin_aab_Z);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 636, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+  sceneEnt->placement.placement.quat = quat;
+  if ( ((LODWORD(tmpOrg->x) & 0x7F800000) == 2139095040 || (LODWORD(tmpOrg->y) & 0x7F800000) == 2139095040 || (LODWORD(tmpOrg->z) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 1701, ASSERT_TYPE_ASSERT, "(!IS_NAN( tmpOrg.x ) && !IS_NAN( tmpOrg.y ) && !IS_NAN( tmpOrg.z ))", (const char *)&queryFormat, "!IS_NAN( tmpOrg.x ) && !IS_NAN( tmpOrg.y ) && !IS_NAN( tmpOrg.z )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+78h]
-    vmovss  dword ptr [rsp+0B8h+angles], xmm0
-    vmovss  xmm1, dword ptr [rbx+7Ch]
-    vmovss  dword ptr [rsp+0B8h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+80h]
-    vmovss  dword ptr [rsp+0B8h+angles+8], xmm0
-  }
+  CG_GetPrevPoseOrigin(pose, &outOrigin);
+  SetSecureVec3(&outOrigin, &sceneEnt->prevPlacement.prevPlacement.origin, s_ps_origin_aab_X, s_ps_origin_aab_Y, s_ps_origin_aab_Z);
+  if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 636, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+    __debugbreak();
+  angles = pose->prevAngles;
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0B8h+quat]
-    vmovups xmmword ptr [rdi+28h], xmm0
-  }
-  _R14->midPoint.v[0] = _RSI->x;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [r14+8], xmm1
-    vmovss  dword ptr [r14+0Ch], xmm6
-    vmovss  dword ptr [r14+10h], xmm6
-    vmovss  dword ptr [r14+14h], xmm6
-  }
-  GfxSceneEntity_SetBounds(&_RDI->cull, _R14);
+  sceneEnt->prevPlacement.prevPlacement.quat = quat;
+  tmpBounds->midPoint.v[0] = tmpOrg->x;
+  tmpBounds->midPoint.v[1] = tmpOrg->y;
+  tmpBounds->midPoint.v[2] = tmpOrg->z;
+  tmpBounds->halfSize.v[0] = *(float *)&Radius;
+  tmpBounds->halfSize.v[1] = *(float *)&Radius;
+  tmpBounds->halfSize.v[2] = *(float *)&Radius;
+  GfxSceneEntity_SetBounds(&sceneEnt->cull, tmpBounds);
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
 }
 
 /*
@@ -13073,110 +10508,143 @@ R_SetupSceneRtInput
 */
 void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigned int sceneHeight, unsigned int maxSceneRtWidth, unsigned int maxSceneRtHeight)
 {
+  GfxViewInfo *v9; 
   unsigned __int16 frontendPass; 
+  const dvar_t *v11; 
+  int v12; 
+  const dvar_t *v13; 
+  int v14; 
   const dvar_t *v15; 
-  int v16; 
+  R_RT_Flags rtFlags; 
   const dvar_t *v17; 
-  int v18; 
-  const dvar_t *v19; 
-  R_RT_Flags v20; 
-  const dvar_t *v24; 
-  R_RT_Flags v25; 
-  int v26; 
-  const dvar_t *v30; 
-  int v31; 
-  const dvar_t *v49; 
-  int v50; 
+  R_RT_Flags v18; 
+  int v19; 
+  R_RT_Handle v20; 
+  const dvar_t *v22; 
+  int v23; 
+  R_RT_Handle v24; 
+  R_RT_Handle v26; 
+  R_RT_Handle v28; 
+  __m256i v30; 
+  R_RT_DepthHandle *p_result; 
+  const dvar_t *v33; 
+  int v34; 
+  R_RT_Handle v35; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
+  const dvar_t *v39; 
+  int v40; 
+  R_RT_Handle v41; 
+  R_RT_Image *v43; 
+  const dvar_t *v44; 
+  int v45; 
+  const dvar_t *v46; 
+  const dvar_t *v47; 
+  int v48; 
+  R_RT_Handle v49; 
+  const dvar_t *v51; 
+  int v52; 
+  R_RT_Handle v53; 
+  const dvar_t *v55; 
+  int v56; 
   const dvar_t *v57; 
   int v58; 
-  R_RT_Image *v63; 
-  const dvar_t *v64; 
-  int v65; 
-  const dvar_t *v66; 
+  R_RT_Handle v59; 
+  const dvar_t *v61; 
+  int v62; 
+  R_RT_Handle v63; 
+  bool v65; 
+  unsigned int v66; 
+  const char **v67; 
+  const char *v68; 
   const dvar_t *v69; 
   int v70; 
-  const dvar_t *v74; 
-  int v75; 
-  const dvar_t *v82; 
-  int v83; 
-  const dvar_t *v86; 
-  int v87; 
-  const dvar_t *v91; 
-  int v92; 
-  bool v99; 
-  unsigned int v100; 
-  const char **v101; 
-  const char *v102; 
-  const dvar_t *v103; 
-  int v104; 
   unsigned int MapSize; 
-  unsigned int v106; 
+  unsigned int v72; 
+  __m256i v73; 
+  R_RT_DepthHandle *v75; 
   unsigned int m_allocCounter; 
   R_RT_Image *blackShadowImage; 
-  __int16 v116; 
-  unsigned __int16 v117; 
-  const char *v120; 
-  const char *v121; 
-  int v122; 
-  bool v125; 
-  unsigned int v126; 
-  unsigned int v127; 
-  R_RT_Image *v131; 
-  unsigned int v132; 
-  const dvar_t *v133; 
+  unsigned __int16 v78; 
+  const char *v79; 
+  const char *v80; 
+  int v81; 
+  R_RT_Handle *v82; 
+  bool v83; 
+  unsigned int v84; 
+  unsigned int v85; 
+  R_RT_DepthHandle *v86; 
+  R_RT_Image *v87; 
+  unsigned int v88; 
+  const dvar_t *v89; 
+  __m256i v90; 
+  R_RT_DepthHandle *v92; 
   R_RT_Image *zeroImage; 
   GfxImage *blackImage; 
-  R_RT_Image *v146; 
-  unsigned __int16 v147; 
-  const char *v151; 
-  const char *v152; 
-  int v153; 
-  R_RT_Image *v158; 
-  unsigned __int16 v159; 
-  const char *v163; 
-  const char *v164; 
-  int v165; 
-  unsigned __int16 v172; 
-  const char *v176; 
-  const char *v177; 
-  int v178; 
+  R_RT_Handle v95; 
+  R_RT_Image *v97; 
+  unsigned __int16 v98; 
+  const char *v100; 
+  const char *v101; 
+  int v102; 
+  R_RT_Handle v103; 
+  R_RT_Image *v105; 
+  unsigned __int16 v106; 
+  const char *v108; 
+  const char *v109; 
+  int v110; 
+  R_RT_Handle v111; 
   unsigned __int16 m_surfaceID; 
-  unsigned __int16 v181; 
-  R_RT_Image *v185; 
-  __int16 v186; 
-  R_RT_Image *v188; 
-  unsigned int v189; 
-  R_RT_Image *v190; 
-  unsigned int v195; 
+  unsigned __int16 v114; 
+  const char *v115; 
+  const char *v116; 
+  int v117; 
+  unsigned __int16 v118; 
+  unsigned __int16 v119; 
+  __int128 v120; 
+  const char *m_location; 
+  R_RT_Image *v122; 
+  __int16 v123; 
+  R_RT_Image *v124; 
+  unsigned int v125; 
+  R_RT_Image *v126; 
+  unsigned int v128; 
+  R_RT_ColorHandle *ColorForDynSceneResInternal; 
   R_RT_Image *whiteImage; 
   GfxImage *defaultUIntImage; 
-  R_RT_Image *v201; 
-  unsigned __int16 v202; 
+  R_RT_Image *v132; 
+  unsigned __int16 v133; 
   GfxSSAOMode SSAOMode; 
-  const char *v210; 
-  R_RT_Image *v215; 
-  unsigned int v218; 
-  unsigned int v219; 
-  unsigned int v220; 
-  unsigned int v221; 
+  const char *v138; 
+  R_RT_Image *v139; 
+  unsigned int v142; 
+  unsigned int v143; 
+  unsigned int v144; 
+  unsigned int v145; 
   GfxSSRMode SSRMode; 
-  R_RT_Image *v233; 
-  R_RT_Image *v234; 
+  R_RT_ColorHandle *v147; 
+  R_RT_Image *v148; 
+  R_RT_Image *v149; 
   R_RT_Image *blackUintImage; 
-  R_RT_Image *v236; 
+  R_RT_Image *v151; 
+  R_RT_DepthHandle v153; 
   R_RT_Image *blackImage3D; 
-  R_RT_Image *v247; 
-  unsigned int v267; 
-  unsigned int v268; 
-  unsigned int v269; 
-  const char **v270; 
-  char v272; 
+  R_RT_Image *v155; 
+  R_RT_DepthHandle *BufferInternal; 
+  R_RT_DepthHandle *v157; 
+  R_RT_DepthHandle *v158; 
+  unsigned int v160; 
+  unsigned int v161; 
+  unsigned int v162; 
+  const char **v163; 
+  __m256i *m_spotShadowRts; 
+  char v165; 
   unsigned int spotShadowUpdateLimit; 
-  const char *v275; 
+  const char *v168; 
+  R_RT_Handle *v169; 
+  GfxViewInfo *v170; 
   const GfxImage *Image; 
-  const GfxImage *v314; 
+  const GfxImage *v172; 
   const GfxImage *FogLightmapImage; 
   const GfxWrappedRWBuffer *ClusterMaskView; 
   const GfxWrappedBuffer *FrustumLightsTileBuffer; 
@@ -13184,146 +10652,118 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
   const GfxImage *SpotShadowArrayImageDraw3D; 
   __int64 arraySliceCount; 
   __int64 mipLimit; 
-  float rtFlags; 
-  float v329; 
-  float v330; 
-  float v331; 
   unsigned int allocWidtha; 
-  unsigned int v334; 
-  unsigned int v335; 
+  unsigned int v182; 
+  unsigned int v183; 
   unsigned __int16 allocHeight; 
-  unsigned int v337; 
-  unsigned int v339; 
-  unsigned __int16 v340; 
-  bool v341; 
-  unsigned __int16 v342; 
+  unsigned int v185; 
+  unsigned int v187; 
+  unsigned __int16 v188; 
+  bool v189; 
+  unsigned __int16 v190; 
   unsigned __int16 heighta; 
-  R_RT_AllocationLockSentry v345; 
-  unsigned int v346; 
-  unsigned int v347; 
-  unsigned int v348; 
-  R_RT_Handle v349; 
-  unsigned int v350; 
-  unsigned int v351; 
-  unsigned int v352; 
-  unsigned int v353; 
-  __int64 v354; 
-  R_RT_Handle v355; 
-  __int64 m_sunShadowCascades; 
-  unsigned int v357; 
-  R_RT_Handle v358; 
+  R_RT_AllocationLockSentry v193; 
+  unsigned int v194; 
+  unsigned int v195; 
+  unsigned int v196; 
+  R_RT_Handle v197; 
+  unsigned int v198; 
+  unsigned int v199; 
+  unsigned int v200; 
+  unsigned int v201; 
+  __int64 v202; 
+  R_RT_Handle v203; 
+  R_RT_Handle *m_sunShadowCascades; 
+  unsigned int v205; 
+  R_RT_Handle v206; 
   GfxImage *extinction; 
   GfxImage *visibility; 
   __int64 sunShadowOpaqueCascadeCount; 
   GfxViewInfo *viewInfoa; 
   GfxImage *scattering; 
-  R_RT_Handle v364; 
-  R_RT_Handle v365; 
-  R_RT_Handle v366; 
-  __int64 v367; 
-  R_RT_Handle v368; 
-  R_RT_Handle v369; 
+  R_RT_Handle v212; 
+  R_RT_Handle v213; 
+  R_RT_Handle v214; 
+  __int64 v215; 
+  R_RT_Handle v216; 
+  R_RT_Handle v217; 
   R_RT_DepthHandle result; 
-  R_RT_Handle v371; 
-  R_RT_Handle v372; 
+  R_RT_Handle v219; 
+  R_RT_Handle v220; 
   vec4_t clearColor[2]; 
-  vec4_t v374; 
-  R_RT_ColorHandle v375; 
-  R_RT_Handle v376; 
-  char v377; 
-  void *retaddr; 
+  vec4_t v222; 
+  R_RT_ColorHandle v223; 
+  R_RT_Handle v224; 
 
-  _RAX = &retaddr;
-  v367 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _R14 = viewInfo;
+  v215 = -2i64;
+  v9 = viewInfo;
   viewInfoa = viewInfo;
   if ( sceneWidth > maxSceneRtWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5894, ASSERT_TYPE_ASSERT, "(sceneWidth <= maxSceneRtWidth)", (const char *)&queryFormat, "sceneWidth <= maxSceneRtWidth") )
     __debugbreak();
   if ( sceneHeight > maxSceneRtHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 5895, ASSERT_TYPE_ASSERT, "(sceneHeight <= maxSceneRtHeight)", (const char *)&queryFormat, "sceneHeight <= maxSceneRtHeight") )
     __debugbreak();
-  v335 = sceneWidth >> 1;
-  v337 = sceneHeight >> 1;
-  v334 = maxSceneRtWidth >> 1;
-  v339 = maxSceneRtHeight >> 1;
-  v353 = sceneWidth >> 2;
-  v352 = sceneHeight >> 2;
-  v348 = sceneWidth >> 3;
-  v347 = sceneHeight >> 3;
-  v351 = maxSceneRtWidth >> 2;
-  v350 = maxSceneRtHeight >> 2;
-  v346 = maxSceneRtWidth >> 3;
-  v357 = maxSceneRtHeight >> 3;
-  memset_0(&_R14->sceneRtInput, 0, sizeof(_R14->sceneRtInput));
-  _R14->sceneRtInput.sceneRtWidth = sceneWidth;
-  _R14->sceneRtInput.sceneRtHeight = sceneHeight;
-  _R14->sceneRtInput.maxSceneRtWidth = maxSceneRtWidth;
-  _R14->sceneRtInput.maxSceneRtHeight = maxSceneRtHeight;
+  v183 = sceneWidth >> 1;
+  v185 = sceneHeight >> 1;
+  v182 = maxSceneRtWidth >> 1;
+  v187 = maxSceneRtHeight >> 1;
+  v201 = sceneWidth >> 2;
+  v200 = sceneHeight >> 2;
+  v196 = sceneWidth >> 3;
+  v195 = sceneHeight >> 3;
+  v199 = maxSceneRtWidth >> 2;
+  v198 = maxSceneRtHeight >> 2;
+  v194 = maxSceneRtWidth >> 3;
+  v205 = maxSceneRtHeight >> 3;
+  memset_0(&v9->sceneRtInput, 0, sizeof(v9->sceneRtInput));
+  v9->sceneRtInput.sceneRtWidth = sceneWidth;
+  v9->sceneRtInput.sceneRtHeight = sceneHeight;
+  v9->sceneRtInput.maxSceneRtWidth = maxSceneRtWidth;
+  v9->sceneRtInput.maxSceneRtHeight = maxSceneRtHeight;
   if ( R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 23, ASSERT_TYPE_ASSERT, "(!R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "!R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v345);
+  R_RT_AllocationLockSentry::R_RT_AllocationLockSentry(&v193);
   frontendPass = R_RT_NewFrontendPass();
-  v340 = frontendPass;
-  _R14->sceneRtInput.m_pass = frontendPass;
-  v15 = DCONST_DVARINT_r_dccColor;
+  v188 = frontendPass;
+  v9->sceneRtInput.m_pass = frontendPass;
+  v11 = DCONST_DVARINT_r_dccColor;
   if ( !DCONST_DVARINT_r_dccColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  v16 = 4097;
-  if ( v15->current.integer == 1 )
-    v16 = 4105;
-  v17 = DCONST_DVARINT_r_dccColor;
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = 4097;
+  if ( v11->current.integer == 1 )
+    v12 = 4105;
+  v13 = DCONST_DVARINT_r_dccColor;
   if ( !DCONST_DVARINT_r_dccColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  v18 = 1;
-  if ( v17->current.integer == 1 )
-    v18 = 9;
-  v19 = DCONST_DVARBOOL_r_esramDepth;
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = 1;
+  if ( v13->current.integer == 1 )
+    v14 = 9;
+  v15 = DCONST_DVARBOOL_r_esramDepth;
   if ( !DCONST_DVARBOOL_r_esramDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramDepth") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  v20 = R_RT_Flag_Stencil;
-  if ( v19->current.enabled )
-    v20 = R_RT_Flag_MaskDepthOnly|R_RT_Flag_DemandESRAM;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  [rsp+380h+var_330], xmm8
-  }
-  _RAX = R_RT_CreateDepthForDynSceneResInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_SCENE, v20, R_RT_FlagInternal_Frontend, v329, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5929)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+31A0h], ymm0
-  }
-  v24 = DCONST_DVARBOOL_r_esramColor;
+  Dvar_CheckFrontendServerThread(v15);
+  rtFlags = R_RT_Flag_Stencil;
+  if ( v15->current.enabled )
+    rtFlags = R_RT_Flag_MaskDepthOnly|R_RT_Flag_DemandESRAM;
+  v9->sceneRtInput.m_mainSceneDepthRt = *R_RT_CreateDepthForDynSceneResInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_SCENE, rtFlags, R_RT_FlagInternal_Frontend, 0.0, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5929)");
+  v17 = DCONST_DVARBOOL_r_esramColor;
   if ( !DCONST_DVARBOOL_r_esramColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  v25 = R_RT_Flag_RTView;
-  v26 = 2048;
-  if ( v24->current.enabled )
-    v26 = 2080;
-  _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], (R_RT_Flags)(v16 | v26), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5930)");
-  __asm
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = R_RT_Flag_RTView;
+  v19 = 2048;
+  if ( v17->current.enabled )
+    v19 = 2080;
+  v20 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], (R_RT_Flags)(v12 | v19), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5930)");
+  v217 = v20;
+  v216 = v20;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v20 = v216;
   }
   else
   {
@@ -13332,31 +10772,26 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v20 = v217;
     }
   }
-  __asm { vmovups ymmword ptr [r14+30C0h], ymm0 }
-  v30 = DCONST_DVARBOOL_r_esramColor;
+  v9->sceneRtInput.m_mainSceneColorRt = (R_RT_ColorHandle)v20;
+  v22 = DCONST_DVARBOOL_r_esramColor;
   if ( !DCONST_DVARBOOL_r_esramColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v30);
-  v31 = 2048;
-  if ( v30->current.enabled )
-    v31 = 2080;
-  _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[4], (R_RT_Flags)(v16 | v31), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5931)");
-  __asm
+  Dvar_CheckFrontendServerThread(v22);
+  v23 = 2048;
+  if ( v22->current.enabled )
+    v23 = 2080;
+  v24 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[4], (R_RT_Flags)(v12 | v23), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5931)");
+  v217 = v24;
+  v216 = v24;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v24 = v216;
   }
   else
   {
@@ -13365,26 +10800,21 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v24 = v217;
     }
   }
-  __asm { vmovups ymmword ptr [r14+30E0h], ymm0 }
-  if ( _R14->sss.enabled )
+  v9->sceneRtInput.m_mainSceneAlphaRt = (R_RT_ColorHandle)v24;
+  if ( v9->sss.enabled )
   {
-    _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[11], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSS Albedo", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5935)");
-    __asm
+    v26 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[11], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSS Albedo", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5935)");
+    v217 = v26;
+    v216 = v26;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v26 = v216;
     }
     else
     {
@@ -13393,24 +10823,19 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v26 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+3100h], ymm0 }
-    _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[12], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSS Diffuse", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5936)");
-    __asm
+    v9->sceneRtInput.m_mainSceneSSSAlbedoRt = (R_RT_ColorHandle)v26;
+    v28 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[12], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSS Diffuse", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5936)");
+    v217 = v28;
+    v216 = v28;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v28 = v216;
     }
     else
     {
@@ -13419,54 +10844,37 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v28 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+3120h], ymm0 }
-    R_RT_Handle::ClearAuxDirty(&_R14->sceneRtInput.m_mainSceneSSSAlbedoRt);
-    R_RT_Handle::ClearAuxDirty(&_R14->sceneRtInput.m_mainSceneSSSDiffuseRt);
+    v9->sceneRtInput.m_mainSceneSSSDiffuseRt = (R_RT_ColorHandle)v28;
+    R_RT_Handle::ClearAuxDirty(&v9->sceneRtInput.m_mainSceneSSSAlbedoRt);
+    R_RT_Handle::ClearAuxDirty(&v9->sceneRtInput.m_mainSceneSSSDiffuseRt);
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3100h], ymm1
-    }
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3120h], ymm1
-    }
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_mainSceneSSSAlbedoRt = (R_RT_ColorHandle)v216;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_mainSceneSSSDiffuseRt = (R_RT_ColorHandle)v216;
   }
   if ( rg.debugOverdrawOverlay )
   {
-    _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[23], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlackBlank, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Overdraw", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5949)");
-    __asm
+    v30 = *(__m256i *)R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[23], R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlackBlank, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Overdraw", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5949)");
+    v217 = (R_RT_Handle)v30;
+    v216 = (R_RT_Handle)v30;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-        vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-      }
-      _RAX = &result;
+      result = (R_RT_DepthHandle)v216;
+      p_result = &result;
     }
     else
     {
@@ -13475,49 +10883,37 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v30 = (__m256i)v217;
       }
-      __asm { vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0 }
-      _RAX = &result;
+      result = (R_RT_DepthHandle)v30;
+      p_result = &result;
     }
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-    }
-    _RAX = (R_RT_DepthHandle *)&v368;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    p_result = (R_RT_DepthHandle *)&v216;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+3180h], ymm0
-  }
-  v49 = DCONST_DVARBOOL_r_esramColorPrepass;
+  v9->sceneRtInput.m_mainSceneOverdrawRt = *(R_RT_ColorHandle *)p_result;
+  v33 = DCONST_DVARBOOL_r_esramColorPrepass;
   if ( !DCONST_DVARBOOL_r_esramColorPrepass && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColorPrepass") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v49);
-  v50 = 2048;
-  if ( v49->current.enabled )
-    v50 = 2080;
-  _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[56], (R_RT_Flags)(v18 | v50), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend EntityID_Velocity", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5951)");
-  __asm
+  Dvar_CheckFrontendServerThread(v33);
+  v34 = 2048;
+  if ( v33->current.enabled )
+    v34 = 2080;
+  v35 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[56], (R_RT_Flags)(v14 | v34), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend EntityID_Velocity", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5951)");
+  v217 = v35;
+  v216 = v35;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v35 = v216;
   }
   else
   {
@@ -13526,37 +10922,31 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v35 = v217;
     }
   }
-  _RCX = &_R14->sceneRtInput.m_mainSceneEntityIDVelocityRt;
-  __asm { vmovups ymmword ptr [rcx], ymm0 }
-  p_m_image = &R_RT_Handle::GetSurface(&_R14->sceneRtInput.m_mainSceneEntityIDVelocityRt)->m_image;
-  p_input = &_R14->input;
-  if ( _R14 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v9->sceneRtInput.m_mainSceneEntityIDVelocityRt = (R_RT_ColorHandle)v35;
+  p_m_image = &R_RT_Handle::GetSurface(&v9->sceneRtInput.m_mainSceneEntityIDVelocityRt)->m_image;
+  p_input = &v9->input;
+  if ( v9 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _R14->input.codeImages[1] = &p_m_image->m_base;
-  v57 = DCONST_DVARBOOL_r_esramColorPrepass;
+  v9->input.codeImages[1] = &p_m_image->m_base;
+  v39 = DCONST_DVARBOOL_r_esramColorPrepass;
   if ( !DCONST_DVARBOOL_r_esramColorPrepass && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColorPrepass") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v57);
-  v58 = 2048;
-  if ( v57->current.enabled )
-    v58 = 2080;
-  _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[63], (R_RT_Flags)(v18 | v58), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Tangent Frame", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5953)");
-  __asm
+  Dvar_CheckFrontendServerThread(v39);
+  v40 = 2048;
+  if ( v39->current.enabled )
+    v40 = 2080;
+  v41 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[63], (R_RT_Flags)(v14 | v40), R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Tangent Frame", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5953)");
+  v217 = v41;
+  v216 = v41;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v41 = v216;
   }
   else
   {
@@ -13565,56 +10955,44 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v41 = v217;
     }
   }
-  _RCX = &_R14->sceneRtInput.m_mainSceneTangentFrameRt;
-  __asm { vmovups ymmword ptr [rcx], ymm0 }
-  v63 = &R_RT_Handle::GetSurface(&_R14->sceneRtInput.m_mainSceneTangentFrameRt)->m_image;
-  if ( _R14 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v9->sceneRtInput.m_mainSceneTangentFrameRt = (R_RT_ColorHandle)v41;
+  v43 = &R_RT_Handle::GetSurface(&v9->sceneRtInput.m_mainSceneTangentFrameRt)->m_image;
+  if ( v9 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _R14->input.codeImages[2] = &v63->m_base;
+  v9->input.codeImages[2] = &v43->m_base;
   if ( rg.vrsEmissiveOnly )
   {
-    v64 = DCONST_DVARINT_r_dccEmissive;
+    v44 = DCONST_DVARINT_r_dccEmissive;
     if ( !DCONST_DVARINT_r_dccEmissive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccEmissive") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v64);
-    v65 = 32769;
-    if ( v64->current.integer == 1 )
-      v65 = 32777;
-    v66 = DCONST_DVARBOOL_r_esramDepthMSAA;
+    Dvar_CheckFrontendServerThread(v44);
+    v45 = 32769;
+    if ( v44->current.integer == 1 )
+      v45 = 32777;
+    v46 = DCONST_DVARBOOL_r_esramDepthMSAA;
     if ( !DCONST_DVARBOOL_r_esramDepthMSAA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramDepthMSAA") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v66);
-    __asm { vmovss  [rsp+380h+var_330], xmm8 }
-    _RAX = R_RT_CreateDepthForDynSceneResInternal(&result, v335, v337, v334, v339, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_HALFRES_DEPTH, (R_RT_Flags)((v66->current.enabled ? 0x20 : 0) | 0x8080), R_RT_FlagInternal_Frontend, v330, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5963)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [r14+3200h], ymm0
-    }
-    v69 = DCONST_DVARBOOL_r_esramColorMSAA;
+    Dvar_CheckFrontendServerThread(v46);
+    v9->sceneRtInput.m_msaaSceneDepthRt = *R_RT_CreateDepthForDynSceneResInternal(&result, v183, v185, v182, v187, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_HALFRES_DEPTH, (R_RT_Flags)((v46->current.enabled ? 0x20 : 0) | 0x8080), R_RT_FlagInternal_Frontend, 0.0, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5963)");
+    v47 = DCONST_DVARBOOL_r_esramColorMSAA;
     if ( !DCONST_DVARBOOL_r_esramColorMSAA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColorMSAA") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v69);
-    v70 = 2048;
-    if ( v69->current.enabled )
-      v70 = 2080;
-    _RAX = R_RT_CreateInternal(&result, v335, v337, v334, v339, 1u, 1u, 1u, g_R_RT_renderTargetFmts[13], (R_RT_Flags)(v65 | v70), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5964)");
-    __asm
+    Dvar_CheckFrontendServerThread(v47);
+    v48 = 2048;
+    if ( v47->current.enabled )
+      v48 = 2080;
+    v49 = *R_RT_CreateInternal(&result, v183, v185, v182, v187, 1u, 1u, 1u, g_R_RT_renderTargetFmts[13], (R_RT_Flags)(v45 | v48), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5964)");
+    v217 = v49;
+    v216 = v49;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v49 = v216;
     }
     else
     {
@@ -13623,31 +11001,26 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v49 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+31C0h], ymm0 }
-    v74 = DCONST_DVARBOOL_r_esramAlphaMSAA;
+    v9->sceneRtInput.m_msaaSceneColorRt = (R_RT_ColorHandle)v49;
+    v51 = DCONST_DVARBOOL_r_esramAlphaMSAA;
     if ( !DCONST_DVARBOOL_r_esramAlphaMSAA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramAlphaMSAA") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v74);
-    v75 = 2048;
-    if ( v74->current.enabled )
-      v75 = 2080;
-    _RAX = R_RT_CreateInternal(&result, v335, v337, v334, v339, 1u, 1u, 1u, g_R_RT_renderTargetFmts[14], (R_RT_Flags)(v65 | v75), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5965)");
-    __asm
+    Dvar_CheckFrontendServerThread(v51);
+    v52 = 2048;
+    if ( v51->current.enabled )
+      v52 = 2080;
+    v53 = *R_RT_CreateInternal(&result, v183, v185, v182, v187, 1u, 1u, 1u, g_R_RT_renderTargetFmts[14], (R_RT_Flags)(v45 | v52), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend MSAA Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5965)");
+    v217 = v53;
+    v216 = v53;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v53 = v216;
     }
     else
     {
@@ -13656,77 +11029,54 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v53 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+31E0h], ymm0 }
-    R_RT_Handle::ClearAuxDirty(&_R14->sceneRtInput.m_msaaSceneDepthRt);
+    v9->sceneRtInput.m_msaaSceneAlphaRt = (R_RT_ColorHandle)v53;
+    R_RT_Handle::ClearAuxDirty(&v9->sceneRtInput.m_msaaSceneDepthRt);
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3200h], ymm1
-    }
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+31C0h], ymm1
-    }
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+31E0h], ymm1
-    }
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_msaaSceneDepthRt = (R_RT_DepthHandle)v216;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_msaaSceneColorRt = (R_RT_ColorHandle)v216;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_msaaSceneAlphaRt = (R_RT_ColorHandle)v216;
   }
   if ( rg.halfResEmissive )
   {
-    v82 = DCONST_DVARINT_r_dccEmissive;
+    v55 = DCONST_DVARINT_r_dccEmissive;
     if ( !DCONST_DVARINT_r_dccEmissive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccEmissive") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v82);
-    v83 = 1;
-    if ( v82->current.integer == 1 )
-      v83 = 9;
-    __asm { vmovss  [rsp+380h+var_330], xmm8 }
-    _RAX = R_RT_CreateDepthForDynSceneResInternal(&result, v335, v337, v334, v339, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_HALFRES_DEPTH, R_RT_Flag_Stencil, R_RT_FlagInternal_Frontend, v331, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5984)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [r14+3260h], ymm0
-    }
-    v86 = DCONST_DVARBOOL_r_esramColorMSAA;
+    Dvar_CheckFrontendServerThread(v55);
+    v56 = 1;
+    if ( v55->current.integer == 1 )
+      v56 = 9;
+    v9->sceneRtInput.m_halfSceneDepthRt = *R_RT_CreateDepthForDynSceneResInternal(&result, v183, v185, v182, v187, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_HALFRES_DEPTH, R_RT_Flag_Stencil, R_RT_FlagInternal_Frontend, 0.0, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Depth", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5984)");
+    v57 = DCONST_DVARBOOL_r_esramColorMSAA;
     if ( !DCONST_DVARBOOL_r_esramColorMSAA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramColorMSAA") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v86);
-    v87 = 2048;
-    if ( v86->current.enabled )
-      v87 = 2080;
-    _RAX = R_RT_CreateInternal(&result, v335, v337, v334, v339, 1u, 1u, 1u, g_R_RT_renderTargetFmts[13], (R_RT_Flags)(v83 | v87), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5985)");
-    __asm
+    Dvar_CheckFrontendServerThread(v57);
+    v58 = 2048;
+    if ( v57->current.enabled )
+      v58 = 2080;
+    v59 = *R_RT_CreateInternal(&result, v183, v185, v182, v187, 1u, 1u, 1u, g_R_RT_renderTargetFmts[13], (R_RT_Flags)(v56 | v58), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Color", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5985)");
+    v217 = v59;
+    v216 = v59;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v59 = v216;
     }
     else
     {
@@ -13735,31 +11085,26 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v59 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+3220h], ymm0 }
-    v91 = DCONST_DVARBOOL_r_esramAlphaMSAA;
+    v9->sceneRtInput.m_halfSceneColorRt = (R_RT_ColorHandle)v59;
+    v61 = DCONST_DVARBOOL_r_esramAlphaMSAA;
     if ( !DCONST_DVARBOOL_r_esramAlphaMSAA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramAlphaMSAA") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v91);
-    v92 = 2048;
-    if ( v91->current.enabled )
-      v92 = 2080;
-    _RAX = R_RT_CreateInternal(&result, v335, v337, v334, v339, 1u, 1u, 1u, g_R_RT_renderTargetFmts[14], (R_RT_Flags)(v83 | v92), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5986)");
-    __asm
+    Dvar_CheckFrontendServerThread(v61);
+    v62 = 2048;
+    if ( v61->current.enabled )
+      v62 = 2080;
+    v63 = *R_RT_CreateInternal(&result, v183, v185, v182, v187, 1u, 1u, 1u, g_R_RT_renderTargetFmts[14], (R_RT_Flags)(v56 | v62), R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Half Alpha", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(5986)");
+    v217 = v63;
+    v216 = v63;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v63 = v216;
     }
     else
     {
@@ -13768,81 +11113,60 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v63 = v217;
       }
     }
-    __asm { vmovups ymmword ptr [r14+3240h], ymm0 }
-    R_RT_Handle::ClearAuxDirty(&_R14->sceneRtInput.m_halfSceneDepthRt);
+    v9->sceneRtInput.m_halfSceneAlphaRt = (R_RT_ColorHandle)v63;
+    R_RT_Handle::ClearAuxDirty(&v9->sceneRtInput.m_halfSceneDepthRt);
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3260h], ymm1
-    }
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3220h], ymm1
-    }
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-      vmovups ymm1, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-      vmovups ymmword ptr [r14+3240h], ymm1
-    }
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_halfSceneDepthRt = (R_RT_DepthHandle)v216;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_halfSceneColorRt = (R_RT_ColorHandle)v216;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v9->sceneRtInput.m_halfSceneAlphaRt = (R_RT_ColorHandle)v216;
   }
-  v99 = (*((_DWORD *)&_R14->viewportFeatures + 11) & 4) != 0;
-  v341 = v99;
+  v65 = (*((_DWORD *)&v9->viewportFeatures + 11) & 4) != 0;
+  v189 = v65;
   if ( rg.sunShadowOpaqueCascadeCount )
   {
-    v100 = 2;
-    v101 = sunshadowNames;
-    m_sunShadowCascades = (__int64)_R14->sceneRtInput.m_sunShadowCascades;
-    v354 = 6848i64;
+    v66 = 2;
+    v67 = sunshadowNames;
+    m_sunShadowCascades = v9->sceneRtInput.m_sunShadowCascades;
+    v202 = 6848i64;
     sunShadowOpaqueCascadeCount = rg.sunShadowOpaqueCascadeCount;
     while ( 1 )
     {
-      if ( v99 )
+      if ( v65 )
       {
-        v102 = *v101;
-        v103 = DCONST_DVARBOOL_r_esramShadow;
+        v68 = *v67;
+        v69 = DCONST_DVARBOOL_r_esramShadow;
         if ( !DCONST_DVARBOOL_r_esramShadow && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramShadow") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v103);
-        v104 = v103->current.enabled ? 0x20 : 0;
+        Dvar_CheckFrontendServerThread(v69);
+        v70 = v69->current.enabled ? 0x20 : 0;
         MapSize = R_SunShadow_GetMapSize();
-        v106 = R_SunShadow_GetMapSize();
-        __asm { vmovss  dword ptr [rbp+260h+clearColor], xmm8 }
-        _RAX = R_RT_CreateInternal(&result, v106, MapSize, v106, MapSize, 1u, 1u, 1u, g_R_RT_depthStencilFmts[3], (R_RT_Flags)v104, R_RT_FlagInternal_Frontend|R_RT_FlagInternal_Depth, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v102, v340, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6006)");
-        __asm
+        v72 = R_SunShadow_GetMapSize();
+        clearColor[0].v[0] = 0.0;
+        v73 = *(__m256i *)R_RT_CreateInternal(&result, v72, MapSize, v72, MapSize, 1u, 1u, 1u, g_R_RT_depthStencilFmts[3], (R_RT_Flags)v70, R_RT_FlagInternal_Frontend|R_RT_FlagInternal_Depth, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v68, v188, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6006)");
+        v206 = (R_RT_Handle)v73;
+        v216 = (R_RT_Handle)v73;
+        if ( (_WORD)_XMM0 )
         {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+260h+var_240.m_surfaceID], ymm0
-          vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-          vmovd   eax, xmm0
-        }
-        if ( (_WORD)_RAX )
-        {
-          R_RT_Handle::GetSurface(&v368);
-          if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+          R_RT_Handle::GetSurface(&v216);
+          if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
             __debugbreak();
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-            vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-          }
-          _RAX = &result;
+          result = (R_RT_DepthHandle)v216;
+          v75 = &result;
         }
         else
         {
@@ -13851,171 +11175,136 @@ void R_SetupSceneRtInput(GfxViewInfo *viewInfo, unsigned int sceneWidth, unsigne
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
               __debugbreak();
-            __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_240.m_surfaceID] }
+            v73 = (__m256i)v206;
           }
-          __asm { vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0 }
-          _RAX = &result;
+          result = (R_RT_DepthHandle)v73;
+          v75 = &result;
         }
       }
       else
       {
-        v369.m_surfaceID = 0;
-        v369.m_tracking.m_allocCounter = 0;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rbp+260h+var_170.m_tracking.m_name], xmm0
-        }
-        _RAX = (R_RT_DepthHandle *)&v369;
+        v217.m_surfaceID = 0;
+        v217.m_tracking.m_allocCounter = 0;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v217.m_tracking.m_name = _XMM0;
+        v75 = (R_RT_DepthHandle *)&v217;
       }
-      __asm
+      v197 = v75->R_RT_Handle;
+      m_allocCounter = v197.m_tracking.m_allocCounter;
+      if ( (_WORD)_XMM0 )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+260h+var_2A8.m_surfaceID], ymm0
-        vmovd   ebx, xmm0
-      }
-      m_allocCounter = v349.m_tracking.m_allocCounter;
-      if ( (_WORD)_EBX )
-      {
-        R_RT_Handle::GetSurface(&v349);
-        blackShadowImage = &R_RT_Handle::GetSurface(&v349)->m_image;
+        R_RT_Handle::GetSurface(&v197);
+        blackShadowImage = &R_RT_Handle::GetSurface(&v197)->m_image;
       }
       else
       {
-        if ( v349.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+        if ( v197.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
         blackShadowImage = (R_RT_Image *)rgp.blackShadowImage;
       }
-      if ( _R14 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+      if ( v9 == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      if ( v100 >= 0x2A )
+      if ( v66 >= 0x2A )
       {
         LODWORD(mipLimit) = 42;
-        LODWORD(arraySliceCount) = v100;
+        LODWORD(arraySliceCount) = v66;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1483, ASSERT_TYPE_ASSERT, "(unsigned)( codePersistentTexture ) < (unsigned)( TEXTURE_SRC_CODE_PERSISTENT_COUNT )", "codePersistentTexture doesn't index TEXTURE_SRC_CODE_PERSISTENT_COUNT\n\t%i not in [0, %i)", arraySliceCount, mipLimit) )
           __debugbreak();
       }
-      *(_QWORD *)((char *)p_input->consts[0].v + v354) = blackShadowImage;
-      v116 = _EBX & 0x7FFF;
-      if ( v116 )
-        v117 = v116 | 0x8000;
+      *(_QWORD *)((char *)p_input->consts[0].v + v202) = blackShadowImage;
+      if ( (_XMM0 & 0x7FFF) != 0 )
+        v78 = _XMM0 & 0x7FFF | 0x8000;
       else
-        v117 = 0;
-      v368.m_surfaceID = v117;
-      __asm
+        v78 = 0;
+      v216.m_surfaceID = v78;
+      _XMM0 = *(_OWORD *)&v197.m_tracking.m_allocCounter;
+      v216.m_tracking = v197.m_tracking;
+      if ( v78 )
       {
-        vmovups xmm0, xmmword ptr [rbp+260h+var_2A8.m_tracking.m_allocCounter]
-        vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm0
-        vmovsd  xmm1, [rbp+260h+var_2A8.m_tracking.m_location]
-        vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm1
-        vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-        vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      }
-      if ( v117 )
-      {
-        R_RT_Handle::GetSurface(&v368);
-        if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x10) == 0 )
+        R_RT_Handle::GetSurface(&v216);
+        if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x10) == 0 )
         {
-          v120 = "!unionHandle.IsValid() || unionHandle.IsDepth()";
-          v121 = "(!unionHandle.IsValid() || unionHandle.IsDepth())";
-          v122 = 277;
+          v79 = "!unionHandle.IsValid() || unionHandle.IsDepth()";
+          v80 = "(!unionHandle.IsValid() || unionHandle.IsDepth())";
+          v81 = 277;
 LABEL_232:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v122, ASSERT_TYPE_ASSERT, v121, (const char *)&queryFormat, v120) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v81, ASSERT_TYPE_ASSERT, v80, (const char *)&queryFormat, v79) )
             __debugbreak();
         }
       }
       else if ( m_allocCounter )
       {
-        v120 = "!this->m_tracking.m_allocCounter";
-        v121 = "(!this->m_tracking.m_allocCounter)";
-        v122 = 100;
+        v79 = "!this->m_tracking.m_allocCounter";
+        v80 = "(!this->m_tracking.m_allocCounter)";
+        v81 = 100;
         goto LABEL_232;
       }
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
-      _RCX = m_sunShadowCascades;
-      __asm { vmovups ymmword ptr [rcx], ymm0 }
-      ++v100;
-      v354 += 8i64;
-      m_sunShadowCascades = _RCX + 32;
-      ++v101;
-      v125 = sunShadowOpaqueCascadeCount-- == 1;
-      v99 = v341;
-      if ( v125 )
+      v82 = m_sunShadowCascades;
+      *m_sunShadowCascades = v216;
+      ++v66;
+      v202 += 8i64;
+      m_sunShadowCascades = v82 + 1;
+      ++v67;
+      v83 = sunShadowOpaqueCascadeCount-- == 1;
+      v65 = v189;
+      if ( v83 )
       {
-        _R14 = viewInfoa;
-        frontendPass = v340;
-        v25 = R_RT_Flag_RTView;
+        v9 = viewInfoa;
+        frontendPass = v188;
+        v18 = R_RT_Flag_RTView;
         break;
       }
     }
   }
-  if ( v99 )
+  if ( v65 )
   {
-    v126 = R_SunShadow_GetMapSize();
-    v127 = R_SunShadow_GetMapSize();
-    __asm { vmovss  [rsp+380h+rtFlags], xmm8 }
-    _RAX = R_RT_CreateDepthInternal(&result, v127, v126, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_SHADOWMAP, R_RT_Flag_None, R_RT_FlagInternal_Frontend, rtFlags, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Viewmodel Sun Shadow", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6010)");
+    v84 = R_SunShadow_GetMapSize();
+    v85 = R_SunShadow_GetMapSize();
+    v86 = R_RT_CreateDepthInternal(&result, v85, v84, 1u, 1u, GFX_DEPTHSTENCIL_FORMAT_SHADOWMAP, R_RT_Flag_None, R_RT_FlagInternal_Frontend, 0.0, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Viewmodel Sun Shadow", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6010)");
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-    }
-    _RAX = (R_RT_DepthHandle *)&v368;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v86 = (R_RT_DepthHandle *)&v216;
   }
-  __asm
+  v212 = v86->R_RT_Handle;
+  LODWORD(m_sunShadowCascades) = _XMM0;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_1F8.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  LODWORD(m_sunShadowCascades) = _EAX;
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v364);
-    v131 = &R_RT_Handle::GetSurface(&v364)->m_image;
+    R_RT_Handle::GetSurface(&v212);
+    v87 = &R_RT_Handle::GetSurface(&v212)->m_image;
   }
   else
   {
-    if ( v364.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( v212.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    v131 = (R_RT_Image *)rgp.blackShadowImage;
+    v87 = (R_RT_Image *)rgp.blackShadowImage;
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[1] = &v131->m_base;
-  v132 = R_SunShadow_GetMapSize();
-  if ( rg.useTransSunShadow && v99 )
+  p_input->codePersistentImages[1] = &v87->m_base;
+  v88 = R_SunShadow_GetMapSize();
+  if ( rg.useTransSunShadow && v65 )
   {
-    v133 = DCONST_DVARBOOL_r_esramShadowTrans;
+    v89 = DCONST_DVARBOOL_r_esramShadowTrans;
     if ( !DCONST_DVARBOOL_r_esramShadowTrans && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramShadowTrans") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v133);
-    if ( v133->current.enabled )
-      v25 = R_RT_Flag_RTView|R_RT_Flag_DemandESRAM;
-    _RAX = R_RT_CreateInternal(&result, v132, v132, v132, v132, 1u, 1u, 1u, g_R_RT_renderTargetFmts[9], v25, R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Translucent Shadow", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6015)");
-    __asm
+    Dvar_CheckFrontendServerThread(v89);
+    if ( v89->current.enabled )
+      v18 = R_RT_Flag_RTView|R_RT_Flag_DemandESRAM;
+    v90 = *(__m256i *)R_RT_CreateInternal(&result, v88, v88, v88, v88, 1u, 1u, 1u, g_R_RT_renderTargetFmts[9], v18, R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Translucent Shadow", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6015)");
+    v217 = (R_RT_Handle)v90;
+    v216 = (R_RT_Handle)v90;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-      vmovd   eax, xmm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v368);
-      if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v216);
+      if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-        vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-      }
-      _RAX = &result;
+      result = (R_RT_DepthHandle)v216;
+      v92 = &result;
     }
     else
     {
@@ -14024,38 +11313,30 @@ LABEL_232:
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+        v90 = (__m256i)v217;
       }
-      __asm { vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0 }
-      _RAX = &result;
+      result = (R_RT_DepthHandle)v90;
+      v92 = &result;
     }
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-    }
-    _RAX = (R_RT_DepthHandle *)&v368;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    v92 = (R_RT_DepthHandle *)&v216;
   }
-  __asm
+  v206 = v92->R_RT_Handle;
+  LODWORD(v202) = _XMM0;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_240.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  LODWORD(v354) = _EAX;
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v358);
-    zeroImage = &R_RT_Handle::GetSurface(&v358)->m_image;
+    R_RT_Handle::GetSurface(&v206);
+    zeroImage = &R_RT_Handle::GetSurface(&v206)->m_image;
   }
   else
   {
-    if ( v358.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( v206.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
     zeroImage = (R_RT_Image *)rgp.zeroImage;
   }
@@ -14066,20 +11347,15 @@ LABEL_232:
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[6] = blackImage;
-  _RAX = R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 0x10u, g_R_RT_renderTargetFmts[19], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend FloatZ", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6022)");
-  __asm
+  v95 = *R_RT_CreateInternal(&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 0x10u, g_R_RT_renderTargetFmts[19], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend FloatZ", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6022)");
+  v217 = v95;
+  v216 = v95;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v95 = v216;
   }
   else
   {
@@ -14088,68 +11364,52 @@ LABEL_232:
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v95 = v217;
     }
   }
-  __asm { vmovups ymmword ptr [rbp+260h+var_130.m_surfaceID], ymm0 }
-  v146 = &R_RT_Handle::GetSurface(&v371)->m_image;
+  v219 = v95;
+  v97 = &R_RT_Handle::GetSurface(&v219)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[0] = &v146->m_base;
-  _R14->input.sceneConstants.mipSizes.v[0] = R_RT_Handle::GetSurface(&v371)->m_image.m_base.levelCount;
-  if ( (v371.m_surfaceID & 0x7FFF) != 0 )
-    v147 = v371.m_surfaceID & 0x7FFF | 0x8000;
+  p_input->codeImages[0] = &v97->m_base;
+  v9->input.sceneConstants.mipSizes.v[0] = R_RT_Handle::GetSurface(&v219)->m_image.m_base.levelCount;
+  if ( (v219.m_surfaceID & 0x7FFF) != 0 )
+    v98 = v219.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v147 = 0;
-  v368.m_surfaceID = v147;
-  __asm
+    v98 = 0;
+  v216.m_surfaceID = v98;
+  _XMM0 = *(_OWORD *)&v219.m_tracking.m_allocCounter;
+  v216.m_tracking = v219.m_tracking;
+  if ( v98 )
   {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_130.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_130.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-  }
-  if ( v147 )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_300;
-    v151 = "!unionHandle.IsValid() || unionHandle.IsColor()";
-    v152 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
-    v153 = 217;
+    v100 = "!unionHandle.IsValid() || unionHandle.IsColor()";
+    v101 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
+    v102 = 217;
   }
   else
   {
-    if ( !v371.m_tracking.m_allocCounter )
+    if ( !v219.m_tracking.m_allocCounter )
       goto LABEL_300;
-    v151 = "!this->m_tracking.m_allocCounter";
-    v152 = "(!this->m_tracking.m_allocCounter)";
-    v153 = 100;
+    v100 = "!this->m_tracking.m_allocCounter";
+    v101 = "(!this->m_tracking.m_allocCounter)";
+    v102 = 100;
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v153, ASSERT_TYPE_ASSERT, v152, (const char *)&queryFormat, v151) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v102, ASSERT_TYPE_ASSERT, v101, (const char *)&queryFormat, v100) )
     __debugbreak();
 LABEL_300:
-  __asm
+  v9->sceneRtInput.m_floatZFullRt = (R_RT_ColorHandle)v216;
+  v103 = *R_RT_CreateInternal(&result, v196, v195, v194, v205, 1u, 1u, 0x10u, g_R_RT_renderTargetFmts[19], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend FloatZ", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6027)");
+  v217 = v103;
+  v216 = v103;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [r14+3340h], ymm0
-  }
-  _RAX = R_RT_CreateInternal(&result, v348, v347, v346, v357, 1u, 1u, 0x10u, g_R_RT_renderTargetFmts[19], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend FloatZ", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6027)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+    v103 = v216;
   }
   else
   {
@@ -14158,71 +11418,55 @@ LABEL_300:
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID] }
+      v103 = v217;
     }
   }
-  __asm { vmovups ymmword ptr [rbp+260h+var_2A8.m_surfaceID], ymm0 }
-  v158 = &R_RT_Handle::GetSurface(&v349)->m_image;
+  v197 = v103;
+  v105 = &R_RT_Handle::GetSurface(&v197)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[0] = &v158->m_base;
-  if ( (v349.m_surfaceID & 0x7FFF) != 0 )
-    v159 = v349.m_surfaceID & 0x7FFF | 0x8000;
+  p_input->codeImages[0] = &v105->m_base;
+  if ( (v197.m_surfaceID & 0x7FFF) != 0 )
+    v106 = v197.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v159 = 0;
-  v368.m_surfaceID = v159;
-  __asm
+    v106 = 0;
+  v216.m_surfaceID = v106;
+  _XMM0 = *(_OWORD *)&v197.m_tracking.m_allocCounter;
+  v216.m_tracking = v197.m_tracking;
+  if ( v106 )
   {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_2A8.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_2A8.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-  }
-  if ( v159 )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_322;
-    v163 = "!unionHandle.IsValid() || unionHandle.IsColor()";
-    v164 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
-    v165 = 217;
+    v108 = "!unionHandle.IsValid() || unionHandle.IsColor()";
+    v109 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
+    v110 = 217;
   }
   else
   {
-    if ( !v349.m_tracking.m_allocCounter )
+    if ( !v197.m_tracking.m_allocCounter )
       goto LABEL_322;
-    v163 = "!this->m_tracking.m_allocCounter";
-    v164 = "(!this->m_tracking.m_allocCounter)";
-    v165 = 100;
+    v108 = "!this->m_tracking.m_allocCounter";
+    v109 = "(!this->m_tracking.m_allocCounter)";
+    v110 = 100;
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v165, ASSERT_TYPE_ASSERT, v164, (const char *)&queryFormat, v163) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v110, ASSERT_TYPE_ASSERT, v109, (const char *)&queryFormat, v108) )
     __debugbreak();
 LABEL_322:
-  __asm
+  v9->sceneRtInput.m_floatZEighthMipMinRt = (R_RT_ColorHandle)v216;
+  clearColor[0] = (vec4_t)_xmm;
+  v111 = *R_RT_CreateInternal(&result, v183, v185, v182, v187, 1u, 1u, 1u, g_R_RT_renderTargetFmts[41], R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Water FloatZ", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6032)");
+  v216 = v111;
+  v203 = v111;
+  m_surfaceID = _XMM0;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [r14+3360h], ymm0
-    vmovups xmm1, cs:__xmm@4cbbc1304cbbc1304cbbc1304cbbc130
-    vmovups xmmword ptr [rbp+260h+clearColor], xmm1
-  }
-  _RAX = R_RT_CreateInternal(&result, v335, v337, v334, v339, 1u, 1u, 1u, g_R_RT_renderTargetFmts[41], R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Water FloatZ", frontendPass, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6032)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+260h+var_270.m_surfaceID], ymm0
-    vmovd   ebx, xmm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v355);
-    if ( (R_RT_Handle::GetSurface(&v355)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v203);
+    if ( (R_RT_Handle::GetSurface(&v203)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       __debugbreak();
-    LODWORD(_RDI) = v355.m_tracking.m_allocCounter;
-    LOWORD(_EBX) = v355.m_surfaceID;
-    __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_270.m_surfaceID] }
+    LODWORD(_RDI) = v203.m_tracking.m_allocCounter;
+    m_surfaceID = v203.m_surfaceID;
+    v111 = v203;
   }
   else
   {
@@ -14231,148 +11475,109 @@ LABEL_322:
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID] }
+      v111 = v216;
     }
   }
-  __asm { vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0 }
-  v172 = _EBX & 0x7FFF;
-  if ( v172 )
+  v217 = v111;
+  v114 = m_surfaceID & 0x7FFF;
+  if ( v114 )
   {
-    v368.m_surfaceID = v172;
+    v216.m_surfaceID = v114;
   }
   else
   {
-    v172 = 0;
-    v368.m_surfaceID = 0;
+    v114 = 0;
+    v216.m_surfaceID = 0;
   }
-  __asm
+  v216.m_tracking = v203.m_tracking;
+  if ( v114 )
   {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_270.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_270.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-  }
-  if ( v172 )
-  {
-    R_RT_Handle::GetSurface(&v368);
-    if ( (R_RT_Handle::GetSurface(&v368)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v216);
+    if ( (R_RT_Handle::GetSurface(&v216)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_341;
-    v176 = "!unionHandle.IsValid() || unionHandle.IsColor()";
-    v177 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
-    v178 = 217;
+    v115 = "!unionHandle.IsValid() || unionHandle.IsColor()";
+    v116 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
+    v117 = 217;
   }
   else
   {
     if ( !(_DWORD)_RDI )
       goto LABEL_341;
-    v176 = "!this->m_tracking.m_allocCounter";
-    v177 = "(!this->m_tracking.m_allocCounter)";
-    v178 = 100;
+    v115 = "!this->m_tracking.m_allocCounter";
+    v116 = "(!this->m_tracking.m_allocCounter)";
+    v117 = 100;
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v178, ASSERT_TYPE_ASSERT, v177, (const char *)&queryFormat, v176) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v117, ASSERT_TYPE_ASSERT, v116, (const char *)&queryFormat, v115) )
     __debugbreak();
 LABEL_341:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [r14+33A0h], ymm0
-  }
-  m_surfaceID = v369.m_surfaceID;
-  if ( (v369.m_surfaceID & 0x7FFF) != 0 )
-    v181 = v369.m_surfaceID & 0x7FFF | 0x8000;
+  v9->sceneRtInput.m_waterFloatZRt = (R_RT_ColorHandle)v216;
+  v118 = v217.m_surfaceID;
+  if ( (v217.m_surfaceID & 0x7FFF) != 0 )
+    v119 = v217.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v181 = 0;
-  v368.m_surfaceID = v181;
-  __asm
-  {
-    vmovups xmm6, xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm6
-    vmovsd  xmm7, [rbp+260h+var_170.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm7
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  v185 = &R_RT_Handle::GetSurface(&v372)->m_image;
+    v119 = 0;
+  v216.m_surfaceID = v119;
+  v120 = *(_OWORD *)&v217.m_tracking.m_allocCounter;
+  v216.m_tracking = v217.m_tracking;
+  m_location = v217.m_tracking.m_location;
+  result = (R_RT_DepthHandle)v216;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v122 = &R_RT_Handle::GetSurface(&v220)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[15] = &v185->m_base;
-  v186 = m_surfaceID & 0x7FFF;
-  if ( v186 )
-    v368.m_surfaceID = v186 | 0x8000;
+  p_input->codePersistentImages[15] = &v122->m_base;
+  v123 = v118 & 0x7FFF;
+  if ( v123 )
+    v216.m_surfaceID = v123 | 0x8000;
   else
-    v368.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter], xmm6
-    vmovsd  [rbp+260h+var_190.m_tracking.m_location], xmm7
-    vmovups ymm0, ymmword ptr [rbp+260h+var_190.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  v188 = &R_RT_Handle::GetSurface(&v372)->m_image;
+    v216.m_surfaceID = 0;
+  *(_OWORD *)&v216.m_tracking.m_allocCounter = v120;
+  v216.m_tracking.m_location = m_location;
+  result = (R_RT_DepthHandle)v216;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v124 = &R_RT_Handle::GetSurface(&v220)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[77] = &v188->m_base;
-  v189 = sceneHeight;
-  R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v368, v335, sceneHeight, v334, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_PACKED_STENCIL, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Packed Stencil", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6038)");
-  v190 = &R_RT_Handle::GetSurface(&v368)->m_image;
+  p_input->codeImages[77] = &v124->m_base;
+  v125 = sceneHeight;
+  R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v216, v183, sceneHeight, v182, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_PACKED_STENCIL, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorZero, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Packed Stencil", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6038)");
+  v126 = &R_RT_Handle::GetSurface(&v216)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[79] = &v190->m_base;
-  if ( (v368.m_surfaceID & 0x7FFF) != 0 )
-    v369.m_surfaceID = v368.m_surfaceID & 0x7FFF | 0x8000;
+  p_input->codeImages[79] = &v126->m_base;
+  if ( (v216.m_surfaceID & 0x7FFF) != 0 )
+    v217.m_surfaceID = v216.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
+    v217.m_surfaceID = 0;
+  _XMM0 = *(_OWORD *)&v216.m_tracking.m_allocCounter;
+  v217.m_tracking = v216.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v9->sceneRtInput.m_packedStencilRt = (R_RT_ColorHandle)v220;
+  if ( v65 )
   {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_190.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+33C0h], ymm0
-  }
-  if ( v99 )
-  {
-    v195 = sceneWidth;
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SUN_VISIBILTY, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Sun Visibility", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6042)");
+    v128 = sceneWidth;
+    ColorForDynSceneResInternal = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, sceneWidth, sceneHeight, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SUN_VISIBILTY, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Sun Visibility", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6042)");
   }
   else
   {
-    v368.m_surfaceID = 0;
-    v368.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0
-    }
-    _RAX = (R_RT_ColorHandle *)&v368;
-    v195 = sceneWidth;
+    v216.m_surfaceID = 0;
+    v216.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+    ColorForDynSceneResInternal = (R_RT_ColorHandle *)&v216;
+    v128 = sceneWidth;
   }
-  __asm
+  v217 = ColorForDynSceneResInternal->R_RT_Handle;
+  v194 = _XMM0;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_170.m_surfaceID], ymm0
-    vmovd   eax, xmm0
-  }
-  v346 = _EAX;
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v369);
-    whiteImage = &R_RT_Handle::GetSurface(&v369)->m_image;
+    R_RT_Handle::GetSurface(&v217);
+    whiteImage = &R_RT_Handle::GetSurface(&v217)->m_image;
   }
   else
   {
-    if ( v369.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( v217.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
     whiteImage = (R_RT_Image *)rgp.whiteImage;
   }
@@ -14383,586 +11588,345 @@ LABEL_341:
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[9] = defaultUIntImage;
-  R_GetResolvedSceneRt((R_RT_ColorHandle *)&v368, _R14->clientIndex, vidConfig.sceneWidth, vidConfig.sceneHeight, _R14->teleported, &_R14->sceneRtInput.m_resolvedSceneRtNeedsClear);
-  v201 = &R_RT_Handle::GetSurface(&v368)->m_image;
+  R_GetResolvedSceneRt((R_RT_ColorHandle *)&v216, v9->clientIndex, vidConfig.sceneWidth, vidConfig.sceneHeight, v9->teleported, &v9->sceneRtInput.m_resolvedSceneRtNeedsClear);
+  v132 = &R_RT_Handle::GetSurface(&v216)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[6] = &v201->m_base;
-  if ( (v368.m_surfaceID & 0x7FFF) != 0 )
-    v202 = v368.m_surfaceID & 0x7FFF | 0x8000;
+  p_input->codeImages[6] = &v132->m_base;
+  if ( (v216.m_surfaceID & 0x7FFF) != 0 )
+    v133 = v216.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v202 = 0;
-  v349.m_surfaceID = v202;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_2A8.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_190.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_2A8.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_2A8.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+33E0h], ymm0
-  }
+    v133 = 0;
+  v197.m_surfaceID = v133;
+  _XMM0 = *(_OWORD *)&v216.m_tracking.m_allocCounter;
+  v197.m_tracking = v216.m_tracking;
+  result = (R_RT_DepthHandle)v197;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v9->sceneRtInput.m_resolvedSceneRt = (R_RT_ColorHandle)v220;
   heighta = 0;
-  v366.m_surfaceID = 0;
-  v366.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+260h+var_1B8.m_tracking.m_name], xmm0
-  }
+  v214.m_surfaceID = 0;
+  v214.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v214.m_tracking.m_name = _XMM0;
   allocHeight = 0;
-  v368.m_tracking.m_allocCounter = 0;
-  __asm { vmovdqu xmmword ptr [rbp+260h+var_190.m_tracking.m_name], xmm0 }
-  SSAOMode = R_GetSSAOMode(_R14);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f097aac
-    vmovups xmmword ptr [rbp+260h+var_D0], xmm0
-  }
+  v216.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v216.m_tracking.m_name = _XMM0;
+  SSAOMode = R_GetSSAOMode(v9);
+  _XMM0 = _xmm;
+  v222 = (vec4_t)_xmm;
   if ( SSAOMode )
   {
-    v210 = "Frontend SSAO [0]";
-    if ( (_R14->input.data->frameIndex & 1) != 0 )
-      v210 = "Frontend SSAO [1]";
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v195, v189, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_AO, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &v374, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v210, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6064)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_1B8.m_surfaceID], ymm0
-    }
-    heighta = v366.m_surfaceID;
+    v138 = "Frontend SSAO [0]";
+    if ( (v9->input.data->frameIndex & 1) != 0 )
+      v138 = "Frontend SSAO [1]";
+    v214 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v128, v125, maxSceneRtWidth, maxSceneRtHeight, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_AO, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &v222, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v138, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6064)")->R_RT_Handle;
+    heighta = v214.m_surfaceID;
   }
   if ( (SSAOMode & 2) != 0 )
   {
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v335, v337, v334, v339, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_R8, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorWhite, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "FrontEnd MDAO", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6070)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_190.m_surfaceID], ymm0
-    }
-    allocHeight = v368.m_surfaceID;
+    v216 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v183, v185, v182, v187, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_R8, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorWhite, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "FrontEnd MDAO", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6070)")->R_RT_Handle;
+    allocHeight = v216.m_surfaceID;
   }
-  if ( R_RT_Handle::IsValid(&v366) )
-    v215 = &R_RT_Handle::GetSurface(&v366)->m_image;
+  if ( R_RT_Handle::IsValid(&v214) )
+    v139 = &R_RT_Handle::GetSurface(&v214)->m_image;
   else
-    v215 = (R_RT_Image *)rgp.whiteImage;
+    v139 = (R_RT_Image *)rgp.whiteImage;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[10] = &v215->m_base;
-  v355.m_surfaceID = 0;
-  v355.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+260h+var_270.m_tracking.m_name], xmm0
-  }
-  v342 = 0;
-  v349.m_tracking.m_allocCounter = 0;
-  __asm { vmovdqu xmmword ptr [rbp+260h+var_2A8.m_tracking.m_name], xmm0 }
-  R_SSR_GetPreviousFrameWaterTraceRt(&v375);
-  v365.m_surfaceID = 0;
-  v365.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+260h+var_1D8.m_tracking.m_name], xmm0
-  }
-  v218 = sceneWidth >> 8;
+  p_input->codePersistentImages[10] = &v139->m_base;
+  v203.m_surfaceID = 0;
+  v203.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v203.m_tracking.m_name = _XMM0;
+  v190 = 0;
+  v197.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v197.m_tracking.m_name = _XMM0;
+  R_SSR_GetPreviousFrameWaterTraceRt(&v223);
+  v213.m_surfaceID = 0;
+  v213.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v213.m_tracking.m_name = _XMM0;
+  v142 = sceneWidth >> 8;
   if ( !(sceneWidth >> 8) )
-    v218 = 1;
-  v219 = v189 >> 7;
-  if ( !v219 )
-    v219 = 1;
-  v220 = maxSceneRtWidth >> 8;
+    v142 = 1;
+  v143 = v125 >> 7;
+  if ( !v143 )
+    v143 = 1;
+  v144 = maxSceneRtWidth >> 8;
   if ( !(maxSceneRtWidth >> 8) )
-    v220 = 1;
-  allocWidtha = v220;
-  v221 = maxSceneRtHeight >> 7;
+    v144 = 1;
+  allocWidtha = v144;
+  v145 = maxSceneRtHeight >> 7;
   if ( !(maxSceneRtHeight >> 7) )
-    v221 = 1;
-  SSRMode = R_GetSSRMode(_R14);
+    v145 = 1;
+  SSRMode = R_GetSSRMode(v9);
   if ( SSRMode != GFX_SSR_DEFERRED_LQ )
   {
     if ( SSRMode != GFX_SSR_DEFERRED_HQ )
       goto LABEL_407;
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v335, v337, v334, v339, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6102)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_270.m_surfaceID], ymm0
-    }
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v372, v218, v219, allocWidtha, v221, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_UINT, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR Mask", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6103)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_1D8.m_surfaceID], ymm0
-    }
-    if ( !_R14->ssrWaterTrace )
+    v203 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v183, v185, v182, v187, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6102)")->R_RT_Handle;
+    v213 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v220, v142, v143, allocWidtha, v145, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_UINT, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR Mask", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6103)")->R_RT_Handle;
+    if ( !v9->ssrWaterTrace )
       goto LABEL_407;
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v335, v337, v334, v339, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Water SSR", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6107)");
+    v147 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v183, v185, v182, v187, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Water SSR", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6107)");
     goto LABEL_404;
   }
-  _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v353, v352, v351, v350, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6092)");
-  __asm
+  v203 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v201, v200, v199, v198, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6092)")->R_RT_Handle;
+  v213 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v220, v142, v143, allocWidtha, v145, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_UINT, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR Mask", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6093)")->R_RT_Handle;
+  if ( v9->ssrWaterTrace )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_270.m_surfaceID], ymm0
-  }
-  _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&v372, v218, v219, allocWidtha, v221, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_GENERIC_UINT, R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend SSR Mask", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6093)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+var_1D8.m_surfaceID], ymm0
-  }
-  if ( _R14->ssrWaterTrace )
-  {
-    _RAX = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v353, v352, v351, v350, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Water SSR", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6097)");
+    v147 = R_RT_CreateColorForDynSceneResInternal((R_RT_ColorHandle *)&result, v201, v200, v199, v198, 1u, 1u, 1u, GFX_RENDERTARGET_FORMAT_SSR_TRACE, R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Water SSR", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6097)");
 LABEL_404:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_2A8.m_surfaceID], ymm0
-    }
-    v342 = v349.m_surfaceID;
+    v197 = v147->R_RT_Handle;
+    v190 = v197.m_surfaceID;
   }
 LABEL_407:
-  if ( R_RT_Handle::IsValid(&v355) )
-    v233 = &R_RT_Handle::GetSurface(&v355)->m_image;
+  if ( R_RT_Handle::IsValid(&v203) )
+    v148 = &R_RT_Handle::GetSurface(&v203)->m_image;
   else
-    v233 = (R_RT_Image *)rgp.blackImage;
+    v148 = (R_RT_Image *)rgp.blackImage;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[11] = &v233->m_base;
-  if ( R_RT_Handle::IsValid(&v375) )
-    v234 = &R_RT_Handle::GetSurface(&v375)->m_image;
+  p_input->codePersistentImages[11] = &v148->m_base;
+  if ( R_RT_Handle::IsValid(&v223) )
+    v149 = &R_RT_Handle::GetSurface(&v223)->m_image;
   else
-    v234 = (R_RT_Image *)rgp.blackImage;
+    v149 = (R_RT_Image *)rgp.blackImage;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[12] = &v234->m_base;
-  if ( R_RT_Handle::IsValid(&v365) )
-    blackUintImage = &R_RT_Handle::GetSurface(&v365)->m_image;
+  p_input->codePersistentImages[12] = &v149->m_base;
+  if ( R_RT_Handle::IsValid(&v213) )
+    blackUintImage = &R_RT_Handle::GetSurface(&v213)->m_image;
   else
     blackUintImage = (R_RT_Image *)rgp.blackUintImage;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[83] = &blackUintImage->m_base;
-  v236 = &R_RT_Handle::GetSurface(&v371)->m_image;
+  v151 = &R_RT_Handle::GetSurface(&v219)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[14] = &v236->m_base;
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3750h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3770h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm { vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0 }
+  p_input->codePersistentImages[14] = &v151->m_base;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(vec4_t *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_postOpaqueLuma = (R_RT_ColorHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(vec4_t *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_transMask = (R_RT_ColorHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(vec4_t *)&v219.m_tracking.m_name = _XMM0;
   LOWORD(clearColor[0].v[0]) = 0;
   clearColor[0].v[2] = 0.0;
-  __asm { vmovdqu xmmword ptr [rbp+260h+clearColor+10h], xmm0 }
+  clearColor[1] = _XMM0;
   if ( rg.useLightGridVolumes )
   {
     R_LGV_LazyAllocSamplingBuffers();
-    _RAX = R_RT_CreateColorInternal((R_RT_ColorHandle *)&result, 0x40u, 0x40u, 0x10u, 1u, 1u, GFX_RENDERTARGET_FORMAT_LGV_LIGHTING, R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_GENERIC_READ, "Frontend LightGridVolumes_3d", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6139)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+var_110.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+260h+var_130.m_surfaceID], ymm0
-    }
-    _RAX = R_RT_CreateColorInternal((R_RT_ColorHandle *)clearColor, 0x80u, 0xC0u, 0x10u, 1u, 1u, GFX_RENDERTARGET_FORMAT_LGV_LIGHTING_HIGH_BANDS, R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_GENERIC_READ, "Frontend LightGridVolumesHighBands_3d", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6140)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+260h+clearColor], ymm0
-    }
+    v220 = R_RT_CreateColorInternal((R_RT_ColorHandle *)&result, 0x40u, 0x40u, 0x10u, 1u, 1u, GFX_RENDERTARGET_FORMAT_LGV_LIGHTING, R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_GENERIC_READ, "Frontend LightGridVolumes_3d", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6139)")->R_RT_Handle;
+    v219 = v220;
+    v153 = *(R_RT_DepthHandle *)R_RT_CreateColorInternal((R_RT_ColorHandle *)clearColor, 0x80u, 0xC0u, 0x10u, 1u, 1u, GFX_RENDERTARGET_FORMAT_LGV_LIGHTING_HIGH_BANDS, R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, R_RT_FlagInternal_Frontend, &colorBlack, D3D12_RESOURCE_STATE_GENERIC_READ, "Frontend LightGridVolumesHighBands_3d", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6140)");
+    *(R_RT_DepthHandle *)clearColor[0].v = v153;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-      vmovups ymmword ptr [rbp+260h+var_110.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rbp+260h+clearColor]
-    }
+    v220 = v219;
+    v153 = *(R_RT_DepthHandle *)clearColor[0].v;
   }
-  __asm { vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0 }
-  if ( R_RT_Handle::IsValid(&v371) )
-    blackImage3D = &R_RT_Handle::GetSurface(&v371)->m_image;
+  result = v153;
+  if ( R_RT_Handle::IsValid(&v219) )
+    blackImage3D = &R_RT_Handle::GetSurface(&v219)->m_image;
   else
     blackImage3D = (R_RT_Image *)rgp.blackImage3D;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[21] = &blackImage3D->m_base;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+34A8h], ymm0
-  }
+  v9->sceneRtInput.m_lightGridVolumeData3D = (R_RT_ColorHandle)v220;
   if ( R_RT_Handle::IsValid((R_RT_Handle *)clearColor) )
-    v247 = &R_RT_Handle::GetSurface((R_RT_Handle *)clearColor)->m_image;
+    v155 = &R_RT_Handle::GetSurface((R_RT_Handle *)clearColor)->m_image;
   else
-    v247 = (R_RT_Image *)rgp.blackImage3D;
+    v155 = (R_RT_Image *)rgp.blackImage3D;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[22] = &v247->m_base;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID]
-    vmovups ymmword ptr [r14+34C8h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 4u, 0x280000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndexBuffer|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_INDEX_BUFFER, "Frontend Scene Buffer Index", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6152)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+34E8h], ymm0
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm1
-  }
+  p_input->codePersistentImages[22] = &v155->m_base;
+  v9->sceneRtInput.m_lightGridVolumeHighBandsData3D = (R_RT_ColorHandle)result;
+  BufferInternal = (R_RT_DepthHandle *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 4u, 0x280000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndexBuffer|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_INDEX_BUFFER, "Frontend Scene Buffer Index", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6152)");
+  v9->sceneRtInput.m_gpIndexBuffer = *(R_RT_BufferHandle *)BufferInternal;
+  result = *BufferInternal;
   R_SetInputCodeBuffer(p_input, 6u, &result);
-  _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&v372, 0x24u, 0x4000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Frontend Scene Buffer Indirect Args", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6155)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+3508h], ymm0
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm1
-  }
+  v157 = (R_RT_DepthHandle *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&v220, 0x24u, 0x4000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Frontend Scene Buffer Indirect Args", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6155)");
+  v9->sceneRtInput.m_gpIndirectArgsBuffer = *(R_RT_BufferHandle *)v157;
+  result = *v157;
   R_SetInputCodeBuffer(p_input, 9u, &result);
-  _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&v371, 1u, 0x700000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Scene Per Surf Data", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6158)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+3528h], ymm0
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm1
-  }
+  v158 = (R_RT_DepthHandle *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&v219, 1u, 0x700000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_Frontend, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Frontend Scene Per Surf Data", frontendPass, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6158)");
+  v9->sceneRtInput.m_gpPerSurfDataBuffer = *(R_RT_BufferHandle *)v158;
+  result = *v158;
   R_SetInputCodePersistentBuffer(p_input, 0x17u, &result);
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3548h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3568h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3588h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+35A8h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+35C8h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+35E8h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3608h], ymm1
-  }
-  v371.m_surfaceID = 0;
-  v371.m_tracking.m_allocCounter = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-    vmovups ymm1, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [r14+3628h], ymm1
-  }
-  v267 = *((_DWORD *)&_R14->viewportFeatures + 11) >> 1;
-  LOBYTE(v267) = (*((_DWORD *)&_R14->viewportFeatures + 11) & 2) != 0;
-  v348 = v267;
-  v268 = 2 * R_SpotShadow_GetMapSize();
-  v269 = 0;
-  v270 = spotShadowRtNames;
-  _R15 = _R14->sceneRtInput.m_spotShadowRts;
-  v272 = v348;
-  spotShadowUpdateLimit = _R14->input.data->spotShadowUpdateLimit;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpBatchSubMeshOffsetsBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpSubMeshWorkgroupArgsBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpSubMeshCountBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpClusterPassIndirectArgsBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpClusterPPSumIndirectArgsBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpPrevCulledSubMeshBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpPrevSubMeshClusterOffsetsBuffer = (R_RT_BufferHandle)v219;
+  v219.m_surfaceID = 0;
+  v219.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+  v9->sceneRtInput.m_gpPrevCulledTriClusterBuffer = (R_RT_BufferHandle)v219;
+  v160 = *((_DWORD *)&v9->viewportFeatures + 11) >> 1;
+  LOBYTE(v160) = (*((_DWORD *)&v9->viewportFeatures + 11) & 2) != 0;
+  v196 = v160;
+  v161 = 2 * R_SpotShadow_GetMapSize();
+  v162 = 0;
+  v163 = spotShadowRtNames;
+  m_spotShadowRts = (__m256i *)v9->sceneRtInput.m_spotShadowRts;
+  v165 = v196;
+  spotShadowUpdateLimit = v9->input.data->spotShadowUpdateLimit;
   do
   {
-    if ( v272 && v269 < spotShadowUpdateLimit )
+    if ( v165 && v162 < spotShadowUpdateLimit )
     {
-      v275 = *v270;
-      __asm { vmovss  dword ptr [rbp+260h+clearColor], xmm8 }
-      _RAX = R_RT_CreateInternal(&v376, v268, v268, v268, v268, 1u, 1u, 1u, g_R_RT_depthStencilFmts[3], R_RT_Flag_None, R_RT_FlagInternal_Frontend|R_RT_FlagInternal_Depth, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v275, v340, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6177)");
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-      }
-      R_RT_DepthHandle::Cast((R_RT_DepthHandle *)&v372, &result);
-      _RAX = &v372;
+      v168 = *v163;
+      clearColor[0].v[0] = 0.0;
+      result = (R_RT_DepthHandle)*R_RT_CreateInternal(&v224, v161, v161, v161, v161, 1u, 1u, 1u, g_R_RT_depthStencilFmts[3], R_RT_Flag_None, R_RT_FlagInternal_Frontend|R_RT_FlagInternal_Depth, clearColor, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, v168, v188, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6177)");
+      R_RT_DepthHandle::Cast((R_RT_DepthHandle *)&v220, &result);
+      v169 = &v220;
     }
     else
     {
-      v371.m_surfaceID = 0;
-      v371.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+260h+var_130.m_tracking.m_name], xmm0
-      }
-      _RAX = &v371;
+      v219.m_surfaceID = 0;
+      v219.m_tracking.m_allocCounter = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v219.m_tracking.m_name = _XMM0;
+      v169 = &v219;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [r15], ymm0
-    }
-    ++v269;
-    ++_R15;
-    ++v270;
+    *m_spotShadowRts = *(__m256i *)v169;
+    ++v162;
+    ++m_spotShadowRts;
+    ++v163;
   }
-  while ( v269 < 8 );
-  if ( (m_sunShadowCascades & 0x7FFF) != 0 )
-    v371.m_surfaceID = m_sunShadowCascades & 0x7FFF | 0x8000;
+  while ( v162 < 8 );
+  if ( ((unsigned __int16)m_sunShadowCascades & 0x7FFF) != 0 )
+    v219.m_surfaceID = (unsigned __int16)m_sunShadowCascades & 0x7FFF | 0x8000;
   else
-    v371.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_1F8.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_130.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_1F8.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_130.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_130.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_DepthHandle::Cast((R_RT_DepthHandle *)&v372, &result);
-  __asm { vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID] }
-  _R14 = viewInfoa;
-  __asm { vmovups ymmword ptr [r14+32E0h], ymm0 }
-  if ( (v354 & 0x7FFF) != 0 )
-    v364.m_surfaceID = v354 & 0x7FFF | 0x8000;
+    v219.m_surfaceID = 0;
+  v219.m_tracking = v212.m_tracking;
+  result = (R_RT_DepthHandle)v219;
+  R_RT_DepthHandle::Cast((R_RT_DepthHandle *)&v220, &result);
+  v170 = viewInfoa;
+  viewInfoa->sceneRtInput.m_sunShadowCascade0ForViewmodel = (R_RT_DepthHandle)v220;
+  if ( (v202 & 0x7FFF) != 0 )
+    v212.m_surfaceID = v202 & 0x7FFF | 0x8000;
   else
-    v364.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_240.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_1F8.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_240.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_1F8.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_1F8.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3300h], ymm0
-  }
-  if ( (v346 & 0x7FFF) != 0 )
-    v358.m_surfaceID = v346 & 0x7FFF | 0x8000;
+    v212.m_surfaceID = 0;
+  v212.m_tracking = v206.m_tracking;
+  result = (R_RT_DepthHandle)v212;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_translucentShadowRt = (R_RT_ColorHandle)v220;
+  if ( (v194 & 0x7FFF) != 0 )
+    v206.m_surfaceID = v194 & 0x7FFF | 0x8000;
   else
-    v358.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_240.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_170.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_240.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_240.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3320h], ymm0
-  }
+    v206.m_surfaceID = 0;
+  v206.m_tracking = v217.m_tracking;
+  result = (R_RT_DepthHandle)v206;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_sunVisibilityRt = (R_RT_ColorHandle)v220;
   if ( (heighta & 0x7FFF) != 0 )
-    v369.m_surfaceID = heighta & 0x7FFF | 0x8000;
+    v217.m_surfaceID = heighta & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_1B8.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_1B8.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3408h], ymm0
-  }
-  if ( (v355.m_surfaceID & 0x7FFF) != 0 )
-    v369.m_surfaceID = v355.m_surfaceID & 0x7FFF | 0x8000;
+    v217.m_surfaceID = 0;
+  v217.m_tracking = v214.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_ssaoRt = (R_RT_ColorHandle)v220;
+  if ( (v203.m_surfaceID & 0x7FFF) != 0 )
+    v217.m_surfaceID = v203.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_270.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_270.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3428h], ymm0
-  }
-  if ( (v365.m_surfaceID & 0x7FFF) != 0 )
-    v369.m_surfaceID = v365.m_surfaceID & 0x7FFF | 0x8000;
+    v217.m_surfaceID = 0;
+  v217.m_tracking = v203.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_ssrRt = (R_RT_ColorHandle)v220;
+  if ( (v213.m_surfaceID & 0x7FFF) != 0 )
+    v217.m_surfaceID = v213.m_surfaceID & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_1D8.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_1D8.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3448h], ymm0
-  }
-  if ( (v342 & 0x7FFF) != 0 )
-    v369.m_surfaceID = v342 & 0x7FFF | 0x8000;
+    v217.m_surfaceID = 0;
+  v217.m_tracking = v213.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_ssrMaskRt = (R_RT_ColorHandle)v220;
+  if ( (v190 & 0x7FFF) != 0 )
+    v217.m_surfaceID = v190 & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_2A8.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_2A8.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3468h], ymm0
-  }
+    v217.m_surfaceID = 0;
+  v217.m_tracking = v197.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_ssrWaterRt = (R_RT_ColorHandle)v220;
   if ( (allocHeight & 0x7FFF) != 0 )
-    v369.m_surfaceID = allocHeight & 0x7FFF | 0x8000;
+    v217.m_surfaceID = allocHeight & 0x7FFF | 0x8000;
   else
-    v369.m_surfaceID = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+260h+var_190.m_tracking.m_allocCounter]
-    vmovups xmmword ptr [rbp+260h+var_170.m_tracking.m_allocCounter], xmm0
-    vmovsd  xmm1, [rbp+260h+var_190.m_tracking.m_location]
-    vmovsd  [rbp+260h+var_170.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+260h+var_170.m_surfaceID]
-    vmovups ymmword ptr [rbp+260h+result.baseclass_0.m_surfaceID], ymm0
-  }
-  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v372, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+260h+var_110.m_surfaceID]
-    vmovups ymmword ptr [r14+3488h], ymm0
-  }
-  R_VRS_LazyAllocRts(_R14);
+    v217.m_surfaceID = 0;
+  v217.m_tracking = v216.m_tracking;
+  result = (R_RT_DepthHandle)v217;
+  R_RT_ColorHandle::Cast((R_RT_ColorHandle *)&v220, &result);
+  v170->sceneRtInput.m_mdaoRt = (R_RT_ColorHandle)v220;
+  R_VRS_LazyAllocRts(v170);
   R_EffectLighting_LazyAllocRts();
   Image = R_EffectLighting_GetImage(GFX_MESH_LIGHTING_FIRST);
-  R_SetInputCodeImageTextureInternal(&_R14->input, 0x24u, Image, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6207)");
-  v314 = R_EffectLighting_GetImage(GFX_MESH_LIGHTING_SH);
-  R_SetInputCodeImageTextureInternal(&_R14->input, 0x25u, v314, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6208)");
+  R_SetInputCodeImageTextureInternal(&v170->input, 0x24u, Image, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6207)");
+  v172 = R_EffectLighting_GetImage(GFX_MESH_LIGHTING_SH);
+  R_SetInputCodeImageTextureInternal(&v170->input, 0x25u, v172, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6208)");
   FogLightmapImage = R_EffectLighting_GetFogLightmapImage();
-  R_SetInputCodeImageTextureInternal(&_R14->input, 0x26u, FogLightmapImage, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6209)");
+  R_SetInputCodeImageTextureInternal(&v170->input, 0x26u, FogLightmapImage, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6209)");
   R_VOL_LazyAllocRts();
-  R_VOL_GetAccumImages(_R14, (const GfxImage **)&scattering, (const GfxImage **)&extinction, (const GfxImage **)&visibility);
+  R_VOL_GetAccumImages(v170, (const GfxImage **)&scattering, (const GfxImage **)&extinction, (const GfxImage **)&visibility);
   if ( !scattering && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6217, ASSERT_TYPE_ASSERT, "(scattering)", (const char *)&queryFormat, "scattering") )
     __debugbreak();
   if ( !extinction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6218, ASSERT_TYPE_ASSERT, "(extinction)", (const char *)&queryFormat, "extinction") )
     __debugbreak();
   if ( !visibility && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6219, ASSERT_TYPE_ASSERT, "(visibility)", (const char *)&queryFormat, "visibility") )
     __debugbreak();
-  R_SetInputCodePersistentImageTextureInternal(&_R14->input, 0x19u, scattering, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6220)");
-  R_SetInputCodePersistentImageTextureInternal(&_R14->input, 0x1Au, extinction, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6221)");
-  R_SetInputCodePersistentImageTextureInternal(&_R14->input, 0x1Bu, visibility, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6222)");
+  R_SetInputCodePersistentImageTextureInternal(&v170->input, 0x19u, scattering, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6220)");
+  R_SetInputCodePersistentImageTextureInternal(&v170->input, 0x1Au, extinction, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6221)");
+  R_SetInputCodePersistentImageTextureInternal(&v170->input, 0x1Bu, visibility, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6222)");
   ClusterMaskView = R_VOL_GetClusterMaskView();
-  R_SetInputCodePersistentBuffer(&_R14->input, 0xDu, ClusterMaskView);
+  R_SetInputCodePersistentBuffer(&v170->input, 0xDu, ClusterMaskView);
   R_FrustumLights_LazyAllocRts();
   FrustumLightsTileBuffer = R_GetFrustumLightsTileBuffer();
-  R_SetInputCodePersistentBuffer(&_R14->input, 0xAu, FrustumLightsTileBuffer);
+  R_SetInputCodePersistentBuffer(&v170->input, 0xAu, FrustumLightsTileBuffer);
   FrustumLightsClusterBuffer = R_GetFrustumLightsClusterBuffer();
-  R_SetInputCodePersistentBuffer(&_R14->input, 0xBu, FrustumLightsClusterBuffer);
+  R_SetInputCodePersistentBuffer(&v170->input, 0xBu, FrustumLightsClusterBuffer);
   R_SpotShadow_LazyAllocRts();
   SpotShadowArrayImageDraw3D = R_GetSpotShadowArrayImageDraw3D();
-  R_SetInputCodePersistentImageTextureInternal(&_R14->input, 8u, SpotShadowArrayImageDraw3D, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6231)");
-  _RAX = R_SpotShadow_ActiveCacheEntry::GetDepthRtDraw3D((const R_RT_DepthHandle *)&v376);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [r14+6420h], ymm0
-  }
-  _R14->spotshadowHTileMask = 0;
+  R_SetInputCodePersistentImageTextureInternal(&v170->input, 8u, SpotShadowArrayImageDraw3D, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp(6231)");
+  v170->spotshadowActiveCache = *R_SpotShadow_ActiveCacheEntry::GetDepthRtDraw3D((const R_RT_DepthHandle *)&v224);
+  v170->spotshadowHTileMask = 0;
   R_SunShadowCache_LazyAllocRts();
-  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v345);
-  _R11 = &v377;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(&v193);
 }
 
 /*
@@ -14972,806 +11936,480 @@ R_SetupScopeEffect
 */
 void R_SetupScopeEffect(GfxBackEndData *data, GfxViewInfo *viewInfo)
 {
-  bool v34; 
-  __int64 v42; 
-  __int64 v44; 
-  bool v100; 
-  bool v142; 
-  int v273; 
-  __int64 v275; 
-  char v321; 
-  bool v322; 
-  __int64 v364; 
+  bool v4; 
+  GfxViewParms *DepthHackViewParms; 
+  __int64 v6; 
+  char *v7; 
+  __int64 v8; 
+  vec4_t v9; 
+  GfxViewParms *v10; 
+  char *v11; 
+  vec4_t v12; 
+  __int128 v17; 
+  float v18; 
+  __int128 v19; 
+  __int128 v20; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  __int128 v33; 
+  __int128 v37; 
+  float v41; 
+  float v42; 
+  __int64 clientIndex; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  __int128 v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v54; 
+  float v56; 
+  float v57; 
+  double v58; 
+  double v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
+  float v72; 
+  __int128 v74; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v81; 
+  float scopeLensRadius; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  int v94; 
+  float *v95; 
+  __int64 v96; 
+  float v97; 
+  __int128 scopeLensInnerDisk_low; 
+  double v99; 
+  float v100; 
+  double v101; 
+  __int128 v103; 
+  __int128 v106; 
+  double v107; 
+  __int128 v109; 
+  float fadeOutFrac; 
+  __int128 v116; 
+  float fadeInFrac; 
+  float v119; 
+  float v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  float scopeLensBrightness; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
   GfxViewParms result; 
-  vec4_t v370; 
-  vec4_t v371; 
-  vec4_t v372; 
-  vec4_t v373; 
-  vec4_t v374; 
-  vec4_t v375; 
+  vec4_t v132; 
+  vec4_t v133; 
+  vec4_t v134; 
+  vec4_t v135; 
+  vec4_t v136; 
+  vec4_t v137; 
   vec4_t vec; 
-  vec4_t v377; 
-  vec4_t v378; 
+  vec4_t v139; 
+  vec4_t v140; 
   tmat44_t<vec4_t> out; 
   tmat44_t<vec4_t> mtx; 
   tmat44_t<vec4_t> in1; 
   tmat44_t<vec4_t> mat; 
-  char v383; 
+  char v145; 
   tmat44_t<vec4_t> in2; 
-  char v385; 
-  tmat44_t<vec4_t> v386; 
-  int v388[11]; 
-  char v389; 
-  void *retaddr; 
+  char v147; 
+  tmat44_t<vec4_t> v148; 
+  float v149; 
+  int v150[11]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm14, cs:__real@3f800000
-  }
-  _R15 = 0x140000000ui64;
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.foundSight[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A808h], xmm0
-    vmovups xmm1, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeLensAxis[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A818h], xmm1
-    vmovups xmm0, xmmword ptr (rva ?scene@@3UGfxScene@@A.scope.scopeLensAxis+10h)[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A828h], xmm0
-    vmovups xmm1, xmmword ptr (rva ?scene@@3UGfxScene@@A.scope.scopeLensAxis+20h)[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A838h], xmm1
-    vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeLensOuterRing[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A848h], xmm0
-    vmovups xmm1, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeLensFadeEnd[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A858h], xmm1
-    vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeLensBrightness[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A868h], xmm0
-    vmovups xmm0, xmmword ptr (rva ?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac+8)[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A878h], xmm0
-    vmovups xmm1, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeEyeRelief_outOfFocusDistance[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A888h], xmm1
-    vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeEyeRelief_maxMovement[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A898h], xmm0
-    vmovups xmm1, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleSway_movement[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A8A8h], xmm1
-    vmovups xmm0, xmmword ptr rva ?scene@@3UGfxScene@@A.scope.dofViewModelPhysicalFstop[r15]; GfxScene scene
-    vmovups xmmword ptr [rcx+75A8B8h], xmm0
-  }
-  _R14 = data;
-  data->scope.dofPhysicalFocusDistance = scene.scope.dofPhysicalFocusDistance;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( !scene.scope.scopeUseDualFov )
-    goto LABEL_7;
-  __asm
-  {
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensInnerDiskMag; GfxScene scene
-    vucomiss xmm0, xmm14
-  }
-  if ( !scene.scope.scopeUseDualFov )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensOuterRingMag; GfxScene scene
-      vucomiss xmm0, xmm14
-    }
-    if ( !scene.scope.scopeUseDualFov )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeStart; GfxScene scene
-        vcomiss xmm0, xmm14
-      }
-LABEL_7:
-      v34 = 0;
-      goto LABEL_8;
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac; GfxScene scene
-    vcomiss xmm0, xmm7
-  }
-  if ( !scene.scope.scopeUseDualFov )
-    goto LABEL_7;
-  v34 = 1;
-LABEL_8:
-  viewInfo->scopeLensDistortionEnabled = v34;
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensPos; GfxScene scene
-    vmovss  xmm1, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensPos+4; GfxScene scene
-    vmovss  xmm0, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensPos+8; GfxScene scene
-    vsubss  xmm3, xmm2, dword ptr [rdx+100h]
-    vsubss  xmm4, xmm1, dword ptr [rdx+104h]
-    vsubss  xmm5, xmm0, dword ptr [rdx+108h]
-    vmovss  [rsp+760h+var_728], xmm3
-    vmovss  [rsp+760h+var_72C], xmm4
-    vmovss  [rsp+760h+var_724], xmm5
-    vmovss  dword ptr [rbp+660h+var_580], xmm2
-    vmovss  dword ptr [rbp+660h+var_580+4], xmm1
-    vmovss  dword ptr [rbp+660h+var_580+8], xmm0
-    vmovss  dword ptr [rbp+660h+var_580+0Ch], xmm14
-  }
-  _RAX = R_GetDepthHackViewParms(&result, (const GfxViewParms *)viewInfo);
-  v42 = 3i64;
-  _RCX = &v383;
-  v44 = 3i64;
+  data->scope = scene.scope;
+  v4 = scene.scope.scopeUseDualFov && (scene.scope.scopeLensInnerDiskMag != 1.0 || scene.scope.scopeLensOuterRingMag != 1.0 || scene.scope.scopeLensFadeStart < 1.0) && scene.scope.scopeFadeInfo[0].fadeInFrac > 0.0;
+  viewInfo->scopeLensDistortionEnabled = v4;
+  v128 = scene.scope.scopeLensPos.v[0] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  v127 = scene.scope.scopeLensPos.v[1] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  v129 = scene.scope.scopeLensPos.v[2] - viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  v133.xyz = scene.scope.scopeLensPos;
+  v133.v[3] = FLOAT_1_0;
+  DepthHackViewParms = R_GetDepthHackViewParms(&result, (const GfxViewParms *)viewInfo);
+  v6 = 3i64;
+  v7 = &v145;
+  v8 = 3i64;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v44;
+    v7 += 128;
+    v9 = DepthHackViewParms->viewMatrix.m.m[0];
+    DepthHackViewParms = (GfxViewParms *)((char *)DepthHackViewParms + 128);
+    *((vec4_t *)v7 - 8) = v9;
+    *((_OWORD *)v7 - 7) = *(_OWORD *)&DepthHackViewParms[-1].camera.axis.row0.y;
+    *((_OWORD *)v7 - 6) = *(_OWORD *)&DepthHackViewParms[-1].camera.axis.row1.z;
+    *((_OWORD *)v7 - 5) = *(_OWORD *)&DepthHackViewParms[-1].camera.tanHalfFovX;
+    *((_OWORD *)v7 - 4) = *(_OWORD *)DepthHackViewParms[-1].camera.zPlanes;
+    *((_OWORD *)v7 - 3) = *(_OWORD *)&DepthHackViewParms[-1].camera.focalLength;
+    *((_OWORD *)v7 - 2) = *(_OWORD *)&DepthHackViewParms[-1].camera.visibilityQueryDistance;
+    *((_OWORD *)v7 - 1) = *(_OWORD *)&DepthHackViewParms[-1].cameraMotion;
+    --v8;
   }
-  while ( v44 );
-  MatrixForViewerOrthogonal(&_RBX->viewParmsSet.frames[0].viewParms.camera.origin, &_RBX->viewParmsSet.frames[0].viewParms.camera.axis, &mtx);
+  while ( v8 );
+  MatrixForViewerOrthogonal(&viewInfo->viewParmsSet.frames[0].viewParms.camera.origin, &viewInfo->viewParmsSet.frames[0].viewParms.camera.axis, &mtx);
   MatrixMultiply44Aligned(&mtx, &in2, &out);
-  _RAX = R_GetDepthHackViewParms(&result, &_RBX->viewParmsSet.frames[1].viewParms);
-  _RCX = &v385;
+  v10 = R_GetDepthHackViewParms(&result, &viewInfo->viewParmsSet.frames[1].viewParms);
+  v11 = &v147;
   do
   {
-    _RCX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxViewParms *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v42;
+    v11 += 128;
+    v12 = v10->viewMatrix.m.m[0];
+    v10 = (GfxViewParms *)((char *)v10 + 128);
+    *((vec4_t *)v11 - 8) = v12;
+    *((_OWORD *)v11 - 7) = *(_OWORD *)&v10[-1].camera.axis.row0.y;
+    *((_OWORD *)v11 - 6) = *(_OWORD *)&v10[-1].camera.axis.row1.z;
+    *((_OWORD *)v11 - 5) = *(_OWORD *)&v10[-1].camera.tanHalfFovX;
+    *((_OWORD *)v11 - 4) = *(_OWORD *)v10[-1].camera.zPlanes;
+    *((_OWORD *)v11 - 3) = *(_OWORD *)&v10[-1].camera.focalLength;
+    *((_OWORD *)v11 - 2) = *(_OWORD *)&v10[-1].camera.visibilityQueryDistance;
+    *((_OWORD *)v11 - 1) = *(_OWORD *)&v10[-1].cameraMotion;
+    --v6;
   }
-  while ( v42 );
-  MatrixForViewerOrthogonal(&_RBX->viewParmsSet.frames[0].viewParms.camera.origin, &_RBX->viewParmsSet.frames[1].viewParms.camera.axis, &in1);
-  MatrixMultiply44Aligned(&in1, &v386, &mat);
-  __asm
+  while ( v6 );
+  MatrixForViewerOrthogonal(&viewInfo->viewParmsSet.frames[0].viewParms.camera.origin, &viewInfo->viewParmsSet.frames[1].viewParms.camera.axis, &in1);
+  MatrixMultiply44Aligned(&in1, &v148, &mat);
+  vec.v[0] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[1].v[0]) + v133.v[0];
+  vec.v[1] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[1].v[1]) + v133.v[1];
+  vec.v[2] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[1].v[2]) + v133.v[2];
+  v139.v[0] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[2].v[0]) + v133.v[0];
+  v139.v[2] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[2].v[2]) + v133.v[2];
+  vec.v[3] = FLOAT_1_0;
+  v139.v[1] = (float)(scene.scope.scopeLensRadius * scene.scope.scopeLensAxis.m[2].v[1]) + v133.v[1];
+  v139.v[3] = FLOAT_1_0;
+  MatrixTransformVector44Aligned(&vec, &out, &v134);
+  MatrixTransformVector44Aligned(&v139, &out, &v135);
+  MatrixTransformVector44Aligned(&v133, &out, &v132);
+  MatrixTransformVector44Aligned(&v133, &mat, &v136);
+  if ( v132.v[3] < 0.00000011920929 || v136.v[3] < 0.00000011920929 )
   {
-    vmovss  xmm6, cs:?scene@@3UGfxScene@@A.scope.scopeLensRadius; GfxScene scene
-    vmulss  xmm0, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+0Ch; GfxScene scene
-    vaddss  xmm0, xmm0, dword ptr [rbp+660h+var_580]
-    vmulss  xmm1, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+10h; GfxScene scene
-    vmulss  xmm2, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+14h; GfxScene scene
-    vmovss  dword ptr [rbp+660h+vec], xmm0
-    vaddss  xmm0, xmm1, dword ptr [rbp+660h+var_580+4]
-    vmulss  xmm1, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+18h; GfxScene scene
-    vmovss  dword ptr [rbp+660h+vec+4], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rbp+660h+var_580+8]
-    vmulss  xmm2, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+1Ch; GfxScene scene
-    vmovss  dword ptr [rbp+660h+vec+8], xmm0
-    vaddss  xmm0, xmm1, dword ptr [rbp+660h+var_580]
-    vaddss  xmm1, xmm2, dword ptr [rbp+660h+var_580+4]
-    vmovss  dword ptr [rbp+660h+var_520], xmm0
-    vmulss  xmm0, xmm6, dword ptr cs:?scene@@3UGfxScene@@A.scope.scopeLensAxis+20h; GfxScene scene
-    vaddss  xmm2, xmm0, dword ptr [rbp+660h+var_580+8]
-    vmovss  dword ptr [rbp+660h+var_520+8], xmm2
-    vmovss  dword ptr [rbp+660h+vec+0Ch], xmm14
-    vmovss  dword ptr [rbp+660h+var_520+4], xmm1
-    vmovss  dword ptr [rbp+660h+var_520+0Ch], xmm14
-  }
-  MatrixTransformVector44Aligned(&vec, &out, &v372);
-  MatrixTransformVector44Aligned(&v377, &out, &v373);
-  MatrixTransformVector44Aligned(&v371, &out, &v370);
-  MatrixTransformVector44Aligned(&v371, &mat, &v374);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbp+660h+var_590+0Ch]
-    vmovss  xmm15, cs:__real@34000000
-    vcomiss xmm8, xmm15
-    vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000
-  }
-  if ( v321 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbp+660h+var_570], xmm7
-      vmovss  dword ptr [rbp+660h+var_570+4], xmm7
-      vmovss  dword ptr [rbp+660h+var_560], xmm7
-      vmovss  dword ptr [rbp+660h+var_560+4], xmm7
-      vmovss  dword ptr [rbp+660h+var_590], xmm7
-      vmovss  dword ptr [rbp+660h+var_590+4], xmm7
-      vmovss  dword ptr [rbp+660h+var_550], xmm7
-      vmovss  dword ptr [rbp+660h+var_550+4], xmm7
-    }
-    _RBX->scopeLensDistortionEnabled = 0;
-    __asm
-    {
-      vmovaps xmm8, xmm7
-      vmovaps xmm9, xmm7
-      vmovaps xmm2, xmm7
-      vmovaps xmm3, xmm7
-    }
+    v134.v[0] = 0.0;
+    v134.v[1] = 0.0;
+    v135.v[0] = 0.0;
+    v135.v[1] = 0.0;
+    v132.v[0] = 0.0;
+    v132.v[1] = 0.0;
+    v136.v[0] = 0.0;
+    v136.v[1] = 0.0;
+    viewInfo->scopeLensDistortionEnabled = 0;
+    v18 = 0.0;
+    v19 = 0i64;
+    v21 = 0.0;
+    v22 = 0i64;
   }
   else
   {
+    _XMM0 = LODWORD(v134.v[3]);
+    _XMM1 = LODWORD(v135.v[3]);
     __asm
     {
-      vmovss  xmm6, dword ptr [rbp+660h+var_550+0Ch]
-      vcomiss xmm6, xmm15
-      vmovss  xmm0, dword ptr [rbp+660h+var_570+0Ch]
-      vmovss  xmm1, dword ptr [rbp+660h+var_560+0Ch]
       vmaxss  xmm4, xmm1, xmm15
       vmaxss  xmm2, xmm0, xmm15
-      vdivss  xmm3, xmm14, xmm2
-      vmulss  xmm1, xmm3, dword ptr [rbp+660h+var_570]
-      vmulss  xmm0, xmm3, dword ptr [rbp+660h+var_570+4]
-      vmovss  dword ptr [rbp+660h+var_570], xmm1
-      vxorps  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbp+660h+var_570+4], xmm1
-      vdivss  xmm3, xmm14, xmm4
-      vmulss  xmm1, xmm3, dword ptr [rbp+660h+var_560]
-      vmulss  xmm0, xmm3, dword ptr [rbp+660h+var_560+4]
-      vmovss  dword ptr [rbp+660h+var_560], xmm1
-      vxorps  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbp+660h+var_570+0Ch], xmm2
-      vdivss  xmm2, xmm14, xmm8
-      vmulss  xmm8, xmm2, dword ptr [rbp+660h+var_590]
-      vmovss  dword ptr [rbp+660h+var_560+4], xmm1
-      vmulss  xmm1, xmm2, dword ptr [rbp+660h+var_590+4]
-      vxorps  xmm9, xmm1, xmm5
-      vdivss  xmm1, xmm14, xmm6
-      vmulss  xmm0, xmm1, dword ptr [rbp+660h+var_550+4]
-      vmulss  xmm2, xmm1, dword ptr [rbp+660h+var_550]
-      vxorps  xmm3, xmm0, xmm5
-      vmovss  dword ptr [rbp+660h+var_550+4], xmm3
-      vmovss  dword ptr [rbp+660h+var_560+0Ch], xmm4
-      vmovss  dword ptr [rbp+660h+var_590], xmm8
-      vmovss  dword ptr [rbp+660h+var_590+4], xmm9
-      vmovss  dword ptr [rbp+660h+var_550], xmm2
     }
+    v134.v[0] = (float)(1.0 / *(float *)&_XMM2) * v134.v[0];
+    LODWORD(v134.v[1]) = COERCE_UNSIGNED_INT((float)(1.0 / *(float *)&_XMM2) * v134.v[1]) ^ _xmm;
+    v135.v[0] = (float)(1.0 / *(float *)&_XMM4) * v135.v[0];
+    v134.v[3] = *(float *)&_XMM2;
+    v17 = LODWORD(FLOAT_1_0);
+    v18 = (float)(1.0 / v132.v[3]) * v132.v[0];
+    LODWORD(v135.v[1]) = COERCE_UNSIGNED_INT((float)(1.0 / *(float *)&_XMM4) * v135.v[1]) ^ _xmm;
+    *(float *)&v17 = (float)(1.0 / v132.v[3]) * v132.v[1];
+    v19 = v17 ^ (unsigned int)_xmm;
+    v20 = LODWORD(FLOAT_1_0);
+    *(float *)&v20 = (float)(1.0 / v136.v[3]) * v136.v[1];
+    v21 = (float)(1.0 / v136.v[3]) * v136.v[0];
+    v22 = v20 ^ (unsigned int)_xmm;
+    LODWORD(v136.v[1]) = v20 ^ _xmm;
+    v135.v[3] = *(float *)&_XMM4;
+    v132.v[0] = v18;
+    v132.v[1] = *(float *)&v19;
+    v136.v[0] = v21;
   }
-  v100 = _RBX->clientIndex <= (unsigned int)LOCAL_CLIENT_1;
+  v23 = v21 - v18;
+  v24 = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1]);
+  *(float *)&v24 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[1];
+  *(float *)&v24 = *(float *)&v24 * *(float *)&v24;
+  v25 = v24;
+  v27 = v22;
+  *(float *)&v27 = *(float *)&v22 - *(float *)&v19;
+  v26 = v27;
+  v28 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[0];
+  v29 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2] - viewInfo->viewParmsSet.frames[1].viewParms.camera.origin.v[2];
+  v30 = v25;
+  *(float *)&v30 = fsqrt((float)(*(float *)&v25 + (float)(v28 * v28)) + (float)(v29 * v29)) * (float)(1.0 / r_scope_relief_sway_cameradelta->current.value);
+  _XMM1 = v30;
+  __asm { vminss  xmm4, xmm1, xmm14 }
+  v33 = v26;
+  *(float *)&v33 = fsqrt((float)(*(float *)&v26 * *(float *)&v26) + (float)(v23 * v23)) * (float)(1.0 / r_scope_relief_sway_framedelta->current.value);
+  _XMM1 = v33;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+100h]
-    vmovss  xmm1, dword ptr [rbx+104h]
-    vsubss  xmm6, xmm2, xmm8
-    vsubss  xmm2, xmm1, dword ptr [rbx+284h]
-    vmulss  xmm2, xmm2, xmm2
-    vsubss  xmm5, xmm3, xmm9
-    vsubss  xmm3, xmm0, dword ptr [rbx+280h]
-    vmovss  xmm0, dword ptr [rbx+108h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+288h]
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vdivss  xmm0, xmm14, dword ptr [rax+28h]
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm1, xmm1, xmm0
-    vminss  xmm4, xmm1, xmm14
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm1, xmm2, xmm0
-    vdivss  xmm0, xmm14, dword ptr [rax+28h]
-    vsqrtss xmm3, xmm1, xmm1
-    vmulss  xmm1, xmm3, xmm0
     vminss  xmm2, xmm1, xmm14
     vmaxss  xmm5, xmm4, xmm2
-    vmulss  xmm3, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm1, xmm3, xmm0
-    vdivss  xmm0, xmm14, dword ptr [rax+28h]
-    vsqrtss xmm2, xmm1, xmm1
-    vmulss  xmm1, xmm2, xmm0
+  }
+  v37 = v19;
+  *(float *)&v37 = fsqrt((float)(*(float *)&v19 * *(float *)&v19) + (float)(v18 * v18)) * (float)(1.0 / r_scope_relief_sway_screendelta->current.value);
+  _XMM1 = v37;
+  __asm
+  {
     vminss  xmm2, xmm1, xmm14
     vmaxss  xmm13, xmm5, xmm2
-    vmulss  xmm3, xmm13, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedSway_movement; GfxScene scene
-    vmulss  xmm4, xmm13, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedSway_freq; GfxScene scene
-    vsubss  xmm5, xmm14, xmm13
-    vmulss  xmm2, xmm5, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleSway_movement; GfxScene scene
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm2, xmm5, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleSway_freq; GfxScene scene
-    vmovss  [rsp+760h+var_730], xmm0
-    vaddss  xmm0, xmm4, xmm2
-    vmulss  xmm12, xmm0, dword ptr [rax+7ACCh]
   }
-  if ( _RBX->clientIndex > (unsigned int)LOCAL_CLIENT_1 )
+  v125 = (float)(*(float *)&_XMM13 * scene.scope.scopeEyeRelief_fullSpeedSway_movement) + (float)((float)(1.0 - *(float *)&_XMM13) * scene.scope.scopeEyeRelief_idleSway_movement);
+  v42 = (float)((float)(*(float *)&_XMM13 * scene.scope.scopeEyeRelief_fullSpeedSway_freq) + (float)((float)(1.0 - *(float *)&_XMM13) * scene.scope.scopeEyeRelief_idleSway_freq)) * viewInfo->input.data->frameTime;
+  v41 = v42;
+  if ( viewInfo->clientIndex > (unsigned int)LOCAL_CLIENT_1 )
   {
-    v142 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4542, ASSERT_TYPE_ASSERT, "(viewInfo->clientIndex >= 0 && viewInfo->clientIndex < 2)", (const char *)&queryFormat, "viewInfo->clientIndex >= 0 && viewInfo->clientIndex < STATIC_MAX_LOCAL_CLIENTS", v364);
-    v100 = !v142;
-    if ( v142 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4542, ASSERT_TYPE_ASSERT, "(viewInfo->clientIndex >= 0 && viewInfo->clientIndex < 2)", (const char *)&queryFormat, "viewInfo->clientIndex >= 0 && viewInfo->clientIndex < STATIC_MAX_LOCAL_CLIENTS") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rbp+660h+var_590]
-      vmovss  xmm9, dword ptr [rbp+660h+var_590+4]
-    }
+    v18 = v132.v[0];
+    v19 = LODWORD(v132.v[1]);
   }
-  _RDI = _RBX->clientIndex;
-  __asm
+  clientIndex = viewInfo->clientIndex;
+  v45 = (float)(v42 * r_scope_relief_sway_freq_x->current.value) + funcTimeX[clientIndex];
+  v44 = v45;
+  funcTimeX[clientIndex] = v45;
+  if ( v45 > 1.0 )
   {
-    vmulss  xmm0, xmm12, dword ptr [rax+28h]
-    vaddss  xmm1, xmm0, rva funcTimeX[r15+rdi*4]
-    vcomiss xmm1, xmm14
-    vmovss  rva funcTimeX[r15+rdi*4], xmm1
+    v44 = v45 - 1.0;
+    funcTimeX[clientIndex] = v45 - 1.0;
   }
-  if ( !v100 )
+  v130 = (float)((float)(sinf_0((float)(v44 * 3.1415927) * 2.0) * 0.5) * 2.0) * v125;
+  v47 = (float)(v41 * r_scope_relief_sway_freq_y->current.value) + funcTimeY[clientIndex];
+  v46 = v47;
+  funcTimeY[clientIndex] = v47;
+  if ( v47 > 1.0 )
   {
-    __asm
-    {
-      vsubss  xmm1, xmm1, xmm14
-      vmovss  rva funcTimeX[r15+rdi*4], xmm1
-    }
+    v46 = v47 - 1.0;
+    funcTimeY[clientIndex] = v47 - 1.0;
   }
-  __asm
+  v126 = (float)((float)(sinf_0((float)(v46 * 3.1415927) * 2.0) * 0.5) * 2.0) * v125;
+  v48 = v19;
+  v49 = (float)((float)((float)(*(float *)&_XMM13 * scene.scope.scopeEyeRelief_fullSpeedMovementScale) + (float)((float)(1.0 - *(float *)&_XMM13) * scene.scope.scopeEyeRelief_idleMovementScale)) * scene.scope.scopeFadeInfo[0].fadeInFrac) + (float)((float)(1.0 - scene.scope.scopeFadeInfo[0].fadeInFrac) * scene.scope.scopeEyeRelief_hipMovementScale);
+  v50 = (float)(v18 * -2.0) * v49;
+  v51 = (float)(*(float *)&v19 * 2.0) * v49;
+  *(float *)&v48 = fsqrt((float)(v51 * v51) + (float)(v50 * v50));
+  _XMM4 = v48;
+  __asm { vcmpless xmm0, xmm4, cs:__real@80000000 }
+  v54 = (float)((float)(1.0 - scene.scope.scopeFadeInfo[0].fadeInFrac) * scene.scope.scopeEyeRelief_hipMaxMovement) + (float)(scene.scope.scopeFadeInfo[0].fadeInFrac * scene.scope.scopeEyeRelief_maxMovement);
+  __asm { vblendvps xmm0, xmm4, xmm14, xmm0 }
+  v56 = 1.0 / *(float *)&_XMM0;
+  if ( *(float *)&_XMM4 > v54 )
   {
-    vmovss  xmm6, cs:__real@40490fdb
-    vmovss  xmm11, cs:__real@40000000
-    vmulss  xmm0, xmm1, xmm6
-    vmulss  xmm0, xmm0, xmm11; X
+    v50 = (float)(v56 * v50) * v54;
+    v51 = (float)(v56 * v51) * v54;
   }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f000000
-    vmulss  xmm0, xmm0, xmm10
-    vmulss  xmm1, xmm0, xmm11
-    vmulss  xmm0, xmm1, [rsp+760h+var_730]
-    vmovss  [rsp+760h+var_720], xmm0
-    vmulss  xmm0, xmm12, dword ptr [rax+28h]
-    vaddss  xmm1, xmm0, rva funcTimeY[r15+rdi*4]
-    vcomiss xmm1, xmm14
-    vmovss  rva funcTimeY[r15+rdi*4], xmm1
-  }
-  if ( !(v321 | v322) )
-  {
-    __asm
-    {
-      vsubss  xmm1, xmm1, xmm14
-      vmovss  rva funcTimeY[r15+rdi*4], xmm1
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm6
-    vmulss  xmm0, xmm0, xmm11; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm6, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac; GfxScene scene
-    vmulss  xmm3, xmm13, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_fullSpeedMovementScale; GfxScene scene
-    vmulss  xmm1, xmm0, xmm10
-    vmulss  xmm2, xmm1, xmm11
-    vmulss  xmm0, xmm2, [rsp+760h+var_730]
-    vmovss  [rsp+760h+var_730], xmm0
-    vsubss  xmm5, xmm14, xmm6
-    vmulss  xmm1, xmm9, xmm11
-    vsubss  xmm2, xmm14, xmm13
-    vmulss  xmm2, xmm2, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_idleMovementScale; GfxScene scene
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm2, xmm5, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_hipMovementScale; GfxScene scene
-    vmulss  xmm4, xmm0, xmm6
-    vmulss  xmm0, xmm8, cs:__real@c0000000
-    vaddss  xmm3, xmm4, xmm2
-    vmulss  xmm8, xmm0, xmm3
-    vmulss  xmm9, xmm1, xmm3
-    vmulss  xmm3, xmm5, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_hipMaxMovement; GfxScene scene
-    vmulss  xmm2, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm6, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_maxMovement; GfxScene scene
-    vsqrtss xmm4, xmm1, xmm1
-    vcmpless xmm0, xmm4, cs:__real@80000000
-    vaddss  xmm5, xmm3, xmm2
-    vcomiss xmm4, xmm5
-    vblendvps xmm0, xmm4, xmm14, xmm0
-    vdivss  xmm12, xmm14, xmm0
-  }
-  if ( !(v321 | v322) )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm12, xmm8
-      vmulss  xmm1, xmm12, xmm9
-      vmulss  xmm8, xmm0, xmm5
-      vmulss  xmm9, xmm1, xmm5
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+760h+var_72C]
-    vmovss  xmm1, cs:__real@38d1b717; min
-    vmulss  xmm2, xmm0, xmm0
-    vmovss  xmm0, [rsp+760h+var_728]
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  xmm0, [rsp+760h+var_724]
-    vmulss  xmm2, xmm0, xmm0
-    vaddss  xmm3, xmm3, xmm2
-    vmovss  xmm2, cs:__real@42480000; max
-    vsqrtss xmm0, xmm3, xmm3
-    vsubss  xmm6, xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_focusDistance; GfxScene scene
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_outOfFocusDistance; val
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm0, xmm6, xmm0; val
-    vmovaps xmm2, xmm14; max
-    vmovaps xmm1, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
+  v57 = fsqrt((float)((float)(v127 * v127) + (float)(v128 * v128)) + (float)(v129 * v129)) - scene.scope.scopeEyeRelief_focusDistance;
+  v58 = I_fclamp(scene.scope.scopeEyeRelief_outOfFocusDistance, 0.000099999997, 50.0);
+  v59 = I_fclamp(COERCE_FLOAT(LODWORD(v57) & _xmm) / *(float *)&v58, 0.0, 1.0);
   if ( r_scope_relief_mul_aspect_ratio->current.enabled )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vdivss  xmm2, xmm1, dword ptr [rbx+130h]
-    }
-  }
+    v60 = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY / viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
   else
-  {
-    __asm { vmovaps xmm2, xmm14 }
-  }
-  __asm
-  {
-    vaddss  xmm5, xmm8, [rsp+760h+var_720]
-    vaddss  xmm0, xmm9, [rsp+760h+var_730]
-    vmulss  xmm4, xmm0, xmm2
-    vmulss  xmm2, xmm6, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_outOfFocuseUVScale; GfxScene scene
-    vsubss  xmm1, xmm14, xmm6
-    vmulss  xmm3, xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeEyeRelief_focuseUVScale; GfxScene scene
-    vmovss  dword ptr [rbx+2320h], xmm5
-    vmovss  xmm5, dword ptr [rbp+660h+var_590]
-    vmovss  dword ptr [rbx+2324h], xmm4
-    vmovss  xmm4, dword ptr [rbp+660h+var_590+4]
-    vaddss  xmm1, xmm3, xmm2
-    vmovss  dword ptr [rbx+2328h], xmm1
-    vaddss  xmm1, xmm4, xmm14
-    vmulss  xmm7, xmm1, xmm10
-    vmovss  xmm1, dword ptr [rbp+660h+var_570+4]
-    vsubss  xmm2, xmm1, xmm4
-    vmovss  xmm1, dword ptr [rbp+660h+var_560+4]
-    vsubss  xmm4, xmm1, xmm4
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm0, xmm5, xmm14
-    vmulss  xmm8, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rbp+660h+var_570]
-    vsubss  xmm3, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rbp+660h+var_560]
-    vsubss  xmm5, xmm0, xmm5
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmulss  xmm1, xmm4, xmm4
-    vmaxss  xmm3, xmm2, xmm15
-    vdivss  xmm6, xmm11, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vmovss  xmm5, dword ptr [rbp+660h+var_580+8]
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
-    vmaxss  xmm3, xmm2, xmm15
-    vmovss  xmm2, dword ptr [rbp+660h+var_580+4]
-    vdivss  xmm0, xmm11, xmm3
-    vmovss  xmm3, dword ptr [rbp+660h+var_580]
-  }
-  _RBX->input.sceneConstants.scopeEyeRelief.v[3] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+2310h], xmm8
-    vmovss  dword ptr [rbx+2314h], xmm7
-    vmovss  dword ptr [rbx+2318h], xmm6
-    vmovss  dword ptr [rbx+231Ch], xmm0
-    vmovss  xmm1, dword ptr [r14+75A850h]
-    vmulss  xmm11, xmm1, dword ptr [r14+75A830h]
-    vmulss  xmm9, xmm1, dword ptr [r14+75A824h]
-    vmulss  xmm4, xmm1, dword ptr [r14+75A828h]
-    vmulss  xmm6, xmm1, dword ptr [r14+75A82Ch]
-    vmulss  xmm12, xmm1, dword ptr [r14+75A834h]
-    vmulss  xmm13, xmm1, dword ptr [r14+75A838h]
-    vsubss  xmm7, xmm2, xmm4
-    vsubss  xmm8, xmm3, xmm9
-    vaddss  xmm4, xmm4, xmm2
-    vsubss  xmm0, xmm8, xmm11
-    vmovss  [rbp+660h+var_100], xmm0
-    vsubss  xmm10, xmm5, xmm6
-    vsubss  xmm0, xmm7, xmm12
-    vmovss  [rbp+660h+var_FC], xmm0
-    vsubss  xmm1, xmm10, xmm13
-    vmovss  [rbp+660h+var_F8], xmm1
-    vaddss  xmm3, xmm9, xmm3
-    vsubss  xmm0, xmm3, xmm11
-    vmovss  [rbp+660h+var_F4], xmm0
-    vaddss  xmm2, xmm6, xmm5
-    vsubss  xmm1, xmm4, xmm12
-    vmovss  [rbp+660h+var_F0], xmm1
-    vsubss  xmm0, xmm2, xmm13
-    vmovss  [rbp+660h+var_EC], xmm0
-    vaddss  xmm1, xmm3, xmm11
-    vaddss  xmm0, xmm12, xmm4
-    vmovss  [rbp+660h+var_E8], xmm1
-    vaddss  xmm1, xmm2, xmm13
-    vmovss  [rbp+660h+var_E4], xmm0
-    vaddss  xmm0, xmm8, xmm11
-    vmovss  [rbp+660h+var_E0], xmm1
-    vaddss  xmm1, xmm7, xmm12
-    vmovss  [rbp+660h+var_DC], xmm0
-    vaddss  xmm0, xmm10, xmm13
-    vmovss  [rbp+660h+var_D8], xmm1
-    vmovss  xmm6, cs:__real@7f7fffff
-    vmovss  xmm7, cs:__real@ff7fffff
-    vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm8, xmm6
-    vmovaps xmm9, xmm7
-    vmovss  [rbp+660h+var_D4], xmm0
-  }
-  v273 = 0;
-  _RDI = v388;
-  v275 = 4i64;
+    v60 = FLOAT_1_0;
+  v61 = (float)(v51 + v126) * v60;
+  v62 = *(float *)&v59 * scene.scope.scopeEyeRelief_outOfFocuseUVScale;
+  v63 = (float)(1.0 - *(float *)&v59) * scene.scope.scopeEyeRelief_focuseUVScale;
+  viewInfo->input.sceneConstants.scopeEyeRelief.v[0] = v50 + v130;
+  v64 = v132.v[0];
+  viewInfo->input.sceneConstants.scopeEyeRelief.v[1] = v61;
+  v65 = v132.v[1];
+  viewInfo->input.sceneConstants.scopeEyeRelief.v[2] = v63 + v62;
+  v66 = (float)(v65 + 1.0) * 0.5;
+  v68 = LODWORD(v134.v[1]);
+  *(float *)&v68 = v134.v[1] - v65;
+  v67 = v68;
+  v70 = LODWORD(v135.v[1]);
+  *(float *)&v70 = v135.v[1] - v65;
+  v69 = v70;
+  v71 = v67;
+  v72 = (float)(v64 + 1.0) * 0.5;
+  *(float *)&v71 = fsqrt((float)(*(float *)&v67 * *(float *)&v67) + (float)((float)(v134.v[0] - v64) * (float)(v134.v[0] - v64)));
+  _XMM2 = v71;
+  v74 = v69;
+  __asm { vmaxss  xmm3, xmm2, xmm15 }
+  v76 = 2.0 / *(float *)&_XMM3;
+  v77 = (float)(v135.v[0] - v64) * (float)(v135.v[0] - v64);
+  v78 = v133.v[2];
+  *(float *)&v74 = fsqrt((float)(*(float *)&v69 * *(float *)&v69) + v77);
+  _XMM2 = v74;
+  __asm { vmaxss  xmm3, xmm2, xmm15 }
+  *(float *)&_XMM2 = v133.v[1];
+  v81 = 2.0 / *(float *)&_XMM3;
+  *(float *)&_XMM3 = v133.v[0];
+  viewInfo->input.sceneConstants.scopeEyeRelief.v[3] = 0.0;
+  viewInfo->input.sceneConstants.scopeLensPos.v[0] = v72;
+  viewInfo->input.sceneConstants.scopeLensPos.v[1] = v66;
+  viewInfo->input.sceneConstants.scopeLensPos.v[2] = v76;
+  viewInfo->input.sceneConstants.scopeLensPos.v[3] = v81;
+  scopeLensRadius = data->scope.scopeLensRadius;
+  v83 = scopeLensRadius * data->scope.scopeLensAxis.m[2].v[0];
+  v84 = scopeLensRadius * data->scope.scopeLensAxis.m[1].v[0];
+  *(float *)&v69 = scopeLensRadius * data->scope.scopeLensAxis.m[1].v[1];
+  v85 = scopeLensRadius * data->scope.scopeLensAxis.m[1].v[2];
+  v86 = scopeLensRadius * data->scope.scopeLensAxis.m[2].v[1];
+  v87 = scopeLensRadius * data->scope.scopeLensAxis.m[2].v[2];
+  v88 = *(float *)&_XMM2 - *(float *)&v69;
+  v89 = *(float *)&_XMM3 - v84;
+  *(float *)&v69 = *(float *)&v69 + *(float *)&_XMM2;
+  v149 = (float)(*(float *)&_XMM3 - v84) - v83;
+  *(float *)v150 = v88 - v86;
+  *(float *)&v150[1] = (float)(v78 - v85) - v87;
+  *(float *)&_XMM3 = v84 + *(float *)&_XMM3;
+  *(float *)&v150[2] = *(float *)&_XMM3 - v83;
+  *(float *)&v150[3] = *(float *)&v69 - v86;
+  *(float *)&v150[4] = (float)(v85 + v78) - v87;
+  *(float *)&v150[5] = *(float *)&_XMM3 + v83;
+  *(float *)&v150[6] = v86 + *(float *)&v69;
+  *(float *)&v150[7] = (float)(v85 + v78) + v87;
+  *(float *)&v150[8] = v89 + v83;
+  *(float *)&v74 = (float)(v78 - v85) + v87;
+  *(float *)&v150[9] = v88 + v86;
+  _XMM6 = LODWORD(FLOAT_3_4028235e38);
+  _XMM7 = LODWORD(FLOAT_N3_4028235e38);
+  _XMM8 = LODWORD(FLOAT_3_4028235e38);
+  _XMM9 = LODWORD(FLOAT_N3_4028235e38);
+  v150[10] = v74;
+  v94 = 0;
+  v95 = (float *)v150;
+  v96 = 4i64;
   do
   {
-    __asm
+    v97 = *v95;
+    v140.v[0] = *(v95 - 1);
+    v140.v[2] = v95[1];
+    v140.v[1] = v97;
+    v140.v[3] = FLOAT_1_0;
+    MatrixTransformVector44Aligned(&v140, &out, &v137);
+    if ( v137.v[3] > 0.00000011920929 )
     {
-      vmovss  xmm0, dword ptr [rdi-4]
-      vmovss  xmm1, dword ptr [rdi]
-      vmovss  dword ptr [rbp+660h+var_510], xmm0
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rbp+660h+var_510+8], xmm0
-      vmovss  dword ptr [rbp+660h+var_510+4], xmm1
-      vmovss  dword ptr [rbp+660h+var_510+0Ch], xmm14
-    }
-    MatrixTransformVector44Aligned(&v378, &out, &v375);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+660h+var_540+0Ch]
-      vcomiss xmm0, xmm15
-    }
-    if ( !(v321 | v322) )
-    {
+      LODWORD(v137.v[1]) = COERCE_UNSIGNED_INT((float)(1.0 / v137.v[3]) * v137.v[1]) ^ _xmm;
       __asm
       {
-        vdivss  xmm0, xmm14, xmm0
-        vmulss  xmm2, xmm0, dword ptr [rbp+660h+var_540]
-        vmulss  xmm0, xmm0, dword ptr [rbp+660h+var_540+4]
-        vxorps  xmm1, xmm0, xmm10
-        vmovss  dword ptr [rbp+660h+var_540+4], xmm1
         vminss  xmm8, xmm8, xmm1
         vmaxss  xmm9, xmm9, xmm1
-        vmovss  dword ptr [rbp+660h+var_540], xmm2
+      }
+      v137.v[0] = (float)(1.0 / v137.v[3]) * v137.v[0];
+      __asm
+      {
         vminss  xmm6, xmm6, xmm2
         vmaxss  xmm7, xmm7, xmm2
       }
-      ++v273;
+      ++v94;
     }
-    _RDI += 3;
-    --v275;
+    v95 += 3;
+    --v96;
   }
-  while ( v275 );
-  if ( v273 == 4 )
+  while ( v96 );
+  if ( v94 == 4 )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f000000
-      vaddss  xmm0, xmm6, xmm14
-      vmulss  xmm5, xmm0, xmm2
-      vaddss  xmm1, xmm8, xmm14
-      vmulss  xmm4, xmm1, xmm2
-      vaddss  xmm0, xmm7, xmm14
-      vmulss  xmm3, xmm0, xmm2
-      vaddss  xmm1, xmm9, xmm14
-      vmulss  xmm2, xmm1, xmm2
-      vmovss  dword ptr [rbx+233Ch], xmm2
-      vmovss  dword ptr [rbx+2330h], xmm5
-      vmovss  dword ptr [rbx+2334h], xmm4
-      vmovss  dword ptr [rbx+2338h], xmm3
-    }
+    viewInfo->input.sceneConstants.scopeLensBounds.v[3] = (float)(*(float *)&_XMM9 + 1.0) * 0.5;
+    viewInfo->input.sceneConstants.scopeLensBounds.v[0] = (float)(*(float *)&_XMM6 + 1.0) * 0.5;
+    viewInfo->input.sceneConstants.scopeLensBounds.v[1] = (float)(*(float *)&_XMM8 + 1.0) * 0.5;
+    viewInfo->input.sceneConstants.scopeLensBounds.v[2] = (float)(*(float *)&_XMM7 + 1.0) * 0.5;
   }
   else
   {
-    *(_QWORD *)_RBX->input.sceneConstants.scopeLensBounds.v = 0i64;
-    *(_QWORD *)&_RBX->input.sceneConstants.scopeLensBounds.xyz.z = 0i64;
+    *(_QWORD *)viewInfo->input.sceneConstants.scopeLensBounds.v = 0i64;
+    *(_QWORD *)&viewInfo->input.sceneConstants.scopeLensBounds.xyz.z = 0i64;
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40400000; max
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensInnerDiskMag; val
-    vmovss  xmm10, cs:?scene@@3UGfxScene@@A.scope.scopeLensInnerDisk; GfxScene scene
-    vmovaps xmm1, xmm14; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40400000; max
-    vmovss  xmm7, cs:?scene@@3UGfxScene@@A.scope.scopeLensOuterRing; GfxScene scene
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensOuterRingMag; val
-    vmovaps xmm1, xmm14; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3b800000
-    vaddss  xmm1, xmm10, xmm9
-    vmaxss  xmm2, xmm1, xmm7
-    vdivss  xmm6, xmm14, xmm0
-    vsubss  xmm0, xmm2, xmm10; val
-    vmovaps xmm2, xmm14; max
-    vmovaps xmm1, xmm9; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx+22E0h], xmm10
-    vdivss  xmm3, xmm14, xmm0
-    vmovss  dword ptr [rbx+22E4h], xmm3
-    vdivss  xmm0, xmm14, xmm8
-    vminss  xmm1, xmm0, xmm14
-    vmovss  dword ptr [rbx+22E8h], xmm1
-    vminss  xmm2, xmm6, xmm14
-    vmovss  dword ptr [rbx+22ECh], xmm2
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeEnd; GfxScene scene
-    vminss  xmm4, xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeStart; GfxScene scene
-    vmovss  xmm3, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeOutFrac; GfxScene scene
-    vaddss  xmm0, xmm4, xmm9
-    vmaxss  xmm1, xmm0, xmm1
-    vsubss  xmm2, xmm1, xmm4
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac; GfxScene scene
-    vmovss  dword ptr [rbx+22F0h], xmm4
-    vdivss  xmm0, xmm14, xmm2
-    vmovss  dword ptr [rbx+22F4h], xmm0
-    vmovss  dword ptr [rbx+22F8h], xmm1
-    vmovss  dword ptr [rbx+22FCh], xmm3
-  }
-  v321 = 0;
-  v322 = !scene.scope.scopeUseHybridSetup;
-  __asm
-  {
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeOutFrac; GfxScene scene
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac; GfxScene scene
-  }
+  scopeLensInnerDisk_low = LODWORD(scene.scope.scopeLensInnerDisk);
+  v99 = I_fclamp(scene.scope.scopeLensInnerDiskMag, 1.0, 3.0);
+  v100 = *(float *)&v99;
+  v101 = I_fclamp(scene.scope.scopeLensOuterRingMag, 1.0, 3.0);
+  v103 = scopeLensInnerDisk_low;
+  *(float *)&v103 = *(float *)&scopeLensInnerDisk_low + 0.00390625;
+  _XMM1 = v103;
+  __asm { vmaxss  xmm2, xmm1, xmm7 }
+  v106 = LODWORD(FLOAT_1_0);
+  *(float *)&v106 = 1.0 / *(float *)&v101;
+  _XMM6 = v106;
+  v107 = I_fclamp(*(float *)&_XMM2 - *(float *)&scopeLensInnerDisk_low, 0.00390625, 1.0);
+  viewInfo->input.sceneConstants.scopeLensDistortion.v[0] = *(float *)&scopeLensInnerDisk_low;
+  viewInfo->input.sceneConstants.scopeLensDistortion.v[1] = 1.0 / *(float *)&v107;
+  v109 = LODWORD(FLOAT_1_0);
+  *(float *)&v109 = 1.0 / v100;
+  _XMM0 = v109;
+  __asm { vminss  xmm1, xmm0, xmm14 }
+  viewInfo->input.sceneConstants.scopeLensDistortion.v[2] = *(float *)&_XMM1;
+  __asm { vminss  xmm2, xmm6, xmm14 }
+  viewInfo->input.sceneConstants.scopeLensDistortion.v[3] = *(float *)&_XMM2;
+  _XMM1 = LODWORD(scene.scope.scopeLensFadeEnd);
+  __asm { vminss  xmm4, xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensFadeStart; GfxScene scene }
+  fadeOutFrac = scene.scope.scopeFadeInfo[0].fadeOutFrac;
+  v116 = _XMM4;
+  *(float *)&v116 = *(float *)&_XMM4 + 0.00390625;
+  _XMM0 = v116;
+  __asm { vmaxss  xmm1, xmm0, xmm1 }
+  *(float *)&_XMM2 = *(float *)&_XMM1 - *(float *)&_XMM4;
+  *(float *)&_XMM1 = scene.scope.scopeFadeInfo[0].fadeInFrac;
+  viewInfo->input.sceneConstants.scopeLensFade.v[0] = *(float *)&_XMM4;
+  viewInfo->input.sceneConstants.scopeLensFade.v[1] = 1.0 / *(float *)&_XMM2;
+  viewInfo->input.sceneConstants.scopeLensFade.v[2] = *(float *)&_XMM1;
+  viewInfo->input.sceneConstants.scopeLensFade.v[3] = fadeOutFrac;
+  fadeInFrac = scene.scope.scopeFadeInfo[0].fadeInFrac;
   if ( scene.scope.scopeUseHybridSetup )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeOutFrac+8; GfxScene scene
-      vmovss  xmm3, cs:?scene@@3UGfxScene@@A.scope.scopeFadeInfo.fadeInFrac+8; GfxScene scene
-    }
+    v119 = scene.scope.scopeFadeInfo[1].fadeOutFrac;
+    v120 = scene.scope.scopeFadeInfo[1].fadeInFrac;
   }
   else
   {
-    __asm
-    {
-      vmovaps xmm2, xmm0
-      vmovaps xmm3, xmm1
-    }
+    v119 = scene.scope.scopeFadeInfo[0].fadeOutFrac;
+    v120 = scene.scope.scopeFadeInfo[0].fadeInFrac;
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3d20e411
-    vmovss  xmm8, cs:__real@3f72a76f
-    vmovss  xmm9, cs:__real@3d55891a
-    vmovss  xmm10, cs:__real@4019999a
-    vmovss  xmm6, cs:__real@3d9e8391
-    vmovss  dword ptr [rbx+2300h], xmm0
-    vmovss  dword ptr [rbx+2304h], xmm1
-    vmovss  dword ptr [rbx+2308h], xmm2
-    vmovss  dword ptr [rbx+230Ch], xmm3
-    vmovss  xmm0, cs:?scene@@3UGfxScene@@A.scope.scopeLensColorRed; GfxScene scene
-    vcomiss xmm0, xmm7
-  }
-  if ( v322 )
-  {
-    __asm { vmulss  xmm12, xmm0, xmm6 }
-  }
+  viewInfo->input.sceneConstants.scopeLensFadeForHybrid.v[0] = scene.scope.scopeFadeInfo[0].fadeOutFrac;
+  viewInfo->input.sceneConstants.scopeLensFadeForHybrid.v[1] = fadeInFrac;
+  viewInfo->input.sceneConstants.scopeLensFadeForHybrid.v[2] = v119;
+  viewInfo->input.sceneConstants.scopeLensFadeForHybrid.v[3] = v120;
+  if ( scene.scope.scopeLensColorRed > 0.039280001 )
+    v121 = powf_0((float)(scene.scope.scopeLensColorRed * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm8
-      vaddss  xmm0, xmm0, xmm9; X
-      vmovaps xmm1, xmm10; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm12, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensColorGreen; GfxScene scene
-    vcomiss xmm1, xmm7
-  }
-  if ( v321 | v322 )
-  {
-    __asm { vmulss  xmm11, xmm1, xmm6 }
-  }
+    v121 = scene.scope.scopeLensColorRed * 0.077399381;
+  if ( scene.scope.scopeLensColorGreen > 0.039280001 )
+    v122 = powf_0((float)(scene.scope.scopeLensColorGreen * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm8
-      vaddss  xmm0, xmm0, xmm9; X
-      vmovaps xmm1, xmm10; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm11, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensColorBlue; GfxScene scene
-    vcomiss xmm1, xmm7
-  }
-  if ( v321 | v322 )
-  {
-    __asm { vmulss  xmm0, xmm1, xmm6 }
-  }
+    v122 = scene.scope.scopeLensColorGreen * 0.077399381;
+  if ( scene.scope.scopeLensColorBlue > 0.039280001 )
+    v123 = powf_0((float)(scene.scope.scopeLensColorBlue * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm8
-      vaddss  xmm0, xmm0, xmm9; X
-      vmovaps xmm1, xmm10; Y
-    }
-    powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  }
-  __asm
-  {
-    vmovss  xmm1, cs:?scene@@3UGfxScene@@A.scope.scopeLensBrightness; GfxScene scene
-    vmulss  xmm2, xmm1, xmm12
-    vmovss  dword ptr [rbx+22D0h], xmm2
-    vmulss  xmm3, xmm1, xmm11
-    vmovss  dword ptr [rbx+22D4h], xmm3
-    vmulss  xmm0, xmm1, xmm0
-    vmovss  dword ptr [rbx+22D8h], xmm0
-  }
-  _RBX->input.sceneConstants.scopeLensColor.v[3] = 1.0;
-  _R11 = &v389;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+    v123 = scene.scope.scopeLensColorBlue * 0.077399381;
+  scopeLensBrightness = scene.scope.scopeLensBrightness;
+  viewInfo->input.sceneConstants.scopeLensColor.v[0] = scene.scope.scopeLensBrightness * v121;
+  viewInfo->input.sceneConstants.scopeLensColor.v[1] = scopeLensBrightness * v122;
+  viewInfo->input.sceneConstants.scopeLensColor.v[2] = scopeLensBrightness * v123;
+  viewInfo->input.sceneConstants.scopeLensColor.v[3] = 1.0;
 }
 
 /*
@@ -15781,123 +12419,222 @@ R_SetupViewInfo
 */
 void R_SetupViewInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms, const GfxViewParmsSet *viewParmsSet)
 {
-  signed int height; 
-  const dvar_t *v16; 
+  int height; 
+  const dvar_t *v7; 
   signed int integer; 
-  __int64 v18; 
+  __int64 v9; 
   __int64 clientIndex; 
-  __int64 v20; 
-  unsigned int v21; 
-  unsigned int v22; 
+  __int64 v11; 
+  unsigned int v12; 
+  unsigned int v13; 
   int voxelTreeCount; 
-  int v24; 
-  int v25; 
+  int v15; 
+  unsigned int v16; 
   GfxVoxelTree *voxelTree; 
-  unsigned int v28; 
-  __int64 v47; 
-  bool v63; 
-  int v89; 
-  char v90; 
-  int v93; 
-  char daltonizeMode; 
+  vec3_t *p_halfSize; 
+  unsigned int v19; 
+  GfxHeightfield *v20; 
+  GfxHeightfield *heightfields; 
+  unsigned __int64 voxelTreeZoneIndex; 
+  GfxBackEndData *v23; 
+  __int64 v24; 
+  GfxViewInfo *v25; 
+  vec4_t v26; 
+  int v28; 
+  char v29; 
+  float value; 
+  int v31; 
+  GfxDaltonizeType daltonizeMode; 
+  GfxDaltonizeType v33; 
   bool enabled; 
-  bool v96; 
-  int v99; 
-  char v100; 
-  bool v101; 
-  bool v102; 
+  bool v35; 
+  bool v36; 
+  float v37; 
+  int v38; 
+  GfxDaltonizeType v39; 
+  GfxDaltonizeType v40; 
+  bool v41; 
+  bool v42; 
+  bool v43; 
   const GfxImage *ProbeOctahedronImageArray; 
   GfxImage *blackImageCube; 
   GfxImage *blackImage; 
-  char v114; 
-  bool v115; 
-  char v126; 
+  double v47; 
+  float width; 
+  float v49; 
+  float v50; 
+  float spotOmniScreenSpaceShadowsTraceDistance; 
+  float spotOmniScreenSpaceShadowsSamplesPerLight; 
+  float m_fade; 
+  float v59; 
+  bool v60; 
+  float worldMotionBlurOverride; 
+  float v62; 
+  float v65; 
+  float v66; 
   unsigned int FrustumHeight; 
   unsigned int FrustumWidth; 
-  bool v143; 
-  const dvar_t *v144; 
-  const dvar_t *v145; 
-  float *v165; 
-  __int64 v170; 
-  bool Bool_Internal; 
-  bool v235; 
-  int v244; 
-  int v245; 
+  bool v69; 
+  const dvar_t *v70; 
+  const dvar_t *v71; 
+  GfxBackEndData *v72; 
+  float v73; 
+  const dvar_t *v74; 
+  float v75; 
+  float v76; 
+  float *v77; 
+  GfxFog *p_fog; 
+  __int64 v79; 
+  GfxFog *v80; 
+  __int128 v81; 
+  const dvar_t *v82; 
+  const dvar_t *v83; 
+  const dvar_t *v84; 
+  const dvar_t *v85; 
+  const dvar_t *v86; 
+  const dvar_t *v87; 
+  float v88; 
+  const dvar_t *v89; 
+  const dvar_t *v90; 
+  const dvar_t *v91; 
+  const dvar_t *v92; 
+  __int128 unsignedInt; 
+  __int128 v96; 
+  float v99; 
+  float rimLightStartDistance; 
+  float v101; 
+  float v102; 
+  float rimLightFill; 
+  int v104; 
+  int v105; 
   float viewModelFocusDistance; 
-  bool v254; 
-  int v255; 
-  const dvar_t *v264; 
-  const dvar_t *v265; 
-  const dvar_t *v266; 
-  bool v267; 
-  char v287; 
+  double Float_Internal; 
+  double v108; 
+  double v109; 
+  bool v110; 
+  int v111; 
+  const dvar_t *v115; 
+  const dvar_t *v116; 
+  const dvar_t *v117; 
+  bool v118; 
+  bool v119; 
+  const dvar_t *v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  char v124; 
+  GfxColorGrading *p_colorGrading; 
   const GfxGradingClut *nvgColorGrading; 
   unsigned int LightmapAtlasTextureSize; 
+  float v128; 
+  float v129; 
   unsigned int LightGridVolumesAtlasTextureDepth; 
+  float v131; 
+  float v132; 
+  float eyeHighlightIntensity; 
+  float v134; 
+  float v135; 
+  float eyeHighlightBulbRadius; 
+  float v137; 
+  GfxHudOutlineState *p_hudOutline; 
+  GfxHudOutlineState *v139; 
+  vec4_t v140; 
+  float sceneRtWidth; 
+  int sceneRtHeight; 
+  float v143; 
+  float v144; 
+  float tanHalfFovY; 
+  float v146; 
+  float tanHalfFovX; 
+  float v148; 
+  float v149; 
+  float v150; 
+  float v151; 
+  float v152; 
+  float v153; 
+  float v154; 
+  float v155; 
+  float v156; 
+  float v157; 
+  float skyBlendFeather; 
+  float v159; 
+  float v160; 
+  float v161; 
+  float v162; 
+  float v164; 
+  float v165; 
   unsigned int *outReProjFloatZWidth; 
-  unsigned int *outReProjFloatZWidtha; 
   unsigned int *outReProjFloatZHeight; 
-  unsigned int *outReProjFloatZHeighta; 
-  double v475; 
-  unsigned int ReflectionProbeCount; 
-  int v477; 
-  __m256i v478; 
-  vec2_t InterleavedInfo; 
+  float v169; 
+  R_RT_ColorHandle v170; 
+  float v171; 
+  float v172; 
+  float v173; 
+  float v174; 
+  float v175; 
+  float v176; 
+  float v177; 
+  float v178; 
+  float v179; 
+  float v180; 
+  float v181; 
+  float v182; 
+  float v183; 
+  float v184; 
+  float v185; 
+  float v186; 
+  float v187; 
+  float v188; 
+  float v189; 
+  float v190; 
   vec4_t result; 
-  vec4_t v519; 
+  vec4_t v192; 
   vec4_t vec; 
   tmat33_t<vec3_t> axis; 
+  float v195; 
+  float v196; 
+  float v197; 
+  float v198; 
+  float v199; 
+  float v200; 
   vec4_t out; 
   tmat44_t<vec4_t> dst; 
-  char v533; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-0A8h], xmm14
-  }
-  _RSI = sceneParms;
-  _RBX = viewParmsSet;
-  _RDI = viewInfo;
   if ( !sceneParms->sceneRtWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6340, ASSERT_TYPE_ASSERT, "( ( sceneParms->sceneRtWidth > 0 ) )", "( sceneParms->sceneRtWidth ) = %i", 0) )
     __debugbreak();
-  if ( !_RSI->sceneRtHeight )
+  if ( !sceneParms->sceneRtHeight )
   {
     LODWORD(outReProjFloatZWidth) = 0;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6341, ASSERT_TYPE_ASSERT, "( ( sceneParms->sceneRtHeight > 0 ) )", "( sceneParms->sceneRtHeight ) = %i", outReProjFloatZWidth) )
       __debugbreak();
   }
-  if ( !_RSI->sceneViewport.width )
+  if ( !sceneParms->sceneViewport.width )
   {
     LODWORD(outReProjFloatZWidth) = 0;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6344, ASSERT_TYPE_ASSERT, "( ( sceneParms->sceneViewport.width > 0 ) )", "( sceneParms->sceneViewport.width ) = %i", outReProjFloatZWidth) )
       __debugbreak();
   }
-  if ( !_RSI->sceneViewport.height )
+  if ( !sceneParms->sceneViewport.height )
   {
     LODWORD(outReProjFloatZWidth) = 0;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6345, ASSERT_TYPE_ASSERT, "( ( sceneParms->sceneViewport.height > 0 ) )", "( sceneParms->sceneViewport.height ) = %i", outReProjFloatZWidth) )
       __debugbreak();
   }
-  R_CopyCmdBufInput(&_RDI->input, &g_gfxCmdBufInput);
-  _RDI->input.data = frontEndDataOut;
-  *((_BYTE *)&_RDI->input + 7920) ^= (*((_BYTE *)&_RDI->input + 7920) ^ (2 * r_balanceOpaqueLists->current.enabled)) & 2;
-  _RDI->input.resolution = _RSI->resolution;
-  if ( _RSI->resolution.step == GFX_RESOLUTION_STEP_NONE )
+  R_CopyCmdBufInput(&viewInfo->input, &g_gfxCmdBufInput);
+  viewInfo->input.data = frontEndDataOut;
+  *((_BYTE *)&viewInfo->input + 7920) ^= (*((_BYTE *)&viewInfo->input + 7920) ^ (2 * r_balanceOpaqueLists->current.enabled)) & 2;
+  viewInfo->input.resolution = sceneParms->resolution;
+  if ( sceneParms->resolution.step == GFX_RESOLUTION_STEP_NONE )
   {
-    if ( _RSI->resolution.sceneWidthStep0 != _RSI->sceneRtWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3462, ASSERT_TYPE_ASSERT, "((sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneWidthStep0 == sceneParms->sceneRtWidth))", (const char *)&queryFormat, "(sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneWidthStep0 == sceneParms->sceneRtWidth)") )
+    if ( sceneParms->resolution.sceneWidthStep0 != sceneParms->sceneRtWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3462, ASSERT_TYPE_ASSERT, "((sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneWidthStep0 == sceneParms->sceneRtWidth))", (const char *)&queryFormat, "(sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneWidthStep0 == sceneParms->sceneRtWidth)") )
       __debugbreak();
-    if ( _RSI->resolution.step == GFX_RESOLUTION_STEP_NONE && _RSI->resolution.sceneHeightStep0 != _RSI->sceneRtHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3463, ASSERT_TYPE_ASSERT, "((sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneHeightStep0 == sceneParms->sceneRtHeight))", (const char *)&queryFormat, "(sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneHeightStep0 == sceneParms->sceneRtHeight)") )
+    if ( sceneParms->resolution.step == GFX_RESOLUTION_STEP_NONE && sceneParms->resolution.sceneHeightStep0 != sceneParms->sceneRtHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3463, ASSERT_TYPE_ASSERT, "((sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneHeightStep0 == sceneParms->sceneRtHeight))", (const char *)&queryFormat, "(sceneParms->resolution.step != GFX_RESOLUTION_STEP_NONE) || (sceneParms->resolution.sceneHeightStep0 == sceneParms->sceneRtHeight)") )
       __debugbreak();
   }
-  height = _RDI->sceneGeoViewport.height;
+  height = viewInfo->sceneGeoViewport.height;
   if ( height < 1 )
     height = 1;
-  v16 = DVARINT_r_tracerMaxMips;
+  v7 = DVARINT_r_tracerMaxMips;
   integer = 31 - __lzcnt(height);
   if ( integer > 16 )
     integer = 16;
@@ -15905,1522 +12642,937 @@ void R_SetupViewInfo(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms, con
     integer = 0;
   if ( !DVARINT_r_tracerMaxMips && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tracerMaxMips") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.integer < integer )
-    integer = v16->current.integer;
-  _RDI->input.sceneConstants.mipSizes.v[0] = integer;
-  R_SetMovieImages(&_RDI->input);
-  v18 = 2i64;
-  _RDI->teleported = _RSI->playerTeleported;
-  clientIndex = (unsigned int)_RDI->clientIndex;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.integer < integer )
+    integer = v7->current.integer;
+  viewInfo->input.sceneConstants.mipSizes.v[0] = integer;
+  R_SetMovieImages(&viewInfo->input);
+  v9 = 2i64;
+  viewInfo->teleported = sceneParms->playerTeleported;
+  clientIndex = (unsigned int)viewInfo->clientIndex;
   if ( (unsigned int)clientIndex >= 2 )
   {
     LODWORD(outReProjFloatZHeight) = 2;
-    LODWORD(outReProjFloatZWidth) = _RDI->clientIndex;
+    LODWORD(outReProjFloatZWidth) = viewInfo->clientIndex;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6315, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_lastValidFrameCount ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_lastValidFrameCount )\n\t%i not in [0, %i)", outReProjFloatZWidth, outReProjFloatZHeight) )
       __debugbreak();
   }
-  v20 = 3i64;
-  if ( (*((_DWORD *)&_RDI->viewportFeatures + 11) & 0x100) != 0 )
+  v11 = 3i64;
+  if ( (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) != 0 )
   {
-    v21 = -1;
+    v12 = -1;
   }
   else
   {
-    if ( _RDI->input.data->frameCount - s_lastValidFrame[clientIndex] != 1 || R_CheckDvarModified(r_postAA) || R_CheckDvarModified(r_ssao) || _RDI->teleported )
+    if ( viewInfo->input.data->frameCount - s_lastValidFrame[clientIndex] != 1 || R_CheckDvarModified(r_postAA) || R_CheckDvarModified(r_ssao) || viewInfo->teleported )
       s_lastValidFrameCount[clientIndex] = 0;
-    v21 = s_lastValidFrameCount[clientIndex];
-    s_lastValidFrame[clientIndex] = _RDI->input.data->frameCount;
-    v22 = 3;
-    if ( (int)(v21 + 1) < 3 )
-      v22 = v21 + 1;
-    s_lastValidFrameCount[clientIndex] = v22;
+    v12 = s_lastValidFrameCount[clientIndex];
+    s_lastValidFrame[clientIndex] = viewInfo->input.data->frameCount;
+    v13 = 3;
+    if ( (int)(v12 + 1) < 3 )
+      v13 = v12 + 1;
+    s_lastValidFrameCount[clientIndex] = v13;
   }
-  _RDI->validFrameCount = v21;
-  _RDI->dlsUseAsyncCompute = r_dlsDebugMode->current.integer == 2;
+  viewInfo->validFrameCount = v12;
+  viewInfo->dlsUseAsyncCompute = r_dlsDebugMode->current.integer == 2;
   if ( !rgp.world || rgp.world->voxelTreeCount )
   {
     voxelTreeCount = rgp.world->voxelTreeCount;
-    v24 = 0;
-    v25 = 32;
+    v15 = 0;
+    v16 = 32;
     if ( voxelTreeCount <= 0 )
-      goto LABEL_56;
+      goto LABEL_59;
     voxelTree = rgp.world->voxelTree;
-    __asm { vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-    _RAX = &voxelTree->zoneBound.halfSize;
+    p_halfSize = &voxelTree->zoneBound.halfSize;
     while ( 1 )
     {
-      v28 = v25;
-      if ( LODWORD(_RAX[1].v[0]) )
+      v19 = v16;
+      if ( LODWORD(p_halfSize[1].v[0]) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+100h]
-          vsubss  xmm1, xmm0, dword ptr [rdx]
-        }
-        v25 = v24;
-        __asm { vandps  xmm1, xmm1, xmm2 }
-        if ( v28 != 32 )
-          v25 = v28;
-        __asm { vcomiss xmm1, dword ptr [rax] }
-        if ( v28 < 0x20 )
+        v16 = v15;
+        if ( v19 != 32 )
+          v16 = v19;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(viewParmsSet->frames[0].viewParms.camera.origin.v[0] - voxelTree->zoneBound.midPoint.v[0]) & _xmm) < p_halfSize->v[0] && COERCE_FLOAT(COERCE_UNSIGNED_INT(viewParmsSet->frames[0].viewParms.camera.origin.v[1] - p_halfSize[-1].v[1]) & _xmm) < p_halfSize->v[1] && COERCE_FLOAT(COERCE_UNSIGNED_INT(viewParmsSet->frames[0].viewParms.camera.origin.v[2] - p_halfSize[-1].v[2]) & _xmm) < p_halfSize->v[2] )
           break;
       }
-      ++v24;
+      ++v15;
       ++voxelTree;
-      _RAX += 10;
-      if ( v24 >= voxelTreeCount )
-        goto LABEL_55;
+      p_halfSize += 10;
+      if ( v15 >= voxelTreeCount )
+        goto LABEL_58;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+104h]
-      vsubss  xmm1, xmm0, dword ptr [rax-8]
-      vandps  xmm1, xmm1, xmm2
-      vcomiss xmm1, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [rbx+108h]
-      vsubss  xmm1, xmm0, dword ptr [rax-4]
-      vandps  xmm1, xmm1, xmm2
-      vcomiss xmm1, dword ptr [rax+8]
-    }
-    v25 = v24;
-LABEL_55:
-    if ( v25 == 32 )
-LABEL_56:
+    v16 = v15;
+LABEL_58:
+    if ( v16 == 32 )
+LABEL_59:
       Sys_Error((const ObfuscateErrorText)&stru_144436FE8);
-    _RDI->input.voxelTreeZoneIndex = v25;
+    viewInfo->input.voxelTreeZoneIndex = v16;
   }
-  R_GpuLightGrid_SetupFrame(frontEndDataOut, _RDI);
+  R_GpuLightGrid_SetupFrame(frontEndDataOut, viewInfo);
   if ( s_world.heightfieldCount <= 0 )
   {
-    _RDI->heightfield.image = rgp.blackImage;
+    viewInfo->heightfield.image = rgp.blackImage;
   }
   else
   {
-    _RCX = &s_world.heightfields[_RDI->input.voxelTreeZoneIndex];
-    _RDI->heightfield.bounds.midPoint.v[0] = _RCX->bounds.midPoint.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [rdi+0DA4h], xmm0
-      vmovss  xmm1, dword ptr [rcx+8]
-      vmovss  dword ptr [rdi+0DA8h], xmm1
-    }
-    _RCX = s_world.heightfields;
-    _RDX = _RDI->input.voxelTreeZoneIndex;
-    _RDI->heightfield.bounds.halfSize.v[0] = s_world.heightfields[_RDX].bounds.halfSize.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+rcx+10h]
-      vmovss  dword ptr [rdi+0DB0h], xmm0
-      vmovss  xmm1, dword ptr [rdx+rcx+14h]
-      vmovss  dword ptr [rdi+0DB4h], xmm1
-    }
-    _RDI->heightfield.image = s_world.heightfields[_RDI->input.voxelTreeZoneIndex].image;
+    v20 = &s_world.heightfields[viewInfo->input.voxelTreeZoneIndex];
+    viewInfo->heightfield.bounds.midPoint.v[0] = v20->bounds.midPoint.v[0];
+    viewInfo->heightfield.bounds.midPoint.v[1] = v20->bounds.midPoint.v[1];
+    viewInfo->heightfield.bounds.midPoint.v[2] = v20->bounds.midPoint.v[2];
+    heightfields = s_world.heightfields;
+    voxelTreeZoneIndex = viewInfo->input.voxelTreeZoneIndex;
+    viewInfo->heightfield.bounds.halfSize.v[0] = s_world.heightfields[voxelTreeZoneIndex].bounds.halfSize.v[0];
+    viewInfo->heightfield.bounds.halfSize.v[1] = heightfields[voxelTreeZoneIndex].bounds.halfSize.v[1];
+    viewInfo->heightfield.bounds.halfSize.v[2] = heightfields[voxelTreeZoneIndex].bounds.halfSize.v[2];
+    viewInfo->heightfield.image = s_world.heightfields[viewInfo->input.voxelTreeZoneIndex].image;
   }
-  __asm { vmovups xmm0, xmmword ptr [rdi+67Ch] }
-  _RAX = frontEndDataOut;
-  v47 = 9i64;
-  __asm
-  {
-    vmovups xmmword ptr [rax+0E2A38h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+68Ch]
-    vmovsd  qword ptr [rax+0E2A48h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+694h]
-    vmovups xmmword ptr [rax+0E2C58h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+6A4h]
-    vmovsd  qword ptr [rax+0E2C68h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+6ACh]
-    vmovups xmmword ptr [rax+0E2E78h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+6BCh]
-    vmovsd  qword ptr [rax+0E2E88h], xmm1
-    vmovups ymm0, ymmword ptr cs:?scene@@3UGfxScene@@A.def.time; GfxScene scene
-    vmovups ymmword ptr [rdi+5B0h], ymm0
-  }
-  _RAX = _RDI;
+  v23 = frontEndDataOut;
+  v24 = 9i64;
+  frontEndDataOut->sunShadow.partition[0].dynBounds = viewInfo->sunShadowAndDepthHackSurfBounds[1];
+  v23->sunShadow.partition[1].dynBounds = viewInfo->sunShadowAndDepthHackSurfBounds[2];
+  v23->sunShadow.partition[2].dynBounds = viewInfo->sunShadowAndDepthHackSurfBounds[3];
+  viewInfo->sceneDef = scene.def;
+  v25 = viewInfo;
   do
   {
-    _RAX = (GfxViewInfo *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    _RBX = (const GfxViewParmsSet *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
-    v63 = v47-- == 0;
+    v25 = (GfxViewInfo *)((char *)v25 + 128);
+    v26 = viewParmsSet->frames[0].viewParms.viewMatrix.m.m[0];
+    viewParmsSet = (const GfxViewParmsSet *)((char *)viewParmsSet + 128);
+    v25[-1].drawList[64].superTerrainSurfList = (GfxStDrawSurfList)v26;
+    *(_OWORD *)&v25[-1].spotshadowActiveCache.m_surfaceID = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.axis.row0.y;
+    *(_OWORD *)&v25[-1].spotshadowActiveCache.m_tracking.m_name = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.axis.row1.z;
+    *(_OWORD *)&v25[-1].spotshadowHTileMask = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.tanHalfFovX;
+    *(_OWORD *)&v25[-1].sunshadowCacheRt.m_surfaceID = *(_OWORD *)viewParmsSet[-1].frames[2].viewParms.camera.zPlanes;
+    *(_OWORD *)&v25[-1].sunshadowCacheRt.m_tracking.m_name = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.focalLength;
+    *(_OWORD *)&v25[-1].sunShadowCacheBeforeState = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.camera.visibilityQueryDistance;
+    *(_OWORD *)&v25[-1].shellShock.enabled = *(_OWORD *)&viewParmsSet[-1].frames[2].viewParms.cameraMotion;
+    --v24;
   }
-  while ( v47 );
-  __asm
+  while ( v24 );
+  viewInfo->ssrSourceSceneViewport = sceneParms->ssrSourceSceneViewport;
+  viewInfo->sunshadowSoftness = sceneParms->sunshadowSoftness;
+  _XMM9 = 0i64;
+  if ( rg.sunSampleSizeNear == 0.25 )
   {
-    vmovups xmm0, xmmword ptr [rsi+318h]
-    vmovups xmmword ptr [rdi+37D4h], xmm0
+    if ( sceneParms->sunshadowSampleSizeNear <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6404, ASSERT_TYPE_ASSERT, "(sceneParms->sunshadowSampleSizeNear > 0.0f)", (const char *)&queryFormat, "sceneParms->sunshadowSampleSizeNear > 0.0f") )
+      __debugbreak();
+    viewInfo->sunshadowSampleSizeNear = sceneParms->sunshadowSampleSizeNear;
   }
-  _RDI->sunshadowSoftness = _RSI->sunshadowSoftness;
-  __asm
+  else
   {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.sunSampleSizeNear; r_globals_t rg
-    vucomiss xmm0, cs:__real@3e800000
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm9, dword ptr [rsi+32Ch]
+    viewInfo->sunshadowSampleSizeNear = rg.sunSampleSizeNear;
   }
-  if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 6404, ASSERT_TYPE_ASSERT, "(sceneParms->sunshadowSampleSizeNear > 0.0f)", (const char *)&queryFormat, "sceneParms->sunshadowSampleSizeNear > 0.0f") )
-    __debugbreak();
-  _RDI->sunshadowSampleSizeNear = _RSI->sunshadowSampleSizeNear;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+0A40h]
-    vmovups xmmword ptr [rdi+480h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0A50h]
-    vmovups xmmword ptr [rdi+490h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0A60h]
-    vmovups xmmword ptr [rdi+4A0h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0A70h]
-    vmovups xmmword ptr [rdi+4B0h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0A80h]
-    vmovups xmmword ptr [rdi+4C0h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0A90h]
-    vmovups xmmword ptr [rdi+4D0h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+0AA0h]
-    vmovups xmmword ptr [rdi+4E0h], xmm0
-    vmovsd  xmm0, qword ptr [rsi+4]
-    vmovsd  qword ptr [rdi+9ACh], xmm0
-  }
-  _RDI->dualViewScopeState.hipFstop = _RSI->dualViewScopeState.hipFstop;
-  _RDI->blurRadiusScript = _RSI->blurRadius;
-  LODWORD(_RDI->blurRadiusDvar) = r_blur->current.integer;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+748h]
-    vmovups ymmword ptr [rdi+5D0h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+768h]
-    vmovups ymmword ptr [rdi+5F0h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+788h]
-    vmovups xmmword ptr [rdi+610h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+798h]
-    vmovsd  qword ptr [rdi+620h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+7A0h]
-    vmovups xmmword ptr [rdi+628h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+7B0h]
-    vmovsd  qword ptr [rdi+638h], xmm1
-  }
-  _RDI->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = _RSI->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta;
-  _RDI->skyIlluminationRadialDistanceBias = _RSI->skyIlluminationRadialDistanceBias;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+7BCh]
-    vmovups xmmword ptr [rdi+648h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+7CCh]
-    vmovsd  qword ptr [rdi+658h], xmm1
-  }
-  _RDI->eyeVirtualHighlight.eyeHighlightHeading = _RSI->eyeVirtualHighlight.eyeHighlightHeading;
+  viewInfo->sceneViewport = sceneParms->sceneViewport;
+  viewInfo->sceneGeoViewport = sceneParms->sceneGeoViewport;
+  viewInfo->sceneEmissiveViewport = sceneParms->sceneEmissiveViewport;
+  viewInfo->displayViewport = sceneParms->displayViewport;
+  viewInfo->scissorViewport = sceneParms->scissorViewport;
+  viewInfo->scissorGeoViewport = sceneParms->scissorGeoViewport;
+  viewInfo->scissorEmissiveViewport = sceneParms->scissorEmissiveViewport;
+  *(double *)&viewInfo->dualViewScopeState.m_fade = *(double *)&sceneParms->dualViewScopeState.m_fade;
+  viewInfo->dualViewScopeState.hipFstop = sceneParms->dualViewScopeState.hipFstop;
+  viewInfo->blurRadiusScript = sceneParms->blurRadius;
+  LODWORD(viewInfo->blurRadiusDvar) = r_blur->current.integer;
+  *(__m256i *)&viewInfo->thermalParams.useNightAndThermalVisionCombo = *(__m256i *)&sceneParms->thermalParams.useNightAndThermalVisionCombo;
+  *(__m256i *)&viewInfo->thermalParams.thermalFogExtinctionWeight = *(__m256i *)&sceneParms->thermalParams.thermalFogExtinctionWeight;
+  *(_OWORD *)&viewInfo->thermalParams.thermalHotColor.z = *(_OWORD *)&sceneParms->thermalParams.thermalHotColor.z;
+  viewInfo->thermalParams.thermalRadiationLut = sceneParms->thermalParams.thermalRadiationLut;
+  *(_OWORD *)&viewInfo->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal = *(_OWORD *)&sceneParms->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal;
+  *(double *)&viewInfo->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta = *(double *)&sceneParms->screenSpaceShadows.sunSceneScreenSpaceShadowTraceDelta;
+  viewInfo->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta = sceneParms->screenSpaceShadows.sunViewmodelScreenSpaceshadowTraceDelta;
+  viewInfo->skyIlluminationRadialDistanceBias = sceneParms->skyIlluminationRadialDistanceBias;
+  *(_OWORD *)&viewInfo->eyeVirtualHighlight.eyeHighlightIntensity = *(_OWORD *)&sceneParms->eyeVirtualHighlight.eyeHighlightIntensity;
+  *(double *)&viewInfo->eyeVirtualHighlight.eyeHighlightBulbRadius = *(double *)&sceneParms->eyeVirtualHighlight.eyeHighlightBulbRadius;
+  viewInfo->eyeVirtualHighlight.eyeHighlightHeading = sceneParms->eyeVirtualHighlight.eyeHighlightHeading;
   if ( rg.useNightAndThermalVisionComboTweak )
-    R_ThermalParamsFromDvars(_RDI);
-  R_SetupNightAndThermalVision(_RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+448h]
-    vmovups ymmword ptr [rdi+9B8h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+468h]
-    vmovups ymmword ptr [rdi+9D8h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+488h]
-    vmovups xmmword ptr [rdi+9F8h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+498h]
-    vmovsd  qword ptr [rdi+0A08h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+72Ch]
-    vmovups xmmword ptr [rdi+0A10h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+73Ch]
-    vmovsd  qword ptr [rdi+0A20h], xmm1
-  }
-  v89 = 1;
-  _RDI->dustParams.dustSmoothMax = _RSI->dustParmas.dustSmoothMax;
-  v90 = 1;
-  _RDI->drawStaticDefaultModels = rgp.gameSortedStaticModels;
-  _RAX = r_daltonizeIntensity;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  v93 = r_daltonizeForceMode->current.integer;
-  daltonizeMode = v93;
-  if ( !v93 )
-    daltonizeMode = _RSI->daltonizeMode;
-  if ( !v93 )
-    v90 = _RSI->daltonizeTargets & 1;
-  if ( !daltonizeMode || !v90 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  __asm { vcomiss xmm0, xmm9 }
+    R_ThermalParamsFromDvars(viewInfo);
+  R_SetupNightAndThermalVision(viewInfo);
+  *(__m256i *)&viewInfo->depthScanParams.enabled = *(__m256i *)&sceneParms->depthScanParams.enabled;
+  *(__m256i *)&viewInfo->depthScanParams.scrollParams.xyz.z = *(__m256i *)&sceneParms->depthScanParams.scrollParams.xyz.z;
+  *(vec4_t *)((char *)&viewInfo->depthScanParams.outlineColor + 8) = *(vec4_t *)((char *)&sceneParms->depthScanParams.outlineColor + 8);
+  *(double *)&viewInfo->depthScanParams.overlayColor.xyz.z = *(double *)&sceneParms->depthScanParams.overlayColor.xyz.z;
+  *(_OWORD *)&viewInfo->dustParams.dustHeading = *(_OWORD *)&sceneParms->dustParmas.dustHeading;
+  *(double *)&viewInfo->dustParams.dustPowerCurve = *(double *)&sceneParms->dustParmas.dustPowerCurve;
+  v28 = 1;
+  viewInfo->dustParams.dustSmoothMax = sceneParms->dustParmas.dustSmoothMax;
+  v29 = 1;
+  viewInfo->drawStaticDefaultModels = rgp.gameSortedStaticModels;
+  value = r_daltonizeIntensity->current.value;
+  v31 = r_daltonizeForceMode->current.integer;
+  daltonizeMode = (char)v31;
+  if ( !v31 )
+    daltonizeMode = sceneParms->daltonizeMode;
+  if ( !v31 )
+    v29 = sceneParms->daltonizeTargets & 1;
+  if ( daltonizeMode == R_DALTONIZE_NONE || !v29 )
+    value = 0.0;
+  v33 = R_DALTONIZE_NONE;
+  if ( value > 0.0 )
+    v33 = daltonizeMode;
   enabled = r_colorblindMode->current.enabled;
-  _RDI->daltonizeOptions.m_enabled = enabled;
-  v96 = 1;
-  _RDI->daltonizeOptions.m_correctionMode = R_DALTONIZE_NONE;
-  __asm { vmovss  dword ptr [rdi+3C54h], xmm0 }
-  _RDI->daltonizeOptions.m_simulationMode = enabled;
-  _RAX = r_daltonizeUIIntensity;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  v99 = r_daltonizeForceMode->current.integer;
-  v100 = v99;
-  if ( !v99 )
-    v100 = _RSI->daltonizeMode;
-  if ( !v99 )
-    v96 = (_RSI->daltonizeTargets & 2) != 0;
-  if ( !v100 || !v96 )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  __asm { vcomiss xmm0, xmm9 }
-  v101 = r_colorblindMode->current.enabled;
-  _RDI->uiDaltonizeOptions.m_enabled = v101;
-  _RDI->uiDaltonizeOptions.m_correctionMode = R_DALTONIZE_NONE;
-  __asm { vmovss  dword ptr [rdi+3C60h], xmm0 }
-  _RDI->uiDaltonizeOptions.m_simulationMode = v101;
-  v102 = r_useShadowGeomOpt->current.enabled && (rgp.world->shadowGeomOptimized || rgp.world->dpvs.surfaceCastsSunShadowOpt);
-  _RDI->useShadowGeomOpt = v102;
-  _RDI->blackLevel = _RSI->blackLevel;
+  v35 = enabled || v33;
+  viewInfo->daltonizeOptions.m_enabled = v35;
+  v36 = 1;
+  viewInfo->daltonizeOptions.m_correctionMode = v33;
+  viewInfo->daltonizeOptions.m_correctionScale = value;
+  viewInfo->daltonizeOptions.m_simulationMode = enabled;
+  v37 = r_daltonizeUIIntensity->current.value;
+  v38 = r_daltonizeForceMode->current.integer;
+  v39 = (char)v38;
+  if ( !v38 )
+    v39 = sceneParms->daltonizeMode;
+  if ( !v38 )
+    v36 = (sceneParms->daltonizeTargets & 2) != 0;
+  if ( v39 == R_DALTONIZE_NONE || !v36 )
+    v37 = 0.0;
+  v40 = R_DALTONIZE_NONE;
+  if ( v37 > 0.0 )
+    v40 = v39;
+  v41 = r_colorblindMode->current.enabled;
+  v42 = v41 || v40;
+  viewInfo->uiDaltonizeOptions.m_enabled = v42;
+  viewInfo->uiDaltonizeOptions.m_correctionMode = v40;
+  viewInfo->uiDaltonizeOptions.m_correctionScale = v37;
+  viewInfo->uiDaltonizeOptions.m_simulationMode = v41;
+  v43 = r_useShadowGeomOpt->current.enabled && (rgp.world->shadowGeomOptimized || rgp.world->dpvs.surfaceCastsSunShadowOpt);
+  viewInfo->useShadowGeomOpt = v43;
+  viewInfo->blackLevel = sceneParms->blackLevel;
   if ( rgp.world )
   {
     if ( rg.useRProbeOctahedron )
     {
       ProbeOctahedronImageArray = R_ReflectionProbe_GetProbeOctahedronImageArray();
-      if ( _RDI == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+      if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      _RDI->input.codePersistentImages[39] = ProbeOctahedronImageArray;
+      viewInfo->input.codePersistentImages[39] = ProbeOctahedronImageArray;
       blackImageCube = rgp.blackImageCube;
     }
     else
     {
       blackImage = rgp.blackImage;
-      if ( _RDI == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+      if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      _RDI->input.codePersistentImages[39] = blackImage;
+      viewInfo->input.codePersistentImages[39] = blackImage;
       blackImageCube = (GfxImage *)R_ReflectionProbe_GetProbeImageArray();
     }
-    if ( _RDI == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    _RDI->input.codePersistentImages[40] = blackImageCube;
-    v89 = 1;
+    viewInfo->input.codePersistentImages[40] = blackImageCube;
+    v28 = 1;
   }
-  __asm
-  {
-    vmovss  [rbp+180h+var_138], xmm9
-    vmovss  [rbp+180h+var_134], xmm9
-    vmovss  [rbp+180h+var_130], xmm9
-  }
-  _ER15 = 0;
-  ReflectionProbeCount = R_ReflectionProbe_GetReflectionProbeCount();
-  __asm { vmovss  xmm0, [rsp+280h+var_240] }
-  *(_QWORD *)_RDI->input.sceneConstants.reflectionProbeParams.v = 0i64;
-  _RDI->input.sceneConstants.reflectionProbeParams.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rdi+1FBCh], xmm0
-    vmovss  [rbp+180h+var_12C], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  [rbp+180h+var_1A4], xmm0
-    vmovss  [rbp+180h+var_1A8], xmm6
-    vmovss  [rbp+180h+var_1A0], xmm2
-  }
+  v195 = 0.0;
+  v196 = 0.0;
+  v197 = 0.0;
+  v169 = COERCE_FLOAT(R_ReflectionProbe_GetReflectionProbeCount());
+  *(_QWORD *)viewInfo->input.sceneConstants.reflectionProbeParams.v = 0i64;
+  viewInfo->input.sceneConstants.reflectionProbeParams.v[2] = 0.0;
+  viewInfo->input.sceneConstants.reflectionProbeParams.v[3] = v169;
+  v198 = v169;
+  LODWORD(v47) = 0;
+  width = 0.0;
+  v49 = 0.0;
   if ( rg.useRProbeOctahedron )
   {
-    R_ReflectionProbe_GetProbeOctahedronImageArray();
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, ecx
-      vmovaps xmm0, xmm6; val
-      vmovss  [rbp+180h+var_1A8], xmm6
-    }
-    *(double *)&_XMM0 = I_fres(*(float *)&_XMM0);
-    __asm { vmovss  [rbp+180h+var_1A4], xmm0 }
-    v477 = (rg.useRProbeOctahedron >= 2) + 2;
-    __asm
-    {
-      vmovss  xmm2, [rsp+280h+var_23C]
-      vmovss  [rbp+180h+var_1A0], xmm2
-    }
+    width = (float)R_ReflectionProbe_GetProbeOctahedronImageArray()->width;
+    v47 = I_fres(width);
+    LODWORD(v49) = (rg.useRProbeOctahedron >= 2) + 2;
   }
+  v50 = (float)r_reflectionProbeOctahedronLodBias->current.integer;
+  viewInfo->input.sceneConstants.reflectionProbeOctahedron.v[0] = width;
+  viewInfo->input.sceneConstants.reflectionProbeOctahedron.v[1] = *(float *)&v47;
+  viewInfo->input.sceneConstants.reflectionProbeOctahedron.v[2] = v49;
+  viewInfo->input.sceneConstants.reflectionProbeOctahedron.v[3] = v50;
+  R_SetScreenSpaceReflectionInfo(viewInfo, sceneParms);
+  spotOmniScreenSpaceShadowsTraceDistance = viewInfo->screenSpaceShadows.spotOmniScreenSpaceShadowsTraceDistance;
+  _XMM1 = LODWORD(viewInfo->screenSpaceShadows.spotOmniScreenSpaceshadowSamplesTotal);
+  spotOmniScreenSpaceShadowsSamplesPerLight = viewInfo->screenSpaceShadows.spotOmniScreenSpaceShadowsSamplesPerLight;
+  _XMM8 = _xmm;
   __asm
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rax+28h]
-    vmovss  dword ptr [rdi+1FC0h], xmm6
-    vmovss  dword ptr [rdi+1FC4h], xmm0
-    vmovss  dword ptr [rdi+1FC8h], xmm2
-    vmovss  dword ptr [rdi+1FCCh], xmm1
-    vmovss  [rbp+180h+var_19C], xmm1
-  }
-  R_SetScreenSpaceReflectionInfo(_RDI, _RSI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+630h]
-    vmovss  xmm1, dword ptr [rdi+628h]
-    vmovss  xmm2, dword ptr [rdi+62Ch]
-    vmovaps xmm8, cs:__xmm@3f8000003f8000003f8000003f800000
     vcmpltss xmm0, xmm9, xmm3
     vblendvps xmm0, xmm9, xmm8, xmm0
-    vmovss  dword ptr [rdi+2290h], xmm0
-    vmovss  dword ptr [rdi+2294h], xmm1
-    vmovss  dword ptr [rdi+2298h], xmm2
-    vmovss  dword ptr [rdi+229Ch], xmm3
-    vmovss  xmm0, dword ptr [rdi+9ACh]
-    vcomiss xmm0, xmm9
   }
-  if ( v114 )
-    goto LABEL_214;
-  __asm { vcomiss xmm0, xmm8 }
-  if ( !(v114 | v115) )
+  viewInfo->input.sceneConstants.screenSpaceShadowsParams.v[0] = *(float *)&_XMM0;
+  viewInfo->input.sceneConstants.screenSpaceShadowsParams.v[1] = *(float *)&_XMM1;
+  viewInfo->input.sceneConstants.screenSpaceShadowsParams.v[2] = spotOmniScreenSpaceShadowsSamplesPerLight;
+  viewInfo->input.sceneConstants.screenSpaceShadowsParams.v[3] = spotOmniScreenSpaceShadowsTraceDistance;
+  m_fade = viewInfo->dualViewScopeState.m_fade;
+  if ( m_fade < 0.0 || m_fade > 1.0 )
   {
-LABEL_214:
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+280h+var_248], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+280h+outReProjFloatZHeight], xmm1
-      vmovsd  [rsp+280h+outReProjFloatZWidth], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4153, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( viewInfo->dualViewScopeState.m_fade ) && ( viewInfo->dualViewScopeState.m_fade ) <= ( 1.0f )", "viewInfo->dualViewScopeState.m_fade not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&outReProjFloatZWidtha, *(double *)&outReProjFloatZHeighta, v475) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 4153, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( viewInfo->dualViewScopeState.m_fade ) && ( viewInfo->dualViewScopeState.m_fade ) <= ( 1.0f )", "viewInfo->dualViewScopeState.m_fade not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", m_fade, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  __asm { vsubss  xmm2, xmm8, dword ptr [rdi+9ACh] }
-  if ( !rg.mbEnable )
-    goto LABEL_111;
-  if ( (*((_DWORD *)&_RDI->viewportFeatures + 10) & 0x8000) == 0 )
-    goto LABEL_111;
-  __asm { vcomiss xmm2, xmm9 }
-  if ( (*((_DWORD *)&_RDI->viewportFeatures + 10) & 0x8000) != 0 )
-    v126 = 1;
-  else
-LABEL_111:
-    v126 = 0;
-  _RDI->motionBlur.enabled = v126;
-  if ( v126 && r_mbWorldEnable->current.enabled )
+  v59 = 1.0 - viewInfo->dualViewScopeState.m_fade;
+  v60 = rg.mbEnable && (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x8000) != 0 && v59 > 0.0;
+  viewInfo->motionBlur.enabled = v60;
+  if ( v60 && r_mbWorldEnable->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0AB8h]
-      vcomiss xmm0, xmm9
-    }
-    if ( !r_mbWorldEnable->current.enabled )
-    {
-      _RAX = r_mbVelocityScaleViewModel;
-      __asm { vmovss  xmm0, dword ptr [rax+28h] }
-    }
-    __asm { vmulss  xmm1, xmm0, xmm2 }
+    worldMotionBlurOverride = sceneParms->worldMotionBlurOverride;
+    if ( worldMotionBlurOverride <= 0.0 )
+      worldMotionBlurOverride = r_mbVelocityScaleViewModel->current.value;
+    v62 = worldMotionBlurOverride * v59;
   }
   else
   {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
+    v62 = 0.0;
   }
-  __asm { vmovss  dword ptr [rdi+37E8h], xmm1 }
-  if ( _RDI->motionBlur.enabled && r_mbViewModelEnable->current.enabled )
+  viewInfo->motionBlur.velocityScale = v62;
+  if ( viewInfo->motionBlur.enabled && r_mbViewModelEnable->current.enabled )
   {
-    _RAX = r_mbVelocityScaleViewModel;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmaxss  xmm1, xmm0, dword ptr [rsi+0AB4h]
-      vmulss  xmm3, xmm1, xmm2
-    }
+    _XMM0 = r_mbVelocityScaleViewModel->current.unsignedInt;
+    __asm { vmaxss  xmm1, xmm0, dword ptr [rsi+0AB4h] }
+    v65 = *(float *)&_XMM1 * v59;
   }
   else
   {
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v65 = 0.0;
   }
-  __asm { vmovss  dword ptr [rdi+37ECh], xmm3 }
-  if ( _RDI->motionBlur.enabled && r_mbVelocityFpsCompensation->current.enabled )
+  viewInfo->motionBlur.velocityScaleViewModel = v65;
+  if ( viewInfo->motionBlur.enabled && r_mbVelocityFpsCompensation->current.enabled )
+    v66 = 0.016666668 / viewInfo->input.data->frameTime;
+  else
+    v66 = *(float *)&_xmm;
+  viewInfo->motionBlur.velocityFpsCompensationScale = v66;
+  R_SetVelocityInfo(viewInfo, sceneParms->sceneRtWidth, sceneParms->sceneRtHeight);
+  R_SetSSAOInfo(viewInfo, sceneParms->sceneRtWidth, sceneParms->sceneRtHeight, &sceneParms->ssao);
+  if ( (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x40000) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3c888889
-      vdivss  xmm1, xmm0, dword ptr [rax+7ACCh]
-    }
+    viewInfo->volumeLightScatter.enabled = 0;
   }
   else
   {
-    __asm { vmovaps xmm1, xmm8 }
+    *(__m256i *)&viewInfo->volumeLightScatter.enabled = *(__m256i *)&sceneParms->volumeLightScatter.enabled;
+    *(double *)&viewInfo->volumeLightScatter.depthAttenuation.y = *(double *)&sceneParms->volumeLightScatter.depthAttenuation.y;
   }
-  __asm { vmovss  dword ptr [rdi+37F0h], xmm1 }
-  R_SetVelocityInfo(_RDI, _RSI->sceneRtWidth, _RSI->sceneRtHeight);
-  R_SetSSAOInfo(_RDI, _RSI->sceneRtWidth, _RSI->sceneRtHeight, &_RSI->ssao);
-  if ( (*((_DWORD *)&_RDI->viewportFeatures + 10) & 0x40000) != 0 )
-  {
-    _RDI->volumeLightScatter.enabled = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+0F4h]
-      vmovups ymmword ptr [rdi+2E40h], ymm0
-      vmovsd  xmm1, qword ptr [rsi+114h]
-      vmovsd  qword ptr [rdi+2E60h], xmm1
-    }
-  }
-  FrustumHeight = R_VOL_GetFrustumHeight(_RDI);
-  FrustumWidth = R_VOL_GetFrustumWidth(_RDI);
-  R_SetForwardPlusClusterInfo(_RDI, FrustumWidth, FrustumHeight);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+11Ch]
-    vmovups ymmword ptr [rdi+2E68h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+13Ch]
-    vmovups ymmword ptr [rdi+2E88h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+15Ch]
-    vmovups xmmword ptr [rdi+2EA8h], xmm0
-  }
-  v143 = _RDI->volumetrics.enabled && *((int *)&_RDI->viewportFeatures + 10) < 0 && rg.volumetrics;
-  _RDI->volumetrics.enabled = v143;
-  _RDI->volumetrics.teleported = _RSI->playerTeleported;
-  v144 = r_volumetricsParticleIter;
+  FrustumHeight = R_VOL_GetFrustumHeight(viewInfo);
+  FrustumWidth = R_VOL_GetFrustumWidth(viewInfo);
+  R_SetForwardPlusClusterInfo(viewInfo, FrustumWidth, FrustumHeight);
+  *(__m256i *)&viewInfo->volumetrics.enabled = *(__m256i *)&sceneParms->volumetrics.enabled;
+  *(__m256i *)&viewInfo->volumetrics.omniBrightness = *(__m256i *)&sceneParms->volumetrics.omniBrightness;
+  *(_OWORD *)&viewInfo->volumetrics.heightFogBaseHeight = *(_OWORD *)&sceneParms->volumetrics.heightFogBaseHeight;
+  v69 = viewInfo->volumetrics.enabled && *((int *)&viewInfo->viewportFeatures + 10) < 0 && rg.volumetrics;
+  viewInfo->volumetrics.enabled = v69;
+  viewInfo->volumetrics.teleported = sceneParms->playerTeleported;
+  v70 = r_volumetricsParticleIter;
   if ( !r_volumetricsParticleIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 627, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v144);
-  _RDI->volumetrics.particleIterLimit = v144->current.unsignedInt;
-  v145 = r_volumetricsParticleNoise;
+  Dvar_CheckFrontendServerThread(v70);
+  viewInfo->volumetrics.particleIterLimit = v70->current.unsignedInt;
+  v71 = r_volumetricsParticleNoise;
   if ( !r_volumetricsParticleNoise && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 627, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v145);
-  _RDI->volumetrics.particleNoiseMode = v145->current.integer;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth; r_globals_t rg
-    vmovss  dword ptr [rdi+1BB0h], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+4; r_globals_t rg
-    vmovss  dword ptr [rdi+1BB4h], xmm1
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+8; r_globals_t rg
-    vmovss  dword ptr [rdi+1BB8h], xmm0
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+0Ch; r_globals_t rg
-    vmovss  dword ptr [rdi+1BBCh], xmm1
-    vdivps  xmm0, xmm8, xmmword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth; r_globals_t rg
-    vmovups xmmword ptr [rdi+1BC0h], xmm0
-    vmovups ymm0, ymmword ptr [rsi+16Ch]
-  }
-  _RBX = frontEndDataOut;
-  __asm
-  {
-    vmovups ymmword ptr [rbx+0E7634h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+18Ch]
-    vmovups xmmword ptr [rbx+0E7654h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+19Ch]
-    vmovss  xmm1, cs:__real@4728c000; Y
-    vmovsd  qword ptr [rbx+0E7664h], xmm0
-    vdivss  xmm0, xmm8, dword ptr [rbx+0E7654h]
-    vmovss  dword ptr [rbx+0E7654h], xmm0
-    vmovss  xmm0, dword ptr [rdi+5B4h]; X
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rbx+0E7658h]
-    vmovss  dword ptr [rbx+0E7658h], xmm1
-    vmulss  xmm0, xmm0, dword ptr [rbx+0E765Ch]
-    vmovss  dword ptr [rbx+0E765Ch], xmm0
-  }
-  R_SetTonemapInfo(_RDI, _RSI);
-  R_SetPerceptualInfo(_RDI, _RSI);
-  R_SetPostAAInfo(_RDI);
+  Dvar_CheckFrontendServerThread(v71);
+  viewInfo->volumetrics.particleNoiseMode = v71->current.integer;
+  viewInfo->input.sceneConstants.volumetricDepth = rg.volumetricDepth;
+  viewInfo->input.sceneConstants.volumetricDepthRcp = (vec4_t)_mm128_div_ps((__m128)_xmm, (__m128)rg.volumetricDepth);
+  v72 = frontEndDataOut;
+  frontEndDataOut->sunShadow.cloudShadow = sceneParms->cloudShadow;
+  v72->sunShadow.cloudShadow.scale = 1.0 / v72->sunShadow.cloudShadow.scale;
+  v73 = fmodf_0(viewInfo->sceneDef.floatTime, 43200.0);
+  v72->sunShadow.cloudShadow.scroll.v[0] = v73 * v72->sunShadow.cloudShadow.scroll.v[0];
+  v72->sunShadow.cloudShadow.scroll.v[1] = v73 * v72->sunShadow.cloudShadow.scroll.v[1];
+  R_SetTonemapInfo(viewInfo, sceneParms);
+  R_SetPerceptualInfo(viewInfo, sceneParms);
+  R_SetPostAAInfo(viewInfo);
   if ( r_whiteBalanceTweaks->current.enabled )
   {
-    _RDI->whiteBalance.method = r_whiteBalanceMethod->current.integer;
-    _RDI->whiteBalance.illuminant = r_whiteBalanceIlluminant->current.integer;
-    LODWORD(_RDI->whiteBalance.colorTempK) = r_whiteBalanceColorTempK->current.integer;
-    LODWORD(_RDI->whiteBalance.colorGreenMagentaShift) = r_whiteBalanceGreenMagentaShift->current.integer;
+    viewInfo->whiteBalance.method = r_whiteBalanceMethod->current.integer;
+    viewInfo->whiteBalance.illuminant = r_whiteBalanceIlluminant->current.integer;
+    LODWORD(viewInfo->whiteBalance.colorTempK) = r_whiteBalanceColorTempK->current.integer;
+    LODWORD(viewInfo->whiteBalance.colorGreenMagentaShift) = r_whiteBalanceGreenMagentaShift->current.integer;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+2ECh]
-      vmovups xmmword ptr [rdi+3864h], xmm0
-    }
+    viewInfo->whiteBalance = sceneParms->whiteBalance;
   }
-  *((_BYTE *)&_RDI->input + 7920) ^= (*((_BYTE *)&_RDI->input + 7920) ^ (4 * r_decalVolumes->current.enabled)) & 4;
-  R_SetDecalVolumeTextures(_RDI);
-  _RBX = DCONST_DVARVEC4_r_wireframeColor;
+  *((_BYTE *)&viewInfo->input + 7920) ^= (*((_BYTE *)&viewInfo->input + 7920) ^ (4 * r_decalVolumes->current.enabled)) & 4;
+  R_SetDecalVolumeTextures(viewInfo);
+  v74 = DCONST_DVARVEC4_r_wireframeColor;
   if ( !DCONST_DVARVEC4_r_wireframeColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_wireframeColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  xmm2, dword ptr [rbx+30h]
-    vmovss  dword ptr [rdi+26A0h], xmm0
-    vmovss  dword ptr [rdi+26A4h], xmm1
-    vmovss  dword ptr [rdi+26A8h], xmm2
-  }
-  R_ReProjFloatZ_RenderTargetInfo(_RDI->frustumGrid.voxelCountX, _RDI->frustumGrid.voxelCountY, _RSI->sceneRtWidth, _RSI->sceneRtHeight, &_RDI->reProjFloatZMipMap, &_RDI->reProjFloatZWidth, &_RDI->reProjFloatZHeight);
-  LODWORD(_RDI->lightGrid.temporalSmoothingFactor) = r_lightGridTempSmoothingFactor->current.integer;
-  *(_QWORD *)&_RDI->surfBoundsMutex.readCount = 0i64;
-  _RDI->surfBoundsMutex.tempPriority.threadHandle = NULL;
-  *(_QWORD *)&_RDI->surfBoundsMutex.tempPriority.oldPriority = 0i64;
-  *(_QWORD *)&_RDI->surfBoundsMutex.writeThreadId = 0i64;
-  v165 = &_RDI->sunShadowAndDepthHackSurfBounds[1].halfSize.v[2];
-  _RDI->matRenderFeatures = 0;
+  Dvar_CheckFrontendServerThread(v74);
+  v75 = v74->current.vector.v[1];
+  v76 = v74->current.vector.v[2];
+  viewInfo->input.sceneConstants.wireframeColorScale.v[0] = v74->current.value;
+  viewInfo->input.sceneConstants.wireframeColorScale.v[1] = v75;
+  viewInfo->input.sceneConstants.wireframeColorScale.v[2] = v76;
+  R_ReProjFloatZ_RenderTargetInfo(viewInfo->frustumGrid.voxelCountX, viewInfo->frustumGrid.voxelCountY, sceneParms->sceneRtWidth, sceneParms->sceneRtHeight, &viewInfo->reProjFloatZMipMap, &viewInfo->reProjFloatZWidth, &viewInfo->reProjFloatZHeight);
+  LODWORD(viewInfo->lightGrid.temporalSmoothingFactor) = r_lightGridTempSmoothingFactor->current.integer;
+  *(_QWORD *)&viewInfo->surfBoundsMutex.readCount = 0i64;
+  viewInfo->surfBoundsMutex.tempPriority.threadHandle = NULL;
+  *(_QWORD *)&viewInfo->surfBoundsMutex.tempPriority.oldPriority = 0i64;
+  *(_QWORD *)&viewInfo->surfBoundsMutex.writeThreadId = 0i64;
+  v77 = &viewInfo->sunShadowAndDepthHackSurfBounds[1].halfSize.v[2];
+  viewInfo->matRenderFeatures = 0;
   do
   {
-    *(_QWORD *)(v165 - 11) = 0i64;
-    *(v165 - 9) = 0.0;
-    *(v165 - 8) = -3.4028235e38;
-    *(v165 - 7) = -3.4028235e38;
-    *(v165 - 6) = -3.4028235e38;
-    *(_QWORD *)(v165 - 5) = 0i64;
-    *(v165 - 3) = 0.0;
-    *(v165 - 2) = -3.4028235e38;
-    *(v165 - 1) = -3.4028235e38;
-    *v165 = -3.4028235e38;
-    *(_QWORD *)(v165 + 1) = 0i64;
-    v165[3] = 0.0;
-    v165[4] = -3.4028235e38;
-    v165[5] = -3.4028235e38;
-    v165[6] = -3.4028235e38;
-    *(_QWORD *)(v165 + 7) = 0i64;
-    v165[9] = 0.0;
-    v165[10] = -3.4028235e38;
-    v165[11] = -3.4028235e38;
-    v165[12] = -3.4028235e38;
-    *(_QWORD *)(v165 + 13) = 0i64;
-    v165[15] = 0.0;
-    v165[16] = -3.4028235e38;
-    v165[17] = -3.4028235e38;
-    v165[18] = -3.4028235e38;
-    *(_QWORD *)(v165 + 19) = 0i64;
-    v165[21] = 0.0;
-    v165[22] = -3.4028235e38;
-    v165[23] = -3.4028235e38;
-    v165[24] = -3.4028235e38;
-    *(_QWORD *)(v165 + 25) = 0i64;
-    v165[27] = 0.0;
-    v165[28] = -3.4028235e38;
-    v165[29] = -3.4028235e38;
-    v165[30] = -3.4028235e38;
-    *(_QWORD *)(v165 + 31) = 0i64;
-    v165[33] = 0.0;
-    v165[34] = -3.4028235e38;
-    v165[35] = -3.4028235e38;
-    v165[36] = -3.4028235e38;
-    *(_QWORD *)(v165 + 37) = 0i64;
-    v165[39] = 0.0;
-    v165[40] = -3.4028235e38;
-    v165[41] = -3.4028235e38;
-    v165[42] = -3.4028235e38;
-    *(_QWORD *)(v165 + 43) = 0i64;
-    v165[45] = 0.0;
-    v165[46] = -3.4028235e38;
-    v165[47] = -3.4028235e38;
-    v165[48] = -3.4028235e38;
-    *(_QWORD *)(v165 + 49) = 0i64;
-    v165[51] = 0.0;
-    v165[52] = -3.4028235e38;
-    v165[53] = -3.4028235e38;
-    v165[54] = -3.4028235e38;
-    v165 += 66;
-    --v20;
+    *(_QWORD *)(v77 - 11) = 0i64;
+    *(v77 - 9) = 0.0;
+    *(v77 - 8) = -3.4028235e38;
+    *(v77 - 7) = -3.4028235e38;
+    *(v77 - 6) = -3.4028235e38;
+    *(_QWORD *)(v77 - 5) = 0i64;
+    *(v77 - 3) = 0.0;
+    *(v77 - 2) = -3.4028235e38;
+    *(v77 - 1) = -3.4028235e38;
+    *v77 = -3.4028235e38;
+    *(_QWORD *)(v77 + 1) = 0i64;
+    v77[3] = 0.0;
+    v77[4] = -3.4028235e38;
+    v77[5] = -3.4028235e38;
+    v77[6] = -3.4028235e38;
+    *(_QWORD *)(v77 + 7) = 0i64;
+    v77[9] = 0.0;
+    v77[10] = -3.4028235e38;
+    v77[11] = -3.4028235e38;
+    v77[12] = -3.4028235e38;
+    *(_QWORD *)(v77 + 13) = 0i64;
+    v77[15] = 0.0;
+    v77[16] = -3.4028235e38;
+    v77[17] = -3.4028235e38;
+    v77[18] = -3.4028235e38;
+    *(_QWORD *)(v77 + 19) = 0i64;
+    v77[21] = 0.0;
+    v77[22] = -3.4028235e38;
+    v77[23] = -3.4028235e38;
+    v77[24] = -3.4028235e38;
+    *(_QWORD *)(v77 + 25) = 0i64;
+    v77[27] = 0.0;
+    v77[28] = -3.4028235e38;
+    v77[29] = -3.4028235e38;
+    v77[30] = -3.4028235e38;
+    *(_QWORD *)(v77 + 31) = 0i64;
+    v77[33] = 0.0;
+    v77[34] = -3.4028235e38;
+    v77[35] = -3.4028235e38;
+    v77[36] = -3.4028235e38;
+    *(_QWORD *)(v77 + 37) = 0i64;
+    v77[39] = 0.0;
+    v77[40] = -3.4028235e38;
+    v77[41] = -3.4028235e38;
+    v77[42] = -3.4028235e38;
+    *(_QWORD *)(v77 + 43) = 0i64;
+    v77[45] = 0.0;
+    v77[46] = -3.4028235e38;
+    v77[47] = -3.4028235e38;
+    v77[48] = -3.4028235e38;
+    *(_QWORD *)(v77 + 49) = 0i64;
+    v77[51] = 0.0;
+    v77[52] = -3.4028235e38;
+    v77[53] = -3.4028235e38;
+    v77[54] = -3.4028235e38;
+    v77 += 66;
+    --v11;
   }
-  while ( v20 );
-  __asm { vmovups ymm0, ymmword ptr [rsi+9D8h] }
-  _RCX = &_RDI->fog;
-  __asm
-  {
-    vmovups ymmword ptr [rdi+0D70h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+9F8h]
-    vmovups xmmword ptr [rdi+0D90h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+7D8h]
-    vmovsd  qword ptr [rdi+0AA8h], xmm0
-  }
-  v170 = 2i64;
-  _RDI->chromaticAberration.aberration = _RSI->chromaticAberration.aberration;
-  _RAX = &_RSI->fog;
+  while ( v11 );
+  p_fog = &viewInfo->fog;
+  *(__m256i *)&viewInfo->stageInfo.activeStage.name = *(__m256i *)&sceneParms->stageInfo.activeStage.name;
+  *(_OWORD *)&viewInfo->stageInfo.activeStage.skyRotationAngles.y = *(_OWORD *)&sceneParms->stageInfo.activeStage.skyRotationAngles.y;
+  *(double *)&viewInfo->chromaticAberration.radius = *(double *)&sceneParms->chromaticAberration.radius;
+  v79 = 2i64;
+  viewInfo->chromaticAberration.aberration = sceneParms->chromaticAberration.aberration;
+  v80 = &sceneParms->fog;
   do
   {
-    _RCX = (GfxFog *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxFog *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v170;
+    p_fog = (GfxFog *)((char *)p_fog + 128);
+    v81 = *(_OWORD *)v80->maxOpticalDepth.v;
+    v80 = (GfxFog *)((char *)v80 + 128);
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[3].data.fogStartDist = v81;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[4].image = *(_OWORD *)&v80[-1].fogSplineBlendEntry[4].image;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[4].data.fogMaxDistance = *(_OWORD *)&v80[-1].fogSplineBlendEntry[4].data.fogMaxDistance;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[5].data.fogStartDist = *(_OWORD *)&v80[-1].fogSplineBlendEntry[5].data.fogStartDist;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[6].image = *(_OWORD *)&v80[-1].fogSplineBlendEntry[6].image;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[6].data.fogMaxDistance = *(_OWORD *)&v80[-1].fogSplineBlendEntry[6].data.fogMaxDistance;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendEntry[7].data.fogStartDist = *(_OWORD *)&v80[-1].fogSplineBlendEntry[7].data.fogStartDist;
+    *(_OWORD *)&p_fog[-1].fogSplineBlendCount = *(_OWORD *)&v80[-1].fogSplineBlendCount;
+    --v79;
   }
-  while ( v170 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
-  *(_QWORD *)_RCX->mieCoeffs.v = *(_QWORD *)_RAX->mieCoeffs.v;
+  while ( v79 );
+  *(_OWORD *)p_fog->maxOpticalDepth.v = *(_OWORD *)v80->maxOpticalDepth.v;
+  *(_OWORD *)p_fog->rayleighCoeffs.v = *(_OWORD *)v80->rayleighCoeffs.v;
+  *(_QWORD *)p_fog->mieCoeffs.v = *(_QWORD *)v80->mieCoeffs.v;
   if ( r_fogCircleTweaks->current.enabled )
   {
-    _RCX = r_fogCircle;
-    LODWORD(_RDI->brCircle.position.v[0]) = r_fogCircle->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0C20h], xmm0
-    }
-    _RCX = r_fogCircleVolumetricInnerColor;
-    LODWORD(_RDI->brCircle.volumetricInnerColor.v[0]) = r_fogCircleVolumetricInnerColor->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0BE4h], xmm0
-      vmovss  xmm1, dword ptr [rcx+30h]
-      vmovss  dword ptr [rdi+0BE8h], xmm1
-    }
-    _RCX = r_fogCircleVolumetricOuterColor;
-    LODWORD(_RDI->brCircle.volumetricOuterColor.v[0]) = r_fogCircleVolumetricOuterColor->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0BF0h], xmm0
-      vmovss  xmm1, dword ptr [rcx+30h]
-      vmovss  dword ptr [rdi+0BF4h], xmm1
-    }
-    _RCX = r_fogCircleDistanceInnerColor;
-    LODWORD(_RDI->brCircle.distanceInnerColor.v[0]) = r_fogCircleDistanceInnerColor->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0BFCh], xmm0
-      vmovss  xmm1, dword ptr [rcx+30h]
-      vmovss  dword ptr [rdi+0C00h], xmm1
-    }
-    _RCX = r_fogCircleDistanceOuterColor;
-    LODWORD(_RDI->brCircle.distanceOuterColor.v[0]) = r_fogCircleDistanceOuterColor->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0C08h], xmm0
-      vmovss  xmm1, dword ptr [rcx+30h]
-      vmovss  dword ptr [rdi+0C0Ch], xmm1
-    }
-    _RAX = r_fogCirclePerceptualTint;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+34h]
-      vmulss  xmm0, xmm2, dword ptr [rax+28h]
-      vmovss  dword ptr [rdi+0C10h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rdi+0C14h], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rax+30h]
-      vmovss  dword ptr [rdi+0C18h], xmm0
-    }
-    LODWORD(_RDI->brCircle.blendDistance) = r_fogCircleOuterColorDistance->current.integer;
-    _RDI->brCircle.radius = r_fogCircle->current.vector.v[2];
-    LODWORD(_RDI->brCircle.fogInset) = r_fogCircleInset->current.integer;
-    _RDI->brCircle.height = r_fogCircle->current.vector.v[3];
-    LODWORD(_RDI->brCircle.volumetricDensity) = r_fogCircleVolumetricParams->current.integer;
-    _RDI->brCircle.volumetricScale = r_fogCircleVolumetricParams->current.vector.v[1];
-    LODWORD(_RDI->brCircle.distanceDensity) = r_fogCircleDistanceParams->current.integer;
-    _RDI->brCircle.distanceScale = r_fogCircleDistanceParams->current.vector.v[1];
-    _RDI->brCircle.distanceHalfPlane = r_fogCircleDistanceParams->current.vector.v[2];
-    LODWORD(_RDI->brCircle.distanceHeightFalloff) = r_fogCircleHeightFalloff->current.integer;
-    _RDI->brCircle.volumetricHeightFalloff = r_fogCircleHeightFalloff->current.vector.v[1];
-    LODWORD(_RDI->brCircle.skyDistanceMultiplier) = r_fogCircleSkyDistanceMultiplier->current.integer;
-    LODWORD(_RDI->brCircle.aFogColorBlend) = r_fogCircleDistanceFogBlend->current.integer;
-    _RDI->brCircle.aFogDistanceBlend = r_fogCircleDistanceFogBlend->current.vector.v[1];
-    LODWORD(_RDI->brCircle.distanceHeightBlend) = r_fogCircleDistanceHeightBlend->current.integer;
-    LODWORD(_RDI->brCircle.distanceHeightViewBlend) = r_fogCircleDistanceHeightViewBlend->current.integer;
-    LODWORD(_RDI->brCircle.distanceHeightBlendStart) = r_fogCircleDistanceHeightBlendStart->current.integer;
-    LODWORD(_RDI->brCircle.densityScale) = r_fogCircleFogDensityScale->current.integer;
-    LODWORD(_RDI->brCircle.densityBias) = r_fogCircleFogDensityBias->current.integer;
-    LODWORD(_RDI->brCircle.densityNoiseScale) = r_fogCircleFogDensityNoiseScale->current.integer;
-    LODWORD(_RDI->brCircle.densityNoiseBias) = r_fogCircleFogDensityNoiseBias->current.integer;
-    _RCX = r_fogCircleFogDensityTiling;
-    LODWORD(_RDI->brCircle.densityTiling.v[0]) = r_fogCircleFogDensityTiling->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0C7Ch], xmm0
-    }
-    _RCX = r_fogCircleFogDensityScrollingSpeed;
-    LODWORD(_RDI->brCircle.densityScrollingSpeed.v[0]) = r_fogCircleFogDensityScrollingSpeed->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vmovss  dword ptr [rdi+0C84h], xmm0
-    }
+    v82 = r_fogCircle;
+    LODWORD(viewInfo->brCircle.position.v[0]) = r_fogCircle->current.integer;
+    viewInfo->brCircle.position.v[1] = v82->current.vector.v[1];
+    v83 = r_fogCircleVolumetricInnerColor;
+    LODWORD(viewInfo->brCircle.volumetricInnerColor.v[0]) = r_fogCircleVolumetricInnerColor->current.integer;
+    viewInfo->brCircle.volumetricInnerColor.v[1] = v83->current.vector.v[1];
+    viewInfo->brCircle.volumetricInnerColor.v[2] = v83->current.vector.v[2];
+    v84 = r_fogCircleVolumetricOuterColor;
+    LODWORD(viewInfo->brCircle.volumetricOuterColor.v[0]) = r_fogCircleVolumetricOuterColor->current.integer;
+    viewInfo->brCircle.volumetricOuterColor.v[1] = v84->current.vector.v[1];
+    viewInfo->brCircle.volumetricOuterColor.v[2] = v84->current.vector.v[2];
+    v85 = r_fogCircleDistanceInnerColor;
+    LODWORD(viewInfo->brCircle.distanceInnerColor.v[0]) = r_fogCircleDistanceInnerColor->current.integer;
+    viewInfo->brCircle.distanceInnerColor.v[1] = v85->current.vector.v[1];
+    viewInfo->brCircle.distanceInnerColor.v[2] = v85->current.vector.v[2];
+    v86 = r_fogCircleDistanceOuterColor;
+    LODWORD(viewInfo->brCircle.distanceOuterColor.v[0]) = r_fogCircleDistanceOuterColor->current.integer;
+    viewInfo->brCircle.distanceOuterColor.v[1] = v86->current.vector.v[1];
+    viewInfo->brCircle.distanceOuterColor.v[2] = v86->current.vector.v[2];
+    v87 = r_fogCirclePerceptualTint;
+    v88 = r_fogCirclePerceptualTint->current.vector.v[3];
+    viewInfo->brCircle.perceptualTint.v[0] = v88 * r_fogCirclePerceptualTint->current.value;
+    viewInfo->brCircle.perceptualTint.v[1] = v88 * v87->current.vector.v[1];
+    viewInfo->brCircle.perceptualTint.v[2] = v88 * v87->current.vector.v[2];
+    LODWORD(viewInfo->brCircle.blendDistance) = r_fogCircleOuterColorDistance->current.integer;
+    viewInfo->brCircle.radius = r_fogCircle->current.vector.v[2];
+    LODWORD(viewInfo->brCircle.fogInset) = r_fogCircleInset->current.integer;
+    viewInfo->brCircle.height = r_fogCircle->current.vector.v[3];
+    LODWORD(viewInfo->brCircle.volumetricDensity) = r_fogCircleVolumetricParams->current.integer;
+    viewInfo->brCircle.volumetricScale = r_fogCircleVolumetricParams->current.vector.v[1];
+    LODWORD(viewInfo->brCircle.distanceDensity) = r_fogCircleDistanceParams->current.integer;
+    viewInfo->brCircle.distanceScale = r_fogCircleDistanceParams->current.vector.v[1];
+    viewInfo->brCircle.distanceHalfPlane = r_fogCircleDistanceParams->current.vector.v[2];
+    LODWORD(viewInfo->brCircle.distanceHeightFalloff) = r_fogCircleHeightFalloff->current.integer;
+    viewInfo->brCircle.volumetricHeightFalloff = r_fogCircleHeightFalloff->current.vector.v[1];
+    LODWORD(viewInfo->brCircle.skyDistanceMultiplier) = r_fogCircleSkyDistanceMultiplier->current.integer;
+    LODWORD(viewInfo->brCircle.aFogColorBlend) = r_fogCircleDistanceFogBlend->current.integer;
+    viewInfo->brCircle.aFogDistanceBlend = r_fogCircleDistanceFogBlend->current.vector.v[1];
+    LODWORD(viewInfo->brCircle.distanceHeightBlend) = r_fogCircleDistanceHeightBlend->current.integer;
+    LODWORD(viewInfo->brCircle.distanceHeightViewBlend) = r_fogCircleDistanceHeightViewBlend->current.integer;
+    LODWORD(viewInfo->brCircle.distanceHeightBlendStart) = r_fogCircleDistanceHeightBlendStart->current.integer;
+    LODWORD(viewInfo->brCircle.densityScale) = r_fogCircleFogDensityScale->current.integer;
+    LODWORD(viewInfo->brCircle.densityBias) = r_fogCircleFogDensityBias->current.integer;
+    LODWORD(viewInfo->brCircle.densityNoiseScale) = r_fogCircleFogDensityNoiseScale->current.integer;
+    LODWORD(viewInfo->brCircle.densityNoiseBias) = r_fogCircleFogDensityNoiseBias->current.integer;
+    v89 = r_fogCircleFogDensityTiling;
+    LODWORD(viewInfo->brCircle.densityTiling.v[0]) = r_fogCircleFogDensityTiling->current.integer;
+    viewInfo->brCircle.densityTiling.v[1] = v89->current.vector.v[1];
+    v90 = r_fogCircleFogDensityScrollingSpeed;
+    LODWORD(viewInfo->brCircle.densityScrollingSpeed.v[0]) = r_fogCircleFogDensityScrollingSpeed->current.integer;
+    viewInfo->brCircle.densityScrollingSpeed.v[1] = v90->current.vector.v[1];
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+928h]
-      vmovups xmmword ptr [rdi+0BE0h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+938h]
-      vmovups xmmword ptr [rdi+0BF0h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+948h]
-      vmovups xmmword ptr [rdi+0C00h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+958h]
-      vmovups xmmword ptr [rdi+0C10h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+968h]
-      vmovups xmmword ptr [rdi+0C20h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+978h]
-      vmovups xmmword ptr [rdi+0C30h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+988h]
-      vmovups xmmword ptr [rdi+0C40h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+998h]
-      vmovups xmmword ptr [rdi+0C50h], xmm1
-      vmovups xmm0, xmmword ptr [rsi+9A8h]
-      vmovups xmmword ptr [rdi+0C60h], xmm0
-      vmovups xmm1, xmmword ptr [rsi+9B8h]
-      vmovups xmmword ptr [rdi+0C70h], xmm1
-    }
-    _RDI->brCircle.densityScrollingSpeed = _RSI->brCircle.densityScrollingSpeed;
+    *(_OWORD *)viewInfo->brCircle.volumetricInnerColor.v = *(_OWORD *)sceneParms->brCircle.volumetricInnerColor.v;
+    *(_OWORD *)&viewInfo->brCircle.volumetricOuterColor.y = *(_OWORD *)&sceneParms->brCircle.volumetricOuterColor.y;
+    *(_OWORD *)&viewInfo->brCircle.distanceInnerColor.z = *(_OWORD *)&sceneParms->brCircle.distanceInnerColor.z;
+    *(_OWORD *)viewInfo->brCircle.perceptualTint.v = *(_OWORD *)sceneParms->brCircle.perceptualTint.v;
+    *(_OWORD *)&viewInfo->brCircle.position.y = *(_OWORD *)&sceneParms->brCircle.position.y;
+    *(_OWORD *)&viewInfo->brCircle.fogInset = *(_OWORD *)&sceneParms->brCircle.fogInset;
+    *(_OWORD *)&viewInfo->brCircle.distanceHeightFalloff = *(_OWORD *)&sceneParms->brCircle.distanceHeightFalloff;
+    *(_OWORD *)&viewInfo->brCircle.skyDistanceMultiplier = *(_OWORD *)&sceneParms->brCircle.skyDistanceMultiplier;
+    *(_OWORD *)&viewInfo->brCircle.distanceHeightViewBlend = *(_OWORD *)&sceneParms->brCircle.distanceHeightViewBlend;
+    *(_OWORD *)&viewInfo->brCircle.densityNoiseScale = *(_OWORD *)&sceneParms->brCircle.densityNoiseScale;
+    viewInfo->brCircle.densityScrollingSpeed = sceneParms->brCircle.densityScrollingSpeed;
   }
-  R_SetFrameFog(_RDI);
-  __asm { vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000 }
+  R_SetFrameFog(viewInfo);
   if ( Particle_GetMagmaHeightfield() )
   {
-    _RCX = particle_magma_heightfield_bbox_min;
-    _RAX = particle_magma_heightfield_bbox_max;
+    v91 = particle_magma_heightfield_bbox_min;
+    v92 = particle_magma_heightfield_bbox_max;
+    unsignedInt = particle_magma_heightfield_bbox_max->current.unsignedInt;
+    *(float *)&unsignedInt = particle_magma_heightfield_bbox_max->current.value - particle_magma_heightfield_bbox_min->current.value;
+    _XMM2 = unsignedInt;
+    v96 = LODWORD(particle_magma_heightfield_bbox_max->current.vector.v[1]);
+    *(float *)&v96 = particle_magma_heightfield_bbox_max->current.vector.v[1] - particle_magma_heightfield_bbox_min->current.vector.v[1];
+    _XMM0 = v96;
     __asm
     {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vsubss  xmm2, xmm0, dword ptr [rcx+28h]
-      vmovss  xmm1, dword ptr [rax+2Ch]
-      vsubss  xmm0, xmm1, dword ptr [rcx+2Ch]
       vmaxss  xmm1, xmm0, xmm8
-      vdivss  xmm4, xmm8, xmm1
-      vxorps  xmm0, xmm4, xmm14
       vmaxss  xmm3, xmm2, xmm8
-      vdivss  xmm2, xmm8, xmm3
-      vmovss  dword ptr [rdi+2220h], xmm2
-      vmovss  dword ptr [rdi+2224h], xmm0
-      vmulss  xmm1, xmm2, dword ptr [rcx+28h]
-      vxorps  xmm0, xmm1, xmm14
-      vmovss  dword ptr [rdi+2228h], xmm0
-      vmulss  xmm1, xmm4, dword ptr [rcx+2Ch]
-      vaddss  xmm0, xmm1, xmm8
-      vmovss  dword ptr [rdi+222Ch], xmm0
-      vmovss  xmm1, dword ptr [rax+30h]
-      vsubss  xmm0, xmm1, dword ptr [rcx+30h]
-      vmovss  dword ptr [rdi+2230h], xmm0
-      vmovss  xmm2, dword ptr [rcx+30h]
     }
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYScale.v[0] = 1.0 / *(float *)&_XMM3;
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYScale.v[1] = COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 / *(float *)&_XMM1) ^ _xmm);
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYBias.v[0] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / *(float *)&_XMM3) * v91->current.value) ^ _xmm);
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYBias.v[1] = (float)((float)(1.0 / *(float *)&_XMM1) * v91->current.vector.v[1]) + 1.0;
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldYScale = v92->current.vector.v[2] - v91->current.vector.v[2];
+    v99 = v91->current.vector.v[2];
   }
   else
   {
-    _RDI->input.sceneConstants.vfxMagmaHeightfieldXYScale = 0i64;
-    _RDI->input.sceneConstants.vfxMagmaHeightfieldXYBias = 0i64;
-    _RDI->input.sceneConstants.vfxMagmaHeightfieldYScale = 0.0;
-    __asm { vmovaps xmm2, xmm9 }
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYScale = 0i64;
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldXYBias = 0i64;
+    viewInfo->input.sceneConstants.vfxMagmaHeightfieldYScale = 0.0;
+    v99 = 0.0;
   }
-  __asm { vmovss  dword ptr [rdi+2234h], xmm2 }
-  _RDI->input.sceneConstants.vfxMagmaHeightfieldUnused0 = 0.0;
-  Bool_Internal = Dvar_GetBool_Internal(sm_sunDynamics);
-  v235 = !Bool_Internal;
-  if ( !Bool_Internal || (v235 = rg.useSunShadow <= 2, rg.useSunShadow != 2) )
-    v89 = 0;
-  _RDI->useDynamicSunShadows = v89;
-  _RDI->useCachedSunShadow = rg.useCachedSunShadow;
-  _RDI->cachedSunShadowMaxTilesPerFrame = rg.cachedSunShadowMaxTilesPerFrame;
-  _RAX = r_rimLightingLerp;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+300h]
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm2, xmm0, dword ptr [rsi+2FCh]
-    vmovss  xmm0, dword ptr [rsi+304h]
-    vsubss  xmm1, xmm0, xmm3
-    vcomiss xmm1, xmm9
-  }
-  if ( v235 )
-    __asm { vmovaps xmm1, xmm8 }
+  viewInfo->input.sceneConstants.vfxMagmaHeightfieldYBias = v99;
+  viewInfo->input.sceneConstants.vfxMagmaHeightfieldUnused0 = 0.0;
+  if ( !Dvar_GetBool_Internal(sm_sunDynamics) || rg.useSunShadow != 2 )
+    v28 = 0;
+  viewInfo->useDynamicSunShadows = v28;
+  viewInfo->useCachedSunShadow = rg.useCachedSunShadow;
+  viewInfo->cachedSunShadowMaxTilesPerFrame = rg.cachedSunShadowMaxTilesPerFrame;
+  rimLightStartDistance = sceneParms->rimLighting.rimLightStartDistance;
+  v101 = sceneParms->rimLighting.rimLightDistance - rimLightStartDistance;
+  if ( v101 > 0.0 )
+    v102 = 1.0 / v101;
   else
-    __asm { vdivss  xmm1, xmm8, xmm1 }
-  __asm
+    v102 = *(float *)&_xmm;
+  rimLightFill = sceneParms->rimLighting.rimLightFill;
+  viewInfo->input.sceneConstants.rimLightParams.v[0] = r_rimLightingLerp->current.value * sceneParms->rimLighting.rimLightScale;
+  viewInfo->input.sceneConstants.rimLightParams.v[1] = rimLightStartDistance;
+  viewInfo->input.sceneConstants.rimLightParams.v[2] = v102;
+  viewInfo->input.sceneConstants.rimLightParams.v[3] = rimLightFill;
+  v104 = r_dof_tweak->current.integer;
+  if ( v104 )
   {
-    vmovss  xmm0, dword ptr [rsi+308h]
-    vmovss  dword ptr [rdi+1920h], xmm2
-    vmovss  dword ptr [rdi+1924h], xmm3
-    vmovss  dword ptr [rdi+1928h], xmm1
-    vmovss  dword ptr [rdi+192Ch], xmm0
-  }
-  v244 = r_dof_tweak->current.integer;
-  if ( v244 )
-  {
-    v245 = v244 - 1;
-    if ( !v245 )
+    v105 = v104 - 1;
+    if ( !v105 )
     {
-      _RDI->dofDisabled = 0;
-      _RDI->dualViewScopeState.m_fade = 1.0;
-      _RDI->dofPhysical.enabled = R_DOF_GetPhysicalEnable();
-      *(_WORD *)&_RDI->dofPhysical.hipEnabled = 0;
-      _RDI->dofPhysical.adsEnabled = 0;
-      LODWORD(_RDI->dofPhysical.filmDiagonal) = r_dof_physical_filmDiagonal->current.integer;
-      LODWORD(_RDI->dofPhysical.minFocusDistance) = r_dof_physical_minFocusDistance->current.integer;
-      LODWORD(_RDI->dofPhysical.maxCocDiameter) = r_dof_physical_maxCocDiameter->current.integer;
-      LODWORD(_RDI->dofPhysical.fstop) = r_dof_physical_fstop->current.integer;
-      LODWORD(_RDI->dofPhysical.focusDistance) = r_dof_physical_focusDistance->current.integer;
-      _RDI->dofPhysical.cocScale = 1.0;
-      LODWORD(_RDI->dofPhysical.viewModelFstop) = r_dof_physical_viewModelFstop->current.integer;
-      LODWORD(_RDI->dofPhysical.viewModelFocusDistance) = r_dof_physical_viewModelFocusDistance->current.integer;
-      goto LABEL_173;
+      viewInfo->dofDisabled = 0;
+      viewInfo->dualViewScopeState.m_fade = 1.0;
+      viewInfo->dofPhysical.enabled = R_DOF_GetPhysicalEnable();
+      *(_WORD *)&viewInfo->dofPhysical.hipEnabled = 0;
+      viewInfo->dofPhysical.adsEnabled = 0;
+      LODWORD(viewInfo->dofPhysical.filmDiagonal) = r_dof_physical_filmDiagonal->current.integer;
+      LODWORD(viewInfo->dofPhysical.minFocusDistance) = r_dof_physical_minFocusDistance->current.integer;
+      LODWORD(viewInfo->dofPhysical.maxCocDiameter) = r_dof_physical_maxCocDiameter->current.integer;
+      LODWORD(viewInfo->dofPhysical.fstop) = r_dof_physical_fstop->current.integer;
+      LODWORD(viewInfo->dofPhysical.focusDistance) = r_dof_physical_focusDistance->current.integer;
+      viewInfo->dofPhysical.cocScale = 1.0;
+      LODWORD(viewInfo->dofPhysical.viewModelFstop) = r_dof_physical_viewModelFstop->current.integer;
+      LODWORD(viewInfo->dofPhysical.viewModelFocusDistance) = r_dof_physical_viewModelFocusDistance->current.integer;
+      goto LABEL_191;
     }
-    if ( v245 != 1 )
+    if ( v105 != 1 )
     {
       CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3283, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
       __debugbreak();
     }
-    _RDI->dofDisabled = 0;
-    goto LABEL_171;
+    viewInfo->dofDisabled = 0;
+    goto LABEL_189;
   }
   if ( !r_dof_enable->current.enabled )
   {
-    _RDI->dofDisabled = 1;
-LABEL_171:
+    viewInfo->dofDisabled = 1;
+LABEL_189:
     viewModelFocusDistance = 0.0;
-    *(_QWORD *)&_RDI->dofPhysical.enabled = 0i64;
-    *(_QWORD *)&_RDI->dofPhysical.minFocusDistance = 0i64;
-    *(_QWORD *)&_RDI->dofPhysical.fstop = 0i64;
-    *(_QWORD *)&_RDI->dofPhysical.cocScale = 0i64;
-    goto LABEL_172;
+    *(_QWORD *)&viewInfo->dofPhysical.enabled = 0i64;
+    *(_QWORD *)&viewInfo->dofPhysical.minFocusDistance = 0i64;
+    *(_QWORD *)&viewInfo->dofPhysical.fstop = 0i64;
+    *(_QWORD *)&viewInfo->dofPhysical.cocScale = 0i64;
+    goto LABEL_190;
   }
-  _RDI->dofDisabled = 0;
-  __asm
+  viewInfo->dofDisabled = 0;
+  *(__m256i *)&viewInfo->dofPhysical.enabled = *(__m256i *)&sceneParms->dofPhysical.enabled;
+  viewModelFocusDistance = sceneParms->dofPhysical.viewModelFocusDistance;
+LABEL_190:
+  viewInfo->dofPhysical.viewModelFocusDistance = viewModelFocusDistance;
+LABEL_191:
+  viewInfo->shellShock = sceneParms->shellshock;
+  *(double *)&viewInfo->radialMotionBlur.enabled = *(double *)&sceneParms->radialMotionBlur.enabled;
+  viewInfo->radialMotionBlur.strength = sceneParms->radialMotionBlur.strength;
+  Float_Internal = Dvar_GetFloat_Internal(r_mbRadialOverrideRadius);
+  if ( *(float *)&Float_Internal > 0.0 )
   {
-    vmovups ymm0, ymmword ptr [rsi+18h]
-    vmovups ymmword ptr [rdi+0C8Ch], ymm0
+    viewInfo->radialMotionBlur.radius = *(float *)&Float_Internal;
+    viewInfo->radialMotionBlur.enabled = 1;
   }
-  viewModelFocusDistance = _RSI->dofPhysical.viewModelFocusDistance;
-LABEL_172:
-  _RDI->dofPhysical.viewModelFocusDistance = viewModelFocusDistance;
-LABEL_173:
-  __asm
+  v108 = Dvar_GetFloat_Internal(r_mbRadialOverrideStrength);
+  if ( *(float *)&v108 > 0.0 )
   {
-    vmovups xmm0, xmmword ptr [rsi+0AD8h]
-    vmovups xmmword ptr [rdi+6474h], xmm0
-    vmovsd  xmm0, qword ptr [rsi+0ABCh]
-    vmovsd  qword ptr [rdi+37F4h], xmm0
+    viewInfo->radialMotionBlur.strength = *(float *)&v108;
+    viewInfo->radialMotionBlur.enabled = 1;
   }
-  _RDI->radialMotionBlur.strength = _RSI->radialMotionBlur.strength;
-  __asm
-  {
-    vmovaps xmmword ptr [rsp+280h+var_58+8], xmm7
-    vmovaps xmmword ptr [rsp+280h+var_88+8], xmm10
-    vmovaps [rsp+280h+var_98+8], xmm11
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal(r_mbRadialOverrideRadius);
-  __asm { vcomiss xmm0, xmm9 }
-  if ( !v63 && !v115 )
-  {
-    __asm { vmovss  dword ptr [rdi+37F8h], xmm0 }
-    _RDI->radialMotionBlur.enabled = 1;
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal(r_mbRadialOverrideStrength);
-  __asm { vcomiss xmm0, xmm9 }
-  if ( !v63 && !v115 )
-  {
-    __asm { vmovss  dword ptr [rdi+37FCh], xmm0 }
-    _RDI->radialMotionBlur.enabled = 1;
-  }
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal(r_mbRadialOverrideDistortion);
-  __asm { vucomiss xmm0, xmm9 }
-  if ( !v115 )
-    _RDI->radialMotionBlur.enabled = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+80h]
-    vmovups ymmword ptr [rdi+0CC4h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+0A0h]
-    vmovups ymmword ptr [rdi+0CE4h], ymm1
-    vmovups ymm0, ymmword ptr [rsi+0C0h]
-    vmovups ymmword ptr [rdi+0D04h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+0E0h]
-    vmovups xmmword ptr [rdi+0D24h], xmm1
-  }
+  v109 = Dvar_GetFloat_Internal(r_mbRadialOverrideDistortion);
+  if ( *(float *)&v109 != 0.0 )
+    viewInfo->radialMotionBlur.enabled = 1;
+  *(__m256i *)&viewInfo->droneCameraEffects.pixelSize = *(__m256i *)&sceneParms->droneCameraEffects.pixelSize;
+  *(__m256i *)&viewInfo->droneCameraEffects.deformScreenThreshold = *(__m256i *)&sceneParms->droneCameraEffects.deformScreenThreshold;
+  *(__m256i *)&viewInfo->droneCameraEffects.scanline2_InterpolationPower = *(__m256i *)&sceneParms->droneCameraEffects.scanline2_InterpolationPower;
+  *(_OWORD *)&viewInfo->droneCameraEffects.zoomUV = *(_OWORD *)&sceneParms->droneCameraEffects.zoomUV;
   if ( rg.variableRateShadingEnabled )
   {
-    _RDI->variableRateShading.enabled = r_vrsEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskEnabled = r_vrsMaskEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskPreview = r_vrsMaskPreview->current.enabled;
-    LODWORD(_RDI->variableRateShading.vrsMaskPixelThreshold) = r_vrsMaskPixelThreshold->current.integer;
-    LODWORD(_RDI->variableRateShading.vrsMaskNeighborhoodThreshold) = r_vrsMaskNeighborhoodThreshold->current.integer;
-    _RDI->variableRateShading.vrsMaskMotionBlurEnabled = r_vrsMaskMotionBlurEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskMotionBlurIntensity = r_vrsMaskMotionBlurIntensity->current.integer;
-    _RDI->variableRateShading.vrsMaskDofEnabled = r_vrsMaskDofEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskDofIntensity = r_vrsMaskDofIntensity->current.integer;
-    _RDI->variableRateShading.vrsMaskOpaqueDrawListsEnabled = r_vrsMaskOpaqueDrawListsEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskDecalDrawListsEnabled = r_vrsMaskDecalDrawListsEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskTransparentDrawListsEnabled = r_vrsMaskTransparentDrawListsEnabled->current.enabled;
-    _RDI->variableRateShading.vrsMaskPostProcessingEnabled = r_vrsMaskPostProcessingEnabled->current.enabled;
-    _RDI->variableRateShading.prepassEnabled = r_vrsPrepassEnabled->current.enabled;
-    v254 = r_vrsDrawGunEnabled->current.enabled;
+    viewInfo->variableRateShading.enabled = r_vrsEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskEnabled = r_vrsMaskEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskPreview = r_vrsMaskPreview->current.enabled;
+    LODWORD(viewInfo->variableRateShading.vrsMaskPixelThreshold) = r_vrsMaskPixelThreshold->current.integer;
+    LODWORD(viewInfo->variableRateShading.vrsMaskNeighborhoodThreshold) = r_vrsMaskNeighborhoodThreshold->current.integer;
+    viewInfo->variableRateShading.vrsMaskMotionBlurEnabled = r_vrsMaskMotionBlurEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskMotionBlurIntensity = r_vrsMaskMotionBlurIntensity->current.integer;
+    viewInfo->variableRateShading.vrsMaskDofEnabled = r_vrsMaskDofEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskDofIntensity = r_vrsMaskDofIntensity->current.integer;
+    viewInfo->variableRateShading.vrsMaskOpaqueDrawListsEnabled = r_vrsMaskOpaqueDrawListsEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskDecalDrawListsEnabled = r_vrsMaskDecalDrawListsEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskTransparentDrawListsEnabled = r_vrsMaskTransparentDrawListsEnabled->current.enabled;
+    viewInfo->variableRateShading.vrsMaskPostProcessingEnabled = r_vrsMaskPostProcessingEnabled->current.enabled;
+    viewInfo->variableRateShading.prepassEnabled = r_vrsPrepassEnabled->current.enabled;
+    v110 = r_vrsDrawGunEnabled->current.enabled;
   }
   else
   {
-    *(_QWORD *)&_RDI->variableRateShading.enabled = 0i64;
-    v254 = 0;
-    *(_QWORD *)&_RDI->variableRateShading.vrsMaskPixelThreshold = 0i64;
-    *(_QWORD *)&_RDI->variableRateShading.vrsMaskMotionBlurIntensity = 0i64;
-    *(_WORD *)&_RDI->variableRateShading.vrsMaskPostProcessingEnabled = 0;
+    *(_QWORD *)&viewInfo->variableRateShading.enabled = 0i64;
+    v110 = 0;
+    *(_QWORD *)&viewInfo->variableRateShading.vrsMaskPixelThreshold = 0i64;
+    *(_QWORD *)&viewInfo->variableRateShading.vrsMaskMotionBlurIntensity = 0i64;
+    *(_WORD *)&viewInfo->variableRateShading.vrsMaskPostProcessingEnabled = 0;
   }
-  _RDI->variableRateShading.drawGunEnabled = v254;
-  v255 = r_lensProfileOverrideMode->current.integer;
-  if ( v255 )
+  viewInfo->variableRateShading.drawGunEnabled = v110;
+  v111 = r_lensProfileOverrideMode->current.integer;
+  if ( v111 )
   {
-    _RDI->lensProfile.mode = v255;
-    LODWORD(_RDI->lensProfile.focalLength) = r_lensProfileOverrideFocalLength->current.integer;
-    LODWORD(_RDI->lensProfile.aperture) = r_lensProfileOverrideAperture->current.integer;
-    LODWORD(_RDI->lensProfile.scale) = r_lensProfileOverrideScale->current.integer;
-    LODWORD(_RDI->lensProfile.UVScale) = r_lensProfileOverrideUVScale->current.integer;
+    viewInfo->lensProfile.mode = v111;
+    LODWORD(viewInfo->lensProfile.focalLength) = r_lensProfileOverrideFocalLength->current.integer;
+    LODWORD(viewInfo->lensProfile.aperture) = r_lensProfileOverrideAperture->current.integer;
+    LODWORD(viewInfo->lensProfile.scale) = r_lensProfileOverrideScale->current.integer;
+    LODWORD(viewInfo->lensProfile.UVScale) = r_lensProfileOverrideUVScale->current.integer;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+3Ch]
-      vmovups xmmword ptr [rdi+0CB0h], xmm0
-    }
-    _RDI->lensProfile.UVScale = _RSI->lensProfile.UVScale;
+    *(_OWORD *)&viewInfo->lensProfile.mode = *(_OWORD *)&sceneParms->lensProfile.mode;
+    viewInfo->lensProfile.UVScale = sceneParms->lensProfile.UVScale;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+50h]
-    vmovups ymmword ptr [rdi+2E10h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+70h]
-    vmovups xmmword ptr [rdi+2E30h], xmm1
-  }
+  *(__m256i *)&viewInfo->vignette.intensity = *(__m256i *)&sceneParms->vignette.intensity;
+  *(_OWORD *)viewInfo->vignette.offset.v = *(_OWORD *)sceneParms->vignette.offset.v;
   if ( r_vignetteUseTweaks->current.enabled )
   {
-    __asm { vmovd   xmm1, r15d }
-    LODWORD(_RDI->vignette.intensity) = r_vignetteTweakIntensity->current.integer;
-    _ECX = r_vignetteTweakSquareAspectRatio->current.color[0];
+    LODWORD(viewInfo->vignette.intensity) = r_vignetteTweakIntensity->current.integer;
+    _XMM0 = r_vignetteTweakSquareAspectRatio->current.color[0];
     __asm
     {
-      vmovd   xmm0, ecx
       vpcmpeqd xmm1, xmm0, xmm1
       vblendvps xmm0, xmm8, xmm9, xmm1
-      vmovss  dword ptr [rdi+2E14h], xmm0
     }
-    v264 = r_vignetteTweakSize;
-    LODWORD(_RDI->vignette.size.v[0]) = r_vignetteTweakSize->current.integer;
-    _RDI->vignette.size.v[1] = v264->current.vector.v[1];
-    LODWORD(_RDI->vignette.falloff) = r_vignetteTweakFalloff->current.integer;
-    LODWORD(_RDI->vignette.falloffStart) = r_vignetteTweakFalloffStart->current.integer;
-    v265 = r_vignetteTweakBoxSize;
-    LODWORD(_RDI->vignette.boxSize.v[0]) = r_vignetteTweakBoxSize->current.integer;
-    _RDI->vignette.boxSize.v[1] = v265->current.vector.v[1];
-    v266 = r_vignetteTweakOffset;
-    LODWORD(_RDI->vignette.offset.v[0]) = r_vignetteTweakOffset->current.integer;
-    _RDI->vignette.offset.v[1] = v266->current.vector.v[1];
+    viewInfo->vignette.squareAspectRatioWeight = *(float *)&_XMM0;
+    v115 = r_vignetteTweakSize;
+    LODWORD(viewInfo->vignette.size.v[0]) = r_vignetteTweakSize->current.integer;
+    viewInfo->vignette.size.v[1] = v115->current.vector.v[1];
+    LODWORD(viewInfo->vignette.falloff) = r_vignetteTweakFalloff->current.integer;
+    LODWORD(viewInfo->vignette.falloffStart) = r_vignetteTweakFalloffStart->current.integer;
+    v116 = r_vignetteTweakBoxSize;
+    LODWORD(viewInfo->vignette.boxSize.v[0]) = r_vignetteTweakBoxSize->current.integer;
+    viewInfo->vignette.boxSize.v[1] = v116->current.vector.v[1];
+    v117 = r_vignetteTweakOffset;
+    LODWORD(viewInfo->vignette.offset.v[0]) = r_vignetteTweakOffset->current.integer;
+    viewInfo->vignette.offset.v[1] = v117->current.vector.v[1];
   }
-  R_SetLightScaleInfo(_RDI, _RSI);
-  v267 = !r_lgvThinDisable->current.enabled && r_lgvThinOverride->current.enabled && r_lgvThinOverrideStable->current.integer == 1;
-  _RDI->input.sceneConstants.debugLGVTweak = v267;
-  v115 = Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO;
-  _RAX = r_shaderLodSecondarySpecularDurango;
-  if ( !v115 )
-    _RAX = r_shaderLodSecondarySpecular;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rax+28h]
-    vmovss  xmm0, cs:__real@40900000
-    vmovss  xmm1, cs:__real@40a00000
-    vsubss  xmm2, xmm0, xmm5
-    vmulss  xmm0, xmm5, cs:__real@3e4ccccd
-    vsubss  xmm3, xmm1, xmm2
-    vmulss  xmm4, xmm3, cs:__real@3e4ccccd
-    vsubss  xmm1, xmm0, xmm4
-    vdivss  xmm3, xmm8, xmm1
-    vmovss  dword ptr [rdi+2460h], xmm3
-    vmulss  xmm0, xmm3, xmm4
-    vxorps  xmm2, xmm0, xmm14
-    vmovss  dword ptr [rdi+2464h], xmm2
-  }
-  *(_QWORD *)&_RDI->input.sceneConstants.shaderLodScale.xyz.z = 0i64;
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.lodParms.cappedLodScale; r_globals_t rg
-    vmovss  dword ptr [rdi+2660h], xmm0
-  }
+  R_SetLightScaleInfo(viewInfo, sceneParms);
+  v118 = !r_lgvThinDisable->current.enabled && r_lgvThinOverride->current.enabled && r_lgvThinOverrideStable->current.integer == 1;
+  viewInfo->input.sceneConstants.debugLGVTweak = v118;
+  v119 = Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO;
+  v120 = r_shaderLodSecondarySpecularDurango;
+  if ( !v119 )
+    v120 = r_shaderLodSecondarySpecular;
+  v121 = v120->current.value;
+  v122 = (float)(5.0 - (float)(4.5 - v121)) * 0.2;
+  v123 = (float)(v121 * 0.2) - v122;
+  viewInfo->input.sceneConstants.shaderLodScale.v[0] = 1.0 / v123;
+  viewInfo->input.sceneConstants.shaderLodScale.v[1] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / v123) * v122) ^ _xmm);
+  *(_QWORD *)&viewInfo->input.sceneConstants.shaderLodScale.xyz.z = 0i64;
+  viewInfo->input.sceneConstants.fovDistanceScaleFactor = rg.lodParms.cappedLodScale;
   Dvar_GetVec4_Internal(fx_lighting_shScale, &result);
-  Dvar_GetVec4_Internal(fx_lighting_params, &v519);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+180h+result]
-    vmovups xmmword ptr [rdi+18E0h], xmm0
-    vmovups xmm0, xmmword ptr [rbp+180h+var_180]
-    vmovups xmmword ptr [rdi+18F0h], xmm0
-    vmovups ymm0, ymmword ptr [rsi+0A08h]
-    vmovups ymmword ptr [rdi+0E00h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+0A28h]
-    vmovups xmmword ptr [rdi+0E20h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+1A4h]
-    vmovsd  qword ptr [rdi+2DD0h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+1ACh]
-    vmovups xmmword ptr [rdi+2DD8h], xmm0
-  }
-  _RDI->analogEffects.analogChromaSeparationEffectAmount = _RSI->analogEffects.analogChromaSeparationEffectAmount;
+  Dvar_GetVec4_Internal(fx_lighting_params, &v192);
+  viewInfo->input.sceneConstants.shBandScale = result;
+  viewInfo->input.sceneConstants.vfxLightingParams = v192;
+  *(__m256i *)viewInfo->waterSheetingFx.distortionScale.v = *(__m256i *)sceneParms->waterSheetingFx.distortionScale.v;
+  *(_OWORD *)&viewInfo->waterSheetingFx.startMSec = *(_OWORD *)&sceneParms->waterSheetingFx.startMSec;
+  viewInfo->digitalDistort = sceneParms->digitalDistort;
+  *(_OWORD *)&viewInfo->analogEffects.analogRewindAmount = *(_OWORD *)&sceneParms->analogEffects.analogRewindAmount;
+  viewInfo->analogEffects.analogChromaSeparationEffectAmount = sceneParms->analogEffects.analogChromaSeparationEffectAmount;
   if ( !r_colorGradingEnable->current.enabled || rg.debugShaderEnabled )
   {
-    v287 = 0;
-    _RCX = &g_GfxColorGrading_identity;
+    v124 = 0;
+    p_colorGrading = &g_GfxColorGrading_identity;
   }
   else
   {
-    v287 = 1;
-    _RCX = &_RSI->colorGrading;
+    v124 = 1;
+    p_colorGrading = &sceneParms->colorGrading;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdi+2EE0h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rdi+2EF0h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+20h]
-    vmovups xmmword ptr [rdi+2F00h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+30h]
-    vmovups xmmword ptr [rdi+2F10h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vmovups xmmword ptr [rdi+2F20h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+50h]
-    vmovups xmmword ptr [rdi+2F30h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+60h]
-    vmovups xmmword ptr [rdi+2F40h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+70h]
-    vmovups xmmword ptr [rdi+2F50h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+80h]
-    vmovups xmmword ptr [rdi+2F60h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+90h]
-    vmovups xmmword ptr [rdi+2F70h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+0A0h]
-    vmovups xmmword ptr [rdi+2F80h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+0B0h]
-    vmovups xmmword ptr [rdi+2F90h], xmm1
-  }
-  if ( v287 )
-    nvgColorGrading = _RSI->nvgColorGrading;
+  *(_OWORD *)&viewInfo->colorGrading.clutSet.m_clutCount = *(_OWORD *)&p_colorGrading->clutSet.m_clutCount;
+  *(_OWORD *)viewInfo->colorGrading.clutSet.m_clutArray = *(_OWORD *)p_colorGrading->clutSet.m_clutArray;
+  *(_OWORD *)&viewInfo->colorGrading.clutSet.m_clutArray[2] = *(_OWORD *)&p_colorGrading->clutSet.m_clutArray[2];
+  *(_OWORD *)&viewInfo->colorGrading.clutSet.m_clutArray[4] = *(_OWORD *)&p_colorGrading->clutSet.m_clutArray[4];
+  *(_OWORD *)&viewInfo->colorGrading.clutSet.m_clutArray[6] = *(_OWORD *)&p_colorGrading->clutSet.m_clutArray[6];
+  *(_OWORD *)viewInfo->colorGrading.colorGradingAnalytical.keyPositions = *(_OWORD *)p_colorGrading->colorGradingAnalytical.keyPositions;
+  *(_OWORD *)&viewInfo->colorGrading.colorGradingAnalytical.keyMidpoints[1] = *(_OWORD *)&p_colorGrading->colorGradingAnalytical.keyMidpoints[1];
+  *(_OWORD *)&viewInfo->colorGrading.colorGradingAnalytical.key[0].saturation = *(_OWORD *)&p_colorGrading->colorGradingAnalytical.key[0].saturation;
+  *(_OWORD *)&viewInfo->colorGrading.colorGradingAnalytical.key[1].saturation = *(_OWORD *)&p_colorGrading->colorGradingAnalytical.key[1].saturation;
+  *(_OWORD *)&viewInfo->colorGrading.colorGradingAnalytical.key[2].saturation = *(_OWORD *)&p_colorGrading->colorGradingAnalytical.key[2].saturation;
+  *(_OWORD *)&viewInfo->colorGrading.colorGradingAnalytical.lift.z = *(_OWORD *)&p_colorGrading->colorGradingAnalytical.lift.z;
+  *(_OWORD *)viewInfo->colorGrading.colorGradingAnalytical.gain.v = *(_OWORD *)p_colorGrading->colorGradingAnalytical.gain.v;
+  if ( v124 )
+    nvgColorGrading = sceneParms->nvgColorGrading;
   else
     nvgColorGrading = NULL;
-  _RDI->nvgColorGrading = nvgColorGrading;
-  LightmapAtlasTextureSize = R_GetLightmapAtlasTextureSize(_RDI->input.data, rgp.world->draw.lightmapType);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  dword ptr [rdi+2600h], xmm0
-  }
+  viewInfo->nvgColorGrading = nvgColorGrading;
+  LightmapAtlasTextureSize = R_GetLightmapAtlasTextureSize(viewInfo->input.data, rgp.world->draw.lightmapType);
+  v128 = (float)LightmapAtlasTextureSize;
+  viewInfo->input.sceneConstants.lightmapAtlasSize.v[0] = v128;
   if ( LightmapAtlasTextureSize )
-    __asm { vdivss  xmm0, xmm8, xmm0 }
+    v129 = 1.0 / v128;
   else
-    __asm { vmovaps xmm0, xmm8 }
-  __asm { vmovss  dword ptr [rdi+2604h], xmm0 }
-  LightGridVolumesAtlasTextureDepth = R_GetLightGridVolumesAtlasTextureDepth(_RDI->input.data);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  dword ptr [rdi+2608h], xmm0
-  }
+    v129 = *(float *)&_xmm;
+  viewInfo->input.sceneConstants.lightmapAtlasSize.v[1] = v129;
+  LightGridVolumesAtlasTextureDepth = R_GetLightGridVolumesAtlasTextureDepth(viewInfo->input.data);
+  v131 = (float)LightGridVolumesAtlasTextureDepth;
+  viewInfo->input.sceneConstants.lightGridVolumeAtlasSize.v[0] = v131;
   if ( LightGridVolumesAtlasTextureDepth )
-    __asm { vdivss  xmm1, xmm8, xmm0 }
+    v132 = 1.0 / v131;
   else
-    __asm { vmovaps xmm1, xmm8 }
-  __asm { vmovss  dword ptr [rdi+260Ch], xmm1 }
-  _RAX = r_screenShotPixelOffset;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+28h]
-    vmovss  [rbp+180h+var_128], xmm1
-    vmovss  xmm0, dword ptr [rax+2Ch]
-    vmovss  [rbp+180h+var_124], xmm0
-    vxorps  xmm1, xmm1, xmm14
-    vmovss  [rbp+180h+var_128], xmm1
-    vmovss  dword ptr [rdi+2610h], xmm1
-    vmovss  xmm0, [rbp+180h+var_124]
-    vmovss  dword ptr [rdi+2614h], xmm0
-  }
-  InterleavedInfo = R_Screenshot_GetInterleavedInfo();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+180h+var_198]
-    vmovss  xmm1, dword ptr [rbp+180h+var_198+4]
-    vmovss  dword ptr [rdi+2618h], xmm0
-    vmovss  dword ptr [rdi+261Ch], xmm1
-  }
-  LODWORD(_RDI->input.sceneConstants.mipBias) = r_texFilterMipBias->current.integer;
-  R_SSS_SetInfo(_RDI);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3fc90fdb
-    vxorps  xmm0, xmm0, xmm0
-    vmovups [rsp+280h+var_210+8], xmm0
-    vmovss  xmm1, dword ptr [rdi+64Ch]
-    vmovss  dword ptr [rsp+280h+var_210+8], xmm1
-    vmovss  xmm3, dword ptr [rdi+650h]
-    vmovss  dword ptr [rsp+280h+var_210+0Ch], xmm3
-    vmovss  xmm4, dword ptr [rdi+654h]
-    vmovss  [rbp+180h+var_200], xmm4
-    vmovss  xmm2, dword ptr [rdi+648h]
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rsp+280h+var_210+8], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm3, xmm2
-    vmovss  [rbp+180h+var_200], xmm0
-    vmovss  dword ptr [rsp+280h+var_210+0Ch], xmm1
-    vmulss  xmm0, xmm7, dword ptr [rdi+660h]; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+180h+vec], xmm0
-    vmulss  xmm0, xmm7, dword ptr [rdi+65Ch]; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+180h+vec+4], xmm0
-    vmulss  xmm0, xmm7, dword ptr [rdi+65Ch]; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmulss  xmm0, xmm7, dword ptr [rdi+660h]; X
-  }
-  cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm0
-    vxorps  xmm2, xmm1, xmm14
-    vmovss  dword ptr [rbp+180h+vec+8], xmm2
-    vmovss  dword ptr [rbp+180h+vec+0Ch], xmm9
-  }
-  MatrixInverse44Aligned((const tmat44_t<vec4_t> *)_RDI, &dst);
+    v132 = *(float *)&_xmm;
+  viewInfo->input.sceneConstants.lightGridVolumeAtlasSize.v[1] = v132;
+  v199 = r_screenShotPixelOffset->current.value;
+  v200 = r_screenShotPixelOffset->current.vector.v[1];
+  LODWORD(v199) ^= _xmm;
+  viewInfo->input.sceneConstants.subpixelOffset.v[0] = v199;
+  viewInfo->input.sceneConstants.subpixelOffset.v[1] = v200;
+  viewInfo->input.sceneConstants.screenshotInfo = R_Screenshot_GetInterleavedInfo();
+  LODWORD(viewInfo->input.sceneConstants.mipBias) = r_texFilterMipBias->current.integer;
+  R_SSS_SetInfo(viewInfo);
+  eyeHighlightIntensity = viewInfo->eyeVirtualHighlight.eyeHighlightIntensity;
+  v171 = viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[0] * eyeHighlightIntensity;
+  v173 = viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[2] * eyeHighlightIntensity;
+  v172 = viewInfo->eyeVirtualHighlight.eyeHighlightColor.v[1] * eyeHighlightIntensity;
+  vec.v[0] = sinf_0(1.5707964 * viewInfo->eyeVirtualHighlight.eyeHighlightHeading);
+  vec.v[1] = sinf_0(1.5707964 * viewInfo->eyeVirtualHighlight.eyeHighlightPitch);
+  v134 = 1.5707964 * viewInfo->eyeVirtualHighlight.eyeHighlightPitch;
+  cosf_0(v134);
+  LODWORD(vec.v[2]) = COERCE_UNSIGNED_INT(v134 * cosf_0(1.5707964 * viewInfo->eyeVirtualHighlight.eyeHighlightHeading)) ^ _xmm;
+  vec.v[3] = 0.0;
+  MatrixInverse44Aligned((const tmat44_t<vec4_t> *)viewInfo, &dst);
   MatrixTransformVector44Aligned(&vec, &dst, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+180h+out]
-    vmovss  xmm1, dword ptr [rbp+180h+out+4]
-    vmovss  xmm3, dword ptr [rdi+658h]
-    vmovss  xmm2, dword ptr [rbp+180h+out+8]
-    vmovss  dword ptr [rdi+18C0h], xmm0
-    vmovss  dword ptr [rdi+18C4h], xmm1
-    vmovss  dword ptr [rdi+18C8h], xmm2
-    vmovss  dword ptr [rdi+18CCh], xmm3
-    vmovss  xmm0, dword ptr [rsp+280h+var_210+8]
-    vmovss  dword ptr [rdi+18D0h], xmm0
-    vmovss  xmm1, dword ptr [rsp+280h+var_210+0Ch]
-    vmovss  dword ptr [rdi+18D4h], xmm1
-    vmovss  xmm0, [rbp+180h+var_200]
-    vmovss  dword ptr [rdi+18D8h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1FC]
-    vmovss  dword ptr [rdi+18DCh], xmm1
-  }
-  *(_DWORD *)&_RDI->firstFlare = 0;
-  _RCX = &_RDI->hudOutline;
-  _RAX = &_RSI->hudOutline;
+  v135 = out.v[1];
+  eyeHighlightBulbRadius = viewInfo->eyeVirtualHighlight.eyeHighlightBulbRadius;
+  v137 = out.v[2];
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[0] = out.v[0];
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[1] = v135;
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[2] = v137;
+  viewInfo->input.sceneConstants.eyeHighlightParams1.v[3] = eyeHighlightBulbRadius;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[0] = v171;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[1] = v172;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[2] = v173;
+  viewInfo->input.sceneConstants.eyeHighlightParams2.v[3] = 0;
+  *(_DWORD *)&viewInfo->firstFlare = 0;
+  p_hudOutline = &viewInfo->hudOutline;
+  v139 = &sceneParms->hudOutline;
   do
   {
-    _RCX = (GfxHudOutlineState *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxHudOutlineState *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v18;
+    p_hudOutline = (GfxHudOutlineState *)((char *)p_hudOutline + 128);
+    v140 = *(vec4_t *)&v139->enable;
+    v139 = (GfxHudOutlineState *)((char *)v139 + 128);
+    *(vec4_t *)((char *)&p_hudOutline[-1].scopeFillColor1 + 8) = v140;
+    *(vec4_t *)((char *)&p_hudOutline[-1].scopeOccludedOutlineColor + 8) = *(vec4_t *)((char *)&v139[-1].scopeOccludedOutlineColor + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].scopeOccludedInlineColor + 8) = *(vec4_t *)((char *)&v139[-1].scopeOccludedInlineColor + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].scopeOccludedInteriorColor + 8) = *(vec4_t *)((char *)&v139[-1].scopeOccludedInteriorColor + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].shimmerTextureProperties + 8) = *(vec4_t *)((char *)&v139[-1].shimmerTextureProperties + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].shimmerTextureProperties1 + 8) = *(vec4_t *)((char *)&v139[-1].shimmerTextureProperties1 + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].shimmerTextureProperties2 + 8) = *(vec4_t *)((char *)&v139[-1].shimmerTextureProperties2 + 8);
+    *(vec4_t *)((char *)&p_hudOutline[-1].snapshotEffectProperties + 8) = *(vec4_t *)((char *)&v139[-1].snapshotEffectProperties + 8);
+    --v9;
   }
-  while ( v18 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  *(_QWORD *)&_RCX->scopeFoeColor.xyz.z = *(_QWORD *)&_RAX->scopeFoeColor.xyz.z;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0AD0h]
-    vmovss  dword ptr [rdi+6444h], xmm0
-    vmovss  xmm1, dword ptr [rsi+0AD4h]
-    vmovss  dword ptr [rdi+6448h], xmm1
-  }
-  _RDI->deferredScreenshotIndex = _RSI->deferredScreenshotIndex;
-  R_SetupSceneCmdBufInput(_RDI);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rdi+1C10h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  dword ptr [rdi+1C14h], xmm1
-    vdivss  xmm0, xmm8, xmm0
-    vmovss  dword ptr [rdi+1C18h], xmm0
-    vdivss  xmm1, xmm8, xmm1
-    vmovss  dword ptr [rdi+1C1Ch], xmm1
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, rax
-    vdivss  xmm1, xmm8, xmm4
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vdivss  xmm3, xmm8, xmm2
-    vmulss  xmm0, xmm3, xmm4
-    vmovss  dword ptr [rdi+1C20h], xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rdi+1C24h], xmm0
-    vmovss  dword ptr [rdi+1C28h], xmm1
-    vmovss  dword ptr [rdi+1C2Ch], xmm3
-  }
-  if ( (*((_DWORD *)&_RDI->viewportFeatures + 11) & 0x100) == 0 )
-    R_SetupSceneRtInput(_RDI, _RSI->sceneRtWidth, _RSI->sceneRtHeight, _RSI->maxSceneRtWidth, _RSI->maxSceneRtHeight);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+134h]
-    vmulss  xmm2, xmm3, cs:?vidConfig@@3UvidConfig_t@@A.displayAspectRatio; vidConfig_t vidConfig
-    vmulss  xmm0, xmm2, cs:__real@40000000
-    vmovss  dword ptr [rdi+1E60h], xmm0
-    vmulss  xmm1, xmm3, cs:__real@c0000000
-    vmovss  dword ptr [rdi+1E64h], xmm1
-    vmovss  dword ptr [rdi+1E68h], xmm2
-    vxorps  xmm0, xmm3, xmm14
-    vmovss  dword ptr [rdi+1E6Ch], xmm0
-    vmovss  xmm1, dword ptr [rdi+130h]
-    vmulss  xmm11, xmm1, dword ptr [rdi+118h]
-    vmovss  [rbp+180h+var_1F8], xmm11
-    vmulss  xmm6, xmm1, dword ptr [rdi+11Ch]
-    vmovss  [rbp+180h+var_1F4], xmm6
-    vmulss  xmm7, xmm1, dword ptr [rdi+120h]
-    vmovss  [rbp+180h+var_1F0], xmm7
-    vmovss  xmm0, dword ptr [rdi+134h]
-    vmulss  xmm8, xmm0, dword ptr [rdi+124h]
-    vmovss  [rbp+180h+var_1EC], xmm8
-    vmulss  xmm9, xmm0, dword ptr [rdi+128h]
-    vmovss  [rbp+180h+var_1E8], xmm9
-    vmulss  xmm10, xmm0, dword ptr [rdi+12Ch]
-    vmovss  [rbp+180h+var_1E4], xmm10
-    vmovss  xmm1, dword ptr [rdi+10Ch]
-    vmovss  [rbp+180h+var_1E0], xmm1
-    vmovss  xmm3, dword ptr [rdi+110h]
-    vmovss  [rbp+180h+var_1DC], xmm3
-    vmovss  xmm4, dword ptr [rdi+114h]
-    vmovss  [rbp+180h+var_1D8], xmm4
-    vmovss  xmm2, dword ptr [rdi+168h]
-    vmulss  xmm0, xmm2, xmm11
-    vaddss  xmm5, xmm0, xmm1
-    vmovss  [rbp+180h+var_1E0], xmm5
-    vmulss  xmm1, xmm2, xmm6
-    vaddss  xmm6, xmm1, xmm3
-    vmovss  [rbp+180h+var_1DC], xmm6
-    vmulss  xmm0, xmm2, xmm7
-    vaddss  xmm4, xmm0, xmm4
-    vmovss  [rbp+180h+var_1D8], xmm4
-    vmovss  xmm0, dword ptr [rdi+16Ch]
-    vxorps  xmm3, xmm0, xmm14
-    vmulss  xmm1, xmm3, xmm8
-    vaddss  xmm2, xmm1, xmm5
-    vmovss  [rbp+180h+var_1E0], xmm2
-    vmulss  xmm0, xmm3, xmm9
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  [rbp+180h+var_1DC], xmm1
-    vmulss  xmm2, xmm3, xmm10
-    vaddss  xmm0, xmm2, xmm4
-    vmovss  [rbp+180h+var_1D8], xmm0
-    vmovss  dword ptr [rdi+1E70h], xmm11
-    vmovss  xmm0, [rbp+180h+var_1F4]
-    vmovss  dword ptr [rdi+1E74h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1F0]
-    vmovss  dword ptr [rdi+1E78h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1EC]
-    vmovss  dword ptr [rdi+1E80h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1E8]
-    vmovss  dword ptr [rdi+1E84h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1E4]
-    vmovss  dword ptr [rdi+1E88h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1E0]
-    vmovss  dword ptr [rdi+1E90h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1DC]
-    vmovss  dword ptr [rdi+1E94h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1D8]
-    vmovss  dword ptr [rdi+1E98h], xmm1
-  }
-  MatrixTranspose44Aligned((const tmat44_t<vec4_t> *)_RDI, &_RDI->input.sceneConstants.viewMatrix.m);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+13Ch]
-    vmulss  xmm2, xmm3, cs:?vidConfig@@3UvidConfig_t@@A.displayAspectRatio; vidConfig_t vidConfig
-    vmulss  xmm0, xmm2, cs:__real@40000000
-    vmulss  xmm1, xmm3, cs:__real@c0000000
-    vmovss  dword ptr [rdi+1EE0h], xmm0
-    vmovss  dword ptr [rdi+1EE4h], xmm1
-    vmovss  dword ptr [rdi+1EE8h], xmm2
-    vxorps  xmm0, xmm3, xmm14
-    vmovss  dword ptr [rdi+1EECh], xmm0
-    vmovss  xmm1, dword ptr [rdi+138h]
-    vmulss  xmm11, xmm1, dword ptr [rdi+118h]
-    vmovss  [rbp+180h+var_1D0], xmm11
-    vmulss  xmm6, xmm1, dword ptr [rdi+11Ch]
-    vmovss  [rbp+180h+var_1CC], xmm6
-    vmulss  xmm7, xmm1, dword ptr [rdi+120h]
-    vmovss  [rbp+180h+var_1C8], xmm7
-    vmovss  xmm0, dword ptr [rdi+13Ch]
-    vmulss  xmm8, xmm0, dword ptr [rdi+124h]
-    vmovss  [rbp+180h+var_1C4], xmm8
-    vmulss  xmm9, xmm0, dword ptr [rdi+128h]
-    vmovss  [rbp+180h+var_1C0], xmm9
-    vmulss  xmm10, xmm0, dword ptr [rdi+12Ch]
-    vmovss  [rbp+180h+var_1BC], xmm10
-    vmovss  xmm1, dword ptr [rdi+10Ch]
-    vmovss  [rbp+180h+var_1B8], xmm1
-    vmovss  xmm3, dword ptr [rdi+110h]
-    vmovss  [rbp+180h+var_1B4], xmm3
-    vmovss  xmm4, dword ptr [rdi+114h]
-    vmovss  [rbp+180h+var_1B0], xmm4
-    vmovss  xmm2, dword ptr [rdi+168h]
-    vmulss  xmm0, xmm11, xmm2
-    vaddss  xmm5, xmm0, xmm1
-    vmovss  [rbp+180h+var_1B8], xmm5
-    vmulss  xmm1, xmm6, xmm2
-    vaddss  xmm6, xmm1, xmm3
-    vmovss  [rbp+180h+var_1B4], xmm6
-    vmulss  xmm0, xmm7, xmm2
-    vaddss  xmm4, xmm0, xmm4
-    vmovss  [rbp+180h+var_1B0], xmm4
-    vmovss  xmm1, dword ptr [rdi+16Ch]
-    vxorps  xmm3, xmm1, xmm14
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm2, xmm0, xmm5
-    vmovss  [rbp+180h+var_1B8], xmm2
-    vmulss  xmm1, xmm9, xmm3
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  [rbp+180h+var_1B4], xmm0
-    vmulss  xmm2, xmm10, xmm3
-    vaddss  xmm1, xmm2, xmm4
-    vmovss  [rbp+180h+var_1B0], xmm1
-    vmovss  dword ptr [rdi+1EF0h], xmm11
-    vmovss  xmm0, [rbp+180h+var_1CC]
-    vmovss  dword ptr [rdi+1EF4h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1C8]
-    vmovss  dword ptr [rdi+1EF8h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1C4]
-    vmovss  dword ptr [rdi+1F00h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1C0]
-    vmovss  dword ptr [rdi+1F04h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1BC]
-    vmovss  dword ptr [rdi+1F08h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1B8]
-    vmovss  dword ptr [rdi+1F10h], xmm1
-    vmovss  xmm0, [rbp+180h+var_1B4]
-    vmovss  dword ptr [rdi+1F14h], xmm0
-    vmovss  xmm1, [rbp+180h+var_1B0]
-    vmovss  dword ptr [rdi+1F18h], xmm1
-  }
-  MatrixTranspose44Aligned((const tmat44_t<vec4_t> *)_RDI, &_RDI->input.sceneConstants.depthHackViewMatrix.m);
-  _RDI->input.sceneConstants.eyeOffset.v[0] = _RDI->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
-  _RDI->input.sceneConstants.eyeOffset.v[1] = _RDI->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
-  _RDI->input.sceneConstants.eyeOffset.v[2] = _RDI->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
-  _RDI->input.sceneConstants.eyeOffset.v[3] = 1.0;
-  __asm { vmovss  xmm0, dword ptr [rdi+1F60h]; f }
-  LODWORD(_RDI->input.sceneConstants.eyeOffsetHighPrecision.v[0]) = PreciseCoordFromFloat(*(const float *)&_XMM0, 0xCu);
-  __asm { vmovss  xmm0, dword ptr [rdi+1F64h]; f }
-  LODWORD(_RDI->input.sceneConstants.eyeOffsetHighPrecision.v[1]) = PreciseCoordFromFloat(*(const float *)&_XMM0, 0xCu);
-  __asm { vmovss  xmm0, dword ptr [rdi+1F68h]; f }
-  LODWORD(_RDI->input.sceneConstants.eyeOffsetHighPrecision.v[2]) = PreciseCoordFromFloat(*(const float *)&_XMM0, 0xCu);
-  __asm { vmovss  xmm0, dword ptr [rdi+1F6Ch]; f }
-  LODWORD(_RDI->input.sceneConstants.eyeOffsetHighPrecision.v[3]) = PreciseCoordFromFloat(*(const float *)&_XMM0, 0xCu);
-  __asm { vmovss  xmm0, dword ptr [rsi+7F4h] }
-  _RDI->input.sceneConstants.skyBlendConsts.v[0] = _RSI->skyBlendAmount;
-  __asm { vmovss  dword ptr [rdi+2244h], xmm0 }
-  *(_QWORD *)&_RDI->input.sceneConstants.skyBlendConsts.xyz.z = 0i64;
-  AnglesToAxis(&_RSI->stageInfo.activeStage.skyRotationAngles, &axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+180h+axis]
-    vmovss  xmm2, dword ptr [rbp+180h+axis+8]
-    vmovss  xmm1, dword ptr [rbp+180h+axis+4]
-    vmovss  dword ptr [rdi+2250h], xmm0
-    vmovss  dword ptr [rdi+2254h], xmm1
-    vmovss  dword ptr [rdi+2258h], xmm2
-  }
-  _RDI->input.sceneConstants.skyRotationMatrixInverseR0.v[3] = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+180h+axis+0Ch]
-    vmovss  xmm1, dword ptr [rbp+180h+axis+10h]
-    vmovss  xmm3, dword ptr [rbp+180h+axis+14h]
-    vmovss  dword ptr [rdi+2260h], xmm0
-    vmovss  dword ptr [rdi+2264h], xmm1
-    vmovss  dword ptr [rdi+2268h], xmm3
-  }
-  _RDI->input.sceneConstants.skyRotationMatrixInverseR1.v[3] = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+180h+axis+18h]
-    vmovss  xmm2, dword ptr [rbp+180h+axis+20h]
-    vmovss  xmm1, dword ptr [rbp+180h+axis+1Ch]
-    vmovss  dword ptr [rdi+2270h], xmm0
-    vmovss  dword ptr [rdi+2274h], xmm1
-    vmovss  dword ptr [rdi+2278h], xmm2
-  }
-  _RDI->input.sceneConstants.skyRotationMatrixInverseR2.v[3] = 0.0;
-  R_SetupScopeEffect(frontEndDataOut, _RDI);
-  __asm
-  {
-    vmovaps xmm11, [rsp+280h+var_98+8]
-    vmovaps xmm10, xmmword ptr [rsp+280h+var_88+8]
-    vmovaps xmm7, xmmword ptr [rsp+280h+var_58+8]
-  }
-  v478.m256i_i16[0] = 0;
-  v478.m256i_i32[2] = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+280h+var_230+18h], xmm0
-    vmovups ymm1, [rsp+280h+var_230+8]
-    vmovups ymmword ptr [rdi+37B0h], ymm1
-  }
-  _R11 = &v533;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-  }
+  while ( v9 );
+  *(_OWORD *)&p_hudOutline->enable = *(_OWORD *)&v139->enable;
+  *(_QWORD *)&p_hudOutline->scopeFoeColor.xyz.z = *(_QWORD *)&v139->scopeFoeColor.xyz.z;
+  viewInfo->decalVolumes.drawDistance = sceneParms->decalVolumes.drawDistance;
+  viewInfo->lightingFraction.bias = sceneParms->lightingFraction.bias;
+  viewInfo->deferredScreenshotIndex = sceneParms->deferredScreenshotIndex;
+  R_SetupSceneCmdBufInput(viewInfo);
+  sceneRtWidth = (float)sceneParms->sceneRtWidth;
+  sceneRtHeight = sceneParms->sceneRtHeight;
+  viewInfo->input.sceneConstants.sceneRenderTargetSize.v[0] = sceneRtWidth;
+  viewInfo->input.sceneConstants.sceneRenderTargetSize.v[1] = (float)sceneRtHeight;
+  viewInfo->input.sceneConstants.sceneRenderTargetSize.v[2] = 1.0 / sceneRtWidth;
+  viewInfo->input.sceneConstants.sceneRenderTargetSize.v[3] = 1.0 / (float)sceneRtHeight;
+  v143 = (float)sceneParms->displayViewport.width;
+  v144 = (float)sceneParms->displayViewport.height;
+  viewInfo->input.sceneConstants.displayAspectRatio.v[0] = (float)(1.0 / v144) * v143;
+  viewInfo->input.sceneConstants.displayAspectRatio.v[1] = (float)(1.0 / v143) * v144;
+  viewInfo->input.sceneConstants.displayAspectRatio.v[2] = 1.0 / v143;
+  viewInfo->input.sceneConstants.displayAspectRatio.v[3] = 1.0 / v144;
+  if ( (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 0x100) == 0 )
+    R_SetupSceneRtInput(viewInfo, sceneParms->sceneRtWidth, sceneParms->sceneRtHeight, sceneParms->maxSceneRtWidth, sceneParms->maxSceneRtHeight);
+  tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+  v146 = tanHalfFovY * vidConfig.displayAspectRatio;
+  viewInfo->input.sceneConstants.viewSpaceScaleBias.v[0] = (float)(tanHalfFovY * vidConfig.displayAspectRatio) * 2.0;
+  viewInfo->input.sceneConstants.viewSpaceScaleBias.v[1] = tanHalfFovY * -2.0;
+  viewInfo->input.sceneConstants.viewSpaceScaleBias.v[2] = v146;
+  viewInfo->input.sceneConstants.viewSpaceScaleBias.v[3] = COERCE_FLOAT(LODWORD(tanHalfFovY) ^ _xmm);
+  tanHalfFovX = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+  v174 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[0];
+  v175 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[1];
+  v176 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[2];
+  v148 = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+  v177 = v148 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[0];
+  v178 = v148 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[1];
+  v179 = v148 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[2];
+  v149 = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0];
+  LODWORD(v150) = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1]) ^ _xmm;
+  v180 = (float)(v150 * v177) + (float)((float)(v149 * v174) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0]);
+  v181 = (float)(v150 * v178) + (float)((float)(v149 * v175) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1]);
+  v182 = (float)(v150 * v179) + (float)((float)(v149 * v176) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[2]);
+  viewInfo->input.sceneConstants.viewAxisX.v[0] = v174;
+  viewInfo->input.sceneConstants.viewAxisX.v[1] = v175;
+  viewInfo->input.sceneConstants.viewAxisX.v[2] = v176;
+  viewInfo->input.sceneConstants.viewAxisY.v[0] = v177;
+  viewInfo->input.sceneConstants.viewAxisY.v[1] = v178;
+  viewInfo->input.sceneConstants.viewAxisY.v[2] = v179;
+  viewInfo->input.sceneConstants.viewAxisZ.v[0] = v180;
+  viewInfo->input.sceneConstants.viewAxisZ.v[1] = v181;
+  viewInfo->input.sceneConstants.viewAxisZ.v[2] = v182;
+  MatrixTranspose44Aligned((const tmat44_t<vec4_t> *)viewInfo, &viewInfo->input.sceneConstants.viewMatrix.m);
+  v151 = viewInfo->viewParmsSet.frames[0].viewParms.camera.depthHackFoV.tanHalfFovY;
+  v152 = v151 * vidConfig.displayAspectRatio;
+  viewInfo->input.sceneConstants.depthHackViewSpaceScaleBias.v[0] = (float)(v151 * vidConfig.displayAspectRatio) * 2.0;
+  viewInfo->input.sceneConstants.depthHackViewSpaceScaleBias.v[1] = v151 * -2.0;
+  viewInfo->input.sceneConstants.depthHackViewSpaceScaleBias.v[2] = v152;
+  viewInfo->input.sceneConstants.depthHackViewSpaceScaleBias.v[3] = COERCE_FLOAT(LODWORD(v151) ^ _xmm);
+  v153 = viewInfo->viewParmsSet.frames[0].viewParms.camera.depthHackFoV.tanHalfFovX;
+  v154 = v153 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[0];
+  v183 = v153 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[1];
+  v184 = v153 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[2];
+  v155 = viewInfo->viewParmsSet.frames[0].viewParms.camera.depthHackFoV.tanHalfFovY;
+  v185 = v155 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[0];
+  v186 = v155 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[1];
+  v187 = v155 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[2];
+  v156 = viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0];
+  LODWORD(v157) = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1]) ^ _xmm;
+  v188 = (float)(v185 * v157) + (float)((float)(v154 * v156) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0]);
+  v189 = (float)(v186 * v157) + (float)((float)(v183 * v156) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1]);
+  v190 = (float)(v187 * v157) + (float)((float)(v184 * v156) + viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[2]);
+  viewInfo->input.sceneConstants.depthHackViewAxisX.v[0] = v154;
+  viewInfo->input.sceneConstants.depthHackViewAxisX.v[1] = v183;
+  viewInfo->input.sceneConstants.depthHackViewAxisX.v[2] = v184;
+  viewInfo->input.sceneConstants.depthHackViewAxisY.v[0] = v185;
+  viewInfo->input.sceneConstants.depthHackViewAxisY.v[1] = v186;
+  viewInfo->input.sceneConstants.depthHackViewAxisY.v[2] = v187;
+  viewInfo->input.sceneConstants.depthHackViewAxisZ.v[0] = v188;
+  viewInfo->input.sceneConstants.depthHackViewAxisZ.v[1] = v189;
+  viewInfo->input.sceneConstants.depthHackViewAxisZ.v[2] = v190;
+  MatrixTranspose44Aligned((const tmat44_t<vec4_t> *)viewInfo, &viewInfo->input.sceneConstants.depthHackViewMatrix.m);
+  viewInfo->input.sceneConstants.eyeOffset.v[0] = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  viewInfo->input.sceneConstants.eyeOffset.v[1] = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  viewInfo->input.sceneConstants.eyeOffset.v[2] = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  viewInfo->input.sceneConstants.eyeOffset.v[3] = 1.0;
+  LODWORD(viewInfo->input.sceneConstants.eyeOffsetHighPrecision.v[0]) = PreciseCoordFromFloat(viewInfo->input.sceneConstants.eyeOffset.v[0], 0xCu);
+  LODWORD(viewInfo->input.sceneConstants.eyeOffsetHighPrecision.v[1]) = PreciseCoordFromFloat(viewInfo->input.sceneConstants.eyeOffset.v[1], 0xCu);
+  LODWORD(viewInfo->input.sceneConstants.eyeOffsetHighPrecision.v[2]) = PreciseCoordFromFloat(viewInfo->input.sceneConstants.eyeOffset.v[2], 0xCu);
+  LODWORD(viewInfo->input.sceneConstants.eyeOffsetHighPrecision.v[3]) = PreciseCoordFromFloat(viewInfo->input.sceneConstants.eyeOffset.v[3], 0xCu);
+  skyBlendFeather = sceneParms->skyBlendFeather;
+  viewInfo->input.sceneConstants.skyBlendConsts.v[0] = sceneParms->skyBlendAmount;
+  viewInfo->input.sceneConstants.skyBlendConsts.v[1] = skyBlendFeather;
+  *(_QWORD *)&viewInfo->input.sceneConstants.skyBlendConsts.xyz.z = 0i64;
+  AnglesToAxis(&sceneParms->stageInfo.activeStage.skyRotationAngles, &axis);
+  v159 = axis.m[0].v[2];
+  v160 = axis.m[0].v[1];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR0.v[0] = axis.m[0].v[0];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR0.v[1] = v160;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR0.v[2] = v159;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR0.v[3] = 0.0;
+  v161 = axis.m[1].v[1];
+  v162 = axis.m[1].v[2];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR1.v[0] = axis.m[1].v[0];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR1.v[1] = v161;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR1.v[2] = v162;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR1.v[3] = 0.0;
+  _XMM0 = LODWORD(axis.m[2].v[0]);
+  v164 = axis.m[2].v[2];
+  v165 = axis.m[2].v[1];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR2.v[0] = axis.m[2].v[0];
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR2.v[1] = v165;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR2.v[2] = v164;
+  viewInfo->input.sceneConstants.skyRotationMatrixInverseR2.v[3] = 0.0;
+  R_SetupScopeEffect(frontEndDataOut, viewInfo);
+  v170.m_surfaceID = 0;
+  v170.m_tracking.m_allocCounter = 0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v170.m_tracking.m_name = _XMM0;
+  viewInfo->debugUav = v170;
 }
 
 /*
@@ -17430,52 +13582,35 @@ R_SetupViewProjectionMatrices
 */
 void R_SetupViewProjectionMatrices(GfxViewParms *viewParms)
 {
-  bool v3; 
+  vec2_t *p_subpixelOffset; 
+  GfxMatrix *p_projectionMatrix; 
+  __m256i v4; 
+  float v5; 
   tmat44_t<vec4_t> out; 
   GfxMatrix in; 
   tmat44_t<vec4_t> dst; 
 
-  _RDI = viewParms;
-  v3 = &viewParms->subpixelOffset == NULL;
-  _RCX = &viewParms->subpixelOffset;
-  __asm
+  p_subpixelOffset = &viewParms->subpixelOffset;
+  if ( p_subpixelOffset->v[0] == 0.0 && p_subpixelOffset->v[1] == 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rcx]
-  }
-  if ( !v3 )
-    goto LABEL_4;
-  __asm { vucomiss xmm0, dword ptr [rcx+4] }
-  if ( v3 )
-  {
-    _RSI = &_RDI->projectionMatrix.m;
+    p_projectionMatrix = &viewParms->projectionMatrix;
   }
   else
   {
-LABEL_4:
-    _RSI = &_RDI->projectionMatrix.m;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rsp+0F8h+in.m], ymm0
-      vmovups ymmword ptr [rsp+0F8h+in.m+20h], ymm1
-    }
-    R_ApplySubPixelOffset(_RCX, &in, &_RDI->projectionMatrix);
+    p_projectionMatrix = &viewParms->projectionMatrix;
+    v4 = *(__m256i *)viewParms->projectionMatrix.m.row2.v;
+    *(__m256i *)in.m.m[0].v = *(__m256i *)viewParms->projectionMatrix.m.m[0].v;
+    *(__m256i *)in.m.row2.v = v4;
+    R_ApplySubPixelOffset(p_subpixelOffset, &in, &viewParms->projectionMatrix);
   }
-  MatrixMultiply44Aligned(&_RDI->viewMatrix.m, _RSI, &_RDI->viewProjectionMatrix.m);
-  MatrixInverse44Aligned(&_RDI->viewProjectionMatrix.m, &dst);
+  MatrixMultiply44Aligned(&viewParms->viewMatrix.m, &p_projectionMatrix->m, &viewParms->viewProjectionMatrix.m);
+  MatrixInverse44Aligned(&viewParms->viewProjectionMatrix.m, &dst);
   MatrixIdentity44(&out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+100h]
-    vmovss  xmm1, dword ptr [rdi+104h]
-    vmovss  dword ptr [rsp+0F8h+out+30h], xmm0
-    vmovss  xmm0, dword ptr [rdi+108h]
-    vmovss  dword ptr [rsp+0F8h+out+38h], xmm0
-    vmovss  dword ptr [rsp+0F8h+out+34h], xmm1
-  }
-  MatrixMultiply44Aligned(&dst, &out, &_RDI->inverseViewProjectionMatrix.m);
+  v5 = viewParms->camera.origin.v[1];
+  out.m[3].v[0] = viewParms->camera.origin.v[0];
+  out.m[3].v[2] = viewParms->camera.origin.v[2];
+  out.m[3].v[1] = v5;
+  MatrixMultiply44Aligned(&dst, &out, &viewParms->inverseViewProjectionMatrix.m);
 }
 
 /*
@@ -17485,82 +13620,74 @@ R_SetupViewportFeatures
 */
 void R_SetupViewportFeatures(const GfxViewportFeatures *viewportFeaturesRequest, GfxViewportFeatures *features)
 {
-  GfxViewportFeatures *v4; 
+  int v3; 
+  unsigned int v4; 
   int v5; 
-  unsigned int v6; 
+  int v6; 
   int v7; 
   int v8; 
-  int v9; 
-  int v10; 
+  unsigned int v9; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
+  int v12; 
   unsigned int v13; 
-  int v14; 
-  unsigned int v15; 
+  unsigned int v14; 
+  int v15; 
   unsigned int v16; 
-  int v17; 
+  unsigned int v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  int v21; 
-  int v22; 
-  const dvar_t *v23; 
+  int v19; 
+  int v20; 
+  const dvar_t *v21; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups xmm1, xmmword ptr [rcx+20h]
-    vmovups xmmword ptr [rdx+20h], xmm1
-  }
-  v4 = features;
-  v5 = -1;
-  v6 = *((_DWORD *)features + 11) & ((8 * sm_sunAllow->current.enabled) | 0xFFFFFFF7);
+  *features = *viewportFeaturesRequest;
+  v3 = -1;
+  v4 = *((_DWORD *)features + 11) & ((8 * sm_sunAllow->current.enabled) | 0xFFFFFFF7);
+  *((_DWORD *)features + 11) = v4;
+  if ( (v4 & 8) == 0 || !sm_sunEnable->current.enabled || (v5 = -1, !rg.useSunShadow) )
+    v5 = -5;
+  v6 = v4 & v5;
   *((_DWORD *)features + 11) = v6;
-  if ( (v6 & 8) == 0 || !sm_sunEnable->current.enabled || (v7 = -1, !rg.useSunShadow) )
-    v7 = -5;
-  v8 = v6 & v7;
-  *((_DWORD *)v4 + 11) = v8;
-  if ( !sm_sunViewmodelHack->current.enabled || (v9 = -1, (v8 & 8) == 0) )
-    v9 = -65;
-  v10 = v9 & v8;
-  *((_DWORD *)v4 + 11) = v10;
-  v11 = v10 & (sm_spotAllow->current.color[0] | 0xFFFFFFFE);
-  *((_DWORD *)v4 + 11) = v11;
-  if ( (v11 & 1) == 0 || !sm_spotEnable->current.enabled )
-    v5 = -3;
-  v12 = v5 & v11;
-  *((_DWORD *)v4 + 11) = v12;
-  LOBYTE(v13) = rg.sunShadowOpaqueCascadeLimit;
+  if ( !sm_sunViewmodelHack->current.enabled || (v7 = -1, (v6 & 8) == 0) )
+    v7 = -65;
+  v8 = v7 & v6;
+  *((_DWORD *)features + 11) = v8;
+  v9 = v8 & (sm_spotAllow->current.color[0] | 0xFFFFFFFE);
+  *((_DWORD *)features + 11) = v9;
+  if ( (v9 & 1) == 0 || !sm_spotEnable->current.enabled )
+    v3 = -3;
+  v10 = v3 & v9;
+  *((_DWORD *)features + 11) = v10;
+  LOBYTE(v11) = rg.sunShadowOpaqueCascadeLimit;
   if ( !rg.sunShadowOpaqueCascadeLimit )
-    v13 = v12 >> 4;
-  v14 = v12 ^ ((unsigned __int8)v12 ^ (unsigned __int8)(16 * v13)) & 0x30;
-  *((_DWORD *)v4 + 11) = v14;
-  v15 = v14 & 0xFFFEFFFF | (rg.useCachedSpotShadows != 0 ? 0x10000 : 0);
-  *((_DWORD *)v4 + 11) = v15;
-  v16 = v15 & 0xFFFDFFFF | (rg.useCachedSunShadow != 0 ? 0x20000 : 0);
-  *((_DWORD *)v4 + 11) = v16;
-  if ( (v16 & 8) != 0 && rg.useTransSunShadow )
-    v17 = 0x2000;
+    v11 = v10 >> 4;
+  v12 = v10 ^ ((unsigned __int8)v10 ^ (unsigned __int8)(16 * v11)) & 0x30;
+  *((_DWORD *)features + 11) = v12;
+  v13 = v12 & 0xFFFEFFFF | (rg.useCachedSpotShadows != 0 ? 0x10000 : 0);
+  *((_DWORD *)features + 11) = v13;
+  v14 = v13 & 0xFFFDFFFF | (rg.useCachedSunShadow != 0 ? 0x20000 : 0);
+  *((_DWORD *)features + 11) = v14;
+  if ( (v14 & 8) != 0 && rg.useTransSunShadow )
+    v15 = 0x2000;
   else
-    v17 = 0;
-  v18 = v17 | v16 & 0xFFFFDFFF;
-  *((_DWORD *)v4 + 11) = v18;
-  v19 = ((r_drawPassTrans->current.color[0] << 11) | 0xFFFFF7FF) & v18;
-  *((_DWORD *)v4 + 11) = v19;
-  v20 = ((r_drawPassEmissive->current.color[0] << 12) | 0xFFFFEFFF) & v19;
-  *((_DWORD *)v4 + 11) = v20;
-  v21 = ((unsigned __int16)v20 ^ (unsigned __int16)(LOWORD(rg.ssaoMode) << 14)) & 0x4000 ^ v20;
-  *((_DWORD *)v4 + 11) = v21;
-  v22 = ((unsigned __int16)v21 ^ (unsigned __int16)(LOWORD(rg.ssaoMode) << 14)) & 0x8000 ^ v21;
-  *((_DWORD *)v4 + 11) = v22;
-  *((_DWORD *)v4 + 11) = v22 ^ (v22 ^ (rg.halfResEmissive << 18)) & 0x40000;
-  v4->m_shadowMapTileResolution = rg.shadowMapResolutionIndex;
-  v23 = DVARBOOL_r_casEnabled;
+    v15 = 0;
+  v16 = v15 | v14 & 0xFFFFDFFF;
+  *((_DWORD *)features + 11) = v16;
+  v17 = ((r_drawPassTrans->current.color[0] << 11) | 0xFFFFF7FF) & v16;
+  *((_DWORD *)features + 11) = v17;
+  v18 = ((r_drawPassEmissive->current.color[0] << 12) | 0xFFFFEFFF) & v17;
+  *((_DWORD *)features + 11) = v18;
+  v19 = ((unsigned __int16)v18 ^ (unsigned __int16)(LOWORD(rg.ssaoMode) << 14)) & 0x4000 ^ v18;
+  *((_DWORD *)features + 11) = v19;
+  v20 = ((unsigned __int16)v19 ^ (unsigned __int16)(LOWORD(rg.ssaoMode) << 14)) & 0x8000 ^ v19;
+  *((_DWORD *)features + 11) = v20;
+  *((_DWORD *)features + 11) = v20 ^ (v20 ^ (rg.halfResEmissive << 18)) & 0x40000;
+  features->m_shadowMapTileResolution = rg.shadowMapResolutionIndex;
+  v21 = DVARBOOL_r_casEnabled;
   if ( !DVARBOOL_r_casEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_casEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  *((_DWORD *)v4 + 11) ^= (*((_DWORD *)v4 + 11) ^ (v23->current.color[0] << 19)) & 0x80000;
+  Dvar_CheckFrontendServerThread(v21);
+  *((_DWORD *)features + 11) ^= (*((_DWORD *)features + 11) ^ (v21->current.color[0] << 19)) & 0x80000;
 }
 
 /*
@@ -17606,88 +13733,80 @@ void R_SubmitDepthHackSurfaces(GfxViewInfo *viewInfo, GfxDrawListType drawListID
   __int64 v3; 
   GfxDrawList *v5; 
   GfxBackEndData *v6; 
+  char *v7; 
+  GfxDrawListIter *v8; 
   __int64 v9; 
   __int64 v10; 
+  __m256i v11; 
+  __int128 v12; 
+  __int128 v13; 
   const unsigned __int64 *mark; 
-  __int64 v26; 
-  __int64 v27; 
-  __int64 v28; 
-  char v29[672]; 
+  char *v15; 
+  __int64 v16; 
+  __m256i v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  char v23[672]; 
 
   v3 = drawListID;
   v5 = &viewInfo->drawList[drawListID];
   R_EmitDrawSurfList(scene.drawSurfs[drawSurfListType], scene.drawSurfCount[drawSurfListType], v5);
   R_DrawListIter_Init(v5, &frontEndDataOut->drawListIter[v3]);
   v6 = frontEndDataOut;
-  _RAX = v29;
-  _RCX = &frontEndDataOut->drawListIter[v3];
+  v7 = v23;
+  v8 = &frontEndDataOut->drawListIter[v3];
   v9 = 5i64;
   v10 = 5i64;
   do
   {
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups xmm1, xmmword ptr [rcx+70h]
-    }
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v7 += 128;
+    v11 = *(__m256i *)&v8->bspSurfIter.current;
+    v12 = *(_OWORD *)&v8->smodelSubdivPatchSurfIter.visData;
+    v8 = (GfxDrawListIter *)((char *)v8 + 128);
+    *((__m256i *)v7 - 4) = v11;
+    *((__m256i *)v7 - 3) = *(__m256i *)&v8[-1].iteratorPool[7].key.fields.spliceIndex;
+    *((__m256i *)v7 - 2) = *(__m256i *)&v8[-1].iteratorPool[7].SaveMarkCallback;
+    *((_OWORD *)v7 - 2) = *(_OWORD *)&v8[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *((_OWORD *)v7 - 1) = v12;
     --v10;
   }
   while ( v10 );
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
-  mark = _RCX->bspSurfIter.mark;
-  __asm { vmovups xmmword ptr [rax], xmm0 }
-  *((_QWORD *)_RAX + 2) = mark;
+  v13 = *(_OWORD *)&v8->bspSurfIter.current;
+  mark = v8->bspSurfIter.mark;
+  *(_OWORD *)v7 = v13;
+  *((_QWORD *)v7 + 2) = mark;
   if ( (unsigned int)v3 >= 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v3, 19) )
     __debugbreak();
-  _RAX = v29;
-  _R8 = (__int64)&v6->drawListIter[v3 + 65];
+  v15 = v23;
+  v16 = (__int64)&v6->drawListIter[v3 + 65];
   do
   {
-    _R8 += 128i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [r8-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [r8-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [r8-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r8-20h], xmm0
-      vmovups xmmword ptr [r8-10h], xmm1
-    }
+    v16 += 128i64;
+    v17 = *(__m256i *)v15;
+    v18 = *((_OWORD *)v15 + 7);
+    v15 += 128;
+    *(__m256i *)(v16 - 128) = v17;
+    *(__m256i *)(v16 - 96) = *((__m256i *)v15 - 3);
+    *(__m256i *)(v16 - 64) = *((__m256i *)v15 - 2);
+    *(_OWORD *)(v16 - 32) = *((_OWORD *)v15 - 2);
+    *(_OWORD *)(v16 - 16) = v18;
     --v9;
   }
   while ( v9 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v26 = *((_QWORD *)_RAX + 2);
-  __asm { vmovups xmmword ptr [r8], xmm0 }
-  *(_QWORD *)(_R8 + 16) = v26;
+  v19 = *(_OWORD *)v15;
+  v20 = *((_QWORD *)v15 + 2);
+  *(_OWORD *)v16 = v19;
+  *(_QWORD *)(v16 + 16) = v20;
   if ( (_DWORD)v3 != 2 )
   {
     if ( (unsigned int)v3 >= 0x13 )
     {
-      LODWORD(v28) = 19;
-      LODWORD(v27) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v27, v28) )
+      LODWORD(v22) = 19;
+      LODWORD(v21) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
     R_AddDrawCall(viewInfo, NULL, (GfxDrawListType)(v3 + 65), 0x5Du);
@@ -17773,160 +13892,144 @@ void R_SubmitEntityIDSurfaces(GfxViewInfo *viewInfo, GfxDrawListType drawListID,
   __int64 v5; 
   GfxDrawList *v8; 
   GfxBackEndData *v9; 
+  char *v10; 
   __int64 v11; 
   __int64 v12; 
+  GfxDrawListIter *v13; 
+  __m256i v14; 
+  __int128 v15; 
+  __int128 v16; 
   const unsigned __int64 *mark; 
-  __int64 v23; 
-  __int64 v30; 
-  __int64 v32; 
-  GfxBackEndData *v33; 
-  const unsigned __int64 *v41; 
-  __int64 v50; 
-  GfxDrawListType v51; 
-  __int64 v52; 
-  __int64 v53; 
-  char v54[672]; 
+  char *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __m256i v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int64 v24; 
+  char *v25; 
+  __int64 v26; 
+  GfxBackEndData *v27; 
+  GfxDrawListIter *v28; 
+  __m256i v29; 
+  __int128 v30; 
+  __int128 v31; 
+  const unsigned __int64 *v32; 
+  __int64 v33; 
+  char *v34; 
+  __m256i v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int64 v38; 
+  GfxDrawListType v39; 
+  __int64 v40; 
+  __int64 v41; 
+  char v42[672]; 
 
   v5 = drawListID;
   v8 = &viewInfo->drawList[drawListID];
   R_EmitDrawSurfList(scene.drawSurfs[drawSurfListType], scene.drawSurfCount[drawSurfListType], v8);
   R_DrawListIter_Init(v8, &frontEndDataOut->drawListIter[v5]);
   v9 = frontEndDataOut;
-  _RAX = v54;
+  v10 = v42;
   v11 = 5i64;
   v12 = 5i64;
-  _RCX = &frontEndDataOut->drawListIter[v5];
+  v13 = &frontEndDataOut->drawListIter[v5];
   do
   {
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups xmm1, xmmword ptr [rcx+70h]
-    }
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v10 += 128;
+    v14 = *(__m256i *)&v13->bspSurfIter.current;
+    v15 = *(_OWORD *)&v13->smodelSubdivPatchSurfIter.visData;
+    v13 = (GfxDrawListIter *)((char *)v13 + 128);
+    *((__m256i *)v10 - 4) = v14;
+    *((__m256i *)v10 - 3) = *(__m256i *)&v13[-1].iteratorPool[7].key.fields.spliceIndex;
+    *((__m256i *)v10 - 2) = *(__m256i *)&v13[-1].iteratorPool[7].SaveMarkCallback;
+    *((_OWORD *)v10 - 2) = *(_OWORD *)&v13[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *((_OWORD *)v10 - 1) = v15;
     --v12;
   }
   while ( v12 );
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
-  mark = _RCX->bspSurfIter.mark;
-  __asm { vmovups xmmword ptr [rax], xmm0 }
-  *((_QWORD *)_RAX + 2) = mark;
+  v16 = *(_OWORD *)&v13->bspSurfIter.current;
+  mark = v13->bspSurfIter.mark;
+  *(_OWORD *)v10 = v16;
+  *((_QWORD *)v10 + 2) = mark;
   if ( (unsigned int)v5 >= 0x13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v5, 19) )
     __debugbreak();
-  _RAX = v54;
-  _RDX = (__int64)&v9->drawListIter[v5 + 65];
-  v23 = 5i64;
+  v18 = v42;
+  v19 = (__int64)&v9->drawListIter[v5 + 65];
+  v20 = 5i64;
   do
   {
-    _RDX += 128i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
-    --v23;
+    v19 += 128i64;
+    v21 = *(__m256i *)v18;
+    v22 = *((_OWORD *)v18 + 7);
+    v18 += 128;
+    *(__m256i *)(v19 - 128) = v21;
+    *(__m256i *)(v19 - 96) = *((__m256i *)v18 - 3);
+    *(__m256i *)(v19 - 64) = *((__m256i *)v18 - 2);
+    *(_OWORD *)(v19 - 32) = *((_OWORD *)v18 - 2);
+    *(_OWORD *)(v19 - 16) = v22;
+    --v20;
   }
-  while ( v23 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v30 = *((_QWORD *)_RAX + 2);
-  _RCX = v54;
-  __asm { vmovups xmmword ptr [rdx], xmm0 }
-  *(_QWORD *)(_RDX + 16) = v30;
-  v32 = 5i64;
-  v33 = frontEndDataOut;
-  _RAX = &frontEndDataOut->drawListIter[v5];
+  while ( v20 );
+  v23 = *(_OWORD *)v18;
+  v24 = *((_QWORD *)v18 + 2);
+  v25 = v42;
+  *(_OWORD *)v19 = v23;
+  *(_QWORD *)(v19 + 16) = v24;
+  v26 = 5i64;
+  v27 = frontEndDataOut;
+  v28 = &frontEndDataOut->drawListIter[v5];
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v32;
+    v25 += 128;
+    v29 = *(__m256i *)&v28->bspSurfIter.current;
+    v30 = *(_OWORD *)&v28->smodelSubdivPatchSurfIter.visData;
+    v28 = (GfxDrawListIter *)((char *)v28 + 128);
+    *((__m256i *)v25 - 4) = v29;
+    *((__m256i *)v25 - 3) = *(__m256i *)&v28[-1].iteratorPool[7].key.fields.spliceIndex;
+    *((__m256i *)v25 - 2) = *(__m256i *)&v28[-1].iteratorPool[7].SaveMarkCallback;
+    *((_OWORD *)v25 - 2) = *(_OWORD *)&v28[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *((_OWORD *)v25 - 1) = v30;
+    --v26;
   }
-  while ( v32 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v41 = _RAX->bspSurfIter.mark;
-  __asm { vmovups xmmword ptr [rcx], xmm0 }
-  *((_QWORD *)_RCX + 2) = v41;
-  _R8 = (__int64)&v33->drawListIter[R_ForwardToPrepassStencilDrawListType((GfxDrawListType)v5)];
-  _RAX = v54;
+  while ( v26 );
+  v31 = *(_OWORD *)&v28->bspSurfIter.current;
+  v32 = v28->bspSurfIter.mark;
+  *(_OWORD *)v25 = v31;
+  *((_QWORD *)v25 + 2) = v32;
+  v33 = (__int64)&v27->drawListIter[R_ForwardToPrepassStencilDrawListType((GfxDrawListType)v5)];
+  v34 = v42;
   do
   {
-    _R8 += 128i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [r8-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [r8-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [r8-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r8-20h], xmm0
-      vmovups xmmword ptr [r8-10h], xmm1
-    }
+    v33 += 128i64;
+    v35 = *(__m256i *)v34;
+    v36 = *((_OWORD *)v34 + 7);
+    v34 += 128;
+    *(__m256i *)(v33 - 128) = v35;
+    *(__m256i *)(v33 - 96) = *((__m256i *)v34 - 3);
+    *(__m256i *)(v33 - 64) = *((__m256i *)v34 - 2);
+    *(_OWORD *)(v33 - 32) = *((_OWORD *)v34 - 2);
+    *(_OWORD *)(v33 - 16) = v36;
     --v11;
   }
   while ( v11 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v50 = *((_QWORD *)_RAX + 2);
-  __asm { vmovups xmmword ptr [r8], xmm0 }
-  *(_QWORD *)(_R8 + 16) = v50;
+  v37 = *(_OWORD *)v34;
+  v38 = *((_QWORD *)v34 + 2);
+  *(_OWORD *)v33 = v37;
+  *(_QWORD *)(v33 + 16) = v38;
   if ( (unsigned int)v5 >= 0x13 )
   {
-    LODWORD(v53) = 19;
-    LODWORD(v52) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v52, v53) )
+    LODWORD(v41) = 19;
+    LODWORD(v40) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v40, v41) )
       __debugbreak();
   }
   R_AddDrawCall(viewInfo, NULL, (GfxDrawListType)(v5 + 65), 0x5Du);
   if ( postOpaquePrepass )
   {
-    v51 = R_ForwardToPrepassStencilDrawListType((GfxDrawListType)v5);
-    R_AddDrawCall(viewInfo, NULL, v51, 0x5Du);
+    v39 = R_ForwardToPrepassStencilDrawListType((GfxDrawListType)v5);
+    R_AddDrawCall(viewInfo, NULL, v39, 0x5Du);
   }
   if ( !prepassOnly )
     R_AddDrawCall(viewInfo, NULL, (GfxDrawListType)v5, 0x5Du);
@@ -17942,8 +14045,20 @@ void R_SubmitFXandTransparencies(GfxViewInfo *viewInfo)
   GfxGlassSurfList *p_glassSurfList; 
   __int64 v3; 
   __int64 v4; 
-  __int64 v16; 
-  __int64 v28; 
+  GfxDrawListIter *v5; 
+  GfxDrawListIter *v6; 
+  __int128 v7; 
+  __int64 v8; 
+  GfxDrawListIter *v9; 
+  GfxDrawListIter *v10; 
+  __int128 v11; 
+  __int64 v12; 
+  GfxDrawListIter *v13; 
+  GfxDrawListIter *v14; 
+  __int128 v15; 
+  GfxDrawListIter *v16; 
+  GfxDrawListIter *v17; 
+  __int128 v18; 
 
   p_glassSurfList = &viewInfo->drawList[10].glassSurfList;
   p_glassSurfList->surfs = frontEndDataOut->glassSurfs;
@@ -17965,145 +14080,89 @@ void R_SubmitFXandTransparencies(GfxViewInfo *viewInfo)
   R_DrawListIter_Init(&viewInfo->drawList[13], &frontEndDataOut->drawListIter[13]);
   v3 = 5i64;
   v4 = 5i64;
-  _RCX = &frontEndDataOut->drawListIter[76];
-  _RAX = &frontEndDataOut->drawListIter[10];
+  v5 = &frontEndDataOut->drawListIter[76];
+  v6 = &frontEndDataOut->drawListIter[10];
   do
   {
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v5 = (GfxDrawListIter *)((char *)v5 + 128);
+    v7 = *(_OWORD *)&v6->bspSurfIter.current;
+    v6 = (GfxDrawListIter *)((char *)v6 + 128);
+    *(_OWORD *)&v5[-1].iteratorPool[6].RenderDrawGroupCallback = v7;
+    *(_OWORD *)&v5[-1].iteratorPool[6].SaveMarkCallback = *(_OWORD *)&v6[-1].iteratorPool[6].SaveMarkCallback;
+    *(_OWORD *)&v5[-1].iteratorPool[7].key.fields.spliceIndex = *(_OWORD *)&v6[-1].iteratorPool[7].key.fields.spliceIndex;
+    *(_OWORD *)&v5[-1].iteratorPool[7].RenderDrawGroupCallback = *(_OWORD *)&v6[-1].iteratorPool[7].RenderDrawGroupCallback;
+    *(_OWORD *)&v5[-1].iteratorPool[7].SaveMarkCallback = *(_OWORD *)&v6[-1].iteratorPool[7].SaveMarkCallback;
+    *(_OWORD *)&v5[-1].iteratorPool[8].key.fields.spliceIndex = *(_OWORD *)&v6[-1].iteratorPool[8].key.fields.spliceIndex;
+    *(_OWORD *)&v5[-1].iteratorPool[8].RenderDrawGroupCallback = *(_OWORD *)&v6[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *(_OWORD *)&v5[-1].iteratorPool[8].SaveMarkCallback = *(_OWORD *)&v6[-1].iteratorPool[8].SaveMarkCallback;
     --v4;
   }
   while ( v4 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  v16 = 5i64;
-  _RCX->bspSurfIter.mark = _RAX->bspSurfIter.mark;
-  _RCX = &frontEndDataOut->drawListIter[75];
-  _RAX = &frontEndDataOut->drawListIter[11];
+  *(_OWORD *)&v5->bspSurfIter.current = *(_OWORD *)&v6->bspSurfIter.current;
+  v8 = 5i64;
+  v5->bspSurfIter.mark = v6->bspSurfIter.mark;
+  v9 = &frontEndDataOut->drawListIter[75];
+  v10 = &frontEndDataOut->drawListIter[11];
   do
   {
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v16;
+    v9 = (GfxDrawListIter *)((char *)v9 + 128);
+    v11 = *(_OWORD *)&v10->bspSurfIter.current;
+    v10 = (GfxDrawListIter *)((char *)v10 + 128);
+    *(_OWORD *)&v9[-1].iteratorPool[6].RenderDrawGroupCallback = v11;
+    *(_OWORD *)&v9[-1].iteratorPool[6].SaveMarkCallback = *(_OWORD *)&v10[-1].iteratorPool[6].SaveMarkCallback;
+    *(_OWORD *)&v9[-1].iteratorPool[7].key.fields.spliceIndex = *(_OWORD *)&v10[-1].iteratorPool[7].key.fields.spliceIndex;
+    *(_OWORD *)&v9[-1].iteratorPool[7].RenderDrawGroupCallback = *(_OWORD *)&v10[-1].iteratorPool[7].RenderDrawGroupCallback;
+    *(_OWORD *)&v9[-1].iteratorPool[7].SaveMarkCallback = *(_OWORD *)&v10[-1].iteratorPool[7].SaveMarkCallback;
+    *(_OWORD *)&v9[-1].iteratorPool[8].key.fields.spliceIndex = *(_OWORD *)&v10[-1].iteratorPool[8].key.fields.spliceIndex;
+    *(_OWORD *)&v9[-1].iteratorPool[8].RenderDrawGroupCallback = *(_OWORD *)&v10[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *(_OWORD *)&v9[-1].iteratorPool[8].SaveMarkCallback = *(_OWORD *)&v10[-1].iteratorPool[8].SaveMarkCallback;
+    --v8;
   }
-  while ( v16 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  _RCX->bspSurfIter.mark = _RAX->bspSurfIter.mark;
-  v28 = 5i64;
-  _RDX = &frontEndDataOut->drawListIter[77];
-  _RAX = &frontEndDataOut->drawListIter[12];
+  while ( v8 );
+  *(_OWORD *)&v9->bspSurfIter.current = *(_OWORD *)&v10->bspSurfIter.current;
+  v9->bspSurfIter.mark = v10->bspSurfIter.mark;
+  v12 = 5i64;
+  v13 = &frontEndDataOut->drawListIter[77];
+  v14 = &frontEndDataOut->drawListIter[12];
   do
   {
-    _RDX = (GfxDrawListIter *)((char *)_RDX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
-    --v28;
+    v13 = (GfxDrawListIter *)((char *)v13 + 128);
+    v15 = *(_OWORD *)&v14->bspSurfIter.current;
+    v14 = (GfxDrawListIter *)((char *)v14 + 128);
+    *(_OWORD *)&v13[-1].iteratorPool[6].RenderDrawGroupCallback = v15;
+    *(_OWORD *)&v13[-1].iteratorPool[6].SaveMarkCallback = *(_OWORD *)&v14[-1].iteratorPool[6].SaveMarkCallback;
+    *(_OWORD *)&v13[-1].iteratorPool[7].key.fields.spliceIndex = *(_OWORD *)&v14[-1].iteratorPool[7].key.fields.spliceIndex;
+    *(_OWORD *)&v13[-1].iteratorPool[7].RenderDrawGroupCallback = *(_OWORD *)&v14[-1].iteratorPool[7].RenderDrawGroupCallback;
+    *(_OWORD *)&v13[-1].iteratorPool[7].SaveMarkCallback = *(_OWORD *)&v14[-1].iteratorPool[7].SaveMarkCallback;
+    *(_OWORD *)&v13[-1].iteratorPool[8].key.fields.spliceIndex = *(_OWORD *)&v14[-1].iteratorPool[8].key.fields.spliceIndex;
+    *(_OWORD *)&v13[-1].iteratorPool[8].RenderDrawGroupCallback = *(_OWORD *)&v14[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *(_OWORD *)&v13[-1].iteratorPool[8].SaveMarkCallback = *(_OWORD *)&v14[-1].iteratorPool[8].SaveMarkCallback;
+    --v12;
   }
-  while ( v28 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdx], xmm0
-  }
-  _RDX->bspSurfIter.mark = _RAX->bspSurfIter.mark;
-  _RCX = &frontEndDataOut->drawListIter[78];
-  _RAX = &frontEndDataOut->drawListIter[13];
+  while ( v12 );
+  *(_OWORD *)&v13->bspSurfIter.current = *(_OWORD *)&v14->bspSurfIter.current;
+  v13->bspSurfIter.mark = v14->bspSurfIter.mark;
+  v16 = &frontEndDataOut->drawListIter[78];
+  v17 = &frontEndDataOut->drawListIter[13];
   do
   {
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v16 = (GfxDrawListIter *)((char *)v16 + 128);
+    v18 = *(_OWORD *)&v17->bspSurfIter.current;
+    v17 = (GfxDrawListIter *)((char *)v17 + 128);
+    *(_OWORD *)&v16[-1].iteratorPool[6].RenderDrawGroupCallback = v18;
+    *(_OWORD *)&v16[-1].iteratorPool[6].SaveMarkCallback = *(_OWORD *)&v17[-1].iteratorPool[6].SaveMarkCallback;
+    *(_OWORD *)&v16[-1].iteratorPool[7].key.fields.spliceIndex = *(_OWORD *)&v17[-1].iteratorPool[7].key.fields.spliceIndex;
+    *(_OWORD *)&v16[-1].iteratorPool[7].RenderDrawGroupCallback = *(_OWORD *)&v17[-1].iteratorPool[7].RenderDrawGroupCallback;
+    *(_OWORD *)&v16[-1].iteratorPool[7].SaveMarkCallback = *(_OWORD *)&v17[-1].iteratorPool[7].SaveMarkCallback;
+    *(_OWORD *)&v16[-1].iteratorPool[8].key.fields.spliceIndex = *(_OWORD *)&v17[-1].iteratorPool[8].key.fields.spliceIndex;
+    *(_OWORD *)&v16[-1].iteratorPool[8].RenderDrawGroupCallback = *(_OWORD *)&v17[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *(_OWORD *)&v16[-1].iteratorPool[8].SaveMarkCallback = *(_OWORD *)&v17[-1].iteratorPool[8].SaveMarkCallback;
     --v3;
   }
   while ( v3 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
-  _RCX->bspSurfIter.mark = _RAX->bspSurfIter.mark;
-  R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_OPAQUE_GLASS, (unsigned __int8)v3 + 93);
+  *(_OWORD *)&v16->bspSurfIter.current = *(_OWORD *)&v17->bspSurfIter.current;
+  v16->bspSurfIter.mark = v17->bspSurfIter.mark;
+  R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_OPAQUE_GLASS, 0x5Du);
   R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_DECAL, 0x5Du);
   R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_TRANS, 0x5Du);
   R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_TRANS1, 0x5Du);
@@ -18123,318 +14182,258 @@ R_SubmitSurfaces
 void R_SubmitSurfaces(GfxViewInfo *viewInfo)
 {
   __int64 v1; 
-  int v33; 
-  __int64 v34; 
-  GfxBackEndData *v35; 
-  __int64 v37; 
+  int v3; 
+  __int64 v4; 
+  GfxBackEndData *v5; 
+  char *v6; 
+  __int64 v7; 
+  GfxDrawListIter *v8; 
+  __m256i v9; 
+  __int128 v10; 
   GfxDrawListIter *drawListIter; 
+  __int128 v12; 
   const unsigned __int64 *mark; 
-  __int64 v48; 
-  __int64 v56; 
-  GfxBackEndData *v57; 
-  __int64 v59; 
-  const unsigned __int64 *v67; 
-  __int64 v68; 
-  const unsigned __int64 *v77; 
+  __int64 v14; 
+  __int64 v15; 
+  char *v16; 
+  __m256i v17; 
+  __int128 v18; 
+  __int64 v19; 
+  GfxBackEndData *v20; 
+  char *v21; 
+  __int64 v22; 
+  GfxDrawListIter *v23; 
+  __m256i v24; 
+  __int128 v25; 
+  __int128 v26; 
+  const unsigned __int64 *v27; 
+  __int64 v28; 
+  GfxDrawListIter *v29; 
+  char *v30; 
+  __m256i v31; 
+  __int128 v32; 
+  __int128 v33; 
+  const unsigned __int64 *v34; 
   int i; 
-  GfxBackEndData *v79; 
-  __int64 v81; 
-  const unsigned __int64 *v89; 
-  const unsigned __int64 *v98; 
-  __int64 v99; 
-  __int64 v100; 
-  char v101[672]; 
+  GfxBackEndData *v36; 
+  char *v37; 
+  __int64 v38; 
+  GfxDrawListIter *v39; 
+  __m256i v40; 
+  __int128 v41; 
+  __int128 v42; 
+  const unsigned __int64 *v43; 
+  GfxDrawListIter *v44; 
+  char *v45; 
+  __m256i v46; 
+  __int128 v47; 
+  __int128 v48; 
+  const unsigned __int64 *v49; 
+  __int64 v50; 
+  __int64 v51; 
+  char v52[672]; 
 
   v1 = 5i64;
-  _RBP = viewInfo;
   R_SubmitDepthHackSurfaces(viewInfo, DRAWLIST_FIRST, DSL_CAM_DEPTH_HACK);
-  R_SubmitDepthHackSurfaces(_RBP, DRAWLIST_DEPTH_HACK_TRANS, DSL_CAM_DEPTH_HACK_TRANS);
-  R_SubmitDepthHackSurfaces(_RBP, DRAWLIST_DEPTH_HACK_SSS, DSL_CAM_DEPTH_HACK_SSS);
-  R_SubmitEntityIDSurfaces(_RBP, DRAWLIST_HUD_OUTLINE_FIRST, DSL_CAM_PRE_DEPTH_HACK, 0, 1);
-  R_SubmitEntityIDSurfaces(_RBP, DRAWLIST_PRE_DEPTH_HACK_SSS, DSL_CAM_PRE_DEPTH_HACK_SSS, 0, 1);
-  R_SubmitEntityIDSurfaces(_RBP, DRAWLIST_PRE_OPAQUE, DSL_CAM_PRE_OPAQUE, 0, 1);
-  R_SubmitEntityIDSurfaces(_RBP, DRAWLIST_PRE_SSS, DSL_CAM_PRE_SSS, 0, 1);
-  R_SubmitEntityIDSurfaces(_RBP, DRAWLIST_EID_ONLY, DSL_CAM_EID_ONLY, 1, 0);
-  R_EmitDrawSurfList(scene.drawSurfs[0], scene.drawSurfCount[0], &_RBP->drawList[3]);
-  R_ST_EmitDrawSurfs(_RBP);
-  R_DrawListIter_Init(&_RBP->drawList[3], &frontEndDataOut->drawListIter[3]);
-  if ( (*((_BYTE *)&_RBP->input + 7920) & 2) != 0 )
+  R_SubmitDepthHackSurfaces(viewInfo, DRAWLIST_DEPTH_HACK_TRANS, DSL_CAM_DEPTH_HACK_TRANS);
+  R_SubmitDepthHackSurfaces(viewInfo, DRAWLIST_DEPTH_HACK_SSS, DSL_CAM_DEPTH_HACK_SSS);
+  R_SubmitEntityIDSurfaces(viewInfo, DRAWLIST_HUD_OUTLINE_FIRST, DSL_CAM_PRE_DEPTH_HACK, 0, 1);
+  R_SubmitEntityIDSurfaces(viewInfo, DRAWLIST_PRE_DEPTH_HACK_SSS, DSL_CAM_PRE_DEPTH_HACK_SSS, 0, 1);
+  R_SubmitEntityIDSurfaces(viewInfo, DRAWLIST_PRE_OPAQUE, DSL_CAM_PRE_OPAQUE, 0, 1);
+  R_SubmitEntityIDSurfaces(viewInfo, DRAWLIST_PRE_SSS, DSL_CAM_PRE_SSS, 0, 1);
+  R_SubmitEntityIDSurfaces(viewInfo, DRAWLIST_EID_ONLY, DSL_CAM_EID_ONLY, 1, 0);
+  R_EmitDrawSurfList(scene.drawSurfs[0], scene.drawSurfCount[0], &viewInfo->drawList[3]);
+  R_ST_EmitDrawSurfs(viewInfo);
+  R_DrawListIter_Init(&viewInfo->drawList[3], &frontEndDataOut->drawListIter[3]);
+  if ( (*((_BYTE *)&viewInfo->input + 7920) & 2) != 0 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+3F50h]
-      vmovups ymmword ptr [rbp+3FE8h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3F70h]
-      vmovups ymmword ptr [rbp+4008h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+3F90h]
-      vmovups ymmword ptr [rbp+4028h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3FB0h]
-      vmovups ymmword ptr [rbp+4048h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+3FD0h]
-      vmovups xmmword ptr [rbp+4068h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+3FE0h]
-      vmovsd  qword ptr [rbp+4078h], xmm1
-      vmovups ymm0, ymmword ptr [rbp+3F50h]
-      vmovups ymmword ptr [rbp+4080h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3F70h]
-      vmovups ymmword ptr [rbp+40A0h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+3F90h]
-      vmovups ymmword ptr [rbp+40C0h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3FB0h]
-      vmovups ymmword ptr [rbp+40E0h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+3FD0h]
-      vmovups xmmword ptr [rbp+4100h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+3FE0h]
-      vmovsd  qword ptr [rbp+4110h], xmm1
-      vmovups ymm0, ymmword ptr [rbp+3F50h]
-      vmovups ymmword ptr [rbp+4118h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3F70h]
-      vmovups ymmword ptr [rbp+4138h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+3F90h]
-      vmovups ymmword ptr [rbp+4158h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3FB0h]
-      vmovups ymmword ptr [rbp+4178h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+3FD0h]
-      vmovups xmmword ptr [rbp+4198h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+3FE0h]
-      vmovsd  qword ptr [rbp+41A8h], xmm1
-      vmovups ymm0, ymmword ptr [rbp+3F50h]
-      vmovups ymmword ptr [rbp+41B0h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3F70h]
-      vmovups ymmword ptr [rbp+41D0h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+3F90h]
-      vmovups ymmword ptr [rbp+41F0h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3FB0h]
-      vmovups ymmword ptr [rbp+4210h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+3FD0h]
-      vmovups xmmword ptr [rbp+4230h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+3FE0h]
-      vmovsd  qword ptr [rbp+4240h], xmm1
-      vmovups ymm0, ymmword ptr [rbp+3F50h]
-      vmovups ymmword ptr [rbp+4248h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3F70h]
-      vmovups ymmword ptr [rbp+4268h], ymm1
-      vmovups ymm0, ymmword ptr [rbp+3F90h]
-      vmovups ymmword ptr [rbp+4288h], ymm0
-      vmovups ymm1, ymmword ptr [rbp+3FB0h]
-      vmovups ymmword ptr [rbp+42A8h], ymm1
-      vmovups xmm0, xmmword ptr [rbp+3FD0h]
-      vmovups xmmword ptr [rbp+42C8h], xmm0
-      vmovsd  xmm1, qword ptr [rbp+3FE0h]
-      vmovsd  qword ptr [rbp+42D8h], xmm1
-    }
+    *(__m256i *)&viewInfo->drawList[4].bspSurfList.count = *(__m256i *)&viewInfo->drawList[3].bspSurfList.count;
+    *(__m256i *)&viewInfo->drawList[4].smodelSurfList[0].visData = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[0].visData;
+    *(__m256i *)&viewInfo->drawList[4].smodelSurfList[2].surfDataBytes = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[2].surfDataBytes;
+    *(__m256i *)&viewInfo->drawList[4].drawSurfList.count = *(__m256i *)&viewInfo->drawList[3].drawSurfList.count;
+    *(_OWORD *)&viewInfo->drawList[4].codeSurfList.count = *(_OWORD *)&viewInfo->drawList[3].codeSurfList.count;
+    *(double *)&viewInfo->drawList[4].superTerrainSurfList.count = *(double *)&viewInfo->drawList[3].superTerrainSurfList.count;
+    *(__m256i *)&viewInfo->drawList[5].bspSurfList.count = *(__m256i *)&viewInfo->drawList[3].bspSurfList.count;
+    *(__m256i *)&viewInfo->drawList[5].smodelSurfList[0].visData = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[0].visData;
+    *(__m256i *)&viewInfo->drawList[5].smodelSurfList[2].surfDataBytes = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[2].surfDataBytes;
+    *(__m256i *)&viewInfo->drawList[5].drawSurfList.count = *(__m256i *)&viewInfo->drawList[3].drawSurfList.count;
+    *(_OWORD *)&viewInfo->drawList[5].codeSurfList.count = *(_OWORD *)&viewInfo->drawList[3].codeSurfList.count;
+    *(double *)&viewInfo->drawList[5].superTerrainSurfList.count = *(double *)&viewInfo->drawList[3].superTerrainSurfList.count;
+    *(__m256i *)&viewInfo->drawList[6].bspSurfList.count = *(__m256i *)&viewInfo->drawList[3].bspSurfList.count;
+    *(__m256i *)&viewInfo->drawList[6].smodelSurfList[0].visData = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[0].visData;
+    *(__m256i *)&viewInfo->drawList[6].smodelSurfList[2].surfDataBytes = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[2].surfDataBytes;
+    *(__m256i *)&viewInfo->drawList[6].drawSurfList.count = *(__m256i *)&viewInfo->drawList[3].drawSurfList.count;
+    *(_OWORD *)&viewInfo->drawList[6].codeSurfList.count = *(_OWORD *)&viewInfo->drawList[3].codeSurfList.count;
+    *(double *)&viewInfo->drawList[6].superTerrainSurfList.count = *(double *)&viewInfo->drawList[3].superTerrainSurfList.count;
+    *(__m256i *)&viewInfo->drawList[7].bspSurfList.count = *(__m256i *)&viewInfo->drawList[3].bspSurfList.count;
+    *(__m256i *)&viewInfo->drawList[7].smodelSurfList[0].visData = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[0].visData;
+    *(__m256i *)&viewInfo->drawList[7].smodelSurfList[2].surfDataBytes = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[2].surfDataBytes;
+    *(__m256i *)&viewInfo->drawList[7].drawSurfList.count = *(__m256i *)&viewInfo->drawList[3].drawSurfList.count;
+    *(_OWORD *)&viewInfo->drawList[7].codeSurfList.count = *(_OWORD *)&viewInfo->drawList[3].codeSurfList.count;
+    *(double *)&viewInfo->drawList[7].superTerrainSurfList.count = *(double *)&viewInfo->drawList[3].superTerrainSurfList.count;
+    *(__m256i *)&viewInfo->drawList[8].bspSurfList.count = *(__m256i *)&viewInfo->drawList[3].bspSurfList.count;
+    *(__m256i *)&viewInfo->drawList[8].smodelSurfList[0].visData = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[0].visData;
+    *(__m256i *)&viewInfo->drawList[8].smodelSurfList[2].surfDataBytes = *(__m256i *)&viewInfo->drawList[3].smodelSurfList[2].surfDataBytes;
+    *(__m256i *)&viewInfo->drawList[8].drawSurfList.count = *(__m256i *)&viewInfo->drawList[3].drawSurfList.count;
+    *(_OWORD *)&viewInfo->drawList[8].codeSurfList.count = *(_OWORD *)&viewInfo->drawList[3].codeSurfList.count;
+    *(double *)&viewInfo->drawList[8].superTerrainSurfList.count = *(double *)&viewInfo->drawList[3].superTerrainSurfList.count;
     R_SplitIterGroup(&frontEndDataOut->drawListIter[3], 6u);
-    v33 = 3;
-    v34 = 3i64;
+    v3 = 3;
+    v4 = 3i64;
     do
     {
-      v35 = frontEndDataOut;
-      _RCX = v101;
-      v37 = 5i64;
-      _RAX = &frontEndDataOut->drawListIter[v34];
+      v5 = frontEndDataOut;
+      v6 = v52;
+      v7 = 5i64;
+      v8 = &frontEndDataOut->drawListIter[v4];
       do
       {
-        _RCX += 128;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v37;
+        v6 += 128;
+        v9 = *(__m256i *)&v8->bspSurfIter.current;
+        v10 = *(_OWORD *)&v8->smodelSubdivPatchSurfIter.visData;
+        v8 = (GfxDrawListIter *)((char *)v8 + 128);
+        *((__m256i *)v6 - 4) = v9;
+        *((__m256i *)v6 - 3) = *(__m256i *)&v8[-1].iteratorPool[7].key.fields.spliceIndex;
+        *((__m256i *)v6 - 2) = *(__m256i *)&v8[-1].iteratorPool[7].SaveMarkCallback;
+        *((_OWORD *)v6 - 2) = *(_OWORD *)&v8[-1].iteratorPool[8].RenderDrawGroupCallback;
+        *((_OWORD *)v6 - 1) = v10;
+        --v7;
       }
-      while ( v37 );
-      drawListIter = v35->drawListIter;
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      mark = _RAX->bspSurfIter.mark;
-      __asm { vmovups xmmword ptr [rcx], xmm0 }
-      *((_QWORD *)_RCX + 2) = mark;
-      if ( (unsigned int)v33 >= 0x13 )
+      while ( v7 );
+      drawListIter = v5->drawListIter;
+      v12 = *(_OWORD *)&v8->bspSurfIter.current;
+      mark = v8->bspSurfIter.mark;
+      *(_OWORD *)v6 = v12;
+      *((_QWORD *)v6 + 2) = mark;
+      if ( (unsigned int)v3 >= 0x13 )
       {
-        LODWORD(v100) = 19;
-        LODWORD(v99) = v33;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v99, v100) )
+        LODWORD(v51) = 19;
+        LODWORD(v50) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlisttype.h", 213, ASSERT_TYPE_ASSERT, "(unsigned)( drawListType ) < (unsigned)( DRAWLIST_PREPASS_COUNT )", "drawListType doesn't index DRAWLIST_PREPASS_COUNT\n\t%i not in [0, %i)", v50, v51) )
           __debugbreak();
       }
-      _RDX = (__int64)&drawListIter[v34 + 65];
-      v48 = 5i64;
-      _RAX = v101;
+      v14 = (__int64)&drawListIter[v4 + 65];
+      v15 = 5i64;
+      v16 = v52;
       do
       {
-        _RDX += 128i64;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX += 128;
-        __asm
-        {
-          vmovups ymmword ptr [rdx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rdx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rdx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rdx-20h], xmm0
-          vmovups xmmword ptr [rdx-10h], xmm1
-        }
-        --v48;
+        v14 += 128i64;
+        v17 = *(__m256i *)v16;
+        v18 = *((_OWORD *)v16 + 7);
+        v16 += 128;
+        *(__m256i *)(v14 - 128) = v17;
+        *(__m256i *)(v14 - 96) = *((__m256i *)v16 - 3);
+        *(__m256i *)(v14 - 64) = *((__m256i *)v16 - 2);
+        *(_OWORD *)(v14 - 32) = *((_OWORD *)v16 - 2);
+        *(_OWORD *)(v14 - 16) = v18;
+        --v15;
       }
-      while ( v48 );
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      v56 = *((_QWORD *)_RAX + 2);
-      ++v33;
-      ++v34;
-      __asm { vmovups xmmword ptr [rdx], xmm0 }
-      *(_QWORD *)(_RDX + 16) = v56;
+      while ( v15 );
+      v19 = *((_QWORD *)v16 + 2);
+      ++v3;
+      ++v4;
+      *(_OWORD *)v14 = *(_OWORD *)v16;
+      *(_QWORD *)(v14 + 16) = v19;
     }
-    while ( v33 < 9 );
+    while ( v3 < 9 );
   }
   else
   {
-    v57 = frontEndDataOut;
-    _RCX = v101;
-    v59 = 5i64;
-    _RAX = &frontEndDataOut->drawListIter[3];
+    v20 = frontEndDataOut;
+    v21 = v52;
+    v22 = 5i64;
+    v23 = &frontEndDataOut->drawListIter[3];
     do
     {
-      _RCX += 128;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v59;
+      v21 += 128;
+      v24 = *(__m256i *)&v23->bspSurfIter.current;
+      v25 = *(_OWORD *)&v23->smodelSubdivPatchSurfIter.visData;
+      v23 = (GfxDrawListIter *)((char *)v23 + 128);
+      *((__m256i *)v21 - 4) = v24;
+      *((__m256i *)v21 - 3) = *(__m256i *)&v23[-1].iteratorPool[7].key.fields.spliceIndex;
+      *((__m256i *)v21 - 2) = *(__m256i *)&v23[-1].iteratorPool[7].SaveMarkCallback;
+      *((_OWORD *)v21 - 2) = *(_OWORD *)&v23[-1].iteratorPool[8].RenderDrawGroupCallback;
+      *((_OWORD *)v21 - 1) = v25;
+      --v22;
     }
-    while ( v59 );
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    v67 = _RAX->bspSurfIter.mark;
-    v68 = 5i64;
-    __asm { vmovups xmmword ptr [rcx], xmm0 }
-    *((_QWORD *)_RCX + 2) = v67;
-    _RCX = &v57->drawListIter[68];
-    _RAX = v101;
+    while ( v22 );
+    v26 = *(_OWORD *)&v23->bspSurfIter.current;
+    v27 = v23->bspSurfIter.mark;
+    v28 = 5i64;
+    *(_OWORD *)v21 = v26;
+    *((_QWORD *)v21 + 2) = v27;
+    v29 = &v20->drawListIter[68];
+    v30 = v52;
     do
     {
-      _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX += 128;
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v68;
+      v29 = (GfxDrawListIter *)((char *)v29 + 128);
+      v31 = *(__m256i *)v30;
+      v32 = *((_OWORD *)v30 + 7);
+      v30 += 128;
+      *(__m256i *)&v29[-1].iteratorPool[6].RenderDrawGroupCallback = v31;
+      *(__m256i *)&v29[-1].iteratorPool[7].key.fields.spliceIndex = *((__m256i *)v30 - 3);
+      *(__m256i *)&v29[-1].iteratorPool[7].SaveMarkCallback = *((__m256i *)v30 - 2);
+      *(_OWORD *)&v29[-1].iteratorPool[8].RenderDrawGroupCallback = *((_OWORD *)v30 - 2);
+      *(_OWORD *)&v29[-1].iteratorPool[8].SaveMarkCallback = v32;
+      --v28;
     }
-    while ( v68 );
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    v77 = (const unsigned __int64 *)*((_QWORD *)_RAX + 2);
-    __asm { vmovups xmmword ptr [rcx], xmm0 }
-    _RCX->bspSurfIter.mark = v77;
+    while ( v28 );
+    v33 = *(_OWORD *)v30;
+    v34 = (const unsigned __int64 *)*((_QWORD *)v30 + 2);
+    *(_OWORD *)&v29->bspSurfIter.current = v33;
+    v29->bspSurfIter.mark = v34;
   }
-  R_AddDrawCall(_RBP, NULL, DRAWLIST_PREPASS_LIT_OPAQUE, 0x5Du);
-  if ( (*((_BYTE *)&_RBP->input + 7920) & 2) != 0 )
+  R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_OPAQUE, 0x5Du);
+  if ( (*((_BYTE *)&viewInfo->input + 7920) & 2) != 0 )
   {
     for ( i = 69; i < 74; ++i )
-      R_AddDrawCall(_RBP, NULL, (GfxDrawListType)i, 0x5Du);
+      R_AddDrawCall(viewInfo, NULL, (GfxDrawListType)i, 0x5Du);
   }
-  R_EmitDrawSurfList(scene.drawSurfs[1], scene.drawSurfCount[1], &_RBP->drawList[9]);
-  R_DrawListIter_Init(&_RBP->drawList[9], &frontEndDataOut->drawListIter[9]);
-  v79 = frontEndDataOut;
-  _RCX = v101;
-  v81 = 5i64;
-  _RAX = &frontEndDataOut->drawListIter[9];
+  R_EmitDrawSurfList(scene.drawSurfs[1], scene.drawSurfCount[1], &viewInfo->drawList[9]);
+  R_DrawListIter_Init(&viewInfo->drawList[9], &frontEndDataOut->drawListIter[9]);
+  v36 = frontEndDataOut;
+  v37 = v52;
+  v38 = 5i64;
+  v39 = &frontEndDataOut->drawListIter[9];
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    --v81;
+    v37 += 128;
+    v40 = *(__m256i *)&v39->bspSurfIter.current;
+    v41 = *(_OWORD *)&v39->smodelSubdivPatchSurfIter.visData;
+    v39 = (GfxDrawListIter *)((char *)v39 + 128);
+    *((__m256i *)v37 - 4) = v40;
+    *((__m256i *)v37 - 3) = *(__m256i *)&v39[-1].iteratorPool[7].key.fields.spliceIndex;
+    *((__m256i *)v37 - 2) = *(__m256i *)&v39[-1].iteratorPool[7].SaveMarkCallback;
+    *((_OWORD *)v37 - 2) = *(_OWORD *)&v39[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *((_OWORD *)v37 - 1) = v41;
+    --v38;
   }
-  while ( v81 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v89 = _RAX->bspSurfIter.mark;
-  __asm { vmovups xmmword ptr [rcx], xmm0 }
-  *((_QWORD *)_RCX + 2) = v89;
-  _RCX = &v79->drawListIter[74];
-  _RAX = v101;
+  while ( v38 );
+  v42 = *(_OWORD *)&v39->bspSurfIter.current;
+  v43 = v39->bspSurfIter.mark;
+  *(_OWORD *)v37 = v42;
+  *((_QWORD *)v37 + 2) = v43;
+  v44 = &v36->drawListIter[74];
+  v45 = v52;
   do
   {
-    _RCX = (GfxDrawListIter *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v44 = (GfxDrawListIter *)((char *)v44 + 128);
+    v46 = *(__m256i *)v45;
+    v47 = *((_OWORD *)v45 + 7);
+    v45 += 128;
+    *(__m256i *)&v44[-1].iteratorPool[6].RenderDrawGroupCallback = v46;
+    *(__m256i *)&v44[-1].iteratorPool[7].key.fields.spliceIndex = *((__m256i *)v45 - 3);
+    *(__m256i *)&v44[-1].iteratorPool[7].SaveMarkCallback = *((__m256i *)v45 - 2);
+    *(_OWORD *)&v44[-1].iteratorPool[8].RenderDrawGroupCallback = *((_OWORD *)v45 - 2);
+    *(_OWORD *)&v44[-1].iteratorPool[8].SaveMarkCallback = v47;
     --v1;
   }
   while ( v1 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v98 = (const unsigned __int64 *)*((_QWORD *)_RAX + 2);
-  __asm { vmovups xmmword ptr [rcx], xmm0 }
-  _RCX->bspSurfIter.mark = v98;
-  R_AddDrawCall(_RBP, NULL, (GfxDrawListType)((unsigned __int8)v1 + 74), (unsigned __int8)v1 + 93);
+  v48 = *(_OWORD *)v45;
+  v49 = (const unsigned __int64 *)*((_QWORD *)v45 + 2);
+  *(_OWORD *)&v44->bspSurfIter.current = v48;
+  v44->bspSurfIter.mark = v49;
+  R_AddDrawCall(viewInfo, NULL, DRAWLIST_PREPASS_LIT_OPAQUE_END, 0x5Du);
 }
 
 /*
@@ -18843,33 +14842,25 @@ R_UpdateCorpseFadeData
 */
 void R_UpdateCorpseFadeData(const ntl::bitset<5120,0,unsigned __int64> *corpseFadeActive, const GfxCorpseFadeEntityData *corpseFade, const unsigned __int64 corpseFadeCount)
 {
+  ntl::bitset<5120,0,unsigned __int64> *p_gfxCorpseFadeActive; 
   __int64 v6; 
+  __int128 v7; 
 
-  _RAX = &scene.gfxCorpseFadeActive;
+  p_gfxCorpseFadeActive = &scene.gfxCorpseFadeActive;
   v6 = 5i64;
   do
   {
-    _RAX = (ntl::bitset<5120,0,unsigned __int64> *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
+    p_gfxCorpseFadeActive = (ntl::bitset<5120,0,unsigned __int64> *)((char *)p_gfxCorpseFadeActive + 128);
+    v7 = *(_OWORD *)corpseFadeActive->m_data;
     corpseFadeActive = (const ntl::bitset<5120,0,unsigned __int64> *)((char *)corpseFadeActive + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[64] = v7;
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[66] = *(_OWORD *)&corpseFadeActive[-1].m_data[66];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[68] = *(_OWORD *)&corpseFadeActive[-1].m_data[68];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[70] = *(_OWORD *)&corpseFadeActive[-1].m_data[70];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[72] = *(_OWORD *)&corpseFadeActive[-1].m_data[72];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[74] = *(_OWORD *)&corpseFadeActive[-1].m_data[74];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[76] = *(_OWORD *)&corpseFadeActive[-1].m_data[76];
+    *(_OWORD *)&p_gfxCorpseFadeActive[-1].m_data[78] = *(_OWORD *)&corpseFadeActive[-1].m_data[78];
     --v6;
   }
   while ( v6 );
@@ -18886,20 +14877,20 @@ R_UpdateFrameSun
 void R_UpdateFrameSun(GfxLight *primaryLights, GfxViewportFeatures *features, const GfxStageInfo *stageInfo)
 {
   unsigned int ActivePrimarySunLight; 
+  GfxLight *v7; 
   unsigned int v8; 
   GfxBackEndData *v9; 
   GfxBackEndData *v10; 
   int v11; 
   int v12; 
-  bool v15; 
-  bool v16; 
-  GfxBackEndData *v20; 
-  GfxBackEndData *v24; 
+  float *v; 
+  GfxBackEndData *v14; 
+  GfxBackEndData *v15; 
 
   ActivePrimarySunLight = R_GetActivePrimarySunLight(stageInfo);
   frontEndDataOut->activePrimarySunLight = ActivePrimarySunLight;
-  _RDI = &primaryLights[ActivePrimarySunLight];
-  if ( ActivePrimarySunLight && _RDI->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10053, ASSERT_TYPE_ASSERT, "(activePrimarySunLight == 0 || primaryLight->type == 1)", (const char *)&queryFormat, "activePrimarySunLight == PRIMARY_LIGHT_NONE || primaryLight->type == GFX_LIGHT_TYPE_DIR") )
+  v7 = &primaryLights[ActivePrimarySunLight];
+  if ( ActivePrimarySunLight && v7->type != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10053, ASSERT_TYPE_ASSERT, "(activePrimarySunLight == 0 || primaryLight->type == 1)", (const char *)&queryFormat, "activePrimarySunLight == PRIMARY_LIGHT_NONE || primaryLight->type == GFX_LIGHT_TYPE_DIR") )
     __debugbreak();
   *((_DWORD *)features + 11) &= (8 * stageInfo->stagesHaveSunPrimaryLight) | 0xFFFFFFF7;
   v8 = *((_DWORD *)features + 11) & ((stageInfo->stagesHaveSunPrimaryLight << 6) | 0xFFFFFFBF);
@@ -18908,7 +14899,7 @@ void R_UpdateFrameSun(GfxLight *primaryLights, GfxViewportFeatures *features, co
   {
     if ( (v8 & 4) != 0 )
     {
-      frontEndDataOut->sunShadow.lightDir = _RDI->dir;
+      frontEndDataOut->sunShadow.lightDir = v7->dir;
     }
     else
     {
@@ -18921,87 +14912,43 @@ void R_UpdateFrameSun(GfxLight *primaryLights, GfxViewportFeatures *features, co
     frontEndDataOut->hasSunDirChanged = v11;
     if ( !rg.useSunDirOverride || (v12 = 1, !rg.useSunDirOverrideAllowSlowRecomputeShadows) )
       v12 = 0;
-    __asm { vmovss  xmm0, cs:__real@3c23d70a; tolerance }
     frontEndDataOut->hasApproxSunDirChanged = v12;
-    if ( R_LightTweak_AngleChanged(*(const float *)&_XMM0) )
+    if ( R_LightTweak_AngleChanged(0.0099999998) )
       frontEndDataOut->hasSunDirChanged = 1;
-    __asm { vmovss  xmm0, cs:__real@3c23d70a; tolerance }
-    if ( R_LightTweak_AngleChanged(*(const float *)&_XMM0) )
+    if ( R_LightTweak_AngleChanged(0.0099999998) )
       frontEndDataOut->hasApproxSunDirChanged = 1;
-    v15 = R_LightTweak_Enabled();
-    v16 = !v15;
-    if ( !v15 )
+    if ( !R_LightTweak_Enabled() )
     {
       if ( rg.useSunDirOverride )
       {
-        _RSI = _RDI->dir.v;
+        v = v7->dir.v;
         if ( rg.useSunDirLerp )
         {
-          R_LerpSunDir(&rg.sunDirOverride, &rg.sunDirOverrideTarget, rg.sunDirLerpBeginTime, rg.sunDirLerpEndTime, rg.sunDirLerpAccelTime, rg.sunDirLerpDecelTime, scene.def.time, &_RDI->dir);
+          R_LerpSunDir(&rg.sunDirOverride, &rg.sunDirOverrideTarget, rg.sunDirLerpBeginTime, rg.sunDirLerpEndTime, rg.sunDirLerpAccelTime, rg.sunDirLerpDecelTime, scene.def.time, &v7->dir);
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride; r_globals_t rg
-            vmovss  dword ptr [rsi], xmm0
-            vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+4; r_globals_t rg
-            vmovss  dword ptr [rsi+4], xmm1
-            vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunDirOverride+8; r_globals_t rg
-            vmovss  dword ptr [rsi+8], xmm0
-          }
+          *v = rg.sunDirOverride.v[0];
+          v7->dir.v[1] = rg.sunDirOverride.v[1];
+          v7->dir.v[2] = rg.sunDirOverride.v[2];
         }
-        v20 = frontEndDataOut;
-        frontEndDataOut->sunShadow.lightDir.v[0] = *_RSI;
-        v20->sunShadow.lightDir.v[1] = _RDI->dir.v[1];
-        v20->sunShadow.lightDir.v[2] = _RDI->dir.v[2];
+        v14 = frontEndDataOut;
+        frontEndDataOut->sunShadow.lightDir.v[0] = *v;
+        v14->sunShadow.lightDir.v[1] = v7->dir.v[1];
+        v14->sunShadow.lightDir.v[2] = v7->dir.v[2];
       }
       if ( rg.useSunColorLinearSrgbOverride )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride; r_globals_t rg
-          vmovss  dword ptr [rdi+14h], xmm0
-          vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+4; r_globals_t rg
-          vmovss  dword ptr [rdi+18h], xmm1
-          vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.sunColorLinearSrgbOverride+8; r_globals_t rg
-          vmovss  dword ptr [rdi+1Ch], xmm0
-        }
-      }
-      v16 = !rg.useSunIntensityOverride;
+        v7->colorLinearSrgb = rg.sunColorLinearSrgbOverride;
       if ( rg.useSunIntensityOverride )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.sunIntensityOverride; r_globals_t rg
-          vmovss  dword ptr [rdi+10h], xmm0
-        }
-      }
+        v7->intensity = rg.sunIntensityOverride;
     }
-    __asm
+    if ( v7->colorLinearSrgb.v[0] == 0.0 && v7->colorLinearSrgb.v[1] == 0.0 && v7->colorLinearSrgb.v[2] == 0.0 || v7->intensity == 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+14h]
-    }
-    if ( v16 )
-    {
-      __asm { vucomiss xmm0, dword ptr [rdi+18h] }
-      if ( v16 )
-      {
-        __asm { vucomiss xmm0, dword ptr [rdi+1Ch] }
-        if ( v16 )
-          goto LABEL_34;
-      }
-    }
-    __asm { vucomiss xmm0, dword ptr [rdi+10h] }
-    if ( v16 )
-    {
-LABEL_34:
       frontEndDataOut->activePrimarySunLight = 0;
       *((_DWORD *)features + 11) &= ~4u;
-      v24 = frontEndDataOut;
+      v15 = frontEndDataOut;
       *(_QWORD *)frontEndDataOut->sunShadow.lightDir.v = 0i64;
-      v24->sunShadow.lightDir.v[2] = 1.0;
+      v15->sunShadow.lightDir.v[2] = 1.0;
       frontEndDataOut->hasSunDirChanged = 0;
       frontEndDataOut->hasApproxSunDirChanged = 0;
     }
@@ -19106,34 +15053,34 @@ LABEL_9:
 R_UpdateLodParmsInternal
 ==============
 */
-
-void __fastcall R_UpdateLodParmsInternal(const RefdefView *view, GfxLodParms *lodParms, double lodOverride, double dynResScale)
+void R_UpdateLodParmsInternal(const RefdefView *view, GfxLodParms *lodParms, float lodOverride, float dynResScale)
 {
   int integer; 
-  int v23; 
-  int v24; 
-  char v52; 
-  char v53; 
-  int v81; 
-  char v96; 
-  void *retaddr; 
+  int v11; 
+  int v12; 
+  float v13; 
+  double v14; 
+  double v15; 
+  const dvar_t *v16; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  double PhysicalMemoryUsageRatio; 
+  const dvar_t *v24; 
+  float value; 
+  const dvar_t *v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v35; 
+  __int128 v38; 
+  bool enabled; 
+  float v40; 
+  bool v41; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = lodParms;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RSI = view;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm12, xmm3
-    vmovaps xmm9, xmm2
-  }
   integer = r_renderMemMode->current.integer;
   if ( s_lastRenderMemMode != integer )
   {
@@ -19143,13 +15090,13 @@ void __fastcall R_UpdateLodParmsInternal(const RefdefView *view, GfxLodParms *lo
       switch ( integer )
       {
         case 1:
-          __asm { vmovsd  xmm7, cs:__real@3fe1318ef5664511 }
+          *(double *)&_XMM7 = DOUBLE_0_5372996132811371;
           break;
         case 2:
-          __asm { vmovsd  xmm7, cs:__real@3fe92c3f4d626302 }
+          *(double *)&_XMM7 = DOUBLE_0_7866512786305011;
           break;
         case 3:
-          __asm { vmovsd  xmm7, cs:__real@3fe56ca68de7d7f8 }
+          *(double *)&_XMM7 = DOUBLE_0_6695130130381122;
           break;
         default:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11422, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown LODScalePlatform") )
@@ -19160,194 +15107,117 @@ void __fastcall R_UpdateLodParmsInternal(const RefdefView *view, GfxLodParms *lo
     }
     else
     {
-      __asm { vmovsd  xmm7, cs:__real@3fde0298ea8c7b05 }
+      *(double *)&_XMM7 = DOUBLE_0_4689085283770711;
     }
     if ( integer )
     {
-      v23 = integer - 1;
-      if ( v23 )
+      v11 = integer - 1;
+      if ( v11 )
       {
-        v24 = v23 - 1;
-        if ( !v24 || v24 == 1 )
+        v12 = v11 - 1;
+        if ( !v12 || v12 == 1 )
         {
-          __asm { vmovss  xmm6, cs:__real@3f6e147b }
+          v13 = FLOAT_0_93000001;
         }
         else
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11458, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown LODScalePlatform") )
             __debugbreak();
-          __asm { vxorps  xmm6, xmm6, xmm6 }
+          v13 = 0.0;
         }
       }
       else
       {
-        __asm { vmovaps xmm6, xmm8 }
+        v13 = FLOAT_1_0;
       }
     }
     else
     {
-      __asm { vmovss  xmm6, cs:__real@3fca3d71 }
+      v13 = FLOAT_1_58;
     }
-    __asm { vmovsd  xmm0, cs:__real@3fe462e13057f5b3; X }
-    *(double *)&_XMM0 = atan_0(*(double *)&_XMM0);
-    *(double *)&_XMM0 = sin_0(*(double *)&_XMM0);
-    _RAX = r_lodScale;
-    __asm
-    {
-      vdivsd  xmm1, xmm0, xmm7
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmulss  xmm6, xmm2, xmm6
-    }
+    v14 = atan_0(0.6370702690325544);
+    v15 = sin_0(v14);
+    v16 = r_lodScale;
+    _XMM1 = COERCE_UNSIGNED_INT64(v15 / *(double *)&_XMM7);
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    v19 = *(float *)&_XMM2 * v13;
     if ( !r_lodScale )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 10167, ASSERT_TYPE_ASSERT, "(r_lodScale)", (const char *)&queryFormat, "r_lodScale") )
         __debugbreak();
-      _RAX = r_lodScale;
+      v16 = r_lodScale;
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+5Ch]; max
-      vmovss  xmm1, dword ptr [rax+58h]; min
-      vmovaps xmm0, xmm6; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; value }
-    Dvar_SetFloat_Internal(r_lodScale, *(float *)&_XMM1);
+    I_fclamp(v19, v16->domain.value.min, v16->domain.value.max);
+    Dvar_SetFloat_Internal(r_lodScale, v19);
   }
   if ( r_lockPvs->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:lockPvsViewParms.camera.origin
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr cs:lockPvsViewParms.camera.origin+4
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr cs:lockPvsViewParms.camera.origin+8
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm1, dword ptr cs:lockPvsViewParms.camera.___u3
-      vmulss  xmm2, xmm1, cs:__real@40079857
-    }
+    lodParms->origin.v[0] = lockPvsViewParms.camera.origin.v[0];
+    lodParms->origin.v[1] = lockPvsViewParms.camera.origin.v[1];
+    lodParms->origin.v[2] = lockPvsViewParms.camera.origin.v[2];
+    v20 = lockPvsViewParms.camera.tanHalfFovY * 2.1186731;
   }
   else
   {
-    RefdefView_GetOrg(_RSI, &_RDI->origin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmulss  xmm2, xmm0, cs:__real@40079857
-    }
+    RefdefView_GetOrg(view, &lodParms->origin);
+    v20 = view->fov.tanHalfFovY * 2.1186731;
   }
-  __asm
-  {
-    vmulss  xmm11, xmm2, xmm9
-    vmovaps xmm10, xmm8
-  }
-  *(double *)&_XMM0 = R_UGB_GetPhysicalMemoryUsageRatio();
-  _RBX = DVARFLT_r_ugbUsageRatioStartBiasLodDistanceThreshold;
-  __asm { vmovaps xmm7, xmm0 }
+  v21 = v20 * lodOverride;
+  v22 = FLOAT_1_0;
+  PhysicalMemoryUsageRatio = R_UGB_GetPhysicalMemoryUsageRatio();
+  v24 = DVARFLT_r_ugbUsageRatioStartBiasLodDistanceThreshold;
   if ( !DVARFLT_r_ugbUsageRatioStartBiasLodDistanceThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_ugbUsageRatioStartBiasLodDistanceThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_r_ugbUsageRatioMaxDistanceScaler;
+  Dvar_CheckFrontendServerThread(v24);
+  value = v24->current.value;
+  v26 = DVARFLT_r_ugbUsageRatioMaxDistanceScaler;
   if ( !DVARFLT_r_ugbUsageRatioMaxDistanceScaler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_ugbUsageRatioMaxDistanceScaler") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_r_ugbDistanceScalerAmortizer;
+  Dvar_CheckFrontendServerThread(v26);
+  v27 = v26->current.value;
+  v28 = DVARFLT_r_ugbDistanceScalerAmortizer;
   if ( !DVARFLT_r_ugbDistanceScalerAmortizer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_ugbDistanceScalerAmortizer") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v28);
+  if ( *(float *)&PhysicalMemoryUsageRatio > value )
   {
-    vcomiss xmm7, xmm6
-    vmovss  xmm4, dword ptr [rbx+28h]
+    v29 = (float)((float)(*(float *)&PhysicalMemoryUsageRatio - value) / (float)(1.0 - value)) * (float)((float)(*(float *)&PhysicalMemoryUsageRatio - value) / (float)(1.0 - value));
+    v22 = (float)(v29 * v27) + (float)(1.0 - v29);
   }
-  if ( !(v52 | v53) )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm8, xmm6
-      vsubss  xmm1, xmm7, xmm6
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm1
-      vmulss  xmm3, xmm2, xmm9
-      vsubss  xmm0, xmm8, xmm2
-      vaddss  xmm10, xmm3, xmm0
-    }
-  }
-  __asm
-  {
-    vsubss  xmm0, xmm8, xmm4
-    vmulss  xmm2, xmm0, dword ptr [rdi+4Ch]
-    vmulss  xmm1, xmm4, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  dword ptr [rdi+4Ch], xmm3
-    vdivss  xmm6, xmm11, xmm3
-  }
-  _EAX = CL_IsRenderingSplitScreen();
-  _R11 = &v96;
-  _ECX = 0;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovd   xmm0, eax
-    vmovd   xmm1, ecx
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@40000000
-    vaddss  xmm3, xmm12, dword ptr [rax+28h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vblendvps xmm0, xmm1, xmm8, xmm2
-    vmulss  xmm4, xmm0, xmm6
-  }
-  v81 = r_lodOutStaticRamp->current.color[0];
-  _RAX = r_lodBias;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmulss  xmm0, xmm4, xmm3
-    vmovss  xmm2, dword ptr [rax+28h]
-    vmovss  dword ptr [rdi+0Ch], xmm0
-    vmovss  dword ptr [rdi+14h], xmm3
-    vmovss  dword ptr [rdi+18h], xmm2
-  }
-  _RDI->ramp.allowLODOutStatic = v81;
-  __asm
-  {
-    vmulss  xmm1, xmm4, xmm2
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmulss  xmm3, xmm3, dword ptr [rax+28h]
-  }
-  _RAX = r_st_clutterLodBias;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vaddss  xmm2, xmm0, dword ptr [rax+28h]
-    vmulss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm4, xmm2
-  }
-  LOBYTE(v81) = r_lodOutStaticRamp->current.enabled;
-  __asm { vmovss  dword ptr [rdi+20h], xmm0 }
-  _RDI->clutterRamp.allowLODOutStatic = v81;
-  __asm
-  {
-    vmovss  dword ptr [rdi+24h], xmm1
-    vmovss  dword ptr [rdi+28h], xmm3
-    vmovss  dword ptr [rdi+2Ch], xmm2
-    vmulss  xmm1, xmm4, dword ptr [rdi+4Ch]
-    vmovss  dword ptr [rdi+48h], xmm1
-    vmovss  dword ptr [rdi+40h], xmm4
-    vminss  xmm0, xmm4, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rdi+44h], xmm0
-  }
-  LODWORD(_RDI->skinningBias) = r_skinnedLodBias->current.integer;
-  LODWORD(_RDI->subdivBias) = r_skinnedSubdivLodBias->current.integer;
-  LODWORD(_RDI->sceneSurfsBias) = r_sceneSurfsLodBias->current.integer;
-  _RDI->valid = 1;
+  v30 = (float)((float)(1.0 - v28->current.value) * lodParms->ugbInvFovScaleModifier) + (float)(v28->current.value * v22);
+  lodParms->ugbInvFovScaleModifier = v30;
+  v31 = v21 / v30;
+  _XMM0 = CL_IsRenderingSplitScreen();
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_2_0);
+  v35 = dynResScale + r_lodScale->current.value;
+  __asm { vblendvps xmm0, xmm1, xmm8, xmm2 }
+  v38 = _XMM0;
+  *(float *)&v38 = *(float *)&_XMM0 * v31;
+  _XMM4 = v38;
+  enabled = r_lodOutStaticRamp->current.enabled;
+  LODWORD(_XMM2) = r_lodBias->current.integer;
+  lodParms->ramp.scale = (float)(*(float *)&_XMM0 * v31) * v35;
+  lodParms->ramp.scaleWithoutFovScale = v35;
+  lodParms->ramp.biasWithoutFovScale = *(float *)&_XMM2;
+  lodParms->ramp.allowLODOutStatic = enabled;
+  lodParms->ramp.bias = (float)(*(float *)&_XMM0 * v31) * *(float *)&_XMM2;
+  v40 = v35 * r_st_clutterLodScale->current.value;
+  *(float *)&_XMM2 = r_st_clutterLodBias->current.value + r_lodBias->current.value;
+  v41 = r_lodOutStaticRamp->current.enabled;
+  lodParms->clutterRamp.scale = (float)(*(float *)&_XMM0 * v31) * v40;
+  lodParms->clutterRamp.allowLODOutStatic = v41;
+  lodParms->clutterRamp.bias = (float)(*(float *)&_XMM0 * v31) * *(float *)&_XMM2;
+  lodParms->clutterRamp.scaleWithoutFovScale = v40;
+  lodParms->clutterRamp.biasWithoutFovScale = *(float *)&_XMM2;
+  lodParms->invFovScaleFx = (float)(*(float *)&_XMM0 * v31) * lodParms->ugbInvFovScaleModifier;
+  lodParms->invFovScale = *(float *)&_XMM0 * v31;
+  __asm { vminss  xmm0, xmm4, xmm8 }
+  lodParms->cappedLodScale = *(float *)&_XMM0;
+  LODWORD(lodParms->skinningBias) = r_skinnedLodBias->current.integer;
+  LODWORD(lodParms->subdivBias) = r_skinnedSubdivLodBias->current.integer;
+  LODWORD(lodParms->sceneSurfsBias) = r_sceneSurfsLodBias->current.integer;
+  lodParms->valid = 1;
 }
 
 /*
@@ -19357,11 +15227,7 @@ R_UpdatePlayerFadeEntityData
 */
 void R_UpdatePlayerFadeEntityData(const GfxPlayerFadeEntityData *playerFadeData)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr cs:?scene@@3UGfxScene@@A.gfxPlayerFadeData.entNum, xmm0; GfxScene scene
-  }
+  scene.gfxPlayerFadeData = *playerFadeData;
 }
 
 /*
@@ -19418,345 +15284,221 @@ R_UpdateTonemapParms
 */
 void R_UpdateTonemapParms(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
 {
-  bool v10; 
-  bool v11; 
-  bool v19; 
-  bool v27; 
-  bool v35; 
+  __int128 darkEv_low; 
+  __int128 v6; 
+  float v9; 
+  float v10; 
+  __int128 darkExposureAdjust_low; 
+  __int128 v15; 
+  float v18; 
+  float v19; 
   const GfxBackEndData *data; 
-  const dvar_t *v58; 
-  const dvar_t *v60; 
-  bool v66; 
-  float v95; 
+  float EVCompBounds; 
+  float EVCompGrayReference; 
+  float v26; 
+  __int128 v27; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  double ExposureAdjust; 
+  double DisplayHdrUiMaxLuminance; 
+  float grainStrength; 
+  float intensity; 
+  const GfxImage *vignetteImage; 
+  float v37; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float squareAspectRatioWeight; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
   GfxImage *whiteImage; 
-  const dvar_t *v106; 
-  const dvar_t *v107; 
-  const dvar_t *v108; 
-  float *imageKey; 
-  float *imageKeya; 
-  double v117; 
-  double v118; 
+  const dvar_t *v55; 
+  const dvar_t *v56; 
+  const dvar_t *v57; 
   float exposure[4]; 
-  char v121; 
-  void *retaddr; 
   float sceneAmbientAvgKiloNits; 
-  GfxColorimetry FramebufferColorimetry; 
-  float v125; 
+  float v60; 
+  float imageKey; 
   float sceneAvgKiloNits; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RDI = sceneParms;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0D8h+var_88], xmm10
-  }
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3774, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  v10 = _RBX->input.data == NULL;
-  if ( !_RBX->input.data )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3775, ASSERT_TYPE_ASSERT, "(viewInfo->input.data)", (const char *)&queryFormat, "viewInfo->input.data");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
+  if ( !viewInfo->input.data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3775, ASSERT_TYPE_ASSERT, "(viewInfo->input.data)", (const char *)&queryFormat, "viewInfo->input.data") )
+    __debugbreak();
+  darkEv_low = LODWORD(viewInfo->tonemap.darkEv);
+  v6 = darkEv_low;
+  *(float *)&v6 = *(float *)&darkEv_low + 0.000099999997;
+  _XMM0 = v6;
+  __asm { vmaxss  xmm2, xmm0, dword ptr [rbx+3824h] }
+  viewInfo->tonemap.lightEv = *(float *)&_XMM2;
+  if ( (float)(*(float *)&darkEv_low + 0.000024999999) > (float)(*(float *)&_XMM2 - 0.000024999999) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3781, ASSERT_TYPE_ASSERT, "(viewInfo->tonemap.darkEv + kBoundaryGap <= viewInfo->tonemap.lightEv - kBoundaryGap)", (const char *)&queryFormat, "viewInfo->tonemap.darkEv + kBoundaryGap <= viewInfo->tonemap.lightEv - kBoundaryGap") )
+    __debugbreak();
+  _XMM10 = LODWORD(viewInfo->tonemap.midEv);
+  v9 = viewInfo->tonemap.lightEv - 0.000024999999;
+  v10 = viewInfo->tonemap.darkEv + 0.000024999999;
+  if ( v10 > v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v10, v9) )
+    __debugbreak();
+  darkExposureAdjust_low = LODWORD(viewInfo->tonemap.darkExposureAdjust);
   __asm
   {
-    vmovss  xmm1, dword ptr [rbx+381Ch]
-    vmovss  xmm6, cs:__real@37d1b717
-    vmovss  xmm9, cs:__real@38d1b717
-    vaddss  xmm0, xmm1, xmm9
-    vmaxss  xmm2, xmm0, dword ptr [rbx+3824h]
-    vsubss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm1, xmm6
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rbx+3824h], xmm2
-  }
-  if ( !v10 )
-  {
-    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3781, ASSERT_TYPE_ASSERT, "(viewInfo->tonemap.darkEv + kBoundaryGap <= viewInfo->tonemap.lightEv - kBoundaryGap)", (const char *)&queryFormat, "viewInfo->tonemap.darkEv + kBoundaryGap <= viewInfo->tonemap.lightEv - kBoundaryGap");
-    v10 = !v19;
-    if ( v19 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+3824h]
-    vmovss  xmm1, dword ptr [rbx+381Ch]
-    vmovss  xmm10, dword ptr [rbx+3820h]
-    vsubss  xmm7, xmm0, xmm6
-    vaddss  xmm8, xmm1, xmm6
-    vcomiss xmm8, xmm7
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm0
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovsd  [rsp+0D8h+imageKey], xmm1
-    }
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&imageKey, v117);
-    v10 = !v27;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+3828h]
     vmaxss  xmm0, xmm10, xmm8
     vminss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm3, xmm9
-    vmaxss  xmm2, xmm0, dword ptr [rbx+3830h]
-    vmovss  dword ptr [rbx+3820h], xmm1
-    vsubss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm3, xmm6
-    vcomiss xmm1, xmm0
-    vmovss  dword ptr [rbx+3830h], xmm2
   }
-  if ( !v10 )
-  {
-    v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3785, ASSERT_TYPE_ASSERT, "(viewInfo->tonemap.darkExposureAdjust + kBoundaryGap <= viewInfo->tonemap.lightExposureAdjust - kBoundaryGap)", (const char *)&queryFormat, "viewInfo->tonemap.darkExposureAdjust + kBoundaryGap <= viewInfo->tonemap.lightExposureAdjust - kBoundaryGap");
-    v10 = !v35;
-    if ( v35 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+3830h]
-    vmovss  xmm1, dword ptr [rbx+3828h]
-    vmovss  xmm8, dword ptr [rbx+382Ch]
-    vsubss  xmm7, xmm0, xmm6
-    vaddss  xmm6, xmm1, xmm6
-    vcomiss xmm6, xmm7
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0D8h+var_A8], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+0D8h+imageKey], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&imageKeya, v118) )
-      __debugbreak();
-  }
-  data = _RBX->input.data;
+  v15 = darkExposureAdjust_low;
+  *(float *)&v15 = *(float *)&darkExposureAdjust_low + 0.000099999997;
+  _XMM0 = v15;
+  __asm { vmaxss  xmm2, xmm0, dword ptr [rbx+3830h] }
+  viewInfo->tonemap.midEv = *(float *)&_XMM1;
+  viewInfo->tonemap.lightExposureAdjust = *(float *)&_XMM2;
+  if ( (float)(*(float *)&darkExposureAdjust_low + 0.000024999999) > (float)(*(float *)&_XMM2 - 0.000024999999) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3785, ASSERT_TYPE_ASSERT, "(viewInfo->tonemap.darkExposureAdjust + kBoundaryGap <= viewInfo->tonemap.lightExposureAdjust - kBoundaryGap)", (const char *)&queryFormat, "viewInfo->tonemap.darkExposureAdjust + kBoundaryGap <= viewInfo->tonemap.lightExposureAdjust - kBoundaryGap") )
+    __debugbreak();
+  _XMM8 = LODWORD(viewInfo->tonemap.midExposureAdjust);
+  v18 = viewInfo->tonemap.lightExposureAdjust - 0.000024999999;
+  v19 = viewInfo->tonemap.darkExposureAdjust + 0.000024999999;
+  if ( v19 > v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v19, v18) )
+    __debugbreak();
+  data = viewInfo->input.data;
   __asm
   {
     vmaxss  xmm0, xmm8, xmm6
     vminss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rbx+382Ch], xmm1
   }
-  R_Tonemap_UpdateRadiometricScale(data, _RBX);
-  *(double *)&_XMM0 = R_Tonemap_UpdateExposure(_RBX);
-  __asm
-  {
-    vmovss  dword ptr [rbx+3858h], xmm0
-    vmovss  cs:?rg@@3Ur_globals_t@@A.tonemapStaticExposureLinear, xmm0; r_globals_t rg
-    vmovaps xmm6, xmm0
-  }
-  R_Tonemap_GetExposureInfo(_RBX->input.data, _RBX, exposure, &sceneAvgKiloNits, &sceneAmbientAvgKiloNits, &v125);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm8, dword ptr [rdi+30Ch]
-    vmovss  xmm7, dword ptr [rdi+310h]
-    vdivss  xmm0, xmm9, xmm6
-    vmovss  xmm6, [rsp+0D8h+sceneAmbientAvgKiloNits]
-    vmulss  xmm1, xmm6, cs:__real@447a0000
-    vmovss  dword ptr [rbx+1900h], xmm0
-    vaddss  xmm0, xmm1, cs:__real@387fda40; X
-  }
-  *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@3fb8aa3b
-    vaddss  xmm2, xmm1, cs:__real@4035c28f
-    vmovss  dword ptr [rbx+1908h], xmm6
-    vmovss  dword ptr [rbx+190Ch], xmm8
-    vmaxss  xmm3, xmm2, xmm9
-    vaddss  xmm0, xmm3, xmm7
-    vmovss  dword ptr [rbx+1904h], xmm0
-  }
-  LODWORD(_RBX->input.sceneConstants.tonemapParms2.v[0]) = r_flareDrawThresholdEV->current.integer;
-  _RBX->input.sceneConstants.tonemapParms2.v[1] = _RDI->thermalParams.lightIntensityScreen;
-  v58 = DVARFLT_r_tonemapScopeFocus;
+  viewInfo->tonemap.midExposureAdjust = *(float *)&_XMM1;
+  R_Tonemap_UpdateRadiometricScale(data, viewInfo);
+  *(double *)&_XMM0 = R_Tonemap_UpdateExposure(viewInfo);
+  viewInfo->tonemap.staticExposureLinear = *(float *)&_XMM0;
+  rg.tonemapStaticExposureLinear = *(float *)&_XMM0;
+  R_Tonemap_GetExposureInfo(viewInfo->input.data, viewInfo, exposure, &sceneAvgKiloNits, &sceneAmbientAvgKiloNits, &imageKey);
+  _XMM9 = LODWORD(FLOAT_1_0);
+  EVCompBounds = sceneParms->rimLighting.EVCompBounds;
+  EVCompGrayReference = sceneParms->rimLighting.EVCompGrayReference;
+  v26 = sceneAmbientAvgKiloNits;
+  v27 = LODWORD(sceneAmbientAvgKiloNits);
+  *(float *)&v27 = sceneAmbientAvgKiloNits * 1000.0;
+  viewInfo->input.sceneConstants.tonemapParms0.v[0] = 1.0 / *(float *)&_XMM0;
+  *(float *)&v27 = (float)(logf_0(*(float *)&v27 + 0.000060999999) * 1.442695) + 2.8399999;
+  _XMM2 = v27;
+  viewInfo->input.sceneConstants.tonemapParms0.v[2] = v26;
+  viewInfo->input.sceneConstants.tonemapParms0.v[3] = EVCompBounds;
+  __asm { vmaxss  xmm3, xmm2, xmm9 }
+  viewInfo->input.sceneConstants.tonemapParms0.v[1] = *(float *)&_XMM3 + EVCompGrayReference;
+  LODWORD(viewInfo->input.sceneConstants.tonemapParms2.v[0]) = r_flareDrawThresholdEV->current.integer;
+  viewInfo->input.sceneConstants.tonemapParms2.v[1] = sceneParms->thermalParams.lightIntensityScreen;
+  v30 = DVARFLT_r_tonemapScopeFocus;
   if ( !DVARFLT_r_tonemapScopeFocus && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_tonemapScopeFocus") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v58);
-  _RBP = 0i64;
-  *(_QWORD *)&_RBX->input.sceneConstants.tonemapParms2.xyz.z = v58->current.unsignedInt;
-  v60 = DVARBOOL_r_scopedNVGFade;
+  Dvar_CheckFrontendServerThread(v30);
+  *(_QWORD *)&viewInfo->input.sceneConstants.tonemapParms2.xyz.z = v30->current.unsignedInt;
+  v31 = DVARBOOL_r_scopedNVGFade;
   if ( !DVARBOOL_r_scopedNVGFade && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_scopedNVGFade") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v60);
-  if ( v60->current.enabled )
-  {
-    _RAX = _RBX->input.data;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+75A870h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+1914h]
-      vmovss  dword ptr [rbx+1914h], xmm1
-    }
-  }
-  FramebufferColorimetry = GFX_COLORIMETRY_BT709_BT1886;
-  *(double *)&_XMM0 = R_Tonemap_GetExposureAdjust(_RBX);
-  __asm
-  {
-    vmovss  xmm1, [rsp+0D8h+arg_8]
-    vmovss  dword ptr [rbx+22A4h], xmm1
-    vmovss  dword ptr [rbx+22A0h], xmm0
-  }
-  *(_QWORD *)&_RBX->input.sceneConstants.tonemapParms1.xyz.z = 0i64;
-  FramebufferColorimetry = R_GetFramebufferColorimetry();
-  *(double *)&_XMM0 = R_GetDisplayHdrUiMaxLuminance();
-  __asm
-  {
-    vmovss  xmm1, [rsp+0D8h+arg_8]
-    vmovss  dword ptr [rbx+22B0h], xmm1
-    vmovss  dword ptr [rbx+22B4h], xmm0
-  }
-  *(_QWORD *)&_RBX->input.sceneConstants.colorimetryParams.xyz.z = 0i64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v66 = !_RBX->tonemap.enabled;
-  if ( _RBX->tonemap.enabled )
-    __asm { vmovss  xmm0, dword ptr [rbx+383Ch] }
+  Dvar_CheckFrontendServerThread(v31);
+  if ( v31->current.enabled )
+    viewInfo->input.sceneConstants.tonemapParms2.v[1] = viewInfo->input.data->scope.scopeFadeInfo[0].fadeInFrac * viewInfo->input.sceneConstants.tonemapParms2.v[1];
+  LODWORD(v60) = 1;
+  ExposureAdjust = R_Tonemap_GetExposureAdjust(viewInfo);
+  viewInfo->input.sceneConstants.tonemapParms1.v[1] = v60;
+  viewInfo->input.sceneConstants.tonemapParms1.v[0] = *(float *)&ExposureAdjust;
+  *(_QWORD *)&viewInfo->input.sceneConstants.tonemapParms1.xyz.z = 0i64;
+  v60 = COERCE_FLOAT(R_GetFramebufferColorimetry());
+  DisplayHdrUiMaxLuminance = R_GetDisplayHdrUiMaxLuminance();
+  viewInfo->input.sceneConstants.colorimetryParams.v[0] = v60;
+  viewInfo->input.sceneConstants.colorimetryParams.v[1] = *(float *)&DisplayHdrUiMaxLuminance;
+  *(_QWORD *)&viewInfo->input.sceneConstants.colorimetryParams.xyz.z = 0i64;
+  if ( viewInfo->tonemap.enabled )
+    grainStrength = viewInfo->tonemap.grainStrength;
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  __asm { vmovss  dword ptr [rbx+22C4h], xmm0 }
-  _RBX->input.sceneConstants.filmGrainParams.v[0] = 0.0;
-  *(_QWORD *)&_RBX->input.sceneConstants.filmGrainParams.xyz.z = 0i64;
-  __asm
+    grainStrength = 0.0;
+  viewInfo->input.sceneConstants.filmGrainParams.v[1] = grainStrength;
+  viewInfo->input.sceneConstants.filmGrainParams.v[0] = 0.0;
+  *(_QWORD *)&viewInfo->input.sceneConstants.filmGrainParams.xyz.z = 0i64;
+  intensity = viewInfo->vignette.intensity;
+  if ( intensity <= 0.0 )
   {
-    vmovss  xmm7, dword ptr [rbx+2E10h]
-    vcomiss xmm7, xmm6
-  }
-  if ( v66 )
-  {
-    *(_QWORD *)_RBX->input.sceneConstants.vignetteParms0.v = 0i64;
-    *(_QWORD *)&_RBX->input.sceneConstants.vignetteParms0.xyz.z = 0i64;
-    *(_QWORD *)_RBX->input.sceneConstants.vignetteParms1.v = 0i64;
-    *(_QWORD *)&_RBX->input.sceneConstants.vignetteParms1.xyz.z = 0i64;
-    *(_QWORD *)_RBX->input.sceneConstants.vignetteParms2.v = 0i64;
-    *(_QWORD *)&_RBX->input.sceneConstants.vignetteParms2.xyz.z = 0i64;
+    *(_QWORD *)viewInfo->input.sceneConstants.vignetteParms0.v = 0i64;
+    *(_QWORD *)&viewInfo->input.sceneConstants.vignetteParms0.xyz.z = 0i64;
+    *(_QWORD *)viewInfo->input.sceneConstants.vignetteParms1.v = 0i64;
+    *(_QWORD *)&viewInfo->input.sceneConstants.vignetteParms1.xyz.z = 0i64;
+    *(_QWORD *)viewInfo->input.sceneConstants.vignetteParms2.v = 0i64;
+    *(_QWORD *)&viewInfo->input.sceneConstants.vignetteParms2.xyz.z = 0i64;
     whiteImage = rgp.whiteImage;
   }
   else
   {
-    _RCX = (GfxImage *)_RBX->vignette.vignetteImage;
+    vignetteImage = viewInfo->vignette.vignetteImage;
+    v37 = viewInfo->vignette.size.v[1];
+    _XMM0 = (unsigned __int64)vignetteImage;
     __asm
     {
-      vmovss  xmm10, dword ptr [rbx+2E1Ch]
-      vmovq   xmm0, rcx
-      vmovq   xmm1, rbp
       vpcmpeqq xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@3f3504f3
       vblendvps xmm0, xmm9, xmm1, xmm2
-      vmovss  xmm1, dword ptr [rbx+130h]
-      vdivss  xmm2, xmm1, dword ptr [rbx+134h]
-      vcomiss xmm2, xmm9
-      vmovaps xmm3, xmm9
-      vmovaps xmm8, xmm9
-      vmovss  [rsp+0D8h+arg_8], xmm0
-      vmovaps xmm3, xmm2
-      vmovss  xmm5, dword ptr [rbx+2E14h]
-      vmulss  xmm1, xmm5, xmm3
-      vsubss  xmm0, xmm9, xmm5
-      vmulss  xmm4, xmm0, [rsp+0D8h+arg_8]
-      vaddss  xmm2, xmm1, xmm4
-      vdivss  xmm0, xmm2, dword ptr [rbx+2E18h]
-      vmulss  xmm0, xmm0, cs:__real@40000000
-      vmovss  dword ptr [rbx+2620h], xmm0
-      vmovss  dword ptr [rbx+2628h], xmm7
     }
-    _RBX->input.sceneConstants.vignetteParms0.v[3] = 0.0;
-    __asm
-    {
-      vmulss  xmm1, xmm5, xmm8
-      vaddss  xmm0, xmm1, xmm4
-      vdivss  xmm2, xmm0, xmm10
-      vmulss  xmm3, xmm2, cs:__real@40000000
-      vmovss  dword ptr [rbx+2624h], xmm3
-      vmovss  xmm0, dword ptr [rbx+2E34h]
-      vmovss  xmm1, dword ptr [rbx+2E28h]
-      vmovss  xmm2, dword ptr [rbx+2E2Ch]
-    }
-    v95 = _RBX->vignette.offset.v[0];
-    whiteImage = _RCX;
-    __asm
-    {
-      vmovss  dword ptr [rbx+2638h], xmm1
-      vmovss  dword ptr [rbx+2634h], xmm0
-      vmovss  dword ptr [rbx+263Ch], xmm2
-    }
-    _RBX->input.sceneConstants.vignetteParms1.v[0] = v95;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2E20h]
-      vmaxss  xmm1, xmm0, cs:__real@3a83126f
-    }
-    if ( !_RCX )
+    v41 = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX / viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+    v42 = FLOAT_1_0;
+    v43 = FLOAT_1_0;
+    v60 = *(float *)&_XMM0;
+    if ( v41 <= 1.0 )
+      v43 = 1.0 / v41;
+    else
+      v42 = v41;
+    squareAspectRatioWeight = viewInfo->vignette.squareAspectRatioWeight;
+    v45 = (float)(1.0 - squareAspectRatioWeight) * v60;
+    viewInfo->input.sceneConstants.vignetteParms0.v[0] = (float)((float)((float)(squareAspectRatioWeight * v42) + v45) / viewInfo->vignette.size.v[0]) * 2.0;
+    viewInfo->input.sceneConstants.vignetteParms0.v[2] = intensity;
+    viewInfo->input.sceneConstants.vignetteParms0.v[3] = 0.0;
+    viewInfo->input.sceneConstants.vignetteParms0.v[1] = (float)((float)((float)(squareAspectRatioWeight * v43) + v45) / v37) * 2.0;
+    v46 = viewInfo->vignette.offset.v[1];
+    v47 = viewInfo->vignette.boxSize.v[1];
+    v48 = viewInfo->vignette.offset.v[0];
+    whiteImage = (GfxImage *)vignetteImage;
+    viewInfo->input.sceneConstants.vignetteParms1.v[2] = viewInfo->vignette.boxSize.v[0];
+    viewInfo->input.sceneConstants.vignetteParms1.v[1] = v46;
+    viewInfo->input.sceneConstants.vignetteParms1.v[3] = v47;
+    viewInfo->input.sceneConstants.vignetteParms1.v[0] = v48;
+    _XMM0 = LODWORD(viewInfo->vignette.falloff);
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3a83126f }
+    if ( !vignetteImage )
       whiteImage = rgp.whiteImage;
+    _XMM0 = (unsigned __int64)vignetteImage;
+    viewInfo->input.sceneConstants.vignetteParms2.v[1] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / *(float *)&_XMM1) * viewInfo->vignette.falloffStart) ^ _xmm);
+    viewInfo->input.sceneConstants.vignetteParms2.v[0] = 1.0 / *(float *)&_XMM1;
     __asm
     {
-      vdivss  xmm2, xmm9, xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+2E24h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovq   xmm0, rcx
-      vmovss  dword ptr [rbx+2644h], xmm1
-      vmovq   xmm1, rbp
-      vmovss  dword ptr [rbx+2640h], xmm2
       vpcmpeqq xmm2, xmm0, xmm1
       vblendvps xmm0, xmm9, xmm6, xmm2
-      vmovss  dword ptr [rbx+2648h], xmm0
     }
-    _RBX->input.sceneConstants.vignetteParms2.v[3] = 0.0;
+    viewInfo->input.sceneConstants.vignetteParms2.v[2] = *(float *)&_XMM0;
+    viewInfo->input.sceneConstants.vignetteParms2.v[3] = 0.0;
   }
-  if ( _RBX == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _RBX->input.codeImages[55] = whiteImage;
-  v106 = DCONST_DVARVEC4_r_nvgColorGradeLift;
+  viewInfo->input.codeImages[55] = whiteImage;
+  v55 = DCONST_DVARVEC4_r_nvgColorGradeLift;
   if ( !DCONST_DVARVEC4_r_nvgColorGradeLift && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_nvgColorGradeLift") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v106);
-  LODWORD(_RBX->input.sceneConstants.nvgColorGradeLift.v[0]) = v106->current.integer;
-  _RBX->input.sceneConstants.nvgColorGradeLift.v[1] = v106->current.vector.v[1];
-  _RBX->input.sceneConstants.nvgColorGradeLift.v[2] = v106->current.vector.v[2];
-  _RBX->input.sceneConstants.nvgColorGradeLift.v[3] = v106->current.vector.v[3];
-  v107 = DCONST_DVARVEC4_r_nvgColorGradeGamma;
+  Dvar_CheckFrontendServerThread(v55);
+  LODWORD(viewInfo->input.sceneConstants.nvgColorGradeLift.v[0]) = v55->current.integer;
+  viewInfo->input.sceneConstants.nvgColorGradeLift.v[1] = v55->current.vector.v[1];
+  viewInfo->input.sceneConstants.nvgColorGradeLift.v[2] = v55->current.vector.v[2];
+  viewInfo->input.sceneConstants.nvgColorGradeLift.v[3] = v55->current.vector.v[3];
+  v56 = DCONST_DVARVEC4_r_nvgColorGradeGamma;
   if ( !DCONST_DVARVEC4_r_nvgColorGradeGamma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_nvgColorGradeGamma") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v107);
-  LODWORD(_RBX->input.sceneConstants.nvgColorGradeGamma.v[0]) = v107->current.integer;
-  _RBX->input.sceneConstants.nvgColorGradeGamma.v[1] = v107->current.vector.v[1];
-  _RBX->input.sceneConstants.nvgColorGradeGamma.v[2] = v107->current.vector.v[2];
-  _RBX->input.sceneConstants.nvgColorGradeGamma.v[3] = v107->current.vector.v[3];
-  v108 = DCONST_DVARVEC4_r_nvgColorGradeGain;
+  Dvar_CheckFrontendServerThread(v56);
+  LODWORD(viewInfo->input.sceneConstants.nvgColorGradeGamma.v[0]) = v56->current.integer;
+  viewInfo->input.sceneConstants.nvgColorGradeGamma.v[1] = v56->current.vector.v[1];
+  viewInfo->input.sceneConstants.nvgColorGradeGamma.v[2] = v56->current.vector.v[2];
+  viewInfo->input.sceneConstants.nvgColorGradeGamma.v[3] = v56->current.vector.v[3];
+  v57 = DCONST_DVARVEC4_r_nvgColorGradeGain;
   if ( !DCONST_DVARVEC4_r_nvgColorGradeGain && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_nvgColorGradeGain") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v108);
-  _R11 = &v121;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  LODWORD(_RBX->input.sceneConstants.nvgColorGradeGain.v[0]) = v108->current.integer;
-  _RBX->input.sceneConstants.nvgColorGradeGain.v[1] = v108->current.vector.v[1];
-  _RBX->input.sceneConstants.nvgColorGradeGain.v[2] = v108->current.vector.v[2];
-  _RBX->input.sceneConstants.nvgColorGradeGain.v[3] = v108->current.vector.v[3];
+  Dvar_CheckFrontendServerThread(v57);
+  LODWORD(viewInfo->input.sceneConstants.nvgColorGradeGain.v[0]) = v57->current.integer;
+  viewInfo->input.sceneConstants.nvgColorGradeGain.v[1] = v57->current.vector.v[1];
+  viewInfo->input.sceneConstants.nvgColorGradeGain.v[2] = v57->current.vector.v[2];
+  viewInfo->input.sceneConstants.nvgColorGradeGain.v[3] = v57->current.vector.v[3];
 }
 
 /*
@@ -19788,7 +15530,9 @@ R_UpdateViewSurfaceBounds
 void R_UpdateViewSurfaceBounds(const Bounds *surfBounds, GfxSceneViewType sceneViewType)
 {
   __int64 v3; 
+  GfxViewInfo *v4; 
   volatile signed __int32 *p_writeCount; 
+  TempThreadPriority v6; 
   __int64 v7; 
   TempThreadPriority tempPriority; 
 
@@ -19797,20 +15541,20 @@ void R_UpdateViewSurfaceBounds(const Bounds *surfBounds, GfxSceneViewType sceneV
   if ( (unsigned int)(v3 - 1) > 0x1F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 3222, ASSERT_TYPE_ASSERT, "( SCENE_VIEW_SUNSHADOW_FIRST ) <= ( sceneViewType ) && ( sceneViewType ) <= ( SCENE_VIEW_CAMERA_DEPTH_HACK )", "sceneViewType not in [SCENE_VIEW_SUNSHADOW_FIRST, SCENE_VIEW_CAMERA_DEPTH_HACK]\n\t%i not in [%i, %i]", v3, 1, 32) )
     __debugbreak();
   Bounds_Expand(&frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex].sunShadowAndDepthHackSurfBounds[v3], surfBounds);
-  _RDI = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
-  p_writeCount = &_RDI->surfBoundsMutex.writeCount;
-  if ( _RDI->surfBoundsMutex.writeCount != 1 )
+  v4 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
+  p_writeCount = &v4->surfBoundsMutex.writeCount;
+  if ( v4->surfBoundsMutex.writeCount != 1 )
   {
     LODWORD(v7) = *p_writeCount;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", v7, 1) )
       __debugbreak();
   }
-  if ( _RDI->surfBoundsMutex.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
+  if ( v4->surfBoundsMutex.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi+988h] }
-  _RDI->surfBoundsMutex.writeThreadId = 0;
-  __asm { vmovups xmmword ptr [rsp+68h+tempPriority.threadHandle], xmm0 }
-  if ( (((_BYTE)_RDI - 124) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &_RDI->surfBoundsMutex.writeCount) )
+  v6 = v4->surfBoundsMutex.tempPriority;
+  v4->surfBoundsMutex.writeThreadId = 0;
+  tempPriority = v6;
+  if ( (((_BYTE)v4 - 124) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &v4->surfBoundsMutex.writeCount) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )
     __debugbreak();
@@ -19824,11 +15568,7 @@ R_UpdateWeaponFadeEntityData
 */
 void R_UpdateWeaponFadeEntityData(const GfxWeaponFadeEntityData *weaponFadeData)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr cs:?scene@@3UGfxScene@@A.gfxWeaponFadeData.entNum, xmm0; GfxScene scene
-  }
+  scene.gfxWeaponFadeData = *weaponFadeData;
 }
 
 /*
@@ -19862,47 +15602,26 @@ SetSecureVec3
 */
 void SetSecureVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst, const unsigned int yConst, const unsigned int zConst)
 {
-  const vec3_t *v9; 
-  float v12; 
-  unsigned int v13; 
-  unsigned int v14; 
-  unsigned int v15; 
-  __int64 v16; 
-  int v17; 
+  float v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  __int64 v13; 
+  float v14; 
 
-  __asm
+  v14 = from->v[0];
+  if ( (LODWORD(v14) & 0x7F800000) == 2139095040 || (v14 = from->v[1], (LODWORD(v14) & 0x7F800000) == 2139095040) || (v14 = from->v[2], (LODWORD(v14) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  v9 = from;
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_scene.cpp", 11519, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v12 = v9->v[2];
-  v13 = (unsigned int)to ^ LODWORD(v9->v[0]) ^ ~xConst;
-  v14 = v13 ^ (unsigned int)to ^ LODWORD(v9->v[1]);
-  LODWORD(to->v[0]) = v13;
-  v15 = yConst ^ v14;
-  LODWORD(to->v[1]) = v15;
-  LODWORD(to->v[2]) = zConst ^ v15 ^ (unsigned int)to ^ LODWORD(v12);
-  memset(&v16, 0, sizeof(v16));
+  v9 = from->v[2];
+  v10 = (unsigned int)to ^ LODWORD(from->v[0]) ^ ~xConst;
+  v11 = v10 ^ (unsigned int)to ^ LODWORD(from->v[1]);
+  LODWORD(to->v[0]) = v10;
+  v12 = yConst ^ v11;
+  LODWORD(to->v[1]) = v12;
+  LODWORD(to->v[2]) = zConst ^ v12 ^ (unsigned int)to ^ LODWORD(v9);
+  memset(&v13, 0, sizeof(v13));
 }
 

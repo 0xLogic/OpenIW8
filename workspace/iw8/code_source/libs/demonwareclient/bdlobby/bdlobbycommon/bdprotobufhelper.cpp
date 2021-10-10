@@ -192,16 +192,11 @@ bdProtobufHelper::decode32bits
 */
 char bdProtobufHelper::decode32bits(bdStructSerializationInputStream *stream, float *value)
 {
-  int valuea; 
+  float valuea; 
 
-  _RBX = value;
   if ( bdStructSerializationInputStream::read(stream, &valuea, 4u) != 4 )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+value]
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *value = valuea;
   return 1;
 }
 
@@ -212,16 +207,11 @@ bdProtobufHelper::decode64bits
 */
 char bdProtobufHelper::decode64bits(bdStructSerializationInputStream *stream, long double *value)
 {
-  __int64 valuea; 
+  double valuea; 
 
-  _RBX = value;
   if ( bdStructSerializationInputStream::read(stream, &valuea, 8u) != 8 )
     return 0;
-  __asm
-  {
-    vmovsd  xmm0, [rsp+28h+value]
-    vmovsd  qword ptr [rbx], xmm0
-  }
+  *value = valuea;
   return 1;
 }
 
@@ -399,12 +389,11 @@ char bdProtobufHelper::decodeVarInt(bdStructSerializationInputStream *stream, un
 bdProtobufHelper::encode32bits
 ==============
 */
-
-bool __fastcall bdProtobufHelper::encode32bits(bdStructSerializationOutputStream *stream, double value)
+bool bdProtobufHelper::encode32bits(bdStructSerializationOutputStream *stream, float value)
 {
-  int valuea; 
+  float valuea; 
 
-  __asm { vmovss  [rsp+28h+value], xmm1 }
+  valuea = value;
   return bdStructSerializationOutputStream::write(stream, &valuea, 4u) == 4;
 }
 
@@ -413,12 +402,11 @@ bool __fastcall bdProtobufHelper::encode32bits(bdStructSerializationOutputStream
 bdProtobufHelper::encode64bits
 ==============
 */
-
-bool __fastcall bdProtobufHelper::encode64bits(bdStructSerializationOutputStream *stream, double value)
+bool bdProtobufHelper::encode64bits(bdStructSerializationOutputStream *stream, long double value)
 {
-  __int64 valuea; 
+  double valuea; 
 
-  __asm { vmovsd  [rsp+28h+value], xmm1 }
+  valuea = value;
   return bdStructSerializationOutputStream::write(stream, &valuea, 8u) == 8;
 }
 

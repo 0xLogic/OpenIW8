@@ -334,7 +334,7 @@ __int64 LUI_CoD_LuaCall_GetMLGSettings(lua_State *luaVM)
       state.isValid = 0;
       state.offset = 0;
       state.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+48h+state.member], xmm0 }
+      *(_OWORD *)&state.member = _XMM0;
       DDLContext = GamerProfile_GetDDLContext(v4, MLG_SETTINGS);
       GamerProfile_GetDDLState(&state, v4, MLG_SETTINGS);
       DDL_LuaCreateUserData(luaVM, &state, DDLContext);
@@ -920,33 +920,29 @@ __int64 LUI_CoD_LuaCall_GetSelectedClientNum(lua_State *luaVM)
   LocalClientNum_t CurrentValidLocalClient; 
   cg_t *LocalClientGlobals; 
   CgMLGSpectator *MLGSpectator; 
-  unsigned int v9; 
-  unsigned int v10; 
+  int SelectedClientNum; 
+  unsigned int v6; 
+  unsigned int v7; 
 
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
   LocalClientGlobals = CG_GetLocalClientGlobals(CurrentValidLocalClient);
   MLGSpectator = CgMLGSpectator::GetMLGSpectator(CurrentValidLocalClient);
-  if ( CgMLGSpectator::GetSelectedClientNum(MLGSpectator) == LocalClientGlobals->clientNum )
+  SelectedClientNum = CgMLGSpectator::GetSelectedClientNum(MLGSpectator);
+  if ( SelectedClientNum == LocalClientGlobals->clientNum )
   {
-    v9 = 0;
+    v6 = 0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcvtss2sd xmm1, xmm0, xmm0; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v9 = 1;
+    j_lua_pushnumber(luaVM, (float)SelectedClientNum);
+    v6 = 1;
   }
-  if ( (int)v9 > j_lua_gettop(luaVM) )
+  if ( (int)v6 > j_lua_gettop(luaVM) )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v9, v10);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v6, v7);
   }
-  return v9;
+  return v6;
 }
 
 /*
@@ -2018,29 +2014,25 @@ __int64 LUI_CoD_LuaCall_SetFocusedPlayer(lua_State *luaVM)
 LUI_CoD_LuaCall_MLG_GetPlayerstateClientnum
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_MLG_GetPlayerstateClientnum(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_MLG_GetPlayerstateClientnum(lua_State *luaVM)
 {
   LocalClientNum_t CurrentValidLocalClient; 
   CgGlobalsMP *LocalClientGlobals; 
   CgMLGCameraManager *CameraManager; 
-  unsigned int v8; 
+  unsigned int v7; 
 
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(CurrentValidLocalClient);
   CameraManager = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr);
   if ( CgMLGCameraManager::GetMLGCameraType(CameraManager, CurrentValidLocalClient) == AERIAL && CgMLGCameraManager::IsAerialCameraTethered(CameraManager, CurrentValidLocalClient) )
     CgMLGCameraManager::GetFocusedPlayer(CameraManager, CurrentValidLocalClient);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, edi; n
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, edi; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v8);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v7);
   }
   return 1i64;
 }
@@ -2055,8 +2047,10 @@ __int64 LUI_CoD_LuaCall_MLG_SetAerialHeightLimits(lua_State *luaVM)
   LocalClientNum_t CurrentValidLocalClient; 
   CgMLGSpectator *m_mlgSpectatorPtr; 
   CgMLGCameraManager *CameraManager; 
-  char v8; 
-  unsigned int v12; 
+  double v5; 
+  float v6; 
+  double v7; 
+  unsigned int v8; 
 
   if ( !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: MLG.SetAerialHeightLimits( <minHeight, maxHeight> )");
@@ -2068,27 +2062,22 @@ __int64 LUI_CoD_LuaCall_MLG_SetAerialHeightLimits(lua_State *luaVM)
       m_mlgSpectatorPtr = CgGlobalsMP::GetLocalClientGlobals(CurrentValidLocalClient)->m_mlgSpectatorPtr;
       if ( m_mlgSpectatorPtr )
       {
-        __asm { vmovaps [rsp+38h+var_18], xmm6 }
         CameraManager = CgMLGSpectator::GetCameraManager(m_mlgSpectatorPtr);
-        *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v8 )
+        v5 = lui_tonumber32(luaVM, 1);
+        v6 = *(float *)&v5;
+        v7 = lui_tonumber32(luaVM, 2);
+        if ( *(float *)&v7 >= v6 )
         {
-          __asm { vmovaps xmm1, xmm0; maxHeight }
-          CgMLGCameraManager::SetAerialMaxHeight(CameraManager, *(const float *)&_XMM1);
-          __asm { vmovaps xmm1, xmm6; minHeight }
-          CgMLGCameraManager::SetAerialMinHeight(CameraManager, *(const float *)&_XMM1);
+          CgMLGCameraManager::SetAerialMaxHeight(CameraManager, *(const float *)&v7);
+          CgMLGCameraManager::SetAerialMinHeight(CameraManager, v6);
         }
-        __asm { vmovaps xmm6, [rsp+38h+var_18] }
       }
     }
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v12 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v12);
+    v8 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
   }
   return 0i64;
 }
@@ -2103,22 +2092,20 @@ __int64 LUI_CoD_LuaCall_MLG_ClearAerialHeightLimits(lua_State *luaVM)
   LocalClientNum_t CurrentValidLocalClient; 
   CgMLGSpectator *m_mlgSpectatorPtr; 
   CgMLGCameraManager *CameraManager; 
-  unsigned int v7; 
+  unsigned int v5; 
 
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
   m_mlgSpectatorPtr = CgGlobalsMP::GetLocalClientGlobals(CurrentValidLocalClient)->m_mlgSpectatorPtr;
   if ( m_mlgSpectatorPtr )
   {
-    __asm { vmovss  xmm1, cs:__real@457a0000; maxHeight }
     CameraManager = CgMLGSpectator::GetCameraManager(m_mlgSpectatorPtr);
-    CgMLGCameraManager::SetAerialMaxHeight(CameraManager, *(const float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; minHeight }
-    CgMLGCameraManager::SetAerialMinHeight(CameraManager, *(const float *)&_XMM1);
+    CgMLGCameraManager::SetAerialMaxHeight(CameraManager, 4000.0);
+    CgMLGCameraManager::SetAerialMinHeight(CameraManager, 0.0);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -2195,64 +2182,59 @@ __int64 LUI_CoD_LuaCall_MLG_SetAerialEnabled(lua_State *luaVM)
 LUI_CoD_LuaCall_MLG_InitGlobalTints
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_MLG_InitGlobalTints(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_MLG_InitGlobalTints(lua_State *luaVM)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
   LocalClientNum_t CurrentValidLocalClient; 
+  double v10; 
+  __int128 v11; 
+  double v13; 
+  __int128 v14; 
   ParticleManager *ParticleManager; 
-  ParticleManager *v42; 
-  unsigned int v50; 
+  ParticleManager *v23; 
+  unsigned int v24; 
   float4 tint; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
 
   if ( !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: MLG.InitGlobalTints( <friendlyColor>, <enemyColor>  )");
   if ( j_lua_isnumber(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_18], xmm6
-      vmovaps [rsp+0B8h+var_28], xmm7
-      vmovaps [rsp+0B8h+var_38], xmm8
-      vmovaps [rsp+0B8h+var_48], xmm9
-      vmovaps [rsp+0B8h+var_58], xmm10
-      vmovaps [rsp+0B8h+var_68], xmm11
-      vmovaps [rsp+0B8h+var_78], xmm12
-    }
+    v33 = v1;
+    v32 = v2;
+    v31 = v3;
+    v30 = v4;
+    v29 = v5;
+    v28 = v6;
+    v27 = v7;
     CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 1);
+    v10 = lua_tonumber32(luaVM, 1);
+    v11 = 0i64;
+    *(float *)&v11 = (float)(unsigned __int8)((unsigned int)(int)*(float *)&v10 >> 16) * 0.0039215689;
+    _XMM10 = v11;
+    v13 = lua_tonumber32(luaVM, 2);
+    v14 = 0i64;
+    *(float *)&v14 = (float)(unsigned __int8)((unsigned int)(int)*(float *)&v13 >> 16) * 0.0039215689;
+    _XMM11 = v14;
     __asm
     {
-      vmovss  xmm9, cs:__real@3b808081
-      vcvttss2si r8, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm10, xmm0, xmm9
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm7, xmm1, xmm9
-      vmulss  xmm6, xmm0, xmm9
-    }
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-    __asm
-    {
-      vcvttss2si rcx, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm11, xmm0, xmm9
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
       vinsertps xmm10, xmm10, xmm6, 10h
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm8, xmm0, xmm9
       vinsertps xmm10, xmm10, xmm7, 20h ; ' '
       vinsertps xmm10, xmm10, cs:__real@3f800000, 30h ; '0'
-      vmovups xmmword ptr [rsp+0B8h+tint.v], xmm10
-      vmulss  xmm9, xmm1, xmm9
-      vmovups xmmword ptr [rsp+0B8h+tint.v], xmm10
     }
+    tint.v = _XMM10;
     ParticleManager = ParticleManager::GetParticleManager(CurrentValidLocalClient);
     ParticleManager::SetGlobalTint(ParticleManager, 1u, &tint);
     __asm
@@ -2260,26 +2242,15 @@ __int64 __fastcall LUI_CoD_LuaCall_MLG_InitGlobalTints(lua_State *luaVM, double 
       vinsertps xmm11, xmm11, xmm8, 10h
       vinsertps xmm11, xmm11, xmm9, 20h ; ' '
       vinsertps xmm11, xmm11, cs:__real@3f800000, 30h ; '0'
-      vmovups xmmword ptr [rsp+0B8h+tint.v], xmm11
-      vmovups xmmword ptr [rsp+0B8h+tint.v], xmm11
     }
-    v42 = ParticleManager::GetParticleManager(CurrentValidLocalClient);
-    ParticleManager::SetGlobalTint(v42, 2u, &tint);
-    __asm
-    {
-      vmovaps xmm12, [rsp+0B8h+var_78]
-      vmovaps xmm11, [rsp+0B8h+var_68]
-      vmovaps xmm10, [rsp+0B8h+var_58]
-      vmovaps xmm9, [rsp+0B8h+var_48]
-      vmovaps xmm8, [rsp+0B8h+var_38]
-      vmovaps xmm7, [rsp+0B8h+var_28]
-      vmovaps xmm6, [rsp+0B8h+var_18]
-    }
+    tint.v = _XMM11;
+    v23 = ParticleManager::GetParticleManager(CurrentValidLocalClient);
+    ParticleManager::SetGlobalTint(v23, 2u, &tint);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v50 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v50);
+    v24 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v24);
   }
   return 0i64;
 }
@@ -2760,8 +2731,9 @@ __int64 LUI_CoD_LuaCall_SetCamera(lua_State *luaVM)
   CgGlobalsMP *LocalClientGlobals; 
   CgMLGCameraManager *CameraManager; 
   const CameraPose *MLGFreeCamPoseForCurrentMap; 
+  const CameraPose *v7; 
   CameraStateInterface *MLGCurrentCameraState; 
-  unsigned int v10; 
+  unsigned int v9; 
 
   if ( !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: MLG.SetCamera( <cameraIndex> )");
@@ -2774,18 +2746,17 @@ __int64 LUI_CoD_LuaCall_SetCamera(lua_State *luaVM)
       LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(CurrentValidLocalClient);
       CameraManager = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr);
       MLGFreeCamPoseForCurrentMap = CgMLGCameraManager::GetMLGFreeCamPoseForCurrentMap(CameraManager, v3);
-      _RDI = MLGFreeCamPoseForCurrentMap;
+      v7 = MLGFreeCamPoseForCurrentMap;
       if ( MLGFreeCamPoseForCurrentMap )
       {
         if ( MLGFreeCamPoseForCurrentMap->hasBeenSet )
         {
           CgMLGCameraManager::SetMLGTargetCameraPosition(CameraManager, &MLGFreeCamPoseForCurrentMap->pos);
-          CgMLGCameraManager::SetMLGTargetCameraAngles(CameraManager, &_RDI->angles);
-          __asm { vmovss  xmm1, dword ptr [rdi+18h]; fov }
-          CgMLGCameraManager::SetMLGTargetCameraFoV(CameraManager, *(const float *)&_XMM1);
+          CgMLGCameraManager::SetMLGTargetCameraAngles(CameraManager, &v7->angles);
+          CgMLGCameraManager::SetMLGTargetCameraFoV(CameraManager, v7->fov);
           MLGCurrentCameraState = CgMLGCameraManager::GetMLGCurrentCameraState(CameraManager);
           if ( MLGCurrentCameraState && CgMLGCameraManager::GetMLGCameraType(CameraManager, CurrentValidLocalClient) == FREE && MLGCurrentCameraState->GetCameraState(MLGCurrentCameraState) != FREECAM_ACTIVE )
-            CgMLGCameraManager::SetMemorizedCameraPose(CameraManager, _RDI);
+            CgMLGCameraManager::SetMemorizedCameraPose(CameraManager, v7);
           CgCompassSystemMP::SetDebugCamSelectedIndex(v3);
         }
       }
@@ -2793,8 +2764,8 @@ __int64 LUI_CoD_LuaCall_SetCamera(lua_State *luaVM)
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v10);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v9);
   }
   return 0i64;
 }
@@ -3069,8 +3040,8 @@ __int64 LUI_CoD_LuaCall_GetSpectatedClientNum(lua_State *luaVM)
   CgMLGSpectator *MLGSpectator; 
   CgMLGCameraManager *CameraManager; 
   int FocusedPlayer; 
-  unsigned int v11; 
-  unsigned int v12; 
+  unsigned int v7; 
+  unsigned int v8; 
 
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
   LocalClientGlobals = CG_GetLocalClientGlobals(CurrentValidLocalClient);
@@ -3082,25 +3053,19 @@ __int64 LUI_CoD_LuaCall_GetSpectatedClientNum(lua_State *luaVM)
     FocusedPlayer = LocalClientGlobals->predictedPlayerState.clientNum;
   if ( FocusedPlayer == LocalClientGlobals->clientNum )
   {
-    v11 = 0;
+    v7 = 0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcvtss2sd xmm1, xmm0, xmm0; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    v11 = 1;
+    j_lua_pushnumber(luaVM, (float)FocusedPlayer);
+    v7 = 1;
   }
-  if ( (int)v11 > j_lua_gettop(luaVM) )
+  if ( (int)v7 > j_lua_gettop(luaVM) )
   {
-    v12 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v11, v12);
+    v8 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v7, v8);
   }
-  return v11;
+  return v7;
 }
 
 /*

@@ -1248,6 +1248,7 @@ char bdStructBufferDeserializer::readUInt64Array(bdStructBufferDeserializer *thi
   bdStructBufferDeserializer::bdReadResult UntilTag; 
   unsigned int m_capacity; 
   unsigned int v9; 
+  unsigned __int64 *m_data; 
   unsigned int v11; 
   unsigned int m_size; 
   unsigned __int64 value; 
@@ -1258,7 +1259,7 @@ char bdStructBufferDeserializer::readUInt64Array(bdStructBufferDeserializer *thi
   *(_QWORD *)&values->m_capacity = 0i64;
   while ( !v6 )
   {
-    value = 0i64;
+    *(double *)&value = 0.0;
     UntilTag = bdStructBufferDeserializer::readUntilTag(this, tag, 0);
     if ( UntilTag == BD_READ_SUCCESS && !bdProtobufHelper::decodeVarInt(&this->m_stream, &value) )
       UntilTag = BD_READ_FAILED_STREAM_ERROR;
@@ -1275,32 +1276,26 @@ char bdStructBufferDeserializer::readUInt64Array(bdStructBufferDeserializer *thi
       if ( values->m_size == m_capacity )
       {
         v9 = values->m_capacity;
-        _RDI = NULL;
+        m_data = NULL;
         if ( !m_capacity )
           v9 = 1;
         v11 = m_capacity + v9;
         if ( v11 )
         {
-          _RDI = (unsigned __int64 *)bdMemory::allocate(8i64 * v11);
+          m_data = (unsigned __int64 *)bdMemory::allocate(8i64 * v11);
           m_size = values->m_size;
           if ( m_size )
-            memcpy_0(_RDI, values->m_data, 8i64 * m_size);
+            memcpy_0(m_data, values->m_data, 8i64 * m_size);
         }
         bdMemory::deallocate(values->m_data);
         values->m_capacity = v11;
-        values->m_data = _RDI;
+        values->m_data = m_data;
       }
       else
       {
-        _RDI = values->m_data;
+        m_data = values->m_data;
       }
-      _RAX = values->m_size;
-      __asm
-      {
-        vmovsd  xmm0, [rsp+48h+value]
-        vmovsd  qword ptr [rdi+rax*8], xmm0
-      }
-      ++values->m_size;
+      m_data[values->m_size++] = value;
     }
   }
   return 1;

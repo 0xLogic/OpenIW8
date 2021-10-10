@@ -106,135 +106,108 @@ XAnimAnalogClock_Calc
 */
 void XAnimAnalogClock_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
-  const dvar_t *v9; 
-  XAnimCalcBuffer *v10; 
-  XAnimCalcAnimInfo *v12; 
-  int v14; 
-  scr_string_t **v15; 
+  const dvar_t *v7; 
+  XAnimCalcBuffer *v8; 
+  XAnimCalcAnimInfo *v10; 
+  int v12; 
+  scr_string_t **v13; 
+  __int64 v14; 
+  _WORD *v15; 
   __int64 v16; 
-  unsigned __int16 *boneIndex; 
-  __int64 v18; 
-  bool isSpringRootPresent; 
-  const dvar_t *v23; 
-  unsigned __int16 *v27; 
-  unsigned __int64 v28; 
-  bool v29; 
+  char v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  unsigned __int16 *v21; 
+  unsigned __int64 v22; 
+  bool v23; 
   const float4 *fmt; 
   float4 *outLocalQuat; 
   float4 *outLocalQuata; 
   float4 *outLocalTrans; 
-  float outLocalTransa; 
   int outModelIndex[4]; 
-  float4 v41; 
-  float4 v42; 
+  float4 v29; 
+  float4 v30; 
 
-  v9 = DCONST_DVARBOOL_xanim_disableAnalogClockNodes;
-  v10 = destBuffer;
-  v41.v.m128_u64[0] = (unsigned __int64)animCalcInfo;
-  v12 = animCalcInfo;
-  v42.v.m128_u64[0] = (unsigned __int64)destBuffer;
-  _RSI = (XAnimAnalogClock *)nodeData;
+  v7 = DCONST_DVARBOOL_xanim_disableAnalogClockNodes;
+  v8 = destBuffer;
+  v29.v.m128_u64[0] = (unsigned __int64)animCalcInfo;
+  v10 = animCalcInfo;
+  v30.v.m128_u64[0] = (unsigned __int64)destBuffer;
   if ( !DCONST_DVARBOOL_xanim_disableAnalogClockNodes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_disableAnalogClockNodes") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled && _RSI->initialized )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled && *((_BYTE *)nodeData + 51) )
   {
-    v14 = 0;
-    __asm
+    v12 = 0;
+    if ( obj == *((const DObj **)nodeData + 2) )
     {
-      vmovaps [rsp+0D8h+var_48], xmm6
-      vmovaps [rsp+0D8h+var_58], xmm7
-    }
-    if ( obj == _RSI->obj )
-    {
-      isSpringRootPresent = _RSI->isSpringRootPresent;
+      v17 = *((_BYTE *)nodeData + 50);
     }
     else
     {
-      _RSI->obj = obj;
-      v15 = (scr_string_t **)s_boneName;
-      v16 = 0i64;
-      boneIndex = _RSI->boneIndex;
-      v18 = 13i64;
+      *((_QWORD *)nodeData + 2) = obj;
+      v13 = (scr_string_t **)s_boneName;
+      v14 = 0i64;
+      v15 = (char *)nodeData + 24;
+      v16 = 13i64;
       do
       {
-        *boneIndex = 254;
-        DObjGetBoneAndModelIndexClient(obj, **v15, &_RSI->boneIndex[v16++], outModelIndex);
-        ++boneIndex;
+        *v15 = 254;
+        DObjGetBoneAndModelIndexClient(obj, **v13, (unsigned __int16 *)((char *)nodeData + v14 + 24), outModelIndex);
+        v14 += 2i64;
         ++v15;
-        --v18;
+        ++v13;
+        --v16;
       }
-      while ( v18 );
-      v10 = (XAnimCalcBuffer *)v42.v.m128_u64[0];
-      v12 = (XAnimCalcAnimInfo *)v41.v.m128_u64[0];
-      isSpringRootPresent = (unsigned __int16)(_RSI->boneIndex[4] - 254) > 1u;
-      _RSI->isSpringRootPresent = isSpringRootPresent;
+      while ( v16 );
+      v8 = (XAnimCalcBuffer *)v30.v.m128_u64[0];
+      v10 = (XAnimCalcAnimInfo *)v29.v.m128_u64[0];
+      v17 = (unsigned __int16)(*((_WORD *)nodeData + 16) - 254) > 1u;
+      *((_BYTE *)nodeData + 50) = v17;
     }
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    if ( isSpringRootPresent )
+    v18 = FLOAT_1_0;
+    if ( v17 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmulss  xmm0, xmm0, cs:__real@40c90fdb; X
-      }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      v23 = DCONST_DVARFLT_xanim_analogClock_springScaleFactor;
-      __asm { vmovaps xmm6, xmm0 }
+      v19 = sinf_0(*((float *)nodeData + 3) * 6.2831855);
+      v20 = DCONST_DVARFLT_xanim_analogClock_springScaleFactor;
       if ( !DCONST_DVARFLT_xanim_analogClock_springScaleFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_analogClock_springScaleFactor") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v23);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm7, xmm7, xmm0
-      }
+      Dvar_CheckFrontendServerThread(v20);
+      v18 = 1.0 - (float)(v19 * v20->current.value);
     }
-    __asm { vmovss  xmm6, [rsp+0D8h+weightScale] }
-    v27 = _RSI->boneIndex;
+    v21 = (unsigned __int16 *)((char *)nodeData + 24);
     do
     {
-      v28 = *v27;
-      if ( (unsigned int)(v28 - 254) > 1 )
+      v22 = *v21;
+      if ( (unsigned int)(v22 - 254) > 1 )
       {
-        if ( (unsigned __int8)((unsigned int)v28 >> 15) )
+        if ( (unsigned __int8)((unsigned int)v22 >> 15) )
         {
-          v29 = (v12->ignorePartBits.array[7] & 2) != 0;
+          v23 = (v10->ignorePartBits.array[7] & 2) != 0;
         }
         else
         {
-          if ( (unsigned int)v28 >= 0x100 )
+          if ( (unsigned int)v22 >= 0x100 )
           {
             LODWORD(outLocalTrans) = 256;
-            LODWORD(outLocalQuat) = *v27;
+            LODWORD(outLocalQuat) = *v21;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outLocalQuat, outLocalTrans) )
               __debugbreak();
           }
-          v29 = ((0x80000000 >> (v28 & 0x1F)) & v12->ignorePartBits.array[v28 >> 5]) != 0;
+          v23 = ((0x80000000 >> (v22 & 0x1F)) & v10->ignorePartBits.array[v22 >> 5]) != 0;
         }
-        if ( !v29 )
+        if ( !v23 )
         {
-          XAnimSetPartBit(&v12->animPartBits, v28);
-          __asm { vmovaps xmm3, xmm7; springScale }
-          XAnimAnalogClock::GetBoneTransform(_RSI, v12, v10, *(float *)&_XMM3, (ClockBones)v14, &v41, &v42);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rsp+0D8h+var_78.v]
-            vmovups xmm0, xmmword ptr [rsp+0D8h+var_88.v]
-            vmovss  dword ptr [rsp+0D8h+outLocalTrans], xmm6
-          }
-          XAnimSetParentRelativeBoneTransform(v12, obj, v10, v28, fmt, outLocalQuata, outLocalTransa);
+          XAnimSetPartBit(&v10->animPartBits, v22);
+          XAnimAnalogClock::GetBoneTransform((XAnimAnalogClock *)nodeData, v10, v8, v18, (ClockBones)v12, &v29, &v30);
+          XAnimSetParentRelativeBoneTransform(v10, obj, v8, v22, fmt, outLocalQuata, weightScale);
         }
       }
-      ++v14;
-      ++v27;
+      ++v12;
+      ++v21;
     }
-    while ( v14 < 13 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+0D8h+var_58]
-      vmovaps xmm6, [rsp+0D8h+var_48]
-    }
+    while ( v12 < 13 );
   }
 }
 
@@ -287,12 +260,8 @@ void XAnimAnalogClock_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
   unsigned __int64 v6; 
   __int64 v10; 
   const dvar_t *v11; 
-  char *fmt; 
-  double v22; 
-  double v23; 
 
   v6 = size;
-  _R15 = nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 180, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 181, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -318,28 +287,9 @@ void XAnimAnalogClock_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
   if ( v11->current.enabled )
-  {
     Com_sprintfPos_truncate(buffer, v6, inoutPos, "   ^5OFF\n");
-  }
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+8]
-      vmulss  xmm0, xmm0, cs:__real@be2aaaab
-      vmovss  xmm1, dword ptr [r15+4]
-      vmulss  xmm2, xmm1, cs:__real@be2aaaab
-      vcvtss2sd xmm4, xmm0, xmm0
-      vmovss  xmm0, dword ptr [r15]
-      vmulss  xmm1, xmm0, cs:__real@bd088889
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovsd  [rsp+58h+var_28], xmm4
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+58h+var_30], xmm3
-      vmovsd  [rsp+58h+fmt], xmm2
-    }
-    Com_sprintfPos_truncate(buffer, v6, inoutPos, "   ^5hour: %.2f, minute: %.2f, second: %.2f\n", *(double *)&fmt, v22, v23);
-  }
+    Com_sprintfPos_truncate(buffer, v6, inoutPos, "   ^5hour: %.2f, minute: %.2f, second: %.2f\n", (float)(*(float *)nodeData * -0.033333335), (float)(*((float *)nodeData + 1) * -0.16666667), (float)(*((float *)nodeData + 2) * -0.16666667));
 }
 
 /*
@@ -347,26 +297,13 @@ void XAnimAnalogClock_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char
 XAnimAnalogClock::GetBoneTransform
 ==============
 */
-
-void __fastcall XAnimAnalogClock::GetBoneTransform(XAnimAnalogClock *this, const XAnimCalcAnimInfo *animCalcInfo, const XAnimCalcBuffer *buffer, double springScale, ClockBones clockBone, float4 *outLocalQuat, float4 *outLocalTrans)
+void XAnimAnalogClock::GetBoneTransform(XAnimAnalogClock *this, const XAnimCalcAnimInfo *animCalcInfo, const XAnimCalcBuffer *buffer, float springScale, ClockBones clockBone, float4 *outLocalQuat, float4 *outLocalTrans)
 {
-  bool v24; 
-  bool v25; 
-  const dvar_t *v30; 
-  const float4 *v35; 
-  float4 *v36; 
-  float4 *v43; 
-  float4 *v44; 
-  double v45; 
+  float clockOscillationFraction; 
+  const dvar_t *v20; 
+  const float4 *v23; 
+  float4 *v24; 
 
-  _RBX = outLocalQuat;
-  _RDI = outLocalTrans;
-  _RSI = this;
-  __asm
-  {
-    vmovaps [rsp+88h+var_48], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( (unsigned int)clockBone >= COUNT_CLOCKHAND && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 279, ASSERT_TYPE_ASSERT, "(unsigned)( clockBone ) < (unsigned)( COUNT_CLOCKHAND )", "clockBone doesn't index COUNT_CLOCKHAND\n\t%i not in [0, %i)", clockBone, 13) )
     __debugbreak();
   if ( !outLocalQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 280, ASSERT_TYPE_ASSERT, "(outLocalQuat)", (const char *)&queryFormat, "outLocalQuat") )
@@ -376,78 +313,43 @@ void __fastcall XAnimAnalogClock::GetBoneTransform(XAnimAnalogClock *this, const
   switch ( clockBone )
   {
     case CLOCKHAND_HOUR:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 0000000141909259 case 0
-        vinsertps xmm0, xmm0, dword ptr [rsi], 10h
-        vmulps  xmm0, xmm0, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      }
+      _XMM0 = 0i64;
+      __asm { vinsertps xmm0, xmm0, dword ptr [rsi], 10h }
+      _XMM0.v = _mm128_mul_ps(_XMM0, g_degreeToRadian.v);
       Float4RadianToQuat((float4 *)this, (const float4 *)0x140000000i64);
-      goto LABEL_26;
+      goto LABEL_27;
     case CLOCKHAND_MINUTE:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 0000000141909259 case 1
-        vinsertps xmm0, xmm0, dword ptr [rsi+4], 10h
-        vmulps  xmm0, xmm0, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      }
+      _XMM0 = 0i64;
+      __asm { vinsertps xmm0, xmm0, dword ptr [rsi+4], 10h }
+      _XMM0.v = _mm128_mul_ps(_XMM0, g_degreeToRadian.v);
       Float4RadianToQuat((float4 *)this, (const float4 *)0x140000000i64);
-      goto LABEL_26;
+      goto LABEL_27;
     case CLOCKHAND_SECOND:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 0000000141909259 case 2
-        vinsertps xmm0, xmm0, dword ptr [rsi+8], 10h
-        vmulps  xmm0, xmm0, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      }
+      _XMM0 = 0i64;
+      __asm { vinsertps xmm0, xmm0, dword ptr [rsi+8], 10h }
+      _XMM0.v = _mm128_mul_ps(_XMM0, g_degreeToRadian.v);
       Float4RadianToQuat((float4 *)this, (const float4 *)0x140000000i64);
-      goto LABEL_26;
+      goto LABEL_27;
     case CLOCKHAND_BALANCEWHEEL:
-      __asm { vmovss  xmm6, dword ptr [rsi+0Ch]; jumptable 0000000141909259 case 3 }
-      v24 = outLocalQuat == NULL;
-      if ( !outLocalQuat )
+      clockOscillationFraction = this->clockOscillationFraction;
+      if ( !outLocalQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 239, ASSERT_TYPE_ASSERT, "(outLocalQuat)", (const char *)&queryFormat, "outLocalQuat") )
+        __debugbreak();
+      if ( clockOscillationFraction < 0.0 || clockOscillationFraction > 1.0 )
       {
-        v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 239, ASSERT_TYPE_ASSERT, "(outLocalQuat)", (const char *)&queryFormat, "outLocalQuat");
-        v24 = !v25;
-        if ( v25 )
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 240, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( oscillationFraction ) && ( oscillationFraction ) <= ( 1.0f )", "oscillationFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", clockOscillationFraction, *(double *)&_XMM1, DOUBLE_1_0) )
           __debugbreak();
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-        vcomiss xmm6, cs:__real@3f800000
-      }
-      if ( !v24 )
-      {
-        __asm
-        {
-          vmovsd  xmm0, cs:__real@3ff0000000000000
-          vmovsd  [rsp+88h+var_50], xmm0
-          vxorpd  xmm1, xmm1, xmm1
-          vmovsd  [rsp+88h+var_58], xmm1
-          vcvtss2sd xmm2, xmm6, xmm6
-          vmovsd  [rsp+88h+var_60], xmm2
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 240, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( oscillationFraction ) && ( oscillationFraction ) <= ( 1.0f )", "oscillationFraction not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&v43, *(double *)&v44, v45) )
-          __debugbreak();
-      }
-      __asm { vmulss  xmm0, xmm6, cs:__real@40c90fdb; X }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      v30 = DCONST_DVARFLT_xanim_analogClock_balanceWheelMaxHalfAngleDeg;
-      __asm { vmovaps xmm6, xmm0 }
+      sinf_0(clockOscillationFraction * 6.2831855);
+      v20 = DCONST_DVARFLT_xanim_analogClock_balanceWheelMaxHalfAngleDeg;
       if ( !DCONST_DVARFLT_xanim_analogClock_balanceWheelMaxHalfAngleDeg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_analogClock_balanceWheelMaxHalfAngleDeg") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v30);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rsi+28h]
-        vxorps  xmm1, xmm1, xmm1
-        vinsertps xmm1, xmm1, xmm0, 10h
-        vmulps  xmm0, xmm1, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      }
-      Float4RadianToQuat(v36, v35);
-      goto LABEL_26;
+      Dvar_CheckFrontendServerThread(v20);
+      _XMM1 = 0i64;
+      __asm { vinsertps xmm1, xmm1, xmm0, 10h }
+      _XMM0.v = _mm128_mul_ps(_XMM1, g_degreeToRadian.v);
+      Float4RadianToQuat(v24, v23);
+      goto LABEL_27;
     case CLOCKHAND_SPRING_0:
     case CLOCKHAND_SPRING_1:
     case CLOCKHAND_SPRING_2:
@@ -456,26 +358,19 @@ void __fastcall XAnimAnalogClock::GetBoneTransform(XAnimAnalogClock *this, const
     case CLOCKHAND_SPRING_5:
     case CLOCKHAND_SPRING_6:
     case CLOCKHAND_SPRING_7:
-      __asm { vmovaps xmm3, xmm6; springScale }
-      XAnimAnalogClock::GetSpringBoneTransform(_RSI, animCalcInfo, buffer, *(float *)&_XMM3, clockBone, outLocalQuat, outLocalTrans);
-      goto LABEL_27;
+      XAnimAnalogClock::GetSpringBoneTransform(this, animCalcInfo, buffer, springScale, clockBone, outLocalQuat, outLocalTrans);
+      return;
     default:
+      _XMM0 = LODWORD(quat_identity.v[0]);
       __asm
       {
-        vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; jumptable 0000000141909259 default case, case 4
         vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4, 10h; vec4_t const quat_identity
         vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8, 20h ; ' '; vec4_t const quat_identity
         vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch, 30h ; '0'; vec4_t const quat_identity
       }
-LABEL_26:
-      __asm
-      {
-        vmovups xmmword ptr [rbx], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rdi], xmm0
-      }
 LABEL_27:
-      __asm { vmovaps xmm6, [rsp+88h+var_48] }
+      *outLocalQuat = (float4)_XMM0.v;
+      *outLocalTrans = 0i64;
       return;
   }
 }
@@ -488,12 +383,9 @@ XAnimAnalogClock::GetSpringBoneTransform
 
 void __fastcall XAnimAnalogClock::GetSpringBoneTransform(XAnimAnalogClock *this, const XAnimCalcAnimInfo *animCalcInfo, const XAnimCalcBuffer *buffer, double springScale, ClockBones clockBone, float4 *outLocalQuat, float4 *outLocalTrans)
 {
-  int v19; 
+  float4 v14; 
+  int v15; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  _RBP = outLocalQuat;
-  _RDI = outLocalTrans;
-  __asm { vmovaps xmm6, xmm3 }
   if ( (unsigned int)clockBone >= COUNT_CLOCKHAND && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 251, ASSERT_TYPE_ASSERT, "(unsigned)( clockBone ) < (unsigned)( COUNT_CLOCKHAND )", "clockBone doesn't index COUNT_CLOCKHAND\n\t%i not in [0, %i)", clockBone, 13) )
     __debugbreak();
   if ( !animCalcInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 252, ASSERT_TYPE_ASSERT, "(animCalcInfo)", (const char *)&queryFormat, "animCalcInfo") )
@@ -508,36 +400,27 @@ void __fastcall XAnimAnalogClock::GetSpringBoneTransform(XAnimAnalogClock *this,
     __debugbreak();
   if ( this->isSpringRootPresent )
   {
-    v19 = this->boneIndex[clockBone];
-    if ( v19 == 254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 266, ASSERT_TYPE_ASSERT, "(springBoneIndex != 254)", (const char *)&queryFormat, "springBoneIndex != UNDEFINED_BONEINDEX") )
+    v15 = this->boneIndex[clockBone];
+    if ( v15 == 254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 266, ASSERT_TYPE_ASSERT, "(springBoneIndex != 254)", (const char *)&queryFormat, "springBoneIndex != UNDEFINED_BONEINDEX") )
       __debugbreak();
-    if ( v19 == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 267, ASSERT_TYPE_ASSERT, "(springBoneIndex != 255)", (const char *)&queryFormat, "springBoneIndex != NO_BONEINDEX") )
+    if ( v15 == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_analog_clock.cpp", 267, ASSERT_TYPE_ASSERT, "(springBoneIndex != 255)", (const char *)&queryFormat, "springBoneIndex != NO_BONEINDEX") )
       __debugbreak();
-    XAnimGetParentRelativeBoneTransform(animCalcInfo, this->obj, buffer, v19, outLocalQuat, outLocalTrans);
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vshufps xmm0, xmm0, xmm0, 0
-      vmulps  xmm0, xmm0, xmmword ptr [rdi]
-    }
+    XAnimGetParentRelativeBoneTransform(animCalcInfo, this->obj, buffer, v15, outLocalQuat, outLocalTrans);
+    v14.v = _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&springScale, *(__m128 *)&springScale, 0), outLocalTrans->v);
   }
   else
   {
+    _XMM0 = LODWORD(quat_identity.v[0]);
     __asm
     {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
       vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4, 10h; vec4_t const quat_identity
       vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8, 20h ; ' '; vec4_t const quat_identity
       vinsertps xmm0, xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch, 30h ; '0'; vec4_t const quat_identity
-      vmovups xmmword ptr [rbp+0], xmm0
-      vxorps  xmm0, xmm0, xmm0
     }
+    *outLocalQuat = (float4)_XMM0.v;
+    v14.v = 0i64;
   }
-  __asm
-  {
-    vmovups xmmword ptr [rdi], xmm0
-    vmovaps xmm6, [rsp+98h+var_48]
-  }
+  *outLocalTrans = (float4)v14.v;
 }
 
 /*

@@ -1054,68 +1054,67 @@ cDisplayResource
 */
 R_TG_Handle *cDisplayResource(R_TG_Handle *result, R_TG_Script *pScript)
 {
-  __int64 v6; 
+  __m256i v4; 
+  tg::ResourceDesc *v5; 
   unsigned int m_allocHeight; 
   int levelCount; 
-  bool v9; 
-  int v10; 
-  __int64 v11; 
+  bool v8; 
+  int v9; 
+  __int64 v10; 
   GfxPixelFormat format; 
   unsigned int resourceNameCount; 
-  bool v14; 
-  R_TG_Handle *v15; 
+  bool v13; 
+  R_TG_Handle *v14; 
   R_RT_Handle resulta; 
 
-  _RBX = pScript;
   R_RT_GetGlobal(&resulta, R_RENDERTARGET_DISPLAY_BUFFER);
-  __asm { vmovups ymm0, ymmword ptr [rsp+58h+result.m_surfaceID] }
-  _RBX->externalResourceNames[_RBX->externalResourceCount] = "backbuffer";
-  _RBX->resourceNames[_RBX->resourceNameCount] = "backbuffer";
-  _RAX = 32 * (_RBX->externalResourceCount + 1577i64);
-  __asm { vmovups ymmword ptr [rax+rbx], ymm0 }
-  v6 = (__int64)&_RBX->externalResources[_RBX->externalResourceCount];
+  v4 = (__m256i)resulta;
+  pScript->externalResourceNames[pScript->externalResourceCount] = "backbuffer";
+  pScript->resourceNames[pScript->resourceNameCount] = "backbuffer";
+  pScript->externalResourceHandles[pScript->externalResourceCount] = (R_RT_Handle)v4;
+  v5 = &pScript->externalResources[pScript->externalResourceCount];
   if ( (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 8) != 0 )
   {
-    *(_DWORD *)v6 = 512;
-    *(_DWORD *)(v6 + 8) = R_RT_Handle::GetSurface(&resulta)->m_allocWidth;
+    v5->type = eResourceType_Buffer;
+    v5->size.v[0] = R_RT_Handle::GetSurface(&resulta)->m_allocWidth;
     m_allocHeight = R_RT_Handle::GetSurface(&resulta)->m_allocHeight;
     levelCount = 1;
-    *(_DWORD *)(v6 + 12) = m_allocHeight;
-    *(_DWORD *)(v6 + 16) = 1;
-    *(_DWORD *)(v6 + 20) = 1;
+    v5->size.v[1] = m_allocHeight;
+    v5->depth = 1;
+    v5->arraySize = 1;
   }
   else
   {
-    v9 = (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 0x18) == 0;
-    v10 = 64;
-    if ( v9 )
-      v10 = 32;
-    *(_DWORD *)v6 = v10;
-    *(_DWORD *)(v6 + 8) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.width;
-    *(_DWORD *)(v6 + 12) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.height;
-    *(_DWORD *)(v6 + 16) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.depth;
-    *(_DWORD *)(v6 + 20) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.numElements;
+    v8 = (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 0x18) == 0;
+    v9 = 64;
+    if ( v8 )
+      v9 = 32;
+    v5->type = v9;
+    v5->size.v[0] = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.width;
+    v5->size.v[1] = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.height;
+    v5->depth = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.depth;
+    v5->arraySize = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.numElements;
     levelCount = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.levelCount;
   }
-  *(_DWORD *)(v6 + 24) = levelCount;
-  *(_DWORD *)(v6 + 28) = 1;
-  v11 = _RBX->externalResourceCount + 1577i64;
-  *(_DWORD *)(v6 + 40) = 1;
-  *(_QWORD *)(v6 + 64) = (char *)_RBX + 32 * v11;
+  v5->levels = levelCount;
+  v5->count = 1;
+  v10 = pScript->externalResourceCount + 1577i64;
+  v5->multisample = 1;
+  v5->pResource = (char *)pScript + 32 * v10;
   format = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.format;
-  *(_DWORD *)(v6 + 36) = format;
-  *(_DWORD *)(v6 + 32) = format;
-  resourceNameCount = _RBX->resourceNameCount;
-  ++_RBX->externalResourceCount;
-  v14 = _RBX->outputResourceCount < 0x24;
+  v5->textureFormat = format;
+  v5->surfaceFormat = format;
+  resourceNameCount = pScript->resourceNameCount;
+  ++pScript->externalResourceCount;
+  v13 = pScript->outputResourceCount < 0x24;
   result->index = resourceNameCount;
-  _RBX->resourceNameCount = resourceNameCount + 1;
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.cpp", 130, ASSERT_TYPE_ASSERT, "(pScript->outputResourceCount < pScript->outputResourceLimit)", (const char *)&queryFormat, "pScript->outputResourceCount < pScript->outputResourceLimit") )
+  pScript->resourceNameCount = resourceNameCount + 1;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_def.cpp", 130, ASSERT_TYPE_ASSERT, "(pScript->outputResourceCount < pScript->outputResourceLimit)", (const char *)&queryFormat, "pScript->outputResourceCount < pScript->outputResourceLimit") )
     __debugbreak();
-  _RBX->outputResourceNames[_RBX->outputResourceCount] = "backbuffer";
-  v15 = result;
-  ++_RBX->outputResourceCount;
-  return v15;
+  pScript->outputResourceNames[pScript->outputResourceCount] = "backbuffer";
+  v14 = result;
+  ++pScript->outputResourceCount;
+  return v14;
 }
 
 /*
@@ -1265,60 +1264,59 @@ cRtGlobalResource
 */
 R_TG_Handle *cRtGlobalResource(R_TG_Handle *result, R_TG_Script *pScript, const char *pName, GfxRenderTargetId rtId)
 {
-  __int64 v9; 
+  __m256i v7; 
+  tg::ResourceDesc *v8; 
   unsigned int m_allocHeight; 
   int levelCount; 
-  bool v12; 
-  int v13; 
-  __int64 v14; 
+  bool v11; 
+  int v12; 
+  __int64 v13; 
   GfxPixelFormat format; 
   unsigned int resourceNameCount; 
   R_RT_Handle resulta; 
 
-  _RDI = pScript;
   R_RT_GetGlobal(&resulta, rtId);
-  __asm { vmovups ymm0, ymmword ptr [rsp+48h+result.m_surfaceID] }
-  _RDI->externalResourceNames[_RDI->externalResourceCount] = pName;
-  _RDI->resourceNames[_RDI->resourceNameCount] = pName;
-  _RAX = 32 * (_RDI->externalResourceCount + 1577i64);
-  __asm { vmovups ymmword ptr [rax+rdi], ymm0 }
-  v9 = (__int64)&_RDI->externalResources[_RDI->externalResourceCount];
+  v7 = (__m256i)resulta;
+  pScript->externalResourceNames[pScript->externalResourceCount] = pName;
+  pScript->resourceNames[pScript->resourceNameCount] = pName;
+  pScript->externalResourceHandles[pScript->externalResourceCount] = (R_RT_Handle)v7;
+  v8 = &pScript->externalResources[pScript->externalResourceCount];
   if ( (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 8) != 0 )
   {
-    *(_DWORD *)v9 = 512;
-    *(_DWORD *)(v9 + 8) = R_RT_Handle::GetSurface(&resulta)->m_allocWidth;
+    v8->type = eResourceType_Buffer;
+    v8->size.v[0] = R_RT_Handle::GetSurface(&resulta)->m_allocWidth;
     m_allocHeight = R_RT_Handle::GetSurface(&resulta)->m_allocHeight;
     levelCount = 1;
-    *(_DWORD *)(v9 + 12) = m_allocHeight;
-    *(_DWORD *)(v9 + 16) = 1;
-    *(_DWORD *)(v9 + 20) = 1;
+    v8->size.v[1] = m_allocHeight;
+    v8->depth = 1;
+    v8->arraySize = 1;
   }
   else
   {
-    v12 = (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 0x18) == 0;
-    v13 = 64;
-    if ( v12 )
-      v13 = 32;
-    *(_DWORD *)v9 = v13;
-    *(_DWORD *)(v9 + 8) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.width;
-    *(_DWORD *)(v9 + 12) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.height;
-    *(_DWORD *)(v9 + 16) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.depth;
-    *(_DWORD *)(v9 + 20) = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.numElements;
+    v11 = (R_RT_Handle::GetSurface(&resulta)->m_rtFlagsInternal & 0x18) == 0;
+    v12 = 64;
+    if ( v11 )
+      v12 = 32;
+    v8->type = v12;
+    v8->size.v[0] = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.width;
+    v8->size.v[1] = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.height;
+    v8->depth = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.depth;
+    v8->arraySize = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.numElements;
     levelCount = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.levelCount;
   }
-  *(_DWORD *)(v9 + 24) = levelCount;
-  *(_DWORD *)(v9 + 28) = 1;
-  v14 = _RDI->externalResourceCount + 1577i64;
-  *(_DWORD *)(v9 + 40) = 1;
-  *(_QWORD *)(v9 + 64) = (char *)_RDI + 32 * v14;
+  v8->levels = levelCount;
+  v8->count = 1;
+  v13 = pScript->externalResourceCount + 1577i64;
+  v8->multisample = 1;
+  v8->pResource = (char *)pScript + 32 * v13;
   format = R_RT_Handle::GetSurface(&resulta)->m_image.m_base.format;
-  *(_DWORD *)(v9 + 36) = format;
-  *(_DWORD *)(v9 + 32) = format;
-  resourceNameCount = _RDI->resourceNameCount;
-  ++_RDI->externalResourceCount;
+  v8->textureFormat = format;
+  v8->surfaceFormat = format;
+  resourceNameCount = pScript->resourceNameCount;
+  ++pScript->externalResourceCount;
   result->index = resourceNameCount;
-  _RDI->resourceNameCount = resourceNameCount + 1;
-  R_TG_AddOutputResource(_RDI, pName);
+  pScript->resourceNameCount = resourceNameCount + 1;
+  R_TG_AddOutputResource(pScript, pName);
   return result;
 }
 

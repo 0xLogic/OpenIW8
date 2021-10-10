@@ -274,331 +274,264 @@ G_ScriptItem_Spawn
 */
 void G_ScriptItem_Spawn(gentity_s *mSelf)
 {
-  scrContext_t *v4; 
+  scrContext_t *v2; 
   int Int; 
   int NumParam; 
-  const char *v8; 
-  ComErrorCode v9; 
-  unsigned __int8 *v10; 
-  __int64 v11; 
+  const char *v5; 
+  ComErrorCode v6; 
+  unsigned __int8 *v7; 
+  __int64 v8; 
   const char *String; 
-  signed __int64 v13; 
+  signed __int64 v10; 
+  int v11; 
+  __int64 v12; 
+  int v13; 
   int v14; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  unsigned int v19; 
+  int v15; 
+  unsigned int v16; 
+  const char *v17; 
+  float v18; 
+  const char *v19; 
   const char *v20; 
-  const char *v24; 
-  const char *v25; 
-  const dvar_t *v26; 
+  const dvar_t *v21; 
   int spawnflags; 
-  G_PhysicsObject *v44; 
-  unsigned int v45; 
+  __int128 v24; 
+  G_PhysicsObject *v27; 
+  unsigned int v28; 
   unsigned int m_serialAndIndex; 
+  float v30; 
   int number; 
-  char v54; 
-  const char *v58; 
-  const char *v59; 
-  signed __int16 EntityHitId; 
-  float fmt; 
-  __int64 v78; 
+  float v32; 
+  const char *v33; 
+  const char *v34; 
+  __int16 EntityHitId; 
+  __int64 v36; 
   hknpBodyId result; 
   vec3_t v; 
-  vec3_t v81; 
+  vec3_t v39; 
   vec3_t start; 
   vec3_t origin; 
   vec3_t angle; 
   vec3_t vectorValue; 
   Bounds bounds; 
   trace_t results; 
-  char v88[1024]; 
+  char v46[1024]; 
 
-  __asm { vmovaps [rsp+570h+var_30], xmm6 }
-  _RBX = mSelf;
-  v4 = ScriptContext_Server();
+  v2 = ScriptContext_Server();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_ScriptItem_Spawn");
-  G_ScrMover_InitScriptMover(_RBX);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+570h+var_518], xmm6
-    vmovss  dword ptr [rsp+570h+var_518+4], xmm6
-    vmovss  dword ptr [rsp+570h+var_518+8], xmm6
-    vmovss  dword ptr [rbp+470h+vectorValue], xmm6
-    vmovss  dword ptr [rbp+470h+vectorValue+4], xmm6
-    vmovss  dword ptr [rbp+470h+vectorValue+8], xmm6
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 540, ASSERT_TYPE_ASSERT, "(mSelf)", (const char *)&queryFormat, "mSelf") )
+  G_ScrMover_InitScriptMover(mSelf);
+  v39.v[0] = 0.0;
+  v39.v[1] = 0.0;
+  v39.v[2] = 0.0;
+  vectorValue.v[0] = 0.0;
+  vectorValue.v[1] = 0.0;
+  vectorValue.v[2] = 0.0;
+  if ( !mSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 540, ASSERT_TYPE_ASSERT, "(mSelf)", (const char *)&queryFormat, "mSelf") )
     __debugbreak();
   if ( !level.spawnVar.spawnVarsValid )
   {
-    NumParam = Scr_GetNumParam(v4);
+    NumParam = Scr_GetNumParam(v2);
     if ( NumParam >= 5 )
     {
       if ( NumParam >= 8 )
-        Scr_GetVector(v4, 7u, &vectorValue);
+        Scr_GetVector(v2, 7u, &vectorValue);
       if ( NumParam >= 7 )
-        Scr_GetVector(v4, 6u, &v81);
+        Scr_GetVector(v2, 6u, &v39);
       if ( NumParam >= 6 )
       {
-        if ( Scr_GetType(v4, 5u) == VAR_STRING )
+        if ( Scr_GetType(v2, 5u) == VAR_STRING )
         {
-          v10 = (unsigned __int8 *)&queryFormat.fmt + 3;
-          v11 = 0x7FFFFFFFi64;
-          String = Scr_GetString(v4, 5u);
+          v7 = (unsigned __int8 *)&queryFormat.fmt + 3;
+          v8 = 0x7FFFFFFFi64;
+          String = Scr_GetString(v2, 5u);
           if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
             __debugbreak();
-          v13 = String - ((const char *)&queryFormat.fmt + 3);
+          v10 = String - ((const char *)&queryFormat.fmt + 3);
           do
           {
-            v14 = v10[v13];
-            v15 = v11;
-            v16 = *v10++;
-            --v11;
-            if ( !v15 )
+            v11 = v7[v10];
+            v12 = v8;
+            v13 = *v7++;
+            --v8;
+            if ( !v12 )
               break;
-            if ( v14 != v16 )
+            if ( v11 != v13 )
             {
-              v17 = v14 + 32;
-              if ( (unsigned int)(v14 - 65) > 0x19 )
-                v17 = v14;
-              v14 = v17;
-              v18 = v16 + 32;
-              if ( (unsigned int)(v16 - 65) > 0x19 )
-                v18 = v16;
-              if ( v14 != v18 )
+              v14 = v11 + 32;
+              if ( (unsigned int)(v11 - 65) > 0x19 )
+                v14 = v11;
+              v11 = v14;
+              v15 = v13 + 32;
+              if ( (unsigned int)(v13 - 65) > 0x19 )
+                v15 = v13;
+              if ( v11 != v15 )
                 goto LABEL_66;
             }
           }
-          while ( v14 );
-          v19 = 0;
+          while ( v11 );
+          v16 = 0;
         }
         else
         {
 LABEL_66:
           if ( !GScript::ms_gScriptSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_main.h", 183, ASSERT_TYPE_ASSERT, "( ms_gScriptSystem )", (const char *)&queryFormat, "ms_gScriptSystem") )
             __debugbreak();
-          ((void (__fastcall *)(GScript *, scrContext_t *, __int64))GScript::ms_gScriptSystem->ConstructMessageString)(GScript::ms_gScriptSystem, v4, 5i64);
+          ((void (__fastcall *)(GScript *, scrContext_t *, __int64))GScript::ms_gScriptSystem->ConstructMessageString)(GScript::ms_gScriptSystem, v2, 5i64);
           if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
             __debugbreak();
-          v19 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v88);
-          if ( !v19 )
+          v16 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v46);
+          if ( !v16 )
           {
-            G_FreeEntity(_RBX);
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E29F60, 524i64, v88);
+            G_FreeEntity(mSelf);
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E29F60, 524i64, v46);
 LABEL_82:
             Sys_ProfEndNamedEvent();
-            goto LABEL_83;
+            return;
           }
         }
-        _RBX->hint.hintString = v19;
-        _RBX->hint.ownerHintString = 0;
+        mSelf->hint.hintString = v16;
+        mSelf->hint.ownerHintString = 0;
       }
-      v20 = Scr_GetString(v4, 4u);
-      if ( v20 && *v20 )
+      v17 = Scr_GetString(v2, 4u);
+      if ( v17 && *v17 )
       {
-        G_Utils_SetModel(_RBX, v20);
-        Int = Scr_GetInt(v4, 3u);
-        Scr_GetVector(v4, 2u, &angle);
-        Scr_GetVector(v4, 1u, &origin);
-        G_SetOriginAndAngle(_RBX, &origin, &angle, 1, 1);
-        _RBX->spawnflags = Int;
+        G_Utils_SetModel(mSelf, v17);
+        Int = Scr_GetInt(v2, 3u);
+        Scr_GetVector(v2, 2u, &angle);
+        Scr_GetVector(v2, 1u, &origin);
+        G_SetOriginAndAngle(mSelf, &origin, &angle, 1, 1);
+        mSelf->spawnflags = Int;
         goto LABEL_31;
       }
-      G_FreeEntity(_RBX);
-      v8 = "Error spawning script item, no model name provided";
-      v9 = COM_ERR_2590;
+      G_FreeEntity(mSelf);
+      v5 = "Error spawning script item, no model name provided";
+      v6 = COM_ERR_2590;
     }
     else
     {
-      G_FreeEntity(_RBX);
-      v8 = "Expected at least 5 arguments, USAGE: SpawnScriptItem( classname, origin, angles, spawnflags, model, optional:hintstring, optional:impulseVector, optional:impulseContactPoint )";
-      v9 = COM_ERR_2589;
+      G_FreeEntity(mSelf);
+      v5 = "Expected at least 5 arguments, USAGE: SpawnScriptItem( classname, origin, angles, spawnflags, model, optional:hintstring, optional:impulseVector, optional:impulseContactPoint )";
+      v6 = COM_ERR_2589;
     }
-    Scr_Error(v9, v4, v8);
+    Scr_Error(v6, v2, v5);
     goto LABEL_82;
   }
-  G_Trigger_SetHintFieldsForSpawn(_RBX);
-  Int = _RBX->spawnflags;
+  G_Trigger_SetHintFieldsForSpawn(mSelf);
+  Int = mSelf->spawnflags;
 LABEL_31:
   if ( (Int & 0xC) == 12 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+570h+v], xmm0
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  dword ptr [rsp+570h+v+8], xmm0
-      vmovss  dword ptr [rsp+570h+v+4], xmm1
-    }
-    G_FreeEntity(_RBX);
-    v24 = vtos(&v);
-    v25 = j_va("Error spawning script_item at pos %s, it is neither touchable or usable", v24);
-    Scr_Error(COM_ERR_2591, v4, v25);
-    Int = _RBX->spawnflags;
+    v18 = mSelf->r.currentOrigin.v[1];
+    v.v[0] = mSelf->r.currentOrigin.v[0];
+    v.v[2] = mSelf->r.currentOrigin.v[2];
+    v.v[1] = v18;
+    G_FreeEntity(mSelf);
+    v19 = vtos(&v);
+    v20 = j_va("Error spawning script_item at pos %s, it is neither touchable or usable", v19);
+    Scr_Error(COM_ERR_2591, v2, v20);
+    Int = mSelf->spawnflags;
   }
   if ( (Int & 4) == 0 )
   {
-    v26 = DCONST_DVARMODEFLT_player_itemUseRadius;
+    v21 = DCONST_DVARMODEFLT_player_itemUseRadius;
     if ( !DCONST_DVARMODEFLT_player_itemUseRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_itemUseRadius") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    LODWORD(_RBX->hint.useRadius) = v26->current.integer;
-    G_PlayerUse_SetEntityUsable(_RBX, 1);
-    if ( !_RBX->hint.hintType )
-      _RBX->hint.hintType = 1;
+    Dvar_CheckFrontendServerThread(v21);
+    LODWORD(mSelf->hint.useRadius) = v21->current.integer;
+    G_PlayerUse_SetEntityUsable(mSelf, 1);
+    if ( !mSelf->hint.hintType )
+      mSelf->hint.hintType = 1;
   }
-  _RBX->flags.m_flags[0] |= 0x2000000u;
+  mSelf->flags.m_flags[0] |= 0x2000000u;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  __asm { vmovaps [rsp+570h+var_40], xmm7 }
-  GUtils::ms_gUtils->DObjUpdate(GUtils::ms_gUtils, _RBX, 1);
-  spawnflags = _RBX->spawnflags;
+  GUtils::ms_gUtils->DObjUpdate(GUtils::ms_gUtils, mSelf, 1);
+  spawnflags = mSelf->spawnflags;
   if ( (spawnflags & 2) != 0 )
   {
+    v24 = LODWORD(v39.v[0]);
+    *(float *)&v24 = fsqrt((float)((float)(*(float *)&v24 * *(float *)&v24) + (float)(v39.v[1] * v39.v[1])) + (float)(v39.v[2] * v39.v[2]));
+    _XMM7 = v24;
     __asm
     {
-      vmovss  xmm4, dword ptr [rsp+570h+var_518]
-      vmovss  xmm5, dword ptr [rsp+570h+var_518+4]
-      vmovss  xmm3, dword ptr [rsp+570h+var_518+8]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm7, xmm0, xmm0
       vcmpless xmm0, xmm7, cs:__real@80000000
       vblendvps xmm0, xmm7, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rsp+570h+v], xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rsp+570h+v+8], xmm0
-      vmovss  dword ptr [rsp+570h+v+4], xmm1
     }
-    G_Items_EnablePhysics(_RBX);
-    v44 = G_PhysicsObject_Get(_RBX);
-    if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 688, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+    v.v[0] = v39.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v.v[2] = v39.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    v.v[1] = v39.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    G_Items_EnablePhysics(mSelf);
+    v27 = G_PhysicsObject_Get(mSelf);
+    if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 688, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
       __debugbreak();
-    if ( v44->physicsInstances[0] == -1 )
+    if ( v27->physicsInstances[0] == -1 )
     {
-      G_FreeEntity(_RBX);
-      Scr_Error(COM_ERR_2592, v4, "failed to create physics for script item");
+      G_FreeEntity(mSelf);
+      Scr_Error(COM_ERR_2592, v2, "failed to create physics for script item");
     }
-    if ( v44->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
+    if ( v27->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH && *(float *)&v24 > 0.0 )
     {
-      __asm { vcomiss xmm7, xmm6 }
-      if ( v44->mapping > (unsigned int)PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
+      v28 = v27->physicsInstances[0];
+      if ( !Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v28) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 698, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_MAIN, physInstanceId ) > 0)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_MAIN, physInstanceId ) > 0") )
+        __debugbreak();
+      if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+        __debugbreak();
+      if ( v28 == -1 )
       {
-        v45 = v44->physicsInstances[0];
-        if ( !Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v45) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 698, ASSERT_TYPE_ASSERT, "(Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_MAIN, physInstanceId ) > 0)", (const char *)&queryFormat, "Physics_GetNumRigidBodys( PHYSICS_WORLD_ID_SERVER_MAIN, physInstanceId ) > 0") )
+        LODWORD(v36) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v36) )
           __debugbreak();
-        if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
-          __debugbreak();
-        if ( v45 == -1 )
-        {
-          LODWORD(v78) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v78) )
-            __debugbreak();
-        }
-        if ( !g_physicsServerWorldsCreated )
-        {
-          LODWORD(v78) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v78) )
-            __debugbreak();
-        }
-        m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v45, 0)->m_serialAndIndex;
-        if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 701, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
-          __debugbreak();
-        __asm { vmovss  dword ptr [rsp+570h+fmt], xmm7 }
-        Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, &vectorValue, &v, fmt);
       }
+      if ( !g_physicsServerWorldsCreated )
+      {
+        LODWORD(v36) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v36) )
+          __debugbreak();
+      }
+      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v28, 0)->m_serialAndIndex;
+      if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 701, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
+        __debugbreak();
+      Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, &vectorValue, &v, *(float *)&v24);
     }
   }
   else if ( (spawnflags & 1) == 0 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+130h]
-      vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-      vmovss  xmm1, dword ptr [rbx+138h]
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    number = _RBX->s.number;
-    __asm
-    {
-      vmovss  dword ptr [rsp+570h+start], xmm2
-      vmovss  dword ptr [rsp+570h+v], xmm2
-      vsubss  xmm2, xmm1, cs:__real@45800000
-      vmovups xmmword ptr [rbp+470h+bounds.midPoint], xmm0
-      vmovss  xmm0, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+570h+start+4], xmm0
-      vmovss  dword ptr [rsp+570h+v+4], xmm0
-      vmovss  dword ptr [rsp+570h+v+8], xmm2
-      vmovss  dword ptr [rbp+470h+bounds.halfSize+4], xmm6
-      vmovss  dword ptr [rbp+470h+bounds.halfSize+8], xmm6
-      vmovss  dword ptr [rsp+570h+start+8], xmm1
-    }
+    v30 = mSelf->r.currentOrigin.v[2];
+    number = mSelf->s.number;
+    start.v[0] = mSelf->r.currentOrigin.v[0];
+    v.v[0] = start.v[0];
+    *(_OWORD *)bounds.midPoint.v = _xmm;
+    start.v[1] = mSelf->r.currentOrigin.v[1];
+    v.v[1] = start.v[1];
+    v.v[2] = v30 - 4096.0;
+    bounds.halfSize.v[1] = FLOAT_1_0;
+    bounds.halfSize.v[2] = FLOAT_1_0;
+    start.v[2] = v30;
     G_Main_TraceCapsule(&results, &start, &v, &bounds, number, 1169);
-    v54 = 0;
     if ( results.startsolid )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vmovss  dword ptr [rsp+570h+origin], xmm0
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  dword ptr [rbp+470h+origin+8], xmm0
-        vmovss  dword ptr [rsp+570h+origin+4], xmm1
-      }
-      G_FreeEntity(_RBX);
-      v58 = vtos(&origin);
-      v59 = j_va("ERROR: script_item - at pos %s is in solid, item not created.\n", v58);
-      Scr_Error(COM_ERR_2593, v4, v59);
+      v32 = mSelf->r.currentOrigin.v[1];
+      origin.v[0] = mSelf->r.currentOrigin.v[0];
+      origin.v[2] = mSelf->r.currentOrigin.v[2];
+      origin.v[1] = v32;
+      G_FreeEntity(mSelf);
+      v33 = vtos(&origin);
+      v34 = j_va("ERROR: script_item - at pos %s is in solid, item not created.\n", v33);
+      Scr_Error(COM_ERR_2593, v2, v34);
     }
-    __asm
-    {
-      vmovss  xmm0, [rbp+470h+results.fraction]
-      vcomiss xmm0, xmm6
-    }
-    if ( v54 )
+    if ( results.fraction < 1.0 )
     {
       EntityHitId = Trace_GetEntityHitId(&results);
-      _RBX->s.groundEntityNum = EntityHitId;
+      mSelf->s.groundEntityNum = EntityHitId;
       g_entities[EntityHitId].flags.m_flags[0] |= 0x200000u;
-      __asm
-      {
-        vmovss  xmm5, [rbp+470h+results.fraction]
-        vmovss  xmm0, dword ptr [rsp+570h+v]
-        vsubss  xmm1, xmm0, dword ptr [rsp+570h+start]
-        vmulss  xmm1, xmm1, xmm5
-        vaddss  xmm0, xmm1, dword ptr [rsp+570h+start]
-        vmovss  xmm1, dword ptr [rsp+570h+v+4]
-        vmovss  dword ptr [rbp+470h+angle], xmm0
-        vsubss  xmm0, xmm1, dword ptr [rsp+570h+start+4]
-        vmulss  xmm2, xmm0, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rsp+570h+start+4]
-        vmovss  xmm0, dword ptr [rsp+570h+v+8]
-        vsubss  xmm1, xmm0, dword ptr [rsp+570h+start+8]
-        vmulss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rbp+470h+angle+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsp+570h+start+8]
-        vmovss  dword ptr [rbp+470h+angle+8], xmm3
-      }
-      G_SetOrigin(_RBX, &angle, 1, 1);
+      angle.v[0] = (float)((float)(v.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      angle.v[1] = (float)((float)(v.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      angle.v[2] = (float)((float)(v.v[2] - start.v[2]) * results.fraction) + start.v[2];
+      G_SetOrigin(mSelf, &angle, 1, 1);
     }
   }
-  SV_LinkEntity(_RBX);
+  SV_LinkEntity(mSelf);
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm7, [rsp+570h+var_40] }
-LABEL_83:
-  __asm { vmovaps xmm6, [rsp+570h+var_30] }
 }
 
 /*
@@ -722,11 +655,9 @@ void G_Spawn_info_volume_internal(gentity_s *self, const char *classname, entity
 {
   bool v6; 
   unsigned int Instance; 
-  unsigned int v22; 
-  char *fmt; 
-  __int64 v24; 
-  int v25[8]; 
-  int *v26; 
+  unsigned int v8; 
+  int v9[8]; 
+  int *v10; 
 
   if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 34, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self", -2i64) )
     __debugbreak();
@@ -741,78 +672,40 @@ void G_Spawn_info_volume_internal(gentity_s *self, const char *classname, entity
     self->s.eType = eType;
     self->r.svFlags = 1;
     Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, self);
-    v22 = Instance;
+    v8 = Instance;
     if ( Instance != -1 )
       Physics_SetInstanceContents(PHYSICS_WORLD_ID_FIRST, Instance, 0);
     if ( G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_SERVER_DETAIL, self) != -1 )
-      Physics_SetInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, v22, 0);
+      Physics_SetInstanceContents(PHYSICS_WORLD_ID_SERVER_DETAIL, v8, 0);
     SV_LinkEntity(self);
   }
   else
   {
-    _RDI = &self->s.lerp.pos;
     if ( self == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)self + 123, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
       __debugbreak();
-    if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+    if ( self->s.lerp.pos.trType == TR_LINEAR_STOP_SECURE )
     {
-      v26 = v25;
-      v25[2] = LODWORD(self->s.lerp.pos.trBase.v[1]) ^ LODWORD(self->s.lerp.pos.trBase.v[2]) ^ s_trbase_aab_Z;
-      v25[1] = LODWORD(self->s.lerp.pos.trBase.v[0]) ^ LODWORD(self->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Y;
-      v25[0] = LODWORD(self->s.lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
-      memset(&v26, 0, sizeof(v26));
-      __asm
+      v10 = v9;
+      v9[2] = LODWORD(self->s.lerp.pos.trBase.v[1]) ^ LODWORD(self->s.lerp.pos.trBase.v[2]) ^ s_trbase_aab_Z;
+      v9[1] = LODWORD(self->s.lerp.pos.trBase.v[0]) ^ LODWORD(self->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Y;
+      v9[0] = LODWORD(self->s.lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
+      memset(&v10, 0, sizeof(v10));
+      *(float *)&v10 = *(float *)v9;
+      if ( (v9[0] & 0x7F800000) == 2139095040 || (*(float *)&v10 = *(float *)&v9[1], (v9[1] & 0x7F800000) == 2139095040) || (*(float *)&v10 = *(float *)&v9[2], (v9[2] & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, [rsp+58h+var_20]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-        goto LABEL_29;
-      __asm
-      {
-        vmovss  xmm0, [rsp+58h+var_1C]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-        goto LABEL_29;
-      __asm
-      {
-        vmovss  xmm0, [rsp+58h+var_18]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( ((unsigned int)v26 & 0x7F800000) == 2139095040 )
-      {
-LABEL_29:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
           __debugbreak();
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  [rsp+58h+var_20], xmm0
-        vmovss  xmm1, dword ptr [rdi+10h]
-        vmovss  [rsp+58h+var_1C], xmm1
-        vmovss  xmm0, dword ptr [rdi+14h]
-        vmovss  [rsp+58h+var_18], xmm0
-      }
+      v9[0] = LODWORD(self->s.lerp.pos.trBase.v[0]);
+      v9[1] = LODWORD(self->s.lerp.pos.trBase.v[1]);
+      v9[2] = LODWORD(self->s.lerp.pos.trBase.v[2]);
     }
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+var_18]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, [rsp+58h+var_1C]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm3, [rsp+58h+var_20]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+58h+var_30], xmm0
-      vmovsd  [rsp+58h+fmt], xmm1
-      vmovq   r9, xmm3
-    }
-    Com_PrintError(1, "Killing %s at (%f %f %f) because the model is invalid.\n", classname, _R9, fmt, v24);
+    Com_PrintError(1, "Killing %s at (%f %f %f) because the model is invalid.\n", classname, v9[0], v9[1], v9[2]);
     G_FreeEntity(self);
-    memset(v25, 0, 0xCui64);
+    memset(v9, 0, 0xCui64);
   }
 }
 
@@ -823,41 +716,49 @@ G_Spawn_light
 */
 void G_Spawn_light(gentity_s *self)
 {
+  const ComPrimaryLight *PrimaryLight; 
   const vec3_t *p_origin; 
-  int v22; 
+  int v4; 
   int firstScriptablePrimaryLight; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v47; 
-  int v48; 
-  int v49; 
-  char *fmt; 
-  __int64 v67; 
-  __int64 v68; 
+  float cosHalfFovOuter; 
+  int v7; 
+  int v8; 
+  float v9; 
+  float radius; 
+  float intensity; 
+  float v12; 
+  double v13; 
+  int v14; 
+  double v15; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  float v20; 
+  float v21; 
+  __int64 v22; 
+  __int64 v23; 
   int out; 
-  int v70; 
-  int v71; 
+  float v25; 
+  int v26; 
   vec3_t vec; 
   vec3_t angles; 
 
-  _RDI = self;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Spawn_light");
   if ( !level.spawnVar.spawnVarsValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 363, ASSERT_TYPE_ASSERT, "(level.spawnVar.spawnVarsValid)", (const char *)&queryFormat, "level.spawnVar.spawnVarsValid") )
     __debugbreak();
   if ( !G_SpawnInt(1u, "0", &out) )
     goto LABEL_8;
-  if ( G_SpawnInt(0x39Du, "0", &v71) )
+  if ( G_SpawnInt(0x39Du, "0", &v26) )
   {
-    if ( (v71 & 0x10) != 0 )
+    if ( (v26 & 0x10) != 0 )
     {
       Com_PrintError(1, "GSC scripted primary light also flagged as used by the Scriptables system - this is not allowed\n");
 LABEL_8:
-      G_FreeEntity(_RDI);
+      G_FreeEntity(self);
       goto LABEL_9;
     }
-    if ( (v71 & 0x80u) != 0 )
+    if ( (v26 & 0x80u) != 0 )
       goto LABEL_8;
   }
   if ( !comWorld.isInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 21, ASSERT_TYPE_ASSERT, "(comWorld.isInUse)", (const char *)&queryFormat, "comWorld.isInUse") )
@@ -867,38 +768,22 @@ LABEL_8:
     Com_PrintError(1, "Scriptable primary light added since last compile.  Ignoring light entity\n");
     goto LABEL_8;
   }
-  __asm { vmovss  xmm2, cs:__real@3f800000; epsilon }
-  _RSI = Com_GetPrimaryLight(out);
-  p_origin = &_RSI->origin;
-  if ( !VecNCompareCustomEpsilon(_RSI->origin.v, _RDI->r.currentOrigin.v, *(float *)&_XMM2, 3) )
+  PrimaryLight = Com_GetPrimaryLight(out);
+  p_origin = &PrimaryLight->origin;
+  if ( !VecNCompareCustomEpsilon(PrimaryLight->origin.v, self->r.currentOrigin.v, 1.0, 3) )
   {
-    out = Com_FindClosestPrimaryLight(&_RDI->r.currentOrigin);
-    __asm { vmovss  xmm2, cs:__real@3f800000; epsilon }
-    _RSI = Com_GetPrimaryLight(out);
-    p_origin = &_RSI->origin;
-    if ( !VecNCompareCustomEpsilon(_RSI->origin.v, _RDI->r.currentOrigin.v, *(float *)&_XMM2, 3) )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+134h]
-        vmovss  xmm2, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rdi+138h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+128h+fmt], xmm0
-      }
-      Com_PrintError(1, "No primary light was found at (%.0f %.0f %.0f).  You may have added, deleted, or moved a primary light since the last full map compile.  You should recompile the map before using MyMapEnts to avoid issues with primary lights.\n", _R8, _R9, fmt);
-    }
+    out = Com_FindClosestPrimaryLight(&self->r.currentOrigin);
+    PrimaryLight = Com_GetPrimaryLight(out);
+    p_origin = &PrimaryLight->origin;
+    if ( !VecNCompareCustomEpsilon(PrimaryLight->origin.v, self->r.currentOrigin.v, 1.0, 3) )
+      Com_PrintError(1, "No primary light was found at (%.0f %.0f %.0f).  You may have added, deleted, or moved a primary light since the last full map compile.  You should recompile the map before using MyMapEnts to avoid issues with primary lights.\n", self->r.currentOrigin.v[0], self->r.currentOrigin.v[1], self->r.currentOrigin.v[2]);
   }
   if ( !out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 411, ASSERT_TYPE_ASSERT, "(primaryLightIndex != 0)", (const char *)&queryFormat, "primaryLightIndex != PRIMARY_LIGHT_NONE") )
     __debugbreak();
-  v22 = out;
+  v4 = out;
   if ( (out < (int)comWorld.firstScriptablePrimaryLight || out >= (int)comWorld.primaryLightCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_bsp_api.h", 113, ASSERT_TYPE_ASSERT, "(primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount ))", (const char *)&queryFormat, "primaryLightIndex >= static_cast<int>( comWorld.firstScriptablePrimaryLight ) && primaryLightIndex < static_cast<int>( comWorld.primaryLightCount )") )
     __debugbreak();
-  _RDI->s.staticState.general.xmodel = v22 - comWorld.firstScriptablePrimaryLight;
+  self->s.staticState.general.xmodel = v4 - comWorld.firstScriptablePrimaryLight;
   firstScriptablePrimaryLight = comWorld.firstScriptablePrimaryLight;
   if ( !comWorld.firstScriptablePrimaryLight || !comWorld.scriptablePrimaryLightCount )
   {
@@ -908,120 +793,67 @@ LABEL_8:
   }
   if ( out < firstScriptablePrimaryLight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 416, ASSERT_TYPE_ASSERT, "( primaryLightIndex ) >= ( static_cast<int>( comWorld.firstScriptablePrimaryLight ) )", "%s >= %s\n\t%i, %i", "primaryLightIndex", "static_cast<int>( comWorld.firstScriptablePrimaryLight )", out, firstScriptablePrimaryLight) )
     __debugbreak();
-  if ( _RDI->s.staticState.general.xmodel >= out )
+  if ( self->s.staticState.general.xmodel >= out )
   {
-    LODWORD(v68) = out;
-    LODWORD(v67) = _RDI->s.staticState.general.xmodel;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 417, ASSERT_TYPE_ASSERT, "( self->s.staticState.primaryLight.offset ) < ( static_cast<uint>( primaryLightIndex ) )", "%s < %s\n\t%i, %i", "self->s.staticState.primaryLight.offset", "static_cast<uint>( primaryLightIndex )", v67, v68) )
+    LODWORD(v23) = out;
+    LODWORD(v22) = self->s.staticState.general.xmodel;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_misc.cpp", 417, ASSERT_TYPE_ASSERT, "( self->s.staticState.primaryLight.offset ) < ( static_cast<uint>( primaryLightIndex ) )", "%s < %s\n\t%i, %i", "self->s.staticState.primaryLight.offset", "static_cast<uint>( primaryLightIndex )", v22, v23) )
       __debugbreak();
   }
-  if ( _RDI->s.staticState.general.xmodel >= 0x400 )
+  if ( self->s.staticState.general.xmodel >= 0x400 )
   {
     Com_PrintError(1, "Too many scriptable primary lights. Limited to %i\n", 1024i64);
     goto LABEL_8;
   }
-  __asm
-  {
-    vmovaps [rsp+128h+var_28], xmm7
-    vmovss  xmm7, cs:__real@437f0000
-    vmulss  xmm1, xmm7, dword ptr [rsi+70h]
-    vaddss  xmm0, xmm1, cs:__real@3f000000; val
-    vmovaps [rsp+128h+var_38], xmm8
-    vmovss  xmm8, dword ptr [rsi+6Ch]
-    vmovaps [rsp+128h+var_48], xmm9
-    vmovss  xmm9, dword ptr [rsi+20h]
-    vmovaps [rsp+128h+var_58], xmm10
-    vmovss  xmm10, dword ptr [rsi+24h]
-    vmovaps [rsp+128h+var_68], xmm11
-    vmovss  xmm11, dword ptr [rsi+28h]
-    vmovaps [rsp+128h+var_78], xmm12
-    vmovss  xmm12, dword ptr [rsi+50h]
-    vmovaps [rsp+128h+var_88], xmm13
-    vmovss  xmm13, dword ptr [rsi+10h]
-    vmovaps [rsp+128h+var_98], xmm14
-    vmovss  xmm14, dword ptr [rsi+14h]
-    vandps  xmm14, xmm14, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm3, xmm7, xmm8
-    vcvttss2si ebx, xmm0
-    vaddss  xmm0, xmm3, cs:__real@3f000000; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  [rsp+128h+var_D4], xmm9 }
-  v42 = v70;
-  __asm { vmovss  [rsp+128h+var_D4], xmm10 }
-  v43 = v70;
-  v44 = v70;
-  __asm { vmovss  [rsp+128h+var_D4], xmm11 }
-  v45 = (int)((2 * v42) ^ 0x80003FFF) >> 14;
-  __asm { vcvttss2si r10d, xmm0 }
-  if ( v45 > 0x3FFF )
-    v45 = 0x3FFF;
-  v47 = (int)((2 * v43) ^ 0x80003FFF) >> 14;
-  if ( v47 > 0x3FFF )
-    v47 = 0x3FFF;
-  if ( v47 < -16384 )
-    v47 = -16384;
-  v48 = ((v43 >> 16) ^ ((v44 >> 16) ^ v47) & 0x3FFF) << 16;
-  if ( v45 < -16384 )
-    LOWORD(v45) = -16384;
-  _RDI->s.lerp.u.anonymous.data[0] = (v42 >> 16) & 0xC000 | v45 & 0x3FFF | v48;
-  v49 = (int)((2 * v70) ^ 0x80003FFF) >> 14;
-  if ( v49 > 0x3FFF )
-    v49 = 0x3FFF;
-  if ( v49 < -16384 )
-    LOWORD(v49) = -16384;
-  __asm { vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  _RDI->s.lerp.u.anonymous.data[1] = v49 & 0x3FFF | (v70 >> 16) & 0xC000 | (((unsigned __int8)_EBX | ((unsigned __int8)_ER10 << 8)) << 16);
-  __asm
-  {
-    vmovss  dword ptr [rdi+68h], xmm12
-    vmovss  dword ptr [rdi+60h], xmm13
-    vmovss  dword ptr [rdi+64h], xmm14
-    vmovss  xmm0, dword ptr [rsi+2Ch]
-    vmovss  xmm1, dword ptr [rsi+30h]
-    vxorps  xmm0, xmm0, xmm3
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+128h+vec], xmm0
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rsp+128h+vec+8], xmm1
-    vmovss  dword ptr [rsp+128h+vec+4], xmm2
-  }
+  cosHalfFovOuter = PrimaryLight->cosHalfFovOuter;
+  v7 = LODWORD(PrimaryLight->colorLinearSrgb.v[0]);
+  v8 = LODWORD(PrimaryLight->colorLinearSrgb.v[1]);
+  v9 = PrimaryLight->colorLinearSrgb.v[2];
+  radius = PrimaryLight->radius;
+  intensity = PrimaryLight->intensity;
+  LODWORD(v12) = LODWORD(PrimaryLight->uvIntensity) & _xmm;
+  v13 = I_fclamp((float)(255.0 * PrimaryLight->cosHalfFovInner) + 0.5, 0.0, 255.0);
+  v14 = (int)*(float *)&v13;
+  v15 = I_fclamp((float)(255.0 * cosHalfFovOuter) + 0.5, 0.0, 255.0);
+  v25 = v9;
+  v16 = (int)((2 * v7) ^ 0x80003FFF) >> 14;
+  if ( v16 > 0x3FFF )
+    v16 = 0x3FFF;
+  v17 = (int)((2 * v8) ^ 0x80003FFF) >> 14;
+  if ( v17 > 0x3FFF )
+    v17 = 0x3FFF;
+  if ( v17 < -16384 )
+    v17 = -16384;
+  v18 = ((v8 >> 16) ^ ((v8 >> 16) ^ v17) & 0x3FFF) << 16;
+  if ( v16 < -16384 )
+    LOWORD(v16) = -16384;
+  self->s.lerp.u.anonymous.data[0] = (v7 >> 16) & 0xC000 | v16 & 0x3FFF | v18;
+  v19 = (int)((2 * LODWORD(v25)) ^ 0x80003FFF) >> 14;
+  if ( v19 > 0x3FFF )
+    v19 = 0x3FFF;
+  if ( v19 < -16384 )
+    LOWORD(v19) = -16384;
+  self->s.lerp.u.anonymous.data[1] = v19 & 0x3FFF | (SLODWORD(v25) >> 16) & 0xC000 | (((unsigned __int8)v14 | ((unsigned __int8)(int)*(float *)&v15 << 8)) << 16);
+  self->s.lerp.u.actor.impactVector.v[1] = radius;
+  self->s.lerp.u.turret.gunAngles.v[2] = intensity;
+  self->s.lerp.u.actor.impactVector.v[0] = v12;
+  LODWORD(v20) = LODWORD(PrimaryLight->dir.v[1]) ^ _xmm;
+  LODWORD(vec.v[0]) = LODWORD(PrimaryLight->dir.v[0]) ^ _xmm;
+  LODWORD(vec.v[2]) = LODWORD(PrimaryLight->dir.v[2]) ^ _xmm;
+  vec.v[1] = v20;
   vectoangles(&vec, &angles);
-  G_SetOriginAndAngle(_RDI, p_origin, &angles, 1, 1);
-  __asm { vmovss  xmm0, dword ptr [rsi+50h] }
-  *(_QWORD *)_RDI->r.box.midPoint.v = 0i64;
-  _RDI->r.box.midPoint.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rdi+10Ch], xmm0
-    vmovss  dword ptr [rdi+110h], xmm0
-    vmovss  dword ptr [rdi+114h], xmm0
-  }
-  _RDI->s.eType = ET_PRIMARY_LIGHT;
-  _RDI->handler = 23;
-  SV_LinkEntity(_RDI);
-  __asm
-  {
-    vmovaps xmm14, [rsp+128h+var_98]
-    vmovaps xmm13, [rsp+128h+var_88]
-    vmovaps xmm12, [rsp+128h+var_78]
-    vmovaps xmm11, [rsp+128h+var_68]
-    vmovaps xmm10, [rsp+128h+var_58]
-    vmovaps xmm9, [rsp+128h+var_48]
-    vmovaps xmm8, [rsp+128h+var_38]
-    vmovaps xmm7, [rsp+128h+var_28]
-  }
-  _RDI->flags = 0i64;
-  _RDI->flags.m_flags[0] |= 0x200u;
+  G_SetOriginAndAngle(self, p_origin, &angles, 1, 1);
+  v21 = PrimaryLight->radius;
+  *(_QWORD *)self->r.box.midPoint.v = 0i64;
+  self->r.box.midPoint.v[2] = 0.0;
+  self->r.box.halfSize.v[0] = v21;
+  self->r.box.halfSize.v[1] = v21;
+  self->r.box.halfSize.v[2] = v21;
+  self->s.eType = ET_PRIMARY_LIGHT;
+  self->handler = 23;
+  SV_LinkEntity(self);
+  self->flags = 0i64;
+  self->flags.m_flags[0] |= 0x200u;
 LABEL_9:
   Sys_ProfEndNamedEvent();
 }
@@ -1094,71 +926,42 @@ LerpEntityStatePrimaryLightPack
 */
 void LerpEntityStatePrimaryLightPack(const LerpEntityStatePrimaryLightUnpacked *in, LerpEntityStatePrimaryLightPacked *out)
 {
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v23; 
-  int v26; 
-  int v27; 
-  int v28; 
+  double v4; 
+  int v5; 
+  double v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm7
-    vmovss  xmm7, cs:__real@437f0000
-    vmulss  xmm1, xmm7, dword ptr [rcx+10h]
-    vaddss  xmm0, xmm1, cs:__real@3f000000; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm7; max
-  }
-  _RDI = in;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcvttss2si ebx, xmm0
-    vmulss  xmm0, xmm7, dword ptr [rdi+0Ch]
-    vaddss  xmm0, xmm0, cs:__real@3f000000; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi]
-    vcvttss2si r10d, xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+38h+arg_0], xmm1
-  }
-  v18 = v26;
-  __asm { vmovss  [rsp+38h+arg_0], xmm0 }
-  v19 = (int)((2 * v18) ^ 0x80003FFF) >> 14;
-  if ( v19 > 0x3FFF )
-    v19 = 0x3FFF;
-  v20 = (int)((2 * v27) ^ 0x80003FFF) >> 14;
-  if ( v20 > 0x3FFF )
-    v20 = 0x3FFF;
-  if ( v20 < -16384 )
-    v20 = -16384;
-  v21 = ((v27 >> 16) ^ ((v27 >> 16) ^ v20) & 0x3FFF) << 16;
-  if ( v19 < -16384 )
-    LOWORD(v19) = -16384;
-  out->packedColorRG = (v18 >> 16) & 0xC000 | v19 & 0x3FFF | v21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v23 = (int)((2 * v28) ^ 0x80003FFF) >> 14;
-  if ( v23 > 0x3FFF )
-    v23 = 0x3FFF;
-  if ( v23 < -16384 )
-    LOWORD(v23) = -16384;
-  out->packedColorB_Fov = v23 & 0x3FFF | (v28 >> 16) & 0xC000 | (((unsigned __int8)_EBX | ((unsigned __int8)_ER10 << 8)) << 16);
-  out->radius = _RDI->radius;
-  out->intensity = _RDI->intensity;
-  out->uvIntensity = _RDI->uvIntensity;
-  __asm { vmovaps xmm7, [rsp+38h+var_18] }
+  v4 = I_fclamp((float)(255.0 * in->cosHalfFovInner) + 0.5, 0.0, 255.0);
+  v5 = (int)*(float *)&v4;
+  v6 = I_fclamp((float)(255.0 * in->cosHalfFovOuter) + 0.5, 0.0, 255.0);
+  v7 = LODWORD(in->colorLinearSrgb.v[1]);
+  v8 = (int)((2 * LODWORD(in->colorLinearSrgb.v[0])) ^ 0x80003FFF) >> 14;
+  if ( v8 > 0x3FFF )
+    v8 = 0x3FFF;
+  v9 = (int)((2 * v7) ^ 0x80003FFF) >> 14;
+  if ( v9 > 0x3FFF )
+    v9 = 0x3FFF;
+  if ( v9 < -16384 )
+    v9 = -16384;
+  v10 = ((v7 >> 16) ^ ((v7 >> 16) ^ v9) & 0x3FFF) << 16;
+  if ( v8 < -16384 )
+    LOWORD(v8) = -16384;
+  out->packedColorRG = (SLODWORD(in->colorLinearSrgb.v[0]) >> 16) & 0xC000 | v8 & 0x3FFF | v10;
+  v11 = LODWORD(in->colorLinearSrgb.v[2]);
+  v12 = (int)((2 * v11) ^ 0x80003FFF) >> 14;
+  if ( v12 > 0x3FFF )
+    v12 = 0x3FFF;
+  if ( v12 < -16384 )
+    LOWORD(v12) = -16384;
+  out->packedColorB_Fov = v12 & 0x3FFF | (v11 >> 16) & 0xC000 | (((unsigned __int8)v5 | ((unsigned __int8)(int)*(float *)&v6 << 8)) << 16);
+  out->radius = in->radius;
+  out->intensity = in->intensity;
+  out->uvIntensity = in->uvIntensity;
 }
 
 /*
@@ -1168,48 +971,26 @@ LerpEntityStatePrimaryLightUnpack
 */
 void LerpEntityStatePrimaryLightUnpack(const LerpEntityStatePrimaryLightPacked *in, LerpEntityStatePrimaryLightUnpacked *out)
 {
-  unsigned int v13; 
-  unsigned int v14; 
-  unsigned int v15; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v2 = 0.0;
   if ( LOWORD(in->packedColorRG) )
-  {
-    v13 = ((in->packedColorRG & 0x8000) << 16) | (((((in->packedColorRG & 0x3FFF) << 14) - (~(LOWORD(in->packedColorRG) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    LODWORD(v3) = ((in->packedColorRG & 0x8000) << 16) | (((((in->packedColorRG & 0x3FFF) << 14) - (~(LOWORD(in->packedColorRG) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  __asm { vmovss  dword ptr [rdx], xmm1 }
+    v3 = 0.0;
+  out->colorLinearSrgb.v[0] = v3;
   if ( HIWORD(in->packedColorRG) )
-  {
-    v14 = ((HIWORD(in->packedColorRG) & 0x8000) << 16) | (((((HIWORD(in->packedColorRG) & 0x3FFF) << 14) - (~(HIWORD(in->packedColorRG) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    LODWORD(v4) = ((HIWORD(in->packedColorRG) & 0x8000) << 16) | (((((HIWORD(in->packedColorRG) & 0x3FFF) << 14) - (~(HIWORD(in->packedColorRG) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  __asm { vmovss  dword ptr [rdx+4], xmm1 }
+    v4 = 0.0;
+  out->colorLinearSrgb.v[1] = v4;
   if ( LOWORD(in->packedColorB_Fov) )
-  {
-    v15 = ((in->packedColorB_Fov & 0x8000) << 16) | (((((in->packedColorB_Fov & 0x3FFF) << 14) - (~(LOWORD(in->packedColorB_Fov) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm0, [rsp+arg_0] }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rdx+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3b808081
-    vmovss  dword ptr [rdx+10h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, cs:__real@3b808081
-    vmovss  dword ptr [rdx+0Ch], xmm0
-  }
+    LODWORD(v2) = ((in->packedColorB_Fov & 0x8000) << 16) | (((((in->packedColorB_Fov & 0x3FFF) << 14) - (~(LOWORD(in->packedColorB_Fov) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
+  out->colorLinearSrgb.v[2] = v2;
+  out->cosHalfFovInner = (float)BYTE2(in->packedColorB_Fov) * 0.0039215689;
+  out->cosHalfFovOuter = (float)HIBYTE(in->packedColorB_Fov) * 0.0039215689;
   out->radius = in->radius;
   out->intensity = in->intensity;
   out->uvIntensity = in->uvIntensity;

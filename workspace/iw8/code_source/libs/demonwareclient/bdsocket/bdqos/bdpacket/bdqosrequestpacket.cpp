@@ -142,56 +142,46 @@ bdQoSRequestPacket::deserialize
 */
 char bdQoSRequestPacket::deserialize(bdQoSRequestPacket *this, const void *data, const unsigned int size, const unsigned int offset, unsigned int *newOffset)
 {
-  unsigned int v10; 
-  unsigned int v12; 
-  __int64 v14; 
-  unsigned int v15; 
-  unsigned int *newOffseta; 
+  unsigned int v9; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  unsigned int v13; 
 
-  _RBX = data;
-  v10 = offset + 1;
+  v9 = offset + 1;
   *newOffset = offset + 1;
   if ( data )
   {
-    if ( v10 > size )
+    if ( v9 > size )
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 1i64);
     else
       this->m_type = *((_BYTE *)data + offset);
   }
-  if ( v10 <= size || !_RBX )
+  if ( v9 <= size || !data )
   {
-    _RAX = *newOffset;
-    v12 = _RAX + 8;
-    *newOffset = _RAX + 8;
-    if ( _RBX )
+    v10 = *newOffset;
+    v11 = v10 + 8;
+    *newOffset = v10 + 8;
+    if ( data )
     {
-      if ( v12 > size )
-      {
+      if ( v11 > size )
         bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 8i64);
-      }
       else
-      {
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rax+rbx]
-          vmovsd  [rsp+68h+newOffset], xmm0
-        }
-        this->m_timestamp = (unsigned __int64)newOffseta;
-      }
+        this->m_timestamp = *(_QWORD *)((char *)data + v10);
     }
-    if ( (v12 <= size || !_RBX) && bdBytePacker::removeBasicType<unsigned int>(_RBX, size, *newOffset, newOffset, &this->m_id) && bdBytePacker::removeBasicType<unsigned int>(_RBX, size, *newOffset, newOffset, &this->m_secid) )
+    if ( (v11 <= size || !data) && bdBytePacker::removeBasicType<unsigned int>(data, size, *newOffset, newOffset, &this->m_id) && bdBytePacker::removeBasicType<unsigned int>(data, size, *newOffset, newOffset, &this->m_secid) )
     {
-      v14 = *newOffset;
-      v15 = v14 + 1;
-      *newOffset = v14 + 1;
-      if ( _RBX )
+      v12 = *newOffset;
+      v13 = v12 + 1;
+      *newOffset = v12 + 1;
+      if ( data )
       {
-        if ( v15 > size )
+        if ( v13 > size )
           bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 1i64);
         else
-          this->m_requestingData = _RBX[v14];
+          this->m_requestingData = *((_BYTE *)data + v12);
       }
-      if ( v15 <= size || !_RBX )
+      if ( v13 <= size || !data )
         return 1;
     }
   }
@@ -256,59 +246,52 @@ bdQoSRequestPacket::serialize
 */
 char bdQoSRequestPacket::serialize(bdQoSRequestPacket *this, void *data, const unsigned int size, const unsigned int offset, unsigned int *newOffset)
 {
-  __int64 v7; 
-  unsigned int v10; 
-  bool v11; 
-  __int64 v12; 
-  unsigned int v13; 
-  bool v14; 
-  __int64 v17; 
-  unsigned int v18; 
-  bool v19; 
-  unsigned int *newOffseta; 
+  __int64 v6; 
+  unsigned int v9; 
+  bool v10; 
+  __int64 v11; 
+  unsigned int v12; 
+  bool v13; 
+  __int64 v14; 
+  unsigned int v15; 
+  bool v16; 
 
-  v7 = offset;
-  v10 = offset + 1;
+  v6 = offset;
+  v9 = offset + 1;
   *newOffset = offset + 1;
-  v11 = offset + 1 <= size || !data;
-  bdHandleAssert(v11, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
+  v10 = offset + 1 <= size || !data;
+  bdHandleAssert(v10, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
   if ( !data )
   {
 LABEL_8:
-    if ( v10 <= size )
+    if ( v9 <= size )
       goto LABEL_10;
     goto LABEL_9;
   }
-  if ( v10 <= size )
+  if ( v9 <= size )
   {
-    *((_BYTE *)data + v7) = this->m_type;
+    *((_BYTE *)data + v6) = this->m_type;
     goto LABEL_8;
   }
 LABEL_9:
   if ( data )
     goto LABEL_31;
 LABEL_10:
-  v12 = *newOffset;
-  v13 = v12 + 8;
-  *newOffset = v12 + 8;
-  v14 = (int)v12 + 8 <= size || !data;
-  bdHandleAssert(v14, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 8i64);
+  v11 = *newOffset;
+  v12 = v11 + 8;
+  *newOffset = v11 + 8;
+  v13 = (int)v11 + 8 <= size || !data;
+  bdHandleAssert(v13, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 8i64);
   if ( !data )
   {
 LABEL_17:
-    if ( v13 <= size )
+    if ( v12 <= size )
       goto LABEL_19;
     goto LABEL_18;
   }
-  if ( v13 <= size )
+  if ( v12 <= size )
   {
-    newOffseta = (unsigned int *)this->m_timestamp;
-    _RAX = (char *)data + v12;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+68h+newOffset]
-      vmovsd  qword ptr [rax], xmm0
-    }
+    *(double *)((char *)data + v11) = *(double *)&this->m_timestamp;
     goto LABEL_17;
   }
 LABEL_18:
@@ -317,24 +300,24 @@ LABEL_18:
 LABEL_19:
   if ( !bdBytePacker::appendBasicType<unsigned int>(data, size, *newOffset, newOffset, &this->m_id) || !bdBytePacker::appendBasicType<unsigned int>(data, size, *newOffset, newOffset, &this->m_secid) )
     goto LABEL_31;
-  v17 = *newOffset;
-  v18 = v17 + 1;
-  *newOffset = v17 + 1;
-  v19 = (int)v17 + 1 <= size || !data;
-  bdHandleAssert(v19, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
+  v14 = *newOffset;
+  v15 = v14 + 1;
+  *newOffset = v14 + 1;
+  v16 = (int)v14 + 1 <= size || !data;
+  bdHandleAssert(v16, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
   if ( !data )
     goto LABEL_28;
-  if ( v18 <= size )
+  if ( v15 <= size )
   {
-    *((_BYTE *)data + v17) = this->m_requestingData;
+    *((_BYTE *)data + v14) = this->m_requestingData;
 LABEL_28:
-    if ( v18 <= size )
+    if ( v15 <= size )
       return 1;
   }
   if ( !data )
     return 1;
 LABEL_31:
-  *newOffset = v7;
+  *newOffset = v6;
   return 0;
 }
 

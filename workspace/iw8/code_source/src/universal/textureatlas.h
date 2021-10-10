@@ -16,40 +16,31 @@ TextureAtlas_GetCoords_ByIndex_Pow2Bits
 */
 void TextureAtlas_GetCoords_ByIndex_Pow2Bits(unsigned int tileIndex, unsigned int tilesWidePow2Bits, unsigned int tilesHighPow2Bits, float *s0, float *ds, float *t0, float *dt)
 {
-  int v26; 
+  char v9; 
+  char v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v17; 
 
-  _R14 = s0;
+  v9 = tilesHighPow2Bits;
+  v10 = tilesWidePow2Bits;
   if ( tileIndex >= 1 << (tilesWidePow2Bits + tilesHighPow2Bits) )
   {
-    v26 = 1 << (tilesWidePow2Bits + tilesHighPow2Bits);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.h", 25, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( 1 << ( tilesWidePow2Bits + tilesHighPow2Bits ) )", "tileIndex doesn't index 1 << ( tilesWidePow2Bits + tilesHighPow2Bits )\n\t%i not in [0, %i)", tileIndex, v26) )
+    v17 = 1 << (tilesWidePow2Bits + tilesHighPow2Bits);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\textureatlas.h", 25, ASSERT_TYPE_ASSERT, "(unsigned)( tileIndex ) < (unsigned)( 1 << ( tilesWidePow2Bits + tilesHighPow2Bits ) )", "tileIndex doesn't index 1 << ( tilesWidePow2Bits + tilesHighPow2Bits )\n\t%i not in [0, %i)", tileIndex, v17) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
-  _R8 = ds;
-  _RDX = dt;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9
-    vdivss  xmm0, xmm1, xmm0
-    vmovss  dword ptr [r8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdx], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, dword ptr [r8]
-    vmovss  dword ptr [r14], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = t0;
-  __asm
-  {
-    vmulss  xmm1, xmm0, dword ptr [rdx]
-    vmovss  dword ptr [rax], xmm1
-  }
+  v11 = (unsigned int)(1 << v10);
+  v12 = (float)v11;
+  *ds = 1.0 / v12;
+  v13 = (float)(unsigned int)(1 << v9);
+  *dt = 1.0 / v13;
+  v14 = (float)(tileIndex & (v11 - 1));
+  *s0 = v14 * *ds;
+  v15 = (float)(tileIndex >> v10);
+  *t0 = v15 * *dt;
 }
 

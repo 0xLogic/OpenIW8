@@ -234,8 +234,7 @@ void BB_WriteVarUInt64(bb_msg_t *msg, unsigned __int64 c)
 BB_WriteFloat16
 ==============
 */
-
-void __fastcall BB_WriteFloat16(bb_msg_t *msg, double f)
+void BB_WriteFloat16(bb_msg_t *msg, float f)
 {
   unsigned __int64 cursize; 
   unsigned int v4; 
@@ -244,9 +243,9 @@ void __fastcall BB_WriteFloat16(bb_msg_t *msg, double f)
   unsigned __int8 v7; 
   unsigned __int8 v8; 
   __int64 v9; 
-  int v10; 
+  float v10; 
 
-  __asm { vmovss  [rsp+arg_8], xmm1 }
+  v10 = f;
   if ( !msg->pppHashTable )
   {
     if ( msg->overflow || (cursize = msg->cursize, cursize + 4 > msg->maxsize) )
@@ -278,8 +277,7 @@ void __fastcall BB_WriteFloat16(bb_msg_t *msg, double f)
 BB_WriteFloat32
 ==============
 */
-
-void __fastcall BB_WriteFloat32(bb_msg_t *msg, double f)
+void BB_WriteFloat32(bb_msg_t *msg, float f)
 {
   unsigned __int64 cursize; 
   unsigned int v4; 
@@ -288,9 +286,9 @@ void __fastcall BB_WriteFloat32(bb_msg_t *msg, double f)
   unsigned __int8 v7; 
   unsigned __int8 v8; 
   __int64 v9; 
-  int v10; 
+  float v10; 
 
-  __asm { vmovss  [rsp+arg_8], xmm1 }
+  v10 = f;
   if ( !msg->pppHashTable )
   {
     if ( msg->overflow || (cursize = msg->cursize, cursize + 4 > msg->maxsize) )

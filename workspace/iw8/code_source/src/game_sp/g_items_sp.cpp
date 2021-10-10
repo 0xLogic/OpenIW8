@@ -419,25 +419,13 @@ GItemsSP::UpdateDefaultVelocity
 */
 void GItemsSP::UpdateDefaultVelocity(GItemsSP *this, vec3_t *velocity)
 {
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43160000
-    vmulss  xmm0, xmm2, dword ptr [rdx]
-    vmovss  dword ptr [rdx], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [rdx+4], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdx+8]
-    vmovss  dword ptr [rdx+8], xmm0
-  }
-  _RBX = velocity;
-  *(double *)&_XMM0 = G_crandom();
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42480000
-    vaddss  xmm1, xmm1, dword ptr [rbx+8]
-    vaddss  xmm0, xmm1, cs:__real@43480000
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  double v3; 
+
+  velocity->v[0] = 150.0 * velocity->v[0];
+  velocity->v[1] = 150.0 * velocity->v[1];
+  velocity->v[2] = 150.0 * velocity->v[2];
+  v3 = G_crandom();
+  velocity->v[2] = (float)((float)(*(float *)&v3 * 50.0) + velocity->v[2]) + 200.0;
 }
 
 /*

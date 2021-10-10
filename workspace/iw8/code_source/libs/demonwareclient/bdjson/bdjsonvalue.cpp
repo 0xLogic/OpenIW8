@@ -980,18 +980,10 @@ bdJSONValue *bdJSONValue::operator=(bdJSONValue *this, const unsigned int number
 bdJSONValue::operator=
 ==============
 */
-
-bdJSONValue *__fastcall bdJSONValue::operator=(bdJSONValue *this, double number)
+bdJSONValue *bdJSONValue::operator=(bdJSONValue *this, const long double number)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   bdJSONValue::cleanup(this);
-  __asm { vmovaps xmm1, xmm6; number }
-  bdJSONValue::assignNumber(this, *(const long double *)&_XMM1);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  bdJSONValue::assignNumber(this, number);
   return this;
 }
 
@@ -1138,24 +1130,18 @@ bdJSONValue *bdJSONValue::operator[](bdJSONValue *this, const char *key)
 bdJSONValue::assignNumber
 ==============
 */
-
-char __fastcall bdJSONValue::assignNumber(bdJSONValue *this, double number)
+char bdJSONValue::assignNumber(bdJSONValue *this, const long double number)
 {
-  bdString *v5; 
+  bdString *v3; 
   char buf[24]; 
 
-  __asm
-  {
-    vmovaps xmm3, xmm1
-    vmovq   r9, xmm3
-  }
-  if ( bdSnprintf(buf, 0x18ui64, "%.20g", *(double *)&_XMM3) <= 0 )
+  if ( bdSnprintf(buf, 0x18ui64, "%.20g", number) <= 0 )
     return 0;
   this->m_type = BD_JSON_NUMBER;
-  v5 = (bdString *)bdMemory::allocate(8ui64);
-  if ( v5 )
-    bdString::bdString(v5, buf);
-  this->m_string = v5;
+  v3 = (bdString *)bdMemory::allocate(8ui64);
+  if ( v3 )
+    bdString::bdString(v3, buf);
+  this->m_string = v3;
   return 1;
 }
 
@@ -1324,12 +1310,10 @@ char bdJSONValue::getFloat64(bdJSONValue *this, long double *value)
   const char *Buffer; 
 
   m_type = this->m_type;
-  _RBX = value;
   if ( (unsigned int)(m_type - 1) <= 1 )
   {
     Buffer = bdString::getBuffer(this->m_string);
-    *(double *)&_XMM0 = strtod(Buffer, NULL);
-    __asm { vmovsd  qword ptr [rbx], xmm0 }
+    *value = strtod(Buffer, NULL);
     return 1;
   }
   else

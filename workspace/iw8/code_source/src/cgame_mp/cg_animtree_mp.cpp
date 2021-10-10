@@ -277,14 +277,7 @@ CG_AnimTreeMP_ClearDObjAnimInfo
 */
 void CG_AnimTreeMP_ClearDObjAnimInfo(LocalClientNum_t localClientNum, int entNum)
 {
-  float v3; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entNum, 0, 0, v3);
+  CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entNum, 0, 0, 1.0);
 }
 
 /*
@@ -295,59 +288,50 @@ CG_AnimTreeMP_ClearScriptModelAnims
 void CG_AnimTreeMP_ClearScriptModelAnims(LocalClientNum_t localClientNum)
 {
   const CgSnapshotMP *NextSnap; 
-  int v4; 
+  int v3; 
   entityState_t *entities; 
-  const dvar_t *v7; 
+  const dvar_t *v5; 
   int number; 
   const DObj *ClientDObj; 
-  DObj *v10; 
+  DObj *v8; 
   XAnimTree *Tree; 
-  float fmt; 
-  float fmta; 
 
   NextSnap = CG_SnapshotMP_GetNextSnap(localClientNum);
   if ( !NextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 285, ASSERT_TYPE_ASSERT, "(snap)", (const char *)&queryFormat, "snap") )
     __debugbreak();
-  v4 = 0;
+  v3 = 0;
   if ( NextSnap->numEntities > 0 )
   {
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
     entities = NextSnap->entities;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
     do
     {
       if ( entities->eType == ET_SCRIPTMOVER )
       {
-        v7 = DVARBOOL_killswitch_fix_dangling_client_anims_enabled;
+        v5 = DVARBOOL_killswitch_fix_dangling_client_anims_enabled;
         number = entities->number;
         if ( !DVARBOOL_killswitch_fix_dangling_client_anims_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_fix_dangling_client_anims_enabled") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v7);
-        if ( v7->current.enabled )
-        {
-          __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
-          CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, fmt);
-        }
+        Dvar_CheckFrontendServerThread(v5);
+        if ( v5->current.enabled )
+          CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, 1.0);
         ClientDObj = Com_GetClientDObj(number, localClientNum);
-        v10 = (DObj *)ClientDObj;
+        v8 = (DObj *)ClientDObj;
         if ( ClientDObj )
         {
           Tree = DObjGetTree(ClientDObj);
           if ( Tree )
           {
-            DObjSetTree(v10, NULL);
+            DObjSetTree(v8, NULL);
             XAnimFreeAnimTreeByType(Tree);
-            __asm { vmovss  dword ptr [rsp+78h+fmt], xmm6 }
             CG_GetEntity(localClientNum, number)->tree = NULL;
-            CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, fmta);
+            CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, 1.0);
           }
         }
       }
-      ++v4;
+      ++v3;
       ++entities;
     }
-    while ( v4 < NextSnap->numEntities );
-    __asm { vmovaps xmm6, [rsp+78h+var_38] }
+    while ( v3 < NextSnap->numEntities );
   }
 }
 
@@ -358,28 +342,21 @@ CG_AnimTreeMP_DObjAnimInfoIsEqual
 */
 bool CG_AnimTreeMP_DObjAnimInfoIsEqual(LocalClientNum_t localClientNum, int entNum, int animIndex, int animTime, float animRate)
 {
+  __int64 v6; 
+  cg_t *LocalClientGlobals; 
+  int v10; 
   int v11; 
-  int v12; 
 
-  _RDI = entNum;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( (unsigned int)_RDI >= 0x800 )
+  v6 = entNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( (unsigned int)v6 >= 0x800 )
   {
-    v12 = 2048;
-    v11 = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 167, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (( 2048 ) + 0) )", "entNum doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v11, v12) )
+    v11 = 2048;
+    v10 = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 167, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (( 2048 ) + 0) )", "entNum doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  if ( _RBX->entityLastXAnimIndex[_RDI] != animIndex )
-    return 0;
-  if ( _RBX->entityLastXAnimTime[_RDI] != animTime )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+animRate]
-    vucomiss xmm0, dword ptr [rbx+rdi*4+0A7320h]
-  }
-  return _RBX->entityLastXAnimTime[_RDI] == animTime;
+  return LocalClientGlobals->entityLastXAnimIndex[v6] == animIndex && LocalClientGlobals->entityLastXAnimTime[v6] == animTime && animRate == LocalClientGlobals->entityLastXAnimRate[v6];
 }
 
 /*
@@ -463,39 +440,30 @@ CG_AnimTreeMP_FreeScriptModelAnim
 */
 void CG_AnimTreeMP_FreeScriptModelAnim(LocalClientNum_t localClientNum, int entIndex)
 {
-  const dvar_t *v3; 
+  const dvar_t *v2; 
   const DObj *ClientDObj; 
-  DObj *v8; 
+  DObj *v6; 
   XAnimTree *Tree; 
-  float fmt; 
-  float fmta; 
 
-  v3 = DVARBOOL_killswitch_fix_dangling_client_anims_enabled;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v2 = DVARBOOL_killswitch_fix_dangling_client_anims_enabled;
   if ( !DVARBOOL_killswitch_fix_dangling_client_anims_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_fix_dangling_client_anims_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  if ( v3->current.enabled )
-  {
-    __asm { vmovss  dword ptr [rsp+58h+fmt], xmm6 }
-    CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, fmt);
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
+    CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, 1.0);
   ClientDObj = Com_GetClientDObj(entIndex, localClientNum);
-  v8 = (DObj *)ClientDObj;
+  v6 = (DObj *)ClientDObj;
   if ( ClientDObj )
   {
     Tree = DObjGetTree(ClientDObj);
     if ( Tree )
     {
-      DObjSetTree(v8, NULL);
+      DObjSetTree(v6, NULL);
       XAnimFreeAnimTreeByType(Tree);
-      __asm { vmovss  dword ptr [rsp+58h+fmt], xmm6 }
       CG_GetEntity(localClientNum, entIndex)->tree = NULL;
-      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, fmta);
+      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, 1.0);
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -505,23 +473,28 @@ CG_AnimTreeMP_GetCurrentScriptModelXAnimTime
 */
 float CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(LocalClientNum_t localClientNum, const LerpEntityStateScriptMover *lerpState)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vmulss  xmm2, xmm0, cs:__real@3a83126f
-    vxorps  xmm1, xmm1, xmm1
-    vmaxss  xmm6, xmm2, xmm1
-  }
-  *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(lerpState->animRateQuantized);
-  __asm
-  {
-    vmulss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  cg_t *LocalClientGlobals; 
+  int animPauseTime; 
+  int time; 
+  __int128 v6; 
+  double v9; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  animPauseTime = lerpState->animPauseTime;
+  if ( animPauseTime <= 0 )
+    goto LABEL_5;
+  time = 1;
+  if ( LocalClientGlobals->time > 1 )
+    time = LocalClientGlobals->time;
+  if ( animPauseTime > time )
+LABEL_5:
+    animPauseTime = LocalClientGlobals->time;
+  v6 = 0i64;
+  *(float *)&v6 = (float)(animPauseTime - lerpState->animStartTime) * 0.001;
+  _XMM2 = v6;
+  __asm { vmaxss  xmm6, xmm2, xmm1 }
+  v9 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(lerpState->animRateQuantized);
+  return *(float *)&v9 * *(float *)&_XMM6;
 }
 
 /*
@@ -576,7 +549,6 @@ void CG_AnimTreeMP_SafeDObjFree(LocalClientNum_t localClientNum, int entIndex)
   unsigned int eType; 
   int v7; 
   XAnimTree *tree; 
-  float v10; 
 
   Entity = CG_GetEntity(localClientNum, entIndex);
   v5 = Entity;
@@ -604,12 +576,7 @@ void CG_AnimTreeMP_SafeDObjFree(LocalClientNum_t localClientNum, int entIndex)
     XAnimFreeAnimTreeByType(tree);
     v5->tree = NULL;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, v10);
+  CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, entIndex, 0, 0, 1.0);
 }
 
 /*
@@ -619,22 +586,23 @@ CG_AnimTreeMP_SetDObjAnimInfo
 */
 void CG_AnimTreeMP_SetDObjAnimInfo(LocalClientNum_t localClientNum, int entNum, int animIndex, int animTime, float animRate)
 {
+  __int64 v6; 
+  cg_t *LocalClientGlobals; 
+  int v9; 
   int v10; 
-  int v11; 
 
-  _RDI = entNum;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( (unsigned int)_RDI >= 0x800 )
+  v6 = entNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( (unsigned int)v6 >= 0x800 )
   {
-    v11 = 2048;
-    v10 = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 149, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (( 2048 ) + 0) )", "entNum doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v10, v11) )
+    v10 = 2048;
+    v9 = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 149, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (( 2048 ) + 0) )", "entNum doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  __asm { vmovss  xmm0, [rsp+48h+animRate] }
-  _RBX->entityLastXAnimIndex[_RDI] = animIndex;
-  _RBX->entityLastXAnimTime[_RDI] = animTime;
-  __asm { vmovss  dword ptr [rbx+rdi*4+0A7320h], xmm0 }
+  LocalClientGlobals->entityLastXAnimIndex[v6] = animIndex;
+  LocalClientGlobals->entityLastXAnimTime[v6] = animTime;
+  LocalClientGlobals->entityLastXAnimRate[v6] = animRate;
 }
 
 /*
@@ -690,29 +658,21 @@ CG_AnimTreeMP_SetDObjWeaponID
 void CG_AnimTreeMP_SetDObjWeaponID(LocalClientNum_t localClientNum, int iEntNum, const Weapon *iWeaponID)
 {
   __int64 v3; 
-  cg_t *LocalClientGlobals; 
-  int v12; 
+  Weapon *v6; 
+  int v8; 
 
   v3 = iEntNum;
-  _RDI = iWeaponID;
   if ( (unsigned int)iEntNum >= 0x800 )
   {
-    v12 = 2048;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 85, ASSERT_TYPE_ASSERT, "(unsigned)( iEntNum ) < (unsigned)( ( 2048 ) )", "iEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", iEntNum, v12) )
+    v8 = 2048;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 85, ASSERT_TYPE_ASSERT, "(unsigned)( iEntNum ) < (unsigned)( ( 2048 ) )", "iEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", iEntNum, v8) )
       __debugbreak();
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovups ymm0, ymmword ptr [rdi] }
-  _RCX = (__int64)&LocalClientGlobals->iEntityLastWeaponID[v3];
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)(_RCX + 56) = *(_DWORD *)&_RDI->weaponCamo;
+  v6 = &CG_GetLocalClientGlobals(localClientNum)->iEntityLastWeaponID[v3];
+  *(__m256i *)&v6->weaponIdx = *(__m256i *)&iWeaponID->weaponIdx;
+  *(_OWORD *)&v6->attachmentVariationIndices[5] = *(_OWORD *)&iWeaponID->attachmentVariationIndices[5];
+  *(double *)&v6->attachmentVariationIndices[21] = *(double *)&iWeaponID->attachmentVariationIndices[21];
+  *(_DWORD *)&v6->weaponCamo = *(_DWORD *)&iWeaponID->weaponCamo;
 }
 
 /*
@@ -750,11 +710,11 @@ void CG_AnimTreeMP_UpdateDObjAnimPause(LocalClientNum_t localClientNum, centity_
   cg_t *LocalClientGlobals; 
   int animPauseTime; 
   int time; 
-  int v11; 
+  int v9; 
   int IsSimpleBlendTree; 
-  float fmt; 
+  float v11; 
+  double v12; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 363, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( !lerpState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 364, ASSERT_TYPE_ASSERT, "(lerpState)", (const char *)&queryFormat, "lerpState") )
@@ -764,24 +724,22 @@ void CG_AnimTreeMP_UpdateDObjAnimPause(LocalClientNum_t localClientNum, centity_
   if ( animPauseTime <= 0 )
     goto LABEL_12;
   time = LocalClientGlobals->time;
-  v11 = 1;
+  v9 = 1;
   if ( time > 1 )
-    v11 = time;
-  if ( animPauseTime > v11 )
+    v9 = time;
+  if ( animPauseTime > v9 )
   {
 LABEL_12:
-    *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(lerpState->animRateQuantized);
-    __asm { vmovaps xmm6, xmm0 }
+    v12 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(lerpState->animRateQuantized);
+    v11 = *(float *)&v12;
     IsSimpleBlendTree = XAnimIsSimpleBlendTree(cent->tree);
   }
   else
   {
     IsSimpleBlendTree = XAnimIsSimpleBlendTree(cent->tree);
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v11 = 0.0;
   }
-  __asm { vmovss  dword ptr [rsp+48h+fmt], xmm6 }
-  XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, (IsSimpleBlendTree != 0) + 1, fmt);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, (IsSimpleBlendTree != 0) + 1, v11);
 }
 
 /*
@@ -791,190 +749,131 @@ CG_AnimTreeMP_UpdateScriptModelAnim
 */
 void CG_AnimTreeMP_UpdateScriptModelAnim(LocalClientNum_t localClientNum, centity_t *cent, DObj *dobj)
 {
-  unsigned int m_mapEntryId; 
+  double v7; 
+  float v8; 
   XAnimTree *Tree; 
   unsigned int m_data; 
-  XAnimTree *v15; 
-  int v16; 
-  bool v17; 
-  bool v19; 
+  XAnimTree *v11; 
   int number; 
-  unsigned int v26; 
-  XAnimOwner v27; 
+  __int64 v13; 
+  cg_t *LocalClientGlobals; 
+  unsigned int v15; 
+  double v16; 
+  XAnimOwner v17; 
   XAnimTree *SimpleTree; 
+  double CurrentScriptModelXAnimTime; 
+  float v24; 
+  double Time; 
+  float v26; 
   const XAnim_s *Anims; 
-  unsigned int v43; 
-  const XAnim_s *v45; 
-  XAnimOwner v51; 
+  unsigned int v28; 
+  double v29; 
+  const XAnim_s *v30; 
+  float v31; 
+  XAnimOwner v34; 
   XAnimTree *SimpleBlendTree; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
   __int64 blendTime; 
-  float blendTimea; 
   __int64 notifyName; 
-  double notifyNamea; 
   __int64 notifyType; 
-  __int64 v74; 
-  double v75; 
+  __int64 v39; 
   char *outName; 
   char *oldAnimName; 
   bool ShouldScrubScriptMoverAnim; 
 
-  __asm { vmovaps [rsp+0D8h+var_58], xmm7 }
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 438, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 439, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
-  m_mapEntryId = cent->nextState.lerp.u.player.accessoryWeaponHandle.m_mapEntryId;
-  __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
-  *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(m_mapEntryId);
-  __asm { vmovaps xmm7, xmm0 }
+  v7 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(cent->nextState.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
+  v8 = *(float *)&v7;
   Tree = DObjGetTree(dobj);
   m_data = cent->nextState.lerp.u.agentCorpse.attachModels[2].m_data;
-  v15 = Tree;
+  v11 = Tree;
   if ( m_data )
   {
-    _ER15 = 0;
-    v26 = 0;
+    v15 = 0;
     if ( cent->nextState.eType == ET_SCRIPTMOVER )
-      v26 = 6;
+      v15 = 6;
     NetConstStrings_GetNameFromIndexPlusOne(NETCONSTSTRINGTYPE_ANIM, m_data, (const char **)&outName);
-    if ( v15 )
+    if ( v11 && (LOBYTE(cent->nextState.lerp.u.vehicle.bodyPitch) & 1) != 0 && !CG_AnimTreeMP_DObjAnimInfoIsEqual(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], *(float *)&v7) )
     {
-      if ( (LOBYTE(cent->nextState.lerp.u.vehicle.bodyPitch) & 1) != 0 )
-      {
-        __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm7 }
-        if ( !CG_AnimTreeMP_DObjAnimInfoIsEqual(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], fmta) )
-        {
-          if ( v15 != cent->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 475, ASSERT_TYPE_ASSERT, "(animTree == cent->tree)", (const char *)&queryFormat, "animTree == cent->tree") )
-            __debugbreak();
-          XAnimFreeAnimTreeByType(v15);
-          DObjSetTree(dobj, NULL);
-          cent->tree = NULL;
-          v15 = NULL;
-        }
-      }
+      if ( v11 != cent->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 475, ASSERT_TYPE_ASSERT, "(animTree == cent->tree)", (const char *)&queryFormat, "animTree == cent->tree") )
+        __debugbreak();
+      XAnimFreeAnimTreeByType(v11);
+      DObjSetTree(dobj, NULL);
+      cent->tree = NULL;
+      v11 = NULL;
     }
     ShouldScrubScriptMoverAnim = CG_AnimTreeMP_ShouldScrubScriptMoverAnim(cent);
-    if ( v15 )
+    if ( v11 )
     {
-      __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm7 }
-      if ( CG_AnimTreeMP_DObjAnimInfoIsEqual(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], fmtd) )
+      if ( CG_AnimTreeMP_DObjAnimInfoIsEqual(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], *(float *)&v7) )
       {
         CG_AnimTreeMP_UpdateScriptModelAnim_Interpolate(localClientNum, cent, dobj);
       }
       else
       {
-        __asm
+        CurrentScriptModelXAnimTime = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
+        _XMM1 = cent->nextState.lerp.u.anonymous.data[2] & 2;
+        __asm { vpcmpeqd xmm4, xmm1, xmm2 }
+        _XMM2 = LODWORD(FLOAT_0_5);
+        __asm { vblendvps xmm1, xmm2, xmm3, xmm4 }
+        v24 = *(float *)&CurrentScriptModelXAnimTime;
+        if ( XAnimIsSimpleBlendTree(v11) )
         {
-          vmovaps [rsp+0D8h+var_68], xmm8
-          vmovaps [rsp+0D8h+var_78], xmm9
-        }
-        *(double *)&_XMM0 = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3e4ccccd
-          vmovd   xmm2, r15d
-        }
-        _EAX = cent->nextState.lerp.u.anonymous.data[2] & 2;
-        __asm
-        {
-          vmovd   xmm1, eax
-          vpcmpeqd xmm4, xmm1, xmm2
-          vmovss  xmm2, cs:__real@3f000000
-          vblendvps xmm1, xmm2, xmm3, xmm4
-          vmovss  [rsp+0D8h+arg_10], xmm1
-          vmovaps xmm9, xmm0
-        }
-        if ( XAnimIsSimpleBlendTree(v15) )
-        {
-          oldAnimName = (char *)XAnimGetSimpleBlendTreeToAnimName(v15);
-          *(double *)&_XMM0 = XAnimGetTime(v15, 0, XANIM_SUBTREE_DEFAULT, 2u);
-          __asm { vmovaps xmm6, xmm0 }
-          Anims = XAnimGetAnims(v15);
+          oldAnimName = (char *)XAnimGetSimpleBlendTreeToAnimName(v11);
+          Time = XAnimGetTime(v11, 0, XANIM_SUBTREE_DEFAULT, 2u);
+          v26 = *(float *)&Time;
+          Anims = XAnimGetAnims(v11);
           *(double *)&_XMM0 = XAnimGetLength(Anims, 2u);
-          v43 = 2;
+          v28 = 2;
         }
         else
         {
-          v43 = 1;
-          oldAnimName = (char *)XAnimGetSimpleTreeAnimName(v15);
-          *(double *)&_XMM0 = XAnimGetTime(v15, 0, XANIM_SUBTREE_DEFAULT, 1u);
-          __asm { vmovaps xmm6, xmm0 }
-          v45 = XAnimGetAnims(v15);
-          *(double *)&_XMM0 = XAnimGetLength(v45, 1u);
+          v28 = 1;
+          oldAnimName = (char *)XAnimGetSimpleTreeAnimName(v11);
+          v29 = XAnimGetTime(v11, 0, XANIM_SUBTREE_DEFAULT, 1u);
+          v26 = *(float *)&v29;
+          v30 = XAnimGetAnims(v11);
+          *(double *)&_XMM0 = XAnimGetLength(v30, 1u);
         }
-        __asm { vmulss  xmm6, xmm0, xmm6 }
-        *(double *)&_XMM0 = XAnimGetRate(v15, 0, XANIM_SUBTREE_DEFAULT, v43);
+        v31 = *(float *)&_XMM0 * v26;
+        *(double *)&_XMM0 = XAnimGetRate(v11, 0, XANIM_SUBTREE_DEFAULT, v28);
         __asm
         {
-          vmovss  xmm1, cs:__real@3f800000
-          vxorps  xmm8, xmm8, xmm8
           vcmpeqss xmm2, xmm0, xmm8
           vblendvps xmm0, xmm0, xmm1, xmm2
-          vmovss  [rsp+0D8h+arg_18], xmm0
         }
-        XAnimFreeAnimTreeByType(v15);
-        LOBYTE(v51) = 1;
-        SimpleBlendTree = XAnimCreateSimpleBlendTree(oldAnimName, outName, v51);
+        XAnimFreeAnimTreeByType(v11);
+        LOBYTE(v34) = 1;
+        SimpleBlendTree = XAnimCreateSimpleBlendTree(oldAnimName, outName, v34);
         if ( !SimpleBlendTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 554, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
           __debugbreak();
         DObjSetTree(dobj, SimpleBlendTree);
-        __asm
-        {
-          vmovss  xmm0, [rsp+0D8h+arg_10]
-          vmovss  xmm2, [rsp+0D8h+arg_18]; oldPlaybackRate
-          vmovss  [rsp+0D8h+blendTime], xmm0
-          vmovaps xmm3, xmm9; newAnimTime
-          vmovaps xmm1, xmm6; oldAnimTime
-          vmovss  dword ptr [rsp+0D8h+fmt], xmm7
-        }
         cent->tree = SimpleBlendTree;
-        XAnimPlaySimpleBlendTreeAnim(dobj, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, blendTimea, (scr_string_t)0, v26);
-        __asm { vmovaps xmm9, [rsp+0D8h+var_78] }
+        XAnimPlaySimpleBlendTreeAnim(dobj, v31, *(float *)&_XMM0, v24, v8, *(float *)&_XMM1, (scr_string_t)0, v15);
         if ( ShouldScrubScriptMoverAnim )
         {
-          __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm8 }
-          XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 2u, fmtf);
+          XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 2u, 0.0);
           XAnimSetScrubbedNotetracks(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 2u, 1);
         }
-        __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm7 }
-        CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], fmtg);
-        __asm { vmovaps xmm8, [rsp+0D8h+var_68] }
+        CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], v8);
       }
     }
     else
     {
-      *(double *)&_XMM0 = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
-      LOBYTE(v27) = 1;
-      __asm { vmovaps xmm6, xmm0 }
-      SimpleTree = XAnimCreateSimpleTree(outName, v27);
+      v16 = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
+      LOBYTE(v17) = 1;
+      SimpleTree = XAnimCreateSimpleTree(outName, v17);
       cent->tree = SimpleTree;
       if ( !SimpleTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 491, ASSERT_TYPE_ASSERT, "(cent->tree)", (const char *)&queryFormat, "cent->tree") )
         __debugbreak();
       DObjSetTree(dobj, cent->tree);
-      __asm
-      {
-        vmovaps xmm2, xmm7; playbackRate
-        vmovaps xmm1, xmm6; animTime
-      }
-      XAnimPlaySimpleTreeAnim(dobj, *(float *)&_XMM1, *(float *)&_XMM2, (scr_string_t)0, v26);
-      __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm7 }
-      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], fmtb);
+      XAnimPlaySimpleTreeAnim(dobj, *(float *)&v16, v8, (scr_string_t)0, v15);
+      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, cent->nextState.number, cent->nextState.lerp.u.anonymous.data[3], cent->nextState.lerp.u.anonymous.data[4], v8);
       if ( ShouldScrubScriptMoverAnim )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-        }
-        XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 1u, fmtc);
+        XAnimSetAnimRate(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 1u, 0.0);
         XAnimSetScrubbedNotetracks(cent->tree, 0, XANIM_SUBTREE_DEFAULT, 1u, 1);
       }
       else
@@ -987,73 +886,36 @@ void CG_AnimTreeMP_UpdateScriptModelAnim(LocalClientNum_t localClientNum, centit
   }
   else
   {
-    v16 = cent->nextState.lerp.u.anonymous.data[4];
-    v17 = v16 == 0;
-    if ( v16 )
+    if ( cent->nextState.lerp.u.anonymous.data[4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 449, ASSERT_TYPE_ASSERT, "(!nextLerp->animStartTime)", "%s\n\tNo anim index, expected no start time but had time %i, type: %u, anim rate: %f", "!nextLerp->animStartTime", cent->nextState.lerp.u.anonymous.data[4], cent->nextState.eType, *(float *)&v7) )
+      __debugbreak();
+    if ( *(float *)&v7 != 1.0 )
     {
-      __asm
-      {
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+0D8h+var_98], xmm1
-      }
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 449, ASSERT_TYPE_ASSERT, "(!nextLerp->animStartTime)", "%s\n\tNo anim index, expected no start time but had time %i, type: %u, anim rate: %f", "!nextLerp->animStartTime", cent->nextState.lerp.u.anonymous.data[4], cent->nextState.eType, v75);
-      v17 = !v19;
-      if ( v19 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vucomiss xmm7, xmm6
-    }
-    if ( !v17 )
-    {
-      LODWORD(v74) = cent->nextState.lerp.u.anonymous.data[4];
+      LODWORD(v39) = cent->nextState.lerp.u.anonymous.data[4];
       LODWORD(notifyType) = cent->nextState.eType;
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  qword ptr [rsp+0D8h+notifyName], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 450, ASSERT_TYPE_ASSERT, "(animRateRaw == 1.0f)", "%s\n\tNo anim index, expected default anim rate time of 1.0, but had %f, type: %u, anim time: %i", "animRateRaw == 1.0f", notifyNamea, notifyType, v74) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 450, ASSERT_TYPE_ASSERT, "(animRateRaw == 1.0f)", "%s\n\tNo anim index, expected default anim rate time of 1.0, but had %f, type: %u, anim time: %i", "animRateRaw == 1.0f", *(float *)&v7, notifyType, v39) )
         __debugbreak();
     }
-    if ( v15 )
+    if ( v11 )
     {
-      if ( v15 != cent->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 454, ASSERT_TYPE_ASSERT, "(animTree == cent->tree)", (const char *)&queryFormat, "animTree == cent->tree") )
+      if ( v11 != cent->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 454, ASSERT_TYPE_ASSERT, "(animTree == cent->tree)", (const char *)&queryFormat, "animTree == cent->tree") )
         __debugbreak();
-      XAnimFreeAnimTreeByType(v15);
+      XAnimFreeAnimTreeByType(v11);
       DObjSetTree(dobj, NULL);
       number = cent->nextState.number;
       cent->tree = NULL;
-      __asm { vmovss  dword ptr [rsp+0D8h+fmt], xmm6 }
-      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, fmt);
+      CG_AnimTreeMP_SetDObjAnimInfo(localClientNum, number, 0, 0, 1.0);
     }
-    _RDI = cent->nextState.number;
-    _RBX = CG_GetLocalClientGlobals(localClientNum);
-    if ( (unsigned int)_RDI >= 0x800 )
+    v13 = cent->nextState.number;
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    if ( (unsigned int)v13 >= 0x800 )
     {
       LODWORD(notifyName) = 2048;
-      LODWORD(blendTime) = _RDI;
+      LODWORD(blendTime) = v13;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 167, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( (( 2048 ) + 0) )", "entNum doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", blendTime, notifyName) )
         __debugbreak();
     }
-    if ( _RBX->entityLastXAnimIndex[_RDI] )
-      goto LABEL_60;
-    if ( _RBX->entityLastXAnimTime[_RDI] )
-      goto LABEL_60;
-    __asm { vucomiss xmm6, dword ptr [rbx+rdi*4+0A7320h] }
-    if ( _RBX->entityLastXAnimTime[_RDI] )
-    {
-LABEL_60:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 462, ASSERT_TYPE_ASSERT, "(CG_AnimTreeMP_DObjAnimInfoIsEqual( localClientNum, cent->nextState.number, 0, 0, 1.0f ))", (const char *)&queryFormat, "CG_AnimTreeMP_DObjAnimInfoIsEqual( localClientNum, cent->nextState.number, 0, 0, 1.0f )") )
-        __debugbreak();
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_58]
+    if ( (LocalClientGlobals->entityLastXAnimIndex[v13] || LocalClientGlobals->entityLastXAnimTime[v13] || 1.0 != LocalClientGlobals->entityLastXAnimRate[v13]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 462, ASSERT_TYPE_ASSERT, "(CG_AnimTreeMP_DObjAnimInfoIsEqual( localClientNum, cent->nextState.number, 0, 0, 1.0f ))", (const char *)&queryFormat, "CG_AnimTreeMP_DObjAnimInfoIsEqual( localClientNum, cent->nextState.number, 0, 0, 1.0f )") )
+      __debugbreak();
   }
 }
 
@@ -1065,12 +927,14 @@ CG_AnimTreeMP_UpdateScriptModelAnim_Interpolate
 void CG_AnimTreeMP_UpdateScriptModelAnim_Interpolate(LocalClientNum_t localClientNum, centity_t *cent, DObj *dobj)
 {
   XAnimTree *Tree; 
-  unsigned int v15; 
-  char v19; 
-  char v20; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  double v7; 
+  float v8; 
+  unsigned int v9; 
+  double CurrentScriptModelXAnimTime; 
+  float v11; 
+  double Length; 
+  __int128 v15; 
+  double Rate; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_animtree_mp.cpp", 380, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1079,93 +943,49 @@ void CG_AnimTreeMP_UpdateScriptModelAnim_Interpolate(LocalClientNum_t localClien
   Tree = DObjGetTree(dobj);
   if ( Tree )
   {
-    __asm { vmovaps [rsp+98h+var_28], xmm6 }
-    *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(cent->nextState.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
-    __asm { vmovaps xmm6, xmm0 }
-    v15 = (XAnimIsSimpleBlendTree(Tree) != 0) + 1;
+    v7 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(cent->nextState.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
+    v8 = *(float *)&v7;
+    v9 = (XAnimIsSimpleBlendTree(Tree) != 0) + 1;
     if ( CG_AnimTreeMP_ShouldScrubScriptMoverAnim(cent) )
     {
-      __asm
+      CurrentScriptModelXAnimTime = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
+      v11 = *(float *)&CurrentScriptModelXAnimTime;
+      Length = XAnimGetLength(Tree->anims, v9);
+      _XMM7 = 0i64;
+      if ( *(float *)&Length > 0.0 )
       {
-        vmovaps [rsp+98h+var_38], xmm7
-        vmovaps [rsp+98h+var_48], xmm8
-      }
-      *(double *)&_XMM0 = CG_AnimTreeMP_GetCurrentScriptModelXAnimTime(localClientNum, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
-      __asm { vmovaps xmm8, xmm0 }
-      *(double *)&_XMM0 = XAnimGetLength(Tree->anims, v15);
-      __asm
-      {
-        vxorps  xmm7, xmm7, xmm7
-        vcomiss xmm0, xmm7
-        vmovaps xmm6, xmm0
-      }
-      if ( v19 | v20 )
-      {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-      }
-      else
-      {
-        __asm
+        v15 = LODWORD(FLOAT_1_0);
+        *(float *)&v15 = 1.0 / *(float *)&Length;
+        if ( XAnimIsLooped(Tree->anims, v9) )
         {
-          vmovaps [rsp+98h+var_58], xmm9
-          vmovaps [rsp+98h+var_68], xmm10
-          vmovss  xmm10, cs:__real@3f800000
-          vdivss  xmm9, xmm10, xmm6
-        }
-        if ( XAnimIsLooped(Tree->anims, v15) )
-        {
-          __asm
-          {
-            vmovaps xmm1, xmm6; Y
-            vmovaps xmm0, xmm8; X
-          }
-          *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm { vmulss  xmm6, xmm0, xmm9 }
+          *(float *)&_XMM6 = fmodf_0(v11, *(float *)&Length) * *(float *)&v15;
         }
         else
         {
-          __asm
-          {
-            vsubss  xmm0, xmm8, xmm6
-            vcmpless xmm1, xmm7, xmm0
-            vmulss  xmm2, xmm9, xmm8
-            vblendvps xmm6, xmm2, xmm10, xmm1
-          }
-        }
-        __asm
-        {
-          vmovaps xmm9, [rsp+98h+var_58]
-          vmovaps xmm10, [rsp+98h+var_68]
+          __asm { vcmpless xmm1, xmm7, xmm0 }
+          *(float *)&v15 = *(float *)&v15 * v11;
+          _XMM2 = v15;
+          __asm { vblendvps xmm6, xmm2, xmm10, xmm1 }
         }
       }
-      __asm { vmovss  dword ptr [rsp+98h+fmt], xmm7 }
-      XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v15, fmt);
-      XAnimSetScrubbedNotetracks(cent->tree, 0, XANIM_SUBTREE_DEFAULT, v15, 1);
-      __asm { vmovss  dword ptr [rsp+98h+fmt], xmm6 }
-      XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v15, fmta);
-      __asm
+      else
       {
-        vmovaps xmm8, [rsp+98h+var_48]
-        vmovaps xmm7, [rsp+98h+var_38]
+        LODWORD(_XMM6) = 0;
       }
+      XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v9, 0.0);
+      XAnimSetScrubbedNotetracks(cent->tree, 0, XANIM_SUBTREE_DEFAULT, v9, 1);
+      XAnimSetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v9, *(float *)&_XMM6);
     }
     else
     {
-      *(double *)&_XMM0 = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v15);
-      __asm
+      Rate = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v9);
+      if ( *(float *)&Rate == 0.0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm0, xmm1
-      }
-      if ( v20 )
-      {
-        __asm { vmovss  dword ptr [rsp+98h+fmt], xmm6 }
-        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v15, fmtb);
-        XAnimSetScrubbedNotetracks(Tree, 0, XANIM_SUBTREE_DEFAULT, v15, 0);
+        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v9, v8);
+        XAnimSetScrubbedNotetracks(Tree, 0, XANIM_SUBTREE_DEFAULT, v9, 0);
       }
       CG_AnimTreeMP_UpdateDObjAnimPause(localClientNum, cent, (const LerpEntityStateScriptMover *)&cent->nextState.lerp.u);
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_28] }
   }
 }
 

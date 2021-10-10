@@ -1282,78 +1282,31 @@ MSG_PackAndQuantizePolarToShort
 */
 __int64 MSG_PackAndQuantizePolarToShort(float *inOutAnglesInDegrees, float *inOutRadius)
 {
-  bool v7; 
-  bool v8; 
-  __int16 v15; 
-  __int16 v17; 
-  __int16 v19; 
-  unsigned __int16 v21; 
+  float v4; 
+  float v5; 
+  __int16 v6; 
+  unsigned __int16 v7; 
+  double v8; 
+  double v9; 
   __int64 result; 
-  double v27; 
-  double v28; 
-  char v31; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RSI = inOutRadius;
-  __asm { vmovaps [rsp+78h+var_28], xmm8 }
-  _RBP = inOutAnglesInDegrees;
   if ( !inOutAnglesInDegrees && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2642, ASSERT_TYPE_SANITY, "( inOutAnglesInDegrees )", (const char *)&queryFormat, "inOutAnglesInDegrees") )
     __debugbreak();
-  v7 = _RSI == NULL;
-  if ( !_RSI )
-  {
-    v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2643, ASSERT_TYPE_SANITY, "( inOutRadius )", (const char *)&queryFormat, "inOutRadius");
-    v7 = !v8;
-    if ( v8 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsi]
-    vcomiss xmm6, cs:__real@3f800000
-    vmovss  xmm8, dword ptr [rbp+0]
-  }
-  if ( !v7 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+78h+var_38], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2615, ASSERT_TYPE_ASSERT, "( radius ) <= ( 1.0f )", "%s <= %s\n\t%g, %g", "radius", "1.0f", v27, v28) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  v15 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 6u);
-  __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-  v17 = v15;
-  __asm { vmovaps xmm0, xmm8; value }
-  v19 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u);
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  v21 = v17 | (32 * v19);
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(v17 & 0x1F, *(float *)&_XMM1, 6u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-    vmovss  dword ptr [rsi], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat((v21 >> 5) & 0x1FF, *(float *)&_XMM1, 9u);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v31;
-  result = v21;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovss  dword ptr [rbp+0], xmm0
-  }
+  if ( !inOutRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2643, ASSERT_TYPE_SANITY, "( inOutRadius )", (const char *)&queryFormat, "inOutRadius") )
+    __debugbreak();
+  v4 = *inOutRadius;
+  v5 = *inOutAnglesInDegrees;
+  if ( *inOutRadius > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2615, ASSERT_TYPE_ASSERT, "( radius ) <= ( 1.0f )", "%s <= %s\n\t%g, %g", "radius", "1.0f", v4, DOUBLE_1_0) )
+    __debugbreak();
+  if ( v4 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2594, ASSERT_TYPE_ASSERT, "(value >= 0.0f)", (const char *)&queryFormat, "value >= 0.0f") )
+    __debugbreak();
+  v6 = MSG_PackSignedFloat(v4, 1.0, 6u);
+  v7 = v6 | (32 * MSG_PackSignedFloat(v5, 180.0, 9u));
+  v8 = MSG_UnpackSignedFloat(v7 & 0x1F, 1.0, 6u);
+  *inOutRadius = *(float *)&v8;
+  v9 = MSG_UnpackSignedFloat((v7 >> 5) & 0x1FF, 180.0, 9u);
+  result = v7;
+  *inOutAnglesInDegrees = *(float *)&v9;
   return result;
 }
 
@@ -1362,43 +1315,16 @@ __int64 MSG_PackAndQuantizePolarToShort(float *inOutAnglesInDegrees, float *inOu
 MSG_PackPolarToShort
 ==============
 */
-
-unsigned __int16 __fastcall MSG_PackPolarToShort(double anglesInDegrees, double radius)
+unsigned __int16 MSG_PackPolarToShort(const float anglesInDegrees, const float radius)
 {
-  __int16 v11; 
-  double v17; 
-  double v18; 
+  __int16 v2; 
 
-  __asm
-  {
-    vcomiss xmm1, cs:__real@3f800000
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm8
-    vmovaps xmm8, xmm0
-    vmovaps xmm6, xmm1
-    vmovsd  xmm2, cs:__real@3ff0000000000000
-    vmovsd  [rsp+78h+var_38], xmm2
-    vcvtss2sd xmm3, xmm6, xmm1
-    vmovsd  [rsp+78h+var_40], xmm3
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2615, ASSERT_TYPE_ASSERT, "( radius ) <= ( 1.0f )", "%s <= %s\n\t%g, %g", "radius", "1.0f", v17, v18) )
+  if ( radius > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2615, ASSERT_TYPE_ASSERT, "( radius ) <= ( 1.0f )", "%s <= %s\n\t%g, %g", "radius", "1.0f", radius, DOUBLE_1_0) )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-  }
-  v11 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 6u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-    vmovaps xmm0, xmm8; value
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_28]
-  }
-  return v11 | (32 * MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 9u));
+  if ( radius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2594, ASSERT_TYPE_ASSERT, "(value >= 0.0f)", (const char *)&queryFormat, "value >= 0.0f") )
+    __debugbreak();
+  v2 = MSG_PackSignedFloat(radius, 1.0, 6u);
+  return v2 | (32 * MSG_PackSignedFloat(anglesInDegrees, 180.0, 9u));
 }
 
 /*
@@ -1407,71 +1333,41 @@ MSG_PackSignedFloat
 ==============
 */
 
-__int64 __fastcall MSG_PackSignedFloat(double value, double maxAbsValueSize, unsigned int bitCount)
+__int64 __fastcall MSG_PackSignedFloat(double value, float maxAbsValueSize, unsigned int bitCount)
 {
-  char v6; 
-  unsigned int v12; 
-  int v18; 
-  unsigned int v19; 
-  __int64 result; 
-  __int64 v25; 
-  __int64 v26; 
-  char v30; 
+  char v3; 
+  unsigned int v5; 
+  int v6; 
+  float v8; 
+  int v9; 
+  unsigned int v10; 
+  __int64 v12; 
+  __int64 v13; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  v6 = bitCount;
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
+  v3 = bitCount;
   if ( bitCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2545, ASSERT_TYPE_ASSERT, "(bitCount > 1)", (const char *)&queryFormat, "bitCount > 1") )
     __debugbreak();
-  __asm
-  {
-    vaddss  xmm0, xmm7, cs:__real@3a83126f
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm6, xmm8
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm6, xmm0
-  }
-  v12 = (1 << (v6 - 1)) - 1;
-  __asm
-  {
-    vcomiss xmm7, xmm8
-    vminss  xmm6, xmm6, xmm7
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2563, ASSERT_TYPE_ASSERT, "(maxAbsValueSize > 0.0f)", (const char *)&queryFormat, "maxAbsValueSize > 0.0f") )
+  _XMM6 = *(_OWORD *)&value & _xmm;
+  if ( COERCE_FLOAT(LODWORD(value) & _xmm) > (float)(maxAbsValueSize + 0.001) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2552, ASSERT_TYPE_ASSERT, "(absValue <= (maxAbsValueSize + 0.001f))", (const char *)&queryFormat, "absValue <= (maxAbsValueSize + EQUAL_EPSILON)") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm6, xmm7
-    vmulss  xmm0, xmm1, xmm0; X
-  }
-  v18 = lroundf(*(float *)&_XMM0);
-  v19 = v18;
-  if ( v18 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,long>(long)", "unsigned", (unsigned int)v18, "signed", v18) )
+  v5 = (1 << (v3 - 1)) - 1;
+  v6 = (*(float *)&value < 0.0) << (v3 - 1);
+  __asm { vminss  xmm6, xmm6, xmm7 }
+  if ( maxAbsValueSize <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2563, ASSERT_TYPE_ASSERT, "(maxAbsValueSize > 0.0f)", (const char *)&queryFormat, "maxAbsValueSize > 0.0f") )
     __debugbreak();
-  if ( v19 > v12 )
+  v8 = (float)v5;
+  v9 = lroundf((float)(*(float *)&_XMM6 / maxAbsValueSize) * v8);
+  v10 = v9;
+  if ( v9 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,long>(long)", "unsigned", (unsigned int)v9, "signed", v9) )
+    __debugbreak();
+  if ( v10 > v5 )
   {
-    LODWORD(v26) = v12;
-    LODWORD(v25) = v19;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2565, ASSERT_TYPE_ASSERT, "( packedAbs ) <= ( bitMask )", "%s <= %s\n\t%u, %u", "packedAbs", "bitMask", v25, v26) )
+    LODWORD(v13) = v5;
+    LODWORD(v12) = v10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2565, ASSERT_TYPE_ASSERT, "( packedAbs ) <= ( bitMask )", "%s <= %s\n\t%u, %u", "packedAbs", "bitMask", v12, v13) )
       __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v30;
-  result = v19;
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return v6 | v10;
 }
 
 /*
@@ -1479,28 +1375,13 @@ __int64 __fastcall MSG_PackSignedFloat(double value, double maxAbsValueSize, uns
 MSG_PackUnsignedFloat
 ==============
 */
-
-int __fastcall MSG_PackUnsignedFloat(double value, double maxAbsValueSize, unsigned int bitCount)
+int MSG_PackUnsignedFloat(float value, float maxAbsValueSize, unsigned int bitCount)
 {
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
   if ( !bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2593, ASSERT_TYPE_ASSERT, "(bitCount > 0)", (const char *)&queryFormat, "bitCount > 0") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovaps xmm1, xmm7; maxAbsValueSize
-    vmovaps xmm0, xmm6; value
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, bitCount + 1);
+  if ( value < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2594, ASSERT_TYPE_ASSERT, "(value >= 0.0f)", (const char *)&queryFormat, "value >= 0.0f") )
+    __debugbreak();
+  return MSG_PackSignedFloat(value, maxAbsValueSize, bitCount + 1);
 }
 
 /*
@@ -1538,16 +1419,15 @@ MSG_ReadAngle16
 */
 float MSG_ReadAngle16(msg_t *msg)
 {
+  bool v1; 
+  int v2; 
   __int16 value; 
 
-  MSG_ReadValue_short_(msg, &value);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3bb40000
-  }
-  return *(float *)&_XMM0;
+  v1 = !MSG_ReadValue_short_(msg, &value);
+  v2 = value;
+  if ( v1 )
+    v2 = -1;
+  return (float)v2 * 0.0054931641;
 }
 
 /*
@@ -2015,43 +1895,34 @@ MSG_ReadDeltaPrimaryWeapon
 */
 void MSG_ReadDeltaPrimaryWeapon(msg_t *msg, const Weapon *from, const bool fromIsAlternate, Weapon *outWeapon, bool *outIsAlternate)
 {
-  int v13; 
+  Weapon *v9; 
+  int v10; 
+  __int128 v11; 
+  double v12; 
   Weapon result; 
 
-  _RBX = outWeapon;
-  _RDI = from;
   if ( !outWeapon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2148, ASSERT_TYPE_ASSERT, "(outWeapon)", (const char *)&queryFormat, "outWeapon") )
     __debugbreak();
   if ( !outIsAlternate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2149, ASSERT_TYPE_ASSERT, "(outIsAlternate)", (const char *)&queryFormat, "outIsAlternate") )
     __debugbreak();
   if ( MSG_ReadBit(msg) )
   {
-    _RAX = MSG_ReadWeapon(&result, msg);
-    v13 = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovups ymmword ptr [rbx], ymm1
-      vmovups xmmword ptr [rbx+20h], xmm2
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = v13;
+    v9 = MSG_ReadWeapon(&result, msg);
+    v10 = *(_DWORD *)&v9->weaponCamo;
+    v11 = *(_OWORD *)&v9->attachmentVariationIndices[5];
+    v12 = *(double *)&v9->attachmentVariationIndices[21];
+    *(__m256i *)&outWeapon->weaponIdx = *(__m256i *)&v9->weaponIdx;
+    *(_OWORD *)&outWeapon->attachmentVariationIndices[5] = v11;
+    *(double *)&outWeapon->attachmentVariationIndices[21] = v12;
+    *(_DWORD *)&outWeapon->weaponCamo = v10;
     *outIsAlternate = MSG_ReadBit(msg) != 0;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+    *(__m256i *)&outWeapon->weaponIdx = *(__m256i *)&from->weaponIdx;
+    *(_OWORD *)&outWeapon->attachmentVariationIndices[5] = *(_OWORD *)&from->attachmentVariationIndices[5];
+    *(double *)&outWeapon->attachmentVariationIndices[21] = *(double *)&from->attachmentVariationIndices[21];
+    *(_DWORD *)&outWeapon->weaponCamo = *(_DWORD *)&from->weaponCamo;
     *outIsAlternate = fromIsAlternate;
   }
 }
@@ -2063,44 +1934,31 @@ MSG_ReadDeltaWeapon
 */
 Weapon *MSG_ReadDeltaWeapon(Weapon *result, msg_t *msg, const Weapon *from)
 {
-  int v8; 
+  __int128 v6; 
+  int v7; 
+  double v8; 
+  Weapon *v9; 
   Weapon resulta; 
 
-  _RBX = result;
-  _RDI = from;
   if ( MSG_ReadBit(msg) )
   {
-    _RAX = MSG_ReadWeapon(&resulta, msg);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v8 = *(_DWORD *)&_RAX->weaponCamo;
+    v9 = MSG_ReadWeapon(&resulta, msg);
+    v6 = *(_OWORD *)&v9->attachmentVariationIndices[5];
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&v9->weaponIdx;
+    v8 = *(double *)&v9->attachmentVariationIndices[21];
+    v7 = *(_DWORD *)&v9->weaponCamo;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups xmm1, xmmword ptr [rdi+20h]
-    }
-    v8 = *(_DWORD *)&_RDI->weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr [rdi+30h]
-    }
+    v6 = *(_OWORD *)&from->attachmentVariationIndices[5];
+    v7 = *(_DWORD *)&from->weaponCamo;
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&from->weaponIdx;
+    v8 = *(double *)&from->attachmentVariationIndices[21];
   }
-  __asm
-  {
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponCamo = v8;
-  return _RBX;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = v6;
+  *(double *)&result->attachmentVariationIndices[21] = v8;
+  *(_DWORD *)&result->weaponCamo = v7;
+  return result;
 }
 
 /*
@@ -2192,18 +2050,14 @@ MSG_ReadFloat
 */
 float MSG_ReadFloat(msg_t *msg)
 {
+  float result; 
   int value; 
 
-  if ( !MSG_ReadValue_int_(msg, &value) || value == -1 )
-  {
-    __asm { vmovss  xmm0, cs:__real@bf800000 }
-    msg->overflowed = 1;
-  }
-  else
-  {
-    __asm { vmovss  xmm0, [rsp+28h+value] }
-  }
-  return *(float *)&_XMM0;
+  if ( MSG_ReadValue_int_(msg, &value) && value != -1 )
+    return *(float *)&value;
+  result = FLOAT_N1_0;
+  msg->overflowed = 1;
+  return result;
 }
 
 /*
@@ -2247,60 +2101,20 @@ __int64 MSG_ReadLong(msg_t *const msg)
 MSG_ReadRangedFloatBits
 ==============
 */
-
-float __fastcall MSG_ReadRangedFloatBits(msg_t *sb, double begin, double end, int bits)
+float MSG_ReadRangedFloatBits(msg_t *sb, float begin, float end, int bits)
 {
-  char v8; 
-  bool v14; 
-  bool v21; 
+  char v4; 
+  float v5; 
+  float v6; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  v8 = bits;
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-  }
-  MSG_ReadBits(sb, bits);
-  __asm
-  {
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, rax
-  }
-  v14 = __CFSHL__(1, v8) || 1 << v8 == 1;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vsubss  xmm3, xmm8, xmm6
-    vdivss  xmm1, xmm3, xmm0
-    vmulss  xmm2, xmm4, xmm1
-    vaddss  xmm7, xmm2, xmm6
-    vcomiss xmm7, xmm6
-  }
-  if ( __CFSHL__(1, v8) )
-  {
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1963, ASSERT_TYPE_ASSERT, "(f >= begin)", (const char *)&queryFormat, "f >= begin");
-    v14 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1964, ASSERT_TYPE_ASSERT, "(f <= end)", (const char *)&queryFormat, "f <= end") )
+  v4 = bits;
+  v5 = (float)MSG_ReadBits(sb, bits);
+  v6 = (float)(v5 * (float)((float)(end - begin) / (float)((1 << v4) - 1))) + begin;
+  if ( v6 < begin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1963, ASSERT_TYPE_ASSERT, "(f >= begin)", (const char *)&queryFormat, "f >= begin") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
+  if ( v6 > end && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1964, ASSERT_TYPE_ASSERT, "(f <= end)", (const char *)&queryFormat, "f <= end") )
+    __debugbreak();
+  return v6;
 }
 
 /*
@@ -2547,43 +2361,32 @@ MSG_ReadVec3
 void MSG_ReadVec3(msg_t *msg, vec3_t *v)
 {
   int i; 
-  __int64 v11; 
-  __int64 v12; 
+  float v5; 
+  __int64 v6; 
+  __int64 v7; 
   int value; 
-  int v16; 
+  float v9; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
-  _RDI = v;
-  __asm { vmovss  xmm7, cs:__real@bf800000 }
   for ( i = 0; i < 3; ++i )
   {
-    if ( !MSG_ReadValue_int_(msg, &value) || (v16 = value, value == -1) )
+    if ( !MSG_ReadValue_int_(msg, &value) || (v9 = *(float *)&value, value == -1) )
     {
       msg->overflowed = 1;
-      __asm { vmovaps xmm6, xmm7 }
+      v5 = FLOAT_N1_0;
     }
     else
     {
-      __asm { vmovss  xmm6, [rsp+78h+arg_18] }
+      v5 = v9;
     }
     if ( (unsigned int)i >= 3 )
     {
-      LODWORD(v12) = 3;
-      LODWORD(v11) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v7) = 3;
+      LODWORD(v6) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v6, v7) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
+    v->v[0] = v5;
+    v = (vec3_t *)((char *)v + 4);
   }
 }
 
@@ -2596,210 +2399,206 @@ Weapon *MSG_ReadWeapon(Weapon *result, msg_t *msg)
 {
   unsigned int BitsNeededForType; 
   __int64 Bits; 
-  unsigned __int16 v8; 
-  bool v9; 
-  __int64 v10; 
-  __int64 *v11; 
+  unsigned __int16 v5; 
+  bool v6; 
+  __int64 v7; 
+  __int64 *v8; 
   unsigned int CamoCount; 
-  unsigned int v13; 
-  unsigned int v14; 
-  __int64 v15; 
-  unsigned __int8 v16; 
+  unsigned int v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  unsigned __int8 v13; 
   unsigned __int8 *attachmentVariationIndices; 
+  unsigned int v15; 
+  AttachmentSlot v16; 
+  unsigned int *v17; 
   unsigned int v18; 
-  AttachmentSlot v19; 
-  unsigned int *v20; 
-  unsigned int v21; 
-  signed int v22; 
+  signed int v19; 
+  __int64 v20; 
+  unsigned __int16 v21; 
+  __int64 v22; 
   __int64 v23; 
-  unsigned __int16 v24; 
+  signed int v24; 
   __int64 v25; 
-  __int64 v26; 
-  signed int v27; 
-  __int64 v28; 
-  unsigned int v29; 
+  unsigned int v26; 
   unsigned __int8 OtherAttachmentId; 
+  unsigned __int8 v28; 
+  unsigned __int8 *v29; 
+  __int64 v30; 
   unsigned __int8 v31; 
-  unsigned __int8 *v32; 
-  __int64 v33; 
-  unsigned __int8 v34; 
   unsigned __int16 *stickerIndices; 
-  __int64 v36; 
+  __int64 v33; 
   int bit; 
-  unsigned int v38; 
-  __int64 v39; 
-  unsigned __int16 v40; 
-  int v41; 
-  unsigned int v42; 
-  unsigned int v43; 
-  __int64 v44; 
-  unsigned __int8 v45; 
+  unsigned int v35; 
+  __int64 v36; 
+  unsigned __int16 v37; 
+  int v38; 
+  unsigned int v39; 
+  unsigned int v40; 
+  __int64 v41; 
+  unsigned __int8 v42; 
   unsigned int AllWeaponAttachments; 
-  WeaponAttachment **v47; 
-  __int64 v48; 
-  WeaponAttachment *v49; 
+  WeaponAttachment **v44; 
+  __int64 v45; 
+  WeaponAttachment *v46; 
   unsigned int numReticles; 
-  unsigned int v51; 
-  msg_t *v52; 
-  signed int v53; 
-  __int64 v54; 
-  unsigned __int8 v55; 
-  int v59; 
+  unsigned int v48; 
+  msg_t *v49; 
+  signed int v50; 
+  __int64 v51; 
+  unsigned __int8 v52; 
+  Weapon *v53; 
+  __int128 v54; 
+  int v55; 
+  double v56; 
   unsigned __int8 Word_unsigned_char; 
-  __int64 v64; 
-  __int64 v65; 
-  __int64 v66; 
+  __int64 v59; 
+  __int64 v60; 
+  __int64 v61; 
   AttachmentSlot slot; 
-  _DWORD *v68; 
-  Weapon *v69; 
+  _DWORD *v63; 
+  Weapon *v64; 
   msg_t *msga; 
   Weapon __formal; 
   WeaponAttachment *attachments[30]; 
 
   msga = msg;
-  v69 = result;
+  v64 = result;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1977, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsp+1D0h+__formal.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rbp+0D0h+__formal.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rbp+0D0h+__formal.attachmentVariationIndices+5], xmm1
-  }
+  memset(&__formal, 0, 48);
+  *(double *)&__formal.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&__formal.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   BitsNeededForType = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_WEAPON);
   Bits = MSG_ReadBits(msg, BitsNeededForType);
-  v8 = truncate_cast<unsigned short,__int64>(Bits);
-  v9 = msg->overflowed == 0;
-  __formal.weaponIdx = v8;
-  if ( !v9 || v8 >= 0x226u )
+  v5 = truncate_cast<unsigned short,__int64>(Bits);
+  v6 = msg->overflowed == 0;
+  __formal.weaponIdx = v5;
+  if ( !v6 || v5 >= 0x226u )
     goto LABEL_88;
-  v10 = v8;
-  if ( v8 > bg_lastParsedWeaponIndex )
+  v7 = v5;
+  if ( v5 > bg_lastParsedWeaponIndex )
   {
-    LODWORD(v64) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v64, bg_lastParsedWeaponIndex) )
+    LODWORD(v59) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v59, bg_lastParsedWeaponIndex) )
       __debugbreak();
   }
-  v9 = bg_weaponCompleteDefs[v10] == NULL;
-  v11 = (__int64 *)&bg_weaponCompleteDefs[v10];
-  if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+  v6 = bg_weaponCompleteDefs[v7] == NULL;
+  v8 = (__int64 *)&bg_weaponCompleteDefs[v7];
+  if ( v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
     __debugbreak();
-  v68 = (_DWORD *)*v11;
-  if ( !v68 )
+  v63 = (_DWORD *)*v8;
+  if ( !v63 )
     goto LABEL_88;
   CamoCount = BG_Camo_GetCamoCount();
   if ( CamoCount && BG_WeaponCanAcceptCamo(&__formal) )
   {
-    v13 = __lzcnt(CamoCount);
-    v14 = 32 - v13;
-    if ( (int)(32 - v13) < 1 || v14 > 8 )
+    v10 = __lzcnt(CamoCount);
+    v11 = 32 - v10;
+    if ( (int)(32 - v10) < 1 || v11 > 8 )
     {
-      LODWORD(v65) = 1;
-      LODWORD(v64) = 32 - v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2002, ASSERT_TYPE_ASSERT, "( 1 ) <= ( camoBitCount ) && ( camoBitCount ) <= ( sizeof( weapon.weaponCamo ) * 8 )", "camoBitCount not in [1, sizeof( weapon.weaponCamo ) * 8]\n\t%i not in [%i, %i]", v64, v65, 8) )
+      LODWORD(v60) = 1;
+      LODWORD(v59) = 32 - v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2002, ASSERT_TYPE_ASSERT, "( 1 ) <= ( camoBitCount ) && ( camoBitCount ) <= ( sizeof( weapon.weaponCamo ) * 8 )", "camoBitCount not in [1, sizeof( weapon.weaponCamo ) * 8]\n\t%i not in [%i, %i]", v59, v60, 8) )
         __debugbreak();
     }
-    v15 = MSG_ReadBits(msg, v14);
-    v16 = truncate_cast<unsigned char,__int64>(v15);
-    v9 = msg->overflowed == 0;
-    __formal.weaponCamo = v16;
-    if ( !v9 || v16 > CamoCount )
+    v12 = MSG_ReadBits(msg, v11);
+    v13 = truncate_cast<unsigned char,__int64>(v12);
+    v6 = msg->overflowed == 0;
+    __formal.weaponCamo = v13;
+    if ( !v6 || v13 > CamoCount )
       goto LABEL_88;
   }
   attachmentVariationIndices = __formal.attachmentVariationIndices;
-  v18 = 0;
-  v19 = ATT_SLOT_RECEIVER;
-  v20 = v68 + 10;
+  v15 = 0;
+  v16 = ATT_SLOT_RECEIVER;
+  v17 = v63 + 10;
   do
   {
-    v21 = *v20;
-    if ( *v20 )
+    v18 = *v17;
+    if ( *v17 )
     {
-      slot = v19;
-      v22 = 32 - __lzcnt(v21);
-      if ( v22 < 1 || v22 > (int)Com_GetWeaponPrimaryAttachmentSlotSize(&slot) )
+      slot = v16;
+      v19 = 32 - __lzcnt(v18);
+      if ( v19 < 1 || v19 > (int)Com_GetWeaponPrimaryAttachmentSlotSize(&slot) )
       {
-        LODWORD(v66) = Com_GetWeaponPrimaryAttachmentSlotSize(&slot);
-        LODWORD(v65) = 1;
-        LODWORD(v64) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2019, ASSERT_TYPE_ASSERT, "( 1 ) <= ( attListBitCount ) && ( attListBitCount ) <= ( static_cast<int>( Com_GetWeaponPrimaryAttachmentSlotSize( slot ) ) )", "attListBitCount not in [1, static_cast<int>( Com_GetWeaponPrimaryAttachmentSlotSize( slot ) )]\n\t%i not in [%i, %i]", v64, v65, v66) )
+        LODWORD(v61) = Com_GetWeaponPrimaryAttachmentSlotSize(&slot);
+        LODWORD(v60) = 1;
+        LODWORD(v59) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2019, ASSERT_TYPE_ASSERT, "( 1 ) <= ( attListBitCount ) && ( attListBitCount ) <= ( static_cast<int>( Com_GetWeaponPrimaryAttachmentSlotSize( slot ) ) )", "attListBitCount not in [1, static_cast<int>( Com_GetWeaponPrimaryAttachmentSlotSize( slot ) )]\n\t%i not in [%i, %i]", v59, v60, v61) )
           __debugbreak();
       }
-      v23 = MSG_ReadBits(msg, v22);
-      v24 = truncate_cast<unsigned short,__int64>(v23);
-      BG_Weapon_SetPrimaryAttachmentIndex(&slot, v24, &__formal);
-      if ( BG_Weapon_GetPrimaryAttachmentIndex(&__formal, &slot) != v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2023, ASSERT_TYPE_ASSERT, "(BG_Weapon_GetPrimaryAttachmentIndex( weapon, slot ) == receivedAttachmentIndex)", (const char *)&queryFormat, "BG_Weapon_GetPrimaryAttachmentIndex( weapon, slot ) == receivedAttachmentIndex") )
+      v20 = MSG_ReadBits(msg, v19);
+      v21 = truncate_cast<unsigned short,__int64>(v20);
+      BG_Weapon_SetPrimaryAttachmentIndex(&slot, v21, &__formal);
+      if ( BG_Weapon_GetPrimaryAttachmentIndex(&__formal, &slot) != v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2023, ASSERT_TYPE_ASSERT, "(BG_Weapon_GetPrimaryAttachmentIndex( weapon, slot ) == receivedAttachmentIndex)", (const char *)&queryFormat, "BG_Weapon_GetPrimaryAttachmentIndex( weapon, slot ) == receivedAttachmentIndex") )
         __debugbreak();
-      if ( msg->overflowed || v24 > *v20 )
+      if ( msg->overflowed || v21 > *v17 )
         goto LABEL_88;
       if ( MSG_ReadBit(msg) )
       {
-        v25 = MSG_ReadBits(msg, 32 - __lzcnt(0xFu));
-        *attachmentVariationIndices = truncate_cast<unsigned char,__int64>(v25);
+        v22 = MSG_ReadBits(msg, 32 - __lzcnt(0xFu));
+        *attachmentVariationIndices = truncate_cast<unsigned char,__int64>(v22);
       }
       else
       {
         *attachmentVariationIndices = 0;
       }
     }
-    ++v19;
-    v20 += 4;
+    ++v16;
+    v17 += 4;
     ++attachmentVariationIndices;
   }
-  while ( (unsigned int)v19 < ATT_SLOT_OTHER );
-  v26 = (__int64)v68;
-  v27 = v68[62];
-  if ( v27 )
+  while ( (unsigned int)v16 < ATT_SLOT_OTHER );
+  v23 = (__int64)v63;
+  v24 = v63[62];
+  if ( v24 )
   {
-    if ( v27 < 1 || (unsigned int)v27 > 0x10 )
+    if ( v24 < 1 || (unsigned int)v24 > 0x10 )
     {
-      LODWORD(v66) = 16;
-      LODWORD(v65) = 1;
-      LODWORD(v64) = v68[62];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2047, ASSERT_TYPE_ASSERT, "( 1 ) <= ( otherBitCount ) && ( otherBitCount ) <= ( sizeof( weapon.weaponOthers ) * 8 )", "otherBitCount not in [1, sizeof( weapon.weaponOthers ) * 8]\n\t%i not in [%i, %i]", v64, v65, v66) )
+      LODWORD(v61) = 16;
+      LODWORD(v60) = 1;
+      LODWORD(v59) = v63[62];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2047, ASSERT_TYPE_ASSERT, "( 1 ) <= ( otherBitCount ) && ( otherBitCount ) <= ( sizeof( weapon.weaponOthers ) * 8 )", "otherBitCount not in [1, sizeof( weapon.weaponOthers ) * 8]\n\t%i not in [%i, %i]", v59, v60, v61) )
         __debugbreak();
     }
-    v28 = MSG_ReadBits(msg, v27);
-    __formal.weaponOthers = truncate_cast<unsigned short,__int64>(v28);
+    v25 = MSG_ReadBits(msg, v24);
+    __formal.weaponOthers = truncate_cast<unsigned short,__int64>(v25);
     if ( msg->overflowed )
       goto LABEL_88;
-    v29 = 0;
-    if ( *(_DWORD *)(v26 + 248) )
+    v26 = 0;
+    if ( *(_DWORD *)(v23 + 248) )
     {
       do
       {
-        OtherAttachmentId = Com_GetOtherAttachmentId(v29);
-        v31 = OtherAttachmentId;
+        OtherAttachmentId = Com_GetOtherAttachmentId(v26);
+        v28 = OtherAttachmentId;
         if ( OtherAttachmentId >= 0x1Du )
         {
-          LODWORD(v65) = 29;
-          LODWORD(v64) = OtherAttachmentId;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2059, ASSERT_TYPE_ASSERT, "(unsigned)( attachmentId ) < (unsigned)( WEAPON_ATTACHMENT_ID_COUNT )", "attachmentId doesn't index WEAPON_ATTACHMENT_ID_COUNT\n\t%i not in [0, %i)", v64, v65) )
+          LODWORD(v60) = 29;
+          LODWORD(v59) = OtherAttachmentId;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2059, ASSERT_TYPE_ASSERT, "(unsigned)( attachmentId ) < (unsigned)( WEAPON_ATTACHMENT_ID_COUNT )", "attachmentId doesn't index WEAPON_ATTACHMENT_ID_COUNT\n\t%i not in [0, %i)", v59, v60) )
             __debugbreak();
         }
-        v32 = &__formal.attachmentVariationIndices[v31];
+        v29 = &__formal.attachmentVariationIndices[v28];
         if ( MSG_ReadBit(msg) )
         {
-          v33 = MSG_ReadBits(msg, 32 - __lzcnt(0xFu));
-          v34 = truncate_cast<unsigned char,__int64>(v33);
+          v30 = MSG_ReadBits(msg, 32 - __lzcnt(0xFu));
+          v31 = truncate_cast<unsigned char,__int64>(v30);
         }
         else
         {
-          v34 = 0;
+          v31 = 0;
         }
-        ++v29;
-        *v32 = v34;
+        ++v26;
+        *v29 = v31;
       }
-      while ( v29 < *(_DWORD *)(v26 + 248) );
-      v18 = 0;
+      while ( v26 < *(_DWORD *)(v23 + 248) );
+      v15 = 0;
     }
   }
   stickerIndices = __formal.stickerIndices;
-  v36 = 4i64;
+  v33 = 4i64;
   do
   {
     bit = msg->bit;
@@ -2811,7 +2610,7 @@ Weapon *MSG_ReadWeapon(Weapon *result, msg_t *msg)
         msg->readcount = (++msg->bit + 7) >> 3;
         if ( ((Word_unsigned_char >> (bit & 7)) & 1) == 0 )
         {
-          v40 = 0;
+          v37 = 0;
           goto LABEL_58;
         }
       }
@@ -2820,114 +2619,103 @@ Weapon *MSG_ReadWeapon(Weapon *result, msg_t *msg)
     {
       msg->overflowed = 1;
     }
-    v38 = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_STICKER);
-    v39 = MSG_ReadBits(msg, v38);
-    v40 = v39;
-    if ( (v39 < 0 || (unsigned __int64)v39 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,__int64>(__int64)", "unsigned", (unsigned __int16)v39, "signed", v39) )
+    v35 = NetConstStrings_GetBitsNeededForType(NETCONSTSTRINGTYPE_STICKER);
+    v36 = MSG_ReadBits(msg, v35);
+    v37 = v36;
+    if ( (v36 < 0 || (unsigned __int64)v36 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,__int64>(__int64)", "unsigned", (unsigned __int16)v36, "signed", v36) )
       __debugbreak();
 LABEL_58:
-    *stickerIndices++ = v40;
-    --v36;
+    *stickerIndices++ = v37;
+    --v33;
   }
-  while ( v36 );
-  v41 = v68[66];
-  if ( v41 )
+  while ( v33 );
+  v38 = v63[66];
+  if ( v38 )
   {
-    v42 = __lzcnt(v41 + 1);
-    v43 = 32 - v42;
-    if ( (int)(32 - v42) < 1 || v43 > 8 )
+    v39 = __lzcnt(v38 + 1);
+    v40 = 32 - v39;
+    if ( (int)(32 - v39) < 1 || v40 > 8 )
     {
-      LODWORD(v66) = 8;
-      LODWORD(v65) = 1;
-      LODWORD(v64) = 32 - v42;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2090, ASSERT_TYPE_ASSERT, "( 1 ) <= ( lootVariantBitCount ) && ( lootVariantBitCount ) <= ( sizeof( weapon.weaponLootId ) * 8 )", "lootVariantBitCount not in [1, sizeof( weapon.weaponLootId ) * 8]\n\t%i not in [%i, %i]", v64, v65, v66) )
+      LODWORD(v61) = 8;
+      LODWORD(v60) = 1;
+      LODWORD(v59) = 32 - v39;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2090, ASSERT_TYPE_ASSERT, "( 1 ) <= ( lootVariantBitCount ) && ( lootVariantBitCount ) <= ( sizeof( weapon.weaponLootId ) * 8 )", "lootVariantBitCount not in [1, sizeof( weapon.weaponLootId ) * 8]\n\t%i not in [%i, %i]", v59, v60, v61) )
         __debugbreak();
     }
-    v44 = MSG_ReadBits(msg, v43);
-    v45 = truncate_cast<unsigned char,__int64>(v44);
-    v9 = msg->overflowed == 0;
-    __formal.weaponLootId = v45;
-    if ( !v9 )
+    v41 = MSG_ReadBits(msg, v40);
+    v42 = truncate_cast<unsigned char,__int64>(v41);
+    v6 = msg->overflowed == 0;
+    __formal.weaponLootId = v42;
+    if ( !v6 )
       goto LABEL_88;
   }
   AllWeaponAttachments = BG_GetAllWeaponAttachments(&__formal, (const WeaponAttachment **)attachments);
   if ( AllWeaponAttachments )
   {
-    v47 = attachments;
-    v48 = AllWeaponAttachments;
+    v44 = attachments;
+    v45 = AllWeaponAttachments;
     do
     {
-      v49 = *v47;
-      if ( !*v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2103, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
+      v46 = *v44;
+      if ( !*v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2103, ASSERT_TYPE_ASSERT, "(attachment)", (const char *)&queryFormat, "attachment") )
         __debugbreak();
-      numReticles = v49->numReticles;
+      numReticles = v46->numReticles;
       if ( numReticles )
       {
         if ( __formal.scopeVariation >= numReticles )
         {
-          LODWORD(v65) = v49->numReticles;
-          LODWORD(v64) = __formal.scopeVariation;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2108, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.scopeVariation ) < (unsigned)( attachment->numReticles )", "weapon.scopeVariation doesn't index attachment->numReticles\n\t%i not in [0, %i)", v64, v65) )
+          LODWORD(v60) = v46->numReticles;
+          LODWORD(v59) = __formal.scopeVariation;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2108, ASSERT_TYPE_ASSERT, "(unsigned)( weapon.scopeVariation ) < (unsigned)( attachment->numReticles )", "weapon.scopeVariation doesn't index attachment->numReticles\n\t%i not in [0, %i)", v59, v60) )
             __debugbreak();
         }
-        v51 = v49->numReticles;
-        if ( v18 > v51 )
-          v51 = v18;
-        v18 = v51;
+        v48 = v46->numReticles;
+        if ( v15 > v48 )
+          v48 = v15;
+        v15 = v48;
       }
-      ++v47;
-      --v48;
+      ++v44;
+      --v45;
     }
-    while ( v48 );
-    v52 = msga;
-    if ( v18 > 1 )
+    while ( v45 );
+    v49 = msga;
+    if ( v15 > 1 )
     {
-      v53 = 32 - __lzcnt(v18 - 1);
-      if ( v53 < 1 || (unsigned int)v53 > 8 )
+      v50 = 32 - __lzcnt(v15 - 1);
+      if ( v50 < 1 || (unsigned int)v50 > 8 )
       {
-        LODWORD(v66) = 8;
-        LODWORD(v65) = 1;
-        LODWORD(v64) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2116, ASSERT_TYPE_ASSERT, "( 1 ) <= ( reticleBitCount ) && ( reticleBitCount ) <= ( sizeof( weapon.scopeVariation ) * 8 )", "reticleBitCount not in [1, sizeof( weapon.scopeVariation ) * 8]\n\t%i not in [%i, %i]", v64, v65, v66) )
+        LODWORD(v61) = 8;
+        LODWORD(v60) = 1;
+        LODWORD(v59) = v50;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2116, ASSERT_TYPE_ASSERT, "( 1 ) <= ( reticleBitCount ) && ( reticleBitCount ) <= ( sizeof( weapon.scopeVariation ) * 8 )", "reticleBitCount not in [1, sizeof( weapon.scopeVariation ) * 8]\n\t%i not in [%i, %i]", v59, v60, v61) )
           __debugbreak();
       }
-      v54 = MSG_ReadBits(v52, v53);
-      v55 = truncate_cast<unsigned char,__int64>(v54);
-      v9 = v52->overflowed == 0;
-      __formal.scopeVariation = v55;
-      if ( !v9 )
+      v51 = MSG_ReadBits(v49, v50);
+      v52 = truncate_cast<unsigned char,__int64>(v51);
+      v6 = v49->overflowed == 0;
+      __formal.scopeVariation = v52;
+      if ( !v6 )
       {
 LABEL_88:
-        __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-        _RCX = (__int64)v69;
-        __asm { vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON }
-        v59 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-        __asm
-        {
-          vmovups ymmword ptr [rcx], ymm0
-          vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-        }
+        v53 = v64;
+        v54 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+        v55 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+        *(__m256i *)&v64->weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+        v56 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
         goto LABEL_89;
       }
     }
   }
-  __asm { vmovups ymm0, ymmword ptr [rsp+1D0h+__formal.weaponIdx] }
-  _RCX = (__int64)v69;
-  __asm { vmovups xmm1, xmmword ptr [rbp+0D0h+__formal.attachmentVariationIndices+5] }
-  v59 = *(_DWORD *)&__formal.weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovsd  xmm0, qword ptr [rbp+0D0h+__formal.attachmentVariationIndices+15h]
-  }
+  v53 = v64;
+  v54 = *(_OWORD *)&__formal.attachmentVariationIndices[5];
+  v55 = *(_DWORD *)&__formal.weaponCamo;
+  *(__m256i *)&v64->weaponIdx = *(__m256i *)&__formal.weaponIdx;
+  v56 = *(double *)&__formal.attachmentVariationIndices[21];
 LABEL_89:
-  __asm
-  {
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)(_RCX + 56) = v59;
-  return (Weapon *)_RCX;
+  *(_OWORD *)&v53->attachmentVariationIndices[5] = v54;
+  *(double *)&v53->attachmentVariationIndices[21] = v56;
+  *(_DWORD *)&v53->weaponCamo = v55;
+  return v53;
 }
 
 /*
@@ -3051,21 +2839,17 @@ MSG_UnpackPolarFromShort
 */
 void MSG_UnpackPolarFromShort(const unsigned __int16 compressedPolarCoord, float *outAnglesInDegrees, float *outRadius)
 {
-  _RDI = outRadius;
-  _RSI = outAnglesInDegrees;
+  double v6; 
+  double v7; 
+
   if ( !outAnglesInDegrees && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2629, ASSERT_TYPE_SANITY, "( outAnglesInDegrees )", (const char *)&queryFormat, "outAnglesInDegrees") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2630, ASSERT_TYPE_SANITY, "( outRadius )", (const char *)&queryFormat, "outRadius") )
+  if ( !outRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2630, ASSERT_TYPE_SANITY, "( outRadius )", (const char *)&queryFormat, "outRadius") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(compressedPolarCoord & 0x1F, *(float *)&_XMM1, 6u);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-    vmovss  dword ptr [rdi], xmm0
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat((compressedPolarCoord >> 5) & 0x1FF, *(float *)&_XMM1, 9u);
-  __asm { vmovss  dword ptr [rsi], xmm0 }
+  v6 = MSG_UnpackSignedFloat(compressedPolarCoord & 0x1F, 1.0, 6u);
+  *outRadius = *(float *)&v6;
+  v7 = MSG_UnpackSignedFloat((compressedPolarCoord >> 5) & 0x1FF, 180.0, 9u);
+  *outAnglesInDegrees = *(float *)&v7;
 }
 
 /*
@@ -3073,45 +2857,29 @@ void MSG_UnpackPolarFromShort(const unsigned __int16 compressedPolarCoord, float
 MSG_UnpackSignedFloat
 ==============
 */
-
-float __fastcall MSG_UnpackSignedFloat(int value, double maxAbsValueSize, unsigned int bitCount)
+float MSG_UnpackSignedFloat(int value, float maxAbsValueSize, unsigned int bitCount)
 {
-  char v6; 
+  char v3; 
+  char v5; 
+  unsigned int v6; 
+  float v7; 
+  __int128 v8; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v6 = bitCount;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
+  v3 = bitCount;
   if ( bitCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2575, ASSERT_TYPE_ASSERT, "(bitCount > 1)", (const char *)&queryFormat, "bitCount > 1") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, rax
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( (__CFSHL__(1, v6 - 1) || 1 << (v6 - 1) == 1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2580, ASSERT_TYPE_ASSERT, "(bitMask > 0.0f)", (const char *)&queryFormat, "bitMask > 0.0f") )
+  v5 = v3 - 1;
+  v6 = (1 << (v3 - 1)) - 1;
+  v7 = (float)v6;
+  if ( v7 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2580, ASSERT_TYPE_ASSERT, "(bitMask > 0.0f)", (const char *)&queryFormat, "bitMask > 0.0f") )
     __debugbreak();
+  v8 = 0i64;
+  *(float *)&v8 = (float)(value & v6);
+  *(float *)&v8 = (float)(*(float *)&v8 / v7) * maxAbsValueSize;
+  _XMM3 = v8 ^ _xmm;
+  _XMM0 = (unsigned int)(value >> v5);
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vdivss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmulss  xmm4, xmm1, xmm7
-    vxorps  xmm3, xmm4, cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  _EDI = value >> (v6 - 1);
-  __asm { vmovd   xmm0, edi }
-  _EAX = 0;
-  __asm
-  {
-    vmovd   xmm1, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm4, xmm2
   }
@@ -3123,22 +2891,11 @@ float __fastcall MSG_UnpackSignedFloat(int value, double maxAbsValueSize, unsign
 MSG_UnpackUnsignedFloat
 ==============
 */
-
-double __fastcall MSG_UnpackUnsignedFloat(int value, double maxAbsValueSize, unsigned int bitCount)
+double MSG_UnpackUnsignedFloat(int value, float maxAbsValueSize, unsigned int bitCount)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !bitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 2603, ASSERT_TYPE_ASSERT, "(bitCount > 0)", (const char *)&queryFormat, "bitCount > 0") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm1, xmm6; maxAbsValueSize
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return MSG_UnpackSignedFloat(value, *(float *)&_XMM1, bitCount + 1);
+  return MSG_UnpackSignedFloat(value, maxAbsValueSize, bitCount + 1);
 }
 
 /*
@@ -3166,54 +2923,37 @@ bool MSG_WouldWriteOverflow(msg_t *msg, const unsigned int bitCount)
 MSG_WriteAngle16
 ==============
 */
-
-void __fastcall MSG_WriteAngle16(msg_t *sb, double f)
+void MSG_WriteAngle16(msg_t *sb, float f)
 {
   int bit; 
+  int v6; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  if ( sb->readOnly )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1154, ASSERT_TYPE_ASSERT, "( !sb->readOnly )", (const char *)&queryFormat, "!sb->readOnly") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@43360b61
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-  }
+  if ( sb->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1154, ASSERT_TYPE_ASSERT, "( !sb->readOnly )", (const char *)&queryFormat, "!sb->readOnly") )
+    __debugbreak();
   bit = sb->bit;
-  __asm
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  v6 = (int)*(float *)&_XMM4;
+  if ( bit + 16 <= 8 * sb->maxsize )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm4
+    if ( !sb->overflowed )
+    {
+      if ( (bit & 7) != 0 )
+      {
+        MSG_WriteBitsInternal(sb, 0x10u, (__int16)v6);
+      }
+      else
+      {
+        *(_WORD *)&sb->data[bit >> 3] = v6;
+        sb->bit += 16;
+        sb->cursize += 2;
+      }
+    }
   }
-  if ( bit + 16 > 8 * sb->maxsize )
+  else
   {
     sb->overflowed = 1;
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    return;
   }
-  if ( !sb->overflowed )
-  {
-    if ( (bit & 7) != 0 )
-    {
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
-      MSG_WriteBitsInternal(sb, 0x10u, (__int16)_ER8);
-      return;
-    }
-    *(_WORD *)&sb->data[bit >> 3] = _ER8;
-    sb->bit += 16;
-    sb->cursize += 2;
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -3221,46 +2961,35 @@ void __fastcall MSG_WriteAngle16(msg_t *sb, double f)
 MSG_WriteAngle
 ==============
 */
-
-void __fastcall MSG_WriteAngle(msg_t *sb, double f)
+void MSG_WriteAngle(msg_t *sb, float f)
 {
   int bit; 
+  int v4; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  if ( sb->readOnly )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1146, ASSERT_TYPE_ASSERT, "( !sb->readOnly )", (const char *)&queryFormat, "!sb->readOnly") )
-      __debugbreak();
-  }
+  if ( sb->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1146, ASSERT_TYPE_ASSERT, "( !sb->readOnly )", (const char *)&queryFormat, "!sb->readOnly") )
+    __debugbreak();
   bit = sb->bit;
-  __asm
+  v4 = (int)(float)(f * 0.71111113);
+  if ( bit + 8 <= 8 * sb->maxsize )
   {
-    vmulss  xmm0, xmm6, cs:__real@3f360b61
-    vcvttss2si r8d, xmm0
+    if ( !sb->overflowed )
+    {
+      if ( (bit & 7) != 0 )
+      {
+        MSG_WriteBitsInternal(sb, 8u, (unsigned __int8)v4);
+      }
+      else
+      {
+        sb->data[bit >> 3] = v4;
+        sb->bit += 8;
+        ++sb->cursize;
+      }
+    }
   }
-  if ( bit + 8 > 8 * sb->maxsize )
+  else
   {
     sb->overflowed = 1;
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
-    return;
   }
-  if ( !sb->overflowed )
-  {
-    if ( (bit & 7) != 0 )
-    {
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
-      MSG_WriteBitsInternal(sb, 8u, (unsigned __int8)_ER8);
-      return;
-    }
-    sb->data[bit >> 3] = _ER8;
-    sb->bit += 8;
-    ++sb->cursize;
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -4000,14 +3729,11 @@ void MSG_WriteExpGolomb(msg_t *sb, unsigned int value, int kbits)
 MSG_WriteFloat
 ==============
 */
-
-void __fastcall MSG_WriteFloat(msg_t *sb, double f)
+void MSG_WriteFloat(msg_t *sb, float f)
 {
   int bit; 
-  int v4; 
 
-  __asm { vmovss  [rsp+38h+arg_8], xmm1 }
-  if ( v4 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1003, ASSERT_TYPE_ASSERT, "( dat.l != -1 )", (const char *)&queryFormat, "dat.l != -1") )
+  if ( f == NAN && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1003, ASSERT_TYPE_ASSERT, "( dat.l != -1 )", (const char *)&queryFormat, "dat.l != -1") )
     __debugbreak();
   bit = sb->bit;
   if ( bit + 32 <= 8 * sb->maxsize )
@@ -4016,11 +3742,11 @@ void __fastcall MSG_WriteFloat(msg_t *sb, double f)
     {
       if ( (bit & 7) != 0 )
       {
-        MSG_WriteBitsInternal(sb, 0x20u, v4);
+        MSG_WriteBitsInternal(sb, 0x20u, SLODWORD(f));
       }
       else
       {
-        *(_DWORD *)&sb->data[bit >> 3] = v4;
+        *(float *)&sb->data[bit >> 3] = f;
         sb->bit += 32;
         sb->cursize += 4;
       }
@@ -4101,36 +3827,29 @@ void MSG_WriteLong(msg_t *const msg, const int value)
 MSG_WriteRangedFloatBits
 ==============
 */
-
-void __fastcall MSG_WriteRangedFloatBits(msg_t *sb, double f, float begin, double end, int bits)
+void MSG_WriteRangedFloatBits(msg_t *sb, float f, float begin, float end, int bits)
 {
-  int v16; 
-  int v17; 
+  float v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  int v10; 
 
-  __asm
+  v6 = (float)((1 << bits) - 1);
+  v7 = (int)v6;
+  v8 = (int)(float)((float)((float)(v6 / (float)(end - begin)) * (float)(f - begin)) + 0.5);
+  if ( (int)v6 < 0 )
   {
-    vsubss  xmm0, xmm3, xmm2
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, eax
-    vdivss  xmm3, xmm4, xmm0
-    vsubss  xmm1, xmm1, xmm2
-    vmulss  xmm2, xmm3, xmm1
-    vaddss  xmm0, xmm2, cs:__real@3f000000
-    vcvttss2si edi, xmm4
-    vcvttss2si ebx, xmm0
-  }
-  if ( _EDI < 0 )
-  {
-    v17 = _EDI;
-    v16 = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v16, v17) )
+    v10 = (int)v6;
+    v9 = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v9, v10) )
       __debugbreak();
   }
-  if ( _EDI < _EBX )
-    _EBX = _EDI;
-  if ( _EBX < 0 )
-    _EBX = 0;
-  MSG_WriteBits(sb, (unsigned int)_EBX, bits);
+  if ( v7 < v8 )
+    v8 = v7;
+  if ( v8 < 0 )
+    v8 = 0;
+  MSG_WriteBits(sb, (unsigned int)v8, bits);
 }
 
 /*
@@ -4460,14 +4179,13 @@ void MSG_WriteVec3(msg_t *sb, const vec3_t *v)
 {
   int v2; 
   bool v3; 
+  __int64 v6; 
   int bit; 
   __int64 v8; 
   __int64 v9; 
-  int v10; 
 
   v2 = 0;
   v3 = 1;
-  _RBP = v;
   do
   {
     if ( !v3 )
@@ -4477,12 +4195,8 @@ void MSG_WriteVec3(msg_t *sb, const vec3_t *v)
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v8, v9) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovss  [rsp+68h+arg_10], xmm0
-    }
-    if ( v10 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1003, ASSERT_TYPE_ASSERT, "( dat.l != -1 )", (const char *)&queryFormat, "dat.l != -1") )
+    v6 = SLODWORD(v->v[0]);
+    if ( LODWORD(v->v[0]) == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\msg.cpp", 1003, ASSERT_TYPE_ASSERT, "( dat.l != -1 )", (const char *)&queryFormat, "dat.l != -1") )
       __debugbreak();
     bit = sb->bit;
     if ( bit + 32 <= 8 * sb->maxsize )
@@ -4491,11 +4205,11 @@ void MSG_WriteVec3(msg_t *sb, const vec3_t *v)
       {
         if ( (bit & 7) != 0 )
         {
-          MSG_WriteBitsInternal(sb, 0x20u, v10);
+          MSG_WriteBitsInternal(sb, 0x20u, v6);
         }
         else
         {
-          *(_DWORD *)&sb->data[bit >> 3] = v10;
+          *(_DWORD *)&sb->data[bit >> 3] = v6;
           sb->bit += 32;
           sb->cursize += 4;
         }
@@ -4506,7 +4220,7 @@ void MSG_WriteVec3(msg_t *sb, const vec3_t *v)
       sb->overflowed = 1;
     }
     ++v2;
-    _RBP = (const vec3_t *)((char *)_RBP + 4);
+    v = (const vec3_t *)((char *)v + 4);
     v3 = (unsigned int)v2 < 3;
   }
   while ( v2 < 3 );

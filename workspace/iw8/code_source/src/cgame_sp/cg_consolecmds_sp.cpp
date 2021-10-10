@@ -79,6 +79,7 @@ void CG_ConsoleCmdsSP_ModelPreviewerStepAnim_f()
 {
   LocalClientNum_t v0; 
   int v1; 
+  double v2; 
 
   v0 = Cmd_LocalClientNum();
   if ( CG_IsFullyInitialized(v0) )
@@ -86,18 +87,20 @@ void CG_ConsoleCmdsSP_ModelPreviewerStepAnim_f()
     v1 = Cmd_Argc() - 1;
     if ( v1 )
     {
-      if ( v1 != 1 )
+      if ( v1 == 1 )
+      {
+        v2 = Cmd_ArgFloat(1);
+        CG_ModelPreviewerStepAnim(*(float *)&v2);
+      }
+      else
       {
         Com_Printf(0, "USAGE: cg_mpstepanim <deltaTime> : default = 1/30.0 second \n");
-        return;
       }
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
     }
     else
     {
-      __asm { vmovss  xmm0, cs:__real@bf800000; deltaTime }
+      CG_ModelPreviewerStepAnim(-1.0);
     }
-    CG_ModelPreviewerStepAnim(*(float *)&_XMM0);
   }
 }
 
@@ -213,22 +216,25 @@ CG_ConsoleCmdsSP_SetViewPos_f
 
 void __fastcall CG_ConsoleCmdsSP_SetViewPos_f(double _XMM0_8)
 {
-  LocalClientNum_t v2; 
+  LocalClientNum_t v1; 
   cg_t *LocalClientGlobals; 
-  int v4; 
+  int v3; 
+  double v4; 
   int v5; 
   int v6; 
   unsigned int v7; 
+  float *v; 
   int v9; 
   const char *v10; 
+  double v12; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
   vec3_t angles; 
 
-  v2 = Cmd_LocalClientNum();
-  if ( CG_IsFullyInitialized(v2) )
+  v1 = Cmd_LocalClientNum();
+  if ( CG_IsFullyInitialized(v1) )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals(v2);
+    LocalClientGlobals = CG_GetLocalClientGlobals(v1);
     if ( !LocalClientGlobals->predictedPlayerState.pm_type )
       Com_Printf(0, "\"cg_setviewpos\" isn't very useful when server controlled.  Use cg_ufo/cg_noclip or use \"setviewpos\"\n");
     if ( Cmd_Argc() != 3 && Cmd_Argc() != 4 && Cmd_Argc() != 6 && Cmd_Argc() != 7 )
@@ -239,16 +245,15 @@ void __fastcall CG_ConsoleCmdsSP_SetViewPos_f(double _XMM0_8)
     Stream_ImageRecord_Disable("cg_setviewpos");
     if ( Cmd_Argc() == 3 )
     {
-      v4 = Cmd_Argc();
-      _XMM0_8 = Cmd_ArgFloat((unsigned int)(v4 == 3) + 1);
-      v5 = (v4 == 3) + 2;
+      v3 = Cmd_Argc();
+      v4 = Cmd_ArgFloat((unsigned int)(v3 == 3) + 1);
+      v5 = (v3 == 3) + 2;
     }
     else
     {
       v6 = 0;
       v7 = 0;
-      __asm { vmovaps [rsp+88h+var_28], xmm6 }
-      _RSI = &LocalClientGlobals->predictedPlayerState.origin;
+      v = LocalClientGlobals->predictedPlayerState.origin.v;
       do
       {
         v9 = v7 + 1;
@@ -259,34 +264,28 @@ void __fastcall CG_ConsoleCmdsSP_SetViewPos_f(double _XMM0_8)
         __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
         if ( v7 >= 3 )
         {
-          LODWORD(v15) = 3;
-          LODWORD(v14) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v14, v15) )
+          LODWORD(v14) = 3;
+          LODWORD(v13) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v13, v14) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rsi], xmm6 }
-        _RSI = (vec3_t *)((char *)_RSI + 4);
+        *v++ = *(float *)&_XMM6;
         ++v7;
       }
       while ( v9 < 3 );
       LOBYTE(v6) = Cmd_Argc() == 7;
-      __asm { vmovaps xmm6, [rsp+88h+var_28] }
       if ( Cmd_Argc() != 6 && !v6 )
         goto LABEL_22;
-      _XMM0_8 = Cmd_ArgFloat(v6 + 4);
+      v4 = Cmd_ArgFloat(v6 + 4);
       v5 = v6 + 5;
     }
-    __asm { vmovss  dword ptr [rsp+88h+angles+4], xmm0 }
-    _XMM0_8 = Cmd_ArgFloat(v5);
-    __asm
-    {
-      vmovss  dword ptr [rsp+88h+angles], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+88h+angles+8], xmm0
-    }
+    angles.v[1] = *(float *)&v4;
+    v12 = Cmd_ArgFloat(v5);
+    angles.v[0] = *(float *)&v12;
+    angles.v[2] = 0.0;
     CG_SetDebugAngles(&angles);
 LABEL_22:
-    CG_PlayerState_ClearExtrapolatedPlayerState(v2);
+    CG_PlayerState_ClearExtrapolatedPlayerState(v1);
   }
 }
 
@@ -300,17 +299,18 @@ __int64 CG_ConsoleCmdsSP_SetViewEnt()
   LocalClientNum_t v0; 
   __int64 v1; 
   CgEntitySystem *v2; 
-  float v5; 
-  float v6; 
+  __int64 v3; 
+  int v4; 
+  int v5; 
   __int64 result; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v7; 
+  __int64 v8; 
   vec3_t *p_origin; 
   vec3_t origin; 
-  __int64 v21; 
+  __int64 v11; 
   vec3_t angles; 
 
-  v21 = -2i64;
+  v11 = -2i64;
   v0 = Cmd_LocalClientNum();
   if ( CG_IsFullyInitialized(v0) )
   {
@@ -323,88 +323,52 @@ __int64 CG_ConsoleCmdsSP_SetViewEnt()
         __debugbreak();
       if ( !CgEntitySystem::ms_allocatedCount )
       {
-        LODWORD(v18) = CgEntitySystem::ms_allocatedCount;
-        LODWORD(v17) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v8) = CgEntitySystem::ms_allocatedCount;
+        LODWORD(v7) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v7, v8) )
           __debugbreak();
       }
       if ( !CgEntitySystem::ms_entitySystemArray[0] )
       {
-        LODWORD(v18) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v18) )
+        LODWORD(v8) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v8) )
           __debugbreak();
       }
       v2 = CgEntitySystem::ms_entitySystemArray[0];
       if ( (unsigned int)v1 >= 0x800 )
       {
-        LODWORD(v18) = 2048;
-        LODWORD(v17) = v1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v8) = 2048;
+        LODWORD(v7) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v7, v8) )
           __debugbreak();
       }
-      _RBX = &v2->m_entities[v1];
-      if ( _RBX )
+      v3 = (__int64)&v2->m_entities[v1];
+      if ( v3 )
       {
         Stream_ImageRecord_Disable("cg_setviewent");
-        _RDI = &_RBX->prevState.pos;
-        if ( _RBX == (centity_t *)-292i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)_RBX + 399, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+        if ( v3 == -292 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
           __debugbreak();
-        if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+        if ( *(_DWORD *)(v3 + 292) == 4 )
         {
           p_origin = &origin;
-          v5 = _RBX->prevState.pos.trBase.v[0];
-          v6 = _RBX->prevState.pos.trBase.v[1];
-          LODWORD(origin.v[2]) = LODWORD(v6) ^ LODWORD(_RBX->prevState.pos.trBase.v[2]) ^ s_trbase_aab_Z;
-          LODWORD(origin.v[1]) = LODWORD(v5) ^ LODWORD(v6) ^ s_trbase_aab_Y;
-          LODWORD(origin.v[0]) = LODWORD(v5) ^ ~s_trbase_aab_X;
+          v4 = *(_DWORD *)(v3 + 304);
+          v5 = *(_DWORD *)(v3 + 308);
+          LODWORD(origin.v[2]) = v5 ^ *(_DWORD *)(v3 + 312) ^ s_trbase_aab_Z;
+          LODWORD(origin.v[1]) = v4 ^ v5 ^ s_trbase_aab_Y;
+          LODWORD(origin.v[0]) = v4 ^ ~s_trbase_aab_X;
           memset(&p_origin, 0, sizeof(p_origin));
-          __asm
+          *(float *)&p_origin = origin.v[0];
+          if ( (LODWORD(origin.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&p_origin = origin.v[1], (LODWORD(origin.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&p_origin = origin.v[2], (LODWORD(origin.v[2]) & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, dword ptr [rsp+88h+origin]
-            vmovss  dword ptr [rsp+88h+var_48], xmm0
-          }
-          if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-            goto LABEL_34;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+88h+origin+4]
-            vmovss  dword ptr [rsp+88h+var_48], xmm0
-          }
-          if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-            goto LABEL_34;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+88h+origin+8]
-            vmovss  dword ptr [rsp+88h+var_48], xmm0
-          }
-          if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-          {
-LABEL_34:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
               __debugbreak();
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+0Ch]
-            vmovss  dword ptr [rsp+88h+origin], xmm0
-            vmovss  xmm1, dword ptr [rdi+10h]
-            vmovss  dword ptr [rsp+88h+origin+4], xmm1
-            vmovss  xmm0, dword ptr [rdi+14h]
-            vmovss  dword ptr [rsp+88h+origin+8], xmm0
-          }
+          origin = *(vec3_t *)(v3 + 304);
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+154h]
-          vmovss  dword ptr [rsp+88h+angles], xmm0
-          vmovss  xmm1, dword ptr [rbx+158h]
-          vmovss  dword ptr [rsp+88h+angles+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+15Ch]
-          vmovss  dword ptr [rsp+88h+angles+8], xmm0
-        }
+        angles = *(vec3_t *)(v3 + 340);
         CG_SetDebugOrigin(&origin);
         CG_SetDebugAngles(&angles);
       }
@@ -429,107 +393,77 @@ CG_ConsoleCmdsSP_SetViewOrbit_f
 ==============
 */
 
-void __fastcall CG_ConsoleCmdsSP_SetViewOrbit_f(double _XMM0_8)
+void __fastcall CG_ConsoleCmdsSP_SetViewOrbit_f(double a1)
 {
-  LocalClientNum_t v8; 
-  float v55; 
+  LocalClientNum_t v1; 
+  cg_t *LocalClientGlobals; 
+  __int128 v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  float v18; 
+  float v22; 
   float s; 
-  float v57; 
+  float v24; 
   float c; 
   vec3_t vec; 
   vec3_t angles; 
 
-  v8 = Cmd_LocalClientNum();
-  if ( CG_IsFullyInitialized(v8) )
+  v1 = Cmd_LocalClientNum();
+  if ( CG_IsFullyInitialized(v1) )
   {
     if ( Cmd_Argc() == 7 )
     {
-      __asm
-      {
-        vmovaps [rsp+0D8h+var_18], xmm6
-        vmovaps [rsp+0D8h+var_28], xmm7
-        vmovaps [rsp+0D8h+var_38], xmm8
-        vmovaps [rsp+0D8h+var_48], xmm9
-        vmovaps [rsp+0D8h+var_58], xmm10
-        vmovaps [rsp+0D8h+var_68], xmm11
-        vmovaps [rsp+0D8h+var_78], xmm12
-      }
       Stream_ImageRecord_Disable("cg_setvieworbit");
-      _RBX = CG_GetLocalClientGlobals(v8);
+      LocalClientGlobals = CG_GetLocalClientGlobals(v1);
       Dvar_SetInt_Internal(DVARINT_cl_freemove, 2);
-      _XMM0_8 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm12, xmm0 }
-      _XMM0_8 = Cmd_ArgFloat(2);
-      __asm { vmovaps xmm11, xmm0 }
-      _XMM0_8 = Cmd_ArgFloat(3);
-      __asm { vmovaps xmm7, xmm0 }
-      _XMM0_8 = Cmd_ArgFloat(4);
-      __asm { vmovaps xmm9, xmm0 }
-      _XMM0_8 = Cmd_ArgFloat(5);
-      __asm { vmovaps xmm6, xmm0 }
-      _XMM0_8 = Cmd_ArgFloat(6);
+      a1 = Cmd_ArgFloat(1);
+      v3 = *(_OWORD *)&a1;
+      v4 = Cmd_ArgFloat(2);
+      v5 = *(float *)&v4;
+      v6 = Cmd_ArgFloat(3);
+      v7 = *(float *)&v6;
+      v8 = Cmd_ArgFloat(4);
+      v9 = *(float *)&v8;
+      v10 = Cmd_ArgFloat(5);
+      v11 = *(float *)&v10;
+      v12 = Cmd_ArgFloat(6);
+      v13 = v7 - LocalClientGlobals->predictedPlayerState.viewHeightCurrent;
+      FastSinCos((float)(90.0 - v11) * 0.017453292, &s, &c);
+      FastSinCos((float)(*(float *)&v12 - 90.0) * 0.017453292, &v24, &v22);
+      v14 = (float)((float)(v9 * v22) * s) + *(float *)&v3;
+      v15 = (float)((float)(v9 * v24) * s) + v5;
+      LocalClientGlobals->predictedPlayerState.origin.v[2] = (float)(v9 * c) + v13;
+      LocalClientGlobals->predictedPlayerState.origin.v[1] = v15;
+      LocalClientGlobals->predictedPlayerState.origin.v[0] = v14;
+      v17 = v3;
+      v16 = *(float *)&v3 - v14;
+      vec.v[0] = *(float *)&v3 - v14;
+      vec.v[1] = v5 - LocalClientGlobals->predictedPlayerState.origin.v[1];
+      v18 = v13 - LocalClientGlobals->predictedPlayerState.origin.v[2];
+      *(float *)&v17 = fsqrt((float)((float)(v16 * v16) + (float)(vec.v[1] * vec.v[1])) + (float)(v18 * v18));
+      _XMM3 = v17;
       __asm
       {
-        vsubss  xmm10, xmm7, dword ptr [rbx+1F0h]
-        vmovss  xmm7, cs:__real@42b40000
-        vsubss  xmm1, xmm7, xmm6
-        vmovaps xmm8, xmm0
-        vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm
-      {
-        vsubss  xmm0, xmm8, xmm7
-        vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &v57, &v55);
-      __asm
-      {
-        vmulss  xmm1, xmm9, [rsp+0D8h+var_B8]
-        vmulss  xmm1, xmm1, [rsp+0D8h+s]
-        vaddss  xmm4, xmm1, xmm12
-        vmulss  xmm1, xmm9, [rsp+0D8h+var_B0]
-        vmulss  xmm2, xmm1, [rsp+0D8h+s]
-        vmulss  xmm1, xmm9, [rsp+0D8h+c]
-        vaddss  xmm3, xmm2, xmm11
-        vaddss  xmm2, xmm1, xmm10
-        vmovss  dword ptr [rbx+40h], xmm2
-        vmovss  dword ptr [rbx+3Ch], xmm3
-        vmovss  dword ptr [rbx+38h], xmm4
-        vsubss  xmm5, xmm12, xmm4
-        vmovss  dword ptr [rsp+0D8h+vec], xmm5
-        vsubss  xmm6, xmm11, dword ptr [rbx+3Ch]
-        vmulss  xmm0, xmm6, xmm6
-        vmovss  dword ptr [rsp+0D8h+vec+4], xmm6
-        vsubss  xmm4, xmm10, dword ptr [rbx+40h]
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm2, xmm1, xmm0
-        vmulss  xmm0, xmm5, xmm2
-        vmovss  dword ptr [rsp+0D8h+vec], xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rsp+0D8h+vec+8], xmm0
-        vmovss  dword ptr [rsp+0D8h+vec+4], xmm1
       }
+      vec.v[0] = v16 * (float)(1.0 / *(float *)&_XMM0);
+      vec.v[2] = v18 * (float)(1.0 / *(float *)&_XMM0);
+      vec.v[1] = vec.v[1] * (float)(1.0 / *(float *)&_XMM0);
       vectoangles(&vec, &angles);
       CG_SetDebugAngles(&angles);
-      __asm
-      {
-        vmovaps xmm12, [rsp+0D8h+var_78]
-        vmovaps xmm11, [rsp+0D8h+var_68]
-        vmovaps xmm10, [rsp+0D8h+var_58]
-        vmovaps xmm9, [rsp+0D8h+var_48]
-        vmovaps xmm8, [rsp+0D8h+var_38]
-        vmovaps xmm7, [rsp+0D8h+var_28]
-        vmovaps xmm6, [rsp+0D8h+var_18]
-      }
     }
     else
     {

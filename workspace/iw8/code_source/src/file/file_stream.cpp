@@ -1437,78 +1437,58 @@ FileStream_GetStreamPerfDataAndClearAfterMinTime
 */
 __int64 FileStream_GetStreamPerfDataAndClearAfterMinTime(float *readsPerSec, float *mBytesPerSec)
 {
-  int v7; 
-  const dvar_t *v8; 
-  unsigned __int32 v9; 
-  unsigned int v11; 
-  unsigned __int32 v12; 
-  bool v13; 
+  int v4; 
+  const dvar_t *v5; 
+  __int32 v6; 
+  float frameCachedReadsPerSec; 
+  int v8; 
+  __int32 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   __int64 result; 
 
-  _RBP = mBytesPerSec;
-  _R14 = readsPerSec;
-  v7 = Sys_Milliseconds();
-  v8 = DCONST_DVARINT_fileStream_minPerfDataClearTimeMS;
-  v9 = v7;
+  v4 = Sys_Milliseconds();
+  v5 = DCONST_DVARINT_fileStream_minPerfDataClearTimeMS;
+  v6 = v4;
   if ( !DCONST_DVARINT_fileStream_minPerfDataClearTimeMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fileStream_minPerfDataClearTimeMS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( (signed __int32)(v9 - s_fileStreamGlob.frameStartTime) >= v8->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v6 - s_fileStreamGlob.frameStartTime >= v5->current.integer )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
     if ( ((unsigned __int8)&s_fileStreamGlob.frameStartTime & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_fileStreamGlob.frameStartTime) )
       __debugbreak();
-    v12 = _InterlockedExchange(&s_fileStreamGlob.frameStartTime, v9);
+    v9 = _InterlockedExchange(&s_fileStreamGlob.frameStartTime, v6);
     if ( ((unsigned __int8)&s_fileStreamGlob.frameReads & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 100, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int64 ) ) ) )", "( target ) = %p", &s_fileStreamGlob.frameReads) )
       __debugbreak();
-    _InterlockedExchange64(&s_fileStreamGlob.frameReads, 0i64);
+    v10 = _InterlockedExchange64(&s_fileStreamGlob.frameReads, 0i64);
     if ( ((unsigned __int8)&s_fileStreamGlob.frameReadBytes & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 100, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int64 ) ) ) )", "( target ) = %p", &s_fileStreamGlob.frameReadBytes) )
       __debugbreak();
-    _InterlockedExchange64(&s_fileStreamGlob.frameReadBytes, 0i64);
-    v13 = v9 <= v12;
-    v11 = v9 - v12;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm6, xmm0, cs:__real@3a83126f
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm6, xmm1
-    }
-    if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\file\\file_stream.cpp", 1371, ASSERT_TYPE_ASSERT, "(frameTime > 0)", (const char *)&queryFormat, "frameTime > 0") )
+    v11 = _InterlockedExchange64(&s_fileStreamGlob.frameReadBytes, 0i64);
+    v8 = v6 - v9;
+    v12 = (float)v8 * 0.001;
+    if ( v12 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\file\\file_stream.cpp", 1371, ASSERT_TYPE_ASSERT, "(frameTime > 0)", (const char *)&queryFormat, "frameTime > 0") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm2, xmm0, xmm6
-      vmovaps xmm6, [rsp+68h+var_28]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r15
-      vmulss  xmm3, xmm1, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdi
-      vmulss  xmm1, xmm0, cs:__real@35800000
-      vmulss  xmm2, xmm1, xmm2
-      vmovss  cs:s_fileStreamGlob.frameCachedMBytesPerSec, xmm2
-      vmovss  cs:s_fileStreamGlob.frameCachedReadsPerSec, xmm3
-    }
+    v13 = 1.0 / v12;
+    v14 = (float)v10;
+    frameCachedReadsPerSec = v14 * v13;
+    v15 = (float)v11;
+    s_fileStreamGlob.frameCachedMBytesPerSec = (float)(v15 * 0.00000095367432) * v13;
+    s_fileStreamGlob.frameCachedReadsPerSec = frameCachedReadsPerSec;
   }
   else
   {
-    __asm { vmovss  xmm3, cs:s_fileStreamGlob.frameCachedReadsPerSec }
-    v11 = -1;
+    frameCachedReadsPerSec = s_fileStreamGlob.frameCachedReadsPerSec;
+    v8 = -1;
   }
-  if ( _R14 )
-    __asm { vmovss  dword ptr [r14], xmm3 }
-  result = v11;
-  if ( _RBP )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:s_fileStreamGlob.frameCachedMBytesPerSec
-      vmovss  dword ptr [rbp+0], xmm0
-    }
-  }
+  if ( readsPerSec )
+    *readsPerSec = frameCachedReadsPerSec;
+  result = (unsigned int)v8;
+  if ( mBytesPerSec )
+    *mBytesPerSec = s_fileStreamGlob.frameCachedMBytesPerSec;
   return result;
 }
 
@@ -1517,10 +1497,9 @@ __int64 FileStream_GetStreamPerfDataAndClearAfterMinTime(float *readsPerSec, flo
 FileStream_Init
 ==============
 */
-
-__int64 __fastcall FileStream_Init(double _XMM0_8)
+__int64 FileStream_Init()
 {
-  unsigned __int8 v1; 
+  unsigned __int8 v0; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "FileStream_Init");
   if ( s_fileStreamGlob.threadsSpawned || Sys_SpawnFileStreamThread(FileStream_Thread) && Sys_SpawnFileStreamAsyncThread((void (__fastcall *)(unsigned int))FileStream_AsyncThread) )
@@ -1529,21 +1508,17 @@ __int64 __fastcall FileStream_Init(double _XMM0_8)
     s_fileStreamGlob.frameReads = 0i64;
     s_fileStreamGlob.frameReadBytes = 0i64;
     s_fileStreamGlob.frameStartTime = Sys_Milliseconds();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  cs:s_fileStreamGlob.frameCachedReadsPerSec, xmm0
-      vmovss  cs:s_fileStreamGlob.frameCachedMBytesPerSec, xmm0
-    }
+    s_fileStreamGlob.frameCachedReadsPerSec = 0.0;
+    s_fileStreamGlob.frameCachedMBytesPerSec = 0.0;
     FileStream_RegisterDvars();
-    v1 = 1;
+    v0 = 1;
   }
   else
   {
-    v1 = 0;
+    v0 = 0;
   }
   Sys_ProfEndNamedEvent();
-  return v1;
+  return v0;
 }
 
 /*
@@ -1930,54 +1905,41 @@ FileStream_ReadThrottle
 */
 void FileStream_ReadThrottle(int startingTimeMs, unsigned __int64 numBytesRead)
 {
-  char v10; 
-  char v11; 
-  int v12; 
-  int v13; 
-  int v21; 
+  const dvar_t *v3; 
+  float value; 
+  int v6; 
+  int v7; 
+  float v8; 
+  float v9; 
+  int v10; 
 
   if ( numBytesRead )
   {
-    _RBX = DVARFLT_fileStream_mbPerSec;
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
+    v3 = DVARFLT_fileStream_mbPerSec;
     if ( !DVARFLT_fileStream_mbPerSec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fileStream_mbPerSec") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v3);
+    value = v3->current.value;
+    if ( value > 0.0 )
     {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( !(v10 | v11) )
-    {
-      v12 = 0;
+      v6 = 0;
       if ( startingTimeMs > 0 )
       {
-        v13 = Sys_Milliseconds() - startingTimeMs;
-        if ( v13 < 0 )
-          v13 = 0;
-        v12 = v13;
+        v7 = Sys_Milliseconds() - startingTimeMs;
+        if ( v7 < 0 )
+          v7 = 0;
+        v6 = v7;
       }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@ba7a0000
-        vxorps  xmm1, xmm1, xmm1
-        vdivss  xmm2, xmm0, xmm6
-        vcvtsi2ss xmm1, xmm1, rdi
-      }
+      v8 = (float)(__int64)numBytesRead;
       if ( (numBytesRead & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-      __asm
       {
-        vmulss  xmm0, xmm2, xmm1
-        vcvttss2si eax, xmm0
+        v9 = (float)(__int64)numBytesRead;
+        v8 = v9 + 1.8446744e19;
       }
-      v21 = -v12 - _EAX;
-      if ( v21 > 0 )
-        Sys_Sleep(v21);
+      v10 = -v6 - (int)(float)((float)(-0.00095367432 / value) * v8);
+      if ( v10 > 0 )
+        Sys_Sleep(v10);
     }
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
   }
 }
 

@@ -14,16 +14,8 @@ unsigned int __fastcall CasSupportScaling(float outX, float outY, float inX, flo
 CasSupportScaling
 ==============
 */
-
-__int64 __fastcall CasSupportScaling(double outX, float outY, double inX, float inY)
+_BOOL8 CasSupportScaling(float outX, float outY, float inX, float inY)
 {
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm1
-    vmulss  xmm0, xmm2, xmm3
-    vdivss  xmm2, xmm1, xmm0
-    vcomiss xmm2, cs:__real@40800000
-  }
-  return 1i64;
+  return (float)((float)(outX * outY) / (float)(inX * inY)) <= 4.0;
 }
 

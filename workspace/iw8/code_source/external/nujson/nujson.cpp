@@ -1074,8 +1074,8 @@ const Json *Json::operator[](Json *this, const Json *result, const char *name)
   const char *m_value; 
   char v6; 
   void (__fastcall *v8)(bool, const char *, const char *, const char *, int, const char *); 
-  const char *v10; 
-  const char *v12; 
+  const char *v9; 
+  const char *v11; 
 
   m_value = this->m_value;
   result->m_key = NULL;
@@ -1096,9 +1096,8 @@ const Json *Json::operator[](Json *this, const Json *result, const char *name)
             LOBYTE(this) = v6 == 4;
             v8((bool)this, "*p == JSON_NAME", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetChild", 1147, (const char *)&queryFormat.fmt + 3);
           }
-          _RAX = JSON_SCAN_CHARS[7].chars;
-          v10 = _RBX + 1;
-          __asm { vmovdqu xmm1, xmmword ptr [rax] }
+          v9 = _RBX + 1;
+          _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
           while ( 1 )
           {
             __asm { vpcmpestri xmm1, xmmword ptr [rbx], 0 }
@@ -1106,16 +1105,16 @@ const Json *Json::operator[](Json *this, const Json *result, const char *name)
               break;
             _RBX += 16;
           }
-          v12 = &_RBX[(int)this + 1];
-          if ( !strcmp(v10, name) )
+          v11 = &_RBX[(int)this + 1];
+          if ( !strcmp(v9, name) )
             break;
-          _RBX = Json_Skip(v12);
+          _RBX = Json_Skip(v11);
           v6 = *_RBX;
           if ( *_RBX == 3 )
             return result;
         }
-        result->m_key = v10;
-        result->m_value = v12;
+        result->m_key = v9;
+        result->m_value = v11;
       }
     }
   }
@@ -1130,83 +1129,76 @@ Json::operator[]
 const Json *Json::operator[](Json *this, const Json *result, unsigned __int64 index)
 {
   const char *m_value; 
-  char v7; 
+  char v6; 
+  char *v7; 
   char *v8; 
-  char *v10; 
-  int v11; 
-  __int128 v17; 
-  __int128 v18; 
+  int v9; 
+  Json v14; 
+  Json v15; 
 
   m_value = this->m_value;
-  *(_QWORD *)&v17 = 0i64;
-  *((_QWORD *)&v17 + 1) = UNDEFINED_0;
-  _RDI = result;
-  __asm { vmovups xmm0, [rsp+38h+var_18] }
-  v7 = *m_value;
-  __asm { vmovups xmmword ptr [rdx], xmm0 }
-  if ( (unsigned __int8)(v7 - 1) > 1u )
+  v14.m_key = NULL;
+  v14.m_value = UNDEFINED_0;
+  v6 = *m_value;
+  *result = v14;
+  if ( (unsigned __int8)(v6 - 1) > 1u )
     return result;
-  v8 = NULL;
-  _RSI = JSON_SCAN_CHARS[7].chars;
-  v10 = UNDEFINED_0;
-  *(_QWORD *)&v18 = 0i64;
-  *((_QWORD *)&v18 + 1) = UNDEFINED_0;
-  if ( m_value && v7 )
+  v7 = NULL;
+  v8 = UNDEFINED_0;
+  v15.m_key = NULL;
+  v15.m_value = UNDEFINED_0;
+  if ( m_value && v6 )
   {
-    v11 = *((unsigned __int8 *)m_value + 1);
-    if ( (_BYTE)v11 != 4 )
+    v9 = *((unsigned __int8 *)m_value + 1);
+    if ( (_BYTE)v9 != 4 )
     {
-      if ( (_BYTE)v11 != 3 )
-        v10 = (char *)(m_value + 1);
+      if ( (_BYTE)v9 != 3 )
+        v8 = (char *)(m_value + 1);
       goto LABEL_9;
     }
-    __asm { vmovdqu xmm1, xmmword ptr [rsi] }
-    v8 = (char *)(m_value + 2);
-    *(_QWORD *)&v18 = m_value + 2;
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+    v7 = (char *)(m_value + 2);
+    v15.m_key = m_value + 2;
     _R8 = (char *)(m_value + 2);
     __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
     goto LABEL_6;
   }
   while ( 1 )
   {
-    if ( !v8 && v10 == UNDEFINED_0 )
-      return _RDI;
+    if ( !v7 && v8 == UNDEFINED_0 )
+      return result;
     if ( !index )
       break;
     --index;
-    if ( v10 && *v10 )
+    if ( v8 && *v8 )
     {
-      v10 = (char *)Json_Skip(v10);
-      *((_QWORD *)&v18 + 1) = v10;
-      v11 = (unsigned __int8)*v10;
-      if ( (_BYTE)v11 == 4 )
+      v8 = (char *)Json_Skip(v8);
+      v15.m_value = v8;
+      v9 = (unsigned __int8)*v8;
+      if ( (_BYTE)v9 == 4 )
       {
-        __asm { vmovdqu xmm1, xmmword ptr [rsi] }
-        v8 = v10 + 1;
-        *(_QWORD *)&v18 = v10 + 1;
-        _R8 = v10 + 1;
+        _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+        v7 = v8 + 1;
+        v15.m_key = v8 + 1;
+        _R8 = v8 + 1;
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
 LABEL_6:
-        v10 = &_R8[v11 + 1];
+        v8 = &_R8[v9 + 1];
 LABEL_9:
-        *((_QWORD *)&v18 + 1) = v10;
+        v15.m_value = v8;
         continue;
       }
-      if ( (_BYTE)v11 == 3 )
+      if ( (_BYTE)v9 == 3 )
       {
-        v8 = NULL;
-        v10 = UNDEFINED_0;
-        *(_QWORD *)&v18 = 0i64;
+        v7 = NULL;
+        v8 = UNDEFINED_0;
+        v15.m_key = NULL;
         goto LABEL_9;
       }
     }
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+38h+var_18]
-    vmovups xmmword ptr [rdi], xmm0
-  }
-  return _RDI;
+  *result = v15;
+  return result;
 }
 
 /*
@@ -1226,50 +1218,38 @@ Json::operator++
 */
 Json *Json::operator++(Json *this, Json *result)
 {
+  Json *v2; 
   const char *m_value; 
   const char *v5; 
   int v6; 
-  Json *v10; 
+  Json *v9; 
 
-  _R11 = this;
-  _RBX = result;
+  v2 = this;
   m_value = this->m_value;
   if ( m_value && *m_value )
   {
     v5 = Json_Skip(m_value);
-    _R11->m_value = v5;
+    v2->m_value = v5;
     v6 = *(unsigned __int8 *)v5;
     if ( (_BYTE)v6 == 4 )
     {
       _R8 = v5 + 1;
-      _R11->m_key = v5 + 1;
-      _RAX = JSON_SCAN_CHARS[7].chars;
-      __asm
-      {
-        vmovdqu xmm1, xmmword ptr [rax]
-        vpcmpestri xmm1, xmmword ptr [r8], 0
-      }
-      v10 = _RBX;
-      _R11->m_value = &_R8[v6 + 1];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r11]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      return v10;
+      v2->m_key = v5 + 1;
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+      __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
+      v9 = result;
+      v2->m_value = &_R8[v6 + 1];
+      *result = *v2;
+      return v9;
     }
     if ( (_BYTE)v6 == 3 )
     {
-      _R11->m_key = NULL;
-      _R11->m_value = UNDEFINED_0;
+      v2->m_key = NULL;
+      v2->m_value = UNDEFINED_0;
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r11]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  return _RBX;
+  *result = *v2;
+  return result;
 }
 
 /*
@@ -1285,19 +1265,19 @@ bool JsonSerializer::BeginArray(JsonSerializer *this, const char *name)
   bool result; 
   int v8; 
   __int64 v9; 
-  const char *v11; 
-  const char *v14; 
-  int v15; 
-  __int64 v16; 
+  const char *v10; 
+  const char *v13; 
+  int v14; 
+  __int64 v15; 
   char *m_pos; 
-  unsigned __int8 v18; 
+  unsigned __int8 v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
+  char *v20; 
   char *v21; 
   char *v22; 
   char *v23; 
-  char *v24; 
-  __int64 v25; 
+  __int64 v24; 
   char Src[8]; 
 
   v2 = jsonAssertHandler;
@@ -1404,10 +1384,9 @@ LABEL_43:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v11 = name;
+      v10 = name;
       _R8 = name;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -1415,25 +1394,25 @@ LABEL_43:
           break;
         _R8 += 16;
       }
-      v14 = &_R8[(int)m_parentCount];
-      v15 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v11;
+      v13 = &_R8[(int)m_parentCount];
+      v14 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v10;
       if ( this->m_closed )
         return 0;
-      v16 = v15;
+      v15 = v14;
       if ( !this->m_buffer )
         goto LABEL_53;
       m_pos = this->m_pos;
-      if ( &m_pos[v15 + 1] < this->m_end )
+      if ( &m_pos[v14 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_54:
-      v18 = *v14;
-      if ( !*v14 )
+      v17 = *v13;
+      if ( !*v13 )
         goto LABEL_78;
       LODWORD(m_parentCount) = this->m_closed;
-      Src[0] = *v14;
-      if ( (byte_14471F6B0[v18] & 0x10) != 0 )
+      Src[0] = *v13;
+      if ( (byte_14471F6B0[v17] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -1452,7 +1431,7 @@ LABEL_63:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_67;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v18];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v17];
               ++this->m_pos;
             }
             else
@@ -1466,34 +1445,34 @@ LABEL_63:
         ++this->m_pos;
         goto LABEL_63;
       }
-      v19 = -1i64;
+      v18 = -1i64;
       do
-        ++v19;
-      while ( Src[v19] );
+        ++v18;
+      while ( Src[v18] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v20 = (int)v19;
+      v19 = (int)v18;
       if ( this->m_buffer )
       {
-        v21 = this->m_pos;
-        if ( &v21[(int)v19 + 1] >= this->m_end )
+        v20 = this->m_pos;
+        if ( &v20[(int)v18 + 1] >= this->m_end )
         {
 LABEL_67:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_77;
         }
-        memcpy_0(v21, Src, (int)v19);
+        memcpy_0(v20, Src, (int)v18);
       }
-      this->m_pos += v20;
+      this->m_pos += v19;
 LABEL_77:
-      name = v14 + 1;
+      name = v13 + 1;
       if ( !*name )
         goto LABEL_78;
     }
-    memcpy_0(m_pos, v11, v15);
+    memcpy_0(m_pos, v10, v14);
 LABEL_53:
-    this->m_pos += v16;
+    this->m_pos += v15;
     goto LABEL_54;
   }
 LABEL_78:
@@ -1501,10 +1480,10 @@ LABEL_78:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_84;
-  v22 = this->m_pos;
-  if ( v22 + 2 < this->m_end )
+  v21 = this->m_pos;
+  if ( v21 + 2 < this->m_end )
   {
-    *v22 = search[0];
+    *v21 = search[0];
 LABEL_84:
     ++this->m_pos;
     goto LABEL_85;
@@ -1516,10 +1495,10 @@ LABEL_85:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_91;
-  v23 = this->m_pos;
-  if ( v23 + 2 < this->m_end )
+  v22 = this->m_pos;
+  if ( v22 + 2 < this->m_end )
   {
-    *v23 = asc_143D7E4F8[0];
+    *v22 = asc_143D7E4F8[0];
 LABEL_91:
     ++this->m_pos;
     goto LABEL_92;
@@ -1537,10 +1516,10 @@ LABEL_100:
     ++this->m_pos;
     goto LABEL_101;
   }
-  v24 = this->m_pos;
-  if ( v24 + 2 < this->m_end )
+  v23 = this->m_pos;
+  if ( v23 + 2 < this->m_end )
   {
-    *v24 = whitespace[0];
+    *v23 = whitespace[0];
     goto LABEL_100;
   }
   result = JsonSerializer::Error(this, "out of memory");
@@ -1552,15 +1531,15 @@ LABEL_101:
     return 0;
   if ( jsonAssertHandler )
     jsonAssertHandler(this->m_parentCount < 32, "m_parentCount < (int)ARRAY_COUNT( m_parentTypes )", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "JsonSerializer::Begin", 2031, (const char *)&queryFormat.fmt + 3);
-  v25 = this->m_parentCount;
-  if ( (int)v25 >= 32 )
+  v24 = this->m_parentCount;
+  if ( (int)v24 >= 32 )
     return JsonSerializer::Error(this, "stack overflow");
-  if ( (int)v25 > 0 )
+  if ( (int)v24 > 0 )
   {
-    this->m_parentTypes[v25 + 31] = JSON_OBJECT;
-    LODWORD(v25) = this->m_parentCount;
+    this->m_parentTypes[v24 + 31] = JSON_OBJECT;
+    LODWORD(v24) = this->m_parentCount;
   }
-  this->m_parentTypes[(int)v25] = JSON_ARRAY;
+  this->m_parentTypes[(int)v24] = JSON_ARRAY;
   this->m_parentChild[this->m_parentCount++] = 0;
   return 1;
 }
@@ -1588,19 +1567,19 @@ bool JsonSerializer::BeginObject(JsonSerializer *this, const char *name)
   bool result; 
   int v8; 
   __int64 v9; 
-  const char *v11; 
-  const char *v14; 
-  int v15; 
-  __int64 v16; 
+  const char *v10; 
+  const char *v13; 
+  int v14; 
+  __int64 v15; 
   char *m_pos; 
-  unsigned __int8 v18; 
+  unsigned __int8 v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
+  char *v20; 
   char *v21; 
   char *v22; 
   char *v23; 
-  char *v24; 
-  __int64 v25; 
+  __int64 v24; 
   char Src[8]; 
 
   v2 = jsonAssertHandler;
@@ -1707,10 +1686,9 @@ LABEL_43:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v11 = name;
+      v10 = name;
       _R8 = name;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -1718,25 +1696,25 @@ LABEL_43:
           break;
         _R8 += 16;
       }
-      v14 = &_R8[(int)m_parentCount];
-      v15 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v11;
+      v13 = &_R8[(int)m_parentCount];
+      v14 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v10;
       if ( this->m_closed )
         return 0;
-      v16 = v15;
+      v15 = v14;
       if ( !this->m_buffer )
         goto LABEL_53;
       m_pos = this->m_pos;
-      if ( &m_pos[v15 + 1] < this->m_end )
+      if ( &m_pos[v14 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_54:
-      v18 = *v14;
-      if ( !*v14 )
+      v17 = *v13;
+      if ( !*v13 )
         goto LABEL_78;
       LODWORD(m_parentCount) = this->m_closed;
-      Src[0] = *v14;
-      if ( (byte_14471F6B0[v18] & 0x10) != 0 )
+      Src[0] = *v13;
+      if ( (byte_14471F6B0[v17] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -1755,7 +1733,7 @@ LABEL_63:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_67;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v18];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v17];
               ++this->m_pos;
             }
             else
@@ -1769,34 +1747,34 @@ LABEL_63:
         ++this->m_pos;
         goto LABEL_63;
       }
-      v19 = -1i64;
+      v18 = -1i64;
       do
-        ++v19;
-      while ( Src[v19] );
+        ++v18;
+      while ( Src[v18] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v20 = (int)v19;
+      v19 = (int)v18;
       if ( this->m_buffer )
       {
-        v21 = this->m_pos;
-        if ( &v21[(int)v19 + 1] >= this->m_end )
+        v20 = this->m_pos;
+        if ( &v20[(int)v18 + 1] >= this->m_end )
         {
 LABEL_67:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_77;
         }
-        memcpy_0(v21, Src, (int)v19);
+        memcpy_0(v20, Src, (int)v18);
       }
-      this->m_pos += v20;
+      this->m_pos += v19;
 LABEL_77:
-      name = v14 + 1;
+      name = v13 + 1;
       if ( !*name )
         goto LABEL_78;
     }
-    memcpy_0(m_pos, v11, v15);
+    memcpy_0(m_pos, v10, v14);
 LABEL_53:
-    this->m_pos += v16;
+    this->m_pos += v15;
     goto LABEL_54;
   }
 LABEL_78:
@@ -1804,10 +1782,10 @@ LABEL_78:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_84;
-  v22 = this->m_pos;
-  if ( v22 + 2 < this->m_end )
+  v21 = this->m_pos;
+  if ( v21 + 2 < this->m_end )
   {
-    *v22 = search[0];
+    *v21 = search[0];
 LABEL_84:
     ++this->m_pos;
     goto LABEL_85;
@@ -1819,10 +1797,10 @@ LABEL_85:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_91;
-  v23 = this->m_pos;
-  if ( v23 + 2 < this->m_end )
+  v22 = this->m_pos;
+  if ( v22 + 2 < this->m_end )
   {
-    *v23 = asc_143D7E4F8[0];
+    *v22 = asc_143D7E4F8[0];
 LABEL_91:
     ++this->m_pos;
     goto LABEL_92;
@@ -1840,10 +1818,10 @@ LABEL_100:
     ++this->m_pos;
     goto LABEL_101;
   }
-  v24 = this->m_pos;
-  if ( v24 + 2 < this->m_end )
+  v23 = this->m_pos;
+  if ( v23 + 2 < this->m_end )
   {
-    *v24 = whitespace[0];
+    *v23 = whitespace[0];
     goto LABEL_100;
   }
   result = JsonSerializer::Error(this, "out of memory");
@@ -1855,15 +1833,15 @@ LABEL_101:
     return 0;
   if ( jsonAssertHandler )
     jsonAssertHandler(this->m_parentCount < 32, "m_parentCount < (int)ARRAY_COUNT( m_parentTypes )", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "JsonSerializer::Begin", 2031, (const char *)&queryFormat.fmt + 3);
-  v25 = this->m_parentCount;
-  if ( (int)v25 >= 32 )
+  v24 = this->m_parentCount;
+  if ( (int)v24 >= 32 )
     return JsonSerializer::Error(this, "stack overflow");
-  if ( (int)v25 > 0 )
+  if ( (int)v24 > 0 )
   {
-    this->m_parentTypes[v25 + 31] = JSON_OBJECT;
-    LODWORD(v25) = this->m_parentCount;
+    this->m_parentTypes[v24 + 31] = JSON_OBJECT;
+    LODWORD(v24) = this->m_parentCount;
   }
-  this->m_parentTypes[(int)v25] = JSON_OBJECT;
+  this->m_parentTypes[(int)v24] = JSON_OBJECT;
   this->m_parentChild[this->m_parentCount++] = 0;
   return 1;
 }
@@ -1893,20 +1871,20 @@ bool JsonSerializer::Bool(JsonSerializer *this, const char *name, bool value)
   bool result; 
   int v10; 
   __int64 v11; 
-  const char *v13; 
-  const char *v16; 
-  int v17; 
-  __int64 v18; 
+  const char *v12; 
+  const char *v15; 
+  int v16; 
+  __int64 v17; 
   char *m_pos; 
-  unsigned __int8 v20; 
+  unsigned __int8 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
+  char *v22; 
   char *v23; 
   char *v24; 
   char *v25; 
-  char *v26; 
-  __int64 v27; 
-  bool v28; 
+  __int64 v26; 
+  bool v27; 
   unsigned __int8 Src; 
 
   v3 = "false";
@@ -2011,10 +1989,9 @@ LABEL_43:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v13 = v7;
+      v12 = v7;
       _R8 = v7;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -2022,25 +1999,25 @@ LABEL_43:
           break;
         _R8 += 16;
       }
-      v16 = &_R8[(int)m_parentCount];
-      v17 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v13;
+      v15 = &_R8[(int)m_parentCount];
+      v16 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v12;
       if ( this->m_closed )
         return 0;
-      v18 = v17;
+      v17 = v16;
       if ( !this->m_buffer )
         goto LABEL_53;
       m_pos = this->m_pos;
-      if ( &m_pos[v17 + 1] < this->m_end )
+      if ( &m_pos[v16 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_54:
-      v20 = *v16;
-      if ( !*v16 )
+      v19 = *v15;
+      if ( !*v15 )
         goto LABEL_78;
       LODWORD(m_parentCount) = this->m_closed;
-      Src = *v16;
-      if ( (byte_14471F6B0[v20] & 0x10) != 0 )
+      Src = *v15;
+      if ( (byte_14471F6B0[v19] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -2059,7 +2036,7 @@ LABEL_63:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_67;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v20];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v19];
               ++this->m_pos;
             }
             else
@@ -2073,34 +2050,34 @@ LABEL_63:
         ++this->m_pos;
         goto LABEL_63;
       }
-      v21 = -1i64;
+      v20 = -1i64;
       do
-        ++v21;
-      while ( *(&Src + v21) );
+        ++v20;
+      while ( *(&Src + v20) );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v22 = (int)v21;
+      v21 = (int)v20;
       if ( this->m_buffer )
       {
-        v23 = this->m_pos;
-        if ( &v23[(int)v21 + 1] >= this->m_end )
+        v22 = this->m_pos;
+        if ( &v22[(int)v20 + 1] >= this->m_end )
         {
 LABEL_67:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_77;
         }
-        memcpy_0(v23, &Src, (int)v21);
+        memcpy_0(v22, &Src, (int)v20);
       }
-      this->m_pos += v22;
+      this->m_pos += v21;
 LABEL_77:
-      v7 = v16 + 1;
+      v7 = v15 + 1;
       if ( !*v7 )
         goto LABEL_78;
     }
-    memcpy_0(m_pos, v13, v17);
+    memcpy_0(m_pos, v12, v16);
 LABEL_53:
-    this->m_pos += v18;
+    this->m_pos += v17;
     goto LABEL_54;
   }
 LABEL_78:
@@ -2108,10 +2085,10 @@ LABEL_78:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_84;
-  v24 = this->m_pos;
-  if ( v24 + 2 < this->m_end )
+  v23 = this->m_pos;
+  if ( v23 + 2 < this->m_end )
   {
-    *v24 = search[0];
+    *v23 = search[0];
 LABEL_84:
     ++this->m_pos;
     goto LABEL_85;
@@ -2123,10 +2100,10 @@ LABEL_85:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_91;
-  v25 = this->m_pos;
-  if ( v25 + 2 < this->m_end )
+  v24 = this->m_pos;
+  if ( v24 + 2 < this->m_end )
   {
-    *v25 = asc_143D7E4F8[0];
+    *v24 = asc_143D7E4F8[0];
 LABEL_91:
     ++this->m_pos;
     goto LABEL_92;
@@ -2144,10 +2121,10 @@ LABEL_100:
     ++this->m_pos;
     goto LABEL_101;
   }
-  v26 = this->m_pos;
-  if ( v26 + 2 < this->m_end )
+  v25 = this->m_pos;
+  if ( v25 + 2 < this->m_end )
   {
-    *v26 = whitespace[0];
+    *v25 = whitespace[0];
     goto LABEL_100;
   }
   result = JsonSerializer::Error(this, "out of memory");
@@ -2160,14 +2137,14 @@ LABEL_101:
   while ( v3[v8] );
   if ( !JsonSerializer::Write(this, v3, v8) )
     return 0;
-  v27 = this->m_parentCount;
-  v28 = (_DWORD)v27 == 0;
-  if ( (int)v27 > 0 )
+  v26 = this->m_parentCount;
+  v27 = (_DWORD)v26 == 0;
+  if ( (int)v26 > 0 )
   {
-    this->m_parentTypes[v27 + 31] = JSON_OBJECT;
-    v28 = this->m_parentCount == 0;
+    this->m_parentTypes[v26 + 31] = JSON_OBJECT;
+    v27 = this->m_parentCount == 0;
   }
-  if ( v28 )
+  if ( v27 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -2198,20 +2175,20 @@ bool JsonSerializer::Bytes(JsonSerializer *this, const char *name, const void *v
   bool result; 
   int v11; 
   __int64 v12; 
-  const char *v14; 
-  const char *v17; 
-  int v18; 
-  __int64 v19; 
+  const char *v13; 
+  const char *v16; 
+  int v17; 
+  __int64 v18; 
   char *m_pos; 
-  unsigned __int8 v21; 
+  unsigned __int8 v20; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
+  char *v23; 
   char *v24; 
   char *v25; 
   char *v26; 
-  char *v27; 
-  __int64 v28; 
-  bool v29; 
+  __int64 v27; 
+  bool v28; 
   char Src[8]; 
 
   v5 = 0;
@@ -2312,10 +2289,9 @@ LABEL_41:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v14 = v9;
+      v13 = v9;
       _R8 = v9;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -2323,25 +2299,25 @@ LABEL_41:
           break;
         _R8 += 16;
       }
-      v17 = &_R8[(int)m_parentCount];
-      v18 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v14;
+      v16 = &_R8[(int)m_parentCount];
+      v17 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v13;
       if ( this->m_closed )
         return 0;
-      v19 = v18;
+      v18 = v17;
       if ( !this->m_buffer )
         goto LABEL_51;
       m_pos = this->m_pos;
-      if ( &m_pos[v18 + 1] < this->m_end )
+      if ( &m_pos[v17 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_52:
-      v21 = *v17;
-      if ( !*v17 )
+      v20 = *v16;
+      if ( !*v16 )
         goto LABEL_76;
       LODWORD(m_parentCount) = this->m_closed;
-      Src[0] = *v17;
-      if ( (byte_14471F6B0[v21] & 0x10) != 0 )
+      Src[0] = *v16;
+      if ( (byte_14471F6B0[v20] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -2360,7 +2336,7 @@ LABEL_61:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_65;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v21];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v20];
               ++this->m_pos;
             }
             else
@@ -2374,34 +2350,34 @@ LABEL_61:
         ++this->m_pos;
         goto LABEL_61;
       }
-      v22 = -1i64;
+      v21 = -1i64;
       do
-        ++v22;
-      while ( Src[v22] );
+        ++v21;
+      while ( Src[v21] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v23 = (int)v22;
+      v22 = (int)v21;
       if ( this->m_buffer )
       {
-        v24 = this->m_pos;
-        if ( &v24[(int)v22 + 1] >= this->m_end )
+        v23 = this->m_pos;
+        if ( &v23[(int)v21 + 1] >= this->m_end )
         {
 LABEL_65:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_75;
         }
-        memcpy_0(v24, Src, (int)v22);
+        memcpy_0(v23, Src, (int)v21);
       }
-      this->m_pos += v23;
+      this->m_pos += v22;
 LABEL_75:
-      v9 = v17 + 1;
+      v9 = v16 + 1;
       if ( !*v9 )
         goto LABEL_76;
     }
-    memcpy_0(m_pos, v14, v18);
+    memcpy_0(m_pos, v13, v17);
 LABEL_51:
-    this->m_pos += v19;
+    this->m_pos += v18;
     goto LABEL_52;
   }
 LABEL_76:
@@ -2409,10 +2385,10 @@ LABEL_76:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_82;
-  v25 = this->m_pos;
-  if ( v25 + 2 < this->m_end )
+  v24 = this->m_pos;
+  if ( v24 + 2 < this->m_end )
   {
-    *v25 = search[0];
+    *v24 = search[0];
 LABEL_82:
     ++this->m_pos;
     goto LABEL_83;
@@ -2424,10 +2400,10 @@ LABEL_83:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_89;
-  v26 = this->m_pos;
-  if ( v26 + 2 < this->m_end )
+  v25 = this->m_pos;
+  if ( v25 + 2 < this->m_end )
   {
-    *v26 = asc_143D7E4F8[0];
+    *v25 = asc_143D7E4F8[0];
 LABEL_89:
     ++this->m_pos;
     goto LABEL_90;
@@ -2441,8 +2417,8 @@ LABEL_90:
       return 0;
     if ( this->m_buffer )
     {
-      v27 = this->m_pos;
-      if ( v27 + 2 >= this->m_end )
+      v26 = this->m_pos;
+      if ( v26 + 2 >= this->m_end )
       {
         result = JsonSerializer::Error(this, "out of memory");
 LABEL_95:
@@ -2450,7 +2426,7 @@ LABEL_95:
           return result;
         goto LABEL_99;
       }
-      *v27 = whitespace[0];
+      *v26 = whitespace[0];
     }
     ++this->m_pos;
   }
@@ -2458,14 +2434,14 @@ LABEL_99:
   *this->m_pos++ = 34;
   this->m_pos += Base64_Encode(value, valueSize, this->m_pos, this->m_end - this->m_pos);
   *this->m_pos++ = 34;
-  v28 = this->m_parentCount;
-  v29 = (_DWORD)v28 == 0;
-  if ( (int)v28 > 0 )
+  v27 = this->m_parentCount;
+  v28 = (_DWORD)v27 == 0;
+  if ( (int)v27 > 0 )
   {
-    this->m_parentTypes[v28 + 31] = JSON_OBJECT;
-    v29 = this->m_parentCount == 0;
+    this->m_parentTypes[v27 + 31] = JSON_OBJECT;
+    v28 = this->m_parentCount == 0;
   }
-  if ( v29 )
+  if ( v28 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -2660,11 +2636,9 @@ char *JsonSerializer::Error(JsonSerializer *this)
 JsonSerializer::Float
 ==============
 */
-
-bool __fastcall JsonSerializer::Float(JsonSerializer *this, double value)
+bool JsonSerializer::Float(JsonSerializer *this, long double value)
 {
-  __asm { vmovaps xmm2, xmm1; value }
-  return JsonSerializer::Float(this, NULL, *(long double *)&_XMM2);
+  return JsonSerializer::Float(this, NULL, value);
 }
 
 /*
@@ -2672,54 +2646,43 @@ bool __fastcall JsonSerializer::Float(JsonSerializer *this, double value)
 JsonSerializer::Float
 ==============
 */
-
-char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, double value)
+char JsonSerializer::Float(JsonSerializer *this, const char *name, long double value)
 {
-  int v9; 
-  char *v10; 
+  __int128 v3; 
+  int v6; 
   __int64 i; 
   char *m_parentCount; 
-  char v14; 
-  __int64 v15; 
-  bool v16; 
-  int v18; 
-  __int64 v19; 
-  const char *v21; 
-  const char *v24; 
-  int v25; 
-  __int64 v26; 
+  char v9; 
+  __int64 v10; 
+  bool v11; 
+  int v13; 
+  __int64 v14; 
+  const char *v15; 
+  const char *v18; 
+  int v19; 
+  __int64 v20; 
   char *m_pos; 
-  unsigned __int8 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  char *v31; 
-  char *v32; 
-  char *v33; 
-  char *v34; 
-  char *v35; 
-  char *v36; 
-  __int64 v37; 
-  bool v38; 
+  unsigned __int8 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  char *v25; 
+  char *v26; 
+  char *v27; 
+  char *v28; 
+  char *v29; 
+  char *v30; 
+  __int64 v31; 
+  bool v32; 
   char Src[16]; 
   char dest[385]; 
+  __int128 v35; 
 
-  __asm
-  {
-    vmovaps [rsp+218h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v35 = v3;
   memset_0(dest, 0, sizeof(dest));
-  __asm
+  v6 = Json_sprintf_385_((char (*)[385])dest, "%f", (double)value);
+  if ( strchr_0(dest, 46) )
   {
-    vmovaps xmm2, xmm6
-    vmovq   r8, xmm2
-  }
-  v9 = Json_sprintf_385_((char (*)[385])dest, "%f", *(double *)&_XMM2);
-  v10 = strchr_0(dest, 46);
-  __asm { vmovaps xmm6, [rsp+218h+var_38] }
-  if ( v10 )
-  {
-    for ( i = v9 - 1; i >= 0; dest[i--] = 0 )
+    for ( i = v6 - 1; i >= 0; dest[i--] = 0 )
     {
       if ( dest[i] != 48 || Src[i + 15] == 46 )
         break;
@@ -2731,21 +2694,21 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
     }
   }
   m_parentCount = (char *)this->m_parentCount;
-  v14 = 0;
+  v9 = 0;
   if ( (int)m_parentCount > 0 )
-    v14 = this->m_error[(_QWORD)m_parentCount + 128];
-  v15 = -1i64;
+    v9 = this->m_error[(_QWORD)m_parentCount + 128];
+  v10 = -1i64;
   if ( name )
   {
-    if ( v14 != 1 )
+    if ( v9 != 1 )
     {
-      v16 = JsonSerializer::Error(this, "unexpected key outside of an object");
+      v11 = JsonSerializer::Error(this, "unexpected key outside of an object");
       goto LABEL_101;
     }
   }
-  else if ( v14 == 1 )
+  else if ( v9 == 1 )
   {
-    v16 = JsonSerializer::Error(this, "key expected inside object");
+    v11 = JsonSerializer::Error(this, "key expected inside object");
     goto LABEL_101;
   }
   if ( (int)m_parentCount > 0 )
@@ -2798,19 +2761,19 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
       {
         ++this->m_pos;
       }
-      v18 = 0;
+      v13 = 0;
       if ( this->m_parentCount > 0 )
       {
         do
         {
-          v19 = -1i64;
+          v14 = -1i64;
           do
-            ++v19;
-          while ( this->m_indent[v19] );
-          if ( !JsonSerializer::Write(this, this->m_indent, v19) )
+            ++v14;
+          while ( this->m_indent[v14] );
+          if ( !JsonSerializer::Write(this, this->m_indent, v14) )
             return 0;
         }
-        while ( ++v18 < this->m_parentCount );
+        while ( ++v13 < this->m_parentCount );
       }
     }
   }
@@ -2835,12 +2798,11 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
   {
     ++this->m_pos;
   }
-  for ( ; *name; name = v24 + 1 )
+  for ( ; *name; name = v18 + 1 )
   {
-    _RAX = JSON_SCAN_CHARS[4].chars;
-    v21 = name;
+    v15 = name;
     _R8 = name;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -2848,18 +2810,18 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
         break;
       _R8 += 16;
     }
-    v24 = &_R8[(int)m_parentCount];
-    v25 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v21;
+    v18 = &_R8[(int)m_parentCount];
+    v19 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v15;
     if ( this->m_closed )
       return 0;
-    v26 = v25;
+    v20 = v19;
     if ( this->m_buffer )
     {
       m_pos = this->m_pos;
-      if ( &m_pos[v25 + 1] < this->m_end )
+      if ( &m_pos[v19 + 1] < this->m_end )
       {
-        memcpy_0(m_pos, v21, v25);
-        this->m_pos += v26;
+        memcpy_0(m_pos, v15, v19);
+        this->m_pos += v20;
       }
       else if ( !JsonSerializer::Error(this, "out of memory") )
       {
@@ -2868,14 +2830,14 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
     }
     else
     {
-      this->m_pos += v25;
+      this->m_pos += v19;
     }
-    v28 = *v24;
-    if ( !*v24 )
+    v22 = *v18;
+    if ( !*v18 )
       break;
     LODWORD(m_parentCount) = this->m_closed;
-    Src[0] = *v24;
-    if ( (byte_14471F6B0[v28] & 0x10) != 0 )
+    Src[0] = *v18;
+    if ( (byte_14471F6B0[v22] & 0x10) != 0 )
     {
       if ( (_BYTE)m_parentCount )
         return 0;
@@ -2903,7 +2865,7 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
         m_parentCount = this->m_pos;
         if ( m_parentCount + 2 >= this->m_end )
           goto LABEL_71;
-        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v28];
+        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v22];
         ++this->m_pos;
       }
       else
@@ -2913,31 +2875,31 @@ char __fastcall JsonSerializer::Float(JsonSerializer *this, const char *name, do
     }
     else
     {
-      v29 = -1i64;
+      v23 = -1i64;
       do
-        ++v29;
-      while ( Src[v29] );
+        ++v23;
+      while ( Src[v23] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v30 = (int)v29;
+      v24 = (int)v23;
       if ( this->m_buffer )
       {
-        v32 = this->m_pos;
-        if ( &v32[(int)v29 + 1] >= this->m_end )
+        v26 = this->m_pos;
+        if ( &v26[(int)v23 + 1] >= this->m_end )
         {
 LABEL_71:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           continue;
         }
-        memcpy_0(v32, Src, (int)v29);
-        this->m_pos += v30;
+        memcpy_0(v26, Src, (int)v23);
+        this->m_pos += v24;
       }
       else
       {
-        v31 = this->m_pos;
-        LODWORD(m_parentCount) = v30 + (_DWORD)v31;
-        this->m_pos = &v31[v30];
+        v25 = this->m_pos;
+        LODWORD(m_parentCount) = v24 + (_DWORD)v25;
+        this->m_pos = &v25[v24];
       }
     }
   }
@@ -2945,10 +2907,10 @@ LABEL_71:
     return 0;
   if ( this->m_buffer )
   {
-    v33 = this->m_pos;
-    if ( v33 + 2 < this->m_end )
+    v27 = this->m_pos;
+    if ( v27 + 2 < this->m_end )
     {
-      *v33 = search[0];
+      *v27 = search[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -2964,10 +2926,10 @@ LABEL_71:
     return 0;
   if ( this->m_buffer )
   {
-    v34 = this->m_pos;
-    if ( v34 + 2 < this->m_end )
+    v28 = this->m_pos;
+    if ( v28 + 2 < this->m_end )
     {
-      *v34 = asc_143D7E4F8[0];
+      *v28 = asc_143D7E4F8[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -2989,43 +2951,43 @@ LABEL_104:
     ++this->m_pos;
     goto LABEL_105;
   }
-  v35 = this->m_pos;
-  if ( v35 + 2 < this->m_end )
+  v29 = this->m_pos;
+  if ( v29 + 2 < this->m_end )
   {
-    *v35 = whitespace[0];
+    *v29 = whitespace[0];
     goto LABEL_104;
   }
-  v16 = JsonSerializer::Error(this, "out of memory");
+  v11 = JsonSerializer::Error(this, "out of memory");
 LABEL_101:
-  if ( !v16 )
+  if ( !v11 )
     return 0;
   do
 LABEL_105:
-    ++v15;
-  while ( dest[v15] );
+    ++v10;
+  while ( dest[v10] );
   if ( this->m_closed )
     return 0;
   if ( !this->m_buffer )
     goto LABEL_112;
-  v36 = this->m_pos;
-  if ( &v36[(int)v15 + 1] < this->m_end )
+  v30 = this->m_pos;
+  if ( &v30[(int)v10 + 1] < this->m_end )
   {
-    memcpy_0(v36, dest, (int)v15);
+    memcpy_0(v30, dest, (int)v10);
 LABEL_112:
-    this->m_pos += (int)v15;
+    this->m_pos += (int)v10;
     goto LABEL_113;
   }
   if ( !JsonSerializer::Error(this, "out of memory") )
     return 0;
 LABEL_113:
-  v37 = this->m_parentCount;
-  v38 = (_DWORD)v37 == 0;
-  if ( (int)v37 > 0 )
+  v31 = this->m_parentCount;
+  v32 = (_DWORD)v31 == 0;
+  if ( (int)v31 > 0 )
   {
-    this->m_parentTypes[v37 + 31] = JSON_OBJECT;
-    v38 = this->m_parentCount == 0;
+    this->m_parentTypes[v31 + 31] = JSON_OBJECT;
+    v32 = this->m_parentCount == 0;
   }
-  if ( v38 )
+  if ( v32 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -3043,8 +3005,7 @@ char Json::GetArray(Json *this, Json *value)
   _R8 = this->m_value;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -3056,11 +3017,7 @@ char Json::GetArray(Json *this, Json *value)
   }
   if ( *_R8 != 2 )
     return 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *value = *this;
   return 1;
 }
 
@@ -3106,8 +3063,8 @@ bool Json::GetChild(Json *this, const char *name, Json *child)
   const char *m_value; 
   char v6; 
   void (__fastcall *v8)(bool, const char *, const char *, const char *, int, const char *); 
-  const char *v10; 
-  const char *v12; 
+  const char *v9; 
+  const char *v11; 
   bool result; 
 
   m_value = this->m_value;
@@ -3127,9 +3084,8 @@ bool Json::GetChild(Json *this, const char *name, Json *child)
       LOBYTE(this) = v6 == 4;
       v8((bool)this, "*p == JSON_NAME", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetChild", 1147, (const char *)&queryFormat.fmt + 3);
     }
-    _RAX = JSON_SCAN_CHARS[7].chars;
-    v10 = _RBX + 1;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    v9 = _RBX + 1;
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [rbx], 0 }
@@ -3137,17 +3093,17 @@ bool Json::GetChild(Json *this, const char *name, Json *child)
         break;
       _RBX += 16;
     }
-    v12 = &_RBX[(int)this + 1];
-    if ( !strcmp(v10, name) )
+    v11 = &_RBX[(int)this + 1];
+    if ( !strcmp(v9, name) )
       break;
-    _RBX = Json_Skip(v12);
+    _RBX = Json_Skip(v11);
     v6 = *_RBX;
     if ( *_RBX == 3 )
       return 0;
   }
-  child->m_key = v10;
+  child->m_key = v9;
   result = 1;
-  child->m_value = v12;
+  child->m_value = v11;
   return result;
 }
 
@@ -3159,83 +3115,73 @@ Json::GetElement
 char Json::GetElement(Json *this, unsigned __int64 index, Json *elem)
 {
   const char *m_value; 
-  char *v8; 
-  char *v9; 
-  int v10; 
-  __int128 v16; 
-  __int128 v17; 
+  char *v6; 
+  char *v7; 
+  int v8; 
+  Json v13; 
+  Json v14; 
 
-  *(_QWORD *)&v16 = 0i64;
-  *((_QWORD *)&v16 + 1) = UNDEFINED_0;
-  _RSI = elem;
-  __asm
-  {
-    vmovups xmm0, [rsp+38h+var_18]
-    vmovups xmmword ptr [r8], xmm0
-  }
+  v13.m_key = NULL;
+  v13.m_value = UNDEFINED_0;
+  *elem = v13;
   m_value = this->m_value;
   if ( (unsigned __int8)(*m_value - 1) > 1u )
     return 0;
-  _RDI = JSON_SCAN_CHARS[7].chars;
-  v8 = NULL;
-  *(_QWORD *)&v17 = 0i64;
-  v9 = UNDEFINED_0;
-  *((_QWORD *)&v17 + 1) = UNDEFINED_0;
+  v6 = NULL;
+  v14.m_key = NULL;
+  v7 = UNDEFINED_0;
+  v14.m_value = UNDEFINED_0;
   if ( m_value && *m_value )
   {
-    v10 = *((unsigned __int8 *)m_value + 1);
-    if ( (_BYTE)v10 != 4 )
+    v8 = *((unsigned __int8 *)m_value + 1);
+    if ( (_BYTE)v8 != 4 )
     {
-      if ( (_BYTE)v10 != 3 )
-        v9 = (char *)(m_value + 1);
+      if ( (_BYTE)v8 != 3 )
+        v7 = (char *)(m_value + 1);
       goto LABEL_9;
     }
-    __asm { vmovdqu xmm1, xmmword ptr [rdi] }
-    v8 = (char *)(m_value + 2);
-    *(_QWORD *)&v17 = m_value + 2;
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+    v6 = (char *)(m_value + 2);
+    v14.m_key = m_value + 2;
     _R8 = (char *)(m_value + 2);
     __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
     goto LABEL_6;
   }
   while ( 1 )
   {
-    if ( !v8 && v9 == UNDEFINED_0 )
+    if ( !v6 && v7 == UNDEFINED_0 )
       return 0;
     if ( !index )
       break;
     --index;
-    if ( v9 && *v9 )
+    if ( v7 && *v7 )
     {
-      v9 = (char *)Json_Skip(v9);
-      *((_QWORD *)&v17 + 1) = v9;
-      v10 = (unsigned __int8)*v9;
-      if ( (_BYTE)v10 == 4 )
+      v7 = (char *)Json_Skip(v7);
+      v14.m_value = v7;
+      v8 = (unsigned __int8)*v7;
+      if ( (_BYTE)v8 == 4 )
       {
-        __asm { vmovdqu xmm1, xmmword ptr [rdi] }
-        v8 = v9 + 1;
-        *(_QWORD *)&v17 = v9 + 1;
-        _R8 = v9 + 1;
+        _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+        v6 = v7 + 1;
+        v14.m_key = v7 + 1;
+        _R8 = v7 + 1;
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
 LABEL_6:
-        v9 = &_R8[v10 + 1];
+        v7 = &_R8[v8 + 1];
 LABEL_9:
-        *((_QWORD *)&v17 + 1) = v9;
+        v14.m_value = v7;
         continue;
       }
-      if ( (_BYTE)v10 == 3 )
+      if ( (_BYTE)v8 == 3 )
       {
-        v8 = NULL;
-        v9 = UNDEFINED_0;
-        *(_QWORD *)&v17 = 0i64;
+        v6 = NULL;
+        v7 = UNDEFINED_0;
+        v14.m_key = NULL;
         goto LABEL_9;
       }
     }
   }
-  __asm
-  {
-    vmovups xmm0, [rsp+38h+var_18]
-    vmovups xmmword ptr [rsi], xmm0
-  }
+  *elem = v14;
   return 1;
 }
 
@@ -3244,43 +3190,22 @@ LABEL_9:
 Json::GetFloat32
 ==============
 */
-bool Json::GetFloat32(Json *this, float *value)
+char Json::GetFloat32(Json *this, float *value)
 {
-  int *v7; 
-  bool result; 
+  __int128 v2; 
+  char result; 
   char *EndPtr; 
 
-  _RBX = value;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  if ( *this->m_value < 9 )
-    goto LABEL_5;
-  _set_errno(0);
-  *(double *)&_XMM0 = strtod(this->m_value, &EndPtr);
-  __asm { vmovaps xmm6, xmm0 }
-  v7 = _errno();
-  if ( *v7 )
-    goto LABEL_5;
-  __asm
+  if ( *this->m_value < 9 || (_set_errno(0), *(double *)&v2 = strtod(this->m_value, &EndPtr), _XMM6 = v2, *_errno()) || *(double *)&v2 < -3.402823466385289e38 || *(double *)&v2 > 3.402823466385289e38 )
   {
-    vcomisd xmm6, cs:__real@c7efffffe0000000
-    vcomisd xmm6, cs:__real@47efffffe0000000
-  }
-  if ( *v7 )
-  {
-LABEL_5:
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
     result = 0;
-    *_RBX = 0.0;
+    *value = 0.0;
   }
   else
   {
-    __asm
-    {
-      vcvtsd2ss xmm0, xmm6, xmm6
-      vmovss  dword ptr [rbx], xmm0
-    }
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    __asm { vcvtsd2ss xmm0, xmm6, xmm6 }
+    *value = *(float *)&_XMM0;
+    return 1;
   }
   return result;
 }
@@ -3294,16 +3219,14 @@ char Json::GetFloat64(Json *this, long double *value)
 {
   char *EndPtr; 
 
-  _RBX = value;
   if ( *this->m_value >= 9 )
   {
     _set_errno(0);
-    *(double *)&_XMM0 = strtod(this->m_value, &EndPtr);
-    __asm { vmovsd  qword ptr [rbx], xmm0 }
+    *value = strtod(this->m_value, &EndPtr);
     if ( !*_errno() )
       return 1;
   }
-  *_RBX = 0.0;
+  *value = 0.0;
   return 0;
 }
 
@@ -3377,23 +3300,22 @@ Json::GetInt64
 char Json::GetInt64(Json *this, __int64 *value)
 {
   const char *m_value; 
-  unsigned __int8 v7; 
+  unsigned __int8 v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  unsigned __int64 v10; 
-  char v11; 
+  unsigned __int64 v9; 
+  char v10; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  __int128 v16; 
-  __int128 v17; 
+  const char *v14; 
+  int v15; 
 
   *value = 0i64;
   m_value = this->m_value;
   if ( *m_value >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[7].chars;
     _R8 = this->m_value;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -3401,69 +3323,64 @@ char Json::GetInt64(Json *this, __int64 *value)
         break;
       _R8 += 16;
     }
-    v7 = 0;
-    v8 = &_R8[(int)this];
-    v9 = this->m_value;
-    if ( m_value != v8 && *m_value == 45 )
+    v6 = 0;
+    v7 = &_R8[(int)this];
+    v8 = this->m_value;
+    if ( m_value != v7 && *m_value == 45 )
     {
-      v7 = 1;
-      v9 = m_value + 1;
+      v6 = 1;
+      v8 = m_value + 1;
     }
-    v10 = 0i64;
-    v11 = 0;
-    if ( v9 != v8 )
+    v9 = 0i64;
+    v10 = 0;
+    if ( v8 != v7 )
     {
       while ( 1 )
       {
-        LOBYTE(v12) = `std::_Digit_from_char'::`2'::_Digit_from_byte[*(unsigned __int8 *)v9];
-        if ( (unsigned __int8)v12 >= 0xAu )
+        LOBYTE(v11) = `std::_Digit_from_char'::`2'::_Digit_from_byte[*(unsigned __int8 *)v8];
+        if ( (unsigned __int8)v11 >= 0xAu )
           goto LABEL_17;
-        if ( v10 < 0xCCCCCCCCCCCCCCCi64 )
+        if ( v9 < 0xCCCCCCCCCCCCCCCi64 )
           break;
-        if ( v10 == 0xCCCCCCCCCCCCCCCi64 )
+        if ( v9 == 0xCCCCCCCCCCCCCCCi64 )
         {
-          v12 = (unsigned __int8)v12;
-          if ( (unsigned __int8)v12 <= (unsigned __int64)v7 + 7 )
+          v11 = (unsigned __int8)v11;
+          if ( (unsigned __int8)v11 <= (unsigned __int64)v6 + 7 )
             goto LABEL_15;
         }
-        v11 = 1;
+        v10 = 1;
 LABEL_16:
-        if ( ++v9 == v8 )
+        if ( ++v8 == v7 )
           goto LABEL_17;
       }
-      v12 = (unsigned __int8)v12;
+      v11 = (unsigned __int8)v11;
 LABEL_15:
-      v10 = v12 + 10 * v10;
+      v9 = v11 + 10 * v9;
       goto LABEL_16;
     }
 LABEL_17:
-    if ( v9 - m_value == v7 )
+    if ( v8 - m_value == v6 )
     {
-      *(_QWORD *)&v16 = m_value;
-      DWORD2(v16) = 22;
+      v14 = m_value;
+      v15 = 22;
     }
     else
     {
-      *(_QWORD *)&v16 = v9;
-      if ( v11 )
+      v14 = v8;
+      if ( v10 )
       {
-        DWORD2(v16) = 34;
+        v15 = 34;
       }
       else
       {
-        DWORD2(v16) = 0;
-        v13 = -(__int64)v10;
-        if ( !v7 )
-          v13 = v10;
-        *value = v13;
+        v15 = 0;
+        v12 = -(__int64)v9;
+        if ( !v6 )
+          v12 = v9;
+        *value = v12;
       }
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+28h+var_28]
-      vmovdqa [rsp+28h+var_28], xmm0
-    }
-    if ( !DWORD2(v17) && (const char *)v17 == v8 )
+    if ( !v15 && v14 == v7 )
       return 1;
     *value = 0i64;
   }
@@ -3507,14 +3424,13 @@ Json::GetName
 */
 bool Json::GetName(Json *this, char *value, unsigned __int64 size)
 {
-  unsigned __int64 v9; 
+  unsigned __int64 v8; 
   bool result; 
 
   if ( !this->m_key )
     goto LABEL_9;
-  _RAX = JSON_SCAN_CHARS[7].chars;
   _R9 = this->m_key;
-  __asm { vmovdqu xmm1, xmmword ptr [rax] }
+  _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
   while ( 1 )
   {
     __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -3522,14 +3438,14 @@ bool Json::GetName(Json *this, char *value, unsigned __int64 size)
       break;
     _R9 += 16;
   }
-  v9 = (unsigned __int64)&_R9[(int)this - (unsigned __int64)this->m_key + 1];
+  v8 = (unsigned __int64)&_R9[(int)this - (unsigned __int64)this->m_key + 1];
   if ( jsonAssertHandler )
-    jsonAssertHandler(v9 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetName", 1107, (const char *)&queryFormat.fmt + 3);
-  if ( v9 <= size )
+    jsonAssertHandler(v8 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetName", 1107, (const char *)&queryFormat.fmt + 3);
+  if ( v8 <= size )
   {
-    memcpy_0(value, this->m_key, v9);
+    memcpy_0(value, this->m_key, v8);
     result = 1;
-    value[v9] = 0;
+    value[v8] = 0;
   }
   else
   {
@@ -3550,8 +3466,7 @@ char Json::GetObject(Json *this, Json *value)
   _R8 = this->m_value;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -3563,11 +3478,7 @@ char Json::GetObject(Json *this, Json *value)
   }
   if ( *_R8 != 1 )
     return 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *value = *this;
   return 1;
 }
 
@@ -3579,15 +3490,14 @@ Json::GetString
 bool Json::GetString(Json *this, char *value, unsigned __int64 size)
 {
   const char *m_value; 
-  unsigned __int64 v10; 
+  unsigned __int64 v9; 
   bool result; 
 
   m_value = this->m_value;
   if ( *m_value != 8 )
     goto LABEL_9;
-  _RAX = JSON_SCAN_CHARS[7].chars;
   _R9 = m_value + 1;
-  __asm { vmovdqu xmm1, xmmword ptr [rax] }
+  _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
   while ( 1 )
   {
     __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -3595,14 +3505,14 @@ bool Json::GetString(Json *this, char *value, unsigned __int64 size)
       break;
     _R9 += 16;
   }
-  v10 = (unsigned __int64)&_R9[(int)this - (_QWORD)m_value];
+  v9 = (unsigned __int64)&_R9[(int)this - (_QWORD)m_value];
   if ( jsonAssertHandler )
-    jsonAssertHandler(v10 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetString", 1218, (const char *)&queryFormat.fmt + 3);
-  if ( v10 <= size )
+    jsonAssertHandler(v9 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetString", 1218, (const char *)&queryFormat.fmt + 3);
+  if ( v9 <= size )
   {
-    memcpy_0(value, this->m_value + 1, v10);
+    memcpy_0(value, this->m_value + 1, v9);
     result = 1;
-    value[v10] = 0;
+    value[v9] = 0;
   }
   else
   {
@@ -3643,15 +3553,12 @@ Json::GetText
 bool Json::GetText(Json *this, char *value, unsigned __int64 size)
 {
   const char *v5; 
-  const char *v7; 
-  unsigned __int64 v10; 
+  unsigned __int64 v8; 
   bool result; 
 
   v5 = Json::Text(this);
-  _RCX = JSON_SCAN_CHARS[7].chars;
-  v7 = v5;
   _R9 = v5;
-  __asm { vmovdqu xmm1, xmmword ptr [rcx] }
+  _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
   while ( 1 )
   {
     __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -3659,14 +3566,14 @@ bool Json::GetText(Json *this, char *value, unsigned __int64 size)
       break;
     _R9 += 16;
   }
-  v10 = (unsigned __int64)&_R9[SLODWORD(JSON_SCAN_CHARS[7].chars) - (_QWORD)v5 + 1];
+  v8 = (unsigned __int64)&_R9[SLODWORD(JSON_SCAN_CHARS[7].chars) - (_QWORD)v5 + 1];
   if ( jsonAssertHandler )
-    jsonAssertHandler(v10 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetText", 1126, (const char *)&queryFormat.fmt + 3);
-  if ( v10 <= size )
+    jsonAssertHandler(v8 <= size, "length <= size", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetText", 1126, (const char *)&queryFormat.fmt + 3);
+  if ( v8 <= size )
   {
-    memcpy_0(value, v7, v10);
+    memcpy_0(value, v5, v8);
     result = 1;
-    value[v10] = 0;
+    value[v8] = 0;
   }
   else
   {
@@ -3744,21 +3651,20 @@ Json::GetUInt64
 char Json::GetUInt64(Json *this, unsigned __int64 *value)
 {
   const char *m_value; 
-  char v7; 
+  char v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  unsigned __int64 v10; 
-  __int64 v11; 
-  __int128 v14; 
-  __int128 v15; 
+  unsigned __int64 v9; 
+  __int64 v10; 
+  const char *v12; 
+  int v13; 
 
   *value = 0i64;
   m_value = this->m_value;
   if ( *m_value >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[7].chars;
     _R8 = this->m_value;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -3766,60 +3672,55 @@ char Json::GetUInt64(Json *this, unsigned __int64 *value)
         break;
       _R8 += 16;
     }
-    v7 = 0;
-    v8 = &_R8[(int)this];
-    v9 = this->m_value;
-    v10 = 0i64;
-    if ( m_value != v8 )
+    v6 = 0;
+    v7 = &_R8[(int)this];
+    v8 = this->m_value;
+    v9 = 0i64;
+    if ( m_value != v7 )
     {
       while ( 1 )
       {
-        LOBYTE(v11) = `std::_Digit_from_char'::`2'::_Digit_from_byte[*(unsigned __int8 *)v9];
-        if ( (unsigned __int8)v11 >= 0xAu )
+        LOBYTE(v10) = `std::_Digit_from_char'::`2'::_Digit_from_byte[*(unsigned __int8 *)v8];
+        if ( (unsigned __int8)v10 >= 0xAu )
           goto LABEL_14;
-        if ( v10 < 0x1999999999999999i64 )
+        if ( v9 < 0x1999999999999999i64 )
           break;
-        if ( v10 == 0x1999999999999999i64 )
+        if ( v9 == 0x1999999999999999i64 )
         {
-          v11 = (unsigned __int8)v11;
-          if ( (unsigned __int8)v11 <= 5ui64 )
+          v10 = (unsigned __int8)v10;
+          if ( (unsigned __int8)v10 <= 5ui64 )
             goto LABEL_12;
         }
-        v7 = 1;
+        v6 = 1;
 LABEL_13:
-        if ( ++v9 == v8 )
+        if ( ++v8 == v7 )
           goto LABEL_14;
       }
-      v11 = (unsigned __int8)v11;
+      v10 = (unsigned __int8)v10;
 LABEL_12:
-      v10 = v11 + 10 * v10;
+      v9 = v10 + 10 * v9;
       goto LABEL_13;
     }
 LABEL_14:
-    if ( v9 == m_value )
+    if ( v8 == m_value )
     {
-      *(_QWORD *)&v14 = m_value;
-      DWORD2(v14) = 22;
+      v12 = m_value;
+      v13 = 22;
     }
     else
     {
-      *(_QWORD *)&v14 = v9;
-      if ( v7 )
+      v12 = v8;
+      if ( v6 )
       {
-        DWORD2(v14) = 34;
+        v13 = 34;
       }
       else
       {
-        *value = v10;
-        DWORD2(v14) = 0;
+        *value = v9;
+        v13 = 0;
       }
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+18h+var_18]
-      vmovdqa [rsp+18h+var_18], xmm0
-    }
-    if ( !DWORD2(v15) && (const char *)v15 == v8 )
+    if ( !v13 && v12 == v7 )
       return 1;
     *value = 0i64;
   }
@@ -3864,59 +3765,55 @@ JsonSerializer::Int
 char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
 {
   char *m_parentCount; 
-  char v9; 
-  __int64 v10; 
-  bool v11; 
-  int v13; 
-  __int64 v14; 
-  const char *v16; 
-  const char *v19; 
-  int v20; 
-  __int64 v21; 
+  char v8; 
+  __int64 v9; 
+  bool v10; 
+  int v12; 
+  __int64 v13; 
+  const char *v14; 
+  const char *v17; 
+  int v18; 
+  __int64 v19; 
   char *m_pos; 
-  unsigned __int8 v23; 
-  __int64 v24; 
-  __int64 v25; 
+  unsigned __int8 v21; 
+  __int64 v22; 
+  __int64 v23; 
+  char *v24; 
+  char *v25; 
   char *v26; 
   char *v27; 
   char *v28; 
   char *v29; 
-  char *v30; 
-  char *v31; 
-  __int64 v32; 
-  bool v33; 
+  __int64 v30; 
+  bool v31; 
   char Src[8]; 
-  __int128 v35; 
-  std::to_chars_result v36; 
-  char v37[32]; 
-  __int64 v38; 
+  __int128 v33; 
+  std::to_chars_result v34; 
+  char v35[32]; 
+  __int64 v36; 
 
-  memset(v37, 0, sizeof(v37));
-  _RAX = std::_Integer_to_chars<__int64>(&v36, v37, (char *const)&v38, value, 10);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vpextrd rax, xmm0, 2
-    vmovups [rsp+0A8h+var_70], xmm0
-  }
+  memset(v35, 0, sizeof(v35));
+  _XMM0 = (__int128)*std::_Integer_to_chars<__int64>(&v34, v35, (char *const)&v36, value, 10);
+  __asm { vpextrd rax, xmm0, 2 }
+  v33 = _XMM0;
   if ( !(_DWORD)_RAX )
-    *(_BYTE *)v35 = 0;
+    *(_BYTE *)v33 = 0;
   m_parentCount = (char *)this->m_parentCount;
-  v9 = 0;
+  v8 = 0;
   if ( (int)m_parentCount > 0 )
-    v9 = this->m_error[(_QWORD)m_parentCount + 128];
-  v10 = -1i64;
+    v8 = this->m_error[(_QWORD)m_parentCount + 128];
+  v9 = -1i64;
   if ( name )
   {
-    if ( v9 != 1 )
+    if ( v8 != 1 )
     {
-      v11 = JsonSerializer::Error(this, "unexpected key outside of an object");
+      v10 = JsonSerializer::Error(this, "unexpected key outside of an object");
       goto LABEL_97;
     }
   }
-  else if ( v9 == 1 )
+  else if ( v8 == 1 )
   {
-    v11 = JsonSerializer::Error(this, "key expected inside object");
+    v10 = JsonSerializer::Error(this, "key expected inside object");
     goto LABEL_97;
   }
   if ( (int)m_parentCount > 0 )
@@ -3969,19 +3866,19 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
       {
         ++this->m_pos;
       }
-      v13 = 0;
+      v12 = 0;
       if ( this->m_parentCount > 0 )
       {
         do
         {
-          v14 = -1i64;
+          v13 = -1i64;
           do
-            ++v14;
-          while ( this->m_indent[v14] );
-          if ( !JsonSerializer::Write(this, this->m_indent, v14) )
+            ++v13;
+          while ( this->m_indent[v13] );
+          if ( !JsonSerializer::Write(this, this->m_indent, v13) )
             return 0;
         }
-        while ( ++v13 < this->m_parentCount );
+        while ( ++v12 < this->m_parentCount );
       }
     }
   }
@@ -4006,12 +3903,11 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
   {
     ++this->m_pos;
   }
-  for ( ; *name; name = v19 + 1 )
+  for ( ; *name; name = v17 + 1 )
   {
-    _RAX = JSON_SCAN_CHARS[4].chars;
-    v16 = name;
+    v14 = name;
     _R8 = name;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4019,18 +3915,18 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
         break;
       _R8 += 16;
     }
-    v19 = &_R8[(int)m_parentCount];
-    v20 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v16;
+    v17 = &_R8[(int)m_parentCount];
+    v18 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v14;
     if ( this->m_closed )
       return 0;
-    v21 = v20;
+    v19 = v18;
     if ( this->m_buffer )
     {
       m_pos = this->m_pos;
-      if ( &m_pos[v20 + 1] < this->m_end )
+      if ( &m_pos[v18 + 1] < this->m_end )
       {
-        memcpy_0(m_pos, v16, v20);
-        this->m_pos += v21;
+        memcpy_0(m_pos, v14, v18);
+        this->m_pos += v19;
       }
       else if ( !JsonSerializer::Error(this, "out of memory") )
       {
@@ -4039,14 +3935,14 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
     }
     else
     {
-      this->m_pos += v20;
+      this->m_pos += v18;
     }
-    v23 = *v19;
-    if ( !*v19 )
+    v21 = *v17;
+    if ( !*v17 )
       break;
     LODWORD(m_parentCount) = this->m_closed;
-    Src[0] = *v19;
-    if ( (byte_14471F6B0[v23] & 0x10) != 0 )
+    Src[0] = *v17;
+    if ( (byte_14471F6B0[v21] & 0x10) != 0 )
     {
       if ( (_BYTE)m_parentCount )
         return 0;
@@ -4074,7 +3970,7 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
         m_parentCount = this->m_pos;
         if ( m_parentCount + 2 >= this->m_end )
           goto LABEL_67;
-        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v23];
+        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v21];
         ++this->m_pos;
       }
       else
@@ -4084,31 +3980,31 @@ char JsonSerializer::Int(JsonSerializer *this, const char *name, __int64 value)
     }
     else
     {
-      v24 = -1i64;
+      v22 = -1i64;
       do
-        ++v24;
-      while ( Src[v24] );
+        ++v22;
+      while ( Src[v22] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v25 = (int)v24;
+      v23 = (int)v22;
       if ( this->m_buffer )
       {
-        v27 = this->m_pos;
-        if ( &v27[(int)v24 + 1] >= this->m_end )
+        v25 = this->m_pos;
+        if ( &v25[(int)v22 + 1] >= this->m_end )
         {
 LABEL_67:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           continue;
         }
-        memcpy_0(v27, Src, (int)v24);
-        this->m_pos += v25;
+        memcpy_0(v25, Src, (int)v22);
+        this->m_pos += v23;
       }
       else
       {
-        v26 = this->m_pos;
-        LODWORD(m_parentCount) = v25 + (_DWORD)v26;
-        this->m_pos = &v26[v25];
+        v24 = this->m_pos;
+        LODWORD(m_parentCount) = v23 + (_DWORD)v24;
+        this->m_pos = &v24[v23];
       }
     }
   }
@@ -4116,10 +4012,10 @@ LABEL_67:
     return 0;
   if ( this->m_buffer )
   {
-    v28 = this->m_pos;
-    if ( v28 + 2 < this->m_end )
+    v26 = this->m_pos;
+    if ( v26 + 2 < this->m_end )
     {
-      *v28 = search[0];
+      *v26 = search[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -4135,10 +4031,10 @@ LABEL_67:
     return 0;
   if ( this->m_buffer )
   {
-    v29 = this->m_pos;
-    if ( v29 + 2 < this->m_end )
+    v27 = this->m_pos;
+    if ( v27 + 2 < this->m_end )
     {
-      *v29 = asc_143D7E4F8[0];
+      *v27 = asc_143D7E4F8[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -4160,43 +4056,43 @@ LABEL_100:
     ++this->m_pos;
     goto LABEL_101;
   }
-  v30 = this->m_pos;
-  if ( v30 + 2 < this->m_end )
+  v28 = this->m_pos;
+  if ( v28 + 2 < this->m_end )
   {
-    *v30 = whitespace[0];
+    *v28 = whitespace[0];
     goto LABEL_100;
   }
-  v11 = JsonSerializer::Error(this, "out of memory");
+  v10 = JsonSerializer::Error(this, "out of memory");
 LABEL_97:
-  if ( !v11 )
+  if ( !v10 )
     return 0;
   do
 LABEL_101:
-    ++v10;
-  while ( v37[v10] );
+    ++v9;
+  while ( v35[v9] );
   if ( this->m_closed )
     return 0;
   if ( !this->m_buffer )
     goto LABEL_108;
-  v31 = this->m_pos;
-  if ( &v31[(int)v10 + 1] < this->m_end )
+  v29 = this->m_pos;
+  if ( &v29[(int)v9 + 1] < this->m_end )
   {
-    memcpy_0(v31, v37, (int)v10);
+    memcpy_0(v29, v35, (int)v9);
 LABEL_108:
-    this->m_pos += (int)v10;
+    this->m_pos += (int)v9;
     goto LABEL_109;
   }
   if ( !JsonSerializer::Error(this, "out of memory") )
     return 0;
 LABEL_109:
-  v32 = this->m_parentCount;
-  v33 = (_DWORD)v32 == 0;
-  if ( (int)v32 > 0 )
+  v30 = this->m_parentCount;
+  v31 = (_DWORD)v30 == 0;
+  if ( (int)v30 > 0 )
   {
-    this->m_parentTypes[v32 + 31] = JSON_OBJECT;
-    v33 = this->m_parentCount == 0;
+    this->m_parentTypes[v30 + 31] = JSON_OBJECT;
+    v31 = this->m_parentCount == 0;
   }
-  if ( v33 )
+  if ( v31 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -4244,14 +4140,14 @@ bool Json::InterpolateString(Json *this, const char *string, char *output, unsig
   char *v25; 
   char v26; 
   void (__fastcall *v28)(bool, const char *, const char *, const char *, int, const char *); 
-  char *v30; 
-  char *v32; 
-  const char *v33; 
+  char *v29; 
+  char *v31; 
+  const char *v32; 
+  int v33; 
   int v34; 
-  int v35; 
-  signed __int64 v36; 
-  char v37; 
-  char v39[32]; 
+  signed __int64 v35; 
+  char v36; 
+  char v38[32]; 
 
   v4 = &output[outputSize];
   v5 = output;
@@ -4270,13 +4166,13 @@ bool Json::InterpolateString(Json *this, const char *string, char *output, unsig
             --v10;
           if ( v10 )
           {
-            v36 = i - v5;
+            v35 = i - v5;
             do
             {
-              v37 = v5[v36];
-              if ( !v37 )
+              v36 = v5[v35];
+              if ( !v36 )
                 break;
-              *v5++ = v37;
+              *v5++ = v36;
               --v10;
             }
             while ( v10 );
@@ -4314,7 +4210,7 @@ bool Json::InterpolateString(Json *this, const char *string, char *output, unsig
     if ( !v17 )
       return (char)v17;
     v19 = v17;
-    v20 = v39;
+    v20 = v38;
     v21 = v19 - v15;
     if ( v15 )
     {
@@ -4322,7 +4218,7 @@ bool Json::InterpolateString(Json *this, const char *string, char *output, unsig
       {
         v21 = 31i64;
 LABEL_18:
-        v22 = v15 - v39;
+        v22 = v15 - v38;
         do
         {
           v23 = v20[v22];
@@ -4360,9 +4256,8 @@ LABEL_23:
               LOBYTE(v21) = v26 == 4;
               v28(v21, "*p == JSON_NAME", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "Json::GetChild", 1147, (const char *)&queryFormat.fmt + 3);
             }
-            _RAX = JSON_SCAN_CHARS[7].chars;
-            v30 = (char *)(_RBX + 1);
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            v29 = (char *)(_RBX + 1);
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [rbx], 0 }
@@ -4370,25 +4265,25 @@ LABEL_23:
                 break;
               _RBX += 16;
             }
-            v32 = (char *)(v39 - v30);
-            v33 = &_RBX[(int)v21 + 1];
+            v31 = (char *)(v38 - v29);
+            v32 = &_RBX[(int)v21 + 1];
             do
             {
-              v34 = (unsigned __int8)v32[(_QWORD)v30];
-              v35 = (unsigned __int8)*v30 - v34;
-              if ( v35 )
+              v33 = (unsigned __int8)v31[(_QWORD)v29];
+              v34 = (unsigned __int8)*v29 - v33;
+              if ( v34 )
                 break;
-              ++v30;
+              ++v29;
             }
-            while ( v34 );
-            if ( !v35 )
+            while ( v33 );
+            if ( !v34 )
               break;
-            _RBX = Json_Skip(v33);
+            _RBX = Json_Skip(v32);
             v26 = *_RBX;
             if ( *_RBX == 3 )
               goto LABEL_39;
           }
-          v25 = (char *)v33;
+          v25 = (char *)v32;
         }
       }
     }
@@ -4435,8 +4330,7 @@ bool Json::IsArray(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4459,8 +4353,7 @@ bool Json::IsBool(Json *this)
   _R8 = this->m_value;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4486,8 +4379,7 @@ bool Json::IsFalse(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4513,8 +4405,7 @@ bool Json::IsFloat(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4540,8 +4431,7 @@ bool Json::IsInteger(Json *this)
   v2 = *_R8 == 9;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4567,8 +4457,7 @@ bool Json::IsNull(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4596,8 +4485,7 @@ char Json::IsNumber(Json *this)
   }
   else
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4622,8 +4510,7 @@ bool Json::IsObject(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4649,8 +4536,7 @@ bool Json::IsString(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4676,8 +4562,7 @@ bool Json::IsTrue(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4703,8 +4588,7 @@ bool Json::IsUndefined(Json *this)
   v2 = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -4726,51 +4610,51 @@ JsonSerializer *JsonSerializer::Json(JsonSerializer *this, const char *name, con
 {
   const char *v5; 
   char v7; 
-  const char *v10; 
-  bool v11; 
-  const char *v12; 
-  __int64 v13; 
-  char *v14; 
-  const char *v15; 
-  __int64 v16; 
-  int v17; 
-  __int64 v18; 
-  const char *v20; 
-  const char *v23; 
-  int v24; 
-  __int64 v25; 
-  char *v26; 
-  unsigned __int8 v27; 
-  __int64 v28; 
-  __int64 v29; 
+  const char *v9; 
+  bool v10; 
+  const char *v11; 
+  __int64 v12; 
+  char *v13; 
+  const char *v14; 
+  __int64 v15; 
+  int v16; 
+  __int64 v17; 
+  const char *v18; 
+  const char *v21; 
+  int v22; 
+  __int64 v23; 
+  char *v24; 
+  unsigned __int8 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  char *v28; 
+  char *v29; 
   char *v30; 
   char *v31; 
-  char *v32; 
-  char *v33; 
-  __int64 v34; 
-  bool v35; 
-  const char *v36; 
-  const char *v37; 
-  int v38; 
+  __int64 v32; 
+  bool v33; 
+  const char *v34; 
+  const char *v35; 
+  int v36; 
+  int v37; 
   int v40; 
-  int v44; 
-  char *v45; 
-  __int64 v46; 
-  const char *v47; 
+  char *v41; 
+  __int64 v42; 
+  const char *v43; 
   const char *m_value; 
   const char *m_key; 
-  int v50; 
-  const char *v52; 
-  int v53; 
+  int v46; 
+  const char *v47; 
+  int v48; 
   int m_parentCount; 
   char *m_pos; 
-  __int64 v59; 
-  __int64 v60; 
-  bool v61; 
-  __int64 v62; 
-  bool v63; 
+  __int64 v53; 
+  __int64 v54; 
+  bool v55; 
+  __int64 v56; 
+  bool v57; 
   Json result; 
-  Json v65; 
+  Json v59; 
   char Src[8]; 
 
   _R9 = value->m_value;
@@ -4778,8 +4662,7 @@ JsonSerializer *JsonSerializer::Json(JsonSerializer *this, const char *name, con
   v7 = *_R9;
   if ( *_R9 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -4798,17 +4681,16 @@ JsonSerializer *JsonSerializer::Json(JsonSerializer *this, const char *name, con
       Json::begin((Json *)value, &result);
       m_value = result.m_value;
       m_key = result.m_key;
-      v50 = 0;
+      v46 = 0;
       while ( 2 )
       {
         if ( m_key || m_value != UNDEFINED_0 )
         {
-          __asm { vmovups xmm0, xmmword ptr [rbp+result.m_key] }
-          v52 = (char *)&queryFormat.fmt + 3;
+          v47 = (char *)&queryFormat.fmt + 3;
           if ( m_key )
-            v52 = m_key;
-          __asm { vmovdqa [rbp+var_18], xmm0 }
-          if ( (unsigned __int8)JsonSerializer::Json(this, v52, &v65) )
+            v47 = m_key;
+          v59 = result;
+          if ( (unsigned __int8)JsonSerializer::Json(this, v47, &v59) )
           {
             if ( m_value && *m_value )
             {
@@ -4816,19 +4698,18 @@ JsonSerializer *JsonSerializer::Json(JsonSerializer *this, const char *name, con
               result.m_value = m_value;
               if ( *m_value == 4 )
               {
-                _RAX = JSON_SCAN_CHARS[7].chars;
                 m_key = m_value + 1;
                 result.m_key = m_value + 1;
                 _R8 = m_value + 1;
-                __asm { vmovdqu xmm1, xmmword ptr [rax] }
+                _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
                 while ( 1 )
                 {
                   __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
-                  if ( v53 != 16 )
+                  if ( v48 != 16 )
                     break;
                   _R8 += 16;
                 }
-                m_value = &_R8[v53 + 1];
+                m_value = &_R8[v48 + 1];
                 result.m_value = m_value;
               }
               else if ( *m_value == 3 )
@@ -4865,17 +4746,17 @@ LABEL_172:
             {
               do
               {
-                v59 = -1i64;
+                v53 = -1i64;
                 do
-                  ++v59;
-                while ( this->m_indent[v59] );
-                if ( !JsonSerializer::Write(this, this->m_indent, v59) )
+                  ++v53;
+                while ( this->m_indent[v53] );
+                if ( !JsonSerializer::Write(this, this->m_indent, v53) )
                   return 0;
               }
-              while ( ++v50 < this->m_parentCount );
+              while ( ++v46 < this->m_parentCount );
             }
 LABEL_177:
-            v47 = "}";
+            v43 = "}";
             goto LABEL_178;
           }
           *m_pos = p[0];
@@ -4889,14 +4770,14 @@ LABEL_183:
 LABEL_184:
       if ( !--this->m_jsonDepth )
       {
-        v62 = this->m_parentCount;
-        v63 = (_DWORD)v62 == 0;
-        if ( (int)v62 > 0 )
+        v56 = this->m_parentCount;
+        v57 = (_DWORD)v56 == 0;
+        if ( (int)v56 > 0 )
         {
-          this->m_parentTypes[v62 + 31] = JSON_OBJECT;
-          v63 = this->m_parentCount == 0;
+          this->m_parentTypes[v56 + 31] = JSON_OBJECT;
+          v57 = this->m_parentCount == 0;
         }
-        if ( v63 )
+        if ( v57 )
         {
           *this->m_pos = 0;
           this->m_closed = 1;
@@ -4908,46 +4789,41 @@ LABEL_184:
       if ( !JsonSerializer::BeginArray(this, name) )
         return 0;
       Json::begin((Json *)value, &result);
-      v36 = result.m_value;
-      v37 = result.m_key;
-      v38 = 0;
+      v34 = result.m_value;
+      v35 = result.m_key;
+      v36 = 0;
       while ( 2 )
       {
-        if ( v37 || v36 != UNDEFINED_0 )
+        if ( v35 || v34 != UNDEFINED_0 )
         {
-          __asm
+          v59 = result;
+          if ( (unsigned __int8)JsonSerializer::Json(this, NULL, &v59) )
           {
-            vmovups xmm0, xmmword ptr [rbp+result.m_key]
-            vmovdqa [rbp+var_18], xmm0
-          }
-          if ( (unsigned __int8)JsonSerializer::Json(this, NULL, &v65) )
-          {
-            if ( v36 && *v36 )
+            if ( v34 && *v34 )
             {
-              v36 = Json_Skip(v36);
-              result.m_value = v36;
-              if ( *v36 == 4 )
+              v34 = Json_Skip(v34);
+              result.m_value = v34;
+              if ( *v34 == 4 )
               {
-                _RAX = JSON_SCAN_CHARS[7].chars;
-                v37 = v36 + 1;
-                result.m_key = v36 + 1;
-                _R8 = v36 + 1;
-                __asm { vmovdqu xmm1, xmmword ptr [rax] }
+                v35 = v34 + 1;
+                result.m_key = v34 + 1;
+                _R8 = v34 + 1;
+                _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
                 while ( 1 )
                 {
                   __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
-                  if ( v40 != 16 )
+                  if ( v37 != 16 )
                     break;
                   _R8 += 16;
                 }
-                v36 = &_R8[v40 + 1];
-                result.m_value = v36;
+                v34 = &_R8[v37 + 1];
+                result.m_value = v34;
               }
-              else if ( *v36 == 3 )
+              else if ( *v34 == 3 )
               {
-                v37 = NULL;
+                v35 = NULL;
                 result.m_key = NULL;
-                v36 = UNDEFINED_0;
+                v34 = UNDEFINED_0;
                 result.m_value = UNDEFINED_0;
               }
             }
@@ -4957,20 +4833,20 @@ LABEL_184:
         }
         break;
       }
-      v44 = this->m_parentCount;
-      if ( v44 <= 0 || this->m_error[v44 + 128] != 2 )
+      v40 = this->m_parentCount;
+      if ( v40 <= 0 || this->m_error[v40 + 128] != 2 )
         goto LABEL_183;
-      this->m_parentCount = v44 - 1;
+      this->m_parentCount = v40 - 1;
       if ( !this->m_indent[0] )
         goto LABEL_145;
       if ( this->m_closed )
         return 0;
       if ( !this->m_buffer )
         goto LABEL_139;
-      v45 = this->m_pos;
-      if ( v45 + 2 < this->m_end )
+      v41 = this->m_pos;
+      if ( v41 + 2 < this->m_end )
       {
-        *v45 = p[0];
+        *v41 = p[0];
 LABEL_139:
         ++this->m_pos;
       }
@@ -4982,29 +4858,29 @@ LABEL_139:
       {
         do
         {
-          v46 = -1i64;
+          v42 = -1i64;
           do
-            ++v46;
-          while ( this->m_indent[v46] );
-          if ( !JsonSerializer::Write(this, this->m_indent, v46) )
+            ++v42;
+          while ( this->m_indent[v42] );
+          if ( !JsonSerializer::Write(this, this->m_indent, v42) )
             return 0;
-          ++v38;
+          ++v36;
         }
-        while ( v38 < this->m_parentCount );
+        while ( v36 < this->m_parentCount );
       }
 LABEL_145:
-      v47 = "]";
+      v43 = "]";
 LABEL_178:
-      if ( JsonSerializer::Write(this, v47, 1) )
+      if ( JsonSerializer::Write(this, v43, 1) )
       {
-        v60 = this->m_parentCount;
-        v61 = (_DWORD)v60 == 0;
-        if ( (int)v60 > 0 )
+        v54 = this->m_parentCount;
+        v55 = (_DWORD)v54 == 0;
+        if ( (int)v54 > 0 )
         {
-          this->m_parentTypes[v60 + 31] = JSON_OBJECT;
-          v61 = this->m_parentCount == 0;
+          this->m_parentTypes[v54 + 31] = JSON_OBJECT;
+          v55 = this->m_parentCount == 0;
         }
-        if ( v61 )
+        if ( v55 )
         {
           *this->m_pos = 0;
           this->m_closed = 1;
@@ -5019,47 +4895,47 @@ LABEL_178:
     case 7:
       return (JsonSerializer *)JsonSerializer::Null(this, name);
     case 8:
-      v10 = Json::Text((Json *)value);
-      return (JsonSerializer *)JsonSerializer::String(this, v5, v10);
+      v9 = Json::Text((Json *)value);
+      return (JsonSerializer *)JsonSerializer::String(this, v5, v9);
     case 9:
     case 10:
-      v12 = Json::Text((Json *)value);
-      v13 = this->m_parentCount;
-      LOBYTE(v14) = 0;
-      v15 = v12;
-      if ( (int)v13 > 0 )
-        LODWORD(v14) = (unsigned __int8)this->m_error[v13 + 128];
-      v16 = -1i64;
+      v11 = Json::Text((Json *)value);
+      v12 = this->m_parentCount;
+      LOBYTE(v13) = 0;
+      v14 = v11;
+      if ( (int)v12 > 0 )
+        LODWORD(v13) = (unsigned __int8)this->m_error[v12 + 128];
+      v15 = -1i64;
       if ( v5 )
       {
-        if ( (_BYTE)v14 != 1 )
+        if ( (_BYTE)v13 != 1 )
         {
-          v11 = JsonSerializer::Error(this, "unexpected key outside of an object");
+          v10 = JsonSerializer::Error(this, "unexpected key outside of an object");
           goto LABEL_105;
         }
       }
-      else if ( (_BYTE)v14 == 1 )
+      else if ( (_BYTE)v13 == 1 )
       {
-        v11 = JsonSerializer::Error(this, "key expected inside object");
+        v10 = JsonSerializer::Error(this, "key expected inside object");
         goto LABEL_105;
       }
-      if ( (int)v13 <= 0 )
+      if ( (int)v12 <= 0 )
         goto LABEL_43;
       if ( jsonAssertHandler )
       {
-        jsonAssertHandler((int)v13 < 32, "m_parentCount < (int)ARRAY_COUNT( m_parentChild )", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "JsonSerializer::Key", 1957, (const char *)&queryFormat.fmt + 3);
-        LODWORD(v13) = this->m_parentCount;
+        jsonAssertHandler((int)v12 < 32, "m_parentCount < (int)ARRAY_COUNT( m_parentChild )", "c:\\workspace\\iw8\\code_source\\external\\nujson\\nujson.cpp", "JsonSerializer::Key", 1957, (const char *)&queryFormat.fmt + 3);
+        LODWORD(v12) = this->m_parentCount;
       }
-      if ( (int)v13 <= 0 || this->m_parentTypes[(int)v13 + 31] == JSON_UNDEFINED )
+      if ( (int)v12 <= 0 || this->m_parentTypes[(int)v12 + 31] == JSON_UNDEFINED )
         goto LABEL_30;
       if ( this->m_closed )
         return 0;
       if ( !this->m_buffer )
         goto LABEL_29;
-      v14 = this->m_pos;
-      if ( v14 + 2 < this->m_end )
+      v13 = this->m_pos;
+      if ( v13 + 2 < this->m_end )
       {
-        *v14 = asc_143DE3EFC[0];
+        *v13 = asc_143DE3EFC[0];
 LABEL_29:
         ++this->m_pos;
       }
@@ -5074,10 +4950,10 @@ LABEL_30:
         return 0;
       if ( !this->m_buffer )
         goto LABEL_37;
-      v14 = this->m_pos;
-      if ( v14 + 2 < this->m_end )
+      v13 = this->m_pos;
+      if ( v13 + 2 < this->m_end )
       {
-        *v14 = p[0];
+        *v13 = p[0];
 LABEL_37:
         ++this->m_pos;
       }
@@ -5085,19 +4961,19 @@ LABEL_37:
       {
         return 0;
       }
-      v17 = 0;
+      v16 = 0;
       if ( this->m_parentCount > 0 )
       {
         do
         {
-          v18 = -1i64;
+          v17 = -1i64;
           do
-            ++v18;
-          while ( this->m_indent[v18] );
-          if ( !JsonSerializer::Write(this, this->m_indent, v18) )
+            ++v17;
+          while ( this->m_indent[v17] );
+          if ( !JsonSerializer::Write(this, this->m_indent, v17) )
             return 0;
         }
-        while ( ++v17 < this->m_parentCount );
+        while ( ++v16 < this->m_parentCount );
       }
 LABEL_43:
       if ( !v5 )
@@ -5106,10 +4982,10 @@ LABEL_43:
         return 0;
       if ( !this->m_buffer )
         goto LABEL_50;
-      v14 = this->m_pos;
-      if ( v14 + 2 < this->m_end )
+      v13 = this->m_pos;
+      if ( v13 + 2 < this->m_end )
       {
-        *v14 = search[0];
+        *v13 = search[0];
 LABEL_50:
         ++this->m_pos;
       }
@@ -5121,43 +4997,42 @@ LABEL_50:
       {
         while ( 1 )
         {
-          _RAX = JSON_SCAN_CHARS[4].chars;
-          v20 = v5;
+          v18 = v5;
           _R8 = v5;
-          __asm { vmovdqu xmm1, xmmword ptr [rax] }
+          _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
           while ( 1 )
           {
             __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
-            if ( (_DWORD)v14 != 16 )
+            if ( (_DWORD)v13 != 16 )
               break;
             _R8 += 16;
           }
-          v23 = &_R8[(int)v14];
-          v24 = (_DWORD)_R8 + (_DWORD)v14 - (_DWORD)v20;
+          v21 = &_R8[(int)v13];
+          v22 = (_DWORD)_R8 + (_DWORD)v13 - (_DWORD)v18;
           if ( this->m_closed )
             return 0;
-          v25 = v24;
+          v23 = v22;
           if ( !this->m_buffer )
             goto LABEL_61;
-          v26 = this->m_pos;
-          if ( &v26[v24 + 1] < this->m_end )
+          v24 = this->m_pos;
+          if ( &v24[v22 + 1] < this->m_end )
             break;
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
 LABEL_62:
-          v27 = *v23;
-          if ( !*v23 )
+          v25 = *v21;
+          if ( !*v21 )
             goto LABEL_86;
-          LODWORD(v14) = this->m_closed;
-          Src[0] = *v23;
-          if ( (byte_14471F6B0[v27] & 0x10) != 0 )
+          LODWORD(v13) = this->m_closed;
+          Src[0] = *v21;
+          if ( (byte_14471F6B0[v25] & 0x10) != 0 )
           {
-            if ( (_BYTE)v14 )
+            if ( (_BYTE)v13 )
               return 0;
             if ( this->m_buffer )
             {
-              v14 = this->m_pos;
-              if ( v14 + 2 >= this->m_end )
+              v13 = this->m_pos;
+              if ( v13 + 2 >= this->m_end )
               {
                 if ( !JsonSerializer::Error(this, "out of memory") )
                   return 0;
@@ -5166,10 +5041,10 @@ LABEL_71:
                   return 0;
                 if ( this->m_buffer )
                 {
-                  v14 = this->m_pos;
-                  if ( v14 + 2 >= this->m_end )
+                  v13 = this->m_pos;
+                  if ( v13 + 2 >= this->m_end )
                     goto LABEL_75;
-                  *v14 = `JsonSerializer::QuotedString'::`2'::escape[v27];
+                  *v13 = `JsonSerializer::QuotedString'::`2'::escape[v25];
                   ++this->m_pos;
                 }
                 else
@@ -5178,39 +5053,39 @@ LABEL_71:
                 }
                 goto LABEL_85;
               }
-              *v14 = asc_1440E303C[0];
+              *v13 = asc_1440E303C[0];
             }
             ++this->m_pos;
             goto LABEL_71;
           }
-          v28 = -1i64;
+          v26 = -1i64;
           do
-            ++v28;
-          while ( Src[v28] );
-          if ( (_BYTE)v14 )
+            ++v26;
+          while ( Src[v26] );
+          if ( (_BYTE)v13 )
             return 0;
-          v29 = (int)v28;
+          v27 = (int)v26;
           if ( this->m_buffer )
           {
-            v30 = this->m_pos;
-            if ( &v30[(int)v28 + 1] >= this->m_end )
+            v28 = this->m_pos;
+            if ( &v28[(int)v26 + 1] >= this->m_end )
             {
 LABEL_75:
               if ( !JsonSerializer::Error(this, "out of memory") )
                 return 0;
               goto LABEL_85;
             }
-            memcpy_0(v30, Src, (int)v28);
+            memcpy_0(v28, Src, (int)v26);
           }
-          this->m_pos += v29;
+          this->m_pos += v27;
 LABEL_85:
-          v5 = v23 + 1;
+          v5 = v21 + 1;
           if ( !*v5 )
             goto LABEL_86;
         }
-        memcpy_0(v26, v20, v24);
+        memcpy_0(v24, v18, v22);
 LABEL_61:
-        this->m_pos += v25;
+        this->m_pos += v23;
         goto LABEL_62;
       }
 LABEL_86:
@@ -5218,10 +5093,10 @@ LABEL_86:
         return 0;
       if ( !this->m_buffer )
         goto LABEL_92;
-      v31 = this->m_pos;
-      if ( v31 + 2 < this->m_end )
+      v29 = this->m_pos;
+      if ( v29 + 2 < this->m_end )
       {
-        *v31 = search[0];
+        *v29 = search[0];
 LABEL_92:
         ++this->m_pos;
       }
@@ -5233,10 +5108,10 @@ LABEL_92:
         return 0;
       if ( !this->m_buffer )
         goto LABEL_99;
-      v32 = this->m_pos;
-      if ( v32 + 2 < this->m_end )
+      v30 = this->m_pos;
+      if ( v30 + 2 < this->m_end )
       {
-        *v32 = asc_143D7E4F8[0];
+        *v30 = asc_143D7E4F8[0];
 LABEL_99:
         ++this->m_pos;
       }
@@ -5250,32 +5125,32 @@ LABEL_99:
         return 0;
       if ( !this->m_buffer )
         goto LABEL_108;
-      v33 = this->m_pos;
-      if ( v33 + 2 < this->m_end )
+      v31 = this->m_pos;
+      if ( v31 + 2 < this->m_end )
       {
-        *v33 = whitespace[0];
+        *v31 = whitespace[0];
 LABEL_108:
         ++this->m_pos;
         goto LABEL_109;
       }
-      v11 = JsonSerializer::Error(this, "out of memory");
+      v10 = JsonSerializer::Error(this, "out of memory");
 LABEL_105:
-      if ( !v11 )
-        return (JsonSerializer *)v11;
+      if ( !v10 )
+        return (JsonSerializer *)v10;
       do
 LABEL_109:
-        ++v16;
-      while ( v15[v16] );
-      if ( !JsonSerializer::Write(this, v15, v16) )
+        ++v15;
+      while ( v14[v15] );
+      if ( !JsonSerializer::Write(this, v14, v15) )
         return 0;
-      v34 = this->m_parentCount;
-      v35 = (_DWORD)v34 == 0;
-      if ( (int)v34 > 0 )
+      v32 = this->m_parentCount;
+      v33 = (_DWORD)v32 == 0;
+      if ( (int)v32 > 0 )
       {
-        this->m_parentTypes[v34 + 31] = JSON_OBJECT;
-        v35 = this->m_parentCount == 0;
+        this->m_parentTypes[v32 + 31] = JSON_OBJECT;
+        v33 = this->m_parentCount == 0;
       }
-      if ( v35 )
+      if ( v33 )
       {
         *this->m_pos = 0;
         this->m_closed = 1;
@@ -5295,14 +5170,10 @@ JsonSerializer::Json
 */
 JsonSerializer *JsonSerializer::Json(JsonSerializer *this, const Json *value)
 {
-  Json v4; 
+  Json v3; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rsp+38h+var_18.m_key], xmm0
-  }
-  return JsonSerializer::Json(this, NULL, &v4);
+  v3 = *value;
+  return JsonSerializer::Json(this, NULL, &v3);
 }
 
 /*
@@ -5343,45 +5214,42 @@ Json_Skip
 */
 const char *Json_Skip(const char *p)
 {
-  int v3; 
+  int v2; 
   const char *result; 
+  const char *v7; 
+  int v8; 
   const char *v11; 
-  int v12; 
-  const char *v15; 
-  __int128 v18; 
+  __int128 v13; 
 
   _R9 = p;
-  __asm { vmovdqu xmm0, cs:__xmm@ffffffff000000010000000100000000 }
-  v3 = *p - 1;
-  __asm { vmovdqu [rsp+48h+var_28], xmm0 }
-  switch ( v3 )
+  v2 = *p - 1;
+  v13 = _xmm_ffffffff000000010000000100000000;
+  switch ( v2 )
   {
     case 0:
     case 1:
-      _RAX = JSON_SCAN_CHARS[5].chars;
-      v11 = p + 1;
-      v12 = 1;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      v7 = p + 1;
+      v8 = 1;
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[5].chars;
       do
       {
-        for ( _R8 = v11; ; _R8 += 16 )
+        for ( _R8 = v7; ; _R8 += 16 )
         {
           __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
           if ( (_DWORD)p != 16 )
             break;
         }
-        v15 = &_R8[(int)p];
-        p = (const char *)*(unsigned __int8 *)v15;
-        v11 = v15 + 1;
-        v12 += *((_DWORD *)&v18 + (_QWORD)p);
+        v11 = &_R8[(int)p];
+        p = (const char *)*(unsigned __int8 *)v11;
+        v7 = v11 + 1;
+        v8 += *((_DWORD *)&v13 + (_QWORD)p);
       }
-      while ( v12 > 0 );
-      result = v11;
+      while ( v8 > 0 );
+      result = v7;
       break;
     case 3:
-      _RAX = JSON_SCAN_CHARS[7].chars;
       _R9 = p + 1;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -5397,9 +5265,8 @@ const char *Json_Skip(const char *p)
       result = p + 1;
       break;
     case 7:
-      _RAX = JSON_SCAN_CHARS[7].chars;
       _R9 = p + 1;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -5409,8 +5276,7 @@ const char *Json_Skip(const char *p)
       }
       goto LABEL_19;
     default:
-      _RAX = JSON_SCAN_CHARS[7].chars;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r9], 0 }
@@ -5488,21 +5354,21 @@ char JsonSerializer::Null(JsonSerializer *this, const char *name)
   bool v6; 
   int v8; 
   __int64 v9; 
-  const char *v11; 
-  const char *v14; 
-  int v15; 
-  __int64 v16; 
+  const char *v10; 
+  const char *v13; 
+  int v14; 
+  __int64 v15; 
   char *m_pos; 
-  unsigned __int8 v18; 
+  unsigned __int8 v17; 
+  __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
+  char *v20; 
   char *v21; 
   char *v22; 
   char *v23; 
   char *v24; 
-  char *v25; 
-  __int64 v26; 
-  bool v27; 
+  __int64 v25; 
+  bool v26; 
   char Src[8]; 
 
   v3 = 0;
@@ -5603,10 +5469,9 @@ LABEL_41:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v11 = v5;
+      v10 = v5;
       _R8 = v5;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -5614,25 +5479,25 @@ LABEL_41:
           break;
         _R8 += 16;
       }
-      v14 = &_R8[(int)m_parentCount];
-      v15 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v11;
+      v13 = &_R8[(int)m_parentCount];
+      v14 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v10;
       if ( this->m_closed )
         return 0;
-      v16 = v15;
+      v15 = v14;
       if ( !this->m_buffer )
         goto LABEL_51;
       m_pos = this->m_pos;
-      if ( &m_pos[v15 + 1] < this->m_end )
+      if ( &m_pos[v14 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_52:
-      v18 = *v14;
-      if ( !*v14 )
+      v17 = *v13;
+      if ( !*v13 )
         goto LABEL_76;
       LODWORD(m_parentCount) = this->m_closed;
-      Src[0] = *v14;
-      if ( (byte_14471F6B0[v18] & 0x10) != 0 )
+      Src[0] = *v13;
+      if ( (byte_14471F6B0[v17] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -5651,7 +5516,7 @@ LABEL_61:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_65;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v18];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v17];
               ++this->m_pos;
             }
             else
@@ -5665,34 +5530,34 @@ LABEL_61:
         ++this->m_pos;
         goto LABEL_61;
       }
-      v19 = -1i64;
+      v18 = -1i64;
       do
-        ++v19;
-      while ( Src[v19] );
+        ++v18;
+      while ( Src[v18] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v20 = (int)v19;
+      v19 = (int)v18;
       if ( this->m_buffer )
       {
-        v21 = this->m_pos;
-        if ( &v21[(int)v19 + 1] >= this->m_end )
+        v20 = this->m_pos;
+        if ( &v20[(int)v18 + 1] >= this->m_end )
         {
 LABEL_65:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_75;
         }
-        memcpy_0(v21, Src, (int)v19);
+        memcpy_0(v20, Src, (int)v18);
       }
-      this->m_pos += v20;
+      this->m_pos += v19;
 LABEL_75:
-      v5 = v14 + 1;
+      v5 = v13 + 1;
       if ( !*v5 )
         goto LABEL_76;
     }
-    memcpy_0(m_pos, v11, v15);
+    memcpy_0(m_pos, v10, v14);
 LABEL_51:
-    this->m_pos += v16;
+    this->m_pos += v15;
     goto LABEL_52;
   }
 LABEL_76:
@@ -5700,10 +5565,10 @@ LABEL_76:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_82;
-  v22 = this->m_pos;
-  if ( v22 + 2 < this->m_end )
+  v21 = this->m_pos;
+  if ( v21 + 2 < this->m_end )
   {
-    *v22 = search[0];
+    *v21 = search[0];
 LABEL_82:
     ++this->m_pos;
     goto LABEL_83;
@@ -5715,10 +5580,10 @@ LABEL_83:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_89;
-  v23 = this->m_pos;
-  if ( v23 + 2 < this->m_end )
+  v22 = this->m_pos;
+  if ( v22 + 2 < this->m_end )
   {
-    *v23 = asc_143D7E4F8[0];
+    *v22 = asc_143D7E4F8[0];
 LABEL_89:
     ++this->m_pos;
     goto LABEL_90;
@@ -5736,10 +5601,10 @@ LABEL_98:
     ++this->m_pos;
     goto LABEL_99;
   }
-  v24 = this->m_pos;
-  if ( v24 + 2 < this->m_end )
+  v23 = this->m_pos;
+  if ( v23 + 2 < this->m_end )
   {
-    *v24 = whitespace[0];
+    *v23 = whitespace[0];
     goto LABEL_98;
   }
   v6 = JsonSerializer::Error(this, "out of memory");
@@ -5755,23 +5620,23 @@ LABEL_105:
     this->m_pos += 4;
     goto LABEL_106;
   }
-  v25 = this->m_pos;
-  if ( v25 + 5 < this->m_end )
+  v24 = this->m_pos;
+  if ( v24 + 5 < this->m_end )
   {
-    *(_DWORD *)v25 = *(_DWORD *)"null";
+    *(_DWORD *)v24 = *(_DWORD *)"null";
     goto LABEL_105;
   }
   if ( !JsonSerializer::Error(this, "out of memory") )
     return 0;
 LABEL_106:
-  v26 = this->m_parentCount;
-  v27 = (_DWORD)v26 == 0;
-  if ( (int)v26 > 0 )
+  v25 = this->m_parentCount;
+  v26 = (_DWORD)v25 == 0;
+  if ( (int)v25 > 0 )
   {
-    this->m_parentTypes[v26 + 31] = JSON_OBJECT;
-    v27 = this->m_parentCount == 0;
+    this->m_parentTypes[v25 + 31] = JSON_OBJECT;
+    v26 = this->m_parentCount == 0;
   }
-  if ( v27 )
+  if ( v26 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -5804,91 +5669,99 @@ char Json::Parse(Json *this, char *text, char *error, int errorSize)
   char *v10; 
   int v11; 
   char *v12; 
-  char *v16; 
-  unsigned __int64 v17; 
+  char *v15; 
+  unsigned __int64 v16; 
+  int v17; 
   int v18; 
-  int v19; 
-  __int64 v20; 
-  char v21; 
-  __int64 v22; 
-  bool v23; 
-  __int64 v24; 
-  char *v28; 
-  char *v29; 
-  unsigned __int64 v30; 
-  int v31; 
-  int v32; 
-  char *v36; 
-  char *v37; 
-  unsigned __int64 v38; 
-  int v39; 
-  int v40; 
+  __int64 v19; 
+  char v20; 
+  __int64 v21; 
+  bool v22; 
+  __int64 v23; 
+  char *v26; 
+  char *v27; 
+  unsigned __int64 v28; 
+  int v29; 
+  int v30; 
+  char *v33; 
+  char *v34; 
+  unsigned __int64 v35; 
+  int v36; 
+  int v37; 
+  _BYTE *v38; 
+  char *v39; 
+  unsigned __int64 v40; 
   _BYTE *v41; 
-  char *v42; 
-  unsigned __int64 v43; 
+  const void *v44; 
   _BYTE *v45; 
-  const void *v48; 
-  _BYTE *v49; 
-  int v50; 
-  unsigned __int64 v51; 
+  int v46; 
+  unsigned __int64 v47; 
   int k; 
-  __int64 v53; 
-  unsigned __int64 v54; 
+  __int64 v49; 
+  unsigned __int64 v50; 
   const char *fmt; 
-  char *v56; 
+  char *v52; 
+  int v53; 
+  bool v54; 
+  int v55; 
+  int v56; 
   int v57; 
-  bool v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  __int64 v62; 
+  __int64 v58; 
+  char *v61; 
+  char *v62; 
+  unsigned __int64 v63; 
+  int v64; 
+  int v65; 
   char *v66; 
-  char *v67; 
-  unsigned __int64 v68; 
-  int v69; 
-  int v70; 
-  char *v71; 
-  char *v75; 
-  unsigned __int64 v76; 
-  unsigned __int64 v77; 
-  bool v78; 
-  int v79; 
-  int v80; 
-  char v81; 
-  char *v85; 
-  char *v86; 
-  unsigned __int64 v87; 
-  int v88; 
-  int v89; 
+  char *v69; 
+  unsigned __int64 v70; 
+  unsigned __int64 v71; 
+  bool v72; 
+  int v73; 
+  int v74; 
+  char v75; 
+  char *v78; 
+  char *v79; 
+  unsigned __int64 v80; 
+  int v81; 
+  int v82; 
+  _BYTE *v83; 
+  char *v84; 
+  Json *v85; 
+  _BYTE *v86; 
+  const void *v89; 
   _BYTE *v90; 
-  char *v91; 
-  Json *v92; 
-  _BYTE *v94; 
-  const void *v97; 
-  _BYTE *v98; 
-  int v99; 
+  int v91; 
   int i; 
-  __int64 v101; 
-  Json *v102; 
-  unsigned __int64 v103; 
+  __int64 v93; 
+  Json *v94; 
+  unsigned __int64 v95; 
+  unsigned __int64 v96; 
+  unsigned __int64 v97; 
+  bool v98; 
+  int v99; 
+  char *v102; 
+  char *v103; 
   unsigned __int64 v104; 
-  unsigned __int64 v105; 
-  bool v106; 
-  int v107; 
-  char *v111; 
-  char *v112; 
-  unsigned __int64 v113; 
-  int v114; 
-  int v115; 
+  int v105; 
+  int v106; 
   char *j; 
-  char *v117; 
-  char v118; 
-  char v119; 
-  char v120; 
-  char v121; 
-  char *v122; 
-  char v123; 
-  int v124; 
+  char *v108; 
+  char v109; 
+  char v110; 
+  char v111; 
+  char v112; 
+  char *v113; 
+  char v114; 
+  int v115; 
+  char *v118; 
+  char *v119; 
+  unsigned __int64 v120; 
+  int v121; 
+  int v122; 
+  int v123; 
+  const char *v124; 
+  char v125; 
   char *v128; 
   char *v129; 
   unsigned __int64 v130; 
@@ -5897,39 +5770,31 @@ char Json::Parse(Json *this, char *text, char *error, int errorSize)
   int v133; 
   const char *v134; 
   char v135; 
+  char *v138; 
   char *v139; 
-  char *v140; 
-  unsigned __int64 v141; 
+  unsigned __int64 v140; 
+  int v141; 
   int v142; 
   int v143; 
-  int v144; 
-  const char *v145; 
-  char v146; 
-  char *v150; 
-  char *v151; 
-  unsigned __int64 v152; 
-  int v153; 
-  int v154; 
-  int v155; 
-  const char *v156; 
-  char v157; 
-  char *v161; 
-  unsigned __int64 v162; 
-  unsigned __int64 v163; 
-  int v164; 
-  int v165; 
-  __int64 v167; 
-  int v170; 
-  char *v171; 
-  char *v172; 
-  Json *v174; 
-  char v175[64]; 
+  const char *v144; 
+  char v145; 
+  char *v148; 
+  unsigned __int64 v149; 
+  unsigned __int64 v150; 
+  int v151; 
+  int v152; 
+  __int64 v154; 
+  int v157; 
+  char *v158; 
+  char *v159; 
+  Json *v161; 
+  char v162[64]; 
 
   v4 = -1;
-  v170 = -1;
+  v157 = -1;
   v5 = errorSize;
   v6 = error;
-  v174 = this;
+  v161 = this;
   if ( error && v5 )
     *error = 0;
   v8 = (unsigned __int8)*text;
@@ -5938,9 +5803,8 @@ char Json::Parse(Json *this, char *text, char *error, int errorSize)
   v11 = 1;
   if ( (byte_14471F6B0[v8] & 2) != 0 )
   {
-    _RAX = JSON_SCAN_CHARS[1].chars;
     _R8 = text + 1;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -5948,27 +5812,27 @@ char Json::Parse(Json *this, char *text, char *error, int errorSize)
         break;
       _R8 += 16;
     }
-    v16 = text;
+    v15 = text;
     v12 = &_R8[(int)this];
-    v17 = v12 - text;
+    v16 = v12 - text;
     if ( text > v12 )
-      v17 = 0i64;
-    if ( v17 )
+      v16 = 0i64;
+    if ( v16 )
     {
       do
       {
-        this = (Json *)(unsigned __int8)*v16;
-        v18 = v11 + 1;
+        this = (Json *)(unsigned __int8)*v15;
+        v17 = v11 + 1;
         v11 = 1;
         if ( (_BYTE)this != 10 )
-          v11 = v18;
-        v19 = v9 + 1;
+          v11 = v17;
+        v18 = v9 + 1;
         if ( (_BYTE)this != 10 )
-          v19 = v9;
-        ++v16;
-        v9 = v19;
+          v18 = v9;
+        ++v15;
+        v9 = v18;
       }
-      while ( v16 - text < v17 );
+      while ( v15 - text < v16 );
     }
     LOBYTE(v8) = *v12;
   }
@@ -5976,38 +5840,37 @@ char Json::Parse(Json *this, char *text, char *error, int errorSize)
   {
     v12 = text;
   }
-  v20 = -1i64;
+  v19 = -1i64;
 LABEL_19:
   LOBYTE(this) = 0;
-  v21 = 0;
-  if ( v20 >= 0 )
+  v20 = 0;
+  if ( v19 >= 0 )
   {
-    v21 = v175[v20 + 32];
-    this = (Json *)(unsigned __int8)v175[v20];
+    v20 = v162[v19 + 32];
+    this = (Json *)(unsigned __int8)v162[v19];
   }
   while ( 1 )
   {
-    v22 = v20;
+    v21 = v19;
     if ( (_BYTE)v8 == 125 )
     {
-      v23 = v21 == 1;
+      v22 = v20 == 1;
     }
     else
     {
       if ( (_BYTE)v8 != 93 )
         break;
-      v23 = v21 == 2;
+      v22 = v20 == 2;
     }
-    if ( !v23 )
+    if ( !v22 )
       break;
-    v24 = (unsigned __int8)v12[1];
+    v23 = (unsigned __int8)v12[1];
     ++v11;
     ++v12;
-    if ( (byte_14471F6B0[v24] & 2) != 0 )
+    if ( (byte_14471F6B0[v23] & 2) != 0 )
     {
-      _RAX = JSON_SCAN_CHARS[1].chars;
       _R8 = v12 + 1;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6015,48 +5878,48 @@ LABEL_19:
           break;
         _R8 += 16;
       }
-      v28 = &_R8[(int)this];
-      v29 = v12;
-      v30 = v28 - v12;
-      if ( v12 > v28 )
-        v30 = 0i64;
-      if ( v30 )
+      v26 = &_R8[(int)this];
+      v27 = v12;
+      v28 = v26 - v12;
+      if ( v12 > v26 )
+        v28 = 0i64;
+      if ( v28 )
       {
         do
         {
-          this = (Json *)(unsigned __int8)*v29;
-          v31 = v11 + 1;
+          this = (Json *)(unsigned __int8)*v27;
+          v29 = v11 + 1;
           v11 = 1;
           if ( (_BYTE)this != 10 )
-            v11 = v31;
-          v32 = v9 + 1;
+            v11 = v29;
+          v30 = v9 + 1;
           if ( (_BYTE)this != 10 )
-            v32 = v9;
-          ++v29;
-          v9 = v32;
+            v30 = v9;
+          ++v27;
+          v9 = v30;
         }
-        while ( v29 - v12 < v30 );
+        while ( v27 - v12 < v28 );
       }
-      LOBYTE(v24) = *v28;
-      v12 = v28;
+      LOBYTE(v23) = *v26;
+      v12 = v26;
     }
-    LOBYTE(v8) = v24;
-    if ( v20 < 0 )
+    LOBYTE(v8) = v23;
+    if ( v19 < 0 )
     {
       Json_ParseError(v6, v5, v9, v11, "parent underflow");
       return 0;
     }
     --v4;
-    --v20;
+    --v19;
     LOBYTE(this) = 0;
-    v170 = v4;
-    v21 = 0;
-    if ( v22 <= 0 || (v21 = v175[v20 + 32], this = (Json *)(unsigned __int8)v175[v20], !v21) )
+    v157 = v4;
+    v20 = 0;
+    if ( v21 <= 0 || (v20 = v162[v19 + 32], this = (Json *)(unsigned __int8)v162[v19], !v20) )
     {
-      if ( (_BYTE)v24 )
+      if ( (_BYTE)v23 )
       {
-        LODWORD(v167) = *v12;
-        Json_ParseError(v6, v5, v9, v11, "trailing json source after end of toplevel object '%c'", v167);
+        LODWORD(v154) = *v12;
+        Json_ParseError(v6, v5, v9, v11, "trailing json source after end of toplevel object '%c'", v154);
         return 0;
       }
     }
@@ -6071,9 +5934,8 @@ LABEL_19:
       ++v12;
       if ( (byte_14471F6B0[v8] & 2) != 0 )
       {
-        _RAX = JSON_SCAN_CHARS[1].chars;
         _R8 = v12 + 1;
-        __asm { vmovdqu xmm1, xmmword ptr [rax] }
+        _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
         while ( 1 )
         {
           __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6081,29 +5943,29 @@ LABEL_19:
             break;
           _R8 += 16;
         }
-        v36 = &_R8[(int)this];
-        v37 = v12;
-        v38 = v36 - v12;
-        if ( v12 > v36 )
-          v38 = 0i64;
-        if ( v38 )
+        v33 = &_R8[(int)this];
+        v34 = v12;
+        v35 = v33 - v12;
+        if ( v12 > v33 )
+          v35 = 0i64;
+        if ( v35 )
         {
           do
           {
-            v39 = v11 + 1;
+            v36 = v11 + 1;
             v11 = 1;
-            if ( *v37 != 10 )
-              v11 = v39;
-            v40 = v9 + 1;
-            if ( *v37 != 10 )
-              v40 = v9;
-            ++v37;
-            v9 = v40;
+            if ( *v34 != 10 )
+              v11 = v36;
+            v37 = v9 + 1;
+            if ( *v34 != 10 )
+              v37 = v9;
+            ++v34;
+            v9 = v37;
           }
-          while ( v37 - v12 < v38 );
+          while ( v34 - v12 < v35 );
         }
-        LOBYTE(v8) = *v36;
-        v12 = v36;
+        LOBYTE(v8) = *v33;
+        v12 = v33;
       }
     }
     else if ( (((_BYTE)v8 - 93) & 0xDF) != 0 )
@@ -6111,29 +5973,28 @@ LABEL_19:
       goto LABEL_305;
     }
   }
-  if ( v21 != 1 )
+  if ( v20 != 1 )
     goto LABEL_134;
   if ( (_BYTE)v8 != 34 )
   {
 LABEL_305:
-    LODWORD(v167) = *v12;
+    LODWORD(v154) = *v12;
 LABEL_313:
-    Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v167);
+    Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v154);
     return 0;
   }
   *v10 = 4;
-  v41 = v12 + 1;
-  v42 = v10 + 1;
-  v171 = v10 + 1;
-  v43 = 0i64;
+  v38 = v12 + 1;
+  v39 = v10 + 1;
+  v158 = v10 + 1;
+  v40 = 0i64;
   if ( !v12[1] )
     return 0;
   while ( 1 )
   {
-    _RAX = JSON_SCAN_CHARS[0].chars;
-    v45 = v41;
-    _R8 = v41;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    v41 = v38;
+    _R8 = v38;
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[0].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -6141,31 +6002,30 @@ LABEL_313:
         break;
       _R8 += 16;
     }
-    v48 = v41;
-    v49 = &_R8[(int)this];
-    memmove_0(v42, v48, v49 - v45);
-    v42 += v49 - v45;
-    if ( *v49 == 34 )
+    v44 = v38;
+    v45 = &_R8[(int)this];
+    memmove_0(v39, v44, v45 - v41);
+    v39 += v45 - v41;
+    if ( *v45 == 34 )
     {
-      *v42 = 0;
-      if ( v43 )
+      *v39 = 0;
+      if ( v40 )
       {
         fmt = "end of string with incomplete surrogate pair";
         goto LABEL_101;
       }
-      v61 = (_DWORD)v49 + 1 - (_DWORD)v45;
-      v12 = v49 + 1;
-      v56 = error;
-      v10 = v42 + 1;
-      v57 = errorSize;
-      v11 += v61 + 1;
+      v57 = (_DWORD)v45 + 1 - (_DWORD)v41;
+      v12 = v45 + 1;
+      v52 = error;
+      v10 = v39 + 1;
+      v53 = errorSize;
+      v11 += v57 + 1;
 LABEL_105:
-      v62 = (unsigned __int8)*v12;
-      if ( (byte_14471F6B0[v62] & 2) != 0 )
+      v58 = (unsigned __int8)*v12;
+      if ( (byte_14471F6B0[v58] & 2) != 0 )
       {
-        _RAX = JSON_SCAN_CHARS[1].chars;
         _R8 = v12 + 1;
-        __asm { vmovdqu xmm1, xmmword ptr [rax] }
+        _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
         while ( 1 )
         {
           __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6173,35 +6033,35 @@ LABEL_105:
             break;
           _R8 += 16;
         }
-        v66 = &_R8[(int)this];
-        v67 = v12;
-        v68 = v66 - v12;
-        if ( v12 > v66 )
-          v68 = 0i64;
-        if ( v68 )
+        v61 = &_R8[(int)this];
+        v62 = v12;
+        v63 = v61 - v12;
+        if ( v12 > v61 )
+          v63 = 0i64;
+        if ( v63 )
         {
           do
           {
-            v69 = v11 + 1;
+            v64 = v11 + 1;
             v11 = 1;
             if ( *v12 != 10 )
-              v11 = v69;
-            v70 = v9 + 1;
+              v11 = v64;
+            v65 = v9 + 1;
             if ( *v12 != 10 )
-              v70 = v9;
+              v65 = v9;
             ++v12;
-            v9 = v70;
+            v9 = v65;
           }
-          while ( v12 - v67 < v68 );
+          while ( v12 - v62 < v63 );
         }
-        LOBYTE(v62) = *v66;
-        v12 = v66;
+        LOBYTE(v58) = *v61;
+        v12 = v61;
       }
-      v71 = v12;
-      if ( (_BYTE)v62 != 58 )
+      v66 = v12;
+      if ( (_BYTE)v58 != 58 )
       {
-        LODWORD(v167) = *v12;
-        Json_ParseError(v56, v57, v9, v11, "unexpected character '%c'", v167);
+        LODWORD(v154) = *v12;
+        Json_ParseError(v52, v53, v9, v11, "unexpected character '%c'", v154);
         return 0;
       }
       v8 = (unsigned __int8)v12[1];
@@ -6209,9 +6069,8 @@ LABEL_105:
       ++v12;
       if ( (byte_14471F6B0[v8] & 2) != 0 )
       {
-        _RAX = JSON_SCAN_CHARS[1].chars;
-        _R8 = v71 + 2;
-        __asm { vmovdqu xmm1, xmmword ptr [rax] }
+        _R8 = v66 + 2;
+        _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
         while ( 1 )
         {
           __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6219,61 +6078,60 @@ LABEL_105:
             break;
           _R8 += 16;
         }
-        v75 = &_R8[(int)this];
-        v76 = v75 - v12;
-        if ( v12 > v75 )
-          v76 = 0i64;
-        if ( v76 )
+        v69 = &_R8[(int)this];
+        v70 = v69 - v12;
+        if ( v12 > v69 )
+          v70 = 0i64;
+        if ( v70 )
         {
-          v77 = ~(unsigned __int64)v71;
+          v71 = ~(unsigned __int64)v66;
           do
           {
-            v78 = *v12 == 10;
-            v79 = v11 + 1;
+            v72 = *v12 == 10;
+            v73 = v11 + 1;
             v11 = 1;
             ++v12;
-            if ( !v78 )
-              v11 = v79;
-            v80 = v9 + 1;
-            if ( !v78 )
-              v80 = v9;
-            v9 = v80;
+            if ( !v72 )
+              v11 = v73;
+            v74 = v9 + 1;
+            if ( !v72 )
+              v74 = v9;
+            v9 = v74;
           }
-          while ( (unsigned __int64)&v12[v77] < v76 );
+          while ( (unsigned __int64)&v12[v71] < v70 );
         }
-        LOBYTE(v8) = *v75;
+        LOBYTE(v8) = *v69;
         v12 = &_R8[(int)this];
       }
       v6 = error;
       v5 = errorSize;
-      v4 = v170;
+      v4 = v157;
 LABEL_134:
-      if ( v20 >= 0 )
-        v175[v20] = 1;
+      if ( v19 >= 0 )
+        v162[v19] = 1;
       switch ( (char)v8 )
       {
         case 0:
           if ( v4 < 0 && v10 != text )
           {
-            v174->m_value = text;
+            v161->m_value = text;
             return 1;
           }
           Json_ParseError(v6, v5, v9, v11, "unexpected end of input");
           return 0;
         case 34:
           *v10 = 8;
-          v90 = v12 + 1;
-          v91 = v10 + 1;
-          v172 = v10 + 1;
-          v92 = NULL;
+          v83 = v12 + 1;
+          v84 = v10 + 1;
+          v159 = v10 + 1;
+          v85 = NULL;
           if ( !v12[1] )
             return 0;
           while ( 2 )
           {
-            _RAX = JSON_SCAN_CHARS[0].chars;
-            v94 = v90;
-            _R8 = v90;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            v86 = v83;
+            _R8 = v83;
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[0].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -6281,78 +6139,78 @@ LABEL_134:
                 break;
               _R8 += 16;
             }
-            v97 = v90;
-            v98 = &_R8[(int)this];
-            memmove_0(v91, v97, v98 - v94);
-            v91 += v98 - v94;
-            if ( *v98 == 34 )
+            v89 = v83;
+            v90 = &_R8[(int)this];
+            memmove_0(v84, v89, v90 - v86);
+            v84 += v90 - v86;
+            if ( *v90 == 34 )
             {
-              *v91 = 0;
-              if ( !v92 )
+              *v84 = 0;
+              if ( !v85 )
               {
-                v107 = (_DWORD)v98 + 1 - (_DWORD)v94;
-                v12 = v98 + 1;
-                v10 = v91 + 1;
-                v11 += v107 + 1;
+                v99 = (_DWORD)v90 + 1 - (_DWORD)v86;
+                v12 = v90 + 1;
+                v10 = v84 + 1;
+                v11 += v99 + 1;
                 goto LABEL_195;
               }
-              v106 = Json_ParseError(error, errorSize, v9, v11, "end of string with incomplete surrogate pair");
+              v98 = Json_ParseError(error, errorSize, v9, v11, "end of string with incomplete surrogate pair");
             }
             else
             {
-              if ( *v98 != 92 )
+              if ( *v90 != 92 )
                 return 0;
-              this = (Json *)(unsigned __int8)v98[1];
+              this = (Json *)(unsigned __int8)v90[1];
               if ( (byte_14471F6B0[(_QWORD)this] & 0x40) != 0 )
               {
-                *v91++ = byte_14471F7F0[(_QWORD)this];
-                v90 = v98 + 2;
+                *v84++ = byte_14471F7F0[(_QWORD)this];
+                v83 = v90 + 2;
                 goto LABEL_182;
               }
               if ( (((_BYTE)this - 85) & 0xDF) != 0 )
               {
-                LODWORD(v167) = (char)v98[1];
-                v106 = Json_ParseError(error, errorSize, v9, v11, "unknown escape sequence '\\%c'", v167);
+                LODWORD(v154) = (char)v90[1];
+                v98 = Json_ParseError(error, errorSize, v9, v11, "unknown escape sequence '\\%c'", v154);
               }
               else
               {
-                v90 = v98 + 2;
-                v99 = 4;
+                v83 = v90 + 2;
+                v91 = 4;
                 if ( (_BYTE)this == 85 )
-                  v99 = 8;
+                  v91 = 8;
                 this = NULL;
-                for ( i = 0; i < v99; ++i )
+                for ( i = 0; i < v91; ++i )
                 {
-                  v101 = (unsigned __int8)*v90++;
-                  if ( (byte_14471F6B0[v101] & 8) == 0 )
+                  v93 = (unsigned __int8)*v83++;
+                  if ( (byte_14471F6B0[v93] & 8) == 0 )
                   {
-                    LODWORD(v167) = (char)*v90;
-                    v106 = Json_ParseError(error, errorSize, v9, v11, "unexpected char '%c'", v167);
+                    LODWORD(v154) = (char)*v83;
+                    v98 = Json_ParseError(error, errorSize, v9, v11, "unexpected char '%c'", v154);
                     goto LABEL_192;
                   }
-                  v102 = (Json *)((16i64 * (_QWORD)this) | (unsigned __int8)byte_14471F7F0[v101 + 320]);
-                  this = v102;
+                  v94 = (Json *)((16i64 * (_QWORD)this) | (unsigned __int8)byte_14471F7F0[v93 + 320]);
+                  this = v94;
                 }
-                if ( (unsigned __int64)v102 < 4 )
+                if ( (unsigned __int64)v94 < 4 )
                 {
-                  v106 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence \\u00%02zu is not allowed, it unescapes to byte 0x%02zu which is a reserved value and would cause invalid traversal", (size_t)v102, (size_t)v102);
+                  v98 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence \\u00%02zu is not allowed, it unescapes to byte 0x%02zu which is a reserved value and would cause invalid traversal", (size_t)v94, (size_t)v94);
                   break;
                 }
-                if ( (unsigned __int64)&v102[-3456] > 0x3FF )
+                if ( (unsigned __int64)&v94[-3456] > 0x3FF )
                 {
-                  if ( (unsigned __int64)&v102[-3520] <= 0x3FF )
+                  if ( (unsigned __int64)&v94[-3520] <= 0x3FF )
                   {
-                    if ( !v92 )
+                    if ( !v85 )
                     {
-                      v106 = Json_ParseError(error, errorSize, v9, v11, "second surrogate found without a first");
+                      v98 = Json_ParseError(error, errorSize, v9, v11, "second surrogate found without a first");
                       break;
                     }
-                    this = &v102[64 * (_QWORD)v92 - 3538368];
-                    v92 = NULL;
+                    this = &v94[64 * (_QWORD)v85 - 3538368];
+                    v85 = NULL;
                   }
                   if ( (unsigned __int64)this > 0x10FFFF )
                   {
-                    v106 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence out of range");
+                    v98 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence out of range");
                     break;
                   }
                   if ( (unsigned __int64)this < 0x10000 )
@@ -6361,63 +6219,62 @@ LABEL_134:
                     {
                       if ( (unsigned __int64)this < 0x80 )
                       {
-                        *v91++ = (char)this;
+                        *v84++ = (char)this;
                       }
                       else
                       {
-                        v105 = (unsigned __int64)this >> 6;
+                        v97 = (unsigned __int64)this >> 6;
                         LOBYTE(this) = (unsigned __int8)this & 0x3F | 0x80;
-                        v91[1] = (char)this;
-                        *v91 = v105 | 0xC0;
-                        v91 += 2;
+                        v84[1] = (char)this;
+                        *v84 = v97 | 0xC0;
+                        v84 += 2;
                       }
                     }
                     else
                     {
-                      *v91 = ((unsigned __int64)this >> 12) | 0xE0;
-                      v104 = (unsigned __int64)this >> 6;
+                      *v84 = ((unsigned __int64)this >> 12) | 0xE0;
+                      v96 = (unsigned __int64)this >> 6;
                       LOBYTE(this) = (unsigned __int8)this & 0x3F | 0x80;
-                      v91[2] = (char)this;
-                      v91[1] = v104 & 0x3F | 0x80;
-                      v91 += 3;
+                      v84[2] = (char)this;
+                      v84[1] = v96 & 0x3F | 0x80;
+                      v84 += 3;
                     }
                   }
                   else
                   {
-                    *v91 = ((unsigned __int64)this >> 18) | 0xF0;
-                    v91[1] = ((unsigned __int64)this >> 12) & 0x3F | 0x80;
-                    v103 = (unsigned __int64)this >> 6;
+                    *v84 = ((unsigned __int64)this >> 18) | 0xF0;
+                    v84[1] = ((unsigned __int64)this >> 12) & 0x3F | 0x80;
+                    v95 = (unsigned __int64)this >> 6;
                     LOBYTE(this) = (unsigned __int8)this & 0x3F | 0x80;
-                    v91[3] = (char)this;
-                    v91[2] = v103 & 0x3F | 0x80;
-                    v91 += 4;
+                    v84[3] = (char)this;
+                    v84[2] = v95 & 0x3F | 0x80;
+                    v84 += 4;
                   }
 LABEL_182:
-                  if ( !*v90 )
+                  if ( !*v83 )
                     return 0;
                   continue;
                 }
-                if ( !v92 )
+                if ( !v85 )
                 {
-                  v92 = v102;
+                  v85 = v94;
                   goto LABEL_182;
                 }
-                v106 = Json_ParseError(error, errorSize, v9, v11, "second first surrogate found");
+                v98 = Json_ParseError(error, errorSize, v9, v11, "second first surrogate found");
               }
             }
             break;
           }
 LABEL_192:
-          if ( !v106 )
+          if ( !v98 )
             return 0;
-          v10 = v172;
+          v10 = v159;
 LABEL_195:
           v8 = (unsigned __int8)*v12;
           if ( (byte_14471F6B0[v8] & 2) != 0 )
           {
-            _RAX = JSON_SCAN_CHARS[1].chars;
             _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6425,34 +6282,34 @@ LABEL_195:
                 break;
               _R8 += 16;
             }
-            v111 = &_R8[(int)this];
-            v112 = v12;
-            v113 = v111 - v12;
-            if ( v12 > v111 )
-              v113 = 0i64;
-            if ( v113 )
+            v102 = &_R8[(int)this];
+            v103 = v12;
+            v104 = v102 - v12;
+            if ( v12 > v102 )
+              v104 = 0i64;
+            if ( v104 )
             {
               do
               {
                 this = (Json *)(unsigned __int8)*v12;
-                v114 = v11 + 1;
+                v105 = v11 + 1;
                 v11 = 1;
                 if ( (_BYTE)this != 10 )
-                  v11 = v114;
-                v115 = v9 + 1;
+                  v11 = v105;
+                v106 = v9 + 1;
                 if ( (_BYTE)this != 10 )
-                  v115 = v9;
+                  v106 = v9;
                 ++v12;
-                v9 = v115;
+                v9 = v106;
               }
-              while ( v12 - v112 < v113 );
+              while ( v12 - v103 < v104 );
             }
-            LOBYTE(v8) = *v111;
-            v12 = v111;
+            LOBYTE(v8) = *v102;
+            v12 = v102;
           }
           v6 = error;
           v5 = errorSize;
-          v4 = v170;
+          v4 = v157;
           goto LABEL_19;
         case 45:
         case 48:
@@ -6466,76 +6323,254 @@ LABEL_195:
         case 56:
         case 57:
           j = v12 + 1;
-          v117 = v12;
+          v108 = v12;
           if ( *v12 != 45 )
             j = v12;
-          v118 = *j;
+          v109 = *j;
           if ( *j == 48 )
           {
             ++j;
           }
           else
           {
-            if ( (unsigned __int8)(v118 - 49) > 8u )
+            if ( (unsigned __int8)(v109 - 49) > 8u )
               goto LABEL_231;
-            if ( v118 >= 48 )
+            if ( v109 >= 48 )
             {
-              v119 = *j;
+              v110 = *j;
               do
               {
-                if ( v119 > 57 )
+                if ( v110 > 57 )
                   break;
-                v119 = *++j;
+                v110 = *++j;
               }
-              while ( v119 >= 48 );
+              while ( v110 >= 48 );
             }
           }
           if ( *j != 46 )
             goto LABEL_223;
-          v118 = j[1];
-          if ( (unsigned __int8)(v118 - 48) > 9u )
+          v109 = j[1];
+          if ( (unsigned __int8)(v109 - 48) > 9u )
             goto LABEL_231;
-          v120 = j[2];
-          for ( j += 2; v120 >= 48; v120 = *++j )
+          v111 = j[2];
+          for ( j += 2; v111 >= 48; v111 = *++j )
           {
-            if ( v120 > 57 )
+            if ( v111 > 57 )
               break;
           }
 LABEL_223:
           if ( ((*j - 69) & 0xDF) != 0 )
             goto LABEL_230;
-          v121 = j[1];
-          v122 = j + 1;
-          if ( ((v121 - 43) & 0xFD) == 0 )
-            ++v122;
-          v118 = *v122;
-          if ( (unsigned __int8)(*v122 - 48) <= 9u )
+          v112 = j[1];
+          v113 = j + 1;
+          if ( ((v112 - 43) & 0xFD) == 0 )
+            ++v113;
+          v109 = *v113;
+          if ( (unsigned __int8)(*v113 - 48) <= 9u )
           {
-            v123 = v122[1];
-            for ( j = v122 + 1; v123 >= 48; v123 = *++j )
+            v114 = v113[1];
+            for ( j = v113 + 1; v114 >= 48; v114 = *++j )
             {
-              if ( v123 > 57 )
+              if ( v114 > 57 )
                 break;
             }
 LABEL_230:
             memcpy_0(v10, v12, j - v12);
-            v124 = (_DWORD)j - (_DWORD)v12;
+            v115 = (_DWORD)j - (_DWORD)v12;
             v12 = j;
-            v11 += v124;
-            v10 += j - v117;
+            v11 += v115;
+            v10 += j - v108;
             goto LABEL_232;
           }
 LABEL_231:
-          LODWORD(v167) = v118;
-          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c' while parsing number", v167) )
+          LODWORD(v154) = v109;
+          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c' while parsing number", v154) )
             return 0;
 LABEL_232:
           v8 = (unsigned __int8)*v12;
           if ( (byte_14471F6B0[v8] & 2) != 0 )
           {
-            _RAX = JSON_SCAN_CHARS[1].chars;
             _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
+            while ( 1 )
+            {
+              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
+              if ( (_DWORD)this != 16 )
+                break;
+              _R8 += 16;
+            }
+            v118 = &_R8[(int)this];
+            v119 = v12;
+            v120 = v118 - v12;
+            if ( v12 > v118 )
+              v120 = 0i64;
+            if ( v120 )
+            {
+              do
+              {
+                this = (Json *)(unsigned __int8)*v12;
+                v121 = v11 + 1;
+                v11 = 1;
+                if ( (_BYTE)this != 10 )
+                  v11 = v121;
+                v122 = v9 + 1;
+                if ( (_BYTE)this != 10 )
+                  v122 = v9;
+                ++v12;
+                v9 = v122;
+              }
+              while ( v12 - v119 < v120 );
+            }
+            LOBYTE(v8) = *v118;
+            v12 = v118;
+          }
+          v6 = error;
+          v4 = v157;
+          *v10++ = 0;
+          break;
+        case 91:
+        case 123:
+          ++v4;
+          v75 = ((_BYTE)v8 == 91) + 1;
+          v157 = v4;
+          ++v11;
+          if ( ++v19 >= 32 )
+          {
+            LODWORD(v154) = 32;
+            Json_ParseError(v6, v5, v9, v11, "json depth exceeds JSON_MAX_PARENT_COUNT = %d", v154);
+            return 0;
+          }
+          v162[v19 + 32] = v75;
+          if ( (unsigned __int64)v19 >= 0x20 )
+          {
+            j___report_rangecheckfailure(this);
+            __debugbreak();
+          }
+          v8 = (unsigned __int8)*++v12;
+          v162[v19] = 0;
+          if ( (byte_14471F6B0[v8] & 2) != 0 )
+          {
+            _R8 = v12 + 1;
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
+            while ( 1 )
+            {
+              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
+              if ( (_DWORD)this != 16 )
+                break;
+              _R8 += 16;
+            }
+            v78 = &_R8[(int)this];
+            v79 = v12;
+            v80 = v78 - v12;
+            if ( v12 > v78 )
+              v80 = 0i64;
+            if ( v80 )
+            {
+              do
+              {
+                this = (Json *)(unsigned __int8)*v79;
+                v81 = v11 + 1;
+                v11 = 1;
+                if ( (_BYTE)this != 10 )
+                  v11 = v81;
+                v82 = v9 + 1;
+                if ( (_BYTE)this != 10 )
+                  v82 = v9;
+                ++v79;
+                v9 = v82;
+              }
+              while ( v79 - v12 < v80 );
+            }
+            LOBYTE(v8) = *v78;
+            v12 = v78;
+          }
+          *v10++ = v75;
+          goto LABEL_19;
+        case 102:
+          v143 = (int)v12;
+          v144 = "false";
+          LOBYTE(this) = 102;
+          while ( 1 )
+          {
+            v145 = *v12++;
+            if ( (_BYTE)this != v145 )
+              break;
+            this = (Json *)*(unsigned __int8 *)++v144;
+            if ( !(_BYTE)this )
+            {
+              v11 += (_DWORD)v12 - v143;
+              goto LABEL_289;
+            }
+          }
+          LODWORD(v154) = *v12;
+          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v154) )
+            return 0;
+LABEL_289:
+          v8 = (unsigned __int8)*v12;
+          if ( (byte_14471F6B0[v8] & 2) != 0 )
+          {
+            _R8 = v12 + 1;
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
+            while ( 1 )
+            {
+              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
+              if ( (_DWORD)this != 16 )
+                break;
+              _R8 += 16;
+            }
+            v148 = &_R8[(int)this];
+            v149 = 0i64;
+            v150 = v148 - v12;
+            if ( v12 > v148 )
+              v150 = 0i64;
+            if ( v150 )
+            {
+              do
+              {
+                this = (Json *)(unsigned __int8)v12[v149];
+                v151 = v11 + 1;
+                v11 = 1;
+                if ( (_BYTE)this != 10 )
+                  v11 = v151;
+                v152 = v9 + 1;
+                if ( (_BYTE)this != 10 )
+                  v152 = v9;
+                ++v149;
+                v9 = v152;
+              }
+              while ( v149 < v150 );
+            }
+            LOBYTE(v8) = *v148;
+            v12 = v148;
+          }
+          v6 = error;
+          *v10++ = 6;
+          goto LABEL_19;
+        case 110:
+          v123 = (int)v12;
+          v124 = "null";
+          LOBYTE(this) = 110;
+          while ( 1 )
+          {
+            v125 = *v12++;
+            if ( (_BYTE)this != v125 )
+              break;
+            this = (Json *)*(unsigned __int8 *)++v124;
+            if ( !(_BYTE)this )
+            {
+              v11 += (_DWORD)v12 - v123;
+              goto LABEL_251;
+            }
+          }
+          LODWORD(v154) = *v12;
+          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v154) )
+            return 0;
+LABEL_251:
+          v8 = (unsigned __int8)*v12;
+          if ( (byte_14471F6B0[v8] & 2) != 0 )
+          {
+            _R8 = v12 + 1;
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6569,133 +6604,12 @@ LABEL_232:
             v12 = v128;
           }
           v6 = error;
-          v4 = v170;
-          *v10++ = 0;
-          break;
-        case 91:
-        case 123:
-          ++v4;
-          v81 = ((_BYTE)v8 == 91) + 1;
-          v170 = v4;
-          ++v11;
-          if ( ++v20 >= 32 )
-          {
-            LODWORD(v167) = 32;
-            Json_ParseError(v6, v5, v9, v11, "json depth exceeds JSON_MAX_PARENT_COUNT = %d", v167);
-            return 0;
-          }
-          v175[v20 + 32] = v81;
-          if ( (unsigned __int64)v20 >= 0x20 )
-          {
-            j___report_rangecheckfailure(this);
-            __debugbreak();
-          }
-          v8 = (unsigned __int8)*++v12;
-          v175[v20] = 0;
-          if ( (byte_14471F6B0[v8] & 2) != 0 )
-          {
-            _RAX = JSON_SCAN_CHARS[1].chars;
-            _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
-            while ( 1 )
-            {
-              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
-              if ( (_DWORD)this != 16 )
-                break;
-              _R8 += 16;
-            }
-            v85 = &_R8[(int)this];
-            v86 = v12;
-            v87 = v85 - v12;
-            if ( v12 > v85 )
-              v87 = 0i64;
-            if ( v87 )
-            {
-              do
-              {
-                this = (Json *)(unsigned __int8)*v86;
-                v88 = v11 + 1;
-                v11 = 1;
-                if ( (_BYTE)this != 10 )
-                  v11 = v88;
-                v89 = v9 + 1;
-                if ( (_BYTE)this != 10 )
-                  v89 = v9;
-                ++v86;
-                v9 = v89;
-              }
-              while ( v86 - v12 < v87 );
-            }
-            LOBYTE(v8) = *v85;
-            v12 = v85;
-          }
-          *v10++ = v81;
+          *v10++ = 7;
           goto LABEL_19;
-        case 102:
-          v155 = (int)v12;
-          v156 = "false";
-          LOBYTE(this) = 102;
-          while ( 1 )
-          {
-            v157 = *v12++;
-            if ( (_BYTE)this != v157 )
-              break;
-            this = (Json *)*(unsigned __int8 *)++v156;
-            if ( !(_BYTE)this )
-            {
-              v11 += (_DWORD)v12 - v155;
-              goto LABEL_289;
-            }
-          }
-          LODWORD(v167) = *v12;
-          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v167) )
-            return 0;
-LABEL_289:
-          v8 = (unsigned __int8)*v12;
-          if ( (byte_14471F6B0[v8] & 2) != 0 )
-          {
-            _RAX = JSON_SCAN_CHARS[1].chars;
-            _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
-            while ( 1 )
-            {
-              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
-              if ( (_DWORD)this != 16 )
-                break;
-              _R8 += 16;
-            }
-            v161 = &_R8[(int)this];
-            v162 = 0i64;
-            v163 = v161 - v12;
-            if ( v12 > v161 )
-              v163 = 0i64;
-            if ( v163 )
-            {
-              do
-              {
-                this = (Json *)(unsigned __int8)v12[v162];
-                v164 = v11 + 1;
-                v11 = 1;
-                if ( (_BYTE)this != 10 )
-                  v11 = v164;
-                v165 = v9 + 1;
-                if ( (_BYTE)this != 10 )
-                  v165 = v9;
-                ++v162;
-                v9 = v165;
-              }
-              while ( v162 < v163 );
-            }
-            LOBYTE(v8) = *v161;
-            v12 = v161;
-          }
-          v6 = error;
-          *v10++ = 6;
-          goto LABEL_19;
-        case 110:
+        case 116:
           v133 = (int)v12;
-          v134 = "null";
-          LOBYTE(this) = 110;
+          v134 = "true";
+          LOBYTE(this) = 116;
           while ( 1 )
           {
             v135 = *v12++;
@@ -6705,80 +6619,18 @@ LABEL_289:
             if ( !(_BYTE)this )
             {
               v11 += (_DWORD)v12 - v133;
-              goto LABEL_251;
-            }
-          }
-          LODWORD(v167) = *v12;
-          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v167) )
-            return 0;
-LABEL_251:
-          v8 = (unsigned __int8)*v12;
-          if ( (byte_14471F6B0[v8] & 2) != 0 )
-          {
-            _RAX = JSON_SCAN_CHARS[1].chars;
-            _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
-            while ( 1 )
-            {
-              __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
-              if ( (_DWORD)this != 16 )
-                break;
-              _R8 += 16;
-            }
-            v139 = &_R8[(int)this];
-            v140 = v12;
-            v141 = v139 - v12;
-            if ( v12 > v139 )
-              v141 = 0i64;
-            if ( v141 )
-            {
-              do
-              {
-                this = (Json *)(unsigned __int8)*v12;
-                v142 = v11 + 1;
-                v11 = 1;
-                if ( (_BYTE)this != 10 )
-                  v11 = v142;
-                v143 = v9 + 1;
-                if ( (_BYTE)this != 10 )
-                  v143 = v9;
-                ++v12;
-                v9 = v143;
-              }
-              while ( v12 - v140 < v141 );
-            }
-            LOBYTE(v8) = *v139;
-            v12 = v139;
-          }
-          v6 = error;
-          *v10++ = 7;
-          goto LABEL_19;
-        case 116:
-          v144 = (int)v12;
-          v145 = "true";
-          LOBYTE(this) = 116;
-          while ( 1 )
-          {
-            v146 = *v12++;
-            if ( (_BYTE)this != v146 )
-              break;
-            this = (Json *)*(unsigned __int8 *)++v145;
-            if ( !(_BYTE)this )
-            {
-              v11 += (_DWORD)v12 - v144;
               goto LABEL_270;
             }
           }
-          LODWORD(v167) = *v12;
-          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v167) )
+          LODWORD(v154) = *v12;
+          if ( !Json_ParseError(v6, v5, v9, v11, "unexpected character '%c'", v154) )
             return 0;
 LABEL_270:
           v8 = (unsigned __int8)*v12;
           if ( (byte_14471F6B0[v8] & 2) != 0 )
           {
-            _RAX = JSON_SCAN_CHARS[1].chars;
             _R8 = v12 + 1;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[1].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [r8], 10h }
@@ -6786,159 +6638,159 @@ LABEL_270:
                 break;
               _R8 += 16;
             }
-            v150 = &_R8[(int)this];
-            v151 = v12;
-            v152 = v150 - v12;
-            if ( v12 > v150 )
-              v152 = 0i64;
-            if ( v152 )
+            v138 = &_R8[(int)this];
+            v139 = v12;
+            v140 = v138 - v12;
+            if ( v12 > v138 )
+              v140 = 0i64;
+            if ( v140 )
             {
               do
               {
                 this = (Json *)(unsigned __int8)*v12;
-                v153 = v11 + 1;
+                v141 = v11 + 1;
                 v11 = 1;
                 if ( (_BYTE)this != 10 )
-                  v11 = v153;
-                v154 = v9 + 1;
+                  v11 = v141;
+                v142 = v9 + 1;
                 if ( (_BYTE)this != 10 )
-                  v154 = v9;
+                  v142 = v9;
                 ++v12;
-                v9 = v154;
+                v9 = v142;
               }
-              while ( v12 - v151 < v152 );
+              while ( v12 - v139 < v140 );
             }
-            LOBYTE(v8) = *v150;
-            v12 = v150;
+            LOBYTE(v8) = *v138;
+            v12 = v138;
           }
           v6 = error;
           *v10++ = 5;
           goto LABEL_19;
         default:
-          LODWORD(v167) = (char)v8;
+          LODWORD(v154) = (char)v8;
           goto LABEL_313;
       }
       goto LABEL_19;
     }
-    if ( *v49 != 92 )
+    if ( *v45 != 92 )
       return 0;
-    this = (Json *)(unsigned __int8)v49[1];
+    this = (Json *)(unsigned __int8)v45[1];
     if ( (byte_14471F6B0[(_QWORD)this] & 0x40) != 0 )
     {
-      *v42++ = byte_14471F7F0[(_QWORD)this];
-      v41 = v49 + 2;
+      *v39++ = byte_14471F7F0[(_QWORD)this];
+      v38 = v45 + 2;
       goto LABEL_91;
     }
     if ( (((_BYTE)this - 85) & 0xDF) != 0 )
     {
-      v60 = (char)v49[1];
-      v56 = error;
-      v57 = errorSize;
-      LODWORD(v167) = v60;
-      v58 = Json_ParseError(error, errorSize, v9, v11, "unknown escape sequence '\\%c'", v167);
+      v56 = (char)v45[1];
+      v52 = error;
+      v53 = errorSize;
+      LODWORD(v154) = v56;
+      v54 = Json_ParseError(error, errorSize, v9, v11, "unknown escape sequence '\\%c'", v154);
       goto LABEL_102;
     }
-    v41 = v49 + 2;
-    v50 = 4;
+    v38 = v45 + 2;
+    v46 = 4;
     if ( (_BYTE)this == 85 )
-      v50 = 8;
-    v51 = 0i64;
-    for ( k = 0; k < v50; ++k )
+      v46 = 8;
+    v47 = 0i64;
+    for ( k = 0; k < v46; ++k )
     {
-      v53 = (unsigned __int8)*v41++;
-      if ( (byte_14471F6B0[v53] & 8) == 0 )
+      v49 = (unsigned __int8)*v38++;
+      if ( (byte_14471F6B0[v49] & 8) == 0 )
       {
-        v59 = (char)*v41;
-        v56 = error;
-        v57 = errorSize;
-        LODWORD(v167) = v59;
-        v58 = Json_ParseError(error, errorSize, v9, v11, "unexpected char '%c'", v167);
+        v55 = (char)*v38;
+        v52 = error;
+        v53 = errorSize;
+        LODWORD(v154) = v55;
+        v54 = Json_ParseError(error, errorSize, v9, v11, "unexpected char '%c'", v154);
         goto LABEL_102;
       }
-      v54 = (16 * v51) | (unsigned __int8)byte_14471F7F0[v53 + 320];
-      v51 = v54;
+      v50 = (16 * v47) | (unsigned __int8)byte_14471F7F0[v49 + 320];
+      v47 = v50;
     }
-    if ( v54 < 4 )
+    if ( v50 < 4 )
     {
-      v56 = error;
-      v57 = errorSize;
-      v58 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence \\u00%02zu is not allowed, it unescapes to byte 0x%02zu which is a reserved value and would cause invalid traversal", v54, v54);
+      v52 = error;
+      v53 = errorSize;
+      v54 = Json_ParseError(error, errorSize, v9, v11, "unicode escape sequence \\u00%02zu is not allowed, it unescapes to byte 0x%02zu which is a reserved value and would cause invalid traversal", v50, v50);
       goto LABEL_102;
     }
-    this = (Json *)(v54 - 55296);
+    this = (Json *)(v50 - 55296);
     if ( (unsigned __int64)this <= 0x3FF )
       break;
-    LODWORD(this) = v51 - 56320;
-    if ( v51 - 56320 <= 0x3FF )
+    LODWORD(this) = v47 - 56320;
+    if ( v47 - 56320 <= 0x3FF )
     {
-      if ( !v43 )
+      if ( !v40 )
       {
         fmt = "second surrogate found without a first";
         goto LABEL_101;
       }
-      v51 = v51 + (v43 << 10) - 56613888;
-      v43 = 0i64;
+      v47 = v47 + (v40 << 10) - 56613888;
+      v40 = 0i64;
     }
-    if ( v51 > 0x10FFFF )
+    if ( v47 > 0x10FFFF )
     {
       fmt = "unicode escape sequence out of range";
       goto LABEL_101;
     }
-    if ( v51 < 0x10000 )
+    if ( v47 < 0x10000 )
     {
-      if ( v51 < 0x800 )
+      if ( v47 < 0x800 )
       {
-        if ( v51 < 0x80 )
+        if ( v47 < 0x80 )
         {
-          *v42++ = v51;
+          *v39++ = v47;
         }
         else
         {
-          this = (Json *)(v51 >> 6);
-          LOBYTE(this) = (v51 >> 6) | 0xC0;
-          v42[1] = v51 & 0x3F | 0x80;
-          *v42 = (char)this;
-          v42 += 2;
+          this = (Json *)(v47 >> 6);
+          LOBYTE(this) = (v47 >> 6) | 0xC0;
+          v39[1] = v47 & 0x3F | 0x80;
+          *v39 = (char)this;
+          v39 += 2;
         }
       }
       else
       {
-        *v42 = (v51 >> 12) | 0xE0;
-        this = (Json *)(v51 >> 6);
-        LOBYTE(this) = (v51 >> 6) & 0x3F | 0x80;
-        v42[2] = v51 & 0x3F | 0x80;
-        v42[1] = (char)this;
-        v42 += 3;
+        *v39 = (v47 >> 12) | 0xE0;
+        this = (Json *)(v47 >> 6);
+        LOBYTE(this) = (v47 >> 6) & 0x3F | 0x80;
+        v39[2] = v47 & 0x3F | 0x80;
+        v39[1] = (char)this;
+        v39 += 3;
       }
     }
     else
     {
-      *v42 = (v51 >> 18) | 0xF0;
-      v42[1] = (v51 >> 12) & 0x3F | 0x80;
-      this = (Json *)(v51 >> 6);
-      LOBYTE(this) = (v51 >> 6) & 0x3F | 0x80;
-      v42[3] = v51 & 0x3F | 0x80;
-      v42[2] = (char)this;
-      v42 += 4;
+      *v39 = (v47 >> 18) | 0xF0;
+      v39[1] = (v47 >> 12) & 0x3F | 0x80;
+      this = (Json *)(v47 >> 6);
+      LOBYTE(this) = (v47 >> 6) & 0x3F | 0x80;
+      v39[3] = v47 & 0x3F | 0x80;
+      v39[2] = (char)this;
+      v39 += 4;
     }
 LABEL_91:
-    if ( !*v41 )
+    if ( !*v38 )
       return 0;
   }
-  if ( !v43 )
+  if ( !v40 )
   {
-    v43 = v51;
+    v40 = v47;
     goto LABEL_91;
   }
   fmt = "second first surrogate found";
 LABEL_101:
-  v56 = error;
-  v57 = errorSize;
-  v58 = Json_ParseError(error, errorSize, v9, v11, fmt);
+  v52 = error;
+  v53 = errorSize;
+  v54 = Json_ParseError(error, errorSize, v9, v11, fmt);
 LABEL_102:
-  if ( v58 )
+  if ( v54 )
   {
-    v10 = v171;
+    v10 = v158;
     goto LABEL_105;
   }
   return 0;
@@ -6954,56 +6806,55 @@ __int64 Json::Size(Json *this)
   const char *m_value; 
   __int64 v2; 
   char *v3; 
-  char *v5; 
-  int v6; 
+  char *v4; 
+  int v5; 
 
   m_value = this->m_value;
   v2 = 0i64;
   if ( (unsigned __int8)(*m_value - 1) <= 1u )
   {
     v3 = NULL;
-    _RDI = JSON_SCAN_CHARS[7].chars;
-    v5 = UNDEFINED_0;
+    v4 = UNDEFINED_0;
     if ( !m_value || !*m_value )
       goto LABEL_8;
-    v6 = *((unsigned __int8 *)m_value + 1);
-    if ( (_BYTE)v6 == 4 )
+    v5 = *((unsigned __int8 *)m_value + 1);
+    if ( (_BYTE)v5 == 4 )
     {
-      __asm { vmovdqu xmm1, xmmword ptr [rdi] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
       v3 = (char *)(m_value + 2);
       _R8 = (char *)(m_value + 2);
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
     }
     else
     {
-      if ( (_BYTE)v6 != 3 )
-        v5 = (char *)(m_value + 1);
+      if ( (_BYTE)v5 != 3 )
+        v4 = (char *)(m_value + 1);
       while ( 1 )
       {
         do
         {
 LABEL_8:
-          if ( !v3 && v5 == UNDEFINED_0 )
+          if ( !v3 && v4 == UNDEFINED_0 )
             return v2;
           ++v2;
         }
-        while ( !v5 || !*v5 );
-        v5 = (char *)Json_Skip(v5);
-        v6 = (unsigned __int8)*v5;
-        if ( (_BYTE)v6 == 4 )
+        while ( !v4 || !*v4 );
+        v4 = (char *)Json_Skip(v4);
+        v5 = (unsigned __int8)*v4;
+        if ( (_BYTE)v5 == 4 )
           break;
-        if ( (_BYTE)v6 == 3 )
+        if ( (_BYTE)v5 == 3 )
         {
           v3 = NULL;
-          v5 = UNDEFINED_0;
+          v4 = UNDEFINED_0;
         }
       }
-      __asm { vmovdqu xmm1, xmmword ptr [rdi] }
-      v3 = v5 + 1;
-      _R8 = v5 + 1;
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+      v3 = v4 + 1;
+      _R8 = v4 + 1;
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
     }
-    v5 = &_R8[v6 + 1];
+    v4 = &_R8[v5 + 1];
     goto LABEL_8;
   }
   return v2;
@@ -7035,27 +6886,27 @@ char JsonSerializer::String(JsonSerializer *this, const char *name, const char *
   bool v8; 
   int v10; 
   __int64 v11; 
-  const char *v13; 
-  const char *v16; 
-  int v17; 
-  __int64 v18; 
+  const char *v12; 
+  const char *v15; 
+  int v16; 
+  __int64 v17; 
   char *m_pos; 
-  unsigned __int8 v20; 
+  unsigned __int8 v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v22; 
-  char *v23; 
-  const char *v25; 
-  const char *v28; 
-  int v29; 
-  __int64 v30; 
-  char *v31; 
-  unsigned __int8 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  char *v35; 
-  char *v36; 
-  __int64 v37; 
-  bool v38; 
+  char *v22; 
+  const char *v23; 
+  const char *v26; 
+  int v27; 
+  __int64 v28; 
+  char *v29; 
+  unsigned __int8 v30; 
+  __int64 v31; 
+  __int64 v32; 
+  char *v33; 
+  char *v34; 
+  __int64 v35; 
+  bool v36; 
   char Src[8]; 
 
   v4 = 0;
@@ -7144,10 +6995,9 @@ LABEL_43:
         {
           while ( 1 )
           {
-            _RAX = JSON_SCAN_CHARS[4].chars;
-            v13 = v7;
+            v12 = v7;
             _R8 = v7;
-            __asm { vmovdqu xmm1, xmmword ptr [rax] }
+            _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
             while ( 1 )
             {
               __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -7155,25 +7005,25 @@ LABEL_43:
                 break;
               _R8 += 16;
             }
-            v16 = &_R8[(int)m_parentCount];
-            v17 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v13;
+            v15 = &_R8[(int)m_parentCount];
+            v16 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v12;
             if ( this->m_closed )
               return 0;
-            v18 = v17;
+            v17 = v16;
             if ( !this->m_buffer )
               goto LABEL_53;
             m_pos = this->m_pos;
-            if ( &m_pos[v17 + 1] < this->m_end )
+            if ( &m_pos[v16 + 1] < this->m_end )
               break;
             if ( !JsonSerializer::Error(this, "out of memory") )
               return 0;
 LABEL_54:
-            v20 = *v16;
-            if ( !*v16 )
+            v19 = *v15;
+            if ( !*v15 )
               goto LABEL_78;
             LODWORD(m_parentCount) = this->m_closed;
-            Src[0] = *v16;
-            if ( (byte_14471F6B0[v20] & 0x10) != 0 )
+            Src[0] = *v15;
+            if ( (byte_14471F6B0[v19] & 0x10) != 0 )
             {
               if ( (_BYTE)m_parentCount )
                 return 0;
@@ -7192,7 +7042,7 @@ LABEL_63:
                     m_parentCount = this->m_pos;
                     if ( m_parentCount + 2 >= this->m_end )
                       goto LABEL_67;
-                    *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v20];
+                    *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v19];
                     ++this->m_pos;
                   }
                   else
@@ -7206,34 +7056,34 @@ LABEL_63:
               ++this->m_pos;
               goto LABEL_63;
             }
-            v21 = -1i64;
+            v20 = -1i64;
             do
-              ++v21;
-            while ( Src[v21] );
+              ++v20;
+            while ( Src[v20] );
             if ( (_BYTE)m_parentCount )
               return 0;
-            v22 = (int)v21;
+            v21 = (int)v20;
             if ( this->m_buffer )
             {
-              v23 = this->m_pos;
-              if ( &v23[(int)v21 + 1] >= this->m_end )
+              v22 = this->m_pos;
+              if ( &v22[(int)v20 + 1] >= this->m_end )
               {
 LABEL_67:
                 if ( !JsonSerializer::Error(this, "out of memory") )
                   return 0;
                 goto LABEL_77;
               }
-              memcpy_0(v23, Src, (int)v21);
+              memcpy_0(v22, Src, (int)v20);
             }
-            this->m_pos += v22;
+            this->m_pos += v21;
 LABEL_77:
-            v7 = v16 + 1;
+            v7 = v15 + 1;
             if ( !*v7 )
               goto LABEL_78;
           }
-          memcpy_0(m_pos, v13, v17);
+          memcpy_0(m_pos, v12, v16);
 LABEL_53:
-          this->m_pos += v18;
+          this->m_pos += v17;
           goto LABEL_54;
         }
 LABEL_78:
@@ -7316,10 +7166,9 @@ LABEL_107:
   {
     while ( 1 )
     {
-      _RAX = JSON_SCAN_CHARS[4].chars;
-      v25 = value;
+      v23 = value;
       _R8 = value;
-      __asm { vmovdqu xmm1, xmmword ptr [rax] }
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
       while ( 1 )
       {
         __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -7327,25 +7176,25 @@ LABEL_107:
           break;
         _R8 += 16;
       }
-      v28 = &_R8[(int)m_parentCount];
-      v29 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v25;
+      v26 = &_R8[(int)m_parentCount];
+      v27 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v23;
       if ( this->m_closed )
         return 0;
-      v30 = v29;
+      v28 = v27;
       if ( !this->m_buffer )
         goto LABEL_117;
-      v31 = this->m_pos;
-      if ( &v31[v29 + 1] < this->m_end )
+      v29 = this->m_pos;
+      if ( &v29[v27 + 1] < this->m_end )
         break;
       if ( !JsonSerializer::Error(this, "out of memory") )
         return 0;
 LABEL_118:
-      v32 = *v28;
-      if ( !*v28 )
+      v30 = *v26;
+      if ( !*v26 )
         goto LABEL_142;
       LODWORD(m_parentCount) = this->m_closed;
-      Src[0] = *v28;
-      if ( (byte_14471F6B0[v32] & 0x10) != 0 )
+      Src[0] = *v26;
+      if ( (byte_14471F6B0[v30] & 0x10) != 0 )
       {
         if ( (_BYTE)m_parentCount )
           return 0;
@@ -7364,7 +7213,7 @@ LABEL_127:
               m_parentCount = this->m_pos;
               if ( m_parentCount + 2 >= this->m_end )
                 goto LABEL_131;
-              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v32];
+              *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v30];
               ++this->m_pos;
             }
             else
@@ -7378,34 +7227,34 @@ LABEL_127:
         ++this->m_pos;
         goto LABEL_127;
       }
-      v33 = -1i64;
+      v31 = -1i64;
       do
-        ++v33;
-      while ( Src[v33] );
+        ++v31;
+      while ( Src[v31] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v34 = (int)v33;
+      v32 = (int)v31;
       if ( this->m_buffer )
       {
-        v35 = this->m_pos;
-        if ( &v35[(int)v33 + 1] >= this->m_end )
+        v33 = this->m_pos;
+        if ( &v33[(int)v31 + 1] >= this->m_end )
         {
 LABEL_131:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           goto LABEL_141;
         }
-        memcpy_0(v35, Src, (int)v33);
+        memcpy_0(v33, Src, (int)v31);
       }
-      this->m_pos += v34;
+      this->m_pos += v32;
 LABEL_141:
-      value = v28 + 1;
+      value = v26 + 1;
       if ( !*value )
         goto LABEL_142;
     }
-    memcpy_0(v31, v25, v29);
+    memcpy_0(v29, v23, v27);
 LABEL_117:
-    this->m_pos += v30;
+    this->m_pos += v28;
     goto LABEL_118;
   }
 LABEL_142:
@@ -7413,10 +7262,10 @@ LABEL_142:
     return 0;
   if ( !this->m_buffer )
     goto LABEL_148;
-  v36 = this->m_pos;
-  if ( v36 + 2 < this->m_end )
+  v34 = this->m_pos;
+  if ( v34 + 2 < this->m_end )
   {
-    *v36 = search[0];
+    *v34 = search[0];
 LABEL_148:
     ++this->m_pos;
     goto LABEL_149;
@@ -7424,14 +7273,14 @@ LABEL_148:
   if ( !JsonSerializer::Error(this, "out of memory") )
     return 0;
 LABEL_149:
-  v37 = this->m_parentCount;
-  v38 = (_DWORD)v37 == 0;
-  if ( (int)v37 > 0 )
+  v35 = this->m_parentCount;
+  v36 = (_DWORD)v35 == 0;
+  if ( (int)v35 > 0 )
   {
-    this->m_parentTypes[v37 + 31] = JSON_OBJECT;
-    v38 = this->m_parentCount == 0;
+    this->m_parentTypes[v35 + 31] = JSON_OBJECT;
+    v36 = this->m_parentCount == 0;
   }
-  if ( v38 )
+  if ( v36 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -7500,18 +7349,11 @@ Json *Json::ToArray(Json *this, Json *result)
   if ( *_R8 < 9 )
   {
     if ( *_R8 == 2 )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rdx], xmm0
-      }
-    }
+      *result = *this;
   }
   else
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -7544,50 +7386,19 @@ bool Json::ToBool(Json *this, bool defaultValue)
 Json::ToFloat32
 ==============
 */
-
-float __fastcall Json::ToFloat32(Json *this, double defaultValue)
+float Json::ToFloat32(Json *this, float defaultValue)
 {
-  int *v8; 
+  __int128 v2; 
   char *EndPtr; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
   if ( *this->m_value < 9 )
-    goto LABEL_5;
+    return defaultValue;
   _set_errno(0);
-  *(double *)&_XMM0 = strtod(this->m_value, &EndPtr);
-  __asm { vmovaps xmm6, xmm0 }
-  v8 = _errno();
-  if ( *v8 )
-    goto LABEL_5;
-  __asm
-  {
-    vcomisd xmm6, cs:__real@c7efffffe0000000
-    vcomisd xmm6, cs:__real@47efffffe0000000
-  }
-  if ( *v8 )
-  {
-LABEL_5:
-    __asm
-    {
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm0, xmm7
-      vmovaps xmm7, [rsp+48h+var_28]
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vcvtsd2ss xmm0, xmm6, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm7, [rsp+48h+var_28]
-    }
-  }
+  *(double *)&v2 = strtod(this->m_value, &EndPtr);
+  _XMM6 = v2;
+  if ( *_errno() || *(double *)&v2 < -3.402823466385289e38 || *(double *)&v2 > 3.402823466385289e38 )
+    return defaultValue;
+  __asm { vcvtsd2ss xmm0, xmm6, xmm6 }
   return *(float *)&_XMM0;
 }
 
@@ -7596,42 +7407,18 @@ LABEL_5:
 Json::ToFloat64
 ==============
 */
-
-long double __fastcall Json::ToFloat64(Json *this, double defaultValue)
+double Json::ToFloat64(Json *this, long double defaultValue)
 {
+  double result; 
   char *EndPtr; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm6, xmm1
-  }
   if ( *this->m_value < 9 )
-    goto LABEL_4;
+    return defaultValue;
   _set_errno(0);
-  *(double *)&_XMM0 = strtod(this->m_value, &EndPtr);
-  __asm { vmovaps xmm7, xmm0 }
+  result = strtod(this->m_value, &EndPtr);
   if ( *_errno() )
-  {
-LABEL_4:
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm0, xmm7
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm7, [rsp+48h+var_28]
-    }
-  }
-  return *(double *)&_XMM0;
+    return defaultValue;
+  return result;
 }
 
 /*
@@ -7738,18 +7525,11 @@ Json *Json::ToObject(Json *this, Json *result)
   if ( *_R8 < 9 )
   {
     if ( *_R8 == 1 )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rdx], xmm0
-      }
-    }
+      *result = *this;
   }
   else
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -7869,8 +7649,7 @@ char Json::Type(Json *this)
   result = *_R8;
   if ( *_R8 >= 9 )
   {
-    _RAX = JSON_SCAN_CHARS[2].chars;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[2].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -7895,34 +7674,35 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
   char *v7; 
   char *v8; 
   char *m_parentCount; 
-  char v11; 
-  __int64 v12; 
-  bool v13; 
-  __int64 v15; 
-  const char *v17; 
-  const char *v20; 
-  int v21; 
-  __int64 v22; 
+  char v10; 
+  __int64 v11; 
+  bool v12; 
+  __int64 v14; 
+  const char *v15; 
+  const char *v18; 
+  int v19; 
+  __int64 v20; 
   char *m_pos; 
-  unsigned __int8 v24; 
-  __int64 v25; 
-  __int64 v26; 
+  unsigned __int8 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  char *v25; 
+  char *v26; 
   char *v27; 
   char *v28; 
   char *v29; 
   char *v30; 
-  char *v31; 
-  char *v32; 
-  __int64 v33; 
-  bool v34; 
+  __int64 v31; 
+  bool v32; 
   char Src[16]; 
-  __int128 v36; 
-  __int64 v37[4]; 
-  char v38; 
-  __int64 v39[6]; 
+  char *v34; 
+  int v35; 
+  __int64 v36[4]; 
+  char v37; 
+  __int64 v38[6]; 
 
-  v3 = v39;
-  memset(v37, 0, sizeof(v37));
+  v3 = v38;
+  memset(v36, 0, sizeof(v36));
   do
   {
     v3 = (__int64 *)((char *)v3 - 1);
@@ -7931,42 +7711,37 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
   }
   while ( value );
   v6 = 0;
-  v7 = (char *)((char *)v39 - (char *)v3);
-  if ( (char *)v39 - (char *)v3 <= 32 )
+  v7 = (char *)((char *)v38 - (char *)v3);
+  if ( (char *)v38 - (char *)v3 <= 32 )
   {
-    memcpy_0(v37, v3, (char *)v39 - (char *)v3);
-    v8 = (char *)v37 + (_QWORD)v7;
-    DWORD2(v36) = 0;
+    memcpy_0(v36, v3, (char *)v38 - (char *)v3);
+    v8 = (char *)v36 + (_QWORD)v7;
+    v35 = 0;
   }
   else
   {
-    v8 = &v38;
-    DWORD2(v36) = 132;
+    v8 = &v37;
+    v35 = 132;
   }
-  *(_QWORD *)&v36 = v8;
-  __asm
-  {
-    vmovups xmm0, [rbp+57h+var_A0]
-    vmovdqa [rbp+57h+var_A0], xmm0
-  }
-  if ( !DWORD2(v36) )
-    *(_BYTE *)v36 = 0;
+  v34 = v8;
+  if ( !v35 )
+    *v34 = 0;
   m_parentCount = (char *)this->m_parentCount;
-  v11 = 0;
+  v10 = 0;
   if ( (int)m_parentCount > 0 )
-    v11 = this->m_error[(_QWORD)m_parentCount + 128];
-  v12 = -1i64;
+    v10 = this->m_error[(_QWORD)m_parentCount + 128];
+  v11 = -1i64;
   if ( name )
   {
-    if ( v11 != 1 )
+    if ( v10 != 1 )
     {
-      v13 = JsonSerializer::Error(this, "unexpected key outside of an object");
+      v12 = JsonSerializer::Error(this, "unexpected key outside of an object");
       goto LABEL_102;
     }
   }
-  else if ( v11 == 1 )
+  else if ( v10 == 1 )
   {
-    v13 = JsonSerializer::Error(this, "key expected inside object");
+    v12 = JsonSerializer::Error(this, "key expected inside object");
     goto LABEL_102;
   }
   if ( (int)m_parentCount > 0 )
@@ -8023,11 +7798,11 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
       {
         do
         {
-          v15 = -1i64;
+          v14 = -1i64;
           do
-            ++v15;
-          while ( this->m_indent[v15] );
-          if ( !JsonSerializer::Write(this, this->m_indent, v15) )
+            ++v14;
+          while ( this->m_indent[v14] );
+          if ( !JsonSerializer::Write(this, this->m_indent, v14) )
             return 0;
         }
         while ( ++v6 < this->m_parentCount );
@@ -8055,12 +7830,11 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
   {
     ++this->m_pos;
   }
-  for ( ; *name; name = v20 + 1 )
+  for ( ; *name; name = v18 + 1 )
   {
-    _RAX = JSON_SCAN_CHARS[4].chars;
-    v17 = name;
+    v15 = name;
     _R8 = name;
-    __asm { vmovdqu xmm1, xmmword ptr [rax] }
+    _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[4].chars;
     while ( 1 )
     {
       __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
@@ -8068,18 +7842,18 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
         break;
       _R8 += 16;
     }
-    v20 = &_R8[(int)m_parentCount];
-    v21 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v17;
+    v18 = &_R8[(int)m_parentCount];
+    v19 = (_DWORD)_R8 + (_DWORD)m_parentCount - (_DWORD)v15;
     if ( this->m_closed )
       return 0;
-    v22 = v21;
+    v20 = v19;
     if ( this->m_buffer )
     {
       m_pos = this->m_pos;
-      if ( &m_pos[v21 + 1] < this->m_end )
+      if ( &m_pos[v19 + 1] < this->m_end )
       {
-        memcpy_0(m_pos, v17, v21);
-        this->m_pos += v22;
+        memcpy_0(m_pos, v15, v19);
+        this->m_pos += v20;
       }
       else if ( !JsonSerializer::Error(this, "out of memory") )
       {
@@ -8088,14 +7862,14 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
     }
     else
     {
-      this->m_pos += v21;
+      this->m_pos += v19;
     }
-    v24 = *v20;
-    if ( !*v20 )
+    v22 = *v18;
+    if ( !*v18 )
       break;
     LODWORD(m_parentCount) = this->m_closed;
-    Src[0] = *v20;
-    if ( (byte_14471F6B0[v24] & 0x10) != 0 )
+    Src[0] = *v18;
+    if ( (byte_14471F6B0[v22] & 0x10) != 0 )
     {
       if ( (_BYTE)m_parentCount )
         return 0;
@@ -8123,7 +7897,7 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
         m_parentCount = this->m_pos;
         if ( m_parentCount + 2 >= this->m_end )
           goto LABEL_72;
-        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v24];
+        *m_parentCount = `JsonSerializer::QuotedString'::`2'::escape[v22];
         ++this->m_pos;
       }
       else
@@ -8133,31 +7907,31 @@ char JsonSerializer::UInt(JsonSerializer *this, const char *name, unsigned __int
     }
     else
     {
-      v25 = -1i64;
+      v23 = -1i64;
       do
-        ++v25;
-      while ( Src[v25] );
+        ++v23;
+      while ( Src[v23] );
       if ( (_BYTE)m_parentCount )
         return 0;
-      v26 = (int)v25;
+      v24 = (int)v23;
       if ( this->m_buffer )
       {
-        v28 = this->m_pos;
-        if ( &v28[(int)v25 + 1] >= this->m_end )
+        v26 = this->m_pos;
+        if ( &v26[(int)v23 + 1] >= this->m_end )
         {
 LABEL_72:
           if ( !JsonSerializer::Error(this, "out of memory") )
             return 0;
           continue;
         }
-        memcpy_0(v28, Src, (int)v25);
-        this->m_pos += v26;
+        memcpy_0(v26, Src, (int)v23);
+        this->m_pos += v24;
       }
       else
       {
-        v27 = this->m_pos;
-        LODWORD(m_parentCount) = v26 + (_DWORD)v27;
-        this->m_pos = &v27[v26];
+        v25 = this->m_pos;
+        LODWORD(m_parentCount) = v24 + (_DWORD)v25;
+        this->m_pos = &v25[v24];
       }
     }
   }
@@ -8165,10 +7939,10 @@ LABEL_72:
     return 0;
   if ( this->m_buffer )
   {
-    v29 = this->m_pos;
-    if ( v29 + 2 < this->m_end )
+    v27 = this->m_pos;
+    if ( v27 + 2 < this->m_end )
     {
-      *v29 = search[0];
+      *v27 = search[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -8184,10 +7958,10 @@ LABEL_72:
     return 0;
   if ( this->m_buffer )
   {
-    v30 = this->m_pos;
-    if ( v30 + 2 < this->m_end )
+    v28 = this->m_pos;
+    if ( v28 + 2 < this->m_end )
     {
-      *v30 = asc_143D7E4F8[0];
+      *v28 = asc_143D7E4F8[0];
       ++this->m_pos;
     }
     else if ( !JsonSerializer::Error(this, "out of memory") )
@@ -8209,43 +7983,43 @@ LABEL_105:
     ++this->m_pos;
     goto LABEL_106;
   }
-  v31 = this->m_pos;
-  if ( v31 + 2 < this->m_end )
+  v29 = this->m_pos;
+  if ( v29 + 2 < this->m_end )
   {
-    *v31 = whitespace[0];
+    *v29 = whitespace[0];
     goto LABEL_105;
   }
-  v13 = JsonSerializer::Error(this, "out of memory");
+  v12 = JsonSerializer::Error(this, "out of memory");
 LABEL_102:
-  if ( !v13 )
+  if ( !v12 )
     return 0;
   do
 LABEL_106:
-    ++v12;
-  while ( *((_BYTE *)v37 + v12) );
+    ++v11;
+  while ( *((_BYTE *)v36 + v11) );
   if ( this->m_closed )
     return 0;
   if ( !this->m_buffer )
     goto LABEL_113;
-  v32 = this->m_pos;
-  if ( &v32[(int)v12 + 1] < this->m_end )
+  v30 = this->m_pos;
+  if ( &v30[(int)v11 + 1] < this->m_end )
   {
-    memcpy_0(v32, v37, (int)v12);
+    memcpy_0(v30, v36, (int)v11);
 LABEL_113:
-    this->m_pos += (int)v12;
+    this->m_pos += (int)v11;
     goto LABEL_114;
   }
   if ( !JsonSerializer::Error(this, "out of memory") )
     return 0;
 LABEL_114:
-  v33 = this->m_parentCount;
-  v34 = (_DWORD)v33 == 0;
-  if ( (int)v33 > 0 )
+  v31 = this->m_parentCount;
+  v32 = (_DWORD)v31 == 0;
+  if ( (int)v31 > 0 )
   {
-    this->m_parentTypes[v33 + 31] = JSON_OBJECT;
-    v34 = this->m_parentCount == 0;
+    this->m_parentTypes[v31 + 31] = JSON_OBJECT;
+    v32 = this->m_parentCount == 0;
   }
-  if ( v34 )
+  if ( v32 )
   {
     *this->m_pos = 0;
     this->m_closed = 1;
@@ -8306,7 +8080,7 @@ Json *Json::begin(Json *this, Json *result)
 {
   const char *m_value; 
   int v3; 
-  Json *v7; 
+  Json *v6; 
 
   m_value = this->m_value;
   result->m_key = NULL;
@@ -8316,17 +8090,13 @@ Json *Json::begin(Json *this, Json *result)
     v3 = *((unsigned __int8 *)m_value + 1);
     if ( (_BYTE)v3 == 4 )
     {
-      _RAX = JSON_SCAN_CHARS[7].chars;
       _R8 = m_value + 2;
       result->m_key = _R8;
-      __asm
-      {
-        vmovdqu xmm1, xmmword ptr [rax]
-        vpcmpestri xmm1, xmmword ptr [r8], 0
-      }
-      v7 = result;
+      _XMM1 = *(_OWORD *)JSON_SCAN_CHARS[7].chars;
+      __asm { vpcmpestri xmm1, xmmword ptr [r8], 0 }
+      v6 = result;
       result->m_value = &_R8[v3 + 1];
-      return v7;
+      return v6;
     }
     if ( (_BYTE)v3 != 3 )
       result->m_value = m_value + 1;

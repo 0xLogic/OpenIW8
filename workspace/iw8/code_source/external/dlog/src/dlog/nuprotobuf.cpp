@@ -549,9 +549,8 @@ ProtobufSerializer::Fixed64
 bool ProtobufSerializer::Fixed64(ProtobufSerializer *this, unsigned __int64 tag, unsigned __int64 value)
 {
   unsigned __int8 *v3; 
-  unsigned __int64 v8; 
+  unsigned __int8 *m_pos; 
 
-  v8 = value;
   v3 = NULL;
   if ( this->m_packed )
   {
@@ -562,15 +561,11 @@ bool ProtobufSerializer::Fixed64(ProtobufSerializer *this, unsigned __int64 tag,
   {
     this->m_pos = Protobuf_WriteVarInt(this->m_pos, this->m_end - this->m_pos, (8 * tag) | 1);
   }
-  _RCX = this->m_pos;
-  if ( _RCX && (unsigned __int8 *)(this->m_end - _RCX) >= (unsigned __int8 *)8 )
+  m_pos = this->m_pos;
+  if ( m_pos && (unsigned __int8 *)(this->m_end - m_pos) >= (unsigned __int8 *)8 )
   {
-    __asm
-    {
-      vmovsd  xmm0, [rsp+28h+arg_10]
-      vmovsd  qword ptr [rcx], xmm0
-    }
-    v3 = _RCX + 8;
+    *(double *)m_pos = *(double *)&value;
+    v3 = m_pos + 8;
   }
   this->m_pos = v3;
   return v3 != NULL;
@@ -581,14 +576,11 @@ bool ProtobufSerializer::Fixed64(ProtobufSerializer *this, unsigned __int64 tag,
 ProtobufSerializer::Float32
 ==============
 */
-
-bool __fastcall ProtobufSerializer::Float32(ProtobufSerializer *this, unsigned __int64 tag, double value)
+bool ProtobufSerializer::Float32(ProtobufSerializer *this, unsigned __int64 tag, float value)
 {
   unsigned __int8 *v3; 
   unsigned __int8 *m_pos; 
-  int v7; 
 
-  __asm { vmovss  [rsp+arg_10], xmm2 }
   v3 = NULL;
   if ( this->m_packed )
   {
@@ -603,7 +595,7 @@ bool __fastcall ProtobufSerializer::Float32(ProtobufSerializer *this, unsigned _
   if ( m_pos && (unsigned __int8 *)(this->m_end - m_pos) >= (unsigned __int8 *)4 )
   {
     v3 = m_pos + 4;
-    *(_DWORD *)m_pos = v7;
+    *(float *)m_pos = value;
   }
   this->m_pos = v3;
   return v3 != NULL;
@@ -614,12 +606,11 @@ bool __fastcall ProtobufSerializer::Float32(ProtobufSerializer *this, unsigned _
 ProtobufSerializer::Float64
 ==============
 */
-
-bool __fastcall ProtobufSerializer::Float64(ProtobufSerializer *this, unsigned __int64 tag, double value)
+bool ProtobufSerializer::Float64(ProtobufSerializer *this, unsigned __int64 tag, long double value)
 {
   unsigned __int8 *v3; 
+  unsigned __int8 *m_pos; 
 
-  __asm { vmovsd  [rsp+arg_10], xmm2 }
   v3 = NULL;
   if ( this->m_packed )
   {
@@ -630,15 +621,11 @@ bool __fastcall ProtobufSerializer::Float64(ProtobufSerializer *this, unsigned _
   {
     this->m_pos = Protobuf_WriteVarInt(this->m_pos, this->m_end - this->m_pos, (8 * tag) | 1);
   }
-  _RCX = this->m_pos;
-  if ( _RCX && (unsigned __int8 *)(this->m_end - _RCX) >= (unsigned __int8 *)8 )
+  m_pos = this->m_pos;
+  if ( m_pos && (unsigned __int8 *)(this->m_end - m_pos) >= (unsigned __int8 *)8 )
   {
-    __asm
-    {
-      vmovsd  xmm0, [rsp+28h+arg_10]
-      vmovsd  qword ptr [rcx], xmm0
-    }
-    v3 = _RCX + 8;
+    *(long double *)m_pos = value;
+    v3 = m_pos + 8;
   }
   this->m_pos = v3;
   return v3 != NULL;
@@ -789,9 +776,8 @@ ProtobufSerializer::SFixed64
 bool ProtobufSerializer::SFixed64(ProtobufSerializer *this, unsigned __int64 tag, __int64 value)
 {
   unsigned __int8 *v3; 
-  __int64 v8; 
+  unsigned __int8 *m_pos; 
 
-  v8 = value;
   v3 = NULL;
   if ( this->m_packed )
   {
@@ -802,15 +788,11 @@ bool ProtobufSerializer::SFixed64(ProtobufSerializer *this, unsigned __int64 tag
   {
     this->m_pos = Protobuf_WriteVarInt(this->m_pos, this->m_end - this->m_pos, (8 * tag) | 1);
   }
-  _RCX = this->m_pos;
-  if ( _RCX && (unsigned __int8 *)(this->m_end - _RCX) >= (unsigned __int8 *)8 )
+  m_pos = this->m_pos;
+  if ( m_pos && (unsigned __int8 *)(this->m_end - m_pos) >= (unsigned __int8 *)8 )
   {
-    __asm
-    {
-      vmovsd  xmm0, [rsp+28h+arg_10]
-      vmovsd  qword ptr [rcx], xmm0
-    }
-    v3 = _RCX + 8;
+    *(double *)m_pos = *(double *)&value;
+    v3 = m_pos + 8;
   }
   this->m_pos = v3;
   return v3 != NULL;

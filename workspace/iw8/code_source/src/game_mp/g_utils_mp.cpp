@@ -447,11 +447,9 @@ void GUtilsMP::BotStuckCheck(GUtilsMP *this, const vec3_t *startVel, const vec3_
   const gentity_s *v10; 
   ai_agent_t *ScriptedAgentInfo; 
   ai_common_t *m_pAI; 
-  __int64 v14; 
-  AIBotInterface *v15; 
-  float fmt; 
-  float fmta; 
-  AIBotWrapper v19; 
+  __int64 v13; 
+  AIBotInterface *v14; 
+  AIBotWrapper v15; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1879, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -459,47 +457,37 @@ void GUtilsMP::BotStuckCheck(GUtilsMP *this, const vec3_t *startVel, const vec3_
   v10 = &g_entities[ps->clientNum];
   if ( SV_IsAgentScripted(v10) )
   {
-    AIAgentInterface::AIAgentInterface((AIAgentInterface *)&v19);
-    v19.m_botAgentInterface.m_pAI = NULL;
-    v19.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AINewAgentInterface::`vftable';
+    AIAgentInterface::AIAgentInterface((AIAgentInterface *)&v15);
+    v15.m_botAgentInterface.m_pAI = NULL;
+    v15.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AINewAgentInterface::`vftable';
     if ( SV_IsAgentScripted(v10) )
     {
       ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v10);
       if ( ScriptedAgentInfo )
       {
-        v19.m_botAgentInterface.m_pAI = (ai_common_t *)&v19;
-        AINewAgentInterface::SetAgent((AINewAgentInterface *)&v19, ScriptedAgentInfo);
+        v15.m_botAgentInterface.m_pAI = (ai_common_t *)&v15;
+        AINewAgentInterface::SetAgent((AINewAgentInterface *)&v15, ScriptedAgentInfo);
       }
     }
-    m_pAI = v19.m_botAgentInterface.m_pAI;
-    if ( !v19.m_botAgentInterface.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1889, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    m_pAI = v15.m_botAgentInterface.m_pAI;
+    if ( !v15.m_botAgentInterface.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1889, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
     (*(void (__fastcall **)(ai_common_t *, _QWORD))&m_pAI->ent[1].s.clientNum)(m_pAI, 0i64);
-    __asm
+    if ( GUtilsMP::IsStuck(this, &ps->origin, startVel, startOrigin, frametime) )
     {
-      vmovss  xmm0, [rsp+88h+frametime]
-      vmovss  dword ptr [rsp+88h+fmt], xmm0
-    }
-    if ( GUtilsMP::IsStuck(this, &ps->origin, startVel, startOrigin, fmt) )
-    {
-      LOBYTE(v14) = 1;
-      (*(void (__fastcall **)(ai_common_t *, __int64))&m_pAI->ent[1].s.clientNum)(m_pAI, v14);
+      LOBYTE(v13) = 1;
+      (*(void (__fastcall **)(ai_common_t *, __int64))&m_pAI->ent[1].s.clientNum)(m_pAI, v13);
     }
   }
   else if ( SV_IsAgentBot(ps->clientNum) || SV_BotIsBot(ps->clientNum) )
   {
-    AIBotWrapper::AIBotWrapper(&v19, &g_entities[ps->clientNum]);
-    v15 = v19.m_pAI;
-    if ( !v19.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1900, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+    AIBotWrapper::AIBotWrapper(&v15, &g_entities[ps->clientNum]);
+    v14 = v15.m_pAI;
+    if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1900, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
       __debugbreak();
-    AIBotInterface::SetLateralMoveStuck(v15, 0, body);
-    __asm
-    {
-      vmovss  xmm0, [rsp+88h+frametime]
-      vmovss  dword ptr [rsp+88h+fmt], xmm0
-    }
-    if ( GUtilsMP::IsStuck(this, &ps->origin, startVel, startOrigin, fmta) )
-      AIBotInterface::SetLateralMoveStuck(v15, 1, body);
+    AIBotInterface::SetLateralMoveStuck(v14, 0, body);
+    if ( GUtilsMP::IsStuck(this, &ps->origin, startVel, startOrigin, frametime) )
+      AIBotInterface::SetLateralMoveStuck(v14, 1, body);
   }
 }
 
@@ -538,8 +526,8 @@ void GUtilsMP::DObjUpdate(GUtilsMP *this, gentity_s *ent, int link)
   const DObj *ServerDObjForEnt; 
   unsigned int v7; 
   XAnimTree *Tree; 
+  DObjPartBits *p_partBits; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
   v7 = 0;
   if ( ServerDObjForEnt )
@@ -553,19 +541,21 @@ void GUtilsMP::DObjUpdate(GUtilsMP *this, gentity_s *ent, int link)
     if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 793, ASSERT_TYPE_ASSERT, "( (!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) && !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.apos )) || (tree != 0) )", (const char *)&queryFormat, "(!BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.pos ) && !BgTrajectory::IsAnimatedTrajectory( &ent->s.lerp.apos )) || (tree != NULL)") )
       __debugbreak();
   }
-  _RDI = &ent->s.partBits;
+  p_partBits = &ent->s.partBits;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
+    *(_OWORD *)p_partBits->array = _XMM6;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
     ++v7;
   }
   while ( v7 < 2 );
   G_UtilsMP_DObjUpdate_Internal(ent);
-  if ( link && !ent->client )
-    SV_LinkEntity(ent);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  if ( link )
+  {
+    if ( !ent->client )
+      SV_LinkEntity(ent);
+  }
 }
 
 /*
@@ -587,31 +577,32 @@ char GUtilsMP::EntAttach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   __int64 v19; 
   unsigned int ModelIndex; 
   unsigned __int16 v21; 
+  characterInfo_t *v22; 
   const dvar_t *v23; 
   char v24; 
   DObj *ServerDObjForEnt; 
   const DObj *v26; 
   __int64 v27; 
   unsigned int numModels; 
-  unsigned int v33; 
-  __int64 v34; 
-  DObjModel *v35; 
-  const XModel *v36; 
-  DObj *v37; 
-  DObj *v38; 
+  unsigned int v29; 
+  __int64 v30; 
+  DObjModel *v31; 
+  const XModel *v32; 
+  DObj *v33; 
+  DObj *v34; 
   __int64 numActualModels; 
-  __int64 v40; 
-  DObjModel *v41; 
-  const XModel *v42; 
+  __int64 v36; 
+  DObjModel *v37; 
+  const XModel *v38; 
   DObjModel (*actualDobjModels)[32]; 
   CharacterModelType (*actualModelTypes)[32]; 
-  unsigned int v45; 
+  unsigned int v41; 
   characterInfo_t *CharacterInfo; 
-  BgStatic *v49; 
+  BgStatic *v45; 
   DObjPartBits outFixedUpHidePartBits; 
   DObjPartBits partBits; 
   CharacterModelType refModelTypes[32]; 
-  DObjModel v53[32]; 
+  DObjModel v49[32]; 
   DObjModel refDobjModels[32]; 
 
   v8 = ent;
@@ -646,7 +637,7 @@ char GUtilsMP::EntAttach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
   v15 = *(GStaticMP **)&GStatic::ms_gameStatics;
-  v49 = *(BgStatic **)&GStatic::ms_gameStatics;
+  v45 = *(BgStatic **)&GStatic::ms_gameStatics;
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 919, ASSERT_TYPE_ASSERT, "( gameStatic )", (const char *)&queryFormat, "gameStatic") )
     __debugbreak();
   v16 = 0;
@@ -685,13 +676,13 @@ char GUtilsMP::EntAttach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   }
   if ( ((v8->s.eType - 1) & 0xFFEF) != 0 )
   {
-    _RSI = NULL;
+    v22 = NULL;
     CharacterInfo = NULL;
   }
   else
   {
     CharacterInfo = GStaticMP::GetCharacterInfo(v15, v8->s.number);
-    _RSI = CharacterInfo;
+    v22 = CharacterInfo;
     if ( CharacterInfo )
     {
       v23 = DVARBOOL_killswitch_fix_attach_partbits_enabled;
@@ -708,48 +699,41 @@ char GUtilsMP::EntAttach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   v24 = 0;
 LABEL_63:
   ServerDObjForEnt = Com_GetServerDObjForEnt(v8);
-  v45 = 0;
+  v41 = 0;
   v26 = ServerDObjForEnt;
   LODWORD(v27) = 0;
   if ( ServerDObjForEnt )
   {
     if ( v24 )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi+544h]
-        vmovups ymmword ptr [rsp+1598h+refModelTypes], ymm0
-        vmovups ymm1, ymmword ptr [rsi+564h]
-        vmovups ymmword ptr [rsp+1598h+refModelTypes+20h], ymm1
-        vmovups ymm0, ymmword ptr [rsi+584h]
-        vmovups ymmword ptr [rsp+1598h+refModelTypes+40h], ymm0
-        vmovups ymm1, ymmword ptr [rsi+5A4h]
-        vmovups ymmword ptr [rsp+1598h+refModelTypes+60h], ymm1
-      }
+      *(__m256i *)refModelTypes = *(__m256i *)v22->dobjModelTypes;
+      *(__m256i *)&refModelTypes[8] = *(__m256i *)&v22->dobjModelTypes[8];
+      *(__m256i *)&refModelTypes[16] = *(__m256i *)&v22->dobjModelTypes[16];
+      *(__m256i *)&refModelTypes[24] = *(__m256i *)&v22->dobjModelTypes[24];
       numModels = ServerDObjForEnt->numModels;
-      v45 = numModels;
+      v41 = numModels;
       memset_0(refDobjModels, 0, sizeof(refDobjModels));
-      v33 = 0;
+      v29 = 0;
       v27 = numModels;
       if ( numModels )
       {
-        v34 = 0i64;
-        v35 = refDobjModels;
+        v30 = 0i64;
+        v31 = refDobjModels;
         do
         {
-          if ( v33 >= 0x20 )
+          if ( v29 >= 0x20 )
           {
             LODWORD(actualModelTypes) = 32;
-            LODWORD(actualDobjModels) = v33;
+            LODWORD(actualDobjModels) = v29;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 961, ASSERT_TYPE_ASSERT, "(unsigned)( modelIdx ) < (unsigned)( ( sizeof( *array_counter( oldCharacterModels ) ) + 0 ) )", "modelIdx doesn't index ARRAY_COUNT( oldCharacterModels )\n\t%i not in [0, %i)", actualDobjModels, actualModelTypes) )
               __debugbreak();
           }
-          ++v33;
-          v36 = v26->models[v34++];
-          v35->model = v36;
-          ++v35;
+          ++v29;
+          v32 = v26->models[v30++];
+          v31->model = v32;
+          ++v31;
         }
-        while ( v34 < v27 );
+        while ( v30 < v27 );
         v8 = ent;
       }
       DObjGetHidePartBits(v26, &partBits);
@@ -762,21 +746,21 @@ LABEL_63:
   GUtilsMP::DObjUpdate(this, v8, v8->r.isLinked);
   if ( !v26 )
     return 1;
-  v37 = Com_GetServerDObjForEnt(v8);
-  v38 = v37;
-  if ( !v37 )
+  v33 = Com_GetServerDObjForEnt(v8);
+  v34 = v33;
+  if ( !v33 )
     return 1;
   if ( !v24 )
   {
-    DObjSetHidePartBits(v37, &outFixedUpHidePartBits);
+    DObjSetHidePartBits(v33, &outFixedUpHidePartBits);
     return 1;
   }
-  memset_0(v53, 0, sizeof(v53));
-  numActualModels = v38->numModels;
-  if ( v38->numModels )
+  memset_0(v49, 0, sizeof(v49));
+  numActualModels = v34->numModels;
+  if ( v34->numModels )
   {
-    v40 = 0i64;
-    v41 = v53;
+    v36 = 0i64;
+    v37 = v49;
     do
     {
       if ( v16 >= 0x20 )
@@ -787,14 +771,14 @@ LABEL_63:
           __debugbreak();
       }
       ++v16;
-      v42 = v38->models[v40++];
-      v41->model = v42;
-      ++v41;
+      v38 = v34->models[v36++];
+      v37->model = v38;
+      ++v37;
     }
-    while ( v40 < numActualModels );
-    LODWORD(v27) = v45;
+    while ( v36 < numActualModels );
+    LODWORD(v27) = v41;
   }
-  BgStatic::FixUpHidePartBits(v49, v8->s.number, (const DObjModel (*)[32])refDobjModels, (const CharacterModelType (*)[32])refModelTypes, v27, (const DObjModel (*)[32])v53, (const CharacterModelType (*)[32])CharacterInfo->dobjModelTypes, numActualModels, &partBits, &outFixedUpHidePartBits);
+  BgStatic::FixUpHidePartBits(v45, v8->s.number, (const DObjModel (*)[32])refDobjModels, (const CharacterModelType (*)[32])refModelTypes, v27, (const DObjModel (*)[32])v49, (const CharacterModelType (*)[32])CharacterInfo->dobjModelTypes, numActualModels, &partBits, &outFixedUpHidePartBits);
   return 1;
 }
 
@@ -843,6 +827,7 @@ char GUtilsMP::EntDetach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   GStaticMP *v40; 
   DObj *v41; 
   char v42; 
+  characterInfo_t *p_ci; 
   const XModel *Model; 
   int v45; 
   const char *v46; 
@@ -863,33 +848,33 @@ char GUtilsMP::EntDetach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   unsigned int *v61; 
   entityType_s eType; 
   const GCorpseInfoMP *CorpseInfoFromEntity; 
-  unsigned int v68; 
-  DObjModel *v69; 
+  unsigned int v64; 
+  DObjModel *v65; 
   __int64 i; 
-  const XModel *v71; 
-  gentity_s *v72; 
-  DObj *v73; 
-  int v74; 
-  __int64 v75; 
-  unsigned int v76; 
-  DObjModel *v77; 
-  __int64 v78; 
-  const XModel *v79; 
+  const XModel *v67; 
+  gentity_s *v68; 
+  DObj *v69; 
+  int v70; 
+  __int64 v71; 
+  unsigned int v72; 
+  DObjModel *v73; 
+  __int64 v74; 
+  const XModel *v75; 
   DObjModel (*actualDobjModels)[32]; 
   CharacterModelType (*actualModelTypes)[32]; 
   __int64 numActualModels; 
   DObjPartBits *hidePartBits; 
-  bool v85; 
-  __int64 v86; 
-  __int64 v87; 
-  GStaticMP *v88; 
+  bool v81; 
+  __int64 v82; 
+  __int64 v83; 
+  GStaticMP *v84; 
   int modelIndex; 
-  __int64 v92; 
+  __int64 v88; 
   DObj *obj; 
   DObjPartBits partBits; 
-  DObjPartBits v96; 
+  DObjPartBits v92; 
   CharacterModelType refModelTypes[32]; 
-  DObjModel v98[32]; 
+  DObjModel v94[32]; 
   DObjModel refDobjModels[32]; 
 
   v4 = tagName;
@@ -904,13 +889,13 @@ char GUtilsMP::EntDetach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
   Dvar_CheckFrontendServerThread(v7);
   enabled = v7->current.enabled;
   attachModelNames = v6->attachModelNames;
-  v85 = enabled;
+  v81 = enabled;
   modelIndex = -1;
   attachTagNames = v6->attachTagNames;
   v11 = -1;
   v12 = 0i64;
   v13 = 0;
-  v86 = 0i64;
+  v82 = 0i64;
   while ( 1 )
   {
     if ( enabled )
@@ -931,7 +916,7 @@ char GUtilsMP::EntDetach(GUtilsMP *this, gentity_s *ent, const char *modelName, 
           v11 = v13;
         }
       }
-      v12 = v86;
+      v12 = v82;
     }
     if ( *attachTagNames == v4 )
       break;
@@ -939,11 +924,11 @@ LABEL_39:
     ++v12;
     ++v13;
     ++attachTagNames;
-    v86 = v12;
+    v82 = v12;
     ++attachModelNames;
     if ( v13 >= 28 )
       return 0;
-    enabled = v85;
+    enabled = v81;
   }
   v15 = *attachModelNames;
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
@@ -973,7 +958,7 @@ LABEL_39:
         v24 = v22;
       if ( v20 != v24 )
       {
-        v12 = v86;
+        v12 = v82;
         v4 = tagName;
         v6 = ent;
         goto LABEL_39;
@@ -1010,9 +995,9 @@ LABEL_39:
   {
     p_attachModelIsOnBack = &ent->attachModelIsOnBack;
     v30 = __ROL4__(1, v13);
-    v31 = &ent->attachTagNames[v86];
-    v32 = &ent->attachModelNames[v86];
-    v87 = (unsigned int)(27 - v13);
+    v31 = &ent->attachTagNames[v82];
+    v32 = &ent->attachModelNames[v82];
+    v83 = (unsigned int)(27 - v13);
     do
     {
       v33 = v31 + 1;
@@ -1040,7 +1025,7 @@ LABEL_39:
           __debugbreak();
         p_attachModelIsOnBack[v26 >> 5] &= ~v30;
       }
-      v38 = v87-- == 1;
+      v38 = v83-- == 1;
       v30 = v36;
       ++v26;
       v25 = ent;
@@ -1060,12 +1045,12 @@ LABEL_39:
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
   v40 = *(GStaticMP **)&GStatic::ms_gameStatics;
-  v88 = *(GStaticMP **)&GStatic::ms_gameStatics;
+  v84 = *(GStaticMP **)&GStatic::ms_gameStatics;
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1114, ASSERT_TYPE_ASSERT, "( gameStatic )", (const char *)&queryFormat, "gameStatic") )
     __debugbreak();
   v41 = obj;
   v42 = 0;
-  _R15 = NULL;
+  p_ci = NULL;
   if ( obj )
   {
     if ( ((ent->s.eType - 1) & 0xFFEF) == 0 || BG_IsPlayerOrAgentCorpseEntity(&ent->s) )
@@ -1079,52 +1064,45 @@ LABEL_39:
         CorpseInfoFromEntity = GetCorpseInfoFromEntity(ent);
         if ( !CorpseInfoFromEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1135, ASSERT_TYPE_ASSERT, "( corpseInfo )", (const char *)&queryFormat, "corpseInfo") )
           __debugbreak();
-        _R15 = &CorpseInfoFromEntity->ci;
+        p_ci = &CorpseInfoFromEntity->ci;
         v41 = obj;
       }
       else
       {
         if ( !GStaticMP::HasCharacterInfo(v40, ent->s.number) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1128, ASSERT_TYPE_ASSERT, "( gameStatic->HasCharacterInfo( ent->s.number ) )", (const char *)&queryFormat, "gameStatic->HasCharacterInfo( ent->s.number )") )
           __debugbreak();
-        _R15 = GStaticMP::GetCharacterInfo(v40, ent->s.number);
+        p_ci = GStaticMP::GetCharacterInfo(v40, ent->s.number);
       }
-      if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1138, ASSERT_TYPE_ASSERT, "( ci )", (const char *)&queryFormat, "ci") )
+      if ( !p_ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1138, ASSERT_TYPE_ASSERT, "( ci )", (const char *)&queryFormat, "ci") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r15+544h]
-        vmovups ymmword ptr [rsp+1588h+refModelTypes], ymm0
-        vmovups ymm1, ymmword ptr [r15+564h]
-        vmovups ymmword ptr [rsp+1588h+refModelTypes+20h], ymm1
-        vmovups ymm0, ymmword ptr [r15+584h]
-        vmovups ymmword ptr [rsp+1588h+refModelTypes+40h], ymm0
-        vmovups ymm1, ymmword ptr [r15+5A4h]
-        vmovups ymmword ptr [rsp+1588h+refModelTypes+60h], ymm1
-      }
+      *(__m256i *)refModelTypes = *(__m256i *)p_ci->dobjModelTypes;
+      *(__m256i *)&refModelTypes[8] = *(__m256i *)&p_ci->dobjModelTypes[8];
+      *(__m256i *)&refModelTypes[16] = *(__m256i *)&p_ci->dobjModelTypes[16];
+      *(__m256i *)&refModelTypes[24] = *(__m256i *)&p_ci->dobjModelTypes[24];
       numModels = v41->numModels;
       memset_0(refDobjModels, 0, sizeof(refDobjModels));
-      v68 = 0;
+      v64 = 0;
       if ( (_DWORD)numModels )
       {
-        v69 = refDobjModels;
+        v65 = refDobjModels;
         for ( i = 0i64; i < numModels; ++i )
         {
-          if ( v68 >= 0x20 )
+          if ( v64 >= 0x20 )
           {
             LODWORD(actualModelTypes) = 32;
-            LODWORD(actualDobjModels) = v68;
+            LODWORD(actualDobjModels) = v64;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1148, ASSERT_TYPE_ASSERT, "(unsigned)( modelIdx ) < (unsigned)( ( sizeof( *array_counter( oldCharacterModels ) ) + 0 ) )", "modelIdx doesn't index ARRAY_COUNT( oldCharacterModels )\n\t%i not in [0, %i)", actualDobjModels, actualModelTypes) )
               __debugbreak();
           }
-          ++v68;
-          v71 = obj->models[i];
-          v69->model = v71;
-          ++v69;
+          ++v64;
+          v67 = obj->models[i];
+          v65->model = v67;
+          ++v65;
         }
-        v40 = v88;
+        v40 = v84;
         v42 = 1;
       }
-      DObjGetHidePartBits(obj, &v96);
+      DObjGetHidePartBits(obj, &v92);
     }
     else
     {
@@ -1148,7 +1126,7 @@ LABEL_39:
         v51 = (unsigned __int8)v46[v49];
         v52 = v50;
         v53 = *(unsigned __int8 *)v46++;
-        v92 = --v50;
+        v88 = --v50;
         if ( !v52 )
           break;
         if ( v51 != v53 )
@@ -1166,7 +1144,7 @@ LABEL_39:
               __debugbreak();
             break;
           }
-          v50 = v92;
+          v50 = v88;
         }
       }
       while ( v51 );
@@ -1211,8 +1189,8 @@ LABEL_39:
           ++v57;
         }
         while ( v57 < v58 );
-        _R15 = NULL;
-        v40 = v88;
+        p_ci = NULL;
+        v40 = v84;
         LODWORD(numModels) = 0;
       }
       if ( ModelRootBoneIndex < v58 )
@@ -1233,55 +1211,55 @@ LABEL_39:
           *v61 &= ~(0x80000000 >> v60);
         }
         while ( ModelRootBoneIndex < v58 );
-        v40 = v88;
+        v40 = v84;
         LODWORD(numModels) = 0;
       }
     }
   }
-  v72 = ent;
+  v68 = ent;
   GUtilsMP::DObjUpdate(this, ent, ent->r.isLinked);
   if ( obj )
   {
-    v73 = Com_GetServerDObjForEnt(ent);
-    if ( v73 )
+    v69 = Com_GetServerDObjForEnt(ent);
+    if ( v69 )
     {
       if ( v42 )
       {
-        if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1187, ASSERT_TYPE_ASSERT, "( ci )", (const char *)&queryFormat, "ci") )
+        if ( !p_ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1187, ASSERT_TYPE_ASSERT, "( ci )", (const char *)&queryFormat, "ci") )
           __debugbreak();
-        memset_0(v98, 0, sizeof(v98));
-        v74 = v73->numModels;
-        v75 = v73->numModels;
-        if ( v73->numModels )
+        memset_0(v94, 0, sizeof(v94));
+        v70 = v69->numModels;
+        v71 = v69->numModels;
+        if ( v69->numModels )
         {
-          v76 = 0;
-          v77 = v98;
-          v78 = 0i64;
+          v72 = 0;
+          v73 = v94;
+          v74 = 0i64;
           do
           {
-            if ( v76 >= 0x20 )
+            if ( v72 >= 0x20 )
             {
               LODWORD(actualModelTypes) = 32;
-              LODWORD(actualDobjModels) = v76;
+              LODWORD(actualDobjModels) = v72;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 1194, ASSERT_TYPE_ASSERT, "(unsigned)( modelIdx ) < (unsigned)( ( sizeof( *array_counter( newCharacterModels ) ) + 0 ) )", "modelIdx doesn't index ARRAY_COUNT( newCharacterModels )\n\t%i not in [0, %i)", actualDobjModels, actualModelTypes) )
                 __debugbreak();
             }
-            ++v76;
-            v79 = v73->models[v78++];
-            v77->model = v79;
-            ++v77;
+            ++v72;
+            v75 = v69->models[v74++];
+            v73->model = v75;
+            ++v73;
           }
-          while ( v78 < v75 );
-          v40 = v88;
-          v74 = v75;
-          v72 = ent;
+          while ( v74 < v71 );
+          v40 = v84;
+          v70 = v71;
+          v68 = ent;
         }
-        BgStatic::FixUpHidePartBits(v40, v72->s.number, (const DObjModel (*)[32])refDobjModels, (const CharacterModelType (*)[32])refModelTypes, numModels, (const DObjModel (*)[32])v98, (const CharacterModelType (*)[32])_R15->dobjModelTypes, v74, &v96, &partBits);
+        BgStatic::FixUpHidePartBits(v40, v68->s.number, (const DObjModel (*)[32])refDobjModels, (const CharacterModelType (*)[32])refModelTypes, numModels, (const DObjModel (*)[32])v94, (const CharacterModelType (*)[32])p_ci->dobjModelTypes, v70, &v92, &partBits);
       }
-      DObjSetHidePartBits(v73, &partBits);
+      DObjSetHidePartBits(v69, &partBits);
       if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
         __debugbreak();
-      GUtils::ms_gUtils->EntityStateSetPartBits(GUtils::ms_gUtils, v72, &partBits);
+      GUtils::ms_gUtils->EntityStateSetPartBits(GUtils::ms_gUtils, v68, &partBits);
     }
   }
   return 1;
@@ -2322,7 +2300,7 @@ XModel *G_UtilsMP_GetWeaponWorldModels(const Weapon *r_weapon)
   XModel *defaultWorldModel; 
   const char *v4; 
   const WeaponCompleteDef *v5; 
-  const WeaponDef *v10; 
+  const WeaponDef *v6; 
   Weapon result; 
   Weapon weapon; 
 
@@ -2345,23 +2323,13 @@ XModel *G_UtilsMP_GetWeaponWorldModels(const Weapon *r_weapon)
   }
   v5 = BG_WeaponCompleteDef(r_weapon, 0);
   Com_PrintError(15, v4, v5->szInternalName);
-  _RAX = G_Weapon_GetWeaponForName(&result, "defaultweapon");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0C8h+weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0C8h+weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  weapon = *G_Weapon_GetWeaponForName(&result, "defaultweapon");
   if ( BG_WeaponHasStreamedModels(&weapon) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 329, ASSERT_TYPE_ASSERT, "(!BG_WeaponHasStreamedModels( defaultWeapon ))", (const char *)&queryFormat, "!BG_WeaponHasStreamedModels( defaultWeapon )") )
     __debugbreak();
-  v10 = BG_WeaponDef(&weapon, 0);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 332, ASSERT_TYPE_ASSERT, "(defaultWeapDef)", (const char *)&queryFormat, "defaultWeapDef") )
+  v6 = BG_WeaponDef(&weapon, 0);
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_utils_mp.cpp", 332, ASSERT_TYPE_ASSERT, "(defaultWeapDef)", (const char *)&queryFormat, "defaultWeapDef") )
     __debugbreak();
-  defaultWorldModel = v10->worldModel;
+  defaultWorldModel = v6->worldModel;
   if ( !defaultWorldModel )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE88E0, 652i64, "defaultweapon");
@@ -2937,49 +2905,27 @@ void GUtilsMP::InitGentity(GUtilsMP *this, gentity_s *e)
 GUtilsMP::IsStuck
 ==============
 */
-bool GUtilsMP::IsStuck(GUtilsMP *this, const vec3_t *currentOrigin, const vec3_t *startVel, const vec3_t *startOrigin)
+bool GUtilsMP::IsStuck(GUtilsMP *this, const vec3_t *currentOrigin, const vec3_t *startVel, const vec3_t *startOrigin, const float frametime)
 {
-  bool result; 
+  float v5; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
 
+  v5 = startVel->v[0];
+  v6 = startVel->v[1];
+  v7 = v6 * frametime;
+  if ( (float)(startVel->v[0] * frametime) == 0.0 && v7 == 0.0 )
+    return 0;
+  v8 = LODWORD(startVel->v[1]);
+  *(float *)&v8 = fsqrt((float)(v6 * v6) + (float)(v5 * v5));
+  _XMM2 = v8;
   __asm
   {
-    vmovss  xmm3, dword ptr [r8]
-    vmovss  xmm4, dword ptr [r8+4]
-    vmovaps [rsp+38h+var_28], xmm7
-    vmulss  xmm7, xmm4, [rsp+38h+frametime]
-    vmovaps [rsp+38h+var_38], xmm8
-    vmulss  xmm8, xmm3, [rsp+38h+frametime]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm8, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1
     vcmpless xmm0, xmm2, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vmovss  xmm2, dword ptr [rdx]
-    vdivss  xmm1, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmulss  xmm5, xmm4, xmm1
-    vmovaps [rsp+38h+var_18], xmm6
-    vmulss  xmm6, xmm3, xmm1
-    vsubss  xmm1, xmm0, dword ptr [r9+4]
-    vsubss  xmm0, xmm2, dword ptr [r9]
-    vmulss  xmm3, xmm1, xmm5
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm8, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmulss  xmm2, xmm7, xmm5
-    vaddss  xmm4, xmm3, xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3e4ccccd
-    vcomiss xmm4, xmm2
-    vmovaps xmm7, [rsp+38h+var_28]
   }
-  result = 0;
-  __asm { vmovaps xmm8, [rsp+38h+var_38] }
-  return result;
+  return (float)((float)((float)(currentOrigin->v[1] - startOrigin->v[1]) * (float)(v6 * (float)(1.0 / *(float *)&_XMM0))) + (float)((float)(currentOrigin->v[0] - startOrigin->v[0]) * (float)(v5 * (float)(1.0 / *(float *)&_XMM0)))) < (float)((float)((float)(v7 * (float)(v6 * (float)(1.0 / *(float *)&_XMM0))) + (float)((float)(startVel->v[0] * frametime) * (float)(v5 * (float)(1.0 / *(float *)&_XMM0)))) * 0.2);
 }
 
 /*

@@ -614,173 +614,90 @@ CL_Keys_AdjustScrollField
 */
 void CL_Keys_AdjustScrollField(const ScreenPlacement *scrPlace, field_t *edit)
 {
-  field_t *v6; 
+  float v3; 
+  float widthInPixels; 
   GfxFont *consoleFont; 
-  char v18; 
-  char v19; 
+  double v6; 
   int scroll; 
-  char v33; 
-  int v37; 
-  unsigned __int64 v38; 
-  int v39; 
-  bool v40; 
-  int v41; 
+  float v8; 
+  float v9; 
+  float v10; 
+  int v11; 
+  unsigned __int64 v12; 
+  int v13; 
+  int v14; 
 
-  v6 = edit;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+10h]
-    vmovaps [rsp+68h+var_18], xmm6
-    vmulss  xmm6, xmm0, cs:__real@3caaaaab
-    vmovaps [rsp+68h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, dword ptr [rdx+0Ch]
-    vmovaps [rsp+68h+var_48], xmm9
-  }
+  v3 = edit->charHeight * 0.020833334;
+  widthInPixels = (float)edit->widthInPixels;
   if ( edit->fixedSize )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm2, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    }
     consoleFont = cls.consoleFont;
-    __asm
-    {
-      vmulss  xmm1, xmm2, xmm6
-      vmulss  xmm6, xmm1, dword ptr [rcx+10h]
-      vmulss  xmm0, xmm2, xmm7
-      vmulss  xmm7, xmm0, dword ptr [rcx+14h]
-    }
+    v3 = (float)((float)(1.0 / cg_hudSplitscreenScale) * v3) * scrPlace->scaleRealToVirtual.v[0];
+    widthInPixels = (float)((float)(1.0 / cg_hudSplitscreenScale) * widthInPixels) * scrPlace->scaleRealToVirtual.v[1];
   }
   else
   {
-    __asm { vmovaps xmm2, xmm6; scale }
-    consoleFont = UI_GetFontHandle(scrPlace, 0, *(float *)&_XMM2);
+    consoleFont = UI_GetFontHandle(scrPlace, 0, edit->charHeight * 0.020833334);
   }
-  __asm { vmovaps xmm1, xmm6; scale }
-  *(double *)&_XMM0 = R_NormalizedTextScale(consoleFont, *(float *)&_XMM1);
-  __asm { vmovaps xmm9, xmm0 }
-  R_TextWidth(v6->buffer, 0, consoleFont);
-  __asm
+  v6 = R_NormalizedTextScale(consoleFont, v3);
+  if ( (float)((float)R_TextWidth(edit->buffer, 0, consoleFont) * *(float *)&v6) < widthInPixels )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm2, xmm1, xmm9
-    vcomiss xmm2, xmm7
+    edit->scroll = 0;
+    edit->drawWidth = SEH_PrintStrlen(edit->buffer);
+    return;
   }
-  if ( v18 )
-  {
-    v6->scroll = 0;
-    v6->drawWidth = SEH_PrintStrlen(v6->buffer);
-    goto LABEL_6;
-  }
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm7, xmm8
-  }
-  if ( !(v18 | v19) )
+  if ( widthInPixels > 0.0 )
   {
     while ( 1 )
     {
-      scroll = v6->scroll;
-      if ( scroll <= 0 )
+      scroll = edit->scroll;
+      if ( scroll <= 0 || (float)((float)R_TextWidth((const char *)&edit->fixedSize + scroll + 3, 0, consoleFont) * *(float *)&v6) >= widthInPixels )
         break;
-      R_TextWidth((const char *)&v6->fixedSize + scroll + 3, 0, consoleFont);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm9
-        vcomiss xmm1, xmm7
-      }
-      if ( !v18 )
-        break;
-      --v6->scroll;
+      --edit->scroll;
     }
   }
-  do
+  while ( 1 )
   {
-    R_TextWidth(&v6->buffer[v6->scroll], 0, consoleFont);
-    __asm
+    v8 = (float)R_TextWidth(&edit->buffer[edit->scroll], 0, consoleFont) * *(float *)&v6;
+    v10 = v8 - (float)((float)R_TextWidth(&edit->buffer[edit->cursor], 0, consoleFont) * *(float *)&v6);
+    v9 = v10;
+    if ( v10 >= 0.0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm0, xmm9
-    }
-    R_TextWidth(&v6->buffer[v6->cursor], 0, consoleFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm9
-      vsubss  xmm2, xmm6, xmm1
-      vcomiss xmm2, xmm8
-    }
-    if ( v33 )
-    {
-      v37 = v6->scroll;
-      v33 = 0;
-      if ( !v37 )
+      if ( v10 < widthInPixels )
+        goto LABEL_18;
+      if ( v10 >= 0.0 )
       {
-        __asm { vmovaps xmm2, xmm8 }
-        goto LABEL_20;
+        ++edit->scroll;
+        goto LABEL_18;
       }
-      v6->scroll = v37 - 1;
     }
-    else
+    v11 = edit->scroll;
+    if ( !v11 )
     {
-      __asm
-      {
-        vcomiss xmm2, xmm7
-        vcomiss xmm2, xmm8
-      }
-      ++v6->scroll;
+      v9 = 0.0;
+      goto LABEL_20;
     }
-    __asm { vcomiss xmm2, xmm8 }
-    v37 = v6->scroll;
+    edit->scroll = v11 - 1;
+LABEL_18:
+    if ( v10 >= 0.0 )
+    {
+      v11 = edit->scroll;
 LABEL_20:
-    __asm { vcomiss xmm2, xmm7 }
-  }
-  while ( !v33 );
-  v38 = -1i64;
-  do
-    ++v38;
-  while ( v6->buffer[v37 + v38] );
-  v39 = truncate_cast<int,unsigned __int64>(v38);
-  v40 = v6->cursor <= (unsigned int)v6->scroll;
-  v41 = v6->cursor - v6->scroll;
-  __asm
-  {
-    vcomiss xmm7, xmm8
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  v6->drawWidth = v41;
-  if ( !v40 )
-  {
-    while ( v41 < v39 )
-    {
-      R_TextWidth(&v6->buffer[v6->scroll], v41 + 1, consoleFont);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm9
-        vcomiss xmm1, xmm7
-      }
-      if ( !v18 )
+      if ( v9 < widthInPixels )
         break;
-      v41 = ++v6->drawWidth;
     }
   }
-LABEL_6:
-  __asm
+  v12 = -1i64;
+  do
+    ++v12;
+  while ( edit->buffer[v11 + v12] );
+  v13 = truncate_cast<int,unsigned __int64>(v12);
+  v14 = edit->cursor - edit->scroll;
+  edit->drawWidth = v14;
+  if ( widthInPixels > 0.0 )
   {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm9, [rsp+68h+var_48]
+    while ( v14 < v13 && (float)((float)R_TextWidth(&edit->buffer[edit->scroll], v14 + 1, consoleFont) * *(float *)&v6) < widthInPixels )
+      v14 = ++edit->drawWidth;
   }
 }
 
@@ -1349,33 +1266,38 @@ void CL_Keys_CompleteCommand(const ScreenPlacement *scrPlace)
   unsigned __int64 v12; 
   unsigned __int64 v13; 
   unsigned __int64 v14; 
+  char *v15; 
   __int64 v16; 
-  __int64 v24; 
-  char v25; 
-  unsigned __int64 v26; 
-  int v27; 
-  const char *v28; 
-  char *v29; 
+  field_t *v17; 
+  __m256i v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int64 v21; 
+  char v22; 
+  unsigned __int64 v23; 
+  int v24; 
+  const char *v25; 
+  char *v26; 
   int i; 
-  const char *v31; 
-  char v32; 
+  const char *v28; 
+  char v29; 
+  const char *v30; 
+  __int64 v31; 
+  __int64 v32; 
   const char *v33; 
-  __int64 v34; 
-  __int64 v35; 
-  const char *v36; 
-  const char *v37; 
-  const char *v38; 
-  unsigned __int64 v41; 
-  int v42; 
+  const char *v34; 
+  const char *v35; 
+  unsigned __int64 v36; 
+  int v37; 
   const dvar_t *VarByName; 
-  const dvar_t *v44; 
-  const char *v45; 
-  const char *v46; 
-  unsigned __int64 v47; 
-  int v48; 
+  const dvar_t *v39; 
+  const char *v40; 
+  const char *v41; 
+  unsigned __int64 v42; 
+  int v43; 
   char **strings[2]; 
   CmdAutoCompleteResults result; 
-  char v52; 
+  char v47; 
   char Str[264]; 
   char completed[256]; 
 
@@ -1500,43 +1422,34 @@ void CL_Keys_CompleteCommand(const ScreenPlacement *scrPlace)
   }
   v11 = truncate_cast<int,unsigned __int64>(v8);
 LABEL_42:
-  _RCX = &v52;
+  v15 = &v47;
   v16 = 2i64;
-  _RAX = &g_consoleField;
+  v17 = &g_consoleField;
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (field_t *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v15 += 128;
+    v18 = *(__m256i *)&v17->cursor;
+    v19 = *(_OWORD *)&v17->buffer[88];
+    v17 = (field_t *)((char *)v17 + 128);
+    *((__m256i *)v15 - 4) = v18;
+    *((__m256i *)v15 - 3) = *(__m256i *)&v17[-1].buffer[160];
+    *((__m256i *)v15 - 2) = *(__m256i *)&v17[-1].buffer[192];
+    *((_OWORD *)v15 - 2) = *(_OWORD *)&v17[-1].buffer[224];
+    *((_OWORD *)v15 - 1) = v19;
     --v16;
   }
   while ( v16 );
   v4 = s_matchCount == 0;
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  v24 = *(_QWORD *)&_RAX->charHeight;
-  __asm { vmovups xmmword ptr [rcx], xmm0 }
-  *((_QWORD *)_RCX + 2) = v24;
+  v20 = *(_OWORD *)&v17->cursor;
+  v21 = *(_QWORD *)&v17->charHeight;
+  *(_OWORD *)v15 = v20;
+  *((_QWORD *)v15 + 2) = v21;
   if ( !v4 )
   {
 LABEL_47:
     if ( v2 || s_matchCount == 1 || s_hasExactMatch && Con_AnySpaceAfterCommand() )
     {
-      v25 = 1;
+      v22 = 1;
       if ( v2 )
       {
         Com_sprintf(g_consoleField.buffer, 0x100ui64, "\\%s %s", v1, s_shortestMatch);
@@ -1545,47 +1458,47 @@ LABEL_47:
     }
     else
     {
-      v25 = 0;
+      v22 = 0;
     }
     Com_sprintf(g_consoleField.buffer, 0x100ui64, "\\%s", s_shortestMatch);
 LABEL_53:
-    v26 = -1i64;
+    v23 = -1i64;
     do
-      ++v26;
-    while ( g_consoleField.buffer[v26] );
-    v27 = truncate_cast<int,unsigned __int64>(v26);
-    v28 = s_completionString;
-    g_consoleField.cursor = v27;
-    v29 = strstr_0(Str, s_completionString);
-    if ( v29 )
+      ++v23;
+    while ( g_consoleField.buffer[v23] );
+    v24 = truncate_cast<int,unsigned __int64>(v23);
+    v25 = s_completionString;
+    g_consoleField.cursor = v24;
+    v26 = strstr_0(Str, s_completionString);
+    if ( v26 )
     {
-      v34 = -1i64;
+      v31 = -1i64;
       do
-        ++v34;
-      while ( v28[v34] );
-      I_strcat(g_consoleField.buffer, 0x100ui64, &v29[v34]);
+        ++v31;
+      while ( v25[v31] );
+      I_strcat(g_consoleField.buffer, 0x100ui64, &v26[v31]);
     }
     else
     {
       for ( i = 1; i < Cmd_Argc(); ++i )
       {
         I_strcat(g_consoleField.buffer, 0x100ui64, " ");
-        v31 = Cmd_Argv(i);
-        v32 = *v31;
-        if ( *v31 )
+        v28 = Cmd_Argv(i);
+        v29 = *v28;
+        if ( *v28 )
         {
-          while ( v32 != 32 )
+          while ( v29 != 32 )
           {
-            v32 = *++v31;
-            if ( !v32 )
+            v29 = *++v28;
+            if ( !v29 )
               goto LABEL_64;
           }
           I_strcat(g_consoleField.buffer, 0x100ui64, "\"");
         }
 LABEL_64:
-        v33 = Cmd_Argv(i);
-        I_strcat(g_consoleField.buffer, 0x100ui64, v33);
-        if ( *v31 == 32 )
+        v30 = Cmd_Argv(i);
+        I_strcat(g_consoleField.buffer, 0x100ui64, v30);
+        if ( *v28 == 32 )
           I_strcat(g_consoleField.buffer, 0x100ui64, "\"");
       }
     }
@@ -1600,7 +1513,7 @@ LABEL_70:
       CL_Keys_AdjustScrollField(scrPlace, &g_consoleField);
       return;
     }
-    if ( !v25 )
+    if ( !v22 )
     {
       if ( Con_HasTooManyMatchesToShow() )
       {
@@ -1615,39 +1528,34 @@ LABEL_70:
     {
       if ( Cmd_Argc() == 1 )
       {
-        v35 = -1i64;
+        v32 = -1i64;
         do
-          ++v35;
-        while ( g_consoleField.buffer[v35] );
-        if ( !v35 || *((_BYTE *)&g_consoleField.fixedSize + v35 + 3) != 32 )
+          ++v32;
+        while ( g_consoleField.buffer[v32] );
+        if ( !v32 || *((_BYTE *)&g_consoleField.fixedSize + v32 + 3) != 32 )
           I_strcat(g_consoleField.buffer, 0x100ui64, " ");
       }
       else if ( Cmd_Argc() == 2 )
       {
-        v36 = Con_TokenizeInput();
+        v33 = Con_TokenizeInput();
         if ( v7 == v11 )
         {
-          v37 = v36;
-          v38 = Cmd_Argv(1);
-          if ( *v38 )
+          v34 = v33;
+          v35 = Cmd_Argv(1);
+          if ( *v35 )
           {
-            _RAX = Cmd_GetAutoCompleteParameters(&result, v37, "CL_Keys_CompleteCmdArgument");
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rsp+2C8h+strings], xmm0
-            }
+            *(CmdAutoCompleteResults *)strings = *Cmd_GetAutoCompleteParameters(&result, v34, "CL_Keys_CompleteCmdArgument");
             Cmd_EndTokenizedString();
             if ( SLODWORD(strings[1]) > 0 )
             {
-              Con_AutoCompleteFromList((const char *const *)strings[0], (unsigned int)strings[1], v38, completed, 0x100u);
+              Con_AutoCompleteFromList((const char *const *)strings[0], (unsigned int)strings[1], v35, completed, 0x100u);
               Com_StripExtensionInPlace(completed);
-              v41 = -1i64;
+              v36 = -1i64;
               do
-                ++v41;
-              while ( v38[v41] );
-              v42 = truncate_cast<int,unsigned __int64>(v41);
-              CL_Keys_ReplaceConsoleInputArgument(v42, completed);
+                ++v36;
+              while ( v35[v36] );
+              v37 = truncate_cast<int,unsigned __int64>(v36);
+              CL_Keys_ReplaceConsoleInputArgument(v37, completed);
             }
             Cmd_ReleaseAutoCompleteParameters((const CmdAutoCompleteResults *)strings);
             goto LABEL_97;
@@ -1655,23 +1563,23 @@ LABEL_70:
         }
         else
         {
-          VarByName = Dvar_FindVarByName(v36);
-          v44 = VarByName;
+          VarByName = Dvar_FindVarByName(v33);
+          v39 = VarByName;
           if ( VarByName )
           {
             if ( VarByName->type == 8 )
             {
-              v45 = Cmd_Argv(1);
-              v46 = v45;
-              if ( *v45 )
+              v40 = Cmd_Argv(1);
+              v41 = v40;
+              if ( *v40 )
               {
-                Con_AutoCompleteFromList(v44->domain.enumeration.strings, v44->domain.enumeration.stringCount, v45, completed, 0x100u);
-                v47 = -1i64;
+                Con_AutoCompleteFromList(v39->domain.enumeration.strings, v39->domain.enumeration.stringCount, v40, completed, 0x100u);
+                v42 = -1i64;
                 do
-                  ++v47;
-                while ( v46[v47] );
-                v48 = truncate_cast<int,unsigned __int64>(v47);
-                CL_Keys_ReplaceConsoleInputArgument(v48, completed);
+                  ++v42;
+                while ( v41[v42] );
+                v43 = truncate_cast<int,unsigned __int64>(v42);
+                CL_Keys_ReplaceConsoleInputArgument(v43, completed);
               }
             }
           }
@@ -1711,16 +1619,31 @@ void CL_Keys_ConsoleKey(LocalClientNum_t localClientNum, int key)
   int v9; 
   int v10; 
   __int64 v11; 
-  __int64 v20; 
-  int v21; 
-  __int64 v22; 
-  __int64 v31; 
-  unsigned __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  int v35; 
+  field_t *v12; 
+  field_t *v13; 
+  __m256i v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int64 v17; 
+  int v18; 
+  __int64 v19; 
+  field_t *v20; 
+  field_t *v21; 
+  __m256i v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int64 v25; 
+  unsigned __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  __int64 v30; 
+  field_t *v31; 
+  field_t *v32; 
+  __m256i v33; 
+  __int128 v34; 
+  __int128 v35; 
   __int64 v36; 
-  __int64 v45; 
 
   v3 = localClientNum;
   v4 = 0;
@@ -1822,11 +1745,11 @@ LABEL_57:
                   return;
                 goto LABEL_74;
               default:
-                v32 = (unsigned int)(key - 134);
-                if ( (unsigned int)v32 <= 0x28 )
+                v26 = (unsigned int)(key - 134);
+                if ( (unsigned int)v26 <= 0x28 )
                 {
-                  v33 = 0x14000000003i64;
-                  if ( _bittest64(&v33, v32) )
+                  v27 = 0x14000000003i64;
+                  if ( _bittest64(&v27, v26) )
                     goto LABEL_72;
                 }
                 if ( key == 127 || v9 )
@@ -1849,40 +1772,31 @@ LABEL_72:
 LABEL_39:
           if ( !Con_CycleAutoComplete(1) )
           {
-            v21 = s_historyLine;
+            v18 = s_historyLine;
             if ( s_historyLine != s_nextHistoryLine )
             {
               ++s_historyLine;
-              v22 = 2i64;
-              _RAX = &g_historyEditLines[(v21 + 1) % 32];
-              _RCX = &g_consoleField;
+              v19 = 2i64;
+              v20 = &g_historyEditLines[(v18 + 1) % 32];
+              v21 = &g_consoleField;
               do
               {
-                _RCX = (field_t *)((char *)_RCX + 128);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups xmm1, xmmword ptr [rax+70h]
-                }
-                _RAX = (field_t *)((char *)_RAX + 128);
-                __asm
-                {
-                  vmovups ymmword ptr [rcx-80h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-60h]
-                  vmovups ymmword ptr [rcx-60h], ymm0
-                  vmovups ymm0, ymmword ptr [rax-40h]
-                  vmovups ymmword ptr [rcx-40h], ymm0
-                  vmovups xmm0, xmmword ptr [rax-20h]
-                  vmovups xmmword ptr [rcx-20h], xmm0
-                  vmovups xmmword ptr [rcx-10h], xmm1
-                }
-                --v22;
+                v21 = (field_t *)((char *)v21 + 128);
+                v22 = *(__m256i *)&v20->cursor;
+                v23 = *(_OWORD *)&v20->buffer[88];
+                v20 = (field_t *)((char *)v20 + 128);
+                *(__m256i *)&v21[-1].buffer[128] = v22;
+                *(__m256i *)&v21[-1].buffer[160] = *(__m256i *)&v20[-1].buffer[160];
+                *(__m256i *)&v21[-1].buffer[192] = *(__m256i *)&v20[-1].buffer[192];
+                *(_OWORD *)&v21[-1].buffer[224] = *(_OWORD *)&v20[-1].buffer[224];
+                *(_OWORD *)&v21[-1].buffer[240] = v23;
+                --v19;
               }
-              while ( v22 );
-              __asm { vmovups xmm0, xmmword ptr [rax] }
-              v31 = *(_QWORD *)&_RAX->charHeight;
-              __asm { vmovups xmmword ptr [rcx], xmm0 }
-              *(_QWORD *)&_RCX->charHeight = v31;
+              while ( v19 );
+              v24 = *(_OWORD *)&v20->cursor;
+              v25 = *(_QWORD *)&v20->charHeight;
+              *(_OWORD *)&v21->cursor = v24;
+              *(_QWORD *)&v21->charHeight = v25;
               CL_Keys_AdjustScrollField(&scrPlaceFull, &g_consoleField);
             }
           }
@@ -1902,35 +1816,26 @@ LABEL_39:
     if ( s_nextHistoryLine - s_historyLine < 32 && s_historyLine > 0 )
       v10 = --s_historyLine;
     v11 = 2i64;
-    _RAX = &g_historyEditLines[v10 % 32];
-    _RCX = &g_consoleField;
+    v12 = &g_historyEditLines[v10 % 32];
+    v13 = &g_consoleField;
     do
     {
-      _RCX = (field_t *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (field_t *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v13 = (field_t *)((char *)v13 + 128);
+      v14 = *(__m256i *)&v12->cursor;
+      v15 = *(_OWORD *)&v12->buffer[88];
+      v12 = (field_t *)((char *)v12 + 128);
+      *(__m256i *)&v13[-1].buffer[128] = v14;
+      *(__m256i *)&v13[-1].buffer[160] = *(__m256i *)&v12[-1].buffer[160];
+      *(__m256i *)&v13[-1].buffer[192] = *(__m256i *)&v12[-1].buffer[192];
+      *(_OWORD *)&v13[-1].buffer[224] = *(_OWORD *)&v12[-1].buffer[224];
+      *(_OWORD *)&v13[-1].buffer[240] = v15;
       --v11;
     }
     while ( v11 );
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    v20 = *(_QWORD *)&_RAX->charHeight;
-    __asm { vmovups xmmword ptr [rcx], xmm0 }
-    *(_QWORD *)&_RCX->charHeight = v20;
+    v16 = *(_OWORD *)&v12->cursor;
+    v17 = *(_QWORD *)&v12->charHeight;
+    *(_OWORD *)&v13->cursor = v16;
+    *(_QWORD *)&v13->charHeight = v17;
     CL_Keys_AdjustScrollField(&scrPlaceFull, &g_consoleField);
     Con_AllowAutoCompleteCycling(0);
     return;
@@ -1946,52 +1851,39 @@ LABEL_39:
   {
     if ( !g_consoleField.buffer[0] )
       return;
-    v34 = v7;
-    Cbuf_AddText_Internal(g_consoleField.buffer, &s_cmd_superUser_textArray[v34]);
-    Cbuf_AddText_Internal("\n", &s_cmd_superUser_textArray[v34]);
+    v28 = v7;
+    Cbuf_AddText_Internal(g_consoleField.buffer, &s_cmd_superUser_textArray[v28]);
+    Cbuf_AddText_Internal("\n", &s_cmd_superUser_textArray[v28]);
   }
   if ( g_consoleField.buffer[0] )
   {
-    v35 = s_nextHistoryLine;
-    v36 = 2i64;
-    _RAX = &g_consoleField;
-    _RDX = &g_historyEditLines[s_nextHistoryLine % 32];
+    v29 = s_nextHistoryLine;
+    v30 = 2i64;
+    v31 = &g_consoleField;
+    v32 = &g_historyEditLines[s_nextHistoryLine % 32];
     do
     {
-      _RDX = (field_t *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (field_t *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rdx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rdx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rdx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
-      --v36;
+      v32 = (field_t *)((char *)v32 + 128);
+      v33 = *(__m256i *)&v31->cursor;
+      v34 = *(_OWORD *)&v31->buffer[88];
+      v31 = (field_t *)((char *)v31 + 128);
+      *(__m256i *)&v32[-1].buffer[128] = v33;
+      *(__m256i *)&v32[-1].buffer[160] = *(__m256i *)&v31[-1].buffer[160];
+      *(__m256i *)&v32[-1].buffer[192] = *(__m256i *)&v31[-1].buffer[192];
+      *(_OWORD *)&v32[-1].buffer[224] = *(_OWORD *)&v31[-1].buffer[224];
+      *(_OWORD *)&v32[-1].buffer[240] = v34;
+      --v30;
     }
-    while ( v36 );
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    v45 = *(_QWORD *)&_RAX->charHeight;
-    __asm { vmovups xmmword ptr [rdx], xmm0 }
-    *(_QWORD *)&_RDX->charHeight = v45;
-    s_nextHistoryLine = v35 + 1;
-    s_historyLine = v35 + 1;
+    while ( v30 );
+    v35 = *(_OWORD *)&v31->cursor;
+    v36 = *(_QWORD *)&v31->charHeight;
+    *(_OWORD *)&v32->cursor = v35;
+    *(_QWORD *)&v32->charHeight = v36;
+    s_nextHistoryLine = v29 + 1;
+    s_historyLine = v29 + 1;
   }
   CL_Keys_ClearField(&g_consoleField);
-  __asm
-  {
-    vmovss  xmm0, cs:?g_console_char_height@@3MA; float g_console_char_height
-    vmovss  cs:?g_consoleField@@3Ufield_t@@A.charHeight, xmm0; field_t g_consoleField
-  }
+  g_consoleField.charHeight = g_console_char_height;
   g_consoleField.widthInPixels = g_console_field_width;
   g_consoleField.fixedSize = 1;
   if ( Com_FrontEnd_IsInFrontEnd() )
@@ -2171,25 +2063,20 @@ CL_Keys_DrawTextOverrideField
 */
 void CL_Keys_DrawTextOverrideField(LocalClientNum_t localClientNum, const field_t *edit, int x, int y, int horzAlign, int vertAlign, const char *str, int drawLen, int cursorPos)
 {
-  __int64 v14; 
-  bool v15; 
-  const ScreenPlacement *v16; 
+  __int64 v11; 
+  bool v12; 
+  ScreenPlacement *v13; 
+  float v14; 
   GfxFont *consoleFont; 
   int style; 
   char cursor; 
-  char v26; 
-  float fmt; 
-  float ya; 
-  float v40; 
-  float v41; 
-  char v43; 
-  void *retaddr; 
+  float v18; 
+  float charHeight; 
+  double v20; 
+  char v21; 
+  float v22; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RDI = edit;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  v14 = localClientNum;
+  v11 = localClientNum;
   if ( drawLen <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_keys.cpp", 141, ASSERT_TYPE_ASSERT, "(drawLen > 0)", (const char *)&queryFormat, "drawLen > 0") )
     __debugbreak();
   if ( activeScreenPlacementMode == SCRMODE_FULL )
@@ -2197,78 +2084,50 @@ void CL_Keys_DrawTextOverrideField(LocalClientNum_t localClientNum, const field_
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v15 )
+      v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v12 )
       __debugbreak();
 LABEL_10:
-    v16 = &scrPlaceFull;
+    v13 = &scrPlaceFull;
     goto LABEL_11;
   }
-  v16 = &scrPlaceViewDisplay[v14];
+  v13 = &scrPlaceViewDisplay[v11];
 LABEL_11:
-  if ( _RDI->fixedSize )
+  if ( edit->fixedSize )
   {
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    v14 = FLOAT_1_0;
     consoleFont = cls.consoleFont;
     style = 0;
     cursor = 95;
-    __asm { vmovaps xmm7, xmm6 }
-    if ( !g_playerKeys[v14].overstrikeMode )
+    v18 = FLOAT_1_0;
+    if ( !g_playerKeys[v11].overstrikeMode )
       cursor = 124;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+10h]
-      vmulss  xmm6, xmm0, cs:__real@3caaaaab
-      vmovaps xmm2, xmm6; scale
-      vmovaps xmm1, xmm6; scale
-    }
-    consoleFont = UI_GetFontHandle(v16, 0, *(float *)&_XMM2);
-    *(double *)&_XMM0 = R_NormalizedTextScale(consoleFont, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
+    charHeight = edit->charHeight;
+    consoleFont = UI_GetFontHandle(v13, 0, charHeight * 0.020833334);
+    v20 = R_NormalizedTextScale(consoleFont, charHeight * 0.020833334);
+    v14 = *(float *)&v20;
     if ( vertAlign == 5 )
     {
-      __asm
-      {
-        vmulss  xmm2, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-        vmulss  xmm6, xmm2, dword ptr [rbx]
-        vmulss  xmm7, xmm2, dword ptr [rbx+4]
-      }
+      v14 = (float)(*(float *)&v20 * cg_hudSplitscreenScale) * v13->scaleVirtualToReal.v[0];
+      v18 = (float)(*(float *)&v20 * cg_hudSplitscreenScale) * v13->scaleVirtualToReal.v[1];
     }
     else
     {
-      __asm { vmovaps xmm7, xmm0 }
+      v18 = *(float *)&v20;
     }
-    v26 = 124;
+    v21 = 124;
     style = 3;
-    if ( g_playerKeys[v14].overstrikeMode )
-      v26 = 95;
-    cursor = v26;
+    if ( g_playerKeys[v11].overstrikeMode )
+      v21 = 95;
+    cursor = v21;
   }
-  R_TextHeight(consoleFont);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm7
-    vcvttss2si eax, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  [rsp+0B8h+var_70], xmm7
-    vmovss  [rsp+0B8h+var_78], xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, [rsp+0B8h+arg_10]
-    vmovss  [rsp+0B8h+y], xmm0
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm1
-  }
-  CL_DrawTextWithCursor(v16, str, drawLen, consoleFont, fmt, ya, horzAlign, vertAlign, v40, v41, &colorWhite, style, cursorPos, cursor);
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  _R11 = &v43;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  v22 = (float)(y + (int)(float)((float)R_TextHeight(consoleFont) * v18));
+  CL_DrawTextWithCursor(v13, str, drawLen, consoleFont, (float)x, v22, horzAlign, vertAlign, v14, v18, &colorWhite, style, cursorPos, cursor);
 }
 
 /*

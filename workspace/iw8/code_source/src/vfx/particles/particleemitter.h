@@ -150,33 +150,24 @@ void ParticleEmitter::AddModelToScene(ParticleEmitter *this, const XModel *pMode
 {
   ParticleSystem *SystemOwner; 
   const ParticleSystemDef *Def; 
+  ParticleSystem *v12; 
+  const ParticleSystemDef *v13; 
+  ParticleSystem *v14; 
+  const ParticleSystemDef *v15; 
+  float v16; 
+  float v17; 
   ParticleSystem *v18; 
   const ParticleSystemDef *v19; 
-  ParticleSystem *v21; 
-  const ParticleSystemDef *v22; 
-  ParticleSystem *v37; 
-  const ParticleSystemDef *v38; 
-  ParticleSystem *v65; 
-  const ParticleSystemDef *v66; 
-  double localClientNum; 
-  double v73; 
-  double v74; 
-  double v75; 
-  double v76; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  ParticleSystem *v26; 
+  const ParticleSystemDef *v27; 
   base_vec4_t<unsigned int> scriptablePackedColorEmissive; 
-  char v78; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  _RBP = packedColorAndEmissive;
-  _RBX = placement;
   if ( !pModel )
   {
     SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
@@ -184,114 +175,65 @@ void ParticleEmitter::AddModelToScene(ParticleEmitter *this, const XModel *pMode
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 704, ASSERT_TYPE_ASSERT, "(pModel)", "%s\n\tVFX ASSERT for effect: %s\n", "pModel", Def->name) )
       __debugbreak();
   }
-  if ( !_RBX )
+  if ( !placement )
+  {
+    v12 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
+    v13 = ParticleSystem::GetDef(v12);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 705, ASSERT_TYPE_ASSERT, "(placement)", "%s\n\tVFX ASSERT for effect: %s\n", "placement", v13->name) )
+      __debugbreak();
+  }
+  if ( placement->scale <= 0.0 )
+  {
+    v14 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
+    v15 = ParticleSystem::GetDef(v14);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 706, ASSERT_TYPE_ASSERT, "(placement->scale > 0.0f)", "%s\n\tVFX ASSERT for effect: %s\n", "placement->scale > 0.0f", v15->name) )
+      __debugbreak();
+  }
+  v16 = (float)((float)((float)(placement->base.quat.v[0] * placement->base.quat.v[0]) + (float)(placement->base.quat.v[1] * placement->base.quat.v[1])) + (float)(placement->base.quat.v[2] * placement->base.quat.v[2])) + (float)(placement->base.quat.v[3] * placement->base.quat.v[3]);
+  LODWORD(v17) = COERCE_UNSIGNED_INT(v16 - 1.0) & _xmm;
+  if ( v17 >= 0.0040000002 )
   {
     v18 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
     v19 = ParticleSystem::GetDef(v18);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 705, ASSERT_TYPE_ASSERT, "(placement)", "%s\n\tVFX ASSERT for effect: %s\n", "placement", v19->name) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 711, ASSERT_TYPE_ASSERT, "(diff < (4 * 0.001f))", "%s\n\tVFX ASSERT for effect: %s\n", "diff < (4 * 0.001f)", v19->name) )
       __debugbreak();
   }
-  __asm
+  if ( v17 < 0.0020000001 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+1Ch]
+    v21 = placement->base.quat.v[3];
   }
-  v21 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
-  v22 = ParticleSystem::GetDef(v21);
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 706, ASSERT_TYPE_ASSERT, "(placement->scale > 0.0f)", "%s\n\tVFX ASSERT for effect: %s\n", "placement->scale > 0.0f", v22->name) )
+  else
+  {
+    v20 = 1.0 / fsqrt(v16);
+    placement->base.quat.v[0] = v20 * placement->base.quat.v[0];
+    placement->base.quat.v[1] = v20 * placement->base.quat.v[1];
+    placement->base.quat.v[2] = v20 * placement->base.quat.v[2];
+    v21 = v20 * placement->base.quat.v[3];
+    placement->base.quat.v[3] = v21;
+  }
+  v22 = placement->base.quat.v[1];
+  v23 = placement->base.quat.v[0];
+  v24 = placement->base.quat.v[2];
+  v25 = (float)((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24)) + (float)(v21 * v21);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v25 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 719, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( placement->base.quat ) )", "(%g, %g, %g, %g) len: %g", v23, v22, v24, v21, fsqrt(v25)) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmovss  xmm4, dword ptr [rbx+0Ch]
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm7, xmm3, xmm0
-    vsubss  xmm6, xmm7, xmm9
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm6, cs:__real@3b83126f
-  }
-  v37 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
-  v38 = ParticleSystem::GetDef(v37);
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 711, ASSERT_TYPE_ASSERT, "(diff < (4 * 0.001f))", "%s\n\tVFX ASSERT for effect: %s\n", "diff < (4 * 0.001f)", v38->name) )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, cs:__real@3b03126f
-    vcomiss xmm6, xmm5
-    vsqrtss xmm0, xmm7, xmm7
-    vdivss  xmm2, xmm9, xmm0
-    vmulss  xmm0, xmm2, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmulss  xmm4, xmm2, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rbx+0Ch], xmm4
-    vmovss  xmm6, dword ptr [rbx+4]
-    vmovss  xmm7, dword ptr [rbx]
-    vmovss  xmm8, dword ptr [rbx+8]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm9
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, xmm5
-    vsqrtss xmm0, xmm2, xmm2
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+var_90], xmm1
-    vcvtss2sd xmm2, xmm4, xmm4
-    vmovsd  [rsp+0D8h+var_98], xmm2
-    vcvtss2sd xmm3, xmm8, xmm8
-    vmovsd  [rsp+0D8h+var_A0], xmm3
-    vcvtss2sd xmm0, xmm6, xmm6
-    vmovsd  [rsp+0D8h+var_A8], xmm0
-    vcvtss2sd xmm4, xmm7, xmm7
-    vmovsd  qword ptr [rsp+0D8h+localClientNum], xmm4
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 719, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( placement->base.quat ) )", "(%g, %g, %g, %g) len: %g", localClientNum, v73, v74, v75, v76) )
-    __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovaps xmmword ptr [rsp+0D8h+scriptablePackedColorEmissive], xmm0
-  }
+  scriptablePackedColorEmissive = (base_vec4_t<unsigned int>)packedColorAndEmissive->v;
   if ( particle_show_transient_warnings->current.enabled )
   {
     if ( !pModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 128, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
     if ( (pModel->flags & 0x8000) != 0 )
     {
-      v65 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
-      v66 = ParticleSystem::GetDef(v65);
-      R_WarnOncePerFrame(R_WARN_VFX_MODEL_NOT_LOADED, pModel->name, v66->name);
+      v26 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(this);
+      v27 = ParticleSystem::GetDef(v26);
+      R_WarnOncePerFrame(R_WARN_VFX_MODEL_NOT_LOADED, pModel->name, v27->name);
     }
   }
-  if ( R_FilterXModelIntoScene(pModel, _RBX, renderFlags, &scriptablePackedColorEmissive, hasPackedColorOrEmissive, this->m_pSystemOwner->m_localClientNum) )
+  if ( R_FilterXModelIntoScene(pModel, placement, renderFlags, &scriptablePackedColorEmissive, hasPackedColorOrEmissive, this->m_pSystemOwner->m_localClientNum) )
   {
     if ( (((_BYTE)this - 24) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &this->m_numParticlesRendered) )
       __debugbreak();
     _InterlockedIncrement(&this->m_numParticlesRendered);
-  }
-  _R11 = &v78;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -300,44 +242,36 @@ void ParticleEmitter::AddModelToScene(ParticleEmitter *this, const XModel *pMode
 FX_PackEffectLightingArgsIntoXYZW
 ==============
 */
-
-void __fastcall FX_PackEffectLightingArgsIntoXYZW(const float4 *colorRgba, const float4 *emissiveIntensity, double lightingFrac, float4 *outValue)
+void FX_PackEffectLightingArgsIntoXYZW(const float4 *colorRgba, const float4 *emissiveIntensity, const float lightingFrac, float4 *outValue)
 {
   vec3_t vec; 
 
+  _XMM1 = emissiveIntensity->v;
+  _XMM0 = colorRgba->v;
+  LODWORD(vec.v[0]) = *(const float4 *)emissiveIntensity->v.m128_f32;
   __asm
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovups xmm1, xmmword ptr [rdx]
-    vmovups xmm0, xmmword ptr [rcx]
-  }
-  _RDI = outValue;
-  __asm
-  {
-    vmovss  dword ptr [rsp+68h+vec], xmm1
     vextractps dword ptr [rsp+68h+vec+4], xmm1, 1
     vextractps dword ptr [rsp+68h+vec+8], xmm1, 2
     vcvtps2ph xmm7, xmm0, 0
-    vmovaps xmm6, xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vinsertps xmm2, xmm2, dword ptr [rbx+0Ch], 0
   }
+  _XMM2 = 0i64;
+  __asm { vinsertps xmm2, xmm2, dword ptr [rbx+0Ch], 0 }
   Vec3PackR11G11B10F(&vec);
   __asm
   {
     vinsertps xmm2, xmm2, xmm6, 10h
     vcvtps2ph xmm0, xmm2, 0
-    vmovss  [rsp+68h+var_48], xmm0
-    vshufps xmm0, xmm7, xmm7, 55h ; 'U'
-    vmovaps xmm1, xmm7
+  }
+  _mm_shuffle_ps(_XMM7, _XMM7, 85);
+  _XMM1 = _XMM7;
+  __asm
+  {
     vinsertps xmm1, xmm1, xmm0, 10h
     vinsertps xmm1, xmm1, [rsp+68h+var_44], 20h
     vinsertps xmm1, xmm1, [rsp+68h+var_48], 30h
-    vmovups xmmword ptr [rdi], xmm1
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
   }
+  *outValue = (float4)_XMM1.v;
 }
 
 /*
@@ -361,77 +295,28 @@ FX_GammaToLinear
 */
 void FX_GammaToLinear(float4 *color)
 {
-  char v1; 
-  char v2; 
+  __m128 v; 
+  float v3; 
+  float v4; 
+  __m128 v7; 
 
-  v1 = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vcomiss xmm0, cs:__real@3d20e411
-  }
-  _RBX = color;
-  __asm { vmovups [rsp+48h+var_28], xmm0 }
-  if ( v2 )
-  {
-    __asm { vmulss  xmm0, xmm0, cs:__real@3d9e8391 }
-  }
+  v = color->v;
+  v7 = color->v;
+  if ( COERCE_FLOAT(*color) > 0.039280001 )
+    v3 = powf_0((float)(v.m128_f32[0] * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  }
-  __asm
-  {
-    vmovss  dword ptr [rsp+48h+var_28], xmm0
-    vmovss  xmm0, dword ptr [rsp+48h+var_28+4]
-    vcomiss xmm0, cs:__real@3d20e411
-  }
-  if ( v1 | v2 )
-  {
-    __asm { vmulss  xmm0, xmm0, cs:__real@3d9e8391 }
-  }
+    v3 = v.m128_f32[0] * 0.077399381;
+  v7.m128_f32[0] = v3;
+  if ( v7.m128_f32[1] > 0.039280001 )
+    v4 = powf_0((float)(v7.m128_f32[1] * 0.94786733) + 0.052132703, 2.4000001);
   else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  }
-  __asm
-  {
-    vmovss  dword ptr [rsp+48h+var_28+4], xmm0
-    vmovss  xmm0, dword ptr [rsp+48h+var_28+8]
-    vcomiss xmm0, cs:__real@3d20e411
-  }
-  if ( v1 | v2 )
-  {
-    __asm { vmulss  xmm0, xmm0, cs:__real@3d9e8391 }
-  }
-  else
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  }
-  __asm
-  {
-    vmovups xmm1, [rsp+48h+var_28]
-    vinsertps xmm1, xmm1, xmm0, 20h ; ' '
-    vmovups xmmword ptr [rbx], xmm1
-  }
+    v4 = v7.m128_f32[1] * 0.077399381;
+  v7.m128_f32[1] = v4;
+  if ( v7.m128_f32[2] > 0.039280001 )
+    powf_0((float)(v7.m128_f32[2] * 0.94786733) + 0.052132703, 2.4000001);
+  _XMM1 = v7;
+  __asm { vinsertps xmm1, xmm1, xmm0, 20h ; ' ' }
+  *color = (float4)_XMM1.v;
 }
 
 /*
@@ -441,79 +326,65 @@ ParticleEmitter::GetChildOrientation
 */
 void ParticleEmitter::GetChildOrientation(ParticleEmitter *this, const float4 *position, const float4 *velocity, const float4 *rotationAngle, bool hasRotation, const vector4 *rEmitterTransform, ParticleUseOrientationOptions useOrientationOptions, bool useLegacyOrientationOptions, vector4 *outParticleTransform)
 {
-  __int64 v14; 
-  const float4 *v24; 
-  vector3 *v25; 
-  const vector4 *v28; 
+  __m128 v; 
+  float4 v10; 
+  float4 v11; 
+  __int64 v12; 
+  __m256i v13; 
+  __m128 v14; 
+  const float4 *v15; 
+  vector3 *v16; 
+  __m128 v17; 
+  const vector4 *v18; 
+  __m256i v19; 
+  __m256i v20; 
+  float4 v21; 
+  float4 v22; 
   vector4 result; 
 
-  _RSI = outParticleTransform;
   if ( useLegacyOrientationOptions && hasRotation )
   {
-    v14 = (unsigned __int8)useOrientationOptions;
+    v12 = (unsigned __int8)useOrientationOptions;
     if ( useOrientationOptions )
-      v14 = 1i64;
+      v12 = 1i64;
   }
   else
   {
-    v14 = (unsigned __int8)useOrientationOptions;
+    v12 = (unsigned __int8)useOrientationOptions;
   }
-  switch ( (char)v14 )
+  switch ( (char)v12 )
   {
     case 1:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; jumptable 00000001427A08CB case 1
-        vmovups xmmword ptr [rsi], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-        vmovups xmmword ptr [rsi+10h], xmm1
-        vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-        vmovups xmmword ptr [rsi+20h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-        vmovups xmmword ptr [rsi+30h], xmm1
-      }
+      outParticleTransform->x = (float4)g_1000.v;
+      outParticleTransform->y = (float4)g_0100.v;
+      outParticleTransform->z = (float4)g_0010.v;
+      v = g_0001.v;
+      outParticleTransform->w = (float4)g_0001.v;
       goto LABEL_10;
     case 2:
-      _RAX = rEmitterTransform;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+68h+result.baseclass_0.x.v], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+68h+result.baseclass_0.z.v], ymm0
-        vmovups ymm0, ymmword ptr [rsp+68h+result.baseclass_0.x.v]
-        vmovups ymm1, ymmword ptr [rsp+68h+result.baseclass_0.z.v]
-        vmovups ymmword ptr [rsi], ymm0
-        vmovups ymmword ptr [rsi+20h], ymm1
-      }
+      result = *rEmitterTransform;
+      v13 = *(__m256i *)result.z.v.m128_f32;
+      *(__m256i *)outParticleTransform->x.v.m128_f32 = *(__m256i *)result.x.v.m128_f32;
+      *(__m256i *)outParticleTransform->z.v.m128_f32 = v13;
 LABEL_10:
       if ( hasRotation )
       {
-        __asm { vmovups xmm0, xmmword ptr [r9] }
-        Float4RadianToQuat((float4 *)v14, (const float4 *)hasRotation);
-        Float4UnitQuatToAxis(v25, v24);
-        __asm
-        {
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.x.v], xmm0
-          vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.y.v], xmm1
-          vmovups ymm3, ymmword ptr [rsp+68h+result.baseclass_0.x.v]
-          vmovups ymmword ptr [rsp+68h+result.baseclass_0.x.v], ymm3
-          vmovdqa xmmword ptr [rsp+68h+result.w.v], xmm0
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.z.v], xmm2
-        }
-        Float4x4Mul(&result, outParticleTransform, v28);
-        __asm
-        {
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.x.v], xmm0
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.y.v], xmm1
-          vmovups ymm1, ymmword ptr [rsp+68h+result.baseclass_0.x.v]
-          vmovups xmmword ptr [rsp+68h+result.w.v], xmm3
-          vmovups xmmword ptr [rsp+68h+result.baseclass_0.z.v], xmm2
-          vmovups ymm0, ymmword ptr [rsp+68h+result.baseclass_0.z.v]
-          vmovups ymmword ptr [rsi], ymm1
-          vmovups ymmword ptr [rsi+20h], ymm0
-        }
+        v14 = rotationAngle->v;
+        Float4RadianToQuat((float4 *)v12, (const float4 *)hasRotation);
+        Float4UnitQuatToAxis(v16, v15);
+        result.x.v = v14;
+        v17 = g_unit.v;
+        result.y.v = v;
+        result.w = (float4)g_unit.v;
+        result.z = (float4)v10.v;
+        Float4x4Mul(&result, outParticleTransform, v18);
+        result.x.v = v17;
+        result.y.v = v;
+        result.w = (float4)v11.v;
+        result.z = (float4)v10.v;
+        v19 = *(__m256i *)result.z.v.m128_f32;
+        *(__m256i *)outParticleTransform->x.v.m128_f32 = *(__m256i *)result.x.v.m128_f32;
+        *(__m256i *)outParticleTransform->z.v.m128_f32 = v19;
       }
       break;
     case 3:
@@ -521,58 +392,33 @@ LABEL_10:
       break;
     case 4:
       Particle_GenerateMatrixFromLookAt(velocity, outParticleTransform);
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rsi+10h]
-        vxorps  xmm0, xmm0, xmm0
-        vsubps  xmm1, xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rsi+10h], xmm1
-        vmovups xmmword ptr [rsi], xmm2
-      }
+      v21.v = (__m128)outParticleTransform->y;
+      outParticleTransform->y.v = _mm128_sub_ps((__m128)0i64, outParticleTransform->x.v);
+      outParticleTransform->x = (float4)v21.v;
       Particle_AssertFloat4IsNormalized(&outParticleTransform->x);
       Particle_AssertFloat4IsNormalized(&outParticleTransform->y);
       Particle_AssertFloat4IsNormalized(&outParticleTransform->z);
       break;
     case 5:
       Particle_GenerateMatrixFromLookAt(velocity, outParticleTransform);
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rsi+10h]
-        vxorps  xmm0, xmm0, xmm0
-        vsubps  xmm1, xmm0, xmmword ptr [rsi+20h]
-        vmovups xmmword ptr [rsi+10h], xmm1
-        vmovups xmmword ptr [rsi+20h], xmm2
-      }
+      v22.v = (__m128)outParticleTransform->y;
+      outParticleTransform->y.v = _mm128_sub_ps((__m128)0i64, outParticleTransform->z.v);
+      outParticleTransform->z = (float4)v22.v;
       Particle_AssertFloat4IsNormalized(&outParticleTransform->x);
       Particle_AssertFloat4IsNormalized(&outParticleTransform->y);
       Particle_AssertFloat4IsNormalized(&outParticleTransform->z);
       break;
     case 6:
-      _RAX = rEmitterTransform;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+68h+result.baseclass_0.x.v], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+68h+result.baseclass_0.z.v], ymm0
-        vmovups ymm0, ymmword ptr [rsp+68h+result.baseclass_0.x.v]
-        vmovups ymm1, ymmword ptr [rsp+68h+result.baseclass_0.z.v]
-        vmovups ymmword ptr [rsi], ymm0
-        vmovups ymmword ptr [rsi+20h], ymm1
-      }
+      *(__m256i *)result.x.v.m128_f32 = *(__m256i *)rEmitterTransform->x.v.m128_f32;
+      v20 = *(__m256i *)rEmitterTransform->z.v.m128_f32;
+      *(__m256i *)outParticleTransform->x.v.m128_f32 = *(__m256i *)result.x.v.m128_f32;
+      *(__m256i *)outParticleTransform->z.v.m128_f32 = v20;
       break;
     default:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; jumptable 00000001427A08CB default case
-        vmovups xmmword ptr [rsi], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-        vmovups xmmword ptr [rsi+10h], xmm1
-        vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-        vmovups xmmword ptr [rsi+20h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-        vmovups xmmword ptr [rsi+30h], xmm1
-      }
+      outParticleTransform->x = (float4)g_1000.v;
+      outParticleTransform->y = (float4)g_0100.v;
+      outParticleTransform->z = (float4)g_0010.v;
+      outParticleTransform->w = (float4)g_0001.v;
       break;
   }
 }
@@ -644,47 +490,23 @@ const ParticleSystem *ParticleEmitter::GetEmitterTransform(ParticleEmitter *this
 ParticleEmitter::GetWorldPos
 ==============
 */
-void ParticleEmitter::GetWorldPos(ParticleEmitter *this, const float4 *posLocal, float4 *posWorld, const ParticleState *rParticleState)
+void ParticleEmitter::GetWorldPos(ParticleEmitter *this, const float4 *posLocal, float4 *posWorld, const ParticleState *rParticleState, const vector4 *rEmitterTransform)
 {
   const ParticleModuleInitRelativeVelocity *m_pModuleInitRelativeVelocity; 
+  __m128 v; 
 
-  _RBX = posWorld;
   m_pModuleInitRelativeVelocity = rParticleState->m_pModuleInitRelativeVelocity;
   if ( !m_pModuleInitRelativeVelocity || (m_pModuleInitRelativeVelocity->m_flags & 1) != 0 || ((m_pModuleInitRelativeVelocity->m_velocityType - 3) & 0xFFFFFFFD) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovdqu xmmword ptr [rbx], xmm0
-    }
+    *posWorld = (float4)posLocal->v;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-      vshufps xmm3, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm4, xmm0, xmm0, 0
-      vmulps  xmm0, xmm2, xmmword ptr [rax+20h]
-      vaddps  xmm2, xmm0, xmmword ptr [rax+30h]
-      vmulps  xmm0, xmm3, xmmword ptr [rax+10h]
-      vaddps  xmm1, xmm0, xmm2
-      vmulps  xmm0, xmm4, xmmword ptr [rax]
-      vaddps  xmm1, xmm0, xmm1
-      vmovups xmmword ptr [rbx], xmm1
-    }
+    v = posLocal->v;
+    posWorld->v = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), rEmitterTransform->x.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), rEmitterTransform->y.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), rEmitterTransform->z.v), rEmitterTransform->w.v)));
   }
   if ( (rParticleState->m_pStateDef->flags & 0x10000000) != 0 )
-  {
-    _RAX = ParticleEmitter::GetSystemOwner(this);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vaddps  xmm0, xmm1, xmmword ptr [rbx]
-      vmovups xmmword ptr [rbx], xmm0
-    }
-  }
+    posWorld->v = _mm128_add_ps(ParticleEmitter::GetSystemOwner(this)->m_systemTransform.w.v, posWorld->v);
 }
 
 /*
@@ -694,128 +516,45 @@ ParticleEmitter::HandleSpecial3DRotation
 */
 void ParticleEmitter::HandleSpecial3DRotation(ParticleEmitter *this, const float4 *hasRotation3D, float4 *rotationAngle, bool isSystemBolted, ParticleRelativeVelocityType relativeVelocityType, const float4 *spawnQuat, const vec4_t *emitterTransformQuat, vec4_t *outQuat)
 {
-  bool v14; 
-  bool v15; 
-  double v68; 
-  double v69; 
-  double v70; 
-  double v71; 
-  __int128 v72; 
-  void *retaddr; 
+  __m128 v; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __m128 v17; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-  }
-  _RCX = spawnQuat;
-  _RBX = outQuat;
   if ( (_BYTE)hasRotation3D )
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
+    v = rotationAngle->v;
     Float4RadianToQuat((float4 *)spawnQuat, hasRotation3D);
-    __asm { vmovups [rsp+98h+var_48], xmm0 }
-    if ( &v72 == (__int128 *)outQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    v17 = v;
+    if ( &v17 == (__m128 *)outQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    v14 = emitterTransformQuat < outQuat;
-    if ( emitterTransformQuat == outQuat )
-    {
-      v15 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out");
-      v14 = 0;
-      if ( v15 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsp+98h+var_48+0Ch]
-      vmulss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  xmm5, dword ptr [rsp+98h+var_48]
-      vmulss  xmm0, xmm5, dword ptr [rdi+0Ch]
-      vmovss  xmm7, dword ptr [rsp+98h+var_48+8]
-      vmovss  xmm4, dword ptr [rsp+98h+var_48+4]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rdi+4]
-      vaddss  xmm1, xmm2, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rdi+8]
-      vsubss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm2, xmm4, dword ptr [rdi+0Ch]
-      vmulss  xmm0, xmm7, dword ptr [rdi]
-      vmulss  xmm1, xmm6, dword ptr [rdi+4]
-      vsubss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm5, dword ptr [rdi+8]
-      vaddss  xmm2, xmm3, xmm1
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-      vmulss  xmm2, xmm4, dword ptr [rdi]
-      vmulss  xmm0, xmm7, dword ptr [rdi+0Ch]
-      vmulss  xmm1, xmm5, dword ptr [rdi+4]
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm6, dword ptr [rdi+8]
-      vsubss  xmm2, xmm3, xmm1
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+8], xmm1
-      vmulss  xmm2, xmm6, dword ptr [rdi+0Ch]
-      vmulss  xmm0, xmm5, dword ptr [rdi]
-      vmulss  xmm1, xmm4, dword ptr [rdi+4]
-      vsubss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm7, dword ptr [rdi+8]
-      vsubss  xmm2, xmm3, xmm1
-      vsubss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
-  }
-  else
-  {
-    v14 = (unsigned int)relativeVelocityType < PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN;
-    if ( relativeVelocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN || (v14 = (unsigned int)relativeVelocityType < PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO, relativeVelocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO) || (v14 = 0, isSystemBolted) && (v14 = (unsigned int)relativeVelocityType < PARTICLE_RELATIVE_VELOCITY_TYPE_COUNT, relativeVelocityType != PARTICLE_RELATIVE_VELOCITY_TYPE_COUNT) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+4]
-    vmovss  xmm5, dword ptr [rbx]
-    vmovss  xmm6, dword ptr [rbx+8]
-    vmovss  xmm7, dword ptr [rbx+0Ch]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, cs:__real@3f800000
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b83126f
-  }
-  if ( !v14 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+98h+var_50], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+98h+var_58], xmm1
-      vcvtss2sd xmm2, xmm4, xmm4
-      vmovsd  [rsp+98h+var_60], xmm2
-      vcvtss2sd xmm3, xmm5, xmm5
-      vmovsd  [rsp+98h+var_68], xmm3
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v68, v69, v70, v71) )
+    if ( emitterTransformQuat == outQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
       __debugbreak();
+    v9 = v17.m128_f32[3];
+    v10 = v17.m128_f32[0];
+    v11 = v17.m128_f32[2];
+    v12 = v17.m128_f32[1];
+    outQuat->v[0] = (float)((float)((float)(v17.m128_f32[3] * emitterTransformQuat->v[0]) + (float)(v17.m128_f32[0] * emitterTransformQuat->v[3])) + (float)(v17.m128_f32[2] * emitterTransformQuat->v[1])) - (float)(v17.m128_f32[1] * emitterTransformQuat->v[2]);
+    outQuat->v[1] = (float)((float)((float)(v12 * emitterTransformQuat->v[3]) - (float)(v11 * emitterTransformQuat->v[0])) + (float)(v9 * emitterTransformQuat->v[1])) + (float)(v10 * emitterTransformQuat->v[2]);
+    outQuat->v[2] = (float)((float)((float)(v12 * emitterTransformQuat->v[0]) + (float)(v11 * emitterTransformQuat->v[3])) - (float)(v10 * emitterTransformQuat->v[1])) + (float)(v9 * emitterTransformQuat->v[2]);
+    outQuat->v[3] = (float)((float)((float)(v9 * emitterTransformQuat->v[3]) - (float)(v10 * emitterTransformQuat->v[0])) - (float)(v12 * emitterTransformQuat->v[1])) - (float)(v11 * emitterTransformQuat->v[2]);
   }
-  __asm
+  else if ( relativeVelocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN || relativeVelocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO || isSystemBolted && relativeVelocityType != PARTICLE_RELATIVE_VELOCITY_TYPE_COUNT )
   {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
+    *outQuat = (vec4_t)spawnQuat->v;
   }
+  v13 = outQuat->v[1];
+  v14 = outQuat->v[0];
+  v15 = outQuat->v[2];
+  v16 = outQuat->v[3];
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v15 * v15)) + (float)(v16 * v16)) - 1.0) & _xmm) >= 0.0040000002 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v14, v13, v15, v16) )
+    __debugbreak();
 }
 
 /*

@@ -62,42 +62,32 @@ bdRelayBindUpgradeAck::deserialize
 bool bdRelayBindUpgradeAck::deserialize(bdRelayBindUpgradeAck *this, const void *data, const unsigned int dataSize, const unsigned int offset, unsigned int *newOffset)
 {
   unsigned int v5; 
+  __int64 v9; 
   unsigned int v10; 
   bool result; 
-  unsigned __int64 v13; 
-  unsigned int v14; 
+  unsigned int v12; 
 
-  v14 = offset;
+  v12 = offset;
   v5 = offset;
-  _RSI = data;
-  if ( !bdRelayBasePacket::deserialize(this, data, dataSize, offset, &v14) )
+  if ( !bdRelayBasePacket::deserialize(this, data, dataSize, offset, &v12) )
     goto LABEL_9;
-  _RAX = v14;
-  v10 = v14 + 8;
-  v14 += 8;
-  if ( _RSI )
+  v9 = v12;
+  v10 = v12 + 8;
+  v12 += 8;
+  if ( data )
   {
     if ( v10 > dataSize )
-    {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 8i64);
-    }
     else
-    {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+rsi]
-        vmovsd  [rsp+68h+var_28], xmm0
-      }
-      this->m_joinID = v13;
-    }
+      this->m_joinID = *(_QWORD *)((char *)data + v9);
   }
-  if ( v10 > dataSize && _RSI )
+  if ( v10 > dataSize && data )
 LABEL_9:
     result = 0;
   else
     result = 1;
   if ( result )
-    v5 = v14;
+    v5 = v12;
   *newOffset = v5;
   return result;
 }
@@ -124,7 +114,6 @@ bool bdRelayBindUpgradeAck::serialize(bdRelayBindUpgradeAck *this, void *data, c
   unsigned int v11; 
   bool v12; 
   bool result; 
-  unsigned __int64 m_joinID; 
   unsigned int newPayloadOffset; 
 
   newPayloadOffset = offset;
@@ -140,13 +129,7 @@ bool bdRelayBindUpgradeAck::serialize(bdRelayBindUpgradeAck *this, void *data, c
   {
     if ( v11 > dataSize )
       goto LABEL_10;
-    m_joinID = this->m_joinID;
-    _RAX = (char *)data + v10;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+68h+var_28]
-      vmovsd  qword ptr [rax], xmm0
-    }
+    *(double *)((char *)data + v10) = *(double *)&this->m_joinID;
   }
   if ( v11 > dataSize )
   {

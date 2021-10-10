@@ -898,44 +898,22 @@ void __fastcall Com_AssembleFilepath(const char *folder, const char *name, const
 AddLeanToPosition
 ==============
 */
-
-void __fastcall AddLeanToPosition(vec3_t *position, const vec3_t *forward, const vec3_t *right, double fLeanFrac)
+void AddLeanToPosition(vec3_t *position, const vec3_t *forward, const vec3_t *right, const float fLeanFrac, const float fViewRoll, const float fLeanDist)
 {
-  char v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   vec3_t dst; 
 
-  __asm
+  if ( fLeanFrac != 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm3, xmm0
-  }
-  _RBX = position;
-  if ( !v6 )
-  {
-    __asm
-    {
-      vandps  xmm1, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm0, cs:__real@40000000
-      vsubss  xmm1, xmm0, xmm1
-      vmovaps [rsp+58h+var_18], xmm6
-      vmulss  xmm6, xmm1, xmm3
-      vmulss  xmm3, xmm6, [rsp+58h+fViewRoll]; degrees
-    }
-    RotatePointAroundVector(&dst, forward, right, *(float *)&_XMM3);
-    __asm
-    {
-      vmulss  xmm3, xmm6, [rsp+58h+fLeanDist]
-      vmulss  xmm1, xmm3, dword ptr [rsp+58h+dst]
-      vaddss  xmm2, xmm1, dword ptr [rbx]
-      vmulss  xmm1, xmm3, dword ptr [rsp+58h+dst+4]
-      vmovaps xmm6, [rsp+58h+var_18]
-      vmovss  dword ptr [rbx], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+4]
-      vmulss  xmm1, xmm3, dword ptr [rsp+58h+dst+8]
-      vmovss  dword ptr [rbx+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
+    v7 = (float)(2.0 - COERCE_FLOAT(LODWORD(fLeanFrac) & _xmm)) * fLeanFrac;
+    RotatePointAroundVector(&dst, forward, right, v7 * fViewRoll);
+    v8 = (float)(v7 * fLeanDist) * dst.v[1];
+    position->v[0] = (float)((float)(v7 * fLeanDist) * dst.v[0]) + position->v[0];
+    v9 = (float)(v7 * fLeanDist) * dst.v[2];
+    position->v[1] = v8 + position->v[1];
+    position->v[2] = v9 + position->v[2];
   }
 }
 
@@ -1016,48 +994,21 @@ unsigned __int16 __fastcall BigUShort(unsigned __int16 l)
 CalcHeatmapColor
 ==============
 */
-
-void __fastcall CalcHeatmapColor(double value, vec4_t *outHeatmapColor)
+void CalcHeatmapColor(float value, vec4_t *outHeatmapColor)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm8 }
-  _RBX = outHeatmapColor;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@40000000
-    vmovaps [rsp+48h+var_28], xmm9
-    vmulss  xmm9, xmm0, cs:__real@40800000
-    vsubss  xmm2, xmm9, cs:__real@40800000
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm0, xmm8, xmm2; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vsubss  xmm3, xmm9, xmm8
-    vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  dword ptr [rbx], xmm0
-    vsubss  xmm0, xmm8, xmm3; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  dword ptr [rbx+4], xmm0
-    vsubss  xmm0, xmm8, xmm9; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm8, [rsp+48h+var_18]
-    vmovaps xmm9, [rsp+48h+var_28]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  _RBX->v[3] = 1.0;
+  float v3; 
+  double v4; 
+  double v5; 
+  double v6; 
+
+  v3 = value * 4.0;
+  v4 = I_fclamp(2.0 - COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(value * 4.0) - 4.0) & _xmm), 0.0, 1.0);
+  outHeatmapColor->v[0] = *(float *)&v4;
+  v5 = I_fclamp(2.0 - COERCE_FLOAT(COERCE_UNSIGNED_INT(v3 - 2.0) & _xmm), 0.0, 1.0);
+  outHeatmapColor->v[1] = *(float *)&v5;
+  v6 = I_fclamp(2.0 - v3, 0.0, 1.0);
+  outHeatmapColor->v[2] = *(float *)&v6;
+  outHeatmapColor->v[3] = 1.0;
 }
 
 /*
@@ -1722,11 +1673,7 @@ FloatReadNoSwap
 */
 float FloatReadNoSwap(int n)
 {
-  int v3; 
-
-  v3 = n;
-  __asm { vmovss  xmm0, [rsp+arg_0] }
-  return *(float *)&_XMM0;
+  return *(float *)&n;
 }
 
 /*
@@ -1736,14 +1683,13 @@ FloatReadSwap
 */
 float FloatReadSwap(int n)
 {
-  int v3; 
+  float v2; 
 
-  HIBYTE(v3) = n;
-  LOBYTE(v3) = HIBYTE(n);
-  BYTE1(v3) = BYTE2(n);
-  BYTE2(v3) = BYTE1(n);
-  __asm { vmovss  xmm0, [rsp+arg_0] }
-  return *(float *)&_XMM0;
+  HIBYTE(v2) = n;
+  LOBYTE(v2) = HIBYTE(n);
+  BYTE1(v2) = BYTE2(n);
+  BYTE2(v2) = BYTE1(n);
+  return v2;
 }
 
 /*
@@ -1751,13 +1697,9 @@ float FloatReadSwap(int n)
 FloatWriteNoSwap
 ==============
 */
-
-__int64 __fastcall FloatWriteNoSwap(double f)
+__int64 FloatWriteNoSwap(float f)
 {
-  unsigned int v2; 
-
-  __asm { vmovss  [rsp+arg_0], xmm0 }
-  return v2;
+  return LODWORD(f);
 }
 
 /*
@@ -1765,19 +1707,15 @@ __int64 __fastcall FloatWriteNoSwap(double f)
 FloatWriteSwap
 ==============
 */
-
-__int64 __fastcall FloatWriteSwap(double f)
+__int64 FloatWriteSwap(float f)
 {
-  unsigned int v1; 
-  unsigned int v3; 
+  unsigned int v2; 
 
-  __asm { vmovss  [rsp+arg_0], xmm0 }
-  v1 = v3;
-  LOBYTE(v3) = HIBYTE(v3);
-  BYTE1(v3) = BYTE2(v1);
-  BYTE2(v3) = BYTE1(v1);
-  HIBYTE(v3) = v1;
-  return v3;
+  LOBYTE(v2) = HIBYTE(f);
+  BYTE1(v2) = BYTE2(f);
+  BYTE2(v2) = BYTE1(f);
+  HIBYTE(v2) = LOBYTE(f);
+  return v2;
 }
 
 /*
@@ -1785,17 +1723,9 @@ __int64 __fastcall FloatWriteSwap(double f)
 GetLeanFraction
 ==============
 */
-
-float __fastcall GetLeanFraction(double fFrac)
+float GetLeanFraction(const float fFrac)
 {
-  __asm
-  {
-    vandps  xmm2, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm1, cs:__real@40000000
-    vsubss  xmm2, xmm1, xmm2
-    vmulss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)(2.0 - COERCE_FLOAT(LODWORD(fFrac) & _xmm)) * fFrac;
 }
 
 /*
@@ -3767,30 +3697,13 @@ unsigned __int16 UShortSwap(unsigned __int16 l)
 UnGetLeanFraction
 ==============
 */
-
-float __fastcall UnGetLeanFraction(double fFrac, double _XMM1_8)
+float UnGetLeanFraction(const float fFrac)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm0
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm7, xmm6
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1868, ASSERT_TYPE_ASSERT, "(fFrac <= 1.f)", (const char *)&queryFormat, "fFrac <= 1.f") )
+  if ( fFrac < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1867, ASSERT_TYPE_ASSERT, "(fFrac >= 0)", (const char *)&queryFormat, "fFrac >= 0") )
     __debugbreak();
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vsqrtss xmm1, xmm0, xmm0
-    vsubss  xmm0, xmm6, xmm1
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  if ( fFrac > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1868, ASSERT_TYPE_ASSERT, "(fFrac <= 1.f)", (const char *)&queryFormat, "fFrac <= 1.f") )
+    __debugbreak();
+  return 1.0 - fsqrt(1.0 - fFrac);
 }
 
 /*
@@ -3800,141 +3713,131 @@ UpdateStandardFieldValue
 */
 void UpdateStandardFieldValue(unsigned __int8 *pStruct, const unsigned __int8 *gdtData, const gdtField_t *pField, bool *error, void (*parseStrcpy)(unsigned __int8 *, const char *))
 {
+  __int64 gdtOffset; 
   int iFieldType; 
-  const char *v11; 
-  unsigned __int8 *v21; 
+  const char *v10; 
+  unsigned __int8 *v11; 
   __int64 iOffset; 
-  XModel *v23; 
-  __int64 v24; 
-  char v25; 
-  int v26; 
-  char v27; 
-  bool v34; 
+  XModel *v13; 
+  __int64 v14; 
+  char v15; 
+  int v16; 
+  char v17; 
+  float v18; 
+  double v19; 
+  bool v20; 
   char dest[64]; 
 
-  _R8 = pField->gdtOffset;
-  _RSI = pStruct;
+  gdtOffset = pField->gdtOffset;
   iFieldType = pField->iFieldType;
-  v11 = *(const char **)&gdtData[_R8];
+  v10 = *(const char **)&gdtData[gdtOffset];
   switch ( iFieldType )
   {
     case 0:
-      if ( v11 )
-        parseStrcpy(&pStruct[pField->iOffset], *(const char **)&gdtData[_R8]);
+      if ( v10 )
+        parseStrcpy(&pStruct[pField->iOffset], *(const char **)&gdtData[gdtOffset]);
       break;
     case 1:
-      if ( v11 )
-        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x400ui64, *(const char **)&gdtData[_R8]);
+      if ( v10 )
+        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x400ui64, *(const char **)&gdtData[gdtOffset]);
       break;
     case 2:
-      if ( v11 )
-        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x40ui64, *(const char **)&gdtData[_R8]);
+      if ( v10 )
+        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x40ui64, *(const char **)&gdtData[gdtOffset]);
       break;
     case 3:
-      if ( v11 )
-        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x100ui64, *(const char **)&gdtData[_R8]);
+      if ( v10 )
+        Core_strcpy_and_fill_zero((char *)&pStruct[pField->iOffset], 0x100ui64, *(const char **)&gdtData[gdtOffset]);
       break;
     case 4:
-      *(_DWORD *)&pStruct[pField->iOffset] = (_DWORD)v11;
+      *(_DWORD *)&pStruct[pField->iOffset] = (_DWORD)v10;
       break;
     case 5:
-      *(_DWORD *)&pStruct[pField->iOffset] = (_BYTE)v11 != 0;
+      *(_DWORD *)&pStruct[pField->iOffset] = (_BYTE)v10 != 0;
       break;
     case 6:
-      pStruct[pField->iOffset] = (unsigned __int8)v11;
+      pStruct[pField->iOffset] = (unsigned __int8)v10;
       break;
     case 7:
-      *(_DWORD *)&pStruct[pField->iOffset] = (_DWORD)v11;
+      *(_DWORD *)&pStruct[pField->iOffset] = (_DWORD)v10;
       break;
     case 8:
-      if ( v11 )
+      if ( v10 )
       {
-        v21 = &pStruct[pField->iOffset];
-        *(_DWORD *)v21 = 0;
-        *((_DWORD *)v21 + 1) = 0;
-        *((_DWORD *)v21 + 2) = 0;
-        *((_DWORD *)v21 + 3) = 0;
-        if ( j_sscanf(v11, "%f %f %f %f", v21, v21 + 4, v21 + 8, v21 + 12) != 4 )
-          Com_PrintError(1, "Expected 4 floats instead of '%s'\n", v11);
+        v11 = &pStruct[pField->iOffset];
+        *(_DWORD *)v11 = 0;
+        *((_DWORD *)v11 + 1) = 0;
+        *((_DWORD *)v11 + 2) = 0;
+        *((_DWORD *)v11 + 3) = 0;
+        if ( j_sscanf(v10, "%f %f %f %f", v11, v11 + 4, v11 + 8, v11 + 12) != 4 )
+          Com_PrintError(1, "Expected 4 floats instead of '%s'\n", v10);
       }
       break;
     case 9:
-      __asm { vmovss  xmm0, dword ptr [r8+rdx]; jumptable 0000000141899578 case 9 }
-      _RAX = pField->iOffset;
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@418ccccd
-        vmovss  dword ptr [rsi+rax], xmm1
-      }
+      *(float *)&pStruct[pField->iOffset] = *(float *)&gdtData[gdtOffset] * 17.6;
       break;
     case 10:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+rdx]; jumptable 0000000141899578 case 10
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si ecx, xmm1
-      }
-      *(_DWORD *)&_RSI[pField->iOffset] = _ECX;
+      *(_DWORD *)&pStruct[pField->iOffset] = (int)(float)(*(float *)&gdtData[gdtOffset] * 1000.0);
       break;
     case 11:
-      if ( v11 )
-        *(_DWORD *)&pStruct[pField->iOffset] = SL_GetLowercaseString(v11, 0);
+      if ( v10 )
+        *(_DWORD *)&pStruct[pField->iOffset] = SL_GetLowercaseString(v10, 0);
       break;
     case 12:
-      if ( v11 )
+      if ( v10 )
       {
         iOffset = pField->iOffset;
-        *(_QWORD *)&pStruct[iOffset] = ParticleSystem_Register(*(const char **)&gdtData[_R8]);
+        *(_QWORD *)&pStruct[iOffset] = ParticleSystem_Register(*(const char **)&gdtData[gdtOffset]);
       }
       break;
     case 13:
-      if ( v11 )
+      if ( v10 )
       {
-        v23 = R_RegisterModel(*(const char **)&gdtData[_R8]);
-        *(_QWORD *)&_RSI[pField->iOffset] = v23;
-        if ( !v23 )
+        v13 = R_RegisterModel(*(const char **)&gdtData[gdtOffset]);
+        *(_QWORD *)&pStruct[pField->iOffset] = v13;
+        if ( !v13 )
           *error = 1;
       }
       break;
     case 15:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Image_Register(v11, IMAGE_TRACK_MISC);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Image_Register(v10, IMAGE_TRACK_MISC);
       break;
     case 16:
-      if ( v11 )
+      if ( v10 )
       {
-        v24 = pField->iOffset;
-        *(_QWORD *)&pStruct[v24] = Material_RegisterHandle(v11, IMAGE_TRACK_MISC);
+        v14 = pField->iOffset;
+        *(_QWORD *)&pStruct[v14] = Material_RegisterHandle(v10, IMAGE_TRACK_MISC);
       }
       break;
     case 17:
-      if ( v11 )
+      if ( v10 )
         pStruct[pField->iOffset] = 1;
       break;
     case 18:
-      if ( v11 )
-        *(SndAliasLookup *)&pStruct[pField->iOffset] = SND_FindAliasLookup(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(SndAliasLookup *)&pStruct[pField->iOffset] = SND_FindAliasLookup(*(const char **)&gdtData[gdtOffset]);
       break;
     case 19:
-      if ( v11 )
+      if ( v10 )
       {
-        v25 = *v11;
-        if ( *v11 )
+        v15 = *v10;
+        if ( *v10 )
         {
-          v26 = 5381;
+          v16 = 5381;
           do
           {
-            ++v11;
-            v27 = v25 | 0x20;
-            if ( (unsigned int)(v25 - 65) >= 0x1A )
-              v27 = v25;
-            v26 = 65599 * v26 + v27;
-            v25 = *v11;
+            ++v10;
+            v17 = v15 | 0x20;
+            if ( (unsigned int)(v15 - 65) >= 0x1A )
+              v17 = v15;
+            v16 = 65599 * v16 + v17;
+            v15 = *v10;
           }
-          while ( *v11 );
-          if ( !v26 )
-            v26 = 1;
-          *(_DWORD *)&_RSI[pField->iOffset] = v26;
+          while ( *v10 );
+          if ( !v16 )
+            v16 = 1;
+          *(_DWORD *)&pStruct[pField->iOffset] = v16;
         }
         else
         {
@@ -3943,96 +3846,78 @@ void UpdateStandardFieldValue(unsigned __int8 *pStruct, const unsigned __int8 *g
       }
       break;
     case 20:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Tracer_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Tracer_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 21:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Laser_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Laser_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 22:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Suit_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Suit_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 23:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Gesture_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Gesture_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 24:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = RumbleInfo_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = RumbleInfo_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 25:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = WeaponAnimPackage_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = WeaponAnimPackage_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 26:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = WeaponSFXPackage_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = WeaponSFXPackage_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 27:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = WeaponVFXPackage_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = WeaponVFXPackage_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 28:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+rdx]; jumptable 0000000141899578 case 28
-        vmulss  xmm1, xmm0, cs:__real@3d4ccccd; Y
-        vmovss  xmm0, cs:__real@41200000; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@43800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RAX = pField->iOffset;
-      __asm { vmovss  dword ptr [rsi+rax], xmm0 }
+      v18 = powf_0(10.0, *(float *)&gdtData[gdtOffset] * 0.050000001);
+      v19 = I_fclamp(v18, 0.0, 256.0);
+      *(float *)&pStruct[pField->iOffset] = *(float *)&v19;
       break;
     case 29:
-      _RAX = pField->iOffset;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmovss  dword ptr [rsi+rax], xmm0
-      }
+      *(float *)&pStruct[pField->iOffset] = (float)(int)v10;
       break;
     case 30:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = CinematicMotion_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = CinematicMotion_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 31:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = XCam_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = XCam_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 32:
-      if ( v11 )
+      if ( v10 )
       {
-        Com_sprintf(dest, 0x40ui64, "vision/%s.vision", *(const char **)&gdtData[_R8]);
-        parseStrcpy(&_RSI[pField->iOffset], dest);
+        Com_sprintf(dest, 0x40ui64, "vision/%s.vision", *(const char **)&gdtData[gdtOffset]);
+        parseStrcpy(&pStruct[pField->iOffset], dest);
       }
       break;
     case 33:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = Camera_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = Camera_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     case 34:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = BG_RegisterAttachment(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = BG_RegisterAttachment(*(const char **)&gdtData[gdtOffset]);
       break;
     case 35:
-      if ( v11 )
-        *(_QWORD *)&pStruct[pField->iOffset] = FootstepVFX_Register(*(const char **)&gdtData[_R8]);
+      if ( v10 )
+        *(_QWORD *)&pStruct[pField->iOffset] = FootstepVFX_Register(*(const char **)&gdtData[gdtOffset]);
       break;
     default:
       if ( iFieldType >= 0 )
-        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1785, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "UpdateStandardFieldValue is out of sync with the csParseFieldType_t enum list\n");
+        v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1785, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "UpdateStandardFieldValue is out of sync with the csParseFieldType_t enum list\n");
       else
-        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1783, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Negative field type %i given to UpdateStandardFieldValue\n", pField->iFieldType);
-      if ( v34 )
+        v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared.cpp", 1783, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Negative field type %i given to UpdateStandardFieldValue\n", pField->iFieldType);
+      if ( v20 )
         __debugbreak();
       break;
   }
@@ -4043,15 +3928,9 @@ void UpdateStandardFieldValue(unsigned __int8 *pStruct, const unsigned __int8 *g
 vtos
 ==============
 */
-char *vtos(const vec3_t *v, __int64 _RDX, __int64 _R8, __int64 _R9)
+char *vtos(const vec3_t *v)
 {
-  __asm
-  {
-    vcvttss2si r9d, dword ptr [rcx+8]
-    vcvttss2si r8d, dword ptr [rcx+4]
-    vcvttss2si edx, dword ptr [rcx]
-  }
-  return j_va("(%i %i %i)", _RDX, _R8, _R9);
+  return j_va("(%i %i %i)", (unsigned int)(int)v->v[0], (unsigned int)(int)v->v[1], (unsigned int)(int)v->v[2]);
 }
 
 /*

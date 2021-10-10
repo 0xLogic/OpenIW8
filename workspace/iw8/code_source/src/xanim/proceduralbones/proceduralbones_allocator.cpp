@@ -411,100 +411,86 @@ void XAnimProcBonesSubAllocator_Init(XAnimProcBonesSubAllocator *subAlloc, void 
 {
   char *m_buffer; 
   char *v9; 
+  char *v10; 
   char *v11; 
-  char *v12; 
-  __int128 v14; 
-  __int128 v15; 
-  __int128 v16; 
+  ntl::solitary_buffer_allocator v12; 
+  ntl::internal::buffer_memory_block<char> v13; 
 
-  _RSI = subAlloc;
   if ( subAlloc->initialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_allocator.cpp", 175, ASSERT_TYPE_ASSERT, "(!subAlloc->initialized)", (const char *)&queryFormat, "!subAlloc->initialized") )
     __debugbreak();
   if ( sizeBytes )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+58h+var_28], xmm0
-    }
-    if ( !mem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v14) )
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    if ( !mem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
       __debugbreak();
-    *(_QWORD *)&v15 = mem;
-    *((_QWORD *)&v15 + 1) = sizeBytes;
-    ntl::nxheap::shutdown(&_RSI->heap.m_heap);
-    ntl::nxheap_region::shutdown(&_RSI->heap.m_region);
-    m_buffer = _RSI->heap.m_data.m_buffer;
+    v12.m_data.m_buffer = (char *)mem;
+    v12.m_data.m_size = sizeBytes;
+    ntl::nxheap::shutdown(&subAlloc->heap.m_heap);
+    ntl::nxheap_region::shutdown(&subAlloc->heap.m_region);
+    m_buffer = subAlloc->heap.m_data.m_buffer;
     if ( m_buffer )
     {
-      v9 = _RSI->heap.m_allocator.m_data.m_buffer;
+      v9 = subAlloc->heap.m_allocator.m_data.m_buffer;
       if ( m_buffer != v9 && v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 64, ASSERT_TYPE_ASSERT, "( ( p_ptr == m_data.begin() ) || ( p_ptr == 0 ) || ( m_data.begin() == 0 ) )", (const char *)&queryFormat, "( p_ptr == m_data.begin() ) || ( p_ptr == NULL ) || ( m_data.begin() == NULL )") )
         __debugbreak();
-      _RSI->heap.m_data.m_buffer = NULL;
-      _RSI->heap.m_data.m_size = 0i64;
+      subAlloc->heap.m_data.m_buffer = NULL;
+      subAlloc->heap.m_data.m_size = 0i64;
     }
-    __asm
+    subAlloc->heap.m_allocator = v12;
+    ntl::nxheap::shutdown(&subAlloc->heap.m_heap);
+    ntl::nxheap_region::shutdown(&subAlloc->heap.m_region);
+    v10 = subAlloc->heap.m_data.m_buffer;
+    if ( v10 )
     {
-      vmovups xmm0, [rsp+58h+var_28]
-      vmovups xmmword ptr [rsi+80h], xmm0
-    }
-    ntl::nxheap::shutdown(&_RSI->heap.m_heap);
-    ntl::nxheap_region::shutdown(&_RSI->heap.m_region);
-    v11 = _RSI->heap.m_data.m_buffer;
-    if ( v11 )
-    {
-      v12 = _RSI->heap.m_allocator.m_data.m_buffer;
-      if ( v11 != v12 && v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 64, ASSERT_TYPE_ASSERT, "( ( p_ptr == m_data.begin() ) || ( p_ptr == 0 ) || ( m_data.begin() == 0 ) )", (const char *)&queryFormat, "( p_ptr == m_data.begin() ) || ( p_ptr == NULL ) || ( m_data.begin() == NULL )") )
+      v11 = subAlloc->heap.m_allocator.m_data.m_buffer;
+      if ( v10 != v11 && v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 64, ASSERT_TYPE_ASSERT, "( ( p_ptr == m_data.begin() ) || ( p_ptr == 0 ) || ( m_data.begin() == 0 ) )", (const char *)&queryFormat, "( p_ptr == m_data.begin() ) || ( p_ptr == NULL ) || ( m_data.begin() == NULL )") )
         __debugbreak();
-      _RSI->heap.m_data.m_buffer = NULL;
-      _RSI->heap.m_data.m_size = 0i64;
+      subAlloc->heap.m_data.m_buffer = NULL;
+      subAlloc->heap.m_data.m_size = 0i64;
     }
-    if ( sizeBytes > _RSI->heap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+    if ( sizeBytes > subAlloc->heap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
       __debugbreak();
-    *(_QWORD *)&v16 = _RSI->heap.m_allocator.m_data.m_buffer;
-    *((_QWORD *)&v16 + 1) = sizeBytes;
-    __asm
-    {
-      vmovups xmm0, [rsp+58h+var_28]
-      vmovups xmmword ptr [rsi+50h], xmm0
-    }
-    if ( _RSI->heap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
+    v13.m_buffer = subAlloc->heap.m_allocator.m_data.m_buffer;
+    v13.m_size = sizeBytes;
+    subAlloc->heap.m_data = v13;
+    if ( subAlloc->heap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
       __debugbreak();
-    ntl::nxheap_region::init(&_RSI->heap.m_region, _RSI->heap.m_data.m_buffer, _RSI->heap.m_data.m_size);
-    if ( _RSI->heap.m_heap.mp_parent_region && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 209, ASSERT_TYPE_ASSERT, "( !heap().is_inited() )", (const char *)&queryFormat, "!heap().is_inited()") )
+    ntl::nxheap_region::init(&subAlloc->heap.m_region, subAlloc->heap.m_data.m_buffer, subAlloc->heap.m_data.m_size);
+    if ( subAlloc->heap.m_heap.mp_parent_region && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 209, ASSERT_TYPE_ASSERT, "( !heap().is_inited() )", (const char *)&queryFormat, "!heap().is_inited()") )
       __debugbreak();
-    ntl::nxheap::init(&_RSI->heap.m_heap, &_RSI->heap.m_region, DIR_BOTTOM_UP);
+    ntl::nxheap::init(&subAlloc->heap.m_heap, &subAlloc->heap.m_region, DIR_BOTTOM_UP);
   }
   else
   {
-    ntl::nxheap::clear(&_RSI->heap.m_heap);
+    ntl::nxheap::clear(&subAlloc->heap.m_heap);
   }
-  *(_QWORD *)_RSI->usedHandles.array = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[2] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[4] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[6] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[8] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[10] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[12] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[14] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[16] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[18] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[20] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[22] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[24] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[26] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[28] = 0i64;
-  *(_QWORD *)&_RSI->usedHandles.array[30] = 0i64;
-  memset_0(&_RSI->instances, 0, sizeof(_RSI->instances));
-  XAnimProcBonesInstance::SetNext(_RSI->instances.m_data, 0);
-  XAnimProcBonesInstance::SetPrev(_RSI->instances.m_data, 0);
-  bitarray_base<bitarray<1024>>::setBit(&_RSI->usedHandles, 0);
-  *(_DWORD *)&_RSI->numAllocations = 0;
-  *(_DWORD *)&_RSI->peakInstances = 0;
-  _RSI->numFailedAllocations = 0;
-  _RSI->peakRequestedBytes = 0i64;
-  _RSI->peakUsedBytes = 0i64;
-  _RSI->numInstances = 0;
-  *(_WORD *)&_RSI->salt = 256;
+  *(_QWORD *)subAlloc->usedHandles.array = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[2] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[4] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[6] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[8] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[10] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[12] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[14] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[16] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[18] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[20] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[22] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[24] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[26] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[28] = 0i64;
+  *(_QWORD *)&subAlloc->usedHandles.array[30] = 0i64;
+  memset_0(&subAlloc->instances, 0, sizeof(subAlloc->instances));
+  XAnimProcBonesInstance::SetNext(subAlloc->instances.m_data, 0);
+  XAnimProcBonesInstance::SetPrev(subAlloc->instances.m_data, 0);
+  bitarray_base<bitarray<1024>>::setBit(&subAlloc->usedHandles, 0);
+  *(_DWORD *)&subAlloc->numAllocations = 0;
+  *(_DWORD *)&subAlloc->peakInstances = 0;
+  subAlloc->numFailedAllocations = 0;
+  subAlloc->peakRequestedBytes = 0i64;
+  subAlloc->peakUsedBytes = 0i64;
+  subAlloc->numInstances = 0;
+  *(_WORD *)&subAlloc->salt = 256;
 }
 
 /*

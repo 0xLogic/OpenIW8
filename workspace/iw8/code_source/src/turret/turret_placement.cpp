@@ -67,29 +67,31 @@ void Turret_PlaceSentry_Client(const LocalClientNum_t localClientNum, const enti
 {
   __int64 v6; 
   unsigned int m_mapEntryId; 
+  cg_t *LocalClientGlobals; 
   const SuitDef *SuitDef; 
   int v10; 
-  CgStatic *v22; 
+  CgStatic *v11; 
   centity_t *Entity; 
   entityType_s eType; 
   __int64 number; 
-  cg_t *LocalClientGlobals; 
+  cg_t *v15; 
+  const characterInfo_t *CharacterInfo; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v21; 
+  float ProneViewHeight; 
   __int64 viewHeightStand; 
-  float viewHeightStanda; 
   vec3_t *viewAngles; 
-  float v54; 
   vec3_t viewOrigin; 
   vec3_t moverOrigin; 
-  vec3_t *v57; 
-  vec3_t *v58; 
-  __int64 v59; 
-  vec3_t v60; 
+  vec3_t *v36; 
+  vec3_t *v37; 
+  __int64 v38; 
+  vec3_t playerAngles; 
 
-  v59 = -2i64;
-  v57 = outAngles;
-  v58 = outOrigin;
-  *(_QWORD *)v60.v = es;
+  v38 = -2i64;
+  v36 = outAngles;
+  v37 = outOrigin;
+  *(_QWORD *)playerAngles.v = es;
   v6 = localClientNum;
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 380, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
@@ -102,8 +104,8 @@ void Turret_PlaceSentry_Client(const LocalClientNum_t localClientNum, const enti
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 387, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", viewHeightStand, cl_maxLocalClients) )
         __debugbreak();
     }
-    _RBX = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 389, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 389, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
       __debugbreak();
@@ -116,54 +118,27 @@ void Turret_PlaceSentry_Client(const LocalClientNum_t localClientNum, const enti
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 392, ASSERT_TYPE_ASSERT, "(unsigned)( carrierEntNum ) < (unsigned)( ComCharacterLimits::GetClientMaxCount() )", "carrierEntNum doesn't index ComCharacterLimits::GetClientMaxCount()\n\t%i not in [0, %i)", viewHeightStand, viewAngles) )
         __debugbreak();
     }
-    SuitDef = BG_GetSuitDef(_RBX->predictedPlayerState.suitIndex);
+    SuitDef = BG_GetSuitDef(LocalClientGlobals->predictedPlayerState.suitIndex);
     if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 395, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
       __debugbreak();
-    if ( _RBX->renderingThirdPerson )
+    if ( LocalClientGlobals->renderingThirdPerson )
       goto LABEL_29;
     if ( !CgWeaponMap::ms_instance[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
       __debugbreak();
-    if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v6], &_RBX->predictedPlayerState) )
+    if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v6], &LocalClientGlobals->predictedPlayerState) )
 LABEL_29:
       v10 = 1;
     else
       v10 = 0;
-    if ( m_mapEntryId == _RBX->predictedPlayerState.clientNum && !v10 )
+    if ( m_mapEntryId == LocalClientGlobals->predictedPlayerState.clientNum && !v10 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vmovss  dword ptr [rbp+4Fh+viewOrigin], xmm0
-        vmovss  xmm1, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+4Fh+viewOrigin+4], xmm1
-        vmovss  xmm2, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+4Fh+viewOrigin+8], xmm2
-        vaddss  xmm0, xmm2, dword ptr [rbx+1F0h]
-        vmovss  dword ptr [rbp+4Fh+viewOrigin+8], xmm0
-        vmovss  xmm1, dword ptr [rbx+1E0h]
-        vmovss  dword ptr [rbp+4Fh+var_58], xmm1
-        vmovss  xmm0, dword ptr [rbx+1E4h]
-        vmovss  dword ptr [rbp+4Fh+var_58+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+1E8h]
-        vmovss  dword ptr [rbp+4Fh+var_58+8], xmm1
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vmovss  dword ptr [rbp+4Fh+moverOrigin], xmm0
-        vmovss  xmm1, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+4Fh+moverOrigin+4], xmm1
-        vmovss  xmm0, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+4Fh+moverOrigin+8], xmm0
-      }
+      *(_QWORD *)viewOrigin.v = *(_QWORD *)LocalClientGlobals->predictedPlayerState.origin.v;
+      viewOrigin.v[2] = LocalClientGlobals->predictedPlayerState.origin.v[2] + LocalClientGlobals->predictedPlayerState.viewHeightCurrent;
+      playerAngles = LocalClientGlobals->predictedPlayerState.viewangles;
+      moverOrigin = LocalClientGlobals->predictedPlayerState.origin;
 LABEL_74:
       CG_EntityWorkers_AcquireReadLock_Physics(BASE);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [r12+200h]
-        vmovss  xmm0, [rbp+4Fh+radius]
-        vmovss  [rsp+0F0h+var_A0], xmm0
-        vmovss  [rsp+0F0h+viewHeightStand], xmm1
-      }
-      Turret_PlaceSentry_Internal(TURRET_HANDLER_CLIENT, (const LocalClientNum_t)v6, m_mapEntryId, &moverOrigin, &viewOrigin, viewHeightStanda, &v60, v58, v57, NULL, v54);
+      Turret_PlaceSentry_Internal(TURRET_HANDLER_CLIENT, (const LocalClientNum_t)v6, m_mapEntryId, &moverOrigin, &viewOrigin, (float)SuitDef->viewheight_stand, &playerAngles, v37, v36, NULL, radius);
       CG_EntityWorkers_ReleaseReadLock_Physics(BASE);
       goto LABEL_78;
     }
@@ -188,7 +163,7 @@ LABEL_74:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", viewAngles) )
           __debugbreak();
       }
-      v22 = CgStatic::ms_cgameStaticsArray[v6];
+      v11 = CgStatic::ms_cgameStaticsArray[v6];
       Entity = CG_GetEntity((const LocalClientNum_t)v6, m_mapEntryId);
       if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 416, ASSERT_TYPE_SANITY, "( carrierEnt )", (const char *)&queryFormat, "carrierEnt") )
         __debugbreak();
@@ -200,93 +175,73 @@ LABEL_74:
       if ( ((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM )
         goto LABEL_75;
       number = Entity->nextState.number;
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v22->m_localClientNum);
-      if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      v15 = CG_GetLocalClientGlobals((const LocalClientNum_t)v11->m_localClientNum);
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      if ( LocalClientGlobals->IsMP(LocalClientGlobals) )
+      if ( v15->IsMP(v15) )
       {
-        if ( (unsigned int)number >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+        if ( (unsigned int)number >= v15[1].predictedPlayerState.rxvOmnvars[64].timeModified )
         {
-          LODWORD(viewAngles) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+          LODWORD(viewAngles) = v15[1].predictedPlayerState.rxvOmnvars[64].timeModified;
           LODWORD(viewHeightStand) = number;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", viewHeightStand, viewAngles) )
             __debugbreak();
         }
-        _RAX = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * number);
+        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v15[1].predictedPlayerState.rxvOmnvars[62] + 14792 * number);
       }
       else
       {
-        _RAX = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)LocalClientGlobals, number);
+        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v15, number);
       }
-      if ( !_RAX || !_RAX->infoValid )
+      if ( !CharacterInfo || !CharacterInfo->infoValid )
       {
 LABEL_75:
-        Com_Printf(17, "Sentry [%d] is being carried but the client info [%d] is invalid! If there was a client disconnect then script should ensure that this doesn't happen - otherwise this is OK for one frame.\n", (unsigned int)(__int16)**(_WORD **)v60.v, m_mapEntryId);
+        Com_Printf(17, "Sentry [%d] is being carried but the client info [%d] is invalid! If there was a client disconnect then script should ensure that this doesn't happen - otherwise this is OK for one frame.\n", (unsigned int)(__int16)**(_WORD **)playerAngles.v, m_mapEntryId);
         goto LABEL_78;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+9C0h]
-        vmovss  dword ptr [rbp+4Fh+var_58], xmm0
-        vmovss  xmm1, dword ptr [rax+9C4h]
-        vmovss  dword ptr [rbp+4Fh+var_58+4], xmm1
-        vmovss  xmm0, dword ptr [rax+9C8h]
-        vmovss  dword ptr [rbp+4Fh+var_58+8], xmm0
-      }
+      playerAngles = CharacterInfo->playerAngles;
       if ( !Entity->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
       FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(Entity->pose.origin.Get_origin, &Entity->pose);
       FunctionPointer_origin(&Entity->pose.origin.origin.origin, &moverOrigin);
       if ( Entity->pose.isPosePrecise )
       {
-        __asm
-        {
-          vmovd   xmm0, dword ptr [rbp+4Fh+moverOrigin]
-          vcvtdq2pd xmm0, xmm0
-          vmovsd  xmm3, cs:__real@3f30000000000000
-          vmulsd  xmm0, xmm0, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbp+4Fh+moverOrigin], xmm1
-          vmovd   xmm2, dword ptr [rbp+4Fh+moverOrigin+4]
-          vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbp+4Fh+moverOrigin+4], xmm1
-          vmovd   xmm2, dword ptr [rbp+4Fh+moverOrigin+8]
-          vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbp+4Fh+moverOrigin+8], xmm1
-        }
+        _XMM0 = LODWORD(moverOrigin.v[0]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM0 = v21;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        moverOrigin.v[0] = *(float *)&_XMM1;
+        _XMM2 = LODWORD(moverOrigin.v[1]);
+        __asm { vcvtdq2pd xmm2, xmm2 }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v21;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        moverOrigin.v[1] = *(float *)&_XMM1;
+        _XMM2 = LODWORD(moverOrigin.v[2]);
+        __asm { vcvtdq2pd xmm2, xmm2 }
+        *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v21 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v21;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        moverOrigin.v[2] = *(float *)&_XMM1;
       }
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+4Fh+moverOrigin]
-        vmovsd  qword ptr [rbp+4Fh+viewOrigin], xmm0
-      }
-      viewOrigin.v[2] = moverOrigin.v[2];
+      viewOrigin = moverOrigin;
       if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 4u) )
       {
-        BG_Suit_GetProneViewHeight(SuitDef);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-        }
+        ProneViewHeight = (float)BG_Suit_GetProneViewHeight(SuitDef);
+      }
+      else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 3u) )
+      {
+        ProneViewHeight = (float)SuitDef->viewheight_crouch;
       }
       else
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
-        if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 3u) )
-          __asm { vcvtsi2ss xmm1, xmm1, dword ptr [r12+204h] }
-        else
-          __asm { vcvtsi2ss xmm1, xmm1, dword ptr [r12+200h] }
+        ProneViewHeight = (float)SuitDef->viewheight_stand;
       }
-      __asm
-      {
-        vaddss  xmm1, xmm1, dword ptr [rbp+4Fh+viewOrigin+8]
-        vmovss  dword ptr [rbp+4Fh+viewOrigin+8], xmm1
-      }
+      viewOrigin.v[2] = ProneViewHeight + viewOrigin.v[2];
       goto LABEL_74;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 450, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Shouldn't get here without running online CoOp at this point!") )
@@ -304,19 +259,32 @@ Turret_PlaceSentry_Internal
 */
 __int64 Turret_PlaceSentry_Internal(const turret_handler handler, const LocalClientNum_t clientNum, const int moverEntNum, const vec3_t *moverOrigin, const vec3_t *viewOrigin, const float viewHeightStand, const vec3_t *viewAngles, vec3_t *outOrigin, vec3_t *outAngles, int *placeEnt, float radius)
 {
-  const vec3_t *v19; 
-  __int32 v25; 
-  const dvar_t *v28; 
-  const dvar_t *v36; 
-  const dvar_t *v48; 
-  bool v52; 
-  char v67; 
-  __int64 v70; 
+  const vec3_t *v12; 
+  float value; 
+  const dvar_t *v15; 
+  __int32 v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  bool v27; 
+  float fraction; 
+  float v29; 
+  float v30; 
+  double Float_Internal_DebugName; 
+  __int64 v32; 
   entityType_s eType; 
-  __int64 result; 
+  float v35; 
+  float v36; 
   __int64 skipEntity; 
   __int64 skipChildren; 
-  vec3_t v96; 
+  vec3_t v41; 
   vec3_t origin; 
   vec3_t forward; 
   vec3_t end; 
@@ -325,306 +293,203 @@ __int64 Turret_PlaceSentry_Internal(const turret_handler handler, const LocalCli
   vec3_t angles; 
   trace_t results; 
   trace_t trace; 
-  char v105; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  v19 = viewAngles;
-  __asm { vmovss  xmm11, [rbp+170h+viewHeightStand] }
-  _RDI = outOrigin;
+  v12 = viewAngles;
   if ( (unsigned int)moverEntNum >= level.maxclients )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( moverEntNum ) < (unsigned)( level.maxclients )", "moverEntNum doesn't index level.maxclients\n\t%i not in [0, %i)", moverEntNum, level.maxclients) )
       __debugbreak();
-    v19 = viewAngles;
+    v12 = viewAngles;
   }
   if ( placeEnt )
     *placeEnt = 2047;
-  __asm { vmovss  xmm8, [rbp+170h+radius] }
+  value = radius;
   *(_QWORD *)outAngles->v = 0i64;
-  __asm
+  *(_QWORD *)&outAngles->y = LODWORD(v12->v[1]);
+  if ( radius < 0.0 )
   {
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm8, xmm10
+    v15 = DVARFLT_sentry_placement_trace_radius;
+    if ( !DVARFLT_sentry_placement_trace_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_trace_radius") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v15);
+    value = v15->current.value;
   }
-  *(_QWORD *)&outAngles->y = LODWORD(v19->v[1]);
   if ( handler )
   {
     if ( handler == TURRET_HANDLER_SERVER )
     {
-      v25 = 0;
+      v16 = 0;
     }
     else
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 55, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown turret handler") )
         __debugbreak();
-      v25 = -1;
+      v16 = -1;
     }
   }
   else
   {
-    v25 = 3 * clientNum + 2;
+    v16 = 3 * clientNum + 2;
   }
-  _RBX = DVARFLT_sentry_placement_trace_dist;
+  v17 = DVARFLT_sentry_placement_trace_dist;
   if ( !DVARFLT_sentry_placement_trace_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_trace_dist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v28 = DVARFLT_sentry_placement_trace_radius_canon_safety;
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = v17->current.value;
+  v19 = DVARFLT_sentry_placement_trace_radius_canon_safety;
   if ( !DVARFLT_sentry_placement_trace_radius_canon_safety && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_trace_radius_canon_safety") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v28);
-  __asm { vaddss  xmm9, xmm6, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_sentry_placement_trace_pitch;
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v18 + v19->current.value;
+  v21 = DVARFLT_sentry_placement_trace_pitch;
   if ( !DVARFLT_sentry_placement_trace_pitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_trace_pitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RAX = viewAngles;
-  __asm
-  {
-    vmovss  dword ptr [rbp+170h+angles], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  dword ptr [rbp+170h+angles+4], xmm1
-    vmovss  dword ptr [rbp+170h+angles+8], xmm10
-  }
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(angles.v[0]) = v21->current.integer;
+  angles.v[1] = viewAngles->v[1];
+  angles.v[2] = 0.0;
   AngleVectors(&angles, &forward, NULL, NULL);
-  __asm
-  {
-    vmulss  xmm0, xmm9, dword ptr [rbp+170h+forward]
-    vmulss  xmm1, xmm9, dword ptr [rbp+170h+forward+8]
-  }
-  v36 = DVARBOOL_sentry_placement_debug;
-  __asm
-  {
-    vaddss  xmm6, xmm0, dword ptr [rax]
-    vaddss  xmm2, xmm11, dword ptr [rax+8]
-    vmulss  xmm0, xmm9, dword ptr [rbp+170h+forward+4]
-    vaddss  xmm4, xmm0, dword ptr [rax+4]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm8, dword ptr [rbp+170h+forward]
-    vsubss  xmm0, xmm3, xmm11
-    vmovss  dword ptr [rbp+170h+var_1F0+8], xmm0
-    vmulss  xmm0, xmm8, dword ptr [rbp+170h+forward+4]
-    vaddss  xmm2, xmm1, xmm6
-    vaddss  xmm1, xmm0, xmm4
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rbp+170h+bounds.midPoint], xmm0
-    vmovss  dword ptr [rbp+170h+origin], xmm6
-    vmovss  dword ptr [rbp+170h+origin+4], xmm4
-    vmovss  dword ptr [rbp+170h+origin+8], xmm3
-    vmovss  dword ptr [rbp+170h+var_1F0], xmm6
-    vmovss  dword ptr [rbp+170h+var_1F0+4], xmm4
-    vmovss  dword ptr [rbp+170h+end], xmm2
-    vmovss  dword ptr [rbp+170h+end+4], xmm1
-    vmovss  dword ptr [rbp+170h+end+8], xmm3
-    vmovss  dword ptr [rbp+170h+bounds.halfSize+4], xmm10
-    vmovss  dword ptr [rbp+170h+bounds.halfSize+8], xmm10
-  }
+  v22 = DVARBOOL_sentry_placement_debug;
+  v23 = (float)(v20 * forward.v[0]) + moverOrigin->v[0];
+  v24 = (float)(v20 * forward.v[1]) + moverOrigin->v[1];
+  v25 = (float)(viewHeightStand + moverOrigin->v[2]) + (float)(v20 * forward.v[2]);
+  v41.v[2] = v25 - viewHeightStand;
+  *(_OWORD *)bounds.midPoint.v = 0i64;
+  origin.v[0] = v23;
+  origin.v[1] = v24;
+  origin.v[2] = v25;
+  v41.v[0] = v23;
+  v41.v[1] = v24;
+  end.v[0] = (float)(value * forward.v[0]) + v23;
+  end.v[1] = (float)(value * forward.v[1]) + v24;
+  end.v[2] = v25;
+  bounds.halfSize.v[1] = 0.0;
+  bounds.halfSize.v[2] = 0.0;
   if ( !DVARBOOL_sentry_placement_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  if ( v36->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
     G_DebugLine(viewOrigin, &end, &colorBlue, 0);
-  PhysicsQuery_LegacyTrace((Physics_WorldId)v25, &results, viewOrigin, &end, &bounds, moverEntNum, 1, 33636369, 0, NULL, All);
+  PhysicsQuery_LegacyTrace((Physics_WorldId)v16, &results, viewOrigin, &end, &bounds, moverEntNum, 1, 33636369, 0, NULL, All);
   if ( *(_WORD *)&results.allsolid || Trace_GetEntityHitId(&results) != 2047 )
   {
-    _R9 = moverOrigin;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+170h+origin]
-      vmovss  xmm1, dword ptr [rbp+170h+origin+4]
-      vmovss  xmm2, dword ptr [r9+8]
-      vmovss  dword ptr [rdi+8], xmm2
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  dword ptr [rdi+4], xmm1
-    }
-    goto LABEL_75;
+    v35 = origin.v[0];
+    v36 = origin.v[1];
+    outOrigin->v[2] = moverOrigin->v[2];
+    outOrigin->v[0] = v35;
+    outOrigin->v[1] = v36;
+    return 0i64;
   }
-  v48 = DVARBOOL_sentry_placement_debug;
-  __asm
-  {
-    vmovss  dword ptr [rbp+170h+bounds.halfSize], xmm8
-    vmovss  dword ptr [rbp+170h+bounds.halfSize+4], xmm8
-    vmovss  dword ptr [rbp+170h+bounds.halfSize+8], xmm8
-  }
+  v26 = DVARBOOL_sentry_placement_debug;
+  bounds.halfSize.v[0] = value;
+  bounds.halfSize.v[1] = value;
+  bounds.halfSize.v[2] = value;
   if ( !DVARBOOL_sentry_placement_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  if ( v48->current.enabled )
+  Dvar_CheckFrontendServerThread(v26);
+  if ( v26->current.enabled )
   {
-    G_DebugLine(&origin, &v96, &colorBlue, 0);
-    _RBX = viewAngles;
-    __asm { vmovss  xmm2, dword ptr [rbx+4]; yaw }
-    G_DebugBox(&origin, &bounds, *(float *)&_XMM2, &colorYellow, 0, 0);
-    __asm { vmovss  xmm2, dword ptr [rbx+4]; yaw }
-    G_DebugBox(&v96, &bounds, *(float *)&_XMM2, &colorGreen, 0, 0);
+    G_DebugLine(&origin, &v41, &colorBlue, 0);
+    G_DebugBox(&origin, &bounds, viewAngles->v[1], &colorYellow, 0, 0);
+    G_DebugBox(&v41, &bounds, viewAngles->v[1], &colorGreen, 0, 0);
   }
-  PhysicsQuery_LegacyTrace((Physics_WorldId)v25, &results, &origin, &v96, &bounds, moverEntNum, 1, 33636369, 0, NULL, All);
-  v52 = !results.startsolid;
-  __asm
+  PhysicsQuery_LegacyTrace((Physics_WorldId)v16, &results, &origin, &v41, &bounds, moverEntNum, 1, 33636369, 0, NULL, All);
+  v27 = !results.startsolid;
+  fraction = results.fraction;
+  v29 = v41.v[1];
+  outOrigin->v[0] = (float)((float)(v41.v[0] - origin.v[0]) * results.fraction) + origin.v[0];
+  v30 = (float)(v41.v[2] - origin.v[2]) * fraction;
+  outOrigin->v[1] = (float)((float)(v29 - origin.v[1]) * fraction) + origin.v[1];
+  outOrigin->v[2] = v30 + origin.v[2];
+  if ( !v27 || results.allsolid || (Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_sentry_placement_trace_min_normal, "sentry_placement_trace_min_normal"), results.normal.v[2] < *(float *)&Float_Internal_DebugName) )
   {
-    vmovss  xmm5, [rbp+170h+results.fraction]
-    vmovss  xmm0, dword ptr [rbp+170h+var_1F0]
-    vsubss  xmm1, xmm0, dword ptr [rbp+170h+origin]
-    vmulss  xmm1, xmm1, xmm5
-    vaddss  xmm0, xmm1, dword ptr [rbp+170h+origin]
-    vmovss  xmm1, dword ptr [rbp+170h+var_1F0+4]
-    vmovss  dword ptr [rdi], xmm0
-    vsubss  xmm0, xmm1, dword ptr [rbp+170h+origin+4]
-    vmulss  xmm2, xmm0, xmm5
-    vaddss  xmm3, xmm2, dword ptr [rbp+170h+origin+4]
-    vmovss  xmm0, dword ptr [rbp+170h+var_1F0+8]
-    vsubss  xmm1, xmm0, dword ptr [rbp+170h+origin+8]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rdi+4], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rbp+170h+origin+8]
-    vmovss  dword ptr [rdi+8], xmm3
-  }
-  if ( !v52 )
-    goto LABEL_73;
-  if ( results.allsolid )
-    goto LABEL_73;
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_sentry_placement_trace_min_normal, "sentry_placement_trace_min_normal");
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+170h+results.normal+8]
-    vcomiss xmm1, xmm0
-  }
-  if ( v67 )
-  {
-LABEL_73:
     outOrigin->v[2] = moverOrigin->v[2];
-LABEL_75:
-    result = 0i64;
-    goto LABEL_76;
+    return 0i64;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm1, xmm0, xmm8
-    vmovss  dword ptr [rdi+8], xmm1
-  }
-  LOWORD(v70) = Trace_GetEntityHitId(&results);
-  if ( (unsigned __int16)v70 >= 0x800u )
+  outOrigin->v[2] = outOrigin->v[2] - value;
+  LOWORD(v32) = Trace_GetEntityHitId(&results);
+  if ( (unsigned __int16)v32 >= 0x800u )
   {
     LODWORD(skipChildren) = 2048;
-    LODWORD(skipEntity) = (unsigned __int16)v70;
+    LODWORD(skipEntity) = (unsigned __int16)v32;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 306, ASSERT_TYPE_ASSERT, "(unsigned)( hitEntId ) < (unsigned)( ( 2048 ) )", "hitEntId doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", skipEntity, skipChildren) )
       __debugbreak();
   }
-  if ( (_WORD)v70 == 2046 )
+  if ( (_WORD)v32 != 2046 )
   {
-    if ( placeEnt )
+    if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING|0x80) )
     {
-      __asm
+      if ( (_WORD)v32 == 2047 )
+        return 0i64;
+      v32 = (unsigned __int16)v32;
+      if ( (unsigned int)handler >= TURRET_HANDLER_COUNT )
       {
-        vmovss  xmm0, dword ptr [rbp+170h+var_1F0+8]
-        vaddss  xmm1, xmm0, cs:__real@c1a00000
-        vmovss  dword ptr [rbp+170h+var_1F0+8], xmm1
-      }
-      PhysicsQuery_LegacyTrace((Physics_WorldId)v25, &trace, &origin, &v96, &bounds_origin, moverEntNum, 1, 33636369, 0, NULL, All);
-      LODWORD(v70) = Trace_GetEntityHitId(&trace);
-      if ( BGMovingPlatforms::IsMovingPlatform(v70) )
-LABEL_69:
-        *placeEnt = v70;
-    }
-  }
-  else
-  {
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_FIRING|0x80) )
-    {
-      if ( !placeEnt )
-        goto LABEL_75;
-      LODWORD(v70) = (unsigned __int16)v70;
-      if ( !BGMovingPlatforms::IsMovingPlatform((unsigned __int16)v70) )
-        goto LABEL_75;
-      goto LABEL_69;
-    }
-    if ( (_WORD)v70 == 2047 )
-      goto LABEL_75;
-    v70 = (unsigned __int16)v70;
-    if ( (unsigned int)handler >= TURRET_HANDLER_COUNT )
-    {
-      LODWORD(skipChildren) = 2;
-      LODWORD(skipEntity) = handler;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 83, ASSERT_TYPE_ASSERT, "(unsigned)( handler ) < (unsigned)( TURRET_HANDLER_COUNT )", "handler doesn't index TURRET_HANDLER_COUNT\n\t%i not in [0, %i)", skipEntity, skipChildren) )
-        __debugbreak();
-    }
-    if ( (unsigned int)v70 >= 0x800 )
-    {
-      LODWORD(skipChildren) = 2048;
-      LODWORD(skipEntity) = v70;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 84, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", skipEntity, skipChildren) )
-        __debugbreak();
-    }
-    if ( handler == TURRET_HANDLER_SERVER )
-    {
-      eType = g_entities[v70].s.eType;
-    }
-    else
-    {
-      if ( handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 93, ASSERT_TYPE_ASSERT, "(handler == TURRET_HANDLER_CLIENT)", (const char *)&queryFormat, "handler == TURRET_HANDLER_CLIENT") )
-        __debugbreak();
-      if ( clientNum == LOCAL_CLIENT_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 94, ASSERT_TYPE_ASSERT, "(clientNum != -1)", (const char *)&queryFormat, "clientNum != CLIENTNUM_NONE") )
-        __debugbreak();
-      if ( (unsigned int)clientNum >= LODWORD(cl_maxLocalClients) )
-      {
-        *(float *)&skipChildren = cl_maxLocalClients;
-        LODWORD(skipEntity) = clientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 95, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( (cl_maxLocalClients) )", "clientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", skipEntity, skipChildren) )
+        LODWORD(skipChildren) = 2;
+        LODWORD(skipEntity) = handler;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 83, ASSERT_TYPE_ASSERT, "(unsigned)( handler ) < (unsigned)( TURRET_HANDLER_COUNT )", "handler doesn't index TURRET_HANDLER_COUNT\n\t%i not in [0, %i)", skipEntity, skipChildren) )
           __debugbreak();
       }
-      eType = CG_GetEntity(clientNum, v70)->nextState.eType;
-    }
-    if ( eType != ET_SCRIPTMOVER )
+      if ( (unsigned int)v32 >= 0x800 )
+      {
+        LODWORD(skipChildren) = 2048;
+        LODWORD(skipEntity) = v32;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 84, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", skipEntity, skipChildren) )
+          __debugbreak();
+      }
+      if ( handler == TURRET_HANDLER_SERVER )
+      {
+        eType = g_entities[v32].s.eType;
+      }
+      else
+      {
+        if ( handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 93, ASSERT_TYPE_ASSERT, "(handler == TURRET_HANDLER_CLIENT)", (const char *)&queryFormat, "handler == TURRET_HANDLER_CLIENT") )
+          __debugbreak();
+        if ( clientNum == LOCAL_CLIENT_INVALID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 94, ASSERT_TYPE_ASSERT, "(clientNum != -1)", (const char *)&queryFormat, "clientNum != CLIENTNUM_NONE") )
+          __debugbreak();
+        if ( (unsigned int)clientNum >= LODWORD(cl_maxLocalClients) )
+        {
+          *(float *)&skipChildren = cl_maxLocalClients;
+          LODWORD(skipEntity) = clientNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 95, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( (cl_maxLocalClients) )", "clientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", skipEntity, skipChildren) )
+            __debugbreak();
+        }
+        eType = CG_GetEntity(clientNum, v32)->nextState.eType;
+      }
+      if ( eType != ET_SCRIPTMOVER )
+        return 0i64;
       goto LABEL_75;
+    }
+    if ( !placeEnt )
+      return 0i64;
+    LODWORD(v32) = (unsigned __int16)v32;
+    if ( !BGMovingPlatforms::IsMovingPlatform((unsigned __int16)v32) )
+      return 0i64;
+    goto LABEL_74;
   }
-  if ( Trace_GetGlassHitId(&results) )
-    goto LABEL_75;
-  __asm
+  if ( placeEnt )
   {
-    vmovss  xmm0, dword ptr [rbp+170h+forward]
-    vmovss  xmm1, dword ptr [rbp+170h+forward+4]
-    vmovss  dword ptr [rbp+170h+v1], xmm0
-    vmovss  xmm0, dword ptr [rbp+170h+forward+8]
-    vmovss  dword ptr [rbp+170h+v1+4], xmm1
-    vmovss  xmm1, dword ptr [rbp+170h+results.normal]
-    vmovss  dword ptr [rbp+170h+v1+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+170h+results.normal+4]
-    vmovss  dword ptr [rbp+170h+v0], xmm1
-    vmovss  xmm1, dword ptr [rbp+170h+results.normal+8]
-    vmovss  dword ptr [rbp+170h+v0+4], xmm0
-    vmovss  dword ptr [rbp+170h+v0+8], xmm1
+    v41.v[2] = v41.v[2] + -20.0;
+    PhysicsQuery_LegacyTrace((Physics_WorldId)v16, &trace, &origin, &v41, &bounds_origin, moverEntNum, 1, 33636369, 0, NULL, All);
+    LODWORD(v32) = Trace_GetEntityHitId(&trace);
+    if ( BGMovingPlatforms::IsMovingPlatform(v32) )
+LABEL_74:
+      *placeEnt = v32;
   }
-  Vec3Cross(&v1.m[2], v1.m, &v1.m[1]);
-  Vec3Cross(&v1.m[1], &v1.m[2], v1.m);
-  AxisToAngles(&v1, outAngles);
-  if ( !Turret_PlaceSentry_UpdateFooting(handler, clientNum, moverEntNum, &results, outOrigin, &v1) )
-    goto LABEL_75;
-  AxisToAngles(&v1, outAngles);
-  result = 1i64;
-LABEL_76:
-  _R11 = &v105;
-  __asm
+LABEL_75:
+  if ( !Trace_GetGlassHitId(&results) )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    v1.m[0] = forward;
+    v1.m[2] = results.normal;
+    Vec3Cross(&v1.m[2], v1.m, &v1.m[1]);
+    Vec3Cross(&v1.m[1], &v1.m[2], v1.m);
+    AxisToAngles(&v1, outAngles);
+    if ( Turret_PlaceSentry_UpdateFooting(handler, clientNum, moverEntNum, &results, outOrigin, &v1) )
+    {
+      AxisToAngles(&v1, outAngles);
+      return 1i64;
+    }
   }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -634,39 +499,22 @@ Turret_PlaceSentry_Server
 */
 int Turret_PlaceSentry_Server(const playerState_s *ps, vec3_t *outOrigin, vec3_t *outAngles, int *placeEnt, float radius)
 {
+  float v9; 
   int suitIndex; 
-  float viewHeightStand; 
-  float v19; 
+  const SuitDef *SuitDef; 
   vec3_t viewOrigin; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 474, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  xmm1, dword ptr [rbx+34h]
-  }
-  suitIndex = _RBX->suitIndex;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+viewOrigin], xmm0
-    vmovss  xmm0, dword ptr [rbx+1E8h]
-    vaddss  xmm2, xmm0, dword ptr [rbx+38h]
-    vmovss  dword ptr [rsp+0B8h+viewOrigin+8], xmm2
-    vmovss  dword ptr [rsp+0B8h+viewOrigin+4], xmm1
-  }
-  if ( !BG_GetSuitDef(suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 481, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  v9 = ps->origin.v[1];
+  suitIndex = ps->suitIndex;
+  viewOrigin.v[0] = ps->origin.v[0];
+  viewOrigin.v[2] = ps->viewHeightCurrent + ps->origin.v[2];
+  viewOrigin.v[1] = v9;
+  SuitDef = BG_GetSuitDef(suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 481, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+0B8h+radius]
-    vmovss  [rsp+0B8h+var_68], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rsi+200h]
-    vmovss  [rsp+0B8h+viewHeightStand], xmm1
-  }
-  return Turret_PlaceSentry_Internal(TURRET_HANDLER_SERVER, LOCAL_CLIENT_INVALID, _RBX->clientNum, &_RBX->origin, &viewOrigin, viewHeightStand, &_RBX->viewangles, outOrigin, outAngles, placeEnt, v19);
+  return Turret_PlaceSentry_Internal(TURRET_HANDLER_SERVER, LOCAL_CLIENT_INVALID, ps->clientNum, &ps->origin, &viewOrigin, (float)SuitDef->viewheight_stand, &ps->viewangles, outOrigin, outAngles, placeEnt, radius);
 }
 
 /*
@@ -676,235 +524,122 @@ Turret_PlaceSentry_UpdateFooting
 */
 __int64 Turret_PlaceSentry_UpdateFooting(const turret_handler handler, LocalClientNum_t localClientNum, const int moverEntNum, trace_t *trace, vec3_t *outOrigin, tmat33_t<vec3_t> *outAxis)
 {
-  unsigned int v85; 
-  const vec3_t *v96; 
-  __int64 v98; 
-  const dvar_t *v102; 
-  const vec4_t *v104; 
-  const dvar_t *v105; 
-  vec3_t *v165; 
-  vec3_t *v166; 
-  __int64 result; 
-  int v192; 
-  int v193; 
-  int v194; 
-  int v195; 
-  int v196; 
-  int v197; 
-  int v198; 
-  int v199; 
-  int v200; 
-  int v201; 
-  int v202; 
-  int v203; 
-  unsigned int v204; 
-  int v205; 
+  vec3_t *v9; 
+  const dvar_t *v10; 
+  float value; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  unsigned int v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  unsigned int v30; 
+  unsigned __int64 v31; 
+  float *v32; 
+  const dvar_t *v33; 
+  float v34; 
+  float v35; 
+  const vec3_t *v36; 
+  __int64 v37; 
+  const dvar_t *v38; 
+  float v39; 
+  const dvar_t *v40; 
+  const vec4_t *v41; 
+  const dvar_t *v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int64 v61; 
+  __int128 v64; 
+  __m128 v67; 
+  vec3_t *v68; 
+  vec3_t *v69; 
+  __int128 v70; 
+  float v75; 
+  unsigned int v76; 
+  float v77; 
   Physics_WorldId worldId; 
-  unsigned int v207; 
+  unsigned int v79; 
   int skipEntity[2]; 
   vec3_t *v0; 
   vec3_t *v1; 
   vec3_t cross; 
   vec3_t end; 
-  __int128 v213; 
-  __int128 v216; 
-  char v225; 
-  void *retaddr; 
+  __m128 v85; 
+  float v86; 
+  float v87; 
+  __m128 v88; 
+  float v89; 
+  float v90; 
+  __m128 v91; 
+  float v92; 
+  float v93; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R15 = outOrigin;
-  _RBX = outAxis;
   *(_QWORD *)cross.v = outOrigin;
   v1 = (vec3_t *)outAxis;
   skipEntity[0] = moverEntNum;
   if ( !trace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 123, ASSERT_TYPE_ASSERT, "(trace)", (const char *)&queryFormat, "trace") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v192 & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v193 & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v194 & 0x7F800000) == 2139095040 )
-  {
-LABEL_61:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 124, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outOrigin )[0] ) && !IS_NAN( ( outOrigin )[1] ) && !IS_NAN( ( outOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outOrigin )[0] ) && !IS_NAN( ( outOrigin )[1] ) && !IS_NAN( ( outOrigin )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v195 & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v196 & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v197 & 0x7F800000) == 2139095040 )
-  {
-LABEL_62:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 125, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[0] )[0] ) && !IS_NAN( ( outAxis[0] )[1] ) && !IS_NAN( ( outAxis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[0] )[0] ) && !IS_NAN( ( outAxis[0] )[1] ) && !IS_NAN( ( outAxis[0] )[2] )") )
-      __debugbreak();
-  }
-  _RDI = &outAxis->m[1];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
+  if ( ((LODWORD(outOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 124, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outOrigin )[0] ) && !IS_NAN( ( outOrigin )[1] ) && !IS_NAN( ( outOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outOrigin )[0] ) && !IS_NAN( ( outOrigin )[1] ) && !IS_NAN( ( outOrigin )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(outAxis->m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 125, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[0] )[0] ) && !IS_NAN( ( outAxis[0] )[1] ) && !IS_NAN( ( outAxis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[0] )[0] ) && !IS_NAN( ( outAxis[0] )[1] ) && !IS_NAN( ( outAxis[0] )[2] )") )
+    __debugbreak();
+  v75 = outAxis->m[1].v[0];
   v0 = &outAxis->m[1];
-  if ( (v198 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v199 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v200 & 0x7F800000) == 2139095040 )
-  {
-LABEL_63:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 126, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[1] )[0] ) && !IS_NAN( ( outAxis[1] )[1] ) && !IS_NAN( ( outAxis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[1] )[0] ) && !IS_NAN( ( outAxis[1] )[1] ) && !IS_NAN( ( outAxis[1] )[2] )") )
-      __debugbreak();
-  }
-  _RSI = &outAxis->m[2];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v201 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v202 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+1D0h+var_170], xmm0
-  }
-  if ( (v203 & 0x7F800000) == 2139095040 )
-  {
-LABEL_64:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 127, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[2] )[0] ) && !IS_NAN( ( outAxis[2] )[1] ) && !IS_NAN( ( outAxis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[2] )[0] ) && !IS_NAN( ( outAxis[2] )[1] ) && !IS_NAN( ( outAxis[2] )[2] )") )
-      __debugbreak();
-  }
-  _RDI = DVARVEC3_sentry_placement_feet_offset;
+  if ( ((LODWORD(v75) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 126, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[1] )[0] ) && !IS_NAN( ( outAxis[1] )[1] ) && !IS_NAN( ( outAxis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[1] )[0] ) && !IS_NAN( ( outAxis[1] )[1] ) && !IS_NAN( ( outAxis[1] )[2] )") )
+    __debugbreak();
+  v9 = &outAxis->m[2];
+  if ( ((LODWORD(outAxis->m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outAxis->m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\turret\\turret_placement.cpp", 127, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outAxis[2] )[0] ) && !IS_NAN( ( outAxis[2] )[1] ) && !IS_NAN( ( outAxis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outAxis[2] )[0] ) && !IS_NAN( ( outAxis[2] )[1] ) && !IS_NAN( ( outAxis[2] )[2] )") )
+    __debugbreak();
+  v10 = DVARVEC3_sentry_placement_feet_offset;
   if ( !DVARVEC3_sentry_placement_feet_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_feet_offset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm15, dword ptr [rdi+28h]
-    vmovss  xmm4, dword ptr [rdi+30h]
-    vmovss  xmm11, dword ptr [rdi+2Ch]
-    vmovss  xmm12, dword ptr [rbx]
-    vmovss  xmm13, dword ptr [rbx+4]
-    vmovss  xmm14, dword ptr [rbx+8]
-    vmulss  xmm1, xmm11, dword ptr [rbx+0Ch]
-    vmulss  xmm0, xmm15, xmm12
-    vaddss  xmm2, xmm0, dword ptr [r15]
-    vmulss  xmm0, xmm4, dword ptr [rsi]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm11, dword ptr [rbx+10h]
-    vaddss  xmm7, xmm3, xmm0
-    vmulss  xmm0, xmm15, xmm13
-    vaddss  xmm2, xmm0, dword ptr [r15+4]
-    vmulss  xmm0, xmm4, dword ptr [rsi+4]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm11, dword ptr [rbx+14h]
-    vaddss  xmm6, xmm3, xmm0
-    vmulss  xmm0, xmm15, xmm14
-    vaddss  xmm2, xmm0, dword ptr [r15+8]
-    vmulss  xmm0, xmm4, dword ptr [rsi+8]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm15, cs:__real@c0000000
-    vmulss  xmm1, xmm2, xmm13
-    vmovss  [rsp+1D0h+var_16C], xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm0, xmm2, xmm12
-    vaddss  xmm3, xmm0, xmm7
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm2, xmm11, cs:__real@c0000000
-    vmovss  dword ptr [rbp+0D0h+var_110+4], xmm6
-    vaddss  xmm6, xmm1, xmm6
-    vmulss  xmm1, xmm2, dword ptr [rbx+10h]
-    vaddss  xmm5, xmm1, xmm6
-  }
-  _ER15 = 0;
-  v207 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+0D0h+var_110], xmm7
-    vaddss  xmm7, xmm0, xmm4
-    vmulss  xmm0, xmm2, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rbp+0D0h+var_110+8], xmm4
-    vaddss  xmm4, xmm0, xmm3
-    vmulss  xmm0, xmm2, dword ptr [rbx+14h]
-    vmovss  dword ptr [rbp+0D0h+var_110+0Ch], xmm3
-    vmulss  xmm3, xmm15, cs:__real@40000000
-    vmulss  xmm2, xmm3, xmm13
-    vmovss  [rbp+0D0h+var_100], xmm6
-    vaddss  xmm6, xmm0, xmm7
-    vmulss  xmm0, xmm3, xmm12
-    vaddss  xmm1, xmm0, xmm4
-    vaddss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rbp+0D0h+var_F8+0Ch], xmm1
-    vmulss  xmm1, xmm3, xmm14
-    vaddss  xmm2, xmm1, xmm6
-    vmovss  [rbp+0D0h+var_E4], xmm2
-    vmovss  [rbp+0D0h+var_FC], xmm7
-    vmovss  dword ptr [rbp+0D0h+var_F8], xmm4
-    vmovss  dword ptr [rbp+0D0h+var_F8+4], xmm5
-    vmovss  dword ptr [rbp+0D0h+var_F8+8], xmm6
-    vmovss  [rbp+0D0h+var_E8], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v10);
+  value = v10->current.value;
+  v12 = v10->current.vector.v[2];
+  v13 = v10->current.vector.v[1];
+  v14 = outAxis->m[0].v[0];
+  v15 = outAxis->m[0].v[1];
+  v16 = outAxis->m[0].v[2];
+  v17 = (float)((float)((float)(value * outAxis->m[0].v[0]) + outOrigin->v[0]) + (float)(v13 * outAxis->m[1].v[0])) + (float)(v12 * v9->v[0]);
+  v18 = (float)((float)((float)(value * v15) + outOrigin->v[1]) + (float)(v13 * outAxis->m[1].v[1])) + (float)(v12 * outAxis->m[2].v[1]);
+  v19 = v12 * outAxis->m[2].v[2];
+  v20 = (float)((float)(value * v16) + outOrigin->v[2]) + (float)(v13 * outAxis->m[1].v[2]);
+  v77 = v12;
+  v21 = v20 + v19;
+  v22 = (float)((float)(value * -2.0) * v14) + v17;
+  v88.m128_f32[1] = v18;
+  v23 = (float)((float)(value * -2.0) * v15) + v18;
+  v24 = (float)((float)(v13 * -2.0) * outAxis->m[1].v[1]) + v23;
+  v25 = 0;
+  v79 = 0;
+  v88.m128_f32[0] = v17;
+  v26 = (float)((float)(value * -2.0) * v16) + v21;
+  v27 = (float)(v13 * -2.0) * outAxis->m[1].v[0];
+  v88.m128_f32[2] = v21;
+  v28 = (float)(v13 * -2.0) * outAxis->m[1].v[2];
+  v88.m128_f32[3] = v22;
+  v89 = v23;
+  v91.m128_f32[3] = (float)((float)(value * 2.0) * v14) + (float)(v27 + v22);
+  v93 = (float)((float)(value * 2.0) * v16) + (float)(v28 + v26);
+  v90 = v26;
+  v91.m128_f32[0] = v27 + v22;
+  v91.m128_f32[1] = v24;
+  v91.m128_f32[2] = v28 + v26;
+  v92 = (float)((float)(value * 2.0) * v15) + v24;
   if ( handler )
   {
     if ( handler == TURRET_HANDLER_SERVER )
@@ -922,223 +657,131 @@ LABEL_64:
   {
     worldId = 3 * localClientNum + 2;
   }
-  __asm
-  {
-    vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm6, [rsp+1D0h+var_16C]
-  }
-  v85 = 0;
-  v204 = 0;
-  _RDI = 0i64;
-  _RBX = (char *)&v216 + 8;
+  v29 = v77;
+  v30 = 0;
+  v76 = 0;
+  v31 = 0i64;
+  v32 = &v88.m128_f32[2];
   do
   {
-    _R14 = DVARFLT_sentry_placement_feet_trace_dist_z;
+    v33 = DVARFLT_sentry_placement_feet_trace_dist_z;
     if ( !DVARFLT_sentry_placement_feet_trace_dist_z && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_feet_trace_dist_z") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vxorps  xmm2, xmm0, xmm9
-      vmulss  xmm1, xmm2, dword ptr [rsi]
-      vaddss  xmm0, xmm1, dword ptr [rbx-8]
-      vmovss  dword ptr [rbp+0D0h+end], xmm0
-      vmulss  xmm0, xmm2, dword ptr [rsi+4]
-      vaddss  xmm1, xmm0, dword ptr [rbx-4]
-      vmulss  xmm0, xmm2, dword ptr [rsi+8]
-    }
-    v96 = (const vec3_t *)((char *)&v216 + 12 * v85);
-    __asm
-    {
-      vmovss  dword ptr [rbp+0D0h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rbp+0D0h+end+8], xmm1
-    }
-    PhysicsQuery_LegacyTrace(worldId, trace, v96, &end, &bounds_origin, skipEntity[0], 1, 33636369, 0, NULL, All);
+    Dvar_CheckFrontendServerThread(v33);
+    LODWORD(v34) = v33->current.integer ^ _xmm;
+    end.v[0] = (float)(v34 * v9->v[0]) + *(v32 - 2);
+    v35 = v34 * outAxis->m[2].v[2];
+    v36 = (const vec3_t *)((char *)&v88 + 12 * v30);
+    end.v[1] = (float)(v34 * outAxis->m[2].v[1]) + *(v32 - 1);
+    end.v[2] = v35 + *v32;
+    PhysicsQuery_LegacyTrace(worldId, trace, v36, &end, &bounds_origin, skipEntity[0], 1, 33636369, 0, NULL, All);
     if ( trace->hitType == TRACE_HITTYPE_BEGIN || Trace_GetGlassHitId(trace) )
     {
-      ++v207;
-      if ( _RDI >= 4 )
+      ++v79;
+      if ( v31 >= 4 )
       {
-        j___report_rangecheckfailure(v98);
+        j___report_rangecheckfailure(v37);
         JUMPOUT(0x14199BADDi64);
       }
-      v105 = DVARBOOL_sentry_placement_debug;
-      *((_BYTE *)&v205 + _RDI) = 0;
-      *((_DWORD *)&v213 + _RDI) = 0;
-      if ( !v105 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
+      v42 = DVARBOOL_sentry_placement_debug;
+      *((_BYTE *)&v77 + v31) = 0;
+      v85.m128_i32[v31] = 0;
+      if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v105);
-      if ( v105->current.enabled )
+      Dvar_CheckFrontendServerThread(v42);
+      if ( v42->current.enabled )
       {
-        v104 = &colorRed;
+        v41 = &colorRed;
         goto LABEL_54;
       }
     }
     else
     {
-      _R14 = DVARFLT_sentry_placement_feet_trace_dist_z;
-      *((_BYTE *)&v205 + _RDI) = 1;
-      if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_feet_trace_dist_z") )
+      v38 = DVARFLT_sentry_placement_feet_trace_dist_z;
+      *((_BYTE *)&v77 + v31) = 1;
+      if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_feet_trace_dist_z") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+28h]
-        vmulss  xmm1, xmm0, dword ptr [r12]
-      }
-      v102 = DVARBOOL_sentry_placement_debug;
-      __asm
-      {
-        vsubss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbp+rdi*4+0D0h+var_128], xmm2
-      }
-      if ( !v102 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
+      Dvar_CheckFrontendServerThread(v38);
+      v39 = v38->current.value * trace->fraction;
+      v40 = DVARBOOL_sentry_placement_debug;
+      v85.m128_f32[v31] = v39 - v29;
+      if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sentry_placement_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v102);
-      if ( v102->current.enabled )
+      Dvar_CheckFrontendServerThread(v40);
+      if ( v40->current.enabled )
       {
-        v104 = &colorGreen;
+        v41 = &colorGreen;
 LABEL_54:
-        G_DebugLine(v96, &end, v104, 0);
+        G_DebugLine(v36, &end, v41, 0);
       }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+rdi*4+0D0h+var_128]
-      vmovss  xmm8, dword ptr [rsi]
-      vxorps  xmm2, xmm0, xmm9
-      vmulss  xmm0, xmm8, xmm2
-      vaddss  xmm1, xmm0, dword ptr [rbx-8]
-      vmulss  xmm0, xmm2, dword ptr [rsi+4]
-      vmovss  dword ptr [rbx-8], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx-4]
-      vmulss  xmm0, xmm2, dword ptr [rsi+8]
-      vmovss  dword ptr [rbx-4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-    }
-    v85 = v204 + 1;
-    ++_RDI;
-    __asm { vmovss  dword ptr [rbx], xmm1 }
-    _RBX += 12;
-    v204 = v85;
+    v43 = v9->v[0];
+    LODWORD(v44) = v85.m128_i32[v31] ^ _xmm;
+    v45 = v44 * outAxis->m[2].v[1];
+    *(v32 - 2) = (float)(v9->v[0] * v44) + *(v32 - 2);
+    v46 = v44 * outAxis->m[2].v[2];
+    *(v32 - 1) = v45 + *(v32 - 1);
+    v30 = v76 + 1;
+    ++v31;
+    *v32 = v46 + *v32;
+    v32 += 3;
+    v76 = v30;
   }
-  while ( v85 < 4 );
+  while ( v30 < 4 );
+  _XMM3 = v85.m128_u32[2];
+  _XMM5 = v85.m128_u32[3];
+  _XMM0 = LOBYTE(v77);
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = v85.m128_u32[0];
+  __asm { vblendvps xmm7, xmm0, xmm3, xmm2 }
+  _XMM0 = BYTE1(v77);
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = v85.m128_u32[1];
+  __asm { vblendvps xmm6, xmm0, xmm5, xmm2 }
+  _XMM0 = BYTE2(v77);
   __asm
   {
-    vmovss  xmm3, dword ptr [rbp+0D0h+var_128+8]
-    vmovss  xmm5, dword ptr [rbp+0D0h+var_128+0Ch]
-  }
-  _EAX = (unsigned __int8)v205;
-  __asm { vmovd   xmm0, eax }
-  _EAX = BYTE1(v205);
-  __asm
-  {
-    vmovd   xmm1, r15d
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rbp+0D0h+var_128]
-    vblendvps xmm7, xmm0, xmm3, xmm2
-    vmovd   xmm0, eax
-  }
-  _EAX = BYTE2(v205);
-  __asm
-  {
-    vmovd   xmm1, r15d
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rbp+0D0h+var_128+4]
-    vblendvps xmm6, xmm0, xmm5, xmm2
-    vmovd   xmm0, eax
-  }
-  _EAX = HIBYTE(v205);
-  __asm
-  {
-    vmovd   xmm1, r15d
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm4, xmm3, xmm7, xmm2
-    vmovd   xmm0, eax
   }
-  _RAX = *(_QWORD *)cross.v;
+  _XMM0 = HIBYTE(v77);
+  v61 = *(_QWORD *)cross.v;
   __asm
   {
-    vmovd   xmm1, r15d
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm3, xmm5, xmm6, xmm2
-    vaddss  xmm0, xmm7, xmm4
-    vmulss  xmm2, xmm0, cs:__real@3f000000
-    vaddss  xmm0, xmm6, xmm3
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmaxss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [rbp+0D0h+var_128+0Ch], xmm3
-    vxorps  xmm3, xmm2, xmm9
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rax]
-    vmovss  dword ptr [rax], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rsi+4]
-    vaddss  xmm1, xmm0, dword ptr [rax+4]
-    vmovss  dword ptr [rax+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rsi+8]
-    vaddss  xmm1, xmm0, dword ptr [rax+8]
-    vmovups xmm0, [rbp+0D0h+var_110]
-    vsubps  xmm0, xmm0, [rbp+0D0h+var_F8]
-    vmovss  dword ptr [rax+8], xmm1
-    vmovss  xmm1, [rbp+0D0h+var_100]
-    vsubss  xmm2, xmm1, [rbp+0D0h+var_E8]
-    vmovss  dword ptr [rbp+0D0h+var_128], xmm7
-    vmovss  dword ptr [rbp+0D0h+var_128+4], xmm6
-    vmovss  dword ptr [rbp+0D0h+var_128+8], xmm4
-    vmovups [rbp+0D0h+var_128], xmm0
-    vmovss  xmm0, [rbp+0D0h+var_FC]
-    vsubss  xmm1, xmm0, [rbp+0D0h+var_E4]
-    vmovss  [rbp+0D0h+var_114], xmm1
-    vmovss  [rbp+0D0h+var_118], xmm2
   }
-  Vec3Cross((const vec3_t *)&v213, (const vec3_t *)&v213 + 1, &cross);
+  v64 = _XMM7;
+  *(float *)&v64 = (float)(*(float *)&_XMM7 + *(float *)&_XMM4) * 0.5;
+  _XMM2 = v64;
+  __asm { vmaxss  xmm2, xmm2, xmm1 }
+  v85.m128_f32[3] = *(float *)&_XMM3;
+  **(float **)cross.v = (float)(v43 * COERCE_FLOAT(_XMM2 ^ _xmm)) + **(float **)cross.v;
+  *(float *)(v61 + 4) = (float)(COERCE_FLOAT(_XMM2 ^ _xmm) * outAxis->m[2].v[1]) + *(float *)(v61 + 4);
+  v67 = _mm128_sub_ps(v88, v91);
+  *(float *)(v61 + 8) = (float)(COERCE_FLOAT(_XMM2 ^ _xmm) * outAxis->m[2].v[2]) + *(float *)(v61 + 8);
+  v85 = v67;
+  v87 = v90 - v93;
+  v86 = v89 - v92;
+  Vec3Cross((const vec3_t *)&v85, (const vec3_t *)&v85.m128_u32[3], &cross);
+  v68 = v0;
+  v69 = v1;
+  v70 = LODWORD(cross.v[0]);
+  *(float *)&v70 = fsqrt((float)((float)(*(float *)&v70 * *(float *)&v70) + (float)(cross.v[1] * cross.v[1])) + (float)(cross.v[2] * cross.v[2]));
+  _XMM3 = v70;
   __asm
   {
-    vmovss  xmm5, dword ptr [rbp+0D0h+cross+4]
-    vmovss  xmm4, dword ptr [rbp+0D0h+cross+8]
-    vmovss  xmm6, dword ptr [rbp+0D0h+cross]
-  }
-  v165 = v0;
-  v166 = v1;
-  __asm
-  {
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm3, xmm5, xmm1
-    vmulss  xmm0, xmm4, xmm1
-    vmovss  dword ptr [rsi], xmm2
-    vmovss  dword ptr [rsi+4], xmm3
-    vmovss  dword ptr [rsi+8], xmm0
   }
-  Vec3Cross(_RSI, v166, v165);
-  Vec3Cross(v0, _RSI, v1);
-  LOBYTE(_ER15) = v207 <= 1;
-  result = _ER15;
-  _R11 = &v225;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  *(float *)&_XMM3 = cross.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&v70 = cross.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v9->v[0] = cross.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  outAxis->m[2].v[1] = *(float *)&_XMM3;
+  outAxis->m[2].v[2] = *(float *)&v70;
+  Vec3Cross(v9, v69, v68);
+  Vec3Cross(v0, v9, v1);
+  LOBYTE(v25) = v79 <= 1;
+  return v25;
 }
 

@@ -676,119 +676,106 @@ BG_Omnvar_GetDataAtPmoveTime
 */
 char BG_Omnvar_GetDataAtPmoveTime(const OmnvarPmoveData *pmoveData, unsigned int primaryIdx, int pmoveTime, OmnvarData *outData)
 {
-  __int64 v7; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v8; 
   __int64 pmoveIndex; 
   __int64 currentBufferIndex; 
-  OmnvarData *v14; 
+  OmnvarData *v11; 
   unsigned int timeModified; 
-  char *v16; 
-  char *v17; 
-  char *v18; 
-  int v20; 
-  signed int v21; 
-  int v22; 
-  __int64 v34; 
+  char *v13; 
+  OmnvarData *v14; 
+  OmnvarData *v15; 
+  int v17; 
+  signed int v18; 
+  int v19; 
+  float v20; 
+  float v21; 
+  double v22; 
+  __int64 v23; 
 
-  v7 = primaryIdx;
-  _R14 = outData;
+  v4 = primaryIdx;
   if ( !pmoveData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 870, ASSERT_TYPE_ASSERT, "(pmoveData)", (const char *)&queryFormat, "pmoveData") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 871, ASSERT_TYPE_ASSERT, "(outData)", (const char *)&queryFormat, "outData") )
+  if ( !outData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 871, ASSERT_TYPE_ASSERT, "(outData)", (const char *)&queryFormat, "outData") )
     __debugbreak();
   if ( !s_omnvarDataChecksum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 872, ASSERT_TYPE_ASSERT, "(BG_Omnvar_IsInitialized())", (const char *)&queryFormat, "BG_Omnvar_IsInitialized()") )
     __debugbreak();
-  *_R14 = 0i64;
-  if ( (unsigned int)v7 >= (unsigned int)s_omnvarDefCount )
+  *outData = 0i64;
+  if ( (unsigned int)v4 >= (unsigned int)s_omnvarDefCount )
   {
-    LODWORD(v34) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 103, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_omnvarDefCount )", "idx doesn't index s_omnvarDefCount\n\t%i not in [0, %i)", v34, s_omnvarDefCount) )
+    LODWORD(v23) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 103, ASSERT_TYPE_ASSERT, "(unsigned)( idx ) < (unsigned)( s_omnvarDefCount )", "idx doesn't index s_omnvarDefCount\n\t%i not in [0, %i)", v23, s_omnvarDefCount) )
       __debugbreak();
   }
-  v11 = v7;
-  if ( s_omnvarDefs[v11].type != OMNVAR_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 880, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
+  v8 = v4;
+  if ( s_omnvarDefs[v8].type != OMNVAR_TYPE_FLOAT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 880, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_FLOAT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_FLOAT") )
     __debugbreak();
-  pmoveIndex = (unsigned int)s_omnvarDefs[v11].pmoveIndex;
+  pmoveIndex = (unsigned int)s_omnvarDefs[v8].pmoveIndex;
   if ( (unsigned int)pmoveIndex >= 0x1E && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 884, ASSERT_TYPE_ASSERT, "(pmoveIdx < 30)", (const char *)&queryFormat, "pmoveIdx < MAX_PMOVE_OMNVARS") )
     __debugbreak();
   currentBufferIndex = pmoveData->currentBufferIndex;
-  v14 = pmoveData->omnvars[pmoveIndex];
-  timeModified = v14[currentBufferIndex].timeModified;
-  v16 = (char *)&v14[((int)currentBufferIndex + 1) % 0xAu];
-  if ( !timeModified || !*(_DWORD *)v16 )
+  v11 = pmoveData->omnvars[pmoveIndex];
+  timeModified = v11[currentBufferIndex].timeModified;
+  v13 = (char *)&v11[((int)currentBufferIndex + 1) % 0xAu];
+  if ( !timeModified || !*(_DWORD *)v13 )
     return 0;
-  v17 = NULL;
-  v18 = NULL;
+  v14 = NULL;
+  v15 = NULL;
   if ( pmoveTime < timeModified )
   {
-    if ( (unsigned int)pmoveTime > *(_DWORD *)v16 )
+    if ( (unsigned int)pmoveTime > *(_DWORD *)v13 )
     {
-      v20 = 0;
+      v17 = 0;
       while ( 1 )
       {
-        v21 = ((int)currentBufferIndex - v20 + 10) % 0xAu;
-        if ( pmoveTime > v14[v21].timeModified )
+        v18 = ((int)currentBufferIndex - v17 + 10) % 0xAu;
+        if ( pmoveTime > v11[v18].timeModified )
           break;
-        if ( (unsigned int)++v20 >= 0xA )
+        if ( (unsigned int)++v17 >= 0xA )
           goto LABEL_28;
       }
-      v17 = (char *)&v14[v21];
-      v22 = 1;
+      v14 = &v11[v18];
+      v19 = 1;
       while ( 1 )
       {
-        v16 = (char *)&v14[(v22 + v21) % 0xAu];
-        if ( (unsigned int)pmoveTime <= *(_DWORD *)v16 )
+        v13 = (char *)&v11[(v19 + v18) % 0xAu];
+        if ( (unsigned int)pmoveTime <= *(_DWORD *)v13 )
           break;
-        if ( (unsigned int)++v22 >= 0xA )
+        if ( (unsigned int)++v19 >= 0xA )
           goto LABEL_26;
       }
     }
     else
     {
-      v17 = (char *)&v14[((int)currentBufferIndex + 1) % 0xAu];
+      v14 = &v11[((int)currentBufferIndex + 1) % 0xAu];
     }
-    v18 = v16;
+    v15 = (OmnvarData *)v13;
   }
   else
   {
-    v17 = (char *)&v14[currentBufferIndex];
-    v18 = v17;
+    v14 = &v11[currentBufferIndex];
+    v15 = v14;
   }
 LABEL_26:
-  if ( !v17 || !v18 )
+  if ( !v14 || !v15 )
   {
 LABEL_28:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 940, ASSERT_TYPE_ASSERT, "(startKey && endKey)", (const char *)&queryFormat, "startKey && endKey") )
       __debugbreak();
   }
-  if ( *(_DWORD *)v17 == *(_DWORD *)v18 )
+  if ( v14->timeModified == v15->timeModified )
   {
-    *_R14 = *(OmnvarData *)v17;
+    *outData = *v14;
     return 1;
   }
   else
   {
-    if ( *(_DWORD *)v17 >= *(_DWORD *)v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 948, ASSERT_TYPE_ASSERT, "(endKey->timeModified > startKey->timeModified)", (const char *)&queryFormat, "endKey->timeModified > startKey->timeModified") )
+    if ( v14->timeModified >= v15->timeModified && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 948, ASSERT_TYPE_ASSERT, "(endKey->timeModified > startKey->timeModified)", (const char *)&queryFormat, "endKey->timeModified > startKey->timeModified") )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax; max
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, rax; min
-      vcvtsi2ss xmm0, xmm0, esi; value
-    }
-    *(double *)&_XMM0 = ApplyLinearMap(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm2, xmm1, xmm0
-      vmulss  xmm3, xmm2, dword ptr [rbx+4]
-      vmulss  xmm0, xmm0, dword ptr [rdi+4]
-      vaddss  xmm1, xmm3, xmm0
-      vmovss  dword ptr [r14+4], xmm1
-    }
+    v20 = (float)v15->timeModified;
+    v21 = (float)v14->timeModified;
+    v22 = ApplyLinearMap((float)pmoveTime, v21, v20);
+    outData->current.value = (float)((float)(1.0 - *(float *)&v22) * v14->current.value) + (float)(*(float *)&v22 * v15->current.value);
     return 1;
   }
 }
@@ -984,31 +971,24 @@ void BG_Omnvar_GetValueString(const OmnvarDef *const omnvarDef, const OmnvarData
   char *outLuiString; 
 
   v4 = valueBufLen;
-  _RSI = data;
   if ( !omnvarDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 972, ASSERT_TYPE_ASSERT, "(omnvarDef)", (const char *)&queryFormat, "omnvarDef") )
     __debugbreak();
   if ( !valueBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 973, ASSERT_TYPE_ASSERT, "(valueBuf)", (const char *)&queryFormat, "valueBuf") )
     __debugbreak();
   if ( !(_DWORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 974, ASSERT_TYPE_ASSERT, "(valueBufLen > 0)", (const char *)&queryFormat, "valueBufLen > 0") )
     __debugbreak();
-  if ( _RSI )
+  if ( data )
   {
     switch ( omnvarDef->type )
     {
       case OMNVAR_TYPE_BOOL:
-        Com_sprintf_truncate(valueBuf, v4, "%d", _RSI->current.enabled);
+        Com_sprintf_truncate(valueBuf, v4, "%d", data->current.enabled);
         break;
       case OMNVAR_TYPE_FLOAT:
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi+4]; jumptable 00000001402E3325 case 1
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf_truncate(valueBuf, v4, "%f", *(double *)&_XMM3);
+        Com_sprintf_truncate(valueBuf, v4, "%f", data->current.value);
         break;
       case OMNVAR_TYPE_INT:
-        Com_sprintf_truncate(valueBuf, v4, "%i", _RSI->current.unsignedInteger);
+        Com_sprintf_truncate(valueBuf, v4, "%i", data->current.unsignedInteger);
         break;
       case OMNVAR_TYPE_UINT:
       case OMNVAR_TYPE_TIME:
@@ -1016,7 +996,7 @@ void BG_Omnvar_GetValueString(const OmnvarDef *const omnvarDef, const OmnvarData
       case OMNVAR_TYPE_NCS_LUI:
         if ( omnvarDef->type == OMNVAR_TYPE_NCS_LUI )
         {
-          NetConstStrings_GetLuiStringName(_RSI->current.unsignedInteger, (const char **)&outLuiString);
+          NetConstStrings_GetLuiStringName(data->current.unsignedInteger, (const char **)&outLuiString);
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 849, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Omnvar %s is not a netconststring type", omnvarDef->name) )
         {
@@ -1026,7 +1006,7 @@ void BG_Omnvar_GetValueString(const OmnvarDef *const omnvarDef, const OmnvarData
           Core_strcpy_truncate(valueBuf, v4, outLuiString);
         else
 $LN25_6:
-          Com_sprintf_truncate(valueBuf, v4, "%d", _RSI->current.unsignedInteger);
+          Com_sprintf_truncate(valueBuf, v4, "%d", data->current.unsignedInteger);
         break;
       default:
         Com_sprintf_truncate(valueBuf, v4, "invalid type %d", omnvarDef->type);
@@ -1711,78 +1691,74 @@ void BG_Omnvar_RegisterTypeFromStringTable(const StringTable *omnvarsTable, unsi
   int v25; 
   char *v26; 
 
-  _RSI = record;
   v10 = *StringTable_GetColumnValueForRow(omnvarsTable, rowIdx, 4);
   ColumnValueForRow = StringTable_GetColumnValueForRow(omnvarsTable, rowIdx, 5);
   if ( !*ColumnValueForRow && v10 != 101 && v10 != 110 )
-    Sys_Error((const ObfuscateErrorText)&stru_143CC5990, _RSI->name);
+    Sys_Error((const ObfuscateErrorText)&stru_143CC5990, record->name);
   switch ( v10 )
   {
     case 'a':
-      *(_WORD *)&_RSI->type = 1795;
-      _RSI->initial.integer = atoi(ColumnValueForRow);
-      _RSI->numbits = 32;
+      *(_WORD *)&record->type = 1795;
+      record->initial.integer = atoi(ColumnValueForRow);
+      record->numbits = 32;
       break;
     case 'b':
       if ( (unsigned __int8)(*ColumnValueForRow - 48) > 1u )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC59B8, _RSI->name);
-      *(_WORD *)&_RSI->type = 0;
+        Sys_Error((const ObfuscateErrorText)&stru_143CC59B8, record->name);
+      *(_WORD *)&record->type = 0;
       v12 = *ColumnValueForRow == 49;
-      _RSI->numbits = 1;
-      _RSI->initial.enabled = v12;
+      record->numbits = 1;
+      record->initial.enabled = v12;
       break;
     case 'd':
-      *(_WORD *)&_RSI->type = 2305;
+      *(_WORD *)&record->type = 2305;
       goto LABEL_19;
     case 'e':
-      *(_WORD *)&_RSI->type = 1538;
+      *(_WORD *)&record->type = 1538;
       MinBitCountForNum = GetMinBitCountForNum(0x800u);
-      _RSI->numbits = truncate_cast<unsigned char,int>(MinBitCountForNum);
-      _RSI->minvalue = 0;
-      _RSI->maxvalue = 2048;
-      _RSI->initial.integer = 2047;
+      record->numbits = truncate_cast<unsigned char,int>(MinBitCountForNum);
+      record->minvalue = 0;
+      record->maxvalue = 2048;
+      record->initial.integer = 2047;
       break;
     case 'f':
-      *(_WORD *)&_RSI->type = 257;
+      *(_WORD *)&record->type = 257;
 LABEL_19:
       *(double *)&_XMM0 = atof(ColumnValueForRow);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsi+1Ch], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      record->initial.value = *(float *)&_XMM1;
       break;
     case 'i':
-      *(_WORD *)&_RSI->type = 514;
+      *(_WORD *)&record->type = 514;
       v19 = I_atoi64(ColumnValueForRow);
       v20 = StringTable_GetColumnValueForRow(omnvarsTable, rowIdx, 6);
       v21 = StringTable_GetColumnValueForRow(omnvarsTable, rowIdx, 7);
       v22 = I_atoi64(v20);
       v23 = I_atoi64(v21);
       if ( !*v20 )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5AC0, _RSI->name);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5AC0, record->name);
       if ( !*v21 )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5B08, _RSI->name);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5B08, record->name);
       if ( v22 > v23 )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5B50, _RSI->name, v22, v23);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5B50, record->name, v22, v23);
       if ( v23 > 0x7FFFFFFF || v22 < (__int64)0xFFFFFFFF80000000ui64 )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5BC0, _RSI->name, v22, v23);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5BC0, record->name, v22, v23);
       if ( v19 < v22 || v19 > v23 )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5C40, _RSI->name, v22, v23, v19);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5C40, record->name, v22, v23, v19);
       v24 = v23 - v22;
       if ( v23 - v22 > 0x7FFFFFFF )
-        Sys_Error((const ObfuscateErrorText)&stru_143CC5CB0, _RSI->name, v22, v23);
+        Sys_Error((const ObfuscateErrorText)&stru_143CC5CB0, record->name, v22, v23);
       if ( (v24 < 0 || (unsigned __int64)v24 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v24, "signed", v23 - v22) )
         __debugbreak();
       v25 = GetMinBitCountForNum(v24);
-      _RSI->numbits = truncate_cast<unsigned char,int>(v25);
-      _RSI->minvalue = truncate_cast<int,__int64>(v22);
-      _RSI->maxvalue = truncate_cast<int,__int64>(v23);
-      _RSI->initial.integer = truncate_cast<int,__int64>(v19 - v22);
+      record->numbits = truncate_cast<unsigned char,int>(v25);
+      record->minvalue = truncate_cast<int,__int64>(v22);
+      record->maxvalue = truncate_cast<int,__int64>(v23);
+      record->initial.integer = truncate_cast<int,__int64>(v19 - v22);
       break;
     case 'n':
-      *(_WORD *)&_RSI->type = 2052;
-      _RSI->initial.integer = 0;
+      *(_WORD *)&record->type = 2052;
+      record->initial.integer = 0;
       break;
     case 'p':
       if ( !ComCharacterLimits::ms_modeData.m_clientMaxCount )
@@ -1792,29 +1768,29 @@ LABEL_19:
         if ( !ComCharacterLimits::ms_modeData.m_clientMaxCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 311, ASSERT_TYPE_ASSERT, "(ComCharacterLimits::GetGameModeClientLimit())", "%s\n\tOmnvars must be initialized after the client limit", "ComCharacterLimits::GetGameModeClientLimit()") )
           __debugbreak();
       }
-      *(_WORD *)&_RSI->type = 1282;
+      *(_WORD *)&record->type = 1282;
       v13 = atoi(ColumnValueForRow);
       GameModeClientLimit = ComCharacterLimits::GetGameModeClientLimit();
       v15 = GameModeClientLimit - 1;
       v16 = GetMinBitCountForNum(GameModeClientLimit);
-      _RSI->numbits = truncate_cast<unsigned char,int>(v16);
-      _RSI->initial.integer = v13 + 1;
-      _RSI->minvalue = -1;
-      _RSI->maxvalue = v15;
+      record->numbits = truncate_cast<unsigned char,int>(v16);
+      record->initial.integer = v13 + 1;
+      record->minvalue = -1;
+      record->maxvalue = v15;
       break;
     case 's':
-      *(_WORD *)&_RSI->type = 1029;
+      *(_WORD *)&record->type = 1029;
       v26 = BG_Omnvar_AddStringToStringBuffer(omnvarStringBufferTail, omnvarStringBufferEnd, ColumnValueForRow);
-      _RSI->ncsString = v26;
+      record->ncsString = v26;
       if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.cpp", 414, ASSERT_TYPE_ASSERT, "(record->ncsString)", (const char *)&queryFormat, "record->ncsString") )
         __debugbreak();
       break;
     case 't':
-      *(_WORD *)&_RSI->type = 772;
-      _RSI->initial.integer = atoi(ColumnValueForRow);
+      *(_WORD *)&record->type = 772;
+      record->initial.integer = atoi(ColumnValueForRow);
       break;
     default:
-      Sys_Error((const ObfuscateErrorText)&stru_143CC5D38, _RSI->name);
+      Sys_Error((const ObfuscateErrorText)&stru_143CC5D38, record->name);
       break;
   }
 }

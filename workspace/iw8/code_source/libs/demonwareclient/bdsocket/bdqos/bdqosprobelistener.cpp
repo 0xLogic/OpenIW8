@@ -73,32 +73,25 @@ void bdQoSProbeInfo::bdQoSProbeInfo(bdQoSProbeInfo *this, const bdQoSProbeInfo *
 {
   bdCommonAddr *m_ptr; 
 
-  _RDI = __that;
-  _RBX = this;
   m_ptr = __that->m_addr.m_ptr;
-  _RBX->m_addr.m_ptr = __that->m_addr.m_ptr;
+  this->m_addr.m_ptr = __that->m_addr.m_ptr;
   if ( m_ptr )
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-  bdAddr::bdAddr(&_RBX->m_realAddr, &__that->m_realAddr);
-  _RBX->m_latency = _RDI->m_latency;
-  _RBX->m_data = _RDI->m_data;
-  _RBX->m_dataSize = _RDI->m_dataSize;
-  _RBX->m_disabled = _RDI->m_disabled;
-  _RBX->m_bandwidthDown = _RDI->m_bandwidthDown;
-  _RBX->m_bandwidthUp = _RDI->m_bandwidthUp;
-  _RBX->m_minLatency = _RDI->m_minLatency;
-  _RBX->m_numReplies = _RDI->m_numReplies;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0C8h]
-    vmovups ymmword ptr [rbx+0C8h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+0E8h]
-    vmovups ymmword ptr [rbx+0E8h], ymm1
-  }
-  _RBX->m_numProbesReceived = _RDI->m_numProbesReceived;
-  _RBX->m_numProbesExpected = _RDI->m_numProbesExpected;
-  _RBX->m_numRetries = _RDI->m_numRetries;
-  _RBX->m_failureReason = _RDI->m_failureReason;
+  bdAddr::bdAddr(&this->m_realAddr, &__that->m_realAddr);
+  this->m_latency = __that->m_latency;
+  this->m_data = __that->m_data;
+  this->m_dataSize = __that->m_dataSize;
+  this->m_disabled = __that->m_disabled;
+  this->m_bandwidthDown = __that->m_bandwidthDown;
+  this->m_bandwidthUp = __that->m_bandwidthUp;
+  this->m_minLatency = __that->m_minLatency;
+  this->m_numReplies = __that->m_numReplies;
+  *(__m256i *)this->m_replies = *(__m256i *)__that->m_replies;
+  *(__m256i *)&this->m_replies[8] = *(__m256i *)&__that->m_replies[8];
+  this->m_numProbesReceived = __that->m_numProbesReceived;
+  this->m_numProbesExpected = __that->m_numProbesExpected;
+  this->m_numRetries = __that->m_numRetries;
+  this->m_failureReason = __that->m_failureReason;
 }
 
 /*

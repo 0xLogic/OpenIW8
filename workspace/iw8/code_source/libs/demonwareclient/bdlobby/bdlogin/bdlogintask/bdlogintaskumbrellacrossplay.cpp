@@ -728,99 +728,94 @@ bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply
 */
 void bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply(bdLoginTaskUmbrellaCrossplay *this)
 {
+  unsigned int v2; 
   unsigned int v3; 
-  unsigned int v4; 
   bdLoginResult *m_loginResult; 
   const char *m_authTicketB64; 
   char *m_data; 
-  unsigned int v8; 
-  bdLoginResult *v9; 
-  unsigned int v10; 
-  bdLoginResult *v11; 
-  unsigned int v12; 
-  const char *v14; 
+  unsigned int v7; 
+  bdLoginResult *v8; 
+  unsigned int v9; 
+  bdLoginResult *v10; 
+  unsigned int v11; 
+  double v12; 
+  const char *v13; 
+  double ElapsedTimeInSeconds; 
   unsigned __int64 UmbrellaID; 
-  __int64 v17; 
-  double v18; 
   bool value; 
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode code; 
-  bdJSONDeserializer v21; 
-  __int64 v22; 
+  bdJSONDeserializer v18; 
+  __int64 v19; 
   unsigned __int8 dest[8]; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
+  __int64 v21; 
+  __int64 v22; 
+  __int64 v23; 
 
-  v22 = -2i64;
+  v19 = -2i64;
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply", 0xD7u, "Processing bdLogin Umbrella crossplay login task reply");
-  v3 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-  v4 = v3;
-  if ( v3 != 200 )
+  v2 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+  v3 = v2;
+  if ( v2 != 200 )
   {
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply", 0x11Bu, "Umbrella login task failed with HTTP code [%u]", v3);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply", 0x11Bu, "Umbrella login task failed with HTTP code [%u]", v2);
     if ( bdLoginResult::getTaskErrorCode(this->m_loginResult) == BD_UMBRELLA_PLAYER_BAN )
     {
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-      v14 = "Player is banned";
+      v13 = "Player is banned";
     }
     else
     {
       if ( bdLoginResult::getTaskErrorCode(this->m_loginResult) != BD_UMBRELLA_MERGE_CONFLICT )
       {
-        bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v4);
+        bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v3);
         code = CONNECTED;
         bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus(this, this->m_umbrellaStatusMessage, &code);
         return;
       }
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-      v14 = "Umbrella merge conflict";
+      v13 = "Umbrella merge conflict";
     }
     this->m_umbrellaStatusCode = DISCONNECTING;
-    bdStrlcpy(this->m_umbrellaStatusMessage, v14, 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0B0h+var_78], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v18);
+    bdStrlcpy(this->m_umbrellaStatusMessage, v13, 0x400ui64);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     return;
   }
-  bdJSONDeserializer::bdJSONDeserializer(&v21);
-  if ( bdJSONDeserializer::parse(&v21, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v21) )
+  bdJSONDeserializer::bdJSONDeserializer(&v18);
+  if ( bdJSONDeserializer::parse(&v18, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v18) )
   {
-    if ( !bdJSONDeserializer::getBoolean(&v21, "crossPlatformProgressionEnabled", &this->m_loginResult->m_crossPlatformProgressionEnabled) )
+    if ( !bdJSONDeserializer::getBoolean(&v18, "crossPlatformProgressionEnabled", &this->m_loginResult->m_crossPlatformProgressionEnabled) )
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply", 0xE5u, "Failed to read crossplatform progression from Umbrella Crossplatform Response");
-    if ( bdJSONDeserializer::hasKey(&v21, "hasUno") )
+    if ( bdJSONDeserializer::hasKey(&v18, "hasUno") )
     {
-      bdJSONDeserializer::getBoolean(&v21, "hasUno", &value);
+      bdJSONDeserializer::getBoolean(&v18, "hasUno", &value);
       if ( !value )
       {
         this->m_remoteTask.m_ptr->m_errorCode = BD_UMBRELLA_ACCOUNT_NOT_FOUND;
         code = CONNECTED;
         bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus(this, "No Uno account detected for user.", &code);
-        bdJSONDeserializer::~bdJSONDeserializer(&v21);
+        bdJSONDeserializer::~bdJSONDeserializer(&v18);
         return;
       }
     }
-    if ( bdJSONDeserializer::hasKey(&v21, "lsgEndpoint") )
-      bdJSONDeserializer::getString(&v21, "lsgEndpoint", this->m_loginResult->m_lsgAddress, 0x400u);
+    if ( bdJSONDeserializer::hasKey(&v18, "lsgEndpoint") )
+      bdJSONDeserializer::getString(&v18, "lsgEndpoint", this->m_loginResult->m_lsgAddress, 0x400u);
     bdLoginResult::setExtendedAuthInfo(this->m_loginResult, this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_accessInfo.m_accessToken);
     m_loginResult = this->m_loginResult;
     m_authTicketB64 = m_loginResult->m_crossplayAccount.m_crossplayInfo.m_authTicketB64;
     m_data = m_loginResult->m_data;
-    v8 = bdStrlen(m_loginResult->m_crossplayAccount.m_crossplayInfo.m_authTicketB64);
-    bdBase64::decode(m_authTicketB64, v8, m_data, 0x80u);
+    v7 = bdStrlen(m_loginResult->m_crossplayAccount.m_crossplayInfo.m_authTicketB64);
+    bdBase64::decode(m_authTicketB64, v7, m_data, 0x80u);
     *(_QWORD *)dest = 0i64;
-    v24 = 0i64;
-    v25 = 0i64;
-    v26 = 0i64;
-    v9 = this->m_loginResult;
-    v10 = bdStrlen(v9->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str);
-    bdBase64::decode(v9->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str, v10, dest, 0x20u);
-    v11 = this->m_loginResult;
-    v12 = strtoul((const char *)dest, NULL, 10);
-    bdLoginResult::setIVSeed(v11, v12);
+    v21 = 0i64;
+    v22 = 0i64;
+    v23 = 0i64;
+    v8 = this->m_loginResult;
+    v9 = bdStrlen(v8->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str);
+    bdBase64::decode(v8->m_crossplayAccount.m_crossplayInfo.m_IVSeedB64Str, v9, dest, 0x20u);
+    v10 = this->m_loginResult;
+    v11 = strtoul((const char *)dest, NULL, 10);
+    bdLoginResult::setIVSeed(v10, v11);
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply", 0x10Eu, "Setting state to COMPLETED");
     code = DISCONNECTED;
     bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus(this, "Got successful Umbrella Crossplay login reply", &code);
@@ -833,15 +828,10 @@ void bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply(bdLoginTaskUmbrella
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Failed to parse Umbrella login response json", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0B0h+var_78], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v17);
+    v12 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v12);
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v21);
+  bdJSONDeserializer::~bdJSONDeserializer(&v18);
 }
 
 /*
@@ -851,47 +841,42 @@ bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply
 */
 void bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply(bdLoginTaskUmbrellaCrossplay *this)
 {
+  unsigned int v2; 
   unsigned int v3; 
-  unsigned int v4; 
-  const char *v5; 
-  double v7; 
-  bdJSONDeserializer v8; 
+  const char *v4; 
+  double ElapsedTimeInSeconds; 
+  bdJSONDeserializer v6; 
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode code; 
 
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply", 0x1C6u, "Processing bdLogin Umbrella token refresh task reply");
-  v3 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-  v4 = v3;
-  if ( v3 == 200 )
+  v2 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+  v3 = v2;
+  if ( v2 == 200 )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v8);
-    if ( bdJSONDeserializer::parse(&v8, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v8) )
+    bdJSONDeserializer::bdJSONDeserializer(&v6);
+    if ( bdJSONDeserializer::parse(&v6, this->m_httpResponseBuffer) && bdJSONDeserializer::isObject(&v6) )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply", 0x1D3u, "Setting state to COMPLETED");
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
       this->m_umbrellaStatusCode = DISCONNECTED;
-      v5 = "Got successful Umbrella token refresh reply";
+      v4 = "Got successful Umbrella token refresh reply";
     }
     else
     {
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply", 0x1D8u, "Failed to process Umbrella token refresh response json", 200);
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
       this->m_umbrellaStatusCode = CONNECTED;
-      v5 = "Failed to parse Umbrella token refresh response json";
+      v4 = "Failed to parse Umbrella token refresh response json";
     }
-    bdStrlcpy(this->m_umbrellaStatusMessage, v5, 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v7);
-    bdJSONDeserializer::~bdJSONDeserializer(&v8);
+    bdStrlcpy(this->m_umbrellaStatusMessage, v4, 0x400ui64);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
+    bdJSONDeserializer::~bdJSONDeserializer(&v6);
   }
   else
   {
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply", 0x1DEu, "Umbrella token refresh task failed with HTTP code [%u]", v3);
-    bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v4);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply", 0x1DEu, "Umbrella token refresh task failed with HTTP code [%u]", v2);
+    bdSnprintf(this->m_umbrellaStatusMessage, 0x400ui64, "Umbrella login task failed with HTTP code [%u]", v3);
     code = CONNECTED;
     bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus(this, this->m_umbrellaStatusMessage, &code);
   }
@@ -905,14 +890,14 @@ bdLoginTaskUmbrellaCrossplay::pump
 void bdLoginTaskUmbrellaCrossplay::pump(bdLoginTaskUmbrellaCrossplay *this)
 {
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode m_umbrellaStatusCode; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  bdHTTP *v7; 
+  double ElapsedTimeInSeconds; 
+  bdHTTP *v6; 
   bdLoginConfig *m_loginConfig; 
   const char *Region; 
   const char *ClientID; 
-  __int64 v11; 
-  double v12; 
+  __int64 v10; 
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode code; 
   char buf[40]; 
   char url[512]; 
@@ -920,13 +905,13 @@ void bdLoginTaskUmbrellaCrossplay::pump(bdLoginTaskUmbrellaCrossplay *this)
   m_umbrellaStatusCode = this->m_umbrellaStatusCode;
   if ( m_umbrellaStatusCode )
   {
-    v4 = m_umbrellaStatusCode - 1;
-    if ( v4 )
+    v3 = m_umbrellaStatusCode - 1;
+    if ( v3 )
     {
-      v5 = v4 - 1;
-      if ( v5 )
+      v4 = v3 - 1;
+      if ( v4 )
       {
-        if ( v5 == 1 )
+        if ( v4 == 1 )
         {
           bdLoginTaskUmbrellaCrossplay::processUmbrellaLoginReply(this);
         }
@@ -936,13 +921,8 @@ void bdLoginTaskUmbrellaCrossplay::pump(bdLoginTaskUmbrellaCrossplay *this)
           bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
           this->m_umbrellaStatusCode = CONNECTED;
           bdStrlcpy(this->m_umbrellaStatusMessage, "Pumping Umbrella crossplay login request in an unknown state!", 0x400ui64);
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+288h+var_250], xmm1
-          }
-          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v12);
+          ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
         }
       }
       else if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
@@ -964,9 +944,9 @@ void bdLoginTaskUmbrellaCrossplay::pump(bdLoginTaskUmbrellaCrossplay *this)
   else
   {
     bdStopwatch::start(&this->m_taskTimer);
-    v7 = bdHTTPUtility::newHTTP(0, 0);
+    v6 = bdHTTPUtility::newHTTP(0, 0);
     m_loginConfig = (bdLoginConfig *)this->m_loginConfig;
-    this->m_httpInterface = v7;
+    this->m_httpInterface = v6;
     Region = bdLoginConfig::getRegion(m_loginConfig);
     code = bdLoginResult::getEnvironment(this->m_loginResult);
     bdLoginUtils::getUmbrellaUrl((char (*)[512])url, (const bdEnvironment *)&code, Region);
@@ -976,11 +956,11 @@ void bdLoginTaskUmbrellaCrossplay::pump(bdLoginTaskUmbrellaCrossplay *this)
     bdBase64::encode(this->m_loginResult->m_data, 0x80u, this->m_authTicketB64, 0xADu);
     bdSnprintf(buf, 0x20ui64, "%u", this->m_loginResult->m_IVSeed);
     bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-    v11 = -1i64;
+    v10 = -1i64;
     do
-      ++v11;
-    while ( buf[v11] );
-    bdBase64::encode(buf, v11, this->m_ivSeedB64, 0x20u);
+      ++v10;
+    while ( buf[v10] );
+    bdBase64::encode(buf, v10, this->m_ivSeedB64, 0x20u);
     bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::buildUmbrellaLoginReq", 0x9Fu, "Setting state to READY");
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = NOT_CONNECTED;
@@ -997,26 +977,26 @@ bdLoginTaskUmbrellaCrossplay::pumpRefresh
 void bdLoginTaskUmbrellaCrossplay::pumpRefresh(bdLoginTaskUmbrellaCrossplay *this)
 {
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode m_umbrellaStatusCode; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  bdHTTP *v7; 
+  double ElapsedTimeInSeconds; 
+  bdHTTP *v6; 
   bdLoginConfig *m_loginConfig; 
   const char *Region; 
   const char *ClientID; 
-  double v11; 
   bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode code[4]; 
   char url[512]; 
 
   m_umbrellaStatusCode = this->m_umbrellaStatusCode;
   if ( m_umbrellaStatusCode )
   {
-    v4 = m_umbrellaStatusCode - 1;
-    if ( v4 )
+    v3 = m_umbrellaStatusCode - 1;
+    if ( v3 )
     {
-      v5 = v4 - 1;
-      if ( v5 )
+      v4 = v3 - 1;
+      if ( v4 )
       {
-        if ( v5 == 1 )
+        if ( v4 == 1 )
         {
           bdLoginTaskUmbrellaCrossplay::processUmbrellaRefreshReply(this);
         }
@@ -1026,13 +1006,8 @@ void bdLoginTaskUmbrellaCrossplay::pumpRefresh(bdLoginTaskUmbrellaCrossplay *thi
           bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
           this->m_umbrellaStatusCode = CONNECTED;
           bdStrlcpy(this->m_umbrellaStatusMessage, "Pumping Umbrella crossplay refresh token request in an unknown state!", 0x400ui64);
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+268h+var_230], xmm1
-          }
-          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v11);
+          ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
         }
       }
       else if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
@@ -1055,9 +1030,9 @@ void bdLoginTaskUmbrellaCrossplay::pumpRefresh(bdLoginTaskUmbrellaCrossplay *thi
   {
     bdStopwatch::reset(&this->m_taskTimer);
     bdStopwatch::start(&this->m_taskTimer);
-    v7 = bdHTTPUtility::newHTTP(0, 0);
+    v6 = bdHTTPUtility::newHTTP(0, 0);
     m_loginConfig = (bdLoginConfig *)this->m_loginConfig;
-    this->m_httpInterface = v7;
+    this->m_httpInterface = v6;
     Region = bdLoginConfig::getRegion(m_loginConfig);
     code[0] = bdLoginResult::getEnvironment(this->m_loginResult);
     bdLoginUtils::getUmbrellaUrl((char (*)[512])url, (const bdEnvironment *)code, Region);
@@ -1208,79 +1183,74 @@ bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest
 */
 void bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest(bdLoginTaskUmbrellaCrossplay *this, bdJSONSerializer *requestJSON)
 {
-  __int64 v5; 
-  bdRemoteTask *v6; 
+  __int64 v4; 
+  bdRemoteTask *v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  char v9; 
+  char v8; 
   bdHTTP *m_httpInterface; 
-  unsigned int v11; 
-  bdHTTP *v12; 
+  unsigned int v10; 
+  bdHTTP *v11; 
   bool (__fastcall *setHeader)(bdHTTP *, const char *, const unsigned __int64); 
   unsigned __int64 TransactionID; 
-  bdRemoteTask *v16; 
-  __int64 v17; 
-  unsigned __int64 v18; 
-  unsigned __int64 v20; 
-  double v21; 
-  double v22; 
+  double ElapsedTimeInSeconds; 
+  bdRemoteTask *v15; 
+  __int64 v16; 
+  unsigned __int64 v17; 
+  double v18; 
+  unsigned __int64 v19; 
   bdReference<bdRemoteTask> other; 
-  bdReference<bdRemoteTask> v24; 
+  bdReference<bdRemoteTask> v21; 
 
-  v5 = 0i64;
-  v6 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-  other.m_ptr = v6;
-  if ( v6 )
+  v4 = 0i64;
+  v5 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+  other.m_ptr = v5;
+  if ( v5 )
   {
-    bdRemoteTask::bdRemoteTask(v6);
-    v8 = v7;
+    bdRemoteTask::bdRemoteTask(v5);
+    v7 = v6;
   }
   else
   {
-    v8 = 0i64;
+    v7 = 0i64;
   }
-  other.m_ptr = (bdRemoteTask *)v8;
-  if ( v8 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)(v8 + 8), 1u);
-  *(_DWORD *)(v8 + 28) = 1;
-  *(_QWORD *)(v8 + 72) = bdLoginResult::getTransactionID(this->m_loginResult);
+  other.m_ptr = (bdRemoteTask *)v7;
+  if ( v7 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 1u);
+  *(_DWORD *)(v7 + 28) = 1;
+  *(_QWORD *)(v7 + 72) = bdLoginResult::getTransactionID(this->m_loginResult);
   bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &other);
-  if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v8 + 8), 0xFFFFFFFF) == 1 )
-    (**(void (__fastcall ***)(__int64, __int64))v8)(v8, 1i64);
-  v9 = ((__int64 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url);
+  if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 0xFFFFFFFF) == 1 )
+    (**(void (__fastcall ***)(__int64, __int64))v7)(v7, 1i64);
+  v8 = ((__int64 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url);
   m_httpInterface = this->m_httpInterface;
-  v11 = bdJSONSerializer::length(requestJSON);
-  bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v11);
+  v10 = bdJSONSerializer::length(requestJSON);
+  bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v10);
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x183u, "HTTP Request Params: %s", this->m_httpRequestBuffer);
   bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpResponseBuffer, this->m_responseBufferSize);
-  if ( !v9 || (v12 = this->m_httpInterface, setHeader = v12->setHeader, TransactionID = bdLoginResult::getTransactionID(this->m_loginResult), !setHeader(v12, "X-TransactionID", TransactionID)) || !this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") || !this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
+  if ( !v8 || (v11 = this->m_httpInterface, setHeader = v11->setHeader, TransactionID = bdLoginResult::getTransactionID(this->m_loginResult), !setHeader(v11, "X-TransactionID", TransactionID)) || !this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") || !this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Encountered error while attempting to start request for Umbrella Crossplay token refresh", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+88h+var_50], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v21);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x18Fu, "Encountered error while attempting to start request for Umbrella Crossplay token refresh");
-    v16 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v24.m_ptr = v16;
-    if ( v16 )
+    v15 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v21.m_ptr = v15;
+    if ( v15 )
     {
-      bdRemoteTask::bdRemoteTask(v16);
-      v5 = v17;
+      bdRemoteTask::bdRemoteTask(v15);
+      v4 = v16;
     }
-    v24.m_ptr = (bdRemoteTask *)v5;
-    if ( v5 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v5 + 8), 1u);
-    *(_DWORD *)(v5 + 28) = 3;
-    *(_DWORD *)(v5 + 80) = 5;
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v24);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v5 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v5)(v5, 1i64);
+    v21.m_ptr = (bdRemoteTask *)v4;
+    if ( v4 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v4 + 8), 1u);
+    *(_DWORD *)(v4 + 28) = 3;
+    *(_DWORD *)(v4 + 80) = 5;
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v21);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v4 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v4)(v4, 1i64);
   }
   this->m_httpInterface->sendRequest(this->m_httpInterface);
   if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
@@ -1289,23 +1259,18 @@ void bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest(bdLoginTaskUmbrellaCrossp
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTING;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Sent crossplay token refresh request to Umbrella", 0x400ui64);
-    v18 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x19Bu, "Started call to Umbrella token refresh. TransactionID: (%I64u)", v18);
+    v17 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x19Bu, "Started call to Umbrella token refresh. TransactionID: (%I64u)", v17);
   }
   else
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Got into unexpected state starting the Umbrella Crossplay token refresh request", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+88h+var_50], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v22);
-    v20 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x1A2u, "Got into unexpected state starting the Umbrella Crossplay Login request. TransactionID: (%I64u)", v20);
+    v18 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v18);
+    v19 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest", 0x1A2u, "Got into unexpected state starting the Umbrella Crossplay Login request. TransactionID: (%I64u)", v19);
   }
 }
 
@@ -1336,227 +1301,50 @@ bdLoginTaskUmbrellaCrossplay::startLoginTask
 */
 void bdLoginTaskUmbrellaCrossplay::startLoginTask(bdLoginTaskUmbrellaCrossplay *this)
 {
-  __int64 v3; 
-  bdRemoteTask *v5; 
+  __int64 v2; 
+  double ElapsedTimeInSeconds; 
+  bdRemoteTask *v4; 
+  __int64 v5; 
   __int64 v6; 
-  __int64 v7; 
   const char *ClientID; 
-  bdRemoteTask *v9; 
+  bdRemoteTask *v8; 
+  __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  char v12; 
+  char v11; 
   bdHTTP *m_httpInterface; 
-  unsigned int v14; 
-  bdHTTP *v15; 
+  unsigned int v13; 
+  bdHTTP *v14; 
   bool (__fastcall *setHeader)(bdHTTP *, const char *, const unsigned __int64); 
   unsigned __int64 TransactionID; 
-  bdRemoteTask *v19; 
-  __int64 v20; 
-  unsigned __int64 v22; 
-  bdRemoteTask *v23; 
-  __int64 v24; 
-  double v26; 
-  double v27; 
-  unsigned __int64 v28; 
-  double v29; 
-  __int64 v30; 
-  bdReference<bdRemoteTask> v31; 
-  bdRemoteTask *v32; 
+  double v17; 
+  bdRemoteTask *v18; 
+  __int64 v19; 
+  double v20; 
+  unsigned __int64 v21; 
+  bdRemoteTask *v22; 
+  __int64 v23; 
+  double v24; 
+  unsigned __int64 v25; 
+  bdReference<bdRemoteTask> v26; 
+  bdRemoteTask *v27; 
   bdReference<bdRemoteTask> other; 
-  bdReference<bdRemoteTask> v34; 
-  bdReference<bdRemoteTask> v35; 
-  __int64 v36; 
+  bdReference<bdRemoteTask> v29; 
+  bdReference<bdRemoteTask> v30; 
+  __int64 v31; 
   bdJSONSerializer umbrellaLoginJSON; 
 
-  v36 = -2i64;
-  v3 = 0i64;
+  v31 = -2i64;
+  v2 = 0i64;
   if ( !bdLoginTaskUmbrellaCrossplay::readyForRequest(this) )
   {
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Another Umbrella login request is already in process", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+1D8h+var_1A0], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v26);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x137u, "Another Umbrella login request is already in process");
-    v5 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v31.m_ptr = v5;
-    if ( v5 )
-    {
-      bdRemoteTask::bdRemoteTask(v5);
-      v7 = v6;
-    }
-    else
-    {
-      v7 = 0i64;
-    }
-    other.m_ptr = (bdRemoteTask *)v7;
-    if ( v7 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 1u);
-    *(_DWORD *)(v7 + 28) = 3;
-    *(_DWORD *)(v7 + 80) = 5;
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &other);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v7 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v7)(v7, 1i64);
-  }
-  memset_0(this->m_httpRequestBuffer, 0, this->m_requestBufferSize);
-  memset_0(this->m_httpResponseBuffer, 0, this->m_responseBufferSize);
-  ClientID = bdLoginResult::getClientID(this->m_loginResult);
-  bdStrlcpy(this->m_client, ClientID, 0x40ui64);
-  bdJSONSerializer::bdJSONSerializer(&umbrellaLoginJSON);
-  bdJSONSerializer::setBuffer(&umbrellaLoginJSON, this->m_httpRequestBuffer, this->m_requestBufferSize);
-  if ( bdLoginTaskUmbrellaCrossplay::createUmbrellaLoginJson(this, &umbrellaLoginJSON) )
-  {
-    v9 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v32 = v9;
-    if ( v9 )
-    {
-      bdRemoteTask::bdRemoteTask(v9);
-      v11 = v10;
-    }
-    else
-    {
-      v11 = 0i64;
-    }
-    v34.m_ptr = (bdRemoteTask *)v11;
-    if ( v11 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v11 + 8), 1u);
-    *(_DWORD *)(v11 + 28) = 1;
-    *(_QWORD *)(v11 + 72) = bdLoginResult::getTransactionID(this->m_loginResult);
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v34);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v11 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v11)(v11, 1i64);
-    this->m_outputObject = &this->m_loginResult->m_crossplayAccount;
-    v12 = ((__int64 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url);
-    m_httpInterface = this->m_httpInterface;
-    v14 = bdJSONSerializer::length(&umbrellaLoginJSON);
-    bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v14);
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x150u, "HTTP Request Params: %s", this->m_httpRequestBuffer);
-    bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpResponseBuffer, this->m_responseBufferSize);
-    if ( !v12 || (v15 = this->m_httpInterface, setHeader = v15->setHeader, TransactionID = bdLoginResult::getTransactionID(this->m_loginResult), !setHeader(v15, "X-TransactionID", TransactionID)) || !this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") || !this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
-    {
-      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-      this->m_umbrellaStatusCode = CONNECTED;
-      bdStrlcpy(this->m_umbrellaStatusMessage, "Encountered error while attempting to start request for Umbrella Crossplay Login", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+1D8h+var_1A0], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v27);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x15Cu, "Encountered error while attempting to start request for Umbrella Crossplay Login");
-      v19 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-      v32 = v19;
-      if ( v19 )
-      {
-        bdRemoteTask::bdRemoteTask(v19);
-        v3 = v20;
-      }
-      v35.m_ptr = (bdRemoteTask *)v3;
-      if ( v3 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 1u);
-      *(_DWORD *)(v3 + 28) = 3;
-      *(_DWORD *)(v3 + 80) = 5;
-      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v35);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 0xFFFFFFFF) == 1 )
-        (**(void (__fastcall ***)(__int64, __int64))v3)(v3, 1i64);
-    }
-    this->m_httpInterface->sendRequest(this->m_httpInterface);
-    if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
-    {
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x164u, "Setting state to PENDING");
-      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-      this->m_umbrellaStatusCode = CONNECTING;
-      bdStrlcpy(this->m_umbrellaStatusMessage, "Sent crossplay login request to Umbrella", 0x400ui64);
-      v28 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x168u, "Started call to Umbrella crossplay. TransactionID: (%I64u)", v28);
-    }
-    else
-    {
-      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-      this->m_umbrellaStatusCode = CONNECTED;
-      bdStrlcpy(this->m_umbrellaStatusMessage, "Got into unexpected state starting the Umbrella Crossplay Login request", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+1D8h+var_1A0], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v29);
-      v22 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x16Fu, "Got into unexpected state starting the Umbrella Crossplay Login request. TransactionID: (%I64u)", v22);
-    }
-  }
-  else
-  {
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x174u, "Failed to serialize JSON for Umbrella Crossplay Login request");
-    v23 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    v32 = v23;
-    if ( v23 )
-    {
-      bdRemoteTask::bdRemoteTask(v23);
-      v3 = v24;
-    }
-    v31.m_ptr = (bdRemoteTask *)v3;
-    if ( v3 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 1u);
-    *(_DWORD *)(v3 + 28) = 3;
-    *(_DWORD *)(v3 + 80) = 5;
-    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v31);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v3 + 8), 0xFFFFFFFF) == 1 )
-      (**(void (__fastcall ***)(__int64, __int64))v3)(v3, 1i64);
-    bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-    this->m_umbrellaStatusCode = CONNECTED;
-    bdStrlcpy(this->m_umbrellaStatusMessage, "Failed to serialize JSON for Umbrella Crossplay Login request", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+1D8h+var_1A0], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v30);
-  }
-  bdJSONSerializer::~bdJSONSerializer(&umbrellaLoginJSON);
-}
-
-/*
-==============
-bdLoginTaskUmbrellaCrossplay::startRefreshTask
-==============
-*/
-void bdLoginTaskUmbrellaCrossplay::startRefreshTask(bdLoginTaskUmbrellaCrossplay *this)
-{
-  bdRemoteTask *v4; 
-  __int64 v5; 
-  __int64 v6; 
-  const char *ClientID; 
-  double v9; 
-  double v10; 
-  bdReference<bdRemoteTask> other; 
-  __int64 v12; 
-  bdJSONSerializer requestJSON; 
-
-  v12 = -2i64;
-  if ( !bdLoginTaskUmbrellaCrossplay::readyForRequest(this) )
-  {
-    bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
-    this->m_umbrellaStatusCode = CONNECTED;
-    bdStrlcpy(this->m_umbrellaStatusMessage, "Another Umbrella request is already in process", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+198h+var_160], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v9);
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startRefreshTask", 0x1ABu, "Another Umbrella request is already in process");
     v4 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-    other.m_ptr = v4;
+    v26.m_ptr = v4;
     if ( v4 )
     {
       bdRemoteTask::bdRemoteTask(v4);
@@ -1579,6 +1367,158 @@ void bdLoginTaskUmbrellaCrossplay::startRefreshTask(bdLoginTaskUmbrellaCrossplay
   memset_0(this->m_httpResponseBuffer, 0, this->m_responseBufferSize);
   ClientID = bdLoginResult::getClientID(this->m_loginResult);
   bdStrlcpy(this->m_client, ClientID, 0x40ui64);
+  bdJSONSerializer::bdJSONSerializer(&umbrellaLoginJSON);
+  bdJSONSerializer::setBuffer(&umbrellaLoginJSON, this->m_httpRequestBuffer, this->m_requestBufferSize);
+  if ( bdLoginTaskUmbrellaCrossplay::createUmbrellaLoginJson(this, &umbrellaLoginJSON) )
+  {
+    v8 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v27 = v8;
+    if ( v8 )
+    {
+      bdRemoteTask::bdRemoteTask(v8);
+      v10 = v9;
+    }
+    else
+    {
+      v10 = 0i64;
+    }
+    v29.m_ptr = (bdRemoteTask *)v10;
+    if ( v10 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v10 + 8), 1u);
+    *(_DWORD *)(v10 + 28) = 1;
+    *(_QWORD *)(v10 + 72) = bdLoginResult::getTransactionID(this->m_loginResult);
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v29);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v10 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v10)(v10, 1i64);
+    this->m_outputObject = &this->m_loginResult->m_crossplayAccount;
+    v11 = ((__int64 (__fastcall *)(bdHTTP *, __int64, char *))this->m_httpInterface->initRequest)(this->m_httpInterface, 3i64, this->m_url);
+    m_httpInterface = this->m_httpInterface;
+    v13 = bdJSONSerializer::length(&umbrellaLoginJSON);
+    bdHTTP::setUploadData(m_httpInterface, this->m_httpRequestBuffer, v13);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x150u, "HTTP Request Params: %s", this->m_httpRequestBuffer);
+    bdHTTP::setDownloadBuffer(this->m_httpInterface, this->m_httpResponseBuffer, this->m_responseBufferSize);
+    if ( !v11 || (v14 = this->m_httpInterface, setHeader = v14->setHeader, TransactionID = bdLoginResult::getTransactionID(this->m_loginResult), !setHeader(v14, "X-TransactionID", TransactionID)) || !this->m_httpInterface->setHeader(this->m_httpInterface, "Content-Type", "application/json") || !this->m_httpInterface->setHeader(this->m_httpInterface, "Accept", "application/json") )
+    {
+      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
+      this->m_umbrellaStatusCode = CONNECTED;
+      bdStrlcpy(this->m_umbrellaStatusMessage, "Encountered error while attempting to start request for Umbrella Crossplay Login", 0x400ui64);
+      v17 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v17);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x15Cu, "Encountered error while attempting to start request for Umbrella Crossplay Login");
+      v18 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+      v27 = v18;
+      if ( v18 )
+      {
+        bdRemoteTask::bdRemoteTask(v18);
+        v2 = v19;
+      }
+      v30.m_ptr = (bdRemoteTask *)v2;
+      if ( v2 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 1u);
+      *(_DWORD *)(v2 + 28) = 3;
+      *(_DWORD *)(v2 + 80) = 5;
+      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v30);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 0xFFFFFFFF) == 1 )
+        (**(void (__fastcall ***)(__int64, __int64))v2)(v2, 1i64);
+    }
+    this->m_httpInterface->sendRequest(this->m_httpInterface);
+    if ( this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr) == BD_PENDING )
+    {
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x164u, "Setting state to PENDING");
+      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
+      this->m_umbrellaStatusCode = CONNECTING;
+      bdStrlcpy(this->m_umbrellaStatusMessage, "Sent crossplay login request to Umbrella", 0x400ui64);
+      v25 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x168u, "Started call to Umbrella crossplay. TransactionID: (%I64u)", v25);
+    }
+    else
+    {
+      bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
+      this->m_umbrellaStatusCode = CONNECTED;
+      bdStrlcpy(this->m_umbrellaStatusMessage, "Got into unexpected state starting the Umbrella Crossplay Login request", 0x400ui64);
+      v20 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v20);
+      v21 = bdRemoteTask::getTransactionID(this->m_remoteTask.m_ptr);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x16Fu, "Got into unexpected state starting the Umbrella Crossplay Login request. TransactionID: (%I64u)", v21);
+    }
+  }
+  else
+  {
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startLoginTask", 0x174u, "Failed to serialize JSON for Umbrella Crossplay Login request");
+    v22 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    v27 = v22;
+    if ( v22 )
+    {
+      bdRemoteTask::bdRemoteTask(v22);
+      v2 = v23;
+    }
+    v26.m_ptr = (bdRemoteTask *)v2;
+    if ( v2 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 1u);
+    *(_DWORD *)(v2 + 28) = 3;
+    *(_DWORD *)(v2 + 80) = 5;
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &v26);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v2 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v2)(v2, 1i64);
+    bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
+    this->m_umbrellaStatusCode = CONNECTED;
+    bdStrlcpy(this->m_umbrellaStatusMessage, "Failed to serialize JSON for Umbrella Crossplay Login request", 0x400ui64);
+    v24 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v24);
+  }
+  bdJSONSerializer::~bdJSONSerializer(&umbrellaLoginJSON);
+}
+
+/*
+==============
+bdLoginTaskUmbrellaCrossplay::startRefreshTask
+==============
+*/
+void bdLoginTaskUmbrellaCrossplay::startRefreshTask(bdLoginTaskUmbrellaCrossplay *this)
+{
+  double ElapsedTimeInSeconds; 
+  bdRemoteTask *v3; 
+  __int64 v4; 
+  __int64 v5; 
+  const char *ClientID; 
+  double v7; 
+  bdReference<bdRemoteTask> other; 
+  __int64 v9; 
+  bdJSONSerializer requestJSON; 
+
+  v9 = -2i64;
+  if ( !bdLoginTaskUmbrellaCrossplay::readyForRequest(this) )
+  {
+    bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
+    this->m_umbrellaStatusCode = CONNECTED;
+    bdStrlcpy(this->m_umbrellaStatusMessage, "Another Umbrella request is already in process", 0x400ui64);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::startRefreshTask", 0x1ABu, "Another Umbrella request is already in process");
+    v3 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+    other.m_ptr = v3;
+    if ( v3 )
+    {
+      bdRemoteTask::bdRemoteTask(v3);
+      v5 = v4;
+    }
+    else
+    {
+      v5 = 0i64;
+    }
+    other.m_ptr = (bdRemoteTask *)v5;
+    if ( v5 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)(v5 + 8), 1u);
+    *(_DWORD *)(v5 + 28) = 3;
+    *(_DWORD *)(v5 + 80) = 5;
+    bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, &other);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v5 + 8), 0xFFFFFFFF) == 1 )
+      (**(void (__fastcall ***)(__int64, __int64))v5)(v5, 1i64);
+  }
+  memset_0(this->m_httpRequestBuffer, 0, this->m_requestBufferSize);
+  memset_0(this->m_httpResponseBuffer, 0, this->m_responseBufferSize);
+  ClientID = bdLoginResult::getClientID(this->m_loginResult);
+  bdStrlcpy(this->m_client, ClientID, 0x40ui64);
   bdJSONSerializer::bdJSONSerializer(&requestJSON);
   bdJSONSerializer::setBuffer(&requestJSON, this->m_httpRequestBuffer, this->m_requestBufferSize);
   if ( !bdJSONSerializer::writeBeginObject(&requestJSON) || !bdJSONSerializer::writeString(&requestJSON, "refreshToken", this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_refreshToken) || !bdJSONSerializer::writeEndObject(&requestJSON) )
@@ -1587,13 +1527,8 @@ void bdLoginTaskUmbrellaCrossplay::startRefreshTask(bdLoginTaskUmbrellaCrossplay
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
     this->m_umbrellaStatusCode = CONNECTED;
     bdStrlcpy(this->m_umbrellaStatusMessage, "Failed to build JSON for Umbrella refresh token task", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+198h+var_160], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v10);
+    v7 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&v7);
   }
   this->m_outputObject = &this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_accessInfo;
   bdLoginTaskUmbrellaCrossplay::sendUmbrellaRequest(this, &requestJSON);
@@ -1607,20 +1542,15 @@ bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus
 */
 void bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus(bdLoginTaskUmbrellaCrossplay *this, const char *messageInfo, const bdLoginTaskUmbrellaCrossplay::UmbrellaLoginStatusCode *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x286u, "Must provide valid message to update Umbrella login task status!");
   this->m_umbrellaStatusCode = *code;
   bdStrlcpy(this->m_umbrellaStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 4) <= 2 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskumbrellacrossplay.cpp", "bdLoginTaskUmbrellaCrossplay::updateUmbrellaCrossplayStatus", 0x28Eu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 
@@ -1631,14 +1561,14 @@ bdLoginTaskUmbrellaCrossplay::validateAccessToken
 */
 char bdLoginTaskUmbrellaCrossplay::validateAccessToken(bdLoginTaskUmbrellaCrossplay *this)
 {
-  bdStopwatch v5; 
+  double ElapsedTimeInSeconds; 
+  bdStopwatch v4; 
 
   if ( bdLoginResult::isCrossPlayEnabled(this->m_loginResult) )
   {
-    v5.m_start = this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v5);
-    __asm { vcvttss2si rax, xmm0 }
-    if ( this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds > (unsigned int)(_RAX + 60) )
+    v4.m_start = this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_tokenAgeTimer.m_start;
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&v4);
+    if ( this->m_loginResult->m_crossplayAccount.m_crossplayInfo.m_accessTokenValidilitySeconds > (int)*(float *)&ElapsedTimeInSeconds + 60 )
     {
       return 1;
     }

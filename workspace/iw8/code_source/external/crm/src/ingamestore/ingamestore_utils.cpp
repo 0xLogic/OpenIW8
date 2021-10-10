@@ -1241,21 +1241,7 @@ InGameStore_SetConfig
 */
 void InGameStore_SetConfig(const InGameStoreConfig *const config)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr cs:s_config.languageCode, ymm0
-    vmovups ymm1, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr cs:s_config.objectStorePublisher+8, ymm1
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr cs:s_config.objectStoreClient+8, ymm0
-    vmovups ymm1, ymmword ptr [rcx+60h]
-    vmovups ymmword ptr cs:s_config.objectStoreClient+28h, ymm1
-    vmovups xmm0, xmmword ptr [rcx+80h]
-    vmovups xmmword ptr cs:s_config.objectStoreContext+8, xmm0
-    vmovsd  xmm1, qword ptr [rcx+90h]
-    vmovsd  qword ptr cs:s_config.marketplaceContext+8, xmm1
-  }
+  s_config = *config;
 }
 
 /*
@@ -1312,74 +1298,68 @@ InGameStore_StartAsyncTask
 */
 _BOOL8 InGameStore_StartAsyncTask(const int controllerIndex, const unsigned __int64 co, const InGameStoreTaskID id, winrt::Windows::Foundation::IAsyncInfo asyncInfo)
 {
-  IUnknown_vtbl *v10; 
-  __int64 v11; 
-  int v12; 
-  __int64 v13; 
-  bool v14; 
-  IUnknown_vtbl *v15; 
-  __int64 v17[2]; 
-  __int64 v18; 
-  _DWORD v19[4]; 
-  __int64 v20; 
-  __int64 v21; 
-  void *retaddr; 
+  IUnknown_vtbl *v9; 
+  __int64 v10; 
+  int v11; 
+  __int64 v12; 
+  bool v13; 
+  IUnknown_vtbl *v14; 
+  __int64 v16[2]; 
+  __int64 v17; 
+  _DWORD v18[4]; 
+  __int128 v19; 
 
-  _RAX = &retaddr;
-  v17[1] = -2i64;
-  __asm
+  v16[1] = -2i64;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v19 = _XMM0;
+  v18[0] = id;
+  v18[2] = 2;
+  v9 = asyncInfo.m_ptr->__vftable;
+  v10 = 0i64;
+  v16[0] = 0i64;
+  if ( v9 )
   {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-20h], xmm0
+    v11 = (*(__int64 (__fastcall **)(IUnknown_vtbl *, void *, __int64 *))v9->QueryInterface)(v9, &_uuidof__AUIAsyncInfo_Foundation_Windows__, v16);
+    if ( v11 < 0 )
+      __abi_WinRTraiseException(v11);
+    v10 = v16[0];
   }
-  v19[0] = id;
-  v19[2] = 2;
-  v10 = asyncInfo.m_ptr->__vftable;
-  v11 = 0i64;
-  v17[0] = 0i64;
+  v17 = v10;
   if ( v10 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v10 + 8i64))(v10);
+  if ( v10 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v10 + 16i64))(v10);
+  v17 = v10;
+  v12 = *((_QWORD *)&v19 + 1);
+  if ( v10 != *((_QWORD *)&v19 + 1) )
   {
-    v12 = (*(__int64 (__fastcall **)(IUnknown_vtbl *, void *, __int64 *))v10->QueryInterface)(v10, &_uuidof__AUIAsyncInfo_Foundation_Windows__, v17);
-    if ( v12 < 0 )
-      __abi_WinRTraiseException(v12);
-    v11 = v17[0];
-  }
-  v18 = v11;
-  if ( v11 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 8i64))(v11);
-  if ( v11 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
-  v18 = v11;
-  v13 = v21;
-  if ( v11 != v21 )
-  {
-    if ( v11 )
+    if ( v10 )
     {
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 8i64))(v11);
-      v13 = v21;
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v10 + 8i64))(v10);
+      v12 = *((_QWORD *)&v19 + 1);
     }
-    if ( v13 )
-      (*(void (__fastcall **)(__int64))(*(_QWORD *)v13 + 16i64))(v13);
-    v21 = v11;
+    if ( v12 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v12 + 16i64))(v12);
+    *((_QWORD *)&v19 + 1) = v10;
   }
-  if ( v11 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
-  v14 = s_hooks->TaskStart(s_hooks, controllerIndex, (void *)co, (InGameStoreTask *)v19);
-  if ( v21 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v21 + 16i64))(v21);
-  if ( v20 && _InterlockedExchangeAdd((volatile signed __int32 *)(v20 + 8), 0xFFFFFFFF) == 1 )
+  if ( v10 )
+    (*(void (__fastcall **)(__int64))(*(_QWORD *)v10 + 16i64))(v10);
+  v13 = s_hooks->TaskStart(s_hooks, controllerIndex, (void *)co, (InGameStoreTask *)v18);
+  if ( *((_QWORD *)&v19 + 1) )
+    (*(void (__fastcall **)(_QWORD))(**((_QWORD **)&v19 + 1) + 16i64))(*((_QWORD *)&v19 + 1));
+  if ( (_QWORD)v19 && _InterlockedExchangeAdd((volatile signed __int32 *)(v19 + 8), 0xFFFFFFFF) == 1 )
   {
-    if ( v20 )
-      (**(void (__fastcall ***)(__int64, __int64))v20)(v20, 1i64);
-    v20 = 0i64;
+    if ( (_QWORD)v19 )
+      (**(void (__fastcall ***)(_QWORD, __int64))v19)(v19, 1i64);
+    *(_QWORD *)&v19 = 0i64;
   }
-  v15 = asyncInfo.m_ptr->__vftable;
+  v14 = asyncInfo.m_ptr->__vftable;
   if ( asyncInfo.m_ptr->__vftable )
   {
     asyncInfo.m_ptr->__vftable = NULL;
-    (*((void (__fastcall **)(IUnknown_vtbl *))v15->QueryInterface + 2))(v15);
+    (*((void (__fastcall **)(IUnknown_vtbl *))v14->QueryInterface + 2))(v14);
   }
-  return v14;
+  return v13;
 }
 
 /*
@@ -1389,36 +1369,30 @@ InGameStore_StartRemoteTask
 */
 __int64 InGameStore_StartRemoteTask(const int controllerIndex, const unsigned __int64 co, const InGameStoreTaskID id, bdReference<bdRemoteTask> remoteTask)
 {
-  bdRemoteTask_vtbl *v9; 
-  unsigned __int8 v10; 
-  _DWORD v12[4]; 
-  bdRemoteTask_vtbl *v13; 
-  __int64 v14; 
-  void *retaddr; 
+  bdRemoteTask_vtbl *v8; 
+  unsigned __int8 v9; 
+  _DWORD v11[4]; 
+  __int128 v12; 
 
-  _RAX = &retaddr;
-  __asm
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v12 = _XMM0;
+  v11[0] = id;
+  v11[2] = 1;
+  if ( (__int128 *)remoteTask.m_ptr != &v12 )
   {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-20h], xmm0
+    v8 = remoteTask.m_ptr->__vftable;
+    *(_QWORD *)&v12 = v8;
+    if ( v8 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v8->getStatus, 1u);
   }
-  v12[0] = id;
-  v12[2] = 1;
-  if ( (bdRemoteTask_vtbl **)remoteTask.m_ptr != &v13 )
+  v9 = ((__int64 (__fastcall *)(InGameStoreHooks *, _QWORD, const unsigned __int64, _DWORD *, __int64))s_hooks->TaskStart)(s_hooks, (unsigned int)controllerIndex, co, v11, -2i64);
+  if ( *((_QWORD *)&v12 + 1) )
+    (*(void (__fastcall **)(_QWORD))(**((_QWORD **)&v12 + 1) + 16i64))(*((_QWORD *)&v12 + 1));
+  if ( (_QWORD)v12 && _InterlockedExchangeAdd((volatile signed __int32 *)(v12 + 8), 0xFFFFFFFF) == 1 )
   {
-    v9 = remoteTask.m_ptr->__vftable;
-    v13 = v9;
-    if ( v9 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v9->getStatus, 1u);
-  }
-  v10 = ((__int64 (__fastcall *)(InGameStoreHooks *, _QWORD, const unsigned __int64, _DWORD *, __int64))s_hooks->TaskStart)(s_hooks, (unsigned int)controllerIndex, co, v12, -2i64);
-  if ( v14 )
-    (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
-  if ( v13 && _InterlockedExchangeAdd((volatile signed __int32 *)&v13->getStatus, 0xFFFFFFFF) == 1 )
-  {
-    if ( v13 )
-      (*(void (__fastcall **)(bdRemoteTask_vtbl *, __int64))v13->~bdReferencable)(v13, 1i64);
-    v13 = NULL;
+    if ( (_QWORD)v12 )
+      (**(void (__fastcall ***)(_QWORD, __int64))v12)(v12, 1i64);
+    *(_QWORD *)&v12 = 0i64;
   }
   if ( remoteTask.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&remoteTask.m_ptr->getStatus, 0xFFFFFFFF) == 1 )
   {
@@ -1426,7 +1400,7 @@ __int64 InGameStore_StartRemoteTask(const int controllerIndex, const unsigned __
       (*(void (__fastcall **)(bdRemoteTask_vtbl *, __int64))remoteTask.m_ptr->~bdReferencable)(remoteTask.m_ptr->__vftable, 1i64);
     remoteTask.m_ptr->__vftable = NULL;
   }
-  return v10;
+  return v9;
 }
 
 /*

@@ -66,11 +66,6 @@ void HavokPhysicsDebugDrawViewer::HavokPhysicsDebugDrawViewer(HavokPhysicsDebugD
   m_size = contexts->m_size;
   contextsa.m_begin = contexts->m_data;
   contextsa.m_end = &contextsa.m_begin[m_size];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+38h+contexts.m_begin]
-    vmovdqa xmmword ptr [rsp+38h+contexts.m_begin], xmm0
-  }
   hknpViewer::hknpViewer(this, &contextsa);
   this->hknpViewer::hkReferencedObject::hkBaseObject::__vftable = (HavokPhysicsDebugDrawViewer_vtbl *)&HavokPhysicsDebugDrawViewer::`vftable'{for `hkReferencedObject'};
   this->hknpViewer::hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsDebugDrawViewer::`vftable'{for `hkProcess'};
@@ -112,11 +107,6 @@ hkProcess *HavokPhysicsDebugDrawViewer::create(const hkArray<hkProcessContext *,
     m_size = contexts->m_size;
     contextsa.m_begin = contexts->m_data;
     contextsa.m_end = &contextsa.m_begin[m_size];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+contexts.m_begin]
-      vmovdqa xmmword ptr [rsp+48h+contexts.m_begin], xmm0
-    }
     hknpViewer::hknpViewer(v3, &contextsa);
     v4->hkReferencedObject::hkBaseObject::__vftable = (hknpViewer_vtbl *)&HavokPhysicsDebugDrawViewer::`vftable'{for `hkReferencedObject'};
     v4->hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsDebugDrawViewer::`vftable'{for `hkProcess'};

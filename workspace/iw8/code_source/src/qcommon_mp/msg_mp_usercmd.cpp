@@ -841,13 +841,7 @@ MSG_PrintField<float>::Print
 */
 void MSG_PrintField<float>::Print(const char *name, const void *const field)
 {
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovq   r9, xmm3
-  }
-  Com_Printf(16, "[%s]::%f\n", name, *(double *)&_XMM3);
+  Com_Printf(16, "[%s]::%f\n", name, *(float *)field);
 }
 
 /*
@@ -1016,27 +1010,11 @@ MSG_CmdField<float,32>::WriteDeltaBitsKey
 */
 char MSG_CmdField<float,32>::WriteDeltaBitsKey(msg_t *const msg, int *const key, const void *const from, const void *const to)
 {
-  bool v8; 
-  bool v9; 
-
-  _RDI = to;
-  _RSI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 290, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
-  v8 = msg->readOnly == 0;
-  if ( msg->readOnly )
-  {
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 291, ASSERT_TYPE_ASSERT, "(!msg->readOnly)", (const char *)&queryFormat, "!msg->readOnly");
-    v8 = !v9;
-    if ( v9 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vucomiss xmm0, dword ptr [rsi]
-  }
-  if ( v8 )
+  if ( msg->readOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 291, ASSERT_TYPE_ASSERT, "(!msg->readOnly)", (const char *)&queryFormat, "!msg->readOnly") )
+    __debugbreak();
+  if ( *(float *)to == *(float *)from )
   {
     MSG_WriteBit0(msg);
     return 0;
@@ -1044,7 +1022,7 @@ char MSG_CmdField<float,32>::WriteDeltaBitsKey(msg_t *const msg, int *const key,
   else
   {
     MSG_WriteBit1(msg);
-    MSG_WriteLong(msg, *_RDI ^ *key);
+    MSG_WriteLong(msg, *(_DWORD *)to ^ *key);
     return 1;
   }
 }
@@ -1077,14 +1055,7 @@ MSG_CmdField<float,32>::Compare
 */
 bool MSG_CmdField<float,32>::Compare(const void *const from, const void *const to)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vucomiss xmm0, dword ptr [rcx]
-  }
-  return v2 != 0;
+  return *(float *)to == *(float *)from;
 }
 
 /*
@@ -1118,25 +1089,18 @@ MSG_CmdField<UserCmdClientBits,-6>::ReadDeltaBitsKey
 */
 char MSG_CmdField<UserCmdClientBits,-6>::ReadDeltaBitsKey(msg_t *const msg, int *const key, const void *const from, void *const to)
 {
-  _RBX = to;
-  _RDI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 557, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
   if ( MSG_ReadBit(msg) )
   {
-    MSG_ReadDeltaClientBitsKey(msg, key, _RDI, _RBX);
+    MSG_ReadDeltaClientBitsKey(msg, key, from, to);
     return 1;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rdi+10h]
-      vmovsd  qword ptr [rbx+10h], xmm1
-    }
-    _RBX[6] = _RDI[6];
+    *(_OWORD *)to = *(_OWORD *)from;
+    *((double *)to + 2) = *((double *)from + 2);
+    *((_DWORD *)to + 6) = *((_DWORD *)from + 6);
     return 0;
   }
 }
@@ -1249,45 +1213,35 @@ MSG_CmdField<Weapon,-4>::ReadDeltaBitsKey
 */
 bool MSG_CmdField<Weapon,-4>::ReadDeltaBitsKey(msg_t *const msg, int *const key, const void *const from, void *const to)
 {
+  Weapon *v7; 
+  __m256i v8; 
+  __int128 v9; 
+  double v10; 
   int v11; 
   bool v12; 
   Weapon result; 
 
-  _RBX = to;
-  _RDI = from;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 685, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
   if ( MSG_ReadBit(msg) )
   {
-    _RAX = MSG_ReadWeapon(&result, msg);
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v11 = *(_DWORD *)&_RAX->weaponCamo;
+    v7 = MSG_ReadWeapon(&result, msg);
+    v8 = *(__m256i *)&v7->weaponIdx;
+    v9 = *(_OWORD *)&v7->attachmentVariationIndices[5];
+    v10 = *(double *)&v7->attachmentVariationIndices[21];
+    v11 = *(_DWORD *)&v7->weaponCamo;
     v12 = 1;
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm1
-      vmovups xmmword ptr [rbx+20h], xmm2
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    _RBX[14] = v11;
+    *(__m256i *)to = v8;
+    *((_OWORD *)to + 2) = v9;
+    *((double *)to + 6) = v10;
+    *((_DWORD *)to + 14) = v11;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    _RBX[14] = _RDI[14];
+    *(__m256i *)to = *(__m256i *)from;
+    *((_OWORD *)to + 2) = *((_OWORD *)from + 2);
+    *((double *)to + 6) = *((double *)from + 6);
+    *((_DWORD *)to + 14) = *((_DWORD *)from + 14);
     return 0;
   }
   return v12;
@@ -2452,76 +2406,69 @@ MSG_UserCmd_ReadCommandFields
 */
 bool MSG_UserCmd_ReadCommandFields(msg_t *const msg, int key, const usercmd_s *const from, usercmd_s *const to)
 {
+  usercmd_s *v7; 
+  const usercmd_s *v8; 
   __int64 v9; 
+  __int128 v10; 
   int Byte; 
-  __int64 v19; 
+  __int64 v12; 
   int overflowed; 
-  unsigned int *v21; 
+  unsigned int *v14; 
   bool (__fastcall **p_read)(msg_t *const, int *const, const void *const, void *const); 
-  int v24; 
+  int v17; 
 
-  v24 = key;
+  v17 = key;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1100, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1101, ASSERT_TYPE_ASSERT, "(from != nullptr)", (const char *)&queryFormat, "from != nullptr") )
     __debugbreak();
   if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1102, ASSERT_TYPE_ASSERT, "(to != nullptr)", (const char *)&queryFormat, "to != nullptr") )
     __debugbreak();
-  _RCX = to;
-  _RAX = from;
+  v7 = to;
+  v8 = from;
   v9 = 2i64;
   do
   {
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (const usercmd_s *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rcx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rcx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rcx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rcx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rcx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rcx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v7 = (usercmd_s *)((char *)v7 + 128);
+    v10 = *(_OWORD *)&v8->buttons;
+    v8 = (const usercmd_s *)((char *)v8 + 128);
+    *(_OWORD *)&v7[-1].offHand.attachmentVariationIndices[13] = v10;
+    *(_OWORD *)&v7[-1].offHand.weaponCamo = *(_OWORD *)&v8[-1].offHand.weaponCamo;
+    *(_OWORD *)v7[-1].remoteControlMove = *(_OWORD *)v8[-1].remoteControlMove;
+    *(_OWORD *)v7[-1].vehAngles = *(_OWORD *)v8[-1].vehAngles;
+    *(_OWORD *)&v7[-1].vehOrgZ = *(_OWORD *)&v8[-1].vehOrgZ;
+    *(_OWORD *)&v7[-1].gunYOfs = *(_OWORD *)&v8[-1].gunYOfs;
+    *(_OWORD *)v7[-1].sightedClientsMask.data = *(_OWORD *)v8[-1].sightedClientsMask.data;
+    *(_OWORD *)&v7[-1].sightedClientsMask.data[4] = *(_OWORD *)&v8[-1].sightedClientsMask.data[4];
     --v9;
   }
   while ( v9 );
-  _RCX->buttons = _RAX->buttons;
+  v7->buttons = v8->buttons;
   Byte = MSG_ReadByte(msg);
-  LOBYTE(v19) = truncate_cast<unsigned char,int>(Byte);
-  if ( (unsigned __int8)v19 > 0x32u || msg->overflowed )
+  LOBYTE(v12) = truncate_cast<unsigned char,int>(Byte);
+  if ( (unsigned __int8)v12 > 0x32u || msg->overflowed )
   {
     MSG_Discard(msg);
-    Com_PrintError(16, "MSG_UserCmd_ReadCommandFields : lastChangedField is too large (%u) or message overflowed\n", (unsigned __int8)v19);
+    Com_PrintError(16, "MSG_UserCmd_ReadCommandFields : lastChangedField is too large (%u) or message overflowed\n", (unsigned __int8)v12);
     return 0;
   }
   else
   {
     overflowed = 0;
-    if ( (_BYTE)v19 )
+    if ( (_BYTE)v12 )
     {
-      v21 = s_networkUsercmdFieldsReadCount;
+      v14 = s_networkUsercmdFieldsReadCount;
       p_read = &USERCMD_FIELDS[0].read;
-      v19 = (unsigned __int8)v19;
+      v12 = (unsigned __int8)v12;
       do
       {
-        if ( (*p_read)(msg, &v24, (char *)from + *((int *)p_read - 2), (char *)to + *((int *)p_read - 2)) && s_networkUsercmdReadEnabled )
-          ++*v21;
+        if ( (*p_read)(msg, &v17, (char *)from + *((int *)p_read - 2), (char *)to + *((int *)p_read - 2)) && s_networkUsercmdReadEnabled )
+          ++*v14;
         p_read += 7;
-        ++v21;
-        --v19;
+        ++v14;
+        --v12;
       }
-      while ( v19 );
+      while ( v12 );
       overflowed = msg->overflowed;
     }
     return overflowed == 0;
@@ -2536,59 +2483,51 @@ MSG_UserCmd_ReadPredictedFields
 bool MSG_UserCmd_ReadPredictedFields(msg_t *const msg, int key, const CmdPredict *const from, CmdPredict *const to)
 {
   int Byte; 
-  unsigned __int8 v11; 
-  unsigned __int8 v12; 
+  unsigned __int8 v8; 
+  unsigned __int8 v9; 
   int overflowed; 
-  unsigned int *v14; 
+  unsigned int *v11; 
   bool (__fastcall **p_read)(msg_t *const, int *const, const void *const, void *const); 
-  __int64 v16; 
-  int v18; 
+  __int64 v13; 
+  int v15; 
 
-  v18 = key;
-  _RBP = to;
-  _R15 = from;
+  v15 = key;
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1188, ASSERT_TYPE_ASSERT, "(msg != nullptr)", (const char *)&queryFormat, "msg != nullptr") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1189, ASSERT_TYPE_ASSERT, "(from != nullptr)", (const char *)&queryFormat, "from != nullptr") )
+  if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1189, ASSERT_TYPE_ASSERT, "(from != nullptr)", (const char *)&queryFormat, "from != nullptr") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1190, ASSERT_TYPE_ASSERT, "(to != nullptr)", (const char *)&queryFormat, "to != nullptr") )
+  if ( !to && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon_mp\\msg_mp_usercmd.cpp", 1190, ASSERT_TYPE_ASSERT, "(to != nullptr)", (const char *)&queryFormat, "to != nullptr") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [rbp+0], ymm0
-    vmovups xmm1, xmmword ptr [r15+20h]
-    vmovups xmmword ptr [rbp+20h], xmm1
-    vmovsd  xmm0, qword ptr [r15+30h]
-    vmovsd  qword ptr [rbp+30h], xmm0
-  }
-  _RBP->vehOrigin.v[2] = _R15->vehOrigin.v[2];
+  *(__m256i *)to->origin.v = *(__m256i *)from->origin.v;
+  *(_OWORD *)to->extrapData.packedBobCycle = *(_OWORD *)from->extrapData.packedBobCycle;
+  *(double *)to->vehOrigin.v = *(double *)from->vehOrigin.v;
+  to->vehOrigin.v[2] = from->vehOrigin.v[2];
   Byte = MSG_ReadByte(msg);
-  v11 = truncate_cast<unsigned char,int>(Byte);
-  v12 = v11;
-  if ( v11 > 0xFu || msg->overflowed )
+  v8 = truncate_cast<unsigned char,int>(Byte);
+  v9 = v8;
+  if ( v8 > 0xFu || msg->overflowed )
   {
     MSG_Discard(msg);
-    Com_PrintError(16, "MSG_UserCmd_ReadPredictedFields : lastChangedField is too large (%u) or message overflowed\n", v12);
+    Com_PrintError(16, "MSG_UserCmd_ReadPredictedFields : lastChangedField is too large (%u) or message overflowed\n", v9);
     return 0;
   }
   else
   {
     overflowed = 0;
-    if ( v11 )
+    if ( v8 )
     {
-      v14 = s_networkPredictFieldsReadCount;
+      v11 = s_networkPredictFieldsReadCount;
       p_read = &PREDICT_FIELDS[0].read;
-      v16 = v11;
+      v13 = v8;
       do
       {
-        if ( (*p_read)(msg, &v18, (char *)_R15 + *((int *)p_read - 2), (char *)_RBP + *((int *)p_read - 2)) && s_networkUsercmdReadEnabled )
-          ++*v14;
+        if ( (*p_read)(msg, &v15, (char *)from + *((int *)p_read - 2), (char *)to + *((int *)p_read - 2)) && s_networkUsercmdReadEnabled )
+          ++*v11;
         p_read += 7;
-        ++v14;
-        --v16;
+        ++v11;
+        --v13;
       }
-      while ( v16 );
+      while ( v13 );
       overflowed = msg->overflowed;
     }
     return overflowed == 0;

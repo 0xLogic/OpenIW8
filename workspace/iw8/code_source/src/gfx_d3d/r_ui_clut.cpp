@@ -112,107 +112,80 @@ RB_UiClut_Update
 */
 void RB_UiClut_Update(const GfxCmdBufContext *gfxContext)
 {
-  char v6; 
-  unsigned int v7; 
-  const dvar_t *v14; 
+  char v1; 
+  unsigned int v2; 
+  __m256i v3; 
+  double DisplayHdrUiMaxLuminance; 
+  const dvar_t *v6; 
   unsigned int flags; 
-  char v18; 
+  char v9; 
+  double v12; 
   unsigned int clutCount; 
   unsigned int i; 
   const GfxTexture *Resident; 
-  unsigned int v32; 
+  unsigned int v16; 
   unsigned int j; 
-  GfxTexture *v34; 
+  GfxTexture *v18; 
   GfxUiClutVariation variation; 
+  float minLumScale; 
+  float minLumOffset; 
   unsigned int k; 
-  const GfxTexture *v41; 
+  const GfxTexture *v23; 
   GfxTexture *textures; 
   GfxDisplayMappingParams result; 
   _BYTE data[24]; 
+  float v27; 
   ComputeCmdBufState state; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _ER12 = 0;
   textures = (GfxTexture *)gfxContext;
-  v6 = 0;
-  v7 = 0;
+  v1 = 0;
+  v2 = 0;
   if ( s_uiClut.clutCount )
   {
-    _R15 = &s_uiClut;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vxorps  xmm8, xmm8, xmm8
-    }
     do
     {
       *(_QWORD *)&data[12] = 0i64;
       *(_DWORD *)&data[20] = 0;
-      *(_DWORD *)data = v7;
+      *(_DWORD *)data = v2;
       *(_DWORD *)&data[4] = R_GetDisplayColorimetry();
-      _RAX = R_GetDisplayMappingParams(&result);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax]
-        vshufps xmm6, xmm0, xmm0, 55h ; 'U'
-      }
-      *(double *)&_XMM0 = R_GetDisplayHdrUiMaxLuminance();
-      v14 = DCONST_DVARBOOL_r_useBrightnessForUI;
-      __asm { vmovss  dword ptr [rsp+78h], xmm0 }
+      v3 = (__m256i)*(unsigned __int64 *)&R_GetDisplayMappingParams(&result)->gamma;
+      _XMM6 = _mm_shuffle_ps(*(__m128 *)v3.m256i_i8, *(__m128 *)v3.m256i_i8, 85);
+      DisplayHdrUiMaxLuminance = R_GetDisplayHdrUiMaxLuminance();
+      v6 = DCONST_DVARBOOL_r_useBrightnessForUI;
+      *(float *)&data[8] = *(float *)&DisplayHdrUiMaxLuminance;
       if ( !DCONST_DVARBOOL_r_useBrightnessForUI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_useBrightnessForUI") )
         __debugbreak();
       if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
       {
-        flags = v14->flags;
-        if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v14->name) )
+        flags = v6->flags;
+        if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v6->name) )
           __debugbreak();
       }
-      _EAX = v14->current.color[0];
-      __asm { vmovd   xmm0, eax }
-      v18 = 0;
+      _XMM0 = v6->current.color[0];
+      v9 = 0;
       __asm
       {
-        vmovd   xmm1, r12d
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm1, xmm6, xmm8, xmm2
       }
-      _RCX = 3i64 * v7;
       if ( r_uiClutForceUpdate->current.enabled )
-        v18 = 1;
-      __asm { vsubss  xmm0, xmm7, xmm1 }
-      data[20] = v18;
-      __asm
+        v9 = 1;
+      data[20] = v9;
+      *(float *)&data[12] = 1.0 - *(float *)&_XMM1;
+      *(float *)&data[16] = *(float *)&_XMM1;
+      if ( s_uiClut.parameters[v2].forceUpdate || v9 == 1 || *(_QWORD *)&s_uiClut.parameters[v2].variation != *(_QWORD *)data || *(_QWORD *)&s_uiClut.parameters[v2].hdrUiMaxLuminance != *(_QWORD *)&data[8] || *(_QWORD *)&s_uiClut.parameters[v2].minLumOffset != *(_QWORD *)&data[16] )
       {
-        vmovss  dword ptr [rsp+7Ch], xmm0
-        vmovss  dword ptr [rbp+9E0h+var_A60], xmm1
+        v12 = *(double *)&data[16];
+        *(_OWORD *)&s_uiClut.parameters[v2].variation = *(_OWORD *)data;
+        *(double *)&s_uiClut.parameters[v2].minLumOffset = v12;
+        v1 = 1;
+        s_uiClut.requiresUpdate[v2] = 1;
+        s_uiClut.parameters[v2].forceUpdate = 0;
       }
-      if ( s_uiClut.parameters[v7].forceUpdate || v18 == 1 || *(_QWORD *)&s_uiClut.parameters[v7].variation != *(_QWORD *)data || *(_QWORD *)&s_uiClut.parameters[v7].hdrUiMaxLuminance != *(_QWORD *)&data[8] || *(_QWORD *)&s_uiClut.parameters[v7].minLumOffset != *(_QWORD *)&data[16] )
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+0AE0h+data]
-          vmovsd  xmm1, [rbp+9E0h+var_A60]
-          vmovups xmmword ptr [r15+rcx*8+18h], xmm0
-          vmovsd  qword ptr [r15+rcx*8+28h], xmm1
-        }
-        v6 = 1;
-        s_uiClut.requiresUpdate[v7] = 1;
-        s_uiClut.parameters[v7].forceUpdate = 0;
-      }
-      ++v7;
+      ++v2;
     }
-    while ( v7 < s_uiClut.clutCount );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0AE0h+var_58+8]
-      vmovaps xmm7, [rsp+0AE0h+var_48+8]
-      vmovaps xmm6, xmmword ptr [rsp+0AE0h+var_38+8]
-    }
-    if ( v6 )
+    while ( v2 < s_uiClut.clutCount );
+    if ( v1 )
     {
       R_LockGfxImmediateContext();
       R_InitGfxComputeCmdBufState(&state, (const GfxCmdBufState *)textures->shaderView.resource);
@@ -229,44 +202,36 @@ void RB_UiClut_Update(const GfxCmdBufContext *gfxContext)
         }
       }
       R_HW_FlushResourceTransitions(&state);
-      v32 = s_uiClut.clutCount;
-      for ( j = 0; j < v32; ++j )
+      v16 = s_uiClut.clutCount;
+      for ( j = 0; j < v16; ++j )
       {
         if ( s_uiClut.requiresUpdate[j] )
         {
-          v34 = (GfxTexture *)R_Texture_GetResident(s_uiClut.clutImage[j]->textureId);
-          _RDI = 3i64 * j;
+          v18 = (GfxTexture *)R_Texture_GetResident(s_uiClut.clutImage[j]->textureId);
           R_SetComputeShader(&state, rgp.uiClutGenerateShader);
-          textures = v34;
+          textures = v18;
           R_SetComputeRWTextures(&state, 0, 1, (const GfxTexture *const *)&textures);
-          __asm { vmovss  xmm0, dword ptr [r15+rdi*8+20h] }
           variation = s_uiClut.parameters[j].variation;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r15+rdi*8+24h]
-            vmovss  dword ptr [rbp+9E0h+var_A60], xmm0
-            vmovss  xmm0, dword ptr [r15+rdi*8+28h]
-          }
+          minLumScale = s_uiClut.parameters[j].minLumScale;
+          *(float *)&data[16] = s_uiClut.parameters[j].hdrUiMaxLuminance;
+          minLumOffset = s_uiClut.parameters[j].minLumOffset;
           *(_DWORD *)data = variation;
           *(_DWORD *)&data[4] = s_uiClut.parameters[j].colorimetry;
-          __asm
-          {
-            vmovss  [rbp+9E0h+var_A58], xmm0
-            vmovss  dword ptr [rbp+9E0h+var_A60+4], xmm1
-          }
+          v27 = minLumOffset;
+          *(float *)&data[20] = minLumScale;
           R_UploadAndSetComputeConstants(&state, 0, data, 0x20u, NULL);
           R_Dispatch(&state, 4u, 4u, 0x20u);
-          v32 = s_uiClut.clutCount;
+          v16 = s_uiClut.clutCount;
         }
       }
-      for ( k = 0; k < v32; ++k )
+      for ( k = 0; k < v16; ++k )
       {
         if ( s_uiClut.requiresUpdate[k] )
         {
-          v41 = R_Texture_GetResident(s_uiClut.clutImage[k]->textureId);
-          R_HW_AddResourceTransition(&state, v41, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          v23 = R_Texture_GetResident(s_uiClut.clutImage[k]->textureId);
+          R_HW_AddResourceTransition(&state, v23, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
           s_uiClut.requiresUpdate[k] = 0;
-          v32 = s_uiClut.clutCount;
+          v16 = s_uiClut.clutCount;
         }
       }
       R_HW_FlushResourceTransitions(&state);
@@ -291,9 +256,9 @@ void __fastcall R_UiClut_Initialize(double _XMM0_8)
   unsigned int i; 
   R_ImageProgID v5; 
   GfxImage *v6; 
-  __int64 v9; 
-  __m256i v10; 
-  __m256i v11; 
+  __int64 v7; 
+  __m256i v8; 
+  __m256i v9; 
   Image_SetupParams params; 
 
   s_uiClut.clutCount = 2;
@@ -305,7 +270,7 @@ void __fastcall R_UiClut_Initialize(double _XMM0_8)
   }
   while ( v1 < s_uiClut.clutCount );
   v3 = g_R_RT_renderTargetFmts[1];
-  for ( i = 0; i < s_uiClut.clutCount; s_uiClut.clutImage[v9] = v6 )
+  for ( i = 0; i < s_uiClut.clutCount; s_uiClut.clutImage[v7] = v6 )
   {
     if ( i )
     {
@@ -322,27 +287,19 @@ LABEL_9:
     v6 = Image_AllocProg(v5, IMG_CATEGORY_RAW, TS_FUNCTION);
     if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_ui_clut.cpp", 77, ASSERT_TYPE_SANITY, "( clutImage )", (const char *)&queryFormat, "clutImage") )
       __debugbreak();
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0D8h+var_88+8], xmm0
-    }
-    *(__int64 *)((char *)&v10.m256i_i64[1] + 4) = 1i64;
-    v11.m256i_i64[0] = 0i64;
-    v11.m256i_i32[6] = -1;
-    __asm { vmovups ymm1, [rsp+0D8h+var_88] }
-    v10.m256i_i64[0] = 0x2000000020i64;
-    v10.m256i_i32[2] = 32;
-    v10.m256i_i32[5] = 8454146;
-    v10.m256i_i32[6] = v3;
-    __asm
-    {
-      vmovups ymm0, [rsp+0D8h+var_A8]
-      vmovups ymmword ptr [rsp+0D8h+params.width], ymm0
-      vmovups ymmword ptr [rsp+0D8h+params.customAllocFunc], ymm1
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v9.m256i_u64[1] = *(_OWORD *)&_XMM0_8;
+    *(__int64 *)((char *)&v8.m256i_i64[1] + 4) = 1i64;
+    v9.m256i_i64[0] = 0i64;
+    v9.m256i_i32[6] = -1;
+    v8.m256i_i64[0] = 0x2000000020i64;
+    v8.m256i_i32[2] = 32;
+    v8.m256i_i32[5] = 8454146;
+    v8.m256i_i32[6] = v3;
+    *(__m256i *)&params.width = v8;
+    *(__m256i *)&params.customAllocFunc = v9;
     Image_Setup(v6, &params);
-    v9 = i++;
+    v7 = i++;
   }
 }
 

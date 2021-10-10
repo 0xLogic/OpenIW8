@@ -214,56 +214,48 @@ CL_UICharacter_ClearCharacterAnimQueue
 */
 void CL_UICharacter_ClearCharacterAnimQueue(const LocalClientNum_t localClientNum, const unsigned int clientIndex)
 {
+  __int64 v2; 
   __int64 v3; 
   __int64 v4; 
-  __int64 v5; 
   unsigned int animQueueEnd; 
   __int64 blendTime; 
-  float blendTimeb; 
   __int64 startTime; 
   int startTimea; 
-  float startTimeb; 
 
-  v3 = localClientNum;
-  v4 = clientIndex;
+  v2 = localClientNum;
+  v3 = clientIndex;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
     startTimea = 2;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 221, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, startTimea) )
       __debugbreak();
   }
-  if ( (unsigned int)v4 >= 0x14 )
+  if ( (unsigned int)v3 >= 0x14 )
   {
     LODWORD(startTime) = 20;
-    LODWORD(blendTime) = v4;
+    LODWORD(blendTime) = v3;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 222, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", blendTime, startTime) )
       __debugbreak();
   }
-  v5 = v4 + 20 * v3;
-  animQueueEnd = s_clientCharacterState[0][v5].animState.animQueueEnd;
-  s_clientCharacterState[0][v5].animState.animQueueStart = animQueueEnd;
-  s_clientCharacterState[0][v5].animState.animQueueEnd = animQueueEnd + 1;
-  if ( (unsigned int)v3 >= 2 )
+  v4 = v3 + 20 * v2;
+  animQueueEnd = s_clientCharacterState[0][v4].animState.animQueueEnd;
+  s_clientCharacterState[0][v4].animState.animQueueStart = animQueueEnd;
+  s_clientCharacterState[0][v4].animState.animQueueEnd = animQueueEnd + 1;
+  if ( (unsigned int)v2 >= 2 )
   {
     LODWORD(startTime) = 2;
-    LODWORD(blendTime) = v3;
+    LODWORD(blendTime) = v2;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", blendTime, startTime) )
       __debugbreak();
   }
-  if ( (unsigned int)v4 >= 0x14 )
+  if ( (unsigned int)v3 >= 0x14 )
   {
     LODWORD(startTime) = 20;
-    LODWORD(blendTime) = v4;
+    LODWORD(blendTime) = v3;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 255, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", blendTime, startTime) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+58h+startTime], xmm0
-    vmovss  [rsp+58h+blendTime], xmm0
-  }
-  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v3, v4, s_clientCharacterState[0][v5].animState.animQueueStart, &s_clientCharacterState[0][0].animState.animQueue[s_clientCharacterState[0][v5].animState.currentQueueIndex & 7].animName[v5 * 4856], NULL, blendTimeb, startTimeb);
+  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v2, v3, s_clientCharacterState[0][v4].animState.animQueueStart, &s_clientCharacterState[0][0].animState.animQueue[s_clientCharacterState[0][v4].animState.currentQueueIndex & 7].animName[v4 * 4856], NULL, 0.0, 0.0);
 }
 
 /*
@@ -404,49 +396,37 @@ UICharacterState *CL_UICharacter_GetState(const LocalClientNum_t localClientNum,
 CL_UICharacter_PlayCharacterAnim
 ==============
 */
-
-void __fastcall CL_UICharacter_PlayCharacterAnim(const LocalClientNum_t localClientNum, const unsigned int clientIndex, const char *animName, double blendTime, const float startTime)
+void CL_UICharacter_PlayCharacterAnim(const LocalClientNum_t localClientNum, const unsigned int clientIndex, const char *animName, const float blendTime, const float startTime)
 {
+  __int64 v6; 
   __int64 v7; 
   __int64 v8; 
-  __int64 v11; 
   unsigned int animQueueEnd; 
   __int64 blendTimea; 
-  float blendTimeb; 
-  __int64 v16; 
-  float v17; 
+  __int64 v11; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v7 = clientIndex;
-  v8 = localClientNum;
-  __asm { vmovaps xmm6, xmm3 }
+  v6 = clientIndex;
+  v7 = localClientNum;
   if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 191, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName") )
     __debugbreak();
-  if ( (unsigned int)v8 >= 2 )
+  if ( (unsigned int)v7 >= 2 )
   {
-    LODWORD(blendTimea) = v8;
+    LODWORD(blendTimea) = v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 192, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", blendTimea, 2) )
       __debugbreak();
   }
-  if ( (unsigned int)v7 >= 0x14 )
+  if ( (unsigned int)v6 >= 0x14 )
   {
-    LODWORD(v16) = 20;
-    LODWORD(blendTimea) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 193, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", blendTimea, v16) )
+    LODWORD(v11) = 20;
+    LODWORD(blendTimea) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 193, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", blendTimea, v11) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+startTime]
-    vmovss  [rsp+58h+var_28], xmm0
-  }
-  v11 = v7 + 20 * v8;
-  __asm { vmovss  [rsp+58h+blendTime], xmm6 }
-  animQueueEnd = s_clientCharacterState[0][v11].animState.animQueueEnd;
-  s_clientCharacterState[0][v11].animState.animQueueStart = animQueueEnd;
-  s_clientCharacterState[0][v11].animState.animQueueEnd = animQueueEnd + 1;
-  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v8, v7, animQueueEnd, animName, NULL, blendTimeb, v17);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  v8 = v6 + 20 * v7;
+  animQueueEnd = s_clientCharacterState[0][v8].animState.animQueueEnd;
+  s_clientCharacterState[0][v8].animState.animQueueStart = animQueueEnd;
+  s_clientCharacterState[0][v8].animState.animQueueEnd = animQueueEnd + 1;
+  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v7, v6, animQueueEnd, animName, NULL, blendTime, startTime);
 }
 
 /*
@@ -454,44 +434,37 @@ void __fastcall CL_UICharacter_PlayCharacterAnim(const LocalClientNum_t localCli
 CL_UICharacter_PlayCharacterFacialAnim
 ==============
 */
-
-void __fastcall CL_UICharacter_PlayCharacterFacialAnim(const LocalClientNum_t localClientNum, const unsigned int clientIndex, const char *animName, double blendTime, const float startTime)
+void CL_UICharacter_PlayCharacterFacialAnim(const LocalClientNum_t localClientNum, const unsigned int clientIndex, const char *animName, const float blendTime, const float startTime)
 {
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  __int64 v13; 
-  __int64 v14; 
+  UICharacterAnimItem *p_facialAnim; 
+  __int64 v9; 
+  __int64 v10; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v7 = clientIndex;
-  v8 = localClientNum;
-  __asm { vmovaps xmm6, xmm3 }
+  v6 = clientIndex;
+  v7 = localClientNum;
   if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 236, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName") )
     __debugbreak();
-  if ( (unsigned int)v8 >= 2 )
+  if ( (unsigned int)v7 >= 2 )
   {
-    LODWORD(v13) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 237, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, 2) )
+    LODWORD(v9) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 237, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, 2) )
       __debugbreak();
   }
-  if ( (unsigned int)v7 >= 0x14 )
+  if ( (unsigned int)v6 >= 0x14 )
   {
-    LODWORD(v14) = 20;
-    LODWORD(v13) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 238, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v13, v14) )
+    LODWORD(v10) = 20;
+    LODWORD(v9) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 238, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  _RBX = &s_clientCharacterState[v8][v7].animState.facialAnim;
-  Core_strcpy(_RBX->animName, 0x40ui64, animName);
-  I_strlwr(_RBX->animName);
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+startTime]
-    vmovss  dword ptr [rbx+80h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+84h], xmm0
-  }
-  _RBX->startNoteName[0] = 0;
+  p_facialAnim = &s_clientCharacterState[v7][v6].animState.facialAnim;
+  Core_strcpy(p_facialAnim->animName, 0x40ui64, animName);
+  I_strlwr(p_facialAnim->animName);
+  p_facialAnim->blendTime = blendTime;
+  p_facialAnim->startTime = startTime;
+  p_facialAnim->startNoteName[0] = 0;
 }
 
 /*
@@ -503,12 +476,10 @@ void CL_UICharacter_QueueCharacterAnim(const LocalClientNum_t localClientNum, co
 {
   __int64 v6; 
   __int64 v8; 
-  __int64 v12; 
+  __int64 v10; 
   unsigned int animQueueEnd; 
-  __int64 v14; 
-  float v15; 
-  __int64 v16; 
-  float v17; 
+  __int64 v12; 
+  __int64 v13; 
 
   v6 = clientIndex;
   v8 = localClientNum;
@@ -516,28 +487,21 @@ void CL_UICharacter_QueueCharacterAnim(const LocalClientNum_t localClientNum, co
     __debugbreak();
   if ( (unsigned int)v8 >= 2 )
   {
-    LODWORD(v14) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 207, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, 2) )
+    LODWORD(v12) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 207, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v12, 2) )
       __debugbreak();
   }
   if ( (unsigned int)v6 >= 0x14 )
   {
-    LODWORD(v16) = 20;
-    LODWORD(v14) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 208, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v14, v16) )
+    LODWORD(v13) = 20;
+    LODWORD(v12) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 208, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+startTime]
-    vmovss  xmm1, [rsp+48h+blendTime]
-    vmovss  dword ptr [rsp+48h+var_18], xmm0
-    vmovss  [rsp+48h+var_20], xmm1
-  }
-  v12 = v6 + 20 * v8;
-  animQueueEnd = s_clientCharacterState[0][v12].animState.animQueueEnd;
-  s_clientCharacterState[0][v12].animState.animQueueEnd = animQueueEnd + 1;
-  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v8, v6, animQueueEnd, animName, noteName, v15, v17);
+  v10 = v6 + 20 * v8;
+  animQueueEnd = s_clientCharacterState[0][v10].animState.animQueueEnd;
+  s_clientCharacterState[0][v10].animState.animQueueEnd = animQueueEnd + 1;
+  CL_UICharacter_SetAnimItem((const LocalClientNum_t)v8, v6, animQueueEnd, animName, noteName, blendTime, startTime);
 }
 
 /*
@@ -577,8 +541,9 @@ void CL_UICharacter_SetAnimItem(const LocalClientNum_t localClientNum, const uns
   __int64 v7; 
   __int64 v9; 
   UICharacterState *v11; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
 
   v7 = clientIndex;
   v9 = localClientNum;
@@ -586,39 +551,34 @@ void CL_UICharacter_SetAnimItem(const LocalClientNum_t localClientNum, const uns
     __debugbreak();
   if ( (unsigned int)v9 >= 2 )
   {
-    LODWORD(v15) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, 2) )
+    LODWORD(v13) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, 2) )
       __debugbreak();
   }
   if ( (unsigned int)v7 >= 0x14 )
   {
-    LODWORD(v16) = 20;
-    LODWORD(v15) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 147, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v15, v16) )
+    LODWORD(v14) = 20;
+    LODWORD(v13) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 147, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( MAX_UI_CLIENT_CHARACTERS )", "clientIndex doesn't index MAX_UI_CLIENT_CHARACTERS\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
   v11 = &s_clientCharacterState[v9][v7];
   if ( v11->animState.animQueueStart > itemIndex || itemIndex > v11->animState.animQueueEnd - 1 )
   {
-    LODWORD(v16) = v11->animState.animQueueStart;
-    LODWORD(v15) = itemIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 150, ASSERT_TYPE_ASSERT, "( character->animState.animQueueStart ) <= ( itemIndex ) && ( itemIndex ) <= ( character->animState.animQueueEnd - 1 )", "itemIndex not in [character->animState.animQueueStart, character->animState.animQueueEnd - 1]\n\t%i not in [%i, %i]", v15, v16, v11->animState.animQueueEnd - 1) )
+    LODWORD(v14) = v11->animState.animQueueStart;
+    LODWORD(v13) = itemIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_character.cpp", 150, ASSERT_TYPE_ASSERT, "( character->animState.animQueueStart ) <= ( itemIndex ) && ( itemIndex ) <= ( character->animState.animQueueEnd - 1 )", "itemIndex not in [character->animState.animQueueStart, character->animState.animQueueEnd - 1]\n\t%i not in [%i, %i]", v13, v14, v11->animState.animQueueEnd - 1) )
       __debugbreak();
   }
-  _RBX = v11->animState.animQueue[itemIndex & 7].animName;
-  Core_strcpy(_RBX, 0x40ui64, animName);
-  I_strlwr(_RBX);
+  v12 = (__int64)v11->animState.animQueue[itemIndex & 7].animName;
+  Core_strcpy((char *)v12, 0x40ui64, animName);
+  I_strlwr((char *)v12);
   if ( startNote )
-    Core_strcpy(_RBX + 64, 0x40ui64, startNote);
+    Core_strcpy((char *)(v12 + 64), 0x40ui64, startNote);
   else
-    _RBX[64] = 0;
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+startTime]
-    vmovss  xmm0, [rsp+48h+blendTime]
-    vmovss  dword ptr [rbx+84h], xmm1
-    vmovss  dword ptr [rbx+80h], xmm0
-  }
+    *(_BYTE *)(v12 + 64) = 0;
+  *(const float *)(v12 + 132) = startTime;
+  *(const float *)(v12 + 128) = blendTime;
 }
 
 /*

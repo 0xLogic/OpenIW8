@@ -613,23 +613,21 @@ void bdStructFixedSizeArray<bdAchievementProgress,4>::copy(bdStructFixedSizeArra
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v6; 
+  char *v7; 
+  char *v8; 
 
   m_size = a->m_size;
   v3 = 0;
-  for ( this->m_size = m_size; v3 < this->m_size; *((_QWORD *)_RDI + 8) = *((_QWORD *)_RBX + 8) )
+  for ( this->m_size = m_size; v3 < this->m_size; *((_QWORD *)v8 + 8) = *((_QWORD *)v7 + 8) )
   {
     v6 = v3;
-    _RBX = (char *)a + v6 * 88;
-    _RDI = (char *)this + v6 * 88;
+    v7 = (char *)a + v6 * 88;
+    v8 = (char *)this + v6 * 88;
     bdReferencable::operator=((bdReferencable *)((char *)&this->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&this->m_elements[v6].__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&a->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&a->m_elements[v6].__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+10h]
-      vmovups ymmword ptr [rdi+10h], ymm0
-    }
+    *(__m256i *)(v8 + 16) = *(__m256i *)(v7 + 16);
     ++v3;
-    _RDI[48] = _RBX[48];
-    *((_QWORD *)_RDI + 7) = *((_QWORD *)_RBX + 7);
+    v8[48] = v7[48];
+    *((_QWORD *)v8 + 7) = *((_QWORD *)v7 + 7);
   }
 }
 
@@ -643,37 +641,33 @@ void bdStructFixedSizeArray<bdAchievementState,100>::copy(bdStructFixedSizeArray
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v6; 
+  char *v7; 
+  char *v8; 
 
   m_size = a->m_size;
   v3 = 0;
   for ( this->m_size = m_size; v3 < this->m_size; ++v3 )
   {
     v6 = v3;
-    _RDI = (char *)a + v6 * 552;
-    _RSI = (char *)this + v6 * 552;
+    v7 = (char *)a + v6 * 552;
+    v8 = (char *)this + v6 * 552;
     bdReferencable::operator=((bdReferencable *)((char *)&this->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&this->m_elements[v6].__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&a->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&a->m_elements[v6].__vftable + 1) + 4i64) + 8));
-    *((_QWORD *)_RSI + 2) = *((_QWORD *)_RDI + 2);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+18h]
-      vmovups ymmword ptr [rsi+18h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+38h]
-      vmovups ymmword ptr [rsi+38h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+58h]
-      vmovups ymmword ptr [rsi+58h], ymm0
-    }
-    *((_DWORD *)_RSI + 30) = *((_DWORD *)_RDI + 30);
-    _RSI[124] = _RDI[124];
-    *((_WORD *)_RSI + 63) = *((_WORD *)_RDI + 63);
-    *((_DWORD *)_RSI + 32) = *((_DWORD *)_RDI + 32);
-    *((_DWORD *)_RSI + 33) = *((_DWORD *)_RDI + 33);
-    *((_DWORD *)_RSI + 34) = *((_DWORD *)_RDI + 34);
-    *((_QWORD *)_RSI + 18) = *((_QWORD *)_RDI + 18);
-    *((_QWORD *)_RSI + 19) = *((_QWORD *)_RDI + 19);
-    *((_QWORD *)_RSI + 20) = *((_QWORD *)_RDI + 20);
-    *((_DWORD *)_RSI + 42) = *((_DWORD *)_RDI + 42);
-    if ( _RSI + 176 != _RDI + 176 )
-      bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RSI + 176), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RDI + 176));
+    *((_QWORD *)v8 + 2) = *((_QWORD *)v7 + 2);
+    *(__m256i *)(v8 + 24) = *(__m256i *)(v7 + 24);
+    *(__m256i *)(v8 + 56) = *(__m256i *)(v7 + 56);
+    *(__m256i *)(v8 + 88) = *(__m256i *)(v7 + 88);
+    *((_DWORD *)v8 + 30) = *((_DWORD *)v7 + 30);
+    v8[124] = v7[124];
+    *((_WORD *)v8 + 63) = *((_WORD *)v7 + 63);
+    *((_DWORD *)v8 + 32) = *((_DWORD *)v7 + 32);
+    *((_DWORD *)v8 + 33) = *((_DWORD *)v7 + 33);
+    *((_DWORD *)v8 + 34) = *((_DWORD *)v7 + 34);
+    *((_QWORD *)v8 + 18) = *((_QWORD *)v7 + 18);
+    *((_QWORD *)v8 + 19) = *((_QWORD *)v7 + 19);
+    *((_QWORD *)v8 + 20) = *((_QWORD *)v7 + 20);
+    *((_DWORD *)v8 + 42) = *((_DWORD *)v7 + 42);
+    if ( v8 + 176 != v7 + 176 )
+      bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(v8 + 176), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(v7 + 176));
   }
 }
 
@@ -728,23 +722,19 @@ bdStructFixedSizeArray<bdAchievementProgress,4>::pushBack
 bdStructFixedSizeArray<bdAchievementProgress,4> *bdStructFixedSizeArray<bdAchievementProgress,4>::pushBack(bdStructFixedSizeArray<bdAchievementProgress,4> *this, const bdAchievementProgress *value)
 {
   __int64 m_size; 
+  bdAchievementProgress *v5; 
 
-  _RSI = value;
   bdHandleAssert(this->m_size < 4, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementProgress,4>::pushBack", 0x40u, "No more capacity for pushBack");
   m_size = this->m_size;
   if ( (unsigned int)m_size < 4 )
   {
     this->m_size = m_size + 1;
-    _RBX = &this->m_elements[m_size];
-    bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_RSI->__vftable + *(int *)(*((_QWORD *)&_RSI->__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+10h]
-      vmovups ymmword ptr [rbx+10h], ymm0
-    }
-    _RBX->m_targetName[16] = _RSI->m_targetName[16];
-    _RBX->m_currentProgress = _RSI->m_currentProgress;
-    _RBX->m_targetProgress = _RSI->m_targetProgress;
+    v5 = &this->m_elements[m_size];
+    bdReferencable::operator=((bdReferencable *)((char *)&v5->__vftable + *(int *)(*((_QWORD *)&v5->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&value->__vftable + *(int *)(*((_QWORD *)&value->__vftable + 1) + 4i64) + 8));
+    *(bdStructBufferSerializable *)((char *)&v5->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&value->bdStructBufferSerializable + 16);
+    v5->m_targetName[16] = value->m_targetName[16];
+    v5->m_currentProgress = value->m_currentProgress;
+    v5->m_targetProgress = value->m_targetProgress;
   }
   return this;
 }
@@ -845,68 +835,60 @@ bdStructFixedSizeArray<bdAchievementState,100>::pushBack
 bdStructFixedSizeArray<bdAchievementState,100> *bdStructFixedSizeArray<bdAchievementState,100>::pushBack(bdStructFixedSizeArray<bdAchievementState,100> *this, const bdAchievementState *value)
 {
   __int64 m_size; 
+  bdAchievementState *v5; 
   char *p_m_multiProgress; 
   unsigned int m_completionCount; 
-  bdStructFixedSizeArray<bdAchievementProgress,4> *v11; 
-  unsigned int v12; 
-  unsigned int v13; 
-  __int64 v14; 
+  bdStructFixedSizeArray<bdAchievementProgress,4> *v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  char *v12; 
+  char *v13; 
 
-  _R15 = value;
   bdHandleAssert(this->m_size < 0x64, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementState,100>::pushBack", 0x40u, "No more capacity for pushBack");
   m_size = this->m_size;
   if ( (unsigned int)m_size >= 0x64 )
     return this;
   this->m_size = m_size + 1;
-  _RBX = &this->m_elements[m_size];
-  bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_R15->__vftable + *(int *)(*((_QWORD *)&_R15->__vftable + 1) + 4i64) + 8));
-  p_m_multiProgress = (char *)&_RBX->m_multiProgress;
-  *((_QWORD *)&_RBX->__vftable + 2) = *((_QWORD *)&_R15->__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+18h]
-    vmovups ymmword ptr [rbx+18h], ymm0
-    vmovups ymm1, ymmword ptr [r15+38h]
-    vmovups ymmword ptr [rbx+38h], ymm1
-    vmovups ymm0, ymmword ptr [r15+58h]
-    vmovups ymmword ptr [rbx+58h], ymm0
-  }
-  *(_DWORD *)&_RBX->m_name[88] = *(_DWORD *)&_R15->m_name[88];
-  _RBX->m_name[92] = _R15->m_name[92];
-  _RBX->m_kind = _R15->m_kind;
-  _RBX->m_progress = _R15->m_progress;
-  _RBX->m_progressTarget = _R15->m_progressTarget;
-  _RBX->m_status = _R15->m_status;
-  _RBX->m_completionTimestamp = _R15->m_completionTimestamp;
-  _RBX->m_activationTimestamp = _R15->m_activationTimestamp;
-  _RBX->m_expirationTimestamp = _R15->m_expirationTimestamp;
-  m_completionCount = _R15->m_completionCount;
-  v11 = &_R15->m_multiProgress;
-  _RBX->m_completionCount = m_completionCount;
-  if ( &_RBX->m_multiProgress == v11 )
+  v5 = &this->m_elements[m_size];
+  bdReferencable::operator=((bdReferencable *)((char *)&v5->__vftable + *(int *)(*((_QWORD *)&v5->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&value->__vftable + *(int *)(*((_QWORD *)&value->__vftable + 1) + 4i64) + 8));
+  p_m_multiProgress = (char *)&v5->m_multiProgress;
+  *((_QWORD *)&v5->__vftable + 2) = *((_QWORD *)&value->__vftable + 2);
+  *(bdStructBufferSerializable *)((char *)&v5->bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&value->bdStructBufferSerializable + 24);
+  *(__m256i *)&v5->m_name[24] = *(__m256i *)&value->m_name[24];
+  *(__m256i *)&v5->m_name[56] = *(__m256i *)&value->m_name[56];
+  *(_DWORD *)&v5->m_name[88] = *(_DWORD *)&value->m_name[88];
+  v5->m_name[92] = value->m_name[92];
+  v5->m_kind = value->m_kind;
+  v5->m_progress = value->m_progress;
+  v5->m_progressTarget = value->m_progressTarget;
+  v5->m_status = value->m_status;
+  v5->m_completionTimestamp = value->m_completionTimestamp;
+  v5->m_activationTimestamp = value->m_activationTimestamp;
+  v5->m_expirationTimestamp = value->m_expirationTimestamp;
+  m_completionCount = value->m_completionCount;
+  v8 = &value->m_multiProgress;
+  v5->m_completionCount = m_completionCount;
+  if ( &v5->m_multiProgress == v8 )
     return this;
-  v12 = v11->m_size;
-  v13 = 0;
-  *((_DWORD *)p_m_multiProgress + 88) = v12;
-  if ( !v12 )
+  v9 = v8->m_size;
+  v10 = 0;
+  *((_DWORD *)p_m_multiProgress + 88) = v9;
+  if ( !v9 )
     return this;
   do
   {
-    v14 = 88i64 * v13;
-    _RDI = (char *)v11 + v14;
-    _RSI = &p_m_multiProgress[v14];
-    bdReferencable::operator=((bdReferencable *)&p_m_multiProgress[v14 + 8 + *(int *)(*(_QWORD *)&p_m_multiProgress[v14 + 8] + 4i64)], (const bdReferencable *)((char *)&v11->m_elements[(unsigned __int64)v14 / 0x58].__vftable + *(int *)(*((_QWORD *)&v11->m_elements[(unsigned __int64)v14 / 0x58].__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+10h]
-      vmovups ymmword ptr [rsi+10h], ymm0
-    }
-    ++v13;
-    _RSI[48] = _RDI[48];
-    *((_QWORD *)_RSI + 7) = *((_QWORD *)_RDI + 7);
-    *((_QWORD *)_RSI + 8) = *((_QWORD *)_RDI + 8);
+    v11 = 88i64 * v10;
+    v12 = (char *)v8 + v11;
+    v13 = &p_m_multiProgress[v11];
+    bdReferencable::operator=((bdReferencable *)&p_m_multiProgress[v11 + 8 + *(int *)(*(_QWORD *)&p_m_multiProgress[v11 + 8] + 4i64)], (const bdReferencable *)((char *)&v8->m_elements[(unsigned __int64)v11 / 0x58].__vftable + *(int *)(*((_QWORD *)&v8->m_elements[(unsigned __int64)v11 / 0x58].__vftable + 1) + 4i64) + 8));
+    *(__m256i *)(v13 + 16) = *(__m256i *)(v12 + 16);
+    ++v10;
+    v13[48] = v12[48];
+    *((_QWORD *)v13 + 7) = *((_QWORD *)v12 + 7);
+    *((_QWORD *)v13 + 8) = *((_QWORD *)v12 + 8);
   }
-  while ( v13 < *((_DWORD *)p_m_multiProgress + 88) );
+  while ( v10 < *((_DWORD *)p_m_multiProgress + 88) );
   return this;
 }
 
@@ -1013,25 +995,29 @@ void bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16>::copy(bdStructFix
   int v9; 
   unsigned int v10; 
   __int64 v11; 
+  char *v12; 
+  char *v13; 
   char *v14; 
   char *v15; 
-  int v19; 
-  unsigned int v20; 
-  unsigned __int64 v21; 
-  int v25; 
-  __int64 v26; 
-  const bdUserAccountID *v27; 
-  bdUserAccountID *v28; 
-  const bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *v30; 
-  unsigned int v31; 
-  char *v32; 
+  int v16; 
+  unsigned int v17; 
+  unsigned __int64 v18; 
+  char *v19; 
+  char *v20; 
+  int v21; 
+  __int64 v22; 
+  const bdUserAccountID *v23; 
+  bdUserAccountID *v24; 
+  const bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *v26; 
+  unsigned int v27; 
+  char *v28; 
 
-  v30 = a;
+  v26 = a;
   m_size = a->m_size;
   v3 = 0;
   this->m_size = m_size;
   v4 = this;
-  v31 = 0;
+  v27 = 0;
   if ( m_size )
   {
     do
@@ -1039,8 +1025,8 @@ void bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16>::copy(bdStructFix
       v5 = 6632i64 * v3;
       v6 = (const bdUserAccountID *)((char *)a + v5);
       v7 = (bdUserAccountID *)((char *)v4 + v5);
-      v27 = (const bdUserAccountID *)((char *)a + v5);
-      v28 = (bdUserAccountID *)((char *)v4 + v5);
+      v23 = (const bdUserAccountID *)((char *)a + v5);
+      v24 = (bdUserAccountID *)((char *)v4 + v5);
       bdUserAccountID::operator=((bdUserAccountID *)((char *)v4 + v5), (const bdUserAccountID *)((char *)a + v5));
       bdUserAccountID::operator=(v7 + 1, v6 + 1);
       v8 = (char *)(&v7[2].__vftable + 1);
@@ -1053,72 +1039,62 @@ void bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16>::copy(bdStructFix
         LODWORD(v7[91].__vftable) = v9;
         if ( v9 )
         {
-          v32 = (char *)(&v6[2].__vftable + 1);
+          v28 = (char *)(&v6[2].__vftable + 1);
           do
           {
             v11 = 800i64 * v10;
-            _RBX = &v32[v11];
-            _RDI = &v8[v11];
-            bdReferencable::operator=((bdReferencable *)&v8[v11 + 8 + *(int *)(*(_QWORD *)&v8[v11 + 8] + 4i64)], (const bdReferencable *)&v32[v11 + 8 + *(int *)(*(_QWORD *)&v32[v11 + 8] + 4i64)]);
-            v14 = _RBX + 136;
-            *((_QWORD *)_RDI + 2) = *((_QWORD *)_RBX + 2);
-            v15 = _RDI + 136;
-            __asm
+            v12 = &v28[v11];
+            v13 = &v8[v11];
+            bdReferencable::operator=((bdReferencable *)&v8[v11 + 8 + *(int *)(*(_QWORD *)&v8[v11 + 8] + 4i64)], (const bdReferencable *)&v28[v11 + 8 + *(int *)(*(_QWORD *)&v28[v11 + 8] + 4i64)]);
+            v14 = v12 + 136;
+            *((_QWORD *)v13 + 2) = *((_QWORD *)v12 + 2);
+            v15 = v13 + 136;
+            *(__m256i *)(v13 + 24) = *(__m256i *)(v12 + 24);
+            *(__m256i *)(v13 + 56) = *(__m256i *)(v12 + 56);
+            *(__m256i *)(v13 + 88) = *(__m256i *)(v12 + 88);
+            *((_DWORD *)v13 + 30) = *((_DWORD *)v12 + 30);
+            v13[124] = v12[124];
+            *((_QWORD *)v13 + 16) = *((_QWORD *)v12 + 16);
+            if ( v13 + 136 != v12 + 136 )
             {
-              vmovups ymm0, ymmword ptr [rbx+18h]
-              vmovups ymmword ptr [rdi+18h], ymm0
-              vmovups ymm1, ymmword ptr [rbx+38h]
-              vmovups ymmword ptr [rdi+38h], ymm1
-              vmovups ymm0, ymmword ptr [rbx+58h]
-              vmovups ymmword ptr [rdi+58h], ymm0
-            }
-            *((_DWORD *)_RDI + 30) = *((_DWORD *)_RBX + 30);
-            _RDI[124] = _RBX[124];
-            *((_QWORD *)_RDI + 16) = *((_QWORD *)_RBX + 16);
-            if ( _RDI + 136 != _RBX + 136 )
-            {
-              v19 = *((_DWORD *)_RBX + 194);
-              v20 = 0;
-              *((_DWORD *)_RDI + 194) = v19;
-              if ( v19 )
+              v16 = *((_DWORD *)v12 + 194);
+              v17 = 0;
+              *((_DWORD *)v13 + 194) = v16;
+              if ( v16 )
               {
                 do
                 {
-                  v21 = (unsigned __int64)v20 << 6;
-                  _RBX = &v14[v21];
-                  _RDI = &v15[v21];
-                  bdReferencable::operator=((bdReferencable *)&v15[v21 + 8 + *(int *)(*(_QWORD *)&v15[v21 + 8] + 4i64)], (const bdReferencable *)&v14[v21 + 8 + *(int *)(*(_QWORD *)&v14[v21 + 8] + 4i64)]);
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rbx+10h]
-                    vmovups xmmword ptr [rdi+10h], xmm0
-                  }
-                  ++v20;
-                  *((_DWORD *)_RDI + 8) = *((_DWORD *)_RBX + 8);
-                  _RDI[36] = _RBX[36];
-                  *((_QWORD *)_RDI + 5) = *((_QWORD *)_RBX + 5);
+                  v18 = (unsigned __int64)v17 << 6;
+                  v19 = &v14[v18];
+                  v20 = &v15[v18];
+                  bdReferencable::operator=((bdReferencable *)&v15[v18 + 8 + *(int *)(*(_QWORD *)&v15[v18 + 8] + 4i64)], (const bdReferencable *)&v14[v18 + 8 + *(int *)(*(_QWORD *)&v14[v18 + 8] + 4i64)]);
+                  *((_OWORD *)v20 + 1) = *((_OWORD *)v19 + 1);
+                  ++v17;
+                  *((_DWORD *)v20 + 8) = *((_DWORD *)v19 + 8);
+                  v20[36] = v19[36];
+                  *((_QWORD *)v20 + 5) = *((_QWORD *)v19 + 5);
                 }
-                while ( v20 < *((_DWORD *)v15 + 160) );
+                while ( v17 < *((_DWORD *)v15 + 160) );
               }
             }
             ++v10;
           }
           while ( v10 < *((_DWORD *)v8 + 1600) );
-          v6 = v27;
-          v7 = v28;
-          v3 = v31;
+          v6 = v23;
+          v7 = v24;
+          v3 = v27;
           v4 = this;
         }
       }
       if ( &v7[91].__vftable + 1 != &v6[91].__vftable + 1 )
       {
-        v25 = (int)v6[92].__vftable;
-        v26 = 0i64;
-        for ( LODWORD(v7[92].__vftable) = v25; (unsigned int)v26 < LODWORD(v7[92].__vftable); v26 = (unsigned int)(v26 + 1) )
-          *((_QWORD *)&v7[91].__vftable + v26 + 1) = *((_QWORD *)&v6[91].__vftable + v26 + 1);
+        v21 = (int)v6[92].__vftable;
+        v22 = 0i64;
+        for ( LODWORD(v7[92].__vftable) = v21; (unsigned int)v22 < LODWORD(v7[92].__vftable); v22 = (unsigned int)(v22 + 1) )
+          *((_QWORD *)&v7[91].__vftable + v22 + 1) = *((_QWORD *)&v6[91].__vftable + v22 + 1);
       }
-      a = v30;
-      v31 = ++v3;
+      a = v26;
+      v27 = ++v3;
     }
     while ( v3 < v4->m_size );
   }
@@ -1134,23 +1110,18 @@ void bdStructFixedSizeArray<bdStructFixedSizeString<100>,3>::copy(bdStructFixedS
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v4; 
+  __int64 v5; 
 
   m_size = a->m_size;
   v3 = 0;
-  for ( this->m_size = m_size; v3 < this->m_size; this->m_elements[_R8].m_buffer[100] = a->m_elements[v4].m_buffer[100] )
+  for ( this->m_size = m_size; v3 < this->m_size; this->m_elements[v5].m_buffer[100] = a->m_elements[v4].m_buffer[100] )
   {
     v4 = v3++;
-    _R8 = v4;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r8+rdx]
-      vmovups ymmword ptr [r8+rcx], ymm0
-      vmovups ymm1, ymmword ptr [r8+rdx+20h]
-      vmovups ymmword ptr [r8+rcx+20h], ymm1
-      vmovups ymm0, ymmword ptr [r8+rdx+40h]
-      vmovups ymmword ptr [r8+rcx+40h], ymm0
-    }
-    *(_DWORD *)&this->m_elements[_R8].m_buffer[96] = *(_DWORD *)&a->m_elements[v4].m_buffer[96];
+    v5 = v4;
+    *(__m256i *)this->m_elements[v5].m_buffer = *(__m256i *)a->m_elements[v4].m_buffer;
+    *(__m256i *)&this->m_elements[v5].m_buffer[32] = *(__m256i *)&a->m_elements[v4].m_buffer[32];
+    *(__m256i *)&this->m_elements[v5].m_buffer[64] = *(__m256i *)&a->m_elements[v4].m_buffer[64];
+    *(_DWORD *)&this->m_elements[v5].m_buffer[96] = *(_DWORD *)&a->m_elements[v4].m_buffer[96];
   }
 }
 
@@ -1204,59 +1175,53 @@ void bdStructFixedSizeArray<bdAchievementEvent,8>::copy(bdStructFixedSizeArray<b
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v6; 
+  char *v7; 
+  char *v8; 
   char *v9; 
   char *v10; 
-  int v14; 
-  unsigned int v15; 
-  unsigned __int64 v16; 
+  int v11; 
+  unsigned int v12; 
+  unsigned __int64 v13; 
+  char *v14; 
+  char *v15; 
 
   m_size = a->m_size;
   v3 = 0;
   for ( this->m_size = m_size; v3 < this->m_size; ++v3 )
   {
     v6 = v3;
-    _RBX = (char *)a + v6 * 800;
-    _RDI = (char *)this + v6 * 800;
+    v7 = (char *)a + v6 * 800;
+    v8 = (char *)this + v6 * 800;
     bdReferencable::operator=((bdReferencable *)((char *)&this->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&this->m_elements[v6].__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&a->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&a->m_elements[v6].__vftable + 1) + 4i64) + 8));
-    v9 = _RBX + 136;
-    *((_QWORD *)_RDI + 2) = *((_QWORD *)_RBX + 2);
-    v10 = _RDI + 136;
-    __asm
+    v9 = v7 + 136;
+    *((_QWORD *)v8 + 2) = *((_QWORD *)v7 + 2);
+    v10 = v8 + 136;
+    *(__m256i *)(v8 + 24) = *(__m256i *)(v7 + 24);
+    *(__m256i *)(v8 + 56) = *(__m256i *)(v7 + 56);
+    *(__m256i *)(v8 + 88) = *(__m256i *)(v7 + 88);
+    *((_DWORD *)v8 + 30) = *((_DWORD *)v7 + 30);
+    v8[124] = v7[124];
+    *((_QWORD *)v8 + 16) = *((_QWORD *)v7 + 16);
+    if ( v8 + 136 != v7 + 136 )
     {
-      vmovups ymm0, ymmword ptr [rbx+18h]
-      vmovups ymmword ptr [rdi+18h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+38h]
-      vmovups ymmword ptr [rdi+38h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+58h]
-      vmovups ymmword ptr [rdi+58h], ymm0
-    }
-    *((_DWORD *)_RDI + 30) = *((_DWORD *)_RBX + 30);
-    _RDI[124] = _RBX[124];
-    *((_QWORD *)_RDI + 16) = *((_QWORD *)_RBX + 16);
-    if ( _RDI + 136 != _RBX + 136 )
-    {
-      v14 = *((_DWORD *)_RBX + 194);
-      v15 = 0;
-      *((_DWORD *)_RDI + 194) = v14;
-      if ( v14 )
+      v11 = *((_DWORD *)v7 + 194);
+      v12 = 0;
+      *((_DWORD *)v8 + 194) = v11;
+      if ( v11 )
       {
         do
         {
-          v16 = (unsigned __int64)v15 << 6;
-          _RDI = &v9[v16];
-          _RSI = &v10[v16];
-          bdReferencable::operator=((bdReferencable *)&v10[v16 + 8 + *(int *)(*(_QWORD *)&v10[v16 + 8] + 4i64)], (const bdReferencable *)&v9[v16 + 8 + *(int *)(*(_QWORD *)&v9[v16 + 8] + 4i64)]);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+10h]
-            vmovups xmmword ptr [rsi+10h], xmm0
-          }
-          ++v15;
-          *((_DWORD *)_RSI + 8) = *((_DWORD *)_RDI + 8);
-          _RSI[36] = _RDI[36];
-          *((_QWORD *)_RSI + 5) = *((_QWORD *)_RDI + 5);
+          v13 = (unsigned __int64)v12 << 6;
+          v14 = &v9[v13];
+          v15 = &v10[v13];
+          bdReferencable::operator=((bdReferencable *)&v10[v13 + 8 + *(int *)(*(_QWORD *)&v10[v13 + 8] + 4i64)], (const bdReferencable *)&v9[v13 + 8 + *(int *)(*(_QWORD *)&v9[v13 + 8] + 4i64)]);
+          *((_OWORD *)v15 + 1) = *((_OWORD *)v14 + 1);
+          ++v12;
+          *((_DWORD *)v15 + 8) = *((_DWORD *)v14 + 8);
+          v15[36] = v14[36];
+          *((_QWORD *)v15 + 5) = *((_QWORD *)v14 + 5);
         }
-        while ( v15 < *((_DWORD *)v10 + 160) );
+        while ( v12 < *((_DWORD *)v10 + 160) );
       }
     }
   }
@@ -1272,23 +1237,21 @@ void bdStructFixedSizeArray<bdAchievementEventKeyValue,10>::copy(bdStructFixedSi
   unsigned int m_size; 
   unsigned int v3; 
   unsigned __int64 v6; 
+  char *v7; 
+  char *v8; 
 
   m_size = a->m_size;
   v3 = 0;
-  for ( this->m_size = m_size; v3 < this->m_size; *((_QWORD *)_RDI + 5) = *((_QWORD *)_RBX + 5) )
+  for ( this->m_size = m_size; v3 < this->m_size; *((_QWORD *)v8 + 5) = *((_QWORD *)v7 + 5) )
   {
     v6 = (unsigned __int64)v3 << 6;
-    _RBX = (char *)a + v6;
-    _RDI = (char *)this + v6;
+    v7 = (char *)a + v6;
+    v8 = (char *)this + v6;
     bdReferencable::operator=((bdReferencable *)((char *)&this->m_elements[0].__vftable + v6 + SHIDWORD((*(bdAchievementEventKeyValue_vtbl **)((char *)&this->m_elements[0].__vftable + v6 + 8))->serialize) + 8), (const bdReferencable *)((char *)&a->m_elements[0].__vftable + v6 + SHIDWORD((*(bdAchievementEventKeyValue_vtbl **)((char *)&a->m_elements[0].__vftable + v6 + 8))->serialize) + 8));
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rdi+10h], xmm0
-    }
+    *((_OWORD *)v8 + 1) = *((_OWORD *)v7 + 1);
     ++v3;
-    *((_DWORD *)_RDI + 8) = *((_DWORD *)_RBX + 8);
-    _RDI[36] = _RBX[36];
+    *((_DWORD *)v8 + 8) = *((_DWORD *)v7 + 8);
+    v8[36] = v7[36];
   }
 }
 
@@ -1301,21 +1264,19 @@ void bdStructFixedSizeArray<bdAchievementProgressTarget,4>::copy(bdStructFixedSi
 {
   unsigned int m_size; 
   __int64 v3; 
+  bdAchievementProgressTarget *v6; 
+  bdAchievementProgressTarget *v7; 
 
   m_size = a->m_size;
   v3 = 0i64;
-  for ( this->m_size = m_size; (unsigned int)v3 < this->m_size; _RDI->m_progress = _RBX->m_progress )
+  for ( this->m_size = m_size; (unsigned int)v3 < this->m_size; v7->m_progress = v6->m_progress )
   {
-    _RBX = &a->m_elements[v3];
-    _RDI = &this->m_elements[v3];
-    bdReferencable::operator=((bdReferencable *)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+10h]
-      vmovups ymmword ptr [rdi+10h], ymm0
-    }
+    v6 = &a->m_elements[v3];
+    v7 = &this->m_elements[v3];
+    bdReferencable::operator=((bdReferencable *)((char *)&v7->__vftable + *(int *)(*((_QWORD *)&v7->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&v6->__vftable + *(int *)(*((_QWORD *)&v6->__vftable + 1) + 4i64) + 8));
+    *(bdStructBufferSerializable *)((char *)&v7->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&v6->bdStructBufferSerializable + 16);
     v3 = (unsigned int)(v3 + 1);
-    _RDI->m_name[16] = _RBX->m_name[16];
+    v7->m_name[16] = v6->m_name[16];
   }
 }
 
@@ -1329,31 +1290,27 @@ void bdStructFixedSizeArray<bdActivateAchievementAchievementTrigger,2>::copy(bdS
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v6; 
+  char *v7; 
+  char *v8; 
 
   m_size = a->m_size;
   v3 = 0;
   for ( this->m_size = m_size; v3 < this->m_size; ++v3 )
   {
     v6 = v3;
-    _RDI = (char *)a + v6 * 336;
-    _RSI = (char *)this + v6 * 336;
+    v7 = (char *)a + v6 * 336;
+    v8 = (char *)this + v6 * 336;
     bdReferencable::operator=((bdReferencable *)((char *)&this->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&this->m_elements[v6].__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&a->m_elements[v6].__vftable + *(int *)(*((_QWORD *)&a->m_elements[v6].__vftable + 1) + 4i64) + 8));
-    __asm
+    *(__m256i *)(v8 + 16) = *(__m256i *)(v7 + 16);
+    *(__m256i *)(v8 + 48) = *(__m256i *)(v7 + 48);
+    *(__m256i *)(v8 + 80) = *(__m256i *)(v7 + 80);
+    *((_DWORD *)v8 + 28) = *((_DWORD *)v7 + 28);
+    v8[116] = v7[116];
+    bdAchievementRelativeTimestamp::operator=((bdAchievementRelativeTimestamp *)(v8 + 120), (const bdAchievementRelativeTimestamp *)(v7 + 120));
+    if ( v8 + 216 != v7 + 216 )
     {
-      vmovups ymm0, ymmword ptr [rdi+10h]
-      vmovups ymmword ptr [rsi+10h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+30h]
-      vmovups ymmword ptr [rsi+30h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+50h]
-      vmovups ymmword ptr [rsi+50h], ymm0
-    }
-    *((_DWORD *)_RSI + 28) = *((_DWORD *)_RDI + 28);
-    _RSI[116] = _RDI[116];
-    bdAchievementRelativeTimestamp::operator=((bdAchievementRelativeTimestamp *)(_RSI + 120), (const bdAchievementRelativeTimestamp *)(_RDI + 120));
-    if ( _RSI + 216 != _RDI + 216 )
-    {
-      _RSI[216] = _RDI[216];
-      bdAchievementRelativeTimestamp::operator=((bdAchievementRelativeTimestamp *)(_RSI + 224), (const bdAchievementRelativeTimestamp *)(_RDI + 224));
+      v8[216] = v7[216];
+      bdAchievementRelativeTimestamp::operator=((bdAchievementRelativeTimestamp *)(v8 + 224), (const bdAchievementRelativeTimestamp *)(v7 + 224));
     }
   }
 }
@@ -1455,49 +1412,41 @@ bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::pushBack
 bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::pushBack(bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *this, const bdUserPresenceInfoV3 *value)
 {
   __int64 m_size; 
-  __int64 v5; 
-  bool *v7; 
+  bdUserPresenceInfoV3 *v5; 
   bdStructOptionalObject<unsigned __int64> *p_m_updateTime; 
-  bdStructOptionalObject<unsigned __int64> *v11; 
+  bdStructOptionalObject<unsigned __int64> *v7; 
 
   bdHandleAssert(this->m_size < 3, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdUserPresenceInfoV3,3>::pushBack", 0x40u, "No more capacity for pushBack");
   m_size = this->m_size;
   if ( (unsigned int)m_size >= 3 )
     return this;
-  v5 = 672 * m_size;
   this->m_size = m_size + 1;
-  _RCX = &value->m_platform;
-  v7 = (bool *)this + v5;
-  _RDX = v7 + 1;
-  *v7 = value->m_online;
-  if ( v7 + 1 != (bool *)&value->m_platform )
+  v5 = &this->m_elements[m_size];
+  v5->m_online = value->m_online;
+  if ( &v5->m_platform != &value->m_platform )
   {
-    *_RDX = _RCX->m_hasValue;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx+1]
-      vmovups xmmword ptr [rdx+1], xmm0
-    }
-    v7[18] = value->m_platform.m_value.m_buffer[16];
+    v5->m_platform.m_hasValue = value->m_platform.m_hasValue;
+    *(_OWORD *)v5->m_platform.m_value.m_buffer = *(_OWORD *)value->m_platform.m_value.m_buffer;
+    v5->m_platform.m_value.m_buffer[16] = value->m_platform.m_value.m_buffer[16];
   }
-  bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v7 + 24), &value->m_titleToken);
-  bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v7 + 320), &value->m_presenceToken);
-  if ( v7 + 616 != (bool *)&value->m_titleID )
+  bdStructOptionalObject<bdLocalizationToken>::operator=(&v5->m_titleToken, &value->m_titleToken);
+  bdStructOptionalObject<bdLocalizationToken>::operator=(&v5->m_presenceToken, &value->m_presenceToken);
+  if ( &v5->m_titleID != &value->m_titleID )
   {
-    v7[616] = value->m_titleID.m_hasValue;
-    *((_DWORD *)v7 + 155) = value->m_titleID.m_value;
+    v5->m_titleID.m_hasValue = value->m_titleID.m_hasValue;
+    v5->m_titleID.m_value = value->m_titleID.m_value;
   }
-  if ( v7 + 624 != (bool *)&value->m_data )
+  if ( &v5->m_data != &value->m_data )
   {
-    v7[624] = value->m_data.m_hasValue;
-    bdCrossPlatformUserMetadata::operator=((bdCrossPlatformUserMetadata *)(v7 + 632), &value->m_data.m_value);
+    v5->m_data.m_hasValue = value->m_data.m_hasValue;
+    bdCrossPlatformUserMetadata::operator=(&v5->m_data.m_value, &value->m_data.m_value);
   }
   p_m_updateTime = &value->m_updateTime;
-  v11 = (bdStructOptionalObject<unsigned __int64> *)(v7 + 656);
-  if ( v11 != p_m_updateTime )
+  v7 = &v5->m_updateTime;
+  if ( v7 != p_m_updateTime )
   {
-    v11->m_hasValue = p_m_updateTime->m_hasValue;
-    v11->m_value = p_m_updateTime->m_value;
+    v7->m_hasValue = p_m_updateTime->m_hasValue;
+    v7->m_value = p_m_updateTime->m_value;
   }
   return this;
 }
@@ -1512,52 +1461,50 @@ void bdStructFixedSizeArray<bdUserPresenceInfoV3,3>::copy(bdStructFixedSizeArray
   unsigned int m_size; 
   unsigned int v3; 
   __int64 v6; 
+  bdStructOptionalObject<bdStructFixedSizeString<16> > *p_m_platform; 
+  bdStructOptionalObject<bdStructFixedSizeString<16> > *v8; 
   bdStructOptionalObject<unsigned int> *p_m_titleID; 
-  bdStructOptionalObject<unsigned int> *v11; 
+  bdStructOptionalObject<unsigned int> *v10; 
   bdStructOptionalObject<bdPresenceData> *p_m_data; 
-  bdStructOptionalObject<bdPresenceData> *v13; 
+  bdStructOptionalObject<bdPresenceData> *v12; 
   bdStructOptionalObject<unsigned __int64> *p_m_updateTime; 
-  bdStructOptionalObject<unsigned __int64> *v15; 
+  bdStructOptionalObject<unsigned __int64> *v14; 
 
   m_size = a->m_size;
   v3 = 0;
   for ( this->m_size = m_size; v3 < this->m_size; ++v3 )
   {
     v6 = v3;
-    _RCX = &a->m_elements[v6].m_platform;
-    _RDX = &this->m_elements[v6].m_platform;
+    p_m_platform = &a->m_elements[v6].m_platform;
+    v8 = &this->m_elements[v6].m_platform;
     this->m_elements[v6].m_online = a->m_elements[v6].m_online;
-    if ( _RDX != _RCX )
+    if ( v8 != p_m_platform )
     {
-      _RDX->m_hasValue = _RCX->m_hasValue;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+1]
-        vmovups xmmword ptr [rdx+1], xmm0
-      }
+      v8->m_hasValue = p_m_platform->m_hasValue;
+      *(_OWORD *)this->m_elements[v6].m_platform.m_value.m_buffer = *(_OWORD *)a->m_elements[v6].m_platform.m_value.m_buffer;
       this->m_elements[v6].m_platform.m_value.m_buffer[16] = a->m_elements[v6].m_platform.m_value.m_buffer[16];
     }
     bdStructOptionalObject<bdLocalizationToken>::operator=(&this->m_elements[v6].m_titleToken, &a->m_elements[v6].m_titleToken);
     bdStructOptionalObject<bdLocalizationToken>::operator=(&this->m_elements[v6].m_presenceToken, &a->m_elements[v6].m_presenceToken);
     p_m_titleID = &a->m_elements[v6].m_titleID;
-    v11 = &this->m_elements[v6].m_titleID;
-    if ( v11 != p_m_titleID )
+    v10 = &this->m_elements[v6].m_titleID;
+    if ( v10 != p_m_titleID )
     {
-      v11->m_hasValue = p_m_titleID->m_hasValue;
+      v10->m_hasValue = p_m_titleID->m_hasValue;
       this->m_elements[v6].m_titleID.m_value = a->m_elements[v6].m_titleID.m_value;
     }
     p_m_data = &a->m_elements[v6].m_data;
-    v13 = &this->m_elements[v6].m_data;
-    if ( v13 != p_m_data )
+    v12 = &this->m_elements[v6].m_data;
+    if ( v12 != p_m_data )
     {
-      v13->m_hasValue = p_m_data->m_hasValue;
+      v12->m_hasValue = p_m_data->m_hasValue;
       bdCrossPlatformUserMetadata::operator=(&this->m_elements[v6].m_data.m_value, &a->m_elements[v6].m_data.m_value);
     }
     p_m_updateTime = &a->m_elements[v6].m_updateTime;
-    v15 = &this->m_elements[v6].m_updateTime;
-    if ( v15 != p_m_updateTime )
+    v14 = &this->m_elements[v6].m_updateTime;
+    if ( v14 != p_m_updateTime )
     {
-      v15->m_hasValue = p_m_updateTime->m_hasValue;
+      v14->m_hasValue = p_m_updateTime->m_hasValue;
       this->m_elements[v6].m_updateTime.m_value = a->m_elements[v6].m_updateTime.m_value;
     }
   }
@@ -1657,14 +1604,18 @@ bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *bdStructFixedSizeArra
   unsigned int v8; 
   char *v9; 
   __int64 v10; 
+  char *v11; 
+  char *v12; 
   char *v13; 
   char *v14; 
-  int v18; 
-  unsigned int v19; 
-  unsigned __int64 v20; 
-  unsigned int v24; 
-  bdAchievementEventBatch::Entry *v26; 
-  bdStructFixedSizeArray<bdAchievementEvent,8> *v29; 
+  int v15; 
+  unsigned int v16; 
+  unsigned __int64 v17; 
+  char *v18; 
+  char *v19; 
+  unsigned int v20; 
+  bdAchievementEventBatch::Entry *v22; 
+  bdStructFixedSizeArray<bdAchievementEvent,8> *v25; 
 
   v2 = this;
   v3 = value;
@@ -1673,89 +1624,79 @@ bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *bdStructFixedSizeArra
   if ( (unsigned int)m_size >= 0x10 )
     return v2;
   v2->m_size = m_size + 1;
-  v26 = &v2->m_elements[m_size];
-  bdUserAccountID::operator=(&v26->m_user, &v3->m_user);
-  bdUserAccountID::operator=(&v26->m_firstPartyUser, &v3->m_firstPartyUser);
-  v26->m_platform = v3->m_platform;
+  v22 = &v2->m_elements[m_size];
+  bdUserAccountID::operator=(&v22->m_user, &v3->m_user);
+  bdUserAccountID::operator=(&v22->m_firstPartyUser, &v3->m_firstPartyUser);
+  v22->m_platform = v3->m_platform;
   p_m_events = &v3->m_events;
-  v26->m_timesAttempted = v3->m_timesAttempted;
+  v22->m_timesAttempted = v3->m_timesAttempted;
   v6 = 0i64;
-  v29 = &v3->m_events;
-  if ( &v26->m_events != &v3->m_events )
+  v25 = &v3->m_events;
+  if ( &v22->m_events != &v3->m_events )
   {
     v7 = v3->m_events.m_size;
     v8 = 0;
-    v26->m_events.m_size = v7;
+    v22->m_events.m_size = v7;
     if ( v7 )
     {
-      v9 = (char *)&v26->m_events;
+      v9 = (char *)&v22->m_events;
       do
       {
         v10 = 800i64 * v8;
-        _RDI = (char *)p_m_events + v10;
-        _RSI = &v9[v10];
+        v11 = (char *)p_m_events + v10;
+        v12 = &v9[v10];
         bdReferencable::operator=((bdReferencable *)&v9[v10 + 8 + *(int *)(*(_QWORD *)&v9[v10 + 8] + 4i64)], (const bdReferencable *)((char *)&p_m_events->m_elements[(unsigned __int64)v10 / 0x320].__vftable + *(int *)(*((_QWORD *)&p_m_events->m_elements[(unsigned __int64)v10 / 0x320].__vftable + 1) + 4i64) + 8));
-        v13 = _RDI + 136;
-        *((_QWORD *)_RSI + 2) = *((_QWORD *)_RDI + 2);
-        v14 = _RSI + 136;
-        __asm
+        v13 = v11 + 136;
+        *((_QWORD *)v12 + 2) = *((_QWORD *)v11 + 2);
+        v14 = v12 + 136;
+        *(__m256i *)(v12 + 24) = *(__m256i *)(v11 + 24);
+        *(__m256i *)(v12 + 56) = *(__m256i *)(v11 + 56);
+        *(__m256i *)(v12 + 88) = *(__m256i *)(v11 + 88);
+        *((_DWORD *)v12 + 30) = *((_DWORD *)v11 + 30);
+        v12[124] = v11[124];
+        *((_QWORD *)v12 + 16) = *((_QWORD *)v11 + 16);
+        if ( v12 + 136 != v11 + 136 )
         {
-          vmovups ymm0, ymmword ptr [rdi+18h]
-          vmovups ymmword ptr [rsi+18h], ymm0
-          vmovups ymm1, ymmword ptr [rdi+38h]
-          vmovups ymmword ptr [rsi+38h], ymm1
-          vmovups ymm0, ymmword ptr [rdi+58h]
-          vmovups ymmword ptr [rsi+58h], ymm0
-        }
-        *((_DWORD *)_RSI + 30) = *((_DWORD *)_RDI + 30);
-        _RSI[124] = _RDI[124];
-        *((_QWORD *)_RSI + 16) = *((_QWORD *)_RDI + 16);
-        if ( _RSI + 136 != _RDI + 136 )
-        {
-          v18 = *((_DWORD *)_RDI + 194);
-          v19 = 0;
-          *((_DWORD *)_RSI + 194) = v18;
-          if ( v18 )
+          v15 = *((_DWORD *)v11 + 194);
+          v16 = 0;
+          *((_DWORD *)v12 + 194) = v15;
+          if ( v15 )
           {
             do
             {
-              v20 = (unsigned __int64)v19 << 6;
-              _RDI = &v13[v20];
-              _RSI = &v14[v20];
-              bdReferencable::operator=((bdReferencable *)&v14[v20 + 8 + *(int *)(*(_QWORD *)&v14[v20 + 8] + 4i64)], (const bdReferencable *)&v13[v20 + 8 + *(int *)(*(_QWORD *)&v13[v20 + 8] + 4i64)]);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rdi+10h]
-                vmovups xmmword ptr [rsi+10h], xmm0
-              }
-              ++v19;
-              *((_DWORD *)_RSI + 8) = *((_DWORD *)_RDI + 8);
-              _RSI[36] = _RDI[36];
-              *((_QWORD *)_RSI + 5) = *((_QWORD *)_RDI + 5);
+              v17 = (unsigned __int64)v16 << 6;
+              v18 = &v13[v17];
+              v19 = &v14[v17];
+              bdReferencable::operator=((bdReferencable *)&v14[v17 + 8 + *(int *)(*(_QWORD *)&v14[v17 + 8] + 4i64)], (const bdReferencable *)&v13[v17 + 8 + *(int *)(*(_QWORD *)&v13[v17 + 8] + 4i64)]);
+              *((_OWORD *)v19 + 1) = *((_OWORD *)v18 + 1);
+              ++v16;
+              *((_DWORD *)v19 + 8) = *((_DWORD *)v18 + 8);
+              v19[36] = v18[36];
+              *((_QWORD *)v19 + 5) = *((_QWORD *)v18 + 5);
             }
-            while ( v19 < *((_DWORD *)v14 + 160) );
+            while ( v16 < *((_DWORD *)v14 + 160) );
           }
         }
-        p_m_events = v29;
+        p_m_events = v25;
         ++v8;
       }
-      while ( v8 < v26->m_events.m_size );
+      while ( v8 < v22->m_events.m_size );
       v2 = this;
       v3 = value;
     }
   }
-  if ( &v26->m_eventPointers != &v3->m_eventPointers )
+  if ( &v22->m_eventPointers != &v3->m_eventPointers )
   {
-    v24 = v3->m_eventPointers.m_size;
-    v26->m_eventPointers.m_size = v24;
-    if ( v24 )
+    v20 = v3->m_eventPointers.m_size;
+    v22->m_eventPointers.m_size = v20;
+    if ( v20 )
     {
       do
       {
-        v26->m_eventPointers.m_elements[v6] = v3->m_eventPointers.m_elements[v6];
+        v22->m_eventPointers.m_elements[v6] = v3->m_eventPointers.m_elements[v6];
         v6 = (unsigned int)(v6 + 1);
       }
-      while ( (unsigned int)v6 < v26->m_eventPointers.m_size );
+      while ( (unsigned int)v6 < v22->m_eventPointers.m_size );
     }
   }
   return v2;
@@ -1887,31 +1828,25 @@ bdStructFixedSizeArray<bdActivateAchievementAchievementTrigger,2>::pushBack
 bdStructFixedSizeArray<bdActivateAchievementAchievementTrigger,2> *bdStructFixedSizeArray<bdActivateAchievementAchievementTrigger,2>::pushBack(bdStructFixedSizeArray<bdActivateAchievementAchievementTrigger,2> *this, const bdActivateAchievementAchievementTrigger *value)
 {
   __int64 m_size; 
+  bdActivateAchievementAchievementTrigger *v5; 
 
-  _RSI = value;
   bdHandleAssert(this->m_size < 2, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdActivateAchievementAchievementTrigger,2>::pushBack", 0x40u, "No more capacity for pushBack");
   m_size = this->m_size;
   if ( (unsigned int)m_size < 2 )
   {
     this->m_size = m_size + 1;
-    _RBX = &this->m_elements[m_size];
-    bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_RSI->__vftable + *(int *)(*((_QWORD *)&_RSI->__vftable + 1) + 4i64) + 8));
-    __asm
+    v5 = &this->m_elements[m_size];
+    bdReferencable::operator=((bdReferencable *)((char *)&v5->__vftable + *(int *)(*((_QWORD *)&v5->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&value->__vftable + *(int *)(*((_QWORD *)&value->__vftable + 1) + 4i64) + 8));
+    *(bdStructBufferSerializable *)((char *)&v5->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&value->bdStructBufferSerializable + 16);
+    *(__m256i *)&v5->m_name[16] = *(__m256i *)&value->m_name[16];
+    *(__m256i *)&v5->m_name[48] = *(__m256i *)&value->m_name[48];
+    *(_DWORD *)&v5->m_name[80] = *(_DWORD *)&value->m_name[80];
+    v5->m_name[84] = value->m_name[84];
+    bdAchievementRelativeTimestamp::operator=(&v5->m_startTimestamp, &value->m_startTimestamp);
+    if ( &v5->m_timeLimit != &value->m_timeLimit )
     {
-      vmovups ymm0, ymmword ptr [rsi+10h]
-      vmovups ymmword ptr [rbx+10h], ymm0
-      vmovups ymm1, ymmword ptr [rsi+30h]
-      vmovups ymmword ptr [rbx+30h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+50h]
-      vmovups ymmword ptr [rbx+50h], ymm0
-    }
-    *(_DWORD *)&_RBX->m_name[80] = *(_DWORD *)&_RSI->m_name[80];
-    _RBX->m_name[84] = _RSI->m_name[84];
-    bdAchievementRelativeTimestamp::operator=(&_RBX->m_startTimestamp, &_RSI->m_startTimestamp);
-    if ( &_RBX->m_timeLimit != &_RSI->m_timeLimit )
-    {
-      _RBX->m_timeLimit.m_hasValue = _RSI->m_timeLimit.m_hasValue;
-      bdAchievementRelativeTimestamp::operator=(&_RBX->m_timeLimit.m_value, &_RSI->m_timeLimit.m_value);
+      v5->m_timeLimit.m_hasValue = value->m_timeLimit.m_hasValue;
+      bdAchievementRelativeTimestamp::operator=(&v5->m_timeLimit.m_value, &value->m_timeLimit.m_value);
     }
   }
   return this;
@@ -2095,22 +2030,18 @@ bdStructFixedSizeArray<bdAchievementProgressTarget,4>::pushBack
 bdStructFixedSizeArray<bdAchievementProgressTarget,4> *bdStructFixedSizeArray<bdAchievementProgressTarget,4>::pushBack(bdStructFixedSizeArray<bdAchievementProgressTarget,4> *this, const bdAchievementProgressTarget *value)
 {
   __int64 m_size; 
+  bdAchievementProgressTarget *v5; 
 
-  _RSI = value;
   bdHandleAssert(this->m_size < 4, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementProgressTarget,4>::pushBack", 0x40u, "No more capacity for pushBack");
   m_size = this->m_size;
   if ( (unsigned int)m_size < 4 )
   {
     this->m_size = m_size + 1;
-    _RBX = &this->m_elements[m_size];
-    bdReferencable::operator=((bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&_RSI->__vftable + *(int *)(*((_QWORD *)&_RSI->__vftable + 1) + 4i64) + 8));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+10h]
-      vmovups ymmword ptr [rbx+10h], ymm0
-    }
-    _RBX->m_name[16] = _RSI->m_name[16];
-    _RBX->m_progress = _RSI->m_progress;
+    v5 = &this->m_elements[m_size];
+    bdReferencable::operator=((bdReferencable *)((char *)&v5->__vftable + *(int *)(*((_QWORD *)&v5->__vftable + 1) + 4i64) + 8), (const bdReferencable *)((char *)&value->__vftable + *(int *)(*((_QWORD *)&value->__vftable + 1) + 4i64) + 8));
+    *(bdStructBufferSerializable *)((char *)&v5->bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&value->bdStructBufferSerializable + 16);
+    v5->m_name[16] = value->m_name[16];
+    v5->m_progress = value->m_progress;
   }
   return this;
 }

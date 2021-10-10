@@ -535,20 +535,22 @@ LABEL_53:
 SND_EndMusicState
 ==============
 */
-
-char __fastcall SND_EndMusicState(SndMusicState *state, bool skipEndAsset, __int64 a3, double _XMM3_8)
+char SND_EndMusicState(SndMusicState *state, bool skipEndAsset)
 {
   SndMusicAssetInstance *NewMusicAssetInstance; 
   SndMusicAssetInstance *musicPlaybacks; 
-  SndMusicAssetInstance *v8; 
+  SndMusicAssetInstance *v6; 
   SndMusicState *asset; 
-  SndMusicState *v10; 
-  const SndMusicAsset *v11; 
+  SndMusicState *v8; 
+  const SndMusicAsset *v9; 
   int assetType; 
-  bool v13; 
-  SndMusicAssetInstance *v16; 
-  int v17; 
+  bool v11; 
+  SndMusicAssetInstance *v13; 
+  int v14; 
   __int64 i; 
+  const SndMusicAsset *v16; 
+  const SndMusicAsset *v17; 
+  const SndMusicAsset *v18; 
   const SndMusicAsset *v19; 
   const SndMusicAsset *v20; 
   const SndMusicAsset *v21; 
@@ -562,9 +564,6 @@ char __fastcall SND_EndMusicState(SndMusicState *state, bool skipEndAsset, __int
   const SndMusicAsset *v29; 
   const SndMusicAsset *v30; 
   const SndMusicAsset *v31; 
-  const SndMusicAsset *v32; 
-  const SndMusicAsset *v33; 
-  const SndMusicAsset *v34; 
   SndVoice *PlaybackVoice; 
   SndAliasGroupTracking inOutTracking; 
 
@@ -578,43 +577,43 @@ char __fastcall SND_EndMusicState(SndMusicState *state, bool skipEndAsset, __int
     {
       if ( state == (SndMusicState *)-68i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_music.cpp", 189, ASSERT_TYPE_ASSERT, "(asset)", (const char *)&queryFormat, "asset") )
         __debugbreak();
-      v8 = g_snd.musicPlaybacks;
+      v6 = g_snd.musicPlaybacks;
       while ( 1 )
       {
-        asset = (SndMusicState *)v8->asset;
-        if ( v8->asset )
+        asset = (SndMusicState *)v6->asset;
+        if ( v6->asset )
         {
-          v10 = v8->state;
-          if ( v10 )
+          v8 = v6->state;
+          if ( v8 )
           {
-            if ( asset == (SndMusicState *)&state->intro && v10 == state )
+            if ( asset == (SndMusicState *)&state->intro && v8 == state )
               break;
           }
         }
-        if ( (__int64)++v8 >= (__int64)&g_snd.currentStateLooping )
+        if ( (__int64)++v6 >= (__int64)&g_snd.currentStateLooping )
           goto LABEL_16;
       }
-      if ( asset && asset->intro.alias[6] && SND_MusicGetPlaybackSamples(v8) < v8->asset->loopStartOffset )
+      if ( asset && asset->intro.alias[6] && SND_MusicGetPlaybackSamples(v6) < v6->asset->loopStartOffset )
         return 0;
     }
     while ( 1 )
     {
 LABEL_16:
-      v11 = musicPlaybacks->asset;
+      v9 = musicPlaybacks->asset;
       if ( !musicPlaybacks->asset || !musicPlaybacks->id )
         goto LABEL_28;
-      assetType = v11->assetType;
+      assetType = v9->assetType;
       if ( assetType )
       {
-        v13 = assetType == 2;
+        v11 = assetType == 2;
       }
       else
       {
-        if ( !v11->completeOnStop )
+        if ( !v9->completeOnStop )
           goto LABEL_27;
-        v13 = !skipEndAsset;
+        v11 = !skipEndAsset;
       }
-      if ( !v13 )
+      if ( !v11 )
 LABEL_27:
         SND_MusicAssetStop(musicPlaybacks, skipEndAsset);
 LABEL_28:
@@ -628,8 +627,7 @@ LABEL_28:
             if ( NewMusicAssetInstance )
             {
               SND_InitAliasGroupTracking(&inOutTracking);
-              __asm { vxorps  xmm3, xmm3, xmm3; startOffsetFraction }
-              NewMusicAssetInstance->id = SND_MusicAssetStart(&state->exit, NewMusicAssetInstance, -1, *(float *)&_XMM3, &inOutTracking);
+              NewMusicAssetInstance->id = SND_MusicAssetStart(&state->exit, NewMusicAssetInstance, -1, 0.0, &inOutTracking);
               SND_FinalizeAliasGroupTracking(&inOutTracking);
               if ( NewMusicAssetInstance->id )
                 NewMusicAssetInstance->playbackState = SND_MUSIC_PLAYBACK_STARTED;
@@ -638,130 +636,130 @@ LABEL_28:
             }
           }
         }
-        v16 = NULL;
+        v13 = NULL;
         state->status = SND_MUSIC_STATE_INACTIVE;
-        v17 = 0;
+        v14 = 0;
         for ( i = 0i64; i < 16; i += 16i64 )
         {
-          v19 = g_snd.musicPlaybacks[i].asset;
-          if ( v19 && g_snd.musicPlaybacks[i].playbackState == SND_MUSIC_PLAYBACK_STARTED && v19->assetType == 2 )
+          v16 = g_snd.musicPlaybacks[i].asset;
+          if ( v16 && g_snd.musicPlaybacks[i].playbackState == SND_MUSIC_PLAYBACK_STARTED && v16->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i];
+            ++v14;
           }
-          v20 = g_snd.musicPlaybacks[i + 1].asset;
-          if ( v20 && g_snd.musicPlaybacks[i + 1].playbackState == SND_MUSIC_PLAYBACK_STARTED && v20->assetType == 2 )
+          v17 = g_snd.musicPlaybacks[i + 1].asset;
+          if ( v17 && g_snd.musicPlaybacks[i + 1].playbackState == SND_MUSIC_PLAYBACK_STARTED && v17->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 1].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 1];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 1].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 1];
+            ++v14;
           }
-          v21 = g_snd.musicPlaybacks[i + 2].asset;
-          if ( v21 && g_snd.musicPlaybacks[i + 2].playbackState == SND_MUSIC_PLAYBACK_STARTED && v21->assetType == 2 )
+          v18 = g_snd.musicPlaybacks[i + 2].asset;
+          if ( v18 && g_snd.musicPlaybacks[i + 2].playbackState == SND_MUSIC_PLAYBACK_STARTED && v18->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 2].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 2];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 2].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 2];
+            ++v14;
           }
-          v22 = g_snd.musicPlaybacks[i + 3].asset;
-          if ( v22 && g_snd.musicPlaybacks[i + 3].playbackState == SND_MUSIC_PLAYBACK_STARTED && v22->assetType == 2 )
+          v19 = g_snd.musicPlaybacks[i + 3].asset;
+          if ( v19 && g_snd.musicPlaybacks[i + 3].playbackState == SND_MUSIC_PLAYBACK_STARTED && v19->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 3].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 3];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 3].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 3];
+            ++v14;
           }
-          v23 = g_snd.musicPlaybacks[i + 4].asset;
-          if ( v23 && g_snd.musicPlaybacks[i + 4].playbackState == SND_MUSIC_PLAYBACK_STARTED && v23->assetType == 2 )
+          v20 = g_snd.musicPlaybacks[i + 4].asset;
+          if ( v20 && g_snd.musicPlaybacks[i + 4].playbackState == SND_MUSIC_PLAYBACK_STARTED && v20->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 4].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 4];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 4].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 4];
+            ++v14;
           }
-          v24 = g_snd.musicPlaybacks[i + 5].asset;
-          if ( v24 && g_snd.musicPlaybacks[i + 5].playbackState == SND_MUSIC_PLAYBACK_STARTED && v24->assetType == 2 )
+          v21 = g_snd.musicPlaybacks[i + 5].asset;
+          if ( v21 && g_snd.musicPlaybacks[i + 5].playbackState == SND_MUSIC_PLAYBACK_STARTED && v21->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 5].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 5];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 5].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 5];
+            ++v14;
           }
-          v25 = g_snd.musicPlaybacks[i + 6].asset;
-          if ( v25 && g_snd.musicPlaybacks[i + 6].playbackState == SND_MUSIC_PLAYBACK_STARTED && v25->assetType == 2 )
+          v22 = g_snd.musicPlaybacks[i + 6].asset;
+          if ( v22 && g_snd.musicPlaybacks[i + 6].playbackState == SND_MUSIC_PLAYBACK_STARTED && v22->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 6].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 6];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 6].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 6];
+            ++v14;
           }
-          v26 = g_snd.musicPlaybacks[i + 7].asset;
-          if ( v26 && g_snd.musicPlaybacks[i + 7].playbackState == SND_MUSIC_PLAYBACK_STARTED && v26->assetType == 2 )
+          v23 = g_snd.musicPlaybacks[i + 7].asset;
+          if ( v23 && g_snd.musicPlaybacks[i + 7].playbackState == SND_MUSIC_PLAYBACK_STARTED && v23->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 7].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 7];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 7].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 7];
+            ++v14;
           }
-          v27 = g_snd.musicPlaybacks[i + 8].asset;
-          if ( v27 && g_snd.musicPlaybacks[i + 8].playbackState == SND_MUSIC_PLAYBACK_STARTED && v27->assetType == 2 )
+          v24 = g_snd.musicPlaybacks[i + 8].asset;
+          if ( v24 && g_snd.musicPlaybacks[i + 8].playbackState == SND_MUSIC_PLAYBACK_STARTED && v24->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 8].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 8];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 8].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 8];
+            ++v14;
           }
-          v28 = g_snd.musicPlaybacks[i + 9].asset;
-          if ( v28 && g_snd.musicPlaybacks[i + 9].playbackState == SND_MUSIC_PLAYBACK_STARTED && v28->assetType == 2 )
+          v25 = g_snd.musicPlaybacks[i + 9].asset;
+          if ( v25 && g_snd.musicPlaybacks[i + 9].playbackState == SND_MUSIC_PLAYBACK_STARTED && v25->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 9].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 9];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 9].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 9];
+            ++v14;
           }
-          v29 = g_snd.musicPlaybacks[i + 10].asset;
-          if ( v29 && g_snd.musicPlaybacks[i + 10].playbackState == SND_MUSIC_PLAYBACK_STARTED && v29->assetType == 2 )
+          v26 = g_snd.musicPlaybacks[i + 10].asset;
+          if ( v26 && g_snd.musicPlaybacks[i + 10].playbackState == SND_MUSIC_PLAYBACK_STARTED && v26->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 10].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 10];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 10].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 10];
+            ++v14;
           }
-          v30 = g_snd.musicPlaybacks[i + 11].asset;
-          if ( v30 && g_snd.musicPlaybacks[i + 11].playbackState == SND_MUSIC_PLAYBACK_STARTED && v30->assetType == 2 )
+          v27 = g_snd.musicPlaybacks[i + 11].asset;
+          if ( v27 && g_snd.musicPlaybacks[i + 11].playbackState == SND_MUSIC_PLAYBACK_STARTED && v27->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 11].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 11];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 11].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 11];
+            ++v14;
           }
-          v31 = g_snd.musicPlaybacks[i + 12].asset;
-          if ( v31 && g_snd.musicPlaybacks[i + 12].playbackState == SND_MUSIC_PLAYBACK_STARTED && v31->assetType == 2 )
+          v28 = g_snd.musicPlaybacks[i + 12].asset;
+          if ( v28 && g_snd.musicPlaybacks[i + 12].playbackState == SND_MUSIC_PLAYBACK_STARTED && v28->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 12].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 12];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 12].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 12];
+            ++v14;
           }
-          v32 = g_snd.musicPlaybacks[i + 13].asset;
-          if ( v32 && g_snd.musicPlaybacks[i + 13].playbackState == SND_MUSIC_PLAYBACK_STARTED && v32->assetType == 2 )
+          v29 = g_snd.musicPlaybacks[i + 13].asset;
+          if ( v29 && g_snd.musicPlaybacks[i + 13].playbackState == SND_MUSIC_PLAYBACK_STARTED && v29->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 13].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 13];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 13].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 13];
+            ++v14;
           }
-          v33 = g_snd.musicPlaybacks[i + 14].asset;
-          if ( v33 && g_snd.musicPlaybacks[i + 14].playbackState == SND_MUSIC_PLAYBACK_STARTED && v33->assetType == 2 )
+          v30 = g_snd.musicPlaybacks[i + 14].asset;
+          if ( v30 && g_snd.musicPlaybacks[i + 14].playbackState == SND_MUSIC_PLAYBACK_STARTED && v30->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 14].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 14];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 14].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 14];
+            ++v14;
           }
-          v34 = g_snd.musicPlaybacks[i + 15].asset;
-          if ( v34 && g_snd.musicPlaybacks[i + 15].playbackState == SND_MUSIC_PLAYBACK_STARTED && v34->assetType == 2 )
+          v31 = g_snd.musicPlaybacks[i + 15].asset;
+          if ( v31 && g_snd.musicPlaybacks[i + 15].playbackState == SND_MUSIC_PLAYBACK_STARTED && v31->assetType == 2 )
           {
-            if ( !v16 || g_snd.musicPlaybacks[i + 15].startFrame < v16->startFrame )
-              v16 = &g_snd.musicPlaybacks[i + 15];
-            ++v17;
+            if ( !v13 || g_snd.musicPlaybacks[i + 15].startFrame < v13->startFrame )
+              v13 = &g_snd.musicPlaybacks[i + 15];
+            ++v14;
           }
         }
-        if ( v16 && v16 != NewMusicAssetInstance && v17 > 1 )
+        if ( v13 && v13 != NewMusicAssetInstance && v14 > 1 )
         {
-          PlaybackVoice = SND_GetPlaybackVoice(v16->id);
+          PlaybackVoice = SND_GetPlaybackVoice(v13->id);
           if ( PlaybackVoice )
-            SND_VoiceSetStopSync(PlaybackVoice, 1, v16->asset->stopDelayBeats, 1);
-          v16->playbackState = SND_MUSIC_PLAYBACK_STOPPING;
+            SND_VoiceSetStopSync(PlaybackVoice, 1, v13->asset->stopDelayBeats, 1);
+          v13->playbackState = SND_MUSIC_PLAYBACK_STOPPING;
         }
         return 1;
       }
@@ -816,132 +814,91 @@ SndMusicAssetInstance *SND_GetNewMusicAssetInstance(SndMusicState *state, const 
 SND_MusicAssetStart
 ==============
 */
-
-__int64 __fastcall SND_MusicAssetStart(const SndMusicAsset *asset, SndMusicAssetInstance *instance, int offset, double startOffsetFraction, SndAliasGroupTracking *tracking)
+__int64 SND_MusicAssetStart(const SndMusicAsset *asset, SndMusicAssetInstance *instance, int offset, float startOffsetFraction, SndAliasGroupTracking *tracking)
 {
   SndAliasList *AliasFromId; 
-  const dvar_t *v12; 
-  int v13; 
-  const SndAliasList *v14; 
-  unsigned int v15; 
-  __int64 result; 
+  const dvar_t *v9; 
+  int v10; 
+  const SndAliasList *v11; 
+  unsigned int v12; 
   SndVoice *PlaybackVoice; 
-  SndVoice *v22; 
   int delayBeats; 
+  float v16; 
   SndAlias *outAliasA; 
   SndPlayParams inParams; 
 
-  __asm
-  {
-    vmovaps [rsp+130h+var_50], xmm6
-    vmovaps xmm6, xmm3
-  }
   AliasFromId = SND_FindAliasFromId(asset->aliasId);
-  v12 = DCONST_DVARBOOL_snd_enable_capture_mode;
-  v13 = 0;
-  v14 = AliasFromId;
-  v15 = 0;
+  v9 = DCONST_DVARBOOL_snd_enable_capture_mode;
+  v10 = 0;
+  v11 = AliasFromId;
+  v12 = 0;
   if ( !DCONST_DVARBOOL_snd_enable_capture_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_enable_capture_mode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
+    return 0i64;
+  if ( v11 )
   {
-    result = 0i64;
-  }
-  else
-  {
-    if ( v14 )
+    *(_OWORD *)&inParams.volumeScale = _xmm;
+    *(_QWORD *)&inParams.aliasId = 0i64;
+    inParams.lpfCutoff = FLOAT_N1_0;
+    inParams.hpfCutoff = FLOAT_N1_0;
+    inParams.org.v[0] = 0.0;
+    inParams.org.v[1] = 0.0;
+    inParams.org.v[2] = 0.0;
+    inParams.timeshift = 0;
+    inParams.adsrIndex = -1;
+    inParams.fadeTime = 0;
+    inParams.system = SASYS_CGAME;
+    inParams.autoSimId = -1;
+    inParams.autoSimTimeStamp = 0i64;
+    inParams.autoSimShotCount = SND_WEAP_SHOT_UNCOUNTED;
+    inParams.startPaused = 0;
+    inParams.additionalStartDelayUs = 0;
+    *(_QWORD *)&inParams.surfaceType = -1i64;
+    inParams.contextIndex2 = -1;
+    inParams.reflectionClass = 0;
+    *(_WORD *)&inParams.isADS = 0;
+    inParams.aliasList = v11;
+    inParams.sndEnt = CG_GenerateSndEntHandle(LOCAL_CLIENT_0, 2048);
+    inParams.startOffsetFraction = startOffsetFraction;
+    SND_PickSoundAliasFromList(v11, &inParams, (const SndAlias **)&outAliasA, NULL, NULL);
+    v12 = SND_PlaySoundAliasCore(outAliasA, 1.0, &inParams, tracking);
+    PlaybackVoice = SND_GetPlaybackVoice(v12);
+    if ( v12 && PlaybackVoice )
     {
-      __asm
+      delayBeats = asset->startDelayBeats;
+      v16 = 2880000.0 / (float)asset->bpm;
+      if ( offset >= 0 )
+        delayBeats += (int)(float)((float)offset / v16);
+      SND_VoiceSetStartSync(PlaybackVoice, 1, v16, asset->meter, asset->startOffsetFrames, delayBeats, asset->startFadeBeats);
+      instance->startFrame = g_snd.frame;
+      instance->loopNumber = 0;
+      g_snd.musicCurrentPlaybackAsset = asset;
+      if ( g_snd.musicRequestedState && g_snd.musicRequestedState->id == 1437501848 )
       {
-        vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-        vxorps  xmm1, xmm1, xmm1
-        vmovups xmmword ptr [rsp+130h+inParams.volumeScale], xmm0
-        vmovss  xmm0, cs:__real@bf800000
-      }
-      *(_QWORD *)&inParams.aliasId = 0i64;
-      __asm
-      {
-        vmovss  [rbp+4Fh+inParams.lpfCutoff], xmm0
-        vmovss  [rbp+4Fh+inParams.hpfCutoff], xmm0
-        vmovss  dword ptr [rbp+4Fh+inParams.org], xmm1
-        vmovss  dword ptr [rbp+4Fh+inParams.org+4], xmm1
-        vmovss  dword ptr [rbp+4Fh+inParams.org+8], xmm1
-        vmovss  [rbp+4Fh+inParams.startOffsetFraction], xmm1
-      }
-      inParams.timeshift = 0;
-      inParams.adsrIndex = -1;
-      inParams.fadeTime = 0;
-      inParams.system = SASYS_CGAME;
-      inParams.autoSimId = -1;
-      inParams.autoSimTimeStamp = 0i64;
-      inParams.autoSimShotCount = SND_WEAP_SHOT_UNCOUNTED;
-      inParams.startPaused = 0;
-      inParams.additionalStartDelayUs = 0;
-      *(_QWORD *)&inParams.surfaceType = -1i64;
-      inParams.contextIndex2 = -1;
-      inParams.reflectionClass = 0;
-      *(_WORD *)&inParams.isADS = 0;
-      inParams.aliasList = v14;
-      inParams.sndEnt = CG_GenerateSndEntHandle(LOCAL_CLIENT_0, 2048);
-      __asm { vmovss  [rbp+4Fh+inParams.startOffsetFraction], xmm6 }
-      SND_PickSoundAliasFromList(v14, &inParams, (const SndAlias **)&outAliasA, NULL, NULL);
-      __asm { vmovss  xmm1, cs:__real@3f800000; contextLerp }
-      v15 = SND_PlaySoundAliasCore(outAliasA, *(float *)&_XMM1, &inParams, tracking);
-      PlaybackVoice = SND_GetPlaybackVoice(v15);
-      v22 = PlaybackVoice;
-      if ( v15 && PlaybackVoice )
-      {
-        delayBeats = asset->startDelayBeats;
-        __asm
+        do
         {
-          vmovss  xmm0, cs:__real@4a2fc800
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rdi+50h]
-          vdivss  xmm2, xmm0, xmm1; syncPeriodFrames
-        }
-        if ( offset >= 0 )
-        {
-          __asm
+          if ( CL_Mgr_IsClientActive((LocalClientNum_t)v10) && LUI_BeginEvent((LocalClientNum_t)v10, "play_battle_track", LUI_luaVM) )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, r14d
-            vdivss  xmm1, xmm0, xmm2
-            vcvttss2si eax, xmm1
+            LUI_SetTableString("trackString", asset->alias, LUI_luaVM);
+            LUI_EndEvent(LUI_luaVM);
           }
-          delayBeats += _EAX;
+          ++v10;
         }
-        SND_VoiceSetStartSync(v22, 1, *(float *)&_XMM2, asset->meter, asset->startOffsetFrames, delayBeats, asset->startFadeBeats);
-        instance->startFrame = g_snd.frame;
-        instance->loopNumber = 0;
-        g_snd.musicCurrentPlaybackAsset = asset;
-        if ( g_snd.musicRequestedState && g_snd.musicRequestedState->id == 1437501848 )
-        {
-          do
-          {
-            if ( CL_Mgr_IsClientActive((LocalClientNum_t)v13) && LUI_BeginEvent((LocalClientNum_t)v13, "play_battle_track", LUI_luaVM) )
-            {
-              LUI_SetTableString("trackString", asset->alias, LUI_luaVM);
-              LUI_EndEvent(LUI_luaVM);
-            }
-            ++v13;
-          }
-          while ( v13 < 2 );
-        }
-      }
-      else
-      {
-        Com_PrintError(9, "MUSIC: failed to play music: %s\n", asset->alias);
+        while ( v10 < 2 );
       }
     }
     else
     {
-      Com_PrintError(9, "MUSIC: missing alias %s %x\n", asset->alias, asset->aliasId);
+      Com_PrintError(9, "MUSIC: failed to play music: %s\n", asset->alias);
     }
-    result = v15;
   }
-  __asm { vmovaps xmm6, [rsp+130h+var_50] }
-  return result;
+  else
+  {
+    Com_PrintError(9, "MUSIC: missing alias %s %x\n", asset->alias, asset->aliasId);
+  }
+  return v12;
 }
 
 /*
@@ -1008,11 +965,8 @@ void __fastcall SND_MusicInit(double _XMM0_8)
   SndMusicState *v6; 
 
   p_state = &g_snd.musicPlaybacks[0].state;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:?g_snd@@3Usnd_local_t@@A.musicRequestedState, xmm0; snd_local_t g_snd
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&g_snd.musicRequestedState = _XMM0;
   g_snd.musicPreviousState = NULL;
   g_snd.musicCurrentPlaybackAsset = NULL;
   g_snd.currentStateLooping = 0;
@@ -1063,36 +1017,39 @@ void __fastcall SND_MusicInit(double _XMM0_8)
 SND_MusicStartNextLoop
 ==============
 */
-bool SND_MusicStartNextLoop(SndMusicState *state, int currentLoopNum, int offset, SndAliasGroupTracking *tracking)
+char SND_MusicStartNextLoop(SndMusicState *state, int currentLoopNum, int offset, SndAliasGroupTracking *tracking)
 {
   __int64 loopCount; 
-  unsigned int v15; 
-  unsigned int v17; 
-  unsigned int v18; 
+  unsigned int v11; 
+  unsigned int v13; 
+  unsigned int v14; 
   SndMusicAsset *loops; 
   unsigned int *p_sampleRate; 
-  unsigned int *v23; 
-  __int64 v24; 
-  unsigned int *v37; 
-  __int64 v38; 
-  unsigned int v45; 
-  int v59; 
+  unsigned int *v19; 
+  __int64 v20; 
+  __int128 v25; 
+  __int128 v30; 
+  __int128 v35; 
+  __int128 v40; 
+  unsigned int *v41; 
+  __int64 v42; 
+  __int128 v47; 
+  __int128 v49; 
+  unsigned int v51; 
+  __int128 v53; 
+  double v59; 
+  __int128 v65; 
+  int v66; 
   SndMusicAssetInstance *NewMusicAssetInstance; 
-  SndMusicAssetInstance *v62; 
-  unsigned int v64; 
-  bool result; 
-  __int64 v68; 
+  SndMusicAssetInstance *v68; 
+  unsigned int v69; 
+  __int64 v71; 
 
   loopCount = (int)state->loopCount;
-  __asm { vmovaps [rsp+98h+var_48], xmm7 }
   if ( (_DWORD)loopCount )
   {
-    v15 = 0;
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
+    v11 = 0;
+    LODWORD(_XMM7) = 0;
     if ( state->isSequential || (unsigned int)loopCount < 2 )
     {
       if ( state->wallClockSync && currentLoopNum == -1 )
@@ -1101,17 +1058,17 @@ bool SND_MusicStartNextLoop(SndMusicState *state, int currentLoopNum, int offset
           __debugbreak();
         if ( !cg_t::ms_cgArray[0] )
         {
-          LODWORD(v68) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v68) )
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v71) )
             __debugbreak();
         }
         if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
         {
-          LODWORD(v68) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v68) )
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v71) )
             __debugbreak();
         }
-        v18 = 0;
+        v14 = 0;
         __asm
         {
           vxorpd  xmm4, xmm4, xmm4
@@ -1121,181 +1078,163 @@ bool SND_MusicStartNextLoop(SndMusicState *state, int currentLoopNum, int offset
         {
           loops = state->loops;
           p_sampleRate = &loops->sampleRate;
-          v23 = &loops[2].sampleRate;
+          v19 = &loops[2].sampleRate;
           LODWORD(loops) = ((unsigned int)(loopCount - 4) >> 2) + 1;
-          v24 = (unsigned int)loops;
-          v18 = 4 * (_DWORD)loops;
+          v20 = (unsigned int)loops;
+          v14 = 4 * (_DWORD)loops;
           do
           {
             if ( !*((_BYTE *)p_sampleRate - 52) )
             {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2sd xmm1, xmm1, rax
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm1, xmm1, xmm0
-                vaddsd  xmm2, xmm2, xmm1
-              }
+              _XMM1 = 0i64;
+              __asm { vcvtsi2sd xmm1, xmm1, rax }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              *((_QWORD *)&v25 + 1) = *((_QWORD *)&_XMM2 + 1);
+              *(double *)&v25 = *(double *)&_XMM2 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM2 = v25;
             }
             if ( !*((_BYTE *)p_sampleRate + 72) )
             {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2sd xmm1, xmm1, rax
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm1, xmm1, xmm0
-                vaddsd  xmm2, xmm2, xmm1
-              }
+              _XMM1 = 0i64;
+              __asm { vcvtsi2sd xmm1, xmm1, rax }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              *((_QWORD *)&v30 + 1) = *((_QWORD *)&_XMM2 + 1);
+              *(double *)&v30 = *(double *)&_XMM2 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM2 = v30;
             }
-            if ( !*((_BYTE *)v23 - 52) )
+            if ( !*((_BYTE *)v19 - 52) )
             {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2sd xmm1, xmm1, rax
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm1, xmm1, xmm0
-                vaddsd  xmm2, xmm2, xmm1
-              }
+              _XMM1 = 0i64;
+              __asm { vcvtsi2sd xmm1, xmm1, rax }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              *((_QWORD *)&v35 + 1) = *((_QWORD *)&_XMM2 + 1);
+              *(double *)&v35 = *(double *)&_XMM2 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM2 = v35;
             }
-            if ( !*((_BYTE *)v23 + 72) )
+            if ( !*((_BYTE *)v19 + 72) )
             {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2sd xmm1, xmm1, rax
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm1, xmm1, xmm0
-                vaddsd  xmm2, xmm2, xmm1
-              }
+              _XMM1 = 0i64;
+              __asm { vcvtsi2sd xmm1, xmm1, rax }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              *((_QWORD *)&v40 + 1) = *((_QWORD *)&_XMM2 + 1);
+              *(double *)&v40 = *(double *)&_XMM2 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM2 = v40;
             }
             p_sampleRate += 124;
-            v23 += 124;
-            --v24;
+            v19 += 124;
+            --v20;
           }
-          while ( v24 );
+          while ( v20 );
         }
-        if ( v18 < (unsigned int)loopCount )
+        if ( v14 < (unsigned int)loopCount )
         {
-          v37 = &state->loops[v18].sampleRate;
-          v38 = (unsigned int)loopCount - v18;
+          v41 = &state->loops[v14].sampleRate;
+          v42 = (unsigned int)loopCount - v14;
           do
           {
-            if ( !*((_BYTE *)v37 - 52) )
+            if ( !*((_BYTE *)v41 - 52) )
             {
-              __asm
-              {
-                vxorps  xmm1, xmm1, xmm1
-                vcvtsi2sd xmm1, xmm1, rax
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm1, xmm1, xmm0
-                vaddsd  xmm2, xmm2, xmm1
-              }
+              _XMM1 = 0i64;
+              __asm { vcvtsi2sd xmm1, xmm1, rax }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              *((_QWORD *)&v47 + 1) = *((_QWORD *)&_XMM2 + 1);
+              *(double *)&v47 = *(double *)&_XMM2 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM2 = v47;
             }
-            v37 += 31;
-            --v38;
+            v41 += 31;
+            --v42;
           }
-          while ( v38 );
+          while ( v42 );
         }
-        __asm
-        {
-          vmovsd  xmm3, cs:__real@408f400000000000
-          vmulsd  xmm0, xmm2, xmm3
-          vcvttsd2si rcx, xmm0
-        }
-        v45 = 0;
+        *((_QWORD *)&v49 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v49 = *(double *)&_XMM2 * 1000.0;
+        _XMM0 = v49;
+        __asm { vcvttsd2si rcx, xmm0 }
+        v51 = 0;
         if ( (_DWORD)loopCount )
         {
           while ( 1 )
           {
-            if ( !state->loops[v45].inactive )
+            if ( !state->loops[v51].inactive )
             {
+              *((_QWORD *)&v53 + 1) = *((_QWORD *)&_XMM4 + 1);
+              *(double *)&v53 = *(double *)&_XMM4 * 1000.0;
+              _XMM0 = v53;
+              _XMM1 = 0i64;
               __asm
               {
-                vmulsd  xmm0, xmm4, xmm3
-                vxorps  xmm1, xmm1, xmm1
                 vcvtsi2sd xmm1, xmm1, rax
                 vcvttsd2si rsi, xmm0
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2sd xmm0, xmm0, rax
-                vdivsd  xmm6, xmm1, xmm0
-                vaddsd  xmm4, xmm4, xmm6
-                vmulsd  xmm1, xmm4, xmm3
-                vcvttsd2si rax, xmm1
               }
+              _XMM0 = 0i64;
+              __asm { vcvtsi2sd xmm0, xmm0, rax }
+              v59 = *(double *)&_XMM1 / *(double *)&_XMM0;
+              *((_QWORD *)&v53 + 1) = *((_QWORD *)&_XMM4 + 1);
+              *(double *)&v53 = *(double *)&_XMM4 + *(double *)&_XMM1 / *(double *)&_XMM0;
+              _XMM4 = v53;
+              *(double *)&v53 = *(double *)&v53 * 1000.0;
+              _XMM1 = v53;
+              __asm { vcvttsd2si rax, xmm1 }
               if ( cg_t::ms_cgArray[0]->time % (unsigned int)_RCX < (unsigned int)_RAX )
                 break;
             }
-            if ( ++v45 >= (unsigned int)loopCount )
+            if ( ++v51 >= (unsigned int)loopCount )
               goto LABEL_47;
           }
-          __asm
-          {
-            vmovsd  xmm0, cs:__real@3f50624dd2f1a9fc
-            vxorps  xmm2, xmm2, xmm2
-          }
-          v15 = truncate_cast<int,unsigned int>(v45);
-          __asm
-          {
-            vcvtsi2sd xmm2, xmm2, rax
-            vdivsd  xmm1, xmm0, xmm6
-            vmulsd  xmm2, xmm2, xmm1
-            vcvtsd2ss xmm7, xmm2, xmm2
-          }
+          _XMM2 = 0i64;
+          v11 = truncate_cast<int,unsigned int>(v51);
+          __asm { vcvtsi2sd xmm2, xmm2, rax }
+          *((_QWORD *)&v65 + 1) = *((_QWORD *)&_XMM2 + 1);
+          *(double *)&v65 = *(double *)&_XMM2 * (0.001 / v59);
+          _XMM2 = v65;
+          __asm { vcvtsd2ss xmm7, xmm2, xmm2 }
         }
       }
       else
       {
-        v59 = 0;
+        v66 = 0;
         if ( (_DWORD)loopCount )
         {
           while ( 1 )
           {
             if ( (unsigned int)loopCount > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", loopCount, "unsigned", (unsigned int)loopCount) )
               __debugbreak();
-            if ( !state->loops[(currentLoopNum + v59 + 1) % (unsigned int)loopCount].inactive )
+            if ( !state->loops[(currentLoopNum + v66 + 1) % (unsigned int)loopCount].inactive )
               break;
-            if ( ++v59 >= (unsigned int)loopCount )
+            if ( ++v66 >= (unsigned int)loopCount )
               goto LABEL_47;
           }
-          v15 = (currentLoopNum + v59 + 1) % (unsigned int)loopCount;
+          v11 = (currentLoopNum + v66 + 1) % (unsigned int)loopCount;
         }
       }
     }
     else
     {
-      v17 = rand() % (unsigned int)loopCount;
-      v15 = v17;
+      v13 = rand() % (unsigned int)loopCount;
+      v11 = v13;
       if ( currentLoopNum != -1 )
-        v15 = (v17 + currentLoopNum) % (unsigned int)loopCount;
+        v11 = (v13 + currentLoopNum) % (unsigned int)loopCount;
     }
 LABEL_47:
-    NewMusicAssetInstance = SND_GetNewMusicAssetInstance(state, &state->loops[v15]);
-    __asm { vmovaps xmm6, [rsp+98h+var_38] }
-    v62 = NewMusicAssetInstance;
+    NewMusicAssetInstance = SND_GetNewMusicAssetInstance(state, &state->loops[v11]);
+    v68 = NewMusicAssetInstance;
     if ( NewMusicAssetInstance )
     {
-      __asm { vmovaps xmm3, xmm7; startOffsetFraction }
-      v64 = SND_MusicAssetStart(NewMusicAssetInstance->asset, NewMusicAssetInstance, offset, *(double *)&_XMM3, tracking);
-      v62->id = v64;
-      if ( v64 )
+      v69 = SND_MusicAssetStart(NewMusicAssetInstance->asset, NewMusicAssetInstance, offset, *(float *)&_XMM7, tracking);
+      v68->id = v69;
+      if ( v69 )
       {
-        v62->playbackState = SND_MUSIC_PLAYBACK_STARTED;
-        result = 1;
-        __asm { vmovaps xmm7, [rsp+98h+var_48] }
-        return result;
+        v68->playbackState = SND_MUSIC_PLAYBACK_STARTED;
+        return 1;
       }
-      SND_ReleaseMusicAssetInstance(v62);
+      SND_ReleaseMusicAssetInstance(v68);
     }
   }
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
   return 0;
 }
 
@@ -1304,39 +1243,38 @@ LABEL_47:
 SND_MusicUpdate
 ==============
 */
-void SND_MusicUpdate(__int64 a1, __int64 a2, __int64 a3, double a4)
+void SND_MusicUpdate(void)
 {
-  const dvar_t *v4; 
-  SndMusicAssetInstance *v5; 
-  __int64 v6; 
+  const dvar_t *v0; 
+  SndMusicAssetInstance *v1; 
   SndMusicState *musicCurrentState; 
   SndMusicState *musicPreviousState; 
   SndMusicState *musicRequestedState; 
   bool skipPreviousExit; 
-  int v11; 
-  SndMusicState *v12; 
+  int v6; 
+  SndMusicState *v7; 
   SndMusicAssetInstance *musicPlaybacks; 
   SndVoice *PlaybackVoice; 
   const SndAssetBankEntry *assetEntry; 
   __int64 frameCount; 
   SndMusicState *state; 
-  int v18; 
-  SndVoice *v19; 
+  int v13; 
+  SndVoice *v14; 
   int stopFadeBeats; 
-  SndMusicState *v21; 
+  SndMusicState *v16; 
   const SndMusicAsset *asset; 
-  __int64 v23; 
+  __int64 v18; 
   SndAliasGroupTracking inOutTracking; 
 
-  v4 = DCONST_DVARBOOL_snd_enable_capture_mode;
-  v5 = NULL;
+  v0 = DCONST_DVARBOOL_snd_enable_capture_mode;
+  v1 = NULL;
   if ( !DCONST_DVARBOOL_snd_enable_capture_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_enable_capture_mode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v0);
+  if ( v0->current.enabled )
   {
     if ( g_snd.musicCurrentState )
-      SND_EndMusicState(g_snd.musicCurrentState, 1, v6, a4);
+      SND_EndMusicState(g_snd.musicCurrentState, 1);
   }
   else
   {
@@ -1345,7 +1283,7 @@ void SND_MusicUpdate(__int64 a1, __int64 a2, __int64 a3, double a4)
     musicRequestedState = g_snd.musicRequestedState;
     if ( g_snd.musicRequestedState != g_snd.musicCurrentState )
     {
-      if ( !g_snd.musicCurrentState || g_snd.musicCurrentState->status != SND_MUSIC_STATE_ACTIVE || (!g_snd.musicRequestedState ? (skipPreviousExit = 0) : (skipPreviousExit = g_snd.musicRequestedState->skipPreviousExit), SND_EndMusicState(g_snd.musicCurrentState, skipPreviousExit, v6, a4)) )
+      if ( !g_snd.musicCurrentState || g_snd.musicCurrentState->status != SND_MUSIC_STATE_ACTIVE || (!g_snd.musicRequestedState ? (skipPreviousExit = 0) : (skipPreviousExit = g_snd.musicRequestedState->skipPreviousExit), SND_EndMusicState(g_snd.musicCurrentState, skipPreviousExit)) )
       {
         musicPreviousState = musicCurrentState;
         musicCurrentState = musicRequestedState;
@@ -1357,19 +1295,19 @@ void SND_MusicUpdate(__int64 a1, __int64 a2, __int64 a3, double a4)
     }
     if ( musicCurrentState && musicCurrentState->status == SND_MUSIC_STATE_INACTIVE )
     {
-      LOBYTE(v11) = SND_StartMusicState(musicCurrentState, musicPreviousState);
-      if ( v11 )
+      LOBYTE(v6) = SND_StartMusicState(musicCurrentState, musicPreviousState);
+      if ( v6 )
       {
-        musicCurrentState->status = v11 == 1;
+        musicCurrentState->status = v6 == 1;
       }
       else
       {
-        v12 = NULL;
+        v7 = NULL;
         musicCurrentState->status = SND_MUSIC_STATE_INACTIVE;
         if ( musicRequestedState != musicCurrentState )
-          v12 = musicRequestedState;
+          v7 = musicRequestedState;
         musicCurrentState = NULL;
-        musicRequestedState = v12;
+        musicRequestedState = v7;
       }
     }
     g_snd.musicRequestedState = musicRequestedState;
@@ -1394,7 +1332,7 @@ void SND_MusicUpdate(__int64 a1, __int64 a2, __int64 a3, double a4)
                 if ( (_DWORD)frameCount )
                 {
                   if ( frameCount - PlaybackVoice->framesPlayed < 0x2710 )
-                    v5 = musicPlaybacks;
+                    v1 = musicPlaybacks;
                 }
               }
             }
@@ -1408,32 +1346,32 @@ void SND_MusicUpdate(__int64 a1, __int64 a2, __int64 a3, double a4)
       ++musicPlaybacks;
     }
     while ( (__int64)musicPlaybacks < (__int64)&g_snd.currentStateLooping );
-    if ( v5 )
+    if ( v1 )
     {
-      state = v5->state;
-      v18 = v5->loopNumber + 1;
-      v5->loopNumber = v18;
-      if ( state->loopCount > 1 && v18 == v5->asset->loopNumber )
+      state = v1->state;
+      v13 = v1->loopNumber + 1;
+      v1->loopNumber = v13;
+      if ( state->loopCount > 1 && v13 == v1->asset->loopNumber )
       {
-        v19 = SND_GetPlaybackVoice(v5->id);
-        if ( v19 )
+        v14 = SND_GetPlaybackVoice(v1->id);
+        if ( v14 )
         {
           stopFadeBeats = 1;
-          if ( v5->asset->stopFadeBeats > 0 )
-            stopFadeBeats = v5->asset->stopFadeBeats;
-          SND_VoiceSetStopSync(v19, 1, v5->asset->stopDelayBeats, stopFadeBeats);
+          if ( v1->asset->stopFadeBeats > 0 )
+            stopFadeBeats = v1->asset->stopFadeBeats;
+          SND_VoiceSetStopSync(v14, 1, v1->asset->stopDelayBeats, stopFadeBeats);
         }
-        v21 = v5->state;
-        asset = v5->asset;
-        v5->playbackState = SND_MUSIC_PLAYBACK_STOPPING;
-        v23 = asset - v21->loops;
-        if ( (unsigned __int64)(v23 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v23, "signed", v23) )
+        v16 = v1->state;
+        asset = v1->asset;
+        v1->playbackState = SND_MUSIC_PLAYBACK_STOPPING;
+        v18 = asset - v16->loops;
+        if ( (unsigned __int64)(v18 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v18, "signed", v18) )
           __debugbreak();
         SND_InitAliasGroupTracking(&inOutTracking);
-        SND_MusicStartNextLoop(v5->state, v23, -1, &inOutTracking);
+        SND_MusicStartNextLoop(v1->state, v18, -1, &inOutTracking);
         SND_FinalizeAliasGroupTracking(&inOutTracking);
       }
-      v5->queuedNextLoop = 1;
+      v1->queuedNextLoop = 1;
     }
   }
 }
@@ -1465,26 +1403,25 @@ void SND_ReleaseMusicAssetInstance(SndMusicAssetInstance *instance)
 SND_StartMusicState
 ==============
 */
-
-__int64 __fastcall SND_StartMusicState(SndMusicState *newState, SndMusicState *oldState, __int64 a3, double _XMM3_8)
+__int64 SND_StartMusicState(SndMusicState *newState, SndMusicState *oldState)
 {
   SndMusicAssetInstance *musicPlaybacks; 
   const SndMusicAsset *asset; 
-  int v7; 
-  const SndMusicAsset *v8; 
+  int v5; 
+  const SndMusicAsset *v6; 
   SndVoice *PlaybackVoice; 
   int stopFadeBeats; 
-  char v12; 
+  char v10; 
   SndMusicAssetInstance *NewMusicAssetInstance; 
-  unsigned int v15; 
+  unsigned int v12; 
   int loopStartOffset; 
-  bool started; 
+  char started; 
   int numVoices; 
-  unsigned __int8 v19; 
+  unsigned __int8 v16; 
   int *voiceIndices; 
   unsigned int secondaryGroupId; 
-  __int64 v22; 
-  sd_voice *v23; 
+  __int64 v19; 
+  sd_voice *v20; 
   SndAliasGroupTracking inOutTracking; 
 
   if ( !newState || !newState->intro.aliasId && !newState->loopCount )
@@ -1493,7 +1430,7 @@ __int64 __fastcall SND_StartMusicState(SndMusicState *newState, SndMusicState *o
   while ( 1 )
   {
     asset = musicPlaybacks->asset;
-    v7 = 0;
+    v5 = 0;
     if ( musicPlaybacks->asset )
     {
       if ( musicPlaybacks->id && asset->assetType == 2 && musicPlaybacks->playbackState == SND_MUSIC_PLAYBACK_STARTED )
@@ -1504,10 +1441,10 @@ __int64 __fastcall SND_StartMusicState(SndMusicState *newState, SndMusicState *o
   }
   if ( asset )
   {
-    v8 = musicPlaybacks->asset;
-    if ( (unsigned int)SND_MusicGetPlaybackSamples(musicPlaybacks) < v8->loopStartOffset )
+    v6 = musicPlaybacks->asset;
+    if ( (unsigned int)SND_MusicGetPlaybackSamples(musicPlaybacks) < v6->loopStartOffset )
       return 2i64;
-    if ( v8->stopFadeBeats > 0 )
+    if ( v6->stopFadeBeats > 0 )
     {
       PlaybackVoice = SND_GetPlaybackVoice(musicPlaybacks->id);
       if ( PlaybackVoice )
@@ -1522,16 +1459,15 @@ __int64 __fastcall SND_StartMusicState(SndMusicState *newState, SndMusicState *o
   }
 LABEL_21:
   SND_InitAliasGroupTracking(&inOutTracking);
-  v12 = 0;
+  v10 = 0;
   if ( !newState->intro.aliasId )
     goto LABEL_26;
   NewMusicAssetInstance = SND_GetNewMusicAssetInstance(newState, &newState->intro);
   if ( !NewMusicAssetInstance )
     goto LABEL_26;
-  __asm { vxorps  xmm3, xmm3, xmm3; startOffsetFraction }
-  v15 = SND_MusicAssetStart(&newState->intro, NewMusicAssetInstance, -1, *(double *)&_XMM3, &inOutTracking);
-  NewMusicAssetInstance->id = v15;
-  if ( !v15 )
+  v12 = SND_MusicAssetStart(&newState->intro, NewMusicAssetInstance, -1, 0.0, &inOutTracking);
+  NewMusicAssetInstance->id = v12;
+  if ( !v12 )
   {
     SND_ReleaseMusicAssetInstance(NewMusicAssetInstance);
 LABEL_26:
@@ -1539,33 +1475,33 @@ LABEL_26:
     goto LABEL_27;
   }
   NewMusicAssetInstance->playbackState = SND_MUSIC_PLAYBACK_STARTED;
-  v12 = 1;
+  v10 = 1;
   loopStartOffset = NewMusicAssetInstance->asset->loopStartOffset;
 LABEL_27:
   started = SND_MusicStartNextLoop(newState, -1, loopStartOffset, &inOutTracking);
   numVoices = inOutTracking.numVoices;
-  v19 = v12 | started;
+  v16 = v10 | started;
   if ( inOutTracking.numVoices > 0 )
   {
     voiceIndices = inOutTracking.voiceIndices;
     secondaryGroupId = g_sd.voices[inOutTracking.voiceIndices[0]]->secondaryGroupId;
     do
     {
-      v22 = *voiceIndices;
-      v23 = g_sd.voices[v22];
-      if ( v23 )
+      v19 = *voiceIndices;
+      v20 = g_sd.voices[v19];
+      if ( v20 )
       {
-        v23->secondaryGroupId = secondaryGroupId;
-        g_sd.voices[v22]->secondaryGroupSize = inOutTracking.numVoices;
+        v20->secondaryGroupId = secondaryGroupId;
+        g_sd.voices[v19]->secondaryGroupSize = inOutTracking.numVoices;
         numVoices = inOutTracking.numVoices;
       }
-      ++v7;
+      ++v5;
       ++voiceIndices;
     }
-    while ( v7 < numVoices );
+    while ( v5 < numVoices );
   }
   SND_FinalizeAliasGroupTracking(&inOutTracking);
-  return v19;
+  return v16;
 }
 
 /*

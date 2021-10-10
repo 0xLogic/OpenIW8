@@ -184,44 +184,44 @@ LuaShared_CopyTableToVM
 */
 void LuaShared_CopyTableToVM(lua_State *sourceVM, lua_State *destVM, const int stackIndexForTable)
 {
-  int v7; 
+  int v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v9; 
-  int v10; 
-  const char *v11; 
-  int v13; 
+  int v9; 
+  const char *v10; 
+  long double v11; 
+  int v12; 
 
   j_lua_pushnil(sourceVM);
   while ( j_lua_next(sourceVM, stackIndexForTable) )
   {
-    v7 = j_lua_type(sourceVM, -1);
-    v8 = j_lua_tolstring(sourceVM, -2, NULL);
-    switch ( v7 )
+    v6 = j_lua_type(sourceVM, -1);
+    v7 = j_lua_tolstring(sourceVM, -2, NULL);
+    switch ( v6 )
     {
       case 1:
-        v13 = j_lua_toboolean(sourceVM, -1);
-        j_lua_pushboolean(destVM, v13 != 0);
+        v12 = j_lua_toboolean(sourceVM, -1);
+        j_lua_pushboolean(destVM, v12 != 0);
         break;
       case 3:
-        *(double *)&_XMM0 = j_lua_tonumber(sourceVM, -1);
-        __asm { vmovaps xmm1, xmm0; n }
-        j_lua_pushnumber(destVM, *(long double *)&_XMM1);
+        v11 = j_lua_tonumber(sourceVM, -1);
+        j_lua_pushnumber(destVM, v11);
         break;
       case 4:
-        v11 = j_lua_tolstring(sourceVM, -1, NULL);
-        j_lua_pushstring(destVM, v11);
+        v10 = j_lua_tolstring(sourceVM, -1, NULL);
+        j_lua_pushstring(destVM, v10);
         break;
       default:
-        v9 = j_lua_typename(sourceVM, v7);
+        v8 = j_lua_typename(sourceVM, v6);
         if ( !sourceVM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\luashared\\luashared.cpp", 119, ASSERT_TYPE_ASSERT, "(luaVM)", (const char *)&queryFormat, "luaVM") )
           __debugbreak();
-        v10 = 25;
+        v9 = 25;
         if ( sourceVM == LUI_luaVM )
-          v10 = 13;
-        Com_PrintError(v10, "SendEventToLUI - Unsupported type %s used for key %s", v9, v8);
+          v9 = 13;
+        Com_PrintError(v9, "SendEventToLUI - Unsupported type %s used for key %s", v8, v7);
         goto LABEL_15;
     }
-    j_lua_setfield(destVM, -2, v8);
+    j_lua_setfield(destVM, -2, v7);
 LABEL_15:
     j_lua_settop(sourceVM, -2);
   }
@@ -406,18 +406,10 @@ void LuaShared_SetTableNumber(const char *key, long double value, lua_State *lua
 LuaShared_SetTableNumber
 ==============
 */
-
-void __fastcall LuaShared_SetTableNumber(__int64 key, double value, lua_State *luaVM)
+void LuaShared_SetTableNumber(__int64 key, long double value, lua_State *luaVM)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   j_lua_pushinteger(luaVM, key);
-  __asm { vmovaps xmm1, xmm6; n }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  j_lua_pushnumber(luaVM, value);
   j_lua_settable(luaVM, -3);
 }
 
@@ -466,31 +458,17 @@ lua_tonumber32
 */
 float lua_tonumber32(lua_State *luaVM, int index)
 {
-  __int16 v6; 
+  __int128 v2; 
   double Px; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = j_lua_tonumber(luaVM, index);
-  __asm
-  {
-    vmovsd  [rsp+38h+Px], xmm0
-    vmovaps xmm6, xmm0
-  }
-  v6 = _dtest(&Px);
-  if ( v6 > 0 )
+  *(double *)&v2 = j_lua_tonumber(luaVM, index);
+  Px = *(double *)&v2;
+  _XMM6 = v2;
+  if ( _dtest(&Px) > 0 )
     j_luaL_error(luaVM, "value is infinite");
-  __asm
-  {
-    vcomisd xmm6, cs:__real@c7efffffe0000000
-    vcomisd xmm6, cs:__real@47efffffe0000000
-  }
-  if ( v6 )
+  if ( *(double *)&v2 < -3.402823466385289e38 || *(double *)&v2 > 3.402823466385289e38 )
     j_luaL_error(luaVM, "value is out of range for 32-bit floating point type");
-  __asm
-  {
-    vcvtsd2ss xmm0, xmm6, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  __asm { vcvtsd2ss xmm0, xmm6, xmm6 }
   return *(float *)&_XMM0;
 }
 

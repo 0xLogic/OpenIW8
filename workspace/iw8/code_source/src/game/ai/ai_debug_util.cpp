@@ -25,45 +25,27 @@ void __fastcall DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, int entn
 DebugDrawEntVec
 ==============
 */
-
-void __fastcall DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, int entnum, double scale, float zOffset)
+void DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, int entnum, float scale, float zOffset)
 {
-  __int64 v6; 
+  __int64 v5; 
+  __m128 v9; 
+  float v10; 
   vec3_t end; 
   vec3_t start; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  v6 = entnum;
-  _RDI = vec;
-  __asm { vmovaps xmm6, xmm3 }
+  v5 = entnum;
   if ( G_IsEntityInUse(entnum) )
   {
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    _RAX = g_entities;
-    __asm
-    {
-      vmovss  xmm4, [rsp+88h+zOffset]
-      vmovsd  qword ptr [rsp+88h+end], xmm0
-      vmulss  xmm2, xmm6, dword ptr [rsp+88h+end+4]
-      vmulss  xmm0, xmm0, xmm6
-    }
-    _RDX = 1456 * v6;
-    __asm
-    {
-      vmovss  dword ptr [rsp+88h+start+8], xmm4
-      vmovsd  xmm3, qword ptr [rdx+rax+130h]
-      vaddss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rsp+88h+end], xmm0
-      vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-      vaddss  xmm0, xmm2, xmm0
-      vaddss  xmm2, xmm4, dword ptr [rsp+88h+end+8]
-      vmovss  dword ptr [rsp+88h+end+8], xmm2
-      vmovss  dword ptr [rsp+88h+end+4], xmm0
-      vmovsd  qword ptr [rsp+88h+start], xmm3
-    }
+    *(_QWORD *)end.v = *(_QWORD *)vec->v;
+    start.v[2] = zOffset;
+    v9 = (__m128)*(unsigned __int64 *)g_entities[v5].r.currentOrigin.v;
+    v10 = vec->v[2];
+    end.v[0] = (float)(end.v[0] * scale) + v9.m128_f32[0];
+    end.v[2] = zOffset + v10;
+    end.v[1] = (float)(scale * end.v[1]) + _mm_shuffle_ps(v9, v9, 85).m128_f32[0];
+    *(double *)start.v = *(double *)v9.m128_u64;
     G_DebugLineWithDuration(&start, &end, color, 1, 1);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -71,30 +53,21 @@ void __fastcall DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, int entn
 DebugDrawEntVec
 ==============
 */
-
-void __fastcall DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, gentity_s *ent, double scale, float zOffset)
+void DebugDrawEntVec(const vec3_t *vec, const vec4_t *color, gentity_s *ent, float scale, float zOffset)
 {
+  __m128 v5; 
+  float v6; 
   vec3_t end; 
   vec3_t start; 
 
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  xmm4, qword ptr [r8+130h]
-    vmovss  xmm5, [rsp+68h+zOffset]
-    vmovsd  qword ptr [rsp+68h+end], xmm0
-    vmulss  xmm2, xmm3, dword ptr [rsp+68h+end+4]
-    vmulss  xmm0, xmm0, xmm3
-    vaddss  xmm0, xmm0, xmm4
-    vmovss  dword ptr [rsp+68h+end], xmm0
-    vshufps xmm0, xmm4, xmm4, 55h ; 'U'
-    vaddss  xmm0, xmm2, xmm0
-    vaddss  xmm2, xmm5, dword ptr [rsp+68h+end+8]
-    vmovss  dword ptr [rsp+68h+end+8], xmm2
-    vmovss  dword ptr [rsp+68h+start+8], xmm5
-    vmovss  dword ptr [rsp+68h+end+4], xmm0
-    vmovsd  qword ptr [rsp+68h+start], xmm4
-  }
+  v5 = (__m128)*(unsigned __int64 *)ent->r.currentOrigin.v;
+  v6 = vec->v[2];
+  *(_QWORD *)end.v = *(_QWORD *)vec->v;
+  end.v[0] = (float)(end.v[0] * scale) + v5.m128_f32[0];
+  end.v[2] = zOffset + v6;
+  start.v[2] = zOffset;
+  end.v[1] = (float)(scale * end.v[1]) + _mm_shuffle_ps(v5, v5, 85).m128_f32[0];
+  *(double *)start.v = *(double *)v5.m128_u64;
   G_DebugLineWithDuration(&start, &end, color, 1, 1);
 }
 

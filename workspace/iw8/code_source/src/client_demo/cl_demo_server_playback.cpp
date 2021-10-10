@@ -299,59 +299,34 @@ CL_DemoServerPlayback_SvWriteClientArchive
 */
 void CL_DemoServerPlayback_SvWriteClientArchive(void (*write)(const void *, int, int), const playerState_s *ps, const ClientExtrapData *extrapData, int clientNum, const int index)
 {
-  const dvar_t *v14; 
-  char v37; 
-  char v38[7]; 
-  int v39[4]; 
-  char v40; 
-  void *retaddr; 
+  const dvar_t *v9; 
+  __int16 v13; 
+  char v15; 
+  char v16[7]; 
+  int v17[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _R14 = extrapData;
   if ( !write && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_demo\\cl_demo_server_playback.cpp", 394, ASSERT_TYPE_ASSERT, "(write)", (const char *)&queryFormat, "write") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_demo\\cl_demo_server_playback.cpp", 395, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v14 = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
+  v9 = DCONST_DVARFLT_com_userCmdMaxExtrapTranslation;
   if ( !DCONST_DVARFLT_com_userCmdMaxExtrapTranslation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_userCmdMaxExtrapTranslation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
+  Dvar_CheckFrontendServerThread(v9);
+  _XMM10 = 0i64;
   __asm
   {
-    vmovss  xmm0, cs:__real@46fffe00
-    vdivss  xmm9, xmm0, dword ptr [rsi+28h]
-    vmulss  xmm0, xmm9, dword ptr [r14]
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  xmm6, dword ptr [r14+4]
-    vmovss  xmm8, dword ptr [r14+8]
-    vxorps  xmm10, xmm10, xmm10
     vroundss xmm2, xmm10, xmm1, 1
-    vcvttss2si ecx, xmm2; val
-    vmulss  xmm0, xmm9, xmm6
-    vaddss  xmm2, xmm0, cs:__real@3f000000
     vroundss xmm0, xmm10, xmm2, 1
   }
-  v39[0] = truncate_cast<short,int>(_ECX);
-  __asm
-  {
-    vcvttss2si ecx, xmm0; val
-    vmulss  xmm0, xmm9, xmm8
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vroundss xmm0, xmm10, xmm2, 1
-  }
-  v39[1] = truncate_cast<short,int>(_ECX);
-  __asm { vcvttss2si ecx, xmm0; val }
-  v39[2] = truncate_cast<short,int>(_ECX);
-  v37 = 0;
-  v38[0] = 5;
-  write(&v37, 1, clientNum);
+  v17[0] = truncate_cast<short,int>((int)*(float *)&_XMM2);
+  v13 = truncate_cast<short,int>((int)*(float *)&_XMM0);
+  __asm { vroundss xmm0, xmm10, xmm2, 1 }
+  v17[1] = v13;
+  v17[2] = truncate_cast<short,int>((int)*(float *)&_XMM0);
+  v15 = 0;
+  v16[0] = 5;
+  write(&v15, 1, clientNum);
   write(&index, 4, clientNum);
   write(ps, 4, clientNum);
   write(&ps->inputTime, 4, clientNum);
@@ -361,18 +336,10 @@ void CL_DemoServerPlayback_SvWriteClientArchive(void (*write)(const void *, int,
   write(&ps->vehicleState, 84, clientNum);
   write(&ps->viewangles, 12, clientNum);
   write(&ps->footstepCount, 2, clientNum);
-  write(v39, 12, clientNum);
-  write(&_R14->time, 4, clientNum);
-  write(_R14->packedBobCycle, 8, clientNum);
-  write(v38, 1, clientNum);
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-  }
+  write(v17, 12, clientNum);
+  write(&extrapData->time, 4, clientNum);
+  write(extrapData->packedBobCycle, 8, clientNum);
+  write(v16, 1, clientNum);
 }
 
 /*

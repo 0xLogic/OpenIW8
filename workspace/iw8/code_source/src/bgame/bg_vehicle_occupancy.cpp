@@ -92,22 +92,10 @@ __int64 BG_VehicleOccupancy_GetEnterSide(const BgHandler *handler, const entityS
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 280, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
   v6 = handler->GetVehicleSystemConst(handler);
-  if ( !v6 )
+  if ( v6 && (v7 = (__int64)v6->PhysicsGetVehicleObject(v6, vehicleEntNum)) != 0 && *(_DWORD *)(v7 + 60) == es->clientNum )
+    return (unsigned int)((float)((float)(0.0 * *(float *)(v7 + 64)) + (float)(1.0 * *(float *)(v7 + 68))) < 0.0) + 1;
+  else
     return 0i64;
-  v7 = (__int64)v6->PhysicsGetVehicleObject(v6, vehicleEntNum);
-  if ( !v7 || *(_DWORD *)(v7 + 60) != es->clientNum )
-    return 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+0Ch; tmat33_t<vec3_t> const identityMatrix33
-    vmulss  xmm3, xmm0, dword ptr [rax+40h]
-    vmovss  xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+10h; tmat33_t<vec3_t> const identityMatrix33
-    vmulss  xmm2, xmm1, dword ptr [rax+44h]
-    vaddss  xmm4, xmm3, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm4, xmm0
-  }
-  return 1i64;
 }
 
 /*
@@ -118,60 +106,36 @@ BG_VehicleOccupancy_GetLinkTransform
 bool BG_VehicleOccupancy_GetLinkTransform(const BgHandler *handler, const int playerRigEntNum, vec3_t *outLinkPos, vec3_t *outLinkAngles)
 {
   bool result; 
-  int v34[4]; 
+  float v9; 
+  float v12; 
+  float v14; 
+  float v15; 
+  int v17[4]; 
   tmat33_t<vec3_t> axis; 
 
-  _RSI = outLinkAngles;
-  _RBP = outLinkPos;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 315, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
   if ( playerRigEntNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 316, ASSERT_TYPE_ASSERT, "(playerRigEntNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "playerRigEntNum != ENTITYNUM_NONE") )
     __debugbreak();
-  result = handler->GetWorldTagMatrix((BgHandler *)handler, playerRigEntNum, (const scr_string_t)scr_const.tag_player, &axis, (vec3_t *)v34);
+  result = handler->GetWorldTagMatrix((BgHandler *)handler, playerRigEntNum, (const scr_string_t)scr_const.tag_player, &axis, (vec3_t *)v17);
   if ( result )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_78]
-      vmovss  xmm1, [rsp+0A8h+var_74]
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovss  xmm0, [rsp+0A8h+var_70]
-      vmovaps [rsp+0A8h+var_38], xmm8
-      vmovss  dword ptr [rbp+8], xmm0
-      vmovss  dword ptr [rbp+4], xmm1
-    }
-    AxisToAngles(&axis, _RSI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmulss  xmm3, xmm0, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vmovss  xmm5, cs:__real@43b40000
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmulss  xmm4, xmm1, cs:__real@3b360b61
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vmulss  xmm0, xmm0, xmm5
-      vroundss xmm3, xmm8, xmm2, 1
-      vmovss  dword ptr [rsi], xmm0
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmulss  xmm4, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vroundss xmm3, xmm8, xmm2, 1
-      vmovaps xmm8, [rsp+0A8h+var_38]
-    }
+    v9 = *(float *)&v17[1];
+    outLinkPos->v[0] = *(float *)v17;
+    outLinkPos->v[2] = *(float *)&v17[2];
+    outLinkPos->v[1] = v9;
+    AxisToAngles(&axis, outLinkAngles);
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v12 = outLinkAngles->v[1] * 0.0027777778;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    outLinkAngles->v[0] = (float)((float)(outLinkAngles->v[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    v14 = (float)(v12 - *(float *)&_XMM3) * 360.0;
+    v15 = outLinkAngles->v[2] * 0.0027777778;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
     result = 1;
-    __asm
-    {
-      vmovss  dword ptr [rsi+4], xmm1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, xmm5
-      vmovss  dword ptr [rsi+8], xmm0
-    }
+    outLinkAngles->v[1] = v14;
+    outLinkAngles->v[2] = (float)(v15 - *(float *)&_XMM3) * 360.0;
   }
   return result;
 }
@@ -456,262 +420,193 @@ bool BG_VehicleOccupancy_PlayerIsSeated(const playerState_s *ps)
 BG_VehicleOccupancy_SetCharacterInfo
 ==============
 */
-bool BG_VehicleOccupancy_SetCharacterInfo(const BgHandler *handler, const int vehicleEntNum, const animScriptVehicleSeat_t vehicleSeat, characterInfo_t *ci, const vec3_t *viewAngles, vec3_t *outLinkPos, vec3_t *outLinkAngles)
+char BG_VehicleOccupancy_SetCharacterInfo(const BgHandler *handler, const int vehicleEntNum, const animScriptVehicleSeat_t vehicleSeat, characterInfo_t *ci, const vec3_t *viewAngles, vec3_t *outLinkPos, vec3_t *outLinkAngles)
 {
-  int v17; 
+  __int128 v7; 
+  characterInfo_t *v8; 
+  int v12; 
+  float v13; 
+  float v14; 
+  float v18; 
+  float v19; 
   bool *hasSeatIK; 
-  bool *v61; 
-  __int64 v63; 
-  animScriptVehicleSeat_t v71; 
-  bool v72; 
-  __int64 v73; 
-  const dvar_t *v74; 
+  bool *v25; 
+  float *v26; 
+  __int64 v27; 
+  float v28; 
+  float v29; 
+  animScriptVehicleSeat_t v30; 
+  bool v31; 
+  __int64 v32; 
+  const dvar_t *v33; 
   int integer; 
-  char v76; 
-  int v77; 
-  bool *v79; 
-  __int64 v80; 
-  float *v81; 
-  float *v82; 
-  __int64 v87; 
-  void (__fastcall *v91)(__int64, vec3_t *, vec4_t *); 
+  char v35; 
+  int v36; 
+  bool *v37; 
+  __int64 v38; 
+  float *v39; 
+  float *v40; 
+  float v41; 
+  __int64 v42; 
+  float v43; 
+  float v44; 
+  void (__fastcall *v45)(__int64, vec3_t *, vec4_t *); 
   scr_string_t SeatIKTag; 
-  __int64 v95; 
+  __int64 v47; 
   scr_string_t tag_seat_0; 
-  __int64 v102; 
-  void (__fastcall *v105)(__int64, vec3_t *, vec4_t *); 
-  __int64 v109; 
-  char v111; 
-  char v112; 
-  __int64 v139; 
-  __int64 v147; 
-  bool result; 
-  unsigned __int16 v153; 
+  __int64 v49; 
+  void (__fastcall *v50)(__int64, vec3_t *, vec4_t *); 
+  __int64 v51; 
+  float v52; 
+  float v53; 
+  __int64 v54; 
+  __int64 v55; 
+  unsigned __int16 v57; 
   bool *angles; 
   vec3_t out; 
-  const BgHandler *v159; 
-  bool *v161; 
+  const BgHandler *v63; 
+  float v64; 
+  bool *v65; 
+  float v66; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v164; 
+  tmat33_t<vec3_t> v68; 
   tmat43_t<vec3_t> in; 
   BgVehicleSeatIKTransforms outSeatIKTransforms; 
+  __int128 v71; 
 
-  _RBX = outLinkPos;
-  _RDI = ci;
-  _R12 = outLinkAngles;
-  v159 = handler;
+  v8 = ci;
+  v63 = handler;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 358, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 359, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 359, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( !BG_IsPlayingVehicleOccupancyAnims(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 360, ASSERT_TYPE_ASSERT, "(BG_IsPlayingVehicleOccupancyAnims( ci ))", (const char *)&queryFormat, "BG_IsPlayingVehicleOccupancyAnims( ci )") )
+  if ( !BG_IsPlayingVehicleOccupancyAnims(v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 360, ASSERT_TYPE_ASSERT, "(BG_IsPlayingVehicleOccupancyAnims( ci ))", (const char *)&queryFormat, "BG_IsPlayingVehicleOccupancyAnims( ci )") )
     __debugbreak();
-  if ( _RDI->linkedEntNum <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 361, ASSERT_TYPE_ASSERT, "(ci->linkedEntNum > 0)", (const char *)&queryFormat, "ci->linkedEntNum > 0") )
+  if ( v8->linkedEntNum <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 361, ASSERT_TYPE_ASSERT, "(ci->linkedEntNum > 0)", (const char *)&queryFormat, "ci->linkedEntNum > 0") )
     __debugbreak();
-  v17 = _RDI->linkedEntNum - 1;
+  v12 = v8->linkedEntNum - 1;
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 315, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
-  if ( v17 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 316, ASSERT_TYPE_ASSERT, "(playerRigEntNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "playerRigEntNum != ENTITYNUM_NONE") )
+  if ( v12 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 316, ASSERT_TYPE_ASSERT, "(playerRigEntNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "playerRigEntNum != ENTITYNUM_NONE") )
     __debugbreak();
-  if ( !handler->GetWorldTagMatrix((BgHandler *)handler, v17, (const scr_string_t)scr_const.tag_player, &axis, (vec3_t *)&v161) )
+  if ( !handler->GetWorldTagMatrix((BgHandler *)handler, v12, (const scr_string_t)scr_const.tag_player, &axis, (vec3_t *)&v65) )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+var_198]
-    vmovss  xmm1, dword ptr [rbp+120h+var_198+4]
-    vmovaps [rsp+220h+var_50], xmm6
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm0, [rbp+120h+var_190]
-    vmovaps [rsp+220h+var_60], xmm7
-    vmovaps [rsp+220h+var_70], xmm8
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovaps [rsp+220h+var_80], xmm9
-  }
+  v13 = *((float *)&v65 + 1);
+  outLinkPos->v[0] = *(float *)&v65;
+  outLinkPos->v[2] = v66;
+  outLinkPos->v[1] = v13;
+  v71 = v7;
   AxisToAngles(&axis, outLinkAngles);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3b360b61
-    vmulss  xmm3, xmm9, dword ptr [r12]
-    vmulss  xmm4, xmm9, dword ptr [r12+4]
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm6, cs:__real@43b40000
-    vaddss  xmm1, xmm3, xmm8
-    vaddss  xmm2, xmm4, xmm8
-    vxorps  xmm7, xmm7, xmm7
-    vroundss xmm0, xmm7, xmm1, 1
-    vsubss  xmm0, xmm3, xmm0
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [r12], xmm0
-    vroundss xmm3, xmm7, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm4, xmm9, dword ptr [r12+8]
-    vmulss  xmm5, xmm0, xmm6
-    vmovss  dword ptr [r12+4], xmm5
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm7, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r12+8], xmm1
-    vmovss  dword ptr [rdi+8BCh], xmm5
-  }
-  _RDI->playerAngles.v[0] = outLinkAngles->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  dword ptr [rdi+9C4h], xmm0
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rdi+9C8h], xmm1
-  }
-  _RDI->playerAnglesWorld.v[0] = outLinkAngles->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  dword ptr [rdi+9D0h], xmm0
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rdi+9D4h], xmm1
-    vmulss  xmm4, xmm9, dword ptr [rax]
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm7, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi+9E4h], xmm1
-    vmulss  xmm4, xmm9, dword ptr [rax+4]
-    vaddss  xmm1, xmm4, xmm8
-    vroundss xmm3, xmm7, xmm1, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi+9E8h], xmm1
-    vmulss  xmm4, xmm9, dword ptr [rax+8]
-    vaddss  xmm1, xmm4, xmm8
-    vroundss xmm3, xmm7, xmm1, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rdi+9ECh], xmm1
-  }
-  v153 = *(_WORD *)_RDI->vehicleAnimation.hasSeatIK;
+  v14 = 0.0027777778 * outLinkAngles->v[1];
+  _XMM7 = 0i64;
+  __asm { vroundss xmm0, xmm7, xmm1, 1 }
+  outLinkAngles->v[0] = (float)((float)(0.0027777778 * outLinkAngles->v[0]) - *(float *)&_XMM0) * 360.0;
+  __asm { vroundss xmm3, xmm7, xmm2, 1 }
+  v18 = 0.0027777778 * outLinkAngles->v[2];
+  v19 = (float)(v14 - *(float *)&_XMM3) * 360.0;
+  outLinkAngles->v[1] = v19;
+  __asm { vroundss xmm3, xmm7, xmm2, 1 }
+  outLinkAngles->v[2] = (float)(v18 - *(float *)&_XMM3) * 360.0;
+  v8->lerpMoveDir = v19;
+  v8->playerAngles = *outLinkAngles;
+  v8->playerAnglesWorld = *outLinkAngles;
+  __asm { vroundss xmm3, xmm7, xmm2, 1 }
+  v8->vehicleAnimation.viewAngles.v[0] = (float)((float)(0.0027777778 * viewAngles->v[0]) - *(float *)&_XMM3) * 360.0;
+  __asm { vroundss xmm3, xmm7, xmm1, 1 }
+  v8->vehicleAnimation.viewAngles.v[1] = (float)((float)(0.0027777778 * viewAngles->v[1]) - *(float *)&_XMM3) * 360.0;
+  __asm { vroundss xmm3, xmm7, xmm1, 1 }
+  v8->vehicleAnimation.viewAngles.v[2] = (float)((float)(0.0027777778 * viewAngles->v[2]) - *(float *)&_XMM3) * 360.0;
+  v57 = *(_WORD *)v8->vehicleAnimation.hasSeatIK;
   BG_VehicleOccupancy_GetSeatIKTransform(handler, vehicleEntNum, vehicleSeat, &outSeatIKTransforms);
-  _R14 = outLinkPos;
   hasSeatIK = outSeatIKTransforms.hasSeatIK;
-  v61 = _RDI->vehicleAnimation.hasSeatIK;
-  v161 = outSeatIKTransforms.hasSeatIK;
-  _R15 = &_RDI->IKHandPos[0].v[2];
-  v63 = 0i64;
-  __asm { vmovaps xmm9, [rsp+220h+var_80] }
+  v25 = v8->vehicleAnimation.hasSeatIK;
+  v65 = outSeatIKTransforms.hasSeatIK;
+  v26 = &v8->IKHandPos[0].v[2];
+  v27 = 0i64;
   do
   {
     if ( *hasSeatIK )
     {
-      *v61 = 1;
+      *v25 = 1;
       AnglesToAxis(outLinkAngles, (tmat33_t<vec3_t> *)&in);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vmovss  xmm1, dword ptr [r14+4]
-        vmovss  [rbp+120h+var_114], xmm0
-        vmovss  xmm0, dword ptr [r14+8]
-        vmovss  [rbp+120h+var_10C], xmm0
-        vmovss  [rbp+120h+var_110], xmm1
-      }
-      MatrixTransposeTransformVector43(&outSeatIKTransforms.seatIKTagPosWorld[v63], &in, &out);
+      v28 = outLinkPos->v[1];
+      in.m[3].v[0] = outLinkPos->v[0];
+      in.m[3].v[2] = outLinkPos->v[2];
+      in.m[3].v[1] = v28;
+      MatrixTransposeTransformVector43(&outSeatIKTransforms.seatIKTagPosWorld[v27], &in, &out);
       MatrixTranspose((const tmat33_t<vec3_t> *)&in, &axis);
-      MatrixMultiply(&outSeatIKTransforms.seatIKTagAxisWorld[v63], &axis, &v164);
-      _RDI = ci;
-      AxisToAngles(&v164, &ci->IKHandAng[v63]);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+220h+out]
-        vmovss  xmm1, dword ptr [rsp+220h+out+4]
-      }
-      hasSeatIK = v161;
-      __asm
-      {
-        vmovss  dword ptr [r15-8], xmm0
-        vmovss  xmm0, dword ptr [rsp+220h+out+8]
-        vmovss  dword ptr [r15], xmm0
-        vmovss  dword ptr [r15-4], xmm1
-      }
+      MatrixMultiply(&outSeatIKTransforms.seatIKTagAxisWorld[v27], &axis, &v68);
+      v8 = ci;
+      AxisToAngles(&v68, &ci->IKHandAng[v27]);
+      v29 = out.v[1];
+      hasSeatIK = v65;
+      *(v26 - 2) = out.v[0];
+      *v26 = out.v[2];
+      *(v26 - 1) = v29;
     }
     else
     {
-      *v61 = 0;
+      *v25 = 0;
     }
     ++hasSeatIK;
-    v63 = (unsigned int)(v63 + 1);
-    ++v61;
-    v161 = hasSeatIK;
-    _R15 += 3;
+    v27 = (unsigned int)(v27 + 1);
+    ++v25;
+    v65 = hasSeatIK;
+    v26 += 3;
   }
-  while ( (unsigned int)v63 < 2 );
-  v71 = _RDI->vehicleAnimation.seat;
-  v72 = *(_WORD *)_RDI->vehicleAnimation.hasSeatIK != v153;
-  v73 = (__int64)v159;
-  _RDI->vehicleSeatChanged = vehicleSeat != v71;
-  if ( v72 || vehicleSeat != v71 )
-    _RDI->dobjDirty = 1;
-  _RDI->vehicleAnimation.prevSeat = v71;
-  _RDI->vehicleAnimation.seat = vehicleSeat;
-  v74 = DCONST_DVARINT_animscript_debug_vehicle;
+  while ( (unsigned int)v27 < 2 );
+  v30 = v8->vehicleAnimation.seat;
+  v31 = *(_WORD *)v8->vehicleAnimation.hasSeatIK != v57;
+  v32 = (__int64)v63;
+  v8->vehicleSeatChanged = vehicleSeat != v30;
+  if ( v31 || vehicleSeat != v30 )
+    v8->dobjDirty = 1;
+  v8->vehicleAnimation.prevSeat = v30;
+  v8->vehicleAnimation.seat = vehicleSeat;
+  v33 = DCONST_DVARINT_animscript_debug_vehicle;
   if ( !DCONST_DVARINT_animscript_debug_vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_debug_vehicle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v74);
-  integer = v74->current.integer;
-  if ( integer == 1 && (*(unsigned __int8 (__fastcall **)(__int64))(*(_QWORD *)v73 + 448i64))(v73) || integer == 2 && (*(unsigned __int8 (__fastcall **)(__int64))(*(_QWORD *)v73 + 440i64))(v73) )
+  Dvar_CheckFrontendServerThread(v33);
+  integer = v33->current.integer;
+  if ( integer == 1 && (*(unsigned __int8 (__fastcall **)(__int64))(*(_QWORD *)v32 + 448i64))(v32) || integer == 2 && (*(unsigned __int8 (__fastcall **)(__int64))(*(_QWORD *)v32 + 440i64))(v32) )
   {
-    v76 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v73 + 448i64))(v73);
-    v77 = DEBUG_DURATION_CLIENT;
-    if ( v76 )
-      v77 = DEBUG_DURATION_SERVER;
-    AnglesToAxis(outLinkAngles, &v164);
-    __asm { vmovss  xmm3, cs:DEBUG_AXIS_LENGTH }
-    (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v73 + 384i64))(v73, &v164, outLinkPos);
-    v79 = outSeatIKTransforms.hasSeatIK;
-    v80 = 0i64;
+    v35 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v32 + 448i64))(v32);
+    v36 = DEBUG_DURATION_CLIENT;
+    if ( v35 )
+      v36 = DEBUG_DURATION_SERVER;
+    AnglesToAxis(outLinkAngles, &v68);
+    (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v32 + 384i64))(v32, &v68, outLinkPos);
+    v37 = outSeatIKTransforms.hasSeatIK;
+    v38 = 0i64;
     angles = outSeatIKTransforms.hasSeatIK;
-    v81 = &outSeatIKTransforms.seatIKTagPosWorld[0].v[2];
-    v82 = &outSeatIKTransforms.seatIKTagAxisWorld[0].m[2].v[2];
+    v39 = &outSeatIKTransforms.seatIKTagPosWorld[0].v[2];
+    v40 = &outSeatIKTransforms.seatIKTagAxisWorld[0].m[2].v[2];
     do
     {
-      if ( *v79 )
+      if ( *v37 )
       {
-        __asm
-        {
-          vmovss  xmm2, cs:DEBUG_TEXT_HEIGHT_OFFSET
-          vmulss  xmm0, xmm2, dword ptr [r12-8]
-          vaddss  xmm1, xmm0, dword ptr [r15-8]
-          vmulss  xmm0, xmm2, dword ptr [r12-4]
-        }
-        v87 = *(_QWORD *)v73;
-        __asm
-        {
-          vmulss  xmm2, xmm2, dword ptr [r12]
-          vmovss  dword ptr [rsp+220h+out], xmm1
-          vaddss  xmm1, xmm0, dword ptr [r15-4]
-          vaddss  xmm0, xmm2, dword ptr [r15]
-        }
-        v91 = *(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v87 + 312);
-        __asm
-        {
-          vmovss  dword ptr [rsp+220h+out+8], xmm0
-          vmovss  dword ptr [rsp+220h+out+4], xmm1
-        }
-        SeatIKTag = (unsigned int)BG_VehicleOccupancy_GetSeatIKTag((const XAnimIKType)v80, vehicleSeat);
+        v41 = DEBUG_TEXT_HEIGHT_OFFSET * *(v40 - 1);
+        v42 = *(_QWORD *)v32;
+        v43 = DEBUG_TEXT_HEIGHT_OFFSET * *v40;
+        out.v[0] = (float)(DEBUG_TEXT_HEIGHT_OFFSET * *(v40 - 2)) + *(v39 - 2);
+        v44 = v41 + *(v39 - 1);
+        v45 = *(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v42 + 312);
+        out.v[2] = v43 + *v39;
+        out.v[1] = v44;
+        SeatIKTag = (unsigned int)BG_VehicleOccupancy_GetSeatIKTag((const XAnimIKType)v38, vehicleSeat);
         SL_ConvertToString(SeatIKTag);
-        __asm { vmovss  xmm3, cs:DEBUG_TEXT_SCALE }
-        v91(v73, &out, &colorGreen);
-        __asm { vmovss  xmm2, cs:DEBUG_SPHERE_RADIUS }
-        (*(void (__fastcall **)(__int64, vec3_t *, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v73 + 368i64))(v73, &outSeatIKTransforms.seatIKTagPosWorld[v80], v95, &colorYellow, &colorGreen, 0, v77);
-        __asm { vmovss  xmm3, cs:DEBUG_AXIS_LENGTH }
-        (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v73 + 384i64))(v73, &outSeatIKTransforms.seatIKTagAxisWorld[v80], &outSeatIKTransforms.seatIKTagPosWorld[v80]);
-        v79 = angles;
+        v45(v32, &out, &colorGreen);
+        (*(void (__fastcall **)(__int64, vec3_t *, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v32 + 368i64))(v32, &outSeatIKTransforms.seatIKTagPosWorld[v38], v47, &colorYellow, &colorGreen, 0, v36);
+        (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v32 + 384i64))(v32, &outSeatIKTransforms.seatIKTagAxisWorld[v38], &outSeatIKTransforms.seatIKTagPosWorld[v38]);
+        v37 = angles;
       }
-      ++v79;
-      v80 = (unsigned int)(v80 + 1);
-      v82 += 9;
-      angles = v79;
-      v81 += 3;
+      ++v37;
+      v38 = (unsigned int)(v38 + 1);
+      v40 += 9;
+      angles = v37;
+      v39 += 3;
     }
-    while ( (unsigned int)v80 < 2 );
+    while ( (unsigned int)v38 < 2 );
     switch ( vehicleSeat )
     {
       case VEHICLE_SEAT_DRIVER:
@@ -753,113 +648,33 @@ LABEL_55:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_occupancy.cpp", 463, ASSERT_TYPE_ASSERT, "(vehicleSeatTag != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "vehicleSeatTag != NULL_SCR_STRING") )
           __debugbreak();
 LABEL_57:
-        if ( (*(unsigned __int8 (__fastcall **)(__int64, _QWORD, _QWORD, tmat33_t<vec3_t> *, const BgHandler **))(*(_QWORD *)v73 + 216i64))(v73, (unsigned int)vehicleEntNum, (unsigned int)tag_seat_0, &axis, &v159) )
+        if ( (*(unsigned __int8 (__fastcall **)(__int64, _QWORD, _QWORD, tmat33_t<vec3_t> *, const BgHandler **))(*(_QWORD *)v32 + 216i64))(v32, (unsigned int)vehicleEntNum, (unsigned int)tag_seat_0, &axis, &v63) )
         {
-          __asm
-          {
-            vmovss  xmm3, cs:DEBUG_TEXT_HEIGHT_OFFSET
-            vmulss  xmm1, xmm3, dword ptr [rbp+120h+axis+18h]
-            vaddss  xmm2, xmm1, dword ptr [rsp+220h+var_1A8]
-            vmulss  xmm1, xmm3, dword ptr [rbp+120h+axis+1Ch]
-          }
-          v102 = *(_QWORD *)v73;
-          __asm
-          {
-            vmovss  dword ptr [rsp+220h+out], xmm2
-            vaddss  xmm2, xmm1, dword ptr [rsp+220h+var_1A8+4]
-            vmulss  xmm1, xmm3, dword ptr [rbp+120h+axis+20h]
-          }
-          v105 = *(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v102 + 312);
-          __asm
-          {
-            vmovss  dword ptr [rsp+220h+out+4], xmm2
-            vaddss  xmm2, xmm1, [rbp+120h+var_1A0]
-            vmovss  dword ptr [rsp+220h+out+8], xmm2
-          }
+          v49 = *(_QWORD *)v32;
+          out.v[0] = (float)(DEBUG_TEXT_HEIGHT_OFFSET * axis.m[2].v[0]) + *(float *)&v63;
+          v50 = *(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v49 + 312);
+          out.v[1] = (float)(DEBUG_TEXT_HEIGHT_OFFSET * axis.m[2].v[1]) + *((float *)&v63 + 1);
+          out.v[2] = (float)(DEBUG_TEXT_HEIGHT_OFFSET * axis.m[2].v[2]) + v64;
           SL_ConvertToString(tag_seat_0);
-          __asm { vmovss  xmm3, cs:DEBUG_TEXT_SCALE }
-          v105(v73, &out, &colorGreen);
-          __asm { vmovss  xmm2, cs:DEBUG_SPHERE_RADIUS }
-          (*(void (__fastcall **)(__int64, const BgHandler **, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v73 + 368i64))(v73, &v159, v109, &colorYellow, &colorGreen, 0, v77);
-          __asm { vmovss  xmm3, cs:DEBUG_AXIS_LENGTH }
-          (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, const BgHandler **))(*(_QWORD *)v73 + 384i64))(v73, &axis, &v159);
+          v50(v32, &out, &colorGreen);
+          (*(void (__fastcall **)(__int64, const BgHandler **, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v32 + 368i64))(v32, &v63, v51, &colorYellow, &colorGreen, 0, v36);
+          (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, const BgHandler **))(*(_QWORD *)v32 + 384i64))(v32, &axis, &v63);
         }
-        else
+        v52 = outLinkPos->v[1];
+        v53 = outLinkPos->v[2];
+        if ( (float)((float)((float)((float)(*((float *)&v63 + 1) - v52) * (float)(*((float *)&v63 + 1) - v52)) + (float)((float)(*(float *)&v63 - outLinkPos->v[0]) * (float)(*(float *)&v63 - outLinkPos->v[0]))) + (float)((float)(v64 - v53) * (float)(v64 - v53))) > DEBUG_ORIGIN_DELTA_THRESHOLD || (float)((float)((float)(axis.m[0].v[0] * v68.m[0].v[0]) + (float)(v68.m[0].v[1] * axis.m[0].v[1])) + (float)(v68.m[0].v[2] * axis.m[0].v[2])) < DEBUG_AXIS_DOT_THRESHOLD )
         {
-          v111 = 0;
-          v112 = 1;
-        }
-        _RBX = outLinkPos;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+220h+var_1A8]
-          vmovss  xmm1, dword ptr [rsp+220h+var_1A8+4]
-          vmovss  xmm5, dword ptr [rbx]
-          vmovss  xmm7, dword ptr [rbx+4]
-          vmovss  xmm8, dword ptr [rbx+8]
-          vsubss  xmm3, xmm0, xmm5
-          vmovss  xmm0, [rbp+120h+var_1A0]
-          vsubss  xmm2, xmm1, xmm7
-          vmulss  xmm2, xmm2, xmm2
-          vsubss  xmm4, xmm0, xmm8
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, cs:DEBUG_ORIGIN_DELTA_THRESHOLD
-        }
-        if ( !(v111 | v112) )
-          goto LABEL_62;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+120h+axis]
-          vmovss  xmm1, dword ptr [rbp+120h+var_160+4]
-          vmulss  xmm2, xmm1, dword ptr [rbp+120h+axis+4]
-          vmulss  xmm3, xmm0, dword ptr [rbp+120h+var_160]
-          vmovss  xmm0, dword ptr [rbp+120h+var_160+8]
-          vmulss  xmm1, xmm0, dword ptr [rbp+120h+axis+8]
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vcomiss xmm2, cs:DEBUG_AXIS_DOT_THRESHOLD
-        }
-        if ( v111 )
-        {
-LABEL_62:
-          __asm
-          {
-            vmovss  xmm6, cs:__real@40000000
-            vaddss  xmm3, xmm6, cs:DEBUG_TEXT_HEIGHT_OFFSET
-            vmulss  xmm2, xmm3, dword ptr [rbp+120h+var_160+18h]
-          }
-          v139 = *(_QWORD *)v73;
-          __asm
-          {
-            vaddss  xmm0, xmm2, xmm5
-            vmulss  xmm2, xmm3, dword ptr [rbp+120h+var_160+1Ch]
-            vmovss  dword ptr [rsp+220h+out], xmm0
-            vaddss  xmm0, xmm2, xmm7
-            vmulss  xmm2, xmm3, dword ptr [rbp+120h+var_160+20h]
-            vmovss  xmm3, cs:DEBUG_TEXT_SCALE
-            vmovss  dword ptr [rsp+220h+out+4], xmm0
-            vaddss  xmm0, xmm2, xmm8
-            vmovss  dword ptr [rsp+220h+out+8], xmm0
-          }
-          (*(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v139 + 312))(v73, &out, &colorBlue);
-          __asm { vaddss  xmm2, xmm6, cs:DEBUG_SPHERE_RADIUS }
-          (*(void (__fastcall **)(__int64, vec3_t *, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v73 + 368i64))(v73, outLinkPos, v147, &colorBlue, &colorGreen, 0, v77);
-          __asm { vaddss  xmm3, xmm6, cs:DEBUG_AXIS_LENGTH }
-          (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v73 + 384i64))(v73, &v164, outLinkPos);
+          v54 = *(_QWORD *)v32;
+          out.v[0] = (float)((float)(DEBUG_TEXT_HEIGHT_OFFSET + 2.0) * v68.m[2].v[0]) + outLinkPos->v[0];
+          out.v[1] = (float)((float)(DEBUG_TEXT_HEIGHT_OFFSET + 2.0) * v68.m[2].v[1]) + v52;
+          out.v[2] = (float)((float)(DEBUG_TEXT_HEIGHT_OFFSET + 2.0) * v68.m[2].v[2]) + v53;
+          (*(void (__fastcall **)(__int64, vec3_t *, vec4_t *))(v54 + 312))(v32, &out, &colorBlue);
+          (*(void (__fastcall **)(__int64, vec3_t *, __int64, vec4_t *, vec4_t *, _DWORD, int))(*(_QWORD *)v32 + 368i64))(v32, outLinkPos, v55, &colorBlue, &colorGreen, 0, v36);
+          (*(void (__fastcall **)(__int64, tmat33_t<vec3_t> *, vec3_t *))(*(_QWORD *)v32 + 384i64))(v32, &v68, outLinkPos);
         }
         break;
     }
   }
-  __asm { vmovaps xmm8, [rsp+220h+var_70] }
-  result = 1;
-  __asm
-  {
-    vmovaps xmm7, [rsp+220h+var_60]
-    vmovaps xmm6, [rsp+220h+var_50]
-  }
-  return result;
+  return 1;
 }
 

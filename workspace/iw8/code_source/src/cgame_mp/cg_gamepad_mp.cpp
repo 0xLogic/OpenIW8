@@ -72,74 +72,74 @@ CG_HandleSpecialStateInput
 */
 void CG_HandleSpecialStateInput(LocalClientNum_t localClientNum, unsigned __int64 *buttons, ButtonSet *outClearButtons)
 {
-  __int64 v4; 
+  __int64 v3; 
   CgGlobalsMP *LocalClientGlobals; 
   int pm_type; 
   __int64 clientNum; 
-  CgStatic *v9; 
-  cg_t *v10; 
+  CgStatic *v8; 
+  cg_t *v9; 
   const characterInfo_t *CharacterInfo; 
-  __int64 v12; 
+  __int64 v11; 
+  double FovDvarDefaultValue; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
 
-  v4 = localClientNum;
+  v3 = localClientNum;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   pm_type = LocalClientGlobals->predictedPlayerState.pm_type;
-  clientNum = CG_GetLocalClientGlobals((const LocalClientNum_t)v4)->clientNum;
-  if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v4) )
+  clientNum = CG_GetLocalClientGlobals((const LocalClientNum_t)v3)->clientNum;
+  if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v3) )
     __debugbreak();
-  if ( (unsigned int)v4 >= LODWORD(CgStatic::ms_allocatedCount) )
+  if ( (unsigned int)v3 >= LODWORD(CgStatic::ms_allocatedCount) )
   {
-    *(float *)&v15 = CgStatic::ms_allocatedCount;
-    LODWORD(v14) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v14, v15) )
+    *(float *)&v14 = CgStatic::ms_allocatedCount;
+    LODWORD(v13) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
-  if ( !CgStatic::ms_cgameStaticsArray[v4] )
+  if ( !CgStatic::ms_cgameStaticsArray[v3] )
   {
-    LODWORD(v15) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v15) )
+    LODWORD(v14) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v14) )
       __debugbreak();
   }
-  v9 = CgStatic::ms_cgameStaticsArray[v4];
-  v10 = CG_GetLocalClientGlobals((const LocalClientNum_t)v9->m_localClientNum);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v8 = CgStatic::ms_cgameStaticsArray[v3];
+  v9 = CG_GetLocalClientGlobals((const LocalClientNum_t)v8->m_localClientNum);
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( v10->IsMP(v10) )
+  if ( v9->IsMP(v9) )
   {
-    if ( (unsigned int)clientNum >= v10[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+    if ( (unsigned int)clientNum >= v9[1].predictedPlayerState.rxvOmnvars[64].timeModified )
     {
-      LODWORD(v15) = v10[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-      LODWORD(v14) = clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v14, v15) )
+      LODWORD(v14) = v9[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+      LODWORD(v13) = clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v13, v14) )
         __debugbreak();
     }
-    CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v10[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
+    CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v9[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
   }
   else
   {
-    CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v10, clientNum);
+    CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v9, clientNum);
   }
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_gamepad_mp.cpp", 228, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
     __debugbreak();
   if ( !CharacterInfo->infoValid )
     goto LABEL_34;
-  v12 = (__int64)v9->GetClientInfo(v9, clientNum);
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_gamepad_mp.cpp", 233, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  v11 = (__int64)v8->GetClientInfo(v8, clientNum);
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_gamepad_mp.cpp", 233, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( !*(_BYTE *)(v12 + 144) )
+  if ( !*(_BYTE *)(v11 + 144) )
   {
 LABEL_34:
     if ( pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&LocalClientGlobals->predictedPlayerState.otherFlags, (POtherFlagsMP)33) )
     {
-      CG_HandleSpectatorInput((LocalClientNum_t)v4, buttons, outClearButtons);
+      CG_HandleSpectatorInput((LocalClientNum_t)v3, buttons, outClearButtons);
     }
     else if ( LocalClientGlobals->spectatingThirdPerson )
     {
-      *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue((const LocalClientNum_t)v4);
-      __asm { vmovaps xmm1, xmm0; fov }
-      CG_View_SetFovDvarValue((const LocalClientNum_t)v4, *(const float *)&_XMM1);
+      FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue((const LocalClientNum_t)v3);
+      CG_View_SetFovDvarValue((const LocalClientNum_t)v3, *(const float *)&FovDvarDefaultValue);
       LocalClientGlobals->spectatingThirdPerson = 0;
     }
   }
@@ -153,26 +153,29 @@ CG_HandleSpectatorInput
 void CG_HandleSpectatorInput(LocalClientNum_t localClientNum, unsigned __int64 *buttons, ButtonSet *outClearButtons)
 {
   cg_t *LocalClientGlobals; 
-  bool v9; 
+  bool v7; 
   int spectatingThirdPerson; 
-  const dvar_t *v11; 
-  char v12; 
-  bool v13; 
-  const dvar_t *v14; 
+  const dvar_t *v9; 
+  char v10; 
+  bool v11; 
+  const dvar_t *v12; 
   bool enabled; 
+  bool v14; 
+  bool v15; 
   bool v16; 
-  bool v17; 
-  bool v18; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
-  bool v21; 
-  char v23; 
-  bool v29; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  bool v19; 
+  double FovDvarDefaultValue; 
+  float v21; 
+  double FovDvarValue; 
+  const dvar_t *v23; 
+  bool v24; 
   int spectatingHelmetCam; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
-  char v33; 
-  char v34; 
-  char v35; 
+  char v27; 
+  char v28; 
+  char v29; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( LocalClientGlobals->predictedPlayerState.pm_type != 5 )
@@ -183,130 +186,119 @@ void CG_HandleSpectatorInput(LocalClientNum_t localClientNum, unsigned __int64 *
       __debugbreak();
   }
   *buttons &= ~0x1000000000000ui64;
-  v9 = CL_InputMP_KeyActiveOrPressed(localClientNum, 16);
+  v7 = CL_InputMP_KeyActiveOrPressed(localClientNum, 16);
   spectatingThirdPerson = LocalClientGlobals->spectatingThirdPerson;
   spectatingHelmetCam = LocalClientGlobals->spectatingHelmetCam;
-  if ( !v9 || (v33 = 1, CL_IsRenderingSplitScreen()) )
-    v33 = 0;
-  if ( spectatingThirdPerson != 1 || (v34 = 1, CL_IsRenderingSplitScreen()) )
-    v34 = 0;
+  if ( !v7 || (v27 = 1, CL_IsRenderingSplitScreen()) )
+    v27 = 0;
+  if ( spectatingThirdPerson != 1 || (v28 = 1, CL_IsRenderingSplitScreen()) )
+    v28 = 0;
   if ( LocalClientGlobals->inKillCam )
   {
     if ( CL_InputMP_KeyActiveOrPressed(localClientNum, 16) )
       CL_Input_UpdateCmdButton(localClientNum, buttons, 16, 0i64, outClearButtons);
-    v33 = 0;
+    v27 = 0;
   }
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG )
     goto LABEL_24;
-  v11 = DVARBOOL_camera_allow3rdspectate;
+  v9 = DVARBOOL_camera_allow3rdspectate;
   if ( !DVARBOOL_camera_allow3rdspectate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_allow3rdspectate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
 LABEL_24:
-    v12 = 0;
+    v10 = 0;
   else
-    v12 = 1;
+    v10 = 1;
   p_otherFlags = &LocalClientGlobals->predictedPlayerState.otherFlags;
-  v35 = v12;
+  v29 = v10;
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  v13 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 0x24u);
-  v14 = DCONST_DVARBOOL_helmetCamFollowEnabled;
-  v29 = v13;
+  v11 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 0x24u);
+  v12 = DCONST_DVARBOOL_helmetCamFollowEnabled;
+  v24 = v11;
   if ( !DCONST_DVARBOOL_helmetCamFollowEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "helmetCamFollowEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  enabled = v14->current.enabled;
-  v16 = !CG_Utils_IsActionCamActive(localClientNum) && !LocalClientGlobals->renderingThirdPerson;
-  v17 = v34 && v12;
-  v18 = spectatingHelmetCam == 1 && enabled;
-  if ( v33 )
+  Dvar_CheckFrontendServerThread(v12);
+  enabled = v12->current.enabled;
+  v14 = !CG_Utils_IsActionCamActive(localClientNum) && !LocalClientGlobals->renderingThirdPerson;
+  v15 = v28 && v10;
+  v16 = spectatingHelmetCam == 1 && enabled;
+  if ( v27 )
   {
     if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(p_otherFlags, (POtherFlagsMP)33) )
     {
-      if ( enabled && v16 )
+      if ( enabled && v14 )
       {
-        v17 = 0;
-        v18 = 1;
+        v15 = 0;
+        v16 = 1;
       }
-      else if ( !v35 || LocalClientGlobals->renderingThirdPerson )
+      else if ( !v29 || LocalClientGlobals->renderingThirdPerson )
       {
-        v18 = 0;
-        if ( v29 )
+        v16 = 0;
+        if ( v24 )
         {
           CL_Input_UpdateCmdButton(localClientNum, buttons, 16, 0x1000000000000ui64, outClearButtons);
         }
         else
         {
-          v17 = 0;
+          v15 = 0;
           CG_PlayerStateMP_ResetSpectatorViewAngles(localClientNum);
         }
       }
       else
       {
-        v17 = 1;
-        v18 = 0;
+        v15 = 1;
+        v16 = 0;
       }
     }
     else
     {
-      v17 = 0;
-      v18 = 0;
+      v15 = 0;
+      v16 = 0;
       CL_Input_UpdateCmdButton(localClientNum, buttons, 16, 0x2000000000000ui64, outClearButtons);
     }
   }
   CL_Input_UpdateCmdButton(localClientNum, buttons, 16, 0i64, outClearButtons);
   outClearButtons->spectatorButton = 1;
-  v19 = DVARBOOL_camera_thirdPerson;
+  v17 = DVARBOOL_camera_thirdPerson;
   if ( !DVARBOOL_camera_thirdPerson && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_thirdPerson") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( v19->current.enabled || !v17 || v18 )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled || !v15 || v16 )
     goto LABEL_66;
-  v20 = DVARBOOL_camera_allow3rdspectate;
+  v18 = DVARBOOL_camera_allow3rdspectate;
   if ( !DVARBOOL_camera_allow3rdspectate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "camera_allow3rdspectate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( !v20->current.enabled )
+  Dvar_CheckFrontendServerThread(v18);
+  if ( !v18->current.enabled )
 LABEL_66:
-    v21 = 0;
+    v19 = 0;
   else
-    v21 = 1;
-  outClearButtons->spectatorThirdPersonButton = v21;
+    v19 = 1;
+  outClearButtons->spectatorThirdPersonButton = v19;
   if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_gamepad_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
   if ( LocalClientGlobals->predictedPlayerState.pm_type == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(p_otherFlags, (POtherFlagsMP)33) )
   {
-    *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = CG_View_GetFovDvarValue(localClientNum);
-    __asm { vucomiss xmm0, xmm6 }
-    if ( !v23 )
-    {
-      __asm { vmovaps xmm1, xmm6; fov }
-      CG_View_SetFovDvarValue(localClientNum, *(const float *)&_XMM1);
-    }
+    FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+    v21 = *(float *)&FovDvarDefaultValue;
+    FovDvarValue = CG_View_GetFovDvarValue(localClientNum);
+    if ( *(float *)&FovDvarValue != v21 )
+      CG_View_SetFovDvarValue(localClientNum, v21);
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
-  LocalClientGlobals->spectatingHelmetCam = v18;
+  LocalClientGlobals->spectatingHelmetCam = v16;
   if ( LocalClientGlobals->predictedPlayerState.pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(p_otherFlags, (POtherFlagsMP)33) )
   {
     CL_Input_UpdateCmdButton(localClientNum, buttons, 18, 0x4000000000000ui64, outClearButtons);
     CL_Input_UpdateCmdButton(localClientNum, buttons, 17, 0x2000000000000ui64, outClearButtons);
     if ( LocalClientGlobals->renderingThirdPerson && !LocalClientGlobals->predictedPlayerState.deltaTime )
     {
-      _RDI = DCONST_DVARFLT_spectatorMaxPitch3p;
+      v23 = DCONST_DVARFLT_spectatorMaxPitch3p;
       if ( !DCONST_DVARFLT_spectatorMaxPitch3p && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "spectatorMaxPitch3p") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rdi+28h]; max
-        vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000; min
-      }
-      CL_ClampViewAngle(localClientNum, 0, *(const float *)&_XMM2, *(const float *)&_XMM3);
+      Dvar_CheckFrontendServerThread(v23);
+      CL_ClampViewAngle(localClientNum, 0, COERCE_CONST_FLOAT(v23->current.integer ^ _xmm), v23->current.value);
     }
   }
   else
@@ -442,28 +434,30 @@ SetSpectatorPersoness
 void SetSpectatorPersoness(LocalClientNum_t localClientNum, int thirdPerson)
 {
   CgGlobalsMP *LocalClientGlobals; 
-  const dvar_t *v6; 
+  const dvar_t *v5; 
+  float v6; 
+  double FovDvarDefaultValue; 
 
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   if ( thirdPerson != LocalClientGlobals->spectatingThirdPerson )
   {
-    v6 = DVARBOOL_xblive_competitionmatch;
+    v5 = DVARBOOL_xblive_competitionmatch;
     if ( !DVARBOOL_xblive_competitionmatch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xblive_competitionmatch") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v6);
-    if ( !v6->current.enabled || LocalClientGlobals->m_isMLGSpectator )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( !v5->current.enabled || LocalClientGlobals->m_isMLGSpectator )
     {
       LocalClientGlobals->spectatingThirdPerson = thirdPerson;
       if ( !thirdPerson || LocalClientGlobals->m_isMLGSpectator )
       {
-        *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-        __asm { vmovaps xmm1, xmm0; fov }
+        FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+        v6 = *(float *)&FovDvarDefaultValue;
       }
       else
       {
-        __asm { vmovss  xmm1, cs:__real@42200000 }
+        v6 = FLOAT_40_0;
       }
-      CG_View_SetFovDvarValue(localClientNum, *(const float *)&_XMM1);
+      CG_View_SetFovDvarValue(localClientNum, v6);
     }
   }
 }

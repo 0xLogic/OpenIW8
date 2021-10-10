@@ -208,8 +208,6 @@ void CachedContentIOStreamDCache::CachedContentIOStreamDCache(CachedContentIOStr
   char *fileName; 
   char *fileNamea; 
 
-  _RDI = fileSpecifier;
-  _RSI = this;
   this->m_mode = CCIOSModeNone;
   this->__vftable = (CachedContentIOStreamDCache_vtbl *)&CachedContentIOStreamDCache::`vftable';
   *(_QWORD *)this->m_fileSpecifier.fileDetails.m_computedHashValue.hashBytes = 0i64;
@@ -220,14 +218,14 @@ void CachedContentIOStreamDCache::CachedContentIOStreamDCache(CachedContentIOStr
     __debugbreak();
   if ( mode == CCIOSModeRead )
   {
-    if ( !DCache_IsCached(_RDI->cacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location) )
+    if ( !DCache_IsCached(fileSpecifier->cacheType, fileSpecifier->fileDetails.m_fileID, fileSpecifier->fileDetails.m_location) )
     {
       Instance = Online_CachedContentStreamer::GetInstance();
-      v17 = j_va("CachedContentIOStreamDCache:: Open for read failed as file is not currently cached. filename:%s, mode:%d\n", _RDI->fileDetails.m_name, 1i64);
+      v17 = j_va("CachedContentIOStreamDCache:: Open for read failed as file is not currently cached. filename:%s, mode:%d\n", fileSpecifier->fileDetails.m_name, 1i64);
       OnlineSystem::DebugLog(Instance, v17);
       InstancePtr = Online_ErrorReporting::GetInstancePtr();
-      LODWORD(fileName) = _RSI->m_fileSpecifier.fileDetails.m_version;
-      v19 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)_RSI->m_fileSpecifier.cacheType, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_location, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_size, fileName, _RSI->m_fileSpecifier.fileDetails.m_fileID, _RSI->m_fileSpecifier.fileDetails.m_name);
+      LODWORD(fileName) = this->m_fileSpecifier.fileDetails.m_version;
+      v19 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)this->m_fileSpecifier.cacheType, (unsigned int)this->m_fileSpecifier.fileDetails.m_location, (unsigned int)this->m_fileSpecifier.fileDetails.m_size, fileName, this->m_fileSpecifier.fileDetails.m_fileID, this->m_fileSpecifier.fileDetails.m_name);
       Online_ErrorReporting::ReportError(InstancePtr, DODGE, v19);
       return;
     }
@@ -237,65 +235,49 @@ void CachedContentIOStreamDCache::CachedContentIOStreamDCache(CachedContentIOStr
     if ( mode != CCIOSModeWrite )
     {
       v6 = Online_CachedContentStreamer::GetInstance();
-      v7 = j_va("CachedContentIOStreamDCache:: Init Failed for %s due to invalid mode %d\n", _RDI->fileDetails.m_name, (unsigned int)mode);
+      v7 = j_va("CachedContentIOStreamDCache:: Init Failed for %s due to invalid mode %d\n", fileSpecifier->fileDetails.m_name, (unsigned int)mode);
       OnlineSystem::DebugLog(v6, v7);
       v8 = Online_ErrorReporting::GetInstancePtr();
-      LODWORD(fileName) = _RSI->m_fileSpecifier.fileDetails.m_version;
-      v9 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)_RSI->m_fileSpecifier.cacheType, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_location, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_size, fileName, _RSI->m_fileSpecifier.fileDetails.m_fileID, _RSI->m_fileSpecifier.fileDetails.m_name);
+      LODWORD(fileName) = this->m_fileSpecifier.fileDetails.m_version;
+      v9 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)this->m_fileSpecifier.cacheType, (unsigned int)this->m_fileSpecifier.fileDetails.m_location, (unsigned int)this->m_fileSpecifier.fileDetails.m_size, fileName, this->m_fileSpecifier.fileDetails.m_fileID, this->m_fileSpecifier.fileDetails.m_name);
       Online_ErrorReporting::ReportError(v8, (Online_Error_CAT_CCS_IOSTREAMS_t)4, v9);
       return;
     }
-    if ( DCache_IsCached(_RDI->cacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location) )
+    if ( DCache_IsCached(fileSpecifier->cacheType, fileSpecifier->fileDetails.m_fileID, fileSpecifier->fileDetails.m_location) )
     {
       v10 = Online_ErrorReporting::GetInstancePtr();
-      LODWORD(fileName) = _RSI->m_fileSpecifier.fileDetails.m_version;
-      v11 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)_RSI->m_fileSpecifier.cacheType, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_location, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_size, fileName, _RSI->m_fileSpecifier.fileDetails.m_fileID, _RSI->m_fileSpecifier.fileDetails.m_name);
+      LODWORD(fileName) = this->m_fileSpecifier.fileDetails.m_version;
+      v11 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)this->m_fileSpecifier.cacheType, (unsigned int)this->m_fileSpecifier.fileDetails.m_location, (unsigned int)this->m_fileSpecifier.fileDetails.m_size, fileName, this->m_fileSpecifier.fileDetails.m_fileID, this->m_fileSpecifier.fileDetails.m_name);
       Online_ErrorReporting::ReportError(v10, (Online_Error_CAT_CCS_IOSTREAMS_t)256, v11);
-      DCache_DeleteFromCache(_RDI->cacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location);
+      DCache_DeleteFromCache(fileSpecifier->cacheType, fileSpecifier->fileDetails.m_fileID, fileSpecifier->fileDetails.m_location);
     }
-    if ( !DCache_WriteToCache(_RDI->cacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location, _RDI->fileDetails.m_originID, _RDI->fileDetails.m_name, 128, _RDI->fileDetails.m_version, _RDI->fileDetails.m_serverCreateTime, _RDI->fileDetails.m_serverModifiedTime, 1, _RDI->fileDetails.m_size, NULL) )
+    if ( !DCache_WriteToCache(fileSpecifier->cacheType, fileSpecifier->fileDetails.m_fileID, fileSpecifier->fileDetails.m_location, fileSpecifier->fileDetails.m_originID, fileSpecifier->fileDetails.m_name, 128, fileSpecifier->fileDetails.m_version, fileSpecifier->fileDetails.m_serverCreateTime, fileSpecifier->fileDetails.m_serverModifiedTime, 1, fileSpecifier->fileDetails.m_size, NULL) )
     {
       v12 = Online_CachedContentStreamer::GetInstance();
-      v13 = j_va("CachedContentIOStreamDCache:: Start stream failed. filename:%s, mode:%d\n", _RDI->fileDetails.m_name, 2i64);
+      v13 = j_va("CachedContentIOStreamDCache:: Start stream failed. filename:%s, mode:%d\n", fileSpecifier->fileDetails.m_name, 2i64);
       OnlineSystem::DebugLog(v12, v13);
       v14 = Online_ErrorReporting::GetInstancePtr();
-      LODWORD(fileNamea) = _RSI->m_fileSpecifier.fileDetails.m_version;
-      v15 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)_RSI->m_fileSpecifier.cacheType, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_location, (unsigned int)_RSI->m_fileSpecifier.fileDetails.m_size, fileNamea, _RSI->m_fileSpecifier.fileDetails.m_fileID, _RSI->m_fileSpecifier.fileDetails.m_name);
+      LODWORD(fileNamea) = this->m_fileSpecifier.fileDetails.m_version;
+      v15 = j_va("%d,%d,%d,%d,%zu,%s", (unsigned int)this->m_fileSpecifier.cacheType, (unsigned int)this->m_fileSpecifier.fileDetails.m_location, (unsigned int)this->m_fileSpecifier.fileDetails.m_size, fileNamea, this->m_fileSpecifier.fileDetails.m_fileID, this->m_fileSpecifier.fileDetails.m_name);
       Online_ErrorReporting::ReportError(v14, COUNT, v15);
       return;
     }
   }
-  _RSI->m_mode = mode;
-  _RSI->m_currentOffset = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsi+18h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rsi+28h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsi+38h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+30h]
-    vmovups xmmword ptr [rsi+48h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rsi+58h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+50h]
-    vmovups xmmword ptr [rsi+68h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rsi+78h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+70h]
-    vmovups xmmword ptr [rsi+88h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rsi+98h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+90h]
-    vmovups xmmword ptr [rsi+0A8h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0A0h]
-    vmovups xmmword ptr [rsi+0B8h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0B0h]
-    vmovups xmmword ptr [rsi+0C8h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0C0h]
-    vmovups xmmword ptr [rsi+0D8h], xmm0
-  }
+  this->m_mode = mode;
+  this->m_currentOffset = 0;
+  *(_OWORD *)&this->m_fileSpecifier.cacheType = *(_OWORD *)&fileSpecifier->cacheType;
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_location = *(_OWORD *)&fileSpecifier->fileDetails.m_location;
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[12] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[12];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[28] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[28];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[44] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[44];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[60] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[60];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[76] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[76];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[92] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[92];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[108] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[108];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_name[124] = *(_OWORD *)&fileSpecifier->fileDetails.m_name[124];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_computedHashValue.hashBytes[8] = *(_OWORD *)&fileSpecifier->fileDetails.m_computedHashValue.hashBytes[8];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_computedHashValue.hashBytes[24] = *(_OWORD *)&fileSpecifier->fileDetails.m_computedHashValue.hashBytes[24];
+  *(_OWORD *)&this->m_fileSpecifier.fileDetails.m_serverCreateTime = *(_OWORD *)&fileSpecifier->fileDetails.m_serverCreateTime;
 }
 
 /*

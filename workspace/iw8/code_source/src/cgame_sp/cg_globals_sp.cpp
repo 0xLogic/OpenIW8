@@ -583,28 +583,29 @@ CgGlobalsSP::GetPIPScreenCoordinates
 */
 char CgGlobalsSP::GetPIPScreenCoordinates(CgGlobalsSP *this, float *x, float *y, float *width, float *height)
 {
-  _RSI = width;
-  _RBP = y;
-  _R14 = x;
+  double ViewX; 
+  double ViewY; 
+  double ViewWidth; 
+  double ViewHeight; 
+
   if ( !x && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 202, ASSERT_TYPE_ASSERT, "(x)", (const char *)&queryFormat, "x") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 203, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
+  if ( !y && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 203, ASSERT_TYPE_ASSERT, "(y)", (const char *)&queryFormat, "y") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 204, ASSERT_TYPE_ASSERT, "(width)", (const char *)&queryFormat, "width") )
+  if ( !width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 204, ASSERT_TYPE_ASSERT, "(width)", (const char *)&queryFormat, "width") )
     __debugbreak();
-  _RBX = height;
   if ( !height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 205, ASSERT_TYPE_ASSERT, "(height)", (const char *)&queryFormat, "height") )
     __debugbreak();
   if ( !CG_PIP_IsActive(this->localClientNum) )
     return 0;
-  *(double *)&_XMM0 = CG_PIP_GetViewX(this->localClientNum);
-  __asm { vmovss  dword ptr [r14], xmm0 }
-  *(double *)&_XMM0 = CG_PIP_GetViewY(this->localClientNum);
-  __asm { vmovss  dword ptr [rbp+0], xmm0 }
-  *(double *)&_XMM0 = CG_PIP_GetViewWidth(this->localClientNum);
-  __asm { vmovss  dword ptr [rsi], xmm0 }
-  *(double *)&_XMM0 = CG_PIP_GetViewHeight(this->localClientNum);
-  __asm { vmovss  dword ptr [rbx], xmm0 }
+  ViewX = CG_PIP_GetViewX(this->localClientNum);
+  *x = *(float *)&ViewX;
+  ViewY = CG_PIP_GetViewY(this->localClientNum);
+  *y = *(float *)&ViewY;
+  ViewWidth = CG_PIP_GetViewWidth(this->localClientNum);
+  *width = *(float *)&ViewWidth;
+  ViewHeight = CG_PIP_GetViewHeight(this->localClientNum);
+  *height = *(float *)&ViewHeight;
   return 1;
 }
 
@@ -645,12 +646,7 @@ CgGlobalsSP::GetShaderOverrideData
 */
 shaderOverride_t *CgGlobalsSP::GetShaderOverrideData(CgGlobalsSP *this, shaderOverride_t *result, const int characterIndex, const Weapon *r_weapon)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_13.scrollRateX
-    vmovups ymmword ptr [rdx], ymm0
-  }
-  result->atlasTime = NULL_SHADER_OVERRIDE_13.atlasTime;
+  *result = NULL_SHADER_OVERRIDE_13;
   return result;
 }
 
@@ -732,17 +728,10 @@ CgGlobalsSP::SetSkyOverride
 */
 void CgGlobalsSP::SetSkyOverride(CgGlobalsSP *this, const SkyOverride *skyOverride)
 {
-  _RBX = skyOverride;
-  _RDI = this;
   if ( !skyOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_globals_sp.cpp", 165, ASSERT_TYPE_ASSERT, "(skyOverride)", (const char *)&queryFormat, "skyOverride") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi+0E4C68h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+10h]
-    vmovsd  qword ptr [rdi+0E4C78h], xmm1
-  }
-  _RDI->m_skyOverride.ambientColor.v[2] = _RBX->ambientColor.v[2];
+  *(_OWORD *)&this->m_skyOverride.isActive = *(_OWORD *)&skyOverride->isActive;
+  *(double *)this->m_skyOverride.ambientColor.v = *(double *)skyOverride->ambientColor.v;
+  this->m_skyOverride.ambientColor.v[2] = skyOverride->ambientColor.v[2];
 }
 

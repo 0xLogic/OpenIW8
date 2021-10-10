@@ -1338,36 +1338,38 @@ LUI_LuaCall_Game_IsClientBot
 */
 __int64 LUI_LuaCall_Game_IsClientBot(lua_State *const luaVM)
 {
-  unsigned int v3; 
+  unsigned int v2; 
+  double v3; 
+  int v4; 
+  double v5; 
   LocalClientNum_t ClientFromController; 
   CgStatic *LocalClientStatics; 
   __int64 v8; 
   unsigned int v9; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: Game.IsClientBot( <controllerIndex>, <clientNum> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si ebx, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vcvttss2si edi, xmm0 }
-    ClientFromController = CL_Mgr_GetClientFromController(_EBX);
+    v3 = lui_tonumber32(luaVM, 1);
+    v4 = (int)*(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 2);
+    ClientFromController = CL_Mgr_GetClientFromController(v4);
     LocalClientStatics = CgStatic::GetLocalClientStatics(ClientFromController);
-    v8 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, _EDI);
+    v8 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, (int)*(float *)&v5);
     j_lua_pushboolean(luaVM, *(unsigned __int8 *)(v8 + 188));
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
     v9 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v9);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v9);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -2188,21 +2190,15 @@ __int64 LUI_LuaCall_Game_GetCPNumScoreboardPlayers(lua_State *const luaVM)
   DDL_GetRootState(&result, Asset);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
   CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_COOP);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
   RawHash = j_SL_GetRawHash(scr_const.coopMatchData);
   DDL_MoveToNameByHash(&result, &toState, RawHash, NULL);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
@@ -2215,13 +2211,10 @@ __int64 LUI_LuaCall_Game_GetCPNumScoreboardPlayers(lua_State *const luaVM)
     v19.isValid = 0;
     v19.offset = 0;
     v19.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+57h+var_90.member], xmm0 }
+    *(_OWORD *)&v19.member = _XMM0;
     DDL_MoveToIndex(&fromState, &v19, i);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+57h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
@@ -2349,56 +2342,39 @@ LUI_LuaCall_Game_GetBrPlayerColorForIndex
 */
 __int64 LUI_LuaCall_Game_GetBrPlayerColorForIndex(lua_State *const luaVM)
 {
-  unsigned int v5; 
-  int v6; 
-  unsigned int v18; 
+  unsigned int v2; 
+  unsigned int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  unsigned int v7; 
 
-  v5 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) < 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Game.GetBrPlayerColorForIndex( squadIndex )");
   if ( j_lua_gettop(luaVM) >= 1 && j_lua_isnumber(luaVM, 1) )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    v6 = lui_tointeger32(luaVM, 1) - 1;
-    if ( (unsigned int)v6 > 3 )
-      v6 = 0;
-    _RCX = 2i64 * v6;
-    _RAX = &BRPartySlotColors;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax+rcx*8]
-      vmovss  xmm7, dword ptr [rax+rcx*8+4]
-      vmovss  xmm8, dword ptr [rax+rcx*8+8]
-    }
+    v3 = lui_tointeger32(luaVM, 1) - 1;
+    if ( v3 > 3 )
+      v3 = 0;
+    v4 = BRPartySlotColors.v[4 * v3];
+    v5 = BRPartySlotColors.v[4 * v3 + 1];
+    v6 = BRPartySlotColors.v[4 * v3 + 2];
     j_lua_createtable(luaVM, 0, 0);
-    __asm { vcvtss2sd xmm1, xmm6, xmm6; value }
-    LUI_SetTableNumber("r", *(long double *)&_XMM1, luaVM);
-    __asm { vcvtss2sd xmm1, xmm7, xmm7; value }
-    LUI_SetTableNumber("g", *(long double *)&_XMM1, luaVM);
-    __asm { vcvtss2sd xmm1, xmm8, xmm8; value }
-    LUI_SetTableNumber("b", *(long double *)&_XMM1, luaVM);
-    __asm
-    {
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    LUI_SetTableNumber("r", v4, luaVM);
+    LUI_SetTableNumber("g", v5, luaVM);
+    LUI_SetTableNumber("b", v6, luaVM);
   }
   else
   {
-    v5 = 0;
+    v2 = 0;
   }
-  if ( (int)v5 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v18 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v5, v18);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v7);
   }
-  return v5;
+  return v2;
 }
 
 /*
@@ -2415,9 +2391,9 @@ __int64 LUI_LuaCall_Game_GetBrPlayerColorForClientNum(lua_State *const luaVM)
   int game_extrainfo; 
   LocalClientNum_t v7; 
   CgStatic *v8; 
-  int v9; 
-  unsigned int v19; 
-  __int128 v21; 
+  unsigned int v9; 
+  unsigned int v10; 
+  __int128 v12; 
 
   v2 = 1;
   if ( j_lua_gettop(luaVM) < 1 || !j_lua_isnumber(luaVM, 1) )
@@ -2431,42 +2407,20 @@ __int64 LUI_LuaCall_Game_GetBrPlayerColorForClientNum(lua_State *const luaVM)
     v7 = LUI_CoD_GetCurrentValidLocalClient();
     if ( (game_extrainfo & 0x1000) != 0 )
     {
-      LUI_COD_GetSwatchRGBColor(v7, "BattleRoyale.BRZombieColor", (vec3_t *)&v21);
+      LUI_COD_GetSwatchRGBColor(v7, "BattleRoyale.BRZombieColor", (vec3_t *)&v12);
     }
     else
     {
       v8 = CgStatic::GetLocalClientStatics(v7);
       v9 = (v8->GetClientInfo(v8, v3)->game_extrainfo & 7) - 1;
-      if ( (unsigned int)v9 > 3 )
+      if ( v9 > 3 )
         v9 = 0;
-      _RAX = v9;
-      _RCX = &BRPartySlotColors;
-      _RAX *= 2i64;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+rax*8]
-        vmovups [rsp+48h+var_28], xmm0
-      }
+      v12 = *(_OWORD *)&BRPartySlotColors.v[4 * v9];
     }
     j_lua_createtable(luaVM, 0, 0);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+48h+var_28]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("r", *(long double *)&_XMM1, luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+48h+var_28+4]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("g", *(long double *)&_XMM1, luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+48h+var_28+8]
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("b", *(long double *)&_XMM1, luaVM);
+    LUI_SetTableNumber("r", *(float *)&v12, luaVM);
+    LUI_SetTableNumber("g", *((float *)&v12 + 1), luaVM);
+    LUI_SetTableNumber("b", *((float *)&v12 + 2), luaVM);
   }
   else
   {
@@ -2474,8 +2428,8 @@ __int64 LUI_LuaCall_Game_GetBrPlayerColorForClientNum(lua_State *const luaVM)
   }
   if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v19 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v19);
+    v10 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v10);
   }
   return v2;
 }
@@ -2884,53 +2838,85 @@ Game_PlayerTeamInfo_PushToLUIModel
 */
 void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
 {
-  const char *v14; 
-  bool v15; 
+  const char *v2; 
+  bool v3; 
   CgStatic *LocalClientStatics; 
-  CgGlobalsMP *v17; 
+  CgGlobalsMP *v5; 
   int ControllerFromClient; 
   unsigned __int16 ModelForController; 
-  int v20; 
-  int v21; 
+  int v8; 
+  int v9; 
   unsigned int IndexByName; 
   const OmnvarDef *Def; 
   const OmnvarData *Data; 
-  unsigned int v27; 
-  const OmnvarDef *v28; 
-  CgCompassSystemMP *v29; 
-  const OmnvarData *v30; 
-  LocalClientNum_t v33; 
+  float Integer; 
+  unsigned int v14; 
+  const OmnvarDef *v15; 
+  CgCompassSystemMP *v16; 
+  const OmnvarData *v17; 
+  float v18; 
+  LocalClientNum_t v19; 
+  double CurrentCompassZoomLevel; 
+  float v21; 
+  const dvar_t *v22; 
+  float value; 
   characterInfo_t *CharacterInfo; 
-  int v38; 
-  characterInfo_t *v45; 
-  __int64 v46; 
+  int v25; 
+  characterInfo_t *v26; 
+  __int64 v27; 
+  float v28; 
   int i; 
-  __int64 v54; 
-  characterInfo_t *v55; 
+  __int64 v30; 
+  characterInfo_t *v31; 
   const char *ModelNameForCustomization; 
-  const char *v57; 
-  int v58; 
-  __int64 v59; 
-  char v60; 
-  bool v61; 
+  const char *v33; 
+  int v34; 
+  __int64 v35; 
+  double LastShotFireAmount; 
   const score_t *ClientScore; 
   const int *p_client; 
   unsigned int extrascore2; 
-  int v65; 
-  unsigned int v66; 
-  unsigned __int8 v67; 
+  int v40; 
+  unsigned int v41; 
+  unsigned __int8 v42; 
+  bool v43; 
+  bool v44; 
+  unsigned int v45; 
+  unsigned int v46; 
+  unsigned int v47; 
+  unsigned int v48; 
+  unsigned int v49; 
+  unsigned int v50; 
+  unsigned int v51; 
+  unsigned __int16 v52; 
+  unsigned __int16 v53; 
+  unsigned __int16 v54; 
+  unsigned __int16 v55; 
+  unsigned __int16 v56; 
+  unsigned __int16 v57; 
+  unsigned __int16 v58; 
+  unsigned __int16 v59; 
+  unsigned __int16 v60; 
+  unsigned __int16 v61; 
+  unsigned __int16 v62; 
+  unsigned __int16 v63; 
+  unsigned __int16 v64; 
+  unsigned __int16 v65; 
+  unsigned __int16 v66; 
+  unsigned __int16 v67; 
   bool v68; 
-  bool v69; 
-  unsigned int v70; 
-  unsigned int v71; 
-  unsigned int v72; 
-  unsigned int v73; 
-  unsigned int v74; 
-  unsigned int v75; 
-  unsigned int v76; 
+  unsigned __int16 v69; 
+  unsigned __int16 v70; 
+  unsigned __int16 v71; 
+  unsigned __int16 v72; 
+  unsigned __int16 v73; 
+  unsigned __int16 v74; 
+  unsigned __int16 v75; 
+  unsigned __int16 v76; 
   unsigned __int16 v77; 
+  unsigned __int16 v78; 
   unsigned __int16 v79; 
-  unsigned __int16 v80; 
+  int v80; 
   unsigned __int16 v81; 
   unsigned __int16 v82; 
   unsigned __int16 v83; 
@@ -2942,9 +2928,9 @@ void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
   unsigned __int16 v89; 
   unsigned __int16 v90; 
   unsigned __int16 v91; 
-  unsigned __int16 v92; 
+  bool v92; 
   unsigned __int16 v93; 
-  bool v94; 
+  unsigned __int16 v94; 
   unsigned __int16 v95; 
   unsigned __int16 v96; 
   unsigned __int16 v97; 
@@ -2954,10 +2940,10 @@ void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
   unsigned __int16 v101; 
   unsigned __int16 v102; 
   unsigned __int16 v103; 
-  unsigned __int16 v104; 
+  double v104; 
   unsigned __int16 v105; 
-  int v106; 
-  unsigned __int16 v107; 
+  centity_t *Entity; 
+  float v107; 
   unsigned __int16 v108; 
   unsigned __int16 v109; 
   unsigned __int16 v110; 
@@ -2966,23 +2952,34 @@ void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
   unsigned __int16 v113; 
   unsigned __int16 v114; 
   unsigned __int16 v115; 
-  unsigned __int16 v116; 
+  int v116; 
   unsigned __int16 v117; 
-  bool v118; 
+  unsigned __int16 v118; 
   unsigned __int16 v119; 
   unsigned __int16 v120; 
-  unsigned __int16 v121; 
+  int v121; 
   unsigned __int16 v122; 
-  unsigned __int16 v123; 
-  unsigned __int16 v124; 
+  int *v123; 
+  const char *v124; 
   unsigned __int16 v125; 
-  unsigned __int16 v126; 
-  unsigned __int16 v127; 
-  unsigned __int16 v128; 
-  unsigned __int16 v129; 
-  unsigned __int16 v133; 
-  centity_t *Entity; 
-  unsigned __int16 v142; 
+  __int64 v126; 
+  __int64 v127; 
+  char dest[4]; 
+  __int16 v129; 
+  bool v130; 
+  bool IsPlayerMuted; 
+  bool v132; 
+  bool v133; 
+  bool v134; 
+  LocalClientNum_t localClientNuma; 
+  bool v136; 
+  bool IsWeaponRaise; 
+  int v138; 
+  unsigned __int16 v139; 
+  unsigned __int16 v140; 
+  int clientNum; 
+  int v142; 
+  int v143; 
   unsigned __int16 v144; 
   unsigned __int16 v145; 
   unsigned __int16 v146; 
@@ -2990,110 +2987,60 @@ void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
   unsigned __int16 v148; 
   unsigned __int16 v149; 
   unsigned __int16 v150; 
-  int v152; 
+  unsigned __int16 v151; 
+  unsigned __int16 v152; 
   unsigned __int16 v153; 
   unsigned __int16 v154; 
   unsigned __int16 v155; 
   unsigned __int16 v156; 
-  int v158; 
+  unsigned __int16 v157; 
+  unsigned __int16 v158; 
   unsigned __int16 v159; 
-  int *v160; 
-  const char *v161; 
+  unsigned __int16 v160; 
+  unsigned __int16 v161; 
   unsigned __int16 v162; 
-  __int64 v174; 
-  __int64 v175; 
-  char dest[4]; 
-  __int16 v177; 
-  bool v178; 
-  bool IsPlayerMuted; 
-  bool v180; 
-  bool v181; 
-  bool v182; 
-  LocalClientNum_t localClientNuma; 
-  bool v184; 
-  bool IsWeaponRaise; 
-  int v186; 
-  unsigned __int16 v187; 
-  unsigned __int16 v188; 
-  int clientNum; 
-  int v190; 
-  int v191; 
-  unsigned __int16 v192; 
-  unsigned __int16 v193; 
-  unsigned __int16 v194; 
-  unsigned __int16 v195; 
-  unsigned __int16 v196; 
-  unsigned __int16 v197; 
-  unsigned __int16 v198; 
-  unsigned __int16 v199; 
-  unsigned __int16 v200; 
-  unsigned __int16 v201; 
-  unsigned __int16 v202; 
-  unsigned __int16 v203; 
-  unsigned __int16 v204; 
-  unsigned __int16 v205; 
-  unsigned __int16 v206; 
-  unsigned __int16 v207; 
-  unsigned __int16 v208; 
-  unsigned __int16 v209; 
-  unsigned __int16 v210; 
-  unsigned __int16 v211; 
-  unsigned __int16 v212; 
-  unsigned __int16 v213; 
-  unsigned __int16 v214; 
+  unsigned __int16 v163; 
+  unsigned __int16 v164; 
+  unsigned __int16 v165; 
+  unsigned __int16 v166; 
   unsigned __int16 ModelFromPath; 
-  unsigned __int16 v216; 
-  unsigned __int16 v217; 
-  unsigned __int16 v218; 
-  unsigned __int16 v219; 
+  unsigned __int16 v168; 
+  unsigned __int16 v169; 
+  unsigned __int16 v170; 
+  unsigned __int16 v171; 
   int kills; 
-  int v221; 
+  int v173; 
   int extrascore3; 
-  int v223; 
-  int v224; 
+  int v175; 
+  int v176; 
   CgCompassSystemMP *LocalClientGlobals; 
   team_t team; 
-  BOOL v227; 
-  BOOL v228; 
-  BOOL v229; 
-  BOOL v230; 
-  BOOL v231; 
-  int v232; 
-  int v233; 
+  BOOL v179; 
+  BOOL v180; 
+  BOOL v181; 
+  BOOL v182; 
+  BOOL v183; 
+  int v184; 
+  int v185; 
   int outLivingPlayers; 
   int outTotalPlayers; 
   int outLivingTeams; 
   int outTotalTeams; 
-  const int *v238; 
+  const int *v190; 
   int tile_high; 
-  BOOL v240; 
+  BOOL v192; 
   int m_skydiveAutodeployOffset; 
+  float v194; 
   char *newValue; 
   characterInfo_t *ci; 
   PartyData *party; 
   vec3_t outOrigin; 
-  __int64 v247; 
-  float v248; 
-  __int64 v249[5]; 
+  __int64 v199; 
+  float v200; 
+  __int64 v201[5]; 
   char out_playerName[48]; 
-  char v251; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v247 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
+  v199 = -2i64;
   localClientNuma = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
@@ -3101,470 +3048,403 @@ void Game_PlayerTeamInfo_PushToLUIModel(const LocalClientNum_t localClientNum)
     __debugbreak();
   if ( !cls.m_activeGameTypeName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 309, ASSERT_TYPE_ASSERT, "(m_activeGameTypeName[0])", "%s\n\tRequested gametype before it was set", "m_activeGameTypeName[0]") )
     __debugbreak();
-  v14 = I_strstr(cls.m_activeGameTypeName, "cp");
-  v15 = (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE;
-  if ( v14 || v15 )
+  v2 = I_strstr(cls.m_activeGameTypeName, "cp");
+  v3 = (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE;
+  if ( v2 || v3 )
   {
     LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
     LocalClientGlobals = (CgCompassSystemMP *)CG_GetLocalClientGlobals(localClientNum);
-    v17 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+    v5 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
     party = Live_GetGameParty();
     ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
     ModelForController = LUI_Model_GetModelForController(ControllerFromClient);
     ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.teamHealthRatio");
-    v187 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.teamGamerTag");
-    v217 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.operatorIcon");
-    v218 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.squadIndex");
-    v219 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.clientNum");
-    v199 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.kills");
-    v208 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isTalking");
-    v209 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isMuted");
-    v195 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isDowned");
-    v216 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isDead");
-    v197 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isBeingRevived");
-    v198 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isSelfReviving");
-    v192 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isShooting");
-    v193 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isSquadLeader");
-    v200 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.armorHealthRatio");
-    v201 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInGulag");
-    v202 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInGulagMatch");
-    v203 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasRespawnToken");
-    v204 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasSelfReviveToken");
-    v194 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasRequestedBuyback");
-    v205 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isParachuting");
-    v206 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInVehicle");
-    v207 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInInfilPlane");
-    v212 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.bunkerKeycardType");
-    v196 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isZombie");
-    v210 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.damageDealt");
-    v211 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.missionsCompleted");
-    v188 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.altitude");
-    v214 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.verticalSpeed");
-    v213 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.squadIndex");
-    v20 = 0;
-    v186 = 0;
-    v21 = 1;
-    v190 = 1;
-    v233 = -1;
+    v139 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.teamGamerTag");
+    v169 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.operatorIcon");
+    v170 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.squadIndex");
+    v171 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.clientNum");
+    v151 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.kills");
+    v160 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isTalking");
+    v161 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isMuted");
+    v147 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isDowned");
+    v168 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isDead");
+    v149 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isBeingRevived");
+    v150 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isSelfReviving");
+    v144 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isShooting");
+    v145 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isSquadLeader");
+    v152 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.armorHealthRatio");
+    v153 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInGulag");
+    v154 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInGulagMatch");
+    v155 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasRespawnToken");
+    v156 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasSelfReviveToken");
+    v146 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.hasRequestedBuyback");
+    v157 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isParachuting");
+    v158 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInVehicle");
+    v159 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isInInfilPlane");
+    v164 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.bunkerKeycardType");
+    v148 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.isZombie");
+    v162 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.damageDealt");
+    v163 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.teamlist.missionsCompleted");
+    v140 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.altitude");
+    v166 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.verticalSpeed");
+    v165 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.skydiveList.squadIndex");
+    v8 = 0;
+    v138 = 0;
+    v9 = 1;
+    v142 = 1;
+    v185 = -1;
     out_playerName[0] = 0;
     dest[0] = 0;
     IndexByName = BG_Omnvar_GetIndexByName("ui_br_altimeter_c130_height");
     Def = BG_Omnvar_GetDef(IndexByName);
     Data = CG_Omnvar_GetData((LocalClientNum_t)HIDWORD(LocalClientGlobals->m_compassActors[177].lastEnemyPos.Get_lastEnemyPos), IndexByName);
-    Omnvar_GetInteger(Def, Data);
-    __asm
-    {
-      vxorps  xmm15, xmm15, xmm15
-      vcvtsi2ss xmm15, xmm15, eax
-    }
-    m_skydiveAutodeployOffset = v17->m_skydiveAutodeployOffset;
-    v27 = BG_Omnvar_GetIndexByName("ui_br_altimeter_sea_height");
-    v28 = BG_Omnvar_GetDef(v27);
-    v29 = LocalClientGlobals;
-    v30 = CG_Omnvar_GetData((LocalClientNum_t)HIDWORD(LocalClientGlobals->m_compassActors[177].lastEnemyPos.Get_lastEnemyPos), v27);
-    Omnvar_GetInteger(v28, v30);
-    __asm
-    {
-      vxorps  xmm10, xmm10, xmm10
-      vcvtsi2ss xmm10, xmm10, eax
-    }
-    v33 = localClientNuma;
+    Integer = (float)Omnvar_GetInteger(Def, Data);
+    m_skydiveAutodeployOffset = v5->m_skydiveAutodeployOffset;
+    v14 = BG_Omnvar_GetIndexByName("ui_br_altimeter_sea_height");
+    v15 = BG_Omnvar_GetDef(v14);
+    v16 = LocalClientGlobals;
+    v17 = CG_Omnvar_GetData((LocalClientNum_t)HIDWORD(LocalClientGlobals->m_compassActors[177].lastEnemyPos.Get_lastEnemyPos), v14);
+    v18 = (float)Omnvar_GetInteger(v15, v17);
+    v19 = localClientNuma;
     if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
     {
-      LODWORD(v175) = localClientNuma;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v175, 2, (unsigned __int8)CgCompassSystem::ms_allocatedType) )
+      LODWORD(v127) = localClientNuma;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v127, 2, (unsigned __int8)CgCompassSystem::ms_allocatedType) )
         __debugbreak();
     }
     if ( localClientNuma >= (unsigned int)CgCompassSystem::ms_allocatedCount )
     {
-      LODWORD(v175) = CgCompassSystem::ms_allocatedCount;
-      LODWORD(v174) = localClientNuma;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v174, v175) )
+      LODWORD(v127) = CgCompassSystem::ms_allocatedCount;
+      LODWORD(v126) = localClientNuma;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v126, v127) )
         __debugbreak();
     }
     if ( !CgCompassSystem::ms_compassSystemArray[localClientNuma] )
     {
-      LODWORD(v175) = localClientNuma;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v175) )
+      LODWORD(v127) = localClientNuma;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v127) )
         __debugbreak();
     }
     LocalClientGlobals = (CgCompassSystemMP *)CgCompassSystem::ms_compassSystemArray[localClientNuma];
-    *(double *)&_XMM0 = CgCompassSystem::GetCurrentCompassZoomLevel(LocalClientGlobals);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovss  [rbp+180h+var_16C], xmm0
-    }
-    _RDI = DCONST_DVARFLT_cg_teammate_firing_threshold;
+    CurrentCompassZoomLevel = CgCompassSystem::GetCurrentCompassZoomLevel(LocalClientGlobals);
+    v21 = *(float *)&CurrentCompassZoomLevel;
+    v194 = *(float *)&CurrentCompassZoomLevel;
+    v22 = DCONST_DVARFLT_cg_teammate_firing_threshold;
     if ( !DCONST_DVARFLT_cg_teammate_firing_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_teammate_firing_threshold") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm12, dword ptr [rdi+28h] }
-    IsWeaponRaise = BG_Skydive_IsWeaponRaise((const playerState_s *const)&v29->m_localClientNum);
-    memset(v249, 0, sizeof(v249));
+    Dvar_CheckFrontendServerThread(v22);
+    value = v22->current.value;
+    IsWeaponRaise = BG_Skydive_IsWeaponRaise((const playerState_s *const)&v16->m_localClientNum);
+    memset(v201, 0, sizeof(v201));
     outLivingPlayers = 0;
     outTotalPlayers = 0;
     outLivingTeams = 0;
     outTotalTeams = 0;
-    Game_GetPlayerCountStats(SHIDWORD(v29->m_compassActors[177].lastEnemyPos.Get_lastEnemyPos), &outLivingPlayers, &outTotalPlayers, &outLivingTeams, &outTotalTeams);
+    Game_GetPlayerCountStats(SHIDWORD(v16->m_compassActors[177].lastEnemyPos.Get_lastEnemyPos), &outLivingPlayers, &outTotalPlayers, &outLivingTeams, &outTotalTeams);
     team = TEAM_ZERO;
-    tile_high = HIDWORD(v29->m_tacpmapTileImages[15].tile);
+    tile_high = HIDWORD(v16->m_tacpmapTileImages[15].tile);
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, tile_high);
     if ( CharacterInfo && CharacterInfo->infoValid )
       team = CharacterInfo->team;
-    v38 = 0;
+    v25 = 0;
     clientNum = 0;
-    __asm { vmovss  xmm8, cs:__real@bf800000 }
     if ( cls.maxClients > 0 )
     {
-      __asm
-      {
-        vmovss  xmm11, cs:__real@3c010204
-        vmovss  xmm9, cs:__real@3f800000
-        vxorps  xmm7, xmm7, xmm7
-        vmovss  xmm13, cs:__real@7f7fffff
-        vmovss  xmm14, cs:__real@3d68bc17
-      }
       do
       {
-        v45 = CgStatic::GetCharacterInfo(LocalClientStatics, v38);
-        ci = v45;
-        if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1829, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
+        v26 = CgStatic::GetCharacterInfo(LocalClientStatics, v25);
+        ci = v26;
+        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1829, ASSERT_TYPE_ASSERT, "(characterInfo)", (const char *)&queryFormat, "characterInfo") )
           __debugbreak();
-        if ( v45->infoValid )
+        if ( v26->infoValid )
         {
-          v46 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, clientNum);
-          v238 = (const int *)v46;
-          if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1837, ASSERT_TYPE_ASSERT, "(clientInfo)", (const char *)&queryFormat, "clientInfo") )
+          v27 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, clientNum);
+          v190 = (const int *)v27;
+          if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1837, ASSERT_TYPE_ASSERT, "(clientInfo)", (const char *)&queryFormat, "clientInfo") )
             __debugbreak();
-          if ( v45->team == team && team && (unsigned int)(team - 201) > 1 )
+          if ( v26->team == team && team && (unsigned int)(team - 201) > 1 )
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rsi+8Ch]
-              vmulss  xmm0, xmm0, xmm11; val
-              vmovaps xmm2, xmm9; max
-              vmovaps xmm1, xmm7; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm { vmovaps xmm6, xmm0 }
-            if ( v186 >= 4 )
+            v28 = (float)*(int *)(v27 + 140) * 0.0078740157;
+            I_fclamp(v28, 0.0, 1.0);
+            if ( v138 >= 4 )
             {
               for ( i = 0; i < cls.maxClients; ++i )
               {
-                v54 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, i);
-                v55 = CgStatic::GetCharacterInfo(LocalClientStatics, i);
-                Com_Printf(13, "client information: team %i, squad index %i \n", (unsigned int)v55->team, *(unsigned int *)(v54 + 160));
+                v30 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, i);
+                v31 = CgStatic::GetCharacterInfo(LocalClientStatics, i);
+                Com_Printf(13, "client information: team %i, squad index %i \n", (unsigned int)v31->team, *(unsigned int *)(v30 + 160));
               }
-              v33 = localClientNuma;
+              v19 = localClientNuma;
             }
-            v232 = 0;
-            ModelNameForCustomization = BG_Customization_GetModelNameForCustomization(CUSTOMIZATION_TYPE_HEAD, (const ClientCustomizationInfo *)(v46 + 164));
-            v57 = StringTable_LookupFromAsset("operatorSkins.csv", 5, ModelNameForCustomization, 2);
-            newValue = (char *)StringTable_LookupFromAsset("operators.csv", 1, v57, 7);
-            v58 = clientNum;
-            v59 = LocalClientGlobals->GetCompassActor(LocalClientGlobals, clientNum);
-            *(double *)&_XMM0 = CgCompassSystemMP::GetLastShotFireAmount(LocalClientGlobals, (const int *)(v59 + 116));
-            __asm { vcomiss xmm0, xmm12 }
-            v184 = !(v60 | v61);
-            __asm { vucomiss xmm6, xmm7 }
-            v178 = v61;
-            v181 = BG_GetConditionValue(ci, 44) > 0;
-            v182 = BG_GetConditionValue(ci, 41) > 0;
+            v184 = 0;
+            ModelNameForCustomization = BG_Customization_GetModelNameForCustomization(CUSTOMIZATION_TYPE_HEAD, (const ClientCustomizationInfo *)(v27 + 164));
+            v33 = StringTable_LookupFromAsset("operatorSkins.csv", 5, ModelNameForCustomization, 2);
+            newValue = (char *)StringTable_LookupFromAsset("operators.csv", 1, v33, 7);
+            v34 = clientNum;
+            v35 = LocalClientGlobals->GetCompassActor(LocalClientGlobals, clientNum);
+            LastShotFireAmount = CgCompassSystemMP::GetLastShotFireAmount(LocalClientGlobals, (const int *)(v35 + 116));
+            v136 = *(float *)&LastShotFireAmount > value;
+            v130 = v28 == 0.0;
+            v133 = BG_GetConditionValue(ci, 44) > 0;
+            v134 = BG_GetConditionValue(ci, 41) > 0;
             kills = 0;
             extrascore3 = 0;
-            v223 = 0;
-            v177 = 0;
+            v175 = 0;
+            v129 = 0;
             IsPlayerMuted = 0;
-            v224 = 0;
-            v240 = CG_CalloutMarkerPing_CheckSquadPingsForReviveByClient(v33, v58) != 53;
-            v221 = 0;
-            ClientScore = CG_ScoreboardMP_GetClientScore(v33, *(_DWORD *)v46);
+            v176 = 0;
+            v192 = CG_CalloutMarkerPing_CheckSquadPingsForReviveByClient(v19, v34) != 53;
+            v173 = 0;
+            ClientScore = CG_ScoreboardMP_GetClientScore(v19, *(_DWORD *)v27);
             p_client = &ClientScore->client;
             if ( ClientScore )
             {
               kills = ClientScore->kills;
               extrascore2 = ClientScore->extrascore2;
-              v221 = (unsigned __int8)extrascore2;
-              v223 = (extrascore2 >> 8) & 0xF;
-              v224 = (extrascore2 >> 12) & 7;
-              HIBYTE(v177) = (extrascore2 & 0x8000) != 0;
+              v173 = (unsigned __int8)extrascore2;
+              v175 = (extrascore2 >> 8) & 0xF;
+              v176 = (extrascore2 >> 12) & 7;
+              HIBYTE(v129) = (extrascore2 & 0x8000) != 0;
               extrascore3 = ClientScore->extrascore3;
-              LOBYTE(v177) = CL_IsPlayerTalking(party, ClientScore->client);
+              LOBYTE(v129) = CL_IsPlayerTalking(party, ClientScore->client);
               IsPlayerMuted = CL_IsPlayerMuted(party, *p_client);
-              v58 = clientNum;
+              v34 = clientNum;
             }
-            v65 = *(_DWORD *)(v46 + 120);
-            v191 = v65 & 7;
-            v66 = (unsigned __int16)v65 >> 6;
-            v180 = v66 & 1;
-            if ( (v66 & 1) != 0 )
-              v233 = *(_DWORD *)v46;
-            v67 = CG_CalloutMarkerPing_CheckSquadmateHasRequestedInventory(localClientNuma, v58);
-            if ( v67 != 10 )
-              *((_DWORD *)v249 + v67) |= 1 << v191;
-            v68 = (v66 & 2) != 0;
-            v69 = (v66 & 4) != 0;
-            v70 = v66 >> 3;
-            LOBYTE(v70) = (v66 & 8) != 0;
-            v227 = v70;
-            v71 = v66 >> 4;
-            LOBYTE(v71) = (v66 & 0x10) != 0;
-            v228 = v71;
-            v72 = v66 >> 5;
-            LOBYTE(v72) = (v66 & 0x20) != 0;
-            v229 = v72;
-            v73 = v66 >> 6;
-            LOBYTE(v73) = (v66 & 0x40) != 0;
-            v230 = v73;
-            v74 = v66 >> 8;
-            LOBYTE(v74) = BYTE1(v66) & 1;
-            v231 = v74;
-            v75 = v66 >> 9;
-            if ( tile_high == *v238 )
+            v40 = *(_DWORD *)(v27 + 120);
+            v143 = v40 & 7;
+            v41 = (unsigned __int16)v40 >> 6;
+            v132 = v41 & 1;
+            if ( (v41 & 1) != 0 )
+              v185 = *(_DWORD *)v27;
+            v42 = CG_CalloutMarkerPing_CheckSquadmateHasRequestedInventory(localClientNuma, v34);
+            if ( v42 != 10 )
+              *((_DWORD *)v201 + v42) |= 1 << v143;
+            v43 = (v41 & 2) != 0;
+            v44 = (v41 & 4) != 0;
+            v45 = v41 >> 3;
+            LOBYTE(v45) = (v41 & 8) != 0;
+            v179 = v45;
+            v46 = v41 >> 4;
+            LOBYTE(v46) = (v41 & 0x10) != 0;
+            v180 = v46;
+            v47 = v41 >> 5;
+            LOBYTE(v47) = (v41 & 0x20) != 0;
+            v181 = v47;
+            v48 = v41 >> 6;
+            LOBYTE(v48) = (v41 & 0x40) != 0;
+            v182 = v48;
+            v49 = v41 >> 8;
+            LOBYTE(v49) = BYTE1(v41) & 1;
+            v183 = v49;
+            v50 = v41 >> 9;
+            if ( tile_high == *v190 )
             {
-              v107 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.headIcon");
-              LUI_Model_SetString(v107, newValue);
-              v108 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.squadIndex");
-              LUI_Model_SetInt(v108, v191);
-              v109 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isSquadLeader");
-              LUI_Model_SetBool(v109, v180);
-              v110 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.autoDeployHeight");
-              LUI_Model_SetInt(v110, m_skydiveAutodeployOffset);
-              v111 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isDowned");
-              LUI_Model_SetBool(v111, v227);
-              v112 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isBeingRevived");
-              LUI_Model_SetBool(v112, v228);
-              v113 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isSelfReviving");
-              LUI_Model_SetBool(v113, v229);
-              v114 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isZombie");
-              LUI_Model_SetBool(v114, v230);
+              v81 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.headIcon");
+              LUI_Model_SetString(v81, newValue);
+              v82 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.squadIndex");
+              LUI_Model_SetInt(v82, v143);
+              v83 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isSquadLeader");
+              LUI_Model_SetBool(v83, v132);
+              v84 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.autoDeployHeight");
+              LUI_Model_SetInt(v84, m_skydiveAutodeployOffset);
+              v85 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isDowned");
+              LUI_Model_SetBool(v85, v179);
+              v86 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isBeingRevived");
+              LUI_Model_SetBool(v86, v180);
+              v87 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isSelfReviving");
+              LUI_Model_SetBool(v87, v181);
+              v88 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isZombie");
+              LUI_Model_SetBool(v88, v182);
               if ( p_client )
               {
-                v115 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.kills");
-                LUI_Model_SetInt(v115, kills);
-                v116 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.armorHealthRatio");
-                LUI_Model_SetInt(v116, v221);
-                v117 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInGulag");
-                v118 = v68 || v69;
-                LUI_Model_SetBool(v117, v118);
-                v119 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInGulagMatch");
-                LUI_Model_SetBool(v119, v69);
-                v120 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.hasRespawnToken");
-                LUI_Model_SetBool(v120, v75);
-                v121 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.hasSelfReviveToken");
-                LUI_Model_SetBool(v121, v231);
-                v122 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isParachuting");
-                LUI_Model_SetBool(v122, v181);
-                v123 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInVehicle");
-                LUI_Model_SetBool(v123, v182);
-                v124 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInInfilPlane");
-                LUI_Model_SetBool(v124, SHIBYTE(v177));
-                v125 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isTalking");
-                LUI_Model_SetBool(v125, v177);
-                v126 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.damageDealt");
-                LUI_Model_SetInt(v126, extrascore3);
-                v127 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.missionsCompleted");
-                LUI_Model_SetInt(v127, v223);
-                v128 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.bunkerKeycardType");
-                LUI_Model_SetInt(v128, v224);
+                v89 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.kills");
+                LUI_Model_SetInt(v89, kills);
+                v90 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.armorHealthRatio");
+                LUI_Model_SetInt(v90, v173);
+                v91 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInGulag");
+                v92 = v43 || v44;
+                LUI_Model_SetBool(v91, v92);
+                v93 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInGulagMatch");
+                LUI_Model_SetBool(v93, v44);
+                v94 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.hasRespawnToken");
+                LUI_Model_SetBool(v94, v50);
+                v95 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.hasSelfReviveToken");
+                LUI_Model_SetBool(v95, v183);
+                v96 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isParachuting");
+                LUI_Model_SetBool(v96, v133);
+                v97 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInVehicle");
+                LUI_Model_SetBool(v97, v134);
+                v98 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isInInfilPlane");
+                LUI_Model_SetBool(v98, SHIBYTE(v129));
+                v99 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isTalking");
+                LUI_Model_SetBool(v99, v129);
+                v100 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.damageDealt");
+                LUI_Model_SetInt(v100, extrascore3);
+                v101 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.missionsCompleted");
+                LUI_Model_SetInt(v101, v175);
+                v102 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.bunkerKeycardType");
+                LUI_Model_SetInt(v102, v176);
               }
-              v106 = v232;
-              v21 = v190;
+              v80 = v184;
+              v9 = v142;
             }
             else
             {
-              v76 = v186;
-              if ( v186 >= 4 )
+              v51 = v138;
+              if ( v138 >= 4 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1946, ASSERT_TYPE_ASSERT, "(teamSlotIndex < 4)", (const char *)&queryFormat, "teamSlotIndex < MAX_PLAYER_TEAM_BR") )
                   __debugbreak();
-                v76 = v186;
+                v51 = v138;
               }
-              v186 = v76 + 1;
-              Com_sprintf(dest, 2ui64, "%i", v76);
-              v77 = LUI_Model_CreateModelFromPath(ModelFromPath, dest);
-              __asm { vmovaps xmm1, xmm6; newValue }
-              LUI_Model_SetReal(v77, *(float *)&_XMM1);
-              v79 = LUI_Model_CreateModelFromPath(v216, dest);
-              LUI_Model_SetBool(v79, v178);
-              Game_GetPlayerName(localClientNuma, *v238, 0x30ui64, out_playerName);
-              v80 = LUI_Model_CreateModelFromPath(v187, dest);
-              LUI_Model_SetString(v80, out_playerName);
-              v81 = LUI_Model_CreateModelFromPath(v217, dest);
-              LUI_Model_SetString(v81, newValue);
-              v82 = LUI_Model_CreateModelFromPath(v218, dest);
-              LUI_Model_SetInt(v82, v191);
-              v83 = LUI_Model_CreateModelFromPath(v219, dest);
-              LUI_Model_SetInt(v83, *v238);
-              v84 = LUI_Model_CreateModelFromPath(v192, dest);
-              LUI_Model_SetInt(v84, v184);
-              v85 = LUI_Model_CreateModelFromPath(v193, dest);
-              LUI_Model_SetBool(v85, v180);
-              v86 = LUI_Model_CreateModelFromPath(v194, dest);
-              LUI_Model_SetBool(v86, v240);
-              v87 = LUI_Model_CreateModelFromPath(v195, dest);
-              LUI_Model_SetBool(v87, v227);
-              v88 = LUI_Model_CreateModelFromPath(v196, dest);
-              LUI_Model_SetBool(v88, v230);
-              v89 = LUI_Model_CreateModelFromPath(v197, dest);
-              LUI_Model_SetBool(v89, v228);
-              v90 = LUI_Model_CreateModelFromPath(v198, dest);
-              LUI_Model_SetBool(v90, v229);
+              v138 = v51 + 1;
+              Com_sprintf(dest, 2ui64, "%i", v51);
+              v52 = LUI_Model_CreateModelFromPath(ModelFromPath, dest);
+              LUI_Model_SetReal(v52, v28);
+              v53 = LUI_Model_CreateModelFromPath(v168, dest);
+              LUI_Model_SetBool(v53, v130);
+              Game_GetPlayerName(localClientNuma, *v190, 0x30ui64, out_playerName);
+              v54 = LUI_Model_CreateModelFromPath(v139, dest);
+              LUI_Model_SetString(v54, out_playerName);
+              v55 = LUI_Model_CreateModelFromPath(v169, dest);
+              LUI_Model_SetString(v55, newValue);
+              v56 = LUI_Model_CreateModelFromPath(v170, dest);
+              LUI_Model_SetInt(v56, v143);
+              v57 = LUI_Model_CreateModelFromPath(v171, dest);
+              LUI_Model_SetInt(v57, *v190);
+              v58 = LUI_Model_CreateModelFromPath(v144, dest);
+              LUI_Model_SetInt(v58, v136);
+              v59 = LUI_Model_CreateModelFromPath(v145, dest);
+              LUI_Model_SetBool(v59, v132);
+              v60 = LUI_Model_CreateModelFromPath(v146, dest);
+              LUI_Model_SetBool(v60, v192);
+              v61 = LUI_Model_CreateModelFromPath(v147, dest);
+              LUI_Model_SetBool(v61, v179);
+              v62 = LUI_Model_CreateModelFromPath(v148, dest);
+              LUI_Model_SetBool(v62, v182);
+              v63 = LUI_Model_CreateModelFromPath(v149, dest);
+              LUI_Model_SetBool(v63, v180);
+              v64 = LUI_Model_CreateModelFromPath(v150, dest);
+              LUI_Model_SetBool(v64, v181);
               if ( p_client )
               {
-                v91 = LUI_Model_CreateModelFromPath(v199, dest);
-                LUI_Model_SetInt(v91, kills);
-                v92 = LUI_Model_CreateModelFromPath(v200, dest);
-                LUI_Model_SetInt(v92, v221);
-                v93 = LUI_Model_CreateModelFromPath(v201, dest);
-                v94 = v68 || v69;
-                LUI_Model_SetBool(v93, v94);
-                v95 = LUI_Model_CreateModelFromPath(v202, dest);
-                LUI_Model_SetBool(v95, v69);
-                v96 = LUI_Model_CreateModelFromPath(v203, dest);
-                LUI_Model_SetBool(v96, v75);
-                v97 = LUI_Model_CreateModelFromPath(v204, dest);
-                LUI_Model_SetBool(v97, v231);
-                v98 = LUI_Model_CreateModelFromPath(v205, dest);
-                LUI_Model_SetBool(v98, v181);
-                v99 = LUI_Model_CreateModelFromPath(v206, dest);
-                LUI_Model_SetBool(v99, v182);
-                v100 = LUI_Model_CreateModelFromPath(v207, dest);
-                LUI_Model_SetBool(v100, SHIBYTE(v177));
-                v101 = LUI_Model_CreateModelFromPath(v208, dest);
-                LUI_Model_SetBool(v101, v177);
-                v102 = LUI_Model_CreateModelFromPath(v209, dest);
-                LUI_Model_SetBool(v102, IsPlayerMuted);
-                v103 = LUI_Model_CreateModelFromPath(v210, dest);
-                LUI_Model_SetInt(v103, extrascore3);
-                v104 = LUI_Model_CreateModelFromPath(v211, dest);
-                LUI_Model_SetInt(v104, v223);
-                v105 = LUI_Model_CreateModelFromPath(v212, dest);
-                LUI_Model_SetInt(v105, v224);
+                v65 = LUI_Model_CreateModelFromPath(v151, dest);
+                LUI_Model_SetInt(v65, kills);
+                v66 = LUI_Model_CreateModelFromPath(v152, dest);
+                LUI_Model_SetInt(v66, v173);
+                v67 = LUI_Model_CreateModelFromPath(v153, dest);
+                v68 = v43 || v44;
+                LUI_Model_SetBool(v67, v68);
+                v69 = LUI_Model_CreateModelFromPath(v154, dest);
+                LUI_Model_SetBool(v69, v44);
+                v70 = LUI_Model_CreateModelFromPath(v155, dest);
+                LUI_Model_SetBool(v70, v50);
+                v71 = LUI_Model_CreateModelFromPath(v156, dest);
+                LUI_Model_SetBool(v71, v183);
+                v72 = LUI_Model_CreateModelFromPath(v157, dest);
+                LUI_Model_SetBool(v72, v133);
+                v73 = LUI_Model_CreateModelFromPath(v158, dest);
+                LUI_Model_SetBool(v73, v134);
+                v74 = LUI_Model_CreateModelFromPath(v159, dest);
+                LUI_Model_SetBool(v74, SHIBYTE(v129));
+                v75 = LUI_Model_CreateModelFromPath(v160, dest);
+                LUI_Model_SetBool(v75, v129);
+                v76 = LUI_Model_CreateModelFromPath(v161, dest);
+                LUI_Model_SetBool(v76, IsPlayerMuted);
+                v77 = LUI_Model_CreateModelFromPath(v162, dest);
+                LUI_Model_SetInt(v77, extrascore3);
+                v78 = LUI_Model_CreateModelFromPath(v163, dest);
+                LUI_Model_SetInt(v78, v175);
+                v79 = LUI_Model_CreateModelFromPath(v164, dest);
+                LUI_Model_SetInt(v79, v176);
               }
-              v106 = v190;
-              v21 = ++v190;
-              if ( v106 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 2103, ASSERT_TYPE_ASSERT, "(curSkyDiveSlot < 4)", (const char *)&queryFormat, "curSkyDiveSlot < MAX_PLAYER_TEAM_BR") )
+              v80 = v142;
+              v9 = ++v142;
+              if ( v80 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 2103, ASSERT_TYPE_ASSERT, "(curSkyDiveSlot < 4)", (const char *)&queryFormat, "curSkyDiveSlot < MAX_PLAYER_TEAM_BR") )
                 __debugbreak();
             }
-            Com_sprintf(dest, 2ui64, "%i", (unsigned int)v106);
-            v129 = LUI_Model_CreateModelFromPath(v213, dest);
-            LUI_Model_SetInt(v129, v191);
-            v248 = ci->velocity.v[2];
-            __asm
-            {
-              vmulss  xmm0, xmm8, [rbp+180h+var_130]; val
-              vmovaps xmm2, xmm13; max
-              vmovaps xmm1, xmm7; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm { vmulss  xmm6, xmm0, xmm14 }
-            v133 = LUI_Model_CreateModelFromPath(v214, dest);
-            __asm { vmovaps xmm1, xmm6; newValue }
-            LUI_Model_SetReal(v133, *(float *)&_XMM1);
-            v33 = localClientNuma;
-            Entity = CG_GetEntity(localClientNuma, *v238);
+            Com_sprintf(dest, 2ui64, "%i", (unsigned int)v80);
+            v103 = LUI_Model_CreateModelFromPath(v165, dest);
+            LUI_Model_SetInt(v103, v143);
+            v200 = ci->velocity.v[2];
+            v104 = I_fclamp(-1.0 * v200, 0.0, 3.4028235e38);
+            v105 = LUI_Model_CreateModelFromPath(v166, dest);
+            LUI_Model_SetReal(v105, *(float *)&v104 * 0.056820001);
+            v19 = localClientNuma;
+            Entity = CG_GetEntity(localClientNuma, *v190);
             if ( (Entity->flags & 1) != 0 )
             {
               CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+180h+outOrigin+8]
-                vsubss  xmm2, xmm0, xmm10
-                vsubss  xmm1, xmm15, xmm10
-                vdivss  xmm0, xmm2, xmm1; val
-                vmovaps xmm2, xmm9; max
-                vmovaps xmm1, xmm7; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm { vmovaps xmm6, xmm0 }
-              v142 = LUI_Model_CreateModelFromPath(v188, dest);
-              __asm { vmovaps xmm1, xmm6; newValue }
-              LUI_Model_SetReal(v142, *(float *)&_XMM1);
+              v107 = (float)(outOrigin.v[2] - v18) / (float)(Integer - v18);
+              I_fclamp(v107, 0.0, 1.0);
+              v108 = LUI_Model_CreateModelFromPath(v140, dest);
+              LUI_Model_SetReal(v108, v107);
               memset(&outOrigin, 0, sizeof(outOrigin));
             }
           }
         }
-        v38 = clientNum + 1;
-        clientNum = v38;
+        v25 = clientNum + 1;
+        clientNum = v25;
       }
-      while ( v38 < cls.maxClients );
-      __asm { vmovss  xmm6, [rbp+180h+var_16C] }
+      while ( v25 < cls.maxClients );
+      v21 = v194;
     }
-    v144 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.squadLeaderClientNum");
-    LUI_Model_SetInt(v144, v233);
-    v145 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.activePlayerCount");
-    LUI_Model_SetInt(v145, outLivingPlayers);
-    v146 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.totalPlayerCount");
-    LUI_Model_SetInt(v146, outTotalPlayers);
-    v147 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.activeTeamCount");
-    LUI_Model_SetInt(v147, outLivingTeams);
-    v148 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.totalTeamCount");
-    LUI_Model_SetInt(v148, outTotalTeams);
-    v149 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isWeaponRaise");
-    LUI_Model_SetBool(v149, IsWeaponRaise);
+    v109 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.squadLeaderClientNum");
+    LUI_Model_SetInt(v109, v185);
+    v110 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.activePlayerCount");
+    LUI_Model_SetInt(v110, outLivingPlayers);
+    v111 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.totalPlayerCount");
+    LUI_Model_SetInt(v111, outTotalPlayers);
+    v112 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.activeTeamCount");
+    LUI_Model_SetInt(v112, outLivingTeams);
+    v113 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.totalTeamCount");
+    LUI_Model_SetInt(v113, outTotalTeams);
+    v114 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.isWeaponRaise");
+    LUI_Model_SetBool(v114, IsWeaponRaise);
     if ( CgCompassSystem::GetCurrentCompassType(LocalClientGlobals) == COMPASS_TYPE_TACMAP )
     {
-      v150 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.tacmapZoomLevel");
-      __asm { vmovaps xmm1, xmm6; newValue }
-      LUI_Model_SetReal(v150, *(float *)&_XMM1);
+      v115 = LUI_Model_CreateModelFromPath(ModelForController, "cg.player.BRData.tacmapZoomLevel");
+      LUI_Model_SetReal(v115, v21);
     }
-    v152 = v186;
-    if ( v186 < 4 )
+    v116 = v138;
+    if ( v138 < 4 )
     {
-      v153 = v187;
+      v117 = v139;
       do
       {
-        Com_sprintf(dest, 2ui64, "%i", (unsigned int)v152);
-        v154 = LUI_Model_CreateModelFromPath(v153, dest);
-        LUI_Model_SetString(v154, (const char *)&queryFormat.fmt + 3);
-        ++v152;
+        Com_sprintf(dest, 2ui64, "%i", (unsigned int)v116);
+        v118 = LUI_Model_CreateModelFromPath(v117, dest);
+        LUI_Model_SetString(v118, (const char *)&queryFormat.fmt + 3);
+        ++v116;
       }
-      while ( v152 < 4 );
-      v33 = localClientNuma;
+      while ( v116 < 4 );
+      v19 = localClientNuma;
     }
-    if ( v21 < 4 )
+    if ( v9 < 4 )
     {
-      v155 = v188;
+      v119 = v140;
       do
       {
-        Com_sprintf(dest, 2ui64, "%i", (unsigned int)v21);
-        v156 = LUI_Model_CreateModelFromPath(v155, dest);
-        __asm { vmovaps xmm1, xmm8; newValue }
-        LUI_Model_SetReal(v156, *(float *)&_XMM1);
-        ++v21;
+        Com_sprintf(dest, 2ui64, "%i", (unsigned int)v9);
+        v120 = LUI_Model_CreateModelFromPath(v119, dest);
+        LUI_Model_SetReal(v120, -1.0);
+        ++v9;
       }
-      while ( v21 < 4 );
-      v33 = localClientNuma;
+      while ( v9 < 4 );
+      v19 = localClientNuma;
     }
-    v158 = CL_Mgr_GetControllerFromClient(v33);
-    v159 = LUI_Model_GetModelForController(v158);
-    v160 = (int *)v249;
+    v121 = CL_Mgr_GetControllerFromClient(v19);
+    v122 = LUI_Model_GetModelForController(v121);
+    v123 = (int *)v201;
     do
     {
-      v161 = j_va("cg.BR.quickInventory.slotFeedback.%d", (unsigned int)v20);
-      v162 = LUI_Model_CreateModelFromPath(v159, v161);
-      LUI_Model_SetInt(v162, *v160);
-      ++v20;
-      ++v160;
+      v124 = j_va("cg.BR.quickInventory.slotFeedback.%d", (unsigned int)v8);
+      v125 = LUI_Model_CreateModelFromPath(v122, v124);
+      LUI_Model_SetInt(v125, *v123);
+      ++v8;
+      ++v123;
     }
-    while ( v20 < 10 );
-  }
-  _R11 = &v251;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    while ( v8 < 10 );
   }
 }
 
@@ -3575,284 +3455,252 @@ Game_ThreatIndicator_PushToLUIModels
 */
 void Game_ThreatIndicator_PushToLUIModels(const LocalClientNum_t localClientNum)
 {
-  __int64 v12; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
   const CgSnapshotMP *NextSnap; 
   __int64 numEntities; 
   const characterInfo_t *CharacterInfo; 
   entityState_t *entities; 
-  __int64 v18; 
+  __int64 v7; 
   __int64 number; 
-  CgEntitySystem *v25; 
-  __int64 v26; 
+  CgEntitySystem *v9; 
+  __int64 v10; 
   __int64 clientNum; 
-  cg_t *v28; 
-  const characterInfo_t *v29; 
+  cg_t *v12; 
+  const characterInfo_t *v13; 
   team_t team; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
+  unsigned int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v35; 
-  __int64 v36; 
+  unsigned __int64 v19; 
+  __int64 v20; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  int v81; 
-  char v83; 
-  int v84; 
-  char v87; 
-  int *v88; 
-  const char **v89; 
+  __int128 v24; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  float v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int128 v39; 
+  __int128 v40; 
+  const dvar_t *v46; 
+  int v47; 
+  const dvar_t *v48; 
+  int *v49; 
+  const char **v50; 
   int ControllerFromClient; 
   unsigned __int16 ModelForController; 
   unsigned __int16 ModelFromPath; 
-  __int64 v104; 
-  __int64 v105; 
-  int v106[3]; 
+  __int64 v54; 
+  __int64 v55; 
+  int v56[3]; 
   vec3_t outOrigin; 
   CgStatic *LocalClientStatics; 
-  cg_t *v109; 
-  __int64 v110; 
+  cg_t *v59; 
+  __int64 v60; 
   vec3_t forward; 
-  __int64 v112[4]; 
-  char v113; 
-  void *retaddr; 
+  __int64 v62[4]; 
 
-  _RAX = &retaddr;
-  v110 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  v12 = localClientNum;
+  v60 = -2i64;
+  v1 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v109 = LocalClientGlobals;
-  NextSnap = CG_SnapshotMP_GetNextSnap((const LocalClientNum_t)v12);
+  v59 = LocalClientGlobals;
+  NextSnap = CG_SnapshotMP_GetNextSnap((const LocalClientNum_t)v1);
   if ( !NextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1625, ASSERT_TYPE_ASSERT, "(nextSnap)", (const char *)&queryFormat, "nextSnap") )
     __debugbreak();
   numEntities = (unsigned int)NextSnap->numEntities;
-  LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)v12);
+  LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)v1);
   CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, LocalClientGlobals->predictedPlayerState.clientNum);
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1630, ASSERT_TYPE_ASSERT, "(myCharacterInfo)", (const char *)&queryFormat, "myCharacterInfo") )
     __debugbreak();
-  memset(v112, 0, sizeof(v112));
+  memset(v62, 0, sizeof(v62));
   if ( (_DWORD)numEntities )
   {
     entities = NextSnap->entities;
-    v18 = numEntities;
-    __asm
-    {
-      vmovss  xmm12, cs:__real@80000000
-      vmovss  xmm11, cs:__real@3f800000
-      vmovss  xmm13, cs:__real@42652ee0
-      vmovss  xmm14, cs:__real@43b40000
-      vxorps  xmm15, xmm15, xmm15
-    }
+    v7 = numEntities;
     do
     {
       number = entities->number;
       if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
       {
-        LODWORD(v105) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v105) )
+        LODWORD(v55) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v55) )
           __debugbreak();
       }
-      if ( (unsigned int)v12 >= CgEntitySystem::ms_allocatedCount )
+      if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
       {
-        LODWORD(v105) = CgEntitySystem::ms_allocatedCount;
-        LODWORD(v104) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v104, v105) )
+        LODWORD(v55) = CgEntitySystem::ms_allocatedCount;
+        LODWORD(v54) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v54, v55) )
           __debugbreak();
       }
-      if ( !CgEntitySystem::ms_entitySystemArray[v12] )
+      if ( !CgEntitySystem::ms_entitySystemArray[v1] )
       {
-        LODWORD(v105) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v105) )
+        LODWORD(v55) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v55) )
           __debugbreak();
       }
-      v25 = CgEntitySystem::ms_entitySystemArray[v12];
+      v9 = CgEntitySystem::ms_entitySystemArray[v1];
       if ( (unsigned int)number >= 0x800 )
       {
-        LODWORD(v105) = 2048;
-        LODWORD(v104) = number;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v104, v105) )
+        LODWORD(v55) = 2048;
+        LODWORD(v54) = number;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v54, v55) )
           __debugbreak();
       }
-      v26 = (__int64)&v25->m_entities[number];
-      if ( v25->m_entities[number].nextState.eType == ET_PLAYER )
+      v10 = (__int64)&v9->m_entities[number];
+      if ( v9->m_entities[number].nextState.eType == ET_PLAYER )
       {
-        if ( (v25->m_entities[number].flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1645, ASSERT_TYPE_ASSERT, "(CENextValid( entity ))", (const char *)&queryFormat, "CENextValid( entity )") )
+        if ( (v9->m_entities[number].flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1645, ASSERT_TYPE_ASSERT, "(CENextValid( entity ))", (const char *)&queryFormat, "CENextValid( entity )") )
           __debugbreak();
-        clientNum = v25->m_entities[number].nextState.clientNum;
-        v28 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
-        if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+        clientNum = v9->m_entities[number].nextState.clientNum;
+        v12 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
+        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
           __debugbreak();
-        if ( v28->IsMP(v28) )
+        if ( v12->IsMP(v12) )
         {
-          if ( (unsigned int)clientNum >= v28[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+          if ( (unsigned int)clientNum >= v12[1].predictedPlayerState.rxvOmnvars[64].timeModified )
           {
-            LODWORD(v105) = v28[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-            LODWORD(v104) = clientNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v104, v105) )
+            LODWORD(v55) = v12[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+            LODWORD(v54) = clientNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v54, v55) )
               __debugbreak();
           }
-          v29 = (const characterInfo_t *)(*(_QWORD *)&v28[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
+          v13 = (const characterInfo_t *)(*(_QWORD *)&v12[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
         }
         else
         {
-          v29 = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v28, clientNum);
+          v13 = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v12, clientNum);
         }
-        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1650, ASSERT_TYPE_ASSERT, "(entityCharacterInfo)", (const char *)&queryFormat, "entityCharacterInfo") )
+        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui_mp\\lui_cod_game_mp.cpp", 1650, ASSERT_TYPE_ASSERT, "(entityCharacterInfo)", (const char *)&queryFormat, "entityCharacterInfo") )
           __debugbreak();
-        if ( CharacterInfo != v29 )
+        if ( CharacterInfo != v13 )
         {
           team = CharacterInfo->team;
-          if ( team == TEAM_ZERO || team != v29->team )
+          if ( team == TEAM_ZERO || team != v13->team )
           {
-            v31 = *(__int16 *)(v26 + 400);
-            if ( v31 > 0x9E4 )
+            v15 = *(__int16 *)(v10 + 400);
+            if ( v15 > 0x9E4 )
             {
-              LODWORD(v105) = *(__int16 *)(v26 + 400);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v105) )
+              LODWORD(v55) = *(__int16 *)(v10 + 400);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v55) )
                 __debugbreak();
             }
-            if ( (unsigned int)v12 >= 2 )
+            if ( (unsigned int)v1 >= 2 )
             {
-              LODWORD(v105) = 2;
-              LODWORD(v104) = v12;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v104, v105) )
+              LODWORD(v55) = 2;
+              LODWORD(v54) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v54, v55) )
                 __debugbreak();
             }
-            v32 = 2533 * v12 + v31;
-            if ( v32 >= 0x13CA )
+            v16 = 2533 * v1 + v15;
+            if ( v16 >= 0x13CA )
             {
-              LODWORD(v105) = v32;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v105) )
+              LODWORD(v55) = v16;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v55) )
                 __debugbreak();
             }
-            v33 = clientObjMap[v32];
-            if ( v33 )
+            v17 = clientObjMap[v16];
+            if ( v17 )
             {
-              if ( v33 >= (unsigned int)s_objCount )
+              if ( v17 >= (unsigned int)s_objCount )
               {
-                LODWORD(v105) = v33;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v105) )
+                LODWORD(v55) = v17;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v55) )
                   __debugbreak();
               }
-              if ( s_objBuf[v33] )
+              if ( s_objBuf[v17] )
               {
                 PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x1Du);
-                v35 = (unsigned int)PerkNetworkPriorityIndex;
+                v19 = (unsigned int)PerkNetworkPriorityIndex;
                 if ( PerkNetworkPriorityIndex < 0 )
                   goto LABEL_59;
                 if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
                 {
-                  LODWORD(v105) = 64;
-                  LODWORD(v104) = PerkNetworkPriorityIndex;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v104, v105) )
+                  LODWORD(v55) = 64;
+                  LODWORD(v54) = PerkNetworkPriorityIndex;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v54, v55) )
                     __debugbreak();
                 }
-                if ( ((0x80000000 >> (v35 & 0x1F)) & v29->perks.array[v35 >> 5]) == 0 )
+                if ( ((0x80000000 >> (v19 & 0x1F)) & v13->perks.array[v19 >> 5]) == 0 )
                 {
 LABEL_59:
-                  CG_GetPoseOrigin((const cpose_t *)v26, &outOrigin);
-                  v36 = (__int64)v109;
-                  p_view = &v109->refdef.view;
-                  if ( v109 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+                  CG_GetPoseOrigin((const cpose_t *)v10, &outOrigin);
+                  v20 = (__int64)v59;
+                  p_view = &v59->refdef.view;
+                  if ( v59 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
                     __debugbreak();
                   refdefViewOrg_aab = p_view->refdefViewOrg_aab;
                   v = (_DWORD *)p_view->org.org.v;
                   if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
                     __debugbreak();
-                  v106[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-                  v106[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-                  v106[2] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
+                  v56[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+                  v56[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+                  v56[2] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
+                  v24 = LODWORD(outOrigin.v[1]);
+                  *(float *)&v24 = fsqrt((float)((float)(outOrigin.v[1] - *(float *)&v56[1]) * (float)(outOrigin.v[1] - *(float *)&v56[1])) + (float)((float)(outOrigin.v[0] - *(float *)v56) * (float)(outOrigin.v[0] - *(float *)v56)));
+                  _XMM10 = v24;
                   __asm
                   {
-                    vmovss  xmm0, dword ptr [rsp+188h+outOrigin]
-                    vsubss  xmm4, xmm0, [rsp+188h+var_140]
-                    vmovss  xmm1, dword ptr [rsp+188h+outOrigin+4]
-                    vsubss  xmm3, xmm1, [rsp+188h+var_13C]
-                    vmulss  xmm2, xmm3, xmm3
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm1, xmm2, xmm0
-                    vsqrtss xmm10, xmm1, xmm1
                     vcmpless xmm0, xmm10, xmm12
                     vblendvps xmm1, xmm10, xmm11, xmm0
-                    vdivss  xmm0, xmm11, xmm1
-                    vmulss  xmm8, xmm4, xmm0
-                    vmulss  xmm9, xmm3, xmm0
                   }
-                  AngleVectors((const vec3_t *)(v36 + 96448), &forward, NULL, NULL);
+                  v28 = (float)(outOrigin.v[0] - *(float *)v56) * (float)(1.0 / *(float *)&_XMM1);
+                  v29 = (float)(outOrigin.v[1] - *(float *)&v56[1]) * (float)(1.0 / *(float *)&_XMM1);
+                  AngleVectors((const vec3_t *)(v20 + 96448), &forward, NULL, NULL);
+                  v30 = LODWORD(forward.v[1]);
+                  *(float *)&v30 = fsqrt((float)(*(float *)&v30 * *(float *)&v30) + (float)(forward.v[0] * forward.v[0]));
+                  _XMM2 = v30;
                   __asm
                   {
-                    vmovss  xmm4, dword ptr [rsp+188h+forward+4]
-                    vmulss  xmm1, xmm4, xmm4
-                    vmovss  xmm3, dword ptr [rsp+188h+forward]
-                    vmulss  xmm0, xmm3, xmm3
-                    vaddss  xmm1, xmm1, xmm0
-                    vsqrtss xmm2, xmm1, xmm1
                     vcmpless xmm0, xmm2, xmm12
                     vblendvps xmm1, xmm2, xmm11, xmm0
-                    vdivss  xmm0, xmm11, xmm1
-                    vmulss  xmm7, xmm3, xmm0
-                    vmulss  xmm6, xmm4, xmm0
-                    vmulss  xmm1, xmm6, xmm9
-                    vmulss  xmm0, xmm7, xmm8
-                    vaddss  xmm0, xmm1, xmm0; X
                   }
-                  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
+                  v34 = forward.v[0] * (float)(1.0 / *(float *)&_XMM1);
+                  v36 = LODWORD(forward.v[1]);
+                  *(float *)&v36 = forward.v[1] * (float)(1.0 / *(float *)&_XMM1);
+                  v35 = v36;
+                  *(float *)&v36 = (float)(*(float *)&v36 * v29) + (float)(v34 * v28);
+                  v37 = v36;
+                  *(float *)&v37 = acosf_0(*(float *)&v36);
+                  v39 = v37;
+                  *(float *)&v39 = *(float *)&v37 * 57.295776;
+                  _XMM4 = v39;
+                  v40 = v35;
+                  *(float *)&v40 = (float)(*(float *)&v35 * v28) - (float)(v34 * v29);
+                  _XMM0 = v40;
                   __asm
                   {
-                    vmulss  xmm4, xmm0, xmm13
-                    vmulss  xmm2, xmm6, xmm8
-                    vmulss  xmm1, xmm7, xmm9
-                    vsubss  xmm0, xmm2, xmm1
-                    vsubss  xmm3, xmm14, xmm4
                     vcmpltss xmm0, xmm0, xmm15
                     vblendvps xmm0, xmm4, xmm3, xmm0
-                    vmulss  xmm1, xmm0, cs:__real@3cb60b61
-                    vaddss  xmm3, xmm1, cs:__real@3f000000
-                    vxorps  xmm2, xmm2, xmm2
-                    vmovss  xmm4, xmm2, xmm3
-                    vxorps  xmm0, xmm0, xmm0
-                    vroundss xmm1, xmm0, xmm4, 1
-                    vcvttss2si edi, xmm1
                   }
-                  v81 = _EDI % 8;
-                  _RBX = DCONST_DVARFLT_lui_ringradar_inner_distance;
+                  _XMM0 = 0i64;
+                  __asm { vroundss xmm1, xmm0, xmm4, 1 }
+                  v46 = DCONST_DVARFLT_lui_ringradar_inner_distance;
                   if ( !DCONST_DVARFLT_lui_ringradar_inner_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_ringradar_inner_distance") )
                     __debugbreak();
-                  Dvar_CheckFrontendServerThread(_RBX);
-                  __asm { vcomiss xmm10, dword ptr [rbx+28h] }
-                  if ( v83 )
+                  Dvar_CheckFrontendServerThread(v46);
+                  if ( *(float *)&_XMM10 >= v46->current.value )
                   {
-                    v84 = 1;
+                    v48 = DCONST_DVARFLT_lui_ringradar_mid_distance;
+                    if ( !DCONST_DVARFLT_lui_ringradar_mid_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_ringradar_mid_distance") )
+                      __debugbreak();
+                    Dvar_CheckFrontendServerThread(v48);
+                    v47 = 4;
+                    if ( v48->current.value > *(float *)&_XMM10 )
+                      v47 = 2;
                   }
                   else
                   {
-                    _RBX = DCONST_DVARFLT_lui_ringradar_mid_distance;
-                    if ( !DCONST_DVARFLT_lui_ringradar_mid_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_ringradar_mid_distance") )
-                      __debugbreak();
-                    Dvar_CheckFrontendServerThread(_RBX);
-                    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-                    v84 = 4;
-                    __asm { vcomiss xmm0, xmm10 }
-                    if ( !(v83 | v87) )
-                      v84 = 2;
+                    v47 = 1;
                   }
-                  *((_DWORD *)v112 + v81) |= v84;
-                  memset(v106, 0, sizeof(v106));
+                  *((_DWORD *)v62 + (int)*(float *)&_XMM1 % 8) |= v47;
+                  memset(v56, 0, sizeof(v56));
                   memset(&outOrigin, 0, sizeof(outOrigin));
                 }
               }
@@ -3861,36 +3709,22 @@ LABEL_59:
         }
       }
       ++entities;
-      --v18;
+      --v7;
     }
-    while ( v18 );
+    while ( v7 );
   }
-  v88 = (int *)v112;
-  v89 = s_ringRadarModels;
+  v49 = (int *)v62;
+  v50 = s_ringRadarModels;
   do
   {
-    ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v12);
+    ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v1);
     ModelForController = LUI_Model_GetModelForController(ControllerFromClient);
-    ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, *v89);
-    LUI_Model_SetInt(ModelFromPath, *v88);
-    ++v89;
-    ++v88;
+    ModelFromPath = LUI_Model_CreateModelFromPath(ModelForController, *v50);
+    LUI_Model_SetInt(ModelFromPath, *v49);
+    ++v50;
+    ++v49;
   }
-  while ( (__int64)v89 < (__int64)&BRPartySlotColors );
-  _R11 = &v113;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( (__int64)v50 < (__int64)&BRPartySlotColors );
 }
 
 /*
@@ -4111,21 +3945,15 @@ __int64 LUI_LuaCall_Game_GetCPScoreboardRowData_impl(lua_State *const luaVM)
   DDL_GetRootState(&result, Asset);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(ControllerFromClient);
   CL_PlayerData_GetDDLBuffer(&context, ControllerFromClient, ActiveStatsSource, STATSGROUP_COOP);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+180h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
   RawHash = j_SL_GetRawHash(scr_const.coopMatchData);
   DDL_MoveToNameByHash(&result, &toState, RawHash, NULL);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+180h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
@@ -4139,13 +3967,10 @@ __int64 LUI_LuaCall_Game_GetCPScoreboardRowData_impl(lua_State *const luaVM)
     v54.isValid = 0;
     v54.offset = 0;
     v54.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rbp+180h+var_1E8.member], xmm0 }
+    *(_OWORD *)&v54.member = _XMM0;
     DDL_MoveToIndex(&fromState, &v54, i);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+180h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
@@ -4200,15 +4025,12 @@ LABEL_31:
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v28 = v60[3 * v3 - 1];
   v52.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+280h+var_228.member], xmm0 }
+  *(_OWORD *)&v52.member = _XMM0;
   DDL_MoveToIndex(&fromState, &v52, v28);
   j_lua_createtable(luaVM, 0, 10);
   LUI_SetTableInt("score", v60[3 * v3], LUI_luaVM);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+280h+var_248.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v51.member = _XMM0;
   v51.isValid = 0;
   v51.offset = 0;
   v51.arrayIndex = -1;
@@ -4435,7 +4257,7 @@ LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl
 ==============
 */
 
-__int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl(lua_State *const luaVM, __int64 a2, double _XMM2_8)
+__int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl(lua_State *const luaVM, __int64 a2, double a3)
 {
   int v4; 
   bool v5; 
@@ -4443,14 +4265,15 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl(lua_S
   cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
   unsigned int v9; 
+  BgWeaponMap *v10; 
   int i; 
   __int64 AllWeaponAttachments; 
-  int v19; 
-  const char ***v20; 
-  const char **v21; 
-  const char *v22; 
-  __int64 v24; 
-  __int64 v25; 
+  int v15; 
+  const char ***v16; 
+  const char **v17; 
+  const char *v18; 
+  __int64 v20; 
+  __int64 v21; 
   CgWeaponMap *Instance; 
   Weapon r_weapon; 
   WeaponAttachment *attachments[30]; 
@@ -4470,64 +4293,52 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl(lua_S
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
   v9 = 0;
   Instance = CgWeaponMap::GetInstance(ClientFromController);
-  _RBX = Instance;
+  v10 = Instance;
   j_lua_createtable(luaVM, 2, 0);
   for ( i = 0; i < 15; ++i )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( (unsigned int)i >= 0xF )
     {
-      LODWORD(v25) = 15;
-      LODWORD(v24) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v24, v25) )
+      LODWORD(v21) = 15;
+      LODWORD(v20) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v20, v21) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon(_RBX, p_predictedPlayerState->weaponsEquipped[i]);
-    __asm
+    r_weapon = *BgWeaponMap::GetWeapon(v10, p_predictedPlayerState->weaponsEquipped[i]);
+    if ( LOWORD(a3) )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+1B8h+r_weapon.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+1B8h+r_weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovd   ebx, xmm2
-      vmovsd  qword ptr [rsp+1B8h+r_weapon.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    if ( (_WORD)_RBX )
-    {
-      if ( (unsigned __int16)_RBX > bg_lastParsedWeaponIndex )
+      if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v25) = bg_lastParsedWeaponIndex;
-        LODWORD(v24) = (unsigned __int16)_RBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v24, v25) )
+        LODWORD(v21) = bg_lastParsedWeaponIndex;
+        LODWORD(v20) = LOWORD(a3);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v20, v21) )
           __debugbreak();
       }
-      _RBX = (CgWeaponMap *)(unsigned __int16)_RBX;
-      if ( !bg_weaponDefs[(unsigned __int16)_RBX] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+      if ( !bg_weaponDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
         __debugbreak();
-      if ( bg_weaponDefs[(_QWORD)_RBX]->inventoryType == WEAPINVENTORY_PRIMARY )
+      if ( bg_weaponDefs[LOWORD(a3)]->inventoryType == WEAPINVENTORY_PRIMARY )
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        _XMM1 = 0i64;
         ++v9;
         AllWeaponAttachments = BG_GetAllWeaponAttachments(&r_weapon, (const WeaponAttachment **)attachments);
         __asm { vcvtsi2sd xmm1, xmm1, rcx; n }
         j_lua_pushnumber(LUI_luaVM, *(long double *)&_XMM1);
         j_lua_createtable(luaVM, 0, 0);
-        v19 = 0;
+        v15 = 0;
         if ( (_DWORD)AllWeaponAttachments )
         {
-          v20 = (const char ***)attachments;
+          v16 = (const char ***)attachments;
           do
           {
-            v21 = *v20;
-            v22 = **v20;
-            if ( v22 && (v5 || v21[1] && !*((_BYTE *)v21 + 24)) )
-              LUI_SetTableString(++v19, v22, LUI_luaVM);
-            ++v20;
+            v17 = *v16;
+            v18 = **v16;
+            if ( v18 && (v5 || v17[1] && !*((_BYTE *)v17 + 24)) )
+              LUI_SetTableString(++v15, v18, LUI_luaVM);
+            ++v16;
             --AllWeaponAttachments;
           }
           while ( AllWeaponAttachments );
@@ -4542,7 +4353,7 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutAttachments_impl(lua_S
           break;
       }
     }
-    _RBX = Instance;
+    v10 = Instance;
   }
   return 1i64;
 }
@@ -4553,7 +4364,7 @@ LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl
 ==============
 */
 
-__int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *const luaVM, __int64 a2, double _XMM2_8)
+__int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *const luaVM, __int64 a2, double a3)
 {
   int v4; 
   LocalClientNum_t ClientFromController; 
@@ -4563,32 +4374,31 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *c
   CgWeaponMap *Instance; 
   unsigned int v10; 
   int v11; 
-  bool v17; 
-  WeaponDef **v18; 
-  GfxImage *v19; 
-  __int64 v20; 
+  GfxImage *v12; 
+  __int64 v13; 
   __int64 weaponIdx; 
-  WeaponCompleteDef **v22; 
-  WeaponCompleteDef *v23; 
+  bool v15; 
+  WeaponCompleteDef **v16; 
+  WeaponCompleteDef *v17; 
   const char *String; 
-  char *v25; 
-  __int64 v26; 
-  __int64 v27; 
+  char *v19; 
+  __int64 v20; 
+  __int64 v21; 
   char *szInternalName; 
   char *p_output; 
-  __int64 v30; 
-  __int64 v32; 
-  __int64 v33; 
+  __int64 v24; 
+  __int64 v26; 
+  __int64 v27; 
   Weapon r_weapon; 
   char *value; 
+  char *v30; 
+  char *v31; 
+  char *v32; 
+  char *v33; 
+  char *v34; 
+  char *v35; 
   char *v36; 
-  char *v37; 
-  char *v38; 
-  char *v39; 
-  char *v40; 
-  char *v41; 
-  char *v42; 
-  char v43; 
+  char v37; 
   char output; 
 
   if ( !j_lua_isnumber(luaVM, 1) )
@@ -4604,15 +4414,15 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *c
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
   Instance = CgWeaponMap::GetInstance(ClientFromController);
   value = NULL;
-  v36 = NULL;
+  v30 = NULL;
   v10 = 0;
-  v37 = NULL;
+  v31 = NULL;
   v11 = 0;
-  v38 = NULL;
-  v39 = NULL;
-  v40 = NULL;
-  v41 = NULL;
-  v42 = NULL;
+  v32 = NULL;
+  v33 = NULL;
+  v34 = NULL;
+  v35 = NULL;
+  v36 = NULL;
   do
   {
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -4621,74 +4431,61 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *c
       __debugbreak();
     if ( (unsigned int)v11 >= 0xF )
     {
-      LODWORD(v33) = 15;
-      LODWORD(v32) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v27) = 15;
+      LODWORD(v26) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v26, v27) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon(Instance, p_predictedPlayerState->weaponsEquipped[v11]);
-    __asm
+    r_weapon = *BgWeaponMap::GetWeapon(Instance, p_predictedPlayerState->weaponsEquipped[v11]);
+    if ( LOWORD(a3) )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+8F0h+r_weapon.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+8F0h+r_weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovd   ebx, xmm2
-      vmovsd  qword ptr [rsp+8F0h+r_weapon.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    if ( (_WORD)_EBX )
-    {
-      if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+      if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v33) = bg_lastParsedWeaponIndex;
-        LODWORD(v32) = (unsigned __int16)_EBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v32, v33) )
+        LODWORD(v27) = bg_lastParsedWeaponIndex;
+        LODWORD(v26) = LOWORD(a3);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v26, v27) )
           __debugbreak();
       }
-      v17 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-      v18 = &bg_weaponDefs[(unsigned __int16)_EBX];
-      if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+      if ( !bg_weaponDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
         __debugbreak();
-      if ( (*v18)->inventoryType == WEAPINVENTORY_PRIMARY )
+      if ( bg_weaponDefs[LOWORD(a3)]->inventoryType == WEAPINVENTORY_PRIMARY )
       {
-        v19 = BG_HudIcon(&r_weapon, 0);
-        if ( v19 )
+        v12 = BG_HudIcon(&r_weapon, 0);
+        if ( v12 )
         {
-          v20 = v10++;
-          (&value)[v20] = (char *)v19->name;
+          v13 = v10++;
+          (&value)[v13] = (char *)v12->name;
         }
         weaponIdx = r_weapon.weaponIdx;
         if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v33) = bg_lastParsedWeaponIndex;
-          LODWORD(v32) = r_weapon.weaponIdx;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v32, v33) )
+          LODWORD(v27) = bg_lastParsedWeaponIndex;
+          LODWORD(v26) = r_weapon.weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v26, v27) )
             __debugbreak();
         }
-        v17 = bg_weaponCompleteDefs[weaponIdx] == NULL;
-        v22 = &bg_weaponCompleteDefs[weaponIdx];
-        if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+        v15 = bg_weaponCompleteDefs[weaponIdx] == NULL;
+        v16 = &bg_weaponCompleteDefs[weaponIdx];
+        if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
           __debugbreak();
-        v23 = *v22;
-        String = SEH_StringEd_GetString(v23->szDisplayName);
-        v25 = (char *)&queryFormat.fmt + 3;
+        v17 = *v16;
+        String = SEH_StringEd_GetString(v17->szDisplayName);
+        v19 = (char *)&queryFormat.fmt + 3;
         if ( String )
-          v25 = (char *)String;
-        v26 = v10;
-        v27 = v10 + 1;
-        (&value)[v26] = v25;
-        szInternalName = (char *)v23->szInternalName;
-        p_output = &v43;
-        (&value)[v27] = szInternalName;
-        v30 = (unsigned int)(v27 + 1);
+          v19 = (char *)String;
+        v20 = v10;
+        v21 = v10 + 1;
+        (&value)[v20] = v19;
+        szInternalName = (char *)v17->szInternalName;
+        p_output = &v37;
+        (&value)[v21] = szInternalName;
+        v24 = (unsigned int)(v21 + 1);
         if ( !v7 )
           p_output = &output;
         BG_GetWeaponNameComplete(&r_weapon, 0, p_output, 0x400u);
-        (&value)[v30] = p_output;
+        (&value)[v24] = p_output;
         ++v7;
-        v10 = v30 + 1;
+        v10 = v24 + 1;
         if ( BG_GetNumWeapons() < 2 && v7 )
           goto LABEL_40;
         if ( v7 >= 2 )
@@ -4703,13 +4500,13 @@ __int64 __fastcall LUI_LuaCall_Game_GetPlayerWeaponLoadoutData_impl(lua_State *c
 LABEL_40:
   j_lua_createtable(luaVM, 0, 8);
   LUI_SetTableString("primaryWeaponIcon", value, LUI_luaVM);
-  LUI_SetTableString("primaryWeaponName", v36, LUI_luaVM);
-  LUI_SetTableString("primaryWeaponRef", v37, LUI_luaVM);
-  LUI_SetTableString("primaryWeaponFullName", v38, LUI_luaVM);
-  LUI_SetTableString("secondaryWeaponIcon", v39, LUI_luaVM);
-  LUI_SetTableString("secondaryWeaponName", v40, LUI_luaVM);
-  LUI_SetTableString("secondaryWeaponRef", v41, LUI_luaVM);
-  LUI_SetTableString("secondaryWeaponFullName", v42, LUI_luaVM);
+  LUI_SetTableString("primaryWeaponName", v30, LUI_luaVM);
+  LUI_SetTableString("primaryWeaponRef", v31, LUI_luaVM);
+  LUI_SetTableString("primaryWeaponFullName", v32, LUI_luaVM);
+  LUI_SetTableString("secondaryWeaponIcon", v33, LUI_luaVM);
+  LUI_SetTableString("secondaryWeaponName", v34, LUI_luaVM);
+  LUI_SetTableString("secondaryWeaponRef", v35, LUI_luaVM);
+  LUI_SetTableString("secondaryWeaponFullName", v36, LUI_luaVM);
   return 1i64;
 }
 
@@ -4720,38 +4517,39 @@ LUI_LuaCall_Game_GetScoreboardRowData_impl
 */
 const score_t *LUI_LuaCall_Game_GetScoreboardRowData_impl(lua_State *const luaVM)
 {
-  team_t v3; 
-  int v4; 
+  team_t v2; 
+  int v3; 
   LocalClientNum_t CurrentValidLocalClient; 
-  bool v6; 
+  bool v5; 
   const score_t *ScoreAtRankForTeam; 
-  const score_t *v8; 
+  const score_t *v7; 
   bool IsPlayerTalking; 
   bool IsPlayerMuted; 
-  bool v11; 
+  bool v10; 
   unsigned __int8 ClientPlatform; 
   const PartyData *GameParty; 
-  bool v14; 
-  lua_State *v15; 
+  bool v13; 
+  lua_State *v14; 
   bool IsPlayerDead; 
-  lua_State *v17; 
+  lua_State *v16; 
   bool IsPlayerDogtagAvailable; 
   CgMLGSpectator *MLGSpectator; 
-  lua_State *v20; 
-  CgMLGSpectator *v21; 
+  lua_State *v19; 
+  CgMLGSpectator *v20; 
   int ClientConsecutiveKills; 
-  lua_State *v23; 
-  lua_State *v28; 
+  lua_State *v22; 
+  long double v23; 
+  lua_State *v24; 
   int IsClientGametypeVIP; 
-  lua_State *v30; 
+  lua_State *v26; 
   int IsClientSpecialActive; 
-  lua_State *v32; 
+  lua_State *v28; 
   int IsClientBeingRevived; 
   CgStatic *LocalClientStatics; 
-  __int64 v35; 
+  __int64 v31; 
   const char *ModelNameForCustomization; 
-  const char *v37; 
-  const char *v38; 
+  const char *v33; 
+  const char *v34; 
   XUID result; 
   PlayerProfileData profileData; 
   char out_playerName[48]; 
@@ -4763,102 +4561,95 @@ const score_t *LUI_LuaCall_Game_GetScoreboardRowData_impl(lua_State *const luaVM
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 1 )");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isnumber( luaVM, 2 )");
-  v3 = lui_tointeger32(luaVM, 1);
-  v4 = lui_tointeger32(luaVM, 2);
+  v2 = lui_tointeger32(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
-  v6 = 0;
+  v5 = 0;
   if ( j_lua_gettop(luaVM) == 3 )
   {
     if ( j_lua_type(luaVM, 3) != 1 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isboolean( luaVM, 3 )");
-    v6 = j_lua_toboolean(luaVM, 3) != 0;
+    v5 = j_lua_toboolean(luaVM, 3) != 0;
   }
-  ScoreAtRankForTeam = CG_ScoreboardMP_GetScoreAtRankForTeam(CurrentValidLocalClient, v3, v4 + 1);
-  v8 = ScoreAtRankForTeam;
+  ScoreAtRankForTeam = CG_ScoreboardMP_GetScoreAtRankForTeam(CurrentValidLocalClient, v2, v3 + 1);
+  v7 = ScoreAtRankForTeam;
   if ( ScoreAtRankForTeam )
   {
     j_lua_createtable(luaVM, 0, 10);
-    LUI_SetTableInt("clientNum", v8->client, LUI_luaVM);
-    LUI_SetTableBool("isBot", v8->isBot, LUI_luaVM);
-    LUI_SetTableInt("rank", v8->rank_mp + v8->prestige_mp, LUI_luaVM);
-    LUI_SetTableInt("baseRank", v8->rank_mp, LUI_luaVM);
-    LUI_SetTableInt("prestige", v8->prestige_mp, LUI_luaVM);
-    LUI_SetTableInt("score", v8->score, LUI_luaVM);
-    LUI_SetTableInt("kills", v8->kills, LUI_luaVM);
-    LUI_SetTableInt("deaths", v8->deaths, LUI_luaVM);
-    LUI_SetTableInt("assists", v8->assists, LUI_luaVM);
-    LUI_SetTableInt("extraScore0", v8->extrascore0, LUI_luaVM);
-    LUI_SetTableInt("extraScore1", v8->extrascore1, LUI_luaVM);
-    LUI_SetTableInt("extraScore2", v8->extrascore2, LUI_luaVM);
-    LUI_SetTableInt("extraScore3", v8->extrascore3, LUI_luaVM);
-    LUI_SetTableInt("extraScore4", v8->extrascore4, LUI_luaVM);
-    LUI_SetTableInt("extraScore5", v8->extrascore5, LUI_luaVM);
-    LUI_SetTableInt("ping", v8->ping, LUI_luaVM);
+    LUI_SetTableInt("clientNum", v7->client, LUI_luaVM);
+    LUI_SetTableBool("isBot", v7->isBot, LUI_luaVM);
+    LUI_SetTableInt("rank", v7->rank_mp + v7->prestige_mp, LUI_luaVM);
+    LUI_SetTableInt("baseRank", v7->rank_mp, LUI_luaVM);
+    LUI_SetTableInt("prestige", v7->prestige_mp, LUI_luaVM);
+    LUI_SetTableInt("score", v7->score, LUI_luaVM);
+    LUI_SetTableInt("kills", v7->kills, LUI_luaVM);
+    LUI_SetTableInt("deaths", v7->deaths, LUI_luaVM);
+    LUI_SetTableInt("assists", v7->assists, LUI_luaVM);
+    LUI_SetTableInt("extraScore0", v7->extrascore0, LUI_luaVM);
+    LUI_SetTableInt("extraScore1", v7->extrascore1, LUI_luaVM);
+    LUI_SetTableInt("extraScore2", v7->extrascore2, LUI_luaVM);
+    LUI_SetTableInt("extraScore3", v7->extrascore3, LUI_luaVM);
+    LUI_SetTableInt("extraScore4", v7->extrascore4, LUI_luaVM);
+    LUI_SetTableInt("extraScore5", v7->extrascore5, LUI_luaVM);
+    LUI_SetTableInt("ping", v7->ping, LUI_luaVM);
     IsPlayerTalking = 0;
     IsPlayerMuted = 0;
-    v11 = 1;
+    v10 = 1;
     ClientPlatform = GetClientPlatform();
     GameParty = Live_GetGameParty();
-    if ( Party_IsMemberRegistered(GameParty, v8->client) )
+    if ( Party_IsMemberRegistered(GameParty, v7->client) )
     {
-      IsPlayerTalking = CL_IsPlayerTalking(GameParty, v8->client);
-      IsPlayerMuted = CL_IsPlayerMuted(GameParty, v8->client);
-      v11 = GameParty->partyMembers[v8->client].info.platform[0] != ClientPlatform;
+      IsPlayerTalking = CL_IsPlayerTalking(GameParty, v7->client);
+      IsPlayerMuted = CL_IsPlayerMuted(GameParty, v7->client);
+      v10 = GameParty->partyMembers[v7->client].info.platform[0] != ClientPlatform;
     }
     LUI_SetTableBool("isMicOn", IsPlayerTalking, LUI_luaVM);
     LUI_SetTableBool("isMuted", IsPlayerMuted, LUI_luaVM);
-    v14 = v11;
+    v13 = v10;
     if ( ClientPlatform == 5 )
-      v14 = 0;
-    LUI_SetTableBool("isCrossplayPlayer", v14, LUI_luaVM);
-    v15 = LUI_luaVM;
-    IsPlayerDead = CG_ScoreboardMP_IsPlayerDead(v8);
-    LUI_SetTableBool("isDead", IsPlayerDead, v15);
-    v17 = LUI_luaVM;
-    IsPlayerDogtagAvailable = CG_ScoreboardMP_IsPlayerDogtagAvailable(v8);
-    LUI_SetTableBool("hasDogtag", IsPlayerDogtagAvailable, v17);
+      v13 = 0;
+    LUI_SetTableBool("isCrossplayPlayer", v13, LUI_luaVM);
+    v14 = LUI_luaVM;
+    IsPlayerDead = CG_ScoreboardMP_IsPlayerDead(v7);
+    LUI_SetTableBool("isDead", IsPlayerDead, v14);
+    v16 = LUI_luaVM;
+    IsPlayerDogtagAvailable = CG_ScoreboardMP_IsPlayerDogtagAvailable(v7);
+    LUI_SetTableBool("hasDogtag", IsPlayerDogtagAvailable, v16);
     MLGSpectator = CgMLGSpectator::GetMLGSpectator(CurrentValidLocalClient);
-    v20 = LUI_luaVM;
-    v21 = MLGSpectator;
-    ClientConsecutiveKills = CgMLGSpectator::GetClientConsecutiveKills(MLGSpectator, v8->client);
-    LUI_SetTableInt("consecutiveKills", ClientConsecutiveKills, v20);
-    LUI_SetTableInt("deathTimerLength", v8->deathTimerLength, LUI_luaVM);
-    v23 = LUI_luaVM;
-    CgMLGSpectator::GetClientSuperMeterProgress(v21, v8->client);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3c23d70a
-      vcvtss2sd xmm1, xmm1, xmm1; value
-    }
-    LUI_SetTableNumber("superMeterProgress", *(long double *)&_XMM1, v23);
+    v19 = LUI_luaVM;
+    v20 = MLGSpectator;
+    ClientConsecutiveKills = CgMLGSpectator::GetClientConsecutiveKills(MLGSpectator, v7->client);
+    LUI_SetTableInt("consecutiveKills", ClientConsecutiveKills, v19);
+    LUI_SetTableInt("deathTimerLength", v7->deathTimerLength, LUI_luaVM);
+    v22 = LUI_luaVM;
+    v23 = (float)((float)CgMLGSpectator::GetClientSuperMeterProgress(v20, v7->client) * 0.0099999998);
+    LUI_SetTableNumber("superMeterProgress", v23, v22);
+    v24 = LUI_luaVM;
+    IsClientGametypeVIP = CgMLGSpectator::IsClientGametypeVIP(v20, v7->client);
+    LUI_SetTableBool("isGametypeVIP", IsClientGametypeVIP != 0, v24);
+    v26 = LUI_luaVM;
+    IsClientSpecialActive = CgMLGSpectator::IsClientSpecialActive(v20, v7->client);
+    LUI_SetTableBool("isSpecialActive", IsClientSpecialActive != 0, v26);
     v28 = LUI_luaVM;
-    IsClientGametypeVIP = CgMLGSpectator::IsClientGametypeVIP(v21, v8->client);
-    LUI_SetTableBool("isGametypeVIP", IsClientGametypeVIP != 0, v28);
-    v30 = LUI_luaVM;
-    IsClientSpecialActive = CgMLGSpectator::IsClientSpecialActive(v21, v8->client);
-    LUI_SetTableBool("isSpecialActive", IsClientSpecialActive != 0, v30);
-    v32 = LUI_luaVM;
-    IsClientBeingRevived = CgMLGSpectator::IsClientBeingRevived(v21, v8->client);
-    LUI_SetTableBool("isBeingRevived", IsClientBeingRevived != 0, v32);
+    IsClientBeingRevived = CgMLGSpectator::IsClientBeingRevived(v20, v7->client);
+    LUI_SetTableBool("isBeingRevived", IsClientBeingRevived != 0, v28);
     LocalClientStatics = CgStatic::GetLocalClientStatics(CurrentValidLocalClient);
-    LODWORD(v32) = v8->client;
-    v35 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, v8->client);
-    ModelNameForCustomization = BG_Customization_GetModelNameForCustomization(CUSTOMIZATION_TYPE_HEAD, (const ClientCustomizationInfo *)(v35 + 164));
-    v37 = StringTable_LookupFromAsset("operatorSkins.csv", 5, ModelNameForCustomization, 2);
-    v38 = StringTable_LookupFromAsset("operators.csv", 1, v37, 7);
-    LUI_SetTableString("operatorIcon", v38, LUI_luaVM);
-    Party_GetXuid(&result, GameParty, v8->client);
-    CG_Players_GetPlayerName(CurrentValidLocalClient, (const int)v32, 0x2Fui64, out_playerName, 1);
+    LODWORD(v28) = v7->client;
+    v31 = (__int64)LocalClientStatics->GetClientInfo(LocalClientStatics, v7->client);
+    ModelNameForCustomization = BG_Customization_GetModelNameForCustomization(CUSTOMIZATION_TYPE_HEAD, (const ClientCustomizationInfo *)(v31 + 164));
+    v33 = StringTable_LookupFromAsset("operatorSkins.csv", 5, ModelNameForCustomization, 2);
+    v34 = StringTable_LookupFromAsset("operators.csv", 1, v33, 7);
+    LUI_SetTableString("operatorIcon", v34, LUI_luaVM);
+    Party_GetXuid(&result, GameParty, v7->client);
+    CG_Players_GetPlayerName(CurrentValidLocalClient, (const int)v28, 0x2Fui64, out_playerName, 1);
     PlayercardCache_GetPlayercard(result, out_playerName, &profileData);
     LUI_SetTableString((const char *)&stru_143C9A1A4, out_playerName, LUI_luaVM);
-    CG_Players_GetPlayerGamertagWithHash(CurrentValidLocalClient, (const int)v32, 0x40ui64, out_playerNameWithHash);
+    CG_Players_GetPlayerGamertagWithHash(CurrentValidLocalClient, (const int)v28, 0x40ui64, out_playerNameWithHash);
     LUI_SetTableString("fullNameWithHash", out_playerNameWithHash, LUI_luaVM);
-    LUI_SetTableInt("healthRatio", *(int *)(v35 + 140), LUI_luaVM);
+    LUI_SetTableInt("healthRatio", *(int *)(v31 + 140), LUI_luaVM);
     return (const score_t *)1;
   }
-  else if ( !v6 )
+  else if ( !v5 )
   {
     j_luaL_error(luaVM, (const char *)&queryFormat, "score");
   }
@@ -4873,55 +4664,40 @@ LUI_LuaCall_Game_GetWeaponDamageStats_impl
 __int64 LUI_LuaCall_Game_GetWeaponDamageStats_impl(lua_State *const luaVM)
 {
   LocalClientNum_t CurrentValidLocalClient; 
-  __int64 v5; 
+  __int64 v3; 
   playerState_s *p_predictedPlayerState; 
-  CgWeaponMap *v7; 
+  CgWeaponMap *v5; 
   const Weapon *Weapon; 
-  bool v9; 
-  __int64 result; 
+  bool v7; 
+  double ADSDamageRangeScale; 
   float maxDamageRange[4]; 
   int outMinDamage; 
   int outMaxDamage; 
   float minDamageRange; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   CurrentValidLocalClient = LUI_CoD_GetCurrentValidLocalClient();
-  v5 = CurrentValidLocalClient;
+  v3 = CurrentValidLocalClient;
   p_predictedPlayerState = &CG_GetLocalClientGlobals(CurrentValidLocalClient)->predictedPlayerState;
-  if ( !CgWeaponMap::ms_instance[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v7 = CgWeaponMap::ms_instance[v5];
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 885, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  v5 = CgWeaponMap::ms_instance[v3];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 885, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 886, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  Weapon = BgWeaponMap::GetWeapon(v7, p_predictedPlayerState->weapCommon.weaponHandle);
-  v9 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x1Bu));
-  *(double *)&_XMM0 = BG_GetADSDamageRangeScale(v7, p_predictedPlayerState, Weapon, v9);
-  __asm { vmovaps xmm6, xmm0 }
+  Weapon = BgWeaponMap::GetWeapon(v5, p_predictedPlayerState->weapCommon.weaponHandle);
+  v7 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x1Bu));
+  ADSDamageRangeScale = BG_GetADSDamageRangeScale(v5, p_predictedPlayerState, Weapon, v7);
   j_lua_createtable(luaVM, 0, 0);
   outMinDamage = 0;
   outMaxDamage = 0;
-  BG_GetMinMaxDamage(WEAP_DMG_CALC_TYPE_DEFAULT, Weapon, v9, &outMinDamage, &outMaxDamage);
+  BG_GetMinMaxDamage(WEAP_DMG_CALC_TYPE_DEFAULT, Weapon, v7, &outMinDamage, &outMaxDamage);
   LUI_SetTableInt("minDamage", outMinDamage, LUI_luaVM);
   LUI_SetTableInt("damage", outMaxDamage, LUI_luaVM);
-  __asm { vmovaps xmm3, xmm6; rangeScale }
-  BG_GetDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Weapon, v9, *(float *)&_XMM3, &minDamageRange, maxDamageRange);
-  __asm
-  {
-    vmovss  xmm1, [rsp+78h+minDamageRange]
-    vcvtss2sd xmm1, xmm1, xmm1; value
-  }
-  LUI_SetTableNumber("minDamageRange", *(long double *)&_XMM1, LUI_luaVM);
-  __asm
-  {
-    vmovss  xmm1, [rsp+78h+var_48]
-    vcvtss2sd xmm1, xmm1, xmm1; value
-  }
-  LUI_SetTableNumber("maxDamageRange", *(long double *)&_XMM1, LUI_luaVM);
-  result = 1i64;
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  BG_GetDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Weapon, v7, *(float *)&ADSDamageRangeScale, &minDamageRange, maxDamageRange);
+  LUI_SetTableNumber("minDamageRange", minDamageRange, LUI_luaVM);
+  LUI_SetTableNumber("maxDamageRange", maxDamageRange[0], LUI_luaVM);
+  return 1i64;
 }
 
 /*
@@ -5070,17 +4846,9 @@ UnpackValue
 */
 __int64 UnpackValue(const unsigned int packedValue, const unsigned int bitOffset, const unsigned int bitWidth)
 {
-  char v5; 
+  float v3; 
 
-  __asm { vmovss  xmm0, cs:__real@40000000; X }
-  v5 = bitOffset;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax; Y
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vcvttss2si rax, xmm0 }
-  return (packedValue >> v5) & ((_DWORD)_RAX - 1);
+  v3 = (float)bitWidth;
+  return (packedValue >> bitOffset) & ((int)powf_0(2.0, v3) - 1);
 }
 

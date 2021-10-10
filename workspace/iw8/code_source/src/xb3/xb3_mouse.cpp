@@ -125,17 +125,15 @@ IN_GetCursorPos
 */
 void IN_GetCursorPos(int controllerIndex, MouseCursorPos *curPos)
 {
+  __int64 v3; 
   LocalClientNum_t outLocalClientNum; 
 
   *curPos = s_wmv.curPos;
   if ( CL_Mgr_IsControllerMappedToClient(controllerIndex, &outLocalClientNum) )
   {
-    _RDX = scrPlaceViewDisplay;
-    _RCX = 108i64 * (int)outLocalClientNum;
-    __asm { vcvttss2si eax, dword ptr [rcx+rdx+18h] }
-    curPos->x -= _EAX;
-    __asm { vcvttss2si eax, dword ptr [rcx+rdx+1Ch] }
-    curPos->y -= _EAX;
+    v3 = outLocalClientNum;
+    curPos->x -= (int)scrPlaceViewDisplay[v3].realViewportPosition.v[0];
+    curPos->y -= (int)scrPlaceViewDisplay[v3].realViewportPosition.v[1];
   }
 }
 
@@ -246,32 +244,33 @@ void IN_MouseMove(void)
   int deltaX; 
   int deltaY; 
   int v4; 
+  __int64 v5; 
   int x; 
-  int v10; 
-  int v11; 
+  int v7; 
+  int v8; 
   int ActivationFactoryByPCWSTR; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
   int v13; 
-  __int64 v14; 
-  __int64 v15; 
+  int v14; 
+  int v15; 
   int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
   Platform::Guid pGuid; 
-  __int64 v21; 
+  __int64 v18; 
   LocalClientNum_t outLocalClientNum; 
   MouseCursorPos y; 
-  Platform::Object_vtbl *v24; 
+  Platform::Object_vtbl *v21; 
 
   if ( !s_wmv.mouseInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_mouse.cpp", 616, ASSERT_TYPE_ASSERT, "(s_wmv.mouseInitialized)", (const char *)&queryFormat, "s_wmv.mouseInitialized", -2i64) )
     __debugbreak();
   KeyboardController = Xb3_Input_GetKeyboardController();
   if ( CL_Mgr_IsControllerMappedToClient(KeyboardController, &outLocalClientNum) && !s_wmv.mouseIgnored )
   {
-    v1 = s_wmv.mouseCaps->__abi_get_MousePresent(s_wmv.mouseCaps, (int *)&v21);
+    v1 = s_wmv.mouseCaps->__abi_get_MousePresent(s_wmv.mouseCaps, (int *)&v18);
     if ( v1 < 0 )
       __abi_WinRTraiseException(v1);
-    s_wmv.mouseActive = (_DWORD)v21 != 0;
+    s_wmv.mouseActive = (_DWORD)v18 != 0;
     IN_RelativeMouseLock();
     deltaX = s_wmv.deltaX;
     deltaY = s_wmv.deltaY;
@@ -279,21 +278,18 @@ void IN_MouseMove(void)
     IN_RelativeMouseUnlock();
     v4 = Xb3_Input_GetKeyboardController();
     y = s_wmv.curPos;
-    if ( CL_Mgr_IsControllerMappedToClient(v4, (LocalClientNum_t *)&v21) )
+    if ( CL_Mgr_IsControllerMappedToClient(v4, (LocalClientNum_t *)&v18) )
     {
-      _RDX = 108i64 * (int)v21;
-      _R8 = scrPlaceViewDisplay;
-      __asm { vcvttss2si eax, dword ptr [rdx+r8+18h] }
-      x = y.x - _EAX;
-      __asm { vcvttss2si eax, dword ptr [rdx+r8+1Ch] }
-      v10 = y.y - _EAX;
+      v5 = (int)v18;
+      x = y.x - (int)scrPlaceViewDisplay[v5].realViewportPosition.v[0];
+      v7 = y.y - (int)scrPlaceViewDisplay[v5].realViewportPosition.v[1];
     }
     else
     {
-      v10 = y.y;
+      v7 = y.y;
       x = y.x;
     }
-    v11 = CL_Input_MouseEvent(v4, x, v10, deltaX, deltaY);
+    v8 = CL_Input_MouseEvent(v4, x, v7, deltaX, deltaY);
     if ( s_wmv.mouseActive )
     {
       pGuid.__vftable = (Platform::Object_vtbl *)0x40044A2DF5A82CE3i64;
@@ -303,54 +299,54 @@ void IN_MouseMove(void)
       ActivationFactoryByPCWSTR = __winRT::__getActivationFactoryByPCWSTR(L"Windows.Devices.Input.MouseDevice", &pGuid, (void **)&y);
       if ( ActivationFactoryByPCWSTR < 0 )
         __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
-      v21 = 0i64;
-      v13 = (*(__int64 (__fastcall **)(MouseCursorPos, __int64 *))(**(_QWORD **)&y + 48i64))(y, &v21);
-      if ( v13 < 0 )
-        __abi_WinRTraiseException(v13);
-      v14 = v21;
-      v15 = v21;
-      if ( v21 )
+      v18 = 0i64;
+      v10 = (*(__int64 (__fastcall **)(MouseCursorPos, __int64 *))(**(_QWORD **)&y + 48i64))(y, &v18);
+      if ( v10 < 0 )
+        __abi_WinRTraiseException(v10);
+      v11 = v18;
+      v12 = v18;
+      if ( v18 )
       {
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v21 + 8i64))(v21);
-        v14 = v21;
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v18 + 8i64))(v18);
+        v11 = v18;
       }
-      if ( v14 )
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v14 + 16i64))(v14);
-      v24 = NULL;
+      if ( v11 )
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v11 + 16i64))(v11);
+      v21 = NULL;
       if ( y )
         (*(void (__fastcall **)(MouseCursorPos))(**(_QWORD **)&y + 16i64))(y);
-      v24 = NULL;
-      if ( v11 )
+      v21 = NULL;
+      if ( v8 )
       {
-        if ( s_wmv.mouseInitialized && !s_wmv.mouseEventRegistered && v15 )
+        if ( s_wmv.mouseInitialized && !s_wmv.mouseEventRegistered && v12 )
         {
-          v24 = NULL;
-          v16 = (*(__int64 (__fastcall **)(__int64, Windows::Foundation::TypedEventHandler<Windows::Devices::Input::MouseDevice _,Windows::Devices::Input::MouseEventArgs _> *, Platform::Object_vtbl **))(*(_QWORD *)v15 + 48i64))(v15, s_wmv.mouseMovedhandler, &v24);
-          if ( v16 < 0 )
-            __abi_WinRTraiseException(v16);
-          s_wmv.mouseMovedEventToken.__vftable = v24;
-          v24 = NULL;
-          v17 = (*(__int64 (__fastcall **)(__int64, Windows::Foundation::TypedEventHandler<Windows::Devices::Input::MouseDevice _,Windows::Devices::Input::MouseEventArgs _> *, Platform::Object_vtbl **))(*(_QWORD *)v15 + 64i64))(v15, s_wmv.mouseWheelMovedhandler, &v24);
-          if ( v17 < 0 )
-            __abi_WinRTraiseException(v17);
-          s_wmv.mouseWheelMovedEventToken.__vftable = v24;
+          v21 = NULL;
+          v13 = (*(__int64 (__fastcall **)(__int64, Windows::Foundation::TypedEventHandler<Windows::Devices::Input::MouseDevice _,Windows::Devices::Input::MouseEventArgs _> *, Platform::Object_vtbl **))(*(_QWORD *)v12 + 48i64))(v12, s_wmv.mouseMovedhandler, &v21);
+          if ( v13 < 0 )
+            __abi_WinRTraiseException(v13);
+          s_wmv.mouseMovedEventToken.__vftable = v21;
+          v21 = NULL;
+          v14 = (*(__int64 (__fastcall **)(__int64, Windows::Foundation::TypedEventHandler<Windows::Devices::Input::MouseDevice _,Windows::Devices::Input::MouseEventArgs _> *, Platform::Object_vtbl **))(*(_QWORD *)v12 + 64i64))(v12, s_wmv.mouseWheelMovedhandler, &v21);
+          if ( v14 < 0 )
+            __abi_WinRTraiseException(v14);
+          s_wmv.mouseWheelMovedEventToken.__vftable = v21;
           s_wmv.mouseEventRegistered = 1;
         }
       }
-      else if ( s_wmv.mouseInitialized && s_wmv.mouseEventRegistered && v15 )
+      else if ( s_wmv.mouseInitialized && s_wmv.mouseEventRegistered && v12 )
       {
-        v18 = (*(__int64 (__fastcall **)(__int64, Platform::Object_vtbl *))(*(_QWORD *)v15 + 56i64))(v15, s_wmv.mouseMovedEventToken.__vftable);
-        if ( v18 < 0 )
-          __abi_WinRTraiseException(v18);
-        v19 = (*(__int64 (__fastcall **)(__int64, Platform::Object_vtbl *))(*(_QWORD *)v15 + 72i64))(v15, s_wmv.mouseWheelMovedEventToken.__vftable);
-        if ( v19 < 0 )
-          __abi_WinRTraiseException(v19);
+        v15 = (*(__int64 (__fastcall **)(__int64, Platform::Object_vtbl *))(*(_QWORD *)v12 + 56i64))(v12, s_wmv.mouseMovedEventToken.__vftable);
+        if ( v15 < 0 )
+          __abi_WinRTraiseException(v15);
+        v16 = (*(__int64 (__fastcall **)(__int64, Platform::Object_vtbl *))(*(_QWORD *)v12 + 72i64))(v12, s_wmv.mouseWheelMovedEventToken.__vftable);
+        if ( v16 < 0 )
+          __abi_WinRTraiseException(v16);
         s_wmv.mouseMovedEventToken.__vftable = NULL;
         s_wmv.mouseWheelMovedEventToken.__vftable = NULL;
         s_wmv.mouseEventRegistered = 0;
       }
-      if ( v15 )
-        (*(void (__fastcall **)(__int64))(*(_QWORD *)v15 + 16i64))(v15);
+      if ( v12 )
+        (*(void (__fastcall **)(__int64))(*(_QWORD *)v12 + 16i64))(v12);
     }
   }
 }

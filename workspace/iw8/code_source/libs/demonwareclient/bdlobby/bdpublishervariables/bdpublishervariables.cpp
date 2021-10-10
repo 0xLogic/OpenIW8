@@ -356,9 +356,8 @@ __int64 bdPublisherVariables::getIterator(bdPublisherVariables *this, const char
   __int64 v12; 
   bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **m_map; 
   __int64 result; 
-  __int128 v16; 
+  bdPublisherVariablesIterator v15; 
 
-  _RBP = iterator;
   v6 = NULL;
   if ( !bdJSONObject::containsKey(this->m_jsonVariables, nameSpace) )
     return 0i64;
@@ -366,7 +365,7 @@ __int64 bdPublisherVariables::getIterator(bdPublisherVariables *this, const char
   Object = bdJSONValue::getObject(v7);
   Map = bdJSONObject::getMap(Object);
   v10 = Map;
-  *((_QWORD *)&v16 + 1) = Map;
+  v15.m_map = Map;
   if ( Map->m_size )
   {
     m_capacity = Map->m_capacity;
@@ -389,13 +388,9 @@ __int64 bdPublisherVariables::getIterator(bdPublisherVariables *this, const char
     }
     v6 = m_map[v12];
   }
-  *(_QWORD *)&v16 = v6;
+  v15.m_it = v6;
   result = 3i64;
-  __asm
-  {
-    vmovups xmm0, [rsp+38h+var_18]
-    vmovups xmmword ptr [rbp+0], xmm0
-  }
+  *iterator = v15;
   return result;
 }
 

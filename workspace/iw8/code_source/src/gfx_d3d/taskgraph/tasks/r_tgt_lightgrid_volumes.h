@@ -497,50 +497,42 @@ RBT_LGV_SampleLighting
 */
 void RBT_LGV_SampleLighting(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  const GfxGpuLightGrid *v25; 
-  bool v26; 
+  R_RT_Handle *attachments; 
+  R_RT_Handle v13; 
+  R_RT_Handle v14; 
+  R_RT_Handle v15; 
+  const GfxGpuLightGrid *v16; 
+  bool v17; 
   GfxWrappedBuffer *p_dummyDataBufferR32UINT; 
   const R_RT_Surface *Surface; 
   GfxWrappedBuffer *p_dummyDataBufferR32G32UINT; 
-  const R_RT_Surface *v30; 
-  const R_RT_Surface *v31; 
-  const GfxWrappedRWBuffer *v32; 
-  const R_RT_Surface *v33; 
-  R_RT_Handle v36; 
+  const R_RT_Surface *v21; 
+  const R_RT_Surface *v22; 
+  const GfxWrappedRWBuffer *v23; 
+  const R_RT_Surface *v24; 
+  R_RT_Handle v25; 
   ID3D12Resource *buffers; 
-  R_RT_Handle v38; 
-  R_RT_Handle v41; 
-  R_RT_Handle v42; 
+  R_RT_Handle v27; 
+  R_RT_Handle v28; 
+  R_RT_Handle v29; 
+  R_RT_Handle v30; 
+  R_RT_Handle v31; 
 
   if ( RB_GpuLightGrid_DataAvailable(viewInfo) )
   {
-    _RAX = taskInfo->attachments;
-    __asm
+    v29 = *taskInfo->attachments;
+    v25 = v29;
+    if ( (_WORD)_XMM1 )
     {
-      vmovups ymm1, ymmword ptr [rax]
-      vmovd   eax, xmm1
-      vmovups [rbp+60h+var_98], ymm1
-      vmovups ymmword ptr [rsp+160h+var_100.m_surfaceID], ymm1
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v36);
-      if ( (R_RT_Handle::GetSurface(&v36)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v25);
+      if ( (R_RT_Handle::GetSurface(&v25)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+160h+var_100.m_surfaceID]
-          vmovups [rbp+60h+var_98], ymm0
-        }
+        v29 = v25;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+160h+var_100.m_surfaceID]
-          vmovups [rbp+60h+var_98], ymm0
-        }
+        v29 = v25;
       }
     }
     else
@@ -549,33 +541,19 @@ void RBT_LGV_SampleLighting(ComputeCmdBufState *computeState, const GfxTaskInfo 
       if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    _RAX = taskInfo->attachments;
-    __asm
+    v28 = taskInfo->attachments[1];
+    v25 = v28;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovd   eax, xmm0
-      vmovups [rbp+60h+var_B8], ymm0
-      vmovups ymmword ptr [rsp+160h+var_100.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v36);
-      if ( (R_RT_Handle::GetSurface(&v36)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v25);
+      if ( (R_RT_Handle::GetSurface(&v25)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+160h+var_100.m_surfaceID]
-          vmovups [rbp+60h+var_B8], ymm0
-        }
+        v28 = v25;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+160h+var_100.m_surfaceID]
-          vmovups [rbp+60h+var_B8], ymm0
-        }
+        v28 = v25;
       }
     }
     else
@@ -584,70 +562,61 @@ void RBT_LGV_SampleLighting(ComputeCmdBufState *computeState, const GfxTaskInfo 
       if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    _RAX = taskInfo->attachments;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rbp+60h+var_50.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-      vmovups ymmword ptr [rbp+60h+var_D8.m_surfaceID], ymm1
-      vmovups ymm1, ymmword ptr [rax+0C0h]
-      vmovups ymmword ptr [rbp+60h+var_70.m_surfaceID], ymm0
-      vmovups ymmword ptr [rsp+160h+var_100.m_surfaceID], ymm1
-    }
+    attachments = taskInfo->attachments;
+    v13 = attachments[4];
+    v31 = attachments[3];
+    v14 = attachments[5];
+    v27 = v13;
+    v15 = attachments[6];
+    v30 = v14;
+    v25 = v15;
     if ( R_GetNumActiveLightGrids(data) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_lightgrid_volumes.h", 28, ASSERT_TYPE_ASSERT, "(R_GetNumActiveLightGrids( data ) == 1)", (const char *)&queryFormat, "R_GetNumActiveLightGrids( data ) == 1") )
       __debugbreak();
-    v25 = *R_GetActiveLightGridsList(data);
-    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_lightgrid_volumes.h", 30, ASSERT_TYPE_ASSERT, "(gpuLightGrid)", (const char *)&queryFormat, "gpuLightGrid") )
+    v16 = *R_GetActiveLightGridsList(data);
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\taskgraph\\tasks\\r_tgt_lightgrid_volumes.h", 30, ASSERT_TYPE_ASSERT, "(gpuLightGrid)", (const char *)&queryFormat, "gpuLightGrid") )
       __debugbreak();
     buffers = data->globalSceneConstantBuffer->buffer;
     R_SetComputeConstantBuffers(computeState, 7, 1, &buffers);
     RB_LGV_SampleLightingSetup(computeState, data);
-    v26 = viewInfo->taskGraphViewInfo.temporalFrameIndex != 0;
-    if ( v36.m_surfaceID )
+    v17 = viewInfo->taskGraphViewInfo.temporalFrameIndex != 0;
+    if ( v25.m_surfaceID )
     {
-      R_RT_Handle::GetSurface(&v36);
-      Surface = R_RT_Handle::GetSurface(&v36);
+      R_RT_Handle::GetSurface(&v25);
+      Surface = R_RT_Handle::GetSurface(&v25);
       if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
         __debugbreak();
       p_dummyDataBufferR32UINT = (GfxWrappedBuffer *)&Surface->1080;
     }
     else
     {
-      if ( v36.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v36.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v25.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v25.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       p_dummyDataBufferR32UINT = &gfxBuf.dummyDataBufferR32UINT;
     }
-    if ( v38.m_surfaceID )
+    if ( v27.m_surfaceID )
     {
-      R_RT_Handle::GetSurface(&v38);
-      v30 = R_RT_Handle::GetSurface(&v38);
-      if ( (v30->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+      R_RT_Handle::GetSurface(&v27);
+      v21 = R_RT_Handle::GetSurface(&v27);
+      if ( (v21->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
         __debugbreak();
-      p_dummyDataBufferR32G32UINT = (GfxWrappedBuffer *)&v30->1080;
+      p_dummyDataBufferR32G32UINT = (GfxWrappedBuffer *)&v21->1080;
     }
     else
     {
-      if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v38.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v27.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       p_dummyDataBufferR32G32UINT = &gfxBuf.dummyDataBufferR32G32UINT;
     }
-    v31 = R_RT_Handle::GetSurface(&v41);
-    if ( (v31->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v22 = R_RT_Handle::GetSurface(&v30);
+    if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v32 = (const GfxWrappedRWBuffer *)&v31->1080;
-    v33 = R_RT_Handle::GetSurface(&v42);
-    if ( (v33->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v23 = (const GfxWrappedRWBuffer *)&v22->1080;
+    v24 = R_RT_Handle::GetSurface(&v31);
+    if ( (v24->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, [rbp+60h+var_B8]
-      vmovups ymm1, [rbp+60h+var_98]
-      vmovups ymmword ptr [rbp+60h+var_50.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+60h+var_70.m_surfaceID], ymm1
-    }
-    RB_LGV_SampleLightingVolumes(computeState, data, viewInfo, v26, v25, (R_RT_ColorHandle *)&v41, (R_RT_ColorHandle *)&v42, (const GfxWrappedRWBuffer *)&v33->1080, v32, p_dummyDataBufferR32G32UINT, p_dummyDataBufferR32UINT);
+    v31 = v28;
+    v30 = v29;
+    RB_LGV_SampleLightingVolumes(computeState, data, viewInfo, v17, v16, (R_RT_ColorHandle *)&v30, (R_RT_ColorHandle *)&v31, (const GfxWrappedRWBuffer *)&v24->1080, v23, p_dummyDataBufferR32G32UINT, p_dummyDataBufferR32UINT);
   }
 }
 
@@ -1216,43 +1185,29 @@ RBT_LGV_SampleLightingMultiLightGrid_Combine
 void RBT_LGV_SampleLightingMultiLightGrid_Combine(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
   const R_RT_Surface *Surface; 
-  const GfxWrappedRWBuffer *v21; 
-  const R_RT_Surface *v22; 
-  const GfxWrappedRWBuffer *v23; 
-  const R_RT_Surface *v24; 
-  const GfxWrappedRWBuffer *v25; 
-  const R_RT_Surface *v26; 
-  R_RT_Handle v29; 
-  R_RT_ColorHandle v30; 
-  R_RT_ColorHandle v31; 
+  const GfxWrappedRWBuffer *v13; 
+  const R_RT_Surface *v14; 
+  const GfxWrappedRWBuffer *v15; 
+  const R_RT_Surface *v16; 
+  const GfxWrappedRWBuffer *v17; 
+  const R_RT_Surface *v18; 
+  R_RT_Handle v19; 
+  R_RT_Handle v20; 
+  R_RT_Handle v21; 
 
-  _RAX = taskInfo->attachments;
-  __asm
+  v20 = taskInfo->attachments[5];
+  v19 = v20;
+  if ( (_WORD)_XMM1 )
   {
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovd   eax, xmm1
-    vmovups [rsp+0D8h+var_68], ymm1
-    vmovups ymmword ptr [rsp+0D8h+var_88.m_surfaceID], ymm1
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v29);
-    if ( (R_RT_Handle::GetSurface(&v29)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v19);
+    if ( (R_RT_Handle::GetSurface(&v19)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0D8h+var_88.m_surfaceID]
-        vmovups [rsp+0D8h+var_68], ymm0
-      }
+      v20 = v19;
       __debugbreak();
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0D8h+var_88.m_surfaceID]
-        vmovups [rsp+0D8h+var_68], ymm0
-      }
+      v20 = v19;
     }
   }
   else
@@ -1261,33 +1216,19 @@ void RBT_LGV_SampleLightingMultiLightGrid_Combine(ComputeCmdBufState *computeSta
     if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
   }
-  _RAX = taskInfo->attachments;
-  __asm
+  v21 = taskInfo->attachments[4];
+  v19 = v21;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+80h]
-    vmovd   eax, xmm0
-    vmovups [rsp+0D8h+var_48], ymm0
-    vmovups ymmword ptr [rsp+0D8h+var_88.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v29);
-    if ( (R_RT_Handle::GetSurface(&v29)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v19);
+    if ( (R_RT_Handle::GetSurface(&v19)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0D8h+var_88.m_surfaceID]
-        vmovups [rsp+0D8h+var_48], ymm0
-      }
+      v21 = v19;
       __debugbreak();
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+0D8h+var_88.m_surfaceID]
-        vmovups [rsp+0D8h+var_48], ymm0
-      }
+      v21 = v19;
     }
   }
   else
@@ -1299,26 +1240,19 @@ void RBT_LGV_SampleLightingMultiLightGrid_Combine(ComputeCmdBufState *computeSta
   Surface = R_RT_Handle::GetSurface(taskInfo->attachments + 3);
   if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  v21 = (const GfxWrappedRWBuffer *)&Surface->1080;
-  v22 = R_RT_Handle::GetSurface(taskInfo->attachments + 2);
-  if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v13 = (const GfxWrappedRWBuffer *)&Surface->1080;
+  v14 = R_RT_Handle::GetSurface(taskInfo->attachments + 2);
+  if ( (v14->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  v23 = (const GfxWrappedRWBuffer *)&v22->1080;
-  v24 = R_RT_Handle::GetSurface(taskInfo->attachments + 1);
-  if ( (v24->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v15 = (const GfxWrappedRWBuffer *)&v14->1080;
+  v16 = R_RT_Handle::GetSurface(taskInfo->attachments + 1);
+  if ( (v16->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  v25 = (const GfxWrappedRWBuffer *)&v24->1080;
-  v26 = R_RT_Handle::GetSurface(taskInfo->attachments);
-  if ( (v26->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  v17 = (const GfxWrappedRWBuffer *)&v16->1080;
+  v18 = R_RT_Handle::GetSurface(taskInfo->attachments);
+  if ( (v18->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, [rsp+0D8h+var_68]
-    vmovups [rsp+0D8h+var_68], ymm0
-    vmovups ymm0, [rsp+0D8h+var_48]
-    vmovups [rsp+0D8h+var_48], ymm0
-  }
-  R_LGV_CombineSampledLighting(computeState, data, viewInfo, (const GfxWrappedRWBuffer *)&v26->1080, v25, v23, v21, &v31, &v30, 0);
+  R_LGV_CombineSampledLighting(computeState, data, viewInfo, (const GfxWrappedRWBuffer *)&v18->1080, v17, v15, v13, (R_RT_ColorHandle *)&v21, (R_RT_ColorHandle *)&v20, 0);
 }
 
 /*
@@ -1328,30 +1262,26 @@ RBT_LGV_SampleLightingMultiLightGrid_GenerateLightGridMasks
 */
 void RBT_LGV_SampleLightingMultiLightGrid_GenerateLightGridMasks(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  R_RT_Handle v9; 
   const R_RT_Surface *Surface; 
+  R_RT_Handle v12; 
   R_RT_Handle v13; 
-  R_RT_Handle v14; 
 
   RB_LGV_SampleLightingSetup(computeState, data);
   R_LGV_SetupMultiLightGridSampling(computeState, data, viewInfo, viewInfo->taskGraphViewInfo.temporalFrameIndex != 0);
-  _RAX = taskInfo->attachments;
-  __asm
+  v9 = *taskInfo->attachments;
+  v13 = v9;
+  v12 = v9;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+78h+var_28.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v13);
-    if ( (R_RT_Handle::GetSurface(&v13)->m_rtFlagsInternal & 8) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 348, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsBuffer())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsBuffer()") )
+    R_RT_Handle::GetSurface(&v12);
+    if ( (R_RT_Handle::GetSurface(&v12)->m_rtFlagsInternal & 8) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 348, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsBuffer())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsBuffer()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_surfaceID] }
+      v9 = v12;
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_surfaceID] }
+      v9 = v12;
       __debugbreak();
     }
   }
@@ -1360,13 +1290,13 @@ void RBT_LGV_SampleLightingMultiLightGrid_GenerateLightGridMasks(ComputeCmdBufSt
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_28.m_surfaceID] }
+      v9 = v13;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rsp+78h+var_28.m_surfaceID], ymm0 }
-  Surface = R_RT_Handle::GetSurface(&v14);
+  v13 = v9;
+  Surface = R_RT_Handle::GetSurface(&v13);
   if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
   R_LGV_GenerateActiveLightGridsMask(computeState, data, viewInfo, (const GfxWrappedRWBuffer *)&Surface->1080);
@@ -1510,25 +1440,36 @@ RBT_LGV_SampleLightingMultiLightGrid_Sample
 */
 void RBT_LGV_SampleLightingMultiLightGrid_Sample(ComputeCmdBufState *computeState, const GfxTaskInfo *taskInfo, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  R_RT_Handle *attachments; 
+  R_RT_Handle v5; 
+  R_RT_Handle v6; 
+  R_RT_Handle v7; 
+  R_RT_Handle v8; 
+  R_RT_Handle v9; 
+  R_RT_Handle v10; 
+  R_RT_Handle v11; 
+  R_RT_Handle v12; 
+  R_RT_Handle v13; 
   const R_RT_Surface *Surface; 
+  const R_RT_Surface *v15; 
   const R_RT_Surface *v16; 
   const R_RT_Surface *v17; 
-  const R_RT_Surface *v18; 
   GfxWrappedBuffer *p_dummyBuffer; 
   GfxWrappedBuffer *prevFrameLightGridVolumeSampledLightingData; 
-  const R_RT_Surface *v21; 
+  const R_RT_Surface *v20; 
   GfxWrappedBuffer *prevFrameLightGridVolumeSamplingSlot; 
-  const R_RT_Surface *v23; 
+  const R_RT_Surface *v22; 
   GfxWrappedBuffer *prevFrameLightGridVolumeActiveLightGrids; 
-  const R_RT_Surface *v25; 
+  const R_RT_Surface *v24; 
   GfxWrappedRWBuffer *lightGridVolumeSampledLightingData; 
-  const R_RT_Surface *v27; 
-  GfxWrappedBuffer *v28; 
+  const R_RT_Surface *v26; 
+  GfxWrappedBuffer *v27; 
+  const R_RT_Surface *v28; 
   const R_RT_Surface *v29; 
-  const R_RT_Surface *v30; 
   GfxWrappedBuffer *lightGridVolumesList; 
   GfxWrappedBuffer *lightGridVolumeIndexingBuffer; 
   GfxWrappedBuffer *lightGridVolumeCount; 
+  R_RT_Handle v33; 
   R_RT_Handle v34; 
   R_RT_Handle v35; 
   R_RT_Handle v36; 
@@ -1538,105 +1479,114 @@ void RBT_LGV_SampleLightingMultiLightGrid_Sample(ComputeCmdBufState *computeStat
   R_RT_Handle v40; 
   R_RT_Handle v41; 
   R_RT_Handle v42; 
-  R_RT_Handle v43; 
   GfxWrappedBuffer *indirectDispatchParams; 
 
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+110h+var_E8.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+110h+var_108.m_surfaceID], ymm1
-    vmovups ymm1, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rbp+110h+var_128.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rbp+110h+var_188.m_surfaceID], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rbp+110h+var_148.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rax+0C0h]
-    vmovups ymmword ptr [rbp+110h+var_168.m_surfaceID], ymm1
-    vmovups ymm1, ymmword ptr [rax+0E0h]
-    vmovups ymmword ptr [rbp+110h+var_68.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rax+100h]
-    vmovups ymmword ptr [rbp+110h+var_88.m_surfaceID], ymm1
-    vmovups ymm1, ymmword ptr [rax+120h]
-    vmovups ymmword ptr [rbp+110h+var_A8.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+110h+var_C8.m_surfaceID], ymm1
-  }
-  Surface = R_RT_Handle::GetSurface(&v40);
+  attachments = taskInfo->attachments;
+  v5 = attachments[1];
+  v38 = *attachments;
+  v6 = attachments[2];
+  v37 = v5;
+  v7 = attachments[3];
+  v36 = v6;
+  v8 = attachments[4];
+  v33 = v7;
+  v9 = attachments[5];
+  v35 = v8;
+  v10 = attachments[6];
+  v34 = v9;
+  v11 = attachments[7];
+  v42 = v10;
+  v12 = attachments[8];
+  v41 = v11;
+  v13 = attachments[9];
+  v40 = v12;
+  v39 = v13;
+  Surface = R_RT_Handle::GetSurface(&v39);
   if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
   indirectDispatchParams = (GfxWrappedBuffer *)&Surface->1080;
+  v15 = R_RT_Handle::GetSurface(&v40);
+  if ( (v15->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    __debugbreak();
+  lightGridVolumesList = (GfxWrappedBuffer *)&v15->1080;
   v16 = R_RT_Handle::GetSurface(&v41);
   if ( (v16->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  lightGridVolumesList = (GfxWrappedBuffer *)&v16->1080;
+  lightGridVolumeIndexingBuffer = (GfxWrappedBuffer *)&v16->1080;
   v17 = R_RT_Handle::GetSurface(&v42);
   if ( (v17->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  lightGridVolumeIndexingBuffer = (GfxWrappedBuffer *)&v17->1080;
-  v18 = R_RT_Handle::GetSurface(&v43);
-  if ( (v18->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
-    __debugbreak();
-  lightGridVolumeCount = (GfxWrappedBuffer *)&v18->1080;
+  lightGridVolumeCount = (GfxWrappedBuffer *)&v17->1080;
   p_dummyBuffer = &gfxBuf.dummyBuffer;
+  if ( v33.m_surfaceID )
+  {
+    R_RT_Handle::GetSurface(&v33);
+    v20 = R_RT_Handle::GetSurface(&v33);
+    if ( (v20->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+      __debugbreak();
+    prevFrameLightGridVolumeSampledLightingData = (GfxWrappedBuffer *)&v20->1080;
+  }
+  else
+  {
+    if ( v33.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v33.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      __debugbreak();
+    prevFrameLightGridVolumeSampledLightingData = &gfxBuf.dummyBuffer;
+  }
   if ( v34.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&v34);
-    v21 = R_RT_Handle::GetSurface(&v34);
-    if ( (v21->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v22 = R_RT_Handle::GetSurface(&v34);
+    if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    prevFrameLightGridVolumeSampledLightingData = (GfxWrappedBuffer *)&v21->1080;
+    prevFrameLightGridVolumeSamplingSlot = (GfxWrappedBuffer *)&v22->1080;
   }
   else
   {
     if ( v34.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v34.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    prevFrameLightGridVolumeSampledLightingData = &gfxBuf.dummyBuffer;
+    prevFrameLightGridVolumeSamplingSlot = &gfxBuf.dummyBuffer;
   }
   if ( v35.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&v35);
-    v23 = R_RT_Handle::GetSurface(&v35);
-    if ( (v23->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v24 = R_RT_Handle::GetSurface(&v35);
+    if ( (v24->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    prevFrameLightGridVolumeSamplingSlot = (GfxWrappedBuffer *)&v23->1080;
+    prevFrameLightGridVolumeActiveLightGrids = (GfxWrappedBuffer *)&v24->1080;
   }
   else
   {
     if ( v35.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v35.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    prevFrameLightGridVolumeSamplingSlot = &gfxBuf.dummyBuffer;
+    prevFrameLightGridVolumeActiveLightGrids = &gfxBuf.dummyBuffer;
   }
   if ( v36.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&v36);
-    v25 = R_RT_Handle::GetSurface(&v36);
-    if ( (v25->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v26 = R_RT_Handle::GetSurface(&v36);
+    if ( (v26->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    prevFrameLightGridVolumeActiveLightGrids = (GfxWrappedBuffer *)&v25->1080;
+    lightGridVolumeSampledLightingData = (GfxWrappedRWBuffer *)&v26->1080;
   }
   else
   {
     if ( v36.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v36.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    prevFrameLightGridVolumeActiveLightGrids = &gfxBuf.dummyBuffer;
+    lightGridVolumeSampledLightingData = &gfxBuf.dummyRWBuffer;
   }
   if ( v37.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&v37);
-    v27 = R_RT_Handle::GetSurface(&v37);
-    if ( (v27->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+    v28 = R_RT_Handle::GetSurface(&v37);
+    if ( (v28->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    lightGridVolumeSampledLightingData = (GfxWrappedRWBuffer *)&v27->1080;
+    v27 = (GfxWrappedBuffer *)&v28->1080;
   }
   else
   {
     if ( v37.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v37.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    lightGridVolumeSampledLightingData = &gfxBuf.dummyRWBuffer;
+    v27 = &gfxBuf.dummyBuffer;
   }
   if ( v38.m_surfaceID )
   {
@@ -1644,26 +1594,12 @@ void RBT_LGV_SampleLightingMultiLightGrid_Sample(ComputeCmdBufState *computeStat
     v29 = R_RT_Handle::GetSurface(&v38);
     if ( (v29->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
       __debugbreak();
-    v28 = (GfxWrappedBuffer *)&v29->1080;
+    p_dummyBuffer = (GfxWrappedBuffer *)&v29->1080;
   }
-  else
-  {
-    if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v38.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
-      __debugbreak();
-    v28 = &gfxBuf.dummyBuffer;
-  }
-  if ( v39.m_surfaceID )
-  {
-    R_RT_Handle::GetSurface(&v39);
-    v30 = R_RT_Handle::GetSurface(&v39);
-    if ( (v30->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
-      __debugbreak();
-    p_dummyBuffer = (GfxWrappedBuffer *)&v30->1080;
-  }
-  else if ( v39.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( v38.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  R_LGV_SampleLightingPerLightGrid(computeState, data, viewInfo, p_dummyBuffer, v28, lightGridVolumeSampledLightingData, prevFrameLightGridVolumeActiveLightGrids, prevFrameLightGridVolumeSamplingSlot, prevFrameLightGridVolumeSampledLightingData, lightGridVolumeCount, lightGridVolumeIndexingBuffer, lightGridVolumesList, indirectDispatchParams);
+  R_LGV_SampleLightingPerLightGrid(computeState, data, viewInfo, p_dummyBuffer, v27, lightGridVolumeSampledLightingData, prevFrameLightGridVolumeActiveLightGrids, prevFrameLightGridVolumeSamplingSlot, prevFrameLightGridVolumeSampledLightingData, lightGridVolumeCount, lightGridVolumeIndexingBuffer, lightGridVolumesList, indirectDispatchParams);
 }
 

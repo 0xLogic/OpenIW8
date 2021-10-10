@@ -792,7 +792,7 @@ void __fastcall CL_Main_SetPlayerProfileData(double _XMM0_8)
   const char *v2; 
   int DataIndexByName; 
   const char *v4; 
-  GamerProfileData v7; 
+  GamerProfileData v6; 
 
   if ( Cmd_Argc() == 3 )
   {
@@ -802,43 +802,35 @@ void __fastcall CL_Main_SetPlayerProfileData(double _XMM0_8)
     if ( DataIndexByName >= 0 )
     {
       v4 = Cmd_Argv(2);
-      v7.type = GamerProfile_GetDataType(DataIndexByName);
-      switch ( v7.type )
+      v6.type = GamerProfile_GetDataType(DataIndexByName);
+      switch ( v6.type )
       {
         case TYPE_BYTE:
-          v7.u.byteVal = atoi(v4);
+          v6.u.byteVal = atoi(v4);
           break;
         case TYPE_BOOL:
-          v7.u.byteVal = atoi(v4) != 0;
+          v6.u.byteVal = atoi(v4) != 0;
           break;
         case TYPE_SHORT:
-          v7.u.shortVal = atoi(v4);
+          v6.u.shortVal = atoi(v4);
           break;
         case TYPE_INT:
         case TYPE_FLAG:
-          v7.u.intVal = atoi(v4);
+          v6.u.intVal = atoi(v4);
           break;
         case TYPE_FLOAT:
           _XMM0_8 = atof(v4);
-          __asm
-          {
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmovss  dword ptr [rsp+38h+var_18+8], xmm1
-          }
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          v6.u.floatVal = *(float *)&_XMM1;
           break;
         case TYPE_STRING:
-          v7.u.stringVal = v4;
+          v6.u.stringVal = v4;
           break;
         default:
           Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440E19F0, 757i64);
           break;
       }
-      __asm
-      {
-        vmovups xmm0, [rsp+38h+var_18]
-        vmovdqa [rsp+38h+var_18], xmm0
-      }
-      GamerProfile_SetData(v1, DataIndexByName, &v7);
+      GamerProfile_SetData(v1, DataIndexByName, &v6);
     }
     else
     {
@@ -861,50 +853,38 @@ void CL_Main_GetPlayerProfileData()
 {
   int v0; 
   const char *v1; 
-  __int64 v5; 
-  __int128 v9; 
+  __int64 v2; 
+  __int128 v3; 
   GamerProfileData result; 
 
   if ( Cmd_Argc() == 2 )
   {
     v0 = Cmd_LocalControllerIndex();
     v1 = Cmd_Argv(1);
-    _RAX = GamerProfile_GetDataByName(&result, v0, v1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovd   ebx, xmm0
-      vmovups [rsp+48h+var_28], xmm0
-    }
-    if ( _EBX )
+    v3 = (__int128)*GamerProfile_GetDataByName(&result, v0, v1);
+    if ( (_DWORD)v3 )
     {
       Com_Printf(14, "%s: ", v1);
-      switch ( _EBX )
+      switch ( (int)v3 )
       {
         case 1:
         case 2:
-          v5 = BYTE8(v9);
+          v2 = BYTE8(v3);
           goto LABEL_9;
         case 3:
-          v5 = (unsigned int)SWORD4(v9);
+          v2 = (unsigned int)SWORD4(v3);
           goto LABEL_9;
         case 4:
         case 8:
-          v5 = DWORD2(v9);
+          v2 = DWORD2(v3);
 LABEL_9:
-          Com_Printf(14, "%i\n", v5);
+          Com_Printf(14, "%i\n", v2);
           break;
         case 5:
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsp+48h+var_28+8]; jumptable 0000000141A2B339 case 5
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovq   r8, xmm2
-          }
-          Com_Printf(14, "%f\n", *(double *)&_XMM2);
+          Com_Printf(14, "%f\n", *((float *)&v3 + 2));
           break;
         case 6:
-          Com_Printf(14, "%s\n", *((const char **)&v9 + 1));
+          Com_Printf(14, "%s\n", *((const char **)&v3 + 1));
           break;
         default:
           Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1440E19F0, 758i64);
@@ -1362,12 +1342,7 @@ bool CL_Main_ConnectionlessPacket_Universal(LocalClientNum_t localClientNum, net
   PartyData *ActiveParty; 
   char froma[24]; 
 
-  *(_DWORD *)&froma[16] = from->addrHandleIndex;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rsp+68h+from], xmm0
-  }
+  *(netadr_t *)froma = *from;
   if ( !c && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_main.cpp", 2726, ASSERT_TYPE_ASSERT, "(c)", (const char *)&queryFormat, "c", *(_QWORD *)froma, *(_QWORD *)&froma[8], *(_QWORD *)&froma[16]) )
     __debugbreak();
   ActiveParty = Live_GetActiveParty();
@@ -1759,11 +1734,8 @@ CL_Main_FreeSkelMemory
 
 void __fastcall CL_Main_FreeSkelMemory(double _XMM0_8)
 {
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.skelMemPools.buffer, xmm0; ClStatic cls
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&cls.skelMemPools[0].buffer = _XMM0;
   cls.skelMemPools[2].buffer = NULL;
   cls.skelMemPoolSize = 0;
 }
@@ -1977,8 +1949,8 @@ CL_Main_InitRenderer
 */
 void CL_Main_InitRenderer(void)
 {
+  const dvar_t *v0; 
   const char *v1; 
-  GfxFont *v5; 
 
   if ( cls.rendererStarted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_main.cpp", 972, ASSERT_TYPE_ASSERT, "(!cls.rendererStarted)", (const char *)&queryFormat, "!cls.rendererStarted") )
     __debugbreak();
@@ -1995,14 +1967,14 @@ void CL_Main_InitRenderer(void)
   cls.consoleMaterial = Material_RegisterHandle("console", IMAGE_TRACK_UI);
   if ( cls.vidConfig.sceneHeight <= 0x438 )
   {
-    _RBX = DCONST_DVARFLT_cl_devguiFontScaleHD;
+    v0 = DCONST_DVARFLT_cl_devguiFontScaleHD;
     if ( DCONST_DVARFLT_cl_devguiFontScaleHD )
       goto LABEL_14;
     v1 = "cl_devguiFontScaleHD";
   }
   else
   {
-    _RBX = DCONST_DVARFLT_cl_devguiFontScaleUHD;
+    v0 = DCONST_DVARFLT_cl_devguiFontScaleUHD;
     if ( DCONST_DVARFLT_cl_devguiFontScaleUHD )
       goto LABEL_14;
     v1 = "cl_devguiFontScaleUHD";
@@ -2010,22 +1982,14 @@ void CL_Main_InitRenderer(void)
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v1) )
     __debugbreak();
 LABEL_14:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@41900000
-    vcvttss2si rdx, xmm0; pixelHeight
-  }
-  cls.consoleFont = R_RegisterFont("fonts/fira_mono_regular.ttf", _RDX);
+  Dvar_CheckFrontendServerThread(v0);
+  cls.consoleFont = R_RegisterFont("fonts/fira_mono_regular.ttf", (int)(float)(v0->current.value * 18.0));
   cls.smallDevFont = R_RegisterFont("fonts/fira_mono_bold.ttf", 14);
-  v5 = R_RegisterFont("fonts/fira_mono_bold.ttf", 26);
-  __asm { vmovss  xmm0, cs:?g_console_char_height@@3MA; float g_console_char_height }
-  cls.bigDevFont = v5;
+  cls.bigDevFont = R_RegisterFont("fonts/fira_mono_bold.ttf", 26);
   g_consoleField.fixedSize = 1;
   g_console_field_width = cls.vidConfig.displayWidth - 40;
   g_consoleField.widthInPixels = cls.vidConfig.displayWidth - 40;
-  __asm { vmovss  cs:?g_consoleField@@3Ufield_t@@A.charHeight, xmm0; field_t g_consoleField }
+  g_consoleField.charHeight = g_console_char_height;
   StatMon_Reset();
   Con_InitClientAssets();
 }
@@ -2247,158 +2211,29 @@ void CL_Main_ReInitDevGUI(GameModeType gameMode)
 CL_Main_RegisterCommonDvars
 ==============
 */
-
-void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void CL_Main_RegisterCommonDvars(void)
 {
-  const dvar_t *v34; 
-  const dvar_t *v38; 
-  const dvar_t *v46; 
-  const dvar_t *v72; 
-  const dvar_t *v79; 
-  const dvar_t *v86; 
-  const dvar_t *v110; 
-  const dvar_t *v114; 
-  const dvar_t *v118; 
-  const dvar_t *v145; 
-  const dvar_t *v152; 
-  const dvar_t *v156; 
-  const dvar_t *v164; 
-  const dvar_t *v173; 
-  const dvar_t *v184; 
-  const dvar_t *v188; 
-  const dvar_t *v192; 
-  const dvar_t *v196; 
-  const dvar_t *v200; 
-  const dvar_t *v204; 
-  const dvar_t *v208; 
-  const dvar_t *v212; 
-  const dvar_t *v216; 
-  const dvar_t *v223; 
-  const dvar_t *v230; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  char v266; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm12
-    vmovaps xmmword ptr [rax-78h], xmm13
-    vmovaps [rsp+0D8h+var_88], xmm14
-    vmovaps [rsp+0D8h+var_98], xmm15
-  }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  xmm6, cs:__real@3f666666
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_safeArea_horizontal = Dvar_RegisterFloat("MPPPPOKORK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Horizontal safe area as a fraction of the screen width");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_safeArea_vertical = Dvar_RegisterFloat("NPPTKLOOLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Vertical safe area as a fraction of the screen height");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_safeArea_adjusted_horizontal = Dvar_RegisterFloat("NQTKNOPLSP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x2000u, "User-adjustable horizontal safe area as a fraction of the screen width");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-    vmovss  xmm9, cs:__real@7f7fffff
-  }
-  DVARFLT_safeArea_adjusted_vertical = Dvar_RegisterFloat("MRMTSPOKQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x2000u, "User-adjustable vertical safe area as a fraction of the screen height");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm10; min
-    vmovaps xmm1, xmm10; value
-  }
-  DVARFLT_cg_hudLegacySplitscreenScale = Dvar_RegisterFloat("LRKQTOTOPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Screen scale for hud elements in splitscreen");
+  DVARFLT_safeArea_horizontal = Dvar_RegisterFloat("MPPPPOKORK", 0.89999998, 0.0, 1.0, 4u, "Horizontal safe area as a fraction of the screen width");
+  DVARFLT_safeArea_vertical = Dvar_RegisterFloat("NPPTKLOOLO", 0.89999998, 0.0, 1.0, 4u, "Vertical safe area as a fraction of the screen height");
+  DVARFLT_safeArea_adjusted_horizontal = Dvar_RegisterFloat("NQTKNOPLSP", 0.89999998, 0.0, 1.0, 0x2000u, "User-adjustable horizontal safe area as a fraction of the screen width");
+  DVARFLT_safeArea_adjusted_vertical = Dvar_RegisterFloat("MRMTSPOKQP", 0.89999998, 0.0, 1.0, 0x2000u, "User-adjustable vertical safe area as a fraction of the screen height");
+  DVARFLT_cg_hudLegacySplitscreenScale = Dvar_RegisterFloat("LRKQTOTOPQ", 1.0, 1.0, 3.4028235e38, 0, "Screen scale for hud elements in splitscreen");
   DVARBOOL_cg_hudSplitscreenOffsetsUseScale = Dvar_RegisterBool("QPOKQTQRQ", 0, 0, "Use splitscreen scaling for element offsets");
   DVARBOOL_cl_voice = Dvar_RegisterBool("LPOPTLTKR", 1, 0x200u, "Use voice communications");
   DVARBOOL_cl_voice_mute = Dvar_RegisterBool("LOOTLTLRNN", 0, 0, "Mute all voice communications");
   DVARINT_cl_shownet = Dvar_RegisterInt("NLTMKNTMSL", 0, -2, 4, 0, "Display network debugging information");
   DVARBOOL_cl_showServerCommands = Dvar_RegisterBool("NRRRMMSOLP", 0, 0, "Enable debug prints for server commands");
   DVARBOOL_cl_showSend = Dvar_RegisterBool("MTQNSLQMPS", 0, 0, "Enable debugging information for sent commands");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@438c0000; max
-    vmovss  xmm1, cs:__real@430c0000; value
-  }
   DVARBOOL_cl_skipFNFVersionCheck = Dvar_RegisterBool("NTSTSTRPTO", 0, 0, "Ignore version check for FNF builds");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v34 = Dvar_RegisterFloat("LMTTMSNLLR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max yaw speed in degrees for game pad and keyboard");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@438c0000; max
-    vmovss  xmm1, cs:__real@430c0000; value
-  }
-  DVARFLT_cl_yawspeed = v34;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v38 = Dvar_RegisterFloat("MPOPKKONQO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max pitch speed in degrees for game pad");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vmovss  xmm1, cs:__real@3fc00000; value
-  }
-  DVARFLT_cl_pitchspeed = v38;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cl_anglespeedkey = Dvar_RegisterFloat("MNKMMQMSOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Multiplier for max angle speed for game pad and keyboard");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@bf800000
-    vmovss  xmm1, cs:__real@3cb43958; value
-  }
+  DVARFLT_cl_yawspeed = Dvar_RegisterFloat("LMTTMSNLLR", 140.0, 0.0, 280.0, 0, "Max yaw speed in degrees for game pad and keyboard");
+  DVARFLT_cl_pitchspeed = Dvar_RegisterFloat("MPOPKKONQO", 140.0, 0.0, 280.0, 0, "Max pitch speed in degrees for game pad");
+  DVARFLT_cl_anglespeedkey = Dvar_RegisterFloat("MNKMMQMSOS", 1.5, 0.0, 5.0, 0, "Multiplier for max angle speed for game pad and keyboard");
   DVARBOOL_cl_showmouserate = Dvar_RegisterBool("MQSTRMLMST", 0, 0, "Print mouse rate debugging information to the console");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm8; min
-  }
-  v46 = Dvar_RegisterFloat("MRKQKRMMMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Default pitch");
-  __asm { vmovss  xmm1, cs:__real@3cb43958; value }
-  DVARFLT_m_pitch = v46;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm8; min
-    vmovss  xmm6, cs:__real@3e800000
-  }
-  DVARFLT_m_yaw = Dvar_RegisterFloat("LKNSOOTMTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Default yaw");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_m_forward = Dvar_RegisterFloat("NMSMNMKNSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Forward speed in units per second");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_m_side = Dvar_RegisterFloat("MTNMKMKKRQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Sideways motion in units per second");
+  DVARFLT_m_pitch = Dvar_RegisterFloat("MRKQKRMMMP", 0.022, -1.0, 1.0, 0, "Default pitch");
+  DVARFLT_m_yaw = Dvar_RegisterFloat("LKNSOOTMTM", 0.022, -1.0, 1.0, 0, "Default yaw");
+  DVARFLT_m_forward = Dvar_RegisterFloat("NMSMNMKNSK", 0.25, -1.0, 1.0, 0, "Forward speed in units per second");
+  DVARFLT_m_side = Dvar_RegisterFloat("MTNMKMKKRQ", 0.25, -1.0, 1.0, 0, "Sideways motion in units per second");
   DCONST_DVARINT_cl_specialOffhandDelay = Dvar_RegisterInt("cl_specialOffhandDelay", 60, 0, 500, 0x40004u, "Delay offhand to allow double bumper special offhand");
   DVARINT_ac_test_value = Dvar_RegisterInt("OLONTONOPK", 1, 0, 0x7FFFFFFF, 0, "Test functionality");
   DVARINT_session_join_min_time = Dvar_RegisterInt("NTLOSSSOTR", 4000, 0, 10000, 0, "Minimum number of milliseconds between join attempts");
@@ -2411,83 +2246,21 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_cl_transient_sp_streamer_syncflush = Dvar_RegisterBool("LORKLOOKKT", 1, 0x40u, "Enables or disables a hard sync and flush of the streamer with each SP client transient sync");
   DCONST_DVARINT_cl_transient_sp_stream_minimum_time = Dvar_RegisterInt("cl_transient_sp_stream_minimum_time", 6000, 0, 0x7FFFFFFF, 0x40004u, "The minimum amount of time in ms to stay in the streaming state to prevent bouncing around quickly (SP transient)");
   DCONST_DVARINT_cl_transient_sp_yield_minimum_time = Dvar_RegisterInt("cl_transient_sp_yield_minimum_time", 1000, 0, 0x7FFFFFFF, 0x40004u, "The minimum amount of time in ms to stay in the yielded state to prevent bouncing around quickly (SP transient)");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41800000
-    vmovss  xmm1, cs:__real@3d800000; value
-  }
   DCONST_DVARINT_cl_transient_sp_yield_timeout = Dvar_RegisterInt("cl_transient_sp_yield_timeout", 2000, 0, 0x7FFFFFFF, 0x40004u, "The maximum amount of time in ms to yield to the image streamer before resuming file loads (SP transient)");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_transient_sp_yield_start_priority = Dvar_RegisterFloat("LOSLTNTQT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The priority threshold expressed as a stream distance metric where the file loading will yield to the image streamer (SP transient)");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_cl_transient_sp_yield_end_priority = Dvar_RegisterFloat("OKTKQKMTSQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The priority threshold expressed as a stream distance metric to end the yield, to avoid bouncing around states (SP transient)");
-  __asm
-  {
-    vmovss  xmm15, cs:__real@41200000
-    vmovss  xmm12, cs:__real@3c23d70a
-  }
+  DVARFLT_cl_transient_sp_yield_start_priority = Dvar_RegisterFloat("LOSLTNTQT", 0.0625, 0.0, 16.0, 0x40u, "The priority threshold expressed as a stream distance metric where the file loading will yield to the image streamer (SP transient)");
+  DVARFLT_cl_transient_sp_yield_end_priority = Dvar_RegisterFloat("OKTKQKMTSQ", 0.25, 0.0, 16.0, 0x40u, "The priority threshold expressed as a stream distance metric to end the yield, to avoid bouncing around states (SP transient)");
   DVARBOOL_cl_transient_mp_streamer_interrupt_enabled = Dvar_RegisterBool("LLLPMRSLLN", 1, 0, "Enables the DB to schedule high priority fastfile loads before yielding to the streamer.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; min
-    vmovaps xmm2, xmm12; y
-    vmovaps xmm1, xmm15; x
-    vmovss  [rsp+0D8h+flags], xmm15
-  }
-  DVARVEC2_cl_transient_mp_yield_to_streamer_quality_threshold = Dvar_RegisterVec2("OMSNMNMOKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, 0, "Only yield to streamer if image quality is below the number specified here (when moving at max speed or greater, -1 means don't yield)");
+  DVARVEC2_cl_transient_mp_yield_to_streamer_quality_threshold = Dvar_RegisterVec2("OMSNMNMOKN", 10.0, 0.0099999998, -1.0, 10.0, 0, "Only yield to streamer if image quality is below the number specified here (when moving at max speed or greater, -1 means don't yield)");
   DVARINT_cl_transient_mp_yield_timeout_at_max_velocity = Dvar_RegisterInt("NRPRQKQTLQ", 250, 0, 0x7FFFFFFF, 0, "The maximum amount of time in ms to yield to the image streamer before resuming file loads for multiplayer when the camera is moving at 'max' speed");
   DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity = Dvar_RegisterInt("NMROPTKMTQ", 500, 0, 0x7FFFFFFF, 0, "The maximum amount of time in ms to yield to the image streamer before resuming file loads for multiplayer  when the camera is moving at our 'mid' speed");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@44fa0000; max
-    vmovss  xmm1, cs:__real@44340000; value
-  }
   DVARINT_cl_transient_mp_yield_timeout_at_min_velocity = Dvar_RegisterInt("NOKLQNLNKQ", 2000, 0, 0x7FFFFFFF, 0, "The maximum amount of time in ms to yield to the image streamer before resuming file loads for multiplayer  when the camera is not moving");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v72 = Dvar_RegisterFloat("MPPNKPSNKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Mid velocity - use mid timeout. Faster == lower timeout.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@44fa0000; max
-    vmovss  xmm1, cs:__real@44898000; value
-  }
-  DVARFLT_cl_transient_mp_yield_mid_velocity = v72;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cl_transient_mp_yield_max_velocity = Dvar_RegisterFloat("NQPTNLRTPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Max velocity - use max timeout. Faster == lower timeout.");
+  DVARFLT_cl_transient_mp_yield_mid_velocity = Dvar_RegisterFloat("MPPNKPSNKM", 720.0, 0.0, 2000.0, 0, "Mid velocity - use mid timeout. Faster == lower timeout.");
+  DVARFLT_cl_transient_mp_yield_max_velocity = Dvar_RegisterFloat("NQPTNLRTPO", 1100.0, 0.0, 2000.0, 0, "Max velocity - use max timeout. Faster == lower timeout.");
   DVARINT_cl_transient_mp_yield_priority_timeout = Dvar_RegisterInt("NMRKPSTNQO", 200, 0, 0x7FFFFFFF, 0, "The maximum amount of time in ms to yield to the image streamer when high priority loads are outstanding before resuming file loads for multiplayer");
   DVARBOOL_cl_transient_mp_yield_for_streamer_zoom_enabled = Dvar_RegisterBool("OLPOMMRMNL", 1, 0, "Enables or disables a yield timeout to the image streamer when zoom / ads");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3a83126f; y
-    vmovss  xmm1, cs:__real@3d000000; x
-  }
   DVARINT_cl_transient_mp_yield_timeout_zoom = Dvar_RegisterInt("LRNOTROKT", 250, 0, 0x7FFFFFFF, 0, "The maximum amount of time in ms to yield to the image streamer when zoom / ads before resuming file loads for multiplayer");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovss  [rsp+0D8h+flags], xmm7
-  }
-  v79 = Dvar_RegisterVec2("LORRMQTSRS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, 0, "Minimum image streaming quality before loading medium tiles when the camera is moving at 'max' speed");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3ba3d70a; y
-    vmovss  xmm1, cs:__real@3f400000; x
-  }
-  DVARVEC2_cl_transient_mp_yield_medium_priority = v79;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovss  [rsp+0D8h+flags], xmm7
-  }
-  DVARVEC2_cl_transient_mp_yield_far_priority = Dvar_RegisterVec2("TPSOSKNMM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, 0, "Minimum image streaming quality before loading far tiles when the camera is moving at 'max' speed");
+  DVARVEC2_cl_transient_mp_yield_medium_priority = Dvar_RegisterVec2("LORRMQTSRS", 0.03125, 0.001, 0.0, 16.0, 0, "Minimum image streaming quality before loading medium tiles when the camera is moving at 'max' speed");
+  DVARVEC2_cl_transient_mp_yield_far_priority = Dvar_RegisterVec2("TPSOSKNMM", 0.75, 0.0049999999, 0.0, 16.0, 0, "Minimum image streaming quality before loading far tiles when the camera is moving at 'max' speed");
   DCONST_DVARBOOL_cl_transientCommon_debugVerbose = Dvar_RegisterBool("cl_transientCommon_debugVerbose", 0, 0x40004u, "Enable to log development debug messages to the console");
   DVARBOOL_cl_transientCommon_debugDump = Dvar_RegisterBool("MKSTMNQRLS", 0, 4u, "Enable to dump the currently request common mp transient assets");
   DCONST_DVARINT_cl_transientCommon_debugListLoadingAssets = Dvar_RegisterInt("cl_transientCommon_debugListLoadingAssets", 0, 0, 50, 0x40004u, "Set the number of in-progress transient loads to display");
@@ -2504,22 +2277,9 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_cl_preload_sp_yield_for_streamer = Dvar_RegisterBool("LOONNQSTSM", 1, 0x40u, "Enables or disables yielding the SP preload file loads to allow the image streamer time to load images (SP preload)");
   DVARINT_cl_preload_sp_yield_timeout = Dvar_RegisterInt("NMSTSKPRQQ", 3000, 0, 0x7FFFFFFF, 0x40u, "The maximum amount of time in ms to yield to the image streamer before resuming file loads (SP preload)");
   DVARINT_cl_preload_sp_stream_minimum_time = Dvar_RegisterInt("LMQPRMTOSO", 6000, 0, 0x7FFFFFFF, 0x40u, "The minimum amount of time in ms to stay in the streaming state to prevent bouncing around quickly (SP preload)");
-  __asm { vmovss  xmm1, cs:__real@3d000000; value }
   DVARINT_cl_preload_sp_yield_minimum_time = Dvar_RegisterInt("LQRMTPPMQP", 1000, 0, 0x7FFFFFFF, 0x40u, "The minimum amount of time in ms to stay in the yielded state to prevent bouncing around quickly (SP preload)");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v86 = Dvar_RegisterFloat("NSPQSTSNOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The priority threshold expressed as a stream distance metric where the file loading will yield to the image streamer (SP preload)");
-  __asm { vmovss  xmm1, cs:__real@3e000000; value }
-  DVARFLT_cl_preload_sp_yield_start_priority = v86;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cl_preload_sp_yield_end_priority = Dvar_RegisterFloat("NTLOROTPQR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40u, "The priority threshold expressed as a stream distance metric to end the yielding, to avoid bouncing around states (SP preload)");
+  DVARFLT_cl_preload_sp_yield_start_priority = Dvar_RegisterFloat("NSPQSTSNOK", 0.03125, 0.0, 16.0, 0x40u, "The priority threshold expressed as a stream distance metric where the file loading will yield to the image streamer (SP preload)");
+  DVARFLT_cl_preload_sp_yield_end_priority = Dvar_RegisterFloat("NTLOROTPQR", 0.125, 0.0, 16.0, 0x40u, "The priority threshold expressed as a stream distance metric to end the yielding, to avoid bouncing around states (SP preload)");
   DVARINT_cl_preload_sp_yield_delay_time = Dvar_RegisterInt("NMMNPNLLQM", 1000, 0, 60000, 4u, "Sets the delay time to apply when the server requests that we don't yield for a while");
   DCONST_DVARINT_cl_transient_mp_cost_threshold = Dvar_RegisterInt("cl_transient_mp_cost_threshold", 20971520, 0, 0x20000000, 0x40004u, "The cost threshold in bytes for putting fastfiles in a batch.");
   DCONST_DVARINT_cl_transient_mp_printVerbosity = Dvar_RegisterInt("cl_transient_mp_printVerbosity", 1, 0, 1, 0x40004u, "Controls the amount of MP world transient status prints.  0=disable, 1=enable");
@@ -2532,36 +2292,14 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_cg_customizationStreaming_highPriorityCorpses = Dvar_RegisterBool("NNMTTPLMKN", 1, 0, "Killswitch to disable to elevated prioritization for high priority corpses");
   DVARBOOL_cg_prematch_playerVisbilityRequiresCharacterModels = Dvar_RegisterBool("LQLTOQSRNO", 1, 0, "Hides the player during the prematch countdown if their weapon models are not loaded.");
   DVARBOOL_cg_prematch_playerVisbilityRequiresWeaponModels = Dvar_RegisterBool("MPKLOLKTLR", 0, 0, "Hides the player during the prematch countdown if their character models are not loaded (body + all attach models).");
-  __asm
-  {
-    vmovss  xmm14, cs:__real@42c80000
-    vmovss  xmm3, cs:__real@461c4000; max
-  }
   DVARBOOL_cg_umbraWorstCaseMinObjectContributionEnabled = Dvar_RegisterBool("QTMTSNTNO", 0, 0, "Enables setting the rg.umbraWorstCaseMinObjectContribution if we think we may be in a scenario where we will hit the vert buffer limit to avoid missing important geo.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  DCONST_DVARFLT_cg_umbraWorstCaseMinObjectContributionValue = Dvar_RegisterFloat("cg_umbraWorstCaseMinObjectContributionValue", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The value used for rg.umbraWorstCaseMinObjectContribution if we think we may be in a scenario where we will hit the vert buffer limit to avoid missing important geo.");
+  DCONST_DVARFLT_cg_umbraWorstCaseMinObjectContributionValue = Dvar_RegisterFloat("cg_umbraWorstCaseMinObjectContributionValue", 100.0, 0.0, 10000.0, 0x40004u, "The value used for rg.umbraWorstCaseMinObjectContribution if we think we may be in a scenario where we will hit the vert buffer limit to avoid missing important geo.");
   DVARBOOL_cg_entityResetPhysicsFixEnabled = Dvar_RegisterBool("LMOTKRTOKP", 1, 0, "killswitch for a fix that has had little testing.");
   DVARBOOL_cg_weaponStreaming_enableWorldClientModels = Dvar_RegisterBool("LPOPSQLKT", 1, 0, "Killswitch for client-model driven world weapons for streaming");
   DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot = Dvar_RegisterBool("SQKMQKTOT", 1, 0, "Killswitch for scriptable loot driven world weapons for streaming");
-  __asm { vmovss  xmm1, cs:__real@44480000; value }
   DVARBOOL_cg_weaponStreaming_enableWorldWeaponMap = Dvar_RegisterBool("NMRROQTQQQ", 1, 0, "Killswitch for WeaponMap driven world weapons for streaming");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_weaponStreaming_scriptableLootRadius = Dvar_RegisterFloat("OKTNRQQMNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Radius at which we start predictively streaming scriptable loot.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  DCONST_DVARFLT_cg_small_dev_string_fontscale = Dvar_RegisterFloat("cg_small_dev_string_fontscale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Font scale for a small development only display string");
+  DVARFLT_cg_weaponStreaming_scriptableLootRadius = Dvar_RegisterFloat("OKTNRQQMNS", 800.0, 0.0, 3.4028235e38, 0, "Radius at which we start predictively streaming scriptable loot.");
+  DCONST_DVARFLT_cg_small_dev_string_fontscale = Dvar_RegisterFloat("cg_small_dev_string_fontscale", 1.0, 0.0, 3.4028235e38, 0x40004u, "Font scale for a small development only display string");
   DVARBOOL_cg_playerLegsDObjFixActive = Dvar_RegisterBool("LLRLORNPMS", 1, 0, "Killswitch/activation of player legs dobj model fix (IWH-286590). Default is true (fix is active).");
   DCONST_DVARBOOL_cl_devLoadPlayerCards = Dvar_RegisterBool("cl_devLoadPlayerCards", 1, 0x40004u, "When set, loads random player cards for default profiles and any unoccupied party member slots to simulate image streaming load.");
   DVARBOOL_cl_anonymization_enabled = Dvar_RegisterBool("QNOOPTKTT", 1, 0, "Anonymization feature killswitch; true: feature enabled, false: feature disabled.");
@@ -2569,186 +2307,37 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_cl_anonymization_genericGameMessages = Dvar_RegisterBool("LSTTSQNTKP", 1, 4u, "Anonymize game messages sent by the server with generic messages (e.g., \"<gamertag> left the game\" becomes \"A player left the game\"");
   DVARBOOL_cl_combinedCameraRotationSpeed = Dvar_RegisterBool("NMOLNMOSOM", 0, 0, "This triggers the mouse accumulated input treatment with the max rotation setting");
   DVARBOOL_cg_playerNameplateUsePlayerVisibilityCrosshairsTest = Dvar_RegisterBool("MPTSLQLRR", 1, 0, "Killswitch/activation to use new cg_player_visibility module for nameplate 'crosshairs' test.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovss  xmm2, cs:__real@38d1b717; min
-    vmovss  xmm1, cs:__real@3f4ccccd; value
-  }
-  DVARFLT_cl_analog_attack_threshold = Dvar_RegisterFloat("MMKKOSTMSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The threshold before firing");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f7d70a4; max
-    vmovss  xmm1, cs:__real@3f19999a; value
-  }
+  DVARFLT_cl_analog_attack_threshold = Dvar_RegisterFloat("MMKKOSTMSO", 0.80000001, 0.000099999997, 1.0, 0, "The threshold before firing");
   DCONST_DVARINT_cl_weaponToggleAltModeHoldTime = Dvar_RegisterInt("cl_weaponToggleAltModeHoldTime", 200, 0, 10000, 0x40004u, "The time to hold the weapon next button before the player toggles the weapon's alt mode.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm8, cs:__real@3dcccccd
-  }
-  DCONST_DVARFLT_cl_dirSelMinStickThreshold = Dvar_RegisterFloat("cl_dirSelMinStickThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Ignore stick controls if the stick deflection less than this while selecting a direction on the map.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm12; min
-    vmovaps xmm1, xmm8; value
-  }
-  v110 = Dvar_RegisterFloat("cl_dirSelConvergeTimeGross", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Time to converge to the new direction when far from that direction while selecting a direction on the map.");
-  __asm { vmovss  xmm1, cs:__real@3e99999a; value }
-  DCONST_DVARFLT_cl_dirSelConvergeTimeGross = v110;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm12; min
-  }
-  v114 = Dvar_RegisterFloat("cl_dirSelConvergeTimePrecise", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Time to converge to the new direction when near to that direction while selecting a direction on the map.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43340000; max
-    vmovss  xmm1, cs:__real@41f00000; value
-  }
-  DCONST_DVARFLT_cl_dirSelConvergeTimePrecise = v114;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v118 = Dvar_RegisterFloat("cl_dirSelPreciseOuterAngle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Outer bounds of the precise angle range while selecting a direction on the map. The coverge time lerps between the inner and outer bounds.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43340000; max
-    vmovss  xmm1, cs:__real@41700000; value
-  }
-  DCONST_DVARFLT_cl_dirSelPreciseOuterAngle = v118;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm12, cs:__real@40000000
-  }
-  DCONST_DVARFLT_cl_dirSelPreciseInnerAngle = Dvar_RegisterFloat("cl_dirSelPreciseInnerAngle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Inner bounds of the precise angle range while selecting a direction on the map. The coverge time lerps between the inner and outer bounds.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
-  DCONST_DVARFLT_cl_bradleyMouseSensFactorX = Dvar_RegisterFloat("cl_bradleyMouseSensFactorX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Mouse sensitivity in X for the Bradley Cannon");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
-  DCONST_DVARFLT_cl_bradleyMouseSensFactorY = Dvar_RegisterFloat("cl_bradleyMouseSensFactorY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Mouse sensitivity in Y for the Bradley Cannon");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
-  DCONST_DVARFLT_cl_wheelsonMouseSensFactorX = Dvar_RegisterFloat("cl_wheelsonMouseSensFactorX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Mouse sensitivity in X for the Wheelson turret");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
-  DCONST_DVARFLT_cl_wheelsonMouseSensFactorY = Dvar_RegisterFloat("cl_wheelsonMouseSensFactorY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Mouse sensitivity in Y for the Wheelson turret");
+  DCONST_DVARFLT_cl_dirSelMinStickThreshold = Dvar_RegisterFloat("cl_dirSelMinStickThreshold", 0.60000002, 0.0, 0.99000001, 0x40004u, "Ignore stick controls if the stick deflection less than this while selecting a direction on the map.");
+  DCONST_DVARFLT_cl_dirSelConvergeTimeGross = Dvar_RegisterFloat("cl_dirSelConvergeTimeGross", 0.1, 0.0099999998, 3.4028235e38, 0x40004u, "Time to converge to the new direction when far from that direction while selecting a direction on the map.");
+  DCONST_DVARFLT_cl_dirSelConvergeTimePrecise = Dvar_RegisterFloat("cl_dirSelConvergeTimePrecise", 0.30000001, 0.0099999998, 3.4028235e38, 0x40004u, "Time to converge to the new direction when near to that direction while selecting a direction on the map.");
+  DCONST_DVARFLT_cl_dirSelPreciseOuterAngle = Dvar_RegisterFloat("cl_dirSelPreciseOuterAngle", 30.0, 0.0, 180.0, 0x40004u, "Outer bounds of the precise angle range while selecting a direction on the map. The coverge time lerps between the inner and outer bounds.");
+  DCONST_DVARFLT_cl_dirSelPreciseInnerAngle = Dvar_RegisterFloat("cl_dirSelPreciseInnerAngle", 15.0, 0.0, 180.0, 0x40004u, "Inner bounds of the precise angle range while selecting a direction on the map. The coverge time lerps between the inner and outer bounds.");
+  DCONST_DVARFLT_cl_bradleyMouseSensFactorX = Dvar_RegisterFloat("cl_bradleyMouseSensFactorX", 2.0, 0.1, 10.0, 0x40004u, "Mouse sensitivity in X for the Bradley Cannon");
+  DCONST_DVARFLT_cl_bradleyMouseSensFactorY = Dvar_RegisterFloat("cl_bradleyMouseSensFactorY", 2.0, 0.1, 10.0, 0x40004u, "Mouse sensitivity in Y for the Bradley Cannon");
+  DCONST_DVARFLT_cl_wheelsonMouseSensFactorX = Dvar_RegisterFloat("cl_wheelsonMouseSensFactorX", 2.0, 0.1, 10.0, 0x40004u, "Mouse sensitivity in X for the Wheelson turret");
+  DCONST_DVARFLT_cl_wheelsonMouseSensFactorY = Dvar_RegisterFloat("cl_wheelsonMouseSensFactorY", 2.0, 0.1, 10.0, 0x40004u, "Mouse sensitivity in Y for the Wheelson turret");
   DCONST_DVARBOOL_cl_slideToProneEnabled = Dvar_RegisterBool("cl_slideToProneEnabled", 1, 0x40004u, "Enables slide to prone transition");
   DCONST_DVARINT_cl_stanceCrouchToProneHoldTime = Dvar_RegisterInt("cl_stanceCrouchToProneHoldTime", 200, 0, 1000, 0x40004u, "The time to hold the stance button before the player goes prone from crouch");
   DCONST_DVARINT_cl_stanceProneToStandHoldTime = Dvar_RegisterInt("cl_stanceProneToStandHoldTime", 300, 0, 1000, 0x40004u, "The time to hold the stance button before the player stands up from prone");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
   DCONST_DVARBOOL_cl_inputVelocityLogging = Dvar_RegisterBool("cl_inputVelocityLogging", 0, 0x40004u, "Enables input velocity logging.  Used for debugging turn rates and weapon sway.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cl_inputVelocityLogging_mouseMovePerMicro = Dvar_RegisterFloat("cl_inputVelocityLogging_mouseMovePerMicro", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Speed of artificial mouse input while inputVelocityLogging is enabled.  Dots / microsecond.");
-  __asm { vmovss  xmm2, cs:__real@3c23d70a; min }
+  DCONST_DVARFLT_cl_inputVelocityLogging_mouseMovePerMicro = Dvar_RegisterFloat("cl_inputVelocityLogging_mouseMovePerMicro", 0.0099999998, 0.0, 3.4028235e38, 0x40004u, "Speed of artificial mouse input while inputVelocityLogging is enabled.  Dots / microsecond.");
   DVARBOOL_cl_mouseAdsUseMonitorDistance = Dvar_RegisterBool("NSOMRKSPO", 1, 0, "Enables monitor distance ADS scaling based on the sensitivity coefficient.");
-  __asm
-  {
-    vmovaps xmm6, xmm10
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm1, xmm6; value
-  }
-  DVARFLT_cl_adsSensitivityMultiplier = Dvar_RegisterFloat("LTNQSKLMTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "ADS vertical sensitivity multiplier");
+  DVARFLT_cl_adsSensitivityMultiplier = Dvar_RegisterFloat("LTNQSKLMTN", 1.0, 0.0099999998, 2.0, 0, "ADS vertical sensitivity multiplier");
   DVARBOOL_cl_fovAdsMouseSensitivityScaleImmediately = Dvar_RegisterBool("MKRMPPPOK", 1, 0, "Enables immediate scaling of sensivity based on ADS fov change. This is the default. Turning this dvar off will cause the hipfire sensitivity to be maintained until the player is 100% ADS, at which point the FoV-scaled sensitivity will be used.");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
   DCONST_DVARBOOL_cl_legacyMouseSensitivity = Dvar_RegisterBool("cl_legacyMouseSensitivity", 0, 0x40004u, "Restores mouse sensitivity to previous scale");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v145 = Dvar_RegisterFloat("cl_highAdsZoomFovLimit", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Defines the biggest FoV value that is still considered an High Zoom instead of a Low Zoom for the gameplay options.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@447a0000; max
-    vmovss  xmm1, cs:__real@43960000; value
-  }
-  DCONST_DVARFLT_cl_highAdsZoomFovLimit = v145;
-  __asm { vmovaps xmm2, xmm14; min }
-  DCONST_DVARFLT_cl_superSprintTriggerWindowWithHoldToSprint = Dvar_RegisterFloat("cl_superSprintTriggerWindowWithHoldToSprint", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Defines the time window after a sprint end to trigger the SuperSprint when using the option Hold to Sprint");
-  __asm { vmovss  xmm1, cs:__real@3f400000; value }
+  DCONST_DVARFLT_cl_highAdsZoomFovLimit = Dvar_RegisterFloat("cl_highAdsZoomFovLimit", 30.0, 0.0, 100.0, 0x40004u, "Defines the biggest FoV value that is still considered an High Zoom instead of a Low Zoom for the gameplay options.");
+  DCONST_DVARFLT_cl_superSprintTriggerWindowWithHoldToSprint = Dvar_RegisterFloat("cl_superSprintTriggerWindowWithHoldToSprint", 300.0, 100.0, 1000.0, 0x40004u, "Defines the time window after a sprint end to trigger the SuperSprint when using the option Hold to Sprint");
   DCONST_DVARINT_cl_autoForwardDoubleForwardInputTime = Dvar_RegisterInt("cl_autoForwardDoubleForwardInputTime", 400, 0, 5000, 0x40004u, "Window of time to process the double-tap stick forward, in ms");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v152 = Dvar_RegisterFloat("cl_autoForwardControlMaxRightDeflection", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Percentage of controller deflection from neutral to right that is allowed to activate control.");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  DCONST_DVARFLT_cl_autoForwardControlMaxRightDeflection = v152;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v156 = Dvar_RegisterFloat("cl_autoForwardControlMinForwardDeflection", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Percentage of controller deflection from neutral to forward needed to register a forward input.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@bf800000; min
-    vmovss  xmm1, cs:__real@bf000000; value
-  }
-  DCONST_DVARFLT_cl_autoForwardControlMinForwardDeflection = v156;
-  __asm { vxorps  xmm3, xmm3, xmm3; max }
-  DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection = Dvar_RegisterFloat("cl_autoForwardCancelMinBackwardDeflection", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Percentage of controller deflection from neutral to backward needed to cancel auto-forward (some gamepad have a bounce back).");
+  DCONST_DVARFLT_cl_autoForwardControlMaxRightDeflection = Dvar_RegisterFloat("cl_autoForwardControlMaxRightDeflection", 0.75, 0.0, 1.0, 0x40004u, "Percentage of controller deflection from neutral to right that is allowed to activate control.");
+  DCONST_DVARFLT_cl_autoForwardControlMinForwardDeflection = Dvar_RegisterFloat("cl_autoForwardControlMinForwardDeflection", 0.5, 0.0, 1.0, 0x40004u, "Percentage of controller deflection from neutral to forward needed to register a forward input.");
+  DCONST_DVARFLT_cl_autoForwardCancelMinBackwardDeflection = Dvar_RegisterFloat("cl_autoForwardCancelMinBackwardDeflection", -0.5, -1.0, 0.0, 0x40004u, "Percentage of controller deflection from neutral to backward needed to cancel auto-forward (some gamepad have a bounce back).");
   DCONST_DVARBOOL_cl_accumulateShellshockedMouseInput = Dvar_RegisterBool("cl_accumulateShellshockedMouseInput", 1, 0x40004u, "Accumulates mouse input when shellshocked, to be used when camera rotation speed clamps are active");
-  __asm
-  {
-    vmovaps xmm13, xmm9
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm15; value
-  }
-  v164 = Dvar_RegisterFloat("cl_maxAccumulatedMouseInput", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum accumulated mouse input that can be stored for shellshock");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42200000
-    vmovss  xmm1, cs:__real@42700000; value
-  }
-  DCONST_DVARFLT_cl_maxAccumulatedMouseInput = v164;
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vmovaps xmm2, xmm7; min
-  }
-  DCONST_DVARFLT_cl_maxShellshockCatchUpSpeed = Dvar_RegisterFloat("cl_maxShellshockCatchUpSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum rotation speed (clamp) allowed when consuming accumulated mouse input for shellshock");
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vmovss  xmm13, cs:__real@3c23d70a
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm7; value
-  }
-  v173 = Dvar_RegisterFloat("cl_shortMovementThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Amount of mouse movement below which we consider it to be a fine, precision input");
-  __asm { vmovss  xmm1, cs:__real@42a00000; value }
-  DCONST_DVARFLT_cl_shortMovementThreshold = v173;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm13; min
-  }
-  DCONST_DVARFLT_cl_longMovementThreshold = Dvar_RegisterFloat("cl_longMovementThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Amount of mouse movement above which we consider it to be a long, abrupt movement");
+  DCONST_DVARFLT_cl_maxAccumulatedMouseInput = Dvar_RegisterFloat("cl_maxAccumulatedMouseInput", 10.0, 0.0, 3.4028235e38, 0x40004u, "Maximum accumulated mouse input that can be stored for shellshock");
+  DCONST_DVARFLT_cl_maxShellshockCatchUpSpeed = Dvar_RegisterFloat("cl_maxShellshockCatchUpSpeed", 60.0, 40.0, 3.4028235e38, 0x40004u, "Maximum rotation speed (clamp) allowed when consuming accumulated mouse input for shellshock");
+  DCONST_DVARFLT_cl_shortMovementThreshold = Dvar_RegisterFloat("cl_shortMovementThreshold", 40.0, 0.0099999998, 3.4028235e38, 0x40004u, "Amount of mouse movement below which we consider it to be a fine, precision input");
+  DCONST_DVARFLT_cl_longMovementThreshold = Dvar_RegisterFloat("cl_longMovementThreshold", 80.0, 0.0099999998, 3.4028235e38, 0x40004u, "Amount of mouse movement above which we consider it to be a long, abrupt movement");
   DCONST_DVARINT_cl_accumulatedInputExpirationTime = Dvar_RegisterInt("cl_accumulatedInputExpirationTime", 75, 0, 0x7FFFFFFF, 0x40004u, "Time limit to discard accumulated input; only ticks if users are doing fine movements (below short movement threshold)");
   DCONST_DVARINT_cl_weaponInspectAltToggle_holdTime_ms = Dvar_RegisterInt("cl_weaponInspectAltToggle_holdTime_ms", 500, 0, 0x7FFFFFFF, 0x40004u, "Time the player must hold alt toggle on a controller to initiate Weapon Inspect.");
   DVARBOOL_con_bindableGrave = Dvar_RegisterBool("OKLQKPPKPQ", 0, 0, "Allow binding the ` key (and remove console functionality)");
@@ -2756,155 +2345,29 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_con_matchPrefixOnly = Dvar_RegisterBool("LORPQQPQKR", 1, 0, "Only match the prefix when listing matching Dvars");
   DVARBOOL_cl_noprint = Dvar_RegisterBool("ONKQOSSTR", 0, 0, "Print nothing to the console");
   DVARBOOL_cl_lessprint = Dvar_RegisterBool("NLLLORPQQT", 1, 0, "Print less to the console by filtering out certain spammy channels");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm10; value
-  }
-  DCONST_DVARFLT_cl_devguiFontScaleHD = Dvar_RegisterFloat("cl_devguiFontScaleHD", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scaling modifier for the devgui console font on 1080p hardware");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm8, xmm10
-    vmovaps xmm1, xmm8; value
-  }
-  v184 = Dvar_RegisterFloat("cl_devguiFontScaleUHD", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Scaling modifier for the devgui console font on 4K hardware");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f7d70a4; max
-    vmovss  xmm2, cs:__real@bf7d70a4; min
-  }
-  DCONST_DVARFLT_cl_devguiFontScaleUHD = v184;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v188 = Dvar_RegisterFloat("NMRKMSMTOO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3e4ccccd; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_profileMenuOption_blacklevel = v188;
-  v192 = Dvar_RegisterFloat("LLTNTOTMMT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f19999a; min
-    vmovss  xmm1, cs:__real@3f4ccccd; value
-    vmovaps xmm3, xmm8; max
-  }
-  DVARFLT_profileMenuOption_hdrMinLum = v192;
-  v196 = Dvar_RegisterFloat("NKQOMLOSN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3fc00000; max
-    vmovss  xmm2, cs:__real@3f000000; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_hdrMaxLum = v196;
-  v200 = Dvar_RegisterFloat("PPNORSOSS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_hdrGamma = v200;
-  v204 = Dvar_RegisterFloat("LQTPNKKMOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_volume = v204;
-  v208 = Dvar_RegisterFloat("MSSPLOROPP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_voiceVolume = v208;
-  v212 = Dvar_RegisterFloat("LLPPPNKTSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_musicVolume = v212;
-  v216 = Dvar_RegisterFloat("MPTTMMKST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_effectsVolume = v216;
-  DVARFLT_profileMenuOption_licensedMusicVolume = Dvar_RegisterFloat("OLMSPQPNNL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
+  DCONST_DVARFLT_cl_devguiFontScaleHD = Dvar_RegisterFloat("cl_devguiFontScaleHD", 1.0, 0.1, 10.0, 0x40004u, "Scaling modifier for the devgui console font on 1080p hardware");
+  DCONST_DVARFLT_cl_devguiFontScaleUHD = Dvar_RegisterFloat("cl_devguiFontScaleUHD", 1.0, 0.1, 10.0, 0x40004u, "Scaling modifier for the devgui console font on 4K hardware");
+  DVARFLT_profileMenuOption_blacklevel = Dvar_RegisterFloat("NMRKMSMTOO", 0.0, -0.99000001, 0.99000001, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_hdrMinLum = Dvar_RegisterFloat("LLTNTOTMMT", 0.0, 0.0, 0.2, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_hdrMaxLum = Dvar_RegisterFloat("NKQOMLOSN", 0.80000001, 0.60000002, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_hdrGamma = Dvar_RegisterFloat("PPNORSOSS", 1.0, 0.5, 1.5, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_volume = Dvar_RegisterFloat("LQTPNKKMOP", 1.0, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_voiceVolume = Dvar_RegisterFloat("MSSPLOROPP", 1.0, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_musicVolume = Dvar_RegisterFloat("LLPPPNKTSO", 1.0, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_effectsVolume = Dvar_RegisterFloat("MPTTMMKST", 1.0, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_licensedMusicVolume = Dvar_RegisterFloat("OLMSPQPNNL", 1.0, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
   DVARINT_profileMenuOption_presetMix = Dvar_RegisterInt("PTKLRRLLQ", 0, 0, 9, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f666666; value
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
   DVARBOOL_profileMenuOption_controllerSpeakerEnabled = Dvar_RegisterBool("MNKONSOLT", 1, 4u, (const char *)&queryFormat.fmt + 3);
-  v223 = Dvar_RegisterFloat("NNLRMRKOTM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f666666; value
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_profileMenuOption_safeAreaHorz = v223;
-  DVARFLT_profileMenuOption_safeAreaVert = Dvar_RegisterFloat("MKOOLLQRPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41a00000; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
+  DVARFLT_profileMenuOption_safeAreaHorz = Dvar_RegisterFloat("NNLRMRKOTM", 0.89999998, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_safeAreaVert = Dvar_RegisterFloat("MKOOLLQRPS", 0.89999998, 0.0, 1.0, 4u, (const char *)&queryFormat.fmt + 3);
   DVARINT_profileMenuOption_lootCardDetail = Dvar_RegisterInt("MSLNPQSPLM", 1, 1, 3, 0, "Controls the amount of detail a br loot card shows - 1( low ), 2( medium ), 3( high )");
-  v230 = Dvar_RegisterFloat("MRKPMKMRQL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41a00000; max
-    vmovaps xmm2, xmm8; min
-    vmovaps xmm1, xmm12; value
-  }
-  DVARFLT_profileMenuOption_vertsensitivity = v230;
-  DVARFLT_profileMenuOption_horzsensitivity = Dvar_RegisterFloat("NQQNNPQPKR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, (const char *)&queryFormat.fmt + 3);
-  __asm { vmovss  xmm1, cs:__real@41400000; value }
+  DVARFLT_profileMenuOption_vertsensitivity = Dvar_RegisterFloat("MRKPMKMRQL", 2.0, 1.0, 20.0, 4u, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_profileMenuOption_horzsensitivity = Dvar_RegisterFloat("NQQNNPQPKR", 2.0, 1.0, 20.0, 4u, (const char *)&queryFormat.fmt + 3);
   DVARINT_profileMenuOption_offensiveContentMode = Dvar_RegisterInt("NQPNSRQLRK", 0, 0, 2, 0, "Mode of the offensive content warning at startup - 0, skip and turn on 1, skip and turn off; 2, ask user");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-  }
-  DVARFLT_profileMenuOption_mousehorzsensitivity = Dvar_RegisterFloat("NLQQLQRKSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Mouse sensitivity (horiz).");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_mousevertsensitivity = Dvar_RegisterFloat("LONMSRNMSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Mouse sensitivity multiplier for vertical axis");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm7; value
-  }
-  DVARFLT_profileMenuOption_mouseflighthorzsensitivity = Dvar_RegisterFloat("MKONQNTMKQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Mouse sensitivity during flight (horiz).");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vmovaps xmm2, xmm13; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_profileMenuOption_mouseflightvertsensitivity = Dvar_RegisterFloat("MPKPOPRTLQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Mouse sensitivity multiplier for vertical axis during flight.");
+  DVARFLT_profileMenuOption_mousehorzsensitivity = Dvar_RegisterFloat("NLQQLQRKSM", 12.0, 0.0099999998, 100.0, 4u, "Mouse sensitivity (horiz).");
+  DVARFLT_profileMenuOption_mousevertsensitivity = Dvar_RegisterFloat("LONMSRNMSK", 1.0, 0.0099999998, 2.0, 4u, "Mouse sensitivity multiplier for vertical axis");
+  DVARFLT_profileMenuOption_mouseflighthorzsensitivity = Dvar_RegisterFloat("MKONQNTMKQ", 40.0, 0.0099999998, 100.0, 4u, "Mouse sensitivity during flight (horiz).");
+  DVARFLT_profileMenuOption_mouseflightvertsensitivity = Dvar_RegisterFloat("MPKPOPRTLQ", 1.0, 0.0099999998, 2.0, 4u, "Mouse sensitivity multiplier for vertical axis during flight.");
   DVARBOOL_profileMenuOption_mouseflightinversion = Dvar_RegisterBool("LRTLMMOTML", 0, 4u, "Mouse flight inversion");
   DVARBOOL_profileMenuOption_netRegionHide = Dvar_RegisterBool("MKMOPQKMPO", 0, 4u, "Hide the network info screen region");
   DVARBOOL_profileMenuOption_netExternalIPHide = Dvar_RegisterBool("MTSPMPOSTO", 0, 4u, "Hide the network info screen external ip");
@@ -2916,19 +2379,8 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   DVARBOOL_profileMenuOption_gore = Dvar_RegisterBool("OQLRMLRK", 1, 4u, "Profile option to allow gore");
   DVARBOOL_gamerprofile_parachuteAutoDeploy_optionsAvailable = Dvar_RegisterBool("NMMMNQPNTO", 1, 4u, "Make available the option to activate or deactivate the parachute auto deploy");
   DVARINT_cl_worldStreamingQuality = Dvar_RegisterInt("OMKLNPPNSM", 1, 0, 1, 0, "World streaming quality option");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@46000000
-    vmovss  xmm2, cs:__real@44200000; y
-    vmovss  xmm1, cs:__real@43c80000; x
-  }
   DVARINT_cl_transientWorldMemoryMinMB = Dvar_RegisterInt("TQOTNSOPL", 50, 0, 0x2000, 0, "Minimum bounds of the budget for TRWorld Memory");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovss  [rsp+0D8h+flags], xmm0
-  }
-  DVARVEC2_cl_transientWorldMemoryMaxMB = Dvar_RegisterVec2("LMLPNTMPN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, 0, "Maximum bounds of the budget for TRWorld Memory");
+  DVARVEC2_cl_transientWorldMemoryMaxMB = Dvar_RegisterVec2("LMLPNTMPN", 400.0, 640.0, 0.0, 8192.0, 0, "Maximum bounds of the budget for TRWorld Memory");
   DCONST_DVARINT_cl_streaming_devDelayLoadBase = Dvar_RegisterInt("cl_streaming_devDelayLoadBase", 1000, 0, 60000, 0x40004u, "When set, introduces a minimum load time delay, to simulate.");
   DCONST_DVARINT_cl_streaming_devDelayLoadJitter = Dvar_RegisterInt("cl_streaming_devDelayLoadJitter", 200, 0, 60000, 0x40004u, "When set, introduces randomness to the minimum time delay, to simulate.");
   DCONST_DVARBOOL_cl_streaming_devNoLoad = Dvar_RegisterBool("cl_streaming_devNoLoad", 0, 0x40004u, "When set, prevents actual transients from being loaded");
@@ -2964,19 +2416,6 @@ void __fastcall CL_Main_RegisterCommonDvars(__int64 a1, __int64 a2, double _XMM2
   CG_ModelPreviewer_RegisterCommonDvars();
   CG_CreateFx_RegisterCommonDvars();
   CG_EntityWorkers_RegisterDars();
-  __asm { vmovaps xmm15, [rsp+0D8h+var_98] }
-  _R11 = &v266;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-  }
   Dvar_EndPermanentRegistration();
 }
 
@@ -3059,22 +2498,14 @@ void CL_Main_ResetViewport(void)
 CL_Main_RunOncePerClientFrame
 ==============
 */
-
-void __fastcall CL_Main_RunOncePerClientFrame(int msec, double sec_base, double rawSeconds)
+void CL_Main_RunOncePerClientFrame(int msec, float sec_base, float rawSeconds)
 {
   ClGameModeApplication *ActiveClientApplication; 
-  ClGameModeApplication *v9; 
+  ClGameModeApplication *v5; 
   int i; 
-  ClGameModeApplication *v14; 
-  ClGameModeApplication *v15; 
+  ClGameModeApplication *v7; 
+  ClGameModeApplication *v8; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   Sys_ProfBeginNamedEvent(0xFFD2691E, "CL_Main_RunOncePerClientFrame");
   Sys_AddWorkerCmd(WRKCMD_CL_GETREALTIME, &workerCmdDummy);
   CL_Pause_UpdatePauseState();
@@ -3091,8 +2522,8 @@ void __fastcall CL_Main_RunOncePerClientFrame(int msec, double sec_base, double 
   }
   if ( ClGameModeApplication::HasActiveApplicationGameMode() )
   {
-    v9 = ClGameModeApplication::GetActiveClientApplication();
-    v9->RunDvarValidation(v9);
+    v5 = ClGameModeApplication::GetActiveClientApplication();
+    v5->RunDvarValidation(v5);
   }
   CL_PlayAgain_Frame();
   OnlineDevMap::Pump(&OnlineDevMap::ms_instance);
@@ -3100,8 +2531,7 @@ void __fastcall CL_Main_RunOncePerClientFrame(int msec, double sec_base, double 
   Users_Update();
   ATClient_Update(msec);
   UI_AutoNavigation_Frame();
-  __asm { vmovaps xmm0, xmm6; dT }
-  CL_Cameraman_Update(*(float *)&_XMM0);
+  CL_Cameraman_Update(sec_base);
   if ( !cls.inputUpdatedPrevFrame )
   {
     IN_Frame();
@@ -3111,26 +2541,18 @@ void __fastcall CL_Main_RunOncePerClientFrame(int msec, double sec_base, double 
   cls.inputUpdatedPrevFrame = 0;
   IN_Frame_Mouse();
   cls.realtime += msec;
-  __asm
-  {
-    vmovss  cs:?cls@@3UClStatic@@A.frametime_base, xmm6; ClStatic cls
-    vmovss  cs:?cls@@3UClStatic@@A.frametime_rawSeconds, xmm7; ClStatic cls
-  }
+  cls.frametime_base = sec_base;
+  cls.frametime_rawSeconds = rawSeconds;
   cls.frametime = msec;
-  __asm
+  if ( ClGameModeApplication::HasActiveApplicationGameMode() )
   {
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmovaps xmm6, [rsp+48h+var_18]
+    v7 = ClGameModeApplication::GetActiveClientApplication();
+    v7->RunFrameTimeClamp(v7);
   }
   if ( ClGameModeApplication::HasActiveApplicationGameMode() )
   {
-    v14 = ClGameModeApplication::GetActiveClientApplication();
-    v14->RunFrameTimeClamp(v14);
-  }
-  if ( ClGameModeApplication::HasActiveApplicationGameMode() )
-  {
-    v15 = ClGameModeApplication::GetActiveClientApplication();
-    v15->RunTransientProcessing(v15);
+    v8 = ClGameModeApplication::GetActiveClientApplication();
+    v8->RunTransientProcessing(v8);
   }
   CL_UIStreaming_Update();
   CL_Streaming_Update();
@@ -3192,7 +2614,7 @@ void CL_Main_ShutdownAll(int isRestart, int fullRenderShutdown)
     {
       __asm { vpxor   xmm0, xmm0, xmm0 }
       cls.rendererStarted = 0;
-      __asm { vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.whiteMaterial, xmm0; ClStatic cls }
+      *(_OWORD *)&cls.whiteMaterial = _XMM0;
       cls.consoleFont = NULL;
       R_Shutdown(0, isRestart);
       Con_ShutdownClientAssets();
@@ -3394,7 +2816,7 @@ void __fastcall CL_Main_ShutdownRef(double _XMM0_8)
   R_SyncRenderThread();
   __asm { vpxor   xmm0, xmm0, xmm0 }
   cls.rendererStarted = 0;
-  __asm { vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.whiteMaterial, xmm0; ClStatic cls }
+  *(_OWORD *)&cls.whiteMaterial = _XMM0;
   cls.consoleFont = NULL;
   Com_ScreenShotSaveGame_Terminate();
   R_Shutdown(1, 0);
@@ -3413,11 +2835,8 @@ void CL_Main_ShutdownRenderer(int destroyWindow, int isRestart)
     __debugbreak();
   cls.rendererStarted = 0;
   cls.consoleFont = NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:?cls@@3UClStatic@@A.whiteMaterial, xmm0; ClStatic cls
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&cls.whiteMaterial = _XMM0;
   if ( destroyWindow )
     Com_ScreenShotSaveGame_Terminate();
   R_Shutdown(destroyWindow, isRestart);

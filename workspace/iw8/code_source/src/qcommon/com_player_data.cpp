@@ -602,49 +602,50 @@ void __fastcall Com_PlayerData_CacheStatsGroupData(double _XMM0_8)
   const DDLDef *v12; 
   const DDLDef *v13; 
   const DDLDef *v14; 
-  signed int v27; 
+  signed int v15; 
+  unsigned int v16; 
+  const char *v17; 
+  char v18; 
+  signed int v19; 
+  unsigned int v20; 
+  const char *v21; 
+  char v22; 
+  __int64 v23; 
+  signed int v24; 
+  unsigned int v25; 
+  const char *v26; 
+  char v27; 
+  signed int v28; 
   unsigned int v29; 
   const char *v30; 
   char v31; 
   signed int v32; 
-  unsigned int v34; 
-  const char *v35; 
-  char v36; 
-  __int64 v37; 
-  signed int v38; 
-  unsigned int v40; 
-  const char *v41; 
-  char v42; 
-  signed int v43; 
-  unsigned int v45; 
-  const char *v46; 
-  char v47; 
-  signed int v48; 
-  unsigned int v50; 
-  const char *v51; 
-  char v52; 
+  unsigned int v33; 
+  const char *v34; 
+  char v35; 
   int byteSize; 
-  unsigned int v54; 
-  const char *v55; 
-  char v57; 
-  __int64 v58; 
-  __int64 v59; 
+  unsigned int v37; 
+  const char *v38; 
+  char v39; 
+  __int64 v40; 
+  __int64 v41; 
   DDLState toState; 
   DDLState result; 
   DDLState fromState; 
-  DDLState v63; 
-  DDLState v64; 
-  DDLState v66; 
-  DDLState v67; 
+  DDLState v45; 
+  DDLState v46; 
+  DDLState v47; 
+  DDLState v48; 
+  DDLState v49; 
   unsigned int offsetValue; 
-  const DDLDef *v69; 
-  DDLDef *v70; 
+  const DDLDef *v51; 
+  DDLDef *v52; 
 
   v1 = 0;
   toState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+170h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   offsetValue = 0;
   toState.arrayIndex = -1;
   Asset = DDL::DDL_GetAsset("ddl/mp/commondata.ddl");
@@ -660,69 +661,133 @@ void __fastcall Com_PlayerData_CacheStatsGroupData(double _XMM0_8)
     v11 = v7->ddlDef;
     v12 = v4->ddlDef;
     v13 = v5->ddlDef;
-    v70 = v8->ddlDef;
-    v14 = v70;
-    v69 = v13;
-    _RAX = DDL_GetRootState(&result, ddlDef);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+70h+fromState.isValid], ymm0
-    }
-    _RAX = DDL_GetRootState(&result, v12);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+70h+var_D0.isValid], ymm0
-    }
-    _RAX = DDL_GetRootState(&result, v13);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+70h+var_B0.isValid], ymm0
-    }
-    _RAX = DDL_GetRootState(&result, v10);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+70h+var_90], ymm0
-    }
-    _RAX = DDL_GetRootState(&result, v11);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+170h+result.isValid], ymm0
-    }
-    _RAX = DDL_GetRootState(&v67, v14);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+70h+var_70.isValid], ymm0
-    }
-    v27 = ddlDef->byteSize + 4;
-    if ( v27 >= 14000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 719, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= commonData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", 14000, ddlDef->byteSize + 4) )
+    v52 = v8->ddlDef;
+    v14 = v52;
+    v51 = v13;
+    fromState = *DDL_GetRootState(&result, ddlDef);
+    v45 = *DDL_GetRootState(&result, v12);
+    v46 = *DDL_GetRootState(&result, v13);
+    v47 = *DDL_GetRootState(&result, v10);
+    result = *DDL_GetRootState(&result, v11);
+    v48 = *DDL_GetRootState(&v49, v14);
+    v15 = ddlDef->byteSize + 4;
+    if ( v15 >= 14000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 719, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= commonData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", 14000, ddlDef->byteSize + 4) )
       __debugbreak();
-    if ( v27 - 1 > 4896 )
+    if ( v15 - 1 > 4896 )
     {
-      LODWORD(v59) = ddlDef->byteSize;
-      LODWORD(v58) = 4896;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 722, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tcommonData blob size %d < commonDataDef size %d. Please increase COMMONDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
+      LODWORD(v41) = ddlDef->byteSize;
+      LODWORD(v40) = 4896;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 722, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tcommonData blob size %d < commonDataDef size %d. Please increase COMMONDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
         __debugbreak();
     }
     s_statsBlobData[0].statsOffset = 0;
     s_statsBlobData[0].statsSize = 4896;
-    s_statsBlobData[0].dataSize = v27;
+    s_statsBlobData[0].dataSize = v15;
     Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_COMMON, 4, &offsetValue);
     if ( !DDL_MoveToName(&fromState, &toState, "commonData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 730, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &commonDataRootState, &currentState, \"commonData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &commonDataRootState, &currentState, \"commonData\" )") )
       __debugbreak();
-    __asm
+    s_statsGroupData[2].ddlState = toState;
+    v16 = 0;
+    v17 = "common";
+    v18 = 99;
+    do
     {
-      vmovups ymm0, ymmword ptr [rsp+170h+toState.isValid]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.member+40h, ymm0
+      ++v17;
+      v16 = v18 + 31 * v16;
+      v18 = *v17;
     }
+    while ( *v17 );
+    s_statsGroupData[2].hashName = v16;
+    v19 = v12->byteSize + 4;
+    if ( v19 >= 14000 )
+    {
+      LODWORD(v41) = v12->byteSize + 4;
+      LODWORD(v40) = 14000;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 745, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= mpData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v40, v41) )
+        __debugbreak();
+    }
+    if ( v19 + 4895 > 20808 )
+    {
+      LODWORD(v41) = v12->byteSize;
+      LODWORD(v40) = 15912;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 748, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tmpData blob size %d < mpDataDef size %d. Please increase MPDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
+        __debugbreak();
+    }
+    s_statsBlobData[1].statsOffset = 4896;
+    s_statsBlobData[1].statsSize = 15912;
+    s_statsBlobData[1].dataSize = v19;
+    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_MP, 13, &offsetValue);
+    if ( !DDL_MoveToName(&v45, &toState, "rankedMatchData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 756, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &mpDataRootState, &currentState, \"rankedMatchData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &mpDataRootState, &currentState, \"rankedMatchData\" )") )
+      __debugbreak();
+    s_statsGroupData[0].ddlState = toState;
+    v20 = 0;
+    v21 = "mp";
+    v22 = 109;
+    do
+    {
+      ++v21;
+      v20 = v22 + 31 * v20;
+      v22 = *v21;
+    }
+    while ( *v21 );
+    v23 = (__int64)v51;
+    s_statsGroupData[0].hashName = v20;
+    v24 = v51->byteSize + 4;
+    if ( v24 >= 14000 )
+    {
+      LODWORD(v41) = v51->byteSize + 4;
+      LODWORD(v40) = 14000;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 772, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= cpData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v40, v41) )
+        __debugbreak();
+    }
+    if ( v24 + 30599 > 45288 )
+    {
+      LODWORD(v41) = *(_DWORD *)(v23 + 36);
+      LODWORD(v40) = 14688;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 775, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tcpData blob size %d < cpDataDef size %d. Please increase CPDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
+        __debugbreak();
+    }
+    s_statsBlobData[2].statsOffset = 30600;
+    s_statsBlobData[2].statsSize = 14688;
+    s_statsBlobData[2].dataSize = v24;
+    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_CP, 12, &offsetValue);
+    if ( !DDL_MoveToName(&v46, &toState, "coopMatchData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 783, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &cpDataRootState, &currentState, \"coopMatchData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &cpDataRootState, &currentState, \"coopMatchData\" )") )
+      __debugbreak();
+    s_statsGroupData[1].ddlState = toState;
+    v25 = 0;
+    v26 = "cp";
+    v27 = 99;
+    do
+    {
+      ++v26;
+      v25 = v27 + 31 * v25;
+      v27 = *v26;
+    }
+    while ( *v26 );
+    s_statsGroupData[1].hashName = v25;
+    v28 = v10->byteSize + 4;
+    if ( v28 >= 14000 )
+    {
+      LODWORD(v41) = v10->byteSize + 4;
+      LODWORD(v40) = 14000;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 798, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= rankedLoadoutsData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v40, v41) )
+        __debugbreak();
+    }
+    if ( v28 + 20807 > 25704 )
+    {
+      LODWORD(v41) = v10->byteSize;
+      LODWORD(v40) = 4896;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 801, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\trankedLoadoutsData blob size %d < rankedLoadoutsDef size %d. Please increase RANKEDLOADOUTS_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
+        __debugbreak();
+    }
+    s_statsBlobData[3].statsOffset = 20808;
+    s_statsBlobData[3].statsSize = 4896;
+    s_statsBlobData[3].dataSize = v28;
+    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_RANKEDLOADOUTS, 4, &offsetValue);
+    s_statsGroupData[3].ddlState = v47;
     v29 = 0;
-    v30 = "common";
-    v31 = 99;
+    v30 = "rankedloadouts";
+    v31 = 114;
     do
     {
       ++v30;
@@ -730,181 +795,63 @@ void __fastcall Com_PlayerData_CacheStatsGroupData(double _XMM0_8)
       v31 = *v30;
     }
     while ( *v30 );
-    s_statsGroupData[2].hashName = v29;
-    v32 = v12->byteSize + 4;
+    s_statsGroupData[3].hashName = v29;
+    v32 = v11->byteSize + 4;
     if ( v32 >= 14000 )
     {
-      LODWORD(v59) = v12->byteSize + 4;
-      LODWORD(v58) = 14000;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 745, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= mpData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v58, v59) )
+      LODWORD(v41) = v11->byteSize + 4;
+      LODWORD(v40) = 14000;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 824, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= privateLoadoutsData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v40, v41) )
         __debugbreak();
     }
-    if ( v32 + 4895 > 20808 )
+    if ( v32 + 25703 > 30600 )
     {
-      LODWORD(v59) = v12->byteSize;
-      LODWORD(v58) = 15912;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 748, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tmpData blob size %d < mpDataDef size %d. Please increase MPDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
-        __debugbreak();
-    }
-    s_statsBlobData[1].statsOffset = 4896;
-    s_statsBlobData[1].statsSize = 15912;
-    s_statsBlobData[1].dataSize = v32;
-    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_MP, 13, &offsetValue);
-    if ( !DDL_MoveToName(&v63, &toState, "rankedMatchData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 756, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &mpDataRootState, &currentState, \"rankedMatchData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &mpDataRootState, &currentState, \"rankedMatchData\" )") )
-      __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+170h+toState.isValid]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.isValid, ymm0
-    }
-    v34 = 0;
-    v35 = "mp";
-    v36 = 109;
-    do
-    {
-      ++v35;
-      v34 = v36 + 31 * v34;
-      v36 = *v35;
-    }
-    while ( *v35 );
-    v37 = (__int64)v69;
-    s_statsGroupData[0].hashName = v34;
-    v38 = v69->byteSize + 4;
-    if ( v38 >= 14000 )
-    {
-      LODWORD(v59) = v69->byteSize + 4;
-      LODWORD(v58) = 14000;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 772, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= cpData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v58, v59) )
-        __debugbreak();
-    }
-    if ( v38 + 30599 > 45288 )
-    {
-      LODWORD(v59) = *(_DWORD *)(v37 + 36);
-      LODWORD(v58) = 14688;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 775, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tcpData blob size %d < cpDataDef size %d. Please increase CPDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
-        __debugbreak();
-    }
-    s_statsBlobData[2].statsOffset = 30600;
-    s_statsBlobData[2].statsSize = 14688;
-    s_statsBlobData[2].dataSize = v38;
-    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_CP, 12, &offsetValue);
-    if ( !DDL_MoveToName(&v64, &toState, "coopMatchData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 783, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &cpDataRootState, &currentState, \"coopMatchData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &cpDataRootState, &currentState, \"coopMatchData\" )") )
-      __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+170h+toState.isValid]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.arrayIndex+20h, ymm0
-    }
-    v40 = 0;
-    v41 = "cp";
-    v42 = 99;
-    do
-    {
-      ++v41;
-      v40 = v42 + 31 * v40;
-      v42 = *v41;
-    }
-    while ( *v41 );
-    s_statsGroupData[1].hashName = v40;
-    v43 = v10->byteSize + 4;
-    if ( v43 >= 14000 )
-    {
-      LODWORD(v59) = v10->byteSize + 4;
-      LODWORD(v58) = 14000;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 798, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= rankedLoadoutsData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v58, v59) )
-        __debugbreak();
-    }
-    if ( v43 + 20807 > 25704 )
-    {
-      LODWORD(v59) = v10->byteSize;
-      LODWORD(v58) = 4896;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 801, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\trankedLoadoutsData blob size %d < rankedLoadoutsDef size %d. Please increase RANKEDLOADOUTS_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
-        __debugbreak();
-    }
-    s_statsBlobData[3].statsOffset = 20808;
-    s_statsBlobData[3].statsSize = 4896;
-    s_statsBlobData[3].dataSize = v43;
-    Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_RANKEDLOADOUTS, 4, &offsetValue);
-    __asm
-    {
-      vmovups ymm0, [rbp+70h+var_90]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.ddlDef+60h, ymm0
-    }
-    v45 = 0;
-    v46 = "rankedloadouts";
-    v47 = 114;
-    do
-    {
-      ++v46;
-      v45 = v47 + 31 * v45;
-      v47 = *v46;
-    }
-    while ( *v46 );
-    s_statsGroupData[3].hashName = v45;
-    v48 = v11->byteSize + 4;
-    if ( v48 >= 14000 )
-    {
-      LODWORD(v59) = v11->byteSize + 4;
-      LODWORD(v58) = 14000;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 824, ASSERT_TYPE_ASSERT, "(dataSize < ( 14000 ))", "%s\n\tMAX_STATSGROUP_DATASIZE (%d) <= privateLoadoutsData dataSize (%d). Please increase MAX_STATSGROUP_DATASIZE\n", "dataSize < MAX_STATSGROUP_DATASIZE", v58, v59) )
-        __debugbreak();
-    }
-    if ( v48 + 25703 > 30600 )
-    {
-      LODWORD(v59) = v11->byteSize;
-      LODWORD(v58) = 4896;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 827, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tprivateLoadoutsData blob size %d < privateLoadoutsDef size %d. Please increase PRIVATELOADOUTS_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
+      LODWORD(v41) = v11->byteSize;
+      LODWORD(v40) = 4896;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 827, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tprivateLoadoutsData blob size %d < privateLoadoutsDef size %d. Please increase PRIVATELOADOUTS_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
         __debugbreak();
     }
     s_statsBlobData[4].statsOffset = 25704;
     s_statsBlobData[4].statsSize = 4896;
-    s_statsBlobData[4].dataSize = v48;
+    s_statsBlobData[4].dataSize = v32;
     Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_PRIVATELOADOUTS, 4, &offsetValue);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+170h+result.isValid]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.isValid+0A0h, ymm0
-    }
-    v50 = 0;
-    v51 = "privateloadouts";
-    v52 = 112;
+    s_statsGroupData[4].ddlState = result;
+    v33 = 0;
+    v34 = "privateloadouts";
+    v35 = 112;
     do
     {
-      ++v51;
-      v50 = v52 + 31 * v50;
-      v52 = *v51;
+      ++v34;
+      v33 = v35 + 31 * v33;
+      v35 = *v34;
     }
-    while ( *v51 );
-    s_statsGroupData[4].hashName = v50;
-    byteSize = v70->byteSize;
-    v54 = byteSize + 4;
+    while ( *v34 );
+    s_statsGroupData[4].hashName = v33;
+    byteSize = v52->byteSize;
+    v37 = byteSize + 4;
     if ( byteSize + 45291 > 66096 )
     {
-      LODWORD(v59) = v70->byteSize;
-      LODWORD(v58) = 20808;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 854, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tnonGameData blob size %d < nonGameDataDef size %d. Please increase NONGAMEDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v58, v59) )
+      LODWORD(v41) = v52->byteSize;
+      LODWORD(v40) = 20808;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 854, ASSERT_TYPE_ASSERT, "(( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize ))", "%s\n\tnonGameData blob size %d < nonGameDataDef size %d. Please increase NONGAMEDATA_SIZE\n", "( rangeStart + dataSize - 1 ) <= ( rangeStart + rangeSize )", v40, v41) )
         __debugbreak();
     }
     s_statsBlobData[5].statsOffset = 45288;
     s_statsBlobData[5].statsSize = 20808;
-    s_statsBlobData[5].dataSize = v54;
+    s_statsBlobData[5].dataSize = v37;
     Com_PlayerData_SetupPacketValuesForStatsGroup(STATS_BLOB_NONGAME, 17, &offsetValue);
-    v55 = "nonGameData";
-    if ( !DDL_MoveToName(&v66, &toState, "nonGameData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 862, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &nonGameDataRootState, &currentState, \"nonGameData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &nonGameDataRootState, &currentState, \"nonGameData\" )") )
+    v38 = "nonGameData";
+    if ( !DDL_MoveToName(&v48, &toState, "nonGameData") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 862, ASSERT_TYPE_ASSERT, "(DDL_MoveToName( &nonGameDataRootState, &currentState, \"nonGameData\" ))", (const char *)&queryFormat, "DDL_MoveToName( &nonGameDataRootState, &currentState, \"nonGameData\" )") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+170h+toState.isValid]
-      vmovups ymmword ptr cs:s_statsGroupData.ddlState.arrayIndex+0C0h, ymm0
-    }
-    v57 = 110;
+    s_statsGroupData[5].ddlState = toState;
+    v39 = 110;
     do
     {
-      ++v55;
-      v1 = v57 + 31 * v1;
-      v57 = *v55;
+      ++v38;
+      v1 = v39 + 31 * v1;
+      v39 = *v38;
     }
-    while ( *v55 );
+    while ( *v38 );
     s_statsGroupData[5].hashName = v1;
   }
 }
@@ -996,21 +943,16 @@ bool Com_PlayerData_GetArrayBoolByIndex(const DDLContext *buffer, const scr_stri
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v13; 
-  const char *v15; 
+  const char *v12; 
+  const char *v14; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 144, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 144, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 147, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -1025,15 +967,15 @@ bool Com_PlayerData_GetArrayBoolByIndex(const DDLContext *buffer, const scr_stri
     }
     else
     {
-      v15 = SL_ConvertToString(arrayName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 861i64, (unsigned int)itemIndex, v15);
+      v14 = SL_ConvertToString(arrayName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 861i64, (unsigned int)itemIndex, v14);
       return 0;
     }
   }
   else
   {
-    v13 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 860i64, v13);
+    v12 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 860i64, v12);
     return 0;
   }
 }
@@ -1047,23 +989,18 @@ bool Com_PlayerData_GetArrayBoolByName(const DDLContext *buffer, const scr_strin
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v13; 
-  unsigned int v15; 
+  const char *v12; 
+  unsigned int v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 112, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 112, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   if ( !itemName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 113, ASSERT_TYPE_ASSERT, "(itemName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "itemName != NULL_SCR_STRING") )
     __debugbreak();
@@ -1074,23 +1011,23 @@ bool Com_PlayerData_GetArrayBoolByName(const DDLContext *buffer, const scr_strin
   RawHash = j_SL_GetRawHash(arrayName);
   if ( DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v15 = j_SL_GetRawHash(itemName);
-    if ( DDL_MoveToNameByHash(&state, &state, v15, NULL) )
+    v14 = j_SL_GetRawHash(itemName);
+    if ( DDL_MoveToNameByHash(&state, &state, v14, NULL) )
     {
       return DDL_GetBool(&state, buffer);
     }
     else
     {
-      v16 = SL_ConvertToString(arrayName);
-      v17 = SL_ConvertToString(itemName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE67F0, 859i64, v17, v16);
+      v15 = SL_ConvertToString(arrayName);
+      v16 = SL_ConvertToString(itemName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE67F0, 859i64, v16, v15);
       return 0;
     }
   }
   else
   {
-    v13 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE67A8, 858i64, v13);
+    v12 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE67A8, 858i64, v12);
     return 0;
   }
 }
@@ -1104,21 +1041,16 @@ int Com_PlayerData_GetArrayIntByIndex(const DDLContext *buffer, const scr_string
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v13; 
-  const char *v15; 
+  const char *v12; 
+  const char *v14; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 259, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 259, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 262, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -1133,15 +1065,15 @@ int Com_PlayerData_GetArrayIntByIndex(const DDLContext *buffer, const scr_string
     }
     else
     {
-      v15 = SL_ConvertToString(arrayName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 869i64, (unsigned int)itemIndex, v15);
+      v14 = SL_ConvertToString(arrayName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 869i64, (unsigned int)itemIndex, v14);
       return 0;
     }
   }
   else
   {
-    v13 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A70, 868i64, v13);
+    v12 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A70, 868i64, v12);
     return 0;
   }
 }
@@ -1155,23 +1087,18 @@ int Com_PlayerData_GetArrayIntByName(const DDLContext *buffer, const scr_string_
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v13; 
-  unsigned int v15; 
+  const char *v12; 
+  unsigned int v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 226, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 226, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   if ( !itemName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 227, ASSERT_TYPE_ASSERT, "(itemName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "itemName != NULL_SCR_STRING") )
     __debugbreak();
@@ -1182,23 +1109,23 @@ int Com_PlayerData_GetArrayIntByName(const DDLContext *buffer, const scr_string_
   RawHash = j_SL_GetRawHash(arrayName);
   if ( DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v15 = j_SL_GetRawHash(itemName);
-    if ( DDL_MoveToNameByHash(&state, &state, v15, NULL) )
+    v14 = j_SL_GetRawHash(itemName);
+    if ( DDL_MoveToNameByHash(&state, &state, v14, NULL) )
     {
       return DDL_GetInt(&state, buffer);
     }
     else
     {
-      v16 = SL_ConvertToString(arrayName);
-      v17 = SL_ConvertToString(itemName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A10, 867i64, v17, v16);
+      v15 = SL_ConvertToString(arrayName);
+      v16 = SL_ConvertToString(itemName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A10, 867i64, v16, v15);
       return 0;
     }
   }
   else
   {
-    v13 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE69C0, 866i64, v13);
+    v12 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE69C0, 866i64, v12);
     return 0;
   }
 }
@@ -1212,21 +1139,16 @@ const char *Com_PlayerData_GetArrayStringByIndex(const DDLContext *buffer, const
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v13; 
-  const char *v15; 
+  const char *v12; 
+  const char *v14; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 339, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 339, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 342, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -1241,15 +1163,15 @@ const char *Com_PlayerData_GetArrayStringByIndex(const DDLContext *buffer, const
     }
     else
     {
-      v15 = SL_ConvertToString(arrayName);
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 5889i64, (unsigned int)itemIndex, v15);
+      v14 = SL_ConvertToString(arrayName);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 5889i64, (unsigned int)itemIndex, v14);
       return 0i64;
     }
   }
   else
   {
-    v13 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A70, 5888i64, v13);
+    v12 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6A70, 5888i64, v12);
     return 0i64;
   }
 }
@@ -1270,11 +1192,8 @@ const char *Com_PlayerData_GetCamoNameFromIndex(const int camoIndex)
   DDLState state; 
   unsigned int path[6]; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v3 = camoIndex;
   v4 = (char *)&queryFormat.fmt + 3;
   state.isValid = 0;
@@ -1535,8 +1454,8 @@ __int64 Com_PlayerData_GetPrestigeLevel(const DDLContext *buffer)
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  unsigned int v11; 
-  unsigned int v12; 
+  unsigned int v8; 
+  unsigned int v9; 
   DDLState toState; 
   DDLState fromState; 
   DDLState result; 
@@ -1545,19 +1464,15 @@ __int64 Com_PlayerData_GetPrestigeLevel(const DDLContext *buffer)
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+98h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 591, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def", *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member, toState.ddlDef) )
     __debugbreak();
   if ( g_useStatsGroups->current.enabled )
   {
+    fromState = s_statsGroupData[0].ddlState;
     __asm
     {
-      vmovups ymm0, ymmword ptr cs:s_statsGroupData.ddlState.isValid
-      vmovups ymmword ptr [rsp+98h+fromState.isValid], ymm0
       vextractf128 xmm0, ymm0, 1
       vpextrq rax, xmm0, 1
     }
@@ -1567,19 +1482,14 @@ __int64 Com_PlayerData_GetPrestigeLevel(const DDLContext *buffer)
   }
   else
   {
-    _RAX = DDL_GetRootState(&result, def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+98h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, def);
   }
   RawHash = j_SL_GetRawHash(scr_const.progression);
   DDL_MoveToNameByHash(&fromState, &toState, RawHash, NULL);
-  v11 = j_SL_GetRawHash(scr_const.playerLevel);
-  DDL_MoveToNameByHash(&toState, &toState, v11, NULL);
-  v12 = j_SL_GetRawHash(scr_const.prestige);
-  DDL_MoveToNameByHash(&toState, &toState, v12, NULL);
+  v8 = j_SL_GetRawHash(scr_const.playerLevel);
+  DDL_MoveToNameByHash(&toState, &toState, v8, NULL);
+  v9 = j_SL_GetRawHash(scr_const.prestige);
+  DDL_MoveToNameByHash(&toState, &toState, v9, NULL);
   return DDL_GetShort(&toState, buffer);
 }
 
@@ -2009,11 +1919,8 @@ const char *Com_PlayerData_GetWeaponNameFromIndex(const int weaponIndex)
   DDLState state; 
   unsigned int path[6]; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   v3 = weaponIndex;
   v4 = (char *)&queryFormat.fmt + 3;
   state.isValid = 0;
@@ -2079,21 +1986,16 @@ void Com_PlayerData_SetArrayBoolByIndex(DDLContext *buffer, const scr_string_t a
 {
   const DDLDef *def; 
   unsigned int RawHash; 
+  const char *v13; 
   const char *v14; 
-  const char *v15; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 200, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 200, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 203, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -2102,13 +2004,13 @@ void Com_PlayerData_SetArrayBoolByIndex(DDLContext *buffer, const scr_string_t a
   RawHash = j_SL_GetRawHash(arrayName);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v14 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 864i64, v14);
+    v13 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 864i64, v13);
   }
   if ( !DDL_MoveToIndex(&state, &state, itemIndex) )
   {
-    v15 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 865i64, (unsigned int)itemIndex, v15);
+    v14 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE68A0, 865i64, (unsigned int)itemIndex, v14);
   }
   DDL_SetBool(&state, buffer, value);
 }
@@ -2122,23 +2024,18 @@ void Com_PlayerData_SetArrayBoolByName(DDLContext *buffer, const scr_string_t ar
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v14; 
-  unsigned int v15; 
+  const char *v13; 
+  unsigned int v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 175, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 175, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 178, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -2147,15 +2044,15 @@ void Com_PlayerData_SetArrayBoolByName(DDLContext *buffer, const scr_string_t ar
   RawHash = j_SL_GetRawHash(arrayName);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v14 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6900, 862i64, v14);
+    v13 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6900, 862i64, v13);
   }
-  v15 = j_SL_GetRawHash(itemName);
-  if ( !DDL_MoveToNameByHash(&state, &state, v15, NULL) )
+  v14 = j_SL_GetRawHash(itemName);
+  if ( !DDL_MoveToNameByHash(&state, &state, v14, NULL) )
   {
-    v16 = SL_ConvertToString(arrayName);
-    v17 = SL_ConvertToString(itemName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6960, 863i64, v17, v16);
+    v15 = SL_ConvertToString(arrayName);
+    v16 = SL_ConvertToString(itemName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6960, 863i64, v16, v15);
   }
   DDL_SetBool(&state, buffer, value);
 }
@@ -2169,21 +2066,16 @@ void Com_PlayerData_SetArrayIntByIndex(DDLContext *buffer, const scr_string_t ar
 {
   const DDLDef *def; 
   unsigned int RawHash; 
+  const char *v13; 
   const char *v14; 
-  const char *v15; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 314, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 314, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 317, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -2192,13 +2084,13 @@ void Com_PlayerData_SetArrayIntByIndex(DDLContext *buffer, const scr_string_t ar
   RawHash = j_SL_GetRawHash(arrayName);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v14 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 872i64, v14);
+    v13 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 872i64, v13);
   }
   if ( !DDL_MoveToIndex(&state, &state, itemIndex) )
   {
-    v15 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6AC0, 873i64, (unsigned int)itemIndex, v15);
+    v14 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6AC0, 873i64, (unsigned int)itemIndex, v14);
   }
   DDL_SetInt(&state, buffer, value);
 }
@@ -2212,23 +2104,18 @@ void Com_PlayerData_SetArrayIntByName(DDLContext *buffer, const scr_string_t arr
 {
   const DDLDef *def; 
   unsigned int RawHash; 
-  const char *v14; 
-  unsigned int v15; 
+  const char *v13; 
+  unsigned int v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
   DDLState state; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-28h], xmm0
-  }
-  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 289, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  if ( !arrayName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 289, ASSERT_TYPE_ASSERT, "(arrayName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "arrayName != NULL_SCR_STRING", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
     __debugbreak();
   def = buffer->def;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 292, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
@@ -2237,15 +2124,15 @@ void Com_PlayerData_SetArrayIntByName(DDLContext *buffer, const scr_string_t arr
   RawHash = j_SL_GetRawHash(arrayName);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
   {
-    v14 = SL_ConvertToString(arrayName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 870i64, v14);
+    v13 = SL_ConvertToString(arrayName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6850, 870i64, v13);
   }
-  v15 = j_SL_GetRawHash(itemName);
-  if ( !DDL_MoveToNameByHash(&state, &state, v15, NULL) )
+  v14 = j_SL_GetRawHash(itemName);
+  if ( !DDL_MoveToNameByHash(&state, &state, v14, NULL) )
   {
-    v16 = SL_ConvertToString(arrayName);
-    v17 = SL_ConvertToString(itemName);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6960, 871i64, v17, v16);
+    v15 = SL_ConvertToString(arrayName);
+    v16 = SL_ConvertToString(itemName);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143EE6960, 871i64, v16, v15);
   }
   DDL_SetInt(&state, buffer, value);
 }
@@ -2303,41 +2190,34 @@ Com_PlayerData_SetupPacketValuesForStatsGroup
 */
 void Com_PlayerData_SetupPacketValuesForStatsGroup(StatsBlobId statsBlobId, const int maxPackets, unsigned int *offsetValue)
 {
-  __int64 v4; 
-  __int64 v7; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v3; 
+  __int64 v6; 
+  __int64 v9; 
+  __int64 v10; 
 
-  v4 = statsBlobId;
+  v3 = statsBlobId;
   if ( (unsigned int)statsBlobId >= STATS_BLOB_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 624, ASSERT_TYPE_ASSERT, "(unsigned)( statsBlobId ) < (unsigned)( ( sizeof( *array_counter( s_statsBlobData ) ) + 0 ) )", "statsBlobId doesn't index ARRAY_COUNT( s_statsBlobData )\n\t%i not in [0, %i)", statsBlobId, 6) )
     __debugbreak();
-  v7 = v4;
-  s_statsBlobData[v7].bitmask = 0i64;
-  s_statsBlobData[v7].maxStatPackets = maxPackets;
-  s_statsBlobData[v7].bitoffset = *offsetValue;
+  v6 = v3;
+  s_statsBlobData[v6].bitmask = 0i64;
+  s_statsBlobData[v6].maxStatPackets = maxPackets;
+  s_statsBlobData[v6].bitoffset = *offsetValue;
   if ( maxPackets + *offsetValue > 0x36 )
   {
-    LODWORD(v14) = maxPackets + *offsetValue;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 632, ASSERT_TYPE_ASSERT, "(( offsetValue + maxPackets ) <= 54u)", "%s\n\toffsetValue (%u) is larger than the given bitmask (%d), increase the type size of MAX_STATPACKETS", "( offsetValue + maxPackets ) <= MAX_STATPACKETS", v14, 54) )
+    LODWORD(v9) = maxPackets + *offsetValue;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 632, ASSERT_TYPE_ASSERT, "(( offsetValue + maxPackets ) <= 54u)", "%s\n\toffsetValue (%u) is larger than the given bitmask (%d), increase the type size of MAX_STATPACKETS", "( offsetValue + maxPackets ) <= MAX_STATPACKETS", v9, 54) )
       __debugbreak();
   }
-  __asm
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 2 }
+  if ( (int)*(float *)&_XMM4 > maxPackets )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm2, xmm0, cs:__real@3a52ba08
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 2
-    vcvttss2si eax, xmm4
-  }
-  if ( _EAX > maxPackets )
-  {
-    LODWORD(v15) = v4;
-    LODWORD(v14) = maxPackets;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 633, ASSERT_TYPE_ASSERT, "(FastCeil( static_cast< float >( statsGroupBlob->dataSize ) / static_cast< float >( ( 1270 - 16 - 2 ) - ( 8 ) ) ) <= maxPackets)", "%s\n\tStats data did not fit into %d fragmented packets. Increase the stat packet data for blob %d", "FastCeil( static_cast< float >( statsGroupBlob->dataSize ) / static_cast< float >( MAX_NETWORK_PACKETLEN - STATPACKET_HEADERSIZE ) ) <= maxPackets", v14, v15) )
+    LODWORD(v10) = v3;
+    LODWORD(v9) = maxPackets;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 633, ASSERT_TYPE_ASSERT, "(FastCeil( static_cast< float >( statsGroupBlob->dataSize ) / static_cast< float >( ( 1270 - 16 - 2 ) - ( 8 ) ) ) <= maxPackets)", "%s\n\tStats data did not fit into %d fragmented packets. Increase the stat packet data for blob %d", "FastCeil( static_cast< float >( statsGroupBlob->dataSize ) / static_cast< float >( MAX_NETWORK_PACKETLEN - STATPACKET_HEADERSIZE ) ) <= maxPackets", v9, v10) )
       __debugbreak();
   }
-  s_statsBlobData[v7].bitmask = ((1i64 << *offsetValue) - 1) ^ ((1i64 << ((unsigned __int8)*offsetValue + (unsigned __int8)maxPackets)) - 1);
+  s_statsBlobData[v6].bitmask = ((1i64 << *offsetValue) - 1) ^ ((1i64 << ((unsigned __int8)*offsetValue + (unsigned __int8)maxPackets)) - 1);
   *offsetValue += maxPackets;
 }
 
@@ -2399,32 +2279,20 @@ void LiveStorage_InitializeDDLStateForStatsGroup(const DDLDef *def, DDLState *st
   DDLState result; 
 
   v3 = statsGroup;
-  _RBX = state;
   if ( !def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 591, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 592, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+  if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 592, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
   if ( (_DWORD)v3 == 7 || !g_useStatsGroups->current.enabled )
   {
-    _RAX = DDL_GetRootState(&result, def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    *state = *DDL_GetRootState(&result, def);
   }
   else
   {
-    _RDX = 5 * v3;
-    _RAX = s_statsGroupData;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+rdx*8]
-      vmovups ymmword ptr [rbx], ymm0
-    }
-    if ( _RBX->ddlDef != def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 602, ASSERT_TYPE_ASSERT, "(state->ddlDef == def)", "%s\n\tplayerdata.ddl has moved locations in memory.", "state->ddlDef == def") )
+    *state = s_statsGroupData[v3].ddlState;
+    if ( state->ddlDef != def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_player_data.cpp", 602, ASSERT_TYPE_ASSERT, "(state->ddlDef == def)", "%s\n\tplayerdata.ddl has moved locations in memory.", "state->ddlDef == def") )
       __debugbreak();
-    _RBX->ddlDef = def;
+    state->ddlDef = def;
   }
 }
 

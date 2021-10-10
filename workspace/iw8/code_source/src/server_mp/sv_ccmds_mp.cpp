@@ -954,7 +954,7 @@ void __fastcall SV_GetMatchData_f(double _XMM0_8)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   if ( Com_IsGameLocalServerRunning() )
   {
@@ -1026,7 +1026,7 @@ void __fastcall SV_GetClientMatchData_f(double _XMM0_8)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
   if ( SvGameGlobalsMP->clientMatchData.def[0] )
@@ -1091,7 +1091,7 @@ void __fastcall SV_GetCodcasterClientMatchData_f(double _XMM0_8)
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
   state.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.arrayIndex = -1;
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
   if ( SvGameGlobalsMP->codcasterClientMatchData.def[0] )
@@ -1747,35 +1747,29 @@ char SV_CmdsMP_KickClient(SvClientMP *cl, char *playerNameOut, int maxPlayerName
   unsigned __int64 v7; 
   char dest[64]; 
 
-  _RDI = playerGuidOut;
   v7 = maxPlayerNameLen;
-  _RBX = cl;
   if ( !cl && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1451, ASSERT_TYPE_ASSERT, "( cl )", (const char *)&queryFormat, "cl") )
     __debugbreak();
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1452, ASSERT_TYPE_ASSERT, "( !SvPersistentGlobalsMP::IsFrontEndServer() )", (const char *)&queryFormat, "!SvPersistentGlobalsMP::IsFrontEndServer()") )
     __debugbreak();
-  if ( !NetConnection::IsLoopback(&_RBX->clientConnection) || NetConnection::IsBot(&_RBX->clientConnection) )
+  if ( !NetConnection::IsLoopback(&cl->clientConnection) || NetConnection::IsBot(&cl->clientConnection) )
   {
     if ( playerNameOut )
     {
-      Core_strcpy(playerNameOut, v7, _RBX->name);
+      Core_strcpy(playerNameOut, v7, cl->name);
       I_CleanStr(playerNameOut);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1491, ASSERT_TYPE_ASSERT, "(playerGuidOut)", (const char *)&queryFormat, "playerGuidOut") )
+      if ( !playerGuidOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1491, ASSERT_TYPE_ASSERT, "(playerGuidOut)", (const char *)&queryFormat, "playerGuidOut") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+3C1C0h]
-        vmovups xmmword ptr [rdi], xmm0
-      }
-      *((_DWORD *)_RDI + 4) = *(_DWORD *)&_RBX->playerGuid[16];
-      _RDI[20] = _RBX->playerGuid[20];
+      *(_OWORD *)playerGuidOut = *(_OWORD *)cl->playerGuid;
+      *((_DWORD *)playerGuidOut + 4) = *(_DWORD *)&cl->playerGuid[16];
+      playerGuidOut[20] = cl->playerGuid[20];
     }
-    else if ( _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1496, ASSERT_TYPE_ASSERT, "(playerGuidOut == 0)", (const char *)&queryFormat, "playerGuidOut == NULL") )
+    else if ( playerGuidOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 1496, ASSERT_TYPE_ASSERT, "(playerGuidOut == 0)", (const char *)&queryFormat, "playerGuidOut == NULL") )
     {
       __debugbreak();
     }
-    SV_ClientMP_DropClient(_RBX, reason, 1);
-    _RBX->lastPacketTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
+    SV_ClientMP_DropClient(cl, reason, 1);
+    cl->lastPacketTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
   }
   else
   {
@@ -2392,43 +2386,43 @@ void __fastcall SV_SendMatchData_UpdateMatchData(double _XMM0_8)
   const DDLDef *Asset; 
   unsigned int RawHash; 
   unsigned int CurrentMatchId; 
+  unsigned int v6; 
   unsigned int v8; 
-  unsigned int v9; 
   unsigned __int64 TournamentID; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
   unsigned __int64 MatchId; 
   unsigned __int64 CurrentLobbyId; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
   unsigned __int64 BootId; 
   unsigned int AdvertisedPatchVersion; 
   unsigned int ProtocolVersion; 
+  unsigned int v19; 
   unsigned int v20; 
   unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
   DWServicesAccess *Instance; 
   unsigned int TitleID; 
   const ServerTiming *Current; 
-  unsigned int v27; 
-  unsigned int v31; 
+  unsigned int v26; 
+  unsigned int v29; 
+  unsigned int v32; 
   unsigned int v35; 
-  unsigned int v39; 
-  unsigned int v40; 
+  unsigned int v36; 
   const char *CountryCodeString; 
-  unsigned int v42; 
+  unsigned int v38; 
   const char *RegionString; 
-  unsigned int v44; 
+  unsigned int v40; 
   const char *CityString; 
-  unsigned int v46; 
-  unsigned int v47; 
-  unsigned int v49; 
-  unsigned int v51; 
+  unsigned int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  unsigned int v45; 
   const char *TimezoneString; 
-  unsigned int v53; 
+  unsigned int v47; 
   unsigned __int16 WeaponMapHighWatermark; 
-  unsigned int v55; 
+  unsigned int v49; 
   DDLState fromState; 
   DDLState toState; 
   float lat; 
@@ -2441,10 +2435,10 @@ void __fastcall SV_SendMatchData_UpdateMatchData(double _XMM0_8)
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   if ( SvPersistentGlobalsMP::GetPersistentGlobalsMP()->frontEndState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 2473, ASSERT_TYPE_ASSERT, "( !SvPersistentGlobalsMP::IsFrontEndServer() )", (const char *)&queryFormat, "!SvPersistentGlobalsMP::IsFrontEndServer()", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef, *(_QWORD *)&toState.isValid, *(_QWORD *)&toState.arrayIndex, toState.member, toState.ddlDef) )
@@ -2452,19 +2446,11 @@ void __fastcall SV_SendMatchData_UpdateMatchData(double _XMM0_8)
   SvGameGlobalsMP = SvGameGlobalsMP::GetSvGameGlobalsMP();
   Asset = Com_DDL_LoadAsset(SvGameGlobalsMP->matchDataDef);
   Com_DDL_CreateContext(SvGameGlobalsMP->matchData, 2048, Asset, &ddlContext, NULL, NULL);
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+57h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   if ( GameBattles_IsGameBattleActive() )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+57h+result.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&result.member = _XMM0;
     result.isValid = 0;
     result.offset = 0;
     result.arrayIndex = -1;
@@ -2472,128 +2458,111 @@ void __fastcall SV_SendMatchData_UpdateMatchData(double _XMM0_8)
     DDL_MoveToNameByHash(&fromState, &result, RawHash, NULL);
     DDL_SetBool(&result, &ddlContext, 1);
     CurrentMatchId = GameBattles_GetCurrentMatchId();
-    v8 = j_SL_GetRawHash(scr_const.mlgGameBattleMatchId);
-    DDL_MoveToNameByHash(&fromState, &result, v8, NULL);
+    v6 = j_SL_GetRawHash(scr_const.mlgGameBattleMatchId);
+    DDL_MoveToNameByHash(&fromState, &result, v6, NULL);
     DDL_SetUInt(&result, &ddlContext, CurrentMatchId);
   }
   if ( SV_OnlineTournament_IsInTournament() )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+57h+result.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&result.member = _XMM0;
     result.isValid = 0;
     result.offset = 0;
     result.arrayIndex = -1;
-    v9 = j_SL_GetRawHash(scr_const.tournamentId);
-    if ( !DDL_MoveToNameByHash(&fromState, &result, v9, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 2498, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &currentState, &tempState, SL_GetRawHash( scr_const.tournamentId ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &currentState, &tempState, SL_GetRawHash( scr_const.tournamentId ) )", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
+    v8 = j_SL_GetRawHash(scr_const.tournamentId);
+    if ( !DDL_MoveToNameByHash(&fromState, &result, v8, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 2498, ASSERT_TYPE_ASSERT, "(DDL_MoveToNameByHash( &currentState, &tempState, SL_GetRawHash( scr_const.tournamentId ) ))", (const char *)&queryFormat, "DDL_MoveToNameByHash( &currentState, &tempState, SL_GetRawHash( scr_const.tournamentId ) )", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
       __debugbreak();
     TournamentID = SV_OnlineTournament_GetTournamentID();
     if ( !DDL_SetUInt64(&result, &ddlContext, TournamentID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_ccmds_mp.cpp", 2499, ASSERT_TYPE_ASSERT, "(DDL_SetUInt64( &tempState, &buffer, SV_OnlineTournament_GetTournamentID() ))", (const char *)&queryFormat, "DDL_SetUInt64( &tempState, &buffer, SV_OnlineTournament_GetTournamentID() )") )
       __debugbreak();
   }
-  v11 = j_SL_GetRawHash(scr_const.commonMatchData);
-  DDL_MoveToNameByHash(&fromState, &toState, v11, NULL);
-  v12 = j_SL_GetRawHash(scr_const.match_id);
-  DDL_MoveToNameByHash(&toState, &fromState, v12, NULL);
+  v10 = j_SL_GetRawHash(scr_const.commonMatchData);
+  DDL_MoveToNameByHash(&fromState, &toState, v10, NULL);
+  v11 = j_SL_GetRawHash(scr_const.match_id);
+  DDL_MoveToNameByHash(&toState, &fromState, v11, NULL);
   MatchId = OnlineMatchId::GetMatchId();
   DDL_SetUInt64(&fromState, &ddlContext, MatchId);
   CurrentLobbyId = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
   Com_sprintf(dest, 0x11ui64, "%zx", CurrentLobbyId);
-  v15 = j_SL_GetRawHash(scr_const.dw_lobby_id);
-  DDL_MoveToNameByHash(&toState, &fromState, v15, NULL);
+  v14 = j_SL_GetRawHash(scr_const.dw_lobby_id);
+  DDL_MoveToNameByHash(&toState, &fromState, v14, NULL);
   DDL_SetString(&fromState, &ddlContext, dest);
-  v16 = j_SL_GetRawHash(scr_const.boot_guid);
-  DDL_MoveToNameByHash(&toState, &fromState, v16, NULL);
+  v15 = j_SL_GetRawHash(scr_const.boot_guid);
+  DDL_MoveToNameByHash(&toState, &fromState, v15, NULL);
   BootId = OnlineBootId::GetBootId();
   DDL_SetUInt64(&fromState, &ddlContext, BootId);
   AdvertisedPatchVersion = GetAdvertisedPatchVersion();
   ProtocolVersion = GetProtocolVersion();
-  v20 = j_SL_GetRawHash(scr_const.patchManifestVersion);
-  DDL_MoveToNameByHash(&toState, &fromState, v20, NULL);
+  v19 = j_SL_GetRawHash(scr_const.patchManifestVersion);
+  DDL_MoveToNameByHash(&toState, &fromState, v19, NULL);
   DDL_SetUInt(&fromState, &ddlContext, AdvertisedPatchVersion);
-  v21 = j_SL_GetRawHash(scr_const.protocolVersion);
-  DDL_MoveToNameByHash(&toState, &fromState, v21, NULL);
+  v20 = j_SL_GetRawHash(scr_const.protocolVersion);
+  DDL_MoveToNameByHash(&toState, &fromState, v20, NULL);
   DDL_SetUInt(&fromState, &ddlContext, ProtocolVersion);
-  v22 = j_SL_GetRawHash(scr_const.srcDDLVersion);
-  DDL_MoveToNameByHash(&toState, &fromState, v22, NULL);
+  v21 = j_SL_GetRawHash(scr_const.srcDDLVersion);
+  DDL_MoveToNameByHash(&toState, &fromState, v21, NULL);
   DDL_SetShort(&fromState, &ddlContext, Asset->version);
-  v23 = j_SL_GetRawHash(scr_const.titleID);
-  DDL_MoveToNameByHash(&toState, &fromState, v23, NULL);
+  v22 = j_SL_GetRawHash(scr_const.titleID);
+  DDL_MoveToNameByHash(&toState, &fromState, v22, NULL);
   Instance = DWServicesAccess::GetInstance();
   TitleID = DWServicesAccess::GetTitleID(Instance);
   DDL_SetUInt(&fromState, &ddlContext, TitleID);
   Current = SV_Timing_GetCurrent();
-  v27 = j_SL_GetRawHash(scr_const.serverTimeTotal);
-  DDL_MoveToNameByHash(&toState, &fromState, v27, NULL);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, dword ptr [rbx+4], 2
-    vcvttss2si r8d, xmm0; val
-  }
-  DDL_SetInt(&fromState, &ddlContext, _ER8);
-  v31 = j_SL_GetRawHash(scr_const.serverTimeTotalExceed);
-  DDL_MoveToNameByHash(&toState, &fromState, v31, NULL);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, dword ptr [rbx+8], 2
-    vcvttss2si r8d, xmm0; val
-  }
-  DDL_SetInt(&fromState, &ddlContext, _ER8);
-  v35 = j_SL_GetRawHash(scr_const.serverTimeMax);
+  v26 = j_SL_GetRawHash(scr_const.serverTimeTotal);
+  DDL_MoveToNameByHash(&toState, &fromState, v26, NULL);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, dword ptr [rbx+4], 2 }
+  DDL_SetInt(&fromState, &ddlContext, (int)*(float *)&_XMM0);
+  v29 = j_SL_GetRawHash(scr_const.serverTimeTotalExceed);
+  DDL_MoveToNameByHash(&toState, &fromState, v29, NULL);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, dword ptr [rbx+8], 2 }
+  DDL_SetInt(&fromState, &ddlContext, (int)*(float *)&_XMM0);
+  v32 = j_SL_GetRawHash(scr_const.serverTimeMax);
+  DDL_MoveToNameByHash(&toState, &fromState, v32, NULL);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, dword ptr [rbx+0Ch], 2 }
+  DDL_SetInt(&fromState, &ddlContext, (int)*(float *)&_XMM0);
+  v35 = j_SL_GetRawHash(scr_const.serverTimeCount);
   DDL_MoveToNameByHash(&toState, &fromState, v35, NULL);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, dword ptr [rbx+0Ch], 2
-    vcvttss2si r8d, xmm0; val
-  }
-  DDL_SetInt(&fromState, &ddlContext, _ER8);
-  v39 = j_SL_GetRawHash(scr_const.serverTimeCount);
-  DDL_MoveToNameByHash(&toState, &fromState, v39, NULL);
   DDL_SetInt(&fromState, &ddlContext, Current->serverTimeCount);
-  v40 = j_SL_GetRawHash(scr_const.serverTimeExceedCount);
-  DDL_MoveToNameByHash(&toState, &fromState, v40, NULL);
+  v36 = j_SL_GetRawHash(scr_const.serverTimeExceedCount);
+  DDL_MoveToNameByHash(&toState, &fromState, v36, NULL);
   DDL_SetInt(&fromState, &ddlContext, Current->serverTimeExceedCount);
   CountryCodeString = LiveRegionInfo_GetCountryCodeString();
-  v42 = j_SL_GetRawHash(scr_const.dmlCountryCode);
-  DDL_MoveToNameByHash(&toState, &fromState, v42, NULL);
+  v38 = j_SL_GetRawHash(scr_const.dmlCountryCode);
+  DDL_MoveToNameByHash(&toState, &fromState, v38, NULL);
   DDL_SetString(&fromState, &ddlContext, CountryCodeString);
   RegionString = LiveRegionInfo_GetRegionString();
-  v44 = j_SL_GetRawHash(scr_const.dmlRegion);
-  DDL_MoveToNameByHash(&toState, &fromState, v44, NULL);
+  v40 = j_SL_GetRawHash(scr_const.dmlRegion);
+  DDL_MoveToNameByHash(&toState, &fromState, v40, NULL);
   DDL_SetString(&fromState, &ddlContext, RegionString);
   CityString = LiveRegionInfo_GetCityString();
-  v46 = j_SL_GetRawHash(scr_const.dmlCity);
-  DDL_MoveToNameByHash(&toState, &fromState, v46, NULL);
+  v42 = j_SL_GetRawHash(scr_const.dmlCity);
+  DDL_MoveToNameByHash(&toState, &fromState, v42, NULL);
   DDL_SetString(&fromState, &ddlContext, CityString);
   if ( LiveRegionInfo_GetLatLong(&lat, &lon) )
   {
-    v47 = j_SL_GetRawHash(scr_const.dmlLatitude);
-    DDL_MoveToNameByHash(&toState, &fromState, v47, NULL);
-    __asm { vmovss  xmm2, [rbp+57h+lat]; val }
-    DDL_SetFloat(&fromState, &ddlContext, *(float *)&_XMM2);
-    v49 = j_SL_GetRawHash(scr_const.dmlLongitude);
-    DDL_MoveToNameByHash(&toState, &fromState, v49, NULL);
-    __asm { vmovss  xmm2, [rbp+57h+lon]; val }
-    DDL_SetFloat(&fromState, &ddlContext, *(float *)&_XMM2);
+    v43 = j_SL_GetRawHash(scr_const.dmlLatitude);
+    DDL_MoveToNameByHash(&toState, &fromState, v43, NULL);
+    DDL_SetFloat(&fromState, &ddlContext, lat);
+    v44 = j_SL_GetRawHash(scr_const.dmlLongitude);
+    DDL_MoveToNameByHash(&toState, &fromState, v44, NULL);
+    DDL_SetFloat(&fromState, &ddlContext, lon);
   }
   if ( LiveRegionInfo_GetASN(&asn) )
   {
-    v51 = j_SL_GetRawHash(scr_const.dmlASN);
-    DDL_MoveToNameByHash(&toState, &fromState, v51, NULL);
+    v45 = j_SL_GetRawHash(scr_const.dmlASN);
+    DDL_MoveToNameByHash(&toState, &fromState, v45, NULL);
     DDL_SetUInt(&fromState, &ddlContext, asn);
   }
   TimezoneString = LiveRegionInfo_GetTimezoneString();
-  v53 = j_SL_GetRawHash(scr_const.dmlTimezone);
-  DDL_MoveToNameByHash(&toState, &fromState, v53, NULL);
+  v47 = j_SL_GetRawHash(scr_const.dmlTimezone);
+  DDL_MoveToNameByHash(&toState, &fromState, v47, NULL);
   DDL_SetString(&fromState, &ddlContext, TimezoneString);
   WeaponMapHighWatermark = SV_Game_GetWeaponMapHighWatermark();
-  v55 = j_SL_GetRawHash(scr_const.weapon_map_watermark);
-  if ( DDL_MoveToNameByHash(&toState, &fromState, v55, NULL) )
+  v49 = j_SL_GetRawHash(scr_const.weapon_map_watermark);
+  if ( DDL_MoveToNameByHash(&toState, &fromState, v49, NULL) )
   {
     if ( !DDL_SetShort(&fromState, &ddlContext, WeaponMapHighWatermark) )
       Com_PrintWarning(15, "SV_SendMatchData_UpdateMatchData: 'weapon_map_watermark' failed to be set\n");

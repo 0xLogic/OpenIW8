@@ -93,133 +93,72 @@ GetNodeAttackPoint
 */
 void GetNodeAttackPoint(const pathnode_t *node, vec3_t *outAttackPos, bool usePlayerViewHeight)
 {
+  unsigned __int16 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   unsigned __int16 type; 
-  int v8; 
-  unsigned __int16 v31; 
+  float v14; 
+  float v15; 
+  float v16; 
   float c; 
   float s; 
   vec3_t pos; 
   vec3_t up; 
   vec3_t vector; 
 
-  _RBX = outAttackPos;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\pathnode_load_obj.cpp", 210, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( (node->constant.spawnflags & 0x8000) == 0 )
-    goto LABEL_12;
-  type = node->constant.type;
-  v8 = 1 << type;
-  if ( ((1 << type) & 0x82641EFC) == 0 )
-    goto LABEL_12;
-  _RAX = type;
-  _R14 = nodeAttackOffset;
-  __asm
+  if ( (node->constant.spawnflags & 0x8000) != 0 && (v6 = node->constant.type, ((1 << v6) & 0x82641EFC) != 0) && (v7 = nodeAttackOffset[v6], v7 != 0.0) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, dword ptr [r14+rax*4]
-    vucomiss xmm1, xmm0
-  }
-  if ( (v8 & 0x82641EFC) != 0 )
-  {
-    if ( (v8 & 0x62700000) != 0 )
+    if ( ((1 << v6) & 0x62700000) != 0 )
     {
       pathnode_t::GetAngles((pathnode_t *)node, &vector);
       AngleVectors(&vector, NULL, NULL, &up);
-      _RAX = node->constant.type;
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+rax*4]
-        vmulss  xmm1, xmm3, dword ptr [rbp+up]
-        vaddss  xmm2, xmm1, dword ptr [rbp+pos]
-        vmulss  xmm1, xmm3, dword ptr [rbp+up+4]
-        vmovss  dword ptr [rbx], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbp+pos+4]
-        vmulss  xmm1, xmm3, dword ptr [rbp+up+8]
-        vmovss  dword ptr [rbx+4], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbp+pos+8]
-        vmovss  dword ptr [rbx+8], xmm2
-      }
+      v8 = nodeAttackOffset[node->constant.type];
+      v9 = v8 * up.v[1];
+      outAttackPos->v[0] = (float)(v8 * up.v[0]) + pos.v[0];
+      v10 = v8 * up.v[2];
+      outAttackPos->v[1] = v9 + pos.v[1];
+      outAttackPos->v[2] = v10 + pos.v[2];
     }
     else
     {
-      __asm
-      {
-        vaddss  xmm0, xmm1, dword ptr [rdi+2Ch]
-        vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-      }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@42300000
-        vmulss  xmm1, xmm3, [rbp+c]
-        vaddss  xmm2, xmm1, dword ptr [rbp+pos]
-        vmulss  xmm1, xmm3, [rbp+s]
-        vmovss  xmm0, dword ptr [rbp+pos+8]
-        vmovss  dword ptr [rbx], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rbp+pos+4]
-        vmovss  dword ptr [rbx+4], xmm2
-      }
+      FastSinCos((float)(v7 + node->constant.yaw_orient.fLocalAngle) * 0.017453292, &s, &c);
+      v11 = 44.0 * s;
+      v12 = pos.v[2];
+      outAttackPos->v[0] = (float)(44.0 * c) + pos.v[0];
+      outAttackPos->v[1] = v11 + pos.v[1];
       if ( usePlayerViewHeight )
-      {
-        __asm
-        {
-          vaddss  xmm2, xmm0, cs:__real@42700000
-          vmovss  dword ptr [rbx+8], xmm2
-        }
-      }
+        outAttackPos->v[2] = v12 + 60.0;
       else
-      {
-        __asm
-        {
-          vaddss  xmm2, xmm0, cs:__real@42680000
-          vmovss  dword ptr [rbx+8], xmm2
-        }
-      }
+        outAttackPos->v[2] = v12 + 58.0;
     }
   }
   else
   {
-LABEL_12:
-    v31 = node->constant.type;
-    if ( v31 == 25 || v31 == 20 )
+    type = node->constant.type;
+    if ( type == 25 || type == 20 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+pos]
-        vmovss  xmm1, dword ptr [rbp+pos+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rbp+pos+8]
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v16 = pos.v[1];
+      outAttackPos->v[0] = pos.v[0];
+      outAttackPos->v[2] = pos.v[2];
+      outAttackPos->v[1] = v16;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+pos]
-        vmovss  xmm1, dword ptr [rbp+pos+4]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm0, dword ptr [rbp+pos+8]
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v14 = pos.v[1];
+      outAttackPos->v[0] = pos.v[0];
+      v15 = pos.v[2];
+      outAttackPos->v[1] = v14;
       if ( usePlayerViewHeight )
-      {
-        __asm
-        {
-          vaddss  xmm1, xmm0, cs:__real@42700000
-          vmovss  dword ptr [rbx+8], xmm1
-        }
-      }
+        outAttackPos->v[2] = v15 + 60.0;
       else
-      {
-        __asm
-        {
-          vaddss  xmm1, xmm0, cs:__real@42680000
-          vmovss  dword ptr [rbx+8], xmm1
-        }
-      }
+        outAttackPos->v[2] = v15 + 58.0;
     }
   }
 }

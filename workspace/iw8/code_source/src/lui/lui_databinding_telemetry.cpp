@@ -76,8 +76,7 @@ float s_LUI_DataBinding_Get_CPU_Time()
   int fps; 
 
   CG_Draw_GetFrontendFPS(&fps, &pTotalMSec);
-  __asm { vmovss  xmm0, [rsp+28h+pTotalMSec] }
-  return *(float *)&_XMM0;
+  return pTotalMSec;
 }
 
 /*
@@ -104,8 +103,7 @@ float s_LUI_DataBinding_Get_GPU_Time()
   int fps; 
 
   CG_Draw_GetFPS(&fps, &pTotalMSec, 1);
-  __asm { vmovss  xmm0, [rsp+28h+pTotalMSec] }
-  return *(float *)&_XMM0;
+  return pTotalMSec;
 }
 
 /*
@@ -113,67 +111,59 @@ float s_LUI_DataBinding_Get_GPU_Time()
 s_LUI_DataBinding_Get_Latency
 ==============
 */
-int s_LUI_DataBinding_Get_Latency(LocalClientNum_t localClientNum)
+__int64 s_LUI_DataBinding_Get_Latency(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
-  int result; 
+  __int64 v1; 
+  playerState_s *p_predictedPlayerState; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v9; 
-  __int64 v10; 
-  int v11; 
-  __int64 v12; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v11 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v11) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
       __debugbreak();
-    LODWORD(v12) = 2;
-    LODWORD(v9) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, v12) )
-      __debugbreak();
-  }
-  if ( clientUIActives[v2].frontEndSceneState[0] )
-    return -1;
-  if ( (unsigned int)v2 >= 2 )
-  {
-    LODWORD(v10) = 2;
-    LODWORD(v7) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v7, v10) )
+    LODWORD(v7) = 2;
+    LODWORD(v5) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v5, v7) )
       __debugbreak();
   }
-  if ( clientUIActives[v2].connectionState != CA_ACTIVE )
-    return -1;
-  if ( (unsigned int)v2 >= cg_t::ms_allocatedCount )
+  if ( clientUIActives[v1].frontEndSceneState[0] )
+    return 0xFFFFFFFFi64;
+  if ( (unsigned int)v1 >= 2 )
   {
-    LODWORD(v10) = cg_t::ms_allocatedCount;
-    LODWORD(v7) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v7, v10) )
+    LODWORD(v6) = 2;
+    LODWORD(v4) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v4, v6) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v2] )
+  if ( clientUIActives[v1].connectionState != CA_ACTIVE )
+    return 0xFFFFFFFFi64;
+  if ( (unsigned int)v1 >= cg_t::ms_allocatedCount )
   {
-    LODWORD(v10) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v10) )
+    LODWORD(v6) = cg_t::ms_allocatedCount;
+    LODWORD(v4) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v4, v6) )
+      __debugbreak();
+  }
+  if ( !cg_t::ms_cgArray[v1] )
+  {
+    LODWORD(v6) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v6) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v10) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v10) )
+    LODWORD(v6) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v6) )
       __debugbreak();
   }
-  if ( cg_t::ms_cgArray[v2] == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_telemetry.cpp", 30, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  p_predictedPlayerState = &cg_t::ms_cgArray[v1]->predictedPlayerState;
+  if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_telemetry.cpp", 30, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+52C8h]
-    vmulss  xmm1, xmm0, cs:__real@407afafb
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)((float)p_predictedPlayerState->netPerf.pingMs * 3.9215686);
 }
 
 /*

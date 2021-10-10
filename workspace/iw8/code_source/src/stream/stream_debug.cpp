@@ -372,101 +372,54 @@ void Stream_Debug_AddToHeatMap(int xpakIndex, __int64 offset, unsigned __int64 s
 Stream_Debug_BeginScreenUpdateFrame
 ==============
 */
-
-void __fastcall Stream_Debug_BeginScreenUpdateFrame(double _XMM0_8)
+void Stream_Debug_BeginScreenUpdateFrame(void)
 {
-  const dvar_t *v4; 
-  int v5; 
-  int v6; 
-  bool v26; 
-  char *fmt; 
-  char *fmta; 
-  double v35; 
-  double v36; 
+  const dvar_t *v0; 
+  int v1; 
+  int v2; 
+  const dvar_t *v3; 
+  float value; 
+  signed __int64 wantedImageMemory; 
+  float imageStreamingQuality; 
+  float v7; 
+  float v8; 
+  bool v9; 
   DLogContext context; 
   char dest[256]; 
   char buffer[4096]; 
 
-  v4 = DCONST_DVARINT_stream_printIntervalStreamingQuality;
+  v0 = DCONST_DVARINT_stream_printIntervalStreamingQuality;
   if ( !DCONST_DVARINT_stream_printIntervalStreamingQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_printIntervalStreamingQuality") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  v5 = 1000 * v4->current.integer;
-  if ( v5 > 0 )
+  Dvar_CheckFrontendServerThread(v0);
+  v1 = 1000 * v0->current.integer;
+  if ( v1 > 0 )
   {
-    v6 = Sys_Milliseconds();
-    if ( v5 + s_lastTimePrintStreamingQuality < v6 )
+    v2 = Sys_Milliseconds();
+    if ( v1 + s_lastTimePrintStreamingQuality < v2 )
     {
-      _RBX = DVARFLT_stream_distanceImageNeeded;
-      __asm
-      {
-        vmovaps [rsp+12E8h+var_18], xmm6
-        vmovaps [rsp+12E8h+var_28], xmm7
-        vmovaps [rsp+12E8h+var_38], xmm8
-      }
-      s_lastTimePrintStreamingQuality = v6;
+      v3 = DVARFLT_stream_distanceImageNeeded;
+      s_lastTimePrintStreamingQuality = v2;
       if ( !DVARFLT_stream_distanceImageNeeded && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_distanceImageNeeded") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      _RDX = streamFrontendGlob;
-      __asm
+      Dvar_CheckFrontendServerThread(v3);
+      value = v3->current.value;
+      wantedImageMemory = streamFrontendGlob->memoryStats.wantedImageMemory;
+      imageStreamingQuality = streamFrontendGlob->imageStreamingQuality;
+      v7 = (float)wantedImageMemory;
+      if ( wantedImageMemory < 0 )
       {
-        vmovss  xmm6, dword ptr [rbx+28h]
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm7, dword ptr [rdx+0B96B28h]
-        vcvtsi2ss xmm0, xmm0, rax
+        v8 = (float)wantedImageMemory;
+        v7 = v8 + 1.8446744e19;
       }
-      if ( (streamFrontendGlob->memoryStats.wantedImageMemory & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-      __asm { vmulss  xmm8, xmm0, cs:__real@35800000 }
-      _RCX = 192i64 * streamFrontendGlob->currentSavedViewPos;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+rdx+0B96C64h]
-        vmovss  xmm3, dword ptr [rcx+rdx+0B96C5Ch]
-        vmovss  xmm1, dword ptr [rcx+rdx+0B96C60h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+12E8h+var_12C0], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+12E8h+fmt], xmm1
-      }
-      Com_sprintf(dest, 0x100ui64, "%.4f, %.4f, %.4f", *(double *)&_XMM3, *(double *)&fmt, v35);
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcvtss2sd xmm2, xmm7, xmm7
-        vcvtss2sd xmm1, xmm8, xmm8
-        vmovsd  [rsp+12E8h+var_12C0], xmm0
-        vmovq   r8, xmm2
-        vmovsd  [rsp+12E8h+fmt], xmm1
-      }
-      Com_Printf(35, "[StreamingQuality] StreamingQuality is %.4f at position ( %s ). ( %.4f MB is needed to reach Streaming Quality %.4f )\n", *(double *)&_XMM2, dest, *(double *)&fmta, v36);
+      Com_sprintf(dest, 0x100ui64, "%.4f, %.4f, %.4f", streamFrontendGlob->savedViewPos[streamFrontendGlob->currentSavedViewPos][0][0].v[0], streamFrontendGlob->savedViewPos[streamFrontendGlob->currentSavedViewPos][0][0].v[1], streamFrontendGlob->savedViewPos[streamFrontendGlob->currentSavedViewPos][0][0].v[2]);
+      Com_Printf(35, "[StreamingQuality] StreamingQuality is %.4f at position ( %s ). ( %.4f MB is needed to reach Streaming Quality %.4f )\n", imageStreamingQuality, dest, (float)(v7 * 0.00000095367432), value);
       if ( DLog_IsActive() && DLog_CreateContext(&context, 0i64, buffer, 4096) && DLog_IsActive() )
       {
-        v26 = DLog_BeginEvent(&context, "streaming_quality");
+        v9 = DLog_BeginEvent(&context, "streaming_quality");
         context.autoEndEvent = 1;
-        if ( v26 )
-        {
-          __asm { vmovaps xmm2, xmm7; value }
-          if ( DLog_Float32(&context, "streaming_quality", *(float *)&_XMM2) && DLog_String(&context, "view_pos", dest, 0) )
-          {
-            __asm { vmovaps xmm2, xmm8; value }
-            if ( DLog_Float32(&context, "wanted_mb", *(float *)&_XMM2) )
-            {
-              __asm { vmovaps xmm2, xmm6; value }
-              if ( DLog_Float32(&context, "target_quality", *(float *)&_XMM2) )
-                DLog_RecordContext(&context);
-            }
-          }
-        }
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+12E8h+var_28]
-        vmovaps xmm6, [rsp+12E8h+var_18]
-        vmovaps xmm8, [rsp+12E8h+var_38]
+        if ( v9 && DLog_Float32(&context, "streaming_quality", imageStreamingQuality) && DLog_String(&context, "view_pos", dest, 0) && DLog_Float32(&context, "wanted_mb", v7 * 0.00000095367432) && DLog_Float32(&context, "target_quality", value) )
+          DLog_RecordContext(&context);
       }
     }
   }
@@ -538,89 +491,83 @@ Stream_Debug_CalcWantedBytesForImage
 __int64 Stream_Debug_CalcWantedBytesForImage(const GfxImage *image)
 {
   unsigned int GfxImageIndex; 
+  const dvar_t *v3; 
   unsigned int v4; 
+  float value; 
+  unsigned int v6; 
   unsigned int v7; 
-  unsigned int v8; 
-  int v9; 
-  signed int v10; 
-  char *v11; 
-  StreamFrontendGlob *v12; 
+  int v8; 
+  signed int v9; 
+  char *v10; 
+  StreamFrontendGlob *v11; 
   unsigned int *mStaticForced; 
+  unsigned int v13; 
   unsigned int v14; 
-  unsigned int v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  int v19; 
-  unsigned int v20; 
 
   GfxImageIndex = DB_GetGfxImageIndex(image);
-  _RBX = DVARFLT_stream_distanceImageNeeded;
+  v3 = DVARFLT_stream_distanceImageNeeded;
   v4 = GfxImageIndex;
   if ( !DVARFLT_stream_distanceImageNeeded && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_distanceImageNeeded") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  [rsp+78h+arg_0], xmm1
-    vmovss  [rsp+78h+arg_8], xmm1
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  if ( (COERCE_UNSIGNED_INT(value * value) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
     __debugbreak();
+  v6 = 0;
   v7 = 0;
-  v8 = 0;
   if ( image->streamedPartCount )
   {
-    v9 = 4 * v4;
+    v8 = 4 * v4;
     do
     {
-      v10 = v9 + v8;
-      v11 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
-      if ( v9 + v8 >= 0x50000 )
+      v9 = v8 + v7;
+      v10 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
+      if ( v8 + v7 >= 0x50000 )
       {
-        LODWORD(v18) = 327680;
-        LODWORD(v17) = v9 + v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v17) = 327680;
+        LODWORD(v16) = v8 + v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
-      if ( *(_DWORD *)&v11[4 * v10 + 2775264] <= v20 >> 7 )
+      if ( *(_DWORD *)&v10[4 * v9 + 2775264] <= COERCE_UNSIGNED_INT(value * value) >> 7 )
         goto LABEL_34;
-      v12 = streamFrontendGlob;
-      if ( v10 >= streamFrontendGlob->imageBits.mBitCount )
+      v11 = streamFrontendGlob;
+      if ( v9 >= streamFrontendGlob->imageBits.mBitCount )
       {
-        LODWORD(v18) = streamFrontendGlob->imageBits.mBitCount;
-        LODWORD(v17) = v9 + v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v17, v18) )
+        LODWORD(v17) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(v16) = v8 + v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
-      mStaticForced = v12->imageBits.mStaticForced;
+      mStaticForced = v11->imageBits.mStaticForced;
       if ( !mStaticForced && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v14 = mStaticForced[(__int64)v10 >> 5];
-      if ( _bittest((const int *)&v14, v10 & 0x1F) )
+      v13 = mStaticForced[(__int64)v9 >> 5];
+      if ( _bittest((const int *)&v13, v9 & 0x1F) )
       {
 LABEL_34:
         if ( (image->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
           __debugbreak();
-        if ( v8 >= Image_GetStreamedPartCount(image) )
+        if ( v7 >= Image_GetStreamedPartCount(image) )
         {
-          LODWORD(v18) = Image_GetStreamedPartCount(image);
-          LODWORD(v17) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v17, v18) )
+          LODWORD(v17) = Image_GetStreamedPartCount(image);
+          LODWORD(v16) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v16, v17) )
             __debugbreak();
         }
-        if ( v8 )
-          v15 = ((unsigned int)image->streams[v8].levelCountAndSize >> 4) - (*((_DWORD *)&image->levelCount + 10 * v8) >> 4);
+        if ( v7 )
+          v14 = ((unsigned int)image->streams[v7].levelCountAndSize >> 4) - (*((_DWORD *)&image->levelCount + 10 * v7) >> 4);
         else
-          v15 = (unsigned int)image->streams[0].levelCountAndSize >> 4;
-        v7 += v15;
+          v14 = (unsigned int)image->streams[0].levelCountAndSize >> 4;
+        v6 += v14;
       }
-      ++v8;
+      ++v7;
     }
-    while ( v8 < image->streamedPartCount );
+    while ( v7 < image->streamedPartCount );
   }
-  return v7;
+  return v6;
 }
 
 /*
@@ -630,92 +577,78 @@ Stream_Debug_CalculateMemoryStats
 */
 void Stream_Debug_CalculateMemoryStats(StreamFrontendMemoryStats *outStats, bool calculateAllStats)
 {
-  StreamSortListFrame *v7; 
-  int v8; 
-  __int64 v9; 
+  const dvar_t *v4; 
+  StreamSortListFrame *v5; 
+  int v6; 
+  __int64 v7; 
   unsigned __int64 *mSorted; 
-  unsigned __int64 v11; 
-  int v12; 
-  __int64 v13; 
-  unsigned __int64 *v14; 
-  unsigned __int64 v15; 
-  int v21; 
-  _BYTE v22[96]; 
+  unsigned __int64 v9; 
+  int v10; 
+  __int64 v11; 
+  unsigned __int64 *v12; 
+  unsigned __int64 v13; 
+  _BYTE v14[96]; 
+  __int128 v15; 
 
-  _R12 = outStats;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Debug_CalculateMemoryStats");
-  _RBX = DVARFLT_stream_distanceImageNeeded;
+  v4 = DVARFLT_stream_distanceImageNeeded;
   if ( !DVARFLT_stream_distanceImageNeeded && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_distanceImageNeeded") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  dword ptr [rsp+118h+var_D8], xmm1
-    vmovss  [rsp+118h+var_D0], xmm1
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( (COERCE_UNSIGNED_INT(v4->current.value * v4->current.value) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
     __debugbreak();
-  v7 = &streamFrontendGlob->sortLists[streamFrontendGlob->sortListRead];
-  memset_0(v22, 0, 0x70ui64);
-  if ( v7 == (StreamSortListFrame *)-4014096i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
+  v5 = &streamFrontendGlob->sortLists[streamFrontendGlob->sortListRead];
+  memset_0(v14, 0, 0x70ui64);
+  if ( v5 == (StreamSortListFrame *)-4014096i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
     __debugbreak();
-  Sys_LockRead(&v7->imageSortList.mCS);
-  StreamSortList_327680_::IterateRange__lambda_2249a83867f5e171be3bcc5afc88c5a3___((_DWORD)v7 + 1351680, 0, (const Stream_Debug_CalculateMemoryStats::__l2::<lambda_2249a83867f5e171be3bcc5afc88c5a3> *)(unsigned int)(v7->imageSortList.mCount - 1));
-  Sys_UnlockRead(&v7->imageSortList.mCS);
+  Sys_LockRead(&v5->imageSortList.mCS);
+  StreamSortList_327680_::IterateRange__lambda_2249a83867f5e171be3bcc5afc88c5a3___((_DWORD)v5 + 1351680, 0, (const Stream_Debug_CalculateMemoryStats::__l2::<lambda_2249a83867f5e171be3bcc5afc88c5a3> *)(unsigned int)(v5->imageSortList.mCount - 1));
+  Sys_UnlockRead(&v5->imageSortList.mCS);
   if ( calculateAllStats )
   {
-    if ( v7 == (StreamSortListFrame *)-4380224i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
+    if ( v5 == (StreamSortListFrame *)-4380224i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
       __debugbreak();
-    Sys_LockRead(&v7->meshSortList.mCS);
-    v8 = v7->meshSortList.mCount - 1;
-    if ( v8 >= 0 )
+    Sys_LockRead(&v5->meshSortList.mCS);
+    v6 = v5->meshSortList.mCount - 1;
+    if ( v6 >= 0 )
     {
-      v9 = v8 + 1i64;
-      mSorted = (unsigned __int64 *)v7->meshSortList.mSorted;
+      v7 = v6 + 1i64;
+      mSorted = (unsigned __int64 *)v5->meshSortList.mSorted;
       do
       {
-        v11 = *mSorted >> 45;
-        if ( !StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v11) )
-          *(_QWORD *)&v22[16] += DB_GetXModelSurfsAtIndex(v11)->shared->dataSize;
+        v9 = *mSorted >> 45;
+        if ( !StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v9) )
+          *(_QWORD *)&v14[16] += DB_GetXModelSurfsAtIndex(v9)->shared->dataSize;
         ++mSorted;
-        --v9;
+        --v7;
       }
-      while ( v9 );
+      while ( v7 );
     }
-    Sys_UnlockRead(&v7->meshSortList.mCS);
-    if ( v7 == (StreamSortListFrame *)-4688112i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
+    Sys_UnlockRead(&v5->meshSortList.mCS);
+    if ( v5 == (StreamSortListFrame *)-4688112i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
       __debugbreak();
-    Sys_LockRead(&v7->genericSortList.mCS);
-    v12 = v7->genericSortList.mCount - 1;
-    if ( v12 >= 0 )
+    Sys_LockRead(&v5->genericSortList.mCS);
+    v10 = v5->genericSortList.mCount - 1;
+    if ( v10 >= 0 )
     {
-      v13 = v12 + 1i64;
-      v14 = (unsigned __int64 *)v7->genericSortList.mSorted;
+      v11 = v10 + 1i64;
+      v12 = (unsigned __int64 *)v5->genericSortList.mSorted;
       do
       {
-        v15 = *v14 >> 45;
-        if ( !StreamableBits::CheckInUse(&streamFrontendGlob->genericBits, v15) )
-          *(_QWORD *)&v22[24] += DB_GetStreamKeyAtIndex(v15)->dataSize;
-        ++v14;
-        --v13;
+        v13 = *v12 >> 45;
+        if ( !StreamableBits::CheckInUse(&streamFrontendGlob->genericBits, v13) )
+          *(_QWORD *)&v14[24] += DB_GetStreamKeyAtIndex(v13)->dataSize;
+        ++v12;
+        --v11;
       }
-      while ( v13 );
+      while ( v11 );
     }
-    Sys_UnlockRead(&v7->genericSortList.mCS);
+    Sys_UnlockRead(&v5->genericSortList.mCS);
   }
-  __asm
-  {
-    vmovups ymm0, [rsp+118h+var_A8]
-    vmovups ymmword ptr [r12], ymm0
-    vmovups ymm1, [rsp+118h+var_88]
-    vmovups ymmword ptr [r12+20h], ymm1
-    vmovups ymm0, [rsp+118h+var_68]
-    vmovups ymmword ptr [r12+40h], ymm0
-    vmovups xmm1, [rsp+118h+var_48]
-    vmovups xmmword ptr [r12+60h], xmm1
-  }
+  *(__m256i *)&outStats->wantedImageMemory = *(__m256i *)v14;
+  *(__m256i *)outStats->wantedImageMemoryByDistance = *(__m256i *)&v14[32];
+  *(__m256i *)&outStats->wantedImageMemoryByDistance[4] = *(__m256i *)&v14[64];
+  *(_OWORD *)&outStats->wantedImageMemoryByDistance[8] = v15;
   Sys_ProfEndNamedEvent();
 }
 
@@ -726,147 +659,63 @@ Stream_Debug_DrawCameraVelocity
 */
 void Stream_Debug_DrawCameraVelocity(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace)
 {
-  const dvar_t *v8; 
+  const dvar_t *v2; 
+  double v4; 
+  const vec3_t *ClientVelocity; 
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  const dvar_t *v11; 
   GfxFont *FontHandle; 
-  __int64 v57; 
-  char *fmt; 
-  float fmta; 
-  double horzAlign; 
-  int horzAligna; 
-  double vertAlign; 
-  float v69; 
+  __int64 v13; 
   float w; 
   float h; 
   float y; 
   float x; 
   GfxColor color; 
-  GfxColor v75; 
-  int v77; 
+  GfxColor v19; 
+  double v20; 
+  int v21; 
   char dest[128]; 
 
-  v8 = DCONST_DVARBOOL_stream_drawCameraVelocity;
+  v2 = DCONST_DVARBOOL_stream_drawCameraVelocity;
   if ( !DCONST_DVARBOOL_stream_drawCameraVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawCameraVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@43d70000
-      vmovss  xmm1, cs:__real@43960000
-      vmovaps [rsp+190h+var_20], xmm6
-      vmovaps [rsp+190h+var_30], xmm7
-      vmovaps [rsp+190h+var_40], xmm8
-      vmovss  [rsp+190h+y], xmm0
-      vmovss  xmm0, cs:__real@41700000
-      vmovaps [rsp+190h+var_50], xmm9
-      vxorps  xmm6, xmm6, xmm6
-      vmovaps [rsp+190h+var_60], xmm10
-      vmovss  [rsp+190h+h], xmm0
-      vmovaps [rsp+190h+var_70], xmm11
-      vmovss  [rsp+190h+x], xmm6
-      vmovss  [rsp+190h+w], xmm1
-    }
+    y = FLOAT_430_0;
+    h = FLOAT_15_0;
+    x = 0.0;
+    w = FLOAT_300_0;
     ScrPlace_ApplyRect(scrPlace, &x, &y, &w, &h, 1, 1);
-    *(double *)&_XMM0 = CL_StreamViews_ParametricVelocity(LOCAL_CLIENT_0);
-    __asm { vmovaps xmm7, xmm0 }
-    _RAX = CL_StreamViews_GetClientVelocity(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm6, cs:__real@40000000
-      vmovsd  xmm1, qword ptr [rax]
-    }
-    *(float *)&_RAX = _RAX->v[2];
-    __asm
-    {
-      vmulss  xmm3, xmm1, xmm1
-      vmovsd  [rbp+90h+var_110], xmm1
-      vmovss  xmm1, dword ptr [rbp+90h+var_110+4]
-      vmulss  xmm2, xmm1, xmm1
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm3, xmm6, [rsp+190h+h]; height
-      vaddss  xmm2, xmm6, [rsp+190h+w]; width
-    }
-    v77 = (int)_RAX;
-    __asm
-    {
-      vmovss  xmm8, [rbp+90h+var_108]
-      vmulss  xmm0, xmm8, xmm8
-      vandps  xmm8, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vaddss  xmm1, xmm0, xmm4
-      vmulss  xmm0, xmm7, cs:__real@437f0000
-      vcvttss2si rax, xmm0
-      vmovss  xmm0, [rsp+190h+y]
-      vsqrtss xmm10, xmm1, xmm1
-      vsubss  xmm1, xmm9, xmm7
-      vmulss  xmm1, xmm1, cs:__real@437f0000
-      vcvttss2si rcx, xmm1
-    }
+    v4 = CL_StreamViews_ParametricVelocity(LOCAL_CLIENT_0);
+    ClientVelocity = CL_StreamViews_GetClientVelocity(LOCAL_CLIENT_0);
+    v6 = *(double *)ClientVelocity->v;
+    *(float *)&ClientVelocity = ClientVelocity->v[2];
+    v20 = v6;
+    v7 = (float)(*(float *)&v6 * *(float *)&v6) + (float)(*((float *)&v20 + 1) * *((float *)&v20 + 1));
+    v21 = (int)ClientVelocity;
+    LODWORD(v8) = (unsigned int)ClientVelocity & _xmm;
+    v9 = fsqrt((float)(*(float *)&ClientVelocity * *(float *)&ClientVelocity) + v7);
     color.packed = 0x80000000;
-    __asm
-    {
-      vsqrtss xmm11, xmm4, xmm4
-      vmovss  xmm4, [rsp+190h+x]
-      vsubss  xmm1, xmm0, xmm9; y
-      vsubss  xmm0, xmm4, xmm9; x
-    }
-    v75.packed = _RAX | (((unsigned int)_RCX | 0x7F00) << 16);
-    R_AddCmdDrawRect2D(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color, 0);
-    __asm
-    {
-      vmulss  xmm2, xmm7, [rsp+190h+w]; width
-      vmovss  xmm3, [rsp+190h+h]; height
-      vmovss  xmm1, [rsp+190h+y]; y
-      vmovss  xmm0, [rsp+190h+x]; x
-    }
-    R_AddCmdDrawRect2D(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &v75, 1);
-    _RBX = DVARFLT_stream_maxAnticipatedVelocity;
+    v10 = fsqrt(v7);
+    v19.packed = (int)(float)(*(float *)&v4 * 255.0) | (((int)(float)((float)(1.0 - *(float *)&v4) * 255.0) | 0x7F00) << 16);
+    R_AddCmdDrawRect2D(x - 1.0, y - 1.0, w + 2.0, h + 2.0, &color, 0);
+    R_AddCmdDrawRect2D(x, y, *(float *)&v4 * w, h, &v19, 1);
+    v11 = DVARFLT_stream_maxAnticipatedVelocity;
     if ( !DVARFLT_stream_maxAnticipatedVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_maxAnticipatedVelocity") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx+28h]
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  qword ptr [rsp+190h+vertAlign], xmm0
-      vcvtss2sd xmm1, xmm11, xmm11
-      vcvtss2sd xmm3, xmm10, xmm10
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  qword ptr [rsp+190h+horzAlign], xmm1
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+190h+fmt], xmm4
-    }
-    Com_sprintf_truncate<128>((char (*)[128])dest, "Velocity %.03f, %.0f \\ %.0f, XY=%.0f Z=%.0f", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, horzAlign, vertAlign);
-    __asm { vmovaps xmm2, xmm9; scale }
-    FontHandle = UI_GetFontHandle(scrPlace, 5, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm11, [rsp+190h+var_70]
-      vmovaps xmm10, [rsp+190h+var_60]
-    }
-    v57 = -1i64;
-    __asm
-    {
-      vmovaps xmm9, [rsp+190h+var_50]
-      vmovaps xmm8, [rsp+190h+var_40]
-      vmovaps xmm7, [rsp+190h+var_30]
-    }
+    Dvar_CheckFrontendServerThread(v11);
+    Com_sprintf_truncate<128>((char (*)[128])dest, "Velocity %.03f, %.0f \\ %.0f, XY=%.0f Z=%.0f", *(float *)&v4, v9, v11->current.value, v10, v8);
+    FontHandle = UI_GetFontHandle(scrPlace, 5, 1.0);
+    v13 = -1i64;
     do
-      ++v57;
-    while ( dest[v57] );
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e800000
-      vmovss  [rsp+190h+var_150], xmm0
-      vmovss  xmm0, cs:__real@43dd0000
-      vmovss  [rsp+190h+horzAlign], xmm0
-      vmovss  dword ptr [rsp+190h+fmt], xmm6
-    }
-    UI_DrawText(scrPlace, dest, v57, FontHandle, fmta, *(float *)&horzAligna, 1, 1, v69, &colorWhite, 3);
-    __asm { vmovaps xmm6, [rsp+190h+var_20] }
+      ++v13;
+    while ( dest[v13] );
+    UI_DrawText(scrPlace, dest, v13, FontHandle, 2.0, 442.0, 1, 1, 0.25, &colorWhite, 3);
   }
 }
 
@@ -890,110 +739,39 @@ Stream_Debug_DrawDefrag
 */
 void Stream_Debug_DrawDefrag(LocalClientNum_t localClientIndex)
 {
-  const dvar_t *v4; 
+  const dvar_t *v1; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  unsigned __int64 SubPageWaste; 
-  const char *v17; 
-  float fmt; 
-  float fontScale; 
-  float fontScalea; 
-  float fontScaleb; 
-  float fontScalec; 
-  float fontScaled; 
   float lineHeight; 
-  float lineHeighta; 
-  float lineHeightb; 
-  float lineHeightc; 
-  int vertAlign; 
-  int vertAligna; 
-  int vertAlignb; 
-  int vertAlignc; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  unsigned __int64 SubPageWaste; 
+  const char *v11; 
   StreamDefragRegionStats outMoveableRegionStats; 
   StreamDefragRegionStats stats; 
   StreamDefragRegionStats outFixedRegionStats; 
-  StreamDefragRegionStats v43; 
+  StreamDefragRegionStats v15; 
 
-  v4 = DVARBOOL_stream_drawDefrag;
+  v1 = DVARBOOL_stream_drawDefrag;
   if ( !DVARBOOL_stream_drawDefrag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawDefrag") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+228h+var_18], xmm6
-      vmovaps [rsp+228h+var_28], xmm7
-      vmovaps [rsp+228h+var_38], xmm8
-      vmovss  xmm8, cs:__real@3e3851ec
-      vmovaps xmm2, xmm8; scale
-    }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientIndex);
-    __asm { vmovaps xmm1, xmm8; scale }
-    FontHandle = UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
-    UI_TextHeight(FontHandle, *(float *)&_XMM1);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, eax
-    }
+    FontHandle = UI_GetFontHandle(ActivePlacement, 5, 0.18000001);
+    lineHeight = (float)UI_TextHeight(FontHandle, 0.18000001);
     Stream_Defrag_GetRegionStats(DODGE, &outFixedRegionStats, &outMoveableRegionStats);
-    Stream_Defrag_GetRegionStats(MOVEMENT, &v43, &stats);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@42066666
-      vmovss  xmm7, cs:__real@43000000
-      vmovss  [rsp+228h+var_1E8], xmm0
-      vmovss  [rsp+228h+vertAlign], xmm7
-      vmovss  [rsp+228h+lineHeight], xmm6
-      vmovss  [rsp+228h+fontScale], xmm8
-    }
-    *(float *)&_XMM0 = Stream_Debug_DrawDefragRegion("GPU ^2Moveable^7", 1, &outMoveableRegionStats, ActivePlacement, FontHandle, fontScale, lineHeight, *(float *)&vertAlign, v35);
-    __asm
-    {
-      vmovss  [rsp+228h+var_1E8], xmm0
-      vmovss  [rsp+228h+vertAlign], xmm7
-      vmovss  [rsp+228h+lineHeight], xmm6
-      vmovss  [rsp+228h+fontScale], xmm8
-    }
-    *(float *)&_XMM0 = Stream_Debug_DrawDefragRegion("^5CPU^7 ^2Moveable^7", 1, &stats, ActivePlacement, FontHandle, fontScalea, lineHeighta, *(float *)&vertAligna, v36);
-    __asm
-    {
-      vmovss  [rsp+228h+var_1E8], xmm0
-      vmovss  [rsp+228h+vertAlign], xmm7
-      vmovss  [rsp+228h+lineHeight], xmm6
-      vmovss  [rsp+228h+fontScale], xmm8
-    }
-    *(float *)&_XMM0 = Stream_Debug_DrawDefragRegion("GPU ^8Fixed^7", 0, &outFixedRegionStats, ActivePlacement, FontHandle, fontScaleb, lineHeightb, *(float *)&vertAlignb, v37);
-    __asm
-    {
-      vmovss  [rsp+228h+var_1E8], xmm0
-      vmovss  [rsp+228h+vertAlign], xmm7
-      vmovss  [rsp+228h+lineHeight], xmm6
-      vmovss  [rsp+228h+fontScale], xmm8
-    }
-    *(float *)&_XMM0 = Stream_Debug_DrawDefragRegion("^5CPU^7 ^8Fixed^7", 0, &v43, ActivePlacement, FontHandle, fontScalec, lineHeightc, *(float *)&vertAlignc, v38);
-    __asm { vmovaps xmm6, xmm0 }
+    Stream_Defrag_GetRegionStats(MOVEMENT, &v15, &stats);
+    v6 = Stream_Debug_DrawDefragRegion("GPU ^2Moveable^7", 1, &outMoveableRegionStats, ActivePlacement, FontHandle, 0.18000001, lineHeight, 128.0, 33.599998);
+    v7 = Stream_Debug_DrawDefragRegion("^5CPU^7 ^2Moveable^7", 1, &stats, ActivePlacement, FontHandle, 0.18000001, lineHeight, 128.0, v6);
+    v8 = Stream_Debug_DrawDefragRegion("GPU ^8Fixed^7", 0, &outFixedRegionStats, ActivePlacement, FontHandle, 0.18000001, lineHeight, 128.0, v7);
+    v9 = Stream_Debug_DrawDefragRegion("^5CPU^7 ^8Fixed^7", 0, &v15, ActivePlacement, FontHandle, 0.18000001, lineHeight, 128.0, v8);
     SubPageWaste = Mem_Paged_GetSubPageWaste();
-    v17 = j_va("Mem_Paged sub-page waste: ^5%zu^7 bytes / ^5%zu^7 KB / ^5%zu^7 MB", SubPageWaste, SubPageWaste >> 10, SubPageWaste >> 20);
-    __asm
-    {
-      vmovss  [rsp+228h+var_1E8], xmm8
-      vmovss  [rsp+228h+fontScale], xmm6
-      vmovss  dword ptr [rsp+228h+fmt], xmm7
-    }
-    UI_DrawText(ActivePlacement, v17, 0x7FFFFFFF, FontHandle, fmt, fontScaled, 1, 1, v39, &colorWhite, 3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+228h+var_38]
-      vmovaps xmm7, [rsp+228h+var_28]
-      vmovaps xmm6, [rsp+228h+var_18]
-    }
+    v11 = j_va("Mem_Paged sub-page waste: ^5%zu^7 bytes / ^5%zu^7 KB / ^5%zu^7 MB", SubPageWaste, SubPageWaste >> 10, SubPageWaste >> 20);
+    UI_DrawText(ActivePlacement, v11, 0x7FFFFFFF, FontHandle, 128.0, v9, 1, 1, 0.18000001, &colorWhite, 3);
   }
 }
 
@@ -1004,547 +782,410 @@ Stream_Debug_DrawDefragRegion
 */
 float Stream_Debug_DrawDefragRegion(const char *regionName, bool isMoveableRegion, const StreamDefragRegionStats *stats, const ScreenPlacement *scrPlace, GfxFont *const font, float fontScale, float lineHeight, float x, float y)
 {
+  __int128 v9; 
+  __int128 v10; 
+  float v14; 
   unsigned __int64 endAddress; 
   unsigned __int64 baseAddress; 
-  unsigned __int64 v28; 
+  unsigned __int64 v17; 
   signed __int64 reserved; 
-  __int64 v30; 
-  const char *v31; 
-  const char *v32; 
-  unsigned int *v33; 
-  unsigned int *v34; 
-  unsigned __int64 allocated; 
+  __int64 v19; 
+  const char *v20; 
+  const char *v21; 
+  unsigned int *v22; 
+  unsigned int *v23; 
+  __int64 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  signed __int64 allocated; 
+  float v32; 
+  float v33; 
+  float v34; 
+  signed __int64 v35; 
+  float v36; 
+  float v37; 
+  double v38; 
+  __int64 v39; 
+  const char *v40; 
+  unsigned int *v41; 
+  __int64 v42; 
+  float v43; 
+  signed __int64 used; 
+  float v45; 
+  float v46; 
+  float v47; 
+  signed __int64 v48; 
+  float v49; 
+  float v50; 
+  double v51; 
+  __int64 v52; 
+  const char *v53; 
+  unsigned int *v54; 
   __int64 v55; 
-  const char *v56; 
-  unsigned int *v57; 
-  unsigned __int64 used; 
-  __int64 v71; 
-  const char *v72; 
-  unsigned int *v73; 
-  unsigned __int64 committed; 
-  __int64 v87; 
-  const char *v88; 
-  unsigned int *v89; 
-  unsigned __int64 alignWaste; 
-  __int64 v103; 
-  const char *v104; 
-  unsigned int *v105; 
-  unsigned __int64 fullyUnmappedNotYetReleased; 
-  __int64 v119; 
-  const char *v120; 
-  unsigned int *v121; 
-  unsigned __int64 fragmentation; 
-  float v149; 
-  const char *v150; 
-  float v151; 
-  const char *v152; 
-  float v153; 
-  const char *v154; 
-  float v155; 
-  const char *v156; 
-  float v157; 
-  const char *v158; 
-  float v159; 
-  const char *v160; 
-  float v161; 
-  float v162; 
-  float v163; 
-  float v164; 
-  double v165; 
-  float v166; 
-  double v167; 
-  float v168; 
-  double v169; 
-  float v170; 
-  double v171; 
-  float v172; 
-  double v173; 
-  float v174; 
-  double v175; 
-  float v176; 
-  float v177; 
-  float v178; 
-  float v179; 
-  float v180; 
-  float v181; 
-  float v182; 
-  float v183; 
-  float v184; 
+  float v56; 
+  signed __int64 committed; 
+  float v58; 
+  float v59; 
+  float v60; 
+  signed __int64 v61; 
+  float v62; 
+  float v63; 
+  double v64; 
+  __int64 v65; 
+  const char *v66; 
+  unsigned int *v67; 
+  __int64 v68; 
+  float v69; 
+  signed __int64 alignWaste; 
+  float v71; 
+  float v72; 
+  float v73; 
+  signed __int64 v74; 
+  float v75; 
+  float v76; 
+  double v77; 
+  __int64 v78; 
+  const char *v79; 
+  unsigned int *v80; 
+  __int64 v81; 
+  float v82; 
+  signed __int64 fullyUnmappedNotYetReleased; 
+  float v84; 
+  float v85; 
+  float v86; 
+  signed __int64 v87; 
+  float v88; 
+  float v89; 
+  double v90; 
+  __int64 v91; 
+  const char *v92; 
+  unsigned int *v93; 
+  __int64 v94; 
+  float v95; 
+  signed __int64 fragmentation; 
+  float v97; 
+  float v98; 
+  float v99; 
+  signed __int64 v100; 
+  float v101; 
+  float v102; 
+  double v103; 
+  __int64 v104; 
+  float v105; 
   char dest[1024]; 
-  char v188; 
-  void *retaddr; 
+  __int128 v108; 
+  __int128 v109; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovss  xmm10, dword ptr [r11+40h]
-    vmovss  xmm9, dword ptr [r11+38h]
-    vmovss  xmm11, dword ptr [r11+30h]
-  }
+  v108 = v10;
   if ( isMoveableRegion )
   {
     Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: in-flight defrag moves: ^3%u^7 (incl. outstanding unmaps) ^3%u^7 (copies only)", regionName, stats->inFlightDefragMoveCount, stats->inFlightDefragCopyCount);
-    __asm
-    {
-      vmovss  xmm6, [rsp+508h+y]
-      vmovss  [rsp+508h+var_4C8], xmm11
-      vmovss  [rsp+508h+var_4E0], xmm6
-      vmovss  [rsp+508h+var_4E8], xmm10
-    }
-    UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v149, v163, 1, 1, v177, &colorWhite, 3);
-    __asm { vaddss  xmm6, xmm6, xmm9 }
+    UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, y, 1, 1, fontScale, &colorWhite, 3);
+    v14 = y + lineHeight;
   }
   else
   {
-    __asm { vmovss  xmm6, [rsp+508h+y] }
+    v14 = y;
   }
   endAddress = stats->endAddress;
   baseAddress = stats->baseAddress;
-  v28 = 0i64;
+  v17 = 0i64;
   reserved = stats->reserved;
-  v30 = 0i64;
+  v19 = 0i64;
   while ( 1 )
   {
-    v31 = "bytes";
-    if ( reserved >= (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v30] )
+    v20 = "bytes";
+    if ( reserved >= (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v19] )
       break;
-    if ( (unsigned __int64)++v30 >= 3 )
+    if ( (unsigned __int64)++v19 >= 3 )
     {
-      v32 = "bytes";
+      v21 = "bytes";
       goto LABEL_9;
     }
   }
-  v32 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v30];
+  v21 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v19];
 LABEL_9:
-  v33 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  __asm { vmovaps [rsp+508h+var_58], xmm7 }
-  v34 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( reserved < (unsigned __int64)*v34 )
+  v22 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  v109 = v9;
+  v23 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v34 == (unsigned int *)&unk_144132F94 )
+    v24 = *v23;
+    if ( reserved >= (unsigned __int64)v24 )
+      break;
+    if ( ++v23 == (unsigned int *)&unk_144132F94 )
     {
-      __asm
-      {
-        vmovss  xmm7, cs:__real@5f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rdx
-      }
+      v25 = FLOAT_1_8446744e19;
+      v26 = (float)reserved;
       if ( reserved < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm7 }
+      {
+        v27 = (float)reserved;
+        v26 = v27 + 1.8446744e19;
+      }
       goto LABEL_17;
     }
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@5f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rdx
-  }
+  v25 = FLOAT_1_8446744e19;
+  v28 = (float)reserved;
   if ( reserved < 0 )
-    __asm { vaddss  xmm1, xmm1, xmm7 }
-  __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r8
-    vdivss  xmm0, xmm1, xmm0
+    v29 = (float)reserved;
+    v28 = v29 + 1.8446744e19;
   }
+  v30 = (float)v24;
+  v26 = v28 / v30;
 LABEL_17:
-  __asm { vcvtss2sd xmm3, xmm0, xmm0 }
-  v150 = v32;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: reserved=^5%.2f %s^7 (base=^30x%016zx^7, end=^30x%016zx^7)", regionName, *(double *)&_XMM3, v150, baseAddress, endAddress);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v151, v164, 1, 1, v178, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: reserved=^5%.2f %s^7 (base=^30x%016zx^7, end=^30x%016zx^7)", regionName, v26, v21, baseAddress, endAddress);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v14, 1, 1, fontScale, &colorWhite, 3);
   allocated = stats->allocated;
-  __asm
+  v32 = v14 + lineHeight;
+  v33 = (float)allocated;
+  if ( allocated < 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm1, xmm1, r8
+    v34 = (float)allocated;
+    v33 = v34 + v25;
   }
-  if ( (allocated & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm1, xmm1, xmm7 }
-  __asm
+  v35 = stats->reserved;
+  v36 = (float)v35;
+  if ( v35 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v37 = (float)v35;
+    v36 = v37 + v25;
   }
-  if ( (stats->reserved & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
+  v38 = (float)((float)(v33 / v36) * 100.0);
+  v39 = 0i64;
+  while ( allocated < (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v39] )
   {
-    vmovss  xmm8, cs:__real@42c80000
-    vdivss  xmm0, xmm1, xmm0
-    vmulss  xmm0, xmm0, xmm8
-    vcvtss2sd xmm2, xmm0, xmm0
-  }
-  v55 = 0i64;
-  while ( allocated < (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v55] )
-  {
-    if ( (unsigned __int64)++v55 >= 3 )
+    if ( (unsigned __int64)++v39 >= 3 )
     {
-      v56 = "bytes";
+      v40 = "bytes";
       goto LABEL_26;
     }
   }
-  v56 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v55];
+  v40 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v39];
 LABEL_26:
-  v57 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( allocated < *v57 )
+  v41 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v57 == (unsigned int *)&unk_144132F94 )
+    v42 = *v41;
+    if ( allocated >= (unsigned __int64)v42 )
+      break;
+    if ( ++v41 == (unsigned int *)&unk_144132F94 )
       goto LABEL_31;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm1, xmm1, xmm0
-  }
+  v43 = (float)v42;
+  v33 = v33 / v43;
 LABEL_31:
-  __asm
-  {
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm2
-    vcvtss2sd xmm3, xmm1, xmm1
-  }
-  v152 = v56;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: allocated=^5%.2f %s^7 (^3%.2f^7%% of reserved) (tail=^30x%016zx^7, head=^30x%016zx^7)", regionName, *(double *)&_XMM3, v152, v165, stats->tailAddress, stats->headAddress);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v153, v166, 1, 1, v179, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: allocated=^5%.2f %s^7 (^3%.2f^7%% of reserved) (tail=^30x%016zx^7, head=^30x%016zx^7)", regionName, v33, v40, v38, stats->tailAddress, stats->headAddress);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v32, 1, 1, fontScale, &colorWhite, 3);
   used = stats->used;
-  __asm
+  v45 = v32 + lineHeight;
+  v46 = (float)used;
+  if ( used < 0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm2, xmm2, r8
+    v47 = (float)used;
+    v46 = v47 + v25;
   }
-  if ( (used & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm2, xmm2, xmm7 }
-  __asm
+  v48 = stats->allocated;
+  v49 = (float)v48;
+  if ( v48 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v50 = (float)v48;
+    v49 = v50 + v25;
   }
-  if ( (stats->allocated & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
+  v51 = (float)((float)(v46 / v49) * 100.0);
+  v52 = 0i64;
+  while ( used < (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v52] )
   {
-    vdivss  xmm0, xmm2, xmm0
-    vmulss  xmm1, xmm0, xmm8
-    vcvtss2sd xmm4, xmm1, xmm1
-  }
-  v71 = 0i64;
-  while ( used < (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v71] )
-  {
-    if ( (unsigned __int64)++v71 >= 3 )
+    if ( (unsigned __int64)++v52 >= 3 )
     {
-      v72 = "bytes";
+      v53 = "bytes";
       goto LABEL_40;
     }
   }
-  v72 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v71];
+  v53 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v52];
 LABEL_40:
-  v73 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( used < *v73 )
+  v54 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v73 == (unsigned int *)&unk_144132F94 )
+    v55 = *v54;
+    if ( used >= (unsigned __int64)v55 )
+      break;
+    if ( ++v54 == (unsigned int *)&unk_144132F94 )
       goto LABEL_45;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm2, xmm2, xmm0
-  }
+  v56 = (float)v55;
+  v46 = v46 / v56;
 LABEL_45:
-  __asm
-  {
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm4
-    vcvtss2sd xmm3, xmm2, xmm2
-  }
-  v154 = v72;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: used=^5%.2f %s^7 (^3%.2f^7%% of allocated)", regionName, *(double *)&_XMM3, v154, v167);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v155, v168, 1, 1, v180, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: used=^5%.2f %s^7 (^3%.2f^7%% of allocated)", regionName, v46, v53, v51);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v45, 1, 1, fontScale, &colorWhite, 3);
   committed = stats->committed;
-  __asm
+  v58 = v45 + lineHeight;
+  v59 = (float)committed;
+  if ( committed < 0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm2, xmm2, r8
+    v60 = (float)committed;
+    v59 = v60 + v25;
   }
-  if ( (committed & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm2, xmm2, xmm7 }
-  __asm
+  v61 = stats->used;
+  v62 = (float)v61;
+  if ( v61 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v63 = (float)v61;
+    v62 = v63 + v25;
   }
-  if ( (stats->used & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
+  v64 = (float)((float)(v59 / v62) * 100.0);
+  v65 = 0i64;
+  while ( committed < (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v65] )
   {
-    vdivss  xmm0, xmm2, xmm0
-    vmulss  xmm1, xmm0, xmm8
-    vcvtss2sd xmm4, xmm1, xmm1
-  }
-  v87 = 0i64;
-  while ( committed < (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v87] )
-  {
-    if ( (unsigned __int64)++v87 >= 3 )
+    if ( (unsigned __int64)++v65 >= 3 )
     {
-      v88 = "bytes";
+      v66 = "bytes";
       goto LABEL_54;
     }
   }
-  v88 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v87];
+  v66 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v65];
 LABEL_54:
-  v89 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( committed < *v89 )
+  v67 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v89 == (unsigned int *)&unk_144132F94 )
+    v68 = *v67;
+    if ( committed >= (unsigned __int64)v68 )
+      break;
+    if ( ++v67 == (unsigned int *)&unk_144132F94 )
       goto LABEL_59;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm2, xmm2, xmm0
-  }
+  v69 = (float)v68;
+  v59 = v59 / v69;
 LABEL_59:
-  __asm
-  {
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm4
-    vcvtss2sd xmm3, xmm2, xmm2
-  }
-  v156 = v88;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     committed=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, *(double *)&_XMM3, v156, v169);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v157, v170, 1, 1, v181, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     committed=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, v59, v66, v64);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v58, 1, 1, fontScale, &colorWhite, 3);
   alignWaste = stats->alignWaste;
-  __asm
+  v71 = v58 + lineHeight;
+  v72 = (float)alignWaste;
+  if ( alignWaste < 0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm2, xmm2, r8
+    v73 = (float)alignWaste;
+    v72 = v73 + v25;
   }
-  if ( (alignWaste & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm2, xmm2, xmm7 }
-  __asm
+  v74 = stats->used;
+  v75 = (float)v74;
+  if ( v74 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v76 = (float)v74;
+    v75 = v76 + v25;
   }
-  if ( (stats->used & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
+  v77 = (float)((float)(v72 / v75) * 100.0);
+  v78 = 0i64;
+  while ( alignWaste < (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v78] )
   {
-    vdivss  xmm0, xmm2, xmm0
-    vmulss  xmm1, xmm0, xmm8
-    vcvtss2sd xmm4, xmm1, xmm1
-  }
-  v103 = 0i64;
-  while ( alignWaste < (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v103] )
-  {
-    if ( (unsigned __int64)++v103 >= 3 )
+    if ( (unsigned __int64)++v78 >= 3 )
     {
-      v104 = "bytes";
+      v79 = "bytes";
       goto LABEL_68;
     }
   }
-  v104 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v103];
+  v79 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v78];
 LABEL_68:
-  v105 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( alignWaste < *v105 )
+  v80 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v105 == (unsigned int *)&unk_144132F94 )
+    v81 = *v80;
+    if ( alignWaste >= (unsigned __int64)v81 )
+      break;
+    if ( ++v80 == (unsigned int *)&unk_144132F94 )
       goto LABEL_73;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm2, xmm2, xmm0
-  }
+  v82 = (float)v81;
+  v72 = v72 / v82;
 LABEL_73:
-  __asm
-  {
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm4
-    vcvtss2sd xmm3, xmm2, xmm2
-  }
-  v158 = v104;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     alignment waste=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, *(double *)&_XMM3, v158, v171);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v159, v172, 1, 1, v182, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     alignment waste=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, v72, v79, v77);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v71, 1, 1, fontScale, &colorWhite, 3);
   fullyUnmappedNotYetReleased = stats->fullyUnmappedNotYetReleased;
-  __asm
+  v84 = v71 + lineHeight;
+  v85 = (float)fullyUnmappedNotYetReleased;
+  if ( fullyUnmappedNotYetReleased < 0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm2, xmm2, r8
+    v86 = (float)fullyUnmappedNotYetReleased;
+    v85 = v86 + v25;
   }
-  if ( (fullyUnmappedNotYetReleased & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm2, xmm2, xmm7 }
-  __asm
+  v87 = stats->used;
+  v88 = (float)v87;
+  if ( v87 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v89 = (float)v87;
+    v88 = v89 + v25;
   }
-  if ( (stats->used & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
+  v90 = (float)((float)(v85 / v88) * 100.0);
+  v91 = 0i64;
+  while ( fullyUnmappedNotYetReleased < (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v91] )
   {
-    vdivss  xmm0, xmm2, xmm0
-    vmulss  xmm1, xmm0, xmm8
-    vcvtss2sd xmm4, xmm1, xmm1
-  }
-  v119 = 0i64;
-  while ( fullyUnmappedNotYetReleased < (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v119] )
-  {
-    if ( (unsigned __int64)++v119 >= 3 )
+    if ( (unsigned __int64)++v91 >= 3 )
     {
-      v120 = "bytes";
+      v92 = "bytes";
       goto LABEL_82;
     }
   }
-  v120 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v119];
+  v92 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v91];
 LABEL_82:
-  v121 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
-  while ( fullyUnmappedNotYetReleased < *v121 )
+  v93 = (unsigned int *)&`_lambda_2261345866dc6f913dffe23b6dba5289_::operator()'::`2'::sizeSteps;
+  while ( 1 )
   {
-    if ( ++v121 == (unsigned int *)&unk_144132F94 )
+    v94 = *v93;
+    if ( fullyUnmappedNotYetReleased >= (unsigned __int64)v94 )
+      break;
+    if ( ++v93 == (unsigned int *)&unk_144132F94 )
       goto LABEL_87;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-    vdivss  xmm2, xmm2, xmm0
-  }
+  v95 = (float)v94;
+  v85 = v85 / v95;
 LABEL_87:
-  __asm
-  {
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm4
-    vcvtss2sd xmm3, xmm2, xmm2
-  }
-  v160 = v120;
-  __asm { vmovq   r9, xmm3 }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     fully unmapped (but not yet released)=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, *(double *)&_XMM3, v160, v173);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v161, v174, 1, 1, v183, &colorWhite, 3);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s:     fully unmapped (but not yet released)=^5%.2f %s^7 (^3%.2f^7%% of used)", regionName, v85, v92, v90);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v84, 1, 1, fontScale, &colorWhite, 3);
   fragmentation = stats->fragmentation;
-  __asm
+  v97 = v84 + lineHeight;
+  v98 = (float)fragmentation;
+  if ( fragmentation < 0 )
   {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm6, xmm9
-    vcvtsi2ss xmm2, xmm2, rdx
+    v99 = (float)fragmentation;
+    v98 = v99 + v25;
   }
-  if ( (fragmentation & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm2, xmm2, xmm7 }
-  __asm
+  v100 = stats->allocated;
+  v101 = (float)v100;
+  if ( v100 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
+    v102 = (float)v100;
+    v101 = v102 + v25;
   }
-  if ( (stats->allocated & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddss  xmm0, xmm0, xmm7 }
-  __asm
-  {
-    vmovaps xmm7, [rsp+508h+var_58]
-    vdivss  xmm0, xmm2, xmm0
-    vmulss  xmm1, xmm0, xmm8
-    vmovaps xmm8, [rsp+508h+var_68]
-    vcvtss2sd xmm4, xmm1, xmm1
-  }
+  v103 = (float)((float)(v98 / v101) * 100.0);
   do
   {
-    if ( fragmentation >= (unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v28] )
+    if ( fragmentation >= (unsigned __int64)(unsigned int)`_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::sizeSteps[v17] )
     {
-      v31 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v28];
+      v20 = `_lambda_abf6705960c7f33a0353bd2135a016ac_::operator()'::`2'::suffixes[v17];
       break;
     }
-    ++v28;
+    ++v17;
   }
-  while ( v28 < 3 );
-  while ( fragmentation < *v33 )
+  while ( v17 < 3 );
+  while ( 1 )
   {
-    if ( ++v33 == (unsigned int *)&unk_144132F94 )
+    v104 = *v22;
+    if ( fragmentation >= (unsigned __int64)v104 )
+      break;
+    if ( ++v22 == (unsigned int *)&unk_144132F94 )
       goto LABEL_100;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vdivss  xmm2, xmm2, xmm0
-  }
+  v105 = (float)v104;
+  v98 = v98 / v105;
 LABEL_100:
-  __asm
-  {
-    vcvtss2sd xmm3, xmm2, xmm2
-    vmovsd  qword ptr [rsp+508h+var_4E0], xmm4
-    vmovq   r9, xmm3
-  }
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: fragmentation=^5%.2f %s^7 (^3%.2f^7%% of allocated)", regionName, *(double *)&_XMM3, v31, v175);
-  __asm
-  {
-    vmovss  [rsp+508h+var_4C8], xmm11
-    vmovss  [rsp+508h+var_4E0], xmm6
-    vmovss  [rsp+508h+var_4E8], xmm10
-  }
-  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, v162, v176, 1, 1, v184, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm0, xmm9, xmm6
-    vaddss  xmm0, xmm0, xmm9
-  }
-  _R11 = &v188;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-  }
-  return *(float *)&_XMM0;
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: fragmentation=^5%.2f %s^7 (^3%.2f^7%% of allocated)", regionName, v98, v20, v103);
+  UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, x, v97, 1, 1, fontScale, &colorWhite, 3);
+  return (float)(lineHeight + v97) + lineHeight;
 }
 
 /*
@@ -1559,8 +1200,11 @@ void Stream_Debug_DrawMetricsHitTable(LocalClientNum_t localClientIndex, const C
   const Material **p_material; 
   const dvar_t *v9; 
   __int64 v10; 
-  unsigned int v25; 
   CG_DrawHits_Hit *p_lockedHit; 
+  const CG_DrawHits_Hit *v12; 
+  __int128 v13; 
+  unsigned int v14; 
+  CG_DrawHits_Hit *v15; 
 
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1476, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
@@ -1595,59 +1239,42 @@ void Stream_Debug_DrawMetricsHitTable(LocalClientNum_t localClientIndex, const C
           return;
         v10 = 3i64;
         s_streamDebugGlob.isLockedHitSet = 1;
-        _RAX = &s_streamDebugGlob.lockedHit;
-        _RCX = &hits[v7];
+        p_lockedHit = &s_streamDebugGlob.lockedHit;
+        v12 = &hits[v7];
         do
         {
-          _RAX = (CG_DrawHits_Hit *)((char *)_RAX + 128);
-          __asm { vmovups xmm0, xmmword ptr [rcx] }
-          _RCX = (const CG_DrawHits_Hit *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups xmmword ptr [rax-80h], xmm0
-            vmovups xmm1, xmmword ptr [rcx-70h]
-            vmovups xmmword ptr [rax-70h], xmm1
-            vmovups xmm0, xmmword ptr [rcx-60h]
-            vmovups xmmword ptr [rax-60h], xmm0
-            vmovups xmm1, xmmword ptr [rcx-50h]
-            vmovups xmmword ptr [rax-50h], xmm1
-            vmovups xmm0, xmmword ptr [rcx-40h]
-            vmovups xmmword ptr [rax-40h], xmm0
-            vmovups xmm1, xmmword ptr [rcx-30h]
-            vmovups xmmword ptr [rax-30h], xmm1
-            vmovups xmm0, xmmword ptr [rcx-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmm1, xmmword ptr [rcx-10h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
+          p_lockedHit = (CG_DrawHits_Hit *)((char *)p_lockedHit + 128);
+          v13 = *(_OWORD *)&v12->coord;
+          v12 = (const CG_DrawHits_Hit *)((char *)v12 + 128);
+          *(_OWORD *)p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq = v13;
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[4] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[4];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[8];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[12] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[12];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[16];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[20];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[24];
+          *(_OWORD *)&p_lockedHit[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28] = *(_OWORD *)&v12[-1].modelInfo.superTerrain.layerMaterialsHimipRadiusInvSq[28];
           --v10;
         }
         while ( v10 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups xmm1, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+10h], xmm1
-          vmovups xmm0, xmmword ptr [rcx+20h]
-          vmovups xmmword ptr [rax+20h], xmm0
-          vmovups xmm1, xmmword ptr [rcx+30h]
-          vmovups xmmword ptr [rax+30h], xmm1
-        }
-        *(_QWORD *)&_RAX->modelInfo.superTerrain.layerMaterialCount = *(_QWORD *)&_RCX->modelInfo.superTerrain.layerMaterialCount;
+        *(_OWORD *)&p_lockedHit->coord = *(_OWORD *)&v12->coord;
+        *(_OWORD *)&p_lockedHit->surfaceFlags = *(_OWORD *)&v12->surfaceFlags;
+        *(_OWORD *)&p_lockedHit->modelType = *(_OWORD *)&v12->modelType;
+        *(_OWORD *)&p_lockedHit->modelInfo.superTerrain.combinedAlbedoMap = *(_OWORD *)&v12->modelInfo.superTerrain.combinedAlbedoMap;
+        *(_QWORD *)&p_lockedHit->modelInfo.superTerrain.layerMaterialCount = *(_QWORD *)&v12->modelInfo.superTerrain.layerMaterialCount;
       }
-      v25 = 1;
-      p_lockedHit = &s_streamDebugGlob.lockedHit;
+      v14 = 1;
+      v15 = &s_streamDebugGlob.lockedHit;
     }
     else
     {
       if ( v7 == hitCount )
         return;
       s_streamDebugGlob.isLockedHitSet = 0;
-      v25 = hitCount - v7;
-      p_lockedHit = (CG_DrawHits_Hit *)&hits[v7];
+      v14 = hitCount - v7;
+      v15 = (CG_DrawHits_Hit *)&hits[v7];
     }
-    Stream_Debug_DrawMetricsHitTableInternal(localClientIndex, p_lockedHit, v25);
+    Stream_Debug_DrawMetricsHitTableInternal(localClientIndex, v15, v14);
   }
 }
 
@@ -1658,757 +1285,517 @@ Stream_Debug_DrawMetricsHitTableInternal
 */
 void Stream_Debug_DrawMetricsHitTableInternal(LocalClientNum_t localClientIndex, const CG_DrawHits_Hit *hits, unsigned int hitCount)
 {
+  const dvar_t *v5; 
+  float value; 
+  const ScreenPlacement *v7; 
+  __int128 v8; 
   __int64 sortListRead; 
   int mCount; 
-  int v23; 
-  unsigned int v24; 
-  unsigned int v25; 
-  GfxFont *v27; 
-  const char *v30; 
-  bool v32; 
-  const char *v33; 
-  unsigned int v39; 
-  unsigned int v40; 
-  bool v43; 
-  Material *v47; 
-  int v48; 
+  int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  GfxFont *v14; 
+  const char *v15; 
+  __int128 v16; 
+  bool v17; 
+  const char *v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  float coord; 
+  __int128 v22; 
+  const GfxImage **p_combinedAlbedoMap; 
+  Material *v24; 
+  int v25; 
   unsigned int layerCount; 
-  int v50; 
-  int v51; 
-  __int64 v62; 
+  int v27; 
+  int v28; 
+  __int128 v29; 
+  float v30; 
+  __int64 v31; 
   const StTerrain *terrain; 
-  const dvar_t *v64; 
-  StDiskTerrainSurface *v65; 
+  const dvar_t *v33; 
+  StDiskTerrainSurface *v34; 
   unsigned int unsignedInt; 
-  unsigned int v68; 
-  const Material *v70; 
-  char *v72; 
-  const char *v75; 
-  const char *v76; 
-  unsigned int v77; 
-  GfxImage *v78; 
-  bool v79; 
-  bool v80; 
-  const XModel *v82; 
+  const GfxImage **v36; 
+  unsigned int v37; 
+  __int64 v38; 
+  const Material *v39; 
+  double v40; 
+  const char *v41; 
+  const char *v42; 
+  __int128 v43; 
+  unsigned int v44; 
+  GfxImage *v45; 
+  const XModel *v46; 
   unsigned int XModelIndex; 
-  unsigned int v85; 
-  unsigned int v88; 
+  unsigned int v48; 
+  unsigned int v49; 
+  __int128 v50; 
+  __int128 v51; 
+  unsigned __int64 v52; 
+  unsigned int v53; 
+  unsigned __int64 v54; 
+  const XModelSurfs *v55; 
+  int XModelSurfsIndex; 
+  __int64 v57; 
+  float dataSize; 
+  double v59; 
+  bool v60; 
+  const char *v61; 
+  bool v62; 
+  StreamFrontendGlob *v63; 
+  const char *v64; 
+  unsigned int *v65; 
+  int v66; 
+  bool v67; 
+  unsigned int *v68; 
+  bool v69; 
+  const char *v70; 
+  const char *v71; 
+  const char *v72; 
+  bool v73; 
+  const char *v74; 
+  const char *v75; 
+  bool v76; 
+  const char *v77; 
+  const char *v78; 
+  __int128 v79; 
+  __int128 v80; 
+  StreamFrontendGlob *v81; 
+  StreamDistance v82; 
+  float v83; 
+  const char *SpecialStreamDistanceStr; 
+  const Material *v85; 
+  __int128 v86; 
+  unsigned __int64 v87; 
+  GfxSurface *surfaces; 
+  signed __int64 v89; 
   unsigned __int64 v90; 
   unsigned int v91; 
-  unsigned __int64 v92; 
-  const XModelSurfs *v93; 
-  int XModelSurfsIndex; 
-  __int64 v95; 
-  bool v99; 
-  const char *v100; 
-  bool v101; 
-  StreamFrontendGlob *v102; 
-  const char *v103; 
-  unsigned int *v104; 
-  int v105; 
-  unsigned int *v106; 
-  bool v107; 
-  const char *v108; 
-  const char *v109; 
-  const char *v110; 
-  bool v111; 
-  const char *v112; 
-  const char *v113; 
-  bool v114; 
-  const char *v115; 
-  const char *v116; 
-  StreamFrontendGlob *v125; 
-  StreamDistance v126; 
-  const char *SpecialStreamDistanceStr; 
-  const Material *v133; 
-  unsigned __int64 v135; 
-  GfxSurface *surfaces; 
-  signed __int64 v137; 
-  unsigned __int64 v138; 
-  unsigned int v139; 
-  unsigned int v140; 
-  __int64 v149; 
+  unsigned int v92; 
+  unsigned int v93; 
+  __int128 v94; 
+  __int128 v95; 
+  __int64 v96; 
   float *himipRadiusInvSqCompacted; 
   unsigned int Int_Internal_DebugName; 
-  __int64 v152; 
-  __int64 v153; 
-  Material *v155; 
+  __int64 v99; 
+  __int64 v100; 
+  float *v101; 
+  Material *v102; 
+  __int128 v103; 
+  __int128 v104; 
+  __int128 v105; 
   char *fmt; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
   char *fmta; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  float fmtl; 
-  float fmtm; 
-  float fmtn; 
-  float fmto; 
-  float fmtp; 
-  char *fmtq; 
-  float fmtr; 
-  float fmts; 
   __int64 horzAlign; 
   __int64 horzAligna; 
-  int horzAlignc; 
-  int horzAlignd; 
-  int horzAligne; 
-  int horzAlignf; 
   __int64 horzAlignb; 
-  int horzAligng; 
-  int vertAlignb; 
-  int vertAlignc; 
-  int vertAlignd; 
   __int64 vertAlign; 
-  int vertAligne; 
-  double vertAlignf; 
   __int64 vertAligna; 
-  int vertAligng; 
-  float scalea; 
-  float scaleb; 
-  float scalec; 
-  float scaled; 
   __int64 scale; 
-  float scalee; 
-  float scalef; 
-  float scaleg; 
-  float scaleh; 
-  float scalei; 
-  float scalej; 
-  float scalek; 
-  float scalel; 
-  float scalem; 
-  float scalen; 
-  float scaleo; 
-  float scalep; 
-  float color; 
-  float colora; 
-  __int64 v224; 
-  __int64 v225; 
-  __int64 v226; 
+  __int64 v114; 
+  __int64 v115; 
   bool SortListText_45056; 
-  unsigned int v229; 
+  unsigned int v118; 
   GfxFont *font; 
-  unsigned int v231; 
-  unsigned int v232; 
+  unsigned int v120; 
   int index; 
-  const GfxImage **p_combinedAlbedoMap; 
+  const GfxImage **v122; 
   Material *material; 
-  unsigned int v236; 
-  unsigned int v237; 
-  const char *v238; 
-  const char *v239; 
+  unsigned int v124; 
+  unsigned int v125; 
+  const char *v126; 
+  const char *v127; 
   ScreenPlacement *scrPlace; 
   char sortListText[16]; 
   char dest[1024]; 
-  char v245; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
-  _R14 = hits;
   if ( !hitCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1205, ASSERT_TYPE_ASSERT, "(hitCount >= 1)", (const char *)&queryFormat, "hitCount >= 1") )
     __debugbreak();
   Sys_WaitStreamFrontendUpdateWorkerCmds();
-  _RBX = DVARFLT_stream_drawMetricsFontSize;
+  v5 = DVARFLT_stream_drawMetricsFontSize;
   if ( !DVARFLT_stream_drawMetricsFontSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawMetricsFontSize") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vmovaps xmm2, xmm8; scale
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  value = v5->current.value;
   scrPlace = (ScreenPlacement *)ScrPlace_GetActivePlacement(localClientIndex);
-  _R15 = scrPlace;
-  __asm { vmovaps xmm1, xmm8; scale }
-  font = UI_GetFontHandle(scrPlace, 5, *(float *)&_XMM2);
-  UI_TextHeight(font, *(float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, eax
-  }
+  v7 = scrPlace;
+  font = UI_GetFontHandle(scrPlace, 5, value);
+  v16 = 0i64;
+  *(float *)&v16 = (float)UI_TextHeight(font, value);
+  v8 = v16;
   sortListRead = streamFrontendGlob->sortListRead;
   mCount = streamFrontendGlob->sortLists[sortListRead].genericSortList.mCount;
-  v23 = streamFrontendGlob->sortLists[sortListRead].meshSortList.mCount;
-  v24 = streamFrontendGlob->sortLists[sortListRead].imageSortList.mCount;
-  v25 = StreamUpdateScheduler::FrameIndex(&streamFrontendGlob->globalScheduler);
+  v11 = streamFrontendGlob->sortLists[sortListRead].meshSortList.mCount;
+  v12 = streamFrontendGlob->sortLists[sortListRead].imageSortList.mCount;
+  v13 = StreamUpdateScheduler::FrameIndex(&streamFrontendGlob->globalScheduler);
   LODWORD(horzAlign) = mCount;
-  LODWORD(fmt) = v23;
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "Update frame index: %u   Sort list counts: ^5%d^7 images, ^5%d^7 meshes, ^5%d^7 generics", v25, v24, fmt, horzAlign);
-  __asm { vmovss  xmm9, cs:__real@41000000 }
-  v27 = font;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42199999
-    vmovss  [rsp+5A0h+scale], xmm8
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmtb, 1, 1, scalea, &colorWhite);
-  v30 = "^2Zone StreamTree^7";
-  __asm { vaddss  xmm6, xmm10, xmm6 }
+  LODWORD(fmt) = v11;
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "Update frame index: %u   Sort list counts: ^5%d^7 images, ^5%d^7 meshes, ^5%d^7 generics", v13, v12, fmt, horzAlign);
+  v14 = font;
+  CG_DrawHits_DrawText(scrPlace, dest, font, 8.0, 38.399998, 1, 1, value, &colorWhite);
+  v15 = "^2Zone StreamTree^7";
+  *(float *)&v16 = *(float *)&v16 + 38.399998;
   if ( !rgp.world->materialStreamTreeGrid.cellKeys )
-    v30 = "^3Solo StreamTree^7";
-  v32 = Stream_UseXModelStreamTree();
-  v33 = "^2StreamTree Grid^7";
-  if ( !v32 )
-    v33 = "^3None^7";
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "Accel Struct:    Materials / Images: %s    XModels: %s", v30, v33);
-  __asm
-  {
-    vmovss  [rsp+5A0h+scale], xmm8
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmtc, 1, 1, scaleb, &colorWhite);
-  __asm { vaddss  xmm6, xmm6, xmm10 }
+    v15 = "^3Solo StreamTree^7";
+  v17 = Stream_UseXModelStreamTree();
+  v18 = "^2StreamTree Grid^7";
+  if ( !v17 )
+    v18 = "^3None^7";
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "Accel Struct:    Materials / Images: %s    XModels: %s", v15, v18);
+  CG_DrawHits_DrawText(scrPlace, dest, font, 8.0, *(float *)&v16, 1, 1, value, &colorWhite);
+  *(float *)&v16 = *(float *)&v16 + *(float *)&v8;
   Com_sprintf_truncate<1024>((char (*)[1024])dest, "Legend: A=alloc, Lo=loading, I=in-use, L=loaded, S=in sort list, l<idx>/r<idx>=sort list left[unload]/right[load] index, F=forced, T=touched");
-  __asm
-  {
-    vmovss  [rsp+5A0h+scale], xmm8
-    vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-    vmovaps xmm3, xmm9; x
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmtd, 1, 1, scalec, &colorGreen);
-  __asm { vaddss  xmm6, xmm6, xmm10 }
+  CG_DrawHits_DrawText(scrPlace, dest, font, 8.0, *(float *)&v16, 1, 1, value, &colorGreen);
+  *(float *)&v16 = *(float *)&v16 + *(float *)&v8;
   Com_sprintf_truncate<1024>((char (*)[1024])dest, "        Meshes/generics only: F=freeable, D=in-danger");
-  __asm
-  {
-    vmovss  [rsp+5A0h+scale], xmm8
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmte, 1, 1, scaled, &colorGreen);
-  v39 = hitCount;
-  v40 = 0;
-  v229 = 0;
-  __asm
-  {
-    vmovss  xmm13, dword ptr [r14]
-    vaddss  xmm7, xmm6, xmm10
-  }
-  v43 = hitCount == 0;
+  CG_DrawHits_DrawText(scrPlace, dest, font, 8.0, *(float *)&v16, 1, 1, value, &colorGreen);
+  v19 = hitCount;
+  v20 = 0;
+  v118 = 0;
+  coord = hits->coord;
+  *(float *)&v16 = *(float *)&v16 + *(float *)&v8;
+  v22 = v16;
   if ( hitCount )
   {
-    __asm { vmovaps xmmword ptr [rsp+5A0h+var_98+8], xmm11 }
-    _RBX = &_R14->modelInfo.superTerrain.combinedAlbedoMap;
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3a800000
-      vmovaps [rsp+5A0h+var_A8+8], xmm12
-      vmovss  xmm12, cs:__real@7f7fff80
-    }
-    p_combinedAlbedoMap = &_R14->modelInfo.superTerrain.combinedAlbedoMap;
+    p_combinedAlbedoMap = &hits->modelInfo.superTerrain.combinedAlbedoMap;
+    v122 = &hits->modelInfo.superTerrain.combinedAlbedoMap;
     while ( 1 )
     {
-      __asm { vcomiss xmm7, dword ptr [r15+24h] }
-      if ( !v43 )
-      {
-LABEL_122:
-        __asm
-        {
-          vmovaps xmm11, xmmword ptr [rsp+5A0h+var_98+8]
-          vmovaps xmm12, [rsp+5A0h+var_A8+8]
-        }
-        goto LABEL_123;
-      }
-      v47 = (Material *)*(_RBX - 3);
-      material = v47;
-      if ( v47 )
+      if ( *(float *)&v22 > v7->realViewportSize.v[1] )
+        return;
+      v24 = (Material *)*(p_combinedAlbedoMap - 3);
+      material = v24;
+      if ( v24 )
         break;
-LABEL_121:
-      ++v40;
-      _RBX += 57;
-      v229 = v40;
-      p_combinedAlbedoMap = _RBX;
-      v43 = v40 <= v39;
-      if ( v40 >= v39 )
-        goto LABEL_122;
+LABEL_122:
+      ++v20;
+      p_combinedAlbedoMap += 57;
+      v118 = v20;
+      v122 = p_combinedAlbedoMap;
+      if ( v20 >= v19 )
+        return;
     }
-    __asm { vcomiss xmm13, dword ptr [rbx-30h] }
-    v48 = *((_DWORD *)_RBX - 4);
-    layerCount = v47->layerCount;
-    if ( v48 )
+    if ( coord < *((float *)p_combinedAlbedoMap - 12) )
+      return;
+    v25 = *((_DWORD *)p_combinedAlbedoMap - 4);
+    layerCount = v24->layerCount;
+    if ( v25 )
     {
-      v50 = v48 - 1;
-      if ( v50 )
+      v27 = v25 - 1;
+      if ( v27 )
       {
-        v51 = v50 - 1;
-        if ( v51 )
+        v28 = v27 - 1;
+        if ( v28 )
         {
-          if ( v51 == 1 )
+          if ( v28 == 1 )
           {
-            Com_sprintf_truncate<1024>((char (*)[1024])dest, "super terrain: %u", *((unsigned int *)_RBX - 2));
-            __asm
-            {
-              vmovss  [rsp+5A0h+scale], xmm8
-              vmovaps xmm3, xmm9; x
-              vmovss  dword ptr [rsp+5A0h+fmt], xmm7
-            }
-            CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtf, 1, 1, scalee, &colorWhite);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbx-4]
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovq   r8, xmm2
-              vaddss  xmm6, xmm7, xmm10
-            }
-            Com_sprintf_truncate<1024>((char (*)[1024])dest, "combined maps  ^7himipRadiusInvSq = %f", *(double *)&_XMM2);
-            __asm
-            {
-              vmovss  [rsp+5A0h+scale], xmm8
-              vmovaps xmm3, xmm9; x
-              vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-            }
-            CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtg, 1, 1, scalef, &colorWhite);
-            __asm
-            {
-              vaddss  xmm6, xmm6, xmm10
-              vmovss  [rsp+5A0h+vertAlign], xmm6
-              vmovss  [rsp+5A0h+horzAlign], xmm9
-              vmovaps xmm3, xmm8; fontScale
-              vmovss  dword ptr [rsp+5A0h+fmt], xmm10
-            }
-            Stream_Debug_DrawMetricsHitTableInternalImage(*_RBX, _R15, v27, *(float *)&_XMM3, fmth, *(float *)&horzAlignc, *(float *)&vertAlignb);
-            __asm
-            {
-              vaddss  xmm6, xmm6, xmm0
-              vmovss  [rsp+5A0h+vertAlign], xmm6
-              vmovss  [rsp+5A0h+horzAlign], xmm9
-              vmovaps xmm3, xmm8; fontScale
-              vmovss  dword ptr [rsp+5A0h+fmt], xmm10
-            }
-            Stream_Debug_DrawMetricsHitTableInternalImage(_RBX[1], _R15, v27, *(float *)&_XMM3, fmti, *(float *)&horzAlignd, *(float *)&vertAlignc);
-            v62 = *((unsigned int *)_RBX - 2);
+            Com_sprintf_truncate<1024>((char (*)[1024])dest, "super terrain: %u", *((unsigned int *)p_combinedAlbedoMap - 2));
+            CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v22, 1, 1, value, &colorWhite);
+            v29 = v22;
+            Com_sprintf_truncate<1024>((char (*)[1024])dest, "combined maps  ^7himipRadiusInvSq = %f", *((float *)p_combinedAlbedoMap - 1));
+            CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v22 + *(float *)&v8, 1, 1, value, &colorWhite);
+            *(float *)&v29 = (float)((float)(*(float *)&v22 + *(float *)&v8) + *(float *)&v8) + Stream_Debug_DrawMetricsHitTableInternalImage(*p_combinedAlbedoMap, v7, v14, value, *(float *)&v8, 8.0, (float)(*(float *)&v22 + *(float *)&v8) + *(float *)&v8);
+            v30 = Stream_Debug_DrawMetricsHitTableInternalImage(p_combinedAlbedoMap[1], v7, v14, value, *(float *)&v8, 8.0, *(float *)&v29);
+            v31 = *((unsigned int *)p_combinedAlbedoMap - 2);
             terrain = s_stGlob.terrain;
-            v64 = DVARINT_stream_drawMetricsLayerScroll;
-            __asm { vaddss  xmm7, xmm6, xmm0 }
-            v65 = &s_stGlob.terrain->surfaces[v62];
+            v33 = DVARINT_stream_drawMetricsLayerScroll;
+            *(float *)&v29 = *(float *)&v29 + v30;
+            v22 = v29;
+            v34 = &s_stGlob.terrain->surfaces[v31];
             if ( !DVARINT_stream_drawMetricsLayerScroll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawMetricsLayerScroll") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v64);
-            unsignedInt = v64->current.unsignedInt;
-            _RBX = p_combinedAlbedoMap;
-            v68 = *((_DWORD *)p_combinedAlbedoMap + 4);
-            _R14 = v68 - 1;
-            if ( (unsigned int)_R14 > unsignedInt )
-              _R14 = unsignedInt;
-            if ( (unsigned int)_R14 < v68 )
+            Dvar_CheckFrontendServerThread(v33);
+            unsignedInt = v33->current.unsignedInt;
+            v36 = v122;
+            v37 = *((_DWORD *)v122 + 4);
+            v38 = v37 - 1;
+            if ( (unsigned int)v38 > unsignedInt )
+              v38 = unsignedInt;
+            if ( (unsigned int)v38 < v37 )
             {
               do
               {
-                v70 = (const Material *)_RBX[_R14 + 3];
-                __asm { vmovss  xmm6, dword ptr [rbx+r14*4+118h] }
-                v72 = j_va("layer %u", (unsigned int)_R14);
-                __asm
-                {
-                  vcvtss2sd xmm1, xmm6, xmm6
-                  vmovq   rdx, xmm1
-                }
-                v75 = v72;
-                v76 = j_va("^7himipRadiusInvSq = %f", _RDX);
-                __asm
-                {
-                  vmovss  dword ptr [rsp+5A0h+color], xmm7
-                  vmovss  [rsp+5A0h+scale], xmm9
-                  vmovss  [rsp+5A0h+vertAlign], xmm10
-                  vmovss  [rsp+5A0h+horzAlign], xmm8
-                }
-                Stream_Debug_DrawMetricsHitTableInternalMaterial(v70, v75, v76, _R15, font, *(float *)&horzAligne, *(float *)&vertAlignd, scaleg, color);
-                __asm { vaddss  xmm7, xmm7, xmm0 }
-                v77 = v65->layerMaskMapIdxs[_R14];
-                if ( v77 >= terrain->flattenedImagesCount )
+                v39 = (const Material *)v36[v38 + 3];
+                v40 = *((float *)v36 + v38 + 70);
+                v41 = j_va("layer %u", (unsigned int)v38);
+                v42 = j_va("^7himipRadiusInvSq = %f", v40);
+                v43 = v22;
+                *(float *)&v43 = *(float *)&v22 + Stream_Debug_DrawMetricsHitTableInternalMaterial(v39, v41, v42, v7, font, value, *(float *)&v8, 8.0, *(float *)&v22);
+                v22 = v43;
+                v44 = v34->layerMaskMapIdxs[v38];
+                if ( v44 >= terrain->flattenedImagesCount )
                 {
                   LODWORD(vertAlign) = terrain->flattenedImagesCount;
-                  LODWORD(horzAligna) = v65->layerMaskMapIdxs[_R14];
+                  LODWORD(horzAligna) = v34->layerMaskMapIdxs[v38];
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1450, ASSERT_TYPE_ASSERT, "(unsigned)( layerMaskIndex ) < (unsigned)( terrain->flattenedImagesCount )", "layerMaskIndex doesn't index terrain->flattenedImagesCount\n\t%i not in [0, %i)", horzAligna, vertAlign) )
                     __debugbreak();
                 }
-                v78 = terrain->flattenedImages[(unsigned __int16)v77];
-                if ( !v78 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1452, ASSERT_TYPE_ASSERT, "(layerMaskImage)", (const char *)&queryFormat, "layerMaskImage") )
+                v45 = terrain->flattenedImages[(unsigned __int16)v44];
+                if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1452, ASSERT_TYPE_ASSERT, "(layerMaskImage)", (const char *)&queryFormat, "layerMaskImage") )
                   __debugbreak();
-                v79 = v78 < rgp.whiteImage;
-                v80 = v78 == rgp.whiteImage;
-                v27 = font;
-                if ( v78 != rgp.whiteImage )
+                v14 = font;
+                if ( v45 != rgp.whiteImage )
                 {
-                  __asm
-                  {
-                    vmovss  [rsp+5A0h+vertAlign], xmm7
-                    vmovss  [rsp+5A0h+horzAlign], xmm9
-                    vmovaps xmm3, xmm8; fontScale
-                    vmovss  dword ptr [rsp+5A0h+fmt], xmm10
-                  }
-                  Stream_Debug_DrawMetricsHitTableInternalImage(v78, _R15, font, *(float *)&_XMM3, fmtj, *(float *)&horzAlignf, *(float *)&vertAligne);
-                  __asm { vaddss  xmm7, xmm7, xmm0 }
+                  *(float *)&v43 = *(float *)&v43 + Stream_Debug_DrawMetricsHitTableInternalImage(v45, v7, font, value, *(float *)&v8, 8.0, *(float *)&v43);
+                  v22 = v43;
                 }
-                __asm { vcomiss xmm7, dword ptr [r15+24h] }
-                if ( !v79 && !v80 )
+                if ( *(float *)&v22 > v7->realViewportSize.v[1] )
                   break;
-                _RBX = p_combinedAlbedoMap;
-                _R14 = (unsigned int)(_R14 + 1);
+                v36 = v122;
+                v38 = (unsigned int)(v38 + 1);
               }
-              while ( (unsigned int)_R14 < *((_DWORD *)p_combinedAlbedoMap + 4) );
+              while ( (unsigned int)v38 < *((_DWORD *)v122 + 4) );
             }
           }
           else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1468, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
           {
             __debugbreak();
           }
-          goto LABEL_119;
+          goto LABEL_120;
         }
       }
-      v82 = (const XModel *)*(_RBX - 1);
-      XModelIndex = DB_GetXModelIndex(v82);
-      __asm { vmovss  xmm0, dword ptr [rbx+8] }
-      LODWORD(scale) = *(_DWORD *)_RBX;
-      v85 = XModelIndex;
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rsp+5A0h+vertAlign], xmm0
-      }
-      LODWORD(horzAligna) = *((_DWORD *)_RBX + 4);
-      LODWORD(fmta) = *((_DWORD *)_RBX + 3);
-      v231 = XModelIndex;
-      Com_sprintf_truncate<1024>((char (*)[1024])dest, "model: %s ^5[assetIndex=%u, instIdx=%u, colIdx=%u]^7 scale=%.2f, rendered lod %u", v82->name, XModelIndex, fmta, horzAligna, vertAlignf, scale);
-      __asm
-      {
-        vmovss  [rsp+5A0h+scale], xmm8
-        vmovaps xmm3, xmm9; x
-        vmovss  dword ptr [rsp+5A0h+fmt], xmm7
-      }
-      CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtk, 1, 1, scaleh, &colorWhite);
-      v88 = 0;
-      __asm { vaddss  xmm6, xmm7, xmm10 }
-      if ( v82->numLods )
+      v46 = (const XModel *)*(p_combinedAlbedoMap - 1);
+      XModelIndex = DB_GetXModelIndex(v46);
+      LODWORD(scale) = *(_DWORD *)p_combinedAlbedoMap;
+      v48 = XModelIndex;
+      LODWORD(horzAligna) = *((_DWORD *)p_combinedAlbedoMap + 4);
+      LODWORD(fmta) = *((_DWORD *)p_combinedAlbedoMap + 3);
+      v120 = XModelIndex;
+      Com_sprintf_truncate<1024>((char (*)[1024])dest, "model: %s ^5[assetIndex=%u, instIdx=%u, colIdx=%u]^7 scale=%.2f, rendered lod %u", v46->name, XModelIndex, fmta, horzAligna, *((float *)p_combinedAlbedoMap + 2), scale);
+      CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v22, 1, 1, value, &colorWhite);
+      v49 = 0;
+      v51 = v22;
+      *(float *)&v51 = *(float *)&v22 + *(float *)&v8;
+      v50 = v51;
+      if ( v46->numLods )
       {
         while ( 1 )
         {
-          v90 = (unsigned __int64)v88 << 6;
-          if ( *(XSurface **)((char *)&v82->lodInfo[0].surfs + v90) )
+          v52 = (unsigned __int64)v49 << 6;
+          if ( *(XSurface **)((char *)&v46->lodInfo[0].surfs + v52) )
           {
-            if ( XModelSurfs_IsStreamed(*(const XModelSurfs **)((char *)&v82->lodInfo[0].modelSurfsStaging + v90)) )
+            if ( XModelSurfs_IsStreamed(*(const XModelSurfs **)((char *)&v46->lodInfo[0].modelSurfsStaging + v52)) )
               break;
           }
-          if ( ++v88 >= v82->numLods )
-            goto LABEL_83;
+          if ( ++v49 >= v46->numLods )
+            goto LABEL_84;
         }
-        v91 = 0;
-        if ( v82->numLods )
+        v53 = 0;
+        if ( v46->numLods )
         {
           do
           {
-            v92 = (unsigned __int64)v91 << 6;
-            if ( *(XSurface **)((char *)&v82->lodInfo[0].surfs + v92) )
+            v54 = (unsigned __int64)v53 << 6;
+            if ( *(XSurface **)((char *)&v46->lodInfo[0].surfs + v54) )
             {
-              v93 = *(XModelSurfs **)((char *)&v82->lodInfo[0].modelSurfsStaging + v92);
-              if ( !v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 745, ASSERT_TYPE_ASSERT, "(modelSurfs)", (const char *)&queryFormat, "modelSurfs") )
+              v55 = *(XModelSurfs **)((char *)&v46->lodInfo[0].modelSurfsStaging + v54);
+              if ( !v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 745, ASSERT_TYPE_ASSERT, "(modelSurfs)", (const char *)&queryFormat, "modelSurfs") )
                 __debugbreak();
-              if ( !v93->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared") )
+              if ( !v55->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared") )
                 __debugbreak();
-              if ( (v93->shared->flags & 1) != 0 )
+              if ( (v55->shared->flags & 1) != 0 )
               {
-                XModelSurfsIndex = DB_GetXModelSurfsIndex(v93);
-                v95 = XModelSurfsIndex;
+                XModelSurfsIndex = DB_GetXModelSurfsIndex(v55);
+                v57 = XModelSurfsIndex;
                 memset(sortListText, 0, sizeof(sortListText));
                 index = XModelSurfsIndex;
-                __asm { vxorps  xmm0, xmm0, xmm0 }
                 SortListText_45056 = Stream_Debug_GetSortListText_45056_(&streamFrontendGlob->sortLists[streamFrontendGlob->sortListRead].meshSortList, XModelSurfsIndex, (char (*)[16])sortListText);
-                __asm
-                {
-                  vcvtsi2ss xmm0, xmm0, rdx
-                  vmulss  xmm1, xmm0, xmm11
-                  vcvtss2sd xmm7, xmm1, xmm1
-                }
-                v99 = RequestBits::CheckDanger(&streamFrontendGlob->meshRequest, v95);
-                v100 = "^2D^7";
-                if ( v99 )
-                  v100 = "^1D^7";
-                v238 = v100;
-                v101 = RequestBits::CheckFreeable(&streamFrontendGlob->meshRequest, v95);
-                v102 = streamFrontendGlob;
-                v103 = "^1F^7";
-                if ( v101 )
-                  v103 = "^2F^7";
-                v104 = streamFrontendGlob->meshRequest.bits[1];
-                v239 = v103;
-                v236 = streamFrontendGlob->meshRequest.frame[(unsigned int)v95];
-                v237 = streamFrontendGlob->meshRequest.countStable[(unsigned int)v95];
-                if ( !v104 )
+                dataSize = (float)v55->shared->dataSize;
+                v59 = (float)(dataSize * 0.0009765625);
+                v60 = RequestBits::CheckDanger(&streamFrontendGlob->meshRequest, v57);
+                v61 = "^2D^7";
+                if ( v60 )
+                  v61 = "^1D^7";
+                v126 = v61;
+                v62 = RequestBits::CheckFreeable(&streamFrontendGlob->meshRequest, v57);
+                v63 = streamFrontendGlob;
+                v64 = "^1F^7";
+                if ( v62 )
+                  v64 = "^2F^7";
+                v65 = streamFrontendGlob->meshRequest.bits[1];
+                v127 = v64;
+                v124 = streamFrontendGlob->meshRequest.frame[(unsigned int)v57];
+                v125 = streamFrontendGlob->meshRequest.countStable[(unsigned int)v57];
+                if ( !v65 )
                 {
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                     __debugbreak();
-                  v102 = streamFrontendGlob;
+                  v63 = streamFrontendGlob;
                 }
-                v105 = 1 << (v95 & 0x1F);
-                v80 = (v105 & v104[v95 >> 5]) == 0;
-                v106 = v102->meshRequest.bits[0];
-                v107 = !v80;
-                if ( !v106 )
+                v66 = 1 << (v57 & 0x1F);
+                v67 = (v66 & v65[v57 >> 5]) == 0;
+                v68 = v63->meshRequest.bits[0];
+                v69 = !v67;
+                if ( !v68 )
                 {
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
                     __debugbreak();
-                  v102 = streamFrontendGlob;
+                  v63 = streamFrontendGlob;
                 }
-                v80 = !v107 && (v105 & v106[v95 >> 5]) == 0;
-                v108 = (char *)&queryFormat.fmt + 3;
-                if ( !v80 )
-                  v108 = "^2T^7";
-                v109 = (char *)&queryFormat.fmt + 3;
-                if ( StreamableBits::CheckForced(&v102->meshBits, v95) )
-                  v109 = "^2F^7";
-                v110 = "^1L^7";
-                if ( StreamableBits::CheckLoaded(&streamFrontendGlob->meshBits, v95) )
-                  v110 = "^2L^7";
-                v111 = StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v95);
-                v112 = "^1I^7";
-                if ( v111 )
-                  v112 = "^2I^7";
-                v113 = (char *)&queryFormat.fmt + 3;
+                v67 = !v69 && (v66 & v68[v57 >> 5]) == 0;
+                v70 = (char *)&queryFormat.fmt + 3;
+                if ( !v67 )
+                  v70 = "^2T^7";
+                v71 = (char *)&queryFormat.fmt + 3;
+                if ( StreamableBits::CheckForced(&v63->meshBits, v57) )
+                  v71 = "^2F^7";
+                v72 = "^1L^7";
+                if ( StreamableBits::CheckLoaded(&streamFrontendGlob->meshBits, v57) )
+                  v72 = "^2L^7";
+                v73 = StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v57);
+                v74 = "^1I^7";
+                if ( v73 )
+                  v74 = "^2I^7";
+                v75 = (char *)&queryFormat.fmt + 3;
                 if ( StreamableBits::CheckLoading(&streamFrontendGlob->meshBits, index) )
-                  v113 = "^5Lo^7";
-                v114 = StreamableBits::CheckAlloc(&streamFrontendGlob->meshBits, index);
-                __asm { vmovsd  [rsp+5A0h+var_528], xmm7 }
-                v115 = "^1A^7";
-                if ( v114 )
-                  v115 = "^2A^7";
-                v116 = "^1S^7";
+                  v75 = "^5Lo^7";
+                v76 = StreamableBits::CheckAlloc(&streamFrontendGlob->meshBits, index);
+                v77 = "^1A^7";
+                if ( v76 )
+                  v77 = "^2A^7";
+                v78 = "^1S^7";
                 if ( SortListText_45056 )
-                  v116 = "^2S^7";
-                LODWORD(v225) = v236;
-                LODWORD(v224) = v237;
-                Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: %s%s%s%s%s%s%s%s requests = %u frame = %u %s%s %.2f KB", v91, v115, v113, v112, v110, v109, v116, sortListText, v108, v224, v225, v239, v238, v226);
-                v27 = font;
-                _R15 = scrPlace;
+                  v78 = "^2S^7";
+                LODWORD(v115) = v124;
+                LODWORD(v114) = v125;
+                Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: %s%s%s%s%s%s%s%s requests = %u frame = %u %s%s %.2f KB", v53, v77, v75, v74, v72, v71, v78, sortListText, v70, v114, v115, v127, v126, v59);
+                v14 = font;
+                v7 = scrPlace;
               }
               else
               {
-                Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: ^3<not streamed>^7", v91);
+                Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: ^3<not streamed>^7", v53);
               }
             }
             else
             {
-              Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: ^3<not usable/transient unloaded>^7", v91);
+              Com_sprintf_truncate<1024>((char (*)[1024])dest, "  lod %u: ^3<not usable/transient unloaded>^7", v53);
             }
-            __asm
-            {
-              vmovss  [rsp+5A0h+scale], xmm8
-              vmovaps xmm3, xmm9; x
-              vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-            }
-            CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtl, 1, 1, scalei, &colorWhite);
-            ++v91;
-            __asm { vaddss  xmm6, xmm10, xmm6 }
+            CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v50, 1, 1, value, &colorWhite);
+            ++v53;
+            v79 = v8;
+            *(float *)&v79 = *(float *)&v8 + *(float *)&v50;
+            v50 = v79;
           }
-          while ( v91 < v82->numLods );
-          v85 = v231;
+          while ( v53 < v46->numLods );
+          v48 = v120;
         }
       }
-LABEL_83:
-      _RCX = *((unsigned int *)p_combinedAlbedoMap + 1);
-      _RAX = v82->himipRadiusInvSq;
-      __asm
+LABEL_84:
+      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  himipRadiusInvSq = %f", v46->himipRadiusInvSq[*((unsigned int *)v122 + 1)]);
+      CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v50, 1, 1, value, &colorCyan);
+      v80 = v50;
+      *(float *)&v80 = *(float *)&v50 + *(float *)&v8;
+      if ( XModelHasMaterialsWithStreamedImages(v46) )
       {
-        vmovss  xmm2, dword ptr [rax+rcx*4]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  himipRadiusInvSq = %f", *(double *)&_XMM2);
-      __asm
-      {
-        vmovss  [rsp+5A0h+scale], xmm8
-        vmovaps xmm3, xmm9; x
-        vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-      }
-      CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtm, 1, 1, scalej, &colorCyan);
-      __asm { vaddss  xmm7, xmm6, xmm10 }
-      if ( XModelHasMaterialsWithStreamedImages(v82) )
-      {
-        v125 = streamFrontendGlob;
-        if ( v85 >= 0x6000 )
+        v81 = streamFrontendGlob;
+        if ( v48 >= 0x6000 )
         {
           LODWORD(vertAligna) = 24576;
-          LODWORD(horzAlignb) = v85;
+          LODWORD(horzAlignb) = v48;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
             __debugbreak();
         }
-        v126.mValue = v125->modelDistance.mDistances[v85].mValue;
-        if ( v126.mValue == -1 )
-        {
-          __asm { vmovaps xmm6, xmm12 }
-        }
+        v82.mValue = v81->modelDistance.mDistances[v48].mValue;
+        if ( v82.mValue == -1 )
+          v83 = FLOAT_3_4027977e38;
         else
-        {
-          v232 = v126.mValue << 7;
-          __asm { vmovss  xmm6, [rbp+4A0h+var_508] }
-        }
-        SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v126);
-        __asm
-        {
-          vsqrtss xmm0, xmm6, xmm6
-          vcvtss2sd xmm3, xmm0, xmm0
-          vmovq   r9, xmm3
-        }
-        Com_sprintf_truncate<1024>((char (*)[1024])dest, "  dist =%s %.2f", SpecialStreamDistanceStr, *(double *)&_XMM3);
+          LODWORD(v83) = (StreamDistance)(v82.mValue << 7);
+        SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v82);
+        Com_sprintf_truncate<1024>((char (*)[1024])dest, "  dist =%s %.2f", SpecialStreamDistanceStr, fsqrt(v83));
       }
       else
       {
         Com_sprintf_truncate<1024>((char (*)[1024])dest, "  <no streamed images/fully resident>");
       }
-      __asm
-      {
-        vmovss  [rsp+5A0h+scale], xmm8
-        vmovaps xmm3, xmm9; x
-        vmovss  dword ptr [rsp+5A0h+fmt], xmm7
-      }
-      CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmtn, 1, 1, scalek, &colorYellow);
-      v133 = material;
-      __asm { vaddss  xmm6, xmm7, xmm10 }
-LABEL_118:
-      __asm
-      {
-        vmovss  dword ptr [rsp+5A0h+color], xmm6
-        vmovss  [rsp+5A0h+scale], xmm9
-        vmovss  [rsp+5A0h+vertAlign], xmm10
-        vmovss  [rsp+5A0h+horzAlign], xmm8
-      }
-      Stream_Debug_DrawMetricsHitTableInternalMaterial(v133, "material", (const char *)&queryFormat.fmt + 3, _R15, v27, *(float *)&horzAligng, *(float *)&vertAligng, scalep, colora);
-      __asm { vaddss  xmm7, xmm6, xmm0 }
+      CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v80, 1, 1, value, &colorYellow);
+      v85 = material;
+      *(float *)&v80 = *(float *)&v80 + *(float *)&v8;
+      v86 = v80;
 LABEL_119:
-      v40 = v229;
-      v39 = hitCount;
-      goto LABEL_120;
+      v105 = v86;
+      *(float *)&v105 = *(float *)&v86 + Stream_Debug_DrawMetricsHitTableInternalMaterial(v85, "material", (const char *)&queryFormat.fmt + 3, v7, v14, value, *(float *)&v8, 8.0, *(float *)&v86);
+      v22 = v105;
+LABEL_120:
+      v20 = v118;
+      v19 = hitCount;
+      goto LABEL_121;
     }
     if ( !rgp.world->surfaces.himipRadiusInvSqIndirection )
     {
-LABEL_120:
-      _RBX = p_combinedAlbedoMap;
-      goto LABEL_121;
+LABEL_121:
+      p_combinedAlbedoMap = v122;
+      goto LABEL_122;
     }
-    v135 = (unsigned __int64)*(_RBX - 1);
+    v87 = (unsigned __int64)*(p_combinedAlbedoMap - 1);
     surfaces = rgp.world->surfaces.surfaces;
-    if ( (v135 < (unsigned __int64)surfaces || v135 >= (unsigned __int64)&surfaces[rgp.world->surfaces.count]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1381, ASSERT_TYPE_ASSERT, "(modelInfo.world.surface >= rgp.world->surfaces.surfaces && modelInfo.world.surface < rgp.world->surfaces.surfaces + rgp.world->surfaces.count)", (const char *)&queryFormat, "modelInfo.world.surface >= rgp.world->surfaces.surfaces && modelInfo.world.surface < rgp.world->surfaces.surfaces + rgp.world->surfaces.count") )
+    if ( (v87 < (unsigned __int64)surfaces || v87 >= (unsigned __int64)&surfaces[rgp.world->surfaces.count]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1381, ASSERT_TYPE_ASSERT, "(modelInfo.world.surface >= rgp.world->surfaces.surfaces && modelInfo.world.surface < rgp.world->surfaces.surfaces + rgp.world->surfaces.count)", (const char *)&queryFormat, "modelInfo.world.surface >= rgp.world->surfaces.surfaces && modelInfo.world.surface < rgp.world->surfaces.surfaces + rgp.world->surfaces.count") )
       __debugbreak();
-    v137 = (char *)*(_RBX - 1) - (char *)rgp.world->surfaces.surfaces;
-    v138 = v137 / 40;
-    if ( (v137 / 40 < 0 || v138 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v138, "signed", v137 / 40) )
+    v89 = (char *)*(p_combinedAlbedoMap - 1) - (char *)rgp.world->surfaces.surfaces;
+    v90 = v89 / 40;
+    if ( (v89 / 40 < 0 || v90 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v90, "signed", v89 / 40) )
       __debugbreak();
-    v139 = rgp.world->surfaces.himipRadiusInvSqIndirection[(unsigned int)v138];
-    v140 = v139 >> 28;
-    _RSI = v139 & 0xFFFFFFF;
-    Com_sprintf_truncate<1024>((char (*)[1024])dest, "model: <world> ^5[surfaceIndex: %u]", (unsigned int)v138);
-    __asm
-    {
-      vmovss  [rsp+5A0h+scale], xmm8
-      vmovaps xmm3, xmm9; x
-      vmovss  dword ptr [rsp+5A0h+fmt], xmm7
-    }
-    CG_DrawHits_DrawText(_R15, dest, font, *(float *)&_XMM3, fmto, 1, 1, scalel, &colorWhite);
-    __asm { vaddss  xmm6, xmm7, xmm10 }
+    v91 = rgp.world->surfaces.himipRadiusInvSqIndirection[(unsigned int)v90];
+    v92 = v91 >> 28;
+    v93 = v91 & 0xFFFFFFF;
+    Com_sprintf_truncate<1024>((char (*)[1024])dest, "model: <world> ^5[surfaceIndex: %u]", (unsigned int)v90);
+    CG_DrawHits_DrawText(v7, dest, font, 8.0, *(float *)&v22, 1, 1, value, &colorWhite);
+    v95 = v22;
+    *(float *)&v95 = *(float *)&v22 + *(float *)&v8;
+    v94 = v95;
     if ( layerCount )
     {
-      v149 = (unsigned int)_RSI;
-      if ( v140 > layerCount )
-        v140 = layerCount;
+      v96 = v93;
+      if ( v92 > layerCount )
+        v92 = layerCount;
       himipRadiusInvSqCompacted = rgp.world->surfaces.himipRadiusInvSqCompacted;
       Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_stream_drawMetricsLayerScroll, "stream_drawMetricsLayerScroll");
-      v152 = v140 - 1;
-      if ( (unsigned int)v152 > Int_Internal_DebugName )
-        v152 = Int_Internal_DebugName;
-      if ( (unsigned int)v152 < v140 )
+      v99 = v92 - 1;
+      if ( (unsigned int)v99 > Int_Internal_DebugName )
+        v99 = Int_Internal_DebugName;
+      if ( (unsigned int)v99 < v92 )
       {
-        v153 = v152;
-        _R14 = &himipRadiusInvSqCompacted[v149 + (unsigned int)v152];
-        v155 = material;
+        v100 = v99;
+        v101 = &himipRadiusInvSqCompacted[v96 + (unsigned int)v99];
+        v102 = material;
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+5A0h+fmt], xmm0
-          }
-          Com_sprintf_truncate<1024>((char (*)[1024])dest, "  layer %2u ^3%s^7: himipRadiusInvSq = %f", (unsigned int)v152, material->subMaterials[v153], *(double *)&fmtq);
-          __asm
-          {
-            vmovss  [rsp+5A0h+scale], xmm8
-            vmovaps xmm3, xmm9; x
-            vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-          }
-          CG_DrawHits_DrawText(_R15, dest, font, *(float *)&_XMM3, fmtr, 1, 1, scalen, &colorCyan);
-          LODWORD(v152) = v152 + 1;
-          ++_R14;
-          ++v153;
-          __asm { vaddss  xmm6, xmm6, xmm10 }
+          Com_sprintf_truncate<1024>((char (*)[1024])dest, "  layer %2u ^3%s^7: himipRadiusInvSq = %f", (unsigned int)v99, material->subMaterials[v100], *v101);
+          CG_DrawHits_DrawText(v7, dest, font, 8.0, *(float *)&v94, 1, 1, value, &colorCyan);
+          LODWORD(v99) = v99 + 1;
+          ++v101;
+          ++v100;
+          v103 = v94;
+          *(float *)&v103 = *(float *)&v94 + *(float *)&v8;
+          v94 = v103;
         }
-        while ( (unsigned int)v152 < v140 );
-        v27 = font;
-        goto LABEL_117;
+        while ( (unsigned int)v99 < v92 );
+        v14 = font;
+        goto LABEL_118;
       }
-      v27 = font;
+      v14 = font;
     }
     else
     {
-      if ( !v140 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1394, ASSERT_TYPE_ASSERT, "(layerCountCompacted > 0)", (const char *)&queryFormat, "layerCountCompacted > 0") )
+      if ( !v92 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1394, ASSERT_TYPE_ASSERT, "(layerCountCompacted > 0)", (const char *)&queryFormat, "layerCountCompacted > 0") )
         __debugbreak();
-      _RCX = rgp.world->surfaces.himipRadiusInvSqCompacted;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rcx+rsi*4]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r8, xmm2
-      }
-      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  himipRadiusInvSq = %f", *(double *)&_XMM2);
-      v27 = font;
-      __asm
-      {
-        vmovss  [rsp+5A0h+scale], xmm8
-        vmovaps xmm3, xmm9; x
-        vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-      }
-      CG_DrawHits_DrawText(_R15, dest, font, *(float *)&_XMM3, fmtp, 1, 1, scalem, &colorCyan);
-      __asm { vaddss  xmm6, xmm6, xmm10 }
+      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  himipRadiusInvSq = %f", rgp.world->surfaces.himipRadiusInvSqCompacted[v93]);
+      v14 = font;
+      CG_DrawHits_DrawText(v7, dest, font, 8.0, *(float *)&v95, 1, 1, value, &colorCyan);
+      *(float *)&v95 = *(float *)&v95 + *(float *)&v8;
+      v94 = v95;
     }
-    v155 = material;
-LABEL_117:
+    v102 = material;
+LABEL_118:
     Com_sprintf_truncate<1024>((char (*)[1024])dest, "  <world surface; distance only set on material>");
-    __asm
-    {
-      vmovss  [rsp+5A0h+scale], xmm8
-      vmovaps xmm3, xmm9; x
-      vmovss  dword ptr [rsp+5A0h+fmt], xmm6
-    }
-    CG_DrawHits_DrawText(_R15, dest, v27, *(float *)&_XMM3, fmts, 1, 1, scaleo, &colorYellow);
-    v133 = v155;
-    __asm { vaddss  xmm6, xmm6, xmm10 }
-    goto LABEL_118;
-  }
-LABEL_123:
-  _R11 = &v245;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
+    CG_DrawHits_DrawText(v7, dest, v14, 8.0, *(float *)&v94, 1, 1, value, &colorYellow);
+    v85 = v102;
+    v104 = v94;
+    *(float *)&v104 = *(float *)&v94 + *(float *)&v8;
+    v86 = v104;
+    goto LABEL_119;
   }
 }
 
@@ -2417,444 +1804,329 @@ LABEL_123:
 Stream_Debug_DrawMetricsHitTableInternalImage
 ==============
 */
-
-float __fastcall Stream_Debug_DrawMetricsHitTableInternalImage(const GfxImage *image, const ScreenPlacement *scrPlace, GfxFont *const font, double fontScale, float lineHeight, float x, float y)
+float Stream_Debug_DrawMetricsHitTableInternalImage(const GfxImage *image, const ScreenPlacement *scrPlace, GfxFont *const font, float fontScale, float lineHeight, float x, float y)
 {
-  GfxFont *v19; 
+  GfxFont *v8; 
   __int64 GfxImageIndex; 
-  const char *v23; 
+  const char *v11; 
   unsigned __int16 numElements; 
   __int64 height; 
   __int64 width; 
+  float v15; 
   GfxImageFallback *fallback; 
-  const dvar_t *v37; 
+  float size; 
+  const dvar_t *v18; 
   char freqDomainMetricBias; 
+  double v20; 
   int streamedPartCount; 
   const char *Name; 
-  const char *v43; 
-  StreamFrontendGlob *v46; 
-  StreamDistance v48; 
-  unsigned int v49; 
+  const char *v23; 
+  float v24; 
+  StreamFrontendGlob *v25; 
+  StreamDistance v26; 
+  unsigned int v27; 
+  float v28; 
   const char *SpecialStreamDistanceStr; 
-  unsigned int v57; 
-  int v58; 
-  StreamFrontendGlob *v59; 
-  int v60; 
-  char *v61; 
-  StreamDistance v62; 
-  __int64 v63; 
-  const char *v64; 
-  const char *v71; 
-  StreamFrontendGlob *v72; 
-  __int64 v73; 
-  __int64 v74; 
-  int v75; 
-  StreamFrontendGlob *v76; 
-  int v77; 
-  int v78; 
-  StreamFrontendGlob *v79; 
-  const char *v80; 
+  float v30; 
+  __int64 v31; 
+  int v32; 
+  StreamFrontendGlob *v33; 
+  int v34; 
+  char *v35; 
+  StreamDistance v36; 
+  __int64 v37; 
+  const char *v38; 
+  __int64 v39; 
+  float v40; 
+  double v41; 
+  float v42; 
+  double v43; 
+  const char *v44; 
+  StreamFrontendGlob *v45; 
+  __int64 v46; 
+  __int64 v47; 
+  int v48; 
+  StreamFrontendGlob *v49; 
+  int v50; 
+  int v51; 
+  StreamFrontendGlob *v52; 
+  const char *v53; 
   unsigned int *mStaticForced; 
-  bool v82; 
-  const char *v83; 
+  bool v55; 
+  const char *v56; 
   unsigned int *mLoaded; 
-  const char *v85; 
-  StreamFrontendGlob *v86; 
+  const char *v58; 
+  StreamFrontendGlob *v59; 
   unsigned int *mUse; 
-  StreamFrontendGlob *v88; 
-  const char *v89; 
+  StreamFrontendGlob *v61; 
+  const char *v62; 
   unsigned int *mLoading; 
-  const char *v91; 
-  StreamFrontendGlob *v92; 
+  const char *v64; 
+  StreamFrontendGlob *v65; 
   unsigned int *mAlloc; 
-  const char *v94; 
-  const char *v95; 
-  float fmtb; 
+  const char *v67; 
+  const char *v68; 
   char *fmt; 
-  char *fmtc; 
-  float fmtd; 
   char *fmta; 
-  float fmte; 
-  float fmtf; 
   __int64 horzAlign; 
   __int64 horzAligna; 
   __int64 horzAlignb; 
   __int64 vertAlign; 
   __int64 vertAligna; 
-  float scale; 
-  float scalea; 
-  float scaleb; 
-  float scalec; 
-  double v126; 
-  double v127; 
   bool SortListText_327680; 
-  unsigned int v129; 
-  int v130; 
-  unsigned int v131; 
-  unsigned int v132; 
-  __int64 v133; 
-  __int64 v134; 
-  const char *v135; 
-  const char *v136; 
-  const char *v137; 
+  int v78; 
+  unsigned int v79; 
+  __int64 v80; 
+  __int64 v81; 
+  const char *v82; 
+  const char *v83; 
+  const char *v84; 
   char sortListText[16]; 
-  char v141[32]; 
-  char v142[64]; 
-  char v143[64]; 
+  char v88[32]; 
+  char v89[64]; 
+  char v90[64]; 
   char dest[1024]; 
-  char v148; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-  }
-  v19 = font;
-  __asm { vmovaps xmm9, xmm3 }
+  v8 = font;
   if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1023, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
     __debugbreak();
   if ( !scrPlace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1024, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
   GfxImageIndex = DB_GetGfxImageIndex(image);
-  v23 = Image_TextureSemanticToString(image->semantic);
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "    image: %s ^5[assetIndex: %u](%s)^7", image->name, (unsigned int)GfxImageIndex, v23);
-  __asm
-  {
-    vmovss  xmm10, [rbp+560h+x]
-    vmovss  xmm8, [rbp+560h+y]
-    vmovss  [rsp+660h+scale], xmm9
-    vmovaps xmm3, xmm10; x
-    vmovss  dword ptr [rsp+660h+fmt], xmm8
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, v19, *(float *)&_XMM3, fmtb, 1, 1, scale, &colorWhite);
+  v11 = Image_TextureSemanticToString(image->semantic);
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "    image: %s ^5[assetIndex: %u](%s)^7", image->name, (unsigned int)GfxImageIndex, v11);
+  CG_DrawHits_DrawText(scrPlace, dest, v8, x, y, 1, 1, fontScale, &colorWhite);
   numElements = image->numElements;
   height = image->height;
   width = image->width;
-  __asm
-  {
-    vmovss  xmm11, [rbp+560h+lineHeight]
-    vaddss  xmm6, xmm11, xmm8
-  }
+  v15 = lineHeight + y;
   if ( numElements <= 1u )
   {
-    Com_sprintf<64>((char (*)[64])v143, "%ux%u", width, height);
+    Com_sprintf<64>((char (*)[64])v90, "%ux%u", width, height);
   }
   else
   {
     LODWORD(fmt) = numElements;
-    Com_sprintf<64>((char (*)[64])v143, "%ux%u|%u", width, height, fmt);
+    Com_sprintf<64>((char (*)[64])v90, "%ux%u|%u", width, height, fmt);
   }
   fallback = image->fallback;
-  __asm { vmovss  xmm13, cs:__real@3a800000 }
   if ( fallback )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm13
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+660h+fmt], xmm2
-    }
-    Com_sprintf<64>((char (*)[64])v142, "fallback: %ux%u %.2f KB", fallback->width, fallback->height, *(double *)&fmtc);
+    size = (float)fallback->size;
+    Com_sprintf<64>((char (*)[64])v89, "fallback: %ux%u %.2f KB", fallback->width, fallback->height, (float)(size * 0.0009765625));
   }
   else
   {
-    Com_sprintf<64>((char (*)[64])v142, "fallback: ^5<none>^7");
+    Com_sprintf<64>((char (*)[64])v89, "fallback: ^5<none>^7");
   }
-  v37 = DVARBOOL_stream_freqDomainMetricBiasEnable;
-  memset(v141, 0, sizeof(v141));
+  v18 = DVARBOOL_stream_freqDomainMetricBiasEnable;
+  memset(v88, 0, sizeof(v88));
   if ( !DVARBOOL_stream_freqDomainMetricBiasEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_freqDomainMetricBiasEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  if ( v37->current.enabled )
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.enabled )
   {
     freqDomainMetricBias = image->freqDomainMetricBias;
     if ( freqDomainMetricBias )
     {
-      *(double *)&_XMM0 = Stream_DecodeFreqDomainMetricBias(freqDomainMetricBias);
-      __asm
-      {
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_sprintf_truncate<32>((char (*)[32])v141, ", freqBias: ^5%.4f [%d]^7", *(double *)&_XMM2, (unsigned int)image->freqDomainMetricBias);
+      v20 = Stream_DecodeFreqDomainMetricBias(freqDomainMetricBias);
+      Com_sprintf_truncate<32>((char (*)[32])v88, ", freqBias: ^5%.4f [%d]^7", *(float *)&v20, (unsigned int)image->freqDomainMetricBias);
     }
   }
   streamedPartCount = image->streamedPartCount;
   Name = PixelFormat_GetName(image->format);
-  v43 = "^3<not streamed>^7 ";
+  v23 = "^3<not streamed>^7 ";
   if ( (image->flags & 0x40) != 0 )
-    v43 = (char *)&queryFormat.fmt + 3;
+    v23 = (char *)&queryFormat.fmt + 3;
   LODWORD(horzAlign) = streamedPartCount;
-  Com_sprintf_truncate<1024>((char (*)[1024])dest, "           %s%s %s %u streamed parts, %s%s", v43, v143, Name, horzAlign, v142, v141);
-  __asm
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "           %s%s %s %u streamed parts, %s%s", v23, v90, Name, horzAlign, v89, v88);
+  CG_DrawHits_DrawText(scrPlace, dest, v8, x, v15, 1, 1, fontScale, &colorWhite);
+  v24 = v15 + lineHeight;
+  if ( (image->flags & 0x40) == 0 )
+    return v24 - y;
+  v25 = streamFrontendGlob;
+  if ( (unsigned int)GfxImageIndex >= 0x14000 )
   {
-    vmovss  [rsp+660h+scale], xmm9
-    vmovaps xmm3, xmm10; x
-    vmovss  dword ptr [rsp+660h+fmt], xmm6
+    LODWORD(vertAlign) = 81920;
+    LODWORD(horzAligna) = GfxImageIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAligna, vertAlign) )
+      __debugbreak();
   }
-  CG_DrawHits_DrawText(scrPlace, dest, v19, *(float *)&_XMM3, fmtd, 1, 1, scalea, &colorWhite);
-  __asm { vaddss  xmm6, xmm6, xmm11 }
-  if ( (image->flags & 0x40) != 0 )
-  {
-    v46 = streamFrontendGlob;
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+660h+var_68+8], xmm7
-      vmovaps xmmword ptr [rsp+660h+var_B8+8], xmm12
-      vmovaps xmmword ptr [rsp+660h+var_D8+8], xmm14
-    }
-    if ( (unsigned int)GfxImageIndex >= 0x14000 )
-    {
-      LODWORD(vertAlign) = 81920;
-      LODWORD(horzAligna) = GfxImageIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAligna, vertAlign) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm12, cs:__real@7f7fff80 }
-    v48.mValue = v46->imageDistance.mDistances[(int)GfxImageIndex].mValue;
-    v49 = streamFrontendGlob->imageUsedFrame[GfxImageIndex];
-    if ( v48.mValue == -1 )
-    {
-      __asm { vmovaps xmm7, xmm12 }
-    }
-    else
-    {
-      v129 = v48.mValue << 7;
-      __asm { vmovss  xmm7, [rbp+560h+var_5DC] }
-    }
-    SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v48);
-    __asm
-    {
-      vsqrtss xmm0, xmm7, xmm7
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-    }
-    LODWORD(fmta) = v49;
-    Com_sprintf_truncate<1024>((char (*)[1024])dest, "      dist =%s %.4f frame = %u", SpecialStreamDistanceStr, *(double *)&_XMM3, fmta);
-    __asm
-    {
-      vmovss  [rsp+660h+scale], xmm9
-      vmovaps xmm3, xmm10; x
-      vmovss  dword ptr [rsp+660h+fmt], xmm6
-    }
-    CG_DrawHits_DrawText(scrPlace, dest, v19, *(float *)&_XMM3, fmte, 1, 1, scaleb, &colorYellow);
-    __asm { vaddss  xmm14, xmm6, xmm11 }
-    Com_sprintf_truncate<1024>((char (*)[1024])dest, "      ");
-    v57 = 0;
-    v131 = 0;
-    if ( image->streamedPartCount )
-    {
-      v58 = 4 * GfxImageIndex;
-      v130 = 4 * GfxImageIndex;
-      do
-      {
-        v59 = streamFrontendGlob;
-        v60 = v58 + v57;
-        v61 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
-        if ( v58 + v57 >= 0x50000 )
-        {
-          LODWORD(vertAligna) = 327680;
-          LODWORD(horzAlignb) = v58 + v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-          v59 = streamFrontendGlob;
-        }
-        v62.mValue = *(_DWORD *)&v61[4 * v60 + 2775264];
-        memset(sortListText, 0, sizeof(sortListText));
-        SortListText_327680 = Stream_Debug_GetSortListText_327680_(&v59->sortLists[v59->sortListRead].imageSortList, v60, (char (*)[16])sortListText);
-        v63 = -1i64;
-        do
-          ++v63;
-        while ( dest[v63] );
-        v134 = v63;
-        v64 = ", ";
-        if ( v57 == image->streamedPartCount - 1 )
-          v64 = (char *)&queryFormat.fmt + 3;
-        v135 = v64;
-        if ( (image->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
-          __debugbreak();
-        if ( v57 >= Image_GetStreamedPartCount(image) )
-        {
-          LODWORD(vertAligna) = Image_GetStreamedPartCount(image);
-          LODWORD(horzAlignb) = v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm13
-          vcvtss2sd xmm7, xmm1, xmm1
-        }
-        if ( v62.mValue == -1 )
-        {
-          __asm { vmovaps xmm0, xmm12 }
-        }
-        else
-        {
-          v132 = v62.mValue << 7;
-          __asm { vmovss  xmm0, dword ptr [rbp+560h+var_5D0] }
-        }
-        __asm
-        {
-          vsqrtss xmm0, xmm0, xmm0
-          vcvtss2sd xmm6, xmm0, xmm0
-        }
-        v71 = Stream_Debug_GetSpecialStreamDistanceStr(v62);
-        v72 = streamFrontendGlob;
-        v136 = v71;
-        if ( (unsigned int)(v60 >> 5) >= 0x2800 )
-        {
-          LODWORD(vertAligna) = 10240;
-          LODWORD(horzAlignb) = v60 >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        v73 = (__int64)v60 >> 5;
-        v133 = v73;
-        v74 = (__int64)&v72->imageTouchBits[1][v73];
-        if ( (v74 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v74) )
-          __debugbreak();
-        v75 = *(_DWORD *)v74;
-        v76 = streamFrontendGlob;
-        v77 = 1 << (v60 & 0x1F);
-        v78 = v75 & v77;
-        if ( (unsigned int)(v60 >> 5) >= 0x2800 )
-        {
-          LODWORD(vertAligna) = 10240;
-          LODWORD(horzAlignb) = v60 >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        if ( (((_BYTE)v76 + 4 * (_BYTE)v73 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (char *)v76->imageTouchBits + 4 * v73) )
-          __debugbreak();
-        v79 = streamFrontendGlob;
-        v80 = (char *)&queryFormat.fmt + 3;
-        if ( v78 != 0 || (v77 & v76->imageTouchBits[0][v73]) != 0 )
-          v80 = "^2T^7";
-        v137 = v80;
-        if ( v60 >= streamFrontendGlob->imageBits.mBitCount )
-        {
-          LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(horzAlignb) = v60;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        mStaticForced = v79->imageBits.mStaticForced;
-        if ( !mStaticForced && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-          __debugbreak();
-        v82 = (v77 & mStaticForced[v73]) == 0;
-        v83 = (char *)&queryFormat.fmt + 3;
-        if ( !v82 )
-          v83 = "^2F^7";
-        mLoaded = streamFrontendGlob->imageBits.mLoaded;
-        if ( !mLoaded && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-          __debugbreak();
-        v85 = "^1L^7";
-        v82 = (v77 & mLoaded[v133]) == 0;
-        v86 = streamFrontendGlob;
-        if ( !v82 )
-          v85 = "^2L^7";
-        if ( v131 + v130 >= streamFrontendGlob->imageBits.mBitCount )
-        {
-          LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(horzAlignb) = v131 + v130;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        mUse = v86->imageBits.mUse;
-        if ( !mUse && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-          __debugbreak();
-        v82 = (v77 & mUse[v133]) == 0;
-        v88 = streamFrontendGlob;
-        v89 = "^1I^7";
-        if ( !v82 )
-          v89 = "^2I^7";
-        if ( v131 + v130 >= streamFrontendGlob->imageBits.mBitCount )
-        {
-          LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(horzAlignb) = v131 + v130;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        mLoading = v88->imageBits.mLoading;
-        if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-          __debugbreak();
-        v91 = (char *)&queryFormat.fmt + 3;
-        v82 = (v77 & mLoading[v133]) == 0;
-        v92 = streamFrontendGlob;
-        if ( !v82 )
-          v91 = "^5Lo^7";
-        if ( v131 + v130 >= streamFrontendGlob->imageBits.mBitCount )
-        {
-          LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(horzAlignb) = v131 + v130;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
-            __debugbreak();
-        }
-        mAlloc = v92->imageBits.mAlloc;
-        if ( !mAlloc && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-          __debugbreak();
-        v94 = "^1A^7";
-        __asm
-        {
-          vmovsd  [rsp+660h+var_5F0], xmm7
-          vmovsd  [rsp+660h+var_5F8], xmm6
-        }
-        if ( (v77 & mAlloc[v133]) != 0 )
-          v94 = "^2A^7";
-        v95 = "^1S^7";
-        if ( SortListText_327680 )
-          v95 = "^2S^7";
-        if ( Com_sprintf_truncate(&dest[v134], 1024 - v134, "part %u %s%s%s%s%s%s%s%s dist =%s %.4f %.2f KB%s", v131, v94, v91, v89, v85, v83, v95, sortListText, v137, v136, v126, v127, v135) < 0 )
-          break;
-        v57 = v131 + 1;
-        v131 = v57;
-        v58 = v130;
-      }
-      while ( v57 < image->streamedPartCount );
-      v19 = font;
-    }
-    __asm
-    {
-      vmovss  [rsp+660h+scale], xmm9
-      vmovaps xmm3, xmm10; x
-      vmovss  dword ptr [rsp+660h+fmt], xmm14
-    }
-    CG_DrawHits_DrawText(scrPlace, dest, v19, *(float *)&_XMM3, fmtf, 1, 1, scalec, &colorYellow);
-    __asm
-    {
-      vmovaps xmm12, xmmword ptr [rsp+660h+var_B8+8]
-      vmovaps xmm7, xmmword ptr [rsp+660h+var_68+8]
-      vaddss  xmm0, xmm14, xmm11
-      vmovaps xmm14, xmmword ptr [rsp+660h+var_D8+8]
-      vsubss  xmm0, xmm0, xmm8
-    }
-  }
+  v26.mValue = v25->imageDistance.mDistances[(int)GfxImageIndex].mValue;
+  v27 = streamFrontendGlob->imageUsedFrame[GfxImageIndex];
+  if ( v26.mValue == -1 )
+    v28 = FLOAT_3_4027977e38;
   else
+    LODWORD(v28) = (StreamDistance)(v26.mValue << 7);
+  SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v26);
+  LODWORD(fmta) = v27;
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "      dist =%s %.4f frame = %u", SpecialStreamDistanceStr, fsqrt(v28), fmta);
+  CG_DrawHits_DrawText(scrPlace, dest, v8, x, v24, 1, 1, fontScale, &colorYellow);
+  v30 = v24 + lineHeight;
+  Com_sprintf_truncate<1024>((char (*)[1024])dest, "      ");
+  v31 = 0i64;
+  v79 = 0;
+  if ( image->streamedPartCount )
   {
-    __asm { vsubss  xmm0, xmm6, xmm8 }
+    v32 = 4 * GfxImageIndex;
+    v78 = 4 * GfxImageIndex;
+    do
+    {
+      v33 = streamFrontendGlob;
+      v34 = v32 + v31;
+      v35 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
+      if ( (unsigned int)(v32 + v31) >= 0x50000 )
+      {
+        LODWORD(vertAligna) = 327680;
+        LODWORD(horzAlignb) = v32 + v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+        v33 = streamFrontendGlob;
+      }
+      v36.mValue = *(_DWORD *)&v35[4 * v34 + 2775264];
+      memset(sortListText, 0, sizeof(sortListText));
+      SortListText_327680 = Stream_Debug_GetSortListText_327680_(&v33->sortLists[v33->sortListRead].imageSortList, v34, (char (*)[16])sortListText);
+      v37 = -1i64;
+      do
+        ++v37;
+      while ( dest[v37] );
+      v81 = v37;
+      v38 = ", ";
+      if ( (_DWORD)v31 == image->streamedPartCount - 1 )
+        v38 = (char *)&queryFormat.fmt + 3;
+      v82 = v38;
+      if ( (image->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
+        __debugbreak();
+      if ( (unsigned int)v31 >= Image_GetStreamedPartCount(image) )
+      {
+        LODWORD(vertAligna) = Image_GetStreamedPartCount(image);
+        LODWORD(horzAlignb) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      if ( (_DWORD)v31 )
+        v39 = ((unsigned int)image->streams[v31].levelCountAndSize >> 4) - ((unsigned int)image->streams[(unsigned int)(v31 - 1)].levelCountAndSize >> 4);
+      else
+        v39 = (unsigned int)image->streams[v31].levelCountAndSize >> 4;
+      v40 = (float)v39;
+      v41 = (float)(v40 * 0.0009765625);
+      if ( v36.mValue == -1 )
+        v42 = FLOAT_3_4027977e38;
+      else
+        LODWORD(v42) = (StreamDistance)(v36.mValue << 7);
+      v43 = fsqrt(v42);
+      v44 = Stream_Debug_GetSpecialStreamDistanceStr(v36);
+      v45 = streamFrontendGlob;
+      v83 = v44;
+      if ( (unsigned int)(v34 >> 5) >= 0x2800 )
+      {
+        LODWORD(vertAligna) = 10240;
+        LODWORD(horzAlignb) = v34 >> 5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      v46 = (__int64)v34 >> 5;
+      v80 = v46;
+      v47 = (__int64)&v45->imageTouchBits[1][v46];
+      if ( (v47 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v47) )
+        __debugbreak();
+      v48 = *(_DWORD *)v47;
+      v49 = streamFrontendGlob;
+      v50 = 1 << (v34 & 0x1F);
+      v51 = v48 & v50;
+      if ( (unsigned int)(v34 >> 5) >= 0x2800 )
+      {
+        LODWORD(vertAligna) = 10240;
+        LODWORD(horzAlignb) = v34 >> 5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      if ( (((_BYTE)v49 + 4 * (_BYTE)v46 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (char *)v49->imageTouchBits + 4 * v46) )
+        __debugbreak();
+      v52 = streamFrontendGlob;
+      v53 = (char *)&queryFormat.fmt + 3;
+      if ( v51 != 0 || (v50 & v49->imageTouchBits[0][v46]) != 0 )
+        v53 = "^2T^7";
+      v84 = v53;
+      if ( v34 >= streamFrontendGlob->imageBits.mBitCount )
+      {
+        LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(horzAlignb) = v34;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      mStaticForced = v52->imageBits.mStaticForced;
+      if ( !mStaticForced && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        __debugbreak();
+      v55 = (v50 & mStaticForced[v46]) == 0;
+      v56 = (char *)&queryFormat.fmt + 3;
+      if ( !v55 )
+        v56 = "^2F^7";
+      mLoaded = streamFrontendGlob->imageBits.mLoaded;
+      if ( !mLoaded && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        __debugbreak();
+      v58 = "^1L^7";
+      v55 = (v50 & mLoaded[v80]) == 0;
+      v59 = streamFrontendGlob;
+      if ( !v55 )
+        v58 = "^2L^7";
+      if ( v79 + v78 >= streamFrontendGlob->imageBits.mBitCount )
+      {
+        LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(horzAlignb) = v79 + v78;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      mUse = v59->imageBits.mUse;
+      if ( !mUse && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        __debugbreak();
+      v55 = (v50 & mUse[v80]) == 0;
+      v61 = streamFrontendGlob;
+      v62 = "^1I^7";
+      if ( !v55 )
+        v62 = "^2I^7";
+      if ( v79 + v78 >= streamFrontendGlob->imageBits.mBitCount )
+      {
+        LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(horzAlignb) = v79 + v78;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      mLoading = v61->imageBits.mLoading;
+      if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        __debugbreak();
+      v64 = (char *)&queryFormat.fmt + 3;
+      v55 = (v50 & mLoading[v80]) == 0;
+      v65 = streamFrontendGlob;
+      if ( !v55 )
+        v64 = "^5Lo^7";
+      if ( v79 + v78 >= streamFrontendGlob->imageBits.mBitCount )
+      {
+        LODWORD(vertAligna) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(horzAlignb) = v79 + v78;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", horzAlignb, vertAligna) )
+          __debugbreak();
+      }
+      mAlloc = v65->imageBits.mAlloc;
+      if ( !mAlloc && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        __debugbreak();
+      v67 = "^1A^7";
+      if ( (v50 & mAlloc[v80]) != 0 )
+        v67 = "^2A^7";
+      v68 = "^1S^7";
+      if ( SortListText_327680 )
+        v68 = "^2S^7";
+      if ( Com_sprintf_truncate(&dest[v81], 1024 - v81, "part %u %s%s%s%s%s%s%s%s dist =%s %.4f %.2f KB%s", v79, v67, v64, v62, v58, v56, v68, sortListText, v84, v83, v43, v41, v82) < 0 )
+        break;
+      v31 = v79 + 1;
+      v79 = v31;
+      v32 = v78;
+    }
+    while ( (unsigned int)v31 < image->streamedPartCount );
+    v8 = font;
   }
-  _R11 = &v148;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-90h]
-  }
-  return *(float *)&_XMM0;
+  CG_DrawHits_DrawText(scrPlace, dest, v8, x, v30, 1, 1, fontScale, &colorYellow);
+  return (float)(v30 + lineHeight) - y;
 }
 
 /*
@@ -2866,36 +2138,21 @@ float Stream_Debug_DrawMetricsHitTableInternalMaterial(const Material *material,
 {
   unsigned __int8 layerCount; 
   signed int MaterialIndex; 
-  __int64 v22; 
-  StreamFrontendGlob *v29; 
-  StreamDistance v30; 
+  __int64 v15; 
+  __int128 v16; 
+  StreamFrontendGlob *v17; 
+  StreamDistance v18; 
+  float v19; 
   const char *SpecialStreamDistanceStr; 
-  unsigned int v38; 
+  __int128 v21; 
+  unsigned int i; 
+  float v23; 
+  __int128 v24; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
   __int64 horzAlign; 
-  int horzAligna; 
   __int64 vertAlign; 
-  int vertAligna; 
-  float v57; 
-  float v58; 
-  unsigned int v59; 
   char dest[1024]; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
   if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1121, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
     __debugbreak();
   if ( !materialPre && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 1122, ASSERT_TYPE_ASSERT, "(materialPre)", (const char *)&queryFormat, "materialPre") )
@@ -2906,24 +2163,12 @@ float Stream_Debug_DrawMetricsHitTableInternalMaterial(const Material *material,
     __debugbreak();
   layerCount = material->layerCount;
   MaterialIndex = DB_GetMaterialIndex(material);
-  v22 = MaterialIndex;
+  v15 = MaterialIndex;
   LODWORD(fmt) = MaterialIndex;
   Com_sprintf_truncate<1024>((char (*)[1024])dest, "%s: %s ^5[assetIndex: %u] %s", materialPre, material->name, fmt, materialPost);
-  __asm
-  {
-    vmovss  xmm8, [rsp+508h+fontScale]
-    vmovss  xmm9, [rsp+508h+x]
-    vmovss  xmm7, [rsp+508h+y]
-    vmovss  [rsp+508h+var_4D0], xmm8
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+508h+fmt], xmm7
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmta, 1, 1, v57, &colorWhite);
-  __asm
-  {
-    vmovss  xmm10, [rsp+508h+lineHeight]
-    vaddss  xmm11, xmm10, xmm7
-  }
+  CG_DrawHits_DrawText(scrPlace, dest, font, x, y, 1, 1, fontScale, &colorWhite);
+  v16 = LODWORD(lineHeight);
+  *(float *)&v16 = lineHeight + y;
   if ( (material->runtimeFlags & 0x10) != 0 )
   {
     if ( layerCount )
@@ -2932,74 +2177,40 @@ float Stream_Debug_DrawMetricsHitTableInternalMaterial(const Material *material,
     }
     else
     {
-      v29 = streamFrontendGlob;
-      if ( (unsigned int)v22 >= 0xB400 )
+      v17 = streamFrontendGlob;
+      if ( (unsigned int)v15 >= 0xB400 )
       {
         LODWORD(vertAlign) = 46080;
-        LODWORD(horzAlign) = v22;
+        LODWORD(horzAlign) = v15;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", horzAlign, vertAlign) )
           __debugbreak();
       }
-      v30.mValue = v29->materialDistance.mDistances[v22].mValue;
-      if ( v30.mValue == -1 )
-      {
-        __asm { vmovss  xmm6, cs:__real@7f7fff80 }
-      }
+      v18.mValue = v17->materialDistance.mDistances[v15].mValue;
+      if ( v18.mValue == -1 )
+        v19 = FLOAT_3_4027977e38;
       else
-      {
-        v59 = v30.mValue << 7;
-        __asm { vmovss  xmm6, [rsp+508h+var_4B8] }
-      }
-      SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v30);
-      __asm
-      {
-        vsqrtss xmm0, xmm6, xmm6
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   r9, xmm3
-      }
-      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  dist =%s %.4f", SpecialStreamDistanceStr, *(double *)&_XMM3);
+        LODWORD(v19) = (StreamDistance)(v18.mValue << 7);
+      SpecialStreamDistanceStr = Stream_Debug_GetSpecialStreamDistanceStr(v18);
+      Com_sprintf_truncate<1024>((char (*)[1024])dest, "  dist =%s %.4f", SpecialStreamDistanceStr, fsqrt(v19));
     }
   }
   else
   {
     Com_sprintf_truncate<1024>((char (*)[1024])dest, "  <no streamed images/fully resident>");
   }
-  __asm
-  {
-    vmovss  [rsp+508h+var_4D0], xmm8
-    vmovaps xmm3, xmm9; x
-    vmovss  dword ptr [rsp+508h+fmt], xmm11
-  }
-  CG_DrawHits_DrawText(scrPlace, dest, font, *(float *)&_XMM3, fmtb, 1, 1, v58, &colorYellow);
-  __asm { vaddss  xmm6, xmm11, xmm10 }
+  CG_DrawHits_DrawText(scrPlace, dest, font, x, *(float *)&v16, 1, 1, fontScale, &colorYellow);
+  *(float *)&v16 = *(float *)&v16 + lineHeight;
+  v21 = v16;
   if ( (material->runtimeFlags & 0x10) != 0 )
   {
-    v38 = 0;
-    while ( v38 < material->textureCount )
+    for ( i = 0; i < material->textureCount; v21 = v24 )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsp+508h+vertAlign], xmm6
-        vmovss  [rsp+508h+horzAlign], xmm9
-        vmovaps xmm3, xmm8; fontScale
-        vmovss  dword ptr [rsp+508h+fmt], xmm10
-      }
-      Stream_Debug_DrawMetricsHitTableInternalImage(material->textureTable[v38++].image, scrPlace, font, *(double *)&_XMM3, fmtc, *(float *)&horzAligna, *(float *)&vertAligna);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
+      v23 = Stream_Debug_DrawMetricsHitTableInternalImage(material->textureTable[i++].image, scrPlace, font, fontScale, lineHeight, x, *(float *)&v21);
+      v24 = v21;
+      *(float *)&v24 = *(float *)&v21 + v23;
     }
   }
-  __asm { vsubss  xmm0, xmm6, xmm7 }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v21 - y;
 }
 
 /*
@@ -3035,225 +2246,103 @@ Stream_Debug_DrawSortLists
 */
 void Stream_Debug_DrawSortLists(LocalClientNum_t localClientIndex)
 {
-  const dvar_t *v3; 
+  const dvar_t *v1; 
   int integer; 
-  StreamFrontendGlob *v10; 
+  const dvar_t *v4; 
+  int v5; 
+  StreamFrontendGlob *v6; 
   __int64 sortListRead; 
-  char v18; 
-  float fmt; 
-  char *fmta; 
-  float fmtb; 
-  float fmtc; 
-  float y; 
-  float ya; 
-  float yb; 
-  float filterFuncCommon; 
-  float filterFuncCommona; 
-  float filterFuncCommonb; 
-  Stream_Debug_DrawSortLists::__l13::<lambda_1da4f004ffa682f5aab5718f9b313130> v68; 
-  Stream_Debug_DrawSortLists::__l13::<lambda_336efe4c9e8d121aa0cff81226e12fe2> v69; 
-  Stream_Debug_DrawSortLists::__l19::<lambda_29f26645933ecb458ce0f93757ef6ca9> v70[2]; 
-  float v71; 
-  int v72; 
-  int v73; 
+  double Quality_Image; 
+  float v9; 
+  double Quality_Mesh; 
+  char *fmt; 
+  Stream_Debug_DrawSortLists::__l13::<lambda_1da4f004ffa682f5aab5718f9b313130> filterFuncCommon; 
+  Stream_Debug_DrawSortLists::__l13::<lambda_336efe4c9e8d121aa0cff81226e12fe2> v13; 
+  Stream_Debug_DrawSortLists::__l19::<lambda_29f26645933ecb458ce0f93757ef6ca9> v14[2]; 
+  float v15; 
+  float v16; 
+  float value; 
   Stream_Debug_DrawSortLists::__l2::<lambda_0040f16ab7d9a2fdd62b28d3ddbda264> drawLine; 
   Stream_Debug_DrawSortLists::__l13::<lambda_b267cbc876d3315e4cf100fef167db9d> drawSortListEntryFunc; 
-  int v76; 
+  float v20; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
   char dest[32]; 
   char text[1024]; 
 
-  v3 = DVARINT_stream_drawSortLists;
+  v1 = DVARINT_stream_drawSortLists;
   if ( !DVARINT_stream_drawSortLists && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawSortLists") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  integer = v3->current.integer;
+  Dvar_CheckFrontendServerThread(v1);
+  integer = v1->current.integer;
   if ( integer )
   {
-    _RDI = DVARFLT_stream_drawSortListsFontSize;
-    __asm
-    {
-      vmovaps [rsp+530h+var_20], xmm6
-      vmovaps [rsp+530h+var_30], xmm7
-    }
+    v4 = DVARFLT_stream_drawSortListsFontSize;
     if ( !DVARFLT_stream_drawSortListsFontSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawSortListsFontSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovss  [rsp+530h+var_4C4], xmm0
-      vmovss  xmm2, [rsp+530h+var_4C4]; scale
-    }
+    Dvar_CheckFrontendServerThread(v4);
+    value = v4->current.value;
     ActivePlacement = ScrPlace_GetActivePlacement(localClientIndex);
-    __asm { vmovss  xmm1, [rsp+530h+var_4C4]; scale }
-    FontHandle = UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
-    UI_TextHeight(FontHandle, *(float *)&_XMM1);
-    v10 = streamFrontendGlob;
-    __asm
-    {
-      vmovss  xmm1, cs:__real@42800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  [rsp+530h+var_4C8], xmm0
-      vmovss  xmm0, cs:__real@41c00000
-    }
+    FontHandle = UI_GetFontHandle(ActivePlacement, 5, value);
+    v5 = UI_TextHeight(FontHandle, value);
+    v6 = streamFrontendGlob;
+    v16 = (float)v5;
     drawLine.scrPlace = &ActivePlacement;
     drawLine.text = (char (*)[1024])text;
     drawLine.font = &FontHandle;
-    drawLine.x = (const float *)&v76;
-    drawLine.y = &v71;
-    drawLine.fontScale = (const float *)&v73;
-    drawLine.lineHeight = (const float *)&v72;
-    __asm
-    {
-      vmovss  [rbp+430h+var_478], xmm1
-      vmovss  [rsp+530h+var_4CC], xmm0
-    }
+    drawLine.x = &v20;
+    drawLine.y = &v15;
+    drawLine.fontScale = &value;
+    drawLine.lineHeight = &v16;
+    v20 = FLOAT_64_0;
+    v15 = FLOAT_24_0;
     sortListRead = streamFrontendGlob->sortListRead;
-    *(double *)&_XMM0 = Stream_LoadQuality_Image();
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Stream_LoadQuality_Mesh();
-    __asm
-    {
-      vcomiss xmm6, cs:__real@5f7fffc0
-      vmovaps xmm7, xmm0
-    }
-    if ( v18 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovq   r8, xmm2
-      }
-      Com_sprintf<32>((char (*)[32])dest, "%.4f", *(double *)&_XMM2);
-    }
+    Quality_Image = Stream_LoadQuality_Image();
+    v9 = *(float *)&Quality_Image;
+    Quality_Mesh = Stream_LoadQuality_Mesh();
+    if ( v9 < 1.8446674e19 )
+      Com_sprintf<32>((char (*)[32])dest, "%.4f", v9);
     else
-    {
       Com_sprintf<32>((char (*)[32])dest, "max");
-    }
-    __asm
-    {
-      vcvtss2sd xmm3, xmm7, xmm7
-      vmovq   r9, xmm3
-    }
-    Com_sprintf_truncate<1024>((char (*)[1024])text, "Streaming quality: Image ^5%s^7, Mesh: ^5%.4f^7", dest, *(double *)&_XMM3);
-    _RAX = drawLine.fontScale;
-    __asm { vmovss  xmm0, dword ptr [rax] }
-    _RAX = drawLine.y;
-    __asm
-    {
-      vmovss  dword ptr [rsp+530h+filterFuncCommon], xmm0
-      vmovss  xmm0, dword ptr [rax]
-    }
-    _RAX = drawLine.x;
-    __asm
-    {
-      vmovss  [rsp+530h+y], xmm0
-      vmovss  xmm1, dword ptr [rax]
-      vmovss  dword ptr [rsp+530h+fmt], xmm1
-    }
-    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, fmt, y, 1, 1, filterFuncCommon, &colorWhite, 3);
-    _RCX = drawLine.y;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx]
-      vaddss  xmm0, xmm0, dword ptr [rax]
-      vmovss  dword ptr [rcx], xmm0
-    }
-    LODWORD(fmta) = v10->sortLists[sortListRead].genericSortList.mCount;
-    Com_sprintf_truncate<1024>((char (*)[1024])text, "Sort list counts: Image ^2%u^7, Mesh: ^2%u^7, Generic ^2%u^7", (unsigned int)v10->sortLists[sortListRead].imageSortList.mCount, (unsigned int)v10->sortLists[sortListRead].meshSortList.mCount, fmta);
-    _RAX = drawLine.fontScale;
-    __asm { vmovss  xmm0, dword ptr [rax] }
-    _RAX = drawLine.y;
-    __asm
-    {
-      vmovss  dword ptr [rsp+530h+filterFuncCommon], xmm0
-      vmovss  xmm0, dword ptr [rax]
-    }
-    _RAX = drawLine.x;
-    __asm
-    {
-      vmovss  [rsp+530h+y], xmm0
-      vmovss  xmm1, dword ptr [rax]
-      vmovss  dword ptr [rsp+530h+fmt], xmm1
-    }
-    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, fmtb, ya, 1, 1, filterFuncCommona, &colorWhite, 3);
-    _RCX = drawLine.y;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx]
-      vaddss  xmm0, xmm0, dword ptr [rax]
-      vmovss  dword ptr [rcx], xmm0
-    }
+    Com_sprintf_truncate<1024>((char (*)[1024])text, "Streaming quality: Image ^5%s^7, Mesh: ^5%.4f^7", dest, *(float *)&Quality_Mesh);
+    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, *drawLine.x, *drawLine.y, 1, 1, *drawLine.fontScale, &colorWhite, 3);
+    *drawLine.y = *drawLine.y + *drawLine.lineHeight;
+    LODWORD(fmt) = v6->sortLists[sortListRead].genericSortList.mCount;
+    Com_sprintf_truncate<1024>((char (*)[1024])text, "Sort list counts: Image ^2%u^7, Mesh: ^2%u^7, Generic ^2%u^7", (unsigned int)v6->sortLists[sortListRead].imageSortList.mCount, (unsigned int)v6->sortLists[sortListRead].meshSortList.mCount, fmt);
+    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, *drawLine.x, *drawLine.y, 1, 1, *drawLine.fontScale, &colorWhite, 3);
+    *drawLine.y = *drawLine.y + *drawLine.lineHeight;
     Com_sprintf_truncate<1024>((char (*)[1024])text, "^2Legend: A=alloc, Lo=loading, I=in-use, L=loaded, F=forced, T=touched - Meshes/generics only: F=freeable, D=in-danger^7");
-    _RAX = drawLine.fontScale;
-    __asm { vmovss  xmm0, dword ptr [rax] }
-    _RAX = drawLine.y;
-    __asm
-    {
-      vmovss  dword ptr [rsp+530h+filterFuncCommon], xmm0
-      vmovss  xmm0, dword ptr [rax]
-    }
-    _RAX = drawLine.x;
-    __asm
-    {
-      vmovss  [rsp+530h+y], xmm0
-      vmovss  xmm1, dword ptr [rax]
-      vmovss  dword ptr [rsp+530h+fmt], xmm1
-    }
-    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, fmtc, yb, 1, 1, filterFuncCommonb, &colorWhite, 3);
-    _RCX = drawLine.y;
-    __asm
-    {
-      vmovaps xmm7, [rsp+530h+var_30]
-      vmovaps xmm6, [rsp+530h+var_20]
-      vmovss  xmm0, dword ptr [rcx]
-      vaddss  xmm0, xmm0, dword ptr [rax]
-      vmovss  dword ptr [rcx], xmm0
-      vmovss  xmm1, [rsp+530h+var_4CC]
-      vaddss  xmm2, xmm1, [rsp+530h+var_4C8]
-      vmovss  [rsp+530h+var_4CC], xmm2
-    }
+    UI_DrawText(*drawLine.scrPlace, (const char *)drawLine.text, 0x7FFFFFFF, *drawLine.font, *drawLine.x, *drawLine.y, 1, 1, *drawLine.fontScale, &colorWhite, 3);
+    *drawLine.y = *drawLine.y + *drawLine.lineHeight;
+    v15 = v15 + v16;
     if ( (unsigned int)(integer - 1) <= 1 )
     {
-      v68 = 0;
+      filterFuncCommon = 0;
       drawSortListEntryFunc.text = (char (*)[1024])text;
-      v70[0] = 0;
+      v14[0] = 0;
       drawSortListEntryFunc.drawLine = &drawLine;
-      v69 = 0;
-      Stream_Debug_DrawSortList_StreamSortList_327680___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_b267cbc876d3315e4cf100fef167db9d___lambda_a03bd0ecdb9f9113e98cb9aecc2cda9e___lambda_336efe4c9e8d121aa0cff81226e12fe2___lambda_1da4f004ffa682f5aab5718f9b313130_(&v71, (char (*)[1024])text, "image parts", &v10->sortLists[sortListRead].imageSortList, &drawLine, &drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l13::<lambda_a03bd0ecdb9f9113e98cb9aecc2cda9e> *)v70, &v69, &v68);
-      __asm
-      {
-        vmovss  xmm0, [rsp+530h+var_4CC]
-        vaddss  xmm1, xmm0, [rsp+530h+var_4C8]
-        vmovss  [rsp+530h+var_4CC], xmm1
-      }
+      v13 = 0;
+      Stream_Debug_DrawSortList_StreamSortList_327680___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_b267cbc876d3315e4cf100fef167db9d___lambda_a03bd0ecdb9f9113e98cb9aecc2cda9e___lambda_336efe4c9e8d121aa0cff81226e12fe2___lambda_1da4f004ffa682f5aab5718f9b313130_(&v15, (char (*)[1024])text, "image parts", &v6->sortLists[sortListRead].imageSortList, &drawLine, &drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l13::<lambda_a03bd0ecdb9f9113e98cb9aecc2cda9e> *)v14, &v13, &filterFuncCommon);
+      v15 = v15 + v16;
     }
     if ( ((integer - 1) & 0xFFFFFFFD) == 0 )
     {
-      v70[0] = 0;
+      v14[0] = 0;
       drawSortListEntryFunc.text = (char (*)[1024])text;
-      v68 = 0;
+      filterFuncCommon = 0;
       drawSortListEntryFunc.drawLine = &drawLine;
-      v69 = 0;
-      Stream_Debug_DrawSortList_StreamSortList_45056___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_1a974b2214cb727b25cccad923c9b625___lambda_c10e7388bac439afc4fd6fe13f11b20f___lambda_f5c2c8e542714bc7e0013ccec6336e64___lambda_4b8d9d2abd8aabf9589861be19037689_(&v71, (char (*)[1024])text, "meshes", &v10->sortLists[sortListRead].meshSortList, &drawLine, (const Stream_Debug_DrawSortLists::__l16::<lambda_1a974b2214cb727b25cccad923c9b625> *)&drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l16::<lambda_c10e7388bac439afc4fd6fe13f11b20f> *)&v68, (const Stream_Debug_DrawSortLists::__l16::<lambda_f5c2c8e542714bc7e0013ccec6336e64> *)&v69, (const Stream_Debug_DrawSortLists::__l16::<lambda_4b8d9d2abd8aabf9589861be19037689> *)v70);
-      __asm
-      {
-        vmovss  xmm0, [rsp+530h+var_4CC]
-        vaddss  xmm1, xmm0, [rsp+530h+var_4C8]
-        vmovss  [rsp+530h+var_4CC], xmm1
-      }
+      v13 = 0;
+      Stream_Debug_DrawSortList_StreamSortList_45056___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_1a974b2214cb727b25cccad923c9b625___lambda_c10e7388bac439afc4fd6fe13f11b20f___lambda_f5c2c8e542714bc7e0013ccec6336e64___lambda_4b8d9d2abd8aabf9589861be19037689_(&v15, (char (*)[1024])text, "meshes", &v6->sortLists[sortListRead].meshSortList, &drawLine, (const Stream_Debug_DrawSortLists::__l16::<lambda_1a974b2214cb727b25cccad923c9b625> *)&drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l16::<lambda_c10e7388bac439afc4fd6fe13f11b20f> *)&filterFuncCommon, (const Stream_Debug_DrawSortLists::__l16::<lambda_f5c2c8e542714bc7e0013ccec6336e64> *)&v13, (const Stream_Debug_DrawSortLists::__l16::<lambda_4b8d9d2abd8aabf9589861be19037689> *)v14);
+      v15 = v15 + v16;
     }
     if ( integer == 1 || integer == 4 )
     {
-      v70[0] = 0;
+      v14[0] = 0;
       drawSortListEntryFunc.text = (char (*)[1024])text;
-      v68 = 0;
+      filterFuncCommon = 0;
       drawSortListEntryFunc.drawLine = &drawLine;
-      v69 = 0;
-      Stream_Debug_DrawSortList_StreamSortList_37888___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_3f8f3a149303014be627db5456306c7d___lambda_097f47f61de0dc2542c4a4533e5c96ce___lambda_16a05c8dbb37f4c77df9095193df4bf3___lambda_29f26645933ecb458ce0f93757ef6ca9_(&v71, (char (*)[1024])text, "generics", &v10->sortLists[sortListRead].genericSortList, &drawLine, (const Stream_Debug_DrawSortLists::__l19::<lambda_3f8f3a149303014be627db5456306c7d> *)&drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l19::<lambda_097f47f61de0dc2542c4a4533e5c96ce> *)&v68, (const Stream_Debug_DrawSortLists::__l19::<lambda_16a05c8dbb37f4c77df9095193df4bf3> *)&v69, v70);
+      v13 = 0;
+      Stream_Debug_DrawSortList_StreamSortList_37888___lambda_0040f16ab7d9a2fdd62b28d3ddbda264___lambda_3f8f3a149303014be627db5456306c7d___lambda_097f47f61de0dc2542c4a4533e5c96ce___lambda_16a05c8dbb37f4c77df9095193df4bf3___lambda_29f26645933ecb458ce0f93757ef6ca9_(&v15, (char (*)[1024])text, "generics", &v6->sortLists[sortListRead].genericSortList, &drawLine, (const Stream_Debug_DrawSortLists::__l19::<lambda_3f8f3a149303014be627db5456306c7d> *)&drawSortListEntryFunc, (const Stream_Debug_DrawSortLists::__l19::<lambda_097f47f61de0dc2542c4a4533e5c96ce> *)&filterFuncCommon, (const Stream_Debug_DrawSortLists::__l19::<lambda_16a05c8dbb37f4c77df9095193df4bf3> *)&v13, v14);
     }
   }
 }
@@ -3266,88 +2355,81 @@ Stream_Debug_DrawTopSortedImageList
 void Stream_Debug_DrawTopSortedImageList(LocalClientNum_t localClientIndex)
 {
   signed __int64 v1; 
-  void *v6; 
+  void *v2; 
+  const dvar_t *v4; 
+  unsigned __int64 v5; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
   const dvar_t *v8; 
-  unsigned __int64 v9; 
-  const dvar_t *v10; 
-  const dvar_t *v11; 
-  const dvar_t *v12; 
-  const dvar_t *v13; 
+  const dvar_t *v9; 
   StreamSortList<327680> *p_imageSortList; 
   int mSortedRight; 
-  int v16; 
+  int v12; 
+  __int128 y; 
+  const dvar_t *v14; 
+  float value; 
+  const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  Stream_Debug_DrawTopSortedImageList::__l2::ImageInfo *v27; 
+  float v18; 
+  Stream_Debug_DrawTopSortedImageList::__l2::ImageInfo *v19; 
   unsigned int *p_wanted; 
-  unsigned int v29; 
-  unsigned int v30; 
-  const char *v31; 
-  unsigned int v32; 
-  char v33; 
-  char v34; 
+  unsigned int v21; 
+  unsigned int v22; 
+  const char *v23; 
+  unsigned int v24; 
+  __int128 v25; 
   char *fmt; 
-  float fmta; 
-  float y; 
-  float v43; 
   bool enabled; 
-  bool v45; 
+  bool v28; 
   int integer; 
-  int v47; 
-  char *v48; 
+  int v30; 
+  char *v31; 
   Stream_Debug_DrawTopSortedImageList::__l2::<lambda_6afac1d50d49c5ae90c2e781f9354632> *p_enabled; 
   int *p_integer; 
-  int *v51; 
-  Stream_Debug_DrawTopSortedImageList::__l2::ImageInfo *v52; 
-  __int64 v53; 
+  int *v34; 
+  Stream_Debug_DrawTopSortedImageList::__l2::ImageInfo *v35; 
+  __int64 v36; 
   FastCriticalSection *p_mCS; 
   Stream_Debug_DrawTopSortedImageList::__l2::ImageInfo _First[2500]; 
-  unsigned __int64 v56; 
+  unsigned __int64 v39; 
   char dest[1024]; 
-  char v62; 
 
-  v6 = alloca(v1);
-  v53 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+13DB0h+var_30], xmm6
-    vmovaps [rsp+13DB0h+var_40], xmm7
-    vmovaps [rsp+13DB0h+var_50], xmm8
-    vmovaps [rsp+13DB0h+var_60], xmm9
-  }
-  v8 = DVARBOOL_stream_drawTopSortedImages;
+  v2 = alloca(v1);
+  v36 = -2i64;
+  v4 = DVARBOOL_stream_drawTopSortedImages;
   if ( !DVARBOOL_stream_drawTopSortedImages && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImages") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
-    v9 = 0i64;
-    v56 = 0i64;
-    v10 = DVARBOOL_stream_drawTopSortedImagesNoPart0;
+    v5 = 0i64;
+    v39 = 0i64;
+    v6 = DVARBOOL_stream_drawTopSortedImagesNoPart0;
     if ( !DVARBOOL_stream_drawTopSortedImagesNoPart0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImagesNoPart0") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    enabled = v10->current.enabled;
-    v11 = DVARBOOL_stream_drawTopSortedImagesNoForced;
+    Dvar_CheckFrontendServerThread(v6);
+    enabled = v6->current.enabled;
+    v7 = DVARBOOL_stream_drawTopSortedImagesNoForced;
     if ( !DVARBOOL_stream_drawTopSortedImagesNoForced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImagesNoForced") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    v45 = v11->current.enabled;
-    v12 = DVARINT_stream_drawTopSortedImagesThresholdKB;
+    Dvar_CheckFrontendServerThread(v7);
+    v28 = v7->current.enabled;
+    v8 = DVARINT_stream_drawTopSortedImagesThresholdKB;
     if ( !DVARINT_stream_drawTopSortedImagesThresholdKB && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImagesThresholdKB") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    v47 = v12->current.integer << 10;
-    v13 = DVARINT_stream_drawTopSortedImagesSortKey;
+    Dvar_CheckFrontendServerThread(v8);
+    v30 = v8->current.integer << 10;
+    v9 = DVARINT_stream_drawTopSortedImagesSortKey;
     if ( !DVARINT_stream_drawTopSortedImagesSortKey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImagesSortKey") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    integer = v13->current.integer;
+    Dvar_CheckFrontendServerThread(v9);
+    integer = v9->current.integer;
     p_imageSortList = &streamFrontendGlob->sortLists[streamFrontendGlob->sortListRead].imageSortList;
-    v48 = (char *)&v45;
+    v31 = (char *)&v28;
     p_enabled = (Stream_Debug_DrawTopSortedImageList::__l2::<lambda_6afac1d50d49c5ae90c2e781f9354632> *)&enabled;
     p_integer = &integer;
-    v51 = &v47;
-    v52 = _First;
+    v34 = &v30;
+    v35 = _First;
     p_mCS = &p_imageSortList->mCS;
     if ( p_imageSortList == (StreamSortList<327680> *)-2662416i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 252, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
       __debugbreak();
@@ -3357,38 +2439,27 @@ void Stream_Debug_DrawTopSortedImageList(LocalClientNum_t localClientIndex)
       do
       {
         mSortedRight = p_imageSortList->mSortedRight;
-        v16 = mSortedRight - 1;
+        v12 = mSortedRight - 1;
       }
-      while ( StreamSortList<327680>::PartialSort(p_imageSortList, mSortedRight - p_imageSortList->mCount) && StreamSortList_327680_::IterateRangeReverse__lambda_350f28fcd4196afffbbe3e932274bded___((int)p_imageSortList, v16, (const Stream_Debug_DrawTopSortedImageList::__l2::<lambda_350f28fcd4196afffbbe3e932274bded> *)(unsigned int)p_imageSortList->mSortedRight) );
+      while ( StreamSortList<327680>::PartialSort(p_imageSortList, mSortedRight - p_imageSortList->mCount) && StreamSortList_327680_::IterateRangeReverse__lambda_350f28fcd4196afffbbe3e932274bded___((int)p_imageSortList, v12, (const Stream_Debug_DrawTopSortedImageList::__l2::<lambda_350f28fcd4196afffbbe3e932274bded> *)(unsigned int)p_imageSortList->mSortedRight) );
     }
     Sys_UnlockRead(&p_imageSortList->mCS);
-    if ( v56 )
+    if ( v39 )
     {
-      if ( v56 == 2500 )
+      if ( v39 == 2500 )
         Com_PrintWarning(35, "Out of ImageInfo array in R_Stream_GetTopSortedImageList() increase from %lu\n", 2500i64);
-      std::_Sort_unchecked__Stream_Debug_DrawTopSortedImageList_::_2_::ImageInfo____lambda_6afac1d50d49c5ae90c2e781f9354632___(_First, &_First[v56], (__int64)(32 * v56) >> 5, (Stream_Debug_DrawTopSortedImageList::__l2::<lambda_6afac1d50d49c5ae90c2e781f9354632>)enabled);
-      __asm
-      {
-        vxorps  xmm8, xmm8, xmm8
-        vxorps  xmm6, xmm6, xmm6
-      }
-      _RBX = DVARFLT_stream_drawTopSortedImagesFontSize;
+      std::_Sort_unchecked__Stream_Debug_DrawTopSortedImageList_::_2_::ImageInfo____lambda_6afac1d50d49c5ae90c2e781f9354632___(_First, &_First[v39], (__int64)(32 * v39) >> 5, (Stream_Debug_DrawTopSortedImageList::__l2::<lambda_6afac1d50d49c5ae90c2e781f9354632>)enabled);
+      y = 0i64;
+      v14 = DVARFLT_stream_drawTopSortedImagesFontSize;
       if ( !DVARFLT_stream_drawTopSortedImagesFontSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTopSortedImagesFontSize") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-      _RDI = ScrPlace_GetActivePlacement(localClientIndex);
-      __asm { vmovaps xmm2, xmm7; scale }
-      FontHandle = UI_GetFontHandle(_RDI, 5, *(float *)&_XMM2);
-      __asm { vmovaps xmm1, xmm7; scale }
-      UI_TextHeight(FontHandle, *(float *)&_XMM1);
-      __asm
-      {
-        vxorps  xmm9, xmm9, xmm9
-        vcvtsi2ss xmm9, xmm9, eax
-      }
-      v27 = &_First[v56];
-      if ( _First != v27 )
+      Dvar_CheckFrontendServerThread(v14);
+      value = v14->current.value;
+      ActivePlacement = ScrPlace_GetActivePlacement(localClientIndex);
+      FontHandle = UI_GetFontHandle(ActivePlacement, 5, value);
+      v18 = (float)UI_TextHeight(FontHandle, value);
+      v19 = &_First[v39];
+      if ( _First != v19 )
       {
         p_wanted = &_First[0].wanted;
         while ( 1 )
@@ -3397,30 +2468,22 @@ void Stream_Debug_DrawTopSortedImageList(LocalClientNum_t localClientIndex)
             goto LABEL_39;
           if ( integer != 1 )
             break;
-          v29 = p_wanted[2];
-          v32 = p_wanted[1];
-          v30 = *p_wanted;
-          v31 = "^6wanted ^5%5u^7 KB, ^2loaded ^5%5u^7 KB, ^3total ^5%5u^7 KB: %s\n";
+          v21 = p_wanted[2];
+          v24 = p_wanted[1];
+          v22 = *p_wanted;
+          v23 = "^6wanted ^5%5u^7 KB, ^2loaded ^5%5u^7 KB, ^3total ^5%5u^7 KB: %s\n";
 LABEL_41:
-          LODWORD(fmt) = v29 >> 10;
-          Com_sprintf_truncate<1024>((char (*)[1024])dest, v31, v30 >> 10, v32 >> 10, fmt, **((_QWORD **)p_wanted - 2));
+          LODWORD(fmt) = v21 >> 10;
+          Com_sprintf_truncate<1024>((char (*)[1024])dest, v23, v22 >> 10, v24 >> 10, fmt, **((_QWORD **)p_wanted - 2));
 LABEL_42:
-          __asm
-          {
-            vmovss  [rsp+13DB0h+var_13D70], xmm7
-            vmovss  [rsp+13DB0h+y], xmm6
-            vmovss  dword ptr [rsp+13DB0h+fmt], xmm8
-          }
-          UI_DrawText(_RDI, dest, 0x7FFFFFFF, FontHandle, fmta, y, 1, 1, v43, &colorWhite, 3);
-          __asm
-          {
-            vaddss  xmm6, xmm6, xmm9
-            vcomiss xmm6, dword ptr [rdi+34h]
-          }
-          if ( v33 | v34 )
+          UI_DrawText(ActivePlacement, dest, 0x7FFFFFFF, FontHandle, 0.0, *(float *)&y, 1, 1, value, &colorWhite, 3);
+          v25 = y;
+          *(float *)&v25 = *(float *)&y + v18;
+          y = v25;
+          if ( *(float *)&v25 <= ActivePlacement->virtualViewableMax.v[1] )
           {
             p_wanted += 8;
-            if ( p_wanted - 4 != (unsigned int *)v27 )
+            if ( p_wanted - 4 != (unsigned int *)v19 )
               continue;
           }
           goto LABEL_44;
@@ -3428,9 +2491,9 @@ LABEL_42:
         if ( integer == 2 )
         {
 LABEL_39:
-          v29 = p_wanted[2];
-          v30 = p_wanted[1];
-          v31 = "^2loaded ^5%5u^7 KB, ^6wanted ^5%5u^7 KB, ^3total ^5%5u^7 KB: %s\n";
+          v21 = p_wanted[2];
+          v22 = p_wanted[1];
+          v23 = "^2loaded ^5%5u^7 KB, ^6wanted ^5%5u^7 KB, ^3total ^5%5u^7 KB: %s\n";
         }
         else
         {
@@ -3440,33 +2503,25 @@ LABEL_39:
               __debugbreak();
             goto LABEL_42;
           }
-          v29 = p_wanted[1];
-          v30 = p_wanted[2];
-          v31 = "^3total ^5%5u^7 KB, ^6wanted ^5%5u^7 KB, ^2loaded ^5%5u^7 KB: %s\n";
+          v21 = p_wanted[1];
+          v22 = p_wanted[2];
+          v23 = "^3total ^5%5u^7 KB, ^6wanted ^5%5u^7 KB, ^2loaded ^5%5u^7 KB: %s\n";
         }
-        v32 = *p_wanted;
+        v24 = *p_wanted;
         goto LABEL_41;
       }
     }
 LABEL_44:
-    if ( v56 )
+    if ( v39 )
     {
       do
       {
-        if ( v9 >= 0x9C4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+        if ( v5 >= 0x9C4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
           __debugbreak();
-        ++v9;
+        ++v5;
       }
-      while ( v9 < v56 );
+      while ( v5 < v39 );
     }
-  }
-  _R11 = &v62;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -3477,109 +2532,87 @@ Stream_Debug_DrawTouchedImages
 */
 void Stream_Debug_DrawTouchedImages(const LocalClientNum_t localClientIndex)
 {
-  const dvar_t *v8; 
-  const ScreenPlacement *v12; 
-  GfxFont *v14; 
-  unsigned int v17; 
-  unsigned int v19; 
-  __int64 v21; 
-  unsigned int v25; 
-  unsigned int v26; 
-  unsigned int v27; 
+  const dvar_t *v1; 
+  const ScreenPlacement *v3; 
+  GfxFont *v4; 
+  int v5; 
+  unsigned int v6; 
+  unsigned int v7; 
+  float v8; 
+  __int128 v9; 
+  __int64 v10; 
+  __int128 v12; 
+  unsigned int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
   GfxImage *GfxImageAtIndex; 
   const char *name; 
   unsigned int *mLoaded; 
-  const char *v31; 
-  int v32; 
-  bool v33; 
-  StreamFrontendGlob *v34; 
+  const char *v19; 
+  int v20; 
+  bool v21; 
+  StreamFrontendGlob *v22; 
   unsigned int *mUse; 
-  StreamFrontendGlob *v36; 
-  const char *v37; 
+  StreamFrontendGlob *v24; 
+  const char *v25; 
   unsigned int *mLoading; 
-  StreamFrontendGlob *v39; 
-  const char *v40; 
+  StreamFrontendGlob *v27; 
+  const char *v28; 
   unsigned int *mAlloc; 
-  const char *v42; 
-  int v46; 
-  float fmt; 
-  float fmta; 
+  const char *v30; 
+  int v32; 
+  __int128 v34; 
   __int64 y; 
-  float ya; 
-  float yb; 
   __int64 horzAlign; 
-  float v69; 
-  float v70; 
-  int v71; 
-  unsigned int v72; 
-  unsigned int v73; 
-  int v74; 
-  __int64 v76; 
+  int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  int v45; 
+  __int64 v46; 
   GfxFont *font; 
   ScreenPlacement *scrPlace; 
   char dest[1024]; 
 
-  v8 = DCONST_DVARBOOL_stream_drawTouchedImages;
+  v1 = DCONST_DVARBOOL_stream_drawTouchedImages;
   if ( !DCONST_DVARBOOL_stream_drawTouchedImages && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawTouchedImages") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+548h+var_38], xmm6
-      vmovaps [rsp+548h+var_48], xmm7
-      vmovaps [rsp+548h+var_58], xmm8
-      vmovaps [rsp+548h+var_68], xmm9
-      vmovaps [rsp+548h+var_78], xmm10
-      vmovaps [rsp+548h+var_88], xmm11
-      vmovaps [rsp+548h+var_98], xmm12
-      vmovss  xmm8, cs:__real@3e19999a
-      vmovaps xmm2, xmm8; scale
-    }
     scrPlace = (ScreenPlacement *)ScrPlace_GetActivePlacement(localClientIndex);
-    v12 = scrPlace;
-    __asm { vmovaps xmm1, xmm8; scale }
-    font = UI_GetFontHandle(scrPlace, 5, *(float *)&_XMM2);
-    v14 = font;
-    UI_TextHeight(font, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@41c00000
-      vmovss  xmm11, cs:__real@43700000
-    }
-    v17 = 0;
-    v71 = 1;
-    __asm { vxorps  xmm10, xmm10, xmm10 }
-    v19 = 0;
-    v74 = 0;
-    __asm { vcvtsi2ss xmm10, xmm10, eax }
-    v21 = 2365376i64;
-    v72 = 0;
-    __asm
-    {
-      vxorps  xmm12, xmm12, xmm12
-      vxorps  xmm7, xmm7, xmm7
-      vaddss  xmm6, xmm10, xmm9
-    }
-    v76 = 2365376i64;
+    v3 = scrPlace;
+    font = UI_GetFontHandle(scrPlace, 5, 0.15000001);
+    v4 = font;
+    v5 = UI_TextHeight(font, 0.15000001);
+    v6 = 0;
+    v42 = 1;
+    v7 = 0;
+    v45 = 0;
+    v9 = 0i64;
+    v8 = (float)v5;
+    v10 = 2365376i64;
+    v43 = 0;
+    _XMM7 = 0i64;
+    *(float *)&v9 = (float)v5 + 24.0;
+    v12 = v9;
+    v46 = 2365376i64;
     do
     {
-      v25 = *(unsigned int *)((char *)&streamFrontendGlob->modelDistance.mDistances[10240].mValue + v21) | *(unsigned int *)((char *)&streamFrontendGlob->modelDistance.mDistances[0].mValue + v21);
-      v73 = v25;
-      if ( v25 )
+      v13 = *(unsigned int *)((char *)&streamFrontendGlob->modelDistance.mDistances[10240].mValue + v10) | *(unsigned int *)((char *)&streamFrontendGlob->modelDistance.mDistances[0].mValue + v10);
+      v44 = v13;
+      if ( v13 )
       {
         do
         {
-          v26 = __lzcnt(v25);
-          v27 = ((_BYTE)v19 - (_BYTE)v26 + 31) & 3;
-          GfxImageAtIndex = DB_GetGfxImageAtIndex((v19 - v26 + 31) >> 2);
+          v14 = __lzcnt(v13);
+          v15 = ((_BYTE)v7 - (_BYTE)v14 + 31) & 3;
+          GfxImageAtIndex = DB_GetGfxImageAtIndex((v7 - v14 + 31) >> 2);
           if ( !GfxImageAtIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 2175, ASSERT_TYPE_ASSERT, "( ( image != nullptr ) )", "( image ) = %p", NULL) )
             __debugbreak();
-          if ( v27 >= GfxImageAtIndex->streamedPartCount )
+          if ( v15 >= GfxImageAtIndex->streamedPartCount )
           {
             LODWORD(horzAlign) = GfxImageAtIndex->streamedPartCount;
-            LODWORD(y) = v27;
+            LODWORD(y) = v15;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 2176, ASSERT_TYPE_ASSERT, "(unsigned)( imagePartIndex ) < (unsigned)( image->streamedPartCount )", "imagePartIndex doesn't index image->streamedPartCount\n\t%i not in [0, %i)", y, horzAlign) )
               __debugbreak();
           }
@@ -3587,125 +2620,98 @@ void Stream_Debug_DrawTouchedImages(const LocalClientNum_t localClientIndex)
           mLoaded = streamFrontendGlob->imageBits.mLoaded;
           if ( !mLoaded && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v31 = "^1L^7";
-          v32 = 1 << v27;
-          v33 = ((1 << v27) & *mLoaded) == 0;
-          v34 = streamFrontendGlob;
-          if ( !v33 )
-            v31 = "^2L^7";
-          if ( v27 >= streamFrontendGlob->imageBits.mBitCount )
+          v19 = "^1L^7";
+          v20 = 1 << v15;
+          v21 = ((1 << v15) & *mLoaded) == 0;
+          v22 = streamFrontendGlob;
+          if ( !v21 )
+            v19 = "^2L^7";
+          if ( v15 >= streamFrontendGlob->imageBits.mBitCount )
           {
             LODWORD(horzAlign) = streamFrontendGlob->imageBits.mBitCount;
-            LODWORD(y) = v27;
+            LODWORD(y) = v15;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", y, horzAlign) )
               __debugbreak();
           }
-          mUse = v34->imageBits.mUse;
+          mUse = v22->imageBits.mUse;
           if ( !mUse && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v33 = (v32 & *mUse) == 0;
-          v36 = streamFrontendGlob;
-          v37 = "^1I^7";
-          if ( !v33 )
-            v37 = "^2I^7";
-          if ( v27 >= streamFrontendGlob->imageBits.mBitCount )
+          v21 = (v20 & *mUse) == 0;
+          v24 = streamFrontendGlob;
+          v25 = "^1I^7";
+          if ( !v21 )
+            v25 = "^2I^7";
+          if ( v15 >= streamFrontendGlob->imageBits.mBitCount )
           {
             LODWORD(horzAlign) = streamFrontendGlob->imageBits.mBitCount;
-            LODWORD(y) = v27;
+            LODWORD(y) = v15;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", y, horzAlign) )
               __debugbreak();
           }
-          mLoading = v36->imageBits.mLoading;
+          mLoading = v24->imageBits.mLoading;
           if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v33 = (v32 & *mLoading) == 0;
-          v39 = streamFrontendGlob;
-          v40 = " ";
-          if ( !v33 )
-            v40 = "^5Lo^7";
-          if ( v27 >= streamFrontendGlob->imageBits.mBitCount )
+          v21 = (v20 & *mLoading) == 0;
+          v27 = streamFrontendGlob;
+          v28 = " ";
+          if ( !v21 )
+            v28 = "^5Lo^7";
+          if ( v15 >= streamFrontendGlob->imageBits.mBitCount )
           {
             LODWORD(horzAlign) = streamFrontendGlob->imageBits.mBitCount;
-            LODWORD(y) = v27;
+            LODWORD(y) = v15;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", y, horzAlign) )
               __debugbreak();
           }
-          mAlloc = v39->imageBits.mAlloc;
+          mAlloc = v27->imageBits.mAlloc;
           if ( !mAlloc && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v42 = "^1A^7";
-          LODWORD(horzAlign) = v27;
-          if ( (v32 & *mAlloc) != 0 )
-            v42 = "^2A^7";
-          Com_sprintf_truncate<1024>((char (*)[1024])dest, "  %s%s%s%s ^5part ^5%u ^3%.55s", v42, v40, v37, v31, horzAlign, name);
-          v14 = font;
-          v12 = scrPlace;
+          v30 = "^1A^7";
+          LODWORD(horzAlign) = v15;
+          if ( (v20 & *mAlloc) != 0 )
+            v30 = "^2A^7";
+          Com_sprintf_truncate<1024>((char (*)[1024])dest, "  %s%s%s%s ^5part ^5%u ^3%.55s", v30, v28, v25, v19, horzAlign, name);
+          v4 = font;
+          v3 = scrPlace;
+          UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, *(float *)&_XMM7, *(float *)&v12, 1, 1, 0.15000001, &colorWhite, 3);
+          v7 = v43;
+          _XMM0 = (unsigned int)(v42 + 1);
+          v32 = 0;
+          v34 = v12;
+          *(float *)&v34 = *(float *)&v12 + v8;
+          _XMM3 = v34;
+          if ( (unsigned int)(v42 + 1) <= 0x3C )
+            v32 = v42 + 1;
           __asm
           {
-            vmovss  [rsp+548h+var_508], xmm8
-            vmovss  [rsp+548h+y], xmm6
-            vmovss  dword ptr [rsp+548h+fmt], xmm7
-          }
-          UI_DrawText(scrPlace, dest, 0x7FFFFFFF, font, fmt, ya, 1, 1, v69, &colorWhite, 3);
-          v19 = v72;
-          _EAX = v71 + 1;
-          _ER11 = 60;
-          __asm { vmovd   xmm0, eax }
-          v46 = 0;
-          __asm { vaddss  xmm3, xmm6, xmm10 }
-          if ( (unsigned int)(v71 + 1) <= 0x3C )
-            v46 = v71 + 1;
-          __asm
-          {
-            vmovd   xmm1, r11d
             vpcmpgtq xmm2, xmm0, xmm1
             vblendvps xmm0, xmm3, xmm9, xmm2
-            vmovss  [rsp+548h+var_4D8], xmm0
-            vmovss  xmm6, [rsp+548h+var_4D8]
-            vmovd   xmm0, eax
-            vaddss  xmm3, xmm7, xmm11
           }
-          v17 = v74 + 1;
-          v71 = v46;
-          ++v74;
-          __asm { vmovd   xmm1, r11d }
-          v25 = ~(0xF0000000 >> (v26 & 0xFC)) & v73;
-          v73 = v25;
+          v12 = (unsigned int)_XMM0;
+          _XMM0 = (unsigned int)(v42 + 1);
+          v6 = v45 + 1;
+          v42 = v32;
+          ++v45;
+          v13 = ~(0xF0000000 >> (v14 & 0xFC)) & v44;
+          v44 = v13;
           __asm
           {
             vpcmpgtq xmm2, xmm0, xmm1
             vblendvps xmm3, xmm7, xmm3, xmm2
-            vmovaps xmm7, xmm3
-            vmovss  [rsp+548h+var_4C8], xmm3
           }
+          _XMM7 = _XMM3;
         }
-        while ( v25 );
-        v71 = v46;
+        while ( v13 );
+        v42 = v32;
       }
-      v19 += 32;
-      v21 = v76 + 4;
-      v72 = v19;
-      v76 += 4i64;
+      v7 += 32;
+      v10 = v46 + 4;
+      v43 = v7;
+      v46 += 4i64;
     }
-    while ( v19 < 0x50000 );
-    Com_sprintf_truncate<1024>((char (*)[1024])dest, "Touched Images[%d] ^2Legend: A=alloc, Lo=loading, I=in-use, L=loaded", v17);
-    __asm
-    {
-      vmovss  [rsp+548h+var_508], xmm8
-      vmovss  [rsp+548h+y], xmm9
-      vmovss  dword ptr [rsp+548h+fmt], xmm12
-    }
-    UI_DrawText(v12, dest, 0x7FFFFFFF, v14, fmta, yb, 1, 1, v70, &colorWhite, 3);
-    __asm
-    {
-      vmovaps xmm12, [rsp+548h+var_98]
-      vmovaps xmm11, [rsp+548h+var_88]
-      vmovaps xmm10, [rsp+548h+var_78]
-      vmovaps xmm9, [rsp+548h+var_68]
-      vmovaps xmm8, [rsp+548h+var_58]
-      vmovaps xmm7, [rsp+548h+var_48]
-      vmovaps xmm6, [rsp+548h+var_38]
-    }
+    while ( v7 < 0x50000 );
+    Com_sprintf_truncate<1024>((char (*)[1024])dest, "Touched Images[%d] ^2Legend: A=alloc, Lo=loading, I=in-use, L=loaded", v6);
+    UI_DrawText(v3, dest, 0x7FFFFFFF, v4, 0.0, 24.0, 1, 1, 0.15000001, &colorWhite, 3);
   }
 }
 
@@ -3714,103 +2720,122 @@ void Stream_Debug_DrawTouchedImages(const LocalClientNum_t localClientIndex)
 Stream_Debug_DrawXPakHeatMap
 ==============
 */
-
-void __fastcall Stream_Debug_DrawXPakHeatMap(double _XMM0_8, double _XMM1_8, double _XMM2_8)
+void Stream_Debug_DrawXPakHeatMap()
 {
-  const dvar_t *v12; 
-  const dvar_t *v13; 
+  __int128 v0; 
+  __int128 v1; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
   unsigned __int64 integer; 
-  int v15; 
-  const dvar_t *v16; 
-  int v17; 
-  int v18; 
+  int v5; 
+  const dvar_t *v6; 
+  int v7; 
+  int v8; 
   unsigned __int64 i; 
   int xpakIndex; 
-  int v21; 
-  int v27; 
-  __int64 v30; 
-  int v32; 
-  const char *v43; 
+  int v11; 
+  int v12; 
+  __int128 v13; 
+  float *v14; 
+  __int64 v15; 
+  int v16; 
+  float v17; 
+  signed __int64 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  const char *v24; 
   GfxFont *bigDevFont; 
-  const char *v45; 
-  int v46; 
-  GfxColor v48; 
+  const char *v26; 
+  int v27; 
+  GfxColor v28; 
   FileStreamTrackType *p_trackType; 
-  __int64 v52; 
-  int v53; 
-  GfxColor v56; 
-  unsigned int v57; 
-  unsigned __int8 v58; 
-  unsigned __int64 v59; 
-  signed __int64 v60; 
-  unsigned __int64 v62; 
-  __int64 v63; 
-  unsigned __int64 v64; 
-  unsigned __int64 v65; 
-  char *v92; 
-  GfxFont *v93; 
-  const char *v94; 
-  int v95; 
-  unsigned __int64 v97; 
-  int v98; 
-  int v102; 
-  float fmt; 
-  float fmta; 
+  __int64 v30; 
+  int v31; 
+  __int64 v32; 
+  float v33; 
+  GfxColor v34; 
+  unsigned int v35; 
+  unsigned __int8 v36; 
+  unsigned __int64 v37; 
+  signed __int64 v38; 
+  unsigned __int64 v39; 
+  __int64 v40; 
+  unsigned __int64 v41; 
+  __int64 v42; 
+  unsigned __int64 v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  char *v67; 
+  GfxFont *v68; 
+  const char *v69; 
+  int v70; 
+  unsigned __int64 v71; 
+  int v72; 
+  int v73; 
   __int64 filled; 
-  float filleda; 
-  float filledb; 
   __int64 xScale; 
-  float xScalea; 
-  float xScaleb; 
-  float yScale; 
-  float yScalea; 
-  float rotation; 
-  float rotationa; 
-  GfxColor v118; 
+  GfxColor v76; 
   unsigned int unsignedInt; 
-  __int64 v120; 
-  __int64 v121[131]; 
-  char v122; 
+  __int64 v78; 
+  __int64 v79[131]; 
+  char v80; 
+  __int128 v81; 
+  __int128 v82; 
 
-  v12 = DCONST_DVARBOOL_stream_drawXPakHeatMap;
+  v2 = DCONST_DVARBOOL_stream_drawXPakHeatMap;
   if ( !DCONST_DVARBOOL_stream_drawXPakHeatMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawXPakHeatMap") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    v13 = DCONST_DVARINT_stream_drawXPakHeatMapMaxBlockCountOnWidth;
-    __asm
-    {
-      vmovaps [rsp+548h+var_48], xmm7
-      vmovaps [rsp+548h+var_58], xmm8
-      vmovaps [rsp+548h+var_68], xmm9
-      vmovaps [rsp+548h+var_88], xmm11
-      vmovaps [rsp+548h+var_98], xmm12
-      vmovaps [rsp+548h+var_A8], xmm13
-      vmovaps [rsp+548h+var_B8], xmm14
-    }
+    v3 = DCONST_DVARINT_stream_drawXPakHeatMapMaxBlockCountOnWidth;
+    v81 = v1;
     if ( !DCONST_DVARINT_stream_drawXPakHeatMapMaxBlockCountOnWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawXPakHeatMapMaxBlockCountOnWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    integer = v13->current.integer;
-    v15 = Sys_Milliseconds();
-    v16 = DCONST_DVARINT_stream_drawXPakHeatMapTimeLimit;
-    v17 = v15;
+    Dvar_CheckFrontendServerThread(v3);
+    integer = v3->current.integer;
+    v5 = Sys_Milliseconds();
+    v6 = DCONST_DVARINT_stream_drawXPakHeatMapTimeLimit;
+    v7 = v5;
     if ( !DCONST_DVARINT_stream_drawXPakHeatMapTimeLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawXPakHeatMapTimeLimit") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    v18 = v17 - v16->current.integer;
-    unsignedInt = v16->current.unsignedInt;
-    v118.packed = v18;
-    memset(v121, 0, 32);
-    v120 = 0i64;
+    Dvar_CheckFrontendServerThread(v6);
+    v8 = v7 - v6->current.integer;
+    unsignedInt = v6->current.unsignedInt;
+    v76.packed = v8;
+    memset(v79, 0, 32);
+    v78 = 0i64;
     for ( i = 0i64; i < 1024; ++i )
     {
-      if ( s_streamDebugGlob.streamHeatMapData[i].startedTime >= v18 )
+      if ( s_streamDebugGlob.streamHeatMapData[i].startedTime >= v8 )
       {
         xpakIndex = s_streamDebugGlob.streamHeatMapData[i].xpakIndex;
-        LOBYTE(v21) = XPak_IndexToFileID(xpakIndex);
-        if ( v21 == -16777217 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 2424, ASSERT_TYPE_ASSERT, "(XPak_IndexToFileID( xpakIndex ) != FileStreamFileID::INVALID)", (const char *)&queryFormat, "XPak_IndexToFileID( xpakIndex ) != FileStreamFileID::INVALID") )
+        LOBYTE(v11) = XPak_IndexToFileID(xpakIndex);
+        if ( v11 == -16777217 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 2424, ASSERT_TYPE_ASSERT, "(XPak_IndexToFileID( xpakIndex ) != FileStreamFileID::INVALID)", (const char *)&queryFormat, "XPak_IndexToFileID( xpakIndex ) != FileStreamFileID::INVALID") )
           __debugbreak();
         if ( (unsigned int)(xpakIndex / 8) >= 0x20 )
         {
@@ -3819,249 +2844,160 @@ void __fastcall Stream_Debug_DrawXPakHeatMap(double _XMM0_8, double _XMM1_8, dou
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 2425, ASSERT_TYPE_ASSERT, "(unsigned)( xpakIndex / 8 ) < (unsigned)( sizeof( xpakUsed ) )", "xpakIndex / 8 doesn't index sizeof( xpakUsed )\n\t%i not in [0, %i)", filled, xScale) )
             __debugbreak();
         }
-        *((_DWORD *)v121 + xpakIndex / 32) |= 1 << (xpakIndex & 0x1F);
+        *((_DWORD *)v79 + xpakIndex / 32) |= 1 << (xpakIndex & 0x1F);
       }
     }
-    __asm
-    {
-      vmovss  xmm11, cs:__real@42c80000
-      vmovss  xmm8, cs:__real@5f800000
-      vmovss  xmm7, cs:__real@41200000
-      vmovss  xmm12, cs:__real@42dc0000
-      vmovss  xmm13, cs:__real@3f800000
-    }
-    v27 = 255;
-    __asm
-    {
-      vmovaps [rsp+548h+var_38], xmm6
-      vmovaps xmm9, xmm11
-    }
-    _R14 = &v122;
-    __asm { vmovaps [rsp+548h+var_78], xmm10 }
-    v30 = 256i64;
-    __asm { vxorps  xmm14, xmm14, xmm14 }
+    v12 = 255;
+    v13 = LODWORD(FLOAT_100_0);
+    v14 = (float *)&v80;
+    v82 = v0;
+    v15 = 256i64;
     do
     {
-      v32 = *((_DWORD *)v121 + v27 / 32);
-      if ( _bittest(&v32, v27 & 0x1F) )
+      v16 = *((_DWORD *)v79 + v12 / 32);
+      if ( _bittest(&v16, v12 & 0x1F) )
       {
-        __asm
+        *v14 = *(float *)&v13;
+        v17 = *(float *)&v13;
+        v18 = (((unsigned __int64)(XPak_IndexToFileSize(v12) + 0xFFFFF) >> 20) + integer - 1) / integer;
+        v19 = (float)v18;
+        if ( v18 < 0 )
         {
-          vmovss  dword ptr [r14], xmm9
-          vmovaps xmm10, xmm9
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
+          v20 = (float)v18;
+          v19 = v20 + 1.8446744e19;
         }
-        if ( (((((unsigned __int64)(XPak_IndexToFileSize(v27) + 0xFFFFF) >> 20) + integer - 1) / integer) & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm0, xmm0, xmm8 }
-        __asm
-        {
-          vmulss  xmm3, xmm0, xmm7; height
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rbp
-          vaddss  xmm9, xmm9, xmm3
-        }
+        v21 = v19 * 10.0;
+        v22 = (float)(__int64)integer;
+        v23 = v13;
+        *(float *)&v23 = *(float *)&v13 + v21;
+        v13 = v23;
         if ( (integer & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm0, xmm0, xmm8 }
-        __asm
-        {
-          vmulss  xmm6, xmm0, xmm7
-          vmovaps xmm2, xmm6; width
-          vmovaps xmm1, xmm10; y
-          vmovaps xmm0, xmm11; x
-        }
-        R_AddCmdDrawRect2D(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &s_streamHeatMapColorFile, 0);
-        v43 = XPak_IndexToName(v27);
+          v22 = v22 + 1.8446744e19;
+        R_AddCmdDrawRect2D(100.0, v17, v22 * 10.0, v21, &s_streamHeatMapColorFile, 0);
+        v24 = XPak_IndexToName(v12);
         bigDevFont = cls.bigDevFont;
-        v45 = v43;
-        v46 = R_TextHeight(cls.bigDevFont);
-        __asm
-        {
-          vmovss  [rsp+548h+rotation], xmm14
-          vmovss  [rsp+548h+yScale], xmm13
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vaddss  xmm1, xmm0, xmm10
-          vmovss  [rsp+548h+xScale], xmm13
-          vaddss  xmm2, xmm6, xmm12
-          vmovss  dword ptr [rsp+548h+filled], xmm1
-          vmovss  dword ptr [rsp+548h+fmt], xmm2
-        }
-        R_AddCmdDrawText(v45, 64, bigDevFont, v46, fmt, filleda, xScalea, yScale, rotation, &colorWhite);
+        v26 = v24;
+        v27 = R_TextHeight(cls.bigDevFont);
+        R_AddCmdDrawText(v26, 64, bigDevFont, v27, (float)(v22 * 10.0) + 110.0, (float)v27 + v17, 1.0, 1.0, 0.0, &colorWhite);
       }
-      --v27;
-      _R14 -= 4;
-      --v30;
+      --v12;
+      --v14;
+      --v15;
     }
-    while ( v30 );
-    v48 = v118;
+    while ( v15 );
+    v28 = v76;
     p_trackType = &s_streamDebugGlob.streamHeatMapData[0].trackType;
-    __asm
-    {
-      vmovaps xmm12, [rsp+548h+var_98]
-      vmovaps xmm10, [rsp+548h+var_78]
-    }
-    v52 = 1024i64;
+    v30 = 1024i64;
     while ( 1 )
     {
-      v53 = *((_DWORD *)p_trackType - 6) - v48.packed;
-      if ( v53 > 0 )
+      v31 = *((_DWORD *)p_trackType - 6) - v28.packed;
+      if ( v31 > 0 )
       {
-        _RAX = *((int *)p_trackType - 5);
-        ++v120;
-        __asm { vmovss  xmm9, [rsp+rax*4+548h+var_4C8] }
-        v56.packed = s_streamHeatMapColorPrimer;
+        v32 = *((int *)p_trackType - 5);
+        ++v78;
+        v33 = *((float *)&v79[4] + v32);
+        v34.packed = s_streamHeatMapColorPrimer;
         if ( *p_trackType == FILE_STREAM_TRACK_STREAM )
-          v56.packed = s_streamHeatMapColorStream;
-        v118 = v56;
-        v57 = 255 * v53 / unsignedInt;
-        v58 = v57;
-        if ( v57 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v57, "unsigned", v57) )
+          v34.packed = s_streamHeatMapColorStream;
+        v76 = v34;
+        v35 = 255 * v31 / unsignedInt;
+        v36 = v35;
+        if ( v35 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v35, "unsigned", v35) )
           __debugbreak();
-        v59 = *((_QWORD *)p_trackType - 2) >> 20;
-        v60 = (unsigned __int64)(*((_QWORD *)p_trackType - 1) + 0xFFFFFi64) >> 20;
-        v118.array[3] = v58;
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        v62 = v60 + v59 - 1;
-        v63 = v62 / integer;
-        v64 = v62 % integer;
-        v65 = v62 / integer - v59 / integer + 1;
-        __asm { vcvtsi2ss xmm0, xmm0, rdx }
-        if ( ((v59 % integer) & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm0, xmm0, xmm8 }
-        __asm
+        v37 = *((_QWORD *)p_trackType - 2) >> 20;
+        v38 = (unsigned __int64)(*((_QWORD *)p_trackType - 1) + 0xFFFFFi64) >> 20;
+        v76.array[3] = v36;
+        v39 = v38 + v37 - 1;
+        v40 = v39 / integer;
+        v41 = v39 % integer;
+        v42 = v37 / integer;
+        v43 = v39 / integer - v37 / integer + 1;
+        v44 = (float)(__int64)(v37 % integer);
+        if ( ((v37 % integer) & 0x8000000000000000ui64) != 0i64 )
         {
-          vmulss  xmm0, xmm0, xmm7
-          vxorps  xmm1, xmm1, xmm1
-          vaddss  xmm4, xmm0, xmm11
-          vcvtsi2ss xmm1, xmm1, rax
+          v45 = (float)(__int64)(v37 % integer);
+          v44 = v45 + 1.8446744e19;
         }
-        if ( ((v59 / integer) & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm8 }
-        __asm
+        v46 = (float)(v44 * 10.0) + 100.0;
+        v47 = (float)v42;
+        if ( v42 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm7
-          vaddss  xmm6, xmm0, xmm9
+          v48 = (float)v42;
+          v47 = v48 + 1.8446744e19;
         }
-        if ( v65 == 1 )
+        v49 = (float)(v47 * 10.0) + v33;
+        if ( v43 == 1 )
         {
-          __asm
+          v50 = (float)v38;
+          if ( v38 < 0 )
           {
-            vxorps  xmm2, xmm2, xmm2
-            vcvtsi2ss xmm2, xmm2, rcx
+            v51 = (float)v38;
+            v50 = v51 + 1.8446744e19;
           }
-          if ( v60 < 0 )
-            __asm { vaddss  xmm2, xmm2, xmm8 }
-          __asm
-          {
-            vmulss  xmm2, xmm2, xmm7
-            vmovaps xmm3, xmm7
-            vmovaps xmm1, xmm6
-            vmovaps xmm0, xmm4
-          }
+          v52 = v50 * 10.0;
+          v53 = FLOAT_10_0;
+          v54 = (float)(v47 * 10.0) + v33;
+          v55 = (float)(v44 * 10.0) + 100.0;
         }
         else
         {
-          __asm
+          v56 = (float)(__int64)(integer - v41);
+          if ( (__int64)(integer - v41) < 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
+            v57 = (float)(__int64)(integer - v41);
+            v56 = v57 + 1.8446744e19;
           }
-          if ( (__int64)(integer - v64) < 0 )
-            __asm { vaddss  xmm0, xmm0, xmm8 }
-          __asm
+          R_AddCmdDrawRect2D(v46, v49, v56 * 10.0, 10.0, &v76, 1);
+          v58 = (float)(__int64)(v41 + 1);
+          if ( (__int64)(v41 + 1) < 0 )
           {
-            vmulss  xmm2, xmm0, xmm7; width
-            vmovaps xmm0, xmm4; x
-            vmovaps xmm3, xmm7; height
-            vmovaps xmm1, xmm6; y
+            v59 = (float)(__int64)(v41 + 1);
+            v58 = v59 + 1.8446744e19;
           }
-          R_AddCmdDrawRect2D(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &v118, 1);
-          __asm
+          v60 = v58 * 10.0;
+          v61 = (float)v40;
+          if ( v40 < 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
+            v62 = (float)v40;
+            v61 = v62 + 1.8446744e19;
           }
-          if ( (__int64)(v64 + 1) < 0 )
-            __asm { vaddss  xmm0, xmm0, xmm8 }
-          __asm
-          {
-            vmulss  xmm2, xmm0, xmm7; width
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rsi
-          }
-          if ( v63 < 0 )
-            __asm { vaddss  xmm0, xmm0, xmm8 }
-          __asm
-          {
-            vmulss  xmm0, xmm0, xmm7
-            vaddss  xmm1, xmm0, xmm9; y
-            vmovaps xmm0, xmm11; x
-            vmovaps xmm3, xmm7; height
-          }
-          R_AddCmdDrawRect2D(*(float *)&_XMM0_8, *(float *)&_XMM1_8, *(float *)&_XMM2_8, *(float *)&_XMM3, &v118, 1);
-          if ( v65 <= 2 )
+          R_AddCmdDrawRect2D(100.0, (float)(v61 * 10.0) + v33, v60, 10.0, &v76, 1);
+          if ( v43 <= 2 )
             goto LABEL_57;
-          __asm
+          v63 = (float)(__int64)(v43 - 2);
+          if ( (__int64)(v43 - 2) < 0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
+            v64 = (float)(__int64)(v43 - 2);
+            v63 = v64 + 1.8446744e19;
           }
-          if ( (__int64)(v65 - 2) < 0 )
-            __asm { vaddss  xmm0, xmm0, xmm8 }
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rbp
-            vmulss  xmm3, xmm0, xmm7; height
-          }
+          v65 = (float)(__int64)integer;
+          v53 = v63 * 10.0;
           if ( (integer & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm1, xmm1, xmm8 }
-          __asm
           {
-            vmulss  xmm2, xmm1, xmm7; width
-            vaddss  xmm1, xmm6, xmm7; y
-            vmovaps xmm0, xmm11; x
+            v66 = (float)(__int64)integer;
+            v65 = v66 + 1.8446744e19;
           }
+          v52 = v65 * 10.0;
+          v54 = v49 + 10.0;
+          v55 = FLOAT_100_0;
         }
-        R_AddCmdDrawRect2D(*(float *)&_XMM0_8, *(float *)&_XMM1_8, *(float *)&_XMM2_8, *(float *)&_XMM3, &v118, 1);
+        R_AddCmdDrawRect2D(v55, v54, v52, v53, &v76, 1);
       }
 LABEL_57:
       p_trackType += 8;
-      if ( !--v52 )
+      if ( !--v30 )
       {
-        v92 = j_va("[XPakHeatMap enabled] Streamer in White. Primer in BLUE. Fades out after %d ms. Each block is %zu bytes. Activity count is %zu%s", unsignedInt, 0x100000i64);
-        v93 = cls.bigDevFont;
-        v94 = v92;
-        v95 = R_TextHeight(cls.bigDevFont);
-        __asm { vmovaps xmm9, [rsp+548h+var_68] }
-        v97 = -1i64;
-        v98 = v95;
-        __asm
-        {
-          vmovaps xmm8, [rsp+548h+var_58]
-          vmovaps xmm7, [rsp+548h+var_48]
-          vmovaps xmm6, [rsp+548h+var_38]
-        }
+        v67 = j_va("[XPakHeatMap enabled] Streamer in White. Primer in BLUE. Fades out after %d ms. Each block is %zu bytes. Activity count is %zu%s", unsignedInt, 0x100000i64);
+        v68 = cls.bigDevFont;
+        v69 = v67;
+        v70 = R_TextHeight(cls.bigDevFont);
+        v71 = -1i64;
+        v72 = v70;
         do
-          ++v97;
-        while ( v94[v97] );
-        v102 = truncate_cast<int,unsigned __int64>(v97);
-        __asm
-        {
-          vmovss  [rsp+548h+rotation], xmm14
-          vmovss  [rsp+548h+yScale], xmm13
-          vmovss  [rsp+548h+xScale], xmm13
-          vmovss  dword ptr [rsp+548h+filled], xmm11
-          vmovss  dword ptr [rsp+548h+fmt], xmm11
-        }
-        R_AddCmdDrawText(v94, v102, v93, v98, fmta, filledb, xScaleb, yScalea, rotationa, &colorWhite);
-        __asm
-        {
-          vmovaps xmm14, [rsp+548h+var_B8]
-          vmovaps xmm13, [rsp+548h+var_A8]
-          vmovaps xmm11, [rsp+548h+var_88]
-        }
+          ++v71;
+        while ( v69[v71] );
+        v73 = truncate_cast<int,unsigned __int64>(v71);
+        R_AddCmdDrawText(v69, v73, v68, v72, 100.0, 100.0, 1.0, 1.0, 0.0, &colorWhite);
         return;
       }
     }
@@ -4095,198 +3031,182 @@ Stream_Debug_DumpCurrentImageUsage
 */
 void Stream_Debug_DumpCurrentImageUsage(const stdext::inplace_function<void __cdecl(char const *),64,16> *output, const GfxImage *image, int *idx, const char *extraInfo)
 {
-  const GfxImage *v6; 
+  const GfxImage *v4; 
+  int v5; 
+  int v6; 
   int v7; 
-  int v8; 
+  __int64 v8; 
   int v9; 
   __int64 v10; 
-  int v11; 
-  __int64 v12; 
   int StreamedPartCount; 
+  int v12; 
+  StreamFrontendGlob *v13; 
   int v14; 
-  StreamFrontendGlob *v15; 
-  int v16; 
   unsigned int *mStaticForced; 
-  __int64 v18; 
-  int v19; 
-  StreamFrontendGlob *v20; 
-  StreamFrontendGlob *v21; 
-  unsigned int v22; 
+  __int64 v16; 
+  int v17; 
+  StreamFrontendGlob *v18; 
+  StreamFrontendGlob *v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  StreamFrontendGlob *v22; 
   __int64 v23; 
-  StreamFrontendGlob *v24; 
-  __int64 v25; 
-  int v26; 
-  char *v27; 
-  const GfxImage *v28; 
-  int v29; 
+  int v24; 
+  char *v25; 
+  const GfxImage *v26; 
+  int v27; 
+  float v28; 
   const char *Name; 
+  const char *v30; 
+  __int64 v31; 
   const char *v32; 
+  const char *v33; 
+  __int64 v34; 
   __int64 v35; 
-  const char *v36; 
-  const char *v37; 
-  __int64 v39; 
-  double v40; 
-  __int64 v41; 
-  unsigned int v42; 
-  unsigned int v43; 
-  int v44; 
-  unsigned int v46; 
+  unsigned int v36; 
+  unsigned int v37; 
+  unsigned int v39; 
+  __int64 v40; 
+  unsigned int v41; 
+  __int64 v42; 
+  unsigned __int64 v43; 
   __int64 v47; 
-  unsigned int v48; 
+  __int64 v48; 
   __int64 v49; 
-  unsigned __int64 v50; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
   __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  __int64 v59; 
-  __int64 v60; 
-  __int64 v61; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v6 = image;
+  v4 = image;
   if ( (image->flags & 0x40) != 0 )
   {
-    __asm { vmovaps xmmword ptr [r11-58h], xmm6 }
-    v49 = Stream_Debug_CalcWantedBytesForImage(image);
+    v42 = Stream_Debug_CalcWantedBytesForImage(image);
+    v5 = 0;
+    v6 = 0;
     v7 = 0;
-    v8 = 0;
-    v9 = 0;
-    v60 = 0i64;
-    v10 = 0i64;
-    v61 = 0i64;
+    v53 = 0i64;
+    v8 = 0i64;
     v54 = 0i64;
-    v42 = 4 * DB_GetGfxImageIndex(v6);
-    v11 = 0;
-    v55 = 0i64;
-    v12 = 0i64;
-    v58 = 0i64;
-    v59 = 0i64;
-    v56 = 0i64;
-    v57 = 0i64;
-    StreamedPartCount = Image_GetStreamedPartCount(v6);
-    v47 = StreamedPartCount;
+    v47 = 0i64;
+    v36 = 4 * DB_GetGfxImageIndex(v4);
+    v9 = 0;
+    v48 = 0i64;
+    v10 = 0i64;
+    v51 = 0i64;
+    v52 = 0i64;
+    v49 = 0i64;
+    v50 = 0i64;
+    StreamedPartCount = Image_GetStreamedPartCount(v4);
+    v40 = StreamedPartCount;
     if ( StreamedPartCount > 0 )
     {
       do
       {
-        if ( v6->streamedPartCount >= v11 )
+        if ( v4->streamedPartCount >= v9 )
         {
-          if ( (v6->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
+          if ( (v4->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
             __debugbreak();
-          if ( v11 >= Image_GetStreamedPartCount(v6) )
+          if ( v9 >= Image_GetStreamedPartCount(v4) )
           {
-            LODWORD(v41) = Image_GetStreamedPartCount(v6);
-            LODWORD(v39) = v11;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v39, v41) )
+            LODWORD(v35) = Image_GetStreamedPartCount(v4);
+            LODWORD(v34) = v9;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
-          if ( v11 )
-            v14 = (*(unsigned int *)((char *)&v6->streams[0].levelCountAndSize + v12) >> 4) - ((unsigned int)v6->streams[v11 - 1].levelCountAndSize >> 4);
+          if ( v9 )
+            v12 = (*(unsigned int *)((char *)&v4->streams[0].levelCountAndSize + v10) >> 4) - ((unsigned int)v4->streams[v9 - 1].levelCountAndSize >> 4);
           else
-            v14 = *(unsigned int *)((char *)&v6->streams[0].levelCountAndSize + v12) >> 4;
-          *((_DWORD *)&v60 + v10) = (unsigned int)(v14 + 1023) >> 10;
+            v12 = *(unsigned int *)((char *)&v4->streams[0].levelCountAndSize + v10) >> 4;
+          *((_DWORD *)&v53 + v8) = (unsigned int)(v12 + 1023) >> 10;
         }
-        v15 = streamFrontendGlob;
-        v16 = v11 + v42;
-        if ( v11 + v42 >= streamFrontendGlob->imageBits.mBitCount )
+        v13 = streamFrontendGlob;
+        v14 = v9 + v36;
+        if ( v9 + v36 >= streamFrontendGlob->imageBits.mBitCount )
         {
-          LODWORD(v41) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(v39) = v11 + v42;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v39, v41) )
+          LODWORD(v35) = streamFrontendGlob->imageBits.mBitCount;
+          LODWORD(v34) = v9 + v36;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
-        mStaticForced = v15->imageBits.mStaticForced;
+        mStaticForced = v13->imageBits.mStaticForced;
         if ( !mStaticForced && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v18 = (__int64)v16 >> 5;
-        v19 = 1 << (v16 & 0x1F);
-        if ( (v19 & mStaticForced[v18]) != 0 )
-          *((_DWORD *)&v58 + v10) = 1;
-        v20 = streamFrontendGlob;
-        if ( StreamableBits::CheckInUse(&streamFrontendGlob->imageBits, v16) || StreamableBits::CheckLoading(&v20->imageBits, v16) )
-          *((_DWORD *)&v56 + v10) = 1;
-        v21 = streamFrontendGlob;
-        v22 = v16 >> 5;
-        if ( v22 >= 0x2800 )
+        v16 = (__int64)v14 >> 5;
+        v17 = 1 << (v14 & 0x1F);
+        if ( (v17 & mStaticForced[v16]) != 0 )
+          *((_DWORD *)&v51 + v8) = 1;
+        v18 = streamFrontendGlob;
+        if ( StreamableBits::CheckInUse(&streamFrontendGlob->imageBits, v14) || StreamableBits::CheckLoading(&v18->imageBits, v14) )
+          *((_DWORD *)&v49 + v8) = 1;
+        v19 = streamFrontendGlob;
+        v20 = v14 >> 5;
+        if ( v20 >= 0x2800 )
         {
-          LODWORD(v41) = 10240;
-          LODWORD(v39) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v39, v41) )
+          LODWORD(v35) = 10240;
+          LODWORD(v34) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v34, v35) )
             __debugbreak();
         }
-        v23 = (__int64)v21->imageTouchBits + 4 * v18;
+        v21 = (__int64)v19->imageTouchBits + 4 * v16;
+        if ( (v21 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v21) )
+          __debugbreak();
+        if ( (v17 & *(_DWORD *)v21) != 0 )
+          *((_DWORD *)&v47 + v8) = 1;
+        v22 = streamFrontendGlob;
+        if ( v20 >= 0x2800 )
+        {
+          LODWORD(v35) = 10240;
+          LODWORD(v34) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v34, v35) )
+            __debugbreak();
+        }
+        v23 = (__int64)&v22->imageTouchBits[1][v16];
         if ( (v23 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v23) )
           __debugbreak();
-        if ( (v19 & *(_DWORD *)v23) != 0 )
-          *((_DWORD *)&v54 + v10) = 1;
-        v24 = streamFrontendGlob;
-        if ( v22 >= 0x2800 )
-        {
-          LODWORD(v41) = 10240;
-          LODWORD(v39) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v39, v41) )
-            __debugbreak();
-        }
-        v25 = (__int64)&v24->imageTouchBits[1][v18];
-        if ( (v25 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v25) )
-          __debugbreak();
-        if ( (v19 & *(_DWORD *)v25) != 0 )
-          *((_DWORD *)&v54 + v10) = 1;
-        v6 = image;
-        ++v11;
-        ++v10;
-        v12 += 40i64;
+        if ( (v17 & *(_DWORD *)v23) != 0 )
+          *((_DWORD *)&v47 + v8) = 1;
+        v4 = image;
+        ++v9;
+        ++v8;
+        v10 += 40i64;
       }
-      while ( v10 < v47 );
-      v11 = v61;
-      v7 = v60;
-      LODWORD(v12) = v55;
-      v8 = v54;
-      v9 = v58;
-      LODWORD(v10) = v56;
+      while ( v8 < v40 );
+      v9 = v54;
+      v5 = v53;
+      LODWORD(v10) = v48;
+      v6 = v47;
+      v7 = v51;
+      LODWORD(v8) = v49;
     }
-    v26 = Stream_Debug_CalcBytesLoadedForImage(v6);
-    v48 = (unsigned int)(v26 + 1023) >> 10;
-    v50 = (unsigned __int64)(v49 + 1023) >> 10;
-    v46 = ((unsigned int)(v26 + 0xFFFF) >> 10) & 0x3FFFC0;
-    v27 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
-    v28 = image;
-    v43 = v42 + image->streamedPartCount;
-    if ( v43 - 1 >= 0x50000 )
+    v24 = Stream_Debug_CalcBytesLoadedForImage(v4);
+    v41 = (unsigned int)(v24 + 1023) >> 10;
+    v43 = (unsigned __int64)(v42 + 1023) >> 10;
+    v39 = ((unsigned int)(v24 + 0xFFFF) >> 10) & 0x3FFFC0;
+    v25 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
+    v26 = image;
+    v37 = v36 + image->streamedPartCount;
+    if ( v37 - 1 >= 0x50000 )
     {
-      LODWORD(v41) = 327680;
-      LODWORD(v39) = v43 - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v39, v41) )
+      LODWORD(v35) = 327680;
+      LODWORD(v34) = v37 - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v34, v35) )
         __debugbreak();
-      v28 = image;
+      v26 = image;
     }
-    v29 = *(_DWORD *)&v27[4 * v43 + 2775260];
-    if ( v29 == -1 )
-    {
-      __asm { vmovss  xmm6, cs:__real@7f7fff80 }
-    }
+    v27 = *(_DWORD *)&v25[4 * v37 + 2775260];
+    if ( v27 == -1 )
+      v28 = FLOAT_3_4027977e38;
     else
-    {
-      v44 = v29 << 7;
-      __asm { vmovss  xmm6, [rbp+60h+var_E0] }
-    }
-    Name = PixelFormat_GetName(v28->format);
-    v32 = Image_TextureSemanticToString(image->semantic);
-    __asm
-    {
-      vsqrtss xmm0, xmm6, xmm6
-      vcvtss2sd xmm1, xmm0, xmm0
-    }
-    v35 = (unsigned int)*idx;
-    v36 = image->name;
-    *idx = v35 + 1;
-    __asm { vmovsd  [rsp+1B0h+var_188], xmm1 }
-    v37 = j_va("%d,%s,%s,%s,%.2f,%zu,%u,%u,%u,%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s\n", v35, v36, v32, Name, v40, v50, v48, v46, v7, HIDWORD(v60), v11, HIDWORD(v61), v8, HIDWORD(v54), v12, HIDWORD(v55), v9, HIDWORD(v58), v59, HIDWORD(v59), v10, HIDWORD(v56), v57, HIDWORD(v57), extraInfo);
-    output->m_InvokeFctPtr(v37, &output->m_Data);
-    __asm { vmovaps xmm6, xmmword ptr [rsp+1B0h+var_58+8] }
+      LODWORD(v28) = v27 << 7;
+    Name = PixelFormat_GetName(v26->format);
+    v30 = Image_TextureSemanticToString(image->semantic);
+    v31 = (unsigned int)*idx;
+    v32 = image->name;
+    *idx = v31 + 1;
+    v33 = j_va("%d,%s,%s,%s,%.2f,%zu,%u,%u,%u,%u,%u,%u,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s\n", v31, v32, v30, Name, fsqrt(v28), v43, v41, v39, v5, HIDWORD(v53), v9, HIDWORD(v54), v6, HIDWORD(v47), v10, HIDWORD(v48), v7, HIDWORD(v51), v52, HIDWORD(v52), v8, HIDWORD(v49), v50, HIDWORD(v50), extraInfo);
+    output->m_InvokeFctPtr(v33, &output->m_Data);
   }
 }
 
@@ -4408,206 +3328,190 @@ Stream_Debug_DumpImageUsage
 void Stream_Debug_DumpImageUsage(const stdext::inplace_function<void __cdecl(char const *),64,16> *output)
 {
   __int64 currentSavedViewPos; 
-  const char *v15; 
-  char *v16; 
+  __int64 v3; 
+  const char *v4; 
+  char *v5; 
   void (__fastcall *m_ManagerFctPtr)(void *, const void *, stdext::inplace_function_operation); 
   void (__fastcall *m_InvokeFctPtr)(const char *, const void *); 
+  int *v8; 
+  void (__fastcall *v9)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  void (__fastcall *v10)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  char *v11; 
+  void (__fastcall *v12)(void *, const void *, stdext::inplace_function_operation); 
+  void (__fastcall *v13)(const char *, const void *); 
+  int *v14; 
+  void (__fastcall *v15)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  char *v16; 
+  void (__fastcall *v17)(void *, const void *, stdext::inplace_function_operation); 
+  void (__fastcall *v18)(const char *, const void *); 
   int *v19; 
-  void (__fastcall *v20)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  void (__fastcall *v21)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  char *v22; 
-  void (__fastcall *v23)(void *, const void *, stdext::inplace_function_operation); 
-  void (__fastcall *v24)(const char *, const void *); 
-  int *v25; 
-  void (__fastcall *v26)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  char *v27; 
-  void (__fastcall *v28)(void *, const void *, stdext::inplace_function_operation); 
-  void (__fastcall *v29)(const char *, const void *); 
-  int *v30; 
-  int v31; 
-  __int64 v32; 
-  float v33; 
-  __int64 v34; 
-  char *v35; 
-  void (__fastcall *v36)(const char *, const void *); 
-  void (__fastcall *v37)(void *, const void *, stdext::inplace_function_operation); 
-  char v38[64]; 
-  int *v39; 
-  void (__fastcall *v40)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  char *v41; 
-  void (__fastcall *v42)(const char *, const void *); 
-  void (__fastcall *v43)(void *, const void *, stdext::inplace_function_operation); 
-  char v44[64]; 
-  int *v45; 
-  void (__fastcall *v46)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  __int64 v47[2]; 
-  void (__fastcall *v48)(const char *, const void *); 
-  void (__fastcall *v49)(void *, const void *, stdext::inplace_function_operation); 
-  char v50[64]; 
-  int *v51; 
-  void (__fastcall *v52)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  char v53; 
-  char *v54; 
-  void (__fastcall *v55)(const char *, const void *); 
-  void (__fastcall *v56)(void *, const void *, stdext::inplace_function_operation); 
-  char v57[64]; 
-  int *v58; 
-  void (__fastcall *v59)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  int v20; 
+  __int64 v21; 
+  float v22; 
+  __int64 v23; 
+  char *v24; 
+  void (__fastcall *v25)(const char *, const void *); 
+  void (__fastcall *v26)(void *, const void *, stdext::inplace_function_operation); 
+  char v27[64]; 
+  int *v28; 
+  void (__fastcall *v29)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  char *v30; 
+  void (__fastcall *v31)(const char *, const void *); 
+  void (__fastcall *v32)(void *, const void *, stdext::inplace_function_operation); 
+  char v33[64]; 
+  int *v34; 
+  void (__fastcall *v35)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  __int64 v36[2]; 
+  void (__fastcall *v37)(const char *, const void *); 
+  void (__fastcall *v38)(void *, const void *, stdext::inplace_function_operation); 
+  char v39[64]; 
+  int *v40; 
+  void (__fastcall *v41)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  char v42; 
+  char *v43; 
+  void (__fastcall *v44)(const char *, const void *); 
+  void (__fastcall *v45)(void *, const void *, stdext::inplace_function_operation); 
+  char v46[64]; 
+  int *v47; 
+  void (__fastcall *v48)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
   char *inData; 
-  void (__fastcall *v61)(const char *, const void *); 
-  void (__fastcall *v62)(void *, const void *, stdext::inplace_function_operation); 
-  char v63[64]; 
-  int *v64; 
-  void (__fastcall *v65)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
-  char v66[10240]; 
+  void (__fastcall *v50)(const char *, const void *); 
+  void (__fastcall *v51)(void *, const void *, stdext::inplace_function_operation); 
+  char v52[64]; 
+  int *v53; 
+  void (__fastcall *v54)(const stdext::inplace_function<void __cdecl(char const *),64,16> *, const GfxImage *, int *, const char *); 
+  char v55[10240]; 
 
-  v34 = -2i64;
-  memset_0(v66, 0, sizeof(v66));
-  v32 = 0i64;
-  v33 = 0.0;
-  _RCX = streamFrontendGlob;
+  v23 = -2i64;
+  memset_0(v55, 0, sizeof(v55));
+  v21 = 0i64;
+  v22 = 0.0;
   currentSavedViewPos = streamFrontendGlob->currentSavedViewPos;
   if ( streamFrontendGlob->savedViewPosCount[currentSavedViewPos][0] )
   {
-    _RAX = currentSavedViewPos;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax+rcx+0B96C5Ch]
-      vmovsd  [rsp+2AB0h+var_2A88], xmm0
-    }
-    v33 = streamFrontendGlob->savedViewPos[_RAX][0][0].v[2];
+    v3 = currentSavedViewPos;
+    v21 = *(_QWORD *)streamFrontendGlob->savedViewPos[v3][0][0].v;
+    v22 = streamFrontendGlob->savedViewPos[v3][0][0].v[2];
   }
-  __asm
-  {
-    vmovss  xmm3, [rsp+2AB0h+var_2A80]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovss  xmm2, dword ptr [rsp+2AB0h+var_2A88+4]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovss  xmm1, dword ptr [rsp+2AB0h+var_2A88]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v15 = j_va("index,name,semantic,format,distance,wanted_kb,allocd_kb,aligned_kb,part0_kb,part1_kb,part2_kb,part3_kb,touch0,touch1,touch2,touch3,force0,force1,force2,force3,used0,used1,used2,used3,parentStack,version:2,viewpos:%.0f,%.0f,%.0f\n", _RDX, _R8, _R9);
-  output->m_InvokeFctPtr(v15, &output->m_Data);
-  v31 = 0;
-  v16 = v66;
-  v35 = v66;
+  v4 = j_va("index,name,semantic,format,distance,wanted_kb,allocd_kb,aligned_kb,part0_kb,part1_kb,part2_kb,part3_kb,touch0,touch1,touch2,touch3,force0,force1,force2,force3,used0,used1,used2,used3,parentStack,version:2,viewpos:%.0f,%.0f,%.0f\n", *(float *)&v21, *((float *)&v21 + 1), v22);
+  output->m_InvokeFctPtr(v4, &output->m_Data);
+  v20 = 0;
+  v5 = v55;
+  v24 = v55;
   m_ManagerFctPtr = output->m_ManagerFctPtr;
   if ( m_ManagerFctPtr )
   {
-    m_ManagerFctPtr(v38, &output->m_Data, Copy);
+    m_ManagerFctPtr(v27, &output->m_Data, Copy);
     m_ManagerFctPtr = output->m_ManagerFctPtr;
-    v16 = v35;
+    v5 = v24;
   }
   m_InvokeFctPtr = output->m_InvokeFctPtr;
-  v36 = output->m_InvokeFctPtr;
-  v37 = m_ManagerFctPtr;
-  v19 = &v31;
-  v39 = &v31;
-  v20 = Stream_Debug_DumpCurrentImageUsage;
-  v21 = Stream_Debug_DumpCurrentImageUsage;
-  v40 = Stream_Debug_DumpCurrentImageUsage;
-  inData = v16;
+  v25 = output->m_InvokeFctPtr;
+  v26 = m_ManagerFctPtr;
+  v8 = &v20;
+  v28 = &v20;
+  v9 = Stream_Debug_DumpCurrentImageUsage;
+  v10 = Stream_Debug_DumpCurrentImageUsage;
+  v29 = Stream_Debug_DumpCurrentImageUsage;
+  inData = v5;
   if ( m_ManagerFctPtr )
   {
-    m_ManagerFctPtr(v63, v38, Copy);
-    v21 = v40;
-    v19 = v39;
-    m_ManagerFctPtr = v37;
-    m_InvokeFctPtr = v36;
+    m_ManagerFctPtr(v52, v27, Copy);
+    v10 = v29;
+    v8 = v28;
+    m_ManagerFctPtr = v26;
+    m_InvokeFctPtr = v25;
   }
-  v61 = m_InvokeFctPtr;
-  v62 = m_ManagerFctPtr;
-  v64 = v19;
-  v65 = v21;
-  v36 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  v50 = m_InvokeFctPtr;
+  v51 = m_ManagerFctPtr;
+  v53 = v8;
+  v54 = v10;
+  v25 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
   if ( m_ManagerFctPtr )
-    m_ManagerFctPtr(v38, NULL, Destroy);
-  v37 = NULL;
+    m_ManagerFctPtr(v27, NULL, Destroy);
+  v26 = NULL;
   DB_EnumXAssets(ASSET_TYPE_XMODEL, Stream_Debug_EnumDumpModelMaterialUsage, &inData, 1);
-  v22 = v66;
-  v41 = v66;
-  v23 = output->m_ManagerFctPtr;
-  if ( v23 )
+  v11 = v55;
+  v30 = v55;
+  v12 = output->m_ManagerFctPtr;
+  if ( v12 )
   {
-    v23(v44, &output->m_Data, Copy);
-    v23 = output->m_ManagerFctPtr;
-    v22 = v41;
+    v12(v33, &output->m_Data, Copy);
+    v12 = output->m_ManagerFctPtr;
+    v11 = v30;
   }
-  v24 = output->m_InvokeFctPtr;
-  v42 = output->m_InvokeFctPtr;
-  v43 = v23;
-  v25 = &v31;
-  v45 = &v31;
-  v26 = Stream_Debug_DumpCurrentImageUsage;
-  v46 = Stream_Debug_DumpCurrentImageUsage;
-  v47[0] = (__int64)v22;
-  if ( v23 )
+  v13 = output->m_InvokeFctPtr;
+  v31 = output->m_InvokeFctPtr;
+  v32 = v12;
+  v14 = &v20;
+  v34 = &v20;
+  v15 = Stream_Debug_DumpCurrentImageUsage;
+  v35 = Stream_Debug_DumpCurrentImageUsage;
+  v36[0] = (__int64)v11;
+  if ( v12 )
   {
-    v23(v50, v44, Copy);
-    v26 = v46;
-    v25 = v45;
-    v23 = v43;
-    v24 = v42;
+    v12(v39, v33, Copy);
+    v15 = v35;
+    v14 = v34;
+    v12 = v32;
+    v13 = v31;
   }
-  v48 = v24;
-  v49 = v23;
-  v51 = v25;
-  v52 = v26;
-  v53 = 0;
-  v42 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
-  if ( v23 )
-    v23(v44, NULL, Destroy);
-  v43 = NULL;
-  DB_EnumXAssets(ASSET_TYPE_MATERIAL, Stream_Debug_EnumDumpSurfaceMaterialUsage, v47, 1);
-  v53 = 1;
-  DB_EnumXAssets(ASSET_TYPE_MATERIAL, Stream_Debug_EnumDumpSurfaceMaterialUsage, v47, 1);
-  v27 = v66;
-  v35 = v66;
-  v28 = output->m_ManagerFctPtr;
-  if ( v28 )
+  v37 = v13;
+  v38 = v12;
+  v40 = v14;
+  v41 = v15;
+  v42 = 0;
+  v31 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  if ( v12 )
+    v12(v33, NULL, Destroy);
+  v32 = NULL;
+  DB_EnumXAssets(ASSET_TYPE_MATERIAL, Stream_Debug_EnumDumpSurfaceMaterialUsage, v36, 1);
+  v42 = 1;
+  DB_EnumXAssets(ASSET_TYPE_MATERIAL, Stream_Debug_EnumDumpSurfaceMaterialUsage, v36, 1);
+  v16 = v55;
+  v24 = v55;
+  v17 = output->m_ManagerFctPtr;
+  if ( v17 )
   {
-    v28(v38, &output->m_Data, Copy);
-    v28 = output->m_ManagerFctPtr;
-    v27 = v35;
+    v17(v27, &output->m_Data, Copy);
+    v17 = output->m_ManagerFctPtr;
+    v16 = v24;
   }
-  v29 = output->m_InvokeFctPtr;
-  v36 = output->m_InvokeFctPtr;
-  v37 = v28;
-  v30 = &v31;
-  v39 = &v31;
-  v40 = Stream_Debug_DumpCurrentImageUsage;
-  v54 = v27;
-  if ( v28 )
+  v18 = output->m_InvokeFctPtr;
+  v25 = output->m_InvokeFctPtr;
+  v26 = v17;
+  v19 = &v20;
+  v28 = &v20;
+  v29 = Stream_Debug_DumpCurrentImageUsage;
+  v43 = v16;
+  if ( v17 )
   {
-    v28(v57, v38, Copy);
-    v20 = v40;
-    v30 = v39;
-    v28 = v37;
-    v29 = v36;
+    v17(v46, v27, Copy);
+    v9 = v29;
+    v19 = v28;
+    v17 = v26;
+    v18 = v25;
   }
-  v55 = v29;
-  v56 = v28;
-  v58 = v30;
-  v59 = v20;
-  v36 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
-  if ( v28 )
-    v28(v38, NULL, Destroy);
-  v37 = NULL;
-  DB_EnumXAssets(ASSET_TYPE_IMAGE, Stream_Debug_EnumDumpRemainingImageUsage, &v54, 1);
-  v55 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
-  if ( v56 )
-    v56(v57, NULL, Destroy);
-  v56 = NULL;
-  v48 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
-  if ( v49 )
-    v49(v50, NULL, Destroy);
-  v49 = NULL;
-  v61 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
-  if ( v62 )
-    v62(v63, NULL, Destroy);
+  v44 = v18;
+  v45 = v17;
+  v47 = v19;
+  v48 = v9;
+  v25 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  if ( v17 )
+    v17(v27, NULL, Destroy);
+  v26 = NULL;
+  DB_EnumXAssets(ASSET_TYPE_IMAGE, Stream_Debug_EnumDumpRemainingImageUsage, &v43, 1);
+  v44 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  if ( v45 )
+    v45(v46, NULL, Destroy);
+  v45 = NULL;
+  v37 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  if ( v38 )
+    v38(v39, NULL, Destroy);
+  v38 = NULL;
+  v50 = stdext::inplace_function<void (char const *),64,16>::DefaultFunction;
+  if ( v51 )
+    v51(v52, NULL, Destroy);
 }
 
 /*
@@ -4617,177 +3521,158 @@ Stream_Debug_DumpImageUsageInfo
 */
 void Stream_Debug_DumpImageUsageInfo(const GfxImage *image, int *idx, const stdext::inplace_function<void __cdecl(char const *),64,16> *output)
 {
-  unsigned int v7; 
-  __int64 v8; 
-  int v10; 
-  unsigned int v11; 
-  StreamFrontendGlob *v12; 
+  unsigned int v5; 
+  __int64 v6; 
+  int v7; 
+  unsigned int v8; 
+  StreamFrontendGlob *v9; 
   unsigned int *mStaticForced; 
-  StreamFrontendGlob *v14; 
-  __int64 v15; 
-  int v16; 
-  __int64 v17; 
+  StreamFrontendGlob *v11; 
+  __int64 v12; 
+  int v13; 
+  __int64 v14; 
+  int v15; 
+  StreamFrontendGlob *v16; 
+  StreamFrontendGlob *v17; 
   int v18; 
-  StreamFrontendGlob *v19; 
-  StreamFrontendGlob *v20; 
-  int v21; 
   unsigned int *mAlloc; 
-  bool v23; 
-  __int64 v24; 
+  bool v20; 
+  __int64 v21; 
   XPakEntryInfo *EntryInfo; 
-  char *v26; 
-  int v27; 
+  char *v23; 
+  int v24; 
+  float v25; 
   int streamedPartCount; 
-  const char *v30; 
-  const char *v31; 
+  const char *v27; 
+  const char *v28; 
   unsigned __int64 key; 
   const char *name; 
+  __int64 v31; 
+  const char *v32; 
+  __int64 v33; 
+  __int64 v34; 
   __int64 v35; 
-  const char *v36; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  double v42; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  int v46; 
-  int v47; 
-  unsigned int v48; 
+  __int64 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  int v39; 
+  int v40; 
+  unsigned int v41; 
   std::_Aligned<64,16,double,0>::type *p_m_Data; 
-  int v52; 
-  int v55; 
+  int v43; 
 
   if ( (image->flags & 0x40) != 0 )
   {
-    v7 = 4 * DB_GetGfxImageIndex(image);
-    v8 = 0i64;
-    v48 = v7;
-    v52 = 0;
+    v5 = 4 * DB_GetGfxImageIndex(image);
+    v6 = 0i64;
+    v41 = v5;
+    v43 = 0;
     if ( image->streamedPartCount )
     {
-      __asm
-      {
-        vmovaps [rsp+0F8h+var_58], xmm6
-        vmovaps [rsp+0F8h+var_68], xmm7
-        vmovss  xmm7, cs:__real@7f7fff80
-      }
       p_m_Data = &output->m_Data;
       do
       {
-        v10 = v8 + v7;
+        v7 = v6 + v5;
         if ( (image->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
           __debugbreak();
-        if ( (unsigned int)v8 >= Image_GetStreamedPartCount(image) )
+        if ( (unsigned int)v6 >= Image_GetStreamedPartCount(image) )
         {
-          LODWORD(v40) = Image_GetStreamedPartCount(image);
-          LODWORD(v39) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = Image_GetStreamedPartCount(image);
+          LODWORD(v33) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        v11 = (unsigned int)image->streams[v8].levelCountAndSize >> 4;
-        if ( (_DWORD)v8 )
-          v11 -= (unsigned int)image->streams[(unsigned int)(v8 - 1)].levelCountAndSize >> 4;
-        v12 = streamFrontendGlob;
-        if ( v10 >= streamFrontendGlob->imageBits.mBitCount )
+        v8 = (unsigned int)image->streams[v6].levelCountAndSize >> 4;
+        if ( (_DWORD)v6 )
+          v8 -= (unsigned int)image->streams[(unsigned int)(v6 - 1)].levelCountAndSize >> 4;
+        v9 = streamFrontendGlob;
+        if ( v7 >= streamFrontendGlob->imageBits.mBitCount )
         {
-          LODWORD(v40) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(v39) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = streamFrontendGlob->imageBits.mBitCount;
+          LODWORD(v33) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 589, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        mStaticForced = v12->imageBits.mStaticForced;
+        mStaticForced = v9->imageBits.mStaticForced;
         if ( !mStaticForced && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v14 = streamFrontendGlob;
-        v15 = (__int64)v10 >> 5;
-        v16 = 1 << (v10 & 0x1F);
-        v47 = v16 & mStaticForced[v15];
-        if ( (unsigned int)(v10 >> 5) >= 0x2800 )
+        v11 = streamFrontendGlob;
+        v12 = (__int64)v7 >> 5;
+        v13 = 1 << (v7 & 0x1F);
+        v40 = v13 & mStaticForced[v12];
+        if ( (unsigned int)(v7 >> 5) >= 0x2800 )
         {
-          LODWORD(v40) = 10240;
-          LODWORD(v39) = v10 >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = 10240;
+          LODWORD(v33) = v7 >> 5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        v17 = (__int64)v14->imageTouchBits + 4 * v15;
-        if ( (v17 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v17) )
+        v14 = (__int64)v11->imageTouchBits + 4 * v12;
+        if ( (v14 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", (const void *)v14) )
           __debugbreak();
-        v18 = *(_DWORD *)v17;
-        v19 = streamFrontendGlob;
-        v46 = v18 & v16;
-        if ( (unsigned int)(v10 >> 5) >= 0x2800 )
+        v15 = *(_DWORD *)v14;
+        v16 = streamFrontendGlob;
+        v39 = v15 & v13;
+        if ( (unsigned int)(v7 >> 5) >= 0x2800 )
         {
-          LODWORD(v40) = 10240;
-          LODWORD(v39) = v10 >> 5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = 10240;
+          LODWORD(v33) = v7 >> 5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( ( index >> 5 ) ) < (unsigned)( ( sizeof( *array_counter( bitArray ) ) + 0 ) )", "( index >> 5 ) doesn't index ARRAY_COUNT( bitArray )\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        if ( (((_BYTE)v19 + 4 * (_BYTE)v15 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", &v19->imageTouchBits[1][v15]) )
+        if ( (((_BYTE)v16 + 4 * (_BYTE)v12 - 64) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 141, ASSERT_TYPE_ASSERT, "( ( IsAligned( addr, sizeof( volatile_int32 ) ) ) )", "( addr ) = %p", &v16->imageTouchBits[1][v12]) )
           __debugbreak();
-        v20 = streamFrontendGlob;
-        v21 = v19->imageTouchBits[1][v15] & v16;
-        if ( v10 >= streamFrontendGlob->imageBits.mBitCount )
+        v17 = streamFrontendGlob;
+        v18 = v16->imageTouchBits[1][v12] & v13;
+        if ( v7 >= streamFrontendGlob->imageBits.mBitCount )
         {
-          LODWORD(v40) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(v39) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = streamFrontendGlob->imageBits.mBitCount;
+          LODWORD(v33) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 323, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        mAlloc = v20->imageBits.mAlloc;
+        mAlloc = v17->imageBits.mAlloc;
         if ( !mAlloc && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v23 = (v16 & mAlloc[v15]) == 0;
-        v24 = 0i64;
-        if ( !v23 )
-          v24 = v11;
-        EntryInfo = XPak_GetEntryInfo(STREAM_ITEM_IMAGE, v10);
+        v20 = (v13 & mAlloc[v12]) == 0;
+        v21 = 0i64;
+        if ( !v20 )
+          v21 = v8;
+        EntryInfo = XPak_GetEntryInfo(STREAM_ITEM_IMAGE, v7);
         if ( (*((_DWORD *)EntryInfo + 6) & 0x200i64) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_debug.cpp", 773, ASSERT_TYPE_ASSERT, "(xpakInfo->valid)", (const char *)&queryFormat, "xpakInfo->valid") )
           __debugbreak();
-        v26 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
-        if ( (unsigned int)v10 >= 0x50000 )
+        v23 = (char *)streamFrontendGlob + 4688152 * streamFrontendGlob->sortListRead;
+        if ( (unsigned int)v7 >= 0x50000 )
         {
-          LODWORD(v40) = 327680;
-          LODWORD(v39) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v39, v40) )
+          LODWORD(v34) = 327680;
+          LODWORD(v33) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v33, v34) )
             __debugbreak();
         }
-        v27 = *(_DWORD *)&v26[4 * v10 + 2775264];
-        if ( v27 == -1 )
-        {
-          __asm { vmovaps xmm6, xmm7 }
-        }
+        v24 = *(_DWORD *)&v23[4 * v7 + 2775264];
+        if ( v24 == -1 )
+          v25 = FLOAT_3_4027977e38;
         else
-        {
-          v55 = v27 << 7;
-          __asm { vmovss  xmm6, [rsp+0F8h+arg_18] }
-        }
+          LODWORD(v25) = v24 << 7;
         streamedPartCount = image->streamedPartCount;
-        v30 = Image_TextureSemanticToString(image->semantic);
-        v31 = XPak_IndexToName(*((unsigned __int8 *)EntryInfo + 24));
+        v27 = Image_TextureSemanticToString(image->semantic);
+        v28 = XPak_IndexToName(*((unsigned __int8 *)EntryInfo + 24));
         key = EntryInfo->key;
         name = image->name;
-        __asm { vcvtss2sd xmm0, xmm6, xmm6 }
-        v35 = (unsigned int)*idx;
-        *idx = v35 + 1;
-        LODWORD(v45) = v46 != 0 || v21 != 0;
-        LODWORD(v44) = v47 != 0;
-        LODWORD(v43) = v11;
-        __asm { vmovsd  [rsp+0F8h+var_B8], xmm0 }
-        LODWORD(v41) = streamedPartCount;
-        LODWORD(v40) = v52;
-        v36 = j_va("%d,%s,%llx,%s,%s,%u,%u,%f,%u,%zu,%d,%d,%d\n", v35, name, key, v31, v30, v40, v41, v42, v43, v24, v44, v45, 0i64);
-        output->m_InvokeFctPtr(v36, p_m_Data);
-        v8 = (unsigned int)(v52 + 1);
-        v52 = v8;
-        v7 = v48;
+        v31 = (unsigned int)*idx;
+        *idx = v31 + 1;
+        LODWORD(v38) = v39 != 0 || v18 != 0;
+        LODWORD(v37) = v40 != 0;
+        LODWORD(v36) = v8;
+        LODWORD(v35) = streamedPartCount;
+        LODWORD(v34) = v43;
+        v32 = j_va("%d,%s,%llx,%s,%s,%u,%u,%f,%u,%zu,%d,%d,%d\n", v31, name, key, v28, v27, v34, v35, v25, v36, v21, v37, v38, 0i64);
+        output->m_InvokeFctPtr(v32, p_m_Data);
+        v6 = (unsigned int)(v43 + 1);
+        v43 = v6;
+        v5 = v41;
       }
-      while ( (unsigned int)v8 < image->streamedPartCount );
-      __asm
-      {
-        vmovaps xmm7, [rsp+0F8h+var_68]
-        vmovaps xmm6, [rsp+0F8h+var_58]
-      }
+      while ( (unsigned int)v6 < image->streamedPartCount );
     }
   }
 }
@@ -5229,66 +4114,43 @@ Stream_Debug_GetGenericUsageSummaryText
 */
 void Stream_Debug_GetGenericUsageSummaryText(const stdext::inplace_function<void __cdecl(char const *),64,16> *output)
 {
-  __int64 v8; 
-  unsigned int *v9; 
-  __int64 v10; 
-  double v17; 
+  __int64 v2; 
+  unsigned int *v3; 
+  __int64 v4; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
   __int64 inData; 
-  __int64 v19[4]; 
-  __int64 v20[2]; 
-  int v21; 
+  __int64 v9[4]; 
+  __int64 v10[2]; 
+  int v11; 
   char dest[128]; 
-  char v23; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
   inData = 0i64;
-  memset(v19, 0, sizeof(v19));
-  v20[0] = 0i64;
-  v20[1] = 0i64;
-  v21 = 0;
+  memset(v9, 0, sizeof(v9));
+  v10[0] = 0i64;
+  v10[1] = 0i64;
+  v11 = 0;
   DB_EnumXAssets(ASSET_TYPE_STREAM_KEY, GetStreamKeyCounters, &inData, 1);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@3a800000
-  }
-  v8 = 0i64;
-  v9 = (unsigned int *)v20 + 1;
-  v10 = 4i64;
+  v2 = 0i64;
+  v3 = (unsigned int *)v10 + 1;
+  v4 = 4i64;
   do
   {
-    __asm
+    v5 = v9[v2];
+    v6 = (float)v5;
+    if ( v5 < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v7 = (float)v5;
+      v6 = v7 + 1.8446744e19;
     }
-    if ( v19[v8] < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm7
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+138h+var_118], xmm1
-    }
-    Com_sprintf<128>((char (*)[128])dest, "\t%s (%d): %0.1fk", s_streamKeyBehaviorNames[v8 + 1], *v9, v17);
+    Com_sprintf<128>((char (*)[128])dest, "\t%s (%d): %0.1fk", s_streamKeyBehaviorNames[v2 + 1], *v3, (float)(v6 * 0.0009765625));
     output->m_InvokeFctPtr(dest, &output->m_Data);
-    ++v9;
-    ++v8;
-    --v10;
+    ++v3;
+    ++v2;
+    --v4;
   }
-  while ( v10 );
-  _R11 = &v23;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  while ( v4 );
 }
 
 /*
@@ -5416,46 +4278,36 @@ Stream_Debug_PreLevelUnload
 */
 void Stream_Debug_PreLevelUnload(void)
 {
+  __m256i *p_lockedHit; 
   __int64 v1; 
-  __int64 v9; 
-  char v11[472]; 
+  char *v2; 
+  __m256i v3; 
+  __int128 v4; 
+  __int64 v5; 
+  char v6[472]; 
 
-  memset_0(v11, 0, 0x1C8ui64);
-  _RDX = &s_streamDebugGlob.lockedHit;
+  memset_0(v6, 0, 0x1C8ui64);
+  p_lockedHit = (__m256i *)&s_streamDebugGlob.lockedHit;
   v1 = 3i64;
-  _RAX = v11;
+  v2 = v6;
   do
   {
-    _RDX = (CG_DrawHits_Hit *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    p_lockedHit += 4;
+    v3 = *(__m256i *)v2;
+    v4 = *((_OWORD *)v2 + 7);
+    v2 += 128;
+    p_lockedHit[-4] = v3;
+    p_lockedHit[-3] = *((__m256i *)v2 - 3);
+    p_lockedHit[-2] = *((__m256i *)v2 - 2);
+    *(_OWORD *)p_lockedHit[-1].m256i_i8 = *((_OWORD *)v2 - 2);
+    *(_OWORD *)&p_lockedHit[-1].m256i_u64[2] = v4;
     --v1;
   }
   while ( v1 );
-  __asm { vmovups ymm0, ymmword ptr [rax] }
-  v9 = *((_QWORD *)_RAX + 8);
-  __asm
-  {
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rdx+20h], ymm0
-  }
-  *(_QWORD *)&_RDX->modelInfo.superTerrain.layerMaterialCount = v9;
+  v5 = *((_QWORD *)v2 + 8);
+  *p_lockedHit = *(__m256i *)v2;
+  p_lockedHit[1] = *((__m256i *)v2 + 1);
+  p_lockedHit[2].m256i_i64[0] = v5;
   s_streamDebugGlob.isLockedHitSet = 0;
   Dvar_SetBool_Internal(DVARBOOL_stream_drawMetrics, 0);
   Dvar_SetBool_Internal(DVARBOOL_stream_drawMetricsLockHits, 0);
@@ -5737,111 +4589,106 @@ void Stream_Debug_RunThroughImages(const stdext::inplace_function<void __cdecl(c
 Stream_Debug_TestBandwidth_f
 ==============
 */
-
-void __fastcall Stream_Debug_TestBandwidth_f(double _XMM0_8)
+void Stream_Debug_TestBandwidth_f()
 {
-  unsigned int v1; 
-  int v2; 
-  void *v3; 
-  int v4; 
-  const char *v5; 
-  int v6; 
-  FileStreamFileID v7; 
-  __int64 v8; 
-  unsigned __int64 v9; 
+  unsigned int v0; 
+  int v1; 
+  void *v2; 
+  int v3; 
+  const char *v4; 
+  int v5; 
+  FileStreamFileID v6; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  unsigned int v9; 
   int v10; 
   __int64 v11; 
   __int64 v12; 
   __int64 v13; 
-  StreamerMemLoan *optionalLoan; 
-  int v27; 
+  __int128 v16; 
+  __int128 v18; 
+  int v20; 
   FileStreamRequestID outId[4]; 
-  unsigned int v29; 
-  unsigned __int64 v30; 
-  __int64 v31; 
-  StreamerMemLoan v32; 
+  unsigned int v22; 
+  unsigned __int64 v23; 
+  __int64 v24; 
+  StreamerMemLoan optionalLoan; 
   StreamerMemLoan result; 
 
-  v31 = -2i64;
+  v24 = -2i64;
+  v0 = 0;
   v1 = 0;
-  v2 = 0;
-  v32.mUpdateID = 0i64;
-  v32.mPages = 0i64;
-  v32.mCookie = -1061110033;
-  if ( StreamerMemLoan::TryResize(&v32, MOVEMENT, 0x400000ui64) )
+  optionalLoan.mUpdateID = 0i64;
+  optionalLoan.mPages = 0i64;
+  optionalLoan.mCookie = -1061110033;
+  if ( StreamerMemLoan::TryResize(&optionalLoan, MOVEMENT, 0x400000ui64) )
   {
     PMem_BeginAlloc("StreamerBandwidthTest", PMEM_STACK_GAME);
-    v3 = PMem_AllocWithLoan(0x400000ui64, 0x10ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, &v32, "StreamerBandwidthTest");
+    v2 = PMem_AllocWithLoan(0x400000ui64, 0x10ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, &optionalLoan, "StreamerBandwidthTest");
     PMem_EndAlloc("StreamerBandwidthTest", PMEM_STACK_GAME);
     if ( Cmd_Argc() >= 2 )
     {
-      v5 = Cmd_Argv(1);
-      v4 = atoi(v5) << 10;
-      if ( v4 > 0x400000 )
-        v4 = 0x400000;
+      v4 = Cmd_Argv(1);
+      v3 = atoi(v4) << 10;
+      if ( v3 > 0x400000 )
+        v3 = 0x400000;
     }
     else
     {
-      v4 = 0x100000;
+      v3 = 0x100000;
     }
-    v27 = v4;
+    v20 = v3;
     do
     {
-      v6 = v2++;
-      v7 = XPak_IndexToFileID(v6);
-      v8 = FileStream_Easy_FileSize(v7);
+      v5 = v1++;
+      v6 = XPak_IndexToFileID(v5);
+      v7 = FileStream_Easy_FileSize(v6);
     }
-    while ( v8 < 524288000 );
-    v9 = __rdtsc();
-    v30 = v9;
-    v29 = 100 * v4;
+    while ( v7 < 524288000 );
+    v8 = __rdtsc();
+    v23 = v8;
+    v9 = 100 * v3;
+    v22 = 100 * v3;
     s_streamDebugGlob.bandwidthTestReadComplete = 0;
-    s_streamDebugGlob.bandwidthTestReadEndTime = v9;
+    s_streamDebugGlob.bandwidthTestReadEndTime = v8;
     v10 = 0;
-    if ( 100 * v4 )
+    if ( 100 * v3 )
     {
-      v11 = (unsigned int)v4;
-      v12 = v8 - (unsigned int)v4;
+      v11 = (unsigned int)v3;
+      v12 = v7 - (unsigned int)v3;
       do
       {
         v13 = (rand() % v12) & 0xFFFFFFFFFFFF8000ui64;
-        if ( !FileStream_AddRequest(v7, v13, v11, v3, 250, FLAT_TIRE, lambda_e7b7e2d3fabc9e58d1c429ac83e03148_::_lambda_invoker_cdecl_, NULL, outId, FILE_STREAM_TRACK_TEST_BANDWIDTH) )
+        if ( !FileStream_AddRequest(v6, v13, v11, v2, 250, FLAT_TIRE, lambda_e7b7e2d3fabc9e58d1c429ac83e03148_::_lambda_invoker_cdecl_, NULL, outId, FILE_STREAM_TRACK_TEST_BANDWIDTH) )
         {
           do
             Sys_Sleep(0);
-          while ( !FileStream_AddRequest(v7, v13, v11, v3, 250, FLAT_TIRE, lambda_e7b7e2d3fabc9e58d1c429ac83e03148_::_lambda_invoker_cdecl_, NULL, outId, FILE_STREAM_TRACK_TEST_BANDWIDTH) );
-          v4 = v27;
+          while ( !FileStream_AddRequest(v6, v13, v11, v2, 250, FLAT_TIRE, lambda_e7b7e2d3fabc9e58d1c429ac83e03148_::_lambda_invoker_cdecl_, NULL, outId, FILE_STREAM_TRACK_TEST_BANDWIDTH) );
+          v3 = v20;
         }
         ++v10;
-        v1 += v4;
+        v0 += v3;
+        v9 = v22;
       }
-      while ( v1 < v29 );
-      v9 = v30;
+      while ( v0 < v22 );
+      v8 = v23;
     }
     while ( s_streamDebugGlob.bandwidthTestReadComplete != v10 )
       Sys_Sleep(0);
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(s_streamDebugGlob.bandwidthTestReadEndTime - v8) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v16 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v16;
     }
-    if ( (__int64)(s_streamDebugGlob.bandwidthTestReadEndTime - v9) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm3, xmm0, xmm0
-      vmovss  xmm1, cs:__real@3a79ffff
-      vdivss  xmm2, xmm1, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm2, xmm0
-      vcvtss2sd xmm2, xmm1, xmm1
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+0D8h+optionalLoan], xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(35, "Loaded %u bytes in %f ms (%.2f MB/s)\n", v1, *(double *)&_XMM3, *(double *)&optionalLoan);
+    *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v18 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v18;
+    __asm { vcvtsd2ss xmm3, xmm0, xmm0 }
+    *(float *)&_XMM0 = (float)v9;
+    Com_Printf(35, "Loaded %u bytes in %f ms (%.2f MB/s)\n", v0, *(float *)&_XMM3, (float)((float)(0.00095367426 / *(float *)&_XMM3) * *(float *)&_XMM0));
     PMem_Free(&result, "StreamerBandwidthTest", PMEM_STACK_GAME);
     StreamerMemLoan::~StreamerMemLoan(&result);
   }
@@ -5849,7 +4696,7 @@ void __fastcall Stream_Debug_TestBandwidth_f(double _XMM0_8)
   {
     Com_PrintError(35, "Failed to allocate memory for streamer bandwidth test\n");
   }
-  StreamerMemLoan::~StreamerMemLoan(&v32);
+  StreamerMemLoan::~StreamerMemLoan(&optionalLoan);
 }
 
 /*
@@ -5864,9 +4711,9 @@ void __fastcall Stream_Debug_TextureSizeAndAlloc_f(double _XMM0_8)
   unsigned int i; 
   int j; 
   int k; 
-  __int64 v7; 
-  __m256i v8; 
-  __m256i v9; 
+  __int64 v5; 
+  __m256i v6; 
+  __m256i v7; 
   Image_SetupParams params; 
   XG_RESOURCE_LAYOUT layout; 
 
@@ -5878,28 +4725,20 @@ void __fastcall Stream_Debug_TextureSizeAndAlloc_f(double _XMM0_8)
     {
       for ( k = 1; k < 0x4000; k *= 2 )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+1818h+var_17B8+8], xmm0
-        }
-        v8.m256i_i32[6] = *((_DWORD *)p_name - 2);
-        v8.m256i_i32[2] = 1;
-        *(__int64 *)((char *)&v8.m256i_i64[1] + 4) = 1i64;
-        v9.m256i_i64[0] = 0i64;
-        v9.m256i_i32[6] = -1;
-        __asm { vmovups ymm1, [rsp+1818h+var_17B8] }
-        v8.m256i_i64[0] = __PAIR64__(k, j);
-        v8.m256i_i32[5] = 0;
-        __asm
-        {
-          vmovups ymm0, [rsp+1818h+var_17D8]
-          vmovups ymmword ptr [rsp+1818h+params.width], ymm0
-          vmovups ymmword ptr [rsp+1818h+params.customAllocFunc], ymm1
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v7.m256i_u64[1] = *(_OWORD *)&_XMM0_8;
+        v6.m256i_i32[6] = *((_DWORD *)p_name - 2);
+        v6.m256i_i32[2] = 1;
+        *(__int64 *)((char *)&v6.m256i_i64[1] + 4) = 1i64;
+        v7.m256i_i64[0] = 0i64;
+        v7.m256i_i32[6] = -1;
+        v6.m256i_i64[0] = __PAIR64__(k, j);
+        v6.m256i_i32[5] = 0;
+        *(__m256i *)&params.width = v6;
+        *(__m256i *)&params.customAllocFunc = v7;
         Image_GetTextureLayout_XB3(&params, &layout);
-        LODWORD(v7) = k;
-        Com_Printf(35, "\t%s\t%d\t%d\t%d\t%d\n", *p_name, (unsigned int)j, v7, layout.SizeBytes, layout.BaseAlignmentBytes);
+        LODWORD(v5) = k;
+        Com_Printf(35, "\t%s\t%d\t%d\t%d\t%d\n", *p_name, (unsigned int)j, v5, layout.SizeBytes, layout.BaseAlignmentBytes);
       }
     }
     p_name += 2;

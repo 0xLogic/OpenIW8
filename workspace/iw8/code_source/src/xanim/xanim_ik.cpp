@@ -314,57 +314,124 @@ XAnimIK_Calc
 void XAnimIK_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
   XAnimIKCalcInfo *ikCalcInfo; 
-  const dvar_t *v11; 
+  const dvar_t *v9; 
+  const XAnimIKData *v12; 
+  XAnimIKDObjData *v13; 
+  int v14; 
+  unsigned int *p_targetBoneIndex; 
+  const XAnimIKData *i; 
+  bitarray_base<bitarray<256> > *partBits; 
+  int v18; 
+  int v19; 
+  int v20; 
+  float4 v25; 
+  float4 v30; 
+  float4 v36; 
   XAnimIKData *ikData; 
   XAnimIKDObjData *dObjData; 
-  int v18; 
-  unsigned int *p_targetBoneIndex; 
-  int v25; 
+  XAnimIkSolverParams ikParams; 
 
   ikCalcInfo = animCalcInfo->ikCalcInfo;
-  v11 = DCONST_DVARBOOL_xanim_ik_disable;
+  v9 = DCONST_DVARBOOL_xanim_ik_disable;
+  v12 = ikCalcInfo->ikData;
+  v13 = ikCalcInfo->dObjData;
   ikData = ikCalcInfo->ikData;
-  dObjData = ikCalcInfo->dObjData;
+  dObjData = v13;
   if ( !DCONST_DVARBOOL_xanim_ik_disable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ik_disable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled && dObjData )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled && v13 )
   {
-    __asm
-    {
-      vmovaps [rsp+1B0h+var_60], xmm7
-      vmovss  xmm7, [rbp+0B0h+weightScale]
-      vmovaps xmm3, xmm7; weightScale
-    }
-    XAnimCalcDefaultBlendNode(animCalcInfo, obj, animInfo, *(float *)&_XMM3, bNormQuat, destBuffer, LINEAR);
+    XAnimCalcDefaultBlendNode(animCalcInfo, obj, animInfo, weightScale, bNormQuat, destBuffer, LINEAR);
     if ( !animCalcInfo->partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 2039, ASSERT_TYPE_ASSERT, "(animCalcInfo->partBits)", (const char *)&queryFormat, "animCalcInfo->partBits") )
       __debugbreak();
-    if ( ikData->settingsArray->typeName )
+    if ( v12->settingsArray->typeName )
     {
-      __asm { vmovaps [rsp+1B0h+var_50], xmm6 }
       Profile_Begin(460);
-      v18 = 0;
-      p_targetBoneIndex = &dObjData->boneInfo[0].targetBoneIndex;
-      _R13 = ikData;
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      do
+      v14 = 0;
+      p_targetBoneIndex = &v13->boneInfo[0].targetBoneIndex;
+      for ( i = v12; (LODWORD(i->weights[0]) & 0x7F800000) == 2139095040 || i->weights[0] <= 0.0; i = (const XAnimIKData *)((char *)i + 4) )
       {
+LABEL_24:
+        ++v14;
+        p_targetBoneIndex += 7;
+        if ( v14 >= 4 )
+        {
+          Profile_EndInternal(NULL);
+          return;
+        }
+      }
+      if ( v12->settingsArray->typeName && *(p_targetBoneIndex - 4) )
+      {
+        partBits = animCalcInfo->partBits;
+        if ( bitarray_base<bitarray<256>>::testBit(partBits, *(p_targetBoneIndex - 3)) && bitarray_base<bitarray<256>>::testBit(partBits, *p_targetBoneIndex) )
+        {
+          v12 = ikData;
+          v18 = 1;
+          goto LABEL_20;
+        }
+        v12 = ikData;
+      }
+      v18 = 0;
+LABEL_20:
+      if ( v18 )
+      {
+        v19 = *(p_targetBoneIndex - 3);
+        ikParams.animInfo = animInfo;
+        ikParams.bNormQuat = bNormQuat;
+        ikParams.weightScale = weightScale;
+        ikParams.animCalcInfo = animCalcInfo;
+        ikParams.destBuffer = destBuffer;
+        ikParams.obj = obj;
+        XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v19, &ikParams.firstBoneQuat, &ikParams.firstBoneTrans);
+        XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(p_targetBoneIndex - 2), &ikParams.secondBoneQuat, &ikParams.secondBoneTrans);
+        XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *(p_targetBoneIndex - 1), &ikParams.thirdBoneQuat, &ikParams.thirdBoneTrans);
+        XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, *p_targetBoneIndex, &ikParams.targetBoneQuat, &ikParams.targetBoneTrans);
+        v20 = p_targetBoneIndex[1];
+        if ( v20 != 255 )
+          XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v20, &ikParams.restoreSubmodelBoneQuat, &ikParams.restoreSubmodelBoneTrans);
+        _XMM0 = _mm128_mul_ps(ikParams.firstBoneQuat.v, ikParams.firstBoneQuat.v);
         __asm
         {
-          vmovss  xmm0, dword ptr [r13+0]
-          vmovss  [rsp+1B0h+var_170], xmm0
+          vhaddps xmm1, xmm0, xmm0
+          vhaddps xmm0, xmm1, xmm1
+          vrsqrtps xmm1, xmm0
         }
-        if ( (v25 & 0x7F800000) != 2139095040 )
-          __asm { vcomiss xmm0, xmm6 }
-        ++v18;
-        _R13 = (XAnimIKData *)((char *)_R13 + 4);
-        p_targetBoneIndex += 7;
+        v25.v = _mm128_mul_ps(_XMM1, ikParams.firstBoneQuat.v);
+        _XMM0 = _mm128_mul_ps(ikParams.secondBoneQuat.v, ikParams.secondBoneQuat.v);
+        __asm
+        {
+          vhaddps xmm1, xmm0, xmm0
+          vhaddps xmm0, xmm1, xmm1
+          vrsqrtps xmm1, xmm0
+        }
+        ikParams.firstBoneQuat = (float4)v25.v;
+        v30.v = _mm128_mul_ps(_XMM1, ikParams.secondBoneQuat.v);
+        _XMM0 = _mm128_mul_ps(ikParams.thirdBoneQuat.v, ikParams.thirdBoneQuat.v);
+        __asm
+        {
+          vhaddps xmm1, xmm0, xmm0
+          vhaddps xmm0, xmm1, xmm1
+          vrsqrtps xmm1, xmm0
+        }
+        _XMM0 = _mm128_mul_ps(ikParams.targetBoneQuat.v, ikParams.targetBoneQuat.v);
+        ikParams.secondBoneQuat = (float4)v30.v;
+        v36.v = _mm128_mul_ps(_XMM1, ikParams.thirdBoneQuat.v);
+        __asm
+        {
+          vhaddps xmm1, xmm0, xmm0
+          vhaddps xmm0, xmm1, xmm1
+          vrsqrtps xmm1, xmm0
+        }
+        ikParams.thirdBoneQuat = (float4)v36.v;
+        ikParams.targetBoneQuat.v = _mm128_mul_ps(_XMM1, ikParams.targetBoneQuat.v);
+        Sys_ProfBeginNamedEvent(0xFF800080, "XAnimIKCalc");
+        XAnimIKSolve2Bone(obj, v12, v14, dObjData, &ikParams);
+        Sys_ProfEndNamedEvent();
+        *(_OWORD *)nodeData = *(_OWORD *)v12->weights;
       }
-      while ( v18 < 4 );
-      Profile_EndInternal(NULL);
-      __asm { vmovaps xmm6, [rsp+1B0h+var_50] }
+      goto LABEL_24;
     }
-    __asm { vmovaps xmm7, [rsp+1B0h+var_60] }
   }
 }
 
@@ -379,10 +446,9 @@ void XAnimIK_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char *buffer,
   const dvar_t *v11; 
   __int64 v12; 
   __int64 v13; 
-  char *fmt; 
+  __int64 i; 
 
   v7 = size;
-  _R14 = nodeData;
   if ( !nodeData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 2112, ASSERT_TYPE_ASSERT, "(nodeData)", (const char *)&queryFormat, "nodeData") )
     __debugbreak();
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 2113, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
@@ -424,16 +490,8 @@ void XAnimIK_PrintDebug(void *nodeData, const XAnimInfo *animInfo, char *buffer,
       while ( v13 );
     }
     Com_sprintfPos_truncate(buffer, v7, inoutPos, "   ^5IkType Weights: ");
-    for ( _RBX = 0i64; _RBX < 4; ++_RBX )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+rbx*4]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+58h+fmt], xmm0
-      }
-      Com_sprintfPos_truncate(buffer, v7, inoutPos, "%.3f ", *(double *)&fmt);
-    }
+    for ( i = 0i64; i < 4; ++i )
+      Com_sprintfPos_truncate(buffer, v7, inoutPos, "%.3f ", *((float *)nodeData + i));
     Com_sprintfPos_truncate(buffer, v7, inoutPos, "\n", depth, inoutPos, a7);
   }
 }
@@ -613,152 +671,135 @@ XAnimCalcSecondBoneRotation
 */
 void XAnimCalcSecondBoneRotation(const XAnimIKSettings *setting, const float4 *hingeAxis, const float4 *firstBonePos, const float4 *secondBonePos, const float4 *thirdBonePos, const float4 *targetBonePos, const float4 *firstBoneQuat, float4 *delta)
 {
-  const float4 *v71; 
-  const float4 *v72; 
-  const float4 *v73; 
-  __int64 v75; 
-  __int64 v76; 
-  __int64 v77; 
-  const float4 *v84; 
-  float4 v103; 
-  float4 v104; 
-  char v106; 
-  void *retaddr; 
+  float4 v8; 
+  __m128 v9; 
+  __m128 v12; 
+  __m128 v14; 
+  __m128 v24; 
+  __m128 v28; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v41; 
+  const float4 *v49; 
+  const float4 *v50; 
+  const float4 *v51; 
+  __m128 v; 
+  const float4 *v56; 
+  float4 v67; 
+  float4 v68[8]; 
 
-  _RAX = &retaddr;
+  v9 = _mm128_sub_ps(secondBonePos->v, firstBonePos->v);
+  _XMM3 = _mm128_mul_ps(v9, v9);
+  v12 = _mm128_sub_ps(thirdBonePos->v, secondBonePos->v);
+  _XMM7 = _mm128_mul_ps(v12, v12);
+  v14 = _mm128_sub_ps(targetBonePos->v, firstBonePos->v);
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovups xmm0, xmmword ptr [r9]
-    vsubps  xmm9, xmm0, xmmword ptr [r8]
-  }
-  _RAX = thirdBonePos;
-  _RDI = hingeAxis;
-  _RBX = delta;
-  __asm
-  {
-    vmovups xmm1, xmm0
-    vmulps  xmm3, xmm9, xmm9
-    vmovups xmm0, xmmword ptr [rax]
-  }
-  _RAX = targetBonePos;
-  __asm
-  {
-    vsubps  xmm10, xmm0, xmm1
-    vmulps  xmm7, xmm10, xmm10
-    vmovups xmm0, xmmword ptr [rax]
-    vsubps  xmm2, xmm0, xmmword ptr [r8]
     vhaddps xmm0, xmm3, xmm3
     vhaddps xmm6, xmm0, xmm0
-    vmulps  xmm1, xmm2, xmm2
+  }
+  _XMM1 = _mm128_mul_ps(v14, v14);
+  __asm
+  {
     vhaddps xmm0, xmm7, xmm7
     vhaddps xmm5, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
     vhaddps xmm4, xmm0, xmm0
     vhaddps xmm0, xmm3, xmm3
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm3, xmm0
+  }
+  v24 = _mm_sqrt_ps(_XMM0);
+  __asm
+  {
     vhaddps xmm0, xmm7, xmm7
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm2, xmm0
-    vmulps  xmm0, xmm3, xmm2
-    vmulps  xmm3, xmm0, xmmword ptr cs:?g_two@@3Ufloat4@@B.v; float4 const g_two
-    vsubps  xmm1, xmm5, xmm4
-    vaddps  xmm4, xmm1, xmm6
-    vxorps  xmm6, xmm6, xmm6
+  }
+  _XMM3 = _mm128_mul_ps(_mm128_mul_ps(v24, _mm_sqrt_ps(_XMM0)), g_two.v);
+  v28 = _mm128_add_ps(_mm128_sub_ps(_XMM5, _XMM4), _XMM6);
+  __asm
+  {
     vcmpeqps xmm0, xmm3, xmm6
     vmovmskps eax, xmm0
   }
-  if ( (_DWORD)_RAX )
+  if ( _EAX )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-      vmovups xmmword ptr [rbx], xmm0
-    }
+    *delta = (float4)g_0001.v;
   }
   else
   {
+    _XMM1.v = (__m128)setting->cosineMinHingeAngle;
+    _XMM2.v = (__m128)setting->cosineMaxHingeAngle;
+    _mm128_div_ps(v28, _XMM3);
     __asm
     {
-      vmovups xmm1, xmmword ptr [rcx+10h]
-      vmovups xmm2, xmmword ptr [rcx]
-      vdivps  xmm0, xmm4, xmm3
       vminps  xmm1, xmm1, xmm0
       vmaxps  xmm0, xmm2, xmm1
-      vmovaps [rsp+0C8h+var_38], xmm8
     }
-    *(double *)&_XMM0 = j___vdecl_acosf4(setting, hingeAxis, firstBonePos);
+    v68[5] = (float4)v8.v;
+    *(double *)_XMM0.m128_u64 = j___vdecl_acosf4();
+    v35 = _XMM0;
+    v36 = _mm128_sub_ps((__m128)0i64, v9);
+    _XMM1 = _mm128_mul_ps(v36, v36);
     __asm
     {
-      vmovups xmm8, xmm0
-      vsubps  xmm4, xmm6, xmm9
-      vmulps  xmm1, xmm4, xmm4
       vinsertps xmm2, xmm1, xmm1, 8
       vhaddps xmm3, xmm2, xmm2
       vhaddps xmm1, xmm3, xmm3
-      vsqrtps xmm2, xmm1
-      vdivps  xmm5, xmm4, xmm2
+    }
+    v41 = _mm128_div_ps(v36, _mm_sqrt_ps(_XMM1));
+    __asm
+    {
       vinsertps xmm0, xmm7, xmm7, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vsqrtps xmm1, xmm0
-      vdivps  xmm2, xmm10, xmm1
-      vmulps  xmm3, xmm2, xmm5
-      vmovups xmm2, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
+    }
+    _XMM3 = _mm128_mul_ps(_mm128_div_ps(v12, _mm_sqrt_ps(_XMM0)), v41);
+    __asm
+    {
       vinsertps xmm0, xmm3, xmm3, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vsubps  xmm1, xmm6, xmm2
-      vmovups [rsp+0C8h+var_98], xmm0
     }
-    Float4Clamp(v72, v71, v73, &v103);
+    _mm128_sub_ps((__m128)0i64, g_one.v);
+    v67.v = _XMM0;
+    Float4Clamp(v50, v49, v51, &v67);
+    _XMM0.m128_u64[1] = v67.v.m128_u64[1];
+    v68[0] = (float4)v67.v;
+    *(double *)_XMM0.m128_u64 = j___vdecl_acosf4();
+    v = hingeAxis->v;
+    _XMM2 = _mm128_mul_ps(v, v);
+    _mm128_mul_ps(_mm128_sub_ps(v35, _XMM0), g_oneHalf.v);
     __asm
     {
-      vmovups xmm0, [rsp+0C8h+var_98]
-      vmovdqa [rsp+0C8h+var_88], xmm0
-    }
-    j___vdecl_acosf4(v76, v75, v77);
-    __asm
-    {
-      vmovups xmm7, xmmword ptr [rdi]
-      vmulps  xmm2, xmm7, xmm7
-      vsubps  xmm0, xmm8, xmm0
-      vmulps  xmm0, xmm0, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
       vinsertps xmm3, xmm2, xmm2, 8
       vhaddps xmm6, xmm3, xmm3
     }
-    Float4SinCos(v84, &v103, &v104);
+    Float4SinCos(v56, &v67, v68);
     __asm
     {
-      vmovaps xmm8, [rsp+0C8h+var_38]
       vhaddps xmm0, xmm6, xmm6
       vrsqrtps xmm1, xmm0
-      vmulps  xmm2, xmm1, xmm7
-      vmulps  xmm3, xmm2, [rsp+0C8h+var_98]
-      vblendps xmm4, xmm3, [rsp+0C8h+var_88], 8
-      vmulps  xmm0, xmm4, xmm4
+    }
+    _XMM3 = _mm128_mul_ps(_mm128_mul_ps(_XMM1, v), v67.v);
+    __asm { vblendps xmm4, xmm3, [rsp+0C8h+var_88], 8 }
+    _XMM0 = _mm128_mul_ps(_XMM4, _XMM4);
+    __asm
+    {
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vsqrtps xmm1, xmm0
-      vdivps  xmm2, xmm4, xmm1
+    }
+    _XMM2.v = _mm128_div_ps(_XMM4, _mm_sqrt_ps(_XMM0));
+    __asm
+    {
       vcmpneqps xmm0, xmm2, xmm2
       vmovmskps eax, xmm0
-      vmovups xmmword ptr [rbx], xmm2
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 805, ASSERT_TYPE_SANITY, "( !Float4IsNaN( delta ) )", (const char *)&queryFormat, "!Float4IsNaN( delta )") )
-      __debugbreak();
-  }
-  _R11 = &v106;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    *delta = (float4)_XMM2.v;
+    if ( _EAX )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 805, ASSERT_TYPE_SANITY, "( !Float4IsNaN( delta ) )", (const char *)&queryFormat, "!Float4IsNaN( delta )") )
+        __debugbreak();
+    }
   }
 }
 
@@ -769,157 +810,93 @@ XAnimIKApplyDeltas
 */
 void XAnimIKApplyDeltas(const XAnimIkSolverParams *ikParams, int orientToTarget, const XAnimIKData *ikData, int ikType, const XAnimIKDObjData *dObjData, const float4 *firstBoneQuatDelta, const float4 *secondBoneQuatDelta)
 {
-  __int64 v14; 
-  char v17; 
-  __int64 v18; 
-  __int128 v19; 
+  __int64 v9; 
+  __int64 v11; 
+  __int64 v12; 
   unsigned int secondBoneIndex; 
+  __m128 v14; 
+  __m128 v; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
   unsigned int firstBoneIndex; 
+  __m128 v20; 
+  const float4 *v21; 
+  const float4 *v22; 
+  const float4 *v23; 
+  float4 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v31; 
   const float4 *v34; 
   const float4 *v35; 
   const float4 *v36; 
-  const float4 *v66; 
-  const float4 *v67; 
-  const float4 *v68; 
   unsigned int thirdBoneIndex; 
+  __m128 v38; 
   int restoreSubmodelBoneIndex; 
   const float4 *fmt; 
-  const float4 *v87; 
-  float v88; 
-  float4 v89; 
-  float4 v90; 
-  float4 v91; 
-  float4 v92; 
-  float4 v93; 
-  float4 v94; 
+  const float4 *v41; 
+  float4 v42; 
+  float4 v43; 
+  float4 v44; 
+  float4 v45; 
+  float4 v46; 
+  float4 v47; 
 
-  _R14 = ikData;
-  v14 = ikType;
-  _RBX = ikParams;
+  v9 = ikType;
   if ( !ikData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 574, ASSERT_TYPE_ASSERT, "(ikData)", (const char *)&queryFormat, "ikData") )
     __debugbreak();
-  _RAX = v14;
-  v19 = 28 * (__int128)v14;
-  v18 = v14;
-  __asm
+  v11 = v9;
+  v12 = v9;
+  if ( ikData->weights[v11] > 0.0 )
   {
-    vmovss  xmm1, dword ptr [r14+rax*4]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( !((*((_QWORD *)&v19 + 1) != 0i64) | v17) )
-  {
-    _RAX = secondBoneQuatDelta;
-    secondBoneIndex = dObjData->boneInfo[v18].secondBoneIndex;
-    __asm
-    {
-      vmovaps [rsp+110h+var_60], xmm9
-      vmovaps xmm9, xmm1
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups [rbp+3Fh+var_A0], xmm0
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vshufps xmm9, xmm9, xmm9, 0
-      vmovdqa [rsp+110h+var_D0], xmm9
-      vmovups [rsp+110h+var_C0], xmm0
-      vmovups [rbp+3Fh+var_B0], xmm1
-    }
-    XAnimIKUpdateBoneFromDelta(_RBX, secondBoneIndex, &v91, &v90, &v92, &v89, &v93);
-    _RAX = firstBoneQuatDelta;
-    __asm { vmovups xmm1, xmmword ptr [rbx+30h] }
-    firstBoneIndex = dObjData->boneInfo[v18].firstBoneIndex;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+110h+var_C0], xmm0
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovdqa [rbp+3Fh+var_B0], xmm9
-      vmovups [rbp+3Fh+var_A0], xmm0
-      vmovups [rsp+110h+var_D0], xmm1
-    }
-    XAnimIKUpdateBoneFromDelta(_RBX, firstBoneIndex, &v89, &v92, &v90, &v91, &v94);
+    secondBoneIndex = dObjData->boneInfo[v12].secondBoneIndex;
+    v14 = (__m128)LODWORD(ikData->weights[v11]);
+    v = ikParams->secondBoneQuat.v;
+    v45.v = secondBoneQuatDelta->v;
+    v16 = ikParams->secondBoneTrans.v;
+    v17 = _mm_shuffle_ps(v14, v14, 0);
+    v42.v = v17;
+    v43.v = v16;
+    v44.v = v;
+    XAnimIKUpdateBoneFromDelta(ikParams, secondBoneIndex, &v44, &v43, &v45, &v42, &v46);
+    v18 = ikParams->firstBoneQuat.v;
+    firstBoneIndex = dObjData->boneInfo[v12].firstBoneIndex;
+    v43.v = firstBoneQuatDelta->v;
+    v20 = ikParams->firstBoneTrans.v;
+    v44.v = v17;
+    v45.v = v20;
+    v42.v = v18;
+    XAnimIKUpdateBoneFromDelta(ikParams, firstBoneIndex, &v42, &v45, &v43, &v44, &v47);
     if ( orientToTarget )
     {
+      v24.v = (__m128)ikParams->targetBoneQuat;
+      v25 = _mm_shuffle_ps(v24.v, v24.v, 255);
+      v26 = _mm128_mul_ps(ikParams->thirdBoneQuat.v, (__m128)_xmm);
+      _XMM1 = _mm128_mul_ps(v26, v24.v);
       __asm
       {
-        vmovups xmm4, xmmword ptr [rbx+90h]
-        vmovups xmm0, xmmword ptr [rbx+70h]
-        vmovaps [rsp+110h+var_30], xmm6
-        vshufps xmm6, xmm4, xmm4, 0FFh
-        vmovaps [rsp+110h+var_40], xmm7
-        vmovaps [rsp+110h+var_50], xmm8
-        vmulps  xmm8, xmm0, cs:__xmm@3f800000bf800000bf800000bf800000
-        vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-        vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-        vmulps  xmm3, xmm1, xmm0
-        vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-        vshufps xmm2, xmm8, xmm8, 0D2h ; 'Ò'
-        vmulps  xmm0, xmm2, xmm1
-        vsubps  xmm5, xmm0, xmm3
-        vmulps  xmm1, xmm8, xmm4
         vinsertps xmm0, xmm1, xmm1, 8
         vhaddps xmm2, xmm0, xmm0
-        vmulps  xmm1, xmm8, xmm6
         vhaddps xmm3, xmm2, xmm2
-        vshufps xmm7, xmm8, xmm8, 0FFh
-        vmulps  xmm0, xmm7, xmm6
-        vsubps  xmm2, xmm0, xmm3
-        vmulps  xmm4, xmm7, xmm4
-        vaddps  xmm1, xmm4, xmm1
-        vaddps  xmm0, xmm5, xmm1
-        vmovups xmm1, [rbp+3Fh+var_90]
-        vblendps xmm6, xmm2, xmm0, 7
-        vmovups xmm2, xmmword ptr [rbx+60h]
-        vmovups xmm0, xmmword ptr [rbx+80h]
       }
-      Float3RotateQuatAroundOrigin(v35, v34, v36, &v89);
-      __asm
-      {
-        vmovups xmm2, xmmword ptr [rbx+40h]
-        vmovups xmm1, [rbp+3Fh+var_80]
-        vmovups xmm0, [rsp+110h+var_D0]
-      }
-      Float3RotateQuatAroundOrigin(v67, v66, v68, &v89);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+80h]
-        vmovups xmm0, [rsp+110h+var_D0]
-      }
-      thirdBoneIndex = dObjData->boneInfo[v18].thirdBoneIndex;
-      __asm
-      {
-        vmovups xmm2, xmm1
-        vsubps  xmm1, xmm0, xmm1
-        vaddps  xmm2, xmm1, xmm2
-        vshufps xmm0, xmm2, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v, 0FAh ; 'ú'; float4 const g_unit
-        vshufps xmm1, xmm2, xmm0, 84h ; '„'
-        vmovups xmm0, xmmword ptr [rbx+70h]
-        vmovups [rsp+110h+var_C0], xmm0
-        vmovdqa [rbp+3Fh+var_80], xmm9
-        vmovdqa [rbp+3Fh+var_90], xmm6
-        vmovdqa [rbp+3Fh+var_B0], xmm1
-      }
-      XAnimIKUpdateBoneFromDelta(_RBX, thirdBoneIndex, &v90, &v91, &v93, &v94, &v92);
-      __asm
-      {
-        vmovaps xmm8, [rsp+110h+var_50]
-        vmovaps xmm7, [rsp+110h+var_40]
-        vmovaps xmm6, [rsp+110h+var_30]
-      }
+      v31 = _mm_shuffle_ps(v26, v26, 255);
+      _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v31, v25), _XMM3);
+      _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v26, v26, 210), _mm_shuffle_ps(v24.v, v24.v, 201)), _mm128_mul_ps(_mm_shuffle_ps(v26, v26, 201), _mm_shuffle_ps(v24.v, v24.v, 210))), _mm128_add_ps(_mm128_mul_ps(v31, v24.v), _mm128_mul_ps(v26, v25)));
+      __asm { vblendps xmm6, xmm2, xmm0, 7 }
+      Float3RotateQuatAroundOrigin(v22, v21, v23, &v42);
+      Float3RotateQuatAroundOrigin(v35, v34, v36, &v42);
+      thirdBoneIndex = dObjData->boneInfo[v12].thirdBoneIndex;
+      v38 = _mm128_add_ps(_mm128_sub_ps(v42.v, ikParams->thirdBoneTrans.v), ikParams->thirdBoneTrans.v);
+      v43.v = (__m128)ikParams->thirdBoneQuat;
+      v47.v = v17;
+      v46.v = _XMM6;
+      v44.v = _mm_shuffle_ps(v38, _mm_shuffle_ps(v38, g_unit.v, 250), 132);
+      XAnimIKUpdateBoneFromDelta(ikParams, thirdBoneIndex, &v43, &v44, &v46, &v47, &v45);
     }
-    restoreSubmodelBoneIndex = dObjData->boneInfo[v18].restoreSubmodelBoneIndex;
-    __asm { vmovaps xmm9, [rsp+110h+var_60] }
+    restoreSubmodelBoneIndex = dObjData->boneInfo[v12].restoreSubmodelBoneIndex;
     if ( restoreSubmodelBoneIndex != 255 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovups xmm1, xmmword ptr [rbx+0C0h]
-        vmovss  [rsp+110h+var_E0], xmm0
-        vmovups xmm0, xmmword ptr [rbx+0B0h]
-      }
-      XAnimSetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, restoreSubmodelBoneIndex, fmt, v87, v88);
-    }
+      XAnimSetLocalBoneTransform(ikParams->animCalcInfo, ikParams->obj, ikParams->destBuffer, restoreSubmodelBoneIndex, fmt, v41, 1.0);
   }
 }
 
@@ -1037,78 +1014,81 @@ __int64 XAnimIKAttachTargetToWeapon(const XAnimIKType hand, XModel *tagIKTargetM
   __int64 v31; 
   DObjModel *v32; 
   CharacterModelType *v33; 
+  DObjModel *v34; 
+  __m256i v35; 
+  __int128 v36; 
   __int64 result; 
   __int64 name; 
   unsigned __int8 *index; 
-  unsigned __int8 v41[4]; 
-  XAnimIKType v42; 
-  PlayerHandIndex *v43; 
-  const XModel **v44; 
-  __int64 v45; 
+  unsigned __int8 v40[4]; 
+  XAnimIKType v41; 
+  PlayerHandIndex *v42; 
+  const XModel **v43; 
+  __int64 v44; 
   CharacterModelType modelTypeToMatch; 
-  int v47; 
+  int v46; 
   int foundModelIndex; 
-  int v49; 
+  int v48; 
   scr_string_t tag_ik_loc_le; 
-  int *v51; 
+  int *v50; 
   CharacterModelType *dobjModelTypes; 
-  DObjModel *v53; 
-  __int64 v54; 
-  const XAnimWeaponIKModelsContainer *v55; 
-  __int64 v56; 
-  unsigned __int16 *v57; 
-  const XAnimIKTagRequest *v58; 
+  DObjModel *v52; 
+  __int64 v53; 
+  const XAnimWeaponIKModelsContainer *v54; 
+  __int64 v55; 
+  unsigned __int16 *v56; 
+  const XAnimIKTagRequest *v57; 
   XModel *model; 
-  int v60[2]; 
-  int v61[34]; 
+  int v59[2]; 
+  int v60[34]; 
 
   v8 = weaponModels;
-  v57 = numModels;
+  v56 = numModels;
   dobjModelTypes = (CharacterModelType *)outModelTypes;
-  v58 = tagRequest;
-  v55 = weaponModels;
+  v57 = tagRequest;
+  v54 = weaponModels;
   model = tagIKTargetModel;
-  v42 = hand;
-  v53 = dobjModels;
+  v41 = hand;
+  v52 = dobjModels;
   tag_ik_loc_le = scr_const.tag_ik_loc_le;
-  v49 = 6;
-  v47 = -1;
-  v60[0] = scr_const.tag_ik_loc_le;
-  v60[1] = 6;
-  v61[0] = -1;
-  v61[1] = scr_const.tag_ik_loc_le;
-  v61[2] = 6;
-  v61[3] = -1;
-  v61[4] = scr_const.tag_ik_loc_le;
-  v61[5] = 6;
-  v61[6] = -1;
-  v61[7] = scr_const.tag_ik_loc_le;
-  v61[8] = 6;
-  v61[9] = -1;
-  v61[10] = scr_const.tag_ik_loc_le;
-  v61[11] = 6;
-  v61[12] = -1;
-  v61[13] = scr_const.tag_ik_loc_le;
-  v61[14] = 6;
-  v61[15] = -1;
-  v61[16] = scr_const.tag_ik_loc_le;
-  v61[17] = 6;
-  v61[18] = -1;
-  v61[19] = scr_const.tag_ik_loc_le;
-  v61[20] = 6;
-  v61[21] = -1;
-  v61[22] = scr_const.tag_ik_loc_le;
-  v61[23] = 6;
-  v61[24] = -1;
-  v61[25] = scr_const.tag_ik_loc_le;
-  v61[26] = 6;
-  v61[27] = -1;
-  v61[28] = scr_const.tag_ik_loc_le;
-  v61[29] = 6;
-  v61[30] = -1;
-  v61[31] = scr_const.tag_ik_loc_le;
-  v61[32] = 6;
-  v61[33] = -1;
+  v48 = 6;
+  v46 = -1;
+  v59[0] = scr_const.tag_ik_loc_le;
+  v59[1] = 6;
+  v60[0] = -1;
+  v60[1] = scr_const.tag_ik_loc_le;
+  v60[2] = 6;
+  v60[3] = -1;
+  v60[4] = scr_const.tag_ik_loc_le;
+  v60[5] = 6;
+  v60[6] = -1;
+  v60[7] = scr_const.tag_ik_loc_le;
+  v60[8] = 6;
+  v60[9] = -1;
+  v60[10] = scr_const.tag_ik_loc_le;
+  v60[11] = 6;
+  v60[12] = -1;
+  v60[13] = scr_const.tag_ik_loc_le;
+  v60[14] = 6;
+  v60[15] = -1;
+  v60[16] = scr_const.tag_ik_loc_le;
+  v60[17] = 6;
+  v60[18] = -1;
+  v60[19] = scr_const.tag_ik_loc_le;
+  v60[20] = 6;
+  v60[21] = -1;
+  v60[22] = scr_const.tag_ik_loc_le;
+  v60[23] = 6;
+  v60[24] = -1;
+  v60[25] = scr_const.tag_ik_loc_le;
+  v60[26] = 6;
+  v60[27] = -1;
+  v60[28] = scr_const.tag_ik_loc_le;
+  v60[29] = 6;
+  v60[30] = -1;
+  v60[31] = scr_const.tag_ik_loc_le;
+  v60[32] = 6;
+  v60[33] = -1;
   if ( !tagIKTargetModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1797, ASSERT_TYPE_ASSERT, "( ( tagIKTargetModel ) )", "( tagIKTargetModel ) = %p", NULL) )
     __debugbreak();
   if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1798, ASSERT_TYPE_ASSERT, "( ( dobjModels ) )", "( dobjModels ) = %p", NULL) )
@@ -1117,26 +1097,26 @@ __int64 XAnimIKAttachTargetToWeapon(const XAnimIKType hand, XModel *tagIKTargetM
     __debugbreak();
   if ( !v8 )
     return 0xFFFFFFFFi64;
-  v9 = v42;
-  v41[0] = tagRequest->matchModelHands;
+  v9 = v41;
+  v40[0] = tagRequest->matchModelHands;
   modelTypeToMatch = CHAR_MODEL_COUNT;
-  if ( v41[0] )
-    modelTypeToMatch = 13 - (v42 != XANIM_IK_ACTOR_LEFT_HAND);
+  if ( v40[0] )
+    modelTypeToMatch = 13 - (v41 != XANIM_IK_ACTOR_LEFT_HAND);
   m_numModels = v8->m_numModels;
   v11 = 0;
-  v56 = m_numModels;
+  v55 = m_numModels;
   if ( m_numModels <= 0 )
     return 0xFFFFFFFFi64;
-  v12 = v41[0];
-  v13 = v60;
-  v14 = v42;
+  v12 = v40[0];
+  v13 = v59;
+  v14 = v41;
   m_modelHandIndices = v8->m_modelHandIndices;
   m_models = v8->m_models;
-  v54 = v42;
-  v51 = v60;
-  v43 = v8->m_modelHandIndices;
-  v44 = v8->m_models;
-  v45 = m_numModels;
+  v53 = v41;
+  v50 = v59;
+  v42 = v8->m_modelHandIndices;
+  v43 = v8->m_models;
+  v44 = m_numModels;
   do
   {
     if ( v11 >= 0xC )
@@ -1145,10 +1125,10 @@ __int64 XAnimIKAttachTargetToWeapon(const XAnimIKType hand, XModel *tagIKTargetM
       LODWORD(name) = v11;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1927, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( MAX_WEAPON_IK_MODELS )", "modelIndex doesn't index MAX_WEAPON_IK_MODELS\n\t%i not in [0, %i)", name, index) )
         __debugbreak();
-      m_numModels = v45;
-      m_modelHandIndices = v43;
-      m_models = v44;
-      v9 = v42;
+      m_numModels = v44;
+      m_modelHandIndices = v42;
+      m_models = v43;
+      v9 = v41;
     }
     if ( (signed int)v11 >= v8->m_numModels )
       goto LABEL_44;
@@ -1163,32 +1143,32 @@ __int64 XAnimIKAttachTargetToWeapon(const XAnimIKType hand, XModel *tagIKTargetM
         LODWORD(name) = v11;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1940, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( MAX_WEAPON_IK_MODELS )", "modelIndex doesn't index MAX_WEAPON_IK_MODELS\n\t%i not in [0, %i)", name, index) )
           __debugbreak();
-        m_models = v44;
+        m_models = v43;
       }
       if ( (signed int)v11 >= v8->m_numModels )
       {
 LABEL_31:
-        v9 = v42;
-        if ( v42 != XANIM_IK_ACTOR_RIGHT_HAND )
+        v9 = v41;
+        if ( v41 != XANIM_IK_ACTOR_RIGHT_HAND )
         {
 LABEL_43:
-          m_numModels = v45;
-          m_modelHandIndices = v43;
+          m_numModels = v44;
+          m_modelHandIndices = v42;
           goto LABEL_44;
         }
         goto LABEL_34;
       }
-      if ( *v43 == WEAPON_HAND_LEFT )
+      if ( *v42 == WEAPON_HAND_LEFT )
       {
-        v9 = v42;
-        if ( v42 )
+        v9 = v41;
+        if ( v41 )
           goto LABEL_43;
       }
       else
       {
-        if ( *v43 == WEAPON_HAND_DEFAULT )
+        if ( *v42 == WEAPON_HAND_DEFAULT )
           goto LABEL_31;
-        v9 = v42;
+        v9 = v41;
       }
     }
 LABEL_34:
@@ -1198,102 +1178,98 @@ LABEL_34:
     while ( 1 )
     {
       v21 = *p_tagName == NULL;
-      v41[0] = -2;
+      v40[0] = -2;
       if ( v21 )
       {
         LODWORD(index) = v9;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1843, ASSERT_TYPE_ASSERT, "(g_IKTagTable[hand][curTag].tagName)", "%s\n\tXAnimIKAttachTargetToWeapon() called using XAnimIKType (%i) that has no attach tag.", "g_IKTagTable[hand][curTag].tagName", index) )
           __debugbreak();
       }
-      if ( XAnimIKDObjModelsGetBoneIndex(v53, dobjModelTypes, *v57, modelTypeToMatch, v17, **p_tagName, v41, &foundModelIndex) )
+      if ( XAnimIKDObjModelsGetBoneIndex(v52, dobjModelTypes, *v56, modelTypeToMatch, v17, **p_tagName, v40, &foundModelIndex) )
       {
         v22 = p_tagName[1];
-        if ( !v22 || ((unsigned __int8 (__fastcall *)(const XAnimIKTagRequest *))v22)(v58) )
+        if ( !v22 || ((unsigned __int8 (__fastcall *)(const XAnimIKTagRequest *))v22)(v57) )
           break;
       }
-      v9 = v42;
+      v9 = v41;
       ++v18;
       ++v19;
       p_tagName += 3;
       if ( v18 >= 6 )
       {
-        v13 = v51;
-        v8 = v55;
-        m_models = v44;
+        v13 = v50;
+        v8 = v54;
+        m_models = v43;
         goto LABEL_43;
       }
     }
-    v13 = v51;
-    if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1848, ASSERT_TYPE_ASSERT, "(searchResult)", (const char *)&queryFormat, "searchResult") )
+    v13 = v50;
+    if ( !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1848, ASSERT_TYPE_ASSERT, "(searchResult)", (const char *)&queryFormat, "searchResult") )
       __debugbreak();
-    v8 = v55;
-    m_modelHandIndices = v43;
-    v14 = v54;
-    v27 = v19 + 6 * v54;
+    v8 = v54;
+    m_modelHandIndices = v42;
+    v14 = v53;
+    v27 = v19 + 6 * v53;
     v28 = *g_IKTagTable[0][v27].tagName;
     priority = g_IKTagTable[0][v27].priority;
-    m_models = v44;
+    m_models = v43;
     v13[1] = priority;
     v13[2] = foundModelIndex;
-    m_numModels = v45;
+    m_numModels = v44;
     *v13 = v28;
-    v9 = v42;
+    v9 = v41;
 LABEL_44:
     ++m_modelHandIndices;
     ++m_models;
-    v43 = m_modelHandIndices;
+    v42 = m_modelHandIndices;
     v13 += 3;
-    v44 = m_models;
+    v43 = m_models;
     ++v11;
-    v51 = v13;
-    v45 = --m_numModels;
+    v50 = v13;
+    v44 = --m_numModels;
   }
   while ( m_numModels );
-  v23 = v49;
-  v24 = v61;
+  v23 = v48;
+  v24 = v60;
   v25 = tag_ik_loc_le;
   do
   {
     if ( *(v24 - 1) >= v23 )
     {
-      v26 = v47;
+      v26 = v46;
     }
     else
     {
       v26 = *v24;
       v23 = *(v24 - 1);
       v25 = *(v24 - 2);
-      v47 = *v24;
+      v46 = *v24;
     }
     v24 += 3;
-    --v56;
+    --v55;
   }
-  while ( v56 );
+  while ( v55 );
   if ( v23 >= 6 )
     return 0xFFFFFFFFi64;
-  v30 = v57;
-  if ( (unsigned int)*v57 + 1 >= 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1872, ASSERT_TYPE_ASSERT, "(*numModels + 1 < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "*numModels + 1 < DOBJ_MAX_SUBMODELS") )
+  v30 = v56;
+  if ( (unsigned int)*v56 + 1 >= 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1872, ASSERT_TYPE_ASSERT, "(*numModels + 1 < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "*numModels + 1 < DOBJ_MAX_SUBMODELS") )
     __debugbreak();
   if ( v26 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1873, ASSERT_TYPE_ASSERT, "(bestModelIndex >= 0)", (const char *)&queryFormat, "bestModelIndex >= 0") )
     __debugbreak();
   v31 = *v30;
-  v32 = v53;
+  v32 = v52;
   v33 = dobjModelTypes;
   if ( v31 > v26 )
   {
-    _RAX = &v53[v31];
+    v34 = &v52[v31];
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rax+50h], ymm0
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups ymmword ptr [rax+70h], ymm1
-        vmovups xmmword ptr [rax+90h], xmm0
-      }
-      --_RAX;
+      v35 = *(__m256i *)&v34->quat.xyz.y;
+      *(__m256i *)&v34[1].model = *(__m256i *)&v34->model;
+      v36 = *(_OWORD *)&v34->camoParams.materialOverrideDstWhitelist;
+      *(__m256i *)&v34[1].quat.xyz.y = v35;
+      *(_OWORD *)&v34[1].camoParams.materialOverrideDstWhitelist = v36;
+      --v34;
       v33[v31 + 1] = v33[v31];
       --v31;
     }
@@ -1314,16 +1290,17 @@ XAnimIKCalcAnimWeights
 bool XAnimIKCalcAnimWeights(const XAnimInfo *info, const XAnimIKData *ikData, const XAnimIKDObjData *dObjData, float *animWeights)
 {
   XAnimToXModel *animToModel; 
-  int v9; 
+  int v8; 
+  __int64 v9; 
   unsigned int *p_secondBoneIndex; 
+  unsigned __int64 v11; 
+  unsigned __int64 v12; 
   unsigned __int64 v13; 
   unsigned __int64 v14; 
-  unsigned __int64 v15; 
-  unsigned __int64 v16; 
-  __int64 v22; 
-  __int64 v23; 
+  float weight; 
+  __int64 v17; 
+  __int64 v18; 
 
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
   if ( !info->parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 870, ASSERT_TYPE_ASSERT, "(parts)", (const char *)&queryFormat, "parts") )
     __debugbreak();
   if ( !ikData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 871, ASSERT_TYPE_ASSERT, "(ikData)", (const char *)&queryFormat, "ikData") )
@@ -1333,69 +1310,64 @@ bool XAnimIKCalcAnimWeights(const XAnimInfo *info, const XAnimIKData *ikData, co
   animToModel = info->animToModel;
   if ( !animToModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 877, ASSERT_TYPE_ASSERT, "(animToModel)", (const char *)&queryFormat, "animToModel") )
     __debugbreak();
-  v9 = 0;
-  _R15 = 0i64;
+  v8 = 0;
+  v9 = 0i64;
   p_secondBoneIndex = &dObjData->boneInfo[0].secondBoneIndex;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   do
   {
-    v13 = *(p_secondBoneIndex - 1);
-    v14 = *p_secondBoneIndex;
-    v15 = p_secondBoneIndex[1];
-    v16 = p_secondBoneIndex[2];
+    v11 = *(p_secondBoneIndex - 1);
+    v12 = *p_secondBoneIndex;
+    v13 = p_secondBoneIndex[1];
+    v14 = p_secondBoneIndex[2];
+    if ( (unsigned int)v11 >= 0x100 )
+    {
+      LODWORD(v18) = 256;
+      LODWORD(v17) = *(p_secondBoneIndex - 1);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (v11 & 0x1F)) & animToModel->partBits.array[v11 >> 5]) != 0 )
+      goto LABEL_31;
+    if ( (unsigned int)v12 >= 0x100 )
+    {
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (v12 & 0x1F)) & animToModel->partBits.array[v12 >> 5]) != 0 )
+      goto LABEL_31;
     if ( (unsigned int)v13 >= 0x100 )
     {
-      LODWORD(v23) = 256;
-      LODWORD(v22) = *(p_secondBoneIndex - 1);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
         __debugbreak();
     }
     if ( ((0x80000000 >> (v13 & 0x1F)) & animToModel->partBits.array[v13 >> 5]) != 0 )
       goto LABEL_31;
     if ( (unsigned int)v14 >= 0x100 )
     {
-      LODWORD(v23) = 256;
-      LODWORD(v22) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
+      LODWORD(v18) = 256;
+      LODWORD(v17) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
         __debugbreak();
     }
     if ( ((0x80000000 >> (v14 & 0x1F)) & animToModel->partBits.array[v14 >> 5]) != 0 )
-      goto LABEL_31;
-    if ( (unsigned int)v15 >= 0x100 )
-    {
-      LODWORD(v23) = 256;
-      LODWORD(v22) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
-        __debugbreak();
-    }
-    if ( ((0x80000000 >> (v15 & 0x1F)) & animToModel->partBits.array[v15 >> 5]) != 0 )
-      goto LABEL_31;
-    if ( (unsigned int)v16 >= 0x100 )
-    {
-      LODWORD(v23) = 256;
-      LODWORD(v22) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
-        __debugbreak();
-    }
-    if ( ((0x80000000 >> (v16 & 0x1F)) & animToModel->partBits.array[v16 >> 5]) != 0 )
     {
 LABEL_31:
-      _RAX = info;
-      v9 = 1;
-      __asm { vmovss  xmm0, dword ptr [rax+3Ch] }
+      v8 = 1;
+      weight = info->state.weight;
     }
     else
     {
-      __asm { vmovaps xmm0, xmm6 }
+      weight = 0.0;
     }
-    _RAX = animWeights;
     p_secondBoneIndex += 7;
-    __asm { vmovss  dword ptr [rax+r15*4], xmm0 }
-    ++_R15;
+    animWeights[v9++] = weight;
   }
-  while ( _R15 < 4 );
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
-  return v9 != 0;
+  while ( v9 < 4 );
+  return v8 != 0;
 }
 
 /*
@@ -1405,150 +1377,91 @@ XAnimIKCalcFirstBoneRotation
 */
 void XAnimIKCalcFirstBoneRotation(const DObj *obj, const float4 *firstBonePos, const float4 *thirdBonePos, const float4 *targetBonePos, float4 *delta)
 {
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char v98; 
-  void *retaddr; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v12; 
+  __m128 v17; 
+  __m128 v28; 
+  __m128 v29; 
 
-  _RAX = &retaddr;
+  v5 = _mm128_sub_ps(thirdBonePos->v, firstBonePos->v);
+  v6 = _mm128_sub_ps(targetBonePos->v, firstBonePos->v);
+  _XMM8 = g_two.v;
+  _XMM0 = _mm128_mul_ps(v5, v5);
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovups xmm0, xmmword ptr [r8]
-    vsubps  xmm3, xmm0, xmmword ptr [rdx]
-    vmovups xmm4, xmmword ptr [r9]
-    vsubps  xmm4, xmm4, xmmword ptr [rdx]
-    vmovdqa xmm8, xmmword ptr cs:?g_two@@3Ufloat4@@B.v; float4 const g_two
-    vmovdqa xmm9, xmmword ptr cs:?g_equalsEpsilon@@3Ufloat4@@B.v; float4 const g_equalsEpsilon
+    vinsertps xmm1, xmm0, xmm0, 8
+    vhaddps xmm2, xmm1, xmm1
+    vhaddps xmm0, xmm2, xmm2
   }
-  _RBX = delta;
+  v12 = _mm128_div_ps(v5, _mm_sqrt_ps(_XMM0));
+  _XMM0 = _mm128_mul_ps(v6, v6);
   __asm
   {
-    vmulps  xmm0, xmm3, xmm3
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm6, xmm3, xmm1
-    vmulps  xmm0, xmm4, xmm4
+  }
+  v17 = _mm128_div_ps(v6, _mm_sqrt_ps(_XMM0));
+  _XMM0 = _mm128_mul_ps(v17, v12);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm7, xmm4, xmm1
-    vmulps  xmm0, xmm7, xmm6
-    vinsertps xmm1, xmm0, xmm0, 8
-    vhaddps xmm2, xmm1, xmm1
-    vhaddps xmm0, xmm2, xmm2
-    vaddps  xmm10, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
+  }
+  _XMM10 = _mm128_add_ps(_XMM0, g_one.v);
+  __asm
+  {
     vcmpltps xmm0, xmm8, xmm9
     vmovmskps eax, xmm0
   }
-  if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
+  if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
     __debugbreak();
   __asm
   {
-    vmovups xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
     vmaxps  xmm0, xmm10, xmm9
     vminps  xmm10, xmm0, xmm8
-    vmulps  xmm0, xmm10, xmm1
-    vsqrtps xmm8, xmm0
-    vdivps  xmm4, xmm1, xmm8
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vshufps xmm0, xmm6, xmm6, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm6, xmm6, 0C9h ; 'É'
-    vshufps xmm2, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm9, xmm0, xmm3
-    vmovups xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-    vmulps  xmm1, xmm4, xmm9
-    vblendvps xmm2, xmm1, xmm8, xmm0
-    vmulps  xmm1, xmm2, xmm2
+  }
+  v28 = _mm_sqrt_ps(_mm128_mul_ps(_XMM10, g_oneHalf.v));
+  v29 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v17, v17, 210), _mm_shuffle_ps(v12, v12, 201)), _mm128_mul_ps(_mm_shuffle_ps(v17, v17, 201), _mm_shuffle_ps(v12, v12, 210)));
+  _XMM1 = _mm128_mul_ps(_mm128_div_ps(g_oneHalf.v, v28), v29);
+  __asm { vblendvps xmm2, xmm1, xmm8, xmm0 }
+  _XMM1 = _mm128_mul_ps(_XMM2, _XMM2);
+  __asm
+  {
     vhaddps xmm0, xmm1, xmm1
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm2, xmm1
+  }
+  _XMM2.v = _mm128_div_ps(_XMM2, _mm_sqrt_ps(_XMM0));
+  __asm
+  {
     vcmpneqps xmm0, xmm2, xmm2
     vmovmskps eax, xmm0
-    vmovups xmmword ptr [rbx], xmm2
   }
+  *delta = (float4)_XMM2.v;
   if ( _EAX )
   {
     Com_Printf(19, "==== [ IK CRASH LOG, PLEASE COPY FROM HERE DOWN ] ====\n");
     DObjDisplayAnim(obj, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vshufps xmm1, xmm6, xmm6, 55h ; 'U'
-      vshufps xmm0, xmm6, xmm6, 0AAh ; 'ª'
-      vcvtss2sd xmm3, xmm1, xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vcvtss2sd xmm4, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+98h+fmt], xmm4
-    }
-    Com_Printf(19, "firstToEndNormalized: (%f, %f, %f)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt);
-    __asm
-    {
-      vshufps xmm1, xmm7, xmm7, 55h ; 'U'
-      vshufps xmm0, xmm7, xmm7, 0AAh ; 'ª'
-      vcvtss2sd xmm3, xmm1, xmm1
-      vcvtss2sd xmm2, xmm7, xmm7
-      vcvtss2sd xmm4, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+98h+fmt], xmm4
-    }
-    Com_Printf(19, "firstToTargetNormalized: (%f, %f, %f)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta);
-    __asm
-    {
-      vshufps xmm1, xmm9, xmm9, 55h ; 'U'
-      vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-      vcvtss2sd xmm3, xmm1, xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm4, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+98h+fmt], xmm4
-    }
-    Com_Printf(19, "cross: (%f, %f, %f)\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm10, xmm10
-      vmovq   r8, xmm2
-    }
-    Com_Printf(19, "cosThetaPlusOne: %f\n", *(double *)&_XMM2);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm8, xmm8
-      vmovq   r8, xmm2
-    }
-    Com_Printf(19, "cosHalfTheta: %f\n", *(double *)&_XMM2);
+    Com_Printf(19, "firstToEndNormalized: (%f, %f, %f)\n", v12.m128_f32[0], _mm_shuffle_ps(v12, v12, 85).m128_f32[0], _mm_shuffle_ps(v12, v12, 170).m128_f32[0]);
+    Com_Printf(19, "firstToTargetNormalized: (%f, %f, %f)\n", v17.m128_f32[0], _mm_shuffle_ps(v17, v17, 85).m128_f32[0], _mm_shuffle_ps(v17, v17, 170).m128_f32[0]);
+    Com_Printf(19, "cross: (%f, %f, %f)\n", v29.m128_f32[0], _mm_shuffle_ps(v29, v29, 85).m128_f32[0], _mm_shuffle_ps(v29, v29, 170).m128_f32[0]);
+    Com_Printf(19, "cosThetaPlusOne: %f\n", _XMM10.m128_f32[0]);
+    Com_Printf(19, "cosHalfTheta: %f\n", v28.m128_f32[0]);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 713, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "!Float4IsNaN( delta ): Please copy log above.") )
       __debugbreak();
   }
+  _XMM0 = delta->v;
   __asm
   {
-    vmovups xmm0, xmmword ptr [rbx]
     vcmpneqps xmm0, xmm0, xmm0
     vmovmskps eax, xmm0
   }
-  if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 717, ASSERT_TYPE_SANITY, "( !Float4IsNaN( delta ) )", (const char *)&queryFormat, "!Float4IsNaN( delta )") )
-    __debugbreak();
-  _R11 = &v98;
-  __asm
+  if ( _EAX )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 717, ASSERT_TYPE_SANITY, "( !Float4IsNaN( delta ) )", (const char *)&queryFormat, "!Float4IsNaN( delta )") )
+      __debugbreak();
   }
 }
 
@@ -1854,15 +1767,17 @@ char XAnimIKGetDObjDataCache(const DObj *obj, XAnimIKData *ikData, XAnimIKDObjDa
   unsigned __int64 v9; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *v10; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *mp_next; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *v12; 
   __int64 v13; 
+  __m256i v14; 
+  __int128 v15; 
 
   v3 = 0;
-  _RBX = outDObjData;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1348, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !ikData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1349, ASSERT_TYPE_ASSERT, "(ikData)", (const char *)&queryFormat, "ikData") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1350, ASSERT_TYPE_ASSERT, "(outDObjData)", (const char *)&queryFormat, "outDObjData") )
+  if ( !outDObjData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1350, ASSERT_TYPE_ASSERT, "(outDObjData)", (const char *)&queryFormat, "outDObjData") )
     __debugbreak();
   *(_QWORD *)ikData->weights = 0i64;
   *(_QWORD *)&ikData->weights[2] = 0i64;
@@ -1904,40 +1819,25 @@ LABEL_30:
       }
       if ( mp_next )
       {
-        _RAX = mp_next + 4;
+        v12 = mp_next + 4;
         v13 = 2i64;
         do
         {
-          _RBX = (XAnimIKDObjData *)((char *)_RBX + 128);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+70h]
-          }
-          _RAX += 16;
-          __asm
-          {
-            vmovups ymmword ptr [rbx-80h], ymm0
-            vmovups ymm0, ymmword ptr [rax-60h]
-            vmovups ymmword ptr [rbx-60h], ymm0
-            vmovups ymm0, ymmword ptr [rax-40h]
-            vmovups ymmword ptr [rbx-40h], ymm0
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rbx-20h], xmm0
-            vmovups xmmword ptr [rbx-10h], xmm1
-          }
+          outDObjData = (XAnimIKDObjData *)((char *)outDObjData + 128);
+          v14 = *(__m256i *)&v12->m_listHead.m_sentinel.mp_next;
+          v15 = *(_OWORD *)&v12[14].m_listHead.m_sentinel.mp_next;
+          v12 += 16;
+          *(__m256i *)((char *)&outDObjData[-1].partBits[1] + 12) = v14;
+          *(DObjPartBits *)((char *)&outDObjData[-1].partBits[2] + 12) = *(DObjPartBits *)&v12[-12].m_listHead.m_sentinel.mp_next;
+          *(DObjPartBits *)((char *)&outDObjData[-1].partBits[3] + 12) = *(DObjPartBits *)&v12[-8].m_listHead.m_sentinel.mp_next;
+          *(_OWORD *)&outDObjData[-1].combinedPartBits.array[3] = *(_OWORD *)&v12[-4].m_listHead.m_sentinel.mp_next;
+          *(_OWORD *)&outDObjData[-1].combinedPartBits.array[7] = v15;
           --v13;
         }
         while ( v13 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbx], ymm0
-          vmovups ymm0, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rbx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rax+40h]
-          vmovups ymmword ptr [rbx+40h], ymm0
-        }
+        *(__m256i *)outDObjData->hingeAxis[0].v.m128_f32 = *(__m256i *)&v12->m_listHead.m_sentinel.mp_next;
+        *(__m256i *)outDObjData->hingeAxis[2].v.m128_f32 = *(__m256i *)&v12[4].m_listHead.m_sentinel.mp_next;
+        *(__m256i *)&outDObjData->handle = *(__m256i *)&v12[8].m_listHead.m_sentinel.mp_next;
         v3 = 1;
       }
       if ( s_fastCriticalSection.readCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 90, ASSERT_TYPE_ASSERT, "( critSect->readCount ) > ( 0 )", "%s > %s\n\t%i, %i", "critSect->readCount", "0", s_fastCriticalSection.readCount, 0i64) )
@@ -1951,7 +1851,7 @@ LABEL_30:
   }
   else
   {
-    XAnimIKExtractDObjData(obj, _RBX);
+    XAnimIKExtractDObjData(obj, outDObjData);
     return 1;
   }
 }
@@ -2190,7 +2090,7 @@ void XAnimIKGetWeights(const DObj *obj, const XAnimInfo *info, float *ikWeights,
   bool v8; 
   __int64 v9; 
   XAnimIKBoneInfo *i; 
-  XAnimIKNotetrackLeafFunctor v12; 
+  XAnimIKNotetrackLeafFunctor v11; 
   XAnimIKData ikData; 
   XAnimIKDObjData outDObjData; 
 
@@ -2230,14 +2130,9 @@ void XAnimIKGetWeights(const DObj *obj, const XAnimInfo *info, float *ikWeights,
         if ( ++v9 >= 4 )
           return;
       }
-      v12.m_ikData = &ikData;
-      v12.m_dObjData = &outDObjData;
-      __asm
-      {
-        vmovups xmm0, [rsp+208h+var_1D8]
-        vmovdqa [rsp+208h+var_1D8], xmm0
-      }
-      XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(info, ikWeights, animWeights, &v12);
+      v11.m_ikData = &ikData;
+      v11.m_dObjData = &outDObjData;
+      XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(info, ikWeights, animWeights, &v11);
     }
   }
 }
@@ -2257,8 +2152,8 @@ void XAnimIKGetWeightsByAnimIndex(const DObj *obj, int animIndex, float *ikWeigh
   bool v13; 
   __int64 v14; 
   XAnimIKBoneInfo *i; 
-  __int64 v17; 
-  XAnimIKNotetrackLeafFunctor v18; 
+  __int64 v16; 
+  XAnimIKNotetrackLeafFunctor v17; 
   XAnimIKData ikData; 
   XAnimIKDObjData outDObjData; 
 
@@ -2280,8 +2175,8 @@ void XAnimIKGetWeightsByAnimIndex(const DObj *obj, int animIndex, float *ikWeigh
       v12 = 32 * (InfoIndex & 0x7FFFu);
       if ( (unsigned int)v12 > g_xanimMemoryGlobals.bucketAllocatorMaxOffset )
       {
-        LODWORD(v17) = 32 * (InfoIndex & 0x7FFF);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v17, g_xanimMemoryGlobals.bucketAllocatorMaxOffset) )
+        LODWORD(v16) = 32 * (InfoIndex & 0x7FFF);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 102, ASSERT_TYPE_ASSERT, "( offset ) <= ( g_xanimMemoryGlobals.bucketAllocatorMaxOffset )", "offset not in [0, g_xanimMemoryGlobals.bucketAllocatorMaxOffset]\n\t%u not in [0, %u]", v16, g_xanimMemoryGlobals.bucketAllocatorMaxOffset) )
           __debugbreak();
       }
       v11 = (const XAnimInfo *)&g_xanimMemoryGlobals.bucketAllocatorBasePointer[v12];
@@ -2290,8 +2185,8 @@ void XAnimIKGetWeightsByAnimIndex(const DObj *obj, int animIndex, float *ikWeigh
     {
       if ( (unsigned int)InfoIndex >= g_xanimMemoryGlobals.infoPoolSize )
       {
-        LODWORD(v17) = InfoIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v17, g_xanimMemoryGlobals.infoPoolSize) )
+        LODWORD(v16) = InfoIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_memory.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( infoIndex ) < (unsigned)( g_xanimMemoryGlobals.infoPoolSize )", "infoIndex doesn't index g_xanimMemoryGlobals.infoPoolSize\n\t%i not in [0, %i)", v16, g_xanimMemoryGlobals.infoPoolSize) )
           __debugbreak();
       }
       v11 = &g_xanimMemoryGlobals.infoPool[v10];
@@ -2334,14 +2229,9 @@ void XAnimIKGetWeightsByAnimIndex(const DObj *obj, int animIndex, float *ikWeigh
             if ( ++v14 >= 4 )
               return;
           }
-          v18.m_ikData = &ikData;
-          v18.m_dObjData = &outDObjData;
-          __asm
-          {
-            vmovups xmm0, [rsp+228h+var_1E8]
-            vmovdqa [rsp+228h+var_1E8], xmm0
-          }
-          XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(v11, ikWeights, animWeights, &v18);
+          v17.m_ikData = &ikData;
+          v17.m_dObjData = &outDObjData;
+          XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(v11, ikWeights, animWeights, &v17);
         }
       }
     }
@@ -2376,161 +2266,95 @@ XAnimIKInit
 */
 void XAnimIKInit(bool preCacheEnabled)
 {
+  __m256i *v1; 
+  const char **p_secondBone; 
   scr_string_t String; 
-  scr_string_t v13; 
-  scr_string_t v14; 
-  scr_string_t v15; 
-  const char *v16; 
-  scr_string_t v17; 
-  const char *v18; 
-  char v23; 
-  bool v24; 
-  bool v26; 
-  bool v27; 
-  bool v28; 
-  bool v29; 
+  scr_string_t v4; 
+  scr_string_t v5; 
+  scr_string_t v6; 
+  const char *v7; 
+  scr_string_t v8; 
+  const char *v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
   scr_string_t NotetrackConstString; 
-  __m256i v44; 
-  __m256i v45; 
-  void *retaddr; 
+  __m256i v17; 
+  __m256i v18; 
+  __m256i v19; 
 
-  _RAX = &retaddr;
   if ( !g_xanimIKSettings[0].typeName )
   {
-    _R12 = g_xanimIKSettings;
-    _R14 = &xanimIKChainDefs[0].secondBone;
-    __asm
-    {
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovaps xmmword ptr [rax-48h], xmm7
-      vmovaps xmmword ptr [rax-58h], xmm8
-      vmovss  xmm8, cs:__real@bf800000
-      vmovaps xmmword ptr [rax-68h], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmmword ptr [rax-78h], xmm10
-      vmovss  xmm10, cs:__real@3c8efa35
-    }
+    v1 = (__m256i *)g_xanimIKSettings;
+    p_secondBone = &xanimIKChainDefs[0].secondBone;
     do
     {
-      v44.m256i_i64[0] = (__int64)*(_R14 - 2);
-      String = SL_GetString(*(_R14 - 1), 0);
-      v44.m256i_i32[2] = String;
-      v13 = SL_GetString(*_R14, 0);
-      v44.m256i_i32[3] = v13;
-      v14 = SL_GetString(_R14[1], 0);
-      v44.m256i_i32[4] = v14;
-      v15 = SL_GetString(_R14[2], 0);
-      v16 = _R14[3];
-      v17 = v15;
-      v44.m256i_i32[5] = v15;
-      if ( v16 )
-        v44.m256i_i32[6] = SL_GetString(v16, 0);
+      v18.m256i_i64[0] = (__int64)*(p_secondBone - 2);
+      String = SL_GetString(*(p_secondBone - 1), 0);
+      v18.m256i_i32[2] = String;
+      v4 = SL_GetString(*p_secondBone, 0);
+      v18.m256i_i32[3] = v4;
+      v5 = SL_GetString(p_secondBone[1], 0);
+      v18.m256i_i32[4] = v5;
+      v6 = SL_GetString(p_secondBone[2], 0);
+      v7 = p_secondBone[3];
+      v8 = v6;
+      v18.m256i_i32[5] = v6;
+      if ( v7 )
+        v18.m256i_i32[6] = SL_GetString(v7, 0);
       else
-        v44.m256i_i32[6] = 0;
-      v18 = _R14[4];
-      if ( v18 )
-        v44.m256i_i32[7] = SL_GetString(v18, 0);
+        v18.m256i_i32[6] = 0;
+      v9 = p_secondBone[4];
+      if ( v9 )
+        v18.m256i_i32[7] = SL_GetString(v9, 0);
       else
-        v44.m256i_i32[7] = 0;
+        v18.m256i_i32[7] = 0;
       if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1607, ASSERT_TYPE_ASSERT, "(ret.firstBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.firstBoneName != NULL_SCR_STRING") )
         __debugbreak();
-      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1608, ASSERT_TYPE_ASSERT, "(ret.secondBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.secondBoneName != NULL_SCR_STRING") )
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1608, ASSERT_TYPE_ASSERT, "(ret.secondBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.secondBoneName != NULL_SCR_STRING") )
         __debugbreak();
-      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1609, ASSERT_TYPE_ASSERT, "(ret.thirdBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.thirdBoneName != NULL_SCR_STRING") )
+      if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1609, ASSERT_TYPE_ASSERT, "(ret.thirdBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.thirdBoneName != NULL_SCR_STRING") )
         __debugbreak();
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1610, ASSERT_TYPE_ASSERT, "(ret.targetBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.targetBoneName != NULL_SCR_STRING") )
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1610, ASSERT_TYPE_ASSERT, "(ret.targetBoneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "ret.targetBoneName != NULL_SCR_STRING") )
         __debugbreak();
-      __asm { vmulss  xmm0, xmm10, dword ptr [r14+28h]; X }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14+2Ch]
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm1, xmm10; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vcomiss xmm6, xmm0
-        vmovaps xmm7, xmm0
-      }
-      if ( !v23 )
-      {
-        v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1615, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle < cosineMinHingeAngle)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle < cosineMinHingeAngle");
-        v23 = 0;
-        v24 = !v26;
-        if ( v26 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm6, xmm8 }
-      if ( v23 )
-      {
-        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1616, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle >= -1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle >= -1.0f");
-        v23 = 0;
-        v24 = !v27;
-        if ( v27 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm7, xmm8 }
-      if ( v23 )
-      {
-        v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1617, ASSERT_TYPE_ASSERT, "(cosineMinHingeAngle >= -1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMinHingeAngle >= -1.0f");
-        v23 = 0;
-        v24 = !v28;
-        if ( v28 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm6, xmm9 }
-      if ( !(v23 | v24) )
-      {
-        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1618, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle <= 1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle <= 1.0f");
-        v23 = 0;
-        v24 = !v29;
-        if ( v29 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm7, xmm9 }
-      if ( !(v23 | v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1619, ASSERT_TYPE_ASSERT, "(cosineMinHingeAngle <= 1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMinHingeAngle <= 1.0f") )
+      v11 = (__m128)LODWORD(FLOAT_0_017453292);
+      v11.m128_f32[0] = 0.017453292 * *((float *)p_secondBone + 10);
+      v10 = v11;
+      v10.m128_f32[0] = cosf_0(v11.m128_f32[0]);
+      v12 = (__m128)*((unsigned int *)p_secondBone + 11);
+      v13 = v10;
+      v14 = v12;
+      v14.m128_f32[0] = v12.m128_f32[0] * 0.017453292;
+      v15 = v14;
+      v15.m128_f32[0] = cosf_0(v12.m128_f32[0] * 0.017453292);
+      if ( v13.m128_f32[0] >= v15.m128_f32[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1615, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle < cosineMinHingeAngle)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle < cosineMinHingeAngle") )
         __debugbreak();
-      __asm
-      {
-        vmovaps xmm0, xmm6
-        vmovaps xmm1, xmm7
-        vshufps xmm0, xmm0, xmm0, 0
-        vshufps xmm1, xmm1, xmm1, 0
-        vmovups xmmword ptr [rsp+108h+var_D8], xmm0
-        vmovups xmmword ptr [rsp+108h+var_D8+10h], xmm1
-      }
-      v45.m256i_i32[0] = *((unsigned __int8 *)_R14 + 48);
-      v45.m256i_i32[1] = XAnimIK_GetNotetrackConstString("ik_in_start_", *(_R14 - 2));
-      v45.m256i_i32[2] = XAnimIK_GetNotetrackConstString("ik_in_end_", *(_R14 - 2));
-      v45.m256i_i32[3] = XAnimIK_GetNotetrackConstString("ik_out_start_", *(_R14 - 2));
-      NotetrackConstString = XAnimIK_GetNotetrackConstString("ik_out_end_", *(_R14 - 2));
-      __asm
-      {
-        vmovups ymm0, [rsp+108h+var_D8]
-        vmovups ymm1, [rsp+108h+var_B8]
-        vmovups ymmword ptr [r12], ymm0
-      }
-      v45.m256i_i32[4] = NotetrackConstString;
-      _R14 += 9;
-      __asm
-      {
-        vmovups ymm0, [rsp+108h+var_98]
-        vmovups ymmword ptr [r12+20h], ymm1
-        vmovups ymmword ptr [r12+40h], ymm0
-      }
-      ++_R12;
+      if ( v13.m128_f32[0] < -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1616, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle >= -1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle >= -1.0f") )
+        __debugbreak();
+      if ( v15.m128_f32[0] < -1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1617, ASSERT_TYPE_ASSERT, "(cosineMinHingeAngle >= -1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMinHingeAngle >= -1.0f") )
+        __debugbreak();
+      if ( v13.m128_f32[0] > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1618, ASSERT_TYPE_ASSERT, "(cosineMaxHingeAngle <= 1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMaxHingeAngle <= 1.0f") )
+        __debugbreak();
+      if ( v15.m128_f32[0] > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1619, ASSERT_TYPE_ASSERT, "(cosineMinHingeAngle <= 1.0f)", "%s\n\tLimit angles for secondJoint are inconsistent", "cosineMinHingeAngle <= 1.0f") )
+        __debugbreak();
+      *(__m128 *)v17.m256i_i8 = _mm_shuffle_ps(v13, v13, 0);
+      *(__m128 *)&v17.m256i_u64[2] = _mm_shuffle_ps(v15, v15, 0);
+      v19.m256i_i32[0] = *((unsigned __int8 *)p_secondBone + 48);
+      v19.m256i_i32[1] = XAnimIK_GetNotetrackConstString("ik_in_start_", *(p_secondBone - 2));
+      v19.m256i_i32[2] = XAnimIK_GetNotetrackConstString("ik_in_end_", *(p_secondBone - 2));
+      v19.m256i_i32[3] = XAnimIK_GetNotetrackConstString("ik_out_start_", *(p_secondBone - 2));
+      NotetrackConstString = XAnimIK_GetNotetrackConstString("ik_out_end_", *(p_secondBone - 2));
+      *v1 = v17;
+      v19.m256i_i32[4] = NotetrackConstString;
+      p_secondBone += 9;
+      v1[1] = v18;
+      v1[2] = v19;
+      v1 += 3;
     }
-    while ( (__int64)_R14 < (__int64)&unk_1441B30D0 );
-    __asm
-    {
-      vmovaps xmm10, [rsp+108h+var_78]
-      vmovaps xmm9, [rsp+108h+var_68]
-      vmovaps xmm8, [rsp+108h+var_58]
-      vmovaps xmm7, [rsp+108h+var_48]
-      vmovaps xmm6, [rsp+108h+var_38]
-    }
+    while ( (__int64)p_secondBone < (__int64)&unk_1441B30D0 );
     s_xanimIKPreCacheActive = preCacheEnabled;
   }
 }
@@ -2581,17 +2405,33 @@ void XAnimIKPreCacheDObj(DObj *obj, int handle, int key)
   XAnimIKBoneInfo *i; 
   unsigned __int64 v9; 
   ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *v10; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *mp_next; 
+  __m256i *mp_next; 
   __int64 v12; 
+  __m256i *v13; 
   __int64 v14; 
-  __int64 v36; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v45; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v46; 
-  int v47; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v48; 
+  XAnimIKDObjData *p_dObjData; 
+  __m256i v16; 
+  __int128 v17; 
+  __m256i *v18; 
+  int *v19; 
+  __m256i v20; 
+  __int128 v21; 
+  __m256i *v22; 
+  XAnimIKDObjData *v23; 
+  __int64 v24; 
+  __m256i v25; 
+  __int128 v26; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **v27; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v28; 
+  int v29; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v30; 
+  int *v31; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v32; 
+  __m256i v33; 
+  __int128 v34; 
   XAnimIKDObjData dObjData; 
-  int v61[4]; 
-  char v62; 
+  int v36[4]; 
+  char v37; 
 
   v3 = DCONST_DVARBOOL_xanim_ik_disable;
   v5 = (unsigned int)key;
@@ -2626,7 +2466,7 @@ void XAnimIKPreCacheDObj(DObj *obj, int handle, int key)
       if ( v5 % 0x607 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
         __debugbreak();
       v10 = &s_ikCacheHashMap.m_buckets.ntl::internal::hash_table<unsigned int,XAnimIKDObjData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData>,744,16>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> >,1543>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v9];
-      mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *)v10->m_listHead.m_sentinel.mp_next;
+      mp_next = (__m256i *)v10->m_listHead.m_sentinel.mp_next;
       if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *)v10->m_listHead.m_sentinel.mp_next == v10 )
       {
 LABEL_29:
@@ -2638,129 +2478,84 @@ LABEL_29:
         {
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          if ( LODWORD(mp_next[2].m_listHead.m_sentinel.mp_next) == (_DWORD)v5 )
+          if ( mp_next->m256i_i32[4] == (_DWORD)v5 )
             break;
-          mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> > *)mp_next->m_listHead.m_sentinel.mp_next;
-          if ( mp_next == v10 )
+          mp_next = (__m256i *)mp_next->m256i_i64[0];
+          if ( mp_next == (__m256i *)v10 )
             goto LABEL_29;
         }
       }
       v12 = 2i64;
       if ( mp_next )
       {
-        _RAX = v61;
+        v13 = (__m256i *)v36;
         v14 = 2i64;
-        _RCX = &dObjData;
+        p_dObjData = &dObjData;
         do
         {
-          _RAX += 32;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rcx]
-            vmovups xmm1, xmmword ptr [rcx+70h]
-          }
-          _RCX = (XAnimIKDObjData *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups ymmword ptr [rax-80h], ymm0
-            vmovups ymm0, ymmword ptr [rcx-60h]
-            vmovups ymmword ptr [rax-60h], ymm0
-            vmovups ymm0, ymmword ptr [rcx-40h]
-            vmovups ymmword ptr [rax-40h], ymm0
-            vmovups xmm0, xmmword ptr [rcx-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
+          v13 += 4;
+          v16 = *(__m256i *)p_dObjData->hingeAxis[0].v.m128_f32;
+          v17 = *(_OWORD *)&p_dObjData->boneInfo[1].targetBoneIndex;
+          p_dObjData = (XAnimIKDObjData *)((char *)p_dObjData + 128);
+          v13[-4] = v16;
+          v13[-3] = *(__m256i *)((char *)&p_dObjData[-1].partBits[2] + 12);
+          v13[-2] = *(__m256i *)((char *)&p_dObjData[-1].partBits[3] + 12);
+          *(_OWORD *)v13[-1].m256i_i8 = *(_OWORD *)&p_dObjData[-1].combinedPartBits.array[3];
+          *(_OWORD *)&v13[-1].m256i_u64[2] = v17;
           --v14;
         }
         while ( v14 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-        }
-        _RAX = mp_next + 4;
-        _RCX = v61;
+        *v13 = *(__m256i *)p_dObjData->hingeAxis[0].v.m128_f32;
+        v13[1] = *(__m256i *)p_dObjData->hingeAxis[2].v.m128_f32;
+        v13[2] = *(__m256i *)&p_dObjData->handle;
+        v18 = mp_next + 1;
+        v19 = v36;
         do
         {
-          _RAX += 16;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rcx]
-            vmovups xmm1, xmmword ptr [rcx+70h]
-          }
-          _RCX += 32;
-          __asm
-          {
-            vmovups ymmword ptr [rax-80h], ymm0
-            vmovups ymm0, ymmword ptr [rcx-60h]
-            vmovups ymmword ptr [rax-60h], ymm0
-            vmovups ymm0, ymmword ptr [rcx-40h]
-            vmovups ymmword ptr [rax-40h], ymm0
-            vmovups xmm0, xmmword ptr [rcx-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
+          v18 += 4;
+          v20 = *(__m256i *)v19;
+          v21 = *((_OWORD *)v19 + 7);
+          v19 += 32;
+          v18[-4] = v20;
+          v18[-3] = *((__m256i *)v19 - 3);
+          v18[-2] = *((__m256i *)v19 - 2);
+          *(_OWORD *)v18[-1].m256i_i8 = *((_OWORD *)v19 - 2);
+          *(_OWORD *)&v18[-1].m256i_u64[2] = v21;
           --v12;
         }
         while ( v12 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [rcx+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [rcx+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-        }
+        *v18 = *(__m256i *)v19;
+        v18[1] = *((__m256i *)v19 + 1);
+        v18[2] = *((__m256i *)v19 + 2);
       }
       else
       {
-        v61[0] = v5;
-        _RAX = &v62;
-        _R8 = &dObjData;
-        v36 = 2i64;
+        v36[0] = v5;
+        v22 = (__m256i *)&v37;
+        v23 = &dObjData;
+        v24 = 2i64;
         do
         {
-          _RAX += 128;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r8]
-            vmovups xmm1, xmmword ptr [r8+70h]
-          }
-          _R8 = (XAnimIKDObjData *)((char *)_R8 + 128);
-          __asm
-          {
-            vmovups ymmword ptr [rax-80h], ymm0
-            vmovups ymm0, ymmword ptr [r8-60h]
-            vmovups ymmword ptr [rax-60h], ymm0
-            vmovups ymm0, ymmword ptr [r8-40h]
-            vmovups ymmword ptr [rax-40h], ymm0
-            vmovups xmm0, xmmword ptr [r8-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          --v36;
+          v22 += 4;
+          v25 = *(__m256i *)v23->hingeAxis[0].v.m128_f32;
+          v26 = *(_OWORD *)&v23->boneInfo[1].targetBoneIndex;
+          v23 = (XAnimIKDObjData *)((char *)v23 + 128);
+          v22[-4] = v25;
+          v22[-3] = *(__m256i *)((char *)&v23[-1].partBits[2] + 12);
+          v22[-2] = *(__m256i *)((char *)&v23[-1].partBits[3] + 12);
+          *(_OWORD *)v22[-1].m256i_i8 = *(_OWORD *)&v23[-1].combinedPartBits.array[3];
+          *(_OWORD *)&v22[-1].m256i_u64[2] = v26;
+          --v24;
         }
-        while ( v36 );
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r8]
-          vmovups ymmword ptr [rax], ymm0
-          vmovups ymm0, ymmword ptr [r8+20h]
-          vmovups ymmword ptr [rax+20h], ymm0
-          vmovups ymm0, ymmword ptr [r8+40h]
-          vmovups ymmword ptr [rax+40h], ymm0
-        }
+        while ( v24 );
+        *v22 = *(__m256i *)v23->hingeAxis[0].v.m128_f32;
+        v22[1] = *(__m256i *)v23->hingeAxis[2].v.m128_f32;
+        v22[2] = *(__m256i *)&v23->handle;
         if ( v9 >= 0x607 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
           __debugbreak();
-        v45 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)&s_ikCacheHashMap.m_buckets.ntl::internal::hash_table<unsigned int,XAnimIKDObjData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData>,744,16>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> >,1543>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v9];
-        v46 = *v45;
-        if ( *v45 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v45 )
+        v27 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer **)&s_ikCacheHashMap.m_buckets.ntl::internal::hash_table<unsigned int,XAnimIKDObjData,ntl::fixed_pool_allocator<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData>,744,16>,ntl::fixed_array<ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned int,XAnimIKDObjData> >,1543>,ntl::hash<unsigned int>,ntl::equal_to<unsigned int>,ntl::integral_constant<bool,1> >::m_data[v9];
+        v28 = *v27;
+        if ( *v27 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v27 )
         {
 LABEL_48:
           if ( !s_ikCacheHashMap.m_freelist.m_head.mp_next )
@@ -2772,60 +2567,44 @@ LABEL_48:
           }
           if ( (ntl::internal::pool_allocator_freelist<384> *)s_ikCacheHashMap.m_freelist.m_head.mp_next == &s_ikCacheHashMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x180ui64, 0x2E8ui64) )
             __debugbreak();
-          v48 = s_ikCacheHashMap.m_freelist.m_head.mp_next;
-          _RDX = v61;
+          v30 = s_ikCacheHashMap.m_freelist.m_head.mp_next;
+          v31 = v36;
           s_ikCacheHashMap.m_freelist.m_head.mp_next = s_ikCacheHashMap.m_freelist.m_head.mp_next->mp_next;
-          _RAX = v48 + 2;
-          v48->mp_next = NULL;
+          v32 = v30 + 2;
+          v30->mp_next = NULL;
           do
           {
-            _RAX += 16;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdx]
-              vmovups xmm1, xmmword ptr [rdx+70h]
-            }
-            _RDX += 32;
-            __asm
-            {
-              vmovups ymmword ptr [rax-80h], ymm0
-              vmovups ymm0, ymmword ptr [rdx-60h]
-              vmovups ymmword ptr [rax-60h], ymm0
-              vmovups ymm0, ymmword ptr [rdx-40h]
-              vmovups ymmword ptr [rax-40h], ymm0
-              vmovups xmm0, xmmword ptr [rdx-20h]
-              vmovups xmmword ptr [rax-20h], xmm0
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
+            v32 += 16;
+            v33 = *(__m256i *)v31;
+            v34 = *((_OWORD *)v31 + 7);
+            v31 += 32;
+            *(__m256i *)&v32[-16].mp_next = v33;
+            *(__m256i *)&v32[-12].mp_next = *((__m256i *)v31 - 3);
+            *(__m256i *)&v32[-8].mp_next = *((__m256i *)v31 - 2);
+            *(_OWORD *)&v32[-4].mp_next = *((_OWORD *)v31 - 2);
+            *(_OWORD *)&v32[-2].mp_next = v34;
             --v12;
           }
           while ( v12 );
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdx]
-            vmovups ymmword ptr [rax], ymm0
-            vmovups ymm0, ymmword ptr [rdx+20h]
-            vmovups ymmword ptr [rax+20h], ymm0
-            vmovups ymm0, ymmword ptr [rdx+40h]
-            vmovups ymmword ptr [rax+40h], ymm0
-            vmovups xmm0, xmmword ptr [rdx+60h]
-            vmovups xmmword ptr [rax+60h], xmm0
-          }
-          v48->mp_next = *v45;
-          *v45 = v48;
+          *(__m256i *)&v32->mp_next = *(__m256i *)v31;
+          *(__m256i *)&v32[4].mp_next = *((__m256i *)v31 + 1);
+          *(__m256i *)&v32[8].mp_next = *((__m256i *)v31 + 2);
+          *(_OWORD *)&v32[12].mp_next = *((_OWORD *)v31 + 6);
+          v30->mp_next = *v27;
+          *v27 = v30;
           ++s_ikCacheHashMap.m_currentNumItems;
         }
         else
         {
-          v47 = v61[0];
+          v29 = v36[0];
           while ( 1 )
           {
-            if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( LODWORD(v46[2].mp_next) == v47 )
+            if ( LODWORD(v28[2].mp_next) == v29 )
               break;
-            v46 = v46->mp_next;
-            if ( v46 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v45 )
+            v28 = v28->mp_next;
+            if ( v28 == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v27 )
               goto LABEL_48;
           }
         }
@@ -2843,128 +2622,135 @@ XAnimIKPreCalc
 */
 void XAnimIKPreCalc(const DObj *obj, XAnimIKData *data, const XAnimIKDObjData *dObjData, DObjPartBits *partBits)
 {
-  const dvar_t *v5; 
-  bool v9; 
-  const XAnimIKSettings *v10; 
-  unsigned int *v11; 
-  char v12; 
-  __int64 v13; 
-  char v14; 
-  XAnimIKBoneInfo *v15; 
-  bool v16; 
-  XAnimIKBoneInfo *v18; 
+  const dvar_t *v4; 
+  bool v8; 
+  const XAnimIKSettings *v9; 
+  unsigned int *v10; 
+  char v11; 
+  __int64 v12; 
+  char v13; 
+  XAnimIKBoneInfo *v14; 
+  bool v15; 
+  __int64 v16; 
+  const XAnimIKBoneInfo *v17; 
+  const DObj *v18; 
   unsigned __int16 children; 
   XAnimInfo *AnimInfo; 
   unsigned __int16 next; 
   const XAnimIKDObjData *v23; 
-  __int64 v25; 
-  DObjPartBits *v26; 
-  __int64 v28; 
+  __int64 v24; 
+  const bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *v25; 
+  const XAnimIKSettings **v26; 
+  __int64 v27; 
+  __int64 v31; 
   XAnimIKBoneInfo *boneInfo[2]; 
   const XAnimIKSettings **p_settingsArray; 
-  __int64 v35[2]; 
+  __int64 v34[2]; 
 
-  v5 = DCONST_DVARBOOL_xanim_ik_disable;
-  v35[0] = (__int64)data;
+  v4 = DCONST_DVARBOOL_xanim_ik_disable;
+  v34[0] = (__int64)data;
   if ( !DCONST_DVARBOOL_xanim_ik_disable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_ik_disable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.enabled )
   {
     if ( !partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1443, ASSERT_TYPE_ASSERT, "(partBits)", (const char *)&queryFormat, "partBits") )
       __debugbreak();
     if ( !dObjData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1444, ASSERT_TYPE_ASSERT, "(dObjData)", (const char *)&queryFormat, "dObjData") )
       __debugbreak();
-    v9 = g_xanimIKSettings[0].typeName == NULL;
-    v10 = g_xanimIKSettings;
+    v8 = g_xanimIKSettings[0].typeName == NULL;
+    v9 = g_xanimIKSettings;
     p_settingsArray = &data->settingsArray;
     data->settingsArray = g_xanimIKSettings;
-    if ( !v9 )
+    if ( !v8 )
     {
       Profile_Begin(459);
-      if ( (unsigned int)XAnimIKHasAnyIKBones(dObjData) )
+      if ( !(unsigned int)XAnimIKHasAnyIKBones(dObjData) )
+        goto LABEL_41;
+      v10 = &dObjData->partBits[0].array[7];
+      v11 = 0;
+      v12 = 4i64;
+      v13 = 0;
+      v31 = 4i64;
+      boneInfo[0] = dObjData->boneInfo;
+      v14 = dObjData->boneInfo;
+      do
       {
-        v11 = &dObjData->partBits[0].array[7];
-        v12 = 0;
-        v13 = 4i64;
-        v14 = 0;
-        boneInfo[0] = dObjData->boneInfo;
-        v15 = dObjData->boneInfo;
-        do
+        if ( v14->allBonesFound )
         {
-          if ( v15->allBonesFound )
+          v15 = XAnimIKCalcNeeded(obj, v9, v14, partBits, 1) != 0;
+          if ( v11 || v15 )
           {
-            v16 = XAnimIKCalcNeeded(obj, v10, v15, partBits, 1) != 0;
-            if ( v12 || v16 )
-            {
-              v12 = 1;
-              if ( v16 && (v14 || (*v11 & 2) != 0) )
-                v14 = 1;
-            }
+            v11 = 1;
+            if ( v15 && (v13 || (*v10 & 2) != 0) )
+              v13 = 1;
           }
-          ++v10;
-          ++v15;
-          v11 += 8;
-          --v13;
         }
-        while ( v13 );
-        _RBX = v35[0];
-        v18 = boneInfo[0];
-        if ( !*(_BYTE *)(v35[0] + 24) )
-        {
-          *(_QWORD *)v35[0] = 0i64;
-          *(_QWORD *)(_RBX + 8) = 0i64;
-        }
-        if ( v12 )
-        {
-          v9 = *(_BYTE *)(_RBX + 24) == 0;
-          __asm { vmovaps [rsp+0E8h+var_58], xmm6 }
-          if ( v9 && obj->tree && (children = obj->tree->children) != 0 )
-          {
-            v35[0] = 0i64;
-            v35[1] = 0i64;
-            AnimInfo = GetAnimInfo(children);
-            next = AnimInfo->next;
-            if ( next )
-            {
-              _RAX = GetAnimInfo(next);
-              __asm { prefetcht0 byte ptr [rax] }
-            }
-            Profile_Begin(462);
-            v23 = dObjData;
-            boneInfo[1] = (XAnimIKBoneInfo *)dObjData;
-            boneInfo[0] = (XAnimIKBoneInfo *)_RBX;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+0E8h+boneInfo]
-              vmovdqa xmmword ptr [rsp+0E8h+boneInfo], xmm0
-            }
-            XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(AnimInfo, (float *)_RBX, (float *)v35, (XAnimIKNotetrackLeafFunctor *)boneInfo);
-            Profile_EndInternal(NULL);
-            *(_BYTE *)(_RBX + 24) = 1;
-          }
-          else
-          {
-            v23 = dObjData;
-          }
-          v25 = 0i64;
-          v26 = v23->partBits;
-          __asm { vxorps  xmm6, xmm6, xmm6 }
-          v28 = 4i64;
-          do
-          {
-            if ( v18->allBonesFound )
-              __asm { vcomiss xmm6, dword ptr [rbx] }
-            v25 += 96i64;
-            ++v26;
-            ++v18;
-            _RBX += 4i64;
-            --v28;
-          }
-          while ( v28 );
-          __asm { vmovaps xmm6, [rsp+0E8h+var_58] }
-        }
+        ++v9;
+        ++v14;
+        v10 += 8;
+        --v12;
       }
+      while ( v12 );
+      v16 = v34[0];
+      v17 = boneInfo[0];
+      if ( !*(_BYTE *)(v34[0] + 24) )
+      {
+        *(_QWORD *)v34[0] = 0i64;
+        *(_QWORD *)(v16 + 8) = 0i64;
+      }
+      if ( !v11 )
+        goto LABEL_41;
+      v18 = obj;
+      if ( !*(_BYTE *)(v16 + 24) && obj->tree )
+      {
+        children = obj->tree->children;
+        if ( children )
+        {
+          v34[0] = 0i64;
+          v34[1] = 0i64;
+          AnimInfo = GetAnimInfo(children);
+          next = AnimInfo->next;
+          if ( next )
+          {
+            _RAX = GetAnimInfo(next);
+            __asm { prefetcht0 byte ptr [rax] }
+          }
+          Profile_Begin(462);
+          v23 = dObjData;
+          boneInfo[1] = (XAnimIKBoneInfo *)dObjData;
+          boneInfo[0] = (XAnimIKBoneInfo *)v16;
+          XAnimCalcNotetrackWeights<4,XAnimIKNotetrackLeafFunctor>(AnimInfo, (float *)v16, (float *)v34, (XAnimIKNotetrackLeafFunctor *)boneInfo);
+          Profile_EndInternal(NULL);
+          v18 = obj;
+          *(_BYTE *)(v16 + 24) = 1;
+          goto LABEL_33;
+        }
+        v18 = obj;
+      }
+      v23 = dObjData;
+LABEL_33:
+      v24 = 0i64;
+      v25 = v23->partBits;
+      v26 = p_settingsArray;
+      v27 = 4i64;
+      do
+      {
+        if ( v17->allBonesFound && *(float *)v16 > 0.0 )
+        {
+          if ( v13 || XAnimIKCalcNeeded(v18, &(*v26)[v24], v17, partBits, 1) )
+            bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::orAllBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(partBits, v25);
+          v27 = v31;
+        }
+        v18 = obj;
+        ++v24;
+        ++v25;
+        ++v17;
+        v16 += 4i64;
+        v31 = --v27;
+      }
+      while ( v27 );
+LABEL_41:
       Profile_EndInternal(NULL);
     }
   }
@@ -2975,71 +2761,63 @@ void XAnimIKPreCalc(const DObj *obj, XAnimIKData *data, const XAnimIKDObjData *d
 XAnimIKPreCalcInitBones
 ==============
 */
-bool XAnimIKPreCalcInitBones(const DObj *obj, const XAnimIKSettings *settings, XAnimIKDObjData *dObjData)
+char XAnimIKPreCalcInitBones(const DObj *obj, const XAnimIKSettings *settings, XAnimIKDObjData *dObjData)
 {
+  XAnimIKDObjData *v3; 
+  __int64 v5; 
   unsigned int *restoreSubmodelIndex; 
   scr_string_t *p_secondBoneName; 
   const XModel **models; 
-  const char **v11; 
-  bool result; 
-  __int128 v28; 
+  const char **v9; 
+  vec3_t *ikHingeAxis; 
+  float v11; 
+  __m128 v13; 
+  char result; 
+  __m128 v; 
 
-  __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-  _R13 = dObjData;
+  v3 = dObjData;
   if ( !dObjData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1144, ASSERT_TYPE_ASSERT, "(dObjData)", (const char *)&queryFormat, "dObjData") )
     __debugbreak();
-  __asm { vmovss  xmm6, cs:__real@3a83126f }
-  _R15 = 0i64;
-  restoreSubmodelIndex = &_R13->boneInfo[0].restoreSubmodelBoneIndex;
+  v5 = 0i64;
+  restoreSubmodelIndex = &v3->boneInfo[0].restoreSubmodelBoneIndex;
   p_secondBoneName = &settings->secondBoneName;
   while ( !XAnimIKGetIKBones(obj, (const scr_string_t)*((_DWORD *)p_secondBoneName - 1), (const scr_string_t)*p_secondBoneName, (const scr_string_t)*((_DWORD *)p_secondBoneName + 1), (const scr_string_t)*((_DWORD *)p_secondBoneName + 2), (const scr_string_t)*((_DWORD *)p_secondBoneName + 3), (const scr_string_t)*((_DWORD *)p_secondBoneName + 4), restoreSubmodelIndex - 4, restoreSubmodelIndex - 3, restoreSubmodelIndex - 2, restoreSubmodelIndex - 1, restoreSubmodelIndex, restoreSubmodelIndex + 1) )
   {
     *(restoreSubmodelIndex - 5) = 0;
-LABEL_9:
+LABEL_10:
     restoreSubmodelIndex += 7;
     p_secondBoneName += 24;
-    _R15 += 12i64;
-    _R13 = (XAnimIKDObjData *)((char *)_R13 + 16);
-    if ( _R15 >= 48 )
-    {
-      result = 1;
-      goto LABEL_12;
-    }
+    ++v5;
+    v3 = (XAnimIKDObjData *)((char *)v3 + 16);
+    if ( v5 >= 4 )
+      return 1;
   }
   models = obj->models;
   *(restoreSubmodelIndex - 5) = 1;
-  v11 = (const char **)*models;
-  if ( (*models)->ikHingeAxis )
+  v9 = (const char **)*models;
+  ikHingeAxis = (*models)->ikHingeAxis;
+  if ( ikHingeAxis )
   {
-    __asm
+    v11 = ikHingeAxis[v5].v[0];
+    if ( (float)((float)((float)(v11 * v11) + (float)(ikHingeAxis[v5].v[1] * ikHingeAxis[v5].v[1])) + (float)(ikHingeAxis[v5].v[2] * ikHingeAxis[v5].v[2])) >= 0.001 )
     {
-      vmovss  xmm3, dword ptr [r15+rax+4]
-      vmovss  xmm4, dword ptr [r15+rax]
-      vmovss  xmm5, dword ptr [r15+rax+8]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, xmm6
+      v.m128_i32[3] = 0;
+      v13 = v;
+      v13.m128_f32[0] = v11;
+      _XMM0 = v13;
+      __asm
+      {
+        vinsertps xmm0, xmm0, xmm3, 10h
+        vinsertps xmm0, xmm0, xmm5, 20h ; ' '
+      }
+      v = _XMM0.v;
+      v3->hingeAxis[0] = (float4)_XMM0.v;
+      goto LABEL_10;
     }
-    HIDWORD(v28) = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+80h]
-      vmovss  xmm0, xmm0, xmm4
-      vinsertps xmm0, xmm0, xmm3, 10h
-      vinsertps xmm0, xmm0, xmm5, 20h ; ' '
-      vmovups xmmword ptr [rsp+80h], xmm0
-      vmovups xmmword ptr [r13+0], xmm0
-    }
-    goto LABEL_9;
   }
-  Com_PrintError(1, "XModel %s doesn't have an ikHingeAxis, but we're expecting it to. Check linker for warnings regarding ik.", *v11);
+  Com_PrintError(1, "XModel %s doesn't have an ikHingeAxis, but we're expecting it to. Check linker for warnings regarding ik.", *v9);
   result = 0;
   *(restoreSubmodelIndex - 5) = 0;
-LABEL_12:
-  __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
   return result;
 }
 
@@ -3051,25 +2829,23 @@ XAnimIKSetupTagRequest
 XAnimIKTagRequest *XAnimIKSetupTagRequest(XAnimIKTagRequest *result, const Weapon *weapon, const bool isAlternate, const bool requiresRoboticIK, const bool requiresAkimboIK, const bool matchModelHands)
 {
   int v6; 
-  XAnimIKTagRequest *v10; 
+  __int128 v7; 
+  double v8; 
+  XAnimIKTagRequest *v9; 
 
   v6 = *(_DWORD *)&weapon->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovsd  xmm0, qword ptr [rdx+30h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
+  v7 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(__m256i *)&result->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  v8 = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_OWORD *)&result->weapon.attachmentVariationIndices[5] = v7;
+  *(double *)&result->weapon.attachmentVariationIndices[21] = v8;
   *(_DWORD *)&result->weapon.weaponCamo = v6;
   result->requiresAkimboIK = requiresAkimboIK;
   result->matchModelHands = matchModelHands;
-  v10 = result;
+  v9 = result;
   result->isAlternate = isAlternate;
   result->requiresRoboticIK = requiresRoboticIK;
-  return v10;
+  return v9;
 }
 
 /*
@@ -3149,75 +2925,42 @@ XAnimIKSolve2Bone
 */
 void XAnimIKSolve2Bone(const DObj *obj, const XAnimIKData *ikData, int ikType, const XAnimIKDObjData *dObjData, const XAnimIkSolverParams *ikParams)
 {
-  __int64 v10; 
-  const XAnimIKSettings *v12; 
-  const float4 *v37; 
-  const float4 *v38; 
-  const float4 *v39; 
+  __int64 v6; 
+  const XAnimIKSettings *v8; 
+  float4 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v; 
+  __m128 v14; 
+  __m128 v15; 
+  const float4 *v16; 
+  const float4 *v17; 
+  const float4 *v18; 
   float4 hingeAxis; 
   float4 secondBoneQuatDelta; 
   float4 firstBoneQuatDelta; 
 
-  _RSI = ikParams;
-  _R15 = dObjData;
-  v10 = ikType;
+  v6 = ikType;
   if ( !ikData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 816, ASSERT_TYPE_ASSERT, "(ikData)", (const char *)&queryFormat, "ikData") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 817, ASSERT_TYPE_ASSERT, "(dObjData)", (const char *)&queryFormat, "dObjData") )
+  if ( !dObjData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 817, ASSERT_TYPE_ASSERT, "(dObjData)", (const char *)&queryFormat, "dObjData") )
     __debugbreak();
-  v12 = &ikData->settingsArray[v10];
-  if ( _R15->boneInfo[v10].allBonesFound )
+  v8 = &ikData->settingsArray[v6];
+  if ( dObjData->boneInfo[v6].allBonesFound )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi+50h]
-      vshufps xmm5, xmm0, xmm0, 0FFh
-    }
-    _RCX = 2 * v10;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_48], xmm6
-      vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-      vmovaps [rsp+0F8h+var_58], xmm7
-    }
-    _RDI = &ikParams->thirdBoneTrans;
-    __asm
-    {
-      vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-      vmovaps [rsp+0F8h+var_68], xmm8
-      vmovups xmm8, xmmword ptr [r15+rcx*8]
-      vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm6
-      vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm7
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm5, xmm4
-      vaddps  xmm5, xmm0, xmm8
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm6
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm7
-      vsubps  xmm1, xmm3, xmm2
-      vaddps  xmm3, xmm1, xmm5
-      vmovups xmmword ptr [rsp+0F8h+hingeAxis.v], xmm3
-    }
-    XAnimCalcSecondBoneRotation(v12, &hingeAxis, &ikParams->firstBoneTrans, &ikParams->secondBoneTrans, &ikParams->thirdBoneTrans, &ikParams->targetBoneTrans, &ikParams->firstBoneQuat, &secondBoneQuatDelta);
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rsi+60h]
-      vmovups xmm1, xmmword ptr [rsp+0F8h+secondBoneQuatDelta.v]
-      vmovups xmm0, xmmword ptr [rdi]
-    }
-    Float3RotateQuatAroundOrigin(v38, v37, v39, &hingeAxis);
+    v9.v = (__m128)ikParams->secondBoneQuat;
+    v10 = _mm_shuffle_ps(v9.v, v9.v, 255);
+    v11 = _mm_shuffle_ps(v9.v, v9.v, 201);
+    v12 = _mm_shuffle_ps(v9.v, v9.v, 210);
+    v = dObjData->hingeAxis[v6].v;
+    v14 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 210), v11), _mm128_mul_ps(_mm_shuffle_ps(v, v, 201), v12));
+    v15 = _mm128_add_ps(v14, v14);
+    hingeAxis.v = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v15, v15, 210), v11), _mm128_mul_ps(_mm_shuffle_ps(v15, v15, 201), v12)), _mm128_add_ps(_mm128_mul_ps(v10, v15), v));
+    XAnimCalcSecondBoneRotation(v8, &hingeAxis, &ikParams->firstBoneTrans, &ikParams->secondBoneTrans, &ikParams->thirdBoneTrans, &ikParams->targetBoneTrans, &ikParams->firstBoneQuat, &secondBoneQuatDelta);
+    Float3RotateQuatAroundOrigin(v17, v16, v18, &hingeAxis);
     XAnimIKCalcFirstBoneRotation(obj, &ikParams->firstBoneTrans, &hingeAxis, &ikParams->targetBoneTrans, &firstBoneQuatDelta);
-    XAnimIKApplyDeltas(ikParams, v12->rotateToTarget, ikData, v10, _R15, &firstBoneQuatDelta, &secondBoneQuatDelta);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0F8h+var_68]
-      vmovaps xmm7, [rsp+0F8h+var_58]
-      vmovaps xmm6, [rsp+0F8h+var_48]
-    }
+    XAnimIKApplyDeltas(ikParams, v8->rotateToTarget, ikData, v6, dObjData, &firstBoneQuatDelta, &secondBoneQuatDelta);
   }
 }
 
@@ -3228,160 +2971,55 @@ XAnimIKUpdateBoneFromDelta
 */
 void XAnimIKUpdateBoneFromDelta(const XAnimIkSolverParams *ikParams, const unsigned int boneIndex, const float4 *quat, const float4 *trans, const float4 *delta, const float4 *weight, float4 *deltaWeighted)
 {
+  __m128 v; 
+  int v10; 
+  int v12; 
+  __m128 v15; 
+  __m128 v19; 
+  __m128 v20; 
+  float4 v21; 
+  int v22; 
+  __int128 v23; 
   const float4 *fmt; 
-  const float4 *v98; 
-  float v99; 
-  int v100; 
-  int v101; 
-  int v102; 
-  int v103; 
-  int v104; 
-  int v105; 
-  char v109; 
-  void *retaddr; 
+  const float4 *v29; 
+  __m128 v30; 
 
-  _RAX = &retaddr;
+  v = quat->v;
+  v30 = quat->v;
+  v10 = quat->v.m128_u64[1];
+  _XMM0 = _mm128_mul_ps(delta->v, g_unit.v);
+  v12 = HIDWORD(quat->v.m128_u64[0]);
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovups xmm15, xmmword ptr [r8]
-  }
-  _RBX = ikParams;
-  _RCX = delta;
-  _RDI = trans;
-  _RDX = deltaWeighted;
-  __asm
-  {
-    vmovups [rsp+158h+var_E8], xmm15
-    vmovss  xmm13, dword ptr [rsp+158h+var_E8+8]
-    vmovups xmm0, xmmword ptr [rcx]
-    vmulps  xmm0, xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovss  xmm14, dword ptr [rsp+158h+var_E8+4]
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vandps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vorps   xmm4, xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmulps  xmm1, xmm4, xmmword ptr [rax]
-    vmovups xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vsubps  xmm2, xmm0, xmmword ptr [rax]
-    vmulps  xmm0, xmm1, xmmword ptr [rcx]
-    vmulps  xmm3, xmm2, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vaddps  xmm2, xmm0, xmm3
-    vmulps  xmm0, xmm2, xmm2
+  }
+  v15 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps((__m128)(_XMM0 & *(_OWORD *)&g_negativeZero.v | _xmm), weight->v), delta->v), _mm128_mul_ps(_mm128_sub_ps(g_one.v, weight->v), g_unit.v));
+  _XMM0 = _mm128_mul_ps(v15, v15);
+  __asm
+  {
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vsqrtps xmm1, xmm0
-    vmovups xmm0, xmmword ptr [r9]
-    vdivps  xmm2, xmm2, xmm1
-    vmovss  [rsp+158h+var_118], xmm15
-    vmovups xmmword ptr [rdx], xmm2
-    vmovaps [rsp+158h+var_108], xmm2
-    vmovups [rsp+158h+var_F8], xmm0
   }
-  if ( (v100 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm { vmovss  [rsp+158h+var_118], xmm14 }
-  if ( (v101 & 0x7F800000) == 2139095040 )
-    goto LABEL_14;
-  __asm { vmovss  [rsp+158h+var_118], xmm13 }
-  if ( (v102 & 0x7F800000) == 2139095040 )
-  {
-LABEL_14:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 564, ASSERT_TYPE_SANITY, "( !IS_NAN( ( quatV )[0] ) && !IS_NAN( ( quatV )[1] ) && !IS_NAN( ( quatV )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( quatV )[0] ) && !IS_NAN( ( quatV )[1] ) && !IS_NAN( ( quatV )[2] )") )
-      __debugbreak();
-  }
+  v19 = _mm_sqrt_ps(_XMM0);
+  v20 = trans->v;
+  v21.v = _mm128_div_ps(v15, v19);
+  v22 = *(_OWORD *)quat & 0x7F800000;
+  *deltaWeighted = (float4)v21.v;
+  if ( (v22 == 2139095040 || (v12 & 0x7F800000) == 2139095040 || (v10 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 564, ASSERT_TYPE_SANITY, "( !IS_NAN( ( quatV )[0] ) && !IS_NAN( ( quatV )[1] ) && !IS_NAN( ( quatV )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( quatV )[0] ) && !IS_NAN( ( quatV )[1] ) && !IS_NAN( ( quatV )[2] )") )
+    __debugbreak();
+  if ( ((v20.m128_i32[0] & 0x7F800000) == 2139095040 || (v20.m128_i32[1] & 0x7F800000) == 2139095040 || (v20.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 565, ASSERT_TYPE_SANITY, "( !IS_NAN( ( transV )[0] ) && !IS_NAN( ( transV )[1] ) && !IS_NAN( ( transV )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( transV )[0] ) && !IS_NAN( ( transV )[1] ) && !IS_NAN( ( transV )[2] )") )
+    __debugbreak();
+  v23 = v21.v.m128_u32[0];
+  *(float *)&v23 = (float)((float)((float)(v21.v.m128_f32[0] * v30.m128_f32[3]) + (float)(v21.v.m128_f32[3] * v.m128_f32[0])) + (float)(v21.v.m128_f32[1] * v.m128_f32[2])) - (float)(v21.v.m128_f32[2] * v.m128_f32[1]);
+  _XMM0 = v23;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+158h+var_F8]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v103 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+158h+var_F8+4]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v104 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+158h+var_F8+8]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v105 & 0x7F800000) == 2139095040 )
-  {
-LABEL_15:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 565, ASSERT_TYPE_SANITY, "( !IS_NAN( ( transV )[0] ) && !IS_NAN( ( transV )[1] ) && !IS_NAN( ( transV )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( transV )[0] ) && !IS_NAN( ( transV )[1] ) && !IS_NAN( ( transV )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rsp+158h+var_108]
-    vmovss  xmm11, dword ptr [rsp+158h+var_E8+0Ch]
-    vmovss  xmm9, dword ptr [rsp+158h+var_108+0Ch]
-    vmovss  xmm10, dword ptr [rsp+158h+var_108+4]
-    vmovss  xmm7, dword ptr [rsp+158h+var_108+8]
-    vmulss  xmm1, xmm12, xmm11
-    vmulss  xmm0, xmm9, xmm15
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm13
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm14
-    vsubss  xmm8, xmm3, xmm0
-    vmulss  xmm2, xmm9, xmm14
-    vmulss  xmm1, xmm12, xmm13
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm10, xmm11
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm7, xmm15
-    vaddss  xmm6, xmm4, xmm1
-    vmulss  xmm0, xmm12, xmm14
-    vmulss  xmm2, xmm9, xmm13
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm10, xmm15
-    vsubss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm7, xmm11
-    vaddss  xmm5, xmm4, xmm0
-    vmulss  xmm1, xmm12, xmm15
-    vmulss  xmm2, xmm11, xmm9
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm10, xmm14
-    vsubss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm7, xmm13
-    vsubss  xmm2, xmm4, xmm1
-    vmovss  xmm1, dword ptr [rbx+18h]
-    vmovaps xmm0, xmm8
     vinsertps xmm0, xmm0, xmm6, 10h
     vinsertps xmm0, xmm0, xmm5, 20h ; ' '
-    vmovss  [rsp+158h+var_128], xmm1
-    vmovups xmm1, xmmword ptr [rdi]
     vinsertps xmm0, xmm0, xmm2, 30h ; '0'
   }
-  XAnimSetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, boneIndex, fmt, v98, v99);
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
+  XAnimSetLocalBoneTransform(ikParams->animCalcInfo, ikParams->obj, ikParams->destBuffer, boneIndex, fmt, v29, ikParams->weightScale);
 }
 
 /*
@@ -3391,28 +3029,24 @@ XAnimIKUpdatePartBits
 */
 void XAnimIKUpdatePartBits(const DObj *obj, const XAnimIKSettings *const settings, XAnimIKDObjData *dObjData)
 {
-  const DObj *v6; 
+  const DObj *v5; 
   DObjPartBits *p_combinedPartBits; 
   DObjPartBits *partBits; 
-  __int64 v10; 
+  __int64 v9; 
   XAnimIKBoneInfo *boneInfo; 
-  unsigned int v12; 
+  unsigned int v11; 
+  DObjPartBits *v12; 
   unsigned __int64 targetBoneIndex; 
   unsigned __int64 firstBoneIndex; 
   unsigned __int64 secondBoneIndex; 
   unsigned __int64 thirdBoneIndex; 
   unsigned __int64 restoreSubmodelBoneIndex; 
   unsigned __int64 floatTrackBoneIndex; 
-  unsigned int v20; 
-  __int64 v28; 
-  __int64 v29; 
+  unsigned int v19; 
+  __int64 v25; 
+  __int64 v26; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovaps [rsp+0A8h+var_58], xmm7
-  }
-  v6 = obj;
+  v5 = obj;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1209, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !dObjData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_ik.cpp", 1210, ASSERT_TYPE_ASSERT, "(dObjData)", (const char *)&queryFormat, "dObjData") )
@@ -3421,54 +3055,54 @@ void XAnimIKUpdatePartBits(const DObj *obj, const XAnimIKSettings *const setting
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(&dObjData->combinedPartBits);
   __asm { vpxor   xmm7, xmm7, xmm7 }
   partBits = dObjData->partBits;
-  v10 = 4i64;
+  v9 = 4i64;
   boneInfo = dObjData->boneInfo;
   do
   {
-    v12 = 0;
-    _RBP = partBits;
+    v11 = 0;
+    v12 = partBits;
     do
     {
-      __asm { vmovdqu xmmword ptr [rbp+0], xmm7 }
-      _RBP = (DObjPartBits *)((char *)_RBP + 16);
-      ++v12;
+      *(_OWORD *)v12->array = _XMM7;
+      v12 = (DObjPartBits *)((char *)v12 + 16);
+      ++v11;
     }
-    while ( v12 < 2 );
-    if ( boneInfo->allBonesFound && settings->typeName && (!bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v6->skel, boneInfo->firstBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v6->skel, boneInfo->secondBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v6->skel, boneInfo->thirdBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v6->skel, boneInfo->targetBoneIndex)) )
+    while ( v11 < 2 );
+    if ( boneInfo->allBonesFound && settings->typeName && (!bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v5->skel, boneInfo->firstBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v5->skel, boneInfo->secondBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v5->skel, boneInfo->thirdBoneIndex) || !bitarray_base<bitarray<256>>::testBit((bitarray_base<bitarray<256> > *)&v5->skel, boneInfo->targetBoneIndex)) )
     {
       targetBoneIndex = boneInfo->targetBoneIndex;
       if ( (unsigned int)targetBoneIndex >= 0x100 )
       {
-        LODWORD(v29) = 256;
-        LODWORD(v28) = boneInfo->targetBoneIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+        LODWORD(v26) = 256;
+        LODWORD(v25) = boneInfo->targetBoneIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
           __debugbreak();
       }
       partBits->array[targetBoneIndex >> 5] |= 0x80000000 >> (targetBoneIndex & 0x1F);
       firstBoneIndex = boneInfo->firstBoneIndex;
       if ( (unsigned int)firstBoneIndex >= 0x100 )
       {
-        LODWORD(v29) = 256;
-        LODWORD(v28) = boneInfo->firstBoneIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+        LODWORD(v26) = 256;
+        LODWORD(v25) = boneInfo->firstBoneIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
           __debugbreak();
       }
       partBits->array[firstBoneIndex >> 5] |= 0x80000000 >> (firstBoneIndex & 0x1F);
       secondBoneIndex = boneInfo->secondBoneIndex;
       if ( (unsigned int)secondBoneIndex >= 0x100 )
       {
-        LODWORD(v29) = 256;
-        LODWORD(v28) = boneInfo->secondBoneIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+        LODWORD(v26) = 256;
+        LODWORD(v25) = boneInfo->secondBoneIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
           __debugbreak();
       }
       partBits->array[secondBoneIndex >> 5] |= 0x80000000 >> (secondBoneIndex & 0x1F);
       thirdBoneIndex = boneInfo->thirdBoneIndex;
       if ( (unsigned int)thirdBoneIndex >= 0x100 )
       {
-        LODWORD(v29) = 256;
-        LODWORD(v28) = boneInfo->thirdBoneIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+        LODWORD(v26) = 256;
+        LODWORD(v25) = boneInfo->thirdBoneIndex;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
           __debugbreak();
       }
       partBits->array[thirdBoneIndex >> 5] |= 0x80000000 >> (thirdBoneIndex & 0x1F);
@@ -3477,9 +3111,9 @@ void XAnimIKUpdatePartBits(const DObj *obj, const XAnimIKSettings *const setting
       {
         if ( (unsigned int)restoreSubmodelBoneIndex >= 0x100 )
         {
-          LODWORD(v29) = 256;
-          LODWORD(v28) = boneInfo->restoreSubmodelBoneIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+          LODWORD(v26) = 256;
+          LODWORD(v25) = boneInfo->restoreSubmodelBoneIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
             __debugbreak();
         }
         partBits->array[restoreSubmodelBoneIndex >> 5] |= 0x80000000 >> (restoreSubmodelBoneIndex & 0x1F);
@@ -3495,16 +3129,16 @@ void XAnimIKUpdatePartBits(const DObj *obj, const XAnimIKSettings *const setting
         {
           if ( (unsigned int)floatTrackBoneIndex >= 0x100 )
           {
-            LODWORD(v29) = 256;
-            LODWORD(v28) = boneInfo->floatTrackBoneIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v28, v29) )
+            LODWORD(v26) = 256;
+            LODWORD(v25) = boneInfo->floatTrackBoneIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
               __debugbreak();
           }
           partBits->array[floatTrackBoneIndex >> 5] |= 0x80000000 >> (floatTrackBoneIndex & 0x1F);
         }
       }
-      DObjCompleteHierarchyBits(v6, partBits);
-      v20 = 0;
+      DObjCompleteHierarchyBits(v5, partBits);
+      v19 = 0;
       _RSI = (char *)partBits - (char *)p_combinedPartBits;
       _RDI = p_combinedPartBits;
       do
@@ -3514,24 +3148,19 @@ void XAnimIKUpdatePartBits(const DObj *obj, const XAnimIKSettings *const setting
           vlddqu  xmm6, xmmword ptr [rsi+rdi]
           vlddqu  xmm0, xmmword ptr [rdi]
           vpor    xmm6, xmm0, xmm6
-          vmovdqu xmmword ptr [rdi], xmm6
         }
+        *(_OWORD *)_RDI->array = _XMM6;
         _RDI = (DObjPartBits *)((char *)_RDI + 16);
-        ++v20;
+        ++v19;
       }
-      while ( v20 < 2 );
-      v6 = obj;
+      while ( v19 < 2 );
+      v5 = obj;
     }
     ++boneInfo;
-    partBits = _RBP;
-    --v10;
+    partBits = v12;
+    --v9;
   }
-  while ( v10 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_58]
-  }
+  while ( v9 );
 }
 
 /*

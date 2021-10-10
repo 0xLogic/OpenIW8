@@ -28,469 +28,271 @@ G_VehicleSubmarine_CalcAccel
 void G_VehicleSubmarine_CalcAccel(gentity_s *ent, char *move, vec3_t *outBodyAccel, vec3_t *outRotAccel)
 {
   unsigned __int16 number; 
-  __int64 v17; 
-  unsigned int v18; 
-  __int64 v19; 
-  char v21; 
-  GVehicles *v29; 
+  __int64 v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  Vehicle *vehicle; 
+  char v13; 
+  float v14; 
+  float v15; 
+  GVehicles *v16; 
+  const dvar_t *v17; 
+  const char *v18; 
+  float v19; 
+  const dvar_t *v20; 
+  const char *v21; 
+  float v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  const char *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  float v31; 
+  float v32; 
+  const dvar_t *v33; 
+  const dvar_t *v34; 
   const dvar_t *v35; 
-  const char *v36; 
-  const dvar_t *v41; 
-  const char *v42; 
-  char v53; 
-  const dvar_t *v54; 
-  const dvar_t *v59; 
-  const char *v60; 
-  char v64; 
-  const dvar_t *v65; 
-  const dvar_t *v68; 
-  const dvar_t *v78; 
-  const dvar_t *v88; 
-  const dvar_t *v92; 
-  int v93; 
-  const dvar_t *v95; 
+  const dvar_t *v36; 
+  float value; 
+  unsigned __int128 v38; 
+  const dvar_t *v39; 
+  unsigned __int128 v40; 
+  const dvar_t *v43; 
+  int v44; 
+  const dvar_t *v45; 
   ClActiveClient *Client; 
-  __int64 v120; 
-  int v121; 
-  int v122; 
-  int v123; 
-  int v124; 
-  int v125; 
-  int v126; 
-  int v127[3]; 
-  __int64 v128; 
-  vec3_t v129; 
+  float v47; 
+  float v48; 
+  __int64 v49; 
+  int v50[3]; 
+  __int64 v51; 
+  vec3_t v52; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
   vec3_t forward; 
   vec3_t right; 
   vec3_t up; 
-  char v135; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v128 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-  }
-  _R12 = outRotAccel;
-  _R13 = outBodyAccel;
+  v51 = -2i64;
   number = ent->r.ownerNum.number;
   if ( !number )
-    goto LABEL_114;
-  v17 = number;
-  v18 = number - 1;
-  if ( v18 >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
+    goto LABEL_113;
+  v9 = number;
+  v10 = number - 1;
+  if ( v10 >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, 2048) )
     __debugbreak();
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v19 = v17 - 1;
-  if ( g_entities[v19].r.isInUse != g_entityIsInUse[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v11 = v9 - 1;
+  if ( g_entities[v11].r.isInUse != g_entityIsInUse[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v19] )
+  if ( !g_entityIsInUse[v11] )
   {
-    LODWORD(v120) = ent->r.ownerNum.number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v120) )
+    LODWORD(v49) = ent->r.ownerNum.number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v49) )
       __debugbreak();
   }
   if ( !ent->r.ownerNum.number )
   {
-LABEL_114:
+LABEL_113:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 52, ASSERT_TYPE_ASSERT, "(ent->r.ownerNum.isDefined())", (const char *)&queryFormat, "ent->r.ownerNum.isDefined()") )
       __debugbreak();
   }
-  _R15 = ent->vehicle;
-  v21 = move[2];
-  __asm
-  {
-    vxorps  xmm11, xmm11, xmm11
-    vmovss  xmm8, cs:__real@3c010204
-  }
-  if ( v21 < 0 )
-  {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-  }
+  vehicle = ent->vehicle;
+  v13 = move[2];
+  if ( v13 < 0 )
+    v14 = 0.0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm7, xmm0, xmm8
-    }
-  }
-  if ( v21 > 0 )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-  }
+    v14 = (float)v13 * 0.0078740157;
+  if ( v13 > 0 )
+    v15 = 0.0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm0, xmm8
-    }
-  }
+    v15 = (float)-v13 * 0.0078740157;
   if ( !GVehicles::ms_gVehiclesSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle.h", 562, ASSERT_TYPE_ASSERT, "( ms_gVehiclesSystem )", (const char *)&queryFormat, "ms_gVehiclesSystem") )
     __debugbreak();
-  v29 = GVehicles::ms_gVehiclesSystem;
-  __asm { vmovaps xmm3, xmm7; value }
-  GVehicles::PhysicsSetInputControl(GVehicles::ms_gVehiclesSystem, _R15->physicsVehicle, 0, *(float *)&_XMM3);
-  __asm { vmovaps xmm3, xmm6; value }
-  GVehicles::PhysicsSetInputControl(v29, _R15->physicsVehicle, 1u, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+118h]
-    vmovss  dword ptr [rsp+180h+angles+4], xmm0
-    vmovss  xmm1, dword ptr [r15+114h]
-    vmovss  dword ptr [rsp+180h+angles], xmm1
-    vmovss  xmm0, dword ptr [r15+11Ch]
-    vmovss  dword ptr [rsp+180h+angles+8], xmm0
-  }
+  v16 = GVehicles::ms_gVehiclesSystem;
+  GVehicles::PhysicsSetInputControl(GVehicles::ms_gVehiclesSystem, vehicle->physicsVehicle, 0, v14);
+  GVehicles::PhysicsSetInputControl(v16, vehicle->physicsVehicle, 1u, v15);
+  angles = vehicle->phys.prevAngles;
   AngleVectors(&angles, &forward, &right, &up);
   if ( move[2] <= 0 )
   {
-    v35 = DVARFLT_vehSubmarineMaxReverseAccel;
+    v17 = DVARFLT_vehSubmarineMaxReverseAccel;
     if ( DVARFLT_vehSubmarineMaxReverseAccel )
       goto LABEL_33;
-    v36 = "vehSubmarineMaxReverseAccel";
+    v18 = "vehSubmarineMaxReverseAccel";
   }
   else
   {
-    v35 = DVARFLT_vehSubmarineMaxForwardAccel;
+    v17 = DVARFLT_vehSubmarineMaxForwardAccel;
     if ( DVARFLT_vehSubmarineMaxForwardAccel )
       goto LABEL_33;
-    v36 = "vehSubmarineMaxForwardAccel";
+    v18 = "vehSubmarineMaxForwardAccel";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v36) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v18) )
     __debugbreak();
 LABEL_33:
-  Dvar_CheckFrontendServerThread(v35);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm8
-    vmulss  xmm6, xmm1, dword ptr [r14+28h]
-  }
+  Dvar_CheckFrontendServerThread(v17);
+  v19 = (float)((float)move[2] * 0.0078740157) * v17->current.value;
   if ( move[3] <= 0 )
   {
-    v41 = DVARFLT_vehSubmarineMaxNegativeBuoyancy;
+    v20 = DVARFLT_vehSubmarineMaxNegativeBuoyancy;
     if ( DVARFLT_vehSubmarineMaxNegativeBuoyancy )
       goto LABEL_40;
-    v42 = "vehSubmarineMaxNegativeBuoyancy";
+    v21 = "vehSubmarineMaxNegativeBuoyancy";
   }
   else
   {
-    v41 = DVARFLT_vehSubmarineMaxPositiveBuoyancy;
+    v20 = DVARFLT_vehSubmarineMaxPositiveBuoyancy;
     if ( DVARFLT_vehSubmarineMaxPositiveBuoyancy )
       goto LABEL_40;
-    v42 = "vehSubmarineMaxPositiveBuoyancy";
+    v21 = "vehSubmarineMaxPositiveBuoyancy";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v42) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v21) )
     __debugbreak();
 LABEL_40:
-  Dvar_CheckFrontendServerThread(v41);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm8
-    vmulss  xmm3, xmm1, dword ptr [r14+28h]
-    vmulss  xmm0, xmm3, dword ptr [rbp+80h+forward+8]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r13+0], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+80h+right+8]
-    vmovss  dword ptr [r13+4], xmm2
-    vmulss  xmm0, xmm3, dword ptr [rbp+80h+up+8]
-    vmovss  dword ptr [r13+8], xmm0
-  }
-  _R14 = DVARFLT_vehSubmarineStoppedVel;
+  Dvar_CheckFrontendServerThread(v20);
+  v22 = (float)((float)move[3] * 0.0078740157) * v20->current.value;
+  outBodyAccel->v[0] = (float)(v22 * forward.v[2]) + v19;
+  outBodyAccel->v[1] = v22 * right.v[2];
+  outBodyAccel->v[2] = v22 * up.v[2];
+  v23 = DVARFLT_vehSubmarineStoppedVel;
   if ( !DVARFLT_vehSubmarineStoppedVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineStoppedVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v23);
+  if ( v23->current.value >= vehicle->phys.bodyVel.v[0] )
   {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vcomiss xmm0, dword ptr [r15+144h]
-  }
-  if ( !v53 )
-  {
-    _R14 = DVARFLT_vehSubmarineStoppedVel;
+    v28 = DVARFLT_vehSubmarineStoppedVel;
     if ( !DVARFLT_vehSubmarineStoppedVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineStoppedVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
+    Dvar_CheckFrontendServerThread(v28);
+    if ( COERCE_FLOAT(v28->current.integer ^ _xmm) <= vehicle->phys.bodyVel.v[0] )
     {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vcomiss xmm1, dword ptr [r15+144h]
-    }
-    if ( v53 | v64 )
-    {
-      v68 = DVARFLT_vehSubmarineMaxStoppedPitchAccel;
+      v30 = DVARFLT_vehSubmarineMaxStoppedPitchAccel;
       if ( !DVARFLT_vehSubmarineMaxStoppedPitchAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxStoppedPitchAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v68);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm8
-        vmulss  xmm6, xmm1, dword ptr [r14+28h]
-      }
-      v59 = DVARFLT_vehSubmarineMaxStoppedYawAccel;
+      Dvar_CheckFrontendServerThread(v30);
+      v25 = (float)((float)*move * 0.0078740157) * v30->current.value;
+      v26 = DVARFLT_vehSubmarineMaxStoppedYawAccel;
       if ( DVARFLT_vehSubmarineMaxStoppedYawAccel )
         goto LABEL_65;
-      v60 = "vehSubmarineMaxStoppedYawAccel";
+      v27 = "vehSubmarineMaxStoppedYawAccel";
     }
     else
     {
-      v65 = DVARFLT_vehSubmarineMaxReversePitchAccel;
+      v29 = DVARFLT_vehSubmarineMaxReversePitchAccel;
       if ( !DVARFLT_vehSubmarineMaxReversePitchAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxReversePitchAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v65);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm8
-        vmulss  xmm6, xmm1, dword ptr [r14+28h]
-      }
-      v59 = DVARFLT_vehSubmarineMaxReverseYawAccel;
+      Dvar_CheckFrontendServerThread(v29);
+      v25 = (float)((float)*move * 0.0078740157) * v29->current.value;
+      v26 = DVARFLT_vehSubmarineMaxReverseYawAccel;
       if ( DVARFLT_vehSubmarineMaxReverseYawAccel )
         goto LABEL_65;
-      v60 = "vehSubmarineMaxReverseYawAccel";
+      v27 = "vehSubmarineMaxReverseYawAccel";
     }
 LABEL_63:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v60) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v27) )
       __debugbreak();
     goto LABEL_65;
   }
-  v54 = DVARFLT_vehSubmarineMaxForwardPitchAccel;
+  v24 = DVARFLT_vehSubmarineMaxForwardPitchAccel;
   if ( !DVARFLT_vehSubmarineMaxForwardPitchAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxForwardPitchAccel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v54);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm8
-    vmulss  xmm6, xmm1, dword ptr [r14+28h]
-  }
-  v59 = DVARFLT_vehSubmarineMaxForwardYawAccel;
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = (float)((float)*move * 0.0078740157) * v24->current.value;
+  v26 = DVARFLT_vehSubmarineMaxForwardYawAccel;
   if ( !DVARFLT_vehSubmarineMaxForwardYawAccel )
   {
-    v60 = "vehSubmarineMaxForwardYawAccel";
+    v27 = "vehSubmarineMaxForwardYawAccel";
     goto LABEL_63;
   }
 LABEL_65:
-  Dvar_CheckFrontendServerThread(v59);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@bc010204
-    vmulss  xmm7, xmm1, dword ptr [r14+28h]
-    vxorps  xmm10, xmm10, xmm10
-  }
-  _R14 = DVARFLT_vehSubmarineStoppedVel;
+  Dvar_CheckFrontendServerThread(v26);
+  v31 = (float)((float)move[1] * -0.0078740157) * v26->current.value;
+  v32 = 0.0;
+  v33 = DVARFLT_vehSubmarineStoppedVel;
   if ( !DVARFLT_vehSubmarineStoppedVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineStoppedVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v33);
+  if ( v33->current.value < vehicle->phys.bodyVel.v[0] )
   {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vcomiss xmm0, dword ptr [r15+144h]
-  }
-  if ( v53 )
-  {
-    v78 = DVARFLT_vehSubmarineMaxRollAccel;
+    v34 = DVARFLT_vehSubmarineMaxRollAccel;
     if ( !DVARFLT_vehSubmarineMaxRollAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRollAccel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v78);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm8
-      vmulss  xmm10, xmm1, dword ptr [r14+28h]
-    }
+    Dvar_CheckFrontendServerThread(v34);
+    v32 = (float)((float)move[1] * 0.0078740157) * v34->current.value;
   }
-  _RSI = DVARFLT_vehSubmarineRollDrivenYaw;
+  v35 = DVARFLT_vehSubmarineRollDrivenYaw;
   if ( !DVARFLT_vehSubmarineRollDrivenYaw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineRollDrivenYaw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v35);
+  if ( v35->current.value > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vcomiss xmm0, xmm11
-  }
-  if ( !(v53 | v64) )
-  {
-    _RSI = DVARFLT_vehSubmarineMaxRoll;
+    v36 = DVARFLT_vehSubmarineMaxRoll;
     if ( !DVARFLT_vehSubmarineMaxRoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRoll") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rsi+28h]
-      vmovss  xmm8, dword ptr [r15+110h]
-      vandps  xmm8, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    v88 = DVARFLT_vehSubmarineRollDrivenYaw;
+    Dvar_CheckFrontendServerThread(v36);
+    value = v36->current.value;
+    v38 = LODWORD(vehicle->phys.angles.v[2]) & (unsigned __int128)_xmm;
+    v39 = DVARFLT_vehSubmarineRollDrivenYaw;
     if ( !DVARFLT_vehSubmarineRollDrivenYaw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineRollDrivenYaw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v88);
-    __asm
-    {
-      vmulss  xmm1, xmm8, dword ptr [rsi+28h]
-      vdivss  xmm2, xmm1, xmm9
-      vminss  xmm3, xmm2, cs:__real@3f800000
-      vmulss  xmm7, xmm7, xmm3
-    }
+    Dvar_CheckFrontendServerThread(v39);
+    v40 = v38;
+    *(float *)&v40 = (float)(*(float *)&v38 * v39->current.value) / value;
+    _XMM2 = v40;
+    __asm { vminss  xmm3, xmm2, cs:__real@3f800000 }
+    v31 = v31 * *(float *)&_XMM3;
   }
-  v92 = DVARINT_vehSubmarineBodyRelRotation;
+  v43 = DVARINT_vehSubmarineBodyRelRotation;
   if ( !DVARINT_vehSubmarineBodyRelRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineBodyRelRotation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v92);
-  v93 = v92->current.integer & 3;
-  if ( v93 )
+  Dvar_CheckFrontendServerThread(v43);
+  v44 = v43->current.integer & 3;
+  if ( v44 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rsp+180h+var_120+4], xmm11
-      vmovss  dword ptr [rsp+180h+var_120], xmm11
-      vmovss  xmm0, dword ptr [r15+110h]
-      vmovss  dword ptr [rsp+180h+var_120+8], xmm0
-    }
-    v95 = DVARINT_vehSubmarineBodyRelRotation;
+    v52.v[1] = 0.0;
+    v52.v[0] = 0.0;
+    v52.v[2] = vehicle->phys.angles.v[2];
+    v45 = DVARINT_vehSubmarineBodyRelRotation;
     if ( !DVARINT_vehSubmarineBodyRelRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineBodyRelRotation") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v95);
-    if ( (v95->current.integer & 4) != 0 )
+    Dvar_CheckFrontendServerThread(v45);
+    if ( (v45->current.integer & 4) != 0 )
     {
       Client = ClActiveClient::GetClient(LOCAL_CLIENT_0);
       if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 264, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
         __debugbreak();
-      v127[2] = ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) + 2)) ^ LODWORD(Client->clViewangles.clViewangles.v[2]);
-      __asm
-      {
-        vmovss  xmm0, [rsp+180h+var_130]
-        vmovss  dword ptr [rsp+180h+var_120+8], xmm0
-      }
-      memset(v127, 0, sizeof(v127));
+      LODWORD(v52.v[2]) = ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) + 2)) ^ LODWORD(Client->clViewangles.clViewangles.v[2]);
+      memset(v50, 0, sizeof(v50));
     }
-    AnglesToAxis(&v129, &axis);
-    if ( v93 == 1 )
+    AnglesToAxis(&v52, &axis);
+    if ( v44 == 1 )
     {
-      __asm
-      {
-        vmulss  xmm3, xmm7, dword ptr [rbp+80h+axis+10h]
-        vmulss  xmm2, xmm6, dword ptr [rbp+80h+axis+1Ch]
-        vsubss  xmm5, xmm3, xmm2
-        vmulss  xmm4, xmm6, dword ptr [rbp+80h+axis+20h]
-        vmulss  xmm2, xmm7, dword ptr [rbp+80h+axis+14h]
-        vsubss  xmm6, xmm4, xmm2
-        vmovaps xmm7, xmm5
-      }
+      v47 = (float)(v31 * axis.m[1].v[1]) - (float)(v25 * axis.m[2].v[1]);
+      v25 = (float)(v25 * axis.m[2].v[2]) - (float)(v31 * axis.m[1].v[2]);
+      v31 = v47;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbp+80h+axis+1Ch]
-        vmovss  xmm2, dword ptr [rbp+80h+axis+20h]
-        vmulss  xmm6, xmm2, xmm6
-      }
-      if ( v93 == 2 )
-      {
-        __asm
-        {
-          vxorps  xmm5, xmm1, cs:__xmm@80000000800000008000000080000000
-          vmovaps xmm7, xmm5
-        }
-      }
+      v48 = v25 * axis.m[2].v[1];
+      v25 = axis.m[2].v[2] * v25;
+      if ( v44 == 2 )
+        LODWORD(v31) = LODWORD(v48) ^ _xmm;
       else
-      {
-        __asm
-        {
-          vsubss  xmm5, xmm7, xmm1
-          vmovaps xmm7, xmm5
-        }
-      }
+        v31 = v31 - v48;
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [r12+4], xmm7
-    vmovss  dword ptr [r12], xmm6
-    vmovss  dword ptr [r12+8], xmm10
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v121 & 0x7F800000) == 2139095040 )
-    goto LABEL_115;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v122 & 0x7F800000) == 2139095040 )
-    goto LABEL_115;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v123 & 0x7F800000) == 2139095040 )
-  {
-LABEL_115:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 175, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v124 & 0x7F800000) == 2139095040 )
-    goto LABEL_116;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v125 & 0x7F800000) == 2139095040 )
-    goto LABEL_116;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v126 & 0x7F800000) == 2139095040 )
-  {
-LABEL_116:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 176, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] )") )
-      __debugbreak();
-  }
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
+  outRotAccel->v[1] = v31;
+  outRotAccel->v[0] = v25;
+  outRotAccel->v[2] = v32;
+  if ( ((LODWORD(outBodyAccel->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outBodyAccel->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outBodyAccel->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 175, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(outRotAccel->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outRotAccel->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outRotAccel->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 176, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -500,868 +302,595 @@ G_VehicleSubmarine_CalcCollisionAccel
 */
 void G_VehicleSubmarine_CalcCollisionAccel(gentity_s *ent, Bounds *bounds, vec3_t *outBodyAccel, vec3_t *outRotAccel)
 {
+  const dvar_t *v4; 
+  Bounds *v7; 
+  float v10; 
+  const dvar_t *v11; 
+  float value; 
+  const dvar_t *v13; 
+  float v14; 
   const dvar_t *v15; 
-  const dvar_t *v26; 
+  float v16; 
   EntHandle *p_ownerNum; 
   unsigned __int16 number; 
-  __int64 v33; 
-  unsigned int v34; 
-  __int64 v35; 
-  __int16 *v37; 
-  int v79; 
-  int v80; 
-  const Bounds *v83; 
+  __int64 v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int16 *v22; 
+  float v23; 
+  float *v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  int v34; 
+  int v35; 
+  const Bounds *v36; 
   char *p_y; 
-  int v91; 
-  int v93; 
-  const dvar_t *v101; 
-  char v102; 
-  char v138; 
-  const dvar_t *v147; 
-  int v156; 
-  char v164; 
-  int v167; 
-  bool v168; 
-  unsigned int v207; 
-  bool v210; 
-  bool v211; 
-  int v216; 
-  bool v217; 
-  bool v223; 
-  const dvar_t *v227; 
+  float *v38; 
+  char *v39; 
+  __int64 v40; 
+  float v41; 
+  int v42; 
+  vec3_t *v43; 
+  int v44; 
+  float v45; 
+  float v46; 
+  const dvar_t *v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  vec3_t *v56; 
+  const vec4_t *v57; 
+  float v58; 
+  float v59; 
+  __int128 v60; 
+  __int128 v61; 
+  float v62; 
+  float v63; 
+  char v66; 
+  float v67; 
+  float *v68; 
+  float v69; 
+  const dvar_t *v70; 
+  const dvar_t *v71; 
+  float v72; 
+  __int64 v73; 
+  float v74; 
+  int v75; 
+  int v76; 
+  float v77; 
+  vec3_t *v78; 
+  int v79; 
+  bool v80; 
+  float v81; 
+  __int128 v83; 
+  float *v84; 
+  float v86; 
+  float v87; 
+  float v88; 
+  __int128 v89; 
+  float v90; 
+  float v91; 
+  int v95; 
+  float *v96; 
+  __int64 v97; 
+  float v98; 
+  float *v99; 
+  int v100; 
+  bool v101; 
+  float v102; 
+  _DWORD *v103; 
+  char *v104; 
+  bool v105; 
+  float *v106; 
+  float v107; 
+  const dvar_t *v108; 
+  float v109; 
+  float v110; 
+  float v111; 
+  int v112; 
+  int v113; 
+  float v114; 
+  float v115; 
   __int64 contentmask; 
   __int64 contentmaska; 
   __int64 contentmaskb; 
-  __int64 v351; 
-  __int64 v352; 
-  int v354; 
+  __int64 v119; 
+  __int64 v120; 
+  int v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  int v126; 
+  float v127; 
+  float v128; 
+  float v129; 
   vec3_t *in1; 
-  vec3_t v363; 
-  vec3_t v364; 
+  vec3_t v131; 
+  vec3_t v132; 
   vec3_t up; 
   vec3_t right; 
   vec3_t forward; 
-  vec3_t v368; 
-  vec3_t v369; 
-  vec3_t v370; 
+  vec3_t v136; 
+  vec3_t v137; 
+  vec3_t v138; 
   vec3_t start; 
   vec3_t angles; 
   vec3_t end; 
-  vec3_t v374; 
-  vec3_t v375; 
-  vec3_t v376; 
-  int v377[4]; 
+  vec3_t v142; 
+  vec3_t v143; 
+  vec3_t v144; 
+  vec3_t v145; 
+  int v146[4]; 
   vec3_t out; 
-  int v379[4]; 
-  vec3_t v380; 
-  tmat43_t<vec3_t> v381; 
-  int v385[21]; 
-  char v386; 
-  char v387; 
-  char v388; 
-  void *retaddr; 
+  int v148[4]; 
+  vec3_t v149; 
+  tmat43_t<vec3_t> v150; 
+  __int128 v151; 
+  float v152; 
+  float v153; 
+  int v154[21]; 
+  char v155; 
+  char v156; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  v15 = DVARFLT_vehSubmarineSideCollMaxAngAccel;
-  *(_QWORD *)v368.v = outRotAccel;
-  _R15 = outRotAccel;
-  _R14 = outBodyAccel;
-  *(_QWORD *)v369.v = ent;
-  _RSI = bounds;
-  __asm
-  {
-    vbroadcastss xmm6, dword ptr [rdx+0Ch]
-    vmulss  xmm8, xmm6, cs:__real@40000000
-  }
+  v4 = DVARFLT_vehSubmarineSideCollMaxAngAccel;
+  *(_QWORD *)v136.v = outRotAccel;
+  *(_QWORD *)v137.v = ent;
+  v7 = bounds;
+  __asm { vbroadcastss xmm6, dword ptr [rdx+0Ch] }
   if ( !DVARFLT_vehSubmarineSideCollMaxAngAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineSideCollMaxAngAccel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3e4ccccd
-    vmulss  xmm0, xmm7, dword ptr [rbx+28h]
-  }
-  _RBX = DVARFLT_vehSubmarineSideCollMaxAccel;
-  __asm { vmovss  [rsp+4D0h+var_484], xmm0 }
+  Dvar_CheckFrontendServerThread(v4);
+  v10 = 0.2 * v4->current.value;
+  v11 = DVARFLT_vehSubmarineSideCollMaxAccel;
+  v123 = v10;
   if ( !DVARFLT_vehSubmarineSideCollMaxAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineSideCollMaxAccel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  v26 = DVARFLT_vehSubmarineFwdCollMaxAngAccel;
-  __asm { vmovss  [rsp+4D0h+var_480], xmm0 }
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  v13 = DVARFLT_vehSubmarineFwdCollMaxAngAccel;
+  v124 = value;
   if ( !DVARFLT_vehSubmarineFwdCollMaxAngAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineFwdCollMaxAngAccel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  __asm { vmulss  xmm1, xmm7, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_vehSubmarineFwdCollMaxAccel;
-  __asm { vmovss  [rsp+4D0h+var_47C], xmm1 }
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = 0.2 * v13->current.value;
+  v15 = DVARFLT_vehSubmarineFwdCollMaxAccel;
+  v125 = v14;
   if ( !DVARFLT_vehSubmarineFwdCollMaxAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineFwdCollMaxAccel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm13, xmm0, cs:__real@3dcccccd
-  }
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.value * 0.1;
   p_ownerNum = &ent->r.ownerNum;
   number = ent->r.ownerNum.number;
-  __asm
-  {
-    vmovss  [rbp+3D0h+var_2F0], xmm8
-    vmovups [rbp+3D0h+var_300], xmm6
-  }
+  v152 = *(float *)&_XMM6 * 2.0;
+  v151 = _XMM6;
   if ( !number )
-    goto LABEL_117;
-  v33 = number;
-  v34 = number - 1;
-  if ( v34 >= 0x800 )
+    goto LABEL_120;
+  v19 = number;
+  v20 = number - 1;
+  if ( v20 >= 0x800 )
   {
-    LODWORD(v351) = 2048;
-    LODWORD(contentmask) = v34;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", contentmask, v351) )
+    LODWORD(v119) = 2048;
+    LODWORD(contentmask) = v20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", contentmask, v119) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v35 = v33 - 1;
-  if ( g_entities[v35].r.isInUse != g_entityIsInUse[v35] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v21 = v19 - 1;
+  if ( g_entities[v21].r.isInUse != g_entityIsInUse[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v35] )
+  if ( !g_entityIsInUse[v21] )
   {
-    LODWORD(v351) = p_ownerNum->number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v351) )
+    LODWORD(v119) = p_ownerNum->number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v119) )
       __debugbreak();
   }
   if ( !p_ownerNum->number )
   {
-LABEL_117:
+LABEL_120:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 219, ASSERT_TYPE_ASSERT, "(ent->r.ownerNum.isDefined())", (const char *)&queryFormat, "ent->r.ownerNum.isDefined()") )
       __debugbreak();
   }
   if ( !EntHandle::ent(p_ownerNum)->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 221, ASSERT_TYPE_ASSERT, "(player->client)", (const char *)&queryFormat, "player->client") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [r15] }
-  v37 = *(__int16 **)v369.v;
-  _RAX = &_R14->v[1];
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax]
-    vmovss  [rsp+4D0h+var_474], xmm0
-    vmovss  [rbp+3D0h+var_350], xmm0
-    vmovss  xmm0, dword ptr [r15+4]
-  }
-  _RDI = *(const Bounds **)(*(_QWORD *)v369.v + 352i64);
-  __asm
-  {
-    vmovss  [rsp+4D0h+var_478], xmm0
-    vmovss  [rbp+3D0h+var_34C], xmm0
-    vmovss  xmm0, dword ptr [r15+8]
-  }
-  _RDI += 10;
-  *(_QWORD *)v370.v = &_R14->y;
-  __asm
-  {
-    vmovss  [rbp+3D0h+var_348], xmm0
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rsp+4D0h+var_470+4], xmm0
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vmovss  dword ptr [rbp+3D0h+angles], xmm0
-    vmovss  dword ptr [rsp+4D0h+var_470], xmm1
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbp+3D0h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-  }
-  *(_QWORD *)v363.v = _RDI;
-  __asm { vmovss  dword ptr [rbp+3D0h+angles+8], xmm0 }
+  v22 = *(__int16 **)v137.v;
+  v23 = outBodyAccel->v[1];
+  v127 = outRotAccel->v[0];
+  v148[0] = LODWORD(outRotAccel->v[0]);
+  v24 = *(float **)(*(_QWORD *)v137.v + 352i64);
+  v126 = LODWORD(outRotAccel->v[1]);
+  v148[1] = v126;
+  v25 = outRotAccel->v[2];
+  v24 += 60;
+  *(_QWORD *)v138.v = &outBodyAccel->y;
+  *(float *)&v148[2] = v25;
+  v129 = outBodyAccel->v[2];
+  angles.v[0] = v24[9];
+  v128 = v23;
+  angles.v[1] = v24[10];
+  v26 = v24[11];
+  *(_QWORD *)v131.v = v24;
+  angles.v[2] = v26;
   AngleVectors(&angles, &forward, &right, &up);
-  __asm
-  {
-    vmovss  xmm4, cs:__real@bf800000
-    vmovss  xmm7, dword ptr [rsi]
-    vmovss  xmm5, dword ptr [rsi+8]
-    vmovss  xmm9, dword ptr [rbp+3D0h+up]
-    vmovss  xmm10, dword ptr [rbp+3D0h+up+4]
-    vmovss  xmm11, dword ptr [rbp+3D0h+up+8]
-    vmovss  xmm2, dword ptr [rbp+3D0h+right+4]
-    vmovss  xmm3, dword ptr [rbp+3D0h+right+8]
-    vmovss  xmm6, dword ptr [rbp+3D0h+forward+4]
-    vmovss  xmm8, dword ptr [rbp+3D0h+forward+8]
-    vmulss  xmm0, xmm9, xmm4
-    vmovss  [rbp+3D0h+var_2DC], xmm0
-    vmulss  xmm1, xmm10, xmm4
-    vmovss  [rbp+3D0h+var_2D8], xmm1
-    vmovss  xmm1, dword ptr [rbp+3D0h+right]
-    vmovss  [rbp+3D0h+var_2D0], xmm1
-    vmulss  xmm0, xmm11, xmm4
-    vmovss  [rbp+3D0h+var_2D4], xmm0
-    vmulss  xmm0, xmm1, xmm4
-    vmulss  xmm1, xmm2, xmm4
-    vmovss  [rbp+3D0h+var_2C4], xmm0
-    vmulss  xmm0, xmm3, xmm4
-    vmovss  xmm4, dword ptr [rdi+8]
-    vmovss  [rbp+3D0h+var_2C0], xmm1
-    vmovss  xmm1, dword ptr [rbp+3D0h+forward]
-    vmovss  [rbp+3D0h+var_2BC], xmm0
-    vmulss  xmm0, xmm1, xmm7
-    vmovss  [rbp+3D0h+var_2CC], xmm2
-    vaddss  xmm2, xmm0, dword ptr [rdi]
-    vmovss  [rbp+3D0h+var_2B8], xmm1
-    vmovss  [rbp+3D0h+var_2C8], xmm3
-    vmovss  xmm3, dword ptr [rdi+4]
-    vmulss  xmm1, xmm9, xmm5
-    vaddss  xmm12, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm7
-    vaddss  xmm2, xmm0, xmm3
-    vmulss  xmm1, xmm10, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm7
-    vaddss  xmm2, xmm0, xmm4
-    vmulss  xmm1, xmm11, xmm5
-    vaddss  xmm4, xmm2, xmm1
-  }
-  v79 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3D0h+start+8], xmm4
-    vmovss  [rbp+3D0h+var_2E8], xmm9
-    vmovss  [rbp+3D0h+var_2E4], xmm10
-    vmovss  [rbp+3D0h+var_2E0], xmm11
-    vmovss  [rbp+3D0h+var_2B4], xmm6
-    vmovss  [rbp+3D0h+var_2B0], xmm8
-    vmovss  dword ptr [rbp+3D0h+start], xmm12
-    vmovss  dword ptr [rbp+3D0h+start+4], xmm3
-  }
-  v80 = 0;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3f800000
-    vmovss  xmm15, cs:__real@3c23d70a
-  }
-  v83 = _RDI + 2;
-  v354 = 0;
-  p_y = &v386;
-  *(_QWORD *)v364.v = _RDI + 2;
-  in1 = (vec3_t *)&v386;
-  _R13 = v385;
-  _R14 = &v387;
-  _R12 = 0i64;
-  __asm { vxorps  xmm11, xmm11, xmm11 }
+  v27 = v7->midPoint.v[0];
+  v28 = v7->midPoint.v[2];
+  *(float *)&v154[2] = up.v[0] * -1.0;
+  *(float *)&v154[3] = up.v[1] * -1.0;
+  v154[5] = SLODWORD(right.v[0]);
+  *(float *)&v154[4] = up.v[2] * -1.0;
+  *(float *)&v154[8] = right.v[0] * -1.0;
+  v29 = v24[2];
+  *(float *)&v154[9] = right.v[1] * -1.0;
+  *(float *)&v154[10] = right.v[2] * -1.0;
+  v154[6] = SLODWORD(right.v[1]);
+  v30 = (float)(forward.v[0] * v27) + *v24;
+  v154[11] = SLODWORD(forward.v[0]);
+  v154[7] = SLODWORD(right.v[2]);
+  v31 = v30 + (float)(up.v[0] * v28);
+  v32 = (float)((float)(forward.v[1] * v27) + v24[1]) + (float)(up.v[1] * v28);
+  v33 = (float)((float)(forward.v[2] * v27) + v29) + (float)(up.v[2] * v28);
+  v34 = 0;
+  start.v[2] = v33;
+  v153 = up.v[0];
+  v154[0] = SLODWORD(up.v[1]);
+  v154[1] = SLODWORD(up.v[2]);
+  v154[12] = SLODWORD(forward.v[1]);
+  v154[13] = SLODWORD(forward.v[2]);
+  start.v[0] = v31;
+  start.v[1] = v32;
+  v35 = 0;
+  v36 = (const Bounds *)(v24 + 12);
+  v122 = 0;
+  p_y = &v155;
+  *(_QWORD *)v132.v = v24 + 12;
+  in1 = (vec3_t *)&v155;
+  v38 = (float *)v154;
+  v39 = &v156;
+  v40 = 0i64;
   while ( 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+r12+3D0h+var_300]
-      vmulss  xmm9, xmm0, cs:__real@3fe00000
-    }
-    v91 = *v37;
-    __asm { vmulss  xmm0, xmm9, dword ptr [rdi] }
-    v93 = *((_DWORD *)v37 + 106);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@42100000
-      vmovss  xmm6, cs:__real@42700000
-      vaddss  xmm1, xmm0, xmm12
-      vmulss  xmm0, xmm9, dword ptr [r13+0]
-      vmovss  dword ptr [rbp+3D0h+end], xmm1
-      vaddss  xmm1, xmm0, xmm3
-      vmulss  xmm0, xmm9, dword ptr [r13+4]
-      vmovss  dword ptr [rbp+3D0h+end+4], xmm1
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rbp+3D0h+end+8], xmm1
-    }
-    G_Main_TraceCapsule((trace_t *)(p_y - 16), &start, &end, v83, v91, v93);
-    v101 = DCONST_DVARINT_bg_vehicleDebug;
+    v41 = *(float *)((char *)&v151 + v40 * 4) * 1.75;
+    v42 = *v22;
+    v43 = (vec3_t *)(v38 - 1);
+    v44 = *((_DWORD *)v22 + 106);
+    v45 = v41 * *v38;
+    end.v[0] = (float)(v41 * *(v38 - 1)) + v31;
+    v46 = v41 * v38[1];
+    end.v[1] = v45 + v32;
+    end.v[2] = v46 + v33;
+    G_Main_TraceCapsule((trace_t *)(p_y - 16), &start, &end, v36, v42, v44);
+    v47 = DCONST_DVARINT_bg_vehicleDebug;
     if ( !DCONST_DVARINT_bg_vehicleDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleDebug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v101);
-    v102 = 0;
-    if ( v101->current.integer )
+    Dvar_CheckFrontendServerThread(v47);
+    if ( v47->current.integer )
     {
       if ( bUseOrigin )
       {
-        __asm
-        {
-          vmovaps xmm5, xmm11
-          vmovaps xmm4, xmm11
-          vmovaps xmm2, xmm11
-        }
+        v48 = 0.0;
+        v49 = 0.0;
+        v50 = 0.0;
       }
       else
       {
-        __asm
-        {
-          vmulss  xmm3, xmm6, dword ptr [rbp+3D0h+forward]
-          vmulss  xmm2, xmm7, dword ptr [rbp+3D0h+up]
-          vmulss  xmm4, xmm6, dword ptr [rbp+3D0h+forward+4]
-          vaddss  xmm5, xmm3, xmm2
-          vmulss  xmm2, xmm7, dword ptr [rbp+3D0h+up+4]
-          vmulss  xmm3, xmm6, dword ptr [rbp+3D0h+forward+8]
-          vaddss  xmm4, xmm4, xmm2
-          vmulss  xmm2, xmm7, dword ptr [rbp+3D0h+up+8]
-          vaddss  xmm2, xmm3, xmm2
-        }
+        v48 = (float)(60.0 * forward.v[0]) + (float)(36.0 * up.v[0]);
+        v49 = (float)(60.0 * forward.v[1]) + (float)(36.0 * up.v[1]);
+        v50 = (float)(60.0 * forward.v[2]) + (float)(36.0 * up.v[2]);
       }
-      __asm
+      v51 = v48 + start.v[0];
+      v52 = v49 + start.v[1];
+      v53 = *((float *)v39 - 6);
+      v54 = v48 + end.v[0];
+      v55 = v49 + end.v[1];
+      v144.v[0] = v54;
+      v144.v[1] = v55;
+      v145.v[0] = v51;
+      v145.v[1] = v52;
+      v145.v[2] = v50 + start.v[2];
+      v144.v[2] = v50 + end.v[2];
+      v56 = &v145;
+      if ( v53 >= 1.0 )
       {
-        vaddss  xmm6, xmm5, dword ptr [rbp+3D0h+start]
-        vaddss  xmm7, xmm4, dword ptr [rbp+3D0h+start+4]
-        vmovss  xmm3, dword ptr [r14-18h]
-        vcomiss xmm3, xmm14
-        vaddss  xmm5, xmm5, dword ptr [rbp+3D0h+end]
-        vaddss  xmm4, xmm4, dword ptr [rbp+3D0h+end+4]
-        vaddss  xmm8, xmm2, dword ptr [rbp+3D0h+start+8]
-        vaddss  xmm10, xmm2, dword ptr [rbp+3D0h+end+8]
-        vmovss  dword ptr [rbp+3D0h+var_390], xmm5
-        vmovss  dword ptr [rbp+3D0h+var_390+4], xmm4
-        vmovss  dword ptr [rbp+3D0h+var_380], xmm6
-        vmovss  dword ptr [rbp+3D0h+var_380+4], xmm7
-        vmovss  dword ptr [rbp+3D0h+var_380+8], xmm8
-        vmovss  dword ptr [rbp+3D0h+var_390+8], xmm10
+        v57 = &colorGreen;
       }
-      G_DebugLine(&v376, &v375, &colorGreen, 1);
+      else
+      {
+        v143.v[0] = (float)((float)(v54 - v51) * v53) + v51;
+        v143.v[1] = (float)((float)(v55 - v52) * v53) + v52;
+        v143.v[2] = (float)((float)((float)(v50 + end.v[2]) - (float)(v50 + start.v[2])) * v53) + (float)(v50 + start.v[2]);
+        G_DebugLine(&v145, &v143, &colorBlue, 1);
+        v57 = &colorRed;
+        v56 = &v143;
+      }
+      G_DebugLine(v56, &v144, v57, 1);
     }
-    __asm
+    v58 = *((float *)v39 - 6);
+    if ( v58 >= 1.0 )
+      goto LABEL_63;
+    if ( v35 < 4 )
     {
-      vmovss  xmm0, dword ptr [r14-18h]
-      vcomiss xmm0, xmm14
-    }
-    if ( !v102 )
-      goto LABEL_59;
-    if ( v80 < 4 )
-    {
-      __asm
+      v59 = *((float *)v39 - 1);
+      v60 = *((unsigned int *)v39 - 2);
+      v61 = v60;
+      v62 = 1.0 - v58;
+      v63 = v41 * v58;
+      *(float *)&v61 = (float)((float)((float)(*(float *)&v60 * v43->v[0]) + (float)(v59 * *v38)) + (float)(*(float *)v39 * v38[1])) + 1.0;
+      _XMM0 = v61;
+      __asm { vmaxss  xmm8, xmm0, xmm11 }
+      if ( (float)((float)((float)(*(float *)&v60 * forward.v[0]) + (float)(v59 * forward.v[1])) + (float)(*(float *)v39 * forward.v[2])) <= 0.0 )
       {
-        vmovss  xmm5, dword ptr [r14-4]
-        vmovss  xmm3, dword ptr [r14-8]
-        vmulss  xmm1, xmm3, dword ptr [rdi]
-        vmovss  xmm4, dword ptr [r14]
-        vmulss  xmm3, xmm3, dword ptr [rbp+3D0h+forward]
-        vsubss  xmm7, xmm14, xmm0
-        vmulss  xmm9, xmm9, xmm0
-        vmulss  xmm0, xmm5, dword ptr [r13+0]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [r13+4]
-        vaddss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, xmm14
-        vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+forward+4]
-        vmaxss  xmm8, xmm0, xmm11
-        vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+forward+8]
-        vaddss  xmm3, xmm3, xmm2
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm1, xmm11
-      }
-      _RDI = 0x140000000ui64;
-      if ( (unsigned int)v80 <= 4 )
-      {
-        v138 = _R14[41];
-        __asm { vmovss  xmm6, dword ptr [r12+rdi+7FB4CF0h] }
-        _RAX = vec3_t::operator[](*(vec3_t **)v368.v, traceIdx2RotAxis[_R12]);
-        if ( v138 )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm6, xmm15
-            vmulss  xmm1, xmm0, [rsp+4D0h+var_484]
-            vmovss  dword ptr [rax], xmm1
-          }
-        }
+        v66 = v39[41];
+        v67 = traceIdx2RotSign[v40];
+        v68 = vec3_t::operator[](*(vec3_t **)v136.v, traceIdx2RotAxis[v40]);
+        if ( v66 )
+          v69 = (float)(v67 * 0.0099999998) * v123;
         else
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm7, xmm8
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, [rsp+4D0h+var_484]
-            vmovss  dword ptr [rax], xmm2
-          }
-        }
+          v69 = (float)((float)(v62 * *(float *)&_XMM8) * v67) * v123;
+        *v68 = v69;
       }
-      _RBX = DVARFLT_vehSubmarineSideProbeMinDist;
+      v70 = DVARFLT_vehSubmarineSideProbeMinDist;
       if ( !DVARFLT_vehSubmarineSideProbeMinDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineSideProbeMinDist") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm9, dword ptr [rbx+28h] }
-      if ( v102 )
+      Dvar_CheckFrontendServerThread(v70);
+      if ( v63 >= v70->current.value )
       {
-        v147 = DVARFLT_vehSubmarineSideProbeMinDist;
-        if ( !DVARFLT_vehSubmarineSideProbeMinDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineSideProbeMinDist") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v147);
-        __asm
-        {
-          vdivss  xmm0, xmm9, dword ptr [rbx+28h]
-          vsubss  xmm1, xmm14, xmm0
-        }
+        v72 = (float)(*(float *)&_XMM8 + 0.1) * v62;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm0, xmm8, cs:__real@3dcccccd
-          vmulss  xmm1, xmm0, xmm7
-        }
+        v71 = DVARFLT_vehSubmarineSideProbeMinDist;
+        if ( !DVARFLT_vehSubmarineSideProbeMinDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineSideProbeMinDist") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v71);
+        v72 = 1.0 - (float)(v63 / v71->current.value);
       }
-      _RBX = traceIdx2BodyAxis[_R12];
-      __asm
+      v73 = traceIdx2BodyAxis[v40];
+      v74 = (float)(v72 * traceIdx2AccelSign[v40]) * v124;
+      if ( (unsigned int)v73 >= 3 )
       {
-        vmulss  xmm0, xmm1, dword ptr [r12+rdi+7FB4D08h]
-        vmulss  xmm6, xmm0, [rsp+4D0h+var_480]
-      }
-      if ( (unsigned int)_RBX >= 3 )
-      {
-        LODWORD(v351) = 3;
-        LODWORD(contentmaska) = traceIdx2BodyAxis[_R12];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+        LODWORD(v119) = 3;
+        LODWORD(contentmaska) = traceIdx2BodyAxis[v40];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
           __debugbreak();
       }
-      _RSI = outBodyAccel;
-      __asm
+      outBodyAccel->v[v73] = v74 + outBodyAccel->v[v73];
+LABEL_63:
+      v75 = _xmm;
+      goto LABEL_64;
+    }
+    AngleVectors(&angles, v150.m, &v150.m[1], &v150.m[2]);
+    v150.m[3].v[0] = 0.0;
+    v150.m[3].v[1] = 0.0;
+    v150.m[3].v[2] = 0.0;
+    MatrixTransposeTransformVector43(in1, &v150, &out);
+    v75 = _xmm;
+    LODWORD(v77) = LODWORD(out.v[0]) ^ _xmm;
+    if ( COERCE_FLOAT(LODWORD(out.v[0]) ^ _xmm) <= 0.99000001 )
+    {
+      if ( !v39[41] )
       {
-        vaddss  xmm0, xmm6, dword ptr [rsi+rbx*4]
-        vmovss  dword ptr [rsi+rbx*4], xmm0
-      }
-LABEL_59:
-      __asm { vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      goto LABEL_60;
-    }
-    AngleVectors(&angles, v381.m, &v381.m[1], &v381.m[2]);
-    __asm
-    {
-      vmovss  [rbp+3D0h+var_30C], xmm11
-      vmovss  [rbp+3D0h+var_308], xmm11
-      vmovss  [rbp+3D0h+var_304], xmm11
-    }
-    MatrixTransposeTransformVector43(in1, &v381, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+3D0h+out]
-      vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm10, xmm0, xmm12
-      vcomiss xmm10, cs:__real@3f7d70a4
-    }
-    if ( v102 | v164 )
-    {
-      if ( !_R14[41] )
-      {
+        v83 = LODWORD(FLOAT_1_1);
+        *(float *)&v83 = 1.1 - *((float *)v39 - 6);
+        _XMM0 = v83;
+        v84 = (float *)(v39 - 8);
+        __asm { vminss  xmm9, xmm0, xmm14 }
+        if ( v39 - 8 == (char *)&v142 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+          __debugbreak();
+        if ( v43 == &v142 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+          __debugbreak();
+        v86 = v38[1];
+        v87 = *((float *)v39 - 1);
+        v88 = (float)(v87 * v86) - (float)(*v38 * *(float *)v39);
+        v89 = *(unsigned int *)v39;
+        v90 = (float)(*(float *)v39 * v43->v[0]) - (float)(v86 * *v84);
+        v91 = (float)(*v38 * *v84) - (float)(v87 * v43->v[0]);
+        *(float *)&v89 = fsqrt((float)((float)(v90 * v90) + (float)(v88 * v88)) + (float)(v91 * v91));
+        _XMM3 = v89;
         __asm
         {
-          vmovss  xmm0, cs:__real@3f8ccccd
-          vsubss  xmm0, xmm0, dword ptr [r14-18h]
-          vminss  xmm9, xmm0, xmm14
-        }
-        if ( _R14 - 8 == (char *)&v374 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
-          __debugbreak();
-        if ( _R13 - 1 == (int *)&v374 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm5, dword ptr [r13+4]
-          vmovss  xmm4, dword ptr [r14]
-          vmovss  xmm7, dword ptr [r14-4]
-          vmovss  xmm6, dword ptr [r13+0]
-          vmulss  xmm2, xmm6, dword ptr [rbx]
-          vmulss  xmm1, xmm7, xmm5
-          vmulss  xmm0, xmm6, xmm4
-          vsubss  xmm8, xmm1, xmm0
-          vmulss  xmm1, xmm4, dword ptr [rdi]
-          vmulss  xmm0, xmm5, dword ptr [rbx]
-          vsubss  xmm5, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr [rdi]
-          vsubss  xmm4, xmm2, xmm1
-          vmulss  xmm0, xmm8, xmm8
-          vmulss  xmm3, xmm5, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm14, xmm0
-          vdivss  xmm2, xmm14, xmm0
-          vmulss  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rbp+3D0h+var_3B0], xmm0
-          vmulss  xmm0, xmm2, xmm4
-          vmulss  xmm1, xmm2, xmm5
-          vmovss  dword ptr [rbp+3D0h+var_3B0+8], xmm0
-          vmovss  dword ptr [rbp+3D0h+var_3B0+4], xmm1
         }
-        MatrixTransposeTransformVector43(&v374, &v381, &v380);
-        __asm
-        {
-          vmulss  xmm1, xmm9, dword ptr [rbp+3D0h+var_340+4]
-          vmulss  xmm2, xmm1, xmm10
-          vmulss  xmm3, xmm2, [rsp+4D0h+var_47C]
-          vmulss  xmm1, xmm9, dword ptr [rbp+3D0h+var_340+8]
-          vmulss  xmm2, xmm1, xmm10
-          vmovss  [rbp+3D0h+var_370], xmm3
-          vmulss  xmm3, xmm2, [rsp+4D0h+var_47C]
-          vxorps  xmm0, xmm3, xmm12
-        }
-        v207 = 0;
-        _RDI = v377;
-        __asm { vmovss  [rbp+3D0h+var_36C], xmm0 }
-        _RSI = *(_QWORD *)v368.v - (_QWORD)v377;
+        v142.v[0] = (float)(1.0 / *(float *)&_XMM0) * v88;
+        v142.v[2] = (float)(1.0 / *(float *)&_XMM0) * v91;
+        v142.v[1] = (float)(1.0 / *(float *)&_XMM0) * v90;
+        MatrixTransposeTransformVector43(&v142, &v150, &v149);
+        *(float *)v146 = (float)((float)(*(float *)&_XMM9 * v149.v[1]) * v77) * v125;
+        v95 = 0;
+        v96 = (float *)v146;
+        v146[1] = COERCE_UNSIGNED_INT((float)((float)(*(float *)&_XMM9 * v149.v[2]) * v77) * v125) ^ _xmm;
+        v97 = *(_QWORD *)v136.v - (_QWORD)v146;
         do
         {
-          v210 = v207 <= 3;
-          if ( v207 >= 3 )
+          if ( (unsigned int)v95 >= 3 )
           {
-            LODWORD(v351) = 3;
-            LODWORD(contentmaska) = v207;
-            v211 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351);
-            v210 = !v211;
-            if ( v211 )
+            LODWORD(v119) = 3;
+            LODWORD(contentmaska) = v95;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
               __debugbreak();
           }
-          __asm
+          v98 = *v96;
+          if ( COERCE_FLOAT(*(_DWORD *)v96 & _xmm) > 0.0099999998 )
           {
-            vmovss  xmm6, dword ptr [rdi]
-            vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vcomiss xmm0, xmm15
-          }
-          if ( !v210 )
-          {
-            if ( v207 >= 3 )
+            if ( (unsigned int)v95 >= 3 )
             {
-              LODWORD(v351) = 3;
-              LODWORD(contentmaska) = v207;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+              LODWORD(v119) = 3;
+              LODWORD(contentmaska) = v95;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
                 __debugbreak();
-              LODWORD(v352) = 3;
-              LODWORD(contentmaskb) = v207;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaskb, v352) )
+              LODWORD(v120) = 3;
+              LODWORD(contentmaskb) = v95;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaskb, v120) )
                 __debugbreak();
             }
-            __asm { vmovss  dword ptr [rsi+rdi], xmm6 }
+            *(float *)((char *)v96 + v97) = v98;
           }
-          ++v207;
-          ++_RDI;
+          ++v95;
+          ++v96;
         }
-        while ( (int)v207 < 2 );
+        while ( v95 < 2 );
       }
-      __asm { vaddss  xmm7, xmm10, cs:__real@3dcccccd }
-      _RDI = *(_QWORD *)v370.v;
-      v216 = 1;
-      v217 = 1;
+      v99 = *(float **)v138.v;
+      v100 = 1;
+      v101 = 1;
       do
       {
-        if ( !v217 )
+        if ( !v101 )
         {
-          LODWORD(v351) = 3;
-          LODWORD(contentmaska) = v216;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+          LODWORD(v119) = 3;
+          LODWORD(contentmaska) = v100;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
             __debugbreak();
         }
-        __asm
+        v102 = (float)((float)(v77 + 0.1) * *(float *)((char *)v99 + (char *)&out - (char *)outBodyAccel)) * v16;
+        if ( (unsigned int)v100 >= 3 )
         {
-          vmulss  xmm0, xmm7, dword ptr [rdi+rsi]
-          vmulss  xmm6, xmm0, xmm13
-        }
-        if ( (unsigned int)v216 >= 3 )
-        {
-          LODWORD(v351) = 3;
-          LODWORD(contentmaska) = v216;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+          LODWORD(v119) = 3;
+          LODWORD(contentmaska) = v100;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
             __debugbreak();
         }
-        __asm
-        {
-          vaddss  xmm0, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm0
-        }
-        _RDI += 4i64;
-        v217 = (unsigned int)++v216 < 3;
+        *v99 = v102 + *v99;
+        ++v99;
+        v101 = (unsigned int)++v100 < 3;
       }
-      while ( v216 < 3 );
-      v79 = 0;
+      while ( v100 < 3 );
+      v34 = 0;
     }
     else
     {
-      _RDI = outBodyAccel;
-      __asm { vaddss  xmm7, xmm10, cs:__real@3dcccccd }
-      v167 = 0;
-      v168 = 1;
+      v78 = outBodyAccel;
+      v79 = 0;
+      v80 = 1;
       do
       {
-        if ( !v168 )
+        if ( !v80 )
         {
-          LODWORD(v351) = 3;
-          LODWORD(contentmaska) = v167;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+          LODWORD(v119) = 3;
+          LODWORD(contentmaska) = v79;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
             __debugbreak();
         }
-        __asm
+        v81 = (float)((float)(v77 + 0.1) * *(float *)((char *)v78->v + (char *)&out - (char *)outBodyAccel)) * v16;
+        if ( (unsigned int)v79 >= 3 )
         {
-          vmulss  xmm0, xmm7, dword ptr [rsi+rdi]
-          vmulss  xmm6, xmm0, xmm13
-        }
-        if ( (unsigned int)v167 >= 3 )
-        {
-          LODWORD(v351) = 3;
-          LODWORD(contentmaska) = v167;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+          LODWORD(v119) = 3;
+          LODWORD(contentmaska) = v79;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
             __debugbreak();
         }
-        __asm
-        {
-          vaddss  xmm0, xmm6, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm0
-        }
-        _RDI = (vec3_t *)((char *)_RDI + 4);
-        v168 = (unsigned int)++v167 < 3;
+        v78->v[0] = v81 + v78->v[0];
+        v78 = (vec3_t *)((char *)v78 + 4);
+        v80 = (unsigned int)++v79 < 3;
       }
-      while ( v167 < 3 );
-      v79 = 0;
+      while ( v79 < 3 );
+      v34 = 0;
     }
-LABEL_60:
-    ++_R12;
-    v156 = v354 + 1;
+LABEL_64:
+    ++v40;
+    v76 = v122 + 1;
     p_y = (char *)&in1[7].y;
-    v354 = v156;
-    _R13 += 3;
+    v122 = v76;
+    v38 += 3;
     in1 = (vec3_t *)((char *)in1 + 88);
-    _R14 += 88;
-    if ( v156 >= 5 )
+    v39 += 88;
+    if ( v76 >= 5 )
       break;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+3D0h+start+8]
-      vmovss  xmm3, dword ptr [rbp+3D0h+start+4]
-      vmovss  xmm12, dword ptr [rbp+3D0h+start]
-    }
-    v37 = *(__int16 **)v369.v;
-    v80 = v156;
-    v83 = *(const Bounds **)v364.v;
+    v33 = start.v[2];
+    v32 = start.v[1];
+    v31 = start.v[0];
+    v22 = *(__int16 **)v137.v;
+    v35 = v76;
+    v36 = *(const Bounds **)v132.v;
   }
-  _R14 = *(_QWORD *)v368.v;
-  _RDI = (char *)v379 - *(_QWORD *)v368.v;
-  v223 = 1;
-  _RBX = *(_QWORD *)v368.v;
+  v103 = *(_DWORD **)v136.v;
+  v104 = (char *)v148 - *(_QWORD *)v136.v;
+  v105 = 1;
+  v106 = *(float **)v136.v;
   do
   {
-    if ( !v223 )
+    if ( !v105 )
     {
-      LODWORD(v351) = 3;
-      LODWORD(contentmaska) = v79;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+      LODWORD(v119) = 3;
+      LODWORD(contentmaska) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, dword ptr [rdi+rbx] }
-    if ( (unsigned int)v79 >= 3 )
+    v107 = *(float *)((char *)v106 + (_QWORD)v104);
+    if ( (unsigned int)v34 >= 3 )
     {
-      LODWORD(v351) = 3;
-      LODWORD(contentmaska) = v79;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v351) )
+      LODWORD(v119) = 3;
+      LODWORD(contentmaska) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", contentmaska, v119) )
         __debugbreak();
     }
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-    }
-    _RBX += 4i64;
-    v223 = (unsigned int)++v79 < 3;
+    *v106 = v107 + *v106;
+    ++v106;
+    v105 = (unsigned int)++v34 < 3;
   }
-  while ( v79 < 3 );
-  v227 = DCONST_DVARINT_bg_vehicleDebug;
-  _RSI = outBodyAccel;
+  while ( v34 < 3 );
+  v108 = DCONST_DVARINT_bg_vehicleDebug;
   if ( !DCONST_DVARINT_bg_vehicleDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicleDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v227);
-  if ( v227->current.integer )
+  Dvar_CheckFrontendServerThread(v108);
+  if ( v108->current.integer )
   {
-    _RBX = *(_QWORD *)v363.v;
-    __asm
-    {
-      vmovss  dword ptr [rbp+3D0h+angles], xmm11
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rbp+3D0h+angles+4], xmm0
-      vmovss  dword ptr [rbp+3D0h+angles+8], xmm11
-    }
-    AngleVectors(&angles, &v380, &v369, &v368);
-    __asm
-    {
-      vmovss  xmm5, cs:__real@41400000
-      vmovss  xmm6, cs:__real@42f00000
-      vmulss  xmm1, xmm6, dword ptr [rbp+3D0h+forward]
-      vaddss  xmm3, xmm1, dword ptr [rbx]
-      vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+right+4]
-      vmovss  xmm9, cs:__real@42100000
-      vmulss  xmm0, xmm9, dword ptr [rbp+3D0h+up]
-      vmulss  xmm1, xmm9, dword ptr [rbp+3D0h+up+4]
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm0, xmm5, dword ptr [rbp+3D0h+right]
-      vsubss  xmm8, xmm4, xmm0
-      vmulss  xmm0, xmm6, dword ptr [rbp+3D0h+forward+4]
-      vaddss  xmm3, xmm0, dword ptr [rbx+4]
-      vmulss  xmm0, xmm9, dword ptr [rbp+3D0h+up+8]
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm1, xmm6, dword ptr [rbp+3D0h+forward+8]
-      vaddss  xmm3, xmm1, dword ptr [rbx+8]
-      vmovss  xmm1, dword ptr [r14]
-      vsubss  xmm7, xmm4, xmm2
-      vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+right+8]
-      vaddss  xmm4, xmm3, xmm0
-      vmovss  xmm0, dword ptr [r14+4]
-      vsubss  xmm6, xmm4, xmm2
-      vxorps  xmm4, xmm0, xmm12
-      vmulss  xmm2, xmm4, dword ptr [rbp+3D0h+var_400]
-      vxorps  xmm5, xmm1, xmm12
-      vmulss  xmm0, xmm5, dword ptr [rbp+3D0h+var_410]
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+var_410+4]
-      vaddss  xmm3, xmm2, xmm8
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+var_400+4]
-      vaddss  xmm3, xmm0, xmm7
-      vaddss  xmm0, xmm3, xmm1
-      vmulss  xmm1, xmm4, dword ptr [rbp+3D0h+var_400+8]
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm2
-      vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+var_410+8]
-      vaddss  xmm3, xmm1, xmm6
-      vaddss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm1
-      vmovss  dword ptr [rbp+3D0h+var_450], xmm8
-      vmovss  dword ptr [rbp+3D0h+var_450+4], xmm7
-      vmovss  dword ptr [rbp+3D0h+var_450+8], xmm6
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm0
-    }
-    G_DebugLine(&v364, &v363, &colorCyan, 1);
-    __asm
-    {
-      vmovss  xmm0, [rsp+4D0h+var_478]
-      vxorps  xmm4, xmm0, xmm12
-      vmovss  xmm0, [rsp+4D0h+var_474]
-      vmulss  xmm1, xmm4, dword ptr [rbp+3D0h+var_400]
-      vaddss  xmm3, xmm1, dword ptr [rbp+3D0h+var_450]
-      vxorps  xmm5, xmm0, xmm12
-      vmulss  xmm0, xmm5, dword ptr [rbp+3D0h+var_410]
-      vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+var_410+4]
-      vaddss  xmm1, xmm3, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+var_400+4]
-      vaddss  xmm3, xmm0, dword ptr [rbp+3D0h+var_450+4]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rbp+3D0h+var_400+8]
-      vaddss  xmm3, xmm2, dword ptr [rbp+3D0h+var_450+8]
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm1
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+var_410+8]
-      vaddss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm2
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm0
-    }
-    G_DebugLine(&v364, &v363, &colorBlue, 1);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsi+4]
-      vmovss  xmm5, dword ptr [rsi+8]
-      vmulss  xmm1, xmm4, dword ptr [rbp+3D0h+right]
-      vaddss  xmm3, xmm1, dword ptr [rbp+3D0h+var_450]
-      vmulss  xmm0, xmm5, dword ptr [rbp+3D0h+up]
-      vmulss  xmm2, xmm5, dword ptr [rbp+3D0h+up+4]
-      vaddss  xmm1, xmm3, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+right+4]
-      vaddss  xmm3, xmm0, dword ptr [rbp+3D0h+var_450+4]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rbp+3D0h+right+8]
-      vaddss  xmm3, xmm2, dword ptr [rbp+3D0h+var_450+8]
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm1
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+up+8]
-      vaddss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm2
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm0
-    }
-    G_DebugLine(&v364, &v363, &colorMagenta, 1);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+4D0h+var_470]
-      vmovss  xmm5, dword ptr [rsp+4D0h+var_470+4]
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+right]
-      vaddss  xmm2, xmm0, dword ptr [rbp+3D0h+var_450]
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+up]
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+right+4]
-      vaddss  xmm3, xmm0, dword ptr [rbp+3D0h+var_450+4]
-      vmulss  xmm0, xmm4, dword ptr [rbp+3D0h+right+8]
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+up+4]
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm2
-      vaddss  xmm2, xmm3, xmm1
-      vaddss  xmm3, xmm0, dword ptr [rbp+3D0h+var_450+8]
-      vmulss  xmm1, xmm5, dword ptr [rbp+3D0h+up+8]
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm2
-      vaddss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm2
-    }
-    G_DebugLine(&v364, &v363, &colorLtGreen, 1);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@40800000
-      vmulss  xmm7, xmm8, dword ptr [rbp+3D0h+up]
-      vmovss  xmm6, dword ptr [rbp+3D0h+var_450]
-      vmulss  xmm5, xmm8, dword ptr [rbp+3D0h+up+4]
-      vmovss  xmm4, dword ptr [rbp+3D0h+var_450+4]
-      vmulss  xmm3, xmm8, dword ptr [rbp+3D0h+up+8]
-      vmovss  xmm2, dword ptr [rbp+3D0h+var_450+8]
-      vaddss  xmm1, xmm7, xmm6
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm1
-      vaddss  xmm1, xmm5, xmm4
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm1
-      vaddss  xmm1, xmm3, xmm2
-      vsubss  xmm0, xmm6, xmm7
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm1
-      vmovss  dword ptr [rbp+3D0h+var_3F0], xmm0
-      vsubss  xmm1, xmm4, xmm5
-      vsubss  xmm0, xmm2, xmm3
-      vmovss  dword ptr [rbp+3D0h+var_3F0+4], xmm1
-      vmovss  dword ptr [rbp+3D0h+var_3F0+8], xmm0
-    }
-    G_DebugLine(&v370, &v363, &colorBlack, 1);
-    __asm
-    {
-      vmulss  xmm7, xmm8, dword ptr [rbp+3D0h+right]
-      vmovss  xmm6, dword ptr [rbp+3D0h+var_450]
-      vmulss  xmm5, xmm8, dword ptr [rbp+3D0h+right+4]
-      vmovss  xmm4, dword ptr [rbp+3D0h+var_450+4]
-      vmulss  xmm3, xmm8, dword ptr [rbp+3D0h+right+8]
-      vmovss  xmm2, dword ptr [rbp+3D0h+var_450+8]
-      vaddss  xmm1, xmm7, xmm6
-      vmovss  dword ptr [rsp+4D0h+var_460], xmm1
-      vaddss  xmm1, xmm5, xmm4
-      vmovss  dword ptr [rsp+4D0h+var_460+4], xmm1
-      vaddss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rsp+4D0h+var_460+8], xmm1
-      vsubss  xmm0, xmm6, xmm7
-      vmovss  dword ptr [rbp+3D0h+var_3F0], xmm0
-      vsubss  xmm0, xmm2, xmm3
-      vsubss  xmm1, xmm4, xmm5
-      vmovss  dword ptr [rbp+3D0h+var_3F0+8], xmm0
-      vmovss  dword ptr [rbp+3D0h+var_3F0+4], xmm1
-    }
-    G_DebugLine(&v370, &v363, &colorBlack, 1);
-  }
-  _R11 = &v388;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    angles.v[0] = 0.0;
+    angles.v[1] = *(float *)(*(_QWORD *)v131.v + 40i64);
+    angles.v[2] = 0.0;
+    AngleVectors(&angles, &v149, &v137, &v136);
+    v109 = (float)((float)((float)(120.0 * forward.v[0]) + **(float **)v131.v) + (float)(36.0 * up.v[0])) - (float)(12.0 * right.v[0]);
+    v110 = (float)((float)((float)(120.0 * forward.v[1]) + *(float *)(*(_QWORD *)v131.v + 4i64)) + (float)(36.0 * up.v[1])) - (float)(12.0 * right.v[1]);
+    v111 = (float)((float)((float)(120.0 * forward.v[2]) + *(float *)(*(_QWORD *)v131.v + 8i64)) + (float)(36.0 * up.v[2])) - (float)(12.0 * right.v[2]);
+    v112 = v103[1] ^ v75;
+    v113 = *v103 ^ v75;
+    v131.v[0] = (float)((float)(*(float *)&v112 * v137.v[0]) + v109) + (float)(*(float *)&v113 * v136.v[0]);
+    v131.v[2] = (float)((float)(*(float *)&v112 * v137.v[2]) + v111) + (float)(*(float *)&v113 * v136.v[2]);
+    v132.v[0] = v109;
+    v132.v[1] = v110;
+    v132.v[2] = v111;
+    v131.v[1] = (float)((float)(*(float *)&v112 * v137.v[1]) + v110) + (float)(*(float *)&v113 * v136.v[1]);
+    G_DebugLine(&v132, &v131, &colorCyan, 1);
+    v131.v[0] = (float)((float)(COERCE_FLOAT(v126 ^ v75) * v137.v[0]) + v132.v[0]) + (float)(COERCE_FLOAT(LODWORD(v127) ^ v75) * v136.v[0]);
+    v131.v[2] = (float)((float)(COERCE_FLOAT(v126 ^ v75) * v137.v[2]) + v132.v[2]) + (float)(COERCE_FLOAT(LODWORD(v127) ^ v75) * v136.v[2]);
+    v131.v[1] = (float)((float)(COERCE_FLOAT(v126 ^ v75) * v137.v[1]) + v132.v[1]) + (float)(COERCE_FLOAT(LODWORD(v127) ^ v75) * v136.v[1]);
+    G_DebugLine(&v132, &v131, &colorBlue, 1);
+    v114 = outBodyAccel->v[1];
+    v115 = outBodyAccel->v[2];
+    v131.v[0] = (float)((float)(v114 * right.v[0]) + v132.v[0]) + (float)(v115 * up.v[0]);
+    v131.v[2] = (float)((float)(v114 * right.v[2]) + v132.v[2]) + (float)(v115 * up.v[2]);
+    v131.v[1] = (float)((float)(v114 * right.v[1]) + v132.v[1]) + (float)(v115 * up.v[1]);
+    G_DebugLine(&v132, &v131, &colorMagenta, 1);
+    v131.v[0] = (float)((float)(v128 * right.v[0]) + v132.v[0]) + (float)(v129 * up.v[0]);
+    v131.v[1] = (float)((float)(v128 * right.v[1]) + v132.v[1]) + (float)(v129 * up.v[1]);
+    v131.v[2] = (float)((float)(v128 * right.v[2]) + v132.v[2]) + (float)(v129 * up.v[2]);
+    G_DebugLine(&v132, &v131, &colorLtGreen, 1);
+    v131.v[0] = (float)(4.0 * up.v[0]) + v132.v[0];
+    v131.v[1] = (float)(4.0 * up.v[1]) + v132.v[1];
+    v131.v[2] = (float)(4.0 * up.v[2]) + v132.v[2];
+    v138.v[0] = v132.v[0] - (float)(4.0 * up.v[0]);
+    v138.v[1] = v132.v[1] - (float)(4.0 * up.v[1]);
+    v138.v[2] = v132.v[2] - (float)(4.0 * up.v[2]);
+    G_DebugLine(&v138, &v131, &colorBlack, 1);
+    v131.v[0] = (float)(4.0 * right.v[0]) + v132.v[0];
+    v131.v[1] = (float)(4.0 * right.v[1]) + v132.v[1];
+    v131.v[2] = (float)(4.0 * right.v[2]) + v132.v[2];
+    v138.v[0] = v132.v[0] - (float)(4.0 * right.v[0]);
+    v138.v[2] = v132.v[2] - (float)(4.0 * right.v[2]);
+    v138.v[1] = v132.v[1] - (float)(4.0 * right.v[1]);
+    G_DebugLine(&v138, &v131, &colorBlack, 1);
   }
 }
 
@@ -1372,11 +901,14 @@ G_VehicleSubmarine_CheckForPredictedCrash
 */
 void G_VehicleSubmarine_CheckForPredictedCrash(gentity_s *ent)
 {
-  char v5; 
+  const dvar_t *v2; 
+  Vehicle *vehicle; 
+  const float *v; 
+  const dvar_t *v5; 
+  float value; 
   int number; 
   int contentmask; 
-  char v19; 
-  scrContext_t *v20; 
+  scrContext_t *v9; 
   vec3_t end; 
   trace_t results; 
 
@@ -1384,60 +916,34 @@ void G_VehicleSubmarine_CheckForPredictedCrash(gentity_s *ent)
     __debugbreak();
   if ( !ent->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 469, ASSERT_TYPE_ASSERT, "(ent->vehicle)", (const char *)&queryFormat, "ent->vehicle") )
     __debugbreak();
-  _RSI = DVARFLT_vehHelicopterLookaheadTime;
-  _RBX = ent->vehicle;
+  v2 = DVARFLT_vehHelicopterLookaheadTime;
+  vehicle = ent->vehicle;
   if ( !DVARFLT_vehHelicopterLookaheadTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterLookaheadTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.value != 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rsi+28h]
-  }
-  if ( !v5 )
-  {
-    _RSI = _RBX->phys.vel.v;
-    __asm { vucomiss xmm0, dword ptr [rsi] }
-    if ( v5 )
+    v = vehicle->phys.vel.v;
+    if ( vehicle->phys.vel.v[0] != 0.0 || vehicle->phys.vel.v[1] != 0.0 || vehicle->phys.vel.v[2] != 0.0 )
     {
-      __asm { vucomiss xmm0, dword ptr [rbx+13Ch] }
-      if ( v5 )
-        __asm { vucomiss xmm0, dword ptr [rbx+140h] }
-    }
-    _RBP = DVARFLT_vehHelicopterLookaheadTime;
-    if ( !DVARFLT_vehHelicopterLookaheadTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterLookaheadTime") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+28h]
-      vmulss  xmm0, xmm2, dword ptr [rsi]
-      vaddss  xmm1, xmm0, dword ptr [rbx+0F0h]
-    }
-    number = ent->s.number;
-    contentmask = ent->clipmask;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0E8h+end], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+4]
-      vaddss  xmm1, xmm0, dword ptr [rbx+0F4h]
-      vmovss  dword ptr [rsp+0E8h+end+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rsi+8]
-      vaddss  xmm1, xmm0, dword ptr [rbx+0F8h]
-      vmovss  dword ptr [rsp+0E8h+end+8], xmm1
-    }
-    G_Main_TraceCapsule(&results, &_RBX->phys.origin, &end, &_RBX->phys.bounds, number, contentmask);
-    __asm
-    {
-      vmovss  xmm0, [rsp+0E8h+results.fraction]
-      vcomiss xmm0, cs:__real@3f800000
-    }
-    if ( v19 )
-    {
-      v20 = ScriptContext_Server();
-      Scr_AddVector(v20, results.normal.v);
-      Scr_AddVector(v20, _RSI);
-      GScr_Notify(ent, scr_const.veh_predictedcollision, 2u);
+      v5 = DVARFLT_vehHelicopterLookaheadTime;
+      if ( !DVARFLT_vehHelicopterLookaheadTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterLookaheadTime") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v5);
+      value = v5->current.value;
+      number = ent->s.number;
+      contentmask = ent->clipmask;
+      end.v[0] = (float)(value * *v) + vehicle->phys.origin.v[0];
+      end.v[1] = (float)(value * vehicle->phys.vel.v[1]) + vehicle->phys.origin.v[1];
+      end.v[2] = (float)(value * vehicle->phys.vel.v[2]) + vehicle->phys.origin.v[2];
+      G_Main_TraceCapsule(&results, &vehicle->phys.origin, &end, &vehicle->phys.bounds, number, contentmask);
+      if ( results.fraction < 1.0 )
+      {
+        v9 = ScriptContext_Server();
+        Scr_AddVector(v9, results.normal.v);
+        Scr_AddVector(v9, v);
+        GScr_Notify(ent, scr_const.veh_predictedcollision, 2u);
+      }
     }
   }
 }
@@ -1449,47 +955,22 @@ G_VehicleSubmarine_ClipVelocity
 */
 void G_VehicleSubmarine_ClipVelocity(const vec3_t *in, const vec3_t *normal, vec3_t *out)
 {
-  char v3; 
+  float v3; 
+  float v4; 
 
-  __asm
+  v3 = in->v[0];
+  v4 = (float)((float)(normal->v[0] * in->v[0]) + (float)(normal->v[1] * in->v[1])) + (float)(normal->v[2] * in->v[2]);
+  if ( v4 >= 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmulss  xmm1, xmm0, dword ptr [rcx+4]
-    vmovss  xmm4, dword ptr [rcx]
-    vmovss  xmm5, dword ptr [rdx]
-    vmulss  xmm2, xmm5, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rdx+8]
-    vmulss  xmm0, xmm2, dword ptr [rcx+8]
-    vaddss  xmm1, xmm3, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( v3 )
-  {
-    __asm
-    {
-      vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm5, xmm2
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [r8], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdx+4]
-      vaddss  xmm1, xmm0, dword ptr [rcx+4]
-      vmovss  dword ptr [r8+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rdx+8]
-      vaddss  xmm1, xmm0, dword ptr [rcx+8]
-      vmovss  dword ptr [r8+8], xmm1
-    }
+    out->v[0] = v3;
+    out->v[1] = in->v[1];
+    out->v[2] = in->v[2];
   }
   else
   {
-    __asm { vmovss  dword ptr [r8], xmm4 }
-    out->v[1] = in->v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vmovss  dword ptr [r8+8], xmm0
-    }
+    out->v[0] = (float)(normal->v[0] * COERCE_FLOAT(LODWORD(v4) ^ _xmm)) + v3;
+    out->v[1] = (float)(COERCE_FLOAT(LODWORD(v4) ^ _xmm) * normal->v[1]) + in->v[1];
+    out->v[2] = (float)(COERCE_FLOAT(LODWORD(v4) ^ _xmm) * normal->v[2]) + in->v[2];
   }
 }
 
@@ -1498,30 +979,19 @@ void G_VehicleSubmarine_ClipVelocity(const vec3_t *in, const vec3_t *normal, vec
 G_VehicleSubmarine_GammaMap
 ==============
 */
-
-__int64 __fastcall G_VehicleSubmarine_GammaMap(double gamma, char in_val)
+__int64 G_VehicleSubmarine_GammaMap(float gamma, char in_val)
 {
   __int64 result; 
+  int v4; 
 
-  __asm
-  {
-    vucomiss xmm0, cs:__real@3f800000
-    vmovaps xmm1, xmm0; Y
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3c010204; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42fe0000
-    vcvttss2si ecx, xmm1
-  }
-  if ( _ECX > 127 )
-    LOBYTE(_ECX) = 127;
-  result = (unsigned __int8)-(char)_ECX;
+  if ( gamma == 1.0 )
+    return (unsigned __int8)in_val;
+  v4 = (int)(float)(powf_0((float)abs8(in_val) * 0.0078740157, gamma) * 127.0);
+  if ( v4 > 127 )
+    LOBYTE(v4) = 127;
+  result = (unsigned __int8)-(char)v4;
   if ( in_val >= 0 )
-    return (unsigned __int8)_ECX;
+    return (unsigned __int8)v4;
   return result;
 }
 
@@ -1532,37 +1002,94 @@ G_VehicleSubmarine_UpdatePlayerMove
 */
 void G_VehicleSubmarine_UpdatePlayerMove(Vehicle *veh)
 {
+  const VehicleDef *ServerDef; 
   gentity_s *ent; 
-  gentity_s *v21; 
+  gentity_s *v4; 
   gclient_s *client; 
+  const dvar_t *v6; 
+  bool v7; 
+  char v8; 
+  const dvar_t *v9; 
+  char v10; 
+  const dvar_t *v11; 
+  float v12; 
+  float frameDuration; 
+  float v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
   const dvar_t *v23; 
-  char v24; 
-  char v27; 
-  char v81; 
-  const dvar_t *v82; 
-  bool v95; 
-  const dvar_t *v157; 
-  const dvar_t *v160; 
-  char v183; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  const dvar_t *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  const dvar_t *v39; 
+  const dvar_t *v40; 
+  const dvar_t *v41; 
+  const dvar_t *v42; 
+  const dvar_t *v43; 
+  const dvar_t *v44; 
+  float v45; 
+  const dvar_t *v46; 
+  const dvar_t *v47; 
+  const dvar_t *v48; 
+  float v49; 
+  const dvar_t *v50; 
+  const dvar_t *v51; 
+  float v52; 
+  float v53; 
+  float v54; 
   __int64 EntityHitId; 
-  bool v220; 
+  Vehicle *vehicle; 
+  float v57; 
+  float v58; 
+  float v59; 
+  bool v60; 
   __int64 bumpEntityNum; 
-  scrContext_t *v277; 
-  scrContext_t *v278; 
-  const vec4_t *v306; 
-  float fmt; 
-  int contentmask; 
-  int v320; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  __int128 v70; 
+  float v71; 
+  scrContext_t *v75; 
+  scrContext_t *v76; 
+  float v77; 
+  float *v78; 
+  const vec4_t *v79; 
+  int v80; 
   char move[4]; 
-  __int64 v322; 
-  __int64 v323; 
+  __int64 v82; 
+  __int64 v83; 
   GStepSlideMove stepSlide; 
   vec3_t outBodyAccel; 
-  int v326; 
+  float v86; 
+  float v87; 
+  float v88; 
   vec3_t start; 
   vec3_t outRotAccel; 
   vec3_t out; 
-  float v332[4]; 
+  float v92; 
+  float v93; 
+  float v94; 
   vec3_t in1; 
   tmat43_t<vec3_t> forward; 
   Bounds bounds; 
@@ -1570,905 +1097,454 @@ void G_VehicleSubmarine_UpdatePlayerMove(Vehicle *veh)
   vec3_t end; 
   float value[6]; 
   trace_t results; 
-  char v340; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v323 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _R12 = veh;
+  v83 = -2i64;
   *(_DWORD *)move = 0;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41f00000
-    vmovss  dword ptr [rbp+200h+in1], xmm0
-    vxorps  xmm15, xmm15, xmm15
-    vmovss  dword ptr [rbp+200h+in1+4], xmm15
-    vmovss  xmm0, cs:__real@41000000
-    vmovss  dword ptr [rbp+200h+in1+8], xmm0
-    vmovups xmm1, cs:__xmm@41400000000000000000000000000000
-    vmovups xmmword ptr [rbp+200h+bounds.midPoint], xmm1
-    vmovss  xmm0, cs:__real@41400000
-    vmovss  dword ptr [rbp+200h+bounds.halfSize+4], xmm0
-    vmovss  dword ptr [rbp+200h+bounds.halfSize+8], xmm0
-  }
+  in1.v[0] = FLOAT_30_0;
+  in1.v[1] = 0.0;
+  in1.v[2] = FLOAT_8_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  bounds.halfSize.v[1] = FLOAT_12_0;
+  bounds.halfSize.v[2] = FLOAT_12_0;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 578, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  _RSI = G_Vehicle_GetServerDef(_R12->defIndex);
-  ent = _R12->ent;
-  if ( !_R12->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 583, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  ServerDef = G_Vehicle_GetServerDef(veh->defIndex);
+  ent = veh->ent;
+  if ( !veh->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 583, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  LOWORD(v320) = 0;
-  __asm { vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000 }
+  LOWORD(v80) = 0;
   if ( EntHandle::isDefined(&ent->r.ownerNum) )
   {
-    v21 = EntHandle::ent(&ent->r.ownerNum);
-    if ( !v21->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 591, ASSERT_TYPE_ASSERT, "(player->client)", (const char *)&queryFormat, "player->client") )
+    v4 = EntHandle::ent(&ent->r.ownerNum);
+    if ( !v4->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 591, ASSERT_TYPE_ASSERT, "(player->client)", (const char *)&queryFormat, "player->client") )
       __debugbreak();
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v21->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
-    v21->client->linkAnglesFrac = 0.0;
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v21->client->ps.pm_flags, ACTIVE, 0x10u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v21->client->ps.pm_flags, ACTIVE, 0xFu) )
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v4->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
+    v4->client->linkAnglesFrac = 0.0;
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v4->client->ps.pm_flags, ACTIVE, 0x10u) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v4->client->ps.pm_flags, ACTIVE, 0xFu) )
     {
-      client = v21->client;
+      client = v4->client;
       if ( !GVehicles::ms_gVehiclesSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle.h", 562, ASSERT_TYPE_ASSERT, "( ms_gVehiclesSystem )", (const char *)&queryFormat, "ms_gVehiclesSystem") )
         __debugbreak();
       GVehicles::ms_gVehiclesSystem->GetVehicleSubPlayerMove(GVehicles::ms_gVehiclesSystem, &client->sess.cmd, move);
-      v23 = DVARBOOL_vehSubmarineInvertUpDown;
+      v6 = DVARBOOL_vehSubmarineInvertUpDown;
       if ( !DVARBOOL_vehSubmarineInvertUpDown && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineInvertUpDown") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v23);
-      v95 = !v23->current.enabled;
-      v24 = move[0];
-      if ( !v95 )
+      Dvar_CheckFrontendServerThread(v6);
+      v7 = !v6->current.enabled;
+      v8 = move[0];
+      if ( !v7 )
       {
-        v24 = -move[0];
+        v8 = -move[0];
         move[0] = -move[0];
       }
-      _R15 = DVARFLT_vehSubmarineVertControlGamma;
+      v9 = DVARFLT_vehSubmarineVertControlGamma;
       if ( !DVARFLT_vehSubmarineVertControlGamma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineVertControlGamma") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R15);
-      __asm { vmovss  xmm0, dword ptr [r15+28h]; gamma }
-      move[0] = G_VehicleSubmarine_GammaMap(*(double *)&_XMM0, v24);
-      v27 = move[1];
-      _R14 = DVARFLT_vehSubmarineHorizControlGamma;
+      Dvar_CheckFrontendServerThread(v9);
+      move[0] = G_VehicleSubmarine_GammaMap(v9->current.value, v8);
+      v10 = move[1];
+      v11 = DVARFLT_vehSubmarineHorizControlGamma;
       if ( !DVARFLT_vehSubmarineHorizControlGamma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineHorizControlGamma") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm { vmovss  xmm0, dword ptr [r14+28h]; gamma }
-      move[1] = G_VehicleSubmarine_GammaMap(*(double *)&_XMM0, v27);
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v21->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0C84h]
-        vxorps  xmm1, xmm0, xmm8
-      }
-      _RAX = v21->client;
-      __asm
-      {
-        vmovss  dword ptr [rax+5ED0h], xmm1
-        vmovss  xmm0, dword ptr [rsi+0C80h]
-      }
-      _RAX = v21->client;
-      __asm
-      {
-        vmovss  dword ptr [rax+5EE8h], xmm0
-        vmovss  xmm0, dword ptr [rsi+0C88h]
-        vxorps  xmm1, xmm0, xmm8
-      }
-      _RAX = v21->client;
-      __asm
-      {
-        vmovss  dword ptr [rax+5ECCh], xmm1
-        vmovss  xmm0, dword ptr [rsi+0C8Ch]
-      }
-      _RAX = v21->client;
-      __asm { vmovss  dword ptr [rax+5EE4h], xmm0 }
+      Dvar_CheckFrontendServerThread(v11);
+      move[1] = G_VehicleSubmarine_GammaMap(v11->current.value, v10);
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v4->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
+      v4->client->link_viewClamp.min.goal.v[1] = COERCE_FLOAT(LODWORD(ServerDef->turretHorizSpanRight) ^ _xmm);
+      v4->client->link_viewClamp.max.goal.v[1] = ServerDef->turretHorizSpanLeft;
+      v4->client->link_viewClamp.min.goal.v[0] = COERCE_FLOAT(LODWORD(ServerDef->turretVertSpanUp) ^ _xmm);
+      v4->client->link_viewClamp.max.goal.v[0] = ServerDef->turretVertSpanDown;
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
       {
-        __asm { vmovss  xmm0, dword ptr [rsi+0C90h] }
-        _RAX = v21->client;
-        __asm
-        {
-          vmovss  dword ptr [rax+5F18h], xmm0
-          vmovss  xmm1, dword ptr [rsi+0C94h]
-        }
-        _RAX = v21->client;
-        __asm
-        {
-          vmovss  dword ptr [rax+5F00h], xmm1
-          vmovss  xmm0, dword ptr [rsi+0C9Ch]
-        }
-        _RAX = v21->client;
-        __asm
-        {
-          vmovss  dword ptr [rax+5F14h], xmm0
-          vmovss  xmm1, dword ptr [rsi+0C98h]
-        }
-        _RAX = v21->client;
-        __asm { vmovss  dword ptr [rax+5EFCh], xmm1 }
+        v4->client->link_viewClamp.resistMin.goal.v[1] = ServerDef->turretHorizResistLeft;
+        v4->client->link_viewClamp.resistMax.goal.v[1] = ServerDef->turretHorizResistRight;
+        v4->client->link_viewClamp.resistMin.goal.v[0] = ServerDef->turretVertResistDown;
+        v4->client->link_viewClamp.resistMax.goal.v[0] = ServerDef->turretVertResistUp;
       }
-      G_SnapToViewAngleClampGoal(&v21->client->link_viewClamp);
+      G_SnapToViewAngleClampGoal(&v4->client->link_viewClamp);
     }
   }
   G_VehicleSubmarine_CalcAccel(ent, move, &outBodyAccel, &outRotAccel);
   G_VehicleSubmarine_CalcCollisionAccel(ent, &bounds, &outBodyAccel, &outRotAccel);
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm11, xmm11, xmm11
-    vcvtsi2ss xmm11, xmm11, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmovss  xmm10, cs:__real@3a83126f
-    vmulss  xmm6, xmm11, xmm10
-  }
-  _RDI = DVARFLT_vehSubmarineYawDampening;
+  frameDuration = (float)level.frameDuration;
+  v12 = frameDuration;
+  v14 = frameDuration * 0.001;
+  v15 = DVARFLT_vehSubmarineYawDampening;
   if ( !DVARFLT_vehSubmarineYawDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineYawDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm6, dword ptr [rbp+200h+outRotAccel+4]
-    vmulss  xmm1, xmm1, dword ptr [r12+16Ch]
-    vaddss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r12+16Ch], xmm2
-  }
-  _RDI = DVARFLT_vehSubmarinePitchDampening;
+  Dvar_CheckFrontendServerThread(v15);
+  veh->phys.rotVel.v[1] = (float)(v15->current.value * veh->phys.rotVel.v[1]) + (float)(v14 * outRotAccel.v[1]);
+  v16 = DVARFLT_vehSubmarinePitchDampening;
   if ( !DVARFLT_vehSubmarinePitchDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarinePitchDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm6, dword ptr [rbp+200h+outRotAccel]
-    vmulss  xmm1, xmm1, dword ptr [r12+168h]
-    vaddss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r12+168h], xmm2
-  }
-  _RDI = DVARFLT_vehSubmarineRollDampening;
+  Dvar_CheckFrontendServerThread(v16);
+  veh->phys.rotVel.v[0] = (float)(v16->current.value * veh->phys.rotVel.v[0]) + (float)(v14 * outRotAccel.v[0]);
+  v17 = DVARFLT_vehSubmarineRollDampening;
   if ( !DVARFLT_vehSubmarineRollDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineRollDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+28h]
-    vmulss  xmm2, xmm6, dword ptr [rbp+200h+outRotAccel+8]
-    vmulss  xmm1, xmm1, dword ptr [r12+170h]
-    vaddss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [r12+170h], xmm2
-    vmulss  xmm0, xmm11, dword ptr [r12+16Ch]
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, dword ptr [r12+118h]
-    vmulss  xmm4, xmm2, cs:__real@3b360b61
-    vaddss  xmm3, xmm4, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm0, xmm1, xmm3, 1
-    vsubss  xmm0, xmm4, xmm0
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vmovss  dword ptr [r12+10Ch], xmm1
-    vmulss  xmm0, xmm11, dword ptr [r12+168h]
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, dword ptr [r12+114h]
-    vmovss  dword ptr [r12+108h], xmm2
-  }
-  _RDI = DVARFLT_vehSubmarineMaxUpPitch;
+  Dvar_CheckFrontendServerThread(v17);
+  veh->phys.rotVel.v[2] = (float)(v17->current.value * veh->phys.rotVel.v[2]) + (float)(v14 * outRotAccel.v[2]);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm0, xmm1, xmm3, 1 }
+  veh->phys.angles.v[1] = (float)((float)((float)((float)((float)(frameDuration * veh->phys.rotVel.v[1]) * 0.001) + veh->phys.prevAngles.v[1]) * 0.0027777778) - *(float *)&_XMM0) * 360.0;
+  veh->phys.angles.v[0] = (float)((float)(frameDuration * veh->phys.rotVel.v[0]) * 0.001) + veh->phys.prevAngles.v[0];
+  v20 = DVARFLT_vehSubmarineMaxUpPitch;
   if ( !DVARFLT_vehSubmarineMaxUpPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxUpPitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v20);
+  if ( v20->current.value < veh->phys.angles.v[0] )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vcomiss xmm0, dword ptr [r12+108h]
-  }
-  if ( v81 )
-  {
-    v82 = DVARFLT_vehSubmarineMaxUpPitch;
+    v21 = DVARFLT_vehSubmarineMaxUpPitch;
     if ( !DVARFLT_vehSubmarineMaxUpPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxUpPitch") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v82);
-    LODWORD(_R12->phys.angles.v[0]) = v82->current.integer;
+    Dvar_CheckFrontendServerThread(v21);
+    LODWORD(veh->phys.angles.v[0]) = v21->current.integer;
 LABEL_58:
-    _R12->phys.rotVel.v[0] = 0.0;
+    veh->phys.rotVel.v[0] = 0.0;
     goto LABEL_59;
   }
-  _RDI = DVARFLT_vehSubmarineMaxDownPitch;
+  v22 = DVARFLT_vehSubmarineMaxDownPitch;
   if ( !DVARFLT_vehSubmarineMaxDownPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxDownPitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v22);
+  if ( COERCE_FLOAT(v22->current.integer ^ _xmm) > veh->phys.angles.v[0] )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vxorps  xmm1, xmm0, xmm8
-    vcomiss xmm1, dword ptr [r12+108h]
-  }
-  if ( !(v81 | v95) )
-  {
-    _RDI = DVARFLT_vehSubmarineMaxDownPitch;
+    v23 = DVARFLT_vehSubmarineMaxDownPitch;
     if ( !DVARFLT_vehSubmarineMaxDownPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxDownPitch") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  dword ptr [r12+108h], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v23);
+    veh->phys.angles.v[0] = COERCE_FLOAT(v23->current.integer ^ _xmm);
     goto LABEL_58;
   }
 LABEL_59:
-  __asm
-  {
-    vmulss  xmm0, xmm11, dword ptr [r12+170h]
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, dword ptr [r12+11Ch]
-    vmovss  dword ptr [r12+110h], xmm2
-  }
-  _RDI = DVARFLT_vehSubmarineMaxRoll;
+  veh->phys.angles.v[2] = (float)((float)(frameDuration * veh->phys.rotVel.v[2]) * 0.001) + veh->phys.prevAngles.v[2];
+  v24 = DVARFLT_vehSubmarineMaxRoll;
   if ( !DVARFLT_vehSubmarineMaxRoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRoll") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_vehSubmarineMaxRoll;
-  __asm { vcomiss xmm0, dword ptr [r12+110h] }
-  if ( v81 )
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = v24->current.value;
+  v26 = DVARFLT_vehSubmarineMaxRoll;
+  if ( v25 < veh->phys.angles.v[2] )
   {
     if ( !DVARFLT_vehSubmarineMaxRoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRoll") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    LODWORD(_R12->phys.angles.v[2]) = _RDI->current.integer;
+    Dvar_CheckFrontendServerThread(v26);
+    LODWORD(veh->phys.angles.v[2]) = v26->current.integer;
 LABEL_75:
-    _R12->phys.rotVel.v[2] = 0.0;
+    veh->phys.rotVel.v[2] = 0.0;
     goto LABEL_76;
   }
   if ( !DVARFLT_vehSubmarineMaxRoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRoll") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v26);
+  if ( COERCE_FLOAT(v26->current.integer ^ _xmm) > veh->phys.angles.v[2] )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vxorps  xmm1, xmm0, xmm8
-    vcomiss xmm1, dword ptr [r12+110h]
-  }
-  if ( !(v81 | v95) )
-  {
-    _RDI = DVARFLT_vehSubmarineMaxRoll;
+    v27 = DVARFLT_vehSubmarineMaxRoll;
     if ( !DVARFLT_vehSubmarineMaxRoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxRoll") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  dword ptr [r12+110h], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v27);
+    veh->phys.angles.v[2] = COERCE_FLOAT(v27->current.integer ^ _xmm);
     goto LABEL_75;
   }
 LABEL_76:
-  __asm
+  if ( outRotAccel.v[0] == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbp+200h+outRotAccel]
-    vucomiss xmm0, xmm15
-  }
-  if ( v95 )
-  {
-    _RDI = DVARFLT_vehSubmarineMinVelNoRestore;
+    v28 = DVARFLT_vehSubmarineMinVelNoRestore;
     if ( !DVARFLT_vehSubmarineMinVelNoRestore && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMinVelNoRestore") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v28);
+    if ( v28->current.value > veh->phys.bodyVel.v[0] )
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, dword ptr [r12+144h]
-    }
-    if ( !(v81 | v95) )
-    {
-      _RDI = DVARFLT_vehSubmarinePitchRestore;
+      v29 = DVARFLT_vehSubmarinePitchRestore;
       if ( !DVARFLT_vehSubmarinePitchRestore && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarinePitchRestore") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmulss  xmm0, xmm0, dword ptr [r12+108h]
-        vmovss  dword ptr [r12+108h], xmm0
-      }
+      Dvar_CheckFrontendServerThread(v29);
+      veh->phys.angles.v[0] = v29->current.value * veh->phys.angles.v[0];
     }
   }
-  __asm
+  if ( outRotAccel.v[2] == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbp+200h+outRotAccel+8]
-    vucomiss xmm0, xmm15
-  }
-  if ( v95 )
-  {
-    _RDI = DVARFLT_vehSubmarineRollRestore;
+    v30 = DVARFLT_vehSubmarineRollRestore;
     if ( !DVARFLT_vehSubmarineRollRestore && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineRollRestore") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm0, xmm0, dword ptr [r12+110h]
-      vmovss  dword ptr [r12+110h], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v30);
+    veh->phys.angles.v[2] = v30->current.value * veh->phys.angles.v[2];
   }
-  __asm
+  *(float *)&v82 = veh->phys.angles.v[0];
+  if ( (v82 & 0x7F800000) == 2139095040 || (*(float *)&v82 = veh->phys.angles.v[1], (v82 & 0x7F800000) == 2139095040) || (*(float *)&v82 = veh->phys.angles.v[2], (v82 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r12+108h]
-    vmovss  dword ptr [rsp+300h+var_2B8], xmm0
-  }
-  if ( (v322 & 0x7F800000) == 2139095040 )
-    goto LABEL_195;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+10Ch]
-    vmovss  dword ptr [rsp+300h+var_2B8], xmm0
-  }
-  if ( (v322 & 0x7F800000) == 2139095040 )
-    goto LABEL_195;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+110h]
-    vmovss  dword ptr [rsp+300h+var_2B8], xmm0
-  }
-  if ( (v322 & 0x7F800000) == 2139095040 )
-  {
-LABEL_195:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 654, ASSERT_TYPE_SANITY, "( !IS_NAN( ( phys->angles )[0] ) && !IS_NAN( ( phys->angles )[1] ) && !IS_NAN( ( phys->angles )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( phys->angles )[0] ) && !IS_NAN( ( phys->angles )[1] ) && !IS_NAN( ( phys->angles )[2] )") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+108h]
-    vmovss  dword ptr [rbp+200h+angles], xmm0
-    vmovss  xmm1, dword ptr [r12+10Ch]
-    vmovss  dword ptr [rbp+200h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [r12+110h]
-    vmovss  dword ptr [rbp+200h+angles+8], xmm0
-  }
+  angles = veh->phys.angles;
   AngleVectors(&angles, forward.m, &forward.m[1], &forward.m[2]);
-  __asm
-  {
-    vmovss  [rbp+200h+var_18C], xmm15
-    vmovss  [rbp+200h+var_188], xmm15
-    vmovss  [rbp+200h+var_184], xmm15
-    vmovss  xmm7, dword ptr [rbp+200h+outBodyAccel]
-    vmulss  xmm2, xmm7, dword ptr [rbp+200h+forward]
-    vmovss  xmm6, dword ptr [rbp+200h+outBodyAccel+4]
-    vmulss  xmm0, xmm6, dword ptr [rbp+200h+right]
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  xmm5, dword ptr [rbp+200h+outBodyAccel+8]
-    vmulss  xmm0, xmm5, dword ptr [rbp+200h+up]
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm3, xmm2, xmm11
-    vmulss  xmm1, xmm3, xmm10
-    vaddss  xmm0, xmm1, dword ptr [r12+138h]
-    vmovss  dword ptr [r12+138h], xmm0
-    vmulss  xmm3, xmm7, dword ptr [rbp+200h+forward+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+200h+right+4]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm5, dword ptr [rbp+200h+up+4]
-    vaddss  xmm1, xmm4, xmm0
-    vmulss  xmm3, xmm1, xmm11
-    vmulss  xmm2, xmm3, xmm10
-    vaddss  xmm0, xmm2, dword ptr [r12+13Ch]
-    vmovss  dword ptr [r12+13Ch], xmm0
-    vmulss  xmm3, xmm7, dword ptr [rbp+200h+forward+8]
-    vmulss  xmm2, xmm6, dword ptr [rbp+200h+right+8]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm5, dword ptr [rbp+200h+up+8]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm3, xmm2, xmm11
-    vmulss  xmm1, xmm3, xmm10
-    vaddss  xmm0, xmm1, dword ptr [r12+140h]
-    vmovss  dword ptr [r12+140h], xmm0
-  }
-  MatrixTransposeTransformVector43(&_R12->phys.vel, &forward, &_R12->phys.bodyVel);
-  _R14 = DVARFLT_vehSubmarineForwardDampening;
+  forward.m[3].v[0] = 0.0;
+  forward.m[3].v[1] = 0.0;
+  forward.m[3].v[2] = 0.0;
+  v31 = outBodyAccel.v[0];
+  v32 = outBodyAccel.v[1];
+  v33 = outBodyAccel.v[2];
+  veh->phys.vel.v[0] = (float)((float)((float)((float)((float)(outBodyAccel.v[0] * forward.m[0].v[0]) + (float)(outBodyAccel.v[1] * forward.m[1].v[0])) + (float)(outBodyAccel.v[2] * forward.m[2].v[0])) * frameDuration) * 0.001) + veh->phys.vel.v[0];
+  veh->phys.vel.v[1] = (float)((float)((float)((float)((float)(v31 * forward.m[0].v[1]) + (float)(v32 * forward.m[1].v[1])) + (float)(v33 * forward.m[2].v[1])) * frameDuration) * 0.001) + veh->phys.vel.v[1];
+  veh->phys.vel.v[2] = (float)((float)((float)((float)((float)(v31 * forward.m[0].v[2]) + (float)(v32 * forward.m[1].v[2])) + (float)(v33 * forward.m[2].v[2])) * frameDuration) * 0.001) + veh->phys.vel.v[2];
+  MatrixTransposeTransformVector43(&veh->phys.vel, &forward, &veh->phys.bodyVel);
+  v34 = DVARFLT_vehSubmarineForwardDampening;
   if ( !DVARFLT_vehSubmarineForwardDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineForwardDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vmulss  xmm0, xmm0, dword ptr [r12+144h]
-    vmovss  dword ptr [r12+144h], xmm0
-  }
-  _R14 = DVARFLT_vehSubmarineLateralDampening;
+  Dvar_CheckFrontendServerThread(v34);
+  veh->phys.bodyVel.v[0] = v34->current.value * veh->phys.bodyVel.v[0];
+  v35 = DVARFLT_vehSubmarineLateralDampening;
   if ( !DVARFLT_vehSubmarineLateralDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineLateralDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vmulss  xmm0, xmm0, dword ptr [r12+148h]
-    vmovss  dword ptr [r12+148h], xmm0
-  }
-  _R14 = DVARFLT_vehSubmarineLateralDampening;
+  Dvar_CheckFrontendServerThread(v35);
+  veh->phys.bodyVel.v[1] = v35->current.value * veh->phys.bodyVel.v[1];
+  v36 = DVARFLT_vehSubmarineLateralDampening;
   if ( !DVARFLT_vehSubmarineLateralDampening && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineLateralDampening") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vmulss  xmm0, xmm0, dword ptr [r12+14Ch]
-    vmovss  dword ptr [r12+14Ch], xmm0
-  }
-  _R14 = DVARFLT_vehSubmarineMinForwardVel;
+  Dvar_CheckFrontendServerThread(v36);
+  veh->phys.bodyVel.v[2] = v36->current.value * veh->phys.bodyVel.v[2];
+  v37 = DVARFLT_vehSubmarineMinForwardVel;
   if ( !DVARFLT_vehSubmarineMinForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMinForwardVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v37);
+  if ( v37->current.value > 0.0 )
   {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vcomiss xmm0, xmm15
-  }
-  if ( !(v81 | v95) )
-  {
-    _R14 = DVARFLT_vehSubmarineMinForwardVel;
+    v38 = DVARFLT_vehSubmarineMinForwardVel;
     if ( !DVARFLT_vehSubmarineMinForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMinForwardVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
+    Dvar_CheckFrontendServerThread(v38);
+    if ( v38->current.value > veh->phys.bodyVel.v[0] )
     {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vcomiss xmm0, dword ptr [r12+144h]
-    }
-    if ( !(v81 | v95) )
-    {
-      v157 = DVARFLT_vehSubmarineMinForwardVel;
+      v39 = DVARFLT_vehSubmarineMinForwardVel;
       if ( !DVARFLT_vehSubmarineMinForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMinForwardVel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v157);
-      LODWORD(_R12->phys.bodyVel.v[0]) = v157->current.integer;
+      Dvar_CheckFrontendServerThread(v39);
+      LODWORD(veh->phys.bodyVel.v[0]) = v39->current.integer;
     }
   }
-  _R14 = DVARFLT_vehSubmarineMaxForwardVel;
+  v40 = DVARFLT_vehSubmarineMaxForwardVel;
   if ( !DVARFLT_vehSubmarineMaxForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxForwardVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm
+  Dvar_CheckFrontendServerThread(v40);
+  if ( v40->current.value >= veh->phys.bodyVel.v[0] )
   {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vcomiss xmm0, dword ptr [r12+144h]
-  }
-  if ( v81 )
-  {
-    v160 = DVARFLT_vehSubmarineMaxForwardVel;
-    if ( !DVARFLT_vehSubmarineMaxForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxForwardVel") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v160);
-    LODWORD(_R12->phys.bodyVel.v[0]) = v160->current.integer;
-  }
-  else
-  {
-    _R14 = DVARFLT_vehSubmarineMaxReverseVel;
+    v42 = DVARFLT_vehSubmarineMaxReverseVel;
     if ( !DVARFLT_vehSubmarineMaxReverseVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxReverseVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
+    Dvar_CheckFrontendServerThread(v42);
+    if ( COERCE_FLOAT(v42->current.integer ^ _xmm) > veh->phys.bodyVel.v[0] )
     {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vxorps  xmm1, xmm0, xmm8
-      vcomiss xmm1, dword ptr [r12+144h]
-    }
-    if ( !(v81 | v95) )
-    {
-      _R14 = DVARFLT_vehSubmarineMaxReverseVel;
+      v43 = DVARFLT_vehSubmarineMaxReverseVel;
       if ( !DVARFLT_vehSubmarineMaxReverseVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxReverseVel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+28h]
-        vxorps  xmm1, xmm0, xmm8
-        vmovss  dword ptr [r12+144h], xmm1
-      }
+      Dvar_CheckFrontendServerThread(v43);
+      veh->phys.bodyVel.v[0] = COERCE_FLOAT(v43->current.integer ^ _xmm);
     }
   }
-  _R14 = DVARFLT_vehSubmarineMaxLateralVel;
+  else
+  {
+    v41 = DVARFLT_vehSubmarineMaxForwardVel;
+    if ( !DVARFLT_vehSubmarineMaxForwardVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxForwardVel") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v41);
+    LODWORD(veh->phys.bodyVel.v[0]) = v41->current.integer;
+  }
+  v44 = DVARFLT_vehSubmarineMaxLateralVel;
   if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm { vmovss  xmm0, dword ptr [r14+28h] }
-  _R14 = DVARFLT_vehSubmarineMaxLateralVel;
-  __asm { vcomiss xmm0, dword ptr [r12+148h] }
-  if ( v81 )
+  Dvar_CheckFrontendServerThread(v44);
+  v45 = v44->current.value;
+  v46 = DVARFLT_vehSubmarineMaxLateralVel;
+  if ( v45 >= veh->phys.bodyVel.v[1] )
   {
     if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    LODWORD(_R12->phys.bodyVel.v[1]) = _R14->current.integer;
+    Dvar_CheckFrontendServerThread(v46);
+    if ( COERCE_FLOAT(v46->current.integer ^ _xmm) > veh->phys.bodyVel.v[1] )
+    {
+      v47 = DVARFLT_vehSubmarineMaxLateralVel;
+      if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v47);
+      veh->phys.bodyVel.v[1] = COERCE_FLOAT(v47->current.integer ^ _xmm);
+    }
   }
   else
   {
     if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vxorps  xmm1, xmm0, xmm8
-      vcomiss xmm1, dword ptr [r12+148h]
-    }
-    if ( !(v81 | v95) )
-    {
-      _R14 = DVARFLT_vehSubmarineMaxLateralVel;
-      if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+28h]
-        vxorps  xmm1, xmm0, xmm8
-        vmovss  dword ptr [r12+148h], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v46);
+    LODWORD(veh->phys.bodyVel.v[1]) = v46->current.integer;
   }
-  _R14 = DVARFLT_vehSubmarineMaxLateralVel;
+  v48 = DVARFLT_vehSubmarineMaxLateralVel;
   if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_R14);
-  __asm { vmovss  xmm0, dword ptr [r14+28h] }
-  _R14 = DVARFLT_vehSubmarineMaxLateralVel;
-  __asm { vcomiss xmm0, dword ptr [r12+14Ch] }
-  if ( v81 )
+  Dvar_CheckFrontendServerThread(v48);
+  v49 = v48->current.value;
+  v50 = DVARFLT_vehSubmarineMaxLateralVel;
+  if ( v49 >= veh->phys.bodyVel.v[2] )
   {
     if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    LODWORD(_R12->phys.bodyVel.v[2]) = _R14->current.integer;
+    Dvar_CheckFrontendServerThread(v50);
+    if ( COERCE_FLOAT(v50->current.integer ^ _xmm) > veh->phys.bodyVel.v[2] )
+    {
+      v51 = DVARFLT_vehSubmarineMaxLateralVel;
+      if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v51);
+      veh->phys.bodyVel.v[2] = COERCE_FLOAT(v51->current.integer ^ _xmm);
+    }
   }
   else
   {
     if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R14);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vxorps  xmm1, xmm0, xmm8
-      vcomiss xmm1, dword ptr [r12+14Ch]
-    }
-    if ( !(v81 | v95) )
-    {
-      _R14 = DVARFLT_vehSubmarineMaxLateralVel;
-      if ( !DVARFLT_vehSubmarineMaxLateralVel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehSubmarineMaxLateralVel") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+28h]
-        vxorps  xmm1, xmm0, xmm8
-        vmovss  dword ptr [r12+14Ch], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v50);
+    LODWORD(veh->phys.bodyVel.v[2]) = v50->current.integer;
   }
-  MatrixTransformVector(&_R12->phys.bodyVel, (const tmat33_t<vec3_t> *)&forward, &_R12->phys.vel);
-  __asm
+  MatrixTransformVector(&veh->phys.bodyVel, (const tmat33_t<vec3_t> *)&forward, &veh->phys.vel);
+  if ( 0.0 != veh->phys.vel.v[0] || 0.0 != veh->phys.vel.v[1] || 0.0 != veh->phys.vel.v[2] )
   {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [r12+138h]
-  }
-  if ( !v183 )
-    goto LABEL_167;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [r12+13Ch]
-  }
-  if ( !v183 )
-    goto LABEL_167;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    vucomiss xmm0, dword ptr [r12+140h]
-  }
-  if ( !v183 )
-  {
-LABEL_167:
     MatrixTransformVector43(&in1, &forward, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+138h]
-      vmovss  [rbp+200h+var_1D0], xmm0
-      vmovss  xmm5, dword ptr [r12+13Ch]
-      vmovss  [rbp+200h+var_1CC], xmm5
-      vmovss  xmm6, dword ptr [r12+140h]
-      vmovss  [rbp+200h+var_1C8], xmm6
-      vmovss  [rbp+200h+var_210], xmm0
-      vmovss  [rbp+200h+var_20C], xmm5
-      vmovss  [rbp+200h+var_208], xmm6
-      vmovss  xmm12, dword ptr [r12+0F0h]
-      vmovss  xmm13, dword ptr [r12+0F4h]
-      vmovss  xmm14, dword ptr [r12+0F8h]
-      vaddss  xmm2, xmm12, dword ptr [rbp+200h+out]
-      vmovss  dword ptr [rbp+200h+start], xmm2
-      vaddss  xmm3, xmm13, dword ptr [rbp+200h+out+4]
-      vmovss  dword ptr [rbp+200h+start+4], xmm3
-      vaddss  xmm4, xmm14, dword ptr [rbp+200h+out+8]
-      vmovss  dword ptr [rbp+200h+start+8], xmm4
-      vmulss  xmm0, xmm11, xmm0
-      vmulss  xmm1, xmm0, xmm10
-      vaddss  xmm2, xmm1, xmm2
-      vmovss  dword ptr [rbp+200h+end], xmm2
-      vmulss  xmm0, xmm11, xmm5
-      vmulss  xmm1, xmm0, xmm10
-      vaddss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rbp+200h+end+4], xmm2
-      vmulss  xmm0, xmm11, xmm6
-      vmulss  xmm1, xmm0, xmm10
-      vaddss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rbp+200h+end+8], xmm2
-    }
+    v92 = veh->phys.vel.v[0];
+    v93 = veh->phys.vel.v[1];
+    v94 = veh->phys.vel.v[2];
+    v86 = v92;
+    v87 = v93;
+    v88 = v94;
+    v52 = veh->phys.origin.v[0];
+    v53 = veh->phys.origin.v[1];
+    v54 = veh->phys.origin.v[2];
+    start.v[0] = v52 + out.v[0];
+    start.v[1] = v53 + out.v[1];
+    start.v[2] = v54 + out.v[2];
+    end.v[0] = (float)((float)(frameDuration * v92) * 0.001) + (float)(v52 + out.v[0]);
+    end.v[1] = (float)((float)(frameDuration * v93) * 0.001) + (float)(v53 + out.v[1]);
+    end.v[2] = (float)((float)(frameDuration * v94) * 0.001) + (float)(v54 + out.v[2]);
     G_Main_TraceCapsule(&results, &start, &end, &bounds, ent->s.number, ent->clipmask);
-    __asm
+    if ( results.fraction < 1.0 && (EntityHitId = Trace_GetEntityHitId(&results), (unsigned int)(EntityHitId - 2046) > 1) && (vehicle = g_entities[EntityHitId].vehicle) != NULL )
     {
-      vmovss  xmm0, [rbp+200h+results.fraction]
-      vcomiss xmm0, xmm9
-    }
-    if ( v81 && (EntityHitId = Trace_GetEntityHitId(&results), (unsigned int)(EntityHitId - 2046) > 1) && (_RAX = g_entities[EntityHitId].vehicle) != NULL )
-    {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rax+138h]
-        vmovss  xmm7, dword ptr [rax+13Ch]
-        vmovss  xmm8, dword ptr [rax+140h]
-      }
-      BYTE1(v320) = 1;
-      __asm
-      {
-        vmovss  xmm0, [rbp+200h+var_210]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  [rbp+200h+var_210], xmm1
-        vmovss  xmm2, [rbp+200h+var_20C]
-        vsubss  xmm0, xmm2, xmm7
-        vmovss  [rbp+200h+var_20C], xmm0
-        vmovss  xmm1, [rbp+200h+var_208]
-        vsubss  xmm2, xmm1, xmm8
-        vmovss  [rbp+200h+var_208], xmm2
-      }
+      v57 = vehicle->phys.vel.v[0];
+      v58 = vehicle->phys.vel.v[1];
+      v59 = vehicle->phys.vel.v[2];
+      BYTE1(v80) = 1;
+      v86 = v86 - v57;
+      v87 = v87 - v58;
+      v88 = v88 - v59;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rsp+300h+var_2B8]
-        vmovss  xmm6, dword ptr [rsp+300h+var_2B8]
-        vmovss  xmm8, dword ptr [rsp+300h+var_2B8]
-      }
+      v58 = *(float *)&v82;
+      v57 = *(float *)&v82;
+      v59 = *(float *)&v82;
     }
     G_Vehicle_ClearGround(ent);
     stepSlide.__vftable = (GStepSlideMove_vtbl *)&GStepSlideMove::`vftable';
-    __asm
-    {
-      vmovss  dword ptr [rbp+200h+outBodyAccel], xmm15
-      vmovss  dword ptr [rbp+200h+outBodyAccel+4], xmm15
-      vmovss  dword ptr [rbp+200h+outBodyAccel+8], xmm9
-      vmulss  xmm0, xmm11, xmm10
-      vmovss  [rsp+300h+stepSlide.baseclass_0.deltaTime], xmm0
-    }
+    outBodyAccel.v[0] = 0.0;
+    outBodyAccel.v[1] = 0.0;
+    outBodyAccel.v[2] = FLOAT_1_0;
+    stepSlide.deltaTime = frameDuration * 0.001;
     stepSlide.origin = &start;
-    stepSlide.velocity = (vec3_t *)&v326;
+    stepSlide.velocity = (vec3_t *)&v86;
     stepSlide.bounds = &bounds;
     *(_WORD *)&stepSlide.gravity = 0;
     stepSlide.zerog = 1;
-    stepSlide.inSolid = (bool *)&v320;
+    stepSlide.inSolid = (bool *)&v80;
     stepSlide.groundNormal = &outBodyAccel;
     stepSlide.passEntities[0] = ent->s.number;
     stepSlide.passEntityCount = 1;
     stepSlide.clipMask = ent->clipmask;
     stepSlide.velocityClipType = VELOCITY_CLIP_VEHICLE_SUB;
     G_Vehicle_SlideMoveIgnoreLinkedChildren(ent, &stepSlide);
-    v220 = BgStepSlideMove::SlideMove(&stepSlide);
+    v60 = BgStepSlideMove::SlideMove(&stepSlide);
     bumpEntityNum = (unsigned int)stepSlide.bumpEntityNum;
     BgStepSlideMove::~BgStepSlideMove(&stepSlide);
-    __asm
+    v62 = start.v[0] - out.v[0];
+    veh->phys.origin.v[0] = start.v[0] - out.v[0];
+    v63 = start.v[1] - out.v[1];
+    veh->phys.origin.v[1] = start.v[1] - out.v[1];
+    v64 = start.v[2] - out.v[2];
+    veh->phys.origin.v[2] = start.v[2] - out.v[2];
+    if ( !BYTE1(v80) || (_BYTE)v80 )
     {
-      vmovss  xmm0, dword ptr [rbp+200h+start]
-      vsubss  xmm2, xmm0, dword ptr [rbp+200h+out]
-      vmovss  dword ptr [r12+0F0h], xmm2
-      vmovss  xmm1, dword ptr [rbp+200h+start+4]
-      vsubss  xmm3, xmm1, dword ptr [rbp+200h+out+4]
-      vmovss  dword ptr [r12+0F4h], xmm3
-      vmovss  xmm0, dword ptr [rbp+200h+start+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+200h+out+8]
-      vmovss  dword ptr [r12+0F8h], xmm4
-    }
-    if ( !BYTE1(v320) || (_BYTE)v320 )
-    {
-      __asm
-      {
-        vmovss  xmm1, [rbp+200h+var_208]
-        vmovss  xmm2, [rbp+200h+var_20C]
-        vmovss  xmm3, [rbp+200h+var_210]
-      }
+      v67 = v88;
+      v66 = v87;
+      v65 = v86;
     }
     else
     {
+      veh->phys.origin.v[0] = (float)((float)(v12 * v57) * 0.001) + v62;
+      veh->phys.origin.v[1] = (float)((float)(v58 * v12) * 0.001) + v63;
+      veh->phys.origin.v[2] = (float)((float)(v59 * v12) * 0.001) + v64;
+      v65 = v86 + v57;
+      v86 = v86 + v57;
+      v66 = v87 + v58;
+      v87 = v87 + v58;
+      v67 = v88 + v59;
+      v88 = v88 + v59;
+    }
+    veh->phys.vel.v[0] = v65;
+    veh->phys.vel.v[1] = v66;
+    veh->phys.vel.v[2] = v67;
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_vehSubmarineAllowInSolid, "vehSubmarineAllowInSolid") && (_BYTE)v80 )
+    {
+      veh->phys.origin.v[0] = (float)((float)(v12 * veh->phys.vel.v[0]) * 0.001) + veh->phys.origin.v[0];
+      veh->phys.origin.v[1] = (float)((float)(v12 * veh->phys.vel.v[1]) * 0.001) + veh->phys.origin.v[1];
+      veh->phys.origin.v[2] = (float)((float)(v12 * veh->phys.vel.v[2]) * 0.001) + veh->phys.origin.v[2];
+    }
+    if ( v60 )
+    {
+      v68 = veh->phys.origin.v[0] - (float)((float)((float)(v12 * 0.001) * v92) + v52);
+      v70 = LODWORD(veh->phys.origin.v[1]);
+      v69 = veh->phys.origin.v[1] - (float)((float)((float)(v12 * 0.001) * v93) + v53);
+      v71 = veh->phys.origin.v[2] - (float)((float)((float)(v12 * 0.001) * v94) + v54);
+      *(float *)&v70 = fsqrt((float)((float)(v69 * v69) + (float)(v68 * v68)) + (float)(v71 * v71));
+      _XMM3 = v70;
       __asm
       {
-        vmulss  xmm0, xmm11, xmm6
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, xmm2
-        vmovss  dword ptr [r12+0F0h], xmm2
-        vmulss  xmm0, xmm7, xmm11
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [r12+0F4h], xmm2
-        vmulss  xmm0, xmm8, xmm11
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [r12+0F8h], xmm2
-        vmovss  xmm0, [rbp+200h+var_210]
-        vaddss  xmm3, xmm0, xmm6
-        vmovss  [rbp+200h+var_210], xmm3
-        vmovss  xmm1, [rbp+200h+var_20C]
-        vaddss  xmm2, xmm1, xmm7
-        vmovss  [rbp+200h+var_20C], xmm2
-        vmovss  xmm0, [rbp+200h+var_208]
-        vaddss  xmm1, xmm0, xmm8
-        vmovss  [rbp+200h+var_208], xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  dword ptr [r12+138h], xmm3
-      vmovss  dword ptr [r12+13Ch], xmm2
-      vmovss  dword ptr [r12+140h], xmm1
-    }
-    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_vehSubmarineAllowInSolid, "vehSubmarineAllowInSolid") && (_BYTE)v320 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm11, dword ptr [r12+138h]
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, dword ptr [r12+0F0h]
-        vmovss  dword ptr [r12+0F0h], xmm2
-        vmulss  xmm0, xmm11, dword ptr [r12+13Ch]
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, dword ptr [r12+0F4h]
-        vmovss  dword ptr [r12+0F4h], xmm2
-        vmulss  xmm0, xmm11, dword ptr [r12+140h]
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, dword ptr [r12+0F8h]
-        vmovss  dword ptr [r12+0F8h], xmm2
-      }
-    }
-    if ( v220 )
-    {
-      __asm
-      {
-        vmulss  xmm4, xmm11, xmm10
-        vmulss  xmm1, xmm4, [rbp+200h+var_1D0]
-        vaddss  xmm3, xmm1, xmm12
-        vmovss  xmm2, dword ptr [r12+0F0h]
-        vsubss  xmm6, xmm2, xmm3
-        vmulss  xmm1, xmm4, [rbp+200h+var_1CC]
-        vaddss  xmm3, xmm1, xmm13
-        vmovss  xmm2, dword ptr [r12+0F4h]
-        vsubss  xmm5, xmm2, xmm3
-        vmulss  xmm1, xmm4, [rbp+200h+var_1C8]
-        vaddss  xmm3, xmm1, xmm14
-        vmovss  xmm2, dword ptr [r12+0F8h]
-        vsubss  xmm4, xmm2, xmm3
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm9, xmm0
-        vdivss  xmm2, xmm9, xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  [rbp+200h+value], xmm0
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  [rbp+200h+var_144], xmm1
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  [rbp+200h+var_140], xmm0
-        vcomiss xmm3, xmm15
       }
-      v277 = ScriptContext_Server();
-      v278 = v277;
-      if ( (unsigned int)(bumpEntityNum - 2046) <= 1 )
-        Scr_AddUndefined(v277);
-      else
-        GScr_AddEntity(&g_entities[bumpEntityNum]);
-      Scr_AddVector(v278, value);
-      Scr_AddVector(v278, v332);
-      GScr_Notify(ent, scr_const.veh_collision, 3u);
+      value[0] = v68 * (float)(1.0 / *(float *)&_XMM0);
+      value[1] = v69 * (float)(1.0 / *(float *)&_XMM0);
+      value[2] = v71 * (float)(1.0 / *(float *)&_XMM0);
+      if ( *(float *)&v70 > 0.0 )
+      {
+        v75 = ScriptContext_Server();
+        v76 = v75;
+        if ( (unsigned int)(bumpEntityNum - 2046) <= 1 )
+          Scr_AddUndefined(v75);
+        else
+          GScr_AddEntity(&g_entities[bumpEntityNum]);
+        Scr_AddVector(v76, value);
+        Scr_AddVector(v76, &v92);
+        GScr_Notify(ent, scr_const.veh_collision, 3u);
+      }
     }
   }
   G_VehicleSubmarine_CheckForPredictedCrash(ent);
-  MatrixTransposeTransformVector43(&_R12->phys.vel, &forward, &_R12->phys.bodyVel);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r12+13Ch]
-    vmovss  xmm0, dword ptr [r12+138h]
-    vmovss  xmm3, dword ptr [r12+140h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmovss  dword ptr [r12+588h], xmm0
-    vcomiss xmm0, xmm15
-  }
-  if ( v81 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 767, ASSERT_TYPE_ASSERT, "(veh->speed >= 0.0f)", (const char *)&queryFormat, "veh->speed >= 0.0f") )
+  MatrixTransposeTransformVector43(&veh->phys.vel, &forward, &veh->phys.bodyVel);
+  v77 = fsqrt((float)((float)(veh->phys.vel.v[0] * veh->phys.vel.v[0]) + (float)(veh->phys.vel.v[1] * veh->phys.vel.v[1])) + (float)(veh->phys.vel.v[2] * veh->phys.vel.v[2]));
+  veh->speed = v77;
+  if ( v77 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_submarine_sp.cpp", 767, ASSERT_TYPE_ASSERT, "(veh->speed >= 0.0f)", (const char *)&queryFormat, "veh->speed >= 0.0f") )
     __debugbreak();
   if ( Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_vehicleDebug, "bg_vehicleDebug") )
   {
     MatrixTransformVector(&in1, (const tmat33_t<vec3_t> *)&forward, &outBodyAccel);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+200h+outBodyAccel]
-      vaddss  xmm1, xmm0, dword ptr [r12+0F0h]
-      vmovss  dword ptr [rbp+200h+outBodyAccel], xmm1
-      vmovss  xmm0, dword ptr [rbp+200h+outBodyAccel+4]
-      vaddss  xmm1, xmm0, dword ptr [r12+0F4h]
-      vmovss  dword ptr [rbp+200h+outBodyAccel+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+200h+outBodyAccel+8]
-      vaddss  xmm1, xmm0, dword ptr [r12+0F8h]
-      vsubss  xmm2, xmm1, dword ptr [rbp+200h+bounds.halfSize+8]
-      vmovss  dword ptr [rbp+200h+outBodyAccel+8], xmm2
-    }
-    _RAX = vec3_t::operator[](&bounds.halfSize, 2);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vmulss  xmm2, xmm0, cs:__real@40000000; height
-      vmovss  [rsp+300h+contentmask], xmm15
-      vmovss  dword ptr [rsp+300h+fmt], xmm9
-      vmovaps xmm3, xmm9; r
-      vmovss  xmm1, dword ptr [rbp+200h+bounds.halfSize]; rad
-    }
-    G_Vehicle_DebugCapsule(&outBodyAccel, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, *(float *)&contentmask);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+0F0h]
-      vaddss  xmm1, xmm0, dword ptr [r12+138h]
-      vmovss  dword ptr [rbp+200h+outBodyAccel], xmm1
-      vmovss  xmm2, dword ptr [r12+13Ch]
-      vaddss  xmm0, xmm2, dword ptr [r12+0F4h]
-      vmovss  dword ptr [rbp+200h+outBodyAccel+4], xmm0
-      vmovss  xmm1, dword ptr [r12+140h]
-      vaddss  xmm2, xmm1, dword ptr [r12+0F8h]
-      vmovss  dword ptr [rbp+200h+outBodyAccel+8], xmm2
-    }
-    v306 = &colorYellow;
-    if ( (_BYTE)v320 )
-      v306 = &colorBlue;
-    G_DebugLine(&_R12->phys.origin, &outBodyAccel, v306, 1);
-  }
-  _R11 = &v340;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    outBodyAccel.v[0] = outBodyAccel.v[0] + veh->phys.origin.v[0];
+    outBodyAccel.v[1] = outBodyAccel.v[1] + veh->phys.origin.v[1];
+    outBodyAccel.v[2] = (float)(outBodyAccel.v[2] + veh->phys.origin.v[2]) - bounds.halfSize.v[2];
+    v78 = (float *)vec3_t::operator[](&bounds.halfSize, 2);
+    G_Vehicle_DebugCapsule(&outBodyAccel, bounds.halfSize.v[0], *v78 * 2.0, 1.0, 1.0, 0.0);
+    outBodyAccel.v[0] = veh->phys.origin.v[0] + veh->phys.vel.v[0];
+    outBodyAccel.v[1] = veh->phys.vel.v[1] + veh->phys.origin.v[1];
+    outBodyAccel.v[2] = veh->phys.vel.v[2] + veh->phys.origin.v[2];
+    v79 = &colorYellow;
+    if ( (_BYTE)v80 )
+      v79 = &colorBlue;
+    G_DebugLine(&veh->phys.origin, &outBodyAccel, v79, 1);
   }
 }
 

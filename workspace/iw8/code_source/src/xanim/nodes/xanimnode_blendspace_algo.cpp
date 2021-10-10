@@ -27,25 +27,7 @@ XAnimBlendSpace2D_IsTriangleCollinear
 */
 bool XAnimBlendSpace2D_IsTriangleCollinear(const vec2_t *pointA, const vec2_t *pointB, const vec2_t *pointC)
 {
-  char v3; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vsubss  xmm3, xmm0, dword ptr [rcx+4]
-    vmovss  xmm1, dword ptr [rdx]
-    vsubss  xmm2, xmm1, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  xmm1, dword ptr [r8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+4]
-    vmulss  xmm5, xmm3, xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx]
-    vmulss  xmm0, xmm4, xmm2
-    vsubss  xmm3, xmm5, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm3, xmm1
-  }
-  return v3 != 0;
+  return (float)((float)((float)(pointC->v[1] - pointA->v[1]) * (float)(pointB->v[0] - pointA->v[0])) - (float)((float)(pointB->v[1] - pointA->v[1]) * (float)(pointC->v[0] - pointA->v[0]))) == 0.0;
 }
 
 /*
@@ -56,1535 +38,1238 @@ XAnimBlendSpace2D_Triangulate
 void XAnimBlendSpace2D_Triangulate(const XAnimFieldArray<float> *coords, const vec2_t *rangeX, const vec2_t *rangeY, ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *outTriangles)
 {
   signed __int64 v4; 
-  void *v15; 
-  unsigned __int64 v19; 
+  void *v5; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v6; 
+  unsigned __int64 v9; 
   ntl::internal::pool_allocator_freelist<56> *p_m_freelist; 
-  char *v21; 
-  ntl::internal::pool_allocator_freelist<56> *v22; 
-  char *v23; 
+  char *v11; 
+  ntl::internal::pool_allocator_freelist<56> *v12; 
+  char *v13; 
   char *Value; 
-  unsigned int *v25; 
-  unsigned int v26; 
-  _QWORD *v27; 
-  char *v28; 
-  __int64 v29; 
-  unsigned __int64 v30; 
+  unsigned int *v15; 
+  unsigned int v16; 
+  _QWORD *v17; 
+  char *v18; 
+  __int64 v19; 
+  unsigned __int64 v20; 
   ThreadContext CurrentThreadContext; 
-  unsigned __int64 v61; 
-  unsigned int v67; 
-  unsigned int v69; 
-  unsigned __int64 v74; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  unsigned __int64 v40; 
+  const XAnimFieldArray<float> *v41; 
+  unsigned int v42; 
+  __int64 v43; 
+  float v44; 
+  float v45; 
+  unsigned __int64 v46; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *mp_left; 
-  ntl::red_black_tree_node_base *v77; 
-  ntl::red_black_tree_node_base *v78; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v79; 
-  bool v80; 
-  bool v81; 
-  Edge *v89; 
-  __int64 v90; 
-  __int64 v92; 
-  __int64 v94; 
-  bool v95; 
-  bool v96; 
-  bool v101; 
-  bool v104; 
-  __int64 v105; 
-  bool v108; 
-  __int64 v118; 
+  ntl::red_black_tree_node_base *v49; 
+  ntl::red_black_tree_node_base *v50; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v51; 
+  Edge *v52; 
+  Triangle *v53; 
+  __int64 v54; 
+  float v55; 
+  char *v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  bool v60; 
+  bool v61; 
+  bool v62; 
+  float v63; 
+  float v64; 
+  bool v65; 
+  __int64 v66; 
+  __m256i *v67; 
+  char *v68; 
+  bool v69; 
+  float *v70; 
+  __int64 v71; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
-  bool v121; 
-  bool v134; 
-  ntl::red_black_tree_node_base *v135; 
-  Edge *v136; 
-  ntl::red_black_tree_node_base *v137; 
-  ntl::red_black_tree_node_base *v138; 
-  bool v139; 
-  ntl::red_black_tree_node_base *v140; 
-  ntl::red_black_tree_node_base *v141; 
-  ntl::red_black_tree_node_base *v142; 
-  bool v143; 
-  ntl::red_black_tree_node_base *v144; 
-  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> *v145; 
-  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > *v146; 
-  ntl::red_black_tree_node_base *v147; 
-  bool v148; 
+  ntl::red_black_tree_node_base *v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  bool v78; 
+  bool v79; 
+  bool v80; 
+  ntl::red_black_tree_node_base *v81; 
+  Edge *v82; 
+  ntl::red_black_tree_node_base *v83; 
+  ntl::red_black_tree_node_base *v84; 
+  bool v85; 
+  ntl::red_black_tree_node_base *v86; 
+  ntl::red_black_tree_node_base *v87; 
+  ntl::red_black_tree_node_base *v88; 
+  bool v89; 
+  ntl::red_black_tree_node_base *v90; 
+  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> *v91; 
+  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > *v92; 
+  ntl::red_black_tree_node_base *v93; 
+  bool v94; 
   ntl::red_black_tree_node_base *prev; 
   ntl::red_black_tree_node_base *next; 
-  ntl::red_black_tree_node_base *v151; 
-  ntl::red_black_tree_node_base *v152; 
+  ntl::red_black_tree_node_base *v97; 
+  ntl::red_black_tree_node_base *v98; 
   unsigned __int64 m_size; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v155; 
-  __int64 v157; 
-  __int64 v159; 
-  bool v160; 
-  bool v161; 
-  bool v166; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v167; 
+  float *v100; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v101; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v102; 
+  __int64 v103; 
+  float v104; 
+  char *v105; 
+  float v106; 
+  float v107; 
+  float v108; 
+  bool v109; 
+  bool v110; 
+  bool v111; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v112; 
+  float v113; 
+  float v114; 
+  bool v115; 
+  __int64 v116; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v117; 
+  unsigned __int64 v118; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v119; 
+  char *v120; 
+  bool v121; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v122; 
+  ntl::red_black_tree_node_base *v123; 
+  unsigned int mp_left_high; 
+  unsigned int v125; 
+  float v126; 
+  float v127; 
+  int v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  float v137; 
+  float v138; 
+  float v139; 
+  float v140; 
+  __int64 v141; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v142; 
+  char *v143; 
+  float v144; 
+  float v145; 
+  bool v146; 
+  bool v147; 
+  bool v148; 
+  __int64 v149; 
+  __m256i *v150; 
+  char *v151; 
+  bool v152; 
+  unsigned __int64 v153; 
+  unsigned __int64 v154; 
+  __int64 v155; 
+  float *v156; 
+  float *v157; 
+  float v158; 
+  float v159; 
+  float v160; 
+  Triangle *v161; 
+  __int64 v162; 
+  bool v163; 
+  __int64 v164; 
+  __m256i *v165; 
+  char *v166; 
+  bool v167; 
+  Triangle *i; 
+  const Triangle *v169; 
   bool v170; 
   __int64 v171; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v172; 
-  unsigned __int64 v173; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v174; 
-  bool v176; 
-  bool v184; 
-  bool v185; 
-  unsigned int mp_left_high; 
-  unsigned int v197; 
-  int v202; 
-  __int64 v231; 
-  __int64 v233; 
-  bool v234; 
-  bool v235; 
-  bool v239; 
-  __int64 v240; 
-  bool v243; 
-  unsigned __int64 v254; 
-  unsigned __int64 v255; 
-  __int64 v256; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v257; 
-  bool v258; 
-  __int64 v265; 
-  bool v266; 
-  __int64 v267; 
-  bool v270; 
-  char *v299; 
-  Triangle *i; 
-  const Triangle *v301; 
-  bool v302; 
-  __int64 v303; 
   Triangle *iter; 
-  Triangle *v305; 
-  bool v307; 
+  Triangle *v173; 
+  __m256i *p_m_area; 
+  bool v175; 
+  Triangle *v176; 
   unsigned __int64 j; 
   __int64 coordIndexB; 
   __int64 coordIndexBa; 
   __int64 coordIndexC; 
   __int64 coordIndexCa; 
-  unsigned int v330; 
-  unsigned int v333; 
-  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v335; 
-  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v337; 
+  unsigned int v183; 
+  float v184; 
+  float v185; 
+  unsigned int v186; 
+  float v187; 
+  ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *v188; 
+  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v190; 
   ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> result; 
-  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v339; 
-  char v340; 
-  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v341; 
-  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v342; 
+  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v192; 
+  char v193; 
+  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v194; 
+  ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> v195; 
   vec2_t pointC; 
   vec2_t pointA; 
   vec2_t pointB; 
-  char v346[64]; 
-  __m256i v347; 
-  __int128 v348; 
-  int v349; 
-  Triangle v350; 
-  char v351[11020]; 
-  unsigned __int64 v352; 
-  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > v353; 
-  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > v354; 
-  char v365; 
+  char v199[64]; 
+  __m256i v200; 
+  __int128 v201; 
+  int v202; 
+  Triangle v203; 
+  char v204[11020]; 
+  unsigned __int64 v205; 
+  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > v206; 
+  ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge> > v207; 
 
-  v15 = alloca(v4);
-  __asm
-  {
-    vmovaps [rsp+0AC20h+var_40], xmm6
-    vmovaps [rsp+0AC20h+var_50], xmm7
-    vmovaps [rsp+0AC20h+var_60], xmm8
-    vmovaps [rsp+0AC20h+var_70], xmm9
-    vmovaps [rsp+0AC20h+var_80], xmm10
-    vmovaps [rsp+0AC20h+var_90], xmm11
-    vmovaps [rsp+0AC20h+var_A0], xmm12
-    vmovaps [rsp+0AC20h+var_B0], xmm13
-    vmovaps [rsp+0AC20h+var_C0], xmm14
-    vmovaps [rsp+0AC20h+var_D0], xmm15
-  }
-  _R13 = outTriangles;
-  _R14 = rangeY;
-  _R15 = rangeX;
+  v5 = alloca(v4);
+  v6 = outTriangles;
   if ( !coords && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.cpp", 49, ASSERT_TYPE_ASSERT, "(coords)", (const char *)&queryFormat, "coords") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.cpp", 50, ASSERT_TYPE_ASSERT, "(outTriangles)", (const char *)&queryFormat, "outTriangles") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.cpp", 50, ASSERT_TYPE_ASSERT, "(outTriangles)", (const char *)&queryFormat, "outTriangles") )
     __debugbreak();
-  v19 = 0i64;
-  v352 = 0i64;
-  p_m_freelist = &v353.m_freelist;
-  v21 = &v353.m_data.m_buffer[16072];
+  v9 = 0i64;
+  v205 = 0i64;
+  p_m_freelist = &v206.m_freelist;
+  v11 = &v206.m_data.m_buffer[16072];
   do
   {
-    *(_QWORD *)v21 = p_m_freelist;
-    p_m_freelist = (ntl::internal::pool_allocator_freelist<56> *)v21;
-    v21 -= 56;
+    *(_QWORD *)v11 = p_m_freelist;
+    p_m_freelist = (ntl::internal::pool_allocator_freelist<56> *)v11;
+    v11 -= 56;
   }
-  while ( v21 + 56 > (char *)&v353 );
-  v353.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
+  while ( v11 + 56 > (char *)&v206 );
+  v206.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
   if ( !p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v353.m_size = 0i64;
-  v353.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v353.m_endNodeBase.mp_parent = NULL;
-  v353.m_endNodeBase.mp_left = &v353.m_endNodeBase;
-  v353.m_endNodeBase.mp_right = &v353.m_endNodeBase;
-  v22 = &v354.m_freelist;
-  v23 = &v354.m_data.m_buffer[16072];
+  v206.m_size = 0i64;
+  v206.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v206.m_endNodeBase.mp_parent = NULL;
+  v206.m_endNodeBase.mp_left = &v206.m_endNodeBase;
+  v206.m_endNodeBase.mp_right = &v206.m_endNodeBase;
+  v12 = &v207.m_freelist;
+  v13 = &v207.m_data.m_buffer[16072];
   do
   {
-    *(_QWORD *)v23 = v22;
-    v22 = (ntl::internal::pool_allocator_freelist<56> *)v23;
-    v23 -= 56;
+    *(_QWORD *)v13 = v12;
+    v12 = (ntl::internal::pool_allocator_freelist<56> *)v13;
+    v13 -= 56;
   }
-  while ( v23 + 56 > (char *)&v354 );
-  v354.m_freelist.m_head.mp_next = &v22->m_head;
-  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+  while ( v13 + 56 > (char *)&v207 );
+  v207.m_freelist.m_head.mp_next = &v12->m_head;
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v354.m_size = 0i64;
-  v354.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v354.m_endNodeBase.mp_parent = NULL;
-  v354.m_endNodeBase.mp_left = &v354.m_endNodeBase;
-  v354.m_endNodeBase.mp_right = &v354.m_endNodeBase;
-  BYTE12(v348) = 0;
+  v207.m_size = 0i64;
+  v207.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v207.m_endNodeBase.mp_parent = NULL;
+  v207.m_endNodeBase.mp_left = &v207.m_endNodeBase;
+  v207.m_endNodeBase.mp_right = &v207.m_endNodeBase;
+  BYTE12(v201) = 0;
   Value = (char *)Sys_GetValue(0);
-  v25 = (unsigned int *)(Value + 19416);
+  v15 = (unsigned int *)(Value + 19416);
   if ( (unsigned int)(*((_DWORD *)Value + 4854) + 1) >= 3 )
   {
     LODWORD(coordIndexB) = *((_DWORD *)Value + 4854) + 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", coordIndexB, 3) )
       __debugbreak();
   }
-  v26 = *v25 + 1;
-  *v25 = v26;
-  if ( v26 >= 3 )
+  v16 = *v15 + 1;
+  *v15 = v16;
+  if ( v16 >= 3 )
   {
     LODWORD(coordIndexC) = 3;
-    LODWORD(coordIndexB) = v26;
+    LODWORD(coordIndexB) = v16;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", coordIndexB, coordIndexC) )
       __debugbreak();
   }
-  v27 = Value + 2088;
-  v28 = Value + 40;
-  if ( *v27 < (unsigned __int64)v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v17 = Value + 2088;
+  v18 = Value + 40;
+  if ( *v17 < (unsigned __int64)v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v27 += 8i64;
-  if ( *v27 >= (unsigned __int64)v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v17 += 8i64;
+  if ( *v17 >= (unsigned __int64)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v27 = v25;
-  if ( *v27 <= (unsigned __int64)v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v17 = v15;
+  if ( *v17 <= (unsigned __int64)v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v29 = (int)*v25;
-  v30 = __rdtsc();
-  v25[v29 + 2] = v30;
+  v19 = (int)*v15;
+  v20 = __rdtsc();
+  v15[v19 + 2] = v20;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
     CurrentThreadContext = THREAD_CONTEXT_COUNT;
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 433, NULL, 0);
-  __asm
+  v22 = rangeX->v[1];
+  v23 = v22 - rangeX->v[0];
+  v24 = rangeY->v[1];
+  v25 = v24 - rangeY->v[0];
+  v26 = FLOAT_1_0;
+  v27 = FLOAT_1_0;
+  v184 = FLOAT_1_0;
+  v28 = FLOAT_1_0;
+  v185 = FLOAT_1_0;
+  if ( v23 <= v25 )
   {
-    vmovss  xmm4, dword ptr [r15+4]
-    vmovss  xmm5, dword ptr [r15]
-    vsubss  xmm2, xmm4, xmm5
-    vmovss  xmm7, dword ptr [r14+4]
-    vmovss  xmm8, dword ptr [r14]
-    vsubss  xmm3, xmm7, xmm8
-    vmovss  xmm11, cs:__real@3f800000
-    vmovaps xmm13, xmm11
-    vmovss  [rsp+0AC20h+var_ABD4], xmm11
-    vmovaps xmm14, xmm11
-    vmovss  [rsp+0AC20h+var_ABD0], xmm11
-    vcomiss xmm2, xmm3
-  }
-  if ( v95 || v80 )
-  {
-    __asm
-    {
-      vdivss  xmm13, xmm3, xmm2
-      vmovss  [rsp+0AC20h+var_ABD4], xmm13
-    }
+    v27 = v25 / v23;
+    v184 = v25 / v23;
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm14, xmm2, xmm3
-      vmovss  [rsp+0AC20h+var_ABD0], xmm14
-    }
+    v28 = v23 / v25;
+    v185 = v23 / v25;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm13, cs:__real@40400000
-    vmulss  xmm6, xmm2, xmm0
-    vmulss  xmm1, xmm14, cs:__real@40400000
-    vmulss  xmm2, xmm3, xmm1
-    vmulss  xmm0, xmm5, xmm13
-    vsubss  xmm5, xmm0, xmm6
-    vmulss  xmm1, xmm4, xmm13
-    vaddss  xmm3, xmm1, xmm6
-    vmulss  xmm0, xmm8, xmm14
-    vsubss  xmm8, xmm0, xmm2
-    vmovss  [rsp+0AC20h+var_ABC8], xmm8
-    vmulss  xmm1, xmm7, xmm14
-    vaddss  xmm4, xmm1, xmm2
-    vmulss  xmm0, xmm2, cs:__real@3f13cd3a
-    vsubss  xmm7, xmm5, xmm0
-    vmovss  dword ptr [rbp+0AB20h+pointA], xmm7
-    vmovss  dword ptr [rbp+0AB20h+pointA+4], xmm8
-    vaddss  xmm10, xmm0, xmm3
-    vmovss  dword ptr [rbp+0AB20h+pointB], xmm10
-    vmovss  dword ptr [rbp+0AB20h+pointB+4], xmm8
-    vaddss  xmm0, xmm3, xmm5
-    vmovss  xmm12, cs:__real@3f000000
-    vmulss  xmm9, xmm0, xmm12
-    vmovss  dword ptr [rbp+0AB20h+pointC], xmm9
-    vmulss  xmm0, xmm6, cs:__real@3f5db3d7
-    vaddss  xmm6, xmm0, xmm4
-    vmovss  dword ptr [rbp+0AB20h+pointC+4], xmm6
-  }
-  Triangle::SetPoints((Triangle *)v346, &pointA, &pointB, &pointC, 0x28u, 0x28u, 0x28u);
-  v61 = 0i64;
-  if ( _R13->m_size )
+  v29 = v23 * (float)(v27 * 3.0);
+  v30 = v25 * (float)(v28 * 3.0);
+  v31 = (float)(rangeX->v[0] * v27) - v29;
+  v32 = (float)(v22 * v27) + v29;
+  v33 = (float)(rangeY->v[0] * v28) - v30;
+  v187 = v33;
+  v34 = (float)(v24 * v28) + v30;
+  v35 = v31 - (float)(v30 * 0.57735026);
+  pointA.v[0] = v35;
+  pointA.v[1] = v33;
+  v36 = (float)(v30 * 0.57735026) + v32;
+  pointB.v[0] = v36;
+  pointB.v[1] = v33;
+  v37 = FLOAT_0_5;
+  v38 = (float)(v32 + v31) * 0.5;
+  pointC.v[0] = v38;
+  v39 = (float)(v29 * 0.86602539) + v34;
+  pointC.v[1] = v39;
+  Triangle::SetPoints((Triangle *)v199, &pointA, &pointB, &pointC, 0x28u, 0x28u, 0x28u);
+  v40 = 0i64;
+  if ( v6->m_size )
   {
     do
     {
-      if ( v61 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+      if ( v40 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
         __debugbreak();
-      ++v61;
+      ++v40;
     }
-    while ( v61 < _R13->m_size );
-    v19 = v352;
+    while ( v40 < v6->m_size );
+    v9 = v205;
   }
-  _R13->m_size = 1i64;
-  __asm
+  v6->m_size = 1i64;
+  *(__m256i *)v6->m_data.m_buffer = *(__m256i *)v199;
+  *(__m256i *)&v6->m_data.m_buffer[32] = *(__m256i *)&v199[32];
+  *(__m256i *)&v6->m_data.m_buffer[64] = v200;
+  *(_OWORD *)&v6->m_data.m_buffer[96] = v201;
+  *(_DWORD *)&v6->m_data.m_buffer[112] = v202;
+  v41 = coords;
+  v186 = coords->size >> 1;
+  v42 = 0;
+  v183 = 0;
+  if ( v186 )
   {
-    vmovups ymm0, ymmword ptr [rbp+0AB20h+var_AB60]
-    vmovups ymmword ptr [r13+0], ymm0
-    vmovups ymm1, ymmword ptr [rbp+0AB20h+var_AB60+20h]
-    vmovups ymmword ptr [r13+20h], ymm1
-    vmovups ymm0, [rbp+0AB20h+var_AB20]
-    vmovups ymmword ptr [r13+40h], ymm0
-    vmovups xmm1, [rbp+0AB20h+var_AB00]
-    vmovups xmmword ptr [r13+60h], xmm1
-  }
-  *(_DWORD *)&_R13->m_data.m_buffer[112] = v349;
-  _RDI = coords;
-  v333 = coords->size >> 1;
-  v67 = 0;
-  v330 = 0;
-  if ( v333 )
-  {
-    __asm { vxorps  xmm15, xmm15, xmm15 }
     while ( 1 )
     {
-      v69 = 2 * v67;
-      if ( 2 * v67 >= _RDI->size )
+      v43 = 2 * v42;
+      if ( (unsigned int)v43 >= v41->size )
       {
-        LODWORD(coordIndexCa) = _RDI->size;
-        LODWORD(coordIndexBa) = 2 * v67;
+        LODWORD(coordIndexCa) = v41->size;
+        LODWORD(coordIndexBa) = 2 * v42;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 128, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", coordIndexBa, coordIndexCa) )
           __debugbreak();
       }
-      __asm { vmulss  xmm14, xmm13, dword ptr [rdi+rbx*4+4] }
-      if ( v69 >= _RDI->size )
+      v44 = v27 * v41->values[v43];
+      if ( (unsigned int)v43 >= v41->size )
       {
-        LODWORD(coordIndexCa) = _RDI->size;
-        LODWORD(coordIndexBa) = v69;
+        LODWORD(coordIndexCa) = v41->size;
+        LODWORD(coordIndexBa) = v43;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace.h", 134, ASSERT_TYPE_ASSERT, "(unsigned)( index * 2 ) < (unsigned)( coords->size )", "index * 2 doesn't index coords->size\n\t%i not in [0, %i)", coordIndexBa, coordIndexCa) )
           __debugbreak();
       }
-      _RAX = v69 + 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+rax*4+4]
-        vmulss  xmm13, xmm0, [rsp+0AC20h+var_ABD0]
-      }
-      v74 = 0i64;
-      if ( v19 )
+      v45 = v41->values[(unsigned int)(v43 + 1)] * v185;
+      v46 = 0i64;
+      if ( v9 )
       {
         do
         {
-          if ( v74 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+          if ( v46 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          ++v74;
+          ++v46;
         }
-        while ( v74 < v19 );
-        _R13 = outTriangles;
+        while ( v46 < v9 );
+        v6 = outTriangles;
       }
-      v19 = 0i64;
-      v352 = 0i64;
-      if ( v353.m_size )
+      v9 = 0i64;
+      v205 = 0i64;
+      if ( v206.m_size )
       {
-        mp_parent = v353.m_endNodeBase.mp_parent;
-        if ( v353.m_endNodeBase.mp_parent )
+        mp_parent = v206.m_endNodeBase.mp_parent;
+        if ( v206.m_endNodeBase.mp_parent )
         {
           do
           {
-            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::erase_tree(&v353, (ntl::red_black_tree_node<Edge> *)mp_parent->mp_right);
+            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::erase_tree(&v206, (ntl::red_black_tree_node<Edge> *)mp_parent->mp_right);
             mp_left = mp_parent->mp_left;
-            *(_QWORD *)&mp_parent->m_color = v353.m_freelist.m_head.mp_next;
-            v353.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_parent;
+            *(_QWORD *)&mp_parent->m_color = v206.m_freelist.m_head.mp_next;
+            v206.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_parent;
             mp_parent = mp_left;
           }
           while ( mp_left );
         }
-        v353.m_endNodeBase.mp_parent = NULL;
-        v353.m_endNodeBase.mp_left = &v353.m_endNodeBase;
-        v353.m_endNodeBase.mp_right = &v353.m_endNodeBase;
-        v353.m_size = 0i64;
+        v206.m_endNodeBase.mp_parent = NULL;
+        v206.m_endNodeBase.mp_left = &v206.m_endNodeBase;
+        v206.m_endNodeBase.mp_right = &v206.m_endNodeBase;
+        v206.m_size = 0i64;
       }
-      if ( v354.m_size )
+      if ( v207.m_size )
       {
-        v77 = v354.m_endNodeBase.mp_parent;
-        if ( v354.m_endNodeBase.mp_parent )
+        v49 = v207.m_endNodeBase.mp_parent;
+        if ( v207.m_endNodeBase.mp_parent )
         {
           do
           {
-            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::erase_tree(&v354, (ntl::red_black_tree_node<Edge> *)v77->mp_right);
-            v78 = v77->mp_left;
-            *(_QWORD *)&v77->m_color = v354.m_freelist.m_head.mp_next;
-            v354.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v77;
-            v77 = v78;
+            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::erase_tree(&v207, (ntl::red_black_tree_node<Edge> *)v49->mp_right);
+            v50 = v49->mp_left;
+            *(_QWORD *)&v49->m_color = v207.m_freelist.m_head.mp_next;
+            v207.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v49;
+            v49 = v50;
           }
-          while ( v78 );
+          while ( v50 );
         }
-        v354.m_endNodeBase.mp_parent = NULL;
-        v354.m_endNodeBase.mp_left = &v354.m_endNodeBase;
-        v354.m_endNodeBase.mp_right = &v354.m_endNodeBase;
-        v354.m_size = 0i64;
+        v207.m_endNodeBase.mp_parent = NULL;
+        v207.m_endNodeBase.mp_left = &v207.m_endNodeBase;
+        v207.m_endNodeBase.mp_right = &v207.m_endNodeBase;
+        v207.m_size = 0i64;
       }
-      v335 = _R13;
-      v79 = outTriangles;
+      v188 = v6;
+      v51 = outTriangles;
       if ( outTriangles != (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size) )
       {
         while ( 1 )
         {
-          v80 = _R13->m_data.m_buffer[108] == 0;
-          if ( !_R13->m_data.m_buffer[108] )
+          if ( !v6->m_data.m_buffer[108] )
           {
-            v81 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.h", 123, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized");
-            v80 = !v81;
-            if ( v81 )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.h", 123, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
               __debugbreak();
-            v79 = outTriangles;
+            v51 = outTriangles;
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r13+18h]
-            vsubss  xmm4, xmm0, xmm14
-            vmovss  xmm1, dword ptr [r13+1Ch]
-            vsubss  xmm2, xmm1, xmm13
-            vmulss  xmm3, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, dword ptr [r13+68h]
-          }
-          if ( v80 )
+          if ( (float)((float)((float)(*(float *)&v6->m_data.m_buffer[28] - v45) * (float)(*(float *)&v6->m_data.m_buffer[28] - v45)) + (float)((float)(*(float *)&v6->m_data.m_buffer[24] - v44) * (float)(*(float *)&v6->m_data.m_buffer[24] - v44))) <= *(float *)&v6->m_data.m_buffer[104] )
             break;
-LABEL_194:
-          _R13 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_R13 + 116);
-          v335 = _R13;
-          if ( _R13 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)v79 + 116 * v79->m_size) )
-            goto LABEL_195;
+LABEL_193:
+          v6 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)v6 + 116);
+          v188 = v6;
+          if ( v6 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)v51 + 116 * v51->m_size) )
+            goto LABEL_194;
         }
-        if ( !_R13->m_data.m_buffer[108] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.h", 132, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
+        if ( !v6->m_data.m_buffer[108] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_blendspace_algo.h", 132, ASSERT_TYPE_ASSERT, "(m_initialized)", (const char *)&queryFormat, "m_initialized") )
           __debugbreak();
-        v89 = (Edge *)&_R13->m_data.m_buffer[32];
-        v90 = 116 * v19;
-        _RSI = &v350;
-        v92 = (__int64)(116 * v19) / 116;
-        if ( v92 > 0 )
+        v52 = (Edge *)&v6->m_data.m_buffer[32];
+        v53 = &v203;
+        v54 = (__int64)(116 * v9) / 116;
+        if ( v54 > 0 )
         {
-          __asm { vmovss  xmm2, dword ptr [r13+18h] }
+          v55 = *(float *)&v6->m_data.m_buffer[24];
           while ( 1 )
           {
-            v94 = 116 * (v92 >> 1);
-            v95 = __CFADD__(_RSI, v94);
-            v96 = (Triangle *)((char *)_RSI + v94) == NULL;
-            _RCX = (char *)_RSI + v94;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+18h]
-              vucomiss xmm0, xmm2
-            }
-            if ( !v96 )
+            v56 = (char *)v53 + 116 * (v54 >> 1);
+            v57 = *((float *)v56 + 6);
+            if ( v57 != v55 )
               break;
-            __asm
+            v58 = *((float *)v56 + 7);
+            v59 = *(float *)&v6->m_data.m_buffer[28];
+            if ( v58 != v59 )
             {
-              vmovss  xmm0, dword ptr [rcx+1Ch]
-              vmovss  xmm1, dword ptr [r13+1Ch]
-              vucomiss xmm0, xmm1
+              v61 = v59 < v58;
+              v62 = v59 == v58;
+LABEL_81:
+              v60 = !v61 && !v62;
+              goto LABEL_82;
             }
-            if ( !v96 )
-            {
-              __asm { vcomiss xmm1, xmm0 }
+            v60 = *((_DWORD *)v56 + 28) < *(_DWORD *)&v6->m_data.m_buffer[112];
 LABEL_82:
-              v101 = !v95 && !v96;
-              goto LABEL_83;
-            }
-            v101 = *((_DWORD *)_RCX + 28) < *(_DWORD *)&_R13->m_data.m_buffer[112];
-LABEL_83:
-            if ( v101 )
+            if ( v60 )
             {
-              _RSI = (Triangle *)(_RCX + 116);
-              v92 += -1 - (v92 >> 1);
+              v53 = (Triangle *)(v56 + 116);
+              v54 += -1 - (v54 >> 1);
             }
             else
             {
-              v92 >>= 1;
+              v54 >>= 1;
             }
-            if ( v92 <= 0 )
-              goto LABEL_87;
+            if ( v54 <= 0 )
+              goto LABEL_86;
           }
-          __asm { vcomiss xmm2, xmm0 }
-          goto LABEL_82;
+          v61 = v55 < v57;
+          v62 = v55 == v57;
+          goto LABEL_81;
         }
-LABEL_87:
-        if ( _RSI == (Triangle *)((char *)&v350 + v90) )
-          goto LABEL_459;
-        __asm
+LABEL_86:
+        if ( v53 == (Triangle *)((char *)&v203 + 116 * v9) || ((v63 = *(float *)&v6->m_data.m_buffer[24], v64 = v53->m_vert[2].v[0], v63 != v64) || (v63 = *(float *)&v6->m_data.m_buffer[28], v64 = v53->m_vert[2].v[1], v63 != v64) ? (v65 = v64 > v63) : (v65 = *(_DWORD *)&v6->m_data.m_buffer[112] < SLODWORD(v53[2].m_vert[2].v[2])), v65) )
         {
-          vmovss  xmm0, dword ptr [r13+18h]
-          vmovss  xmm1, dword ptr [rsi+18h]
-          vucomiss xmm0, xmm1
-        }
-        if ( _RSI != (Triangle *)((char *)&v350 + v90) )
-          goto LABEL_91;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+1Ch]
-          vmovss  xmm1, dword ptr [rsi+1Ch]
-          vucomiss xmm0, xmm1
-        }
-        if ( _RSI == (Triangle *)((char *)&v350 + v90) )
-        {
-          v104 = *(_DWORD *)&_R13->m_data.m_buffer[112] < SLODWORD(_RSI[2].m_vert[2].v[2]);
-        }
-        else
-        {
-LABEL_91:
-          __asm { vcomiss xmm1, xmm0 }
-          v104 = _RSI > (Triangle *)((char *)&v350 + v90);
-        }
-        if ( v104 )
-        {
-LABEL_459:
-          if ( v19 == 96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
+          if ( v9 == 96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
             __debugbreak();
-          if ( (_RSI < &v350 || _RSI > (Triangle *)((char *)&v350 + 116 * v19)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+          if ( (v53 < &v203 || v53 > (Triangle *)((char *)&v203 + 116 * v9)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
             __debugbreak();
-          if ( ((char *)_RSI - (char *)&v350) % 0x74ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+          if ( ((char *)v53 - (char *)&v203) % 0x74ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
             __debugbreak();
-          if ( _R13 >= (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)_RSI && _R13 < (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)&v350 + 116 * v19) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+          if ( v6 >= (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)v53 && v6 < (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)&v203 + 116 * v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
             __debugbreak();
-          v105 = 116 * v19;
-          _RBX = (char *)&v350 + 116 * v19;
-          if ( _RSI != (Triangle *)_RBX )
+          v66 = 116 * v9;
+          v67 = (__m256i *)((char *)&v203 + 116 * v9);
+          if ( v53 != (Triangle *)v67 )
           {
-            _RDI = &v351[v105];
-            if ( _RSI == (Triangle *)&v351[v105] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+            v68 = &v204[v66];
+            if ( v53 == (Triangle *)&v204[v66] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
-            if ( _RBX == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+            if ( v67 == (__m256i *)v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v108 = _RBX <= (char *)_RSI;
-            if ( _RBX < (char *)_RSI )
+            v69 = v67 <= (__m256i *)v53;
+            if ( v67 < (__m256i *)v53 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v108 = _RBX <= (char *)_RSI;
+              v69 = v67 <= (__m256i *)v53;
             }
-            if ( !v108 )
+            if ( !v69 )
             {
               do
               {
-                _RBX -= 116;
-                _RDI -= 116;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rdi], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rdi+20h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rdi+40h], ymm0
-                  vmovups xmm1, xmmword ptr [rbx+60h]
-                  vmovups xmmword ptr [rdi+60h], xmm1
-                }
-                *((_DWORD *)_RDI + 28) = *((_DWORD *)_RBX + 28);
+                v67 = (__m256i *)((char *)v67 - 116);
+                v68 -= 116;
+                *(__m256i *)v68 = *v67;
+                *((__m256i *)v68 + 1) = v67[1];
+                *((__m256i *)v68 + 2) = v67[2];
+                *((_OWORD *)v68 + 6) = *(_OWORD *)v67[3].m256i_i8;
+                *((_DWORD *)v68 + 28) = v67[3].m256i_i32[4];
               }
-              while ( _RBX > (char *)_RSI );
-              v19 = v352;
+              while ( v67 > (__m256i *)v53 );
+              v9 = v205;
             }
           }
-          v352 = v19 + 1;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r13+0]
-            vmovups ymmword ptr [rsi], ymm0
-            vmovups ymm1, ymmword ptr [r13+20h]
-            vmovups ymmword ptr [rsi+20h], ymm1
-            vmovups ymm0, ymmword ptr [r13+40h]
-            vmovups ymmword ptr [rsi+40h], ymm0
-            vmovups xmm1, xmmword ptr [r13+60h]
-            vmovups xmmword ptr [rsi+60h], xmm1
-          }
-          _RSI[2].m_vert[2].v[2] = *(float *)&_R13->m_data.m_buffer[112];
+          v205 = v9 + 1;
+          *(__m256i *)v53->m_vert[0].v = *(__m256i *)v6->m_data.m_buffer;
+          *(__m256i *)&v53->m_vert[2].z = *(__m256i *)&v6->m_data.m_buffer[32];
+          *(__m256i *)v53[1].m_vert[2].v = *(__m256i *)&v6->m_data.m_buffer[64];
+          *(_OWORD *)&v53[2].m_vert[1].y = *(_OWORD *)&v6->m_data.m_buffer[96];
+          v53[2].m_vert[2].v[2] = *(float *)&v6->m_data.m_buffer[112];
         }
-        _R15 = &_R13->m_data.m_buffer[40];
-        v118 = 3i64;
+        v70 = (float *)&v6->m_data.m_buffer[40];
+        v71 = 3i64;
         while ( 1 )
         {
-          p_m_endNodeBase = &v353.m_endNodeBase;
-          _RAX = v353.m_endNodeBase.mp_parent;
-          v121 = v353.m_endNodeBase.mp_parent == NULL;
-          if ( v353.m_endNodeBase.mp_parent )
+          p_m_endNodeBase = &v206.m_endNodeBase;
+          v73 = v206.m_endNodeBase.mp_parent;
+          if ( v206.m_endNodeBase.mp_parent )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r15-8]
-              vaddss  xmm1, xmm0, dword ptr [r15]
-              vmulss  xmm4, xmm1, xmm12
-              vmovss  xmm2, dword ptr [r15-4]
-              vaddss  xmm0, xmm2, dword ptr [r15+4]
-              vmulss  xmm5, xmm0, xmm12
-            }
+            v74 = (float)(*(v70 - 2) + *v70) * v37;
+            v75 = (float)(*(v70 - 1) + v70[1]) * v37;
             do
             {
-              __asm
+              v76 = (float)(*(float *)&v73[1].m_color + *(float *)&v73[1].mp_parent) * v37;
+              v77 = (float)(*((float *)&v73[1].mp_parent + 1) + *((float *)&v73[1].m_color + 1)) * v37;
+              if ( v76 == v74 )
               {
-                vmovss  xmm0, dword ptr [rax+20h]
-                vaddss  xmm1, xmm0, dword ptr [rax+28h]
-                vmulss  xmm3, xmm1, xmm12
-                vmovss  xmm2, dword ptr [rax+2Ch]
-                vaddss  xmm0, xmm2, dword ptr [rax+24h]
-                vmulss  xmm1, xmm0, xmm12
-                vucomiss xmm3, xmm4
-              }
-              if ( v121 )
-                __asm { vcomiss xmm5, xmm1 }
-              else
-                __asm { vcomiss xmm4, xmm3 }
-              if ( v121 )
-              {
-                p_m_endNodeBase = _RAX;
-                _RAX = _RAX->mp_left;
+                v78 = v75 < v77;
+                v79 = v75 == v77;
               }
               else
               {
-                _RAX = _RAX->mp_right;
+                v78 = v74 < v76;
+                v79 = v74 == v76;
               }
-              v121 = _RAX == NULL;
+              if ( v78 || v79 )
+              {
+                p_m_endNodeBase = v73;
+                v73 = v73->mp_left;
+              }
+              else
+              {
+                v73 = v73->mp_right;
+              }
             }
-            while ( _RAX );
-            if ( p_m_endNodeBase != &v353.m_endNodeBase )
+            while ( v73 );
+            if ( p_m_endNodeBase != &v206.m_endNodeBase )
             {
-              v134 = Edge::operator<((Edge *)(_R15 - 8), (const Edge *)&p_m_endNodeBase[1]);
-              v135 = &v353.m_endNodeBase;
-              if ( !v134 )
-                v135 = p_m_endNodeBase;
-              p_m_endNodeBase = v135;
+              v80 = Edge::operator<((Edge *)(v70 - 2), (const Edge *)&p_m_endNodeBase[1]);
+              v81 = &v206.m_endNodeBase;
+              if ( !v80 )
+                v81 = p_m_endNodeBase;
+              p_m_endNodeBase = v81;
             }
           }
-          if ( p_m_endNodeBase != &v353.m_endNodeBase )
+          if ( p_m_endNodeBase != &v206.m_endNodeBase )
             break;
-          v141 = &v353.m_endNodeBase;
-          v147 = v353.m_endNodeBase.mp_parent;
-          v148 = 1;
-          while ( v147 )
+          v87 = &v206.m_endNodeBase;
+          v93 = v206.m_endNodeBase.mp_parent;
+          v94 = 1;
+          while ( v93 )
           {
-            v141 = v147;
-            v148 = Edge::operator<(v89, (const Edge *)&v147[1]);
-            if ( v148 )
-              v147 = v147->mp_left;
+            v87 = v93;
+            v94 = Edge::operator<(v52, (const Edge *)&v93[1]);
+            if ( v94 )
+              v93 = v93->mp_left;
             else
-              v147 = v147->mp_right;
+              v93 = v93->mp_right;
           }
-          prev = v141;
-          if ( !v148 )
-            goto LABEL_186;
-          if ( v141 != v353.m_endNodeBase.mp_left )
+          prev = v87;
+          if ( !v94 )
+            goto LABEL_185;
+          if ( v87 != v206.m_endNodeBase.mp_left )
           {
-            if ( !v141 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            prev = ntl::red_black_tree_node_base::get_prev(v141);
-LABEL_186:
+            prev = ntl::red_black_tree_node_base::get_prev(v87);
+LABEL_185:
             if ( !prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( !Edge::operator<((Edge *)&prev[1], v89) )
-              goto LABEL_192;
-            v145 = &v342;
-            v146 = &v353;
-LABEL_191:
-            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(v146, v145, v141, v89, 0, 0);
-            goto LABEL_192;
+            if ( !Edge::operator<((Edge *)&prev[1], v52) )
+              goto LABEL_191;
+            v91 = &v195;
+            v92 = &v206;
+LABEL_190:
+            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(v92, v91, v87, v52, 0, 0);
+            goto LABEL_191;
           }
-          ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v353, &v341, v141, v89, 1, 0);
-LABEL_192:
-          ++v89;
-          _R15 += 24;
-          if ( !--v118 )
+          ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v206, &v194, v87, v52, 1, 0);
+LABEL_191:
+          ++v52;
+          v70 += 6;
+          if ( !--v71 )
           {
-            _R13 = v335;
-            v79 = outTriangles;
-            v19 = v352;
-            goto LABEL_194;
+            v6 = v188;
+            v51 = outTriangles;
+            v9 = v205;
+            goto LABEL_193;
           }
         }
         if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        v136 = (Edge *)&p_m_endNodeBase[1];
-        v137 = &v354.m_endNodeBase;
-        v138 = v354.m_endNodeBase.mp_parent;
-        v139 = 1;
-        while ( v138 )
+        v82 = (Edge *)&p_m_endNodeBase[1];
+        v83 = &v207.m_endNodeBase;
+        v84 = v207.m_endNodeBase.mp_parent;
+        v85 = 1;
+        while ( v84 )
         {
-          v137 = v138;
-          v139 = Edge::operator<(v136, (const Edge *)&v138[1]);
-          if ( v139 )
-            v138 = v138->mp_left;
+          v83 = v84;
+          v85 = Edge::operator<(v82, (const Edge *)&v84[1]);
+          if ( v85 )
+            v84 = v84->mp_left;
           else
-            v138 = v138->mp_right;
+            v84 = v84->mp_right;
         }
-        v140 = v137;
-        if ( v139 )
+        v86 = v83;
+        if ( v85 )
         {
-          if ( v137 == v354.m_endNodeBase.mp_left )
+          if ( v83 == v207.m_endNodeBase.mp_left )
           {
-            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v354, &v337, v137, v136, 1, 0);
-LABEL_157:
-            v141 = &v354.m_endNodeBase;
-            v142 = v354.m_endNodeBase.mp_parent;
-            v143 = 1;
-            while ( v142 )
+            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v207, &v190, v83, v82, 1, 0);
+LABEL_156:
+            v87 = &v207.m_endNodeBase;
+            v88 = v207.m_endNodeBase.mp_parent;
+            v89 = 1;
+            while ( v88 )
             {
-              v141 = v142;
-              v143 = Edge::operator<(v89, (const Edge *)&v142[1]);
-              if ( v143 )
-                v142 = v142->mp_left;
+              v87 = v88;
+              v89 = Edge::operator<(v52, (const Edge *)&v88[1]);
+              if ( v89 )
+                v88 = v88->mp_left;
               else
-                v142 = v142->mp_right;
+                v88 = v88->mp_right;
             }
-            v144 = v141;
-            if ( !v143 )
-              goto LABEL_169;
-            if ( v141 != v354.m_endNodeBase.mp_left )
+            v90 = v87;
+            if ( !v89 )
+              goto LABEL_168;
+            if ( v87 != v207.m_endNodeBase.mp_left )
             {
-              if ( !v141 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+              if ( !v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                 __debugbreak();
-              v144 = ntl::red_black_tree_node_base::get_prev(v141);
-LABEL_169:
-              if ( !v144 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+              v90 = ntl::red_black_tree_node_base::get_prev(v87);
+LABEL_168:
+              if ( !v90 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                 __debugbreak();
-              if ( !Edge::operator<((Edge *)&v144[1], v89) )
-                goto LABEL_192;
-              v145 = (ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> *)&v340;
-              v146 = &v354;
-              goto LABEL_191;
+              if ( !Edge::operator<((Edge *)&v90[1], v52) )
+                goto LABEL_191;
+              v91 = (ntl::red_black_tree_iterator<Edge,ntl::red_black_tree_node<Edge>,Edge *,Edge &> *)&v193;
+              v92 = &v207;
+              goto LABEL_190;
             }
-            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v354, &v339, v141, v89, 1, 0);
-            goto LABEL_192;
+            ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v207, &v192, v87, v52, 1, 0);
+            goto LABEL_191;
           }
-          if ( !v137 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          if ( !v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v140 = ntl::red_black_tree_node_base::get_prev(v137);
+          v86 = ntl::red_black_tree_node_base::get_prev(v83);
         }
-        if ( !v140 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v86 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( Edge::operator<((Edge *)&v140[1], v136) )
-          ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v354, &result, v137, v136, 0, 0);
-        goto LABEL_157;
+        if ( Edge::operator<((Edge *)&v86[1], v82) )
+          ntl::red_black_tree<Edge,Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::return_input<Edge>,ntl::less<Edge,Edge>>::insert_node(&v207, &result, v83, v82, 0, 0);
+        goto LABEL_156;
       }
-LABEL_195:
-      next = v354.m_endNodeBase.mp_left;
-      if ( v354.m_endNodeBase.mp_left != &v354.m_endNodeBase )
+LABEL_194:
+      next = v207.m_endNodeBase.mp_left;
+      if ( v207.m_endNodeBase.mp_left != &v207.m_endNodeBase )
       {
         do
         {
           if ( !next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v151 = &v353.m_endNodeBase;
-          v152 = v353.m_endNodeBase.mp_parent;
-          if ( v353.m_endNodeBase.mp_parent )
+          v97 = &v206.m_endNodeBase;
+          v98 = v206.m_endNodeBase.mp_parent;
+          if ( v206.m_endNodeBase.mp_parent )
           {
             do
             {
-              if ( Edge::operator<((Edge *)&v152[1], (const Edge *)&next[1]) )
+              if ( Edge::operator<((Edge *)&v98[1], (const Edge *)&next[1]) )
               {
-                v152 = v152->mp_right;
+                v98 = v98->mp_right;
               }
               else
               {
-                v151 = v152;
-                v152 = v152->mp_left;
+                v97 = v98;
+                v98 = v98->mp_left;
               }
             }
-            while ( v152 );
-            if ( v151 != &v353.m_endNodeBase && !Edge::operator<((Edge *)&next[1], (const Edge *)&v151[1]) )
+            while ( v98 );
+            if ( v97 != &v206.m_endNodeBase && !Edge::operator<((Edge *)&next[1], (const Edge *)&v97[1]) )
             {
-              if ( !v353.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 521, ASSERT_TYPE_ASSERT, "( !empty() )", (const char *)&queryFormat, "!empty()") )
+              if ( !v206.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 521, ASSERT_TYPE_ASSERT, "( !empty() )", (const char *)&queryFormat, "!empty()") )
                 __debugbreak();
-              if ( !v151 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 100, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+              if ( !v97 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 100, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
                 __debugbreak();
-              ntl::red_black_tree_node_base::get_next(v151);
-              if ( !v151 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 524, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+              ntl::red_black_tree_node_base::get_next(v97);
+              if ( !v97 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 524, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
                 __debugbreak();
-              if ( v151 == &v353.m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 527, ASSERT_TYPE_ASSERT, "( p_node != &m_endNodeBase )", (const char *)&queryFormat, "p_node != &m_endNodeBase") )
+              if ( v97 == &v206.m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 527, ASSERT_TYPE_ASSERT, "( p_node != &m_endNodeBase )", (const char *)&queryFormat, "p_node != &m_endNodeBase") )
                 __debugbreak();
-              ntl::red_black_tree_node_base::rebalance_for_erase(v151, &v353.m_endNodeBase.mp_parent, &v353.m_endNodeBase.mp_left, &v353.m_endNodeBase.mp_right);
-              if ( !v151 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
+              ntl::red_black_tree_node_base::rebalance_for_erase(v97, &v206.m_endNodeBase.mp_parent, &v206.m_endNodeBase.mp_left, &v206.m_endNodeBase.mp_right);
+              if ( !v97 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 313, ASSERT_TYPE_ASSERT, "( p_ptr )", (const char *)&queryFormat, "p_ptr") )
                 __debugbreak();
-              *(_QWORD *)&v151->m_color = v353.m_freelist.m_head.mp_next;
-              v353.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v151;
-              --v353.m_size;
+              *(_QWORD *)&v97->m_color = v206.m_freelist.m_head.mp_next;
+              v206.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v97;
+              --v206.m_size;
             }
           }
           if ( !next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 100, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
           next = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(next);
         }
-        while ( next != &v354.m_endNodeBase );
-        v19 = v352;
+        while ( next != &v207.m_endNodeBase );
+        v9 = v205;
       }
-      _R13 = outTriangles;
-      if ( &v350 == (Triangle *)((char *)&v350 + 116 * v19) )
-        goto LABEL_280;
+      v6 = outTriangles;
+      if ( &v203 == (Triangle *)((char *)&v203 + 116 * v9) )
+        goto LABEL_279;
       m_size = outTriangles->m_size;
-      _R14 = &v350.m_vert[2].v[1];
+      v100 = &v203.m_vert[2].v[1];
       do
       {
-        v155 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * m_size);
-        _RDI = outTriangles;
-        v157 = (__int64)(116 * m_size) / 116;
-        if ( v157 <= 0 )
-          goto LABEL_242;
-        __asm { vmovss  xmm2, dword ptr [r14-4] }
+        v101 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * m_size);
+        v102 = outTriangles;
+        v103 = (__int64)(116 * m_size) / 116;
+        if ( v103 <= 0 )
+          goto LABEL_241;
+        v104 = *(v100 - 1);
         do
         {
-          v159 = 116 * (v157 >> 1);
-          v160 = __CFADD__(_RDI, v159);
-          v161 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_RDI + v159) == NULL;
-          _RCX = &_RDI->m_data.m_buffer[v159];
-          __asm
+          v105 = &v102->m_data.m_buffer[116 * (v103 >> 1)];
+          v106 = *((float *)v105 + 6);
+          if ( v106 == v104 )
           {
-            vmovss  xmm0, dword ptr [rcx+18h]
-            vucomiss xmm0, xmm2
-          }
-          if ( v161 )
-          {
-            __asm
+            v107 = *((float *)v105 + 7);
+            v108 = *v100;
+            if ( v107 == *v100 )
             {
-              vmovss  xmm0, dword ptr [rcx+1Ch]
-              vmovss  xmm1, dword ptr [r14]
-              vucomiss xmm0, xmm1
+              v109 = *((_DWORD *)v105 + 28) < *((_DWORD *)v100 + 21);
+              goto LABEL_236;
             }
-            if ( v161 )
-            {
-              v166 = *((_DWORD *)_RCX + 28) < *((_DWORD *)_R14 + 21);
-              goto LABEL_237;
-            }
-            __asm { vcomiss xmm1, xmm0 }
+            v110 = v108 < v107;
+            v111 = v108 == v107;
           }
           else
           {
-            __asm { vcomiss xmm2, xmm0 }
+            v110 = v104 < v106;
+            v111 = v104 == v106;
           }
-          v166 = !v160 && !v161;
-LABEL_237:
-          if ( v166 )
+          v109 = !v110 && !v111;
+LABEL_236:
+          if ( v109 )
           {
-            _RDI = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)(_RCX + 116);
-            v157 += -1 - (v157 >> 1);
+            v102 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)(v105 + 116);
+            v103 += -1 - (v103 >> 1);
           }
           else
           {
-            v157 >>= 1;
+            v103 >>= 1;
           }
         }
-        while ( v157 > 0 );
+        while ( v103 > 0 );
         m_size = outTriangles->m_size;
-LABEL_242:
-        v167 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * m_size);
-        if ( _RDI != v167 )
+LABEL_241:
+        v112 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * m_size);
+        if ( v102 != v112 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14-4]
-            vmovss  xmm1, dword ptr [rdi+18h]
-            vucomiss xmm0, xmm1
-          }
-          if ( _RDI != v167 )
-            goto LABEL_246;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14]
-            vmovss  xmm1, dword ptr [rdi+1Ch]
-            vucomiss xmm0, xmm1
-          }
-          if ( _RDI == v167 )
-          {
-            v170 = *((_DWORD *)_R14 + 21) < *(_DWORD *)&_RDI->m_data.m_buffer[112];
-          }
+          v113 = *(v100 - 1);
+          v114 = *(float *)&v102->m_data.m_buffer[24];
+          if ( v113 == v114 && (v113 = *v100, v114 = *(float *)&v102->m_data.m_buffer[28], *v100 == v114) )
+            v115 = *((_DWORD *)v100 + 21) < *(_DWORD *)&v102->m_data.m_buffer[112];
           else
-          {
-LABEL_246:
-            __asm { vcomiss xmm1, xmm0 }
-            v170 = _RDI > v167;
-          }
-          if ( v170 )
-            _RDI = v155;
-          if ( _RDI != v167 )
+            v115 = v114 > v113;
+          if ( v115 )
+            v102 = v101;
+          if ( v102 != v112 )
           {
             if ( !m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
               __debugbreak();
-            if ( (_RDI < outTriangles || _RDI > (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+            if ( (v102 < outTriangles || v102 > (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
               __debugbreak();
-            v171 = ((unsigned __int64)((char *)_RDI - (char *)outTriangles) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
-            if ( (char *)_RDI - (char *)outTriangles != 116 * ((v171 + ((unsigned __int64)((char *)_RDI - (char *)outTriangles - v171) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+            v116 = ((unsigned __int64)((char *)v102 - (char *)outTriangles) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
+            if ( (char *)v102 - (char *)outTriangles != 116 * ((v116 + ((unsigned __int64)((char *)v102 - (char *)outTriangles - v116) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
               __debugbreak();
-            if ( _RDI == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+            if ( v102 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
               __debugbreak();
-            v172 = outTriangles;
-            v173 = outTriangles->m_size;
-            if ( v173 )
-              v172 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * (((char *)_RDI - (char *)outTriangles) / 116));
-            v174 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * v173);
-            _RBX = &v172->m_data.m_buffer[116];
-            if ( &v172->m_data.m_buffer[116] == (char *)v172 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+            v117 = outTriangles;
+            v118 = outTriangles->m_size;
+            if ( v118 )
+              v117 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * (((char *)v102 - (char *)outTriangles) / 116));
+            v119 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * v118);
+            v120 = &v117->m_data.m_buffer[116];
+            if ( &v117->m_data.m_buffer[116] == (char *)v117 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
-            if ( v174 == v172 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+            if ( v119 == v117 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v176 = _RBX < (char *)v174;
-            if ( _RBX > (char *)v174 )
+            v121 = v120 < (char *)v119;
+            if ( v120 > (char *)v119 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v176 = _RBX < (char *)v174;
+              v121 = v120 < (char *)v119;
             }
-            if ( v176 )
+            if ( v121 )
             {
-              _RCX = v172;
+              v122 = v117;
               do
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rcx], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rcx+20h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rcx+40h], ymm0
-                  vmovups xmm1, xmmword ptr [rbx+60h]
-                  vmovups xmmword ptr [rcx+60h], xmm1
-                }
-                *(_DWORD *)&_RCX->m_data.m_buffer[112] = *((_DWORD *)_RBX + 28);
-                _RBX += 116;
-                _RCX = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_RCX + 116);
+                *(__m256i *)v122->m_data.m_buffer = *(__m256i *)v120;
+                *(__m256i *)&v122->m_data.m_buffer[32] = *((__m256i *)v120 + 1);
+                *(__m256i *)&v122->m_data.m_buffer[64] = *((__m256i *)v120 + 2);
+                *(_OWORD *)&v122->m_data.m_buffer[96] = *((_OWORD *)v120 + 6);
+                *(_DWORD *)&v122->m_data.m_buffer[112] = *((_DWORD *)v120 + 28);
+                v120 += 116;
+                v122 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)v122 + 116);
               }
-              while ( _RBX < (char *)v174 );
+              while ( v120 < (char *)v119 );
             }
             m_size = --outTriangles->m_size;
           }
         }
-        _R14 += 29;
+        v100 += 29;
       }
-      while ( _R14 - 7 != (float *)((char *)&v350 + 116 * v19) );
-LABEL_280:
-      _RBX = v353.m_endNodeBase.mp_left;
-      if ( v353.m_endNodeBase.mp_left == &v353.m_endNodeBase )
-        goto LABEL_344;
-      __asm { vmovss  xmm12, cs:__real@3f800000 }
+      while ( v100 - 7 != (float *)((char *)&v203 + 116 * v9) );
+LABEL_279:
+      v123 = v206.m_endNodeBase.mp_left;
+      if ( v206.m_endNodeBase.mp_left == &v206.m_endNodeBase )
+        goto LABEL_339;
       while ( 2 )
       {
-        v184 = _RBX == NULL;
-        if ( !_RBX )
+        if ( !v123 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v185 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node");
-          v184 = !v185;
-          if ( v185 )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
         }
-        __asm
+        if ( (float)((float)((float)(v45 - *((float *)&v123[1].m_color + 1)) * (float)(*(float *)&v123[1].mp_parent - *(float *)&v123[1].m_color)) - (float)((float)(v44 - *(float *)&v123[1].m_color) * (float)(*((float *)&v123[1].mp_parent + 1) - *((float *)&v123[1].m_color + 1)))) != 0.0 )
         {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vsubss  xmm5, xmm0, dword ptr [rbx+20h]
-          vmovss  xmm1, dword ptr [rbx+2Ch]
-          vsubss  xmm4, xmm1, dword ptr [rbx+24h]
-          vsubss  xmm3, xmm14, dword ptr [rbx+20h]
-          vsubss  xmm0, xmm13, dword ptr [rbx+24h]
-          vmulss  xmm2, xmm0, xmm5
-          vmulss  xmm1, xmm3, xmm4
-          vsubss  xmm3, xmm2, xmm1
-          vucomiss xmm3, xmm15
-        }
-        if ( !v184 )
-        {
-          BYTE12(v348) = 0;
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          BYTE12(v201) = 0;
+          if ( !v123 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          mp_left_high = HIDWORD(_RBX[1].mp_left);
-          v197 = (unsigned int)_RBX[1].mp_left;
-          __asm
+          mp_left_high = HIDWORD(v123[1].mp_left);
+          v125 = (unsigned int)v123[1].mp_left;
+          v126 = *(float *)&v123[1].m_color;
+          *(float *)v199 = v126;
+          v127 = *((float *)&v123[1].m_color + 1);
+          *(float *)&v199[4] = v127;
+          *(_QWORD *)&v199[8] = v123[1].mp_parent;
+          *(float *)&v199[16] = v44;
+          *(float *)&v199[20] = v45;
+          *(float *)&v199[32] = v126;
+          *(float *)&v199[36] = v127;
+          *(float *)&v199[40] = *(float *)&v199[8];
+          *(float *)&v199[44] = *(float *)&v199[12];
+          *(float *)&v199[56] = *(float *)&v199[8];
+          *(float *)&v199[60] = *(float *)&v199[12];
+          *(float *)v200.m256i_i32 = v44;
+          *(float *)&v200.m256i_i32[1] = v45;
+          *(float *)&v200.m256i_i32[4] = v44;
+          *(float *)&v200.m256i_i32[5] = v45;
+          *(float *)&v200.m256i_i32[6] = v126;
+          *(float *)&v200.m256i_i32[7] = v127;
+          *(_QWORD *)&v199[48] = __PAIR64__(mp_left_high, v125);
+          v200.m256i_i64[1] = __PAIR64__(v183, mp_left_high);
+          *(_QWORD *)&v201 = __PAIR64__(v125, v183);
+          v128 = v125 + 100 * (mp_left_high + 100 * v183);
+          v202 = v128;
+          *((float *)&v201 + 2) = 0.0;
+          v129 = 0.0;
+          *(float *)&v199[24] = 0.0;
+          v130 = 0.0;
+          *(float *)&v199[28] = 0.0;
+          v131 = *(float *)&v199[8] - v126;
+          v132 = *(float *)&v199[12] - v127;
+          v133 = v44 - v126;
+          v134 = v45 - v127;
+          v135 = (float)((float)((float)(v45 - v127) * (float)(*(float *)&v199[8] - v126)) - (float)((float)(v44 - v126) * (float)(*(float *)&v199[12] - v127))) * 2.0;
+          if ( v135 != 0.0 )
           {
-            vmovss  xmm7, dword ptr [rbx+20h]
-            vmovss  dword ptr [rbp+0AB20h+var_AB60], xmm7
-            vmovss  xmm8, dword ptr [rbx+24h]
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+4], xmm8
-            vmovss  xmm1, dword ptr [rbx+28h]
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+8], xmm1
-            vmovss  xmm0, dword ptr [rbx+2Ch]
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+0Ch], xmm0
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+10h], xmm14
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+14h], xmm13
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+20h], xmm7
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+24h], xmm8
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+28h], xmm1
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+2Ch], xmm0
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+38h], xmm1
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+3Ch], xmm0
-            vmovss  dword ptr [rbp+0AB20h+var_AB20], xmm14
-            vmovss  dword ptr [rbp+0AB20h+var_AB20+4], xmm13
-            vmovss  dword ptr [rbp+0AB20h+var_AB20+10h], xmm14
-            vmovss  dword ptr [rbp+0AB20h+var_AB20+14h], xmm13
-            vmovss  dword ptr [rbp+0AB20h+var_AB20+18h], xmm7
-            vmovss  dword ptr [rbp+0AB20h+var_AB20+1Ch], xmm8
+            v136 = (float)(v132 * v132) + (float)(v131 * v131);
+            v137 = (float)(v134 * v134) + (float)(v133 * v133);
+            v138 = 1.0 / v135;
+            v139 = (float)((float)(v136 * v134) - (float)(v137 * v132)) * v138;
+            v140 = (float)((float)(v137 * v131) - (float)(v136 * v133)) * v138;
+            *((float *)&v201 + 2) = (float)(v140 * v140) + (float)(v139 * v139);
+            v129 = v126 + v139;
+            *(float *)&v199[24] = v126 + v139;
+            v130 = v127 + v140;
+            *(float *)&v199[28] = v127 + v140;
+            BYTE12(v201) = 1;
           }
-          *(_QWORD *)&v346[48] = __PAIR64__(mp_left_high, v197);
-          v347.m256i_i64[1] = __PAIR64__(v330, mp_left_high);
-          *(_QWORD *)&v348 = __PAIR64__(v197, v330);
-          v202 = v197 + 100 * (mp_left_high + 100 * v330);
-          v349 = v202;
-          __asm
-          {
-            vmovss  dword ptr [rbp+0AB20h+var_AB00+8], xmm15
-            vmovaps xmm3, xmm15
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+18h], xmm3
-            vmovaps xmm2, xmm15
-            vmovss  dword ptr [rbp+0AB20h+var_AB60+1Ch], xmm2
-            vsubss  xmm9, xmm1, xmm7
-            vsubss  xmm5, xmm0, xmm8
-            vsubss  xmm10, xmm14, xmm7
-            vsubss  xmm11, xmm13, xmm8
-            vmulss  xmm1, xmm11, xmm9
-            vmulss  xmm0, xmm10, xmm5
-            vsubss  xmm1, xmm1, xmm0
-            vmulss  xmm4, xmm1, cs:__real@40000000
-            vucomiss xmm4, xmm15
-          }
-          if ( v202 )
-          {
-            __asm
-            {
-              vmulss  xmm1, xmm5, xmm5
-              vmulss  xmm0, xmm9, xmm9
-              vaddss  xmm6, xmm1, xmm0
-              vmulss  xmm2, xmm11, xmm11
-              vmulss  xmm1, xmm10, xmm10
-              vaddss  xmm3, xmm2, xmm1
-              vdivss  xmm4, xmm12, xmm4
-              vmulss  xmm1, xmm6, xmm11
-              vmulss  xmm0, xmm3, xmm5
-              vsubss  xmm1, xmm1, xmm0
-              vmulss  xmm5, xmm1, xmm4
-              vmulss  xmm2, xmm3, xmm9
-              vmulss  xmm0, xmm6, xmm10
-              vsubss  xmm1, xmm2, xmm0
-              vmulss  xmm4, xmm1, xmm4
-              vmulss  xmm3, xmm4, xmm4
-              vmulss  xmm0, xmm5, xmm5
-              vaddss  xmm1, xmm3, xmm0
-              vmovss  dword ptr [rbp+0AB20h+var_AB00+8], xmm1
-              vaddss  xmm3, xmm7, xmm5
-              vmovss  dword ptr [rbp+0AB20h+var_AB60+18h], xmm3
-              vaddss  xmm2, xmm8, xmm4
-              vmovss  dword ptr [rbp+0AB20h+var_AB60+1Ch], xmm2
-            }
-            BYTE12(v348) = 1;
-          }
-          v231 = outTriangles->m_size;
-          _R14 = outTriangles;
-          if ( v231 > 0 )
+          v141 = outTriangles->m_size;
+          v142 = outTriangles;
+          if ( v141 > 0 )
           {
             while ( 1 )
             {
-              v233 = 116 * (v231 >> 1);
-              v234 = __CFADD__(_R14, v233);
-              v235 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_R14 + v233) == NULL;
-              _RAX = &_R14->m_data.m_buffer[v233];
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax+18h]
-                vucomiss xmm0, xmm3
-              }
-              if ( !v235 )
+              v143 = &v142->m_data.m_buffer[116 * (v141 >> 1)];
+              v144 = *((float *)v143 + 6);
+              if ( v144 != v129 )
                 break;
-              __asm
+              v145 = *((float *)v143 + 7);
+              if ( v145 != v130 )
               {
-                vmovss  xmm0, dword ptr [rax+1Ch]
-                vucomiss xmm0, xmm2
+                v147 = v130 < v145;
+                v148 = v130 == v145;
+LABEL_297:
+                v146 = !v147 && !v148;
+                goto LABEL_298;
               }
-              if ( !v235 )
+              v146 = *((_DWORD *)v143 + 28) < v128;
+LABEL_298:
+              if ( v146 )
               {
-                __asm { vcomiss xmm2, xmm0 }
-LABEL_302:
-                v239 = !v234 && !v235;
-                goto LABEL_303;
-              }
-              v239 = *((_DWORD *)_RAX + 28) < v202;
-LABEL_303:
-              if ( v239 )
-              {
-                _R14 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)(_RAX + 116);
-                v231 += -1 - (v231 >> 1);
+                v142 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)(v143 + 116);
+                v141 += -1 - (v141 >> 1);
               }
               else
               {
-                v231 >>= 1;
+                v141 >>= 1;
               }
-              if ( v231 <= 0 )
+              if ( v141 <= 0 )
               {
-                v231 = outTriangles->m_size;
-                goto LABEL_308;
+                v141 = outTriangles->m_size;
+                goto LABEL_303;
               }
             }
-            __asm { vcomiss xmm3, xmm0 }
-            goto LABEL_302;
+            v147 = v129 < v144;
+            v148 = v129 == v144;
+            goto LABEL_297;
           }
-LABEL_308:
-          if ( _R14 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * v231) )
+LABEL_303:
+          if ( v142 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * v141) )
           {
-LABEL_311:
+LABEL_306:
             if ( outTriangles->m_size == 96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
               __debugbreak();
-            if ( (_R14 < outTriangles || _R14 > (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+            if ( (v142 < outTriangles || v142 > (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
               __debugbreak();
-            v240 = ((unsigned __int64)((char *)_R14 - (char *)outTriangles) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
-            if ( (char *)_R14 - (char *)outTriangles != 116 * ((v240 + ((unsigned __int64)((char *)_R14 - (char *)outTriangles - v240) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+            v149 = ((unsigned __int64)((char *)v142 - (char *)outTriangles) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
+            if ( (char *)v142 - (char *)outTriangles != 116 * ((v149 + ((unsigned __int64)((char *)v142 - (char *)outTriangles - v149) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
               __debugbreak();
-            if ( v346 >= (char *)_R14 && v346 < &outTriangles->m_data.m_buffer[116 * outTriangles->m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+            if ( v199 >= (char *)v142 && v199 < &outTriangles->m_data.m_buffer[116 * outTriangles->m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
               __debugbreak();
-            _RDI = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)outTriangles + 116 * outTriangles->m_size);
-            if ( _R14 != _RDI )
+            v150 = (__m256i *)((char *)outTriangles + 116 * outTriangles->m_size);
+            if ( v142 != (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)v150 )
             {
-              _RSI = &_RDI->m_data.m_buffer[116];
-              if ( _R14 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)&_RDI->m_data.m_buffer[116] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+              v151 = &v150[3].m256i_i8[20];
+              if ( v142 == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)&v150[3].m256i_u64[2] + 4) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
                 __debugbreak();
-              if ( _RDI == (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+              if ( v150 == (__m256i *)v151 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
                 __debugbreak();
-              v243 = _RDI <= _R14;
-              if ( _RDI < _R14 )
+              v152 = v150 <= (__m256i *)v142;
+              if ( v150 < (__m256i *)v142 )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                   __debugbreak();
-                v243 = _RDI <= _R14;
+                v152 = v150 <= (__m256i *)v142;
               }
-              if ( !v243 )
+              if ( !v152 )
               {
                 do
                 {
-                  _RDI = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_RDI - 116);
-                  _RSI -= 116;
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rdi]
-                    vmovups ymmword ptr [rsi], ymm0
-                    vmovups ymm1, ymmword ptr [rdi+20h]
-                    vmovups ymmword ptr [rsi+20h], ymm1
-                    vmovups ymm0, ymmword ptr [rdi+40h]
-                    vmovups ymmword ptr [rsi+40h], ymm0
-                    vmovups xmm1, xmmword ptr [rdi+60h]
-                    vmovups xmmword ptr [rsi+60h], xmm1
-                  }
-                  *((_DWORD *)_RSI + 28) = *(_DWORD *)&_RDI->m_data.m_buffer[112];
+                  v150 = (__m256i *)((char *)v150 - 116);
+                  v151 -= 116;
+                  *(__m256i *)v151 = *v150;
+                  *((__m256i *)v151 + 1) = v150[1];
+                  *((__m256i *)v151 + 2) = v150[2];
+                  *((_OWORD *)v151 + 6) = *(_OWORD *)v150[3].m256i_i8;
+                  *((_DWORD *)v151 + 28) = v150[3].m256i_i32[4];
                 }
-                while ( _RDI > _R14 );
+                while ( v150 > (__m256i *)v142 );
               }
             }
             ++outTriangles->m_size;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+0AB20h+var_AB60]
-              vmovups ymmword ptr [r14], ymm0
-              vmovups ymm1, ymmword ptr [rbp+0AB20h+var_AB60+20h]
-              vmovups ymmword ptr [r14+20h], ymm1
-              vmovups ymm0, [rbp+0AB20h+var_AB20]
-              vmovups ymmword ptr [r14+40h], ymm0
-              vmovups xmm1, [rbp+0AB20h+var_AB00]
-              vmovups xmmword ptr [r14+60h], xmm1
-            }
-            *(_DWORD *)&_R14->m_data.m_buffer[112] = v202;
+            *(__m256i *)v142->m_data.m_buffer = *(__m256i *)v199;
+            *(__m256i *)&v142->m_data.m_buffer[32] = *(__m256i *)&v199[32];
+            *(__m256i *)&v142->m_data.m_buffer[64] = v200;
+            *(_OWORD *)&v142->m_data.m_buffer[96] = v201;
+            *(_DWORD *)&v142->m_data.m_buffer[112] = v128;
           }
-          else if ( Triangle::operator<((Triangle *)v346, (const Triangle *)_R14) )
+          else if ( Triangle::operator<((Triangle *)v199, (const Triangle *)v142) )
           {
-            v202 = v349;
-            goto LABEL_311;
+            v128 = v202;
+            goto LABEL_306;
           }
         }
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 100, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v123 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 100, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        _RBX = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(_RBX);
-        if ( _RBX != &v353.m_endNodeBase )
+        v123 = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(v123);
+        if ( v123 != &v206.m_endNodeBase )
           continue;
         break;
       }
-      __asm { vmovss  xmm12, cs:__real@3f000000 }
-      v19 = v352;
-LABEL_344:
-      v67 = v330 + 1;
-      v330 = v67;
-      __asm { vmovss  xmm13, [rsp+0AC20h+var_ABD4] }
-      _RDI = coords;
-      if ( v67 >= v333 )
+      v37 = FLOAT_0_5;
+      v9 = v205;
+LABEL_339:
+      v42 = v183 + 1;
+      v183 = v42;
+      v27 = v184;
+      v41 = coords;
+      if ( v42 >= v186 )
       {
-        __asm
-        {
-          vmovss  xmm8, [rsp+0AC20h+var_ABC8]
-          vmovss  xmm7, dword ptr [rbp+0AB20h+pointA]
-          vmovss  xmm6, dword ptr [rbp+0AB20h+pointC+4]
-          vmovss  xmm9, dword ptr [rbp+0AB20h+pointC]
-          vmovss  xmm10, dword ptr [rbp+0AB20h+pointB]
-          vmovss  xmm11, cs:__real@3f800000
-          vmovss  xmm14, [rsp+0AC20h+var_ABD0]
-        }
+        v33 = v187;
+        v35 = pointA.v[0];
+        v39 = pointC.v[1];
+        v38 = pointC.v[0];
+        v36 = pointB.v[0];
+        v26 = FLOAT_1_0;
+        v28 = v185;
         break;
       }
     }
   }
-  v254 = 0i64;
-  if ( v19 )
+  v153 = 0i64;
+  if ( v9 )
   {
     do
     {
-      if ( v254 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+      if ( v153 >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
         __debugbreak();
-      ++v254;
+      ++v153;
     }
-    while ( v254 < v19 );
-    _R13 = outTriangles;
+    while ( v153 < v9 );
+    v6 = outTriangles;
   }
-  v255 = 0i64;
-  v352 = 0i64;
-  v256 = _R13->m_size;
-  v257 = (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)_R13 + 116 * v256);
-  v258 = _R13 == v257;
-  if ( _R13 != v257 )
+  v154 = 0i64;
+  v205 = 0i64;
+  v155 = v6->m_size;
+  if ( v6 != (ntl::fixed_vector_set<Triangle,96,ntl::less<Triangle,Triangle> > *)((char *)v6 + 116 * v155) )
   {
-    _R14 = &_R13->m_data.m_buffer[56];
+    v156 = (float *)&v6->m_data.m_buffer[56];
     do
     {
-      _R13 = (unsigned __int64)(_R14 - 56);
-      __asm
+      v157 = v156 - 14;
+      v158 = *(v156 - 14);
+      if ( v158 == v35 && v33 == *(v156 - 13) || (v159 = *(v156 - 12), v159 == v35) && v33 == *(v156 - 11) || (v160 = *(v156 - 10), v160 == v35) && v33 == *(v156 - 9) || v158 == v36 && v33 == *(v156 - 13) || v159 == v36 && v33 == *(v156 - 11) || v160 == v36 && v33 == *(v156 - 9) || v158 == v38 && v39 == *(v156 - 13) || v159 == v38 && v39 == *(v156 - 11) || v160 == v38 && v39 == *(v156 - 9) )
       {
-        vmovss  xmm4, dword ptr [r13+0]
-        vucomiss xmm4, xmm7
-      }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-34h] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14-30h]
-        vucomiss xmm0, xmm7
-      }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-2Ch] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14-28h]
-        vucomiss xmm1, xmm7
-      }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-24h] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm4, xmm10 }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-34h] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm0, xmm10 }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-2Ch] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm1, xmm10 }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm8, dword ptr [r14-24h] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm4, xmm9 }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm6, dword ptr [r14-34h] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm0, xmm9 }
-      if ( v258 )
-      {
-        __asm { vucomiss xmm6, dword ptr [r14-2Ch] }
-        if ( v258 )
-          goto LABEL_372;
-      }
-      __asm { vucomiss xmm1, xmm9 }
-      if ( !v258 )
-        goto LABEL_409;
-      __asm { vucomiss xmm6, dword ptr [r14-24h] }
-      if ( v258 )
-      {
-LABEL_372:
-        _RSI = &v350;
-        v265 = (__int64)(116 * v255) / 116;
-        if ( v265 > 0 )
+        v161 = &v203;
+        v162 = (__int64)(116 * v154) / 116;
+        if ( v162 > 0 )
         {
           do
           {
-            if ( Triangle::operator<((Triangle *)((char *)_RSI + 116 * (v265 >> 1)), (const Triangle *)(_R14 - 56)) )
+            if ( Triangle::operator<((Triangle *)((char *)v161 + 116 * (v162 >> 1)), (const Triangle *)(v156 - 14)) )
             {
-              _RSI = (Triangle *)((char *)_RSI + 116 * (v265 >> 1) + 116);
-              v265 += -1 - (v265 >> 1);
+              v161 = (Triangle *)((char *)v161 + 116 * (v162 >> 1) + 116);
+              v162 += -1 - (v162 >> 1);
             }
             else
             {
-              v265 >>= 1;
+              v162 >>= 1;
             }
           }
-          while ( v265 > 0 );
-          v255 = v352;
+          while ( v162 > 0 );
+          v154 = v205;
         }
-        if ( _RSI == (Triangle *)((char *)&v350 + 116 * v255) || (v266 = Triangle::operator<((Triangle *)(_R14 - 56), _RSI), v255 = v352, v266) )
+        if ( v161 == (Triangle *)((char *)&v203 + 116 * v154) || (v163 = Triangle::operator<((Triangle *)(v156 - 14), v161), v154 = v205, v163) )
         {
-          if ( v255 == 96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
+          if ( v154 == 96 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 284, ASSERT_TYPE_ASSERT, "( ( capacity() - size()) >= 1 )", (const char *)&queryFormat, "( capacity() - size()) >= 1") )
             __debugbreak();
-          if ( (_RSI < &v350 || _RSI > (Triangle *)((char *)&v350 + 116 * v255)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+          if ( (v161 < &v203 || v161 > (Triangle *)((char *)&v203 + 116 * v154)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
             __debugbreak();
-          if ( (char *)_RSI - (char *)&v350 != 116 * (((char *)_RSI - (char *)&v350) / 0x74ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+          if ( (char *)v161 - (char *)&v203 != 116 * (((char *)v161 - (char *)&v203) / 0x74ui64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
             __debugbreak();
-          if ( _R13 >= (unsigned __int64)_RSI && _R13 < (unsigned __int64)&v350 + 116 * v255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+          if ( v157 >= (float *)v161 && v157 < (float *)&v203 + 29 * v154 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
             __debugbreak();
-          v267 = 116 * v255;
-          _RBX = (char *)&v350 + 116 * v255;
-          if ( _RSI != (Triangle *)_RBX )
+          v164 = 116 * v154;
+          v165 = (__m256i *)((char *)&v203 + 116 * v154);
+          if ( v161 != (Triangle *)v165 )
           {
-            _RDI = &v351[v267];
-            if ( _RSI == (Triangle *)&v351[v267] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+            v166 = &v204[v164];
+            if ( v161 == (Triangle *)&v204[v164] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
               __debugbreak();
-            if ( _RBX == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+            if ( v165 == (__m256i *)v166 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
               __debugbreak();
-            v270 = _RBX <= (char *)_RSI;
-            if ( _RBX < (char *)_RSI )
+            v167 = v165 <= (__m256i *)v161;
+            if ( v165 < (__m256i *)v161 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v270 = _RBX <= (char *)_RSI;
+              v167 = v165 <= (__m256i *)v161;
             }
-            if ( !v270 )
+            if ( !v167 )
             {
               do
               {
-                _RBX -= 116;
-                _RDI -= 116;
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbx]
-                  vmovups ymmword ptr [rdi], ymm0
-                  vmovups ymm1, ymmword ptr [rbx+20h]
-                  vmovups ymmword ptr [rdi+20h], ymm1
-                  vmovups ymm0, ymmword ptr [rbx+40h]
-                  vmovups ymmword ptr [rdi+40h], ymm0
-                  vmovups xmm1, xmmword ptr [rbx+60h]
-                  vmovups xmmword ptr [rdi+60h], xmm1
-                }
-                *((_DWORD *)_RDI + 28) = *((_DWORD *)_RBX + 28);
+                v165 = (__m256i *)((char *)v165 - 116);
+                v166 -= 116;
+                *(__m256i *)v166 = *v165;
+                *((__m256i *)v166 + 1) = v165[1];
+                *((__m256i *)v166 + 2) = v165[2];
+                *((_OWORD *)v166 + 6) = *(_OWORD *)v165[3].m256i_i8;
+                *((_DWORD *)v166 + 28) = v165[3].m256i_i32[4];
               }
-              while ( _RBX > (char *)_RSI );
-              v255 = v352;
+              while ( v165 > (__m256i *)v161 );
+              v154 = v205;
             }
           }
-          v352 = v255 + 1;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r13+0]
-            vmovups ymmword ptr [rsi], ymm0
-            vmovups ymm1, ymmword ptr [r13+20h]
-            vmovups ymmword ptr [rsi+20h], ymm1
-            vmovups ymm0, ymmword ptr [r13+40h]
-            vmovups ymmword ptr [rsi+40h], ymm0
-            vmovups xmm1, xmmword ptr [r13+60h]
-            vmovups xmmword ptr [rsi+60h], xmm1
-          }
-          _RSI[2].m_vert[2].v[2] = *(float *)(_R13 + 112);
-          v255 = v352;
+          v205 = v154 + 1;
+          *(__m256i *)v161->m_vert[0].v = *(__m256i *)v157;
+          *(__m256i *)&v161->m_vert[2].z = *(__m256i *)(v157 + 8);
+          *(__m256i *)v161[1].m_vert[2].v = *(__m256i *)(v157 + 16);
+          *(_OWORD *)&v161[2].m_vert[1].y = *((_OWORD *)v157 + 6);
+          v161[2].m_vert[2].v[2] = v157[28];
+          v154 = v205;
         }
       }
       else
       {
-LABEL_409:
-        __asm
-        {
-          vdivss  xmm3, xmm11, xmm14
-          vdivss  xmm2, xmm11, xmm13
-          vmulss  xmm0, xmm2, xmm4
-          vmovss  dword ptr [r13+0], xmm0
-          vmulss  xmm1, xmm3, dword ptr [r14-34h]
-          vmovss  dword ptr [r14-34h], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r14-18h]
-          vmovss  dword ptr [r14-18h], xmm0
-          vmulss  xmm1, xmm3, dword ptr [r14-14h]
-          vmovss  dword ptr [r14-14h], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r14-10h]
-          vmovss  dword ptr [r14-10h], xmm0
-          vmulss  xmm0, xmm3, dword ptr [r14-0Ch]
-          vmovss  dword ptr [r14-0Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14-30h]
-          vmovss  dword ptr [r14-30h], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14-2Ch]
-          vmovss  dword ptr [r14-2Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14]
-          vmovss  dword ptr [r14], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14+4]
-          vmovss  dword ptr [r14+4], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14+8]
-          vmovss  dword ptr [r14+8], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14+0Ch]
-          vmovss  dword ptr [r14+0Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14-28h]
-          vmovss  dword ptr [r14-28h], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14-24h]
-          vmovss  dword ptr [r14-24h], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14+18h]
-          vmovss  dword ptr [r14+18h], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14+1Ch]
-          vmovss  dword ptr [r14+1Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r14+20h]
-          vmovss  dword ptr [r14+20h], xmm1
-          vmulss  xmm0, xmm3, dword ptr [r14+24h]
-          vmovss  dword ptr [r14+24h], xmm0
-        }
+        *v157 = (float)(v26 / v27) * v158;
+        *(v156 - 13) = (float)(v26 / v28) * *(v156 - 13);
+        *(v156 - 6) = (float)(v26 / v27) * *(v156 - 6);
+        *(v156 - 5) = (float)(v26 / v28) * *(v156 - 5);
+        *(v156 - 4) = (float)(v26 / v27) * *(v156 - 4);
+        *(v156 - 3) = (float)(v26 / v28) * *(v156 - 3);
+        *(v156 - 12) = (float)(v26 / v27) * *(v156 - 12);
+        *(v156 - 11) = (float)(v26 / v28) * *(v156 - 11);
+        *v156 = (float)(v26 / v27) * *v156;
+        v156[1] = (float)(v26 / v28) * v156[1];
+        v156[2] = (float)(v26 / v27) * v156[2];
+        v156[3] = (float)(v26 / v28) * v156[3];
+        *(v156 - 10) = (float)(v26 / v27) * *(v156 - 10);
+        *(v156 - 9) = (float)(v26 / v28) * *(v156 - 9);
+        v156[6] = (float)(v26 / v27) * v156[6];
+        v156[7] = (float)(v26 / v28) * v156[7];
+        v156[8] = (float)(v26 / v27) * v156[8];
+        v156[9] = (float)(v26 / v28) * v156[9];
       }
-      _R14 += 116;
-      _R13 = outTriangles;
-      v256 = outTriangles->m_size;
-      v299 = &outTriangles->m_data.m_buffer[116 * v256];
-      v258 = _R14 - 56 == v299;
+      v156 += 29;
+      v6 = outTriangles;
+      v155 = outTriangles->m_size;
     }
-    while ( _R14 - 56 != v299 );
+    while ( v156 - 14 != (float *)((char *)outTriangles + 116 * v155) );
   }
-  for ( i = &v350; i != (Triangle *)((char *)&v350 + 116 * v255); i = (Triangle *)((char *)i + 116) )
+  for ( i = &v203; i != (Triangle *)((char *)&v203 + 116 * v154); i = (Triangle *)((char *)i + 116) )
   {
-    v301 = (const Triangle *)_R13;
-    if ( v256 > 0 )
+    v169 = (const Triangle *)v6;
+    if ( v155 > 0 )
     {
       do
       {
-        if ( Triangle::operator<((Triangle *)((char *)v301 + 116 * (v256 >> 1)), i) )
+        if ( Triangle::operator<((Triangle *)((char *)v169 + 116 * (v155 >> 1)), i) )
         {
-          v301 = (const Triangle *)((char *)v301 + 116 * (v256 >> 1) + 116);
-          v256 += -1 - (v256 >> 1);
+          v169 = (const Triangle *)((char *)v169 + 116 * (v155 >> 1) + 116);
+          v155 += -1 - (v155 >> 1);
         }
         else
         {
-          v256 >>= 1;
+          v155 >>= 1;
         }
       }
-      while ( v256 > 0 );
-      v256 = _R13->m_size;
-      v255 = v352;
+      while ( v155 > 0 );
+      v155 = v6->m_size;
+      v154 = v205;
     }
-    if ( v301 != (const Triangle *)((char *)_R13 + 116 * v256) )
+    if ( v169 != (const Triangle *)((char *)v6 + 116 * v155) )
     {
-      v302 = Triangle::operator<(i, v301);
-      v255 = v352;
-      if ( v302 )
-        v301 = (const Triangle *)((char *)_R13 + 116 * _R13->m_size);
+      v170 = Triangle::operator<(i, v169);
+      v154 = v205;
+      if ( v170 )
+        v169 = (const Triangle *)((char *)v6 + 116 * v6->m_size);
     }
-    v256 = _R13->m_size;
-    if ( v301 != (const Triangle *)((char *)_R13 + 116 * v256) )
+    v155 = v6->m_size;
+    if ( v169 != (const Triangle *)((char *)v6 + 116 * v155) )
     {
-      if ( !v256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
+      if ( !v155 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
         __debugbreak();
-      if ( (v301 < (const Triangle *)_R13 || v301 > (const Triangle *)((char *)_R13 + 116 * _R13->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+      if ( (v169 < (const Triangle *)v6 || v169 > (const Triangle *)((char *)v6 + 116 * v6->m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
         __debugbreak();
-      v303 = ((unsigned __int64)((char *)v301 - (char *)_R13) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
-      if ( (char *)v301 - (char *)_R13 != 116 * ((v303 + ((unsigned __int64)((char *)v301 - (char *)_R13 - v303) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+      v171 = ((unsigned __int64)((char *)v169 - (char *)v6) * (unsigned __int128)0x1A7B9611A7B9611Bui64) >> 64;
+      if ( (char *)v169 - (char *)v6 != 116 * ((v171 + ((unsigned __int64)((char *)v169 - (char *)v6 - v171) >> 1)) >> 6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
         __debugbreak();
-      if ( v301 == (const Triangle *)((char *)_R13 + 116 * _R13->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+      if ( v169 == (const Triangle *)((char *)v6 + 116 * v6->m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
         __debugbreak();
-      iter = ntl::vector<Triangle,ntl::contiguous_fixed_allocator<Triangle,96,0>>::make_iter(_R13, v301);
-      v305 = (Triangle *)((char *)_R13 + 116 * _R13->m_size);
-      _RBX = &iter[2].m_area;
+      iter = ntl::vector<Triangle,ntl::contiguous_fixed_allocator<Triangle,96,0>>::make_iter(v6, v169);
+      v173 = (Triangle *)((char *)v6 + 116 * v6->m_size);
+      p_m_area = (__m256i *)&iter[2].m_area;
       if ( (Triangle *)&iter[2].m_area == iter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
-      if ( v305 == iter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+      if ( v173 == iter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v307 = _RBX < (float *)v305;
-      if ( _RBX > (float *)v305 )
+      v175 = p_m_area < (__m256i *)v173;
+      if ( p_m_area > (__m256i *)v173 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v307 = _RBX < (float *)v305;
+        v175 = p_m_area < (__m256i *)v173;
       }
-      if ( v307 )
+      if ( v175 )
       {
-        _RCX = iter;
+        v176 = iter;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm1, ymmword ptr [rbx+20h]
-            vmovups ymmword ptr [rcx+20h], ymm1
-            vmovups ymm0, ymmword ptr [rbx+40h]
-            vmovups ymmword ptr [rcx+40h], ymm0
-            vmovups xmm1, xmmword ptr [rbx+60h]
-            vmovups xmmword ptr [rcx+60h], xmm1
-          }
-          _RCX[2].m_vert[2].v[2] = _RBX[28];
-          _RBX += 29;
-          _RCX = (Triangle *)((char *)_RCX + 116);
+          *(__m256i *)v176->m_vert[0].v = *p_m_area;
+          *(__m256i *)&v176->m_vert[2].z = p_m_area[1];
+          *(__m256i *)v176[1].m_vert[2].v = p_m_area[2];
+          *(_OWORD *)&v176[2].m_vert[1].y = *(_OWORD *)p_m_area[3].m256i_i8;
+          LODWORD(v176[2].m_vert[2].v[2]) = p_m_area[3].m256i_i32[4];
+          p_m_area = (__m256i *)((char *)p_m_area + 116);
+          v176 = (Triangle *)((char *)v176 + 116);
         }
-        while ( _RBX < (float *)v305 );
+        while ( p_m_area < (__m256i *)v173 );
       }
-      v256 = --_R13->m_size;
+      v155 = --v6->m_size;
     }
   }
   Profile_EndInternal(NULL);
-  ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>::~set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>((ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge> > *)&v354);
-  ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>::~set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>((ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge> > *)&v353);
-  if ( v255 )
+  ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>::~set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>((ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge> > *)&v207);
+  ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>::~set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge>>((ntl::set<Edge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<Edge>,288,8>,ntl::less<Edge,Edge> > *)&v206);
+  if ( v154 )
   {
-    for ( j = 0i64; j < v255; ++j )
+    for ( j = 0i64; j < v154; ++j )
     {
       if ( j >= 0x60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
         __debugbreak();
     }
-  }
-  _R11 = &v365;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 

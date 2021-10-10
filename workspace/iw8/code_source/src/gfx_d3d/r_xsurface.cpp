@@ -331,69 +331,50 @@ XSurfacePackPosition
 */
 PackedPosition XSurfacePackPosition(const vec3_t *position, float binormalSign, const Bounds *bounds)
 {
-  bool v29; 
-  int v30; 
-  int v31; 
-  __int64 v32; 
-  __int64 v33; 
-  int v34; 
-  __int64 v35; 
+  float v6; 
+  int v7; 
+  float v8; 
+  int v9; 
+  int v10; 
+  bool v11; 
+  int v12; 
+  int v13; 
+  __int64 v14; 
+  __int64 v15; 
+  int v16; 
+  __int64 v17; 
 
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
   __asm
   {
-    vmovss  xmm0, dword ptr [r8+10h]
     vmaxss  xmm1, xmm0, dword ptr [r8+0Ch]
-    vmovss  xmm0, dword ptr [rcx]
     vmaxss  xmm2, xmm1, dword ptr [r8+14h]
-    vsubss  xmm1, xmm0, dword ptr [r8]
-    vmovss  xmm4, cs:__real@497ffff8
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vdivss  xmm5, xmm6, xmm2
-    vmulss  xmm2, xmm1, xmm5
-    vaddss  xmm3, xmm2, xmm6
-    vmulss  xmm0, xmm3, xmm4
-    vcvttss2si r9d, xmm0
-    vmovss  xmm0, dword ptr [rcx+4]
-    vsubss  xmm1, xmm0, dword ptr [r8+4]
-    vmulss  xmm2, xmm1, xmm5
   }
-  if ( _ER9 > 0x1FFFFF )
-    _ER9 = 0x1FFFFF;
-  __asm
-  {
-    vaddss  xmm3, xmm2, xmm6
-    vmulss  xmm0, xmm3, xmm4
-    vcvttss2si edx, xmm0
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm1, xmm0, dword ptr [r8+8]
-    vmulss  xmm2, xmm1, xmm5
-  }
-  if ( _EDX > 0x1FFFFF )
-    _EDX = 0x1FFFFF;
-  __asm
-  {
-    vaddss  xmm3, xmm2, xmm6
-    vmovaps xmm6, [rsp+18h+var_18]
-    vmulss  xmm0, xmm3, xmm4
-    vcvttss2si ecx, xmm0
-  }
-  if ( _ECX > 0x1FFFFF )
-    _ECX = 0x1FFFFF;
-  v29 = _ECX < 0;
-  v30 = _ECX;
-  v31 = _EDX;
-  if ( v29 )
-    v30 = 0;
-  v32 = (*(_QWORD *)&v30 & 0x1FFFFFi64) << 21;
-  if ( _EDX < 0 )
-    v31 = 0;
-  v33 = *(_QWORD *)&v31 & 0x1FFFFFi64 | v32;
-  v34 = _ER9;
-  v35 = v33 << 21;
-  if ( _ER9 < 0 )
-    v34 = 0;
-  return (PackedPosition)(*(_QWORD *)&v34 & 0x1FFFFFi64 | v35);
+  v6 = 1.0 / *(float *)&_XMM2;
+  v7 = (int)(float)((float)((float)((float)(position->v[0] - bounds->midPoint.v[0]) * (float)(1.0 / *(float *)&_XMM2)) + 1.0) * 1048575.5);
+  v8 = (float)(position->v[1] - bounds->midPoint.v[1]) * (float)(1.0 / *(float *)&_XMM2);
+  if ( v7 > 0x1FFFFF )
+    v7 = 0x1FFFFF;
+  v9 = (int)(float)((float)(v8 + 1.0) * 1048575.5);
+  if ( v9 > 0x1FFFFF )
+    v9 = 0x1FFFFF;
+  v10 = (int)(float)((float)((float)((float)(position->v[2] - bounds->midPoint.v[2]) * v6) + 1.0) * 1048575.5);
+  if ( v10 > 0x1FFFFF )
+    v10 = 0x1FFFFF;
+  v11 = v10 < 0;
+  v12 = v10;
+  v13 = v9;
+  if ( v11 )
+    v12 = 0;
+  v14 = (*(_QWORD *)&v12 & 0x1FFFFFi64) << 21;
+  if ( v9 < 0 )
+    v13 = 0;
+  v15 = *(_QWORD *)&v13 & 0x1FFFFFi64 | v14;
+  v16 = v7;
+  v17 = v15 << 21;
+  if ( v7 < 0 )
+    v16 = 0;
+  return (PackedPosition)(*(_QWORD *)&v16 & 0x1FFFFFi64 | v17);
 }
 
 /*
@@ -403,59 +384,22 @@ XSurfacePackSelfVisibility
 */
 __int64 XSurfacePackSelfVisibility(const vec4_t *selfVisibility)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
-  _RSI = selfVisibility;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vaddss  xmm1, xmm7, dword ptr [rcx]
-    vmovaps [rsp+48h+var_28], xmm8
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm0, xmm1, xmm8; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm7; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@43ff8000
-    vaddss  xmm1, xmm0, xmm8
-    vcvttss2si rbp, xmm1
-    vaddss  xmm1, xmm7, dword ptr [rsi+4]
-    vmulss  xmm0, xmm1, xmm8; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm7; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm3, xmm0, cs:__real@43ff8000
-    vmovss  xmm0, dword ptr [rsi+8]; val
-    vaddss  xmm4, xmm3, xmm8
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vcvttss2si rdi, xmm4
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@42fe0000
-    vaddss  xmm3, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rsi+0Ch]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vcvttss2si rbx, xmm3
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42fe0000
-    vmovaps xmm7, [rsp+48h+var_18]
-    vaddss  xmm2, xmm1, xmm8
-    vmovaps xmm8, [rsp+48h+var_28]
-    vcvttss2si rax, xmm2
-  }
-  return (unsigned int)_RBP | (((unsigned int)_RDI | (((unsigned int)_RBX | ((_DWORD)_RAX << 7)) << 9)) << 9);
+  double v2; 
+  int v3; 
+  double v4; 
+  int v5; 
+  double v6; 
+  int v7; 
+  double v8; 
+
+  v2 = I_fclamp((float)(selfVisibility->v[0] + 1.0) * 0.5, 0.0, 1.0);
+  v3 = (int)(float)((float)(*(float *)&v2 * 511.0) + 0.5);
+  v4 = I_fclamp((float)(selfVisibility->v[1] + 1.0) * 0.5, 0.0, 1.0);
+  v5 = (int)(float)((float)(*(float *)&v4 * 511.0) + 0.5);
+  v6 = I_fclamp(selfVisibility->v[2], 0.0, 1.0);
+  v7 = (int)(float)((float)(*(float *)&v6 * 127.0) + 0.5);
+  v8 = I_fclamp(selfVisibility->v[3], 0.0, 1.0);
+  return v3 | ((v5 | ((v7 | (unsigned int)((int)(float)((float)(*(float *)&v8 * 127.0) + 0.5) << 7)) << 9)) << 9);
 }
 
 /*
@@ -476,94 +420,25 @@ XSurfaceUnpackNormal
 */
 void XSurfaceUnpackNormal(const PackedQuatDec3n packedQuat, vec3_t *result)
 {
-  char v23; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
   float binormalSign; 
   vec4_t outQuat; 
-  char v57; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RBX = result;
   QuatDec3nToUnitQuat(packedQuat, &outQuat, &binormalSign);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+0C8h+outQuat]
-    vmovss  xmm7, dword ptr [rsp+0C8h+outQuat+4]
-    vmovss  xmm8, dword ptr [rsp+0C8h+outQuat+8]
-    vmovss  xmm9, dword ptr [rsp+0C8h+outQuat+0Ch]
-    vmovss  xmm10, cs:__real@3f800000
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm10
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-  }
-  if ( !v23 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm2, xmm2
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0C8h+var_80], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0C8h+var_88], xmm2
-      vcvtss2sd xmm3, xmm8, xmm8
-      vmovsd  [rsp+0C8h+var_90], xmm3
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_98], xmm0
-      vcvtss2sd xmm4, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_A0], xmm4
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v50, v51, v52, v53, v54) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm4, cs:__real@40000000
-    vmulss  xmm1, xmm7, xmm9
-    vmulss  xmm0, xmm6, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm2, xmm4
-    vmulss  xmm3, xmm7, xmm8
-    vmulss  xmm0, xmm6, xmm9
-    vmovss  dword ptr [rbx], xmm1
-    vsubss  xmm1, xmm3, xmm0
-    vmulss  xmm2, xmm1, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm3, xmm6, xmm6
-    vaddss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rbx+4], xmm2
-    vmulss  xmm2, xmm1, xmm4
-    vsubss  xmm0, xmm10, xmm2
-    vmovss  dword ptr [rbx+8], xmm0
-  }
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v3 = outQuat.v[0];
+  v4 = outQuat.v[1];
+  v5 = outQuat.v[2];
+  v6 = outQuat.v[3];
+  v7 = (float)((float)((float)(v3 * v3) + (float)(v4 * v4)) + (float)(v5 * v5)) + (float)(v6 * v6);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v7 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", outQuat.v[0], outQuat.v[1], outQuat.v[2], outQuat.v[3], fsqrt(v7)) )
+    __debugbreak();
+  result->v[0] = (float)((float)(v4 * v6) + (float)(v3 * v5)) * 2.0;
+  result->v[1] = (float)((float)(v4 * v5) - (float)(v3 * v6)) * 2.0;
+  result->v[2] = 1.0 - (float)((float)((float)(v3 * v3) + (float)(v4 * v4)) * 2.0);
 }
 
 /*
@@ -573,49 +448,29 @@ XSurfaceUnpackPosition
 */
 void XSurfaceUnpackPosition(const PackedPosition packedPosition, const Bounds *bounds, vec3_t *result)
 {
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+
+  v3 = (float)(packedPosition.packedDWords[0] & 0x1FFFFF);
+  v4 = v3 * 0.00000047683739;
+  result->v[0] = v3 * 0.00000047683739;
+  v5 = (float)((*(_QWORD *)&packedPosition >> 21) & 0x1FFFFFi64);
+  v6 = v5 * 0.00000047683739;
+  result->v[1] = v5 * 0.00000047683739;
+  v7 = (float)((*(_QWORD *)&packedPosition >> 42) & 0x1FFFFFi64);
+  result->v[2] = v7 * 0.00000047683739;
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
   __asm
   {
-    vmovss  xmm1, cs:__real@5f800000
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps [rsp+48h+var_38], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  xmm2, cs:__real@35000004
-    vmulss  xmm3, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [r8], xmm3
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm8, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [r8+4], xmm8
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  xmm5, cs:__real@40000000
-    vmovss  xmm4, cs:__real@3f800000
-    vmulss  xmm7, xmm0, xmm2
-    vmovss  dword ptr [r8+8], xmm7
-    vmovss  xmm0, dword ptr [rdx+10h]
     vmaxss  xmm1, xmm0, dword ptr [rdx+0Ch]
     vmaxss  xmm6, xmm1, dword ptr [rdx+14h]
-    vmulss  xmm0, xmm3, xmm5
-    vsubss  xmm0, xmm0, xmm4
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r8], xmm2
-    vmulss  xmm0, xmm8, xmm5
-    vmovaps xmm8, [rsp+48h+var_38]
-    vsubss  xmm1, xmm0, xmm4
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [rdx+4]
-    vmulss  xmm0, xmm7, xmm5
-    vmovaps xmm7, [rsp+48h+var_28]
-    vsubss  xmm1, xmm0, xmm4
-    vmulss  xmm2, xmm1, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [r8+4], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rdx+8]
-    vmovss  dword ptr [r8+8], xmm3
   }
+  result->v[0] = (float)((float)((float)(v4 * 2.0) - 1.0) * *(float *)&_XMM6) + bounds->midPoint.v[0];
+  result->v[1] = (float)((float)((float)(v6 * 2.0) - 1.0) * *(float *)&_XMM6) + bounds->midPoint.v[1];
+  result->v[2] = (float)((float)((float)((float)(v7 * 0.00000047683739) * 2.0) - 1.0) * *(float *)&_XMM6) + bounds->midPoint.v[2];
 }
 
 /*
@@ -625,44 +480,25 @@ XSurfaceUnpackPositionToFloat4
 */
 void XSurfaceUnpackPositionToFloat4(const PackedPosition packedPosition, const Bounds *bounds, float4 *result)
 {
+  __int128 v9; 
+
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
   __asm
   {
-    vmovaps [rsp+38h+var_18], xmm8
-    vmovss  xmm0, dword ptr [rdx+10h]
     vmaxss  xmm1, xmm0, dword ptr [rdx+0Ch]
     vmaxss  xmm8, xmm1, dword ptr [rdx+14h]
-    vmovss  xmm4, cs:__real@5f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  xmm5, cs:__real@35000004
-    vmulss  xmm0, xmm0, xmm5
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vsubss  xmm0, xmm1, cs:__real@3f800000
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm2, xmm1, dword ptr [rdx]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+38h+var_38], xmm2
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm0, xmm0, xmm5
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vsubss  xmm2, xmm1, cs:__real@3f800000
-    vmulss  xmm3, xmm2, xmm8
-    vaddss  xmm0, xmm3, dword ptr [rdx+4]
-    vmovss  dword ptr [rsp+38h+var_38+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm5
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vsubss  xmm2, xmm1, cs:__real@3f800000
-    vmulss  xmm3, xmm2, xmm8
-    vaddss  xmm0, xmm3, dword ptr [rdx+8]
-    vmovups xmm2, [rsp+38h+var_38]
-    vinsertps xmm2, xmm2, xmm0, 20h ; ' '
-    vxorps  xmm1, xmm1, xmm1
-    vinsertps xmm2, xmm2, xmm1, 30h ; '0'
-    vmovups xmmword ptr [r8], xmm2
-    vmovaps xmm8, [rsp+38h+var_18]
   }
+  *(float *)&_XMM0 = (float)(packedPosition.packedDWords[0] & 0x1FFFFF);
+  *(float *)&v9 = (float)((float)((float)((float)(*(float *)&_XMM0 * 0.00000047683739) * 2.0) - 1.0) * *(float *)&_XMM8) + bounds->midPoint.v[0];
+  *(float *)&_XMM0 = (float)((*(_QWORD *)&packedPosition >> 21) & 0x1FFFFFi64);
+  *((float *)&v9 + 1) = (float)((float)((float)((float)(*(float *)&_XMM0 * 0.00000047683739) * 2.0) - 1.0) * *(float *)&_XMM8) + bounds->midPoint.v[1];
+  _XMM2 = v9;
+  __asm
+  {
+    vinsertps xmm2, xmm2, xmm0, 20h ; ' '
+    vinsertps xmm2, xmm2, xmm1, 30h ; '0'
+  }
+  *result = (float4)_XMM2.v;
 }
 
 /*
@@ -672,29 +508,21 @@ XSurfaceUnpackSelfVisibility
 */
 void XSurfaceUnpackSelfVisibility(PackedSelfVisibility src, vec4_t *result)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@3c010204
-    vmovss  dword ptr [rdx+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3c010204
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rdx+0Ch], xmm1
-    vmulss  xmm1, xmm0, cs:__real@3b004020
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vsubss  xmm0, xmm2, cs:__real@3f800000
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3b004020
-    vmulss  xmm2, xmm1, cs:__real@40000000
-    vsubss  xmm3, xmm2, cs:__real@3f800000
-    vmovss  dword ptr [rdx+4], xmm3
-  }
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+
+  v2 = (float)((src.packed >> 18) & 0x7F);
+  result->v[2] = v2 * 0.0078740157;
+  v3 = (float)(src.packed >> 25);
+  v4 = v3 * 0.0078740157;
+  v5 = (float)(src.packed & 0x1FF);
+  result->v[3] = v4;
+  result->v[0] = (float)((float)(v5 * 0.0019569471) * 2.0) - 1.0;
+  v6 = (float)((src.packed >> 9) & 0x1FF);
+  result->v[1] = (float)((float)(v6 * 0.0019569471) * 2.0) - 1.0;
 }
 
 /*
@@ -704,93 +532,24 @@ XSurfaceUnpackTangent
 */
 void XSurfaceUnpackTangent(const PackedQuatDec3n packedQuat, vec3_t *result)
 {
-  char v23; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
   float binormalSign; 
   vec4_t outQuat; 
-  char v57; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RBX = result;
   QuatDec3nToUnitQuat(packedQuat, &outQuat, &binormalSign);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rsp+0C8h+outQuat]
-    vmovss  xmm6, dword ptr [rsp+0C8h+outQuat+4]
-    vmovss  xmm7, dword ptr [rsp+0C8h+outQuat+8]
-    vmovss  xmm9, dword ptr [rsp+0C8h+outQuat+0Ch]
-    vmovss  xmm10, cs:__real@3f800000
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm10
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-  }
-  if ( !v23 )
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm2, xmm2
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+0C8h+var_80], xmm1
-      vcvtss2sd xmm2, xmm9, xmm9
-      vmovsd  [rsp+0C8h+var_88], xmm2
-      vcvtss2sd xmm3, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_90], xmm3
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+0C8h+var_98], xmm0
-      vcvtss2sd xmm4, xmm8, xmm8
-      vmovsd  [rsp+0C8h+var_A0], xmm4
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 48, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v50, v51, v52, v53, v54) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm4, cs:__real@40000000
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm3, xmm2, xmm4
-    vsubss  xmm0, xmm10, xmm3
-    vmulss  xmm2, xmm8, xmm6
-    vmulss  xmm1, xmm9, xmm7
-    vmovss  dword ptr [rbx], xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm4
-    vmulss  xmm0, xmm6, xmm9
-    vmulss  xmm1, xmm8, xmm7
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rbx+4], xmm2
-    vmulss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rbx+8], xmm2
-  }
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v3 = outQuat.v[0];
+  v4 = outQuat.v[1];
+  v5 = outQuat.v[2];
+  v6 = outQuat.v[3];
+  v7 = (float)((float)((float)(v3 * v3) + (float)(v4 * v4)) + (float)(v5 * v5)) + (float)(v6 * v6);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v7 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 48, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", outQuat.v[0], outQuat.v[1], outQuat.v[2], outQuat.v[3], fsqrt(v7)) )
+    __debugbreak();
+  result->v[0] = 1.0 - (float)((float)((float)(v4 * v4) + (float)(v5 * v5)) * 2.0);
+  result->v[1] = (float)((float)(v3 * v4) + (float)(v6 * v5)) * 2.0;
+  result->v[2] = (float)((float)(v3 * v5) - (float)(v4 * v6)) * 2.0;
 }
 

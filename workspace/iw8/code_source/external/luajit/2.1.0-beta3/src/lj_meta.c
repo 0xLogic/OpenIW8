@@ -263,83 +263,75 @@ lj_meta_arith
 */
 TValue *lj_meta_arith(lua_State *L, TValue *ra, const TValue *rb, const TValue *rc, unsigned int op)
 {
-  const TValue *b; 
   const TValue *v7; 
   int v9; 
   __int64 v10; 
-  TValue v12; 
-  __int64 v13; 
-  const TValue *v17; 
-  __int64 v18; 
   TValue *p_o; 
-  TValue v20; 
+  __int64 u64; 
+  __int64 v13; 
+  const TValue *v15; 
+  __int64 v16; 
+  TValue *v17; 
+  TValue v18; 
   TValue o; 
 
-  b = rc;
   v7 = rb;
-  _R15 = ra;
   v9 = lj_bc_mode[op] >> 11;
   v10 = rb->it64 >> 47;
   if ( (unsigned int)v10 >= 0xFFFFFFF2 )
   {
     if ( (_DWORD)v10 != -5 || !j_lj_strscan_num((GCstr *)(rb->u64 & 0x7FFFFFFFFFFFi64), &o) )
       goto LABEL_17;
-    _RSI = &o;
+    p_o = &o;
   }
   else
   {
-    _RSI = (TValue *)rb;
+    p_o = (TValue *)rb;
   }
-  v12.u64 = b->u64;
-  v13 = b->it64 >> 47;
+  u64 = rc->u64;
+  v13 = rc->it64 >> 47;
   if ( (unsigned int)v13 < 0xFFFFFFF2 )
     goto LABEL_10;
-  if ( (_DWORD)v13 == -5 && j_lj_strscan_num((GCstr *)(v12.u64 & 0x7FFFFFFFFFFFi64), &v20) )
+  if ( (_DWORD)v13 == -5 && j_lj_strscan_num((GCstr *)(u64 & 0x7FFFFFFFFFFFi64), &v18) )
   {
-    v12.u64 = v20.u64;
-    b = &v20;
+    u64 = v18.u64;
+    rc = &v18;
 LABEL_10:
-    if ( (unsigned int)(v12.it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_meta.c", 221, "(((uint32_t)((c)->it64 >> 47)) < (~13u))") )
+    if ( (unsigned int)(u64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_meta.c", 221, "(((uint32_t)((c)->it64 >> 47)) < (~13u))") )
       __debugbreak();
-    if ( (unsigned int)(_RSI->it64 >> 47) >= 0xFFFFFFF2 )
+    if ( (unsigned int)(p_o->it64 >> 47) >= 0xFFFFFFF2 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_meta.c", 221, "(((uint32_t)((b)->it64 >> 47)) < (~13u))") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovsd  xmm1, qword ptr [rdi]; y
-      vmovsd  xmm0, qword ptr [rsi]; x
-    }
-    *(double *)&_XMM0 = j_lj_vm_foldarith(*(long double *)&_XMM0, *(long double *)&_XMM1, v9 - 10);
-    __asm { vmovsd  qword ptr [r15], xmm0 }
+    ra->n = j_lj_vm_foldarith(p_o->n, rc->n, v9 - 10);
     return 0i64;
   }
 LABEL_17:
-  v17 = j_lj_meta_lookup(L, v7, (MMS)v9);
-  if ( v17->u64 == -1i64 )
+  v15 = j_lj_meta_lookup(L, v7, (MMS)v9);
+  if ( v15->u64 == -1i64 )
   {
-    v17 = j_lj_meta_lookup(L, b, (MMS)v9);
-    if ( v17->u64 == -1i64 )
+    v15 = j_lj_meta_lookup(L, rc, (MMS)v9);
+    if ( v15->u64 == -1i64 )
     {
-      v18 = v7->it64 >> 47;
-      if ( (unsigned int)v18 >= 0xFFFFFFF2 )
+      v16 = v7->it64 >> 47;
+      if ( (unsigned int)v16 >= 0xFFFFFFF2 )
       {
-        if ( (_DWORD)v18 == -5 && j_lj_strscan_num((GCstr *)(v7->u64 & 0x7FFFFFFFFFFFi64), &o) )
-          p_o = &o;
+        if ( (_DWORD)v16 == -5 && j_lj_strscan_num((GCstr *)(v7->u64 & 0x7FFFFFFFFFFFi64), &o) )
+          v17 = &o;
         else
-          p_o = NULL;
+          v17 = NULL;
       }
       else
       {
-        p_o = (TValue *)v7;
+        v17 = (TValue *)v7;
       }
-      if ( p_o )
-        v7 = b;
+      if ( v17 )
+        v7 = rc;
       j_lj_err_optype(L, v7, LJ_ERR_OPARITH);
     }
   }
-  return mmcall(L, j_lj_cont_ra, v17, v7, b);
+  return mmcall(L, j_lj_cont_ra, v15, v7, rc);
 }
 
 /*
@@ -352,6 +344,7 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
   unsigned int v6; 
   __int64 v7; 
   __int64 v8; 
+  TValue *v9; 
   unsigned int v10; 
   unsigned __int64 v11; 
   __int64 it64; 
@@ -364,12 +357,13 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
   unsigned int v19; 
   TValue *v20; 
   __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
   __int64 v24; 
-  __int64 v25; 
   TValue *result; 
-  const TValue *v27; 
+  const TValue *v26; 
   signed __int64 u64; 
+  __int64 v28; 
   __int64 v29; 
   __int64 v30; 
   __int64 v31; 
@@ -378,7 +372,6 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
   __int64 v34; 
   __int64 v35; 
   __int64 v36; 
-  __int64 v37; 
 
   v6 = abs32(left);
   while ( 1 )
@@ -389,7 +382,7 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
     v8 = top[-1].it64 >> 47;
     if ( (_DWORD)v8 != -5 && (unsigned int)v8 > 0xFFFFFFF2 )
       break;
-    _RBX = top;
+    v9 = top;
     if ( (_DWORD)v7 == -5 )
       v10 = *(_DWORD *)((top->u64 & 0x7FFFFFFFFFFFi64) + 0x10);
     else
@@ -397,8 +390,8 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
     v11 = v10;
     do
     {
-      it64 = _RBX[-1].it64;
-      v13 = _RBX--;
+      it64 = v9[-1].it64;
+      v13 = v9--;
       v14 = v6;
       if ( (unsigned int)(it64 >> 47) == -5 )
         v15 = *(unsigned int *)((it64 & 0x7FFFFFFFFFFFi64) + 0x10);
@@ -420,28 +413,27 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
     if ( (unsigned int)v11 > v19 )
       j_lj_buf_more2((SBuf *)v17, v11);
     v20 = top;
-    for ( top = _RBX; _RBX <= v20; ++_RBX )
+    for ( top = v9; v9 <= v20; ++v9 )
     {
-      v21 = _RBX->it64 >> 47;
+      v21 = v9->it64 >> 47;
       if ( (_DWORD)v21 == -5 )
       {
-        j_lj_buf_putmem((SBuf *)v17, (const void *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 24), *(_DWORD *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 0x10));
+        j_lj_buf_putmem((SBuf *)v17, (const void *)((v9->u64 & 0x7FFFFFFFFFFFi64) + 24), *(_DWORD *)((v9->u64 & 0x7FFFFFFFFFFFi64) + 0x10));
       }
       else
       {
         if ( (unsigned int)v21 >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_meta.c", 296, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
           __debugbreak();
-        __asm { vmovsd  xmm2, qword ptr [rbx]; n }
-        j_lj_strfmt_putfnum((SBuf *)v17, 0xF000035u, *(long double *)&_XMM2);
+        j_lj_strfmt_putfnum((SBuf *)v17, 0xF000035u, v9->n);
       }
     }
-    v23 = (unsigned __int64)j_lj_str_new(L, *(const char **)(v17 + 16), (unsigned int)(*(_DWORD *)v17 - *(_DWORD *)(v17 + 16))) | 0xFFFD800000000000ui64;
-    top->u64 = v23;
-    v24 = v23 >> 47;
-    if ( (unsigned int)(v23 >> 47) + 4 > 0xFFFFFFF6 )
+    v22 = (unsigned __int64)j_lj_str_new(L, *(const char **)(v17 + 16), (unsigned int)(*(_DWORD *)v17 - *(_DWORD *)(v17 + 16))) | 0xFFFD800000000000ui64;
+    top->u64 = v22;
+    v23 = v22 >> 47;
+    if ( (unsigned int)(v22 >> 47) + 4 > 0xFFFFFFF6 )
     {
-      v25 = v23 & 0x7FFFFFFFFFFFi64;
-      if ( ~(_DWORD)v24 != *(unsigned __int8 *)(v25 + 9) || (*(_BYTE *)(v25 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+      v24 = v22 & 0x7FFFFFFFFFFFi64;
+      if ( ~(_DWORD)v23 != *(unsigned __int8 *)(v24 + 9) || (*(_BYTE *)(v24 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
       {
         if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
           __debugbreak();
@@ -465,49 +457,49 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
       return 0i64;
     }
   }
-  v27 = j_lj_meta_lookup(L, top - 1, MM_concat);
-  if ( v27->u64 == -1i64 )
+  v26 = j_lj_meta_lookup(L, top - 1, MM_concat);
+  if ( v26->u64 == -1i64 )
   {
-    v27 = j_lj_meta_lookup(L, top, MM_concat);
-    if ( v27->u64 == -1i64 )
+    v26 = j_lj_meta_lookup(L, top, MM_concat);
+    if ( v26->u64 == -1i64 )
     {
-      v37 = top[-1].it64 >> 47;
-      if ( (_DWORD)v37 == -5 || (unsigned int)v37 <= 0xFFFFFFF2 )
+      v36 = top[-1].it64 >> 47;
+      if ( (_DWORD)v36 == -5 || (unsigned int)v36 <= 0xFFFFFFF2 )
         ++top;
       j_lj_err_optype(L, top - 1, LJ_ERR_OPCAT);
     }
   }
   u64 = top->u64;
   top[4].u64 = top->u64;
-  v29 = u64 >> 47;
+  v28 = u64 >> 47;
   if ( (unsigned int)(u64 >> 47) + 4 > 0xFFFFFFF6 )
   {
-    v30 = u64 & 0x7FFFFFFFFFFFi64;
-    if ( ~(_DWORD)v29 != *(unsigned __int8 *)(v30 + 9) || (*(_BYTE *)(v30 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+    v29 = u64 & 0x7FFFFFFFFFFFi64;
+    if ( ~(_DWORD)v28 != *(unsigned __int8 *)(v29 + 9) || (*(_BYTE *)(v29 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 925, "!((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o1)->it64 >> 47)) == ((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();
     }
   }
-  v31 = top[-1].it64;
-  top[3].u64 = v31;
-  v32 = v31 >> 47;
-  if ( (unsigned int)(v31 >> 47) + 4 > 0xFFFFFFF6 )
+  v30 = top[-1].it64;
+  top[3].u64 = v30;
+  v31 = v30 >> 47;
+  if ( (unsigned int)(v30 >> 47) + 4 > 0xFFFFFFF6 )
   {
-    v33 = v31 & 0x7FFFFFFFFFFFi64;
-    if ( ~(_DWORD)v32 != *(unsigned __int8 *)(v33 + 9) || (*(_BYTE *)(v33 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+    v32 = v30 & 0x7FFFFFFFFFFFi64;
+    if ( ~(_DWORD)v31 != *(unsigned __int8 *)(v32 + 9) || (*(_BYTE *)(v32 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 925, "!((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o1)->it64 >> 47)) == ((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();
     }
   }
-  v34 = v27->u64;
-  top[1].u64 = v27->u64;
-  v35 = v34 >> 47;
-  if ( (unsigned int)(v34 >> 47) + 4 > 0xFFFFFFF6 )
+  v33 = v26->u64;
+  top[1].u64 = v26->u64;
+  v34 = v33 >> 47;
+  if ( (unsigned int)(v33 >> 47) + 4 > 0xFFFFFFF6 )
   {
-    v36 = v34 & 0x7FFFFFFFFFFFi64;
-    if ( ~(_DWORD)v35 != *(unsigned __int8 *)(v36 + 9) || (*(_BYTE *)(v36 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+    v35 = v33 & 0x7FFFFFFFFFFFi64;
+    if ( ~(_DWORD)v34 != *(unsigned __int8 *)(v35 + 9) || (*(_BYTE *)(v35 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 925, "!((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o1)->it64 >> 47)) == ((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();

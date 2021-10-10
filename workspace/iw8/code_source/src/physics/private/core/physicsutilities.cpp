@@ -58,50 +58,13 @@ void __fastcall Physics_DebugIntToString(char *buffer, int bufferSize, unsigned 
 Physics_DebugDrawGraphAxes
 ==============
 */
-
-void __fastcall Physics_DebugDrawGraphAxes(const ScreenPlacement *scrPlace, double x, double y, float width, float height, float yMin, float yMax)
+void Physics_DebugDrawGraphAxes(const ScreenPlacement *scrPlace, float x, float y, float width, float height, float yMin, float yMax)
 {
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
+  float v9; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+yMax]
-    vsubss  xmm5, xmm0, [rsp+88h+yMin]
-    vmovss  xmm4, cs:__real@bf800000
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vdivss  xmm5, xmm4, xmm5
-    vmulss  xmm0, xmm5, [rsp+88h+yMin]
-    vmulss  xmm0, xmm0, [rsp+88h+height]
-    vmovaps [rsp+88h+var_28], xmm8
-    vmovaps xmm8, xmm2
-    vsubss  xmm2, xmm2, xmm0; p1y
-    vmovss  [rsp+88h+var_60], xmm6
-    vmovaps [rsp+88h+var_38], xmm9
-    vaddss  xmm3, xmm1, xmm3; p2x
-    vmovss  [rsp+88h+var_68], xmm2
-    vmovaps xmm9, xmm1
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&x, *(float *)&_XMM2, *(float *)&_XMM3, v29, v31, 1, 1, &colorWhite, cgMedia.whiteMaterial);
-  __asm
-  {
-    vsubss  xmm0, xmm8, [rsp+88h+height]
-    vmovss  [rsp+88h+var_60], xmm6
-    vmovaps xmm3, xmm9; p2x
-    vmovaps xmm2, xmm8; p1y
-    vmovaps xmm1, xmm9; p1x
-    vmovss  [rsp+88h+var_68], xmm0
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v30, v32, 1, 1, &colorWhite, cgMedia.whiteMaterial);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm8, [rsp+88h+var_28]
-    vmovaps xmm9, [rsp+88h+var_38]
-  }
+  v9 = y - (float)((float)((float)(-1.0 / (float)(yMax - yMin)) * yMin) * height);
+  CG_Draw2DLine(scrPlace, x, v9, x + width, v9, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, x, y, x, y - height, 1.0, 1, 1, &colorWhite, cgMedia.whiteMaterial);
 }
 
 /*
@@ -109,259 +72,156 @@ void __fastcall Physics_DebugDrawGraphAxes(const ScreenPlacement *scrPlace, doub
 Physics_DebugDrawGraphLine
 ==============
 */
-
-void __fastcall Physics_DebugDrawGraphLine(const ScreenPlacement *scrPlace, double x, double y, double width, float height, float yMin, float yMax, float *data, int dataSize, int dataBufferStart)
+void Physics_DebugDrawGraphLine(const ScreenPlacement *scrPlace, float x, float y, float width, float height, float yMin, float yMax, float *data, int dataSize, int dataBufferStart)
 {
   signed __int64 v10; 
-  void *v21; 
-  int v27; 
-  __int16 v28; 
-  bool v68; 
-  unsigned __int8 v69; 
-  unsigned __int8 v73; 
-  unsigned __int8 v78; 
-  unsigned __int8 v81; 
-  unsigned __int8 v91; 
-  unsigned __int8 v95; 
-  unsigned __int8 v100; 
-  unsigned __int8 v103; 
+  void *v11; 
+  int v16; 
+  __int16 v17; 
+  float v18; 
+  int v19; 
+  __int128 v20; 
+  double v22; 
+  float v23; 
+  double v26; 
+  int v29; 
+  __int64 v31; 
+  bool v32; 
+  unsigned __int8 v33; 
+  int v34; 
+  unsigned __int8 v35; 
+  int v37; 
+  unsigned __int8 v38; 
+  int v40; 
+  unsigned __int8 v41; 
+  int v44; 
+  __int64 v46; 
+  unsigned __int8 v47; 
+  int v48; 
+  unsigned __int8 v49; 
+  int v51; 
+  unsigned __int8 v52; 
+  int v54; 
+  unsigned __int8 v55; 
+  int v56[4]; 
   GfxPointVertex verts[1024]; 
 
-  v21 = alloca(v10);
-  __asm
-  {
-    vmovaps [rsp+4138h+var_B8], xmm12
-    vmovaps [rsp+4138h+var_C8], xmm13
-    vmovaps [rsp+4138h+var_D8], xmm14
-  }
-  _R12 = data;
-  __asm
-  {
-    vmovaps xmm14, xmm3
-    vmovaps xmm13, xmm2
-    vmovaps xmm12, xmm1
-  }
+  v11 = alloca(v10);
   if ( 2 * dataSize - 2 > 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsutilities.cpp", 70, ASSERT_TYPE_ASSERT, "(maxLineVerts >= ( ( dataSize - 1 ) * 2 ))", (const char *)&queryFormat, "maxLineVerts >= ( ( dataSize - 1 ) * 2 )") )
     __debugbreak();
-  v27 = 0;
-  v28 = 0;
+  v16 = 0;
+  v17 = 0;
   if ( dataSize > 0 )
   {
-    _ER14 = dataSize - 1;
-    __asm
-    {
-      vmovaps [rsp+4138h+var_58], xmm6
-      vmovaps [rsp+4138h+var_68], xmm7
-      vmovaps [rsp+4138h+var_78], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-      vmovaps [rsp+4138h+var_88], xmm9
-      vmovss  xmm9, [rsp+4138h+arg_28]
-      vmovaps [rsp+4138h+var_98], xmm10
-      vmovss  xmm10, cs:__real@437f0000
-      vmovaps [rsp+4138h+var_A8], xmm11
-      vmovss  xmm11, cs:__real@3f000000
-      vmovd   xmm0, r14d
-      vcvtdq2ps xmm0, xmm0
-      vmovaps [rsp+4138h+var_E8], xmm15
-      vdivss  xmm15, xmm8, xmm0
-      vmovss  xmm0, [rsp+4138h+arg_30]
-      vsubss  xmm1, xmm0, xmm9
-      vdivss  xmm3, xmm8, xmm1
-      vmovss  [rsp+4138h+var_4108], xmm3
-    }
+    v18 = 1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)(dataSize - 1)).m128_f32[0];
+    *(float *)&v19 = 1.0 / (float)(yMax - yMin);
+    v56[0] = v19;
     do
     {
+      v20 = LODWORD(data[(dataBufferStart + v16) % dataSize]);
+      *(float *)&v20 = (float)(*(float *)&v20 - yMin) * *(float *)&v19;
+      _XMM6 = v20;
+      v22 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, (float)((float)((float)v16 * width) * v18) + x, 1);
+      v23 = *(float *)&v22;
       __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vmulss  xmm1, xmm0, xmm14
-        vmulss  xmm2, xmm1, xmm15
-      }
-      _RAX = (dataBufferStart + v27) % dataSize;
-      __asm
-      {
-        vaddss  xmm1, xmm2, xmm12; x
-        vmovss  xmm0, dword ptr [r12+rax*4]
-        vsubss  xmm2, xmm0, xmm9
-        vmulss  xmm6, xmm2, xmm3
-      }
-      *(double *)&_XMM0 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, 1);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vxorps  xmm0, xmm0, xmm0
         vmaxss  xmm1, xmm6, xmm0
         vminss  xmm2, xmm1, xmm8
-        vmulss  xmm3, xmm2, [rsp+4138h+arg_20]
-        vsubss  xmm1, xmm13, xmm3; y
       }
-      *(double *)&_XMM0 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, 1);
-      if ( v28 <= 0 )
-        goto LABEL_9;
-      _RDX = 2i64 * v28;
-      __asm
+      v26 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, y - (float)(*(float *)&_XMM2 * height), 1);
+      if ( v17 <= 0 || SLODWORD(v23) != v56[4 * v17] || SLODWORD(v26) != v56[4 * v17 + 1] )
       {
-        vcvttss2si eax, xmm7
-        vcvttss2si ecx, [rsp+rdx*8+4138h+var_4108]
-      }
-      if ( _EAX != _ECX )
-        goto LABEL_9;
-      __asm
-      {
-        vcvttss2si ecx, [rsp+rdx*8+4138h+var_4104]
-        vcvttss2si eax, xmm0
-      }
-      if ( _EAX != _ECX )
-      {
-LABEL_9:
-        if ( v27 )
+        if ( v16 )
         {
-          __asm
-          {
-            vmulss  xmm1, xmm10, dword ptr [r15]
-            vaddss  xmm3, xmm1, xmm11
-            vxorps  xmm4, xmm4, xmm4
-            vroundss xmm1, xmm4, xmm3, 1
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+4]
-            vaddss  xmm3, xmm1, xmm11
-            vroundss xmm1, xmm4, xmm3, 1
-          }
-          _RDX = v28;
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v68 = _ECX < 0;
-          v69 = _ECX;
-          __asm
-          {
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+8]
-          }
-          if ( v68 )
-            v69 = 0;
-          verts[v28].xyz.v[2] = 0.0;
-          __asm { vaddss  xmm3, xmm1, xmm11 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          __asm
-          {
-            vmovss  dword ptr [rsp+rdx*8+4138h+verts.xyz], xmm7
-            vmovss  dword ptr [rsp+rdx*8+4138h+verts.xyz+4], xmm0
-          }
-          verts[v28].color[0] = v69;
-          v73 = _ECX;
-          if ( _ECX < 0 )
-            v73 = 0;
-          verts[v28].color[1] = v73;
-          __asm
-          {
-            vroundss xmm1, xmm4, xmm3, 1
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+0Ch]
-            vaddss  xmm3, xmm1, xmm11
-          }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v78 = _ECX;
+          _XMM4 = 0i64;
           __asm { vroundss xmm1, xmm4, xmm3, 1 }
-          if ( _ECX < 0 )
-            v78 = 0;
-          __asm { vcvttss2si ecx, xmm1 }
-          verts[v28].color[2] = v78;
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v81 = _ECX;
-          if ( _ECX < 0 )
-            v81 = 0;
-          ++v28;
-          verts[_RDX].color[3] = v81;
+          v29 = (int)*(float *)&_XMM1;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          v31 = v17;
+          if ( v29 > 255 )
+            v29 = 255;
+          v32 = v29 < 0;
+          v33 = v29;
+          v34 = (int)*(float *)&_XMM1;
+          if ( v32 )
+            v33 = 0;
+          verts[v17].xyz.v[2] = 0.0;
+          if ( v34 > 255 )
+            v34 = 255;
+          verts[v17].xyz.v[0] = v23;
+          verts[v17].xyz.v[1] = *(float *)&v26;
+          verts[v17].color[0] = v33;
+          v35 = v34;
+          if ( v34 < 0 )
+            v35 = 0;
+          verts[v17].color[1] = v35;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          v37 = (int)*(float *)&_XMM1;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v37 = 255;
+          v38 = v37;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          if ( v37 < 0 )
+            v38 = 0;
+          v40 = (int)*(float *)&_XMM1;
+          verts[v17].color[2] = v38;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v40 = 255;
+          v41 = v40;
+          if ( v40 < 0 )
+            v41 = 0;
+          ++v17;
+          verts[v31].color[3] = v41;
         }
-        if ( v27 != _ER14 )
+        if ( v16 != dataSize - 1 )
         {
-          __asm
-          {
-            vmulss  xmm1, xmm10, dword ptr [r15]
-            vaddss  xmm3, xmm1, xmm11
-            vxorps  xmm4, xmm4, xmm4
-            vroundss xmm1, xmm4, xmm3, 1
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+4]
-            vaddss  xmm3, xmm1, xmm11
-            vroundss xmm1, xmm4, xmm3, 1
-          }
-          _RDX = v28;
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v68 = _ECX < 0;
-          v91 = _ECX;
-          __asm
-          {
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+8]
-          }
-          if ( v68 )
-            v91 = 0;
-          verts[v28].xyz.v[2] = 0.0;
-          __asm { vaddss  xmm3, xmm1, xmm11 }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          __asm
-          {
-            vmovss  dword ptr [rsp+rdx*8+4138h+verts.xyz], xmm7
-            vmovss  dword ptr [rsp+rdx*8+4138h+verts.xyz+4], xmm0
-          }
-          verts[v28].color[0] = v91;
-          v95 = _ECX;
-          if ( _ECX < 0 )
-            v95 = 0;
-          verts[v28].color[1] = v95;
-          __asm
-          {
-            vroundss xmm1, xmm4, xmm3, 1
-            vcvttss2si ecx, xmm1
-            vmulss  xmm1, xmm10, dword ptr [r15+0Ch]
-            vaddss  xmm3, xmm1, xmm11
-          }
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v100 = _ECX;
+          _XMM4 = 0i64;
           __asm { vroundss xmm1, xmm4, xmm3, 1 }
-          if ( _ECX < 0 )
-            v100 = 0;
-          __asm { vcvttss2si ecx, xmm1 }
-          verts[v28].color[2] = v100;
-          if ( _ECX > 255 )
-            _ECX = 255;
-          v103 = _ECX;
-          if ( _ECX < 0 )
-            v103 = 0;
-          ++v28;
-          verts[_RDX].color[3] = v103;
+          v44 = (int)*(float *)&_XMM1;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          v46 = v17;
+          if ( v44 > 255 )
+            v44 = 255;
+          v32 = v44 < 0;
+          v47 = v44;
+          v48 = (int)*(float *)&_XMM1;
+          if ( v32 )
+            v47 = 0;
+          verts[v17].xyz.v[2] = 0.0;
+          if ( v48 > 255 )
+            v48 = 255;
+          verts[v17].xyz.v[0] = v23;
+          verts[v17].xyz.v[1] = *(float *)&v26;
+          verts[v17].color[0] = v47;
+          v49 = v48;
+          if ( v48 < 0 )
+            v49 = 0;
+          verts[v17].color[1] = v49;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          v51 = (int)*(float *)&_XMM1;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v51 = 255;
+          v52 = v51;
+          __asm { vroundss xmm1, xmm4, xmm3, 1 }
+          if ( v51 < 0 )
+            v52 = 0;
+          v54 = (int)*(float *)&_XMM1;
+          verts[v17].color[2] = v52;
+          if ( (int)*(float *)&_XMM1 > 255 )
+            v54 = 255;
+          v55 = v54;
+          if ( v54 < 0 )
+            v55 = 0;
+          ++v17;
+          verts[v46].color[3] = v55;
         }
       }
-      __asm { vmovss  xmm3, [rsp+4138h+var_4108] }
-      ++v27;
+      v19 = v56[0];
+      ++v16;
     }
-    while ( v27 < dataSize );
-    __asm
-    {
-      vmovaps xmm15, [rsp+4138h+var_E8]
-      vmovaps xmm11, [rsp+4138h+var_A8]
-      vmovaps xmm10, [rsp+4138h+var_98]
-      vmovaps xmm9, [rsp+4138h+var_88]
-      vmovaps xmm8, [rsp+4138h+var_78]
-      vmovaps xmm7, [rsp+4138h+var_68]
-      vmovaps xmm6, [rsp+4138h+var_58]
-    }
-    if ( v28 > 1 )
-      R_AddCmdDrawLines2D(v28 / 2, 1u, verts);
-  }
-  __asm
-  {
-    vmovaps xmm12, [rsp+4138h+var_B8]
-    vmovaps xmm13, [rsp+4138h+var_C8]
-    vmovaps xmm14, [rsp+4138h+var_D8]
+    while ( v16 < dataSize );
+    if ( v17 > 1 )
+      R_AddCmdDrawLines2D(v17 / 2, 1u, verts);
   }
 }
 
@@ -370,23 +230,9 @@ LABEL_9:
 Physics_DebugDrawGraphXLine
 ==============
 */
-
-void __fastcall Physics_DebugDrawGraphXLine(const ScreenPlacement *scrPlace, float x, double y, double width, float height, float yMin, float yMax, float xValue, const vec4_t *color)
+void Physics_DebugDrawGraphXLine(const ScreenPlacement *scrPlace, float x, float y, float width, float height, float yMin, float yMax, float xValue, const vec4_t *color)
 {
-  float v14; 
-  float v15; 
-
-  __asm
-  {
-    vmulss  xmm0, xmm3, [rsp+58h+xValue]
-    vsubss  xmm4, xmm2, [rsp+58h+height]
-    vaddss  xmm1, xmm0, xmm1; p1x
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+58h+var_30], xmm0
-    vmovaps xmm3, xmm1; p2x
-    vmovss  [rsp+58h+var_38], xmm4
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&_XMM1, *(float *)&y, *(float *)&_XMM3, v14, v15, 1, 1, color, cgMedia.whiteMaterial);
+  CG_Draw2DLine(scrPlace, (float)(width * xValue) + x, y, (float)(width * xValue) + x, y - height, 1.0, 1, 1, color, cgMedia.whiteMaterial);
 }
 
 /*
@@ -394,27 +240,12 @@ void __fastcall Physics_DebugDrawGraphXLine(const ScreenPlacement *scrPlace, flo
 Physics_DebugDrawGraphYLine
 ==============
 */
-
-void __fastcall Physics_DebugDrawGraphYLine(const ScreenPlacement *scrPlace, double x, double y, float width, float height, float yMin, float yMax, float yValue, const vec4_t *color)
+void Physics_DebugDrawGraphYLine(const ScreenPlacement *scrPlace, float x, float y, float width, float height, float yMin, float yMax, float yValue, const vec4_t *color)
 {
-  float v18; 
-  float v19; 
+  float v9; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+yValue]
-    vmovss  xmm4, [rsp+58h+yMax]
-    vsubss  xmm0, xmm0, [rsp+58h+yMin]
-    vsubss  xmm5, xmm4, [rsp+58h+yMin]
-    vdivss  xmm0, xmm0, xmm5
-    vmulss  xmm4, xmm0, [rsp+58h+height]
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm2, xmm2, xmm4; p1y
-    vmovss  [rsp+58h+var_30], xmm0
-    vaddss  xmm3, xmm1, xmm3; p2x
-    vmovss  [rsp+58h+var_38], xmm2
-  }
-  CG_Draw2DLine(scrPlace, *(float *)&x, *(float *)&_XMM2, *(float *)&_XMM3, v18, v19, 1, 1, color, cgMedia.whiteMaterial);
+  v9 = y - (float)((float)((float)(yValue - yMin) / (float)(yMax - yMin)) * height);
+  CG_Draw2DLine(scrPlace, x, v9, x + width, v9, 1.0, 1, 1, color, cgMedia.whiteMaterial);
 }
 
 /*

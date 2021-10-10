@@ -99,93 +99,81 @@ CG_Slide_UpdateClient
 */
 void CG_Slide_UpdateClient(LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
   CgSoundSystem *SoundSystem; 
   __int64 clientNum; 
-  int v8; 
-  __int64 v9; 
-  CgEntitySystem *v10; 
+  int v5; 
+  __int64 v6; 
+  CgEntitySystem *v7; 
+  double FootstepVolumeScale; 
   unsigned int refdefViewOrg_aab; 
-  __int64 v15; 
-  int v16; 
-  __int64 v17; 
-  int v18; 
-  int v19[6]; 
-  void *retaddr; 
+  __int64 v10; 
+  __int64 v11; 
+  int v12[6]; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v4 = localClientNum;
+  v1 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 0x1Du) )
   {
-    SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v4);
+    SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v1);
     clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
     if ( (unsigned int)clientNum >= 0xF8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_slide.cpp", 63, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->slideSurfaceType ) ) + 0 ) )", "clientNum doesn't index ARRAY_COUNT( cgameGlob->slideSurfaceType )\n\t%i not in [0, %i)", clientNum, 248) )
       __debugbreak();
-    v8 = LocalClientGlobals->slideSurfaceType[clientNum];
-    v9 = LocalClientGlobals->predictedPlayerState.clientNum;
+    v5 = LocalClientGlobals->slideSurfaceType[clientNum];
+    v6 = LocalClientGlobals->predictedPlayerState.clientNum;
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v17) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v17) )
+      LODWORD(v11) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v11) )
         __debugbreak();
     }
-    if ( (unsigned int)v4 >= CgEntitySystem::ms_allocatedCount )
+    if ( (unsigned int)v1 >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v17) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(v15) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v15, v17) )
+      LODWORD(v11) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(v10) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    if ( !CgEntitySystem::ms_entitySystemArray[v4] )
+    if ( !CgEntitySystem::ms_entitySystemArray[v1] )
     {
-      LODWORD(v17) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v17) )
+      LODWORD(v11) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v11) )
         __debugbreak();
     }
-    v10 = CgEntitySystem::ms_entitySystemArray[v4];
-    if ( (unsigned int)v9 >= 0x800 )
+    v7 = CgEntitySystem::ms_entitySystemArray[v1];
+    if ( (unsigned int)v6 >= 0x800 )
     {
-      LODWORD(v17) = 2048;
-      LODWORD(v15) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v15, v17) )
+      LODWORD(v11) = 2048;
+      LODWORD(v10) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, &v10->m_entities[v9], 3, 1);
-    __asm { vmovaps xmm6, xmm0 }
+    FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, &v7->m_entities[v6], 3, 1);
     if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
     refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
     if ( LocalClientGlobals == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    v19[0] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
-    v19[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
-    v19[2] = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rsp+98h+var_68], xmm0
-      vmovss  dword ptr [rsp+98h+var_70], xmm6
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, int, int, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum, v19, cgMedia.slideLoopSoundPlayer, v8, v16, v18, 0, -2i64);
-    memset(v19, 0, 0xCui64);
+    v12[0] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    v12[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    v12[2] = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
+    ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, _DWORD, _DWORD, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum, v12, cgMedia.slideLoopSoundPlayer, v5, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0), 0, -2i64);
+    memset(v12, 0, 0xCui64);
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 0x1Du) )
   {
     if ( !LocalClientGlobals->slideRumblePlaying )
     {
-      CG_Rumble_PlayLoopOnClientSafeNoEntFlagByName((LocalClientNum_t)v4, "slide_loop");
+      CG_Rumble_PlayLoopOnClientSafeNoEntFlagByName((LocalClientNum_t)v1, "slide_loop");
       LocalClientGlobals->slideRumblePlaying = 1;
     }
   }
   else if ( LocalClientGlobals->slideRumblePlaying )
   {
     LocalClientGlobals->slideRumblePlaying = 0;
-    CG_Rumble_StopByName((LocalClientNum_t)v4, LocalClientGlobals->predictedPlayerState.clientNum, "slide_loop");
+    CG_Rumble_StopByName((LocalClientNum_t)v1, LocalClientGlobals->predictedPlayerState.clientNum, "slide_loop");
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -198,26 +186,24 @@ void CG_Slide_UpdateClientEntity(LocalClientNum_t localClientNum, const centity_
   cg_t *LocalClientGlobals; 
   int number; 
   CgStatic *LocalClientStatics; 
-  __int64 v10; 
-  cg_t *v11; 
+  __int64 v7; 
+  cg_t *v8; 
   const characterInfo_t *CharacterInfo; 
   unsigned int Animset; 
   unsigned int Anim; 
   int IsSlideAlias; 
   SuitAnimType SuitAnimIndexFromCharacter; 
   CgSoundSystem *SoundSystem; 
-  __int16 v18; 
-  int v19; 
+  __int16 v15; 
+  int v16; 
+  double FootstepVolumeScale; 
+  int v18; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v37; 
-  int v38; 
-  __int64 v39; 
-  int v40; 
-  int v41[6]; 
-  void *retaddr; 
+  __int128 v23; 
+  __int64 v33; 
+  __int64 v34; 
+  int v35[6]; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
     if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_slide.cpp", 102, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
@@ -247,23 +233,23 @@ void CG_Slide_UpdateClientEntity(LocalClientNum_t localClientNum, const centity_
     {
 LABEL_22:
       LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
-      v10 = cent->nextState.number;
-      v11 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
-      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      v7 = cent->nextState.number;
+      v8 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      if ( v11->IsMP(v11) )
+      if ( v8->IsMP(v8) )
       {
-        if ( (unsigned int)v10 >= v11[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+        if ( (unsigned int)v7 >= v8[1].predictedPlayerState.rxvOmnvars[64].timeModified )
         {
-          LODWORD(v37) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v37, v11[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
+          LODWORD(v33) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v33, v8[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
             __debugbreak();
         }
-        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v11[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v10);
+        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v8[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v7);
       }
       else
       {
-        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v11, v10);
+        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v8, v7);
       }
       if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_slide.cpp", 113, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
         __debugbreak();
@@ -283,58 +269,53 @@ LABEL_22:
         if ( IsSlideAlias )
         {
           SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-          v18 = cent->nextState.number;
-          if ( (unsigned __int16)v18 >= 0xF8u )
+          v15 = cent->nextState.number;
+          if ( (unsigned __int16)v15 >= 0xF8u )
           {
-            LODWORD(v39) = 248;
-            LODWORD(v37) = v18;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_slide.cpp", 137, ASSERT_TYPE_ASSERT, "(unsigned)( es->number ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->slideSurfaceType ) ) + 0 ) )", "es->number doesn't index ARRAY_COUNT( cgameGlob->slideSurfaceType )\n\t%i not in [0, %i)", v37, v39) )
+            LODWORD(v34) = 248;
+            LODWORD(v33) = v15;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_slide.cpp", 137, ASSERT_TYPE_ASSERT, "(unsigned)( es->number ) < (unsigned)( ( sizeof( *array_counter( cgameGlob->slideSurfaceType ) ) + 0 ) )", "es->number doesn't index ARRAY_COUNT( cgameGlob->slideSurfaceType )\n\t%i not in [0, %i)", v33, v34) )
               __debugbreak();
           }
-          v19 = LocalClientGlobals->slideSurfaceType[cent->nextState.number];
-          *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, cent, 3, 1);
-          __asm { vmovaps xmm6, xmm0 }
+          v16 = LocalClientGlobals->slideSurfaceType[cent->nextState.number];
+          FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, cent, 3, 1);
+          v18 = LODWORD(FootstepVolumeScale);
           if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
             __debugbreak();
           if ( !cent->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
             __debugbreak();
           FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(cent->pose.origin.Get_origin, &cent->pose);
-          FunctionPointer_origin(&cent->pose.origin.origin.origin, (vec3_t *)v41);
+          FunctionPointer_origin(&cent->pose.origin.origin.origin, (vec3_t *)v35);
           if ( cent->pose.isPosePrecise )
           {
-            __asm
-            {
-              vmovd   xmm0, [rsp+98h+var_50]
-              vcvtdq2pd xmm0, xmm0
-              vmovsd  xmm3, cs:__real@3f30000000000000
-              vmulsd  xmm0, xmm0, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  [rsp+98h+var_50], xmm1
-              vmovd   xmm2, [rsp+98h+var_4C]
-              vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  [rsp+98h+var_4C], xmm1
-              vmovd   xmm2, [rsp+98h+var_48]
-              vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  [rsp+98h+var_48], xmm1
-            }
+            _XMM0 = (unsigned int)v35[0];
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v23 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM0 = v23;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            v35[0] = _XMM1;
+            _XMM2 = (unsigned int)v35[1];
+            __asm { vcvtdq2pd xmm2, xmm2 }
+            *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v23 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v23;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            v35[1] = _XMM1;
+            _XMM2 = (unsigned int)v35[2];
+            __asm { vcvtdq2pd xmm2, xmm2 }
+            *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v23 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v23;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            v35[2] = _XMM1;
           }
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rsp+98h+var_68], xmm0
-            vmovss  dword ptr [rsp+98h+var_70], xmm6
-          }
-          ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, int, int, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)cent->nextState.number, v41, cgMedia.slideLoopSound, v19, v38, v40, 0, -2i64);
-          memset(v41, 0, 0xCui64);
+          ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, int, _DWORD, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)cent->nextState.number, v35, cgMedia.slideLoopSound, v16, v18, LODWORD(FLOAT_1_0), 0, -2i64);
+          memset(v35, 0, 0xCui64);
         }
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*

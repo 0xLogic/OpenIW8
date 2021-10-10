@@ -16,67 +16,47 @@ Byte4PackVertexColor
 */
 void Byte4PackVertexColor(const vec4_t *from, unsigned __int8 *to)
 {
-  unsigned __int8 v10; 
-  unsigned __int8 v15; 
-  unsigned __int8 v20; 
-  unsigned __int8 v26; 
+  int v4; 
+  unsigned __int8 v5; 
+  int v7; 
+  unsigned __int8 v8; 
+  int v10; 
+  unsigned __int8 v11; 
+  int v13; 
+  unsigned __int8 v14; 
 
-  __asm
-  {
-    vmovss  xmm5, cs:__real@437f0000
-    vmulss  xmm1, xmm5, dword ptr [rcx]
-    vmovss  xmm4, cs:__real@3f000000
-    vmovaps [rsp+18h+var_18], xmm6
-    vaddss  xmm2, xmm1, xmm4
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si r8d, xmm3
-  }
-  if ( _ER8 > 255 )
-    _ER8 = 255;
-  v10 = _ER8;
-  if ( _ER8 < 0 )
-    v10 = 0;
-  *to = v10;
-  __asm
-  {
-    vmulss  xmm1, xmm5, dword ptr [rcx+4]
-    vaddss  xmm3, xmm1, xmm4
-    vroundss xmm1, xmm6, xmm3, 1
-    vcvttss2si ecx, xmm1
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v15 = _ECX;
-  if ( _ECX < 0 )
-    v15 = 0;
-  to[1] = v15;
-  __asm
-  {
-    vmulss  xmm1, xmm5, dword ptr [r9+8]
-    vaddss  xmm3, xmm1, xmm4
-    vroundss xmm1, xmm6, xmm3, 1
-    vcvttss2si ecx, xmm1
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v20 = _ECX;
-  if ( _ECX < 0 )
-    v20 = 0;
-  to[2] = v20;
-  __asm
-  {
-    vmulss  xmm1, xmm5, dword ptr [r9+0Ch]
-    vaddss  xmm3, xmm1, xmm4
-    vroundss xmm1, xmm6, xmm3, 1
-    vmovaps xmm6, [rsp+18h+var_18]
-    vcvttss2si ecx, xmm1
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v26 = _ECX;
-  if ( _ECX < 0 )
-    v26 = 0;
-  to[3] = v26;
+  _XMM6 = 0i64;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  v4 = (int)*(float *)&_XMM3;
+  if ( (int)*(float *)&_XMM3 > 255 )
+    v4 = 255;
+  v5 = v4;
+  if ( v4 < 0 )
+    v5 = 0;
+  *to = v5;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v7 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v7 = 255;
+  v8 = v7;
+  if ( v7 < 0 )
+    v8 = 0;
+  to[1] = v8;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v10 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v10 = 255;
+  v11 = v10;
+  if ( v10 < 0 )
+    v11 = 0;
+  to[2] = v11;
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v13 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 > 255 )
+    v13 = 255;
+  v14 = v13;
+  if ( v13 < 0 )
+    v14 = 0;
+  to[3] = v14;
 }
 

@@ -180,14 +180,8 @@ bdAchievementsEngineRestResponse::getErrorMap
 */
 bdRESTErrorMap *bdAchievementsEngineRestResponse::getErrorMap(bdAchievementsEngineRestResponse *this, bdRESTErrorMap *result)
 {
-  _RBX = result;
-  _RAX = bdAchievementsEngineService::getDefaultErrorMap();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  return _RBX;
+  *result = *bdAchievementsEngineService::getDefaultErrorMap();
+  return result;
 }
 
 /*

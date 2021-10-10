@@ -240,6 +240,10 @@ void Profile_ResetThread(int threadId)
   __int64 v1; 
   __int64 v2; 
   CSVProfileThread *v3; 
+  CSVProfileThread *v4; 
+  CSVProfileTimer *activeTimer; 
+  __m256i v6; 
+  CSVProfileTimer v7; 
   CSVProfileTimer *i; 
 
   v1 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
@@ -247,28 +251,19 @@ void Profile_ResetThread(int threadId)
   *(_QWORD *)(v1 + 1080) = 0i64;
   v2 = 3i64;
   v3 = &g_CSVThread[*(int *)(v1 + 1072)];
-  _RCX = v3;
-  _RDX = v3->activeTimer;
+  v4 = v3;
+  activeTimer = v3->activeTimer;
   do
   {
-    _RCX = (CSVProfileThread *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups xmm1, xmmword ptr [rdx+70h]
-    }
-    _RDX += 8;
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v4 = (CSVProfileThread *)((char *)v4 + 128);
+    v6 = *(__m256i *)&activeTimer->startTime;
+    v7 = activeTimer[7];
+    activeTimer += 8;
+    *(__m256i *)&v4[-1].hierarchy[16].timer = v6;
+    *(__m256i *)&v4[-1].hierarchy[18].timer = *(__m256i *)&activeTimer[-6].startTime;
+    *(__m256i *)&v4[-1].hierarchy[20].timer = *(__m256i *)&activeTimer[-4].startTime;
+    *(CSVProfileTimer *)&v4[-1].hierarchy[22].timer = activeTimer[-2];
+    *(CSVProfileTimer *)&v4[-1].hierarchy[23].timer = v7;
     --v2;
   }
   while ( v2 );
@@ -442,537 +437,435 @@ Profile_WriteCSVMisc
 ==============
 */
 
-void __fastcall Profile_WriteCSVMisc(double _XMM0_8, __int64 a2, double _XMM2_8, double _XMM3_8)
+void __fastcall Profile_WriteCSVMisc(__int64 a1, __int64 a2, double _XMM2_8, double _XMM3_8)
 {
   signed __int64 v4; 
-  void *v7; 
-  __int64 v33; 
-  unsigned int v34; 
+  void *v5; 
+  double v8; 
+  __int64 v21; 
+  unsigned int v22; 
   const MemBudget_PollArray *CurrentBudgets; 
-  __int64 v36; 
+  __int64 v24; 
   const char *PollTypeName; 
-  const char *v38; 
+  const char *v26; 
+  __int64 v29; 
+  const char *v30; 
+  const char *v31; 
+  unsigned int v36; 
+  unsigned int *v37; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
   __int64 v41; 
-  const char *v42; 
-  const char *v43; 
-  unsigned int v49; 
-  unsigned int *v50; 
+  __int64 v42; 
+  __int64 v43; 
+  int v44; 
+  __int64 v45; 
+  int v46; 
+  __int64 v47; 
+  int v48; 
+  __int64 v49; 
+  int v50; 
   __int64 v51; 
-  __int64 v52; 
+  int v52; 
   __int64 v53; 
-  __int64 v54; 
+  int v54; 
   __int64 v55; 
-  __int64 v56; 
-  int v57; 
-  __int64 v58; 
-  int v59; 
-  __int64 v60; 
-  int v61; 
-  __int64 v62; 
-  int v63; 
-  __int64 v64; 
-  int v65; 
-  __int64 v66; 
-  int v67; 
+  int v56; 
+  unsigned int *devPatchSavings; 
   __int64 v68; 
-  int v69; 
-  __int64 v85; 
-  SeparateZoneTotals *v99; 
-  const char **v100; 
-  __int64 v101; 
+  SeparateZoneTotals *v80; 
+  const char **v81; 
+  __int64 v82; 
   __int64 resident; 
-  const char *v103; 
+  const char *v84; 
   AlwaysloadedTotals::PerZoneTotals *zoneTotals; 
   unsigned int i; 
-  __int64 v108; 
+  __int64 v89; 
   unsigned int ZoneFlagsFromIndex; 
   const char *ZoneNameFromIndex; 
-  __int64 v111; 
-  const unsigned int *v112; 
-  const char *v113; 
-  const char **v116; 
+  __int64 v92; 
+  const unsigned int *v93; 
+  const char *v94; 
+  const char **v97; 
   unsigned __int64 *p_alwaysLoaded; 
+  __int64 v99; 
+  __int64 v100; 
+  const char *v101; 
+  int v104; 
+  const char **v111; 
+  const char *v114; 
+  __int64 v117; 
   __int64 v118; 
-  __int64 v119; 
-  const char *v120; 
-  int v123; 
-  const char **v133; 
-  const char *v135; 
-  __int64 v142; 
-  __int64 v143; 
   unsigned int maxCountInUse; 
   unsigned int countInUse[2]; 
   unsigned int elementSize[2]; 
   unsigned __int64 pFrameTimesUSec; 
   AlwaysloadedTotals outTotals; 
   MemBudget_PollData outPoll; 
-  char v152; 
 
-  v7 = alloca(v4);
-  __asm
-  {
-    vmovaps [rsp+7E38h+var_38], xmm6
-    vmovaps [rsp+7E38h+var_48], xmm7
-  }
+  v5 = alloca(v4);
   maxCountInUse = 1;
   pFrameTimesUSec = 0i64;
   CG_Draw_CopyLastFrameTimesUSec(&pFrameTimesUSec, 1u);
-  __asm
-  {
-    vmovsd  xmm7, cs:__real@43f0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (pFrameTimesUSec & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, cs:__real@3eb0c6f7a0b5ed8d; value }
-  Com_CSVWriteMetric("CPU.FrameTotal", *(long double *)&_XMM1);
-  __asm { vmovsd  xmm6, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("CPU.FrameTotal", *(double *)&_XMM0 * 0.000001);
+  v8 = msecPerRawTimerTick;
   Com_CSVGetLastEndFrameDuration();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, eax
-    vmulsd  xmm1, xmm0, xmm6
-    vmulsd  xmm1, xmm1, cs:__real@3f50624de0000000; value
-  }
-  Com_CSVWriteMetric("CPU.Com_CSVEndFrame", *(long double *)&_XMM1);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  Com_CSVWriteMetric("CPU.Com_CSVEndFrame", *(double *)&_XMM0 * v8 * 0.001000000047497451);
   memset_0(s_separateZoneTotals, 0, sizeof(s_separateZoneTotals));
   s_otherSoundBankTotal = 0i64;
   s_otherMemVirtualTotal = 0i64;
   MemBudget_Poll_Oneoff(&outPoll);
   MemBudget_Poll_GetBootPoll();
-  __asm
-  {
-    vmovsd  xmm6, cs:__real@3eb0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, qword ptr [rax]
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.FreeMemoryForContentMB", *(long double *)&_XMM1);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, qword ptr [rax] }
+  Com_CSVWriteMetric("Counters.FreeMemoryForContentMB", *(double *)&_XMM0 * 0.00000095367431640625);
   MemBudget_Project_UpdateXB3Mem(&outPoll);
   MemBudget_Project_GetFreeXB3MemTest();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.FreeXB3Test", *(long double *)&_XMM1);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  Com_CSVWriteMetric("Counters.FreeXB3Test", *(double *)&_XMM0 * 0.00000095367431640625);
   MemBudget_Project_GetFreeXB3MemShip();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.FreeXB3Ship", *(long double *)&_XMM1);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  Com_CSVWriteMetric("Counters.FreeXB3Ship", *(double *)&_XMM0 * 0.00000095367431640625);
   Sys_ForEachSysMemAllocator((void (__fastcall *)(const char *, unsigned __int64))Profile_ReportSystemAllocatorUsage);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Mem_Paged_GetTotalPhysicalSize() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, xmm6; value }
-  Com_CSVWriteMetric("Counters.TotalPagedPhysicalSize", *(long double *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("Counters.TotalPagedPhysicalSize", *(double *)&_XMM0 * 0.00000095367431640625);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Mem_Paged_GetDevMemorySize() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, xmm6; value }
-  Com_CSVWriteMetric("Counters.DevMemorySize", *(long double *)&_XMM1);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("Counters.DevMemorySize", *(double *)&_XMM0 * 0.00000095367431640625);
   PMem_ForEachPMemStackSize((void (__fastcall *)(const char *, unsigned __int64))Profile_ReportPMemStackUsage);
-  v33 = 0i64;
-  v34 = 0;
+  v21 = 0i64;
+  v22 = 0;
   CurrentBudgets = MemBudget_BudgetFile_GetCurrentBudgets();
   do
   {
-    v36 = outPoll.readings.pollValues[v34];
-    PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v34);
-    v38 = j_va("Counters.BudgetUsage.%s", PollTypeName);
-    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 329, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+    v24 = outPoll.readings.pollValues[v22];
+    PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v22);
+    v26 = j_va("Counters.BudgetUsage.%s", PollTypeName);
+    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 329, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
       __debugbreak();
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rdi }
+    Com_CSVWriteMetric(v26, *(double *)&_XMM0 * 0.00000095367431640625);
+    v29 = CurrentBudgets->pollValues[(unsigned __int8)v22];
+    if ( v29 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rdi
-      vmulsd  xmm1, xmm0, xmm6; value
-    }
-    Com_CSVWriteMetric(v38, *(long double *)&_XMM1);
-    v41 = CurrentBudgets->pollValues[(unsigned __int8)v34];
-    if ( v41 )
-    {
-      v42 = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v34);
-      v43 = j_va("Counters.BudgetUsage.%s.Budget", v42);
-      if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 329, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+      v30 = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v22);
+      v31 = j_va("Counters.BudgetUsage.%s.Budget", v30);
+      if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 329, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rbp
-        vmulsd  xmm1, xmm0, xmm6; value
-      }
-      Com_CSVWriteMetric(v43, *(long double *)&_XMM1);
-      if ( v36 > v41 )
-        v33 += v36 - v41;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rbp }
+      Com_CSVWriteMetric(v31, *(double *)&_XMM0 * 0.00000095367431640625);
+      if ( v24 > v29 )
+        v21 += v24 - v29;
     }
-    ++v34;
+    ++v22;
   }
-  while ( v34 < 0x26 );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, r15
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.BudgetUsage.TotalOverBudget", *(long double *)&_XMM1);
-  v49 = maxCountInUse;
-  v50 = &outPoll.zoneSizes.devPatchSavings[1];
-  v51 = 0i64;
-  v52 = 0i64;
-  v53 = 0i64;
-  v54 = 4i64;
+  while ( v22 < 0x26 );
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, r15 }
+  Com_CSVWriteMetric("Counters.BudgetUsage.TotalOverBudget", *(double *)&_XMM0 * 0.00000095367431640625);
+  v36 = maxCountInUse;
+  v37 = &outPoll.zoneSizes.devPatchSavings[1];
+  v38 = 0i64;
+  v39 = 0i64;
+  v40 = 0i64;
+  v41 = 4i64;
   do
   {
-    v55 = *(v50 - 35);
-    if ( (v49 & 0xFF000) != 0 )
+    v42 = *(v37 - 35);
+    if ( (v36 & 0xFF000) != 0 )
     {
-      v53 += v55;
+      v40 += v42;
     }
-    else if ( (v49 & 0x3F00000) != 0 )
+    else if ( (v36 & 0x3F00000) != 0 )
     {
-      v52 += v55;
-    }
-    else
-    {
-      v51 += v55 + *(v50 - 1);
-    }
-    v56 = *(v50 - 34);
-    v57 = __ROL4__(v49, 1);
-    if ( (v57 & 0xFF000) != 0 )
-    {
-      v53 += v56;
-    }
-    else if ( (v57 & 0x3F00000) != 0 )
-    {
-      v52 += v56;
+      v39 += v42;
     }
     else
     {
-      v51 += v56 + *v50;
+      v38 += v42 + *(v37 - 1);
     }
-    v58 = *(v50 - 33);
-    v59 = __ROL4__(v49, 2);
-    if ( (v59 & 0xFF000) != 0 )
+    v43 = *(v37 - 34);
+    v44 = __ROL4__(v36, 1);
+    if ( (v44 & 0xFF000) != 0 )
     {
-      v53 += v58;
+      v40 += v43;
     }
-    else if ( (v59 & 0x3F00000) != 0 )
+    else if ( (v44 & 0x3F00000) != 0 )
     {
-      v52 += v58;
+      v39 += v43;
     }
     else
     {
-      v51 += v58 + v50[1];
+      v38 += v43 + *v37;
     }
-    v60 = *(v50 - 32);
-    v61 = __ROL4__(v49, 3);
-    if ( (v61 & 0xFF000) != 0 )
+    v45 = *(v37 - 33);
+    v46 = __ROL4__(v36, 2);
+    if ( (v46 & 0xFF000) != 0 )
     {
-      v53 += v60;
+      v40 += v45;
     }
-    else if ( (v61 & 0x3F00000) != 0 )
+    else if ( (v46 & 0x3F00000) != 0 )
     {
-      v52 += v60;
+      v39 += v45;
     }
     else
     {
-      v51 += v60 + v50[2];
+      v38 += v45 + v37[1];
     }
-    v62 = *(v50 - 31);
-    v63 = __ROL4__(v49, 4);
-    if ( (v63 & 0xFF000) != 0 )
+    v47 = *(v37 - 32);
+    v48 = __ROL4__(v36, 3);
+    if ( (v48 & 0xFF000) != 0 )
     {
-      v53 += v62;
+      v40 += v47;
     }
-    else if ( (v63 & 0x3F00000) != 0 )
+    else if ( (v48 & 0x3F00000) != 0 )
     {
-      v52 += v62;
+      v39 += v47;
     }
     else
     {
-      v51 += v62 + v50[3];
+      v38 += v47 + v37[2];
     }
-    v64 = *(v50 - 30);
-    v65 = __ROL4__(v49, 5);
-    if ( (v65 & 0xFF000) != 0 )
+    v49 = *(v37 - 31);
+    v50 = __ROL4__(v36, 4);
+    if ( (v50 & 0xFF000) != 0 )
     {
-      v53 += v64;
+      v40 += v49;
     }
-    else if ( (v65 & 0x3F00000) != 0 )
+    else if ( (v50 & 0x3F00000) != 0 )
     {
-      v52 += v64;
+      v39 += v49;
     }
     else
     {
-      v51 += v64 + v50[4];
+      v38 += v49 + v37[3];
     }
-    v66 = *(v50 - 29);
-    v67 = __ROL4__(v49, 6);
-    if ( (v67 & 0xFF000) != 0 )
+    v51 = *(v37 - 30);
+    v52 = __ROL4__(v36, 5);
+    if ( (v52 & 0xFF000) != 0 )
     {
-      v53 += v66;
+      v40 += v51;
     }
-    else if ( (v67 & 0x3F00000) != 0 )
+    else if ( (v52 & 0x3F00000) != 0 )
     {
-      v52 += v66;
+      v39 += v51;
     }
     else
     {
-      v51 += v66 + v50[5];
+      v38 += v51 + v37[4];
     }
-    v68 = *(v50 - 28);
-    v69 = __ROL4__(v49, 7);
-    if ( (v69 & 0xFF000) != 0 )
+    v53 = *(v37 - 29);
+    v54 = __ROL4__(v36, 6);
+    if ( (v54 & 0xFF000) != 0 )
     {
-      v53 += v68;
+      v40 += v53;
     }
-    else if ( (v69 & 0x3F00000) != 0 )
+    else if ( (v54 & 0x3F00000) != 0 )
     {
-      v52 += v68;
+      v39 += v53;
     }
     else
     {
-      v51 += v68 + v50[6];
+      v38 += v53 + v37[5];
     }
-    v50 += 8;
-    v49 = __ROL4__(v49, 8);
-    --v54;
+    v55 = *(v37 - 28);
+    v56 = __ROL4__(v36, 7);
+    if ( (v56 & 0xFF000) != 0 )
+    {
+      v40 += v55;
+    }
+    else if ( (v56 & 0x3F00000) != 0 )
+    {
+      v39 += v55;
+    }
+    else
+    {
+      v38 += v55 + v37[6];
+    }
+    v37 += 8;
+    v36 = __ROL4__(v36, 8);
+    --v41;
   }
-  while ( v54 );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rdx
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.Fastfiles.Regular", *(long double *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rdi
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.Fastfiles.Transient", *(long double *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rbx
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.Fastfiles.Preload", *(long double *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, [rsp+7E38h+outPoll.readings.pollValues+0A8h]
-    vmulsd  xmm1, xmm0, xmm6; value
-  }
-  Com_CSVWriteMetric("Counters.Fastfiles.Dev", *(long double *)&_XMM1);
+  while ( v41 );
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rdx }
+  Com_CSVWriteMetric("Counters.Fastfiles.Regular", *(double *)&_XMM0 * 0.00000095367431640625);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rdi }
+  Com_CSVWriteMetric("Counters.Fastfiles.Transient", *(double *)&_XMM0 * 0.00000095367431640625);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rbx }
+  Com_CSVWriteMetric("Counters.Fastfiles.Preload", *(double *)&_XMM0 * 0.00000095367431640625);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, [rsp+7E38h+outPoll.readings.pollValues+0A8h] }
+  Com_CSVWriteMetric("Counters.Fastfiles.Dev", *(double *)&_XMM0 * 0.00000095367431640625);
   __asm
   {
     vpxor   xmm2, xmm2, xmm2
     vpxor   xmm3, xmm3, xmm3
   }
-  _RAX = outPoll.zoneSizes.devPatchSavings;
-  v85 = 8i64;
+  devPatchSavings = outPoll.zoneSizes.devPatchSavings;
+  v68 = 8i64;
   do
   {
-    __asm { vmovq   xmm0, qword ptr [rax] }
-    _RAX += 4;
+    _XMM0 = *(unsigned __int64 *)devPatchSavings;
+    devPatchSavings += 4;
+    __asm { vpmovzxdq xmm1, xmm0 }
+    _XMM0 = *((unsigned __int64 *)devPatchSavings - 1);
     __asm
     {
-      vpmovzxdq xmm1, xmm0
-      vmovq   xmm0, qword ptr [rax-8]
       vpaddq  xmm2, xmm1, xmm2
       vpmovzxdq xmm1, xmm0
       vpaddq  xmm3, xmm1, xmm3
     }
-    --v85;
+    --v68;
   }
-  while ( v85 );
+  while ( v68 );
   __asm
   {
     vpaddq  xmm1, xmm3, xmm2
     vpsrldq xmm0, xmm1, 8
     vpaddq  xmm1, xmm1, xmm0
-    vmovq   rax, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmulsd  xmm1, xmm0, xmm6; value
   }
-  Com_CSVWriteMetric("Counters.Fastfiles.DevPatchSavings", *(long double *)&_XMM1);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  Com_CSVWriteMetric("Counters.Fastfiles.DevPatchSavings", *(double *)&_XMM0 * 0.00000095367431640625);
   DB_Zones_ForEachZone((void (__fastcall *)(const char *, unsigned int, unsigned __int64))Profile_ReportZoneUsage);
   *(_QWORD *)elementSize = SEPARATE_COLUMN_ZONE_NAMES;
-  v99 = s_separateZoneTotals;
-  v100 = (const char **)SEPARATE_COLUMN_ZONE_NAMES;
+  v80 = s_separateZoneTotals;
+  v81 = (const char **)SEPARATE_COLUMN_ZONE_NAMES;
   *(_QWORD *)countInUse = 7i64;
-  v101 = 7i64;
+  v82 = 7i64;
   do
   {
-    resident = v99->resident;
-    v103 = j_va("Counters.ResidentSize.%s", *v100);
-    if ( !v103 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+    resident = v80->resident;
+    v84 = j_va("Counters.ResidentSize.%s", *v81);
+    if ( !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rbx
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rbx }
     if ( resident < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm7 }
-    __asm { vmulsd  xmm1, xmm0, xmm6; value }
-    Com_CSVWriteMetric(v103, *(long double *)&_XMM1);
-    ++v99;
-    ++v100;
-    --v101;
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    Com_CSVWriteMetric(v84, *(double *)&_XMM0 * 0.00000095367431640625);
+    ++v80;
+    ++v81;
+    --v82;
   }
-  while ( v101 );
+  while ( v82 );
   DB_StreamingInfo_GetLastGoodAlwaysloadedTotals(&outTotals);
   zoneTotals = outTotals.zoneTotals;
   for ( i = 0; i < 0x7A4; ++i )
   {
     if ( DB_Zones_IsValidZoneIndex(i) )
     {
-      v108 = zoneTotals->images + zoneTotals->modelSurfs;
-      if ( (_DWORD)v108 )
+      v89 = zoneTotals->images + zoneTotals->modelSurfs;
+      if ( (_DWORD)v89 )
       {
         ZoneFlagsFromIndex = DB_Zones_GetZoneFlagsFromIndex(i);
         ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(i);
         if ( !ZoneNameFromIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 352, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
           __debugbreak();
-        v111 = 0i64;
-        v112 = SEPARATE_COLUMN_ZONE_FLAGS;
+        v92 = 0i64;
+        v93 = SEPARATE_COLUMN_ZONE_FLAGS;
         do
         {
-          if ( (ZoneFlagsFromIndex & *v112) != 0 )
+          if ( (ZoneFlagsFromIndex & *v93) != 0 )
           {
-            s_separateZoneTotals[v111].alwaysLoaded += v108;
+            s_separateZoneTotals[v92].alwaysLoaded += v89;
             goto LABEL_83;
           }
-          v111 = (unsigned int)(v111 + 1);
-          ++v112;
+          v92 = (unsigned int)(v92 + 1);
+          ++v93;
         }
-        while ( (unsigned int)v111 < 7 );
-        v113 = j_va("Counters.StreamAlwaysLoaded.%s", ZoneNameFromIndex);
-        if ( !v113 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 320, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+        while ( (unsigned int)v92 < 7 );
+        v94 = j_va("Counters.StreamAlwaysLoaded.%s", ZoneNameFromIndex);
+        if ( !v94 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 320, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
           __debugbreak();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, rbx
-          vmulsd  xmm1, xmm0, xmm6; value
-        }
-        if ( !Com_CSVWriteMetricChecked(v113, *(long double *)&_XMM1) )
-          s_separateZoneTotals[6].alwaysLoaded += v108;
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, rbx }
+        if ( !Com_CSVWriteMetricChecked(v94, *(double *)&_XMM0 * 0.00000095367431640625) )
+          s_separateZoneTotals[6].alwaysLoaded += v89;
       }
     }
 LABEL_83:
     ++zoneTotals;
   }
-  v116 = *(const char ***)elementSize;
+  v97 = *(const char ***)elementSize;
   p_alwaysLoaded = &s_separateZoneTotals[0].alwaysLoaded;
-  v118 = *(_QWORD *)countInUse;
+  v99 = *(_QWORD *)countInUse;
   do
   {
-    v119 = *p_alwaysLoaded;
-    v120 = j_va("Counters.StreamAlwaysLoaded.%s", *v116);
-    if ( !v120 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
+    v100 = *p_alwaysLoaded;
+    v101 = j_va("Counters.StreamAlwaysLoaded.%s", *v97);
+    if ( !v101 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
       __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rbx
-    }
-    if ( v119 < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm7 }
-    __asm { vmulsd  xmm1, xmm0, xmm6; value }
-    Com_CSVWriteMetric(v120, *(long double *)&_XMM1);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rbx }
+    if ( v100 < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    Com_CSVWriteMetric(v101, *(double *)&_XMM0 * 0.00000095367431640625);
     p_alwaysLoaded += 2;
-    ++v116;
-    --v118;
+    ++v97;
+    --v99;
   }
-  while ( v118 );
+  while ( v99 );
   SD_ForEachAllocation((void (__fastcall *)(const char *, unsigned __int64))Profile_ReportSDUsage);
-  v123 = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  v104 = 0;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (s_otherSoundBankTotal & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, xmm6; value }
-  Com_CSVWriteMetric("Counters.SoundSize.other", *(long double *)&_XMM1);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("Counters.SoundSize.other", *(double *)&_XMM0 * 0.00000095367431640625);
   Mem_Virtual_ForEachVirtualAlloc((void (__fastcall *)(const char *, unsigned __int64))Profile_ReportVirtualUsage);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (s_otherMemVirtualTotal & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, xmm6; value }
-  Com_CSVWriteMetric("Counters.MemVirtual.other", *(long double *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("Counters.MemVirtual.other", *(double *)&_XMM0 * 0.00000095367431640625);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (Mem_Virtual_GetCommitSize() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, xmm7 }
-  __asm { vmulsd  xmm1, xmm0, xmm6; value }
-  Com_CSVWriteMetric("Counters.MemVirtual.TotalCommitSize", *(long double *)&_XMM1);
-  v133 = (const char **)g_assetNames;
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric("Counters.MemVirtual.TotalCommitSize", *(double *)&_XMM0 * 0.00000095367431640625);
+  v111 = (const char **)g_assetNames;
   do
   {
-    DB_GetPoolUtilization((const XAssetType)v123, elementSize, countInUse, &maxCountInUse);
-    __asm
+    DB_GetPoolUtilization((const XAssetType)v104, elementSize, countInUse, &maxCountInUse);
+    _XMM6 = 0i64;
+    __asm { vcvtsi2sd xmm6, xmm6, rax }
+    if ( (unsigned int)v104 >= 0x71 )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2sd xmm6, xmm6, rax
-    }
-    if ( (unsigned int)v123 >= 0x71 )
-    {
-      LODWORD(v143) = 113;
-      LODWORD(v142) = v123;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assetnames.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( ASSET_TYPE_COUNT )", "type doesn't index ASSET_TYPE_COUNT\n\t%i not in [0, %i)", v142, v143) )
+      LODWORD(v118) = 113;
+      LODWORD(v117) = v104;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_assetnames.h", 38, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( ASSET_TYPE_COUNT )", "type doesn't index ASSET_TYPE_COUNT\n\t%i not in [0, %i)", v117, v118) )
         __debugbreak();
     }
-    v135 = j_va("Counters.AssetPools.%s", *v133);
-    __asm { vmovaps xmm1, xmm6; value }
-    Com_CSVWriteMetric(v135, *(long double *)&_XMM1);
-    ++v123;
-    ++v133;
+    v114 = j_va("Counters.AssetPools.%s", *v111);
+    Com_CSVWriteMetric(v114, *(long double *)&_XMM6);
+    ++v104;
+    ++v111;
   }
-  while ( v123 < 113 );
+  while ( v104 < 113 );
   DB_AssetUsage_GetMaxAssetEntriesUsed();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax; value
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax; value }
   Com_CSVWriteMetric("Counters.AssetPools.AssetEntries", *(long double *)&_XMM1);
-  _R11 = &v152;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -982,37 +875,26 @@ Profile_WriteCSVThread
 */
 void Profile_WriteCSVThread(const char *threadName, CSVProfileThread *thread)
 {
-  int v5; 
+  int v4; 
   CSVHierarchyItem *hierarchy; 
+  float totalDuration; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   Profile_SortCSV(threadName, thread);
-  __asm { vmovsd  xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
-  v5 = 0;
-  __asm
-  {
-    vcvtpd2ps xmm0, xmm0
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-  }
+  _XMM0 = *(unsigned __int64 *)&msecPerRawTimerTick;
+  v4 = 0;
+  __asm { vcvtpd2ps xmm0, xmm0 }
   if ( thread->numHierarchyItems > 0 )
   {
     hierarchy = thread->hierarchy;
     do
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-        vmulss  xmm1, xmm0, xmm6
-        vcvtss2sd xmm1, xmm1, xmm1; value
-      }
-      Com_CSVWriteMetric(hierarchy->name, *(long double *)&_XMM1);
-      ++v5;
+      totalDuration = (float)hierarchy->timer->totalDuration;
+      Com_CSVWriteMetric(hierarchy->name, (float)(totalDuration * (float)(*(float *)&_XMM0 * 0.001)));
+      ++v4;
       ++hierarchy;
     }
-    while ( v5 < thread->numHierarchyItems );
+    while ( v4 < thread->numHierarchyItems );
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1024,15 +906,11 @@ void Profile_WriteMemoryMetricUnsigned(const char *const name, const unsigned __
 {
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 312, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rbx
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rbx }
   if ( (size & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm1, xmm0, cs:__real@3eb0000000000000; value }
-  Com_CSVWriteMetric(name, *(long double *)&_XMM1);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_CSVWriteMetric(name, *(double *)&_XMM0 * 0.00000095367431640625);
 }
 
 /*
@@ -1044,15 +922,11 @@ bool Profile_WriteMemoryMetricUnsignedChecked(const char *const name, const unsi
 {
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_csv.cpp", 320, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rbx
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rbx }
   if ( (size & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm1, xmm0, cs:__real@3eb0000000000000; value }
-  return Com_CSVWriteMetricChecked(name, *(long double *)&_XMM1);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  return Com_CSVWriteMetricChecked(name, *(double *)&_XMM0 * 0.00000095367431640625);
 }
 
 /*

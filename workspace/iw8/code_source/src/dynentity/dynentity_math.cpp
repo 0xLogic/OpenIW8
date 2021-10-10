@@ -49,85 +49,37 @@ DynEnt_AnglesToAxis
 */
 void DynEnt_AnglesToAxis(const vec3_t *angles, tmat33_t<dvec3_t> *axis)
 {
-  long double v46; 
-  long double v47; 
-  void *retaddr; 
+  double v4; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  long double v11; 
+  long double v12; 
   long double pcos; 
-  __int64 v53; 
-  __int64 v54; 
+  double v14; 
+  double v15; 
   long double psin; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovsd  xmm6, cs:__real@3f91df46aaaaaaab
-    vcvtss2sd xmm0, xmm0, xmm0
-  }
-  _RDI = axis;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmulsd  xmm0, xmm0, xmm6; radians
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBX = angles;
-  FastSinCosDouble(*(const long double *)&_XMM0, (long double *)&v54, (long double *)&v53);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm0, xmm0, xmm6; radians
-  }
-  FastSinCosDouble(*(const long double *)&_XMM0, &psin, &pcos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm0, xmm0, xmm6; radians
-  }
-  FastSinCosDouble(*(const long double *)&_XMM0, &v46, &v47);
-  __asm
-  {
-    vmovsd  xmm7, [rsp+78h+arg_8]
-    vmovsd  xmm6, [rsp+78h+arg_10]
-    vmovsd  xmm8, [rsp+78h+pcos]
-    vmovsd  xmm4, [rsp+78h+var_58]
-    vmovsd  xmm5, [rsp+78h+var_50]
-    vmovsd  xmm3, [rsp+78h+psin]
-    vmulsd  xmm0, xmm8, xmm7
-    vmovsd  qword ptr [rdi], xmm0
-    vxorpd  xmm0, xmm3, cs:__xmm@80000000000000008000000000000000
-    vmulsd  xmm1, xmm8, xmm6
-    vmovsd  qword ptr [rdi+8], xmm1
-    vmovsd  qword ptr [rdi+10h], xmm0
-    vmulsd  xmm2, xmm4, xmm3
-    vmulsd  xmm1, xmm2, xmm7
-    vmulsd  xmm2, xmm2, xmm6
-    vmulsd  xmm0, xmm5, xmm6
-    vsubsd  xmm1, xmm1, xmm0
-    vmovsd  qword ptr [rdi+18h], xmm1
-    vmulsd  xmm0, xmm5, xmm7
-    vaddsd  xmm1, xmm2, xmm0
-    vmovsd  qword ptr [rdi+20h], xmm1
-    vmulsd  xmm2, xmm4, xmm8
-    vmovsd  qword ptr [rdi+28h], xmm2
-    vmulsd  xmm0, xmm4, xmm6
-    vmulsd  xmm3, xmm5, xmm3
-    vmulsd  xmm1, xmm3, xmm7
-    vaddsd  xmm1, xmm1, xmm0
-    vmulsd  xmm2, xmm3, xmm6
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovsd  qword ptr [rdi+30h], xmm1
-    vmulsd  xmm0, xmm4, xmm7
-    vmovaps xmm7, [rsp+78h+var_38]
-    vsubsd  xmm1, xmm2, xmm0
-    vmulsd  xmm2, xmm5, xmm8
-    vmovaps xmm8, [rsp+78h+var_48]
-    vmovsd  qword ptr [rdi+38h], xmm1
-    vmovsd  qword ptr [rdi+40h], xmm2
-  }
+  FastSinCosDouble(angles->v[1] * 0.01745329300562541, &v15, &v14);
+  FastSinCosDouble(angles->v[0] * 0.01745329300562541, &psin, &pcos);
+  FastSinCosDouble(angles->v[2] * 0.01745329300562541, &v11, &v12);
+  v4 = v14;
+  v5 = v15;
+  v6 = pcos;
+  v7 = v11;
+  v8 = v12;
+  _XMM3 = *(unsigned __int64 *)&psin;
+  axis->m[0].x = pcos * v14;
+  __asm { vxorpd  xmm0, xmm3, cs:__xmm@80000000000000008000000000000000 }
+  axis->m[0].y = v6 * v5;
+  axis->m[0].z = *(double *)&_XMM0;
+  axis->m[1].x = v7 * *(double *)&_XMM3 * v4 - v8 * v5;
+  axis->m[1].y = v7 * *(double *)&_XMM3 * v5 + v8 * v4;
+  axis->m[1].z = v7 * v6;
+  axis->m[2].x = v8 * *(double *)&_XMM3 * v4 + v7 * v5;
+  axis->m[2].y = v8 * *(double *)&_XMM3 * v5 - v7 * v4;
+  axis->m[2].z = v8 * v6;
 }
 
 /*
@@ -137,91 +89,174 @@ DynEnt_AxisComponentsToQuat
 */
 void DynEnt_AxisComponentsToQuat(const dvec3_t *mat0, const dvec3_t *mat1, const dvec3_t *mat2, vec4_t *out)
 {
-  __int64 v59; 
-  __int64 v60; 
-  char v65; 
-  void *retaddr; 
+  double v4; 
+  __int128 v5; 
+  __int128 v6; 
+  double z; 
+  double y; 
+  __int128 v9; 
+  double v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v15; 
+  double *v17; 
+  __int64 *v18; 
+  __int64 *v19; 
+  __int64 *v20; 
+  __int128 v21; 
+  __int128 v22; 
+  double v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  double v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v32; 
+  __int128 v33; 
+  double v42; 
+  double v43; 
+  double v44; 
+  double v45; 
+  __int64 v46; 
+  double v47; 
+  __int64 v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  __int64 v52; 
+  __int64 v53; 
+  double v54; 
+  double v55; 
+  double v56; 
+  double v57; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = mat0->y - mat1->x;
+  v5 = *(unsigned __int64 *)&mat1->y;
+  v6 = *(unsigned __int64 *)&mat0->x;
+  z = mat1->z;
+  y = mat2->y;
+  v9 = *(unsigned __int64 *)&mat2->x;
+  v10 = *(double *)&v9 - mat0->z;
+  v11 = *(unsigned __int64 *)&mat2->z;
+  v12 = COERCE_UNSIGNED_INT64(z - y);
+  _XMM0 = COERCE_UNSIGNED_INT64(*(double *)&v12 * *(double *)&v12 + v10 * v10);
+  *((_QWORD *)&v15 + 1) = 0i64;
+  *(double *)&v15 = *(double *)&v12 * *(double *)&v12 + v10 * v10 + v4 * v4 + (*(double *)&v6 + *(double *)&v5 + *(double *)&v11 + 1.0) * (*(double *)&v6 + *(double *)&v5 + *(double *)&v11 + 1.0);
+  _XMM6 = v15;
+  v42 = z - y;
+  v43 = v10;
+  v44 = v4;
+  v45 = *(double *)&v6 + *(double *)&v5 + *(double *)&v11 + 1.0;
+  if ( *(double *)&v15 < 1.0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovsd  xmm0, qword ptr [rcx+8]
-    vsubsd  xmm11, xmm0, qword ptr [rdx]
-    vmovsd  xmm7, cs:__real@3ff0000000000000
-    vmovsd  xmm5, qword ptr [rdx+8]
-    vmovsd  xmm8, qword ptr [rcx]
-    vmovsd  xmm4, qword ptr [rdx+10h]
-    vmovsd  xmm12, qword ptr [r8+8]
-    vmovsd  xmm10, qword ptr [r8]
-    vsubsd  xmm13, xmm10, qword ptr [rcx+10h]
-    vmovsd  xmm9, qword ptr [r8+10h]
-    vaddsd  xmm0, xmm8, xmm5
-    vaddsd  xmm1, xmm0, xmm9
-    vaddsd  xmm3, xmm1, xmm7
-    vmulsd  xmm1, xmm11, xmm11
-    vsubsd  xmm14, xmm4, xmm12
-    vmulsd  xmm0, xmm14, xmm14
-    vmulsd  xmm15, xmm13, xmm13
-    vaddsd  xmm0, xmm0, xmm15
-    vaddsd  xmm2, xmm0, xmm1
-    vmovsd  [rsp+180h+var_150], xmm1
-    vmulsd  xmm1, xmm3, xmm3
-    vaddsd  xmm6, xmm2, xmm1
-    vcomisd xmm6, xmm7
-    vmovsd  [rsp+180h+var_140], xmm14
-    vmovsd  [rsp+180h+var_138], xmm13
-    vmovsd  [rsp+180h+var_130], xmm11
-    vmovsd  [rsp+180h+var_128], xmm3
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&v9 + 1);
+    *(double *)&v22 = *(double *)&v9 + mat0->z;
+    v21 = v22;
+    v23 = y + z;
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&v11 + 1);
+    *(double *)&v22 = *(double *)&v11 - *(double *)&v5 - *(double *)&v6 + 1.0;
+    v24 = v22;
+    v49 = v4;
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&v21 + 1);
+    *(double *)&v22 = *(double *)&v21 * *(double *)&v21;
+    v25 = v22;
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&v24 + 1);
+    *(double *)&v22 = *(double *)&v24 * *(double *)&v24;
+    _XMM0 = v22;
+    *((_QWORD *)&v22 + 1) = *((_QWORD *)&v25 + 1);
+    *(double *)&v22 = *(double *)&v25 + v23 * v23 + *(double *)&_XMM0 + v4 * v4;
+    _XMM6 = v22;
+    v46 = *(__int64 *)&v21;
+    v47 = v23;
+    v48 = *(__int64 *)&v24;
+    if ( *(double *)&v22 < 1.0 )
+    {
+      *((_QWORD *)&v26 + 1) = *((_QWORD *)&v6 + 1);
+      v27 = mat1->x + mat0->y;
+      v52 = *(__int64 *)&v21;
+      v50 = *(double *)&v6 - *(double *)&v5 - *(double *)&v11 + 1.0;
+      *(double *)&v26 = v50 * v50 + v27 * v27 + *(double *)&v25;
+      v28 = v26;
+      *((_QWORD *)&v26 + 1) = *((_QWORD *)&v12 + 1);
+      *(double *)&v26 = *(double *)&v12 * *(double *)&v12;
+      _XMM0 = v26;
+      *((_QWORD *)&v26 + 1) = *((_QWORD *)&v28 + 1);
+      *(double *)&v26 = *(double *)&v28 + *(double *)&_XMM0;
+      _XMM6 = v26;
+      v51 = v27;
+      v53 = *(__int64 *)&v12;
+      if ( *(double *)&v28 + *(double *)&_XMM0 < 1.0 )
+      {
+        *((_QWORD *)&v29 + 1) = *((_QWORD *)&v5 + 1);
+        *(double *)&v29 = (*(double *)&v5 - *(double *)&v6 - *(double *)&v11 + 1.0) * (*(double *)&v5 - *(double *)&v6 - *(double *)&v11 + 1.0);
+        _XMM0 = v29;
+        v55 = *(double *)&v5 - *(double *)&v6 - *(double *)&v11 + 1.0;
+        *(double *)&v29 = *(double *)&v29 + v27 * v27 + v23 * v23 + v10 * v10;
+        _XMM6 = v29;
+        v54 = v27;
+        v56 = v23;
+        v57 = v10;
+        if ( *(double *)&v29 < 1.0 )
+        {
+          __asm { vcvtsd2ss xmm0, xmm6, xmm6 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 155, ASSERT_TYPE_ASSERT, "( ( testSizeSq >= 1.0 ) )", "( testSizeSq ) = %g", *(float *)&_XMM0) )
+            __debugbreak();
+        }
+        v17 = &v54;
+        v18 = (__int64 *)&v55;
+        v19 = (__int64 *)&v56;
+        v20 = (__int64 *)&v57;
+      }
+      else
+      {
+        v17 = &v50;
+        v18 = (__int64 *)&v51;
+        v19 = &v52;
+        v20 = &v53;
+      }
+    }
+    else
+    {
+      v17 = (double *)&v46;
+      v18 = (__int64 *)&v47;
+      v19 = &v48;
+      v20 = (__int64 *)&v49;
+    }
   }
-  _R15 = out;
-  __asm
+  else
   {
-    vxorpd  xmm0, xmm0, xmm0
-    vucomisd xmm6, xmm0
+    v17 = &v42;
+    v18 = (__int64 *)&v43;
+    v19 = (__int64 *)&v44;
+    v20 = (__int64 *)&v45;
   }
-  if ( (unsigned __int64)&v59 == _security_cookie && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 160, ASSERT_TYPE_ASSERT, "(testSizeSq)", (const char *)&queryFormat, "testSizeSq", v60) )
+  __asm { vxorpd  xmm0, xmm0, xmm0 }
+  if ( *(double *)&_XMM6 == *(double *)&_XMM0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 160, ASSERT_TYPE_ASSERT, "(testSizeSq)", (const char *)&queryFormat, "testSizeSq") )
     __debugbreak();
-  __asm
-  {
-    vsqrtsd xmm0, xmm6, xmm6
-    vdivsd  xmm3, xmm7, xmm0
-    vmulsd  xmm0, xmm3, qword ptr [rbx]
-    vmulsd  xmm2, xmm3, qword ptr [rdi]
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [r15], xmm1
-    vmulsd  xmm1, xmm3, qword ptr [rsi]
-    vcvtsd2ss xmm0, xmm2, xmm2
-    vmovss  dword ptr [r15+4], xmm0
-    vcvtsd2ss xmm0, xmm1, xmm1
-    vmulsd  xmm1, xmm3, qword ptr [r14]
-    vmovss  dword ptr [r15+8], xmm0
-    vcvtsd2ss xmm0, xmm1, xmm1
-    vmovss  dword ptr [r15+0Ch], xmm0
-  }
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  __asm { vsqrtsd xmm0, xmm6, xmm6 }
+  *((_QWORD *)&v33 + 1) = 0i64;
+  *(double *)&v33 = 1.0 / *(double *)&_XMM0;
+  v32 = v33;
+  *(double *)&v33 = 1.0 / *(double *)&_XMM0 * *v17;
+  _XMM0 = v33;
+  *((_QWORD *)&v33 + 1) = *((_QWORD *)&v32 + 1);
+  *(double *)&v33 = *(double *)&v32 * *(double *)v18;
+  _XMM2 = v33;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  out->v[0] = *(float *)&_XMM1;
+  *((_QWORD *)&v33 + 1) = *((_QWORD *)&v32 + 1);
+  *(double *)&v33 = *(double *)&v32 * *(double *)v19;
+  _XMM1 = v33;
+  __asm { vcvtsd2ss xmm0, xmm2, xmm2 }
+  out->v[1] = *(float *)&_XMM0;
+  __asm { vcvtsd2ss xmm0, xmm1, xmm1 }
+  *((_QWORD *)&v33 + 1) = *((_QWORD *)&v32 + 1);
+  *(double *)&v33 = *(double *)&v32 * *(double *)v20;
+  _XMM1 = v33;
+  out->v[2] = *(float *)&_XMM0;
+  __asm { vcvtsd2ss xmm0, xmm1, xmm1 }
+  out->v[3] = *(float *)&_XMM0;
 }
 
 /*
@@ -231,127 +266,22 @@ DynEnt_MatrixMultiply43
 */
 void DynEnt_MatrixMultiply43(const tmat43_t<dvec3_t> *in1, const tmat43_t<dvec3_t> *in2, tmat43_t<dvec3_t> *out)
 {
-  _RBX = out;
-  _RDI = in2;
-  _RSI = in1;
   if ( in1 == out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 75, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  if ( _RDI == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 76, ASSERT_TYPE_ASSERT, "(&in2 != &out)", (const char *)&queryFormat, "&in2 != &out") )
+  if ( in2 == out && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_math.cpp", 76, ASSERT_TYPE_ASSERT, "(&in2 != &out)", (const char *)&queryFormat, "&in2 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi]
-    vmulsd  xmm3, xmm0, qword ptr [rdi]
-    vmovsd  xmm1, qword ptr [rsi+8]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+18h]
-    vmovsd  xmm0, qword ptr [rsi+10h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+30h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx], xmm2
-    vmovsd  xmm0, qword ptr [rsi+20h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+18h]
-    vmovsd  xmm1, qword ptr [rsi+18h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi]
-    vmovsd  xmm0, qword ptr [rsi+28h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+30h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+18h], xmm2
-    vmovsd  xmm0, qword ptr [rsi+38h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+18h]
-    vmovsd  xmm1, qword ptr [rsi+30h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi]
-    vmovsd  xmm0, qword ptr [rsi+40h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+30h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+30h], xmm2
-    vmovsd  xmm0, qword ptr [rdi+8]
-    vmulsd  xmm3, xmm0, qword ptr [rsi]
-    vmovsd  xmm1, qword ptr [rdi+20h]
-    vmulsd  xmm2, xmm1, qword ptr [rsi+8]
-    vmovsd  xmm0, qword ptr [rdi+38h]
-    vmulsd  xmm1, xmm0, qword ptr [rsi+10h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+8], xmm2
-    vmovsd  xmm0, qword ptr [rsi+20h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+20h]
-    vmovsd  xmm1, qword ptr [rsi+18h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+8]
-    vmovsd  xmm0, qword ptr [rdi+38h]
-    vmulsd  xmm1, xmm0, qword ptr [rsi+28h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+20h], xmm2
-    vmovsd  xmm0, qword ptr [rsi+38h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+20h]
-    vmovsd  xmm1, qword ptr [rsi+30h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+8]
-    vmovsd  xmm0, qword ptr [rsi+40h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+38h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+38h], xmm2
-    vmovsd  xmm0, qword ptr [rsi]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+10h]
-    vmovsd  xmm1, qword ptr [rsi+8]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+28h]
-    vmovsd  xmm0, qword ptr [rsi+10h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+40h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+10h], xmm2
-    vmovsd  xmm0, qword ptr [rsi+20h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+28h]
-    vmovsd  xmm1, qword ptr [rsi+18h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+10h]
-    vmovsd  xmm0, qword ptr [rsi+28h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+40h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+28h], xmm2
-    vmovsd  xmm0, qword ptr [rsi+38h]
-    vmovsd  xmm1, qword ptr [rsi+30h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+10h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+28h]
-    vmovsd  xmm0, qword ptr [rsi+40h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+40h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vmovsd  qword ptr [rbx+40h], xmm2
-    vmovsd  xmm0, qword ptr [rsi+50h]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+18h]
-    vmovsd  xmm1, qword ptr [rsi+48h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi]
-    vmovsd  xmm0, qword ptr [rsi+58h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+30h]
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm2, xmm4, xmm1
-    vaddsd  xmm3, xmm2, qword ptr [rdi+48h]
-    vmovsd  qword ptr [rbx+48h], xmm3
-    vmovsd  xmm0, qword ptr [rsi+50h]
-    vmulsd  xmm4, xmm0, qword ptr [rdi+20h]
-    vmovsd  xmm1, qword ptr [rsi+48h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+8]
-    vmovsd  xmm0, qword ptr [rsi+58h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+38h]
-    vaddsd  xmm3, xmm4, xmm2
-    vaddsd  xmm2, xmm3, xmm1
-    vaddsd  xmm3, xmm2, qword ptr [rdi+50h]
-    vmovsd  qword ptr [rbx+50h], xmm3
-    vmovsd  xmm0, qword ptr [rsi+50h]
-    vmovsd  xmm1, qword ptr [rsi+48h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+10h]
-    vmulsd  xmm4, xmm0, qword ptr [rdi+28h]
-    vmovsd  xmm0, qword ptr [rsi+58h]
-    vmulsd  xmm1, xmm0, qword ptr [rdi+40h]
-    vaddsd  xmm3, xmm4, xmm2
-    vaddsd  xmm2, xmm3, xmm1
-    vaddsd  xmm3, xmm2, qword ptr [rdi+58h]
-    vmovsd  qword ptr [rbx+58h], xmm3
-  }
+  out->m[0].x = in1->m[0].x * in2->m[0].x + in1->m[0].y * in2->m[1].x + in1->m[0].z * in2->m[2].x;
+  out->m[1].x = in1->m[1].y * in2->m[1].x + in1->m[1].x * in2->m[0].x + in1->m[1].z * in2->m[2].x;
+  out->m[2].x = in1->m[2].y * in2->m[1].x + in1->m[2].x * in2->m[0].x + in1->m[2].z * in2->m[2].x;
+  out->m[0].y = in2->m[0].y * in1->m[0].x + in2->m[1].y * in1->m[0].y + in2->m[2].y * in1->m[0].z;
+  out->m[1].y = in1->m[1].y * in2->m[1].y + in1->m[1].x * in2->m[0].y + in2->m[2].y * in1->m[1].z;
+  out->m[2].y = in1->m[2].y * in2->m[1].y + in1->m[2].x * in2->m[0].y + in1->m[2].z * in2->m[2].y;
+  out->m[0].z = in1->m[0].x * in2->m[0].z + in1->m[0].y * in2->m[1].z + in1->m[0].z * in2->m[2].z;
+  out->m[1].z = in1->m[1].y * in2->m[1].z + in1->m[1].x * in2->m[0].z + in1->m[1].z * in2->m[2].z;
+  out->m[2].z = in1->m[2].y * in2->m[1].z + in1->m[2].x * in2->m[0].z + in1->m[2].z * in2->m[2].z;
+  out->m[3].x = in1->m[3].y * in2->m[1].x + in1->m[3].x * in2->m[0].x + in1->m[3].z * in2->m[2].x + in2->m[3].x;
+  out->m[3].y = in1->m[3].y * in2->m[1].y + in1->m[3].x * in2->m[0].y + in1->m[3].z * in2->m[2].y + in2->m[3].y;
+  out->m[3].z = in1->m[3].y * in2->m[1].z + in1->m[3].x * in2->m[0].z + in1->m[3].z * in2->m[2].z + in2->m[3].z;
 }
 
 /*
@@ -361,20 +291,6 @@ DynEnt_Vec4LengthSq
 */
 long double DynEnt_Vec4LengthSq(const dvec4_t *v)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  xmm2, qword ptr [rcx+8]
-    vmovsd  xmm3, qword ptr [rcx+10h]
-    vmovsd  xmm4, qword ptr [rcx+18h]
-    vmulsd  xmm1, xmm0, xmm0
-    vmulsd  xmm0, xmm2, xmm2
-    vaddsd  xmm2, xmm1, xmm0
-    vmulsd  xmm1, xmm3, xmm3
-    vaddsd  xmm3, xmm2, xmm1
-    vmulsd  xmm0, xmm4, xmm4
-    vaddsd  xmm0, xmm3, xmm0
-  }
-  return *(double *)&_XMM0;
+  return v->v[0] * v->v[0] + v->v[1] * v->v[1] + v->v[2] * v->v[2] + v->v[3] * v->v[3];
 }
 

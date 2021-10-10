@@ -375,17 +375,15 @@ BgTrace::BgTrace
 */
 void BgTrace::BgTrace(BgTrace *this, const BgPlayerTraceInfo *playerInfo)
 {
+  BgTraceBase *v2; 
+
   this->m_worldId = PHYSICS_WORLD_ID_INVALID;
   this->m_traceMask = 1;
-  _RAX = &playerInfo->BgTraceBase;
+  v2 = &playerInfo->BgTraceBase;
   this->m_ignoreEnt = 2047;
   if ( !playerInfo )
-    _RAX = NULL;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+    v2 = NULL;
+  this->BgTraceBase = *v2;
   this->m_playerInfo = playerInfo;
   this->m_localData = NULL;
 }
@@ -473,162 +471,99 @@ BgPlayerTraceInfo::BuildCage
 */
 BG_PMove_Cage *BgPlayerTraceInfo::BuildCage(BgPlayerTraceInfo *this, const vec3_t *playerOrigin, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int contentMask)
 {
-  const dvar_t *v19; 
-  const dvar_t *v20; 
-  BG_PMove_Cage *v21; 
-  char v45; 
-  char v46; 
-  int v60; 
-  BgHandler_vtbl *v61; 
-  char v62; 
-  BG_PMove_Cage *v63; 
-  BG_PMove_Cage *v64; 
-  char v65; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  __int64 v12; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  int v24; 
+  BgHandler_vtbl *v25; 
+  char v26; 
+  __int64 v27; 
+  char v29; 
   Physics_WorldId m_worldId; 
   unsigned int NumHits; 
-  unsigned int v68; 
-  BG_PMove_Cage *v69; 
-  hkMemoryAllocator *v70; 
+  unsigned int v32; 
+  __int64 v33; 
+  hkMemoryAllocator *v34; 
   int clientNum; 
-  bool v72; 
+  bool v36; 
   HavokPhysics_BroadphaseCollisionQueryResult result; 
   Physics_AABBBroadphaseQueryExtendedData extendedData; 
-  __int64 v84; 
-  Bounds v85; 
+  __int64 v39; 
+  Bounds v40; 
   vec3_t max; 
   vec3_t min; 
-  char v88; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v84 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
-  _R14 = start;
-  _RBX = playerOrigin;
-  v19 = DCONST_DVARBOOL_pmove_useCage;
+  v39 = -2i64;
+  v10 = DCONST_DVARBOOL_pmove_useCage;
   if ( !DCONST_DVARBOOL_pmove_useCage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pmove_useCage") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( !v19->current.enabled || (contentMask & bg_pmove_contents) != contentMask )
-    goto LABEL_29;
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled || (contentMask & bg_pmove_contents) != contentMask )
+    return 0i64;
   if ( this->m_worldId <= (unsigned int)PHYSICS_WORLD_ID_SERVER_DETAIL )
   {
-    v20 = DCONST_DVARBOOL_pmove_useServerCage;
+    v11 = DCONST_DVARBOOL_pmove_useServerCage;
     if ( !DCONST_DVARBOOL_pmove_useServerCage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pmove_useServerCage") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    if ( !v20->current.enabled )
-      goto LABEL_29;
+    Dvar_CheckFrontendServerThread(v11);
+    if ( !v11->current.enabled )
+      return 0i64;
   }
-  v21 = (BG_PMove_Cage *)this->GetCage(this);
-  _RDI = v21;
-  if ( v21->isValid )
-    _RBX = &v21->playerOrigin;
-  __asm
+  v12 = this->GetCage(this);
+  v13 = v12;
+  if ( *(_BYTE *)v12 )
+    playerOrigin = (const vec3_t *)(v12 + 520);
+  v14 = playerOrigin->v[2];
+  v15 = playerOrigin->v[1];
+  v16 = playerOrigin->v[0];
+  v17 = s_bg_pmove_cageDims.v[0];
+  min.v[0] = playerOrigin->v[0] - s_bg_pmove_cageDims.v[0];
+  v18 = s_bg_pmove_cageDims.v[1];
+  min.v[1] = v15 - s_bg_pmove_cageDims.v[1];
+  v19 = s_bg_pmove_cageDims.v[2];
+  min.v[2] = v14 - s_bg_pmove_cageDims.v[2];
+  max.v[0] = v16 + s_bg_pmove_cageDims.v[0];
+  max.v[1] = v15 + s_bg_pmove_cageDims.v[1];
+  max.v[2] = s_bg_pmove_cageDims.v[2] + v14;
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
+  __asm { vmaxss  xmm1, xmm0, dword ptr [rax+0Ch] }
+  _XMM0 = LODWORD(bounds->halfSize.v[2]);
+  __asm { vmaxss  xmm1, xmm0, xmm1 }
+  *(_QWORD *)v40.midPoint.v = *(_QWORD *)start->v;
+  v40.midPoint.v[2] = start->v[2];
+  v40.halfSize.v[0] = 0.0;
+  v40.halfSize.v[1] = 0.0;
+  v40.halfSize.v[2] = 0.0;
+  Bounds_AddPoint(&v40, end);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v16 - v40.midPoint.v[0]) & _xmm) > (float)(v17 - (float)((float)(*(float *)&_XMM1 * 2.0) + v40.halfSize.v[0])) || COERCE_FLOAT(COERCE_UNSIGNED_INT(v15 - v40.midPoint.v[1]) & _xmm) > (float)(v18 - (float)((float)(*(float *)&_XMM1 * 2.0) + v40.halfSize.v[1])) || COERCE_FLOAT(COERCE_UNSIGNED_INT(v14 - v40.midPoint.v[2]) & _xmm) > (float)(v19 - (float)((float)(*(float *)&_XMM1 * 2.0) + v40.halfSize.v[2])) )
   {
-    vmovss  xmm8, dword ptr [rbx+8]
-    vmovss  xmm9, dword ptr [rbx+4]
-    vmovss  xmm13, dword ptr [rbx]
-    vmovss  xmm7, dword ptr cs:s_bg_pmove_cageDims
-    vsubss  xmm0, xmm13, xmm7
-    vmovss  dword ptr [rbp+80h+min], xmm0
-    vmovss  xmm11, dword ptr cs:s_bg_pmove_cageDims+4
-    vsubss  xmm1, xmm9, xmm11
-    vmovss  dword ptr [rbp+80h+min+4], xmm1
-    vmovss  xmm10, dword ptr cs:s_bg_pmove_cageDims+8
-    vsubss  xmm0, xmm8, xmm10
-    vmovss  dword ptr [rbp+80h+min+8], xmm0
-    vaddss  xmm1, xmm13, xmm7
-    vmovss  dword ptr [rbp+80h+max], xmm1
-    vaddss  xmm0, xmm9, xmm11
-    vmovss  dword ptr [rbp+80h+max+4], xmm0
-    vaddss  xmm1, xmm10, xmm8
-    vmovss  dword ptr [rbp+80h+max+8], xmm1
-  }
-  _RAX = bounds;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+10h]
-    vmaxss  xmm1, xmm0, dword ptr [rax+0Ch]
-    vmovss  xmm0, dword ptr [rax+14h]
-    vmaxss  xmm1, xmm0, xmm1
-    vmulss  xmm6, xmm1, cs:__real@40000000
-    vmovss  xmm2, dword ptr [r14]
-    vmovss  dword ptr [rbp+80h+var_F0.midPoint], xmm2
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+80h+var_F0.midPoint+4], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+80h+var_F0.midPoint+8], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+80h+var_F0.halfSize], xmm0
-    vmovss  dword ptr [rbp+80h+var_F0.halfSize+4], xmm0
-    vmovss  dword ptr [rbp+80h+var_F0.halfSize+8], xmm0
-  }
-  Bounds_AddPoint(&v85, end);
-  __asm
-  {
-    vaddss  xmm12, xmm6, dword ptr [rbp+80h+var_F0.halfSize+4]
-    vaddss  xmm5, xmm6, dword ptr [rbp+80h+var_F0.halfSize+8]
-    vsubss  xmm3, xmm13, dword ptr [rbp+80h+var_F0.midPoint]
-    vmovss  xmm4, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm3, xmm3, xmm4
-    vaddss  xmm1, xmm6, dword ptr [rbp+80h+var_F0.halfSize]
-    vsubss  xmm2, xmm7, xmm1
-    vcomiss xmm3, xmm2
-  }
-  if ( !(v45 | v46) )
-    goto LABEL_28;
-  __asm
-  {
-    vsubss  xmm1, xmm9, dword ptr [rbp+80h+var_F0.midPoint+4]
-    vandps  xmm1, xmm1, xmm4
-    vsubss  xmm0, xmm11, xmm12
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v45 | v46) )
-    goto LABEL_28;
-  __asm
-  {
-    vsubss  xmm1, xmm8, dword ptr [rbp+80h+var_F0.midPoint+8]
-    vandps  xmm1, xmm1, xmm4
-    vsubss  xmm0, xmm10, xmm5
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v45 | v46) )
-  {
-LABEL_28:
     clientNum = this->m_ps->clientNum;
-    v72 = this->m_bgHandler->IsClient((BgHandler *)this->m_bgHandler);
-    BgTrace::DebugPrintCage(!v72, clientNum, "Cage Failed Bounds for Client ");
-LABEL_29:
-    v64 = NULL;
-    goto LABEL_30;
+    v36 = this->m_bgHandler->IsClient((BgHandler *)this->m_bgHandler);
+    BgTrace::DebugPrintCage(!v36, clientNum, "Cage Failed Bounds for Client ");
+    return 0i64;
   }
-  v60 = this->m_ps->clientNum;
-  v61 = this->m_bgHandler->__vftable;
-  if ( _RDI->isValid )
+  v24 = this->m_ps->clientNum;
+  v25 = this->m_bgHandler->__vftable;
+  if ( *(_BYTE *)v13 )
   {
-    v62 = ((__int64 (*)(void))v61->IsClient)();
-    BgTrace::DebugPrintCage(v62 == 0, v60, "Cage Reused for Client ");
-    v63 = NULL;
-    if ( _RDI->numBodies <= 0x80 )
-      v63 = _RDI;
-    v64 = v63;
+    v26 = ((__int64 (*)(void))v25->IsClient)();
+    BgTrace::DebugPrintCage(v26 == 0, v24, "Cage Reused for Client ");
+    v27 = 0i64;
+    if ( *(_DWORD *)(v13 + 4) <= 0x80u )
+      return (BG_PMove_Cage *)v13;
+    return (BG_PMove_Cage *)v27;
   }
   else
   {
-    v65 = ((__int64 (*)(void))v61->IsClient)();
-    BgTrace::DebugPrintCage(v65 == 0, v60, "Rebuilding Cage for Client ");
+    v29 = ((__int64 (*)(void))v25->IsClient)();
+    BgTrace::DebugPrintCage(v29 == 0, v24, "Rebuilding Cage for Client ");
     Sys_ProfBeginNamedEvent(0xFF9400D3, "PMove Cage Calculation");
     m_worldId = this->m_worldId;
     extendedData.ignoreBodies = NULL;
@@ -643,54 +578,37 @@ LABEL_29:
     result.m_worldId = m_worldId;
     Physics_AABBBroadphaseQuery(m_worldId, &min, &max, &extendedData, &result);
     NumHits = HavokPhysics_BroadphaseCollisionQueryResult::GetNumHits(&result);
-    _RDI->numBodies = NumHits;
+    *(_DWORD *)(v13 + 4) = NumHits;
     if ( NumHits <= 0x80 )
     {
-      v68 = 0;
+      v32 = 0;
       if ( NumHits )
       {
         do
         {
-          _RDI->bodies[v68] = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(&result, v68);
-          ++v68;
+          *(_DWORD *)(v13 + 4i64 * v32 + 8) = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(&result, v32);
+          ++v32;
         }
-        while ( v68 < _RDI->numBodies );
+        while ( v32 < *(_DWORD *)(v13 + 4) );
       }
     }
-    _RDI->isValid = 1;
-    __asm
-    {
-      vmovss  dword ptr [rdi+208h], xmm13
-      vmovss  dword ptr [rdi+20Ch], xmm9
-      vmovss  dword ptr [rdi+210h], xmm8
-    }
+    *(_BYTE *)v13 = 1;
+    *(float *)(v13 + 520) = v16;
+    *(float *)(v13 + 524) = v15;
+    *(float *)(v13 + 528) = v14;
     Sys_ProfEndNamedEvent();
-    v69 = NULL;
-    if ( _RDI->numBodies <= 0x80 )
-      v69 = _RDI;
-    v70 = hkMemHeapAllocator();
+    v33 = 0i64;
+    if ( *(_DWORD *)(v13 + 4) <= 0x80u )
+      v33 = v13;
+    v34 = hkMemHeapAllocator();
     result.m_hits.m_size = 0;
     if ( result.m_hits.m_capacityAndFlags >= 0 )
-      hkMemoryAllocator::bufFree2(v70, result.m_hits.m_data, 4, result.m_hits.m_capacityAndFlags & 0x3FFFFFFF);
+      hkMemoryAllocator::bufFree2(v34, result.m_hits.m_data, 4, result.m_hits.m_capacityAndFlags & 0x3FFFFFFF);
     result.m_hits.m_data = NULL;
     result.m_hits.m_capacityAndFlags = 0x80000000;
     hkReferencedObject::~hkReferencedObject(&result);
-    v64 = v69;
+    return (BG_PMove_Cage *)v33;
   }
-LABEL_30:
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return v64;
 }
 
 /*
@@ -702,55 +620,26 @@ void BgTrace::BuildTraceQuat(BgTrace *this, vec4_t *outQuat)
 {
   BgPlayerTraceInfo *m_playerInfo; 
   const playerState_s *m_ps; 
-  WorldUpReferenceFrame v17; 
+  const BgTraceMoverInfo *RideMoverEntityInfo; 
+  WorldUpReferenceFrame v7; 
 
-  _RDI = outQuat;
   m_playerInfo = (BgPlayerTraceInfo *)this->m_playerInfo;
   m_ps = m_playerInfo->m_ps;
   if ( !m_ps || (this->m_flags & 2) != 0 )
-    goto LABEL_7;
-  _RBX = BgPlayerTraceInfo::GetRideMoverEntityInfo(m_playerInfo);
+    goto LABEL_13;
+  RideMoverEntityInfo = BgPlayerTraceInfo::GetRideMoverEntityInfo(m_playerInfo);
   if ( WorldUpReferenceFrame::HasValidWorldUpInPs(m_ps) )
   {
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v17, m_ps, this->m_playerInfo->m_bgHandler);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+0Ch], xmm1
-    }
-    WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v17, _RDI);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v7, m_ps, this->m_playerInfo->m_bgHandler);
+    *outQuat = quat_identity;
+    WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v7, outQuat);
     return;
   }
-  if ( _RBX )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rbx+1Ch]
-    }
-    BGMovingPlatforms::GetBestPlatformUp(m_ps, &_RBX->angles, NULL, _RDI);
-  }
+  if ( !RideMoverEntityInfo || RideMoverEntityInfo->velocity.v[0] == 0.0 && RideMoverEntityInfo->velocity.v[1] == 0.0 && RideMoverEntityInfo->velocity.v[2] == 0.0 && RideMoverEntityInfo->angVelocity.v[0] == 0.0 && RideMoverEntityInfo->angVelocity.v[1] == 0.0 && RideMoverEntityInfo->angVelocity.v[2] == 0.0 )
+LABEL_13:
+    *outQuat = quat_identity;
   else
-  {
-LABEL_7:
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-      vmovss  dword ptr [rdi+0Ch], xmm1
-    }
-  }
+    BGMovingPlatforms::GetBestPlatformUp(m_ps, &RideMoverEntityInfo->angles, NULL, outQuat);
 }
 
 /*
@@ -758,45 +647,40 @@ LABEL_7:
 BgTrace::CastShape
 ==============
 */
-
-void __fastcall BgTrace::CastShape(BgTrace *this, bool subTrace, double _XMM2_8)
+void BgTrace::CastShape(BgTrace *this, bool subTrace)
 {
   BgTrace::BgTraceLocalData *m_localData; 
-  bool v8; 
-  const vec4_t *v9; 
-  const vec3_t *v10; 
-  HavokPhysics_CollisionQueryResult **p_resultQuery; 
-  HavokPhysics_CollisionQueryResult *result; 
-  BG_PMove_Cage *v14; 
-  hknpShape *v15; 
-  int m_flags; 
-  const vec3_t *p_end; 
+  bool v5; 
+  const vec4_t *rotation; 
   const vec3_t *p_start; 
   HavokPhysics_CollisionQueryResult **p_resultQueryAny; 
+  HavokPhysics_CollisionQueryResult *result; 
+  BG_PMove_Cage *cage; 
+  hknpShape *shape; 
+  int m_flags; 
+  const vec3_t *p_end; 
+  const vec3_t *v14; 
+  HavokPhysics_CollisionQueryResult **p_resultQuery; 
   const vec4_t *p_quaternionRotation; 
   HavokPhysics_CollisionQueryResult *startResult; 
-  BG_PMove_Cage *cage; 
+  BG_PMove_Cage *v18; 
   HavokPhysics_CollisionQueryResult *resultTrace; 
-  hknpShape *shape; 
-  BgTrace::BgTraceLocalData *v28; 
-  trace_t *v29; 
-  HavokPhysics_CollisionQueryResult *v30; 
+  hknpShape *v20; 
+  BgTrace::BgTraceLocalData *v21; 
+  trace_t *v22; 
+  HavokPhysics_CollisionQueryResult *v23; 
   int m_traceMask; 
-  BgTrace::BgTraceLocalData *v32; 
-  hknpShape *v33; 
+  BgTrace::BgTraceLocalData *v25; 
+  hknpShape *v26; 
   unsigned int ShapecastHitBodyId; 
-  BgTrace::BgTraceLocalData *v36; 
-  int v37; 
-  const vec3_t *v38; 
-  HavokPhysics_CollisionQueryResult **v40; 
-  char v42; 
-  BgTrace::BgTraceLocalData *v43; 
+  BgTrace::BgTraceLocalData *v28; 
+  int v29; 
+  const vec3_t *v30; 
+  HavokPhysics_CollisionQueryResult **v31; 
+  double RaycastHitFraction; 
+  BgTrace::BgTraceLocalData *v33; 
   unsigned int RaycastHitBodyId; 
-  float fmt; 
-  float rotation; 
-  float v48; 
-  float v49; 
-  Physics_ShapecastExtendedData v50; 
+  Physics_ShapecastExtendedData v35; 
   Physics_GetClosestPointsExtendedData extendedData; 
 
   if ( !this->m_localData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 199, ASSERT_TYPE_ASSERT, "(m_localData)", (const char *)&queryFormat, "m_localData") )
@@ -804,179 +688,146 @@ void __fastcall BgTrace::CastShape(BgTrace *this, bool subTrace, double _XMM2_8)
   if ( !subTrace || this->m_localData->numSubTraceMovers )
   {
     m_localData = this->m_localData;
-    __asm { vmovaps [rsp+0E0h+var_30], xmm6 }
     if ( m_localData->shapeTrace )
     {
-      if ( m_localData->sweptTrace )
+      if ( !m_localData->sweptTrace )
       {
-        m_flags = this->m_flags;
-        p_end = &m_localData->end;
-        __asm { vmovss  xmm0, cs:__real@3c83126f }
-        v50.contents = this->m_traceMask;
+        v5 = (this->m_flags & 1) == 0;
+        rotation = &m_localData->quaternionRotation;
+        extendedData.contents = this->m_traceMask;
         p_start = &m_localData->start;
-        __asm
-        {
-          vmovss  [rbp+57h+var_90.accuracy], xmm0
-          vmovss  xmm0, cs:__real@3e000000
-        }
-        v50.simplifyStart = 0;
-        v50.phaseSelection = All;
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  [rbp+57h+var_90.startTolerance], xmm6
-        }
-        v50.ignoreBodies = m_localData->ignoreBodies;
-        __asm { vmovss  [rbp+57h+var_90.collisionBuffer], xmm0 }
-        v50.nonBrushShape = m_localData->nonBrushShape;
-        v50.secondPassShape = m_localData->paddedShape;
-        v50.permitOutwardTrace = (m_flags & 0x10) == 0;
+        extendedData.simplify = 0;
+        extendedData.phaseSelection = All;
+        extendedData.collisionBuffer = 0.0;
+        extendedData.ignoreBodies = m_localData->ignoreBodies;
+        extendedData.nonBrushShape = m_localData->nonBrushShape;
         p_resultQueryAny = &m_localData->resultQueryAny;
-        if ( (m_flags & 1) == 0 )
+        if ( v5 )
           p_resultQueryAny = &m_localData->resultQuery;
-        p_quaternionRotation = &m_localData->quaternionRotation;
-        startResult = *p_resultQueryAny;
+        result = *p_resultQueryAny;
         if ( subTrace )
         {
-          Physics_Shapecast(this->m_worldId, m_localData->numSubTraceMovers, m_localData->subTraceMovers, m_localData->shape, p_start, &m_localData->end, &m_localData->quaternionRotation, &v50, m_localData->resultTrace, startResult);
+          Physics_GetClosestPoints(this->m_worldId, m_localData->numSubTraceMovers, m_localData->subTraceMovers, m_localData->shape, p_start, &m_localData->quaternionRotation, 0.0, &extendedData, *p_resultQueryAny);
         }
         else
         {
           cage = m_localData->cage;
-          resultTrace = m_localData->resultTrace;
           shape = m_localData->shape;
           if ( cage )
-            Physics_Shapecast(this->m_worldId, cage->numBodies, cage->bodies, shape, p_start, p_end, p_quaternionRotation, &v50, resultTrace, startResult);
+            Physics_GetClosestPoints(this->m_worldId, cage->numBodies, cage->bodies, shape, p_start, rotation, 0.0, &extendedData, result);
           else
-            Physics_Shapecast(this->m_worldId, shape, p_start, p_end, p_quaternionRotation, &v50, resultTrace, startResult);
+            Physics_GetClosestPoints(this->m_worldId, shape, p_start, rotation, 0.0, &extendedData, result);
         }
-        Physics_ConvertShapeQueryResultToLegacyTrace(this->m_localData->resultTrace, startResult, this->m_localData->result);
-        v28 = this->m_localData;
-        v29 = v28->result;
-        v30 = v28->resultTrace;
-        if ( v29->startsolid )
-        {
-          m_traceMask = this->m_traceMask;
-          extendedData.nonBrushShape = NULL;
-          extendedData.contents = m_traceMask;
-          __asm { vmovss  [rbp+57h+var_58.collisionBuffer], xmm6 }
-          extendedData.simplify = 0;
-          extendedData.ignoreBodies = NULL;
-          extendedData.phaseSelection = All;
-          extendedData.nonBrushShape = v28->nonBrushShape;
-          HavokPhysics_CollisionQueryResult::Reset(startResult, 1);
-          v32 = this->m_localData;
-          v33 = v32->shape;
-          ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(v30, 0);
-          __asm { vmovss  dword ptr [rsp+0E0h+rotation], xmm6 }
-          Physics_GetClosestPoints(this->m_worldId, ShapecastHitBodyId, v33, &v28->end, &v32->quaternionRotation, rotation, &extendedData, startResult);
-          if ( HavokPhysics_CollisionQueryResult::HasHit(startResult) )
-            v29->allsolid = 1;
-        }
-        goto LABEL_25;
+LABEL_33:
+        Physics_ConvertClosestPointsToLegacyTrace(result, this->m_localData->result);
+        return;
       }
-      v8 = (this->m_flags & 1) == 0;
-      v9 = &m_localData->quaternionRotation;
-      extendedData.contents = this->m_traceMask;
-      v10 = &m_localData->start;
-      extendedData.simplify = 0;
-      extendedData.phaseSelection = All;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rbp+57h+var_58.collisionBuffer], xmm0
-      }
-      extendedData.ignoreBodies = m_localData->ignoreBodies;
-      extendedData.nonBrushShape = m_localData->nonBrushShape;
+      m_flags = this->m_flags;
+      p_end = &m_localData->end;
+      v35.contents = this->m_traceMask;
+      v14 = &m_localData->start;
+      v35.accuracy = FLOAT_0_016000001;
+      v35.simplifyStart = 0;
+      v35.phaseSelection = All;
+      v35.startTolerance = 0.0;
+      v35.ignoreBodies = m_localData->ignoreBodies;
+      v35.collisionBuffer = FLOAT_0_125;
+      v35.nonBrushShape = m_localData->nonBrushShape;
+      v35.secondPassShape = m_localData->paddedShape;
+      v35.permitOutwardTrace = (m_flags & 0x10) == 0;
       p_resultQuery = &m_localData->resultQueryAny;
-      if ( v8 )
+      if ( (m_flags & 1) == 0 )
         p_resultQuery = &m_localData->resultQuery;
-      result = *p_resultQuery;
+      p_quaternionRotation = &m_localData->quaternionRotation;
+      startResult = *p_resultQuery;
       if ( subTrace )
       {
-        __asm { vmovss  dword ptr [rsp+0E0h+var_B0], xmm0 }
-        Physics_GetClosestPoints(this->m_worldId, m_localData->numSubTraceMovers, m_localData->subTraceMovers, m_localData->shape, v10, &m_localData->quaternionRotation, v48, &extendedData, *p_resultQuery);
+        Physics_Shapecast(this->m_worldId, m_localData->numSubTraceMovers, m_localData->subTraceMovers, m_localData->shape, v14, &m_localData->end, &m_localData->quaternionRotation, &v35, m_localData->resultTrace, startResult);
       }
       else
       {
-        v14 = m_localData->cage;
-        v15 = m_localData->shape;
-        if ( v14 )
-        {
-          __asm { vmovss  dword ptr [rsp+0E0h+var_B0], xmm0 }
-          Physics_GetClosestPoints(this->m_worldId, v14->numBodies, v14->bodies, v15, v10, v9, v49, &extendedData, result);
-        }
+        v18 = m_localData->cage;
+        resultTrace = m_localData->resultTrace;
+        v20 = m_localData->shape;
+        if ( v18 )
+          Physics_Shapecast(this->m_worldId, v18->numBodies, v18->bodies, v20, v14, p_end, p_quaternionRotation, &v35, resultTrace, startResult);
         else
-        {
-          __asm { vmovss  dword ptr [rsp+0E0h+fmt], xmm0 }
-          Physics_GetClosestPoints(this->m_worldId, v15, v10, v9, fmt, &extendedData, result);
-        }
+          Physics_Shapecast(this->m_worldId, v20, v14, p_end, p_quaternionRotation, &v35, resultTrace, startResult);
+      }
+      Physics_ConvertShapeQueryResultToLegacyTrace(this->m_localData->resultTrace, startResult, this->m_localData->result);
+      v21 = this->m_localData;
+      v22 = v21->result;
+      v23 = v21->resultTrace;
+      if ( v22->startsolid )
+      {
+        m_traceMask = this->m_traceMask;
+        extendedData.nonBrushShape = NULL;
+        extendedData.contents = m_traceMask;
+        extendedData.collisionBuffer = 0.0;
+        extendedData.simplify = 0;
+        extendedData.ignoreBodies = NULL;
+        extendedData.phaseSelection = All;
+        extendedData.nonBrushShape = v21->nonBrushShape;
+        HavokPhysics_CollisionQueryResult::Reset(startResult, 1);
+        v25 = this->m_localData;
+        v26 = v25->shape;
+        ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(v23, 0);
+        Physics_GetClosestPoints(this->m_worldId, ShapecastHitBodyId, v26, &v21->end, &v25->quaternionRotation, 0.0, &extendedData, startResult);
+        if ( HavokPhysics_CollisionQueryResult::HasHit(startResult) )
+          v22->allsolid = 1;
       }
     }
     else
     {
       if ( subTrace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 265, ASSERT_TYPE_ASSERT, "(!subTrace)", (const char *)&queryFormat, "!subTrace") )
         __debugbreak();
-      v36 = this->m_localData;
-      v37 = this->m_traceMask;
-      v38 = &v36->start;
-      if ( v36->sweptTrace )
+      v28 = this->m_localData;
+      v29 = this->m_traceMask;
+      v30 = &v28->start;
+      if ( !v28->sweptTrace )
       {
-        extendedData.ignoreBodies = NULL;
-        LODWORD(extendedData.collisionBuffer) = 1;
-        extendedData.nonBrushShape = (hknpShape *)0x100000000i64;
-        LOWORD(extendedData.phaseSelection) = 256;
-        extendedData.contents = v37;
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vmovss  dword ptr [rbp+57h+var_58+14h], xmm6
-        }
-        extendedData.ignoreBodies = v36->ignoreBodies;
-        Physics_Raycast(this->m_worldId, v38, &v36->end, (Physics_RaycastExtendedData *)&extendedData, v36->resultTrace);
-        if ( HavokPhysics_CollisionQueryResult::HasHit(this->m_localData->resultTrace) )
-        {
-          *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(this->m_localData->resultTrace, 0);
-          __asm { vcomiss xmm0, xmm6 }
-          if ( v42 | v8 )
-          {
-            v50.contents = this->m_traceMask;
-            v43 = this->m_localData;
-            __asm { vmovss  dword ptr [rbp+57h+var_90.ignoreBodies+4], xmm6 }
-            LOBYTE(v50.startTolerance) = 0;
-            *(_QWORD *)&v50.accuracy = 0i64;
-            LODWORD(v50.ignoreBodies) = 1;
-            v50.collisionBuffer = 0.0;
-            RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(v43->resultTrace, 0);
-            if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 292, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
-              __debugbreak();
-            __asm { vmovss  xmm3, cs:__real@be001a37; maxDistance }
-            Physics_QueryPoint(this->m_worldId, RaycastHitBodyId, &this->m_localData->start, *(float *)&_XMM3, (Physics_QueryPointExtendedData *)&v50, this->m_localData->resultQuery);
-          }
-        }
-        Physics_ConvertRayQueryResultToLegacyTrace(this->m_localData->resultTrace, this->m_localData->resultQuery, NULL, this->m_localData->result);
-        goto LABEL_25;
+        v5 = (this->m_flags & 1) == 0;
+        v35.contents = this->m_traceMask;
+        LOBYTE(v35.startTolerance) = 0;
+        LODWORD(v35.ignoreBodies) = 1;
+        v35.collisionBuffer = 0.0;
+        *((float *)&v35.ignoreBodies + 1) = 0.0;
+        *(_QWORD *)&v35.accuracy = v28->ignoreBodies;
+        v31 = &v28->resultQueryAny;
+        if ( v5 )
+          v31 = &v28->resultQuery;
+        result = *v31;
+        Physics_QueryPoint(this->m_worldId, v30, 0.0, (Physics_QueryPointExtendedData *)&v35, *v31);
+        goto LABEL_33;
       }
-      v8 = (this->m_flags & 1) == 0;
-      v50.contents = this->m_traceMask;
-      LOBYTE(v50.startTolerance) = 0;
-      LODWORD(v50.ignoreBodies) = 1;
-      v50.collisionBuffer = 0.0;
-      __asm
+      extendedData.ignoreBodies = NULL;
+      LODWORD(extendedData.collisionBuffer) = 1;
+      extendedData.nonBrushShape = (hknpShape *)0x100000000i64;
+      LOWORD(extendedData.phaseSelection) = 256;
+      extendedData.contents = v29;
+      *(&extendedData.collisionBuffer + 1) = 0.0;
+      extendedData.ignoreBodies = v28->ignoreBodies;
+      Physics_Raycast(this->m_worldId, v30, &v28->end, (Physics_RaycastExtendedData *)&extendedData, v28->resultTrace);
+      if ( HavokPhysics_CollisionQueryResult::HasHit(this->m_localData->resultTrace) )
       {
-        vxorps  xmm2, xmm2, xmm2; maxDistance
-        vmovss  dword ptr [rbp+57h+var_90.ignoreBodies+4], xmm2
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(this->m_localData->resultTrace, 0);
+        if ( *(float *)&RaycastHitFraction <= 0.0 )
+        {
+          v35.contents = this->m_traceMask;
+          v33 = this->m_localData;
+          *((float *)&v35.ignoreBodies + 1) = 0.0;
+          LOBYTE(v35.startTolerance) = 0;
+          *(_QWORD *)&v35.accuracy = 0i64;
+          LODWORD(v35.ignoreBodies) = 1;
+          v35.collisionBuffer = 0.0;
+          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(v33->resultTrace, 0);
+          if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 292, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
+            __debugbreak();
+          Physics_QueryPoint(this->m_worldId, RaycastHitBodyId, &this->m_localData->start, -0.1251, (Physics_QueryPointExtendedData *)&v35, this->m_localData->resultQuery);
+        }
       }
-      *(_QWORD *)&v50.accuracy = v36->ignoreBodies;
-      v40 = &v36->resultQueryAny;
-      if ( v8 )
-        v40 = &v36->resultQuery;
-      result = *v40;
-      Physics_QueryPoint(this->m_worldId, v38, *(float *)&_XMM2, (Physics_QueryPointExtendedData *)&v50, *v40);
+      Physics_ConvertRayQueryResultToLegacyTrace(this->m_localData->resultTrace, this->m_localData->resultQuery, NULL, this->m_localData->result);
     }
-    Physics_ConvertClosestPointsToLegacyTrace(result, this->m_localData->result);
-LABEL_25:
-    __asm { vmovaps xmm6, [rsp+0E0h+var_30] }
   }
 }
 
@@ -1153,8 +1004,14 @@ BgTrace::InitCoreTraceData
 */
 void BgTrace::InitCoreTraceData(BgTrace *this, BgTrace::BgTraceLocalData *localData, const Bounds *bounds, const vec3_t *start, const vec3_t *end, trace_t *outResult)
 {
-  char v10; 
-  char v19; 
+  BgTrace::BgTraceLocalData *m_localData; 
+  float v11; 
+  float v12; 
+  float v13; 
+  const Bounds *v14; 
+  float v15; 
+  float v16; 
+  bool v17; 
 
   memset_0(localData, 0, sizeof(BgTrace::BgTraceLocalData));
   this->m_localData = localData;
@@ -1162,56 +1019,20 @@ void BgTrace::InitCoreTraceData(BgTrace *this, BgTrace::BgTraceLocalData *localD
   outResult->fraction = 1.0;
   this->m_localData->result = outResult;
   this->m_localData->bounds = bounds;
-  _RCX = this->m_localData;
-  _RCX->start = *start;
-  _RAX = end;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rcx+274h], xmm0
-    vmovss  xmm2, dword ptr [rax+4]
-    vmovss  dword ptr [rcx+278h], xmm2
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  dword ptr [rcx+27Ch], xmm1
-    vucomiss xmm0, dword ptr [rcx+268h]
-  }
-  _RAX = _RCX->bounds;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rax+0Ch]
-    vmovss  xmm4, dword ptr [rax+14h]
-  }
-  if ( !v10 )
-    goto LABEL_5;
-  __asm { vucomiss xmm2, dword ptr [rcx+26Ch] }
-  if ( !v10 )
-    goto LABEL_5;
-  __asm { vucomiss xmm1, dword ptr [rcx+270h] }
-  if ( v10 )
-  {
-    v19 = 0;
-    v10 = 1;
-  }
-  else
-  {
-LABEL_5:
-    v19 = 1;
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm4, xmm0
-  }
-  _RCX->sweptTrace = v19;
-  if ( v10 )
-  {
-    this->m_localData->shapeTrace = 0;
-  }
-  else
-  {
-    __asm { vucomiss xmm3, xmm0 }
-    this->m_localData->shapeTrace = 1;
-  }
+  m_localData = this->m_localData;
+  m_localData->start = *start;
+  v11 = end->v[0];
+  m_localData->end.v[0] = end->v[0];
+  v12 = end->v[1];
+  m_localData->end.v[1] = v12;
+  v13 = end->v[2];
+  m_localData->end.v[2] = v13;
+  v14 = m_localData->bounds;
+  v15 = v14->halfSize.v[0];
+  v16 = v14->halfSize.v[2];
+  v17 = v11 != m_localData->start.v[0] || v12 != m_localData->start.v[1] || v13 != m_localData->start.v[2];
+  m_localData->sweptTrace = v17;
+  this->m_localData->shapeTrace = v16 != 0.0 && v15 != 0.0;
 }
 
 /*
@@ -1222,30 +1043,32 @@ BgTrace::InitShapeCast
 void BgTrace::InitShapeCast(BgTrace *this)
 {
   hkMonitorStream *Value; 
-  hkMonitorStream *v4; 
-  bool v5; 
+  hkMonitorStream *v3; 
+  bool v4; 
   BgTrace::BgTraceLocalData *m_localData; 
-  unsigned int v7; 
-  int v8; 
-  BgTrace::BgTraceLocalData *v9; 
-  __int64 v10; 
+  unsigned int v6; 
+  int v7; 
+  BgTrace::BgTraceLocalData *v8; 
+  __int64 v9; 
+  vec4_t *p_quaternionRotation; 
   BgPlayerTraceInfo *m_playerInfo; 
   const playerState_s *m_ps; 
+  const BgTraceMoverInfo *RideMoverEntityInfo; 
   char *TraceShapeBuffers; 
   int m_flags; 
   PhysicsQuery_ContextSettings contextSettings; 
-  __int64 v27; 
-  hkMonitorStream *v28; 
-  WorldUpReferenceFrame v29; 
+  __int64 v17; 
+  hkMonitorStream *v18; 
+  WorldUpReferenceFrame v19; 
 
-  v27 = -2i64;
+  v17 = -2i64;
   if ( !this->m_localData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 90, ASSERT_TYPE_ASSERT, "(m_localData)", (const char *)&queryFormat, "m_localData") )
     __debugbreak();
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v4 = Value;
+  v3 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyCapsuleTrace");
-  v28 = v4;
+  v18 = v3;
   Sys_ProfBeginNamedEvent(0xFFFF6347, "PhysicsQuery_LegacyCapsuleTrace_Internal");
   if ( this->m_worldId > (unsigned int)PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 95, ASSERT_TYPE_ASSERT, "(m_worldId >= PHYSICS_WORLD_ID_FIRST && m_worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "m_worldId >= PHYSICS_WORLD_ID_FIRST && m_worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
@@ -1258,8 +1081,8 @@ void BgTrace::InitShapeCast(BgTrace *this)
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 100, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
   this->m_localData->legacyEntryId = 28 * this->m_worldId + Physics_GetThreadId();
-  v5 = Physics_IsPredictiveWorld(this->m_worldId) && !Sys_IsMainThread();
-  this->m_localData->lockWorld = v5;
+  v4 = Physics_IsPredictiveWorld(this->m_worldId) && !Sys_IsMainThread();
+  this->m_localData->lockWorld = v4;
   m_localData = this->m_localData;
   if ( m_localData->lockWorld )
   {
@@ -1274,107 +1097,82 @@ void BgTrace::InitShapeCast(BgTrace *this)
   HavokPhysics_CollisionQueryResult::Reset(this->m_localData->resultTrace, 1);
   this->m_localData->ignoreBodies = PhysicsQuery_GetIgnoreBodies(this->m_localData->legacyEntryId);
   HavokPhysics_IgnoreBodies::Reset(this->m_localData->ignoreBodies);
+  v6 = 0;
   v7 = 0;
-  v8 = 0;
-  v9 = this->m_localData;
-  if ( v9->ignoreListCount > 0 )
+  v8 = this->m_localData;
+  if ( v8->ignoreListCount > 0 )
   {
-    v10 = 0i64;
+    v9 = 0i64;
     do
     {
-      PhysicsQuery_AddEntityChainToIgnoreList(this->m_localData->ignoreList[v10], this->m_localData->ignoreBodies, 1, 1, 0, 1, 0);
-      ++v8;
-      ++v10;
-      v9 = this->m_localData;
+      PhysicsQuery_AddEntityChainToIgnoreList(this->m_localData->ignoreList[v9], this->m_localData->ignoreBodies, 1, 1, 0, 1, 0);
+      ++v7;
+      ++v9;
+      v8 = this->m_localData;
     }
-    while ( v8 < v9->ignoreListCount );
+    while ( v7 < v8->ignoreListCount );
   }
   if ( (this->m_flags & 0x20) != 0 )
   {
-    HavokPhysics_IgnoreBodies::SetIgnoreRefs(v9->ignoreBodies, -2);
-    v9 = this->m_localData;
+    HavokPhysics_IgnoreBodies::SetIgnoreRefs(v8->ignoreBodies, -2);
+    v8 = this->m_localData;
   }
-  if ( v9->shapeTrace )
+  if ( v8->shapeTrace )
   {
-    _RBP = &v9->quaternionRotation;
+    p_quaternionRotation = &v8->quaternionRotation;
     m_playerInfo = (BgPlayerTraceInfo *)this->m_playerInfo;
     m_ps = m_playerInfo->m_ps;
     if ( m_ps && (this->m_flags & 2) == 0 )
     {
-      _R14 = BgPlayerTraceInfo::GetRideMoverEntityInfo(m_playerInfo);
+      RideMoverEntityInfo = BgPlayerTraceInfo::GetRideMoverEntityInfo(m_playerInfo);
       if ( WorldUpReferenceFrame::HasValidWorldUpInPs(m_ps) )
       {
-        WorldUpReferenceFrame::WorldUpReferenceFrame(&v29, m_ps, this->m_playerInfo->m_bgHandler);
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-          vmovss  dword ptr [rbp+0], xmm0
-          vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-          vmovss  dword ptr [rbp+4], xmm1
-          vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-          vmovss  dword ptr [rbp+8], xmm0
-          vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-          vmovss  dword ptr [rbp+0Ch], xmm1
-        }
-        WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v29, _RBP);
-LABEL_40:
+        WorldUpReferenceFrame::WorldUpReferenceFrame(&v19, m_ps, this->m_playerInfo->m_bgHandler);
+        *p_quaternionRotation = quat_identity;
+        WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v19, p_quaternionRotation);
+LABEL_46:
         TraceShapeBuffers = GetTraceShapeBuffers(this->m_localData->legacyEntryId);
         contextSettings.m_flags = 0;
         m_flags = this->m_flags;
         if ( (m_flags & 0x40) != 0 )
         {
           contextSettings.m_flags = 1;
-          v7 = 1;
+          v6 = 1;
         }
         if ( (m_flags & 0x80) != 0 )
         {
-          v7 |= 2u;
-          contextSettings.m_flags = v7;
+          v6 |= 2u;
+          contextSettings.m_flags = v6;
         }
         if ( (m_flags & 0x100) != 0 )
         {
-          v7 |= 8u;
-          contextSettings.m_flags = v7;
+          v6 |= 8u;
+          contextSettings.m_flags = v6;
         }
         if ( (m_flags & 0x200) != 0 )
         {
-          v7 |= 0x10u;
-          contextSettings.m_flags = v7;
+          v6 |= 0x10u;
+          contextSettings.m_flags = v6;
         }
         if ( (m_flags & 2) != 0 )
-          contextSettings.m_flags = v7 | 0x20;
+          contextSettings.m_flags = v6 | 0x20;
         if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH_ADS|0x100) )
           contextSettings.m_flags |= 4;
         this->m_localData->baseShapeNeedsRelease = PhysicsQuery_LegacyTraceCreateShape(this->m_worldId, this->m_playerInfo->m_ps, this->m_localData->bounds, 0, TraceShapeBuffers, (this->m_flags & 2) != 0, &this->m_localData->shape, &this->m_localData->nonBrushShape, &this->m_localData->paddedShape, &contextSettings);
-        goto LABEL_53;
+        goto LABEL_59;
       }
-      if ( _R14 )
+      if ( RideMoverEntityInfo && (RideMoverEntityInfo->velocity.v[0] != 0.0 || RideMoverEntityInfo->velocity.v[1] != 0.0 || RideMoverEntityInfo->velocity.v[2] != 0.0 || RideMoverEntityInfo->angVelocity.v[0] != 0.0 || RideMoverEntityInfo->angVelocity.v[1] != 0.0 || RideMoverEntityInfo->angVelocity.v[2] != 0.0) )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm0, dword ptr [r14+1Ch]
-        }
-        BGMovingPlatforms::GetBestPlatformUp(m_ps, &_R14->angles, NULL, _RBP);
-        goto LABEL_40;
+        BGMovingPlatforms::GetBestPlatformUp(m_ps, &RideMoverEntityInfo->angles, NULL, p_quaternionRotation);
+        goto LABEL_46;
       }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rbp+4], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rbp+8], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-      vmovss  dword ptr [rbp+0Ch], xmm1
-    }
-    goto LABEL_40;
+    *p_quaternionRotation = quat_identity;
+    goto LABEL_46;
   }
-LABEL_53:
-  if ( v4 )
-    hkMonitorStream::timerEnd(v4, "Et");
+LABEL_59:
+  if ( v3 )
+    hkMonitorStream::timerEnd(v3, "Et");
 }
 
 /*
@@ -1386,52 +1184,47 @@ void BgTrace::LegacyPlayerTrace(BgTrace *this, const pmove_t *pm, trace_t *const
 {
   const dvar_t *v9; 
   int m_flags; 
-  unsigned int v16; 
+  unsigned int v15; 
   PhysicsQuery_ContextSettings traceContext; 
-  BgTrace v18; 
+  BgTrace v17; 
 
   v9 = DCONST_DVARBOOL_useBgTraceSystem;
-  _RDI = this;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v9);
   if ( v9->current.enabled )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsp+98h+var_30.baseclass_0.m_worldId], ymm0
-    }
-    v18.m_ignoreEnt = passEntityNum;
-    BgTrace::PerformPlayerTrace(&v18, bounds, start, end, outResults);
+    v17 = *this;
+    v17.m_ignoreEnt = passEntityNum;
+    BgTrace::PerformPlayerTrace(&v17, bounds, start, end, outResults);
   }
   else
   {
-    m_flags = _RDI->m_flags;
+    m_flags = this->m_flags;
     traceContext.m_flags = 0;
-    v16 = 0;
+    v15 = 0;
     if ( (m_flags & 0x40) != 0 )
     {
-      v16 = 1;
+      v15 = 1;
       traceContext.m_flags = 1;
     }
     if ( (m_flags & 0x80) != 0 )
     {
-      v16 |= 2u;
-      traceContext.m_flags = v16;
+      v15 |= 2u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 0x100) != 0 )
     {
-      v16 |= 8u;
-      traceContext.m_flags = v16;
+      v15 |= 8u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 0x200) != 0 )
     {
-      v16 |= 0x10u;
-      traceContext.m_flags = v16;
+      v15 |= 0x10u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 2) != 0 )
-      traceContext.m_flags = v16 | 0x20;
+      traceContext.m_flags = v15 | 0x20;
     if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH_ADS|0x100) )
       traceContext.m_flags |= 4;
     PM_playerTrace(pm, outResults, start, end, bounds, passEntityNum, NULL, 0, contentMask, allowCheapPointQueries, &traceContext);
@@ -1447,12 +1240,11 @@ void BgTrace::LegacyPlayerTraceIgnoreBodies(BgTrace *this, const pmove_t *pm, tr
 {
   const dvar_t *v11; 
   int m_flags; 
-  unsigned int v18; 
+  unsigned int v17; 
   PhysicsQuery_ContextSettings traceContext; 
-  BgTrace v20; 
+  BgTrace v19; 
 
   v11 = DCONST_DVARBOOL_useBgTraceSystem;
-  _RDI = this;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
@@ -1460,41 +1252,37 @@ void BgTrace::LegacyPlayerTraceIgnoreBodies(BgTrace *this, const pmove_t *pm, tr
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 662, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "This a code path that is no longer supported.") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsp+98h+var_30.baseclass_0.m_worldId], ymm0
-    }
-    v20.m_ignoreEnt = passEntityNum;
-    BgTrace::PerformPlayerTrace(&v20, bounds, start, end, outResults);
+    v19 = *this;
+    v19.m_ignoreEnt = passEntityNum;
+    BgTrace::PerformPlayerTrace(&v19, bounds, start, end, outResults);
   }
   else
   {
-    m_flags = _RDI->m_flags;
-    v18 = 0;
+    m_flags = this->m_flags;
+    v17 = 0;
     traceContext.m_flags = 0;
     if ( (m_flags & 0x40) != 0 )
     {
-      v18 = 1;
+      v17 = 1;
       traceContext.m_flags = 1;
     }
     if ( (m_flags & 0x80) != 0 )
     {
-      v18 |= 2u;
-      traceContext.m_flags = v18;
+      v17 |= 2u;
+      traceContext.m_flags = v17;
     }
     if ( (m_flags & 0x100) != 0 )
     {
-      v18 |= 8u;
-      traceContext.m_flags = v18;
+      v17 |= 8u;
+      traceContext.m_flags = v17;
     }
     if ( (m_flags & 0x200) != 0 )
     {
-      v18 |= 0x10u;
-      traceContext.m_flags = v18;
+      v17 |= 0x10u;
+      traceContext.m_flags = v17;
     }
     if ( (m_flags & 2) != 0 )
-      traceContext.m_flags = v18 | 0x20;
+      traceContext.m_flags = v17 | 0x20;
     if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH_ADS|0x100) )
       traceContext.m_flags |= 4;
     PM_playerTrace(pm, outResults, start, end, bounds, passEntityNum, ignoreBodies, numIgnoreBodies, contentMask, allowCheapPointQueries, &traceContext);
@@ -1509,22 +1297,17 @@ BgTrace::LegacyTrace
 void BgTrace::LegacyTrace(BgTrace *this, const pmove_t *pm, trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int passEntityNum, int contentMask)
 {
   const dvar_t *v8; 
-  BgTrace v14; 
+  BgTrace v13; 
 
   v8 = DCONST_DVARBOOL_useBgTraceSystem;
-  _R14 = this;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v8);
   if ( v8->current.enabled )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_worldId], ymm0
-    }
-    v14.m_ignoreEnt = passEntityNum;
-    BgTrace::PerformPlayerTrace(&v14, bounds, start, end, results);
+    v13 = *this;
+    v13.m_ignoreEnt = passEntityNum;
+    BgTrace::PerformPlayerTrace(&v13, bounds, start, end, results);
   }
   else
   {
@@ -1541,55 +1324,50 @@ void BgTrace::LegacyTraceHandler(BgTrace *this, Physics_WorldId worldId, trace_t
 {
   const dvar_t *v9; 
   int m_flags; 
-  unsigned int v16; 
+  unsigned int v15; 
   PhysicsQuery_ContextSettings traceContext; 
-  BgTrace v18; 
+  BgTrace v17; 
 
   v9 = DCONST_DVARBOOL_useBgTraceSystem;
-  _RDI = this;
   if ( !DCONST_DVARBOOL_useBgTraceSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useBgTraceSystem") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v9);
   if ( v9->current.enabled )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsp+88h+var_30.baseclass_0.m_worldId], ymm0
-    }
-    v18.m_ignoreEnt = passEntityNum;
-    BgTrace::PerformPlayerTrace(&v18, bounds, start, end, results);
+    v17 = *this;
+    v17.m_ignoreEnt = passEntityNum;
+    BgTrace::PerformPlayerTrace(&v17, bounds, start, end, results);
   }
   else
   {
-    m_flags = _RDI->m_flags;
-    v16 = 0;
+    m_flags = this->m_flags;
+    v15 = 0;
     traceContext.m_flags = 0;
     if ( (m_flags & 0x40) != 0 )
     {
-      v16 = 1;
+      v15 = 1;
       traceContext.m_flags = 1;
     }
     if ( (m_flags & 0x80) != 0 )
     {
-      v16 |= 2u;
-      traceContext.m_flags = v16;
+      v15 |= 2u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 0x100) != 0 )
     {
-      v16 |= 8u;
-      traceContext.m_flags = v16;
+      v15 |= 8u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 0x200) != 0 )
     {
-      v16 |= 0x10u;
-      traceContext.m_flags = v16;
+      v15 |= 0x10u;
+      traceContext.m_flags = v15;
     }
     if ( (m_flags & 2) != 0 )
-      traceContext.m_flags = v16 | 0x20;
+      traceContext.m_flags = v15 | 0x20;
     if ( Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH_ADS|0x100) )
       traceContext.m_flags |= 4;
-    PM_traceHandler(_RDI->m_playerInfo, worldId, results, start, end, bounds, passEntityNum, contentMask, ps, &traceContext);
+    PM_traceHandler(this->m_playerInfo, worldId, results, start, end, bounds, passEntityNum, contentMask, ps, &traceContext);
   }
 }
 
@@ -1719,20 +1497,13 @@ void BgTrace::ProcessAllSolid(BgTrace *this, HavokPhysics_CollisionQueryResult *
   BgTrace::BgTraceLocalData *m_localData; 
   hknpShape *shape; 
   unsigned int ShapecastHitBodyId; 
-  bool HasHit; 
-  float v16; 
   Physics_GetClosestPointsExtendedData extendedData; 
 
   if ( results->startsolid )
   {
     extendedData.simplify = 0;
     extendedData.ignoreBodies = NULL;
-    __asm
-    {
-      vmovaps [rsp+98h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rsp+98h+var_58.collisionBuffer], xmm6
-    }
+    extendedData.collisionBuffer = 0.0;
     extendedData.nonBrushShape = NULL;
     extendedData.phaseSelection = All;
     extendedData.contents = this->m_traceMask;
@@ -1741,11 +1512,8 @@ void BgTrace::ProcessAllSolid(BgTrace *this, HavokPhysics_CollisionQueryResult *
     m_localData = this->m_localData;
     shape = m_localData->shape;
     ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(traceResult, 0);
-    __asm { vmovss  [rsp+98h+var_70], xmm6 }
-    Physics_GetClosestPoints(this->m_worldId, ShapecastHitBodyId, shape, end, &m_localData->quaternionRotation, v16, &extendedData, queryResult);
-    HasHit = HavokPhysics_CollisionQueryResult::HasHit(queryResult);
-    __asm { vmovaps xmm6, [rsp+98h+var_28] }
-    if ( HasHit )
+    Physics_GetClosestPoints(this->m_worldId, ShapecastHitBodyId, shape, end, &m_localData->quaternionRotation, 0.0, &extendedData, queryResult);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(queryResult) )
       results->allsolid = 1;
   }
 }
@@ -1757,14 +1525,12 @@ BgTrace::Reset
 */
 void BgTrace::Reset(BgTrace *this, const BgPlayerTraceInfo *playerInfo)
 {
-  _RAX = &playerInfo->BgTraceBase;
+  BgTraceBase *v2; 
+
+  v2 = &playerInfo->BgTraceBase;
   if ( !playerInfo )
-    _RAX = NULL;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-  }
+    v2 = NULL;
+  this->BgTraceBase = *v2;
   this->m_playerInfo = playerInfo;
   this->m_localData = NULL;
 }
@@ -1804,6 +1570,9 @@ void BgPlayerTraceInfo::ResetPmovePlayerTraceInfo(BgPlayerTraceInfo *this, pmove
   int v18; 
   BgAntiLag *antiLag; 
   BgPlayerTraceInfo *v20; 
+  BgTrace *m_trace; 
+  BgTraceBase *v22; 
+  BgTraceBase v23; 
   unsigned int outNumInfoItems[4]; 
   BgAntiLagEntityInfo antilagList; 
 
@@ -1855,14 +1624,14 @@ void BgPlayerTraceInfo::ResetPmovePlayerTraceInfo(BgPlayerTraceInfo *this, pmove
     }
   }
   v20 = pm->m_playerTraceInfo;
-  _RDX = pm->m_trace;
-  _RAX = &v20->BgTraceBase;
+  m_trace = pm->m_trace;
+  v22 = &v20->BgTraceBase;
   if ( !v20 )
-    _RAX = NULL;
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  _RDX->m_localData = NULL;
-  _RDX->m_playerInfo = v20;
-  __asm { vmovups xmmword ptr [rdx], xmm0 }
+    v22 = NULL;
+  v23 = *v22;
+  m_trace->m_localData = NULL;
+  m_trace->m_playerInfo = v20;
+  m_trace->BgTraceBase = v23;
 }
 
 /*
@@ -1878,41 +1647,40 @@ void BgPlayerTraceInfo::SetMoverListFromAntilagBuffer(BgPlayerTraceInfo *this, p
   unsigned __int64 i; 
   int m_movingPlatformEntity; 
   int v9; 
+  __int64 v10; 
   unsigned __int16 *p_entityIndex; 
   _DWORD *v; 
-  unsigned int v28; 
+  float *p_commandTime; 
+  unsigned int v14; 
   ntl::fixed_vector<BgTraceMoverInfo,5,0> *p_m_moverList; 
-  int *v30; 
-  __int64 v31; 
-  const BgAntiLagEntityInfo *v32; 
-  char *v33; 
-  __int64 v34; 
-  const BgAntiLagEntityInfo *v35; 
+  int *v16; 
+  __int64 v17; 
+  const BgAntiLagEntityInfo *v18; 
+  char *v19; 
+  __int64 v20; 
+  const BgAntiLagEntityInfo *v21; 
   playerState_s *ps; 
-  __int64 v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42[3]; 
-  int v43; 
-  int v44; 
-  const BgAntiLagEntityInfo *v45; 
-  char v46[8]; 
-  BgPlayerTraceInfo *v47; 
-  pmove_t *v48; 
-  __int64 v49; 
-  float v50[128]; 
-  int v51[128]; 
+  __int64 v23; 
+  int v24; 
+  int v25[3]; 
+  int v26; 
+  int v27; 
+  const BgAntiLagEntityInfo *v28; 
+  char v29[8]; 
+  BgPlayerTraceInfo *v30; 
+  pmove_t *v31; 
+  __int64 v32; 
+  float v33[128]; 
+  int v34[128]; 
 
-  v49 = -2i64;
+  v32 = -2i64;
   v4 = antilagMoverCount;
-  v44 = antilagMoverCount;
+  v27 = antilagMoverCount;
   v5 = antilagList;
-  v45 = antilagList;
-  v48 = pm;
+  v28 = antilagList;
+  v31 = pm;
   v6 = this;
-  v47 = this;
+  v30 = this;
   if ( !this->m_ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 522, ASSERT_TYPE_ASSERT, "(m_ps)", (const char *)&queryFormat, "m_ps") )
     __debugbreak();
   v6->m_rideMoverIndex = -1;
@@ -1926,133 +1694,96 @@ void BgPlayerTraceInfo::SetMoverListFromAntilagBuffer(BgPlayerTraceInfo *this, p
     m_movingPlatformEntity = v6->m_ps->movingPlatforms.m_movingPlatformEntity;
   else
     m_movingPlatformEntity = 2047;
-  v43 = m_movingPlatformEntity;
+  v26 = m_movingPlatformEntity;
   v9 = 0;
   if ( (int)v4 > 0 )
   {
-    _RBX = 0i64;
+    v10 = 0i64;
     p_entityIndex = &v5->entityIndex;
     do
     {
-      v51[_RBX] = v9;
+      v34[v10] = v9;
       if ( *p_entityIndex == m_movingPlatformEntity )
       {
-        v50[_RBX] = 0.0;
+        v33[v10] = 0.0;
       }
       else
       {
         v = (_DWORD *)v5[v9].origin.origin.v;
         if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 810, ASSERT_TYPE_ASSERT, "(antiLagentity)", (const char *)&queryFormat, "antiLagentity") )
           __debugbreak();
-        LOWORD(v41) = (unsigned int)v >> 8;
-        BYTE2(v41) = BYTE3(v);
-        HIBYTE(v41) = (_BYTE)v;
-        v42[1] = v[2] ^ *v ^ v41 ^ s_antilag_aab_Y;
-        v42[2] = v[1] ^ v[2] ^ v41 ^ s_antilag_aab_Z;
-        v42[0] = v[1] ^ v41 ^ ~s_antilag_aab_X;
-        memset(v46, 0, sizeof(v46));
-        __asm
-        {
-          vmovss  xmm0, [rsp+4D0h+var_480]
-          vmovss  dword ptr [rsp+4D0h+var_490], xmm0
-        }
-        if ( (v38 & 0x7F800000) == 2139095040 )
-          goto LABEL_42;
-        __asm
-        {
-          vmovss  xmm0, [rsp+4D0h+var_47C]
-          vmovss  dword ptr [rsp+4D0h+var_490], xmm0
-        }
-        if ( (v39 & 0x7F800000) == 2139095040 )
-          goto LABEL_42;
-        __asm
-        {
-          vmovss  xmm0, [rsp+4D0h+var_478]
-          vmovss  dword ptr [rsp+4D0h+var_490], xmm0
-        }
-        if ( (v40 & 0x7F800000) == 2139095040 )
-        {
-LABEL_42:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-            __debugbreak();
-        }
-        _RAX = v6->m_ps;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+30h]
-          vsubss  xmm3, xmm0, [rsp+4D0h+var_480]
-          vmovss  xmm1, dword ptr [rax+34h]
-          vsubss  xmm2, xmm1, [rsp+4D0h+var_47C]
-          vmovss  xmm0, dword ptr [rax+38h]
-          vsubss  xmm4, xmm0, [rsp+4D0h+var_478]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  [rbp+rbx*4+3D0h+var_440], xmm2
-        }
-        memset(v42, 0, sizeof(v42));
-        m_movingPlatformEntity = v43;
-        v5 = v45;
+        LOWORD(v24) = (unsigned int)v >> 8;
+        BYTE2(v24) = BYTE3(v);
+        HIBYTE(v24) = (_BYTE)v;
+        v25[1] = v[2] ^ *v ^ v24 ^ s_antilag_aab_Y;
+        v25[2] = v[1] ^ v[2] ^ v24 ^ s_antilag_aab_Z;
+        v25[0] = v[1] ^ v24 ^ ~s_antilag_aab_X;
+        memset(v29, 0, sizeof(v29));
+        if ( ((v25[0] & 0x7F800000) == 2139095040 || (v25[1] & 0x7F800000) == 2139095040 || (v25[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+          __debugbreak();
+        p_commandTime = (float *)&v6->m_ps->commandTime;
+        v33[v10] = (float)((float)((float)(p_commandTime[13] - *(float *)&v25[1]) * (float)(p_commandTime[13] - *(float *)&v25[1])) + (float)((float)(p_commandTime[12] - *(float *)v25) * (float)(p_commandTime[12] - *(float *)v25))) + (float)((float)(p_commandTime[14] - *(float *)&v25[2]) * (float)(p_commandTime[14] - *(float *)&v25[2]));
+        memset(v25, 0, sizeof(v25));
+        m_movingPlatformEntity = v26;
+        v5 = v28;
       }
       ++v9;
-      ++_RBX;
+      ++v10;
       p_entityIndex += 70;
     }
-    while ( _RBX < v4 );
-    LODWORD(v4) = v44;
+    while ( v10 < v4 );
+    LODWORD(v4) = v27;
   }
-  v6->SortMoverList(v6, v4, v51, v50);
-  v28 = 5;
+  v6->SortMoverList(v6, v4, v34, v33);
+  v14 = 5;
   if ( (int)v4 < 5 )
-    v28 = v4;
-  if ( v28 )
+    v14 = v4;
+  if ( v14 )
   {
     p_m_moverList = &v6->m_moverList;
-    v30 = v51;
-    v31 = v28;
-    v32 = v45;
+    v16 = v34;
+    v17 = v14;
+    v18 = v28;
     do
     {
       if ( p_m_moverList->m_size >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
         __debugbreak();
-      v33 = &p_m_moverList->m_data.m_buffer[52 * p_m_moverList->m_size];
-      *(_QWORD *)v33 = 0i64;
-      *((_QWORD *)v33 + 1) = 0i64;
-      *((_QWORD *)v33 + 2) = 0i64;
-      *((_QWORD *)v33 + 3) = 0i64;
-      *((_QWORD *)v33 + 4) = 0i64;
-      *((_QWORD *)v33 + 5) = 0i64;
-      *((_DWORD *)v33 + 12) = 0;
+      v19 = &p_m_moverList->m_data.m_buffer[52 * p_m_moverList->m_size];
+      *(_QWORD *)v19 = 0i64;
+      *((_QWORD *)v19 + 1) = 0i64;
+      *((_QWORD *)v19 + 2) = 0i64;
+      *((_QWORD *)v19 + 3) = 0i64;
+      *((_QWORD *)v19 + 4) = 0i64;
+      *((_QWORD *)v19 + 5) = 0i64;
+      *((_DWORD *)v19 + 12) = 0;
       ++p_m_moverList->m_size;
-      v34 = *v30;
-      if ( (unsigned int)v34 >= (unsigned int)v4 )
+      v20 = *v16;
+      if ( (unsigned int)v20 >= (unsigned int)v4 )
       {
-        LODWORD(v37) = v4;
-        LODWORD(ps) = *v30;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 559, ASSERT_TYPE_ASSERT, "(unsigned)( antilagListIndex ) < (unsigned)( antilagMoverCount )", "antilagListIndex doesn't index antilagMoverCount\n\t%i not in [0, %i)", ps, v37) )
+        LODWORD(v23) = v4;
+        LODWORD(ps) = *v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 559, ASSERT_TYPE_ASSERT, "(unsigned)( antilagListIndex ) < (unsigned)( antilagMoverCount )", "antilagListIndex doesn't index antilagMoverCount\n\t%i not in [0, %i)", ps, v23) )
           __debugbreak();
       }
-      v35 = &v32[v34];
-      *(_DWORD *)v33 = v35->entityIndex;
-      BgAntiLagEntity_GetOrigin(v35, (vec3_t *)(v33 + 4));
-      *((_DWORD *)v33 + 4) = LODWORD(v35->angles.v[0]);
-      *((_DWORD *)v33 + 5) = LODWORD(v35->angles.v[1]);
-      *((_DWORD *)v33 + 6) = LODWORD(v35->angles.v[2]);
-      *((_DWORD *)v33 + 7) = LODWORD(v35->velocity.v[0]);
-      *((_DWORD *)v33 + 8) = LODWORD(v35->velocity.v[1]);
-      *((_DWORD *)v33 + 9) = LODWORD(v35->velocity.v[2]);
-      *((_DWORD *)v33 + 10) = LODWORD(v35->angVelocity.v[0]);
-      *((_DWORD *)v33 + 11) = LODWORD(v35->angVelocity.v[1]);
-      *((_DWORD *)v33 + 12) = LODWORD(v35->angVelocity.v[2]);
-      ++v30;
-      --v31;
+      v21 = &v18[v20];
+      *(_DWORD *)v19 = v21->entityIndex;
+      BgAntiLagEntity_GetOrigin(v21, (vec3_t *)(v19 + 4));
+      *((_DWORD *)v19 + 4) = LODWORD(v21->angles.v[0]);
+      *((_DWORD *)v19 + 5) = LODWORD(v21->angles.v[1]);
+      *((_DWORD *)v19 + 6) = LODWORD(v21->angles.v[2]);
+      *((_DWORD *)v19 + 7) = LODWORD(v21->velocity.v[0]);
+      *((_DWORD *)v19 + 8) = LODWORD(v21->velocity.v[1]);
+      *((_DWORD *)v19 + 9) = LODWORD(v21->velocity.v[2]);
+      *((_DWORD *)v19 + 10) = LODWORD(v21->angVelocity.v[0]);
+      *((_DWORD *)v19 + 11) = LODWORD(v21->angVelocity.v[1]);
+      *((_DWORD *)v19 + 12) = LODWORD(v21->angVelocity.v[2]);
+      ++v16;
+      --v17;
     }
-    while ( v31 );
-    v6 = v47;
+    while ( v17 );
+    v6 = v30;
   }
-  BgPlayerTraceInfo::SetRideMover(v6, v48->antiLag, v48->cmd.serverTime, v6->m_ps->movingPlatforms.m_movingPlatformEntity, v48->m_bgHandler, v48->ps);
+  BgPlayerTraceInfo::SetRideMover(v6, v31->antiLag, v31->cmd.serverTime, v6->m_ps->movingPlatforms.m_movingPlatformEntity, v31->m_bgHandler, v31->ps);
 }
 
 /*
@@ -2083,6 +1814,7 @@ void BgPlayerTraceInfo::SetRideMover(BgPlayerTraceInfo *this, const BgAntiLag *a
   unsigned __int64 v14; 
   int clientNum; 
   ntl::fixed_vector<BgTraceMoverInfo,5,0> *v16; 
+  char *v17; 
   unsigned __int64 v18; 
   BGMovingPlatformPS *p_movingPlatforms; 
   int m_size; 
@@ -2149,47 +1881,29 @@ LABEL_39:
         v18 = this->m_moverList.m_size - 1;
         if ( v18 >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
           __debugbreak();
-        _RBX = &v16->m_data.m_buffer[52 * v18];
+        v17 = &v16->m_data.m_buffer[52 * v18];
       }
       else
       {
         if ( this->m_moverList.m_size >= 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
           __debugbreak();
-        _RBX = &v16->m_data.m_buffer[52 * this->m_moverList.m_size];
-        *(_QWORD *)_RBX = 0i64;
-        *((_QWORD *)_RBX + 1) = 0i64;
-        *((_QWORD *)_RBX + 2) = 0i64;
-        *((_QWORD *)_RBX + 3) = 0i64;
-        *((_QWORD *)_RBX + 4) = 0i64;
-        *((_QWORD *)_RBX + 5) = 0i64;
-        *((_DWORD *)_RBX + 12) = 0;
+        v17 = &v16->m_data.m_buffer[52 * this->m_moverList.m_size];
+        *(_QWORD *)v17 = 0i64;
+        *((_QWORD *)v17 + 1) = 0i64;
+        *((_QWORD *)v17 + 2) = 0i64;
+        *((_QWORD *)v17 + 3) = 0i64;
+        *((_QWORD *)v17 + 4) = 0i64;
+        *((_QWORD *)v17 + 5) = 0i64;
+        *((_DWORD *)v17 + 12) = 0;
         ++this->m_moverList.m_size;
       }
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 497, ASSERT_TYPE_ASSERT, "(back)", (const char *)&queryFormat, "back") )
+      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 497, ASSERT_TYPE_ASSERT, "(back)", (const char *)&queryFormat, "back") )
         __debugbreak();
-      *(_DWORD *)_RBX = outInfo.entityIndex;
-      BgAntiLagEntity_GetOrigin(&outInfo, (vec3_t *)(_RBX + 4));
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+148h+var_E8.baseclass_0.angles]
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  xmm1, dword ptr [rsp+148h+var_E8.baseclass_0.angles+4]
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmovss  xmm0, dword ptr [rsp+148h+var_E8.baseclass_0.angles+8]
-        vmovss  dword ptr [rbx+18h], xmm0
-        vmovss  xmm1, dword ptr [rsp+148h+var_E8.velocity]
-        vmovss  dword ptr [rbx+1Ch], xmm1
-        vmovss  xmm0, dword ptr [rsp+148h+var_E8.velocity+4]
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmovss  xmm1, dword ptr [rsp+148h+var_E8.velocity+8]
-        vmovss  dword ptr [rbx+24h], xmm1
-        vmovss  xmm0, dword ptr [rsp+148h+var_E8.angVelocity]
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmovss  xmm1, dword ptr [rsp+148h+var_E8.angVelocity+4]
-        vmovss  dword ptr [rbx+2Ch], xmm1
-        vmovss  xmm0, dword ptr [rsp+148h+var_E8.angVelocity+8]
-        vmovss  dword ptr [rbx+30h], xmm0
-      }
+      *(_DWORD *)v17 = outInfo.entityIndex;
+      BgAntiLagEntity_GetOrigin(&outInfo, (vec3_t *)(v17 + 4));
+      *(vec3_t *)(v17 + 16) = outInfo.angles;
+      *(vec3_t *)(v17 + 28) = outInfo.velocity;
+      *(vec3_t *)(v17 + 40) = outInfo.angVelocity;
       this->m_rideMoverIndex = LODWORD(this->m_moverList.m_size) - 1;
     }
 LABEL_40:
@@ -2226,6 +1940,8 @@ void BgPlayerTraceInfo::UpdatePrePmove(BgPlayerTraceInfo *this, pmove_t *pm)
   const dvar_t *v5; 
   const dvar_t *v6; 
   BgPlayerTraceInfo *m_playerTraceInfo; 
+  BgTrace *m_trace; 
+  BgTraceBase *v9; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 957, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -2249,17 +1965,13 @@ void BgPlayerTraceInfo::UpdatePrePmove(BgPlayerTraceInfo *this, pmove_t *pm)
     if ( v6->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trace.cpp", 971, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Cannot use usePmoveMoverSystem without also using useBgTraceSystem.") )
       __debugbreak();
     m_playerTraceInfo = pm->m_playerTraceInfo;
-    _RDX = pm->m_trace;
-    _RAX = &m_playerTraceInfo->BgTraceBase;
+    m_trace = pm->m_trace;
+    v9 = &m_playerTraceInfo->BgTraceBase;
     if ( !m_playerTraceInfo )
-      _RAX = NULL;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rdx], xmm0
-    }
-    _RDX->m_playerInfo = m_playerTraceInfo;
-    _RDX->m_localData = NULL;
+      v9 = NULL;
+    m_trace->BgTraceBase = *v9;
+    m_trace->m_playerInfo = m_playerTraceInfo;
+    m_trace->m_localData = NULL;
   }
 }
 

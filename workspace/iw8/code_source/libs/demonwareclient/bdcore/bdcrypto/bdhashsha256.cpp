@@ -177,15 +177,15 @@ __int64 bdHashSHA256::hash(bdHashSHA256 *this, const unsigned __int8 *data, cons
   NTSTATUS Hash_0; 
   NTSTATUS v14; 
   NTSTATUS v15; 
+  __m256i v16; 
   NTSTATUS v17; 
   unsigned __int8 pbOutput[32]; 
 
-  _RSI = result;
   v9 = 0;
   bdHandleAssert(data != NULL, "(data != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha256.cpp", "bdHashSHA256::hash", 0xA7u, "SHA256 input cannot be NULL");
-  bdHandleAssert(_RSI != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha256.cpp", "bdHashSHA256::hash", 0xA8u, "SHA256 digest buffer cannot be NULL");
+  bdHandleAssert(result != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha256.cpp", "bdHashSHA256::hash", 0xA8u, "SHA256 digest buffer cannot be NULL");
   bdHandleAssert(*resultSize >= 0x20, "(resultSize >= BD_SHA256_HASH_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha256.cpp", "bdHashSHA256::hash", 0xA9u, "SHA256 requires digest buffer >= 32 bytes");
-  if ( data && _RSI && *resultSize >= 0x20 )
+  if ( data && result && *resultSize >= 0x20 )
   {
     v10 = bdHashSHA256::s_provider;
     if ( bdHashSHA256::s_provider )
@@ -213,10 +213,10 @@ LABEL_13:
             }
             else
             {
-              __asm { vmovups ymm0, ymmword ptr [rsp+0A8h+pbOutput] }
+              v16 = *(__m256i *)pbOutput;
               *resultSize = 32;
               v9 = 1;
-              __asm { vmovups ymmword ptr [rsi], ymm0 }
+              *(__m256i *)result = v16;
             }
           }
           return v9;

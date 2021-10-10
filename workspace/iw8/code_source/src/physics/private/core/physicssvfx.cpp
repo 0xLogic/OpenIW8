@@ -91,55 +91,17 @@ void __fastcall PhysicsSVFX_RegisterWorld(Physics_WorldId worldId, LocalClientNu
 PhysicsSVFX_DrawDebug
 ==============
 */
-
-void __fastcall PhysicsSVFX_DrawDebug(const ScreenPlacement *scrPlace, float *x, float *y, double tabWidth, float charHeight)
+void PhysicsSVFX_DrawDebug(const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   int integer; 
-  float v17; 
-  float v18; 
-  float v19; 
-  float v20; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovss  xmm7, [rsp+58h+charHeight]
-  }
   integer = physicsSVFX_debugWorld->current.integer;
-  __asm { vmovaps xmm6, xmm3 }
   if ( integer )
-  {
-    __asm
-    {
-      vmovss  [rsp+58h+var_30], xmm7
-      vmovss  [rsp+58h+var_38], xmm3
-    }
-    HavokPhysicsSVFX_DrawDebugWorld(integer - 1, scrPlace, x, y, v17, v20);
-  }
+    HavokPhysicsSVFX_DrawDebugWorld(integer - 1, scrPlace, x, y, tabWidth, charHeight);
   if ( physicsSVFX_debugDrawSFX->current.enabled )
-  {
-    __asm
-    {
-      vmovaps xmm3, xmm6; tabWidth
-      vmovss  [rsp+58h+var_38], xmm7
-    }
-    HavokPhysicsSVFX_DrawSFX(scrPlace, x, y, *(float *)&_XMM3, v18);
-  }
+    HavokPhysicsSVFX_DrawSFX(scrPlace, x, y, tabWidth, charHeight);
   if ( physicsSVFX_debugDrawVFX->current.enabled )
-  {
-    __asm
-    {
-      vmovaps xmm3, xmm6; tabWidth
-      vmovss  [rsp+58h+var_38], xmm7
-    }
-    HavokPhysicsSVFX_DrawVFX(scrPlace, x, y, *(float *)&_XMM3, v19);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
+    HavokPhysicsSVFX_DrawVFX(scrPlace, x, y, tabWidth, charHeight);
 }
 
 /*
@@ -185,69 +147,19 @@ void PhysicsSVFX_RegisterWorld(Physics_WorldId worldId, LocalClientNum_t localCl
 PhysicsSVFX_SetupDvars
 ==============
 */
-
-void __fastcall PhysicsSVFX_SetupDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void PhysicsSVFX_SetupDvars(void)
 {
-  const dvar_t *v13; 
-  const dvar_t *v17; 
-  float description; 
-  float descriptiona; 
-  float descriptionb; 
-  float descriptionc; 
-
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
   physicsSVFX_debugWorld = Dvar_RegisterEnum("ROSNONPOL", s_PhysicsSVFX_DebugSectionNames, 0, 4u, "Show physics svfx world");
   physicsSVFX_debugDrawSFX = Dvar_RegisterBool("LTNNNNLQM", 0, 4u, "Show physics sfx event sounds");
   physicsSVFX_debugDrawVFX = Dvar_RegisterBool("MMLKPSTTT", 0, 4u, "Show physics vfx event sounds");
   physicsSVFX_debugDrawSFXHits = Dvar_RegisterBool("LQKSOSRQLM", 0, 4u, "Show physics sfx hit events");
   physicsSVFX_debugDrawVFXHits = Dvar_RegisterBool("LTKLOLRPMT", 0, 4u, "Show physics vfx hit events");
   physicsSVFX_debugDrawSFXHitsTime = Dvar_RegisterInt("LTQNPRPTKL", 120, 1, 600, 4u, "Time to show physicsSVFX_debugDrawSFXHits for");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42b40000
-    vmovss  xmm7, cs:__real@3f800000
-  }
   physicsSVFX_debugDrawVFXHitsTime = Dvar_RegisterInt("NRONOSMQNM", 120, 1, 600, 4u, "Time to show physicsSVFX_debugDrawVFXHits for");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-    vmovss  dword ptr [rsp+68h+description], xmm7
-  }
-  physicsSVFX_debugDrawSFXHitsAngleThreshold = Dvar_RegisterFloat("MNLTKOKSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, description, 4u, "Angle threshold to show physicsSVFX_debugDrawSFXHits for");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm6; value
-    vmovss  dword ptr [rsp+68h+description], xmm7
-  }
-  v13 = Dvar_RegisterFloat("OOKSORNMR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, descriptiona, 4u, "Angle threshold to show physicsSVFX_debugDrawVFXHits for");
-  __asm { vmovss  xmm3, cs:__real@447a0000; max }
-  physicsSVFX_debugDrawVFXHitsAngleThreshold = v13;
-  __asm
-  {
-    vmovss  dword ptr [rsp+68h+description], xmm7
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v17 = Dvar_RegisterFloat("NNSMLKOQKK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, descriptionb, 4u, "Speed threshold to show physicsSVFX_debugDrawSFXHits for");
-  __asm { vmovss  xmm3, cs:__real@447a0000; max }
-  physicsSVFX_debugDrawSFXHitsSpeedThreshold = v17;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  dword ptr [rsp+68h+description], xmm7
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  physicsSVFX_debugDrawVFXHitsSpeedThreshold = Dvar_RegisterFloat("LPROPMKPSL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, descriptionc, 4u, "Speed threshold to show physicsSVFX_debugDrawVFXHits for");
+  physicsSVFX_debugDrawSFXHitsAngleThreshold = Dvar_RegisterFloat("MNLTKOKSM", 90.0, 0.0, 90.0, 1.0, 4u, "Angle threshold to show physicsSVFX_debugDrawSFXHits for");
+  physicsSVFX_debugDrawVFXHitsAngleThreshold = Dvar_RegisterFloat("OOKSORNMR", 90.0, 0.0, 90.0, 1.0, 4u, "Angle threshold to show physicsSVFX_debugDrawVFXHits for");
+  physicsSVFX_debugDrawSFXHitsSpeedThreshold = Dvar_RegisterFloat("NNSMLKOQKK", 0.0, 0.0, 1000.0, 1.0, 4u, "Speed threshold to show physicsSVFX_debugDrawSFXHits for");
+  physicsSVFX_debugDrawVFXHitsSpeedThreshold = Dvar_RegisterFloat("LPROPMKPSL", 0.0, 0.0, 1000.0, 1.0, 4u, "Speed threshold to show physicsSVFX_debugDrawVFXHits for");
 }
 
 /*

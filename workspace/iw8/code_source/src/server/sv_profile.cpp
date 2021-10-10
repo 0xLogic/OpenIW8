@@ -348,47 +348,36 @@ SV_Profile_GetDrawFrame
 */
 SvProfileDrawFrame *SV_Profile_GetDrawFrame(SvProfileDrawFrame *result)
 {
+  __m256i *v2; 
+  SvProfileDrawFrame *v3; 
   __int64 v4; 
+  __m256i v5; 
+  __int128 v6; 
 
   if ( s_svProfEnabled )
   {
     Sys_CheckAcquireLock(&s_svProfileDrawLock);
     AcquireSRWLockShared((PSRWLOCK)&s_svProfileDrawLock);
-    _RDX = result;
-    _RAX = &s_svProfileDrawFrame;
+    v2 = (__m256i *)result;
+    v3 = &s_svProfileDrawFrame;
     v4 = 9i64;
     do
     {
-      _RDX = (SvProfileDrawFrame *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (SvProfileDrawFrame *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rdx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rdx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rdx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      v2 += 4;
+      v5 = *(__m256i *)&v3->lines[0].name;
+      v6 = *(_OWORD *)&v3->lines[4].time;
+      v3 = (SvProfileDrawFrame *)((char *)v3 + 128);
+      v2[-4] = v5;
+      v2[-3] = *(__m256i *)&v3[-1].lines[48].name;
+      v2[-2] = *(__m256i *)&v3[-1].lines[49].count;
+      *(_OWORD *)v2[-1].m256i_i8 = *(_OWORD *)&v3[-1].lines[50].time;
+      *(_OWORD *)&v2[-1].m256i_u64[2] = v6;
       --v4;
     }
     while ( v4 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-    }
+    *v2 = *(__m256i *)&v3->lines[0].name;
+    v2[1] = *(__m256i *)&v3->lines[1].count;
+    v2[2] = *(__m256i *)&v3->lines[2].time;
     ReleaseSRWLockShared((PSRWLOCK)&s_svProfileDrawLock);
     Sys_CheckReleaseLock(&s_svProfileDrawLock);
     return result;
@@ -700,11 +689,16 @@ void SV_Profile_UpdateDrawFrame()
   __int64 v29; 
   __int64 v30; 
   __int64 v31; 
+  __m256i *v32; 
   __int64 v33; 
-  __int64 v43; 
-  char v44[16]; 
-  char v45; 
-  char v46; 
+  char *v34; 
+  __m256i v35; 
+  __int128 v36; 
+  __m256i v37; 
+  __int64 v38; 
+  char v39[16]; 
+  char v40; 
+  char v41; 
 
   p_totalTime = &s_svProfEventData[1][0].totalTime;
   v1 = s_svProfileNextFrameIndex;
@@ -735,9 +729,9 @@ void SV_Profile_UpdateDrawFrame()
     --v2;
   }
   while ( v2 );
-  memset_0(v44, 0, 0x4E0ui64);
+  memset_0(v39, 0, 0x4E0ui64);
   v9 = 4i64;
-  v10 = &v45 - (char *)s_svProfileFrames;
+  v10 = &v40 - (char *)s_svProfileFrames;
   v11 = &s_svProfileFrames[0].lines[1].time;
   v12 = 30i64;
   do
@@ -780,7 +774,7 @@ void SV_Profile_UpdateDrawFrame()
   }
   while ( v12 );
   v14 = &SVPROF_EVENT_NAMES[2];
-  v15 = &v46;
+  v15 = &v41;
   do
   {
     v16 = *((unsigned int *)v15 - 8) + 29i64;
@@ -848,46 +842,32 @@ void SV_Profile_UpdateDrawFrame()
   s_svProfileDrawLock.writeThreadId = Sys_GetCurrentThreadId();
   if ( !s_svProfileDrawLock.writeThreadId )
   {
-    LODWORD(v43) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v43, 0i64) )
+    LODWORD(v38) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v38, 0i64) )
       __debugbreak();
   }
-  _RAX = &s_svProfileDrawFrame;
+  v32 = (__m256i *)&s_svProfileDrawFrame;
   v33 = 9i64;
-  _RDX = v44;
+  v34 = v39;
   do
   {
-    _RAX = (SvProfileDrawFrame *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups xmm1, xmmword ptr [rdx+70h]
-    }
-    _RDX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rdx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rdx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v32 += 4;
+    v35 = *(__m256i *)v34;
+    v36 = *((_OWORD *)v34 + 7);
+    v34 += 128;
+    v32[-4] = v35;
+    v32[-3] = *((__m256i *)v34 - 3);
+    v32[-2] = *((__m256i *)v34 - 2);
+    *(_OWORD *)v32[-1].m256i_i8 = *((_OWORD *)v34 - 2);
+    *(_OWORD *)&v32[-1].m256i_u64[2] = v36;
     --v33;
   }
   while ( v33 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rax+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdx+40h]
-  }
+  *v32 = *(__m256i *)v34;
+  v32[1] = *((__m256i *)v34 + 1);
+  v37 = *((__m256i *)v34 + 2);
   s_svProfileDrawLock.writeThreadId = 0;
-  __asm { vmovups ymmword ptr [rax+40h], ymm0 }
+  v32[2] = v37;
   ReleaseSRWLockExclusive((PSRWLOCK)&s_svProfileDrawLock);
   Sys_CheckReleaseLock(&s_svProfileDrawLock);
 }

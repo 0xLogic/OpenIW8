@@ -80,22 +80,22 @@ LUI_CoD_LuaCallSetClientModelModifiable
 */
 __int64 LUI_CoD_LuaCallSetClientModelModifiable(lua_State *luaVM)
 {
-  int v4; 
-  unsigned int v5; 
+  double v2; 
+  int v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || j_lua_type(luaVM, 2) != 1 )
     j_luaL_error(luaVM, "USAGE: ClientModel.SetModifiable( clientModelIndex, modifiable )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 1) && j_lua_type(luaVM, 2) == 1 && CG_ClientModel_IsClientInitialized(LOCAL_CLIENT_0) && Com_FrontEnd_IsInFrontEnd() )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si rbx, xmm0 }
-    v4 = j_lua_toboolean(luaVM, 2);
-    CG_ClientModel_SetModifiable(LOCAL_CLIENT_0, _RBX, v4 != 0);
+    v2 = lui_tonumber32(luaVM, 1);
+    v3 = j_lua_toboolean(luaVM, 2);
+    CG_ClientModel_SetModifiable(LOCAL_CLIENT_0, (int)*(float *)&v2, v3 != 0);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -135,22 +135,22 @@ LUI_CoD_LuaCall_SetClientModel
 */
 __int64 LUI_CoD_LuaCall_SetClientModel(lua_State *luaVM)
 {
-  const char *v4; 
-  unsigned int v5; 
+  double v2; 
+  const char *v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || !j_lua_isstring(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: ClientModel.SetModel( clientModelIndex, modelName )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 1) && j_lua_isstring(luaVM, 2) && CG_ClientModel_IsClientInitialized(LOCAL_CLIENT_0) && Com_FrontEnd_IsInFrontEnd() )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si rbx, xmm0 }
-    v4 = j_lua_tolstring(luaVM, 2, NULL);
-    CL_UI_ClientModel_SetClientModel(_RBX, v4);
+    v2 = lui_tonumber32(luaVM, 1);
+    v3 = j_lua_tolstring(luaVM, 2, NULL);
+    CL_UI_ClientModel_SetClientModel((int)*(float *)&v2, v3);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -162,26 +162,30 @@ LUI_CoD_LuaCall_SetClientModelPatchOrigin
 */
 __int64 LUI_CoD_LuaCall_SetClientModelPatchOrigin(lua_State *luaVM)
 {
-  unsigned int v6; 
+  double v2; 
+  unsigned int v3; 
+  double v4; 
+  unsigned int v5; 
+  double v6; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: ClientModel.SetModelPatchOrigin( attachToClientModelIndex, clientModelIndex, 0 )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isnumber(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && CG_ClientModel_IsClientInitialized(LOCAL_CLIENT_0) && Com_FrontEnd_IsInFrontEnd() )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si rsi, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vcvttss2si rbp, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vcvttss2si rdi, xmm0 }
-    if ( (unsigned int)_RDI >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 324, ASSERT_TYPE_ASSERT, "(tagIndex < 2)", (const char *)&queryFormat, "tagIndex < PATCH_TAG_MAX_COUNT") )
+    v2 = lui_tonumber32(luaVM, 1);
+    v3 = (int)*(float *)&v2;
+    v4 = lui_tonumber32(luaVM, 2);
+    v5 = (int)*(float *)&v4;
+    v6 = lui_tonumber32(luaVM, 3);
+    if ( (unsigned int)(int)*(float *)&v6 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 324, ASSERT_TYPE_ASSERT, "(tagIndex < 2)", (const char *)&queryFormat, "tagIndex < PATCH_TAG_MAX_COUNT") )
       __debugbreak();
-    CL_UI_ClientModel_SetClientModelPatchOrigin(_RSI, _RBP, *defaultPatchTags[(unsigned int)_RDI]);
+    CL_UI_ClientModel_SetClientModelPatchOrigin(v3, v5, *defaultPatchTags[*(float *)&v6]);
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v6 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }
@@ -296,9 +300,10 @@ void LUI_CoD_ClientModels_FindAnimTrees(int animUser)
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
   ntl::red_black_tree_node_base *v18; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  double v21; 
   ntl::red_black_tree_node_base *mp_right; 
-  __m256i v24; 
-  ntl::pair<unsigned int,int> v25; 
+  __m256i v23; 
   ntl::pair<unsigned int,int> r_element; 
   ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,int> >,ntl::pair<unsigned int,int> *,ntl::pair<unsigned int,int> &> result; 
 
@@ -408,41 +413,36 @@ void LUI_CoD_ClientModels_FindAnimTrees(int animUser)
       }
       if ( (ntl::internal::pool_allocator_freelist<40> *)animTreeIndexMap.m_freelist.m_head.mp_next == &animTreeIndexMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 1ui64) )
         __debugbreak();
-      _RCX = animTreeIndexMap.m_freelist.m_head.mp_next;
-      v24.m256i_i32[0] = 0;
-      v24.m256i_i64[1] = (__int64)p_m_endNodeBase;
+      mp_next = animTreeIndexMap.m_freelist.m_head.mp_next;
+      v23.m256i_i32[0] = 0;
+      v23.m256i_i64[1] = (__int64)p_m_endNodeBase;
       __asm { vpxor   xmm0, xmm0, xmm0 }
       animTreeIndexMap.m_freelist.m_head.mp_next = animTreeIndexMap.m_freelist.m_head.mp_next->mp_next;
-      v25 = r_element;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+0A8h+var_48]
-        vmovdqu xmmword ptr [rsp+0A8h+var_68+10h], xmm0
-        vmovups ymm0, [rsp+0A8h+var_68]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovsd  qword ptr [rcx+20h], xmm1
-      }
+      v21 = *(double *)&r_element;
+      *(_OWORD *)&v23.m256i_u64[2] = _XMM0;
+      *(__m256i *)&mp_next->mp_next = v23;
+      *(double *)&mp_next[4].mp_next = v21;
       if ( p_m_endNodeBase == &animTreeIndexMap.m_endNodeBase )
       {
-        animTreeIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
-        animTreeIndexMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RCX;
-        animTreeIndexMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        animTreeIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+        animTreeIndexMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
+        animTreeIndexMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
       }
       else if ( v13 >= p_m_endNodeBase[1].m_color )
       {
-        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)mp_next;
         mp_right = animTreeIndexMap.m_endNodeBase.mp_right;
         if ( p_m_endNodeBase == animTreeIndexMap.m_endNodeBase.mp_right )
-          mp_right = (ntl::red_black_tree_node_base *)_RCX;
+          mp_right = (ntl::red_black_tree_node_base *)mp_next;
         animTreeIndexMap.m_endNodeBase.mp_right = mp_right;
       }
       else
       {
-        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)mp_next;
         if ( p_m_endNodeBase == animTreeIndexMap.m_endNodeBase.mp_left )
-          animTreeIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
+          animTreeIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
       }
-      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RCX, &animTreeIndexMap.m_endNodeBase.mp_parent);
+      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &animTreeIndexMap.m_endNodeBase.mp_parent);
       ++animTreeIndexMap.m_size;
     }
   }
@@ -472,9 +472,10 @@ void LUI_CoD_ClientModels_FindAnims(int animUser)
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
   ntl::red_black_tree_node_base *v18; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  double v20; 
   ntl::red_black_tree_node_base *mp_right; 
-  __m256i v23; 
-  ntl::pair<unsigned int,int> v24; 
+  __m256i v22; 
   ntl::pair<unsigned int,int> r_element; 
   ntl::red_black_tree_iterator<unsigned int,ntl::red_black_tree_node<ntl::pair<unsigned int,int> >,ntl::pair<unsigned int,int> *,ntl::pair<unsigned int,int> &> result; 
 
@@ -592,41 +593,36 @@ LABEL_34:
       }
       if ( (ntl::internal::pool_allocator_freelist<40> *)animIndexMap.m_freelist.m_head.mp_next == &animIndexMap.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x28ui64, 9ui64) )
         __debugbreak();
-      _RCX = animIndexMap.m_freelist.m_head.mp_next;
-      v23.m256i_i32[0] = 0;
-      v23.m256i_i64[1] = (__int64)p_m_endNodeBase;
+      mp_next = animIndexMap.m_freelist.m_head.mp_next;
+      v22.m256i_i32[0] = 0;
+      v22.m256i_i64[1] = (__int64)p_m_endNodeBase;
       __asm { vpxor   xmm0, xmm0, xmm0 }
       animIndexMap.m_freelist.m_head.mp_next = animIndexMap.m_freelist.m_head.mp_next->mp_next;
-      v24 = r_element;
-      __asm
-      {
-        vmovsd  xmm1, [rsp+0A8h+var_48]
-        vmovdqu xmmword ptr [rsp+0A8h+var_68+10h], xmm0
-        vmovups ymm0, [rsp+0A8h+var_68]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovsd  qword ptr [rcx+20h], xmm1
-      }
+      v20 = *(double *)&r_element;
+      *(_OWORD *)&v22.m256i_u64[2] = _XMM0;
+      *(__m256i *)&mp_next->mp_next = v22;
+      *(double *)&mp_next[4].mp_next = v20;
       if ( p_m_endNodeBase == &animIndexMap.m_endNodeBase )
       {
-        animIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
-        animIndexMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)_RCX;
-        animIndexMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        animIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
+        animIndexMap.m_endNodeBase.mp_parent = (ntl::red_black_tree_node_base *)mp_next;
+        animIndexMap.m_endNodeBase.mp_right = (ntl::red_black_tree_node_base *)mp_next;
       }
       else if ( v13 >= p_m_endNodeBase[1].m_color )
       {
-        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_right = (ntl::red_black_tree_node_base *)mp_next;
         mp_right = animIndexMap.m_endNodeBase.mp_right;
         if ( p_m_endNodeBase == animIndexMap.m_endNodeBase.mp_right )
-          mp_right = (ntl::red_black_tree_node_base *)_RCX;
+          mp_right = (ntl::red_black_tree_node_base *)mp_next;
         animIndexMap.m_endNodeBase.mp_right = mp_right;
       }
       else
       {
-        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)_RCX;
+        p_m_endNodeBase->mp_left = (ntl::red_black_tree_node_base *)mp_next;
         if ( p_m_endNodeBase == animIndexMap.m_endNodeBase.mp_left )
-          animIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)_RCX;
+          animIndexMap.m_endNodeBase.mp_left = (ntl::red_black_tree_node_base *)mp_next;
       }
-      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)_RCX, &animIndexMap.m_endNodeBase.mp_parent);
+      ntl::red_black_tree_node_base::rebalance((ntl::red_black_tree_node_base *)mp_next, &animIndexMap.m_endNodeBase.mp_parent);
       ++animIndexMap.m_size;
     }
     goto LABEL_20;
@@ -640,22 +636,23 @@ LUI_CoD_LuaCall_SetClientModelAnimation_impl
 */
 __int64 LUI_CoD_LuaCall_SetClientModelAnimation_impl(lua_State *const luaVM)
 {
-  const unsigned __int8 *v4; 
-  const char *v5; 
-  __int64 v6; 
-  const unsigned __int8 *v7; 
-  __int64 v8; 
+  double v2; 
+  const unsigned __int8 *v3; 
+  const char *v4; 
+  __int64 v5; 
+  const unsigned __int8 *v6; 
+  __int64 v7; 
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
-  unsigned int v13; 
+  unsigned int v12; 
+  ntl::red_black_tree_node_base *v13; 
   ntl::red_black_tree_node_base *v14; 
   ntl::red_black_tree_node_base *v15; 
   ntl::red_black_tree_node_base *v16; 
-  ntl::red_black_tree_node_base *v17; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
   scr_string_t String; 
   const XAnimParts *Parts; 
 
@@ -663,87 +660,86 @@ __int64 LUI_CoD_LuaCall_SetClientModelAnimation_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, "USAGE: ClientModel.SetAnimation( clientModelIndex, animTree, animation )");
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isnumber(luaVM, 1) || !j_lua_isstring(luaVM, 2) || !j_lua_isstring(luaVM, 3) || !CG_ClientModel_IsClientInitialized(LOCAL_CLIENT_0) || !Com_FrontEnd_IsInFrontEnd() )
     return 0i64;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-  __asm { vcvttss2si r14, xmm0 }
-  v4 = (const unsigned __int8 *)j_lua_tolstring(luaVM, 2, NULL);
-  v5 = j_lua_tolstring(luaVM, 3, NULL);
-  v6 = -1i64;
-  v7 = (const unsigned __int8 *)v5;
-  v8 = -1i64;
+  v2 = lui_tonumber32(luaVM, 1);
+  v3 = (const unsigned __int8 *)j_lua_tolstring(luaVM, 2, NULL);
+  v4 = j_lua_tolstring(luaVM, 3, NULL);
+  v5 = -1i64;
+  v6 = (const unsigned __int8 *)v4;
+  v7 = -1i64;
   do
-    ++v8;
-  while ( v4[v8] );
-  v9 = Com_FastCRC32(v4, (unsigned int)v8, 0x44D83u);
+    ++v7;
+  while ( v3[v7] );
+  v8 = Com_FastCRC32(v3, (unsigned int)v7, 0x44D83u);
   do
-    ++v6;
-  while ( v7[v6] );
-  v10 = Com_FastCRC32(v7, (unsigned int)v6, 0x44D83u);
+    ++v5;
+  while ( v6[v5] );
+  v9 = Com_FastCRC32(v6, (unsigned int)v5, 0x44D83u);
   mp_parent = animTreeIndexMap.m_endNodeBase.mp_parent;
   p_m_endNodeBase = &animTreeIndexMap.m_endNodeBase;
-  v13 = v10;
-  v14 = &animTreeIndexMap.m_endNodeBase;
+  v12 = v9;
+  v13 = &animTreeIndexMap.m_endNodeBase;
   if ( animTreeIndexMap.m_endNodeBase.mp_parent )
   {
     do
     {
-      if ( mp_parent[1].m_color < v9 )
+      if ( mp_parent[1].m_color < v8 )
       {
         mp_parent = mp_parent->mp_right;
       }
       else
       {
-        v14 = mp_parent;
+        v13 = mp_parent;
         mp_parent = mp_parent->mp_left;
       }
     }
     while ( mp_parent );
-    if ( v14 != &animTreeIndexMap.m_endNodeBase )
+    if ( v13 != &animTreeIndexMap.m_endNodeBase )
     {
-      if ( v9 >= v14[1].m_color )
-        p_m_endNodeBase = v14;
-      v14 = p_m_endNodeBase;
+      if ( v8 >= v13[1].m_color )
+        p_m_endNodeBase = v13;
+      v13 = p_m_endNodeBase;
     }
   }
-  v15 = animIndexMap.m_endNodeBase.mp_parent;
+  v14 = animIndexMap.m_endNodeBase.mp_parent;
+  v15 = &animIndexMap.m_endNodeBase;
   v16 = &animIndexMap.m_endNodeBase;
-  v17 = &animIndexMap.m_endNodeBase;
   if ( animIndexMap.m_endNodeBase.mp_parent )
   {
     do
     {
-      if ( v15[1].m_color < v13 )
+      if ( v14[1].m_color < v12 )
       {
-        v15 = v15->mp_right;
+        v14 = v14->mp_right;
       }
       else
       {
-        v17 = v15;
-        v15 = v15->mp_left;
+        v16 = v14;
+        v14 = v14->mp_left;
       }
     }
-    while ( v15 );
-    if ( v17 != &animIndexMap.m_endNodeBase )
+    while ( v14 );
+    if ( v16 != &animIndexMap.m_endNodeBase )
     {
-      if ( v13 >= v17[1].m_color )
-        v16 = v17;
-      v17 = v16;
+      if ( v12 >= v16[1].m_color )
+        v15 = v16;
+      v16 = v15;
     }
   }
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
     __debugbreak();
-  v18 = *((int *)&v14[1].m_color + 1);
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+  v17 = *((int *)&v13[1].m_color + 1);
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
     __debugbreak();
-  v19 = *((int *)&v17[1].m_color + 1);
-  String = SL_FindString((const char *)v4);
+  v18 = *((int *)&v16[1].m_color + 1);
+  String = SL_FindString((const char *)v3);
   if ( String )
   {
-    if ( !animTreeIndices[v18].anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 380, ASSERT_TYPE_ASSERT, "(scrAnimTree->anims)", (const char *)&queryFormat, "scrAnimTree->anims") )
+    if ( !animTreeIndices[v17].anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 380, ASSERT_TYPE_ASSERT, "(scrAnimTree->anims)", (const char *)&queryFormat, "scrAnimTree->anims") )
       __debugbreak();
-    Parts = XAnimGetParts(animTreeIndices[v18].anims, animIndices[v19].index);
+    Parts = XAnimGetParts(animTreeIndices[v17].anims, animIndices[v18].index);
     if ( !Parts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 383, ASSERT_TYPE_ASSERT, "(animParts)", (const char *)&queryFormat, "animParts") )
       __debugbreak();
-    CL_UI_ClientModel_SetClientModelAnimation(_R14, String, Parts, animIndices[v19], animTreeIndices[v18]);
+    CL_UI_ClientModel_SetClientModelAnimation((int)*(float *)&v2, String, Parts, animIndices[v18], animTreeIndices[v17]);
   }
   return 0i64;
 }
@@ -757,16 +753,17 @@ __int64 LUI_CoD_LuaCall_SetRequiredModifiables_impl(lua_State *const luaVM)
 {
   bool IsClientInitialized; 
   unsigned __int64 i; 
-  unsigned int v5; 
-  unsigned int *v6; 
+  unsigned int v4; 
+  unsigned int *v5; 
+  double v6; 
+  ntl::fixed_vector<unsigned int,128,0> *v7; 
   ntl::fixed_vector<unsigned int,128,0> *v8; 
-  ntl::fixed_vector<unsigned int,128,0> *v9; 
-  bool v10; 
-  signed __int64 v11; 
+  bool v9; 
+  signed __int64 v10; 
   int m_size_high; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
-  char v16[16]; 
+  char v15[16]; 
   unsigned int clientModelIndices[128]; 
 
   if ( j_lua_gettop(luaVM) != 1 || j_lua_type(luaVM, 1) != 5 )
@@ -787,27 +784,26 @@ __int64 LUI_CoD_LuaCall_SetRequiredModifiables_impl(lua_State *const luaVM)
       --i;
     }
   }
-  v5 = 0;
+  v4 = 0;
   j_lua_pushnil(luaVM);
   if ( j_lua_next(luaVM, 1) )
   {
-    v6 = clientModelIndices;
+    v5 = clientModelIndices;
     do
     {
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 423, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      if ( v5 >= 0x80 )
+      if ( v4 >= 0x80 )
       {
-        LODWORD(v15) = 128;
-        LODWORD(v14) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelCount ) < (unsigned)( ( sizeof( *array_counter( clientModelIndices ) ) + 0 ) )", "clientModelCount doesn't index ARRAY_COUNT( clientModelIndices )\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v14) = 128;
+        LODWORD(v13) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_cod_clientmodel.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( clientModelCount ) < (unsigned)( ( sizeof( *array_counter( clientModelIndices ) ) + 0 ) )", "clientModelCount doesn't index ARRAY_COUNT( clientModelIndices )\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm { vcvttss2si rbp, xmm0 }
+      v6 = lui_tonumber32(luaVM, -1);
       if ( IsClientInitialized )
       {
-        *v6 = _RBP;
+        *v5 = (int)*(float *)&v6;
       }
       else
       {
@@ -815,46 +811,46 @@ __int64 LUI_CoD_LuaCall_SetRequiredModifiables_impl(lua_State *const luaVM)
           __debugbreak();
         if ( &s_requiredModifiables > (ntl::fixed_vector<unsigned int,128,0> *)((char *)&s_requiredModifiables + 4 * s_requiredModifiables.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
           __debugbreak();
-        if ( v16 >= (char *)&s_requiredModifiables && v16 < &s_requiredModifiables.m_data.m_buffer[4 * s_requiredModifiables.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
+        if ( v15 >= (char *)&s_requiredModifiables && v15 < &s_requiredModifiables.m_data.m_buffer[4 * s_requiredModifiables.m_size] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 288, ASSERT_TYPE_ASSERT, "( !((( &r_value ) >= position ) && (( &r_value ) < end())) )", (const char *)&queryFormat, "!((( &r_value ) >= position ) && (( &r_value ) < end()))") )
           __debugbreak();
-        v8 = (ntl::fixed_vector<unsigned int,128,0> *)((char *)&s_requiredModifiables + 4 * s_requiredModifiables.m_size);
-        if ( &s_requiredModifiables != v8 )
+        v7 = (ntl::fixed_vector<unsigned int,128,0> *)((char *)&s_requiredModifiables + 4 * s_requiredModifiables.m_size);
+        if ( &s_requiredModifiables != v7 )
         {
-          v9 = (ntl::fixed_vector<unsigned int,128,0> *)&s_requiredModifiables.m_data.m_buffer[4 * s_requiredModifiables.m_size + 4];
-          if ( &s_requiredModifiables == v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+          v8 = (ntl::fixed_vector<unsigned int,128,0> *)&s_requiredModifiables.m_data.m_buffer[4 * s_requiredModifiables.m_size + 4];
+          if ( &s_requiredModifiables == v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 476, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
             __debugbreak();
-          if ( v8 == v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+          if ( v7 == v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 477, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
             __debugbreak();
-          v10 = v8 <= &s_requiredModifiables;
-          if ( v8 < &s_requiredModifiables )
+          v9 = v7 <= &s_requiredModifiables;
+          if ( v7 < &s_requiredModifiables )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 479, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
               __debugbreak();
-            v10 = v8 <= &s_requiredModifiables;
+            v9 = v7 <= &s_requiredModifiables;
           }
-          if ( !v10 )
+          if ( !v9 )
           {
-            v11 = (char *)v9 - (char *)v8;
+            v10 = (char *)v8 - (char *)v7;
             do
             {
-              m_size_high = HIDWORD(v8[-1].m_size);
-              v8 = (ntl::fixed_vector<unsigned int,128,0> *)((char *)v8 - 4);
-              *(_DWORD *)&v8->m_data.m_buffer[v11] = m_size_high;
+              m_size_high = HIDWORD(v7[-1].m_size);
+              v7 = (ntl::fixed_vector<unsigned int,128,0> *)((char *)v7 - 4);
+              *(_DWORD *)&v7->m_data.m_buffer[v10] = m_size_high;
             }
-            while ( v8 > &s_requiredModifiables );
+            while ( v7 > &s_requiredModifiables );
           }
         }
         ++s_requiredModifiables.m_size;
-        *(_DWORD *)s_requiredModifiables.m_data.m_buffer = _RBP;
+        *(_DWORD *)s_requiredModifiables.m_data.m_buffer = (int)*(float *)&v6;
       }
+      ++v4;
       ++v5;
-      ++v6;
       j_lua_settop(luaVM, -2);
     }
     while ( j_lua_next(luaVM, 1) );
   }
   if ( IsClientInitialized )
-    CG_ClientModel_SetRequiredModifiables(LOCAL_CLIENT_0, clientModelIndices, v5);
+    CG_ClientModel_SetRequiredModifiables(LOCAL_CLIENT_0, clientModelIndices, v4);
   return 0i64;
 }
 

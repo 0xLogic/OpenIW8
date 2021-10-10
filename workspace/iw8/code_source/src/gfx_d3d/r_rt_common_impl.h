@@ -127,7 +127,7 @@ void R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(R_RT_AllocationLockSe
 {
   int gfxImmediateContextLockCount; 
   volatile int writeCount; 
-  int v5; 
+  int v4; 
   TempThreadPriority tempPriority; 
 
   if ( this->locked )
@@ -139,19 +139,15 @@ void R_RT_AllocationLockSentry::~R_RT_AllocationLockSentry(R_RT_AllocationLockSe
     s_R_RT_common.m_allocationLockMode = R_RT_AllocationLockMode_Unlocked;
     if ( s_R_RT_common.m_allocationMutex.writeCount != 1 )
     {
-      v5 = 1;
+      v4 = 1;
       writeCount = s_R_RT_common.m_allocationMutex.writeCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v5) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v4) )
         __debugbreak();
     }
     if ( s_R_RT_common.m_allocationMutex.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
       __debugbreak();
     s_R_RT_common.m_allocationMutex.writeThreadId = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:s_R_RT_common.m_allocationMutex.tempPriority.threadHandle
-      vmovups xmmword ptr [rsp+78h+tempPriority.threadHandle], xmm0
-    }
+    tempPriority = s_R_RT_common.m_allocationMutex.tempPriority;
     if ( ((unsigned __int8)&s_R_RT_common.m_allocationMutex.writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_R_RT_common.m_allocationMutex.writeCount) )
       __debugbreak();
     if ( _InterlockedCompareExchange(&s_R_RT_common.m_allocationMutex.writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )

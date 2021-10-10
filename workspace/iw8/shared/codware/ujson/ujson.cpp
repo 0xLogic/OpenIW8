@@ -577,29 +577,26 @@ uJson::object_iter *uJson::object_iter::operator++(uJson::object_iter *this, uJs
 {
   char v4; 
   const char *data; 
-  uJson::object_iter *v7; 
+  uJson::object_iter *v6; 
 
-  _RBX = this;
-  _RDI = result;
   v4 = *this->first.data;
   if ( v4 != 4 && v4 != 7 )
   {
-    data = _RBX->second.data;
-    _RBX->first.data = data;
+    data = this->second.data;
+    this->first.data = data;
     if ( *data != 4 )
     {
-      uJson::skip(&_RBX->first);
-      if ( *_RBX->first.data != 4 )
+      uJson::skip(&this->first);
+      if ( *this->first.data != 4 )
       {
-        _RBX->second.data = _RBX->first.data;
-        uJson::skip(&_RBX->second);
+        this->second.data = this->first.data;
+        uJson::skip(&this->second);
       }
     }
   }
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  v7 = _RDI;
-  __asm { vmovups xmmword ptr [rdi], xmm0 }
-  return v7;
+  v6 = result;
+  *result = *this;
+  return v6;
 }
 
 /*
@@ -1231,7 +1228,7 @@ long double uJson::as_real(uJson *this)
   {
     if ( v3 == 1 )
     {
-      __asm { vmovsd  xmm0, cs:__real@3ff0000000000000 }
+      *(double *)&_XMM0 = DOUBLE_1_0;
       return *(double *)&_XMM0;
     }
 LABEL_7:
@@ -1815,26 +1812,29 @@ __int64 uJsonUnpack_va(uJson json, const char *fmt, char *vl)
   int v32; 
   _QWORD *v33; 
   __int64 v34; 
-  _QWORD *v38; 
-  char v39; 
-  bool v40; 
-  char v41; 
+  double *v35; 
+  double v36; 
+  float *v37; 
+  _QWORD *v39; 
+  char v40; 
+  bool v41; 
   char v42; 
-  int v43; 
-  __int64 v44; 
-  uJson v45; 
+  char v43; 
+  int v44; 
+  __int64 v45; 
+  uJson v46; 
   uJson result; 
-  uJson v47[10]; 
-  uJson::array_iter v48[10]; 
-  uJson v49; 
+  uJson v48[10]; 
+  uJson::array_iter v49[10]; 
+  uJson v50; 
 
-  v49.data = json.data;
+  v50.data = json.data;
   v5 = fmt;
   data = json.data;
   if ( fmt )
   {
     v7 = 10i64;
-    v8 = v47;
+    v8 = v48;
     v9 = 10i64;
     do
     {
@@ -1842,7 +1842,7 @@ __int64 uJsonUnpack_va(uJson json, const char *fmt, char *vl)
       --v9;
     }
     while ( v9 );
-    v10 = v48;
+    v10 = v49;
     do
     {
       uJson::array_iter::array_iter(v10++);
@@ -1851,18 +1851,18 @@ __int64 uJsonUnpack_va(uJson json, const char *fmt, char *vl)
     while ( v7 );
     v11 = 0;
     v12 = 0;
-    v43 = 0;
+    v44 = 0;
     v13 = 0;
-    v45.data = "\a";
+    v46.data = "\a";
     v14 = 0i64;
     v15 = 1;
-    v44 = 0i64;
+    v45 = 0i64;
     v16 = "\a";
     v17 = "\a";
-    v41 = 1;
+    v42 = 1;
     while ( 2 )
     {
-      v42 = v12;
+      v43 = v12;
       while ( 1 )
       {
         do
@@ -1887,8 +1887,8 @@ LABEL_8:
         vl += 8;
         if ( !v19 )
           return 0xFFFFFFFFi64;
-        data = uJson::operator[](&v45, &result, v19)->data;
-        v49.data = data;
+        data = uJson::operator[](&v46, &result, v19)->data;
+        v50.data = data;
         do
         {
           do
@@ -1945,8 +1945,8 @@ LABEL_8:
           }
         }
         while ( v20 );
-        v14 = v44;
-        v15 = v41;
+        v14 = v45;
+        v15 = v42;
       }
       do
       {
@@ -1958,8 +1958,8 @@ LABEL_8:
 LABEL_50:
       if ( !v18 )
         return 0xFFFFFFFFi64;
-      v14 = v44;
-      v15 = v41;
+      v14 = v45;
+      v15 = v42;
 LABEL_52:
       if ( !v12 || v18 == 93 )
       {
@@ -1973,36 +1973,36 @@ LABEL_69:
           case 'f':
             if ( (char)v26 < 8 && v26 != 8 )
               return 0xFFFFFFFFi64;
-            _RBP = *(const char **)vl;
+            v35 = *(double **)vl;
             vl += 8;
-            if ( !_RBP )
+            if ( !v35 )
               return 0xFFFFFFFFi64;
-            *(double *)&_XMM0 = uJson::as_real(&v49);
-            v14 = v44;
-            v15 = v41;
-            __asm { vmovsd  qword ptr [rbp+0], xmm0 }
-            v12 = v42;
+            v36 = uJson::as_real(&v50);
+            v14 = v45;
+            v15 = v42;
+            *v35 = v36;
+            v12 = v43;
             goto LABEL_8;
           case 'I':
-            if ( !uJson::is_integer(&v49) )
+            if ( !uJson::is_integer(&v50) )
               return 0xFFFFFFFFi64;
             v33 = *(_QWORD **)vl;
             vl += 8;
             if ( !v33 )
               return 0xFFFFFFFFi64;
-            v34 = uJson::as_int64(&v49);
-            v14 = v44;
-            v15 = v41;
+            v34 = uJson::as_int64(&v50);
+            v14 = v45;
+            v15 = v42;
             *v33 = v34;
-            v11 = v43;
+            v11 = v44;
             goto LABEL_8;
           case 'O':
           case 'o':
-            v38 = *(_QWORD **)vl;
+            v39 = *(_QWORD **)vl;
             vl += 8;
-            if ( !v38 )
+            if ( !v39 )
               return 0xFFFFFFFFi64;
-            *v38 = data;
+            *v39 = data;
             goto LABEL_8;
           case '[':
           case '{':
@@ -2011,38 +2011,38 @@ LABEL_69:
             if ( v15 )
             {
               v15 = 0;
-              v41 = 0;
+              v42 = 0;
               goto LABEL_113;
             }
             if ( v12 )
             {
-              v48[v14].data = v17;
-              v47[v14].data = "\a";
+              v49[v14].data = v17;
+              v48[v14].data = "\a";
             }
             else
             {
               if ( !v13 )
                 goto LABEL_113;
-              v47[v14].data = v16;
+              v48[v14].data = v16;
             }
             ++v11;
             ++v14;
-            v43 = v11;
-            v44 = v14;
+            v44 = v11;
+            v45 = v14;
 LABEL_113:
-            v39 = *data;
+            v40 = *data;
             if ( v18 == 123 )
             {
-              if ( v39 >= 8 || v39 != 3 )
+              if ( v40 >= 8 || v40 != 3 )
                 return 0xFFFFFFFFi64;
               v12 = 0;
-              v45.data = data;
+              v46.data = data;
               v13 = 1;
               v16 = data;
             }
             else
             {
-              if ( v39 >= 8 || v39 != 2 )
+              if ( v40 >= 8 || v40 != 2 )
                 return 0xFFFFFFFFi64;
               v12 = 1;
               v17 = data + 1;
@@ -2053,15 +2053,15 @@ LABEL_113:
           case '}':
             if ( v18 == 125 )
             {
-              v40 = v13 == 0;
+              v41 = v13 == 0;
             }
             else
             {
               if ( v18 != 93 )
                 goto LABEL_125;
-              v40 = v12 == 0;
+              v41 = v12 == 0;
             }
-            if ( v40 )
+            if ( v41 )
               return 0xFFFFFFFFi64;
 LABEL_125:
             if ( v15 )
@@ -2069,30 +2069,30 @@ LABEL_125:
             if ( v14 )
             {
               v16 = (const char *)*((_QWORD *)&result.data + v14--);
-              v45.data = v16;
+              v46.data = v16;
               --v11;
-              v44 = v14;
-              v43 = v11;
+              v45 = v14;
+              v44 = v11;
               if ( *v16 == 7 )
               {
-                v17 = v48[v14].data;
+                v17 = v49[v14].data;
                 v12 = 1;
-                v42 = 1;
+                v43 = 1;
                 v13 = 0;
               }
               else
               {
                 v12 = 0;
                 v13 = 1;
-                v42 = 0;
+                v43 = 0;
               }
             }
             else
             {
               v15 = 1;
-              v41 = 1;
+              v42 = 1;
               data = "\a";
-              v49.data = "\a";
+              v50.data = "\a";
               v13 = 0;
             }
             goto LABEL_8;
@@ -2101,18 +2101,18 @@ LABEL_125:
               return 0xFFFFFFFFi64;
             goto LABEL_88;
           case 'i':
-            if ( !uJson::is_integer(&v49) )
+            if ( !uJson::is_integer(&v50) )
               return 0xFFFFFFFFi64;
 LABEL_88:
             v31 = *(char **)vl;
             vl += 8;
             if ( !v31 )
               return 0xFFFFFFFFi64;
-            v32 = uJson::as_int64(&v49);
-            v14 = v44;
-            v15 = v41;
+            v32 = uJson::as_int64(&v50);
+            v14 = v45;
+            v15 = v42;
             *(_DWORD *)v31 = v32;
-            v11 = v43;
+            v11 = v44;
             goto LABEL_8;
           case 'n':
             if ( (char)v26 >= 8 || v26 != 5 )
@@ -2121,19 +2121,16 @@ LABEL_88:
           case 'r':
             if ( (char)v26 < 8 && v26 != 8 )
               return 0xFFFFFFFFi64;
-            _RBP = *(const char **)vl;
+            v37 = *(float **)vl;
             vl += 8;
-            if ( !_RBP )
+            if ( !v37 )
               return 0xFFFFFFFFi64;
-            *(double *)&_XMM0 = uJson::as_real(&v49);
-            v14 = v44;
-            v15 = v41;
-            __asm
-            {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rbp+0], xmm1
-            }
-            v12 = v42;
+            *(double *)&_XMM0 = uJson::as_real(&v50);
+            v14 = v45;
+            v15 = v42;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            *v37 = *(float *)&_XMM1;
+            v12 = v43;
             goto LABEL_8;
           case 's':
             if ( (char)v26 >= 8 )
@@ -2204,7 +2201,7 @@ LABEL_67:
         if ( !v23 )
         {
 LABEL_68:
-          v49.data = data;
+          v50.data = data;
           goto LABEL_69;
         }
       }

@@ -476,7 +476,7 @@ __int64 HavokPhysicsProcessHandler::selectProcess(HavokPhysicsProcessHandler *th
   v4 = this->__vftable;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v9 = 0i64;
-  __asm { vmovdqu [rsp+48h+var_28], xmm0 }
+  v8 = _XMM0;
   ((void (__fastcall *)(HavokPhysicsProcessHandler *, __int64, __int64, __int128 *))v4->createProcess)(this, id, a3, &v8);
   return id;
 }
@@ -486,28 +486,20 @@ __int64 HavokPhysicsProcessHandler::selectProcess(HavokPhysicsProcessHandler *th
 HavokPhysicsProcessHandler::step
 ==============
 */
-
-void __fastcall HavokPhysicsProcessHandler::step(HavokPhysicsProcessHandler *this, double deltaTime)
+void HavokPhysicsProcessHandler::step(HavokPhysicsProcessHandler *this, float deltaTime)
 {
   hkProcess **m_data; 
 
   m_data = this->m_localDebugProcesses.m_data;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( m_data != &m_data[this->m_localDebugProcesses.m_size] )
   {
     do
     {
-      __asm { vmovaps xmm1, xmm6 }
       ((void (__fastcall *)(hkProcess *))(*m_data)->step)(*m_data);
       ++m_data;
     }
     while ( m_data != &this->m_localDebugProcesses.m_data[this->m_localDebugProcesses.m_size] );
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*

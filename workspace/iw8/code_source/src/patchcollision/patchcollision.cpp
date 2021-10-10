@@ -149,50 +149,37 @@ PatchCollision_CreateShapes
 
 void __fastcall PatchCollision_CreateShapes(double _XMM0_8)
 {
-  XAssetHeader v9; 
+  XAssetHeader v1; 
   const StringTable *physicsLibrary; 
   int RowCount; 
-  unsigned int v12; 
-  int v13; 
+  unsigned int v4; 
+  int v5; 
   const char *ColumnValueForRow; 
-  const char *v16; 
+  const char *v7; 
   const PhysicsAsset *physicsAsset; 
   const XModelDetailCollision *modelDetailCollision; 
-  hkMemoryAllocator *v27; 
-  __int64 v28; 
+  hkMemoryAllocator *v16; 
+  __int64 v17; 
   hkRefPtr<hknpShape const > *p_m_shape; 
-  hkMemoryAllocator *v30; 
-  __int64 v31; 
-  hkRefPtr<hknpShape const > *v32; 
-  hkArray<hknpShapeInstance,hkContainerHeapAllocator> v41; 
+  hkMemoryAllocator *v19; 
+  __int64 v20; 
+  hkRefPtr<hknpShape const > *v21; 
+  hkArray<hknpShapeInstance,hkContainerHeapAllocator> v22; 
   hkArray<hknpShapeInstance,hkContainerHeapAllocator> instanceArray; 
-  __int64 v43; 
-  char *v44; 
-  char *v45; 
-  char *v46; 
-  char *v47; 
-  char *v48; 
-  char *v49; 
-  __int64 v50; 
+  __int64 v24; 
+  char *v25; 
+  char *v26; 
+  char *v27; 
+  char *v28; 
+  char *v29; 
+  char *v30; 
+  __int64 v31; 
   vec3_t origin; 
   vec3_t angles; 
   vec4_t quat; 
   char dest[64]; 
-  char v55; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v50 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
+  v31 = -2i64;
   if ( s_patchCollision_ShapesRefCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\patchcollision\\patchcollision.cpp", 142, ASSERT_TYPE_ASSERT, "( s_patchCollision_ShapesRefCount ) == ( 0 )", "%s == %s\n\t%u, %u", "s_patchCollision_ShapesRefCount", "0", s_patchCollision_ShapesRefCount, 0i64) )
     __debugbreak();
   if ( s_patchCollision_SimulationShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\patchcollision\\patchcollision.cpp", 143, ASSERT_TYPE_ASSERT, "( s_patchCollision_SimulationShape ) == ( nullptr )", "%s == %s\n\t%p, %p", "s_patchCollision_SimulationShape", "nullptr", s_patchCollision_SimulationShape, NULL) )
@@ -205,89 +192,83 @@ void __fastcall PatchCollision_CreateShapes(double _XMM0_8)
     Com_sprintf<64>((char (*)[64])dest, "patchcollision/%s.csv", s_patchCollision_MapName);
     if ( DB_XAssetExists(ASSET_TYPE_STRINGTABLE, dest) )
     {
-      v9.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_STRINGTABLE, dest, 0).physicsLibrary;
-      physicsLibrary = (const StringTable *)v9.physicsLibrary;
-      if ( v9.physicsLibrary )
+      v1.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_STRINGTABLE, dest, 0).physicsLibrary;
+      physicsLibrary = (const StringTable *)v1.physicsLibrary;
+      if ( v1.physicsLibrary )
       {
-        RowCount = StringTable_GetRowCount(v9.stringTable);
-        LODWORD(v43) = RowCount;
+        RowCount = StringTable_GetRowCount(v1.stringTable);
+        LODWORD(v24) = RowCount;
         if ( RowCount )
         {
           if ( (unsigned int)(StringTable_GetColumnCount(physicsLibrary) - 8) <= 1 )
           {
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Collect Shape Instances");
-            v12 = 0;
+            v4 = 0;
             instanceArray.m_data = NULL;
             instanceArray.m_size = 0;
             instanceArray.m_capacityAndFlags = 0x80000000;
-            v41.m_data = NULL;
-            v41.m_size = 0;
-            v41.m_capacityAndFlags = 0x80000000;
-            v13 = 0;
+            v22.m_data = NULL;
+            v22.m_size = 0;
+            v22.m_capacityAndFlags = 0x80000000;
+            v5 = 0;
             if ( RowCount > 0 )
             {
-              __asm { vmovss  xmm6, cs:__real@3f800000 }
               do
               {
-                ColumnValueForRow = StringTable_GetColumnValueForRow(physicsLibrary, v13, 0);
-                v16 = StringTable_GetColumnValueForRow(physicsLibrary, v13, 1);
-                v44 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 2);
-                v45 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 3);
-                v46 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 4);
-                v47 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 5);
-                v48 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 6);
-                v49 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v13, 7);
+                ColumnValueForRow = StringTable_GetColumnValueForRow(physicsLibrary, v5, 0);
+                v7 = StringTable_GetColumnValueForRow(physicsLibrary, v5, 1);
+                v25 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 2);
+                v26 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 3);
+                v27 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 4);
+                v28 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 5);
+                v29 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 6);
+                v30 = (char *)StringTable_GetColumnValueForRow(physicsLibrary, v5, 7);
                 physicsAsset = DB_FindXAssetHeader(ASSET_TYPE_PHYSICSASSET, ColumnValueForRow, 0).physicsAsset;
-                if ( *v16 )
-                  modelDetailCollision = DB_FindXAssetHeader(ASSET_TYPE_XMODEL_DETAIL_COLLISION, v16, 0).modelDetailCollision;
+                if ( *v7 )
+                  modelDetailCollision = DB_FindXAssetHeader(ASSET_TYPE_XMODEL_DETAIL_COLLISION, v7, 0).modelDetailCollision;
                 else
                   modelDetailCollision = NULL;
-                _XMM0_8 = atof(v44);
+                _XMM0_8 = atof(v25);
                 __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-                _XMM0_8 = atof(v45);
+                _XMM0_8 = atof(v26);
                 __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
-                _XMM0_8 = atof(v46);
+                _XMM0_8 = atof(v27);
                 __asm { vcvtsd2ss xmm9, xmm0, xmm0 }
-                _XMM0_8 = atof(v47);
+                _XMM0_8 = atof(v28);
                 __asm { vcvtsd2ss xmm10, xmm0, xmm0 }
-                _XMM0_8 = atof(v48);
+                _XMM0_8 = atof(v29);
                 __asm { vcvtsd2ss xmm11, xmm0, xmm0 }
-                _XMM0_8 = atof(v49);
+                _XMM0_8 = atof(v30);
                 __asm { vcvtsd2ss xmm12, xmm0, xmm0 }
                 if ( !physicsAsset )
                   Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E937D8, 6379i64, ColumnValueForRow);
-                if ( *v16 && !modelDetailCollision )
-                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E93828, 6380i64, v16);
+                if ( *v7 && !modelDetailCollision )
+                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E93828, 6380i64, v7);
                 if ( DB_IsXAssetTransientNonLocking(ASSET_TYPE_PHYSICSASSET, ColumnValueForRow) )
                   Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E93880, 6381i64, ColumnValueForRow);
-                if ( modelDetailCollision && DB_IsXAssetTransientNonLocking(ASSET_TYPE_XMODEL_DETAIL_COLLISION, v16) )
-                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E938F0, 6382i64, v16);
-                __asm
-                {
-                  vmovss  dword ptr [rbp+0C0h+origin], xmm7
-                  vmovss  dword ptr [rbp+0C0h+origin+4], xmm8
-                  vmovss  dword ptr [rbp+0C0h+origin+8], xmm9
-                  vmovss  dword ptr [rbp+0C0h+angles], xmm10
-                  vmovss  dword ptr [rbp+0C0h+angles+4], xmm11
-                  vmovss  dword ptr [rbp+0C0h+angles+8], xmm12
-                }
+                if ( modelDetailCollision && DB_IsXAssetTransientNonLocking(ASSET_TYPE_XMODEL_DETAIL_COLLISION, v7) )
+                  Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E938F0, 6382i64, v7);
+                origin.v[0] = *(float *)&_XMM7;
+                origin.v[1] = *(float *)&_XMM8;
+                origin.v[2] = *(float *)&_XMM9;
+                angles.v[0] = *(float *)&_XMM10;
+                angles.v[1] = *(float *)&_XMM11;
+                angles.v[2] = *(float *)&_XMM12;
                 AnglesToQuat(&angles, &quat);
-                __asm { vmovaps xmm2, xmm6; scale }
-                Physics_AddPhysicsAssetShapesToInstanceList(physicsAsset, &origin, *(const float *)&_XMM2, &quat, &instanceArray);
-                v12 |= Physics_GetPhysicsAssetContents(physicsAsset);
-                __asm { vmovaps xmm2, xmm6; scale }
+                Physics_AddPhysicsAssetShapesToInstanceList(physicsAsset, &origin, 1.0, &quat, &instanceArray);
+                v4 |= Physics_GetPhysicsAssetContents(physicsAsset);
                 if ( modelDetailCollision )
                 {
-                  Physics_AddDetailCollisionShapesToInstanceList(modelDetailCollision, &origin, *(const float *)&_XMM2, &quat, &v41);
-                  v12 |= Physics_GetDetailCollisionContents(modelDetailCollision);
+                  Physics_AddDetailCollisionShapesToInstanceList(modelDetailCollision, &origin, 1.0, &quat, &v22);
+                  v4 |= Physics_GetDetailCollisionContents(modelDetailCollision);
                 }
                 else
                 {
-                  Physics_AddPhysicsAssetShapesToInstanceList(physicsAsset, &origin, *(const float *)&_XMM2, &quat, &v41);
+                  Physics_AddPhysicsAssetShapesToInstanceList(physicsAsset, &origin, 1.0, &quat, &v22);
                 }
-                ++v13;
+                ++v5;
               }
-              while ( v13 < (int)v43 );
+              while ( v5 < (int)v24 );
             }
             Sys_ProfEndNamedEvent();
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Make simulation shape");
@@ -300,48 +281,48 @@ void __fastcall PatchCollision_CreateShapes(double _XMM0_8)
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Make detail shape");
             if ( s_patchCollision_DetailShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\patchcollision\\patchcollision.cpp", 252, ASSERT_TYPE_ASSERT, "( s_patchCollision_DetailShape ) == ( nullptr )", "%s == %s\n\t%p, %p", "s_patchCollision_DetailShape", "nullptr", s_patchCollision_DetailShape, NULL) )
               __debugbreak();
-            s_patchCollision_DetailShape = Physics_CreateShapeCompound(&v41);
+            s_patchCollision_DetailShape = Physics_CreateShapeCompound(&v22);
             if ( !s_patchCollision_DetailShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\patchcollision\\patchcollision.cpp", 254, ASSERT_TYPE_ASSERT, "( s_patchCollision_DetailShape ) != ( nullptr )", "%s != %s\n\t%p, %p", "s_patchCollision_DetailShape", "nullptr", NULL, NULL) )
               __debugbreak();
             Sys_ProfEndNamedEvent();
-            s_patchCollision_ShapeContents = v12;
+            s_patchCollision_ShapeContents = v4;
             Core_strcpy(s_patchCollision_ShapeName, 0x40ui64, "patch collision");
-            v27 = hkMemHeapAllocator();
-            v28 = v41.m_size - 1;
-            if ( v41.m_size - 1 >= 0 )
+            v16 = hkMemHeapAllocator();
+            v17 = v22.m_size - 1;
+            if ( v22.m_size - 1 >= 0 )
             {
-              p_m_shape = &v41.m_data[v28].m_shape;
+              p_m_shape = &v22.m_data[v17].m_shape;
               do
               {
                 if ( p_m_shape->m_ptr )
                   hkReferencedObject::removeReference(&p_m_shape->m_ptr->hkReferencedObject);
                 p_m_shape -= 14;
-                --v28;
+                --v17;
               }
-              while ( v28 >= 0 );
+              while ( v17 >= 0 );
             }
-            v41.m_size = 0;
-            if ( v41.m_capacityAndFlags >= 0 )
-              hkMemoryAllocator::bufFree2(v27, v41.m_data, 112, v41.m_capacityAndFlags & 0x3FFFFFFF);
-            v41.m_data = NULL;
-            v41.m_capacityAndFlags = 0x80000000;
-            v30 = hkMemHeapAllocator();
-            v31 = instanceArray.m_size - 1;
+            v22.m_size = 0;
+            if ( v22.m_capacityAndFlags >= 0 )
+              hkMemoryAllocator::bufFree2(v16, v22.m_data, 112, v22.m_capacityAndFlags & 0x3FFFFFFF);
+            v22.m_data = NULL;
+            v22.m_capacityAndFlags = 0x80000000;
+            v19 = hkMemHeapAllocator();
+            v20 = instanceArray.m_size - 1;
             if ( instanceArray.m_size - 1 >= 0 )
             {
-              v32 = &instanceArray.m_data[v31].m_shape;
+              v21 = &instanceArray.m_data[v20].m_shape;
               do
               {
-                if ( v32->m_ptr )
-                  hkReferencedObject::removeReference(&v32->m_ptr->hkReferencedObject);
-                v32 -= 14;
-                --v31;
+                if ( v21->m_ptr )
+                  hkReferencedObject::removeReference(&v21->m_ptr->hkReferencedObject);
+                v21 -= 14;
+                --v20;
               }
-              while ( v31 >= 0 );
+              while ( v20 >= 0 );
             }
             instanceArray.m_size = 0;
             if ( instanceArray.m_capacityAndFlags >= 0 )
-              hkMemoryAllocator::bufFree2(v30, instanceArray.m_data, 112, instanceArray.m_capacityAndFlags & 0x3FFFFFFF);
+              hkMemoryAllocator::bufFree2(v19, instanceArray.m_data, 112, instanceArray.m_capacityAndFlags & 0x3FFFFFFF);
             instanceArray.m_data = NULL;
             instanceArray.m_capacityAndFlags = 0x80000000;
           }
@@ -354,17 +335,6 @@ void __fastcall PatchCollision_CreateShapes(double _XMM0_8)
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v55;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*

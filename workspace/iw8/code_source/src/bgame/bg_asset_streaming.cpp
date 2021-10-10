@@ -240,29 +240,21 @@ BG_AssetStreaming_AssignItem
 void BG_AssetStreaming_AssignItem(AssetStreamingRequestItem *outItem, const unsigned int assetIndex, const Weapon *weapon, const unsigned int sourceMask, const int frame)
 {
   outItem->assetIndex = assetIndex;
-  _RDI = weapon;
-  _RBX = outItem;
   if ( weapon )
   {
     if ( assetIndex != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_asset_streaming.cpp", 31, ASSERT_TYPE_ASSERT, "(assetIndex == ASSET_STREAMING_INDEX_WEAPON)", (const char *)&queryFormat, "assetIndex == ASSET_STREAMING_INDEX_WEAPON") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx+0Ch], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+2Ch], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rbx+3Ch], xmm0
-    }
-    *(_DWORD *)&_RBX->weapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+    *(__m256i *)&outItem->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+    *(_OWORD *)&outItem->weapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+    *(double *)&outItem->weapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+    *(_DWORD *)&outItem->weapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
   }
   else if ( assetIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_asset_streaming.cpp", 36, ASSERT_TYPE_ASSERT, "(assetIndex != ASSET_STREAMING_INDEX_WEAPON)", (const char *)&queryFormat, "assetIndex != ASSET_STREAMING_INDEX_WEAPON") )
   {
     __debugbreak();
   }
-  _RBX->sourceMask = sourceMask;
-  _RBX->frame = frame;
+  outItem->sourceMask = sourceMask;
+  outItem->frame = frame;
 }
 
 /*

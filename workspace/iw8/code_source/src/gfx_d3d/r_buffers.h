@@ -662,20 +662,15 @@ R_CreateGfxWrappedBuffer<GfxWrappedBaseBuffer>
 */
 void R_CreateGfxWrappedBuffer<GfxWrappedBaseBuffer>(GfxWrappedBaseBuffer *buffer, const GfxWrappedBufferType bufferType, const int elemSize, const unsigned int numElems, const unsigned __int16 flags, const void *initialData, const char *debugInfo)
 {
-  GfxBufferCreationContext v12; 
+  GfxBufferCreationContext v11; 
 
   if ( (flags & 4) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_buffers.cpp", 3128, ASSERT_TYPE_ASSERT, "(!( flags & GfxWrappedBufferFlags::GfxWrappedBufferFlags_SysMemData ))", (const char *)&queryFormat, "!( flags & GfxWrappedBufferFlags::GfxWrappedBufferFlags_SysMemData )") )
     __debugbreak();
   if ( !initialData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_buffers.cpp", 3129, ASSERT_TYPE_ASSERT, "(initialData != nullptr)", (const char *)&queryFormat, "initialData != nullptr") )
     __debugbreak();
-  v12.zoneName = R_GetTrackingZoneName();
-  v12.objectName = debugInfo;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_28]
-    vmovdqa [rsp+88h+var_28], xmm0
-  }
-  R_CreateGfxWrappedBufferBase_Internal(buffer, bufferType, elemSize, numElems, (const GfxDataFormat)((elemSize != 2) + 3), flags, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, initialData, debugInfo, &v12);
+  v11.zoneName = R_GetTrackingZoneName();
+  v11.objectName = debugInfo;
+  R_CreateGfxWrappedBufferBase_Internal(buffer, bufferType, elemSize, numElems, (const GfxDataFormat)((elemSize != 2) + 3), flags, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, initialData, debugInfo, &v11);
 }
 
 /*

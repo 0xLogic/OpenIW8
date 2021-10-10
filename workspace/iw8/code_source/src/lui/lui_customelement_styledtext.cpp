@@ -899,253 +899,135 @@ LABEL_12:
 LUIElement_StyledText_Render
 ==============
 */
-
-void __fastcall LUIElement_StyledText_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_StyledText_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  LUIElement *v16; 
+  LUIElement *v8; 
   unsigned __int8 *fontDecodeStyle; 
-  LUISharedTextRefIndex v21; 
+  LUISharedTextRefIndex v13; 
+  float v14; 
+  float v15; 
+  double CurrentUnitScale; 
   int leading; 
   LUIVerticalAlignment VerticalAlignment; 
-  unsigned __int8 v32; 
-  char v34; 
-  bool v35; 
-  unsigned int v37; 
-  const dvar_t *v50; 
-  const dvar_t *v53; 
-  bool v79; 
-  const dvar_t *v87; 
-  const dvar_t *v89; 
-  float fmt; 
-  float fmta; 
-  float v94; 
-  float v95; 
-  float v96; 
-  float v97; 
-  float v98; 
-  float v99; 
-  char v100; 
-  char tracking; 
+  unsigned __int8 v19; 
+  int v20; 
+  float displayWidth; 
+  float displayHeight; 
+  float v23; 
+  float v24; 
+  const dvar_t *v29; 
+  float v30; 
+  const dvar_t *v31; 
+  float v32; 
+  float v33; 
+  float left; 
+  float v35; 
+  float userData; 
+  const dvar_t *v37; 
+  float v38; 
+  const dvar_t *v39; 
+  int tracking; 
   char *text; 
-  LUIVerticalAlignment v112; 
+  LUIVerticalAlignment v42; 
 
-  __asm { vmovaps [rsp+178h+var_B8], xmm13 }
-  v16 = root;
-  __asm { vmovaps xmm13, xmm3 }
-  _RBX = element;
+  v8 = root;
   if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  fontDecodeStyle = (unsigned __int8 *)_RBX->customElementData;
-  if ( !LUIElement_IsTextLike(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_styledtext.cpp", 60, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
+  fontDecodeStyle = (unsigned __int8 *)element->customElementData;
+  if ( !LUIElement_IsTextLike(element) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_styledtext.cpp", 60, ASSERT_TYPE_ASSERT, "(LUIElement_IsTextLike( element ))", (const char *)&queryFormat, "LUIElement_IsTextLike( element )") )
     __debugbreak();
-  v21 = *(unsigned __int16 *)_RBX->textData.textRef;
-  if ( (_WORD)v21 != INVALID_INDEX )
+  v13 = *(unsigned __int16 *)element->textData.textRef;
+  if ( (_WORD)v13 != INVALID_INDEX )
   {
-    __asm
-    {
-      vmovaps [rsp+178h+var_48], xmm6
-      vmovaps [rsp+178h+var_68], xmm8
-      vmovaps [rsp+178h+var_78], xmm9
-      vmovaps [rsp+178h+var_A8], xmm12
-    }
-    LUI_SharedTextRef_PushRefOnStack(luaVM, v21);
+    LUI_SharedTextRef_PushRefOnStack(luaVM, v13);
     if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_styledtext.cpp", 66, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
       __debugbreak();
     text = (char *)&queryFormat.fmt + 3;
     if ( j_lua_isstring(luaVM, -1) )
       text = (char *)j_lua_tolstring(luaVM, -1, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0D8h]
-      vsubss  xmm9, xmm0, dword ptr [rbx+0D0h]
-    }
-    *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rbx+120h]
-      vmovss  xmm8, cs:__real@3f000000
-      vmulss  xmm0, xmm0, dword ptr [rbx+124h]
-      vaddss  xmm1, xmm1, xmm8
-      vcvttss2si eax, xmm1
-      vaddss  xmm1, xmm0, xmm8
-      vcvttss2si r14d, xmm1
-    }
-    v100 = leading;
-    tracking = _EAX;
-    VerticalAlignment = LUI_GetVerticalAlignment(_RBX->currentAnimationState.alignment);
-    v32 = fontDecodeStyle[94];
-    v112 = VerticalAlignment;
-    __asm { vxorps  xmm12, xmm12, xmm12 }
-    v34 = 0;
-    v35 = v32 == 0;
-    if ( !v32 )
+    v15 = element->bottom - element->top;
+    v14 = v15;
+    CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+    leading = (int)(float)((float)(*(float *)&CurrentUnitScale * element->imageData.vMax) + 0.5);
+    tracking = (int)(float)((float)(*(float *)&CurrentUnitScale * element->imageData.vMin) + 0.5);
+    VerticalAlignment = LUI_GetVerticalAlignment(element->currentAnimationState.alignment);
+    v19 = fontDecodeStyle[94];
+    v42 = VerticalAlignment;
+    if ( !v19 )
       goto LABEL_30;
-    __asm { vmovaps [rsp+178h+var_58], xmm7 }
-    _ER14 = 1;
-    __asm { vmovaps [rsp+178h+var_88], xmm10 }
-    v37 = 1;
-    __asm { vmovaps [rsp+178h+var_98], xmm11 }
-    if ( v32 == 2 )
-      v37 = fontDecodeStyle[92];
-    __asm
-    {
-      vxorps  xmm11, xmm11, xmm11
-      vcvtsi2ss xmm11, xmm11, rax
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rax
-      vxorps  xmm10, xmm10, xmm10
-      vxorps  xmm7, xmm7, xmm7
-      vmovd   xmm1, r14d
-    }
-    _EAX = SEH_GetCurrentLanguage() - 12;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpgtq xmm2, xmm0, xmm1
-      vmovss  xmm1, cs:__real@40000000
-      vblendvps xmm0, xmm1, xmm12, xmm2
-      vmovss  [rsp+178h+var_D0], xmm0
-    }
+    v20 = 1;
+    if ( v19 == 2 )
+      v20 = fontDecodeStyle[92];
+    displayWidth = (float)cls.vidConfig.displayWidth;
+    displayHeight = (float)cls.vidConfig.displayHeight;
+    v23 = 0.0;
+    v24 = 0.0;
+    _XMM0 = (unsigned int)(SEH_GetCurrentLanguage() - 12);
+    __asm { vpcmpgtq xmm2, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_2_0);
+    __asm { vblendvps xmm0, xmm1, xmm12, xmm2 }
     if ( fontDecodeStyle[94] != 2 )
     {
-      v87 = DVARFLT_lui_marquee_stencil_padding_left;
+      v37 = DVARFLT_lui_marquee_stencil_padding_left;
       if ( !DVARFLT_lui_marquee_stencil_padding_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_marquee_stencil_padding_left") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v87);
-      __asm { vmulss  xmm8, xmm9, dword ptr [rsi+28h] }
-      v89 = DVARFLT_lui_marquee_stencil_padding_right;
+      Dvar_CheckFrontendServerThread(v37);
+      v38 = v15 * v37->current.value;
+      v39 = DVARFLT_lui_marquee_stencil_padding_right;
       if ( !DVARFLT_lui_marquee_stencil_padding_right && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_marquee_stencil_padding_right") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v89);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0CCh]
-        vmulss  xmm3, xmm9, dword ptr [rsi+28h]
-        vaddss  xmm11, xmm3, dword ptr [rbx+0D4h]
-      }
-      LOBYTE(leading) = v100;
-      __asm { vsubss  xmm10, xmm0, xmm8 }
+      Dvar_CheckFrontendServerThread(v39);
+      displayWidth = (float)(v15 * v39->current.value) + element->right;
+      v23 = element->left - v38;
       goto LABEL_29;
     }
-    v50 = DVARFLT_lui_marquee_stencil_padding_top;
+    v29 = DVARFLT_lui_marquee_stencil_padding_top;
     if ( !DVARFLT_lui_marquee_stencil_padding_top && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_marquee_stencil_padding_top") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v50);
-    __asm
-    {
-      vmulss  xmm1, xmm9, dword ptr [r15+28h]
-      vmovss  xmm0, dword ptr [rbx+0D0h]
-    }
-    v53 = DVARFLT_lui_marquee_stencil_padding_bottom;
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm1
-      vsubss  xmm7, xmm1, [rsp+178h+var_D0]
-    }
+    Dvar_CheckFrontendServerThread(v29);
+    v30 = v15 * v29->current.value;
+    v31 = DVARFLT_lui_marquee_stencil_padding_bottom;
+    v24 = (float)(element->top - v30) - *(float *)&_XMM0;
     if ( !DVARFLT_lui_marquee_stencil_padding_bottom && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_marquee_stencil_padding_bottom") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v53);
-    LOBYTE(leading) = v100;
-    __asm
+    Dvar_CheckFrontendServerThread(v31);
+    v32 = (float)(char)leading + v15;
+    displayHeight = (float)((float)((float)v20 * v32) + element->top) + (float)(v15 * v31->current.value);
+    if ( (unsigned int)v20 > 1 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm4, xmm0, xmm9
-      vmulss  xmm0, xmm9, dword ptr [r15+28h]
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, esi
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm3, xmm2, dword ptr [rbx+0D0h]
-      vaddss  xmm6, xmm3, xmm0
-    }
-    if ( v37 > 1 )
-    {
-      __asm
+      v33 = (float)(v20 - 1) * v32;
+      if ( v42 != CENTER )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm4
-      }
-      if ( v112 != CENTER )
-      {
-        v16 = root;
-        if ( v112 == BOTTOM )
+        v8 = root;
+        if ( v42 == BOTTOM )
         {
-          __asm
-          {
-            vsubss  xmm7, xmm7, xmm1
-            vsubss  xmm6, xmm6, xmm1
-          }
+          v24 = v24 - v33;
+          displayHeight = displayHeight - v33;
         }
         goto LABEL_29;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm8
-        vsubss  xmm7, xmm7, xmm0
-        vsubss  xmm6, xmm6, xmm0
-      }
+      v24 = v24 - (float)(v33 * 0.5);
+      displayHeight = displayHeight - (float)(v33 * 0.5);
     }
-    v16 = root;
+    v8 = root;
 LABEL_29:
-    __asm
-    {
-      vmovaps xmm3, xmm11; right
-      vmovaps xmm2, xmm7; top
-      vmovaps xmm1, xmm10; left
-      vmovss  dword ptr [rsp+178h+fmt], xmm6
-    }
-    LUI_Render_PushStencilRectangle(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-    __asm
-    {
-      vmovaps xmm11, [rsp+178h+var_98]
-      vmovaps xmm10, [rsp+178h+var_88]
-      vmovaps xmm7, [rsp+178h+var_58]
-    }
+    LUI_Render_PushStencilRectangle(localClientNum, v23, v24, displayWidth, displayHeight);
 LABEL_30:
-    __asm
+    left = element->left;
+    v35 = element->right - left;
+    userData = element->currentAnimationState.userData;
+    if ( userData > 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbx+0D4h]
-      vmovss  xmm3, dword ptr [rbx+0CCh]
-      vmovaps xmm8, [rsp+178h+var_68]
-      vsubss  xmm6, xmm0, xmm3
-      vmovss  xmm0, dword ptr [rbx+48h]; amount
-      vcomiss xmm0, xmm12
-      vmovaps xmm12, [rsp+178h+var_A8]
+      LUI_Render_PushBlur(userData);
+      left = element->left;
     }
-    v79 = !(v34 | v35);
-    if ( !(v34 | v35) )
-    {
-      LUI_Render_PushBlur(*(float *)&_XMM0);
-      __asm { vmovss  xmm3, dword ptr [rbx+0CCh]; x }
-    }
-    __asm
-    {
-      vmovss  xmm0, [rsp+178h+blue]
-      vmovss  xmm1, [rsp+178h+green]
-      vmovss  [rsp+178h+var_118], xmm6
-      vmovss  [rsp+178h+var_120], xmm9
-      vmovss  [rsp+178h+var_138], xmm13
-      vmovss  [rsp+178h+var_140], xmm0
-      vmovss  xmm0, [rsp+178h+red]
-      vmovss  [rsp+178h+var_148], xmm1
-      vmovss  xmm1, dword ptr [rbx+0D8h]
-      vmovss  [rsp+178h+var_150], xmm0
-      vmovss  dword ptr [rsp+178h+fmt], xmm1
-    }
-    LUI_Interface_DrawText(localClientNum, v16, _RBX, *(float *)&_XMM3, fmta, v94, v95, v96, v97, text, _RBX->textData.font, v98, v99, tracking, leading, _RBX->currentAnimationState.alignment, (FontDecodeStyle *)fontDecodeStyle, (FontGlowStyle *)(fontDecodeStyle + 20), (AutoScrollStyle *)(fontDecodeStyle + 76), luaVM);
-    __asm
-    {
-      vmovaps xmm9, [rsp+178h+var_78]
-      vmovaps xmm6, [rsp+178h+var_48]
-    }
-    if ( v79 )
+    LUI_Interface_DrawText(localClientNum, v8, element, left, element->bottom, red, green, blue, alpha, text, element->textData.font, v14, v35, tracking, leading, element->currentAnimationState.alignment, (FontDecodeStyle *)fontDecodeStyle, (FontGlowStyle *)(fontDecodeStyle + 20), (AutoScrollStyle *)(fontDecodeStyle + 76), luaVM);
+    if ( userData > 0.0 )
       LUI_Render_PopBlur();
-    if ( v32 )
+    if ( v19 )
       LUI_Render_PopStencilRectangle(localClientNum);
     j_lua_settop(luaVM, -2);
   }
-  __asm { vmovaps xmm13, [rsp+178h+var_B8] }
 }
 
 /*
@@ -1155,51 +1037,46 @@ LUIElement_StyledText_SetOutlineMaxDistance_impl
 */
 __int64 LUIElement_StyledText_SetOutlineMaxDistance_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetOutlineMaxDistance( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 30;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+38h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 30;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.outlineGlowMaxDistance = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 30;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.outlineGlowMaxDistance);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 30;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.outlineGlowMaxDistance);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1209,51 +1086,46 @@ LUIElement_StyledText_SetOutlineMinDistance_impl
 */
 __int64 LUIElement_StyledText_SetOutlineMinDistance_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetOutlineMinDistance( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 29;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+34h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 29;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.outlineGlowMinDistance = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 29;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.outlineGlowMinDistance);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 29;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.outlineGlowMinDistance);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1263,81 +1135,54 @@ LUIElement_StyledText_SetOutlineRGBFromInt_impl
 */
 __int64 LUIElement_StyledText_SetOutlineRGBFromInt_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  LUITweenProperty v18; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  int v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  LUITweenProperty v8; 
+  LUIStyledText *CustomElement; 
+  LUITween *v11; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetOutlineRGBFromInt( colorValue, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_23;
-  v6 = LUI_ToElement(luaVM, 1);
-  lui_tointeger32(luaVM, 2);
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  v3 = lui_tointeger32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v7 = 0;
+    v4 = 0;
   else
-    v7 = lui_tointeger32(luaVM, 3);
-  __asm
+    v4 = lui_tointeger32(luaVM, 3);
+  v5 = (float)BYTE2(v3) * 0.0039215689;
+  v6 = (float)BYTE1(v3) * 0.0039215689;
+  v7 = (float)(unsigned __int8)v3 * 0.0039215689;
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    vmovss  xmm1, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm7, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm8, xmm0, xmm1
+    LOBYTE(v8) = 31;
+    LUI_Tween_InterruptElementTween(v2, v8, luaVM);
+    CustomElement->glowStyle.outlineGlowColor.v[0] = v5;
+    CustomElement->glowStyle.outlineGlowColor.v[1] = v6;
+    CustomElement->glowStyle.outlineGlowColor.v[2] = v7;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v6, luaVM);
-  if ( v7 <= 0 )
-  {
-    LOBYTE(v18) = 31;
-    LUI_Tween_InterruptElementTween(v6, v18, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rsi+3Ch], xmm6
-      vmovss  dword ptr [rsi+40h], xmm7
-      vmovss  dword ptr [rsi+44h], xmm8
-    }
-    LUI_QuadCache_Element_Invalidate(v6);
-LABEL_23:
-    result = 0i64;
-    goto LABEL_24;
-  }
-  _RDI = LUI_Tween_Create(luaVM, v6);
+  v11 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RDI->easing = lui_tointeger32(luaVM, 4);
-  _RDI->targetProperty[0] = 31;
-  _RDI->duration = v7;
-  _RDI->startValue.intValue = LODWORD(_RSI->glowStyle.outlineGlowColor.v[0]);
-  _RDI->startValue.colorValue.g = _RSI->glowStyle.outlineGlowColor.v[1];
-  _RDI->startValue.colorValue.b = _RSI->glowStyle.outlineGlowColor.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rdi+28h], xmm6
-    vmovss  dword ptr [rdi+2Ch], xmm7
-    vmovss  dword ptr [rdi+30h], xmm8
-  }
-  LUI_Tween_AddElementTween(v6, _RDI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RDI, luaVM);
-  result = 1i64;
-LABEL_24:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v11->easing = lui_tointeger32(luaVM, 4);
+  v11->targetProperty[0] = 31;
+  v11->duration = v4;
+  v11->startValue.intValue = LODWORD(CustomElement->glowStyle.outlineGlowColor.v[0]);
+  v11->startValue.colorValue.g = CustomElement->glowStyle.outlineGlowColor.v[1];
+  v11->startValue.colorValue.b = CustomElement->glowStyle.outlineGlowColor.v[2];
+  v11->endValue.floatValue = v5;
+  v11->endValue.colorValue.g = v6;
+  v11->endValue.colorValue.b = v7;
+  LUI_Tween_AddElementTween(v2, v11, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v11, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1347,96 +1192,78 @@ LUIElement_StyledText_SetOutlineRGBFromTable_impl
 */
 __int64 LUIElement_StyledText_SetOutlineRGBFromTable_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  LUITweenProperty v11; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  LUITweenProperty v10; 
+  LUIStyledText *CustomElement; 
+  LUITween *v13; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetOutlineRGBFromTable( colorTable, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_30;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_30;
-  v6 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v6, luaVM) )
-    goto LABEL_30;
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
   if ( j_lua_gettop(luaVM) < 3 )
-    v7 = 0;
+    v3 = 0;
   else
-    v7 = lui_tointeger32(luaVM, 3);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm7, xmm7, xmm7
-  }
+    v3 = lui_tointeger32(luaVM, 3);
+  v4 = 0.0;
+  v5 = 0.0;
+  v6 = 0.0;
   j_lua_getfield(luaVM, 2, "r");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm6, xmm0 }
+    v7 = lui_tonumber32(luaVM, -1);
+    v4 = *(float *)&v7;
   }
   j_lua_getfield(luaVM, 2, "g");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm8, xmm0 }
+    v8 = lui_tonumber32(luaVM, -1);
+    v5 = *(float *)&v8;
   }
   j_lua_getfield(luaVM, 2, "b");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm7, xmm0 }
+    v9 = lui_tonumber32(luaVM, -1);
+    v6 = *(float *)&v9;
   }
   j_lua_settop(luaVM, -4);
-  _RSI = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v6, luaVM);
-  if ( v7 <= 0 )
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v3 <= 0 )
   {
-    LOBYTE(v11) = 31;
-    LUI_Tween_InterruptElementTween(v6, v11, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rsi+3Ch], xmm6
-      vmovss  dword ptr [rsi+40h], xmm8
-      vmovss  dword ptr [rsi+44h], xmm7
-    }
-    LUI_QuadCache_Element_Invalidate(v6);
-LABEL_30:
-    result = 0i64;
-    goto LABEL_31;
+    LOBYTE(v10) = 31;
+    LUI_Tween_InterruptElementTween(v2, v10, luaVM);
+    CustomElement->glowStyle.outlineGlowColor.v[0] = v4;
+    CustomElement->glowStyle.outlineGlowColor.v[1] = v5;
+    CustomElement->glowStyle.outlineGlowColor.v[2] = v6;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RDI = LUI_Tween_Create(luaVM, v6);
+  v13 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RDI->easing = lui_tointeger32(luaVM, 4);
-  _RDI->targetProperty[0] = 31;
-  _RDI->duration = v7;
-  _RDI->startValue.intValue = LODWORD(_RSI->glowStyle.outlineGlowColor.v[0]);
-  _RDI->startValue.colorValue.g = _RSI->glowStyle.outlineGlowColor.v[1];
-  _RDI->startValue.colorValue.b = _RSI->glowStyle.outlineGlowColor.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rdi+28h], xmm6
-    vmovss  dword ptr [rdi+2Ch], xmm8
-    vmovss  dword ptr [rdi+30h], xmm7
-  }
-  LUI_Tween_AddElementTween(v6, _RDI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RDI, luaVM);
-  result = 1i64;
-LABEL_31:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v13->easing = lui_tointeger32(luaVM, 4);
+  v13->targetProperty[0] = 31;
+  v13->duration = v3;
+  v13->startValue.intValue = LODWORD(CustomElement->glowStyle.outlineGlowColor.v[0]);
+  v13->startValue.colorValue.g = CustomElement->glowStyle.outlineGlowColor.v[1];
+  v13->startValue.colorValue.b = CustomElement->glowStyle.outlineGlowColor.v[2];
+  v13->endValue.floatValue = v4;
+  v13->endValue.colorValue.g = v5;
+  v13->endValue.colorValue.b = v6;
+  LUI_Tween_AddElementTween(v2, v13, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v13, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1446,51 +1273,46 @@ LUIElement_StyledText_SetShadowMaxDistance_impl
 */
 __int64 LUIElement_StyledText_SetShadowMaxDistance_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowMaxDistance( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 25;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+18h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 25;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.glowMaxDistance = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 25;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.glowMaxDistance);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 25;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.glowMaxDistance);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1500,51 +1322,46 @@ LUIElement_StyledText_SetShadowMinDistance_impl
 */
 __int64 LUIElement_StyledText_SetShadowMinDistance_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowMinDistance( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 24;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+14h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 24;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.glowMinDistance = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 24;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.glowMinDistance);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 24;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.glowMinDistance);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1554,85 +1371,58 @@ LUIElement_StyledText_SetShadowRGBFromInt_impl
 */
 __int64 LUIElement_StyledText_SetShadowRGBFromInt_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  LUITweenProperty v18; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  int v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  LUITweenProperty v8; 
+  LUIStyledText *CustomElement; 
+  LUITween *v11; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowRGBFromInt( colorValue, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v6 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v6, luaVM) )
-    goto LABEL_24;
-  lui_tointeger32(luaVM, 2);
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tointeger32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v7 = 0;
+    v4 = 0;
   else
-    v7 = lui_tointeger32(luaVM, 3);
-  __asm
+    v4 = lui_tointeger32(luaVM, 3);
+  v5 = (float)BYTE2(v3) * 0.0039215689;
+  v6 = (float)BYTE1(v3) * 0.0039215689;
+  v7 = (float)(unsigned __int8)v3 * 0.0039215689;
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    vmovss  xmm1, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm7, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm8, xmm0, xmm1
+    LOBYTE(v8) = 28;
+    LUI_Tween_InterruptElementTween(v2, v8, luaVM);
+    CustomElement->glowStyle.glowColor.v[0] = v5;
+    CustomElement->glowStyle.glowColor.v[1] = v6;
+    CustomElement->glowStyle.glowColor.v[2] = v7;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RBP = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v6, luaVM);
-  if ( v7 <= 0 )
-  {
-    LOBYTE(v18) = 28;
-    LUI_Tween_InterruptElementTween(v6, v18, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rbp+24h], xmm6
-      vmovss  dword ptr [rbp+28h], xmm7
-      vmovss  dword ptr [rbp+2Ch], xmm8
-    }
-    LUI_QuadCache_Element_Invalidate(v6);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
-  }
-  _RDI = LUI_Tween_Create(luaVM, v6);
+  v11 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RDI->easing = lui_tointeger32(luaVM, 4);
-  _RDI->targetProperty[0] = 28;
-  _RDI->duration = v7;
-  _RDI->startValue.intValue = LODWORD(_RBP->glowStyle.glowColor.v[0]);
-  _RDI->startValue.colorValue.g = _RBP->glowStyle.glowColor.v[1];
-  _RDI->startValue.colorValue.b = _RBP->glowStyle.glowColor.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rdi+28h], xmm6
-    vmovss  dword ptr [rdi+2Ch], xmm7
-    vmovss  dword ptr [rdi+30h], xmm8
-  }
-  LUI_Tween_AddElementTween(v6, _RDI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RDI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v11->easing = lui_tointeger32(luaVM, 4);
+  v11->targetProperty[0] = 28;
+  v11->duration = v4;
+  v11->startValue.intValue = LODWORD(CustomElement->glowStyle.glowColor.v[0]);
+  v11->startValue.colorValue.g = CustomElement->glowStyle.glowColor.v[1];
+  v11->startValue.colorValue.b = CustomElement->glowStyle.glowColor.v[2];
+  v11->endValue.floatValue = v5;
+  v11->endValue.colorValue.g = v6;
+  v11->endValue.colorValue.b = v7;
+  LUI_Tween_AddElementTween(v2, v11, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v11, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1642,96 +1432,78 @@ LUIElement_StyledText_SetShadowRGBFromTable_impl
 */
 __int64 LUIElement_StyledText_SetShadowRGBFromTable_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  LUITweenProperty v11; 
-  __int64 result; 
+  LUIElement *v2; 
+  int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  LUITweenProperty v10; 
+  LUIStyledText *CustomElement; 
+  LUITween *v13; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowRGBFromTable( colorTable, ?duration, ?easing )");
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || j_lua_type(luaVM, 2) != 5 || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_30;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_30;
-  v6 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v6, luaVM) )
-    goto LABEL_30;
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
   if ( j_lua_gettop(luaVM) < 3 )
-    v7 = 0;
+    v3 = 0;
   else
-    v7 = lui_tointeger32(luaVM, 3);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm7, xmm7, xmm7
-  }
+    v3 = lui_tointeger32(luaVM, 3);
+  v4 = 0.0;
+  v5 = 0.0;
+  v6 = 0.0;
   j_lua_getfield(luaVM, 2, "r");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm6, xmm0 }
+    v7 = lui_tonumber32(luaVM, -1);
+    v4 = *(float *)&v7;
   }
   j_lua_getfield(luaVM, 2, "g");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm8, xmm0 }
+    v8 = lui_tonumber32(luaVM, -1);
+    v5 = *(float *)&v8;
   }
   j_lua_getfield(luaVM, 2, "b");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm { vmovaps xmm7, xmm0 }
+    v9 = lui_tonumber32(luaVM, -1);
+    v6 = *(float *)&v9;
   }
   j_lua_settop(luaVM, -4);
-  _RSI = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v6, luaVM);
-  if ( v7 <= 0 )
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v3 <= 0 )
   {
-    LOBYTE(v11) = 28;
-    LUI_Tween_InterruptElementTween(v6, v11, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rsi+24h], xmm6
-      vmovss  dword ptr [rsi+28h], xmm8
-      vmovss  dword ptr [rsi+2Ch], xmm7
-    }
-    LUI_QuadCache_Element_Invalidate(v6);
-LABEL_30:
-    result = 0i64;
-    goto LABEL_31;
+    LOBYTE(v10) = 28;
+    LUI_Tween_InterruptElementTween(v2, v10, luaVM);
+    CustomElement->glowStyle.glowColor.v[0] = v4;
+    CustomElement->glowStyle.glowColor.v[1] = v5;
+    CustomElement->glowStyle.glowColor.v[2] = v6;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RDI = LUI_Tween_Create(luaVM, v6);
+  v13 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RDI->easing = lui_tointeger32(luaVM, 4);
-  _RDI->targetProperty[0] = 28;
-  _RDI->duration = v7;
-  _RDI->startValue.intValue = LODWORD(_RSI->glowStyle.glowColor.v[0]);
-  _RDI->startValue.colorValue.g = _RSI->glowStyle.glowColor.v[1];
-  _RDI->startValue.colorValue.b = _RSI->glowStyle.glowColor.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rdi+28h], xmm6
-    vmovss  dword ptr [rdi+2Ch], xmm8
-    vmovss  dword ptr [rdi+30h], xmm7
-  }
-  LUI_Tween_AddElementTween(v6, _RDI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RDI, luaVM);
-  result = 1i64;
-LABEL_31:
-  __asm
-  {
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+    v13->easing = lui_tointeger32(luaVM, 4);
+  v13->targetProperty[0] = 28;
+  v13->duration = v3;
+  v13->startValue.intValue = LODWORD(CustomElement->glowStyle.glowColor.v[0]);
+  v13->startValue.colorValue.g = CustomElement->glowStyle.glowColor.v[1];
+  v13->startValue.colorValue.b = CustomElement->glowStyle.glowColor.v[2];
+  v13->endValue.floatValue = v4;
+  v13->endValue.colorValue.g = v5;
+  v13->endValue.colorValue.b = v6;
+  LUI_Tween_AddElementTween(v2, v13, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v13, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1741,51 +1513,46 @@ LUIElement_StyledText_SetShadowUOffset_impl
 */
 __int64 LUIElement_StyledText_SetShadowUOffset_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowUOffset( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 26;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+1Ch], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 26;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.glowUVOffset.v[0] = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 26;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.glowUVOffset.v[0]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 26;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.glowUVOffset.v[0]);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1795,51 +1562,46 @@ LUIElement_StyledText_SetShadowVOffset_impl
 */
 __int64 LUIElement_StyledText_SetShadowVOffset_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v6; 
-  LUITweenProperty v7; 
-  __int64 result; 
+  LUIElement *v2; 
+  double v3; 
+  int v4; 
+  LUITweenProperty v5; 
+  LUIStyledText *CustomElement; 
+  LUITween *v8; 
 
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetShadowVOffset( value, ?duration, ?easing )");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( j_lua_gettop(luaVM) < 2 || j_lua_gettop(luaVM) > 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) >= 3 && !j_lua_isnumber(luaVM, 3) )
-    goto LABEL_24;
+    return 0i64;
   if ( j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) )
-    goto LABEL_24;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
-    goto LABEL_24;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  __asm { vmovaps xmm6, xmm0 }
+    return 0i64;
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
+    return 0i64;
+  v3 = lui_tonumber32(luaVM, 2);
   if ( j_lua_gettop(luaVM) < 3 )
-    v6 = 0;
+    v4 = 0;
   else
-    v6 = lui_tointeger32(luaVM, 3);
-  _R14 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v4, luaVM);
-  if ( v6 <= 0 )
+    v4 = lui_tointeger32(luaVM, 3);
+  CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(v2, luaVM);
+  if ( v4 <= 0 )
   {
-    LOBYTE(v7) = 27;
-    LUI_Tween_InterruptElementTween(v4, v7, luaVM);
-    __asm { vmovss  dword ptr [r14+20h], xmm6 }
-    LUI_QuadCache_Element_Invalidate(v4);
-LABEL_24:
-    result = 0i64;
-    goto LABEL_25;
+    LOBYTE(v5) = 27;
+    LUI_Tween_InterruptElementTween(v2, v5, luaVM);
+    CustomElement->glowStyle.glowUVOffset.v[1] = *(float *)&v3;
+    LUI_QuadCache_Element_Invalidate(v2);
+    return 0i64;
   }
-  _RSI = LUI_Tween_Create(luaVM, v4);
+  v8 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    _RSI->easing = lui_tointeger32(luaVM, 4);
-  _RSI->targetProperty[0] = 27;
-  _RSI->duration = v6;
-  _RSI->startValue.intValue = LODWORD(_R14->glowStyle.glowUVOffset.v[1]);
-  __asm { vmovss  dword ptr [rsi+28h], xmm6 }
-  LUI_Tween_AddElementTween(v4, _RSI, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(_RSI, luaVM);
-  result = 1i64;
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  return result;
+    v8->easing = lui_tointeger32(luaVM, 4);
+  v8->targetProperty[0] = 27;
+  v8->duration = v4;
+  v8->startValue.intValue = LODWORD(CustomElement->glowStyle.glowUVOffset.v[1]);
+  v8->endValue.floatValue = *(float *)&v3;
+  LUI_Tween_AddElementTween(v2, v8, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v8, luaVM);
+  return 1i64;
 }
 
 /*
@@ -1872,7 +1634,7 @@ __int64 LUI_LuaCall_LUIElement_SetupStyledText(lua_State *luaVM)
   *((_DWORD *)v3 + 12) = 1065353216;
   *((_DWORD *)v3 + 18) = 1065353216;
   *((_WORD *)v3 + 43) = 2000;
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_StyledText_Render;
+  v2->renderFunction = LUIElement_StyledText_Render;
   v2->layoutFunction = LUIElement_StyledText_Layout;
   LUIElement_InitTextLikeElement(v2);
   if ( j_lua_gettop(luaVM) < 0 )

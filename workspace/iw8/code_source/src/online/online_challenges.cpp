@@ -599,9 +599,10 @@ void OnlineChallengesManager::ControllerFrame(OnlineChallengesManager *this, con
   DWAchievementEngine *v8; 
   DWServicesAccess *v9; 
   DWAchievementEngineClient *AchievementEngineClient; 
+  const dvar_t *v11; 
   DWAchievementEngineClient *v12; 
-  DWServicesAccess *v14; 
-  DWAchievementEngineClient *v15; 
+  DWServicesAccess *v13; 
+  DWAchievementEngineClient *v14; 
 
   v2 = controllerIndex;
   if ( dwGetLogOnStatus(controllerIndex) == DW_LIVE_CONNECTED )
@@ -631,16 +632,15 @@ void OnlineChallengesManager::ControllerFrame(OnlineChallengesManager *this, con
     DWAchievementEngine::setRestRequestsEnabled(v8, v7->current.enabled);
     v9 = DWServicesAccess::GetInstance();
     AchievementEngineClient = DWServicesAccess::GetAchievementEngineClient(v9, v2);
-    _RBX = DVARFLT_online_challenge_ae_client_flush_time;
+    v11 = DVARFLT_online_challenge_ae_client_flush_time;
     v12 = AchievementEngineClient;
     if ( !DVARFLT_online_challenge_ae_client_flush_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_ae_client_flush_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h]; flushIntervalSeconds }
-    DWAchievementEngineClient::setFlushIntervalSeconds(v12, *(float *)&_XMM1);
-    v14 = DWServicesAccess::GetInstance();
-    v15 = DWServicesAccess::GetAchievementEngineClient(v14, v2);
-    v15->pump(v15);
+    Dvar_CheckFrontendServerThread(v11);
+    DWAchievementEngineClient::setFlushIntervalSeconds(v12, v11->current.value);
+    v13 = DWServicesAccess::GetInstance();
+    v14 = DWServicesAccess::GetAchievementEngineClient(v13, v2);
+    v14->pump(v14);
   }
 }
 
@@ -1553,7 +1553,11 @@ bdGetAchievementStatesResponse *OnlineChallengesManager::GetProgressionState(Onl
   bdGetAchievementStatesResponse_vtbl **v8; 
   int v9; 
   __int64 v10; 
-  __int64 v18; 
+  __int64 v11; 
+  bdGetAchievementStatesResponse_vtbl **v12; 
+  bdStructFixedSizeString<1024> *p_m_nextPageToken; 
+  bdStructFixedSizeString<1024> *v14; 
+  __int64 v15; 
 
   v5 = 0;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
@@ -1573,68 +1577,48 @@ bdGetAchievementStatesResponse *OnlineChallengesManager::GetProgressionState(Onl
     do
     {
       v10 = 69i64 * v5;
-      _RBX = (__int64)&v7->__vftable + v10 * 8 + 16;
-      _RDI = &v8[v10];
-      bdReferencable::operator=((bdReferencable *)((char *)&v8[v10 + 1] + SHIDWORD(v8[v10 + 1]->serialize)), (const bdReferencable *)(SHIDWORD((*(bdGetAchievementStatesResponse_vtbl **)((char *)&v7->__vftable + v10 * 8 + 24))->serialize) + _RBX + 8));
-      _RDI[2] = *(bdGetAchievementStatesResponse_vtbl **)(_RBX + 16);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+18h]
-        vmovups ymmword ptr [rdi+18h], ymm0
-        vmovups ymm1, ymmword ptr [rbx+38h]
-        vmovups ymmword ptr [rdi+38h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+58h]
-        vmovups ymmword ptr [rdi+58h], ymm0
-      }
-      *((_DWORD *)_RDI + 30) = *(_DWORD *)(_RBX + 120);
-      *((_BYTE *)_RDI + 124) = *(_BYTE *)(_RBX + 124);
-      *((_WORD *)_RDI + 63) = *(_WORD *)(_RBX + 126);
-      *((_DWORD *)_RDI + 32) = *(_DWORD *)(_RBX + 128);
-      *((_DWORD *)_RDI + 33) = *(_DWORD *)(_RBX + 132);
-      *((_DWORD *)_RDI + 34) = *(_DWORD *)(_RBX + 136);
-      _RDI[18] = *(bdGetAchievementStatesResponse_vtbl **)(_RBX + 144);
-      _RDI[19] = *(bdGetAchievementStatesResponse_vtbl **)(_RBX + 152);
-      _RDI[20] = *(bdGetAchievementStatesResponse_vtbl **)(_RBX + 160);
-      *((_DWORD *)_RDI + 42) = *(_DWORD *)(_RBX + 168);
-      if ( _RDI + 22 != (bdGetAchievementStatesResponse_vtbl **)(_RBX + 176) )
-        bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RDI + 22), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RBX + 176));
+      v11 = (__int64)&v7->__vftable + v10 * 8 + 16;
+      v12 = &v8[v10];
+      bdReferencable::operator=((bdReferencable *)((char *)&v8[v10 + 1] + SHIDWORD(v8[v10 + 1]->serialize)), (const bdReferencable *)(SHIDWORD((*(bdGetAchievementStatesResponse_vtbl **)((char *)&v7->__vftable + v10 * 8 + 24))->serialize) + v11 + 8));
+      v12[2] = *(bdGetAchievementStatesResponse_vtbl **)(v11 + 16);
+      *(__m256i *)(v12 + 3) = *(__m256i *)(v11 + 24);
+      *(__m256i *)(v12 + 7) = *(__m256i *)(v11 + 56);
+      *(__m256i *)(v12 + 11) = *(__m256i *)(v11 + 88);
+      *((_DWORD *)v12 + 30) = *(_DWORD *)(v11 + 120);
+      *((_BYTE *)v12 + 124) = *(_BYTE *)(v11 + 124);
+      *((_WORD *)v12 + 63) = *(_WORD *)(v11 + 126);
+      *((_DWORD *)v12 + 32) = *(_DWORD *)(v11 + 128);
+      *((_DWORD *)v12 + 33) = *(_DWORD *)(v11 + 132);
+      *((_DWORD *)v12 + 34) = *(_DWORD *)(v11 + 136);
+      v12[18] = *(bdGetAchievementStatesResponse_vtbl **)(v11 + 144);
+      v12[19] = *(bdGetAchievementStatesResponse_vtbl **)(v11 + 152);
+      v12[20] = *(bdGetAchievementStatesResponse_vtbl **)(v11 + 160);
+      *((_DWORD *)v12 + 42) = *(_DWORD *)(v11 + 168);
+      if ( v12 + 22 != (bdGetAchievementStatesResponse_vtbl **)(v11 + 176) )
+        bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(v12 + 22), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(v11 + 176));
       ++v5;
     }
     while ( v5 < *(_DWORD *)&result->m_states[55184] );
   }
-  _RDX = &result->m_nextPageToken;
-  _RAX = &v7->m_nextPageToken;
-  v18 = 8i64;
+  p_m_nextPageToken = &result->m_nextPageToken;
+  v14 = &v7->m_nextPageToken;
+  v15 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rdx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rdx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rdx+60h], xmm0
-    }
-    _RDX = (bdStructFixedSizeString<1024> *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
-    _RAX = (bdStructFixedSizeString<1024> *)((char *)_RAX + 128);
-    --v18;
+    *(_OWORD *)p_m_nextPageToken->m_buffer = *(_OWORD *)v14->m_buffer;
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[16] = *(_OWORD *)&v14->m_buffer[16];
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[32] = *(_OWORD *)&v14->m_buffer[32];
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[48] = *(_OWORD *)&v14->m_buffer[48];
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[64] = *(_OWORD *)&v14->m_buffer[64];
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[80] = *(_OWORD *)&v14->m_buffer[80];
+    *(_OWORD *)&p_m_nextPageToken->m_buffer[96] = *(_OWORD *)&v14->m_buffer[96];
+    p_m_nextPageToken = (bdStructFixedSizeString<1024> *)((char *)p_m_nextPageToken + 128);
+    *(_OWORD *)&p_m_nextPageToken[-1].m_buffer[1009] = *(_OWORD *)&v14->m_buffer[112];
+    v14 = (bdStructFixedSizeString<1024> *)((char *)v14 + 128);
+    --v15;
   }
-  while ( v18 );
-  _RDX->m_buffer[0] = _RAX->m_buffer[0];
+  while ( v15 );
+  p_m_nextPageToken->m_buffer[0] = v14->m_buffer[0];
   return result;
 }
 
@@ -1958,40 +1942,45 @@ void OnlineChallengesManager::OnGetProgressionComplete(GenericTask *pTask, eTask
   bdGetAchievementStatesResponse *v7; 
   unsigned int i; 
   __int64 v9; 
-  __int64 v17; 
-  int v26; 
-  unsigned int v27; 
-  int v28; 
+  __int64 v10; 
+  _BYTE *v11; 
+  bdStructFixedSizeString<1024> *p_m_nextPageToken; 
+  bdStructFixedSizeString<1024> *v13; 
+  __int64 v14; 
+  int v15; 
+  unsigned int v16; 
+  int v17; 
+  const bdAchievementState *State; 
   unsigned __int16 Kind; 
-  unsigned __int16 v34; 
-  Online_GunSmith *v35; 
-  OnlineOperatorChallenges *v36; 
-  OnlineCommunityChallenges *v37; 
-  int v38; 
-  OnlineScheduledChallenges *v39; 
-  OnlineQuests *v40; 
-  OnlineTrials *v41; 
-  OnlineBattlepass *v42; 
-  OnlineStickerBookChallenges *v43; 
-  OnlineMiscChallenges *v44; 
+  unsigned __int16 v20; 
+  Online_GunSmith *v21; 
+  OnlineOperatorChallenges *v22; 
+  OnlineCommunityChallenges *v23; 
+  int v24; 
+  OnlineScheduledChallenges *v25; 
+  OnlineQuests *v26; 
+  OnlineTrials *v27; 
+  OnlineBattlepass *v28; 
+  OnlineStickerBookChallenges *v29; 
+  OnlineMiscChallenges *v30; 
   OnlineProgression *Instance; 
   const char *NextPageToken; 
-  __int64 v47; 
-  const char *v48; 
-  OnlineQuests *v49; 
-  OnlineScheduledChallenges *v50; 
-  const dvar_t *v51; 
+  __int64 v33; 
+  const char *v34; 
+  OnlineQuests *v35; 
+  OnlineScheduledChallenges *v36; 
+  const dvar_t *v37; 
   int integer; 
-  const dvar_t *v53; 
-  OnlineProgression *v54; 
-  Online_GunSmith *v55; 
+  const dvar_t *v39; 
+  OnlineProgression *v40; 
+  Online_GunSmith *v41; 
   GunsmithWeapons *Weapons; 
-  GunsmithWeapons *v57; 
+  GunsmithWeapons *v43; 
   unsigned __int64 *p_xp; 
-  Online_GunSmith *v59; 
-  _BYTE *v60; 
-  unsigned __int64 v61; 
-  bdAchievementState v62; 
+  Online_GunSmith *v45; 
+  _BYTE *v46; 
+  unsigned __int64 v47; 
+  bdAchievementState v48; 
   bdGetAchievementStatesResponse ptr; 
 
   v4 = 0;
@@ -2015,175 +2004,149 @@ void OnlineChallengesManager::OnGetProgressionComplete(GenericTask *pTask, eTask
     for ( i = 0; i < *(_DWORD *)&ptr.m_states[55184]; ++i )
     {
       v9 = 552i64 * i;
-      _RBX = (__int64)&v7->__vftable + v9 + 16;
-      _RDI = &ptr.m_states[v9 - 16];
-      bdReferencable::operator=((bdReferencable *)&_RDI[*(int *)(*((_QWORD *)_RDI + 1) + 4i64) + 8], (const bdReferencable *)(SHIDWORD((*(bdGetAchievementStatesResponse_vtbl **)((char *)&v7->__vftable + v9 + 24))->serialize) + _RBX + 8));
-      *((_QWORD *)_RDI + 2) = *(_QWORD *)(_RBX + 16);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+18h]
-        vmovups ymmword ptr [rdi+18h], ymm0
-        vmovups ymm1, ymmword ptr [rbx+38h]
-        vmovups ymmword ptr [rdi+38h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+58h]
-        vmovups ymmword ptr [rdi+58h], ymm0
-      }
-      *((_DWORD *)_RDI + 30) = *(_DWORD *)(_RBX + 120);
-      _RDI[124] = *(_BYTE *)(_RBX + 124);
-      *((_WORD *)_RDI + 63) = *(_WORD *)(_RBX + 126);
-      *((_DWORD *)_RDI + 32) = *(_DWORD *)(_RBX + 128);
-      *((_DWORD *)_RDI + 33) = *(_DWORD *)(_RBX + 132);
-      *((_DWORD *)_RDI + 34) = *(_DWORD *)(_RBX + 136);
-      *((_QWORD *)_RDI + 18) = *(_QWORD *)(_RBX + 144);
-      *((_QWORD *)_RDI + 19) = *(_QWORD *)(_RBX + 152);
-      *((_QWORD *)_RDI + 20) = *(_QWORD *)(_RBX + 160);
-      *((_DWORD *)_RDI + 42) = *(_DWORD *)(_RBX + 168);
-      if ( _RDI + 176 != (_BYTE *)(_RBX + 176) )
-        bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RDI + 176), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(_RBX + 176));
+      v10 = (__int64)&v7->__vftable + v9 + 16;
+      v11 = &ptr.m_states[v9 - 16];
+      bdReferencable::operator=((bdReferencable *)&v11[*(int *)(*((_QWORD *)v11 + 1) + 4i64) + 8], (const bdReferencable *)(SHIDWORD((*(bdGetAchievementStatesResponse_vtbl **)((char *)&v7->__vftable + v9 + 24))->serialize) + v10 + 8));
+      *((_QWORD *)v11 + 2) = *(_QWORD *)(v10 + 16);
+      *(__m256i *)(v11 + 24) = *(__m256i *)(v10 + 24);
+      *(__m256i *)(v11 + 56) = *(__m256i *)(v10 + 56);
+      *(__m256i *)(v11 + 88) = *(__m256i *)(v10 + 88);
+      *((_DWORD *)v11 + 30) = *(_DWORD *)(v10 + 120);
+      v11[124] = *(_BYTE *)(v10 + 124);
+      *((_WORD *)v11 + 63) = *(_WORD *)(v10 + 126);
+      *((_DWORD *)v11 + 32) = *(_DWORD *)(v10 + 128);
+      *((_DWORD *)v11 + 33) = *(_DWORD *)(v10 + 132);
+      *((_DWORD *)v11 + 34) = *(_DWORD *)(v10 + 136);
+      *((_QWORD *)v11 + 18) = *(_QWORD *)(v10 + 144);
+      *((_QWORD *)v11 + 19) = *(_QWORD *)(v10 + 152);
+      *((_QWORD *)v11 + 20) = *(_QWORD *)(v10 + 160);
+      *((_DWORD *)v11 + 42) = *(_DWORD *)(v10 + 168);
+      if ( v11 + 176 != (_BYTE *)(v10 + 176) )
+        bdStructFixedSizeArray<bdAchievementProgress,4>::copy((bdStructFixedSizeArray<bdAchievementProgress,4> *)(v11 + 176), (const bdStructFixedSizeArray<bdAchievementProgress,4> *)(v10 + 176));
     }
-    _RAX = &v7->m_nextPageToken;
-    _RCX = &ptr.m_nextPageToken;
-    v17 = 8i64;
+    p_m_nextPageToken = &v7->m_nextPageToken;
+    v13 = &ptr.m_nextPageToken;
+    v14 = 8i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rcx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [rcx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rcx+60h], xmm0
-      }
-      _RCX = (bdStructFixedSizeString<1024> *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      _RAX = (bdStructFixedSizeString<1024> *)((char *)_RAX + 128);
-      --v17;
+      *(_OWORD *)v13->m_buffer = *(_OWORD *)p_m_nextPageToken->m_buffer;
+      *(_OWORD *)&v13->m_buffer[16] = *(_OWORD *)&p_m_nextPageToken->m_buffer[16];
+      *(_OWORD *)&v13->m_buffer[32] = *(_OWORD *)&p_m_nextPageToken->m_buffer[32];
+      *(_OWORD *)&v13->m_buffer[48] = *(_OWORD *)&p_m_nextPageToken->m_buffer[48];
+      *(_OWORD *)&v13->m_buffer[64] = *(_OWORD *)&p_m_nextPageToken->m_buffer[64];
+      *(_OWORD *)&v13->m_buffer[80] = *(_OWORD *)&p_m_nextPageToken->m_buffer[80];
+      *(_OWORD *)&v13->m_buffer[96] = *(_OWORD *)&p_m_nextPageToken->m_buffer[96];
+      v13 = (bdStructFixedSizeString<1024> *)((char *)v13 + 128);
+      *(_OWORD *)&v13[-1].m_buffer[1009] = *(_OWORD *)&p_m_nextPageToken->m_buffer[112];
+      p_m_nextPageToken = (bdStructFixedSizeString<1024> *)((char *)p_m_nextPageToken + 128);
+      --v14;
     }
-    while ( v17 );
-    _RCX->m_buffer[0] = _RAX->m_buffer[0];
-    v26 = 3;
+    while ( v14 );
+    v13->m_buffer[0] = p_m_nextPageToken->m_buffer[0];
+    v15 = 3;
     Com_Printf(25, "getAchievementStates complete, updating player progression for controller %d.\n", (unsigned int)m_controllerIndex);
-    v27 = 0;
+    v16 = 0;
     if ( bdGetAchievementStatesResponse::getNumStates(&ptr) )
     {
-      v28 = -2113863648;
+      v17 = -2113863648;
       do
       {
-        _RBX = bdGetAchievementStatesResponse::getState(&ptr, v27);
-        *((_QWORD *)&v62.__vftable + 1) = &bdAchievementState::`vbtable';
-        bdReferencable::bdReferencable((bdReferencable *)v62.gap218, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
-        v26 |= 4u;
-        bdStructBufferSerializable::bdStructBufferSerializable(&v62, _RBX);
-        v62.__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
-        *(_QWORD *)&v62.m_name[*(int *)(*((_QWORD *)&v62.__vftable + 1) + 4i64) - 24] = &bdAchievementState::`vftable'{for `bdReferencable'};
-        *((_QWORD *)&v62.__vftable + 2) = *((_QWORD *)&_RBX->__vftable + 2);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+18h]
-          vmovups ymmword ptr [rsp+0DE90h+var_DE30+18h], ymm0
-          vmovups ymm1, ymmword ptr [rbx+38h]
-          vmovups [rbp+0DD90h+var_DDF8], ymm1
-          vmovups ymm0, ymmword ptr [rbx+58h]
-          vmovups [rbp+0DD90h+var_DDD8], ymm0
-        }
-        *(_DWORD *)&v62.m_name[88] = *(_DWORD *)&_RBX->m_name[88];
-        v62.m_name[92] = _RBX->m_name[92];
-        v62.m_kind = _RBX->m_kind;
-        v62.m_progress = _RBX->m_progress;
-        v62.m_progressTarget = _RBX->m_progressTarget;
-        v62.m_status = _RBX->m_status;
-        v62.m_completionTimestamp = _RBX->m_completionTimestamp;
-        v62.m_activationTimestamp = _RBX->m_activationTimestamp;
-        v62.m_expirationTimestamp = _RBX->m_expirationTimestamp;
-        v62.m_completionCount = _RBX->m_completionCount;
-        `eh vector vbase constructor iterator'(&v62.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-        v62.m_multiProgress.m_size = 0;
-        bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&v62.m_multiProgress, &_RBX->m_multiProgress);
-        Kind = bdAchievementState::getKind(&v62);
-        v34 = Kind;
+        State = bdGetAchievementStatesResponse::getState(&ptr, v16);
+        *((_QWORD *)&v48.__vftable + 1) = &bdAchievementState::`vbtable';
+        bdReferencable::bdReferencable((bdReferencable *)v48.gap218, (const bdReferencable *)((char *)&State->__vftable + *(int *)(*((_QWORD *)&State->__vftable + 1) + 4i64) + 8));
+        v15 |= 4u;
+        bdStructBufferSerializable::bdStructBufferSerializable(&v48, State);
+        v48.__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
+        *(_QWORD *)&v48.m_name[*(int *)(*((_QWORD *)&v48.__vftable + 1) + 4i64) - 24] = &bdAchievementState::`vftable'{for `bdReferencable'};
+        *((_QWORD *)&v48.__vftable + 2) = *((_QWORD *)&State->__vftable + 2);
+        *(bdStructBufferSerializable *)((char *)&v48.bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&State->bdStructBufferSerializable + 24);
+        *(__m256i *)&v48.m_name[24] = *(__m256i *)&State->m_name[24];
+        *(__m256i *)&v48.m_name[56] = *(__m256i *)&State->m_name[56];
+        *(_DWORD *)&v48.m_name[88] = *(_DWORD *)&State->m_name[88];
+        v48.m_name[92] = State->m_name[92];
+        v48.m_kind = State->m_kind;
+        v48.m_progress = State->m_progress;
+        v48.m_progressTarget = State->m_progressTarget;
+        v48.m_status = State->m_status;
+        v48.m_completionTimestamp = State->m_completionTimestamp;
+        v48.m_activationTimestamp = State->m_activationTimestamp;
+        v48.m_expirationTimestamp = State->m_expirationTimestamp;
+        v48.m_completionCount = State->m_completionCount;
+        `eh vector vbase constructor iterator'(&v48.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+        v48.m_multiProgress.m_size = 0;
+        bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&v48.m_multiProgress, &State->m_multiProgress);
+        Kind = bdAchievementState::getKind(&v48);
+        v20 = Kind;
         if ( !Kind || Kind == 6 )
         {
           Instance = OnlineProgression::GetInstance();
-          OnlineProgression::OnGetProgressionComplete(Instance, m_controllerIndex, &v62);
+          OnlineProgression::OnGetProgressionComplete(Instance, m_controllerIndex, &v48);
         }
-        else if ( Kind <= 0x1Fu && _bittest(&v28, Kind) )
+        else if ( Kind <= 0x1Fu && _bittest(&v17, Kind) )
         {
-          v35 = Online_GunSmith::GetInstance();
-          Online_GunSmith::AddProgression(v35, m_controllerIndex, v34, &v62);
+          v21 = Online_GunSmith::GetInstance();
+          Online_GunSmith::AddProgression(v21, m_controllerIndex, v20, &v48);
         }
         else if ( Kind == 8 )
         {
-          v36 = OnlineOperatorChallenges::GetInstance();
-          OnlineOperatorChallenges::AddUnlock(v36, m_controllerIndex, &v62);
+          v22 = OnlineOperatorChallenges::GetInstance();
+          OnlineOperatorChallenges::AddUnlock(v22, m_controllerIndex, &v48);
         }
         else if ( Kind == 10 )
         {
-          v37 = OnlineCommunityChallenges::GetInstance();
-          OnlineCommunityChallenges::AddProgression(v37, m_controllerIndex, &v62);
+          v23 = OnlineCommunityChallenges::GetInstance();
+          OnlineCommunityChallenges::AddProgression(v23, m_controllerIndex, &v48);
         }
-        else if ( Kind <= 0x1Eu && (v38 = 1275074560, _bittest(&v38, Kind)) )
+        else if ( Kind <= 0x1Eu && (v24 = 1275074560, _bittest(&v24, Kind)) )
         {
-          v39 = OnlineScheduledChallenges::GetInstance();
-          OnlineScheduledChallenges::AddProgression(v39, m_controllerIndex, &v62);
+          v25 = OnlineScheduledChallenges::GetInstance();
+          OnlineScheduledChallenges::AddProgression(v25, m_controllerIndex, &v48);
         }
         else
         {
           switch ( Kind )
           {
             case 0xFu:
-              v40 = OnlineQuests::GetInstance();
-              OnlineQuests::AddProgression(v40, m_controllerIndex, &v62);
+              v26 = OnlineQuests::GetInstance();
+              OnlineQuests::AddProgression(v26, m_controllerIndex, &v48);
               break;
             case 0xDu:
-              v41 = OnlineTrials::GetInstance();
-              OnlineTrials::AddProgression(v41, m_controllerIndex, &v62);
+              v27 = OnlineTrials::GetInstance();
+              OnlineTrials::AddProgression(v27, m_controllerIndex, &v48);
               break;
             case 0x14u:
-              v42 = OnlineBattlepass::GetInstance();
-              OnlineBattlepass::AddProgression(v42, m_controllerIndex, &v62);
+              v28 = OnlineBattlepass::GetInstance();
+              OnlineBattlepass::AddProgression(v28, m_controllerIndex, &v48);
               break;
             case 0x20u:
-              v43 = OnlineStickerBookChallenges::GetInstance();
-              OnlineStickerBookChallenges::AddProgression(v43, m_controllerIndex, &v62);
+              v29 = OnlineStickerBookChallenges::GetInstance();
+              OnlineStickerBookChallenges::AddProgression(v29, m_controllerIndex, &v48);
               break;
             case 0x22u:
-              v44 = OnlineMiscChallenges::GetInstance();
-              OnlineMiscChallenges::AddProgression(v44, m_controllerIndex, &v62);
+              v30 = OnlineMiscChallenges::GetInstance();
+              OnlineMiscChallenges::AddProgression(v30, m_controllerIndex, &v48);
               break;
           }
         }
-        `eh vector destructor iterator'(&v62.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-        bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>((bdStructFixedSizeString<100> *)(&v62.__vftable + 3));
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v62.__vftable + 2));
-        bdReferencable::~bdReferencable((bdReferencable *)v62.gap218);
-        ++v27;
+        `eh vector destructor iterator'(&v48.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+        bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>((bdStructFixedSizeString<100> *)(&v48.__vftable + 3));
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v48.__vftable + 2));
+        bdReferencable::~bdReferencable((bdReferencable *)v48.gap218);
+        ++v16;
       }
-      while ( v27 < bdGetAchievementStatesResponse::getNumStates(&ptr) );
+      while ( v16 < bdGetAchievementStatesResponse::getNumStates(&ptr) );
     }
     if ( bdGetAchievementStatesResponse::getNumStates(&ptr) != 100 )
       goto LABEL_67;
     NextPageToken = bdGetAchievementStatesResponse::getNextPageToken(&ptr);
-    v47 = -1i64;
+    v33 = -1i64;
     do
-      ++v47;
-    while ( NextPageToken[v47] );
-    if ( (_DWORD)v47 )
+      ++v33;
+    while ( NextPageToken[v33] );
+    if ( (_DWORD)v33 )
     {
-      v48 = bdGetAchievementStatesResponse::getNextPageToken(&ptr);
-      OnlineChallengesManager::FetchProgressionState(&OnlineChallengesManager::s_instance, m_controllerIndex, v48);
+      v34 = bdGetAchievementStatesResponse::getNextPageToken(&ptr);
+      OnlineChallengesManager::FetchProgressionState(&OnlineChallengesManager::s_instance, m_controllerIndex, v34);
     }
     else
     {
@@ -2199,17 +2162,17 @@ LABEL_64:
         bdReferencable::~bdReferencable((bdReferencable *)&ptr.gapDBB9[7]);
         return;
       }
-      v49 = OnlineQuests::GetInstance();
-      OnlineQuests::NeedToCheckandActivate(v49, m_controllerIndex);
-      v50 = OnlineScheduledChallenges::GetInstance();
-      OnlineScheduledChallenges::Finalise(v50, m_controllerIndex);
+      v35 = OnlineQuests::GetInstance();
+      OnlineQuests::NeedToCheckandActivate(v35, m_controllerIndex);
+      v36 = OnlineScheduledChallenges::GetInstance();
+      OnlineScheduledChallenges::Finalise(v36, m_controllerIndex);
       OnlineChallengesManager::s_instance.m_aeFetchState[m_controllerIndex] = 3;
       OnlineChallengesManager::s_instance.m_aeInitialFetch[m_controllerIndex] = 1;
-      v51 = DVARINT_online_challenge_min_get_state_time;
+      v37 = DVARINT_online_challenge_min_get_state_time;
       if ( !DVARINT_online_challenge_min_get_state_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_min_get_state_time") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v51);
-      integer = v51->current.integer;
+      Dvar_CheckFrontendServerThread(v37);
+      integer = v37->current.integer;
       OnlineChallengesManager::s_instance.m_nextGetStateTime[m_controllerIndex] = integer + Sys_Milliseconds();
       if ( LUI_BeginEvent(LOCAL_CLIENT_0, "challenges_updated", LUI_luaVM) )
       {
@@ -2217,17 +2180,17 @@ LABEL_64:
         LUI_SetTableInt("controller", m_controllerIndex, LUI_luaVM);
         LUI_EndEvent(LUI_luaVM);
       }
-      v53 = DVARBOOL_online_challenge_update_player_data_once_when_done;
+      v39 = DVARBOOL_online_challenge_update_player_data_once_when_done;
       if ( !DVARBOOL_online_challenge_update_player_data_once_when_done && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_challenge_update_player_data_once_when_done") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v53);
-      if ( v53->current.enabled )
+      Dvar_CheckFrontendServerThread(v39);
+      if ( v39->current.enabled )
       {
-        v54 = OnlineProgression::GetInstance();
-        OnlineProgression::UpdatePlayerStats(v54, m_controllerIndex);
-        v55 = Online_GunSmith::GetInstance();
-        Weapons = Online_GunSmith::GetWeapons(v55, m_controllerIndex);
-        v57 = Weapons;
+        v40 = OnlineProgression::GetInstance();
+        OnlineProgression::UpdatePlayerStats(v40, m_controllerIndex);
+        v41 = Online_GunSmith::GetInstance();
+        Weapons = Online_GunSmith::GetWeapons(v41, m_controllerIndex);
+        v43 = Weapons;
         if ( Weapons->total_weapons > 0 )
         {
           p_xp = &Weapons->weapons[0].xp;
@@ -2235,22 +2198,22 @@ LABEL_64:
           {
             if ( *p_xp )
             {
-              v59 = Online_GunSmith::GetInstance();
-              Online_GunSmith::UpdateWeaponStats(v59, m_controllerIndex, v4);
+              v45 = Online_GunSmith::GetInstance();
+              Online_GunSmith::UpdateWeaponStats(v45, m_controllerIndex, v4);
             }
             ++v4;
             p_xp += 4;
           }
-          while ( v4 < v57->total_weapons );
+          while ( v4 < v43->total_weapons );
         }
       }
     }
-    v60 = memchr_0(&ptr.m_nextPageToken, 0, 0x401ui64);
-    if ( v60 )
-      v61 = v60 - (_BYTE *)&ptr.m_nextPageToken;
+    v46 = memchr_0(&ptr.m_nextPageToken, 0, 0x401ui64);
+    if ( v46 )
+      v47 = v46 - (_BYTE *)&ptr.m_nextPageToken;
     else
-      v61 = 1025i64;
-    bdHandleAssert(v61 < 0x401, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<1024>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+      v47 = 1025i64;
+    bdHandleAssert(v47 < 0x401, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<1024>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
     `eh vector destructor iterator'(&ptr.__vftable + 2, 0x228ui64, 0x64ui64, (void (__fastcall *)(void *))bdAchievementState::`vbase destructor);
     goto LABEL_64;
   }

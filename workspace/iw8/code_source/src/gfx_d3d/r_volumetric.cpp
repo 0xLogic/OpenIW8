@@ -402,79 +402,39 @@ RB_ShowVolumetricDebug
 void RB_ShowVolumetricDebug(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, const GfxImage *volVisibility)
 {
   GfxCmdBufSourceState *source; 
+  float renderTargetWidth; 
+  float renderTargetHeight; 
   materialCommands_t *Tess; 
-  materialCommands_t *v17; 
-  float fmt; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  GfxCmdBufContext v33[3]; 
-  char v34; 
-  void *retaddr; 
+  materialCommands_t *v9; 
+  GfxCmdBufContext v10; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = gfxContext;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1927, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  source = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1928, ASSERT_TYPE_ASSERT, "(gfxContext.source)", (const char *)&queryFormat, "gfxContext.source") )
+  source = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1928, ASSERT_TYPE_ASSERT, "(gfxContext.source)", (const char *)&queryFormat, "gfxContext.source") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, rax
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, rax
-    vmovups [rsp+98h+var_38], xmm0
-  }
-  Tess = R_GetTess(v33);
-  v17 = Tess;
+  renderTargetWidth = (float)source->renderTargetWidth;
+  renderTargetHeight = (float)source->renderTargetHeight;
+  v10 = *gfxContext;
+  Tess = R_GetTess(&v10);
+  v9 = Tess;
   if ( Tess->vertexCount )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+98h+var_38], xmm0
-    }
-    RB_EndTessSurfaceInternal(v33, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+    v10 = *gfxContext;
+    RB_EndTessSurfaceInternal(&v10, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
   }
   else
   {
     if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
       __debugbreak();
-    v17->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-    v17->primStatsTarget = GFX_PRIM_STATS_INVALID;
+    v9->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+    v9->primStatsTarget = GFX_PRIM_STATS_INVALID;
   }
   R_Set2D(source);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vxorps  xmm2, xmm2, xmm2
-    vmovups [rsp+98h+var_38], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  [rsp+98h+var_58], xmm0
-    vmovss  [rsp+98h+var_60], xmm2
-    vmovss  [rsp+98h+var_68], xmm2
-    vmovss  dword ptr [rsp+98h+var_70], xmm7
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  dword ptr [rsp+98h+fmt], xmm6
-  }
-  RB_DrawStretchPic(v33, rgp.volumetricDebugMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v28, v29, v30, v31, v32, 0xFFFFFFFF, GFX_PRIM_STATS_CODE);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+98h+var_38], xmm0
-  }
-  RB_EndTessSurfaceInternal(v33, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1940)");
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v34;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  v10 = *gfxContext;
+  RB_DrawStretchPic(&v10, rgp.volumetricDebugMaterial, 0.0, 0.0, renderTargetWidth, renderTargetHeight, 0.0, 0.0, 1.0, 1.0, 0xFFFFFFFF, GFX_PRIM_STATS_CODE);
+  v10 = *gfxContext;
+  RB_EndTessSurfaceInternal(&v10, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1940)");
 }
 
 /*
@@ -484,6 +444,7 @@ RB_VOL_AccumulateScatteringResources
 */
 void RB_VOL_AccumulateScatteringResources(VolumetricDrawStream *drawStream)
 {
+  __int16 v1; 
   __int64 v3; 
   R_RT_Image *p_m_image; 
   R_RT_ColorHandle *v5; 
@@ -506,7 +467,7 @@ void RB_VOL_AccumulateScatteringResources(VolumetricDrawStream *drawStream)
   const GfxTexture *v22; 
   const GfxTexture *v23; 
   const GfxTexture *v24; 
-  R_RT_Handle v31; 
+  R_RT_Handle currentScatterImage; 
   VolumetricAccumulateResources resources; 
 
   if ( s_volumetricGlob.prevFrameScatteringValid )
@@ -588,45 +549,25 @@ void RB_VOL_AccumulateScatteringResources(VolumetricDrawStream *drawStream)
   R_HW_FlushResourceTransitions(drawStream->state);
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(drawStream->state);
-  __asm
+  currentScatterImage = (R_RT_Handle)s_volumetricGlob.currentScatterImage;
+  if ( v1 )
   {
-    vmovups ymm0, ymmword ptr cs:s_volumetricGlob.currentScatterImage.baseclass_0.m_surfaceID
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&currentScatterImage);
+    R_RT_DestroyInternal(&currentScatterImage);
   }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v31);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_surfaceID]
-      vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v31);
-  }
-  else if ( s_volumetricGlob.currentScatterImage.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+  else if ( s_volumetricGlob.currentScatterImage.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&currentScatterImage.m_surfaceID, *(_QWORD *)&currentScatterImage.m_tracking.m_allocCounter, currentScatterImage.m_tracking.m_name, currentScatterImage.m_tracking.m_location, resources.scatterTemporalReadImage) )
   {
     __debugbreak();
   }
-  __asm
+  currentScatterImage = (R_RT_Handle)s_volumetricGlob.currentExtinctionImage;
+  if ( v1 )
   {
-    vmovups ymm0, ymmword ptr cs:s_volumetricGlob.currentExtinctionImage.baseclass_0.m_surfaceID
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v31);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+57h+var_90.m_surfaceID]
-      vmovups ymmword ptr [rbp+57h+var_90.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v31);
+    R_RT_Handle::GetSurface(&currentScatterImage);
+    R_RT_DestroyInternal(&currentScatterImage);
   }
   else if ( s_volumetricGlob.currentExtinctionImage.m_tracking.m_allocCounter )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&currentScatterImage.m_surfaceID, *(_QWORD *)&currentScatterImage.m_tracking.m_allocCounter, currentScatterImage.m_tracking.m_name, currentScatterImage.m_tracking.m_location) )
       __debugbreak();
   }
 }
@@ -638,57 +579,42 @@ RB_VOL_Cluster
 */
 void RB_VOL_Cluster(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  int v9; 
+  int v6; 
+  bool v7; 
   const R_RT_Surface *Surface; 
-  const GfxWrappedRWBuffer *v11; 
+  const GfxWrappedRWBuffer *v9; 
 
-  _RSI = viewInfo;
-  if ( R_UseBakedLighting() && _RSI->volumetrics.enabled )
+  if ( R_UseBakedLighting() && viewInfo->volumetrics.enabled && (viewInfo->volumetrics.airDensity > 0.0 || R_VOL_UseLocalMedia(viewInfo->input.data, viewInfo)) )
   {
-    __asm
+    if ( !computeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1815, ASSERT_TYPE_ASSERT, "(computeState)", (const char *)&queryFormat, "computeState") )
+      __debugbreak();
+    if ( !s_volumetricGlob.ambientLightingDensityClearKickedOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1816, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.ambientLightingDensityClearKickedOff)", (const char *)&queryFormat, "s_volumetricGlob.ambientLightingDensityClearKickedOff") )
+      __debugbreak();
+    v6 = 1;
+    s_volumetricGlob.densityInjectionsKickedOff = 1;
+    v7 = r_fogHeightMapScale->current.vector.v[2] > 0.0 && s_volumetricHeightfield;
+    if ( !s_volumetricGlob.volumeCount[data->volumetricsIndex & 1] && viewInfo->brCircle.volumetricDensity <= 0.0 && !v7 )
+      v6 = 0;
+    R_ProfBeginNamedEvent(computeState, "Volumetrics Clustering");
+    R_GPU_BeginTimer(GPU_TIMER_VOLUMETRIC_DENSITY);
+    if ( v6 )
     {
-      vmovaps [rsp+48h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm6, dword ptr [rsi+2E6Ch]
-    }
-    if ( R_VOL_UseLocalMedia(_RSI->input.data, _RSI) )
-    {
-      if ( !computeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1815, ASSERT_TYPE_ASSERT, "(computeState)", (const char *)&queryFormat, "computeState") )
+      R_ProfBeginNamedEvent(computeState, "Frustum Grid Cluster Volumetrics");
+      Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.maskClusterBuffer);
+      if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
         __debugbreak();
-      if ( !s_volumetricGlob.ambientLightingDensityClearKickedOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1816, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.ambientLightingDensityClearKickedOff)", (const char *)&queryFormat, "s_volumetricGlob.ambientLightingDensityClearKickedOff") )
-        __debugbreak();
-      _RAX = r_fogHeightMapScale;
-      v9 = 1;
-      s_volumetricGlob.densityInjectionsKickedOff = 1;
-      __asm
-      {
-        vcomiss xmm6, dword ptr [rsi+0C38h]
-        vcomiss xmm6, dword ptr [rax+30h]
-      }
-      if ( !s_volumetricGlob.volumeCount[data->volumetricsIndex & 1] )
-        v9 = 0;
-      R_ProfBeginNamedEvent(computeState, "Volumetrics Clustering");
-      R_GPU_BeginTimer(GPU_TIMER_VOLUMETRIC_DENSITY);
-      if ( v9 )
-      {
-        R_ProfBeginNamedEvent(computeState, "Frustum Grid Cluster Volumetrics");
-        Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.maskClusterBuffer);
-        if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
-          __debugbreak();
-        v11 = (const GfxWrappedRWBuffer *)&Surface->1080;
-        R_HW_AddResourceTransition(computeState, v11, 0xFFFFFFFF, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        R_HW_FlushResourceTransitions(computeState);
-        R_VOL_FrustumGridCluster(computeState, _RSI, data, v11, v11);
-        R_HW_AddResourceTransition(computeState, v11, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        R_HW_FlushResourceTransitions(computeState);
-        R_ProfEndNamedEvent(computeState);
-      }
-      if ( computeState->device )
-        R_ComputeWaitForCompute(computeState, PIPE_FLUSH_PARTIAL);
-      R_GPU_EndTimer();
+      v9 = (const GfxWrappedRWBuffer *)&Surface->1080;
+      R_HW_AddResourceTransition(computeState, v9, 0xFFFFFFFF, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      R_HW_FlushResourceTransitions(computeState);
+      R_VOL_FrustumGridCluster(computeState, viewInfo, data, v9, v9);
+      R_HW_AddResourceTransition(computeState, v9, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      R_HW_FlushResourceTransitions(computeState);
       R_ProfEndNamedEvent(computeState);
     }
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    if ( computeState->device )
+      R_ComputeWaitForCompute(computeState, PIPE_FLUSH_PARTIAL);
+    R_GPU_EndTimer();
+    R_ProfEndNamedEvent(computeState);
   }
 }
 
@@ -702,17 +628,19 @@ void RB_VOL_CombineMultiLightgrid(VolumetricDrawStream *drawStream)
   ComputeCmdBufState *state; 
   const GfxViewInfo *viewInfo; 
   __int64 toggle; 
-  __int64 v11; 
-  R_RT_ColorHandle *v12; 
-  R_RT_ColorHandle *v13; 
+  __int64 v6; 
+  __int64 v7; 
+  R_RT_ColorHandle *v8; 
+  R_RT_ColorHandle *v9; 
+  __int64 v10; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v21; 
-  const GfxTexture *v22; 
-  const R_RT_Surface *v23; 
-  const GfxTexture *v24; 
-  const R_RT_Surface *v25; 
-  const GfxTexture *v26; 
+  const R_RT_Surface *v14; 
+  const GfxTexture *v15; 
+  const R_RT_Surface *v16; 
+  const GfxTexture *v17; 
+  const R_RT_Surface *v18; 
+  const GfxTexture *v19; 
   R_RT_Handle visibilityPrev; 
   R_RT_Handle ambientPrev; 
 
@@ -721,75 +649,52 @@ void RB_VOL_CombineMultiLightgrid(VolumetricDrawStream *drawStream)
   R_LockIfGfxImmediateContext(drawStream->state->device);
   R_ProfBeginNamedEvent(state, "Combine Multi Light Grid");
   toggle = drawStream->toggle;
-  _R13 = &s_volumetricGlob;
   if ( s_volumetricGlob.prevFrameAmbientValid )
   {
-    _RAX = 0i64;
+    v6 = 0i64;
     if ( !(_DWORD)toggle )
-      _RAX = 32i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+r13+1D0h]
-      vmovups ymmword ptr [rsp+0B8h+visibilityPrev.m_surfaceID], ymm0
-    }
+      v6 = 1i64;
+    visibilityPrev = (R_RT_Handle)s_volumetricGlob.ambientImage[v6];
   }
   else
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0B8h+visibilityPrev.m_tracking.m_name], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&visibilityPrev.m_tracking.m_name = _XMM0;
     visibilityPrev.m_surfaceID = 0;
     visibilityPrev.m_tracking.m_allocCounter = 0;
   }
-  _RAX = &visibilityPrev;
-  __asm { vmovups ymm0, ymmword ptr [rax] }
-  v11 = toggle;
-  __asm { vmovups ymmword ptr [rsp+0B8h+ambientPrev.m_surfaceID], ymm0 }
-  v12 = &s_volumetricGlob.ambientImage[toggle];
-  v13 = &s_volumetricGlob.ambientVisibilityImage[toggle];
+  v7 = toggle;
+  ambientPrev = visibilityPrev;
+  v8 = &s_volumetricGlob.ambientImage[toggle];
+  v9 = &s_volumetricGlob.ambientVisibilityImage[toggle];
   if ( s_volumetricGlob.prevFrameScatteringValid )
   {
-    _RAX = 0i64;
+    v10 = 0i64;
     if ( !(_DWORD)toggle )
-      _RAX = 32i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+r13+250h]
-      vmovups ymmword ptr [rsp+0B8h+visibilityPrev.m_surfaceID], ymm0
-    }
+      v10 = 1i64;
+    visibilityPrev = (R_RT_Handle)s_volumetricGlob.ambientVisibilityImage[v10];
   }
   else
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0B8h+visibilityPrev.m_tracking.m_name], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&visibilityPrev.m_tracking.m_name = _XMM0;
     visibilityPrev.m_surfaceID = 0;
     visibilityPrev.m_tracking.m_allocCounter = 0;
-  }
-  _RAX = &visibilityPrev;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+visibilityPrev.m_surfaceID], ymm0
   }
   Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v21 = R_RT_Handle::GetSurface(v12);
-  v22 = R_Texture_GetResident(v21->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v22, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v14 = R_RT_Handle::GetSurface(v8);
+  v15 = R_Texture_GetResident(v14->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v15, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
-  R_VOL_CombineAmbientMultiLightGrid(state, viewInfo, v12, &ambientPrev, v13, &visibilityPrev, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.ambientSceneLumaImage, &s_volumetricGlob.ambientLightingData[v11], &s_volumetricGlob.ambientLightingAlpha[v11]);
-  v23 = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
-  v24 = R_Texture_GetResident(v23->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v24, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v25 = R_RT_Handle::GetSurface(v12);
-  v26 = R_Texture_GetResident(v25->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v26, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_VOL_CombineAmbientMultiLightGrid(state, viewInfo, v8, &ambientPrev, v9, &visibilityPrev, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.ambientSceneLumaImage, &s_volumetricGlob.ambientLightingData[v7], &s_volumetricGlob.ambientLightingAlpha[v7]);
+  v16 = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
+  v17 = R_Texture_GetResident(v16->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v18 = R_RT_Handle::GetSurface(v8);
+  v19 = R_Texture_GetResident(v18->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
   R_ProfEndNamedEvent(state);
   R_UnlockIfGfxImmediateContext(state->device);
@@ -802,33 +707,51 @@ RB_VOL_EvaluateLightgrid
 */
 void RB_VOL_EvaluateLightgrid(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBX = viewInfo;
-  if ( !R_UseBakedLighting() )
-    goto LABEL_15;
-  if ( !_RBX->volumetrics.enabled )
-    goto LABEL_15;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+2E6Ch]
-  }
-  if ( R_VOL_UseLocalMedia(_RBX->input.data, _RBX) )
+  unsigned int volumetricsIndex; 
+  bool v7; 
+  bool v8; 
+  int v9; 
+  GfxDevice *device; 
+  VolumetricDrawStream drawStream; 
+
+  if ( R_UseBakedLighting() && viewInfo->volumetrics.enabled && (viewInfo->volumetrics.airDensity > 0.0 || R_VOL_UseLocalMedia(viewInfo->input.data, viewInfo)) )
   {
     if ( !computeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1759, ASSERT_TYPE_ASSERT, "(computeState)", (const char *)&queryFormat, "computeState") )
       __debugbreak();
     if ( s_volumetricGlob.ambientLightingDensityClearKickedOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1760, ASSERT_TYPE_ASSERT, "(!s_volumetricGlob.ambientLightingDensityClearKickedOff)", (const char *)&queryFormat, "!s_volumetricGlob.ambientLightingDensityClearKickedOff") )
       __debugbreak();
     s_volumetricGlob.ambientLightingDensityClearKickedOff = 1;
-    __asm { vcomiss xmm6, dword ptr [rbx+0C38h] }
-    _RAX = r_fogHeightMapScale;
-    __asm { vcomiss xmm6, dword ptr [rax+30h] }
-    R_LockIfGfxImmediateContext(computeState->device);
+    volumetricsIndex = data->volumetricsIndex;
+    drawStream.viewInfo = viewInfo;
+    v7 = viewInfo->brCircle.volumetricDensity > 0.0;
+    drawStream.toggle = volumetricsIndex & 1;
+    drawStream.data = data;
+    v8 = r_fogHeightMapScale->current.vector.v[2] > 0.0 && s_volumetricHeightfield;
+    v9 = s_volumetricGlob.volumeCount[volumetricsIndex & 1] || v7 || v8;
+    device = computeState->device;
+    drawStream.useLocalMedia = v9;
+    drawStream.useLocalMediaPrev = s_volumetricGlob.prevFrameUsedLocalMedia;
+    drawStream.state = computeState;
+    R_LockIfGfxImmediateContext(device);
     R_ProfBeginNamedEvent(computeState, "Volumetrics Lightgrid");
     R_GPU_BeginTimer(GPU_TIMER_VOLUMETRIC_AMBIENT);
-    if ( RB_GpuLightGrid_DataAvailable(_RBX) )
-      __asm { vcomiss xmm6, dword ptr [rbx+2E8Ch] }
-    s_volumetricGlob.prevFrameAmbientValid = 0;
+    if ( RB_GpuLightGrid_DataAvailable(viewInfo) && viewInfo->volumetrics.ambientBrightness > 0.0 )
+    {
+      if ( R_LGV_UseMultiLightGridSampling() )
+      {
+        RB_VOL_SampleMultiLightgrid(&drawStream);
+        RB_VOL_CombineMultiLightgrid(&drawStream);
+      }
+      else
+      {
+        RB_VOL_SampleLightgrid(&drawStream);
+      }
+      s_volumetricGlob.prevFrameAmbientValid = 1;
+    }
+    else
+    {
+      s_volumetricGlob.prevFrameAmbientValid = 0;
+    }
     if ( computeState->device )
       R_ComputeWaitForCompute(computeState, PIPE_FLUSH_PARTIAL);
     R_GPU_EndTimer();
@@ -837,10 +760,8 @@ void RB_VOL_EvaluateLightgrid(ComputeCmdBufState *computeState, const GfxViewInf
   }
   else
   {
-LABEL_15:
     s_volumetricGlob.prevFrameAmbientValid = 0;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -854,16 +775,24 @@ void RB_VOL_EvaluateScatteringResources(VolumetricDrawStream *drawStream)
   R_RT_Flags v4; 
   const dvar_t *v5; 
   R_RT_Flags rtFlags; 
+  __m256i v7; 
+  const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v11; 
-  bool v15; 
+  __m256i v11; 
+  bool v13; 
+  const GfxViewInfo *viewInfo; 
+  __int64 v15; 
   R_RT_Image *p_m_image; 
+  const GfxViewInfo *v17; 
   R_RT_Image *zeroImage; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v28; 
+  const GfxViewInfo *v20; 
+  R_RT_Image *blackImage3D; 
+  const R_RT_Surface *v22; 
   const GfxImage *SpotShadowArrayImageDraw3D; 
   ComputeCmdBufState *state; 
-  R_RT_Handle v31; 
+  R_RT_Handle m_translucentShadowRt; 
+  __m256i v26; 
   VolumetricScatteringResources resources; 
   R_RT_Handle result; 
 
@@ -886,25 +815,20 @@ void RB_VOL_EvaluateScatteringResources(VolumetricDrawStream *drawStream)
   if ( !v5->current.enabled )
 LABEL_15:
     rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView;
-  _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[44], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Volumetric Current Scatter texture", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1685)");
-  __asm
+  v7 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[44], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Volumetric Current Scatter texture", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1685)");
+  v26 = v7;
+  m_translucentShadowRt = (R_RT_Handle)v7;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups [rbp+80h+var_E0], ymm0
-    vmovups ymmword ptr [rbp+80h+var_100.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v31);
-    if ( (R_RT_Handle::GetSurface(&v31)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&m_translucentShadowRt);
+    if ( (R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+80h+var_100.m_surfaceID] }
+      v7 = (__m256i)m_translucentShadowRt;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+80h+var_100.m_surfaceID] }
+      v7 = (__m256i)m_translucentShadowRt;
     }
   }
   else
@@ -912,44 +836,39 @@ LABEL_15:
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      __asm { vmovups ymm0, [rbp+80h+var_E0] }
+      v7 = v26;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
   }
-  v10 = r_deviceDebug;
-  __asm { vmovups ymmword ptr cs:s_volumetricGlob.currentScatterImage.baseclass_0.m_surfaceID, ymm0 }
+  v9 = r_deviceDebug;
+  s_volumetricGlob.currentScatterImage = (R_RT_ColorHandle)v7;
   if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
     goto LABEL_32;
-  v11 = DCONST_DVARBOOL_r_esramPostFX;
+  v10 = DCONST_DVARBOOL_r_esramPostFX;
   if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled )
 LABEL_32:
     v4 = R_RT_Flag_RWView|R_RT_Flag_RTView;
-  _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[45], v4, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Volumetric Current Extinction texture", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1686)");
-  __asm
+  v11 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[45], v4, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Volumetric Current Extinction texture", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1686)");
+  v26 = v11;
+  m_translucentShadowRt = (R_RT_Handle)v11;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups [rbp+80h+var_E0], ymm0
-    vmovups ymmword ptr [rbp+80h+var_100.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v31);
-    if ( (R_RT_Handle::GetSurface(&v31)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&m_translucentShadowRt);
+    if ( (R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+80h+var_100.m_surfaceID] }
+      v11 = (__m256i)m_translucentShadowRt;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+80h+var_100.m_surfaceID] }
+      v11 = (__m256i)m_translucentShadowRt;
     }
   }
   else
@@ -957,78 +876,62 @@ LABEL_32:
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, [rbp+80h+var_E0] }
-      if ( v15 )
+      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v11 = v26;
+      if ( v13 )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr cs:s_volumetricGlob.currentExtinctionImage.baseclass_0.m_surfaceID, ymm0 }
-  _RCX = drawStream->viewInfo;
-  if ( (*((_BYTE *)&_RCX->viewportFeatures + 44) & 4) != 0 )
+  s_volumetricGlob.currentExtinctionImage = (R_RT_ColorHandle)v11;
+  viewInfo = drawStream->viewInfo;
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
-    _RAX = 12928i64;
+    v15 = 808i64;
     if ( drawStream->data->sunShadow.opaqueCascadeCount > 1u )
-      _RAX = 12960i64;
-    __asm
+      v15 = 810i64;
+    m_translucentShadowRt = *(R_RT_Handle *)viewInfo->viewParmsSet.frames[0].viewParms.viewMatrix.m.m[v15].v;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax+rcx]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+80h+var_100.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v31);
-      p_m_image = &R_RT_Handle::GetSurface(&v31)->m_image;
+      R_RT_Handle::GetSurface(&m_translucentShadowRt);
+      p_m_image = &R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_image;
       goto LABEL_49;
     }
-    if ( v31.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( m_translucentShadowRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
   }
   p_m_image = (R_RT_Image *)rgp.blackShadowImage;
 LABEL_49:
   resources.sunShadowImage = &p_m_image->m_base;
-  _RAX = drawStream->viewInfo;
-  if ( (*((_BYTE *)&_RAX->viewportFeatures + 44) & 4) == 0 || !rg.useTransSunShadow )
+  v17 = drawStream->viewInfo;
+  if ( (*((_BYTE *)&v17->viewportFeatures + 44) & 4) != 0 && rg.useTransSunShadow )
   {
-LABEL_55:
-    zeroImage = (R_RT_Image *)rgp.zeroImage;
-    goto LABEL_56;
-  }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+3300h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+80h+var_100.m_surfaceID], ymm0
-  }
-  if ( !(_WORD)_EAX )
-  {
-    if ( v31.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    m_translucentShadowRt = (R_RT_Handle)v17->sceneRtInput.m_translucentShadowRt;
+    if ( (_WORD)_XMM0 )
+    {
+      R_RT_Handle::GetSurface(&m_translucentShadowRt);
+      zeroImage = &R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_image;
+      goto LABEL_56;
+    }
+    if ( m_translucentShadowRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    goto LABEL_55;
   }
-  R_RT_Handle::GetSurface(&v31);
-  zeroImage = &R_RT_Handle::GetSurface(&v31)->m_image;
+  zeroImage = (R_RT_Image *)rgp.zeroImage;
 LABEL_56:
   resources.translucentSunShadowImage = &zeroImage->m_base;
   resources.translucentSunShadowMaskImage = rgp.blackImage;
   resources.scatterTemporalWriteImage = &R_RT_Handle::GetSurface(&s_volumetricGlob.currentScatterImage)->m_image.m_base;
   Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.currentExtinctionImage);
-  _RDI = drawStream->viewInfo;
+  v20 = drawStream->viewInfo;
   resources.extinctionTemporalWriteImage = &Surface->m_image.m_base;
-  if ( RB_GpuLightGrid_DataAvailable(_RDI) )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rdi+2E8Ch]
-    }
-  }
-  resources.ambientImage = rgp.blackImage3D;
-  v28 = R_RT_Handle::GetSurface(&s_volumetricGlob.maskClusterBuffer);
-  if ( (v28->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
+  if ( RB_GpuLightGrid_DataAvailable(v20) && v20->volumetrics.ambientBrightness > 0.0 )
+    blackImage3D = &R_RT_Handle::GetSurface(&s_volumetricGlob.ambientImage[drawStream->toggle])->m_image;
+  else
+    blackImage3D = (R_RT_Image *)rgp.blackImage3D;
+  resources.ambientImage = &blackImage3D->m_base;
+  v22 = R_RT_Handle::GetSurface(&s_volumetricGlob.maskClusterBuffer);
+  if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer") )
     __debugbreak();
-  resources.volumesClusterBuffer = (const GfxWrappedBuffer *)&v28->1080;
+  resources.volumesClusterBuffer = (const GfxWrappedBuffer *)&v22->1080;
   resources.lightsClusterBuffer = R_GetFrustumLightsClusterBuffer();
   resources.maxFloatzImage = &R_RT_Handle::GetSurface(&s_volumetricGlob.maxFloatZImage)->m_image.m_base;
   SpotShadowArrayImageDraw3D = R_GetSpotShadowArrayImageDraw3D();
@@ -1048,24 +951,15 @@ RB_VOL_EvaluateVolumetricsScattering
 */
 void RB_VOL_EvaluateVolumetricsScattering(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  int v8; 
+  int v6; 
   unsigned int volumetricsIndex; 
+  bool v8; 
+  bool v9; 
   unsigned int CUMask; 
   ComputeCmdBufState *state; 
   VolumetricDrawStream drawStream; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBX = viewInfo;
-  if ( !R_UseBakedLighting() )
-    goto LABEL_25;
-  if ( !_RBX->volumetrics.enabled )
-    goto LABEL_25;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+2E6Ch]
-  }
-  if ( R_VOL_UseLocalMedia(_RBX->input.data, _RBX) )
+  if ( R_UseBakedLighting() && viewInfo->volumetrics.enabled && (viewInfo->volumetrics.airDensity > 0.0 || R_VOL_UseLocalMedia(viewInfo->input.data, viewInfo)) )
   {
     if ( !computeState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1872, ASSERT_TYPE_ASSERT, "(computeState)", (const char *)&queryFormat, "computeState") )
       __debugbreak();
@@ -1075,19 +969,18 @@ void RB_VOL_EvaluateVolumetricsScattering(ComputeCmdBufState *computeState, cons
       __debugbreak();
     if ( !s_volumetricGlob.ambientBlurKickedOff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1877, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.ambientBlurKickedOff)", (const char *)&queryFormat, "s_volumetricGlob.ambientBlurKickedOff") )
       __debugbreak();
-    v8 = 0;
+    v6 = 0;
     *(_QWORD *)&s_volumetricGlob.ambientLightingDensityClearKickedOff = 0i64;
     s_volumetricGlob.ambientBlurKickedOff = 0;
     volumetricsIndex = data->volumetricsIndex;
-    drawStream.viewInfo = _RBX;
-    __asm { vcomiss xmm6, dword ptr [rbx+0C38h] }
+    drawStream.viewInfo = viewInfo;
+    v8 = viewInfo->brCircle.volumetricDensity > 0.0;
     drawStream.toggle = volumetricsIndex & 1;
-    _RAX = r_fogHeightMapScale;
     drawStream.data = data;
-    __asm { vcomiss xmm6, dword ptr [rax+30h] }
-    if ( s_volumetricGlob.volumeCount[volumetricsIndex & 1] )
-      v8 = 1;
-    drawStream.useLocalMedia = v8;
+    v9 = r_fogHeightMapScale->current.vector.v[2] > 0.0 && s_volumetricHeightfield;
+    if ( s_volumetricGlob.volumeCount[volumetricsIndex & 1] || v8 || v9 )
+      v6 = 1;
+    drawStream.useLocalMedia = v6;
     drawStream.useLocalMediaPrev = s_volumetricGlob.prevFrameUsedLocalMedia;
     drawStream.state = computeState;
     R_ProfBeginNamedEvent(computeState, "Volumetrics Evaluate Scattering");
@@ -1096,7 +989,7 @@ void RB_VOL_EvaluateVolumetricsScattering(ComputeCmdBufState *computeState, cons
       CUMask = R_GetCUMask(GFX_CU_MASK_MODE_ASYNC_VOLUMETRICS);
       R_SetComputeCUMask(computeState, CUMask);
     }
-    RB_VOL_MaxFloatZ(&drawStream, &_RBX->sceneRtInput.m_floatZFullRt);
+    RB_VOL_MaxFloatZ(&drawStream, &viewInfo->sceneRtInput.m_floatZFullRt);
     RB_VOL_EvaluateScatteringResources(&drawStream);
     RB_VOL_AccumulateScatteringResources(&drawStream);
     state = drawStream.state;
@@ -1108,10 +1001,8 @@ void RB_VOL_EvaluateVolumetricsScattering(ComputeCmdBufState *computeState, cons
   }
   else
   {
-LABEL_25:
     s_volumetricGlob.prevFrameScatteringValid = 0;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -1127,37 +1018,38 @@ void RB_VOL_MaxFloatZ(VolumetricDrawStream *drawStream, const R_RT_ColorHandle *
   R_RT_ColorHandle *v8; 
   const dvar_t *v9; 
   R_RT_Flags rtFlags; 
+  __m256i v11; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v16; 
-  const GfxTexture *v17; 
-  const R_RT_Surface *v18; 
-  const GfxTexture *v19; 
-  const R_RT_Surface *v20; 
-  const GfxTexture *v21; 
+  const R_RT_Surface *v15; 
+  const GfxTexture *v16; 
+  const R_RT_Surface *v17; 
+  const GfxTexture *v18; 
+  const R_RT_Surface *v19; 
+  const GfxTexture *v20; 
   const GfxViewInfo *viewInfo; 
-  bool v27; 
-  const R_RT_Surface *v28; 
+  R_RT_Handle v22; 
+  bool v24; 
+  const R_RT_Surface *v25; 
+  const GfxViewInfo *v26; 
+  R_RT_Handle v27; 
+  bool v29; 
   const R_RT_Surface *v30; 
-  const GfxViewInfo *v31; 
-  bool v35; 
-  const R_RT_Surface *v36; 
+  const R_RT_Surface *v31; 
+  const GfxTexture *v32; 
+  const R_RT_Surface *v33; 
+  const GfxTexture *v34; 
+  const R_RT_Surface *v35; 
+  const GfxTexture *v36; 
   const R_RT_Surface *v37; 
   const GfxTexture *v38; 
-  const R_RT_Surface *v39; 
-  const GfxTexture *v40; 
-  const R_RT_Surface *v41; 
-  const GfxTexture *v42; 
-  const R_RT_Surface *v43; 
-  const GfxTexture *v44; 
-  R_RT_Handle v45; 
-  R_RT_Handle v46; 
+  R_RT_Handle v39; 
+  R_RT_Handle v40; 
   R_RT_Handle result; 
-  R_RT_Handle v48; 
+  R_RT_Handle v42; 
 
   v3 = r_deviceDebug;
   toggle = drawStream->toggle;
-  _RSI = floatZ;
   v7 = &s_volumetricGlob.visibilityImage[toggle];
   v8 = &s_volumetricGlob.ambientVisibilityImage[toggle];
   if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
@@ -1173,25 +1065,20 @@ void RB_VOL_MaxFloatZ(VolumetricDrawStream *drawStream, const R_RT_ColorHandle *
   if ( !v9->current.enabled )
 LABEL_9:
     rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView;
-  _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[47], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Volumetric FloatZ Difference", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1653)");
-  __asm
+  v11 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[47], rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Volumetric FloatZ Difference", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(1653)");
+  v40 = (R_RT_Handle)v11;
+  v39 = (R_RT_Handle)v11;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v45);
-    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v39);
+    if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v11 = (__m256i)v39;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v11 = (__m256i)v39;
     }
   }
   else
@@ -1199,52 +1086,43 @@ LABEL_9:
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_60.m_surfaceID] }
+      v11 = (__m256i)v40;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr cs:s_volumetricGlob.maxAmbientFloatZImage.baseclass_0.m_surfaceID, ymm0 }
+  s_volumetricGlob.maxAmbientFloatZImage = (R_RT_ColorHandle)v11;
   R_ProfBeginNamedEvent(drawStream->state, "Max Float Z");
   R_GPU_BeginTimer(GPU_TIMER_VOLUMETRIC_MAX_FLOATZ);
   Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.maxFloatZImage);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(drawStream->state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v16 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxAmbientFloatZImage);
-  v17 = R_Texture_GetResident(v16->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v18 = R_RT_Handle::GetSurface(v7);
-  v19 = R_Texture_GetResident(v18->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v20 = R_RT_Handle::GetSurface(v8);
-  v21 = R_Texture_GetResident(v20->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v21, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v15 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxAmbientFloatZImage);
+  v16 = R_Texture_GetResident(v15->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v16, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v17 = R_RT_Handle::GetSurface(v7);
+  v18 = R_Texture_GetResident(v17->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v18, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v19 = R_RT_Handle::GetSurface(v8);
+  v20 = R_Texture_GetResident(v19->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v20, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(drawStream->state);
   viewInfo = drawStream->viewInfo;
-  __asm
+  v40 = floatZ->R_RT_Handle;
+  v22 = *R_RT_GetViewInternal(&result, &v40, 0, viewInfo->reProjFloatZMipMap);
+  v40 = v22;
+  v39 = v22;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0
-  }
-  _RAX = R_RT_GetViewInternal(&result, &v46, 0, viewInfo->reProjFloatZMipMap);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v45);
-    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v39);
+    if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v22 = v39;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v22 = v39;
     }
   }
   else
@@ -1252,37 +1130,30 @@ LABEL_9:
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_60.m_surfaceID] }
-      if ( v27 )
+      v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v22 = v40;
+      if ( v24 )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0 }
-  v28 = R_RT_Handle::GetSurface(&v46);
-  __asm { vmovups ymm0, ymmword ptr [rsi] }
-  v30 = v28;
-  v31 = drawStream->viewInfo;
-  __asm { vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0 }
-  _RAX = R_RT_GetViewInternal(&v48, &v46, 0, v31->ambientVisibilityMipMap);
-  __asm
+  v40 = v22;
+  v25 = R_RT_Handle::GetSurface(&v40);
+  v26 = drawStream->viewInfo;
+  v40 = floatZ->R_RT_Handle;
+  v27 = *R_RT_GetViewInternal(&v42, &v40, 0, v26->ambientVisibilityMipMap);
+  v40 = v27;
+  v39 = v27;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+var_80.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v45);
-    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v39);
+    if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v27 = v39;
       __debugbreak();
     }
     else
     {
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_80.m_surfaceID] }
+      v27 = v39;
     }
   }
   else
@@ -1290,27 +1161,27 @@ LABEL_9:
     __asm { vpextrd rax, xmm0, 2 }
     if ( (_DWORD)_RAX )
     {
-      v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rbp+var_60.m_surfaceID] }
-      if ( v35 )
+      v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v27 = v40;
+      if ( v29 )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rbp+var_60.m_surfaceID], ymm0 }
-  v36 = R_RT_Handle::GetSurface(&v46);
-  R_VOL_MaxFloatZ(drawStream->state, drawStream->viewInfo, &v30->m_image.m_base, &v36->m_image.m_base, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.maxAmbientFloatZImage, v7, v8);
-  v37 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxFloatZImage);
+  v40 = v27;
+  v30 = R_RT_Handle::GetSurface(&v40);
+  R_VOL_MaxFloatZ(drawStream->state, drawStream->viewInfo, &v25->m_image.m_base, &v30->m_image.m_base, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.maxAmbientFloatZImage, v7, v8);
+  v31 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxFloatZImage);
+  v32 = R_Texture_GetResident(v31->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v32, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v33 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxAmbientFloatZImage);
+  v34 = R_Texture_GetResident(v33->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v34, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v35 = R_RT_Handle::GetSurface(v7);
+  v36 = R_Texture_GetResident(v35->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(drawStream->state, v36, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v37 = R_RT_Handle::GetSurface(v8);
   v38 = R_Texture_GetResident(v37->m_image.m_base.textureId);
   R_HW_AddResourceTransition(drawStream->state, v38, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v39 = R_RT_Handle::GetSurface(&s_volumetricGlob.maxAmbientFloatZImage);
-  v40 = R_Texture_GetResident(v39->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v40, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v41 = R_RT_Handle::GetSurface(v7);
-  v42 = R_Texture_GetResident(v41->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v42, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v43 = R_RT_Handle::GetSurface(v8);
-  v44 = R_Texture_GetResident(v43->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(drawStream->state, v44, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(drawStream->state);
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(drawStream->state);
@@ -1326,22 +1197,23 @@ void RB_VOL_SampleLightgrid(VolumetricDrawStream *drawStream)
   ComputeCmdBufState *state; 
   const GfxViewInfo *viewInfo; 
   __int64 toggle; 
-  R_RT_ColorHandle *v12; 
+  __int64 v6; 
+  R_RT_ColorHandle *v8; 
   R_RT_ColorHandle *visibilityCurrent; 
-  __int64 v14; 
+  __int64 v10; 
   R_RT_Image *visibilityPrev; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
+  const R_RT_Surface *v14; 
+  const GfxTexture *v15; 
+  const R_RT_Surface *v16; 
+  const GfxTexture *v17; 
   const R_RT_Surface *v18; 
   const GfxTexture *v19; 
   const R_RT_Surface *v20; 
   const GfxTexture *v21; 
   const R_RT_Surface *v22; 
   const GfxTexture *v23; 
-  const R_RT_Surface *v24; 
-  const GfxTexture *v25; 
-  const R_RT_Surface *v26; 
-  const GfxTexture *v27; 
   R_RT_Handle ambientImageRead; 
 
   state = drawStream->state;
@@ -1349,42 +1221,28 @@ void RB_VOL_SampleLightgrid(VolumetricDrawStream *drawStream)
   R_LockIfGfxImmediateContext(drawStream->state->device);
   R_ProfBeginNamedEvent(state, "Sample Light Grid");
   toggle = drawStream->toggle;
-  _RCX = &s_volumetricGlob;
   if ( s_volumetricGlob.prevFrameAmbientValid )
   {
-    _RAX = 0i64;
+    v6 = 0i64;
     if ( !(_DWORD)toggle )
-      _RAX = 32i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+rcx+1D0h]
-      vmovups ymmword ptr [rsp+98h+ambientImageRead.m_surfaceID], ymm0
-    }
+      v6 = 1i64;
+    ambientImageRead = (R_RT_Handle)s_volumetricGlob.ambientImage[v6];
   }
   else
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+98h+ambientImageRead.m_tracking.m_name], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&ambientImageRead.m_tracking.m_name = _XMM0;
     ambientImageRead.m_surfaceID = 0;
     ambientImageRead.m_tracking.m_allocCounter = 0;
   }
-  _RAX = &ambientImageRead;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+98h+ambientImageRead.m_surfaceID], ymm0
-  }
-  v12 = &s_volumetricGlob.ambientImage[toggle];
+  v8 = &s_volumetricGlob.ambientImage[toggle];
   visibilityCurrent = &s_volumetricGlob.ambientVisibilityImage[toggle];
   if ( s_volumetricGlob.prevFrameScatteringValid )
   {
-    v14 = 0i64;
+    v10 = 0i64;
     if ( !(_DWORD)toggle )
-      v14 = 1i64;
-    visibilityPrev = &R_RT_Handle::GetSurface(&s_volumetricGlob.ambientVisibilityImage[v14])->m_image;
+      v10 = 1i64;
+    visibilityPrev = &R_RT_Handle::GetSurface(&s_volumetricGlob.ambientVisibilityImage[v10])->m_image;
   }
   else
   {
@@ -1393,23 +1251,23 @@ void RB_VOL_SampleLightgrid(VolumetricDrawStream *drawStream)
   Surface = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v18 = R_RT_Handle::GetSurface(v12);
-  v19 = R_Texture_GetResident(v18->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v20 = R_RT_Handle::GetSurface(&s_volumetricGlob.tetIdxImage);
-  v21 = R_Texture_GetResident(v20->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v21, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v14 = R_RT_Handle::GetSurface(v8);
+  v15 = R_Texture_GetResident(v14->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v15, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v16 = R_RT_Handle::GetSurface(&s_volumetricGlob.tetIdxImage);
+  v17 = R_Texture_GetResident(v16->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
-  R_VOL_SampleLightgridImages(state, viewInfo, &ambientImageRead, v12, &s_volumetricGlob.ambientSceneLumaImage, &s_volumetricGlob.tetIdxImage, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.maxFloatZImage, visibilityCurrent, &visibilityPrev->m_base);
-  v22 = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
+  R_VOL_SampleLightgridImages(state, viewInfo, &ambientImageRead, v8, &s_volumetricGlob.ambientSceneLumaImage, &s_volumetricGlob.tetIdxImage, &s_volumetricGlob.maxFloatZImage, &s_volumetricGlob.maxFloatZImage, visibilityCurrent, &visibilityPrev->m_base);
+  v18 = R_RT_Handle::GetSurface(&s_volumetricGlob.ambientSceneLumaImage);
+  v19 = R_Texture_GetResident(v18->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v20 = R_RT_Handle::GetSurface(v8);
+  v21 = R_Texture_GetResident(v20->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v21, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v22 = R_RT_Handle::GetSurface(&s_volumetricGlob.tetIdxImage);
   v23 = R_Texture_GetResident(v22->m_image.m_base.textureId);
   R_HW_AddResourceTransition(state, v23, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v24 = R_RT_Handle::GetSurface(v12);
-  v25 = R_Texture_GetResident(v24->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v25, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v26 = R_RT_Handle::GetSurface(&s_volumetricGlob.tetIdxImage);
-  v27 = R_Texture_GetResident(v26->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v27, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
   R_ProfEndNamedEvent(state);
   R_UnlockIfGfxImmediateContext(state->device);
@@ -1425,69 +1283,56 @@ void RB_VOL_SampleMultiLightgrid(VolumetricDrawStream *drawStream)
   ComputeCmdBufState *state; 
   const GfxViewInfo *viewInfo; 
   __int64 toggle; 
-  R_RT_ColorHandle *v7; 
+  R_RT_ColorHandle *v6; 
+  R_RT_BufferHandle *v7; 
   R_RT_BufferHandle *v8; 
-  R_RT_BufferHandle *v9; 
   R_RT_BufferHandle *tetIndexCurr; 
+  __int64 v10; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
+  const GfxWrappedRWBuffer *v13; 
+  const GfxWrappedRWBuffer *v14; 
+  const GfxWrappedRWBuffer *v15; 
+  const GfxWrappedRWBuffer *v16; 
   const GfxWrappedRWBuffer *v17; 
-  const GfxWrappedRWBuffer *v18; 
-  const GfxWrappedRWBuffer *v19; 
-  const GfxWrappedRWBuffer *v20; 
-  const GfxWrappedRWBuffer *v21; 
   R_RT_Handle tetIndexPrev; 
 
   state = drawStream->state;
   viewInfo = drawStream->viewInfo;
   R_LockIfGfxImmediateContext(drawStream->state->device);
   R_ProfBeginNamedEvent(state, "Sample Multi Light Grid");
-  _R8 = &s_volumetricGlob;
   toggle = drawStream->toggle;
-  v7 = &s_volumetricGlob.ambientVisibilityImage[toggle];
-  v8 = &s_volumetricGlob.ambientLightingData[toggle];
-  v9 = &s_volumetricGlob.ambientLightingAlpha[toggle];
+  v6 = &s_volumetricGlob.ambientVisibilityImage[toggle];
+  v7 = &s_volumetricGlob.ambientLightingData[toggle];
+  v8 = &s_volumetricGlob.ambientLightingAlpha[toggle];
   tetIndexCurr = &s_volumetricGlob.ambientLightingTets[toggle];
   if ( s_volumetricGlob.prevFrameAmbientValid )
   {
-    _RAX = 0i64;
+    v10 = 0i64;
     if ( !drawStream->toggle )
-      _RAX = 32i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+r8+3B0h]
-      vmovups ymmword ptr [rsp+78h+var_38.m_surfaceID], ymm0
-    }
+      v10 = 1i64;
+    tetIndexPrev = (R_RT_Handle)s_volumetricGlob.ambientLightingTets[v10];
   }
   else
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+78h+var_38.m_tracking.m_name], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&tetIndexPrev.m_tracking.m_name = _XMM0;
     tetIndexPrev.m_surfaceID = 0;
     tetIndexPrev.m_tracking.m_allocCounter = 0;
   }
-  _RAX = &tetIndexPrev;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+78h+var_38.m_surfaceID], ymm0
-  }
-  WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v8);
+  WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v7);
   R_HW_AddResourceTransition(state, WrappedBuffer, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v17 = R_RT_Handle::GetWrappedBuffer(v9);
-  R_HW_AddResourceTransition(state, v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v18 = R_RT_Handle::GetWrappedBuffer(tetIndexCurr);
-  R_HW_AddResourceTransition(state, v18, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v13 = R_RT_Handle::GetWrappedBuffer(v8);
+  R_HW_AddResourceTransition(state, v13, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v14 = R_RT_Handle::GetWrappedBuffer(tetIndexCurr);
+  R_HW_AddResourceTransition(state, v14, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
-  R_VOL_SampleAmbientMultiLightGrid(state, viewInfo, v7, &s_volumetricGlob.maxFloatZImage, v8, v9, tetIndexCurr, &tetIndexPrev);
-  v19 = R_RT_Handle::GetWrappedBuffer(v8);
-  R_HW_AddResourceTransition(state, v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v20 = R_RT_Handle::GetWrappedBuffer(v9);
-  R_HW_AddResourceTransition(state, v20, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v21 = R_RT_Handle::GetWrappedBuffer(tetIndexCurr);
-  R_HW_AddResourceTransition(state, v21, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_VOL_SampleAmbientMultiLightGrid(state, viewInfo, v6, &s_volumetricGlob.maxFloatZImage, v7, v8, tetIndexCurr, &tetIndexPrev);
+  v15 = R_RT_Handle::GetWrappedBuffer(v7);
+  R_HW_AddResourceTransition(state, v15, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v16 = R_RT_Handle::GetWrappedBuffer(v8);
+  R_HW_AddResourceTransition(state, v16, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v17 = R_RT_Handle::GetWrappedBuffer(tetIndexCurr);
+  R_HW_AddResourceTransition(state, v17, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
   R_ProfEndNamedEvent(state);
   R_UnlockIfGfxImmediateContext(state->device);
@@ -1511,16 +1356,20 @@ void R_InitVolumetric(const bool reconfigure)
   int v12; 
   unsigned int v13; 
   signed int v14; 
-  $56BB91A6A543394844F4ECC2111594E6 *v33; 
-  __int64 v34; 
-  __int64 v36; 
+  R_RT_BufferHandle v15; 
+  R_RT_ColorHandle v16; 
+  R_RT_ColorHandle v17; 
+  R_RT_ColorHandle v18; 
+  $56BB91A6A543394844F4ECC2111594E6 *v19; 
+  __int64 v20; 
+  __int64 v21; 
   GfxOrientedBoundingBox **writeVolumetricObbData; 
   unsigned int *volumeCount; 
   GfxWrappedBuffer *volumetricObbBuffers; 
-  __m256i v41; 
-  __m256i v42; 
-  __m256i v43; 
-  __m256i v44; 
+  R_RT_ColorHandle v25; 
+  R_RT_BufferHandle v26; 
+  R_RT_BufferHandle v27; 
+  R_RT_BufferHandle v28; 
 
   s_volumetricGlob.baseMaxWidth = 1920;
   s_volumetricGlob.baseMaxHeight = 1080;
@@ -1537,7 +1386,7 @@ void R_InitVolumetric(const bool reconfigure)
     sceneWidth = baseMaxWidth;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v7 = (sceneWidth + 11) / 0xC;
-  __asm { vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0 }
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
   sceneHeight = vidConfig.sceneHeight;
   v9 = ((vidConfig.sceneWidth + v7 - 1) / v7 * v7 + 4 * ((vidConfig.sceneWidth + v7 - 1) / v7) - 1) / (4 * ((vidConfig.sceneWidth + v7 - 1) / v7));
   s_volumetricGlob.maxClusterCountX = v9;
@@ -1561,166 +1410,96 @@ void R_InitVolumetric(const bool reconfigure)
   s_volumetricGlob.clusterImageWidth = (v13 + 3) >> 2;
   s_volumetricGlob.voxelImageHeight = v11;
   s_volumetricGlob.clusterImageHeight = (v11 + 3) >> 2;
-  v41.m256i_i16[0] = 0;
-  v41.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.scatterImage.baseclass_0.m_surfaceID, ymm1
-  }
-  v41.m256i_i16[0] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.scatterImage.baseclass_0.m_surfaceID+20h, ymm1
-  }
-  v41.m256i_i16[0] = 0;
-  v41.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.scatterImage.baseclass_0.m_surfaceID+40h, ymm1
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0 }
-  v41.m256i_i16[0] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.extinctionImage.baseclass_0.m_surfaceID, ymm1
-  }
-  v41.m256i_i16[0] = 0;
-  v41.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.extinctionImage.baseclass_0.m_surfaceID+20h, ymm1
-  }
-  v41.m256i_i16[0] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.extinctionImage.baseclass_0.m_surfaceID+40h, ymm1
-  }
-  v41.m256i_i16[0] = 0;
-  v41.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientImage.baseclass_0.m_surfaceID, ymm1
-  }
-  v42.m256i_i16[0] = 0;
-  v42.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_80+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_80]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingData.baseclass_0.m_surfaceID, ymm1
-  }
-  v43.m256i_i16[0] = 0;
-  v43.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_60+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_60]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingAlpha.baseclass_0.m_surfaceID, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingTets.baseclass_0.m_surfaceID, ymm1
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0 }
-  v41.m256i_i16[0] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_A0+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_A0]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientImage.baseclass_0.m_surfaceID+20h, ymm1
-  }
-  v42.m256i_i16[0] = 0;
-  v42.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_80+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_80]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingData.baseclass_0.m_surfaceID+20h, ymm1
-  }
-  v43.m256i_i16[0] = 0;
-  v43.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_60+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_60]
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingAlpha.baseclass_0.m_surfaceID+20h, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientLightingTets.baseclass_0.m_surfaceID+20h, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymmword ptr cs:s_volumetricGlob.visibilityImage.baseclass_0.m_surfaceID, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymmword ptr cs:s_volumetricGlob.visibilityImage.baseclass_0.m_surfaceID+20h, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-    vmovups ymmword ptr cs:s_volumetricGlob.tetIdxImage.baseclass_0.m_surfaceID, ymm1
-  }
-  v44.m256i_i16[0] = 0;
-  v44.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_40]
-  }
-  v44.m256i_i16[0] = 0;
-  v33 = &s_volumetricGlob;
-  v44.m256i_i32[2] = 0;
-  v34 = 2i64;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymmword ptr cs:s_volumetricGlob.ambientSceneLumaImage.baseclass_0.m_surfaceID, ymm1
-    vmovups ymm1, [rbp+57h+var_40]
-    vmovups ymmword ptr cs:s_volumetricGlob.maxFloatZImage.baseclass_0.m_surfaceID, ymm1
-  }
-  v44.m256i_i16[0] = 0;
-  v36 = 2i64;
-  v44.m256i_i32[2] = 0;
-  __asm
-  {
-    vmovdqu xmmword ptr [rbp+57h+var_40+10h], xmm0
-    vmovups ymm1, [rbp+57h+var_40]
-    vmovups ymmword ptr cs:s_volumetricGlob.maskClusterBuffer.baseclass_0.m_surfaceID, ymm1
-  }
+  v25.m_surfaceID = 0;
+  v25.m_tracking.m_allocCounter = 0;
+  s_volumetricGlob.scatterImage[0] = v25;
+  v25.m_surfaceID = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.scatterImage[1] = v25;
+  v25.m_surfaceID = 0;
+  v25.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.scatterImage[2] = v25;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  v25.m_surfaceID = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.extinctionImage[0] = v25;
+  v25.m_surfaceID = 0;
+  v25.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.extinctionImage[1] = v25;
+  v25.m_surfaceID = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.extinctionImage[2] = v25;
+  v25.m_surfaceID = 0;
+  v25.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientImage[0] = v25;
+  v26.m_surfaceID = 0;
+  v26.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v26.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientLightingData[0] = v26;
+  v27.m_surfaceID = 0;
+  v27.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v27.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientLightingAlpha[0] = v27;
+  s_volumetricGlob.ambientLightingTets[0] = v28;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  v25.m_surfaceID = 0;
+  *(_OWORD *)&v25.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientImage[1] = v25;
+  v26.m_surfaceID = 0;
+  v26.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v26.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientLightingData[1] = v26;
+  v27.m_surfaceID = 0;
+  v27.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v27.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientLightingAlpha[1] = v27;
+  v15 = v28;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientLightingTets[1] = v15;
+  v16 = (R_RT_ColorHandle)v28;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.visibilityImage[0] = v16;
+  v17 = (R_RT_ColorHandle)v28;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.visibilityImage[1] = v17;
+  s_volumetricGlob.tetIdxImage = (R_RT_ColorHandle)v28;
+  v28.m_surfaceID = 0;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  v18 = (R_RT_ColorHandle)v28;
+  v28.m_surfaceID = 0;
+  v19 = &s_volumetricGlob;
+  v28.m_tracking.m_allocCounter = 0;
+  v20 = 2i64;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.ambientSceneLumaImage = v18;
+  s_volumetricGlob.maxFloatZImage = (R_RT_ColorHandle)v28;
+  v28.m_surfaceID = 0;
+  v21 = 2i64;
+  v28.m_tracking.m_allocCounter = 0;
+  *(_OWORD *)&v28.m_tracking.m_name = _XMM0;
+  s_volumetricGlob.maskClusterBuffer = v28;
   s_volumetricGlob.frame = 0;
   do
   {
-    MatrixIdentity44((tmat44_t<vec4_t> *)v33);
-    v33 = ($56BB91A6A543394844F4ECC2111594E6 *)((char *)v33 + 64);
-    --v36;
+    MatrixIdentity44((tmat44_t<vec4_t> *)v19);
+    v19 = ($56BB91A6A543394844F4ECC2111594E6 *)((char *)v19 + 64);
+    --v21;
   }
-  while ( v36 );
+  while ( v21 );
   *(_QWORD *)&s_volumetricGlob.prevFrameUsedLocalMedia = 0i64;
   writeVolumetricObbData = s_volumetricGlob.writeVolumetricObbData;
   *(_QWORD *)&s_volumetricGlob.densityInjectionsKickedOff = 0i64;
@@ -1737,9 +1516,9 @@ void R_InitVolumetric(const bool reconfigure)
     R_CreateGfxWrappedBuffer(volumetricObbBuffers++, GfxWrappedBuffer_Structured, 60, 0x100u, GFX_DATA_FORMAT_R32_UINT, 0xAu, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "volumetrics obb buffer");
     ++volumeCount;
     ++writeVolumetricObbData;
-    --v34;
+    --v20;
   }
-  while ( v34 );
+  while ( v20 );
 }
 
 /*
@@ -1830,23 +1609,33 @@ R_VOL_AddVolumetric
 */
 __int64 R_VOL_AddVolumetric(const GfxVolumetric *volumetric, const GfxBackEndData *data, __int64 volumetricFrame, GfxDescriptorTable *currentVolumetricNoiseTexturesArray, const float time, const unsigned int count, const unsigned int limit, int *inOutMaskCount)
 {
-  __int64 result; 
-  __int64 v16; 
-  bool v17; 
-  bool v23; 
-  base_vec4_t<int> *v54; 
-  float *v56; 
-  _QWORD *v59; 
-  const GfxTexture *v70; 
-  __int64 v71; 
-  const GfxTexture *v72; 
+  __m256i v11; 
+  __int64 v12; 
+  VolumetricVolume *v13; 
+  GfxOrientedBoundingBox *v14; 
+  float falloff; 
+  __int128 v17; 
+  float v20; 
+  double v21; 
+  float anisotropy; 
+  int v24; 
+  float v28; 
+  float v29; 
+  base_vec4_t<int> *p_maskID; 
+  float *v31; 
+  float *v32; 
+  _QWORD *v33; 
+  float v34; 
+  float v35; 
+  const GfxTexture *v36; 
+  __int64 v37; 
+  const GfxTexture *v38; 
   unsigned int view; 
   signed int m_usedSize; 
-  int v75; 
-  __int64 v79; 
-  __int64 v80; 
+  int v41; 
+  __int64 v42; 
+  __int64 v43; 
 
-  _RBX = volumetric;
   if ( count >= 0x100 )
   {
     R_WarnOncePerFrame(R_WARN_VOLUMETRIC_VOLUME_LIMIT, limit, volumetricFrame);
@@ -1854,186 +1643,124 @@ __int64 R_VOL_AddVolumetric(const GfxVolumetric *volumetric, const GfxBackEndDat
   }
   if ( (volumetric->flags & 1) != 0 )
     return count;
-  __asm { vmovups ymm0, ymmword ptr [rbx+0Ch] }
-  _RDX = count;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  v16 = count;
-  v17 = __CFADD__(s_volumetricGlob.writeVolumetricVolumeData[(unsigned int)volumetricFrame], v16 * 144);
-  _R14 = (base_vec4_t<int> *)&s_volumetricGlob.writeVolumetricVolumeData[(unsigned int)volumetricFrame][v16];
-  _RCX = s_volumetricGlob.writeVolumetricObbData[(unsigned int)volumetricFrame];
+  v11 = *(__m256i *)volumetric->obb.center.v;
+  v12 = count;
+  v13 = &s_volumetricGlob.writeVolumetricVolumeData[(unsigned int)volumetricFrame][count];
+  v14 = s_volumetricGlob.writeVolumetricObbData[(unsigned int)volumetricFrame];
+  *(__m256i *)v14[v12].center.v = v11;
+  *(_OWORD *)&v14[v12].yAxis.z = *(_OWORD *)&volumetric->obb.yAxis.z;
+  *(double *)v14[v12].halfSize.v = *(double *)volumetric->obb.halfSize.v;
+  v14[v12].halfSize.v[2] = volumetric->obb.halfSize.v[2];
+  v13->density = volumetric->density;
+  if ( volumetric->falloff <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 575, ASSERT_TYPE_ASSERT, "(volumetric->falloff > 0.0f)", (const char *)&queryFormat, "volumetric->falloff > 0.0f") )
+    __debugbreak();
+  v13->falloffRcp = 1.0 / volumetric->falloff;
+  falloff = volumetric->falloff;
+  v17 = LODWORD(volumetric->obb.halfSize.v[0]);
+  *(float *)&v17 = volumetric->obb.halfSize.v[0] - falloff;
+  _XMM4 = v17;
+  v13->scaledFalloffHalfSize.v[0] = *(float *)&v17;
+  v13->scaledFalloffHalfSize.v[1] = volumetric->obb.halfSize.v[1] - falloff;
   __asm
   {
-    vxorps  xmm6, xmm6, xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovups ymmword ptr [rcx+rdx], ymm0
-    vmovups xmm1, xmmword ptr [rbx+2Ch]
-    vmovups xmmword ptr [rcx+rdx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rbx+3Ch]
-    vmovsd  qword ptr [rcx+rdx+30h], xmm0
-  }
-  _RCX[_RDX].halfSize.v[2] = _RBX->obb.halfSize.v[2];
-  _R14->v[0] = LODWORD(_RBX->density);
-  __asm { vcomiss xmm6, dword ptr [rbx+58h] }
-  if ( !v17 )
-  {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 575, ASSERT_TYPE_ASSERT, "(volumetric->falloff > 0.0f)", (const char *)&queryFormat, "volumetric->falloff > 0.0f");
-    v17 = 0;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vdivss  xmm0, xmm7, dword ptr [rbx+58h]
-    vmovss  dword ptr [r14+20h], xmm0
-    vmovss  xmm2, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vsubss  xmm4, xmm0, xmm2
-    vmovss  dword ptr [r14+24h], xmm4
-    vmovss  xmm1, dword ptr [rbx+40h]
-    vsubss  xmm3, xmm1, xmm2
-    vmovss  dword ptr [r14+28h], xmm3
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vsubss  xmm2, xmm0, xmm2
     vminss  xmm1, xmm4, xmm3
     vminss  xmm0, xmm1, xmm2
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [r14+2Ch], xmm2
   }
-  if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 578, ASSERT_TYPE_ASSERT, "(Vec3MinTerm( volume->scaledFalloffHalfSize ) >= 0.0f)", (const char *)&queryFormat, "Vec3MinTerm( volume->scaledFalloffHalfSize ) >= 0.0f") )
+  v13->scaledFalloffHalfSize.v[2] = volumetric->obb.halfSize.v[2] - falloff;
+  if ( *(float *)&_XMM0 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 578, ASSERT_TYPE_ASSERT, "(Vec3MinTerm( volume->scaledFalloffHalfSize ) >= 0.0f)", (const char *)&queryFormat, "Vec3MinTerm( volume->scaledFalloffHalfSize ) >= 0.0f") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+20h]
-    vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm3, dword ptr [r14+24h]
-    vmovss  dword ptr [r14+24h], xmm0
-    vmulss  xmm2, xmm3, dword ptr [r14+28h]
-    vmovss  dword ptr [r14+28h], xmm2
-    vmulss  xmm0, xmm3, dword ptr [r14+2Ch]
-    vmovss  dword ptr [r14+2Ch], xmm0
-    vmovss  xmm0, dword ptr [rbx+5Ch]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@bdcccccd
-    vmovss  xmm3, cs:__real@ffffffff
-    vmovss  dword ptr [r14+4], xmm1
-  }
-  if ( _RBX->flags & 2 )
-    __asm { vmovss  xmm4, dword ptr [rbx+60h] }
+  LODWORD(v20) = LODWORD(v13->falloffRcp) ^ _xmm;
+  v13->scaledFalloffHalfSize.v[0] = v20 * v13->scaledFalloffHalfSize.v[0];
+  v13->scaledFalloffHalfSize.v[1] = v20 * v13->scaledFalloffHalfSize.v[1];
+  v13->scaledFalloffHalfSize.v[2] = v20 * v13->scaledFalloffHalfSize.v[2];
+  v21 = I_fclamp(volumetric->heightFade, 0.0, 1.0);
+  _XMM3 = LODWORD(FLOAT_NaN);
+  v13->heightFadeExponent = *(float *)&v21 * -0.1;
+  if ( (volumetric->flags & 2) != 0 )
+    anisotropy = volumetric->anisotropy;
   else
-    __asm { vmovaps xmm4, xmm3 }
-  _EDI = 0;
+    anisotropy = FLOAT_NaN;
+  v24 = 0;
+  _XMM0 = volumetric->flags & 2;
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, edi
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm3, xmm2
-    vmovss  dword ptr [r14+10h], xmm4
-    vmovss  [rsp+0A8h+var_68], xmm0
   }
-  if ( (_RBX->flags & 4) != 0 )
-    __asm { vmovss  xmm1, dword ptr [rbx+48h] }
+  v13->anisotropy = anisotropy;
+  if ( (volumetric->flags & 4) != 0 )
+    v28 = volumetric->color.v[0];
   else
-    __asm { vmovaps xmm1, xmm0 }
-  __asm { vmovss  dword ptr [r14+14h], xmm1 }
-  if ( (_RBX->flags & 4) != 0 )
-    __asm { vmovss  xmm1, dword ptr [rbx+4Ch] }
+    v28 = *(float *)&_XMM0;
+  v13->color.v[0] = v28;
+  if ( (volumetric->flags & 4) != 0 )
+    v29 = volumetric->color.v[1];
   else
-    __asm { vmovaps xmm1, xmm0 }
-  __asm { vmovss  dword ptr [r14+18h], xmm1 }
-  if ( (_RBX->flags & 4) != 0 )
-    __asm { vmovss  xmm0, dword ptr [rbx+50h] }
-  v54 = _R14 + 3;
-  _RBP = (char *)(&_R14[5].xyz + 1);
-  v56 = (float *)&_RBX->masks[0].scroll + 1;
-  __asm
-  {
-    vmovss  xmm6, [rsp+0A8h+time]
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  dword ptr [r14+1Ch], xmm0
-  }
+    v29 = *(float *)&_XMM0;
+  v13->color.v[1] = v29;
+  if ( (volumetric->flags & 4) != 0 )
+    *(float *)&_XMM0 = volumetric->color.v[2];
+  p_maskID = &v13->maskID;
+  v31 = &v13->maskScaleAndOffset[0].v[3];
+  v32 = (float *)&volumetric->masks[0].scroll + 1;
+  v13->color.v[2] = *(float *)&_XMM0;
   do
   {
-    v54->v[_EDI] = -1;
-    if ( *((_DWORD *)v56 - 9) == 2 )
+    p_maskID->v[v24] = -1;
+    if ( *((_DWORD *)v32 - 9) == 2 )
     {
-      v59 = *(_QWORD **)(v56 - 7);
-      if ( v59 )
+      v33 = *(_QWORD **)(v32 - 7);
+      if ( v33 )
       {
-        if ( *v59 )
+        if ( *v33 )
         {
-          _R14[4].v[_EDI] = *(int *)(v56 - 8);
-          __asm
-          {
-            vdivss  xmm0, xmm7, dword ptr [rsi-14h]
-            vmovss  dword ptr [rbp-0Ch], xmm0
-            vdivss  xmm0, xmm7, dword ptr [rsi-10h]
-            vmovss  dword ptr [rbp-8], xmm0
-            vmulss  xmm1, xmm6, dword ptr [rsi-4]
-            vaddss  xmm3, xmm1, dword ptr [rsi-0Ch]
-            vmovss  dword ptr [rbp-4], xmm3
-            vmulss  xmm0, xmm6, dword ptr [rsi]
-            vaddss  xmm2, xmm0, dword ptr [rsi-8]
-            vmovss  dword ptr [rbp+0], xmm2
-            vmulss  xmm0, xmm3, dword ptr [rbp-0Ch]
-            vaddss  xmm0, xmm0, xmm8
-            vmovss  dword ptr [rbp-4], xmm0
-            vmulss  xmm1, xmm2, dword ptr [rbp-8]
-            vaddss  xmm2, xmm1, xmm8
-            vmovss  dword ptr [rbp+0], xmm2
-          }
+          v13->maskAxis.v[v24] = *(unsigned int *)(v32 - 8);
+          *(v31 - 3) = 1.0 / *(v32 - 5);
+          *(v31 - 2) = 1.0 / *(v32 - 4);
+          v34 = (float)(time * *(v32 - 1)) + *(v32 - 3);
+          *(v31 - 1) = v34;
+          v35 = (float)(time * *v32) + *(v32 - 2);
+          *v31 = v35;
+          *(v31 - 1) = (float)(v34 * *(v31 - 3)) + 0.5;
+          *v31 = (float)(v35 * *(v31 - 2)) + 0.5;
           if ( (unsigned int)*inOutMaskCount >= 0x40 )
           {
-            LODWORD(v80) = 64;
-            LODWORD(v79) = *inOutMaskCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 612, ASSERT_TYPE_ASSERT, "(unsigned)( inOutMaskCount ) < (unsigned)( 64 )", "inOutMaskCount doesn't index MAX_VOLUMETRIC_MASK_TEXTURES_COUNT\n\t%i not in [0, %i)", v79, v80) )
+            LODWORD(v43) = 64;
+            LODWORD(v42) = *inOutMaskCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 612, ASSERT_TYPE_ASSERT, "(unsigned)( inOutMaskCount ) < (unsigned)( 64 )", "inOutMaskCount doesn't index MAX_VOLUMETRIC_MASK_TEXTURES_COUNT\n\t%i not in [0, %i)", v42, v43) )
               __debugbreak();
           }
-          v70 = R_Texture_Get(data, (GfxTextureId)*(_DWORD *)(*(_QWORD *)(v56 - 7) + 16i64));
-          v71 = *inOutMaskCount;
-          v72 = v70;
-          if ( (unsigned int)v71 >= currentVolumetricNoiseTexturesArray->m_size )
+          v36 = R_Texture_Get(data, (GfxTextureId)*(_DWORD *)(*(_QWORD *)(v32 - 7) + 16i64));
+          v37 = *inOutMaskCount;
+          v38 = v36;
+          if ( (unsigned int)v37 >= currentVolumetricNoiseTexturesArray->m_size )
           {
-            LODWORD(v80) = currentVolumetricNoiseTexturesArray->m_size;
-            LODWORD(v79) = *inOutMaskCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 1212, ASSERT_TYPE_ASSERT, "(unsigned)( startApiSlot + apiSlotCount - 1 ) < (unsigned)( table->m_size )", "startApiSlot + apiSlotCount - 1 doesn't index table->m_size\n\t%i not in [0, %i)", v79, v80) )
+            LODWORD(v43) = currentVolumetricNoiseTexturesArray->m_size;
+            LODWORD(v42) = *inOutMaskCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_setstate_d3d.h", 1212, ASSERT_TYPE_ASSERT, "(unsigned)( startApiSlot + apiSlotCount - 1 ) < (unsigned)( table->m_size )", "startApiSlot + apiSlotCount - 1 doesn't index table->m_size\n\t%i not in [0, %i)", v42, v43) )
               __debugbreak();
           }
-          view = v72->shaderView.view;
-          v54 = _R14 + 3;
-          currentVolumetricNoiseTexturesArray->m_descriptors[v71] = view;
-          m_usedSize = v71 + 1;
-          v75 = -1;
+          view = v38->shaderView.view;
+          p_maskID = &v13->maskID;
+          currentVolumetricNoiseTexturesArray->m_descriptors[v37] = view;
+          m_usedSize = v37 + 1;
+          v41 = -1;
           if ( (signed int)currentVolumetricNoiseTexturesArray->m_usedSize > m_usedSize )
             m_usedSize = currentVolumetricNoiseTexturesArray->m_usedSize;
           currentVolumetricNoiseTexturesArray->m_usedSize = m_usedSize;
           if ( *inOutMaskCount < 64 )
-            v75 = *inOutMaskCount;
-          *base_vec4_t<int>::operator[](_R14 + 3, _EDI) = v75;
+            v41 = *inOutMaskCount;
+          *base_vec4_t<int>::operator[](&v13->maskID, v24) = v41;
           ++*inOutMaskCount;
         }
       }
     }
-    ++_EDI;
-    v56 += 10;
-    _RBP += 16;
+    ++v24;
+    v32 += 10;
+    v31 += 4;
   }
-  while ( (unsigned int)_EDI < 4 );
-  __asm { vmovaps xmm8, [rsp+0A8h+var_58] }
-  result = count + 1;
-  __asm
-  {
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm6, [rsp+0A8h+var_38]
-  }
-  return result;
+  while ( (unsigned int)v24 < 4 );
+  return count + 1;
 }
 
 /*
@@ -2043,95 +1770,80 @@ R_VOL_AddVolumetrics
 */
 void R_VOL_AddVolumetrics(const void *const cmd)
 {
-  const GfxBackEndData *v2; 
-  unsigned int v4; 
+  const GfxBackEndData *v1; 
+  unsigned int v2; 
+  float v3; 
   unsigned int volumetricVisDataCount; 
   unsigned int *volumetricVisData; 
-  unsigned int v11; 
-  __int64 v12; 
-  GfxDescriptorTable *v13; 
-  unsigned int v14; 
-  unsigned int v15; 
-  int v16; 
+  unsigned int v6; 
+  __int64 v7; 
+  GfxDescriptorTable *v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  int v11; 
   unsigned int i; 
-  unsigned int v18; 
-  float fmt; 
-  float fmta; 
+  unsigned int v13; 
   __int64 count; 
   __int64 limit; 
-  unsigned int *v24; 
+  unsigned int *v16; 
   unsigned int volumetricFrame; 
-  unsigned int v27; 
+  unsigned int v18; 
   int inOutMaskCount; 
   GfxDescriptorTable *currentVolumetricNoiseTexturesArray; 
 
-  v2 = *(const GfxBackEndData **)cmd;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@4728c000; Y
-    vmovaps [rsp+0A8h+var_58], xmm6
-  }
-  v4 = 0;
-  v27 = 0;
+  v1 = *(const GfxBackEndData **)cmd;
+  v2 = 0;
+  v18 = 0;
   volumetricFrame = *(_DWORD *)(*(_QWORD *)cmd + 1088732i64) & 1;
-  _RCX = 25744i64 * *(unsigned int *)(*(_QWORD *)cmd + 31440i64);
-  _RAX = v2->viewInfo;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax+5B4h]; X }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, xmm0 }
+  v3 = fmodf_0(*(float *)(25744i64 * *(unsigned int *)(*(_QWORD *)cmd + 31440i64) + *(_QWORD *)(*(_QWORD *)cmd + 31464i64) + 1460), 43200.0);
   volumetricVisDataCount = rgp.world->dpvs.volumetricVisDataCount;
   volumetricVisData = rgp.world->dpvs.volumetricVisData;
-  v24 = volumetricVisData;
+  v16 = volumetricVisData;
   if ( volumetricVisDataCount )
-    v11 = *volumetricVisData;
+    v6 = *volumetricVisData;
   else
-    v11 = 0;
-  currentVolumetricNoiseTexturesArray = &s_volumetricNoiseTexturesArray[v2->smpFrame];
+    v6 = 0;
+  currentVolumetricNoiseTexturesArray = &s_volumetricNoiseTexturesArray[v1->smpFrame];
   R_ResetGfxDescriptorTable(currentVolumetricNoiseTexturesArray);
   inOutMaskCount = 0;
-  LODWORD(v12) = 0;
-  v13 = currentVolumetricNoiseTexturesArray;
+  LODWORD(v7) = 0;
+  v8 = currentVolumetricNoiseTexturesArray;
   while ( 1 )
   {
-    v14 = v11;
-    if ( !v11 )
+    v9 = v6;
+    if ( !v6 )
       break;
 LABEL_8:
-    v15 = __lzcnt(v14);
-    v16 = v15 + 32 * v12;
-    if ( v15 >= 0x20 )
+    v10 = __lzcnt(v9);
+    v11 = v10 + 32 * v7;
+    if ( v10 >= 0x20 )
     {
       LODWORD(limit) = 32;
-      LODWORD(count) = v15;
+      LODWORD(count) = v10;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", count, limit) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> v15) & v14) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_visdata_inline.h", 53, ASSERT_TYPE_ASSERT, "(visdata & bit)", (const char *)&queryFormat, "visdata & bit") )
+    if ( ((0x80000000 >> v10) & v9) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_visdata_inline.h", 53, ASSERT_TYPE_ASSERT, "(visdata & bit)", (const char *)&queryFormat, "visdata & bit") )
       __debugbreak();
-    v11 = v14 & ~(0x80000000 >> v15);
-    __asm { vmovss  dword ptr [rsp+0A8h+fmt], xmm6 }
-    volumetricVisData = v24;
-    v4 = R_VOL_AddVolumetric(&rgp.world->draw.volumetrics.volumetrics[v16], v2, volumetricFrame, v13, fmt, v27, 0x80u, &inOutMaskCount);
-    v27 = v4;
+    v6 = v9 & ~(0x80000000 >> v10);
+    volumetricVisData = v16;
+    v2 = R_VOL_AddVolumetric(&rgp.world->draw.volumetrics.volumetrics[v11], v1, volumetricFrame, v8, v3, v18, 0x80u, &inOutMaskCount);
+    v18 = v2;
   }
   while ( 1 )
   {
-    v12 = (unsigned int)(v12 + 1);
-    if ( (unsigned int)v12 >= volumetricVisDataCount )
+    v7 = (unsigned int)(v7 + 1);
+    if ( (unsigned int)v7 >= volumetricVisDataCount )
       break;
-    v14 = volumetricVisData[v12];
-    if ( v14 )
+    v9 = volumetricVisData[v7];
+    if ( v9 )
       goto LABEL_8;
   }
-  for ( i = 0; i < v2->sceneVolumetricCount; v4 = v18 )
-  {
-    __asm { vmovss  dword ptr [rsp+0A8h+fmt], xmm6 }
-    v18 = R_VOL_AddVolumetric(&v2->sceneVolumetrics[i++], v2, volumetricFrame, currentVolumetricNoiseTexturesArray, fmta, v4, 0x80u, &inOutMaskCount);
-  }
+  for ( i = 0; i < v1->sceneVolumetricCount; v2 = v13 )
+    v13 = R_VOL_AddVolumetric(&v1->sceneVolumetrics[i++], v1, volumetricFrame, currentVolumetricNoiseTexturesArray, v3, v2, 0x80u, &inOutMaskCount);
   R_FlushDescriptorTable(currentVolumetricNoiseTexturesArray);
-  R_VOL_CullLightGrids(&v2->viewInfo[v2->viewInfoIndex], v2);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_58] }
-  s_volumetricGlob.volumeCount[volumetricFrame] = v4;
+  R_VOL_CullLightGrids(&v1->viewInfo[v1->viewInfoIndex], v1);
+  s_volumetricGlob.volumeCount[volumetricFrame] = v2;
 }
 
 /*
@@ -2141,15 +1853,11 @@ R_VOL_AnyVisible
 */
 bool R_VOL_AnyVisible(const GfxViewInfo *viewInfo)
 {
-  _RBX = viewInfo;
-  if ( !R_UseBakedLighting() || !_RBX->volumetrics.enabled )
+  if ( !R_UseBakedLighting() || !viewInfo->volumetrics.enabled )
     return 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+2E6Ch]
-  }
-  return R_VOL_UseLocalMedia(_RBX->input.data, _RBX);
+  if ( viewInfo->volumetrics.airDensity <= 0.0 )
+    return R_VOL_UseLocalMedia(viewInfo->input.data, viewInfo);
+  return 1;
 }
 
 /*
@@ -2159,42 +1867,29 @@ R_VOL_CombineAmbientMultiLightGrid
 */
 void R_VOL_CombineAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, const R_RT_Handle *ambientCurrent, const R_RT_Handle *ambientPrev, const R_RT_Handle *visibilityCurrent, const R_RT_Handle *visibilityPrev, const R_RT_Handle *floatZ, const R_RT_Handle *ambientScene, const R_RT_Handle *sampledLighting, const R_RT_Handle *sampledLightingAlpha)
 {
-  bool v14; 
-  char v16; 
   ComputeShader *combineMultiLightGridVolumetricIsoSkylight; 
   GfxImage *SVDBasis; 
   ComputeShader *combineMultiLightGridVolumetricIso; 
   unsigned __int16 m_surfaceID; 
-  R_RT_Handle *v23; 
-  unsigned __int16 v24; 
-  const GfxGpuLightGrid *v25; 
-  unsigned int v26; 
+  R_RT_Handle *v18; 
+  unsigned __int16 v19; 
+  const GfxGpuLightGrid *v20; 
+  unsigned int v21; 
   bool temporalValid; 
   const GfxBackEndData *data; 
   const R_RT_Surface *Surface; 
   GfxTextureId textureId; 
-  GfxTextureId v31; 
-  const R_RT_Surface *v32; 
-  const R_RT_Surface *v33; 
-  const R_RT_Surface *v34; 
+  GfxTextureId v26; 
+  const R_RT_Surface *v27; 
+  const R_RT_Surface *v28; 
+  const R_RT_Surface *v29; 
   GfxTexture *textures; 
 
-  _RSI = viewInfo;
   ((void (__fastcall *)(GfxDevice *, __int64, _QWORD, __int64))state->device->m_pFunction[22].AddRef)(state->device, 0x8000000i64, 0i64, 0xFFFFFFFF00i64);
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMin; GfxWorld s_world
-    vcomiss xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMax; GfxWorld s_world
-  }
-  if ( v16 && (v14 = !r_enablePrecomputedSkyIllumination->current.enabled, r_enablePrecomputedSkyIllumination->current.enabled) )
+  if ( s_world.precomputedSkyIllumination.boxMin.v[0] < s_world.precomputedSkyIllumination.boxMax.v[0] && r_enablePrecomputedSkyIllumination->current.enabled )
   {
     combineMultiLightGridVolumetricIsoSkylight = rgp.combineMultiLightGridVolumetricIsoSkylight;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rsi+2E90h]
-    }
-    if ( r_enablePrecomputedSkyIllumination->current.enabled )
+    if ( viewInfo->volumetrics.sunAnisotropy != 0.0 )
       combineMultiLightGridVolumetricIsoSkylight = rgp.combineMultiLightGridVolumetricAnisoSkylight;
     R_SetComputeShader(state, combineMultiLightGridVolumetricIsoSkylight);
     textures = (GfxTexture *)R_Texture_GetResident(s_world.precomputedSkyIllumination.heightMap->textureId);
@@ -2208,12 +1903,7 @@ void R_VOL_CombineAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxView
   else
   {
     combineMultiLightGridVolumetricIso = rgp.combineMultiLightGridVolumetricIso;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rsi+2E90h]
-    }
-    if ( !v14 )
+    if ( viewInfo->volumetrics.sunAnisotropy != 0.0 )
       combineMultiLightGridVolumetricIso = rgp.combineMultiLightGridVolumetricAniso;
     R_SetComputeShader(state, combineMultiLightGridVolumetricIso);
     textures = (GfxTexture *)R_Texture_GetResident(rgp.blackImage->textureId);
@@ -2235,8 +1925,8 @@ void R_VOL_CombineAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxView
   {
     __debugbreak();
   }
-  v23 = (R_RT_Handle *)visibilityPrev;
-  v24 = visibilityPrev->m_surfaceID;
+  v18 = (R_RT_Handle *)visibilityPrev;
+  v19 = visibilityPrev->m_surfaceID;
   if ( visibilityPrev->m_surfaceID )
   {
     R_RT_Handle::GetSurface((R_RT_Handle *)visibilityPrev);
@@ -2245,52 +1935,52 @@ void R_VOL_CombineAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxView
   {
     __debugbreak();
   }
-  if ( (m_surfaceID != 0) != (v24 != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1222, ASSERT_TYPE_ASSERT, "(ambientPrev.IsValid() == visibilityPrev.IsValid())", (const char *)&queryFormat, "ambientPrev.IsValid() == visibilityPrev.IsValid()") )
+  if ( (m_surfaceID != 0) != (v19 != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1222, ASSERT_TYPE_ASSERT, "(ambientPrev.IsValid() == visibilityPrev.IsValid())", (const char *)&queryFormat, "ambientPrev.IsValid() == visibilityPrev.IsValid()") )
     __debugbreak();
-  v25 = NULL;
-  v26 = s_volumetricGlob.activeLightGridsMask[_RSI->input.data->volumetricsIndex & 1];
-  R_VOL_SetConstants(state, _RSI, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
+  v20 = NULL;
+  v21 = s_volumetricGlob.activeLightGridsMask[viewInfo->input.data->volumetricsIndex & 1];
+  R_VOL_SetConstants(state, viewInfo, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
   temporalValid = R_RT_Handle::IsValid((R_RT_Handle *)ambientPrev);
-  R_VOL_SetLightGridConstants(state, _RSI, NULL, 0, -1, -1, __popcnt(v26), temporalValid);
-  data = _RSI->input.data;
+  R_VOL_SetLightGridConstants(state, viewInfo, NULL, 0, -1, -1, __popcnt(v21), temporalValid);
+  data = viewInfo->input.data;
   if ( R_GetNumActiveLightGrids(data) > 0 )
-    v25 = *R_GetActiveLightGridsList(data);
-  RB_GpuLightGrid_SetResouces(state, &_RSI->input, v25);
+    v20 = *R_GetActiveLightGridsList(data);
+  RB_GpuLightGrid_SetResouces(state, &viewInfo->input, v20);
   Surface = R_RT_Handle::GetSurface((R_RT_Handle *)visibilityCurrent);
   visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_SetComputeTextures(state, 16, 1, (const GfxTexture *const *)&visibilityPrev);
-  if ( R_RT_Handle::IsValid(v23) )
-    textureId = R_RT_Handle::GetSurface(v23)->m_image.m_base.textureId;
+  if ( R_RT_Handle::IsValid(v18) )
+    textureId = R_RT_Handle::GetSurface(v18)->m_image.m_base.textureId;
   else
     textureId = rgp.blackUintImage->textureId;
   visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(textureId);
   R_SetComputeTextures(state, 17, 1, (const GfxTexture *const *)&visibilityPrev);
   if ( R_RT_Handle::IsValid((R_RT_Handle *)ambientPrev) )
-    v31 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientPrev)->m_image.m_base.textureId;
+    v26 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientPrev)->m_image.m_base.textureId;
   else
-    v31 = rgp.blackImage3D->textureId;
-  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v31);
+    v26 = rgp.blackImage3D->textureId;
+  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v26);
   R_SetComputeTextures(state, 10, 1, (const GfxTexture *const *)&visibilityPrev);
-  v32 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
-  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v32->m_image.m_base.textureId);
+  v27 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
+  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v27->m_image.m_base.textureId);
   R_SetComputeTextures(state, 19, 1, (const GfxTexture *const *)&visibilityPrev);
   visibilityPrev = (const R_RT_Handle *)&R_RT_Handle::GetWrappedBuffer((R_RT_Handle *)sampledLighting)->view;
   R_SetComputeViews(state, 24, 1, (const GfxShaderBufferView *const *)&visibilityPrev);
   visibilityPrev = (const R_RT_Handle *)&R_RT_Handle::GetWrappedBuffer((R_RT_Handle *)sampledLightingAlpha)->view;
   R_SetComputeViews(state, 25, 1, (const GfxShaderBufferView *const *)&visibilityPrev);
-  v33 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent);
-  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v33->m_image.m_base.textureId);
+  v28 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent);
+  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v28->m_image.m_base.textureId);
   R_SetComputeRWTextures(state, 0, 1, (const GfxTexture *const *)&visibilityPrev);
-  v34 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientScene);
-  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v34->m_image.m_base.textureId);
+  v29 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientScene);
+  visibilityPrev = (const R_RT_Handle *)R_Texture_GetResident(v29->m_image.m_base.textureId);
   R_SetComputeRWTextures(state, 2, 1, (const GfxTexture *const *)&visibilityPrev);
-  if ( _RSI->frustumGrid.clusterCountX != R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent)->m_image.m_base.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1244, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountX == ambientCurrent.GetImage()->width)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountX == ambientCurrent.GetImage()->width") )
+  if ( viewInfo->frustumGrid.clusterCountX != R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent)->m_image.m_base.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1244, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountX == ambientCurrent.GetImage()->width)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountX == ambientCurrent.GetImage()->width") )
     __debugbreak();
-  if ( _RSI->frustumGrid.clusterCountY != R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent)->m_image.m_base.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1245, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountY == ambientCurrent.GetImage()->height)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountY == ambientCurrent.GetImage()->height") )
+  if ( viewInfo->frustumGrid.clusterCountY != R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent)->m_image.m_base.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1245, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountY == ambientCurrent.GetImage()->height)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountY == ambientCurrent.GetImage()->height") )
     __debugbreak();
   if ( s_volumetricGlob.clusterImageDepth != R_RT_Handle::GetSurface((R_RT_Handle *)ambientCurrent)->m_image.m_base.depth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1246, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.clusterImageDepth == ambientCurrent.GetImage()->depth)", (const char *)&queryFormat, "s_volumetricGlob.clusterImageDepth == ambientCurrent.GetImage()->depth") )
     __debugbreak();
-  R_Dispatch(state, (_RSI->frustumGrid.clusterCountX + 3) >> 2, (_RSI->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
+  R_Dispatch(state, (viewInfo->frustumGrid.clusterCountX + 3) >> 2, (viewInfo->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
 }
 
 /*
@@ -2302,319 +1992,248 @@ void R_VOL_CullLightGrids(const GfxViewInfo *viewInfo, const GfxBackEndData *bac
 {
   const GfxGpuLightGrid **ActiveLightGridsList; 
   int NumActiveLightGrids; 
-  __int64 v16; 
-  int v22; 
-  int v118; 
-  __int64 v119; 
-  __int64 v127; 
-  const GfxGpuLightGrid *v128; 
-  __int64 v129; 
-  bool v130; 
-  bool v131; 
-  int v221[22]; 
+  __int64 v6; 
+  unsigned int v7; 
+  float tanHalfFovX; 
+  float *v9; 
+  int v10; 
+  __int128 v12; 
+  float tanHalfFovY; 
+  __int128 v15; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  int v46; 
+  __int64 v47; 
+  __int64 v48; 
+  __int64 v49; 
+  __m128 *boundingVolume; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  float v54; 
+  __m128 v58; 
+  __m128 v60; 
+  __m128 v64; 
+  __m128 v68; 
+  __m128 v72; 
+  __int128 v78; 
+  __int128 v80; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float v89; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v97; 
+  float v98; 
+  int v99[17]; 
+  float v100; 
+  float v101; 
+  float v102; 
+  float v103; 
+  float v104; 
 
-  _RBX = viewInfo;
   ActiveLightGridsList = R_GetActiveLightGridsList(backendData);
   NumActiveLightGrids = R_GetNumActiveLightGrids(backendData);
-  v16 = NumActiveLightGrids;
-  _ESI = 0;
+  v6 = NumActiveLightGrids;
+  v7 = 0;
   if ( NumActiveLightGrids > 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+11Ch]
-      vmulss  xmm2, xmm0, dword ptr [rbx+120h]
-    }
-    _R12 = v221;
-    v22 = 0;
-    __asm
-    {
-      vmovaps [rsp+1A0h+var_30], xmm6
-      vmovaps [rsp+1A0h+var_40], xmm7
-      vmovaps [rsp+1A0h+var_50], xmm8
-      vmovaps [rsp+1A0h+var_60], xmm9
-      vmovaps [rsp+1A0h+var_70], xmm10
-      vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+1A0h+var_80], xmm11
-      vmovaps [rsp+1A0h+var_90], xmm12
-      vmovss  xmm12, cs:__real@40800000
-      vmovaps [rsp+1A0h+var_A0], xmm13
-      vmovss  xmm13, cs:__real@3e800000
-      vmovaps [rsp+1A0h+var_B0], xmm14
-      vmulss  xmm14, xmm0, dword ptr [rbx+118h]
-      vmovss  [rsp+1A0h+var_178], xmm1
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmulss  xmm0, xmm1, dword ptr [rbx+128h]
-      vmovss  [rsp+1A0h+var_174], xmm0
-      vmovss  xmm0, dword ptr [rbx+10Ch]
-      vmovss  [rsp+1A0h+var_180], xmm0
-      vmovss  xmm0, dword ptr [rbx+110h]
-      vmovss  [rsp+1A0h+var_170], xmm0
-      vmovss  xmm0, dword ptr [rbx+114h]
-      vmovss  [rsp+1A0h+var_160], xmm0
-      vmovss  xmm0, dword ptr [rbx+100h]
-      vmovss  [rsp+1A0h+var_17C], xmm0
-      vmovss  xmm0, dword ptr [rbx+104h]
-      vmovss  [rsp+1A0h+var_16C], xmm0
-      vmovss  xmm0, dword ptr [rbx+108h]
-      vmovss  [rsp+1A0h+var_164], xmm2
-      vmulss  xmm2, xmm1, dword ptr [rbx+12Ch]
-      vmovaps [rsp+1A0h+var_C0], xmm15
-      vmulss  xmm15, xmm1, dword ptr [rbx+124h]
-      vmovss  [rsp+1A0h+var_15C], xmm0
-      vmovss  [rsp+1A0h+var_168], xmm2
-      vxorps  xmm11, xmm11, xmm11
-    }
+    tanHalfFovX = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+    v9 = (float *)v99;
+    v10 = 0;
+    v12 = LODWORD(tanHalfFovX);
+    *(float *)&v12 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[0];
+    _XMM14 = v12;
+    v88 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[1];
+    tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+    v89 = tanHalfFovY * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[1];
+    v86 = viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0];
+    v90 = viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1];
+    v94 = viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[2];
+    v87 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+    v91 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+    v93 = tanHalfFovX * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[1].v[2];
+    v15 = LODWORD(tanHalfFovY);
+    *(float *)&v15 = tanHalfFovY * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[0];
+    _XMM15 = v15;
+    v95 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+    v92 = tanHalfFovY * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[2].v[2];
     do
     {
+      _XMM7 = LODWORD(FLOAT_1_0);
+      _XMM0 = v10 & 4;
       __asm
       {
-        vmovss  xmm7, cs:__real@3f800000
-        vmovd   xmm1, esi
-      }
-      _EAX = v22 & 4;
-      __asm
-      {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm7, xmm11, xmm2
-        vsubss  xmm6, xmm0, xmm13
-        vmovss  [rsp+1A0h+var_154], xmm0
-        vmulss  xmm0, xmm0, xmm12; val
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm11; min
-        vsubss  xmm8, xmm6, xmm13
       }
-      _EDI = v22 & 1;
-      _EBX = v22 & 2;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v20 = *(float *)&_XMM0 - 0.25;
+      v21 = (float)(*(float *)&_XMM0 - 0.25) - 0.25;
+      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0 * 4.0, 0.0, 1.0);
+      v22 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = I_fclamp(v20 * 4.0, 0.0, 1.0);
+      LODWORD(_XMM7) = _XMM0;
+      *(double *)&_XMM0 = I_fclamp((float)(v20 - 0.25) * 4.0, 0.0, 1.0);
+      v23 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = I_fclamp((float)(v21 - 0.25) * 4.0, 0.0, 1.0);
+      v24 = (float)((float)((float)((float)(v22 * rg.volumetricDepth.v[0]) + (float)(*(float *)&_XMM7 * rg.volumetricDepth.v[1])) + (float)(v23 * rg.volumetricDepth.v[2])) + (float)(*(float *)&_XMM0 * rg.volumetricDepth.v[3])) + 4.0;
+      _XMM0 = v10 & 1;
       __asm
       {
-        vmovaps xmm9, xmm0
-        vmulss  xmm0, xmm6, xmm12; val
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm11; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vmovaps xmm7, xmm0
-        vmulss  xmm0, xmm8, xmm12; val
-        vmovaps xmm1, xmm11; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vsubss  xmm1, xmm8, xmm13
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm1, xmm12; val
-        vmovaps xmm1, xmm11; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+0Ch; r_globals_t rg
-        vmulss  xmm2, xmm9, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth; r_globals_t rg
-        vmulss  xmm1, xmm7, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+4; r_globals_t rg
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm6, dword ptr cs:?rg@@3Ur_globals_t@@A.volumetricDepth+8; r_globals_t rg
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm1, xmm4, xmm0
-        vaddss  xmm6, xmm1, xmm12
-        vmovd   xmm1, esi
-        vmovd   xmm0, edi
         vpcmpeqd xmm2, xmm0, xmm1
-        vmovd   xmm1, esi
-        vxorps  xmm3, xmm14, xmm10
         vblendvps xmm5, xmm14, xmm3, xmm2
-        vmovd   xmm0, ebx
-        vpcmpeqd xmm2, xmm0, xmm1
-        vxorps  xmm4, xmm15, xmm10
-        vblendvps xmm1, xmm15, xmm4, xmm2
-        vmovss  xmm4, [rsp+1A0h+var_178]
-        vaddss  xmm0, xmm5, xmm1
-        vaddss  xmm2, xmm0, [rsp+1A0h+var_180]
-        vmulss  xmm3, xmm2, xmm6
-        vaddss  xmm1, xmm3, [rsp+1A0h+var_17C]
-        vmovss  dword ptr [r12-8], xmm1
-        vxorps  xmm3, xmm4, xmm10
-        vmovd   xmm1, esi
-        vmovd   xmm0, edi
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm5, xmm4, xmm3, xmm2
-        vmovss  xmm3, [rsp+1A0h+var_174]
-        vxorps  xmm4, xmm3, xmm10
-        vmovd   xmm1, esi
-        vmovd   xmm0, ebx
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm1, xmm3, xmm4, xmm2
-        vmovss  xmm4, [rsp+1A0h+var_168]
-        vaddss  xmm0, xmm5, xmm1
-        vaddss  xmm2, xmm0, [rsp+1A0h+var_170]
-        vmulss  xmm3, xmm2, xmm6
-        vaddss  xmm1, xmm3, [rsp+1A0h+var_16C]
-        vxorps  xmm3, xmm4, xmm10
-        vmovss  dword ptr [r12-4], xmm1
-        vmovd   xmm1, esi
-        vmovd   xmm0, ebx
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm5, xmm4, xmm3, xmm2
-        vmovss  xmm3, [rsp+1A0h+var_164]
-        vmovd   xmm1, esi
-        vmovd   xmm0, edi
-        vpcmpeqd xmm2, xmm0, xmm1
-        vxorps  xmm4, xmm3, xmm10
-        vblendvps xmm1, xmm3, xmm4, xmm2
-        vaddss  xmm0, xmm5, xmm1
-        vaddss  xmm2, xmm0, [rsp+1A0h+var_160]
-        vmulss  xmm3, xmm2, xmm6
-        vaddss  xmm1, xmm3, [rsp+1A0h+var_15C]
       }
-      ++v22;
-      __asm { vmovss  dword ptr [r12], xmm1 }
-      _R12 += 3;
-    }
-    while ( v22 < 8 );
-    v118 = 0;
-    v119 = 0i64;
-    if ( (int)v16 > 0 )
-    {
+      _XMM0 = v10 & 2;
       __asm
       {
-        vmovss  xmm9, [rbp+0A0h+var_D4]
-        vmovss  xmm10, [rbp+0A0h+var_D8]
-        vmovss  xmm11, [rbp+0A0h+var_DC]
-        vmovss  xmm12, [rbp+0A0h+var_E0]
-        vmovss  xmm13, [rbp+0A0h+var_E4]
-        vmovss  xmm14, [rbp+0A0h+var_E8]
-        vmovss  xmm15, [rbp+0A0h+var_EC]
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm1, xmm15, xmm4, xmm2
       }
-      v127 = 0i64;
+      _XMM4 = LODWORD(v88);
+      *(v9 - 2) = (float)((float)((float)(*(float *)&_XMM5 + *(float *)&_XMM1) + v86) * v24) + v87;
+      _XMM0 = v10 & 1;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm5, xmm4, xmm3, xmm2
+      }
+      _XMM3 = LODWORD(v89);
+      _XMM0 = v10 & 2;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm1, xmm3, xmm4, xmm2
+      }
+      _XMM4 = LODWORD(v92);
+      *(v9 - 1) = (float)((float)((float)(*(float *)&_XMM5 + *(float *)&_XMM1) + v90) * v24) + v91;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm5, xmm4, xmm3, xmm2
+      }
+      _XMM3 = LODWORD(v93);
+      _XMM0 = v10 & 1;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm1, xmm3, xmm4, xmm2
+      }
+      ++v10;
+      *v9 = (float)((float)((float)(*(float *)&_XMM5 + *(float *)&_XMM1) + v94) * v24) + v95;
+      v9 += 3;
+    }
+    while ( v10 < 8 );
+    v46 = 0;
+    v47 = 0i64;
+    if ( (int)v6 > 0 )
+    {
+      v48 = 0i64;
       while ( 2 )
       {
-        v128 = ActiveLightGridsList[v127];
-        v129 = 0i64;
-        v130 = __CFADD__(v128, 328i64);
-        v131 = __CFADD__(v128, 328i64) || v128->boundingVolume == NULL;
-        _RAX = v128->boundingVolume;
+        v49 = 0i64;
+        boundingVolume = (__m128 *)ActiveLightGridsList[v48]->boundingVolume;
         while ( 1 )
         {
+          v51 = *boundingVolume;
+          v52 = _mm_shuffle_ps(v51, v51, 85);
+          v53 = v52;
+          v54 = fsqrt(1.0 - (float)((float)(v52.m128_f32[0] * v52.m128_f32[0]) + (float)(v51.m128_f32[0] * v51.m128_f32[0])));
+          v53.m128_f32[0] = (float)((float)(v52.m128_f32[0] * v98) + (float)(COERCE_FLOAT(*boundingVolume) * v97)) + (float)(v54 * *(float *)v99);
+          _XMM4 = v53;
           __asm
           {
-            vmovups xmm8, xmmword ptr [rax]
-            vshufps xmm7, xmm8, xmm8, 55h ; 'U'
-            vmulss  xmm2, xmm7, [rsp+1A0h+var_12C]
-            vmulss  xmm0, xmm8, xmm8
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm1, xmm1, xmm0
-            vmovss  xmm0, cs:__real@3f800000
-            vsubss  xmm1, xmm0, xmm1
-            vmulss  xmm0, xmm8, [rsp+1A0h+var_130]
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm0, xmm8, [rsp+1A0h+var_124]
-            vsqrtss xmm6, xmm1, xmm1
-            vmulss  xmm1, xmm6, [rsp+1A0h+var_128]
-            vaddss  xmm4, xmm3, xmm1
             vminss  xmm5, xmm4, cs:__real@7f7fffff
             vmaxss  xmm4, xmm4, cs:__real@ff7fffff
-            vmulss  xmm1, xmm7, [rbp+0A0h+var_120]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm0, xmm8, [rbp+0A0h+var_118]
-            vmulss  xmm1, xmm6, [rbp+0A0h+var_11C]
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm7, [rbp+0A0h+var_114]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm0, xmm8, [rbp+0A0h+var_10C]
-            vmulss  xmm1, xmm6, [rbp+0A0h+var_110]
+          }
+          v58 = v52;
+          v58.m128_f32[0] = (float)((float)(v52.m128_f32[0] * *(float *)&v99[2]) + (float)(COERCE_FLOAT(*boundingVolume) * *(float *)&v99[1])) + (float)(v54 * *(float *)&v99[3]);
+          _XMM3 = v58;
+          v60 = v52;
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm7, [rbp+0A0h+var_108]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm0, xmm8, [rbp+0A0h+var_100]
-            vmulss  xmm1, xmm6, [rbp+0A0h+var_104]
+          }
+          v60.m128_f32[0] = (float)((float)(v52.m128_f32[0] * *(float *)&v99[5]) + (float)(COERCE_FLOAT(*boundingVolume) * *(float *)&v99[4])) + (float)(v54 * *(float *)&v99[6]);
+          _XMM3 = v60;
+          v64 = v52;
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm7, [rbp+0A0h+var_FC]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, [rbp+0A0h+var_F8]
-            vmulss  xmm0, xmm7, [rbp+0A0h+var_F0]
+          }
+          v64.m128_f32[0] = (float)((float)(v52.m128_f32[0] * *(float *)&v99[8]) + (float)(COERCE_FLOAT(*boundingVolume) * *(float *)&v99[7])) + (float)(v54 * *(float *)&v99[9]);
+          _XMM3 = v64;
+          v68 = v52;
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm8, [rbp+0A0h+var_F4]
-            vaddss  xmm2, xmm1, xmm0
+          }
+          v68.m128_f32[0] = (float)((float)(v52.m128_f32[0] * *(float *)&v99[11]) + (float)(COERCE_FLOAT(*boundingVolume) * *(float *)&v99[10])) + (float)(v54 * *(float *)&v99[12]);
+          _XMM3 = v68;
+          v72 = *boundingVolume;
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vmulss  xmm0, xmm14, xmm8
-            vmulss  xmm1, xmm6, xmm15
-            vaddss  xmm3, xmm2, xmm1
+          }
+          v72.m128_f32[0] = (float)((float)(COERCE_FLOAT(*boundingVolume) * *(float *)&v99[13]) + (float)(v52.m128_f32[0] * *(float *)&v99[14])) + (float)(v54 * *(float *)&v99[15]);
+          _XMM3 = v72;
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vmulss  xmm1, xmm13, xmm7
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm0, xmm11, xmm8
-            vmulss  xmm1, xmm6, xmm12
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm10, xmm7
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm9
+          }
+          v78 = LODWORD(v100);
+          *(float *)&v78 = (float)((float)(v100 * v52.m128_f32[0]) + (float)(*(float *)&v99[16] * COERCE_FLOAT(*boundingVolume))) + (float)(v54 * v101);
+          _XMM3 = v78;
+          v80 = LODWORD(v103);
+          __asm
+          {
             vminss  xmm5, xmm3, xmm5
             vmaxss  xmm4, xmm3, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vmovups [rsp+1A0h+var_148], xmm8
+          }
+          *(float *)&v80 = (float)((float)(v103 * v52.m128_f32[0]) + (float)(v102 * COERCE_FLOAT(*boundingVolume))) + (float)(v54 * v104);
+          _XMM3 = v80;
+          __asm
+          {
             vmaxss  xmm0, xmm3, xmm4
-            vshufps xmm8, xmm8, xmm8, 0AAh ; 'ª'
-            vcomiss xmm0, xmm8
             vminss  xmm1, xmm3, xmm5
           }
-          if ( v131 )
+          if ( *(float *)&_XMM0 <= _mm_shuffle_ps(v51, v51, 170).m128_f32[0] || *(float *)&_XMM1 >= COERCE_FLOAT(HIDWORD(*(unsigned __int128 *)boundingVolume)) )
             break;
-          __asm { vcomiss xmm1, dword ptr [rsp+1A0h+var_148+0Ch] }
-          if ( !v130 )
-            break;
-          ++v129;
-          ++_RAX;
-          v130 = (unsigned __int64)v129 < 7;
-          v131 = (unsigned __int64)v129 <= 7;
-          if ( v129 >= 7 )
+          ++v49;
+          ++boundingVolume;
+          if ( v49 >= 7 )
           {
-            if ( v118 >= 5 )
+            if ( v46 >= 5 )
             {
-              R_WarnOncePerFrame(R_WARN_VOL_TOO_MANY_ACTIVE_GPU_LIGHTGRIDS, 5i64, v119);
+              R_WarnOncePerFrame(R_WARN_VOL_TOO_MANY_ACTIVE_GPU_LIGHTGRIDS, 5i64, v47);
               goto LABEL_15;
             }
-            _ESI |= 1 << v119;
-            ++v118;
+            v7 |= 1 << v47;
+            ++v46;
             break;
           }
         }
-        v119 = (unsigned int)(v119 + 1);
-        if ( ++v127 < v16 )
+        v47 = (unsigned int)(v47 + 1);
+        if ( ++v48 < v6 )
           continue;
         break;
       }
     }
-LABEL_15:
-    __asm
-    {
-      vmovaps xmm14, [rsp+1A0h+var_B0]
-      vmovaps xmm13, [rsp+1A0h+var_A0]
-      vmovaps xmm12, [rsp+1A0h+var_90]
-      vmovaps xmm11, [rsp+1A0h+var_80]
-      vmovaps xmm10, [rsp+1A0h+var_70]
-      vmovaps xmm9, [rsp+1A0h+var_60]
-      vmovaps xmm8, [rsp+1A0h+var_50]
-      vmovaps xmm7, [rsp+1A0h+var_40]
-      vmovaps xmm6, [rsp+1A0h+var_30]
-      vmovaps xmm15, [rsp+1A0h+var_C0]
-    }
   }
-  s_volumetricGlob.activeLightGridsMask[backendData->volumetricsIndex & 1] = _ESI;
+LABEL_15:
+  s_volumetricGlob.activeLightGridsMask[backendData->volumetricsIndex & 1] = v7;
 }
 
 /*
@@ -2624,34 +2243,38 @@ R_VOL_EvaluateScattering
 */
 void R_VOL_EvaluateScattering(VolumetricDrawStream *drawStream, VolumetricScatteringResources *resources, unsigned int shaderPass)
 {
+  GfxTexture *data; 
+  const GfxViewInfo *viewInfo; 
   ComputeCmdBufState *state; 
+  int v9; 
   unsigned int v10; 
   unsigned int v11; 
+  unsigned int v12; 
   unsigned int CUMask; 
-  bool v13; 
+  bool v14; 
+  vec4_t v15; 
   GfxImage *blackImage; 
   GfxShaderBufferView *views; 
-  GfxTexture *data; 
+  GfxTexture *Resident; 
   GfxTexture *textures; 
   VolumetricConstants consts; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   data = (GfxTexture *)drawStream->data;
-  _R13 = drawStream->viewInfo;
+  Resident = data;
+  viewInfo = drawStream->viewInfo;
   state = drawStream->state;
   textures = (GfxTexture *)g_worldDraw->iesLookupTexture;
-  __asm { vcomiss xmm0, dword ptr [r13+2E80h] }
-  v10 = shaderPass & 0xFFFFFFFE;
+  if ( viewInfo->volumetrics.sunBrightness > 0.0 && data[655].shaderRWView.rwSubresourceToTransition )
+    v9 = 4;
+  else
+    v9 = 0;
+  v10 = v9 | shaderPass;
+  v11 = (v9 | shaderPass) & 0xFFFFFFFE;
   if ( drawStream->useLocalMedia )
-    v10 = shaderPass;
-  __asm { vucomiss xmm0, dword ptr [r13+2E84h] }
-  v11 = v10;
-  if ( !drawStream->useLocalMedia )
-  {
-    __asm { vucomiss xmm0, dword ptr [r13+2E88h] }
-    if ( !drawStream->useLocalMedia )
-      v11 = v10 & 0xFFFFFFFD;
-  }
+    v11 = v10;
+  v12 = v11;
+  if ( viewInfo->volumetrics.spotBrightness == 0.0 && viewInfo->volumetrics.omniBrightness == 0.0 )
+    v12 = v11 & 0xFFFFFFFD;
   if ( state->computeContextType != COMPUTE_CONTEXT_TYPE_GFX )
   {
     R_SetComputeLimitsPerCU(state, COMPUTECMD_SIMD_WALK_DEFAULT, r_volumetricsWaveLimit->current.unsignedInt, 0, 0);
@@ -2661,17 +2284,17 @@ void R_VOL_EvaluateScattering(VolumetricDrawStream *drawStream, VolumetricScatte
       R_SetComputeCUMask(drawStream->state, CUMask);
     }
   }
-  v13 = drawStream->useLocalMediaPrev != 0;
+  v14 = drawStream->useLocalMediaPrev != 0;
   memset_0(&consts, 0, sizeof(consts));
-  R_VOL_SetConstantsCommon(&consts, _R13, VOLUMETRIC_PASS_SCATTER, v13);
-  __asm { vmovups xmm0, xmmword ptr [r13+2E80h] }
+  R_VOL_SetConstantsCommon(&consts, viewInfo, VOLUMETRIC_PASS_SCATTER, v14);
+  v15 = *(vec4_t *)&viewInfo->volumetrics.sunBrightness;
   consts.flags = shaderPass;
-  __asm { vmovaps xmmword ptr [rbp+0D0h+consts.volumetricLightingScale], xmm0 }
+  consts.volumetricLightingScale = v15;
   R_UploadAndSetComputeConstants(state, 0, &consts, 0x140u, NULL);
-  R_SetComputeShader(state, rgp.volumetricScatterComputeShader[v11]);
+  R_SetComputeShader(state, rgp.volumetricScatterComputeShader[v12]);
   views = &R_GetFrustumLightsReadLightBuffer(drawStream->viewInfo)->view;
   R_SetComputeViews(state, 19, 1, (const GfxShaderBufferView *const *)&views);
-  views = &_R13->input.data->globalShadowConstantBuffer->view;
+  views = &viewInfo->input.data->globalShadowConstantBuffer->view;
   R_SetComputeViews(state, 20, 1, (const GfxShaderBufferView *const *)&views);
   views = &resources->lightsClusterBuffer->view;
   R_SetComputeViews(state, 10, 1, (const GfxShaderBufferView *const *)&views);
@@ -2699,28 +2322,28 @@ void R_VOL_EvaluateScattering(VolumetricDrawStream *drawStream, VolumetricScatte
   R_SetComputeTextures(state, 4, 1, (const GfxTexture *const *)&views);
   textures = (GfxTexture *)R_Texture_GetResident((GfxTextureId)textures->shaderView.view);
   R_SetComputeTextures(state, 5, 1, (const GfxTexture *const *)&textures);
-  R_SetComputeDescriptorTable(state, &s_volumetricNoiseTexturesArray[LODWORD(data[22681].shaderRWView.rwCounterResource)], 0xEu);
-  data = (GfxTexture *)R_Texture_GetResident(rgp.hgPhaseFunction->textureId);
-  R_SetComputeTextures(state, 8, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->maxFloatzImage->textureId);
-  R_SetComputeTextures(state, 9, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->extinctionTemporalReadImage->textureId);
-  R_SetComputeTextures(state, 15, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->ambientImage->textureId);
-  R_SetComputeTextures(state, 6, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->visibilityPrevFrameImage->textureId);
-  R_SetComputeTextures(state, 17, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->scatterTemporalWriteImage->textureId);
-  R_SetComputeRWTextures(state, 0, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->scatterMomentsWriteImage->textureId);
-  R_SetComputeRWTextures(state, 2, 1, (const GfxTexture *const *)&data);
-  data = (GfxTexture *)R_Texture_GetResident(resources->extinctionTemporalWriteImage->textureId);
-  R_SetComputeRWTextures(state, 1, 1, (const GfxTexture *const *)&data);
+  R_SetComputeDescriptorTable(state, &s_volumetricNoiseTexturesArray[LODWORD(Resident[22681].shaderRWView.rwCounterResource)], 0xEu);
+  Resident = (GfxTexture *)R_Texture_GetResident(rgp.hgPhaseFunction->textureId);
+  R_SetComputeTextures(state, 8, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->maxFloatzImage->textureId);
+  R_SetComputeTextures(state, 9, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->extinctionTemporalReadImage->textureId);
+  R_SetComputeTextures(state, 15, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->ambientImage->textureId);
+  R_SetComputeTextures(state, 6, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->visibilityPrevFrameImage->textureId);
+  R_SetComputeTextures(state, 17, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->scatterTemporalWriteImage->textureId);
+  R_SetComputeRWTextures(state, 0, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->scatterMomentsWriteImage->textureId);
+  R_SetComputeRWTextures(state, 2, 1, (const GfxTexture *const *)&Resident);
+  Resident = (GfxTexture *)R_Texture_GetResident(resources->extinctionTemporalWriteImage->textureId);
+  R_SetComputeRWTextures(state, 1, 1, (const GfxTexture *const *)&Resident);
   blackImage = s_volumetricHeightfield;
   if ( !s_volumetricHeightfield )
     blackImage = rgp.blackImage;
-  data = (GfxTexture *)R_Texture_GetResident(blackImage->textureId);
-  R_SetComputeTextures(state, 33, 1, (const GfxTexture *const *)&data);
+  Resident = (GfxTexture *)R_Texture_GetResident(blackImage->textureId);
+  R_SetComputeTextures(state, 33, 1, (const GfxTexture *const *)&Resident);
   if ( (s_volumetricGlob.voxelImageDepth & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1544, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.voxelImageDepth % 4 == 0)", (const char *)&queryFormat, "s_volumetricGlob.voxelImageDepth % 4 == 0") )
     __debugbreak();
   R_DispatchIndirect(state, resources->indirectScatteringBuffer->buffer, 32 * shaderPass);
@@ -2736,20 +2359,20 @@ R_VOL_FillIndirectScattering
 */
 void R_VOL_FillIndirectScattering(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, const GfxWrappedBuffer *volClusterBuffer, const GfxWrappedBuffer *featureClusterBuffer, const GfxWrappedBuffer *lightClusterBuffer, const R_RT_BufferHandle *froxelIndirectBuffer, const R_RT_BufferHandle *froxelIDBuffer, const R_RT_ColorHandle *visibilityTexture)
 {
+  vec4_t v12; 
   const R_RT_Surface *Surface; 
   GfxShaderBufferRWView *views[2]; 
   VolumetricConstants consts; 
 
-  _RBX = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 993, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
   memset_0(&consts, 0, sizeof(consts));
-  R_VOL_SetConstantsCommon(&consts, _RBX, VOLUMETRIC_PASS_SCATTER, 0);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 916, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
+  R_VOL_SetConstantsCommon(&consts, viewInfo, VOLUMETRIC_PASS_SCATTER, 0);
+  if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 916, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx+2E80h] }
+  v12 = *(vec4_t *)&viewInfo->volumetrics.sunBrightness;
   consts.flags = 0;
-  __asm { vmovaps xmmword ptr [rsp+1D8h+consts.volumetricLightingScale], xmm0 }
+  consts.volumetricLightingScale = v12;
   R_UploadAndSetComputeConstants(state, 0, &consts, 0x140u, NULL);
   R_SetComputeShader(state, rgp.fillIndirectScattering);
   views[0] = &R_RT_Handle::GetWrappedBuffer(&froxelIDBuffer->R_RT_Handle)->rwView;
@@ -2765,7 +2388,7 @@ void R_VOL_FillIndirectScattering(ComputeCmdBufState *state, const GfxViewInfo *
   Surface = R_RT_Handle::GetSurface(&visibilityTexture->R_RT_Handle);
   views[0] = (GfxShaderBufferRWView *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_SetComputeTextures(state, 16, 1, (const GfxTexture *const *)views);
-  R_Dispatch(state, (_RBX->frustumGrid.clusterCountX + 3) >> 2, (_RBX->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
+  R_Dispatch(state, (viewInfo->frustumGrid.clusterCountX + 3) >> 2, (viewInfo->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
 }
 
 /*
@@ -2776,226 +2399,134 @@ R_VOL_FreeRts
 
 void __fastcall R_VOL_FreeRts(double _XMM0_8)
 {
+  R_RT_ColorHandle *scatterImage; 
   __int64 v2; 
   __int64 v3; 
-  __int64 v9; 
-  __int64 v11; 
-  R_RT_Handle v41; 
+  R_RT_ColorHandle *extinctionImage; 
+  __int64 v5; 
+  R_RT_ColorHandle *ambientVisibilityImage; 
+  __int64 v7; 
+  R_RT_BufferHandle *ambientLightingData; 
+  R_RT_Handle tetIdxImage; 
 
-  _RBX = s_volumetricGlob.scatterImage;
+  scatterImage = s_volumetricGlob.scatterImage;
   if ( R_RT_Handle::IsValid(s_volumetricGlob.scatterImage) )
   {
     v2 = 3i64;
     v3 = 3i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      v41.m_surfaceID = 0;
-      ++_RBX;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx-20h], ymm1
-      }
+      tetIdxImage = scatterImage->R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      tetIdxImage.m_surfaceID = 0;
+      ++scatterImage;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+      scatterImage[-1] = (R_RT_ColorHandle)tetIdxImage;
       --v3;
     }
     while ( v3 );
-    _RBX = s_volumetricGlob.extinctionImage;
+    extinctionImage = s_volumetricGlob.extinctionImage;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      v41.m_surfaceID = 0;
-      ++_RBX;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx-20h], ymm1
-      }
+      tetIdxImage = extinctionImage->R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      tetIdxImage.m_surfaceID = 0;
+      ++extinctionImage;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+      extinctionImage[-1] = (R_RT_ColorHandle)tetIdxImage;
       --v2;
     }
     while ( v2 );
-    v9 = 2i64;
-    _RBX = s_volumetricGlob.ambientVisibilityImage;
-    v11 = 2i64;
+    v5 = 2i64;
+    ambientVisibilityImage = s_volumetricGlob.ambientVisibilityImage;
+    v7 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx-40h]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      }
-      v41.m_surfaceID = 0;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx-40h], ymm1
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      v41.m_surfaceID = 0;
-      ++_RBX;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx-20h], ymm1
-      }
-      --v11;
+      tetIdxImage = ambientVisibilityImage[-2].R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+      tetIdxImage.m_surfaceID = 0;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      ambientVisibilityImage[-2] = (R_RT_ColorHandle)tetIdxImage;
+      tetIdxImage = ambientVisibilityImage->R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      tetIdxImage.m_surfaceID = 0;
+      ++ambientVisibilityImage;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+      ambientVisibilityImage[-1] = (R_RT_ColorHandle)tetIdxImage;
+      --v7;
     }
-    while ( v11 );
-    _RBX = s_volumetricGlob.ambientLightingData;
+    while ( v7 );
+    ambientLightingData = s_volumetricGlob.ambientLightingData;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx-160h]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      }
-      v41.m_surfaceID = 0;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx-160h], ymm1
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      }
-      v41.m_surfaceID = 0;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx], ymm1
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      }
-      v41.m_surfaceID = 0;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx+40h], ymm1
-        vmovups ymm0, ymmword ptr [rbx+80h]
-        vmovups [rbp+var_20], ymm0
-      }
-      R_RT_DestroyInternal(&v41);
-      v41.m_surfaceID = 0;
-      ++_RBX;
-      v41.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-        vmovups ymm1, [rbp+var_20]
-        vmovups ymmword ptr [rbx+60h], ymm1
-      }
-      --v9;
+      tetIdxImage = ambientLightingData[-11].R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+      tetIdxImage.m_surfaceID = 0;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      ambientLightingData[-11] = (R_RT_BufferHandle)tetIdxImage;
+      tetIdxImage = ambientLightingData->R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+      tetIdxImage.m_surfaceID = 0;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      *ambientLightingData = (R_RT_BufferHandle)tetIdxImage;
+      tetIdxImage = ambientLightingData[2].R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+      tetIdxImage.m_surfaceID = 0;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      ambientLightingData[2] = (R_RT_BufferHandle)tetIdxImage;
+      tetIdxImage = ambientLightingData[4].R_RT_Handle;
+      R_RT_DestroyInternal(&tetIdxImage);
+      tetIdxImage.m_surfaceID = 0;
+      ++ambientLightingData;
+      tetIdxImage.m_tracking.m_allocCounter = 0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&tetIdxImage.m_tracking.m_name = *(_OWORD *)&_XMM0_8;
+      ambientLightingData[3] = (R_RT_BufferHandle)tetIdxImage;
+      --v5;
     }
-    while ( v9 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_volumetricGlob.tetIdxImage.baseclass_0.m_surfaceID
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v41);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm0, ymmword ptr cs:s_volumetricGlob.ambientSceneLumaImage.baseclass_0.m_surfaceID
-    }
-    v41.m_surfaceID = 0;
-    v41.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups ymm1, [rbp+var_20]
-      vmovups ymmword ptr cs:s_volumetricGlob.tetIdxImage.baseclass_0.m_surfaceID, ymm1
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v41);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm0, ymmword ptr cs:s_volumetricGlob.maxFloatZImage.baseclass_0.m_surfaceID
-    }
-    v41.m_surfaceID = 0;
-    v41.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups ymm1, [rbp+var_20]
-      vmovups ymmword ptr cs:s_volumetricGlob.ambientSceneLumaImage.baseclass_0.m_surfaceID, ymm1
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v41);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm0, ymmword ptr cs:s_volumetricGlob.maskClusterBuffer.baseclass_0.m_surfaceID
-    }
-    v41.m_surfaceID = 0;
-    v41.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups ymm1, [rbp+var_20]
-      vmovups ymmword ptr cs:s_volumetricGlob.maxFloatZImage.baseclass_0.m_surfaceID, ymm1
-      vmovups [rbp+var_20], ymm0
-    }
-    R_RT_DestroyInternal(&v41);
-    v41.m_surfaceID = 0;
-    v41.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+var_20+10h], xmm0
-      vmovups ymm1, [rbp+var_20]
-      vmovups ymmword ptr cs:s_volumetricGlob.maskClusterBuffer.baseclass_0.m_surfaceID, ymm1
-    }
+    while ( v5 );
+    tetIdxImage = (R_RT_Handle)s_volumetricGlob.tetIdxImage;
+    R_RT_DestroyInternal(&tetIdxImage);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+    tetIdxImage.m_surfaceID = 0;
+    tetIdxImage.m_tracking.m_allocCounter = 0;
+    s_volumetricGlob.tetIdxImage = (R_RT_ColorHandle)tetIdxImage;
+    tetIdxImage = (R_RT_Handle)s_volumetricGlob.ambientSceneLumaImage;
+    R_RT_DestroyInternal(&tetIdxImage);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+    tetIdxImage.m_surfaceID = 0;
+    tetIdxImage.m_tracking.m_allocCounter = 0;
+    s_volumetricGlob.ambientSceneLumaImage = (R_RT_ColorHandle)tetIdxImage;
+    tetIdxImage = (R_RT_Handle)s_volumetricGlob.maxFloatZImage;
+    R_RT_DestroyInternal(&tetIdxImage);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+    tetIdxImage.m_surfaceID = 0;
+    tetIdxImage.m_tracking.m_allocCounter = 0;
+    s_volumetricGlob.maxFloatZImage = (R_RT_ColorHandle)tetIdxImage;
+    tetIdxImage = (R_RT_Handle)s_volumetricGlob.maskClusterBuffer;
+    R_RT_DestroyInternal(&tetIdxImage);
+    tetIdxImage.m_surfaceID = 0;
+    tetIdxImage.m_tracking.m_allocCounter = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&tetIdxImage.m_tracking.m_name = _XMM0;
+    s_volumetricGlob.maskClusterBuffer = (R_RT_BufferHandle)tetIdxImage;
   }
 }
 
@@ -3047,17 +2578,7 @@ void R_VOL_GetAccumImages(const GfxViewInfo *viewInfo, const GfxImage **scatteri
 {
   R_RT_Image *p_m_image; 
 
-  _RBX = viewInfo;
-  if ( !R_UseBakedLighting() )
-    goto LABEL_5;
-  if ( !_RBX->volumetrics.enabled )
-    goto LABEL_5;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+2E6Ch]
-  }
-  if ( R_VOL_UseLocalMedia(_RBX->input.data, _RBX) )
+  if ( R_UseBakedLighting() && viewInfo->volumetrics.enabled && (viewInfo->volumetrics.airDensity > 0.0 || R_VOL_UseLocalMedia(viewInfo->input.data, viewInfo)) )
   {
     *scattering = &R_RT_Handle::GetSurface(&s_volumetricGlob.scatterImage[2])->m_image.m_base;
     *extinction = &R_RT_Handle::GetSurface(&s_volumetricGlob.extinctionImage[2])->m_image.m_base;
@@ -3065,7 +2586,6 @@ void R_VOL_GetAccumImages(const GfxViewInfo *viewInfo, const GfxImage **scatteri
   }
   else
   {
-LABEL_5:
     *scattering = rgp.blackImage3D;
     *extinction = rgp.whiteImage3D;
     p_m_image = (R_RT_Image *)rgp.whiteImage;
@@ -3296,70 +2816,82 @@ R_VOL_LazyAllocRts
 
 void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
 {
+  R_RT_ColorHandle *scatterImage; 
   const char **v2; 
   __int64 v3; 
-  bool v7; 
-  __int64 v8; 
-  const char **v10; 
-  bool v14; 
-  __int64 v16; 
-  __int64 v17; 
-  bool v21; 
+  R_RT_Handle v4; 
+  bool v6; 
+  __int64 v7; 
+  R_RT_ColorHandle *extinctionImage; 
+  const char **v9; 
+  R_RT_Handle v10; 
+  bool v12; 
+  __m256i *ambientLightingData; 
+  __int64 v14; 
+  __int64 v15; 
+  R_RT_Handle v16; 
+  bool v18; 
+  unsigned int v19; 
+  GfxDataFormat v20; 
+  __m256i *BufferInternal; 
   unsigned int v22; 
   GfxDataFormat v23; 
+  __m256i *v24; 
   unsigned int v25; 
   GfxDataFormat v26; 
-  unsigned int v29; 
-  GfxDataFormat v30; 
-  __int64 v34; 
-  const char **v36; 
-  bool v40; 
-  const char **v41; 
-  __int64 v43; 
-  bool v47; 
-  bool v51; 
+  __int64 v27; 
+  R_RT_ColorHandle *visibilityImage; 
+  const char **v29; 
+  R_RT_Handle v30; 
+  bool v32; 
+  const char **v33; 
+  R_RT_ColorHandle *ambientVisibilityImage; 
+  __int64 v35; 
+  R_RT_Handle v36; 
+  bool v38; 
+  __m256i v39; 
+  bool v41; 
   R_RT_Flags rtFlags; 
-  bool v56; 
-  const dvar_t *v57; 
-  const dvar_t *v58; 
-  bool v62; 
-  unsigned int v63; 
+  __m256i v43; 
+  bool v45; 
+  const dvar_t *v46; 
+  const dvar_t *v47; 
+  __m256i v48; 
+  bool v50; 
+  unsigned int v51; 
+  R_RT_BufferHandle v52; 
   const char *mipLimita; 
   const char *mipLimitb; 
   const char *mipLimitc; 
   __int64 mipLimit; 
   __int64 format; 
-  R_RT_Handle v71; 
-  __int64 v73; 
+  R_RT_Handle v58; 
+  R_RT_Handle v59; 
+  __int64 v60; 
   R_RT_Handle result; 
 
-  _RBX = s_volumetricGlob.scatterImage;
+  scatterImage = s_volumetricGlob.scatterImage;
   if ( !R_RT_Handle::IsValid(s_volumetricGlob.scatterImage) )
   {
     v2 = s_volumetricScatterNames;
-    v73 = 3i64;
+    v60 = 3i64;
     v3 = 3i64;
     do
     {
-      _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v2, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(360)");
-      __asm
+      v4 = *R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v2, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(360)");
+      v59 = v4;
+      v58 = v4;
+      if ( LOWORD(_XMM0_8) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rbp+10h+var_70], ymm0
-        vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v71);
-        if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v58);
+        if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v4 = v58;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v4 = v58;
         }
       }
       else
@@ -3367,42 +2899,36 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, [rbp+10h+var_70] }
-          if ( v7 )
+          v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v4 = v59;
+          if ( v6 )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rbx], ymm0 }
-      ++_RBX;
+      *scatterImage++ = (R_RT_ColorHandle)v4;
       ++v2;
       --v3;
     }
     while ( v3 );
-    v8 = v73;
-    _RBX = s_volumetricGlob.extinctionImage;
-    v10 = s_volumetricExtinctionNames;
+    v7 = v60;
+    extinctionImage = s_volumetricGlob.extinctionImage;
+    v9 = s_volumetricExtinctionNames;
     do
     {
-      _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[64], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v10, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(362)");
-      __asm
+      v10 = *R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[64], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v9, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(362)");
+      v59 = v10;
+      v58 = v10;
+      if ( LOWORD(_XMM0_8) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rbp+10h+var_70], ymm0
-        vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v71);
-        if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v58);
+        if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v10 = v58;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v10 = v58;
         }
       }
       else
@@ -3410,42 +2936,36 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, [rbp+10h+var_70] }
-          if ( v14 )
+          v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v10 = v59;
+          if ( v12 )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rbx], ymm0 }
-      ++_RBX;
-      ++v10;
-      --v8;
+      *extinctionImage++ = (R_RT_ColorHandle)v10;
+      ++v9;
+      --v7;
     }
-    while ( v8 );
-    _RDI = s_volumetricGlob.ambientLightingData;
-    v16 = 0i64;
-    v17 = 2i64;
+    while ( v7 );
+    ambientLightingData = (__m256i *)s_volumetricGlob.ambientLightingData;
+    v14 = 0i64;
+    v15 = 2i64;
     do
     {
-      _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, s_volumetricAmbientNames[v16], 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(365)");
-      __asm
+      v16 = *R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, s_volumetricAmbientNames[v14], 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(365)");
+      v59 = v16;
+      v58 = v16;
+      if ( LOWORD(_XMM0_8) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rbp+10h+var_70], ymm0
-        vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v71);
-        if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v58);
+        if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v16 = v58;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v16 = v58;
         }
       }
       else
@@ -3453,64 +2973,52 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, [rbp+10h+var_70] }
-          if ( v21 )
+          v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v16 = v59;
+          if ( v18 )
             __debugbreak();
         }
       }
-      v22 = g_R_RT_bufferFmts[11];
-      v23 = g_R_RT_bufferFmts[11];
-      mipLimita = s_volumetricAmbientLightingDataNames[v16];
-      __asm { vmovups ymmword ptr [rdi-160h], ymm0 }
-      _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v22, 0x23F00u, v23, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimita, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(366)");
-      v25 = g_R_RT_bufferFmts[12];
-      v26 = g_R_RT_bufferFmts[12];
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      mipLimitb = s_volumetricAmbientLightingAlphaNames[v16];
-      __asm { vmovups ymmword ptr [rdi], ymm0 }
-      _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v25, 0x23F00u, v26, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimitb, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(367)");
-      v29 = g_R_RT_bufferFmts[13];
-      v30 = g_R_RT_bufferFmts[13];
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      mipLimitc = s_volumetricAmbientLightingTetsNames[v16];
-      __asm { vmovups ymmword ptr [rdi+40h], ymm0 }
-      _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v29, 0x23F00u, v30, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimitc, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(368)");
-      ++v16;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi+80h], ymm0
-      }
-      ++_RDI;
-      --v17;
+      v19 = g_R_RT_bufferFmts[11];
+      v20 = g_R_RT_bufferFmts[11];
+      mipLimita = s_volumetricAmbientLightingDataNames[v14];
+      ambientLightingData[-11] = (__m256i)v16;
+      BufferInternal = (__m256i *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v19, 0x23F00u, v20, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimita, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(366)");
+      v22 = g_R_RT_bufferFmts[12];
+      v23 = g_R_RT_bufferFmts[12];
+      mipLimitb = s_volumetricAmbientLightingAlphaNames[v14];
+      *ambientLightingData = *BufferInternal;
+      v24 = (__m256i *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v22, 0x23F00u, v23, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimitb, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(367)");
+      v25 = g_R_RT_bufferFmts[13];
+      v26 = g_R_RT_bufferFmts[13];
+      mipLimitc = s_volumetricAmbientLightingTetsNames[v14];
+      ambientLightingData[2] = *v24;
+      ++v14;
+      ambientLightingData[4] = *(__m256i *)R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, v25, 0x23F00u, v26, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, mipLimitc, 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(368)");
+      ++ambientLightingData;
+      --v15;
     }
-    while ( v17 );
-    v34 = 2i64;
-    v73 = (__int64)s_volumetricVisibilityNames;
-    _RBX = s_volumetricGlob.visibilityImage;
-    v36 = s_volumetricVisibilityNames;
+    while ( v15 );
+    v27 = 2i64;
+    v60 = (__int64)s_volumetricVisibilityNames;
+    visibilityImage = s_volumetricGlob.visibilityImage;
+    v29 = s_volumetricVisibilityNames;
     do
     {
-      _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[59], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v36, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(371)");
-      __asm
+      v30 = *R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[59], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v29, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(371)");
+      v59 = v30;
+      v58 = v30;
+      if ( LOWORD(_XMM0_8) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rbp+10h+var_70], ymm0
-        vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v71);
-        if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v58);
+        if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v30 = v58;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v30 = v58;
         }
       }
       else
@@ -3518,42 +3026,36 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, [rbp+10h+var_70] }
-          if ( v40 )
+          v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v30 = v59;
+          if ( v32 )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rbx], ymm0 }
-      ++_RBX;
-      ++v36;
-      --v34;
+      *visibilityImage++ = (R_RT_ColorHandle)v30;
+      ++v29;
+      --v27;
     }
-    while ( v34 );
-    v41 = (const char **)v73;
-    _RBX = s_volumetricGlob.ambientVisibilityImage;
-    v43 = 2i64;
+    while ( v27 );
+    v33 = (const char **)v60;
+    ambientVisibilityImage = s_volumetricGlob.ambientVisibilityImage;
+    v35 = 2i64;
     do
     {
-      _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[59], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v41, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(373)");
-      __asm
+      v36 = *R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[59], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, *v33, 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(373)");
+      v59 = v36;
+      v58 = v36;
+      if ( LOWORD(_XMM0_8) )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rbp+10h+var_70], ymm0
-        vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v71);
-        if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v58);
+        if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v36 = v58;
           __debugbreak();
         }
         else
         {
-          __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+          v36 = v58;
         }
       }
       else
@@ -3561,37 +3063,31 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-          __asm { vmovups ymm0, [rbp+10h+var_70] }
-          if ( v47 )
+          v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+          v36 = v59;
+          if ( v38 )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rbx], ymm0 }
-      ++_RBX;
-      ++v41;
-      --v43;
+      *ambientVisibilityImage++ = (R_RT_ColorHandle)v36;
+      ++v33;
+      --v35;
     }
-    while ( v43 );
-    _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[41], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "vol tetidx", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(375)");
-    __asm
+    while ( v35 );
+    v39 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageDepth, 1u, 1u, g_R_RT_renderTargetFmts[41], R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_VolumetricLayoutOverride, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "vol tetidx", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(375)");
+    v59 = (R_RT_Handle)v39;
+    v58 = (R_RT_Handle)v39;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+10h+var_70], ymm0
-      vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v71);
-      if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v58);
+      if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v39 = (__m256i)v58;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v39 = (__m256i)v58;
       }
     }
     else
@@ -3599,33 +3095,28 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v51 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+10h+var_70] }
-        if ( v51 )
+        v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v39 = (__m256i)v59;
+        if ( v41 )
           __debugbreak();
       }
     }
     rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView;
-    __asm { vmovups ymmword ptr cs:s_volumetricGlob.tetIdxImage.baseclass_0.m_surfaceID, ymm0 }
-    _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "vol ambient scene luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(376)");
-    __asm
+    s_volumetricGlob.tetIdxImage = (R_RT_ColorHandle)v39;
+    v43 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, s_volumetricGlob.clusterImageWidth, s_volumetricGlob.clusterImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[61], R_RT_Flag_RWView|R_RT_Flag_RTView, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "vol ambient scene luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(376)");
+    v59 = (R_RT_Handle)v43;
+    v58 = (R_RT_Handle)v43;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+10h+var_70], ymm0
-      vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v71);
-      if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v58);
+      if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v43 = (__m256i)v58;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v43 = (__m256i)v58;
       }
     }
     else
@@ -3633,45 +3124,40 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v56 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+10h+var_70] }
-        if ( v56 )
+        v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v43 = (__m256i)v59;
+        if ( v45 )
           __debugbreak();
       }
     }
-    v57 = r_deviceDebug;
-    __asm { vmovups ymmword ptr cs:s_volumetricGlob.ambientSceneLumaImage.baseclass_0.m_surfaceID, ymm0 }
+    v46 = r_deviceDebug;
+    s_volumetricGlob.ambientSceneLumaImage = (R_RT_ColorHandle)v43;
     if ( !r_deviceDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v57);
-    if ( !v57->current.enabled )
+    Dvar_CheckFrontendServerThread(v46);
+    if ( !v46->current.enabled )
     {
-      v58 = DCONST_DVARBOOL_r_esramPostFX;
+      v47 = DCONST_DVARBOOL_r_esramPostFX;
       if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v58);
-      if ( v58->current.enabled )
+      Dvar_CheckFrontendServerThread(v47);
+      if ( v47->current.enabled )
         rtFlags = R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_PreferESRAM;
     }
-    _RAX = R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[47], rtFlags, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Volumetric FloatZ Difference", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(377)");
-    __asm
+    v48 = *(__m256i *)R_RT_CreateInternal(&result, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, s_volumetricGlob.voxelImageWidth, s_volumetricGlob.voxelImageHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[47], rtFlags, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Volumetric FloatZ Difference", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(377)");
+    v59 = (R_RT_Handle)v48;
+    v58 = (R_RT_Handle)v48;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+10h+var_70], ymm0
-      vmovups ymmword ptr [rbp+10h+var_90.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v71);
-      if ( (R_RT_Handle::GetSurface(&v71)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v58);
+      if ( (R_RT_Handle::GetSurface(&v58)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v48 = (__m256i)v58;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+10h+var_90.m_surfaceID] }
+        v48 = (__m256i)v58;
       }
     }
     else
@@ -3679,25 +3165,24 @@ void __fastcall R_VOL_LazyAllocRts(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v62 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+10h+var_70] }
-        if ( v62 )
+        v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v48 = (__m256i)v59;
+        if ( v50 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:s_volumetricGlob.maxFloatZImage.baseclass_0.m_surfaceID, ymm0 }
-    v63 = s_volumetricGlob.maxClusterCountX * s_volumetricGlob.maxClusterCountY * s_volumetricGlob.maxClusterCountZ;
-    if ( v63 >= 0x1000000 )
+    s_volumetricGlob.maxFloatZImage = (R_RT_ColorHandle)v48;
+    v51 = s_volumetricGlob.maxClusterCountX * s_volumetricGlob.maxClusterCountY * s_volumetricGlob.maxClusterCountZ;
+    if ( v51 >= 0x1000000 )
     {
       LODWORD(format) = 0x1000000;
       LODWORD(mipLimit) = s_volumetricGlob.maxClusterCountX * s_volumetricGlob.maxClusterCountY * s_volumetricGlob.maxClusterCountZ;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 380, ASSERT_TYPE_ASSERT, "( maxClusterCount ) < ( 1 << 24 )", "%s < %s\n\t%i, %i", "maxClusterCount", "1 << 24", mipLimit, format) )
         __debugbreak();
     }
-    _RAX = R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 4u, 8 * v63, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_GENERIC_READ, "vol masks cluster buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(381)");
-    __asm { vmovups ymm0, ymmword ptr [rax] }
+    v52 = *R_RT_CreateBufferInternal((R_RT_BufferHandle *)&result, 4u, 8 * v51, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_RWView, (R_RT_FlagsInternal)2, D3D12_RESOURCE_STATE_GENERIC_READ, "vol masks cluster buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp(381)");
     *(_QWORD *)&s_volumetricGlob.prevFrameAmbientValid = 0i64;
-    __asm { vmovups ymmword ptr cs:s_volumetricGlob.maskClusterBuffer.baseclass_0.m_surfaceID, ymm0 }
+    s_volumetricGlob.maskClusterBuffer = v52;
   }
 }
 
@@ -3753,60 +3238,54 @@ R_VOL_SampleAmbientMultiLightGrid
 void R_VOL_SampleAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, const R_RT_Handle *visibilityCurrent, const R_RT_Handle *floatZ, const R_RT_Handle *sampledLighting, const R_RT_Handle *sampledLightingAlpha, const R_RT_Handle *tetIndexCurr, const R_RT_Handle *tetIndexPrev)
 {
   ComputeShader *sampleMultiLightGridVolumetricIso; 
-  int v15; 
+  int v13; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v17; 
-  R_RT_Handle *v18; 
+  const R_RT_Surface *v15; 
+  R_RT_Handle *v16; 
   const GfxWrappedRWBuffer *WrappedBuffer; 
   bool IsValid; 
   const GfxBackEndData *data; 
-  bool v22; 
+  bool v20; 
   const unsigned int *PrevFrameLightGridIndicesList; 
   unsigned int volumetricsIndex; 
-  unsigned int v26; 
-  const GfxCmdBufInput *p_input; 
-  int v29; 
+  unsigned int v24; 
+  GfxCmdBufInput *p_input; 
+  int v27; 
   int prevFrameActiveGpuLightGridIndex; 
-  const GfxGpuLightGrid *v31; 
+  const GfxGpuLightGrid *v29; 
   unsigned int zCount; 
   unsigned int yCount; 
   unsigned int xCount; 
   const GfxGpuLightGrid **ActiveLightGridsList; 
-  const unsigned int *v36; 
+  const unsigned int *v34; 
   GfxShaderBufferView *views; 
   int numActiveLightGrids; 
 
-  _R13 = viewInfo;
   ((void (__fastcall *)(GfxDevice *, __int64, _QWORD, __int64))state->device->m_pFunction[22].AddRef)(state->device, 0x8000000i64, 0i64, 0xFFFFFFFF00i64);
   if ( s_volumetricGlob.clusterImageDepth != 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1110, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.clusterImageDepth == ( ( 128 + 4 - 1 ) / 4 ))", (const char *)&queryFormat, "s_volumetricGlob.clusterImageDepth == R_VOLUMETRIC_GI_FRUSTUM_DEPTH") )
     __debugbreak();
   sampleMultiLightGridVolumetricIso = rgp.sampleMultiLightGridVolumetricIso;
-  xCount = (_R13->frustumGrid.clusterCountX + 3) >> 2;
-  yCount = (_R13->frustumGrid.clusterCountY + 3) >> 2;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [r13+2E90h]
-  }
+  xCount = (viewInfo->frustumGrid.clusterCountX + 3) >> 2;
+  yCount = (viewInfo->frustumGrid.clusterCountY + 3) >> 2;
   zCount = (s_volumetricGlob.clusterImageDepth + 3) >> 2;
-  if ( zCount )
+  if ( viewInfo->volumetrics.sunAnisotropy != 0.0 )
     sampleMultiLightGridVolumetricIso = rgp.sampleMultiLightGridVolumetricAniso;
   R_SetComputeShader(state, sampleMultiLightGridVolumetricIso);
   views = &R_GetFallbackProbe()->view;
   R_SetComputeViews(state, 9, 1, (const GfxShaderBufferView *const *)&views);
-  v15 = 0;
-  R_VOL_SetConstants(state, _R13, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
-  views = &R_GetActiveLightGrids(_R13->input.data)->view;
+  v13 = 0;
+  R_VOL_SetConstants(state, viewInfo, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
+  views = &R_GetActiveLightGrids(viewInfo->input.data)->view;
   R_SetComputeViews(state, 27, 1, (const GfxShaderBufferView *const *)&views);
   Surface = R_RT_Handle::GetSurface((R_RT_Handle *)visibilityCurrent);
   views = (GfxShaderBufferView *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_SetComputeTextures(state, 16, 1, (const GfxTexture *const *)&views);
-  v17 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
-  views = (GfxShaderBufferView *)R_Texture_GetResident(v17->m_image.m_base.textureId);
+  v15 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
+  views = (GfxShaderBufferView *)R_Texture_GetResident(v15->m_image.m_base.textureId);
   R_SetComputeTextures(state, 19, 1, (const GfxTexture *const *)&views);
-  v18 = (R_RT_Handle *)tetIndexPrev;
+  v16 = (R_RT_Handle *)tetIndexPrev;
   if ( R_RT_Handle::IsValid((R_RT_Handle *)tetIndexPrev) )
-    WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v18);
+    WrappedBuffer = R_RT_Handle::GetWrappedBuffer(v16);
   else
     WrappedBuffer = (const GfxWrappedRWBuffer *)&gfxBuf.dummyBuffer;
   views = &WrappedBuffer->view;
@@ -3817,39 +3296,39 @@ void R_VOL_SampleAmbientMultiLightGrid(ComputeCmdBufState *state, const GfxViewI
   R_SetComputeRWViewsWithCounters(state, 4, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
   views = (GfxShaderBufferView *)&R_RT_Handle::GetWrappedBuffer((R_RT_Handle *)tetIndexCurr)->rwView;
   R_SetComputeRWViewsWithCounters(state, 5, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-  IsValid = R_RT_Handle::IsValid(v18);
-  data = _R13->input.data;
-  v22 = IsValid;
+  IsValid = R_RT_Handle::IsValid(v16);
+  data = viewInfo->input.data;
+  v20 = IsValid;
   LOBYTE(views) = IsValid;
   ActiveLightGridsList = R_GetActiveLightGridsList(data);
-  PrevFrameLightGridIndicesList = R_GetPrevFrameLightGridIndicesList(_R13->input.data);
-  v36 = PrevFrameLightGridIndicesList;
-  volumetricsIndex = _R13->input.data->volumetricsIndex;
+  PrevFrameLightGridIndicesList = R_GetPrevFrameLightGridIndicesList(viewInfo->input.data);
+  v34 = PrevFrameLightGridIndicesList;
+  volumetricsIndex = viewInfo->input.data->volumetricsIndex;
   _EDI = s_volumetricGlob.activeLightGridsMask[volumetricsIndex & 1];
-  if ( v22 )
-    v26 = s_volumetricGlob.activeLightGridsMask[((_BYTE)volumetricsIndex - 1) & 1];
+  if ( v20 )
+    v24 = s_volumetricGlob.activeLightGridsMask[((_BYTE)volumetricsIndex - 1) & 1];
   else
-    v26 = 0;
+    v24 = 0;
   numActiveLightGrids = __popcnt(_EDI);
   if ( _EDI )
   {
-    p_input = &_R13->input;
+    p_input = &viewInfo->input;
     do
     {
       __asm { tzcnt   r14d, edi }
-      v29 = PrevFrameLightGridIndicesList[_ER14];
-      if ( v29 >= 0 && ((1 << v29) & v26) != 0 )
-        prevFrameActiveGpuLightGridIndex = __popcnt(v26 & ((1 << v29) - 1));
+      v27 = PrevFrameLightGridIndicesList[_ER14];
+      if ( v27 >= 0 && ((1 << v27) & v24) != 0 )
+        prevFrameActiveGpuLightGridIndex = __popcnt(v24 & ((1 << v27) - 1));
       else
         prevFrameActiveGpuLightGridIndex = -1;
-      v31 = ActiveLightGridsList[_ER14];
-      RB_GpuLightGrid_SetResouces(state, p_input, v31);
-      R_VOL_SetLightGridConstants(state, _R13, v31, _ER14, v15, prevFrameActiveGpuLightGridIndex, numActiveLightGrids, (bool)views);
+      v29 = ActiveLightGridsList[_ER14];
+      RB_GpuLightGrid_SetResouces(state, p_input, v29);
+      R_VOL_SetLightGridConstants(state, viewInfo, v29, _ER14, v13, prevFrameActiveGpuLightGridIndex, numActiveLightGrids, (bool)views);
       R_Dispatch(state, xCount, yCount, zCount);
-      ++v15;
+      ++v13;
       _EDI &= _EDI - 1;
-      p_input = &_R13->input;
-      PrevFrameLightGridIndicesList = v36;
+      p_input = &viewInfo->input;
+      PrevFrameLightGridIndicesList = v34;
     }
     while ( _EDI );
   }
@@ -3865,23 +3344,20 @@ void R_VOL_SampleLightgridImages(ComputeCmdBufState *state, const GfxViewInfo *v
   const R_RT_Surface *Surface; 
   R_RT_Handle *v15; 
   const R_RT_Surface *v16; 
-  bool v18; 
-  char v20; 
   ComputeShader *sampleLightGridVolumetricIsoSkylight; 
   GfxImage *SVDBasis; 
   ComputeShader *sampleLightGridVolumetricIso; 
   const GfxBackEndData *data; 
-  const GfxGpuLightGrid *v27; 
+  const GfxGpuLightGrid *v21; 
   bool temporalValid; 
   GfxTextureId textureId; 
-  const R_RT_Surface *v30; 
-  const R_RT_Surface *v31; 
-  const R_RT_Surface *v32; 
-  const R_RT_Surface *v33; 
-  const R_RT_Surface *v34; 
-  const R_RT_Surface *v35; 
+  const R_RT_Surface *v24; 
+  const R_RT_Surface *v25; 
+  const R_RT_Surface *v26; 
+  const R_RT_Surface *v27; 
+  const R_RT_Surface *v28; 
+  const R_RT_Surface *v29; 
 
-  _RDI = viewInfo;
   ((void (__fastcall *)(GfxDevice *, __int64, _QWORD, __int64))state->device->m_pFunction[22].AddRef)(state->device, 0x8000000i64, 0i64, 0xFFFFFFFF00i64);
   if ( !ambientImageRead->m_surfaceID )
   {
@@ -3892,24 +3368,13 @@ void R_VOL_SampleLightgridImages(ComputeCmdBufState *state, const GfxViewInfo *v
   if ( !maxFloatZ->m_surfaceID )
   {
     v16 = R_RT_Handle::GetSurface((R_RT_Handle *)maxFloatZ);
-    __asm { vmovss  xmm2, cs:__real@7f7fffff; value }
-    R_ClearImage_Float(state, &v16->m_image.m_base, *(float *)&_XMM2, PIPE_FLUSH_PARTIAL);
+    R_ClearImage_Float(state, &v16->m_image.m_base, 3.4028235e38, PIPE_FLUSH_PARTIAL);
   }
-  R_VOL_SetConstants(state, _RDI, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMin; GfxWorld s_world
-    vcomiss xmm0, dword ptr cs:?s_world@@3UGfxWorld@@A.precomputedSkyIllumination.boxMax; GfxWorld s_world
-  }
-  if ( v20 && (v18 = !r_enablePrecomputedSkyIllumination->current.enabled, r_enablePrecomputedSkyIllumination->current.enabled) )
+  R_VOL_SetConstants(state, viewInfo, VOLUMETRIC_PASS_LIGHTGRID, 0, 0);
+  if ( s_world.precomputedSkyIllumination.boxMin.v[0] < s_world.precomputedSkyIllumination.boxMax.v[0] && r_enablePrecomputedSkyIllumination->current.enabled )
   {
     sampleLightGridVolumetricIsoSkylight = rgp.sampleLightGridVolumetricIsoSkylight;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+2E90h]
-    }
-    if ( r_enablePrecomputedSkyIllumination->current.enabled )
+    if ( viewInfo->volumetrics.sunAnisotropy != 0.0 )
       sampleLightGridVolumetricIsoSkylight = rgp.sampleLightGridVolumetricAnisoSkylight;
     R_SetComputeShader(state, sampleLightGridVolumetricIsoSkylight);
     maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(s_world.precomputedSkyIllumination.heightMap->textureId);
@@ -3923,12 +3388,7 @@ void R_VOL_SampleLightgridImages(ComputeCmdBufState *state, const GfxViewInfo *v
   else
   {
     sampleLightGridVolumetricIso = rgp.sampleLightGridVolumetricIso;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rdi+2E90h]
-    }
-    if ( !v18 )
+    if ( viewInfo->volumetrics.sunAnisotropy != 0.0 )
       sampleLightGridVolumetricIso = rgp.sampleLightGridVolumetricAniso;
     R_SetComputeShader(state, sampleLightGridVolumetricIso);
     maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(rgp.blackImage->textureId);
@@ -3941,14 +3401,14 @@ void R_VOL_SampleLightgridImages(ComputeCmdBufState *state, const GfxViewInfo *v
   }
   maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(SVDBasis->textureId);
   R_SetComputeTextures(state, 32, 1, (const GfxTexture *const *)&maxFloatZ);
-  data = _RDI->input.data;
+  data = viewInfo->input.data;
   if ( R_GetNumActiveLightGrids(data) <= 0 )
-    v27 = NULL;
+    v21 = NULL;
   else
-    v27 = *R_GetActiveLightGridsList(data);
-  RB_GpuLightGrid_SetResouces(state, &_RDI->input, v27);
+    v21 = *R_GetActiveLightGridsList(data);
+  RB_GpuLightGrid_SetResouces(state, &viewInfo->input, v21);
   temporalValid = R_RT_Handle::IsValid((R_RT_Handle *)ambientImageRead);
-  R_VOL_SetLightGridConstants(state, _RDI, v27, 0, 0, 0, 1, temporalValid);
+  R_VOL_SetLightGridConstants(state, viewInfo, v21, 0, 0, 0, 1, temporalValid);
   maxFloatZ = (const R_RT_Handle *)&R_GetFallbackProbe()->view;
   R_SetComputeViews(state, 9, 1, (const GfxShaderBufferView *const *)&maxFloatZ);
   if ( R_RT_Handle::IsValid((R_RT_Handle *)ambientImageRead) )
@@ -3957,33 +3417,33 @@ void R_VOL_SampleLightgridImages(ComputeCmdBufState *state, const GfxViewInfo *v
     textureId = rgp.blackImage3D->textureId;
   maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(textureId);
   R_SetComputeTextures(state, 10, 1, (const GfxTexture *const *)&maxFloatZ);
-  v30 = R_RT_Handle::GetSurface(v15);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v30->m_image.m_base.textureId);
+  v24 = R_RT_Handle::GetSurface(v15);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v24->m_image.m_base.textureId);
   R_SetComputeTextures(state, 18, 1, (const GfxTexture *const *)&maxFloatZ);
-  v31 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v31->m_image.m_base.textureId);
+  v25 = R_RT_Handle::GetSurface((R_RT_Handle *)floatZ);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v25->m_image.m_base.textureId);
   R_SetComputeTextures(state, 19, 1, (const GfxTexture *const *)&maxFloatZ);
-  v32 = R_RT_Handle::GetSurface((R_RT_Handle *)visibilityCurrent);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v32->m_image.m_base.textureId);
+  v26 = R_RT_Handle::GetSurface((R_RT_Handle *)visibilityCurrent);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v26->m_image.m_base.textureId);
   R_SetComputeTextures(state, 16, 1, (const GfxTexture *const *)&maxFloatZ);
   maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(visibilityPrev->textureId);
   R_SetComputeTextures(state, 17, 1, (const GfxTexture *const *)&maxFloatZ);
-  v33 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v33->m_image.m_base.textureId);
+  v27 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v27->m_image.m_base.textureId);
   R_SetComputeRWTextures(state, 0, 1, (const GfxTexture *const *)&maxFloatZ);
-  v34 = R_RT_Handle::GetSurface((R_RT_Handle *)tetIdxImage);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v34->m_image.m_base.textureId);
+  v28 = R_RT_Handle::GetSurface((R_RT_Handle *)tetIdxImage);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v28->m_image.m_base.textureId);
   R_SetComputeRWTextures(state, 1, 1, (const GfxTexture *const *)&maxFloatZ);
-  v35 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientSceneLumaImageWrite);
-  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v35->m_image.m_base.textureId);
+  v29 = R_RT_Handle::GetSurface((R_RT_Handle *)ambientSceneLumaImageWrite);
+  maxFloatZ = (const R_RT_Handle *)R_Texture_GetResident(v29->m_image.m_base.textureId);
   R_SetComputeRWTextures(state, 2, 1, (const GfxTexture *const *)&maxFloatZ);
-  if ( _RDI->frustumGrid.clusterCountX != R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite)->m_image.m_base.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1336, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountX == ambientImageWrite.GetImage()->width)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountX == ambientImageWrite.GetImage()->width") )
+  if ( viewInfo->frustumGrid.clusterCountX != R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite)->m_image.m_base.width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1336, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountX == ambientImageWrite.GetImage()->width)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountX == ambientImageWrite.GetImage()->width") )
     __debugbreak();
-  if ( _RDI->frustumGrid.clusterCountY != R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite)->m_image.m_base.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1337, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountY == ambientImageWrite.GetImage()->height)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountY == ambientImageWrite.GetImage()->height") )
+  if ( viewInfo->frustumGrid.clusterCountY != R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite)->m_image.m_base.height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1337, ASSERT_TYPE_ASSERT, "(viewInfo->frustumGrid.clusterCountY == ambientImageWrite.GetImage()->height)", (const char *)&queryFormat, "viewInfo->frustumGrid.clusterCountY == ambientImageWrite.GetImage()->height") )
     __debugbreak();
   if ( s_volumetricGlob.clusterImageDepth != R_RT_Handle::GetSurface((R_RT_Handle *)ambientImageWrite)->m_image.m_base.depth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 1338, ASSERT_TYPE_ASSERT, "(s_volumetricGlob.clusterImageDepth == ambientImageWrite.GetImage()->depth)", (const char *)&queryFormat, "s_volumetricGlob.clusterImageDepth == ambientImageWrite.GetImage()->depth") )
     __debugbreak();
-  R_Dispatch(state, (_RDI->frustumGrid.clusterCountX + 3) >> 2, (_RDI->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
+  R_Dispatch(state, (viewInfo->frustumGrid.clusterCountX + 3) >> 2, (viewInfo->frustumGrid.clusterCountY + 3) >> 2, (s_volumetricGlob.clusterImageDepth + 3) >> 2);
 }
 
 /*
@@ -3995,13 +3455,13 @@ void R_VOL_SetConstants(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, 
 {
   __int32 v9; 
   __int32 v10; 
+  const dvar_t *v11; 
   VolumetricConstants consts; 
 
-  _RBX = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 993, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
   memset_0(&consts, 0, sizeof(consts));
-  R_VOL_SetConstantsCommon(&consts, _RBX, pass, temporalBlendExtinction);
+  R_VOL_SetConstantsCommon(&consts, viewInfo, pass, temporalBlendExtinction);
   if ( pass )
   {
     v9 = pass - 1;
@@ -4012,41 +3472,32 @@ void R_VOL_SetConstants(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, 
       {
         if ( v10 == 2 )
         {
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 916, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
+          if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 916, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
             __debugbreak();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx+2E80h]
-            vmovaps xmmword ptr [rsp+1A8h+consts.volumetricLightingScale], xmm0
-          }
+          consts.volumetricLightingScale = *(vec4_t *)&viewInfo->volumetrics.sunBrightness;
           consts.flags = shaderFlag;
         }
       }
       else
       {
-        _RBX = r_volumetricsAmbientBlur;
+        v11 = r_volumetricsAmbientBlur;
         if ( !r_volumetricsAmbientBlur && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmulss  xmm1, xmm0, cs:__real@3f000000
-          vmovss  [rsp+1A8h+consts.ambientBlurRadius], xmm1
-        }
+        Dvar_CheckFrontendServerThread(v11);
+        consts.ambientBlurRadius = v11->current.value * 0.5;
       }
     }
     else
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 895, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
+      if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 895, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
         __debugbreak();
-      if ( _RBX->volumetrics.teleported )
+      if ( viewInfo->volumetrics.teleported )
         consts.flags |= 1u;
     }
   }
   else
   {
-    R_VOL_SetConstantsMaxFloatZ(&consts, _RBX);
+    R_VOL_SetConstantsMaxFloatZ(&consts, viewInfo);
   }
   R_UploadAndSetComputeConstants(state, 0, &consts, 0x140u, NULL);
 }
@@ -4058,112 +3509,74 @@ R_VOL_SetConstantsCommon
 */
 void R_VOL_SetConstantsCommon(VolumetricConstants *consts, const GfxViewInfo *viewInfo, const VolumetricPass pass, bool temporalBlendExtinction)
 {
-  bool v22; 
+  __int64 v8; 
+  __int64 v9; 
+  float densityTemporalFactor; 
+  float width; 
+  __int64 height; 
+  float v15; 
+  float clusterCountX; 
+  float clusterCountY; 
   unsigned int volumetricsIndex; 
-  __int64 v38; 
+  __int64 v19; 
   tmat44_t<vec4_t> mtx; 
 
-  _RDI = viewInfo;
-  _RBX = consts;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 825, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
-  _R14 = &s_volumetricGlob;
-  _RAX = (__int64)(int)_RDI->clientIndex << 6;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+r14]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymm1, ymmword ptr [rax+r14+20h]
-    vmovups ymmword ptr [rbx+60h], ymm1
-  }
-  MatrixForViewerOrthogonal(&_RDI->viewParmsSet.frames[0].viewParms.camera.origin, &_RDI->viewParmsSet.frames[0].viewParms.camera.axis, &mtx);
-  MatrixMultiply44Aligned(&mtx, &_RDI->viewParmsSet.frames[0].viewParms.projectionMatrix.m, &_RBX->viewProjMatrix.m);
+  v8 = (__int64)(int)viewInfo->clientIndex << 6;
+  *(__m256i *)consts->viewProjMatrixPrevFrame.m.m[0].v = *(__m256i *)((char *)s_volumetricGlob.viewProjMatrixPrevFrame[0].m.m[0].v + v8);
+  *(__m256i *)consts->viewProjMatrixPrevFrame.m.row2.v = *(__m256i *)((char *)s_volumetricGlob.viewProjMatrixPrevFrame[0].m.row2.v + v8);
+  MatrixForViewerOrthogonal(&viewInfo->viewParmsSet.frames[0].viewParms.camera.origin, &viewInfo->viewParmsSet.frames[0].viewParms.camera.axis, &mtx);
+  MatrixMultiply44Aligned(&mtx, &viewInfo->viewParmsSet.frames[0].viewParms.projectionMatrix.m, &consts->viewProjMatrix.m);
   if ( pass == VOLUMETRIC_PASS_ACCUMULATE )
   {
-    __asm { vmovups ymm0, ymmword ptr [rbx] }
-    _RAX = (__int64)(int)_RDI->clientIndex << 6;
-    __asm
-    {
-      vmovups ymmword ptr [rax+r14], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rax+r14+20h], ymm1
-    }
+    v9 = (__int64)(int)viewInfo->clientIndex << 6;
+    *(__m256i *)((char *)s_volumetricGlob.viewProjMatrixPrevFrame[0].m.m[0].v + v9) = *(__m256i *)consts->viewProjMatrix.m.m[0].v;
+    *(__m256i *)((char *)s_volumetricGlob.viewProjMatrixPrevFrame[0].m.row2.v + v9) = *(__m256i *)consts->viewProjMatrix.m.row2.v;
   }
-  __asm
+  consts->airDensity = viewInfo->volumetrics.airDensity * 0.0099999998;
+  consts->absorption = viewInfo->volumetrics.absorption;
+  consts->albedo.v[0] = viewInfo->volumetrics.albedo.v[0];
+  consts->albedo.v[1] = viewInfo->volumetrics.albedo.v[1];
+  consts->albedo.v[2] = viewInfo->volumetrics.albedo.v[2];
+  consts->sunAnisotropy = viewInfo->volumetrics.sunAnisotropy;
+  consts->attenuationClamp = viewInfo->volumetrics.attenuationClamp;
+  consts->bulbAttenClampSq = viewInfo->volumetrics.bulbAttenClamp * viewInfo->volumetrics.bulbAttenClamp;
+  densityTemporalFactor = 0.0;
+  consts->volumeCount = s_volumetricGlob.volumeCount[viewInfo->input.data->volumetricsIndex & 1];
+  *(_QWORD *)&consts->heightFogBase = LODWORD(viewInfo->volumetrics.heightFogBaseHeight);
+  _XMM0 = LODWORD(viewInfo->volumetrics.heightFogHalfPlaneDistance);
+  if ( *(float *)&_XMM0 != 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+2E6Ch]
-    vmulss  xmm1, xmm0, cs:__real@3c23d70a
-    vmovss  dword ptr [rbx+100h], xmm1
+    __asm { vmaxss  xmm1, xmm0, cs:__real@3dcccccd }
+    consts->heightFogExponent = -0.69314718 / *(float *)&_XMM1;
   }
-  _RBX->absorption = _RDI->volumetrics.absorption;
-  _RBX->albedo.v[0] = _RDI->volumetrics.albedo.v[0];
-  _RBX->albedo.v[1] = _RDI->volumetrics.albedo.v[1];
-  _RBX->albedo.v[2] = _RDI->volumetrics.albedo.v[2];
-  _RBX->sunAnisotropy = _RDI->volumetrics.sunAnisotropy;
-  _RBX->attenuationClamp = _RDI->volumetrics.attenuationClamp;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2E98h]
-    vmulss  xmm1, xmm0, xmm0
-    vmovss  dword ptr [rbx+11Ch], xmm1
-    vxorps  xmm3, xmm3, xmm3
-  }
-  v22 = (_RDI->input.data->volumetricsIndex & 1) == 0;
-  _RBX->volumeCount = s_volumetricGlob.volumeCount[_RDI->input.data->volumetricsIndex & 1];
-  *(_QWORD *)&_RBX->heightFogBase = LODWORD(_RDI->volumetrics.heightFogBaseHeight);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2EACh]
-    vucomiss xmm0, xmm3
-  }
-  if ( !v22 )
-  {
-    __asm
-    {
-      vmaxss  xmm1, xmm0, cs:__real@3dcccccd
-      vmovss  xmm0, cs:__real@bf317218
-      vdivss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [rbx+13Ch], xmm1
-    }
-  }
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+80h], xmm0
-    vdivss  xmm0, xmm1, xmm0
-    vmovss  dword ptr [rbx+88h], xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovss  dword ptr [rbx+84h], xmm2
-    vdivss  xmm1, xmm1, xmm2
-    vmovss  dword ptr [rbx+8Ch], xmm1
-  }
-  _RBX->frustumSize.v[0] = _RDI->frustumGrid.voxelCountX;
-  _RBX->frustumSize.v[1] = _RDI->frustumGrid.voxelCountY;
-  _RBX->frustumSize.v[2] = 128;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbx+130h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  dword ptr [rbx+134h], xmm1
-  }
-  _RBX->temporalBlend.v[0] = _RDI->volumetrics.scatterTemporalFactor;
+  width = (float)viewInfo->sceneViewport.width;
+  height = viewInfo->sceneViewport.height;
+  consts->renderTargetSize.v[0] = width;
+  consts->renderTargetSize.v[2] = 1.0 / width;
+  v15 = (float)height;
+  consts->renderTargetSize.v[1] = v15;
+  consts->renderTargetSize.v[3] = 1.0 / v15;
+  consts->frustumSize.v[0] = viewInfo->frustumGrid.voxelCountX;
+  consts->frustumSize.v[1] = viewInfo->frustumGrid.voxelCountY;
+  consts->frustumSize.v[2] = 128;
+  clusterCountX = (float)viewInfo->frustumGrid.clusterCountX;
+  consts->clusterSize.v[0] = clusterCountX;
+  clusterCountY = (float)viewInfo->frustumGrid.clusterCountY;
+  consts->clusterSize.v[1] = clusterCountY;
+  consts->temporalBlend.v[0] = viewInfo->volumetrics.scatterTemporalFactor;
   if ( temporalBlendExtinction )
-    __asm { vmovss  xmm3, dword ptr [rdi+2E9Ch] }
-  __asm { vmovss  dword ptr [rbx+0E4h], xmm3 }
-  LODWORD(_RBX->temporalBlend.v[2]) = r_volumetricsGamma->current.integer;
-  _RBX->temporalBlend.v[3] = _RDI->volumetrics.ambientTemporalFactor;
-  volumetricsIndex = _RDI->input.data->volumetricsIndex;
-  _RBX->frame = volumetricsIndex;
+    densityTemporalFactor = viewInfo->volumetrics.densityTemporalFactor;
+  consts->temporalBlend.v[1] = densityTemporalFactor;
+  LODWORD(consts->temporalBlend.v[2]) = r_volumetricsGamma->current.integer;
+  consts->temporalBlend.v[3] = viewInfo->volumetrics.ambientTemporalFactor;
+  volumetricsIndex = viewInfo->input.data->volumetricsIndex;
+  consts->frame = volumetricsIndex;
   if ( volumetricsIndex >= 0x460 )
   {
-    LODWORD(v38) = volumetricsIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 874, ASSERT_TYPE_ASSERT, "(unsigned)( consts->frame ) < (unsigned)( 1120 )", "consts->frame doesn't index VOLUMETRICS_FRAME_JITTER_COUNT\n\t%i not in [0, %i)", v38, 1120) )
+    LODWORD(v19) = volumetricsIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 874, ASSERT_TYPE_ASSERT, "(unsigned)( consts->frame ) < (unsigned)( 1120 )", "consts->frame doesn't index VOLUMETRICS_FRAME_JITTER_COUNT\n\t%i not in [0, %i)", v19, 1120) )
       __debugbreak();
   }
 }
@@ -4173,101 +3586,69 @@ void R_VOL_SetConstantsCommon(VolumetricConstants *consts, const GfxViewInfo *vi
 R_VOL_SetConstantsMaxFloatZ
 ==============
 */
-
-void __fastcall R_VOL_SetConstantsMaxFloatZ(VolumetricConstants *consts, const GfxViewInfo *viewInfo, double _XMM2_8, double _XMM3_8)
+void R_VOL_SetConstantsMaxFloatZ(VolumetricConstants *consts, const GfxViewInfo *viewInfo)
 {
+  signed int voxelCountX; 
+  signed int reProjFloatZWidth; 
   signed int reProjFloatZHeight; 
   signed int voxelCountY; 
-  int v13; 
-  int v15; 
+  int v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  signed int ambientVisibilityWidth; 
+  signed int clusterCountX; 
+  signed int ambientVisibilityHeight; 
+  signed int clusterCountY; 
+  float v16; 
   int v17; 
   int v18; 
-  signed int clusterCountY; 
-  int v30; 
-  signed int ambientVisibilityHeight; 
-  int v32; 
-  int v34; 
-  int v37; 
+  int v19; 
+  int v20; 
 
-  _RSI = consts;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_volumetric.cpp", 932, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
+  voxelCountX = viewInfo->frustumGrid.voxelCountX;
+  reProjFloatZWidth = viewInfo->reProjFloatZWidth;
   reProjFloatZHeight = viewInfo->reProjFloatZHeight;
   voxelCountY = viewInfo->frustumGrid.voxelCountY;
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vdivss  xmm0, xmm4, xmm1
-  }
-  v13 = (signed int)viewInfo->reProjFloatZWidth / (signed int)viewInfo->frustumGrid.voxelCountX;
-  __asm { vmovss  dword ptr [rsi+0A8h], xmm0 }
-  if ( v13 < 1 )
-    v13 = 1;
-  __asm { vxorps  xmm3, xmm3, xmm3 }
-  v15 = reProjFloatZHeight / voxelCountY;
-  __asm { vcvtsi2ss xmm3, xmm3, ecx }
+  v8 = reProjFloatZWidth / voxelCountX;
+  consts->floatZVolRcpRes.v[0] = 1.0 / (float)reProjFloatZWidth;
+  if ( reProjFloatZWidth / voxelCountX < 1 )
+    v8 = 1;
+  v9 = reProjFloatZHeight / voxelCountY;
   if ( reProjFloatZHeight / voxelCountY < 1 )
-    v15 = 1;
-  v17 = (v13 + 1) / 2;
-  v18 = (v15 + 1) / 2;
-  __asm
-  {
-    vdivss  xmm0, xmm4, xmm3
-    vmovss  dword ptr [rsi+0ACh], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r11d
-    vdivss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rsi+0A0h], xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ebx
-    vdivss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rsi+0A4h], xmm0
-  }
-  _RSI->maxVolDepthOffset.v[0] = -(v17 + v13);
-  _RSI->maxVolDepthOffset.v[1] = -(v18 + v15);
-  _RSI->maxVolDepthItrCount.v[0] = 3 * v13 + 2 * v17;
-  _RSI->maxVolDepthItrCount.v[1] = 3 * v15 + 2 * v18;
-  clusterCountY = viewInfo->frustumGrid.clusterCountY;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vdivss  xmm0, xmm4, xmm1
-  }
-  v30 = (signed int)viewInfo->ambientVisibilityWidth / (signed int)viewInfo->frustumGrid.clusterCountX;
+    v9 = 1;
+  v10 = (v8 + 1) / 2;
+  v11 = (v9 + 1) / 2;
+  consts->floatZVolRcpRes.v[1] = 1.0 / (float)reProjFloatZHeight;
+  consts->maxVolDepthPixelsSize.v[0] = (float)reProjFloatZWidth / (float)voxelCountX;
+  consts->maxVolDepthPixelsSize.v[1] = (float)reProjFloatZHeight / (float)voxelCountY;
+  consts->maxVolDepthOffset.v[0] = -(v10 + v8);
+  consts->maxVolDepthOffset.v[1] = -(v11 + v9);
+  consts->maxVolDepthItrCount.v[0] = 3 * v8 + 2 * v10;
+  consts->maxVolDepthItrCount.v[1] = 3 * v9 + 2 * v11;
+  ambientVisibilityWidth = viewInfo->ambientVisibilityWidth;
+  clusterCountX = viewInfo->frustumGrid.clusterCountX;
   ambientVisibilityHeight = viewInfo->ambientVisibilityHeight;
-  if ( v30 < 1 )
-    v30 = 1;
-  __asm { vmovss  dword ptr [rsi+0C8h], xmm0 }
-  v32 = ambientVisibilityHeight / clusterCountY;
-  __asm { vxorps  xmm3, xmm3, xmm3 }
-  v34 = v30 + 1;
-  if ( v32 < 1 )
-    v32 = 1;
-  __asm
-  {
-    vcvtsi2ss xmm3, xmm3, ecx
-    vdivss  xmm0, xmm4, xmm3
-    vmovss  dword ptr [rsi+0CCh], xmm0
-  }
-  v37 = (v32 + 1) / 2;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r11d
-    vdivss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rsi+0C0h], xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ebx
-    vdivss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rsi+0C4h], xmm0
-  }
-  _RSI->maxAmbientDepthOffset.v[0] = -(v34 / 2 + v30);
-  _RSI->maxAmbientDepthOffset.v[1] = -(v37 + v32);
-  _RSI->maxAmbientDepthItrCount.v[0] = 3 * v30 + 2 * (v34 / 2);
-  _RSI->maxAmbientDepthItrCount.v[1] = 3 * v32 + 2 * v37;
+  clusterCountY = viewInfo->frustumGrid.clusterCountY;
+  v16 = (float)ambientVisibilityWidth;
+  v17 = ambientVisibilityWidth / clusterCountX;
+  if ( ambientVisibilityWidth / clusterCountX < 1 )
+    v17 = 1;
+  consts->floatZAmbientRcpRes.v[0] = 1.0 / v16;
+  v18 = ambientVisibilityHeight / clusterCountY;
+  v19 = v17 + 1;
+  if ( ambientVisibilityHeight / clusterCountY < 1 )
+    v18 = 1;
+  consts->floatZAmbientRcpRes.v[1] = 1.0 / (float)ambientVisibilityHeight;
+  v20 = (v18 + 1) / 2;
+  consts->maxAmbientDepthPixelsSize.v[0] = v16 / (float)clusterCountX;
+  consts->maxAmbientDepthPixelsSize.v[1] = (float)ambientVisibilityHeight / (float)clusterCountY;
+  consts->maxAmbientDepthOffset.v[0] = -(v19 / 2 + v17);
+  consts->maxAmbientDepthOffset.v[1] = -(v20 + v18);
+  consts->maxAmbientDepthItrCount.v[0] = 3 * v17 + 2 * (v19 / 2);
+  consts->maxAmbientDepthItrCount.v[1] = 3 * v18 + 2 * v20;
 }
 
 /*
@@ -4338,17 +3719,11 @@ R_VOL_UseLocalMedia
 */
 bool R_VOL_UseLocalMedia(const GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
-  char v2; 
-  bool v6; 
+  bool v2; 
+  bool v3; 
 
-  _RAX = r_fogHeightMapScale;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rdx+0C38h]
-    vcomiss xmm0, dword ptr [rax+30h]
-  }
-  v6 = v2 && s_volumetricHeightfield;
-  return s_volumetricGlob.volumeCount[data->volumetricsIndex & 1] || v2 || v6;
+  v2 = viewInfo->brCircle.volumetricDensity > 0.0;
+  v3 = r_fogHeightMapScale->current.vector.v[2] > 0.0 && s_volumetricHeightfield;
+  return s_volumetricGlob.volumeCount[data->volumetricsIndex & 1] || v2 || v3;
 }
 

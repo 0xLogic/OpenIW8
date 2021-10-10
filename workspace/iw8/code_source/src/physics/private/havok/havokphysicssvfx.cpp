@@ -152,9 +152,10 @@ void HavokPhysicsSVFX_AddNewContact(const hknpWorld *world, const hknpBodyId *bo
   hkPointerMap<unsigned __int64,int,hkContainerHeapAllocator> *v37; 
   hkMemoryAllocator *v38; 
   unsigned __int64 v39; 
-  Physics_WorldId v47; 
+  HavokPhysicsSVFXContact *v40; 
+  Physics_WorldId v41; 
   int VFXEventAsset; 
-  __int64 v49; 
+  __int64 v43; 
   unsigned __int64 key; 
   unsigned __int64 val[9]; 
 
@@ -259,47 +260,35 @@ void HavokPhysicsSVFX_AddNewContact(const hknpWorld *world, const hknpBodyId *bo
   }
   if ( (unsigned int)m_size >= s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size )
   {
-    LODWORD(v49) = m_size;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( contactIndex ) < (unsigned)( fxWorld->contacts->getSize() )", "contactIndex doesn't index fxWorld->contacts->getSize()\n\t%i not in [0, %i)", v49, s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size) )
+    LODWORD(v43) = m_size;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 424, ASSERT_TYPE_ASSERT, "(unsigned)( contactIndex ) < (unsigned)( fxWorld->contacts->getSize() )", "contactIndex doesn't index fxWorld->contacts->getSize()\n\t%i not in [0, %i)", v43, s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size) )
       __debugbreak();
   }
-  __asm { vmovss  xmm3, cs:__real@42000000 }
-  _RDI = &s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data[(int)m_size];
-  _RDI->numImpulseGivingContactPoints = numImpulseGivingContactPoints;
-  _RDI->numCollisionContactPoints = numCollisionContactPoints;
-  _RDI->isValid = 1;
-  _RDI->bodyIDKey = v15;
-  _RDI->shapeKey = v17;
-  __asm
-  {
-    vmulss  xmm0, xmm3, dword ptr [rax]
-    vmovss  dword ptr [rdi+28h], xmm0
-    vmulss  xmm2, xmm3, dword ptr [rax+4]
-    vmovss  xmm0, [rsp+98h+arg_50]
-    vmovss  dword ptr [rdi+2Ch], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rax+8]
-    vmovss  dword ptr [rdi+30h], xmm1
-    vmulss  xmm1, xmm3, [rsp+98h+arg_40]
-  }
-  *(_QWORD *)_RDI->normal.v = normal->m_quad.m128_u64[0];
-  LODWORD(_RDI->normal.v[2]) = normal->m_quad.m128_i32[2];
-  _RDI->surfaceFlagData[0] = *surfaceFlagData;
-  _RDI->surfaceFlagData[1] = surfaceFlagData[1];
-  __asm { vmovss  dword ptr [rdi+48h], xmm1 }
-  _RDI->masses[0] = *masses;
-  _RDI->masses[1] = masses[1];
-  _RDI->hitSpeed = _RDI->speed;
-  __asm
-  {
-    vmovss  dword ptr [rdi+54h], xmm0
-    vmovss  dword ptr [rdi+5Ch], xmm0
-  }
-  v47 = world->m_userData;
-  _RDI->sfxAssetIndex = Physics_GetSFXEventAsset(v47, bodyIds->m_serialAndIndex, bodyIds[1].m_serialAndIndex, &_RDI->sfxEventAsset);
-  VFXEventAsset = Physics_GetVFXEventAsset(v47, bodyIds->m_serialAndIndex, bodyIds[1].m_serialAndIndex, &_RDI->vfxEventAsset);
-  _RDI->eventFlags |= 1u;
-  _RDI->vfxAssetIndex = VFXEventAsset;
-  _RDI->debugDrawEventFlags = _RDI->eventFlags;
+  v40 = &s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data[(int)m_size];
+  v40->numImpulseGivingContactPoints = numImpulseGivingContactPoints;
+  v40->numCollisionContactPoints = numCollisionContactPoints;
+  v40->isValid = 1;
+  v40->bodyIDKey = v15;
+  v40->shapeKey = v17;
+  v40->position.v[0] = 32.0 * position->m_quad.m128_f32[0];
+  v40->position.v[1] = 32.0 * position->m_quad.m128_f32[1];
+  v40->position.v[2] = 32.0 * position->m_quad.m128_f32[2];
+  *(_QWORD *)v40->normal.v = normal->m_quad.m128_u64[0];
+  LODWORD(v40->normal.v[2]) = normal->m_quad.m128_i32[2];
+  v40->surfaceFlagData[0] = *surfaceFlagData;
+  v40->surfaceFlagData[1] = surfaceFlagData[1];
+  v40->speed = 32.0 * speed;
+  v40->masses[0] = *masses;
+  v40->masses[1] = masses[1];
+  v40->hitSpeed = v40->speed;
+  v40->angle = angle;
+  v40->hitAngle = angle;
+  v41 = world->m_userData;
+  v40->sfxAssetIndex = Physics_GetSFXEventAsset(v41, bodyIds->m_serialAndIndex, bodyIds[1].m_serialAndIndex, &v40->sfxEventAsset);
+  VFXEventAsset = Physics_GetVFXEventAsset(v41, bodyIds->m_serialAndIndex, bodyIds[1].m_serialAndIndex, &v40->vfxEventAsset);
+  v40->eventFlags |= 1u;
+  v40->vfxAssetIndex = VFXEventAsset;
+  v40->debugDrawEventFlags = v40->eventFlags;
 }
 
 /*
@@ -465,97 +454,66 @@ HavokPhysicsSVFX_DrawDebugWorld
 */
 void HavokPhysicsSVFX_DrawDebugWorld(const int worldId, const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  __int64 v8; 
+  __int64 v4; 
   hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *contacts; 
   HavokPhysicsSVFXContact *m_data; 
-  int v15; 
-  __int64 v23; 
+  float *v7; 
+  int v8; 
+  vec4_t v9; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
   vec4_t color; 
   vec3_t end; 
   char _Buffer[256]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v8 = worldId;
-  if ( s_havokPhysicsSVFXWorlds[v8].isInitialized )
+  v4 = worldId;
+  if ( s_havokPhysicsSVFXWorlds[v4].isInitialized )
   {
-    contacts = s_havokPhysicsSVFXWorlds[v8].contacts;
+    contacts = s_havokPhysicsSVFXWorlds[v4].contacts;
     m_data = contacts->m_data;
     if ( m_data != &m_data[contacts->m_size] )
     {
-      _RBX = &m_data->position.v[1];
-      __asm
-      {
-        vmovaps xmmword ptr [r11-28h], xmm6
-        vmovss  xmm6, cs:__real@41400000
-        vmovaps xmmword ptr [r11-38h], xmm7
-        vmovss  xmm7, cs:__real@42652ee0
-        vmovaps xmmword ptr [r11-48h], xmm8
-        vmovss  xmm8, cs:__real@3f800000
-      }
+      v7 = &m_data->position.v[1];
       do
       {
-        v15 = *((_DWORD *)_RBX + 28);
-        if ( (v15 & 1) != 0 )
+        v8 = *((_DWORD *)v7 + 28);
+        if ( (v8 & 1) != 0 )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen }
+          v9 = colorGreen;
         }
-        else if ( (v15 & 2) != 0 )
+        else if ( (v8 & 2) != 0 )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
+          v9 = colorYellow;
         }
-        else if ( (v15 & 4) != 0 )
+        else if ( (v8 & 4) != 0 )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed }
+          v9 = colorRed;
         }
         else if ( m_data->isValid )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue }
+          v9 = colorBlue;
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorCyan@@3Tvec4_t@@B; vec4_t const colorCyan }
+          v9 = colorCyan;
         }
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rbx+8]
-          vaddss  xmm2, xmm1, dword ptr [rbx-4]
-          vmulss  xmm1, xmm6, dword ptr [rbx+0Ch]
-          vmovss  dword ptr [rsp+1A8h+end], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rbx]
-          vmulss  xmm1, xmm6, dword ptr [rbx+10h]
-          vmovss  dword ptr [rsp+1A8h+end+4], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rbx+4]
-          vmovss  dword ptr [rsp+1A8h+end+8], xmm2
-          vmovups xmmword ptr [rsp+1A8h+color], xmm0
-        }
-        CG_DebugLine((const vec3_t *)(_RBX - 1), &end, &color, 0, 0);
-        v23 = *((int *)_RBX - 5);
-        if ( (_DWORD)v23 != -1 )
-          CG_DebugLine((const vec3_t *)(_RBX - 1), &s_havokPhysicsSVFXWorlds[v8].contacts->m_data[v23].position, &colorWhite, 0, 0);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  xmm2, dword ptr [rbx+1Ch]
-          vmulss  xmm1, xmm0, xmm7
-          vcvtss2sd xmm3, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-        }
-        j_sprintf(_Buffer, "S:%.2f A:%.2f", *(double *)&_XMM2, *(double *)&_XMM3);
-        __asm { vmovaps xmm2, xmm8; scale }
-        CL_AddDebugString((const vec3_t *)(_RBX - 1), &color, *(float *)&_XMM2, _Buffer, 0, 1);
+        v10 = 12.0 * v7[3];
+        end.v[0] = (float)(12.0 * v7[2]) + *(v7 - 1);
+        v11 = 12.0 * v7[4];
+        end.v[1] = v10 + *v7;
+        end.v[2] = v11 + v7[1];
+        color = v9;
+        CG_DebugLine((const vec3_t *)(v7 - 1), &end, &color, 0, 0);
+        v12 = *((int *)v7 - 5);
+        if ( (_DWORD)v12 != -1 )
+          CG_DebugLine((const vec3_t *)(v7 - 1), &s_havokPhysicsSVFXWorlds[v4].contacts->m_data[v12].position, &colorWhite, 0, 0);
+        j_sprintf(_Buffer, "S:%.2f A:%.2f", v7[7], (float)(v7[10] * 57.295776));
+        CL_AddDebugString((const vec3_t *)(v7 - 1), &color, 1.0, _Buffer, 0, 1);
         ++m_data;
-        _RBX += 50;
+        v7 += 50;
       }
-      while ( m_data != &s_havokPhysicsSVFXWorlds[v8].contacts->m_data[s_havokPhysicsSVFXWorlds[v8].contacts->m_size] );
-      __asm
-      {
-        vmovaps xmm8, [rsp+1A8h+var_48]
-        vmovaps xmm7, [rsp+1A8h+var_38]
-        vmovaps xmm6, [rsp+1A8h+var_28]
-      }
+      while ( m_data != &s_havokPhysicsSVFXWorlds[v4].contacts->m_data[s_havokPhysicsSVFXWorlds[v4].contacts->m_size] );
     }
   }
 }
@@ -565,45 +523,32 @@ void HavokPhysicsSVFX_DrawDebugWorld(const int worldId, const ScreenPlacement *s
 HavokPhysicsSVFX_DrawSFX
 ==============
 */
-
-void __fastcall HavokPhysicsSVFX_DrawSFX(const ScreenPlacement *scrPlace, float *x, float *y, double tabWidth, float charHeight)
+void HavokPhysicsSVFX_DrawSFX(const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  int v12; 
-  hkMap<unsigned int,PhysicsSFXEventAsset *,hkMapOperations<unsigned int>,hkContainerHeapAllocator> *v13; 
+  int v8; 
+  hkMap<unsigned int,PhysicsSFXEventAsset *,hkMapOperations<unsigned int>,hkContainerHeapAllocator> *v9; 
   __int64 m_hashMod; 
-  __int64 v15; 
+  __int64 v11; 
   hkMapBase<unsigned int,PhysicsSFXEventAsset *,hkMapOperations<unsigned int> >::Pair *m_elem; 
-  __int64 v17; 
-  __int64 v18; 
-  hkMapBase<unsigned int,PhysicsSFXEventAsset *,hkMapOperations<unsigned int> >::Pair *v19; 
+  __int64 v13; 
+  __int64 v14; 
+  hkMapBase<unsigned int,PhysicsSFXEventAsset *,hkMapOperations<unsigned int> >::Pair *v15; 
   int m_size; 
-  unsigned int v25; 
+  unsigned int v17; 
+  float v18; 
   HavokPhysicsSVFX_DrawSVFX_AssetData *m_data; 
   SndAliasList *Alias; 
-  const char *v29; 
-  const vec4_t *v30; 
-  hkMemoryAllocator *v35; 
-  hkMemoryAllocator *v36; 
+  const char *v21; 
+  const vec4_t *v22; 
+  hkMemoryAllocator *v23; 
+  hkMemoryAllocator *v24; 
   vec4_t *setColor; 
-  float v41; 
-  float v42; 
   hkArray<HavokPhysicsSVFX_DrawSVFX_AssetData,hkContainerHeapAllocator> data; 
   hkPointerMap<unsigned __int64,unsigned int,hkContainerHeapAllocator> dataMap; 
-  __int64 v45; 
+  __int64 v28; 
   char dest[264]; 
-  char v47; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v45 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmm7, xmm3
-  }
-  _R15 = y;
-  _R14 = x;
+  v28 = -2i64;
   data.m_data = NULL;
   data.m_size = 0;
   data.m_capacityAndFlags = 0x80000000;
@@ -611,123 +556,89 @@ void __fastcall HavokPhysicsSVFX_DrawSFX(const ScreenPlacement *scrPlace, float 
   dataMap.m_map.m_numElems = 0;
   dataMap.m_map.m_hashMod = -1;
   HavokPhysics_LockAssetRead();
-  v12 = 0;
-  v13 = g_physicsSFXEventAssets;
+  v8 = 0;
+  v9 = g_physicsSFXEventAssets;
   m_hashMod = g_physicsSFXEventAssets->m_hashMod;
   if ( (int)m_hashMod >= 0 )
   {
-    v15 = 0i64;
+    v11 = 0i64;
     m_elem = g_physicsSFXEventAssets->m_elem;
     do
     {
       if ( m_elem->key != -1 )
         break;
-      ++v12;
-      ++v15;
+      ++v8;
+      ++v11;
       ++m_elem;
     }
-    while ( v15 <= m_hashMod );
+    while ( v11 <= m_hashMod );
   }
-  if ( v12 <= (int)m_hashMod )
+  if ( v8 <= (int)m_hashMod )
   {
     do
     {
-      HavokPhysicsSVFX_DrawSFX_CollectAssetData(&v13->m_elem[v12++].val->rules, &data, &dataMap);
-      v13 = g_physicsSFXEventAssets;
-      v17 = g_physicsSFXEventAssets->m_hashMod;
-      if ( v12 > (int)v17 )
+      HavokPhysicsSVFX_DrawSFX_CollectAssetData(&v9->m_elem[v8++].val->rules, &data, &dataMap);
+      v9 = g_physicsSFXEventAssets;
+      v13 = g_physicsSFXEventAssets->m_hashMod;
+      if ( v8 > (int)v13 )
         break;
-      v18 = v12;
-      v19 = &g_physicsSFXEventAssets->m_elem[v12];
+      v14 = v8;
+      v15 = &g_physicsSFXEventAssets->m_elem[v8];
       do
       {
-        if ( v19->key != -1 )
+        if ( v15->key != -1 )
           break;
-        ++v12;
-        ++v18;
-        ++v19;
+        ++v8;
+        ++v14;
+        ++v15;
       }
-      while ( v18 <= v17 );
+      while ( v14 <= v13 );
     }
-    while ( v12 <= (int)v17 );
+    while ( v8 <= (int)v13 );
   }
   HavokPhysics_UnlockAssetRead();
   Com_sprintf(dest, 0x100ui64, "%i SFXEvent Assets", (unsigned int)data.m_size);
-  __asm
-  {
-    vmovss  xmm6, [rbp+0E0h+charHeight]
-    vmovss  [rsp+1E0h+var_1A8], xmm6
-    vmovss  xmm2, dword ptr [r15]; y
-    vmovss  xmm1, dword ptr [r14]; x
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v41, 0);
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [r15]
-    vmovss  dword ptr [r15], xmm0
-  }
+  Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
+  *y = charHeight + *y;
   m_size = data.m_size;
   if ( data.m_size > 1 )
   {
     hkAlgorithm::quickSortRecursive<HavokPhysicsSVFX_DrawSVFX_AssetData,hkBool (*)(HavokPhysicsSVFX_DrawSVFX_AssetData &,HavokPhysicsSVFX_DrawSVFX_AssetData &)>(data.m_data, 0, data.m_size - 1, HavokPhysicsSVFX_DrawSVFX_Sort);
     m_size = data.m_size;
   }
-  v25 = 0;
-  __asm
-  {
-    vaddss  xmm0, xmm7, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-  }
+  v17 = 0;
+  v18 = tabWidth + *x;
+  *x = v18;
   m_data = data.m_data;
   if ( data.m_data != &data.m_data[m_size] )
   {
     do
     {
       Alias = SND_TryFindAlias(m_data->name);
-      v29 = "Alias Doesn't Exist";
+      v21 = "Alias Doesn't Exist";
       if ( Alias )
-        v29 = "Alias Exists";
+        v21 = "Alias Exists";
       LODWORD(setColor) = m_data->count;
-      Com_sprintf(dest, 0x100ui64, "%i: %i x %s: %s", v25, setColor, m_data->name, v29);
-      v30 = &colorRed;
+      Com_sprintf(dest, 0x100ui64, "%i: %i x %s: %s", v17, setColor, m_data->name, v21);
+      v22 = &colorRed;
       if ( Alias )
-        v30 = &colorWhite;
-      __asm
-      {
-        vmovss  [rsp+1E0h+var_1A8], xmm6
-        vmovss  xmm2, dword ptr [r15]; y
-        vmovss  xmm1, dword ptr [r14]; x
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, v30, 0, 1, v42, 0);
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm0
-      }
+        v22 = &colorWhite;
+      Physics_DrawDebugString(scrPlace, *x, *y, dest, v22, 0, 1, charHeight, 0);
+      *y = charHeight + *y;
       ++m_data;
-      ++v25;
+      ++v17;
     }
     while ( m_data != &data.m_data[data.m_size] );
-    __asm { vmovss  xmm0, dword ptr [r14] }
+    v18 = *x;
   }
-  __asm
-  {
-    vsubss  xmm0, xmm0, xmm7
-    vmovss  dword ptr [r14], xmm0
-  }
-  v35 = hkMemHeapAllocator();
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::clearAndDeallocate(&dataMap.m_map, v35);
+  *x = v18 - tabWidth;
+  v23 = hkMemHeapAllocator();
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::clearAndDeallocate(&dataMap.m_map, v23);
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::~hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>(&dataMap.m_map);
-  v36 = hkMemHeapAllocator();
+  v24 = hkMemHeapAllocator();
   data.m_size = 0;
   if ( data.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v36, data.m_data, 16, data.m_capacityAndFlags & 0x3FFFFFFF);
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+    hkMemoryAllocator::bufFree2(v24, data.m_data, 16, data.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -938,45 +849,32 @@ hkBool *HavokPhysicsSVFX_DrawSVFX_Sort(hkBool *result, HavokPhysicsSVFX_DrawSVFX
 HavokPhysicsSVFX_DrawVFX
 ==============
 */
-
-void __fastcall HavokPhysicsSVFX_DrawVFX(const ScreenPlacement *scrPlace, float *x, float *y, double tabWidth, float charHeight)
+void HavokPhysicsSVFX_DrawVFX(const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  int v12; 
-  hkMap<unsigned int,PhysicsVFXEventAsset *,hkMapOperations<unsigned int>,hkContainerHeapAllocator> *v13; 
+  int v8; 
+  hkMap<unsigned int,PhysicsVFXEventAsset *,hkMapOperations<unsigned int>,hkContainerHeapAllocator> *v9; 
   __int64 m_hashMod; 
-  __int64 v15; 
+  __int64 v11; 
   hkMapBase<unsigned int,PhysicsVFXEventAsset *,hkMapOperations<unsigned int> >::Pair *m_elem; 
-  __int64 v17; 
-  __int64 v18; 
-  hkMapBase<unsigned int,PhysicsVFXEventAsset *,hkMapOperations<unsigned int> >::Pair *v19; 
+  __int64 v13; 
+  __int64 v14; 
+  hkMapBase<unsigned int,PhysicsVFXEventAsset *,hkMapOperations<unsigned int> >::Pair *v15; 
   int m_size; 
-  unsigned int v25; 
+  unsigned int v17; 
+  float v18; 
   HavokPhysicsSVFX_DrawSVFX_AssetData *m_data; 
-  int v28; 
-  const char *v29; 
-  const vec4_t *v30; 
-  hkMemoryAllocator *v35; 
-  hkMemoryAllocator *v36; 
+  int v20; 
+  const char *v21; 
+  const vec4_t *v22; 
+  hkMemoryAllocator *v23; 
+  hkMemoryAllocator *v24; 
   vec4_t *setColor; 
-  float v41; 
-  float v42; 
   hkArray<HavokPhysicsSVFX_DrawSVFX_AssetData,hkContainerHeapAllocator> data; 
   hkPointerMap<unsigned __int64,unsigned int,hkContainerHeapAllocator> dataMap; 
-  __int64 v45; 
+  __int64 v28; 
   char dest[264]; 
-  char v47; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v45 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmm7, xmm3
-  }
-  _R15 = y;
-  _RSI = x;
+  v28 = -2i64;
   data.m_data = NULL;
   data.m_size = 0;
   data.m_capacityAndFlags = 0x80000000;
@@ -984,124 +882,90 @@ void __fastcall HavokPhysicsSVFX_DrawVFX(const ScreenPlacement *scrPlace, float 
   dataMap.m_map.m_numElems = 0;
   dataMap.m_map.m_hashMod = -1;
   HavokPhysics_LockAssetRead();
-  v12 = 0;
-  v13 = g_physicsVFXEventAssets;
+  v8 = 0;
+  v9 = g_physicsVFXEventAssets;
   m_hashMod = g_physicsVFXEventAssets->m_hashMod;
   if ( (int)m_hashMod >= 0 )
   {
-    v15 = 0i64;
+    v11 = 0i64;
     m_elem = g_physicsVFXEventAssets->m_elem;
     do
     {
       if ( m_elem->key != -1 )
         break;
-      ++v12;
-      ++v15;
+      ++v8;
+      ++v11;
       ++m_elem;
     }
-    while ( v15 <= m_hashMod );
+    while ( v11 <= m_hashMod );
   }
-  if ( v12 <= (int)m_hashMod )
+  if ( v8 <= (int)m_hashMod )
   {
     do
     {
-      HavokPhysicsSVFX_DrawVFX_CollectAssetData(&v13->m_elem[v12++].val->rules, &data, &dataMap);
-      v13 = g_physicsVFXEventAssets;
-      v17 = g_physicsVFXEventAssets->m_hashMod;
-      if ( v12 > (int)v17 )
+      HavokPhysicsSVFX_DrawVFX_CollectAssetData(&v9->m_elem[v8++].val->rules, &data, &dataMap);
+      v9 = g_physicsVFXEventAssets;
+      v13 = g_physicsVFXEventAssets->m_hashMod;
+      if ( v8 > (int)v13 )
         break;
-      v18 = v12;
-      v19 = &g_physicsVFXEventAssets->m_elem[v12];
+      v14 = v8;
+      v15 = &g_physicsVFXEventAssets->m_elem[v8];
       do
       {
-        if ( v19->key != -1 )
+        if ( v15->key != -1 )
           break;
-        ++v12;
-        ++v18;
-        ++v19;
+        ++v8;
+        ++v14;
+        ++v15;
       }
-      while ( v18 <= v17 );
+      while ( v14 <= v13 );
     }
-    while ( v12 <= (int)v17 );
+    while ( v8 <= (int)v13 );
   }
   HavokPhysics_UnlockAssetRead();
   Com_sprintf(dest, 0x100ui64, "%i VFXEvent Assets", (unsigned int)data.m_size);
-  __asm
-  {
-    vmovss  xmm6, [rbp+0E0h+charHeight]
-    vmovss  [rsp+1E0h+var_1A8], xmm6
-    vmovss  xmm2, dword ptr [r15]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v41, 0);
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [r15]
-    vmovss  dword ptr [r15], xmm0
-  }
+  Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
+  *y = charHeight + *y;
   m_size = data.m_size;
   if ( data.m_size > 1 )
   {
     hkAlgorithm::quickSortRecursive<HavokPhysicsSVFX_DrawSVFX_AssetData,hkBool (*)(HavokPhysicsSVFX_DrawSVFX_AssetData &,HavokPhysicsSVFX_DrawSVFX_AssetData &)>(data.m_data, 0, data.m_size - 1, HavokPhysicsSVFX_DrawSVFX_Sort);
     m_size = data.m_size;
   }
-  v25 = 0;
-  __asm
-  {
-    vaddss  xmm0, xmm7, dword ptr [rsi]
-    vmovss  dword ptr [rsi], xmm0
-  }
+  v17 = 0;
+  v18 = tabWidth + *x;
+  *x = v18;
   m_data = data.m_data;
   if ( data.m_data != &data.m_data[m_size] )
   {
     do
     {
       I_strlwr((char *)m_data->name);
-      v28 = DB_XAssetExists(ASSET_TYPE_VFX, m_data->name);
-      v29 = "Not Loaded";
-      if ( v28 == 1 )
-        v29 = "Loaded";
+      v20 = DB_XAssetExists(ASSET_TYPE_VFX, m_data->name);
+      v21 = "Not Loaded";
+      if ( v20 == 1 )
+        v21 = "Loaded";
       LODWORD(setColor) = m_data->count;
-      Com_sprintf(dest, 0x100ui64, "%i: %i x %s: %s", v25, setColor, m_data->name, v29);
-      v30 = &colorRed;
-      if ( v28 == 1 )
-        v30 = &colorWhite;
-      __asm
-      {
-        vmovss  [rsp+1E0h+var_1A8], xmm6
-        vmovss  xmm2, dword ptr [r15]; y
-        vmovss  xmm1, dword ptr [rsi]; x
-      }
-      Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, v30, 0, 1, v42, 0);
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [r15]
-        vmovss  dword ptr [r15], xmm0
-      }
+      Com_sprintf(dest, 0x100ui64, "%i: %i x %s: %s", v17, setColor, m_data->name, v21);
+      v22 = &colorRed;
+      if ( v20 == 1 )
+        v22 = &colorWhite;
+      Physics_DrawDebugString(scrPlace, *x, *y, dest, v22, 0, 1, charHeight, 0);
+      *y = charHeight + *y;
       ++m_data;
-      ++v25;
+      ++v17;
     }
     while ( m_data != &data.m_data[data.m_size] );
-    __asm { vmovss  xmm0, dword ptr [rsi] }
+    v18 = *x;
   }
-  __asm
-  {
-    vsubss  xmm0, xmm0, xmm7
-    vmovss  dword ptr [rsi], xmm0
-  }
-  v35 = hkMemHeapAllocator();
-  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::clearAndDeallocate(&dataMap.m_map, v35);
+  *x = v18 - tabWidth;
+  v23 = hkMemHeapAllocator();
+  hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::clearAndDeallocate(&dataMap.m_map, v23);
   hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::~hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>(&dataMap.m_map);
-  v36 = hkMemHeapAllocator();
+  v24 = hkMemHeapAllocator();
   data.m_size = 0;
   if ( data.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v36, data.m_data, 16, data.m_capacityAndFlags & 0x3FFFFFFF);
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+    hkMemoryAllocator::bufFree2(v24, data.m_data, 16, data.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -1299,27 +1163,49 @@ HavokPhysicsSVFX_GetParticleRotation
 */
 void HavokPhysicsSVFX_GetParticleRotation(const HavokPhysicsSVFXContact *contact, vec4_t *quatOut)
 {
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RDI = contact;
-  _RBX = quatOut;
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  vec3_t axis; 
+
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1585, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
-  __asm
+  v4 = contact->normal.v[2];
+  if ( v4 < 1.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vmovss  xmm4, cs:__real@3f800000
-    vcomiss xmm0, xmm4
-    vmovss  xmm6, dword ptr [rdi+34h]
-    vmovss  xmm5, dword ptr [rdi+38h]
-    vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-    vmovss  dword ptr [rbx+0Ch], xmm1
-    vmovaps xmm6, [rsp+78h+var_18]
+    if ( v4 >= -0.99989998 )
+    {
+      v5 = (float)(v4 + 1.0) * 2.0;
+      v6 = fsqrt(v5);
+      LODWORD(v7) = COERCE_UNSIGNED_INT(contact->normal.v[1] * (float)(1.0 / v6)) ^ _xmm;
+      v8 = contact->normal.v[0] * (float)(1.0 / v6);
+      v9 = fsqrt((float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v5 * 0.25));
+      quatOut->v[0] = v7;
+      quatOut->v[1] = v8;
+      quatOut->v[3] = v6 * 0.5;
+      quatOut->v[2] = 0.0;
+      if ( v9 != 0.0 )
+      {
+        quatOut->v[0] = v7 * (float)(1.0 / v9);
+        quatOut->v[3] = (float)(v6 * 0.5) * (float)(1.0 / v9);
+        quatOut->v[1] = v8 * (float)(1.0 / v9);
+        quatOut->v[2] = 0.0;
+      }
+    }
+    else
+    {
+      axis.v[1] = 0.0;
+      axis.v[2] = 0.0;
+      axis.v[0] = FLOAT_1_0;
+      AngleRadAxisToQuat(3.1415927, &axis, quatOut);
+    }
+  }
+  else
+  {
+    *quatOut = quat_identity;
   }
 }
 
@@ -1357,762 +1243,635 @@ HavokPhysicsSVFX_OnContactImpulseEvent
 void HavokPhysicsSVFX_OnContactImpulseEvent(const hknpEventHandlerInput *input, const hknpEvent *event)
 {
   signed __int64 v2; 
-  void *v13; 
-  hknpContactSolverEvent *v14; 
+  void *v3; 
+  hknpContactSolverEvent *v4; 
   int m_sizePaddedTo16_low; 
-  int v17; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
-  const hknpStreamContactJacobian *v21; 
+  int v7; 
+  int v8; 
+  __int64 v9; 
+  __int64 v10; 
+  const hknpStreamContactJacobian *v11; 
   const hknpBodyId *p_m_filterBits; 
   hknpWorld *m_world; 
   unsigned __int64 m_userData; 
-  signed int v25; 
+  signed int v15; 
   hkPointerMap<unsigned __int64,int,hkContainerHeapAllocator> *contactIndirection; 
   unsigned int val; 
-  HavokPhysicsSVFXContact *v28; 
-  const hknpStreamContactSolverTypes::JacModHdr *v29; 
-  const hknpStreamContactJacobian *v30; 
-  const hknpStreamContactSolverTypes::JacModHdr *v31; 
-  __int64 v32; 
-  hknpWorldReader *v33; 
-  hknpWorldReader_vtbl *v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
+  HavokPhysicsSVFXContact *v18; 
+  const hknpStreamContactSolverTypes::JacModHdr *v19; 
+  const hknpStreamContactJacobian *v20; 
+  const hknpStreamContactSolverTypes::JacModHdr *v21; 
+  __int64 v22; 
+  hknpWorldReader *v23; 
+  hknpWorldReader_vtbl *v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
   const hknpStreamContactJacobian *m_contactJacobian; 
-  unsigned int v39; 
+  unsigned int v29; 
   const hknpStreamContactSolverTypes::JacModHdr *JacModHdr; 
-  const hknpStreamContactJacobian *v41; 
-  const hknpStreamContactSolverTypes::JacModHdr *v42; 
-  int v44; 
-  unsigned __int64 v49; 
-  unsigned int v50; 
+  const hknpStreamContactJacobian *v31; 
+  const hknpStreamContactSolverTypes::JacModHdr *v32; 
+  int v33; 
+  unsigned __int64 v34; 
+  unsigned int v35; 
   const hknpTriangleShape *TriangleShape; 
-  unsigned __int64 v63; 
-  __int64 v64; 
-  float v65; 
-  unsigned int v66; 
+  unsigned __int64 v48; 
+  __int64 v49; 
+  float v50; 
+  unsigned int v51; 
   unsigned int *p_m_instanceId; 
-  __int64 v68; 
-  int v69; 
-  __int64 v70; 
+  __int64 v53; 
+  int v54; 
+  __int64 v55; 
   __int64 m_size; 
-  __int64 v72; 
-  unsigned int v76; 
+  __int64 v57; 
+  unsigned int v59; 
   const hknpTriangleShape *m_shape; 
-  __int64 v88; 
-  __int64 v89; 
-  float v90; 
-  int v91; 
-  unsigned int *v92; 
-  __int64 v93; 
-  __int64 v94; 
-  __int64 v95; 
-  __int64 v96; 
+  __int64 v69; 
+  __int64 v70; 
+  float v71; 
+  int v72; 
+  unsigned int *v73; 
+  __int64 v74; 
+  __int64 v75; 
+  __int64 v76; 
+  __int64 v77; 
+  __m128 v81; 
+  __m128 m_quad; 
+  __m128 v83; 
   const hknpManifoldCollisionCache *ManifoldCollisionCache; 
-  __int16 *v107; 
+  __int16 *v85; 
   hkSimdFloat32 *p_velocities; 
-  __int64 v109; 
-  const hknpStreamContactJacobian *v115; 
-  __int64 v121; 
-  const hknpWorld **v179; 
-  bool v230; 
-  __int64 v232; 
-  const hknpWorld *v241; 
-  __int64 v253; 
-  float v254; 
-  float v255; 
+  __int64 v87; 
+  hknpMotion *v88; 
+  __m128 v89; 
+  __m128 v90; 
+  __m128 v91; 
+  int v92; 
+  const hknpStreamContactJacobian *v93; 
+  unsigned int m_numPoints; 
+  hkVector4f *m_positions; 
+  float *p_m_serialAndIndex; 
+  float *v97; 
+  __int64 v98; 
+  __m128 v99; 
+  __m128 v100; 
+  __m128 v102; 
+  __m128 v104; 
+  __m128 v105; 
+  __m128 v106; 
+  __m128 v107; 
+  __m128 v108; 
+  __m128 v109; 
+  __m128 v111; 
+  __m128 v113; 
+  __m128 v114; 
+  __m128 v115; 
+  __m128 v116; 
+  const hknpWorld **v118; 
+  __m128 v119; 
+  __m128 v120; 
+  __m128 v121; 
+  __m128 v122; 
+  float v129; 
+  double v142; 
+  __int64 v143; 
+  hkSimdFloat32 *v144; 
+  const hknpWorld *v145; 
+  __int64 v146; 
   float zero; 
-  float v257; 
-  hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> v258; 
+  float v148; 
+  hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> v149; 
   unsigned int m_value; 
   hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> shapeKeys[2]; 
   hknpMotion *motionA; 
-  unsigned int v262[2]; 
-  __int64 v263; 
-  __int64 v264; 
-  hkVector4f v265; 
-  __int64 v266; 
+  unsigned int v153[2]; 
+  __int64 v154; 
+  __int64 v155; 
+  hkVector4f v156; 
+  __int64 v157; 
   unsigned __int64 key; 
-  int v268; 
-  __int64 v269; 
+  int v159; 
+  __int64 v160; 
   hknpMotion *motionB; 
-  __int16 v271[2]; 
-  int v272; 
+  __int16 v162[2]; 
+  int v163; 
   unsigned __int64 userData; 
-  __int16 v274[2]; 
-  int v275; 
-  unsigned __int64 v276; 
-  __int64 v277; 
-  const hknpTriangleShape *v278; 
-  __int128 v279; 
-  __int64 v280; 
-  hknpShapeCollector v281; 
+  __int16 v165[2]; 
+  int v166; 
+  unsigned __int64 v167; 
+  __int64 v168; 
+  const hknpTriangleShape *v169; 
+  __int128 v170; 
+  __int64 v171; 
+  hknpShapeCollector v172; 
   hkVector4f normal; 
   hkcdManifold4 manifoldOut; 
-  hknpInplaceTriangleShape v284; 
-  hkVector4f v285; 
-  __int128 v286; 
-  __int128 v287; 
-  __int128 v288; 
+  hknpInplaceTriangleShape v175; 
+  hkVector4f v176; 
+  __m128 v177; 
+  __m128 v178; 
+  __m128 v179; 
   hkSimdFloat32 velocities; 
-  char v300; 
 
-  v13 = alloca(v2);
-  v280 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+1070h+var_40], xmm6
-    vmovaps [rsp+1070h+var_50], xmm7
-    vmovaps [rsp+1070h+var_60], xmm8
-    vmovaps [rsp+1070h+var_70], xmm9
-    vmovaps [rsp+1070h+var_80], xmm10
-    vmovaps [rsp+1070h+var_90], xmm11
-    vmovaps [rsp+1070h+var_A0], xmm12
-    vmovaps [rsp+1070h+var_B0], xmm13
-    vmovaps [rsp+1070h+var_C0], xmm14
-    vmovaps [rsp+1070h+var_D0], xmm15
-  }
-  v14 = (hknpContactSolverEvent *)event;
-  *(_QWORD *)&v279 = event;
+  v3 = alloca(v2);
+  v171 = -2i64;
+  v4 = (hknpContactSolverEvent *)event;
+  *(_QWORD *)&v170 = event;
   *(_QWORD *)&shapeKeys[0].m_value = input;
   m_sizePaddedTo16_low = LOBYTE(event[4].m_sizePaddedTo16);
-  v268 = m_sizePaddedTo16_low;
-  if ( m_sizePaddedTo16_low == 4 )
-    goto LABEL_102;
-  v17 = m_sizePaddedTo16_low - 1;
-  if ( !v17 )
+  v159 = m_sizePaddedTo16_low;
+  if ( m_sizePaddedTo16_low != 4 )
   {
+    v7 = m_sizePaddedTo16_low - 1;
+    if ( !v7 )
+      goto LABEL_5;
+    v8 = v7 - 1;
+    if ( v8 )
+    {
+      if ( v8 != 1 )
+        return;
 LABEL_5:
-    v19 = *(_QWORD *)&event[2].m_secondaryType;
-    if ( v19 && (v20 = *(_QWORD *)(v19 + 56)) != 0 )
-    {
-      *(_WORD *)(v20 + 34) |= 2u;
-      zero = 0.0;
-      v19 = *(_QWORD *)&event[2].m_secondaryType;
-    }
-    else
-    {
-      LODWORD(zero) = -2147220992;
-    }
-    if ( v19 && (v32 = *(_QWORD *)(v19 + 56)) != 0 )
-    {
-      *(_WORD *)(v32 + 34) |= 4u;
-      zero = 0.0;
-    }
-    else
-    {
-      LODWORD(zero) = -2147220992;
-    }
-    v33 = &input->m_world->hknpWorldReader;
-    v34 = v33->__vftable;
-    key = (unsigned __int64)&event[1].m_filterBits;
-    v35 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v34->getBody)(v33, *(unsigned int *)&event[1].m_filterBits);
-    v264 = v35;
-    v36 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v14->m_bodyIds[1].m_serialAndIndex);
-    v269 = v36;
-    motionA = (hknpMotion *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getMotion)(&input->m_world->hknpWorldReader, *(unsigned int *)(v35 + 64));
-    motionB = (hknpMotion *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getMotion)(&input->m_world->hknpWorldReader, *(unsigned int *)(v36 + 64));
-    v37 = *(_QWORD *)(v35 + 96);
-    v263 = v37;
-    v266 = *(_QWORD *)(v36 + 96);
-    m_contactJacobian = v14->m_contactJacobian;
-    v39 = -1;
-    if ( m_contactJacobian )
-    {
-      JacModHdr = hknpStreamContactJacobianUtil::getJacModHdr(m_contactJacobian);
-      v258.m_value = hknpStreamContactJacobianUtil::getJacModMfoldData(JacModHdr)->m_shapeKeyA.m_value;
-      v41 = v14->m_contactJacobian;
-      if ( v41 )
+      v9 = *(_QWORD *)&event[2].m_secondaryType;
+      if ( v9 && (v10 = *(_QWORD *)(v9 + 56)) != 0 )
       {
-        v42 = hknpStreamContactJacobianUtil::getJacModHdr(v41);
-        m_value = hknpStreamContactJacobianUtil::getJacModMfoldData(v42)->m_shapeKeyB.m_value;
+        *(_WORD *)(v10 + 34) |= 2u;
+        zero = 0.0;
+        v9 = *(_QWORD *)&event[2].m_secondaryType;
+      }
+      else
+      {
+        LODWORD(zero) = -2147220992;
+      }
+      if ( v9 && (v22 = *(_QWORD *)(v9 + 56)) != 0 )
+      {
+        *(_WORD *)(v22 + 34) |= 4u;
+        zero = 0.0;
+      }
+      else
+      {
+        LODWORD(zero) = -2147220992;
+      }
+      v23 = &input->m_world->hknpWorldReader;
+      v24 = v23->__vftable;
+      key = (unsigned __int64)&event[1].m_filterBits;
+      v25 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v24->getBody)(v23, *(unsigned int *)&event[1].m_filterBits);
+      v155 = v25;
+      v26 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getBody)(&input->m_world->hknpWorldReader, v4->m_bodyIds[1].m_serialAndIndex);
+      v160 = v26;
+      motionA = (hknpMotion *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getMotion)(&input->m_world->hknpWorldReader, *(unsigned int *)(v25 + 64));
+      motionB = (hknpMotion *)((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))input->m_world->getMotion)(&input->m_world->hknpWorldReader, *(unsigned int *)(v26 + 64));
+      v27 = *(_QWORD *)(v25 + 96);
+      v154 = v27;
+      v157 = *(_QWORD *)(v26 + 96);
+      m_contactJacobian = v4->m_contactJacobian;
+      v29 = -1;
+      if ( m_contactJacobian )
+      {
+        JacModHdr = hknpStreamContactJacobianUtil::getJacModHdr(m_contactJacobian);
+        v149.m_value = (unsigned int)hknpStreamContactJacobianUtil::getJacModMfoldData(JacModHdr)->m_shapeKeyA;
+        v31 = v4->m_contactJacobian;
+        if ( v31 )
+        {
+          v32 = hknpStreamContactJacobianUtil::getJacModHdr(v31);
+          m_value = hknpStreamContactJacobianUtil::getJacModMfoldData(v32)->m_shapeKeyB.m_value;
 LABEL_40:
-        __asm { vmovss  xmm1, cs:__real@3c75c28f; radius }
-        hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v284, *(float *)&_XMM1);
-        v44 = 0;
-        v281.m_internal.m_shapeBuffer.m_shape = NULL;
-        v281.m_internal.m_shapeBuffer.m_buffer = v281.m_internal.m_shapeBuffer.m_storage;
-        v281.m_internal.m_shapeBuffer.m_bufferSize = 2048;
-        v281.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
-        v281.m_internal.m_shapeTags[0] = -1;
-        v281.m_internal.m_shape = NULL;
-        v281.m_parentShape = NULL;
-        v281.m_shapeTagPath.m_size = 0;
-        *(_QWORD *)&v281.m_internal.m_flags.m_storage = 8i64;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rbp+0F70h+var_F40.m_transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-          vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rbp+0F70h+var_F40.m_transform.m_rotation.baseclass_0.m_col2.m_quad], ymm0
-          vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-          vmovups xmmword ptr [rbp+0F70h+var_F40.m_internal.m_scale.m_quad], xmm0
-          vmovss  xmm6, cs:__real@34000000
-          vmovss  [rsp+1070h+zero], xmm6
-        }
-        v49 = 1i64;
-        if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &zero) )
-        {
-          v50 = v281.m_internal.m_flags.m_storage | 4;
-          v281.m_internal.m_flags.m_storage |= 4u;
-          __asm
+          hknpInplaceTriangleShape::hknpInplaceTriangleShape(&v175, 0.015);
+          v33 = 0;
+          v172.m_internal.m_shapeBuffer.m_shape = NULL;
+          v172.m_internal.m_shapeBuffer.m_buffer = v172.m_internal.m_shapeBuffer.m_storage;
+          v172.m_internal.m_shapeBuffer.m_bufferSize = 2048;
+          v172.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpInplaceShapeBuffer<2048>::`vftable';
+          v172.m_internal.m_shapeTags[0] = -1;
+          v172.m_internal.m_shape = NULL;
+          v172.m_parentShape = NULL;
+          v172.m_shapeTagPath.m_size = 0;
+          *(_QWORD *)&v172.m_internal.m_flags.m_storage = 8i64;
+          *(__m256i *)v172.m_transform.m_rotation.m_col0.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+          *(__m256i *)v172.m_transform.m_rotation.m_col2.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+          v172.m_internal.m_scale.m_quad = g_vectorfConstants[6];
+          zero = FLOAT_1_1920929eN7;
+          v34 = 1i64;
+          if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &zero) )
           {
-            vmovups xmm4, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+260h; __m128 const near * const g_vectorfConstants
-            vmovups [rbp+0F70h+var_160], xmm4
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-            vsubps  xmm2, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+50h; __m128 const near * const g_vectorfConstants
-            vmovups xmm1, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
-            vandnps xmm3, xmm1, xmm2
-            vcmpleps xmm5, xmm3, xmm4
-            vxorps  xmm2, xmm2, xmm2
-            vpxor   xmm0, xmm0, xmm0
-            vpcmpeqd xmm1, xmm0, xmm0
-            vblendps xmm2, xmm2, xmm1, 7
-            vpand   xmm0, xmm5, xmm2
-            vptest  xmm0, xmm2
-          }
-          if ( _CF )
-            v281.m_internal.m_flags.m_storage = v50 | 1;
-        }
-        v281.m_internal.m_shapeTags[0] = -1;
-        (*(void (__fastcall **)(_QWORD, hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *, __int64, hknpShapeCollector *))(**(_QWORD **)(v35 + 96) + 176i64))(*(_QWORD *)(v35 + 96), &v258, 1i64, &v281);
-        if ( (v281.m_internal.m_flags.m_storage & 0x10) != 0 )
-          TriangleShape = hknpShapeCollector::getTriangleShape(&v281, 0, (hknpTriangleShape *)&v284);
-        else
-          TriangleShape = (const hknpTriangleShape *)v281.m_internal.m_shape;
-        v278 = TriangleShape;
-        v272 = *(_DWORD *)(v35 + 108);
-        v271[0] = *(_WORD *)(v35 + 106);
-        if ( (*(_QWORD *)(v35 + 160) & 0xFFFFFFFF00000000ui64) != 0 || (v63 = 0i64, *(_DWORD *)(v37 + 40)) )
-          v63 = 1i64;
-        userData = v63;
-        if ( v281.m_parentShape )
-        {
-          v64 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)(**(_QWORD **)&shapeKeys[0].m_value + 32i64) + 24i64))(**(_QWORD **)&shapeKeys[0].m_value + 32i64);
-          v277 = v64;
-          v65 = *(float *)&v258.m_value;
-          LODWORD(v257) = (hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant>)v258.m_value;
-          LOWORD(zero) = v281.m_internal.m_shapeTags[0];
-          v285.m_quad.m128_u64[0] = (unsigned __int64)v281.m_parentShape;
-          v66 = -1;
-          v262[0] = 0;
-          if ( v281.m_shapeTagPath.m_size > 0 )
-          {
-            p_m_instanceId = &v281.m_shapeTagPath.m_data[0].m_instanceId;
-            v68 = v264;
-            v69 = 0;
-            v70 = v64;
-            m_size = v281.m_shapeTagPath.m_size;
-            do
+            v35 = v172.m_internal.m_flags.m_storage | 4;
+            v172.m_internal.m_flags.m_storage |= 4u;
+            v176.m_quad = g_vectorfConstants[38];
+            _XMM0 = g_vectorfConstants[35];
+            _mm128_sub_ps(g_vectorfConstants[35], g_vectorfConstants[5]);
+            _XMM1 = *(_OWORD *)hkMath::hkSse_signMask;
+            __asm
             {
-              v72 = *((_QWORD *)p_m_instanceId - 1);
-              v66 = v66 & hknpShapeKeyPath_usedBitsMaskTable[v69] | (((*p_m_instanceId + 1) << (32 - (v69 + *(_BYTE *)(v72 + 27)))) - 1);
-              v69 += *(unsigned __int8 *)(v72 + 27);
-              (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v70 + 32i64))(v70, *((unsigned __int16 *)p_m_instanceId - 8), 5i64, v68, v263, v72, v66, *((_QWORD *)p_m_instanceId + 1), v271);
-              p_m_instanceId += 8;
-              --m_size;
+              vandnps xmm3, xmm1, xmm2
+              vcmpleps xmm5, xmm3, xmm4
             }
-            while ( m_size );
-            v39 = -1;
-            v65 = v257;
-            v44 = 0;
-            v14 = (hknpContactSolverEvent *)v279;
-            v36 = v269;
-            v64 = v277;
-          }
-          (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, unsigned __int64, float, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v64 + 32i64))(v64, LOWORD(zero), 5i64, v264, v263, v285.m_quad.m128_u64[0], COERCE_FLOAT(LODWORD(v65)), v278, v271);
-          v63 = userData;
-          v49 = 1i64;
-        }
-        v262[0] = Physics_GetSurfaceFlagsFromUserData(v63);
-        v281.m_internal.m_shape = NULL;
-        v281.m_parentShape = NULL;
-        v281.m_shapeTagPath.m_size = 0;
-        *(_QWORD *)&v281.m_internal.m_flags.m_storage = 8i64;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rbp+0F70h+var_F40.m_transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-          vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rbp+0F70h+var_F40.m_transform.m_rotation.baseclass_0.m_col2.m_quad], ymm0
-          vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-          vmovups xmmword ptr [rbp+0F70h+var_F40.m_internal.m_scale.m_quad], xmm0
-          vmovss  [rsp+1070h+var_100C], xmm6
-        }
-        if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &v257) )
-        {
-          v76 = v281.m_internal.m_flags.m_storage | 4;
-          v281.m_internal.m_flags.m_storage |= 4u;
-          __asm
-          {
-            vmovups xmm4, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+260h; __m128 const near * const g_vectorfConstants
-            vmovups [rbp+0F70h+var_160], xmm4
-            vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+230h; __m128 const near * const g_vectorfConstants
-            vsubps  xmm2, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+50h; __m128 const near * const g_vectorfConstants
-            vmovups xmm1, cs:?hkSse_signMask@hkMath@@3QBIB; uint const near * const hkMath::hkSse_signMask
-            vandnps xmm3, xmm1, xmm2
-            vcmpleps xmm5, xmm3, xmm4
-            vxorps  xmm2, xmm2, xmm2
-            vpxor   xmm0, xmm0, xmm0
-            vpcmpeqd xmm1, xmm0, xmm0
-            vblendps xmm2, xmm2, xmm1, 7
-            vpand   xmm0, xmm2, xmm5
-            vptest  xmm0, xmm2
-          }
-          if ( _CF )
-            v281.m_internal.m_flags.m_storage = v76 | 1;
-        }
-        v281.m_internal.m_shapeTags[0] = -1;
-        (*(void (__fastcall **)(_QWORD, unsigned int *, __int64, hknpShapeCollector *))(**(_QWORD **)(v36 + 96) + 176i64))(*(_QWORD *)(v36 + 96), &m_value, 1i64, &v281);
-        if ( (v281.m_internal.m_flags.m_storage & 0x10) != 0 )
-          m_shape = hknpShapeCollector::getTriangleShape(&v281, 0, (hknpTriangleShape *)&v284);
-        else
-          m_shape = (const hknpTriangleShape *)v281.m_internal.m_shape;
-        v263 = (__int64)m_shape;
-        v275 = *(_DWORD *)(v36 + 108);
-        v274[0] = *(_WORD *)(v36 + 106);
-        v88 = v266;
-        if ( (*(_QWORD *)(v36 + 160) & 0xFFFFFFFF00000000ui64) != 0 || *(_DWORD *)(v266 + 40) )
-        {
-          v276 = 1i64;
-        }
-        else
-        {
-          v49 = 0i64;
-          v276 = 0i64;
-        }
-        if ( v281.m_parentShape )
-        {
-          v89 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)(**(_QWORD **)&shapeKeys[0].m_value + 32i64) + 24i64))(**(_QWORD **)&shapeKeys[0].m_value + 32i64);
-          v264 = v89;
-          v90 = *(float *)&m_value;
-          LODWORD(v257) = m_value;
-          LOWORD(zero) = v281.m_internal.m_shapeTags[0];
-          v265.m_quad.m128_u64[0] = (unsigned __int64)v281.m_parentShape;
-          v91 = 0;
-          if ( v281.m_shapeTagPath.m_size > 0 )
-          {
-            v92 = &v281.m_shapeTagPath.m_data[0].m_instanceId;
-            v93 = v269;
-            v94 = v89;
-            v95 = v281.m_shapeTagPath.m_size;
-            do
+            _XMM2 = 0i64;
+            __asm
             {
-              v96 = *((_QWORD *)v92 - 1);
-              v39 = v39 & hknpShapeKeyPath_usedBitsMaskTable[v91] | (((*v92 + 1) << (32 - (v91 + *(_BYTE *)(v96 + 27)))) - 1);
-              v91 += *(unsigned __int8 *)(v96 + 27);
-              (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v94 + 32i64))(v94, *((unsigned __int16 *)v92 - 8), 5i64, v93, v266, v96, v39, *((_QWORD *)v92 + 1), v274);
-              v92 += 8;
-              --v95;
+              vpxor   xmm0, xmm0, xmm0
+              vpcmpeqd xmm1, xmm0, xmm0
+              vblendps xmm2, xmm2, xmm1, 7
+              vpand   xmm0, xmm5, xmm2
+              vptest  xmm0, xmm2
             }
-            while ( v95 );
-            v90 = v257;
-            v44 = 0;
-            v14 = (hknpContactSolverEvent *)v279;
-            v89 = v264;
-            v88 = v266;
+            if ( _CF )
+              v172.m_internal.m_flags.m_storage = v35 | 1;
           }
-          (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, unsigned __int64, float, __int64, __int16 *))(*(_QWORD *)v89 + 32i64))(v89, LOWORD(zero), 5i64, v269, v88, v265.m_quad.m128_u64[0], COERCE_FLOAT(LODWORD(v90)), v263, v274);
-          v49 = v276;
-        }
-        v262[1] = Physics_GetSurfaceFlagsFromUserData(v49);
-        hknpContactSolverEvent::calculateManifold(v14, **(const hknpWorld ***)&shapeKeys[0].m_value, &manifoldOut);
-        __asm
-        {
-          vmovups xmm2, xmmword ptr [rbp+0F70h+manifoldOut.m_normal.m_quad]
-          vmovups xmmword ptr [rbp+0F70h+normal.m_quad], xmm2
-          vpxor   xmm0, xmm0, xmm0
-          vpinsrw xmm0, xmm0, eax, 1
-          vpshufd xmm1, xmm0, 40h ; '@'
-          vxorps  xmm0, xmm1, xmm2
-          vmovups [rbp+0F70h+var_F60], xmm0
-          vxorps  xmm12, xmm12, xmm12
-          vxorps  xmm15, xmm15, xmm15
-          vmovups [rbp+0F70h+var_140], xmm15
-          vmovups [rbp+0F70h+var_130], xmm12
-          vxorps  xmm13, xmm13, xmm13
-          vmovups [rbp+0F70h+var_160], xmm13
-          vxorps  xmm14, xmm14, xmm14
-          vmovups [rbp+0F70h+var_150], xmm14
-        }
-        ManifoldCollisionCache = hknpContactJacobianUtil::getManifoldCollisionCache(v14->m_contactJacobian);
-        if ( ManifoldCollisionCache )
-        {
-          if ( (ManifoldCollisionCache->m_propertyKeysUsed & 0x10) == 0 || (v107 = (__int16 *)((char *)&ManifoldCollisionCache->hknpCollisionCache + 16 * ManifoldCollisionCache->m_propertiesStartOffsetDiv16 + ((ManifoldCollisionCache->m_propertyOffsets >> 14) & 0x3C))) == NULL )
+          v172.m_internal.m_shapeTags[0] = -1;
+          (*(void (__fastcall **)(_QWORD, hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant> *, __int64, hknpShapeCollector *))(**(_QWORD **)(v25 + 96) + 176i64))(*(_QWORD *)(v25 + 96), &v149, 1i64, &v172);
+          if ( (v172.m_internal.m_flags.m_storage & 0x10) != 0 )
+            TriangleShape = hknpShapeCollector::getTriangleShape(&v172, 0, (hknpTriangleShape *)&v175);
+          else
+            TriangleShape = (const hknpTriangleShape *)v172.m_internal.m_shape;
+          v169 = TriangleShape;
+          v163 = *(_DWORD *)(v25 + 108);
+          v162[0] = *(_WORD *)(v25 + 106);
+          if ( (*(_QWORD *)(v25 + 160) & 0xFFFFFFFF00000000ui64) != 0 || (v48 = 0i64, *(_DWORD *)(v27 + 40)) )
+            v48 = 1i64;
+          userData = v48;
+          if ( v172.m_parentShape )
           {
-LABEL_100:
-            v281.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
-            if ( v281.m_internal.m_shapeBuffer.m_shape )
-              ((void (__fastcall *)(hknpShape *, _QWORD))v281.m_internal.m_shapeBuffer.m_shape->~hkBaseObject)(v281.m_internal.m_shapeBuffer.m_shape, 0i64);
-            goto LABEL_102;
-          }
-          LODWORD(v287) = *v107 << 16;
-          DWORD1(v287) = v107[1] << 16;
-          DWORD2(v287) = v107[2] << 16;
-          LODWORD(v288) = v107[3] << 16;
-          DWORD1(v288) = v107[4] << 16;
-          DWORD2(v288) = v107[5] << 16;
-          v285.m_quad.m128_i32[0] = v107[6] << 16;
-          v285.m_quad.m128_i32[1] = v107[7] << 16;
-          v285.m_quad.m128_i32[2] = v107[8] << 16;
-          LODWORD(v286) = v107[9] << 16;
-          DWORD1(v286) = v107[10] << 16;
-          DWORD2(v286) = v107[11] << 16;
-          __asm
-          {
-            vmovups xmm15, [rbp+0F70h+var_140]
-            vmovups xmm14, [rbp+0F70h+var_150]
-            vmovups xmm13, [rbp+0F70h+var_160]
-          }
-        }
-        p_velocities = &velocities;
-        v109 = 4i64;
-        do
-        {
-          hkSimdFloat32::hkSimdFloat32(p_velocities++);
-          --v109;
-        }
-        while ( v109 );
-        _RDI = motionA;
-        hknpContactJacobianUtil::getProjVelDiff(v14->m_contactJacobian, motionA, motionB, &normal, &velocities);
-        __asm
-        {
-          vmovups xmm11, xmm12
-          vmovups xmm3, xmm12
-          vmovups [rbp+0F70h+var_160], xmm3
-          vmovups xmm4, xmm12
-          vmovups [rbp+0F70h+var_FD0], xmm4
-        }
-        _ER15 = 0;
-        v115 = v14->m_contactJacobian;
-        if ( v115 )
-        {
-          _ER12 = v115->m_info.m_data.m_numPoints;
-          if ( v115->m_info.m_data.m_numPoints )
-          {
-LABEL_84:
-            if ( _ER12 )
+            v49 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)(**(_QWORD **)&shapeKeys[0].m_value + 32i64) + 24i64))(**(_QWORD **)&shapeKeys[0].m_value + 32i64);
+            v168 = v49;
+            v50 = *(float *)&v149.m_value;
+            v148 = *(float *)&v149.m_value;
+            LOWORD(zero) = v172.m_internal.m_shapeTags[0];
+            v176.m_quad.m128_u64[0] = (unsigned __int64)v172.m_parentShape;
+            v51 = -1;
+            v153[0] = 0;
+            if ( v172.m_shapeTagPath.m_size > 0 )
             {
-              _RCX = manifoldOut.m_positions;
-              _ZF = v14[1].m_bodyIds == NULL;
-              _R13 = v14[1].m_bodyIds;
-              _RAX = _R13;
-              v121 = _ER12;
-              __asm
-              {
-                vxorps  xmm10, xmm10, xmm10
-                vmovups xmm12, [rbp+0F70h+var_130]
-              }
-              _RSI = motionB;
+              p_m_instanceId = &v172.m_shapeTagPath.m_data[0].m_instanceId;
+              v53 = v155;
+              v54 = 0;
+              v55 = v49;
+              m_size = v172.m_shapeTagPath.m_size;
               do
               {
-                __asm
-                {
-                  vmovups xmm9, xmmword ptr [rcx]
-                  vaddps  xmm11, xmm9, xmm11
-                  vmovss  xmm0, dword ptr [rax]
-                  vucomiss xmm0, xmm10
-                }
-                if ( !_ZF )
-                {
-                  __asm
-                  {
-                    vsubps  xmm7, xmm9, xmmword ptr [rdi]
-                    vmovups xmm3, xmmword ptr [rdi+10h]
-                    vshufps xmm6, xmm3, xmm3, 0FFh
-                    vmulps  xmm0, xmm6, xmm6
-                    vsubps  xmm5, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-                    vdpps   xmm1, xmm3, xmm13, 7Fh
-                    vmulps  xmm4, xmm1, xmm3
-                    vshufps xmm0, xmm13, xmm13, 0C9h ; 'É'
-                    vmulps  xmm2, xmm3, xmm0
-                    vshufps xmm1, xmm3, xmm3, 0C9h ; 'É'
-                    vmulps  xmm0, xmm13, xmm1
-                    vsubps  xmm2, xmm2, xmm0
-                    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-                    vmulps  xmm3, xmm1, xmm6
-                    vmulps  xmm0, xmm13, xmm5
-                    vaddps  xmm1, xmm0, xmm4
-                    vaddps  xmm2, xmm1, xmm3
-                    vaddps  xmm4, xmm2, xmm2
-                    vshufps xmm0, xmm7, xmm7, 0C9h ; 'É'
-                    vmulps  xmm2, xmm4, xmm0
-                    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-                    vmulps  xmm0, xmm7, xmm1
-                    vsubps  xmm2, xmm2, xmm0
-                    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-                    vaddps  xmm8, xmm15, xmm1
-                    vsubps  xmm7, xmm9, xmmword ptr [rsi]
-                    vmovups xmm3, xmmword ptr [rsi+10h]
-                    vshufps xmm6, xmm3, xmm3, 0FFh
-                    vmulps  xmm0, xmm6, xmm6
-                    vsubps  xmm5, xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+150h; __m128 const near * const g_vectorfConstants
-                    vdpps   xmm1, xmm3, xmm14, 7Fh
-                    vmulps  xmm4, xmm1, xmm3
-                    vshufps xmm0, xmm14, xmm14, 0C9h ; 'É'
-                    vmulps  xmm2, xmm3, xmm0
-                    vshufps xmm1, xmm3, xmm3, 0C9h ; 'É'
-                    vmulps  xmm0, xmm14, xmm1
-                    vsubps  xmm2, xmm2, xmm0
-                    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-                    vmulps  xmm3, xmm1, xmm6
-                    vmulps  xmm0, xmm14, xmm5
-                    vaddps  xmm1, xmm0, xmm4
-                    vaddps  xmm2, xmm1, xmm3
-                    vaddps  xmm4, xmm2, xmm2
-                    vshufps xmm0, xmm7, xmm7, 0C9h ; 'É'
-                    vmulps  xmm2, xmm4, xmm0
-                    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-                    vmulps  xmm0, xmm7, xmm1
-                    vsubps  xmm2, xmm2, xmm0
-                    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-                    vaddps  xmm0, xmm12, xmm1
-                  }
-                  ++_ER15;
-                  __asm
-                  {
-                    vaddps  xmm3, xmm8, [rbp+0F70h+var_160]
-                    vmovups [rbp+0F70h+var_160], xmm3
-                    vaddps  xmm4, xmm0, [rbp+0F70h+var_FD0]
-                    vmovups [rbp+0F70h+var_FD0], xmm4
-                  }
-                }
-                ++_RAX;
-                ++_RCX;
-                _ZF = --v121 == 0;
+                v57 = *((_QWORD *)p_m_instanceId - 1);
+                v51 = v51 & hknpShapeKeyPath_usedBitsMaskTable[v54] | (((*p_m_instanceId + 1) << (32 - (v54 + *(_BYTE *)(v57 + 27)))) - 1);
+                v54 += *(unsigned __int8 *)(v57 + 27);
+                (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v55 + 32i64))(v55, *((unsigned __int16 *)p_m_instanceId - 8), 5i64, v53, v154, v57, v51, *((_QWORD *)p_m_instanceId + 1), v162);
+                p_m_instanceId += 8;
+                --m_size;
               }
-              while ( v121 );
-              __asm { vxorps  xmm12, xmm12, xmm12 }
-              v179 = *(const hknpWorld ***)&shapeKeys[0].m_value;
-              if ( _ER15 > 0 )
+              while ( m_size );
+              v29 = -1;
+              v50 = v148;
+              v33 = 0;
+              v4 = (hknpContactSolverEvent *)v170;
+              v26 = v160;
+              v49 = v168;
+            }
+            (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, unsigned __int64, float, const hknpTriangleShape *, __int16 *))(*(_QWORD *)v49 + 32i64))(v49, LOWORD(zero), 5i64, v155, v154, v176.m_quad.m128_u64[0], COERCE_FLOAT(LODWORD(v50)), v169, v162);
+            v48 = userData;
+            v34 = 1i64;
+          }
+          v153[0] = Physics_GetSurfaceFlagsFromUserData(v48);
+          v172.m_internal.m_shape = NULL;
+          v172.m_parentShape = NULL;
+          v172.m_shapeTagPath.m_size = 0;
+          *(_QWORD *)&v172.m_internal.m_flags.m_storage = 8i64;
+          *(__m256i *)v172.m_transform.m_rotation.m_col0.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+          *(__m256i *)v172.m_transform.m_rotation.m_col2.m_quad.m128_f32 = *(__m256i *)g_vectorfConstants[34].m128_f32;
+          _XMM0 = g_vectorfConstants[6];
+          v172.m_internal.m_scale.m_quad = g_vectorfConstants[6];
+          v148 = FLOAT_1_1920929eN7;
+          if ( hkMatrix3Impl<float>::isApproximatelyEqual((hkMatrix3Impl<float> *)&g_vectorfConstants[32], (const hkMatrix3Impl<float> *)&g_vectorfConstants[32], &v148) )
+          {
+            v59 = v172.m_internal.m_flags.m_storage | 4;
+            v172.m_internal.m_flags.m_storage |= 4u;
+            v176.m_quad = g_vectorfConstants[38];
+            _XMM0 = g_vectorfConstants[35];
+            _mm128_sub_ps(g_vectorfConstants[35], g_vectorfConstants[5]);
+            _XMM1 = *(_OWORD *)hkMath::hkSse_signMask;
+            __asm
+            {
+              vandnps xmm3, xmm1, xmm2
+              vcmpleps xmm5, xmm3, xmm4
+            }
+            _XMM2 = 0i64;
+            __asm
+            {
+              vpxor   xmm0, xmm0, xmm0
+              vpcmpeqd xmm1, xmm0, xmm0
+              vblendps xmm2, xmm2, xmm1, 7
+              vpand   xmm0, xmm2, xmm5
+              vptest  xmm0, xmm2
+            }
+            if ( _CF )
+              v172.m_internal.m_flags.m_storage = v59 | 1;
+          }
+          v172.m_internal.m_shapeTags[0] = -1;
+          (*(void (__fastcall **)(_QWORD, unsigned int *, __int64, hknpShapeCollector *))(**(_QWORD **)(v26 + 96) + 176i64))(*(_QWORD *)(v26 + 96), &m_value, 1i64, &v172);
+          if ( (v172.m_internal.m_flags.m_storage & 0x10) != 0 )
+            m_shape = hknpShapeCollector::getTriangleShape(&v172, 0, (hknpTriangleShape *)&v175);
+          else
+            m_shape = (const hknpTriangleShape *)v172.m_internal.m_shape;
+          v154 = (__int64)m_shape;
+          v166 = *(_DWORD *)(v26 + 108);
+          v165[0] = *(_WORD *)(v26 + 106);
+          v69 = v157;
+          if ( (*(_QWORD *)(v26 + 160) & 0xFFFFFFFF00000000ui64) != 0 || *(_DWORD *)(v157 + 40) )
+          {
+            v167 = 1i64;
+          }
+          else
+          {
+            v34 = 0i64;
+            v167 = 0i64;
+          }
+          if ( v172.m_parentShape )
+          {
+            v70 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)(**(_QWORD **)&shapeKeys[0].m_value + 32i64) + 24i64))(**(_QWORD **)&shapeKeys[0].m_value + 32i64);
+            v155 = v70;
+            v71 = *(float *)&m_value;
+            v148 = *(float *)&m_value;
+            LOWORD(zero) = v172.m_internal.m_shapeTags[0];
+            v156.m_quad.m128_u64[0] = (unsigned __int64)v172.m_parentShape;
+            v72 = 0;
+            if ( v172.m_shapeTagPath.m_size > 0 )
+            {
+              v73 = &v172.m_shapeTagPath.m_data[0].m_instanceId;
+              v74 = v160;
+              v75 = v70;
+              v76 = v172.m_shapeTagPath.m_size;
+              do
               {
-                __asm
-                {
-                  vmovd   xmm0, r12d
-                  vcvtdq2ps xmm0, xmm0
-                  vmovss  xmm2, cs:__real@3f800000
-                  vdivss  xmm1, xmm2, xmm0
-                  vshufps xmm1, xmm1, xmm1, 0
-                  vmulps  xmm8, xmm11, xmm1
-                  vmovd   xmm0, r15d
-                  vcvtdq2ps xmm0, xmm0
-                  vdivss  xmm2, xmm2, xmm0
-                  vshufps xmm2, xmm2, xmm2, 0
-                  vmulps  xmm1, xmm3, xmm2
-                  vmulps  xmm0, xmm4, xmm2
-                  vsubps  xmm4, xmm1, xmm0
-                  vdpps   xmm5, xmm4, xmm4, 7Fh
-                  vcmpleps xmm3, xmm5, xmm12
-                  vrsqrtps xmm1, xmm5
-                  vmulps  xmm2, xmm1, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-                  vmulps  xmm0, xmm1, xmm5
-                  vmulps  xmm1, xmm1, xmm0
-                  vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-                  vsubps  xmm1, xmm0, xmm1
-                  vmulps  xmm2, xmm1, xmm2
-                  vandnps xmm0, xmm3, xmm2
-                  vmulps  xmm6, xmm0, xmm4
-                  vmulps  xmm7, xmm0, xmm5
-                  vmovsd  xmm1, qword ptr [rdi+20h]
-                  vpxor   xmm4, xmm4, xmm4
-                  vpunpcklwd xmm3, xmm4, xmm1
-                  vshufps xmm0, xmm3, xmm3, 0FFh
-                  vcmpeqps xmm2, xmm12, xmm0
-                  vrcpps  xmm1, xmm0
-                  vmulps  xmm0, xmm1, xmm0
-                  vmovups xmm5, cs:?hkSse_floatTwo@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatTwo
-                  vsubps  xmm0, xmm5, xmm0
-                  vmulps  xmm1, xmm0, xmm1
-                  vandnps xmm2, xmm2, xmm1
-                  vmovss  dword ptr [rsp+1070h+motionA], xmm2
-                }
-                _RAX = motionB;
-                __asm
-                {
-                  vmovsd  xmm1, qword ptr [rax+20h]
-                  vpunpcklwd xmm3, xmm4, xmm1
-                  vshufps xmm0, xmm3, xmm3, 0FFh
-                  vcmpeqps xmm4, xmm12, xmm0
-                  vrcpps  xmm2, xmm0
-                  vmulps  xmm0, xmm2, xmm0
-                  vsubps  xmm1, xmm5, xmm0
-                  vmulps  xmm2, xmm1, xmm2
-                  vandnps xmm0, xmm4, xmm2
-                  vmovss  dword ptr [rsp+1070h+motionA+4], xmm0
-                  vdpps   xmm0, xmm6, [rbp+0F70h+var_F60], 0F70h+var_F40.m_shapeTagPath.m_data+7; X
-                }
-                *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-                __asm
-                {
-                  vmovss  xmm2, cs:__real@3fc90fdb; max
-                  vmovss  xmm1, cs:__real@bfc90fdb; min
-                }
-                *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                __asm { vmovaps xmm2, xmm0 }
-                v232 = 0i64;
-                _RAX = &velocities;
-                __asm
-                {
-                  vmovss  xmm3, cs:__real@3fb33333
-                  vmovss  xmm5, cs:__real@bdcccccd
-                  vmovss  xmm4, cs:__real@3dcccccd
-                }
+                v77 = *((_QWORD *)v73 - 1);
+                v29 = v29 & hknpShapeKeyPath_usedBitsMaskTable[v72] | (((*v73 + 1) << (32 - (v72 + *(_BYTE *)(v77 + 27)))) - 1);
+                v72 += *(unsigned __int8 *)(v77 + 27);
+                (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, __int64, unsigned int, _QWORD, __int16 *))(*(_QWORD *)v75 + 32i64))(v75, *((unsigned __int16 *)v73 - 8), 5i64, v74, v157, v77, v29, *((_QWORD *)v73 + 1), v165);
+                v73 += 8;
+                --v76;
+              }
+              while ( v76 );
+              v71 = v148;
+              v33 = 0;
+              v4 = (hknpContactSolverEvent *)v170;
+              v70 = v155;
+              v69 = v157;
+            }
+            (*(void (__fastcall **)(__int64, _QWORD, __int64, __int64, __int64, unsigned __int64, float, __int64, __int16 *))(*(_QWORD *)v70 + 32i64))(v70, LOWORD(zero), 5i64, v160, v69, v156.m_quad.m128_u64[0], COERCE_FLOAT(LODWORD(v71)), v154, v165);
+            v34 = v167;
+          }
+          v153[1] = Physics_GetSurfaceFlagsFromUserData(v34);
+          hknpContactSolverEvent::calculateManifold(v4, **(const hknpWorld ***)&shapeKeys[0].m_value, &manifoldOut);
+          normal.m_quad = (__m128)manifoldOut.m_normal;
+          __asm
+          {
+            vpxor   xmm0, xmm0, xmm0
+            vpinsrw xmm0, xmm0, eax, 1
+            vpshufd xmm1, xmm0, 40h ; '@'
+          }
+          v170 = _XMM1 ^ *(_OWORD *)&manifoldOut.m_normal;
+          v81 = 0i64;
+          v178 = 0i64;
+          v179 = 0i64;
+          m_quad = 0i64;
+          v176.m_quad = 0i64;
+          v83 = 0i64;
+          v177 = 0i64;
+          ManifoldCollisionCache = hknpContactJacobianUtil::getManifoldCollisionCache(v4->m_contactJacobian);
+          if ( ManifoldCollisionCache )
+          {
+            if ( (ManifoldCollisionCache->m_propertyKeysUsed & 0x10) == 0 || (v85 = (__int16 *)((char *)&ManifoldCollisionCache->hknpCollisionCache + 16 * ManifoldCollisionCache->m_propertiesStartOffsetDiv16 + ((ManifoldCollisionCache->m_propertyOffsets >> 14) & 0x3C))) == NULL )
+            {
+LABEL_100:
+              v172.m_internal.m_shapeBuffer.__vftable = (hknpInplaceShapeBuffer<2048>_vtbl *)hknpShapeBuffer::`vftable';
+              if ( v172.m_internal.m_shapeBuffer.m_shape )
+                ((void (__fastcall *)(hknpShape *, _QWORD))v172.m_internal.m_shapeBuffer.m_shape->~hkBaseObject)(v172.m_internal.m_shapeBuffer.m_shape, 0i64);
+              return;
+            }
+            v178.m128_i32[0] = *v85 << 16;
+            v178.m128_i32[1] = v85[1] << 16;
+            v178.m128_i32[2] = v85[2] << 16;
+            v179.m128_i32[0] = v85[3] << 16;
+            v179.m128_i32[1] = v85[4] << 16;
+            v179.m128_i32[2] = v85[5] << 16;
+            v176.m_quad.m128_i32[0] = v85[6] << 16;
+            v176.m_quad.m128_i32[1] = v85[7] << 16;
+            v176.m_quad.m128_i32[2] = v85[8] << 16;
+            v177.m128_i32[0] = v85[9] << 16;
+            v177.m128_i32[1] = v85[10] << 16;
+            v177.m128_i32[2] = v85[11] << 16;
+            v81 = v178;
+            v83 = v177;
+            m_quad = v176.m_quad;
+          }
+          p_velocities = &velocities;
+          v87 = 4i64;
+          do
+          {
+            hkSimdFloat32::hkSimdFloat32(p_velocities++);
+            --v87;
+          }
+          while ( v87 );
+          v88 = motionA;
+          hknpContactJacobianUtil::getProjVelDiff(v4->m_contactJacobian, motionA, motionB, &normal, &velocities);
+          v89 = 0i64;
+          v90 = 0i64;
+          v176.m_quad = 0i64;
+          v91 = 0i64;
+          v156.m_quad = 0i64;
+          v92 = 0;
+          v93 = v4->m_contactJacobian;
+          if ( v93 )
+          {
+            m_numPoints = v93->m_info.m_data.m_numPoints;
+            if ( v93->m_info.m_data.m_numPoints )
+            {
+LABEL_84:
+              if ( m_numPoints )
+              {
+                m_positions = manifoldOut.m_positions;
+                p_m_serialAndIndex = (float *)&v4[1].m_bodyIds[0].m_serialAndIndex;
+                v97 = p_m_serialAndIndex;
+                v98 = m_numPoints;
                 do
                 {
-                  __asm { vcomiss xmm2, xmm3 }
-                  if ( !_CF )
-                    break;
+                  v99 = m_positions->m_quad;
+                  v89 = _mm128_add_ps(m_positions->m_quad, v89);
+                  if ( *v97 != 0.0 )
+                  {
+                    v100 = _mm128_sub_ps(v99, v88->m_centerOfMass.m_quad);
+                    _XMM3 = v88->m_orientation.m_vec.m_quad;
+                    v102 = _mm_shuffle_ps(_XMM3, _XMM3, 255);
+                    __asm { vdpps   xmm1, xmm3, xmm13, 7Fh }
+                    v104 = _mm128_sub_ps(_mm128_mul_ps(_XMM3, _mm_shuffle_ps(m_quad, m_quad, 201)), _mm128_mul_ps(m_quad, _mm_shuffle_ps(_XMM3, _XMM3, 201)));
+                    v105 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(m_quad, _mm128_sub_ps(_mm128_mul_ps(v102, v102), g_vectorfConstants[21])), _mm128_mul_ps(_XMM1, _XMM3)), _mm128_mul_ps(_mm_shuffle_ps(v104, v104, 201), v102));
+                    v106 = _mm128_add_ps(v105, v105);
+                    v107 = _mm128_sub_ps(_mm128_mul_ps(v106, _mm_shuffle_ps(v100, v100, 201)), _mm128_mul_ps(v100, _mm_shuffle_ps(v106, v106, 201)));
+                    v108 = _mm128_add_ps(v81, _mm_shuffle_ps(v107, v107, 201));
+                    v109 = _mm128_sub_ps(v99, motionB->m_centerOfMass.m_quad);
+                    _XMM3.m_vec.m_quad = (__m128)motionB->m_orientation;
+                    v111 = _mm_shuffle_ps(_XMM3.m_vec.m_quad, _XMM3.m_vec.m_quad, 255);
+                    __asm { vdpps   xmm1, xmm3, xmm14, 7Fh }
+                    v113 = _mm128_sub_ps(_mm128_mul_ps(_XMM3.m_vec.m_quad, _mm_shuffle_ps(v83, v83, 201)), _mm128_mul_ps(v83, _mm_shuffle_ps(_XMM3.m_vec.m_quad, _XMM3.m_vec.m_quad, 201)));
+                    v114 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(v83, _mm128_sub_ps(_mm128_mul_ps(v111, v111), g_vectorfConstants[21])), _mm128_mul_ps(_XMM1, _XMM3.m_vec.m_quad)), _mm128_mul_ps(_mm_shuffle_ps(v113, v113, 201), v111));
+                    v115 = _mm128_add_ps(v114, v114);
+                    v116 = _mm128_sub_ps(_mm128_mul_ps(v115, _mm_shuffle_ps(v109, v109, 201)), _mm128_mul_ps(v109, _mm_shuffle_ps(v115, v115, 201)));
+                    ++v92;
+                    v90 = _mm128_add_ps(v108, v176.m_quad);
+                    v176.m_quad = v90;
+                    v91 = _mm128_add_ps(_mm128_add_ps(v179, _mm_shuffle_ps(v116, v116, 201)), v156.m_quad);
+                    v156.m_quad = v91;
+                  }
+                  ++v97;
+                  ++m_positions;
+                  --v98;
+                }
+                while ( v98 );
+                _XMM12 = 0i64;
+                v118 = *(const hknpWorld ***)&shapeKeys[0].m_value;
+                if ( v92 > 0 )
+                {
+                  v119 = (__m128)LODWORD(FLOAT_1_0);
+                  v119.m128_f32[0] = 1.0 / _mm_cvtepi32_ps((__m128i)m_numPoints).m128_f32[0];
+                  v120 = _mm128_mul_ps(v89, _mm_shuffle_ps(v119, v119, 0));
+                  v121 = (__m128)LODWORD(FLOAT_1_0);
+                  v121.m128_f32[0] = 1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)v92).m128_f32[0];
+                  v122 = _mm_shuffle_ps(v121, v121, 0);
+                  _XMM4 = _mm128_sub_ps(_mm128_mul_ps(v90, v122), _mm128_mul_ps(v91, v122));
                   __asm
                   {
-                    vmovss  xmm1, dword ptr [r13+0]
-                    vucomiss xmm1, xmm10
+                    vdpps   xmm5, xmm4, xmm4, 7Fh
+                    vcmpleps xmm3, xmm5, xmm12
+                    vrsqrtps xmm1, xmm5
                   }
-                  if ( !v230 )
+                  _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_XMM1, _mm128_mul_ps(_XMM1, _XMM5))), _mm128_mul_ps(_XMM1, *(__m128 *)hkMath::hkSse_floatHalf));
+                  __asm { vandnps xmm0, xmm3, xmm2 }
+                  _XMM6 = _mm128_mul_ps(_XMM0, _XMM4);
+                  LODWORD(v129) = _mm128_mul_ps(_XMM0, _XMM5).m128_u32[0];
+                  __asm
                   {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr [rax]
-                      vdivss  xmm1, xmm0, xmm7
-                      vcomiss xmm1, xmm5
-                    }
-                    if ( _CF )
-                    {
-                      __asm { vcomiss xmm7, xmm4 }
-                      if ( !_CF && !v230 )
-                        ++v44;
-                    }
+                    vpxor   xmm4, xmm4, xmm4
+                    vpunpcklwd xmm3, xmm4, xmm1
                   }
-                  ++v232;
-                  ++_R13;
-                  ++_RAX;
-                  _CF = v232 < (unsigned __int64)_ER12;
-                  v230 = v232 == _ER12;
+                  _XMM0 = _mm_shuffle_ps(_XMM3, _XMM3, 255);
+                  __asm
+                  {
+                    vcmpeqps xmm2, xmm12, xmm0
+                    vrcpps  xmm1, xmm0
+                  }
+                  _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM1, _XMM0)), _XMM1);
+                  __asm { vandnps xmm2, xmm2, xmm1 }
+                  *(float *)&motionA = *(float *)&_XMM2;
+                  __asm { vpunpcklwd xmm3, xmm4, xmm1 }
+                  _XMM0 = _mm_shuffle_ps(_XMM3, _XMM3, 255);
+                  __asm
+                  {
+                    vcmpeqps xmm4, xmm12, xmm0
+                    vrcpps  xmm2, xmm0
+                  }
+                  _mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatTwo, _mm128_mul_ps(_XMM2, _XMM0)), _XMM2);
+                  __asm { vandnps xmm0, xmm4, xmm2 }
+                  *((float *)&motionA + 1) = *(float *)&_XMM0;
+                  __asm { vdpps   xmm0, xmm6, [rbp+0F70h+var_F60], 0F70h+var_F40.m_shapeTagPath.m_data+7; X }
+                  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
+                  v142 = I_fclamp(*(float *)&_XMM0, -1.5707964, 1.5707964);
+                  v143 = 0i64;
+                  v144 = &velocities;
+                  do
+                  {
+                    if ( *(float *)&v142 >= 1.4 )
+                      break;
+                    if ( *p_m_serialAndIndex != 0.0 && (float)(COERCE_FLOAT(*v144) / v129) < -0.1 && v129 > 0.1 )
+                      ++v33;
+                    ++v143;
+                    ++p_m_serialAndIndex;
+                    ++v144;
+                  }
+                  while ( v143 < m_numPoints );
+                  v156.m_quad = v120;
+                  v145 = *v118;
+                  v176.m_quad = normal.m_quad;
+                  if ( v159 == 1 )
+                    HavokPhysicsSVFX_AddNewContact(v145, (const hknpBodyId *)key, &v149, v92, v33, &v156, &v176, v153, v129, (const float *)&motionA, *(const float *)&v142);
+                  else
+                    HavokPhysicsSVFX_UpdateContact(v145, (const hknpBodyId *)key, &v149, v92, v33, &v156, &v176, v153, v129, (const float *)&motionA, *(const float *)&v142);
                 }
-                while ( v232 < _ER12 );
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rbp+0F70h+normal.m_quad]
-                  vmovdqa [rbp+0F70h+var_FD0], xmm8
-                  vmovss  [rsp+1070h+var_1020], xmm2
-                }
-                v241 = *v179;
-                __asm
-                {
-                  vmovdqa [rbp+0F70h+var_160], xmm0
-                  vmovss  dword ptr [rsp+1070h+var_1030], xmm7
-                }
-                if ( v268 == 1 )
-                  HavokPhysicsSVFX_AddNewContact(v241, (const hknpBodyId *)key, &v258, _ER15, v44, &v265, &v285, v262, v254, (const float *)&motionA, v255);
-                else
-                  HavokPhysicsSVFX_UpdateContact(v241, (const hknpBodyId *)key, &v258, _ER15, v44, &v265, &v285, v262, v254, (const float *)&motionA, v255);
               }
+              goto LABEL_100;
             }
-            goto LABEL_100;
+          }
+          else
+          {
+            m_numPoints = 0;
+          }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 817, ASSERT_TYPE_ASSERT, "(numContactPoints > 0)", (const char *)&queryFormat, "numContactPoints > 0") )
+            __debugbreak();
+          v88 = motionA;
+          v91 = 0i64;
+          v90 = 0i64;
+          goto LABEL_84;
+        }
+      }
+      else
+      {
+        *(float *)&v149.m_value = NAN;
+      }
+      *(float *)&m_value = NAN;
+      goto LABEL_40;
+    }
+    v11 = *(const hknpStreamContactJacobian **)&event[2].m_secondaryType;
+    if ( v11 )
+    {
+      v19 = hknpStreamContactJacobianUtil::getJacModHdr(v11);
+      shapeKeys[0] = hknpStreamContactJacobianUtil::getJacModMfoldData(v19)->m_shapeKeyA;
+      v20 = v4->m_contactJacobian;
+      if ( v20 )
+      {
+        v21 = hknpStreamContactJacobianUtil::getJacModHdr(v20);
+        shapeKeys[1] = hknpStreamContactJacobianUtil::getJacModMfoldData(v21)->m_shapeKeyB;
+      }
+      else
+      {
+        shapeKeys[1].m_value = -1;
+      }
+      HavokPhysicsSVFX_RemoveContact(input->m_world, v4->m_bodyIds, shapeKeys);
+    }
+    else
+    {
+      p_m_filterBits = (const hknpBodyId *)&event[1].m_filterBits;
+      m_world = input->m_world;
+      if ( !input->m_world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 592, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
+        __debugbreak();
+      if ( !p_m_filterBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 593, ASSERT_TYPE_ASSERT, "(bodyIds)", (const char *)&queryFormat, "bodyIds") )
+        __debugbreak();
+      m_userData = m_world->m_userData;
+      if ( (p_m_filterBits[1].m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
+      {
+        HavokPhysicsSVFX_RemoveAllContacts(m_world, (const hknpBodyId)p_m_filterBits->m_serialAndIndex);
+      }
+      else if ( (p_m_filterBits->m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
+      {
+        HavokPhysicsSVFX_RemoveAllContacts(m_world, p_m_filterBits[1]);
+      }
+      else
+      {
+        key = HavokPhysicsSVFX_MakeKey(p_m_filterBits);
+        v15 = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsSVFXWorlds[m_userData].contactIndirection->m_map, &key);
+        contactIndirection = s_havokPhysicsSVFXWorlds[m_userData].contactIndirection;
+        if ( v15 <= contactIndirection->m_map.m_hashMod )
+        {
+          val = contactIndirection->m_map.m_elem[v15].val;
+          if ( val >= s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size )
+          {
+            LODWORD(v146) = contactIndirection->m_map.m_elem[v15].val;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 623, ASSERT_TYPE_ASSERT, "(unsigned)( contactIndex ) < (unsigned)( fxWorld->contacts->getSize() )", "contactIndex doesn't index fxWorld->contacts->getSize()\n\t%i not in [0, %i)", v146, s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size) )
+              __debugbreak();
+          }
+          for ( ; val != -1; val = v18->next )
+          {
+            v18 = &s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data[val];
+            v18->isValid = 0;
+            v18->eventFlags |= 4u;
           }
         }
-        else
-        {
-          _ER12 = 0;
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 817, ASSERT_TYPE_ASSERT, "(numContactPoints > 0)", (const char *)&queryFormat, "numContactPoints > 0") )
-          __debugbreak();
-        _RDI = motionA;
-        __asm
-        {
-          vmovups xmm4, xmm12
-          vmovups xmm3, xmm12
-        }
-        goto LABEL_84;
       }
     }
-    else
-    {
-      v258.m_value = -1;
-    }
-    m_value = -1;
-    goto LABEL_40;
-  }
-  v18 = v17 - 1;
-  if ( v18 )
-  {
-    if ( v18 != 1 )
-      goto LABEL_102;
-    goto LABEL_5;
-  }
-  v21 = *(const hknpStreamContactJacobian **)&event[2].m_secondaryType;
-  if ( v21 )
-  {
-    v29 = hknpStreamContactJacobianUtil::getJacModHdr(v21);
-    shapeKeys[0] = hknpStreamContactJacobianUtil::getJacModMfoldData(v29)->m_shapeKeyA;
-    v30 = v14->m_contactJacobian;
-    if ( v30 )
-    {
-      v31 = hknpStreamContactJacobianUtil::getJacModHdr(v30);
-      shapeKeys[1] = hknpStreamContactJacobianUtil::getJacModMfoldData(v31)->m_shapeKeyB;
-    }
-    else
-    {
-      shapeKeys[1].m_value = -1;
-    }
-    HavokPhysicsSVFX_RemoveContact(input->m_world, v14->m_bodyIds, shapeKeys);
-  }
-  else
-  {
-    p_m_filterBits = (const hknpBodyId *)&event[1].m_filterBits;
-    m_world = input->m_world;
-    if ( !input->m_world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 592, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
-      __debugbreak();
-    if ( !p_m_filterBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 593, ASSERT_TYPE_ASSERT, "(bodyIds)", (const char *)&queryFormat, "bodyIds") )
-      __debugbreak();
-    m_userData = m_world->m_userData;
-    if ( (p_m_filterBits[1].m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
-    {
-      HavokPhysicsSVFX_RemoveAllContacts(m_world, (const hknpBodyId)p_m_filterBits->m_serialAndIndex);
-    }
-    else if ( (p_m_filterBits->m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
-    {
-      HavokPhysicsSVFX_RemoveAllContacts(m_world, p_m_filterBits[1]);
-    }
-    else
-    {
-      key = HavokPhysicsSVFX_MakeKey(p_m_filterBits);
-      v25 = (unsigned int)hkMapBase<unsigned __int64,unsigned __int64,hkMapOperations<unsigned __int64>>::findKey(&s_havokPhysicsSVFXWorlds[m_userData].contactIndirection->m_map, &key);
-      contactIndirection = s_havokPhysicsSVFXWorlds[m_userData].contactIndirection;
-      if ( v25 <= contactIndirection->m_map.m_hashMod )
-      {
-        val = contactIndirection->m_map.m_elem[v25].val;
-        if ( val >= s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size )
-        {
-          LODWORD(v253) = contactIndirection->m_map.m_elem[v25].val;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 623, ASSERT_TYPE_ASSERT, "(unsigned)( contactIndex ) < (unsigned)( fxWorld->contacts->getSize() )", "contactIndex doesn't index fxWorld->contacts->getSize()\n\t%i not in [0, %i)", v253, s_havokPhysicsSVFXWorlds[m_userData].contacts->m_size) )
-            __debugbreak();
-        }
-        for ( ; val != -1; val = v28->next )
-        {
-          v28 = &s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data[val];
-          v28->isValid = 0;
-          v28->eventFlags |= 4u;
-        }
-      }
-    }
-  }
-LABEL_102:
-  _R11 = &v300;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -2123,34 +1882,27 @@ HavokPhysicsSVFX_OrderEventsForSound
 */
 hkBool *HavokPhysicsSVFX_OrderEventsForSound(hkBool *result, HavokPhysicsSVFXContact **a, HavokPhysicsSVFXContact **b)
 {
+  HavokPhysicsSVFXContact *v3; 
   PhysicsSFXEventAsset *sfxEventAsset; 
+  HavokPhysicsSVFXContact *v6; 
   PhysicsSFXEventAsset *v7; 
   int priority; 
   int v9; 
 
-  _R9 = *a;
+  v3 = *a;
   sfxEventAsset = (*a)->sfxEventAsset;
   if ( sfxEventAsset )
   {
-    _RAX = *b;
+    v6 = *b;
     v7 = (*b)->sfxEventAsset;
     if ( v7 )
     {
       priority = sfxEventAsset->priority;
       v9 = v7->priority;
       if ( priority == v9 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r9+78h]
-          vcomiss xmm0, dword ptr [rax+78h]
-        }
-        result->m_bool = priority < (unsigned int)v9;
-      }
+        result->m_bool = v3->distanceSqFromPlayer < v6->distanceSqFromPlayer;
       else
-      {
         result->m_bool = priority > v9;
-      }
       return result;
     }
     else
@@ -2173,30 +1925,23 @@ HavokPhysicsSVFX_OrderEventsForVisuals
 */
 hkBool *HavokPhysicsSVFX_OrderEventsForVisuals(hkBool *result, HavokPhysicsSVFXContact **a, HavokPhysicsSVFXContact **b)
 {
+  HavokPhysicsSVFXContact *v3; 
   PhysicsVFXEventAsset *v4; 
+  HavokPhysicsSVFXContact *v5; 
   PhysicsVFXEventAsset *vfxEventAsset; 
   int priority; 
 
-  _R9 = *a;
-  if ( *a && (v4 = _R9->vfxEventAsset) != NULL )
+  v3 = *a;
+  if ( *a && (v4 = v3->vfxEventAsset) != NULL )
   {
-    _RAX = *b;
-    if ( *b && (vfxEventAsset = _RAX->vfxEventAsset) != NULL )
+    v5 = *b;
+    if ( *b && (vfxEventAsset = v5->vfxEventAsset) != NULL )
     {
       priority = v4->priority;
       if ( priority == vfxEventAsset->priority )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r9+78h]
-          vcomiss xmm0, dword ptr [rax+78h]
-        }
-        result->m_bool = (unsigned int)priority < vfxEventAsset->priority;
-      }
+        result->m_bool = v3->distanceSqFromPlayer < v5->distanceSqFromPlayer;
       else
-      {
         result->m_bool = priority > vfxEventAsset->priority;
-      }
       return result;
     }
     else
@@ -2219,83 +1964,63 @@ HavokPhysicsSVFX_PlayHitEvents
 */
 void HavokPhysicsSVFX_PlayHitEvents(Physics_WorldId worldId, LocalClientNum_t localClientNum)
 {
-  __int64 v6; 
-  __int64 v8; 
-  __int64 v9; 
+  __int64 v2; 
+  __int64 v3; 
+  __int64 v4; 
   hkArray<HavokPhysicsSVFXContact *,hkContainerHeapAllocator> *potentialEventList; 
   int m_size; 
-  hkArray<HavokPhysicsSVFXContact *,hkContainerHeapAllocator> *v15; 
+  __int64 v7; 
+  hkArray<HavokPhysicsSVFXContact *,hkContainerHeapAllocator> *v8; 
+  __int128 numHitSoundsRegainedPerFrame_low; 
   HavokPhysicsSVFXContact **m_data; 
-  unsigned __int64 v23; 
-  bool v24; 
-  unsigned __int64 v38; 
-  int v39; 
-  HavokPhysicsSVFXContact **v45; 
-  unsigned __int64 v46; 
-  bool v47; 
+  float hitSpeed; 
+  float v14; 
+  int v15; 
+  __int128 numHitParticlesRegainedPerFrame_low; 
+  HavokPhysicsSVFXContact **v19; 
+  float v20; 
+  float v21; 
+  HavokPhysicsSVFXContact *v22; 
   int time; 
   const char **p_hitParticleEffectAlias; 
-  const char *v62; 
-  ParticleSystemHandle v69; 
+  const char *v25; 
+  __m128 v27; 
+  ParticleSystemHandle v30; 
   unsigned __int64 bodyIDKey_high; 
   unsigned __int8 *vfxBodyCount; 
-  unsigned __int64 v72; 
-  char v73; 
-  unsigned __int64 v76; 
+  unsigned __int64 v33; 
+  char v34; 
   __int64 duration; 
   ParticleSystemFlags particleSystemFlags; 
-  __int128 v83; 
+  __m128 v37; 
   vec4_t quatOut; 
   float4 emitterOrientationQuat; 
   float4 emitterPos; 
   char _Buffer[256]; 
-  char v88; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v6 = worldId;
-  _R13 = 0x140000000ui64;
-  v8 = worldId;
-  v9 = localClientNum;
-  potentialEventList = s_havokPhysicsSVFXWorlds[v8].potentialEventList;
+  v2 = worldId;
+  v3 = worldId;
+  v4 = localClientNum;
+  potentialEventList = s_havokPhysicsSVFXWorlds[v3].potentialEventList;
   m_size = potentialEventList->m_size;
   if ( m_size > 1 )
   {
     hkAlgorithm::quickSortRecursive<HavokPhysicsSVFXContact *,hkBool (*)(HavokPhysicsSVFXContact * &,HavokPhysicsSVFXContact * &)>(potentialEventList->m_data, 0, m_size - 1, HavokPhysicsSVFX_OrderEventsForSound);
-    potentialEventList = s_havokPhysicsSVFXWorlds[v8].potentialEventList;
+    potentialEventList = s_havokPhysicsSVFXWorlds[v3].potentialEventList;
   }
-  __asm
-  {
-    vmovss  xmm8, cs:__real@42652ee0
-    vmovss  xmm6, cs:__real@3f800000
-  }
-  _RSI = 5 * v6;
-  v15 = potentialEventList;
-  __asm
-  {
-    vmovss  xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRegainedPerFrame[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vaddss  xmm1, xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.maxNumHitSounds[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vmaxss  xmm1, xmm1, xmm0
-    vmovss  rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRemaining[r13+rsi*8], xmm1; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-  }
+  v7 = v2;
+  v8 = potentialEventList;
+  numHitSoundsRegainedPerFrame_low = LODWORD(s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRegainedPerFrame);
+  *(float *)&numHitSoundsRegainedPerFrame_low = s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRegainedPerFrame + s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRemaining;
+  _XMM1 = numHitSoundsRegainedPerFrame_low;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRemaining = *(float *)&_XMM1;
   m_data = potentialEventList->m_data;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  v23 = (unsigned __int64)&potentialEventList->m_data[potentialEventList->m_size];
-  v24 = potentialEventList->m_data < (HavokPhysicsSVFXContact **)v23;
-  if ( potentialEventList->m_data != (HavokPhysicsSVFXContact **)v23 )
+  if ( potentialEventList->m_data != &potentialEventList->m_data[potentialEventList->m_size] )
   {
     do
     {
-      __asm { vcomiss xmm7, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas }
-      if ( !v24 )
+      if ( s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRemaining <= 0.0 )
         break;
       if ( !*m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1962, ASSERT_TYPE_ASSERT, "(*contactIt)", (const char *)&queryFormat, "*contactIt") )
         __debugbreak();
@@ -2305,75 +2030,46 @@ void HavokPhysicsSVFX_PlayHitEvents(Physics_WorldId worldId, LocalClientNum_t lo
         {
           if ( physicsSVFX_debugDrawSFXHits->current.enabled )
           {
-            _RAX = physicsSVFX_debugDrawSFXHitsSpeedThreshold;
             if ( physicsSVFX_debugDrawSFXHitsSpeedThreshold )
             {
-              _RCX = physicsSVFX_debugDrawSFXHitsAngleThreshold;
               if ( physicsSVFX_debugDrawSFXHitsAngleThreshold )
               {
-                _RDX = *m_data;
-                __asm
+                hitSpeed = (*m_data)->hitSpeed;
+                if ( hitSpeed >= physicsSVFX_debugDrawSFXHitsSpeedThreshold->current.value )
                 {
-                  vmovss  xmm2, dword ptr [rdx+58h]
-                  vcomiss xmm2, dword ptr [rax+28h]
-                  vmovss  xmm0, dword ptr [rdx+5Ch]
-                  vmulss  xmm1, xmm0, xmm8
-                  vcomiss xmm1, dword ptr [rcx+28h]
-                }
-                if ( !physicsSVFX_debugDrawSFXHitsAngleThreshold )
-                {
-                  __asm
+                  v14 = (*m_data)->hitAngle * 57.295776;
+                  if ( v14 <= physicsSVFX_debugDrawSFXHitsAngleThreshold->current.value )
                   {
-                    vcvtss2sd xmm3, xmm1, xmm1
-                    vcvtss2sd xmm2, xmm2, xmm2
-                    vmovq   r9, xmm3
-                    vmovq   r8, xmm2
+                    j_sprintf(_Buffer, "S:%.2f A:%.2f", hitSpeed, v14);
+                    CL_AddDebugString(&(*m_data)->position, &colorWhite, 1.0, _Buffer, 0, physicsSVFX_debugDrawSFXHitsTime->current.integer);
                   }
-                  j_sprintf(_Buffer, "S:%.2f A:%.2f", *(double *)&_XMM2, *(double *)&_XMM3);
-                  __asm { vmovaps xmm2, xmm6; scale }
-                  CL_AddDebugString(&(*m_data)->position, &colorWhite, *(float *)&_XMM2, _Buffer, 0, physicsSVFX_debugDrawSFXHitsTime->current.integer);
                 }
               }
             }
           }
         }
       }
-      if ( HavokPhysicsSVFX_PlayHitSound((Physics_WorldId)v6, *m_data, (LocalClientNum_t)v9) )
-      {
-        __asm
-        {
-          vmovss  xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-          vsubss  xmm1, xmm0, xmm6
-          vmovss  rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitSoundsRemaining[r13+rsi*8], xmm1; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-        }
-      }
-      v15 = s_havokPhysicsSVFXWorlds[v8].potentialEventList;
+      if ( HavokPhysicsSVFX_PlayHitSound((Physics_WorldId)v2, *m_data, (LocalClientNum_t)v4) )
+        s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRemaining = s_havokPhysicsSVFXWorldDatas[v2].numHitSoundsRemaining - 1.0;
+      v8 = s_havokPhysicsSVFXWorlds[v3].potentialEventList;
       ++m_data;
-      potentialEventList = v15;
-      v38 = (unsigned __int64)&v15->m_data[v15->m_size];
-      v24 = (unsigned __int64)m_data < v38;
+      potentialEventList = v8;
     }
-    while ( m_data != (HavokPhysicsSVFXContact **)v38 );
+    while ( m_data != &v8->m_data[v8->m_size] );
   }
-  v39 = v15->m_size;
-  if ( v39 > 1 )
+  v15 = v8->m_size;
+  if ( v15 > 1 )
   {
-    hkAlgorithm::quickSortRecursive<HavokPhysicsSVFXContact *,hkBool (*)(HavokPhysicsSVFXContact * &,HavokPhysicsSVFXContact * &)>(v15->m_data, 0, v39 - 1, HavokPhysicsSVFX_OrderEventsForVisuals);
-    potentialEventList = s_havokPhysicsSVFXWorlds[v8].potentialEventList;
+    hkAlgorithm::quickSortRecursive<HavokPhysicsSVFXContact *,hkBool (*)(HavokPhysicsSVFXContact * &,HavokPhysicsSVFXContact * &)>(v8->m_data, 0, v15 - 1, HavokPhysicsSVFX_OrderEventsForVisuals);
+    potentialEventList = s_havokPhysicsSVFXWorlds[v3].potentialEventList;
   }
-  __asm
-  {
-    vmovss  xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRegainedPerFrame[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vaddss  xmm1, xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.maxNumHitParticles[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-    vmaxss  xmm1, xmm1, xmm0
-    vmovss  rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRemaining[r13+rsi*8], xmm1; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-  }
-  v45 = potentialEventList->m_data;
-  v46 = (unsigned __int64)&potentialEventList->m_data[potentialEventList->m_size];
-  v47 = potentialEventList->m_data < (HavokPhysicsSVFXContact **)v46;
-  if ( potentialEventList->m_data == (HavokPhysicsSVFXContact **)v46 )
+  numHitParticlesRegainedPerFrame_low = LODWORD(s_havokPhysicsSVFXWorldDatas[v2].numHitParticlesRegainedPerFrame);
+  *(float *)&numHitParticlesRegainedPerFrame_low = s_havokPhysicsSVFXWorldDatas[v2].numHitParticlesRegainedPerFrame + s_havokPhysicsSVFXWorldDatas[v2].numHitParticlesRemaining;
+  _XMM1 = numHitParticlesRegainedPerFrame_low;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  s_havokPhysicsSVFXWorldDatas[v2].numHitParticlesRemaining = *(float *)&_XMM1;
+  v19 = potentialEventList->m_data;
+  if ( potentialEventList->m_data == &potentialEventList->m_data[potentialEventList->m_size] )
   {
     potentialEventList->m_size = 0;
   }
@@ -2381,10 +2077,9 @@ void HavokPhysicsSVFX_PlayHitEvents(Physics_WorldId worldId, LocalClientNum_t lo
   {
     do
     {
-      __asm { vcomiss xmm7, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas }
-      if ( !v47 )
+      if ( s_havokPhysicsSVFXWorldDatas[v7].numHitParticlesRemaining <= 0.0 )
         break;
-      if ( !*v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1988, ASSERT_TYPE_ASSERT, "(*contactIt)", (const char *)&queryFormat, "*contactIt") )
+      if ( !*v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1988, ASSERT_TYPE_ASSERT, "(*contactIt)", (const char *)&queryFormat, "*contactIt") )
         __debugbreak();
       if ( physicsSVFX_debugDrawVFXHits )
       {
@@ -2392,112 +2087,78 @@ void HavokPhysicsSVFX_PlayHitEvents(Physics_WorldId worldId, LocalClientNum_t lo
         {
           if ( physicsSVFX_debugDrawVFXHits->current.enabled )
           {
-            _RAX = physicsSVFX_debugDrawVFXHitsSpeedThreshold;
             if ( physicsSVFX_debugDrawVFXHitsSpeedThreshold )
             {
-              _RDX = physicsSVFX_debugDrawVFXHitsAngleThreshold;
               if ( physicsSVFX_debugDrawVFXHitsAngleThreshold )
               {
-                _RCX = *v45;
-                __asm
+                v20 = (*v19)->hitSpeed;
+                if ( v20 >= physicsSVFX_debugDrawVFXHitsSpeedThreshold->current.value )
                 {
-                  vmovss  xmm2, dword ptr [rcx+58h]
-                  vcomiss xmm2, dword ptr [rax+28h]
-                  vmovss  xmm0, dword ptr [rcx+5Ch]
-                  vmulss  xmm1, xmm0, xmm8
-                  vcomiss xmm1, dword ptr [rdx+28h]
-                }
-                if ( !physicsSVFX_debugDrawVFXHitsAngleThreshold )
-                {
-                  __asm
+                  v21 = (*v19)->hitAngle * 57.295776;
+                  if ( v21 <= physicsSVFX_debugDrawVFXHitsAngleThreshold->current.value )
                   {
-                    vcvtss2sd xmm3, xmm1, xmm1
-                    vcvtss2sd xmm2, xmm2, xmm2
-                    vmovq   r9, xmm3
-                    vmovq   r8, xmm2
+                    j_sprintf(_Buffer, "S:%.2f A:%.2f", v20, v21);
+                    CL_AddDebugString(&(*v19)->position, &colorWhite, 1.0, _Buffer, 0, physicsSVFX_debugDrawVFXHitsTime->current.integer);
                   }
-                  j_sprintf(_Buffer, "S:%.2f A:%.2f", *(double *)&_XMM2, *(double *)&_XMM3);
-                  __asm { vmovaps xmm2, xmm6; scale }
-                  CL_AddDebugString(&(*v45)->position, &colorWhite, *(float *)&_XMM2, _Buffer, 0, physicsSVFX_debugDrawVFXHitsTime->current.integer);
                 }
               }
             }
           }
         }
       }
-      _RBX = *v45;
-      if ( !*v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1688, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
+      v22 = *v19;
+      if ( !*v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1688, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
         __debugbreak();
-      time = CG_GetLocalClientGlobals((const LocalClientNum_t)v9)->time;
-      p_hitParticleEffectAlias = (const char **)&_RBX->vfxRule->hitParticleEffectAlias;
+      time = CG_GetLocalClientGlobals((const LocalClientNum_t)v4)->time;
+      p_hitParticleEffectAlias = (const char **)&v22->vfxRule->hitParticleEffectAlias;
       if ( p_hitParticleEffectAlias )
       {
-        v62 = *p_hitParticleEffectAlias;
+        v25 = *p_hitParticleEffectAlias;
         if ( *p_hitParticleEffectAlias )
         {
-          if ( *v62 )
+          if ( *v25 )
           {
-            if ( (unsigned int)v9 >= 2 )
+            if ( (unsigned int)v4 >= 2 )
             {
               LODWORD(particleSystemFlags) = 2;
-              LODWORD(duration) = v9;
+              LODWORD(duration) = v4;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", duration, particleSystemFlags) )
                 __debugbreak();
             }
-            __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-            HIDWORD(v83) = 0;
+            v37.m128_i32[3] = 0;
+            v27 = v37;
+            v27.m128_f32[0] = v22->position.v[0];
+            _XMM3 = v27;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rsp+50h]
-              vmovss  xmm3, xmm3, xmm0
               vinsertps xmm3, xmm3, dword ptr [rbx+2Ch], 10h
               vinsertps xmm3, xmm3, dword ptr [rbx+30h], 20h ; ' '
-              vmovups xmmword ptr [rsp+50h], xmm3
-              vmovups xmmword ptr [rsp+208h+emitterPos.v], xmm3
             }
-            HavokPhysicsSVFX_GetParticleRotation(_RBX, &quatOut);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+208h+quatOut]
-              vmovups xmmword ptr [rsp+208h+emitterOrientationQuat.v], xmm0
-            }
-            v69 = ParticleManager::AddSystemByName(&g_particleManager[v9], (LocalClientNum_t)v9, v62, &emitterPos, &emitterOrientationQuat, time, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, NULL);
-            if ( _RBX->vfxAssetIndex )
-              LODWORD(bodyIDKey_high) = _RBX->bodyIDKey;
+            v37 = _XMM3;
+            emitterPos.v = _XMM3;
+            HavokPhysicsSVFX_GetParticleRotation(v22, &quatOut);
+            emitterOrientationQuat.v = (__m128)quatOut;
+            v30 = ParticleManager::AddSystemByName(&g_particleManager[v4], (LocalClientNum_t)v4, v25, &emitterPos, &emitterOrientationQuat, time, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, NULL);
+            if ( v22->vfxAssetIndex )
+              LODWORD(bodyIDKey_high) = v22->bodyIDKey;
             else
-              bodyIDKey_high = HIDWORD(_RBX->bodyIDKey);
-            vfxBodyCount = s_havokPhysicsSVFXWorlds[v8].vfxBodyCount;
-            v72 = bodyIDKey_high & 0xFFFFFF;
-            v73 = -1;
-            if ( (unsigned int)vfxBodyCount[v72] + 1 < 0xFF )
-              v73 = vfxBodyCount[v72] + 1;
-            vfxBodyCount[v72] = v73;
-            if ( v69 )
-            {
-              __asm
-              {
-                vmovss  xmm0, rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRemaining[r13+rsi*8]; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-                vsubss  xmm1, xmm0, xmm6
-                vmovss  rva ?s_havokPhysicsSVFXWorldDatas@@3PAUHavokPhysicsSVFX_WorldData@@A.numHitParticlesRemaining[r13+rsi*8], xmm1; HavokPhysicsSVFX_WorldData near * s_havokPhysicsSVFXWorldDatas
-              }
-            }
+              bodyIDKey_high = HIDWORD(v22->bodyIDKey);
+            vfxBodyCount = s_havokPhysicsSVFXWorlds[v3].vfxBodyCount;
+            v33 = bodyIDKey_high & 0xFFFFFF;
+            v34 = -1;
+            if ( (unsigned int)vfxBodyCount[v33] + 1 < 0xFF )
+              v34 = vfxBodyCount[v33] + 1;
+            vfxBodyCount[v33] = v34;
+            if ( v30 )
+              s_havokPhysicsSVFXWorldDatas[v7].numHitParticlesRemaining = s_havokPhysicsSVFXWorldDatas[v7].numHitParticlesRemaining - 1.0;
           }
         }
       }
-      potentialEventList = s_havokPhysicsSVFXWorlds[v8].potentialEventList;
-      ++v45;
-      v76 = (unsigned __int64)&potentialEventList->m_data[potentialEventList->m_size];
-      v47 = (unsigned __int64)v45 < v76;
+      potentialEventList = s_havokPhysicsSVFXWorlds[v3].potentialEventList;
+      ++v19;
     }
-    while ( v45 != (HavokPhysicsSVFXContact **)v76 );
+    while ( v19 != &potentialEventList->m_data[potentialEventList->m_size] );
     potentialEventList->m_size = 0;
-  }
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -2508,82 +2169,52 @@ HavokPhysicsSVFX_PlayHitSound
 */
 bool HavokPhysicsSVFX_PlayHitSound(Physics_WorldId worldId, HavokPhysicsSVFXContact *contact, LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  const char **p_hitSoundAlias; 
-  const char *v8; 
+  __int64 v3; 
+  PhysicsSFXEventAssetSoundRule *sfxRule; 
+  const char *hitSoundAlias; 
   unsigned __int64 bodyIDKey_high; 
-  unsigned __int64 v10; 
-  char v11; 
+  unsigned __int64 v9; 
+  char v10; 
   unsigned __int8 *sfxBodyCount; 
   int Ref; 
   Physics_RefSystem RefSystem; 
-  bool v15; 
-  unsigned __int8 v16; 
-  char v17; 
-  bool v18; 
+  bool v14; 
+  unsigned __int8 v15; 
   unsigned __int64 PhysicsSndEntHandle; 
-  unsigned __int64 v21; 
-  bool v22; 
-  float fmt; 
 
-  v4 = worldId;
-  _RBX = contact;
+  v3 = worldId;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1631, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
-  p_hitSoundAlias = (const char **)&_RBX->sfxRule->hitSoundAlias;
-  if ( !p_hitSoundAlias )
+  sfxRule = contact->sfxRule;
+  if ( !sfxRule )
     return 0;
-  v8 = *p_hitSoundAlias;
-  if ( !*p_hitSoundAlias || !*v8 )
+  hitSoundAlias = sfxRule->hitSoundAlias;
+  if ( !sfxRule->hitSoundAlias || !*hitSoundAlias )
     return 0;
-  if ( _RBX->sfxAssetIndex )
-    LODWORD(bodyIDKey_high) = _RBX->bodyIDKey;
+  if ( contact->sfxAssetIndex )
+    LODWORD(bodyIDKey_high) = contact->bodyIDKey;
   else
-    bodyIDKey_high = HIDWORD(_RBX->bodyIDKey);
-  v10 = bodyIDKey_high & 0xFFFFFF;
-  v11 = -1;
-  sfxBodyCount = s_havokPhysicsSVFXWorlds[v4].sfxBodyCount;
-  if ( (unsigned int)sfxBodyCount[v10] + 1 < 0xFF )
-    v11 = sfxBodyCount[v10] + 1;
-  sfxBodyCount[v10] = v11;
-  if ( !HavokPhysics_IsRigidBodyValid((Physics_WorldId)v4, (hknpBodyId)bodyIDKey_high) )
+    bodyIDKey_high = HIDWORD(contact->bodyIDKey);
+  v9 = bodyIDKey_high & 0xFFFFFF;
+  v10 = -1;
+  sfxBodyCount = s_havokPhysicsSVFXWorlds[v3].sfxBodyCount;
+  if ( (unsigned int)sfxBodyCount[v9] + 1 < 0xFF )
+    v10 = sfxBodyCount[v9] + 1;
+  sfxBodyCount[v9] = v10;
+  if ( !HavokPhysics_IsRigidBodyValid((Physics_WorldId)v3, (hknpBodyId)bodyIDKey_high) )
     return 0;
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  Ref = HavokPhysics_GetRef((Physics_WorldId)v4, (hknpBodyId)bodyIDKey_high);
+  Ref = HavokPhysics_GetRef((Physics_WorldId)v3, (hknpBodyId)bodyIDKey_high);
   RefSystem = Physics_GetRefSystem(Ref);
-  v15 = RefSystem == Physics_RefSystem_Ragdoll;
+  v14 = RefSystem == Physics_RefSystem_Ragdoll;
   if ( RefSystem == Physics_RefSystem_Ragdoll )
     LODWORD(bodyIDKey_high) = Physics_GetRefSubSystem(Ref);
-  v16 = truncate_cast<unsigned char,enum Physics_WorldId>((Physics_WorldId)v4);
-  PhysicsSndEntHandle = CG_GeneratePhysicsSndEntHandle(localClientNum, v16, v15, bodyIDKey_high);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+90h]
-  }
-  v21 = PhysicsSndEntHandle;
-  if ( !(v17 | v18) )
-  {
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1664, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundVolumeScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundVolumeScalar >= 0.f");
-    v17 = 0;
-    v18 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rbx+94h]
-    vmovaps xmm6, [rsp+88h+var_38]
-  }
-  if ( !(v17 | v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1665, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundPitchScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundPitchScalar >= 0.f") )
+  v15 = truncate_cast<unsigned char,enum Physics_WorldId>((Physics_WorldId)v3);
+  PhysicsSndEntHandle = CG_GeneratePhysicsSndEntHandle(localClientNum, v15, v14, bodyIDKey_high);
+  if ( contact->sfxHitSoundVolumeScalar < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1664, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundVolumeScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundVolumeScalar >= 0.f") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+94h]
-    vmovss  xmm3, dword ptr [rbx+90h]; volumeScale
-    vmovss  dword ptr [rsp+88h+fmt], xmm0
-  }
-  return SND_PlaySurfaceSound(v8, (_RBX->surfaceFlagData[1 - _RBX->sfxAssetIndex] >> 19) & 0x3F, v21, *(float *)&_XMM3, fmt, 0, &_RBX->position) != 0;
+  if ( contact->sfxHitSoundPitchScalar < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1665, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundPitchScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundPitchScalar >= 0.f") )
+    __debugbreak();
+  return SND_PlaySurfaceSound(hitSoundAlias, (contact->surfaceFlagData[1 - contact->sfxAssetIndex] >> 19) & 0x3F, PhysicsSndEntHandle, contact->sfxHitSoundVolumeScalar, contact->sfxHitSoundPitchScalar, 0, &contact->position) != 0;
 }
 
 /*
@@ -2667,51 +2298,48 @@ bool HavokPhysicsSVFX_PlayScrapeParticle(Physics_WorldId worldId, HavokPhysicsSV
   PhysicsVFXEventAssetParticleEffectRule *vfxRule; 
   const char *scrapeParticleEffectAlias; 
   ParticleManager *ParticleManager; 
+  float v10; 
   ParticleManager *v11; 
-  ParticleSystemHandle v18; 
+  __m128 v; 
+  ParticleSystemHandle v16; 
   float4 emitterPos; 
   vec4_t quatOut; 
   float4 emitterOrientationQuat; 
 
   v3 = worldId;
-  _RDI = contact;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1847, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
   spawnTimeMsec = CG_GetLocalClientGlobals(localClientNum)->time;
-  vfxRule = _RDI->vfxRule;
-  _RDI->scrapeData.vfxScrapeRule = vfxRule;
+  vfxRule = contact->vfxRule;
+  contact->scrapeData.vfxScrapeRule = vfxRule;
   if ( !vfxRule )
     return 0;
   scrapeParticleEffectAlias = vfxRule->scrapeParticleEffectAlias;
   if ( !scrapeParticleEffectAlias || !*scrapeParticleEffectAlias )
     return 0;
   ParticleManager = ParticleManager::GetParticleManager(localClientNum);
-  __asm { vmovss  xmm0, dword ptr [rdi+28h] }
+  v10 = contact->position.v[0];
   v11 = ParticleManager;
   emitterPos.v.m128_i32[3] = 0;
+  v = emitterPos.v;
+  v.m128_f32[0] = v10;
+  _XMM3 = v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+40h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdi+2Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [rdi+30h], 20h ; ' '
-    vmovups xmmword ptr [rsp+40h], xmm3
-    vmovups xmmword ptr [rsp+40h], xmm3
   }
-  HavokPhysicsSVFX_GetParticleRotation(_RDI, &quatOut);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0A8h+quatOut]
-    vmovups xmmword ptr [rsp+0A8h+emitterOrientationQuat.v], xmm0
-  }
-  v18 = ParticleManager::AddSystemByName(v11, localClientNum, scrapeParticleEffectAlias, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, NULL);
-  _RDI->scrapeData.particleSystem = v18;
-  if ( v18 )
+  emitterPos.v = _XMM3;
+  HavokPhysicsSVFX_GetParticleRotation(contact, &quatOut);
+  emitterOrientationQuat.v = (__m128)quatOut;
+  v16 = ParticleManager::AddSystemByName(v11, localClientNum, scrapeParticleEffectAlias, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, NULL);
+  contact->scrapeData.particleSystem = v16;
+  if ( v16 )
   {
     ++s_havokPhysicsSVFXWorldDatas[v3].numScrapeParticlesPlaying;
-    _RDI->scrapeData.updateTimer = 0.0;
+    contact->scrapeData.updateTimer = 0.0;
   }
-  return v18 != PARTICLE_SYSTEM_INVALID_HANDLE;
+  return v16 != PARTICLE_SYSTEM_INVALID_HANDLE;
 }
 
 /*
@@ -2721,101 +2349,65 @@ HavokPhysicsSVFX_PlayScrapeSound
 */
 bool HavokPhysicsSVFX_PlayScrapeSound(Physics_WorldId worldId, HavokPhysicsSVFXContact *contact, LocalClientNum_t localClientNum)
 {
-  __int64 v5; 
+  __int64 v3; 
+  PhysicsSFXEventAssetSoundRule *sfxRule; 
   const char *scrapeSoundAlias; 
-  bool v10; 
-  bool v14; 
+  float v8; 
+  PhysicsSFXEventAssetSoundRule *sfxScrapeRule; 
+  float scrapeSoundVolumeSpeedThresholdMin; 
+  float scrapeSoundVolumeSpeedThresholdMax; 
+  double v12; 
+  bool v13; 
   unsigned __int64 bodyIDKey_high; 
   int Ref; 
   Physics_RefSystem RefSystem; 
-  bool v28; 
-  unsigned __int8 v29; 
+  bool v17; 
+  unsigned __int8 v18; 
   unsigned __int64 PhysicsSndEntHandle; 
-  int v32; 
-  float fmt; 
+  int v20; 
 
-  v5 = worldId;
-  _RBX = contact;
+  v3 = worldId;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1738, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
-  _RAX = _RBX->sfxRule;
-  _RBX->scrapeData.sfxScrapeRule = _RAX;
-  if ( !_RAX )
+  sfxRule = contact->sfxRule;
+  contact->scrapeData.sfxScrapeRule = sfxRule;
+  if ( !sfxRule )
     return 0;
-  scrapeSoundAlias = _RAX->scrapeSoundAlias;
-  if ( !scrapeSoundAlias )
+  scrapeSoundAlias = sfxRule->scrapeSoundAlias;
+  if ( !scrapeSoundAlias || !*scrapeSoundAlias )
     return 0;
-  v10 = *scrapeSoundAlias == 0;
-  if ( !*scrapeSoundAlias )
-    return 0;
-  __asm
+  v8 = FLOAT_1_0;
+  if ( sfxRule->scrapeSoundVolumeSpeedThresholdMin > sfxRule->scrapeSoundVolumeSpeedThresholdMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1756, ASSERT_TYPE_ASSERT, "(contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin)", (const char *)&queryFormat, "contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin") )
+    __debugbreak();
+  sfxScrapeRule = contact->scrapeData.sfxScrapeRule;
+  scrapeSoundVolumeSpeedThresholdMin = sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin;
+  scrapeSoundVolumeSpeedThresholdMax = sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax;
+  if ( scrapeSoundVolumeSpeedThresholdMin != scrapeSoundVolumeSpeedThresholdMax )
   {
-    vmovss  xmm0, dword ptr [rax+10h]
-    vcomiss xmm0, dword ptr [rax+14h]
-    vmovaps [rsp+68h+var_28], xmm6
-    vmovaps [rsp+68h+var_38], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm6, xmm7
+    v12 = I_fclamp((float)(contact->speed - scrapeSoundVolumeSpeedThresholdMin) / (float)(scrapeSoundVolumeSpeedThresholdMax - scrapeSoundVolumeSpeedThresholdMin), 0.0, 1.0);
+    v8 = *(float *)&v12;
   }
-  if ( *scrapeSoundAlias )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1756, ASSERT_TYPE_ASSERT, "(contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin)", (const char *)&queryFormat, "contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin");
-    v10 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  _RAX = _RBX->scrapeData.sfxScrapeRule;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+10h]
-    vmovss  xmm3, dword ptr [rax+14h]
-    vucomiss xmm1, xmm3
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+48h]
-      vsubss  xmm2, xmm0, xmm1
-      vsubss  xmm1, xmm3, xmm1
-      vdivss  xmm0, xmm2, xmm1; val
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
-  }
-  v10 = _RBX->sfxAssetIndex == 0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+0A4h], xmm6
-    vmovaps xmm6, [rsp+68h+var_28]
-  }
-  if ( v10 )
-    bodyIDKey_high = HIDWORD(_RBX->bodyIDKey);
+  v13 = contact->sfxAssetIndex == 0;
+  contact->scrapeData.sndVolume = v8;
+  if ( v13 )
+    bodyIDKey_high = HIDWORD(contact->bodyIDKey);
   else
-    LODWORD(bodyIDKey_high) = _RBX->bodyIDKey;
-  Ref = HavokPhysics_GetRef((Physics_WorldId)v5, (hknpBodyId)bodyIDKey_high);
+    LODWORD(bodyIDKey_high) = contact->bodyIDKey;
+  Ref = HavokPhysics_GetRef((Physics_WorldId)v3, (hknpBodyId)bodyIDKey_high);
   RefSystem = Physics_GetRefSystem(Ref);
-  v28 = RefSystem == Physics_RefSystem_Ragdoll;
+  v17 = RefSystem == Physics_RefSystem_Ragdoll;
   if ( RefSystem == Physics_RefSystem_Ragdoll )
     LODWORD(bodyIDKey_high) = Physics_GetRefSubSystem(Ref);
-  v29 = truncate_cast<unsigned char,enum Physics_WorldId>((Physics_WorldId)v5);
-  PhysicsSndEntHandle = CG_GeneratePhysicsSndEntHandle(localClientNum, v29, v28, bodyIDKey_high);
-  __asm
+  v18 = truncate_cast<unsigned char,enum Physics_WorldId>((Physics_WorldId)v3);
+  PhysicsSndEntHandle = CG_GeneratePhysicsSndEntHandle(localClientNum, v18, v17, bodyIDKey_high);
+  v20 = SND_PlayVirtualLoopSound(scrapeSoundAlias, PhysicsSndEntHandle, &contact->position, contact->scrapeData.sndVolume, 1.0);
+  contact->scrapeData.sndId = v20;
+  if ( v20 != -1 )
   {
-    vmovss  xmm3, dword ptr [rbx+0A4h]; volume
-    vmovss  dword ptr [rsp+68h+fmt], xmm7
+    ++s_havokPhysicsSVFXWorldDatas[v3].numScrapeSoundsPlaying;
+    contact->scrapeData.updateTimer = 0.0;
   }
-  v32 = SND_PlayVirtualLoopSound(scrapeSoundAlias, PhysicsSndEntHandle, &_RBX->position, *(float *)&_XMM3, fmt);
-  __asm { vmovaps xmm7, [rsp+68h+var_38] }
-  _RBX->scrapeData.sndId = v32;
-  if ( v32 != -1 )
-  {
-    ++s_havokPhysicsSVFXWorldDatas[v5].numScrapeSoundsPlaying;
-    _RBX->scrapeData.updateTimer = 0.0;
-  }
-  return v32 != -1;
+  return v20 != -1;
 }
 
 /*
@@ -3097,56 +2689,51 @@ HavokPhysicsSVFX_RunSFXRules
 */
 PhysicsSFXEventAssetRuleUnion *HavokPhysicsSVFX_RunSFXRules(Physics_WorldId worldId, HavokPhysicsSVFXContact *contact, PhysicsSFXEventAssetRules *rules, float *volumeScalar, float *pitchScalar)
 {
-  __int64 v14; 
-  PhysicsSFXEventAssetRule *v16; 
+  __int64 v8; 
+  PhysicsSFXEventAssetRule *v9; 
   int numentries; 
-  int v18; 
-  int v19; 
+  int v11; 
+  int v12; 
   char *scrapeSoundAlias; 
-  int v21; 
-  bool v22; 
-  unsigned __int64 v23; 
-  int v24; 
-  unsigned __int64 v27; 
-  bool v28; 
-  bool v42; 
-  bool v43; 
-  unsigned __int64 v63; 
-  unsigned __int64 v65; 
-  bool v66; 
-  bool v83; 
-  bool v84; 
-  int v105; 
-  unsigned __int64 v112; 
-  int v113; 
-  unsigned __int64 v115; 
-  bool v116; 
+  int v14; 
+  bool v15; 
+  __int64 v16; 
+  int v17; 
+  float v18; 
+  __int64 v19; 
+  float *v20; 
+  char *v21; 
+  __int64 v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  __int64 v27; 
+  float speed; 
+  __int64 v29; 
+  float *v30; 
+  char *v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  __int64 v35; 
+  float v36; 
+  __int64 v37; 
+  char *v38; 
+  float v39; 
+  float v40; 
+  __int64 v41; 
+  int v42; 
+  __int64 v43; 
+  float *v44; 
   unsigned __int64 bodyIDKey_high; 
-  __int64 v121; 
-  int v122; 
-  int v123; 
-  __int64 v124; 
-  char *v125; 
-  PhysicsSFXEventAssetRuleUnion *result; 
-  char v133; 
-  void *retaddr; 
+  __int64 v46; 
+  int v47; 
+  int v48; 
+  __int64 v49; 
+  char *v50; 
 
-  _RAX = &retaddr;
-  _R12 = pitchScalar;
-  _R15 = volumeScalar;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RBP = contact;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-  }
-  v14 = worldId;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  v8 = worldId;
   while ( 1 )
   {
     if ( !rules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1099, ASSERT_TYPE_ASSERT, "(rules)", (const char *)&queryFormat, "rules") )
@@ -3154,339 +2741,249 @@ PhysicsSFXEventAssetRuleUnion *HavokPhysicsSVFX_RunSFXRules(Physics_WorldId worl
     if ( rules->numrules > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1100, ASSERT_TYPE_ASSERT, "(rules->numrules <= 1)", (const char *)&queryFormat, "rules->numrules <= 1") )
       __debugbreak();
     if ( !rules->numrules )
-      break;
-    v16 = rules->rules;
-    switch ( v16->type )
+      return 0i64;
+    v9 = rules->rules;
+    switch ( v9->type )
     {
       case Types_PhysicsSFXEventSoundRule:
-        result = &v16->u;
-        goto LABEL_77;
+        return &v9->u;
       case Types_PhysicsSFXEventMaterialRule:
-        numentries = v16->u.materialRule.numentries;
-        v18 = 0;
-        v19 = numentries;
+        numentries = v9->u.materialRule.numentries;
+        v11 = 0;
+        v12 = numentries;
         if ( numentries > 0 )
         {
-          scrapeSoundAlias = v16->u.soundRule.scrapeSoundAlias;
+          scrapeSoundAlias = v9->u.soundRule.scrapeSoundAlias;
           do
           {
-            v21 = *(_DWORD *)scrapeSoundAlias;
-            if ( !*(_DWORD *)scrapeSoundAlias || v21 == 36 )
-              v19 = v18;
-            if ( ((_RBP->surfaceFlagData[1 - _RBP->sfxAssetIndex] >> 19) & 0x3F) == v21 )
+            v14 = *(_DWORD *)scrapeSoundAlias;
+            if ( !*(_DWORD *)scrapeSoundAlias || v14 == 36 )
+              v12 = v11;
+            if ( ((contact->surfaceFlagData[1 - contact->sfxAssetIndex] >> 19) & 0x3F) == v14 )
               break;
-            ++v18;
+            ++v11;
             scrapeSoundAlias += 24;
           }
-          while ( v18 < numentries );
+          while ( v11 < numentries );
         }
-        v22 = v18 < numentries;
-        if ( v18 < numentries )
+        v15 = v11 < numentries;
+        if ( v11 < numentries )
           goto LABEL_20;
-        if ( v19 >= numentries )
-          goto LABEL_76;
-        v22 = v18 < numentries;
+        if ( v12 >= numentries )
+          return 0i64;
+        v15 = v11 < numentries;
 LABEL_20:
-        if ( v22 )
-          v19 = v18;
-        rules = (PhysicsSFXEventAssetRules *)&v16->u.soundRule.scrapeSoundAlias[24 * v19 + 8];
+        if ( v15 )
+          v12 = v11;
+        rules = (PhysicsSFXEventAssetRules *)&v9->u.soundRule.scrapeSoundAlias[24 * v12 + 8];
         continue;
       case Types_PhysicsSFXEventAngleRule:
-        v23 = v16->u.materialRule.numentries;
-        v24 = 0;
-        __asm
+        v16 = v9->u.materialRule.numentries;
+        v17 = 0;
+        v18 = contact->angle * 57.295776;
+        v19 = 0i64;
+        if ( (int)v16 > 0 )
         {
-          vmovss  xmm0, dword ptr [rbp+54h]
-          vmulss  xmm6, xmm0, cs:__real@42652ee0
-        }
-        v27 = 0i64;
-        v28 = (_DWORD)v23 == 0;
-        if ( (int)v23 > 0 )
-        {
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
+          v20 = (float *)v9->u.soundRule.scrapeSoundAlias;
           do
           {
-            __asm { vcomiss xmm6, dword ptr [rax] }
-            if ( v28 )
+            if ( v18 <= *v20 )
               break;
-            ++v24;
-            ++v27;
-            _RAX += 40;
-            v28 = v27 <= v23;
+            ++v17;
+            ++v19;
+            v20 += 10;
           }
-          while ( (__int64)v27 < (__int64)v23 );
+          while ( v19 < v16 );
         }
-        if ( v24 >= (int)v23 )
-          goto LABEL_76;
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        _RSI = 5 * v27;
-        __asm
+        if ( v17 >= (int)v16 )
+          return 0i64;
+        v21 = v9->u.soundRule.scrapeSoundAlias;
+        v22 = 5 * v19;
+        v23 = *(float *)&v21[40 * v19 + 4];
+        v24 = *(float *)&v21[40 * v19 + 8];
+        if ( !v17 )
         {
-          vmovss  xmm0, dword ptr [rax+rsi*8+4]
-          vmovss  xmm1, dword ptr [rax+rsi*8+8]
+          if ( v23 != v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1170, ASSERT_TYPE_ASSERT, "(angleRule->entries[entryId].hitSoundVolumeModifierMin == angleRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "angleRule->entries[entryId].hitSoundVolumeModifierMin == angleRule->entries[entryId].hitSoundVolumeModifierMax") )
+            __debugbreak();
+          if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 + 16] != *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 + 12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1171, ASSERT_TYPE_ASSERT, "(angleRule->entries[entryId].hitSoundPitchModifierMin == angleRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "angleRule->entries[entryId].hitSoundPitchModifierMin == angleRule->entries[entryId].hitSoundPitchModifierMax") )
+            __debugbreak();
+          goto LABEL_35;
         }
-        if ( !v24 )
-        {
-          __asm { vucomiss xmm0, xmm1 }
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-            vucomiss xmm0, dword ptr [rax+rsi*8+0Ch]
-          }
-          goto LABEL_30;
-        }
-        __asm { vcomiss xmm0, xmm1 }
-        v42 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1177, ASSERT_TYPE_ASSERT, "(angleRule->entries[entryId].hitSoundVolumeModifierMin <= angleRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "angleRule->entries[entryId].hitSoundVolumeModifierMin <= angleRule->entries[entryId].hitSoundVolumeModifierMax");
-        v43 = !v42;
-        if ( v42 )
+        if ( v23 > v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1177, ASSERT_TYPE_ASSERT, "(angleRule->entries[entryId].hitSoundVolumeModifierMin <= angleRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "angleRule->entries[entryId].hitSoundVolumeModifierMin <= angleRule->entries[entryId].hitSoundVolumeModifierMax") )
           __debugbreak();
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-          vcomiss xmm0, dword ptr [rax+rsi*8+0Ch]
-        }
-        _RCX = _RAX;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi*8]
-          vsubss  xmm1, xmm0, dword ptr [rcx+rax*8-28h]
-          vsubss  xmm2, xmm6, dword ptr [rcx+rax*8-28h]
-          vdivss  xmm6, xmm2, xmm1
-          vcomiss xmm6, xmm7
-          vcomiss xmm6, xmm8
-        }
-        if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1180, ASSERT_TYPE_ASSERT, "(lerpValue >= 0.f && lerpValue <= 1.f)", (const char *)&queryFormat, "lerpValue >= 0.f && lerpValue <= 1.f") )
+        if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 + 16] < *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 + 12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1178, ASSERT_TYPE_ASSERT, "(angleRule->entries[entryId].hitSoundPitchModifierMin <= angleRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "angleRule->entries[entryId].hitSoundPitchModifierMin <= angleRule->entries[entryId].hitSoundPitchModifierMax") )
           __debugbreak();
-        goto LABEL_36;
+        v26 = (float)(v18 - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 - 40]) / (float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19] - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v19 - 40]);
+        v25 = v26;
+        if ( (v26 < 0.0 || v26 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1180, ASSERT_TYPE_ASSERT, "(lerpValue >= 0.f && lerpValue <= 1.f)", (const char *)&queryFormat, "lerpValue >= 0.f && lerpValue <= 1.f") )
+          __debugbreak();
+        goto LABEL_46;
       case Types_PhysicsSFXEventSpeedRule:
-        v63 = v16->u.materialRule.numentries;
-        v24 = 0;
-        __asm { vmovss  xmm6, dword ptr [rbp+48h] }
-        v65 = 0i64;
-        v66 = 0;
-        if ( (int)v63 > 0 )
+        v27 = v9->u.materialRule.numentries;
+        v17 = 0;
+        speed = contact->speed;
+        v29 = 0i64;
+        if ( (int)v27 > 0 )
         {
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
+          v30 = (float *)v9->u.soundRule.scrapeSoundAlias;
           do
           {
-            __asm { vcomiss xmm6, dword ptr [rax] }
-            if ( !v66 )
+            if ( speed >= *v30 )
               break;
-            ++v24;
-            ++v65;
-            _RAX += 40;
-            v66 = v65 < v63;
+            ++v17;
+            ++v29;
+            v30 += 10;
           }
-          while ( (__int64)v65 < (__int64)v63 );
+          while ( v29 < v27 );
         }
-        if ( v24 >= (int)v63 )
-          goto LABEL_76;
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        _RSI = 5 * v65;
-        __asm
+        if ( v17 >= (int)v27 )
+          return 0i64;
+        v31 = v9->u.soundRule.scrapeSoundAlias;
+        v22 = 5 * v29;
+        v32 = *(float *)&v31[40 * v29 + 4];
+        v33 = *(float *)&v31[40 * v29 + 8];
+        if ( !v17 )
         {
-          vmovss  xmm0, dword ptr [rax+rsi*8+4]
-          vmovss  xmm1, dword ptr [rax+rsi*8+8]
+          if ( v32 != v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1207, ASSERT_TYPE_ASSERT, "(speedRule->entries[entryId].hitSoundVolumeModifierMin == speedRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "speedRule->entries[entryId].hitSoundVolumeModifierMin == speedRule->entries[entryId].hitSoundVolumeModifierMax") )
+            __debugbreak();
+          if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 16] == *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12] || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1208, ASSERT_TYPE_ASSERT, "(speedRule->entries[entryId].hitSoundPitchModifierMin == speedRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "speedRule->entries[entryId].hitSoundPitchModifierMin == speedRule->entries[entryId].hitSoundPitchModifierMax") )
+            goto LABEL_35;
+          goto LABEL_59;
         }
-        if ( !v24 )
-        {
-          __asm { vucomiss xmm0, xmm1 }
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-            vucomiss xmm0, dword ptr [rax+rsi*8+0Ch]
-          }
-LABEL_30:
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+rsi*8+4]
-            vmulss  xmm1, xmm0, dword ptr [r15]
-            vmovss  dword ptr [r15], xmm1
-          }
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax+rsi*8+0Ch]
-            vmulss  xmm1, xmm0, dword ptr [r12]
-            vmovss  dword ptr [r12], xmm1
-          }
-          goto LABEL_37;
-        }
-        __asm { vcomiss xmm0, xmm1 }
-        v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1214, ASSERT_TYPE_ASSERT, "(speedRule->entries[entryId].hitSoundVolumeModifierMin <= speedRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "speedRule->entries[entryId].hitSoundVolumeModifierMin <= speedRule->entries[entryId].hitSoundVolumeModifierMax");
-        v84 = !v83;
-        if ( v83 )
+        if ( v32 > v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1214, ASSERT_TYPE_ASSERT, "(speedRule->entries[entryId].hitSoundVolumeModifierMin <= speedRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "speedRule->entries[entryId].hitSoundVolumeModifierMin <= speedRule->entries[entryId].hitSoundVolumeModifierMax") )
           __debugbreak();
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        __asm
+        if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 16] < *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1215, ASSERT_TYPE_ASSERT, "(speedRule->entries[entryId].hitSoundPitchModifierMin <= speedRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "speedRule->entries[entryId].hitSoundPitchModifierMin <= speedRule->entries[entryId].hitSoundPitchModifierMax") )
+          __debugbreak();
+        v34 = 1.0 - (float)((float)(speed - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 - 40]) / (float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29] - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 - 40]));
+        v25 = v34;
+        if ( v34 >= 0.0 && v34 <= 1.0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1217, ASSERT_TYPE_ASSERT, "(lerpValue >= 0.f && lerpValue <= 1.f)", (const char *)&queryFormat, "lerpValue >= 0.f && lerpValue <= 1.f") )
+          goto LABEL_46;
+        goto LABEL_69;
+      case Types_PhysicsSFXEventMassRule:
+        v35 = v9->u.materialRule.numentries;
+        v17 = 0;
+        v29 = 0i64;
+        v36 = contact->masses[1 - contact->sfxAssetIndex];
+        if ( (int)v35 > 0 )
         {
-          vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-          vcomiss xmm0, dword ptr [rax+rsi*8+0Ch]
-        }
-        _RCX = _RAX;
-        __asm
-        {
-          vsubss  xmm2, xmm6, dword ptr [rcx+rax*8-28h]
-          vmovss  xmm0, dword ptr [rcx+rsi*8]
-          vsubss  xmm1, xmm0, dword ptr [rcx+rax*8-28h]
-          vdivss  xmm2, xmm2, xmm1
-          vsubss  xmm6, xmm8, xmm2
-          vcomiss xmm6, xmm7
-          vcomiss xmm6, xmm8
-        }
-        if ( v84 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1217, ASSERT_TYPE_ASSERT, "(lerpValue >= 0.f && lerpValue <= 1.f)", (const char *)&queryFormat, "lerpValue >= 0.f && lerpValue <= 1.f") )
-        {
-LABEL_36:
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
+          v37 = 0i64;
+          do
           {
-            vmovss  xmm0, dword ptr [rax+rsi*8+8]
-            vsubss  xmm1, xmm0, dword ptr [rax+rsi*8+4]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+rsi*8+4]
-            vmulss  xmm0, xmm3, dword ptr [r15]
-            vmovss  dword ptr [r15], xmm0
+            if ( v36 == 0.0 )
+              break;
+            if ( v36 >= *(float *)&v9->u.soundRule.scrapeSoundAlias[v37] )
+              break;
+            ++v17;
+            ++v29;
+            v37 += 40i64;
           }
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
-          __asm
+          while ( v29 < v35 );
+        }
+        if ( v17 >= (int)v35 )
+          return 0i64;
+        v38 = v9->u.soundRule.scrapeSoundAlias;
+        v22 = 5 * v29;
+        v39 = *(float *)&v38[40 * v29 + 4];
+        v40 = *(float *)&v38[40 * v29 + 8];
+        if ( !v17 )
+        {
+          if ( v39 != v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1244, ASSERT_TYPE_ASSERT, "(massRule->entries[entryId].hitSoundVolumeModifierMin == massRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "massRule->entries[entryId].hitSoundVolumeModifierMin == massRule->entries[entryId].hitSoundVolumeModifierMax") )
+            __debugbreak();
+          if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 16] == *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12] || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1245, ASSERT_TYPE_ASSERT, "(massRule->entries[entryId].hitSoundPitchModifierMin == massRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "massRule->entries[entryId].hitSoundPitchModifierMin == massRule->entries[entryId].hitSoundPitchModifierMax") )
           {
-            vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-            vsubss  xmm1, xmm0, dword ptr [rax+rsi*8+0Ch]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+rsi*8+0Ch]
-            vmulss  xmm0, xmm3, dword ptr [r12]
-            vmovss  dword ptr [r12], xmm0
+LABEL_35:
+            *volumeScalar = *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 4] * *volumeScalar;
+            *pitchScalar = *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 12] * *pitchScalar;
           }
-LABEL_37:
-          rules = (PhysicsSFXEventAssetRules *)&v16->u.soundRule.scrapeSoundAlias[40 * v24 + 24];
+          else
+          {
+LABEL_59:
+            __debugbreak();
+            *volumeScalar = *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 4] * *volumeScalar;
+            *pitchScalar = *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 12] * *pitchScalar;
+          }
+          goto LABEL_47;
+        }
+        if ( v39 > v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1251, ASSERT_TYPE_ASSERT, "(massRule->entries[entryId].hitSoundVolumeModifierMin <= massRule->entries[entryId].hitSoundVolumeModifierMax)", (const char *)&queryFormat, "massRule->entries[entryId].hitSoundVolumeModifierMin <= massRule->entries[entryId].hitSoundVolumeModifierMax") )
+          __debugbreak();
+        if ( *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 16] < *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1252, ASSERT_TYPE_ASSERT, "(massRule->entries[entryId].hitSoundPitchModifierMin <= massRule->entries[entryId].hitSoundPitchModifierMax)", (const char *)&queryFormat, "massRule->entries[entryId].hitSoundPitchModifierMin <= massRule->entries[entryId].hitSoundPitchModifierMax") )
+          __debugbreak();
+        v34 = 1.0 - (float)((float)(v36 - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 - 40]) / (float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29] - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 - 40]));
+        v25 = v34;
+        if ( v34 >= 0.0 && v34 <= 1.0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1254, ASSERT_TYPE_ASSERT, "(lerpValue >= 0.f && lerpValue <= 1.f)", (const char *)&queryFormat, "lerpValue >= 0.f && lerpValue <= 1.f") )
+        {
+LABEL_46:
+          *volumeScalar = (float)((float)((float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 8] - *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 4]) * v25) + *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 4]) * *volumeScalar;
+          *pitchScalar = (float)((float)((float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 16] - *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 12]) * v25) + *(float *)&v9->u.soundRule.scrapeSoundAlias[8 * v22 + 12]) * *pitchScalar;
+LABEL_47:
+          rules = (PhysicsSFXEventAssetRules *)&v9->u.soundRule.scrapeSoundAlias[40 * v17 + 24];
           continue;
         }
+LABEL_69:
         __debugbreak();
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rsi*8+8]
-          vsubss  xmm1, xmm0, dword ptr [rax+rsi*8+4]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rax+rsi*8+4]
-          vmulss  xmm0, xmm3, dword ptr [r15]
-          vmovss  dword ptr [r15], xmm0
-        }
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-          vsubss  xmm1, xmm0, dword ptr [rax+rsi*8+0Ch]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [rax+rsi*8+0Ch]
-          vmulss  xmm0, xmm3, dword ptr [r12]
-          vmovss  dword ptr [r12], xmm0
-        }
-        rules = (PhysicsSFXEventAssetRules *)&v16->u.soundRule.scrapeSoundAlias[40 * v24 + 24];
+        *volumeScalar = (float)((float)((float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 8] - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 4]) * v34) + *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 4]) * *volumeScalar;
+        *pitchScalar = (float)((float)((float)(*(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 16] - *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12]) * v25) + *(float *)&v9->u.soundRule.scrapeSoundAlias[40 * v29 + 12]) * *pitchScalar;
+        rules = (PhysicsSFXEventAssetRules *)&v9->u.soundRule.scrapeSoundAlias[40 * v17 + 24];
         break;
-      case Types_PhysicsSFXEventMassRule:
-        v105 = v16->u.materialRule.numentries;
-        v24 = 0;
-        _RAX = 1 - _RBP->sfxAssetIndex;
-        __asm { vmovss  xmm6, dword ptr [rbp+rax*4+4Ch] }
-        if ( v105 > 0 )
-          __asm { vucomiss xmm6, xmm7 }
-        if ( v105 <= 0 )
-          goto LABEL_76;
-        _RAX = v16->u.soundRule.scrapeSoundAlias;
-        _RSI = 0i64;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+rsi*8+4]
-          vmovss  xmm1, dword ptr [rax+rsi*8+8]
-          vucomiss xmm0, xmm1
-          vmovss  xmm0, dword ptr [rax+rsi*8+10h]
-          vucomiss xmm0, dword ptr [rax+rsi*8+0Ch]
-        }
-        goto LABEL_30;
       case Types_PhysicsSFXEventGravityRule:
       case Types_PhysicsSFXEventAtmosphereRule:
-        if ( v16->u.materialRule.numentries <= 0 )
-          goto LABEL_76;
-        rules = (PhysicsSFXEventAssetRules *)(v16->u.soundRule.scrapeSoundAlias + 8);
+        if ( v9->u.materialRule.numentries <= 0 )
+          return 0i64;
+        rules = (PhysicsSFXEventAssetRules *)(v9->u.soundRule.scrapeSoundAlias + 8);
         continue;
       case Types_PhysicsSFXEventCameraDistanceRule:
-        v112 = v16->u.materialRule.numentries;
-        v113 = 0;
-        __asm { vmovss  xmm2, dword ptr [rbp+78h] }
-        v115 = 0i64;
-        v116 = 0;
-        if ( (int)v112 > 0 )
+        v41 = v9->u.materialRule.numentries;
+        v42 = 0;
+        v43 = 0i64;
+        if ( (int)v41 > 0 )
         {
-          _RAX = v16->u.soundRule.scrapeSoundAlias;
+          v44 = (float *)v9->u.soundRule.scrapeSoundAlias;
           do
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmulss  xmm1, xmm0, xmm0
-              vcomiss xmm2, xmm1
-            }
-            if ( v116 )
+            if ( contact->distanceSqFromPlayer < (float)(*v44 * *v44) )
               break;
-            ++v113;
-            ++v115;
-            _RAX += 24;
-            v116 = v115 < v112;
+            ++v42;
+            ++v43;
+            v44 += 6;
           }
-          while ( (__int64)v115 < (__int64)v112 );
+          while ( v43 < v41 );
         }
-        if ( v113 >= (int)v112 )
-          goto LABEL_76;
-        rules = (PhysicsSFXEventAssetRules *)&v16->u.soundRule.scrapeSoundAlias[24 * v113 + 8];
+        if ( v42 >= (int)v41 )
+          return 0i64;
+        rules = (PhysicsSFXEventAssetRules *)&v9->u.soundRule.scrapeSoundAlias[24 * v42 + 8];
         continue;
       case Types_PhysicsSFXEventFrequencyRule:
-        if ( _RBP->sfxAssetIndex )
-          LODWORD(bodyIDKey_high) = _RBP->bodyIDKey;
+        if ( contact->sfxAssetIndex )
+          LODWORD(bodyIDKey_high) = contact->bodyIDKey;
         else
-          bodyIDKey_high = HIDWORD(_RBP->bodyIDKey);
-        v121 = v16->u.materialRule.numentries;
-        v122 = 0;
-        v123 = s_havokPhysicsSVFXWorlds[v14].sfxBodyCount[bodyIDKey_high & 0xFFFFFF];
-        v124 = 0i64;
-        if ( (int)v121 > 0 )
+          bodyIDKey_high = HIDWORD(contact->bodyIDKey);
+        v46 = v9->u.materialRule.numentries;
+        v47 = 0;
+        v48 = s_havokPhysicsSVFXWorlds[v8].sfxBodyCount[bodyIDKey_high & 0xFFFFFF];
+        v49 = 0i64;
+        if ( (int)v46 > 0 )
         {
-          v125 = v16->u.soundRule.scrapeSoundAlias;
+          v50 = v9->u.soundRule.scrapeSoundAlias;
           do
           {
-            if ( v123 < *(_DWORD *)v125 )
+            if ( v48 < *(_DWORD *)v50 )
               break;
-            ++v122;
-            ++v124;
-            v125 += 24;
+            ++v47;
+            ++v49;
+            v50 += 24;
           }
-          while ( v124 < v121 );
+          while ( v49 < v46 );
         }
-        if ( v122 >= (int)v121 )
-          goto LABEL_76;
-        rules = (PhysicsSFXEventAssetRules *)&v16->u.soundRule.scrapeSoundAlias[24 * v122 + 8];
+        if ( v47 >= (int)v46 )
+          return 0i64;
+        rules = (PhysicsSFXEventAssetRules *)&v9->u.soundRule.scrapeSoundAlias[24 * v47 + 8];
         continue;
       default:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1345, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Invalid rule") )
           __debugbreak();
-        goto LABEL_76;
+        return 0i64;
     }
   }
-LABEL_76:
-  result = NULL;
-LABEL_77:
-  _R11 = &v133;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
-  return result;
 }
 
 /*
@@ -3496,42 +2993,39 @@ HavokPhysicsSVFX_RunVFXRules
 */
 PhysicsVFXEventAssetRuleUnion *HavokPhysicsSVFX_RunVFXRules(Physics_WorldId worldId, HavokPhysicsSVFXContact *contact, PhysicsVFXEventAssetRules *rules)
 {
-  __int64 v6; 
-  PhysicsVFXEventAssetRule *v8; 
+  __int64 v4; 
+  PhysicsVFXEventAssetRule *v6; 
   int numentries; 
-  int v10; 
-  int v11; 
+  int v8; 
+  int v9; 
   char *scrapeParticleEffectAlias; 
-  int v13; 
-  bool v14; 
-  unsigned __int64 v15; 
-  int v16; 
-  unsigned __int64 v19; 
-  bool v20; 
-  bool v22; 
-  unsigned __int64 v23; 
-  int v24; 
-  unsigned __int64 v26; 
-  bool v27; 
-  int v29; 
-  unsigned __int64 v32; 
-  int v33; 
-  unsigned __int64 v35; 
-  bool v36; 
+  int v11; 
+  bool v12; 
+  __int64 v13; 
+  int v14; 
+  __int64 v15; 
+  float *v16; 
+  bool v17; 
+  __int64 v18; 
+  int v19; 
+  __int64 v20; 
+  float *v21; 
+  __int64 v22; 
+  int v23; 
+  __int64 v24; 
+  float v25; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
+  __int64 v29; 
+  float *v30; 
   unsigned __int64 bodyIDKey_high; 
-  __int64 v41; 
-  int v42; 
-  __int64 v43; 
-  char *v44; 
-  PhysicsVFXEventAssetRuleUnion *result; 
+  __int64 v32; 
+  int v33; 
+  __int64 v34; 
+  char *v35; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v6 = worldId;
-  _RDI = contact;
+  v4 = worldId;
   while ( 1 )
   {
     if ( !rules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1353, ASSERT_TYPE_ASSERT, "(rules)", (const char *)&queryFormat, "rules") )
@@ -3539,180 +3033,167 @@ PhysicsVFXEventAssetRuleUnion *HavokPhysicsSVFX_RunVFXRules(Physics_WorldId worl
     if ( rules->numrules > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1354, ASSERT_TYPE_ASSERT, "(rules->numrules <= 1)", (const char *)&queryFormat, "rules->numrules <= 1") )
       __debugbreak();
     if ( !rules->numrules )
-      break;
-    v8 = rules->rules;
-    switch ( v8->type )
+      return 0i64;
+    v6 = rules->rules;
+    switch ( v6->type )
     {
       case Types_PhysicsVFXEventParticleEffectRule:
-        result = &v8->u;
-        goto LABEL_60;
+        return &v6->u;
       case Types_PhysicsVFXEventMaterialRule:
-        numentries = v8->u.materialRule.numentries;
-        v10 = 0;
-        v11 = numentries;
+        numentries = v6->u.materialRule.numentries;
+        v8 = 0;
+        v9 = numentries;
         if ( numentries > 0 )
         {
-          scrapeParticleEffectAlias = v8->u.particleEffectRule.scrapeParticleEffectAlias;
+          scrapeParticleEffectAlias = v6->u.particleEffectRule.scrapeParticleEffectAlias;
           do
           {
-            v13 = *(_DWORD *)scrapeParticleEffectAlias;
-            if ( !*(_DWORD *)scrapeParticleEffectAlias || v13 == 36 )
-              v11 = v10;
-            if ( ((_RDI->surfaceFlagData[1 - _RDI->vfxAssetIndex] >> 19) & 0x3F) == v13 )
+            v11 = *(_DWORD *)scrapeParticleEffectAlias;
+            if ( !*(_DWORD *)scrapeParticleEffectAlias || v11 == 36 )
+              v9 = v8;
+            if ( ((contact->surfaceFlagData[1 - contact->vfxAssetIndex] >> 19) & 0x3F) == v11 )
               break;
-            ++v10;
+            ++v8;
             scrapeParticleEffectAlias += 24;
           }
-          while ( v10 < numentries );
+          while ( v8 < numentries );
         }
-        v14 = v10 < numentries;
-        if ( v10 < numentries )
+        v12 = v8 < numentries;
+        if ( v8 < numentries )
           goto LABEL_20;
-        if ( v11 >= numentries )
-          goto LABEL_59;
-        v14 = v10 < numentries;
+        if ( v9 >= numentries )
+          return 0i64;
+        v12 = v8 < numentries;
 LABEL_20:
-        if ( v14 )
-          v11 = v10;
-        rules = (PhysicsVFXEventAssetRules *)&v8->u.particleEffectRule.scrapeParticleEffectAlias[24 * v11 + 8];
+        if ( v12 )
+          v9 = v8;
+        rules = (PhysicsVFXEventAssetRules *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[24 * v9 + 8];
         break;
       case Types_PhysicsVFXEventAngleRule:
-        v15 = v8->u.materialRule.numentries;
-        v16 = 0;
-        __asm
+        v13 = v6->u.materialRule.numentries;
+        v14 = 0;
+        v15 = 0i64;
+        if ( (int)v13 > 0 )
         {
-          vmovss  xmm0, dword ptr [rdi+54h]
-          vmulss  xmm1, xmm0, cs:__real@42652ee0
-        }
-        v19 = 0i64;
-        v20 = (_DWORD)v15 == 0;
-        if ( (int)v15 > 0 )
-        {
-          _RAX = v8->u.particleEffectRule.scrapeParticleEffectAlias;
+          v16 = (float *)v6->u.particleEffectRule.scrapeParticleEffectAlias;
           do
           {
-            __asm { vcomiss xmm1, dword ptr [rax] }
-            if ( v20 )
+            if ( (float)(contact->angle * 57.295776) <= *v16 )
               break;
-            ++v16;
-            ++v19;
-            _RAX += 24;
-            v20 = v19 <= v15;
+            ++v14;
+            ++v15;
+            v16 += 6;
           }
-          while ( (__int64)v19 < (__int64)v15 );
+          while ( v15 < v13 );
         }
-        v22 = v16 < (int)v15;
+        v17 = v14 < (int)v13;
         goto LABEL_28;
       case Types_PhysicsVFXEventSpeedRule:
-        v23 = v8->u.materialRule.numentries;
-        v24 = 0;
-        __asm { vmovss  xmm0, dword ptr [rdi+48h] }
-        v26 = 0i64;
-        v27 = 0;
-        if ( (int)v23 > 0 )
+        v18 = v6->u.materialRule.numentries;
+        v19 = 0;
+        v20 = 0i64;
+        if ( (int)v18 > 0 )
         {
-          _RAX = v8->u.particleEffectRule.scrapeParticleEffectAlias;
+          v21 = (float *)v6->u.particleEffectRule.scrapeParticleEffectAlias;
           do
           {
-            __asm { vcomiss xmm0, dword ptr [rax] }
-            if ( !v27 )
+            if ( contact->speed >= *v21 )
               break;
-            ++v24;
-            ++v26;
-            _RAX += 24;
-            v27 = v26 < v23;
+            ++v19;
+            ++v20;
+            v21 += 6;
           }
-          while ( (__int64)v26 < (__int64)v23 );
+          while ( v20 < v18 );
         }
-        if ( v24 >= (int)v23 )
-          goto LABEL_59;
-        rules = (PhysicsVFXEventAssetRules *)&v8->u.particleEffectRule.scrapeParticleEffectAlias[24 * v24 + 8];
+        if ( v19 >= (int)v18 )
+          return 0i64;
+        rules = (PhysicsVFXEventAssetRules *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[24 * v19 + 8];
         continue;
       case Types_PhysicsVFXEventMassRule:
-        v29 = v8->u.materialRule.numentries;
-        _RAX = 1 - _RDI->vfxAssetIndex;
-        __asm { vmovss  xmm0, dword ptr [rdi+rax*4+4Ch] }
-        if ( v29 > 0 )
-          __asm { vucomiss xmm0, xmm6 }
-        if ( v29 <= 0 )
-          goto LABEL_59;
-        rules = (PhysicsVFXEventAssetRules *)(v8->u.particleEffectRule.scrapeParticleEffectAlias + 8);
+        v22 = v6->u.materialRule.numentries;
+        v23 = 0;
+        v24 = 0i64;
+        v25 = contact->masses[1 - contact->vfxAssetIndex];
+        if ( (int)v22 > 0 )
+        {
+          v26 = 0i64;
+          do
+          {
+            if ( v25 == 0.0 )
+              break;
+            if ( v25 >= *(float *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[v26] )
+              break;
+            ++v23;
+            ++v24;
+            v26 += 24i64;
+          }
+          while ( v24 < v22 );
+        }
+        if ( v23 >= (int)v22 )
+          return 0i64;
+        rules = (PhysicsVFXEventAssetRules *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[24 * v23 + 8];
         continue;
       case Types_PhysicsVFXEventGravityRule:
       case Types_PhysicsVFXEventAtmosphereRule:
-        if ( v8->u.materialRule.numentries <= 0 )
-          goto LABEL_59;
-        rules = (PhysicsVFXEventAssetRules *)(v8->u.particleEffectRule.scrapeParticleEffectAlias + 8);
+        if ( v6->u.materialRule.numentries <= 0 )
+          return 0i64;
+        rules = (PhysicsVFXEventAssetRules *)(v6->u.particleEffectRule.scrapeParticleEffectAlias + 8);
         continue;
       case Types_PhysicsVFXEventCameraDistanceRule:
-        v32 = v8->u.materialRule.numentries;
-        v33 = 0;
-        __asm { vmovss  xmm2, dword ptr [rdi+78h] }
-        v35 = 0i64;
-        v36 = 0;
-        if ( (int)v32 > 0 )
+        v27 = v6->u.materialRule.numentries;
+        v28 = 0;
+        v29 = 0i64;
+        if ( (int)v27 > 0 )
         {
-          _RAX = v8->u.particleEffectRule.scrapeParticleEffectAlias;
+          v30 = (float *)v6->u.particleEffectRule.scrapeParticleEffectAlias;
           do
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmulss  xmm1, xmm0, xmm0
-              vcomiss xmm2, xmm1
-            }
-            if ( v36 )
+            if ( contact->distanceSqFromPlayer < (float)(*v30 * *v30) )
               break;
-            ++v33;
-            ++v35;
-            _RAX += 24;
-            v36 = v35 < v32;
+            ++v28;
+            ++v29;
+            v30 += 6;
           }
-          while ( (__int64)v35 < (__int64)v32 );
+          while ( v29 < v27 );
         }
-        if ( v33 >= (int)v32 )
-          goto LABEL_59;
-        rules = (PhysicsVFXEventAssetRules *)&v8->u.particleEffectRule.scrapeParticleEffectAlias[24 * v33 + 8];
+        if ( v28 >= (int)v27 )
+          return 0i64;
+        rules = (PhysicsVFXEventAssetRules *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[24 * v28 + 8];
         continue;
       case Types_PhysicsVFXEventFrequencyRule:
-        if ( _RDI->vfxAssetIndex )
-          LODWORD(bodyIDKey_high) = _RDI->bodyIDKey;
+        if ( contact->vfxAssetIndex )
+          LODWORD(bodyIDKey_high) = contact->bodyIDKey;
         else
-          bodyIDKey_high = HIDWORD(_RDI->bodyIDKey);
-        v41 = v8->u.materialRule.numentries;
-        v16 = 0;
-        v42 = s_havokPhysicsSVFXWorlds[v6].vfxBodyCount[bodyIDKey_high & 0xFFFFFF];
-        v43 = 0i64;
-        if ( (int)v41 > 0 )
+          bodyIDKey_high = HIDWORD(contact->bodyIDKey);
+        v32 = v6->u.materialRule.numentries;
+        v14 = 0;
+        v33 = s_havokPhysicsSVFXWorlds[v4].vfxBodyCount[bodyIDKey_high & 0xFFFFFF];
+        v34 = 0i64;
+        if ( (int)v32 > 0 )
         {
-          v44 = v8->u.particleEffectRule.scrapeParticleEffectAlias;
+          v35 = v6->u.particleEffectRule.scrapeParticleEffectAlias;
           do
           {
-            if ( v42 < *(_DWORD *)v44 )
+            if ( v33 < *(_DWORD *)v35 )
               break;
-            ++v16;
-            ++v43;
-            v44 += 24;
+            ++v14;
+            ++v34;
+            v35 += 24;
           }
-          while ( v43 < v41 );
+          while ( v34 < v32 );
         }
-        v22 = v16 < (int)v41;
+        v17 = v14 < (int)v32;
 LABEL_28:
-        if ( !v22 )
-          goto LABEL_59;
-        rules = (PhysicsVFXEventAssetRules *)&v8->u.particleEffectRule.scrapeParticleEffectAlias[24 * v16 + 8];
+        if ( !v17 )
+          return 0i64;
+        rules = (PhysicsVFXEventAssetRules *)&v6->u.particleEffectRule.scrapeParticleEffectAlias[24 * v14 + 8];
         break;
       default:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1548, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Invalid rule") )
           __debugbreak();
-        goto LABEL_59;
+        return 0i64;
     }
   }
-LABEL_59:
-  result = NULL;
-LABEL_60:
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return result;
 }
 
 /*
@@ -3874,32 +3355,36 @@ void HavokPhysicsSVFX_UnregisterWorld(Physics_WorldId worldId, LocalClientNum_t 
 HavokPhysicsSVFX_Update
 ==============
 */
-
-void __fastcall HavokPhysicsSVFX_Update(Physics_WorldId worldId, LocalClientNum_t localClientNum, double timeStep)
+void HavokPhysicsSVFX_Update(Physics_WorldId worldId, LocalClientNum_t localClientNum, float timeStep)
 {
+  __int64 v3; 
+  __int64 v5; 
   __int64 v6; 
-  __int64 v9; 
-  __int64 v10; 
   cg_t *LocalClientGlobals; 
   RefdefView *p_view; 
+  unsigned int refdefViewOrg_aab; 
+  _DWORD *v; 
   hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *contacts; 
   HavokPhysicsSVFXContact *m_data; 
-  PhysicsSFXEventAssetRules *v29; 
-  char v31; 
-  bool v32; 
-  PhysicsSFXEventAssetRuleUnion *v33; 
-  bool v34; 
-  PhysicsVFXEventAssetRules *v35; 
-  PhysicsVFXEventAssetRuleUnion *v36; 
-  hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *v38; 
+  float *v13; 
+  float v14; 
+  PhysicsSFXEventAssetRules *v15; 
+  PhysicsSFXEventAssetRuleUnion *v16; 
+  bool v17; 
+  PhysicsVFXEventAssetRules *v18; 
+  PhysicsVFXEventAssetRuleUnion *v19; 
+  hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *v20; 
+  HavokPhysicsSVFXContact *v21; 
+  float updateTimer; 
   int sndId; 
-  hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *v43; 
-  HavokPhysicsSVFXContact *v45; 
-  int v46; 
+  hkArray<HavokPhysicsSVFXContact,hkContainerHeapAllocator> *v24; 
+  HavokPhysicsSVFXContact *v25; 
+  int v26; 
+  float v27; 
+  float v28; 
+  float v29; 
 
-  __asm { vmovaps [rsp+0B8h+var_68], xmm8 }
-  v6 = worldId;
-  __asm { vmovaps xmm8, xmm2 }
+  v3 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 2192, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( Sys_ExistsWorkerCmdsOfType(WRKCMD_PHYSICS_STEP_WORLD_START) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 2196, ASSERT_TYPE_ASSERT, "(!Sys_ExistsWorkerCmdsOfType( WRKCMD_PHYSICS_STEP_WORLD_START ))", (const char *)&queryFormat, "!Sys_ExistsWorkerCmdsOfType( WRKCMD_PHYSICS_STEP_WORLD_START )") )
@@ -3916,174 +3401,146 @@ void __fastcall HavokPhysicsSVFX_Update(Physics_WorldId worldId, LocalClientNum_
     __debugbreak();
   if ( localClientNum == LOCAL_CLIENT_0 )
   {
-    v9 = v6;
-    v10 = v6;
-    if ( s_havokPhysicsSVFXWorlds[v6].isInitialized )
+    v5 = v3;
+    v6 = v3;
+    if ( s_havokPhysicsSVFXWorlds[v3].isInitialized )
     {
-      __asm
-      {
-        vmovaps [rsp+0B8h+var_48], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  [rsp+0B8h+var_80], xmm6
-        vmovss  [rsp+0B8h+var_7C], xmm6
-        vmovss  [rsp+0B8h+var_78], xmm6
-      }
-      if ( (unsigned int)(v6 - 2) <= 5 )
+      v27 = 0.0;
+      v28 = 0.0;
+      v29 = 0.0;
+      if ( (unsigned int)(v3 - 2) <= 5 )
       {
         LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
         p_view = &LocalClientGlobals->refdef.view;
         if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
           __debugbreak();
-        if ( p_view == (RefdefView *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+        refdefViewOrg_aab = p_view->refdefViewOrg_aab;
+        v = (_DWORD *)p_view->org.org.v;
+        if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
           __debugbreak();
+        LODWORD(v27) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+        LODWORD(v28) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+        LODWORD(v29) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
       }
-      contacts = s_havokPhysicsSVFXWorlds[v10].contacts;
+      contacts = s_havokPhysicsSVFXWorlds[v6].contacts;
       m_data = contacts->m_data;
       if ( contacts->m_data != &contacts->m_data[contacts->m_size] )
       {
-        __asm { vmovaps [rsp+0B8h+var_58], xmm7 }
-        _RBP = &m_data->position.v[2];
-        __asm { vmovss  xmm7, cs:__real@3f800000 }
+        v13 = &m_data->position.v[2];
         do
         {
-          if ( (unsigned int)(v6 - 2) > 5 )
-          {
-            __asm { vmovaps xmm5, xmm7 }
-          }
+          if ( (unsigned int)(v3 - 2) > 5 )
+            v14 = FLOAT_1_0;
           else
+            v14 = (float)((float)((float)(*(v13 - 1) - v28) * (float)(*(v13 - 1) - v28)) + (float)((float)(*(v13 - 2) - v27) * (float)(*(v13 - 2) - v27))) + (float)((float)(*v13 - v29) * (float)(*v13 - v29));
+          v13[18] = v14;
+          v15 = (PhysicsSFXEventAssetRules *)*((_QWORD *)v13 + 6);
+          if ( v15 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp-8]
-              vsubss  xmm3, xmm0, [rsp+0B8h+var_80]
-              vmovss  xmm1, dword ptr [rbp-4]
-              vmovss  xmm0, dword ptr [rbp+0]
-              vsubss  xmm2, xmm1, [rsp+0B8h+var_7C]
-              vsubss  xmm4, xmm0, [rsp+0B8h+var_78]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm5, xmm3, xmm0
-            }
-          }
-          __asm { vmovss  dword ptr [rbp+48h], xmm5 }
-          v29 = (PhysicsSFXEventAssetRules *)*((_QWORD *)_RBP + 6);
-          if ( v29 )
-          {
-            _R15 = _RBP + 25;
-            _RBP[25] = 1.0;
-            _RBP[24] = 1.0;
-            v33 = HavokPhysicsSVFX_RunSFXRules((Physics_WorldId)v6, m_data, v29 + 1, _RBP + 24, _RBP + 25);
-            __asm { vcomiss xmm6, dword ptr [rbp+60h] }
-            *((_QWORD *)_RBP + 10) = v33;
-            if ( !(v31 | v32) )
-            {
-              v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1566, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundVolumeScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundVolumeScalar >= 0.f");
-              v31 = 0;
-              v32 = !v34;
-              if ( v34 )
-                __debugbreak();
-            }
-            __asm { vcomiss xmm6, dword ptr [r15] }
-            if ( !(v31 | v32) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1567, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundPitchScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundPitchScalar >= 0.f") )
+            v13[25] = 1.0;
+            v13[24] = 1.0;
+            v16 = HavokPhysicsSVFX_RunSFXRules((Physics_WorldId)v3, m_data, v15 + 1, v13 + 24, v13 + 25);
+            v17 = v13[24] >= 0.0;
+            *((_QWORD *)v13 + 10) = v16;
+            if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1566, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundVolumeScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundVolumeScalar >= 0.f") )
+              __debugbreak();
+            if ( v13[25] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1567, ASSERT_TYPE_ASSERT, "(contact->sfxHitSoundPitchScalar >= 0.f)", (const char *)&queryFormat, "contact->sfxHitSoundPitchScalar >= 0.f") )
               __debugbreak();
           }
           else
           {
-            *((_QWORD *)_RBP + 10) = 0i64;
+            *((_QWORD *)v13 + 10) = 0i64;
           }
-          v35 = (PhysicsVFXEventAssetRules *)*((_QWORD *)_RBP + 7);
-          if ( v35 )
-            v36 = HavokPhysicsSVFX_RunVFXRules((Physics_WorldId)v6, m_data, v35 + 1);
+          v18 = (PhysicsVFXEventAssetRules *)*((_QWORD *)v13 + 7);
+          if ( v18 )
+            v19 = HavokPhysicsSVFX_RunVFXRules((Physics_WorldId)v3, m_data, v18 + 1);
           else
-            v36 = NULL;
-          *((_QWORD *)_RBP + 11) = v36;
+            v19 = NULL;
+          *((_QWORD *)v13 + 11) = v19;
           ++m_data;
-          contacts = s_havokPhysicsSVFXWorlds[v10].contacts;
-          _RBP += 50;
+          contacts = s_havokPhysicsSVFXWorlds[v6].contacts;
+          v13 += 50;
         }
         while ( m_data != &contacts->m_data[contacts->m_size] );
-        __asm { vmovaps xmm7, [rsp+0B8h+var_58] }
         m_data = contacts->m_data;
-        v9 = v6;
+        v5 = v3;
       }
       if ( m_data != &m_data[contacts->m_size] )
       {
         do
         {
           if ( (m_data->eventFlags & 1) != 0 )
-            HavokPhysicsSVFX_AddPotentialHitEvent((Physics_WorldId)v6, m_data);
+            HavokPhysicsSVFX_AddPotentialHitEvent((Physics_WorldId)v3, m_data);
           ++m_data;
         }
-        while ( m_data != &s_havokPhysicsSVFXWorlds[v10].contacts->m_data[s_havokPhysicsSVFXWorlds[v10].contacts->m_size] );
+        while ( m_data != &s_havokPhysicsSVFXWorlds[v6].contacts->m_data[s_havokPhysicsSVFXWorlds[v6].contacts->m_size] );
       }
-      HavokPhysicsSVFX_PlayHitEvents((Physics_WorldId)v6, LOCAL_CLIENT_0);
-      v38 = s_havokPhysicsSVFXWorlds[v10].contacts;
-      _RBX = v38->m_data;
-      if ( v38->m_data != &v38->m_data[v38->m_size] )
+      HavokPhysicsSVFX_PlayHitEvents((Physics_WorldId)v3, LOCAL_CLIENT_0);
+      v20 = s_havokPhysicsSVFXWorlds[v6].contacts;
+      v21 = v20->m_data;
+      if ( v20->m_data != &v20->m_data[v20->m_size] )
       {
-        __asm { vmovss  xmm6, cs:__real@3f000000 }
         do
         {
-          if ( (_RBX->eventFlags & 2) != 0 )
+          if ( (v21->eventFlags & 2) != 0 )
           {
-            if ( _RBX->scrapeData.sndId != -1 || _RBX->scrapeData.particleSystem )
-              HavokPhysicsSVFX_UpdateScrapeEvent((Physics_WorldId)v6, _RBX, LOCAL_CLIENT_0);
+            if ( v21->scrapeData.sndId != -1 || v21->scrapeData.particleSystem )
+              HavokPhysicsSVFX_UpdateScrapeEvent((Physics_WorldId)v3, v21, LOCAL_CLIENT_0);
             else
-              HavokPhysicsSVFX_AddPotentialHitEvent((Physics_WorldId)v6, _RBX);
+              HavokPhysicsSVFX_AddPotentialHitEvent((Physics_WorldId)v3, v21);
           }
           else
           {
-            __asm
+            updateTimer = v21->scrapeData.updateTimer;
+            if ( updateTimer >= 0.5 )
             {
-              vmovss  xmm0, dword ptr [rbx+0C0h]
-              vcomiss xmm0, xmm6
+              sndId = v21->scrapeData.sndId;
+              if ( sndId != -1 && v21->scrapeData.sfxScrapeRule )
+              {
+                SND_StopVirtualLoopSound(sndId);
+                v21->scrapeData.sndId = -1;
+                --s_havokPhysicsSVFXWorldDatas[v5].numScrapeSoundsPlaying;
+              }
+              if ( v21->scrapeData.particleSystem )
+                HavokPhysicsSVFX_StopScrapeParticle((Physics_WorldId)v3, v21, LOCAL_CLIENT_0);
             }
-            sndId = _RBX->scrapeData.sndId;
-            if ( sndId != -1 && _RBX->scrapeData.sfxScrapeRule )
+            else
             {
-              SND_StopVirtualLoopSound(sndId);
-              _RBX->scrapeData.sndId = -1;
-              --s_havokPhysicsSVFXWorldDatas[v9].numScrapeSoundsPlaying;
+              v21->scrapeData.updateTimer = updateTimer + timeStep;
             }
-            if ( _RBX->scrapeData.particleSystem )
-              HavokPhysicsSVFX_StopScrapeParticle((Physics_WorldId)v6, _RBX, LOCAL_CLIENT_0);
           }
-          ++_RBX;
+          ++v21;
         }
-        while ( _RBX != &s_havokPhysicsSVFXWorlds[v10].contacts->m_data[s_havokPhysicsSVFXWorlds[v10].contacts->m_size] );
+        while ( v21 != &s_havokPhysicsSVFXWorlds[v6].contacts->m_data[s_havokPhysicsSVFXWorlds[v6].contacts->m_size] );
       }
-      HavokPhysicsSVFX_PlayScrapeEvents((Physics_WorldId)v6, LOCAL_CLIENT_0);
-      v43 = s_havokPhysicsSVFXWorlds[v10].contacts;
-      __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
-      v45 = v43->m_data;
-      if ( v43->m_data != &v43->m_data[v43->m_size] )
+      HavokPhysicsSVFX_PlayScrapeEvents((Physics_WorldId)v3, LOCAL_CLIENT_0);
+      v24 = s_havokPhysicsSVFXWorlds[v6].contacts;
+      v25 = v24->m_data;
+      if ( v24->m_data != &v24->m_data[v24->m_size] )
       {
         do
         {
-          if ( (v45->eventFlags & 4) != 0 )
+          if ( (v25->eventFlags & 4) != 0 )
           {
-            v46 = v45->scrapeData.sndId;
-            if ( v46 != -1 && v45->scrapeData.sfxScrapeRule )
+            v26 = v25->scrapeData.sndId;
+            if ( v26 != -1 && v25->scrapeData.sfxScrapeRule )
             {
-              SND_StopVirtualLoopSound(v46);
-              v45->scrapeData.sndId = -1;
-              --s_havokPhysicsSVFXWorldDatas[v9].numScrapeSoundsPlaying;
+              SND_StopVirtualLoopSound(v26);
+              v25->scrapeData.sndId = -1;
+              --s_havokPhysicsSVFXWorldDatas[v5].numScrapeSoundsPlaying;
             }
-            if ( v45->scrapeData.particleSystem )
-              HavokPhysicsSVFX_StopScrapeParticle((Physics_WorldId)v6, v45, LOCAL_CLIENT_0);
+            if ( v25->scrapeData.particleSystem )
+              HavokPhysicsSVFX_StopScrapeParticle((Physics_WorldId)v3, v25, LOCAL_CLIENT_0);
           }
-          v45->debugDrawEventFlags = v45->eventFlags;
-          v45->eventFlags = 0;
-          ++v45;
+          v25->debugDrawEventFlags = v25->eventFlags;
+          v25->eventFlags = 0;
+          ++v25;
         }
-        while ( v45 != &s_havokPhysicsSVFXWorlds[v10].contacts->m_data[s_havokPhysicsSVFXWorlds[v10].contacts->m_size] );
+        while ( v25 != &s_havokPhysicsSVFXWorlds[v6].contacts->m_data[s_havokPhysicsSVFXWorlds[v6].contacts->m_size] );
       }
-      HavokPhysicsSVFX_Coalesce((Physics_WorldId)v6);
+      HavokPhysicsSVFX_Coalesce((Physics_WorldId)v3);
     }
   }
-  __asm { vmovaps xmm8, [rsp+0B8h+var_68] }
 }
 
 /*
@@ -4100,14 +3557,12 @@ void HavokPhysicsSVFX_UpdateContact(const hknpWorld *world, const hknpBodyId *bo
   signed int v19; 
   hkPointerMap<unsigned __int64,int,hkContainerHeapAllocator> *v20; 
   int val; 
-  int v36; 
+  HavokPhysicsSVFXContact *m_data; 
+  __int64 v23; 
+  int v24; 
   int eventFlags; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
   unsigned __int64 key[2]; 
-  hkVector4f v49[4]; 
+  hkVector4f v27[4]; 
 
   if ( !world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 471, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
     __debugbreak();
@@ -4130,87 +3585,56 @@ void HavokPhysicsSVFX_UpdateContact(const hknpWorld *world, const hknpBodyId *bo
     if ( val == -1 )
     {
 LABEL_19:
-      _RAX = normal;
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX = position;
-      __asm
-      {
-        vmovups [rsp+0B8h+var_48], xmm0
-        vmovss  xmm0, [rsp+0B8h+arg_50]
-        vmovss  [rsp+0B8h+var_68], xmm0
-        vmovups xmm1, xmmword ptr [rax]
-        vmovss  xmm0, [rsp+0B8h+arg_40]
-        vmovss  [rsp+0B8h+var_78], xmm0
-        vmovups xmmword ptr [rsp+0B8h+key], xmm1
-      }
-      HavokPhysicsSVFX_AddNewContact(world, bodyIds, shapeKeys, numImpulseGivingContactPoints, numCollisionContactPoints, (const hkVector4f *)key, v49, surfaceFlagData, v45, masses, v47);
+      v27[0] = (hkVector4f)normal->m_quad;
+      *(hkVector4f *)key = (hkVector4f)position->m_quad;
+      HavokPhysicsSVFX_AddNewContact(world, bodyIds, shapeKeys, numImpulseGivingContactPoints, numCollisionContactPoints, (const hkVector4f *)key, v27, surfaceFlagData, speed, masses, angle);
     }
     else
     {
-      _RDI = s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data;
+      m_data = s_havokPhysicsSVFXWorlds[m_userData].contacts->m_data;
       while ( 1 )
       {
-        _RBX = val;
-        if ( _RDI[_RBX].shapeKey == v18 )
+        v23 = val;
+        if ( m_data[v23].shapeKey == v18 )
           break;
-        val = _RDI[_RBX].next;
+        val = m_data[v23].next;
         if ( val == -1 )
           goto LABEL_19;
       }
-      _RDI[_RBX].isValid = 1;
-      if ( _RDI[_RBX].bodyIDKey != v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 511, ASSERT_TYPE_ASSERT, "(contact->bodyIDKey == key)", (const char *)&queryFormat, "contact->bodyIDKey == key") )
+      m_data[v23].isValid = 1;
+      if ( m_data[v23].bodyIDKey != v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 511, ASSERT_TYPE_ASSERT, "(contact->bodyIDKey == key)", (const char *)&queryFormat, "contact->bodyIDKey == key") )
         __debugbreak();
-      if ( _RDI[_RBX].shapeKey != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 512, ASSERT_TYPE_ASSERT, "(contact->shapeKey == shapeKey)", (const char *)&queryFormat, "contact->shapeKey == shapeKey") )
+      if ( m_data[v23].shapeKey != v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 512, ASSERT_TYPE_ASSERT, "(contact->shapeKey == shapeKey)", (const char *)&queryFormat, "contact->shapeKey == shapeKey") )
         __debugbreak();
-      v36 = _RDI[_RBX].numCollisionContactPoints;
-      __asm { vmovss  xmm3, cs:__real@42000000 }
-      _RDI[_RBX].numCollisionContactPoints = numCollisionContactPoints;
-      _RDI[_RBX].numImpulseGivingContactPoints = numImpulseGivingContactPoints;
-      __asm
-      {
-        vmulss  xmm0, xmm3, dword ptr [rax]
-        vmovss  dword ptr [rbx+rdi+28h], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rax+4]
-        vmovss  xmm0, [rsp+0B8h+arg_50]
-        vmovss  dword ptr [rbx+rdi+2Ch], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rax+8]
-        vmovss  dword ptr [rbx+rdi+30h], xmm1
-        vmulss  xmm1, xmm3, [rsp+0B8h+arg_40]
-      }
-      *(_QWORD *)_RDI[_RBX].normal.v = normal->m_quad.m128_u64[0];
-      LODWORD(_RDI[_RBX].normal.v[2]) = normal->m_quad.m128_i32[2];
-      _RDI[_RBX].surfaceFlagData[0] = *surfaceFlagData;
-      _RDI[_RBX].surfaceFlagData[1] = surfaceFlagData[1];
-      __asm { vmovss  dword ptr [rbx+rdi+48h], xmm1 }
-      _RDI[_RBX].masses[0] = *masses;
-      _RDI[_RBX].masses[1] = masses[1];
-      eventFlags = _RDI[_RBX].eventFlags;
-      __asm { vmovss  dword ptr [rbx+rdi+54h], xmm0 }
-      if ( _RDI[_RBX].numCollisionContactPoints > v36 )
+      v24 = m_data[v23].numCollisionContactPoints;
+      m_data[v23].numCollisionContactPoints = numCollisionContactPoints;
+      m_data[v23].numImpulseGivingContactPoints = numImpulseGivingContactPoints;
+      m_data[v23].position.v[0] = 32.0 * position->m_quad.m128_f32[0];
+      m_data[v23].position.v[1] = 32.0 * position->m_quad.m128_f32[1];
+      m_data[v23].position.v[2] = 32.0 * position->m_quad.m128_f32[2];
+      *(_QWORD *)m_data[v23].normal.v = normal->m_quad.m128_u64[0];
+      LODWORD(m_data[v23].normal.v[2]) = normal->m_quad.m128_i32[2];
+      m_data[v23].surfaceFlagData[0] = *surfaceFlagData;
+      m_data[v23].surfaceFlagData[1] = surfaceFlagData[1];
+      m_data[v23].speed = 32.0 * speed;
+      m_data[v23].masses[0] = *masses;
+      m_data[v23].masses[1] = masses[1];
+      eventFlags = m_data[v23].eventFlags;
+      m_data[v23].angle = angle;
+      if ( m_data[v23].numCollisionContactPoints > v24 )
       {
         eventFlags |= 1u;
-        _RDI[_RBX].hitSpeed = _RDI[_RBX].speed;
-        __asm { vmovss  dword ptr [rbx+rdi+5Ch], xmm0 }
+        m_data[v23].hitSpeed = m_data[v23].speed;
+        m_data[v23].hitAngle = angle;
       }
-      _RDI[_RBX].eventFlags = eventFlags | 2;
+      m_data[v23].eventFlags = eventFlags | 2;
     }
   }
   else
   {
-    _RAX = normal;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = position;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0B8h+key], xmm0
-      vmovss  xmm0, [rsp+0B8h+arg_50]
-      vmovss  [rsp+0B8h+var_68], xmm0
-      vmovups xmm1, xmmword ptr [rax]
-      vmovss  xmm0, [rsp+0B8h+arg_40]
-      vmovss  [rsp+0B8h+var_78], xmm0
-      vmovups [rsp+0B8h+var_48], xmm1
-    }
-    HavokPhysicsSVFX_AddNewContact(world, bodyIds, shapeKeys, numImpulseGivingContactPoints, numCollisionContactPoints, v49, (const hkVector4f *)key, surfaceFlagData, v44, masses, v46);
+    *(hkVector4f *)key = (hkVector4f)normal->m_quad;
+    v27[0] = (hkVector4f)position->m_quad;
+    HavokPhysicsSVFX_AddNewContact(world, bodyIds, shapeKeys, numImpulseGivingContactPoints, numCollisionContactPoints, v27, (const hkVector4f *)key, surfaceFlagData, speed, masses, angle);
   }
 }
 
@@ -4222,103 +3646,62 @@ HavokPhysicsSVFX_UpdateScrapeEvent
 void HavokPhysicsSVFX_UpdateScrapeEvent(Physics_WorldId worldId, HavokPhysicsSVFXContact *contact, LocalClientNum_t localClientNum)
 {
   PhysicsSFXEventAssetSoundRule *sfxRule; 
-  int v9; 
+  int v7; 
   PhysicsSFXEventAssetSoundRule *sfxScrapeRule; 
   const char *scrapeSoundAlias; 
-  const char *v12; 
-  bool v13; 
-  bool v14; 
+  const char *v10; 
+  float v11; 
+  PhysicsSFXEventAssetSoundRule *v12; 
+  float scrapeSoundVolumeSpeedThresholdMin; 
+  float scrapeSoundVolumeSpeedThresholdMax; 
+  float sndVolume; 
   int sndId; 
   PhysicsVFXEventAssetParticleEffectRule *vfxRule; 
   PhysicsVFXEventAssetParticleEffectRule *vfxScrapeRule; 
   const char *scrapeParticleEffectAlias; 
-  const char *v39; 
+  const char *v20; 
 
-  _RBX = contact;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 2045, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
-  sfxRule = _RBX->sfxRule;
-  v9 = 0;
-  sfxScrapeRule = _RBX->scrapeData.sfxScrapeRule;
-  _RBX->scrapeData.updateTimer = 0.0;
-  if ( sfxRule == sfxScrapeRule || sfxRule && sfxScrapeRule && (scrapeSoundAlias = sfxScrapeRule->scrapeSoundAlias, v12 = sfxRule->scrapeSoundAlias, (scrapeSoundAlias != NULL) == (v12 != NULL)) && (!v12 || !scrapeSoundAlias || !I_stricmp(v12, scrapeSoundAlias)) )
+  sfxRule = contact->sfxRule;
+  v7 = 0;
+  sfxScrapeRule = contact->scrapeData.sfxScrapeRule;
+  contact->scrapeData.updateTimer = 0.0;
+  if ( sfxRule == sfxScrapeRule || sfxRule && sfxScrapeRule && (scrapeSoundAlias = sfxScrapeRule->scrapeSoundAlias, v10 = sfxRule->scrapeSoundAlias, (scrapeSoundAlias != NULL) == (v10 != NULL)) && (!v10 || !scrapeSoundAlias || !I_stricmp(v10, scrapeSoundAlias)) )
   {
-    v13 = _RBX->scrapeData.sndId != -1;
-    v14 = _RBX->scrapeData.sndId == -1;
-    if ( _RBX->scrapeData.sndId != -1 )
+    if ( contact->scrapeData.sndId != -1 )
     {
-      _RAX = _RBX->scrapeData.sfxScrapeRule;
-      __asm
-      {
-        vmovaps [rsp+58h+var_18], xmm6
-        vmovaps [rsp+58h+var_28], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  xmm0, dword ptr [rax+10h]
-        vcomiss xmm0, dword ptr [rax+14h]
-        vmovaps xmm6, xmm7
-        vmovss  xmm1, dword ptr [rax+10h]
-        vmovss  xmm3, dword ptr [rax+14h]
-        vucomiss xmm1, xmm3
-      }
-      if ( _RBX->scrapeData.sndId != -1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+48h]
-          vsubss  xmm2, xmm0, xmm1
-          vsubss  xmm1, xmm3, xmm1
-          vdivss  xmm0, xmm2, xmm1; val
-          vmovaps xmm2, xmm7; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm6, xmm0 }
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+0A4h]
-        vcomiss xmm6, xmm2
-      }
-      if ( v13 || v14 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, dword ptr [rax+18h]
-          vmulss  xmm1, xmm6, dword ptr [rax+18h]
-          vmulss  xmm4, xmm0, xmm2
-          vaddss  xmm6, xmm4, xmm1
-        }
-      }
-      sndId = _RBX->scrapeData.sndId;
-      __asm
-      {
-        vmovaps xmm3, xmm7; pitch
-        vmovaps xmm2, xmm6; volume
-        vmovss  dword ptr [rbx+0A4h], xmm6
-      }
-      SND_UpdateVirtualLoopSound(sndId, &_RBX->position, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm
-      {
-        vmovaps xmm7, [rsp+58h+var_28]
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      v11 = FLOAT_1_0;
+      if ( contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin > contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1819, ASSERT_TYPE_ASSERT, "(contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin)", (const char *)&queryFormat, "contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMax >= contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeSpeedThresholdMin") )
+        __debugbreak();
+      v12 = contact->scrapeData.sfxScrapeRule;
+      scrapeSoundVolumeSpeedThresholdMin = v12->scrapeSoundVolumeSpeedThresholdMin;
+      scrapeSoundVolumeSpeedThresholdMax = v12->scrapeSoundVolumeSpeedThresholdMax;
+      if ( scrapeSoundVolumeSpeedThresholdMin != scrapeSoundVolumeSpeedThresholdMax )
+        LODWORD(v11) = COERCE_UNSIGNED_INT64(I_fclamp((float)(contact->speed - scrapeSoundVolumeSpeedThresholdMin) / (float)(scrapeSoundVolumeSpeedThresholdMax - scrapeSoundVolumeSpeedThresholdMin), 0.0, 1.0));
+      sndVolume = contact->scrapeData.sndVolume;
+      if ( v11 <= sndVolume )
+        v11 = (float)((float)(1.0 - contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeBlendSpeed) * sndVolume) + (float)(v11 * contact->scrapeData.sfxScrapeRule->scrapeSoundVolumeBlendSpeed);
+      sndId = contact->scrapeData.sndId;
+      contact->scrapeData.sndVolume = v11;
+      SND_UpdateVirtualLoopSound(sndId, &contact->position, v11, 1.0);
     }
   }
   else
   {
-    HavokPhysicsSVFX_StopScrapeSound(worldId, _RBX);
-    HavokPhysicsSVFX_PlayScrapeSound(worldId, _RBX, localClientNum);
+    HavokPhysicsSVFX_StopScrapeSound(worldId, contact);
+    HavokPhysicsSVFX_PlayScrapeSound(worldId, contact, localClientNum);
   }
-  vfxRule = _RBX->vfxRule;
-  vfxScrapeRule = _RBX->scrapeData.vfxScrapeRule;
-  if ( vfxRule == vfxScrapeRule || vfxRule && vfxScrapeRule && (scrapeParticleEffectAlias = vfxScrapeRule->scrapeParticleEffectAlias, v39 = vfxRule->scrapeParticleEffectAlias, LOBYTE(v9) = scrapeParticleEffectAlias != NULL, v9 == (v39 != NULL)) && (!v39 || !scrapeParticleEffectAlias || !I_stricmp(v39, scrapeParticleEffectAlias)) )
+  vfxRule = contact->vfxRule;
+  vfxScrapeRule = contact->scrapeData.vfxScrapeRule;
+  if ( vfxRule == vfxScrapeRule || vfxRule && vfxScrapeRule && (scrapeParticleEffectAlias = vfxScrapeRule->scrapeParticleEffectAlias, v20 = vfxRule->scrapeParticleEffectAlias, LOBYTE(v7) = scrapeParticleEffectAlias != NULL, v7 == (v20 != NULL)) && (!v20 || !scrapeParticleEffectAlias || !I_stricmp(v20, scrapeParticleEffectAlias)) )
   {
-    HavokPhysicsSVFX_UpdateScrapeParticle(_RBX, localClientNum);
+    HavokPhysicsSVFX_UpdateScrapeParticle(contact, localClientNum);
   }
   else
   {
-    HavokPhysicsSVFX_StopScrapeParticle(worldId, _RBX, localClientNum);
-    HavokPhysicsSVFX_PlayScrapeParticle(worldId, _RBX, localClientNum);
+    HavokPhysicsSVFX_StopScrapeParticle(worldId, contact, localClientNum);
+    HavokPhysicsSVFX_PlayScrapeParticle(worldId, contact, localClientNum);
   }
 }
 
@@ -4328,87 +3711,82 @@ HavokPhysicsSVFX_UpdateScrapeParticle
 ==============
 */
 
-void __fastcall HavokPhysicsSVFX_UpdateScrapeParticle(HavokPhysicsSVFXContact *contact, LocalClientNum_t localClientNum, double _XMM2_8)
+void __fastcall HavokPhysicsSVFX_UpdateScrapeParticle(HavokPhysicsSVFXContact *contact, LocalClientNum_t localClientNum, double a3)
 {
-  __int64 v5; 
-  __int64 v7; 
-  unsigned int v9; 
-  __int64 v10; 
-  const float4 *v17; 
-  vector3 *v18; 
+  float4 v3; 
+  __int64 v4; 
+  __int64 v6; 
+  ParticleSystem *v7; 
+  unsigned __int32 v8; 
+  __int64 v9; 
+  float v10; 
+  __int128 v12; 
+  vec4_t v15; 
+  const float4 *v16; 
+  vector3 *v17; 
+  __m128 v; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m256i v25; 
   float4 normal[2]; 
-  float4 v35[2]; 
-  __int128 v36; 
+  float4 v27[2]; 
+  __int128 v28; 
   vec4_t quatOut; 
 
-  v5 = localClientNum;
-  _RDI = contact;
+  v4 = localClientNum;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicssvfx.cpp", 1923, ASSERT_TYPE_ASSERT, "(contact)", (const char *)&queryFormat, "contact") )
     __debugbreak();
-  v7 = v5 << 12;
-  _RBX = NULL;
-  v9 = 0;
-  if ( g_particleSystemsGeneration[v7 + (_RDI->scrapeData.particleSystem & 0xFFF)].__all32 == _RDI->scrapeData.particleSystem )
-    v9 = _RDI->scrapeData.particleSystem & 0xFFF;
-  v10 = v7 + v9;
-  if ( g_particleSystems[0][v10] >= (ParticleSystem *)0x1000 )
-    _RBX = g_particleSystems[0][v10];
-  if ( _RBX )
+  v6 = v4 << 12;
+  v7 = NULL;
+  v8 = 0;
+  if ( g_particleSystemsGeneration[v6 + (contact->scrapeData.particleSystem & 0xFFF)].__all32 == contact->scrapeData.particleSystem )
+    v8 = contact->scrapeData.particleSystem & 0xFFF;
+  v9 = v6 + v8;
+  if ( g_particleSystems[0][v9] >= (ParticleSystem *)0x1000 )
+    v7 = g_particleSystems[0][v9];
+  if ( v7 )
   {
+    v10 = contact->position.v[0];
+    HIDWORD(v28) = 0;
+    v12 = v28;
+    *(float *)&v12 = v10;
+    _XMM6 = v12;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmovaps [rsp+0B8h+var_18], xmm6
-    }
-    HIDWORD(v36) = 0;
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+70h]
-      vmovss  xmm6, xmm6, xmm0
       vinsertps xmm6, xmm6, dword ptr [rdi+2Ch], 10h
       vinsertps xmm6, xmm6, dword ptr [rdi+30h], 20h ; ' '
     }
-    HavokPhysicsSVFX_GetParticleRotation(_RDI, &quatOut);
-    __asm { vmovups xmm0, xmmword ptr [rsp+0B8h+quatOut] }
-    Float4UnitQuatToAxis(v18, v17);
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0B8h+normal.v+10h], xmm1
-      vmovups xmmword ptr [rsp+0B8h+normal.v], xmm0
-      vmovups ymm3, ymmword ptr [rsp+0B8h+normal.v]
-      vmovups ymmword ptr [rsp+0B8h+normal.v], ymm3
-      vmovups xmmword ptr [rsp+0B8h+var_68.v], xmm2
-    }
+    HavokPhysicsSVFX_GetParticleRotation(contact, &quatOut);
+    v15 = quatOut;
+    Float4UnitQuatToAxis(v17, v16);
+    normal[1] = (float4)v3.v;
+    normal[0] = (float4)v15;
+    v27[0] = *(float4 *)&a3;
     Particle_AssertFloat4IsNormalized(normal);
     Particle_AssertFloat4IsNormalized(&normal[1]);
-    Particle_AssertFloat4IsNormalized(v35);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0B8h+normal.v+10h]
-      vmovups xmm3, xmmword ptr [rsp+0B8h+normal.v]
-      vmovups xmm2, xmmword ptr [rsp+0B8h+var_68.v]
-      vshufps xmm4, xmm3, xmm0, 44h ; 'D'
-      vshufps xmm1, xmm2, xmm6, 44h ; 'D'
-      vmovups xmmword ptr [rbx+10h], xmm0
-      vmovups xmmword ptr [rbx], xmm3
-      vshufps xmm3, xmm3, xmm0, 0EEh ; 'î'
-      vshufps xmm0, xmm4, xmm1, 88h ; 'ˆ'
-      vshufps xmm1, xmm4, xmm1, 0DDh ; 'Ý'
-      vmovups xmmword ptr [rsp+0B8h+normal.v+10h], xmm1
-      vmovups xmmword ptr [rsp+0B8h+normal.v], xmm0
-      vmovups xmmword ptr [rbx+20h], xmm2
-      vshufps xmm2, xmm2, xmm6, 0EEh ; 'î'
-      vshufps xmm0, xmm3, xmm2, 88h ; 'ˆ'
-      vshufps xmm1, xmm3, xmm2, 0DDh ; 'Ý'
-      vmovups xmmword ptr [rsp+0B8h+var_68.v], xmm0
-      vmovups ymm0, ymmword ptr [rsp+0B8h+normal.v]
-      vmovups xmmword ptr [rsp+0B8h+var_68.v+10h], xmm1
-      vmovups ymm1, ymmword ptr [rsp+0B8h+var_68.v]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups xmmword ptr [rbx+30h], xmm6
-      vmovaps xmm6, [rsp+0B8h+var_18]
-      vmovups ymmword ptr [rbx+60h], ymm1
-    }
+    Particle_AssertFloat4IsNormalized(v27);
+    v = normal[1].v;
+    v19 = normal[0].v;
+    v20 = v27[0].v;
+    v21 = _mm_shuffle_ps(normal[0].v, normal[1].v, 68);
+    v22 = _mm_shuffle_ps(v27[0].v, _XMM6, 68);
+    v7->m_systemTransform.y = normal[1];
+    v7->m_systemTransform.x.v = v19;
+    v23 = _mm_shuffle_ps(v19, v, 238);
+    normal[1].v = _mm_shuffle_ps(v21, v22, 221);
+    normal[0].v = _mm_shuffle_ps(v21, v22, 136);
+    v7->m_systemTransform.z.v = v20;
+    v24 = _mm_shuffle_ps(v20, _XMM6, 238);
+    v27[0].v = _mm_shuffle_ps(v23, v24, 136);
+    v27[1].v = _mm_shuffle_ps(v23, v24, 221);
+    v25 = *(__m256i *)v27[0].v.m128_f32;
+    *(__m256i *)v7->m_systemTransformTranspose.x.v.m128_f32 = *(__m256i *)normal[0].v.m128_f32;
+    v7->m_systemTransform.w.v = _XMM6;
+    *(__m256i *)v7->m_systemTransformTranspose.z.v.m128_f32 = v25;
   }
 }
 
@@ -4442,18 +3820,9 @@ HavokPhysics_VelocityCachingModifier::postContactJacobianSetup
 void HavokPhysics_VelocityCachingModifier::postContactJacobianSetup(HavokPhysics_VelocityCachingModifier *this, const hknpSimulationThreadContext *tl, const hknpSolverInfo *solverInfo, const hknpCdBodyBase *cdBodyA, const hknpCdBodyBase *cdBodyB, const hknpManifoldCollisionCache *cache)
 {
   _WORD *v6; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
+  hknpMotion *m_motion; 
+  hknpMotion *v8; 
+  __m128 m_quad; 
   hkVector4f angularVelWorldOut; 
 
   if ( (cache->m_propertyKeysUsed & 0x10) != 0 )
@@ -4461,84 +3830,25 @@ void HavokPhysics_VelocityCachingModifier::postContactJacobianSetup(HavokPhysics
     v6 = (_WORD *)((char *)&cache->hknpCollisionCache + 16 * cache->m_propertiesStartOffsetDiv16 + ((cache->m_propertyOffsets >> 14) & 0x3C));
     if ( v6 )
     {
-      _RCX = (hknpMotion *)cdBodyA->m_motion;
-      _RBX = (hknpMotion *)cdBodyB->m_motion;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+40h]
-        vmovups xmmword ptr [rsp+58h+angularVelWorldOut.m_quad], xmm0
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      *v6 = HIWORD(v21);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+4]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[1] = HIWORD(v22);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+8]
-        vmovss  [rsp+58h+var_38], xmm0
-        vmovups xmm0, xmmword ptr [rbx+40h]
-      }
-      v6[2] = HIWORD(v23);
-      __asm
-      {
-        vmovups xmmword ptr [rsp+58h+angularVelWorldOut.m_quad], xmm0
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[3] = HIWORD(v24);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+4]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[4] = HIWORD(v25);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+8]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[5] = HIWORD(v26);
-      hknpMotion::getAngularVelocity(_RCX, &angularVelWorldOut);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[6] = HIWORD(v27);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+4]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[7] = HIWORD(v28);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+8]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[8] = HIWORD(v29);
-      hknpMotion::getAngularVelocity(_RBX, &angularVelWorldOut);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[9] = HIWORD(v30);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+4]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[10] = HIWORD(v31);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+58h+angularVelWorldOut.m_quad+8]
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      v6[11] = HIWORD(v32);
+      m_motion = (hknpMotion *)cdBodyA->m_motion;
+      v8 = (hknpMotion *)cdBodyB->m_motion;
+      angularVelWorldOut.m_quad = (__m128)m_motion->m_linearVelocityAndSpeedLimit;
+      *v6 = angularVelWorldOut.m_quad.m128_i16[1];
+      v6[1] = angularVelWorldOut.m_quad.m128_i16[3];
+      m_quad = v8->m_linearVelocityAndSpeedLimit.m_quad;
+      v6[2] = angularVelWorldOut.m_quad.m128_i16[5];
+      angularVelWorldOut.m_quad = m_quad;
+      v6[3] = m_quad.m128_i16[1];
+      v6[4] = angularVelWorldOut.m_quad.m128_i16[3];
+      v6[5] = angularVelWorldOut.m_quad.m128_i16[5];
+      hknpMotion::getAngularVelocity(m_motion, &angularVelWorldOut);
+      v6[6] = angularVelWorldOut.m_quad.m128_i16[1];
+      v6[7] = angularVelWorldOut.m_quad.m128_i16[3];
+      v6[8] = angularVelWorldOut.m_quad.m128_i16[5];
+      hknpMotion::getAngularVelocity(v8, &angularVelWorldOut);
+      v6[9] = angularVelWorldOut.m_quad.m128_i16[1];
+      v6[10] = angularVelWorldOut.m_quad.m128_i16[3];
+      v6[11] = angularVelWorldOut.m_quad.m128_i16[5];
     }
   }
 }

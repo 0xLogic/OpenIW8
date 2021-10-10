@@ -82,97 +82,59 @@ Leap_CheckEnoughDistToLeap
 */
 bool Leap_CheckEnoughDistToLeap(pmove_t *pm, pml_t *pml)
 {
+  const dvar_t *v2; 
+  float value; 
+  playerState_s *ps; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
   BgTrace *m_trace; 
+  __int128 v11; 
+  float v15; 
+  float v16; 
   int passEntityNum; 
   const Bounds *bounds; 
-  char v43; 
-  bool result; 
   vec3_t start; 
   vec3_t end; 
   trace_t results; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  _RBX = DCONST_DVARFLT_sprintleap_check_dist;
-  _RDI = pml;
+  v2 = DCONST_DVARFLT_sprintleap_check_dist;
   if ( !DCONST_DVARFLT_sprintleap_check_dist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintleap_check_dist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm8, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_leap.cpp", 123, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RBP = pm->ps;
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_leap.cpp", 125, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_leap.cpp", 125, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+4]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmovss  xmm4, dword ptr [rdi]
-    vmovss  xmm7, cs:__real@3f800000
-  }
+  v7 = pml->forward.v[1];
+  v8 = pml->forward.v[2];
+  v9 = LODWORD(pml->forward.v[0]);
   m_trace = pm->m_trace;
+  v11 = v9;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v7 * v7)) + (float)(v8 * v8));
+  _XMM3 = v11;
   __asm
   {
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm2, xmm4, xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbp+30h]
-    vmovss  dword ptr [rsp+108h+start], xmm0
-    vmulss  xmm3, xmm6, xmm1
-    vmulss  xmm6, xmm5, xmm1
-    vaddss  xmm1, xmm3, dword ptr [rbp+34h]
-    vmovss  dword ptr [rsp+108h+start+4], xmm1
-    vaddss  xmm5, xmm6, dword ptr [rbp+38h]
-    vmovss  dword ptr [rsp+108h+start+8], xmm5
-    vmulss  xmm0, xmm2, xmm8
-    vaddss  xmm1, xmm0, dword ptr [rbp+30h]
-    vmovss  dword ptr [rsp+108h+end], xmm1
-    vmulss  xmm2, xmm3, xmm8
-    vaddss  xmm0, xmm2, dword ptr [rbp+34h]
-    vmovss  dword ptr [rsp+108h+end+4], xmm0
-    vmovss  xmm3, dword ptr [rbp+38h]
-    vaddss  xmm0, xmm5, cs:__real@40000000
-    vmovss  dword ptr [rsp+108h+start+8], xmm0
-    vmulss  xmm1, xmm6, xmm8
-    vaddss  xmm2, xmm1, xmm3
-    vaddss  xmm0, xmm2, cs:__real@40000000
-    vmovss  dword ptr [rsp+108h+end+8], xmm0
   }
-  passEntityNum = _RBP->clientNum;
-  bounds = BG_Suit_GetBounds(_RBP->suitIndex, PM_EFF_STANCE_DEFAULT);
+  v15 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+  start.v[0] = v15 + ps->origin.v[0];
+  *(float *)&_XMM3 = v7 * (float)(1.0 / *(float *)&_XMM0);
+  v16 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  start.v[1] = *(float *)&_XMM3 + ps->origin.v[1];
+  start.v[2] = v16 + ps->origin.v[2];
+  end.v[0] = (float)(v15 * value) + ps->origin.v[0];
+  end.v[1] = (float)(*(float *)&_XMM3 * value) + ps->origin.v[1];
+  *(float *)&_XMM3 = ps->origin.v[2];
+  start.v[2] = start.v[2] + 2.0;
+  end.v[2] = (float)((float)(v16 * value) + *(float *)&_XMM3) + 2.0;
+  passEntityNum = ps->clientNum;
+  bounds = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
   BgTrace::LegacyTrace(m_trace, pm, &results, &start, &end, bounds, passEntityNum, 33619985);
-  __asm
-  {
-    vmovss  xmm0, [rsp+108h+results.fraction]
-    vucomiss xmm0, xmm7
-  }
-  if ( v43 )
-    result = 1;
-  else
-    result = 0;
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return results.fraction == 1.0;
 }
 
 /*
@@ -260,161 +222,99 @@ void Leap_LeapUpdate(pmove_t *pm, pml_t *pml)
 Leap_LeapingOverLowerTerrain
 ==============
 */
-bool Leap_LeapingOverLowerTerrain(const pmove_t *pm, Physics_WorldId worldId, const vec3_t *playerForward)
+char Leap_LeapingOverLowerTerrain(const pmove_t *pm, Physics_WorldId worldId, const vec3_t *playerForward)
 {
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v8; 
+  float v9; 
+  const dvar_t *v10; 
   playerState_s *ps; 
-  bool v23; 
-  bool v24; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  __int128 v16; 
+  float v19; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   BgTrace *m_trace; 
   int passEntityNum; 
   const Bounds *bounds; 
-  char v58; 
-  bool result; 
+  __int128 v32; 
   vec3_t start; 
   vec3_t end; 
   trace_t results; 
-  char v77; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmmword ptr [r11-0B8h], xmm14
-  }
-  _RBX = DCONST_DVARFLT_sprintLeap_traceForwardIncrament;
-  _RDI = playerForward;
+  v3 = DCONST_DVARFLT_sprintLeap_traceForwardIncrament;
   if ( !DCONST_DVARFLT_sprintLeap_traceForwardIncrament && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_traceForwardIncrament") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_sprintLeap_traceForwardMax;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v8 = DCONST_DVARFLT_sprintLeap_traceForwardMax;
   if ( !DCONST_DVARFLT_sprintLeap_traceForwardMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_traceForwardMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm8, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_sprintLeap_groundTraceDist;
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = v8->current.value;
+  v10 = DCONST_DVARFLT_sprintLeap_groundTraceDist;
   if ( !DCONST_DVARFLT_sprintLeap_groundTraceDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_groundTraceDist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v10);
   ps = pm->ps;
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  v23 = ps == NULL;
-  if ( !ps )
+  v12 = v10->current.value;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_leap.cpp", 164, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  v13 = playerForward->v[1];
+  v14 = LODWORD(playerForward->v[0]);
+  v15 = playerForward->v[2];
+  v16 = v14;
+  *(float *)&v16 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(v13 * v13)) + (float)(v15 * v15));
+  _XMM3 = v16;
+  __asm { vcmpless xmm0, xmm3, cs:__real@80000000 }
+  v19 = ps->origin.v[0];
+  __asm { vblendvps xmm0, xmm3, xmm14, xmm0 }
+  start.v[0] = v19;
+  v21 = ps->origin.v[1];
+  v22 = v13 * (float)(1.0 / *(float *)&_XMM0);
+  v23 = *(float *)&v14 * (float)(1.0 / *(float *)&_XMM0);
+  v24 = 0i64;
+  start.v[1] = v21;
+  v25 = ps->origin.v[2] + 1.0;
+  if ( v9 <= 0.0 )
+    return 0;
+  v26 = v23 * value;
+  v27 = v22 * value;
+  v28 = (float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * value;
+  while ( 1 )
   {
-    v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_leap.cpp", 164, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-    v23 = !v24;
-    if ( v24 )
-      __debugbreak();
+    m_trace = pm->m_trace;
+    start.v[0] = v19 + v26;
+    start.v[1] = v21 + v27;
+    end.v[0] = v19 + v26;
+    end.v[1] = v21 + v27;
+    start.v[2] = (float)(v28 + v25) + 2.0;
+    end.v[2] = (float)(v28 + v25) - v12;
+    passEntityNum = ps->clientNum;
+    bounds = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
+    BgTrace::LegacyTraceHandler(m_trace, worldId, &results, &start, &end, bounds, passEntityNum, 33619985, ps);
+    if ( results.fraction == 1.0 )
+      break;
+    v32 = v24;
+    *(float *)&v32 = *(float *)&v24 + value;
+    v24 = v32;
+    if ( *(float *)&v32 >= v9 )
+      return 0;
+    v25 = start.v[2];
+    v21 = start.v[1];
+    v19 = start.v[0];
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rdi]
-    vmovss  xmm14, cs:__real@3f800000
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm2, dword ptr [rsi+30h]
-    vblendvps xmm0, xmm3, xmm14, xmm0
-    vdivss  xmm1, xmm14, xmm0
-    vmovss  dword ptr [rsp+198h+start], xmm2
-    vmovss  xmm3, dword ptr [rsi+34h]
-    vmulss  xmm11, xmm6, xmm1
-    vmulss  xmm10, xmm4, xmm1
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm8, xmm6
-    vmovss  dword ptr [rsp+198h+start+4], xmm3
-    vmovss  xmm0, dword ptr [rsi+38h]
-    vmovaps [rsp+198h+var_98], xmm12
-    vmovaps [rsp+198h+var_A8], xmm13
-    vmulss  xmm1, xmm5, xmm1
-    vaddss  xmm4, xmm0, xmm14
-  }
-  if ( v23 )
-  {
-LABEL_19:
-    result = 0;
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm13, cs:__real@40000000
-      vmulss  xmm10, xmm10, xmm7
-      vmulss  xmm11, xmm11, xmm7
-      vmulss  xmm12, xmm1, xmm7
-    }
-    while ( 1 )
-    {
-      m_trace = pm->m_trace;
-      __asm
-      {
-        vaddss  xmm1, xmm2, xmm10
-        vaddss  xmm0, xmm3, xmm11
-        vmovss  dword ptr [rsp+198h+start], xmm1
-        vmovss  dword ptr [rsp+198h+start+4], xmm0
-        vmovss  dword ptr [rsp+198h+end], xmm1
-        vmovss  dword ptr [rsp+198h+end+4], xmm0
-        vaddss  xmm2, xmm12, xmm4
-        vaddss  xmm0, xmm2, xmm13
-        vmovss  dword ptr [rsp+198h+start+8], xmm0
-        vsubss  xmm1, xmm2, xmm9
-        vmovss  dword ptr [rsp+198h+end+8], xmm1
-      }
-      passEntityNum = ps->clientNum;
-      bounds = BG_Suit_GetBounds(ps->suitIndex, PM_EFF_STANCE_DEFAULT);
-      BgTrace::LegacyTraceHandler(m_trace, worldId, &results, &start, &end, bounds, passEntityNum, 33619985, ps);
-      __asm
-      {
-        vmovss  xmm0, [rsp+198h+results.fraction]
-        vucomiss xmm0, xmm14
-      }
-      if ( v23 )
-        break;
-      __asm
-      {
-        vaddss  xmm6, xmm6, xmm7
-        vcomiss xmm6, xmm8
-      }
-      if ( !v58 )
-        goto LABEL_19;
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+198h+start+8]
-        vmovss  xmm3, dword ptr [rsp+198h+start+4]
-        vmovss  xmm2, dword ptr [rsp+198h+start]
-      }
-    }
-    result = 1;
-  }
-  __asm
-  {
-    vmovaps xmm13, [rsp+198h+var_A8]
-    vmovaps xmm12, [rsp+198h+var_98]
-  }
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return result;
+  return 1;
 }
 
 /*

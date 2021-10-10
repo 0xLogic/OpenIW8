@@ -110,11 +110,6 @@ void HavokPhysicsCollisionHeatmapViewer::HavokPhysicsCollisionHeatmapViewer(Havo
   m_size = contexts->m_size;
   contextsa.m_begin = contexts->m_data;
   contextsa.m_end = &contextsa.m_begin[m_size];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+38h+contexts.m_begin]
-    vmovdqa xmmword ptr [rsp+38h+contexts.m_begin], xmm0
-  }
   hknpViewer::hknpViewer(this, &contextsa);
   this->hknpViewer::hkReferencedObject::hkBaseObject::__vftable = (HavokPhysicsCollisionHeatmapViewer_vtbl *)&HavokPhysicsCollisionHeatmapViewer::`vftable'{for `hkReferencedObject'};
   this->hknpViewer::hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsCollisionHeatmapViewer::`vftable'{for `hkProcess'};
@@ -156,11 +151,6 @@ hkProcess *HavokPhysicsCollisionHeatmapViewer::create(const hkArray<hkProcessCon
     m_size = contexts->m_size;
     contextsa.m_begin = contexts->m_data;
     contextsa.m_end = &contextsa.m_begin[m_size];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+contexts.m_begin]
-      vmovdqa xmmword ptr [rsp+48h+contexts.m_begin], xmm0
-    }
     hknpViewer::hknpViewer(v3, &contextsa);
     v4->hkReferencedObject::hkBaseObject::__vftable = (hknpViewer_vtbl *)&HavokPhysicsCollisionHeatmapViewer::`vftable'{for `hkReferencedObject'};
     v4->hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsCollisionHeatmapViewer::`vftable'{for `hkProcess'};
@@ -183,101 +173,38 @@ HavokPhysicsCollisionHeatmapViewer::debugDraw
 void HavokPhysicsCollisionHeatmapViewer::debugDraw(const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
   unsigned int numCollisionHeatmapEntries; 
-  unsigned int v12; 
+  unsigned int v9; 
+  unsigned int i; 
+  CollisionHeatmapEntry *v11; 
+  char v12; 
   unsigned int v13; 
-  __int64 v17; 
-  bool v18; 
-  char v21; 
-  unsigned int v37; 
   vec4_t *setColor; 
   __int64 forceColor; 
-  double shadow; 
-  double v43; 
-  float v44; 
-  double adjust; 
   char dest[256]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   numCollisionHeatmapEntries = cm.numCollisionHeatmapEntries;
-  _RSI = y;
-  _R14 = x;
-  v12 = 0;
-  v13 = 0;
-  if ( cm.numCollisionHeatmapEntries )
+  v9 = 0;
+  for ( i = 0; i < numCollisionHeatmapEntries; v9 = v13 )
   {
-    __asm
+    v11 = &cm.collisionHeatmap[i];
+    if ( physics_debugVisualizeWorldCollisionHeatmapGood->current.value <= v11->vertexDensity )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, cs:__real@3f000000
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovss  xmm7, [rsp+1B8h+charHeight]
+      LODWORD(forceColor) = v11->vertexCount;
+      LODWORD(setColor) = i;
+      Com_sprintf(dest, 0x100ui64, "%i entry:%i verts:%i location:(%.1f %.1f %.1f)", v9, setColor, forceColor, (float)((float)(v11->minExtent.v[0] + v11->maxExtent.v[0]) * 0.5), (float)((float)(v11->minExtent.v[1] + v11->maxExtent.v[1]) * 0.5), (float)((float)(v11->minExtent.v[2] + v11->maxExtent.v[2]) * 0.5));
+      Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
+      *y = charHeight + *y;
+      numCollisionHeatmapEntries = cm.numCollisionHeatmapEntries;
+      v12 = 1;
     }
-    do
+    else
     {
-      _RAX = physics_debugVisualizeWorldCollisionHeatmapGood;
-      v17 = v13;
-      v18 = __CFADD__(cm.collisionHeatmap, v17 * 32) || &cm.collisionHeatmap[v17] == NULL;
-      _RCX = &cm.collisionHeatmap[v17];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+28h]
-        vcomiss xmm0, dword ptr [rcx+4]
-      }
-      if ( v18 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+10h]
-          vaddss  xmm1, xmm0, dword ptr [rcx+1Ch]
-          vmovss  xmm0, dword ptr [rcx+0Ch]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm1, xmm0, dword ptr [rcx+18h]
-          vmovss  xmm0, dword ptr [rcx+8]
-          vcvtss2sd xmm5, xmm2, xmm2
-          vmovsd  [rsp+1B8h+adjust], xmm5
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm1, xmm0, dword ptr [rcx+14h]
-          vcvtss2sd xmm4, xmm2, xmm2
-          vmovsd  [rsp+1B8h+var_180], xmm4
-          vmulss  xmm2, xmm1, xmm6
-          vcvtss2sd xmm3, xmm2, xmm2
-          vmovsd  qword ptr [rsp+1B8h+shadow], xmm3
-        }
-        LODWORD(forceColor) = _RCX->vertexCount;
-        LODWORD(setColor) = v13;
-        Com_sprintf(dest, 0x100ui64, "%i entry:%i verts:%i location:(%.1f %.1f %.1f)", v12, setColor, forceColor, shadow, v43, adjust);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi]; y
-          vmovss  xmm1, dword ptr [r14]; x
-          vmovss  dword ptr [rsp+1B8h+var_180], xmm7
-        }
-        Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v44, 0);
-        __asm
-        {
-          vaddss  xmm0, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm0
-        }
-        numCollisionHeatmapEntries = cm.numCollisionHeatmapEntries;
-        v21 = 1;
-      }
-      else
-      {
-        v21 = 0;
-      }
-      ++v13;
-      v37 = v12 + 1;
-      if ( !v21 )
-        v37 = v12;
-      v12 = v37;
+      v12 = 0;
     }
-    while ( v13 < numCollisionHeatmapEntries );
-    __asm
-    {
-      vmovaps xmm7, [rsp+1B8h+var_58]
-      vmovaps xmm6, [rsp+1B8h+var_48]
-    }
+    ++i;
+    v13 = v9 + 1;
+    if ( !v12 )
+      v13 = v9;
   }
 }
 
@@ -288,62 +215,17 @@ HavokPhysicsCollisionHeatmapViewer::debugDrawEntry
 */
 bool HavokPhysicsCollisionHeatmapViewer::debugDrawEntry(int id, int counter, CollisionHeatmapEntry *entry, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  char v9; 
   bool result; 
   int forceColor; 
-  double shadow; 
-  double v37; 
-  float v38; 
-  double adjust; 
   char dest[256]; 
 
-  _RAX = physics_debugVisualizeWorldCollisionHeatmapGood;
-  _RSI = x;
-  _RBX = y;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vcomiss xmm0, dword ptr [r8+4]
-  }
-  if ( !v9 )
+  if ( physics_debugVisualizeWorldCollisionHeatmapGood->current.value > entry->vertexDensity )
     return 0;
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [r8+10h]
-    vaddss  xmm1, xmm0, dword ptr [r8+1Ch]
-    vmovss  xmm0, dword ptr [r8+0Ch]
-    vaddss  xmm2, xmm0, dword ptr [r8+18h]
-    vmovss  xmm0, dword ptr [r8+8]
-    vmulss  xmm1, xmm1, xmm3
-    vcvtss2sd xmm5, xmm1, xmm1
-    vmulss  xmm1, xmm2, xmm3
-    vaddss  xmm2, xmm0, dword ptr [r8+14h]
-    vmovsd  [rsp+188h+adjust], xmm5
-    vcvtss2sd xmm4, xmm1, xmm1
-    vmovsd  [rsp+188h+var_150], xmm4
-    vmulss  xmm1, xmm2, xmm3
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovsd  qword ptr [rsp+188h+shadow], xmm3
-  }
   forceColor = entry->vertexCount;
-  __asm { vmovaps [rsp+188h+var_28], xmm6 }
-  Com_sprintf(dest, 0x100ui64, "%i entry:%i verts:%i location:(%.1f %.1f %.1f)", (unsigned int)counter, id, forceColor, shadow, v37, adjust);
-  __asm
-  {
-    vmovss  xmm6, [rsp+188h+charHeight]
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rsi]; x
-    vmovss  dword ptr [rsp+188h+var_150], xmm6
-  }
-  Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, dest, &colorWhite, 0, 1, v38, 0);
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [rbx]
-    vmovaps xmm6, [rsp+188h+var_28]
-  }
+  Com_sprintf(dest, 0x100ui64, "%i entry:%i verts:%i location:(%.1f %.1f %.1f)", (unsigned int)counter, id, forceColor, (float)((float)(entry->minExtent.v[0] + entry->maxExtent.v[0]) * 0.5), (float)((float)(entry->minExtent.v[1] + entry->maxExtent.v[1]) * 0.5), (float)((float)(entry->minExtent.v[2] + entry->maxExtent.v[2]) * 0.5));
+  Physics_DrawDebugString(scrPlace, *x, *y, dest, &colorWhite, 0, 1, charHeight, 0);
   result = 1;
-  __asm { vmovss  dword ptr [rbx], xmm0 }
+  *y = charHeight + *y;
   return result;
 }
 
@@ -354,70 +236,56 @@ HavokPhysicsCollisionHeatmapViewer::drawBox
 */
 void HavokPhysicsCollisionHeatmapViewer::drawBox(HavokPhysicsCollisionHeatmapViewer *this, int id, const hkVector4f *minExtents, const hkVector4f *maxExtents, const unsigned int *color)
 {
+  float v5; 
   hkDebugDisplayHandler *m_ptr; 
-  unsigned int v9; 
-  __int64 v12; 
-  char v13[16]; 
-  __int128 v14; 
-  __int128 v15; 
-  __int128 v16; 
-  __int128 v17; 
-  __int128 v18; 
-  __int128 v19; 
-  __int128 v20; 
-  __int128 v21; 
+  unsigned int v8; 
+  __int64 v9; 
+  char v10[16]; 
+  __m128 m_quad; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovss  xmm1, dword ptr [r9+4]
-  }
+  v5 = maxExtents->m_quad.m128_f32[1];
   m_ptr = this->m_displayHandler.m_ptr;
-  __asm
-  {
-    vmovups [rbp+4Fh+var_A0], xmm0
-    vmovups [rbp+4Fh+var_70], xmm0
-    vmovups [rbp+4Fh+var_80], xmm0
-    vmovups [rbp+4Fh+var_90], xmm0
-    vmovups [rbp+4Fh+var_40], xmm0
-    vmovups [rbp+4Fh+var_50], xmm0
-    vmovups [rbp+4Fh+var_60], xmm0
-  }
-  v9 = *color;
-  __asm
-  {
-    vmovups [rbp+4Fh+var_30], xmm0
-    vmovss  xmm0, dword ptr [r9]
-    vmovss  dword ptr [rbp+4Fh+var_50], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_70], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_90], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_A0], xmm0
-    vmovss  xmm0, dword ptr [r9+8]
-  }
-  v12 = id;
-  __asm
-  {
-    vmovss  dword ptr [rbp+4Fh+var_60+8], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_80+8], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_90+8], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_A0+8], xmm0
-    vmovss  dword ptr [rbp+4Fh+var_40+4], xmm1
-    vmovss  dword ptr [rbp+4Fh+var_70+4], xmm1
-    vmovss  dword ptr [rbp+4Fh+var_80+4], xmm1
-    vmovss  dword ptr [rbp+4Fh+var_A0+4], xmm1
-  }
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, _QWORD, __int128 *, __int128 *, unsigned int, int))m_ptr->display2Points)(m_ptr, v13, id, &v21, &v20, v9, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v19, &v17, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v18, &v16, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v15, &v14, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v21, &v19, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v20, &v17, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v18, &v15, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v16, &v14, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v21, &v18, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v19, &v15, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v20, &v16, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
-  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __int128 *, __int128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v13, v12, &v17, &v14, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  m_quad = minExtents->m_quad;
+  v14 = m_quad;
+  v13 = m_quad;
+  v12 = m_quad;
+  v17 = m_quad;
+  v16 = m_quad;
+  v15 = m_quad;
+  v8 = *color;
+  v18 = m_quad;
+  v16.m128_i32[0] = maxExtents->m_quad.m128_i32[0];
+  v14.m128_f32[0] = v16.m128_f32[0];
+  v12.m128_f32[0] = v16.m128_f32[0];
+  m_quad.m128_f32[0] = v16.m128_f32[0];
+  v9 = id;
+  v15.m128_i32[2] = maxExtents->m_quad.m128_i32[2];
+  v13.m128_f32[2] = v15.m128_f32[2];
+  v12.m128_f32[2] = v15.m128_f32[2];
+  m_quad.m128_f32[2] = v15.m128_f32[2];
+  v17.m128_f32[1] = v5;
+  v14.m128_f32[1] = v5;
+  v13.m128_f32[1] = v5;
+  m_quad.m128_f32[1] = v5;
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, _QWORD, __m128 *, __m128 *, unsigned int, int))m_ptr->display2Points)(m_ptr, v10, id, &v18, &v17, v8, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v16, &v14, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v15, &v13, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v12, &m_quad, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v18, &v16, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v17, &v14, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v15, &v12, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v13, &m_quad, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v18, &v15, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v16, &v12, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v17, &v13, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
+  ((void (__fastcall *)(hkDebugDisplayHandler *, char *, __int64, __m128 *, __m128 *, const unsigned int, int))this->m_displayHandler.m_ptr->display2Points)(this->m_displayHandler.m_ptr, v10, v9, &v14, &m_quad, *color, HavokPhysicsCollisionHeatmapViewer::s_tag);
 }
 
 /*
@@ -427,123 +295,72 @@ HavokPhysicsCollisionHeatmapViewer::drawEntry
 */
 void HavokPhysicsCollisionHeatmapViewer::drawEntry(HavokPhysicsCollisionHeatmapViewer *this, int id, CollisionHeatmapEntry *entry)
 {
-  __int64 v32; 
-  char v35; 
-  char v50; 
+  __int128 v5; 
+  __int128 v7; 
+  __m128 v14; 
+  float v15; 
+  __int64 v16; 
+  float v18; 
+  float v19; 
+  float vertexDensity; 
+  float value; 
+  float v22; 
+  float v23; 
   unsigned int *color; 
-  unsigned int v66; 
+  unsigned int v25; 
   vec3_t outPos; 
   hkVector4f maxExtents; 
   hkVector4f minExtents; 
-  __int128 v70; 
+  __m128 v29; 
   char dest[256]; 
-  char v72; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v5 = LODWORD(entry->minExtent.v[0]);
+  *(float *)&v5 = entry->minExtent.v[0] * 0.03125;
+  _XMM7 = v5;
+  v7 = LODWORD(entry->maxExtent.v[0]);
+  *(float *)&v7 = entry->maxExtent.v[0] * 0.03125;
+  _XMM6 = v7;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  _RDI = entry;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3d000000
-    vmulss  xmm1, xmm2, dword ptr [r8+1Ch]
-    vmulss  xmm3, xmm2, dword ptr [r8+0Ch]
-    vmulss  xmm5, xmm2, dword ptr [r8+18h]
-    vmulss  xmm4, xmm2, dword ptr [r8+10h]
-    vmovss  xmm0, dword ptr [r8+8]
-    vmulss  xmm7, xmm0, xmm2
-    vmovss  xmm0, dword ptr [r8+14h]
-    vmulss  xmm6, xmm0, xmm2
     vinsertps xmm6, xmm6, xmm5, 10h
     vinsertps xmm6, xmm6, xmm1, 20h ; ' '
     vinsertps xmm7, xmm7, xmm3, 10h
-    vxorps  xmm8, xmm8, xmm8
     vinsertps xmm6, xmm6, xmm8, 30h ; '0'
     vinsertps xmm7, xmm7, xmm4, 20h ; ' '
     vinsertps xmm7, xmm7, xmm8, 30h ; '0'
-    vaddps  xmm1, xmm7, xmm6
-    vmulps  xmm2, xmm1, cs:__xmm@3f0000003f0000003f0000003f000000
-    vmovss  xmm1, cs:__real@42000000
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vmovups xmmword ptr [rsp+1F8h+maxExtents.m_quad], xmm6
-    vmulss  xmm6, xmm2, xmm1
-    vmovups [rsp+1F8h+var_178], xmm2
-    vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-    vmovups xmmword ptr [rsp+1F8h+minExtents.m_quad], xmm7
-    vmulss  xmm9, xmm2, xmm1
   }
-  v32 = id;
-  __asm { vmulss  xmm7, xmm0, xmm1 }
+  v14 = _mm128_mul_ps(_mm128_add_ps(_XMM7, _XMM6), (__m128)_xmm);
+  maxExtents.m_quad = _XMM6;
+  v29 = v14;
+  minExtents.m_quad = _XMM7;
+  v15 = _mm_shuffle_ps(v14, v14, 170).m128_f32[0] * 32.0;
+  v16 = id;
+  v18 = _mm_shuffle_ps(v14, v14, 85).m128_f32[0] * 32.0;
   if ( cg_t::ms_allocatedCount > 0 )
   {
     CL_GetViewPos(LOCAL_CLIENT_0, &outPos);
-    __asm
+    v19 = (float)((float)((float)(outPos.v[1] - v18) * (float)(outPos.v[1] - v18)) + (float)((float)(outPos.v[0] - (float)(v14.m128_f32[0] * 32.0)) * (float)(outPos.v[0] - (float)(v14.m128_f32[0] * 32.0)))) + (float)((float)(outPos.v[2] - v15) * (float)(outPos.v[2] - v15));
+    if ( v19 <= (float)(physics_debugVisualizeWorldCollisionHeatmapRange->current.value * physics_debugVisualizeWorldCollisionHeatmapRange->current.value) )
     {
-      vmovss  xmm0, dword ptr [rsp+1F8h+outPos]
-      vmovss  xmm1, dword ptr [rsp+1F8h+outPos+4]
-    }
-    _RAX = physics_debugVisualizeWorldCollisionHeatmapRange;
-    __asm
-    {
-      vsubss  xmm3, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rsp+1F8h+outPos+8]
-      vsubss  xmm2, xmm1, xmm7
-      vmovss  xmm5, dword ptr [rax+28h]
-      vmulss  xmm1, xmm3, xmm3
-      vsubss  xmm4, xmm0, xmm9
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm6, xmm3, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vcomiss xmm6, xmm1
-    }
-    if ( v35 | v50 )
-    {
-      _RAX = physics_debugVisualizeWorldCollisionHeatmapGood;
-      __asm
+      vertexDensity = entry->vertexDensity;
+      value = physics_debugVisualizeWorldCollisionHeatmapGood->current.value;
+      v22 = physics_debugVisualizeWorldCollisionHeatmapBad->current.value;
+      if ( vertexDensity >= value )
       {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmovss  xmm2, dword ptr [rax+28h]
-        vcomiss xmm0, xmm2
-      }
-      _RAX = physics_debugVisualizeWorldCollisionHeatmapBad;
-      __asm { vmovss  xmm4, dword ptr [rax+28h] }
-      if ( !v35 )
-      {
-        __asm
+        if ( vertexDensity < v22 )
+          v23 = (float)(vertexDensity - value) / (float)(v22 - value);
+        else
+          v23 = FLOAT_1_0;
+        v25 = hkColor::rgbFromFloats(v23, 1.0 - v23, 0.0, 1.0);
+        HavokPhysicsCollisionHeatmapViewer::drawBox(this, v16, &minExtents, &maxExtents, &v25);
+        if ( v19 < 250000.0 )
         {
-          vcomiss xmm0, xmm4
-          vmovss  xmm3, cs:__real@3f800000; alpha
-          vmovaps xmm0, xmm3
-          vsubss  xmm1, xmm3, xmm0; green
-          vxorps  xmm2, xmm2, xmm2; blue
-        }
-        v66 = hkColor::rgbFromFloats(*(const float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3);
-        HavokPhysicsCollisionHeatmapViewer::drawBox(this, v32, &minExtents, &maxExtents, &v66);
-        __asm { vcomiss xmm6, cs:__real@48742400 }
-        if ( v35 )
-        {
-          LODWORD(color) = _RDI->vertexCount;
-          Com_sprintf(dest, 0x100ui64, "%i:%i", (unsigned int)v32, color);
-          ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned int *, __int64, char *, __int128 *, unsigned int, int))this->m_displayHandler.m_ptr->display3dText)(this->m_displayHandler.m_ptr, &v66, v32, dest, &v70, v66, HavokPhysicsCollisionHeatmapViewer::s_tag);
+          LODWORD(color) = entry->vertexCount;
+          Com_sprintf(dest, 0x100ui64, "%i:%i", (unsigned int)v16, color);
+          ((void (__fastcall *)(hkDebugDisplayHandler *, unsigned int *, __int64, char *, __m128 *, unsigned int, int))this->m_displayHandler.m_ptr->display3dText)(this->m_displayHandler.m_ptr, &v25, v16, dest, &v29, v25, HavokPhysicsCollisionHeatmapViewer::s_tag);
         }
       }
     }
-  }
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 

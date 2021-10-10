@@ -108,33 +108,27 @@ FlightDynamics::CalculateDeltaQuatFromAngularVelocity
 
 void __fastcall FlightDynamics::CalculateDeltaQuatFromAngularVelocity(const vec3_t *angVel, double dT, vec4_t *deltaQuat)
 {
+  float v3; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
   vec3_t axis; 
 
+  v3 = *(float *)&dT * angVel->v[0];
+  v5 = *(_OWORD *)&dT;
+  v4 = *(float *)&dT * angVel->v[1];
+  v6 = *(float *)&dT * angVel->v[2];
+  *(float *)&v5 = fsqrt((float)((float)(v4 * v4) + (float)(v3 * v3)) + (float)(v6 * v6));
+  _XMM0 = v5;
   __asm
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmulss  xmm4, xmm1, dword ptr [rcx]
-    vmulss  xmm5, xmm1, dword ptr [rcx+4]
-    vmulss  xmm6, xmm1, dword ptr [rcx+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2; radians
-    vmovss  xmm2, cs:__real@3f800000
     vcmpless xmm1, xmm0, cs:__real@80000000
     vblendvps xmm1, xmm0, xmm2, xmm1
-    vdivss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm4, xmm3
-    vmovss  dword ptr [rsp+58h+axis], xmm1
-    vmulss  xmm1, xmm6, xmm3
-    vmulss  xmm2, xmm5, xmm3
-    vmovss  dword ptr [rsp+58h+axis+8], xmm1
-    vmovss  dword ptr [rsp+58h+axis+4], xmm2
   }
-  AngleRadAxisToQuat(*(float *)&_XMM0, &axis, deltaQuat);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  axis.v[0] = v3 * (float)(1.0 / *(float *)&_XMM1);
+  axis.v[2] = v6 * (float)(1.0 / *(float *)&_XMM1);
+  axis.v[1] = v4 * (float)(1.0 / *(float *)&_XMM1);
+  AngleRadAxisToQuat(*(float *)&v5, &axis, deltaQuat);
 }
 
 /*
@@ -142,25 +136,15 @@ void __fastcall FlightDynamics::CalculateDeltaQuatFromAngularVelocity(const vec3
 FlightDynamics::CalculateDrag
 ==============
 */
-
-float __fastcall FlightDynamics::CalculateDrag(double value, float dragCoefficient, float dT)
+float FlightDynamics::CalculateDrag(float value, float dragCoefficient, float dT)
 {
-  char v3; 
-  char v4; 
+  float v3; 
 
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm1
-    vmulss  xmm4, xmm1, xmm2
-    vandps  xmm3, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm3, xmm1
-  }
-  if ( v3 | v4 )
-    __asm { vsubss  xmm0, xmm0, xmm4 }
+  v3 = (float)(value * dragCoefficient) * dT;
+  if ( COERCE_FLOAT(LODWORD(v3) & _xmm) <= COERCE_FLOAT(LODWORD(value) & _xmm) )
+    return value - v3;
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -168,138 +152,70 @@ float __fastcall FlightDynamics::CalculateDrag(double value, float dragCoefficie
 FlightDynamics::CalculateAeroDrag
 ==============
 */
-
-void __fastcall FlightDynamics::CalculateAeroDrag(vec3_t *inVec, double CdA, double dT, vec3_t *outVec)
+void FlightDynamics::CalculateAeroDrag(vec3_t *inVec, float CdA, float dT, vec3_t *outVec)
 {
-  bool v26; 
-  bool v27; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  int v64; 
-  int v65; 
-  void *retaddr; 
+  float v4; 
+  __int128 v7; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int64 v22; 
+  float v23; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = inVec->v[2];
+  v7 = LODWORD(inVec->v[0]);
+  v9 = inVec->v[1];
+  v10 = (float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v9 * v9)) + (float)(v4 * v4);
+  if ( v10 > 0.000001 )
   {
-    vmovss  xmm5, dword ptr [rcx+8]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = outVec;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RDI = inVec;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rcx]
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmm6, xmm1
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm3, xmm7, xmm7
-    vaddss  xmm4, xmm3, xmm0
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm9, xmm2
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm8, xmm4, xmm2
-    vcvtss2sd xmm0, xmm8, xmm8
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  [rsp+88h+var_58], xmm7
-  }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-    goto LABEL_19;
-  __asm { vmovss  [rsp+88h+var_58], xmm1 }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-    goto LABEL_19;
-  __asm { vmovss  [rsp+88h+var_58], xmm5 }
-  if ( (v61 & 0x7F800000) == 2139095040 )
-  {
-LABEL_19:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1004, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inVec )[0] ) && !IS_NAN( ( inVec )[1] ) && !IS_NAN( ( inVec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inVec )[0] ) && !IS_NAN( ( inVec )[1] ) && !IS_NAN( ( inVec )[2] )") )
+    LODWORD(v11) = LODWORD(CdA) & _xmm;
+    v23 = inVec->v[0];
+    if ( (v7 & 0x7F800000) == 2139095040 || (v23 = inVec->v[1], (LODWORD(v9) & 0x7F800000) == 2139095040) || (v23 = inVec->v[2], (LODWORD(v4) & 0x7F800000) == 2139095040) )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1004, ASSERT_TYPE_SANITY, "( !IS_NAN( ( inVec )[0] ) && !IS_NAN( ( inVec )[1] ) && !IS_NAN( ( inVec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( inVec )[0] ) && !IS_NAN( ( inVec )[1] ) && !IS_NAN( ( inVec )[2] )", v23) )
+        __debugbreak();
+    }
+    v12 = (float)((float)(v10 * v11) * -0.5) * dT;
+    *(float *)&v22 = v12;
+    if ( (LODWORD(v12) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1006, ASSERT_TYPE_SANITY, "( !IS_NAN( dragValue ) )", (const char *)&queryFormat, "!IS_NAN( dragValue )", v22) )
       __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vmulss  xmm1, xmm0, cs:__real@bf000000
-    vmulss  xmm8, xmm1, xmm9
-    vmovss  [rsp+88h+var_58], xmm8
-  }
-  v26 = (v62 & 0x7F800000u) < 0x7F800000;
-  if ( (v62 & 0x7F800000) == 2139095040 )
-  {
-    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1006, ASSERT_TYPE_SANITY, "( !IS_NAN( dragValue ) )", (const char *)&queryFormat, "!IS_NAN( dragValue )");
-    v26 = 0;
-    if ( v27 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+4]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm6, xmm2, xmm2
-    vcmpless xmm0, xmm6, cs:__real@80000000
-    vblendvps xmm0, xmm6, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm3, xmm1, dword ptr [rbx]
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm7, xmm1, dword ptr [rbx+4]
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm4, xmm1, dword ptr [rbx+8]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm6, xmm0
-    vmovss  dword ptr [rbx], xmm3
-    vmovss  dword ptr [rbx+4], xmm7
-    vmovss  dword ptr [rbx+8], xmm4
-  }
-  if ( v26 )
-  {
-    *(_QWORD *)_RBX->v = 0i64;
-    _RBX->v[2] = 0.0;
+    v13 = inVec->v[1];
+    v14 = inVec->v[2];
+    v15 = v7;
+    *(float *)&v15 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v13 * v13)) + (float)(v14 * v14));
+    _XMM6 = v15;
     __asm
     {
-      vxorps  xmm3, xmm3, xmm3
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm4, xmm4, xmm4
+      vcmpless xmm0, xmm6, cs:__real@80000000
+      vblendvps xmm0, xmm6, xmm1, xmm0
     }
-  }
-  __asm { vmovss  [rsp+88h+var_58], xmm3 }
-  if ( (v63 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm { vmovss  [rsp+88h+var_58], xmm7 }
-  if ( (v64 & 0x7F800000) == 2139095040 )
-    goto LABEL_20;
-  __asm { vmovss  [rsp+88h+var_58], xmm4 }
-  if ( (v65 & 0x7F800000) == 2139095040 )
-  {
-LABEL_20:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1014, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *outVec )[0] ) && !IS_NAN( ( *outVec )[1] ) && !IS_NAN( ( *outVec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *outVec )[0] ) && !IS_NAN( ( *outVec )[1] ) && !IS_NAN( ( *outVec )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
+    v19 = (float)((float)(*(float *)&v7 * (float)(1.0 / *(float *)&_XMM0)) * v12) + outVec->v[0];
+    v20 = (float)((float)(v13 * (float)(1.0 / *(float *)&_XMM0)) * v12) + outVec->v[1];
+    v21 = (float)((float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * v12) + outVec->v[2];
+    outVec->v[0] = v19;
+    outVec->v[1] = v20;
+    outVec->v[2] = v21;
+    if ( *(float *)&v15 < fsqrt((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v21 * v21)) )
+    {
+      *(_QWORD *)outVec->v = 0i64;
+      outVec->v[2] = 0.0;
+      v19 = 0.0;
+      v20 = 0.0;
+      v21 = 0.0;
+    }
+    *(float *)&v22 = v19;
+    if ( (LODWORD(v19) & 0x7F800000) == 2139095040 || (*(float *)&v22 = v20, (LODWORD(v20) & 0x7F800000) == 2139095040) || (*(float *)&v22 = v21, (LODWORD(v21) & 0x7F800000) == 2139095040) )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 1014, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *outVec )[0] ) && !IS_NAN( ( *outVec )[1] ) && !IS_NAN( ( *outVec )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *outVec )[0] ) && !IS_NAN( ( *outVec )[1] ) && !IS_NAN( ( *outVec )[2] )", v22) )
+        __debugbreak();
+    }
   }
 }
 
@@ -328,18 +244,9 @@ FlightDynamicCameraData *FlightDynamicsManager::GetCameraCurrentData(FlightDynam
 FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA
 ==============
 */
-
-float __fastcall FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(FlightDynamicsNACALiftDragAOACurve *this, double angleOfAttack)
+float FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(FlightDynamicsNACALiftDragAOACurve *this, float angleOfAttack)
 {
-  __asm
-  {
-    vmulss  xmm2, xmm1, dword ptr [rcx+8]
-    vmulss  xmm0, xmm2, xmm2
-    vmulss  xmm1, xmm0, xmm2
-    vmulss  xmm2, xmm1, xmm2
-    vaddss  xmm0, xmm2, dword ptr [rcx+0Ch]
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)((float)((float)(angleOfAttack * this->m_CDslope) * (float)(angleOfAttack * this->m_CDslope)) * (float)(angleOfAttack * this->m_CDslope)) * (float)(angleOfAttack * this->m_CDslope)) + this->m_CDbase;
 }
 
 /*
@@ -347,21 +254,11 @@ float __fastcall FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(FlightDynamics
 FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA
 ==============
 */
-
-float __fastcall FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(FlightDynamicsNACALiftDragAOACurve *this, double angleOfAttack)
+float FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(FlightDynamicsNACALiftDragAOACurve *this, float angleOfAttack)
 {
-  __asm
-  {
-    vmulss  xmm4, xmm1, dword ptr [rcx+10h]
-    vmulss  xmm3, xmm4, xmm4
-    vaddss  xmm1, xmm3, dword ptr [rcx+18h]
-    vmulss  xmm0, xmm3, xmm4
-    vmulss  xmm2, xmm0, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vdivss  xmm2, xmm4, xmm0
-    vmulss  xmm3, xmm2, dword ptr [rcx+1Ch]
-    vmulss  xmm0, xmm3, dword ptr [rcx]
-  }
-  return *(float *)&_XMM0;
+  float v2; 
+
+  v2 = angleOfAttack * this->m_AoAadjustment;
+  return (float)((float)(v2 / (float)((float)((float)((float)(v2 * v2) * v2) * v2) + (float)((float)(v2 * v2) + this->m_LiftBaseCurve))) * this->m_LiftSlopeCurve) * this->m_MaxCL;
 }
 

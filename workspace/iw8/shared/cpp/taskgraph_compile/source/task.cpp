@@ -919,43 +919,36 @@ tg::Task::CreateOutputResource
 void tg::Task::CreateOutputResource(tg::Task *this, tg::DebugLogs *logs, const char *pName, tg::eResourceType type, tg::eResourceState state, unsigned int access, unsigned int flags, const tg::ResourceDesc *pDesc)
 {
   __int64 v10; 
-  __int64 v15; 
-  _BYTE v19[64]; 
+  __m256i v11; 
+  __int128 v12; 
+  __int64 v13; 
+  tg::ResourceDesc *m_descs; 
+  __int64 m_descCount; 
+  _BYTE v16[64]; 
+  __int128 v17; 
 
   v10 = tg::Task::AddAttachment(this, logs, pName, NULL, type, state, access, 0xFFu, 0xFFu, 0xFFu, 0xFFu, flags, NULL);
-  memset_0(v19, 0, 0x50ui64);
-  _RCX = pDesc;
+  memset_0(v16, 0, 0x50ui64);
   if ( pDesc )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymm1, ymmword ptr [rcx+20h]
-      vmovups xmm2, xmmword ptr [rcx+40h]
-      vmovups [rsp+0C8h+var_58], ymm0
-    }
+    v11 = *(__m256i *)&pDesc->surfaceFormat;
+    v12 = *(_OWORD *)&pDesc->pResource;
+    *(__m256i *)v16 = *(__m256i *)&pDesc->type;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm2, [rsp+0C8h+var_18]
-      vmovups ymm1, [rsp+0C8h+var_38]
-    }
+    v12 = v17;
+    v11 = *(__m256i *)&v16[32];
   }
-  v15 = v10;
-  _RAX = this->m_descs;
-  _RCX = 10i64 * this->m_descCount;
-  *(_DWORD *)v19 = type;
-  __asm
-  {
-    vmovups ymm0, [rsp+0C8h+var_58]
-    vmovups ymmword ptr [rax+rcx*8], ymm0
-    vmovups ymmword ptr [rax+rcx*8+20h], ymm1
-    vmovups xmmword ptr [rax+rcx*8+40h], xmm2
-  }
-  this->m_attachments[v15].pDesc = &this->m_descs[this->m_descCount];
-  this->m_attachments[v15].flags |= 8u;
+  v13 = v10;
+  m_descs = this->m_descs;
+  m_descCount = this->m_descCount;
+  *(_DWORD *)v16 = type;
+  *(__m256i *)&m_descs[m_descCount].type = *(__m256i *)v16;
+  *(__m256i *)&m_descs[m_descCount].surfaceFormat = v11;
+  *(_OWORD *)&m_descs[m_descCount].pResource = v12;
+  this->m_attachments[v13].pDesc = &this->m_descs[this->m_descCount];
+  this->m_attachments[v13].flags |= 8u;
   this->m_descs[this->m_descCount++].pResource = NULL;
 }
 
@@ -966,22 +959,12 @@ tg::Task::CreateResource
 */
 void tg::Task::CreateResource(tg::Task *this, const unsigned int index, const tg::ResourceDesc *desc)
 {
-  __int64 v8; 
+  __int64 v3; 
 
-  __asm { vmovups ymm0, ymmword ptr [r8] }
-  _RAX = this->m_descs;
-  _R9 = 10i64 * this->m_descCount;
-  __asm
-  {
-    vmovups ymmword ptr [rax+r9*8], ymm0
-    vmovups ymm1, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rax+r9*8+20h], ymm1
-    vmovups xmm0, xmmword ptr [r8+40h]
-    vmovups xmmword ptr [rax+r9*8+40h], xmm0
-  }
-  v8 = index;
-  this->m_attachments[v8].pDesc = &this->m_descs[this->m_descCount];
-  this->m_attachments[v8].flags |= 8u;
+  this->m_descs[this->m_descCount] = *desc;
+  v3 = index;
+  this->m_attachments[v3].pDesc = &this->m_descs[this->m_descCount];
+  this->m_attachments[v3].flags |= 8u;
   this->m_descs[this->m_descCount++].pResource = NULL;
 }
 
@@ -999,8 +982,9 @@ void tg::Task::CreateResource(tg::Task *this, const char *pName, const tg::Resou
   tg::ResourceAttachment *m_attachments; 
   __int64 v11; 
   __int64 m_descCount; 
+  tg::ResourceDesc *m_descs; 
+  __int64 v14; 
 
-  _RSI = desc;
   v5 = -1i64;
   v7 = 0;
   do
@@ -1014,25 +998,19 @@ void tg::Task::CreateResource(tg::Task *this, const char *pName, const tg::Resou
     if ( m_attachments[v11].nameHashOutput == v8 )
     {
       m_descCount = this->m_descCount;
-      _R10 = this->m_descs;
+      m_descs = this->m_descs;
       if ( v7 )
       {
-        m_attachments[i].pDesc = &_R10[(unsigned int)(m_descCount - 1)];
+        m_attachments[i].pDesc = &m_descs[(unsigned int)(m_descCount - 1)];
         this->m_attachments[v11].flags |= 8u;
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsi] }
         v7 = 1;
-        _RCX = 10 * m_descCount;
-        __asm
-        {
-          vmovups ymmword ptr [r10+rcx*8], ymm0
-          vmovups ymm1, ymmword ptr [rsi+20h]
-          vmovups ymmword ptr [r10+rcx*8+20h], ymm1
-          vmovups xmm0, xmmword ptr [rsi+40h]
-          vmovups xmmword ptr [r10+rcx*8+40h], xmm0
-        }
+        v14 = m_descCount;
+        *(__m256i *)&m_descs[v14].type = *(__m256i *)&desc->type;
+        *(__m256i *)&m_descs[v14].surfaceFormat = *(__m256i *)&desc->surfaceFormat;
+        *(_OWORD *)&m_descs[v14].pResource = *(_OWORD *)&desc->pResource;
         this->m_attachments[v11].pDesc = &this->m_descs[this->m_descCount];
         this->m_attachments[v11].flags |= 8u;
         this->m_descs[this->m_descCount++].pResource = NULL;
@@ -1339,30 +1317,20 @@ tg::Task::SetAttachmentResource
 */
 tg::ResourceDesc *tg::Task::SetAttachmentResource(tg::Task *this, const unsigned int index, const tg::ResourceDesc *desc)
 {
-  __int64 v9; 
+  __int64 v4; 
   __int64 m_descCount; 
-  tg::ResourceDesc *v11; 
+  tg::ResourceDesc *v6; 
 
   if ( index >= this->m_attachmentCount )
     return 0i64;
-  __asm { vmovups ymm0, ymmword ptr [r8] }
-  _RAX = this->m_descs;
-  _R9 = 10i64 * this->m_descCount;
-  __asm
-  {
-    vmovups ymmword ptr [rax+r9*8], ymm0
-    vmovups ymm1, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rax+r9*8+20h], ymm1
-    vmovups xmm0, xmmword ptr [r8+40h]
-    vmovups xmmword ptr [rax+r9*8+40h], xmm0
-  }
-  v9 = index;
-  this->m_attachments[v9].pDesc = &this->m_descs[this->m_descCount];
-  this->m_attachments[v9].flags = 8;
+  this->m_descs[this->m_descCount] = *desc;
+  v4 = index;
+  this->m_attachments[v4].pDesc = &this->m_descs[this->m_descCount];
+  this->m_attachments[v4].flags = 8;
   m_descCount = this->m_descCount;
-  v11 = &this->m_descs[m_descCount];
+  v6 = &this->m_descs[m_descCount];
   this->m_descCount = m_descCount + 1;
-  return v11;
+  return v6;
 }
 
 /*

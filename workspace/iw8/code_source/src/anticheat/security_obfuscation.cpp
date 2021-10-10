@@ -1741,32 +1741,18 @@ GetObfuscationOrigin_Copy
 */
 void GetObfuscationOrigin_Copy(const vec4_t *from, vec3_t *to)
 {
-  int v5; 
-  int v6; 
-  int v7; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-    vmovss  dword ptr [rdx+4], xmm2
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rdx+8], xmm1
-  }
-  if ( (v5 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm2 }
-  if ( (v6 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+38h+arg_0], xmm1 }
-  if ( (v7 & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 456, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-      __debugbreak();
-  }
+  v2 = from->v[0];
+  to->v[0] = from->v[0];
+  v3 = from->v[1];
+  to->v[1] = v3;
+  v4 = from->v[2];
+  to->v[2] = v4;
+  if ( ((LODWORD(v2) & 0x7F800000) == 2139095040 || (LODWORD(v3) & 0x7F800000) == 2139095040 || (LODWORD(v4) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 456, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -1776,78 +1762,21 @@ GetObfuscationOrigin_CopyMem
 */
 void GetObfuscationOrigin_CopyMem(const vec4_t *from, vec3_t *to)
 {
-  float v3; 
+  float v2; 
+  float v4; 
   float v5; 
-  char *fmt; 
-  double v27; 
-  double v28; 
-  double v29; 
-  double v30; 
-  int v32; 
-  int v33; 
-  int v34; 
+  float v6; 
 
-  v3 = from->v[1];
-  _RBX = to;
-  v5 = from->v[2];
+  v2 = from->v[1];
+  v4 = from->v[2];
   LODWORD(to->v[0]) = LODWORD(from->v[0]) ^ (unsigned int)from;
-  __asm { vmovss  xmm4, dword ptr [rdx] }
-  LODWORD(to->v[1]) = LODWORD(v3) ^ (unsigned int)from;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovaps [rsp+68h+var_18], xmm6
-  }
-  LODWORD(to->v[2]) = LODWORD(v5) ^ (unsigned int)from;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  xmm5, dword ptr [rcx+0Ch]
-    vmovss  xmm3, dword ptr [rcx+4]
-    vmovss  xmm2, dword ptr [rcx]
-    vmovss  xmm6, dword ptr [rcx+8]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+68h+var_28], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+68h+var_30], xmm1
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+68h+var_38], xmm4
-    vcvtss2sd xmm5, xmm5, xmm5
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+68h+var_40], xmm5
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+68h+fmt], xmm6
-  }
-  Com_Printf(0, "KMM: GetObfuscationOrigin_CopyMem from (%f, %f, %f, %f) to (%f, %f, %f) at address %p\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v27, v28, v29, v30, from);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 503, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  v5 = to->v[0];
+  LODWORD(to->v[1]) = LODWORD(v2) ^ (unsigned int)from;
+  v6 = to->v[1];
+  LODWORD(to->v[2]) = LODWORD(v4) ^ (unsigned int)from;
+  Com_Printf(0, "KMM: GetObfuscationOrigin_CopyMem from (%f, %f, %f, %f) to (%f, %f, %f) at address %p\n", from->v[0], from->v[1], from->v[2], from->v[3], v5, v6, to->v[2], from);
+  if ( ((LODWORD(to->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(to->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(to->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 503, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -3428,40 +3357,11 @@ SetObfuscationOrigin_Copy
 */
 void SetObfuscationOrigin_Copy(const vec3_t *from, vec4_t *to)
 {
-  const vec3_t *v4; 
-  int v7; 
-  int v8; 
-  int v9; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  v4 = from;
-  if ( (v7 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 442, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
-      __debugbreak();
-  }
-  to->v[0] = v4->v[0];
-  to->v[1] = v4->v[1];
-  *(_QWORD *)&to->xyz.z = LODWORD(v4->v[2]);
+  if ( ((LODWORD(from->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(from->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(from->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 442, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
+    __debugbreak();
+  to->v[0] = from->v[0];
+  to->v[1] = from->v[1];
+  *(_QWORD *)&to->xyz.z = LODWORD(from->v[2]);
 }
 
 /*
@@ -3471,75 +3371,28 @@ SetObfuscationOrigin_CopyMem
 */
 void SetObfuscationOrigin_CopyMem(const vec3_t *from, vec4_t *to)
 {
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
-  char *fmt; 
-  double v25; 
-  double v26; 
-  double v27; 
-  double v28; 
-  int v30; 
-  int v31; 
-  int v32; 
+  float v7; 
+  float v8; 
+  float v9; 
 
-  __asm
+  _XMM0 = LODWORD(from->v[0]);
+  if ( (LODWORD(from->v[0]) & 0x7F800000) == 2139095040 || (_XMM0 = LODWORD(from->v[1]), (LODWORD(from->v[1]) & 0x7F800000) == 2139095040) || (_XMM0 = LODWORD(from->v[2]), (LODWORD(from->v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  _RDI = to;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = from;
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\security_obfuscation.cpp", 462, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v6 = LODWORD(_RBX->v[1]) ^ (unsigned int)_RDI;
-  v7 = LODWORD(_RBX->v[0]) ^ (unsigned int)_RDI;
-  LODWORD(_RDI->v[2]) = LODWORD(_RBX->v[2]) ^ (unsigned int)_RDI;
-  __asm { vmovss  xmm1, dword ptr [rdi+8] }
-  LODWORD(_RDI->v[1]) = v6;
-  __asm { vmovss  xmm4, dword ptr [rdi+4] }
-  LODWORD(_RDI->v[0]) = v7;
-  __asm { vmovss  xmm5, dword ptr [rdi] }
-  _RDI->v[3] = 0.0;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+4]
-    vmovss  xmm2, dword ptr [rbx]
-    vmovss  xmm6, dword ptr [rbx+8]
-    vxorpd  xmm0, xmm0, xmm0
-    vmovsd  [rsp+68h+var_28], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+68h+var_30], xmm1
-    vcvtss2sd xmm4, xmm4, xmm4
-    vmovsd  [rsp+68h+var_38], xmm4
-    vcvtss2sd xmm5, xmm5, xmm5
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  [rsp+68h+var_40], xmm5
-    vcvtss2sd xmm6, xmm6, xmm6
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+68h+fmt], xmm6
-  }
-  Com_Printf(0, "KMM: SetObfuscationOrigin_CopyMem from(%f, %f, %f) to (%f, %f, %f, %f) at address %p\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v25, v26, v27, v28, _RDI);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  v5 = LODWORD(from->v[1]) ^ (unsigned int)to;
+  v6 = LODWORD(from->v[0]) ^ (unsigned int)to;
+  LODWORD(to->v[2]) = LODWORD(from->v[2]) ^ (unsigned int)to;
+  v7 = to->v[2];
+  LODWORD(to->v[1]) = v5;
+  v8 = to->v[1];
+  LODWORD(to->v[0]) = v6;
+  v9 = to->v[0];
+  to->v[3] = 0.0;
+  __asm { vxorpd  xmm0, xmm0, xmm0 }
+  Com_Printf(0, "KMM: SetObfuscationOrigin_CopyMem from(%f, %f, %f) to (%f, %f, %f, %f) at address %p\n", from->v[0], from->v[1], from->v[2], v9, v8, v7, *(double *)&_XMM0, to);
 }
 

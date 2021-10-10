@@ -3463,7 +3463,7 @@ bdReference<bdRemoteTask> *bdMarketplace::purchaseOnWiiUInitializeV2(bdMarketpla
 {
   bdLobbyErrorCode started; 
   bdStructBufferTask *m_ptr; 
-  bdLobbyErrorCode v9; 
+  bdLobbyErrorCode v8; 
   bdReference<bdStructBufferTask> newTask; 
 
   newTask.m_ptr = NULL;
@@ -3473,16 +3473,12 @@ bdReference<bdRemoteTask> *bdMarketplace::purchaseOnWiiUInitializeV2(bdMarketpla
     {
       if ( request->m_languageCode[0] )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+8]
-          vmovups xmmword ptr [r8+10h], xmm0
-        }
+        *((_OWORD *)&request->__vftable + 1) = *(_OWORD *)this->m_context;
         started = bdRemoteTaskManager::startStructTask(this->m_remoteTaskManager, &newTask, 0x50u, 0x78u, request, response, NULL);
         if ( started )
         {
-          v9 = started;
-          bdLogMessage(BD_LOG_WARNING, "warn/", "marketplace", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmarketplace\\bdmarketplace.cpp", "bdMarketplace::startStructTask", 0x50u, "Failed to start task: Error %i", v9);
+          v8 = started;
+          bdLogMessage(BD_LOG_WARNING, "warn/", "marketplace", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmarketplace\\bdmarketplace.cpp", "bdMarketplace::startStructTask", 0x50u, "Failed to start task: Error %i", v8);
         }
       }
       else
@@ -4086,7 +4082,7 @@ bdReference<bdRemoteTask> *bdMarketplace::wiiUProcessDurableV2(bdMarketplace *th
 {
   bdLobbyErrorCode started; 
   bdStructBufferTask *m_ptr; 
-  bdLobbyErrorCode v9; 
+  bdLobbyErrorCode v8; 
   bdReference<bdStructBufferTask> newTask; 
 
   newTask.m_ptr = NULL;
@@ -4096,16 +4092,12 @@ bdReference<bdRemoteTask> *bdMarketplace::wiiUProcessDurableV2(bdMarketplace *th
     {
       if ( request->m_languageCode[0] )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx+8]
-          vmovups xmmword ptr [r8+10h], xmm0
-        }
+        *((_OWORD *)&request->__vftable + 1) = *(_OWORD *)this->m_context;
         started = bdRemoteTaskManager::startStructTask(this->m_remoteTaskManager, &newTask, 0x50u, 0x79u, request, response, NULL);
         if ( started )
         {
-          v9 = started;
-          bdLogMessage(BD_LOG_WARNING, "warn/", "marketplace", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmarketplace\\bdmarketplace.cpp", "bdMarketplace::startStructTask", 0x50u, "Failed to start task: Error %i", v9);
+          v8 = started;
+          bdLogMessage(BD_LOG_WARNING, "warn/", "marketplace", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdmarketplace\\bdmarketplace.cpp", "bdMarketplace::startStructTask", 0x50u, "Failed to start task: Error %i", v8);
         }
       }
       else

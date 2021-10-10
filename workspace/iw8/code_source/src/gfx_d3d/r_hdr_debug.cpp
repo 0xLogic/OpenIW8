@@ -60,1032 +60,615 @@ RB_HDRSpotMeter_Draw
 */
 void RB_HDRSpotMeter_Draw(GfxCmdBufContext *gfxContext)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
   const GfxBackEndData *data; 
+  unsigned int width; 
+  const R_RT_Surface *Surface; 
   GfxFont *debugFont; 
   const GfxViewInfo *viewInfo; 
+  __int64 height; 
+  int pixelHeight; 
+  unsigned int v19; 
+  unsigned int v20; 
+  int v21; 
+  float v22; 
+  bool enabled; 
+  float v24; 
+  float v25; 
+  float v26; 
   unsigned __int64 integer; 
-  __int64 v25; 
-  bool v26; 
-  const char *v72; 
-  char v74; 
-  const char *v93; 
-  char v111; 
-  unsigned __int8 v128; 
-  int v137; 
-  unsigned __int8 v138; 
-  int v139; 
-  unsigned __int8 v140; 
-  int v141; 
-  unsigned __int8 v142; 
-  unsigned __int8 v161; 
-  int v164; 
-  unsigned __int8 v165; 
-  int v166; 
-  unsigned __int8 v167; 
-  int v168; 
-  unsigned __int8 v169; 
-  unsigned __int8 v202; 
-  int v211; 
-  unsigned __int8 v212; 
-  int v213; 
-  unsigned __int8 v214; 
-  int v215; 
-  unsigned __int8 v216; 
-  unsigned __int8 v236; 
-  int v238; 
-  unsigned __int8 v239; 
-  int v240; 
-  unsigned __int8 v241; 
-  int v242; 
-  unsigned __int8 v243; 
-  const char *v327; 
-  const char *v341; 
+  __int64 v28; 
+  bool v29; 
+  GfxCmdBufContext v30; 
+  __int128 v31; 
+  float v32; 
+  double v35; 
+  const char *v38; 
+  __int128 v39; 
+  float v40; 
+  float v42; 
+  const char *v45; 
+  float v46; 
+  float v48; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  int v56; 
+  int v58; 
+  unsigned __int8 v59; 
+  int v61; 
+  int v63; 
+  int v64; 
+  unsigned __int8 v65; 
+  int v66; 
+  unsigned __int8 v67; 
+  int v68; 
+  unsigned __int8 v69; 
+  int v72; 
+  int v74; 
+  int v75; 
+  unsigned __int8 v76; 
+  int v78; 
+  int v79; 
+  unsigned __int8 v80; 
+  int v81; 
+  unsigned __int8 v82; 
+  int v83; 
+  unsigned __int8 v84; 
+  float v86; 
+  float v87; 
+  float v89; 
+  int v92; 
+  int v94; 
+  unsigned __int8 v95; 
+  int v97; 
+  int v99; 
+  int v100; 
+  unsigned __int8 v101; 
+  int v102; 
+  unsigned __int8 v103; 
+  int v104; 
+  unsigned __int8 v105; 
+  int v108; 
+  int v110; 
+  int v111; 
+  unsigned __int8 v113; 
+  int v114; 
+  int v115; 
+  unsigned __int8 v116; 
+  int v117; 
+  unsigned __int8 v118; 
+  int v119; 
+  unsigned __int8 v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  double v124; 
+  float v125; 
+  const char *v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  double v131; 
+  const char *v132; 
+  float v133; 
+  float v134; 
   materialCommands_t *Tess; 
-  materialCommands_t *v361; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  char *fmtg; 
-  float fmth; 
-  char *fmti; 
-  float fmtj; 
+  materialCommands_t *v136; 
   char *fmt; 
-  float fmtk; 
   char *fmta; 
-  float fmtl; 
-  char *fmtm; 
-  float fmtn; 
   char *fmtb; 
-  float fmto; 
   char *fmtc; 
-  float fmtp; 
-  char *fmtq; 
-  float fmtr; 
-  float fmts; 
-  char *fmtt; 
-  char *fmtu; 
-  float fmtv; 
-  float fmtw; 
-  float fmtx; 
-  float fmty; 
-  float fmtz; 
-  float fmtba; 
-  float fmtbb; 
-  float fmtbc; 
-  float fmtbd; 
-  float fmtbe; 
-  float fmtbf; 
-  float fmtbg; 
-  char *fmtbh; 
-  float fmtbi; 
-  float fmtbj; 
-  float fmtbk; 
-  float fmtbl; 
   float *imageKey; 
   float *imageKeya; 
-  float *imageKeyd; 
   float *imageKeyb; 
   float *imageKeyc; 
-  float *imageKeye; 
-  float *imageKeyf; 
-  float *imageKeyg; 
-  __int64 v416; 
-  __int64 v417; 
-  __int64 v418; 
+  __int64 v145; 
+  __int64 v146; 
+  __int64 v147; 
   R_RT_ColorHandle result; 
   float outRadiometricScale; 
+  float v150; 
   float exposure; 
   float sceneAvgKiloNits; 
-  float v424; 
+  float v153; 
   float sceneAmbientAvgKiloNits; 
   vec3_t color; 
-  GfxCmdBufContext v427; 
-  GfxPointVertex v428; 
-  int v432; 
-  int v436; 
-  int v440; 
-  int v444; 
-  int v448; 
-  int v452; 
-  int v456; 
-  int v460; 
-  int v464; 
-  int v468; 
-  int v472; 
-  char v473[256]; 
-  char v474[256]; 
+  GfxCmdBufContext v156; 
+  GfxPointVertex v157; 
+  float v158; 
+  float v159; 
+  float v160; 
+  int v161; 
+  float v162; 
+  float v163; 
+  float v164; 
+  int v165; 
+  float v166; 
+  float v167; 
+  float v168; 
+  int v169; 
+  float v170; 
+  float v171; 
+  float v172; 
+  int v173; 
+  float v174; 
+  float v175; 
+  float v176; 
+  int v177; 
+  float v178; 
+  float v179; 
+  float v180; 
+  int v181; 
+  float v182; 
+  float v183; 
+  float v184; 
+  int v185; 
+  float v186; 
+  float v187; 
+  float v188; 
+  int v189; 
+  float v190; 
+  float v191; 
+  float v192; 
+  int v193; 
+  float v194; 
+  float v195; 
+  float v196; 
+  int v197; 
+  float v198; 
+  float v199; 
+  float v200; 
+  int v201; 
+  char v202[256]; 
+  char v203[256]; 
   char dest[256]; 
-  char v476[256]; 
+  char v205[256]; 
+  __int128 v206; 
+  __int128 v207; 
+  __int128 v208; 
+  __int128 v209; 
+  __int128 v210; 
+  __int128 v211; 
+  __int128 v212; 
+  __int128 v213; 
+  __int128 v214; 
+  __int128 v215; 
 
-  _RSI = gfxContext;
   data = gfxContext->state->data;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_debug.cpp", 139, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( data->viewInfo && r_hdrSpotmeter->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+630h+var_30], xmm6
-      vmovaps [rsp+630h+var_40], xmm7
-      vmovaps [rsp+630h+var_50], xmm8
-      vmovaps [rsp+630h+var_60], xmm9
-      vmovaps [rsp+630h+var_70], xmm10
-      vmovaps [rsp+630h+var_80], xmm11
-      vmovaps [rsp+630h+var_90], xmm12
-      vmovaps [rsp+630h+var_A0], xmm13
-      vmovaps [rsp+630h+var_B0], xmm14
-      vmovaps [rsp+630h+var_C0], xmm15
-    }
+    v215 = v1;
+    v214 = v2;
+    v213 = v3;
+    v212 = v4;
+    v211 = v5;
+    v210 = v6;
+    v209 = v7;
+    v208 = v8;
+    v207 = v9;
+    v206 = v10;
     R_RT_GetGlobalColor(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-    R_RT_Handle::GetSurface(&result);
-    R_RT_Handle::GetSurface(&result);
+    width = R_RT_Handle::GetSurface(&result)->m_image.m_base.width;
+    Surface = R_RT_Handle::GetSurface(&result);
     debugFont = backEnd.debugFont;
     viewInfo = data->viewInfo;
-    R_Set2D(_RSI->source);
-    if ( r_hdrScopesRenderStage->current.integer && r_hdrScopesResizeScreen->current.enabled && r_hdrScopesLayout->current.integer != 1 )
+    height = Surface->m_image.m_base.height;
+    pixelHeight = backEnd.debugFont->pixelHeight;
+    R_Set2D(gfxContext->source);
+    if ( r_hdrScopesRenderStage->current.integer && r_hdrScopesResizeScreen->current.enabled )
     {
-      __asm
+      if ( r_hdrScopesLayout->current.integer == 1 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rbx
-        vmulss  xmm0, xmm0, dword ptr [rax+28h]
-        vcvttss2si rax, xmm0
+        v19 = width >> 2;
+        v20 = (unsigned int)height >> 2;
+        goto LABEL_18;
       }
+      v21 = 1024;
+      v19 = width >> 1;
+      v22 = (float)height;
+      if ( (int)(float)(v22 * r_hdrScopesOverlaySplit->current.value) < 1024 )
+        v21 = (int)(float)(v22 * r_hdrScopesOverlaySplit->current.value);
+      enabled = 0;
+      if ( v21 )
+        enabled = r_hdrScopesDrawWaveform->current.enabled;
+      if ( enabled )
+        LODWORD(height) = height - v21;
     }
-    __asm
+    else
     {
-      vxorps  xmm8, xmm8, xmm8
-      vcvtsi2ss xmm8, xmm8, rax
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, rax
+      v19 = width >> 1;
     }
+    v20 = (unsigned int)height >> 1;
+LABEL_18:
+    v24 = (float)v20;
+    v26 = (float)v19;
+    v25 = v26;
     integer = r_debugShaderMaterial->current.integer;
-    v26 = 0;
+    v29 = 0;
     if ( (unsigned int)integer <= 0x25 )
     {
-      v25 = 0x21400001FAi64;
-      if ( _bittest64(&v25, integer) )
-        v26 = 1;
+      v28 = 0x21400001FAi64;
+      if ( _bittest64(&v28, integer) )
+        v29 = 1;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm7, xmm9, cs:__real@40a00000
-      vsubss  xmm2, xmm8, cs:__real@431b0000
-      vmovss  xmm3, cs:__real@43960000
-      vmovups [rbp+530h+var_5A0], xmm0
-      vmovss  xmm0, cs:__real@43020000
-      vmovaps xmm1, xmm7
-      vmovss  dword ptr [rsp+630h+fmt], xmm0
-    }
-    RB_DrawRect2D(&v427, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, (const GfxColor)0x80000000);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm2, xmm8, cs:__real@42340000
-      vmovss  xmm3, cs:__real@43960000
-      vmovups [rbp+530h+var_5A0], xmm0
-      vmovss  xmm0, cs:__real@425c0000
-      vmovaps xmm1, xmm7
-      vmovss  dword ptr [rsp+630h+fmt], xmm0
-    }
-    RB_DrawRect2D(&v427, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, (const GfxColor)0x80000000);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41800000
-      vxorps  xmm4, xmm4, xmm4
-      vaddss  xmm1, xmm9, xmm0
-      vsubss  xmm3, xmm9, xmm0
-      vsubss  xmm2, xmm8, xmm0
-      vaddss  xmm0, xmm8, xmm0
-      vmovss  [rbp+530h+var_55C], xmm0
-      vmovss  [rbp+530h+var_54C], xmm0
-      vmovss  [rbp+530h+var_53C], xmm0
-      vmovss  [rbp+530h+var_52C], xmm0
-      vmovss  [rbp+530h+var_580], xmm1
-      vmovss  [rbp+530h+var_570], xmm1
-      vmovss  [rbp+530h+var_560], xmm1
-      vmovss  [rbp+530h+var_550], xmm1
-      vmovss  xmm1, cs:__real@40800000
-      vsubss  xmm0, xmm9, xmm1
-      vmovss  [rbp+530h+var_510], xmm0
-      vaddss  xmm0, xmm9, xmm1
-      vmovss  [rbp+530h+var_500], xmm0
-      vsubss  xmm0, xmm8, xmm1
-      vmovss  [rbp+530h+var_4EC], xmm0
-      vaddss  xmm0, xmm8, xmm1
-      vmovss  [rbp+530h+var_4DC], xmm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovss  [rbp+530h+var_590], xmm3
-      vmovss  [rbp+530h+var_58C], xmm2
-      vmovss  [rbp+530h+var_588], xmm4
-      vmovss  [rbp+530h+var_57C], xmm2
-      vmovss  [rbp+530h+var_578], xmm4
-      vmovss  [rbp+530h+var_56C], xmm2
-      vmovss  [rbp+530h+var_568], xmm4
-      vmovss  [rbp+530h+var_558], xmm4
-      vmovss  [rbp+530h+var_548], xmm4
-      vmovss  [rbp+530h+var_540], xmm3
-      vmovss  [rbp+530h+var_538], xmm4
-      vmovss  [rbp+530h+var_530], xmm3
-      vmovss  [rbp+530h+var_528], xmm4
-      vmovss  [rbp+530h+var_520], xmm3
-      vmovss  [rbp+530h+var_51C], xmm2
-      vmovss  [rbp+530h+var_518], xmm4
-      vmovss  [rbp+530h+var_50C], xmm8
-      vmovss  [rbp+530h+var_508], xmm4
-      vmovss  [rbp+530h+var_4FC], xmm8
-      vmovss  [rbp+530h+var_4F8], xmm4
-      vmovss  [rbp+530h+var_4F0], xmm9
-      vmovss  [rbp+530h+var_4E8], xmm4
-      vmovss  [rbp+530h+var_4E0], xmm9
-      vmovss  [rbp+530h+var_4D8], xmm4
-    }
-    *(_DWORD *)v428.color = 0x40000000;
-    v432 = 0x40000000;
-    v436 = 0x40000000;
-    v440 = 0x40000000;
-    v444 = 0x40000000;
-    v448 = 0x40000000;
-    v452 = 0x40000000;
-    v456 = 0x40000000;
-    v460 = 0x40000000;
-    v464 = 0x40000000;
-    v468 = 0x40000000;
-    v472 = 0x40000000;
-    __asm { vmovups [rbp+530h+var_5A0], xmm0 }
-    RB_DrawLines2D(&v427, 6, 1, &v428);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm1, xmm8, cs:__real@430c0000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups [rbp+530h+var_5A0], xmm0
-    }
-    RB_DrawText(&v427, "PRE TONEMAPPING", debugFont, *(float *)&_XMM3, fmtf, (const GfxColor)-1);
+    v156 = *gfxContext;
+    RB_DrawRect2D(&v156, v26 - 5.0, v24 - 155.0, 300.0, 130.0, (const GfxColor)0x80000000);
+    v156 = *gfxContext;
+    RB_DrawRect2D(&v156, v26 - 5.0, v24 + 45.0, 300.0, 55.0, (const GfxColor)0x80000000);
+    v167 = v24 + 16.0;
+    v171 = v24 + 16.0;
+    v175 = v24 + 16.0;
+    v179 = v24 + 16.0;
+    v158 = v26 + 16.0;
+    v162 = v26 + 16.0;
+    v166 = v26 + 16.0;
+    v170 = v26 + 16.0;
+    v186 = v26 - 4.0;
+    v190 = v26 + 4.0;
+    v195 = v24 - 4.0;
+    v199 = v24 + 4.0;
+    v30 = *gfxContext;
+    v157.xyz.v[0] = v26 - 16.0;
+    v157.xyz.v[1] = v24 - 16.0;
+    v157.xyz.v[2] = 0.0;
+    v159 = v24 - 16.0;
+    v160 = 0.0;
+    v163 = v24 - 16.0;
+    v164 = 0.0;
+    v168 = 0.0;
+    v172 = 0.0;
+    v174 = v26 - 16.0;
+    v176 = 0.0;
+    v178 = v26 - 16.0;
+    v180 = 0.0;
+    v182 = v26 - 16.0;
+    v183 = v24 - 16.0;
+    v184 = 0.0;
+    v187 = v24;
+    v188 = 0.0;
+    v191 = v24;
+    v192 = 0.0;
+    v194 = (float)v19;
+    v196 = 0.0;
+    v198 = v194;
+    v200 = 0.0;
+    *(_DWORD *)v157.color = 0x40000000;
+    v161 = 0x40000000;
+    v165 = 0x40000000;
+    v169 = 0x40000000;
+    v173 = 0x40000000;
+    v177 = 0x40000000;
+    v181 = 0x40000000;
+    v185 = 0x40000000;
+    v189 = 0x40000000;
+    v193 = 0x40000000;
+    v197 = 0x40000000;
+    v201 = 0x40000000;
+    v156 = v30;
+    RB_DrawLines2D(&v156, 6, 1, &v157);
+    v156 = *gfxContext;
+    RB_DrawText(&v156, "PRE TONEMAPPING", debugFont, v26, v24 - 140.0, (const GfxColor)-1);
     R_Tonemap_GetRadiometricScale(data, viewInfo, &outRadiometricScale, NULL);
+    v31 = LODWORD(s_centerPixel[0].v[0]);
+    v32 = (float)((float)((float)(s_centerPixel[0].v[0] * 0.21259999) + (float)(s_centerPixel[0].v[1] * 0.71520001)) + (float)(s_centerPixel[0].v[2] * 0.0722)) / outRadiometricScale;
+    *(float *)&v31 = v32 * 1000.0;
+    _XMM6 = v31;
+    _XMM11 = LODWORD(FLOAT_0_1);
+    v35 = (float)((float)(logf_0((float)(v32 * 1000.0) + 0.000060999999) * 1.442695) + 2.8399999);
     __asm
     {
-      vmovss  xmm1, dword ptr cs:s_centerPixel+4
-      vmulss  xmm2, xmm1, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+4; vec3_t const vec3_colorluminance
-      vmovss  xmm0, dword ptr cs:s_centerPixel
-      vmulss  xmm3, xmm0, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B; vec3_t const vec3_colorluminance
-      vmovss  xmm0, dword ptr cs:s_centerPixel+8
-      vmulss  xmm1, xmm0, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+8; vec3_t const vec3_colorluminance
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vdivss  xmm7, xmm2, [rsp+630h+outRadiometricScale]
-      vmulss  xmm6, xmm7, cs:__real@447a0000
-      vaddss  xmm0, xmm6, cs:__real@387fda40; X
-    }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3fb8aa3b
-      vaddss  xmm0, xmm1, cs:__real@4035c28f
-      vmovss  xmm11, cs:__real@3dcccccd
-      vcvtss2sd xmm2, xmm0, xmm0
       vcmpless xmm0, xmm11, xmm7
       vblendvps xmm0, xmm6, xmm7, xmm0
-      vcvtss2sd xmm3, xmm0, xmm0
-      vcomiss xmm7, xmm11
     }
-    v72 = "PNT LUM  = %.3fkn (EV %.3f)";
-    __asm { vmovq   r9, xmm3 }
-    if ( v74 )
-      v72 = "PNT LUM  = %.3fn (EV %.3f)";
-    __asm { vmovsd  [rsp+630h+fmt], xmm2 }
-    Com_sprintf(dest, 0x100ui64, v72, _R9, fmtg);
+    v38 = "PNT LUM  = %.3fkn (EV %.3f)";
+    if ( v32 < 0.1 )
+      v38 = "PNT LUM  = %.3fn (EV %.3f)";
+    Com_sprintf(dest, 0x100ui64, v38, *(float *)&_XMM0, v35);
+    v156 = *gfxContext;
+    RB_DrawText(&v156, dest, debugFont, v25, v24 - 128.0, (const GfxColor)-1);
+    v39 = LODWORD(s_centerAverage[0].v[0]);
+    v40 = (float)((float)((float)(s_centerAverage[0].v[0] * 0.21259999) + (float)(s_centerAverage[0].v[1] * 0.71520001)) + (float)(s_centerAverage[0].v[2] * 0.0722)) / outRadiometricScale;
+    *(float *)&v39 = v40 * 1000.0;
+    _XMM6 = v39;
+    v42 = (float)(logf_0((float)(v40 * 1000.0) + 0.000060999999) * 1.442695) + 2.8399999;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm1, xmm8, cs:__real@43000000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups [rbp+530h+var_5A0], xmm0
-    }
-    RB_DrawText(&v427, dest, debugFont, *(float *)&_XMM3, fmth, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr cs:s_centerAverage+4
-      vmulss  xmm2, xmm1, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+4; vec3_t const vec3_colorluminance
-      vmovss  xmm0, dword ptr cs:s_centerAverage
-      vmulss  xmm3, xmm0, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B; vec3_t const vec3_colorluminance
-      vmovss  xmm0, dword ptr cs:s_centerAverage+8
-      vmulss  xmm1, xmm0, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+8; vec3_t const vec3_colorluminance
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vdivss  xmm7, xmm2, [rsp+630h+outRadiometricScale]
-      vmulss  xmm6, xmm7, cs:__real@447a0000
-      vaddss  xmm0, xmm6, cs:__real@387fda40; X
-    }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3fb8aa3b
-      vaddss  xmm2, xmm1, cs:__real@4035c28f
       vcmpless xmm0, xmm11, xmm7
-      vcomiss xmm7, xmm11
       vblendvps xmm0, xmm6, xmm7, xmm0
     }
-    v93 = "AVG LUM  = %.3fkn (EV %.3f)";
-    __asm
-    {
-      vcvtss2sd xmm3, xmm0, xmm0
-      vcvtss2sd xmm4, xmm2, xmm2
-    }
-    if ( v74 )
-      v93 = "AVG LUM  = %.3fn (EV %.3f)";
-    __asm
-    {
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm4
-    }
-    Com_sprintf(dest, 0x100ui64, v93, _R9, fmti);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm1, xmm8, cs:__real@42e80000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups [rbp+530h+var_5A0], xmm0
-    }
-    RB_DrawText(&v427, dest, debugFont, *(float *)&_XMM3, fmtj, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm6, dword ptr cs:s_centerPixel+8
-      vmovss  xmm13, dword ptr cs:s_centerPixel
-      vmovss  xmm14, dword ptr cs:s_centerPixel+4
-      vunpcklps xmm0, xmm13, xmm14
-      vmovss  dword ptr [rbp+530h+var_5A0+8], xmm6
-      vmovsd  qword ptr [rsp+630h+color], xmm0
-    }
-    color.v[2] = *(float *)&v427.state;
-    __asm { vmovss  [rsp+630h+var_5CC], xmm6 }
+    v45 = "AVG LUM  = %.3fkn (EV %.3f)";
+    if ( v40 < 0.1 )
+      v45 = "AVG LUM  = %.3fn (EV %.3f)";
+    Com_sprintf(dest, 0x100ui64, v45, *(float *)&_XMM0, v42);
+    v156 = *gfxContext;
+    RB_DrawText(&v156, dest, debugFont, v25, v24 - 116.0, (const GfxColor)-1);
+    v46 = s_centerPixel[0].v[2];
+    _XMM13 = LODWORD(s_centerPixel[0].v[0]);
+    v48 = s_centerPixel[0].v[1];
+    __asm { vunpcklps xmm0, xmm13, xmm14 }
+    *(float *)&v156.state = s_centerPixel[0].v[2];
+    *(double *)color.v = *(double *)&_XMM0;
+    color.v[2] = s_centerPixel[0].v[2];
+    v150 = s_centerPixel[0].v[2];
     LinearToGammaColor_Srgb(&color);
-    __asm
+    v50 = v46 * 0.0722;
+    v51 = FLOAT_0_41666666;
+    v52 = (float)((float)(*(float *)&_XMM13 * 0.21259999) + (float)(v48 * 0.71520001)) + v50;
+    if ( v52 > 0.0031308001 )
+      powf_0(v52, 0.41666666);
+    if ( v29 )
     {
-      vmulss  xmm1, xmm6, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+8; vec3_t const vec3_colorluminance
-      vmulss  xmm3, xmm13, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B; vec3_t const vec3_colorluminance
-      vmulss  xmm2, xmm14, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+4; vec3_t const vec3_colorluminance
-      vmovss  xmm6, cs:__real@3ed55555
-      vmovss  xmm15, cs:__real@454de99a
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm11, xmm4, xmm1
-      vcomiss xmm11, cs:__real@3b4d2e1c
-    }
-    if ( v74 | v111 )
-    {
-      __asm { vmulss  xmm12, xmm11, xmm15 }
-    }
-    else
-    {
+      v53 = v150;
+      _XMM6 = 0i64;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v56 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v56 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v58 = (int)*(float *)&_XMM0;
+      v59 = v56;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v58 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v61 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v61 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v63 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v63 = 255;
+      if ( v56 < 0 )
+        v59 = 0;
+      v64 = v59;
+      v65 = v58;
+      if ( v58 < 0 )
+        v65 = 0;
+      v66 = v65;
+      v67 = v61;
+      LODWORD(imageKey) = v66;
+      if ( v61 < 0 )
+        v67 = 0;
+      v68 = v67;
+      v69 = v63;
+      if ( v63 < 0 )
+        v69 = 0;
+      LODWORD(fmt) = v68;
+      Com_sprintf(v203, 0x100ui64, "PNT RGB  = %i, %i, %i (Lum %i) ", v69, fmt, imageKey, v64);
+      *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+      RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 - 94.0, (const GfxColor)-1);
       __asm
       {
-        vmovaps xmm1, xmm6; Y
-        vmovaps xmm0, xmm11; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@43868333
-        vsubss  xmm12, xmm1, cs:__real@41606666
-      }
-    }
-    __asm
-    {
-      vmovss  xmm10, cs:__real@437f0000
-      vmovss  xmm7, cs:__real@3f000000
-    }
-    if ( v26 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm11, xmm10
-        vmovss  xmm11, [rsp+630h+var_5CC]
-        vaddss  xmm2, xmm0, xmm7
-        vxorps  xmm6, xmm6, xmm6
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si r8d, xmm0
-        vmulss  xmm0, xmm11, xmm10
-      }
-      if ( _ER8 > 255 )
-        _ER8 = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si edx, xmm0
-      }
-      v128 = _ER8;
-      __asm { vmulss  xmm0, xmm14, xmm10 }
-      if ( _EDX > 255 )
-        _EDX = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si ecx, xmm0
-        vmulss  xmm0, xmm13, xmm10
-      }
-      if ( _ECX > 255 )
-        _ECX = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si r9d, xmm0
-      }
-      if ( _ER9 > 255 )
-        _ER9 = 255;
-      if ( _ER8 < 0 )
-        v128 = 0;
-      v137 = v128;
-      v138 = _EDX;
-      if ( _EDX < 0 )
-        v138 = 0;
-      v139 = v138;
-      v140 = _ECX;
-      LODWORD(imageKey) = v139;
-      if ( _ECX < 0 )
-        v140 = 0;
-      v141 = v140;
-      v142 = _ER9;
-      if ( _ER9 < 0 )
-        v142 = 0;
-      LODWORD(fmt) = v141;
-      Com_sprintf(v474, 0x100ui64, "PNT RGB  = %i, %i, %i (Lum %i) ", v142, fmt, imageKey, v137);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vsubss  xmm1, xmm8, cs:__real@42bc0000
-        vmovaps xmm3, xmm9
-        vmovss  dword ptr [rsp+630h+fmt], xmm1
-        vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      }
-      RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmtk, (const GfxColor)-1);
-      __asm
-      {
-        vaddss  xmm1, xmm12, xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm1
         vroundss xmm2, xmm6, xmm1, 1
-        vmulss  xmm1, xmm10, dword ptr [rbp+530h+color+8]
-        vaddss  xmm3, xmm1, xmm7
         vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si edx, xmm1
-        vmulss  xmm1, xmm10, dword ptr [rsp+630h+color+4]
-        vaddss  xmm3, xmm1, xmm7
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si ecx, xmm1
-        vmulss  xmm1, xmm10, dword ptr [rsp+630h+color]
-        vcvttss2si r8d, xmm2
-        vaddss  xmm3, xmm1, xmm7
       }
-      if ( _ER8 > 255 )
-        _ER8 = 255;
-      if ( _EDX > 255 )
-        _EDX = 255;
-      if ( _ECX > 255 )
-        _ECX = 255;
-      v161 = _ER8;
-      __asm
-      {
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si r9d, xmm1
-      }
-      if ( _ER9 > 255 )
-        _ER9 = 255;
-      if ( _ER8 < 0 )
-        v161 = 0;
-      v164 = v161;
-      v165 = _EDX;
-      if ( _EDX < 0 )
-        v165 = 0;
-      LODWORD(v417) = v164;
-      v166 = v165;
-      v167 = _ECX;
-      LODWORD(imageKeya) = v166;
-      if ( _ECX < 0 )
-        v167 = 0;
-      v168 = v167;
-      v169 = _ER9;
-      if ( _ER9 < 0 )
-        v169 = 0;
-      LODWORD(fmta) = v168;
-      Com_sprintf(v474, 0x100ui64, "PNT sRGB = %i, %i, %i (Lum %i) ", v169, fmta, imageKeya, v417);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vsubss  xmm1, xmm8, cs:__real@42a40000
-        vmovaps xmm3, xmm9
-        vmovss  dword ptr [rsp+630h+fmt], xmm1
-        vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      }
-      RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmtl, (const GfxColor)-1);
-      __asm { vmovss  xmm6, cs:__real@3ed55555 }
-    }
-    else
-    {
-      __asm { vmovss  xmm11, [rsp+630h+var_5CC] }
-    }
-    __asm
-    {
-      vcvtss2sd xmm0, xmm11, xmm11
-      vcvtss2sd xmm3, xmm13, xmm13
-      vcvtss2sd xmm1, xmm14, xmm14
-      vmovsd  [rsp+630h+imageKey], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm1
-    }
-    Com_sprintf(v474, 0x100ui64, "PNT LIN  = %.5f, %.5f, %.5f", *(double *)&_XMM3, *(double *)&fmtm, *(double *)&imageKeyd);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm1, xmm8, cs:__real@428c0000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmtn, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm12, dword ptr cs:s_centerAverage
-      vmovss  xmm13, dword ptr cs:s_centerAverage+4
-      vmovss  xmm14, dword ptr cs:s_centerAverage+8
-      vunpcklps xmm0, xmm12, xmm13
-      vmovss  dword ptr [rbp+530h+var_5A0+8], xmm14
-      vmovsd  qword ptr [rsp+630h+color], xmm0
-    }
-    color.v[2] = *(float *)&v427.state;
-    LinearToGammaColor_Srgb(&color);
-    __asm
-    {
-      vmulss  xmm3, xmm12, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B; vec3_t const vec3_colorluminance
-      vmulss  xmm2, xmm13, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+4; vec3_t const vec3_colorluminance
-      vmulss  xmm1, xmm14, dword ptr cs:?vec3_colorluminance@@3Tvec3_t@@B+8; vec3_t const vec3_colorluminance
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm11, xmm4, xmm1
-      vcomiss xmm11, cs:__real@3b4d2e1c
-    }
-    if ( v74 | v111 )
-    {
-      __asm { vmulss  xmm15, xmm11, xmm15 }
-    }
-    else
-    {
-      __asm
-      {
-        vmovaps xmm1, xmm6; Y
-        vmovaps xmm0, xmm11; X
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@43868333
-        vsubss  xmm15, xmm1, cs:__real@41606666
-      }
-    }
-    if ( v26 )
-    {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vmulss  xmm0, xmm11, xmm10
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si r8d, xmm0
-        vmulss  xmm0, xmm14, xmm10
-      }
-      if ( _ER8 > 255 )
-        _ER8 = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si edx, xmm0
-      }
-      v202 = _ER8;
-      __asm { vmulss  xmm0, xmm13, xmm10 }
-      if ( _EDX > 255 )
-        _EDX = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si ecx, xmm0
-        vmulss  xmm0, xmm12, xmm10
-      }
-      if ( _ECX > 255 )
-        _ECX = 255;
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm7
-        vroundss xmm0, xmm6, xmm2, 1
-        vcvttss2si r9d, xmm0
-      }
-      if ( _ER9 > 255 )
-        _ER9 = 255;
-      if ( _ER8 < 0 )
-        v202 = 0;
-      v211 = v202;
-      v212 = _EDX;
-      if ( _EDX < 0 )
-        v212 = 0;
-      LODWORD(v416) = v211;
-      v213 = v212;
-      v214 = _ECX;
-      LODWORD(imageKeyb) = v213;
-      if ( _ECX < 0 )
-        v214 = 0;
-      v215 = v214;
-      v216 = _ER9;
-      if ( _ER9 < 0 )
-        v216 = 0;
-      LODWORD(fmtb) = v215;
-      Com_sprintf(v474, 0x100ui64, "AVG RGB  = %i, %i, %i (Lum %i) ", v216, fmtb, imageKeyb, v416);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vsubss  xmm1, xmm8, cs:__real@42400000
-        vmovaps xmm3, xmm9
-        vmovss  dword ptr [rsp+630h+fmt], xmm1
-        vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      }
-      RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmto, (const GfxColor)-1);
-      __asm
-      {
-        vaddss  xmm1, xmm15, xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm1
-        vroundss xmm2, xmm6, xmm1, 1
-        vmulss  xmm1, xmm10, dword ptr [rbp+530h+color+8]
-        vaddss  xmm3, xmm1, xmm7
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si edx, xmm1
-        vmulss  xmm1, xmm10, dword ptr [rsp+630h+color+4]
-        vaddss  xmm3, xmm1, xmm7
-        vroundss xmm1, xmm6, xmm3, 1
-        vcvttss2si ecx, xmm1
-        vmulss  xmm1, xmm10, dword ptr [rsp+630h+color]
-        vcvttss2si r8d, xmm2
-        vaddss  xmm3, xmm1, xmm7
-      }
-      if ( _ER8 > 255 )
-        _ER8 = 255;
+      v72 = (int)*(float *)&_XMM1;
       __asm { vroundss xmm1, xmm6, xmm3, 1 }
-      if ( _EDX > 255 )
-        _EDX = 255;
-      if ( _ECX > 255 )
-        _ECX = 255;
-      v236 = _ER8;
-      __asm { vcvttss2si r9d, xmm1 }
-      if ( _ER9 > 255 )
-        _ER9 = 255;
-      if ( _ER8 < 0 )
-        v236 = 0;
-      v238 = v236;
-      v239 = _EDX;
-      if ( _EDX < 0 )
-        v239 = 0;
-      LODWORD(v418) = v238;
-      v240 = v239;
-      v241 = _ECX;
-      LODWORD(imageKeyc) = v240;
-      if ( _ECX < 0 )
-        v241 = 0;
-      v242 = v241;
-      v243 = _ER9;
-      if ( _ER9 < 0 )
-        v243 = 0;
-      LODWORD(fmtc) = v242;
-      Com_sprintf(v474, 0x100ui64, "AVG sRGB = %i, %i, %i (Lum %i) ", v243, fmtc, imageKeyc, v418);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vsubss  xmm1, xmm8, cs:__real@42100000
-        vmovaps xmm3, xmm9
-        vmovss  dword ptr [rsp+630h+fmt], xmm1
-        vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      }
-      RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmtp, (const GfxColor)-1);
-    }
-    __asm
-    {
-      vcvtss2sd xmm0, xmm14, xmm14
-      vcvtss2sd xmm3, xmm12, xmm12
-      vcvtss2sd xmm1, xmm13, xmm13
-      vmovsd  [rsp+630h+imageKey], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm1
-    }
-    Com_sprintf(v476, 0x100ui64, "AVG LIN  = %.5f, %.5f, %.5f", *(double *)&_XMM3, *(double *)&fmtq, *(double *)&imageKeye);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubss  xmm1, xmm8, cs:__real@41c00000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v476, debugFont, *(float *)&_XMM3, fmtr, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm1, xmm8, cs:__real@42700000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "POST TONEMAPPING", debugFont, *(float *)&_XMM3, fmts, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_centerPixel+14h
-      vmovss  xmm3, dword ptr cs:s_centerPixel+0Ch
-      vmovss  xmm1, dword ptr cs:s_centerPixel+10h
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+630h+imageKey], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm1
-    }
-    Com_sprintf(v474, 0x100ui64, "PNT RGB = %.3f, %.3f, %.3f", *(double *)&_XMM3, *(double *)&fmtt, *(double *)&imageKeyf);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_centerAverage+14h
-      vmovss  xmm3, dword ptr cs:s_centerAverage+0Ch
-      vmovss  xmm1, dword ptr cs:s_centerAverage+10h
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+630h+imageKey], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm1
-    }
-    Com_sprintf(v476, 0x100ui64, "AVG RGB = %.3f, %.3f, %.3f", *(double *)&_XMM3, *(double *)&fmtu, *(double *)&imageKeyg);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm1, xmm8, cs:__real@42b40000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v474, debugFont, *(float *)&_XMM3, fmtv, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm1, xmm8, cs:__real@42cc0000
-      vmovaps xmm3, xmm9
-      vmovss  dword ptr [rsp+630h+fmt], xmm1
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v476, debugFont, *(float *)&_XMM3, fmtw, (const GfxColor)-1);
-    R_Tonemap_GetExposureInfo(data, viewInfo, &exposure, &sceneAvgKiloNits, &sceneAmbientAvgKiloNits, &v424);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovss  xmm10, cs:__real@42f00000
-      vmovss  xmm3, cs:__real@43c80000
-      vmovss  xmm2, cs:__real@429e0000
-      vmovss  xmm1, cs:__real@42be0000
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm10
-    }
-    RB_DrawRect2D((GfxCmdBufContext *)&result, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtx, (const GfxColor)0x80000000);
-    __asm
-    {
-      vmovss  xmm3, [rsp+630h+outRadiometricScale]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(v473, 0x100ui64, "%g", *(double *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@42c80000
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm8
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm8
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "RADIOMETRIC SCALE", debugFont, *(float *)&_XMM3, fmty, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovss  xmm9, cs:__real@43a00000
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm8
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtz, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm3, cs:?s_world@@3UGfxWorld@@A.draw.bakedLightScale; GfxWorld s_world
-      vcvtss2sd xmm3, xmm3, xmm3
-      vxorps  xmm12, xmm12, xmm12
-      vcvtsi2ss xmm12, xmm12, r13d
-      vmovq   r9, xmm3
-      vaddss  xmm6, xmm12, xmm8
-    }
-    Com_sprintf(v473, 0x100ui64, "%g", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm8
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "BAKE LIGHT SCALE", debugFont, *(float *)&_XMM3, fmtba, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbb, (const GfxColor)-1);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@43340000
-      vdivss  xmm0, xmm7, dword ptr [r12+3858h]
-      vmovss  xmm13, cs:__real@387fda40
-      vaddss  xmm0, xmm0, xmm13; X
-      vaddss  xmm6, xmm6, xmm12
-    }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3fb8aa3b
-      vmovss  xmm14, cs:__real@4035c28f
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, xmm14
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(v473, 0x100ui64, "EV %.3f", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm8
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "STATIC EXPOSURE", debugFont, *(float *)&_XMM3, fmtbc, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbd, (const GfxColor)-1);
-    __asm
-    {
-      vdivss  xmm0, xmm7, [rsp+630h+exposure]
-      vaddss  xmm0, xmm0, xmm13; X
-      vaddss  xmm6, xmm6, xmm12
-    }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, xmm14
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(v473, 0x100ui64, "EV %.3f", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm8
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "CURRENT EXPOSURE", debugFont, *(float *)&_XMM3, fmtbe, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbf, (const GfxColor)-1);
-    v327 = "Disabled";
-    if ( viewInfo->tonemap.autoExposure )
-      v327 = "Enabled";
-    __asm { vaddss  xmm6, xmm6, xmm12 }
-    Com_sprintf(v473, 0x100ui64, "AUTO EXPOSURE (%s)", v327);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm8
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbg, (const GfxColor)-16711936);
-    __asm
-    {
-      vmovss  xmm7, [rsp+630h+sceneAvgKiloNits]
-      vmulss  xmm8, xmm7, cs:__real@447a0000
-      vaddss  xmm0, xmm8, xmm13; X
-      vaddss  xmm6, xmm6, xmm12
-    }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm15, [rsp+630h+var_C0]
-      vmovaps xmm13, [rsp+630h+var_A0]
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, xmm14
-      vmovaps xmm14, [rsp+630h+var_B0]
-      vcvtss2sd xmm3, xmm2, xmm2
-      vcomiss xmm7, cs:__real@3dcccccd
-    }
-    if ( v74 )
-    {
-      v341 = "EV %.3f (%.3fn)";
-      __asm { vmovaps xmm7, xmm8 }
+      v74 = (int)*(float *)&_XMM1;
+      v75 = (int)*(float *)&_XMM2;
+      if ( (int)*(float *)&_XMM2 > 255 )
+        v75 = 255;
+      if ( v72 > 255 )
+        v72 = 255;
+      if ( v74 > 255 )
+        v74 = 255;
+      v76 = v75;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      v78 = (int)*(float *)&_XMM1;
+      if ( (int)*(float *)&_XMM1 > 255 )
+        v78 = 255;
+      if ( v75 < 0 )
+        v76 = 0;
+      v79 = v76;
+      v80 = v72;
+      if ( v72 < 0 )
+        v80 = 0;
+      LODWORD(v146) = v79;
+      v81 = v80;
+      v82 = v74;
+      LODWORD(imageKeya) = v81;
+      if ( v74 < 0 )
+        v82 = 0;
+      v83 = v82;
+      v84 = v78;
+      if ( v78 < 0 )
+        v84 = 0;
+      LODWORD(fmta) = v83;
+      Com_sprintf(v203, 0x100ui64, "PNT sRGB = %i, %i, %i (Lum %i) ", v84, fmta, imageKeya, v146);
+      *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+      RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 - 82.0, (const GfxColor)-1);
+      v51 = FLOAT_0_41666666;
     }
     else
     {
-      v341 = "EV %.3f (%.3fkn)";
+      v53 = v150;
     }
-    __asm
+    Com_sprintf(v203, 0x100ui64, "PNT LIN  = %.5f, %.5f, %.5f", *(float *)&_XMM13, v48, v53);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 - 70.0, (const GfxColor)-1);
+    _XMM12 = LODWORD(s_centerAverage[0].v[0]);
+    v86 = s_centerAverage[0].v[1];
+    v87 = s_centerAverage[0].v[2];
+    __asm { vunpcklps xmm0, xmm12, xmm13 }
+    *(float *)&v156.state = s_centerAverage[0].v[2];
+    *(double *)color.v = *(double *)&_XMM0;
+    color.v[2] = s_centerAverage[0].v[2];
+    LinearToGammaColor_Srgb(&color);
+    v89 = (float)((float)(*(float *)&_XMM12 * 0.21259999) + (float)(v86 * 0.71520001)) + (float)(v87 * 0.0722);
+    if ( v89 > 0.0031308001 )
+      powf_0(v89, v51);
+    if ( v29 )
     {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovq   r9, xmm3
-      vmovsd  [rsp+630h+fmt], xmm0
+      _XMM6 = 0i64;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v92 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v92 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v94 = (int)*(float *)&_XMM0;
+      v95 = v92;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v94 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v97 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v97 = 255;
+      __asm { vroundss xmm0, xmm6, xmm2, 1 }
+      v99 = (int)*(float *)&_XMM0;
+      if ( (int)*(float *)&_XMM0 > 255 )
+        v99 = 255;
+      if ( v92 < 0 )
+        v95 = 0;
+      v100 = v95;
+      v101 = v94;
+      if ( v94 < 0 )
+        v101 = 0;
+      LODWORD(v145) = v100;
+      v102 = v101;
+      v103 = v97;
+      LODWORD(imageKeyb) = v102;
+      if ( v97 < 0 )
+        v103 = 0;
+      v104 = v103;
+      v105 = v99;
+      if ( v99 < 0 )
+        v105 = 0;
+      LODWORD(fmtb) = v104;
+      Com_sprintf(v203, 0x100ui64, "AVG RGB  = %i, %i, %i (Lum %i) ", v105, fmtb, imageKeyb, v145);
+      *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+      RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 - 48.0, (const GfxColor)-1);
+      __asm
+      {
+        vroundss xmm2, xmm6, xmm1, 1
+        vroundss xmm1, xmm6, xmm3, 1
+      }
+      v108 = (int)*(float *)&_XMM1;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      v110 = (int)*(float *)&_XMM1;
+      v111 = (int)*(float *)&_XMM2;
+      if ( (int)*(float *)&_XMM2 > 255 )
+        v111 = 255;
+      __asm { vroundss xmm1, xmm6, xmm3, 1 }
+      if ( v108 > 255 )
+        v108 = 255;
+      if ( v110 > 255 )
+        v110 = 255;
+      v113 = v111;
+      v114 = (int)*(float *)&_XMM1;
+      if ( (int)*(float *)&_XMM1 > 255 )
+        v114 = 255;
+      if ( v111 < 0 )
+        v113 = 0;
+      v115 = v113;
+      v116 = v108;
+      if ( v108 < 0 )
+        v116 = 0;
+      LODWORD(v147) = v115;
+      v117 = v116;
+      v118 = v110;
+      LODWORD(imageKeyc) = v117;
+      if ( v110 < 0 )
+        v118 = 0;
+      v119 = v118;
+      v120 = v114;
+      if ( v114 < 0 )
+        v120 = 0;
+      LODWORD(fmtc) = v119;
+      Com_sprintf(v203, 0x100ui64, "AVG sRGB = %i, %i, %i (Lum %i) ", v120, fmtc, imageKeyc, v147);
+      *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+      RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 - 36.0, (const GfxColor)-1);
     }
-    Com_sprintf(v473, 0x100ui64, v341, _R9, fmtbh);
-    __asm
+    Com_sprintf(v205, 0x100ui64, "AVG LIN  = %.5f, %.5f, %.5f", *(float *)&_XMM12, v86, v87);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v205, debugFont, v25, v24 - 24.0, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "POST TONEMAPPING", debugFont, v25, v24 + 60.0, (const GfxColor)-1);
+    Com_sprintf(v203, 0x100ui64, "PNT RGB = %.3f, %.3f, %.3f", s_centerPixel[1].v[0], s_centerPixel[1].v[1], s_centerPixel[1].v[2]);
+    Com_sprintf(v205, 0x100ui64, "AVG RGB = %.3f, %.3f, %.3f", s_centerAverage[1].v[0], s_centerAverage[1].v[1], s_centerAverage[1].v[2]);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v203, debugFont, v25, v24 + 90.0, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v205, debugFont, v25, v24 + 102.0, (const GfxColor)-1);
+    R_Tonemap_GetExposureInfo(data, viewInfo, &exposure, &sceneAvgKiloNits, &sceneAmbientAvgKiloNits, &v153);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawRect2D((GfxCmdBufContext *)&result, 95.0, 79.0, 400.0, 120.0, (const GfxColor)0x80000000);
+    Com_sprintf(v202, 0x100ui64, "%g", outRadiometricScale);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "RADIOMETRIC SCALE", debugFont, 100.0, 100.0, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, 100.0, (const GfxColor)-1);
+    v121 = (float)pixelHeight;
+    v122 = (float)pixelHeight + 100.0;
+    Com_sprintf(v202, 0x100ui64, "%g", s_world.draw.bakedLightScale);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "BAKE LIGHT SCALE", debugFont, 100.0, v122, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, v122, (const GfxColor)-1);
+    v123 = v122 + (float)pixelHeight;
+    v124 = (float)((float)(logf_0((float)(180.0 / viewInfo->tonemap.staticExposureLinear) + 0.000060999999) * 1.442695) + 2.8399999);
+    Com_sprintf(v202, 0x100ui64, "EV %.3f", v124);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "STATIC EXPOSURE", debugFont, 100.0, v123, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, v123, (const GfxColor)-1);
+    v125 = v123 + (float)pixelHeight;
+    *(float *)&v124 = (float)(logf_0((float)(180.0 / exposure) + 0.000060999999) * 1.442695) + 2.8399999;
+    Com_sprintf(v202, 0x100ui64, "EV %.3f", *(float *)&v124);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "CURRENT EXPOSURE", debugFont, 100.0, v125, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, v125, (const GfxColor)-1);
+    v126 = "Disabled";
+    if ( viewInfo->tonemap.autoExposure )
+      v126 = "Enabled";
+    v127 = v125 + v121;
+    Com_sprintf(v202, 0x100ui64, "AUTO EXPOSURE (%s)", v126);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 100.0, v127, (const GfxColor)-16711936);
+    v128 = sceneAvgKiloNits;
+    v129 = sceneAvgKiloNits * 1000.0;
+    v130 = v127 + v121;
+    v131 = (float)((float)(logf_0((float)(sceneAvgKiloNits * 1000.0) + 0.000060999999) * 1.442695) + 2.8399999);
+    if ( v128 < 0.1 )
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm10
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
+      v132 = "EV %.3f (%.3fn)";
+      v128 = v129;
     }
-    RB_DrawText((GfxCmdBufContext *)&result, "AVG SCENE", debugFont, *(float *)&_XMM3, fmtbi, (const GfxColor)-1);
-    __asm
+    else
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
+      v132 = "EV %.3f (%.3fkn)";
     }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbj, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vaddss  xmm6, xmm6, xmm12
-      vmovaps xmm3, xmm10
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, "AUTO EXPOSURE ADJUST", debugFont, *(float *)&_XMM3, fmtbk, (const GfxColor)-1);
-    __asm { vmovss  xmm0, [rsp+630h+var_5C0]; X }
-    *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-    __asm
-    {
-      vsubss  xmm1, xmm0, cs:__real@bfdb7e83
-      vmulss  xmm2, xmm1, xmm11
-      vcvtss2sd xmm3, xmm2, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(v473, 0x100ui64, "EV %.3f", *(double *)&_XMM3);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovaps xmm3, xmm9
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      vmovss  dword ptr [rsp+630h+fmt], xmm6
-    }
-    RB_DrawText((GfxCmdBufContext *)&result, v473, debugFont, *(float *)&_XMM3, fmtbl, (const GfxColor)-1);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-    }
+    Com_sprintf(v202, 0x100ui64, v132, v131, v128);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "AVG SCENE", debugFont, 120.0, v130, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, v130, (const GfxColor)-1);
+    v133 = v130 + v121;
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, "AUTO EXPOSURE ADJUST", debugFont, 120.0, v133, (const GfxColor)-1);
+    v134 = (float)(logf_0(v153) - -1.7147983) * 1.442695;
+    Com_sprintf(v202, 0x100ui64, "EV %.3f", v134);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    RB_DrawText((GfxCmdBufContext *)&result, v202, debugFont, 320.0, v133, (const GfxColor)-1);
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
     Tess = R_GetTess((GfxCmdBufContext *)&result);
-    __asm { vmovaps xmm12, [rsp+630h+var_90] }
-    v361 = Tess;
-    __asm
-    {
-      vmovaps xmm11, [rsp+630h+var_80]
-      vmovaps xmm10, [rsp+630h+var_70]
-      vmovaps xmm9, [rsp+630h+var_60]
-      vmovaps xmm8, [rsp+630h+var_50]
-      vmovaps xmm7, [rsp+630h+var_40]
-      vmovaps xmm6, [rsp+630h+var_30]
-    }
+    v136 = Tess;
     if ( Tess->vertexCount )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rsp+630h+result.baseclass_0.m_surfaceID], xmm0
-      }
+      *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
       RB_EndTessSurfaceInternal((GfxCmdBufContext *)&result, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
     }
     else
@@ -1095,8 +678,8 @@ void RB_HDRSpotMeter_Draw(GfxCmdBufContext *gfxContext)
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
           __debugbreak();
       }
-      v361->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-      v361->primStatsTarget = GFX_PRIM_STATS_INVALID;
+      v136->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+      v136->primStatsTarget = GFX_PRIM_STATS_INVALID;
     }
   }
 }
@@ -1110,39 +693,24 @@ void RB_HDRSpotMeter_ProcessStage(GfxCmdBufContext *gfxContext, const GfxViewInf
 {
   GfxCmdBufState *state; 
   ComputeCmdBufState *GfxComputeCmdBufState; 
-  R_RT_ColorHandle v14; 
+  R_RT_ColorHandle v10; 
 
-  _RSI = colorRt;
-  _RBX = gfxContext;
   if ( r_hdrSpotmeter->current.enabled && !viewInfo->viewInfoIndex )
   {
     if ( s_spotMeterTarget.m_surfaceID )
     {
       R_RT_Handle::GetSurface(&s_spotMeterTarget);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups xmmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], xmm0
-      }
-      R_UnbindRenderTarget((GfxCmdBufContext *)&v14);
-      __asm { vmovups ymm0, ymmword ptr [rsi] }
-      state = _RBX->state;
-      __asm { vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0 }
-      R_HW_AddResourceTransition(state, &v14, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      *(GfxCmdBufContext *)&v10.m_surfaceID = *gfxContext;
+      R_UnbindRenderTarget((GfxCmdBufContext *)&v10);
+      state = gfxContext->state;
+      v10 = *colorRt;
+      R_HW_AddResourceTransition(state, &v10, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_FlushResourceTransitions(state);
       GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(state);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-      }
-      R_HDRSpotMeter_ProcessStage(GfxComputeCmdBufState, viewInfo, &v14, spotMeterId);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rsp+58h+var_28.baseclass_0.m_surfaceID], ymm0
-      }
-      R_HW_AddResourceTransition(state, &v14, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      v10 = *colorRt;
+      R_HDRSpotMeter_ProcessStage(GfxComputeCmdBufState, viewInfo, &v10, spotMeterId);
+      v10 = *colorRt;
+      R_HW_AddResourceTransition(state, &v10, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_HW_FlushResourceTransitions(state);
     }
     else if ( s_spotMeterTarget.m_tracking.m_allocCounter != s_spotMeterTarget.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
@@ -1160,6 +728,8 @@ R_HDRSpotMeter_Initialize
 
 void __fastcall R_HDRSpotMeter_Initialize(double _XMM0_8)
 {
+  R_RT_Handle v1; 
+  R_RT_Handle v3; 
   R_RT_Handle v4; 
   R_RT_Handle result; 
 
@@ -1171,25 +741,20 @@ void __fastcall R_HDRSpotMeter_Initialize(double _XMM0_8)
   {
     if ( s_spotMeterTarget.m_tracking.m_allocCounter != s_spotMeterTarget.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", s_spotMeterTarget.m_surfaceID + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
-    _RAX = R_RT_CreateInternal(&result, 0x20u, 0x20u, 0x20u, 0x20u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[32], R_RT_Flag_Readback|R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_COPY_DEST, "Spot Meter Target", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_debug.cpp(48)");
-    __asm
+    v1 = *R_RT_CreateInternal(&result, 0x20u, 0x20u, 0x20u, 0x20u, 1u, 1u, 1u, g_R_RT_renderTargetFmts[32], R_RT_Flag_Readback|R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_MaskLifetime, &colorBlack, D3D12_RESOURCE_STATE_COPY_DEST, "Spot Meter Target", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hdr_debug.cpp(48)");
+    v4 = v1;
+    v3 = v1;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rsp+108h+var_48], ymm0
-      vmovups ymmword ptr [rsp+108h+var_68.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v4);
-      if ( (R_RT_Handle::GetSurface(&v4)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v3);
+      if ( (R_RT_Handle::GetSurface(&v3)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+108h+var_68.m_surfaceID] }
+        v1 = v3;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+108h+var_68.m_surfaceID] }
+        v1 = v3;
       }
     }
     else
@@ -1197,12 +762,12 @@ void __fastcall R_HDRSpotMeter_Initialize(double _XMM0_8)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        __asm { vmovups ymm0, [rsp+108h+var_48] }
+        v1 = v4;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr cs:s_spotMeterTarget.baseclass_0.m_surfaceID, ymm0 }
+    s_spotMeterTarget = (R_RT_ColorHandle)v1;
   }
 }
 
@@ -1213,243 +778,123 @@ R_HDRSpotMeter_ProcessStage
 */
 void R_HDRSpotMeter_ProcessStage(ComputeCmdBufState *state, const GfxViewInfo *viewInfo, R_RT_ColorHandle *srcRt, SpotMeterId spotMeterId)
 {
-  __int64 v6; 
+  __int64 v5; 
   unsigned int width; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v12; 
-  const GfxTexture *v13; 
-  int v16; 
-  unsigned __int8 *v19; 
-  unsigned int v20; 
-  unsigned __int8 *v23; 
-  __int64 v24; 
-  __int64 v25; 
+  const R_RT_Surface *v11; 
+  const GfxTexture *v12; 
+  int v13; 
+  unsigned __int8 *v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  unsigned __int8 *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  float *v20; 
+  float v21; 
+  float v22; 
+  R_RT_ColorHandle *v23; 
   int srcY; 
-  float v129; 
-  float v130; 
-  R_RT_ColorHandle v131; 
-  unsigned int v132; 
+  R_RT_ColorHandle v25; 
+  unsigned int v26; 
 
-  v6 = spotMeterId;
+  v5 = spotMeterId;
   width = R_RT_Handle::GetSurface(srcRt)->m_image.m_base.width;
   height = R_RT_Handle::GetSurface(srcRt)->m_image.m_base.height;
   Surface = R_RT_Handle::GetSurface(srcRt);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
-  v12 = R_RT_Handle::GetSurface(&s_spotMeterTarget);
-  v13 = R_Texture_GetResident(v12->m_image.m_base.textureId);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_48], xmm0
-    vmovss  [rsp+98h+var_50], xmm1
-  }
+  v11 = R_RT_Handle::GetSurface(&s_spotMeterTarget);
+  v12 = R_Texture_GetResident(v11->m_image.m_base.textureId);
   srcY = (height >> 1) - 16;
-  v16 = 0;
-  R_CopyTextureRect(state, v13, Resident, 0, 0, (width >> 1) - 16, srcY, 0x20u, 0x20u, v129, v130);
+  v13 = 0;
+  R_CopyTextureRect(state, v12, Resident, 0, 0, (width >> 1) - 16, srcY, 0x20u, 0x20u, 1.0, 0.0);
   R_AcquireGpuFenceLock();
   R_FinishGpuFence();
   R_InsertGpuFence();
   R_FinishGpuFence();
   R_ReleaseGpuFenceLock();
-  _RAX = s_spotMeterReadbackTarget;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+98h+var_38], ymm0
-  }
-  v19 = R_MapReadbackRt(state, &v131, 0, &v132, NULL);
-  v20 = v132;
-  _R8 = v6;
-  _R11 = 0x140000000ui64;
-  v23 = v19;
-  v24 = 16 * v132;
-  s_centerPixel[_R8].v[0] = *(float *)&v19[v24 + 256];
-  s_centerPixel[_R8].v[1] = *(float *)&v19[v24 + 260];
-  s_centerPixel[_R8].v[2] = *(float *)&v19[v24 + 264];
-  *(_QWORD *)s_centerAverage[_R8].v = 0i64;
-  s_centerAverage[_R8].v[2] = 0.0;
+  v25 = *s_spotMeterReadbackTarget;
+  v14 = R_MapReadbackRt(state, &v25, 0, &v26, NULL);
+  v15 = v26;
+  v16 = v5;
+  v17 = v14;
+  v18 = 16 * v26;
+  s_centerPixel[v16].v[0] = *(float *)&v14[v18 + 256];
+  s_centerPixel[v16].v[1] = *(float *)&v14[v18 + 260];
+  s_centerPixel[v16].v[2] = *(float *)&v14[v18 + 264];
+  *(_QWORD *)s_centerAverage[v16].v = 0i64;
+  s_centerAverage[v16].v[2] = 0.0;
   do
   {
-    v25 = 2i64;
-    _RCX = &v23[v20 * v16 + 24];
+    v19 = 2i64;
+    v20 = (float *)&v17[v15 * v13 + 24];
     do
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx-18h]
-        vaddss  xmm3, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm3
-        vmovss  xmm1, dword ptr [rcx-14h]
-        vaddss  xmm0, xmm1, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm2, dword ptr [rcx-10h]
-        vaddss  xmm1, xmm2, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm1
-        vaddss  xmm0, xmm3, dword ptr [rcx-8]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-4]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vaddss  xmm1, xmm0, dword ptr [rcx]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm1
-        vmovss  xmm0, dword ptr [rcx+8]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+0Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+10h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+18h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+1Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+20h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+28h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+2Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+30h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+38h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+3Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+40h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+48h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+4Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+50h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+58h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+5Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+60h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+68h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx+6Ch]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx+70h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx+78h]
-      }
-      _RCX += 256;
-      __asm
-      {
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-84h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-80h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-78h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-74h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-70h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-68h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-64h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-60h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-58h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-54h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-50h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-48h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-44h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-40h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-38h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-34h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-30h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-        vmovss  xmm0, dword ptr [rcx-28h]
-        vaddss  xmm1, xmm0, dword ptr rva s_centerAverage[r11+r8*4]
-        vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm1
-        vmovss  xmm2, dword ptr [rcx-24h]
-        vaddss  xmm0, xmm2, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm0
-        vmovss  xmm1, dword ptr [rcx-20h]
-        vaddss  xmm2, xmm1, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-        vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm2
-      }
-      --v25;
+      v21 = *(v20 - 6) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[0] = v21;
+      s_centerAverage[v5].v[1] = *(v20 - 5) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 4) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v21 + *(v20 - 2);
+      s_centerAverage[v5].v[1] = *(v20 - 1) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = s_centerAverage[v5].v[2] + *v20;
+      s_centerAverage[v5].v[0] = v20[2] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[3] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[4] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[6] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[7] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[8] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[10] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[11] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[12] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[14] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[15] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[16] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[18] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[19] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[20] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[22] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[23] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[24] + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = v20[26] + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = v20[27] + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = v20[28] + s_centerAverage[v5].v[2];
+      v22 = v20[30];
+      v20 += 64;
+      s_centerAverage[v5].v[0] = v22 + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 33) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 32) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 30) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 29) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 28) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 26) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 25) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 24) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 22) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 21) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 20) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 18) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 17) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 16) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 14) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 13) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 12) + s_centerAverage[v5].v[2];
+      s_centerAverage[v5].v[0] = *(v20 - 10) + s_centerAverage[v5].v[0];
+      s_centerAverage[v5].v[1] = *(v20 - 9) + s_centerAverage[v5].v[1];
+      s_centerAverage[v5].v[2] = *(v20 - 8) + s_centerAverage[v5].v[2];
+      --v19;
     }
-    while ( v25 );
-    ++v16;
+    while ( v19 );
+    ++v13;
   }
-  while ( v16 < 32 );
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3a800000
-    vmulss  xmm0, xmm3, dword ptr rva s_centerAverage[r11+r8*4]
-  }
-  _RAX = s_spotMeterReadbackTarget;
-  __asm
-  {
-    vmovss  dword ptr rva s_centerAverage[r11+r8*4], xmm0
-    vmulss  xmm2, xmm3, dword ptr (rva s_centerAverage+4)[r11+r8*4]
-    vmovss  dword ptr (rva s_centerAverage+4)[r11+r8*4], xmm2
-    vmulss  xmm1, xmm3, dword ptr (rva s_centerAverage+8)[r11+r8*4]
-    vmovss  dword ptr (rva s_centerAverage+8)[r11+r8*4], xmm1
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+98h+var_38], ymm0
-  }
-  R_UnmapReadbackRt(state, &v131);
+  while ( v13 < 32 );
+  v23 = s_spotMeterReadbackTarget;
+  s_centerAverage[v5].v[0] = 0.0009765625 * s_centerAverage[v5].v[0];
+  s_centerAverage[v5].v[1] = 0.0009765625 * s_centerAverage[v5].v[1];
+  s_centerAverage[v5].v[2] = 0.0009765625 * s_centerAverage[v5].v[2];
+  v25 = *v23;
+  R_UnmapReadbackRt(state, &v25);
 }
 
 /*
@@ -1460,37 +905,27 @@ R_HDRSpotMeter_Shutdown
 
 void __fastcall R_HDRSpotMeter_Shutdown(double _XMM0_8)
 {
-  R_RT_Handle v5; 
+  R_RT_Handle v2; 
 
   if ( s_spotMeterTarget.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&s_spotMeterTarget);
-    __asm
+    v2 = (R_RT_Handle)s_spotMeterTarget;
+    if ( LOWORD(_XMM0_8) )
     {
-      vmovups ymm0, ymmword ptr cs:s_spotMeterTarget.baseclass_0.m_surfaceID
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v5);
-      if ( (R_RT_Handle::GetSurface(&v5)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame") )
+      R_RT_Handle::GetSurface(&v2);
+      if ( (R_RT_Handle::GetSurface(&v2)->m_rtFlagsInternal & 3u) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 877, ASSERT_TYPE_ASSERT, "(R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame)", (const char *)&queryFormat, "R_RT_GetLifetimeFromFlags( rt.GetFlagsInternal() ) >= R_RT_Lifetime_MultiFrame", *(_QWORD *)&v2.m_surfaceID, *(_QWORD *)&v2.m_tracking.m_allocCounter, v2.m_tracking.m_name, v2.m_tracking.m_location) )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+58h+var_28.m_surfaceID]
-        vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-      }
-      R_RT_DestroyInternal(&v5);
+      R_RT_DestroyInternal(&v2);
     }
-    else if ( s_spotMeterTarget.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( s_spotMeterTarget.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v2.m_surfaceID, *(_QWORD *)&v2.m_tracking.m_allocCounter, v2.m_tracking.m_name, v2.m_tracking.m_location) )
     {
       __debugbreak();
     }
     __asm { vpxor   xmm0, xmm0, xmm0 }
     s_spotMeterTarget.m_surfaceID = 0;
     s_spotMeterTarget.m_tracking.m_allocCounter = 0;
-    __asm { vmovdqu xmmword ptr cs:s_spotMeterTarget.baseclass_0.m_tracking.m_name, xmm0 }
+    *(_OWORD *)&s_spotMeterTarget.m_tracking.m_name = _XMM0;
   }
   else if ( s_spotMeterTarget.m_tracking.m_allocCounter != s_spotMeterTarget.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {

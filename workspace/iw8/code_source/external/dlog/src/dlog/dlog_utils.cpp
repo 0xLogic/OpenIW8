@@ -1363,22 +1363,11 @@ __int64 DLog_GetEventChannelSample(const char *name, const char *channel, DLogEn
 DLog_GetEventSampleRate
 ==============
 */
-
-void __fastcall DLog_GetEventSampleRate(const char *name, double sampleRate)
+void DLog_GetEventSampleRate(const char *name, float sampleRate)
 {
   const DLogHooks *Hooks; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   Hooks = DLog_GetHooks();
-  __asm
-  {
-    vmovaps xmm2, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   ((void (__fastcall *)(const DLogHooks *, const char *))Hooks->GetEventSampleRate)(Hooks, name);
 }
 
@@ -1808,145 +1797,116 @@ char DLog_IsEventSampled(unsigned __int64 userId, const DLogEvent *event)
   DLogSampleType type; 
   const char *name; 
   const DLogHooks *Hooks; 
-  DLogSampleType v9; 
-  const char *v11; 
-  int v12; 
+  DLogSampleType v7; 
+  const char *v8; 
+  int v9; 
+  const DLogHooks *v10; 
+  const char *v12; 
   const DLogHooks *v13; 
-  char result; 
-  const char *v17; 
+  const DLogHooks *v14; 
+  unsigned __int64 v15; 
+  const DLogHooks *v16; 
+  int v17; 
   const DLogHooks *v18; 
-  const DLogHooks *v19; 
-  unsigned __int64 v20; 
-  const DLogHooks *v21; 
-  int v22; 
+  unsigned __int64 v19; 
+  const DLogHooks *v20; 
   const DLogHooks *v23; 
-  unsigned __int64 v24; 
-  const DLogHooks *v25; 
-  const DLogHooks *v31; 
+  int v24; 
+  int v25; 
+  int v26; 
+  int v27; 
+  const DLogHooks *v28; 
+  int v29; 
+  int v30; 
+  __int64 v31; 
   int v32; 
-  int v33; 
+  char v33; 
   int v34; 
-  int v35; 
-  const DLogHooks *v36; 
-  int v37; 
-  int v38; 
-  __int64 v39; 
-  int v40; 
-  char v41; 
-  int v42; 
-  const DLogHooks *v43; 
-  int v44; 
-  const DLogHooks *v45; 
-  const DLogHooks *v50; 
-  int v51; 
+  const DLogHooks *v35; 
+  int v36; 
+  const DLogHooks *v37; 
+  const DLogHooks *v39; 
   char dest[32]; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
   type = event->sampleGroup.type;
-  _RSI = event;
   name = event->name;
   Hooks = DLog_GetHooks();
-  v9 = Hooks->GetEventSampleType((DLogHooks *)Hooks, name, type);
-  __asm { vmovss  xmm6, dword ptr [rsi+5Ch] }
-  v11 = _RSI->name;
-  v12 = (unsigned __int8)v9;
-  v13 = DLog_GetHooks();
-  __asm { vmovaps xmm2, xmm6 }
-  *(double *)&_XMM0 = ((double (__fastcall *)(const DLogHooks *, const char *))v13->GetEventSampleRate)(v13, v11);
-  __asm { vmovaps xmm6, xmm0 }
-  if ( !(_BYTE)v12 )
-  {
-    result = 1;
-    goto LABEL_21;
-  }
-  switch ( v12 )
+  v7 = Hooks->GetEventSampleType((DLogHooks *)Hooks, name, type);
+  v8 = event->name;
+  v9 = (unsigned __int8)v7;
+  v10 = DLog_GetHooks();
+  ((void (__fastcall *)(const DLogHooks *, const char *))v10->GetEventSampleRate)(v10, v8);
+  if ( !(_BYTE)v9 )
+    return 1;
+  switch ( v9 )
   {
     case 1:
-      v44 = rand();
-      v45 = DLog_GetHooks();
-      *(double *)&_XMM0 = ((double (__fastcall *)(const DLogHooks *))v45->GetSamplingModulus)(v45);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vroundss xmm6, xmm6, xmm1, 1
-      }
-      v50 = DLog_GetHooks();
-      v32 = v50->GetSamplingModulus((DLogHooks *)v50);
-      v33 = v44 % v32;
-      v34 = 1;
-      goto LABEL_19;
+      v36 = rand();
+      v37 = DLog_GetHooks();
+      ((__int64 (__fastcall *)(const DLogHooks *))v37->GetSamplingModulus)(v37);
+      _XMM6 = 0i64;
+      __asm { vroundss xmm6, xmm6, xmm1, 1 }
+      v39 = DLog_GetHooks();
+      v24 = v39->GetSamplingModulus((DLogHooks *)v39);
+      v25 = v36 % v24;
+      v26 = 1;
+      return v26 % v24 * v25 % v24 < (int)*(float *)&_XMM6;
     case 2:
       if ( !userId )
-        goto LABEL_7;
-      v35 = DLog_sprintf<32>((char (*)[32])dest, "%s%llu", "xb3", userId);
-      v36 = DLog_GetHooks();
-      v37 = v36->GetSamplingSeed((DLogHooks *)v36);
-      v38 = 0;
-      v22 = v37;
-      if ( v35 > 0 )
+        return 0;
+      v27 = DLog_sprintf<32>((char (*)[32])dest, "%s%llu", "xb3", userId);
+      v28 = DLog_GetHooks();
+      v29 = v28->GetSamplingSeed((DLogHooks *)v28);
+      v30 = 0;
+      v17 = v29;
+      if ( v27 > 0 )
       {
-        v39 = 0i64;
-        v40 = 119;
+        v31 = 0i64;
+        v32 = 119;
         do
         {
-          v41 = dest[v39];
-          if ( !v41 )
+          v33 = dest[v31];
+          if ( !v33 )
             break;
-          ++v39;
-          v42 = v40 * v41;
-          ++v40;
-          v38 += v42;
+          ++v31;
+          v34 = v32 * v33;
+          ++v32;
+          v30 += v34;
         }
-        while ( v39 < v35 );
+        while ( v31 < v27 );
       }
-      LODWORD(v24) = v38 ^ ((v38 ^ (v38 >> 10)) >> 10);
-      v43 = DLog_GetHooks();
-      v43->GetSamplingModulus((DLogHooks *)v43);
+      LODWORD(v19) = v30 ^ ((v30 ^ (v30 >> 10)) >> 10);
+      v35 = DLog_GetHooks();
+      v35->GetSamplingModulus((DLogHooks *)v35);
 LABEL_11:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vroundss xmm6, xmm6, xmm1, 1
-      }
-      v31 = DLog_GetHooks();
-      v32 = v31->GetSamplingModulus((DLogHooks *)v31);
-      v33 = (int)v24 % v32;
-      v34 = v22;
-LABEL_19:
-      v51 = v34 % v32 * v33;
-      __asm { vcvttss2si eax, xmm6 }
-      result = v51 % v32 < _EAX;
-      goto LABEL_21;
-    case 3:
-      v19 = DLog_GetHooks();
-      v20 = v19->GetSamplingMatchId((DLogHooks *)v19);
-      if ( !v20 )
-        goto LABEL_7;
-      v21 = DLog_GetHooks();
-      v22 = v21->GetSamplingSeed((DLogHooks *)v21);
+      _XMM6 = 0i64;
+      __asm { vroundss xmm6, xmm6, xmm1, 1 }
       v23 = DLog_GetHooks();
-      v24 = v20 % v23->GetSamplingModulus((DLogHooks *)v23);
-      v25 = DLog_GetHooks();
-      *(double *)&_XMM0 = ((double (__fastcall *)(const DLogHooks *))v25->GetSamplingModulus)(v25);
-      goto LABEL_11;
-    case 4:
-      v17 = _RSI->sampleGroup.name;
+      v24 = v23->GetSamplingModulus((DLogHooks *)v23);
+      v25 = (int)v19 % v24;
+      v26 = v17;
+      return v26 % v24 * v25 % v24 < (int)*(float *)&_XMM6;
+    case 3:
+      v14 = DLog_GetHooks();
+      v15 = v14->GetSamplingMatchId((DLogHooks *)v14);
+      if ( !v15 )
+        return 0;
+      v16 = DLog_GetHooks();
+      v17 = v16->GetSamplingSeed((DLogHooks *)v16);
       v18 = DLog_GetHooks();
-      result = v18->IsUserInGroup((DLogHooks *)v18, userId, v17);
-      goto LABEL_21;
+      v19 = v15 % v18->GetSamplingModulus((DLogHooks *)v18);
+      v20 = DLog_GetHooks();
+      v20->GetSamplingModulus((DLogHooks *)v20);
+      goto LABEL_11;
   }
-  DLog_Assert(0, "0 && \"Unhandled DLogSampleType: %d\"", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_utils.cpp", "DLog_IsEventSampled", 904, (const char *)&queryFormat.fmt + 3);
-LABEL_7:
-  result = 0;
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  return result;
+  if ( v9 != 4 )
+  {
+    DLog_Assert(0, "0 && \"Unhandled DLogSampleType: %d\"", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_utils.cpp", "DLog_IsEventSampled", 904, (const char *)&queryFormat.fmt + 3);
+    return 0;
+  }
+  v12 = event->sampleGroup.name;
+  v13 = DLog_GetHooks();
+  return v13->IsUserInGroup((DLogHooks *)v13, userId, v12);
 }
 
 /*

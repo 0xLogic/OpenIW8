@@ -15,47 +15,41 @@ indyfs_LZ4F_compressBegin_usingCDict
 */
 __int64 indyfs_LZ4F_compressBegin_usingCDict(indyfs_LZ4F_cctx_s *cctxPtr, void *dstBuffer, unsigned __int64 dstCapacity, const indyfs_LZ4F_CDict_s *cdict, const indyfs_LZ4F_preferences_t *preferencesPtr)
 {
+  const indyfs_LZ4F_preferences_t *v9; 
   int compressionLevel; 
-  unsigned __int16 v14; 
+  unsigned __int16 v11; 
   indyfs_LZ4_stream_u *StreamHC; 
   indyfs_LZ4_streamHC_u *indyfs_LZ4CtxPtr; 
-  int blockSizeID; 
-  bool v18; 
-  __int64 v19; 
-  __int64 v20; 
+  indyfs_LZ4F_blockSizeID_t blockSizeID; 
+  bool v15; 
+  __int64 v16; 
+  unsigned __int64 v17; 
   indyfs_LZ4F_blockMode_t blockMode; 
-  size_t v22; 
+  unsigned __int64 v19; 
   unsigned __int8 *tmpBuff; 
-  unsigned __int8 *v24; 
-  char v25; 
-  _BYTE *v26; 
+  unsigned __int8 *v21; 
+  char v22; 
+  _BYTE *v23; 
   unsigned __int64 contentSize; 
   unsigned int dictID; 
-  __int64 v29[7]; 
+  __int64 v26[7]; 
 
-  _RBX = cctxPtr;
   if ( dstCapacity < 0x13 )
     return -11i64;
-  v29[0] = 0i64;
-  v29[1] = 0i64;
-  _RSI = (const indyfs_LZ4F_preferences_t *)v29;
+  v26[0] = 0i64;
+  v26[1] = 0i64;
+  v9 = (const indyfs_LZ4F_preferences_t *)v26;
   if ( preferencesPtr )
-    _RSI = preferencesPtr;
-  memset(&v29[2], 0, 40);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
+    v9 = preferencesPtr;
+  memset(&v26[2], 0, 40);
+  cctxPtr->prefs.frameInfo = v9->frameInfo;
+  *(_OWORD *)&cctxPtr->prefs.compressionLevel = *(_OWORD *)&v9->compressionLevel;
+  *(double *)&cctxPtr->prefs.reserved[1] = *(double *)&v9->reserved[1];
   compressionLevel = cctxPtr->prefs.compressionLevel;
-  v14 = (compressionLevel >= 3) + 1;
-  if ( cctxPtr->indyfs_LZ4CtxAlloc >= v14 )
+  v11 = (compressionLevel >= 3) + 1;
+  if ( cctxPtr->indyfs_LZ4CtxAlloc >= v11 )
   {
-    if ( cctxPtr->indyfs_LZ4CtxState == v14 )
+    if ( cctxPtr->indyfs_LZ4CtxState == v11 )
       goto LABEL_16;
     indyfs_LZ4CtxPtr = (indyfs_LZ4_streamHC_u *)cctxPtr->indyfs_LZ4CtxPtr;
     if ( compressionLevel >= 3 )
@@ -66,77 +60,77 @@ __int64 indyfs_LZ4F_compressBegin_usingCDict(indyfs_LZ4F_cctx_s *cctxPtr, void *
   else
   {
     free(cctxPtr->indyfs_LZ4CtxPtr);
-    if ( _RBX->prefs.compressionLevel >= 3 )
+    if ( cctxPtr->prefs.compressionLevel >= 3 )
       StreamHC = (indyfs_LZ4_stream_u *)j_indyfs_LZ4_createStreamHC();
     else
       StreamHC = j_indyfs_LZ4_createStream();
-    _RBX->indyfs_LZ4CtxPtr = StreamHC;
+    cctxPtr->indyfs_LZ4CtxPtr = StreamHC;
     if ( !StreamHC )
       return -9i64;
-    _RBX->indyfs_LZ4CtxAlloc = v14;
+    cctxPtr->indyfs_LZ4CtxAlloc = v11;
   }
-  _RBX->indyfs_LZ4CtxState = v14;
+  cctxPtr->indyfs_LZ4CtxState = v11;
 LABEL_16:
-  blockSizeID = _RBX->prefs.frameInfo.blockSizeID;
-  v18 = _RBX->prefs.frameInfo.blockSizeID == indyfs_LZ4F_default;
-  if ( _RBX->prefs.frameInfo.blockSizeID == indyfs_LZ4F_default )
+  blockSizeID = cctxPtr->prefs.frameInfo.blockSizeID;
+  v15 = cctxPtr->prefs.frameInfo.blockSizeID == indyfs_LZ4F_default;
+  if ( cctxPtr->prefs.frameInfo.blockSizeID == indyfs_LZ4F_default )
   {
-    _RBX->prefs.frameInfo.blockSizeID = indyfs_LZ4F_max64KB;
-    blockSizeID = 4;
-    v18 = 0;
+    cctxPtr->prefs.frameInfo.blockSizeID = indyfs_LZ4F_max64KB;
+    blockSizeID = indyfs_LZ4F_max64KB;
+    v15 = 0;
   }
-  if ( v18 )
-    blockSizeID = 4;
-  v19 = (unsigned int)(blockSizeID - 4);
-  if ( (unsigned int)v19 <= 3 )
-    v20 = qword_144754980[v19];
+  if ( v15 )
+    blockSizeID = indyfs_LZ4F_max64KB;
+  v16 = (unsigned int)(blockSizeID - 4);
+  if ( (unsigned int)v16 <= 3 )
+    v17 = qword_144754980[v16];
   else
-    v20 = -2i64;
-  blockMode = _RBX->prefs.frameInfo.blockMode;
-  v22 = 0i64;
-  _RBX->maxBlockSize = v20;
-  if ( _RSI->autoFlush )
+    v17 = -2i64;
+  blockMode = cctxPtr->prefs.frameInfo.blockMode;
+  v19 = 0i64;
+  cctxPtr->maxBlockSize = v17;
+  if ( v9->autoFlush )
   {
     if ( blockMode == indyfs_LZ4F_blockLinked )
-      v22 = 0x10000i64;
+      v19 = 0x10000i64;
   }
   else
   {
     if ( blockMode == indyfs_LZ4F_blockLinked )
-      v22 = 0x20000i64;
-    v22 += v20;
+      v19 = 0x20000i64;
+    v19 += v17;
   }
-  if ( _RBX->maxBufferSize < v22 )
+  if ( cctxPtr->maxBufferSize < v19 )
   {
-    tmpBuff = _RBX->tmpBuff;
-    _RBX->maxBufferSize = 0i64;
+    tmpBuff = cctxPtr->tmpBuff;
+    cctxPtr->maxBufferSize = 0i64;
     free(tmpBuff);
-    v24 = (unsigned __int8 *)calloc(1ui64, v22);
-    _RBX->tmpBuff = v24;
-    if ( !v24 )
+    v21 = (unsigned __int8 *)calloc(1ui64, v19);
+    cctxPtr->tmpBuff = v21;
+    if ( !v21 )
       return -9i64;
-    _RBX->maxBufferSize = v22;
+    cctxPtr->maxBufferSize = v19;
   }
-  _RBX->tmpIn = _RBX->tmpBuff;
-  _RBX->tmpInSize = 0i64;
-  j_indyfs_XXH32_reset(&_RBX->indyfs_XXH, 0);
-  v18 = _RBX->prefs.frameInfo.blockMode == indyfs_LZ4F_blockLinked;
-  _RBX->cdict = cdict;
-  if ( v18 )
-    indyfs_LZ4F_initStream(_RBX->indyfs_LZ4CtxPtr, cdict, _RBX->prefs.compressionLevel);
-  if ( _RSI->compressionLevel >= 3 )
-    j_indyfs_LZ4_favorDecompressionSpeed((indyfs_LZ4_streamHC_u *)_RBX->indyfs_LZ4CtxPtr, _RSI->favorDecSpeed);
+  cctxPtr->tmpIn = cctxPtr->tmpBuff;
+  cctxPtr->tmpInSize = 0i64;
+  j_indyfs_XXH32_reset(&cctxPtr->indyfs_XXH, 0);
+  v15 = cctxPtr->prefs.frameInfo.blockMode == indyfs_LZ4F_blockLinked;
+  cctxPtr->cdict = cdict;
+  if ( v15 )
+    indyfs_LZ4F_initStream(cctxPtr->indyfs_LZ4CtxPtr, cdict, cctxPtr->prefs.compressionLevel);
+  if ( v9->compressionLevel >= 3 )
+    j_indyfs_LZ4_favorDecompressionSpeed((indyfs_LZ4_streamHC_u *)cctxPtr->indyfs_LZ4CtxPtr, v9->favorDecSpeed);
   *(_DWORD *)dstBuffer = 407708164;
-  v25 = 16;
-  if ( _RBX->prefs.frameInfo.contentSize )
-    v25 = 18;
-  *((_BYTE *)dstBuffer + 4) = (_RBX->prefs.frameInfo.dictID != 0) + 4 * (v25 + (_RBX->prefs.frameInfo.contentChecksumFlag & 1) + 4 * ((_RBX->prefs.frameInfo.blockChecksumFlag & 1) + 2 * (_RBX->prefs.frameInfo.blockMode & 1)));
-  *((_BYTE *)dstBuffer + 5) = 16 * (_RBX->prefs.frameInfo.blockSizeID & 7);
-  v26 = (char *)dstBuffer + 6;
-  contentSize = _RBX->prefs.frameInfo.contentSize;
+  v22 = 16;
+  if ( cctxPtr->prefs.frameInfo.contentSize )
+    v22 = 18;
+  *((_BYTE *)dstBuffer + 4) = (cctxPtr->prefs.frameInfo.dictID != 0) + 4 * (v22 + (cctxPtr->prefs.frameInfo.contentChecksumFlag & 1) + 4 * ((cctxPtr->prefs.frameInfo.blockChecksumFlag & 1) + 2 * (cctxPtr->prefs.frameInfo.blockMode & 1)));
+  *((_BYTE *)dstBuffer + 5) = 16 * (cctxPtr->prefs.frameInfo.blockSizeID & 7);
+  v23 = (char *)dstBuffer + 6;
+  contentSize = cctxPtr->prefs.frameInfo.contentSize;
   if ( contentSize )
   {
-    *v26 = contentSize;
+    *v23 = contentSize;
     *((_BYTE *)dstBuffer + 7) = BYTE1(contentSize);
     *((_BYTE *)dstBuffer + 8) = BYTE2(contentSize);
     *((_BYTE *)dstBuffer + 9) = BYTE3(contentSize);
@@ -144,18 +138,18 @@ LABEL_16:
     *((_BYTE *)dstBuffer + 11) = BYTE5(contentSize);
     *((_BYTE *)dstBuffer + 12) = BYTE6(contentSize);
     *((_BYTE *)dstBuffer + 13) = HIBYTE(contentSize);
-    v26 = (char *)dstBuffer + 14;
-    _RBX->totalInSize = 0i64;
+    v23 = (char *)dstBuffer + 14;
+    cctxPtr->totalInSize = 0i64;
   }
-  dictID = _RBX->prefs.frameInfo.dictID;
+  dictID = cctxPtr->prefs.frameInfo.dictID;
   if ( dictID )
   {
-    *(_DWORD *)v26 = dictID;
-    v26 += 4;
+    *(_DWORD *)v23 = dictID;
+    v23 += 4;
   }
-  *v26 = (unsigned __int16)j_indyfs_XXH32((char *)dstBuffer + 4, v26 - ((_BYTE *)dstBuffer + 4), 0) >> 8;
-  _RBX->cStage = 1;
-  return v26 - (_BYTE *)dstBuffer + 1;
+  *v23 = (unsigned __int16)j_indyfs_XXH32((char *)dstBuffer + 4, v23 - ((_BYTE *)dstBuffer + 4), 0) >> 8;
+  cctxPtr->cStage = 1;
+  return v23 - (_BYTE *)dstBuffer + 1;
 }
 
 /*
@@ -410,19 +404,15 @@ indyfs_LZ4F_compressFrameBound
 */
 __int64 indyfs_LZ4F_compressFrameBound(unsigned __int64 srcSize, const indyfs_LZ4F_preferences_t *preferencesPtr)
 {
+  __int128 v2; 
   indyfs_LZ4F_preferences_t preferencesPtra; 
 
   if ( preferencesPtr )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups xmm1, xmmword ptr [rdx+20h]
-      vmovups ymmword ptr [rsp+68h+preferencesPtr.frameInfo.blockSizeID], ymm0
-      vmovsd  xmm0, qword ptr [rdx+30h]
-      vmovsd  qword ptr [rsp+68h+preferencesPtr.reserved+4], xmm0
-      vmovups xmmword ptr [rsp+68h+preferencesPtr.compressionLevel], xmm1
-    }
+    v2 = *(_OWORD *)&preferencesPtr->compressionLevel;
+    preferencesPtra.frameInfo = preferencesPtr->frameInfo;
+    *(_QWORD *)&preferencesPtra.reserved[1] = *(_QWORD *)&preferencesPtr->reserved[1];
+    *(_OWORD *)&preferencesPtra.compressionLevel = v2;
   }
   else
   {
@@ -439,102 +429,93 @@ indyfs_LZ4F_compressFrame_usingCDict
 */
 unsigned __int64 indyfs_LZ4F_compressFrame_usingCDict(indyfs_LZ4F_cctx_s *cctx, void *dstBuffer, unsigned __int64 dstCapacity, const void *srcBuffer, unsigned __int64 srcSize, const indyfs_LZ4F_CDict_s *cdict, const indyfs_LZ4F_preferences_t *preferencesPtr)
 {
+  unsigned __int64 contentSize; 
   char *v8; 
-  unsigned __int64 v16; 
+  __int128 v13; 
+  double v14; 
+  unsigned __int64 v15; 
   indyfs_LZ4F_blockSizeID_t blockSizeID; 
-  __int64 v18; 
-  unsigned __int64 v19; 
+  __int64 v17; 
+  unsigned __int64 v18; 
   indyfs_LZ4F_blockMode_t blockMode; 
   unsigned __int64 result; 
-  char *v24; 
-  char *v25; 
-  indyfs_LZ4F_preferences_t v26; 
+  char *v21; 
+  char *v22; 
+  indyfs_LZ4F_preferences_t v23; 
   indyfs_LZ4F_compressOptions_t compressOptionsPtr; 
-  indyfs_LZ4F_preferences_t v28; 
+  indyfs_LZ4F_preferences_t v25; 
 
-  _RAX = (unsigned __int64)preferencesPtr;
+  contentSize = (unsigned __int64)preferencesPtr;
   v8 = (char *)dstBuffer + dstCapacity;
   if ( preferencesPtr )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovsd  xmm2, qword ptr [rax+30h]
-      vmovups ymmword ptr [rsp+100h+var_D0.frameInfo.blockSizeID], ymm0
-    }
-    _RAX = v26.frameInfo.contentSize;
-    __asm
-    {
-      vmovups xmmword ptr [rbp+3Fh+var_D0.compressionLevel], xmm1
-      vmovsd  qword ptr [rbp+3Fh+var_D0.reserved+4], xmm2
-    }
+    v13 = *(_OWORD *)&preferencesPtr->compressionLevel;
+    v14 = *(double *)&preferencesPtr->reserved[1];
+    v23.frameInfo = preferencesPtr->frameInfo;
+    contentSize = v23.frameInfo.contentSize;
+    *(_OWORD *)&v23.compressionLevel = v13;
+    *(double *)&v23.reserved[1] = v14;
   }
   else
   {
-    __asm { vmovsd  xmm2, qword ptr [rbp+3Fh+var_D0.reserved+4] }
-    *(_QWORD *)&v26.frameInfo.blockSizeID = 0i64;
-    *(_QWORD *)&v26.frameInfo.contentChecksumFlag = 0i64;
-    memset(&v26.frameInfo.dictID, 0, 32);
+    v14 = 0.0;
+    *(_QWORD *)&v23.frameInfo.blockSizeID = 0i64;
+    *(_QWORD *)&v23.frameInfo.contentChecksumFlag = 0i64;
+    memset(&v23.frameInfo.dictID, 0, 32);
   }
-  if ( _RAX )
-    _RAX = srcSize;
-  v16 = 0x10000i64;
-  v26.frameInfo.contentSize = _RAX;
+  if ( contentSize )
+    contentSize = srcSize;
+  v15 = 0x10000i64;
+  v23.frameInfo.contentSize = contentSize;
   blockSizeID = indyfs_LZ4F_max64KB;
-  if ( v26.frameInfo.blockSizeID <= indyfs_LZ4F_max64KB )
+  if ( v23.frameInfo.blockSizeID <= indyfs_LZ4F_max64KB )
   {
 LABEL_9:
-    blockSizeID = v26.frameInfo.blockSizeID;
+    blockSizeID = v23.frameInfo.blockSizeID;
   }
   else
   {
-    while ( srcSize > v16 )
+    while ( srcSize > v15 )
     {
       ++blockSizeID;
-      v16 *= 4i64;
-      if ( v26.frameInfo.blockSizeID <= blockSizeID )
+      v15 *= 4i64;
+      if ( v23.frameInfo.blockSizeID <= blockSizeID )
         goto LABEL_9;
     }
   }
-  v26.frameInfo.blockSizeID = blockSizeID;
+  v23.frameInfo.blockSizeID = blockSizeID;
   if ( blockSizeID == indyfs_LZ4F_default )
     blockSizeID = indyfs_LZ4F_max64KB;
-  v26.autoFlush = 1;
-  v18 = (unsigned int)(blockSizeID - 4);
-  if ( (unsigned int)v18 <= 3 )
-    v19 = qword_144754980[v18];
+  v23.autoFlush = 1;
+  v17 = (unsigned int)(blockSizeID - 4);
+  if ( (unsigned int)v17 <= 3 )
+    v18 = qword_144754980[v17];
   else
-    v19 = -2i64;
-  blockMode = v26.frameInfo.blockMode;
-  __asm { vmovups xmm1, xmmword ptr [rbp+3Fh+var_D0.compressionLevel] }
-  if ( srcSize <= v19 )
+    v18 = -2i64;
+  blockMode = v23.frameInfo.blockMode;
+  if ( srcSize <= v18 )
     blockMode = indyfs_LZ4F_blockIndependent;
-  v26.frameInfo.blockMode = blockMode;
-  __asm { vmovups ymm0, ymmword ptr [rsp+100h+var_D0.frameInfo.blockSizeID] }
+  v23.frameInfo.blockMode = blockMode;
   compressOptionsPtr.reserved[0] = 0;
-  __asm { vmovups xmmword ptr [rbp+3Fh+var_88.compressionLevel], xmm1 }
+  *(_OWORD *)&v25.compressionLevel = *(_OWORD *)&v23.compressionLevel;
   compressOptionsPtr.stableSrc = 1;
-  v28.autoFlush = 1;
+  v25.autoFlush = 1;
   *(_QWORD *)&compressOptionsPtr.reserved[1] = 0i64;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+3Fh+var_88.frameInfo.blockSizeID], ymm0
-    vmovsd  qword ptr [rbp+3Fh+var_88.reserved+4], xmm2
-  }
-  if ( dstCapacity < indyfs_LZ4F_compressBound_internal(srcSize, &v28, 0i64) + 19 )
+  v25.frameInfo = v23.frameInfo;
+  *(double *)&v25.reserved[1] = v14;
+  if ( dstCapacity < indyfs_LZ4F_compressBound_internal(srcSize, &v25, 0i64) + 19 )
     return -11i64;
-  result = j_indyfs_LZ4F_compressBegin_usingCDict(cctx, dstBuffer, dstCapacity, cdict, &v26);
+  result = j_indyfs_LZ4F_compressBegin_usingCDict(cctx, dstBuffer, dstCapacity, cdict, &v23);
   if ( result <= 0xFFFFFFFFFFFFFFECui64 )
   {
-    v24 = (char *)dstBuffer + result;
+    v21 = (char *)dstBuffer + result;
     result = j_indyfs_LZ4F_compressUpdate(cctx, (char *)dstBuffer + result, v8 - ((_BYTE *)dstBuffer + result), srcBuffer, srcSize, &compressOptionsPtr);
     if ( result <= 0xFFFFFFFFFFFFFFECui64 )
     {
-      v25 = &v24[result];
-      result = j_indyfs_LZ4F_compressEnd(cctx, v25, v8 - v25, &compressOptionsPtr);
+      v22 = &v21[result];
+      result = j_indyfs_LZ4F_compressEnd(cctx, v22, v8 - v22, &compressOptionsPtr);
       if ( result <= 0xFFFFFFFFFFFFFFECui64 )
-        return (unsigned __int64)&v25[result - (_QWORD)dstBuffer];
+        return (unsigned __int64)&v22[result - (_QWORD)dstBuffer];
     }
   }
   return result;
@@ -1624,23 +1605,22 @@ indyfs_LZ4F_getFrameInfo
 */
 unsigned __int64 indyfs_LZ4F_getFrameInfo(indyfs_LZ4F_dctx_s *dctx, indyfs_LZ4F_frameInfo_t *frameInfoPtr, const void *srcBuffer, unsigned __int64 *srcSizePtr)
 {
+  __m256i frameInfo; 
   unsigned __int64 result; 
   unsigned __int64 v10; 
   unsigned __int64 v11; 
   unsigned __int64 v12; 
-  unsigned __int64 v14[3]; 
-  unsigned __int64 v15; 
+  unsigned __int64 v13[3]; 
+  unsigned __int64 v14; 
 
-  _RSI = frameInfoPtr;
-  _RDI = dctx;
   if ( dctx->dStage > dstage_storeFrameHeader )
   {
     *srcSizePtr = 0i64;
-    __asm { vmovups ymm0, ymmword ptr [rcx] }
-    v14[0] = 0i64;
-    v15 = 0i64;
-    __asm { vmovups ymmword ptr [rdx], ymm0 }
-    return j_indyfs_LZ4F_decompress(dctx, NULL, v14, NULL, &v15, NULL);
+    frameInfo = (__m256i)dctx->frameInfo;
+    v13[0] = 0i64;
+    v14 = 0i64;
+    *(__m256i *)frameInfoPtr = frameInfo;
+    return j_indyfs_LZ4F_decompress(dctx, NULL, v13, NULL, &v14, NULL);
   }
   if ( dctx->dStage == dstage_storeFrameHeader )
   {
@@ -1675,11 +1655,7 @@ unsigned __int64 indyfs_LZ4F_getFrameInfo(indyfs_LZ4F_dctx_s *dctx, indyfs_LZ4F_
       v11 = 0i64;
     *srcSizePtr = v11;
     result = v12;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsi], ymm0
-    }
+    *frameInfoPtr = dctx->frameInfo;
   }
   else
   {

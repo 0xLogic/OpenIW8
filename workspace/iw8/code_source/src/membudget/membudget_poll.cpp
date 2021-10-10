@@ -462,7 +462,11 @@ MemBudget_Poll_CheckBootTimePoll
 */
 void MemBudget_Poll_CheckBootTimePoll(void)
 {
+  MemBudget_PollArray *v0; 
   __int64 v1; 
+  MemBudget_PollArray *p_readings; 
+  __m256i v3; 
+  __int128 v4; 
   MemBudget_PollData outPoll; 
 
   if ( !s_bootTimePollDone )
@@ -472,39 +476,25 @@ void MemBudget_Poll_CheckBootTimePoll(void)
     MemBudget_PollInternalLockedPortion(&outPoll, 0);
     Sys_LeaveCriticalSection(CRITSECT_STREAM_ALLOC);
     MemBudget_PollInternalUnlockedPortion(&outPoll);
-    _RCX = &s_bootTimePoll;
+    v0 = &s_bootTimePoll;
     v1 = 2i64;
-    _RAX = &outPoll.readings;
+    p_readings = &outPoll.readings;
     do
     {
-      _RCX = (MemBudget_PollArray *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (MemBudget_PollArray *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v0 = (MemBudget_PollArray *)((char *)v0 + 128);
+      v3 = *(__m256i *)p_readings->pollValues;
+      v4 = *(_OWORD *)&p_readings->pollValues[14];
+      p_readings = (MemBudget_PollArray *)((char *)p_readings + 128);
+      *(__m256i *)&v0[-1].pollValues[22] = v3;
+      *(__m256i *)&v0[-1].pollValues[26] = *(__m256i *)&p_readings[-1].pollValues[26];
+      *(__m256i *)&v0[-1].pollValues[30] = *(__m256i *)&p_readings[-1].pollValues[30];
+      *(_OWORD *)&v0[-1].pollValues[34] = *(_OWORD *)&p_readings[-1].pollValues[34];
+      *(_OWORD *)&v0[-1].pollValues[36] = v4;
       --v1;
     }
     while ( v1 );
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-    }
+    *(__m256i *)v0->pollValues = *(__m256i *)p_readings->pollValues;
+    *(_OWORD *)&v0->pollValues[4] = *(_OWORD *)&p_readings->pollValues[4];
     s_bootTimePollDone = 1;
     MemBudget_ContentMemWrite_BootTime();
   }
@@ -692,7 +682,7 @@ MemBudget_Poll_Update
 void MemBudget_Poll_Update(void)
 {
   volatile int writeCount; 
-  int v2; 
+  int v1; 
   TempThreadPriority tempPriority; 
   MemBudget_PollData outPoll; 
 
@@ -708,16 +698,15 @@ void MemBudget_Poll_Update(void)
     memcpy_0(&s_lastUpdatePoll, &outPoll, sizeof(s_lastUpdatePoll));
     if ( s_hudPollLock.writeCount != 1 )
     {
-      v2 = 1;
+      v1 = 1;
       writeCount = s_hudPollLock.writeCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v2) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", writeCount, v1) )
         __debugbreak();
     }
     if ( s_hudPollLock.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr cs:s_hudPollLock.tempPriority.threadHandle }
     s_hudPollLock.writeThreadId = 0;
-    __asm { vmovups xmmword ptr [rsp+4058h+tempPriority.threadHandle], xmm0 }
+    tempPriority = s_hudPollLock.tempPriority;
     if ( ((unsigned __int8)&s_hudPollLock.writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_hudPollLock.writeCount) )
       __debugbreak();
     if ( _InterlockedCompareExchange(&s_hudPollLock.writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )

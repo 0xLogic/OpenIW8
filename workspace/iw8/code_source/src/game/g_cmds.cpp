@@ -304,28 +304,29 @@ void Cmd_CreateFx_Exploder_f(gentity_s *ent)
 {
   int CheatsOk; 
   unsigned int EntityIndex; 
-  const char *v8; 
-  const char *v9; 
+  const char *v5; 
+  const char *v6; 
   SvClient *CommonClient; 
-  unsigned int v12; 
-  int v13; 
-  const char *v14; 
-  const char *v16; 
-  const char *v18; 
-  const char *v20; 
-  const char *v22; 
-  bool v23; 
-  const char *v24; 
-  bool v25; 
-  const char *v26; 
-  int v27; 
-  const char *v28; 
-  int v29; 
-  const char *v30; 
-  scrContext_t *v31; 
-  const char *v32; 
-  __int64 v39; 
-  __int64 v40; 
+  float *v8; 
+  unsigned int v9; 
+  int v10; 
+  const char *v11; 
+  const char *v13; 
+  const char *v15; 
+  const char *v17; 
+  const char *v19; 
+  bool v20; 
+  const char *v21; 
+  bool v22; 
+  const char *v23; 
+  int v24; 
+  const char *v25; 
+  int v26; 
+  const char *v27; 
+  scrContext_t *v28; 
+  const char *v29; 
+  __int64 v30; 
+  __int64 v31; 
   float value[4]; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 818, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
@@ -344,12 +345,12 @@ void Cmd_CreateFx_Exploder_f(gentity_s *ent)
   if ( !CheatsOk && !com_cheats->current.enabled )
   {
     EntityIndex = G_GetEntityIndex(ent);
-    v8 = j_va("%c \"%s\"", 101i64, "GAME/CHEATSNOTENABLED");
-    v9 = v8;
+    v5 = j_va("%c \"%s\"", 101i64, "GAME/CHEATSNOTENABLED");
+    v6 = v5;
     if ( EntityIndex == -1 )
     {
 LABEL_13:
-      SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v8);
+      SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v5);
       return;
     }
     goto LABEL_14;
@@ -357,86 +358,70 @@ LABEL_13:
   if ( SV_Cmd_Argc() < 11 )
   {
     EntityIndex = G_GetEntityIndex(ent);
-    v8 = j_va("%c \"%s\"", 101i64, aPrintGameUsage_1);
-    v9 = v8;
+    v5 = j_va("%c \"%s\"", 101i64, aPrintGameUsage_1);
+    v6 = v5;
     if ( EntityIndex == -1 )
       goto LABEL_13;
 LABEL_14:
     CommonClient = SvClient::GetCommonClient(EntityIndex);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v9);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v6);
     return;
   }
-  _RDI = value;
-  v12 = 0;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_28], xmm6
-    vmovaps [rsp+0A8h+var_38], xmm7
-    vmovaps [rsp+0A8h+var_48], xmm8
-  }
+  v8 = value;
+  v9 = 0;
   do
   {
-    v13 = v12 + 1;
-    v14 = SV_Cmd_Argv(v12 + 1);
-    if ( *v14 == 40 )
-      ++v14;
-    *(double *)&_XMM0 = atof(v14);
+    v10 = v9 + 1;
+    v11 = SV_Cmd_Argv(v9 + 1);
+    if ( *v11 == 40 )
+      ++v11;
+    *(double *)&_XMM0 = atof(v11);
     __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-    if ( v12 >= 3 )
+    if ( v9 >= 3 )
     {
-      LODWORD(v40) = 3;
-      LODWORD(v39) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v39, v40) )
+      LODWORD(v31) = 3;
+      LODWORD(v30) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    ++_RDI;
-    ++v12;
+    *v8++ = *(float *)&_XMM6;
+    ++v9;
   }
-  while ( v13 < 3 );
-  v16 = SV_Cmd_Argv(4);
-  *(double *)&_XMM0 = atof(v16);
+  while ( v10 < 3 );
+  v13 = SV_Cmd_Argv(4);
+  *(double *)&_XMM0 = atof(v13);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v18 = SV_Cmd_Argv(5);
-  *(double *)&_XMM0 = atof(v18);
+  v15 = SV_Cmd_Argv(5);
+  *(double *)&_XMM0 = atof(v15);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v20 = SV_Cmd_Argv(6);
-  *(double *)&_XMM0 = atof(v20);
+  v17 = SV_Cmd_Argv(6);
+  *(double *)&_XMM0 = atof(v17);
   __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
-  v22 = SV_Cmd_Argv(7);
-  v23 = atoi(v22) > 0;
-  v24 = SV_Cmd_Argv(8);
-  v25 = atoi(v24) > 0;
-  v26 = SV_Cmd_Argv(9);
-  v27 = atoi(v26);
-  v28 = SV_Cmd_Argv(10);
-  v29 = atoi(v28);
-  v30 = (char *)&queryFormat.fmt + 3;
-  v31 = ScriptContext_Server();
-  if ( v29 )
-    v32 = SL_ConvertToString((scr_string_t)v29);
+  v19 = SV_Cmd_Argv(7);
+  v20 = atoi(v19) > 0;
+  v21 = SV_Cmd_Argv(8);
+  v22 = atoi(v21) > 0;
+  v23 = SV_Cmd_Argv(9);
+  v24 = atoi(v23);
+  v25 = SV_Cmd_Argv(10);
+  v26 = atoi(v25);
+  v27 = (char *)&queryFormat.fmt + 3;
+  v28 = ScriptContext_Server();
+  if ( v26 )
+    v29 = SL_ConvertToString((scr_string_t)v26);
   else
-    v32 = (char *)&queryFormat.fmt + 3;
-  Scr_AddString(v31, v32);
-  if ( v27 )
-    v30 = SL_ConvertToString((scr_string_t)v27);
-  Scr_AddString(v31, v30);
-  Scr_AddBool(v31, v25);
-  Scr_AddBool(v31, v23);
-  __asm { vmovaps xmm1, xmm8; value }
-  Scr_AddFloat(v31, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm7; value }
-  Scr_AddFloat(v31, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; value }
-  Scr_AddFloat(v31, *(float *)&_XMM1);
-  Scr_AddVector(v31, value);
-  Scr_NotifyLevel(v31, scr_const.cfx_exploder, 8u);
-  __asm
-  {
-    vmovaps xmm8, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_38]
-    vmovaps xmm6, [rsp+0A8h+var_28]
-  }
+    v29 = (char *)&queryFormat.fmt + 3;
+  Scr_AddString(v28, v29);
+  if ( v24 )
+    v27 = SL_ConvertToString((scr_string_t)v24);
+  Scr_AddString(v28, v27);
+  Scr_AddBool(v28, v22);
+  Scr_AddBool(v28, v20);
+  Scr_AddFloat(v28, *(float *)&_XMM8);
+  Scr_AddFloat(v28, *(float *)&_XMM7);
+  Scr_AddFloat(v28, *(float *)&_XMM6);
+  Scr_AddVector(v28, value);
+  Scr_NotifyLevel(v28, scr_const.cfx_exploder, 8u);
 }
 
 /*
@@ -773,12 +758,8 @@ void Cmd_SetExtraGameRevenueRate(gentity_s *pEnt)
   {
     SV_Cmd_ArgvBuffer(1, buffer, 0x400ui64);
     *(double *)&_XMM0 = atof(buffer);
-    _RAX = pEnt->client;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rax+5D2Ch], xmm1
-    }
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    pEnt->client->sess.extraGameRevenueRate = *(float *)&_XMM1;
   }
 }
 
@@ -787,31 +768,35 @@ void Cmd_SetExtraGameRevenueRate(gentity_s *pEnt)
 Cmd_SetViewpos_f
 ==============
 */
-
-void __fastcall Cmd_SetViewpos_f(gentity_s *ent, __int64 a2, double _XMM2_8)
+void Cmd_SetViewpos_f(gentity_s *ent)
 {
-  int v5; 
+  __int128 v2; 
+  int v3; 
   int CheatsOk; 
   __int16 EntityIndex; 
-  const char *v9; 
-  unsigned int v10; 
-  int v12; 
-  const char *v13; 
-  int v18; 
-  int v20; 
-  int v21; 
+  const char *v7; 
+  unsigned int v8; 
+  float *v9; 
+  int v10; 
+  const char *v11; 
+  int v14; 
+  int v15; 
+  const char *v16; 
+  const char *v18; 
+  unsigned int v20; 
+  const char *v21; 
   const char *v22; 
-  const char *v24; 
-  unsigned int v26; 
-  const char *v27; 
-  const char *v28; 
   SvClient *CommonClient; 
-  __int64 v30; 
-  __int64 v31; 
-  int v32; 
-  char v35[8]; 
+  __int64 v24; 
+  __int64 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  char v29[8]; 
+  float v30; 
+  __int128 v31; 
 
-  v5 = 0;
+  v3 = 0;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 1035, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 1036, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
@@ -828,93 +813,79 @@ void __fastcall Cmd_SetViewpos_f(gentity_s *ent, __int64 a2, double _XMM2_8)
   if ( !CheatsOk && !com_cheats->current.enabled )
   {
     EntityIndex = G_GetEntityIndex(ent);
-    v9 = "GAME/CHEATSNOTENABLED";
+    v7 = "GAME/CHEATSNOTENABLED";
     goto LABEL_33;
   }
   if ( SV_Cmd_Argc() < 4 || SV_Cmd_Argc() > 7 )
   {
     EntityIndex = G_GetEntityIndex(ent);
-    v9 = aPrintGameUsage;
+    v7 = aPrintGameUsage;
 LABEL_33:
-    v26 = EntityIndex;
-    v27 = j_va("%c \"%s\"", 101i64, v9);
-    v28 = v27;
-    if ( v26 == -1 )
+    v20 = EntityIndex;
+    v21 = j_va("%c \"%s\"", 101i64, v7);
+    v22 = v21;
+    if ( v20 == -1 )
     {
-      SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v27);
+      SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v21);
     }
     else
     {
-      CommonClient = SvClient::GetCommonClient(v26);
-      CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v28);
+      CommonClient = SvClient::GetCommonClient(v20);
+      CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v22);
     }
     return;
   }
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
+  v31 = v2;
   Stream_ImageRecord_Disable("setviewpos");
-  v10 = 0;
-  _RDI = v35;
+  v8 = 0;
+  v9 = (float *)v29;
   do
   {
-    v12 = v10 + 1;
-    v13 = SV_Cmd_Argv(v10 + 1);
-    if ( *v13 == 40 )
-      ++v13;
-    *(double *)&_XMM0 = atof(v13);
+    v10 = v8 + 1;
+    v11 = SV_Cmd_Argv(v8 + 1);
+    if ( *v11 == 40 )
+      ++v11;
+    *(double *)&_XMM0 = atof(v11);
     __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-    if ( v10 >= 3 )
+    if ( v8 >= 3 )
     {
-      LODWORD(v31) = 3;
-      LODWORD(v30) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v31) )
+      LODWORD(v25) = 3;
+      LODWORD(v24) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI += 4;
-    ++v10;
+    *v9++ = *(float *)&_XMM6;
+    ++v8;
   }
-  while ( v12 < 3 );
-  __asm
+  while ( v10 < 3 );
+  _XMM0 = LODWORD(v30);
+  v30 = v30 - ent->client->ps.viewHeightCurrent;
+  v26 = 0.0;
+  v27 = 0.0;
+  v28 = 0.0;
+  v14 = SV_Cmd_Argc() - 5;
+  if ( v14 )
   {
-    vmovss  xmm0, [rsp+0A8h+var_50]
-    vxorps  xmm2, xmm2, xmm2
-    vsubss  xmm1, xmm0, dword ptr [rax+1E8h]
-    vmovss  [rsp+0A8h+var_50], xmm1
-    vmovss  [rsp+0A8h+var_68], xmm2
-    vmovss  [rsp+0A8h+var_64], xmm2
-    vmovss  [rsp+0A8h+var_60], xmm2
-  }
-  v18 = SV_Cmd_Argc();
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  v20 = v18 - 5;
-  if ( v20 )
-  {
-    v21 = v20 - 1;
-    if ( v21 )
+    v15 = v14 - 1;
+    if ( v15 )
     {
-      if ( v21 != 1 )
+      if ( v15 != 1 )
         goto LABEL_28;
-      v5 = 1;
+      v3 = 1;
     }
-    v22 = SV_Cmd_Argv(v5 + 5);
-    *(double *)&_XMM0 = atof(v22);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  [rsp+0A8h+var_68], xmm1
-    }
+    v16 = SV_Cmd_Argv(v3 + 5);
+    *(double *)&_XMM0 = atof(v16);
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    v26 = *(float *)&_XMM1;
   }
-  v24 = SV_Cmd_Argv(v5 + 4);
-  *(double *)&_XMM0 = atof(v24);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  [rsp+0A8h+var_64], xmm1
-  }
+  v18 = SV_Cmd_Argv(v3 + 4);
+  *(double *)&_XMM0 = atof(v18);
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  v27 = *(float *)&_XMM1;
 LABEL_28:
   if ( !GClientSystem::ms_gClientSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.h", 423, ASSERT_TYPE_ASSERT, "( ms_gClientSystem )", (const char *)&queryFormat, "ms_gClientSystem") )
     __debugbreak();
-  GClientSystem::ms_gClientSystem->TeleportPlayer(GClientSystem::ms_gClientSystem, ent, (const vec3_t *)v35, (const vec3_t *)&v32);
+  GClientSystem::ms_gClientSystem->TeleportPlayer(GClientSystem::ms_gClientSystem, ent, (const vec3_t *)v29, (const vec3_t *)&v26);
 }
 
 /*
@@ -923,7 +894,7 @@ Cmd_Take_f
 ==============
 */
 
-void __fastcall Cmd_Take_f(gentity_s *ent, __int64 a2, double _XMM2_8)
+void __fastcall Cmd_Take_f(gentity_s *ent, __int64 a2, double a3)
 {
   int CheatsOk; 
   const char *v5; 
@@ -962,37 +933,35 @@ void __fastcall Cmd_Take_f(gentity_s *ent, __int64 a2, double _XMM2_8)
   int i; 
   const Weapon *EquippedWeaponForPlayer; 
   gclient_s *client; 
-  const char *v47; 
-  __int64 v48; 
-  int v49; 
-  __int64 v50; 
-  int v51; 
-  int v52; 
-  int v53; 
+  const char *v41; 
+  __int64 v42; 
+  int v43; 
+  __int64 v44; 
+  int v45; 
+  int v46; 
+  int v47; 
   int j; 
-  const Weapon *v55; 
-  const char *v56; 
-  int v57; 
-  __int64 v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  __int64 v62; 
-  gclient_s *v63; 
-  bool v69; 
-  WeaponDef **v70; 
+  const Weapon *v49; 
+  const char *v50; 
+  int v51; 
+  __int64 v52; 
+  int v53; 
+  int v54; 
+  int v55; 
+  __int64 v56; 
+  gclient_s *v57; 
   GHandler *Handler; 
   __int16 EntityIndex; 
   __int64 amount; 
-  __int64 v78; 
-  int v79; 
-  int v80; 
+  __int64 v61; 
+  int v62; 
+  int v63; 
   GWeaponMap *Instance; 
-  char *v82; 
+  char *v65; 
   AmmoStore result; 
   AmmoStore r_clipIndex; 
   Weapon weapon; 
-  Weapon v86; 
+  Weapon v69; 
 
   if ( SV_IsDemoPlaying() )
   {
@@ -1006,10 +975,10 @@ void __fastcall Cmd_Take_f(gentity_s *ent, __int64 a2, double _XMM2_8)
   if ( CheatsOk )
   {
     v5 = ConcatArgs(2);
-    v80 = atoi(v5);
-    v6 = v80;
+    v63 = atoi(v5);
+    v6 = v63;
     v7 = ConcatArgs(1);
-    v82 = v7;
+    v65 = v7;
     v8 = v7;
     if ( v7 )
     {
@@ -1031,7 +1000,7 @@ void __fastcall Cmd_Take_f(gentity_s *ent, __int64 a2, double _XMM2_8)
 LABEL_16:
             Dvar_SetBool_Internal(DVARBOOL_bg_giveAll, 0);
             v19 = 1;
-            v79 = 1;
+            v62 = 1;
             goto LABEL_17;
           }
           if ( v13 != v15 )
@@ -1050,7 +1019,7 @@ LABEL_16:
             goto LABEL_16;
         }
         v31 = "health";
-        v79 = 0;
+        v62 = 0;
         v19 = 0;
         v32 = 6i64;
         do
@@ -1076,7 +1045,7 @@ LABEL_16:
         }
         while ( v33 );
 LABEL_17:
-        if ( !v80 || (v20 = ent->health - v80, ent->health = v20, v20 < 1) )
+        if ( !v63 || (v20 = ent->health - v63, ent->health = v20, v20 < 1) )
           ent->health = 1;
         if ( v19 )
         {
@@ -1110,13 +1079,13 @@ LABEL_21:
             }
             while ( v24 );
           }
-          if ( v80 )
+          if ( v63 )
           {
             CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(Instance, &ent->client->ps);
             if ( CurrentWeaponForPlayer->weaponIdx )
             {
               v30 = BG_UsingAlternate(&ent->client->ps);
-              TakeAwayAmmo(&ent->client->ps, CurrentWeaponForPlayer, v30, v80);
+              TakeAwayAmmo(&ent->client->ps, CurrentWeaponForPlayer, v30, v63);
             }
           }
           else
@@ -1129,93 +1098,79 @@ LABEL_21:
                 client = ent->client;
                 if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 512, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
                   __debugbreak();
-                _RAX = BG_AmmoStoreForWeapon(&result, EquippedWeaponForPlayer, 0);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rbp+90h+r_clipIndex.weapon.weaponIdx], ymm0
-                  vmovups ymm1, ymmword ptr [rax+20h]
-                  vmovups ymmword ptr [rbp+90h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-                }
+                r_clipIndex = *BG_AmmoStoreForWeapon(&result, EquippedWeaponForPlayer, 0);
                 BG_SetGlobalAmmo(&client->ps, EquippedWeaponForPlayer, 0, 0);
                 BG_SetClipAmmo(&client->ps, &r_clipIndex, EquippedWeaponForPlayer, 0, WEAPON_HAND_DEFAULT, 0);
                 BG_SetClipAmmo(&client->ps, &r_clipIndex, EquippedWeaponForPlayer, 0, WEAPON_HAND_LEFT, 0);
                 if ( BG_HasUnderbarrelAmmo(EquippedWeaponForPlayer) )
                 {
                   BG_SetGlobalAmmo(&client->ps, EquippedWeaponForPlayer, 1, 0);
-                  _RAX = BG_AmmoStoreForWeapon(&result, EquippedWeaponForPlayer, 1);
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rax]
-                    vmovups ymmword ptr [rbp+90h+r_clipIndex.weapon.weaponIdx], ymm0
-                    vmovups ymm1, ymmword ptr [rax+20h]
-                    vmovups ymmword ptr [rbp+90h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-                  }
+                  r_clipIndex = *BG_AmmoStoreForWeapon(&result, EquippedWeaponForPlayer, 1);
                   BG_SetClipAmmo(&client->ps, &r_clipIndex, EquippedWeaponForPlayer, 1, WEAPON_HAND_DEFAULT, 0);
                   BG_SetClipAmmo(&client->ps, &r_clipIndex, EquippedWeaponForPlayer, 1, WEAPON_HAND_LEFT, 0);
                 }
                 v21 = Instance;
               }
             }
-            v6 = v80;
+            v6 = v63;
             v10 = 0x7FFFFFFFi64;
-            v19 = v79;
+            v19 = v62;
           }
           if ( v19 )
           {
-            v8 = v82;
+            v8 = v65;
 LABEL_56:
-            v47 = "allammo";
-            v48 = 7i64;
+            v41 = "allammo";
+            v42 = 7i64;
             do
             {
-              v49 = (unsigned __int8)v47[v8 - "allammo"];
-              v50 = v48;
-              v51 = *(unsigned __int8 *)v47++;
-              --v48;
-              if ( !v50 )
+              v43 = (unsigned __int8)v41[v8 - "allammo"];
+              v44 = v42;
+              v45 = *(unsigned __int8 *)v41++;
+              --v42;
+              if ( !v44 )
                 break;
-              if ( v49 != v51 )
+              if ( v43 != v45 )
               {
-                v52 = v49 + 32;
-                if ( (unsigned int)(v49 - 65) > 0x19 )
-                  v52 = v49;
-                v49 = v52;
-                v53 = v51 + 32;
-                if ( (unsigned int)(v51 - 65) > 0x19 )
-                  v53 = v51;
-                if ( v49 != v53 )
+                v46 = v43 + 32;
+                if ( (unsigned int)(v43 - 65) > 0x19 )
+                  v46 = v43;
+                v43 = v46;
+                v47 = v45 + 32;
+                if ( (unsigned int)(v45 - 65) > 0x19 )
+                  v47 = v45;
+                if ( v43 != v47 )
                   goto LABEL_72;
               }
             }
-            while ( v49 );
+            while ( v43 );
             if ( !v6 )
             {
 LABEL_72:
               if ( !v19 )
               {
-                v56 = "weapons";
+                v50 = "weapons";
                 while ( 1 )
                 {
-                  v57 = (unsigned __int8)v56[v8 - "weapons"];
-                  v58 = v10;
-                  v59 = *(unsigned __int8 *)v56++;
+                  v51 = (unsigned __int8)v50[v8 - "weapons"];
+                  v52 = v10;
+                  v53 = *(unsigned __int8 *)v50++;
                   --v10;
-                  if ( !v58 )
+                  if ( !v52 )
                     break;
-                  if ( v57 != v59 )
+                  if ( v51 != v53 )
                   {
-                    v60 = v57 + 32;
-                    if ( (unsigned int)(v57 - 65) > 0x19 )
-                      v60 = v57;
-                    v57 = v60;
-                    v61 = v59 + 32;
-                    if ( (unsigned int)(v59 - 65) > 0x19 )
-                      v61 = v59;
-                    if ( v57 != v61 )
+                    v54 = v51 + 32;
+                    if ( (unsigned int)(v51 - 65) > 0x19 )
+                      v54 = v51;
+                    v51 = v54;
+                    v55 = v53 + 32;
+                    if ( (unsigned int)(v53 - 65) > 0x19 )
+                      v55 = v53;
+                    if ( v51 != v55 )
                       goto LABEL_108;
                   }
-                  if ( !v57 )
+                  if ( !v51 )
                     goto LABEL_82;
                 }
               }
@@ -1223,59 +1178,46 @@ LABEL_72:
             }
             for ( j = 0; j < 15; ++j )
             {
-              v55 = BG_GetEquippedWeaponForPlayer(v21, &ent->client->ps, j);
-              if ( v55->weaponIdx )
-                TakeAwayAmmo(&ent->client->ps, v55, 0, v6);
+              v49 = BG_GetEquippedWeaponForPlayer(v21, &ent->client->ps, j);
+              if ( v49->weaponIdx )
+                TakeAwayAmmo(&ent->client->ps, v49, 0, v6);
             }
             if ( !v19 )
               return;
 LABEL_82:
-            v62 = 1480i64;
+            v56 = 1480i64;
             do
             {
-              v63 = ent->client;
+              v57 = ent->client;
               if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
                 __debugbreak();
-              if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+              if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
                 __debugbreak();
               if ( (unsigned int)v16 >= 0xF )
               {
-                LODWORD(v78) = 15;
+                LODWORD(v61) = 15;
                 LODWORD(amount) = v16;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", amount, v78) )
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", amount, v61) )
                   __debugbreak();
               }
-              _RAX = BgWeaponMap::GetWeapon(v21, *(BgWeaponHandle *)((char *)&v63->ps.commandTime + v62));
-              __asm
+              weapon = *BgWeaponMap::GetWeapon(v21, *(BgWeaponHandle *)((char *)&v57->ps.commandTime + v56));
+              if ( LOWORD(a3) )
               {
-                vmovups ymm2, ymmword ptr [rax]
-                vmovups ymmword ptr [rbp+90h+weapon.weaponIdx], ymm2
-                vmovups xmm0, xmmword ptr [rax+20h]
-                vmovups xmmword ptr [rbp+90h+weapon.attachmentVariationIndices+5], xmm0
-                vmovsd  xmm1, qword ptr [rax+30h]
-                vmovd   ebx, xmm2
-                vmovsd  qword ptr [rbp+90h+weapon.attachmentVariationIndices+15h], xmm1
-              }
-              *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-              if ( (_WORD)_EBX )
-              {
-                if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+                if ( LOWORD(a3) > bg_lastParsedWeaponIndex )
                 {
-                  LODWORD(v78) = bg_lastParsedWeaponIndex;
-                  LODWORD(amount) = (unsigned __int16)_EBX;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", amount, v78) )
+                  LODWORD(v61) = bg_lastParsedWeaponIndex;
+                  LODWORD(amount) = LOWORD(a3);
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", amount, v61) )
                     __debugbreak();
                 }
-                v69 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-                v70 = &bg_weaponDefs[(unsigned __int16)_EBX];
-                if ( v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+                if ( !bg_weaponDefs[LOWORD(a3)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
                   __debugbreak();
-                if ( (*v70)->inventoryType == WEAPINVENTORY_ALTMODE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 628, ASSERT_TYPE_ASSERT, "(BG_WeaponDef( weapon, false )->inventoryType != WEAPINVENTORY_ALTMODE)", (const char *)&queryFormat, "BG_WeaponDef( weapon, false )->inventoryType != WEAPINVENTORY_ALTMODE") )
+                if ( bg_weaponDefs[LOWORD(a3)]->inventoryType == WEAPINVENTORY_ALTMODE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 628, ASSERT_TYPE_ASSERT, "(BG_WeaponDef( weapon, false )->inventoryType != WEAPINVENTORY_ALTMODE)", (const char *)&queryFormat, "BG_WeaponDef( weapon, false )->inventoryType != WEAPINVENTORY_ALTMODE") )
                   __debugbreak();
                 G_Weapon_TakePlayerWeapon(&ent->client->ps, &weapon);
               }
               ++v16;
-              v62 += 4i64;
+              v56 += 4i64;
             }
             while ( v16 < 15 );
             if ( BG_GetCurrentWeaponForPlayer(v21, &ent->client->ps)->weaponIdx )
@@ -1285,24 +1227,13 @@ LABEL_82:
               EntityIndex = G_GetEntityIndex(ent);
               G_Weapon_SelectWeapon(EntityIndex, &NULL_WEAPON);
             }
-            if ( v79 )
+            if ( v62 )
             {
-              v8 = v82;
+              v8 = v65;
 LABEL_108:
-              _RAX = G_Weapon_GetWeaponForName(&r_clipIndex.weapon, v8);
-              __asm
-              {
-                vmovups ymm2, ymmword ptr [rax]
-                vmovups ymmword ptr [rbp+90h+var_70.weaponIdx], ymm2
-                vmovups xmm0, xmmword ptr [rax+20h]
-                vmovups xmmword ptr [rbp+90h+var_70.attachmentVariationIndices+5], xmm0
-                vmovsd  xmm1, qword ptr [rax+30h]
-                vmovsd  qword ptr [rbp+90h+var_70.attachmentVariationIndices+15h], xmm1
-              }
-              *(_DWORD *)&v86.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-              __asm { vmovd   eax, xmm2 }
-              if ( (_WORD)_RAX )
-                G_Weapon_TakePlayerWeapon(&ent->client->ps, &v86);
+              v69 = *G_Weapon_GetWeaponForName(&r_clipIndex.weapon, v8);
+              if ( LOWORD(a3) )
+                G_Weapon_TakePlayerWeapon(&ent->client->ps, &v69);
             }
           }
         }
@@ -1860,6 +1791,7 @@ G_Cmds_GiveInternal
 */
 void G_Cmds_GiveInternal(gentity_s *ent, const char *name, int amount, int forceGive)
 {
+  __int16 v4; 
   int CheatsOk; 
   const playerState_s *EntityPlayerState; 
   playerState_s *v9; 
@@ -1913,39 +1845,40 @@ void G_Cmds_GiveInternal(gentity_s *ent, const char *name, int amount, int force
   const char *v57; 
   const ExecutionDef *Def; 
   const char *v59; 
-  const char *v61; 
-  __int64 v64; 
+  const char *v60; 
+  __int64 v61; 
   const Weapon *FirstEquippedWeaponBySlot; 
   PlayerEquippedWeaponState *EquippedWeaponStateNonConst; 
+  const char *v64; 
+  const char *v65; 
+  const char *v66; 
+  __int64 v67; 
+  const Weapon *v68; 
+  PlayerEquippedWeaponState *v69; 
+  Weapon *WeaponForName; 
   const char *v71; 
-  const char *v72; 
-  const char *v74; 
-  __int64 v77; 
-  const Weapon *v82; 
-  PlayerEquippedWeaponState *v83; 
-  const char *v85; 
-  char v89; 
-  __int64 v90; 
-  char v91; 
-  char v92; 
-  unsigned __int64 v93; 
-  gentity_s *v94; 
-  gentity_s *v95; 
-  gentity_s *v96; 
+  char v72; 
+  __int64 v73; 
+  char v74; 
+  char v75; 
+  unsigned __int64 v76; 
+  gentity_s *v77; 
+  gentity_s *v78; 
+  gentity_s *v79; 
   OffhandClass offhandClass; 
   __int16 EntityIndex; 
-  PlayerEquippedWeaponState *v99; 
+  PlayerEquippedWeaponState *v82; 
   GHandler *Handler; 
-  bool v101; 
+  bool v84; 
   int count; 
   unsigned int outAccessoryIndex; 
-  int v104; 
+  int v87; 
   gentity_s *enta; 
   Weapon result; 
   Weapon Buf1; 
   Weapon r_weapon; 
 
-  v104 = forceGive;
+  v87 = forceGive;
   count = amount;
   enta = ent;
   if ( SV_IsDemoPlaying() )
@@ -1963,7 +1896,7 @@ void G_Cmds_GiveInternal(gentity_s *ent, const char *name, int amount, int force
     v9 = (playerState_s *)EntityPlayerState;
     if ( EntityPlayerState )
     {
-      v101 = BG_UsingAlternate(EntityPlayerState);
+      v84 = BG_UsingAlternate(EntityPlayerState);
       if ( name )
       {
         if ( *name )
@@ -2100,7 +2033,7 @@ LABEL_44:
             {
               CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(Instance, v9);
               if ( CurrentWeaponForPlayer->weaponIdx )
-                G_Items_AddAmmo(v9, CurrentWeaponForPlayer, v101, v20, 1);
+                G_Items_AddAmmo(v9, CurrentWeaponForPlayer, v84, v20, 1);
             }
             else
             {
@@ -2177,45 +2110,23 @@ LABEL_79:
                   if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 271, ASSERT_TYPE_ASSERT, "( execDef ) != ( nullptr )", "%s != %s\n\t%p, %p", "execDef", "nullptr", NULL, NULL) )
                     __debugbreak();
                   v59 = SV_Cmd_Argv(2);
-                  __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-                  v61 = v59;
-                  __asm
-                  {
-                    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-                    vmovups [rbp+60h+Buf1], ymm0
-                    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-                  }
+                  v60 = v59;
+                  memset(&Buf1, 0, 48);
                   *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-                  v64 = -1i64;
-                  __asm
-                  {
-                    vmovsd  [rbp+60h+var_88], xmm0
-                    vmovups [rbp+60h+var_98], xmm1
-                  }
+                  v61 = -1i64;
+                  *(double *)&Buf1.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
                   do
-                    ++v64;
-                  while ( v59[v64] );
-                  if ( v64 )
-                  {
-                    _RAX = G_Weapon_GetWeaponForName(&result, v59);
-                    __asm
-                    {
-                      vmovups ymm0, ymmword ptr [rax]
-                      vmovups [rbp+60h+Buf1], ymm0
-                      vmovups xmm1, xmmword ptr [rax+20h]
-                      vmovups [rbp+60h+var_98], xmm1
-                      vmovsd  xmm0, qword ptr [rax+30h]
-                      vmovsd  [rbp+60h+var_88], xmm0
-                    }
-                    *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-                  }
+                    ++v61;
+                  while ( v59[v61] );
+                  if ( v61 )
+                    Buf1 = *G_Weapon_GetWeaponForName(&result, v59);
                   if ( Def->usePropWeapon && !memcmp_0(&Buf1, &NULL_WEAPON, 0x3Cui64) )
                   {
                     Com_PrintError(1, "Execution %s requires that a valid prop weapon is specified as a second argument to 'give'.  Try \"give <execution> <propWeapon>\".\n", name);
                   }
-                  else if ( BG_GetWeaponType(&Buf1, v101) == WEAPTYPE_MODEL_ONLY )
+                  else if ( BG_GetWeaponType(&Buf1, v84) == WEAPTYPE_MODEL_ONLY )
                   {
-                    if ( BG_WeaponDef(&Buf1, v101)->inventoryType == WEAPINVENTORY_MODEL_ONLY )
+                    if ( BG_WeaponDef(&Buf1, v84)->inventoryType == WEAPINVENTORY_MODEL_ONLY )
                     {
                       FirstEquippedWeaponBySlot = BG_GetFirstEquippedWeaponBySlot(Instance, v9, WEAPON_SLOT_EXECUTION);
                       if ( memcmp_0(FirstEquippedWeaponBySlot, &NULL_WEAPON, 0x3Cui64) )
@@ -2232,81 +2143,60 @@ LABEL_79:
                     }
                     else
                     {
-                      Com_PrintError(1, "Execution Weapon asset '%s' must be of inventory type 'model only'.", v61);
+                      Com_PrintError(1, "Execution Weapon asset '%s' must be of inventory type 'model only'.", v60);
                     }
                   }
                   else
                   {
-                    Com_PrintError(1, "Execution Weapon asset '%s' must be of weapon type 'model only'.", v61);
+                    Com_PrintError(1, "Execution Weapon asset '%s' must be of weapon type 'model only'.", v60);
                   }
                 }
                 else
                 {
-                  v71 = SV_Cmd_Argv(1);
+                  v64 = SV_Cmd_Argv(1);
                   outAccessoryIndex = 127;
-                  if ( NetConstStrings_GetAccessoryIndex(v71, &outAccessoryIndex) )
+                  if ( NetConstStrings_GetAccessoryIndex(v64, &outAccessoryIndex) )
                   {
-                    v72 = SV_Cmd_Argv(2);
-                    __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-                    v74 = v72;
-                    __asm
-                    {
-                      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-                      vmovups [rbp+60h+Buf1], ymm0
-                      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-                    }
+                    v65 = SV_Cmd_Argv(2);
+                    v66 = v65;
+                    memset(&Buf1, 0, 48);
                     *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-                    v77 = -1i64;
-                    __asm
-                    {
-                      vmovsd  [rbp+60h+var_88], xmm0
-                      vmovups [rbp+60h+var_98], xmm1
-                    }
+                    v67 = -1i64;
+                    *(double *)&Buf1.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
                     do
-                      ++v77;
-                    while ( v72[v77] );
-                    if ( v77 )
+                      ++v67;
+                    while ( v65[v67] );
+                    if ( v67 )
                     {
-                      _RAX = G_Weapon_GetWeaponForName(&result, v72);
-                      __asm
-                      {
-                        vmovups ymm2, ymmword ptr [rax]
-                        vmovups [rbp+60h+Buf1], ymm2
-                        vmovups xmm0, xmmword ptr [rax+20h]
-                        vmovups [rbp+60h+var_98], xmm0
-                        vmovsd  xmm1, qword ptr [rax+30h]
-                        vmovsd  [rbp+60h+var_88], xmm1
-                      }
-                      *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-                      __asm { vmovd   eax, xmm2 }
-                      if ( !(_WORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 338, ASSERT_TYPE_ASSERT, "( newAccessoryWeapon.weaponIdx ) != ( 0 )", "%s != %s\n\t%i, %i", "newAccessoryWeapon.weaponIdx", "WP_NONE", 0, 0i64) )
+                      Buf1 = *G_Weapon_GetWeaponForName(&result, v65);
+                      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 338, ASSERT_TYPE_ASSERT, "( newAccessoryWeapon.weaponIdx ) != ( 0 )", "%s != %s\n\t%i, %i", "newAccessoryWeapon.weaponIdx", "WP_NONE", 0, 0i64) )
                         __debugbreak();
                       if ( !memcmp_0(&Buf1, &NULL_WEAPON, 0x3Cui64) )
                       {
-                        Com_PrintError(1, "Accessory Weapon asset '%s' must not be a NULL weapon.", v74);
+                        Com_PrintError(1, "Accessory Weapon asset '%s' must not be a NULL weapon.", v66);
                       }
-                      else if ( BG_GetWeaponType(&Buf1, v101) == WEAPTYPE_MODEL_ONLY )
+                      else if ( BG_GetWeaponType(&Buf1, v84) == WEAPTYPE_MODEL_ONLY )
                       {
-                        if ( BG_WeaponDef(&Buf1, v101)->inventoryType == WEAPINVENTORY_MODEL_ONLY )
+                        if ( BG_WeaponDef(&Buf1, v84)->inventoryType == WEAPINVENTORY_MODEL_ONLY )
                         {
-                          v82 = BG_GetFirstEquippedWeaponBySlot(Instance, v9, WEAPON_SLOT_ACCESSORY);
-                          if ( memcmp_0(v82, &NULL_WEAPON, 0x3Cui64) )
-                            G_Weapon_TakePlayerWeapon(v9, v82);
+                          v68 = BG_GetFirstEquippedWeaponBySlot(Instance, v9, WEAPON_SLOT_ACCESSORY);
+                          if ( memcmp_0(v68, &NULL_WEAPON, 0x3Cui64) )
+                            G_Weapon_TakePlayerWeapon(v9, v68);
                           G_Weapon_GivePlayerWeapon(v9, NULL, &Buf1, 0, 0, 0);
-                          v83 = BG_GetEquippedWeaponStateNonConst(Instance, v9, &Buf1);
-                          if ( !v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 370, ASSERT_TYPE_ASSERT, "(equippedData)", (const char *)&queryFormat, "equippedData") )
+                          v69 = BG_GetEquippedWeaponStateNonConst(Instance, v9, &Buf1);
+                          if ( !v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_cmds.cpp", 370, ASSERT_TYPE_ASSERT, "(equippedData)", (const char *)&queryFormat, "equippedData") )
                             __debugbreak();
-                          v83->slot = WEAPON_SLOT_ACCESSORY;
+                          v69->slot = WEAPON_SLOT_ACCESSORY;
                           v9->accessoryIndex = outAccessoryIndex;
                         }
                         else
                         {
-                          Com_PrintError(1, "Accessory Weapon asset '%s' must be of inventory type 'model only'.", v74);
+                          Com_PrintError(1, "Accessory Weapon asset '%s' must be of inventory type 'model only'.", v66);
                         }
                       }
                       else
                       {
-                        Com_PrintError(1, "Accessory Weapon asset '%s' must be of weapon type 'model only'.", v74);
+                        Com_PrintError(1, "Accessory Weapon asset '%s' must be of weapon type 'model only'.", v66);
                       }
                     }
                     else
@@ -2316,42 +2206,33 @@ LABEL_79:
                   }
                   else
                   {
-                    _RAX = G_Weapon_GetWeaponForName(&result, name);
-                    v85 = "none";
-                    __asm
-                    {
-                      vmovups ymm0, ymmword ptr [rax]
-                      vmovups ymmword ptr [rbp+60h+r_weapon.weaponIdx], ymm0
-                      vmovups xmm1, xmmword ptr [rax+20h]
-                      vmovups xmmword ptr [rbp+60h+r_weapon.attachmentVariationIndices+5], xmm1
-                      vmovsd  xmm0, qword ptr [rax+30h]
-                      vmovsd  qword ptr [rbp+60h+r_weapon.attachmentVariationIndices+15h], xmm0
-                    }
-                    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+                    WeaponForName = G_Weapon_GetWeaponForName(&result, name);
+                    v71 = "none";
+                    r_weapon = *WeaponForName;
                     while ( 1 )
                     {
-                      v89 = v85[name - "none"];
-                      v90 = v35;
-                      v91 = *v85++;
+                      v72 = v71[name - "none"];
+                      v73 = v35;
+                      v74 = *v71++;
                       --v35;
-                      if ( !v90 )
+                      if ( !v73 )
                         goto LABEL_127;
-                      if ( v89 != v91 )
+                      if ( v72 != v74 )
                         break;
-                      if ( !v89 )
+                      if ( !v72 )
                         goto LABEL_127;
                     }
-                    v93 = -1i64;
+                    v76 = -1i64;
                     do
-                      ++v93;
-                    while ( name[v93] );
-                    if ( v93 <= 4 || *name != 97 || name[1] != 108 || name[2] != 116 || name[3] != 95 )
+                      ++v76;
+                    while ( name[v76] );
+                    if ( v76 <= 4 || *name != 97 || name[1] != 108 || name[2] != 116 || name[3] != 95 )
                     {
 LABEL_127:
-                      v92 = 0;
+                      v75 = 0;
                       goto LABEL_128;
                     }
-                    v92 = 1;
+                    v75 = 1;
 LABEL_128:
                     if ( r_weapon.weaponIdx )
                     {
@@ -2361,14 +2242,14 @@ LABEL_128:
                       }
                       else
                       {
-                        v94 = G_Utils_SpawnEntity();
-                        v95 = enta;
-                        v96 = v94;
-                        v94->r.currentOrigin = enta->r.currentOrigin;
-                        G_Items_GetClassname(&r_weapon, v94);
-                        G_Items_Spawn(v96, &r_weapon);
-                        v96->active = 1;
-                        offhandClass = BG_WeaponDef(&v96->c.item[0].weapon, 0)->offhandClass;
+                        v77 = G_Utils_SpawnEntity();
+                        v78 = enta;
+                        v79 = v77;
+                        v77->r.currentOrigin = enta->r.currentOrigin;
+                        G_Items_GetClassname(&r_weapon, v77);
+                        G_Items_Spawn(v79, &r_weapon);
+                        v79->active = 1;
+                        offhandClass = BG_WeaponDef(&v79->c.item[0].weapon, 0)->offhandClass;
                         if ( offhandClass && v9->weapCommon.offhandPrimary != offhandClass && v9->weapCommon.offhandSecondary != offhandClass )
                         {
                           if ( ((offhandClass - 1) & 0xFFFFFFF9) != 0 || offhandClass == OFFHAND_CLASS_FLASH_GRENADE )
@@ -2376,22 +2257,22 @@ LABEL_128:
                           else
                             v9->weapCommon.offhandPrimary = offhandClass;
                         }
-                        G_Items_Touch(v96, v95, 0, 0);
-                        v96->active = 0;
-                        EntityIndex = G_GetEntityIndex(v96);
+                        G_Items_Touch(v79, v78, 0, 0);
+                        v79->active = 0;
+                        EntityIndex = G_GetEntityIndex(v79);
                         if ( G_IsEntityInUse(EntityIndex) )
                         {
                           if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
                             __debugbreak();
-                          GUtils::ms_gUtils->FreeEntity(GUtils::ms_gUtils, v96);
+                          GUtils::ms_gUtils->FreeEntity(GUtils::ms_gUtils, v79);
                         }
-                        if ( v92 )
+                        if ( v75 )
                         {
-                          v99 = BG_GetEquippedWeaponStateNonConst(Instance, v9, &r_weapon);
-                          if ( v99 )
-                            v99->inAltMode = 1;
+                          v82 = BG_GetEquippedWeaponStateNonConst(Instance, v9, &r_weapon);
+                          if ( v82 )
+                            v82->inAltMode = 1;
                         }
-                        if ( v104 )
+                        if ( v87 )
                         {
                           Handler = GHandler::getHandler();
                           BG_SetCurrentWeaponForPlayer(Instance, v9, &r_weapon, Handler);
@@ -2548,17 +2429,18 @@ TakeAwayAmmo
 void TakeAwayAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate, int amount)
 {
   bool v5; 
-  int v11; 
+  int v8; 
   int ammoCount; 
   GWeaponMap *Instance; 
   int EquippedWeaponIndex; 
-  int v15; 
-  unsigned int v17; 
+  int v12; 
+  unsigned int v13; 
   ClipAmmo *ammoInClip; 
+  int v15; 
+  __int64 v16; 
+  AmmoStore *v17; 
+  __int64 v18; 
   int v19; 
-  __int64 v20; 
-  __int64 v24; 
-  int v27; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
   AmmoStore r_clipIndex; 
@@ -2571,29 +2453,22 @@ void TakeAwayAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate, int
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, v5);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+158h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+158h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *BG_AmmoStoreForWeapon(&result, weapon, v5);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v11 = 0;
-  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v11].ammoType, &r_ammo2) )
+  v8 = 0;
+  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v8].ammoType, &r_ammo2) )
   {
-    if ( (unsigned int)++v11 >= 0xF )
+    if ( (unsigned int)++v8 >= 0xF )
       goto LABEL_12;
   }
-  if ( (playerState_s *)((char *)ps + 68 * v11) == (playerState_s *)-1912i64 )
+  if ( (playerState_s *)((char *)ps + 68 * v8) == (playerState_s *)-1912i64 )
   {
 LABEL_12:
     ammoCount = 0;
     goto LABEL_13;
   }
-  ammoCount = ps->weapCommon.ammoNotInClip[v11].ammoCount;
+  ammoCount = ps->weapCommon.ammoNotInClip[v8].ammoCount;
 LABEL_13:
   Instance = GWeaponMap::GetInstance();
   if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -2608,67 +2483,54 @@ LABEL_13:
   }
   else if ( ammoCount <= amount )
   {
-    v15 = amount - ammoCount;
+    v12 = amount - ammoCount;
     BG_SetGlobalAmmo(ps, weapon, v5, 0);
-    _RAX = BG_AmmoStoreForWeapon(&result, weapon, v5);
-    v17 = 0;
+    v13 = 0;
     ammoInClip = ps->weapCommon.ammoInClip;
-    v19 = 0;
-    v20 = 0i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+158h+r_clipIndex.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+158h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-    }
+    v15 = 0;
+    v16 = 0i64;
+    r_clipIndex = *BG_AmmoStoreForWeapon(&result, weapon, v5);
     do
     {
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BG_AmmoStoreForWeapon(&result, weapon, v5);
-      v24 = v20;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+158h+r_ammo2.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+158h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-      }
+      v17 = BG_AmmoStoreForWeapon(&result, weapon, v5);
+      v18 = v16;
+      r_ammo2 = *v17;
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( BG_HasLadderHand(ps) && v20 == 1 )
-        v24 = 0i64;
+      if ( BG_HasLadderHand(ps) && v16 == 1 )
+        v18 = 0i64;
       while ( !BG_IsClipCompatible(&ammoInClip->clipIndex, &r_ammo2) )
       {
-        ++v17;
+        ++v13;
         ++ammoInClip;
-        if ( v17 >= 0xF )
+        if ( v13 >= 0xF )
         {
-          v17 = 0;
-          v27 = 0;
+          v13 = 0;
+          v19 = 0;
           goto LABEL_39;
         }
       }
-      v27 = ammoInClip->ammoCount[v24];
-      v17 = 0;
+      v19 = ammoInClip->ammoCount[v18];
+      v13 = 0;
 LABEL_39:
-      if ( v27 <= v15 )
+      if ( v19 <= v12 )
       {
         v5 = isAlternate;
-        v15 -= v27;
-        BG_SetClipAmmo(ps, &r_clipIndex, weapon, isAlternate, (PlayerHandIndex)v19, 0);
+        v12 -= v19;
+        BG_SetClipAmmo(ps, &r_clipIndex, weapon, isAlternate, (PlayerHandIndex)v15, 0);
       }
       else
       {
-        BG_AddClipAmmo(ps, &r_clipIndex, (PlayerHandIndex)v19, -v15);
+        BG_AddClipAmmo(ps, &r_clipIndex, (PlayerHandIndex)v15, -v12);
         v5 = isAlternate;
       }
-      ++v19;
+      ++v15;
       ammoInClip = ps->weapCommon.ammoInClip;
-      ++v20;
+      ++v16;
     }
-    while ( v19 < 2 );
+    while ( v15 < 2 );
   }
   else
   {

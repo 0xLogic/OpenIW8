@@ -236,27 +236,19 @@ __int64 LiveRegionInfo_GetCartesian2DLatLong(float *lat, float *lon)
   __int64 result; 
   bool v5; 
 
-  _RBX = lon;
-  _RDI = lat;
   if ( !lat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 496, ASSERT_TYPE_ASSERT, "(lat)", (const char *)&queryFormat, "lat") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 497, ASSERT_TYPE_ASSERT, "(lon)", (const char *)&queryFormat, "lon") )
+  if ( !lon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 497, ASSERT_TYPE_ASSERT, "(lon)", (const char *)&queryFormat, "lon") )
     __debugbreak();
   result = 0i64;
   v5 = s_dmlState == DML_STATE_COMPLETE;
-  *_RDI = 0.0;
-  *_RBX = 0.0;
+  *lat = 0.0;
+  *lon = 0.0;
   if ( v5 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:s_regionInfo.m_latitude
-      vmovss  xmm3, cs:__real@42340000; standardLatitudeDegrees
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, cs:s_regionInfo.m_longitude
-      vmovss  dword ptr [rbx], xmm1
-    }
-    bdDMLInfo::get2DCartesianLocation(&s_regionInfo, _RDI, _RBX, *(float *)&_XMM3);
+    *lat = s_regionInfo.m_latitude;
+    *lon = s_regionInfo.m_longitude;
+    bdDMLInfo::get2DCartesianLocation(&s_regionInfo, lat, lon, 45.0);
     return 1i64;
   }
   return result;
@@ -348,25 +340,18 @@ __int64 LiveRegionInfo_GetLatLong(float *lat, float *lon)
   __int64 result; 
   bool v5; 
 
-  _RBX = lon;
-  _RDI = lat;
   if ( !lat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 479, ASSERT_TYPE_ASSERT, "(lat)", (const char *)&queryFormat, "lat") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 480, ASSERT_TYPE_ASSERT, "(lon)", (const char *)&queryFormat, "lon") )
+  if ( !lon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwregioninfo.cpp", 480, ASSERT_TYPE_ASSERT, "(lon)", (const char *)&queryFormat, "lon") )
     __debugbreak();
   result = 0i64;
   v5 = s_dmlState == DML_STATE_COMPLETE;
-  *_RDI = 0.0;
-  *_RBX = 0.0;
+  *lat = 0.0;
+  *lon = 0.0;
   if ( v5 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:s_regionInfo.m_latitude
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm1, cs:s_regionInfo.m_longitude
-      vmovss  dword ptr [rbx], xmm1
-    }
+    *lat = s_regionInfo.m_latitude;
+    *lon = s_regionInfo.m_longitude;
     return 1i64;
   }
   return result;

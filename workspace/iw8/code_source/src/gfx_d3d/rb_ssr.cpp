@@ -117,69 +117,40 @@ void RB_SSR_DeferredTrace(ComputeCmdBufState *computeState, const GfxViewInfo *v
 {
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v20; 
-  const GfxTexture *v21; 
-  R_RT_ColorHandle v22; 
-  R_RT_ColorHandle v23; 
-  R_RT_ColorHandle v24; 
-  R_RT_ColorHandle v25; 
-  R_RT_ColorHandle v26; 
-  R_RT_ColorHandle v27; 
-  R_RT_Handle v28; 
+  const R_RT_Surface *v10; 
+  const GfxTexture *v11; 
+  R_RT_ColorHandle v12; 
+  R_RT_ColorHandle v13; 
+  R_RT_ColorHandle m_ssrRt; 
+  R_RT_ColorHandle m_ssrMaskRt; 
+  R_RT_ColorHandle m_mainSceneTangentFrameRt; 
+  R_RT_ColorHandle m_floatZFullRt; 
+  R_RT_Handle v18; 
 
-  _RBX = viewInfo;
   if ( viewInfo->ssrMode >= GFX_SSR_DEFERRED_LQ )
   {
     R_GPU_BeginTimer(GPU_TIMER_SSR);
     R_ProfBeginNamedEvent(computeState, "SSR : Deferred Depth Trace");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3340h]
-      vmovups [rsp+138h+var_48], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3160h]
-      vmovups [rsp+138h+var_68], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3448h]
-      vmovups [rsp+138h+var_88], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3428h]
-      vmovups [rsp+138h+var_A8], ymm0
-      vmovups ymmword ptr [rsp+138h+var_28.m_surfaceID], ymm0
-    }
-    Surface = R_RT_Handle::GetSurface(&v28);
+    m_floatZFullRt = viewInfo->sceneRtInput.m_floatZFullRt;
+    m_mainSceneTangentFrameRt = viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+    m_ssrMaskRt = viewInfo->sceneRtInput.m_ssrMaskRt;
+    m_ssrRt = viewInfo->sceneRtInput.m_ssrRt;
+    v18 = (R_RT_Handle)m_ssrRt;
+    Surface = R_RT_Handle::GetSurface(&v18);
     Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
     R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(computeState);
-    __asm
-    {
-      vmovups ymm1, [rsp+138h+var_A8]
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+138h+var_E8+10h], xmm0
-      vmovdqu xmmword ptr [rsp+138h+var_C8+10h], xmm0
-    }
-    v22.m_surfaceID = 0;
-    v22.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups ymm0, [rsp+138h+var_E8]
-      vmovups [rsp+138h+var_A8], ymm1
-      vmovups ymm1, [rsp+138h+var_88]
-      vmovups [rsp+138h+var_E8], ymm0
-      vmovups ymm0, [rsp+138h+var_68]
-    }
-    v23.m_surfaceID = 0;
-    v23.m_tracking.m_allocCounter = 0;
-    __asm
-    {
-      vmovups [rsp+138h+var_88], ymm1
-      vmovups ymm1, [rsp+138h+var_48]
-      vmovups [rsp+138h+var_68], ymm0
-      vmovups ymm0, [rsp+138h+var_C8]
-      vmovups [rsp+138h+var_C8], ymm0
-      vmovups [rsp+138h+var_48], ymm1
-    }
-    R_SSR_DeferredTrace(computeState, _RBX, data, 0, &v27, &v23, &v26, &v25, &v22, &v24);
-    v20 = R_RT_Handle::GetSurface(&v28);
-    v21 = R_Texture_GetResident(v20->m_image.m_base.textureId);
-    R_HW_AddResourceTransition(computeState, v21, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v12.m_tracking.m_name = _XMM0;
+    *(_OWORD *)&v13.m_tracking.m_name = _XMM0;
+    v12.m_surfaceID = 0;
+    v12.m_tracking.m_allocCounter = 0;
+    v13.m_surfaceID = 0;
+    v13.m_tracking.m_allocCounter = 0;
+    R_SSR_DeferredTrace(computeState, viewInfo, data, 0, &m_floatZFullRt, &v13, &m_mainSceneTangentFrameRt, &m_ssrMaskRt, &v12, &m_ssrRt);
+    v10 = R_RT_Handle::GetSurface(&v18);
+    v11 = R_Texture_GetResident(v10->m_image.m_base.textureId);
+    R_HW_AddResourceTransition(computeState, v11, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(computeState);
     R_ProfEndNamedEvent(computeState);
     R_GPU_EndTimer();
@@ -195,72 +166,44 @@ void RB_SSR_DeferredWaterTrace(ComputeCmdBufState *computeState, const GfxViewIn
 {
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v22; 
-  const GfxTexture *v23; 
-  R_RT_ColorHandle v24; 
-  R_RT_Handle v25; 
-  R_RT_ColorHandle v26; 
-  R_RT_ColorHandle v27; 
-  R_RT_ColorHandle v28; 
-  R_RT_ColorHandle v29; 
-  R_RT_ColorHandle v30; 
+  const R_RT_Surface *v10; 
+  const GfxTexture *v11; 
+  R_RT_ColorHandle v12; 
+  R_RT_Handle v13; 
+  R_RT_ColorHandle m_ssrWaterRt; 
+  R_RT_ColorHandle m_ssrMaskRt; 
+  R_RT_ColorHandle m_mainSceneTangentFrameRt; 
+  R_RT_ColorHandle m_waterFloatZRt; 
+  R_RT_ColorHandle m_floatZFullRt; 
 
-  _RBX = viewInfo;
   if ( viewInfo->ssrMode >= GFX_SSR_DEFERRED_LQ )
   {
     R_GPU_BeginTimer(GPU_TIMER_SSR);
     R_ProfBeginNamedEvent(computeState, "SSR : Deferred Water Trace");
-    __asm
+    m_floatZFullRt = viewInfo->sceneRtInput.m_floatZFullRt;
+    m_waterFloatZRt = viewInfo->sceneRtInput.m_waterFloatZRt;
+    m_mainSceneTangentFrameRt = viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+    m_ssrMaskRt = viewInfo->sceneRtInput.m_ssrMaskRt;
+    m_ssrWaterRt = viewInfo->sceneRtInput.m_ssrWaterRt;
+    v13 = (R_RT_Handle)m_ssrWaterRt;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rbx+3340h]
-      vmovups [rsp+138h+var_28], ymm0
-      vmovups ymm0, ymmword ptr [rbx+33A0h]
-      vmovups [rsp+138h+var_48], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3160h]
-      vmovups [rsp+138h+var_68], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3448h]
-      vmovups [rsp+138h+var_88], ymm0
-      vmovups ymm0, ymmword ptr [rbx+3468h]
-      vmovd   eax, xmm0
-      vmovups [rsp+138h+var_A8], ymm0
-      vmovups ymmword ptr [rsp+138h+var_C8.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v25);
-      Surface = R_RT_Handle::GetSurface(&v25);
+      R_RT_Handle::GetSurface(&v13);
+      Surface = R_RT_Handle::GetSurface(&v13);
       Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
       R_HW_AddResourceTransition(computeState, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(computeState);
-      __asm
-      {
-        vmovups ymm1, [rsp+138h+var_A8]
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+138h+var_E8+10h], xmm0
-      }
-      v24.m_surfaceID = 0;
-      v24.m_tracking.m_allocCounter = 0;
-      __asm
-      {
-        vmovups ymm0, [rsp+138h+var_E8]
-        vmovups [rsp+138h+var_E8], ymm0
-        vmovups ymm0, [rsp+138h+var_68]
-        vmovups [rsp+138h+var_68], ymm0
-        vmovups ymm0, [rsp+138h+var_48]
-        vmovups [rsp+138h+var_A8], ymm1
-        vmovups ymm1, [rsp+138h+var_88]
-        vmovups [rsp+138h+var_48], ymm0
-        vmovups ymm0, [rsp+138h+var_28]
-        vmovups [rsp+138h+var_88], ymm1
-        vmovups [rsp+138h+var_28], ymm0
-      }
-      R_SSR_DeferredTrace(computeState, _RBX, data, 1, &v30, &v29, &v28, &v27, &v24, &v26);
-      v22 = R_RT_Handle::GetSurface(&v25);
-      v23 = R_Texture_GetResident(v22->m_image.m_base.textureId);
-      R_HW_AddResourceTransition(computeState, v23, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v12.m_tracking.m_name = _XMM0;
+      v12.m_surfaceID = 0;
+      v12.m_tracking.m_allocCounter = 0;
+      R_SSR_DeferredTrace(computeState, viewInfo, data, 1, &m_floatZFullRt, &m_waterFloatZRt, &m_mainSceneTangentFrameRt, &m_ssrMaskRt, &v12, &m_ssrWaterRt);
+      v10 = R_RT_Handle::GetSurface(&v13);
+      v11 = R_Texture_GetResident(v10->m_image.m_base.textureId);
+      R_HW_AddResourceTransition(computeState, v11, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
       R_FlushResourceTransitions(computeState);
     }
-    else if ( v25.m_tracking.m_allocCounter )
+    else if ( v13.m_tracking.m_allocCounter )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
@@ -310,56 +253,60 @@ void R_SSR_DeferredTrace(ComputeCmdBufState *computeState, const GfxViewInfo *vi
   ComputeCmdBufState *v11; 
   R_RT_ColorHandle *v12; 
   GfxSSRMode ssrMode; 
-  int width; 
-  int height; 
+  __int64 width; 
+  __int64 height; 
   bool v17; 
   unsigned __int16 m_surfaceID; 
-  unsigned int v34; 
-  __int64 v35; 
+  float v19; 
+  float v20; 
+  float v21; 
+  unsigned int v22; 
+  __int64 v23; 
   unsigned int frameCount; 
   __int64 unsignedInt; 
-  int v38; 
-  __int64 v39; 
+  int v26; 
+  __int64 v27; 
   ComputeShader *ssrDeferredWaterTraceHQ; 
   const R_RT_Surface *Surface; 
   GfxTextureId textureId; 
-  GfxTextureId v44; 
-  R_RT_Handle *v45; 
-  GfxTextureId v46; 
-  R_RT_Handle *v47; 
-  GfxTextureId v48; 
-  GfxTextureId v49; 
-  const R_RT_Surface *v50; 
-  __int64 v51; 
-  __int64 v52; 
-  GfxSSRMode v53; 
-  R_RT_Handle *v55; 
-  R_RT_Handle *v56; 
+  GfxTextureId v31; 
+  R_RT_Handle *v32; 
+  GfxTextureId v33; 
+  R_RT_Handle *v34; 
+  GfxTextureId v35; 
+  GfxTextureId v36; 
+  const R_RT_Surface *v37; 
+  __int64 v38; 
+  __int64 v39; 
+  GfxSSRMode v40; 
+  R_RT_Handle *v42; 
+  R_RT_Handle *v43; 
   unsigned int yCount; 
   unsigned int xCount; 
   R_RT_Handle *Resident; 
-  R_RT_Handle *v60; 
-  R_RT_Handle *v61; 
+  R_RT_Handle *v47; 
+  R_RT_Handle *v48; 
   ID3D12Resource *buffers; 
-  ComputeCmdBufState *v63; 
-  R_RT_ColorHandle *v64; 
+  ComputeCmdBufState *v50; 
+  R_RT_ColorHandle *v51; 
+  __int128 v52; 
   int dataa[12]; 
   tmat44_t<vec4_t> out; 
-  tmat44_t<vec4_t> v68; 
+  tmat44_t<vec4_t> v55; 
+  __int128 v56; 
 
   v11 = computeState;
   v12 = tangentFrameRt;
-  _RDI = viewInfo;
   Resident = floatZFullRt;
-  v55 = waterFloatZFullRt;
-  v60 = maskTexture;
-  v56 = scopeTexture;
+  v42 = waterFloatZFullRt;
+  v47 = maskTexture;
+  v43 = scopeTexture;
   ssrMode = viewInfo->ssrMode;
-  v63 = computeState;
-  v53 = ssrMode;
+  v50 = computeState;
+  v40 = ssrMode;
   buffers = (ID3D12Resource *)data;
-  v64 = tangentFrameRt;
-  v61 = outTraceRt;
+  v51 = tangentFrameRt;
+  v48 = outTraceRt;
   width = R_RT_Handle::GetSurface(outTraceRt)->m_image.m_base.width;
   height = R_RT_Handle::GetSurface(outTraceRt)->m_image.m_base.height;
   xCount = (unsigned int)(width + 7) >> 3;
@@ -376,43 +323,28 @@ void R_SSR_DeferredTrace(ComputeCmdBufState *computeState, const GfxViewInfo *vi
   }
   if ( m_surfaceID && v17 != ((R_RT_Handle::GetSurface(tangentFrameRt)->m_rtFlags & 0x8000) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_ssr.cpp", 76, ASSERT_TYPE_ASSERT, "(!tangentFrameRt.IsValid() || (useMSAA == tangentFrameRt.HasFmask()))", (const char *)&queryFormat, "!tangentFrameRt.IsValid() || (useMSAA == tangentFrameRt.HasFmask())") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3f800000
-    vdivss  xmm0, xmm4, dword ptr [rdi+134h]
-    vmovss  xmm1, dword ptr [rdi+1B88h]
-    vdivss  xmm3, xmm4, xmm0
-    vmulss  xmm2, xmm3, cs:?vidConfig@@3UvidConfig_t@@A.displayAspectRatio; vidConfig_t vidConfig
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+0B0h+var_100], xmm1
-    vmulss  xmm1, xmm3, cs:__real@c0000000
-    vmovss  [rbp+0B0h+var_FC], xmm0
-    vmovss  [rbp+0B0h+var_F8], xmm0
-    vmovss  [rbp+0B0h+var_F4], xmm0
-    vmulss  xmm0, xmm2, cs:__real@40000000
-    vmovss  [rbp+0B0h+var_EC], xmm1
-    vmovss  [rbp+0B0h+var_F0], xmm0
-    vxorps  xmm0, xmm3, cs:__xmm@80000000800000008000000080000000
-    vmovss  [rbp+0B0h+var_E8], xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r14
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, r13
-    vmovss  [rbp+0B0h+var_E4], xmm0
-    vdivss  xmm0, xmm4, xmm1
-    vmovss  [rbp+0B0h+data], xmm1
-    vdivss  xmm1, xmm4, xmm2
-    vmovss  [rbp+0B0h+var_104], xmm1
-    vmovss  [rbp+0B0h+var_10C], xmm2
-    vmovss  [rbp+0B0h+var_108], xmm0
-  }
-  MatrixTranspose44(&_RDI->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &out);
-  MatrixTranspose44((const tmat44_t<vec4_t> *)_RDI, &v68);
+  v19 = 1.0 / (float)(1.0 / viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY);
+  dataa[4] = LODWORD(viewInfo->input.sceneConstants.temporalSamplingParams.v[2]);
+  *(float *)&dataa[5] = 0.0;
+  *(float *)&dataa[6] = 0.0;
+  *(float *)&dataa[7] = 0.0;
+  *(float *)&dataa[9] = v19 * -2.0;
+  *(float *)&dataa[8] = (float)(v19 * vidConfig.displayAspectRatio) * 2.0;
+  *(float *)&dataa[10] = v19 * vidConfig.displayAspectRatio;
+  v20 = (float)width;
+  v21 = (float)height;
+  dataa[11] = LODWORD(v19) ^ _xmm;
+  *(float *)dataa = v20;
+  *(float *)&dataa[3] = 1.0 / v21;
+  *(float *)&dataa[1] = v21;
+  *(float *)&dataa[2] = 1.0 / v20;
+  MatrixTranspose44(&viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m, &out);
+  MatrixTranspose44((const tmat44_t<vec4_t> *)viewInfo, &v55);
   if ( v17 )
   {
-    v34 = 0;
-    v35 = 0i64;
-    frameCount = _RDI->input.data->frameCount;
+    v22 = 0;
+    v23 = 0i64;
+    frameCount = viewInfo->input.data->frameCount;
     do
     {
       unsignedInt = frameCount & 3;
@@ -420,84 +352,83 @@ void R_SSR_DeferredTrace(ComputeCmdBufState *computeState, const GfxViewInfo *vi
         unsignedInt = r_vrsDebugFrameSamplePattern->current.unsignedInt;
       if ( (unsigned int)unsignedInt >= 4 )
       {
-        LODWORD(v52) = 4;
-        LODWORD(v51) = unsignedInt;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_variable_rate_shading.h", 76, ASSERT_TYPE_ASSERT, "(unsigned)( samplePattern ) < (unsigned)( 4 )", "samplePattern doesn't index VRS_MAX_SAMPLES\n\t%i not in [0, %i)", v51, v52) )
+        LODWORD(v39) = 4;
+        LODWORD(v38) = unsignedInt;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_variable_rate_shading.h", 76, ASSERT_TYPE_ASSERT, "(unsigned)( samplePattern ) < (unsigned)( 4 )", "samplePattern doesn't index VRS_MAX_SAMPLES\n\t%i not in [0, %i)", v38, v39) )
           __debugbreak();
       }
-      v38 = s_VRSPixelToSampleOrdered[unsignedInt][v35];
-      v39 = (int)v34;
-      ++v35;
-      ++v34;
-      dataa[v39 - 4] = v38;
+      v26 = s_VRSPixelToSampleOrdered[unsignedInt][v23];
+      v27 = (int)v22;
+      ++v23;
+      ++v22;
+      dataa[v27 - 4] = v26;
     }
-    while ( v34 < 4 );
-    __asm { vmovups xmm0, [rbp+0B0h+var_120] }
-    v11 = v63;
-    v12 = v64;
-    __asm { vmovups [rbp+0B0h+var_50], xmm0 }
+    while ( v22 < 4 );
+    v11 = v50;
+    v12 = v51;
+    v56 = v52;
   }
   R_UploadAndSetComputeConstants(v11, 0, dataa, 0xD0u, NULL);
   if ( waterTrace )
   {
     ssrDeferredWaterTraceHQ = rgp.ssrDeferredWaterTraceHQ;
-    if ( v53 == GFX_SSR_DEFERRED_LQ )
+    if ( v40 == GFX_SSR_DEFERRED_LQ )
       ssrDeferredWaterTraceHQ = rgp.ssrDeferredWaterTrace;
   }
   else if ( v17 )
   {
     ssrDeferredWaterTraceHQ = rgp.ssrDeferredTraceHQMSAA;
-    if ( v53 == GFX_SSR_DEFERRED_LQ )
+    if ( v40 == GFX_SSR_DEFERRED_LQ )
       ssrDeferredWaterTraceHQ = rgp.ssrDeferredTraceMSAA;
   }
   else
   {
     ssrDeferredWaterTraceHQ = rgp.ssrDeferredTraceHQ;
-    if ( v53 == GFX_SSR_DEFERRED_LQ )
+    if ( v40 == GFX_SSR_DEFERRED_LQ )
       ssrDeferredWaterTraceHQ = rgp.ssrDeferredTrace;
   }
   R_SetComputeShader(v11, ssrDeferredWaterTraceHQ);
   Surface = R_RT_Handle::GetSurface(Resident);
   Resident = (R_RT_Handle *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_SetComputeTextures(v11, 0, 1, (const GfxTexture *const *)&Resident);
-  if ( R_RT_Handle::IsValid(v55) )
-    textureId = R_RT_Handle::GetSurface(v55)->m_image.m_base.textureId;
+  if ( R_RT_Handle::IsValid(v42) )
+    textureId = R_RT_Handle::GetSurface(v42)->m_image.m_base.textureId;
   else
     textureId = rgp.blackImage->textureId;
-  v55 = (R_RT_Handle *)R_Texture_GetResident(textureId);
-  R_SetComputeTextures(v11, 2, 1, (const GfxTexture *const *)&v55);
+  v42 = (R_RT_Handle *)R_Texture_GetResident(textureId);
+  R_SetComputeTextures(v11, 2, 1, (const GfxTexture *const *)&v42);
   if ( R_RT_Handle::IsValid(v12) )
-    v44 = R_RT_Handle::GetSurface(v12)->m_image.m_base.textureId;
+    v31 = R_RT_Handle::GetSurface(v12)->m_image.m_base.textureId;
   else
-    v44 = rgp.blackUintImage->textureId;
-  v55 = (R_RT_Handle *)R_Texture_GetResident(v44);
-  R_SetComputeTextures(v11, 1, 1, (const GfxTexture *const *)&v55);
-  v45 = v60;
-  if ( R_RT_Handle::IsValid(v60) )
-    v46 = R_RT_Handle::GetSurface(v45)->m_image.m_base.textureId;
+    v31 = rgp.blackUintImage->textureId;
+  v42 = (R_RT_Handle *)R_Texture_GetResident(v31);
+  R_SetComputeTextures(v11, 1, 1, (const GfxTexture *const *)&v42);
+  v32 = v47;
+  if ( R_RT_Handle::IsValid(v47) )
+    v33 = R_RT_Handle::GetSurface(v32)->m_image.m_base.textureId;
   else
-    v46 = rgp.blackUintImage->textureId;
-  v60 = (R_RT_Handle *)R_Texture_GetResident(v46);
-  R_SetComputeTextures(v11, 3, 1, (const GfxTexture *const *)&v60);
-  v47 = v56;
-  if ( R_RT_Handle::IsValid(v56) )
-    v48 = R_RT_Handle::GetSurface(v47)->m_image.m_base.textureId;
+    v33 = rgp.blackUintImage->textureId;
+  v47 = (R_RT_Handle *)R_Texture_GetResident(v33);
+  R_SetComputeTextures(v11, 3, 1, (const GfxTexture *const *)&v47);
+  v34 = v43;
+  if ( R_RT_Handle::IsValid(v43) )
+    v35 = R_RT_Handle::GetSurface(v34)->m_image.m_base.textureId;
   else
-    v48 = rgp.blackImage->textureId;
-  v56 = (R_RT_Handle *)R_Texture_GetResident(v48);
-  R_SetComputeTextures(v11, 4, 1, (const GfxTexture *const *)&v56);
+    v35 = rgp.blackImage->textureId;
+  v43 = (R_RT_Handle *)R_Texture_GetResident(v35);
+  R_SetComputeTextures(v11, 4, 1, (const GfxTexture *const *)&v43);
   if ( v17 )
   {
     if ( R_RT_Handle::IsValid(v12) )
-      v49 = R_RT_Handle::GetSurface(v12)->m_color.m_fmaskImage.m_base.textureId;
+      v36 = R_RT_Handle::GetSurface(v12)->m_color.m_fmaskImage.m_base.textureId;
     else
-      v49 = rgp.blackUintImage->textureId;
-    v56 = (R_RT_Handle *)R_Texture_GetResident(v49);
-    R_SetComputeTextures(v11, 5, 1, (const GfxTexture *const *)&v56);
+      v36 = rgp.blackUintImage->textureId;
+    v43 = (R_RT_Handle *)R_Texture_GetResident(v36);
+    R_SetComputeTextures(v11, 5, 1, (const GfxTexture *const *)&v43);
   }
-  v50 = R_RT_Handle::GetSurface(v61);
-  v61 = (R_RT_Handle *)R_Texture_GetResident(v50->m_image.m_base.textureId);
-  R_SetComputeRWTextures(v11, 0, 1, (const GfxTexture *const *)&v61);
+  v37 = R_RT_Handle::GetSurface(v48);
+  v48 = (R_RT_Handle *)R_Texture_GetResident(v37->m_image.m_base.textureId);
+  R_SetComputeRWTextures(v11, 0, 1, (const GfxTexture *const *)&v48);
   buffers = (ID3D12Resource *)**((_QWORD **)&buffers[1962].IGraphicsUnknown + 1);
   R_SetComputeConstantBuffers(v11, 7, 1, &buffers);
   R_Dispatch(v11, xCount, yCount, 1u);
@@ -511,21 +442,17 @@ R_SSR_FreeTemporalRts
 
 void __fastcall R_SSR_FreeTemporalRts(double _XMM0_8)
 {
-  R_RT_Handle v3; 
+  R_RT_Handle v2; 
 
   if ( s_previousWaterSSRRt.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&s_previousWaterSSRRt);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_surfaceID
-      vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v3);
+    v2 = (R_RT_Handle)s_previousWaterSSRRt;
+    R_RT_DestroyInternal(&v2);
     __asm { vpxor   xmm0, xmm0, xmm0 }
     s_previousWaterSSRRt.m_surfaceID = 0;
     s_previousWaterSSRRt.m_tracking.m_allocCounter = 0;
-    __asm { vmovdqu xmmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_tracking.m_name, xmm0 }
+    *(_OWORD *)&s_previousWaterSSRRt.m_tracking.m_name = _XMM0;
   }
   else if ( s_previousWaterSSRRt.m_tracking.m_allocCounter != s_previousWaterSSRRt.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
@@ -540,11 +467,7 @@ R_SSR_GetPreviousFrameWaterTraceRt
 */
 R_RT_ColorHandle *R_SSR_GetPreviousFrameWaterTraceRt(R_RT_ColorHandle *result)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_surfaceID
-    vmovups ymmword ptr [rcx], ymm0
-  }
+  *result = s_previousWaterSSRRt;
   return result;
 }
 
@@ -555,44 +478,33 @@ R_SSR_RotateRTs
 */
 void R_SSR_RotateRTs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  GfxCmdBufContext v3; 
   unsigned __int16 m_surfaceID; 
-  GfxCmdBufContext v9; 
-  R_RT_ColorHandle v10; 
+  GfxCmdBufContext v7; 
+  R_RT_ColorHandle v8; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups ymm0, ymmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_surfaceID
-  }
-  _RBX = viewInfo;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups [rsp+68h+var_38], xmm1
-  }
-  R_RT_Destroy(&v9, &v10);
+  v3 = *gfxContext;
+  v8 = s_previousWaterSSRRt;
+  v7 = v3;
+  R_RT_Destroy(&v7, &v8);
   __asm { vpxor   xmm0, xmm0, xmm0 }
   s_previousWaterSSRRt.m_surfaceID = 0;
   s_previousWaterSSRRt.m_tracking.m_allocCounter = 0;
-  __asm { vmovdqu xmmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_tracking.m_name, xmm0 }
-  if ( _RBX->ssrWaterTrace )
+  *(_OWORD *)&s_previousWaterSSRRt.m_tracking.m_name = _XMM0;
+  if ( viewInfo->ssrWaterTrace )
   {
-    m_surfaceID = _RBX->sceneRtInput.m_ssrWaterRt.m_surfaceID;
+    m_surfaceID = viewInfo->sceneRtInput.m_ssrWaterRt.m_surfaceID;
     if ( m_surfaceID )
     {
-      R_RT_Handle::GetSurface(&_RBX->sceneRtInput.m_ssrWaterRt);
+      R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_ssrWaterRt);
     }
-    else if ( _RBX->sceneRtInput.m_ssrWaterRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    else if ( viewInfo->sceneRtInput.m_ssrWaterRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
     {
       __debugbreak();
     }
     if ( !m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_ssr.cpp", 143, ASSERT_TYPE_ASSERT, "(viewInfo->sceneRtInput.m_ssrWaterRt.IsValid())", (const char *)&queryFormat, "viewInfo->sceneRtInput.m_ssrWaterRt.IsValid()") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3468h]
-      vmovups ymmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_surfaceID, ymm0
-    }
+    s_previousWaterSSRRt = viewInfo->sceneRtInput.m_ssrWaterRt;
   }
 }
 
@@ -604,21 +516,17 @@ R_ShutdownSSR
 
 void __fastcall R_ShutdownSSR(double _XMM0_8)
 {
-  R_RT_Handle v3; 
+  R_RT_Handle v2; 
 
   if ( s_previousWaterSSRRt.m_surfaceID )
   {
     R_RT_Handle::GetSurface(&s_previousWaterSSRRt);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_surfaceID
-      vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0
-    }
-    R_RT_DestroyInternal(&v3);
+    v2 = (R_RT_Handle)s_previousWaterSSRRt;
+    R_RT_DestroyInternal(&v2);
     __asm { vpxor   xmm0, xmm0, xmm0 }
     s_previousWaterSSRRt.m_surfaceID = 0;
     s_previousWaterSSRRt.m_tracking.m_allocCounter = 0;
-    __asm { vmovdqu xmmword ptr cs:s_previousWaterSSRRt.baseclass_0.m_tracking.m_name, xmm0 }
+    *(_OWORD *)&s_previousWaterSSRRt.m_tracking.m_name = _XMM0;
   }
   else if ( s_previousWaterSSRRt.m_tracking.m_allocCounter != s_previousWaterSSRRt.m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {

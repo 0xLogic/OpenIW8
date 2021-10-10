@@ -781,9 +781,11 @@ AINavigator::AINavigator
 */
 void AINavigator::AINavigator(AINavigator *this, gentity_s *pEnt, AINavLayer layer)
 {
+  gentity_s *m_pEnt; 
+  float v7; 
+  float v8; 
   nav_space_s *MostLikelySpaceWithRadius; 
 
-  _RSI = this;
   this->__vftable = (AINavigator_vtbl *)&AINavigator::`vftable';
   this->m_pEnt = pEnt;
   this->m_CurSegment = 0;
@@ -793,64 +795,33 @@ void AINavigator::AINavigator(AINavigator *this, gentity_s *pEnt, AINavLayer lay
   this->m_DistFromGoalToPathToRequestedGoal = 36.0;
   *(_QWORD *)&this->m_MaxDeviationFromPath = 1086324736i64;
   bfx::LinkHandle::LinkHandle(&this->m_hLink);
-  _RSI->m_TimeOfLastBlockage = 0;
-  _RSI->m_bBlocked = 0;
+  this->m_TimeOfLastBlockage = 0;
+  this->m_bBlocked = 0;
   if ( !pEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 84, ASSERT_TYPE_ASSERT, "( pEnt )", (const char *)&queryFormat, "pEnt", -2i64, this) )
     __debugbreak();
-  _RAX = _RSI->m_pEnt;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+100h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm3, xmm0, dword ptr [rax+10Ch]
-    vmovss  xmm1, dword ptr [rax+104h]
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm0, xmm1, dword ptr [rax+110h]
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm1, xmm2, xmm2; radius
-  }
-  MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&pEnt->r.currentOrigin, *(float *)&_XMM1, layer, NULL);
-  _RSI->m_pSpace = MostLikelySpaceWithRadius;
+  m_pEnt = this->m_pEnt;
+  v7 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[0]) & _xmm) + m_pEnt->r.box.halfSize.v[0];
+  v8 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[1]) & _xmm) + m_pEnt->r.box.halfSize.v[1];
+  MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&pEnt->r.currentOrigin, fsqrt((float)(v8 * v8) + (float)(v7 * v7)), layer, NULL);
+  this->m_pSpace = MostLikelySpaceWithRadius;
   if ( !MostLikelySpaceWithRadius )
-    _RSI->m_pSpace = Nav_GetDefaultSpace();
-  AINavigator::LocalizePosToSpace(_RSI, &pEnt->r.currentOrigin, &_RSI->m_LocalCurSnappedPos);
-  AINavigator::WorldifyPosFromSpace(_RSI, &_RSI->m_LocalCurSnappedPos, &_RSI->m_CurSnappedPos);
-  _RSI->m_LocalRequestedGoalPos.v[0] = _RSI->m_LocalCurSnappedPos.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+58h]
-    vmovss  dword ptr [rsi+40h], xmm0
-    vmovss  xmm1, dword ptr [rsi+5Ch]
-    vmovss  dword ptr [rsi+44h], xmm1
-  }
-  _RSI->m_LocalSnappedGoalPos.v[0] = _RSI->m_LocalCurSnappedPos.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+58h]
-    vmovss  dword ptr [rsi+4Ch], xmm0
-    vmovss  xmm1, dword ptr [rsi+5Ch]
-    vmovss  dword ptr [rsi+50h], xmm1
-  }
-  _RSI->m_RequestedGoalPos.v[0] = _RSI->m_CurSnappedPos.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vmovss  dword ptr [rsi+1Ch], xmm0
-    vmovss  xmm1, dword ptr [rsi+38h]
-    vmovss  dword ptr [rsi+20h], xmm1
-  }
-  _RSI->m_SnappedGoalPos.v[0] = _RSI->m_CurSnappedPos.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vmovss  dword ptr [rsi+28h], xmm0
-    vmovss  xmm1, dword ptr [rsi+38h]
-    vmovss  dword ptr [rsi+2Ch], xmm1
-  }
-  _RSI->m_ReevalPathTask.entNum = _RSI->m_pEnt->s.number;
-  _RSI->m_ReevalPathTask.status[0] = 0;
+    this->m_pSpace = Nav_GetDefaultSpace();
+  AINavigator::LocalizePosToSpace(this, &pEnt->r.currentOrigin, &this->m_LocalCurSnappedPos);
+  AINavigator::WorldifyPosFromSpace(this, &this->m_LocalCurSnappedPos, &this->m_CurSnappedPos);
+  this->m_LocalRequestedGoalPos.v[0] = this->m_LocalCurSnappedPos.v[0];
+  this->m_LocalRequestedGoalPos.v[1] = this->m_LocalCurSnappedPos.v[1];
+  this->m_LocalRequestedGoalPos.v[2] = this->m_LocalCurSnappedPos.v[2];
+  this->m_LocalSnappedGoalPos.v[0] = this->m_LocalCurSnappedPos.v[0];
+  this->m_LocalSnappedGoalPos.v[1] = this->m_LocalCurSnappedPos.v[1];
+  this->m_LocalSnappedGoalPos.v[2] = this->m_LocalCurSnappedPos.v[2];
+  this->m_RequestedGoalPos.v[0] = this->m_CurSnappedPos.v[0];
+  this->m_RequestedGoalPos.v[1] = this->m_CurSnappedPos.v[1];
+  this->m_RequestedGoalPos.v[2] = this->m_CurSnappedPos.v[2];
+  this->m_SnappedGoalPos.v[0] = this->m_CurSnappedPos.v[0];
+  this->m_SnappedGoalPos.v[1] = this->m_CurSnappedPos.v[1];
+  this->m_SnappedGoalPos.v[2] = this->m_CurSnappedPos.v[2];
+  this->m_ReevalPathTask.entNum = this->m_pEnt->s.number;
+  this->m_ReevalPathTask.status[0] = 0;
 }
 
 /*
@@ -938,21 +909,14 @@ AINavigator::FindMostLikelySpace
 */
 nav_space_s *AINavigator::FindMostLikelySpace(AINavigator *this, const vec3_t *pos, const AINavLayer layer, nav_space_s *pIgnoreSpace)
 {
-  _RAX = this->m_pEnt;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+100h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm3, xmm0, dword ptr [rax+10Ch]
-    vmovss  xmm0, dword ptr [rax+104h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm0, xmm0, dword ptr [rax+110h]
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm1, xmm2, xmm2; radius
-  }
-  return Nav_FindMostLikelySpaceWithRadius(pos, *(float *)&_XMM1, layer, pIgnoreSpace);
+  gentity_s *m_pEnt; 
+  float v5; 
+  float v6; 
+
+  m_pEnt = this->m_pEnt;
+  v5 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[0]) & _xmm) + m_pEnt->r.box.halfSize.v[0];
+  v6 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[1]) & _xmm) + m_pEnt->r.box.halfSize.v[1];
+  return Nav_FindMostLikelySpaceWithRadius(pos, fsqrt((float)(v6 * v6) + (float)(v5 * v5)), layer, pIgnoreSpace);
 }
 
 /*
@@ -1043,8 +1007,7 @@ AINavigator::IsAtGoalPos
 */
 bool AINavigator::IsAtGoalPos(AINavigator *this)
 {
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  return VecNCompareCustomEpsilon(this->m_LocalCurSnappedPos.v, this->m_LocalSnappedGoalPos.v, *(float *)&_XMM2, 3);
+  return VecNCompareCustomEpsilon(this->m_LocalCurSnappedPos.v, this->m_LocalSnappedGoalPos.v, 0.001, 3);
 }
 
 /*
@@ -1052,35 +1015,18 @@ bool AINavigator::IsAtGoalPos(AINavigator *this)
 AINavigator::IsGoalPosWithin
 ==============
 */
-
-char __fastcall AINavigator::IsGoalPosWithin(AINavigator *this, double radius)
+bool AINavigator::IsGoalPosWithin(AINavigator *this, float radius)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps [rsp+48h+var_18], xmm6
-  }
-  _RBX = this;
-  __asm
-  {
-    vmovaps xmm6, xmm1
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vsubss  xmm3, xmm0, dword ptr [rbx+54h]
-    vmovss  xmm1, dword ptr [rbx+4Ch]
-    vsubss  xmm2, xmm1, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+5Ch]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm1, xmm4
-  }
-  return 1;
+  float v3; 
+  float v4; 
+  float v5; 
+
+  if ( radius < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 225, ASSERT_TYPE_ASSERT, "( radius >= 0.f )", (const char *)&queryFormat, "radius >= 0.f") )
+    __debugbreak();
+  v3 = this->m_LocalSnappedGoalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+  v4 = this->m_LocalSnappedGoalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+  v5 = this->m_LocalSnappedGoalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+  return (float)(radius * radius) >= (float)((float)((float)(v4 * v4) + (float)(v3 * v3)) + (float)(v5 * v5));
 }
 
 /*
@@ -1091,22 +1037,17 @@ AINavigator::IsGoingDown
 bool AINavigator::IsGoingDown(AINavigator *this)
 {
   bool result; 
-  char v5; 
-  char v6[8]; 
-  char v8[8]; 
+  char v3[8]; 
+  float v4; 
+  char v5[8]; 
+  float v6; 
 
   result = this->HasPath(this);
   if ( result )
   {
-    this->GetCurPos(this, (vec3_t *)v8);
-    this->GetNextCorner(this, (vec3_t *)v6);
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+var_30]
-      vsubss  xmm1, xmm0, [rsp+58h+var_20]
-      vcomiss xmm1, cs:__real@3a83126f
-    }
-    return v5;
+    this->GetCurPos(this, (vec3_t *)v5);
+    this->GetNextCorner(this, (vec3_t *)v3);
+    return (float)(v4 - v6) < 0.001;
   }
   return result;
 }
@@ -1124,9 +1065,8 @@ void AINavigator::LocalizePosToSpace(AINavigator *this, const vec3_t *worldPos, 
 
   if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 148, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  __asm { vmovups xmm0, cs:__xmm@3f800000000000000000000000000000 }
   m_pSpace = this->m_pSpace;
-  __asm { vmovups xmmword ptr [rsp+78h+worldRot], xmm0 }
+  worldRot = (vec4_t)_xmm;
   Nav_SpaceConvertWorldToLocal(m_pSpace, worldPos, &worldRot, outLocalPos, &outLocalRot);
 }
 
@@ -1135,22 +1075,11 @@ void AINavigator::LocalizePosToSpace(AINavigator *this, const vec3_t *worldPos, 
 Nav_CalculateNextNCorners
 ==============
 */
-
-__int64 __fastcall Nav_CalculateNextNCorners(const AINavigator *pNav, int maxCorners, nav_cornerdata_t *corners, double pathDistThreshold)
+__int64 Nav_CalculateNextNCorners(const AINavigator *pNav, int maxCorners, nav_cornerdata_t *corners, float pathDistThreshold)
 {
-  __int64 result; 
-
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 633, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  __asm { vmovaps xmm3, xmm6 }
-  result = ((__int64 (__fastcall *)(const AINavigator *, nav_cornerdata_t *, _QWORD))pNav->GetNextNCorners)(pNav, corners, (unsigned int)maxCorners);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return ((__int64 (__fastcall *)(const AINavigator *, nav_cornerdata_t *, _QWORD))pNav->GetNextNCorners)(pNav, corners, (unsigned int)maxCorners);
 }
 
 /*
@@ -1255,29 +1184,18 @@ Nav_GetDistToNextCorner
 */
 float Nav_GetDistToNextCorner(const AINavigator *pNav)
 {
-  int v15[4]; 
-  int v16; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
 
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 582, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  pNav->GetNextCorner((AINavigator *)pNav, (vec3_t *)&v16);
-  pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)v15);
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+var_38]
-    vsubss  xmm3, xmm0, [rsp+68h+var_28]
-    vmovss  xmm1, [rsp+68h+var_34]
-    vsubss  xmm2, xmm1, [rsp+68h+var_24]
-    vmovss  xmm0, [rsp+68h+var_30]
-    vsubss  xmm4, xmm0, [rsp+68h+var_20]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  return *(float *)&_XMM0;
+  pNav->GetNextCorner((AINavigator *)pNav, (vec3_t *)&v6);
+  pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)&v3);
+  return fsqrt((float)((float)((float)(v4 - v7) * (float)(v4 - v7)) + (float)((float)(v3 - v6) * (float)(v3 - v6))) + (float)((float)(v5 - v8) * (float)(v5 - v8)));
 }
 
 /*
@@ -1355,94 +1273,75 @@ Nav_GetLookaheadDir
 */
 void Nav_GetLookaheadDir(const AINavigator *pNav, vec3_t *outLookaheadDir)
 {
-  bool v6; 
-  AINavigator_vtbl *v7; 
-  __int64 v8; 
-  __int64 v9; 
-  AINavigator_vtbl *v10; 
+  bool v4; 
+  AINavigator_vtbl *v5; 
+  __int64 v6; 
+  __int64 v7; 
+  AINavigator_vtbl *v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
   int fmt; 
-  int v36; 
-  int v39; 
-  int v40[5]; 
-  bfx::AreaHandle v41; 
-  bfx::LinkHandle v42; 
-  void *retaddr; 
+  unsigned int v16; 
+  float v17; 
+  float v18; 
+  int v19[4]; 
+  int v20[5]; 
+  bfx::AreaHandle v21; 
+  bfx::LinkHandle v22; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = outLookaheadDir;
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 550, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  bfx::AreaHandle::AreaHandle(&v41);
-  bfx::LinkHandle::LinkHandle(&v42);
+  bfx::AreaHandle::AreaHandle(&v21);
+  bfx::LinkHandle::LinkHandle(&v22);
   if ( pNav->HasPath((AINavigator *)pNav) )
   {
-    v6 = !pNav->IsNextCornerGoal((AINavigator *)pNav);
-    v7 = pNav->__vftable;
-    if ( v6 )
+    v4 = !pNav->IsNextCornerGoal((AINavigator *)pNav);
+    v5 = pNav->__vftable;
+    if ( v4 )
     {
-      v6 = !v7->HasPath((AINavigator *)pNav);
-      v10 = pNav->__vftable;
-      if ( v6 )
+      v4 = !v5->HasPath((AINavigator *)pNav);
+      v8 = pNav->__vftable;
+      if ( v4 )
       {
-        v10->GetNextCorner((AINavigator *)pNav, (vec3_t *)&v36);
+        v8->GetNextCorner((AINavigator *)pNav, (vec3_t *)&v16);
       }
       else
       {
         LOBYTE(fmt) = 0;
-        LOBYTE(v9) = 1;
-        __asm { vmovss  xmm1, cs:__real@41c00000 }
-        ((void (__fastcall *)(const AINavigator *, __int64, __int64, int *, int))v10->GetPosAlongPath)(pNav, v8, v9, v40, fmt);
-        __asm
-        {
-          vmovss  xmm0, [rsp+0C8h+var_68]
-          vmovss  [rsp+0C8h+var_88], xmm0
-          vmovss  xmm1, [rsp+0C8h+var_64]
-          vmovss  [rsp+0C8h+var_84], xmm1
-          vmovss  xmm0, [rsp+0C8h+var_60]
-          vmovss  [rsp+0C8h+var_80], xmm0
-        }
+        LOBYTE(v7) = 1;
+        ((void (__fastcall *)(const AINavigator *, __int64, __int64, int *, int))v8->GetPosAlongPath)(pNav, v6, v7, v20, fmt);
+        v16 = v20[0];
+        v17 = *(float *)&v20[1];
+        v18 = *(float *)&v20[2];
       }
     }
     else
     {
-      v7->GetRequestedGoalPos((AINavigator *)pNav, (vec3_t *)&v36);
+      v5->GetRequestedGoalPos((AINavigator *)pNav, (vec3_t *)&v16);
     }
-    pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)&v39);
+    pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)v19);
+    v9 = v16;
+    v10 = v17 - *(float *)&v19[1];
+    v11 = v18 - *(float *)&v19[2];
+    *(float *)&v9 = fsqrt((float)((float)((float)(*(float *)&v16 - *(float *)v19) * (float)(*(float *)&v16 - *(float *)v19)) + (float)(v10 * v10)) + (float)(v11 * v11));
+    _XMM3 = v9;
     __asm
     {
-      vmovss  xmm0, [rsp+0C8h+var_88]
-      vsubss  xmm6, xmm0, [rsp+0C8h+var_78]
-      vmovss  xmm1, [rsp+0C8h+var_84]
-      vsubss  xmm4, xmm1, [rsp+0C8h+var_74]
-      vmovss  xmm0, [rsp+0C8h+var_80]
-      vsubss  xmm5, xmm0, [rsp+0C8h+var_70]
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm3, xmm2, xmm0
-      vdivss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm2
-      vmovss  dword ptr [rdi], xmm0
-      vmulss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rdi+4], xmm1
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rdi+8], xmm0
     }
+    outLookaheadDir->v[0] = (float)(*(float *)&v16 - *(float *)v19) * (float)(1.0 / *(float *)&_XMM1);
+    outLookaheadDir->v[1] = v10 * (float)(1.0 / *(float *)&_XMM1);
+    outLookaheadDir->v[2] = v11 * (float)(1.0 / *(float *)&_XMM1);
   }
   else
   {
-    *(_QWORD *)_RDI->v = 0i64;
-    _RDI->v[2] = 0.0;
+    *(_QWORD *)outLookaheadDir->v = 0i64;
+    outLookaheadDir->v[2] = 0.0;
   }
-  bfx::LinkHandle::~LinkHandle(&v42);
-  bfx::AreaHandle::~AreaHandle(&v41);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_18] }
+  bfx::LinkHandle::~LinkHandle(&v22);
+  bfx::AreaHandle::~AreaHandle(&v21);
 }
 
 /*
@@ -1497,18 +1396,12 @@ void Nav_GetPos(const AINavigator *pNav, vec3_t *outCurPos)
 Nav_GetPosAlongPath
 ==============
 */
-
-bool __fastcall Nav_GetPosAlongPath(const AINavigator *pNav, double dist, bool bStopAtLink, nav_posAlongPathResults_t *pResults)
+bool Nav_GetPosAlongPath(const AINavigator *pNav, float dist, bool bStopAtLink, nav_posAlongPathResults_t *pResults)
 {
   bool result; 
-  __int64 v10; 
+  __int64 v8; 
   int fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 610, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
   if ( !pResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 611, ASSERT_TYPE_ASSERT, "( pResults )", (const char *)&queryFormat, "pResults") )
@@ -1517,11 +1410,9 @@ bool __fastcall Nav_GetPosAlongPath(const AINavigator *pNav, double dist, bool b
   if ( result )
   {
     LOBYTE(fmt) = 0;
-    __asm { vmovaps xmm1, xmm6 }
-    ((void (__fastcall *)(const AINavigator *, __int64, bool, nav_posAlongPathResults_t *, int))pNav->GetPosAlongPath)(pNav, v10, bStopAtLink, pResults, fmt);
-    result = 1;
+    ((void (__fastcall *)(const AINavigator *, __int64, bool, nav_posAlongPathResults_t *, int))pNav->GetPosAlongPath)(pNav, v8, bStopAtLink, pResults, fmt);
+    return 1;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   return result;
 }
 
@@ -1530,18 +1421,12 @@ bool __fastcall Nav_GetPosAlongPath(const AINavigator *pNav, double dist, bool b
 Nav_GetPosAlongPathWithArea
 ==============
 */
-
-bool __fastcall Nav_GetPosAlongPathWithArea(const AINavigator *pNav, double dist, bool bStopAtLink, nav_posAlongPathResults_t *pResults)
+bool Nav_GetPosAlongPathWithArea(const AINavigator *pNav, float dist, bool bStopAtLink, nav_posAlongPathResults_t *pResults)
 {
   bool result; 
-  __int64 v10; 
+  __int64 v8; 
   int fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 621, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
   if ( !pResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 622, ASSERT_TYPE_ASSERT, "( pResults )", (const char *)&queryFormat, "pResults") )
@@ -1550,11 +1435,9 @@ bool __fastcall Nav_GetPosAlongPathWithArea(const AINavigator *pNav, double dist
   if ( result )
   {
     LOBYTE(fmt) = 1;
-    __asm { vmovaps xmm1, xmm6 }
-    ((void (__fastcall *)(const AINavigator *, __int64, bool, nav_posAlongPathResults_t *, int))pNav->GetPosAlongPath)(pNav, v10, bStopAtLink, pResults, fmt);
-    result = 1;
+    ((void (__fastcall *)(const AINavigator *, __int64, bool, nav_posAlongPathResults_t *, int))pNav->GetPosAlongPath)(pNav, v8, bStopAtLink, pResults, fmt);
+    return 1;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
   return result;
 }
 
@@ -1598,21 +1481,10 @@ void Nav_InitStaticNavigatorData(void)
 Nav_IsAtGoal
 ==============
 */
-
-__int64 __fastcall Nav_IsAtGoal(const AINavigator *pNav, double radius)
+__int64 Nav_IsAtGoal(const AINavigator *pNav, float radius)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 536, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm1, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
   return ((__int64 (__fastcall *)(const AINavigator *))pNav->IsGoalPosWithin)(pNav);
 }
 
@@ -1621,217 +1493,117 @@ __int64 __fastcall Nav_IsAtGoal(const AINavigator *pNav, double radius)
 Nav_IsPointNearPath
 ==============
 */
-
-__int64 __fastcall Nav_IsPointNearPath(const AINavigator *pNav, const vec3_t *point, double maxDistFromPath, double maxDistDownPath)
+_BOOL8 Nav_IsPointNearPath(const AINavigator *pNav, const vec3_t *point, float maxDistFromPath, float maxDistDownPath)
 {
-  int v20; 
-  bool v39; 
-  bool v40; 
-  unsigned __int64 v41; 
-  unsigned __int8 v96; 
-  __int64 result; 
-  int v109; 
-  int ptr[2]; 
-  int v113; 
-  char v114; 
-  void *retaddr; 
+  int v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  bool v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
+  float *v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float ptr; 
+  float v34; 
+  float v35; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  _RSI = point;
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 640, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  `eh vector constructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::nav_cornerdata_t, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
+  `eh vector constructor iterator'(&ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::nav_cornerdata_t, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
   if ( !pNav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 633, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  __asm { vmovaps xmm3, xmm6 }
-  v20 = ((__int64 (__fastcall *)(const AINavigator *, int *, __int64))pNav->GetNextNCorners)(pNav, ptr, 10i64);
-  if ( !v20 )
+  v6 = ((__int64 (__fastcall *)(const AINavigator *, float *, __int64))pNav->GetNextNCorners)(pNav, &ptr, 10i64);
+  if ( !v6 )
   {
-    pNav->GetNextCorner((AINavigator *)pNav, (vec3_t *)ptr);
-    v20 = 1;
+    pNav->GetNextCorner((AINavigator *)pNav, (vec3_t *)&ptr);
+    v6 = 1;
   }
-  pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)&v109);
-  __asm { vmovss  xmm15, [rsp+2A8h+var_260] }
-  if ( v20 == 1 )
+  pNav->GetCurPos((AINavigator *)pNav, (vec3_t *)&v30);
+  v7 = v32;
+  if ( v6 != 1 )
   {
-    __asm
+    if ( v6 <= 0 )
     {
-      vmovss  xmm0, [rsp+2A8h+ptr]
-      vmovss  xmm6, [rsp+2A8h+var_268]
-      vsubss  xmm3, xmm0, xmm6
-      vmovss  xmm1, [rsp+2A8h+var_254]
-      vmovss  xmm5, [rsp+2A8h+var_264]
-      vsubss  xmm2, xmm1, xmm5
-      vmovss  xmm0, [rsp+2A8h+var_250]
-      vsubss  xmm4, xmm0, xmm15
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vmovss  xmm14, cs:__real@3f800000
-      vcomiss xmm2, xmm14
+LABEL_23:
+      v11 = 0;
+      goto LABEL_24;
     }
+    v9 = v31;
+    v8 = v30;
+    v10 = FLOAT_1_0;
+    goto LABEL_14;
   }
-  else
+  v8 = v30;
+  v9 = v31;
+  v10 = FLOAT_1_0;
+  if ( (float)((float)((float)((float)(v34 - v31) * (float)(v34 - v31)) + (float)((float)(ptr - v30) * (float)(ptr - v30))) + (float)((float)(v35 - v32) * (float)(v35 - v32))) >= 1.0 )
   {
-    if ( v20 <= 0 )
+LABEL_14:
+    v12 = point->v[0];
+    v13 = point->v[1];
+    v14 = point->v[2];
+    v15 = 0i64;
+    v16 = &v35;
+    while ( 1 )
     {
-LABEL_22:
-      v96 = 0;
-      goto LABEL_23;
-    }
-    __asm
-    {
-      vmovss  xmm5, [rsp+2A8h+var_264]
-      vmovss  xmm6, [rsp+2A8h+var_268]
-      vmovss  xmm14, cs:__real@3f800000
-    }
-  }
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rsi]
-    vmovss  xmm9, dword ptr [rsi+4]
-    vmovss  xmm10, dword ptr [rsi+8]
-  }
-  v39 = 0;
-  v40 = 1;
-  v41 = 0i64;
-  _RCX = &v113;
-  while ( 1 )
-  {
-    __asm
-    {
-      vmovaps xmm11, xmm6
-      vmovaps xmm12, xmm5
-      vmovaps xmm13, xmm15
-      vmovss  xmm1, dword ptr [rcx-8]
-      vmovss  [rsp+2A8h+var_268], xmm1
-      vmovss  xmm0, dword ptr [rcx-4]
-      vmovss  [rsp+2A8h+var_264], xmm0
-      vmovss  xmm15, dword ptr [rcx]
-      vmovss  [rsp+2A8h+var_260], xmm15
-      vsubss  xmm4, xmm1, xmm6
-      vsubss  xmm5, xmm0, xmm5
-      vsubss  xmm6, xmm15, xmm13
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vcmpless xmm0, xmm3, cs:__real@80000000
-      vblendvps xmm1, xmm3, xmm14, xmm0
-      vdivss  xmm0, xmm14, xmm1
-      vmulss  xmm4, xmm0, xmm4
-      vmulss  xmm14, xmm0, xmm5
-      vmulss  xmm6, xmm0, xmm6
-      vsubss  xmm2, xmm8, [rsp+2A8h+var_268]
-      vmovss  xmm5, [rsp+2A8h+var_264]
-      vsubss  xmm0, xmm9, xmm5
-      vsubss  xmm3, xmm10, xmm15
-      vmulss  xmm1, xmm14, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, xmm7
-    }
-    if ( !v40 )
-      goto LABEL_19;
-    __asm
-    {
-      vsubss  xmm2, xmm8, xmm11
-      vsubss  xmm0, xmm9, xmm12
-      vsubss  xmm3, xmm10, xmm13
-      vmulss  xmm1, xmm14, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm3
-      vaddss  xmm5, xmm2, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm5, xmm0
-    }
-    if ( !v39 )
-      goto LABEL_26;
-    __asm
-    {
-      vxorps  xmm0, xmm7, cs:__xmm@80000000800000008000000080000000
-      vcomiss xmm5, xmm0
-    }
-    if ( !v39 )
-    {
-LABEL_26:
+      v17 = v8;
+      v18 = v9;
+      v19 = v7;
+      v30 = *(v16 - 2);
+      v31 = *(v16 - 1);
+      v7 = *v16;
+      v32 = v7;
+      v21 = LODWORD(v31);
+      v20 = v31 - v9;
+      *(float *)&v21 = fsqrt((float)((float)(v20 * v20) + (float)((float)(v30 - v8) * (float)(v30 - v8))) + (float)((float)(v7 - v19) * (float)(v7 - v19)));
+      _XMM3 = v21;
       __asm
       {
-        vmulss  xmm0, xmm4, xmm5
-        vaddss  xmm4, xmm0, xmm11
-        vmulss  xmm1, xmm14, xmm5
-        vaddss  xmm3, xmm1, xmm12
-        vmulss  xmm0, xmm6, xmm5
-        vaddss  xmm2, xmm0, xmm13
-        vsubss  xmm4, xmm8, xmm4
-        vsubss  xmm1, xmm9, xmm3
-        vsubss  xmm5, xmm10, xmm2
-        vmulss  xmm2, xmm1, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm0, xmm7, xmm7
-        vcomiss xmm4, xmm0
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm1, xmm3, xmm14, xmm0
       }
-      if ( v39 )
-        break;
-    }
-    __asm { vmovss  xmm5, [rsp+2A8h+var_264] }
-LABEL_19:
-    ++v41;
-    _RCX += 10;
-    v39 = v41 < v20;
-    v40 = v41 <= v20;
-    if ( (__int64)v41 >= v20 )
-      goto LABEL_22;
-    __asm
-    {
-      vmovss  xmm6, [rsp+2A8h+var_268]
-      vmovss  xmm14, cs:__real@3f800000
+      *(float *)&_XMM0 = v10 / *(float *)&_XMM1;
+      v25 = (float)(v10 / *(float *)&_XMM1) * (float)(v30 - v8);
+      v26 = (float)(v10 / *(float *)&_XMM1) * v20;
+      v27 = *(float *)&_XMM0 * (float)(v7 - v19);
+      v9 = v31;
+      if ( (float)((float)((float)(v26 * (float)(v13 - v31)) + (float)(v25 * (float)(v12 - v30))) + (float)(v27 * (float)(v14 - v7))) <= maxDistFromPath )
+      {
+        v28 = (float)((float)(v26 * (float)(v13 - v18)) + (float)(v25 * (float)(v12 - v17))) + (float)(v27 * (float)(v14 - v19));
+        if ( (v28 >= 0.0 || v28 >= COERCE_FLOAT(LODWORD(maxDistFromPath) ^ _xmm)) && (float)((float)((float)((float)(v13 - (float)((float)(v26 * v28) + v18)) * (float)(v13 - (float)((float)(v26 * v28) + v18))) + (float)((float)(v12 - (float)((float)(v25 * v28) + v17)) * (float)(v12 - (float)((float)(v25 * v28) + v17)))) + (float)((float)(v14 - (float)((float)(v27 * v28) + v19)) * (float)(v14 - (float)((float)(v27 * v28) + v19)))) < (float)(maxDistFromPath * maxDistFromPath) )
+        {
+          v11 = 1;
+          goto LABEL_24;
+        }
+        v9 = v31;
+      }
+      ++v15;
+      v16 += 10;
+      if ( v15 >= v6 )
+        goto LABEL_23;
+      v8 = v30;
+      v10 = FLOAT_1_0;
     }
   }
-  v96 = 1;
-LABEL_23:
-  `eh vector destructor iterator'(ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
-  result = v96;
-  _R11 = &v114;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  v11 = (float)(maxDistFromPath * maxDistFromPath) > (float)((float)((float)((float)(point->v[1] - v31) * (float)(point->v[1] - v31)) + (float)((float)(point->v[0] - v30) * (float)(point->v[0] - v30))) + (float)((float)(point->v[2] - v32) * (float)(point->v[2] - v32)));
+LABEL_24:
+  `eh vector destructor iterator'(&ptr, 0x28ui64, 0xAui64, (void (__fastcall *)(void *))nav_cornerdata_t::~nav_cornerdata_t);
+  return v11;
 }
 
 /*
@@ -1908,19 +1680,18 @@ Nav_ReEvalPathTask_Update
 char Nav_ReEvalPathTask_Update(AITask *pTask)
 {
   __int64 entNum; 
-  __int64 v4; 
-  gentity_s *v5; 
+  __int64 v3; 
+  gentity_s *v4; 
   ai_common_t *AICommon; 
-  ai_common_t *v7; 
-  char v8; 
-  char v9; 
-  AIScriptedInterface *v11; 
+  ai_common_t *v6; 
+  bool v7; 
+  AIScriptedInterface *v8; 
   ai_agent_t *ScriptedAgentInfo; 
   actor_s *actor; 
-  __int64 v15; 
-  AIActorInterface v16; 
-  AIAgentInterface v17; 
-  AIScriptedInterface *v18; 
+  __int64 v12; 
+  AIActorInterface v13; 
+  AIAgentInterface v14; 
+  AIScriptedInterface *v15; 
   vec3_t outLookaheadDir; 
 
   if ( !pTask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 729, ASSERT_TYPE_ASSERT, "( pTask )", (const char *)&queryFormat, "pTask") )
@@ -1928,8 +1699,8 @@ char Nav_ReEvalPathTask_Update(AITask *pTask)
   entNum = pTask->entNum;
   if ( (unsigned int)entNum >= 0x800 )
   {
-    LODWORD(v15) = pTask->entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, 2048) )
+    LODWORD(v12) = pTask->entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v12, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1938,63 +1709,58 @@ char Nav_ReEvalPathTask_Update(AITask *pTask)
     __debugbreak();
   if ( !g_entityIsInUse[entNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 730, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pTask->entNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pTask->entNum )") )
     __debugbreak();
-  v4 = pTask->entNum;
-  v5 = &g_entities[v4];
-  if ( v5->health <= 0 )
+  v3 = pTask->entNum;
+  v4 = &g_entities[v3];
+  if ( v4->health <= 0 )
     return 0;
-  AICommon = AI_GetAICommon(&g_entities[v4]);
-  v7 = AICommon;
+  AICommon = AI_GetAICommon(&g_entities[v3]);
+  v6 = AICommon;
   if ( !AICommon )
     return 0;
   if ( !AICommon->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 740, ASSERT_TYPE_ASSERT, "( pAI->pNavigator )", (const char *)&queryFormat, "pAI->pNavigator") )
     __debugbreak();
-  *(double *)&_XMM0 = ((double (__fastcall *)(AINavigator *))v7->pNavigator->HasPath)(v7->pNavigator);
-  v9 = v8;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+0B8h+outLookaheadDir], xmm0
-    vmovss  dword ptr [rsp+0B8h+outLookaheadDir+4], xmm0
-    vmovss  dword ptr [rsp+0B8h+outLookaheadDir+8], xmm0
-  }
-  if ( v8 )
-    Nav_GetLookaheadDir(v7->pNavigator, &outLookaheadDir);
-  v7->pNavigator->DoPathReeval(v7->pNavigator);
-  if ( !v9 || !v7->pNavigator->HasPath(v7->pNavigator) )
+  v7 = v6->pNavigator->HasPath(v6->pNavigator);
+  outLookaheadDir.v[0] = 0.0;
+  outLookaheadDir.v[1] = 0.0;
+  outLookaheadDir.v[2] = 0.0;
+  if ( v7 )
+    Nav_GetLookaheadDir(v6->pNavigator, &outLookaheadDir);
+  v6->pNavigator->DoPathReeval(v6->pNavigator);
+  if ( !v7 || !v6->pNavigator->HasPath(v6->pNavigator) )
     return 1;
-  AIActorInterface::AIActorInterface(&v16);
-  AIAgentInterface::AIAgentInterface(&v17);
-  v11 = NULL;
-  v17.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-  v18 = NULL;
-  if ( v5->agent )
+  AIActorInterface::AIActorInterface(&v13);
+  AIAgentInterface::AIAgentInterface(&v14);
+  v8 = NULL;
+  v14.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  v15 = NULL;
+  if ( v4->agent )
   {
-    if ( SV_Agent_IsScripted(v5->s.number) )
+    if ( SV_Agent_IsScripted(v4->s.number) )
     {
-      ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v5);
+      ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v4);
       if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
         __debugbreak();
       if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
         __debugbreak();
-      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v17, ScriptedAgentInfo);
-      v18 = &v17;
-      AIScriptedInterface::PathChangeNotify(&v17, &outLookaheadDir);
+      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v14, ScriptedAgentInfo);
+      v15 = &v14;
+      AIScriptedInterface::PathChangeNotify(&v14, &outLookaheadDir);
       return 1;
     }
-    v11 = v18;
+    v8 = v15;
   }
-  actor = v5->actor;
+  actor = v4->actor;
   if ( !actor )
   {
-    if ( v11 )
-      AIScriptedInterface::PathChangeNotify(v11, &outLookaheadDir);
+    if ( v8 )
+      AIScriptedInterface::PathChangeNotify(v8, &outLookaheadDir);
     return 1;
   }
   if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
     __debugbreak();
-  AIActorInterface::SetActor(&v16, v5->actor);
-  v18 = &v16;
-  AIScriptedInterface::PathChangeNotify(&v16, &outLookaheadDir);
+  AIActorInterface::SetActor(&v13, v4->actor);
+  v15 = &v13;
+  AIScriptedInterface::PathChangeNotify(&v13, &outLookaheadDir);
   return 1;
 }
 
@@ -2143,37 +1909,28 @@ void Nav_Teleport(AINavigator *pNav, const vec3_t *newPos)
   AINavigator2D *v4; 
   nav_space_s *ClosestVerticalPosInMostLikelySpace; 
   bfx::AreaHandle pOutArea; 
-  __int64 v10; 
-  bfx::AreaHandle v11; 
+  __int64 v7; 
+  bfx::AreaHandle v8; 
   vec3_t outClosestPos; 
 
-  v10 = -2i64;
-  _RDI = newPos;
-  bfx::AreaHandle::AreaHandle(&v11);
+  v7 = -2i64;
+  bfx::AreaHandle::AreaHandle(&v8);
   v4 = pNav->Get2DNavigator(pNav);
   if ( v4 )
   {
     bfx::AreaHandle::AreaHandle(&pOutArea);
-    ClosestVerticalPosInMostLikelySpace = AINavigator2D::GetClosestVerticalPosInMostLikelySpace(v4, _RDI, &outClosestPos, &pOutArea);
+    ClosestVerticalPosInMostLikelySpace = AINavigator2D::GetClosestVerticalPosInMostLikelySpace(v4, newPos, &outClosestPos, &pOutArea);
     bfx::AreaHandle::~AreaHandle(&pOutArea);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rsp+68h+outClosestPos], xmm0
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+68h+outClosestPos+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+68h+outClosestPos+8], xmm0
-    }
-    ClosestVerticalPosInMostLikelySpace = pNav->FindMostLikelySpace(pNav, _RDI, (unsigned int)pNav->m_Layer, 0i64);
+    outClosestPos = *newPos;
+    ClosestVerticalPosInMostLikelySpace = pNav->FindMostLikelySpace(pNav, newPos, (unsigned int)pNav->m_Layer, 0i64);
   }
   if ( ClosestVerticalPosInMostLikelySpace != pNav->m_pSpace )
     pNav->SetSpace(pNav, ClosestVerticalPosInMostLikelySpace);
   pNav->SetCurPos(pNav, &outClosestPos);
-  bfx::AreaHandle::~AreaHandle(&v11);
+  bfx::AreaHandle::~AreaHandle(&v8);
 }
 
 /*
@@ -2282,49 +2039,46 @@ AINavigator::Teleport
 void AINavigator::Teleport(AINavigator *this, const vec3_t *curPos)
 {
   nav_space_s *m_pSpace; 
-  nav_space_s *v10; 
-  __int64 v11; 
+  float v5; 
+  float v6; 
+  float v7; 
+  nav_space_s *v8; 
+  nav_space_s *v9; 
   vec3_t outLocalPos; 
   vec4_t worldRot; 
   vec4_t outLocalRot; 
 
-  _RDI = this;
   if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 148, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  __asm { vmovups xmm0, cs:__xmm@3f800000000000000000000000000000 }
-  m_pSpace = _RDI->m_pSpace;
-  __asm { vmovups xmmword ptr [rsp+88h+worldRot], xmm0 }
+  m_pSpace = this->m_pSpace;
+  worldRot = (vec4_t)_xmm;
   Nav_SpaceConvertWorldToLocal(m_pSpace, curPos, &worldRot, &outLocalPos, &outLocalRot);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+88h+outLocalPos]
-    vmovss  xmm1, dword ptr [rsp+88h+outLocalPos+4]
-    vmovss  xmm0, dword ptr [rsp+88h+outLocalPos+8]
-    vmovss  dword ptr [rdi+54h], xmm2
-    vmovss  dword ptr [rdi+58h], xmm1
-    vmovss  dword ptr [rdi+5Ch], xmm0
-    vmovss  dword ptr [rdi+3Ch], xmm2
-    vmovss  dword ptr [rdi+40h], xmm1
-    vmovss  dword ptr [rdi+44h], xmm0
-    vmovss  dword ptr [rdi+48h], xmm2
-    vmovss  dword ptr [rdi+4Ch], xmm1
-    vmovss  dword ptr [rdi+50h], xmm0
-  }
-  if ( !_RDI->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 159, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
+  v5 = outLocalPos.v[0];
+  v6 = outLocalPos.v[1];
+  v7 = outLocalPos.v[2];
+  this->m_LocalCurSnappedPos.v[0] = outLocalPos.v[0];
+  this->m_LocalCurSnappedPos.v[1] = v6;
+  this->m_LocalCurSnappedPos.v[2] = v7;
+  this->m_LocalRequestedGoalPos.v[0] = v5;
+  this->m_LocalRequestedGoalPos.v[1] = v6;
+  this->m_LocalRequestedGoalPos.v[2] = v7;
+  this->m_LocalSnappedGoalPos.v[0] = v5;
+  this->m_LocalSnappedGoalPos.v[1] = v6;
+  this->m_LocalSnappedGoalPos.v[2] = v7;
+  if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 159, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  __asm { vmovups xmm0, cs:__xmm@3f800000000000000000000000000000 }
-  v10 = _RDI->m_pSpace;
-  __asm { vmovups xmmword ptr [rsp+88h+worldRot], xmm0 }
-  Nav_SpaceConvertLocalToWorld(v10, &outLocalPos, &worldRot, &_RDI->m_CurSnappedPos, &outLocalRot);
-  _RDI->m_RequestedGoalPos.v[0] = _RDI->m_CurSnappedPos.v[0];
-  _RDI->m_RequestedGoalPos.v[1] = _RDI->m_CurSnappedPos.v[1];
-  _RDI->m_RequestedGoalPos.v[2] = _RDI->m_CurSnappedPos.v[2];
-  _RDI->m_SnappedGoalPos.v[0] = _RDI->m_CurSnappedPos.v[0];
-  _RDI->m_SnappedGoalPos.v[1] = _RDI->m_CurSnappedPos.v[1];
-  _RDI->m_SnappedGoalPos.v[2] = _RDI->m_CurSnappedPos.v[2];
-  v11 = (__int64)_RDI->FindMostLikelySpace(_RDI, curPos, (const AINavLayer)_RDI->m_Layer, NULL);
-  _RDI->SetSpace(_RDI, (nav_space_s *)v11);
-  _RDI->ClearPath(_RDI);
+  v8 = this->m_pSpace;
+  worldRot = (vec4_t)_xmm;
+  Nav_SpaceConvertLocalToWorld(v8, &outLocalPos, &worldRot, &this->m_CurSnappedPos, &outLocalRot);
+  this->m_RequestedGoalPos.v[0] = this->m_CurSnappedPos.v[0];
+  this->m_RequestedGoalPos.v[1] = this->m_CurSnappedPos.v[1];
+  this->m_RequestedGoalPos.v[2] = this->m_CurSnappedPos.v[2];
+  this->m_SnappedGoalPos.v[0] = this->m_CurSnappedPos.v[0];
+  this->m_SnappedGoalPos.v[1] = this->m_CurSnappedPos.v[1];
+  this->m_SnappedGoalPos.v[2] = this->m_CurSnappedPos.v[2];
+  v9 = this->FindMostLikelySpace(this, curPos, (unsigned int)this->m_Layer, 0i64);
+  this->SetSpace(this, v9);
+  this->ClearPath(this);
 }
 
 /*
@@ -2334,47 +2088,24 @@ AINavigator::UpdatePathOutOfBounds
 */
 void AINavigator::UpdatePathOutOfBounds(AINavigator *this)
 {
+  __int128 v1; 
   AINavigator_vtbl *v3; 
-  char v18; 
-  int v21[4]; 
+  float m_DistFromGoalToPathToRequestedGoal; 
+  gentity_s *m_pEnt; 
+  float v6; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
 
-  _RBX = this;
   if ( !this->m_bPathingOutOfBounds && this->HasPath(this) )
   {
-    v3 = _RBX->__vftable;
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbx+0A0h]
-    }
-    v3->GetGoalPos(_RBX, (vec3_t *)v21);
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+var_38]
-      vmovss  xmm1, [rsp+58h+var_34]
-      vsubss  xmm3, xmm0, dword ptr [rax+130h]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-      vmovss  xmm0, [rsp+58h+var_30]
-      vsubss  xmm4, xmm0, dword ptr [rax+138h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm1, xmm6, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm0
-      vcomiss xmm4, xmm1
-    }
-    if ( v18 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0A0h]
-        vaddss  xmm1, xmm0, cs:__real@40c00000
-      }
-      if ( !((unsigned __int8 (__fastcall *)(AINavigator *))_RBX->IsPathDistToGoalAtLeast)(_RBX) )
-        _RBX->m_bPathingOutOfBounds = 1;
-    }
+    v3 = this->__vftable;
+    v9 = v1;
+    m_DistFromGoalToPathToRequestedGoal = this->m_DistFromGoalToPathToRequestedGoal;
+    v3->GetGoalPos(this, (vec3_t *)&v6);
+    m_pEnt = this->m_pEnt;
+    if ( (float)((float)((float)((float)(v7 - m_pEnt->r.currentOrigin.v[1]) * (float)(v7 - m_pEnt->r.currentOrigin.v[1])) + (float)((float)(v6 - m_pEnt->r.currentOrigin.v[0]) * (float)(v6 - m_pEnt->r.currentOrigin.v[0]))) + (float)((float)(v8 - m_pEnt->r.currentOrigin.v[2]) * (float)(v8 - m_pEnt->r.currentOrigin.v[2]))) < (float)(m_DistFromGoalToPathToRequestedGoal * m_DistFromGoalToPathToRequestedGoal) && !((unsigned __int8 (__fastcall *)(AINavigator *))this->IsPathDistToGoalAtLeast)(this) )
+      this->m_bPathingOutOfBounds = 1;
   }
 }
 
@@ -2405,9 +2136,8 @@ void AINavigator::WorldifyPosFromSpace(AINavigator *this, const vec3_t *localPos
 
   if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator.cpp", 159, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  __asm { vmovups xmm0, cs:__xmm@3f800000000000000000000000000000 }
   m_pSpace = this->m_pSpace;
-  __asm { vmovups xmmword ptr [rsp+78h+localRot], xmm0 }
+  localRot = (vec4_t)_xmm;
   Nav_SpaceConvertLocalToWorld(m_pSpace, localPos, &localRot, outWorldPos, &outWorldRot);
 }
 

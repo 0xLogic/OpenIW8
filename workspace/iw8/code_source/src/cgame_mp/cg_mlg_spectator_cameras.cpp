@@ -1150,62 +1150,51 @@ void AerialCamEnteringCameraState::AerialCamEnteringCameraState(AerialCamEnterin
 CgMLGCameraManager::CgMLGCameraManager
 ==============
 */
-
-void __fastcall CgMLGCameraManager::CgMLGCameraManager(CgMLGCameraManager *this, double _XMM1_8)
+void CgMLGCameraManager::CgMLGCameraManager(CgMLGCameraManager *this)
 {
   CameraPose (*m_mlgFreeCamPoses)[20]; 
-  __int64 v5; 
-  __m256i v9; 
+  __int64 v3; 
+  CameraPose v4; 
 
-  _R12 = this;
   this->m_localCameraType = SPECTATOR;
   m_mlgFreeCamPoses = this->m_mlgFreeCamPoses;
-  v5 = 2560i64;
+  v3 = 2560i64;
   do
   {
     CameraPose::CameraPose((CameraPose *)m_mlgFreeCamPoses);
     m_mlgFreeCamPoses = (CameraPose (*)[20])((char *)m_mlgFreeCamPoses + 32);
-    --v5;
+    --v3;
   }
-  while ( v5 );
-  _R12->m_shouldRenderThirdPerson = 0;
-  _R12->m_aerialMinHeight = 0.0;
-  _R12->m_aerialMaxHeight = 4000.0;
-  _R12->m_aerialCameraEnabled = 1;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+58h+var_38+10h], xmm1
-    vmovss  dword ptr [rsp+58h+var_38+14h], xmm1
-    vmovss  dword ptr [rsp+58h+var_38+18h], xmm1
-    vmovups xmmword ptr [rsp+58h+var_38], xmm0
-  }
-  v9.m256i_i8[28] = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+58h+var_38]
-    vmovups ymmword ptr [r12+14040h], ymm0
-  }
-  _R12->m_spectatorActiveCameraState.__vftable = (SpectatorActiveCameraState_vtbl *)&SpectatorActiveCameraState::`vftable';
-  _R12->m_spectatorActiveCameraState.m_cameraManager = _R12;
-  _R12->m_spectatorEnteringCameraState.__vftable = (SpectatorEnteringCameraState_vtbl *)&SpectatorEnteringCameraState::`vftable';
-  _R12->m_spectatorEnteringCameraState.m_cameraManager = _R12;
-  _R12->m_freeCamEnteringCameraState.__vftable = (FreeCamEnteringCameraState_vtbl *)&FreeCamEnteringCameraState::`vftable';
-  _R12->m_freeCamEnteringCameraState.m_cameraManager = _R12;
-  _R12->m_freeCamActiveCameraState.__vftable = (FreeCamActiveCameraState_vtbl *)&FreeCamActiveCameraState::`vftable';
-  _R12->m_freeCamActiveCameraState.m_cameraManager = _R12;
-  _R12->m_aerialCamEnteringCameraState.__vftable = (AerialCamEnteringCameraState_vtbl *)&AerialCamEnteringCameraState::`vftable';
-  _R12->m_aerialCamEnteringCameraState.m_cameraManager = _R12;
-  _R12->m_aerialCamActiveCameraState.__vftable = (AerialCamActiveCameraState_vtbl *)&AerialCamActiveCameraState::`vftable';
-  _R12->m_aerialCamActiveCameraState.m_cameraManager = _R12;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_spectatorEnteringCameraState.GetCameraState(&_R12->m_spectatorEnteringCameraState)] = &_R12->m_spectatorEnteringCameraState;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_spectatorActiveCameraState.GetCameraState(&_R12->m_spectatorActiveCameraState)] = &_R12->m_spectatorActiveCameraState;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_freeCamEnteringCameraState.GetCameraState(&_R12->m_freeCamEnteringCameraState)] = &_R12->m_freeCamEnteringCameraState;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_freeCamActiveCameraState.GetCameraState(&_R12->m_freeCamActiveCameraState)] = &_R12->m_freeCamActiveCameraState;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_aerialCamEnteringCameraState.GetCameraState(&_R12->m_aerialCamEnteringCameraState)] = &_R12->m_aerialCamEnteringCameraState;
-  _R12->m_mlgCameraStates[(unsigned __int8)_R12->m_aerialCamActiveCameraState.GetCameraState(&_R12->m_aerialCamActiveCameraState)] = &_R12->m_aerialCamActiveCameraState;
-  _R12->m_mlgCurrentCameraState = _R12->m_mlgCameraStates[1];
+  while ( v3 );
+  this->m_shouldRenderThirdPerson = 0;
+  this->m_aerialMinHeight = 0.0;
+  this->m_aerialMaxHeight = 4000.0;
+  this->m_aerialCameraEnabled = 1;
+  v4.angles.v[1] = 0.0;
+  v4.angles.v[2] = 0.0;
+  v4.fov = 0.0;
+  *(_OWORD *)v4.pos.v = 0i64;
+  v4.hasBeenSet = 0;
+  this->m_mlgMemorizedFreeCamPose = v4;
+  this->m_spectatorActiveCameraState.__vftable = (SpectatorActiveCameraState_vtbl *)&SpectatorActiveCameraState::`vftable';
+  this->m_spectatorActiveCameraState.m_cameraManager = this;
+  this->m_spectatorEnteringCameraState.__vftable = (SpectatorEnteringCameraState_vtbl *)&SpectatorEnteringCameraState::`vftable';
+  this->m_spectatorEnteringCameraState.m_cameraManager = this;
+  this->m_freeCamEnteringCameraState.__vftable = (FreeCamEnteringCameraState_vtbl *)&FreeCamEnteringCameraState::`vftable';
+  this->m_freeCamEnteringCameraState.m_cameraManager = this;
+  this->m_freeCamActiveCameraState.__vftable = (FreeCamActiveCameraState_vtbl *)&FreeCamActiveCameraState::`vftable';
+  this->m_freeCamActiveCameraState.m_cameraManager = this;
+  this->m_aerialCamEnteringCameraState.__vftable = (AerialCamEnteringCameraState_vtbl *)&AerialCamEnteringCameraState::`vftable';
+  this->m_aerialCamEnteringCameraState.m_cameraManager = this;
+  this->m_aerialCamActiveCameraState.__vftable = (AerialCamActiveCameraState_vtbl *)&AerialCamActiveCameraState::`vftable';
+  this->m_aerialCamActiveCameraState.m_cameraManager = this;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_spectatorEnteringCameraState.GetCameraState(&this->m_spectatorEnteringCameraState)] = &this->m_spectatorEnteringCameraState;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_spectatorActiveCameraState.GetCameraState(&this->m_spectatorActiveCameraState)] = &this->m_spectatorActiveCameraState;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_freeCamEnteringCameraState.GetCameraState(&this->m_freeCamEnteringCameraState)] = &this->m_freeCamEnteringCameraState;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_freeCamActiveCameraState.GetCameraState(&this->m_freeCamActiveCameraState)] = &this->m_freeCamActiveCameraState;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_aerialCamEnteringCameraState.GetCameraState(&this->m_aerialCamEnteringCameraState)] = &this->m_aerialCamEnteringCameraState;
+  this->m_mlgCameraStates[(unsigned __int8)this->m_aerialCamActiveCameraState.GetCameraState(&this->m_aerialCamActiveCameraState)] = &this->m_aerialCamActiveCameraState;
+  this->m_mlgCurrentCameraState = this->m_mlgCameraStates[1];
 }
 
 /*
@@ -1267,122 +1256,67 @@ AerialCamActiveCameraState::ApplyOffsetInternal
 */
 void AerialCamActiveCameraState::ApplyOffsetInternal(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v19; 
-  char v26; 
-  char v27; 
-  const dvar_t *v32; 
-  float v52; 
-  char v54; 
-  void *retaddr; 
+  const dvar_t *v2; 
+  CgMLGCameraManager *m_cameraManager; 
+  float value; 
+  float v6; 
+  float v7; 
+  const dvar_t *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  CgMLGCameraManager *v13; 
+  float v14; 
+  float m_aerialMinHeight; 
+  const dvar_t *v16; 
+  double v17; 
+  CgMLGCameraManager *v18; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0E8h+var_88], xmm12
-  }
-  _RDI = DVARFLT_cg_mlg_aerialcam_horizontal_distance_factor;
-  _RBX = this;
+  v2 = DVARFLT_cg_mlg_aerialcam_horizontal_distance_factor;
   if ( !DVARFLT_cg_mlg_aerialcam_horizontal_distance_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_horizontal_distance_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm1, dword ptr [rbx+2Ch]
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vmovsd  xmm2, qword ptr [rax+30h]
-    vaddss  xmm7, xmm0, dword ptr [rbx+40h]
-    vaddss  xmm12, xmm1, dword ptr [rbx+44h]
-  }
-  v19 = DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance;
-  v52 = _RAX->m_mlgTargetCameraAngles.v[2];
-  __asm
-  {
-    vmovss  xmm1, [rsp+0E8h+var_A0]
-    vaddss  xmm11, xmm1, dword ptr [rbx+3Ch]
-    vmovss  xmm8, dword ptr [rbx+48h]
-    vaddss  xmm9, xmm2, dword ptr [rbx+34h]
-    vmovsd  [rsp+0E8h+var_A8], xmm2
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_A8+4]
-    vaddss  xmm10, xmm0, dword ptr [rbx+38h]
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  m_cameraManager = this->m_cameraManager;
+  value = v2->current.value;
+  v6 = this->m_currentOffset.v[0] + this->m_groundPosition.v[0];
+  v7 = this->m_currentOffset.v[1] + this->m_groundPosition.v[1];
+  v8 = DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance;
+  v9 = m_cameraManager->m_mlgTargetCameraAngles.v[2] + this->m_currentAngles.v[2];
+  v10 = this->m_groundPosition.v[2];
+  v11 = COERCE_FLOAT(*(_QWORD *)m_cameraManager->m_mlgTargetCameraAngles.v) + this->m_currentAngles.v[0];
+  v12 = COERCE_FLOAT(HIDWORD(*(_QWORD *)m_cameraManager->m_mlgTargetCameraAngles.v)) + this->m_currentAngles.v[1];
   if ( !DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_minimal_vertical_distance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  _RAX = _RBX->m_cameraManager;
-  __asm
+  Dvar_CheckFrontendServerThread(v8);
+  v13 = this->m_cameraManager;
+  v14 = this->m_groundPosition.v[2];
+  m_aerialMinHeight = v13->m_aerialMinHeight;
+  if ( (float)(v14 + v8->current.value) > m_aerialMinHeight )
   {
-    vmovss  xmm1, dword ptr [rbx+48h]
-    vaddss  xmm0, xmm1, dword ptr [rdi+28h]
-    vmovss  xmm3, dword ptr [rax+1406Ch]
-    vcomiss xmm0, xmm3
-  }
-  if ( !(v26 | v27) )
-  {
-    v32 = DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance;
+    v16 = DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance;
     if ( !DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_minimal_vertical_distance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+48h]
-      vaddss  xmm3, xmm1, dword ptr [rdi+28h]
-    }
-    _RAX = _RBX->m_cameraManager;
+    Dvar_CheckFrontendServerThread(v16);
+    v14 = this->m_groundPosition.v[2];
+    m_aerialMinHeight = v14 + v16->current.value;
+    v13 = this->m_cameraManager;
   }
-  __asm
+  *(float *)&v17 = v13->m_aerialMaxHeight;
+  if ( m_aerialMinHeight <= *(float *)&v17 )
   {
-    vmovss  xmm0, dword ptr [rax+14070h]
-    vcomiss xmm3, xmm0
+    v17 = I_fclamp(this->m_currentOffset.v[2], m_aerialMinHeight, v13->m_aerialMaxHeight);
+    v14 = this->m_groundPosition.v[2];
+    v13 = this->m_cameraManager;
   }
-  if ( v26 | v27 )
-  {
-    __asm
-    {
-      vmovaps xmm2, xmm0; max
-      vmovss  xmm0, dword ptr [rbx+30h]; val
-      vmovaps xmm1, xmm3; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  xmm1, dword ptr [rbx+48h] }
-    _RAX = _RBX->m_cameraManager;
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+30h], xmm0
-    vmovss  dword ptr [rax+28h], xmm12
-    vsubss  xmm2, xmm0, xmm1
-    vdivss  xmm0, xmm2, xmm6
-    vsubss  xmm1, xmm7, xmm0
-    vmovss  dword ptr [rax+24h], xmm1
-    vaddss  xmm0, xmm8, xmm2
-    vmovss  dword ptr [rax+2Ch], xmm0
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+30h], xmm9
-    vmovss  dword ptr [rax+34h], xmm10
-    vmovss  dword ptr [rax+38h], xmm11
-  }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  this->m_currentOffset.v[2] = *(float *)&v17;
+  v13->m_mlgTargetCameraPos.v[1] = v7;
+  v13->m_mlgTargetCameraPos.v[0] = v6 - (float)((float)(*(float *)&v17 - v14) / value);
+  v13->m_mlgTargetCameraPos.v[2] = v10 + (float)(*(float *)&v17 - v14);
+  v18 = this->m_cameraManager;
+  v18->m_mlgTargetCameraAngles.v[0] = v11;
+  v18->m_mlgTargetCameraAngles.v[1] = v12;
+  v18->m_mlgTargetCameraAngles.v[2] = v9;
 }
 
 /*
@@ -1390,107 +1324,94 @@ void AerialCamActiveCameraState::ApplyOffsetInternal(AerialCamActiveCameraState 
 CG_GetPlayersBarycenter
 ==============
 */
-bool CG_GetPlayersBarycenter(const LocalClientNum_t localClientNum, vec3_t *outPosition, float *outHeight)
+char CG_GetPlayersBarycenter(const LocalClientNum_t localClientNum, vec3_t *outPosition, float *outHeight)
 {
-  __int64 v13; 
-  int v17; 
+  __int64 v6; 
+  int v9; 
+  int v10; 
   CgGlobalsMP *LocalClientGlobals; 
-  cg_t *v24; 
+  cg_t *v17; 
   characterInfo_t *CharacterInfo; 
   centity_t *Entity; 
-  __int64 v27; 
-  int v28; 
-  int v29; 
-  bool result; 
-  __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
+  __int128 v23; 
+  double ClientAspectRatio; 
+  float v25; 
+  __int128 v28; 
+  __int128 v32; 
+  __int128 v36; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
   vec3_t outOrigin; 
-  char v76; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-  }
-  v13 = localClientNum;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@4f000000
-    vmovss  xmm9, cs:__real@cf000000
-  }
-  _ER13 = 0;
-  v17 = 0;
+  v6 = localClientNum;
+  _XMM8 = LODWORD(FLOAT_2_1474836e9);
+  _XMM9 = LODWORD(FLOAT_N2_1474836e9);
+  v9 = 0;
+  v10 = 0;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   __asm
   {
     vxorpd  xmm7, xmm7, xmm7
     vxorpd  xmm10, xmm10, xmm10
     vxorpd  xmm11, xmm11, xmm11
-    vmovaps xmm12, xmm8
-    vmovaps xmm13, xmm9
   }
+  _XMM12 = LODWORD(FLOAT_2_1474836e9);
+  _XMM13 = LODWORD(FLOAT_N2_1474836e9);
   do
   {
-    v24 = CG_GetLocalClientGlobals((const LocalClientNum_t)v13);
-    if ( v24->HasCharacterInfo(v24, v17) )
+    v17 = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+    if ( v17->HasCharacterInfo(v17, v10) )
     {
-      CharacterInfo = CG_GetCharacterInfo(v24, v17);
+      CharacterInfo = CG_GetCharacterInfo(v17, v10);
       if ( CharacterInfo )
       {
-        Entity = CG_GetEntity((const LocalClientNum_t)v13, CharacterInfo->entityNum);
+        Entity = CG_GetEntity((const LocalClientNum_t)v6, CharacterInfo->entityNum);
         if ( Entity )
         {
           if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
           {
-            LODWORD(v71) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-            LODWORD(v70) = 2;
-            LODWORD(v69) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v69, v70, v71) )
+            LODWORD(v43) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+            LODWORD(v42) = 2;
+            LODWORD(v41) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v41, v42, v43) )
               __debugbreak();
           }
-          if ( (unsigned int)v13 >= CgCompassSystem::ms_allocatedCount )
+          if ( (unsigned int)v6 >= CgCompassSystem::ms_allocatedCount )
           {
-            LODWORD(v69) = CgCompassSystem::ms_allocatedCount;
-            LODWORD(v68) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v68, v69) )
+            LODWORD(v41) = CgCompassSystem::ms_allocatedCount;
+            LODWORD(v40) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v40, v41) )
               __debugbreak();
           }
-          if ( !CgCompassSystem::ms_compassSystemArray[v13] )
+          if ( !CgCompassSystem::ms_compassSystemArray[v6] )
           {
-            LODWORD(v69) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v69) )
+            LODWORD(v41) = v6;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v41) )
               __debugbreak();
           }
-          v27 = CgCompassSystem::ms_compassSystemArray[v13]->GetCompassActor(CgCompassSystem::ms_compassSystemArray[v13], v17);
-          if ( v27 )
+          v20 = CgCompassSystem::ms_compassSystemArray[v6]->GetCompassActor(CgCompassSystem::ms_compassSystemArray[v6], v10);
+          if ( v20 )
           {
-            v28 = *(_DWORD *)(v27 + 4);
-            v29 = LocalClientGlobals->time - 500;
-            if ( ((Entity->nextState.eType - 1) & 0xFFEF) == 0 && LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, v17) && v28 >= v29 )
+            v21 = *(_DWORD *)(v20 + 4);
+            v22 = LocalClientGlobals->time - 500;
+            if ( ((Entity->nextState.eType - 1) & 0xFFEF) == 0 && LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, v10) && v21 >= v22 )
             {
               CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rsp+138h+outOrigin]
-                vmovss  xmm2, dword ptr [rsp+138h+outOrigin+4]
-                vcvtss2sd xmm0, xmm3, xmm3
-                vaddsd  xmm7, xmm7, xmm0
-                vmovss  xmm0, dword ptr [rsp+138h+outOrigin+8]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vcvtss2sd xmm1, xmm2, xmm2
-                vaddsd  xmm11, xmm11, xmm0
-                vaddsd  xmm10, xmm10, xmm1
-              }
-              ++_ER13;
+              *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM7 + 1);
+              *(double *)&v23 = *(double *)&_XMM7 + outOrigin.v[0];
+              _XMM7 = v23;
+              *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM11 + 1);
+              *(double *)&v23 = *(double *)&_XMM11 + outOrigin.v[2];
+              _XMM11 = v23;
+              *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM10 + 1);
+              *(double *)&v23 = *(double *)&_XMM10 + outOrigin.v[1];
+              _XMM10 = v23;
+              ++v9;
               __asm
               {
                 vminss  xmm8, xmm8, xmm3
@@ -1503,69 +1424,36 @@ bool CG_GetPlayersBarycenter(const LocalClientNum_t localClientNum, vec3_t *outP
         }
       }
     }
-    ++v17;
+    ++v10;
   }
-  while ( v17 < 200 );
-  if ( _ER13 <= 0 )
-  {
-    result = 0;
-  }
-  else
-  {
-    __asm { vmovaps [rsp+138h+var_48], xmm6 }
-    *(double *)&_XMM0 = CG_View_GetClientAspectRatio((LocalClientNum_t)v13);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr);
-    __asm
-    {
-      vmovsd  xmm2, cs:__real@3ff0000000000000
-      vmovd   xmm3, r13d
-      vcvtdq2pd xmm3, xmm3
-      vmovss  xmm1, dword ptr [rax+3Ch]
-      vmulss  xmm0, xmm1, cs:__real@3c0efa35; X
-    }
-    _RAX = outPosition;
-    __asm
-    {
-      vdivsd  xmm4, xmm2, xmm3
-      vmulsd  xmm1, xmm4, xmm7
-      vcvtsd2ss xmm3, xmm1, xmm1
-      vmovss  dword ptr [rax], xmm3
-      vmulsd  xmm2, xmm4, xmm10
-      vcvtsd2ss xmm1, xmm2, xmm2
-      vmulsd  xmm3, xmm4, xmm11
-      vcvtsd2ss xmm2, xmm3, xmm3
-      vmovss  dword ptr [rax+4], xmm1
-      vsubss  xmm1, xmm9, xmm8
-      vmulss  xmm3, xmm1, xmm6
-      vmovss  dword ptr [rax+8], xmm2
-      vsubss  xmm2, xmm13, xmm12
-      vmaxss  xmm3, xmm3, xmm2
-      vmulss  xmm1, xmm3, cs:__real@3f000000
-      vaddss  xmm6, xmm1, cs:__real@43160000
-    }
-    tanf_0(*(float *)&_XMM0);
-    _RAX = outHeight;
-    __asm
-    {
-      vdivss  xmm1, xmm6, xmm0
-      vmovaps xmm6, [rsp+138h+var_48]
-      vmovss  dword ptr [rax], xmm1
-    }
-    result = 1;
-  }
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-40h]
-    vmovaps xmm8, xmmword ptr [r11-50h]
-    vmovaps xmm9, xmmword ptr [r11-60h]
-    vmovaps xmm10, xmmword ptr [r11-70h]
-    vmovaps xmm11, xmmword ptr [r11-80h]
-    vmovaps xmm12, xmmword ptr [r11-90h]
-    vmovaps xmm13, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  while ( v10 < 200 );
+  if ( v9 <= 0 )
+    return 0;
+  ClientAspectRatio = CG_View_GetClientAspectRatio((LocalClientNum_t)v6);
+  v25 = *(float *)&ClientAspectRatio;
+  _XMM3 = (unsigned int)v9;
+  __asm { vcvtdq2pd xmm3, xmm3 }
+  *(float *)&ClientAspectRatio = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr)->m_mlgTargetCameraFoV * 0.0087266462;
+  v28 = COERCE_UNSIGNED_INT64(1.0 / *(double *)&_XMM3);
+  _XMM1 = COERCE_UNSIGNED_INT64(1.0 / *(double *)&_XMM3 * *(double *)&_XMM7);
+  __asm { vcvtsd2ss xmm3, xmm1, xmm1 }
+  outPosition->v[0] = *(float *)&_XMM3;
+  *((_QWORD *)&v32 + 1) = *((_QWORD *)&v28 + 1);
+  *(double *)&v32 = *(double *)&v28 * *(double *)&_XMM10;
+  _XMM2 = v32;
+  __asm { vcvtsd2ss xmm1, xmm2, xmm2 }
+  *((_QWORD *)&v32 + 1) = *((_QWORD *)&v28 + 1);
+  *(double *)&v32 = *(double *)&v28 * *(double *)&_XMM11;
+  _XMM3 = v32;
+  __asm { vcvtsd2ss xmm2, xmm3, xmm3 }
+  outPosition->v[1] = *(float *)&_XMM1;
+  v36 = _XMM9;
+  *(float *)&v36 = (float)(*(float *)&_XMM9 - *(float *)&_XMM8) * v25;
+  _XMM3 = v36;
+  outPosition->v[2] = *(float *)&_XMM2;
+  __asm { vmaxss  xmm3, xmm3, xmm2 }
+  *outHeight = (float)((float)(*(float *)&_XMM3 * 0.5) + 150.0) / tanf_0(*(float *)&ClientAspectRatio);
+  return 1;
 }
 
 /*
@@ -1573,52 +1461,26 @@ bool CG_GetPlayersBarycenter(const LocalClientNum_t localClientNum, vec3_t *outP
 CG_MLGCameraShouldRenderCharacter
 ==============
 */
-__int64 CG_MLGCameraShouldRenderCharacter(const LocalClientNum_t localClientNum, const centity_t *cent)
+_BOOL8 CG_MLGCameraShouldRenderCharacter(const LocalClientNum_t localClientNum, const centity_t *cent)
 {
   CgGlobalsMP *LocalClientGlobals; 
+  CgMLGCameraManager *CameraManager; 
   CoDCasterCameraType MLGCameraType; 
-  unsigned __int8 v8; 
-  float v21; 
+  unsigned __int8 v7; 
+  float v8; 
+  vec3_t m_mlgCurrentCameraPos; 
   vec3_t outOrigin; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 674, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  _RBX = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr);
-  MLGCameraType = CgMLGCameraManager::GetMLGCameraType(_RBX, localClientNum);
-  __asm { vmovsd  xmm0, qword ptr [rbx+8] }
-  v21 = _RBX->m_mlgCurrentCameraPos.v[2];
-  v8 = MLGCameraType - 1;
-  __asm { vmovsd  [rsp+68h+var_38], xmm0 }
+  CameraManager = CgMLGSpectator::GetCameraManager(LocalClientGlobals->m_mlgSpectatorPtr);
+  MLGCameraType = CgMLGCameraManager::GetMLGCameraType(CameraManager, localClientNum);
+  m_mlgCurrentCameraPos = CameraManager->m_mlgCurrentCameraPos;
+  v7 = MLGCameraType - 1;
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+var_30]
-    vsubss  xmm5, xmm0, dword ptr [rsp+68h+outOrigin+8]
-  }
-  if ( v8 <= 1u )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+outOrigin]
-      vmovss  xmm1, dword ptr [rsp+68h+outOrigin+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+68h+var_38+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+68h+var_38]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, cs:__real@43610000
-    }
-    if ( !v8 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm5, xmm0
-      }
-    }
-  }
-  return 1i64;
+  v8 = m_mlgCurrentCameraPos.v[2] - outOrigin.v[2];
+  return v7 > 1u || (float)((float)((float)(outOrigin.v[1] - m_mlgCurrentCameraPos.v[1]) * (float)(outOrigin.v[1] - m_mlgCurrentCameraPos.v[1])) + (float)((float)(outOrigin.v[0] - m_mlgCurrentCameraPos.v[0]) * (float)(outOrigin.v[0] - m_mlgCurrentCameraPos.v[0]))) >= 225.0 || v8 < 0.0 || v8 >= cent->pose.actor.height;
 }
 
 /*
@@ -1628,29 +1490,16 @@ CG_MLG_AngleDistance
 */
 float CG_MLG_AngleDistance(const vec3_t *v1, const vec3_t *v2)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm3, xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm3, xmm5, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm3, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm0, xmm0, cs:__real@43b40000
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  return *(float *)&_XMM0;
+  float xmm2_4_1; 
+  float v3; 
+  float result; 
+
+  xmm2_4_1 = v2->v[1] - v1->v[1];
+  v3 = v2->v[2] - v1->v[2];
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm3, 1 }
+  LODWORD(result) = COERCE_UNSIGNED_INT((float)((float)(fsqrt((float)((float)(xmm2_4_1 * xmm2_4_1) + (float)((float)(v2->v[0] - v1->v[0]) * (float)(v2->v[0] - v1->v[0]))) + (float)(v3 * v3)) * 0.0027777778) - *(float *)&_XMM4) * 360.0) & _xmm;
+  return result;
 }
 
 /*
@@ -1660,60 +1509,24 @@ CG_MLG_ArePosesNearlyEqual
 */
 bool CG_MLG_ArePosesNearlyEqual(const CameraPose *pose1, const CameraPose *pose2)
 {
-  char v2; 
-  char v3; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm3, xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-    vsubss  xmm4, xmm0, dword ptr [rcx+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm4, cs:__real@3f800000
-  }
-  if ( !(v2 | v3) )
+  v2 = pose2->pos.v[1] - pose1->pos.v[1];
+  v3 = pose2->pos.v[2] - pose1->pos.v[2];
+  if ( (float)((float)((float)(v2 * v2) + (float)((float)(pose2->pos.v[0] - pose1->pos.v[0]) * (float)(pose2->pos.v[0] - pose1->pos.v[0]))) + (float)(v3 * v3)) > 1.0 )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+0Ch]
-    vsubss  xmm3, xmm0, dword ptr [rcx+0Ch]
-    vmovss  xmm1, dword ptr [rdx+10h]
-    vsubss  xmm2, xmm1, dword ptr [rcx+10h]
-    vmovss  xmm0, dword ptr [rdx+14h]
-    vsubss  xmm4, xmm0, dword ptr [rcx+14h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm3, xmm5, cs:__real@3f000000
-    vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm3, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vandps  xmm1, xmm1, xmm2
-    vcomiss xmm1, cs:__real@3f800000
-  }
-  if ( !(v2 | v3) )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vsubss  xmm1, xmm0, dword ptr [rdx+18h]
-    vandps  xmm1, xmm1, xmm2
-    vcomiss xmm1, cs:__real@3f800000
-  }
-  return (v2 | v3) != 0;
+  v4 = pose2->angles.v[0] - pose1->angles.v[0];
+  v5 = pose2->angles.v[1] - pose1->angles.v[1];
+  v6 = pose2->angles.v[2] - pose1->angles.v[2];
+  v7 = fsqrt((float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v6 * v6)) * 0.0027777778;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm3, 1 }
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v7 - *(float *)&_XMM4) * 360.0) & _xmm) <= 1.0 && COERCE_FLOAT(COERCE_UNSIGNED_INT(pose1->fov - pose2->fov) & _xmm) <= 1.0;
 }
 
 /*
@@ -1738,32 +1551,12 @@ centity_t *CG_MLG_GetClientEntity(const LocalClientNum_t localClientNum, const i
 CG_MLG_GetEaseInOutFactor
 ==============
 */
-
-float __fastcall CG_MLG_GetEaseInOutFactor(double linearFactor)
+float CG_MLG_GetEaseInOutFactor(float linearFactor)
 {
-  char v1; 
-
-  __asm
-  {
-    vcomiss xmm0, cs:__real@3f000000
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vmovaps xmm2, xmm0
-  }
-  if ( v1 )
-  {
-    __asm { vmulss  xmm0, xmm1, xmm0 }
-  }
+  if ( linearFactor >= 0.5 )
+    return (float)((float)(4.0 - (float)(linearFactor * 2.0)) * linearFactor) - 1.0;
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@40800000
-      vsubss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, xmm2
-      vsubss  xmm0, xmm2, cs:__real@3f800000
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)(linearFactor * 2.0) * linearFactor;
 }
 
 /*
@@ -1791,16 +1584,10 @@ void CG_MLG_GetLocalClientPose(const LocalClientNum_t localClientNum, vec3_t *ou
   CgGlobalsMP *LocalClientGlobals; 
   ClientFov result; 
 
-  _R14 = outFoV;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, outPosition);
   *outAngles = LocalClientGlobals->refdefViewAngles;
-  _RAX = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax]
-    vmovss  dword ptr [r14], xmm0
-  }
+  *outFoV = COERCE_FLOAT(*(_QWORD *)&CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0)->finalFov);
 }
 
 /*
@@ -1810,119 +1597,67 @@ CG_MLG_GetTransitionDuration
 */
 float CG_MLG_GetTransitionDuration(const LocalClientNum_t localClientNum)
 {
+  const dvar_t *v1; 
+  float value; 
+  const dvar_t *v4; 
+  float v5; 
   CgMLGSpectator *MLGSpectator; 
-  const dvar_t *v15; 
-  float v75; 
-  float v76; 
-  char v77; 
-  void *retaddr; 
+  CgMLGCameraManager *CameraManager; 
+  const dvar_t *v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  float v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  float v17; 
+  __m128 v20; 
+  double v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm11
-  }
-  _RBX = DVARFLT_cg_mlg_cam_animation_min_duration;
+  v1 = DVARFLT_cg_mlg_cam_animation_min_duration;
   if ( !DVARFLT_cg_mlg_cam_animation_min_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_animation_min_duration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_cg_mlg_cam_animation_max_duration;
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v4 = DVARFLT_cg_mlg_cam_animation_max_duration;
   if ( !DVARFLT_cg_mlg_cam_animation_max_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_animation_max_duration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm11, xmm0, cs:__real@447a0000
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = v4->current.value * 1000.0;
   MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
-  _RAX = CgMLGSpectator::GetCameraManager(MLGSpectator);
-  v15 = DVARFLT_cg_mlg_cam_animation_distance_max_time;
-  _RDX = _RAX;
-  v75 = _RAX->m_mlgTargetCameraPos.v[2];
+  CameraManager = CgMLGSpectator::GetCameraManager(MLGSpectator);
+  v8 = DVARFLT_cg_mlg_cam_animation_distance_max_time;
+  v9 = (__m128)*(unsigned __int64 *)CameraManager->m_mlgTargetCameraPos.v;
+  v10 = (__m128)*(unsigned __int64 *)CameraManager->m_mlgCurrentCameraPos.v;
+  v11 = (__m128)*(unsigned __int64 *)CameraManager->m_mlgTargetCameraAngles.v;
+  v12 = v9.m128_f32[0] - v10.m128_f32[0];
+  v13 = _mm_shuffle_ps(v9, v9, 85);
+  v9.m128_f32[0] = _mm_shuffle_ps(v10, v10, 85).m128_f32[0];
+  v14 = (__m128)*(unsigned __int64 *)CameraManager->m_mlgCurrentCameraAngles.v;
+  v16 = v13;
+  v16.m128_f32[0] = v13.m128_f32[0] - v9.m128_f32[0];
+  v15 = v16;
+  v17 = CameraManager->m_mlgTargetCameraPos.v[2] - CameraManager->m_mlgCurrentCameraPos.v[2];
+  v9.m128_f32[0] = _mm_shuffle_ps(v14, v14, 85).m128_f32[0];
+  v16.m128_f32[0] = _mm_shuffle_ps(v11, v11, 85).m128_f32[0];
+  fsqrt((float)((float)((float)(v16.m128_f32[0] - v9.m128_f32[0]) * (float)(v16.m128_f32[0] - v9.m128_f32[0])) + (float)((float)(v11.m128_f32[0] - v14.m128_f32[0]) * (float)(v11.m128_f32[0] - v14.m128_f32[0]))) + (float)((float)(CameraManager->m_mlgTargetCameraAngles.v[2] - CameraManager->m_mlgCurrentCameraAngles.v[2]) * (float)(CameraManager->m_mlgTargetCameraAngles.v[2] - CameraManager->m_mlgCurrentCameraAngles.v[2])));
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  v20 = v15;
+  v20.m128_f32[0] = fsqrt((float)((float)(v15.m128_f32[0] * v15.m128_f32[0]) + (float)(v12 * v12)) + (float)(v17 * v17));
+  _XMM0 = v20;
   __asm
   {
-    vmovsd  xmm0, qword ptr [rax+24h]
-    vmovsd  xmm2, qword ptr [rax+8]
-    vmovsd  xmm4, qword ptr [rax+30h]
-    vsubss  xmm8, xmm0, xmm2
-    vshufps xmm1, xmm0, xmm0, 55h ; 'U'
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vmovsd  xmm2, qword ptr [rdx+14h]
-    vsubss  xmm6, xmm1, xmm0
-    vmovss  xmm0, [rsp+0C8h+var_78]
-    vsubss  xmm7, xmm0, [rsp+0C8h+var_68]
-  }
-  v76 = _RAX->m_mlgTargetCameraAngles.v[2];
-  __asm
-  {
-    vsubss  xmm3, xmm4, xmm2
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vshufps xmm1, xmm4, xmm4, 55h ; 'U'
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  xmm0, [rsp+0C8h+var_68]
-    vsubss  xmm4, xmm0, [rsp+0C8h+var_78]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm3, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm3
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm3, xmm0, cs:__real@43b40000
-    vmovss  xmm0, dword ptr [rdx+20h]
-    vsubss  xmm4, xmm0, dword ptr [rdx+3Ch]
-    vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm4, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
     vmaxss  xmm3, xmm0, xmm3
     vmaxss  xmm6, xmm3, xmm4
   }
   if ( !DVARFLT_cg_mlg_cam_animation_distance_max_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_animation_distance_max_time") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  __asm
-  {
-    vdivss  xmm0, xmm6, dword ptr [rbx+28h]; val
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm6, xmm0
-    vmulss  xmm2, xmm1, xmm9
-    vmulss  xmm3, xmm2, cs:__real@447a0000
-    vmulss  xmm0, xmm0, xmm11
-    vaddss  xmm0, xmm3, xmm0
-  }
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v8);
+  v24 = I_fclamp(*(float *)&_XMM6 / v8->current.value, 0.0, 1.0);
+  return (float)((float)((float)(1.0 - *(float *)&v24) * value) * 1000.0) + (float)(*(float *)&v24 * v5);
 }
 
 /*
@@ -1944,6 +1679,7 @@ char CG_MLG_TryGetClientPose(const LocalClientNum_t localClientNum, const int cl
 {
   centity_t *Entity; 
   const cpose_t *p_pose; 
+  double FovDvarDefaultValue; 
 
   if ( clientNum == -1 )
     return 0;
@@ -1953,9 +1689,8 @@ char CG_MLG_TryGetClientPose(const LocalClientNum_t localClientNum, const int cl
     return 0;
   CG_GetPoseOrigin(&Entity->pose, outPosition);
   CG_GetPoseAngles(p_pose, outAngles);
-  *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-  _RAX = outFoV;
-  __asm { vmovss  dword ptr [rax], xmm0 }
+  FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+  *outFoV = *(float *)&FovDvarDefaultValue;
   return 1;
 }
 
@@ -1966,168 +1701,94 @@ CG_MLG_UpdateFollowerCamera
 */
 void CG_MLG_UpdateFollowerCamera(const LocalClientNum_t localClientNum, CgMLGCameraManager *const cameraManager)
 {
-  int v25; 
-  const dvar_t *v26; 
-  const dvar_t *v41; 
+  CgGlobalsMP *LocalClientGlobals; 
+  const MLGSpectatorClientInfo *MLGSpectatorClientInfo; 
+  const MLGSpectatorClientInfo *v5; 
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  double v15; 
+  const dvar_t *v16; 
+  float v17; 
+  float v18; 
+  double v19; 
+  float v20; 
+  float v23; 
+  float v24; 
+  float v26; 
+  float v28; 
+  float m_mlgCurrentCameraFoV; 
   vec3_t from; 
-  int v107; 
-  float v109; 
+  __int64 v31; 
+  float v32; 
+  __int64 v33; 
+  float v34; 
 
-  _RBX = cameraManager;
-  _RDI = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  if ( CgMLGSpectator::GetMLGSpectatorClientInfo(_RDI->m_mlgSpectatorPtr, _RDI->predictedPlayerState.clientNum) )
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  MLGSpectatorClientInfo = CgMLGSpectator::GetMLGSpectatorClientInfo(LocalClientGlobals->m_mlgSpectatorPtr, LocalClientGlobals->predictedPlayerState.clientNum);
+  v5 = MLGSpectatorClientInfo;
+  if ( MLGSpectatorClientInfo )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42f00000; max
-      vmovss  xmm1, cs:__real@42700000; min
-      vmovaps [rsp+148h+var_38], xmm6
-      vmovaps [rsp+148h+var_48], xmm7
-      vmovaps [rsp+148h+var_58], xmm8
-      vmovaps [rsp+148h+var_68], xmm9
-      vmovaps [rsp+148h+var_78], xmm10
-      vmovaps [rsp+148h+var_88], xmm11
-      vmovaps [rsp+148h+var_98], xmm12
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps [rsp+148h+var_A8], xmm13
-      vmovaps [rsp+148h+var_B8], xmm14
-      vcvtsi2ss xmm0, xmm0, ecx; val
-      vmovaps [rsp+148h+var_C8], xmm15
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+0C8h]
-      vmovss  xmm1, dword ptr [rsi+0CCh]
-      vmovss  xmm6, dword ptr [rdi+38h]
-      vmovss  xmm7, dword ptr [rdi+3Ch]
-      vmovss  xmm8, dword ptr [rdi+40h]
-      vmovss  dword ptr [rbx+24h], xmm6
-      vmovss  dword ptr [rbx+28h], xmm7
-      vmovss  dword ptr [rbx+2Ch], xmm8
-      vmovss  dword ptr [rbx+30h], xmm2
-      vmovss  dword ptr [rbx+34h], xmm1
-    }
-    _RBX->m_mlgTargetCameraAngles.v[2] = 0.0;
-    v25 = LODWORD(_RBX->m_mlgCurrentCameraPos.v[2]);
-    __asm { vmovss  dword ptr [rbx+3Ch], xmm0 }
-    v26 = DVARFLT_cg_mlg_cam_smooth_factor;
-    v107 = v25;
-    v109 = _RBX->m_mlgCurrentCameraAngles.v[2];
-    __asm
-    {
-      vmovaps xmm13, xmm0
-      vmovsd  xmm0, qword ptr [rbx+8]
-      vmovsd  [rsp+148h+var_F0], xmm0
-      vmovsd  xmm0, qword ptr [rbx+14h]
-      vmovsd  [rsp+148h+var_E0], xmm0
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  [rsp+148h+var_104], xmm0
-      vmovss  dword ptr [rsp+148h+from], xmm2
-      vmovss  dword ptr [rsp+148h+from+4], xmm1
-      vmovss  dword ptr [rsp+148h+from+8], xmm9
-    }
+    v6 = I_fclamp((float)(MLGSpectatorClientInfo->clientFoV + 60), 60.0, 120.0);
+    v7 = v5->clientViewAngles.v[0];
+    v8 = v5->clientViewAngles.v[1];
+    v9 = LocalClientGlobals->predictedPlayerState.origin.v[0];
+    v10 = LocalClientGlobals->predictedPlayerState.origin.v[1];
+    v11 = LocalClientGlobals->predictedPlayerState.origin.v[2];
+    cameraManager->m_mlgTargetCameraPos.v[0] = v9;
+    cameraManager->m_mlgTargetCameraPos.v[1] = v10;
+    cameraManager->m_mlgTargetCameraPos.v[2] = v11;
+    cameraManager->m_mlgTargetCameraAngles.v[0] = v7;
+    cameraManager->m_mlgTargetCameraAngles.v[1] = v8;
+    cameraManager->m_mlgTargetCameraAngles.v[2] = 0.0;
+    v12 = cameraManager->m_mlgCurrentCameraPos.v[2];
+    cameraManager->m_mlgTargetCameraFoV = *(float *)&v6;
+    v13 = DVARFLT_cg_mlg_cam_smooth_factor;
+    v32 = v12;
+    v34 = cameraManager->m_mlgCurrentCameraAngles.v[2];
+    v14 = *(float *)&v6;
+    v31 = *(_QWORD *)cameraManager->m_mlgCurrentCameraPos.v;
+    v33 = *(_QWORD *)cameraManager->m_mlgCurrentCameraAngles.v;
+    m_mlgCurrentCameraFoV = cameraManager->m_mlgCurrentCameraFoV;
+    from.v[0] = v7;
+    from.v[1] = v8;
+    from.v[2] = 0.0;
     if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f733333
-      vmovss  xmm12, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi+65E4h]
-      vmulss  xmm1, xmm0, dword ptr [rsi+28h]
-      vmulss  xmm0, xmm1, xmm10; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm12; max
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vsubss  xmm1, xmm6, dword ptr [rsp+148h+var_F0] }
-    v41 = DVARFLT_cg_mlg_cam_smooth_factor;
-    __asm
-    {
-      vmulss  xmm2, xmm1, xmm0
-      vsubss  xmm1, xmm7, dword ptr [rsp+148h+var_F0+4]
-      vaddss  xmm14, xmm2, dword ptr [rsp+148h+var_F0]
-      vmulss  xmm2, xmm1, xmm0
-      vsubss  xmm1, xmm8, [rsp+148h+var_E8]
-      vaddss  xmm15, xmm2, dword ptr [rsp+148h+var_F0+4]
-      vmulss  xmm0, xmm1, xmm0
-      vaddss  xmm0, xmm0, [rsp+148h+var_E8]
-      vmovss  [rsp+148h+var_108], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v13);
+    v15 = I_fclamp((float)((float)LocalClientGlobals->frametime * v13->current.value) * 0.94999999, 0.0, 1.0);
+    v16 = DVARFLT_cg_mlg_cam_smooth_factor;
+    v17 = (float)((float)(v9 - *(float *)&v31) * *(float *)&v15) + *(float *)&v31;
+    v18 = (float)((float)(v10 - *((float *)&v31 + 1)) * *(float *)&v15) + *((float *)&v31 + 1);
+    v28 = (float)((float)(v11 - v32) * *(float *)&v15) + v32;
     if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v41);
-    __asm
-    {
-      vmovd   xmm0, dword ptr [rdi+65E4h]
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm0, xmm0, dword ptr [rsi+28h]
-      vmulss  xmm0, xmm0, xmm10; val
-      vmovaps xmm2, xmm12; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm11, xmm0 }
+    Dvar_CheckFrontendServerThread(v16);
+    v19 = I_fclamp((float)(_mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0] * v16->current.value) * 0.94999999, 0.0, 1.0);
+    v20 = *(float *)&v19;
     AnglesNormalize360(&from, &from);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3b360b61
-      vmovss  xmm9, cs:__real@3f000000
-      vmovss  xmm8, cs:__real@43b40000
-      vmovss  xmm1, dword ptr [rsp+148h+from]
-      vsubss  xmm2, xmm1, dword ptr [rsp+148h+var_E0]
-      vmulss  xmm3, xmm2, xmm7
-      vaddss  xmm2, xmm3, xmm9
-      vxorps  xmm10, xmm10, xmm10
-      vroundss xmm0, xmm10, xmm2, 1
-      vsubss  xmm1, xmm3, xmm0
-      vmulss  xmm0, xmm1, xmm8
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm6, xmm1, dword ptr [rsp+148h+var_E0]
-      vmovss  xmm0, dword ptr [rsp+148h+from+4]
-      vsubss  xmm1, xmm0, dword ptr [rsp+148h+var_E0+4]
-      vmulss  xmm4, xmm1, xmm7
-      vmovss  dword ptr [rbx+8], xmm14
-      vmovaps xmm14, [rsp+148h+var_B8]
-      vmovss  dword ptr [rbx+0Ch], xmm15
-      vmovaps xmm15, [rsp+148h+var_C8]
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm10, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rsp+148h+from+8]
-      vmulss  xmm2, xmm1, xmm11
-      vaddss  xmm3, xmm2, dword ptr [rsp+148h+var_E0+4]
-      vsubss  xmm1, xmm0, [rsp+148h+var_D8]
-      vmovss  xmm0, [rsp+148h+var_108]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vmulss  xmm4, xmm1, xmm7
-      vmovaps xmm7, [rsp+148h+var_48]
-      vaddss  xmm1, xmm4, xmm9
-      vmovaps xmm9, [rsp+148h+var_68]
-      vroundss xmm2, xmm10, xmm1, 1
-      vmovaps xmm10, [rsp+148h+var_78]
-      vsubss  xmm0, xmm4, xmm2
-      vmulss  xmm1, xmm0, xmm8
-      vmovaps xmm8, [rsp+148h+var_58]
-      vmulss  xmm2, xmm1, xmm11
-      vsubss  xmm0, xmm12, xmm11
-      vmovaps xmm12, [rsp+148h+var_98]
-      vmulss  xmm1, xmm11, xmm13
-      vmovaps xmm13, [rsp+148h+var_A8]
-      vmovaps xmm11, [rsp+148h+var_88]
-      vmovss  dword ptr [rbx+18h], xmm3
-      vaddss  xmm3, xmm2, [rsp+148h+var_D8]
-      vmulss  xmm2, xmm0, [rsp+148h+var_104]
-      vmovss  dword ptr [rbx+14h], xmm6
-      vmovaps xmm6, [rsp+148h+var_38]
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  dword ptr [rbx+1Ch], xmm3
-      vmovss  dword ptr [rbx+20h], xmm2
-    }
+    _XMM10 = 0i64;
+    __asm { vroundss xmm0, xmm10, xmm2, 1 }
+    v23 = (float)((float)((float)((float)((float)(from.v[0] - *(float *)&v33) * 0.0027777778) - *(float *)&_XMM0) * 360.0) * v20) + *(float *)&v33;
+    v24 = (float)(from.v[1] - *((float *)&v33 + 1)) * 0.0027777778;
+    cameraManager->m_mlgCurrentCameraPos.v[0] = v17;
+    cameraManager->m_mlgCurrentCameraPos.v[1] = v18;
+    __asm { vroundss xmm3, xmm10, xmm2, 1 }
+    *(float *)&_XMM3 = (float)((float)((float)(v24 - *(float *)&_XMM3) * 360.0) * v20) + *((float *)&v33 + 1);
+    v26 = from.v[2] - v34;
+    cameraManager->m_mlgCurrentCameraPos.v[2] = v28;
+    __asm { vroundss xmm2, xmm10, xmm1, 1 }
+    cameraManager->m_mlgCurrentCameraAngles.v[1] = *(float *)&_XMM3;
+    *(float *)&_XMM3 = (float)((float)((float)((float)(v26 * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v20) + v34;
+    cameraManager->m_mlgCurrentCameraAngles.v[0] = v23;
+    cameraManager->m_mlgCurrentCameraAngles.v[2] = *(float *)&_XMM3;
+    cameraManager->m_mlgCurrentCameraFoV = (float)((float)(1.0 - v20) * m_mlgCurrentCameraFoV) + (float)(v20 * v14);
   }
 }
 
@@ -2148,42 +1809,42 @@ AerialCamActiveCameraState::EnterState
 */
 void AerialCamActiveCameraState::EnterState(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
+  const dvar_t *v2; 
+  const dvar_t *v6; 
+  float value; 
   ParticleSystemHandle *m_arrowFx; 
-  __int64 v11; 
+  __int64 v9; 
   CgMLGCameraManager *m_cameraManager; 
   int clientNum; 
   CgMLGSpectator *MLGSpectator; 
   CgGlobalsMP *LocalClientGlobals; 
   int cameraAerialFocusedClient; 
-  int v22; 
-  CgMLGSpectator *v23; 
-  CgGlobalsMP *v24; 
+  CgMLGCameraManager *v18; 
+  int v19; 
+  CgMLGSpectator *v20; 
+  CgGlobalsMP *v21; 
   unsigned int m_localFocusedPlayer; 
-  cg_t *v26; 
+  cg_t *v23; 
   characterInfo_t *CharacterInfo; 
   centity_t *Entity; 
-  float v36; 
-  float v37; 
-  float v38; 
+  __m128 v26; 
+  CgMLGCameraManager *v27; 
+  CgMLGCameraManager *v28; 
+  double FovDvarDefaultValue; 
+  float v31; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-  }
-  _RBX = DVARFLT_cg_mlg_aerialcam_pitch;
-  _RDI = this;
+  v2 = DVARFLT_cg_mlg_aerialcam_pitch;
   if ( !DVARFLT_cg_mlg_aerialcam_pitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_pitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_cg_mlg_aerialcam_base_vertical_distance;
+  Dvar_CheckFrontendServerThread(v2);
+  _XMM7 = v2->current.unsignedInt;
+  v6 = DVARFLT_cg_mlg_aerialcam_base_vertical_distance;
   if ( !DVARFLT_cg_mlg_aerialcam_base_vertical_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_base_vertical_distance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  m_arrowFx = _RDI->m_arrowFx;
-  v11 = 12i64;
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  m_arrowFx = this->m_arrowFx;
+  v9 = 12i64;
   do
   {
     *(_QWORD *)m_arrowFx = 0i64;
@@ -2195,33 +1856,23 @@ void AerialCamActiveCameraState::EnterState(AerialCamActiveCameraState *this, co
     *((_QWORD *)m_arrowFx - 3) = 0i64;
     *((_QWORD *)m_arrowFx - 2) = 0i64;
     *((_QWORD *)m_arrowFx - 1) = 0i64;
-    --v11;
+    --v9;
   }
-  while ( v11 );
+  while ( v9 );
   *(_QWORD *)m_arrowFx = 0i64;
   *((_QWORD *)m_arrowFx + 1) = 0i64;
   *((_QWORD *)m_arrowFx + 2) = 0i64;
   *((_QWORD *)m_arrowFx + 3) = 0i64;
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_60], xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vunpcklps xmm0, xmm6, xmm6
-  }
-  _RDI->m_cameraManager->m_shouldRenderThirdPerson = 1;
-  m_cameraManager = _RDI->m_cameraManager;
-  __asm
-  {
-    vmovsd  qword ptr [rdi+28h], xmm0
-    vunpcklps xmm0, xmm7, xmm6
-  }
-  _RDI->m_currentOffset.v[2] = v36;
-  __asm
-  {
-    vmovsd  qword ptr [rdi+34h], xmm0
-    vmovss  [rsp+0A8h+var_60], xmm6
-  }
-  _RDI->m_currentAngles.v[2] = v37;
+  v31 = value;
+  _XMM6 = 0i64;
+  __asm { vunpcklps xmm0, xmm6, xmm6 }
+  this->m_cameraManager->m_shouldRenderThirdPerson = 1;
+  m_cameraManager = this->m_cameraManager;
+  *(double *)this->m_currentOffset.v = *(double *)&_XMM0;
+  __asm { vunpcklps xmm0, xmm7, xmm6 }
+  this->m_currentOffset.v[2] = v31;
+  *(double *)this->m_currentAngles.v = *(double *)&_XMM0;
+  this->m_currentAngles.v[2] = 0.0;
   clientNum = CG_GetLocalClientGlobals(localClientNum)->clientNum;
   MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
@@ -2229,60 +1880,42 @@ void AerialCamActiveCameraState::EnterState(AerialCamActiveCameraState *this, co
     cameraAerialFocusedClient = CgMLGSpectator::GetMLGSpectatorClientInfo(MLGSpectator, clientNum)->cameraAerialFocusedClient;
   else
     cameraAerialFocusedClient = m_cameraManager->m_localFocusedPlayer;
-  _RBP = _RDI->m_cameraManager;
-  _RDI->m_focusOnBarycenter = 0;
-  _RDI->m_lastLockStatus = cameraAerialFocusedClient >= 0;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbp+8]
-    vmovsd  qword ptr [rdi+40h], xmm0
-  }
-  _RDI->m_groundPosition.v[2] = _RBP->m_mlgCurrentCameraPos.v[2];
-  _RDI->m_lastFollowedClientNum = -1;
-  _RDI->m_elapsedTransitionTime = 0.0;
-  _RDI->m_currentTransitionDuration = 0.0;
-  v22 = CG_GetLocalClientGlobals(localClientNum)->clientNum;
-  v23 = CgMLGSpectator::GetMLGSpectator(localClientNum);
-  v24 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  if ( CG_GetCharacterInfo(v24, v24->clientNum)->team == TEAM_FOLLOWER )
-    m_localFocusedPlayer = CgMLGSpectator::GetMLGSpectatorClientInfo(v23, v22)->cameraAerialFocusedClient;
+  v18 = this->m_cameraManager;
+  this->m_focusOnBarycenter = 0;
+  this->m_lastLockStatus = cameraAerialFocusedClient >= 0;
+  *(double *)this->m_groundPosition.v = *(double *)v18->m_mlgCurrentCameraPos.v;
+  this->m_groundPosition.v[2] = v18->m_mlgCurrentCameraPos.v[2];
+  this->m_lastFollowedClientNum = -1;
+  this->m_elapsedTransitionTime = 0.0;
+  this->m_currentTransitionDuration = 0.0;
+  v19 = CG_GetLocalClientGlobals(localClientNum)->clientNum;
+  v20 = CgMLGSpectator::GetMLGSpectator(localClientNum);
+  v21 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  if ( CG_GetCharacterInfo(v21, v21->clientNum)->team == TEAM_FOLLOWER )
+    m_localFocusedPlayer = CgMLGSpectator::GetMLGSpectatorClientInfo(v20, v19)->cameraAerialFocusedClient;
   else
-    m_localFocusedPlayer = _RBP->m_localFocusedPlayer;
-  v26 = CG_GetLocalClientGlobals(localClientNum);
-  if ( v26->HasCharacterInfo(v26, m_localFocusedPlayer) && (CharacterInfo = CG_GetCharacterInfo(v26, m_localFocusedPlayer)) != NULL && (Entity = CG_GetEntity(localClientNum, CharacterInfo->entityNum)) != NULL && ((Entity->nextState.eType - 1) & 0xFFEF) == 0 )
+    m_localFocusedPlayer = v18->m_localFocusedPlayer;
+  v23 = CG_GetLocalClientGlobals(localClientNum);
+  if ( v23->HasCharacterInfo(v23, m_localFocusedPlayer) && (CharacterInfo = CG_GetCharacterInfo(v23, m_localFocusedPlayer)) != NULL && (Entity = CG_GetEntity(localClientNum, CharacterInfo->entityNum)) != NULL && ((Entity->nextState.eType - 1) & 0xFFEF) == 0 )
   {
-    CG_GetPoseOrigin(&Entity->pose, &_RDI->m_groundPosition);
+    CG_GetPoseOrigin(&Entity->pose, &this->m_groundPosition);
   }
   else
   {
-    _RAX = _RDI->m_cameraManager;
-    __asm
-    {
-      vmovsd  xmm1, qword ptr [rax+8]
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovss  dword ptr [rdi+44h], xmm0
-      vmovss  dword ptr [rdi+40h], xmm1
-    }
-    _RDI->m_groundPosition.v[2] = 0.0;
+    v26 = (__m128)*(unsigned __int64 *)this->m_cameraManager->m_mlgCurrentCameraPos.v;
+    this->m_groundPosition.v[1] = _mm_shuffle_ps(v26, v26, 85).m128_f32[0];
+    this->m_groundPosition.v[0] = v26.m128_f32[0];
+    this->m_groundPosition.v[2] = 0.0;
   }
-  _RAX = _RDI->m_cameraManager;
-  __asm { vmovss  dword ptr [rax+30h], xmm7 }
-  *(_QWORD *)&_RAX->m_mlgTargetCameraAngles.y = 0i64;
-  _RBX = _RDI->m_cameraManager;
-  *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-  __asm
-  {
-    vmovss  dword ptr [rbx+3Ch], xmm0
-    vunpcklps xmm0, xmm6, xmm6
-    vmovss  [rsp+0A8h+var_60], xmm6
-    vmovsd  qword ptr [rdi+1Ch], xmm0
-  }
-  _RDI->m_lastInputVector.v[2] = v38;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
+  v27 = this->m_cameraManager;
+  v27->m_mlgTargetCameraAngles.v[0] = *(float *)&_XMM7;
+  *(_QWORD *)&v27->m_mlgTargetCameraAngles.y = 0i64;
+  v28 = this->m_cameraManager;
+  FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+  v28->m_mlgTargetCameraFoV = *(float *)&FovDvarDefaultValue;
+  __asm { vunpcklps xmm0, xmm6, xmm6 }
+  *(double *)this->m_lastInputVector.v = *(double *)&_XMM0;
+  this->m_lastInputVector.v[2] = 0.0;
 }
 
 /*
@@ -2292,75 +1925,53 @@ AerialCamEnteringCameraState::EnterState
 */
 void AerialCamEnteringCameraState::EnterState(AerialCamEnteringCameraState *this, const LocalClientNum_t localClientNum)
 {
+  CgGlobalsMP *LocalClientGlobals; 
+  float v5; 
+  float v6; 
+  float v7; 
+  ClientFov *ViewFovBySpace; 
+  CgMLGCameraManager *m_cameraManager; 
+  float v10; 
+  float v11; 
+  __int64 v12; 
+  float v13; 
+  const dvar_t *v14; 
+  CgMLGCameraManager *v15; 
+  double FovDvarDefaultValue; 
   ClientFov result; 
   vec3_t outOrg; 
-  char v33; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
   this->m_cameraManager->m_shouldRenderThirdPerson = 1;
-  _RBX = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  RefdefView_GetOrg(&_RBX->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+178C0h]
-    vmovss  xmm7, dword ptr [rbx+178C4h]
-    vmovss  xmm8, dword ptr [rbx+178C8h]
-  }
-  _RAX = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
-  _RBX = this->m_cameraManager;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rsp+0E8h+outOrg]
-    vmovss  xmm10, dword ptr [rsp+0E8h+outOrg+4]
-    vmovsd  xmm0, qword ptr [rax]
-    vmovss  xmm11, dword ptr [rsp+0E8h+outOrg+8]
-    vmovss  dword ptr [rbx+8], xmm9
-    vmovss  dword ptr [rbx+0Ch], xmm10
-    vmovss  dword ptr [rbx+10h], xmm11
-    vmovss  dword ptr [rbx+14h], xmm6
-    vmovss  dword ptr [rbx+18h], xmm7
-    vmovss  dword ptr [rbx+1Ch], xmm8
-    vmovss  dword ptr [rbx+20h], xmm0
-  }
-  _RDI = DVARFLT_cg_mlg_aerialcam_pitch;
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
+  v5 = LocalClientGlobals->refdefViewAngles.v[0];
+  v6 = LocalClientGlobals->refdefViewAngles.v[1];
+  v7 = LocalClientGlobals->refdefViewAngles.v[2];
+  ViewFovBySpace = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
+  m_cameraManager = this->m_cameraManager;
+  v10 = outOrg.v[0];
+  v11 = outOrg.v[1];
+  v12 = *(_QWORD *)&ViewFovBySpace->finalFov;
+  v13 = outOrg.v[2];
+  m_cameraManager->m_mlgCurrentCameraPos.v[0] = outOrg.v[0];
+  m_cameraManager->m_mlgCurrentCameraPos.v[1] = v11;
+  m_cameraManager->m_mlgCurrentCameraPos.v[2] = v13;
+  m_cameraManager->m_mlgCurrentCameraAngles.v[0] = v5;
+  m_cameraManager->m_mlgCurrentCameraAngles.v[1] = v6;
+  m_cameraManager->m_mlgCurrentCameraAngles.v[2] = v7;
+  m_cameraManager->m_mlgCurrentCameraFoV = *(float *)&v12;
+  v14 = DVARFLT_cg_mlg_aerialcam_pitch;
   if ( !DVARFLT_cg_mlg_aerialcam_pitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_pitch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbx+30h], xmm0
-  }
-  *(_QWORD *)&_RBX->m_mlgTargetCameraAngles.y = 0i64;
-  _RBX = this->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rbx+24h], xmm9
-    vmovss  dword ptr [rbx+28h], xmm10
-    vmovss  dword ptr [rbx+2Ch], xmm11
-  }
-  *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-  __asm { vmovss  dword ptr [rbx+3Ch], xmm0 }
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  m_cameraManager->m_mlgTargetCameraAngles.v[0] = v14->current.value;
+  *(_QWORD *)&m_cameraManager->m_mlgTargetCameraAngles.y = 0i64;
+  v15 = this->m_cameraManager;
+  v15->m_mlgTargetCameraPos.v[0] = v10;
+  v15->m_mlgTargetCameraPos.v[1] = v11;
+  v15->m_mlgTargetCameraPos.v[2] = v13;
+  FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+  v15->m_mlgTargetCameraFoV = *(float *)&FovDvarDefaultValue;
 }
 
 /*
@@ -2368,54 +1979,29 @@ void AerialCamEnteringCameraState::EnterState(AerialCamEnteringCameraState *this
 FreeCamActiveCameraState::EnterState
 ==============
 */
-
-void __fastcall FreeCamActiveCameraState::EnterState(FreeCamActiveCameraState *this, const LocalClientNum_t localClientNum, __int64 a3, double _XMM3_8)
+void FreeCamActiveCameraState::EnterState(FreeCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  float v8; 
-  float v12; 
-  float v13; 
+  CgMLGCameraManager *m_cameraManager; 
+  float v4; 
 
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  [rsp+18h+var_10], xmm3
-  }
+  _XMM3 = 0i64;
   this->m_cameraManager->m_shouldRenderThirdPerson = 1;
-  _RDX = this->m_cameraManager;
+  m_cameraManager = this->m_cameraManager;
   *(_QWORD *)&this->m_elapsedTransitionTime = 0i64;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx+24h]
-    vmovsd  qword ptr [rcx+34h], xmm0
-  }
-  this->m_lastTargetPos.v[2] = _RDX->m_mlgTargetCameraPos.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx+30h]
-    vmovsd  qword ptr [rcx+40h], xmm0
-  }
-  v8 = _RDX->m_mlgTargetCameraAngles.v[2];
-  __asm
-  {
-    vunpcklps xmm0, xmm3, xmm3
-    vmovsd  qword ptr [rcx+58h], xmm0
-  }
-  this->m_lastTargetAngles.v[2] = v8;
+  this->m_lastTargetPos = m_cameraManager->m_mlgTargetCameraPos;
+  *(double *)this->m_lastTargetAngles.v = *(double *)m_cameraManager->m_mlgTargetCameraAngles.v;
+  v4 = m_cameraManager->m_mlgTargetCameraAngles.v[2];
   __asm { vunpcklps xmm0, xmm3, xmm3 }
-  this->m_lastInputVector.v[2] = v12;
-  __asm
-  {
-    vmovsd  qword ptr [rcx+4Ch], xmm0
-    vmovss  [rsp+18h+var_10], xmm3
-  }
-  this->m_lastInputAngles.v[2] = v13;
+  *(double *)this->m_lastInputVector.v = *(double *)&_XMM0;
+  this->m_lastTargetAngles.v[2] = v4;
+  __asm { vunpcklps xmm0, xmm3, xmm3 }
+  this->m_lastInputVector.v[2] = 0.0;
+  *(double *)this->m_lastInputAngles.v = *(double *)&_XMM0;
+  this->m_lastInputAngles.v[2] = 0.0;
   this->m_lastInputFoV = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+3Ch]
-    vmovss  dword ptr [rcx+64h], xmm0
-    vmovss  dword ptr [rcx+6Ch], xmm0
-  }
+  *(float *)&_XMM0 = m_cameraManager->m_mlgTargetCameraFoV;
+  this->m_lastTargetFoV = *(float *)&_XMM0;
+  this->m_entryFoV = *(float *)&_XMM0;
 }
 
 /*
@@ -2425,182 +2011,112 @@ FreeCamEnteringCameraState::EnterState
 */
 void FreeCamEnteringCameraState::EnterState(FreeCamEnteringCameraState *this, const LocalClientNum_t localClientNum)
 {
+  CgGlobalsMP *LocalClientGlobals; 
+  CgGlobalsMP *v5; 
+  float v6; 
+  float v7; 
+  double v8; 
   CgMLGCameraManager *m_cameraManager; 
-  bool v23; 
+  CameraPose *p_m_mlgMemorizedFreeCamPose; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  double FovDvarDefaultValue; 
+  float v18; 
+  float v19; 
+  float v20; 
+  CgMLGCameraManager *v21; 
+  CgMLGCameraManager *v22; 
+  CgMLGCameraManager *v23; 
+  CgMLGCameraManager *v24; 
+  CgMLGCameraManager *v25; 
+  double TransitionDuration; 
+  float v27; 
+  float v28; 
+  double v29; 
   ClientFov result; 
   vec3_t outOrg; 
   tmat33_t<vec3_t> axis; 
-  char v75; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-78h], xmm11
-    vmovaps xmmword ptr [r11-88h], xmm12
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-98h], xmm13
-    vmovaps xmmword ptr [r11-0A8h], xmm14
-    vmovaps xmmword ptr [r11-0B8h], xmm15
-  }
-  CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  _RDI->m_cameraManager->m_shouldRenderThirdPerson = 1;
-  _RBX = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  RefdefView_GetOrg(&_RBX->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+178C0h]
-    vmovss  xmm10, dword ptr [rbx+178C4h]
-    vmovss  [rsp+148h+var_128], xmm7
-    vmovss  [rsp+148h+var_124], xmm10
-  }
-  _RAX = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovsd  xmm0, qword ptr [rax]
-  }
-  m_cameraManager = _RDI->m_cameraManager;
-  __asm { vmovsd  [rsp+148h+var_120], xmm0 }
-  _RCX = &m_cameraManager->m_mlgMemorizedFreeCamPose;
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  this->m_cameraManager->m_shouldRenderThirdPerson = 1;
+  v5 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  RefdefView_GetOrg(&v5->refdef.view, &outOrg);
+  v6 = v5->refdefViewAngles.v[0];
+  v7 = v5->refdefViewAngles.v[1];
+  v27 = v6;
+  v28 = v7;
+  v8 = *(double *)&CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0)->finalFov;
+  m_cameraManager = this->m_cameraManager;
+  v29 = v8;
+  p_m_mlgMemorizedFreeCamPose = &m_cameraManager->m_mlgMemorizedFreeCamPose;
   if ( !m_cameraManager )
-    _RCX = NULL;
-  if ( _RCX && (v23 = !_RCX->hasBeenSet, _RCX->hasBeenSet) )
+    p_m_mlgMemorizedFreeCamPose = NULL;
+  if ( p_m_mlgMemorizedFreeCamPose && p_m_mlgMemorizedFreeCamPose->hasBeenSet )
   {
-    __asm
-    {
-      vmovss  xmm10, dword ptr [rcx]
-      vmovss  xmm11, dword ptr [rcx+4]
-      vmovss  xmm12, dword ptr [rcx+8]
-      vmovss  xmm13, dword ptr [rcx+0Ch]
-      vmovss  xmm14, dword ptr [rcx+10h]
-      vmovss  xmm15, dword ptr [rcx+14h]
-      vmovss  xmm0, dword ptr [rcx+18h]
-      vmovss  xmm7, dword ptr [rsp+148h+outOrg+8]
-      vmovss  xmm8, dword ptr [rsp+148h+outOrg+4]
-      vmovss  xmm9, dword ptr [rsp+148h+outOrg]
-    }
-    _RCX->hasBeenSet = 0;
+    v11 = p_m_mlgMemorizedFreeCamPose->pos.v[0];
+    v12 = p_m_mlgMemorizedFreeCamPose->pos.v[1];
+    v13 = p_m_mlgMemorizedFreeCamPose->pos.v[2];
+    v14 = p_m_mlgMemorizedFreeCamPose->angles.v[0];
+    v15 = p_m_mlgMemorizedFreeCamPose->angles.v[1];
+    v16 = p_m_mlgMemorizedFreeCamPose->angles.v[2];
+    *(float *)&FovDvarDefaultValue = p_m_mlgMemorizedFreeCamPose->fov;
+    v18 = outOrg.v[2];
+    v19 = outOrg.v[1];
+    v20 = outOrg.v[0];
+    p_m_mlgMemorizedFreeCamPose->hasBeenSet = 0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+148h+outOrg+8]
-      vmovss  xmm9, dword ptr [rsp+148h+outOrg]
-      vmovss  xmm8, dword ptr [rsp+148h+outOrg+4]
-      vmovaps xmm13, xmm7
-      vaddss  xmm7, xmm0, dword ptr [rbp+1F0h]
-      vmovss  dword ptr [rsp+148h+outOrg], xmm6
-      vmovss  dword ptr [rsp+148h+outOrg+4], xmm10
-      vmovss  dword ptr [rsp+148h+outOrg+8], xmm6
-      vmovaps xmm14, xmm10
-      vxorps  xmm15, xmm15, xmm15
-    }
+    v20 = outOrg.v[0];
+    v19 = outOrg.v[1];
+    v14 = v6;
+    v18 = outOrg.v[2] + LocalClientGlobals->predictedPlayerState.viewHeightCurrent;
+    outOrg.v[0] = 0.0;
+    outOrg.v[1] = v7;
+    outOrg.v[2] = 0.0;
+    v15 = v7;
+    v16 = 0.0;
     AnglesToAxis(&outOrg, &axis);
-    __asm
-    {
-      vmovss  xmm5, cs:__real@41a00000
-      vmovss  xmm4, cs:__real@42480000
-      vmulss  xmm2, xmm5, dword ptr [rsp+148h+axis+18h]
-      vmulss  xmm0, xmm4, dword ptr [rsp+148h+axis]
-      vmulss  xmm3, xmm5, dword ptr [rsp+148h+axis+1Ch]
-      vsubss  xmm2, xmm2, xmm0
-      vaddss  xmm10, xmm2, xmm9
-      vmulss  xmm2, xmm4, dword ptr [rsp+148h+axis+4]
-      vsubss  xmm1, xmm3, xmm2
-      vmulss  xmm3, xmm5, dword ptr [rsp+148h+axis+20h]
-      vmulss  xmm2, xmm4, dword ptr [rsp+148h+axis+8]
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm12, xmm0, xmm7
-      vaddss  xmm11, xmm1, xmm8
-    }
-    *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
+    v11 = (float)((float)(20.0 * axis.m[2].v[0]) - (float)(50.0 * axis.m[0].v[0])) + v20;
+    v13 = (float)((float)(20.0 * axis.m[2].v[2]) - (float)(50.0 * axis.m[0].v[2])) + v18;
+    v12 = (float)((float)(20.0 * axis.m[2].v[1]) - (float)(50.0 * axis.m[0].v[1])) + v19;
+    FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
   }
-  __asm { vucomiss xmm9, xmm6 }
-  _RAX = _RDI->m_cameraManager;
-  __asm
+  v21 = this->m_cameraManager;
+  v21->m_mlgTargetCameraPos.v[0] = v11;
+  v21->m_mlgTargetCameraPos.v[1] = v12;
+  v21->m_mlgTargetCameraPos.v[2] = v13;
+  v22 = this->m_cameraManager;
+  v22->m_mlgTargetCameraAngles.v[0] = v14;
+  v22->m_mlgTargetCameraAngles.v[1] = v15;
+  v22->m_mlgTargetCameraAngles.v[2] = v16;
+  this->m_cameraManager->m_mlgTargetCameraFoV = *(float *)&FovDvarDefaultValue;
+  if ( v20 == 0.0 && v19 == 0.0 && v18 == 0.0 )
   {
-    vmovss  dword ptr [rax+24h], xmm10
-    vmovss  dword ptr [rax+28h], xmm11
-    vmovss  dword ptr [rax+2Ch], xmm12
-  }
-  _RAX = _RDI->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+30h], xmm13
-    vmovaps xmm13, [rsp+148h+var_98]
-    vmovss  dword ptr [rax+34h], xmm14
-    vmovaps xmm14, [rsp+148h+var_A8]
-    vmovss  dword ptr [rax+38h], xmm15
-  }
-  _RAX = _RDI->m_cameraManager;
-  __asm
-  {
-    vmovaps xmm15, [rsp+148h+var_B8]
-    vmovss  dword ptr [rax+3Ch], xmm0
-  }
-  if ( !v23 )
-    goto LABEL_11;
-  __asm { vucomiss xmm8, xmm6 }
-  if ( !v23 )
-    goto LABEL_11;
-  __asm { vucomiss xmm7, xmm6 }
-  if ( v23 )
-  {
-    _RAX = _RDI->m_cameraManager;
-    __asm
-    {
-      vmovss  dword ptr [rax+8], xmm10
-      vmovss  dword ptr [rax+0Ch], xmm11
-      vmovss  dword ptr [rax+10h], xmm12
-    }
+    v23 = this->m_cameraManager;
+    v23->m_mlgCurrentCameraPos.v[0] = v11;
+    v23->m_mlgCurrentCameraPos.v[1] = v12;
+    v23->m_mlgCurrentCameraPos.v[2] = v13;
   }
   else
   {
-LABEL_11:
-    _RAX = _RDI->m_cameraManager;
-    __asm
-    {
-      vmovss  dword ptr [rax+8], xmm9
-      vmovss  dword ptr [rax+0Ch], xmm8
-      vmovss  dword ptr [rax+10h], xmm7
-    }
+    v24 = this->m_cameraManager;
+    v24->m_mlgCurrentCameraPos.v[0] = v20;
+    v24->m_mlgCurrentCameraPos.v[1] = v19;
+    v24->m_mlgCurrentCameraPos.v[2] = v18;
   }
-  _RAX = _RDI->m_cameraManager;
-  __asm
-  {
-    vmovss  xmm0, [rsp+148h+var_128]
-    vmovss  dword ptr [rax+14h], xmm0
-    vmovss  xmm0, [rsp+148h+var_124]
-    vmovss  dword ptr [rax+18h], xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+var_120]
-  }
-  _RAX->m_mlgCurrentCameraAngles.v[2] = 0.0;
-  _RAX = _RDI->m_cameraManager;
-  __asm { vmovss  dword ptr [rax+20h], xmm0 }
-  _RDI->m_elapsedTransitionTime = 0.0;
-  *(double *)&_XMM0 = CG_MLG_GetTransitionDuration(localClientNum);
-  __asm { vmovss  dword ptr [rdi+10h], xmm0 }
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  v25 = this->m_cameraManager;
+  v25->m_mlgCurrentCameraAngles.v[0] = v27;
+  v25->m_mlgCurrentCameraAngles.v[1] = v28;
+  v25->m_mlgCurrentCameraAngles.v[2] = 0.0;
+  this->m_cameraManager->m_mlgCurrentCameraFoV = *(float *)&v29;
+  this->m_elapsedTransitionTime = 0.0;
+  TransitionDuration = CG_MLG_GetTransitionDuration(localClientNum);
+  this->m_currentTransitionDuration = *(float *)&TransitionDuration;
 }
 
 /*
@@ -2630,87 +2146,56 @@ void SpectatorEnteringCameraState::EnterState(SpectatorEnteringCameraState *this
   CgMLGSpectator *MLGSpectator; 
   int SelectedClientNum; 
   centity_t *Entity; 
-  float v17; 
-  PostGameState PostGameState; 
+  centity_t *v7; 
+  __m128 v8; 
+  float v9; 
+  float v10; 
+  double FovDvarDefaultValue; 
+  CgMLGCameraManager *m_cameraManager; 
+  float m_mlgCurrentCameraFoV; 
+  float v14; 
+  CgMLGCameraManager *v15; 
+  double TransitionDuration; 
   vec3_t outOrigin; 
-  float v29; 
+  float v18; 
 
-  _RBX = this;
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
   MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
   SelectedClientNum = CgMLGSpectator::GetSelectedClientNum(MLGSpectator);
-  _RBX->m_cameraManager->m_shouldRenderThirdPerson = 1;
-  _RBX->m_elapsedTransitionTime = 0.0;
-  if ( SelectedClientNum == -1 || (Entity = CG_GetEntity(localClientNum, SelectedClientNum), (_RDI = Entity) == NULL) || ((Entity->nextState.eType - 1) & 0xFFEF) != 0 )
+  this->m_cameraManager->m_shouldRenderThirdPerson = 1;
+  this->m_elapsedTransitionTime = 0.0;
+  if ( SelectedClientNum == -1 || (Entity = CG_GetEntity(localClientNum, SelectedClientNum), (v7 = Entity) == NULL) || ((Entity->nextState.eType - 1) & 0xFFEF) != 0 )
   {
-    _RCX = _RBX->m_cameraManager;
-    v17 = _RCX->m_mlgCurrentCameraPos.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rcx+8]
-      vmovsd  qword ptr [rsp+88h+outOrigin], xmm0
-    }
-    outOrigin.v[2] = v17;
-    __asm
-    {
-      vmovsd  xmm6, qword ptr [rcx+14h]
-      vmovss  xmm2, dword ptr [rcx+20h]
-    }
-    v29 = _RCX->m_mlgCurrentCameraAngles.v[2];
-    __asm
-    {
-      vmovss  xmm8, [rsp+88h+var_50]
-      vshufps xmm7, xmm6, xmm6, 55h ; 'U'
-    }
+    m_cameraManager = this->m_cameraManager;
+    v14 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+    *(_QWORD *)outOrigin.v = *(_QWORD *)m_cameraManager->m_mlgCurrentCameraPos.v;
+    outOrigin.v[2] = v14;
+    v8 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraAngles.v;
+    m_mlgCurrentCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
+    v18 = m_cameraManager->m_mlgCurrentCameraAngles.v[2];
+    v10 = v18;
+    LODWORD(v9) = _mm_shuffle_ps(v8, v8, 85).m128_u32[0];
   }
   else
   {
     CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rdi+48h]
-      vmovss  xmm7, dword ptr [rdi+4Ch]
-      vmovss  xmm8, dword ptr [rdi+50h]
-    }
-    *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-    _RCX = _RBX->m_cameraManager;
-    __asm { vmovaps xmm2, xmm0 }
+    v8.m128_i32[0] = LODWORD(v7->pose.angles.v[0]);
+    v9 = v7->pose.angles.v[1];
+    v10 = v7->pose.angles.v[2];
+    FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+    m_cameraManager = this->m_cameraManager;
+    m_mlgCurrentCameraFoV = *(float *)&FovDvarDefaultValue;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+88h+outOrigin]
-    vmovss  dword ptr [rcx+24h], xmm0
-    vmovss  xmm1, dword ptr [rsp+88h+outOrigin+4]
-    vmovss  dword ptr [rcx+28h], xmm1
-    vmovss  xmm0, dword ptr [rsp+88h+outOrigin+8]
-    vmovss  dword ptr [rcx+2Ch], xmm0
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+30h], xmm6
-    vmovss  dword ptr [rax+34h], xmm7
-    vmovss  dword ptr [rax+38h], xmm8
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm { vmovss  dword ptr [rax+3Ch], xmm2 }
-  PostGameState = CG_MainMP_GetPostGameState(localClientNum);
-  __asm
-  {
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm6, [rsp+88h+var_18]
-  }
-  if ( (unsigned __int8)(PostGameState - 3) <= 1u )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+  m_cameraManager->m_mlgTargetCameraPos = outOrigin;
+  v15 = this->m_cameraManager;
+  v15->m_mlgTargetCameraAngles.v[0] = v8.m128_f32[0];
+  v15->m_mlgTargetCameraAngles.v[1] = v9;
+  v15->m_mlgTargetCameraAngles.v[2] = v10;
+  this->m_cameraManager->m_mlgTargetCameraFoV = m_mlgCurrentCameraFoV;
+  if ( (unsigned __int8)(CG_MainMP_GetPostGameState(localClientNum) - 3) <= 1u )
+    LODWORD(TransitionDuration) = 0;
   else
-    *(double *)&_XMM0 = CG_MLG_GetTransitionDuration(localClientNum);
-  __asm { vmovss  dword ptr [rbx+14h], xmm0 }
+    TransitionDuration = CG_MLG_GetTransitionDuration(localClientNum);
+  this->m_currentTransitionDuration = *(float *)&TransitionDuration;
 }
 
 /*
@@ -2720,55 +2205,41 @@ AerialCamActiveCameraState::ExitState
 */
 void AerialCamActiveCameraState::ExitState(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
+  CgMLGCameraManager *m_cameraManager; 
   ParticleSystemHandle *m_arrowFx; 
   __int64 v4; 
   __int64 v5; 
+  __m128 v6; 
   float v7; 
-  float v10; 
-  __int64 v14; 
-  __int64 v15; 
-  float v16; 
-  float v17; 
+  float v8; 
+  __m128 v9; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _R8 = this->m_cameraManager;
+  m_cameraManager = this->m_cameraManager;
   m_arrowFx = this->m_arrowFx;
   v4 = localClientNum;
   v5 = 200i64;
-  __asm { vmovsd  xmm1, qword ptr [r8+8] }
-  v7 = _R8->m_mlgCurrentCameraPos.v[2];
-  __asm { vmovss  dword ptr [r8+24h], xmm1 }
-  v16 = v7;
-  __asm
-  {
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [r8+28h], xmm0
-    vmovss  xmm0, [rsp+88h+var_40]
-    vmovss  dword ptr [r8+2Ch], xmm0
-  }
-  v10 = _R8->m_mlgCurrentCameraAngles.v[2];
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [r8+14h]
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [r8+34h], xmm0
-  }
-  v17 = v10;
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+var_40]
-    vmovss  dword ptr [r8+38h], xmm0
-    vmovss  dword ptr [r8+30h], xmm1
-  }
-  _R8->m_mlgTargetCameraFoV = _R8->m_mlgCurrentCameraFoV;
+  v6 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraPos.v;
+  v7 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+  m_cameraManager->m_mlgTargetCameraPos.v[0] = v6.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[1] = _mm_shuffle_ps(v6, v6, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[2] = v7;
+  v8 = m_cameraManager->m_mlgCurrentCameraAngles.v[2];
+  v9 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraAngles.v;
+  m_cameraManager->m_mlgTargetCameraAngles.v[1] = _mm_shuffle_ps(v9, v9, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraAngles.v[2] = v8;
+  m_cameraManager->m_mlgTargetCameraAngles.v[0] = v9.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
   do
   {
     if ( *m_arrowFx )
     {
       if ( (unsigned int)v4 >= 2 )
       {
-        LODWORD(v15) = 2;
-        LODWORD(v14) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v11) = 2;
+        LODWORD(v10) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v11) )
           __debugbreak();
       }
       ParticleManager::StopSystem(&g_particleManager[v4], *m_arrowFx);
@@ -2787,38 +2258,24 @@ AerialCamEnteringCameraState::ExitState
 */
 void AerialCamEnteringCameraState::ExitState(AerialCamEnteringCameraState *this, const LocalClientNum_t __formal)
 {
+  CgMLGCameraManager *m_cameraManager; 
+  __m128 v3; 
   float v4; 
-  float v7; 
-  float v11; 
-  float v12; 
+  float v5; 
+  __m128 v6; 
 
-  _RDX = this->m_cameraManager;
-  __asm { vmovsd  xmm1, qword ptr [rdx+8] }
-  v4 = _RDX->m_mlgCurrentCameraPos.v[2];
-  __asm { vmovss  dword ptr [rdx+24h], xmm1 }
-  v11 = v4;
-  __asm
-  {
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+28h], xmm0
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+2Ch], xmm0
-  }
-  v7 = _RDX->m_mlgCurrentCameraAngles.v[2];
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rdx+14h]
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+34h], xmm0
-  }
-  v12 = v7;
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+38h], xmm0
-    vmovss  dword ptr [rdx+30h], xmm1
-  }
-  _RDX->m_mlgTargetCameraFoV = _RDX->m_mlgCurrentCameraFoV;
+  m_cameraManager = this->m_cameraManager;
+  v3 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraPos.v;
+  v4 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+  m_cameraManager->m_mlgTargetCameraPos.v[0] = v3.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[1] = _mm_shuffle_ps(v3, v3, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[2] = v4;
+  v5 = m_cameraManager->m_mlgCurrentCameraAngles.v[2];
+  v6 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraAngles.v;
+  m_cameraManager->m_mlgTargetCameraAngles.v[1] = _mm_shuffle_ps(v6, v6, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraAngles.v[2] = v5;
+  m_cameraManager->m_mlgTargetCameraAngles.v[0] = v6.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
 }
 
 /*
@@ -2828,38 +2285,24 @@ FreeCamActiveCameraState::ExitState
 */
 void FreeCamActiveCameraState::ExitState(FreeCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
+  CgMLGCameraManager *m_cameraManager; 
+  __m128 v3; 
   float v4; 
-  float v7; 
-  float v11; 
-  float v12; 
+  float v5; 
+  __m128 v6; 
 
-  _RDX = this->m_cameraManager;
-  __asm { vmovsd  xmm1, qword ptr [rdx+8] }
-  v4 = _RDX->m_mlgCurrentCameraPos.v[2];
-  __asm { vmovss  dword ptr [rdx+24h], xmm1 }
-  v11 = v4;
-  __asm
-  {
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+28h], xmm0
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+2Ch], xmm0
-  }
-  v7 = _RDX->m_mlgCurrentCameraAngles.v[2];
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rdx+14h]
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+34h], xmm0
-  }
-  v12 = v7;
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+38h], xmm0
-    vmovss  dword ptr [rdx+30h], xmm1
-  }
-  _RDX->m_mlgTargetCameraFoV = _RDX->m_mlgCurrentCameraFoV;
+  m_cameraManager = this->m_cameraManager;
+  v3 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraPos.v;
+  v4 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+  m_cameraManager->m_mlgTargetCameraPos.v[0] = v3.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[1] = _mm_shuffle_ps(v3, v3, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[2] = v4;
+  v5 = m_cameraManager->m_mlgCurrentCameraAngles.v[2];
+  v6 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraAngles.v;
+  m_cameraManager->m_mlgTargetCameraAngles.v[1] = _mm_shuffle_ps(v6, v6, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraAngles.v[2] = v5;
+  m_cameraManager->m_mlgTargetCameraAngles.v[0] = v6.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
 }
 
 /*
@@ -2889,38 +2332,24 @@ SpectatorEnteringCameraState::ExitState
 */
 void SpectatorEnteringCameraState::ExitState(SpectatorEnteringCameraState *this, const LocalClientNum_t __formal)
 {
+  CgMLGCameraManager *m_cameraManager; 
+  __m128 v3; 
   float v4; 
-  float v7; 
-  float v11; 
-  float v12; 
+  float v5; 
+  __m128 v6; 
 
-  _RDX = this->m_cameraManager;
-  __asm { vmovsd  xmm1, qword ptr [rdx+14h] }
-  v4 = _RDX->m_mlgCurrentCameraAngles.v[2];
-  __asm { vmovss  dword ptr [rdx+30h], xmm1 }
-  v11 = v4;
-  __asm
-  {
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+34h], xmm0
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+38h], xmm0
-  }
-  v7 = _RDX->m_mlgCurrentCameraPos.v[2];
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rdx+8]
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rdx+28h], xmm0
-  }
-  v12 = v7;
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rdx+2Ch], xmm0
-    vmovss  dword ptr [rdx+24h], xmm1
-  }
-  _RDX->m_mlgTargetCameraFoV = _RDX->m_mlgCurrentCameraFoV;
+  m_cameraManager = this->m_cameraManager;
+  v3 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraAngles.v;
+  v4 = m_cameraManager->m_mlgCurrentCameraAngles.v[2];
+  m_cameraManager->m_mlgTargetCameraAngles.v[0] = v3.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraAngles.v[1] = _mm_shuffle_ps(v3, v3, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraAngles.v[2] = v4;
+  v5 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+  v6 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgCurrentCameraPos.v;
+  m_cameraManager->m_mlgTargetCameraPos.v[1] = _mm_shuffle_ps(v6, v6, 85).m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraPos.v[2] = v5;
+  m_cameraManager->m_mlgTargetCameraPos.v[0] = v6.m128_f32[0];
+  m_cameraManager->m_mlgTargetCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
 }
 
 /*
@@ -2951,137 +2380,108 @@ AerialCamActiveCameraState::FocusNearestPlayer
 */
 void AerialCamActiveCameraState::FocusNearestPlayer(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  __int64 v8; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int64 v7; 
   CgGlobalsMP *LocalClientGlobals; 
-  CgGlobalsMP *v15; 
+  float v9; 
+  float v10; 
+  float v11; 
+  CgGlobalsMP *v12; 
   unsigned int clientNum; 
-  int v17; 
-  cg_t *v19; 
+  int i; 
+  cg_t *v15; 
   characterInfo_t *CharacterInfo; 
   centity_t *Entity; 
-  __int64 v22; 
-  int v23; 
-  int v24; 
-  char v25; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
+  float v21; 
   CgMLGCameraManager *m_cameraManager; 
-  cg_t *v39; 
-  const char *v40; 
-  __int64 v41; 
-  __int64 v42; 
-  __int64 v43; 
-  __int64 v44; 
+  cg_t *v23; 
+  const char *v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   vec3_t outOrigin; 
-  void *retaddr; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
 
-  _R11 = &retaddr;
-  _RBX = this;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
-  v8 = localClientNum;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-  }
+  v34 = v2;
+  v33 = v3;
+  v7 = localClientNum;
+  v32 = v4;
+  v31 = v5;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  xmm1, dword ptr [rbx+44h]
-    vaddss  xmm7, xmm0, dword ptr [rbx+40h]
-    vaddss  xmm8, xmm1, dword ptr [rbx+2Ch]
-    vmovss  xmm6, cs:__real@bf800000
-  }
-  v15 = LocalClientGlobals;
+  v9 = this->m_currentOffset.v[0] + this->m_groundPosition.v[0];
+  v10 = this->m_groundPosition.v[1] + this->m_currentOffset.v[1];
+  v11 = FLOAT_N1_0;
+  v12 = LocalClientGlobals;
   clientNum = -1;
-  v17 = 0;
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  do
+  for ( i = 0; i < 200; ++i )
   {
-    v19 = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-    if ( v19->HasCharacterInfo(v19, v17) )
+    v15 = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    if ( v15->HasCharacterInfo(v15, i) )
     {
-      CharacterInfo = CG_GetCharacterInfo(v19, v17);
+      CharacterInfo = CG_GetCharacterInfo(v15, i);
       if ( CharacterInfo )
       {
-        Entity = CG_GetEntity((const LocalClientNum_t)v8, CharacterInfo->entityNum);
+        Entity = CG_GetEntity((const LocalClientNum_t)v7, CharacterInfo->entityNum);
         if ( Entity )
         {
           if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
           {
-            LODWORD(v44) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-            LODWORD(v43) = 2;
-            LODWORD(v42) = v8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v42, v43, v44) )
+            LODWORD(v28) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+            LODWORD(v27) = 2;
+            LODWORD(v26) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v26, v27, v28) )
               __debugbreak();
           }
-          if ( (unsigned int)v8 >= CgCompassSystem::ms_allocatedCount )
+          if ( (unsigned int)v7 >= CgCompassSystem::ms_allocatedCount )
           {
-            LODWORD(v42) = CgCompassSystem::ms_allocatedCount;
-            LODWORD(v41) = v8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v41, v42) )
+            LODWORD(v26) = CgCompassSystem::ms_allocatedCount;
+            LODWORD(v25) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v25, v26) )
               __debugbreak();
           }
-          if ( !CgCompassSystem::ms_compassSystemArray[v8] )
+          if ( !CgCompassSystem::ms_compassSystemArray[v7] )
           {
-            LODWORD(v42) = v8;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v42) )
+            LODWORD(v26) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v26) )
               __debugbreak();
           }
-          v22 = CgCompassSystem::ms_compassSystemArray[v8]->GetCompassActor(CgCompassSystem::ms_compassSystemArray[v8], v17);
-          if ( v22 )
+          v18 = CgCompassSystem::ms_compassSystemArray[v7]->GetCompassActor(CgCompassSystem::ms_compassSystemArray[v7], i);
+          if ( v18 )
           {
-            v23 = *(_DWORD *)(v22 + 4);
-            v24 = v15->time - 500;
-            if ( ((Entity->nextState.eType - 1) & 0xFFEF) == 0 && v15->HasCharacterInfo(v15, v17) && v23 >= v24 )
+            v19 = *(_DWORD *)(v18 + 4);
+            v20 = v12->time - 500;
+            if ( ((Entity->nextState.eType - 1) & 0xFFEF) == 0 && v12->HasCharacterInfo(v12, i) && v19 >= v20 )
             {
               CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-              __asm
+              v21 = fsqrt((float)((float)(outOrigin.v[1] - v10) * (float)(outOrigin.v[1] - v10)) + (float)((float)(outOrigin.v[0] - v9) * (float)(outOrigin.v[0] - v9)));
+              if ( v11 < 0.0 || v21 < v11 )
               {
-                vcomiss xmm6, xmm9
-                vmovss  xmm0, dword ptr [rsp+0E8h+outOrigin]
-                vmovss  xmm1, dword ptr [rsp+0E8h+outOrigin+4]
-                vsubss  xmm2, xmm1, xmm8
-                vmulss  xmm3, xmm2, xmm2
-                vsubss  xmm4, xmm0, xmm7
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm1, xmm3, xmm0
-                vsqrtss xmm2, xmm1, xmm1
-              }
-              if ( v25 )
-                goto LABEL_20;
-              __asm { vcomiss xmm2, xmm6 }
-              if ( v25 )
-              {
-LABEL_20:
                 clientNum = Entity->nextState.clientNum;
-                __asm { vmovaps xmm6, xmm2 }
+                v11 = v21;
               }
             }
           }
         }
       }
     }
-    ++v17;
-  }
-  while ( v17 < 200 );
-  __asm
-  {
-    vmovaps xmm9, [rsp+0E8h+var_78]
-    vmovaps xmm8, [rsp+0E8h+var_68]
-    vmovaps xmm7, [rsp+0E8h+var_58]
-    vmovaps xmm6, [rsp+0E8h+var_48]
   }
   if ( clientNum != -1 )
   {
     this->m_focusOnBarycenter = 0;
     m_cameraManager = this->m_cameraManager;
-    v39 = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-    v40 = j_va("setmlgcamerafocusedclient %i %i\n", (unsigned int)v39->clientNum, clientNum);
-    Cbuf_AddText((LocalClientNum_t)v8, v40);
+    v23 = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    v24 = j_va("setmlgcamerafocusedclient %i %i\n", (unsigned int)v23->clientNum, clientNum);
+    Cbuf_AddText((LocalClientNum_t)v7, v24);
     m_cameraManager->m_localFocusedPlayer = clientNum;
   }
 }
@@ -3105,8 +2505,7 @@ CgMLGCameraManager::GetAerialMaxHeight
 */
 float CgMLGCameraManager::GetAerialMaxHeight(CgMLGCameraManager *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+14070h] }
-  return *(float *)&_XMM0;
+  return this->m_aerialMaxHeight;
 }
 
 /*
@@ -3116,8 +2515,7 @@ CgMLGCameraManager::GetAerialMinHeight
 */
 float CgMLGCameraManager::GetAerialMinHeight(CgMLGCameraManager *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+1406Ch] }
-  return *(float *)&_XMM0;
+  return this->m_aerialMinHeight;
 }
 
 /*
@@ -3249,11 +2647,7 @@ vec3_t *CgMLGCameraManager::GetMLGCurrentCameraAngles(CgMLGCameraManager *this, 
   float v2; 
 
   v2 = this->m_mlgCurrentCameraAngles.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+14h]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)result->v = *(double *)this->m_mlgCurrentCameraAngles.v;
   result->v[2] = v2;
   return result;
 }
@@ -3265,8 +2659,7 @@ CgMLGCameraManager::GetMLGCurrentCameraFoV
 */
 float CgMLGCameraManager::GetMLGCurrentCameraFoV(CgMLGCameraManager *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+20h] }
-  return *(float *)&_XMM0;
+  return this->m_mlgCurrentCameraFoV;
 }
 
 /*
@@ -3279,11 +2672,7 @@ vec3_t *CgMLGCameraManager::GetMLGCurrentCameraPosition(CgMLGCameraManager *this
   float v2; 
 
   v2 = this->m_mlgCurrentCameraPos.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+8]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)result->v = *(double *)this->m_mlgCurrentCameraPos.v;
   result->v[2] = v2;
   return result;
 }
@@ -3380,11 +2769,7 @@ vec3_t *CgMLGCameraManager::GetMLGTargetCameraAngles(CgMLGCameraManager *this, v
   float v2; 
 
   v2 = this->m_mlgTargetCameraAngles.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+30h]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)result->v = *(double *)this->m_mlgTargetCameraAngles.v;
   result->v[2] = v2;
   return result;
 }
@@ -3396,8 +2781,7 @@ CgMLGCameraManager::GetMLGTargetCameraFoV
 */
 float CgMLGCameraManager::GetMLGTargetCameraFoV(CgMLGCameraManager *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+3Ch] }
-  return *(float *)&_XMM0;
+  return this->m_mlgTargetCameraFoV;
 }
 
 /*
@@ -3410,11 +2794,7 @@ vec3_t *CgMLGCameraManager::GetMLGTargetCameraPosition(CgMLGCameraManager *this,
   float v2; 
 
   v2 = this->m_mlgTargetCameraPos.v[2];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+24h]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)result->v = *(double *)this->m_mlgTargetCameraPos.v;
   result->v[2] = v2;
   return result;
 }
@@ -3436,258 +2816,206 @@ AerialCamActiveCameraState::HandleInputsInternal
 */
 void AerialCamActiveCameraState::HandleInputsInternal(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  int v16; 
-  int v17; 
-  int v18; 
+  __int128 v2; 
+  int v5; 
+  int v6; 
+  int v7; 
   const char *CommandForBinding; 
   int GamepadKeyNum; 
-  const char *v21; 
-  int v22; 
-  int v23; 
-  const dvar_t *v26; 
-  const char *v27; 
-  char v32; 
-  const dvar_t *v45; 
+  const char *v10; 
+  int v11; 
+  int v12; 
+  const dvar_t *v13; 
+  float value; 
+  const dvar_t *v15; 
+  const char *v16; 
+  float v17; 
+  __int128 v18; 
+  double v19; 
+  float v20; 
+  double v21; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v29; 
+  __int128 v30; 
+  const dvar_t *v31; 
+  __int128 v32; 
+  float v36; 
+  float v37; 
+  float v38; 
+  double v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  double v43; 
+  int frametime; 
+  float v45; 
+  int v46; 
+  double v47; 
+  int v48; 
+  const dvar_t *v49; 
+  float v50; 
+  __int128 v51; 
+  __int128 v52; 
   int keynum; 
-  int v122; 
-  int v123; 
+  int v57; 
+  int v58; 
   int BoundKey; 
-  int v125; 
-  float v126; 
-  char v128; 
-  void *retaddr; 
+  int v60; 
+  CgGlobalsMP *LocalClientGlobals; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RBP = this;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps [rsp+148h+var_D8], xmm15
-  }
-  CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   BoundKey = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_UP, INVALID, 1);
-  v125 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_DOWN, INVALID, 1);
+  v60 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_DOWN, INVALID, 1);
   keynum = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_FORWARD, INVALID, 1);
-  v16 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_BACKWARD, INVALID, 1);
-  v122 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_LEFT, INVALID, 1);
-  v123 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_RIGHT, INVALID, 1);
-  v17 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_SPEEDUP, INVALID, 1);
-  v18 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_SLOWDOWN, INVALID, 1);
+  v5 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_BACKWARD, INVALID, 1);
+  v57 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_LEFT, INVALID, 1);
+  v58 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_RIGHT, INVALID, 1);
+  v6 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_SPEEDUP, INVALID, 1);
+  v7 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, VEC3_POINTER|INT_VALUE, BIND_CODCASTER_MLGCAMERA_SLOWDOWN, INVALID, 1);
   CommandForBinding = Com_Keys_GetCommandForBinding(230);
   GamepadKeyNum = CG_MLG_GetGamepadKeyNum(localClientNum, CommandForBinding);
-  v21 = Com_Keys_GetCommandForBinding(231);
-  v22 = CG_MLG_GetGamepadKeyNum(localClientNum, v21);
-  v23 = 0;
-  if ( CL_Keys_IsKeyDown(localClientNum, v17) || CL_Keys_IsKeyDown(localClientNum, GamepadKeyNum) )
-    v23 = 1;
-  if ( CL_Keys_IsKeyDown(localClientNum, v18) || CL_Keys_IsKeyDown(localClientNum, v22) )
-    --v23;
-  _RBX = DVARFLT_cg_mlg_freecam_speed_base;
+  v10 = Com_Keys_GetCommandForBinding(231);
+  v11 = CG_MLG_GetGamepadKeyNum(localClientNum, v10);
+  v12 = 0;
+  if ( CL_Keys_IsKeyDown(localClientNum, v6) || CL_Keys_IsKeyDown(localClientNum, GamepadKeyNum) )
+    v12 = 1;
+  if ( CL_Keys_IsKeyDown(localClientNum, v7) || CL_Keys_IsKeyDown(localClientNum, v11) )
+    --v12;
+  v13 = DVARFLT_cg_mlg_freecam_speed_base;
   if ( !DVARFLT_cg_mlg_freecam_speed_base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_freecam_speed_base") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm11, dword ptr [rbx+28h] }
-  if ( v23 <= 0 )
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  if ( v12 <= 0 )
   {
-    if ( v23 >= 0 )
+    if ( v12 >= 0 )
       goto LABEL_19;
-    v26 = DVARFLT_cg_mlg_freecam_speed_slow_factor;
+    v15 = DVARFLT_cg_mlg_freecam_speed_slow_factor;
     if ( !DVARFLT_cg_mlg_freecam_speed_slow_factor )
     {
-      v27 = "cg_mlg_freecam_speed_slow_factor";
+      v16 = "cg_mlg_freecam_speed_slow_factor";
 LABEL_16:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v27) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v16) )
         __debugbreak();
     }
   }
   else
   {
-    v26 = DVARFLT_cg_mlg_freecam_speed_fast_factor;
+    v15 = DVARFLT_cg_mlg_freecam_speed_fast_factor;
     if ( !DVARFLT_cg_mlg_freecam_speed_fast_factor )
     {
-      v27 = "cg_mlg_freecam_speed_fast_factor";
+      v16 = "cg_mlg_freecam_speed_fast_factor";
       goto LABEL_16;
     }
   }
-  Dvar_CheckFrontendServerThread(v26);
-  __asm { vmulss  xmm11, xmm11, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v15);
+  value = value * v15->current.value;
 LABEL_19:
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_Y);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_X);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LTRIGGER);
-  __asm { vmovaps xmm6, xmm0 }
-  CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RTRIGGER);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vxorps  xmm10, xmm10, xmm10
-    vucomiss xmm8, xmm10
-    vsubss  xmm6, xmm6, xmm0
-    vmovss  xmm0, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  if ( v32 )
-    __asm { vmovaps xmm15, xmm9 }
+  *(double *)&v2 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_Y);
+  v17 = *(float *)&v2;
+  *(double *)&v2 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_X);
+  v18 = v2;
+  v19 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LTRIGGER);
+  v20 = *(float *)&v19;
+  v21 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RTRIGGER);
+  _XMM10 = 0i64;
+  v24 = v20 - *(float *)&v21;
+  v23 = v20 - *(float *)&v21;
+  if ( v17 == 0.0 )
+    v25 = FLOAT_1_0;
   else
-    __asm { vandps  xmm15, xmm8, xmm0 }
-  __asm { vucomiss xmm7, xmm10 }
-  if ( v32 )
-    __asm { vmovaps xmm13, xmm9 }
+    LODWORD(v25) = LODWORD(v17) & _xmm;
+  if ( *(float *)&v18 == 0.0 )
+    v26 = FLOAT_1_0;
   else
-    __asm { vandps  xmm13, xmm7, xmm0 }
-  __asm { vucomiss xmm6, xmm10 }
-  if ( v32 )
-    __asm { vmovaps xmm12, xmm9 }
+    LODWORD(v26) = v18 & _xmm;
+  if ( v24 == 0.0 )
+    v27 = FLOAT_1_0;
   else
-    __asm { vandps  xmm12, xmm6, xmm0 }
-  __asm
-  {
-    vunpcklps xmm0, xmm10, xmm10
-    vmovsd  qword ptr [rbp+34h], xmm0
-    vmovss  [rsp+148h+var_E0], xmm10
-  }
-  _RBP->m_currentAngles.v[2] = v126;
+    LODWORD(v27) = LODWORD(v24) & _xmm;
+  __asm { vunpcklps xmm0, xmm10, xmm10 }
+  *(double *)this->m_currentAngles.v = *(double *)&_XMM0;
+  this->m_currentAngles.v[2] = 0.0;
   if ( CL_Keys_IsKeyDown(localClientNum, keynum) )
-    __asm { vaddss  xmm8, xmm8, xmm9 }
-  __asm { vmovss  xmm14, cs:__real@bf800000 }
-  if ( CL_Keys_IsKeyDown(localClientNum, v16) )
-    __asm { vaddss  xmm8, xmm8, xmm14 }
-  if ( CL_Keys_IsKeyDown(localClientNum, v122) )
-    __asm { vaddss  xmm7, xmm7, xmm14 }
-  if ( CL_Keys_IsKeyDown(localClientNum, v123) )
-    __asm { vaddss  xmm7, xmm7, xmm9 }
+    v17 = v17 + 1.0;
+  if ( CL_Keys_IsKeyDown(localClientNum, v5) )
+    v17 = v17 + -1.0;
+  if ( CL_Keys_IsKeyDown(localClientNum, v57) )
+  {
+    v29 = v18;
+    *(float *)&v29 = *(float *)&v18 + -1.0;
+    v18 = v29;
+  }
+  if ( CL_Keys_IsKeyDown(localClientNum, v58) )
+  {
+    v30 = v18;
+    *(float *)&v30 = *(float *)&v18 + 1.0;
+    v18 = v30;
+  }
   if ( CL_Keys_IsKeyDown(localClientNum, BoundKey) )
-    __asm { vaddss  xmm6, xmm6, xmm9 }
-  if ( CL_Keys_IsKeyDown(localClientNum, v125) )
-    __asm { vaddss  xmm6, xmm6, xmm14 }
-  v45 = DVARFLT_cg_mlg_cam_smooth_factor;
+    v23 = v23 + 1.0;
+  if ( CL_Keys_IsKeyDown(localClientNum, v60) )
+    v23 = v23 + -1.0;
+  v31 = DVARFLT_cg_mlg_cam_smooth_factor;
+  v32 = v18;
+  *(float *)&v32 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(v17 * v17)) + (float)(v23 * v23));
+  _XMM3 = v32;
   __asm
   {
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm2, xmm9, xmm0
-    vmulss  xmm0, xmm8, xmm2
-    vmulss  xmm8, xmm0, xmm15
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm7, xmm2
-    vmulss  xmm12, xmm0, xmm12
-    vmulss  xmm7, xmm1, xmm13
   }
+  v36 = (float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * v25;
+  v37 = (float)(v23 * (float)(1.0 / *(float *)&_XMM0)) * v27;
+  v38 = (float)(*(float *)&v18 * (float)(1.0 / *(float *)&_XMM0)) * v26;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vcvtsi2ss xmm0, xmm0, dword ptr [r14+65E4h]
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]; val
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm8, dword ptr [rbp+1Ch]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm5, xmm2, dword ptr [rbp+1Ch]
-    vsubss  xmm1, xmm7, dword ptr [rbp+20h]
-    vmulss  xmm2, xmm1, xmm0
-    vsubss  xmm1, xmm12, dword ptr [rbp+24h]
-    vaddss  xmm6, xmm2, dword ptr [rbp+20h]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm8, xmm2, dword ptr [rbp+24h]
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-    vmovaps xmm0, xmm5; val
-    vmovss  dword ptr [rbp+24h], xmm8
-    vmovss  dword ptr [rbp+1Ch], xmm5
-    vmovss  dword ptr [rbp+20h], xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vmovaps xmm0, xmm6; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovaps xmm0, xmm8; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vmulss  xmm2, xmm7, xmm11
-    vmulss  xmm2, xmm2, xmm1
-    vaddss  xmm3, xmm2, dword ptr [rbp+28h]
-    vmovss  dword ptr [rbp+28h], xmm3
-    vmovss  xmm2, dword ptr [rbp+2Ch]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebx
-    vmulss  xmm4, xmm6, xmm11
-    vmulss  xmm3, xmm4, xmm1
-    vmulss  xmm1, xmm0, xmm11
-    vsubss  xmm3, xmm2, xmm3
-    vmovss  dword ptr [rbp+2Ch], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rbp+30h]
-    vmovss  dword ptr [rbp+30h], xmm2
-  }
-  _RBX = DVARFLT_cg_mlg_aerialcam_maximal_tether_radius;
+  Dvar_CheckFrontendServerThread(v31);
+  v39 = I_fclamp((float)LocalClientGlobals->frametime * v31->current.value, 0.0, 1.0);
+  v40 = (float)((float)(v36 - this->m_lastInputVector.v[0]) * *(float *)&v39) + this->m_lastInputVector.v[0];
+  v41 = (float)((float)(v38 - this->m_lastInputVector.v[1]) * *(float *)&v39) + this->m_lastInputVector.v[1];
+  v42 = (float)((float)(v37 - this->m_lastInputVector.v[2]) * *(float *)&v39) + this->m_lastInputVector.v[2];
+  this->m_lastInputVector.v[2] = v42;
+  this->m_lastInputVector.v[0] = v40;
+  this->m_lastInputVector.v[1] = v41;
+  v43 = I_fclamp(v40, -1.0, 1.0);
+  frametime = LocalClientGlobals->frametime;
+  v45 = *(float *)&v43;
+  I_fclamp(v41, -1.0, 1.0);
+  v46 = LocalClientGlobals->frametime;
+  v47 = I_fclamp(v42, -1.0, 1.0);
+  v48 = LocalClientGlobals->frametime;
+  this->m_currentOffset.v[0] = (float)((float)(v45 * value) * (float)frametime) + this->m_currentOffset.v[0];
+  this->m_currentOffset.v[1] = this->m_currentOffset.v[1] - (float)((float)(v41 * value) * (float)v46);
+  this->m_currentOffset.v[2] = (float)((float)(*(float *)&v47 * value) * (float)v48) + this->m_currentOffset.v[2];
+  v49 = DVARFLT_cg_mlg_aerialcam_maximal_tether_radius;
   if ( !DVARFLT_cg_mlg_aerialcam_maximal_tether_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_aerialcam_maximal_tether_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  if ( CgMLGCameraManager::GetFocusedPlayer(_RBP->m_cameraManager, localClientNum) > -1 )
+  Dvar_CheckFrontendServerThread(v49);
+  v50 = v49->current.value;
+  if ( CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum) > -1 )
   {
-    __asm
+    v51 = LODWORD(this->m_currentOffset.v[0]);
+    v52 = v51;
+    *(float *)&v52 = (float)(*(float *)&v51 * *(float *)&v51) + (float)(this->m_currentOffset.v[1] * this->m_currentOffset.v[1]);
+    if ( *(float *)&v52 > (float)(v50 * v50) )
     {
-      vmovss  xmm0, dword ptr [rbp+2Ch]
-      vmovss  xmm2, dword ptr [rbp+28h]
-      vmulss  xmm1, xmm2, xmm2
-      vmulss  xmm0, xmm0, xmm0
-      vaddss  xmm3, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm3, xmm1
+      *(float *)&v52 = fsqrt(*(float *)&v52);
+      _XMM1 = v52;
+      __asm
+      {
+        vcmpless xmm0, xmm1, cs:__real@80000000
+        vblendvps xmm0, xmm1, xmm9, xmm0
+      }
+      this->m_currentOffset.v[0] = *(float *)&v51 * (float)(1.0 / *(float *)&_XMM0);
+      this->m_currentOffset.v[1] = (float)(1.0 / *(float *)&_XMM0) * this->m_currentOffset.v[1];
+      this->m_currentOffset.v[0] = v50 * this->m_currentOffset.v[0];
+      this->m_currentOffset.v[1] = v50 * this->m_currentOffset.v[1];
     }
-  }
-  __asm { vmovaps xmm15, [rsp+148h+var_D8] }
-  _R11 = &v128;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
   }
 }
 
@@ -3698,416 +3026,305 @@ FreeCamActiveCameraState::HandleInputsInternal
 */
 void FreeCamActiveCameraState::HandleInputsInternal(FreeCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  keyNum_t v16; 
+  CgGlobalsMP *LocalClientGlobals; 
+  keyNum_t v5; 
   const char *CommandForBinding; 
   int GamepadKeyNum; 
-  const char *v19; 
-  int v20; 
-  int v21; 
-  const dvar_t *v32; 
-  const dvar_t *v47; 
+  const char *v8; 
+  int v9; 
+  int v10; 
+  int v13; 
+  float v16; 
+  const dvar_t *v17; 
+  double v18; 
+  float v19; 
+  const dvar_t *v20; 
+  __int128 unsignedInt; 
+  const dvar_t *v22; 
   bool enabled; 
-  int v50; 
-  const dvar_t *v52; 
-  const char *v53; 
-  bool v58; 
-  const dvar_t *v67; 
-  const dvar_t *v123; 
-  keyNum_t v178; 
-  keyNum_t v179; 
-  keyNum_t v180; 
-  keyNum_t v181; 
-  keyNum_t v182; 
+  bool v24; 
+  const dvar_t *v25; 
+  int v26; 
+  float value; 
+  const dvar_t *v28; 
+  const char *v29; 
+  __int128 v30; 
+  double v31; 
+  float v32; 
+  double v33; 
+  float v34; 
+  double v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  __int128 v41; 
+  __int128 v42; 
+  const dvar_t *v43; 
+  __int128 v44; 
+  float v48; 
+  float v49; 
+  float v50; 
+  double v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  double v55; 
+  float v56; 
+  double v57; 
+  float v58; 
+  double v59; 
+  float v60; 
+  double v61; 
+  float v62; 
+  double ClientLookInversion; 
+  float v64; 
+  double v65; 
+  const dvar_t *v66; 
+  float v67; 
+  float v68; 
+  double v69; 
+  float v72; 
+  float v74; 
+  float v75; 
+  float v77; 
+  keyNum_t v78; 
+  keyNum_t v79; 
+  keyNum_t v80; 
+  keyNum_t v81; 
+  keyNum_t v82; 
   keyNum_t BoundKey; 
-  keyNum_t v184; 
+  keyNum_t v84; 
+  float v85; 
   int keynum; 
-  char v192; 
-  void *retaddr; 
+  int keynuma; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RSI = this;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps [rsp+128h+var_B8], xmm13
-    vmovaps [rsp+128h+var_C8], xmm14
-    vmovaps [rsp+128h+var_D8], xmm15
-  }
-  _R13 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   BoundKey = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_UP, INVALID, 1);
-  v184 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_DOWN, INVALID, 1);
-  v179 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_FORWARD, INVALID, 1);
-  v180 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_BACKWARD, INVALID, 1);
-  v181 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_LEFT, INVALID, 1);
-  v182 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_RIGHT, INVALID, 1);
-  v16 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_SPEEDUP, INVALID, 1);
-  v178 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_SLOWDOWN, INVALID, 1);
+  v84 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_DOWN, INVALID, 1);
+  v79 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_FORWARD, INVALID, 1);
+  v80 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_BACKWARD, INVALID, 1);
+  v81 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_LEFT, INVALID, 1);
+  v82 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_RIGHT, INVALID, 1);
+  v5 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_SPEEDUP, INVALID, 1);
+  v78 = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_MLGCAMERA_SLOWDOWN, INVALID, 1);
   CommandForBinding = Com_Keys_GetCommandForBinding(230);
   GamepadKeyNum = CG_MLG_GetGamepadKeyNum(localClientNum, CommandForBinding);
-  v19 = Com_Keys_GetCommandForBinding(231);
-  keynum = CG_MLG_GetGamepadKeyNum(localClientNum, v19);
-  v20 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_FOV_INCREASE, INVALID, 1);
-  v21 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_FOV_DECREASE, INVALID, 1);
-  __asm { vxorps  xmm15, xmm15, xmm15 }
-  _EAX = CL_Keys_IsKeyDown(localClientNum, v20);
+  v8 = Com_Keys_GetCommandForBinding(231);
+  keynum = CG_MLG_GetGamepadKeyNum(localClientNum, v8);
+  v9 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_FOV_INCREASE, INVALID, 1);
+  v10 = (unsigned __int8)CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_FOV_DECREASE, INVALID, 1);
+  _XMM9 = LODWORD(FLOAT_1_0);
+  _XMM0 = (unsigned int)CL_Keys_IsKeyDown(localClientNum, v9);
+  v13 = 0;
   __asm
   {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovd   xmm0, eax
-  }
-  _ER14 = 0;
-  __asm
-  {
-    vmovd   xmm1, r14d
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm9, xmm15, xmm2
-    vmovss  [rsp+128h+var_E0], xmm0
-    vmovss  xmm14, cs:__real@bf800000
   }
-  if ( CL_Keys_IsKeyDown(localClientNum, v21) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+128h+var_E0]
-      vaddss  xmm6, xmm0, xmm14
-    }
-  }
+  if ( CL_Keys_IsKeyDown(localClientNum, v10) )
+    v16 = *(float *)&_XMM0 + -1.0;
   else
-  {
-    __asm { vmovss  xmm6, [rsp+128h+var_E0] }
-  }
-  v32 = DVARFLT_cg_mlg_cam_smooth_factor;
+    v16 = *(float *)&_XMM0;
+  v17 = DVARFLT_cg_mlg_cam_smooth_factor;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v32);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r13+65E4h]
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm6, dword ptr [rsi+68h]
-    vmulss  xmm0, xmm1, xmm0
-    vaddss  xmm3, xmm0, dword ptr [rsi+68h]
-    vmovss  dword ptr [rsi+68h], xmm3
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [r13+65E4h]
-    vmulss  xmm0, xmm1, xmm3
-    vmulss  xmm2, xmm0, cs:__real@3d4ccccd
-    vmovss  dword ptr [rsi+28h], xmm2
-  }
-  _RBX = DVARFLT_cg_mlg_freecam_sensitivity;
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = I_fclamp((float)LocalClientGlobals->frametime * v17->current.value, 0.0, 1.0);
+  v19 = (float)((float)(v16 - this->m_lastInputFoV) * *(float *)&v18) + this->m_lastInputFoV;
+  this->m_lastInputFoV = v19;
+  this->m_updatedFoV = (float)((float)LocalClientGlobals->frametime * v19) * 0.050000001;
+  v20 = DVARFLT_cg_mlg_freecam_sensitivity;
   if ( !DVARFLT_cg_mlg_freecam_sensitivity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_freecam_sensitivity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  v47 = DVARBOOL_cg_mlg_freecam_speed_toggle;
-  __asm { vmovss  [rsp+128h+var_E0], xmm0 }
+  Dvar_CheckFrontendServerThread(v20);
+  unsignedInt = v20->current.unsignedInt;
+  v22 = DVARBOOL_cg_mlg_freecam_speed_toggle;
+  v85 = *(float *)&unsignedInt;
   if ( !DVARBOOL_cg_mlg_freecam_speed_toggle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_freecam_speed_toggle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v47);
-  enabled = v47->current.enabled;
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v16) || CL_Keys_IsKeyDown(localClientNum, GamepadKeyNum) )
+  Dvar_CheckFrontendServerThread(v22);
+  enabled = v22->current.enabled;
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v5) || CL_Keys_IsKeyDown(localClientNum, GamepadKeyNum) )
   {
     if ( enabled )
     {
-      if ( !_RSI->m_speedUpKeyDown )
+      if ( !this->m_speedUpKeyDown )
       {
-        v58 = !_RSI->m_speedUp;
-        _RSI->m_slowDown = 0;
-        _RSI->m_speedUp = v58;
+        v24 = !this->m_speedUp;
+        this->m_slowDown = 0;
+        this->m_speedUp = v24;
       }
     }
     else
     {
-      _RSI->m_speedUp = 1;
+      this->m_speedUp = 1;
     }
-    _RSI->m_speedUpKeyDown = 1;
+    this->m_speedUpKeyDown = 1;
   }
   else
   {
-    _RSI->m_speedUpKeyDown = 0;
+    this->m_speedUpKeyDown = 0;
     if ( !enabled )
-      _RSI->m_speedUp = 0;
+      this->m_speedUp = 0;
   }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v178) || CL_Keys_IsKeyDown(localClientNum, keynum) )
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v78) || CL_Keys_IsKeyDown(localClientNum, keynum) )
   {
     if ( enabled )
     {
-      if ( !_RSI->m_slowDownKeyDown )
+      if ( !this->m_slowDownKeyDown )
       {
-        v58 = !_RSI->m_slowDown;
-        _RSI->m_speedUp = 0;
-        _RSI->m_slowDown = v58;
+        v24 = !this->m_slowDown;
+        this->m_speedUp = 0;
+        this->m_slowDown = v24;
       }
     }
     else
     {
-      _RSI->m_slowDown = 1;
+      this->m_slowDown = 1;
     }
-    _RSI->m_slowDownKeyDown = 1;
+    this->m_slowDownKeyDown = 1;
   }
   else
   {
-    _RSI->m_slowDownKeyDown = 0;
+    this->m_slowDownKeyDown = 0;
     if ( !enabled )
-      _RSI->m_slowDown = 0;
+      this->m_slowDown = 0;
   }
-  _RDI = DVARFLT_cg_mlg_freecam_speed_base;
-  LOBYTE(_ER14) = _RSI->m_speedUp;
-  v50 = _ER14 - 1;
-  if ( !_RSI->m_slowDown )
-    v50 = _ER14;
+  v25 = DVARFLT_cg_mlg_freecam_speed_base;
+  LOBYTE(v13) = this->m_speedUp;
+  v26 = v13 - 1;
+  if ( !this->m_slowDown )
+    v26 = v13;
   if ( !DVARFLT_cg_mlg_freecam_speed_base && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_freecam_speed_base") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm10, dword ptr [rdi+28h] }
-  if ( v50 <= 0 )
+  Dvar_CheckFrontendServerThread(v25);
+  value = v25->current.value;
+  if ( v26 <= 0 )
   {
-    if ( v50 >= 0 )
+    if ( v26 >= 0 )
       goto LABEL_45;
-    v52 = DVARFLT_cg_mlg_freecam_speed_slow_factor;
+    v28 = DVARFLT_cg_mlg_freecam_speed_slow_factor;
     if ( !DVARFLT_cg_mlg_freecam_speed_slow_factor )
     {
-      v53 = "cg_mlg_freecam_speed_slow_factor";
+      v29 = "cg_mlg_freecam_speed_slow_factor";
 LABEL_42:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v53) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v29) )
         __debugbreak();
     }
   }
   else
   {
-    v52 = DVARFLT_cg_mlg_freecam_speed_fast_factor;
+    v28 = DVARFLT_cg_mlg_freecam_speed_fast_factor;
     if ( !DVARFLT_cg_mlg_freecam_speed_fast_factor )
     {
-      v53 = "cg_mlg_freecam_speed_fast_factor";
+      v29 = "cg_mlg_freecam_speed_fast_factor";
       goto LABEL_42;
     }
   }
-  Dvar_CheckFrontendServerThread(v52);
-  __asm { vmulss  xmm10, xmm10, dword ptr [rbx+28h] }
+  Dvar_CheckFrontendServerThread(v28);
+  value = value * v28->current.value;
 LABEL_45:
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_Y);
-  __asm { vmovaps xmm8, xmm0 }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_X);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LTRIGGER);
-  __asm { vmovaps xmm6, xmm0 }
-  CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RTRIGGER);
-  __asm
+  *(double *)&unsignedInt = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_Y);
+  v30 = unsignedInt;
+  v31 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LSTICK_X);
+  v32 = *(float *)&v31;
+  v33 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_LTRIGGER);
+  v34 = *(float *)&v33;
+  v35 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RTRIGGER);
+  v37 = v34 - *(float *)&v35;
+  v36 = v34 - *(float *)&v35;
+  if ( *(float *)&v30 == 0.0 )
+    v38 = FLOAT_1_0;
+  else
+    LODWORD(v38) = v30 & _xmm;
+  if ( v32 == 0.0 )
+    v39 = FLOAT_1_0;
+  else
+    LODWORD(v39) = LODWORD(v32) & _xmm;
+  if ( v37 == 0.0 )
+    v40 = FLOAT_1_0;
+  else
+    LODWORD(v40) = LODWORD(v37) & _xmm;
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v79) )
   {
-    vucomiss xmm8, xmm15
-    vsubss  xmm6, xmm6, xmm0
-    vmovss  xmm0, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
+    v41 = v30;
+    *(float *)&v41 = *(float *)&v30 + 1.0;
+    v30 = v41;
   }
-  if ( v58 )
-    __asm { vmovaps xmm13, xmm9 }
-  else
-    __asm { vandps  xmm13, xmm8, xmm0 }
-  __asm { vucomiss xmm7, xmm15 }
-  if ( v58 )
-    __asm { vmovaps xmm12, xmm9 }
-  else
-    __asm { vandps  xmm12, xmm7, xmm0 }
-  __asm { vucomiss xmm6, xmm15 }
-  if ( v58 )
-    __asm { vmovaps xmm11, xmm9 }
-  else
-    __asm { vandps  xmm11, xmm6, xmm0 }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v179) )
-    __asm { vaddss  xmm8, xmm8, xmm9 }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v180) )
-    __asm { vaddss  xmm8, xmm8, xmm14 }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v181) )
-    __asm { vaddss  xmm7, xmm7, xmm14 }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v182) )
-    __asm { vaddss  xmm7, xmm7, xmm9 }
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v80) )
+  {
+    v42 = v30;
+    *(float *)&v42 = *(float *)&v30 + -1.0;
+    v30 = v42;
+  }
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v81) )
+    v32 = v32 + -1.0;
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v82) )
+    v32 = v32 + 1.0;
   if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)BoundKey) )
-    __asm { vaddss  xmm6, xmm6, xmm9 }
-  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v184) )
-    __asm { vaddss  xmm6, xmm6, xmm14 }
-  v67 = DVARFLT_cg_mlg_cam_smooth_factor;
+    v36 = v36 + 1.0;
+  if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)v84) )
+    v36 = v36 + -1.0;
+  v43 = DVARFLT_cg_mlg_cam_smooth_factor;
+  v44 = v30;
+  *(float *)&v44 = fsqrt((float)((float)(*(float *)&v30 * *(float *)&v30) + (float)(v32 * v32)) + (float)(v36 * v36));
+  _XMM3 = v44;
   __asm
   {
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm2, xmm9, xmm0
-    vmulss  xmm0, xmm8, xmm2
-    vmulss  xmm8, xmm0, xmm13
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm7, xmm2
-    vmulss  xmm11, xmm0, xmm11
-    vmulss  xmm7, xmm1, xmm12
   }
+  v48 = (float)(*(float *)&v30 * (float)(1.0 / *(float *)&_XMM0)) * v38;
+  v49 = (float)(v36 * (float)(1.0 / *(float *)&_XMM0)) * v40;
+  v50 = (float)(v32 * (float)(1.0 / *(float *)&_XMM0)) * v39;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v67);
-  __asm
-  {
-    vmovd   xmm0, dword ptr [r13+65E4h]
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm8, dword ptr [rsi+58h]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm5, xmm2, dword ptr [rsi+58h]
-    vsubss  xmm1, xmm7, dword ptr [rsi+5Ch]
-    vmulss  xmm2, xmm1, xmm0
-    vsubss  xmm1, xmm11, dword ptr [rsi+60h]
-    vaddss  xmm6, xmm2, dword ptr [rsi+5Ch]
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm7, xmm2, dword ptr [rsi+60h]
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-    vmovaps xmm0, xmm5; val
-    vmovss  dword ptr [rsi+60h], xmm7
-    vmovss  dword ptr [rsi+58h], xmm5
-    vmovss  dword ptr [rsi+5Ch], xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovd   xmm1, dword ptr [r13+65E4h]
-    vmulss  xmm2, xmm0, xmm10
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm12, xmm2, xmm1
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-    vmovaps xmm0, xmm6; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovd   xmm1, dword ptr [r13+65E4h]
-    vmulss  xmm2, xmm0, xmm10
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm3, xmm2, xmm1
-    vxorps  xmm13, xmm3, cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm14; min
-    vmovaps xmm0, xmm7; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovd   xmm1, dword ptr [r13+65E4h]
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm2, xmm0, xmm10
-    vmulss  xmm14, xmm2, xmm1
-  }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RSTICK_Y);
-  __asm { vmovaps xmm6, xmm0 }
-  CL_Input_GetClientLookInversion(localClientNum);
-  __asm { vmulss  xmm6, xmm6, xmm0 }
-  *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RSTICK_X);
-  __asm
-  {
-    vmulss  xmm3, xmm0, cs:__real@42652ee0
-    vmovd   xmm2, dword ptr [r13+65E4h]
-  }
-  v123 = DVARFLT_cg_mlg_cam_smooth_factor;
-  __asm
-  {
-    vcvtdq2ps xmm2, xmm2
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm0, cs:__real@42652ee0
-    vmulss  xmm6, xmm1, [rsp+128h+var_E0]
-    vmulss  xmm2, xmm3, xmm2
-    vmulss  xmm0, xmm2, [rsp+128h+var_E0]
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  [rsp+128h+keynum], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v43);
+  v51 = I_fclamp(_mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0] * v43->current.value, 0.0, 1.0);
+  v52 = (float)((float)(v48 - this->m_lastInputVector.v[0]) * *(float *)&v51) + this->m_lastInputVector.v[0];
+  v53 = (float)((float)(v50 - this->m_lastInputVector.v[1]) * *(float *)&v51) + this->m_lastInputVector.v[1];
+  v54 = (float)((float)(v49 - this->m_lastInputVector.v[2]) * *(float *)&v51) + this->m_lastInputVector.v[2];
+  this->m_lastInputVector.v[2] = v54;
+  this->m_lastInputVector.v[0] = v52;
+  this->m_lastInputVector.v[1] = v53;
+  v55 = I_fclamp(v52, -1.0, 1.0);
+  v56 = (float)(*(float *)&v55 * value) * _mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0];
+  v57 = I_fclamp(v53, -1.0, 1.0);
+  LODWORD(v58) = COERCE_UNSIGNED_INT((float)(*(float *)&v57 * value) * _mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0]) ^ _xmm;
+  v59 = I_fclamp(v54, -1.0, 1.0);
+  v60 = (float)(*(float *)&v59 * value) * _mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0];
+  v61 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RSTICK_Y);
+  v62 = *(float *)&v61;
+  ClientLookInversion = CL_Input_GetClientLookInversion(localClientNum);
+  v64 = v62 * *(float *)&ClientLookInversion;
+  v65 = CL_GamepadPhysicalAxisValue(localClientNum, GPAD_PHYSAXIS_RSTICK_X);
+  v66 = DVARFLT_cg_mlg_cam_smooth_factor;
+  v67 = _mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0];
+  v68 = (float)((float)(v64 * v67) * 57.295776) * v85;
+  keynuma = COERCE_UNSIGNED_INT((float)((float)(*(float *)&v65 * 57.295776) * v67) * v85) ^ _xmm;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v123);
-  __asm
-  {
-    vmovd   xmm0, dword ptr [r13+65E4h]
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, dword ptr [rbx+28h]; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm6, dword ptr [rsi+4Ch]
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm7, cs:__real@43b40000
-    vmovaps xmm15, [rsp+128h+var_D8]
-  }
-  _R11 = &v192;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm11, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vaddss  xmm2, xmm4, xmm8
-    vmovss  xmm2, xmm1, xmm2
-    vxorps  xmm9, xmm9, xmm9
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm0, xmm0, xmm7
-    vmulss  xmm1, xmm0, xmm11
-    vaddss  xmm10, xmm1, dword ptr [rsi+4Ch]
-    vmovss  xmm0, [rsp+128h+keynum]
-    vsubss  xmm0, xmm0, dword ptr [rsi+50h]
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmovss  xmm4, dword ptr [rsi+54h]
-    vmulss  xmm3, xmm4, cs:__real@bb360b61
-    vmulss  xmm0, xmm1, xmm7
-    vmulss  xmm2, xmm0, xmm11
-    vaddss  xmm5, xmm2, dword ptr [rsi+50h]
-    vmovss  dword ptr [rsi+10h], xmm12
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovss  dword ptr [rsi+14h], xmm13
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rsi+18h], xmm14
-    vmovaps xmm14, [rsp+128h+var_C8]
-    vaddss  xmm1, xmm3, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vroundss xmm2, xmm9, xmm1, 1
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rsi+1Ch], xmm10
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rsi+20h], xmm5
-    vmulss  xmm1, xmm0, xmm7
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmulss  xmm2, xmm1, xmm11
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vaddss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rsi+24h], xmm3
-    vmovss  dword ptr [rsi+4Ch], xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rsi+50h], xmm5
-    vmovss  dword ptr [rsi+54h], xmm3
-  }
+  Dvar_CheckFrontendServerThread(v66);
+  v69 = I_fclamp(_mm_cvtepi32_ps((__m128i)(unsigned int)LocalClientGlobals->frametime).m128_f32[0] * v66->current.value, 0.0, 1.0);
+  _XMM9 = 0i64;
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  v72 = (float)((float)((float)((float)((float)(v68 - this->m_lastInputAngles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&v69) + this->m_lastInputAngles.v[0];
+  __asm { vroundss xmm3, xmm9, xmm2, 1 }
+  v74 = this->m_lastInputAngles.v[2];
+  v75 = (float)((float)((float)((float)((float)(*(float *)&keynuma - this->m_lastInputAngles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&v69) + this->m_lastInputAngles.v[1];
+  this->m_updatedPos.v[0] = v56;
+  this->m_updatedPos.v[1] = v58;
+  this->m_updatedPos.v[2] = v60;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  this->m_updatedAngles.v[0] = v72;
+  this->m_updatedAngles.v[1] = v75;
+  v77 = (float)((float)((float)((float)(v74 * -0.0027777778) - *(float *)&_XMM2) * 360.0) * *(float *)&v69) + v74;
+  this->m_updatedAngles.v[2] = v77;
+  this->m_lastInputAngles.v[0] = v72;
+  this->m_lastInputAngles.v[1] = v75;
+  this->m_lastInputAngles.v[2] = v77;
 }
 
 /*
@@ -4117,93 +3334,59 @@ CgMLGCameraManager::HandleMLGSpectatorCameraInputs
 */
 void CgMLGCameraManager::HandleMLGSpectatorCameraInputs(CgMLGCameraManager *this, cg_t *cgameGlob, usercmd_s *cmd)
 {
+  __int128 v3; 
   characterInfo_t *CharacterInfo; 
+  CgMLGCameraManager *CameraManager; 
   CoDCasterCameraState v8; 
-  int v24; 
-  char v36; 
+  float v9; 
+  float v14; 
   int FocusedPlayer; 
-  char v39; 
+  char v16; 
   playerState_s *ps; 
   ClActiveClientMP *ClientMP; 
   vec3_t outOrg; 
+  __int128 v20; 
 
-  _RSI = cmd;
-  _RDI = cgameGlob;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 91, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 92, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
+  if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 92, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  CharacterInfo = CG_GetCharacterInfo(_RDI, _RDI->clientNum);
-  _RBP = CgMLGSpectator::GetCameraManager(_RDI->m_mlgSpectatorPtr);
-  v8 = _RBP->m_mlgCurrentCameraState->GetCameraState(_RBP->m_mlgCurrentCameraState);
+  CharacterInfo = CG_GetCharacterInfo(cgameGlob, cgameGlob->clientNum);
+  CameraManager = CgMLGSpectator::GetCameraManager(cgameGlob->m_mlgSpectatorPtr);
+  v8 = CameraManager->m_mlgCurrentCameraState->GetCameraState(CameraManager->m_mlgCurrentCameraState);
   if ( CharacterInfo->team == TEAM_SPECTATOR )
   {
     if ( v8 != SPECTATOR_ACTIVE )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+178C0h]
-        vmulss  xmm3, xmm0, cs:__real@3b360b61
-        vaddss  xmm1, xmm3, cs:__real@3f000000
-        vmovaps [rsp+98h+var_28], xmm10
-        vxorps  xmm10, xmm10, xmm10
-        vroundss xmm2, xmm10, xmm1, 1
-        vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, cs:__real@43b40000; value
-      }
-      _RSI->angles.v[0] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x14u);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+178C4h]
-        vmulss  xmm4, xmm0, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm10, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm0, xmm1, cs:__real@43b40000; value
-        vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-      }
-      v24 = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x14u);
-      __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-      _RSI->angles.v[1] = v24;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+178C8h]
-        vmulss  xmm5, xmm0, cs:__real@3b360b61
-        vaddss  xmm3, xmm5, cs:__real@3f000000
-        vroundss xmm4, xmm10, xmm3, 1
-        vsubss  xmm2, xmm5, xmm4
-        vmulss  xmm0, xmm2, cs:__real@43b40000; value
-      }
-      _RSI->angles.v[2] = MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x14u);
-      RefdefView_GetOrg(&_RDI->refdef.view, &outOrg);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+98h+outOrg]
-        vmovss  xmm1, dword ptr [rsp+98h+outOrg+4]
-        vmovss  dword ptr [rsi+0C0h], xmm0
-        vmovss  xmm0, dword ptr [rsp+98h+outOrg+8]
-        vmovss  dword ptr [rsi+0C8h], xmm0
-        vmovss  dword ptr [rsi+0C4h], xmm1
-        vcvttss2si ecx, dword ptr [rbp+20h]; val
-      }
-      v36 = I_clamp(_ECX, 60, 120);
-      __asm { vmovaps xmm10, [rsp+98h+var_28] }
-      _RSI->mlgSelectedAngle = v36;
+      v9 = cgameGlob->refdefViewAngles.v[0] * 0.0027777778;
+      v20 = v3;
+      _XMM10 = 0i64;
+      __asm { vroundss xmm2, xmm10, xmm1, 1 }
+      cmd->angles.v[0] = MSG_PackSignedFloat((float)(v9 - *(float *)&_XMM2) * 360.0, 180.0, 0x14u);
+      __asm { vroundss xmm3, xmm10, xmm2, 1 }
+      cmd->angles.v[1] = MSG_PackSignedFloat((float)((float)(cgameGlob->refdefViewAngles.v[1] * 0.0027777778) - *(float *)&_XMM3) * 360.0, 180.0, 0x14u);
+      __asm { vroundss xmm4, xmm10, xmm3, 1 }
+      cmd->angles.v[2] = MSG_PackSignedFloat((float)((float)(cgameGlob->refdefViewAngles.v[2] * 0.0027777778) - *(float *)&_XMM4) * 360.0, 180.0, 0x14u);
+      RefdefView_GetOrg(&cgameGlob->refdef.view, &outOrg);
+      v14 = outOrg.v[1];
+      cmd->vehOrgX = outOrg.v[0];
+      cmd->vehOrgZ = outOrg.v[2];
+      cmd->vehOrgY = v14;
+      cmd->mlgSelectedAngle = I_clamp((int)CameraManager->m_mlgCurrentCameraFoV, 60, 120);
     }
-    FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(_RBP, (const LocalClientNum_t)_RDI->localClientNum);
-    v39 = FocusedPlayer;
+    FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(CameraManager, (const LocalClientNum_t)cgameGlob->localClientNum);
+    v16 = FocusedPlayer;
     if ( (unsigned int)(FocusedPlayer + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "signed char __cdecl truncate_cast_impl<signed char,int>(int)", "signed", (char)FocusedPlayer, "signed", FocusedPlayer) )
       __debugbreak();
-    _RSI->mlgSelectedLoc[0] = v39;
-    _RSI->mlgSelectedLoc[1] = CgMLGCameraManager::GetMLGCameraType(_RBP, (const LocalClientNum_t)_RDI->localClientNum);
+    cmd->mlgSelectedLoc[0] = v16;
+    cmd->mlgSelectedLoc[1] = CgMLGCameraManager::GetMLGCameraType(CameraManager, (const LocalClientNum_t)cgameGlob->localClientNum);
   }
   else
   {
-    ps = _RDI->ps;
-    if ( ps && CgMLGSpectator::GetMLGSpectatorClientInfo(_RDI->m_mlgSpectatorPtr, ps->clientNum)->mlgMessageSent )
+    ps = cgameGlob->ps;
+    if ( ps && CgMLGSpectator::GetMLGSpectatorClientInfo(cgameGlob->m_mlgSpectatorPtr, ps->clientNum)->mlgMessageSent )
     {
-      ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)_RDI->localClientNum);
+      ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)cgameGlob->localClientNum);
       ClientMP->snap.ps.pm_flags.m_flags[0] |= 0x10000u;
     }
   }
@@ -4218,30 +3401,34 @@ void FreeCamActiveCameraState::HandleMovementsInternal(FreeCamActiveCameraState 
 {
   CgGlobalsMP *LocalClientGlobals; 
   ClActiveClientMP *ClientMP; 
+  float m_entryFoV; 
   unsigned int clviewangles_aab; 
-  bool v28; 
-  bool v29; 
-  bool v30; 
+  float v8; 
+  CgMLGCameraManager *m_cameraManager; 
+  CgMLGCameraManager *v10; 
+  vec3_t *p_m_updatedPos; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  CgMLGCameraManager *v18; 
+  CgMLGCameraManager *v19; 
+  float v20; 
+  double v21; 
   keyNum_t BoundKey; 
+  CgMLGCameraManager *v23; 
+  double FovDvarDefaultValue; 
   vec3_t outOrg; 
-  __int64 v67; 
+  __int64 v26; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
-  char v70; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v67 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RBX = this;
+  v26 = -2i64;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-  __asm { vmovss  xmm8, dword ptr [rbx+6Ch] }
+  m_entryFoV = this->m_entryFoV;
   if ( !ClientMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 264, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
   clviewangles_aab = ClientMP->clviewangles_aab;
@@ -4249,133 +3436,59 @@ void FreeCamActiveCameraState::HandleMovementsInternal(FreeCamActiveCameraState 
   LODWORD(angles.v[1]) = LODWORD(ClientMP->clViewangles.clViewangles.v[1]) ^ ((((_DWORD)ClientMP + 432) ^ clviewangles_aab) * ((((_DWORD)ClientMP + 432) ^ clviewangles_aab) + 2));
   LODWORD(angles.v[2]) = ((((_DWORD)ClientMP + 436) ^ clviewangles_aab) * ((((_DWORD)ClientMP + 436) ^ clviewangles_aab) + 2)) ^ LODWORD(ClientMP->clViewangles.clViewangles.v[2]);
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+angles]
-    vaddss  xmm3, xmm0, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rbx+1Ch], xmm3
-    vmovss  xmm1, dword ptr [rbp+57h+angles+4]
-    vaddss  xmm0, xmm1, dword ptr [rbx+20h]
-    vmovss  dword ptr [rbx+20h], xmm0
-    vmovss  xmm2, dword ptr [rbp+57h+angles+8]
-    vaddss  xmm1, xmm2, dword ptr [rbx+24h]
-    vmovss  dword ptr [rbx+24h], xmm1
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+14h], xmm3
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  dword ptr [rax+18h], xmm0
-    vmovss  xmm1, dword ptr [rbx+24h]
-    vmovss  dword ptr [rax+1Ch], xmm1
-  }
-  _RCX = _RBX->m_cameraManager;
-  _RCX->m_mlgTargetCameraAngles.v[0] = _RBX->m_updatedAngles.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  dword ptr [rcx+34h], xmm0
-    vmovss  xmm1, dword ptr [rbx+24h]
-    vmovss  dword ptr [rcx+38h], xmm1
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rbp+57h+angles], xmm0
-    vmovss  xmm1, dword ptr [rbx+20h]
-    vmovss  dword ptr [rbp+57h+angles+4], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+57h+angles+8], xmm0
-  }
+  v8 = angles.v[0] + this->m_updatedAngles.v[0];
+  this->m_updatedAngles.v[0] = v8;
+  this->m_updatedAngles.v[1] = angles.v[1] + this->m_updatedAngles.v[1];
+  this->m_updatedAngles.v[2] = angles.v[2] + this->m_updatedAngles.v[2];
+  m_cameraManager = this->m_cameraManager;
+  m_cameraManager->m_mlgCurrentCameraAngles.v[0] = v8;
+  m_cameraManager->m_mlgCurrentCameraAngles.v[1] = this->m_updatedAngles.v[1];
+  m_cameraManager->m_mlgCurrentCameraAngles.v[2] = this->m_updatedAngles.v[2];
+  v10 = this->m_cameraManager;
+  v10->m_mlgTargetCameraAngles.v[0] = this->m_updatedAngles.v[0];
+  v10->m_mlgTargetCameraAngles.v[1] = this->m_updatedAngles.v[1];
+  v10->m_mlgTargetCameraAngles.v[2] = this->m_updatedAngles.v[2];
+  *(_QWORD *)angles.v = *(_QWORD *)this->m_updatedAngles.v;
+  angles.v[2] = 0.0;
   AnglesToAxis(&angles, &axis);
-  _RDI = &_RBX->m_updatedPos;
-  v28 = &_RBX->m_updatedPos < &angles;
-  v29 = &_RBX->m_updatedPos <= &angles;
-  if ( &_RBX->m_updatedPos == &angles )
-  {
-    v30 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out");
-    v28 = 0;
-    v29 = !v30;
-    if ( v30 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmulss  xmm1, xmm3, dword ptr [rbp+57h+axis]
-    vmulss  xmm0, xmm4, dword ptr [rbp+57h+axis+0Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rbp+57h+axis+18h]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm7, xmm2, dword ptr [rbp+57h+outOrg]
-    vmovss  dword ptr [rbp+57h+outOrg], xmm7
-    vmulss  xmm1, xmm3, dword ptr [rbp+57h+axis+4]
-    vmulss  xmm0, xmm4, dword ptr [rbp+57h+axis+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rbp+57h+axis+1Ch]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm6, xmm2, dword ptr [rbp+57h+outOrg+4]
-    vmovss  dword ptr [rbp+57h+outOrg+4], xmm6
-    vmulss  xmm1, xmm3, dword ptr [rbp+57h+axis+8]
-    vmulss  xmm0, xmm4, dword ptr [rbp+57h+axis+14h]
-    vaddss  xmm3, xmm1, xmm0
-    vmulss  xmm2, xmm5, dword ptr [rbp+57h+axis+20h]
-    vaddss  xmm0, xmm3, xmm2
-    vaddss  xmm4, xmm0, dword ptr [rbp+57h+outOrg+8]
-    vmovss  dword ptr [rbp+57h+outOrg+8], xmm4
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+8], xmm7
-    vmovss  dword ptr [rax+0Ch], xmm6
-    vmovss  dword ptr [rax+10h], xmm4
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vmovss  dword ptr [rax+24h], xmm7
-    vmovss  dword ptr [rax+28h], xmm6
-    vmovss  dword ptr [rax+2Ch], xmm4
-    vaddss  xmm0, xmm8, dword ptr [rbx+28h]; val
-    vmovss  xmm1, cs:__real@42820000; min
-    vmovss  xmm2, cs:__real@42dc0000; max
-    vcomiss xmm0, xmm2
-  }
-  if ( !v29 )
-    goto LABEL_9;
-  __asm { vcomiss xmm0, xmm1 }
-  if ( v28 )
-LABEL_9:
-    _RBX->m_lastInputFoV = 0.0;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  dword ptr [rbx+6Ch], xmm0
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm { vmovss  dword ptr [rax+20h], xmm0 }
+  p_m_updatedPos = &this->m_updatedPos;
+  if ( &this->m_updatedPos == &angles && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    __debugbreak();
+  v12 = this->m_updatedPos.v[1];
+  v13 = p_m_updatedPos->v[0];
+  v14 = this->m_updatedPos.v[2];
+  outOrg.v[0] = (float)((float)((float)(p_m_updatedPos->v[0] * axis.m[0].v[0]) + (float)(v12 * axis.m[1].v[0])) + (float)(v14 * axis.m[2].v[0])) + outOrg.v[0];
+  v15 = outOrg.v[0];
+  outOrg.v[1] = (float)((float)((float)(v13 * axis.m[0].v[1]) + (float)(v12 * axis.m[1].v[1])) + (float)(v14 * axis.m[2].v[1])) + outOrg.v[1];
+  v16 = outOrg.v[1];
+  outOrg.v[2] = (float)((float)((float)(v13 * axis.m[0].v[2]) + (float)(v12 * axis.m[1].v[2])) + (float)(v14 * axis.m[2].v[2])) + outOrg.v[2];
+  v17 = outOrg.v[2];
+  v18 = this->m_cameraManager;
+  v18->m_mlgCurrentCameraPos.v[0] = outOrg.v[0];
+  v18->m_mlgCurrentCameraPos.v[1] = v16;
+  v18->m_mlgCurrentCameraPos.v[2] = v17;
+  v19 = this->m_cameraManager;
+  v19->m_mlgTargetCameraPos.v[0] = v15;
+  v19->m_mlgTargetCameraPos.v[1] = v16;
+  v19->m_mlgTargetCameraPos.v[2] = v17;
+  v20 = m_entryFoV + this->m_updatedFoV;
+  if ( v20 > 110.0 || v20 < 65.0 )
+    this->m_lastInputFoV = 0.0;
+  v21 = I_fclamp(v20, 65.0, 110.0);
+  this->m_entryFoV = *(float *)&v21;
+  this->m_cameraManager->m_mlgCurrentCameraFoV = *(float *)&v21;
   BoundKey = CL_Keys_GetBoundKey(localClientNum, STRUCT_POINTER|BYTE_VALUE, BIND_CODCASTER_PLAYERCARD, INVALID, 1);
   if ( CL_Keys_IsKeyDown(localClientNum, (unsigned __int8)BoundKey) )
   {
-    _RDI = _RBX->m_cameraManager;
-    *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-    __asm { vmovss  dword ptr [rdi+3Ch], xmm0 }
+    v23 = this->m_cameraManager;
+    FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+    v23->m_mlgTargetCameraFoV = *(float *)&FovDvarDefaultValue;
   }
   else
   {
-    _RAX = _RBX->m_cameraManager;
-    __asm { vmovss  dword ptr [rax+3Ch], xmm6 }
+    this->m_cameraManager->m_mlgTargetCameraFoV = *(float *)&v21;
   }
   memset(&outOrg, 0, sizeof(outOrg));
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -4519,39 +3632,31 @@ CgMLGCameraManager::RestoreMemorizedCameraPose
 */
 void CgMLGCameraManager::RestoreMemorizedCameraPose(CgMLGCameraManager *this)
 {
-  float v2; 
+  float v1; 
+  float fov; 
+  double v3; 
+  float v4; 
+  double v5; 
   float v6; 
-  float v8; 
 
   if ( this->m_mlgMemorizedFreeCamPose.hasBeenSet )
   {
-    __asm { vmovsd  xmm0, qword ptr [rcx+14040h] }
-    v2 = this->m_mlgMemorizedFreeCamPose.pos.v[2];
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rcx+14058h]
-      vmovsd  qword ptr [rcx+8], xmm0
-      vmovsd  xmm0, qword ptr [rcx+1404Ch]
-      vmovsd  qword ptr [rcx+14h], xmm0
-      vmovsd  xmm0, qword ptr [rcx+14040h]
-    }
-    this->m_mlgCurrentCameraPos.v[2] = v2;
-    v6 = this->m_mlgMemorizedFreeCamPose.angles.v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rcx+24h], xmm0
-      vmovsd  xmm0, qword ptr [rcx+1404Ch]
-    }
-    this->m_mlgCurrentCameraAngles.v[2] = v6;
+    v1 = this->m_mlgMemorizedFreeCamPose.pos.v[2];
+    fov = this->m_mlgMemorizedFreeCamPose.fov;
+    *(double *)this->m_mlgCurrentCameraPos.v = *(double *)this->m_mlgMemorizedFreeCamPose.pos.v;
+    *(double *)this->m_mlgCurrentCameraAngles.v = *(double *)this->m_mlgMemorizedFreeCamPose.angles.v;
+    v3 = *(double *)this->m_mlgMemorizedFreeCamPose.pos.v;
+    this->m_mlgCurrentCameraPos.v[2] = v1;
+    v4 = this->m_mlgMemorizedFreeCamPose.angles.v[2];
+    *(double *)this->m_mlgTargetCameraPos.v = v3;
+    v5 = *(double *)this->m_mlgMemorizedFreeCamPose.angles.v;
+    this->m_mlgCurrentCameraAngles.v[2] = v4;
     this->m_mlgTargetCameraPos.v[2] = this->m_mlgMemorizedFreeCamPose.pos.v[2];
-    v8 = this->m_mlgMemorizedFreeCamPose.angles.v[2];
-    __asm { vmovsd  qword ptr [rcx+30h], xmm0 }
-    this->m_mlgTargetCameraAngles.v[2] = v8;
-    __asm
-    {
-      vmovss  dword ptr [rcx+20h], xmm1
-      vmovss  dword ptr [rcx+3Ch], xmm1
-    }
+    v6 = this->m_mlgMemorizedFreeCamPose.angles.v[2];
+    *(double *)this->m_mlgTargetCameraAngles.v = v5;
+    this->m_mlgTargetCameraAngles.v[2] = v6;
+    this->m_mlgCurrentCameraFoV = fov;
+    this->m_mlgTargetCameraFoV = fov;
   }
 }
 
@@ -4580,10 +3685,9 @@ void CgMLGCameraManager::SetAerialCameraEnabled(CgMLGCameraManager *this, const 
 CgMLGCameraManager::SetAerialMaxHeight
 ==============
 */
-
-void __fastcall CgMLGCameraManager::SetAerialMaxHeight(CgMLGCameraManager *this, double maxHeight)
+void CgMLGCameraManager::SetAerialMaxHeight(CgMLGCameraManager *this, const float maxHeight)
 {
-  __asm { vmovss  dword ptr [rcx+14070h], xmm1 }
+  this->m_aerialMaxHeight = maxHeight;
 }
 
 /*
@@ -4591,10 +3695,9 @@ void __fastcall CgMLGCameraManager::SetAerialMaxHeight(CgMLGCameraManager *this,
 CgMLGCameraManager::SetAerialMinHeight
 ==============
 */
-
-void __fastcall CgMLGCameraManager::SetAerialMinHeight(CgMLGCameraManager *this, double minHeight)
+void CgMLGCameraManager::SetAerialMinHeight(CgMLGCameraManager *this, const float minHeight)
 {
-  __asm { vmovss  dword ptr [rcx+1406Ch], xmm1 }
+  this->m_aerialMinHeight = minHeight;
 }
 
 /*
@@ -4646,10 +3749,9 @@ void CgMLGCameraManager::SetMLGCurrentCameraAngles(CgMLGCameraManager *this, con
 CgMLGCameraManager::SetMLGCurrentCameraFoV
 ==============
 */
-
-void __fastcall CgMLGCameraManager::SetMLGCurrentCameraFoV(CgMLGCameraManager *this, double fov)
+void CgMLGCameraManager::SetMLGCurrentCameraFoV(CgMLGCameraManager *this, const float fov)
 {
-  __asm { vmovss  dword ptr [rcx+20h], xmm1 }
+  this->m_mlgCurrentCameraFoV = fov;
 }
 
 /*
@@ -4669,33 +3771,29 @@ CgMLGCameraManager::SetMLGCurrentCameraState
 */
 void CgMLGCameraManager::SetMLGCurrentCameraState(CgMLGCameraManager *this, const CoDCasterCameraState *state)
 {
-  float v5; 
-  float v7; 
+  float v4; 
+  double v5; 
+  float v6; 
+  int v7; 
   int v8; 
-  int v9; 
 
-  _RBX = this;
   if ( *state >= CAMERA_STATE_COUNT )
   {
-    v9 = 6;
-    v8 = *(unsigned __int8 *)state;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 408, ASSERT_TYPE_ASSERT, "(unsigned)( state ) < (unsigned)( CoDCasterCameraState::CAMERA_STATE_COUNT )", "state doesn't index CoDCasterCameraState::CAMERA_STATE_COUNT\n\t%i not in [0, %i)", v8, v9) )
+    v8 = 6;
+    v7 = *(unsigned __int8 *)state;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 408, ASSERT_TYPE_ASSERT, "(unsigned)( state ) < (unsigned)( CoDCasterCameraState::CAMERA_STATE_COUNT )", "state doesn't index CoDCasterCameraState::CAMERA_STATE_COUNT\n\t%i not in [0, %i)", v7, v8) )
       __debugbreak();
   }
-  if ( *state != (unsigned __int8)_RBX->m_mlgCurrentCameraState->GetCameraState(_RBX->m_mlgCurrentCameraState) )
+  if ( *state != (unsigned __int8)this->m_mlgCurrentCameraState->GetCameraState(this->m_mlgCurrentCameraState) )
   {
-    __asm { vmovsd  xmm0, qword ptr [rbx+14h] }
-    v5 = _RBX->m_mlgCurrentCameraAngles.v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rbx+30h], xmm0
-      vmovsd  xmm0, qword ptr [rbx+8]
-    }
-    _RBX->m_mlgTargetCameraAngles.v[2] = v5;
-    v7 = _RBX->m_mlgCurrentCameraPos.v[2];
-    __asm { vmovsd  qword ptr [rbx+24h], xmm0 }
-    _RBX->m_mlgTargetCameraPos.v[2] = v7;
-    _RBX->m_mlgCurrentCameraState = CgMLGCameraManager::GetCameraState(_RBX, state);
+    v4 = this->m_mlgCurrentCameraAngles.v[2];
+    *(double *)this->m_mlgTargetCameraAngles.v = *(double *)this->m_mlgCurrentCameraAngles.v;
+    v5 = *(double *)this->m_mlgCurrentCameraPos.v;
+    this->m_mlgTargetCameraAngles.v[2] = v4;
+    v6 = this->m_mlgCurrentCameraPos.v[2];
+    *(double *)this->m_mlgTargetCameraPos.v = v5;
+    this->m_mlgTargetCameraPos.v[2] = v6;
+    this->m_mlgCurrentCameraState = CgMLGCameraManager::GetCameraState(this, state);
   }
 }
 
@@ -4805,10 +3903,9 @@ void CgMLGCameraManager::SetMLGTargetCameraAngles(CgMLGCameraManager *this, cons
 CgMLGCameraManager::SetMLGTargetCameraFoV
 ==============
 */
-
-void __fastcall CgMLGCameraManager::SetMLGTargetCameraFoV(CgMLGCameraManager *this, double fov)
+void CgMLGCameraManager::SetMLGTargetCameraFoV(CgMLGCameraManager *this, const float fov)
 {
-  __asm { vmovss  dword ptr [rcx+3Ch], xmm1 }
+  this->m_mlgTargetCameraFoV = fov;
 }
 
 /*
@@ -4862,27 +3959,31 @@ AerialCamActiveCameraState::StartVFXInternal
 */
 void AerialCamActiveCameraState::StartVFXInternal(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum, const int clientNum)
 {
-  __int64 v6; 
-  ParticleSystem *v8; 
+  __int64 v3; 
+  ParticleSystem *v5; 
+  __int64 v7; 
+  ParticleSystemHandle v8; 
+  unsigned int v9; 
   __int64 v10; 
-  ParticleSystemHandle v11; 
-  unsigned int v12; 
-  __int64 v13; 
-  ParticleSystem *v14; 
-  __int64 v15; 
+  ParticleSystem *v11; 
+  __int64 v12; 
   ParticleManager *ParticleManager; 
-  unsigned int v18; 
-  unsigned int v19; 
-  const DObj *v20; 
+  centity_t *Entity; 
+  unsigned int v15; 
+  unsigned int v16; 
+  const DObj *v17; 
   scr_string_t j_base; 
+  DObjAnimMat *LocalBoneMatrix; 
+  float v20; 
   const characterInfo_t *CharacterInfo; 
   unsigned int boneIndex; 
-  ParticleManager *v44; 
-  ParticleSystemHandle v49; 
-  __int64 v50; 
-  __int64 v51; 
+  __m128 v; 
+  ParticleManager *v27; 
+  ParticleSystemHandle v32; 
+  __int64 v33; 
+  __int64 v34; 
   team_t team; 
-  unsigned __int8 v53; 
+  unsigned __int8 v36; 
   __int64 spawnTimeMsec; 
   int spawnTimeMseca; 
   ParticleSystemFlags particleSystemFlags; 
@@ -4890,39 +3991,39 @@ void AerialCamActiveCameraState::StartVFXInternal(AerialCamActiveCameraState *th
   unsigned __int8 inOutIndex[8]; 
   int modelIndex; 
   cg_t *cgGlobals; 
-  __int64 v64; 
+  __int64 v44; 
   vec3_t angles; 
   float4 emitterOrientationQuat; 
   vec4_t out; 
   float4 emitterPos; 
   tmat33_t<vec3_t> axis; 
 
-  v6 = clientNum;
-  v8 = NULL;
-  v10 = (__int64)(int)localClientNum << 12;
-  v11 = this->m_arrowFx[clientNum];
-  v64 = v10;
-  v12 = 0;
-  if ( g_particleSystemsGeneration[v10 + (v11 & 0xFFF)].__all32 == v11 )
-    v12 = v11 & 0xFFF;
-  v13 = v12;
-  v14 = NULL;
-  v15 = v10 + v13;
-  if ( g_particleSystems[0][v15] >= (ParticleSystem *)0x1000 )
-    v14 = g_particleSystems[0][v15];
-  if ( v14 && v11 )
+  v3 = clientNum;
+  v5 = NULL;
+  v7 = (__int64)(int)localClientNum << 12;
+  v8 = this->m_arrowFx[clientNum];
+  v44 = v7;
+  v9 = 0;
+  if ( g_particleSystemsGeneration[v7 + (v8 & 0xFFF)].__all32 == v8 )
+    v9 = v8 & 0xFFF;
+  v10 = v9;
+  v11 = NULL;
+  v12 = v7 + v10;
+  if ( g_particleSystems[0][v12] >= (ParticleSystem *)0x1000 )
+    v11 = g_particleSystems[0][v12];
+  if ( v11 && v8 )
   {
     ParticleManager = ParticleManager::GetParticleManager(localClientNum);
-    ParticleManager::StopSystem(ParticleManager, this->m_arrowFx[v6]);
-    this->m_arrowFx[v6] = PARTICLE_SYSTEM_INVALID_HANDLE;
+    ParticleManager::StopSystem(ParticleManager, this->m_arrowFx[v3]);
+    this->m_arrowFx[v3] = PARTICLE_SYSTEM_INVALID_HANDLE;
   }
   cgGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !cgGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 1751, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  _RSI = CG_GetEntity(localClientNum, v6);
-  if ( _RSI )
+  Entity = CG_GetEntity(localClientNum, v3);
+  if ( Entity )
   {
-    if ( (unsigned int)v6 > 0x9E4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v6) )
+    if ( (unsigned int)v3 > 0x9E4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v3) )
       __debugbreak();
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
@@ -4931,139 +4032,97 @@ void AerialCamActiveCameraState::StartVFXInternal(AerialCamActiveCameraState *th
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", spawnTimeMsec, particleSystemFlags) )
         __debugbreak();
     }
-    v18 = v6 + 2533 * localClientNum;
-    if ( v18 >= 0x13CA )
+    v15 = v3 + 2533 * localClientNum;
+    if ( v15 >= 0x13CA )
     {
-      LODWORD(particleSystemFlags) = v6 + 2533 * localClientNum;
+      LODWORD(particleSystemFlags) = v3 + 2533 * localClientNum;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", particleSystemFlags) )
         __debugbreak();
     }
-    v19 = clientObjMap[v18];
-    if ( v19 )
+    v16 = clientObjMap[v15];
+    if ( v16 )
     {
-      if ( v19 >= (unsigned int)s_objCount )
+      if ( v16 >= (unsigned int)s_objCount )
       {
-        LODWORD(particleSystemFlags) = v19;
+        LODWORD(particleSystemFlags) = v16;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", particleSystemFlags) )
           __debugbreak();
       }
-      v20 = (const DObj *)s_objBuf[v19];
-      if ( v20 )
+      v17 = (const DObj *)s_objBuf[v16];
+      if ( v17 )
       {
         j_base = scr_const.j_base;
         if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
           __debugbreak();
-        __asm
-        {
-          vmovaps [rsp+150h+var_40], xmm6
-          vmovaps [rsp+150h+var_50], xmm7
-          vmovaps [rsp+150h+var_60], xmm8
-        }
         inOutIndex[0] = -2;
-        if ( DObjGetBoneIndexInternal_75(v20, j_base, inOutIndex, &modelIndex) && (_RAX = CG_DObjGetLocalBoneMatrix(&_RSI->pose, v20, inOutIndex[0])) != NULL )
-        {
-          _RCX = g_activeRefDef;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax+14h]
-            vmovss  xmm0, dword ptr [rcx+7Ch]
-            vaddss  xmm6, xmm0, dword ptr [rax+10h]
-            vmovss  xmm0, dword ptr [rax+18h]
-            vaddss  xmm8, xmm0, dword ptr [rcx+84h]
-            vaddss  xmm7, xmm1, dword ptr [rcx+80h]
-          }
-        }
+        if ( DObjGetBoneIndexInternal_75(v17, j_base, inOutIndex, &modelIndex) && (LocalBoneMatrix = CG_DObjGetLocalBoneMatrix(&Entity->pose, v17, inOutIndex[0])) != NULL )
+          v20 = g_activeRefDef->viewOffset.v[0] + LocalBoneMatrix->trans.v[0];
         else
+          v20 = 0.0;
+        angles = Entity->pose.angles;
+        modelIndex = SLODWORD(angles.v[0]);
+        if ( _fdtest((float *)&modelIndex) != 2 )
         {
-          __asm
+          modelIndex = SLODWORD(angles.v[1]);
+          if ( _fdtest((float *)&modelIndex) != 2 )
           {
-            vxorps  xmm6, xmm6, xmm6
-            vxorps  xmm7, xmm7, xmm7
-            vxorps  xmm8, xmm8, xmm8
-          }
-        }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi+48h]
-          vmovss  dword ptr [rbp+50h+angles], xmm2
-          vmovss  xmm0, dword ptr [rsi+4Ch]
-          vmovss  dword ptr [rbp+50h+angles+4], xmm0
-          vmovss  xmm1, dword ptr [rsi+50h]
-          vmovss  dword ptr [rbp+50h+angles+8], xmm1
-          vmovss  [rsp+150h+modelIndex], xmm2
-        }
-        if ( _fdtest((float *)&modelIndex) == 2 )
-          goto LABEL_47;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+50h+angles+4]
-          vmovss  [rsp+150h+modelIndex], xmm0
-        }
-        if ( _fdtest((float *)&modelIndex) == 2 )
-          goto LABEL_47;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+50h+angles+8]
-          vmovss  [rsp+150h+modelIndex], xmm0
-        }
-        if ( _fdtest((float *)&modelIndex) == 2 )
-          goto LABEL_47;
-        AnglesToAxis(&angles, &axis);
-        AxisToQuat(&axis, &out);
-        CharacterInfo = CG_GetCharacterInfo(cgGlobals, v6);
-        boneIndex = DObjGetNextBoneIndex(v20, scr_const.tag_sync, 0xFEu);
-        emitterOrientationQuat.v.m128_i32[3] = 0;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp-70h]
-          vmovss  xmm0, xmm0, xmm6
-          vinsertps xmm0, xmm0, xmm7, 10h
-          vinsertps xmm0, xmm0, xmm8, 20h ; ' '
-          vmovups xmmword ptr [rbp-70h], xmm0
-          vmovups xmmword ptr [rbp+50h+emitterPos.v], xmm0
-        }
-        v44 = ParticleManager::GetParticleManager(localClientNum);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+50h+out]
-          vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+4], 50h+var_40
-          vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+8], 20h
-          vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+0Ch], 30h
-        }
-        dobjHandle = v20->entnum - 1;
-        spawnTimeMseca = cgGlobals->time;
-        __asm { vmovups xmmword ptr [rbp+50h+emitterOrientationQuat.v], xmm0 }
-        v49 = ParticleManager::AddSystem(v44, localClientNum, cgMedia.fxMlgArrow.m_particleSystemDef, &emitterPos, &emitterOrientationQuat, spawnTimeMseca, (ParticleSystemFlags)0x1000000000i64, dobjHandle, boneIndex, NULL, NULL, NULL);
-        v50 = v49 & 0xFFF;
-        if ( g_particleSystemsGeneration[v64 + v50].__all32 != v49 )
-          v50 = 0i64;
-        v51 = v64 + v50;
-        if ( g_particleSystems[0][v51] >= (ParticleSystem *)0x1000 )
-          v8 = g_particleSystems[0][v51];
-        if ( v8 )
-        {
-          team = CharacterInfo->team;
-          if ( team == TEAM_TWO )
-          {
-            v53 = 1;
-LABEL_45:
-            ParticleSystem::SetGlobalTintIndex(v8, v53);
-            goto LABEL_46;
-          }
-          if ( team == TEAM_ONE )
-          {
-            v53 = 2;
-            goto LABEL_45;
-          }
-        }
+            modelIndex = SLODWORD(angles.v[2]);
+            if ( _fdtest((float *)&modelIndex) != 2 )
+            {
+              AnglesToAxis(&angles, &axis);
+              AxisToQuat(&axis, &out);
+              CharacterInfo = CG_GetCharacterInfo(cgGlobals, v3);
+              boneIndex = DObjGetNextBoneIndex(v17, scr_const.tag_sync, 0xFEu);
+              emitterOrientationQuat.v.m128_i32[3] = 0;
+              v = emitterOrientationQuat.v;
+              v.m128_f32[0] = v20;
+              _XMM0 = v;
+              __asm
+              {
+                vinsertps xmm0, xmm0, xmm7, 10h
+                vinsertps xmm0, xmm0, xmm8, 20h ; ' '
+              }
+              emitterOrientationQuat.v = _XMM0;
+              emitterPos.v = _XMM0;
+              v27 = ParticleManager::GetParticleManager(localClientNum);
+              _XMM0 = LODWORD(out.v[0]);
+              __asm
+              {
+                vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+4], 50h+var_40
+                vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+8], 20h
+                vinsertps xmm0, xmm0, dword ptr [rbp+50h+out+0Ch], 30h
+              }
+              dobjHandle = v17->entnum - 1;
+              spawnTimeMseca = cgGlobals->time;
+              emitterOrientationQuat.v = _XMM0;
+              v32 = ParticleManager::AddSystem(v27, localClientNum, cgMedia.fxMlgArrow.m_particleSystemDef, &emitterPos, &emitterOrientationQuat, spawnTimeMseca, (ParticleSystemFlags)0x1000000000i64, dobjHandle, boneIndex, NULL, NULL, NULL);
+              v33 = v32 & 0xFFF;
+              if ( g_particleSystemsGeneration[v44 + v33].__all32 != v32 )
+                v33 = 0i64;
+              v34 = v44 + v33;
+              if ( g_particleSystems[0][v34] >= (ParticleSystem *)0x1000 )
+                v5 = g_particleSystems[0][v34];
+              if ( !v5 )
+                goto LABEL_46;
+              team = CharacterInfo->team;
+              if ( team == TEAM_TWO )
+              {
+                v36 = 1;
+              }
+              else
+              {
+                if ( team != TEAM_ONE )
+                {
 LABEL_46:
-        this->m_arrowFx[v6] = v49;
-LABEL_47:
-        __asm
-        {
-          vmovaps xmm7, [rsp+150h+var_50]
-          vmovaps xmm6, [rsp+150h+var_40]
-          vmovaps xmm8, [rsp+150h+var_60]
+                  this->m_arrowFx[v3] = v32;
+                  return;
+                }
+                v36 = 2;
+              }
+              ParticleSystem::SetGlobalTintIndex(v5, v36);
+              goto LABEL_46;
+            }
+          }
         }
       }
     }
@@ -5096,43 +4155,30 @@ SpectatorEnteringCameraState::TrySpectateClient
 */
 char SpectatorEnteringCameraState::TrySpectateClient(SpectatorEnteringCameraState *this, const LocalClientNum_t localClientNum, const int followedClient, vec3_t *outTargetPosition, vec3_t *outTargetAngles, float *outTargetFoV)
 {
+  CgGlobalsMP *LocalClientGlobals; 
+  float v10; 
+  float viewHeightCurrent; 
+  float v12; 
+  float v13; 
+  float v14; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
 
-  _R14 = outTargetAngles;
-  _RBP = outTargetPosition;
-  _R15 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  if ( !CG_MLG_TryGetClientPose(localClientNum, followedClient, _RBP, outTargetAngles, outTargetFoV) )
+  LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+  if ( !CG_MLG_TryGetClientPose(localClientNum, followedClient, outTargetPosition, outTargetAngles, outTargetFoV) )
     return 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+98h+angles], xmm1
-    vmovss  dword ptr [rsp+98h+angles+4], xmm0
-    vmovss  dword ptr [rsp+98h+angles+8], xmm1
-  }
+  v10 = outTargetAngles->v[1];
+  angles.v[0] = 0.0;
+  angles.v[1] = v10;
+  angles.v[2] = 0.0;
   AnglesToAxis(&angles, &axis);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [r15+1F0h]
-    vmovss  xmm4, cs:__real@41200000
-    vmulss  xmm2, xmm5, dword ptr [rsp+98h+axis+18h]
-    vmulss  xmm0, xmm4, dword ptr [rsp+98h+axis]
-    vaddss  xmm2, xmm2, xmm0
-    vaddss  xmm3, xmm2, dword ptr [rbp+0]
-    vmulss  xmm2, xmm4, dword ptr [rsp+98h+axis+4]
-    vmovss  dword ptr [rbp+0], xmm3
-    vmulss  xmm3, xmm5, dword ptr [rsp+98h+axis+1Ch]
-    vaddss  xmm0, xmm3, xmm2
-    vaddss  xmm3, xmm0, dword ptr [rbp+4]
-    vmulss  xmm2, xmm4, dword ptr [rsp+98h+axis+8]
-    vmovss  dword ptr [rbp+4], xmm3
-    vmulss  xmm3, xmm5, dword ptr [rsp+98h+axis+20h]
-    vaddss  xmm0, xmm3, xmm2
-    vaddss  xmm3, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rbp+8], xmm3
-  }
+  viewHeightCurrent = LocalClientGlobals->predictedPlayerState.viewHeightCurrent;
+  v12 = 10.0 * axis.m[0].v[1];
+  outTargetPosition->v[0] = (float)((float)(viewHeightCurrent * axis.m[2].v[0]) + (float)(10.0 * axis.m[0].v[0])) + outTargetPosition->v[0];
+  v13 = (float)((float)(viewHeightCurrent * axis.m[2].v[1]) + v12) + outTargetPosition->v[1];
+  v14 = 10.0 * axis.m[0].v[2];
+  outTargetPosition->v[1] = v13;
+  outTargetPosition->v[2] = (float)((float)(viewHeightCurrent * axis.m[2].v[2]) + v14) + outTargetPosition->v[2];
   return 1;
 }
 
@@ -5144,90 +4190,69 @@ AerialCamActiveCameraState::UpdateGroundPosition
 void AerialCamActiveCameraState::UpdateGroundPosition(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum, const CgGlobalsMP *const cgameGlob)
 {
   int FocusedPlayer; 
+  bool v7; 
   bool v8; 
   bool v9; 
-  bool v10; 
-  char v11; 
+  char v10; 
+  int v11; 
   int v12; 
-  int v13; 
   centity_t *ClientEntity; 
-  bool v15; 
+  bool v14; 
   CgMLGSpectator *MLGSpectator; 
+  float v16; 
+  float v17; 
   float outHeight; 
   vec3_t outPosition; 
 
-  _RDI = this;
   FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
-  v10 = __OFSUB__(FocusedPlayer, -1);
-  v8 = FocusedPlayer == -1;
-  v9 = FocusedPlayer + 1 < 0;
-  LOBYTE(FocusedPlayer) = _RDI->m_lastLockStatus;
-  v11 = !(v9 ^ v10 | v8);
-  _RDI->m_lastLockStatus = v11;
-  if ( (_BYTE)FocusedPlayer != v11 )
+  v9 = __OFSUB__(FocusedPlayer, -1);
+  v7 = FocusedPlayer == -1;
+  v8 = FocusedPlayer + 1 < 0;
+  LOBYTE(FocusedPlayer) = this->m_lastLockStatus;
+  v10 = !(v8 ^ v9 | v7);
+  this->m_lastLockStatus = v10;
+  if ( (_BYTE)FocusedPlayer != v10 )
   {
-    if ( v9 ^ v10 | v8 )
+    if ( v8 ^ v9 | v7 )
       goto LABEL_16;
-    *(_QWORD *)_RDI->m_currentOffset.v = 0i64;
-    _RDI->m_elapsedTransitionTime = 0.0;
+    *(_QWORD *)this->m_currentOffset.v = 0i64;
+    this->m_elapsedTransitionTime = 0.0;
   }
-  if ( !(v9 ^ v10 | v8) )
+  if ( !(v8 ^ v9 | v7) )
   {
-    v12 = CgMLGCameraManager::GetFocusedPlayer(_RDI->m_cameraManager, localClientNum);
-    _RDI->m_focusOnBarycenter = 0;
-    v13 = v12;
-    if ( v12 != cgameGlob->clientNum )
+    v11 = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
+    this->m_focusOnBarycenter = 0;
+    v12 = v11;
+    if ( v11 != cgameGlob->clientNum )
     {
-      if ( v12 != -1 )
+      if ( v11 != -1 )
       {
-        ClientEntity = CG_MLG_GetClientEntity(localClientNum, v12);
-        if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v15 = _RDI->m_lastFollowedClientNum != v13, CG_GetPoseOrigin(&ClientEntity->pose, &_RDI->m_groundPosition), v15) )
+        ClientEntity = CG_MLG_GetClientEntity(localClientNum, v11);
+        if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v14 = this->m_lastFollowedClientNum != v12, CG_GetPoseOrigin(&ClientEntity->pose, &this->m_groundPosition), v14) || (MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum), !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v12)) && (this->m_currentOffset.v[0] != 0.0 || this->m_currentOffset.v[1] != 0.0) )
         {
-          *(_QWORD *)_RDI->m_currentOffset.v = 0i64;
-          _RDI->m_elapsedTransitionTime = 0.0;
-        }
-        else
-        {
-          MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
-          if ( !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v13) )
-          {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vucomiss xmm0, dword ptr [rdi+28h]
-              vucomiss xmm0, dword ptr [rdi+2Ch]
-            }
-          }
+          *(_QWORD *)this->m_currentOffset.v = 0i64;
+          this->m_elapsedTransitionTime = 0.0;
         }
       }
-      _RDI->m_lastFollowedClientNum = v13;
+      this->m_lastFollowedClientNum = v12;
     }
     return;
   }
 LABEL_16:
-  if ( _RDI->m_focusOnBarycenter )
+  if ( this->m_focusOnBarycenter )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+58h+outPosition], xmm0
-      vmovss  dword ptr [rsp+58h+outPosition+4], xmm0
-      vmovss  dword ptr [rsp+58h+outPosition+8], xmm0
-      vmovss  [rsp+58h+outHeight], xmm0
-    }
+    outPosition.v[0] = 0.0;
+    outPosition.v[1] = 0.0;
+    outPosition.v[2] = 0.0;
+    outHeight = 0.0;
     if ( CG_GetPlayersBarycenter(localClientNum, &outPosition, &outHeight) )
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+58h+outHeight]
-        vmovss  xmm1, dword ptr [rsp+58h+outPosition]
-        vmovss  dword ptr [rdi+30h], xmm0
-        vmovss  xmm0, dword ptr [rsp+58h+outPosition+4]
-        vmovss  dword ptr [rdi+40h], xmm1
-        vmovss  xmm1, dword ptr [rsp+58h+outPosition+8]
-        vmovss  dword ptr [rdi+48h], xmm1
-        vmovss  dword ptr [rdi+44h], xmm0
-      }
+      v16 = outPosition.v[0];
+      this->m_currentOffset.v[2] = outHeight;
+      v17 = outPosition.v[1];
+      this->m_groundPosition.v[0] = v16;
+      this->m_groundPosition.v[2] = outPosition.v[2];
+      this->m_groundPosition.v[1] = v17;
     }
   }
 }
@@ -5241,48 +4266,44 @@ CameraStateInterface *CgMLGCameraManager::UpdateMLGCameraState(CgMLGCameraManage
 {
   CameraStateInterface *m_mlgCurrentCameraState; 
   CameraStateInterface *v8; 
-  float v10; 
-  float v12; 
-  CameraStateInterface *v13; 
+  float v9; 
+  double v10; 
+  float v11; 
+  CameraStateInterface *v12; 
+  int v13; 
   int v14; 
-  int v15; 
 
-  _RBX = this;
   m_mlgCurrentCameraState = this->m_mlgCurrentCameraState;
   if ( m_mlgCurrentCameraState && *state == (unsigned __int8)m_mlgCurrentCameraState->GetCameraState(m_mlgCurrentCameraState) )
-    return _RBX->m_mlgCurrentCameraState;
-  v8 = _RBX->m_mlgCurrentCameraState;
+    return this->m_mlgCurrentCameraState;
+  v8 = this->m_mlgCurrentCameraState;
   if ( v8 )
     v8->ExitState(v8, localClientNum);
   if ( *state >= CAMERA_STATE_COUNT )
   {
-    v15 = 6;
-    v14 = *(unsigned __int8 *)state;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 408, ASSERT_TYPE_ASSERT, "(unsigned)( state ) < (unsigned)( CoDCasterCameraState::CAMERA_STATE_COUNT )", "state doesn't index CoDCasterCameraState::CAMERA_STATE_COUNT\n\t%i not in [0, %i)", v14, v15) )
+    v14 = 6;
+    v13 = *(unsigned __int8 *)state;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_mlg_spectator_cameras.cpp", 408, ASSERT_TYPE_ASSERT, "(unsigned)( state ) < (unsigned)( CoDCasterCameraState::CAMERA_STATE_COUNT )", "state doesn't index CoDCasterCameraState::CAMERA_STATE_COUNT\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
-  if ( *state != (unsigned __int8)_RBX->m_mlgCurrentCameraState->GetCameraState(_RBX->m_mlgCurrentCameraState) )
+  if ( *state != (unsigned __int8)this->m_mlgCurrentCameraState->GetCameraState(this->m_mlgCurrentCameraState) )
   {
-    __asm { vmovsd  xmm0, qword ptr [rbx+14h] }
-    v10 = _RBX->m_mlgCurrentCameraAngles.v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rbx+30h], xmm0
-      vmovsd  xmm0, qword ptr [rbx+8]
-    }
-    _RBX->m_mlgTargetCameraAngles.v[2] = v10;
-    v12 = _RBX->m_mlgCurrentCameraPos.v[2];
-    __asm { vmovsd  qword ptr [rbx+24h], xmm0 }
-    _RBX->m_mlgTargetCameraPos.v[2] = v12;
-    _RBX->m_mlgCurrentCameraState = CgMLGCameraManager::GetCameraState(_RBX, state);
+    v9 = this->m_mlgCurrentCameraAngles.v[2];
+    *(double *)this->m_mlgTargetCameraAngles.v = *(double *)this->m_mlgCurrentCameraAngles.v;
+    v10 = *(double *)this->m_mlgCurrentCameraPos.v;
+    this->m_mlgTargetCameraAngles.v[2] = v9;
+    v11 = this->m_mlgCurrentCameraPos.v[2];
+    *(double *)this->m_mlgTargetCameraPos.v = v10;
+    this->m_mlgTargetCameraPos.v[2] = v11;
+    this->m_mlgCurrentCameraState = CgMLGCameraManager::GetCameraState(this, state);
   }
-  v13 = _RBX->m_mlgCurrentCameraState;
-  if ( v13 )
+  v12 = this->m_mlgCurrentCameraState;
+  if ( v12 )
   {
-    v13->EnterState(v13, localClientNum);
-    return _RBX->m_mlgCurrentCameraState;
+    v12->EnterState(v12, localClientNum);
+    return this->m_mlgCurrentCameraState;
   }
-  return v13;
+  return v12;
 }
 
 /*
@@ -5292,295 +4313,130 @@ AerialCamActiveCameraState::UpdatePositionInternal
 */
 void AerialCamActiveCameraState::UpdatePositionInternal(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum)
 {
-  char v49; 
+  CgMLGCameraManager *m_cameraManager; 
+  __int64 v6; 
+  __m128 v7; 
+  float m_mlgCurrentCameraFoV; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float m_elapsedTransitionTime; 
+  float m_currentTransitionDuration; 
+  double TransitionDuration; 
+  double v18; 
+  float v19; 
+  float v23; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   CgGlobalsMP *LocalClientGlobals; 
-  const dvar_t *v100; 
-  const dvar_t *v108; 
-  _BYTE v142[32]; 
-  __int64 v150; 
-  __int64 v152; 
-  float v154; 
-  int v156; 
-  char v157; 
-  void *retaddr; 
+  const dvar_t *v30; 
+  CgGlobalsMP *v31; 
+  double v32; 
+  const dvar_t *v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  double v37; 
+  CgMLGCameraManager *v38; 
+  CgMLGCameraManager *v39; 
+  float m_mlgTargetCameraFoV; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  vec3_t m_mlgTargetCameraAngles; 
+  vec3_t m_mlgCurrentCameraAngles; 
 
-  _RAX = &retaddr;
-  __asm
+  m_cameraManager = this->m_cameraManager;
+  _XMM9 = 0i64;
+  v6 = *(_QWORD *)m_cameraManager->m_mlgCurrentCameraPos.v;
+  v7 = (__m128)*(unsigned __int64 *)m_cameraManager->m_mlgTargetCameraPos.v;
+  m_mlgCurrentCameraFoV = m_cameraManager->m_mlgCurrentCameraFoV;
+  m_mlgCurrentCameraAngles = m_cameraManager->m_mlgCurrentCameraAngles;
+  m_mlgTargetCameraAngles = m_cameraManager->m_mlgTargetCameraAngles;
+  v9 = m_cameraManager->m_mlgCurrentCameraPos.v[2];
+  m_mlgTargetCameraFoV = m_cameraManager->m_mlgTargetCameraFoV;
+  v10 = m_cameraManager->m_mlgTargetCameraPos.v[2];
+  LODWORD(v11) = HIDWORD(*(_QWORD *)m_cameraManager->m_mlgTargetCameraPos.v);
+  v12 = *((float *)&v6 + 1);
+  v13 = (float)((float)((float)(v11 - v12) * (float)(v11 - v12)) + (float)((float)(v7.m128_f32[0] - *(float *)&v6) * (float)(v7.m128_f32[0] - *(float *)&v6))) + (float)((float)(v10 - v9) * (float)(v10 - v9));
+  v41 = m_mlgCurrentCameraFoV;
+  v42 = v11;
+  v43 = v10;
+  if ( *(float *)&v6 == 0.0 && *((float *)&v6 + 1) == 0.0 && v9 == 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
+    v9 = m_cameraManager->m_mlgTargetCameraPos.v[2];
+    LODWORD(v6) = *(_QWORD *)m_cameraManager->m_mlgTargetCameraPos.v;
+    LODWORD(v12) = _mm_shuffle_ps(v7, v7, 85).m128_u32[0];
   }
-  _RBX = this;
-  _RCX = this->m_cameraManager;
-  __asm
+  if ( v13 < 1.0 || (m_elapsedTransitionTime = this->m_elapsedTransitionTime, m_currentTransitionDuration = this->m_currentTransitionDuration, m_elapsedTransitionTime > m_currentTransitionDuration) )
   {
-    vxorps  xmm9, xmm9, xmm9
-    vmovsd  xmm11, qword ptr [rcx+8]
-    vucomiss xmm11, xmm9
-    vmovsd  xmm0, qword ptr [rcx+14h]
-    vmovsd  xmm6, qword ptr [rcx+24h]
-  }
-  *(float *)&_RAX = _RCX->m_mlgCurrentCameraAngles.v[2];
-  __asm
-  {
-    vmovss  xmm14, dword ptr [rcx+20h]
-    vmovsd  [rbp+60h+var_D8], xmm0
-    vmovsd  xmm0, qword ptr [rcx+30h]
-    vmovsd  qword ptr [rsp+160h+var_F8], xmm0
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-  }
-  v156 = (int)_RAX;
-  *(float *)&v150 = _RCX->m_mlgCurrentCameraPos.v[2];
-  *(float *)&_RAX = _RCX->m_mlgTargetCameraPos.v[2];
-  __asm
-  {
-    vmovss  xmm13, dword ptr [rsp+160h+var_100]
-    vmovss  [rsp+160h+var_120], xmm0
-  }
-  v154 = *(float *)&_RAX;
-  __asm { vmovss  xmm8, [rbp+60h+var_E0] }
-  *(float *)&_RAX = _RCX->m_mlgTargetCameraAngles.v[2];
-  __asm
-  {
-    vsubss  xmm2, xmm6, xmm11
-    vmovsd  [rsp+160h+var_E8], xmm6
-    vmovss  xmm7, dword ptr [rsp+160h+var_E8+4]
-    vmovsd  qword ptr [rsp+160h+var_108], xmm11
-    vmovss  xmm12, [rsp+160h+var_104]
-    vsubss  xmm0, xmm7, xmm12
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vsubss  xmm3, xmm8, xmm13
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vmovss  [rsp+160h+var_11C], xmm14
-    vmovss  [rsp+160h+var_118], xmm7
-    vmovss  [rsp+160h+var_114], xmm8
-  }
-  LODWORD(v152) = (_DWORD)_RAX;
-  if ( (unsigned __int64)v142 == _security_cookie )
-  {
-    __asm { vucomiss xmm12, xmm9 }
-    if ( (unsigned __int64)v142 == _security_cookie )
-    {
-      __asm { vucomiss xmm13, xmm9 }
-      if ( (unsigned __int64)v142 == _security_cookie )
-      {
-        *(float *)&v150 = _RCX->m_mlgTargetCameraPos.v[2];
-        __asm
-        {
-          vmovss  xmm13, dword ptr [rsp+160h+var_100]
-          vmovsd  qword ptr [rsp+160h+var_108], xmm6
-          vmovss  xmm11, [rsp+160h+var_108]
-          vshufps xmm12, xmm6, xmm6, 55h ; 'U'
-        }
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vcomiss xmm4, xmm10
-    vmovss  xmm3, dword ptr [rbx+18h]
-    vmovss  xmm4, dword ptr [rbx+4Ch]
-    vcomiss xmm3, xmm4
-  }
-  if ( (unsigned __int64)v142 != _security_cookie )
-  {
-    __asm
-    {
-      vmovss  xmm15, dword ptr [rsp+160h+var_F0]
-      vmovss  xmm8, [rsp+160h+var_F4]
-      vmovss  xmm7, [rsp+160h+var_F8]
-    }
+    v27 = m_cameraManager->m_mlgTargetCameraAngles.v[2];
+    v25 = m_mlgTargetCameraAngles.v[1];
+    v23 = m_mlgTargetCameraAngles.v[0];
   }
   else
   {
-    __asm { vucomiss xmm3, xmm9 }
-    if ( (unsigned __int64)v142 == _security_cookie )
+    if ( m_elapsedTransitionTime == 0.0 )
     {
-      *(double *)&_XMM0 = CG_MLG_GetTransitionDuration(localClientNum);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+18h]
-        vmovss  dword ptr [rbx+4Ch], xmm0
-        vmovaps xmm4, xmm0
-      }
+      TransitionDuration = CG_MLG_GetTransitionDuration(localClientNum);
+      m_elapsedTransitionTime = this->m_elapsedTransitionTime;
+      this->m_currentTransitionDuration = *(float *)&TransitionDuration;
+      m_currentTransitionDuration = *(float *)&TransitionDuration;
     }
-    __asm
-    {
-      vunpcklps xmm0, xmm9, xmm9
-      vmovsd  qword ptr [rbx+1Ch], xmm0
-      vmovss  [rbp+60h+var_E0], xmm9
-      vdivss  xmm0, xmm3, xmm4; val
-      vmovaps xmm2, xmm10; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    _RBX->m_lastInputVector.v[2] = v154;
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm15, cs:__real@3f000000
-      vcomiss xmm0, xmm15
-      vmulss  xmm1, xmm0, cs:__real@40000000
-      vmovaps xmm2, xmm0
-    }
-    if ( v49 )
-    {
-      __asm { vmulss  xmm14, xmm1, xmm0 }
-    }
+    __asm { vunpcklps xmm0, xmm9, xmm9 }
+    *(double *)this->m_lastInputVector.v = *(double *)&_XMM0;
+    this->m_lastInputVector.v[2] = 0.0;
+    v18 = I_fclamp(m_elapsedTransitionTime / m_currentTransitionDuration, 0.0, 1.0);
+    if ( *(float *)&v18 >= 0.5 )
+      v19 = (float)((float)(4.0 - (float)(*(float *)&v18 * 2.0)) * *(float *)&v18) - 1.0;
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@40800000
-        vsubss  xmm1, xmm0, xmm1
-        vmulss  xmm2, xmm1, xmm2
-        vsubss  xmm14, xmm2, xmm10
-      }
-    }
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm11
-      vmovss  xmm6, cs:__real@43b40000
-      vmulss  xmm1, xmm0, xmm14
-      vaddss  xmm2, xmm1, xmm11
-      vmovsd  qword ptr [rsp+160h+var_108], xmm2
-      vsubss  xmm2, xmm7, xmm12
-      vmovss  xmm7, cs:__real@3b360b61
-      vmulss  xmm0, xmm2, xmm14
-      vaddss  xmm0, xmm0, xmm12
-      vmovss  [rsp+160h+var_118], xmm0
-      vsubss  xmm1, xmm8, xmm13
-      vmulss  xmm2, xmm1, xmm14
-      vaddss  xmm0, xmm2, xmm13
-      vmovss  [rsp+160h+var_114], xmm0
-      vmovss  xmm0, [rsp+160h+var_F8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+60h+var_D8]
-      vmulss  xmm3, xmm1, xmm7
-      vaddss  xmm1, xmm3, xmm15
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, xmm6
-      vmulss  xmm1, xmm0, xmm14
-      vaddss  xmm2, xmm1, dword ptr [rbp+60h+var_D8]
-      vmovss  xmm0, [rsp+160h+var_F4]
-      vsubss  xmm1, xmm0, dword ptr [rbp+60h+var_D8+4]
-      vmulss  xmm4, xmm1, xmm7
-      vmovss  dword ptr [rsp+160h+var_110], xmm2
-      vaddss  xmm2, xmm4, xmm15
-      vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rsp+160h+var_F0]
-      vmulss  xmm2, xmm1, xmm14
-      vsubss  xmm1, xmm0, [rbp+60h+var_D0]
-      vaddss  xmm3, xmm2, dword ptr [rbp+60h+var_D8+4]
-      vmulss  xmm4, xmm1, xmm7
-      vmovss  xmm7, dword ptr [rsp+160h+var_110]
-      vaddss  xmm2, xmm4, xmm15
-      vmovss  dword ptr [rsp+160h+var_110+4], xmm3
-      vroundss xmm3, xmm8, xmm2, 1
-      vmovss  xmm8, dword ptr [rsp+160h+var_110+4]
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm6
-      vmovsd  xmm6, qword ptr [rsp+160h+var_108]
-      vmulss  xmm2, xmm1, xmm14
-      vmulss  xmm1, xmm14, [rsp+160h+var_120]
-      vaddss  xmm15, xmm2, [rbp+60h+var_D0]
-      vsubss  xmm0, xmm10, xmm14
-      vmulss  xmm2, xmm0, [rsp+160h+var_11C]
-      vmovss  xmm14, [rsp+160h+var_11C]
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  [rsp+160h+var_120], xmm0
-    }
+      v19 = (float)(*(float *)&v18 * 2.0) * *(float *)&v18;
+    v42 = (float)((float)(v11 - v12) * v19) + v12;
+    v43 = (float)((float)(v10 - v9) * v19) + v9;
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v44 = (float)((float)((float)((float)((float)(m_mlgTargetCameraAngles.v[0] - m_mlgCurrentCameraAngles.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v19) + m_mlgCurrentCameraAngles.v[0];
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    *(float *)&_XMM2 = (float)((float)((float)((float)(m_mlgTargetCameraAngles.v[1] - m_mlgCurrentCameraAngles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v19;
+    v23 = v44;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    v25 = *(float *)&_XMM2 + m_mlgCurrentCameraAngles.v[1];
+    v7.m128_f32[0] = (float)((float)(v7.m128_f32[0] - *(float *)&v6) * v19) + *(float *)&v6;
+    v26 = v19 * m_mlgTargetCameraFoV;
+    v27 = (float)((float)((float)((float)((float)(m_mlgTargetCameraAngles.v[2] - m_mlgCurrentCameraAngles.v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v19) + m_mlgCurrentCameraAngles.v[2];
+    v28 = (float)(1.0 - v19) * v41;
+    m_mlgCurrentCameraFoV = v41;
+    m_mlgTargetCameraFoV = v28 + v26;
   }
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  v100 = DVARFLT_cg_mlg_cam_smooth_factor;
-  _RSI = LocalClientGlobals;
+  v30 = DVARFLT_cg_mlg_cam_smooth_factor;
+  v31 = LocalClientGlobals;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v100);
-  __asm
-  {
-    vmovd   xmm0, dword ptr [rsi+65E4h]
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm0, xmm0, dword ptr [rdi+28h]; val
-    vmovaps xmm2, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm3, [rsp+160h+var_118] }
-  v108 = DVARFLT_cg_mlg_cam_smooth_factor;
-  __asm
-  {
-    vsubss  xmm1, xmm6, xmm11
-    vmulss  xmm2, xmm1, xmm0
-    vaddss  xmm6, xmm2, xmm11
-    vmovss  xmm2, [rsp+160h+var_114]
-    vsubss  xmm3, xmm3, xmm12
-    vmulss  xmm1, xmm3, xmm0
-    vsubss  xmm2, xmm2, xmm13
-    vmulss  xmm0, xmm2, xmm0
-    vaddss  xmm11, xmm1, xmm12
-    vaddss  xmm12, xmm0, xmm13
-  }
+  Dvar_CheckFrontendServerThread(v30);
+  v32 = I_fclamp(_mm_cvtepi32_ps((__m128i)(unsigned int)v31->frametime).m128_f32[0] * v30->current.value, 0.0, 1.0);
+  v33 = DVARFLT_cg_mlg_cam_smooth_factor;
+  v34 = (float)((float)(v7.m128_f32[0] - *(float *)&v6) * *(float *)&v32) + *(float *)&v6;
+  v35 = (float)((float)(v42 - v12) * *(float *)&v32) + v12;
+  v36 = (float)((float)(v43 - v9) * *(float *)&v32) + v9;
   if ( !DVARFLT_cg_mlg_cam_smooth_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mlg_cam_smooth_factor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v108);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65E4h]
-    vmulss  xmm0, xmm0, dword ptr [rdi+28h]; val
-    vmovaps xmm2, xmm10; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vsubss  xmm1, xmm10, xmm0
-    vmulss  xmm0, xmm0, [rsp+160h+var_120]
-    vmulss  xmm2, xmm1, xmm14
-    vmovss  dword ptr [rax+8], xmm6
-    vmovss  dword ptr [rax+0Ch], xmm11
-    vmovss  dword ptr [rax+10h], xmm12
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm
-  {
-    vaddss  xmm3, xmm2, xmm0
-    vmovss  dword ptr [rax+14h], xmm7
-    vmovss  dword ptr [rax+18h], xmm8
-    vmovss  dword ptr [rax+1Ch], xmm15
-  }
-  _RAX = _RBX->m_cameraManager;
-  __asm { vmovss  dword ptr [rax+20h], xmm3 }
-  _R11 = &v157;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  Dvar_CheckFrontendServerThread(v33);
+  v37 = I_fclamp((float)v31->frametime * v33->current.value, 0.0, 1.0);
+  v38 = this->m_cameraManager;
+  v38->m_mlgCurrentCameraPos.v[0] = v34;
+  v38->m_mlgCurrentCameraPos.v[1] = v35;
+  v38->m_mlgCurrentCameraPos.v[2] = v36;
+  v39 = this->m_cameraManager;
+  v39->m_mlgCurrentCameraAngles.v[0] = v23;
+  v39->m_mlgCurrentCameraAngles.v[1] = v25;
+  v39->m_mlgCurrentCameraAngles.v[2] = v27;
+  this->m_cameraManager->m_mlgCurrentCameraFoV = (float)((float)(1.0 - *(float *)&v37) * m_mlgCurrentCameraFoV) + (float)(*(float *)&v37 * m_mlgTargetCameraFoV);
 }
 
 /*
@@ -5592,27 +4448,28 @@ AerialCamActiveCameraState *AerialCamActiveCameraState::UpdateState(AerialCamAct
 {
   CoDCasterCameraType MLGCameraType; 
   CgMLGCameraManager *m_cameraManager; 
-  CgMLGCameraManager *v8; 
+  CgMLGCameraManager *v7; 
   CgGlobalsMP *LocalClientGlobals; 
   int FocusedPlayer; 
+  bool v10; 
   bool v11; 
   bool v12; 
-  bool v13; 
-  char v14; 
+  char v13; 
+  int v14; 
   int v15; 
-  int v16; 
   centity_t *ClientEntity; 
-  bool v18; 
+  bool v17; 
   CgMLGSpectator *MLGSpectator; 
+  float v19; 
+  float v20; 
   CoDCasterCameraState state[4]; 
   float outHeight; 
   vec3_t outPosition; 
 
-  _RDI = this;
   MLGCameraType = CgMLGCameraManager::GetMLGCameraType(this->m_cameraManager, localClientNum);
   if ( MLGCameraType == FREE )
   {
-    m_cameraManager = _RDI->m_cameraManager;
+    m_cameraManager = this->m_cameraManager;
     state[0] = FREECAM_ENTERING;
     return (AerialCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(m_cameraManager, localClientNum, state);
   }
@@ -5621,102 +4478,74 @@ AerialCamActiveCameraState *AerialCamActiveCameraState::UpdateState(AerialCamAct
     LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
     if ( CG_GetCharacterInfo(LocalClientGlobals, LocalClientGlobals->clientNum)->team == TEAM_FOLLOWER )
     {
-      CG_MLG_UpdateFollowerCamera(localClientNum, _RDI->m_cameraManager);
-      AerialCamActiveCameraState::UpdateVFXInternal(_RDI, localClientNum);
+      CG_MLG_UpdateFollowerCamera(localClientNum, this->m_cameraManager);
+      AerialCamActiveCameraState::UpdateVFXInternal(this, localClientNum);
     }
     else if ( CL_Keys_GetActiveInputContext(localClientNum) == (VEC3_POINTER|INT_VALUE) )
     {
-      AerialCamActiveCameraState::HandleInputsInternal(_RDI, localClientNum);
-      FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(_RDI->m_cameraManager, localClientNum);
-      v13 = __OFSUB__(FocusedPlayer, -1);
-      v11 = FocusedPlayer == -1;
-      v12 = FocusedPlayer + 1 < 0;
-      LOBYTE(FocusedPlayer) = _RDI->m_lastLockStatus;
-      v14 = !(v12 ^ v13 | v11);
-      _RDI->m_lastLockStatus = v14;
-      if ( (_BYTE)FocusedPlayer != v14 && !(v12 ^ v13 | v11) )
+      AerialCamActiveCameraState::HandleInputsInternal(this, localClientNum);
+      FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
+      v12 = __OFSUB__(FocusedPlayer, -1);
+      v10 = FocusedPlayer == -1;
+      v11 = FocusedPlayer + 1 < 0;
+      LOBYTE(FocusedPlayer) = this->m_lastLockStatus;
+      v13 = !(v11 ^ v12 | v10);
+      this->m_lastLockStatus = v13;
+      if ( (_BYTE)FocusedPlayer != v13 && !(v11 ^ v12 | v10) )
       {
-        *(_QWORD *)_RDI->m_currentOffset.v = 0i64;
-        _RDI->m_elapsedTransitionTime = 0.0;
+        *(_QWORD *)this->m_currentOffset.v = 0i64;
+        this->m_elapsedTransitionTime = 0.0;
       }
-      if ( v12 ^ v13 | v11 )
+      if ( v11 ^ v12 | v10 )
       {
-        if ( _RDI->m_focusOnBarycenter )
+        if ( this->m_focusOnBarycenter )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rsp+68h+outPosition], xmm0
-            vmovss  dword ptr [rsp+68h+outPosition+4], xmm0
-            vmovss  dword ptr [rsp+68h+outPosition+8], xmm0
-            vmovss  [rsp+68h+outHeight], xmm0
-          }
+          outPosition.v[0] = 0.0;
+          outPosition.v[1] = 0.0;
+          outPosition.v[2] = 0.0;
+          outHeight = 0.0;
           if ( CG_GetPlayersBarycenter(localClientNum, &outPosition, &outHeight) )
           {
-            __asm
-            {
-              vmovss  xmm0, [rsp+68h+outHeight]
-              vmovss  xmm1, dword ptr [rsp+68h+outPosition]
-              vmovss  dword ptr [rdi+30h], xmm0
-              vmovss  xmm0, dword ptr [rsp+68h+outPosition+4]
-              vmovss  dword ptr [rdi+40h], xmm1
-              vmovss  xmm1, dword ptr [rsp+68h+outPosition+8]
-              vmovss  dword ptr [rdi+48h], xmm1
-              vmovss  dword ptr [rdi+44h], xmm0
-            }
+            v19 = outPosition.v[0];
+            this->m_currentOffset.v[2] = outHeight;
+            v20 = outPosition.v[1];
+            this->m_groundPosition.v[0] = v19;
+            this->m_groundPosition.v[2] = outPosition.v[2];
+            this->m_groundPosition.v[1] = v20;
           }
         }
       }
       else
       {
-        v15 = CgMLGCameraManager::GetFocusedPlayer(_RDI->m_cameraManager, localClientNum);
-        _RDI->m_focusOnBarycenter = 0;
-        v16 = v15;
-        if ( v15 != LocalClientGlobals->clientNum )
+        v14 = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
+        this->m_focusOnBarycenter = 0;
+        v15 = v14;
+        if ( v14 != LocalClientGlobals->clientNum )
         {
-          if ( v15 != -1 )
+          if ( v14 != -1 )
           {
-            ClientEntity = CG_MLG_GetClientEntity(localClientNum, v15);
-            if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v18 = _RDI->m_lastFollowedClientNum != v16, CG_GetPoseOrigin(&ClientEntity->pose, &_RDI->m_groundPosition), v18) )
+            ClientEntity = CG_MLG_GetClientEntity(localClientNum, v14);
+            if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v17 = this->m_lastFollowedClientNum != v15, CG_GetPoseOrigin(&ClientEntity->pose, &this->m_groundPosition), v17) || (MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum), !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v15)) && (this->m_currentOffset.v[0] != 0.0 || this->m_currentOffset.v[1] != 0.0) )
             {
-              *(_QWORD *)_RDI->m_currentOffset.v = 0i64;
-              _RDI->m_elapsedTransitionTime = 0.0;
-            }
-            else
-            {
-              MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
-              if ( !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v16) )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vucomiss xmm0, dword ptr [rdi+28h]
-                  vucomiss xmm0, dword ptr [rdi+2Ch]
-                }
-              }
+              *(_QWORD *)this->m_currentOffset.v = 0i64;
+              this->m_elapsedTransitionTime = 0.0;
             }
           }
-          _RDI->m_lastFollowedClientNum = v16;
+          this->m_lastFollowedClientNum = v15;
         }
       }
-      AerialCamActiveCameraState::ApplyOffsetInternal(_RDI, localClientNum);
-      AerialCamActiveCameraState::UpdatePositionInternal(_RDI, localClientNum);
-      AerialCamActiveCameraState::UpdateVFXInternal(_RDI, localClientNum);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [r14+65E4h]
-        vaddss  xmm1, xmm0, dword ptr [rdi+18h]
-        vmovss  dword ptr [rdi+18h], xmm1
-      }
+      AerialCamActiveCameraState::ApplyOffsetInternal(this, localClientNum);
+      AerialCamActiveCameraState::UpdatePositionInternal(this, localClientNum);
+      AerialCamActiveCameraState::UpdateVFXInternal(this, localClientNum);
+      this->m_elapsedTransitionTime = (float)LocalClientGlobals->frametime + this->m_elapsedTransitionTime;
     }
-    return _RDI;
+    return this;
   }
   else
   {
-    v8 = _RDI->m_cameraManager;
+    v7 = this->m_cameraManager;
     state[0] = SPECTATOR_ENTERING;
-    return (AerialCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v8, localClientNum, state);
+    return (AerialCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v7, localClientNum, state);
   }
 }
 
@@ -5755,27 +4584,51 @@ FreeCamActiveCameraState *FreeCamActiveCameraState::UpdateState(FreeCamActiveCam
 {
   CoDCasterCameraType MLGCameraType; 
   CgMLGCameraManager *m_cameraManager; 
-  CgMLGCameraManager *v17; 
+  CgMLGCameraManager *v7; 
   CgGlobalsMP *LocalClientGlobals; 
-  float v20; 
-  float v21; 
-  float v22; 
-  float v23; 
-  bool v36; 
-  char v37; 
+  CgMLGCameraManager *v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float m_mlgTargetCameraFoV; 
+  double v18; 
+  double v19; 
+  float m_lastTargetFoV; 
+  float m_mlgCurrentCameraFoV; 
+  double TransitionDuration; 
+  double v23; 
+  double EaseInOutFactor; 
+  CgMLGCameraManager *v25; 
+  float v26; 
+  float v27; 
+  float v30; 
+  float v32; 
+  float v33; 
+  float v34; 
+  CgMLGCameraManager *v35; 
+  CgMLGCameraManager *v37; 
   CoDCasterCameraState state[4]; 
-  float v109; 
+  float v41; 
+  float v42; 
+  double v43; 
+  float v44; 
   CameraPose pose2; 
   CameraPose pose1; 
-  float v113; 
-  float v115; 
-  float v117; 
+  double v47; 
+  float v48; 
+  double v49; 
+  float v50; 
+  double v51; 
+  float v52; 
 
-  _RBX = this;
   MLGCameraType = CgMLGCameraManager::GetMLGCameraType(this->m_cameraManager, localClientNum);
   if ( MLGCameraType == AERIAL )
   {
-    m_cameraManager = _RBX->m_cameraManager;
+    m_cameraManager = this->m_cameraManager;
     state[0] = AERIALCAM_ENTERING;
     return (FreeCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(m_cameraManager, localClientNum, state);
   }
@@ -5784,217 +4637,119 @@ FreeCamActiveCameraState *FreeCamActiveCameraState::UpdateState(FreeCamActiveCam
     LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
     if ( CG_GetCharacterInfo(LocalClientGlobals, LocalClientGlobals->clientNum)->team == TEAM_FOLLOWER )
     {
-      CG_MLG_UpdateFollowerCamera(localClientNum, _RBX->m_cameraManager);
+      CG_MLG_UpdateFollowerCamera(localClientNum, this->m_cameraManager);
     }
     else if ( CL_Keys_GetActiveInputContext(localClientNum) == (STRUCT_POINTER|BYTE_VALUE) )
     {
-      _RAX = (float *)_RBX->m_cameraManager;
-      v20 = _RAX[11];
-      v21 = _RAX[4];
-      v22 = _RAX[7];
-      v23 = _RAX[14];
-      __asm
-      {
-        vmovaps [rsp+180h+var_40], xmm6
-        vmovsd  xmm6, qword ptr [rax+24h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65E4h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+2Ch]
-        vmovsd  xmm0, qword ptr [rbx+34h]
-        vmovaps [rsp+180h+var_50], xmm7
-        vmovsd  xmm7, qword ptr [rax+30h]
-        vmovaps [rsp+180h+var_60], xmm8
-        vmovss  xmm8, dword ptr [rax+3Ch]
-        vmovaps [rsp+180h+var_70], xmm9
-        vmovsd  xmm9, qword ptr [rax+8]
-        vmovsd  qword ptr [rsp+180h+pose1.pos], xmm0
-        vmovsd  xmm0, qword ptr [rbx+40h]
-        vmovaps [rsp+180h+var_80], xmm10
-        vmovsd  xmm10, qword ptr [rax+14h]
-        vmovsd  qword ptr [rsp+180h+pose1.angles], xmm0
-        vmovss  xmm0, dword ptr [rbx+64h]
-        vmovaps [rsp+180h+var_90], xmm11
-        vmovss  xmm11, dword ptr [rax+20h]
-      }
-      pose1.pos.v[2] = _RBX->m_lastTargetPos.v[2];
-      pose1.angles.v[2] = _RBX->m_lastTargetAngles.v[2];
-      __asm
-      {
-        vmovss  [rsp+180h+var_15C], xmm11
-        vmovss  [rsp+180h+var_158], xmm8
-        vmovss  dword ptr [rbx+2Ch], xmm1
-        vmovss  [rsp+180h+pose2.fov], xmm8
-        vmovss  [rsp+180h+pose1.fov], xmm0
-        vmovsd  [rbp+80h+var_E0], xmm9
-      }
-      v117 = v21;
-      __asm { vmovsd  [rbp+80h+var_100], xmm10 }
-      v113 = v22;
-      __asm { vmovsd  [rsp+180h+var_150], xmm6 }
-      v109 = v20;
-      __asm { vmovsd  [rbp+80h+var_F0], xmm7 }
-      v115 = v23;
-      __asm { vmovsd  qword ptr [rsp+180h+pose2.pos], xmm6 }
-      pose2.pos.v[2] = v20;
-      __asm { vmovsd  qword ptr [rsp+180h+pose2.angles], xmm7 }
-      pose2.angles.v[2] = v23;
+      v9 = this->m_cameraManager;
+      v10 = v9->m_mlgTargetCameraPos.v[2];
+      v11 = v9->m_mlgCurrentCameraPos.v[2];
+      v12 = v9->m_mlgCurrentCameraAngles.v[2];
+      v13 = v9->m_mlgTargetCameraAngles.v[2];
+      v14 = *(double *)v9->m_mlgTargetCameraPos.v;
+      v15 = (float)LocalClientGlobals->frametime + this->m_elapsedTransitionTime;
+      v16 = *(double *)v9->m_mlgTargetCameraAngles.v;
+      m_mlgTargetCameraFoV = v9->m_mlgTargetCameraFoV;
+      v18 = *(double *)v9->m_mlgCurrentCameraPos.v;
+      *(_QWORD *)pose1.pos.v = *(_QWORD *)this->m_lastTargetPos.v;
+      v19 = *(double *)v9->m_mlgCurrentCameraAngles.v;
+      *(_QWORD *)pose1.angles.v = *(_QWORD *)this->m_lastTargetAngles.v;
+      m_lastTargetFoV = this->m_lastTargetFoV;
+      m_mlgCurrentCameraFoV = v9->m_mlgCurrentCameraFoV;
+      pose1.pos.v[2] = this->m_lastTargetPos.v[2];
+      pose1.angles.v[2] = this->m_lastTargetAngles.v[2];
+      v41 = m_mlgCurrentCameraFoV;
+      v42 = m_mlgTargetCameraFoV;
+      this->m_elapsedTransitionTime = v15;
+      pose2.fov = m_mlgTargetCameraFoV;
+      pose1.fov = m_lastTargetFoV;
+      v51 = v18;
+      v52 = v11;
+      v47 = v19;
+      v48 = v12;
+      v43 = v14;
+      v44 = v10;
+      v49 = v16;
+      v50 = v13;
+      *(double *)pose2.pos.v = v14;
+      pose2.pos.v[2] = v10;
+      *(double *)pose2.angles.v = v16;
+      pose2.angles.v[2] = v13;
       pose2.hasBeenSet = 0;
       pose1.hasBeenSet = 0;
-      v36 = CG_MLG_ArePosesNearlyEqual(&pose1, &pose2);
-      v37 = 0;
-      if ( !v36 )
+      if ( !CG_MLG_ArePosesNearlyEqual(&pose1, &pose2) )
       {
-        __asm
-        {
-          vmovsd  qword ptr [rbx+34h], xmm6
-          vmovsd  qword ptr [rbx+40h], xmm7
-        }
-        _RBX->m_lastTargetPos.v[2] = v20;
-        _RBX->m_lastTargetAngles.v[2] = v23;
-        __asm { vmovss  dword ptr [rbx+64h], xmm8 }
-        _RBX->m_elapsedTransitionTime = 0.0;
-        *(double *)&_XMM0 = CG_MLG_GetTransitionDuration(localClientNum);
-        __asm { vmovss  dword ptr [rbx+30h], xmm0 }
+        *(double *)this->m_lastTargetPos.v = v14;
+        *(double *)this->m_lastTargetAngles.v = v16;
+        this->m_lastTargetPos.v[2] = v10;
+        this->m_lastTargetAngles.v[2] = v13;
+        this->m_lastTargetFoV = m_mlgTargetCameraFoV;
+        this->m_elapsedTransitionTime = 0.0;
+        TransitionDuration = CG_MLG_GetTransitionDuration(localClientNum);
+        this->m_currentTransitionDuration = *(float *)&TransitionDuration;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vcomiss xmm0, dword ptr [rbx+2Ch]
-      }
-      if ( v37 )
+      if ( this->m_currentTransitionDuration < this->m_elapsedTransitionTime )
         goto LABEL_13;
-      pose1.pos.v[2] = v20;
-      pose1.angles.v[2] = v23;
-      __asm
-      {
-        vmovss  [rsp+180h+pose1.fov], xmm8
-        vmovss  [rsp+180h+pose2.fov], xmm11
-        vmovsd  qword ptr [rsp+180h+pose1.pos], xmm6
-        vmovsd  qword ptr [rsp+180h+pose1.angles], xmm7
-      }
+      pose1.pos.v[2] = v10;
+      pose1.angles.v[2] = v13;
+      pose1.fov = m_mlgTargetCameraFoV;
+      pose2.fov = m_mlgCurrentCameraFoV;
+      *(double *)pose1.pos.v = v14;
+      *(double *)pose1.angles.v = v16;
       pose1.hasBeenSet = 0;
-      __asm { vmovsd  qword ptr [rsp+180h+pose2.pos], xmm9 }
-      pose2.pos.v[2] = v21;
-      __asm { vmovsd  qword ptr [rsp+180h+pose2.angles], xmm10 }
-      pose2.angles.v[2] = v22;
+      *(double *)pose2.pos.v = v18;
+      pose2.pos.v[2] = v11;
+      *(double *)pose2.angles.v = v19;
+      pose2.angles.v[2] = v12;
       pose2.hasBeenSet = 0;
       if ( CG_MLG_ArePosesNearlyEqual(&pose2, &pose1) )
       {
 LABEL_13:
-        FreeCamActiveCameraState::HandleInputsInternal(_RBX, localClientNum);
-        FreeCamActiveCameraState::HandleMovementsInternal(_RBX, localClientNum);
-        *(_QWORD *)&_RBX->m_elapsedTransitionTime = 0i64;
+        FreeCamActiveCameraState::HandleInputsInternal(this, localClientNum);
+        FreeCamActiveCameraState::HandleMovementsInternal(this, localClientNum);
+        *(_QWORD *)&this->m_elapsedTransitionTime = 0i64;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vdivss  xmm0, xmm0, dword ptr [rbx+30h]; val
-          vmovaps [rsp+180h+var_A0], xmm13
-          vmovaps [rsp+180h+var_B0], xmm14
-          vmovss  xmm14, cs:__real@3f800000
-          vmovaps xmm2, xmm14; max
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps [rsp+180h+var_C0], xmm15
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        *(double *)&_XMM0 = CG_MLG_GetEaseInOutFactor(*(float *)&_XMM0);
-        _RAX = _RBX->m_cameraManager;
-        __asm
-        {
-          vmovss  xmm6, cs:__real@3b360b61
-          vmovss  xmm10, cs:__real@43b40000
-          vmovss  xmm1, dword ptr [rsp+180h+var_150]
-          vsubss  xmm2, xmm1, dword ptr [rbp+80h+var_E0]
-          vmovss  xmm1, dword ptr [rsp+180h+var_150+4]
-          vmulss  xmm3, xmm2, xmm0
-          vsubss  xmm2, xmm1, dword ptr [rbp+80h+var_E0+4]
-          vaddss  xmm11, xmm3, dword ptr [rbp+80h+var_E0]
-          vmovss  xmm1, dword ptr [rbp+80h+var_F0]
-          vmulss  xmm3, xmm2, xmm0
-          vsubss  xmm2, xmm1, dword ptr [rbp+80h+var_100]
-          vaddss  xmm9, xmm3, dword ptr [rbp+80h+var_E0+4]
-          vmovaps xmm15, xmm0
-          vmulss  xmm3, xmm2, xmm6
-          vaddss  xmm1, xmm3, cs:__real@3f000000
-          vmovss  dword ptr [rax+8], xmm11
-          vmovss  dword ptr [rax+0Ch], xmm9
-          vxorps  xmm13, xmm13, xmm13
-          vroundss xmm2, xmm13, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm0, xmm0, xmm10
-          vmulss  xmm1, xmm0, xmm15
-          vaddss  xmm8, xmm1, dword ptr [rbp+80h+var_100]
-          vmovss  xmm0, dword ptr [rbp+80h+var_F0+4]
-          vsubss  xmm1, xmm0, dword ptr [rbp+80h+var_100+4]
-          vmulss  xmm4, xmm1, xmm6
-          vaddss  xmm2, xmm4, cs:__real@3f000000
-          vroundss xmm3, xmm13, xmm2, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, xmm10
-          vmovss  xmm0, [rbp+80h+var_E8]
-          vmulss  xmm2, xmm1, xmm15
-          vsubss  xmm1, xmm0, [rbp+80h+var_F8]
-          vaddss  xmm4, xmm2, dword ptr [rbp+80h+var_100+4]
-          vmulss  xmm5, xmm1, xmm6
-          vmulss  xmm1, xmm15, [rsp+180h+var_158]
-          vsubss  xmm0, xmm14, xmm15
-          vmulss  xmm2, xmm0, [rsp+180h+var_15C]
-          vmovss  xmm0, [rsp+180h+var_148]
-          vmovaps xmm14, [rsp+180h+var_B0]
-          vaddss  xmm6, xmm2, xmm1
-          vsubss  xmm1, xmm0, [rbp+80h+var_D8]
-          vmulss  xmm2, xmm1, xmm15
-          vaddss  xmm3, xmm2, [rbp+80h+var_D8]
-          vaddss  xmm1, xmm5, cs:__real@3f000000
-          vmovss  dword ptr [rax+10h], xmm3
-        }
-        _RAX = _RBX->m_cameraManager;
-        __asm
-        {
-          vroundss xmm2, xmm13, xmm1, 1
-          vmovaps xmm13, [rsp+180h+var_A0]
-          vsubss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rax+14h], xmm8
-          vmovss  dword ptr [rax+18h], xmm4
-          vmulss  xmm1, xmm0, xmm10
-          vmulss  xmm2, xmm1, xmm15
-          vaddss  xmm3, xmm2, [rbp+80h+var_F8]
-          vmovaps xmm15, [rsp+180h+var_C0]
-          vmovss  dword ptr [rax+1Ch], xmm3
-        }
-        _RAX = _RBX->m_cameraManager;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rsp+180h+var_148], xmm0
-          vunpcklps xmm0, xmm0, xmm0
-          vmovss  dword ptr [rax+20h], xmm6
-        }
-        *(float *)&_RAX = v109;
-        __asm { vmovsd  qword ptr [rbx+58h], xmm0 }
-        LODWORD(_RBX->m_lastInputVector.v[2]) = (_DWORD)_RAX;
-        __asm { vmovss  dword ptr [rbx+6Ch], xmm6 }
-        _RBX->m_lastInputFoV = 0.0;
-      }
-      __asm
-      {
-        vmovaps xmm10, [rsp+180h+var_80]
-        vmovaps xmm9, [rsp+180h+var_70]
-        vmovaps xmm8, [rsp+180h+var_60]
-        vmovaps xmm7, [rsp+180h+var_50]
-        vmovaps xmm6, [rsp+180h+var_40]
-        vmovaps xmm11, [rsp+180h+var_90]
+        v23 = I_fclamp(this->m_elapsedTransitionTime / this->m_currentTransitionDuration, 0.0, 1.0);
+        EaseInOutFactor = CG_MLG_GetEaseInOutFactor(*(float *)&v23);
+        v25 = this->m_cameraManager;
+        v26 = (float)((float)(*((float *)&v43 + 1) - *((float *)&v51 + 1)) * *(float *)&EaseInOutFactor) + *((float *)&v51 + 1);
+        v27 = (float)(*(float *)&v49 - *(float *)&v47) * 0.0027777778;
+        v25->m_mlgCurrentCameraPos.v[0] = (float)((float)(*(float *)&v43 - *(float *)&v51) * *(float *)&EaseInOutFactor) + *(float *)&v51;
+        v25->m_mlgCurrentCameraPos.v[1] = v26;
+        _XMM13 = 0i64;
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v30 = (float)((float)((float)(v27 - *(float *)&_XMM2) * 360.0) * *(float *)&EaseInOutFactor) + *(float *)&v47;
+        __asm { vroundss xmm3, xmm13, xmm2, 1 }
+        v32 = (float)((float)((float)((float)((float)(*((float *)&v49 + 1) - *((float *)&v47 + 1)) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&EaseInOutFactor) + *((float *)&v47 + 1);
+        v33 = (float)(v50 - v48) * 0.0027777778;
+        v34 = (float)((float)(1.0 - *(float *)&EaseInOutFactor) * v41) + (float)(*(float *)&EaseInOutFactor * v42);
+        v25->m_mlgCurrentCameraPos.v[2] = (float)((float)(v44 - v52) * *(float *)&EaseInOutFactor) + v52;
+        v35 = this->m_cameraManager;
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v35->m_mlgCurrentCameraAngles.v[0] = v30;
+        v35->m_mlgCurrentCameraAngles.v[1] = v32;
+        v35->m_mlgCurrentCameraAngles.v[2] = (float)((float)((float)(v33 - *(float *)&_XMM2) * 360.0) * *(float *)&EaseInOutFactor) + v48;
+        v37 = this->m_cameraManager;
+        _XMM0 = 0i64;
+        v44 = 0.0;
+        __asm { vunpcklps xmm0, xmm0, xmm0 }
+        v37->m_mlgCurrentCameraFoV = v34;
+        *(float *)&v37 = v44;
+        *(double *)this->m_lastInputVector.v = *(double *)&_XMM0;
+        LODWORD(this->m_lastInputVector.v[2]) = (_DWORD)v37;
+        this->m_entryFoV = v34;
+        this->m_lastInputFoV = 0.0;
       }
     }
-    return _RBX;
+    return this;
   }
   else
   {
-    v17 = _RBX->m_cameraManager;
+    v7 = this->m_cameraManager;
     state[0] = SPECTATOR_ENTERING;
-    return (FreeCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v17, localClientNum, state);
+    return (FreeCamActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v7, localClientNum, state);
   }
 }
 
@@ -6008,28 +4763,50 @@ FreeCamEnteringCameraState *FreeCamEnteringCameraState::UpdateState(FreeCamEnter
   CoDCasterCameraType MLGCameraType; 
   CgMLGCameraManager *m_cameraManager; 
   FreeCamEnteringCameraState *result; 
-  CgMLGCameraManager *v16; 
+  CgMLGCameraManager *v7; 
   CgGlobalsMP *LocalClientGlobals; 
   const characterInfo_t *CharacterInfo; 
-  bool v20; 
-  float v25; 
+  CgMLGCameraManager *v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float m_mlgTargetCameraFoV; 
+  float v20; 
+  bool v21; 
+  float m_mlgCurrentCameraFoV; 
+  double v23; 
+  double EaseInOutFactor; 
+  CgMLGCameraManager *v25; 
   float v26; 
   float v27; 
-  float v28; 
-  CgMLGCameraManager *v94; 
+  float v30; 
+  float v32; 
+  float v33; 
+  CgMLGCameraManager *v34; 
+  CgMLGCameraManager *v36; 
   CoDCasterCameraState state[4]; 
-  float v101; 
-  float v103; 
-  float v105; 
-  float v107; 
+  float v38; 
+  float v39; 
+  double v40; 
+  float v41; 
+  double v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  double v46; 
+  float v47; 
   CameraPose pose2; 
   CameraPose pose1; 
 
-  _RBX = this;
   MLGCameraType = CgMLGCameraManager::GetMLGCameraType(this->m_cameraManager, localClientNum);
   if ( MLGCameraType == AERIAL )
   {
-    m_cameraManager = _RBX->m_cameraManager;
+    m_cameraManager = this->m_cameraManager;
     state[0] = AERIALCAM_ENTERING;
     return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(m_cameraManager, localClientNum, state);
   }
@@ -6037,175 +4814,90 @@ FreeCamEnteringCameraState *FreeCamEnteringCameraState::UpdateState(FreeCamEnter
   {
     LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
     CharacterInfo = CG_GetCharacterInfo(LocalClientGlobals, LocalClientGlobals->clientNum);
-    _RCX = _RBX->m_cameraManager;
-    v20 = CharacterInfo->team < (unsigned int)TEAM_FOLLOWER;
+    v10 = this->m_cameraManager;
     if ( CharacterInfo->team == TEAM_FOLLOWER )
     {
       state[0] = FREECAM_ACTIVE;
-      return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(_RCX, localClientNum, state);
+      return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v10, localClientNum, state);
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm2, qword ptr [rcx+24h]
-        vmovsd  xmm3, qword ptr [rcx+30h]
-        vmovsd  xmm4, qword ptr [rcx+8]
-        vmovsd  xmm5, qword ptr [rcx+14h]
-      }
-      v25 = _RCX->m_mlgTargetCameraPos.v[2];
-      v26 = _RCX->m_mlgTargetCameraAngles.v[2];
-      v27 = _RCX->m_mlgCurrentCameraPos.v[2];
-      v28 = _RCX->m_mlgCurrentCameraAngles.v[2];
-      __asm
-      {
-        vmovaps [rsp+150h+var_20], xmm6
-        vmovss  xmm6, dword ptr [rcx+3Ch]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65E4h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-        vcomiss xmm1, dword ptr [rbx+10h]
-        vmovaps [rsp+150h+var_30], xmm7
-        vmovss  xmm7, dword ptr [rcx+20h]
-        vmovss  [rsp+150h+var_128], xmm6
-        vmovss  [rsp+150h+var_12C], xmm7
-        vmovss  dword ptr [rbx+14h], xmm1
-        vmovsd  [rsp+150h+var_F0], xmm2
-      }
-      v107 = v25;
-      __asm { vmovsd  [rsp+150h+var_110], xmm3 }
-      v103 = v26;
-      __asm { vmovsd  [rsp+150h+var_100], xmm4 }
-      v105 = v27;
-      __asm { vmovsd  [rsp+150h+var_120], xmm5 }
-      v101 = v28;
-      if ( !v20 )
+      v11 = *(double *)v10->m_mlgTargetCameraPos.v;
+      v12 = *(double *)v10->m_mlgTargetCameraAngles.v;
+      v13 = *(double *)v10->m_mlgCurrentCameraPos.v;
+      v14 = *(double *)v10->m_mlgCurrentCameraAngles.v;
+      v15 = v10->m_mlgTargetCameraPos.v[2];
+      v16 = v10->m_mlgTargetCameraAngles.v[2];
+      v17 = v10->m_mlgCurrentCameraPos.v[2];
+      v18 = v10->m_mlgCurrentCameraAngles.v[2];
+      m_mlgTargetCameraFoV = v10->m_mlgTargetCameraFoV;
+      v20 = (float)LocalClientGlobals->frametime + this->m_elapsedTransitionTime;
+      v21 = v20 < this->m_currentTransitionDuration;
+      m_mlgCurrentCameraFoV = v10->m_mlgCurrentCameraFoV;
+      v39 = m_mlgTargetCameraFoV;
+      v38 = m_mlgCurrentCameraFoV;
+      this->m_elapsedTransitionTime = v20;
+      v46 = v11;
+      v47 = v15;
+      v42 = v12;
+      v43 = v16;
+      v44 = v13;
+      v45 = v17;
+      v40 = v14;
+      v41 = v18;
+      if ( !v21 )
         goto LABEL_10;
-      pose2.angles.v[2] = v26;
-      pose2.pos.v[2] = v25;
-      __asm
-      {
-        vmovss  [rbp+50h+pose2.fov], xmm6
-        vmovss  [rbp+50h+pose1.fov], xmm7
-        vmovsd  qword ptr [rsp+150h+pose2.pos], xmm2
-        vmovsd  qword ptr [rsp+150h+pose2.angles], xmm3
-      }
+      pose2.angles.v[2] = v16;
+      pose2.pos.v[2] = v15;
+      pose2.fov = m_mlgTargetCameraFoV;
+      pose1.fov = m_mlgCurrentCameraFoV;
+      *(double *)pose2.pos.v = v11;
+      *(double *)pose2.angles.v = v12;
       pose2.hasBeenSet = 0;
-      __asm { vmovsd  qword ptr [rbp+50h+pose1.pos], xmm4 }
-      pose1.pos.v[2] = v27;
-      __asm { vmovsd  qword ptr [rbp+50h+pose1.angles], xmm5 }
-      pose1.angles.v[2] = v28;
+      *(double *)pose1.pos.v = v13;
+      pose1.pos.v[2] = v17;
+      *(double *)pose1.angles.v = v14;
+      pose1.angles.v[2] = v18;
       pose1.hasBeenSet = 0;
       if ( CG_MLG_ArePosesNearlyEqual(&pose1, &pose2) )
       {
 LABEL_10:
-        v94 = _RBX->m_cameraManager;
+        v36 = this->m_cameraManager;
         state[0] = FREECAM_ACTIVE;
-        result = (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v94, localClientNum, state);
+        return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v36, localClientNum, state);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+14h]
-          vdivss  xmm0, xmm0, dword ptr [rbx+10h]; val
-          vmovaps [rsp+150h+var_40], xmm8
-          vmovaps [rsp+150h+var_50], xmm9
-          vmovaps [rsp+150h+var_60], xmm11
-          vmovaps [rsp+150h+var_70], xmm13
-          vmovaps [rsp+150h+var_80], xmm14
-          vmovaps [rsp+150h+var_90], xmm15
-          vmovss  xmm15, cs:__real@3f800000
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        *(double *)&_XMM0 = CG_MLG_GetEaseInOutFactor(*(float *)&_XMM0);
-        _RAX = _RBX->m_cameraManager;
-        __asm
-        {
-          vmovss  xmm7, cs:__real@3b360b61
-          vmovss  xmm1, dword ptr [rsp+150h+var_F0]
-          vsubss  xmm2, xmm1, dword ptr [rsp+150h+var_100]
-          vmovss  xmm1, dword ptr [rsp+150h+var_F0+4]
-          vmulss  xmm3, xmm2, xmm0
-          vsubss  xmm2, xmm1, dword ptr [rsp+150h+var_100+4]
-          vaddss  xmm11, xmm3, dword ptr [rsp+150h+var_100]
-          vmovss  xmm1, dword ptr [rsp+150h+var_110]
-          vmulss  xmm3, xmm2, xmm0
-          vsubss  xmm2, xmm1, dword ptr [rsp+150h+var_120]
-          vaddss  xmm9, xmm3, dword ptr [rsp+150h+var_100+4]
-          vmovaps xmm14, xmm0
-          vmulss  xmm3, xmm2, xmm7
-          vaddss  xmm1, xmm3, cs:__real@3f000000
-          vmovss  dword ptr [rax+8], xmm11
-          vmovaps xmm11, [rsp+150h+var_60]
-          vmovss  dword ptr [rax+0Ch], xmm9
-          vmovaps xmm9, [rsp+150h+var_50]
-          vxorps  xmm13, xmm13, xmm13
-          vroundss xmm2, xmm13, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm0, xmm0, cs:__real@43b40000
-          vmulss  xmm1, xmm0, xmm14
-          vaddss  xmm8, xmm1, dword ptr [rsp+150h+var_120]
-          vmovss  xmm0, dword ptr [rsp+150h+var_110+4]
-          vsubss  xmm1, xmm0, dword ptr [rsp+150h+var_120+4]
-          vmulss  xmm4, xmm1, xmm7
-          vaddss  xmm2, xmm4, cs:__real@3f000000
-          vroundss xmm3, xmm13, xmm2, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, cs:__real@43b40000
-          vmovss  xmm0, [rsp+150h+var_108]
-          vmulss  xmm2, xmm1, xmm14
-          vsubss  xmm1, xmm0, [rsp+150h+var_118]
-          vaddss  xmm4, xmm2, dword ptr [rsp+150h+var_120+4]
-          vmovss  xmm0, [rsp+150h+var_E8]
-          vmulss  xmm5, xmm1, xmm7
-          vsubss  xmm1, xmm0, [rsp+150h+var_F8]
-          vmulss  xmm2, xmm1, xmm14
-          vaddss  xmm3, xmm2, [rsp+150h+var_F8]
-          vaddss  xmm1, xmm5, cs:__real@3f000000
-          vmovss  dword ptr [rax+10h], xmm3
-        }
-        _RCX = _RBX->m_cameraManager;
-        result = _RBX;
-        __asm
-        {
-          vroundss xmm2, xmm13, xmm1, 1
-          vmovaps xmm13, [rsp+150h+var_70]
-          vsubss  xmm0, xmm5, xmm2
-          vmulss  xmm1, xmm0, cs:__real@43b40000
-          vmulss  xmm2, xmm1, xmm14
-          vaddss  xmm3, xmm2, [rsp+150h+var_118]
-          vmovss  dword ptr [rcx+1Ch], xmm3
-          vmovss  dword ptr [rcx+14h], xmm8
-          vmovaps xmm8, [rsp+150h+var_40]
-          vsubss  xmm0, xmm15, xmm14
-          vmulss  xmm2, xmm0, [rsp+150h+var_12C]
-          vmovaps xmm15, [rsp+150h+var_90]
-          vmovss  dword ptr [rcx+18h], xmm4
-        }
-        _RCX = _RBX->m_cameraManager;
-        __asm
-        {
-          vmulss  xmm1, xmm14, xmm6
-          vmovaps xmm14, [rsp+150h+var_80]
-          vaddss  xmm3, xmm2, xmm1
-          vmovss  dword ptr [rcx+20h], xmm3
-        }
-      }
-      __asm
-      {
-        vmovaps xmm6, [rsp+150h+var_20]
-        vmovaps xmm7, [rsp+150h+var_30]
+        v23 = I_fclamp(this->m_elapsedTransitionTime / this->m_currentTransitionDuration, 0.0, 1.0);
+        EaseInOutFactor = CG_MLG_GetEaseInOutFactor(*(float *)&v23);
+        v25 = this->m_cameraManager;
+        v26 = (float)((float)(*((float *)&v46 + 1) - *((float *)&v44 + 1)) * *(float *)&EaseInOutFactor) + *((float *)&v44 + 1);
+        v27 = (float)(*(float *)&v42 - *(float *)&v40) * 0.0027777778;
+        v25->m_mlgCurrentCameraPos.v[0] = (float)((float)(*(float *)&v46 - *(float *)&v44) * *(float *)&EaseInOutFactor) + *(float *)&v44;
+        v25->m_mlgCurrentCameraPos.v[1] = v26;
+        _XMM13 = 0i64;
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v30 = (float)((float)((float)(v27 - *(float *)&_XMM2) * 360.0) * *(float *)&EaseInOutFactor) + *(float *)&v40;
+        __asm { vroundss xmm3, xmm13, xmm2, 1 }
+        v32 = v43 - v41;
+        v33 = (float)((float)((float)((float)((float)(*((float *)&v42 + 1) - *((float *)&v40 + 1)) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&EaseInOutFactor) + *((float *)&v40 + 1);
+        v25->m_mlgCurrentCameraPos.v[2] = (float)((float)(v47 - v45) * *(float *)&EaseInOutFactor) + v45;
+        v34 = this->m_cameraManager;
+        result = this;
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v34->m_mlgCurrentCameraAngles.v[2] = (float)((float)((float)((float)(v32 * 0.0027777778) - *(float *)&_XMM2) * 360.0) * *(float *)&EaseInOutFactor) + v41;
+        v34->m_mlgCurrentCameraAngles.v[0] = v30;
+        *(float *)&_XMM2 = (float)(1.0 - *(float *)&EaseInOutFactor) * v38;
+        v34->m_mlgCurrentCameraAngles.v[1] = v33;
+        this->m_cameraManager->m_mlgCurrentCameraFoV = *(float *)&_XMM2 + (float)(*(float *)&EaseInOutFactor * m_mlgTargetCameraFoV);
       }
     }
   }
   else
   {
-    v16 = _RBX->m_cameraManager;
+    v7 = this->m_cameraManager;
     state[0] = SPECTATOR_ENTERING;
-    return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v16, localClientNum, state);
+    return (FreeCamEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v7, localClientNum, state);
   }
   return result;
 }
@@ -6219,8 +4911,18 @@ SpectatorActiveCameraState *SpectatorActiveCameraState::UpdateState(SpectatorAct
 {
   CoDCasterCameraType MLGCameraType; 
   CgMLGCameraManager *m_cameraManager; 
-  SpectatorActiveCameraState *v9; 
-  CgMLGCameraManager *v10; 
+  SpectatorActiveCameraState *v6; 
+  CgMLGCameraManager *v7; 
+  CgGlobalsMP *LocalClientGlobals; 
+  float v9; 
+  float v10; 
+  float v11; 
+  ClientFov *ViewFovBySpace; 
+  CgMLGCameraManager *v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
   CoDCasterCameraState state[8]; 
   ClientFov result; 
   vec3_t outOrg; 
@@ -6234,58 +4936,40 @@ SpectatorActiveCameraState *SpectatorActiveCameraState::UpdateState(SpectatorAct
   }
   else if ( MLGCameraType == AERIAL )
   {
-    v10 = this->m_cameraManager;
+    v7 = this->m_cameraManager;
     state[0] = AERIALCAM_ENTERING;
-    return (SpectatorActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v10, localClientNum, state);
+    return (SpectatorActiveCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v7, localClientNum, state);
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovaps [rsp+88h+var_28], xmm7
-      vmovaps [rsp+88h+var_38], xmm8
-    }
-    _RBX = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-    RefdefView_GetOrg(&_RBX->refdef.view, &outOrg);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+178C0h]
-      vmovss  xmm7, dword ptr [rbx+178C4h]
-      vmovss  xmm8, dword ptr [rbx+178C8h]
-    }
-    _RAX = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
-    _RCX = this->m_cameraManager;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsp+88h+outOrg]
-      vmovss  xmm1, dword ptr [rsp+88h+outOrg+4]
-      vmovsd  xmm3, qword ptr [rax]
-      vmovss  xmm0, dword ptr [rsp+88h+outOrg+8]
-    }
-    v9 = this;
-    __asm
-    {
-      vmovss  dword ptr [rcx+8], xmm2
-      vmovss  dword ptr [rcx+0Ch], xmm1
-      vmovss  dword ptr [rcx+10h], xmm0
-      vmovss  dword ptr [rcx+14h], xmm6
-      vmovss  dword ptr [rcx+18h], xmm7
-      vmovss  dword ptr [rcx+1Ch], xmm8
-      vmovss  dword ptr [rcx+20h], xmm3
-      vmovss  dword ptr [rcx+24h], xmm2
-      vmovss  dword ptr [rcx+28h], xmm1
-      vmovss  dword ptr [rcx+2Ch], xmm0
-      vmovss  dword ptr [rcx+30h], xmm6
-      vmovaps xmm6, [rsp+88h+var_18]
-      vmovss  dword ptr [rcx+34h], xmm7
-      vmovaps xmm7, [rsp+88h+var_28]
-      vmovss  dword ptr [rcx+38h], xmm8
-      vmovaps xmm8, [rsp+88h+var_38]
-      vmovss  dword ptr [rcx+3Ch], xmm3
-    }
+    LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
+    v9 = LocalClientGlobals->refdefViewAngles.v[0];
+    v10 = LocalClientGlobals->refdefViewAngles.v[1];
+    v11 = LocalClientGlobals->refdefViewAngles.v[2];
+    ViewFovBySpace = CG_GetViewFovBySpace(&result, localClientNum, CG_FovSpace_Scene, 0);
+    v13 = this->m_cameraManager;
+    v14 = outOrg.v[0];
+    v15 = outOrg.v[1];
+    v16 = *(_QWORD *)&ViewFovBySpace->finalFov;
+    v17 = outOrg.v[2];
+    v6 = this;
+    v13->m_mlgCurrentCameraPos.v[0] = outOrg.v[0];
+    v13->m_mlgCurrentCameraPos.v[1] = v15;
+    v13->m_mlgCurrentCameraPos.v[2] = v17;
+    v13->m_mlgCurrentCameraAngles.v[0] = v9;
+    v13->m_mlgCurrentCameraAngles.v[1] = v10;
+    v13->m_mlgCurrentCameraAngles.v[2] = v11;
+    v13->m_mlgCurrentCameraFoV = *(float *)&v16;
+    v13->m_mlgTargetCameraPos.v[0] = v14;
+    v13->m_mlgTargetCameraPos.v[1] = v15;
+    v13->m_mlgTargetCameraPos.v[2] = v17;
+    v13->m_mlgTargetCameraAngles.v[0] = v9;
+    v13->m_mlgTargetCameraAngles.v[1] = v10;
+    v13->m_mlgTargetCameraAngles.v[2] = v11;
+    v13->m_mlgTargetCameraFoV = *(float *)&v16;
   }
-  return v9;
+  return v6;
 }
 
 /*
@@ -6297,401 +4981,268 @@ SpectatorEnteringCameraState *SpectatorEnteringCameraState::UpdateState(Spectato
 {
   CoDCasterCameraType MLGCameraType; 
   CgMLGCameraManager *m_cameraManager; 
-  SpectatorEnteringCameraState *result; 
-  CgMLGCameraManager *v18; 
-  char v19; 
-  float v23; 
-  float v25; 
-  float v28; 
-  float v34; 
+  CgMLGCameraManager *v7; 
+  CgGlobalsMP *LocalClientGlobals; 
+  CgMLGCameraManager *v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  float v13; 
+  float m_mlgCurrentCameraFoV; 
+  double v15; 
+  float v16; 
+  float m_elapsedTransitionTime; 
+  double v18; 
+  float v19; 
+  float m_mlgTargetCameraFoV; 
+  float v21; 
   int FocusedPlayer; 
+  CgGlobalsMP *v23; 
   centity_t *Entity; 
-  char v54; 
+  unsigned int *p_eType; 
+  __int128 v27; 
+  double FovDvarDefaultValue; 
+  float v30; 
+  float viewHeightCurrent; 
+  CgMLGCameraManager *v32; 
+  float v33; 
+  float v34; 
+  CgMLGCameraManager *v35; 
+  CgMLGCameraManager *v36; 
+  float v39; 
+  double v40; 
+  double EaseInOutFactor; 
+  __int128 v42; 
+  __int128 v45; 
+  __int128 v47; 
+  CgMLGCameraManager *v60; 
+  CgMLGCameraManager *v63; 
+  CgMLGCameraManager *v64; 
+  float v65; 
   CoDCasterCameraState state[4]; 
+  float v67; 
+  float v68; 
+  unsigned int v69; 
+  int v70; 
+  int v71; 
+  int v72; 
   vec3_t outOrigin; 
-  float v186; 
-  float v188; 
-  float v190; 
+  double v74; 
+  float v75; 
+  double v76; 
+  float v77; 
+  double v78; 
+  float v79; 
   tmat33_t<vec3_t> pose1; 
   vec3_t angles; 
   CameraPose pose2; 
 
-  _RBX = this;
   MLGCameraType = CgMLGCameraManager::GetMLGCameraType(this->m_cameraManager, localClientNum);
   if ( MLGCameraType == FREE )
   {
-    m_cameraManager = _RBX->m_cameraManager;
+    m_cameraManager = this->m_cameraManager;
     state[0] = FREECAM_ENTERING;
     return (SpectatorEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(m_cameraManager, localClientNum, state);
   }
   else if ( MLGCameraType == AERIAL )
   {
-    v18 = _RBX->m_cameraManager;
+    v7 = this->m_cameraManager;
     state[0] = AERIALCAM_ENTERING;
-    return (SpectatorEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v18, localClientNum, state);
+    return (SpectatorEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(v7, localClientNum, state);
   }
   else
   {
-    __asm
+    LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+    v9 = this->m_cameraManager;
+    v10 = *(double *)v9->m_mlgCurrentCameraPos.v;
+    v11 = v9->m_mlgCurrentCameraPos.v[2];
+    v12 = *(double *)v9->m_mlgCurrentCameraAngles.v;
+    v13 = v9->m_mlgCurrentCameraAngles.v[2];
+    m_mlgCurrentCameraFoV = v9->m_mlgCurrentCameraFoV;
+    v15 = *(double *)v9->m_mlgTargetCameraPos.v;
+    *(double *)outOrigin.v = v15;
+    v16 = v9->m_mlgTargetCameraPos.v[2];
+    outOrigin.v[2] = v16;
+    m_elapsedTransitionTime = (float)LocalClientGlobals->frametime + this->m_elapsedTransitionTime;
+    v18 = *(double *)v9->m_mlgTargetCameraAngles.v;
+    v19 = v9->m_mlgTargetCameraAngles.v[2];
+    m_mlgTargetCameraFoV = v9->m_mlgTargetCameraFoV;
+    v76 = v10;
+    v77 = v11;
+    v21 = (float)((float)((float)(*((float *)&v15 + 1) - *((float *)&v76 + 1)) * (float)(*((float *)&v15 + 1) - *((float *)&v76 + 1))) + (float)((float)(*(float *)&v15 - *(float *)&v10) * (float)(*(float *)&v15 - *(float *)&v10))) + (float)((float)(outOrigin.v[2] - v11) * (float)(outOrigin.v[2] - v11));
+    v67 = m_mlgCurrentCameraFoV;
+    this->m_elapsedTransitionTime = m_elapsedTransitionTime;
+    v78 = v12;
+    v79 = v13;
+    v74 = v18;
+    v75 = v19;
+    if ( v21 <= 900.0 )
     {
-      vmovaps [rsp+190h+var_20], xmm6
-      vmovaps [rsp+190h+var_30], xmm7
-      vmovaps [rsp+190h+var_40], xmm8
-      vmovaps [rsp+190h+var_50], xmm9
-      vmovaps [rsp+190h+var_60], xmm10
-      vmovaps [rsp+190h+var_70], xmm11
+      v9->m_shouldRenderThirdPerson = 0;
+      m_elapsedTransitionTime = this->m_elapsedTransitionTime;
+      v16 = outOrigin.v[2];
+      v15 = *(double *)outOrigin.v;
     }
-    CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-    _RCX = _RBX->m_cameraManager;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovsd  xmm8, qword ptr [rcx+8]
-    }
-    v23 = _RCX->m_mlgCurrentCameraPos.v[2];
-    __asm { vmovsd  xmm9, qword ptr [rcx+14h] }
-    v25 = _RCX->m_mlgCurrentCameraAngles.v[2];
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rcx+20h]
-      vmovsd  xmm6, qword ptr [rcx+24h]
-      vmovsd  qword ptr [rsp+190h+outOrigin], xmm6
-    }
-    v28 = _RCX->m_mlgTargetCameraPos.v[2];
-    __asm { vmovss  xmm1, dword ptr [rsp+190h+outOrigin+4] }
-    outOrigin.v[2] = v28;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+65E4h]
-      vaddss  xmm5, xmm0, dword ptr [rbx+10h]
-      vmovss  xmm0, dword ptr [rsp+190h+outOrigin]
-      vmovsd  xmm10, qword ptr [rcx+30h]
-    }
-    v34 = _RCX->m_mlgTargetCameraAngles.v[2];
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rcx+3Ch]
-      vsubss  xmm4, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rsp+190h+outOrigin+8]
-      vmovsd  [rsp+190h+var_130], xmm8
-      vsubss  xmm2, xmm1, dword ptr [rsp+190h+var_130+4]
-      vmulss  xmm1, xmm2, xmm2
-    }
-    v188 = v23;
-    __asm
-    {
-      vsubss  xmm3, xmm0, [rsp+190h+var_128]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@44610000
-      vmovss  [rsp+190h+var_16C], xmm11
-      vmovss  dword ptr [rbx+10h], xmm5
-      vmovsd  [rsp+190h+var_120], xmm9
-    }
-    v190 = v25;
-    __asm { vmovsd  [rsp+190h+var_140], xmm10 }
-    v186 = v34;
-    if ( v19 | v54 )
-    {
-      _RCX->m_shouldRenderThirdPerson = 0;
-      __asm { vmovss  xmm5, dword ptr [rbx+10h] }
-      v28 = outOrigin.v[2];
-      __asm { vmovsd  xmm6, qword ptr [rsp+190h+outOrigin] }
-    }
-    __asm { vcomiss xmm5, dword ptr [rbx+14h] }
-    if ( !v19 )
+    if ( m_elapsedTransitionTime >= this->m_currentTransitionDuration )
       goto LABEL_20;
-    pose2.pos.v[2] = v28;
-    pose2.angles.v[2] = v34;
-    __asm
-    {
-      vmovss  [rbp+90h+pose2.fov], xmm7
-      vmovss  [rbp+90h+pose1.fov], xmm11
-      vmovsd  qword ptr [rbp+90h+pose2.pos], xmm6
-      vmovsd  qword ptr [rbp+90h+pose2.angles], xmm10
-    }
+    pose2.pos.v[2] = v16;
+    pose2.angles.v[2] = v19;
+    pose2.fov = m_mlgTargetCameraFoV;
+    pose1.m[2].v[0] = m_mlgCurrentCameraFoV;
+    *(double *)pose2.pos.v = v15;
+    *(double *)pose2.angles.v = v18;
     pose2.hasBeenSet = 0;
-    __asm { vmovsd  qword ptr [rbp+90h+pose1.pos], xmm8 }
-    pose1.m[0].v[2] = v23;
-    __asm { vmovsd  qword ptr [rbp+90h+pose1.angles], xmm9 }
-    pose1.m[1].v[2] = v25;
+    *(double *)pose1.m[0].v = v10;
+    pose1.m[0].v[2] = v11;
+    *(double *)pose1.row1.v = v12;
+    pose1.m[1].v[2] = v13;
     LOBYTE(pose1.row2.y) = 0;
     if ( CG_MLG_ArePosesNearlyEqual((const CameraPose *)&pose1, &pose2) )
     {
 LABEL_20:
-      _RAX = _RBX->m_cameraManager;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+190h+var_140]
-        vmovss  xmm1, dword ptr [rsp+190h+var_140+4]
-      }
+      v64 = this->m_cameraManager;
+      v65 = *((float *)&v74 + 1);
       state[0] = SPECTATOR_ACTIVE;
-      __asm
-      {
-        vmovss  dword ptr [rax+14h], xmm0
-        vmovss  xmm0, [rsp+190h+var_138]
-        vmovss  dword ptr [rax+1Ch], xmm0
-        vmovss  dword ptr [rax+18h], xmm1
-      }
-      _RAX = _RBX->m_cameraManager;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+190h+outOrigin]
-        vmovss  dword ptr [rax+8], xmm0
-        vmovss  xmm1, dword ptr [rsp+190h+outOrigin+4]
-        vmovss  dword ptr [rax+0Ch], xmm1
-        vmovss  xmm0, dword ptr [rsp+190h+outOrigin+8]
-        vmovss  dword ptr [rax+10h], xmm0
-      }
-      _RAX = _RBX->m_cameraManager;
-      __asm { vmovss  dword ptr [rax+20h], xmm7 }
-      result = (SpectatorEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(_RBX->m_cameraManager, localClientNum, state);
+      v64->m_mlgCurrentCameraAngles.v[0] = *(float *)&v74;
+      v64->m_mlgCurrentCameraAngles.v[2] = v75;
+      v64->m_mlgCurrentCameraAngles.v[1] = v65;
+      this->m_cameraManager->m_mlgCurrentCameraPos = outOrigin;
+      this->m_cameraManager->m_mlgCurrentCameraFoV = m_mlgTargetCameraFoV;
+      return (SpectatorEnteringCameraState *)CgMLGCameraManager::UpdateMLGCameraState(this->m_cameraManager, localClientNum, state);
     }
     else
     {
-      FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(_RBX->m_cameraManager, localClientNum);
+      FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
       if ( FocusedPlayer != -1 )
       {
-        _R14 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
+        v23 = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
         Entity = CG_GetEntity(localClientNum, FocusedPlayer);
-        _RSI = Entity;
+        p_eType = (unsigned int *)&Entity->pose.eType;
         if ( Entity )
         {
           if ( ((Entity->nextState.eType - 1) & 0xFFEF) == 0 )
           {
-            __asm
-            {
-              vmovaps [rsp+190h+var_80], xmm12
-              vmovaps [rsp+190h+var_90], xmm13
-              vmovaps [rsp+190h+var_A0], xmm14
-              vmovaps [rsp+190h+var_B0], xmm15
-            }
             CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-            __asm
-            {
-              vmovss  xmm14, dword ptr [rsi+48h]
-              vmovss  xmm12, dword ptr [rsi+4Ch]
-              vmovss  xmm13, dword ptr [rsi+50h]
-            }
-            *(double *)&_XMM0 = CG_View_GetFovDvarDefaultValue(localClientNum);
-            __asm
-            {
-              vxorps  xmm11, xmm11, xmm11
-              vmovss  dword ptr [rbp+90h+angles], xmm11
-              vmovss  dword ptr [rbp+90h+angles+8], xmm11
-              vmovss  [rsp+190h+var_168], xmm0
-              vmovss  dword ptr [rbp+90h+angles+4], xmm12
-              vmovaps xmm9, xmm0
-            }
+            _XMM14 = p_eType[18];
+            v27 = p_eType[19];
+            _XMM13 = p_eType[20];
+            FovDvarDefaultValue = CG_View_GetFovDvarDefaultValue(localClientNum);
+            angles.v[0] = 0.0;
+            angles.v[2] = 0.0;
+            v68 = *(float *)&FovDvarDefaultValue;
+            angles.v[1] = *(float *)&v27;
+            v30 = *(float *)&FovDvarDefaultValue;
             AnglesToAxis(&angles, &pose1);
-            __asm { vmovss  xmm5, dword ptr [r14+1F0h] }
-            _RAX = _RBX->m_cameraManager;
-            __asm
+            viewHeightCurrent = v23->predictedPlayerState.viewHeightCurrent;
+            v32 = this->m_cameraManager;
+            outOrigin.v[1] = (float)((float)(viewHeightCurrent * pose1.m[2].v[1]) + (float)(10.0 * pose1.m[0].v[1])) + outOrigin.v[1];
+            v33 = *((float *)&v76 + 1);
+            outOrigin.v[0] = (float)((float)(viewHeightCurrent * pose1.m[2].v[0]) + (float)(10.0 * pose1.m[0].v[0])) + outOrigin.v[0];
+            outOrigin.v[2] = (float)((float)(viewHeightCurrent * pose1.m[2].v[2]) + (float)(10.0 * pose1.m[0].v[2])) + outOrigin.v[2];
+            v32->m_mlgTargetCameraPos.v[0] = outOrigin.v[0];
+            v34 = v77;
+            v32->m_mlgTargetCameraPos.v[1] = outOrigin.v[1];
+            v32->m_mlgTargetCameraPos.v[2] = outOrigin.v[2];
+            v35 = this->m_cameraManager;
+            v72 = v27;
+            v71 = _XMM13;
+            v69 = _XMM13;
+            v35->m_mlgTargetCameraAngles.v[0] = *(float *)&_XMM14;
+            v35->m_mlgTargetCameraAngles.v[1] = *(float *)&v27;
+            v35->m_mlgTargetCameraAngles.v[2] = *(float *)&_XMM13;
+            v36 = this->m_cameraManager;
+            v70 = _XMM13;
+            _XMM5 = _XMM14;
+            _XMM10 = v27;
+            v36->m_mlgTargetCameraFoV = *(float *)&FovDvarDefaultValue;
+            v39 = outOrigin.v[0];
+            if ( (float)((float)((float)((float)(outOrigin.v[1] - v33) * (float)(outOrigin.v[1] - v33)) + (float)((float)(outOrigin.v[0] - *(float *)&v10) * (float)(outOrigin.v[0] - *(float *)&v10))) + (float)((float)(outOrigin.v[2] - v34) * (float)(outOrigin.v[2] - v34))) < 1.0 )
             {
-              vmovss  xmm6, cs:__real@41200000
-              vmulss  xmm3, xmm5, [rbp+90h+pose1.fov]
-              vmulss  xmm2, xmm6, dword ptr [rbp+90h+pose1.pos]
-              vmulss  xmm1, xmm6, dword ptr [rbp+90h+pose1.pos+4]
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm7, xmm4, dword ptr [rsp+190h+outOrigin]
-              vmulss  xmm2, xmm5, dword ptr [rbp+90h+pose1.hasBeenSet]
-              vmulss  xmm4, xmm5, [rbp+90h+var_F0]
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm0, xmm3, dword ptr [rsp+190h+outOrigin+4]
-              vmovss  dword ptr [rsp+190h+outOrigin+4], xmm0
-              vmulss  xmm0, xmm6, dword ptr [rbp+90h+pose1.pos+8]
-              vmovss  xmm6, dword ptr [rsp+190h+var_130+4]
-              vmovss  dword ptr [rsp+190h+outOrigin], xmm7
-              vaddss  xmm3, xmm4, xmm0
-              vaddss  xmm1, xmm3, dword ptr [rsp+190h+outOrigin+8]
-              vmovss  dword ptr [rsp+190h+outOrigin+8], xmm1
-              vmovss  dword ptr [rax+24h], xmm7
-              vmovss  xmm0, dword ptr [rsp+190h+outOrigin+4]
-              vmovss  xmm7, [rsp+190h+var_128]
-              vmovss  dword ptr [rax+28h], xmm0
-              vmovss  xmm1, dword ptr [rsp+190h+outOrigin+8]
-              vmovss  dword ptr [rax+2Ch], xmm1
-            }
-            _RAX = _RBX->m_cameraManager;
-            __asm
-            {
-              vmovss  [rsp+190h+var_158], xmm12
-              vmovss  [rsp+190h+var_15C], xmm13
-              vmovss  [rsp+190h+var_164], xmm13
-              vmovss  dword ptr [rax+30h], xmm14
-              vmovss  dword ptr [rax+34h], xmm12
-              vmovss  dword ptr [rax+38h], xmm13
-            }
-            _RAX = _RBX->m_cameraManager;
-            __asm
-            {
-              vmovss  [rsp+190h+var_160], xmm13
-              vmovaps xmm5, xmm14
-              vmovaps xmm10, xmm12
-              vmovss  dword ptr [rax+3Ch], xmm9
-              vmovss  xmm0, dword ptr [rsp+190h+outOrigin+4]
-              vmovss  xmm1, dword ptr [rsp+190h+outOrigin+8]
-              vmovss  xmm15, dword ptr [rsp+190h+outOrigin]
-              vsubss  xmm3, xmm1, xmm7
-              vsubss  xmm2, xmm0, xmm6
-              vmulss  xmm1, xmm2, xmm2
-              vsubss  xmm4, xmm15, xmm8
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmovss  xmm1, cs:__real@3f800000
-              vcomiss xmm3, xmm1
-            }
-            if ( v19 )
-            {
-              __asm { vmovaps xmm3, xmm13 }
+              _XMM3 = _XMM13;
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+10h]
-                vdivss  xmm0, xmm0, dword ptr [rbx+14h]; val
-                vmovaps xmm2, xmm1; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              *(double *)&_XMM0 = CG_MLG_GetEaseInOutFactor(*(float *)&_XMM0);
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rsp+190h+outOrigin]
-                vmovaps xmm10, xmm0
-                vsubss  xmm2, xmm1, xmm8
-                vmovss  xmm1, dword ptr [rsp+190h+outOrigin+4]
-                vmulss  xmm3, xmm2, xmm0
-                vsubss  xmm2, xmm1, xmm6
-                vmovss  xmm1, dword ptr [rsp+190h+outOrigin+8]
-                vaddss  xmm15, xmm3, xmm8
-                vmovss  xmm8, cs:__real@3b360b61
-                vmulss  xmm3, xmm2, xmm0
-                vsubss  xmm2, xmm1, xmm7
-                vaddss  xmm4, xmm3, xmm6
-                vmovss  xmm6, cs:__real@43b40000
-                vmulss  xmm3, xmm2, xmm0
-                vsubss  xmm0, xmm14, dword ptr [rsp+190h+var_120]
-                vxorps  xmm9, xmm9, xmm9
-                vmovss  dword ptr [rsp+190h+outOrigin+4], xmm4
-                vaddss  xmm4, xmm3, xmm7
-                vmovss  xmm7, cs:__real@3f000000
-                vmulss  xmm3, xmm0, xmm8
-                vaddss  xmm1, xmm3, xmm7
-                vroundss xmm2, xmm9, xmm1, 1
-                vsubss  xmm0, xmm3, xmm2
-                vmulss  xmm0, xmm0, xmm6
-                vmulss  xmm1, xmm0, xmm10
-                vaddss  xmm14, xmm1, dword ptr [rsp+190h+var_120]
-                vsubss  xmm0, xmm12, dword ptr [rsp+190h+var_120+4]
-                vmovss  dword ptr [rsp+190h+outOrigin+8], xmm4
-                vmulss  xmm4, xmm0, xmm8
-                vaddss  xmm2, xmm4, xmm7
-                vroundss xmm3, xmm9, xmm2, 1
-                vsubss  xmm1, xmm4, xmm3
-                vmulss  xmm0, xmm1, xmm6
-                vmulss  xmm2, xmm0, xmm10
-                vaddss  xmm12, xmm2, dword ptr [rsp+190h+var_120+4]
-                vsubss  xmm0, xmm13, [rsp+190h+var_118]
-                vmulss  xmm4, xmm0, xmm8
-                vaddss  xmm2, xmm4, xmm7
-                vroundss xmm3, xmm9, xmm2, 1
-                vsubss  xmm1, xmm4, xmm3
-                vmulss  xmm0, xmm1, xmm6
-                vmulss  xmm1, xmm10, [rsp+190h+var_168]
-                vmulss  xmm2, xmm0, xmm10
-                vaddss  xmm13, xmm2, [rsp+190h+var_118]
-                vmovss  xmm0, cs:__real@3f800000
-                vmovaps xmm3, xmm13
-                vsubss  xmm0, xmm0, xmm10
-                vmulss  xmm2, xmm0, [rsp+190h+var_16C]
-                vaddss  xmm9, xmm2, xmm1
-                vmovss  [rsp+190h+var_158], xmm12
-                vmovss  [rsp+190h+var_15C], xmm3
-                vmovss  [rsp+190h+var_164], xmm3
-                vmovss  [rsp+190h+var_160], xmm3
-                vmovaps xmm5, xmm14
-                vmovaps xmm10, xmm12
-              }
+              v40 = I_fclamp(this->m_elapsedTransitionTime / this->m_currentTransitionDuration, 0.0, 1.0);
+              EaseInOutFactor = CG_MLG_GetEaseInOutFactor(*(float *)&v40);
+              v39 = (float)((float)(outOrigin.v[0] - *(float *)&v10) * *(float *)&EaseInOutFactor) + *(float *)&v10;
+              v42 = _XMM14;
+              _XMM9 = 0i64;
+              outOrigin.v[1] = (float)((float)(outOrigin.v[1] - v33) * *(float *)&EaseInOutFactor) + v33;
+              __asm { vroundss xmm2, xmm9, xmm1, 1 }
+              *(float *)&v42 = (float)((float)((float)((float)((float)(*(float *)&_XMM14 - *(float *)&v78) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * *(float *)&EaseInOutFactor) + *(float *)&v78;
+              _XMM14 = v42;
+              v45 = v27;
+              outOrigin.v[2] = (float)((float)(outOrigin.v[2] - v34) * *(float *)&EaseInOutFactor) + v34;
+              __asm { vroundss xmm3, xmm9, xmm2, 1 }
+              *(float *)&v45 = (float)((float)((float)((float)((float)(*(float *)&v27 - *((float *)&v78 + 1)) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&EaseInOutFactor) + *((float *)&v78 + 1);
+              v27 = v45;
+              v47 = _XMM13;
+              __asm { vroundss xmm3, xmm9, xmm2, 1 }
+              *(float *)&v47 = (float)((float)((float)((float)((float)(*(float *)&_XMM13 - v79) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * *(float *)&EaseInOutFactor) + v79;
+              _XMM13 = v47;
+              _XMM3 = v47;
+              v30 = (float)((float)(1.0 - *(float *)&EaseInOutFactor) * v67) + (float)(*(float *)&EaseInOutFactor * v68);
+              v72 = v27;
+              v71 = v47;
+              v69 = v47;
+              v70 = v47;
+              _XMM5 = _XMM14;
+              _XMM10 = v27;
             }
+            _XMM2 = v69;
             __asm
             {
-              vmovss  xmm1, cs:__real@80000000
-              vmovss  xmm2, [rsp+190h+var_164]
-              vmovss  xmm4, [rsp+190h+var_160]
               vcmpeqss xmm0, xmm5, xmm1
               vblendvps xmm0, xmm14, xmm11, xmm0
-              vmovaps xmm14, [rsp+190h+var_A0]
-              vmovss  dword ptr [rsp+190h+var_140], xmm0
+            }
+            *(float *)&v74 = *(float *)&_XMM0;
+            __asm
+            {
               vcmpeqss xmm0, xmm5, xmm1
               vblendvps xmm0, xmm2, xmm4, xmm0
-              vmovss  xmm2, [rsp+190h+var_15C]
-              vmovss  [rsp+190h+var_168], xmm0
+            }
+            v68 = *(float *)&_XMM0;
+            __asm
+            {
               vcmpeqss xmm0, xmm5, xmm1
               vblendvps xmm0, xmm3, xmm2, xmm0
-              vmovss  xmm2, [rsp+190h+var_158]
-              vmovss  [rsp+190h+var_16C], xmm0
+            }
+            v67 = *(float *)&_XMM0;
+            __asm
+            {
               vcmpeqss xmm0, xmm5, xmm1
               vblendvps xmm0, xmm10, xmm2, xmm0
-              vucomiss xmm0, xmm1
             }
-            if ( v54 )
+            if ( *(float *)&_XMM0 == -0.0 )
             {
-              __asm
-              {
-                vmovss  xmm0, [rsp+190h+var_168]
-                vxorps  xmm12, xmm12, xmm12
-              }
+              _XMM0 = LODWORD(v68);
+              LODWORD(v27) = 0;
             }
             else
             {
-              __asm { vmovss  xmm0, [rsp+190h+var_16C] }
+              _XMM0 = LODWORD(v67);
             }
-            _RCX = _RBX->m_cameraManager;
+            v60 = this->m_cameraManager;
             __asm
             {
               vcmpeqss xmm0, xmm0, xmm1
               vblendvps xmm2, xmm13, xmm11, xmm0
-              vmovaps xmm13, [rsp+190h+var_90]
-              vmovss  dword ptr [rcx+8], xmm15
-              vmovss  xmm0, dword ptr [rsp+190h+outOrigin+4]
-              vmovaps xmm15, [rsp+190h+var_B0]
-              vmovss  dword ptr [rcx+0Ch], xmm0
-              vmovss  xmm1, dword ptr [rsp+190h+outOrigin+8]
-              vmovss  xmm0, dword ptr [rsp+190h+var_140]
-              vmovss  dword ptr [rcx+10h], xmm1
             }
-            _RCX = _RBX->m_cameraManager;
-            __asm
-            {
-              vmovss  dword ptr [rcx+18h], xmm12
-              vmovaps xmm12, [rsp+190h+var_80]
-              vmovss  dword ptr [rcx+14h], xmm0
-              vmovss  dword ptr [rcx+1Ch], xmm2
-            }
-            _RCX = _RBX->m_cameraManager;
-            __asm { vmovss  dword ptr [rcx+20h], xmm9 }
+            v60->m_mlgCurrentCameraPos.v[0] = v39;
+            v60->m_mlgCurrentCameraPos.v[1] = outOrigin.v[1];
+            LODWORD(_XMM0) = LODWORD(v74);
+            v60->m_mlgCurrentCameraPos.v[2] = outOrigin.v[2];
+            v63 = this->m_cameraManager;
+            v63->m_mlgCurrentCameraAngles.v[1] = *(float *)&v27;
+            v63->m_mlgCurrentCameraAngles.v[0] = *(float *)&_XMM0;
+            v63->m_mlgCurrentCameraAngles.v[2] = *(float *)&_XMM2;
+            this->m_cameraManager->m_mlgCurrentCameraFoV = v30;
           }
         }
       }
-      result = _RBX;
-    }
-    __asm
-    {
-      vmovaps xmm9, [rsp+190h+var_50]
-      vmovaps xmm8, [rsp+190h+var_40]
-      vmovaps xmm7, [rsp+190h+var_30]
-      vmovaps xmm6, [rsp+190h+var_20]
-      vmovaps xmm10, [rsp+190h+var_60]
-      vmovaps xmm11, [rsp+190h+var_70]
+      return this;
     }
   }
-  return result;
 }
 
 /*
@@ -6702,40 +5253,26 @@ AerialCamActiveCameraState::UpdateTetheredPositionInternal
 void AerialCamActiveCameraState::UpdateTetheredPositionInternal(AerialCamActiveCameraState *this, const LocalClientNum_t localClientNum, const CgGlobalsMP *const cgameGlob)
 {
   int FocusedPlayer; 
-  int v8; 
+  int v7; 
   centity_t *ClientEntity; 
-  bool v10; 
+  bool v9; 
   CgMLGSpectator *MLGSpectator; 
 
-  _RDI = this;
   FocusedPlayer = CgMLGCameraManager::GetFocusedPlayer(this->m_cameraManager, localClientNum);
-  _RDI->m_focusOnBarycenter = 0;
-  v8 = FocusedPlayer;
+  this->m_focusOnBarycenter = 0;
+  v7 = FocusedPlayer;
   if ( FocusedPlayer != cgameGlob->clientNum )
   {
     if ( FocusedPlayer != -1 )
     {
       ClientEntity = CG_MLG_GetClientEntity(localClientNum, FocusedPlayer);
-      if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v10 = _RDI->m_lastFollowedClientNum != v8, CG_GetPoseOrigin(&ClientEntity->pose, &_RDI->m_groundPosition), v10) )
+      if ( !ClientEntity || ((ClientEntity->nextState.eType - 1) & 0xFFEF) != 0 || (v9 = this->m_lastFollowedClientNum != v7, CG_GetPoseOrigin(&ClientEntity->pose, &this->m_groundPosition), v9) || (MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum), !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v7)) && (this->m_currentOffset.v[0] != 0.0 || this->m_currentOffset.v[1] != 0.0) )
       {
-        *(_QWORD *)_RDI->m_currentOffset.v = 0i64;
-        _RDI->m_elapsedTransitionTime = 0.0;
-      }
-      else
-      {
-        MLGSpectator = CgMLGSpectator::GetMLGSpectator(localClientNum);
-        if ( !CgMLGSpectator::IsMLGMessageSent(MLGSpectator, v8) )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vucomiss xmm0, dword ptr [rdi+28h]
-            vucomiss xmm0, dword ptr [rdi+2Ch]
-          }
-        }
+        *(_QWORD *)this->m_currentOffset.v = 0i64;
+        this->m_elapsedTransitionTime = 0.0;
       }
     }
-    _RDI->m_lastFollowedClientNum = v8;
+    this->m_lastFollowedClientNum = v7;
   }
 }
 

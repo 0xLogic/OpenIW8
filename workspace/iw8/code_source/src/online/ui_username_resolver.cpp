@@ -128,11 +128,8 @@ bool UIUsernameResolver::QueueUsernameResolveRequest(UIUsernameResolver *this, c
       v12.m_appTaskType = -1;
       v12.m_appData = this;
       v12.m_appSecondaryCallback = NULL;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rsp+0D8h+var_90], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&v12.m_asyncInfo = _XMM0;
       v12.m_onCompletionCallback = UIUsernameResolver::ResolveCompleteCallback;
       v12.m_onUpdateCallback = NULL;
       v12.m_cancelTaskOnSignoutEvent = 1;

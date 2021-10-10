@@ -250,27 +250,13 @@ AgentReplicatedFieldCompressedFloat::UpdateParameter
 */
 void AgentReplicatedFieldCompressedFloat::UpdateParameter(AgentReplicatedFieldCompressedFloat *this, DObj *obj, unsigned __int8 quantizedValue)
 {
+  float v3; 
+
   if ( quantizedValue == 0xFF )
-  {
-    __asm { vmovss  xmm2, cs:__real@3f800000 }
-  }
+    v3 = FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, cs:__real@3b800000
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+1Ch]
-    vsubss  xmm1, xmm0, dword ptr [rcx+18h]
-    vmulss  xmm2, xmm1, xmm2
-    vaddss  xmm2, xmm2, dword ptr [rcx+18h]; value
-  }
-  XAnimSetFloatGameParameterByIndex(obj, this->m_paramIndex, *(float *)&_XMM2);
+    v3 = (float)quantizedValue * 0.00390625;
+  XAnimSetFloatGameParameterByIndex(obj, this->m_paramIndex, (float)((float)(this->m_maxValue - this->m_minValue) * v3) + this->m_minValue);
 }
 
 /*

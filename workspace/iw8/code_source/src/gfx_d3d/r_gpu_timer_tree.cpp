@@ -1257,55 +1257,47 @@ GPUTimerTree::LogNode
 bool GPUTimerTree::LogNode(GfxCmdBufContext *__formal, GPUTimeStampNode *pNode, unsigned int depth, GPUTimerTree::WalkData *pWalkData)
 {
   const char *Name; 
-  const char *v9; 
+  const char *v8; 
+  __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  unsigned __int64 v12; 
+  unsigned __int64 v11; 
   unsigned __int64 m_beginTimeUs; 
-  double v18; 
-  int v20; 
-  unsigned int v21; 
+  double v15; 
+  int v18; 
+  unsigned int v19; 
 
   if ( depth >= 8 )
   {
-    v20 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer_tree.cpp", 190, ASSERT_TYPE_ASSERT, "(depth < MAX_CHILD_DEPTH)", "%s\n\tRequested depth (%d) exceeds max allowed depth (%d)", "depth < MAX_CHILD_DEPTH", depth, v20) )
+    v18 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer_tree.cpp", 190, ASSERT_TYPE_ASSERT, "(depth < MAX_CHILD_DEPTH)", "%s\n\tRequested depth (%d) exceeds max allowed depth (%d)", "depth < MAX_CHILD_DEPTH", depth, v18) )
       __debugbreak();
   }
   Name = R_GPU_TimerGetName(pNode->m_id);
-  v9 = Name;
-  v10 = 3 * depth;
-  v11 = -1i64;
+  v8 = Name;
+  v9 = 3 * depth;
+  v10 = -1i64;
   do
-    ++v11;
-  while ( Name[v11] );
-  v12 = v11 + (unsigned int)(v10 + 4);
-  if ( v12 >= 0x200 )
+    ++v10;
+  while ( Name[v10] );
+  v11 = v10 + (unsigned int)(v9 + 4);
+  if ( v11 >= 0x200 )
   {
-    v21 = depth;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer_tree.cpp", 199, ASSERT_TYPE_ASSERT, "(4 + offset + name_len < 512)", "%s\n\tname buffer for logging timer nodes is short by %zu characters.\nTimer name is %s, depth is %u.\n", "LOGNODE_TAGLEN + offset + name_len < LOGNODE_BUFF", v12 - 511, v9, v21) )
+    v19 = depth;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer_tree.cpp", 199, ASSERT_TYPE_ASSERT, "(4 + offset + name_len < 512)", "%s\n\tname buffer for logging timer nodes is short by %zu characters.\nTimer name is %s, depth is %u.\n", "LOGNODE_TAGLEN + offset + name_len < LOGNODE_BUFF", v11 - 511, v8, v19) )
       __debugbreak();
   }
-  memset_0(&pWalkData->name[4], 32, (unsigned int)v10);
-  Core_strcpy(&pWalkData->name[v10 + 4], (unsigned int)(508 - v10), v9);
+  memset_0(&pWalkData->name[4], 32, (unsigned int)v9);
+  Core_strcpy(&pWalkData->name[v9 + 4], (unsigned int)(508 - v9), v8);
   m_beginTimeUs = pNode->m_beginTimeUs;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(pNode->m_endTimeUs - m_beginTimeUs) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm1, xmm0, cs:__real@3eb0c6f7a0b5ed8d; value }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  v15 = *(double *)&_XMM0 * 0.000001;
   if ( pWalkData->outputCsv )
-  {
-    Com_CSVWriteMetric(pWalkData->name, *(long double *)&_XMM1);
-  }
+    Com_CSVWriteMetric(pWalkData->name, v15);
   else
-  {
-    __asm { vmovsd  [rsp+58h+var_30], xmm1 }
-    Com_Printf(8, "%-30s, %11zu, %11zu, %5.6f\n", pWalkData->name, m_beginTimeUs, pNode->m_endTimeUs, v18);
-  }
+    Com_Printf(8, "%-30s, %11zu, %11zu, %5.6f\n", pWalkData->name, m_beginTimeUs, pNode->m_endTimeUs, v15);
   return 0;
 }
 
@@ -1314,123 +1306,115 @@ bool GPUTimerTree::LogNode(GfxCmdBufContext *__formal, GPUTimeStampNode *pNode, 
 GPUTimerTree::LogTimerTree
 ==============
 */
-void GPUTimerTree::LogTimerTree()
+void GPUTimerTree::LogTimerTree(void)
 {
-  TimerTree *v2; 
-  bool v3; 
+  TimerTree *v0; 
+  bool v1; 
   __int64 p_m_sysover_nodes; 
   unsigned __int64 m_size; 
-  __int64 v6; 
+  __int64 v4; 
+  __int64 v5; 
+  unsigned __int64 v6; 
   __int64 v7; 
   unsigned __int64 v8; 
-  __int64 v9; 
-  unsigned __int64 v10; 
-  const char *v11; 
-  int v12; 
+  const char *v9; 
+  int v10; 
   const char *Name; 
-  const char *v14; 
-  const char *v15; 
-  unsigned __int64 v16; 
+  const char *v12; 
+  const char *v13; 
+  unsigned __int64 v14; 
   GPUTimeStampNode *m_pRoot; 
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_head_base<ntl::internal::list_node<GPUTimeStampNode *> > *i; 
   GPUTimeStampNode *mp_prev; 
-  __int64 v23; 
-  unsigned __int128 v24; 
-  __int64 v25; 
-  ntl::fixed_vector<GPUTimeStampNode *,8,0> *v26; 
-  GPUTimerTree::WalkData v27; 
-  void *retaddr; 
+  __int64 v19; 
+  unsigned __int128 v20; 
+  __int64 v21; 
+  ntl::fixed_vector<GPUTimeStampNode *,8,0> *v22; 
+  GPUTimerTree::WalkData v23; 
 
-  _R11 = &retaddr;
-  v2 = GPUTimerTree::ms_pReadTree;
-  *(_QWORD *)&v24 = GPUTimerTree::ms_pReadTree;
+  v0 = GPUTimerTree::ms_pReadTree;
+  *(_QWORD *)&v20 = GPUTimerTree::ms_pReadTree;
   if ( GPUTimerTree::ms_pReadTree )
   {
-    __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-    Core_strcpy(v27.name, 0x200ui64, "GPU.");
-    v3 = !v2->m_isCalculated;
-    v27.outputCsv = 1;
-    if ( v3 )
+    Core_strcpy(v23.name, 0x200ui64, "GPU.");
+    v1 = !v0->m_isCalculated;
+    v23.outputCsv = 1;
+    if ( v1 )
     {
-      TimerTree::UpdateTimeStamps(v2);
-      TimerTree::CreateGraph(v2);
-      p_m_sysover_nodes = (__int64)&v2->m_sysover_nodes;
-      m_size = v2->m_sysover_nodes.m_size;
-      v25 = (__int64)&v2->m_sysover_nodes;
-      if ( &v2->m_sysover_nodes != (ntl::fixed_vector<GPUTimeStampNode *,8,0> *)((char *)&v2->m_sysover_nodes + 8 * m_size) )
+      TimerTree::UpdateTimeStamps(v0);
+      TimerTree::CreateGraph(v0);
+      p_m_sysover_nodes = (__int64)&v0->m_sysover_nodes;
+      m_size = v0->m_sysover_nodes.m_size;
+      v21 = (__int64)&v0->m_sysover_nodes;
+      if ( &v0->m_sysover_nodes != (ntl::fixed_vector<GPUTimeStampNode *,8,0> *)((char *)&v0->m_sysover_nodes + 8 * m_size) )
       {
-        v6 = (__int64)&v2->m_sysover_nodes;
-        v26 = &v2->m_sysover_nodes;
+        v4 = (__int64)&v0->m_sysover_nodes;
+        v22 = &v0->m_sysover_nodes;
         do
         {
-          v7 = *(_QWORD *)p_m_sysover_nodes;
-          v8 = *(_QWORD *)(*(_QWORD *)p_m_sysover_nodes + 16i64) - *(_QWORD *)(*(_QWORD *)p_m_sysover_nodes + 8i64);
-          if ( v8 )
+          v5 = *(_QWORD *)p_m_sysover_nodes;
+          v6 = *(_QWORD *)(*(_QWORD *)p_m_sysover_nodes + 16i64) - *(_QWORD *)(*(_QWORD *)p_m_sysover_nodes + 8i64);
+          if ( v6 )
           {
-            v9 = *(_QWORD *)(v7 + 32);
-            if ( v9 )
+            v7 = *(_QWORD *)(v5 + 32);
+            if ( v7 )
             {
               do
               {
-                v10 = *(_QWORD *)(v9 + 16);
-                if ( v8 > v10 )
+                v8 = *(_QWORD *)(v7 + 16);
+                if ( v6 > v8 )
                 {
-                  v11 = "False";
-                  v12 = *(unsigned __int8 *)(v9 + 24);
-                  if ( *(_BYTE *)(v7 + 24) )
-                    v11 = "True";
-                  Name = R_GPU_TimerGetName((GPUTimerId)*(_DWORD *)(v9 + 28));
-                  v14 = R_GPU_TimerGetName((GPUTimerId)*(_DWORD *)(v7 + 28));
-                  v15 = "False";
-                  if ( (_BYTE)v12 )
-                    v15 = "True";
-                  LODWORD(v23) = v12;
-                  Com_Printf(8, "Overhead time (%s | %zu) exceeds the parent end time (%s | %zu). CalcErr = %d, Node Err = %s Parent Err = %s\n", v14, v8, Name, v10, v23, v11, v15);
+                  v9 = "False";
+                  v10 = *(unsigned __int8 *)(v7 + 24);
+                  if ( *(_BYTE *)(v5 + 24) )
+                    v9 = "True";
+                  Name = R_GPU_TimerGetName((GPUTimerId)*(_DWORD *)(v7 + 28));
+                  v12 = R_GPU_TimerGetName((GPUTimerId)*(_DWORD *)(v5 + 28));
+                  v13 = "False";
+                  if ( (_BYTE)v10 )
+                    v13 = "True";
+                  LODWORD(v19) = v10;
+                  Com_Printf(8, "Overhead time (%s | %zu) exceeds the parent end time (%s | %zu). CalcErr = %d, Node Err = %s Parent Err = %s\n", v12, v6, Name, v8, v19, v9, v13);
                 }
                 else
                 {
-                  *(_QWORD *)(v9 + 16) = v10 - v8;
+                  *(_QWORD *)(v7 + 16) = v8 - v6;
                 }
-                v9 = *(_QWORD *)(v9 + 32);
+                v7 = *(_QWORD *)(v7 + 32);
               }
-              while ( v9 );
-              p_m_sysover_nodes = v25;
-              v6 = (__int64)v26;
+              while ( v7 );
+              p_m_sysover_nodes = v21;
+              v4 = (__int64)v22;
             }
           }
-          m_size = *(_QWORD *)(v6 + 64);
+          m_size = *(_QWORD *)(v4 + 64);
           p_m_sysover_nodes += 8i64;
-          v25 = p_m_sysover_nodes;
-          v3 = p_m_sysover_nodes == v6 + 8 * m_size;
-          v6 = (__int64)v26;
+          v21 = p_m_sysover_nodes;
+          v1 = p_m_sysover_nodes == v4 + 8 * m_size;
+          v4 = (__int64)v22;
         }
-        while ( !v3 );
-        v2 = (TimerTree *)v24;
+        while ( !v1 );
+        v0 = (TimerTree *)v20;
       }
-      v16 = 0i64;
+      v14 = 0i64;
       if ( m_size )
       {
         do
         {
-          if ( v16 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+          if ( v14 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          ++v16;
+          ++v14;
         }
-        while ( v16 < v2->m_sysover_nodes.m_size );
+        while ( v14 < v0->m_sysover_nodes.m_size );
       }
-      v2->m_sysover_nodes.m_size = 0i64;
-      TimerTree::CalcTimes(v2);
-      v2->m_isCalculated = 1;
+      v0->m_sysover_nodes.m_size = 0i64;
+      TimerTree::CalcTimes(v0);
+      v0->m_isCalculated = 1;
     }
-    m_pRoot = v2->m_pRoot;
-    v24 = 0ui64;
-    __asm
-    {
-      vmovups xmm6, [rsp+2C8h+var_278]
-      vmovdqa [rsp+2C8h+var_278], xmm6
-    }
-    if ( !GPUTimerTree::LogNode((GfxCmdBufContext *)&v24, m_pRoot, 0, &v27) )
+    m_pRoot = v0->m_pRoot;
+    v20 = 0ui64;
+    if ( !GPUTimerTree::LogNode((GfxCmdBufContext *)&v20, m_pRoot, 0, &v23) )
     {
       mp_next = m_pRoot->m_children.m_listHead.m_sentinel.mp_next;
       for ( i = &m_pRoot->m_children.m_listHead; mp_next != (ntl::internal::list_node_base *)i; mp_next = mp_next->mp_next )
@@ -1438,12 +1422,11 @@ void GPUTimerTree::LogTimerTree()
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         mp_prev = (GPUTimeStampNode *)mp_next[1].mp_prev;
-        __asm { vmovdqa [rsp+2C8h+var_278], xmm6 }
-        if ( TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(GPUTimerTree::LogNode, (GfxCmdBufContext *)&v24, mp_prev, &v27, 1u) )
+        v20 = 0ui64;
+        if ( TimerTree::WalkSubTree<GPUTimerTree::WalkData *>(GPUTimerTree::LogNode, (GfxCmdBufContext *)&v20, mp_prev, &v23, 1u) )
           break;
       }
     }
-    __asm { vmovaps xmm6, [rsp+2C8h+var_38] }
   }
   else
   {

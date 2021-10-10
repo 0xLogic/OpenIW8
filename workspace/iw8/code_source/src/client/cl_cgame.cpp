@@ -540,45 +540,31 @@ void __fastcall CL_LookupColor(LocalClientNum_t localClientNum, unsigned __int8 
 CL_CapTurnRate
 ==============
 */
-
-void __fastcall CL_CapTurnRate(LocalClientNum_t localClientNum, const TurnRateCapType capType, double maxPitchSpeed, double maxYawSpeed)
+void CL_CapTurnRate(LocalClientNum_t localClientNum, const TurnRateCapType capType, float maxPitchSpeed, float maxYawSpeed)
 {
-  __int64 v13; 
-  __int64 v15; 
-  int v16; 
+  __int64 v5; 
+  ClActiveClient *Client; 
+  __int64 v7; 
+  __int64 v9; 
+  int v10; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RBX = capType;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
+  v5 = capType;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v16 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 521, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v16) )
+    v10 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 521, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v10) )
       __debugbreak();
   }
-  if ( (unsigned int)_RBX >= 5 )
+  if ( (unsigned int)v5 >= 5 )
   {
-    LODWORD(v15) = 5;
-    LODWORD(v13) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 522, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<int>( capType ) ) < (unsigned)( TURNRATECAPTYPE_COUNT )", "static_cast<int>( capType ) doesn't index TURNRATECAPTYPE_COUNT\n\t%i not in [0, %i)", v13, v15) )
+    LODWORD(v9) = 5;
+    LODWORD(v7) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 522, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<int>( capType ) ) < (unsigned)( TURNRATECAPTYPE_COUNT )", "static_cast<int>( capType ) doesn't index TURNRATECAPTYPE_COUNT\n\t%i not in [0, %i)", v7, v9) )
       __debugbreak();
   }
-  _RAX = ClActiveClient::GetClient(localClientNum);
-  __asm
-  {
-    vmovss  dword ptr [rax+rbx*8+120h], xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [rax+rbx*8+124h], xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  Client = ClActiveClient::GetClient(localClientNum);
+  Client->turnRateCapInfos[v5].maxPitchSpeed = maxPitchSpeed;
+  Client->turnRateCapInfos[v5].maxYawSpeed = maxYawSpeed;
 }
 
 /*
@@ -618,32 +604,19 @@ int CL_DObjCreateSkelForBone(const DObj *obj, int boneIndex)
 CL_Draw3DQuadPicPhysicalST
 ==============
 */
-
-void __fastcall CL_Draw3DQuadPicPhysicalST(const vec3_t *verts, double s1, double t1, double s2, float t2, const vec4_t *color, Material *material)
+void CL_Draw3DQuadPicPhysicalST(const vec3_t *verts, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
   Material *v7; 
-  float t1a; 
   float s0; 
   float t0; 
   float s1a; 
 
-  __asm
-  {
-    vmovss  [rsp+s1], xmm3
-    vmovss  [rsp+t0], xmm2
-    vmovss  [rsp+s0], xmm1
-  }
+  s1a = s2;
+  t0 = t1;
+  s0 = s1;
   v7 = material;
   Material_Process2DTextureCoordsForAtlasing(material, &s0, &s1a, &t0, &t2);
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+arg_20]
-    vmovss  xmm3, [rsp+48h+s1]; s1
-    vmovss  xmm2, [rsp+48h+t0]; t0
-    vmovss  xmm1, [rsp+48h+s0]; s0
-    vmovss  dword ptr [rsp+48h+t1], xmm0
-  }
-  R_AddCmdDraw3DQuadPicST(verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, t1a, color, v7);
+  R_AddCmdDraw3DQuadPicST(verts, s0, t0, s1a, t2, color, v7);
 }
 
 /*
@@ -651,57 +624,13 @@ void __fastcall CL_Draw3DQuadPicPhysicalST(const vec3_t *verts, double s1, doubl
 CL_Draw3DStretchPicPhysicalRotatedST
 ==============
 */
-
-void __fastcall CL_Draw3DStretchPicPhysicalRotatedST(const vec3_t *verts, double centerS, double centerT, double scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
+void CL_Draw3DStretchPicPhysicalRotatedST(const vec3_t *verts, float centerS, float centerT, float scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
 {
-  Material *v16; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  char v41; 
-  void *retaddr; 
+  Material *v12; 
 
-  _R11 = &retaddr;
-  v16 = material;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  Material_Process2DTextureCoordsForAtlasing(v16, &minS, &maxS, &minT, &maxT);
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+angle]
-    vmovss  xmm1, [rsp+98h+maxT]
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, [rsp+98h+minT]
-    vmovss  [rsp+98h+var_58], xmm1
-    vmovss  xmm1, [rsp+98h+maxS]
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  xmm0, [rsp+98h+minS]
-    vmovss  [rsp+98h+var_68], xmm1
-    vmovss  xmm1, [rsp+98h+scaleFinalT]
-    vmovss  [rsp+98h+var_70], xmm0
-    vmovss  [rsp+98h+var_78], xmm1
-    vmovaps xmm1, xmm8; centerS
-    vmovaps xmm3, xmm6; scaleFinalS
-    vmovaps xmm2, xmm7; centerT
-  }
-  R_AddCmdDraw3DStretchPicRotateST(verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v34, v35, v36, v37, v38, v39, color, v16);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v12 = material;
+  Material_Process2DTextureCoordsForAtlasing(material, &minS, &maxS, &minT, &maxT);
+  R_AddCmdDraw3DStretchPicRotateST(verts, centerS, centerT, scaleFinalS, scaleFinalT, minS, maxS, minT, maxT, angle, color, v12);
 }
 
 /*
@@ -709,337 +638,105 @@ void __fastcall CL_Draw3DStretchPicPhysicalRotatedST(const vec3_t *verts, double
 CL_Draw9SliceImage
 ==============
 */
-
-void __fastcall CL_Draw9SliceImage(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
+void CL_Draw9SliceImage(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
 {
-  Material *v21; 
-  bool v23; 
-  int v30; 
-  int v31; 
-  const vec4_t *v42; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  int horzAligna; 
-  int horzAlignb; 
-  int horzAlignc; 
-  int horzAlignd; 
-  int horzAligne; 
-  int horzAlignf; 
-  int horzAligng; 
-  int horzAlignh; 
-  int horzAligni; 
-  int horzAlignj; 
-  int vertAligna; 
-  int vertAlignb; 
-  int vertAlignc; 
-  int vertAlignd; 
-  int vertAligne; 
-  int vertAlignf; 
-  int vertAligng; 
-  int vertAlignh; 
-  int vertAligni; 
-  int vertAlignj; 
-  float v142; 
-  float v143; 
-  float v144; 
-  float v145; 
-  float v146; 
-  float v147; 
-  float v148; 
-  float v149; 
-  float v150; 
+  Material *v9; 
+  float v12; 
+  GfxImage *image; 
+  int v14; 
+  int v15; 
+  float v16; 
+  float v17; 
+  const vec4_t *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   float wa; 
   float ya; 
   float xa[4]; 
-  __int64 v155; 
-  char v156; 
-  void *retaddr; 
-  float v158; 
-  float v159; 
-  float v160; 
-  float v161; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+20h], xmm3
-    vmovss  dword ptr [rax+18h], xmm2
-    vmovss  dword ptr [rax+10h], xmm1
-  }
-  _RBP = &v155;
-  v21 = material;
-  _R15 = scrPlace;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v23 = v21->textureCount == 1;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps [rsp+148h+var_D8], xmm15
-    vmovaps xmm11, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm10, xmm1
-  }
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 398, ASSERT_TYPE_ASSERT, "(material->textureCount == 1)", (const char *)&queryFormat, "material->textureCount == 1") )
+  v32 = w;
+  v31 = y;
+  v30 = x;
+  v9 = material;
+  if ( material->textureCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 398, ASSERT_TYPE_ASSERT, "(material->textureCount == 1)", (const char *)&queryFormat, "material->textureCount == 1") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+24h]
-    vmulss  xmm3, xmm0, cs:__real@3a72b9d6
-    vmovss  xmm7, cs:__real@3eaaaaab
-  }
-  v30 = vertAlign;
-  v31 = horzAlign;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm7
-    vdivss  xmm1, xmm0, dword ptr [r15]
-    vmulss  xmm8, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm7
-    vdivss  xmm2, xmm1, dword ptr [r15+4]
-    vmulss  xmm15, xmm2, xmm3
-  }
-  vertAligna = vertAlign;
-  horzAligna = horzAlign;
-  __asm
-  {
-    vmovss  dword ptr [rbp+50h], xmm15
-    vmovss  dword ptr [rbp+90h], xmm8
-    vmovss  [rsp+148h+w], xmm8
-    vmovss  [rsp+148h+y], xmm9
-    vmovss  [rsp+148h+x], xmm10
-  }
-  ScrPlace_ApplyRect(_R15, xa, &ya, &wa, &v158, horzAligna, vertAligna);
-  v42 = color;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+50h]; h
-    vmovss  xmm2, [rsp+148h+w]; w
-    vmovss  xmm1, [rsp+148h+y]; y
-    vmovss  xmm0, [rsp+148h+x]; x
-    vmovss  [rsp+148h+var_110], xmm7
-    vxorps  xmm13, xmm13, xmm13
-    vmovss  [rsp+148h+vertAlign], xmm7
-    vmovss  [rsp+148h+horzAlign], xmm13
-    vmovss  dword ptr [rsp+148h+fmt], xmm13
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, *(float *)&horzAlignb, *(float *)&vertAlignb, v142, color, v21);
-  __asm
-  {
-    vmulss  xmm0, xmm8, cs:__real@40000000
-    vsubss  xmm12, xmm11, xmm0
-    vaddss  xmm11, xmm8, xmm10
-    vmovss  [rsp+148h+w], xmm11
-    vmovss  dword ptr [rbp+50h], xmm15
-    vmovss  [rsp+148h+x], xmm12
-    vmovss  [rsp+148h+y], xmm9
-  }
-  ScrPlace_ApplyRect(_R15, &wa, &ya, xa, &v158, v31, v30);
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3f2aaaab
-    vmovss  xmm3, dword ptr [rbp+50h]; h
-    vmovss  xmm2, [rsp+148h+x]; w
-    vmovss  xmm1, [rsp+148h+y]; y
-    vmovss  xmm0, [rsp+148h+w]; x
-    vmovss  [rsp+148h+var_110], xmm7
-    vmovss  [rsp+148h+vertAlign], xmm14
-    vmovss  [rsp+148h+horzAlign], xmm13
-    vmovss  dword ptr [rsp+148h+fmt], xmm7
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, *(float *)&horzAlignc, *(float *)&vertAlignc, v143, v42, v21);
-  __asm
-  {
-    vaddss  xmm0, xmm10, dword ptr [rbp+68h]
-    vmovss  [rsp+148h+y], xmm9
-    vsubss  xmm9, xmm0, xmm8
-    vmovss  dword ptr [rbp+68h], xmm9
-    vmovss  dword ptr [rbp+50h], xmm15
-    vmovss  [rsp+148h+x], xmm8
-  }
-  ScrPlace_ApplyRect(_R15, &v161, &ya, xa, &v158, v31, v30);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  xmm3, dword ptr [rbp+50h]; h
-    vmovss  xmm2, [rsp+148h+x]; w
-    vmovss  xmm1, [rsp+148h+y]; y
-    vmovss  xmm0, dword ptr [rbp+68h]; x
-    vmovss  [rsp+148h+var_110], xmm7
-    vmovss  [rsp+148h+vertAlign], xmm10
-    vmovss  [rsp+148h+horzAlign], xmm13
-    vmovss  dword ptr [rsp+148h+fmt], xmm14
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, *(float *)&horzAlignd, *(float *)&vertAlignd, v144, v42, v21);
-  __asm
-  {
-    vmulss  xmm0, xmm15, cs:__real@40000000
-    vmovss  xmm8, dword ptr [rbp+70h]
-    vmovss  xmm1, dword ptr [rbp+90h]
-    vaddss  xmm6, xmm15, dword ptr [rbp+60h]
-    vsubss  xmm7, xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbp+58h]
-    vmovss  [rsp+148h+x], xmm0
-    vmovss  dword ptr [rbp+68h], xmm7
-    vmovss  dword ptr [rbp+70h], xmm1
-    vmovss  dword ptr [rbp+50h], xmm6
-  }
-  ScrPlace_ApplyRect(_R15, xa, &v158, &h, &v161, v31, v30);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3eaaaaab
-    vmovss  xmm3, dword ptr [rbp+68h]; h
-    vmovss  xmm2, dword ptr [rbp+70h]; w
-    vmovss  xmm1, dword ptr [rbp+50h]; y
-    vmovss  [rsp+148h+var_110], xmm14
-    vmovss  [rsp+148h+vertAlign], xmm0
-    vmovss  [rsp+148h+horzAlign], xmm0
-    vmovss  xmm0, [rsp+148h+x]; x
-    vmovss  dword ptr [rsp+148h+fmt], xmm13
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, *(float *)&horzAligne, *(float *)&vertAligne, v145, v42, v21);
-  __asm
-  {
-    vmovss  dword ptr [rbp+68h], xmm7
-    vmovss  dword ptr [rbp+70h], xmm12
-    vmovss  dword ptr [rbp+50h], xmm6
-    vmovss  [rsp+148h+x], xmm11
-  }
-  ScrPlace_ApplyRect(_R15, xa, &v158, &h, &v161, v31, v30);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3eaaaaab
-    vmovss  xmm3, dword ptr [rbp+68h]; h
-    vmovss  xmm2, dword ptr [rbp+70h]; w
-    vmovss  xmm1, dword ptr [rbp+50h]; y
-    vmovss  [rsp+148h+var_110], xmm14
-    vmovss  [rsp+148h+vertAlign], xmm14
-    vmovss  [rsp+148h+horzAlign], xmm0
-    vmovss  dword ptr [rsp+148h+fmt], xmm0
-    vmovss  xmm0, [rsp+148h+x]; x
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, *(float *)&horzAlignf, *(float *)&vertAlignf, v146, v42, v21);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+90h]
-    vmovss  dword ptr [rbp+70h], xmm0
-    vmovss  dword ptr [rbp+68h], xmm7
-    vmovss  dword ptr [rbp+50h], xmm6
-    vmovss  [rsp+148h+x], xmm9
-  }
-  ScrPlace_ApplyRect(_R15, xa, &v158, &h, &v161, v31, v30);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3eaaaaab
-    vmovss  xmm3, dword ptr [rbp+68h]; h
-    vmovss  xmm2, dword ptr [rbp+70h]; w
-    vmovss  xmm1, dword ptr [rbp+50h]; y
-    vmovss  xmm0, [rsp+148h+x]; x
-    vmovss  [rsp+148h+var_110], xmm14
-    vmovss  [rsp+148h+vertAlign], xmm10
-    vmovss  [rsp+148h+horzAlign], xmm7
-    vmovss  dword ptr [rsp+148h+fmt], xmm14
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, *(float *)&horzAligng, *(float *)&vertAligng, v147, v42, v21);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+90h]
-    vmovss  dword ptr [rbp+70h], xmm0
-    vaddss  xmm0, xmm8, dword ptr [rbp+60h]
-    vsubss  xmm6, xmm0, xmm15
-    vmovss  xmm0, dword ptr [rbp+58h]
-    vmovss  dword ptr [rbp+58h], xmm0
-    vmovss  dword ptr [rbp+68h], xmm15
-    vmovss  dword ptr [rbp+60h], xmm6
-  }
-  ScrPlace_ApplyRect(_R15, &v159, &v160, &h, &v161, v31, v30);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+68h]; h
-    vmovss  xmm2, dword ptr [rbp+70h]; w
-    vmovss  xmm1, dword ptr [rbp+60h]; y
-    vmovss  xmm0, dword ptr [rbp+58h]; x
-    vmovss  [rsp+148h+var_110], xmm10
-    vmovss  [rsp+148h+vertAlign], xmm7
-    vmovss  [rsp+148h+horzAlign], xmm14
-    vmovss  dword ptr [rsp+148h+fmt], xmm13
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, *(float *)&horzAlignh, *(float *)&vertAlignh, v148, v42, v21);
-  __asm
-  {
-    vmovss  dword ptr [rbp+60h], xmm15
-    vmovss  dword ptr [rbp+58h], xmm12
-    vmovss  dword ptr [rbp+68h], xmm6
-    vmovss  dword ptr [rbp+70h], xmm11
-  }
-  ScrPlace_ApplyRect(_R15, &h, &v161, &v159, &v160, v31, v30);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+60h]; h
-    vmovss  xmm2, dword ptr [rbp+58h]; w
-    vmovss  xmm1, dword ptr [rbp+68h]; y
-    vmovss  xmm0, dword ptr [rbp+70h]; x
-    vmovss  [rsp+148h+var_110], xmm10
-    vmovss  [rsp+148h+vertAlign], xmm14
-    vmovss  [rsp+148h+horzAlign], xmm14
-    vmovss  dword ptr [rsp+148h+fmt], xmm7
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, *(float *)&horzAligni, *(float *)&vertAligni, v149, v42, v21);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+90h]
-    vmovss  dword ptr [rbp+58h], xmm0
-    vmovss  dword ptr [rbp+60h], xmm15
-    vmovss  dword ptr [rbp+68h], xmm6
-    vmovss  dword ptr [rbp+70h], xmm9
-  }
-  ScrPlace_ApplyRect(_R15, &h, &v161, &v159, &v160, v31, v30);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbp+60h]; h
-    vmovss  xmm2, dword ptr [rbp+58h]; w
-    vmovss  xmm1, dword ptr [rbp+68h]; y
-    vmovss  xmm0, dword ptr [rbp+70h]; x
-    vmovss  [rsp+148h+var_110], xmm10
-    vmovss  [rsp+148h+vertAlign], xmm10
-    vmovss  [rsp+148h+horzAlign], xmm14
-    vmovss  dword ptr [rsp+148h+fmt], xmm14
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmth, *(float *)&horzAlignj, *(float *)&vertAlignj, v150, v42, v21);
-  __asm { vmovaps xmm15, [rsp+148h+var_D8] }
-  _R11 = &v156;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-  }
+  v12 = scrPlace->realViewportSize.v[1] * 0.00092592591;
+  image = v9->textureTable->image;
+  v14 = vertAlign;
+  v15 = horzAlign;
+  v16 = (float)((float)((float)image->width * 0.33333334) / scrPlace->scaleVirtualToReal.v[0]) * v12;
+  v29 = (float)((float)((float)image->height * 0.33333334) / scrPlace->scaleVirtualToReal.v[1]) * v12;
+  v17 = v29;
+  *(float *)&material = v16;
+  wa = v16;
+  ya = y;
+  xa[0] = x;
+  ScrPlace_ApplyRect(scrPlace, xa, &ya, &wa, &v29, horzAlign, vertAlign);
+  v18 = color;
+  CL_DrawStretchPicPhysical(xa[0], ya, wa, v29, 0.0, 0.0, 0.33333334, 0.33333334, color, v9);
+  v19 = w - (float)(v16 * 2.0);
+  v20 = v16 + x;
+  wa = v16 + x;
+  v29 = v17;
+  xa[0] = v19;
+  ya = y;
+  ScrPlace_ApplyRect(scrPlace, &wa, &ya, xa, &v29, v15, v14);
+  CL_DrawStretchPicPhysical(wa, ya, xa[0], v29, 0.33333334, 0.0, 0.66666669, 0.33333334, v18, v9);
+  ya = y;
+  v32 = (float)(x + v32) - v16;
+  v21 = v32;
+  v29 = v17;
+  xa[0] = v16;
+  ScrPlace_ApplyRect(scrPlace, &v32, &ya, xa, &v29, v15, v14);
+  CL_DrawStretchPicPhysical(v32, ya, xa[0], v29, 0.66666669, 0.0, 1.0, 0.33333334, v18, v9);
+  v22 = h;
+  v23 = v17 + v31;
+  v24 = h - (float)(v17 * 2.0);
+  xa[0] = v30;
+  v32 = v24;
+  h = *(float *)&material;
+  v29 = v17 + v31;
+  ScrPlace_ApplyRect(scrPlace, xa, &v29, &h, &v32, v15, v14);
+  CL_DrawStretchPicPhysical(xa[0], v29, h, v32, 0.0, 0.33333334, 0.33333334, 0.66666669, v18, v9);
+  v32 = v24;
+  h = v19;
+  v29 = v23;
+  xa[0] = v20;
+  ScrPlace_ApplyRect(scrPlace, xa, &v29, &h, &v32, v15, v14);
+  CL_DrawStretchPicPhysical(xa[0], v29, h, v32, 0.33333334, 0.33333334, 0.66666669, 0.66666669, v18, v9);
+  h = *(float *)&material;
+  v32 = v24;
+  v29 = v23;
+  xa[0] = v21;
+  ScrPlace_ApplyRect(scrPlace, xa, &v29, &h, &v32, v15, v14);
+  CL_DrawStretchPicPhysical(xa[0], v29, h, v32, 0.66666669, 0.33333334, 1.0, 0.66666669, v18, v9);
+  h = *(float *)&material;
+  v32 = v17;
+  v31 = (float)(v22 + v31) - v17;
+  v25 = v31;
+  ScrPlace_ApplyRect(scrPlace, &v30, &v31, &h, &v32, v15, v14);
+  CL_DrawStretchPicPhysical(v30, v31, h, v32, 0.0, 0.66666669, 0.33333334, 1.0, v18, v9);
+  v31 = v17;
+  v30 = v19;
+  v32 = v25;
+  h = v20;
+  ScrPlace_ApplyRect(scrPlace, &h, &v32, &v30, &v31, v15, v14);
+  CL_DrawStretchPicPhysical(h, v32, v30, v31, 0.33333334, 0.66666669, 0.66666669, 1.0, v18, v9);
+  v30 = *(float *)&material;
+  v31 = v17;
+  v32 = v25;
+  h = v21;
+  ScrPlace_ApplyRect(scrPlace, &h, &v32, &v30, &v31, v15, v14);
+  CL_DrawStretchPicPhysical(h, v32, v30, v31, 0.66666669, 0.66666669, 1.0, 1.0, v18, v9);
 }
 
 /*
@@ -1047,32 +744,19 @@ void __fastcall CL_Draw9SliceImage(const ScreenPlacement *scrPlace, double x, do
 CL_DrawQuadPicPhysicalST
 ==============
 */
-
-void __fastcall CL_DrawQuadPicPhysicalST(const vec2_t *verts, double s1, double t1, double s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawQuadPicPhysicalST(const vec2_t *verts, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
   Material *v7; 
-  float t1a; 
   float s0; 
   float t0; 
   float s1a; 
 
-  __asm
-  {
-    vmovss  [rsp+s1], xmm3
-    vmovss  [rsp+t0], xmm2
-    vmovss  [rsp+s0], xmm1
-  }
+  s1a = s2;
+  t0 = t1;
+  s0 = s1;
   v7 = material;
   Material_Process2DTextureCoordsForAtlasing(material, &s0, &s1a, &t0, &t2);
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+arg_20]
-    vmovss  xmm3, [rsp+48h+s1]; s1
-    vmovss  xmm2, [rsp+48h+t0]; t0
-    vmovss  xmm1, [rsp+48h+s0]; s0
-    vmovss  dword ptr [rsp+48h+t1], xmm0
-  }
-  R_AddCmdDrawQuadPicST(verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, t1a, color, v7);
+  R_AddCmdDrawQuadPicST(verts, s0, t0, s1a, t2, color, v7);
 }
 
 /*
@@ -1084,45 +768,17 @@ void CL_DrawRect(const int x, const int y, const int width, const int height, co
 {
   Material *material; 
   float h; 
-  float v23; 
-  float v24; 
-  float v25; 
-  int v26; 
   float w; 
   float ya; 
   float xa; 
 
   material = cls.whiteMaterial;
-  _RAX = &v26;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r8d
-    vmovss  dword ptr [rax], xmm0
-    vmovss  dword ptr [rax+8], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ecx
-    vmovss  dword ptr [rax+10h], xmm0
-    vmovss  dword ptr [rax+18h], xmm1
-  }
-  ScrPlace_ApplyRect(&scrPlaceFull, &xa, &ya, &w, (float *)&v26, 1, 1);
-  __asm
-  {
-    vmovss  xmm3, [rsp+58h+arg_0]; h
-    vmovss  xmm2, [rsp+58h+w]; w
-    vmovss  xmm1, [rsp+58h+y]; y
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovss  [rsp+58h+var_28], xmm0
-    vmovss  [rsp+58h+var_30], xmm0
-    vmovss  dword ptr [rsp+58h+h], xmm0
-    vmovss  xmm0, [rsp+58h+x]; x
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, v23, v24, v25, color, material);
+  h = (float)height;
+  w = (float)width;
+  ya = (float)y;
+  xa = (float)x;
+  ScrPlace_ApplyRect(&scrPlaceFull, &xa, &ya, &w, &h, 1, 1);
+  CL_DrawStretchPicPhysical(xa, ya, w, h, 0.0, 0.0, 0.0, 0.0, color, material);
 }
 
 /*
@@ -1130,84 +786,28 @@ void CL_DrawRect(const int x, const int y, const int width, const int height, co
 CL_DrawRotatedStretchPicWithoutSplitScreenScaling
 ==============
 */
-
-void __fastcall CL_DrawRotatedStretchPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, float angle, bool pivotTopLeft, const vec4_t *color, Material *material)
+void CL_DrawRotatedStretchPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, float angle, bool pivotTopLeft, const vec4_t *color, Material *material)
 {
-  Material *v23; 
-  float ha; 
-  int horzAligna; 
-  int vertAligna; 
-  float v47; 
-  float v48; 
-  _BYTE v49[7]; 
-  char v50; 
-  void *retaddr; 
-  float v52; 
-  float v53; 
-  float v54; 
+  Material *v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+20h], xmm3
-    vmovss  dword ptr [rax+18h], xmm2
-    vmovss  dword ptr [rax+10h], xmm1
-  }
-  _RBP = v49;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  ScrPlace_ApplyRectWithoutSplitScreenScaling(scrPlace, &v52, &v53, &v54, &h, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+67h]
-    vmovss  xmm1, dword ptr [rbp+5Fh]
-  }
-  v23 = material;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbp+37h]
-    vmovss  xmm7, dword ptr [rbp+2Fh]
-    vmovss  xmm8, dword ptr [rbp+27h]
-    vmovss  xmm9, dword ptr [rbp+1Fh]
-    vmovss  dword ptr [rbp+67h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h]
-    vmovss  dword ptr [rbp+5Fh], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh]
-    vmovss  dword ptr [rbp+57h], xmm0
-    vmovss  dword ptr [rbp+4Fh], xmm1
-  }
-  Material_Process2DTextureCoordsForAtlasing(v23, &s1, &s2, &t1, &t2);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbp+6Fh]
-    vmovss  xmm5, dword ptr [rbp+67h]
-    vmovss  [rsp+0B8h+var_78], xmm4
-    vmovss  xmm4, dword ptr [rbp+5Fh]
-    vmovss  [rsp+0B8h+var_80], xmm5
-    vmovss  xmm5, dword ptr [rbp+57h]
-    vmovss  [rsp+0B8h+vertAlign], xmm4
-    vmovss  xmm4, dword ptr [rbp+4Fh]
-    vmovss  [rsp+0B8h+horzAlign], xmm5
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm9; x
-    vmovss  dword ptr [rsp+0B8h+h], xmm4
-  }
-  R_AddCmdDrawStretchPicRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ha, *(float *)&horzAligna, *(float *)&vertAligna, v47, v48, pivotTopLeft, 1, color, v23);
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v22 = w;
+  v21 = y;
+  v20 = x;
+  ScrPlace_ApplyRectWithoutSplitScreenScaling(scrPlace, &v20, &v21, &v22, &h, horzAlign, vertAlign);
+  v15 = material;
+  v16 = h;
+  v17 = v22;
+  v18 = v21;
+  v19 = v20;
+  Material_Process2DTextureCoordsForAtlasing(material, &s1, &s2, &t1, &t2);
+  R_AddCmdDrawStretchPicRotateXY(v19, v18, v17, v16, s1, t1, s2, t2, angle, pivotTopLeft, 1, color, v15);
 }
 
 /*
@@ -1215,40 +815,17 @@ void __fastcall CL_DrawRotatedStretchPicWithoutSplitScreenScaling(const ScreenPl
 CL_DrawStretchPic
 ==============
 */
-
-void __fastcall CL_DrawStretchPic(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawStretchPic(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
-  float v21; 
-  float v22; 
-  float v23; 
-  float v24; 
-  int v25; 
-  int v26; 
-  int v27; 
+  float v13; 
+  float v14; 
+  float v15; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_18], xmm3
-    vmovss  [rsp+arg_10], xmm2
-    vmovss  [rsp+arg_8], xmm1
-  }
-  ScrPlace_ApplyRect(scrPlace, (float *)&v25, (float *)&v26, (float *)&v27, &h, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+t2]
-    vmovss  xmm1, [rsp+58h+s2]
-    vmovss  xmm3, [rsp+58h+h]; h
-    vmovss  xmm2, [rsp+58h+arg_18]; w
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovss  xmm0, [rsp+58h+t1]
-    vmovss  [rsp+58h+var_28], xmm1
-    vmovss  xmm1, [rsp+58h+s1]
-    vmovss  [rsp+58h+var_30], xmm0
-    vmovss  xmm0, [rsp+58h+arg_8]; x
-    vmovss  [rsp+58h+var_38], xmm1
-    vmovss  xmm1, [rsp+58h+arg_10]; y
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v21, v22, v23, v24, color, material);
+  v15 = w;
+  v14 = y;
+  v13 = x;
+  ScrPlace_ApplyRect(scrPlace, &v13, &v14, &v15, &h, horzAlign, vertAlign);
+  CL_DrawStretchPicPhysical(v13, v14, v15, h, s1, t1, s2, t2, color, material);
 }
 
 /*
@@ -1256,81 +833,28 @@ void __fastcall CL_DrawStretchPic(const ScreenPlacement *scrPlace, double x, dou
 CL_DrawStretchPicFlipST
 ==============
 */
-
-void __fastcall CL_DrawStretchPicFlipST(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawStretchPicFlipST(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
-  Material *v21; 
-  float ha; 
-  int horzAligna; 
-  int vertAligna; 
-  float v44; 
-  _BYTE v46[7]; 
-  char v47; 
-  void *retaddr; 
-  float v49; 
-  float v50; 
-  float v51; 
+  Material *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+20h], xmm3
-    vmovss  dword ptr [rax+18h], xmm2
-    vmovss  dword ptr [rax+10h], xmm1
-  }
-  _RBP = v46;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  ScrPlace_ApplyRect(scrPlace, &v49, &v50, &v51, &h, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+6Fh]
-    vmovss  xmm1, dword ptr [rbp+67h]
-  }
-  v21 = material;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbp+3Fh]
-    vmovss  xmm7, dword ptr [rbp+37h]
-    vmovss  xmm8, dword ptr [rbp+2Fh]
-    vmovss  xmm9, dword ptr [rbp+27h]
-    vmovss  dword ptr [rbp+6Fh], xmm0
-    vmovss  xmm0, dword ptr [rbp+5Fh]
-    vmovss  dword ptr [rbp+67h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h]
-    vmovss  dword ptr [rbp+5Fh], xmm0
-    vmovss  dword ptr [rbp+57h], xmm1
-  }
-  Material_Process2DTextureCoordsForAtlasing(v21, &s1, &s2, &t1, &t2);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbp+6Fh]
-    vmovss  xmm5, dword ptr [rbp+67h]
-    vmovss  [rsp+98h+var_60], xmm4
-    vmovss  xmm4, dword ptr [rbp+5Fh]
-    vmovss  [rsp+98h+vertAlign], xmm5
-    vmovss  xmm5, dword ptr [rbp+57h]
-    vmovss  [rsp+98h+horzAlign], xmm4
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm8; y
-    vmovaps xmm0, xmm9; x
-    vmovss  dword ptr [rsp+98h+h], xmm5
-  }
-  R_AddCmdDrawStretchPicFlipST(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ha, *(float *)&horzAligna, *(float *)&vertAligna, v44, color, v21);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v20 = w;
+  v19 = y;
+  v18 = x;
+  ScrPlace_ApplyRect(scrPlace, &v18, &v19, &v20, &h, horzAlign, vertAlign);
+  v13 = material;
+  v14 = h;
+  v15 = v20;
+  v16 = v19;
+  v17 = v18;
+  Material_Process2DTextureCoordsForAtlasing(material, &s1, &s2, &t1, &t2);
+  R_AddCmdDrawStretchPicFlipST(v17, v16, v15, v14, s1, t1, s2, t2, color, v13);
 }
 
 /*
@@ -1338,53 +862,13 @@ void __fastcall CL_DrawStretchPicFlipST(const ScreenPlacement *scrPlace, double 
 CL_DrawStretchPicPhysical
 ==============
 */
-
-void __fastcall CL_DrawStretchPicPhysical(double x, double y, double w, double h, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawStretchPicPhysical(float x, float y, float w, float h, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
-  Material *v15; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  void *retaddr; 
+  Material *v10; 
 
-  _R11 = &retaddr;
-  v15 = material;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
-  Material_Process2DTextureCoordsForAtlasing(v15, &s1, &s2, &t1, &t2);
-  __asm
-  {
-    vmovss  xmm2, [rsp+98h+t2]
-    vmovss  xmm0, [rsp+98h+s2]
-    vmovss  xmm1, [rsp+98h+t1]
-    vmovss  [rsp+98h+var_60], xmm2
-    vmovss  [rsp+98h+var_68], xmm0
-    vmovss  xmm0, [rsp+98h+s1]
-    vmovss  [rsp+98h+var_70], xmm1
-    vmovss  [rsp+98h+var_78], xmm0
-    vmovaps xmm0, xmm9; x
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm8; y
-  }
-  R_AddCmdDrawStretchPic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v32, v33, v34, v35, color, v15);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
+  v10 = material;
+  Material_Process2DTextureCoordsForAtlasing(material, &s1, &s2, &t1, &t2);
+  R_AddCmdDrawStretchPic(x, y, w, h, s1, t1, s2, t2, color, v10);
 }
 
 /*
@@ -1392,53 +876,13 @@ void __fastcall CL_DrawStretchPicPhysical(double x, double y, double w, double h
 CL_DrawStretchPicPhysicalFlipST
 ==============
 */
-
-void __fastcall CL_DrawStretchPicPhysicalFlipST(double x, double y, double w, double h, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawStretchPicPhysicalFlipST(float x, float y, float w, float h, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
-  Material *v15; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  void *retaddr; 
+  Material *v10; 
 
-  _R11 = &retaddr;
-  v15 = material;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
-  Material_Process2DTextureCoordsForAtlasing(v15, &s1, &s2, &t1, &t2);
-  __asm
-  {
-    vmovss  xmm2, [rsp+98h+t2]
-    vmovss  xmm0, [rsp+98h+s2]
-    vmovss  xmm1, [rsp+98h+t1]
-    vmovss  [rsp+98h+var_60], xmm2
-    vmovss  [rsp+98h+var_68], xmm0
-    vmovss  xmm0, [rsp+98h+s1]
-    vmovss  [rsp+98h+var_70], xmm1
-    vmovss  [rsp+98h+var_78], xmm0
-    vmovaps xmm0, xmm9; x
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm8; y
-  }
-  R_AddCmdDrawStretchPicFlipST(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v32, v33, v34, v35, color, v15);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-  }
+  v10 = material;
+  Material_Process2DTextureCoordsForAtlasing(material, &s1, &s2, &t1, &t2);
+  R_AddCmdDrawStretchPicFlipST(x, y, w, h, s1, t1, s2, t2, color, v10);
 }
 
 /*
@@ -1446,58 +890,13 @@ void __fastcall CL_DrawStretchPicPhysicalFlipST(double x, double y, double w, do
 CL_DrawStretchPicPhysicalRotateXY
 ==============
 */
-
-void __fastcall CL_DrawStretchPicPhysicalRotateXY(double x, double y, double w, double h, float s1, float t1, float s2, float t2, float angle, bool pivotTopLeft, const vec4_t *color, Material *material)
+void CL_DrawStretchPicPhysicalRotateXY(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float angle, bool pivotTopLeft, const vec4_t *color, Material *material)
 {
-  Material *v17; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  float v40; 
-  char v41; 
-  void *retaddr; 
+  Material *v12; 
 
-  _R11 = &retaddr;
-  v17 = material;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
-  Material_Process2DTextureCoordsForAtlasing(v17, &s1, &s2, &t1, &t2);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0B8h+angle]
-    vmovss  xmm1, [rsp+0B8h+t2]
-    vmovss  [rsp+0B8h+var_78], xmm0
-    vmovss  xmm0, [rsp+0B8h+s2]
-    vmovss  [rsp+0B8h+var_80], xmm1
-    vmovss  xmm1, [rsp+0B8h+t1]
-    vmovss  [rsp+0B8h+var_88], xmm0
-    vmovss  xmm0, [rsp+0B8h+s1]
-    vmovss  [rsp+0B8h+var_90], xmm1
-    vmovss  dword ptr [rsp+0B8h+var_98], xmm0
-    vmovaps xmm0, xmm9; x
-    vmovaps xmm3, xmm6; h
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm8; y
-  }
-  R_AddCmdDrawStretchPicRotateXY(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v36, v37, v38, v39, v40, pivotTopLeft, 1, color, v17);
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v12 = material;
+  Material_Process2DTextureCoordsForAtlasing(material, &s1, &s2, &t1, &t2);
+  R_AddCmdDrawStretchPicRotateXY(x, y, w, h, s1, t1, s2, t2, angle, pivotTopLeft, 1, color, v12);
 }
 
 /*
@@ -1505,57 +904,13 @@ void __fastcall CL_DrawStretchPicPhysicalRotateXY(double x, double y, double w, 
 CL_DrawStretchPicPhysicalRotatedST
 ==============
 */
-
-void __fastcall CL_DrawStretchPicPhysicalRotatedST(const vec2_t *verts, double centerS, double centerT, double scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
+void CL_DrawStretchPicPhysicalRotatedST(const vec2_t *verts, float centerS, float centerT, float scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
 {
-  Material *v16; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  char v41; 
-  void *retaddr; 
+  Material *v12; 
 
-  _R11 = &retaddr;
-  v16 = material;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  Material_Process2DTextureCoordsForAtlasing(v16, &minS, &maxS, &minT, &maxT);
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+angle]
-    vmovss  xmm1, [rsp+98h+maxT]
-    vmovss  [rsp+98h+var_50], xmm0
-    vmovss  xmm0, [rsp+98h+minT]
-    vmovss  [rsp+98h+var_58], xmm1
-    vmovss  xmm1, [rsp+98h+maxS]
-    vmovss  [rsp+98h+var_60], xmm0
-    vmovss  xmm0, [rsp+98h+minS]
-    vmovss  [rsp+98h+var_68], xmm1
-    vmovss  xmm1, [rsp+98h+scaleFinalT]
-    vmovss  [rsp+98h+var_70], xmm0
-    vmovss  [rsp+98h+var_78], xmm1
-    vmovaps xmm1, xmm8; centerS
-    vmovaps xmm3, xmm6; scaleFinalS
-    vmovaps xmm2, xmm7; centerT
-  }
-  R_AddCmdDrawStretchPicRotateST(verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v34, v35, v36, v37, v38, v39, color, v16);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v41;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v12 = material;
+  Material_Process2DTextureCoordsForAtlasing(material, &minS, &maxS, &minT, &maxT);
+  R_AddCmdDrawStretchPicRotateST(verts, centerS, centerT, scaleFinalS, scaleFinalT, minS, maxS, minT, maxT, angle, color, v12);
 }
 
 /*
@@ -1563,63 +918,37 @@ void __fastcall CL_DrawStretchPicPhysicalRotatedST(const vec2_t *verts, double c
 CL_DrawStretchPicRotatedST
 ==============
 */
-
-void __fastcall CL_DrawStretchPicRotatedST(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, float centerS, float centerT, float scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
+void CL_DrawStretchPicRotatedST(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, float centerS, float centerT, float scaleFinalS, float scaleFinalT, float minS, float maxS, float minT, float maxT, float angle, const vec4_t *color, Material *material)
 {
   const vec4_t *v18; 
   Material *v19; 
-  float t1; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
   float xa; 
   float ya; 
   float wa; 
   vec2_t verts; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
 
   v18 = color;
   v19 = material;
-  __asm
-  {
-    vmovss  [rbp+17h+x], xmm1
-    vmovss  [rbp+17h+y], xmm2
-    vmovss  [rbp+17h+w], xmm3
-  }
+  xa = x;
+  ya = y;
+  wa = w;
   ScrPlace_ApplyRect(scrPlace, &xa, &ya, &wa, &h, horzAlign, vertAlign);
   Material_Process2DTextureCoordsForAtlasing(v19, &minS, &maxS, &minT, &maxT);
-  __asm
-  {
-    vmovss  xmm2, [rbp+17h+y]
-    vmovss  xmm3, [rbp+17h+x]
-    vaddss  xmm0, xmm2, [rbp+17h+h]
-    vaddss  xmm1, xmm3, [rbp+17h+w]
-    vmovss  [rbp+17h+var_30], xmm1
-    vmovss  [rbp+17h+var_28], xmm1
-    vmovss  xmm1, [rbp+17h+maxT]
-    vmovss  [rbp+17h+var_24], xmm0
-    vmovss  [rbp+17h+var_1C], xmm0
-    vmovss  xmm0, [rbp+17h+angle]
-    vmovss  [rsp+0B0h+var_68], xmm0
-    vmovss  xmm0, [rbp+17h+minT]
-    vmovss  [rsp+0B0h+var_70], xmm1
-    vmovss  xmm1, [rbp+17h+maxS]
-    vmovss  [rsp+0B0h+var_78], xmm0
-    vmovss  xmm0, [rbp+17h+minS]
-    vmovss  [rsp+0B0h+var_80], xmm1
-    vmovss  xmm1, [rbp+17h+scaleFinalT]
-    vmovss  [rsp+0B0h+var_88], xmm0
-    vmovss  dword ptr [rsp+0B0h+t1], xmm1
-    vmovss  xmm1, [rbp+17h+centerS]; centerS
-    vmovss  dword ptr [rbp+17h+verts], xmm3
-    vmovss  dword ptr [rbp+17h+verts+4], xmm2
-    vmovss  [rbp+17h+var_2C], xmm2
-    vmovss  xmm2, [rbp+17h+centerT]; centerT
-    vmovss  [rbp+17h+var_20], xmm3
-    vmovss  xmm3, [rbp+17h+scaleFinalS]; scaleFinalS
-  }
-  R_AddCmdDrawStretchPicRotateST(&verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, t1, v34, v35, v36, v37, v38, v18, v19);
+  v24 = xa + wa;
+  v26 = xa + wa;
+  v27 = ya + h;
+  v29 = ya + h;
+  verts.v[0] = xa;
+  verts.v[1] = ya;
+  v25 = ya;
+  v28 = xa;
+  R_AddCmdDrawStretchPicRotateST(&verts, centerS, centerT, scaleFinalS, scaleFinalT, minS, maxS, minT, maxT, angle, v18, v19);
 }
 
 /*
@@ -1627,40 +956,17 @@ void __fastcall CL_DrawStretchPicRotatedST(const ScreenPlacement *scrPlace, doub
 CL_DrawStretchPicWithoutSplitScreenScaling
 ==============
 */
-
-void __fastcall CL_DrawStretchPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, double x, double y, double w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
+void CL_DrawStretchPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, float x, float y, float w, float h, int horzAlign, int vertAlign, float s1, float t1, float s2, float t2, const vec4_t *color, Material *material)
 {
-  float v21; 
-  float v22; 
-  float v23; 
-  float v24; 
-  int v25; 
-  int v26; 
-  int v27; 
+  float v13; 
+  float v14; 
+  float v15; 
 
-  __asm
-  {
-    vmovss  [rsp+arg_18], xmm3
-    vmovss  [rsp+arg_10], xmm2
-    vmovss  [rsp+arg_8], xmm1
-  }
-  ScrPlace_ApplyRectWithoutSplitScreenScaling(scrPlace, (float *)&v25, (float *)&v26, (float *)&v27, &h, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+t2]
-    vmovss  xmm1, [rsp+58h+s2]
-    vmovss  xmm3, [rsp+58h+h]; h
-    vmovss  xmm2, [rsp+58h+arg_18]; w
-    vmovss  [rsp+58h+var_20], xmm0
-    vmovss  xmm0, [rsp+58h+t1]
-    vmovss  [rsp+58h+var_28], xmm1
-    vmovss  xmm1, [rsp+58h+s1]
-    vmovss  [rsp+58h+var_30], xmm0
-    vmovss  xmm0, [rsp+58h+arg_8]; x
-    vmovss  [rsp+58h+var_38], xmm1
-    vmovss  xmm1, [rsp+58h+arg_10]; y
-  }
-  CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v21, v22, v23, v24, color, material);
+  v15 = w;
+  v14 = y;
+  v13 = x;
+  ScrPlace_ApplyRectWithoutSplitScreenScaling(scrPlace, &v13, &v14, &v15, &h, horzAlign, vertAlign);
+  CL_DrawStretchPicPhysical(v13, v14, v15, h, s1, t1, s2, t2, color, material);
 }
 
 /*
@@ -1668,21 +974,9 @@ void __fastcall CL_DrawStretchPicWithoutSplitScreenScaling(const ScreenPlacement
 CL_DrawString
 ==============
 */
-void CL_DrawString(int x, int y, const char *pszString, int bShadow)
+void CL_DrawString(int x, int y, const char *pszString, int bShadow, int iCharHeight)
 {
-  float v13; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+58h+iCharHeight]
-    vmovss  [rsp+58h+var_20], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm1, xmm1, ecx; x
-    vcvtsi2ss xmm2, xmm2, edx; y
-  }
-  CG_DrawStringExt(&scrPlaceFull, *(float *)&_XMM1, *(float *)&_XMM2, pszString, &colorWhite, 0, bShadow, v13, 1);
+  CG_DrawStringExt(&scrPlaceFull, (float)x, (float)y, pszString, &colorWhite, 0, bShadow, (float)iCharHeight, 1);
 }
 
 /*
@@ -1692,66 +986,21 @@ CL_DrawText
 */
 void CL_DrawText(const ScreenPlacement *scrPlace, const char *text, int maxChars, GfxFont *font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, const vec4_t *color, int style)
 {
+  float v15; 
+  float v16; 
   const FontGlowStyle *glowStyle; 
   bool usePost; 
-  float v41; 
-  int v42; 
-  float v43; 
-  int v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  char v49; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v44 = vertAlign;
-  v42 = horzAlign;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovss  xmm7, dword ptr [r11+50h]
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovss  xmm8, dword ptr [r11+48h]
-  }
-  ScrPlace_ApplyRect(scrPlace, &x, &y, &xScale, &yScale, v42, v44);
+  v15 = yScale;
+  v16 = xScale;
+  ScrPlace_ApplyRect(scrPlace, &x, &y, &xScale, &yScale, horzAlign, vertAlign);
   R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, [rsp+98h+yScale]
-    vdivss  xmm1, xmm8, xmm7
-    vmovss  [rsp+98h+xScale], xmm1
-  }
+  xScale = v16 / v15;
   glowStyle = R_Font_GetLegacyFontStyle(style);
   usePost = R_Font_UsePost(style);
-  __asm
-  {
-    vaddss  xmm2, xmm6, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_58], xmm0
-    vmovss  xmm0, [rsp+98h+xScale]
-    vroundss xmm3, xmm1, xmm2, 1
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  [rsp+98h+var_60], xmm1
-    vmovss  xmm1, [rsp+98h+y]
-    vmovss  [rsp+98h+var_68], xmm0
-    vmovss  xmm0, [rsp+98h+x]
-    vmovss  [rsp+98h+var_70], xmm1
-    vcvttss2si r9d, xmm3; fontHeight
-    vmovss  [rsp+98h+var_78], xmm0
-  }
-  R_AddCmdDrawText(text, maxChars, font, _ER9, v41, v43, v45, v46, v47, color, glowStyle, usePost);
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  R_AddCmdDrawText(text, maxChars, font, (int)*(float *)&_XMM3, x, y, xScale, 1.0, 0.0, color, glowStyle, usePost);
 }
 
 /*
@@ -1759,54 +1008,17 @@ void CL_DrawText(const ScreenPlacement *scrPlace, const char *text, int maxChars
 CL_DrawTextPhysical
 ==============
 */
-
-void __fastcall CL_DrawTextPhysical(const char *text, int maxChars, GfxFont *font, double x, float y, float xScale, float yScale, const vec4_t *color, int style)
+void CL_DrawTextPhysical(const char *text, int maxChars, GfxFont *font, float x, float y, float xScale, float yScale, const vec4_t *color, int style)
 {
   const FontGlowStyle *glowStyle; 
   bool usePost; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  char v40; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm8
-    vmovaps xmm8, xmm3
-  }
   R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, [rsp+88h+yScale]
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm6, xmm0, xmm2, 1
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm6, xmm0, xmm2, 1 }
   glowStyle = R_Font_GetLegacyFontStyle(style);
   usePost = R_Font_UsePost(style);
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+xScale]
-    vdivss  xmm2, xmm0, [rsp+88h+yScale]
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+88h+var_48], xmm0
-    vmovss  xmm0, [rsp+88h+y]
-    vmovss  [rsp+88h+var_50], xmm1
-    vmovss  [rsp+88h+var_58], xmm2
-    vmovss  [rsp+88h+var_60], xmm0
-    vcvttss2si r9d, xmm6; fontHeight
-    vmovss  [rsp+88h+var_68], xmm8
-  }
-  R_AddCmdDrawText(text, maxChars, font, _ER9, v33, v34, v35, v36, v37, color, glowStyle, usePost);
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v40;
-  __asm { vmovaps xmm8, xmmword ptr [r11-20h] }
+  R_AddCmdDrawText(text, maxChars, font, (int)*(float *)&_XMM6, x, y, xScale / yScale, 1.0, 0.0, color, glowStyle, usePost);
 }
 
 /*
@@ -1814,65 +1026,19 @@ void __fastcall CL_DrawTextPhysical(const char *text, int maxChars, GfxFont *fon
 CL_DrawTextPhysicalWithCursor
 ==============
 */
-
-void __fastcall CL_DrawTextPhysicalWithCursor(const char *text, int maxChars, GfxFont *font, double x, float y, float xScale, float yScale, const vec4_t *color, int style, int cursorPos, char cursor)
+void CL_DrawTextPhysicalWithCursor(const char *text, int maxChars, GfxFont *font, float x, float y, float xScale, float yScale, const vec4_t *color, int style, int cursorPos, char cursor)
 {
   const FontGlowStyle *glowStyle; 
   bool usePost; 
-  float xa; 
-  float v42; 
-  float v43; 
-  float v44; 
-  float v45; 
-  char v46; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, [rsp+0E8h+yScale]
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm7, xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm9, xmm3
-  }
+  if ( yScale <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 457, ASSERT_TYPE_ASSERT, "(yScale > 0.0f)", (const char *)&queryFormat, "yScale > 0.0f") )
+    __debugbreak();
   R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm6, xmm0, xmm3, 1
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm6, xmm0, xmm3, 1 }
   glowStyle = R_Font_GetLegacyFontStyle(style);
   usePost = R_Font_UsePost(style);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0E8h+xScale]
-    vmovss  [rsp+0E8h+var_98], xmm8
-    vdivss  xmm1, xmm0, xmm7
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0E8h+var_A8], xmm0
-    vmovss  [rsp+0E8h+var_B0], xmm1
-    vmovss  xmm1, [rsp+0E8h+y]
-    vmovss  [rsp+0E8h+var_B8], xmm1
-    vcvttss2si edx, xmm6
-    vmovss  [rsp+0E8h+x], xmm9
-  }
-  R_AddCmdDrawTextWithCursor(text, maxChars, font, NULL, _EDX, xa, v42, v43, v44, 0, v45, color, glowStyle, usePost, cursorPos, cursor, 0, 0, NULL);
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  R_AddCmdDrawTextWithCursor(text, maxChars, font, NULL, (int)*(float *)&_XMM6, x, y, xScale / yScale, 1.0, 0, 0.0, color, glowStyle, usePost, cursorPos, cursor, 0, 0, NULL);
 }
 
 /*
@@ -1880,40 +1046,16 @@ void __fastcall CL_DrawTextPhysicalWithCursor(const char *text, int maxChars, Gf
 CL_DrawTextPhysicalWithEffects
 ==============
 */
-
-void __fastcall CL_DrawTextPhysicalWithEffects(const char *text, int maxChars, GfxFont *font, double x, float y, float xScale, float yScale, const vec4_t *color, int style, const vec4_t *glowColor, Material *fxMaterial, Material *fxMaterialGlow, int fxBirthTime, int fxLetterTime)
+void CL_DrawTextPhysicalWithEffects(const char *text, int maxChars, GfxFont *font, float x, float y, float xScale, float yScale, const vec4_t *color, int style, const vec4_t *glowColor, Material *fxMaterial, Material *fxMaterialGlow, int fxBirthTime, int fxLetterTime)
 {
   const FontGlowStyle *LegacyFontStyle; 
-  bool v21; 
-  int v22; 
-  float ya; 
-  float xScalea; 
-  float yScalea; 
-  float colora; 
-  int stylea; 
+  bool v18; 
+  int v19; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   LegacyFontStyle = R_Font_GetLegacyFontStyle(style);
-  v21 = R_Font_UsePost(style);
-  v22 = R_TextHeight(font);
-  __asm
-  {
-    vmovss  xmm1, [rsp+78h+yScale]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+78h+style], xmm0
-    vmovss  xmm0, [rsp+78h+xScale]
-    vmovss  dword ptr [rsp+78h+color], xmm1
-    vmovss  xmm1, [rsp+78h+y]
-    vmovss  [rsp+78h+yScale], xmm0
-    vmovss  [rsp+78h+xScale], xmm1
-    vmovss  [rsp+78h+y], xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  R_AddCmdDrawText(text, maxChars, font, v22, ya, xScalea, yScalea, colora, *(float *)&stylea, color, LegacyFontStyle, v21);
+  v18 = R_Font_UsePost(style);
+  v19 = R_TextHeight(font);
+  R_AddCmdDrawText(text, maxChars, font, v19, x, y, xScale, yScale, 0.0, color, LegacyFontStyle, v18);
 }
 
 /*
@@ -1923,66 +1065,21 @@ CL_DrawTextWithCursor
 */
 void CL_DrawTextWithCursor(const ScreenPlacement *scrPlace, const char *text, int maxChars, GfxFont *font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, const vec4_t *color, int style, int cursorPos, char cursor)
 {
+  float v17; 
+  float v18; 
   const FontGlowStyle *glowStyle; 
   bool usePost; 
-  int v43; 
-  float v44; 
-  int v45; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
-  char v50; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v45 = vertAlign;
-  v43 = horzAlign;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovss  xmm7, dword ptr [r11+50h]
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovss  xmm8, dword ptr [r11+48h]
-  }
-  ScrPlace_ApplyRect(scrPlace, &x, &y, &xScale, &yScale, v43, v45);
+  v17 = yScale;
+  v18 = xScale;
+  ScrPlace_ApplyRect(scrPlace, &x, &y, &xScale, &yScale, horzAlign, vertAlign);
   R_TextHeight(font);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm6, xmm0, [rsp+0D8h+yScale]
-    vdivss  xmm1, xmm8, xmm7
-    vmovss  [rsp+0D8h+xScale], xmm1
-  }
+  xScale = v18 / v17;
   glowStyle = R_Font_GetLegacyFontStyle(style);
   usePost = R_Font_UsePost(style);
-  __asm
-  {
-    vaddss  xmm2, xmm6, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0D8h+var_88], xmm0
-    vmovss  xmm0, [rsp+0D8h+xScale]
-    vroundss xmm3, xmm1, xmm2, 1
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  [rsp+0D8h+var_98], xmm1
-    vmovss  xmm1, [rsp+0D8h+y]
-    vmovss  [rsp+0D8h+var_A0], xmm0
-    vmovss  xmm0, [rsp+0D8h+x]
-    vmovss  [rsp+0D8h+var_A8], xmm1
-    vcvttss2si edx, xmm3
-    vmovss  [rsp+0D8h+var_B0], xmm0
-  }
-  R_AddCmdDrawTextWithCursor(text, maxChars, font, NULL, _EDX, v44, v46, v47, v48, 0, v49, color, glowStyle, usePost, cursorPos, cursor, 0, 0, NULL);
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  R_AddCmdDrawTextWithCursor(text, maxChars, font, NULL, (int)*(float *)&_XMM3, x, y, xScale, 1.0, 0, 0.0, color, glowStyle, usePost, cursorPos, cursor, 0, 0, NULL);
 }
 
 /*
@@ -1992,15 +1089,7 @@ CL_GetDebugViewPos
 */
 void CL_GetDebugViewPos(vec3_t *pos)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?cls@@3UClStatic@@A.debugRenderPos; ClStatic cls
-    vmovss  dword ptr [rcx], xmm0
-    vmovss  xmm1, dword ptr cs:?cls@@3UClStatic@@A.debugRenderPos+4; ClStatic cls
-    vmovss  dword ptr [rcx+4], xmm1
-    vmovss  xmm0, dword ptr cs:?cls@@3UClStatic@@A.debugRenderPos+8; ClStatic cls
-    vmovss  dword ptr [rcx+8], xmm0
-  }
+  *pos = cls.debugRenderPos;
 }
 
 /*
@@ -2015,13 +1104,17 @@ char CL_GetExtrapolatedCmd(const LocalClientNum_t localClientNum, usercmd_s *out
   const ClActiveClient *v6; 
   int v7; 
   int v8; 
+  __int64 v10; 
+  unsigned __int64 *v11; 
   __int64 v12; 
   __int64 v13; 
+  usercmd_s *v14; 
+  usercmd_s *p_extrapCmd; 
   char *fmt; 
-  unsigned __int64 v30; 
-  UserCommandStateFlags v31; 
-  int v32; 
-  int v33; 
+  unsigned __int64 v17; 
+  UserCommandStateFlags v18; 
+  int v19; 
+  int v20; 
 
   if ( !outCmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 145, ASSERT_TYPE_ASSERT, "(outCmd)", (const char *)&queryFormat, "outCmd", -2i64) )
     __debugbreak();
@@ -2033,7 +1126,7 @@ char CL_GetExtrapolatedCmd(const LocalClientNum_t localClientNum, usercmd_s *out
   v6 = ClActiveClient::GetClient(localClientNum);
   v7 = ClActiveClient_GetCmdNumber(v6);
   v8 = v7;
-  v33 = v7;
+  v20 = v7;
   if ( CmdNumber > v7 )
   {
     LODWORD(fmt) = v7;
@@ -2041,76 +1134,51 @@ char CL_GetExtrapolatedCmd(const LocalClientNum_t localClientNum, usercmd_s *out
   }
   if ( CmdNumber <= v8 - 128 || CmdNumber <= 0 )
   {
-    memset(&v33, 0, sizeof(v33));
+    memset(&v20, 0, sizeof(v20));
     return 0;
   }
-  _RBX = &v6->cmds[CmdNumber & 0x7F];
-  memset(&v33, 0, sizeof(v33));
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+  v10 = (__int64)&v6->cmds[CmdNumber & 0x7F];
+  memset(&v20, 0, sizeof(v20));
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
     __debugbreak();
-  _RCX = &v30;
+  v11 = &v17;
   v12 = 2i64;
   v13 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rbx+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 16;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
+    *(__m256i *)v11 = *(__m256i *)v10;
+    *((__m256i *)v11 + 1) = *(__m256i *)(v10 + 32);
+    *((__m256i *)v11 + 2) = *(__m256i *)(v10 + 64);
+    *((_OWORD *)v11 + 6) = *(_OWORD *)(v10 + 96);
+    v11 += 16;
+    *((_OWORD *)v11 - 1) = *(_OWORD *)(v10 + 112);
+    v10 += 128i64;
     --v13;
   }
   while ( v13 );
-  *_RCX = _RBX->buttons;
-  if ( Client->extrapCmd.commandTime <= v32 )
+  *v11 = *(_QWORD *)v10;
+  if ( Client->extrapCmd.commandTime <= v19 )
     return 0;
-  _RCX = outCmd;
-  _RAX = &Client->extrapCmd;
+  v14 = outCmd;
+  p_extrapCmd = &Client->extrapCmd;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (usercmd_s *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (usercmd_s *)((char *)_RAX + 128);
+    *(_OWORD *)&v14->buttons = *(_OWORD *)&p_extrapCmd->buttons;
+    *(_OWORD *)&v14->commandTime = *(_OWORD *)&p_extrapCmd->commandTime;
+    *(_OWORD *)(&v14->angles.xy + 1) = *(_OWORD *)(&p_extrapCmd->angles.xy + 1);
+    *(_OWORD *)&v14->weapon.weaponOthers = *(_OWORD *)&p_extrapCmd->weapon.weaponOthers;
+    *(_OWORD *)&v14->weapon.attachmentVariationIndices[1] = *(_OWORD *)&p_extrapCmd->weapon.attachmentVariationIndices[1];
+    *(_OWORD *)&v14->weapon.attachmentVariationIndices[17] = *(_OWORD *)&p_extrapCmd->weapon.attachmentVariationIndices[17];
+    *(_OWORD *)&v14->offHand.weaponIdx = *(_OWORD *)&p_extrapCmd->offHand.weaponIdx;
+    v14 = (usercmd_s *)((char *)v14 + 128);
+    *(_OWORD *)&v14[-1].sightedClientsMask.data[4] = *(_OWORD *)&p_extrapCmd->offHand.weaponAttachments[2];
+    p_extrapCmd = (usercmd_s *)((char *)p_extrapCmd + 128);
     --v12;
   }
   while ( v12 );
-  _RCX->buttons = _RAX->buttons;
-  outCmd->buttons = v30;
-  outCmd->stateFlags = v31;
+  v14->buttons = p_extrapCmd->buttons;
+  outCmd->buttons = v17;
+  outCmd->stateFlags = v18;
   return 1;
 }
 
@@ -2119,86 +1187,35 @@ char CL_GetExtrapolatedCmd(const LocalClientNum_t localClientNum, usercmd_s *out
 CL_GetMaxPitchSpeed
 ==============
 */
-
-float __fastcall CL_GetMaxPitchSpeed(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+float CL_GetMaxPitchSpeed(LocalClientNum_t localClientNum)
 {
-  char v4; 
-  char v5; 
-  int v18; 
+  ClActiveClient *Client; 
+  float maxPitchSpeed; 
+  float v7; 
+  float v8; 
+  float v9; 
 
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v18 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 533, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v18) )
-      __debugbreak();
-  }
-  _RAX = ClActiveClient::GetClient(localClientNum);
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 533, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
+  Client = ClActiveClient::GetClient(localClientNum);
+  _XMM2 = 0i64;
+  maxPitchSpeed = Client->turnRateCapInfos[1].maxPitchSpeed;
   __asm
   {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm1, dword ptr [rax+120h]
-    vmovss  xmm3, dword ptr [rax+128h]
-    vcomiss xmm3, xmm2
     vcmpltss xmm0, xmm2, xmm1
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vmovss  [rsp+48h+arg_0], xmm0
-    vmovss  xmm0, [rsp+48h+arg_0]
   }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_7;
-    __asm { vcomiss xmm3, xmm0 }
-    if ( v4 )
-LABEL_7:
-      __asm { vmovaps xmm0, xmm3 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+130h]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_11;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_11:
-      __asm { vmovaps xmm0, xmm1 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+138h]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_15;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_15:
-      __asm { vmovaps xmm0, xmm1 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+140h]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_19;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_19:
-      __asm { vmovaps xmm0, xmm1 }
-  }
+  if ( maxPitchSpeed > 0.0 && (*(float *)&_XMM0 == 0.0 || maxPitchSpeed < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client->turnRateCapInfos[1].maxPitchSpeed;
+  v7 = Client->turnRateCapInfos[2].maxPitchSpeed;
+  if ( v7 > 0.0 && (*(float *)&_XMM0 == 0.0 || v7 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client->turnRateCapInfos[2].maxPitchSpeed;
+  v8 = Client->turnRateCapInfos[3].maxPitchSpeed;
+  if ( v8 > 0.0 && (*(float *)&_XMM0 == 0.0 || v8 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client->turnRateCapInfos[3].maxPitchSpeed;
+  v9 = Client->turnRateCapInfos[4].maxPitchSpeed;
+  if ( v9 > 0.0 && (*(float *)&_XMM0 == 0.0 || v9 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client->turnRateCapInfos[4].maxPitchSpeed;
   return *(float *)&_XMM0;
 }
 
@@ -2207,86 +1224,35 @@ LABEL_19:
 CL_GetMaxYawSpeed
 ==============
 */
-
-float __fastcall CL_GetMaxYawSpeed(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+float CL_GetMaxYawSpeed(LocalClientNum_t localClientNum)
 {
-  char v4; 
-  char v5; 
-  int v18; 
+  float *Client; 
+  float v4; 
+  float v7; 
+  float v8; 
+  float v9; 
 
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v18 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 556, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v18) )
-      __debugbreak();
-  }
-  _RAX = ClActiveClient::GetClient(localClientNum);
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 556, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
+  Client = (float *)ClActiveClient::GetClient(localClientNum);
+  _XMM2 = 0i64;
+  v4 = Client[75];
   __asm
   {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm1, dword ptr [rax+124h]
-    vmovss  xmm3, dword ptr [rax+12Ch]
-    vcomiss xmm3, xmm2
     vcmpltss xmm0, xmm2, xmm1
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vmovss  [rsp+48h+arg_0], xmm0
-    vmovss  xmm0, [rsp+48h+arg_0]
   }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_7;
-    __asm { vcomiss xmm3, xmm0 }
-    if ( v4 )
-LABEL_7:
-      __asm { vmovaps xmm0, xmm3 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+134h]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_11;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_11:
-      __asm { vmovaps xmm0, xmm1 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+13Ch]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_15;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_15:
-      __asm { vmovaps xmm0, xmm1 }
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+144h]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v4 | v5) )
-  {
-    __asm { vucomiss xmm0, xmm2 }
-    if ( v5 )
-      goto LABEL_19;
-    __asm { vcomiss xmm1, xmm0 }
-    if ( v4 )
-LABEL_19:
-      __asm { vmovaps xmm0, xmm1 }
-  }
+  if ( v4 > 0.0 && (*(float *)&_XMM0 == 0.0 || v4 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client[75];
+  v7 = Client[77];
+  if ( v7 > 0.0 && (*(float *)&_XMM0 == 0.0 || v7 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client[77];
+  v8 = Client[79];
+  if ( v8 > 0.0 && (*(float *)&_XMM0 == 0.0 || v8 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client[79];
+  v9 = Client[81];
+  if ( v9 > 0.0 && (*(float *)&_XMM0 == 0.0 || v9 < *(float *)&_XMM0) )
+    *(float *)&_XMM0 = Client[81];
   return *(float *)&_XMM0;
 }
 
@@ -2297,18 +1263,13 @@ CL_GetSceneDimensions
 */
 void CL_GetSceneDimensions(int *width, int *height, float *aspect)
 {
-  _RSI = aspect;
   if ( !width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 116, ASSERT_TYPE_ASSERT, "(width)", (const char *)&queryFormat, "width") )
     __debugbreak();
   if ( !height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 117, ASSERT_TYPE_ASSERT, "(height)", (const char *)&queryFormat, "height") )
     __debugbreak();
   *width = cls.vidConfig.sceneWidth;
   *height = cls.vidConfig.sceneHeight;
-  __asm
-  {
-    vmovss  xmm0, cs:?cls@@3UClStatic@@A.vidConfig.sceneAspectRatio; ClStatic cls
-    vmovss  dword ptr [rsi], xmm0
-  }
+  *aspect = cls.vidConfig.sceneAspectRatio;
 }
 
 /*
@@ -2318,8 +1279,7 @@ CL_GetScreenAspectRatioDisplayPixel
 */
 float CL_GetScreenAspectRatioDisplayPixel()
 {
-  __asm { vmovss  xmm0, cs:?cls@@3UClStatic@@A.vidConfig.aspectRatioDisplayPixel; ClStatic cls }
-  return *(float *)&_XMM0;
+  return cls.vidConfig.aspectRatioDisplayPixel;
 }
 
 /*
@@ -2329,20 +1289,15 @@ CL_GetScreenDimensions
 */
 void CL_GetScreenDimensions(int *width, int *height, float *aspect)
 {
-  _RBX = aspect;
   if ( !width && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 98, ASSERT_TYPE_ASSERT, "(width)", (const char *)&queryFormat, "width") )
     __debugbreak();
   if ( !height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 99, ASSERT_TYPE_ASSERT, "(height)", (const char *)&queryFormat, "height") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 100, ASSERT_TYPE_ASSERT, "(aspect)", (const char *)&queryFormat, "aspect") )
+  if ( !aspect && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 100, ASSERT_TYPE_ASSERT, "(aspect)", (const char *)&queryFormat, "aspect") )
     __debugbreak();
   *width = cls.vidConfig.displayWidth;
   *height = cls.vidConfig.displayHeight;
-  __asm
-  {
-    vmovss  xmm0, cs:?cls@@3UClStatic@@A.vidConfig.windowAspectRatio; ClStatic cls
-    vmovss  dword ptr [rbx], xmm0
-  }
+  *aspect = cls.vidConfig.windowAspectRatio;
 }
 
 /*
@@ -2356,56 +1311,25 @@ void CL_LookupColor(LocalClientNum_t localClientNum, unsigned __int8 c, vec4_t *
   unsigned int v6; 
   const vec4_t *v7; 
 
-  _RBX = outColor;
   v5 = ColorIndex(c);
   if ( v5 >= 0x11 )
   {
     switch ( c )
     {
       case '8':
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:s_colorMyTeam
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorMyTeam+4
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr cs:s_colorMyTeam+8
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorMyTeam+0Ch
-          vmovss  dword ptr [rbx+0Ch], xmm1
-        }
+        *outColor = s_colorMyTeam;
         break;
       case '9':
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:s_colorEnemyTeam
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorEnemyTeam+4
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr cs:s_colorEnemyTeam+8
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorEnemyTeam+0Ch
-          vmovss  dword ptr [rbx+0Ch], xmm1
-        }
+        *outColor = s_colorEnemyTeam;
         break;
       case ':':
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:s_colorMyParty
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorMyParty+4
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr cs:s_colorMyParty+8
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  xmm1, dword ptr cs:s_colorMyParty+0Ch
-          vmovss  dword ptr [rbx+0Ch], xmm1
-        }
+        *outColor = s_colorMyParty;
         break;
       default:
-        _RBX->v[0] = 1.0;
-        _RBX->v[1] = 1.0;
-        _RBX->v[2] = 1.0;
-        _RBX->v[3] = 1.0;
+        outColor->v[0] = 1.0;
+        outColor->v[1] = 1.0;
+        outColor->v[2] = 1.0;
+        outColor->v[3] = 1.0;
         break;
     }
   }
@@ -2415,10 +1339,10 @@ void CL_LookupColor(LocalClientNum_t localClientNum, unsigned __int8 c, vec4_t *
     if ( v6 >= 0x22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 625, ASSERT_TYPE_ASSERT, "(unsigned)( tableIndex ) < (unsigned)( ( sizeof( *array_counter( COLOR_TABLE ) ) + 0 ) )", "tableIndex doesn't index ARRAY_COUNT( COLOR_TABLE )\n\t%i not in [0, %i)", v5 + 17 * r_colorTable->current.integer, 34) )
       __debugbreak();
     v7 = &COLOR_TABLE[v6];
-    _RBX->v[0] = v7->v[0];
-    _RBX->v[1] = v7->v[1];
-    _RBX->v[2] = v7->v[2];
-    _RBX->v[3] = v7->v[3];
+    outColor->v[0] = v7->v[0];
+    outColor->v[1] = v7->v[1];
+    outColor->v[2] = v7->v[2];
+    outColor->v[3] = v7->v[3];
   }
 }
 
@@ -2454,13 +1378,15 @@ void CL_RenderScene(LocalClientNum_t localClientNum, const refdef_t *refdef, uns
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
+  cg_t *LocalClientGlobals; 
   unsigned int v10; 
   int v11; 
   float v12; 
   int v13; 
-  __int64 v17; 
+  __int128 v14; 
+  __int64 v15; 
   int viewInfoIndex[4]; 
-  bitarray<384> v19; 
+  bitarray<384> v17; 
   GfxViewportFeatures outViewportFeatures; 
 
   p_view = &refdef->view;
@@ -2474,10 +1400,10 @@ void CL_RenderScene(LocalClientNum_t localClientNum, const refdef_t *refdef, uns
   LODWORD(cls.debugRenderPos.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
   LODWORD(cls.debugRenderPos.v[2]) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
   R_GetNextViewInfoIndex(viewInfoIndex);
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 198, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 198, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  _RDI->prevViewIndex = viewInfoIndex[0];
+  LocalClientGlobals->prevViewIndex = viewInfoIndex[0];
   v10 = Sys_Milliseconds();
   Material_SetTextureAtlasTime(v10);
   cls.startedMainThreadRenderLoop = 1;
@@ -2491,14 +1417,14 @@ void CL_RenderScene(LocalClientNum_t localClientNum, const refdef_t *refdef, uns
     v11 = *((_DWORD *)&outViewportFeatures + 10);
   }
   *((_DWORD *)&outViewportFeatures + 10) = v11 | 0x4000;
-  *((_DWORD *)&outViewportFeatures + 10) = v11 & 0xCFFFBFFF | 0x4000 | (_RDI->dualViewScope << 28);
+  *((_DWORD *)&outViewportFeatures + 10) = v11 & 0xCFFFBFFF | 0x4000 | (LocalClientGlobals->dualViewScope << 28);
   if ( !R_Get_IsPipClientView() )
   {
     v12 = cl_maxLocalClients;
     if ( (unsigned int)localClientNum >= LODWORD(cl_maxLocalClients) )
     {
-      LODWORD(v17) = localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 352, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v17, cl_maxLocalClients) )
+      LODWORD(v15) = localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 352, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, cl_maxLocalClients) )
         __debugbreak();
       v12 = cl_maxLocalClients;
     }
@@ -2513,21 +1439,16 @@ void CL_RenderScene(LocalClientNum_t localClientNum, const refdef_t *refdef, uns
       v13 = 0x20000000;
     *((_DWORD *)&outViewportFeatures + 10) = *((_DWORD *)&outViewportFeatures + 10) & 0xDFFFFFFF | v13;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+0B53C4h]
-    vmovups xmm1, xmmword ptr [rdi+0B53E4h]
-    vmovups [rsp+0E8h+var_98], ymm0
-    vmovups [rsp+0E8h+var_78], xmm1
-  }
-  R_Umbra_SetScriptedGateStates(&v19);
+  v14 = *(_OWORD *)&LocalClientGlobals->umbraGateStates.array[8];
+  *(__m256i *)v17.array = *(__m256i *)LocalClientGlobals->umbraGateStates.array;
+  *(_OWORD *)&v17.array[8] = v14;
+  R_Umbra_SetScriptedGateStates(&v17);
   outViewportFeatures.m_postAAMode = R_GetGlobalPostAAMode();
   if ( r_gpShowStats->current.integer > 0 || r_showStats->current.integer > 0 )
     R_TrackStatistics();
   else
     R_TrackStatisticsStop();
-  __asm { vmovss  xmm1, cs:__real@3f800000; lodOverride }
-  R_RenderScene(refdef, *(float *)&_XMM1, drawType, &outViewportFeatures);
+  R_RenderScene(refdef, 1.0, drawType, &outViewportFeatures);
 }
 
 /*
@@ -2558,20 +1479,9 @@ void CL_SetExtraButtons(LocalClientNum_t localClientNum, unsigned __int64 button
 CL_SetFOVSensitivityScale
 ==============
 */
-
-void __fastcall CL_SetFOVSensitivityScale(LocalClientNum_t localClientNum, double scale)
+void CL_SetFOVSensitivityScale(LocalClientNum_t localClientNum, float scale)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  _RAX = ClActiveClient::GetClient(localClientNum);
-  __asm
-  {
-    vmovss  dword ptr [rax+10Ch], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  ClActiveClient::GetClient(localClientNum)->cgameFOVSensitivityScale = scale;
 }
 
 /*
@@ -2602,161 +1512,111 @@ CL_SetUserCmdWeapons
 void CL_SetUserCmdWeapons(LocalClientNum_t localClientNum, const Weapon *weapon, const Weapon *offHand, int useAltMode)
 {
   __int64 v4; 
+  cg_t *LocalClientGlobals; 
   CgWeaponMap *v8; 
   bool IsWeaponValid; 
+  ClActiveClient *Client; 
   bool v11; 
-  int v16; 
-  int v23; 
+  const Weapon *v12; 
+  int v13; 
+  int v14; 
+  __m256i v15; 
   BOOL IsFauxFists; 
-  bool v41; 
+  Weapon *v17; 
+  bool v18; 
 
   v4 = localClientNum;
-  _R14 = offHand;
-  _R15 = weapon;
   BG_AssertOffhandIndexOrNone(offHand);
-  _RBP = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 709, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 709, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   v8 = CgWeaponMap::ms_instance[v4];
-  IsWeaponValid = BG_IsWeaponValid(v8, &_RBP->predictedPlayerState, _R15);
-  _RDI = ClActiveClient::GetClient((const LocalClientNum_t)v4);
+  IsWeaponValid = BG_IsWeaponValid(v8, &LocalClientGlobals->predictedPlayerState, weapon);
+  Client = ClActiveClient::GetClient((const LocalClientNum_t)v4);
   v11 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80);
-  v41 = v11;
+  v18 = v11;
   if ( IsWeaponValid || !v11 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r15]
-      vmovups ymmword ptr [rdi+90h], ymm0
-      vmovups xmm1, xmmword ptr [r15+20h]
-      vmovups xmmword ptr [rdi+0B0h], xmm1
-      vmovsd  xmm0, qword ptr [r15+30h]
-      vmovsd  qword ptr [rdi+0C0h], xmm0
-    }
-    *(_DWORD *)&_RDI->cgameUserCmdWeapon.weaponCamo = *(_DWORD *)&_R15->weaponCamo;
-    if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 682, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    *(__m256i *)&Client->cgameUserCmdWeapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+    *(_OWORD *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+    *(double *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+    *(_DWORD *)&Client->cgameUserCmdWeapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 682, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
-    if ( _RBP == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 684, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_cgame.cpp", 684, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( BG_IsThrowingAxe(_R15) )
+    if ( BG_IsThrowingAxe(weapon) )
     {
-      IsFauxFists = BG_IsFauxFists(&_RBP->predictedPlayerState, _R15, 0);
-      _RDI->cgameUserCmdAlternate = IsFauxFists;
-      _RBP->weaponSelectInAlt = IsFauxFists;
+      IsFauxFists = BG_IsFauxFists(&LocalClientGlobals->predictedPlayerState, weapon, 0);
+      Client->cgameUserCmdAlternate = IsFauxFists;
+      LocalClientGlobals->weaponSelectInAlt = IsFauxFists;
     }
     else
     {
-      _RDI->cgameUserCmdAlternate = useAltMode != 0;
+      Client->cgameUserCmdAlternate = useAltMode != 0;
     }
   }
   else
   {
     if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 885, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    if ( _RBP == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 886, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 886, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RBX = BgWeaponMap::GetWeapon(v8, _RBP->predictedPlayerState.weapCommon.weaponHandle);
-    if ( BG_IsWeaponMeleeOverride(v8, &_RBP->predictedPlayerState, _RBX) )
+    v12 = BgWeaponMap::GetWeapon(v8, LocalClientGlobals->predictedPlayerState.weapCommon.weaponHandle);
+    if ( BG_IsWeaponMeleeOverride(v8, &LocalClientGlobals->predictedPlayerState, v12) )
     {
-      if ( BG_IsWeaponValid(v8, &_RBP->predictedPlayerState, &_RBP->weaponLatestPrimary) )
+      if ( BG_IsWeaponValid(v8, &LocalClientGlobals->predictedPlayerState, &LocalClientGlobals->weaponLatestPrimary) )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+1815Ch]
-          vmovups ymmword ptr [rdi+90h], ymm0
-          vmovups xmm1, xmmword ptr [rbp+1817Ch]
-          vmovups xmmword ptr [rdi+0B0h], xmm1
-          vmovsd  xmm0, qword ptr [rbp+1818Ch]
-          vmovsd  qword ptr [rdi+0C0h], xmm0
-        }
-        v16 = *(_DWORD *)&_RBP->weaponLatestPrimary.weaponCamo;
+        *(__m256i *)&Client->cgameUserCmdWeapon.weaponIdx = *(__m256i *)&LocalClientGlobals->weaponLatestPrimary.weaponIdx;
+        *(_OWORD *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[5] = *(_OWORD *)&LocalClientGlobals->weaponLatestPrimary.attachmentVariationIndices[5];
+        *(double *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[21] = *(double *)&LocalClientGlobals->weaponLatestPrimary.attachmentVariationIndices[21];
+        v13 = *(_DWORD *)&LocalClientGlobals->weaponLatestPrimary.weaponCamo;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-          vmovups ymmword ptr [rdi+90h], ymm0
-          vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-          vmovups xmmword ptr [rdi+0B0h], xmm1
-          vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-          vmovsd  qword ptr [rdi+0C0h], xmm0
-        }
-        v16 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+        *(__m256i *)&Client->cgameUserCmdWeapon.weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+        *(_OWORD *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[5] = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+        *(double *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+        v13 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
       }
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rdi+90h], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rdi+0B0h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rdi+0C0h], xmm0
-      }
-      v16 = *(_DWORD *)&_RBX->weaponCamo;
+      *(__m256i *)&Client->cgameUserCmdWeapon.weaponIdx = *(__m256i *)&v12->weaponIdx;
+      *(_OWORD *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[5] = *(_OWORD *)&v12->attachmentVariationIndices[5];
+      *(double *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[21] = *(double *)&v12->attachmentVariationIndices[21];
+      v13 = *(_DWORD *)&v12->weaponCamo;
     }
-    v23 = 1;
-    *(_DWORD *)&_RDI->cgameUserCmdWeapon.weaponCamo = v16;
-    if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBP->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x22u) || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBP->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x11u) && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RBP->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x1Bu) )
-      v23 = 0;
-    __asm { vmovups ymm0, ymmword ptr [rdi+90h] }
-    _RDI->cgameUserCmdAlternate = v23;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+18114h], ymm0
-      vmovups xmm1, xmmword ptr [rdi+0B0h]
-      vmovups xmmword ptr [rbp+18134h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+0C0h]
-      vmovsd  qword ptr [rbp+18144h], xmm0
-    }
-    *(_DWORD *)&_RBP->weaponSelect.weaponCamo = *(_DWORD *)&_RDI->cgameUserCmdWeapon.weaponCamo;
-    _RBP->weaponSelectInAlt = _RDI->cgameUserCmdAlternate;
+    v14 = 1;
+    *(_DWORD *)&Client->cgameUserCmdWeapon.weaponCamo = v13;
+    if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x22u) || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x11u) && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x1Bu) )
+      v14 = 0;
+    v15 = *(__m256i *)&Client->cgameUserCmdWeapon.weaponIdx;
+    Client->cgameUserCmdAlternate = v14;
+    *(__m256i *)&LocalClientGlobals->weaponSelect.weaponIdx = v15;
+    *(_OWORD *)&LocalClientGlobals->weaponSelect.attachmentVariationIndices[5] = *(_OWORD *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[5];
+    *(double *)&LocalClientGlobals->weaponSelect.attachmentVariationIndices[21] = *(double *)&Client->cgameUserCmdWeapon.attachmentVariationIndices[21];
+    *(_DWORD *)&LocalClientGlobals->weaponSelect.weaponCamo = *(_DWORD *)&Client->cgameUserCmdWeapon.weaponCamo;
+    LocalClientGlobals->weaponSelectInAlt = Client->cgameUserCmdAlternate;
   }
-  if ( !BG_IsWeaponValid(v8, &_RBP->predictedPlayerState, _R14) && _R14->weaponIdx && v41 )
+  if ( !BG_IsWeaponValid(v8, &LocalClientGlobals->predictedPlayerState, offHand) && offHand->weaponIdx && v18 )
   {
     if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 916, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
-    if ( _RBP == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 917, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 917, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BgWeaponMap::GetWeapon(v8, _RBP->predictedPlayerState.weapCommon.offHandHandle);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rdi+0CCh], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rdi+0ECh], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rdi+0FCh], xmm0
-    }
-    *(_DWORD *)&_RDI->cgameUserCmdOffHand.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+499C8h], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbp+499E8h], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbp+499F8h], xmm0
-    }
-    *(_DWORD *)&_RBP->equippedOffHand.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    v17 = (Weapon *)BgWeaponMap::GetWeapon(v8, LocalClientGlobals->predictedPlayerState.weapCommon.offHandHandle);
+    Client->cgameUserCmdOffHand = *v17;
+    LocalClientGlobals->equippedOffHand = *v17;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [rdi+0CCh], ymm0
-      vmovups xmm1, xmmword ptr [r14+20h]
-      vmovups xmmword ptr [rdi+0ECh], xmm1
-      vmovsd  xmm0, qword ptr [r14+30h]
-      vmovsd  qword ptr [rdi+0FCh], xmm0
-    }
-    *(_DWORD *)&_RDI->cgameUserCmdOffHand.weaponCamo = *(_DWORD *)&_R14->weaponCamo;
+    *(__m256i *)&Client->cgameUserCmdOffHand.weaponIdx = *(__m256i *)&offHand->weaponIdx;
+    *(_OWORD *)&Client->cgameUserCmdOffHand.attachmentVariationIndices[5] = *(_OWORD *)&offHand->attachmentVariationIndices[5];
+    *(double *)&Client->cgameUserCmdOffHand.attachmentVariationIndices[21] = *(double *)&offHand->attachmentVariationIndices[21];
+    *(_DWORD *)&Client->cgameUserCmdOffHand.weaponCamo = *(_DWORD *)&offHand->weaponCamo;
   }
 }
 
@@ -2940,13 +1800,13 @@ void CL_UpdateColor(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
   cg_t *LocalClientGlobals; 
-  int v5; 
+  int v4; 
 
   v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v5 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v5) )
+    v4 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v4) )
       __debugbreak();
   }
   if ( clientUIActives[v1].frontEndSceneState[0] || !clientUIActives[v1].cgameInitialized )
@@ -2960,11 +1820,7 @@ void CL_UpdateColor(LocalClientNum_t localClientNum)
     LocalClientGlobals->GetTeamColors(LocalClientGlobals, &s_colorMyTeam, &s_colorEnemyTeam);
   }
   Dvar_GetUnpackedColorByName("MTSKSOSTML", &s_colorMyParty);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr cs:s_colorMyParty+0Ch, xmm0
-  }
+  s_colorMyParty.v[3] = FLOAT_1_0;
   R_UpdateTeamColors(&s_colorMyTeam, &s_colorEnemyTeam, &s_colorMyParty);
 }
 

@@ -129,14 +129,10 @@ bool operator<(const ConeTargetHitInfo *lhs, const ConeTargetHitInfo *rhs)
   int priority; 
 
   priority = lhs->priority;
-  if ( priority != rhs->priority )
+  if ( priority == rhs->priority )
+    return lhs->distSq < rhs->distSq;
+  else
     return priority < rhs->priority;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-    vcomiss xmm0, dword ptr [rdx+3Ch]
-  }
-  return (unsigned int)priority < rhs->priority;
 }
 
 /*
@@ -146,14 +142,7 @@ operator<
 */
 bool operator<(const ConeTargetInfo *lhs, const ConeTargetInfo *rhs)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+340h]
-    vcomiss xmm0, dword ptr [rdx+340h]
-  }
-  return v2;
+  return lhs->m_hitResults.priority < rhs->m_hitResults.priority;
 }
 
 /*
@@ -217,7 +206,8 @@ CG_Edge_DrawDebug
 */
 void CG_Edge_DrawDebug(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
+  const dvar_t *v3; 
   const dvar_t *v4; 
   const dvar_t *v5; 
   const dvar_t *v6; 
@@ -225,72 +215,75 @@ void CG_Edge_DrawDebug(const LocalClientNum_t localClientNum)
   const dvar_t *v8; 
   const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v11; 
   unsigned __int64 unsignedInt; 
   MapEnts *mapEnts; 
-  __int64 v14; 
-  const MapEdgeList *v16; 
+  __int64 i; 
+  const MapEdgeList *v14; 
   __int64 staticQueryTypes; 
-  unsigned __int64 v18; 
+  unsigned __int64 v16; 
   PMROctreeMetadata *edgeOctrees; 
+  const vec4_t *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   vec4_t color; 
 
-  v2 = DCONST_DVARBOOL_edge_debugEdgeListInfo;
+  v1 = DCONST_DVARBOOL_edge_debugEdgeListInfo;
   if ( !DCONST_DVARBOOL_edge_debugEdgeListInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugEdgeListInfo") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
     CG_Edge_DrawEdgeListInfo(localClientNum);
-  v4 = DCONST_DVARBOOL_edge_debugEdgeListWorld;
+  v3 = DCONST_DVARBOOL_edge_debugEdgeListWorld;
   if ( !DCONST_DVARBOOL_edge_debugEdgeListWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugEdgeListWorld") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
     CG_Edge_DrawEdgeListWorld(localClientNum);
   if ( cm.isInUse && cm.mapEnts )
   {
-    v5 = DCONST_DVARINT_edge_debugDraw;
+    v4 = DCONST_DVARINT_edge_debugDraw;
     if ( !DCONST_DVARINT_edge_debugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v5);
-    if ( v5->current.integer )
-      goto LABEL_62;
-    v6 = DCONST_DVARBOOL_edge_debugDraw_adjacency;
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.integer )
+      goto LABEL_60;
+    v5 = DCONST_DVARBOOL_edge_debugDraw_adjacency;
     if ( !DCONST_DVARBOOL_edge_debugDraw_adjacency && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_adjacency") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v5);
+    if ( v5->current.enabled )
+      goto LABEL_60;
+    v6 = DCONST_DVARBOOL_edge_debugDraw_octree;
+    if ( !DCONST_DVARBOOL_edge_debugDraw_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_octree") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v6);
     if ( v6->current.enabled )
-      goto LABEL_62;
-    v7 = DCONST_DVARBOOL_edge_debugDraw_octree;
-    if ( !DCONST_DVARBOOL_edge_debugDraw_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_octree") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v7->current.enabled )
     {
-LABEL_62:
-      v8 = DCONST_DVARINT_edge_debugDraw;
+LABEL_60:
+      v7 = DCONST_DVARINT_edge_debugDraw;
       if ( !DCONST_DVARINT_edge_debugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v8);
-      if ( v8->current.integer )
+      Dvar_CheckFrontendServerThread(v7);
+      if ( v7->current.integer )
         CG_Edge_DrawDebugEdges(localClientNum);
-      v9 = DCONST_DVARBOOL_edge_debugDraw_adjacency;
+      v8 = DCONST_DVARBOOL_edge_debugDraw_adjacency;
       if ( !DCONST_DVARBOOL_edge_debugDraw_adjacency && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_adjacency") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v8);
+      if ( v8->current.enabled )
+        CG_Edge_DrawDebugAdjacency(localClientNum);
+      v9 = DCONST_DVARBOOL_edge_debugDraw_octree;
+      if ( !DCONST_DVARBOOL_edge_debugDraw_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_octree") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v9);
       if ( v9->current.enabled )
-        CG_Edge_DrawDebugAdjacency(localClientNum);
-      v10 = DCONST_DVARBOOL_edge_debugDraw_octree;
-      if ( !DCONST_DVARBOOL_edge_debugDraw_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw_octree") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v10);
-      if ( v10->current.enabled )
       {
-        v11 = DCONST_DVARINT_edge_debugDrawBucket_octree;
+        v10 = DCONST_DVARINT_edge_debugDrawBucket_octree;
         if ( !DCONST_DVARINT_edge_debugDrawBucket_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawBucket_octree") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v11);
-        unsignedInt = v11->current.unsignedInt;
+        Dvar_CheckFrontendServerThread(v10);
+        unsignedInt = v10->current.unsignedInt;
         mapEnts = cm.mapEnts;
         if ( !cm.mapEnts )
         {
@@ -298,61 +291,46 @@ LABEL_62:
             __debugbreak();
           mapEnts = cm.mapEnts;
         }
-        v14 = 0i64;
-        if ( mapEnts->numEdgeLists )
+        for ( i = 0i64; (unsigned int)i < mapEnts->numEdgeLists; i = (unsigned int)(i + 1) )
         {
-          __asm
+          v14 = mapEnts->edgeLists[i];
+          if ( v14 )
           {
-            vmovaps [rsp+98h+var_38], xmm6
-            vmovss  xmm6, cs:__real@3f28f5c3
-          }
-          do
-          {
-            v16 = mapEnts->edgeLists[v14];
-            if ( v16 )
+            staticQueryTypes = v14->staticQueryTypes;
+            if ( _bittest64(&staticQueryTypes, unsignedInt) )
             {
-              staticQueryTypes = v16->staticQueryTypes;
-              if ( _bittest64(&staticQueryTypes, unsignedInt) )
+              v16 = 0i64;
+              if ( v14->numEdgeOctrees )
               {
-                v18 = 0i64;
-                if ( v16->numEdgeOctrees )
+                edgeOctrees = v14->edgeOctrees;
+                while ( edgeOctrees->edgeBucket != 1 << unsignedInt )
                 {
-                  edgeOctrees = v16->edgeOctrees;
-                  while ( edgeOctrees->edgeBucket != 1 << unsignedInt )
+                  ++v16;
+                  ++edgeOctrees;
+                  if ( v16 >= v14->numEdgeOctrees )
+                    goto LABEL_57;
+                }
+                if ( edgeOctrees )
+                {
+                  if ( (edgeOctrees->flags[0] & 1) != 0 )
                   {
-                    ++v18;
-                    ++edgeOctrees;
-                    if ( v18 >= v16->numEdgeOctrees )
-                      goto LABEL_58;
-                  }
-                  if ( edgeOctrees )
-                  {
-                    if ( (edgeOctrees->flags[0] & 1) != 0 )
-                    {
-                      _RAX = &bg_edgeDebugBucketColors[(int)unsignedInt];
-                      __asm
-                      {
-                        vmulss  xmm0, xmm6, dword ptr [rax+4]
-                        vmulss  xmm1, xmm6, dword ptr [rax]
-                        vmulss  xmm2, xmm6, dword ptr [rax+8]
-                        vmovss  dword ptr [rsp+98h+color+4], xmm0
-                        vmovss  xmm0, dword ptr [rax+0Ch]
-                        vmovss  dword ptr [rsp+98h+color], xmm1
-                        vmovss  dword ptr [rsp+98h+color+8], xmm2
-                        vmovss  dword ptr [rsp+98h+color+0Ch], xmm0
-                      }
-                      CG_Edge_DrawDebugOctree(v16, edgeOctrees, &edgeOctrees->minExtent, &edgeOctrees->rootNode, &color);
-                      mapEnts = cm.mapEnts;
-                    }
+                    v18 = &bg_edgeDebugBucketColors[(int)unsignedInt];
+                    v19 = 0.66000003 * v18->v[0];
+                    v20 = 0.66000003 * v18->v[2];
+                    color.v[1] = 0.66000003 * v18->v[1];
+                    v21 = v18->v[3];
+                    color.v[0] = v19;
+                    color.v[2] = v20;
+                    color.v[3] = v21;
+                    CG_Edge_DrawDebugOctree(v14, edgeOctrees, &edgeOctrees->minExtent, &edgeOctrees->rootNode, &color);
+                    mapEnts = cm.mapEnts;
                   }
                 }
               }
             }
-LABEL_58:
-            v14 = (unsigned int)(v14 + 1);
           }
-          while ( (unsigned int)v14 < mapEnts->numEdgeLists );
-          __asm { vmovaps xmm6, [rsp+98h+var_38] }
+LABEL_57:
+          ;
         }
       }
     }
@@ -367,92 +345,90 @@ CG_Edge_DrawDebugAdjacency
 void CG_Edge_DrawDebugAdjacency(const LocalClientNum_t localClientNum)
 {
   signed __int64 v1; 
-  void *v6; 
-  const dvar_t *v9; 
+  void *v2; 
+  RefdefView *p_view; 
+  const dvar_t *v5; 
   __int64 integer; 
-  unsigned __int8 v11; 
+  unsigned __int8 v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   CgHandler *Handler; 
   ntl::internal::pool_allocator_freelist<48> *p_m_freelist; 
-  char *v25; 
-  unsigned __int64 v26; 
-  edgeQueryBucket_t v28; 
-  unsigned __int64 v30; 
+  char *v13; 
+  unsigned __int64 v14; 
+  edgeQueryBucket_t v15; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
   unsigned int EdgeIndex; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
   ntl::red_black_tree_node_base *mp_parent; 
-  bool v36; 
-  unsigned __int64 v37; 
+  bool v21; 
+  unsigned __int64 v22; 
   ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *i; 
-  ntl::red_black_tree_node_base *v40; 
-  ntl::internal::pool_allocator_freelist<64> *v41; 
-  char *v42; 
+  ntl::red_black_tree_node_base *v25; 
+  ntl::internal::pool_allocator_freelist<64> *v26; 
+  char *v27; 
+  ntl::red_black_tree_node_base *v28; 
   ntl::red_black_tree_node_base *next; 
   unsigned __int64 AdjacentEdges; 
   AdjacentEdgeInfo *p_outAdjacentEdgeInfo; 
-  ntl::red_black_tree_node_base *v47; 
-  ntl::red_black_tree_node_base *v48; 
-  char v49; 
+  ntl::red_black_tree_node_base *v32; 
+  ntl::red_black_tree_node_base *v33; 
+  char v34; 
   EdgeId id; 
-  unsigned __int64 v51; 
-  unsigned __int64 v52; 
+  unsigned __int64 v36; 
+  unsigned __int64 v37; 
   EdgeId otherId; 
-  unsigned __int64 v54; 
+  unsigned __int64 v39; 
   __int64 m_edgeIndex; 
-  unsigned __int64 v56; 
-  unsigned __int64 v57; 
-  ntl::red_black_tree_node_base *v58; 
-  ntl::red_black_tree_node_base *v59; 
+  unsigned __int64 v41; 
+  unsigned __int64 v42; 
+  ntl::red_black_tree_node_base *v43; 
+  ntl::red_black_tree_node_base *v44; 
   ntl::red_black_tree_node_base *mp_right; 
   ntl::red_black_tree_node_base *j; 
-  ntl::red_black_tree_node_base *v62; 
+  ntl::red_black_tree_node_base *v47; 
+  EdgeDebugPolys *v48; 
   int vertCount; 
   __int64 polyCount; 
-  ntl::red_black_tree_node_base *v74; 
-  ntl::red_black_tree_node_base *v75; 
-  ntl::red_black_tree_node_base *v76; 
-  ntl::red_black_tree_node_base *v77; 
-  float fmt; 
+  __int64 v51; 
+  __int64 v52; 
+  ntl::red_black_tree_node_base *v53; 
+  ntl::red_black_tree_node_base *v54; 
+  ntl::red_black_tree_node_base *v55; 
+  ntl::red_black_tree_node_base *v56; 
   __int64 nearDist; 
-  float nearDista; 
   __int64 farDist; 
-  float farDista; 
   unsigned __int64 outResultCount; 
-  ntl::red_black_tree_node_base *v89; 
-  FlaggedEdge v90; 
-  int v91; 
-  LocalClientNum_t v92; 
-  CgHandler *v93; 
-  ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> v94; 
+  ntl::red_black_tree_node_base *v60; 
+  FlaggedEdge v61; 
+  int v62; 
+  LocalClientNum_t v63; 
+  CgHandler *v64; 
+  ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> v65; 
   ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> result; 
   vec3_t outOrg; 
-  __int64 v97; 
-  EdgeOctreeQueryFrustum v98; 
-  ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare> v99; 
-  ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge> > v100; 
+  __int64 v68; 
+  EdgeOctreeQueryFrustum v69; 
+  ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare> v70; 
+  ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge> > v71; 
   AdjacentEdgeInfo outAdjacentEdgeInfo; 
-  __int128 v102; 
+  __int128 v73; 
   float resultFractionPool[512]; 
   float resultDistancePool[512]; 
   EdgeId resultIdPool[512]; 
-  char v110; 
 
-  v6 = alloca(v1);
-  v97 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+2A3C0h+var_30], xmm6
-    vmovaps [rsp+2A3C0h+var_40], xmm7
-    vmovaps [rsp+2A3C0h+var_50], xmm8
-    vmovaps [rsp+2A3C0h+var_60], xmm9
-  }
-  v92 = localClientNum;
-  _RBX = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  v9 = DCONST_DVARINT_edge_debugDrawFlag;
+  v2 = alloca(v1);
+  v68 = -2i64;
+  v63 = localClientNum;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  v5 = DCONST_DVARINT_edge_debugDrawFlag;
   if ( !DCONST_DVARINT_edge_debugDrawFlag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawFlag") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  integer = v9->current.integer;
+  Dvar_CheckFrontendServerThread(v5);
+  integer = v5->current.integer;
   if ( (unsigned int)integer >= 5 )
   {
     LODWORD(farDist) = 5;
@@ -460,105 +436,79 @@ void CG_Edge_DrawDebugAdjacency(const LocalClientNum_t localClientNum)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 498, ASSERT_TYPE_ASSERT, "(unsigned)( edgeFlagIndex ) < (unsigned)( 5 )", "edgeFlagIndex doesn't index EDGE_FLAG_COUNT\n\t%i not in [0, %i)", nearDist, farDist) )
       __debugbreak();
   }
-  v11 = 1 << integer;
-  v91 = (unsigned __int8)(1 << integer);
-  _RAX = 2 * integer;
-  _R14 = 0x140000000ui64;
-  __asm
-  {
-    vmovss  xmm7, dword ptr rva bg_edgeDebugColors[r14+rax*8]
-    vmovss  xmm8, dword ptr (rva bg_edgeDebugColors+4)[r14+rax*8]
-    vmovss  xmm9, dword ptr (rva bg_edgeDebugColors+8)[r14+rax*8]
-  }
-  RefdefView_GetOrg(_RBX, &outOrg);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+38h]
-    vaddss  xmm2, xmm0, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@44800000
-    vmovss  [rsp+2A3C0h+farDist], xmm1
-    vmovss  [rsp+2A3C0h+nearDist], xmm2
-    vmovss  xmm0, cs:__real@3ee231d6
-    vmovss  dword ptr [rsp+2A3C0h+fmt], xmm0
-    vmovss  xmm3, cs:__real@3f490fdb; horizHalfAngleRad
-  }
-  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v98, &outOrg, &_RBX->axis, *(float *)&_XMM3, fmt, nearDista, farDista);
-  __asm { vmovss  xmm1, cs:centerBias; centerBias }
-  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v98, *(float *)&_XMM1);
+  v7 = 1 << integer;
+  v62 = (unsigned __int8)(1 << integer);
+  v8 = bg_edgeDebugColors[integer].v[0];
+  v9 = bg_edgeDebugColors[integer].v[1];
+  v10 = bg_edgeDebugColors[integer].v[2];
+  RefdefView_GetOrg(p_view, &outOrg);
+  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v69, &outOrg, &p_view->axis, 0.78539819, 0.44178647, p_view->zNear + 1.0, 1024.0);
+  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v69, centerBias);
   Handler = CgHandler::getHandler(localClientNum);
-  v93 = Handler;
-  p_m_freelist = &v100.m_freelist;
-  v25 = &v100.m_data.m_buffer[98256];
+  v64 = Handler;
+  p_m_freelist = &v71.m_freelist;
+  v13 = &v71.m_data.m_buffer[98256];
   do
   {
-    *(_QWORD *)v25 = p_m_freelist;
-    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v25;
-    v25 -= 48;
+    *(_QWORD *)v13 = p_m_freelist;
+    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v13;
+    v13 -= 48;
   }
-  while ( v25 + 48 > (char *)&v100 );
-  v100.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
+  while ( v13 + 48 > (char *)&v71 );
+  v71.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
   if ( !p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v100.m_size = 0i64;
-  v100.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v100.m_endNodeBase.mp_parent = NULL;
-  v100.m_endNodeBase.mp_left = &v100.m_endNodeBase;
-  v100.m_endNodeBase.mp_right = &v100.m_endNodeBase;
-  v26 = 0i64;
-  v89 = NULL;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v71.m_size = 0i64;
+  v71.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v71.m_endNodeBase.mp_parent = NULL;
+  v71.m_endNodeBase.mp_left = &v71.m_endNodeBase;
+  v71.m_endNodeBase.mp_right = &v71.m_endNodeBase;
+  v14 = 0i64;
+  v60 = NULL;
   do
   {
-    v28 = bg_buckets[v26];
+    v15 = bg_buckets[v14];
     outResultCount = 0i64;
     outAdjacentEdgeInfo.id.m_entityIndex = 16777208;
     outAdjacentEdgeInfo.otherId.m_edgeIndex = 1;
-    LOBYTE(outAdjacentEdgeInfo.id.m_edgeIndex) = v28;
-    *(_QWORD *)outAdjacentEdgeInfo.fractions = &v98;
+    LOBYTE(outAdjacentEdgeInfo.id.m_edgeIndex) = v15;
+    *(_QWORD *)outAdjacentEdgeInfo.fractions = &v69;
     EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute((EdgeOctreeQuery<EdgeOctreeQueryFrustum> *)&outAdjacentEdgeInfo, Handler, resultIdPool, resultFractionPool, resultDistancePool, 0x200ui64, &outResultCount, NULL);
-    _RSI = 0i64;
-    v30 = outResultCount;
+    v16 = 0i64;
+    v17 = outResultCount;
     if ( !outResultCount )
       goto LABEL_42;
     do
     {
-      outResultCount = (unsigned __int64)resultIdPool[_RSI];
+      outResultCount = (unsigned __int64)resultIdPool[v16];
       EdgeIndex = EdgeId::GetEdgeIndex((EdgeId *)&outResultCount);
-      if ( (v11 & MapEdgeList_LookupMetadata(EdgeIndex)->flags[0]) == 0 )
+      if ( (v7 & MapEdgeList_LookupMetadata(EdgeIndex)->flags[0]) == 0 )
         goto LABEL_40;
-      __asm
-      {
-        vmovss  [rsp+2A3C0h+var_2A368], xmm6
-        vmovss  [rsp+2A3C0h+var_2A364], xmm6
-      }
-      EdgeId::Clear(&v90.id);
-      v90.id = (EdgeId)outResultCount;
-      __asm
-      {
-        vmovss  xmm0, [rbp+rsi*4+2A2C0h+resultFractionPool]
-        vmovss  [rsp+2A3C0h+var_2A368], xmm0
-        vmovss  xmm1, [rbp+rsi*4+2A2C0h+resultDistancePool]
-        vmovss  [rsp+2A3C0h+var_2A364], xmm1
-      }
-      p_m_endNodeBase = &v100.m_endNodeBase;
-      mp_parent = v100.m_endNodeBase.mp_parent;
-      v36 = 1;
+      v61.fraction = 0.0;
+      v61.score = 0.0;
+      EdgeId::Clear(&v61.id);
+      v61.id = (EdgeId)outResultCount;
+      v61.fraction = resultFractionPool[v16];
+      v61.score = resultDistancePool[v16];
+      p_m_endNodeBase = &v71.m_endNodeBase;
+      mp_parent = v71.m_endNodeBase.mp_parent;
+      v21 = 1;
       while ( mp_parent )
       {
         p_m_endNodeBase = mp_parent;
-        v37 = *(_QWORD *)&mp_parent[1].m_color;
-        v36 = outResultCount < v37;
-        if ( outResultCount >= v37 )
+        v22 = *(_QWORD *)&mp_parent[1].m_color;
+        v21 = outResultCount < v22;
+        if ( outResultCount >= v22 )
           mp_parent = mp_parent->mp_right;
         else
           mp_parent = mp_parent->mp_left;
       }
       mp_left = p_m_endNodeBase;
-      if ( v36 )
+      if ( v21 )
       {
-        if ( p_m_endNodeBase == v100.m_endNodeBase.mp_left )
+        if ( p_m_endNodeBase == v71.m_endNodeBase.mp_left )
         {
-          ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v100, (ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> *)&v94, p_m_endNodeBase, &v90, 1, 0);
+          ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v71, (ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> *)&v65, p_m_endNodeBase, &v61, 1, 0);
           goto LABEL_40;
         }
         if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
@@ -578,10 +528,10 @@ void CG_Edge_DrawDebugAdjacency(const LocalClientNum_t localClientNum)
             {
               do
               {
-                v40 = mp_left;
+                v25 = mp_left;
                 mp_left = mp_left->mp_parent;
               }
-              while ( v40 == mp_left->mp_left );
+              while ( v25 == mp_left->mp_left );
             }
           }
         }
@@ -592,112 +542,112 @@ void CG_Edge_DrawDebugAdjacency(const LocalClientNum_t localClientNum)
       }
       if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( *(_QWORD *)&mp_left[1].m_color < *(_QWORD *)&v90.id )
-        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v100, &result, p_m_endNodeBase, &v90, 0, 0);
+      if ( *(_QWORD *)&mp_left[1].m_color < *(_QWORD *)&v61.id )
+        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v71, &result, p_m_endNodeBase, &v61, 0, 0);
 LABEL_40:
-      ++_RSI;
+      ++v16;
     }
-    while ( _RSI < v30 );
-    v26 = (unsigned __int64)v89;
-    Handler = v93;
+    while ( v16 < v17 );
+    v14 = (unsigned __int64)v60;
+    Handler = v64;
 LABEL_42:
-    v89 = (ntl::red_black_tree_node_base *)++v26;
+    v60 = (ntl::red_black_tree_node_base *)++v14;
   }
-  while ( v26 < 4 );
-  v41 = &v99.m_freelist;
-  v42 = &v99.m_data.m_buffer[65472];
+  while ( v14 < 4 );
+  v26 = &v70.m_freelist;
+  v27 = &v70.m_data.m_buffer[65472];
   do
   {
-    *(_QWORD *)v42 = v41;
-    v41 = (ntl::internal::pool_allocator_freelist<64> *)v42;
-    v42 -= 64;
+    *(_QWORD *)v27 = v26;
+    v26 = (ntl::internal::pool_allocator_freelist<64> *)v27;
+    v27 -= 64;
   }
-  while ( v42 + 64 > (char *)&v99 );
-  v99.m_freelist.m_head.mp_next = &v41->m_head;
-  if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+  while ( v27 + 64 > (char *)&v70 );
+  v70.m_freelist.m_head.mp_next = &v26->m_head;
+  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v99.m_size = 0i64;
-  v99.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v99.m_endNodeBase.mp_parent = NULL;
-  _RDI = &v99.m_endNodeBase;
-  v99.m_endNodeBase.mp_left = &v99.m_endNodeBase;
-  v99.m_endNodeBase.mp_right = &v99.m_endNodeBase;
-  next = v100.m_endNodeBase.mp_left;
-  v89 = v100.m_endNodeBase.mp_left;
-  if ( v100.m_endNodeBase.mp_left != &v100.m_endNodeBase )
+  v70.m_size = 0i64;
+  v70.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v70.m_endNodeBase.mp_parent = NULL;
+  v28 = &v70.m_endNodeBase;
+  v70.m_endNodeBase.mp_left = &v70.m_endNodeBase;
+  v70.m_endNodeBase.mp_right = &v70.m_endNodeBase;
+  next = v71.m_endNodeBase.mp_left;
+  v60 = v71.m_endNodeBase.mp_left;
+  if ( v71.m_endNodeBase.mp_left != &v71.m_endNodeBase )
   {
     while ( 1 )
     {
       if ( !next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      AdjacentEdges = Edge_GetAdjacentEdges(*(EdgeId *)&next[1].m_color, (edgeFlags_t)v11, &outAdjacentEdgeInfo);
+      AdjacentEdges = Edge_GetAdjacentEdges(*(EdgeId *)&next[1].m_color, (edgeFlags_t)v7, &outAdjacentEdgeInfo);
       if ( AdjacentEdges )
         break;
 LABEL_92:
       next = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(next);
-      v89 = next;
-      if ( next == &v100.m_endNodeBase )
+      v60 = next;
+      if ( next == &v71.m_endNodeBase )
       {
-        _RDI = v99.m_endNodeBase.mp_left;
-        Handler = v93;
+        v28 = v70.m_endNodeBase.mp_left;
+        Handler = v64;
         goto LABEL_94;
       }
     }
     p_outAdjacentEdgeInfo = &outAdjacentEdgeInfo;
     while ( 2 )
     {
-      v47 = &v99.m_endNodeBase;
-      v48 = v99.m_endNodeBase.mp_parent;
-      v49 = 1;
-      if ( v99.m_endNodeBase.mp_parent )
+      v32 = &v70.m_endNodeBase;
+      v33 = v70.m_endNodeBase.mp_parent;
+      v34 = 1;
+      if ( v70.m_endNodeBase.mp_parent )
       {
         id = p_outAdjacentEdgeInfo->id;
-        v51 = (unsigned int)*(_QWORD *)&p_outAdjacentEdgeInfo->otherId | *(_QWORD *)&p_outAdjacentEdgeInfo->otherId & 0xFFFFFFFF00000000ui64;
-        v52 = (unsigned int)*(_QWORD *)&p_outAdjacentEdgeInfo->id | *(_QWORD *)&p_outAdjacentEdgeInfo->id & 0xFFFFFFFF00000000ui64;
+        v36 = (unsigned int)*(_QWORD *)&p_outAdjacentEdgeInfo->otherId | *(_QWORD *)&p_outAdjacentEdgeInfo->otherId & 0xFFFFFFFF00000000ui64;
+        v37 = (unsigned int)*(_QWORD *)&p_outAdjacentEdgeInfo->id | *(_QWORD *)&p_outAdjacentEdgeInfo->id & 0xFFFFFFFF00000000ui64;
         otherId = p_outAdjacentEdgeInfo->id;
-        if ( v51 <= v52 )
+        if ( v36 <= v37 )
           otherId = p_outAdjacentEdgeInfo->otherId;
-        if ( v51 >= v52 )
+        if ( v36 >= v37 )
           id = p_outAdjacentEdgeInfo->otherId;
-        v54 = HIDWORD(*(unsigned __int64 *)&otherId);
+        v39 = HIDWORD(*(unsigned __int64 *)&otherId);
         m_edgeIndex = otherId.m_edgeIndex;
         do
         {
-          v47 = v48;
-          v56 = *(_QWORD *)&v48[1].m_color;
-          v57 = (unsigned int)v48[1].mp_left | (unsigned __int64)v48[1].mp_left & 0xFFFFFFFF00000000ui64;
-          v58 = (ntl::red_black_tree_node_base *)v56;
-          if ( v57 <= v56 )
-            v58 = v48[1].mp_left;
-          if ( v57 >= v56 )
-            v56 = (unsigned __int64)v48[1].mp_left;
-          v59 = (ntl::red_black_tree_node_base *)(m_edgeIndex | (v54 << 32));
-          if ( v59 < v58 || v59 == v58 && (id.m_edgeIndex | (HIDWORD(*(unsigned __int64 *)&id) << 32)) < ((unsigned int)v56 | (HIDWORD(v56) << 32)) )
+          v32 = v33;
+          v41 = *(_QWORD *)&v33[1].m_color;
+          v42 = (unsigned int)v33[1].mp_left | (unsigned __int64)v33[1].mp_left & 0xFFFFFFFF00000000ui64;
+          v43 = (ntl::red_black_tree_node_base *)v41;
+          if ( v42 <= v41 )
+            v43 = v33[1].mp_left;
+          if ( v42 >= v41 )
+            v41 = (unsigned __int64)v33[1].mp_left;
+          v44 = (ntl::red_black_tree_node_base *)(m_edgeIndex | (v39 << 32));
+          if ( v44 < v43 || v44 == v43 && (id.m_edgeIndex | (HIDWORD(*(unsigned __int64 *)&id) << 32)) < ((unsigned int)v41 | (HIDWORD(v41) << 32)) )
           {
-            v48 = v48->mp_left;
-            v49 = 1;
+            v33 = v33->mp_left;
+            v34 = 1;
           }
           else
           {
-            v49 = 0;
-            v48 = v48->mp_right;
+            v34 = 0;
+            v33 = v33->mp_right;
           }
         }
-        while ( v48 );
+        while ( v33 );
       }
-      mp_right = v47;
-      if ( v49 )
+      mp_right = v32;
+      if ( v34 )
       {
-        if ( v47 == v99.m_endNodeBase.mp_left )
+        if ( v32 == v70.m_endNodeBase.mp_left )
         {
-          ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::insert_node(&v99, (ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *)&result, v47, p_outAdjacentEdgeInfo, 1, 0);
+          ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::insert_node(&v70, (ntl::red_black_tree_iterator<AdjacentEdgeInfo,ntl::red_black_tree_node<AdjacentEdgeInfo>,AdjacentEdgeInfo *,AdjacentEdgeInfo &> *)&result, v32, p_outAdjacentEdgeInfo, 1, 0);
           goto LABEL_90;
         }
-        if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( v47->m_color || v47->mp_parent->mp_parent != v47 )
+        if ( v32->m_color || v32->mp_parent->mp_parent != v32 )
         {
-          mp_right = v47->mp_left;
+          mp_right = v32->mp_left;
           if ( mp_right )
           {
             for ( j = mp_right->mp_right; j; j = j->mp_right )
@@ -705,139 +655,119 @@ LABEL_92:
           }
           else
           {
-            mp_right = v47->mp_parent;
-            if ( v47 == mp_right->mp_left )
+            mp_right = v32->mp_parent;
+            if ( v32 == mp_right->mp_left )
             {
               do
               {
-                v62 = mp_right;
+                v47 = mp_right;
                 mp_right = mp_right->mp_parent;
               }
-              while ( v62 == mp_right->mp_left );
+              while ( v47 == mp_right->mp_left );
             }
           }
         }
         else
         {
-          mp_right = v47->mp_right;
+          mp_right = v32->mp_right;
         }
       }
       if ( !mp_right && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( AdjacentEdgeInfoCompare::operator()(&v99.m_keyCompare, (const AdjacentEdgeInfo *)&mp_right[1], p_outAdjacentEdgeInfo) )
-        ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::insert_node(&v99, &v94, v47, p_outAdjacentEdgeInfo, 0, 0);
+      if ( AdjacentEdgeInfoCompare::operator()(&v70.m_keyCompare, (const AdjacentEdgeInfo *)&mp_right[1], p_outAdjacentEdgeInfo) )
+        ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::insert_node(&v70, &v65, v32, p_outAdjacentEdgeInfo, 0, 0);
 LABEL_90:
       ++p_outAdjacentEdgeInfo;
       if ( !--AdjacentEdges )
       {
-        next = v89;
-        v11 = v91;
+        next = v60;
+        v7 = v62;
         goto LABEL_92;
       }
       continue;
     }
   }
 LABEL_94:
-  if ( _RDI != &v99.m_endNodeBase )
+  if ( v28 != &v70.m_endNodeBase )
   {
-    _RBX = &g_edgeDebugPolys[v92];
+    v48 = &g_edgeDebugPolys[v63];
     do
     {
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      __asm { vmovss  xmm2, dword ptr [rdi+28h]; fraction }
-      Edge_CalculatePoint(Handler, *(EdgeId *)&_RDI[1].m_color, *(float *)&_XMM2, (vec3_t *)&outAdjacentEdgeInfo);
-      __asm { vmovss  xmm2, dword ptr [rdi+2Ch]; fraction }
-      Edge_CalculatePoint(Handler, *(EdgeId *)&_RDI[1].m_color, *(float *)&_XMM2, (vec3_t *)&outAdjacentEdgeInfo.fractions[1]);
-      __asm { vmovss  xmm2, dword ptr [rdi+38h]; fraction }
-      Edge_CalculatePoint(Handler, (EdgeId)_RDI[1].mp_left, *(float *)&_XMM2, (vec3_t *)outAdjacentEdgeInfo.otherFractions);
-      __asm { vmovss  xmm2, dword ptr [rdi+3Ch]; fraction }
-      Edge_CalculatePoint(Handler, (EdgeId)_RDI[1].mp_left, *(float *)&_XMM2, (vec3_t *)((char *)&v102 + 4));
+      Edge_CalculatePoint(Handler, *(EdgeId *)&v28[1].m_color, *(float *)&v28[1].mp_parent, (vec3_t *)&outAdjacentEdgeInfo);
+      Edge_CalculatePoint(Handler, *(EdgeId *)&v28[1].m_color, *((float *)&v28[1].mp_parent + 1), (vec3_t *)&outAdjacentEdgeInfo.fractions[1]);
+      Edge_CalculatePoint(Handler, (EdgeId)v28[1].mp_left, *(float *)&v28[1].mp_right, (vec3_t *)outAdjacentEdgeInfo.otherFractions);
+      Edge_CalculatePoint(Handler, (EdgeId)v28[1].mp_left, *((float *)&v28[1].mp_right + 1), (vec3_t *)((char *)&v73 + 4));
       CG_Edge_StandardizeWinding((vec3_t *)&outAdjacentEdgeInfo);
       Sys_EnterCriticalSection(CRITSECT_DEBUG_EDGE_POLYS);
-      vertCount = _RBX->vertCount;
+      vertCount = v48->vertCount;
       if ( vertCount + 4 <= 2048 )
       {
-        polyCount = _RBX->polyCount;
+        polyCount = v48->polyCount;
         if ( (int)polyCount + 1 <= 512 )
         {
-          _RBX->polys[polyCount].firstVert = vertCount;
-          _RBX->polys[_RBX->polyCount].vertCount = 4;
-          _RBX->polys[_RBX->polyCount].outline = 1;
-          _RBX->polys[_RBX->polyCount].drawBackFace = 1;
-          _RBX->polys[_RBX->polyCount].drawDepthTest = 0;
-          _RCX = _RBX->polyCount;
-          __asm
-          {
-            vmovss  dword ptr [rcx+rbx+4], xmm7
-            vmovss  dword ptr [rcx+rbx+8], xmm8
-            vmovss  dword ptr [rcx+rbx+0Ch], xmm9
-          }
-          _RBX->polys[_RCX].color.v[3] = 0.66600001;
-          ++_RBX->polyCount;
-          _RCX = 3i64 * _RBX->vertCount;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+2A2C0h+outAdjacentEdgeInfo.id.m_edgeIndex]
-            vmovups ymmword ptr [rbx+rcx*4+3808h], ymm0
-            vmovups xmm1, xmmword ptr [rbp+28230h]
-            vmovups xmmword ptr [rbx+rcx*4+3828h], xmm1
-          }
-          _RBX->vertCount += 4;
+          v48->polys[polyCount].firstVert = vertCount;
+          v48->polys[v48->polyCount].vertCount = 4;
+          v48->polys[v48->polyCount].outline = 1;
+          v48->polys[v48->polyCount].drawBackFace = 1;
+          v48->polys[v48->polyCount].drawDepthTest = 0;
+          v51 = v48->polyCount;
+          v48->polys[v51].color.v[0] = v8;
+          v48->polys[v51].color.v[1] = v9;
+          v48->polys[v51].color.v[2] = v10;
+          v48->polys[v51].color.v[3] = 0.66600001;
+          ++v48->polyCount;
+          v52 = v48->vertCount;
+          *(AdjacentEdgeInfo *)v48->verts[v52].v = outAdjacentEdgeInfo;
+          *(_OWORD *)&v48->verts[v52 + 2].z = v73;
+          v48->vertCount += 4;
         }
       }
       Sys_LeaveCriticalSection(CRITSECT_DEBUG_EDGE_POLYS);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 93, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 93, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      _RDI = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(_RDI);
+      v28 = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(v28);
     }
-    while ( _RDI != &v99.m_endNodeBase );
+    while ( v28 != &v70.m_endNodeBase );
   }
-  if ( v99.m_size )
+  if ( v70.m_size )
   {
-    v74 = v99.m_endNodeBase.mp_parent;
-    if ( v99.m_endNodeBase.mp_parent )
+    v53 = v70.m_endNodeBase.mp_parent;
+    if ( v70.m_endNodeBase.mp_parent )
     {
       do
       {
-        ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::erase_tree(&v99, (ntl::red_black_tree_node<AdjacentEdgeInfo> *)v74->mp_right);
-        v75 = v74->mp_left;
-        *(_QWORD *)&v74->m_color = v99.m_freelist.m_head.mp_next;
-        v99.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v74;
-        v74 = v75;
+        ntl::red_black_tree<AdjacentEdgeInfo,AdjacentEdgeInfo,ntl::fixed_pool_allocator<ntl::red_black_tree_node<AdjacentEdgeInfo>,1024,8>,ntl::return_input<AdjacentEdgeInfo>,AdjacentEdgeInfoCompare>::erase_tree(&v70, (ntl::red_black_tree_node<AdjacentEdgeInfo> *)v53->mp_right);
+        v54 = v53->mp_left;
+        *(_QWORD *)&v53->m_color = v70.m_freelist.m_head.mp_next;
+        v70.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v53;
+        v53 = v54;
       }
-      while ( v75 );
+      while ( v54 );
     }
-    v99.m_endNodeBase.mp_parent = NULL;
-    v99.m_endNodeBase.mp_left = &v99.m_endNodeBase;
-    v99.m_endNodeBase.mp_right = &v99.m_endNodeBase;
-    v99.m_size = 0i64;
+    v70.m_endNodeBase.mp_parent = NULL;
+    v70.m_endNodeBase.mp_left = &v70.m_endNodeBase;
+    v70.m_endNodeBase.mp_right = &v70.m_endNodeBase;
+    v70.m_size = 0i64;
   }
-  if ( v100.m_size )
+  if ( v71.m_size )
   {
-    v76 = v100.m_endNodeBase.mp_parent;
-    if ( v100.m_endNodeBase.mp_parent )
+    v55 = v71.m_endNodeBase.mp_parent;
+    if ( v71.m_endNodeBase.mp_parent )
     {
       do
       {
-        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::erase_tree(&v100, (ntl::red_black_tree_node<FlaggedEdge> *)v76->mp_right);
-        v77 = v76->mp_left;
-        *(_QWORD *)&v76->m_color = v100.m_freelist.m_head.mp_next;
-        v100.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v76;
-        v76 = v77;
+        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,2048,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::erase_tree(&v71, (ntl::red_black_tree_node<FlaggedEdge> *)v55->mp_right);
+        v56 = v55->mp_left;
+        *(_QWORD *)&v55->m_color = v71.m_freelist.m_head.mp_next;
+        v71.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v55;
+        v55 = v56;
       }
-      while ( v77 );
+      while ( v56 );
     }
   }
   memset(&outOrg, 0, sizeof(outOrg));
-  _R11 = &v110;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -845,82 +775,37 @@ LABEL_94:
 CG_Edge_DrawDebugEdge
 ==============
 */
-
-void __fastcall CG_Edge_DrawDebugEdge(const BgHandler *handler, EdgeId edgeId, double edgeFraction, bool showOrientation, bool depthTest, bool showClosestPoint, const vec4_t *debugDrawColor, const vec4_t *debugDrawColorDark)
+void CG_Edge_DrawDebugEdge(const BgHandler *handler, EdgeId edgeId, float edgeFraction, bool showOrientation, bool depthTest, bool showClosestPoint, const vec4_t *debugDrawColor, const vec4_t *debugDrawColorDark)
 {
   vec3_t start; 
   vec3_t outNormal1; 
   vec3_t outNormal0; 
   vec3_t outLineSegment[2]; 
   vec3_t end; 
-  vec3_t v50; 
-  void *retaddr; 
+  vec3_t v16; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmm7, xmm2
-  }
   Edge_GetLineSegment(handler, edgeId, (vec3_t (*)[2])outLineSegment);
   CG_DebugLine(outLineSegment, &outLineSegment[1], debugDrawColor, depthTest, 1);
   if ( showOrientation )
   {
-    __asm
-    {
-      vmovss  xmm5, cs:__real@3f000000
-      vmovss  xmm0, dword ptr [rbp+37h+outLineSegment+0Ch]
-      vsubss  xmm1, xmm0, dword ptr [rbp+37h+outLineSegment]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rbp+37h+outLineSegment]
-      vmovss  xmm1, dword ptr [rbp+37h+outLineSegment+10h]
-      vmovss  dword ptr [rsp+0F0h+start], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rbp+37h+outLineSegment+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbp+37h+outLineSegment+4]
-      vmovss  xmm0, dword ptr [rbp+37h+outLineSegment+14h]
-      vsubss  xmm1, xmm0, dword ptr [rbp+37h+outLineSegment+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rsp+0F0h+start+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rbp+37h+outLineSegment+8]
-      vmovaps [rsp+0F0h+var_48+8], xmm6
-      vmovss  dword ptr [rsp+0F0h+start+8], xmm3
-    }
+    start.v[0] = (float)((float)(outLineSegment[1].v[0] - outLineSegment[0].v[0]) * 0.5) + outLineSegment[0].v[0];
+    start.v[1] = (float)((float)(outLineSegment[1].v[1] - outLineSegment[0].v[1]) * 0.5) + outLineSegment[0].v[1];
+    start.v[2] = (float)((float)(outLineSegment[1].v[2] - outLineSegment[0].v[2]) * 0.5) + outLineSegment[0].v[2];
     Edge_CalculateNormals(handler, edgeId, &outNormal0, &outNormal1);
-    __asm
-    {
-      vmovss  xmm6, cs:orientationLineLength
-      vmulss  xmm1, xmm6, dword ptr [rbp+37h+outNormal0]
-      vaddss  xmm1, xmm1, dword ptr [rsp+0F0h+start]
-      vmulss  xmm2, xmm6, dword ptr [rbp+37h+outNormal0+4]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsp+0F0h+start+4]
-      vmulss  xmm2, xmm6, dword ptr [rbp+37h+outNormal0+8]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsp+0F0h+start+8]
-      vmulss  xmm2, xmm6, dword ptr [rbp+37h+outNormal1]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsp+0F0h+start]
-      vmulss  xmm2, xmm6, dword ptr [rbp+37h+outNormal1+4]
-      vmovss  dword ptr [rbp+37h+var_6C], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsp+0F0h+start+4]
-      vmulss  xmm2, xmm6, dword ptr [rbp+37h+outNormal1+8]
-      vmovss  dword ptr [rbp+37h+var_6C+4], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsp+0F0h+start+8]
-      vmovss  dword ptr [rbp+37h+var_6C+8], xmm1
-    }
+    end.v[0] = (float)(orientationLineLength * outNormal0.v[0]) + start.v[0];
+    end.v[1] = (float)(orientationLineLength * outNormal0.v[1]) + start.v[1];
+    end.v[2] = (float)(orientationLineLength * outNormal0.v[2]) + start.v[2];
+    v16.v[0] = (float)(orientationLineLength * outNormal1.v[0]) + start.v[0];
+    v16.v[1] = (float)(orientationLineLength * outNormal1.v[1]) + start.v[1];
+    v16.v[2] = (float)(orientationLineLength * outNormal1.v[2]) + start.v[2];
     CG_DebugLine(&start, &end, debugDrawColorDark, depthTest, 1);
-    CG_DebugLine(&start, &v50, debugDrawColorDark, depthTest, 1);
-    __asm { vmovaps xmm6, [rsp+0F0h+var_48+8] }
+    CG_DebugLine(&start, &v16, debugDrawColorDark, depthTest, 1);
   }
   if ( showClosestPoint )
   {
-    __asm { vmovaps xmm2, xmm7; fraction }
-    Edge_CalculatePoint(handler, edgeId, *(float *)&_XMM2, &outNormal1);
-    __asm { vmovss  xmm1, cs:radius_0; radius }
-    CG_DebugSphere(&outNormal1, *(float *)&_XMM1, debugDrawColor, depthTest, 1);
+    Edge_CalculatePoint(handler, edgeId, edgeFraction, &outNormal1);
+    CG_DebugSphere(&outNormal1, radius_0, debugDrawColor, depthTest, 1);
   }
-  __asm { vmovaps xmm7, [rsp+0F0h+var_58+8] }
 }
 
 /*
@@ -931,267 +816,227 @@ CG_Edge_DrawDebugEdges
 void CG_Edge_DrawDebugEdges(const LocalClientNum_t localClientNum)
 {
   signed __int64 v1; 
-  void *v4; 
+  void *v2; 
+  const dvar_t *v4; 
+  int integer; 
   const dvar_t *v6; 
-  unsigned int unsignedInt; 
+  __int64 v7; 
   const dvar_t *v8; 
-  __int64 integer; 
-  const dvar_t *v10; 
+  const dvar_t *v9; 
+  bool v10; 
   const dvar_t *v11; 
   bool v12; 
-  const dvar_t *v13; 
-  bool v14; 
-  unsigned int v21; 
-  MapEdgeList *v23; 
-  unsigned int v24; 
+  const vec4_t *v13; 
+  unsigned int i; 
+  MapEdgeList *v15; 
+  unsigned int v16; 
   unsigned __int8 mp_node; 
   unsigned int EdgeIndex; 
+  const dvar_t *v19; 
+  float value; 
+  RefdefView *p_view; 
   ntl::internal::pool_allocator_freelist<48> *p_m_freelist; 
-  char *v32; 
-  edgeQueryBucket_t v34; 
-  BgHandler *v39; 
-  EdgeId v41; 
-  unsigned __int8 v43; 
-  unsigned int v44; 
+  char *v23; 
+  __int64 v24; 
+  edgeQueryBucket_t v25; 
+  BgHandler *v26; 
+  EdgeId v27; 
+  unsigned __int8 v28; 
+  unsigned int v29; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
   ntl::red_black_tree_node_base *mp_parent; 
-  bool v49; 
-  unsigned __int64 v50; 
+  bool v32; 
+  unsigned __int64 v33; 
   ntl::red_black_tree_node_base *mp_left; 
-  ntl::red_black_tree_node_base *i; 
-  ntl::red_black_tree_node_base *v53; 
-  ntl::red_black_tree_node_base *v55; 
-  ntl::red_black_tree_node_base *v56; 
-  float fmt; 
+  ntl::red_black_tree_node_base *j; 
+  ntl::red_black_tree_node_base *v36; 
+  ntl::red_black_tree_node_base *v37; 
+  ntl::red_black_tree_node_base *v38; 
   __int64 showClosestPoint; 
-  float showClosestPointa; 
   vec4_t *debugDrawColor; 
-  float debugDrawColora; 
   vec4_t *debugDrawColorDark; 
-  __int64 v66; 
+  __int64 v42; 
   bool enabled; 
   EdgeId edgeId; 
-  ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> v69; 
+  ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> v45; 
   BgHandler *handler; 
-  int v71; 
+  int v47; 
   vec3_t outOrg; 
-  __int64 v73; 
+  __int64 v49; 
   ntl::red_black_tree_iterator<FlaggedEdge,ntl::red_black_tree_node<FlaggedEdge>,FlaggedEdge *,FlaggedEdge &> result; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v75; 
-  EdgeOctreeQueryFrustum v76; 
-  ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge> > v77; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v51; 
+  EdgeOctreeQueryFrustum v52; 
+  ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge> > v53; 
   float resultFractionPool[512]; 
   float resultDistancePool[512]; 
   EdgeId resultIdPool[512]; 
-  char v83; 
 
-  v4 = alloca(v1);
-  v73 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+8340h+var_30], xmm6
-    vmovaps [rsp+8340h+var_40], xmm7
-  }
-  v6 = DCONST_DVARINT_edge_debugDraw;
+  v2 = alloca(v1);
+  v49 = -2i64;
+  v4 = DCONST_DVARINT_edge_debugDraw;
   if ( !DCONST_DVARINT_edge_debugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDraw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  unsignedInt = v6->current.unsignedInt;
-  v8 = DCONST_DVARINT_edge_debugDrawFlag;
+  Dvar_CheckFrontendServerThread(v4);
+  integer = v4->current.integer;
+  v6 = DCONST_DVARINT_edge_debugDrawFlag;
   if ( !DCONST_DVARINT_edge_debugDrawFlag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawFlag") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  integer = v8->current.integer;
-  v71 = v8->current.integer;
-  v10 = DCONST_DVARBOOL_edge_debugDrawOrientation;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.integer;
+  v47 = v6->current.integer;
+  v8 = DCONST_DVARBOOL_edge_debugDrawOrientation;
   if ( !DCONST_DVARBOOL_edge_debugDrawOrientation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawOrientation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  enabled = v10->current.enabled;
-  v11 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
+  Dvar_CheckFrontendServerThread(v8);
+  enabled = v8->current.enabled;
+  v9 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
   if ( !DCONST_DVARBOOL_edge_debugDrawDepthTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDepthTest") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.enabled;
+  v11 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
+  if ( !DCONST_DVARBOOL_edge_debugDrawQueryShowPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawQueryShowPoints") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v11);
   v12 = v11->current.enabled;
-  v13 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
-  if ( !DCONST_DVARBOOL_edge_debugDrawQueryShowPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawQueryShowPoints") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  v14 = v13->current.enabled;
   handler = CgHandler::getHandler(localClientNum);
-  if ( (unsigned int)integer >= 5 )
+  if ( (unsigned int)v7 >= 5 )
   {
     LODWORD(debugDrawColor) = 5;
-    LODWORD(showClosestPoint) = integer;
+    LODWORD(showClosestPoint) = v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 256, ASSERT_TYPE_ASSERT, "(unsigned)( edgeFlagIndex ) < (unsigned)( 5 )", "edgeFlagIndex doesn't index EDGE_FLAG_COUNT\n\t%i not in [0, %i)", showClosestPoint, debugDrawColor) )
       __debugbreak();
   }
-  LODWORD(v69.mp_node) = (unsigned __int8)(1 << integer);
+  LODWORD(v45.mp_node) = (unsigned __int8)(1 << v7);
   if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 259, ASSERT_TYPE_ASSERT, "(cm.mapEnts)", (const char *)&queryFormat, "cm.mapEnts") )
     __debugbreak();
-  if ( unsignedInt == 3 )
+  if ( integer == 3 )
   {
-    _R14 = &bg_edgeDebugColors[integer];
-    __asm
+    v13 = &bg_edgeDebugColors[v7];
+    *(float *)&v51.m_bucket = 0.66000003 * v13->v[0];
+    *(float *)&v51.m_hint = 0.66000003 * v13->v[1];
+    *(float *)&v51.m_queryShape = 0.66000003 * v13->v[2];
+    HIDWORD(v51.m_queryShape) = LODWORD(v13->v[3]);
+    for ( i = 0; i < cm.mapEnts->numEdgeLists; ++i )
     {
-      vmovss  xmm3, cs:__real@3f28f5c3
-      vmulss  xmm0, xmm3, dword ptr [r14]
-      vmovss  dword ptr [rbp+8240h+var_82A8], xmm0
-      vmulss  xmm2, xmm3, dword ptr [r14+4]
-      vmovss  dword ptr [rbp+8240h+var_82A8+4], xmm2
-      vmulss  xmm1, xmm3, dword ptr [r14+8]
-      vmovss  dword ptr [rbp+8240h+var_82A8+8], xmm1
-      vmovss  xmm2, dword ptr [r14+0Ch]
-      vmovss  dword ptr [rbp+8240h+var_82A8+0Ch], xmm2
-    }
-    v21 = 0;
-    if ( cm.mapEnts->numEdgeLists )
-    {
-      __asm { vmovss  xmm6, cs:__real@3f000000 }
-      do
+      v15 = cm.mapEnts->edgeLists[i];
+      if ( v15 && v15->valid )
       {
-        v23 = cm.mapEnts->edgeLists[v21];
-        if ( v23 && v23->valid )
+        if ( v15->numDynamicEdges + v15->numStaticEdges != v15->numEdges )
         {
-          if ( v23->numDynamicEdges + v23->numStaticEdges != v23->numEdges )
-          {
-            LODWORD(v66) = v23->numEdges;
-            LODWORD(debugDrawColorDark) = v23->numDynamicEdges + v23->numStaticEdges;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 276, ASSERT_TYPE_ASSERT, "( edgeList->numDynamicEdges + edgeList->numStaticEdges ) == ( edgeList->numEdges )", "%s == %s\n\t%u, %u", "edgeList->numDynamicEdges + edgeList->numStaticEdges", "edgeList->numEdges", debugDrawColorDark, v66) )
-              __debugbreak();
-          }
-          v24 = 0;
-          if ( v23->numEdges )
-          {
-            mp_node = (unsigned __int8)v69.mp_node;
-            do
-            {
-              if ( (mp_node & v23->edgeMetadata[v24].flags[0]) != 0 )
-              {
-                EdgeIndex = MapEdgeList_MakeEdgeIndex(v21, v24);
-                EdgeId::Set(&edgeId, EdgeIndex);
-                __asm { vmovaps xmm2, xmm6; edgeFraction }
-                CG_Edge_DrawDebugEdge(handler, edgeId, *(double *)&_XMM2, enabled, v12, v14, _R14, (const vec4_t *)&v75);
-                mp_node = (unsigned __int8)v69.mp_node;
-              }
-              ++v24;
-            }
-            while ( v24 < v23->numEdges );
-          }
+          LODWORD(v42) = v15->numEdges;
+          LODWORD(debugDrawColorDark) = v15->numDynamicEdges + v15->numStaticEdges;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 276, ASSERT_TYPE_ASSERT, "( edgeList->numDynamicEdges + edgeList->numStaticEdges ) == ( edgeList->numEdges )", "%s == %s\n\t%u, %u", "edgeList->numDynamicEdges + edgeList->numStaticEdges", "edgeList->numEdges", debugDrawColorDark, v42) )
+            __debugbreak();
         }
-        ++v21;
+        v16 = 0;
+        if ( v15->numEdges )
+        {
+          mp_node = (unsigned __int8)v45.mp_node;
+          do
+          {
+            if ( (mp_node & v15->edgeMetadata[v16].flags[0]) != 0 )
+            {
+              EdgeIndex = MapEdgeList_MakeEdgeIndex(i, v16);
+              EdgeId::Set(&edgeId, EdgeIndex);
+              CG_Edge_DrawDebugEdge(handler, edgeId, 0.5, enabled, v10, v12, v13, (const vec4_t *)&v51);
+              mp_node = (unsigned __int8)v45.mp_node;
+            }
+            ++v16;
+          }
+          while ( v16 < v15->numEdges );
+        }
       }
-      while ( v21 < cm.mapEnts->numEdgeLists );
     }
-    goto LABEL_84;
+    return;
   }
-  _RDI = DCONST_DVARFLT_edge_debugDrawQueryDistance;
+  v19 = DCONST_DVARFLT_edge_debugDrawQueryDistance;
   if ( !DCONST_DVARFLT_edge_debugDrawQueryDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawQueryDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  _RBX = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  p_m_freelist = &v77.m_freelist;
-  v32 = &v77.m_data.m_buffer[24528];
+  Dvar_CheckFrontendServerThread(v19);
+  value = v19->current.value;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  p_m_freelist = &v53.m_freelist;
+  v23 = &v53.m_data.m_buffer[24528];
   do
   {
-    *(_QWORD *)v32 = p_m_freelist;
-    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v32;
-    v32 -= 48;
+    *(_QWORD *)v23 = p_m_freelist;
+    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v23;
+    v23 -= 48;
   }
-  while ( v32 + 48 > (char *)&v77 );
-  v77.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
+  while ( v23 + 48 > (char *)&v53 );
+  v53.m_freelist.m_head.mp_next = &p_m_freelist->m_head;
   if ( !p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  _R13 = 0i64;
-  v77.m_size = 0i64;
-  v77.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
-  v77.m_endNodeBase.mp_parent = NULL;
-  v77.m_endNodeBase.mp_left = &v77.m_endNodeBase;
-  v77.m_endNodeBase.mp_right = &v77.m_endNodeBase;
-  RefdefView_GetOrg(_RBX, &outOrg);
-  if ( (unsigned int)integer >= 5 )
+  v24 = 0i64;
+  v53.m_size = 0i64;
+  v53.m_endNodeBase.m_color = RB_NODE_COLOR_RED;
+  v53.m_endNodeBase.mp_parent = NULL;
+  v53.m_endNodeBase.mp_left = &v53.m_endNodeBase;
+  v53.m_endNodeBase.mp_right = &v53.m_endNodeBase;
+  RefdefView_GetOrg(p_view, &outOrg);
+  if ( (unsigned int)v7 >= 5 )
   {
     LODWORD(debugDrawColor) = 5;
-    LODWORD(showClosestPoint) = integer;
+    LODWORD(showClosestPoint) = v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 314, ASSERT_TYPE_ASSERT, "(unsigned)( edgeFlagIndex ) < (unsigned)( ( sizeof( *array_counter( cg_FlagToBucket ) ) + 0 ) )", "edgeFlagIndex doesn't index ARRAY_COUNT( cg_FlagToBucket )\n\t%i not in [0, %i)", showClosestPoint, debugDrawColor) )
       __debugbreak();
   }
-  v34 = cg_FlagToBucket[integer];
+  v25 = cg_FlagToBucket[v7];
   edgeId = 0i64;
-  if ( unsignedInt == 1 )
+  if ( integer == 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vaddss  xmm1, xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rsp+8340h+debugDrawColor], xmm7
-      vmovss  dword ptr [rsp+8340h+showClosestPoint], xmm1
-      vmovss  xmm0, cs:__real@3ee231d6
-      vmovss  dword ptr [rsp+8340h+fmt], xmm0
-      vmovss  xmm3, cs:__real@3f490fdb; horizHalfAngleRad
-    }
-    EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v76, &outOrg, &_RBX->axis, *(float *)&_XMM3, fmt, showClosestPointa, debugDrawColora);
-    v75.m_hint = 16777208;
-    v75.m_flags = unsignedInt;
-    v75.m_bucket = v34;
-    v75.m_queryShape = &v76;
-    v39 = handler;
-    EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v75, handler, resultIdPool, resultFractionPool, resultDistancePool, 0x200ui64, (unsigned __int64 *)&edgeId, NULL);
+    EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v52, &outOrg, &p_view->axis, 0.78539819, 0.44178647, p_view->zNear + 1.0, value);
+    v51.m_hint = 16777208;
+    v51.m_flags = 1;
+    v51.m_bucket = v25;
+    v51.m_queryShape = &v52;
+    v26 = handler;
+    EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v51, handler, resultIdPool, resultFractionPool, resultDistancePool, 0x200ui64, (unsigned __int64 *)&edgeId, NULL);
   }
   else
   {
-    __asm { vmovaps xmm2, xmm7; radius }
-    EdgeOctreeQuerySphere::EdgeOctreeQuerySphere((EdgeOctreeQuerySphere *)&v76, &outOrg, *(float *)&_XMM2);
-    v75.m_hint = 16777208;
-    v75.m_flags = 1;
-    v75.m_bucket = v34;
-    v75.m_queryShape = &v76;
-    v39 = handler;
-    EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute((EdgeOctreeQuery<EdgeOctreeQuerySphere> *)&v75, handler, resultIdPool, resultFractionPool, resultDistancePool, 0x200ui64, (unsigned __int64 *)&edgeId, NULL);
+    EdgeOctreeQuerySphere::EdgeOctreeQuerySphere((EdgeOctreeQuerySphere *)&v52, &outOrg, value);
+    v51.m_hint = 16777208;
+    v51.m_flags = 1;
+    v51.m_bucket = v25;
+    v51.m_queryShape = &v52;
+    v26 = handler;
+    EdgeOctreeQuery<EdgeOctreeQuerySphere>::Execute((EdgeOctreeQuery<EdgeOctreeQuerySphere> *)&v51, handler, resultIdPool, resultFractionPool, resultDistancePool, 0x200ui64, (unsigned __int64 *)&edgeId, NULL);
   }
-  v41 = edgeId;
+  v27 = edgeId;
   if ( edgeId )
   {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v43 = (unsigned __int8)v69.mp_node;
+    v28 = (unsigned __int8)v45.mp_node;
     while ( 1 )
     {
-      edgeId = resultIdPool[_R13];
-      v44 = EdgeId::GetEdgeIndex(&edgeId);
-      if ( (v43 & MapEdgeList_LookupMetadata(v44)->flags[0]) != 0 )
+      edgeId = resultIdPool[v24];
+      v29 = EdgeId::GetEdgeIndex(&edgeId);
+      if ( (v28 & MapEdgeList_LookupMetadata(v29)->flags[0]) != 0 )
       {
-        __asm
-        {
-          vmovss  dword ptr [rbp+8240h+var_82A8+8], xmm6
-          vmovss  dword ptr [rbp+8240h+var_82A8+0Ch], xmm6
-        }
-        EdgeId::Clear((EdgeId *)&v75);
-        *(EdgeId *)&v75.m_bucket = edgeId;
-        __asm
-        {
-          vmovss  xmm0, [rbp+r13*4+8240h+resultFractionPool]
-          vmovss  dword ptr [rbp+8240h+var_82A8+8], xmm0
-          vmovss  xmm1, [rbp+r13*4+8240h+resultDistancePool]
-          vmovss  dword ptr [rbp+8240h+var_82A8+0Ch], xmm1
-        }
-        p_m_endNodeBase = &v77.m_endNodeBase;
-        mp_parent = v77.m_endNodeBase.mp_parent;
-        v49 = 1;
+        *(float *)&v51.m_queryShape = 0.0;
+        *((float *)&v51.m_queryShape + 1) = 0.0;
+        EdgeId::Clear((EdgeId *)&v51);
+        *(EdgeId *)&v51.m_bucket = edgeId;
+        *(float *)&v51.m_queryShape = resultFractionPool[v24];
+        *((float *)&v51.m_queryShape + 1) = resultDistancePool[v24];
+        p_m_endNodeBase = &v53.m_endNodeBase;
+        mp_parent = v53.m_endNodeBase.mp_parent;
+        v32 = 1;
         while ( mp_parent )
         {
           p_m_endNodeBase = mp_parent;
-          v50 = *(_QWORD *)&mp_parent[1].m_color;
-          v49 = *(_QWORD *)&edgeId < v50;
-          if ( *(_QWORD *)&edgeId >= v50 )
+          v33 = *(_QWORD *)&mp_parent[1].m_color;
+          v32 = *(_QWORD *)&edgeId < v33;
+          if ( *(_QWORD *)&edgeId >= v33 )
             mp_parent = mp_parent->mp_right;
           else
             mp_parent = mp_parent->mp_left;
         }
         mp_left = p_m_endNodeBase;
-        if ( !v49 )
-          goto LABEL_74;
-        if ( p_m_endNodeBase != v77.m_endNodeBase.mp_left )
+        if ( !v32 )
+          goto LABEL_73;
+        if ( p_m_endNodeBase != v53.m_endNodeBase.mp_left )
         {
           if ( !p_m_endNodeBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 108, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
@@ -1200,8 +1045,8 @@ void CG_Edge_DrawDebugEdges(const LocalClientNum_t localClientNum)
             mp_left = p_m_endNodeBase->mp_left;
             if ( mp_left )
             {
-              for ( i = mp_left->mp_right; i; i = i->mp_right )
-                mp_left = i;
+              for ( j = mp_left->mp_right; j; j = j->mp_right )
+                mp_left = j;
             }
             else
             {
@@ -1210,10 +1055,10 @@ void CG_Edge_DrawDebugEdges(const LocalClientNum_t localClientNum)
               {
                 do
                 {
-                  v53 = mp_left;
+                  v36 = mp_left;
                   mp_left = mp_left->mp_parent;
                 }
-                while ( v53 == mp_left->mp_left );
+                while ( v36 == mp_left->mp_left );
               }
             }
           }
@@ -1221,49 +1066,41 @@ void CG_Edge_DrawDebugEdges(const LocalClientNum_t localClientNum)
           {
             mp_left = p_m_endNodeBase->mp_right;
           }
-LABEL_74:
+LABEL_73:
           if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 81, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          if ( *(_QWORD *)&mp_left[1].m_color < *(_QWORD *)&v75.m_bucket )
-            ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v77, &result, p_m_endNodeBase, (const FlaggedEdge *)&v75, 0, 0);
-          goto LABEL_79;
+          if ( *(_QWORD *)&mp_left[1].m_color < *(_QWORD *)&v51.m_bucket )
+            ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v53, &result, p_m_endNodeBase, (const FlaggedEdge *)&v51, 0, 0);
+          goto LABEL_78;
         }
-        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v77, &v69, p_m_endNodeBase, (const FlaggedEdge *)&v75, 1, 0);
+        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::insert_node(&v53, &v45, p_m_endNodeBase, (const FlaggedEdge *)&v51, 1, 0);
       }
-LABEL_79:
-      if ( ++_R13 >= *(unsigned __int64 *)&v41 )
+LABEL_78:
+      if ( ++v24 >= *(unsigned __int64 *)&v27 )
       {
-        LODWORD(integer) = v71;
-        v39 = handler;
+        LODWORD(v7) = v47;
+        v26 = handler;
         break;
       }
     }
   }
-  __asm { vmovaps xmm2, xmm7; maxQueryDistance }
-  CG_Edge_DrawQueryResults(v39, (const ntl::fixed_set<FlaggedEdge,512,ntl::less<FlaggedEdge,FlaggedEdge> > *)&v77, *(float *)&_XMM2, integer);
+  CG_Edge_DrawQueryResults(v26, (const ntl::fixed_set<FlaggedEdge,512,ntl::less<FlaggedEdge,FlaggedEdge> > *)&v53, value, v7);
   memset(&outOrg, 0, sizeof(outOrg));
-  if ( v77.m_size )
+  if ( v53.m_size )
   {
-    v55 = v77.m_endNodeBase.mp_parent;
-    if ( v77.m_endNodeBase.mp_parent )
+    v37 = v53.m_endNodeBase.mp_parent;
+    if ( v53.m_endNodeBase.mp_parent )
     {
       do
       {
-        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::erase_tree(&v77, (ntl::red_black_tree_node<FlaggedEdge> *)v55->mp_right);
-        v56 = v55->mp_left;
-        *(_QWORD *)&v55->m_color = v77.m_freelist.m_head.mp_next;
-        v77.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v55;
-        v55 = v56;
+        ntl::red_black_tree<FlaggedEdge,FlaggedEdge,ntl::fixed_pool_allocator<ntl::red_black_tree_node<FlaggedEdge>,512,8>,ntl::return_input<FlaggedEdge>,ntl::less<FlaggedEdge,FlaggedEdge>>::erase_tree(&v53, (ntl::red_black_tree_node<FlaggedEdge> *)v37->mp_right);
+        v38 = v37->mp_left;
+        *(_QWORD *)&v37->m_color = v53.m_freelist.m_head.mp_next;
+        v53.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v37;
+        v37 = v38;
       }
-      while ( v56 );
+      while ( v38 );
     }
-  }
-LABEL_84:
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1304,257 +1141,196 @@ CG_Edge_DrawDebugOctree
 */
 void CG_Edge_DrawDebugOctree(const MapEdgeList *edgeList, const PMROctreeMetadata *octreeMetadata, const float4 *minExtent, const PMROctreeNode *node, const vec4_t *color)
 {
-  const dvar_t *v29; 
+  __int128 v5; 
+  const dvar_t *v15; 
   PMROctreeFlags flags; 
-  const dvar_t *v31; 
-  const char *v32; 
-  __int64 v33; 
-  int v35; 
-  int v42; 
-  unsigned int v51; 
-  __int64 v64; 
-  PMROctreeNodeSet *v65; 
+  const dvar_t *v17; 
+  const char *v18; 
+  __int64 v19; 
+  int v20; 
+  __int64 depth; 
+  int v23; 
+  __int64 v24; 
+  float4 v25; 
+  double v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  double v29; 
+  double v30; 
+  __int64 v31; 
+  PMROctreeNodeSet *v32; 
   __int64 duration; 
-  __int64 v67; 
+  __int64 v34; 
   vec3_t point; 
   vec3_t end; 
-  vec3_t v74; 
+  vec3_t v41; 
   vec3_t start; 
   Bounds bounds; 
+  __int128 v44; 
 
-  _RDI = octreeMetadata;
   if ( !octreeMetadata && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 587, ASSERT_TYPE_ASSERT, "(octreeMetadata)", (const char *)&queryFormat, "octreeMetadata") )
     __debugbreak();
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 588, ASSERT_TYPE_ASSERT, "(node)", (const char *)&queryFormat, "node") )
     __debugbreak();
   if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 589, ASSERT_TYPE_ASSERT, "(cm.mapEnts)", (const char *)&queryFormat, "cm.mapEnts") )
     __debugbreak();
-  _RAX = 2i64 * node->depth;
+  _XMM2 = 0i64;
   __asm
   {
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm1, xmm1, xmm1
-    vmovups xmm5, xmmword ptr [rdi+rax*8]
-    vcvtsi2ss xmm3, xmm3, eax
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
     vinsertps xmm2, xmm2, xmm0, 0
     vinsertps xmm2, xmm2, xmm1, 10h
     vinsertps xmm2, xmm2, xmm3, 20h ; ' '
-    vmulps  xmm0, xmm2, xmmword ptr cs:?g_two@@3Ufloat4@@B.v; float4 const g_two
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmm5
-    vaddps  xmm3, xmm2, xmmword ptr [rbx]
   }
-  v29 = DCONST_DVARBOOL_edge_debugDrawDepthTest_octree;
+  _XMM3 = _mm128_add_ps(_mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_XMM2, g_two.v), g_one.v), octreeMetadata->nodeHalfWidth[node->depth].v), minExtent->v);
+  v15 = DCONST_DVARBOOL_edge_debugDrawDepthTest_octree;
+  point.v[0] = _XMM3.m128_f32[0];
   __asm
   {
-    vmovss  dword ptr [rbp+4Fh+point], xmm3
     vextractps dword ptr [rbp+4Fh+point+4], xmm3, 1
     vextractps dword ptr [rbp+4Fh+point+8], xmm3, 2
   }
   if ( !DCONST_DVARBOOL_edge_debugDrawDepthTest_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDepthTest_octree") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
+  Dvar_CheckFrontendServerThread(v15);
   flags = node->flags;
   if ( (flags & 2) != 0 )
   {
-    v31 = DCONST_DVARBOOL_edge_debugDrawIndex_octree;
+    v17 = DCONST_DVARBOOL_edge_debugDrawIndex_octree;
     if ( !DCONST_DVARBOOL_edge_debugDrawIndex_octree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawIndex_octree") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v31);
-    if ( v31->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.enabled )
     {
       if ( (node->flags & 4) != 0 )
       {
-        v32 = j_va("(ROOT_NODE) %u", node->childNodeSetIndex);
+        v18 = j_va("(ROOT_NODE) %u", node->childNodeSetIndex);
       }
       else
       {
-        v33 = (__int64)(((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64) - (unsigned __int64)edgeList->edgeOctreeNodeSets) >> 7;
+        v19 = (__int64)(((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64) - (unsigned __int64)edgeList->edgeOctreeNodeSets) >> 7;
         if ( node != (const PMROctreeNode *)(((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64) + 16 * ((__int64)((__int64)node - ((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64)) >> 4)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 619, ASSERT_TYPE_ASSERT, "(node == &(nodeSet->node[nodeIndex]))", (const char *)&queryFormat, "node == &(nodeSet->node[nodeIndex])") )
           __debugbreak();
-        v32 = j_va("(%zu,%zu) %u", v33, (__int64)((__int64)node - ((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64)) >> 4, node->childNodeSetIndex);
+        v18 = j_va("(%zu,%zu) %u", v19, (__int64)((__int64)node - ((unsigned __int64)node & 0xFFFFFFFFFFFFFF80ui64)) >> 4, node->childNodeSetIndex);
       }
-      __asm { vmovss  xmm2, cs:textSize; scale }
-      CG_DebugString(&point, color, *(float *)&_XMM2, v32, 0, 1);
+      CG_DebugString(&point, color, textSize, v18, 0, 1);
     }
   }
   else
   {
-    v35 = v29->current.color[0];
-    __asm { vmovaps [rsp+110h+var_50], xmm6 }
+    v20 = v15->current.color[0];
+    v44 = v5;
     if ( (flags & 4) != 0 )
     {
+      depth = node->depth;
+      bounds.midPoint = point;
+      _XMM1.v = (__m128)octreeMetadata->nodeHalfWidth[depth];
+      LODWORD(bounds.halfSize.v[0]) = _XMM1.v.m128_i32[0];
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+4Fh+point]
-        vmovss  xmm1, dword ptr [rbp+4Fh+point+4]
-      }
-      _RAX = node->depth;
-      __asm
-      {
-        vmovss  dword ptr [rbp+4Fh+bounds.midPoint], xmm0
-        vmovss  xmm0, dword ptr [rbp+4Fh+point+8]
-      }
-      _RAX *= 2i64;
-      __asm
-      {
-        vmovss  dword ptr [rbp+4Fh+bounds.midPoint+4], xmm1
-        vmovss  dword ptr [rbp+4Fh+bounds.midPoint+8], xmm0
-        vmovups xmm1, xmmword ptr [rdi+rax*8]
-        vxorps  xmm2, xmm2, xmm2; yaw
-        vmovss  dword ptr [rbp+4Fh+bounds.halfSize], xmm1
         vextractps dword ptr [rbp+4Fh+bounds.halfSize+4], xmm1, 1
         vextractps dword ptr [rbp+4Fh+bounds.halfSize+8], xmm1, 2
       }
-      CG_DebugBox(&vec3_origin, &bounds, *(float *)&_XMM2, color, v35, 1);
+      CG_DebugBox(&vec3_origin, &bounds, 0.0, color, v20, 1);
     }
-    v42 = 0;
-    _RAX = 2i64 * node->depth;
-    _RSI = 0i64;
-    __asm { vmovups xmm6, xmmword ptr [rdi+rax*8] }
+    v23 = 0;
+    v24 = 0i64;
+    v25.v = (__m128)octreeMetadata->nodeHalfWidth[node->depth];
     do
     {
-      start.v[2] = point.v[2];
-      __asm
+      start = point;
+      if ( (unsigned int)v23 >= 3 )
       {
-        vmovsd  xmm0, qword ptr [rbp+4Fh+point]
-        vmovsd  qword ptr [rbp+4Fh+start], xmm0
-      }
-      if ( (unsigned int)v42 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(duration) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+        LODWORD(v34) = 3;
+        LODWORD(duration) = v23;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
           __debugbreak();
       }
       bounds.midPoint.v[2] = point.v[2];
-      __asm
+      v26 = *(double *)point.v;
+      start.v[v24] = start.v[v24] - v25.v.m128_f32[0];
+      *(double *)bounds.midPoint.v = v26;
+      if ( (unsigned int)v23 >= 3 )
       {
-        vmovss  xmm0, dword ptr [rbp+rsi*4+4Fh+start]
-        vmovsd  xmm2, qword ptr [rbp+4Fh+point]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rbp+rsi*4+4Fh+start], xmm1
-        vmovsd  qword ptr [rbp+4Fh+bounds.midPoint], xmm2
-      }
-      if ( (unsigned int)v42 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(duration) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+        LODWORD(v34) = 3;
+        LODWORD(duration) = v23;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
           __debugbreak();
       }
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [rbp+rsi*4+4Fh+bounds.midPoint]
-        vmovss  dword ptr [rbp+rsi*4+4Fh+bounds.midPoint], xmm0
-      }
-      CG_DebugLine(&start, &bounds.midPoint, color, v35, 1);
-      v51 = 0;
-      _RDI = 0i64;
+      bounds.midPoint.v[v24] = v25.v.m128_f32[0] + bounds.midPoint.v[v24];
+      CG_DebugLine(&start, &bounds.midPoint, color, v20, 1);
+      v27 = 0;
+      v28 = 0i64;
       do
       {
-        if ( _RSI != _RDI )
+        if ( v24 != v28 )
         {
-          v74.v[2] = start.v[2];
-          __asm
+          v41 = start;
+          if ( v27 >= 3 )
           {
-            vmovsd  xmm0, qword ptr [rbp+4Fh+start]
-            vmovsd  qword ptr [rbp+4Fh+var_90], xmm0
-          }
-          if ( v51 >= 3 )
-          {
-            LODWORD(v67) = 3;
-            LODWORD(duration) = v51;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+            LODWORD(v34) = 3;
+            LODWORD(duration) = v27;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
               __debugbreak();
           }
           end.v[2] = bounds.midPoint.v[2];
-          __asm
+          v29 = *(double *)bounds.midPoint.v;
+          v41.v[v28] = v41.v[v28] - v25.v.m128_f32[0];
+          *(double *)end.v = v29;
+          if ( v27 >= 3 )
           {
-            vmovss  xmm0, dword ptr [rbp+rdi*4+4Fh+var_90]
-            vmovsd  xmm2, qword ptr [rbp+4Fh+bounds.midPoint]
-            vsubss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [rbp+rdi*4+4Fh+var_90], xmm1
-            vmovsd  qword ptr [rbp+4Fh+end], xmm2
-          }
-          if ( v51 >= 3 )
-          {
-            LODWORD(v67) = 3;
-            LODWORD(duration) = v51;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+            LODWORD(v34) = 3;
+            LODWORD(duration) = v27;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
               __debugbreak();
           }
-          __asm
+          end.v[v28] = end.v[v28] - v25.v.m128_f32[0];
+          CG_DebugLine(&v41, &end, color, v20, 1);
+          v41 = start;
+          if ( v27 >= 3 )
           {
-            vmovss  xmm0, dword ptr [rbp+rdi*4+4Fh+end]
-            vsubss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [rbp+rdi*4+4Fh+end], xmm1
-          }
-          CG_DebugLine(&v74, &end, color, v35, 1);
-          v74.v[2] = start.v[2];
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rbp+4Fh+start]
-            vmovsd  qword ptr [rbp+4Fh+var_90], xmm0
-          }
-          if ( v51 >= 3 )
-          {
-            LODWORD(v67) = 3;
-            LODWORD(duration) = v51;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+            LODWORD(v34) = 3;
+            LODWORD(duration) = v27;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
               __debugbreak();
           }
           end.v[2] = bounds.midPoint.v[2];
-          __asm
+          v30 = *(double *)bounds.midPoint.v;
+          v41.v[v28] = v25.v.m128_f32[0] + v41.v[v28];
+          *(double *)end.v = v30;
+          if ( v27 >= 3 )
           {
-            vaddss  xmm0, xmm6, dword ptr [rbp+rdi*4+4Fh+var_90]
-            vmovsd  xmm1, qword ptr [rbp+4Fh+bounds.midPoint]
-            vmovss  dword ptr [rbp+rdi*4+4Fh+var_90], xmm0
-            vmovsd  qword ptr [rbp+4Fh+end], xmm1
-          }
-          if ( v51 >= 3 )
-          {
-            LODWORD(v67) = 3;
-            LODWORD(duration) = v51;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v67) )
+            LODWORD(v34) = 3;
+            LODWORD(duration) = v27;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", duration, v34) )
               __debugbreak();
           }
-          __asm
-          {
-            vaddss  xmm0, xmm6, dword ptr [rbp+rdi*4+4Fh+end]
-            vmovss  dword ptr [rbp+rdi*4+4Fh+end], xmm0
-          }
-          CG_DebugLine(&v74, &end, color, v35, 1);
+          end.v[v28] = v25.v.m128_f32[0] + end.v[v28];
+          CG_DebugLine(&v41, &end, color, v20, 1);
         }
-        ++v51;
-        ++_RDI;
+        ++v27;
+        ++v28;
       }
-      while ( (int)v51 < 3 );
-      ++v42;
-      ++_RSI;
+      while ( (int)v27 < 3 );
+      ++v23;
+      ++v24;
     }
-    while ( v42 < 3 );
-    __asm { vmovaps xmm6, [rsp+110h+var_50] }
+    while ( v23 < 3 );
     if ( node->childNodeSetIndex >= edgeList->numEdgeOctreeNodeSet )
     {
-      LODWORD(v67) = edgeList->numEdgeOctreeNodeSet;
+      LODWORD(v34) = edgeList->numEdgeOctreeNodeSet;
       LODWORD(duration) = node->childNodeSetIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 674, ASSERT_TYPE_ASSERT, "(unsigned)( node->childNodeSetIndex ) < (unsigned)( edgeList->numEdgeOctreeNodeSet )", "node->childNodeSetIndex doesn't index edgeList->numEdgeOctreeNodeSet\n\t%i not in [0, %i)", duration, v67) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 674, ASSERT_TYPE_ASSERT, "(unsigned)( node->childNodeSetIndex ) < (unsigned)( edgeList->numEdgeOctreeNodeSet )", "node->childNodeSetIndex doesn't index edgeList->numEdgeOctreeNodeSet\n\t%i not in [0, %i)", duration, v34) )
         __debugbreak();
     }
-    v64 = 8i64;
-    v65 = &edgeList->edgeOctreeNodeSets[(unsigned __int64)node->childNodeSetIndex];
+    v31 = 8i64;
+    v32 = &edgeList->edgeOctreeNodeSets[(unsigned __int64)node->childNodeSetIndex];
     do
     {
-      CG_Edge_DrawDebugOctree(edgeList, octreeMetadata, minExtent, v65->node, color);
-      v65 = (PMROctreeNodeSet *)((char *)v65 + 16);
-      --v64;
+      CG_Edge_DrawDebugOctree(edgeList, octreeMetadata, minExtent, v32->node, color);
+      v32 = (PMROctreeNodeSet *)((char *)v32 + 16);
+      --v31;
     }
-    while ( v64 );
+    while ( v31 );
   }
 }
 
@@ -1565,192 +1341,91 @@ CG_Edge_DrawEdgeListInfo
 */
 void CG_Edge_DrawEdgeListInfo(const LocalClientNum_t localClientNum)
 {
-  __int64 v8; 
-  ScreenPlacementMode v9; 
-  __int32 v10; 
-  bool v11; 
-  const ScreenPlacement *v12; 
+  bool v2; 
+  const ScreenPlacement *v3; 
+  __int128 y; 
   GfxFont *FontHandle; 
+  int v6; 
+  cg_t *LocalClientGlobals; 
   MapEnts *mapEnts; 
-  __int64 v21; 
+  __int64 v9; 
+  MapEdgeList *v10; 
   __int64 numDynamicEdges; 
   unsigned int numStaticEdges; 
-  char v42; 
-  char v43; 
-  __int64 v44; 
-  char *fmt; 
-  float fmta; 
-  double y; 
-  float ya; 
-  double horzAlign; 
-  double vertAlign; 
-  double v59; 
-  float v60; 
-  float v62; 
+  __int64 v13; 
+  __int128 v14; 
+  __int64 v15; 
+  float v16; 
   char dest[512]; 
-  char v64[512]; 
-  void *retaddr; 
+  char v18[512]; 
 
-  _R11 = &retaddr;
-  v8 = localClientNum;
   if ( !cm.mapEnts )
     return;
-  v9 = activeScreenPlacementMode;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-78h], xmm11
-  }
-  if ( v9 == SCRMODE_FULL )
+  if ( activeScreenPlacementMode == SCRMODE_FULL )
     goto LABEL_8;
-  v10 = v9 - 1;
-  if ( v10 )
+  if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
-    if ( v10 == 1 )
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+    if ( activeScreenPlacementMode == SCRMODE_INVALID )
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v11 )
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v2 )
       __debugbreak();
 LABEL_8:
-    v12 = &scrPlaceFull;
+    v3 = &scrPlaceFull;
     goto LABEL_9;
   }
-  v12 = &scrPlaceViewDisplay[v8];
+  v3 = &scrPlaceViewDisplay[localClientNum];
 LABEL_9:
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3e4ccccd
-    vmovss  xmm11, cs:__real@41200000
-    vmovaps xmm2, xmm10; scale
-    vmovaps xmm9, xmm11
-  }
-  FontHandle = UI_GetFontHandle(v12, 5, *(float *)&_XMM2);
+  y = LODWORD(FLOAT_10_0);
+  FontHandle = UI_GetFontHandle(v3, 5, 0.2);
   if ( !FontHandle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 750, ASSERT_TYPE_ASSERT, "(font)", (const char *)&queryFormat, "font") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm10; scale }
-  UI_TextHeight(FontHandle, *(float *)&_XMM1);
-  _RBX = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 755, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v6 = UI_TextHeight(FontHandle, 0.2) + 1;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 755, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   mapEnts = cm.mapEnts;
-  v21 = 0i64;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx+699Ch]
-    vmovsd  [rsp+4F8h+var_498], xmm0
-  }
-  v62 = _RBX->refdef.viewOffset.v[2];
+  v9 = 0i64;
+  v15 = *(_QWORD *)LocalClientGlobals->refdef.viewOffset.v;
   if ( cm.mapEnts->numEdgeLists )
   {
-    __asm
-    {
-      vmovaps [rsp+4F8h+var_28], xmm6
-      vmovss  xmm6, [rsp+4F8h+var_490]
-      vmovaps [rsp+4F8h+var_38], xmm7
-      vmovss  xmm7, dword ptr [rsp+4F8h+var_498+4]
-      vmovaps [rsp+4F8h+var_48], xmm8
-      vmovss  xmm8, dword ptr [rsp+4F8h+var_498]
-    }
+    v16 = LocalClientGlobals->refdef.viewOffset.v[2];
     do
     {
-      _RBX = mapEnts->edgeLists[v21];
-      if ( _RBX && _RBX->valid )
+      v10 = mapEnts->edgeLists[v9];
+      if ( v10 && v10->valid )
       {
-        __asm
+        Com_sprintf<512>((char (*)[512])dest, "EdgeList %u at (%.0f, %.0f, %.0f)(%.0f, %.0f, %.0f): ", (unsigned int)v9, v10->mins.v[0], v10->mins.v[1], v10->mins.v[2], v10->maxs.v[0], v10->maxs.v[1], v10->maxs.v[2]);
+        if ( v10->valid )
         {
-          vmovss  xmm0, dword ptr [rbx+1Ch]
-          vmovss  xmm1, dword ptr [rbx+18h]
-          vmovss  xmm2, dword ptr [rbx+14h]
-          vmovss  xmm4, dword ptr [rbx+10h]
-          vmovss  xmm3, dword ptr [rbx+8]
-          vmovss  xmm5, dword ptr [rbx+0Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+4F8h+var_4B8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  qword ptr [rsp+4F8h+vertAlign], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  qword ptr [rsp+4F8h+horzAlign], xmm2
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  qword ptr [rsp+4F8h+y], xmm4
-          vmovq   r9, xmm3
-          vmovsd  [rsp+4F8h+fmt], xmm5
-        }
-        Com_sprintf<512>((char (*)[512])dest, "EdgeList %u at (%.0f, %.0f, %.0f)(%.0f, %.0f, %.0f): ", (unsigned int)v21, *(double *)&_XMM3, *(double *)&fmt, y, horzAlign, vertAlign, v59);
-        if ( _RBX->valid )
-        {
-          numDynamicEdges = _RBX->numDynamicEdges;
-          numStaticEdges = _RBX->numStaticEdges;
+          numDynamicEdges = v10->numDynamicEdges;
+          numStaticEdges = v10->numStaticEdges;
           if ( (_DWORD)numDynamicEdges )
-            Com_sprintf<512>((char (*)[512])v64, "%u dynamic, %u world", numDynamicEdges, numStaticEdges);
+            Com_sprintf<512>((char (*)[512])v18, "%u dynamic, %u world", numDynamicEdges, numStaticEdges);
           else
-            Com_sprintf<512>((char (*)[512])v64, " %u world", numStaticEdges);
+            Com_sprintf<512>((char (*)[512])v18, " %u world", numStaticEdges);
         }
         else
         {
-          Com_sprintf<512>((char (*)[512])v64, "???");
+          Com_sprintf<512>((char (*)[512])v18, "???");
         }
-        I_strcat(dest, 0x200ui64, v64);
-        __asm { vcomiss xmm8, dword ptr [rbx+8] }
-        if ( !v42 )
-        {
-          __asm { vcomiss xmm8, dword ptr [rbx+14h] }
-          if ( v42 | v43 )
-          {
-            __asm
-            {
-              vcomiss xmm7, dword ptr [rbx+0Ch]
-              vcomiss xmm7, dword ptr [rbx+18h]
-            }
-            if ( v42 | v43 )
-            {
-              __asm
-              {
-                vcomiss xmm6, dword ptr [rbx+10h]
-                vcomiss xmm6, dword ptr [rbx+1Ch]
-              }
-              if ( v42 | v43 )
-                I_strcat(dest, 0x200ui64, " - inside");
-            }
-          }
-        }
-        v44 = -1i64;
+        I_strcat(dest, 0x200ui64, v18);
+        if ( *(float *)&v15 >= v10->mins.v[0] && *(float *)&v15 <= v10->maxs.v[0] && *((float *)&v15 + 1) >= v10->mins.v[1] && *((float *)&v15 + 1) <= v10->maxs.v[1] && v16 >= v10->mins.v[2] && v16 <= v10->maxs.v[2] )
+          I_strcat(dest, 0x200ui64, " - inside");
+        v13 = -1i64;
         do
-          ++v44;
-        while ( dest[v44] );
-        __asm
-        {
-          vmovss  dword ptr [rsp+4F8h+var_4B8], xmm10
-          vmovss  [rsp+4F8h+y], xmm9
-          vmovss  dword ptr [rsp+4F8h+fmt], xmm11
-        }
-        UI_DrawText(v12, dest, v44, FontHandle, fmta, ya, 1, 1, v60, &colorWhite, 3);
+          ++v13;
+        while ( dest[v13] );
+        UI_DrawText(v3, dest, v13, FontHandle, 10.0, *(float *)&y, 1, 1, 0.2, &colorWhite, 3);
         mapEnts = cm.mapEnts;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14d
-          vaddss  xmm9, xmm9, xmm0
-        }
+        v14 = y;
+        *(float *)&v14 = *(float *)&y + (float)v6;
+        y = v14;
       }
-      v21 = (unsigned int)(v21 + 1);
+      v9 = (unsigned int)(v9 + 1);
     }
-    while ( (unsigned int)v21 < mapEnts->numEdgeLists );
-    __asm
-    {
-      vmovaps xmm8, [rsp+4F8h+var_48]
-      vmovaps xmm7, [rsp+4F8h+var_38]
-      vmovaps xmm6, [rsp+4F8h+var_28]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm10, [rsp+4F8h+var_68]
-    vmovaps xmm9, [rsp+4F8h+var_58]
-    vmovaps xmm11, [rsp+4F8h+var_78]
+    while ( (unsigned int)v9 < mapEnts->numEdgeLists );
   }
 }
 
@@ -1762,147 +1437,56 @@ CG_Edge_DrawEdgeListWorld
 void CG_Edge_DrawEdgeListWorld(const LocalClientNum_t __formal)
 {
   MapEnts *mapEnts; 
-  unsigned int v6; 
-  bool v10; 
-  bool v15; 
-  bool v20; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
-  double v55; 
+  unsigned int i; 
+  MapEdgeList *v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t origin; 
   Bounds bounds; 
   vec4_t color; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   mapEnts = cm.mapEnts;
-  v6 = 0;
-  if ( cm.mapEnts->numEdgeLists )
+  for ( i = 0; i < mapEnts->numEdgeLists; ++i )
   {
-    __asm
+    v3 = mapEnts->edgeLists[i];
+    if ( v3 && v3->valid )
     {
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovss  xmm7, cs:__real@3f000000
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vxorps  xmm8, xmm8, xmm8
-      vmovaps xmmword ptr [r11-38h], xmm6
-    }
-    do
-    {
-      _RBX = mapEnts->edgeLists[v6];
-      if ( _RBX )
-      {
-        v10 = !_RBX->valid;
-        if ( _RBX->valid )
-        {
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+8]
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vcomiss xmm1, xmm0
-          }
-          if ( _RBX->valid )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+0E8h+var_A8], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+0E8h+var_B0], xmm1
-            }
-            v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", v50, v53);
-            v10 = !v15;
-            if ( v15 )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+0Ch]
-            vmovss  xmm0, dword ptr [rbx+18h]
-            vcomiss xmm1, xmm0
-          }
-          if ( !v10 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+0E8h+var_A8], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+0E8h+var_B0], xmm1
-            }
-            v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", v51, v54);
-            v10 = !v20;
-            if ( v20 )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbx+10h]
-            vmovss  xmm0, dword ptr [rbx+1Ch]
-            vcomiss xmm1, xmm0
-          }
-          if ( !v10 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovsd  [rsp+0E8h+var_A8], xmm0
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+0E8h+var_B0], xmm1
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", v52, v55) )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+8]
-            vaddss  xmm1, xmm0, dword ptr [rbx+14h]
-            vmulss  xmm2, xmm1, xmm7
-            vmovss  dword ptr [rsp+0E8h+bounds.midPoint], xmm2
-            vmovss  xmm0, dword ptr [rbx+0Ch]
-            vaddss  xmm1, xmm0, dword ptr [rbx+18h]
-            vmulss  xmm2, xmm1, xmm7
-            vmovss  dword ptr [rsp+0E8h+bounds.midPoint+4], xmm2
-            vmovss  xmm0, dword ptr [rbx+1Ch]
-            vaddss  xmm1, xmm0, dword ptr [rbx+10h]
-            vmulss  xmm2, xmm1, xmm7
-            vmovss  dword ptr [rsp+0E8h+bounds.midPoint+8], xmm2
-            vmovss  xmm0, dword ptr [rbx+14h]
-            vsubss  xmm1, xmm0, dword ptr [rbx+8]
-            vmovss  xmm4, dword ptr [rbx+18h]
-            vmovss  xmm3, dword ptr [rbx+0Ch]
-            vmovss  xmm6, dword ptr [rbx+1Ch]
-            vmovss  xmm5, dword ptr [rbx+10h]
-            vmulss  xmm2, xmm1, xmm7
-            vsubss  xmm0, xmm4, xmm3
-            vmulss  xmm1, xmm0, xmm7
-            vmovss  dword ptr [rsp+0E8h+bounds.halfSize], xmm2
-            vsubss  xmm2, xmm6, xmm5
-            vmulss  xmm0, xmm2, xmm7
-            vmovss  dword ptr [rsp+0E8h+bounds.halfSize+4], xmm1
-            vmovups xmm1, cs:__xmm@3f800000000000003f8000003f800000
-            vmovaps xmm2, xmm8; yaw
-            vmovss  dword ptr [rsp+0E8h+bounds.halfSize+8], xmm0
-            vmovss  dword ptr [rsp+0E8h+origin], xmm8
-            vmovss  dword ptr [rsp+0E8h+origin+4], xmm8
-            vmovss  dword ptr [rsp+0E8h+origin+8], xmm8
-            vmovups xmmword ptr [rsp+0E8h+color], xmm1
-          }
-          CG_DebugBox(&origin, &bounds, *(float *)&_XMM2, &color, 0, 0);
-          mapEnts = cm.mapEnts;
-        }
-      }
-      ++v6;
-    }
-    while ( v6 < mapEnts->numEdgeLists );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0E8h+var_58]
-      vmovaps xmm7, [rsp+0E8h+var_48]
-      vmovaps xmm6, [rsp+0E8h+var_38]
+      v4 = v3->mins.v[0];
+      v5 = v3->maxs.v[0];
+      if ( v4 > v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", v4, v5) )
+        __debugbreak();
+      v6 = v3->mins.v[1];
+      v7 = v3->maxs.v[1];
+      if ( v6 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", v6, v7) )
+        __debugbreak();
+      v8 = v3->mins.v[2];
+      v9 = v3->maxs.v[2];
+      if ( v8 > v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", v8, v9) )
+        __debugbreak();
+      bounds.midPoint.v[0] = (float)(v3->mins.v[0] + v3->maxs.v[0]) * 0.5;
+      bounds.midPoint.v[1] = (float)(v3->mins.v[1] + v3->maxs.v[1]) * 0.5;
+      bounds.midPoint.v[2] = (float)(v3->maxs.v[2] + v3->mins.v[2]) * 0.5;
+      v10 = v3->maxs.v[1];
+      v11 = v3->mins.v[1];
+      v12 = v3->maxs.v[2];
+      v13 = v3->mins.v[2];
+      bounds.halfSize.v[0] = (float)(v3->maxs.v[0] - v3->mins.v[0]) * 0.5;
+      bounds.halfSize.v[1] = (float)(v10 - v11) * 0.5;
+      bounds.halfSize.v[2] = (float)(v12 - v13) * 0.5;
+      origin.v[0] = 0.0;
+      origin.v[1] = 0.0;
+      origin.v[2] = 0.0;
+      color = (vec4_t)_xmm;
+      CG_DebugBox(&origin, &bounds, 0.0, &color, 0, 0);
+      mapEnts = cm.mapEnts;
     }
   }
 }
@@ -1912,135 +1496,80 @@ void CG_Edge_DrawEdgeListWorld(const LocalClientNum_t __formal)
 CG_Edge_DrawQueryResults
 ==============
 */
-
-void __fastcall CG_Edge_DrawQueryResults(const BgHandler *handler, const ntl::fixed_set<FlaggedEdge,512,ntl::less<FlaggedEdge,FlaggedEdge> > *edges, double maxQueryDistance, int edgeFlagIndex)
+void CG_Edge_DrawQueryResults(const BgHandler *handler, const ntl::fixed_set<FlaggedEdge,512,ntl::less<FlaggedEdge,FlaggedEdge> > *edges, float maxQueryDistance, int edgeFlagIndex)
 {
-  __int64 v11; 
-  const dvar_t *v17; 
+  __int64 v5; 
+  const dvar_t *v10; 
   bool enabled; 
-  const dvar_t *v19; 
-  bool v20; 
-  const dvar_t *v21; 
-  bool v22; 
-  const dvar_t *v23; 
+  const dvar_t *v12; 
+  bool v13; 
+  const dvar_t *v14; 
+  bool v15; 
+  const dvar_t *v16; 
   bool showClosestPoint; 
+  ntl::red_black_tree_node_base *mp_left; 
   ntl::red_black_tree_node_base *p_m_endNodeBase; 
-  __int64 v48; 
-  vec4_t *debugDrawColorDark; 
-  double v50; 
+  const vec4_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec4_t outHeatmapColor; 
-  vec4_t v52; 
-  char v54; 
-  void *retaddr; 
+  vec4_t debugDrawColorDark; 
 
-  _RAX = &retaddr;
-  __asm
+  v5 = edgeFlagIndex;
+  if ( maxQueryDistance <= 0.0 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  v11 = edgeFlagIndex;
-  __asm { vmovaps xmm7, xmm2 }
-  if ( (unsigned __int64)&v48 == _security_cookie )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm2
-      vmovsd  [rsp+0E8h+var_A8], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0E8h+debugDrawColorDark], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 216, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( maxQueryDistance )", "%s < %s\n\t%g, %g", "0.0f", "maxQueryDistance", *(double *)&debugDrawColorDark, v50) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 216, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( maxQueryDistance )", "%s < %s\n\t%g, %g", "0.0f", "maxQueryDistance", *(double *)&_XMM1, maxQueryDistance) )
       __debugbreak();
   }
-  v17 = DCONST_DVARBOOL_edge_debugDrawDistanceColor;
+  v10 = DCONST_DVARBOOL_edge_debugDrawDistanceColor;
   if ( !DCONST_DVARBOOL_edge_debugDrawDistanceColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDistanceColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  enabled = v17->current.enabled;
-  v19 = DCONST_DVARBOOL_edge_debugDrawOrientation;
+  Dvar_CheckFrontendServerThread(v10);
+  enabled = v10->current.enabled;
+  v12 = DCONST_DVARBOOL_edge_debugDrawOrientation;
   if ( !DCONST_DVARBOOL_edge_debugDrawOrientation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawOrientation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  v20 = v19->current.enabled;
-  v21 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.enabled;
+  v14 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
   if ( !DCONST_DVARBOOL_edge_debugDrawDepthTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDepthTest") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  v22 = v21->current.enabled;
-  v23 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = v14->current.enabled;
+  v16 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
   if ( !DCONST_DVARBOOL_edge_debugDrawQueryShowPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawQueryShowPoints") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  showClosestPoint = v23->current.enabled;
-  __asm { vmovss  xmm6, cs:__real@3f28f5c3 }
-  _RBX = edges->m_endNodeBase.mp_left;
+  Dvar_CheckFrontendServerThread(v16);
+  showClosestPoint = v16->current.enabled;
+  mp_left = edges->m_endNodeBase.mp_left;
   p_m_endNodeBase = &edges->m_endNodeBase;
-  _RAX = &bg_edgeDebugColors[v11];
-  __asm
+  v20 = &bg_edgeDebugColors[v5];
+  v21 = v20->v[1];
+  v22 = v20->v[2];
+  v23 = v20->v[3];
+  outHeatmapColor.v[0] = v20->v[0];
+  debugDrawColorDark.v[0] = outHeatmapColor.v[0] * 0.66000003;
+  outHeatmapColor.v[1] = v21;
+  debugDrawColorDark.v[2] = v22 * 0.66000003;
+  outHeatmapColor.v[2] = v22;
+  outHeatmapColor.v[3] = v23;
+  debugDrawColorDark.v[1] = v21 * 0.66000003;
+  for ( debugDrawColorDark.v[3] = v23; mp_left != p_m_endNodeBase; mp_left = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(mp_left) )
   {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  xmm2, dword ptr [rax+8]
-    vmovss  xmm3, dword ptr [rax+0Ch]
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor], xmm0
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsp+0E8h+var_88], xmm0
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+4], xmm1
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm1, xmm1, xmm6
-    vmovss  dword ptr [rsp+0E8h+var_88+8], xmm0
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+8], xmm2
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+0Ch], xmm3
-    vmovss  dword ptr [rsp+0E8h+var_88+4], xmm1
-    vmovss  dword ptr [rsp+0E8h+var_88+0Ch], xmm3
-  }
-  if ( _RBX != p_m_endNodeBase )
-  {
-    __asm
+    if ( enabled )
     {
-      vmovaps [rsp+0E8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-    }
-    do
-    {
-      if ( enabled )
-      {
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vdivss  xmm1, xmm0, xmm7
-          vsubss  xmm0, xmm8, xmm1; value
-        }
-        CalcHeatmapColor(*(float *)&_XMM0, &outHeatmapColor);
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rsp+0E8h+outHeatmapColor]
-          vmulss  xmm0, xmm6, dword ptr [rsp+0E8h+outHeatmapColor+4]
-          vmulss  xmm2, xmm6, dword ptr [rsp+0E8h+outHeatmapColor+8]
-          vmovss  dword ptr [rsp+0E8h+var_88], xmm1
-          vmovss  dword ptr [rsp+0E8h+var_88+4], xmm0
-          vmovss  dword ptr [rsp+0E8h+var_88+8], xmm2
-        }
-      }
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      __asm { vmovss  xmm2, dword ptr [rbx+28h]; edgeFraction }
-      CG_Edge_DrawDebugEdge(handler, *(EdgeId *)&_RBX[1].m_color, *(double *)&_XMM2, v20, v22, showClosestPoint, &outHeatmapColor, &v52);
-      _RBX = (ntl::red_black_tree_node_base *)ntl::red_black_tree_node_base::get_next(_RBX);
+      CalcHeatmapColor(1.0 - (float)(*((float *)&mp_left[1].mp_parent + 1) / maxQueryDistance), &outHeatmapColor);
+      debugDrawColorDark.v[0] = 0.66000003 * outHeatmapColor.v[0];
+      debugDrawColorDark.v[1] = 0.66000003 * outHeatmapColor.v[1];
+      debugDrawColorDark.v[2] = 0.66000003 * outHeatmapColor.v[2];
     }
-    while ( _RBX != p_m_endNodeBase );
-    __asm { vmovaps xmm8, [rsp+0E8h+var_68] }
-  }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    if ( !mp_left && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      __debugbreak();
+    CG_Edge_DrawDebugEdge(handler, *(EdgeId *)&mp_left[1].m_color, *(float *)&mp_left[1].mp_parent, v13, v15, showClosestPoint, &outHeatmapColor, &debugDrawColorDark);
   }
 }
 
@@ -2051,129 +1580,76 @@ CG_Edge_DrawQueryResults
 */
 void CG_Edge_DrawQueryResults(const BgHandler *handler, unsigned __int64 edgeCount, const EdgeId *edgeIdPool, const float *edgeFractionPool, const float *edgeDistPool, float maxQueryDistance, int edgeFlagIndex)
 {
-  const dvar_t *v20; 
+  const dvar_t *v12; 
   bool enabled; 
-  const dvar_t *v22; 
-  bool v23; 
-  const dvar_t *v24; 
-  bool v25; 
-  const dvar_t *v26; 
+  const dvar_t *v14; 
+  bool v15; 
+  const dvar_t *v16; 
+  bool v17; 
+  const dvar_t *v18; 
   bool showClosestPoint; 
-  __int64 v50; 
-  vec4_t *debugDrawColorDark; 
-  double v52; 
-  BgHandler *handlera; 
+  const vec4_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  signed __int64 v24; 
   vec4_t outHeatmapColor; 
-  vec4_t v55; 
-  char v57; 
-  void *retaddr; 
+  vec4_t debugDrawColorDark; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( maxQueryDistance <= 0.0 )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovss  xmm8, [rsp+0E8h+maxQueryDistance]
-  }
-  _RBX = edgeFractionPool;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm8, xmm0
-  }
-  handlera = (BgHandler *)handler;
-  if ( (unsigned __int64)&v50 == _security_cookie )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  [rsp+0E8h+var_A8], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0E8h+debugDrawColorDark], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 187, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( maxQueryDistance )", "%s < %s\n\t%g, %g", "0.0f", "maxQueryDistance", *(double *)&debugDrawColorDark, v52) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_edge.cpp", 187, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( maxQueryDistance )", "%s < %s\n\t%g, %g", "0.0f", "maxQueryDistance", *(double *)&_XMM1, maxQueryDistance) )
       __debugbreak();
   }
-  v20 = DCONST_DVARBOOL_edge_debugDrawDistanceColor;
+  v12 = DCONST_DVARBOOL_edge_debugDrawDistanceColor;
   if ( !DCONST_DVARBOOL_edge_debugDrawDistanceColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDistanceColor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  enabled = v20->current.enabled;
-  v22 = DCONST_DVARBOOL_edge_debugDrawOrientation;
+  Dvar_CheckFrontendServerThread(v12);
+  enabled = v12->current.enabled;
+  v14 = DCONST_DVARBOOL_edge_debugDrawOrientation;
   if ( !DCONST_DVARBOOL_edge_debugDrawOrientation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawOrientation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  v23 = v22->current.enabled;
-  v24 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = v14->current.enabled;
+  v16 = DCONST_DVARBOOL_edge_debugDrawDepthTest;
   if ( !DCONST_DVARBOOL_edge_debugDrawDepthTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawDepthTest") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  v25 = v24->current.enabled;
-  v26 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v16->current.enabled;
+  v18 = DCONST_DVARBOOL_edge_debugDrawQueryShowPoints;
   if ( !DCONST_DVARBOOL_edge_debugDrawQueryShowPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "edge_debugDrawQueryShowPoints") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  showClosestPoint = v26->current.enabled;
-  __asm { vmovss  xmm6, cs:__real@3f28f5c3 }
-  _RAX = &bg_edgeDebugColors[edgeFlagIndex];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  xmm2, dword ptr [rax+8]
-    vmovss  xmm3, dword ptr [rax+0Ch]
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor], xmm0
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsp+0E8h+var_80], xmm0
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+4], xmm1
-    vmulss  xmm0, xmm2, xmm6
-    vmulss  xmm1, xmm1, xmm6
-    vmovss  dword ptr [rsp+0E8h+var_80+8], xmm0
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+8], xmm2
-    vmovss  dword ptr [rsp+0E8h+outHeatmapColor+0Ch], xmm3
-    vmovss  dword ptr [rsp+0E8h+var_80+4], xmm1
-    vmovss  dword ptr [rsp+0E8h+var_80+0Ch], xmm3
-  }
+  Dvar_CheckFrontendServerThread(v18);
+  showClosestPoint = v18->current.enabled;
+  v20 = &bg_edgeDebugColors[edgeFlagIndex];
+  v21 = v20->v[1];
+  v22 = v20->v[2];
+  v23 = v20->v[3];
+  outHeatmapColor.v[0] = v20->v[0];
+  debugDrawColorDark.v[0] = outHeatmapColor.v[0] * 0.66000003;
+  outHeatmapColor.v[1] = v21;
+  debugDrawColorDark.v[2] = v22 * 0.66000003;
+  outHeatmapColor.v[2] = v22;
+  outHeatmapColor.v[3] = v23;
+  debugDrawColorDark.v[1] = v21 * 0.66000003;
+  debugDrawColorDark.v[3] = v23;
   if ( edgeCount )
   {
-    __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
-    _R13 = (char *)((char *)edgeDistPool - (char *)_RBX);
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
+    v24 = (char *)edgeDistPool - (char *)edgeFractionPool;
     do
     {
       if ( enabled )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+r13]
-          vdivss  xmm1, xmm0, xmm8
-          vsubss  xmm0, xmm7, xmm1; value
-        }
-        CalcHeatmapColor(*(float *)&_XMM0, &outHeatmapColor);
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rsp+0E8h+outHeatmapColor]
-          vmulss  xmm0, xmm6, dword ptr [rsp+0E8h+outHeatmapColor+4]
-          vmulss  xmm2, xmm6, dword ptr [rsp+0E8h+outHeatmapColor+8]
-          vmovss  dword ptr [rsp+0E8h+var_80], xmm1
-          vmovss  dword ptr [rsp+0E8h+var_80+4], xmm0
-          vmovss  dword ptr [rsp+0E8h+var_80+8], xmm2
-        }
+        CalcHeatmapColor(1.0 - (float)(*(const float *)((char *)edgeFractionPool + v24) / maxQueryDistance), &outHeatmapColor);
+        debugDrawColorDark.v[0] = 0.66000003 * outHeatmapColor.v[0];
+        debugDrawColorDark.v[1] = 0.66000003 * outHeatmapColor.v[1];
+        debugDrawColorDark.v[2] = 0.66000003 * outHeatmapColor.v[2];
       }
-      __asm { vmovss  xmm2, dword ptr [rbx]; edgeFraction }
-      CG_Edge_DrawDebugEdge(handlera, *edgeIdPool, *(double *)&_XMM2, v23, v25, showClosestPoint, &outHeatmapColor, &v55);
-      ++_RBX;
-      ++edgeIdPool;
+      CG_Edge_DrawDebugEdge(handler, *edgeIdPool++, *edgeFractionPool++, v15, v17, showClosestPoint, &outHeatmapColor, &debugDrawColorDark);
       --edgeCount;
     }
     while ( edgeCount );
-    __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-  }
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -2216,126 +1692,120 @@ CG_Edge_StandardizeWinding
 */
 void CG_Edge_StandardizeWinding(vec3_t *verts)
 {
-  __int128 v90; 
-  __int128 v91; 
-  __int128 v92; 
-  __int128 v93; 
-  void *retaddr; 
+  float v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+  __int128 v6; 
+  __m128 v10; 
+  __m128 v13; 
+  __m128 v18; 
+  __m128 v20; 
+  __m128 v24; 
+  __m128 v27; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v44; 
+  __int128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
 
-  _RAX = &retaddr;
+  v1 = verts[2].v[0];
+  v2 = verts[3].v[0];
+  v3 = verts[3].v[1];
+  v4 = verts[3].v[2];
+  HIDWORD(v49) = 0;
+  v6 = v49;
+  *(float *)&v6 = verts->v[0];
+  _XMM4 = v6;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0B8h+var_88], xmm13
-    vmovaps [rsp+0B8h+var_98], xmm14
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm11, dword ptr [rcx+18h]
-    vmovss  xmm13, dword ptr [rcx+24h]
-    vmovss  xmm14, dword ptr [rcx+28h]
-    vmovss  xmm12, dword ptr [rcx+2Ch]
-  }
-  HIDWORD(v90) = 0;
-  __asm
-  {
-    vmovups xmm4, xmmword ptr [rsp]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, dword ptr [rcx+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rcx+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vmovups xmmword ptr [rsp], xmm4
   }
-  HIDWORD(v91) = 0;
+  v50 = _XMM4;
+  v50.m128_i32[3] = 0;
+  v10 = v50;
+  v10.m128_f32[0] = verts[1].v[0];
+  _XMM10 = v10;
   __asm
   {
-    vmovups xmm10, xmmword ptr [rsp]
-    vmovss  xmm10, xmm10, xmm0
     vinsertps xmm10, xmm10, dword ptr [rcx+10h], 10h
     vinsertps xmm10, xmm10, dword ptr [rcx+14h], 20h ; ' '
-    vsubps  xmm3, xmm10, xmm4
-    vmulps  xmm0, xmm3, xmm3
+  }
+  v13 = _mm128_sub_ps(_XMM10, _XMM4);
+  _XMM0 = _mm128_mul_ps(v13, v13);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm8, xmm3, xmm1
-    vmovups xmmword ptr [rsp], xmm10
   }
-  HIDWORD(v92) = 0;
+  v18 = _mm128_div_ps(v13, _mm_sqrt_ps(_XMM0));
+  v51 = _XMM10;
+  v51.m128_i32[3] = 0;
+  v20 = v51;
+  v20.m128_f32[0] = v1;
+  _XMM9 = v20;
   __asm
   {
-    vmovups xmm9, xmmword ptr [rsp]
-    vmovss  xmm9, xmm9, xmm11
     vinsertps xmm9, xmm9, dword ptr [rcx+1Ch], 10h
     vinsertps xmm9, xmm9, dword ptr [rcx+20h], 20h ; ' '
-    vmovups xmmword ptr [rsp], xmm9
   }
-  HIDWORD(v93) = 0;
+  v52 = _XMM9;
+  v52.m128_i32[3] = 0;
+  v24 = v52;
+  v24.m128_f32[0] = v2;
+  _XMM6 = v24;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rsp]
-    vmovss  xmm6, xmm6, xmm13
     vinsertps xmm6, xmm6, xmm14, 10h
     vinsertps xmm6, xmm6, xmm12, 20h ; ' '
-    vsubps  xmm4, xmm6, xmm4
-    vmulps  xmm0, xmm4, xmm4
+  }
+  v27 = _mm128_sub_ps(_XMM6, _XMM4);
+  _XMM0 = _mm128_mul_ps(v27, v27);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm5, xmm4, xmm1
-    vsubps  xmm3, xmm6, xmm9
-    vmulps  xmm0, xmm3, xmm3
+  }
+  v32 = _mm128_div_ps(v27, _mm_sqrt_ps(_XMM0));
+  v33 = _mm128_sub_ps(_XMM6, _XMM9);
+  _XMM0 = _mm128_mul_ps(v33, v33);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm7, xmm3, xmm1
-    vsubps  xmm4, xmm10, xmm9
-    vmulps  xmm0, xmm4, xmm4
+  }
+  v38 = _mm128_div_ps(v33, _mm_sqrt_ps(_XMM0));
+  v39 = _mm128_sub_ps(_XMM10, _XMM9);
+  _XMM0 = _mm128_mul_ps(v39, v39);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vdivps  xmm6, xmm4, xmm1
-    vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-    vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-    vshufps xmm2, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm4, xmm2, xmm0
-    vshufps xmm3, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm3, xmm1
-    vsubps  xmm5, xmm4, xmm0
-    vshufps xmm2, xmm7, xmm7, 0C9h ; 'É'
-    vshufps xmm1, xmm6, xmm6, 0D2h ; 'Ò'
-    vmulps  xmm4, xmm2, xmm1
-    vshufps xmm0, xmm6, xmm6, 0C9h ; 'É'
-    vshufps xmm3, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm1, xmm3, xmm0
-    vsubps  xmm2, xmm4, xmm1
-    vmulps  xmm4, xmm5, xmm2
+  }
+  v44 = _mm128_div_ps(v39, _mm_sqrt_ps(_XMM0));
+  _XMM4 = _mm128_mul_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v18, v18, 201), _mm_shuffle_ps(v32, v32, 210)), _mm128_mul_ps(_mm_shuffle_ps(v18, v18, 210), _mm_shuffle_ps(v32, v32, 201))), _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v38, v38, 201), _mm_shuffle_ps(v44, v44, 210)), _mm128_mul_ps(_mm_shuffle_ps(v38, v38, 210), _mm_shuffle_ps(v44, v44, 201))));
+  __asm
+  {
     vinsertps xmm0, xmm4, xmm4, 8
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm2, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
   }
-  _R11 = &retaddr;
-  __asm
+  if ( *(float *)&_XMM2 < 0.0 )
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, [rsp+0B8h+var_88]
-    vmovaps xmm14, [rsp+0B8h+var_98]
+    verts[3].v[0] = v1;
+    *(_QWORD *)&verts[3].y = *(_QWORD *)&verts[2].y;
+    verts[2].v[0] = v2;
+    verts[2].v[1] = v3;
+    verts[2].v[2] = v4;
   }
 }
 

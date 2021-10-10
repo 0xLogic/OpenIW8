@@ -38,34 +38,31 @@ R_FrustumGridClustering_AccumulateProjectedBounds
 */
 bool R_FrustumGridClustering_AccumulateProjectedBounds(const vec4_t *projPosition, vec3_t *mins, vec3_t *maxs)
 {
-  char v3; 
+  __int128 v4; 
 
+  _XMM4 = LODWORD(projPosition->v[3]);
+  v4 = LODWORD(FLOAT_1_0);
+  *(float *)&v4 = (float)(1.0 / *(float *)&_XMM4) * projPosition->v[0];
+  _XMM2 = v4;
+  _XMM1 = LODWORD(mins->v[1]);
+  __asm { vminss  xmm0, xmm2, dword ptr [rdx] }
+  mins->v[0] = *(float *)&_XMM0;
+  __asm { vminss  xmm0, xmm1, xmm3 }
+  _XMM1 = LODWORD(mins->v[2]);
+  mins->v[1] = *(float *)&_XMM0;
+  __asm { vminss  xmm0, xmm1, xmm4 }
+  mins->v[2] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(maxs->v[1]);
+  __asm { vmaxss  xmm1, xmm2, dword ptr [r8] }
+  maxs->v[0] = *(float *)&_XMM1;
   __asm
   {
-    vmovss  xmm4, dword ptr [rcx+0Ch]
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm1, xmm0, xmm4
-    vmulss  xmm2, xmm1, dword ptr [rcx]
-    vmulss  xmm3, xmm1, dword ptr [rcx+4]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vminss  xmm0, xmm2, dword ptr [rdx]
-    vmovss  dword ptr [rdx], xmm0
-    vminss  xmm0, xmm1, xmm3
-    vmovss  xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [rdx+4], xmm0
-    vminss  xmm0, xmm1, xmm4
-    vmovss  dword ptr [rdx+8], xmm0
-    vmovss  xmm0, dword ptr [r8+4]
-    vmaxss  xmm1, xmm2, dword ptr [r8]
-    vmovss  dword ptr [r8], xmm1
     vmaxss  xmm1, xmm0, xmm3
     vmaxss  xmm0, xmm4, dword ptr [r8+8]
-    vmovss  dword ptr [r8+4], xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm4, xmm1
-    vmovss  dword ptr [r8+8], xmm0
   }
-  return v3;
+  maxs->v[1] = *(float *)&_XMM1;
+  maxs->v[2] = *(float *)&_XMM0;
+  return *(float *)&_XMM4 < 0.0;
 }
 
 /*
@@ -128,315 +125,337 @@ R_FrustumGridClustering_GetProjectedBoundsNDC
 bool R_FrustumGridClustering_GetProjectedBoundsNDC(const GfxViewParms *viewParms, const GfxOrientedBoundingBox *obb, vec3_t *mins, vec3_t *maxs)
 {
   GfxMatrix *p_viewProjectionMatrix; 
-  bool v170; 
-  char v180; 
-  char v184; 
-  bool result; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v29; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v42; 
+  __m128 v45; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v56; 
+  __m128 v63; 
+  float v66; 
+  float v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v73; 
+  float v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v87; 
+  __m128 v97; 
+  float v98; 
+  __int128 v99; 
+  __int128 v100; 
+  __m128 v102; 
+  __int128 v104; 
+  __int128 v113; 
+  __int128 v114; 
+  __int128 v117; 
+  bool v126; 
+  char v127; 
+  bool v128; 
+  bool v138; 
   vec4_t out_8; 
   vec3_t pos; 
   vec3_t dir; 
-  vec3_t v199; 
-  vec3_t v200; 
-  vec4_t v201; 
-  vec4_t v202; 
-  vec4_t v203; 
-  char v204; 
-  void *retaddr; 
+  vec3_t v146; 
+  vec3_t v147; 
+  __m128 v148; 
+  vec4_t v149; 
+  vec4_t v150; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovss  xmm1, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm13, cs:__real@3f800000
-    vmovss  xmm14, cs:__real@7f7fffff
-    vmovss  xmm11, cs:__real@bf800000
-    vmovss  xmm12, cs:__real@ff7fffff
-    vunpcklps xmm0, xmm13, xmm13
-    vmovsd  qword ptr [r8], xmm0
-    vmovss  dword ptr [rsp+160h+pos+8], xmm14
-  }
+  _XMM13 = LODWORD(FLOAT_1_0);
+  _XMM11 = LODWORD(FLOAT_N1_0);
+  __asm { vunpcklps xmm0, xmm13, xmm13 }
+  *(double *)mins->v = *(double *)&_XMM0;
+  pos.v[2] = FLOAT_3_4028235e38;
   p_viewProjectionMatrix = &viewParms->viewProjectionMatrix;
-  mins->v[2] = pos.v[2];
-  _RSI = mins;
-  __asm
-  {
-    vunpcklps xmm0, xmm11, xmm11
-    vmovsd  qword ptr [r9], xmm0
-    vmovss  [rsp+160h+var_138], xmm12
-  }
-  maxs->v[2] = out_8.v[2];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+30h]
-    vxorps  xmm5, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rdx+38h]
-    vmulss  xmm2, xmm5, dword ptr [rdx+0Ch]
-    vxorps  xmm6, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rdx+34h]
-    vxorps  xmm4, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx+100h]
-    vmulss  xmm0, xmm4, dword ptr [rdx+18h]
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rdx+24h]
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rdx+4]
-    vsubss  xmm1, xmm2, dword ptr [rcx+104h]
-    vmovss  dword ptr [rsp+160h+pos], xmm0
-    vmulss  xmm0, xmm5, dword ptr [rdx+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, dword ptr [rdx+1Ch]
-    vmulss  xmm0, xmm6, dword ptr [rdx+28h]
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rdx+8]
-    vaddss  xmm1, xmm3, xmm0
-    vsubss  xmm3, xmm2, dword ptr [rcx+108h]
-    vmulss  xmm0, xmm5, dword ptr [rdx+14h]
-    vmovss  dword ptr [rsp+160h+pos+4], xmm1
-    vmulss  xmm1, xmm4, dword ptr [rdx+20h]
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rdx+2Ch]
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm3, xmm0
-    vmovss  dword ptr [rsp+160h+pos+8], xmm1
-  }
-  _R14 = maxs;
+  mins->v[2] = FLOAT_3_4028235e38;
+  __asm { vunpcklps xmm0, xmm11, xmm11 }
+  *(double *)maxs->v = *(double *)&_XMM0;
+  out_8.v[2] = FLOAT_N3_4028235e38;
+  maxs->v[2] = FLOAT_N3_4028235e38;
+  LODWORD(v11) = LODWORD(obb->halfSize.v[0]) ^ _xmm;
+  LODWORD(v12) = LODWORD(obb->halfSize.v[2]) ^ _xmm;
+  LODWORD(v13) = LODWORD(obb->halfSize.v[1]) ^ _xmm;
+  v14 = obb->center.v[1] - viewParms->camera.origin.v[1];
+  pos.v[0] = (float)((float)((float)(v11 * obb->xAxis.v[0]) + (float)(obb->center.v[0] - viewParms->camera.origin.v[0])) + (float)(v13 * obb->yAxis.v[0])) + (float)(v12 * obb->zAxis.v[0]);
+  v15 = obb->center.v[2] - viewParms->camera.origin.v[2];
+  *(float *)&_XMM0 = v11 * obb->xAxis.v[2];
+  pos.v[1] = (float)((float)(v14 + (float)(v11 * obb->xAxis.v[1])) + (float)(v13 * obb->yAxis.v[1])) + (float)(v12 * obb->zAxis.v[1]);
+  pos.v[2] = (float)((float)(v15 + *(float *)&_XMM0) + (float)(v13 * obb->yAxis.v[2])) + (float)(v12 * obb->zAxis.v[2]);
   MatrixTransformPos44(&pos, &viewParms->viewProjectionMatrix.m, &out_8);
+  v17 = 2.0 * obb->halfSize.v[0];
+  v18 = v17 * obb->xAxis.v[1];
+  dir.v[0] = v17 * obb->xAxis.v[0];
+  *(float *)&_XMM0 = v17 * obb->xAxis.v[2];
+  v19 = 2.0 * obb->halfSize.v[1];
+  dir.v[2] = *(float *)&_XMM0;
+  v146.v[0] = v19 * obb->yAxis.v[0];
+  *(float *)&_XMM0 = v19 * obb->yAxis.v[2];
+  dir.v[1] = v18;
+  v20 = v19 * obb->yAxis.v[1];
+  v21 = 2.0 * obb->halfSize.v[2];
+  v146.v[2] = *(float *)&_XMM0;
+  v147.v[0] = v21 * obb->zAxis.v[0];
+  *(float *)&_XMM0 = v21 * obb->zAxis.v[2];
+  v146.v[1] = v20;
+  v22 = v21 * obb->zAxis.v[1];
+  v147.v[2] = *(float *)&_XMM0;
+  v147.v[1] = v22;
+  MatrixTransformDir44(&dir, &p_viewProjectionMatrix->m, (vec4_t *)&v148);
+  MatrixTransformDir44(&v146, &p_viewProjectionMatrix->m, &v149);
+  MatrixTransformDir44(&v147, &p_viewProjectionMatrix->m, &v150);
+  v23 = v148;
+  v24 = _mm128_add_ps(v148, (__m128)out_8);
+  v26 = LODWORD(FLOAT_1_0);
+  *(float *)&v26 = 1.0 / out_8.v[3];
+  v25 = v26;
+  *(float *)&v26 = (float)(1.0 / out_8.v[3]) * out_8.v[0];
+  _XMM2 = v26;
+  v29 = v25;
+  *(float *)&v29 = *(float *)&v25 * out_8.v[1];
+  _XMM3 = v29;
   __asm
   {
-    vmovss  xmm3, cs:__real@40000000
-    vmulss  xmm2, xmm3, dword ptr [rdi+30h]
-    vmulss  xmm0, xmm2, dword ptr [rdi+0Ch]
-    vmulss  xmm1, xmm2, dword ptr [rdi+10h]
-    vmovss  dword ptr [rsp+160h+dir], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+14h]
-    vmulss  xmm2, xmm3, dword ptr [rdi+34h]
-    vmovss  dword ptr [rsp+160h+dir+8], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+18h]
-    vmovss  dword ptr [rsp+160h+var_10C], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+20h]
-    vmovss  dword ptr [rsp+160h+dir+4], xmm1
-    vmulss  xmm1, xmm2, dword ptr [rdi+1Ch]
-    vmulss  xmm2, xmm3, dword ptr [rdi+38h]
-    vmovss  dword ptr [rsp+160h+var_10C+8], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+24h]
-    vmovss  dword ptr [rsp+160h+var_100], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rsp+160h+var_10C+4], xmm1
-    vmulss  xmm1, xmm2, dword ptr [rdi+28h]
-    vmovss  dword ptr [rsp+160h+var_100+8], xmm0
-    vmovss  dword ptr [rsp+160h+var_100+4], xmm1
-  }
-  MatrixTransformDir44(&dir, &p_viewProjectionMatrix->m, &v201);
-  MatrixTransformDir44(&v199, &p_viewProjectionMatrix->m, &v202);
-  MatrixTransformDir44(&v200, &p_viewProjectionMatrix->m, &v203);
-  __asm
-  {
-    vmovss  xmm4, [rsp+160h+var_134]
-    vmovups xmm9, [rsp+160h+anonymous_0]
-    vaddps  xmm6, xmm9, xmmword ptr [rsp+160h+out+8]
-    vshufps xmm5, xmm6, xmm6, 0FFh
-    vdivss  xmm0, xmm13, xmm4
-    vmulss  xmm2, xmm0, dword ptr [rsp+160h+out+8]
-    vmulss  xmm3, xmm0, dword ptr [rsp+160h+out+0Ch]
     vminss  xmm0, xmm2, dword ptr [rsi]
     vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+4], xmm1
-    vminss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rsi+8], xmm1
+  }
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  mins->v[1] = *(float *)&_XMM1;
+  __asm { vminss  xmm1, xmm0, xmm4 }
+  mins->v[2] = *(float *)&_XMM1;
+  __asm
+  {
     vmaxss  xmm2, xmm2, dword ptr [r14]
     vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [r14], xmm2
-    vmovss  dword ptr [r14+4], xmm0
-    vmaxss  xmm0, xmm1, xmm4
-    vmovss  dword ptr [r14+8], xmm0
-    vdivss  xmm1, xmm13, xmm5
-    vshufps xmm0, xmm6, xmm6, 55h ; 'U'
-    vmulss  xmm3, xmm1, xmm0
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm4, xmm10
-    vmulss  xmm4, xmm1, xmm6
+  }
+  _XMM1 = LODWORD(maxs->v[2]);
+  maxs->v[0] = *(float *)&_XMM2;
+  maxs->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm0, xmm1, xmm4 }
+  maxs->v[2] = *(float *)&_XMM0;
+  v39 = LODWORD(FLOAT_1_0);
+  *(float *)&v39 = 1.0 / _mm_shuffle_ps(v24, v24, 255).m128_f32[0];
+  v38 = v39;
+  *(float *)&v39 = *(float *)&v39 * _mm_shuffle_ps(v24, v24, 85).m128_f32[0];
+  _XMM3 = v39;
+  v42 = v38;
+  *(float *)&v42 = *(float *)&v38 * v24.m128_f32[0];
+  _XMM4 = v42;
+  __asm
+  {
     vminss  xmm0, xmm4, dword ptr [rsi]
     vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vaddps  xmm6, xmm6, xmmword ptr [rbp+60h+var_E0]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+4], xmm1
-    vminss  xmm2, xmm0, xmm5
-    vmovss  dword ptr [rsi+8], xmm2
+  }
+  v45 = _mm128_add_ps(v24, (__m128)v149);
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  mins->v[1] = *(float *)&_XMM1;
+  __asm { vminss  xmm2, xmm0, xmm5 }
+  mins->v[2] = *(float *)&_XMM2;
+  __asm
+  {
     vmaxss  xmm1, xmm4, dword ptr [r14]
     vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [r14+4], xmm0
-    vmaxss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [r14+8], xmm2
-    vcomiss xmm5, xmm10
-    vshufps xmm5, xmm6, xmm6, 0FFh
-    vdivss  xmm1, xmm13, xmm5
-    vmulss  xmm4, xmm1, xmm6
-    vshufps xmm0, xmm6, xmm6, 55h ; 'U'
-    vmulss  xmm3, xmm1, xmm0
+  }
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  maxs->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm2, xmm1, xmm5 }
+  maxs->v[2] = *(float *)&_XMM2;
+  v53 = LODWORD(FLOAT_1_0);
+  *(float *)&v53 = 1.0 / _mm_shuffle_ps(v45, v45, 255).m128_f32[0];
+  v52 = v53;
+  *(float *)&v53 = *(float *)&v53 * v45.m128_f32[0];
+  _XMM4 = v53;
+  v56 = v52;
+  *(float *)&v56 = *(float *)&v52 * _mm_shuffle_ps(v45, v45, 85).m128_f32[0];
+  _XMM3 = v56;
+  __asm
+  {
     vminss  xmm0, xmm4, dword ptr [rsi]
     vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+4], xmm1
-    vminss  xmm2, xmm0, xmm5
-    vmovss  dword ptr [rsi+8], xmm2
+  }
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  mins->v[1] = *(float *)&_XMM1;
+  __asm { vminss  xmm2, xmm0, xmm5 }
+  mins->v[2] = *(float *)&_XMM2;
+  __asm
+  {
     vmaxss  xmm1, xmm4, dword ptr [r14]
     vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vsubps  xmm6, xmm6, xmm9
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vcomiss xmm5, xmm10
-    vmaxss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [r14+8], xmm2
-    vmovss  dword ptr [r14+4], xmm0
-    vmovups xmmword ptr [rsp+160h+out+8], xmm6
-    vshufps xmm7, xmm6, xmm6, 0FFh
-    vshufps xmm5, xmm6, xmm6, 55h ; 'U'
-    vdivss  xmm0, xmm13, xmm7
-    vmulss  xmm3, xmm0, xmm5
-    vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi+4], xmm1
-    vmulss  xmm4, xmm0, xmm6
-    vminss  xmm0, xmm4, dword ptr [rsi]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vminss  xmm2, xmm0, xmm7
-    vmovss  dword ptr [rsi+8], xmm2
+  }
+  v63 = _mm128_sub_ps(v45, v23);
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  __asm { vmaxss  xmm2, xmm1, xmm5 }
+  maxs->v[2] = *(float *)&_XMM2;
+  maxs->v[1] = *(float *)&_XMM0;
+  out_8 = (vec4_t)v63;
+  v66 = _mm_shuffle_ps(v63, v63, 255).m128_f32[0];
+  v67 = _mm_shuffle_ps(v63, v63, 85).m128_f32[0];
+  v69 = LODWORD(FLOAT_1_0);
+  *(float *)&v69 = 1.0 / v66;
+  v68 = v69;
+  *(float *)&v69 = (float)(1.0 / v66) * v67;
+  _XMM3 = v69;
+  __asm { vminss  xmm1, xmm3, dword ptr [rsi+4] }
+  mins->v[1] = *(float *)&_XMM1;
+  v73 = v68;
+  *(float *)&v73 = *(float *)&v68 * v63.m128_f32[0];
+  _XMM4 = v73;
+  __asm { vminss  xmm0, xmm4, dword ptr [rsi] }
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  __asm { vminss  xmm2, xmm0, xmm7 }
+  mins->v[2] = *(float *)&_XMM2;
+  __asm
+  {
     vmaxss  xmm1, xmm4, dword ptr [r14]
     vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  xmm0, [rsp+160h+var_138]
-    vmaxss  xmm2, xmm1, xmm7
-    vaddss  xmm1, xmm5, dword ptr [rbp+60h+var_D0+4]
-    vaddss  xmm5, xmm7, dword ptr [rbp+60h+var_D0+0Ch]
-    vmovss  dword ptr [r14+8], xmm2
-    vaddss  xmm2, xmm6, dword ptr [rbp+60h+var_D0]
-    vaddss  xmm6, xmm0, dword ptr [rbp+60h+var_D0+8]
-    vmovss  dword ptr [rsp+160h+out+0Ch], xmm1
-    vdivss  xmm0, xmm13, xmm5
-    vmulss  xmm4, xmm0, xmm1
-    vminss  xmm1, xmm4, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi+4], xmm1
-    vmulss  xmm3, xmm0, xmm2
-    vminss  xmm0, xmm3, dword ptr [rsi]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+160h+out+8], xmm2
-    vminss  xmm2, xmm0, xmm5
-    vmovss  dword ptr [rsi+8], xmm2
+  }
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  maxs->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm2, xmm1, xmm7 }
+  *(float *)&_XMM1 = v67 + v150.v[1];
+  v81 = v66 + v150.v[3];
+  maxs->v[2] = *(float *)&_XMM2;
+  *(float *)&_XMM2 = v63.m128_f32[0] + v150.v[0];
+  out_8.v[1] = *(float *)&_XMM1;
+  v83 = LODWORD(FLOAT_1_0);
+  *(float *)&v83 = 1.0 / v81;
+  v82 = v83;
+  *(float *)&v83 = (float)(1.0 / v81) * *(float *)&_XMM1;
+  _XMM4 = v83;
+  __asm { vminss  xmm1, xmm4, dword ptr [rsi+4] }
+  mins->v[1] = *(float *)&_XMM1;
+  v87 = v82;
+  *(float *)&v87 = *(float *)&v82 * *(float *)&_XMM2;
+  _XMM3 = v87;
+  __asm { vminss  xmm0, xmm3, dword ptr [rsi] }
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  out_8.v[0] = *(float *)&_XMM2;
+  __asm { vminss  xmm2, xmm0, xmm5 }
+  mins->v[2] = *(float *)&_XMM2;
+  __asm
+  {
     vmaxss  xmm0, xmm4, dword ptr [r14+4]
     vmaxss  xmm1, xmm3, dword ptr [r14]
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vmaxss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [r14+8], xmm2
-    vcomiss xmm7, xmm10
-    vmovss  [rsp+160h+var_134], xmm5
-    vmovups xmm0, xmmword ptr [rsp+160h+out+8]
-    vinsertps xmm0, xmm0, xmm6, 20h ; ' '
-    vcomiss xmm5, xmm10
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm7, xmm5, xmm5, 0FFh
-    vdivss  xmm1, xmm13, xmm7
-    vmulss  xmm4, xmm1, xmm5
-    vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-    vsubps  xmm5, xmm5, xmmword ptr [rbp+60h+var_E0]
-    vmulss  xmm3, xmm1, xmm0
-    vminss  xmm0, xmm4, dword ptr [rsi]
-    vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+4], xmm1
-    vminss  xmm2, xmm0, xmm7
-    vmovss  dword ptr [rsi+8], xmm2
-    vmaxss  xmm1, xmm4, dword ptr [r14]
-    vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [r14+4], xmm0
-    vmaxss  xmm2, xmm1, xmm7
-    vmovss  dword ptr [r14+8], xmm2
-    vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-    vshufps xmm6, xmm5, xmm5, 0FFh
-    vdivss  xmm1, xmm13, xmm6
-    vmulss  xmm4, xmm1, xmm5
-    vmulss  xmm3, xmm1, xmm0
-    vminss  xmm0, xmm4, dword ptr [rsi]
-    vminss  xmm1, xmm3, dword ptr [rsi+4]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vminss  xmm2, xmm0, xmm6
-    vmovss  dword ptr [rsi+8], xmm2
-    vmaxss  xmm1, xmm4, dword ptr [r14]
-    vmaxss  xmm0, xmm3, dword ptr [r14+4]
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [r14+4], xmm0
-    vmaxss  xmm2, xmm1, xmm6
-    vsubps  xmm0, xmm5, xmm9
-    vmovss  dword ptr [r14+8], xmm2
-    vmovups xmmword ptr [rsp+160h+out+8], xmm0
   }
-  v170 = R_FrustumGridClustering_AccumulateProjectedBounds(&out_8, _RSI, _R14);
+  maxs->v[1] = *(float *)&_XMM0;
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  __asm { vmaxss  xmm2, xmm1, xmm5 }
+  maxs->v[2] = *(float *)&_XMM2;
+  out_8.v[3] = v81;
+  _XMM0 = out_8;
+  __asm { vinsertps xmm0, xmm0, xmm6, 20h ; ' ' }
+  v97 = _mm128_add_ps(_XMM0, v23);
+  v98 = _mm_shuffle_ps(v97, v97, 255).m128_f32[0];
+  v100 = LODWORD(FLOAT_1_0);
+  *(float *)&v100 = 1.0 / v98;
+  v99 = v100;
+  *(float *)&v100 = (float)(1.0 / v98) * v97.m128_f32[0];
+  _XMM4 = v100;
+  _XMM0.m128_f32[0] = _mm_shuffle_ps(v97, v97, 85).m128_f32[0];
+  v102 = _mm128_sub_ps(v97, (__m128)v149);
+  v104 = v99;
+  *(float *)&v104 = *(float *)&v99 * _XMM0.m128_f32[0];
+  _XMM3 = v104;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm2, dword ptr [rsi+4]
-    vmaxss  xmm1, xmm0, xmm11
-    vmovss  dword ptr [rsi], xmm1
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmaxss  xmm0, xmm2, xmm11
-    vmovss  dword ptr [rsi+4], xmm0
-    vmaxss  xmm2, xmm1, xmm12
-    vmovss  dword ptr [rsi+8], xmm2
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  xmm2, dword ptr [r14+4]
-    vcomiss xmm6, xmm10
-    vminss  xmm1, xmm0, xmm13
-    vcomiss xmm7, xmm10
-    vminss  xmm0, xmm2, xmm13
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm1, dword ptr [r14+8]
-    vminss  xmm2, xmm1, xmm14
-    vmovss  dword ptr [r14+8], xmm2
-    vmovss  dword ptr [r14+4], xmm0
+    vminss  xmm0, xmm4, dword ptr [rsi]
+    vminss  xmm1, xmm3, dword ptr [rsi+4]
   }
-  result = v184 | v180 | v170;
-  _R11 = &v204;
+  mins->v[0] = *(float *)&_XMM0;
+  _XMM0 = LODWORD(mins->v[2]);
+  mins->v[1] = *(float *)&_XMM1;
+  __asm { vminss  xmm2, xmm0, xmm7 }
+  mins->v[2] = *(float *)&_XMM2;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
+    vmaxss  xmm1, xmm4, dword ptr [r14]
+    vmaxss  xmm0, xmm3, dword ptr [r14+4]
   }
-  return result;
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  maxs->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm2, xmm1, xmm7 }
+  maxs->v[2] = *(float *)&_XMM2;
+  v63.m128_f32[0] = _mm_shuffle_ps(v102, v102, 255).m128_f32[0];
+  v114 = LODWORD(FLOAT_1_0);
+  *(float *)&v114 = 1.0 / v63.m128_f32[0];
+  v113 = v114;
+  *(float *)&v114 = (float)(1.0 / v63.m128_f32[0]) * v102.m128_f32[0];
+  _XMM4 = v114;
+  v117 = v113;
+  *(float *)&v117 = *(float *)&v113 * _mm_shuffle_ps(v102, v102, 85).m128_f32[0];
+  _XMM3 = v117;
+  __asm
+  {
+    vminss  xmm0, xmm4, dword ptr [rsi]
+    vminss  xmm1, xmm3, dword ptr [rsi+4]
+  }
+  mins->v[0] = *(float *)&_XMM0;
+  mins->v[1] = *(float *)&_XMM1;
+  _XMM0 = LODWORD(mins->v[2]);
+  __asm { vminss  xmm2, xmm0, xmm6 }
+  mins->v[2] = *(float *)&_XMM2;
+  __asm
+  {
+    vmaxss  xmm1, xmm4, dword ptr [r14]
+    vmaxss  xmm0, xmm3, dword ptr [r14+4]
+  }
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  maxs->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm2, xmm1, xmm6 }
+  maxs->v[2] = *(float *)&_XMM2;
+  out_8 = (vec4_t)_mm128_sub_ps(v102, v23);
+  v126 = R_FrustumGridClustering_AccumulateProjectedBounds(&out_8, mins, maxs);
+  _XMM0 = LODWORD(mins->v[0]);
+  _XMM2 = LODWORD(mins->v[1]);
+  __asm { vmaxss  xmm1, xmm0, xmm11 }
+  mins->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(mins->v[2]);
+  __asm { vmaxss  xmm0, xmm2, xmm11 }
+  mins->v[1] = *(float *)&_XMM0;
+  __asm { vmaxss  xmm2, xmm1, xmm12 }
+  mins->v[2] = *(float *)&_XMM2;
+  _XMM0 = LODWORD(maxs->v[0]);
+  _XMM2 = LODWORD(maxs->v[1]);
+  __asm { vminss  xmm1, xmm0, xmm13 }
+  v138 = v63.m128_f32[0] < 0.0 || v126;
+  __asm { vminss  xmm0, xmm2, xmm13 }
+  maxs->v[0] = *(float *)&_XMM1;
+  _XMM1 = LODWORD(maxs->v[2]);
+  __asm { vminss  xmm2, xmm1, xmm14 }
+  if ( v98 < 0.0 )
+    v138 = v128;
+  maxs->v[2] = *(float *)&_XMM2;
+  maxs->v[1] = *(float *)&_XMM0;
+  return v127 | v138;
 }
 
 /*
@@ -446,438 +465,313 @@ R_FrustumGridClustering_PrebinOBBs
 */
 void R_FrustumGridClustering_PrebinOBBs(const GfxViewInfo *viewInfo, const GfxOrientedBoundingBox *obbs, unsigned int obbCount, unsigned int *binMask, unsigned int *zBin)
 {
-  const GfxViewInfo *v18; 
+  __int64 v7; 
+  const GfxViewInfo *v8; 
   int clusterCountX; 
-  unsigned __int64 v22; 
-  __int64 v24; 
-  unsigned int v29; 
-  unsigned int v33; 
+  unsigned __int64 v12; 
+  __int64 v13; 
+  __m256i *v16; 
+  unsigned int v17; 
+  unsigned int v18; 
   bool ProjectedBoundsNDC; 
-  bool v41; 
-  int v46; 
-  int v53; 
-  unsigned int v93; 
-  unsigned int v119; 
+  float v20; 
+  float v22; 
+  float v24; 
+  bool v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  int v31; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  unsigned int v40; 
+  unsigned int v41; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  double v48; 
+  float v49; 
+  double v50; 
+  float v51; 
+  double v52; 
+  float v53; 
+  double v54; 
+  unsigned int v55; 
   int i; 
-  int v125; 
-  int v126; 
-  unsigned int v127; 
-  unsigned int v130; 
-  unsigned int v131; 
-  __int64 v132; 
-  unsigned int v135; 
-  unsigned int v136; 
-  unsigned int v137; 
-  unsigned int v138; 
-  unsigned int v139; 
-  unsigned int v140; 
-  unsigned int v141; 
-  __int64 v152; 
-  __int64 v153; 
-  __int64 v154; 
-  __int64 v155; 
+  int v57; 
+  int v58; 
+  unsigned int v59; 
+  unsigned int v61; 
+  unsigned int v62; 
+  __int64 v63; 
+  unsigned int v65; 
+  unsigned int v66; 
+  unsigned int v67; 
+  unsigned int v68; 
+  unsigned int v69; 
+  unsigned int v70; 
+  __int64 v71; 
+  __int64 v72; 
+  __int64 v73; 
+  __int64 v74; 
   int clusterCountY; 
-  int v158; 
-  int v159; 
-  unsigned int v160; 
-  int v161; 
-  int v162; 
-  unsigned int v163; 
+  int v77; 
+  int v78; 
+  unsigned int v79; 
+  int v81; 
+  unsigned int v82; 
   vec3_t mins; 
   vec3_t maxs; 
 
-  __asm { vmovaps [rsp+1A8h+var_58], xmm6 }
-  _R15 = obbCount;
-  v18 = viewInfo;
-  v161 = _R15;
-  __asm
-  {
-    vmovd   xmm6, r15d
-    vpshufd xmm6, xmm6, 0
-  }
+  v7 = obbCount;
+  v8 = viewInfo;
+  _XMM6 = obbCount;
+  __asm { vpshufd xmm6, xmm6, 0 }
   if ( !binMask && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 125, ASSERT_TYPE_ASSERT, "(binMask)", (const char *)&queryFormat, "binMask") )
     __debugbreak();
   if ( !zBin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 126, ASSERT_TYPE_ASSERT, "(zBin)", (const char *)&queryFormat, "zBin") )
     __debugbreak();
-  if ( (unsigned int)_R15 >= 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 127, ASSERT_TYPE_ASSERT, "( obbCount ) < ( 65536 )", "%s < %s\n\t%i, %i", "obbCount", "65536", _R15, 0x10000) )
+  if ( (unsigned int)v7 >= 0x10000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 127, ASSERT_TYPE_ASSERT, "( obbCount ) < ( 65536 )", "%s < %s\n\t%i, %i", "obbCount", "65536", v7, 0x10000) )
     __debugbreak();
-  clusterCountX = v18->frustumGrid.clusterCountX;
-  v22 = (unsigned __int64)(_R15 + 31) >> 5;
-  clusterCountY = v18->frustumGrid.clusterCountY;
-  v158 = clusterCountX;
-  v163 = v22;
-  v162 = clusterCountX + clusterCountY;
-  memset_0(binMask, 0, 4i64 * (unsigned int)(v22 * (clusterCountX + clusterCountY + 32)));
-  _EAX = 16;
-  v24 = 512i64;
+  clusterCountX = v8->frustumGrid.clusterCountX;
+  v12 = (unsigned __int64)(v7 + 31) >> 5;
+  clusterCountY = v8->frustumGrid.clusterCountY;
+  v77 = clusterCountX;
+  v82 = v12;
+  v81 = clusterCountX + clusterCountY;
+  memset_0(binMask, 0, 4i64 * (unsigned int)(v12 * (clusterCountX + clusterCountY + 32)));
+  v13 = 512i64;
   __asm
   {
-    vmovd   xmm0, eax
     vpslld  xmm1, xmm6, xmm0
     vinsertf128 ymm1, ymm1, xmm1, 1
   }
-  _RAX = zBin + 8;
+  v16 = (__m256i *)(zBin + 8);
   do
   {
-    __asm
-    {
-      vmovups ymmword ptr [rax-20h], ymm1
-      vmovups ymmword ptr [rax], ymm1
-    }
-    _RAX += 16;
-    --v24;
+    v16[-1] = _YMM1;
+    *v16 = _YMM1;
+    v16 += 2;
+    --v13;
   }
-  while ( v24 );
-  v29 = 0;
-  if ( (_DWORD)v22 )
+  while ( v13 );
+  v17 = 0;
+  if ( (_DWORD)v12 )
   {
-    __asm
-    {
-      vmovaps [rsp+1A8h+var_68], xmm7
-      vmovaps [rsp+1A8h+var_78], xmm8
-      vmovaps [rsp+1A8h+var_88], xmm9
-      vmovaps [rsp+1A8h+var_98], xmm10
-      vmovaps [rsp+1A8h+var_A8], xmm11
-      vmovss  xmm11, cs:__real@3f000000
-      vmovaps [rsp+1A8h+var_B8], xmm12
-      vmovaps [rsp+1A8h+var_C8], xmm13
-      vmovaps [rsp+1A8h+var_D8], xmm14
-      vmovss  xmm14, cs:__real@3f800000
-      vmovaps [rsp+1A8h+var_E8], xmm15
-      vxorps  xmm15, xmm15, xmm15
-    }
-    v159 = 0;
+    v78 = 0;
 LABEL_14:
-    v33 = 32 * v29;
-    while ( v33 < (unsigned int)_R15 )
+    v18 = 32 * v17;
+    while ( 1 )
     {
-      ProjectedBoundsNDC = R_FrustumGridClustering_GetProjectedBoundsNDC((const GfxViewParms *)v18, &obbs[v33], &mins, &maxs);
-      __asm
+      if ( v18 >= (unsigned int)v7 )
+        return;
+      ProjectedBoundsNDC = R_FrustumGridClustering_GetProjectedBoundsNDC((const GfxViewParms *)v8, &obbs[v18], &mins, &maxs);
+      v20 = maxs.v[0];
+      _XMM12 = LODWORD(maxs.v[2]);
+      v22 = maxs.v[1];
+      _XMM13 = LODWORD(mins.v[2]);
+      v24 = mins.v[1];
+      v25 = !ProjectedBoundsNDC;
+      if ( mins.v[0] > maxs.v[0] || mins.v[1] > maxs.v[1] || mins.v[2] > maxs.v[2] )
       {
-        vmovss  xmm5, dword ptr [rsp+1A8h+mins]
-        vmovss  xmm6, dword ptr [rsp+1A8h+maxs]
-        vmovss  xmm12, dword ptr [rsp+1A8h+maxs+8]
-        vmovss  xmm7, dword ptr [rsp+1A8h+maxs+4]
-        vmovss  xmm13, dword ptr [rsp+1A8h+mins+8]
-        vmovss  xmm8, dword ptr [rsp+1A8h+mins+4]
+        if ( !ProjectedBoundsNDC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 153, ASSERT_TYPE_ASSERT, "( !xyValid )", "R_FrustumGridClustering_GetProjectedBoundsNDC: projected obb in X=[%.3f,%.3f] Y=[%.3f,%.3f] Z=[%.3f,%.3f] is not valid", mins.v[0], maxs.v[0], mins.v[1], maxs.v[1], mins.v[2], maxs.v[2]) )
+          __debugbreak();
+        v25 = 0;
       }
-      v41 = !ProjectedBoundsNDC;
-      __asm { vcomiss xmm5, xmm6 }
-      if ( ProjectedBoundsNDC )
+      else if ( !ProjectedBoundsNDC )
       {
-        v41 = 0;
-        v46 = clusterCountX - 1;
-        _EDI = 0;
-      }
-      else
-      {
-        __asm
-        {
-          vcomiss xmm8, xmm7
-          vcomiss xmm13, xmm12
-          vaddss  xmm0, xmm5, xmm14
-          vmulss  xmm1, xmm0, xmm11
-          vmulss  xmm2, xmm1, dword ptr [r14+1C10h]
-          vmulss  xmm3, xmm2, dword ptr [r14+1BD8h]
-        }
-        v46 = clusterCountX - 1;
-        __asm { vcvttss2si edi, xmm3 }
+        v26 = clusterCountX - 1;
+        v27 = (int)(float)((float)((float)((float)(mins.v[0] + 1.0) * 0.5) * v8->input.sceneConstants.sceneRenderTargetSize.v[0]) * v8->input.sceneConstants.frustumGridClusterSize.v[2]);
         if ( clusterCountX - 1 < 0 )
         {
-          LODWORD(v153) = clusterCountX - 1;
-          LODWORD(v152) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v152, v153) )
+          LODWORD(v72) = clusterCountX - 1;
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v71, v72) )
             __debugbreak();
         }
-        if ( clusterCountX <= _EDI )
-          _EDI = clusterCountX - 1;
-        if ( _EDI < 0 )
-          _EDI = 0;
+        if ( clusterCountX <= v27 )
+          v27 = clusterCountX - 1;
+        if ( v27 < 0 )
+          v27 = 0;
+        goto LABEL_33;
       }
-      if ( v41 )
+      v26 = clusterCountX - 1;
+      v27 = 0;
+LABEL_33:
+      if ( v25 )
       {
-        __asm
+        v28 = (int)(float)((float)((float)((float)(v20 + 1.0) * 0.5) * v8->input.sceneConstants.sceneRenderTargetSize.v[0]) * v8->input.sceneConstants.frustumGridClusterSize.v[2]);
+        if ( v26 < 0 )
         {
-          vaddss  xmm0, xmm6, xmm14
-          vmulss  xmm1, xmm0, xmm11
-          vmulss  xmm2, xmm1, dword ptr [r14+1C10h]
-          vmulss  xmm3, xmm2, dword ptr [r14+1BD8h]
-          vcvttss2si r12d, xmm3
-        }
-        if ( v46 < 0 )
-        {
-          LODWORD(v153) = v46;
-          LODWORD(v152) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v152, v153) )
+          LODWORD(v72) = v26;
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v71, v72) )
             __debugbreak();
         }
-        if ( v46 < _ER12 )
-          _ER12 = v46;
-        if ( _ER12 < 0 )
-          _ER12 = 0;
+        if ( v26 < v28 )
+          v28 = v26;
+        if ( v28 < 0 )
+          v28 = 0;
       }
       else
       {
-        _ER12 = v46;
+        v28 = v26;
       }
-      if ( _EDI > _ER12 )
+      if ( v27 > v28 )
       {
-        LODWORD(v155) = _ER12;
-        LODWORD(v154) = _EDI;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 159, ASSERT_TYPE_ASSERT, "( minX ) <= ( maxX )", "%s <= %s\n\t%i, %i", "minX", "maxX", v154, v155) )
+        LODWORD(v74) = v28;
+        LODWORD(v73) = v27;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 159, ASSERT_TYPE_ASSERT, "( minX ) <= ( maxX )", "%s <= %s\n\t%i, %i", "minX", "maxX", v73, v74) )
           __debugbreak();
       }
-      v53 = clusterCountY - 1;
-      if ( v41 )
+      v29 = clusterCountY - 1;
+      if ( v25 )
       {
-        __asm
+        v30 = (int)(float)((float)((float)(0.5 - (float)(v22 * 0.5)) * viewInfo->input.sceneConstants.sceneRenderTargetSize.v[1]) * viewInfo->input.sceneConstants.frustumGridClusterSize.v[3]);
+        if ( v29 < 0 )
         {
-          vmulss  xmm0, xmm7, xmm11
-          vsubss  xmm0, xmm11, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rax+1C14h]
-          vmulss  xmm2, xmm1, dword ptr [rax+1BDCh]
-          vcvttss2si ebx, xmm2
-        }
-        if ( v53 < 0 )
-        {
-          LODWORD(v153) = clusterCountY - 1;
-          LODWORD(v152) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v152, v153) )
+          LODWORD(v72) = clusterCountY - 1;
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v71, v72) )
             __debugbreak();
         }
-        if ( clusterCountY <= _EBX )
-          _EBX = clusterCountY - 1;
-        if ( _EBX < 0 )
-          _EBX = 0;
+        if ( clusterCountY <= v30 )
+          v30 = clusterCountY - 1;
+        if ( v30 < 0 )
+          v30 = 0;
       }
       else
       {
-        _EBX = 0;
+        v30 = 0;
       }
-      if ( v41 )
+      if ( v25 )
       {
-        __asm
+        v31 = (int)(float)((float)((float)(0.5 - (float)(v24 * 0.5)) * viewInfo->input.sceneConstants.sceneRenderTargetSize.v[1]) * viewInfo->input.sceneConstants.frustumGridClusterSize.v[3]);
+        if ( v29 < 0 )
         {
-          vmulss  xmm0, xmm8, xmm11
-          vsubss  xmm0, xmm11, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rax+1C14h]
-          vmulss  xmm2, xmm1, dword ptr [rax+1BDCh]
-          vcvttss2si r15d, xmm2
-        }
-        if ( v53 < 0 )
-        {
-          LODWORD(v153) = clusterCountY - 1;
-          LODWORD(v152) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v152, v153) )
+          LODWORD(v72) = clusterCountY - 1;
+          LODWORD(v71) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v71, v72) )
             __debugbreak();
         }
-        if ( clusterCountY <= _ER15 )
-          _ER15 = clusterCountY - 1;
-        if ( _ER15 < 0 )
-          _ER15 = 0;
+        if ( clusterCountY <= v31 )
+          v31 = clusterCountY - 1;
+        if ( v31 < 0 )
+          v31 = 0;
       }
       else
       {
-        _ER15 = clusterCountY - 1;
+        v31 = clusterCountY - 1;
       }
-      if ( _EBX > _ER15 )
+      if ( v30 > v31 )
       {
-        LODWORD(v155) = _ER15;
-        LODWORD(v154) = _EBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 163, ASSERT_TYPE_ASSERT, "( minY ) <= ( maxY )", "%s <= %s\n\t%i, %i", "minY", "maxY", v154, v155) )
+        LODWORD(v74) = v31;
+        LODWORD(v73) = v30;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 163, ASSERT_TYPE_ASSERT, "( minY ) <= ( maxY )", "%s <= %s\n\t%i, %i", "minY", "maxY", v73, v74) )
           __debugbreak();
       }
-      _R14 = viewInfo;
-      __asm
+      __asm { vmaxss  xmm0, xmm13, xmm15 }
+      v33 = viewInfo->input.sceneConstants.volumetricDepth.v[0];
+      v34 = viewInfo->input.sceneConstants.volumetricDepth.v[2];
+      v35 = (float)(*(float *)&_XMM0 - 4.0) - v33;
+      v36 = v35 - viewInfo->input.sceneConstants.volumetricDepth.v[1];
+      *(double *)&_XMM0 = I_fclamp((float)(*(float *)&_XMM0 - 4.0) / v33, 0.0, 1.0);
+      v37 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = I_fclamp(v35 / viewInfo->input.sceneConstants.volumetricDepth.v[1], 0.0, 1.0);
+      v38 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = I_fclamp(v36 / viewInfo->input.sceneConstants.volumetricDepth.v[2], 0.0, 1.0);
+      v39 = *(float *)&_XMM0;
+      *(double *)&_XMM0 = I_fclamp((float)(v36 - v34) / viewInfo->input.sceneConstants.volumetricDepth.v[3], 0.0, 1.0);
+      v40 = (int)(float)((float)((float)(*(float *)&_XMM0 + (float)((float)(v38 + v37) + v39)) * 0.25) * 32.0);
+      v41 = 31;
+      __asm { vmaxss  xmm0, xmm12, xmm15 }
+      v43 = *(float *)&_XMM0 - 4.0;
+      if ( v40 < 0x1F )
+        v41 = v40;
+      v44 = viewInfo->input.sceneConstants.volumetricDepth.v[0];
+      v45 = viewInfo->input.sceneConstants.volumetricDepth.v[2];
+      v46 = v43 - v44;
+      v47 = (float)(v43 - v44) - viewInfo->input.sceneConstants.volumetricDepth.v[1];
+      v48 = I_fclamp((float)(*(float *)&_XMM0 - 4.0) / v44, 0.0, 1.0);
+      v49 = *(float *)&v48;
+      v50 = I_fclamp(v46 / viewInfo->input.sceneConstants.volumetricDepth.v[1], 0.0, 1.0);
+      v51 = *(float *)&v50;
+      v52 = I_fclamp(v47 / viewInfo->input.sceneConstants.volumetricDepth.v[2], 0.0, 1.0);
+      v53 = *(float *)&v52;
+      v54 = I_fclamp((float)(v47 - v45) / viewInfo->input.sceneConstants.volumetricDepth.v[3], 0.0, 1.0);
+      v55 = 31;
+      if ( (unsigned int)(int)(float)((float)((float)(*(float *)&v54 + (float)((float)(v51 + v49) + v53)) * 0.25) * 32.0) < 0x1F )
+        v55 = (int)(float)((float)((float)(*(float *)&v54 + (float)((float)(v51 + v49) + v53)) * 0.25) * 32.0);
+      v79 = v55;
+      if ( v41 > v55 )
       {
-        vmaxss  xmm0, xmm13, xmm15
-        vsubss  xmm2, xmm0, cs:__real@40800000
-        vmovss  xmm1, dword ptr [r14+1BB0h]
-        vmovss  xmm8, dword ptr [r14+1BB8h]
-        vsubss  xmm6, xmm2, xmm1
-        vsubss  xmm9, xmm6, dword ptr [r14+1BB4h]
-        vdivss  xmm0, xmm2, xmm1; val
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm10, xmm0
-        vdivss  xmm0, xmm6, dword ptr [r14+1BB4h]; val
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vdivss  xmm0, xmm9, dword ptr [r14+1BB8h]; val
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm9, xmm8
-        vmovaps xmm6, xmm0
-        vdivss  xmm0, xmm1, dword ptr [r14+1BBCh]; val
-        vmovaps xmm1, xmm15; min
-        vmovaps xmm2, xmm14; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm1, xmm7, xmm10
-        vaddss  xmm2, xmm1, xmm6
-        vaddss  xmm0, xmm0, xmm2
-        vmulss  xmm3, xmm0, cs:__real@3e800000
-        vmulss  xmm1, xmm3, cs:__real@42000000
-        vcvttss2si rax, xmm1
-      }
-      v93 = 31;
-      __asm
-      {
-        vmaxss  xmm0, xmm12, xmm15
-        vsubss  xmm2, xmm0, cs:__real@40800000
-      }
-      if ( (unsigned int)_RAX < 0x1F )
-        v93 = _RAX;
-      _RAX = viewInfo;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax+1BB0h]
-        vmovss  xmm8, dword ptr [rax+1BB8h]
-        vsubss  xmm6, xmm2, xmm1
-        vsubss  xmm9, xmm6, dword ptr [rax+1BB4h]
-        vdivss  xmm0, xmm2, xmm1; val
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm10, xmm0
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-        vdivss  xmm0, xmm6, dword ptr [rax+1BB4h]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vmovaps xmm2, xmm14; max
-        vmovaps xmm1, xmm15; min
-        vdivss  xmm0, xmm9, dword ptr [rax+1BB8h]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm9, xmm8
-        vmovaps xmm6, xmm0
-        vmovaps xmm2, xmm14; max
-        vdivss  xmm0, xmm1, dword ptr [rax+1BBCh]; val
-        vmovaps xmm1, xmm15; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm1, xmm7, xmm10
-        vaddss  xmm2, xmm1, xmm6
-      }
-      v119 = 31;
-      __asm
-      {
-        vaddss  xmm0, xmm0, xmm2
-        vmulss  xmm3, xmm0, cs:__real@3e800000
-        vmulss  xmm1, xmm3, cs:__real@42000000
-        vcvttss2si rax, xmm1
-      }
-      if ( (unsigned int)_RAX < 0x1F )
-        v119 = _RAX;
-      v160 = v119;
-      if ( v93 > v119 )
-      {
-        LODWORD(v155) = v119;
-        LODWORD(v154) = v93;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 167, ASSERT_TYPE_ASSERT, "( minZ ) <= ( maxZ )", "%s <= %s\n\t%i, %i", "minZ", "maxZ", v154, v155) )
+        LODWORD(v74) = v55;
+        LODWORD(v73) = v41;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_frustum_grid_clustering.cpp", 167, ASSERT_TYPE_ASSERT, "( minZ ) <= ( maxZ )", "%s <= %s\n\t%i, %i", "minZ", "maxZ", v73, v74) )
           __debugbreak();
-        v119 = v160;
+        v55 = v79;
       }
-      for ( i = __ROL4__(1, v33 + v159); _EDI <= _ER12; binMask[v29 + v163 * v125] |= i )
-        v125 = _EDI++;
-      for ( clusterCountX = v158; _EBX <= _ER15; binMask[v29 + v163 * v126] |= i )
+      for ( i = __ROL4__(1, v18 + v78); v27 <= v28; binMask[v17 + v82 * v57] |= i )
+        v57 = v27++;
+      for ( clusterCountX = v77; v30 <= v31; binMask[v17 + v82 * v58] |= i )
       {
-        v126 = _EBX + v158;
-        ++_EBX;
+        v58 = v30 + v77;
+        ++v30;
       }
-      if ( v93 <= v119 )
+      if ( v41 <= v55 )
       {
         do
         {
-          v127 = v162 + v93++;
-          binMask[v29 + v163 * v127] |= i;
+          v59 = v81 + v41++;
+          binMask[v17 + v82 * v59] |= i;
         }
-        while ( v93 <= v119 );
-        clusterCountX = v158;
+        while ( v41 <= v55 );
+        clusterCountX = v77;
       }
-      __asm
+      __asm { vmaxss  xmm0, xmm13, xmm15 }
+      v61 = (unsigned int)(int)*(float *)&_XMM0 >> 5;
+      v62 = 0x1FFF;
+      v63 = 0x1FFFi64;
+      __asm { vmaxss  xmm0, xmm12, xmm15 }
+      if ( (unsigned int)(int)*(float *)&_XMM0 >> 5 < 0x1FFF )
+        v62 = (unsigned int)(int)*(float *)&_XMM0 >> 5;
+      if ( v61 < 0x1FFF )
+        v63 = v61;
+      for ( ; (unsigned int)v63 <= v62; v63 = (unsigned int)(v63 + 1) )
       {
-        vmaxss  xmm0, xmm13, xmm15
-        vcvttss2si rcx, xmm0
+        v65 = v18;
+        v66 = zBin[v63];
+        v67 = (unsigned __int16)v66;
+        v68 = HIWORD(v66);
+        v69 = v18;
+        if ( v18 > v68 )
+          v65 = v68;
+        v70 = v65 << 16;
+        if ( v67 > v18 )
+          v69 = v67;
+        zBin[v63] = v69 | v70;
       }
-      v130 = (unsigned int)_RCX >> 5;
-      v131 = 0x1FFF;
-      v132 = 0x1FFFi64;
-      __asm
+      v8 = viewInfo;
+      ++v18;
+      LODWORD(v7) = obbCount;
+      if ( v78 + v18 >= 0x20 )
       {
-        vmaxss  xmm0, xmm12, xmm15
-        vcvttss2si rax, xmm0
-      }
-      v135 = (unsigned int)_RAX >> 5;
-      if ( v135 < 0x1FFF )
-        v131 = v135;
-      if ( v130 < 0x1FFF )
-        v132 = v130;
-      for ( ; (unsigned int)v132 <= v131; v132 = (unsigned int)(v132 + 1) )
-      {
-        v136 = v33;
-        v137 = zBin[v132];
-        v138 = (unsigned __int16)v137;
-        v139 = HIWORD(v137);
-        v140 = v33;
-        if ( v33 > v139 )
-          v136 = v139;
-        v141 = v136 << 16;
-        if ( v138 > v33 )
-          v140 = v138;
-        zBin[v132] = v140 | v141;
-      }
-      v18 = viewInfo;
-      ++v33;
-      LODWORD(_R15) = v161;
-      if ( v159 + v33 >= 0x20 )
-      {
-        ++v29;
-        v159 -= 32;
-        if ( v29 < v163 )
+        ++v17;
+        v78 -= 32;
+        if ( v17 < v82 )
           goto LABEL_14;
-        break;
+        return;
       }
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+1A8h+var_D8]
-      vmovaps xmm13, [rsp+1A8h+var_C8]
-      vmovaps xmm12, [rsp+1A8h+var_B8]
-      vmovaps xmm11, [rsp+1A8h+var_A8]
-      vmovaps xmm10, [rsp+1A8h+var_98]
-      vmovaps xmm9, [rsp+1A8h+var_88]
-      vmovaps xmm8, [rsp+1A8h+var_78]
-      vmovaps xmm7, [rsp+1A8h+var_68]
-      vmovaps xmm15, [rsp+1A8h+var_E8]
     }
   }
-  __asm { vmovaps xmm6, [rsp+1A8h+var_58] }
 }
 

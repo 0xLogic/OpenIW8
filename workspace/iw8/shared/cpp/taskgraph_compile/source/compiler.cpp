@@ -1128,18 +1128,20 @@ bool tg::Compiler::BuildRenderOrder(tg::Compiler *this)
   __int64 v3; 
   tg::Task *v5; 
   __int64 v6; 
+  __int64 v7; 
   tg::Task *pTask; 
   unsigned __int16 m_cmdCount; 
-  __int64 v13; 
-  tg::Task *v14; 
-  unsigned int v15; 
+  __int64 v10; 
+  __int64 v11; 
+  tg::Task *v12; 
+  unsigned int v13; 
   tg::Task **p_pTask; 
-  __int64 v17; 
-  __int64 v18; 
-  bool v19; 
-  unsigned int v20; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v15; 
+  __int64 v16; 
+  bool v17; 
+  unsigned int v18; 
+  __int64 v20; 
+  __int64 v21; 
   unsigned int taskIndex; 
   unsigned int queueIndex; 
   unsigned int scheduledTasks[2]; 
@@ -1173,8 +1175,8 @@ bool tg::Compiler::BuildRenderOrder(tg::Compiler *this)
     while ( (_DWORD)v1 )
     {
       tg::Compiler::SelectBestTask(this, validTasks, v1, scheduledTasks, &taskIndex, &queueIndex);
-      _RBP = taskIndex;
-      pTask = validTasks[_RBP].pTask;
+      v7 = taskIndex;
+      pTask = validTasks[v7].pTask;
       tg::Task::UpdateAttachmentsAndDescs(pTask, this->m_tasks, queueIndex, &this->m_logs, &this->m_dynamicSizeData);
       tg::ResourceTracker::RemoveLogicalResources(&this->m_resourceTracker, pTask);
       tg::ResourceTracker::UpdateConditions(&this->m_resourceTracker, pTask);
@@ -1192,69 +1194,64 @@ bool tg::Compiler::BuildRenderOrder(tg::Compiler *this)
         this->m_cmds[this->m_cmdCount++] = pTask;
       }
       v1 = (unsigned int)(v1 - 1);
-      _RCX = v1;
-      __asm
+      v10 = v1;
+      *(_OWORD *)&validTasks[v7].pName = *(_OWORD *)&validTasks[v1].pName;
+      *(double *)&validTasks[v7].key = *(double *)&validTasks[v1].key;
+      validTasks[v10].pName = NULL;
+      v11 = 0i64;
+      validTasks[v10].pTask = NULL;
+      for ( *(_QWORD *)&validTasks[v10].key = 0i64; (unsigned int)v11 < pTask->m_nextCount; v11 = (unsigned int)(v11 + 1) )
       {
-        vmovups xmm0, xmmword ptr [rsp+rcx*8+678h+validTasks.pName]
-        vmovups xmmword ptr [rsp+rbp+678h+validTasks.pName], xmm0
-        vmovsd  xmm1, qword ptr [rsp+rcx*8+678h+validTasks.key]
-        vmovsd  qword ptr [rsp+rbp+678h+validTasks.key], xmm1
-      }
-      validTasks[_RCX].pName = NULL;
-      v13 = 0i64;
-      validTasks[_RCX].pTask = NULL;
-      for ( *(_QWORD *)&validTasks[_RCX].key = 0i64; (unsigned int)v13 < pTask->m_nextCount; v13 = (unsigned int)(v13 + 1) )
-      {
-        v14 = this->m_tasks[pTask->m_next[v13]];
-        if ( tg::Task::AllInputDependenciesResolved(v14) )
+        v12 = this->m_tasks[pTask->m_next[v11]];
+        if ( tg::Task::AllInputDependenciesResolved(v12) )
         {
-          v15 = 0;
+          v13 = 0;
           if ( (_DWORD)v1 )
           {
             p_pTask = &validTasks[0].pTask;
             do
             {
-              if ( v14 == *p_pTask )
+              if ( v12 == *p_pTask )
                 break;
-              ++v15;
+              ++v13;
               p_pTask += 3;
             }
-            while ( v15 < (unsigned int)v1 );
+            while ( v13 < (unsigned int)v1 );
           }
-          if ( v15 == (_DWORD)v1 )
+          if ( v13 == (_DWORD)v1 )
           {
-            v17 = v1;
-            validTasks[v17].pName = v14->m_pName;
+            v15 = v1;
+            validTasks[v15].pName = v12->m_pName;
             v1 = (unsigned int)(v1 + 1);
-            validTasks[v17].pTask = v14;
+            validTasks[v15].pTask = v12;
           }
         }
       }
     }
   }
-  v18 = this->m_cmdCount;
-  v19 = (_DWORD)v18 == v2;
-  if ( (_DWORD)v18 == v2 )
+  v16 = this->m_cmdCount;
+  v17 = (_DWORD)v16 == v2;
+  if ( (_DWORD)v16 == v2 )
   {
-    tg::DebugLog::Print(&this->m_logs.info, " - %u render tasks\n", v18);
-    v22 = this->m_resourceTracker.m_conditionCount[0];
-    if ( (_DWORD)v22 )
+    tg::DebugLog::Print(&this->m_logs.info, " - %u render tasks\n", v16);
+    v20 = this->m_resourceTracker.m_conditionCount[0];
+    if ( (_DWORD)v20 )
     {
-      tg::DebugLog::Print(&this->m_logs.info, " - %u compile time conditions and %u conditional tasks\n", v22, this->m_resourceTracker.m_conditionalTaskCount[0]);
+      tg::DebugLog::Print(&this->m_logs.info, " - %u compile time conditions and %u conditional tasks\n", v20, this->m_resourceTracker.m_conditionalTaskCount[0]);
       tg::DebugLog::Print(&this->m_logs.info, " - %u permutations\n", (unsigned int)(1 << this->m_resourceTracker.m_conditionCount[0]));
     }
-    v23 = this->m_resourceTracker.m_conditionCount[1];
-    if ( (_DWORD)v23 )
-      tg::DebugLog::Print(&this->m_logs.info, " - %u render time conditions and %u skippable tasks\n", v23, this->m_resourceTracker.m_conditionalTaskCount[1]);
+    v21 = this->m_resourceTracker.m_conditionCount[1];
+    if ( (_DWORD)v21 )
+      tg::DebugLog::Print(&this->m_logs.info, " - %u render time conditions and %u skippable tasks\n", v21, this->m_resourceTracker.m_conditionalTaskCount[1]);
   }
   else
   {
-    tg::DebugLog::Print(&this->m_logs.error, "ERROR: Failed to build complete render order. Resolved %u tasks but %u have unresolved dependencies.\n", v18, v2);
-    v20 = this->m_cmdCount;
-    if ( v20 )
-      tg::DebugLog::Print(&this->m_logs.error, "Last successfully added task '%s'\n", this->m_tasks[v20 + 336]->m_pName);
+    tg::DebugLog::Print(&this->m_logs.error, "ERROR: Failed to build complete render order. Resolved %u tasks but %u have unresolved dependencies.\n", v16, v2);
+    v18 = this->m_cmdCount;
+    if ( v18 )
+      tg::DebugLog::Print(&this->m_logs.error, "Last successfully added task '%s'\n", this->m_tasks[v18 + 336]->m_pName);
   }
-  return v19;
+  return v17;
 }
 
 /*
@@ -1755,27 +1752,17 @@ tg::Compiler::GetResourceInfo
 */
 void tg::Compiler::GetResourceInfo(tg::Compiler *this, unsigned int resourceIndex, unsigned int temporalIndex, unsigned int disableConditions, tg::ResourceGlobalInfo *pOut)
 {
-  tg::PhysicalResourceInfo *v8; 
+  tg::PhysicalResourceInfo *v7; 
   tg::ResourceAttachment *pLastInfo; 
   tg::ResourceAttachment *i; 
   unsigned __int8 subresourceIndex; 
-  unsigned __int8 v16; 
+  unsigned __int8 v11; 
 
-  _RBX = pOut;
-  v8 = &this->m_resourceTracker.m_physicalResourceInfos[resourceIndex];
-  j_snprintf(pOut->name, 0x80ui64, (const char *const)&queryFormat, v8->pNames[0]);
-  _RAX = v8->pDesc;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+80h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+0A0h], ymm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+0C0h], xmm0
-  }
-  pLastInfo = v8->pLastInfo;
-  for ( i = v8->pFirstInfo; pLastInfo; pLastInfo = pLastInfo->pPrev )
+  v7 = &this->m_resourceTracker.m_physicalResourceInfos[resourceIndex];
+  j_snprintf(pOut->name, 0x80ui64, (const char *const)&queryFormat, v7->pNames[0]);
+  pOut->desc = *v7->pDesc;
+  pLastInfo = v7->pLastInfo;
+  for ( i = v7->pFirstInfo; pLastInfo; pLastInfo = pLastInfo->pPrev )
   {
     if ( (disableConditions & pLastInfo->conditionFlag) == 0 && (pLastInfo->temporalIndex == temporalIndex || temporalIndex == 1 && (pLastInfo->flags & 0x20) != 0) )
       break;
@@ -1806,22 +1793,22 @@ void tg::Compiler::GetResourceInfo(tg::Compiler *this, unsigned int resourceInde
     pOut->first.taskIndex = i->cmdIndex;
     pOut->first.arrayIndex = i->arrayIndex;
     pOut->first.levelIndex = i->levelIndex;
-    v16 = i->subresourceIndex;
+    v11 = i->subresourceIndex;
   }
   else
   {
     pOut->first.type = eResourceType_Unknown;
-    v16 = -1;
+    v11 = -1;
     *(_QWORD *)&pOut->first.state = 1i64;
     *(_DWORD *)&pOut->first.taskIndex = -1;
   }
-  pOut->first.subresourceIndex = v16;
+  pOut->first.subresourceIndex = v11;
   pOut->temporalIndex = temporalIndex;
-  *(_DWORD *)pOut->seenCmdIndexFirst = *(_DWORD *)v8->seenCmdIndexFirst;
-  pOut->seenCmdIndexLast = v8->seenCmdIndexLast;
-  pOut->seenRopReadWrite = v8->seenRopReadWrite;
-  pOut->seenShaderWrite = v8->seenShaderWrite;
-  pOut->external = v8->pDesc->pResource != NULL;
+  *(_DWORD *)pOut->seenCmdIndexFirst = *(_DWORD *)v7->seenCmdIndexFirst;
+  pOut->seenCmdIndexLast = v7->seenCmdIndexLast;
+  pOut->seenRopReadWrite = v7->seenRopReadWrite;
+  pOut->seenShaderWrite = v7->seenShaderWrite;
+  pOut->external = v7->pDesc->pResource != NULL;
 }
 
 /*
@@ -1832,28 +1819,24 @@ tg::Compiler::GetResourceInfo
 void tg::Compiler::GetResourceInfo(tg::Compiler *this, tg::ResourceGlobalInfo *pOut, unsigned int __formal, unsigned int *outSize)
 {
   unsigned int i; 
+  tg::ResourceGlobalInfo *v7; 
   tg::PhysicalResourceInfo *v8; 
+  const tg::ResourceDesc *pDesc; 
   tg::ResourceAttachment *pLastInfo; 
   tg::ResourceAttachment *pFirstInfo; 
   char subresourceIndex; 
-  char v16; 
+  char v13; 
 
   *outSize = this->m_resourceTracker.m_physicalResourceInfoCount;
-  for ( i = 0; i < this->m_resourceTracker.m_physicalResourceInfoCount; _RBX->external = v8->pDesc->pResource != NULL )
+  for ( i = 0; i < this->m_resourceTracker.m_physicalResourceInfoCount; v7->external = v8->pDesc->pResource != NULL )
   {
-    _RBX = &pOut[i];
+    v7 = &pOut[i];
     v8 = &this->m_resourceTracker.m_physicalResourceInfos[i];
-    j_snprintf(_RBX->name, 0x80ui64, (const char *const)&queryFormat, v8->pNames[0]);
-    _RAX = this->m_resourceTracker.m_physicalResourceInfos[i].pDesc;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx+80h], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+0A0h], ymm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rbx+0C0h], xmm0
-    }
+    j_snprintf(v7->name, 0x80ui64, (const char *const)&queryFormat, v8->pNames[0]);
+    pDesc = this->m_resourceTracker.m_physicalResourceInfos[i].pDesc;
+    *(__m256i *)&v7->desc.type = *(__m256i *)&pDesc->type;
+    *(__m256i *)&v7->desc.surfaceFormat = *(__m256i *)&pDesc->surfaceFormat;
+    *(_OWORD *)&v7->desc.pResource = *(_OWORD *)&pDesc->pResource;
     pLastInfo = this->m_resourceTracker.m_physicalResourceInfos[i].pLastInfo;
     pFirstInfo = this->m_resourceTracker.m_physicalResourceInfos[i].pFirstInfo;
     if ( !pLastInfo )
@@ -1867,47 +1850,47 @@ void tg::Compiler::GetResourceInfo(tg::Compiler *this, tg::ResourceGlobalInfo *p
     while ( pLastInfo );
     if ( pLastInfo )
     {
-      _RBX->last.type = pLastInfo->type;
-      _RBX->last.state = pLastInfo->state;
-      _RBX->last.access = pLastInfo->access;
-      _RBX->last.taskIndex = pLastInfo->cmdIndex;
-      _RBX->last.arrayIndex = pLastInfo->arrayIndex;
-      _RBX->last.levelIndex = pLastInfo->levelIndex;
+      v7->last.type = pLastInfo->type;
+      v7->last.state = pLastInfo->state;
+      v7->last.access = pLastInfo->access;
+      v7->last.taskIndex = pLastInfo->cmdIndex;
+      v7->last.arrayIndex = pLastInfo->arrayIndex;
+      v7->last.levelIndex = pLastInfo->levelIndex;
       subresourceIndex = pLastInfo->subresourceIndex;
     }
     else
     {
 LABEL_7:
-      _RBX->last.type = eResourceType_Unknown;
+      v7->last.type = eResourceType_Unknown;
       subresourceIndex = -1;
-      *(_QWORD *)&_RBX->last.state = 1i64;
-      *(_DWORD *)&_RBX->last.taskIndex = -1;
+      *(_QWORD *)&v7->last.state = 1i64;
+      *(_DWORD *)&v7->last.taskIndex = -1;
     }
-    _RBX->last.subresourceIndex = subresourceIndex;
+    v7->last.subresourceIndex = subresourceIndex;
     if ( pFirstInfo )
     {
-      _RBX->first.type = pFirstInfo->type;
-      _RBX->first.state = pFirstInfo->state;
-      _RBX->first.access = pFirstInfo->access;
-      _RBX->first.taskIndex = pFirstInfo->cmdIndex;
-      _RBX->first.arrayIndex = pFirstInfo->arrayIndex;
-      _RBX->first.levelIndex = pFirstInfo->levelIndex;
-      v16 = pFirstInfo->subresourceIndex;
+      v7->first.type = pFirstInfo->type;
+      v7->first.state = pFirstInfo->state;
+      v7->first.access = pFirstInfo->access;
+      v7->first.taskIndex = pFirstInfo->cmdIndex;
+      v7->first.arrayIndex = pFirstInfo->arrayIndex;
+      v7->first.levelIndex = pFirstInfo->levelIndex;
+      v13 = pFirstInfo->subresourceIndex;
     }
     else
     {
-      _RBX->first.type = eResourceType_Unknown;
-      v16 = -1;
-      *(_QWORD *)&_RBX->first.state = 1i64;
-      *(_DWORD *)&_RBX->first.taskIndex = -1;
+      v7->first.type = eResourceType_Unknown;
+      v13 = -1;
+      *(_QWORD *)&v7->first.state = 1i64;
+      *(_DWORD *)&v7->first.taskIndex = -1;
     }
-    _RBX->first.subresourceIndex = v16;
-    _RBX->temporalIndex = 0;
-    _RBX->seenCmdIndexFirst[0] = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexFirst[0];
-    _RBX->seenCmdIndexFirst[1] = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexFirst[1];
-    _RBX->seenCmdIndexLast = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexLast;
-    _RBX->seenRopReadWrite = this->m_resourceTracker.m_physicalResourceInfos[i].seenRopReadWrite;
-    _RBX->seenShaderWrite = this->m_resourceTracker.m_physicalResourceInfos[i++].seenShaderWrite;
+    v7->first.subresourceIndex = v13;
+    v7->temporalIndex = 0;
+    v7->seenCmdIndexFirst[0] = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexFirst[0];
+    v7->seenCmdIndexFirst[1] = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexFirst[1];
+    v7->seenCmdIndexLast = this->m_resourceTracker.m_physicalResourceInfos[i].seenCmdIndexLast;
+    v7->seenRopReadWrite = this->m_resourceTracker.m_physicalResourceInfos[i].seenRopReadWrite;
+    v7->seenShaderWrite = this->m_resourceTracker.m_physicalResourceInfos[i++].seenShaderWrite;
   }
 }
 

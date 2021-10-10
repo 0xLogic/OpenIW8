@@ -587,14 +587,15 @@ void Scriptable_Bg_InitClientEventStream(HunkUser *hunkUser, const int maxLocalC
   __int64 v3; 
   int v4; 
   int v7; 
+  ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator> *v8; 
   __int64 v9; 
   __int64 v10; 
   unsigned __int8 *v11; 
   char *m_buffer; 
   unsigned __int64 m_size; 
   unsigned __int64 *p_m_size; 
-  unsigned __int64 *v16; 
-  __int128 v17; 
+  unsigned __int64 *v15; 
+  __int128 v16; 
 
   v3 = maxCharacters;
   v4 = 1300 * maxCharacters;
@@ -606,52 +607,48 @@ void Scriptable_Bg_InitClientEventStream(HunkUser *hunkUser, const int maxLocalC
   v7 = 0;
   if ( maxLocalClients > 0 )
   {
-    _RBX = &s_cg_scriptableEventBuffer_CharacterAllocator[0].ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator>;
+    v8 = &s_cg_scriptableEventBuffer_CharacterAllocator[0].ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator>;
     v9 = 0i64;
     v10 = v3;
     do
     {
-      _RBX[-2].m_data.m_size = 0i64;
-      _RBX[-1].m_data.m_buffer = NULL;
-      _RBX->m_data.m_buffer = NULL;
-      _RBX->m_data.m_size = 0i64;
+      v8[-2].m_data.m_size = 0i64;
+      v8[-1].m_data.m_buffer = NULL;
+      v8->m_data.m_buffer = NULL;
+      v8->m_data.m_size = 0i64;
       v11 = &s_cg_scriptableEventStreamHeapMemory[v4 * v7];
       if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
         __debugbreak();
-      _RBX->m_data.m_buffer = (char *)v11;
-      _RBX->m_data.m_size = v4;
-      if ( _RBX[-2].m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
+      v8->m_data.m_buffer = (char *)v11;
+      v8->m_data.m_size = v4;
+      if ( v8[-2].m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
         __debugbreak();
-      if ( 1300 * v10 > _RBX->m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+      if ( 1300 * v10 > v8->m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
         __debugbreak();
-      *((_QWORD *)&v17 + 1) = v10;
-      *(_QWORD *)&v17 = _RBX->m_data.m_buffer;
-      __asm
-      {
-        vmovups xmm0, [rsp+68h+var_38]
-        vmovups xmmword ptr [rbx-18h], xmm0
-      }
-      m_buffer = _RBX[-1].m_data.m_buffer;
-      m_size = _RBX[-2].m_data.m_size;
+      *((_QWORD *)&v16 + 1) = v10;
+      *(_QWORD *)&v16 = v8->m_data.m_buffer;
+      *(_OWORD *)&v8[-2].m_data.m_size = v16;
+      m_buffer = v8[-1].m_data.m_buffer;
+      m_size = v8[-2].m_data.m_size;
       if ( !m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 52, ASSERT_TYPE_ASSERT, "( num_elements > 0 )", (const char *)&queryFormat, "num_elements > 0") )
         __debugbreak();
-      p_m_size = &_RBX[-1].m_data.m_size;
-      v16 = (unsigned __int64 *)(m_size + 1300i64 * (_QWORD)m_buffer);
+      p_m_size = &v8[-1].m_data.m_size;
+      v15 = (unsigned __int64 *)(m_size + 1300i64 * (_QWORD)m_buffer);
       do
       {
-        v16 = (unsigned __int64 *)((char *)v16 - 1300);
-        *v16 = (unsigned __int64)p_m_size;
-        p_m_size = v16;
+        v15 = (unsigned __int64 *)((char *)v15 - 1300);
+        *v15 = (unsigned __int64)p_m_size;
+        p_m_size = v15;
       }
-      while ( (unsigned __int64)v16 > m_size );
-      _RBX[-1].m_data.m_size = (unsigned __int64)v16;
-      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+      while ( (unsigned __int64)v15 > m_size );
+      v8[-1].m_data.m_size = (unsigned __int64)v15;
+      if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
         __debugbreak();
       s_cg_scriptableEventBuffer_CharacterAllocatorUsage[v9] = 0;
       s_cg_scriptableEventBuffer_CharacterAllocatorCapcity[v9] = v3;
       ++v7;
       ++v9;
-      _RBX = (ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator> *)((char *)_RBX + 40);
+      v8 = (ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator> *)((char *)v8 + 40);
       v10 = v3;
     }
     while ( v7 < maxLocalClients );

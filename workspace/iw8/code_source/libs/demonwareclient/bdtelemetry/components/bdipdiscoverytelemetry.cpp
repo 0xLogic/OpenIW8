@@ -54,16 +54,13 @@ bdIPDiscoveryTelemetry::addRetry
 */
 void bdIPDiscoveryTelemetry::addRetry(bdIPDiscoveryTelemetry *this)
 {
+  double ElapsedTimeInSeconds; 
+
   ++this->m_retries;
   if ( this->m_retryTimesCount < 0xA )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si rdx, xmm1
-    }
-    this->m_retryTimes[this->m_retryTimesCount++] = _RDX;
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+    this->m_retryTimes[this->m_retryTimesCount++] = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
   }
 }
 
@@ -74,43 +71,14 @@ bdIPDiscoveryTelemetry::setResult
 */
 void bdIPDiscoveryTelemetry::setResult(bdIPDiscoveryTelemetry *this, int result, bdAddr *serverAddr, bdAddr *publicAddr)
 {
-  unsigned __int8 v7; 
+  unsigned __int8 v6; 
+  double ElapsedTimeInSeconds; 
 
-  _RBP = publicAddr;
-  _RDI = serverAddr;
-  v7 = result;
-  _RSI = this;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
-  _RSI->m_result = v7;
-  __asm { vcvttss2si rax, xmm1 }
-  _RSI->m_duration = _RAX;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsi+40h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rsi+60h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rsi+80h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rsi+0A0h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rsi+0C0h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+90h]
-    vmovsd  qword ptr [rsi+0D0h], xmm1
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rsi+0D8h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+20h]
-    vmovups ymmword ptr [rsi+0F8h], ymm1
-    vmovups ymm0, ymmword ptr [rbp+40h]
-    vmovups ymmword ptr [rsi+118h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+60h]
-    vmovups ymmword ptr [rsi+138h], ymm1
-    vmovups xmm0, xmmword ptr [rbp+80h]
-    vmovups xmmword ptr [rsi+158h], xmm0
-    vmovsd  xmm1, qword ptr [rbp+90h]
-    vmovsd  qword ptr [rsi+168h], xmm1
-  }
+  v6 = result;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_result = v6;
+  this->m_duration = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_serverAddr = *serverAddr;
+  this->m_publicAddr = *publicAddr;
 }
 

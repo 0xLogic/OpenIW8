@@ -162,34 +162,33 @@ void ParticleData::BuildParticleOffsetTable(ParticleData *this)
   __int16 v2; 
   ParticleDataId v3; 
   __int16 *v4; 
-  __int16 v7; 
-  __int16 v8; 
-  __int64 v9; 
-  __int16 *v10; 
+  __int16 v5; 
+  __int16 v6; 
+  __int64 v7; 
+  __int16 *v8; 
+  ParticleDataInfo *ParticleDataInfo; 
   unsigned int m_particleCountMax; 
-  int v14; 
-  unsigned __int8 *v15; 
-  __int16 *v16; 
+  __int64 v11; 
+  int v12; 
+  unsigned __int8 *v13; 
+  __int16 *v14; 
   ParticleDataFlags m_dataFlags; 
-  __int16 *v18; 
-  unsigned int v19; 
-  int v20; 
+  __int16 *v16; 
+  unsigned int v17; 
+  int v18; 
   ParticleDataId i; 
-  int v24; 
-  int v25; 
-  unsigned int v26; 
+  int v20; 
+  int v21; 
+  unsigned int v22; 
   ParticleDataId j; 
-  unsigned int v28; 
-  __int64 v29; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  int v33; 
-  int v34; 
+  unsigned int v24; 
+  ParticleDataInfo v25; 
+  ParticleDataInfo v26; 
+  __int64 v27; 
   ParticleDataInfo result; 
-  ParticleDataInfo v36; 
-  ParticleDataInfo v37; 
-  ParticleDataInfo v38; 
+  ParticleDataInfo v29; 
+  ParticleDataInfo v30; 
+  ParticleDataInfo v31; 
   __int16 *m_particleDataOffsets; 
 
   if ( this->m_dataFlags == USE_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 285, ASSERT_TYPE_ASSERT, "(m_dataFlags != ParticleDataFlags::USE_NONE)", (const char *)&queryFormat, "m_dataFlags != ParticleDataFlags::USE_NONE") )
@@ -200,132 +199,119 @@ void ParticleData::BuildParticleOffsetTable(ParticleData *this)
   v4 = this->m_particleDataOffsets;
   do
   {
-    _RAX = GetParticleDataInfo(&result, v3);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  [rsp+0A8h+var_78], xmm0
-    }
-    v33 = *(_DWORD *)&_RAX->byteCount;
-    if ( (_DWORD)v29 != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 294, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
+    v25 = *GetParticleDataInfo(&result, v3);
+    if ( v25.id != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 294, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
       __debugbreak();
-    if ( (HIDWORD(v29) & this->m_dataFlags) != 0 )
+    if ( (v25.flag & this->m_dataFlags) != 0 )
     {
-      if ( (v33 & 0xF) != 0 || (v2 & 0xF) == 0 )
+      if ( (v25.byteCount & 0xF) != 0 || (v2 & 0xF) == 0 )
       {
-        v7 = 0;
+        v5 = 0;
       }
       else
       {
-        v7 = (v2 | 0xF) - v2 + 1;
+        v5 = (v2 | 0xF) - v2 + 1;
         if ( (v2 | 0xFu) - v2 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
           __debugbreak();
       }
-      v8 = v7 + v2;
-      v2 += v33 + v7;
+      v6 = v5 + v2;
+      v2 += v25.byteCount + v5;
     }
     else
     {
-      v8 = -1;
+      v6 = -1;
     }
-    *v4 = v8;
+    *v4 = v6;
     ++v3;
     ++v4;
   }
   while ( (unsigned int)v3 < PARTICLE_DATA_FIELD_COUNT );
-  LODWORD(v9) = 0;
+  LODWORD(v7) = 0;
   do
   {
-    v10 = &this->m_particleDataOffsets[(unsigned int)v9];
-    if ( *v10 == -1 )
+    v8 = &this->m_particleDataOffsets[(unsigned int)v7];
+    if ( *v8 == -1 )
     {
-      LODWORD(v9) = v9 + 1;
+      LODWORD(v7) = v7 + 1;
     }
     else
     {
-      _RAX = GetParticleDataInfo(&v36, (const ParticleDataId)v9);
+      ParticleDataInfo = GetParticleDataInfo(&v29, (const ParticleDataId)v7);
       m_particleCountMax = this->m_particleCountMax;
-      __asm { vmovsd  xmm0, qword ptr [rax] }
-      LODWORD(_RAX) = *(_DWORD *)&_RAX->byteCount;
-      v14 = (__int16)_RAX;
-      LODWORD(v32) = (_DWORD)_RAX;
-      __asm { vmovsd  [rsp+0A8h+var_78], xmm0 }
-      v15 = &this->m_pParticleData[m_particleCountMax * *v10 + (__int16)_RAX * m_particleCountMax];
-      if ( v15 > &this->m_pParticleData[(unsigned __int64)(m_particleCountMax * this->m_particleSize)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 326, ASSERT_TYPE_ASSERT, "(dataArrayEnd <= ( m_pParticleData + GetAllocSize() ))", (const char *)&queryFormat, "dataArrayEnd <= ( m_pParticleData + GetAllocSize() )", v30, v32) )
+      v11 = *(_QWORD *)&ParticleDataInfo->id;
+      LODWORD(ParticleDataInfo) = *(_DWORD *)&ParticleDataInfo->byteCount;
+      v12 = (__int16)ParticleDataInfo;
+      LODWORD(v27) = (_DWORD)ParticleDataInfo;
+      v13 = &this->m_pParticleData[m_particleCountMax * *v8 + (__int16)ParticleDataInfo * m_particleCountMax];
+      if ( v13 > &this->m_pParticleData[(unsigned __int64)(m_particleCountMax * this->m_particleSize)] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 326, ASSERT_TYPE_ASSERT, "(dataArrayEnd <= ( m_pParticleData + GetAllocSize() ))", (const char *)&queryFormat, "dataArrayEnd <= ( m_pParticleData + GetAllocSize() )", v11, v27) )
         __debugbreak();
-      v9 = (unsigned int)(v9 + 1);
-      if ( (unsigned int)v9 < 0x1B )
+      v7 = (unsigned int)(v7 + 1);
+      if ( (unsigned int)v7 < 0x1B )
       {
-        v16 = &this->m_particleDataOffsets[v9];
+        v14 = &this->m_particleDataOffsets[v7];
         do
         {
-          if ( *v16 != -1 )
+          if ( *v14 != -1 )
             break;
-          v9 = (unsigned int)(v9 + 1);
-          ++v16;
+          v7 = (unsigned int)(v7 + 1);
+          ++v14;
         }
-        while ( (unsigned int)v9 < 0x1B );
+        while ( (unsigned int)v7 < 0x1B );
       }
-      if ( &v15[this->m_particleCountMax * (this->m_particleDataOffsets[v9] - *v10 - v14)] != &this->m_pParticleData[this->m_particleDataOffsets[v9] * this->m_particleCountMax] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 338, ASSERT_TYPE_ASSERT, "(( dataArrayEnd + padding * GetParticleCountMax() ) == nextDataArrayStart)", (const char *)&queryFormat, "( dataArrayEnd + padding * GetParticleCountMax() ) == nextDataArrayStart") )
+      if ( &v13[this->m_particleCountMax * (this->m_particleDataOffsets[v7] - *v8 - v12)] != &this->m_pParticleData[this->m_particleDataOffsets[v7] * this->m_particleCountMax] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 338, ASSERT_TYPE_ASSERT, "(( dataArrayEnd + padding * GetParticleCountMax() ) == nextDataArrayStart)", (const char *)&queryFormat, "( dataArrayEnd + padding * GetParticleCountMax() ) == nextDataArrayStart") )
         __debugbreak();
     }
   }
-  while ( (unsigned int)v9 < 0x1B );
+  while ( (unsigned int)v7 < 0x1B );
   m_dataFlags = this->m_dataFlags;
-  v18 = m_particleDataOffsets;
-  v19 = 0;
-  v20 = 0;
+  v16 = m_particleDataOffsets;
+  v17 = 0;
+  v18 = 0;
   for ( i = PARTICLE_DATA_POSITION; (unsigned int)i < PARTICLE_DATA_FIELD_COUNT; ++i )
   {
-    _RAX = GetParticleDataInfo(&v37, i);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  [rsp+0A8h+var_78], xmm0
-    }
-    v34 = *(_DWORD *)&_RAX->byteCount;
-    if ( (_DWORD)v31 != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 161, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
+    v26 = *GetParticleDataInfo(&v30, i);
+    if ( v26.id != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 161, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
       __debugbreak();
-    if ( (m_dataFlags & HIDWORD(v31)) != 0 )
+    if ( (m_dataFlags & v26.flag) != 0 )
     {
-      if ( (v34 & 0xF) != 0 || (v20 & 0xF) == 0 )
+      if ( (v26.byteCount & 0xF) != 0 || (v18 & 0xF) == 0 )
       {
-        v24 = 0;
+        v20 = 0;
       }
       else
       {
-        v24 = (v20 | 0xF) - v20 + 1;
-        if ( (v20 | 0xFu) - v20 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
+        v20 = (v18 | 0xF) - v18 + 1;
+        if ( (v18 | 0xFu) - v18 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
           __debugbreak();
       }
-      v20 += v24 + (__int16)v34;
+      v18 += v20 + v26.byteCount;
     }
   }
-  if ( (v20 & 0xF) != 0 )
+  if ( (v18 & 0xF) != 0 )
   {
-    v25 = (v20 | 0xF) - v20 + 1;
-    if ( (v20 | 0xFu) - v20 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
+    v21 = (v18 | 0xF) - v18 + 1;
+    if ( (v18 | 0xFu) - v18 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
       __debugbreak();
   }
   else
   {
-    v25 = 0;
+    v21 = 0;
   }
-  v26 = v25 + v20;
-  if ( (v26 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 171, ASSERT_TYPE_ASSERT, "(( maxOffset & ( 16 - 1 ) ) == 0)", (const char *)&queryFormat, "( maxOffset & ( PARTICLE_ALIGNMENT - 1 ) ) == 0") )
+  v22 = v21 + v18;
+  if ( (v22 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 171, ASSERT_TYPE_ASSERT, "(( maxOffset & ( 16 - 1 ) ) == 0)", (const char *)&queryFormat, "( maxOffset & ( PARTICLE_ALIGNMENT - 1 ) ) == 0") )
     __debugbreak();
   for ( j = PARTICLE_DATA_POSITION; (unsigned int)j < PARTICLE_DATA_SHADER_PARAMS; ++j )
   {
-    if ( *v18 != -1 )
+    if ( *v16 != -1 )
     {
-      v28 = (__int16)*(_DWORD *)&GetParticleDataInfo(&v38, j)->byteCount + *v18;
-      if ( v28 <= v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 353, ASSERT_TYPE_ASSERT, "(offsetBound > lastOffset)", (const char *)&queryFormat, "offsetBound > lastOffset") )
+      v24 = (__int16)*(_DWORD *)&GetParticleDataInfo(&v31, j)->byteCount + *v16;
+      if ( v24 <= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 353, ASSERT_TYPE_ASSERT, "(offsetBound > lastOffset)", (const char *)&queryFormat, "offsetBound > lastOffset") )
         __debugbreak();
-      if ( v28 > v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 354, ASSERT_TYPE_ASSERT, "(offsetBound <= allocSize)", (const char *)&queryFormat, "offsetBound <= allocSize") )
+      if ( v24 > v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 354, ASSERT_TYPE_ASSERT, "(offsetBound <= allocSize)", (const char *)&queryFormat, "offsetBound <= allocSize") )
         __debugbreak();
-      v19 = v28;
+      v17 = v24;
     }
-    ++v18;
+    ++v16;
   }
 }
 
@@ -337,9 +323,10 @@ ParticleData::ClearNextFreeElems
 void ParticleData::ClearNextFreeElems(ParticleData *this, const unsigned int newParticlesCount, const ParticleDataFlags preserveMask)
 {
   ParticleDataId i; 
+  ParticleDataInfo *ParticleDataInfo; 
+  __int64 v8; 
   unsigned __int8 *ParticleDataArrayIndex; 
   __int64 v10; 
-  int v11; 
   ParticleDataInfo result; 
 
   if ( !newParticlesCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 247, ASSERT_TYPE_ASSERT, "(newParticlesCount > 0)", (const char *)&queryFormat, "newParticlesCount > 0") )
@@ -352,16 +339,15 @@ void ParticleData::ClearNextFreeElems(ParticleData *this, const unsigned int new
         __debugbreak();
       if ( this->m_particleDataOffsets[i] != -1 )
       {
-        _RAX = GetParticleDataInfo(&result, i);
-        __asm { vmovsd  xmm0, qword ptr [rax] }
-        v11 = *(_DWORD *)&_RAX->byteCount;
-        __asm { vmovsd  [rsp+78h+var_48], xmm0 }
-        if ( (HIDWORD(v10) & preserveMask) == 0 )
+        ParticleDataInfo = GetParticleDataInfo(&result, i);
+        v8 = *(_QWORD *)&ParticleDataInfo->id;
+        LODWORD(v10) = *(_DWORD *)&ParticleDataInfo->byteCount;
+        if ( (HIDWORD(*(_QWORD *)&ParticleDataInfo->id) & preserveMask) == 0 )
         {
           ParticleDataArrayIndex = ParticleData::GetParticleDataArrayIndex(this, i, this->m_particleCountRunning);
-          if ( newParticlesCount + this->m_particleCountRunning > this->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 263, ASSERT_TYPE_ASSERT, "(( GetParticleCountRunning() + newParticlesCount ) <= GetParticleCountMax())", (const char *)&queryFormat, "( GetParticleCountRunning() + newParticlesCount ) <= GetParticleCountMax()") )
+          if ( newParticlesCount + this->m_particleCountRunning > this->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 263, ASSERT_TYPE_ASSERT, "(( GetParticleCountRunning() + newParticlesCount ) <= GetParticleCountMax())", (const char *)&queryFormat, "( GetParticleCountRunning() + newParticlesCount ) <= GetParticleCountMax()", v8, v10) )
             __debugbreak();
-          memset_0(ParticleDataArrayIndex, 0, newParticlesCount * (__int16)v11);
+          memset_0(ParticleDataArrayIndex, 0, newParticlesCount * (__int16)v10);
         }
       }
     }
@@ -457,122 +443,121 @@ GetParticleDataInfo
 ParticleDataInfo *GetParticleDataInfo(ParticleDataInfo *result, const ParticleDataId particleDataId)
 {
   __int16 v3; 
-  __int64 v6; 
-  int v7; 
+  __int64 v5; 
+  int v6; 
 
-  _RBX = result;
   switch ( particleDataId )
   {
     case PARTICLE_DATA_POSITION:
-      v6 = 0x100000000i64;
+      v5 = 0x100000000i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_VELOCITY:
-      v6 = 0x200000001i64;
+      v5 = 0x200000001i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_COLOR:
-      v6 = 0x400000002i64;
+      v5 = 0x400000002i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_ROTATION_ANGLE:
-      v6 = 0x800000003i64;
+      v5 = 0x800000003i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_ROTATION_RATE:
-      v6 = 0x1000000004i64;
+      v5 = 0x1000000004i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_SPAWN_POS:
-      v6 = 0x2000000005i64;
+      v5 = 0x2000000005i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_SPAWN_QUAT:
-      v6 = 0x4000000006i64;
+      v5 = 0x4000000006i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_SIZE:
-      v6 = 0x8000000007i64;
+      v5 = 0x8000000007i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_EMISSIVE:
-      v6 = 0x10000000008i64;
+      v5 = 0x10000000008i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_PARENT_VELOCITY:
-      v6 = 0x20000000009i64;
+      v5 = 0x20000000009i64;
       v3 = truncate_cast<short,unsigned __int64>(0x10ui64);
       break;
     case PARTICLE_DATA_CHILD_SYSTEM:
-      v6 = 0x4000000000Ai64;
+      v5 = 0x4000000000Ai64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_SPAWN_TIME:
-      v6 = 0x8000000000Bi64;
+      v5 = 0x8000000000Bi64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_LIFE:
-      v6 = 0x10000000000Ci64;
+      v5 = 0x10000000000Ci64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_STATE:
-      v6 = 0x20000000000Di64;
+      v5 = 0x20000000000Di64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_RANDOM_SEED:
-      v6 = 0x40000000000Ei64;
+      v5 = 0x40000000000Ei64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_FLAGS:
-      v6 = 0x80000000000Fi64;
+      v5 = 0x80000000000Fi64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_MODULE_TESTS:
-      v6 = 0x1000000000010i64;
+      v5 = 0x1000000000010i64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_HANDLE:
-      v6 = 0x2000000000011i64;
+      v5 = 0x2000000000011i64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_INTENSITY:
-      v6 = 0x4000000000012i64;
+      v5 = 0x4000000000012i64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_TEMPERATURE:
-      v6 = 0x8000000000013i64;
+      v5 = 0x8000000000013i64;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_CAMERA_DISTANCE:
-      v6 = 0x10000000000014i64;
+      *(double *)&v5 = 2.225073858507211e-308;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_INHERIT_PERCENTAGE:
-      v6 = 0x20000000000015i64;
+      *(double *)&v5 = 4.450147717014424e-308;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_RAY_CAST_HANDLE:
-      v6 = 0x40000000000016i64;
+      *(double *)&v5 = 1.78005908680577e-307;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_ATLAS_INDEX:
-      v6 = 0x80000000000017i64;
+      *(double *)&v5 = 2.848094538889232e-306;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_VECTOR_FIELD_SCALE:
-      v6 = 0x100000000000018i64;
+      *(double *)&v5 = 7.291122019556436e-304;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_LIGHTING_FRAC:
-      v6 = 0x200000000000019i64;
+      *(double *)&v5 = 4.778309726736507e-299;
       v3 = truncate_cast<short,unsigned __int64>(4ui64);
       break;
     case PARTICLE_DATA_PREV_PLACEMENT:
-      v6 = 0x40000000000001Ai64;
+      *(double *)&v5 = 2.0522684006492e-289;
       v3 = truncate_cast<short,unsigned __int64>(0x20ui64);
       break;
     case PARTICLE_DATA_SHADER_PARAMS:
-      v6 = 0x80000000000001Bi64;
+      *(double *)&v5 = 3.785766995733702e-270;
       v3 = truncate_cast<short,unsigned __int64>(0x30ui64);
       break;
     default:
@@ -581,14 +566,13 @@ ParticleDataInfo *GetParticleDataInfo(ParticleDataInfo *result, const ParticleDa
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 55, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "GetParticleDataInfo: Unreachable, check returns.") )
         __debugbreak();
       v3 = -1;
-      v6 = 0xFFFFFFFFi64;
+      v5 = 0xFFFFFFFFi64;
       break;
   }
-  __asm { vmovsd  xmm0, [rbp+var_10] }
-  LOWORD(v7) = v3;
-  __asm { vmovsd  qword ptr [rbx], xmm0 }
-  *(_DWORD *)&_RBX->byteCount = v7;
-  return _RBX;
+  LOWORD(v6) = v3;
+  *(double *)&result->id = *(double *)&v5;
+  *(_DWORD *)&result->byteCount = v6;
+  return result;
 }
 
 /*
@@ -770,38 +754,31 @@ __int64 Particle_GetSingleParticleSize(const ParticleDataFlags dataFlags)
   int v1; 
   int v2; 
   ParticleDataId i; 
-  int v7; 
-  unsigned int v8; 
-  __int64 v10; 
-  int v11; 
+  int v5; 
+  unsigned int v6; 
+  ParticleDataInfo v8; 
   ParticleDataInfo result; 
 
   v1 = 0;
   v2 = 0;
   for ( i = PARTICLE_DATA_POSITION; (unsigned int)i < PARTICLE_DATA_FIELD_COUNT; ++i )
   {
-    _RAX = GetParticleDataInfo(&result, i);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  [rsp+78h+var_48], xmm0
-    }
-    v11 = *(_DWORD *)&_RAX->byteCount;
-    if ( (_DWORD)v10 != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 161, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
+    v8 = *GetParticleDataInfo(&result, i);
+    if ( v8.id != i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 161, ASSERT_TYPE_ASSERT, "(info.id == particleId)", (const char *)&queryFormat, "info.id == particleId") )
       __debugbreak();
-    if ( (dataFlags & HIDWORD(v10)) != 0 )
+    if ( (dataFlags & v8.flag) != 0 )
     {
-      if ( (v11 & 0xF) != 0 || (v2 & 0xF) == 0 )
+      if ( (v8.byteCount & 0xF) != 0 || (v2 & 0xF) == 0 )
       {
-        v7 = 0;
+        v5 = 0;
       }
       else
       {
-        v7 = (v2 | 0xF) - v2 + 1;
+        v5 = (v2 | 0xF) - v2 + 1;
         if ( (v2 | 0xFu) - v2 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
           __debugbreak();
       }
-      v2 += v7 + (__int16)v11;
+      v2 += v5 + v8.byteCount;
     }
   }
   if ( (v2 & 0xF) != 0 )
@@ -810,10 +787,10 @@ __int64 Particle_GetSingleParticleSize(const ParticleDataFlags dataFlags)
     if ( (v2 | 0xFu) - v2 > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 142, ASSERT_TYPE_ASSERT, "(( padding >= 1 ) && ( padding < 16 ))", (const char *)&queryFormat, "( padding >= 1 ) && ( padding < PARTICLE_ALIGNMENT )") )
       __debugbreak();
   }
-  v8 = v1 + v2;
-  if ( (v8 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 171, ASSERT_TYPE_ASSERT, "(( maxOffset & ( 16 - 1 ) ) == 0)", (const char *)&queryFormat, "( maxOffset & ( PARTICLE_ALIGNMENT - 1 ) ) == 0") )
+  v6 = v1 + v2;
+  if ( (v6 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.cpp", 171, ASSERT_TYPE_ASSERT, "(( maxOffset & ( 16 - 1 ) ) == 0)", (const char *)&queryFormat, "( maxOffset & ( PARTICLE_ALIGNMENT - 1 ) ) == 0") )
     __debugbreak();
-  return v8;
+  return v6;
 }
 
 /*

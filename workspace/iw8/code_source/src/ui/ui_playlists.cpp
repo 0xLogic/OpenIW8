@@ -894,13 +894,13 @@ void UI_UpdatePulsePlaylistActive(void)
   bool Bool; 
   const dvar_t *v7; 
   bool enabled; 
-  char *v11; 
+  char *v9; 
   int Int; 
-  const dvar_t *v13; 
+  const dvar_t *v11; 
   int navStringCount; 
   DDLState result; 
   DDLContext context; 
-  DDLState v17; 
+  DDLState v15; 
   char *navStrings[16]; 
 
   v0 = 0;
@@ -944,23 +944,18 @@ LABEL_6:
         v5 = !enabled;
       }
     }
-    _RAX = DDL_GetRootState(&v17, context.def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+170h+result.isValid], ymm0
-    }
-    v11 = j_va("rankedMatchData.pulsedMatchesPlayed");
-    Com_ParseNavStrings(v11, (const char **)navStrings, 16, &navStringCount);
+    result = *DDL_GetRootState(&v15, context.def);
+    v9 = j_va("rankedMatchData.pulsedMatchesPlayed");
+    Com_ParseNavStrings(v9, (const char **)navStrings, 16, &navStringCount);
     if ( DDL_MoveToPath(&result, &result, navStringCount, (const char **)navStrings) && DDL_GetType(&result) == DDL_SHORT_TYPE )
     {
       if ( (Int = DDL_GetInt(&result, &context), !v4) && Int > 0 || v5 )
       {
-        v13 = DVARBOOL_lui_show_upsell_pulsed;
+        v11 = DVARBOOL_lui_show_upsell_pulsed;
         if ( !DVARBOOL_lui_show_upsell_pulsed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_show_upsell_pulsed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v13);
-        if ( v13->current.enabled && LUI_BeginEvent(LOCAL_CLIENT_0, "open_magma_upsell_pulsed", LUI_luaVM) )
+        Dvar_CheckFrontendServerThread(v11);
+        if ( v11->current.enabled && LUI_BeginEvent(LOCAL_CLIENT_0, "open_magma_upsell_pulsed", LUI_luaVM) )
           LUI_EndEvent(LUI_luaVM);
         DDL_SetInt(&result, &context, 0);
         Com_Printf(16, "Playlists: Reset rankedMatchData.pulsedMatchesPlayed for controller %d\n", i);

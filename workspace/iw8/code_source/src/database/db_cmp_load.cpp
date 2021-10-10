@@ -391,119 +391,115 @@ DB_Block_TryNewBlock
 __int64 DB_Block_TryNewBlock(DB_DecompressState *const state)
 {
   unsigned int compressedSize; 
-  unsigned __int8 *Data; 
+  char *Data; 
+  unsigned __int8 *v4; 
   const EncryptionInfo *encryptInfo; 
-  int v7; 
-  const char *v8; 
+  int v6; 
+  const char *v7; 
   unsigned __int64 uncompressedSize; 
-  const dvar_t *v10; 
+  const dvar_t *v9; 
   unsigned int flags; 
   unsigned __int8 *next_out; 
-  __int64 v13; 
+  __int64 v12; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
   symmetric_CTR ctr; 
 
-  _RBX = state;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 541, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
-  if ( _RBX == (DB_DecompressState *)-280624i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 544, ASSERT_TYPE_ASSERT, "(stream)", (const char *)&queryFormat, "stream") )
+  if ( state == (DB_DecompressState *const)-280624i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 544, ASSERT_TYPE_ASSERT, "(stream)", (const char *)&queryFormat, "stream") )
     __debugbreak();
-  if ( _RBX->currentUncompDataPtr != _RBX->currentUncompDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 545, ASSERT_TYPE_ASSERT, "(state->currentUncompDataPtr == state->currentUncompDataSize)", (const char *)&queryFormat, "state->currentUncompDataPtr == state->currentUncompDataSize") )
+  if ( state->currentUncompDataPtr != state->currentUncompDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 545, ASSERT_TYPE_ASSERT, "(state->currentUncompDataPtr == state->currentUncompDataSize)", (const char *)&queryFormat, "state->currentUncompDataPtr == state->currentUncompDataSize") )
     __debugbreak();
-  if ( !_RBX->uncompSizeLeft && !(unsigned int)DB_Block_NewFile(_RBX, &_RBX->stream) )
+  if ( !state->uncompSizeLeft && !(unsigned int)DB_Block_NewFile(state, &state->stream) )
     return 0i64;
-  compressedSize = _RBX->currentHeader.compressedSize;
+  compressedSize = state->currentHeader.compressedSize;
   if ( !compressedSize )
   {
-    if ( _RBX->currentHeader.uncompressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 557, ASSERT_TYPE_ASSERT, "(state->currentHeader.uncompressedSize == 0)", (const char *)&queryFormat, "state->currentHeader.uncompressedSize == 0") )
+    if ( state->currentHeader.uncompressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 557, ASSERT_TYPE_ASSERT, "(state->currentHeader.uncompressedSize == 0)", (const char *)&queryFormat, "state->currentHeader.uncompressedSize == 0") )
       __debugbreak();
-    if ( _RBX->pendingPadding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 558, ASSERT_TYPE_ASSERT, "(state->pendingPadding == 0)", (const char *)&queryFormat, "state->pendingPadding == 0") )
+    if ( state->pendingPadding && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 558, ASSERT_TYPE_ASSERT, "(state->pendingPadding == 0)", (const char *)&queryFormat, "state->pendingPadding == 0") )
       __debugbreak();
-    _RAX = DB_Block_ReadData(_RBX, &_RBX->stream, 0xCu);
-    if ( !_RAX )
+    Data = DB_Block_ReadData(state, &state->stream, 0xCu);
+    if ( !Data )
       return 0i64;
-    __asm
+    *(double *)&state->currentHeader.compressedSize = *(double *)Data;
+    state->currentHeader.encryptionCTR = *((_DWORD *)Data + 2);
+    if ( !state->currentHeader.compressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 571, ASSERT_TYPE_ASSERT, "(state->currentHeader.compressedSize)", (const char *)&queryFormat, "state->currentHeader.compressedSize") )
+      __debugbreak();
+    if ( !state->currentHeader.uncompressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 572, ASSERT_TYPE_ASSERT, "(state->currentHeader.uncompressedSize)", (const char *)&queryFormat, "state->currentHeader.uncompressedSize") )
+      __debugbreak();
+    if ( state->currentHeader.compressedSize > 0x24800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 573, ASSERT_TYPE_ASSERT, "( state->currentHeader.compressedSize ) <= ( MAX_PENDING_COMPRESSION_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "state->currentHeader.compressedSize", "MAX_PENDING_COMPRESSION_BLOCK_SIZE", state->currentHeader.compressedSize, 149504) )
+      __debugbreak();
+    if ( state->currentHeader.uncompressedSize > 0x20000 )
     {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  qword ptr [rbx+44820h], xmm0
-    }
-    _RBX->currentHeader.encryptionCTR = *((_DWORD *)_RAX + 2);
-    if ( !_RBX->currentHeader.compressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 571, ASSERT_TYPE_ASSERT, "(state->currentHeader.compressedSize)", (const char *)&queryFormat, "state->currentHeader.compressedSize") )
-      __debugbreak();
-    if ( !_RBX->currentHeader.uncompressedSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 572, ASSERT_TYPE_ASSERT, "(state->currentHeader.uncompressedSize)", (const char *)&queryFormat, "state->currentHeader.uncompressedSize") )
-      __debugbreak();
-    if ( _RBX->currentHeader.compressedSize > 0x24800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 573, ASSERT_TYPE_ASSERT, "( state->currentHeader.compressedSize ) <= ( MAX_PENDING_COMPRESSION_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "state->currentHeader.compressedSize", "MAX_PENDING_COMPRESSION_BLOCK_SIZE", _RBX->currentHeader.compressedSize, 149504) )
-      __debugbreak();
-    if ( _RBX->currentHeader.uncompressedSize > 0x20000 )
-    {
-      LODWORD(v16) = 0x20000;
-      LODWORD(v15) = _RBX->currentHeader.uncompressedSize;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 574, ASSERT_TYPE_ASSERT, "( state->currentHeader.uncompressedSize ) <= ( MAX_COMPRESSION_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "state->currentHeader.uncompressedSize", "MAX_COMPRESSION_BLOCK_SIZE", v15, v16) )
+      LODWORD(v15) = 0x20000;
+      LODWORD(v14) = state->currentHeader.uncompressedSize;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 574, ASSERT_TYPE_ASSERT, "( state->currentHeader.uncompressedSize ) <= ( MAX_COMPRESSION_BLOCK_SIZE )", "%s <= %s\n\t%u, %u", "state->currentHeader.uncompressedSize", "MAX_COMPRESSION_BLOCK_SIZE", v14, v15) )
         __debugbreak();
     }
-    compressedSize = _RBX->currentHeader.compressedSize;
-    _RBX->pendingPadding = compressedSize & 3;
+    compressedSize = state->currentHeader.compressedSize;
+    state->pendingPadding = compressedSize & 3;
     if ( (compressedSize & 3) != 0 )
-      _RBX->pendingPadding = 4 - (compressedSize & 3);
+      state->pendingPadding = 4 - (compressedSize & 3);
   }
-  Data = (unsigned __int8 *)DB_Block_ReadData(_RBX, &_RBX->stream, compressedSize + _RBX->pendingPadding);
-  if ( Data )
+  v4 = (unsigned __int8 *)DB_Block_ReadData(state, &state->stream, compressedSize + state->pendingPadding);
+  if ( v4 )
   {
-    encryptInfo = _RBX->encryptInfo;
+    encryptInfo = state->encryptInfo;
     if ( encryptInfo )
     {
       if ( !encryptInfo->header.isEncrypted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 516, ASSERT_TYPE_ASSERT, "(state->encryptInfo->header.isEncrypted)", (const char *)&queryFormat, "state->encryptInfo->header.isEncrypted") )
         __debugbreak();
-      v7 = DB_SetupCTRWithKey(&ctr, _RBX->currentHeader.encryptionCTR, _RBX->encryptInfo->header.IV, _RBX->encryptInfo->privateKey);
-      if ( v7 )
+      v6 = DB_SetupCTRWithKey(&ctr, state->currentHeader.encryptionCTR, state->encryptInfo->header.IV, state->encryptInfo->privateKey);
+      if ( v6 )
       {
-        v8 = j_error_to_string(v7);
-        Com_PrintError(10, "Could not start cipher in CTR mode: %s\n", v8);
+        v7 = j_error_to_string(v6);
+        Com_PrintError(10, "Could not start cipher in CTR mode: %s\n", v7);
       }
-      else if ( !DB_Decrypt(Data, _RBX->pendingPadding + _RBX->currentHeader.compressedSize, &ctr) )
+      else if ( !DB_Decrypt(v4, state->pendingPadding + state->currentHeader.compressedSize, &ctr) )
       {
         Com_PrintError(10, "%s: Decrypt failure!!\n", "DB_Block_Decrypt");
       }
     }
-    uncompressedSize = _RBX->currentHeader.uncompressedSize;
-    _RBX->pendingPadding = 0;
-    if ( _RBX->stream.avail_out < uncompressedSize )
+    uncompressedSize = state->currentHeader.uncompressedSize;
+    state->pendingPadding = 0;
+    if ( state->stream.avail_out < uncompressedSize )
       goto LABEL_75;
-    v10 = DCONST_DVARBOOL_db_allowDirectDecompression;
+    v9 = DCONST_DVARBOOL_db_allowDirectDecompression;
     if ( !DCONST_DVARBOOL_db_allowDirectDecompression && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_allowDirectDecompression") )
       __debugbreak();
     if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
     {
-      flags = v10->flags;
-      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v10->name) )
+      flags = v9->flags;
+      if ( (flags & 0x81488) != 0 && (flags & 0x40000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 612, ASSERT_TYPE_ASSERT, "(!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & (((1 << 10) | (1 << 3) | (1 << 7) | ( 1 << 19 )) | (1 << 12)) ) || ( dvar->flags & ( 1 << 18 ) ))", "%s\n\tAccessing dvar '%s' from server context when we were not expected to, this can cause performance issues all the way to complete deadlocks.", "!g_checkServerThread || !Sys_IsAnyServerThreadWork() || !( dvar->flags & SV_DVAR_LOAD_MODIFIED_MASK ) || ( dvar->flags & DVAR_DCONST )", v9->name) )
         __debugbreak();
     }
-    if ( v10->current.enabled && (__int64 (__fastcall *)(DB_DecompressState *const, const void *const, void *const, const unsigned int, const unsigned int))_RBX->decompressionFunc == DB_Block_DecompressXB3Zlib && (next_out = _RBX->stream.next_out, ((unsigned __int8)next_out & 3) == 0) && Mem_Paged_IsInVirtualGrab(next_out) && !Mem_Paged_IsInPoolVARange(MEM_POOL_GPU_CPU_READ_ONLY, _RBX->stream.next_out) )
+    if ( v9->current.enabled && (__int64 (__fastcall *)(DB_DecompressState *const, const void *const, void *const, const unsigned int, const unsigned int))state->decompressionFunc == DB_Block_DecompressXB3Zlib && (next_out = state->stream.next_out, ((unsigned __int8)next_out & 3) == 0) && Mem_Paged_IsInVirtualGrab(next_out) && !Mem_Paged_IsInPoolVARange(MEM_POOL_GPU_CPU_READ_ONLY, state->stream.next_out) )
     {
-      if ( ((__int64)_RBX->stream.next_in & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 625, ASSERT_TYPE_ASSERT, "(( reinterpret_cast<size_t>( stream->next_in ) & 0x03 ) == 0)", (const char *)&queryFormat, "( reinterpret_cast<size_t>( stream->next_in ) & 0x03 ) == 0") )
+      if ( ((__int64)state->stream.next_in & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 625, ASSERT_TYPE_ASSERT, "(( reinterpret_cast<size_t>( stream->next_in ) & 0x03 ) == 0)", (const char *)&queryFormat, "( reinterpret_cast<size_t>( stream->next_in ) & 0x03 ) == 0") )
         __debugbreak();
-      if ( (unsigned int)DB_Block_DecompressData(_RBX, Data, _RBX->stream.next_out, _RBX->currentHeader.compressedSize, _RBX->currentHeader.uncompressedSize) )
+      if ( (unsigned int)DB_Block_DecompressData(state, v4, state->stream.next_out, state->currentHeader.compressedSize, state->currentHeader.uncompressedSize) )
       {
-        DB_Block_AdvanceOutputAmount(_RBX, _RBX->currentHeader.uncompressedSize);
+        DB_Block_AdvanceOutputAmount(state, state->currentHeader.uncompressedSize);
 LABEL_71:
-        *(_QWORD *)&_RBX->currentHeader.compressedSize = 0i64;
-        _RBX->currentHeader.encryptionCTR = 0;
+        *(_QWORD *)&state->currentHeader.compressedSize = 0i64;
+        state->currentHeader.encryptionCTR = 0;
         return 1i64;
       }
     }
     else
     {
 LABEL_75:
-      if ( ((unsigned __int8)_RBX & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 639, ASSERT_TYPE_ASSERT, "(IsAligned( state->currentUncompData, 4 ))", (const char *)&queryFormat, "IsAligned( state->currentUncompData, 4 )") )
+      if ( ((unsigned __int8)state & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 639, ASSERT_TYPE_ASSERT, "(IsAligned( state->currentUncompData, 4 ))", (const char *)&queryFormat, "IsAligned( state->currentUncompData, 4 )") )
         __debugbreak();
-      v13 = _RBX->currentHeader.uncompressedSize;
-      if ( (unsigned int)v13 > 0x20000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 640, ASSERT_TYPE_ASSERT, "( state->currentHeader.uncompressedSize ) <= ( ( sizeof( *array_counter( state->currentUncompData ) ) + 0 ) )", "%s <= %s\n\t%llu, %llu", "state->currentHeader.uncompressedSize", "ARRAY_COUNT( state->currentUncompData )", v13, 0x20000i64) )
+      v12 = state->currentHeader.uncompressedSize;
+      if ( (unsigned int)v12 > 0x20000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_cmp_load.cpp", 640, ASSERT_TYPE_ASSERT, "( state->currentHeader.uncompressedSize ) <= ( ( sizeof( *array_counter( state->currentUncompData ) ) + 0 ) )", "%s <= %s\n\t%llu, %llu", "state->currentHeader.uncompressedSize", "ARRAY_COUNT( state->currentUncompData )", v12, 0x20000i64) )
         __debugbreak();
-      if ( (unsigned int)DB_Block_DecompressData(_RBX, Data, _RBX, _RBX->currentHeader.compressedSize, _RBX->currentHeader.uncompressedSize) )
+      if ( (unsigned int)DB_Block_DecompressData(state, v4, state, state->currentHeader.compressedSize, state->currentHeader.uncompressedSize) )
       {
-        *(_QWORD *)&_RBX->currentUncompDataSize = _RBX->currentHeader.uncompressedSize;
-        DB_Block_CopyFromUncompBuffer(_RBX);
+        *(_QWORD *)&state->currentUncompDataSize = state->currentHeader.uncompressedSize;
+        DB_Block_CopyFromUncompBuffer(state);
         goto LABEL_71;
       }
     }

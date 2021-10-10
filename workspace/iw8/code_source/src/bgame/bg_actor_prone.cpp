@@ -83,54 +83,25 @@ float BG_GetActorProneFraction(actor_prone_info_t *pInfo, int iCurrentTime)
 {
   int iProneTrans; 
   int iProneTime; 
+  float result; 
 
   if ( !pInfo->prone )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    return *(float *)&_XMM0;
-  }
+    return 0.0;
   iProneTrans = pInfo->iProneTrans;
   if ( !iProneTrans )
-  {
-LABEL_9:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    return *(float *)&_XMM0;
-  }
+    return FLOAT_1_0;
   iProneTime = pInfo->iProneTime;
   if ( iProneTrans >= 0 )
   {
     if ( iProneTime + iProneTrans >= iCurrentTime )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edx
-        vcvtsi2ss xmm0, xmm0, r8d
-        vdivss  xmm0, xmm1, xmm0
-      }
-      return *(float *)&_XMM0;
-    }
+      return (float)(iCurrentTime - iProneTime) / (float)iProneTrans;
     pInfo->iProneTrans = 0;
-    goto LABEL_9;
+    return FLOAT_1_0;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  result = 0.0;
   if ( iProneTime - iProneTrans >= iCurrentTime )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, edx
-      vcvtsi2ss xmm0, xmm0, r8d
-      vdivss  xmm2, xmm1, xmm0
-      vmovss  xmm1, cs:__real@3f800000
-      vsubss  xmm0, xmm1, xmm2
-    }
-  }
-  else
-  {
-    pInfo->prone = 0;
-  }
-  return *(float *)&_XMM0;
+    return 1.0 - (float)((float)(iCurrentTime - iProneTime) / (float)-iProneTrans);
+  pInfo->prone = 0;
+  return result;
 }
 

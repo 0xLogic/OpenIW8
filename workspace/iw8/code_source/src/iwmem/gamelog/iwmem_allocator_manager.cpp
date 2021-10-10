@@ -104,54 +104,43 @@ IWMem_AllocatorManager_ChooseParent
 */
 void IWMem_AllocatorManager_ChooseParent(IWMemAllocator *allocator)
 {
-  unsigned int v4; 
-  __int128 v5; 
-  __int128 v16; 
-  __int128 v17; 
-  __int128 v18; 
+  IWMemAllocator *v2; 
+  unsigned int v3; 
+  IWMemBlock m_ownedRange; 
+  IWMemAllocator *v5; 
+  IWMemBlock v12; 
+  IWMemBlock v13; 
 
-  _RBP = allocator;
   if ( IWMemAllocator::GetParentAllocator(allocator) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_manager.cpp", 196, ASSERT_TYPE_ASSERT, "(allocator.GetParentAllocator() == nullptr)", (const char *)&queryFormat, "allocator.GetParentAllocator() == nullptr") )
     __debugbreak();
   if ( s_iwMemAllocatorManager.allocatorCount )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbp+40h] }
-    _RDI = NULL;
-    v4 = 0;
-    __asm { vmovups [rsp+78h+var_48], xmm0 }
+    v2 = NULL;
+    v3 = 0;
     if ( s_iwMemAllocatorManager.allocatorCount )
     {
-      v5 = v16;
+      m_ownedRange = allocator->m_ownedRange;
       do
       {
-        _RBX = s_iwMemAllocatorManager.sortedAllocators[v4];
-        if ( _RBX->m_ownedRange.m_address >= (_QWORD)v5 + *((_QWORD *)&v5 + 1) )
+        v5 = s_iwMemAllocatorManager.sortedAllocators[v3];
+        if ( v5->m_ownedRange.m_address >= m_ownedRange.m_address + m_ownedRange.m_size )
           break;
-        if ( _RBX == _RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_manager.cpp", 116, ASSERT_TYPE_ASSERT, "(&proposed != curChoice)", (const char *)&queryFormat, "&proposed != curChoice") )
+        if ( v5 == v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator_manager.cpp", 116, ASSERT_TYPE_ASSERT, "(&proposed != curChoice)", (const char *)&queryFormat, "&proposed != curChoice") )
           __debugbreak();
-        if ( _RBP != _RBX )
+        if ( allocator != v5 )
         {
-          __asm
+          v12 = v5->m_ownedRange;
+          if ( !IWMemAllocator::TestFlag(v5, UnknownOwnedRange) && !IWMemAllocator::TestFlag(v5, IWMemInternal) && v5->m_type != NormalSpace )
           {
-            vmovups xmm0, xmmword ptr [rbx+40h]
-            vmovups [rsp+78h+var_48], xmm0
-          }
-          if ( !IWMemAllocator::TestFlag(_RBX, UnknownOwnedRange) && !IWMemAllocator::TestFlag(_RBX, IWMemInternal) && _RBX->m_type != NormalSpace )
-          {
-            __asm
+            v13 = allocator->m_ownedRange;
+            if ( v13.m_address >= v12.m_address && v13.m_address < v12.m_size + v12.m_address && v13.m_size + v13.m_address <= v12.m_size + v12.m_address )
             {
-              vmovups xmm0, xmmword ptr [rbp+40h]
-              vmovq   rcx, xmm0
-              vmovups [rsp+78h+var_38], xmm0
-            }
-            if ( _RCX >= (unsigned __int64)v17 && _RCX < *((_QWORD *)&v17 + 1) + (_QWORD)v17 && *((_QWORD *)&v18 + 1) + _RCX <= *((_QWORD *)&v17 + 1) + (_QWORD)v17 )
-            {
-              if ( !_RDI )
+              if ( !v2 )
                 goto LABEL_22;
+              _XMM1 = v2->m_ownedRange;
+              _XMM0 = v5->m_ownedRange;
               __asm
               {
-                vmovups xmm1, xmmword ptr [rdi+40h]
-                vmovups xmm0, xmmword ptr [rbx+40h]
                 vpextrq rcx, xmm1, 1
                 vpextrq rax, xmm0, 1
               }
@@ -162,18 +151,18 @@ void IWMem_AllocatorManager_ChooseParent(IWMemAllocator *allocator)
                   vpextrq rcx, xmm1, 1
                   vpextrq rax, xmm0, 1
                 }
-                if ( _RCX != _RAX || AllocatorSortFunctor::IsParentOf(_RBX, _RDI) )
+                if ( _RCX != _RAX || AllocatorSortFunctor::IsParentOf(v5, v2) )
 LABEL_22:
-                  _RDI = s_iwMemAllocatorManager.sortedAllocators[v4];
+                  v2 = s_iwMemAllocatorManager.sortedAllocators[v3];
               }
             }
           }
         }
-        ++v4;
+        ++v3;
       }
-      while ( v4 < s_iwMemAllocatorManager.allocatorCount );
-      if ( _RDI )
-        IWMemAllocator::AddChildAllocator(_RDI, _RBP);
+      while ( v3 < s_iwMemAllocatorManager.allocatorCount );
+      if ( v2 )
+        IWMemAllocator::AddChildAllocator(v2, allocator);
     }
   }
 }

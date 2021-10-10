@@ -7,183 +7,110 @@ G_ScrMoverMPCmd_ScriptModelPlayAnim
 void __fastcall G_ScrMoverMPCmd_ScriptModelPlayAnim(scrContext_t *scrContext, scr_entref_t entref, double _XMM2_8)
 {
   unsigned int entnum; 
-  gentity_s *v11; 
+  gentity_s *v6; 
   scr_string_t classname; 
-  const char *v13; 
+  const char *v8; 
   unsigned int NumParam; 
-  char v21; 
-  char v22; 
-  const char *v34; 
+  float v10; 
+  double Float; 
+  float v12; 
+  double v13; 
+  __int128 v14; 
+  const char *v16; 
   ScriptMoverAnimBlendType MoverAnimBlendType; 
-  int v36; 
+  int v18; 
+  float v19; 
   const char *animName; 
   scr_string_t notifyName; 
   const DObj *ServerDObjForEnt; 
-  DObj *v42; 
+  DObj *v24; 
   const char *LastAnimName; 
   char *fmt; 
-  float fmta; 
-  float v51; 
-  float v52; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
   entnum = entref.entnum;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v11 = NULL;
+    v6 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 265, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v11 = &g_entities[entnum];
-    classname = v11->classname;
+    v6 = &g_entities[entnum];
+    classname = v6->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v13 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v13);
+      v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v8);
     }
   }
-  if ( v11->s.lerp.apos.trType == TR_ANIMATED_MOVER )
+  if ( v6->s.lerp.apos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     Scr_Error(COM_ERR_2608, scrContext, "Cannot play an animation on an entity that already has an animated trajectory. Call scriptmodelclearanim first.\n");
   }
   NumParam = Scr_GetNumParam(scrContext);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm9, xmm9, xmm9
-  }
+  v10 = 0.0;
   if ( NumParam >= 3 && Scr_GetType(scrContext, 2u) )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm9, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v10 = *(float *)&Float;
   }
-  __asm
+  v12 = FLOAT_1_0;
+  if ( NumParam >= 4 && Scr_GetType(scrContext, 3u) && ((v13 = Scr_GetFloat(scrContext, 3u), v12 = *(float *)&v13, *(float *)&v13 < 0.0) || *(float *)&v13 > 8.0 || (v14 = 0i64, *(float *)&v14 = (float)(unsigned int)(int)(float)(*(float *)&v13 * 1000.0), *(float *)&v14 = *(float *)&v14 - (float)(*(float *)&v13 * 1000.0), *(_OWORD *)&_XMM2_8 = v14 & _xmm, COERCE_FLOAT(v14 & _xmm) > 0.001)) )
   {
-    vmovss  xmm8, cs:__real@447a0000
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm1, xmm9, xmm8
-    vcvttss2si r14d, xmm1
+    __asm { vxorpd  xmm2, xmm2, xmm2 }
+    LODWORD(fmt) = 3;
+    v16 = j_va("ScriptModelPlayAnim: animRate %f not valid. Needs to be between %f and %f and rounded to %i decimal places\n", *(float *)&v13, (_QWORD)_XMM2, DOUBLE_8_0, fmt);
+    Scr_Error(COM_ERR_2609, scrContext, v16);
   }
-  if ( NumParam < 4 )
-    goto LABEL_28;
-  if ( Scr_GetType(scrContext, 3u) == VAR_UNDEFINED )
-    goto LABEL_28;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
+  else
   {
-    vcomiss xmm0, xmm7
-    vmovaps xmm6, xmm0
-  }
-  if ( v21 )
-    goto LABEL_27;
-  __asm { vcomiss xmm0, cs:__real@41000000 }
-  if ( !(v21 | v22) )
-    goto LABEL_27;
-  __asm
-  {
-    vmulss  xmm2, xmm0, xmm8
-    vcvttss2si rcx, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rcx
-    vsubss  xmm2, xmm1, xmm2
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm2, cs:__real@3a83126f
-  }
-  if ( v21 | v22 )
-  {
-LABEL_28:
     MoverAnimBlendType = Scr_GetMoverAnimBlendType(scrContext, 4u);
-    v36 = v11->s.lerp.u.anonymous.data[4];
-    *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(v11->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
-    __asm
+    v18 = v6->s.lerp.u.anonymous.data[4];
+    *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(v6->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
+    v19 = *(float *)&_XMM0;
+    if ( G_ScrMoverMP_SetupClientAnim(scrContext, v6, (int)(float)(v10 * 1000.0), v12, MoverAnimBlendType) )
     {
-      vmovaps xmm3, xmm6; animRateRaw
-      vmovaps xmm8, xmm0
-    }
-    if ( G_ScrMoverMP_SetupClientAnim(scrContext, v11, _ER14, *(float *)&_XMM3, MoverAnimBlendType) )
-    {
-      __asm { vcomiss xmm6, xmm7 }
-      if ( NumParam >= 2 )
+      if ( v12 < 0.0 )
       {
-        if ( Scr_GetType(scrContext, 1u) )
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 301, ASSERT_TYPE_ASSERT, "( animRateRaw ) >= ( 0 )", "animRateRaw >= 0\n\t%g, %g", v12, *(double *)&_XMM0) )
+          __debugbreak();
+      }
+      if ( NumParam >= 2 && Scr_GetType(scrContext, 1u) )
+      {
+        if ( Scr_GetType(scrContext, 0) == VAR_STRING || Scr_GetType(scrContext, 0) == VAR_ANIMATION )
         {
-          if ( Scr_GetType(scrContext, 0) == VAR_STRING || Scr_GetType(scrContext, 0) == VAR_ANIMATION )
+          if ( Scr_GetType(scrContext, 1u) == VAR_STRING )
           {
-            if ( Scr_GetType(scrContext, 1u) == VAR_STRING )
+            animName = Scr_GetString(scrContext, 0);
+            notifyName = Scr_GetConstString(scrContext, 1u);
+            ServerDObjForEnt = Com_GetServerDObjForEnt(v6);
+            v24 = (DObj *)ServerDObjForEnt;
+            if ( ServerDObjForEnt )
             {
-              animName = Scr_GetString(scrContext, 0);
-              notifyName = Scr_GetConstString(scrContext, 1u);
-              ServerDObjForEnt = Com_GetServerDObjForEnt(v11);
-              v42 = (DObj *)ServerDObjForEnt;
-              if ( ServerDObjForEnt )
-              {
-                LastAnimName = G_ScrMoverMP_GetLastAnimName(ServerDObjForEnt);
-                __asm
-                {
-                  vmovss  [rsp+0A8h+var_70], xmm6
-                  vmovss  dword ptr [rsp+0A8h+var_78], xmm9
-                  vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-                }
-                G_ScrMoverMP_PlayServerAnim(v11, v42, LastAnimName, v36, fmta, animName, v51, v52, notifyName);
-              }
-              else
-              {
-                Scr_Error(COM_ERR_2612, scrContext, "ScriptModelPlayAnim: Entity needs model to play animation.\n");
-              }
+              LastAnimName = G_ScrMoverMP_GetLastAnimName(ServerDObjForEnt);
+              G_ScrMoverMP_PlayServerAnim(v6, v24, LastAnimName, v18, v19, animName, v10, v12, notifyName);
             }
             else
             {
-              Scr_Error(COM_ERR_2611, scrContext, "ScriptModelPlayAnim: <notify name> needs to be a string");
+              Scr_Error(COM_ERR_2612, scrContext, "ScriptModelPlayAnim: Entity needs model to play animation.\n");
             }
           }
           else
           {
-            Scr_Error(COM_ERR_2610, scrContext, "ScriptModelPlayAnim: <anim name> needs to be a string or an animation");
+            Scr_Error(COM_ERR_2611, scrContext, "ScriptModelPlayAnim: <notify name> needs to be a string");
           }
+        }
+        else
+        {
+          Scr_Error(COM_ERR_2610, scrContext, "ScriptModelPlayAnim: <anim name> needs to be a string or an animation");
         }
       }
     }
-  }
-  else
-  {
-LABEL_27:
-    __asm
-    {
-      vmovsd  xmm3, cs:__real@4020000000000000
-      vcvtss2sd xmm1, xmm6, xmm6
-      vxorpd  xmm2, xmm2, xmm2
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    LODWORD(fmt) = 3;
-    v34 = j_va("ScriptModelPlayAnim: animRate %f not valid. Needs to be between %f and %f and rounded to %i decimal places\n", _RDX, _R8, _R9, fmt);
-    Scr_Error(COM_ERR_2609, scrContext, v34);
-  }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -195,74 +122,48 @@ G_ScrMoverMPCmd_ScriptModelPlayAnimDeltaMotion
 void G_ScrMoverMPCmd_ScriptModelPlayAnimDeltaMotion(scrContext_t *scrContext, scr_entref_t entref)
 {
   scr_string_t notifyName; 
-  gentity_s *v8; 
+  gentity_s *v5; 
   scr_string_t classname; 
-  const char *v10; 
+  const char *v7; 
   unsigned int NumParam; 
   const char *String; 
-  char v15; 
+  float v10; 
+  double Float; 
   ScriptMoverAnimBlendType blendType; 
-  float v19; 
 
   notifyName = 0;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v8 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 408, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entref.entnum];
-    classname = v8->classname;
+    v5 = &g_entities[entref.entnum];
+    classname = v5->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v10 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entref.entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v10);
+      v7 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entref.entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v7);
     }
   }
   NumParam = Scr_GetNumParam(scrContext);
   if ( Scr_GetType(scrContext, 0) == VAR_STRING || Scr_GetType(scrContext, 0) == VAR_ANIMATION )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovaps [rsp+78h+var_38], xmm7
-    }
     String = Scr_GetString(scrContext, 0);
     if ( NumParam >= 2 && Scr_GetType(scrContext, 1u) )
       notifyName = Scr_GetConstString(scrContext, 1u);
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( NumParam < 3 )
-      goto LABEL_24;
-    if ( Scr_GetType(scrContext, 2u) == VAR_UNDEFINED )
-      goto LABEL_24;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm7, xmm0
-    }
-    if ( v15 )
+    v10 = 0.0;
+    if ( NumParam >= 3 && Scr_GetType(scrContext, 2u) && (Float = Scr_GetFloat(scrContext, 2u), v10 = *(float *)&Float, *(float *)&Float < 0.0) )
     {
       Scr_Error(COM_ERR_2615, scrContext, "ScriptModelPlayAnimDeltaMotion: start time must be non-negative");
     }
     else
     {
-LABEL_24:
       blendType = Scr_GetMoverAnimBlendType(scrContext, 3u);
-      __asm { vmovss  [rsp+78h+var_48], xmm7 }
-      G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal(scrContext, entref, String, &v8->r.currentOrigin, &v8->r.currentAngles, notifyName, v19, blendType);
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+78h+var_28]
-      vmovaps xmm7, [rsp+78h+var_38]
+      G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal(scrContext, entref, String, &v5->r.currentOrigin, &v5->r.currentAngles, notifyName, v10, blendType);
     }
   }
   else
@@ -279,21 +180,21 @@ G_ScrMoverMPCmd_ScriptModelPlayAnimDeltaMotionFromPos
 void G_ScrMoverMPCmd_ScriptModelPlayAnimDeltaMotionFromPos(scrContext_t *scrContext, scr_entref_t entref)
 {
   scr_string_t classname; 
-  const char *v8; 
-  ComErrorCode v9; 
+  const char *v5; 
+  ComErrorCode v6; 
   unsigned int NumParam; 
   const char *String; 
   scr_string_t notifyName; 
-  char v15; 
+  float v10; 
+  double Float; 
   ScriptMoverAnimBlendType blendType; 
-  float v19; 
   vec3_t animAngles; 
   vec3_t vectorValue; 
 
   if ( entref.entclass )
   {
-    v8 = "not an entity";
-    v9 = COM_ERR_2787;
+    v5 = "not an entity";
+    v6 = COM_ERR_2787;
     goto LABEL_14;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 470, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
@@ -301,19 +202,14 @@ void G_ScrMoverMPCmd_ScriptModelPlayAnimDeltaMotionFromPos(scrContext_t *scrCont
   classname = g_entities[entref.entnum].classname;
   if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
   {
-    v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entref.entnum);
-    v9 = COM_ERR_2786;
+    v5 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entref.entnum);
+    v6 = COM_ERR_2786;
 LABEL_14:
-    Scr_ObjectError(v9, scrContext, v8);
+    Scr_ObjectError(v6, scrContext, v5);
   }
   NumParam = Scr_GetNumParam(scrContext);
   if ( Scr_GetType(scrContext, 0) == VAR_STRING )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-    }
     String = Scr_GetString(scrContext, 0);
     Scr_GetVector(scrContext, 1u, &vectorValue);
     Scr_GetVector(scrContext, 2u, &animAngles);
@@ -321,36 +217,15 @@ LABEL_14:
       notifyName = Scr_GetConstString(scrContext, 3u);
     else
       notifyName = 0;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( NumParam < 5 )
-      goto LABEL_25;
-    if ( Scr_GetType(scrContext, 4u) == VAR_UNDEFINED )
-      goto LABEL_25;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 4u);
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovaps xmm7, xmm0
-    }
-    if ( v15 )
+    v10 = 0.0;
+    if ( NumParam >= 5 && Scr_GetType(scrContext, 4u) && (Float = Scr_GetFloat(scrContext, 4u), v10 = *(float *)&Float, *(float *)&Float < 0.0) )
     {
       Scr_Error(COM_ERR_2617, scrContext, "ScriptModelPlayAnimDeltaMotionFromPos: start time must be non-negative");
     }
     else
     {
-LABEL_25:
       blendType = Scr_GetMoverAnimBlendType(scrContext, 5u);
-      __asm { vmovss  [rsp+0A8h+var_78], xmm7 }
-      G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal(scrContext, entref, String, &vectorValue, &animAngles, notifyName, v19, blendType);
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+0A8h+var_28]
-      vmovaps xmm7, [rsp+0A8h+var_38]
+      G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal(scrContext, entref, String, &vectorValue, &animAngles, notifyName, v10, blendType);
     }
   }
   else
@@ -370,7 +245,7 @@ void G_ScrMoverMPCmd_ScriptModelClearAnim(scrContext_t *scrContext, scr_entref_t
   gentity_s *v4; 
   scr_string_t classname; 
   const char *v6; 
-  unsigned int v8; 
+  unsigned int v7; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
@@ -394,12 +269,11 @@ void G_ScrMoverMPCmd_ScriptModelClearAnim(scrContext_t *scrContext, scr_entref_t
   {
     if ( Com_GetServerDObjForEnt(v4) )
     {
-      __asm { vmovss  xmm0, cs:__real@3f800000; animRateRaw }
       *(_QWORD *)&v4->s.lerp.u.scriptMover.animIndex = 0i64;
       v4->s.lerp.u.anonymous.data[5] = 0;
-      v8 = BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(*(const float *)&_XMM0);
+      v7 = BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(1.0);
       v4->s.lerp.u.anonymous.data[2] &= 0xFFFFFFFC;
-      v4->s.lerp.u.anonymous.data[6] = v8;
+      v4->s.lerp.u.anonymous.data[6] = v7;
       G_ScrMover_ClearServerAnim(v4);
       G_ScrMover_ClearAnimatedTrajectory(v4);
     }
@@ -417,113 +291,103 @@ G_ScrMoverMPCmd_ScriptModelPauseAnim
 */
 void G_ScrMoverMPCmd_ScriptModelPauseAnim(scrContext_t *scrContext, scr_entref_t entref)
 {
-  int v4; 
+  int v2; 
   unsigned int entnum; 
-  gentity_s *v7; 
+  gentity_s *v5; 
   scr_string_t classname; 
-  const char *v9; 
+  const char *v7; 
   const DObj *ServerDObjForEnt; 
-  const char *v11; 
-  ComErrorCode v12; 
+  const char *v9; 
+  ComErrorCode v10; 
   XAnimTree *Tree; 
   int Int; 
-  int v15; 
+  int v13; 
   int time; 
-  int v18; 
-  int v19; 
-  float fmt; 
-  float fmta; 
+  int v15; 
+  int v16; 
+  double v17; 
 
-  v4 = 0;
+  v2 = 0;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v7 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 567, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v7 = &g_entities[entnum];
-    classname = v7->classname;
+    v5 = &g_entities[entnum];
+    classname = v5->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v9 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v9);
+      v7 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v7);
     }
   }
-  if ( G_ScrMoverMP_ValidateScriptMoverCanAnimate(scrContext, v7) )
+  if ( G_ScrMoverMP_ValidateScriptMoverCanAnimate(scrContext, v5) )
   {
-    ServerDObjForEnt = Com_GetServerDObjForEnt(v7);
+    ServerDObjForEnt = Com_GetServerDObjForEnt(v5);
     if ( !ServerDObjForEnt )
     {
-      v11 = "Entity needs model to pause animation.\n";
-      v12 = COM_ERR_2621;
+      v9 = "Entity needs model to pause animation.\n";
+      v10 = COM_ERR_2621;
 LABEL_33:
-      Scr_Error(v12, scrContext, v11);
+      Scr_Error(v10, scrContext, v9);
       return;
     }
-    if ( !v7->s.lerp.u.anonymous.data[3] )
+    if ( !v5->s.lerp.u.anonymous.data[3] )
     {
-      v11 = "Entity needs to be playing an anim to pause.\n";
-      v12 = COM_ERR_2622;
+      v9 = "Entity needs to be playing an anim to pause.\n";
+      v10 = COM_ERR_2622;
       goto LABEL_33;
     }
     Tree = DObjGetTree(ServerDObjForEnt);
     Int = Scr_GetInt(scrContext, 0);
-    v15 = v7->s.lerp.u.anonymous.data[5];
+    v13 = v5->s.lerp.u.anonymous.data[5];
     if ( Int )
     {
-      if ( v15 )
+      if ( v13 )
       {
-        v11 = "Animation is already paused.\n";
-        v12 = COM_ERR_2623;
+        v9 = "Animation is already paused.\n";
+        v10 = COM_ERR_2623;
         goto LABEL_33;
       }
       time = 1;
       if ( level.time > 1 )
         time = level.time;
-      v7->s.lerp.u.anonymous.data[5] = time;
+      v5->s.lerp.u.anonymous.data[5] = time;
       if ( Tree )
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-        LOBYTE(v4) = XAnimIsSimpleBlendTree(Tree) != 0;
-        __asm { vmovss  dword ptr [rsp+48h+fmt], xmm0 }
-        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v4 + 1, fmt);
+        LOBYTE(v2) = XAnimIsSimpleBlendTree(Tree) != 0;
+        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v2 + 1, 0.0);
       }
     }
     else
     {
-      if ( v15 <= 0 )
+      if ( v13 <= 0 )
         goto LABEL_32;
-      v18 = 1;
+      v15 = 1;
       if ( level.time > 1 )
-        v18 = level.time;
-      if ( v15 > v18 )
+        v15 = level.time;
+      if ( v13 > v15 )
       {
 LABEL_32:
-        v11 = "Animation is not currently paused.\n";
-        v12 = COM_ERR_2624;
+        v9 = "Animation is not currently paused.\n";
+        v10 = COM_ERR_2624;
         goto LABEL_33;
       }
-      v19 = level.time - v15;
-      v7->s.lerp.u.anonymous.data[5] = 0;
-      v7->s.lerp.u.anonymous.data[4] += v19;
-      v7->s.lerp.pos.trTime += v19;
-      v7->s.lerp.apos.trTime += v19;
+      v16 = level.time - v13;
+      v5->s.lerp.u.anonymous.data[5] = 0;
+      v5->s.lerp.u.anonymous.data[4] += v16;
+      v5->s.lerp.pos.trTime += v16;
+      v5->s.lerp.apos.trTime += v16;
       if ( Tree )
       {
-        __asm { vmovaps [rsp+48h+var_18], xmm6 }
-        *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(v7->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vmovss  dword ptr [rsp+48h+fmt], xmm6
-        }
-        LOBYTE(v4) = XAnimIsSimpleBlendTree(Tree) != 0;
-        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v4 + 1, fmta);
-        __asm { vmovaps xmm6, [rsp+48h+var_18] }
+        v17 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(v5->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
+        LOBYTE(v2) = XAnimIsSimpleBlendTree(Tree) != 0;
+        XAnimSetAnimRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v2 + 1, *(float *)&v17);
       }
     }
   }
@@ -555,191 +419,91 @@ const char *G_ScrMoverMP_GetLastAnimName(const DObj *obj)
 G_ScrMoverMP_PlayServerAnim
 ==============
 */
-int G_ScrMoverMP_PlayServerAnim(gentity_s *ent, DObj *obj, const char *prevAnimName, int prevAnimStartTimeLevelMS, float prevAnimRateRaw, const char *animName, float animStartTimeSec, float animRateRaw, scr_string_t notifyName)
+__int64 G_ScrMoverMP_PlayServerAnim(gentity_s *ent, DObj *obj, const char *prevAnimName, int prevAnimStartTimeLevelMS, float prevAnimRateRaw, const char *animName, float animStartTimeSec, float animRateRaw, scr_string_t notifyName)
 {
-  bool v19; 
-  bool v20; 
-  unsigned int v28; 
-  __int64 v29; 
-  const char *v30; 
-  int v31; 
-  __int64 v32; 
-  int v33; 
-  int v34; 
-  int v35; 
+  unsigned int notifyType; 
+  __int64 v15; 
+  const char *v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
+  int v21; 
   XAnimTree *SimpleTree; 
-  const XAnim_s *v39; 
-  int result; 
+  const XAnim_s *v23; 
+  int LengthMsec; 
+  __int128 v26; 
+  __int128 blendTime; 
   XAnimTree *SimpleBlendTree; 
   const XAnim_s *Anims; 
-  float fmt; 
-  float blendTime; 
-  double notifyType; 
-  double notifyTypea; 
-  double v75; 
-  double v76; 
-  char v80; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0D8h+var_88], xmm11
-  }
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 204, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 205, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  v19 = animName == NULL;
-  if ( !animName )
-  {
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 206, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName");
-    v19 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm9, [rsp+0D8h+animStartTimeSec]
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm9, xmm10
-    vxorpd  xmm11, xmm11, xmm11
-    vmovss  xmm8, [rsp+0D8h+animRateRaw]
-    vcomiss xmm8, xmm10
-  }
-  if ( v19 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0D8h+var_98], xmm11
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  qword ptr [rsp+0D8h+notifyType], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 208, ASSERT_TYPE_ASSERT, "( animRateRaw ) > ( 0 )", "%s > %s\n\t%g, %g", "animRateRaw", "0", notifyType, v75) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm9, cs:__real@447a0000
-    vcvttss2si eax, xmm0
-  }
+  if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 206, ASSERT_TYPE_ASSERT, "(animName)", (const char *)&queryFormat, "animName") )
+    __debugbreak();
+  __asm { vxorpd  xmm11, xmm11, xmm11 }
+  if ( animStartTimeSec < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 207, ASSERT_TYPE_ASSERT, "( animStartTimeSec ) >= ( 0 )", "%s >= %s\n\t%g, %g", "animStartTimeSec", "0", animStartTimeSec, *(double *)&_XMM11) )
+    __debugbreak();
+  if ( animRateRaw <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 208, ASSERT_TYPE_ASSERT, "( animRateRaw ) > ( 0 )", "%s > %s\n\t%g, %g", "animRateRaw", "0", animRateRaw, *(double *)&_XMM11) )
+    __debugbreak();
   G_ScrMover_ClearServerAnim(ent);
   if ( DObjGetTree(obj) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 214, ASSERT_TYPE_ASSERT, "( !tree )", (const char *)&queryFormat, "!tree") )
     __debugbreak();
-  v28 = notifyName != 0 ? 4 : 0;
+  notifyType = notifyName != 0 ? 4 : 0;
   if ( (LOBYTE(ent->s.lerp.u.vehicle.bodyPitch) & 1) == 0 && prevAnimName && *prevAnimName )
   {
-    v29 = 0x7FFFFFFFi64;
-    v30 = animName;
+    v15 = 0x7FFFFFFFi64;
+    v16 = animName;
     if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
       __debugbreak();
     do
     {
-      v31 = (unsigned __int8)v30[prevAnimName - animName];
-      v32 = v29;
-      v33 = *(unsigned __int8 *)v30++;
-      --v29;
-      if ( !v32 )
+      v17 = (unsigned __int8)v16[prevAnimName - animName];
+      v18 = v15;
+      v19 = *(unsigned __int8 *)v16++;
+      --v15;
+      if ( !v18 )
         break;
-      if ( v31 != v33 )
+      if ( v17 != v19 )
       {
-        v34 = v31 + 32;
-        if ( (unsigned int)(v31 - 65) > 0x19 )
-          v34 = v31;
-        v31 = v34;
-        v35 = v33 + 32;
-        if ( (unsigned int)(v33 - 65) > 0x19 )
-          v35 = v33;
-        if ( v31 != v35 )
+        v20 = v17 + 32;
+        if ( (unsigned int)(v17 - 65) > 0x19 )
+          v20 = v17;
+        v17 = v20;
+        v21 = v19 + 32;
+        if ( (unsigned int)(v19 - 65) > 0x19 )
+          v21 = v19;
+        if ( v17 != v21 )
         {
-          _ECX = 0;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, cs:__real@3a83126f
-            vmaxss  xmm2, xmm1, xmm10
-          }
-          v19 = (ent->s.lerp.u.anonymous.data[2] & 2) == 0;
-          _EAX = ent->s.lerp.u.anonymous.data[2] & 2;
-          __asm
-          {
-            vmovaps [rsp+0D8h+var_38], xmm6
-            vmovss  xmm6, [rsp+0D8h+prevAnimRateRaw]
-            vcomiss xmm6, xmm10
-            vmovd   xmm1, ecx
-            vmovd   xmm0, eax
-            vpcmpeqd xmm3, xmm0, xmm1
-            vmovss  xmm1, cs:__real@3f000000
-            vmovaps [rsp+0D8h+var_48], xmm7
-            vmulss  xmm7, xmm2, xmm6
-            vmovss  xmm2, cs:__real@3e4ccccd
-            vblendvps xmm0, xmm1, xmm2, xmm3
-            vmovss  [rsp+0D8h+animRateRaw], xmm0
-          }
-          if ( v19 )
-          {
-            __asm
-            {
-              vmovsd  [rsp+0D8h+var_98], xmm11
-              vcvtss2sd xmm0, xmm6, xmm6
-              vmovsd  qword ptr [rsp+0D8h+notifyType], xmm0
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 225, ASSERT_TYPE_ASSERT, "( prevAnimRateRaw ) > ( 0 )", "%s > %s\n\t%g, %g", "prevAnimRateRaw", "0", notifyTypea, v76) )
-              __debugbreak();
-          }
+          v26 = 0i64;
+          *(float *)&v26 = (float)(level.time - prevAnimStartTimeLevelMS) * 0.001;
+          _XMM1 = v26;
+          __asm { vmaxss  xmm2, xmm1, xmm10 }
+          _XMM0 = ent->s.lerp.u.anonymous.data[2] & 2;
+          __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+          _XMM1 = LODWORD(FLOAT_0_5);
+          __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+          if ( prevAnimRateRaw <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 225, ASSERT_TYPE_ASSERT, "( prevAnimRateRaw ) > ( 0 )", "%s > %s\n\t%g, %g", "prevAnimRateRaw", "0", prevAnimRateRaw, *(double *)&_XMM11) )
+            __debugbreak();
           SimpleBlendTree = XAnimCreateSimpleBlendTree(prevAnimName, animName, MOVEMENT);
           DObjSetTree(obj, SimpleBlendTree);
-          __asm
-          {
-            vmovss  xmm0, [rsp+0D8h+animRateRaw]
-            vmovss  [rsp+0D8h+blendTime], xmm0
-            vmovaps xmm3, xmm9; newAnimTime
-            vmovaps xmm2, xmm6; oldPlaybackRate
-            vmovaps xmm1, xmm7; oldAnimTime
-            vmovss  dword ptr [rsp+0D8h+fmt], xmm8
-          }
-          XAnimPlaySimpleBlendTreeAnim(obj, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, blendTime, notifyName, v28);
+          XAnimPlaySimpleBlendTreeAnim(obj, *(float *)&_XMM2 * prevAnimRateRaw, prevAnimRateRaw, animStartTimeSec, animRateRaw, *(float *)&blendTime, notifyName, notifyType);
           Anims = XAnimGetAnims(SimpleBlendTree);
-          XAnimGetLengthMsec(Anims, 2u);
-          __asm
-          {
-            vmovaps xmm7, [rsp+0D8h+var_48]
-            vmovaps xmm6, [rsp+0D8h+var_38]
-          }
-          goto LABEL_31;
+          LengthMsec = XAnimGetLengthMsec(Anims, 2u);
+          return (unsigned int)(int)(float)((float)(LengthMsec - (int)(float)(animStartTimeSec * 1000.0)) / animRateRaw);
         }
       }
     }
-    while ( v31 );
+    while ( v17 );
   }
   SimpleTree = XAnimCreateSimpleTree(animName, MOVEMENT);
   DObjSetTree(obj, SimpleTree);
-  __asm
-  {
-    vmovaps xmm2, xmm8; playbackRate
-    vmovaps xmm1, xmm9; animTime
-  }
-  XAnimPlaySimpleTreeAnim(obj, *(float *)&_XMM1, *(float *)&_XMM2, notifyName, v28);
-  v39 = XAnimGetAnims(SimpleTree);
-  XAnimGetLengthMsec(v39, 1u);
-LABEL_31:
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm1, xmm0, xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  XAnimPlaySimpleTreeAnim(obj, animStartTimeSec, animRateRaw, notifyName, notifyType);
+  v23 = XAnimGetAnims(SimpleTree);
+  LengthMsec = XAnimGetLengthMsec(v23, 1u);
+  return (unsigned int)(int)(float)((float)(LengthMsec - (int)(float)(animStartTimeSec * 1000.0)) / animRateRaw);
 }
 
 /*
@@ -750,189 +514,110 @@ G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal
 void G_ScrMoverMP_ScriptModelPlayAnimDeltaMotion_Internal(scrContext_t *scrContext, scr_entref_t entref, const char *animName, const vec3_t *animOrigin, const vec3_t *animAngles, scr_string_t notifyName, float animStartTimeSec, const ScriptMoverAnimBlendType blendType)
 {
   unsigned int entnum; 
+  float v11; 
+  int v12; 
+  gentity_s *v13; 
   scr_string_t classname; 
-  const char *v20; 
-  int v21; 
+  const char *v15; 
+  int v16; 
+  double v17; 
   const DObj *ServerDObjForEnt; 
-  DObj *v26; 
+  DObj *v19; 
   const char *LastAnimName; 
-  int v28; 
-  unsigned int v50; 
-  unsigned int v51; 
-  unsigned int v52; 
-  float fmt; 
-  float v66; 
-  float v67; 
-  int v68[3]; 
-  char v69; 
-  void *retaddr; 
-  __int64 v71; 
+  int v21; 
+  float v24; 
+  unsigned int v27; 
+  unsigned int v28; 
+  unsigned int v29; 
+  int v30; 
+  int v31[3]; 
+  __int64 v32; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   entnum = entref.entnum;
-  __asm
-  {
-    vmovss  xmm7, [rsp+0C8h+animStartTimeSec]
-    vmulss  xmm0, xmm7, cs:__real@447a0000
-    vcvttss2si ebp, xmm0
-  }
+  v11 = animStartTimeSec;
+  v12 = (int)(float)(animStartTimeSec * 1000.0);
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RBX = NULL;
+    v13 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RBX = &g_entities[entnum];
-    classname = _RBX->classname;
+    v13 = &g_entities[entnum];
+    classname = v13->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v20 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v20);
+      v15 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v15);
     }
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 344, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
     __debugbreak();
-  v21 = _RBX->s.lerp.u.anonymous.data[4];
-  *(double *)&_XMM0 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(_RBX->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
-  __asm
+  v16 = v13->s.lerp.u.anonymous.data[4];
+  v17 = BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(v13->s.lerp.u.player.accessoryWeaponHandle.m_mapEntryId);
+  if ( G_ScrMoverMP_SetupClientAnim(scrContext, v13, v12, 1.0, blendType) )
   {
-    vmovaps xmm8, xmm0
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm3, xmm6; animRateRaw
-  }
-  if ( G_ScrMoverMP_SetupClientAnim(scrContext, _RBX, _EBP, *(float *)&_XMM3, blendType) )
-  {
-    ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-    v26 = (DObj *)ServerDObjForEnt;
+    ServerDObjForEnt = Com_GetServerDObjForEnt(v13);
+    v19 = (DObj *)ServerDObjForEnt;
     if ( ServerDObjForEnt )
     {
       LastAnimName = G_ScrMoverMP_GetLastAnimName(ServerDObjForEnt);
-      G_ScrMover_ClearAnimatedTrajectory(_RBX);
+      G_ScrMover_ClearAnimatedTrajectory(v13);
       if ( !animName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 364, ASSERT_TYPE_ASSERT, "( animName )", (const char *)&queryFormat, "animName") )
         __debugbreak();
-      __asm
-      {
-        vmovss  [rsp+0C8h+var_90], xmm6
-        vmovss  [rsp+0C8h+var_98], xmm7
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-      }
-      v28 = G_ScrMoverMP_PlayServerAnim(_RBX, v26, LastAnimName, v21, fmt, animName, v66, v67, notifyName);
-      _RDI = &_RBX->s.lerp.pos;
-      _RBX->s.lerp.pos.trType = TR_ANIMATED_MOVER;
-      _RBX->s.lerp.apos.trType = TR_ANIMATED_MOVER;
-      __asm
-      {
-        vmovss  xmm5, cs:__real@3f000000
-        vaddss  xmm1, xmm5, dword ptr [r12]
-        vxorps  xmm4, xmm4, xmm4
-        vroundss xmm0, xmm4, xmm1, 1
-        vcvttss2si eax, xmm0
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, eax
-        vmovss  [rsp+0C8h+var_70], xmm6
-        vaddss  xmm2, xmm5, dword ptr [r12+4]
-        vroundss xmm0, xmm4, xmm2, 1
-        vcvttss2si eax, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  [rsp+0C8h+var_6C], xmm0
-        vaddss  xmm2, xmm5, dword ptr [r12+8]
-        vroundss xmm1, xmm4, xmm2, 1
-        vcvttss2si eax, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  [rsp+0C8h+var_68], xmm0
-      }
-      if ( _RBX == (gentity_s *)-16i64 )
+      v21 = G_ScrMoverMP_PlayServerAnim(v13, v19, LastAnimName, v16, *(float *)&v17, animName, v11, 1.0, notifyName);
+      v13->s.lerp.pos.trType = TR_ANIMATED_MOVER;
+      v13->s.lerp.apos.trType = TR_ANIMATED_MOVER;
+      _XMM4 = 0i64;
+      __asm { vroundss xmm0, xmm4, xmm1, 1 }
+      v24 = (float)(int)*(float *)&_XMM0;
+      *(float *)v31 = v24;
+      __asm { vroundss xmm0, xmm4, xmm2, 1 }
+      *(float *)&v31[1] = (float)(int)*(float *)&_XMM0;
+      __asm { vroundss xmm1, xmm4, xmm2, 1 }
+      *(float *)&v31[2] = (float)(int)*(float *)&_XMM1;
+      if ( v13 == (gentity_s *)-16i64 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
           __debugbreak();
-        __asm { vmovss  xmm6, [rsp+0C8h+var_70] }
+        v24 = *(float *)v31;
       }
-      if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+      if ( v13->s.lerp.pos.trType == TR_LINEAR_STOP_SECURE )
       {
-        __asm { vmovss  [rsp+0C8h+animStartTimeSec], xmm6 }
-        if ( (LODWORD(animStartTimeSec) & 0x7F800000) == 2139095040 )
-          goto LABEL_39;
-        __asm
+        animStartTimeSec = v24;
+        if ( (LODWORD(v24) & 0x7F800000) == 2139095040 || (animStartTimeSec = *(float *)&v31[1], (v31[1] & 0x7F800000) == 2139095040) || (animStartTimeSec = *(float *)&v31[2], (v31[2] & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, [rsp+0C8h+var_6C]
-          vmovss  [rsp+0C8h+animStartTimeSec], xmm0
-        }
-        if ( (LODWORD(animStartTimeSec) & 0x7F800000) == 2139095040 )
-          goto LABEL_39;
-        __asm
-        {
-          vmovss  xmm0, [rsp+0C8h+var_68]
-          vmovss  [rsp+0C8h+animStartTimeSec], xmm0
-        }
-        if ( (LODWORD(animStartTimeSec) & 0x7F800000) == 2139095040 )
-        {
-LABEL_39:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 24, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
             __debugbreak();
         }
-        v50 = v68[0] ^ ~s_trbase_aab_X;
-        v51 = s_trbase_aab_Y ^ v50 ^ v68[1];
-        v52 = s_trbase_aab_Z ^ v51 ^ v68[2];
-        LODWORD(_RBX->s.lerp.pos.trBase.v[0]) = v50;
-        LODWORD(_RBX->s.lerp.pos.trBase.v[1]) = v51;
-        LODWORD(_RBX->s.lerp.pos.trBase.v[2]) = v52;
-        memset(&v71, 0, sizeof(v71));
+        v27 = v31[0] ^ ~s_trbase_aab_X;
+        v28 = s_trbase_aab_Y ^ v27 ^ v31[1];
+        v29 = s_trbase_aab_Z ^ v28 ^ v31[2];
+        LODWORD(v13->s.lerp.pos.trBase.v[0]) = v27;
+        LODWORD(v13->s.lerp.pos.trBase.v[1]) = v28;
+        LODWORD(v13->s.lerp.pos.trBase.v[2]) = v29;
+        memset(&v32, 0, sizeof(v32));
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rdi+0Ch], xmm6
-          vmovss  xmm0, [rsp+0C8h+var_6C]
-          vmovss  dword ptr [rdi+10h], xmm0
-          vmovss  xmm1, [rsp+0C8h+var_68]
-          vmovss  dword ptr [rdi+14h], xmm1
-        }
+        v13->s.lerp.pos.trBase.v[0] = v24;
+        v13->s.lerp.pos.trBase.v[1] = *(float *)&v31[1];
+        v13->s.lerp.pos.trBase.v[2] = *(float *)&v31[2];
       }
-      _RCX = animAngles;
-      _RBX->s.lerp.apos.trBase.v[0] = animAngles->v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+4]
-        vmovss  dword ptr [rbx+44h], xmm0
-        vmovss  xmm1, dword ptr [rcx+8]
-        vmovss  dword ptr [rbx+48h], xmm1
-      }
-      _RBX->s.lerp.pos.trDuration = v28;
-      _RBX->s.lerp.apos.trDuration = v28;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vcvttss2si eax, xmm0
-      }
-      LODWORD(_RCX) = level.time - _EAX;
-      _RBX->s.lerp.pos.trTime = level.time - _EAX;
-      _RBX->s.lerp.apos.trTime = (int)_RCX;
-      memset(v68, 0, sizeof(v68));
+      v13->s.lerp.apos.trBase = *animAngles;
+      v13->s.lerp.pos.trDuration = v21;
+      v13->s.lerp.apos.trDuration = v21;
+      v30 = level.time - (int)(float)v12;
+      v13->s.lerp.pos.trTime = v30;
+      v13->s.lerp.apos.trTime = v30;
+      memset(v31, 0, sizeof(v31));
     }
     else
     {
       Scr_Error(COM_ERR_2613, scrContext, "Entity needs model to play delta motion animation.\n");
     }
-  }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -941,37 +626,26 @@ LABEL_39:
 G_ScrMoverMP_SetupClientAnim
 ==============
 */
-
-bool __fastcall G_ScrMoverMP_SetupClientAnim(scrContext_t *scrContext, gentity_s *ent, int animStartTimeMS, double animRateRaw, const ScriptMoverAnimBlendType blendType)
+char G_ScrMoverMP_SetupClientAnim(scrContext_t *scrContext, gentity_s *ent, int animStartTimeMS, float animRateRaw, const ScriptMoverAnimBlendType blendType)
 {
-  bool result; 
   const char *String; 
-  const char *v13; 
-  unsigned int v16; 
-  bool v17; 
-  bool v18; 
-  int v24; 
-  unsigned int v25; 
-  int v26; 
-  unsigned int v27; 
-  __int64 v29; 
+  const char *v11; 
+  unsigned int v13; 
+  int v14; 
+  unsigned int v15; 
+  int v16; 
+  unsigned int v17; 
+  __int64 v18; 
   unsigned int outIndex[4]; 
   char dest[1024]; 
 
-  __asm
-  {
-    vmovaps [rsp+498h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( animStartTimeMS < 0 )
   {
     Scr_Error(COM_ERR_2602, scrContext, "start time must be non-negative");
-LABEL_3:
-    result = 0;
-    goto LABEL_28;
+    return 0;
   }
   if ( !G_ScrMoverMP_ValidateScriptMoverCanAnimate(scrContext, ent) )
-    goto LABEL_3;
+    return 0;
   if ( level.initializing )
     goto LABEL_12;
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
@@ -986,85 +660,62 @@ LABEL_12:
       I_strlwr(dest);
       if ( NetConstStrings_GetIndexPlusOneFromName(NETCONSTSTRINGTYPE_ANIM, dest, outIndex) )
       {
-        __asm
+        if ( animRateRaw < 0.0 )
         {
-          vmovaps [rsp+498h+var_38], xmm7
-          vxorps  xmm7, xmm7, xmm7
-          vcomiss xmm6, xmm7
-          vmovaps xmm0, xmm6; animRateRaw
-        }
-        v16 = BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(*(const float *)&_XMM0);
-        v17 = outIndex[0] == 0;
-        if ( !outIndex[0] )
-        {
-          LODWORD(v29) = 0;
-          v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 131, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "animIndex != 0\n\t%i, %i", v29, 0i64);
-          v17 = !v18;
-          if ( v18 )
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 128, ASSERT_TYPE_ASSERT, "( animRateRaw ) >= ( 0 )", "animRateRaw >= 0\n\t%g, %g", animRateRaw, *(double *)&_XMM0) )
             __debugbreak();
         }
-        __asm
+        v13 = BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(animRateRaw);
+        if ( !outIndex[0] )
         {
-          vcomiss xmm6, xmm7
-          vmovaps xmm7, [rsp+498h+var_38]
+          LODWORD(v18) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_mover_mp.cpp", 131, ASSERT_TYPE_ASSERT, "( animIndex ) != ( 0 )", "animIndex != 0\n\t%i, %i", v18, 0i64) )
+            __debugbreak();
         }
-        if ( v17 )
-        {
-          v24 = level.time - animStartTimeMS;
-        }
+        if ( animRateRaw <= 0.0 )
+          v14 = level.time - animStartTimeMS;
         else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, esi
-            vdivss  xmm1, xmm0, xmm6
-            vcvttss2si eax, xmm1
-          }
-          v24 = level.time - _EAX;
-        }
-        v25 = outIndex[0];
-        ent->s.lerp.u.anonymous.data[4] = v24;
-        v26 = ent->s.lerp.u.anonymous.data[2];
-        ent->s.lerp.u.anonymous.data[3] = v25;
+          v14 = level.time - (int)(float)((float)animStartTimeMS / animRateRaw);
+        v15 = outIndex[0];
+        ent->s.lerp.u.anonymous.data[4] = v14;
+        v16 = ent->s.lerp.u.anonymous.data[2];
+        ent->s.lerp.u.anonymous.data[3] = v15;
         ent->s.lerp.u.anonymous.data[5] = 0;
-        ent->s.lerp.u.anonymous.data[6] = v16;
+        ent->s.lerp.u.anonymous.data[6] = v13;
         if ( blendType == FLAT_TIRE )
         {
-          v27 = v26 & 0xFFFFFFFC | 2;
+          v17 = v16 & 0xFFFFFFFC | 2;
         }
         else if ( blendType == 2 )
         {
-          v27 = v26 & 0xFFFFFFFC | 1;
+          v17 = v16 & 0xFFFFFFFC | 1;
         }
         else
         {
-          v27 = v26 & 0xFFFFFFFC;
+          v17 = v16 & 0xFFFFFFFC;
         }
-        ent->s.lerp.u.anonymous.data[2] = v27;
-        result = 1;
+        ent->s.lerp.u.anonymous.data[2] = v17;
+        return 1;
       }
       else
       {
-        v13 = j_va("MP Anim [%s] was not precached.\n", dest);
-        Scr_Error(COM_ERR_2606, scrContext, v13);
-        result = 0;
+        v11 = j_va("MP Anim [%s] was not precached.\n", dest);
+        Scr_Error(COM_ERR_2606, scrContext, v11);
+        return 0;
       }
     }
     else
     {
       Scr_Error(COM_ERR_2605, scrContext, "<anim name> needs to be a string or an animation");
-      result = 0;
+      return 0;
     }
   }
   else
   {
     Scr_Error(COM_ERR_2604, scrContext, "Cannot change a 'willNeverChange' entity\n");
-    result = 0;
+    return 0;
   }
-LABEL_28:
-  __asm { vmovaps xmm6, [rsp+498h+var_28] }
-  return result;
 }
 
 /*

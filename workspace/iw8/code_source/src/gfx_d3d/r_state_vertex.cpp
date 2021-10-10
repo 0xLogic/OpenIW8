@@ -32,10 +32,11 @@ char R_HW_CreateVertexElementDescs(D3D12_INPUT_ELEMENT_DESC *descs, MaterialVert
   __int64 v10; 
   GfxVertexElementFormat *v11; 
   unsigned int v12; 
+  D3D12_INPUT_ELEMENT_DESC *v13; 
   unsigned int v14; 
-  D3D12_INPUT_ELEMENT_DESC *v17; 
+  __int64 v15; 
+  D3D12_INPUT_ELEMENT_DESC *v16; 
 
-  _RSI = descs;
   if ( (unsigned __int16)vertDeclType >= VERTDECL_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state_vertex.cpp", 502, ASSERT_TYPE_ASSERT, "(unsigned)( vertDeclType ) < (unsigned)( ( sizeof( *array_counter( g_vertexFormats ) ) + 0 ) )", "vertDeclType doesn't index ARRAY_COUNT( g_vertexFormats )\n\t%i not in [0, %i)", (unsigned __int16)vertDeclType, 26) )
     __debugbreak();
   v8 = 0;
@@ -51,32 +52,27 @@ char R_HW_CreateVertexElementDescs(D3D12_INPUT_ELEMENT_DESC *descs, MaterialVert
     v12 = v8;
     if ( v8 )
     {
-      _RAX = &_RSI[v8];
+      v13 = &descs[v8];
       do
       {
         v14 = v12 - 1;
-        _R9 = v12 - 1;
-        if ( _RSI[_R9].InputSlot <= *(unsigned __int8 *)v11 )
+        v15 = v12 - 1;
+        if ( descs[v15].InputSlot <= *(unsigned __int8 *)v11 )
           break;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r9+rsi]
-          vmovups ymmword ptr [rax], ymm0
-        }
-        --_RAX;
+        *v13-- = descs[v15];
         --v12;
       }
       while ( v14 );
     }
-    v17 = &_RSI[v12];
-    v17->SemanticName = R_GetStreamSourceSemanticName((MaterialStreamSource)v10);
-    v17->SemanticIndex = R_GetStreamSourceSemanticIndex((MaterialStreamSource)v10);
-    v17->Format = R_D3D_GetDXGIFormatFromVertexElementFormat(v11[1]);
+    v16 = &descs[v12];
+    v16->SemanticName = R_GetStreamSourceSemanticName((MaterialStreamSource)v10);
+    v16->SemanticIndex = R_GetStreamSourceSemanticIndex((MaterialStreamSource)v10);
+    v16->Format = R_D3D_GetDXGIFormatFromVertexElementFormat(v11[1]);
     ++v8;
-    v17->InputSlot = *(unsigned __int8 *)v11;
+    v16->InputSlot = *(unsigned __int8 *)v11;
     ++streams;
-    v17->AlignedByteOffset = *((unsigned __int8 *)v11 + 1);
-    *(_QWORD *)&v17->InputSlotClass = 0i64;
+    v16->AlignedByteOffset = *((unsigned __int8 *)v11 + 1);
+    *(_QWORD *)&v16->InputSlotClass = 0i64;
     if ( v8 >= streamCount )
       return 1;
   }

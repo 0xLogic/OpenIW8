@@ -71,53 +71,33 @@ CreateClipMatrix
 */
 void CreateClipMatrix(vector4 *clipMtx, const vec3_t *vieworg, const tmat33_t<vec3_t> *viewaxis, const vec2_t *tanHalfFov)
 {
-  const vector4 *v22; 
+  float4 v4; 
+  float4 v11; 
+  const vector4 *v14; 
   vector4 M1; 
   vector4 mtx; 
-  char v29; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RAX = g_activeRefDef;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  _RDI = clipMtx;
-  __asm { vcomiss xmm6, dword ptr [rax+10h] }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef->view.tanHalfFovX > 0.0f)", (const char *)&queryFormat, "g_activeRefDef->view.tanHalfFovX > 0.0f") )
+  if ( g_activeRefDef->view.fov.tanHalfFovX <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef->view.tanHalfFovX > 0.0f)", (const char *)&queryFormat, "g_activeRefDef->view.tanHalfFovX > 0.0f") )
     __debugbreak();
-  _RAX = g_activeRefDef;
-  __asm { vcomiss xmm6, dword ptr [rax+14h] }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 118, ASSERT_TYPE_ASSERT, "(g_activeRefDef->view.tanHalfFovY > 0.0f)", (const char *)&queryFormat, "g_activeRefDef->view.tanHalfFovY > 0.0f") )
+  if ( g_activeRefDef->view.fov.tanHalfFovY <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 118, ASSERT_TYPE_ASSERT, "(g_activeRefDef->view.tanHalfFovY > 0.0f)", (const char *)&queryFormat, "g_activeRefDef->view.tanHalfFovY > 0.0f") )
     __debugbreak();
   Float4x4ForViewer(&mtx, vieworg, viewaxis);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, dword ptr [rbx]
-    vmovaps ymm4, cs:__ymm@000000003f80000000000000000000003f800000000000000000000000000000
-    vxorps  xmm2, xmm2, xmm2
-    vinsertps xmm2, xmm2, xmm0, 0
-    vdivss  xmm0, xmm1, dword ptr [rbx+4]
-    vxorps  xmm1, xmm1, xmm1
-    vinsertps xmm1, xmm1, xmm0, 10h
-    vmovdqa xmmword ptr [rsp+0C8h+M1.baseclass_0.y.v], xmm1
-    vmovdqa xmmword ptr [rsp+0C8h+M1.baseclass_0.x.v], xmm2
-    vmovups ymmword ptr [rsp+0C8h+M1.baseclass_0.z.v], ymm4
-  }
-  Float4x4Mul(&mtx, &M1, v22);
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovups xmmword ptr [rsp+0C8h+M1.baseclass_0.x.v], xmm0
-    vmovups xmmword ptr [rsp+0C8h+M1.baseclass_0.y.v], xmm1
-    vmovups ymm1, ymmword ptr [rsp+0C8h+M1.baseclass_0.x.v]
-    vmovups ymmword ptr [rdi], ymm1
-    vmovups xmmword ptr [rsp+0C8h+M1.w.v], xmm3
-    vmovups xmmword ptr [rsp+0C8h+M1.baseclass_0.z.v], xmm2
-    vmovups ymm0, ymmword ptr [rsp+0C8h+M1.baseclass_0.z.v]
-    vmovups ymmword ptr [rdi+20h], ymm0
-  }
+  _XMM2 = 0i64;
+  __asm { vinsertps xmm2, xmm2, xmm0, 0 }
+  v11.v = (__m128)LODWORD(FLOAT_1_0);
+  v11.v.m128_f32[0] = 1.0 / tanHalfFov->v[1];
+  _XMM1 = 0i64;
+  __asm { vinsertps xmm1, xmm1, xmm0, 10h }
+  M1.y = (float4)_XMM1.v;
+  M1.x = (float4)_XMM2.v;
+  *(__m256i *)M1.z.v.m128_f32 = _ymm;
+  Float4x4Mul(&mtx, &M1, v14);
+  M1.x = (float4)v11.v;
+  M1.y = (float4)_XMM1.v;
+  *(__m256i *)clipMtx->x.v.m128_f32 = *(__m256i *)M1.x.v.m128_f32;
+  M1.w = (float4)v4.v;
+  M1.z = (float4)_XMM2.v;
+  *(__m256i *)clipMtx->z.v.m128_f32 = *(__m256i *)M1.z.v.m128_f32;
 }
 
 /*
@@ -128,26 +108,18 @@ FX_Beam_Add
 void FX_Beam_Add(FxBeam *beam)
 {
   int v2; 
+  __int64 v3; 
 
-  _RDI = beam;
   if ( ((unsigned __int8)&g_beamInfo.beamCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &g_beamInfo.beamCount) )
     __debugbreak();
   v2 = _InterlockedExchangeAdd(&g_beamInfo.beamCount, 1u);
   if ( v2 < 96 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi] }
-    _RCX = &g_beamInfo;
-    _RAX = (__int64)v2 << 7;
-    __asm
-    {
-      vmovups ymmword ptr [rax+rcx], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rax+rcx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rax+rcx+40h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rax+rcx+60h], ymm1
-    }
+    v3 = (__int64)v2 << 7;
+    *(__m256i *)(&g_beamInfo.beams[0].type + v3) = *(__m256i *)&beam->type;
+    *(__m256i *)((char *)g_beamInfo.beams[0].colors[0].v + v3) = *(__m256i *)beam->colors[0].v;
+    *(__m256i *)((char *)g_beamInfo.beams[0].colors[2].v + v3) = *(__m256i *)beam->colors[2].v;
+    *(__m256i *)((char *)g_beamInfo.beams[0].colors[4].v + v3) = *(__m256i *)beam->colors[4].v;
   }
   else
   {
@@ -174,792 +146,606 @@ FX_Beam_GenerateVerts
 ==============
 */
 
-void __fastcall FX_Beam_GenerateVerts(GfxCodeSurfGlob *codeSurfGlob, const FxGenerateVertsCmd *cmd, double _XMM2_8, double _XMM3_8)
+void __fastcall FX_Beam_GenerateVerts(GfxCodeSurfGlob *codeSurfGlob, const FxGenerateVertsCmd *cmd, double a3, double a4)
 {
+  const FxGenerateVertsCmd *v4; 
+  float v5; 
   __int64 beamInfo; 
-  unsigned __int8 v18; 
-  char v27; 
-  int v32; 
-  __int64 v34; 
-  __int64 v36; 
-  bool v37; 
-  unsigned __int8 v39; 
-  unsigned int v42; 
-  int v43; 
-  unsigned __int8 v45; 
-  __int64 v55; 
-  const vector4 *v56; 
+  unsigned __int8 v7; 
+  __m128 v9; 
+  char v16; 
+  int v21; 
+  __int64 v23; 
+  __m128 v24; 
+  __int64 v25; 
+  bool v26; 
+  unsigned __int8 *v27; 
+  unsigned __int8 v28; 
+  __int128 v29; 
+  unsigned int v30; 
+  int v31; 
+  float v32; 
+  unsigned __int8 v33; 
+  __m128 v35; 
+  __int128 v36; 
+  __m128 v40; 
+  __int64 v43; 
+  const vector4 *v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v49; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v60; 
   unsigned __int16 vertIndexOffset; 
-  int v120; 
+  int v62; 
   r_double_index_t *indices; 
   unsigned int vertIndexBase; 
   unsigned int argOffset; 
-  r_double_index_t *v124; 
-  __int16 v125; 
-  __int16 v126; 
-  __int16 v127; 
-  Material *v128; 
-  unsigned int v163; 
-  unsigned __int64 v178; 
-  unsigned __int64 v180; 
-  bool v181; 
-  bool v191; 
-  bool v192; 
-  bool v193; 
-  __int64 v194; 
-  bool v195; 
-  bool v196; 
-  bool v200; 
-  int v208; 
-  bool v209; 
-  __int64 v251; 
-  double v252; 
-  double v253; 
-  double v254; 
-  __int64 v255; 
-  __int64 v256; 
-  __int64 v257; 
-  double v258; 
-  double v259; 
-  double v260; 
-  __int64 v261; 
-  __int64 v262; 
-  double v263; 
-  double v264; 
-  double v265; 
-  unsigned __int16 v266; 
-  r_double_index_t v267; 
-  r_double_index_t v268; 
-  r_double_index_t v269; 
-  unsigned __int8 v270; 
-  int v271; 
-  int v273; 
-  int v274; 
-  unsigned int v275; 
-  int v276; 
-  int v277; 
-  int v279; 
-  unsigned int v281; 
-  unsigned int v283; 
+  r_double_index_t *v66; 
+  __int16 v67; 
+  __int16 v68; 
+  __int16 v69; 
+  Material *v70; 
+  __m128 v71; 
+  __m128 v77; 
+  vec4_t *v88; 
+  unsigned int v92; 
+  __m128 v93; 
+  unsigned int v94; 
+  int v95; 
+  __int64 v96; 
+  float v100; 
+  __m128 v101; 
+  float v102; 
+  float v103; 
+  unsigned __int64 v104; 
+  __m128 v105; 
+  __m128 v106; 
+  __m128 v107; 
+  __m128 v109; 
+  double v110; 
+  unsigned __int8 *v112; 
+  float *v113; 
+  float v115; 
+  float v116; 
+  char *v118; 
+  signed __int64 v119; 
+  int v120; 
+  bool v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  __m128 v125; 
+  __m128 v126; 
+  __m128 v127; 
+  __int64 v131; 
+  __int64 v132; 
+  __int64 v133; 
+  __int64 v134; 
+  __int64 v135; 
+  __int64 v136; 
+  unsigned __int16 v137; 
+  r_double_index_t v138; 
+  r_double_index_t v139; 
+  r_double_index_t v140; 
+  unsigned __int8 v141; 
+  float v142; 
+  int v143; 
+  int v144; 
+  float v145; 
+  unsigned int v146; 
+  unsigned int v147; 
   float4 pt0; 
-  __int64 v286; 
+  __int64 v150; 
   float4 pt1; 
-  unsigned __int8 *v288; 
-  const FxGenerateVertsCmd *v289; 
-  __int64 v290; 
+  unsigned __int8 *v152; 
+  const FxGenerateVertsCmd *v153; 
+  __int64 v154; 
   GfxCodeSurfBuffers outBuffers; 
   GfxCodeSurfArgs codeSurfArgs; 
+  __m128 v157; 
+  __m128 v158; 
+  __m128 v159; 
   vector4 clipMtx; 
-  __int128 v301; 
-  __int128 v302; 
-  __int128 v303; 
-  __int128 v304; 
-  void *retaddr; 
+  __m256i v161; 
+  __m256i v162; 
+  __m256i v163; 
+  __m256i v164; 
+  __int128 v165; 
+  __m128 v166; 
+  __m128 v167; 
+  __m128 v168; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v289 = cmd;
-  _RDI = cmd;
+  v153 = cmd;
+  v4 = cmd;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 242, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  if ( !_RDI->beamInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 243, ASSERT_TYPE_ASSERT, "(cmd->beamInfo)", (const char *)&queryFormat, "cmd->beamInfo") )
+  if ( !v4->beamInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 243, ASSERT_TYPE_ASSERT, "(cmd->beamInfo)", (const char *)&queryFormat, "cmd->beamInfo") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rdi+0A0h] }
-  beamInfo = (__int64)_RDI->beamInfo;
-  HIDWORD(v302) = 0;
-  v18 = 0;
+  v5 = v4->camera.axis.m[0].v[0];
+  beamInfo = (__int64)v4->beamInfo;
+  v166.m128_i32[3] = 0;
+  v7 = 0;
+  v9 = v166;
+  v9.m128_f32[0] = v5;
+  _XMM7 = v9;
+  _XMM0 = _xmm;
   __asm
   {
-    vmovups xmm7, xmmword ptr [rsp+210h]
-    vmovss  xmm7, xmm7, xmm0
-    vmovups xmm0, cs:__xmm@00000000000000003f8000003f800000
     vinsertps xmm7, xmm7, dword ptr [rdi+0A4h], 10h
     vinsertps xmm7, xmm7, dword ptr [rdi+0A8h], 20h ; ' '
     vcvtps2ph xmm6, xmm0, 0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtps2ph xmm1, xmm0, 0
-    vmovss  [rsp+318h+var_2CC], xmm1
   }
-  v27 = 1;
-  __asm { vmovss  [rsp+318h+var_2C8], xmm6 }
-  v290 = beamInfo;
-  __asm
-  {
-    vmovups [rsp+318h+var_1E8], xmm7
-    vmovups xmmword ptr [rsp+210h], xmm7
-  }
-  v281 = v275;
-  if ( v273 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 255, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_0_0 == Float4PackFloat16_2( 0.0f, 0.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_0_0 == Float4PackFloat16_2( 0.0f, 0.0f )") )
+  _XMM0 = 0i64;
+  __asm { vcvtps2ph xmm1, xmm0, 0 }
+  v16 = 1;
+  v154 = beamInfo;
+  v159 = _XMM7;
+  v166 = _XMM7;
+  v146 = _XMM6;
+  if ( (_DWORD)_XMM1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 255, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_0_0 == Float4PackFloat16_2( 0.0f, 0.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_0_0 == Float4PackFloat16_2( 0.0f, 0.0f )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@0000000000000000000000003f800000
-    vcvtps2ph xmm1, xmm0, 0
-    vmovss  [rsp+318h+var_2D0], xmm1
-  }
-  if ( v271 != 15360 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 256, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_1_0 == Float4PackFloat16_2( 1.0f, 0.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_1_0 == Float4PackFloat16_2( 1.0f, 0.0f )") )
+  _XMM0 = _xmm;
+  __asm { vcvtps2ph xmm1, xmm0, 0 }
+  if ( (_DWORD)_XMM1 != 15360 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 256, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_1_0 == Float4PackFloat16_2( 1.0f, 0.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_1_0 == Float4PackFloat16_2( 1.0f, 0.0f )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@00000000000000003f80000000000000
-    vcvtps2ph xmm1, xmm0, 0
-    vmovss  [rsp+318h+var_2C4], xmm1
-  }
-  if ( v277 != 1006632960 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 257, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_0_1 == Float4PackFloat16_2( 0.0f, 1.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_0_1 == Float4PackFloat16_2( 0.0f, 1.0f )") )
+  _XMM0 = _xmm;
+  __asm { vcvtps2ph xmm1, xmm0, 0 }
+  if ( _XMM1.m128_i32[0] != 1006632960 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 257, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_0_1 == Float4PackFloat16_2( 0.0f, 1.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_0_1 == Float4PackFloat16_2( 0.0f, 1.0f )") )
     __debugbreak();
-  __asm { vmovss  [rsp+318h+var_2C0], xmm6 }
-  if ( v279 != 1006648320 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 258, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_1_1 == Float4PackFloat16_2( 1.0f, 1.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_1_1 == Float4PackFloat16_2( 1.0f, 1.0f )") )
+  if ( (_DWORD)_XMM6 != 1006648320 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 258, ASSERT_TYPE_ASSERT, "(VEC_PACK16_2_CONST_1_1 == Float4PackFloat16_2( 1.0f, 1.0f ))", (const char *)&queryFormat, "VEC_PACK16_2_CONST_1_1 == Float4PackFloat16_2( 1.0f, 1.0f )") )
     __debugbreak();
-  v32 = 96;
+  v21 = 96;
   if ( *(int *)(beamInfo + 12288) < 96 )
-    v32 = *(_DWORD *)(beamInfo + 12288);
-  if ( v32 )
+    v21 = *(_DWORD *)(beamInfo + 12288);
+  if ( v21 )
   {
-    __asm
-    {
-      vmovaps [rsp+318h+var_58], xmm8
-      vmovaps [rsp+318h+var_68], xmm9
-      vmovaps [rsp+318h+var_78], xmm10
-      vmovaps [rsp+318h+var_88], xmm11
-      vmovss  xmm11, cs:__real@3f800000
-      vmovaps [rsp+318h+var_98], xmm12
-      vmovaps [rsp+318h+var_A8], xmm13
-    }
-    *(_QWORD *)&v302 = v32;
-    v34 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+318h+var_B8], xmm14
-      vmovaps [rsp+318h+var_C8], xmm15
-    }
-    v286 = 0i64;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    _XMM11 = LODWORD(FLOAT_1_0);
+    v166.m128_u64[0] = v21;
+    v23 = 0i64;
+    v150 = 0i64;
+    v24 = 0i64;
     do
     {
-      v36 = v34 << 7;
-      v37 = *(_QWORD *)(v36 + beamInfo + 112) == 0i64;
-      _R12 = (unsigned __int8 *)(v36 + beamInfo);
-      v288 = (unsigned __int8 *)(v36 + beamInfo);
-      if ( !v37 )
-        goto LABEL_110;
+      v25 = v23 << 7;
+      v26 = *(_QWORD *)(v25 + beamInfo + 112) == 0i64;
+      v27 = (unsigned __int8 *)(v25 + beamInfo);
+      v152 = (unsigned __int8 *)(v25 + beamInfo);
+      if ( !v26 )
+        goto LABEL_109;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 298, ASSERT_TYPE_ASSERT, "(beam->material)", (const char *)&queryFormat, "beam->material") )
         __debugbreak();
-      if ( *((_QWORD *)_R12 + 14) )
+      if ( *((_QWORD *)v27 + 14) )
       {
-LABEL_110:
-        v39 = *_R12;
-        __asm
+LABEL_109:
+        v28 = *v27;
+        v29 = *((unsigned int *)v27 + 7);
+        v145 = *((float *)v27 + 7);
+        if ( *v27 == 1 )
         {
-          vmovss  xmm15, dword ptr [r12+1Ch]
-          vmovss  [rsp+318h+var_2C4], xmm15
-        }
-        if ( *_R12 == 1 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r12+78h]
-            vmovss  [rsp+318h+var_2D0], xmm0
-          }
+          v142 = *((float *)v27 + 30);
         }
         else
         {
-          __asm { vmovss  [rsp+318h+var_2D0], xmm15 }
-          if ( v39 >= 2u )
+          v142 = *((float *)v27 + 7);
+          if ( v28 >= 2u )
           {
-            LODWORD(v257) = 2;
-            LODWORD(v251) = v39;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 310, ASSERT_TYPE_ASSERT, "(unsigned)( beam->type ) < (unsigned)( BEAMTYPE_COUNT )", "beam->type doesn't index BEAMTYPE_COUNT\n\t%i not in [0, %i)", v251, v257) )
+            LODWORD(v134) = 2;
+            LODWORD(v131) = v28;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 310, ASSERT_TYPE_ASSERT, "(unsigned)( beam->type ) < (unsigned)( BEAMTYPE_COUNT )", "beam->type doesn't index BEAMTYPE_COUNT\n\t%i not in [0, %i)", v131, v134) )
               __debugbreak();
           }
         }
-        v42 = FX_BEAMS_COLOR_COUNT_TYPES[*_R12];
-        v283 = v42;
-        v43 = v42 - 1;
-        if ( _R12[2] > (int)(v42 - 1) )
-          v43 = _R12[2];
-        v276 = v43;
-        if ( v43 < 0 )
+        v30 = FX_BEAMS_COLOR_COUNT_TYPES[*v27];
+        v147 = v30;
+        v31 = v30 - 1;
+        if ( v27[2] > (int)(v30 - 1) )
+          v31 = v27[2];
+        v144 = v31;
+        if ( v31 < 0 )
         {
-          LODWORD(v251) = v43;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 313, ASSERT_TYPE_ASSERT, "( ( segCount >= 0 ) )", "( segCount ) = %i", v251) )
+          LODWORD(v131) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 313, ASSERT_TYPE_ASSERT, "( ( segCount >= 0 ) )", "( segCount ) = %i", v131) )
             __debugbreak();
         }
-        __asm { vmovss  xmm0, dword ptr [r12+4] }
-        HIDWORD(v303) = 0;
-        HIDWORD(v304) = 0;
-        v45 = _R12[1];
+        v32 = *((float *)v27 + 1);
+        v167.m128_i32[3] = 0;
+        v168.m128_i32[3] = 0;
+        v33 = v27[1];
+        v35 = v167;
+        v35.m128_f32[0] = v32;
+        _XMM12 = v35;
+        v36 = *((unsigned int *)v27 + 4);
         __asm
         {
-          vmovups xmm12, xmmword ptr [rsp+220h]
-          vmovups xmm13, xmmword ptr [rsp+230h]
-          vmovss  xmm12, xmm12, xmm0
-          vmovss  xmm0, dword ptr [r12+10h]
           vinsertps xmm12, xmm12, dword ptr [r12+8], 10h
           vinsertps xmm12, xmm12, dword ptr [r12+0Ch], 20h ; ' '
-          vmovss  xmm13, xmm13, xmm0
+        }
+        v40 = v168;
+        v40.m128_f32[0] = *(float *)&v36;
+        _XMM13 = v40;
+        __asm
+        {
           vinsertps xmm13, xmm13, dword ptr [r12+14h], 10h
           vinsertps xmm13, xmm13, dword ptr [r12+18h], 20h ; ' '
-          vmovups xmmword ptr [rsp+230h], xmm13
-          vxorps  xmm8, xmm8, xmm8
-          vmovups xmmword ptr [rsp+220h], xmm12
         }
-        if ( v27 || v45 != v18 )
+        v168 = _XMM13;
+        v167 = _XMM12;
+        if ( v16 || v33 != v7 )
         {
-          v270 = v45;
-          v18 = v45;
-          v55 = 220i64;
-          if ( !v45 )
-            v55 = 212i64;
-          CreateClipMatrix(&clipMtx, &_RDI->camera.origin, &_RDI->camera.axis, (const vec2_t *)((char *)_RDI + v55));
-          Float4x4Inverse(&clipMtx, v56);
-          __asm
-          {
-            vmovups xmmword ptr [rsp+318h+var_178], xmm2
-            vmovups xmmword ptr [rsp+318h+var_198], xmm0
-            vmovups xmmword ptr [rsp+318h+var_178+10h], xmm3
-            vmovups ymm0, [rsp+318h+var_178]
-            vmovups xmmword ptr [rsp+318h+var_198+10h], xmm1
-            vmovups ymm2, [rsp+318h+var_198]
-            vmovups [rsp+318h+var_158], ymm2
-            vmovups [rsp+318h+var_138], ymm0
-          }
+          v141 = v33;
+          v7 = v33;
+          v43 = 220i64;
+          if ( !v33 )
+            v43 = 212i64;
+          CreateClipMatrix(&clipMtx, &v4->camera.origin, &v4->camera.axis, (const vec2_t *)((char *)v4 + v43));
+          Float4x4Inverse(&clipMtx, v44);
+          *(_OWORD *)v162.m256i_i8 = *(_OWORD *)&a3;
+          *(_OWORD *)v161.m256i_i8 = v36;
+          *(_OWORD *)&v162.m256i_u64[2] = *(_OWORD *)&a4;
+          *(__m128 *)&v161.m256i_u64[2] = _XMM1;
+          v163 = v161;
+          v164 = v162;
         }
         else
         {
-          v18 = v45;
-          v270 = v45;
+          v7 = v33;
+          v141 = v33;
         }
-        __asm
-        {
-          vaddps  xmm3, xmm12, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-          vaddps  xmm5, xmm13, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-          vmovups xmm14, xmmword ptr [rsp+318h+clipMtx.baseclass_0.y.v]
-          vshufps xmm2, xmm3, xmm3, 0AAh ; 'ª'
-          vshufps xmm4, xmm3, xmm3, 0FFh
-          vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-          vshufps xmm1, xmm3, xmm3, 0
-          vmulps  xmm1, xmm1, xmmword ptr [rsp+318h+clipMtx.baseclass_0.x.v]
-          vmulps  xmm3, xmm14, xmm0
-          vmulps  xmm0, xmm2, xmmword ptr [rsp+318h+clipMtx.baseclass_0.z.v]
-          vaddps  xmm2, xmm0, xmm1
-          vmulps  xmm1, xmm4, xmmword ptr [rsp+318h+clipMtx.w.v]
-          vaddps  xmm0, xmm1, xmm3
-          vaddps  xmm2, xmm0, xmm2
-          vmovups xmmword ptr [rsp+318h+pt0.v], xmm2
-          vshufps xmm0, xmm5, xmm5, 55h ; 'U'
-          vshufps xmm2, xmm5, xmm5, 0AAh ; 'ª'
-          vmulps  xmm3, xmm14, xmm0
-          vmulps  xmm0, xmm2, xmmword ptr [rsp+318h+clipMtx.baseclass_0.z.v]
-          vshufps xmm1, xmm5, xmm5, 0
-          vmulps  xmm1, xmm1, xmmword ptr [rsp+318h+clipMtx.baseclass_0.x.v]
-          vaddps  xmm2, xmm0, xmm1
-          vshufps xmm4, xmm5, xmm5, 0FFh
-          vmulps  xmm1, xmm4, xmmword ptr [rsp+318h+clipMtx.w.v]
-          vaddps  xmm0, xmm1, xmm3
-          vaddps  xmm2, xmm0, xmm2
-        }
-        v27 = 0;
-        __asm { vmovups xmmword ptr [rsp+318h+pt1.v], xmm2 }
+        v45 = _mm128_add_ps(_XMM12, g_unit.v);
+        v46 = _mm128_add_ps(_XMM13, g_unit.v);
+        pt0.v = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v45, v45, 255), clipMtx.w.v), _mm128_mul_ps(clipMtx.y.v, _mm_shuffle_ps(v45, v45, 85))), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v45, v45, 170), clipMtx.z.v), _mm128_mul_ps(_mm_shuffle_ps(v45, v45, 0), clipMtx.x.v)));
+        *(__m128 *)&a4 = _mm128_mul_ps(clipMtx.y.v, _mm_shuffle_ps(v46, v46, 85));
+        _XMM1 = _mm128_mul_ps(_mm_shuffle_ps(v46, v46, 255), clipMtx.w.v);
+        *(__m128 *)&a3 = _mm128_add_ps(_mm128_add_ps(_XMM1, *(__m128 *)&a4), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v46, v46, 170), clipMtx.z.v), _mm128_mul_ps(_mm_shuffle_ps(v46, v46, 0), clipMtx.x.v)));
+        v16 = 0;
+        pt1.v = *(__m128 *)&a3;
         if ( Vec4HomogenousClipBothZ(&pt0, &pt1) )
         {
-          __asm
+          _XMM0 = _mm_shuffle_ps(pt0.v, pt0.v, 255);
+          __asm { vrcpps  xmm1, xmm0 }
+          v49 = _mm128_mul_ps(_XMM1, pt0.v);
+          _XMM0 = _mm_shuffle_ps(pt1.v, pt1.v, 255);
+          __asm { vrcpps  xmm1, xmm0 }
+          v52 = (__m128)(*(_OWORD *)&_mm128_sub_ps(_mm128_mul_ps(_XMM1, pt1.v), v49) & *(_OWORD *)&g_keepXYW.v);
+          v53 = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v52, v52, 255), *(__m128 *)&v164.m256i_u64[2]), _mm128_mul_ps(_mm_shuffle_ps(v52, v52, 85), *(__m128 *)&v163.m256i_u64[2])), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v52, v52, 170), *(__m128 *)v164.m256i_i8), _mm128_mul_ps(_mm_shuffle_ps(v52, v52, 0), *(__m128 *)v163.m256i_i8))) & *(_OWORD *)&g_keepXYZ.v);
+          _XMM0.m128_f32[0] = _mm_shuffle_ps(v53, v53, 85).m128_f32[0];
+          v54 = v53;
+          v52.m128_f32[0] = _mm_shuffle_ps(v53, v53, 170).m128_f32[0];
+          v54.m128_f32[0] = (float)((float)(v53.m128_f32[0] * v53.m128_f32[0]) + (float)(_XMM0.m128_f32[0] * _XMM0.m128_f32[0])) + (float)(v52.m128_f32[0] * v52.m128_f32[0]);
+          *(__m128 *)&a4 = v54;
+          v54.m128_i32[0] = _mm_shuffle_ps(v53, v53, 255).m128_u32[0];
+          _XMM0.m128_f32[0] = v54.m128_f32[0] * v54.m128_f32[0];
+          v55 = *(__m128 *)&a4;
+          v55.m128_f32[0] = *(float *)&a4 + _XMM0.m128_f32[0];
+          _XMM1 = v55;
+          *(double *)v55.m128_u64 = (float)(*(float *)&a4 + _XMM0.m128_f32[0]);
+          *(__m128 *)&a3 = v55;
+          if ( *(double *)v55.m128_u64 >= 0.000002 )
           {
-            vmovups xmm2, xmmword ptr [rsp+318h+pt0.v]
-            vmovups xmm3, xmmword ptr [rsp+318h+pt1.v]
-            vshufps xmm0, xmm2, xmm2, 0FFh
-            vrcpps  xmm1, xmm0
-            vmulps  xmm4, xmm1, xmm2
-            vshufps xmm0, xmm3, xmm3, 0FFh
-            vrcpps  xmm1, xmm0
-            vmulps  xmm2, xmm1, xmm3
-            vsubps  xmm4, xmm2, xmm4
-            vandps  xmm1, xmm4, xmmword ptr cs:?g_keepXYW@@3Ufloat4@@B.v; float4 const g_keepXYW
-            vshufps xmm3, xmm1, xmm1, 55h ; 'U'
-            vmulps  xmm4, xmm3, xmmword ptr [rsp+318h+var_158+10h]
-            vshufps xmm2, xmm1, xmm1, 0
-            vmulps  xmm2, xmm2, xmmword ptr [rsp+318h+var_158]
-            vshufps xmm5, xmm1, xmm1, 0AAh ; 'ª'
-            vshufps xmm6, xmm1, xmm1, 0FFh
-            vmulps  xmm1, xmm5, xmmword ptr [rsp+318h+var_138]
-            vaddps  xmm3, xmm1, xmm2
-            vmulps  xmm1, xmm6, xmmword ptr [rsp+318h+var_138+10h]
-            vaddps  xmm2, xmm1, xmm4
-            vaddps  xmm3, xmm2, xmm3
-            vandps  xmm4, xmm3, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-            vshufps xmm0, xmm4, xmm4, 55h ; 'U'
-            vmulss  xmm0, xmm0, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm1, xmm0
-            vshufps xmm1, xmm4, xmm4, 0AAh ; 'ª'
-            vmulss  xmm0, xmm1, xmm1
-            vaddss  xmm3, xmm2, xmm0
-            vshufps xmm2, xmm4, xmm4, 0FFh
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm1, xmm3, xmm0
-            vcvtss2sd xmm2, xmm1, xmm1
-            vcomisd xmm2, cs:__real@3ec0c6f7a0b5ed8d
-            vmulps  xmm0, xmm4, xmm4
-            vhaddps xmm1, xmm0, xmm0
-            vhaddps xmm0, xmm1, xmm1
-            vrsqrtps xmm1, xmm0
-            vmulps  xmm10, xmm1, xmm4
-            vmovups xmmword ptr [rsp+318h+pt1.v], xmm10
-          }
-          if ( !R_ReserveVertCodeSurfBuffers(&outBuffers, codeSurfGlob, 2 * v43 + 4, 2 * (3 * v43 + 3), 2u) )
-            break;
-          vertIndexOffset = outBuffers.vertIndexOffset;
-          v120 = 0;
-          indices = outBuffers.indices;
-          vertIndexBase = outBuffers.vertIndexBase;
-          argOffset = outBuffers.argOffset;
-          v266 = outBuffers.vertIndexOffset;
-          v267.value[1] = outBuffers.vertIndexOffset + 2;
-          v124 = outBuffers.indices + 1;
-          *outBuffers.indices = v267;
-          v267.value[0] = vertIndexOffset + 1;
-          if ( v43 )
-          {
-            do
-            {
-              v125 = v120++;
-              v126 = vertIndexOffset + 2 * v125;
-              v267.value[1] = v126 + 2;
-              *v124 = v267;
-              v268.value[0] = v126 + 4;
-              v268.value[1] = v126 + 1;
-              v124[1] = v268;
-              v268.value[0] = v126 + 1;
-              v267.value[1] = v126 + 4;
-              v124[2] = v267;
-              v124 += 3;
-              v267.value[0] = v126 + 3;
-            }
-            while ( v120 != v43 );
-          }
-          v127 = vertIndexOffset + 2 * v43;
-          v267.value[1] = v127 + 1;
-          *v124 = v267;
-          v269.value[0] = v127 + 2;
-          v269.value[1] = v127 + 3;
-          v124[1] = v269;
-          v128 = (Material *)*((_QWORD *)_R12 + 14);
-          LOBYTE(v127) = _R12[1] != 0;
-          codeSurfArgs.indexCount = 2 * (3 * v43 + 3);
-          codeSurfArgs.material = v128;
-          codeSurfArgs.flags = v127;
-          codeSurfArgs.vertIndexBase = vertIndexBase;
-          codeSurfArgs.indices = indices;
-          codeSurfArgs.argOffset = argOffset;
-          codeSurfArgs.argCount = 2;
-          codeSurfArgs.fxName = "Beam";
-          codeSurfArgs.sortOrder = 0;
-          R_AddCodeSurf(codeSurfGlob, &codeSurfArgs);
-          __asm
-          {
-            vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-            vshufps xmm2, xmm7, xmm7, 0D2h ; 'Ò'
-            vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-            vmulps  xmm3, xmm1, xmm0
-            vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-            vmulps  xmm0, xmm2, xmm1
-            vsubps  xmm4, xmm0, xmm3
-            vmulps  xmm1, xmm4, xmm4
-            vinsertps xmm0, xmm1, xmm1, 8
-            vhaddps xmm2, xmm0, xmm0
-            vhaddps xmm0, xmm2, xmm2
-            vrsqrtps xmm1, xmm0
-            vmulps  xmm3, xmm1, xmm4
-            vmovups [rsp+318h+var_208], xmm3
-            vsubps  xmm3, xmm13, xmm12
-            vmulps  xmm0, xmm3, xmm3
-            vinsertps xmm1, xmm0, xmm0, 8
-            vhaddps xmm2, xmm1, xmm1
-            vhaddps xmm0, xmm2, xmm2
-            vrsqrtps xmm1, xmm0
-            vmulps  xmm7, xmm1, xmm3
-            vmulps  xmm0, xmm12, xmm7
-            vinsertps xmm1, xmm0, xmm0, 8
-            vhaddps xmm2, xmm1, xmm1
-            vhaddps xmm0, xmm2, xmm2
-            vsubps  xmm6, xmm8, xmm0
-          }
-          _RAX = R_CodeSurfArgsIter_Begin(codeSurfGlob, argOffset);
-          __asm
-          {
-            vblendps xmm0, xmm7, xmm6, 8
-            vmovups xmmword ptr [rax], xmm0
-            vxorps  xmm0, xmm15, cs:__xmm@80000000800000008000000080000000
-            vaddps  xmm1, xmm12, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-            vshufps xmm0, xmm0, xmm0, 0
-            vmulps  xmm0, xmm0, xmm10
-            vaddps  xmm6, xmm0, xmm12
-            vmovups xmmword ptr [rax+10h], xmm1
-          }
-          _R15 = R_CodeSurfVertIter_Begin(codeSurfGlob, vertIndexBase + vertIndexOffset);
-          __asm
-          {
-            vmovss  dword ptr [rax], xmm6
-            vextractps dword ptr [rax+4], xmm6, 1
-            vextractps dword ptr [rax+8], xmm6, 2
-          }
-          _R15->color = (vec4_t)*((_OWORD *)_R12 + 2);
-          _ER14 = 0;
-          v163 = v281;
-          _R15->extraData = v281;
-          _R15->normal.packed = 1073643391;
-          _R15->tangentBinormalSign.packed = 1065320446;
-          _R15->texCoord.packed = 0;
-          if ( *_R12 )
-            __asm { vmovaps xmm6, xmm9 }
-          else
-            __asm { vmovss  xmm6, dword ptr [r12+78h] }
-          if ( v42 < 2 )
-          {
-            LODWORD(v251) = v42;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 426, ASSERT_TYPE_ASSERT, "( ( colorCount >= 2 ) )", "( colorCount ) = %i", v251) )
-              __debugbreak();
-          }
-          if ( v42 > 5 )
-          {
-            LODWORD(v251) = v42;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 427, ASSERT_TYPE_ASSERT, "( ( colorCount <= 5 ) )", "( colorCount ) = %i", v251) )
-              __debugbreak();
-          }
-          _EBX = v42 - 2;
-          if ( v42 - 2 > 0xC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 431, ASSERT_TYPE_SANITY, "( colorSegmentCount <= sizeof(FX_BEAMS_COLOR_SEGMENTS) )", (const char *)&queryFormat, "colorSegmentCount <= sizeof(FX_BEAMS_COLOR_SEGMENTS)") )
-            __debugbreak();
-          v274 = 0;
-          LODWORD(_RSI) = 0;
-          __asm
-          {
-            vmovd   xmm1, r14d
-            vmovd   xmm0, ebx
-            vpcmpgtq xmm2, xmm0, xmm1
-            vmovss  xmm0, cs:__real@3dcccccd
-            vmovups xmm1, cs:__xmm@3f8000003f8000003f8000003f800000
-            vblendvps xmm0, xmm11, xmm0, xmm2
-            vmovss  [rsp+318h+var_2C0], xmm0
-            vmovaps xmm10, xmm9
-            vmovups [rsp+318h+var_118], xmm1
-          }
-          if ( v276 < 0 )
-          {
+            _XMM0 = _mm128_mul_ps(v53, v53);
             __asm
             {
-              vmovss  xmm7, dword ptr [rsp+318h+var_118+0Ch]
-              vmovss  xmm5, dword ptr [rsp+318h+var_118+8]
-              vmovss  xmm3, dword ptr [rsp+318h+var_118+4]
-              vmovss  xmm2, dword ptr [rsp+318h+var_118]
+              vhaddps xmm1, xmm0, xmm0
+              vhaddps xmm0, xmm1, xmm1
+              vrsqrtps xmm1, xmm0
             }
-          }
-          else
-          {
-            __asm
+            v60 = _mm128_mul_ps(_XMM1, v53);
+            pt1.v = v60;
+            if ( !R_ReserveVertCodeSurfBuffers(&outBuffers, codeSurfGlob, 2 * v31 + 4, 2 * (3 * v31 + 3), 2u) )
+              return;
+            vertIndexOffset = outBuffers.vertIndexOffset;
+            v62 = 0;
+            indices = outBuffers.indices;
+            vertIndexBase = outBuffers.vertIndexBase;
+            argOffset = outBuffers.argOffset;
+            v137 = outBuffers.vertIndexOffset;
+            v138.value[1] = outBuffers.vertIndexOffset + 2;
+            v66 = outBuffers.indices + 1;
+            *outBuffers.indices = v138;
+            v138.value[0] = vertIndexOffset + 1;
+            if ( v31 )
             {
-              vmovaps xmm14, xmm6
-              vmovss  xmm6, [rsp+318h+var_2C0]
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vdivss  xmm1, xmm11, xmm0
-            }
-            LOBYTE(v178) = 0;
-            __asm
-            {
-              vmovss  [rsp+318h+var_2B8], xmm1
-              vshufps xmm14, xmm14, xmm14, 0
-            }
-            pt0.v.m128_u64[0] = 0i64;
-            do
-            {
-              v180 = v178 & 7;
-              v181 = __CFADD__(v180, v180) || 2 * v180 == 0;
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, ecx
-                vmulss  xmm8, xmm0, xmm1
-                vcomiss xmm8, xmm9
-              }
-              _RCX = 0x140000000ui64;
-              __asm
-              {
-                vmulps  xmm1, xmm14, xmmword ptr rva FX_BEAMS_wiggle.v[rcx+rax*8]
-                vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-                vmovups [rsp+318h+var_1F8], xmm0
-                vshufps xmm15, xmm1, xmm1, 0
-              }
-              if ( __CFADD__(v180, v180) )
-                goto LABEL_63;
-              __asm { vcomiss xmm8, xmm11 }
-              if ( __CFADD__(v180, v180) || 2 * v180 == 0 )
-              {
-                __asm { vmovsd  xmm7, cs:__real@3ff0000000000000 }
-              }
-              else
-              {
-LABEL_63:
-                __asm
-                {
-                  vmovsd  xmm7, cs:__real@3ff0000000000000
-                  vmovsd  [rsp+318h+var_2E0], xmm7
-                  vxorpd  xmm1, xmm1, xmm1
-                  vmovsd  [rsp+318h+var_2E8], xmm1
-                  vcvtss2sd xmm0, xmm8, xmm8
-                  vmovsd  [rsp+318h+var_2F0], xmm0
-                }
-                v191 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 458, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( alpha ) && ( alpha ) <= ( 1.0f )", "alpha not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v252, v258, v263);
-                v181 = !v191;
-                if ( v191 )
-                  __debugbreak();
-                _RCX = 0x140000000ui64;
-              }
-              __asm { vcomiss xmm8, xmm6 }
-              if ( !v181 )
-              {
-                do
-                {
-                  _RSI = (unsigned int)(_RSI + 1);
-                  __asm { vmovaps xmm10, xmm6 }
-                  if ( _EBX <= (unsigned int)_RSI )
-                    __asm { vmovaps xmm6, xmm11 }
-                  else
-                    __asm { vmovss  xmm6, ds:rva FX_BEAMS_COLOR_SEGMENTS[rcx+rsi*4] }
-                  __asm { vcomiss xmm8, xmm6 }
-                }
-                while ( _EBX > (unsigned int)_RSI );
-              }
-              if ( (unsigned int)_RSI >= v42 )
-              {
-                LODWORD(v257) = v42;
-                LODWORD(v251) = _RSI;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 466, ASSERT_TYPE_SANITY, "(unsigned)( colorIndex ) < (unsigned)( colorCount )", "colorIndex doesn't index colorCount\n\t%i not in [0, %i)", v251, v257) )
-                  __debugbreak();
-              }
-              v192 = (int)_RSI + 1 <= v42;
-              if ( (int)_RSI + 1 >= v42 )
-              {
-                LODWORD(v257) = v42;
-                LODWORD(v251) = _RSI + 1;
-                v193 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 467, ASSERT_TYPE_SANITY, "(unsigned)( colorIndex + 1 ) < (unsigned)( colorCount )", "colorIndex + 1 doesn't index colorCount\n\t%i not in [0, %i)", v251, v257);
-                v192 = !v193;
-                if ( v193 )
-                  __debugbreak();
-              }
-              __asm { vcomiss xmm6, xmm10 }
-              if ( v192 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 468, ASSERT_TYPE_SANITY, "( lerpMaxAlpha > lerpMinAlpha )", (const char *)&queryFormat, "lerpMaxAlpha > lerpMinAlpha") )
-                __debugbreak();
-              v194 = 16 * ((unsigned int)(_RSI + 1) + 2i64);
-              v195 = __CFADD__(_R12, v194);
-              v196 = __CFADD__(_R12, v194) || &_R12[v194] == NULL;
-              _RDI = &_R12[v194];
-              __asm { vcomiss xmm10, xmm8 }
-              if ( !v196 )
-                goto LABEL_111;
-              __asm { vcomiss xmm8, xmm6 }
-              if ( !v196 )
-              {
-LABEL_111:
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm6, xmm6
-                  vmovsd  [rsp+318h+var_2E0], xmm0
-                  vcvtss2sd xmm1, xmm10, xmm10
-                  vmovsd  [rsp+318h+var_2E8], xmm1
-                  vcvtss2sd xmm2, xmm8, xmm8
-                  vmovsd  [rsp+318h+var_2F0], xmm2
-                }
-                v200 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 473, ASSERT_TYPE_SANITY, "( lerpMinAlpha ) <= ( alpha ) && ( alpha ) <= ( lerpMaxAlpha )", "alpha not in [lerpMinAlpha, lerpMaxAlpha]\n\t%g not in [%g, %g]", v253, v259, v264);
-                v195 = 0;
-                v196 = !v200;
-                if ( v200 )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vsubss  xmm1, xmm8, xmm10
-                vsubss  xmm0, xmm6, xmm10
-                vdivss  xmm9, xmm1, xmm0
-                vxorps  xmm2, xmm2, xmm2
-                vcomiss xmm9, xmm2
-              }
-              if ( v195 )
-                goto LABEL_112;
-              __asm { vcomiss xmm9, xmm11 }
-              if ( !v196 )
-              {
-LABEL_112:
-                __asm
-                {
-                  vmovsd  [rsp+318h+var_2E0], xmm7
-                  vxorpd  xmm1, xmm1, xmm1
-                  vmovsd  [rsp+318h+var_2E8], xmm1
-                  vcvtss2sd xmm0, xmm9, xmm9
-                  vmovsd  [rsp+318h+var_2F0], xmm0
-                }
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 478, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerpBlendFact ) && ( lerpBlendFact ) <= ( 1.0f )", "lerpBlendFact not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v254, v260, v265) )
-                  __debugbreak();
-              }
-              _R12 = (char *)((char *)&v301 - (char *)_RDI);
-              v208 = 0;
-              v209 = 1;
               do
               {
-                if ( !v209 )
+                v67 = v62++;
+                v68 = vertIndexOffset + 2 * v67;
+                v138.value[1] = v68 + 2;
+                *v66 = v138;
+                v139.value[0] = v68 + 4;
+                v139.value[1] = v68 + 1;
+                v66[1] = v139;
+                v139.value[0] = v68 + 1;
+                v138.value[1] = v68 + 4;
+                v66[2] = v138;
+                v66 += 3;
+                v138.value[0] = v68 + 3;
+              }
+              while ( v62 != v31 );
+            }
+            v69 = vertIndexOffset + 2 * v31;
+            v138.value[1] = v69 + 1;
+            *v66 = v138;
+            v140.value[0] = v69 + 2;
+            v140.value[1] = v69 + 3;
+            v66[1] = v140;
+            v70 = (Material *)*((_QWORD *)v27 + 14);
+            LOBYTE(v69) = v27[1] != 0;
+            codeSurfArgs.indexCount = 2 * (3 * v31 + 3);
+            codeSurfArgs.material = v70;
+            codeSurfArgs.flags = v69;
+            codeSurfArgs.vertIndexBase = vertIndexBase;
+            codeSurfArgs.indices = indices;
+            codeSurfArgs.argOffset = argOffset;
+            codeSurfArgs.argCount = 2;
+            codeSurfArgs.fxName = "Beam";
+            codeSurfArgs.sortOrder = 0;
+            R_AddCodeSurf(codeSurfGlob, &codeSurfArgs);
+            v71 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 210), _mm_shuffle_ps(v60, v60, 201)), _mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 201), _mm_shuffle_ps(v60, v60, 210)));
+            _XMM1 = _mm128_mul_ps(v71, v71);
+            __asm
+            {
+              vinsertps xmm0, xmm1, xmm1, 8
+              vhaddps xmm2, xmm0, xmm0
+              vhaddps xmm0, xmm2, xmm2
+              vrsqrtps xmm1, xmm0
+            }
+            v157 = _mm128_mul_ps(_XMM1, v71);
+            v77 = _mm128_sub_ps(_XMM13, _XMM12);
+            _XMM0 = _mm128_mul_ps(v77, v77);
+            __asm
+            {
+              vinsertps xmm1, xmm0, xmm0, 8
+              vhaddps xmm2, xmm1, xmm1
+              vhaddps xmm0, xmm2, xmm2
+              vrsqrtps xmm1, xmm0
+            }
+            _XMM7 = _mm128_mul_ps(_XMM1, v77);
+            _XMM0 = _mm128_mul_ps(_XMM12, _XMM7);
+            __asm
+            {
+              vinsertps xmm1, xmm0, xmm0, 8
+              vhaddps xmm2, xmm1, xmm1
+              vhaddps xmm0, xmm2, xmm2
+            }
+            _mm128_sub_ps((__m128)0i64, _XMM0);
+            v88 = R_CodeSurfArgsIter_Begin(codeSurfGlob, argOffset);
+            __asm { vblendps xmm0, xmm7, xmm6, 8 }
+            *v88 = _XMM0;
+            _XMM6 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)(v29 ^ _xmm), (__m128)(v29 ^ _xmm), 0), v60), _XMM12);
+            v88[1] = (vec4_t)_mm128_add_ps(_XMM12, g_unit.v);
+            _R15 = R_CodeSurfVertIter_Begin(codeSurfGlob, vertIndexBase + vertIndexOffset);
+            _R15->xyz.v[0] = _XMM6.m128_f32[0];
+            __asm
+            {
+              vextractps dword ptr [rax+4], xmm6, 1
+              vextractps dword ptr [rax+8], xmm6, 2
+            }
+            _R15->color = (vec4_t)*((_OWORD *)v27 + 2);
+            v92 = v146;
+            _R15->extraData = v146;
+            _R15->normal.packed = 1073643391;
+            _R15->tangentBinormalSign.packed = 1065320446;
+            _R15->texCoord.packed = 0;
+            if ( *v27 )
+              v93 = v24;
+            else
+              v93 = (__m128)*((unsigned int *)v27 + 30);
+            if ( v30 < 2 )
+            {
+              LODWORD(v131) = v30;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 426, ASSERT_TYPE_ASSERT, "( ( colorCount >= 2 ) )", "( colorCount ) = %i", v131) )
+                __debugbreak();
+            }
+            if ( v30 > 5 )
+            {
+              LODWORD(v131) = v30;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 427, ASSERT_TYPE_ASSERT, "( ( colorCount <= 5 ) )", "( colorCount ) = %i", v131) )
+                __debugbreak();
+            }
+            v94 = v30 - 2;
+            if ( v30 - 2 > 0xC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 431, ASSERT_TYPE_SANITY, "( colorSegmentCount <= sizeof(FX_BEAMS_COLOR_SEGMENTS) )", (const char *)&queryFormat, "colorSegmentCount <= sizeof(FX_BEAMS_COLOR_SEGMENTS)") )
+              __debugbreak();
+            v95 = 0;
+            v143 = 0;
+            LODWORD(v96) = 0;
+            _XMM0 = v94;
+            __asm
+            {
+              vpcmpgtq xmm2, xmm0, xmm1
+              vblendvps xmm0, xmm11, xmm0, xmm2
+            }
+            v100 = v24.m128_f32[0];
+            v165 = _xmm;
+            if ( v144 < 0 )
+            {
+              v124 = *((float *)&v165 + 3);
+              v123 = *((float *)&v165 + 2);
+              *(_OWORD *)&a4 = DWORD1(v165);
+              *(_OWORD *)&a3 = (unsigned int)v165;
+            }
+            else
+            {
+              v101 = v93;
+              v102 = *(float *)&_XMM0;
+              v103 = 1.0 / (float)v144;
+              LOBYTE(v104) = 0;
+              v105 = _mm_shuffle_ps(v101, v101, 0);
+              pt0.v.m128_u64[0] = 0i64;
+              do
+              {
+                v107 = 0i64;
+                v107.m128_f32[0] = (float)v95 * v103;
+                v106 = v107;
+                _XMM1 = _mm128_mul_ps(v105, FX_BEAMS_wiggle[v104 & 7].v);
+                v158 = _mm_shuffle_ps(_XMM1, _XMM1, 85);
+                v109 = _mm_shuffle_ps(_XMM1, _XMM1, 0);
+                if ( v107.m128_f32[0] >= v24.m128_f32[0] && v107.m128_f32[0] <= 1.0 )
                 {
-                  LODWORD(v257) = 4;
-                  LODWORD(v251) = v208;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v251, v257) )
-                    __debugbreak();
-                  LODWORD(v261) = 4;
-                  LODWORD(v255) = v208;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v255, v261) )
-                    __debugbreak();
-                  LODWORD(v262) = 4;
-                  LODWORD(v256) = v208;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v256, v262) )
+                  v110 = DOUBLE_1_0;
+                }
+                else
+                {
+                  v110 = DOUBLE_1_0;
+                  __asm { vxorpd  xmm1, xmm1, xmm1 }
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 458, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( alpha ) && ( alpha ) <= ( 1.0f )", "alpha not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v107.m128_f32[0], *(double *)&_XMM1, DOUBLE_1_0) )
                     __debugbreak();
                 }
+                while ( v107.m128_f32[0] > v102 )
+                {
+                  v96 = (unsigned int)(v96 + 1);
+                  v100 = v102;
+                  if ( v94 <= (unsigned int)v96 )
+                    v102 = FLOAT_1_0;
+                  else
+                    v102 = FX_BEAMS_COLOR_SEGMENTS[v96];
+                }
+                if ( (unsigned int)v96 >= v30 )
+                {
+                  LODWORD(v134) = v30;
+                  LODWORD(v131) = v96;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 466, ASSERT_TYPE_SANITY, "(unsigned)( colorIndex ) < (unsigned)( colorCount )", "colorIndex doesn't index colorCount\n\t%i not in [0, %i)", v131, v134) )
+                    __debugbreak();
+                }
+                if ( (int)v96 + 1 >= v30 )
+                {
+                  LODWORD(v134) = v30;
+                  LODWORD(v131) = v96 + 1;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 467, ASSERT_TYPE_SANITY, "(unsigned)( colorIndex + 1 ) < (unsigned)( colorCount )", "colorIndex + 1 doesn't index colorCount\n\t%i not in [0, %i)", v131, v134) )
+                    __debugbreak();
+                }
+                if ( v102 <= v100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 468, ASSERT_TYPE_SANITY, "( lerpMaxAlpha > lerpMinAlpha )", (const char *)&queryFormat, "lerpMaxAlpha > lerpMinAlpha") )
+                  __debugbreak();
+                v112 = &v27[16 * (unsigned int)v96 + 32];
+                v113 = (float *)&v27[16 * (unsigned int)(v96 + 1) + 32];
+                if ( (v100 > v107.m128_f32[0] || v107.m128_f32[0] > v102) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 473, ASSERT_TYPE_SANITY, "( lerpMinAlpha ) <= ( alpha ) && ( alpha ) <= ( lerpMaxAlpha )", "alpha not in [lerpMinAlpha, lerpMaxAlpha]\n\t%g not in [%g, %g]", v107.m128_f32[0], v100, v102) )
+                  __debugbreak();
+                v107.m128_f32[0] = v107.m128_f32[0] - v100;
+                _XMM1 = v107;
+                v116 = (float)(v106.m128_f32[0] - v100) / (float)(v102 - v100);
+                v115 = v116;
+                if ( v116 < 0.0 || v116 > 1.0 )
+                {
+                  __asm { vxorpd  xmm1, xmm1, xmm1 }
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_beam.cpp", 478, ASSERT_TYPE_SANITY, "( 0.0f ) <= ( lerpBlendFact ) && ( lerpBlendFact ) <= ( 1.0f )", "lerpBlendFact not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v116, *(double *)&_XMM1, v110) )
+                    __debugbreak();
+                }
+                v118 = (char *)((char *)&v165 - (char *)v113);
+                v119 = v112 - (unsigned __int8 *)v113;
+                v120 = 0;
+                v121 = 1;
+                do
+                {
+                  if ( !v121 )
+                  {
+                    LODWORD(v134) = 4;
+                    LODWORD(v131) = v120;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v131, v134) )
+                      __debugbreak();
+                    LODWORD(v135) = 4;
+                    LODWORD(v132) = v120;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v132, v135) )
+                      __debugbreak();
+                    LODWORD(v136) = 4;
+                    LODWORD(v133) = v120;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v133, v136) )
+                      __debugbreak();
+                  }
+                  v122 = (float)((float)(*v113 - *(float *)((char *)v113 + v119)) * v115) + *(float *)((char *)v113 + v119);
+                  if ( (unsigned int)v120 >= 4 )
+                  {
+                    LODWORD(v134) = 4;
+                    LODWORD(v131) = v120;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v131, v134) )
+                      __debugbreak();
+                  }
+                  *(float *)((char *)v113++ + (_QWORD)v118) = v122;
+                  v121 = (unsigned int)++v120 < 4;
+                }
+                while ( v120 < 4 );
+                v123 = *((float *)&v165 + 2);
+                v124 = *((float *)&v165 + 3);
+                v92 = v146;
+                v95 = v143 + 1;
+                v30 = v147;
+                v104 = pt0.v.m128_u64[0] + 1;
+                v27 = v152;
+                v125 = (__m128)LODWORD(v142);
+                v125.m128_f32[0] = (float)((float)(v142 - v145) * v115) + v145;
+                v126 = v157;
+                v127 = _mm128_add_ps(_mm128_mul_ps(v158, pt1.v), _mm128_add_ps(_mm128_mul_ps(v157, v109), _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM13, _XMM12), _mm_shuffle_ps(v106, v106, 0)), _XMM12)));
+                _XMM2 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)(*(_OWORD *)&v125 ^ _xmm), (__m128)(*(_OWORD *)&v125 ^ _xmm), 0), v157), v127);
+                _R15[1].xyz.v[0] = _XMM2.m128_f32[0];
                 __asm
                 {
-                  vmovss  xmm0, dword ptr [rdi]
-                  vsubss  xmm1, xmm0, dword ptr [r14+rdi]
-                  vmulss  xmm2, xmm1, xmm9
-                  vaddss  xmm7, xmm2, dword ptr [r14+rdi]
+                  vextractps dword ptr [r15+34h], xmm2, 1
+                  vextractps dword ptr [r15+38h], xmm2, 2
                 }
-                if ( (unsigned int)v208 >= 4 )
+                *(_OWORD *)&a3 = (unsigned int)v165;
+                _R15[1].color.v[0] = *(float *)&v165;
+                v103 = 1.0 / (float)v144;
+                _XMM4 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v125, v125, 0), v126), v127);
+                *(_OWORD *)&a4 = DWORD1(v165);
+                _R15[1].color.v[1] = *((float *)&v165 + 1);
+                _R15[1].color.v[2] = v123;
+                _R15[1].color.v[3] = v124;
+                _R15[1].extraData = v146;
+                v94 = v147 - 2;
+                _R15[1].normal.packed = 1073643391;
+                _R15[1].tangentBinormalSign.packed = 1065320446;
+                _R15[1].texCoord.packed = 1006632960;
+                _R15 += 2;
+                v143 = v95;
+                pt0.v.m128_u64[0] = v104;
+                v24 = 0i64;
+                _R15->xyz.v[0] = _XMM4.m128_f32[0];
+                __asm
                 {
-                  LODWORD(v257) = 4;
-                  LODWORD(v251) = v208;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v251, v257) )
-                    __debugbreak();
+                  vextractps dword ptr [r15+4], xmm4, 1
+                  vextractps dword ptr [r15+8], xmm4, 2
                 }
-                __asm { vmovss  dword ptr [r12+rdi], xmm7 }
-                _RDI += 4;
-                v209 = (unsigned int)++v208 < 4;
+                _R15->color.v[0] = *(float *)&a3;
+                _R15->color.v[1] = *(float *)&a4;
+                _R15->color.v[2] = v123;
+                _R15->color.v[3] = v124;
+                _R15->extraData = v146;
+                _R15->normal.packed = 1073643391;
+                _R15->tangentBinormalSign.packed = 1065320446;
+                _R15->texCoord.packed = 15360;
               }
-              while ( v208 < 4 );
-              __asm
-              {
-                vmovss  xmm5, dword ptr [rsp+318h+var_118+8]
-                vmovss  xmm7, dword ptr [rsp+318h+var_118+0Ch]
-              }
-              v163 = v281;
-              v42 = v283;
-              v178 = pt0.v.m128_u64[0] + 1;
-              _R12 = v288;
-              __asm
-              {
-                vsubps  xmm1, xmm13, xmm12
-                vmovaps xmm0, xmm8
-                vshufps xmm0, xmm0, xmm0, 0
-                vmulps  xmm0, xmm1, xmm0
-                vmovss  xmm1, [rsp+318h+var_2D0]
-                vaddps  xmm2, xmm0, xmm12
-                vsubss  xmm0, xmm1, [rsp+318h+var_2C4]
-                vmulss  xmm1, xmm0, xmm9
-                vaddss  xmm4, xmm1, [rsp+318h+var_2C4]
-                vmovups xmm9, [rsp+318h+var_208]
-                vmovups xmm1, [rsp+318h+var_1F8]
-                vmulps  xmm1, xmm1, xmmword ptr [rsp+318h+pt1.v]
-                vmulps  xmm0, xmm9, xmm15
-                vaddps  xmm2, xmm0, xmm2
-                vxorps  xmm0, xmm4, cs:__xmm@80000000800000008000000080000000
-                vaddps  xmm3, xmm1, xmm2
-                vshufps xmm0, xmm0, xmm0, 0
-                vmulps  xmm0, xmm0, xmm9
-                vaddps  xmm2, xmm0, xmm3
-                vmovss  dword ptr [r15+30h], xmm2
-                vextractps dword ptr [r15+34h], xmm2, 1
-                vextractps dword ptr [r15+38h], xmm2, 2
-                vmovss  xmm2, dword ptr [rsp+318h+var_118]
-                vmovss  dword ptr [r15+40h], xmm2
-                vmovaps xmm1, xmm4
-                vshufps xmm1, xmm1, xmm1, 0
-                vmulps  xmm0, xmm1, xmm9
-                vmovss  xmm1, [rsp+318h+var_2B8]
-                vaddps  xmm4, xmm0, xmm3
-                vmovss  xmm3, dword ptr [rsp+318h+var_118+4]
-                vmovss  dword ptr [r15+44h], xmm3
-                vmovss  dword ptr [r15+48h], xmm5
-                vmovss  dword ptr [r15+4Ch], xmm7
-              }
-              _R15[1].extraData = v281;
-              _EBX = v283 - 2;
-              _R15[1].normal.packed = 1073643391;
-              _R15[1].tangentBinormalSign.packed = 1065320446;
-              _R15[1].texCoord.packed = 1006632960;
-              _R15 += 2;
-              ++v274;
-              pt0.v.m128_u64[0] = v178;
-              __asm
-              {
-                vxorps  xmm9, xmm9, xmm9
-                vmovss  dword ptr [r15], xmm4
-                vextractps dword ptr [r15+4], xmm4, 1
-                vextractps dword ptr [r15+8], xmm4, 2
-                vmovss  dword ptr [r15+10h], xmm2
-                vmovss  dword ptr [r15+14h], xmm3
-                vmovss  dword ptr [r15+18h], xmm5
-                vmovss  dword ptr [r15+1Ch], xmm7
-              }
-              _R15->extraData = v281;
-              _R15->normal.packed = 1073643391;
-              _R15->tangentBinormalSign.packed = 1065320446;
-              _R15->texCoord.packed = 15360;
+              while ( v95 <= v144 );
             }
-            while ( v274 <= v276 );
+            __asm { vbroadcastss xmm0, [rsp+318h+var_2D0] }
+            v7 = v141;
+            beamInfo = v154;
+            _XMM1 = _mm128_add_ps(_mm128_mul_ps(_XMM0, pt1.v), _XMM13);
+            _R15[1].xyz.v[0] = _XMM1.m128_f32[0];
+            __asm
+            {
+              vextractps dword ptr [r15+34h], xmm1, 1
+              vextractps dword ptr [r15+38h], xmm1, 2
+            }
+            _R15[1].color.v[0] = *(float *)&a3;
+            _R15[1].color.v[1] = *(float *)&a4;
+            _R15[1].color.v[2] = v123;
+            _R15[1].color.v[3] = v124;
+            _XMM7 = v159;
+            _R15[1].extraData = v92;
+            v4 = v153;
+            _R15[1].normal.packed = 1073643391;
+            _R15[1].tangentBinormalSign.packed = 1065320446;
+            _R15[1].texCoord.packed = 1006648320;
           }
-          __asm
-          {
-            vbroadcastss xmm0, [rsp+318h+var_2D0]
-            vmulps  xmm0, xmm0, xmmword ptr [rsp+318h+pt1.v]
-          }
-          v18 = v270;
-          beamInfo = v290;
-          __asm
-          {
-            vaddps  xmm1, xmm0, xmm13
-            vmovss  dword ptr [r15+30h], xmm1
-            vextractps dword ptr [r15+34h], xmm1, 1
-            vextractps dword ptr [r15+38h], xmm1, 2
-            vmovss  dword ptr [r15+40h], xmm2
-            vmovss  dword ptr [r15+44h], xmm3
-            vmovss  dword ptr [r15+48h], xmm5
-            vmovss  dword ptr [r15+4Ch], xmm7
-            vmovups xmm7, [rsp+318h+var_1E8]
-          }
-          _R15[1].extraData = v163;
-          _RDI = v289;
-          _R15[1].normal.packed = 1073643391;
-          _R15[1].tangentBinormalSign.packed = 1065320446;
-          _R15[1].texCoord.packed = 1006648320;
-          v27 = 0;
+          v16 = 0;
         }
       }
-      v34 = v286 + 1;
-      v286 = v34;
+      v23 = v150 + 1;
+      v150 = v23;
     }
-    while ( v34 != (_QWORD)v302 );
-    __asm
-    {
-      vmovaps xmm14, [rsp+318h+var_B8]
-      vmovaps xmm13, [rsp+318h+var_A8]
-      vmovaps xmm12, [rsp+318h+var_98]
-      vmovaps xmm11, [rsp+318h+var_88]
-      vmovaps xmm10, [rsp+318h+var_78]
-      vmovaps xmm9, [rsp+318h+var_68]
-      vmovaps xmm8, [rsp+318h+var_58]
-      vmovaps xmm15, [rsp+318h+var_C8]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+318h+var_38]
-    vmovaps xmm7, [rsp+318h+var_48]
+    while ( v23 != v166.m128_u64[0] );
   }
 }
 
@@ -1000,93 +786,81 @@ Float4x4ForViewer
 */
 void Float4x4ForViewer(vector4 *mtx, const vec3_t *origin3, const tmat33_t<vec3_t> *axis3)
 {
-  __int128 v58; 
-  __int128 v59; 
-  __int128 v60; 
-  __int128 v61; 
+  __int128 v4; 
+  __m128 v8; 
+  __m128 v12; 
+  __m128 v16; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  float4 v26; 
+  __m128 v27; 
+  float4 v28; 
+  __m128 v; 
+  __int128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
 
+  HIDWORD(v30) = 0;
+  v4 = v30;
+  *(float *)&v4 = origin3->v[0];
+  _XMM9 = v4;
   __asm
   {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovss  xmm0, dword ptr [rdx]
-    vxorps  xmm8, xmm8, xmm8
-  }
-  HIDWORD(v58) = 0;
-  __asm
-  {
-    vmovups xmm9, xmmword ptr [rsp]
-    vmovss  xmm9, xmm9, xmm0
-    vmovss  xmm0, dword ptr [r8]
     vinsertps xmm9, xmm9, dword ptr [rdx+4], 10h
     vinsertps xmm9, xmm9, dword ptr [rdx+8], 20h ; ' '
-    vmovups xmmword ptr [rsp], xmm9
   }
-  HIDWORD(v59) = 0;
+  v31 = _XMM9;
+  v31.m128_i32[3] = 0;
+  v8 = v31;
+  v8.m128_f32[0] = axis3->m[0].v[0];
+  _XMM7 = v8;
   __asm
   {
-    vmovups xmm7, xmmword ptr [rsp]
-    vmovss  xmm7, xmm7, xmm0
-    vmovss  xmm0, dword ptr [r8+0Ch]
     vinsertps xmm7, xmm7, dword ptr [r8+4], 10h
     vinsertps xmm7, xmm7, dword ptr [r8+8], 20h ; ' '
-    vmovups xmmword ptr [rsp], xmm7
   }
-  HIDWORD(v60) = 0;
+  v32 = _XMM7;
+  v32.m128_i32[3] = 0;
+  v12 = v32;
+  v12.m128_f32[0] = axis3->m[1].v[0];
+  _XMM3 = v12;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [r8+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [r8+14h], 20h ; ' '
-    vmovss  xmm0, dword ptr [r8+18h]
-    vmovups xmmword ptr [rsp], xmm3
   }
-  HIDWORD(v61) = 0;
+  v33 = _XMM3;
+  v33.m128_i32[3] = 0;
+  v16 = v33;
+  v16.m128_f32[0] = axis3->m[2].v[0];
+  _XMM6 = v16;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rsp]
-    vmovss  xmm6, xmm6, xmm0
-    vxorps  xmm0, xmm8, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
     vinsertps xmm6, xmm6, dword ptr [r8+1Ch], 10h
     vinsertps xmm6, xmm6, dword ptr [r8+20h], 20h ; ' '
-    vxorps  xmm4, xmm1, xmm8
-    vsubps  xmm0, xmm8, xmm3
-    vshufps xmm5, xmm7, xmm0, 44h ; 'D'
-    vshufps xmm3, xmm7, xmm0, 0EEh ; 'î'
-    vshufps xmm2, xmm6, xmm4, 44h ; 'D'
-    vshufps xmm0, xmm5, xmm2, 88h ; 'ˆ'
-    vshufps xmm0, xmm0, xmm0, 0C9h ; 'É'
-    vmovups xmmword ptr [rcx], xmm0
-    vshufps xmm2, xmm5, xmm2, 0DDh ; 'Ý'
-    vshufps xmm5, xmm2, xmm2, 0C9h ; 'É'
-    vshufps xmm1, xmm6, xmm4, 0EEh ; 'î'
-    vshufps xmm4, xmm3, xmm1, 88h ; 'ˆ'
-    vshufps xmm3, xmm4, xmm4, 0C9h ; 'É'
-    vmovups xmmword ptr [rcx+20h], xmm3
-    vmovups xmmword ptr [rcx+10h], xmm5
-    vmovups xmm2, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovups xmmword ptr [rcx+30h], xmm2
-    vshufps xmm0, xmm9, xmm9, 0AAh ; 'ª'
-    vmulps  xmm0, xmm0, xmm3
-    vaddps  xmm2, xmm0, xmm2
-    vshufps xmm1, xmm9, xmm9, 55h ; 'U'
-    vmulps  xmm1, xmm1, xmm5
-    vaddps  xmm3, xmm1, xmm2
-    vshufps xmm4, xmm9, xmm9, 0
-    vmulps  xmm0, xmm4, xmmword ptr [rcx]
-    vaddps  xmm1, xmm0, xmm3
-    vsubps  xmm2, xmm8, xmm1
-    vaddps  xmm0, xmm2, xmmword ptr cs:?g_2xunit@@3Ufloat4@@B.v; float4 const g_2xunit
-    vmovups xmmword ptr [rcx+30h], xmm0
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
   }
+  v19 = (__m128)(*(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v);
+  v20 = _mm128_sub_ps((__m128)0i64, _XMM3);
+  v21 = _mm_shuffle_ps(_XMM7, v20, 68);
+  v22 = _mm_shuffle_ps(_XMM7, v20, 238);
+  v23 = _mm_shuffle_ps(_XMM6, (__m128)(*(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v), 68);
+  v24 = _mm_shuffle_ps(v21, v23, 136);
+  mtx->x.v = _mm_shuffle_ps(v24, v24, 201);
+  v25 = _mm_shuffle_ps(v21, v23, 221);
+  v26.v = _mm_shuffle_ps(v25, v25, 201);
+  v27 = _mm_shuffle_ps(v22, _mm_shuffle_ps(_XMM6, v19, 238), 136);
+  v28.v = _mm_shuffle_ps(v27, v27, 201);
+  mtx->z = (float4)v28.v;
+  mtx->y = (float4)v26.v;
+  v = g_unit.v;
+  mtx->w = (float4)g_unit.v;
+  mtx->w.v = _mm128_add_ps(_mm128_sub_ps((__m128)0i64, _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 0), mtx->x.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 85), v26.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 170), v28.v), v)))), g_2xunit.v);
 }
 
 /*
@@ -1096,101 +870,58 @@ Vec4HomogenousClipBothZ
 */
 bool Vec4HomogenousClipBothZ(float4 *pt0, float4 *pt1)
 {
-  bool result; 
-  int v72; 
-  int v73; 
-
+  _XMM1 = _mm128_mul_ps((__m128)_xmm, pt0->v);
+  __asm { vhaddps xmm2, xmm1, xmm1 }
+  _XMM1 = _mm128_mul_ps((__m128)_xmm, pt1->v);
   __asm
   {
-    vmovups xmm3, cs:__xmm@000000003f8000000000000000000000
-    vmulps  xmm1, xmm3, xmmword ptr [rcx]
-    vhaddps xmm2, xmm1, xmm1
-    vmulps  xmm1, xmm3, xmmword ptr [rdx]
     vhaddps xmm4, xmm2, xmm2
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsubps  xmm2, xmm4, xmm0
-    vrcpps  xmm1, xmm2
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vcmpltps xmm5, xmm0, xmm7
-    vmulps  xmm0, xmm1, xmm1
-    vmulps  xmm2, xmm0, xmm2
-    vmovups xmm0, xmmword ptr [rdx]
-    vsubps  xmm0, xmm0, xmmword ptr [rcx]
-    vaddps  xmm1, xmm1, xmm1
-    vsubps  xmm2, xmm1, xmm2
-    vmulps  xmm3, xmm2, xmm4
-    vmulps  xmm1, xmm0, xmm3
-    vcmpltps xmm6, xmm4, xmm7
-    vaddps  xmm4, xmm1, xmmword ptr [rcx]
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovaps [rsp+48h+var_38], xmm8
-    vmovups xmm8, cs:__xmm@3f800000bf8000000000000000000000
-    vmovups xmm0, xmm5
-    vblendvps xmm2, xmm4, xmm1, xmm0
-    vmovups xmm1, xmmword ptr [rdx]
-    vblendvps xmm3, xmm1, xmm4, xmm0
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups xmm0, xmm6
-    vblendvps xmm1, xmm1, xmm2, xmm0
-    vmovups xmmword ptr [rcx], xmm1
-    vmovups xmm2, xmmword ptr [rdx]
-    vblendvps xmm1, xmm3, xmm2, xmm0
-    vandps  xmm2, xmm6, xmm5
-    vmovss  [rsp+48h+var_48], xmm2
-    vmovups xmmword ptr [rdx], xmm1
   }
-  if ( v72 )
-    goto LABEL_4;
+  _XMM2 = _mm128_sub_ps(_XMM4, _XMM0);
   __asm
   {
-    vmulps  xmm1, xmm8, xmmword ptr [rcx]
-    vhaddps xmm2, xmm1, xmm1
-    vmulps  xmm1, xmm8, xmmword ptr [rdx]
+    vrcpps  xmm1, xmm2
+    vcmpltps xmm5, xmm0, xmm7
+    vcmpltps xmm6, xmm4, xmm7
+  }
+  _XMM4 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(pt1->v, pt0->v), _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), _XMM4)), pt0->v);
+  __asm { vblendvps xmm2, xmm4, xmm1, xmm0 }
+  _XMM1 = pt1->v;
+  __asm { vblendvps xmm3, xmm1, xmm4, xmm0 }
+  _XMM1 = pt0->v;
+  __asm { vblendvps xmm1, xmm1, xmm2, xmm0 }
+  *pt0 = (float4)_XMM1.v;
+  __asm { vblendvps xmm1, xmm3, xmm2, xmm0 }
+  *pt1 = (float4)_XMM1.v;
+  if ( ((unsigned int)_XMM6 & (unsigned int)_XMM5) != 0 )
+    return 0;
+  _XMM1 = _mm128_mul_ps((__m128)_xmm, pt0->v);
+  __asm { vhaddps xmm2, xmm1, xmm1 }
+  _XMM1 = _mm128_mul_ps((__m128)_xmm, pt1->v);
+  __asm
+  {
     vhaddps xmm3, xmm2, xmm2
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsubps  xmm2, xmm3, xmm0
-    vrcpps  xmm1, xmm2
-    vcmpltps xmm5, xmm0, xmm7
-    vmulps  xmm0, xmm1, xmm1
-    vmulps  xmm2, xmm0, xmm2
-    vmovups xmm0, xmmword ptr [rdx]
-    vsubps  xmm0, xmm0, xmmword ptr [rcx]
-    vaddps  xmm1, xmm1, xmm1
-    vsubps  xmm2, xmm1, xmm2
-    vcmpltps xmm6, xmm3, xmm7
-    vmulps  xmm3, xmm2, xmm3
-    vmulps  xmm1, xmm0, xmm3
-    vaddps  xmm4, xmm1, xmmword ptr [rcx]
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups xmm0, xmm5
-    vblendvps xmm2, xmm4, xmm1, xmm0
-    vmovups xmm1, xmmword ptr [rdx]
-    vblendvps xmm3, xmm1, xmm4, xmm0
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups xmm0, xmm6
-    vblendvps xmm1, xmm1, xmm2, xmm0
-    vmovups xmmword ptr [rcx], xmm1
-    vmovups xmm2, xmmword ptr [rdx]
-    vblendvps xmm1, xmm3, xmm2, xmm0
-    vandps  xmm2, xmm6, xmm5
-    vmovss  [rsp+48h+var_48], xmm2
-    vmovups xmmword ptr [rdx], xmm1
   }
-  if ( v73 )
-LABEL_4:
-    result = 0;
-  else
-    result = 1;
+  _XMM2 = _mm128_sub_ps(_XMM3, _XMM0);
   __asm
   {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmovaps xmm8, [rsp+48h+var_38]
+    vrcpps  xmm1, xmm2
+    vcmpltps xmm5, xmm0, xmm7
+    vcmpltps xmm6, xmm3, xmm7
   }
-  return result;
+  _XMM4 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(pt1->v, pt0->v), _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), _XMM3)), pt0->v);
+  __asm { vblendvps xmm2, xmm4, xmm1, xmm0 }
+  _XMM1 = pt1->v;
+  __asm { vblendvps xmm3, xmm1, xmm4, xmm0 }
+  _XMM1 = pt0->v;
+  __asm { vblendvps xmm1, xmm1, xmm2, xmm0 }
+  *pt0 = (float4)_XMM1.v;
+  __asm { vblendvps xmm1, xmm3, xmm2, xmm0 }
+  *pt1 = (float4)_XMM1.v;
+  return ((unsigned int)_XMM6 & (unsigned int)_XMM5) == 0;
 }
 

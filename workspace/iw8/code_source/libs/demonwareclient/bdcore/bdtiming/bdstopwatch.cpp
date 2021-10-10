@@ -64,16 +64,10 @@ double bdStopwatch::getElapsedTimeInSeconds(bdStopwatch *this)
 {
   unsigned __int64 HiResTimeStamp; 
 
-  if ( this->m_start )
-  {
-    HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-    *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(this->m_start, HiResTimeStamp);
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+  if ( !this->m_start )
+    return 0.0;
+  HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
+  return bdPlatformTiming::getElapsedTime(this->m_start, HiResTimeStamp);
 }
 
 /*

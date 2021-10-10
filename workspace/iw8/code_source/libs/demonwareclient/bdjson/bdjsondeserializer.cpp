@@ -1094,36 +1094,29 @@ char bdJSONDeserializer::getNumeric<float>(bdJSONDeserializer *this, float *valu
 {
   __int64 m_type; 
   const char *m_ptr; 
-  bool v9; 
-  const char *v10; 
+  bool v8; 
+  const char *v9; 
   char *EndPtr; 
 
   m_type = this->m_type;
-  _RSI = value;
   if ( (unsigned int)(m_type - 1) <= 1 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     *_errno() = 0;
     m_ptr = this->m_ptr;
-    v9 = this->m_type == BD_JSON_STRING;
+    v8 = this->m_type == BD_JSON_STRING;
     EndPtr = NULL;
-    v10 = m_ptr + 1;
-    if ( !v9 )
-      v10 = m_ptr;
-    *(double *)&_XMM0 = strtod(v10, &EndPtr);
+    v9 = m_ptr + 1;
+    if ( !v8 )
+      v9 = m_ptr;
+    *(double *)&_XMM0 = strtod(v9, &EndPtr);
     __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v10, EndPtr, "bdFloat32") )
+    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v9, EndPtr, "bdFloat32") )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsi], xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      *value = *(float *)&_XMM6;
       return 1;
     }
     else
     {
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
       return 0;
     }
   }
@@ -1143,36 +1136,29 @@ char bdJSONDeserializer::getNumeric<double>(bdJSONDeserializer *this, long doubl
 {
   __int64 m_type; 
   const char *m_ptr; 
-  bool v9; 
-  const char *v10; 
+  bool v7; 
+  const char *v8; 
+  double v9; 
   char *EndPtr; 
 
   m_type = this->m_type;
-  _RSI = value;
   if ( (unsigned int)(m_type - 1) <= 1 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     *_errno() = 0;
     m_ptr = this->m_ptr;
-    v9 = this->m_type == BD_JSON_STRING;
+    v7 = this->m_type == BD_JSON_STRING;
     EndPtr = NULL;
-    v10 = m_ptr + 1;
-    if ( !v9 )
-      v10 = m_ptr;
-    *(double *)&_XMM0 = strtod(v10, &EndPtr);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v10, EndPtr, "bdFloat64") )
+    v8 = m_ptr + 1;
+    if ( !v7 )
+      v8 = m_ptr;
+    v9 = strtod(v8, &EndPtr);
+    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v8, EndPtr, "bdFloat64") )
     {
-      __asm
-      {
-        vmovsd  qword ptr [rsi], xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      *value = v9;
       return 1;
     }
     else
     {
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
       return 0;
     }
   }
@@ -1516,15 +1502,7 @@ bool bdJSONDeserializer::convertToString(bdJSONDeserializer *this, char *const v
   {
     Float32 = bdJSONDeserializer::getFloat32(this, &valuea);
     if ( Float32 )
-    {
-      __asm
-      {
-        vmovss  xmm3, [rsp+28h+value]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      bdSnprintf(value, (unsigned int)v4, "%f", *(double *)&_XMM3);
-    }
+      bdSnprintf(value, (unsigned int)v4, "%f", valuea);
     return Float32;
   }
   Float32 = bdJSONDeserializer::getInt32(this, (int *)&valuea);
@@ -1546,11 +1524,7 @@ char bdJSONDeserializer::getArray(bdJSONDeserializer *this, bdJSONDeserializer *
   m_type = this->m_type;
   if ( (_DWORD)m_type == 4 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rdx], ymm0
-    }
+    *value = *this;
     return 1;
   }
   else
@@ -1569,24 +1543,16 @@ char bdJSONDeserializer::getArray(bdJSONDeserializer *this, const unsigned int i
 {
   bdJSONDeserializer valuea; 
 
-  _RBX = value;
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   if ( bdJSONDeserializer::getElementByIndex(this, index, &valuea) )
   {
     if ( valuea.m_type == BD_JSON_ARRAY )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+value.m_type]
-        vmovups ymmword ptr [rbx], ymm0
-      }
+      *value = valuea;
       return 1;
     }
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getArray", 0x1F7u, "Error: Unexpected JSON type[%s], expected Array", bdJSONTypeString[valuea.m_type]);
@@ -1603,24 +1569,16 @@ char bdJSONDeserializer::getArray(bdJSONDeserializer *this, const char *const ke
 {
   bdJSONDeserializer valuea; 
 
-  _RBX = value;
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   if ( bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) )
   {
     if ( valuea.m_type == BD_JSON_ARRAY )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+value.m_type]
-        vmovups ymmword ptr [rbx], ymm0
-      }
+      *value = valuea;
       return 1;
     }
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getArray", 0x1F7u, "Error: Unexpected JSON type[%s], expected Array", bdJSONTypeString[valuea.m_type]);
@@ -1669,11 +1627,8 @@ bool bdJSONDeserializer::getBoolean(bdJSONDeserializer *this, const unsigned int
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getBoolean(&valuea, value);
@@ -1689,11 +1644,8 @@ bool bdJSONDeserializer::getBoolean(bdJSONDeserializer *this, const char *const 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getBoolean(&valuea, value);
@@ -1757,11 +1709,8 @@ bool bdJSONDeserializer::getByte8(bdJSONDeserializer *this, const unsigned int i
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getByte8(&valuea, value);
@@ -1777,11 +1726,8 @@ bool bdJSONDeserializer::getByte8(bdJSONDeserializer *this, const char *const ke
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getByte8(&valuea, value);
@@ -1819,11 +1765,8 @@ bool bdJSONDeserializer::getChild(bdJSONDeserializer *this, bdJSONDeserializer *
     return 0;
   }
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   result = bdJSONDeserializer::parse(this->m_ptr + 1, &valuea);
@@ -1851,85 +1794,68 @@ __int64 bdJSONDeserializer::getElementByIndex(bdJSONDeserializer *this, unsigned
   __int64 m_type; 
   int v8; 
   __int64 v10; 
-  const char *m_end; 
+  const char *v11; 
   bool v12; 
-  const char *v13; 
-  bdJSONDeserializer v20; 
+  const char *m_end; 
+  __m256i v18; 
   bdJSONDeserializer valuea; 
 
-  _RBP = value;
   v6 = 0;
   m_type = this->m_type;
   if ( (_DWORD)m_type == 4 )
   {
     v8 = 0;
-    v20.m_type = BD_JSON_NULL;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+0B8h+var_58], xmm0
-    }
-    *(_WORD *)&v20.m_isFloatingPoint = 0;
-    v20.m_count = 0;
-    bdJSONDeserializer::getChild(this, &v20, NULL, 0);
-    if ( v20.m_parsed )
+    v18.m256i_i32[0] = 0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v18.m256i_u64[1] = _XMM0;
+    v18.m256i_i16[12] = 0;
+    v18.m256i_i32[7] = 0;
+    bdJSONDeserializer::getChild(this, (bdJSONDeserializer *)&v18, NULL, 0);
+    if ( v18.m256i_i8[25] )
     {
       v10 = 0x100002600i64;
       while ( v8 != index )
       {
         ++v8;
-        v20.m_parsed = 0;
-        m_end = v20.m_end;
-        if ( v20.m_end )
+        v18.m256i_i8[25] = 0;
+        v11 = (const char *)v18.m256i_i64[2];
+        if ( v18.m256i_i64[2] )
         {
-          while ( *m_end <= 0x20u && _bittest64(&v10, *m_end) )
-            ++m_end;
+          while ( *v11 <= 0x20u && _bittest64(&v10, *v11) )
+            ++v11;
         }
-        if ( *m_end == 44 )
+        if ( *v11 == 44 )
         {
           valuea.m_type = BD_JSON_NULL;
-          __asm
-          {
-            vpxor   xmm0, xmm0, xmm0
-            vmovdqu xmmword ptr [rsp+0B8h+value.m_ptr], xmm0
-          }
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          *(_OWORD *)&valuea.m_ptr = _XMM0;
           *(_WORD *)&valuea.m_isFloatingPoint = 0;
           valuea.m_count = 0;
-          v12 = bdJSONDeserializer::parse(m_end + 1, &valuea);
+          v12 = bdJSONDeserializer::parse(v11 + 1, &valuea);
           if ( valuea.m_type == BD_JSON_STRING )
           {
-            v13 = valuea.m_end;
+            m_end = valuea.m_end;
             if ( valuea.m_end )
             {
-              while ( *v13 <= 0x20u && _bittest64(&v10, *v13) )
-                ++v13;
+              while ( *m_end <= 0x20u && _bittest64(&v10, *m_end) )
+                ++m_end;
             }
-            if ( *v13 == 58 )
-              v12 = bdJSONDeserializer::parse(v13 + 1, &valuea);
+            if ( *m_end == 58 )
+              v12 = bdJSONDeserializer::parse(m_end + 1, &valuea);
           }
           if ( v12 )
-          {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsp+0B8h+value.m_type]
-              vmovups ymmword ptr [rsp+58h], ymm0
-            }
-          }
+            v18 = (__m256i)valuea;
         }
+        _YMM0 = v18;
         __asm
         {
-          vmovdqu ymm0, ymmword ptr [rsp+58h]
           vextractf128 xmm1, ymm0, 1
           vpextrq rax, xmm1, 1
         }
         if ( !BYTE1(_RAX) )
           goto LABEL_20;
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+58h]
-        vmovups ymmword ptr [rbp+0], ymm0
-      }
+      *(__m256i *)value = v18;
       return 1;
     }
     else
@@ -1952,57 +1878,47 @@ bdJSONDeserializer::getFieldByIndex
 */
 __int64 bdJSONDeserializer::getFieldByIndex(bdJSONDeserializer *this, const unsigned int index, char *const key, const unsigned int size, bdJSONDeserializer *value)
 {
-  unsigned __int8 v10; 
-  int v11; 
-  unsigned int v16; 
-  int v18; 
-  bdJSONDeserializer v19; 
-  void *retaddr; 
+  unsigned __int8 v9; 
+  int v10; 
+  unsigned int v13; 
+  int v15; 
+  bdJSONDeserializer v16; 
 
-  _RAX = &retaddr;
-  v10 = 0;
+  v9 = 0;
   if ( this->m_type == BD_JSON_OBJECT )
   {
-    v11 = 0;
-    v19.m_type = BD_JSON_NULL;
-    __asm
+    v10 = 0;
+    v16.m_type = BD_JSON_NULL;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v16.m_ptr = _XMM0;
+    *(_WORD *)&v16.m_isFloatingPoint = 0;
+    v16.m_count = 0;
+    bdJSONDeserializer::getChild(this, &v16, key, size);
+    if ( v16.m_parsed )
     {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rax-28h], xmm0
-    }
-    *(_WORD *)&v19.m_isFloatingPoint = 0;
-    v19.m_count = 0;
-    bdJSONDeserializer::getChild(this, &v19, key, size);
-    if ( v19.m_parsed )
-    {
-      while ( v11 != index )
+      while ( v10 != index )
       {
-        ++v11;
-        bdJSONDeserializer::getNext(&v19, &v19, key, size);
-        if ( !v19.m_parsed )
+        ++v10;
+        bdJSONDeserializer::getNext(&v16, &v16, key, size);
+        if ( !v16.m_parsed )
           goto LABEL_5;
       }
-      _RAX = value;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+88h+var_30.m_type]
-        vmovups ymmword ptr [rax], ymm0
-      }
+      *value = v16;
       return 1;
     }
     else
     {
 LABEL_5:
-      v18 = v11;
-      v16 = index;
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getFieldByIndex", 0x295u, "Error: Cannot locate index[%u], max index[%u]", v16, v18);
+      v15 = v10;
+      v13 = index;
+      bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getFieldByIndex", 0x295u, "Error: Cannot locate index[%u], max index[%u]", v13, v15);
     }
   }
   else
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getFieldByIndex", 0x29Au, "Error: Cannot get Key/Value field for index[%u], not a JSON Object", index);
   }
-  return v10;
+  return v9;
 }
 
 /*
@@ -2110,36 +2026,29 @@ char bdJSONDeserializer::getFloat32(bdJSONDeserializer *this, float *value)
 {
   __int64 m_type; 
   const char *m_ptr; 
-  bool v9; 
-  const char *v10; 
+  bool v8; 
+  const char *v9; 
   char *EndPtr; 
 
   m_type = this->m_type;
-  _RSI = value;
   if ( (unsigned int)(m_type - 1) <= 1 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     *_errno() = 0;
     m_ptr = this->m_ptr;
-    v9 = this->m_type == BD_JSON_STRING;
+    v8 = this->m_type == BD_JSON_STRING;
     EndPtr = NULL;
-    v10 = m_ptr + 1;
-    if ( !v9 )
-      v10 = m_ptr;
-    *(double *)&_XMM0 = strtod(v10, &EndPtr);
+    v9 = m_ptr + 1;
+    if ( !v8 )
+      v9 = m_ptr;
+    *(double *)&_XMM0 = strtod(v9, &EndPtr);
     __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v10, EndPtr, "bdFloat32") )
+    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v9, EndPtr, "bdFloat32") )
     {
-      __asm
-      {
-        vmovss  dword ptr [rsi], xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      *value = *(float *)&_XMM6;
       return 1;
     }
     else
     {
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
       return 0;
     }
   }
@@ -2160,11 +2069,8 @@ bool bdJSONDeserializer::getFloat32(bdJSONDeserializer *this, const unsigned int
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getFloat32(&valuea, value);
@@ -2180,11 +2086,8 @@ bool bdJSONDeserializer::getFloat32(bdJSONDeserializer *this, const char *const 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getFloat32(&valuea, value);
@@ -2199,36 +2102,29 @@ char bdJSONDeserializer::getFloat64(bdJSONDeserializer *this, long double *value
 {
   __int64 m_type; 
   const char *m_ptr; 
-  bool v9; 
-  const char *v10; 
+  bool v7; 
+  const char *v8; 
+  double v9; 
   char *EndPtr; 
 
   m_type = this->m_type;
-  _RSI = value;
   if ( (unsigned int)(m_type - 1) <= 1 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     *_errno() = 0;
     m_ptr = this->m_ptr;
-    v9 = this->m_type == BD_JSON_STRING;
+    v7 = this->m_type == BD_JSON_STRING;
     EndPtr = NULL;
-    v10 = m_ptr + 1;
-    if ( !v9 )
-      v10 = m_ptr;
-    *(double *)&_XMM0 = strtod(v10, &EndPtr);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v10, EndPtr, "bdFloat64") )
+    v8 = m_ptr + 1;
+    if ( !v7 )
+      v8 = m_ptr;
+    v9 = strtod(v8, &EndPtr);
+    if ( bdJSONDeserializer::checkStringToNumericValueError(this, v8, EndPtr, "bdFloat64") )
     {
-      __asm
-      {
-        vmovsd  qword ptr [rsi], xmm6
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      *value = v9;
       return 1;
     }
     else
     {
-      __asm { vmovaps xmm6, [rsp+58h+var_18] }
       return 0;
     }
   }
@@ -2249,11 +2145,8 @@ bool bdJSONDeserializer::getFloat64(bdJSONDeserializer *this, const unsigned int
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getFloat64(&valuea, value);
@@ -2269,11 +2162,8 @@ bool bdJSONDeserializer::getFloat64(bdJSONDeserializer *this, const char *const 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getFloat64(&valuea, value);
@@ -2337,11 +2227,8 @@ bool bdJSONDeserializer::getInt16(bdJSONDeserializer *this, const unsigned int i
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getInt16(&valuea, value);
@@ -2357,11 +2244,8 @@ bool bdJSONDeserializer::getInt16(bdJSONDeserializer *this, const char *const ke
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getInt16(&valuea, value);
@@ -2419,11 +2303,8 @@ bool bdJSONDeserializer::getInt32(bdJSONDeserializer *this, const unsigned int i
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getInt32(&valuea, value);
@@ -2439,11 +2320,8 @@ bool bdJSONDeserializer::getInt32(bdJSONDeserializer *this, const char *const ke
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getInt32(&valuea, value);
@@ -2501,11 +2379,8 @@ bool bdJSONDeserializer::getInt64(bdJSONDeserializer *this, const unsigned int i
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getInt64(&valuea, value);
@@ -2521,11 +2396,8 @@ bool bdJSONDeserializer::getInt64(bdJSONDeserializer *this, const char *const ke
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getInt64(&valuea, value);
@@ -2544,7 +2416,6 @@ bool bdJSONDeserializer::getNext(bdJSONDeserializer *this, bdJSONDeserializer *v
   const char *v12; 
   bdJSONDeserializer valuea; 
 
-  _RSI = value;
   value->m_parsed = 0;
   m_end = this->m_end;
   v9 = 0x100002600i64;
@@ -2556,11 +2427,8 @@ bool bdJSONDeserializer::getNext(bdJSONDeserializer *this, bdJSONDeserializer *v
   if ( *m_end != 44 )
     return 0;
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   v11 = bdJSONDeserializer::parse(m_end + 1, &valuea);
@@ -2580,13 +2448,7 @@ bool bdJSONDeserializer::getNext(bdJSONDeserializer *this, bdJSONDeserializer *v
     }
   }
   if ( v11 )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+58h+value.m_type]
-      vmovups ymmword ptr [rsi], ymm0
-    }
-  }
+    *value = valuea;
   return v11;
 }
 
@@ -2600,11 +2462,8 @@ bool bdJSONDeserializer::getNull(bdJSONDeserializer *this, const unsigned int in
   bdJSONDeserializer value; 
 
   value.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&value.m_ptr = _XMM0;
   *(_WORD *)&value.m_isFloatingPoint = 0;
   value.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &value) && value.m_type == BD_JSON_NULL;
@@ -2620,11 +2479,8 @@ bool bdJSONDeserializer::getNull(bdJSONDeserializer *this, const char *const key
   bdJSONDeserializer value; 
 
   value.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&value.m_ptr = _XMM0;
   *(_WORD *)&value.m_isFloatingPoint = 0;
   value.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &value, 1) && value.m_type == BD_JSON_NULL;
@@ -2658,11 +2514,7 @@ char bdJSONDeserializer::getObject(bdJSONDeserializer *this, bdJSONDeserializer 
   m_type = this->m_type;
   if ( (_DWORD)m_type == 5 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rdx], ymm0
-    }
+    *value = *this;
     return 1;
   }
   else
@@ -2681,24 +2533,16 @@ char bdJSONDeserializer::getObject(bdJSONDeserializer *this, const unsigned int 
 {
   bdJSONDeserializer valuea; 
 
-  _RBX = value;
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   if ( bdJSONDeserializer::getElementByIndex(this, index, &valuea) )
   {
     if ( valuea.m_type == BD_JSON_OBJECT )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+value.m_type]
-        vmovups ymmword ptr [rbx], ymm0
-      }
+      *value = valuea;
       return 1;
     }
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getObject", 0x206u, "Error: Unexpected JSON type[%s], expected Object", bdJSONTypeString[valuea.m_type]);
@@ -2715,24 +2559,16 @@ char bdJSONDeserializer::getObject(bdJSONDeserializer *this, const char *const k
 {
   bdJSONDeserializer valuea; 
 
-  _RBX = value;
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+78h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   if ( bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) )
   {
     if ( valuea.m_type == BD_JSON_OBJECT )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+78h+value.m_type]
-        vmovups ymmword ptr [rbx], ymm0
-      }
+      *value = valuea;
       return 1;
     }
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdJSON/bdJSONDeserializer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdjson\\bdjsondeserializer.cpp", "bdJSONDeserializer::getObject", 0x206u, "Error: Unexpected JSON type[%s], expected Object", bdJSONTypeString[valuea.m_type]);
@@ -2750,11 +2586,8 @@ bool bdJSONDeserializer::getString(bdJSONDeserializer *this, const unsigned int 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getString(&valuea, value, size);
@@ -2808,11 +2641,8 @@ bool bdJSONDeserializer::getString(bdJSONDeserializer *this, const char *const k
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getString(&valuea, value, size);
@@ -2877,11 +2707,8 @@ bool bdJSONDeserializer::getUByte8(bdJSONDeserializer *this, const unsigned int 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getUByte8(&valuea, value);
@@ -2897,11 +2724,8 @@ bool bdJSONDeserializer::getUByte8(bdJSONDeserializer *this, const char *const k
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getUByte8(&valuea, value);
@@ -2966,11 +2790,8 @@ bool bdJSONDeserializer::getUInt16(bdJSONDeserializer *this, const unsigned int 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getUInt16(&valuea, value);
@@ -2986,11 +2807,8 @@ bool bdJSONDeserializer::getUInt16(bdJSONDeserializer *this, const char *const k
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getUInt16(&valuea, value);
@@ -3048,11 +2866,8 @@ bool bdJSONDeserializer::getUInt32(bdJSONDeserializer *this, const unsigned int 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getUInt32(&valuea, value);
@@ -3068,11 +2883,8 @@ bool bdJSONDeserializer::getUInt32(bdJSONDeserializer *this, const char *const k
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getUInt32(&valuea, value);
@@ -3130,11 +2942,8 @@ bool bdJSONDeserializer::getUInt64(bdJSONDeserializer *this, const unsigned int 
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getElementByIndex(this, index, &valuea) && bdJSONDeserializer::getUInt64(&valuea, value);
@@ -3150,11 +2959,8 @@ bool bdJSONDeserializer::getUInt64(bdJSONDeserializer *this, const char *const k
   bdJSONDeserializer valuea; 
 
   valuea.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&valuea.m_ptr = _XMM0;
   *(_WORD *)&valuea.m_isFloatingPoint = 0;
   valuea.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &valuea, 1) && bdJSONDeserializer::getUInt64(&valuea, value);
@@ -3170,11 +2976,8 @@ bool bdJSONDeserializer::hasKey(bdJSONDeserializer *this, const char *const key)
   bdJSONDeserializer value; 
 
   value.m_type = BD_JSON_NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+58h+value.m_ptr], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&value.m_ptr = _XMM0;
   *(_WORD *)&value.m_isFloatingPoint = 0;
   value.m_count = 0;
   return bdJSONDeserializer::getFieldByKey(this, key, &value, 0);

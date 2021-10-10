@@ -146,64 +146,55 @@ DB_DecryptFileInit
 */
 void DB_DecryptFileInit(DBFile *file, const EncryptionHeader *encHeader)
 {
-  __int64 v5; 
+  __int64 v4; 
   unsigned __int8 *privateKey; 
   unsigned __int8 *IV; 
-  __int64 v8; 
-  unsigned __int64 v9; 
+  __int64 v7; 
+  unsigned __int64 v8; 
 
-  _R15 = encHeader;
-  _RSI = file;
   if ( !file && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_encryption.cpp", 698, ASSERT_TYPE_ASSERT, "(file)", (const char *)&queryFormat, "file") )
     __debugbreak();
-  _R14 = _RSI->encryption.privateKey;
-  v5 = 32i64;
-  privateKey = _RSI->encryption.privateKey;
+  v4 = 32i64;
+  privateKey = file->encryption.privateKey;
   do
   {
     if ( *privateKey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_encryption.cpp", 704, ASSERT_TYPE_ASSERT, "(!file->encryption.privateKey[i])", (const char *)&queryFormat, "!file->encryption.privateKey[i]") )
       __debugbreak();
     ++privateKey;
-    --v5;
+    --v4;
   }
-  while ( v5 );
-  IV = _RSI->encryption.header.IV;
-  v8 = 16i64;
+  while ( v4 );
+  IV = file->encryption.header.IV;
+  v7 = 16i64;
   do
   {
     if ( *IV && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_encryption.cpp", 708, ASSERT_TYPE_ASSERT, "(!file->encryption.header.IV[i])", (const char *)&queryFormat, "!file->encryption.header.IV[i]") )
       __debugbreak();
     ++IV;
-    --v8;
+    --v7;
   }
-  while ( v8 );
-  _RSI->encryption.header.isEncrypted = _R15->isEncrypted;
-  if ( _R15->isEncrypted )
+  while ( v7 );
+  file->encryption.header.isEncrypted = encHeader->isEncrypted;
+  if ( encHeader->isEncrypted )
   {
     s_keyFetchState = KEY_FETCH_INIT;
     *(_QWORD *)s_aesKey = 0i64;
-    v9 = -1i64;
+    v8 = -1i64;
     *(_QWORD *)&s_aesKey[8] = 0i64;
     *(_QWORD *)&s_aesKey[16] = 0i64;
     *(_QWORD *)&s_aesKey[24] = 0i64;
     do
-      ++v9;
-    while ( _RSI->name[v9] );
-    s_filenameHash = j_CoD_XXH32(_RSI, v9, 0);
+      ++v8;
+    while ( file->name[v8] );
+    s_filenameHash = j_CoD_XXH32(file, v8, 0);
     if ( !s_filenameHash && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_encryption.cpp", 272, ASSERT_TYPE_ASSERT, "(0 != s_filenameHash)", (const char *)&queryFormat, "0 != s_filenameHash") )
       __debugbreak();
     DB_KeyFetch_Frame();
     if ( s_keyFetchState == KEY_FETCH_OK )
     {
 LABEL_23:
-      if ( _RSI != (DBFile *)-104i64 )
-      {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:s_aesKey
-          vmovups ymmword ptr [r14], ymm0
-        }
-      }
+      if ( file != (DBFile *)-104i64 )
+        *(__m256i *)file->encryption.privateKey = *(__m256i *)s_aesKey;
     }
     else
     {
@@ -214,13 +205,9 @@ LABEL_23:
         if ( s_keyFetchState == KEY_FETCH_OK )
           goto LABEL_23;
       }
-      Sys_Error((const ObfuscateErrorText)&stru_143D7FC00, _RSI);
+      Sys_Error((const ObfuscateErrorText)&stru_143D7FC00, file);
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15+4]
-      vmovups xmmword ptr [rsi+58h], xmm0
-    }
+    *(_OWORD *)file->encryption.header.IV = *(_OWORD *)encHeader->IV;
   }
 }
 
@@ -276,7 +263,6 @@ bool DB_GetKey(const char *filename, unsigned __int8 (*outKey)[32])
   bool result; 
 
   s_keyFetchState = KEY_FETCH_INIT;
-  _RBX = outKey;
   *(_QWORD *)s_aesKey = 0i64;
   *(_QWORD *)&s_aesKey[8] = 0i64;
   v3 = -1i64;
@@ -293,14 +279,8 @@ bool DB_GetKey(const char *filename, unsigned __int8 (*outKey)[32])
   {
 LABEL_9:
     result = 1;
-    if ( _RBX )
-    {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:s_aesKey
-        vmovups ymmword ptr [rbx], ymm0
-      }
-    }
+    if ( outKey )
+      *(__m256i *)outKey = *(__m256i *)s_aesKey;
   }
   else
   {
@@ -337,38 +317,38 @@ void DB_KeyFetch_Frame(void)
   unsigned int v0; 
   unsigned int Error; 
   int v2; 
-  unsigned int v4; 
-  SOCKET v5; 
+  unsigned int v3; 
+  SOCKET v4; 
   const char *String_Internal_DebugName; 
+  const char *v6; 
   const char *v7; 
   const char *v8; 
   const char *v9; 
   const char *v10; 
-  const char *v11; 
   struct sockaddr *from; 
   int fromlen; 
   u_long argp; 
-  struct sockaddr v15; 
+  struct sockaddr v14; 
   char buf[4]; 
-  _DWORD v17[255]; 
+  _DWORD v16[255]; 
 
   if ( s_keyFetchState == KEY_FETCH_INIT )
   {
     if ( s_keySocket == -1i64 )
     {
-      v4 = WSAStartup(0x101u, &winsockdata);
-      if ( v4 )
+      v3 = WSAStartup(0x101u, &winsockdata);
+      if ( v3 )
       {
-        Com_PrintError(10, "%s: Winsock initialization failed, returned %d\n", "DB_KeyFetch_InitPlatform", v4);
+        Com_PrintError(10, "%s: Winsock initialization failed, returned %d\n", "DB_KeyFetch_InitPlatform", v3);
         s_keyFetchState = KEY_FETCH_FATAL_ERROR;
         return;
       }
-      v5 = socket(2, 2, 17);
-      s_keySocket = v5;
-      if ( v5 == -1i64 )
+      v4 = socket(2, 2, 17);
+      s_keySocket = v4;
+      if ( v4 == -1i64 )
         goto LABEL_38;
       argp = 1;
-      if ( ioctlsocket(v5, -2147195266, &argp) == -1 )
+      if ( ioctlsocket(v4, -2147195266, &argp) == -1 )
       {
         Com_PrintError(10, "%s: ioctlsocket non-block failed\n", "DB_KeyFetch_InitPlatform");
 LABEL_38:
@@ -379,26 +359,26 @@ LABEL_38:
     String_Internal_DebugName = Dvar_GetString_Internal_DebugName(DVARSTR_db_keyServer1, "db_keyServer1");
     if ( String_Internal_DebugName )
     {
-      v7 = s_keyServerAddrs[0];
+      v6 = s_keyServerAddrs[0];
       if ( *String_Internal_DebugName )
-        v7 = String_Internal_DebugName;
-      s_keyServerAddrs[0] = v7;
+        v6 = String_Internal_DebugName;
+      s_keyServerAddrs[0] = v6;
     }
-    v8 = Dvar_GetString_Internal_DebugName(DVARSTR_db_keyServer2, "db_keyServer2");
-    if ( v8 )
+    v7 = Dvar_GetString_Internal_DebugName(DVARSTR_db_keyServer2, "db_keyServer2");
+    if ( v7 )
     {
-      v9 = s_keyServerAddrs[1];
-      if ( *v8 )
-        v9 = v8;
-      s_keyServerAddrs[1] = v9;
+      v8 = s_keyServerAddrs[1];
+      if ( *v7 )
+        v8 = v7;
+      s_keyServerAddrs[1] = v8;
     }
-    v10 = Dvar_GetString_Internal_DebugName(DVARSTR_db_keyServer3, "db_keyServer3");
-    if ( v10 )
+    v9 = Dvar_GetString_Internal_DebugName(DVARSTR_db_keyServer3, "db_keyServer3");
+    if ( v9 )
     {
-      v11 = s_keyServerAddrs[2];
-      if ( *v10 )
-        v11 = v10;
-      s_keyServerAddrs[2] = v11;
+      v10 = s_keyServerAddrs[2];
+      if ( *v9 )
+        v10 = v9;
+      s_keyServerAddrs[2] = v10;
     }
     s_currentServer = 0;
     s_firstFetchMs = GetTickCount();
@@ -415,7 +395,7 @@ LABEL_38:
   if ( !s_keySocket )
     goto LABEL_31;
   fromlen = 16;
-  v0 = recvfrom(s_keySocket, buf, 1024, 0, &v15, &fromlen);
+  v0 = recvfrom(s_keySocket, buf, 1024, 0, &v14, &fromlen);
   if ( v0 == -1 )
   {
     Error = WSAGetLastError();
@@ -455,18 +435,14 @@ LABEL_31:
   {
     if ( *(_DWORD *)buf == -559023422 )
     {
-      if ( v17[0] == s_filenameHash )
+      if ( v16[0] == s_filenameHash )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+468h+var_414+4]
-          vmovups ymmword ptr cs:s_aesKey, ymm0
-        }
+        *(__m256i *)s_aesKey = *(__m256i *)&v16[1];
         s_keyFetchState = KEY_FETCH_OK;
         return;
       }
       LODWORD(from) = s_filenameHash;
-      Com_PrintWarning(10, "%s: Received filename hash %u, expected %u\n", "DB_KeyFetch_HandleResponse", v17[0], from);
+      Com_PrintWarning(10, "%s: Received filename hash %u, expected %u\n", "DB_KeyFetch_HandleResponse", v16[0], from);
     }
     else
     {
@@ -521,11 +497,7 @@ char DB_KeyFetch_HandleResponse(unsigned __int8 *recvBuff, int bytesReceived)
       v3 = *((unsigned int *)recvBuff + 1);
       if ( (_DWORD)v3 == s_filenameHash )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx+8]
-          vmovups ymmword ptr cs:s_aesKey, ymm0
-        }
+        *(__m256i *)s_aesKey = *(__m256i *)(recvBuff + 8);
         return 1;
       }
       else
@@ -652,10 +624,9 @@ DB_SetupCTRWithKey
 __int64 DB_SetupCTRWithKey(symmetric_CTR *ctr, __int64 numBlocks, const unsigned __int8 *iv, const unsigned __int8 *key)
 {
   int cipher; 
-  unsigned int v11; 
+  unsigned int v10; 
   unsigned __int8 IV[16]; 
 
-  _RSI = iv;
   if ( j_register_cipher(&aes_desc) == -1 )
   {
     Com_PrintError(10, "%s: Could not register cipher.\n", "DB_SetupCTRWithKey");
@@ -671,22 +642,18 @@ __int64 DB_SetupCTRWithKey(symmetric_CTR *ctr, __int64 numBlocks, const unsigned
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rsp+88h+IV], xmm0
-      }
+      *(_OWORD *)IV = *(_OWORD *)iv;
       if ( numBlocks > 0 )
       {
         *(_QWORD *)IV += numBlocks;
         if ( *(_QWORD *)IV == -1i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_encryption.cpp", 654, ASSERT_TYPE_ASSERT, "(*salt < 0xffffffffffffffffui64)", (const char *)&queryFormat, "*salt < UINT64_MAX") )
           __debugbreak();
       }
-      v11 = j_ctr_start(cipher, IV, key, 32, 0, 0, ctr);
-      if ( v11 )
+      v10 = j_ctr_start(cipher, IV, key, 32, 0, 0, ctr);
+      if ( v10 )
       {
         Com_PrintError(10, "%s: Could not start CTR\n", "DB_SetupCTRWithKey");
-        return v11;
+        return v10;
       }
       else
       {

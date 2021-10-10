@@ -53,226 +53,133 @@ void HeadIconState_SetPosition(HeadIconState *icon, const vec3_t *pos)
 LUIElement_HeadIcons_Render
 ==============
 */
-
-void __fastcall LUIElement_HeadIcons_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_HeadIcons_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
   HeadIconState *customElementData; 
   cg_t *LocalClientGlobals; 
-  cg_t *v19; 
-  signed int v23; 
-  char v30; 
+  cg_t *v12; 
+  signed int v13; 
+  char *p_z; 
+  HeadIconView *headIcons; 
+  float *v16; 
   const HeadIconExtendedView *p_headIconExtendedView; 
-  bool v36; 
-  LUITraceRequest *v37; 
-  int FlashbangedRemainingTime; 
-  char v49; 
-  float v57; 
-  float v58; 
+  bool v18; 
+  LUITraceRequest *v19; 
+  double v20; 
+  float v21; 
+  double v22; 
+  __int128 v23; 
   bool outHit; 
   vec3_t outWorldPosition; 
   char *outName; 
-  lua_State *v62; 
+  lua_State *v27; 
   LUIElement *roota; 
   LUIElement *elementa; 
-  HeadIconState *v65; 
-  __int64 v66; 
+  HeadIconState *v30; 
+  __int64 v31; 
   vec4_t color; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v66 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmm6, xmm3
-  }
+  v31 = -2i64;
   roota = root;
   elementa = element;
-  v62 = luaVM;
+  v27 = luaVM;
   if ( !Sys_IsRenderThread() || !R_IsInRemoteScreenUpdate() )
   {
     if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
       __debugbreak();
     customElementData = (HeadIconState *)element->customElementData;
-    v65 = customElementData;
+    v30 = customElementData;
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    v19 = CG_GetLocalClientGlobals(localClientNum);
-    __asm
-    {
-      vmovss  xmm0, [rsp+138h+red]
-      vmovss  dword ptr [rsp+138h+var_A0], xmm0
-      vmovss  xmm1, [rsp+138h+green]
-      vmovss  dword ptr [rsp+138h+var_A0+4], xmm1
-      vmovss  xmm0, [rsp+138h+blue]
-      vmovss  dword ptr [rsp+138h+var_A0+8], xmm0
-      vmovss  dword ptr [rsp+138h+var_A0+0Ch], xmm6
-    }
-    v23 = 0;
-    _RBX = (char *)&customElementData->headIconExtendedView.worldOrigin.z;
-    _R15 = v19->predictedPlayerState.headIcons;
-    _RBP = &v19->predictedPlayerState.headIconsExtendedData[0].worldOrigin.v[1];
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3b5a740e
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@3b03126f
-    }
+    v12 = CG_GetLocalClientGlobals(localClientNum);
+    color.v[0] = red;
+    color.v[1] = green;
+    color.v[2] = blue;
+    color.v[3] = alpha;
+    v13 = 0;
+    p_z = (char *)&customElementData->headIconExtendedView.worldOrigin.z;
+    headIcons = v12->predictedPlayerState.headIcons;
+    v16 = &v12->predictedPlayerState.headIconsExtendedData[0].worldOrigin.v[1];
     do
     {
-      if ( (_R15->flags & 1) != 0 )
+      if ( (headIcons->flags & 1) != 0 )
       {
-        if ( *((_DWORD *)_RBX - 8) != _R15->entityNumber )
-          goto LABEL_13;
-        v30 = *((_BYTE *)_RBP + 8);
-        if ( _RBX[4] != v30 )
-          goto LABEL_13;
-        __asm
+        if ( *((_DWORD *)p_z - 8) != headIcons->entityNumber || p_z[4] != *((_BYTE *)v16 + 8) || *(v16 - 1) != *((float *)p_z - 2) || *v16 != *((float *)p_z - 1) || v16[1] != *(float *)p_z )
         {
-          vmovss  xmm0, dword ptr [rbp-4]
-          vucomiss xmm0, dword ptr [rbx-8]
+          *((_DWORD *)p_z + 3) = LocalClientGlobals->time;
+          p_z[24] = 0;
+          *((_QWORD *)p_z + 2) = 0i64;
+          HeadIconState_SetPosition(&customElementData[v13], &vec3_origin);
+          p_z[80] = 0;
         }
-        if ( _RBX[4] != v30 )
-          goto LABEL_13;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0]
-          vucomiss xmm0, dword ptr [rbx-4]
-        }
-        if ( _RBX[4] != v30 )
-          goto LABEL_13;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+4]
-          vucomiss xmm0, dword ptr [rbx]
-        }
-        if ( _RBX[4] != v30 )
-        {
-LABEL_13:
-          *((_DWORD *)_RBX + 3) = LocalClientGlobals->time;
-          _RBX[24] = 0;
-          *((_QWORD *)_RBX + 2) = 0i64;
-          HeadIconState_SetPosition(&customElementData[v23], &vec3_origin);
-          _RBX[80] = 0;
-        }
-        *((_DWORD *)_RBX + 2) = LocalClientGlobals->time;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r15]
-          vmovups xmmword ptr [rbx-20h], xmm0
-          vmovsd  xmm1, qword ptr [r15+10h]
-          vmovsd  qword ptr [rbx-10h], xmm1
-          vmovups xmm0, xmmword ptr [rbp-4]
-          vmovups xmmword ptr [rbx-8], xmm0
-        }
+        *((_DWORD *)p_z + 2) = LocalClientGlobals->time;
+        *((_OWORD *)p_z - 2) = *(_OWORD *)&headIcons->entityNumber;
+        *((double *)p_z - 2) = *(double *)&headIcons->maxDistance;
+        *(_OWORD *)(p_z - 8) = *(_OWORD *)(v16 - 1);
       }
-      p_headIconExtendedView = &customElementData[v23].headIconExtendedView;
-      if ( (*(_RBX - 24) & 1) == 0 || CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, *((_DWORD *)_RBX - 8), 0xFFFFFFFF, -1) != 53 || CG_CalloutMarkerPing_CheckPrevPredictedForTarget(localClientNum, *((_DWORD *)_RBX - 8), 0xFFFFFFFF, -1) != 53 )
+      p_headIconExtendedView = &customElementData[v13].headIconExtendedView;
+      if ( (*(p_z - 24) & 1) == 0 || CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, *((_DWORD *)p_z - 8), 0xFFFFFFFF, -1) != 53 || CG_CalloutMarkerPing_CheckPrevPredictedForTarget(localClientNum, *((_DWORD *)p_z - 8), 0xFFFFFFFF, -1) != 53 )
         goto LABEL_42;
-      if ( CG_Players_HeadIcons_GetWorldPosition(localClientNum, (const HeadIconView *)(_RBX - 32), p_headIconExtendedView, &outWorldPosition) )
+      if ( CG_Players_HeadIcons_GetWorldPosition(localClientNum, (const HeadIconView *)(p_z - 32), p_headIconExtendedView, &outWorldPosition) )
       {
-        HeadIconState_SetPosition((HeadIconState *)(_RBX - 32), &outWorldPosition);
-        _RBX[80] = 1;
+        HeadIconState_SetPosition((HeadIconState *)(p_z - 32), &outWorldPosition);
+        p_z[80] = 1;
       }
       else
       {
-        if ( !_RBX[80] )
+        if ( !p_z[80] )
           goto LABEL_41;
-        if ( !*((_QWORD *)_RBX + 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_headicons.cpp", 104, ASSERT_TYPE_ASSERT, "(icon->position.Get_position)", (const char *)&queryFormat, "icon->position.Get_position") )
+        if ( !*((_QWORD *)p_z + 7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_headicons.cpp", 104, ASSERT_TYPE_ASSERT, "(icon->position.Get_position)", (const char *)&queryFormat, "icon->position.Get_position") )
           __debugbreak();
-        ((void (__fastcall *)(char *, vec3_t *))(*((_QWORD *)_RBX + 7) ^ s_aab_get_pointer_iconpos ^ (unsigned __int64)(_RBX + 48)))(_RBX + 64, &outWorldPosition);
+        ((void (__fastcall *)(char *, vec3_t *))(*((_QWORD *)p_z + 7) ^ s_aab_get_pointer_iconpos ^ (unsigned __int64)(p_z + 48)))(p_z + 64, &outWorldPosition);
       }
-      v36 = (*((_DWORD *)_RBX - 6) & 2) != 0;
-      if ( (*((_DWORD *)_RBX - 6) & 2) != 0 )
+      v18 = (*((_DWORD *)p_z - 6) & 2) != 0;
+      if ( (*((_DWORD *)p_z - 6) & 2) != 0 )
       {
-        v37 = (LUITraceRequest *)*((_QWORD *)_RBX + 2);
-        if ( v37 )
+        v19 = (LUITraceRequest *)*((_QWORD *)p_z + 2);
+        if ( v19 )
         {
-          if ( LUITraceRunner::GetTraceResult(localClientNum, v37, &outHit) )
+          if ( LUITraceRunner::GetTraceResult(localClientNum, v19, &outHit) )
           {
-            *((_QWORD *)_RBX + 2) = 0i64;
-            _RBX[24] = !outHit;
+            *((_QWORD *)p_z + 2) = 0i64;
+            p_z[24] = !outHit;
           }
         }
         else
         {
-          *((_QWORD *)_RBX + 2) = LUITraceRunner::RequestTraceToPosition(localClientNum, &outWorldPosition, *((_DWORD *)_RBX - 8), 0, 0);
+          *((_QWORD *)p_z + 2) = LUITraceRunner::RequestTraceToPosition(localClientNum, &outWorldPosition, *((_DWORD *)p_z - 8), 0, 0);
         }
-        if ( !_RBX[24] )
+        if ( !p_z[24] )
           goto LABEL_41;
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, xmm9; val
-        vmovaps xmm2, xmm8; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm7, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm10; val
-        vmovaps xmm2, xmm8; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( *((_QWORD *)_RBX + 4) && *((_DWORD *)_RBX + 10) == *((_DWORD *)_RBX - 7) )
+      v20 = I_fclamp((float)(LocalClientGlobals->time - *((_DWORD *)p_z + 3)) * 0.0033333334, 0.0, 1.0);
+      v21 = *(float *)&v20;
+      v22 = I_fclamp((float)(LocalClientGlobals->time - *((_DWORD *)p_z + 2)) * 0.0020000001, 0.0, 1.0);
+      if ( *((_QWORD *)p_z + 4) && *((_DWORD *)p_z + 10) == *((_DWORD *)p_z - 7) )
         goto LABEL_35;
-      if ( NetConstStrings_GetNameFromIndex(NETCONSTSTRINGTYPE_HEADICON, *((_DWORD *)_RBX - 7), (const char **)&outName) )
+      if ( NetConstStrings_GetNameFromIndex(NETCONSTSTRINGTYPE_HEADICON, *((_DWORD *)p_z - 7), (const char **)&outName) )
       {
-        *((_DWORD *)_RBX + 10) = *((_DWORD *)_RBX - 7);
-        *((_QWORD *)_RBX + 4) = Image_Register(outName, IMAGE_TRACK_HUD);
+        *((_DWORD *)p_z + 10) = *((_DWORD *)p_z - 7);
+        *((_QWORD *)p_z + 4) = Image_Register(outName, IMAGE_TRACK_HUD);
 LABEL_35:
-        FlashbangedRemainingTime = CG_GetFlashbangedRemainingTime(localClientNum);
-        v49 = 0;
-        if ( FlashbangedRemainingTime <= 0 )
+        if ( CG_GetFlashbangedRemainingTime(localClientNum) <= 0 && (!v18 || p_z[24]) )
+          LUIElement_HeadIcons_RenderItem(localClientNum, elementa, roota, (const HeadIconView *)(p_z - 32), *((const GfxImage **)p_z + 4), &color, &outWorldPosition, v21, *(float *)&v22, v27);
+        if ( *(float *)&v22 >= 1.0 )
         {
-          if ( !v36 || (v49 = 0, _RBX[24]) )
-          {
-            __asm
-            {
-              vmovss  [rsp+138h+var_F8], xmm6
-              vmovss  [rsp+138h+var_100], xmm7
-            }
-            LUIElement_HeadIcons_RenderItem(localClientNum, elementa, roota, (const HeadIconView *)(_RBX - 32), *((const GfxImage **)_RBX + 4), &color, &outWorldPosition, v57, v58, v62);
-          }
-        }
-        __asm { vcomiss xmm6, xmm8 }
-        if ( !v49 )
-        {
-          __asm { vmovups xmm7, xmmword ptr [rbx+30h] }
-          memset_0(_RBX - 32, 0, 0x78ui64);
-          __asm { vmovups xmmword ptr [rbx+30h], xmm7 }
+          v23 = *((_OWORD *)p_z + 3);
+          memset_0(p_z - 32, 0, 0x78ui64);
+          *((_OWORD *)p_z + 3) = v23;
         }
       }
 LABEL_41:
       memset(&outWorldPosition, 0, sizeof(outWorldPosition));
 LABEL_42:
-      ++v23;
-      ++_R15;
-      _RBP += 4;
-      _RBX += 120;
-      customElementData = v65;
+      ++v13;
+      ++headIcons;
+      v16 += 4;
+      p_z += 120;
+      customElementData = v30;
     }
-    while ( (unsigned int)v23 < 0x20 );
-  }
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    while ( (unsigned int)v13 < 0x20 );
   }
 }
 
@@ -283,53 +190,45 @@ LUIElement_HeadIcons_RenderItem
 */
 void LUIElement_HeadIcons_RenderItem(LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, const HeadIconView *headIcon, const GfxImage *image, const vec4_t *color, const vec3_t *worldPosition, float introLerp, float outroLerp, lua_State *luaVM)
 {
-  __int64 v21; 
-  bool v23; 
-  const ScreenPlacement *v24; 
+  __int64 v12; 
+  bool v13; 
+  const ScreenPlacement *v14; 
   const GfxViewInfo *ViewInfo; 
   cg_t *LocalClientGlobals; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  int v30; 
-  bool v31; 
+  float v20; 
   int maxDistance; 
-  char v74; 
-  bool v75; 
-  float fmt; 
-  float fmta; 
-  float screenPosition; 
-  float outSnappedScreenPosition; 
-  float snapToLocation; 
-  bool v137[24]; 
-  lua_State *v138; 
+  float v22; 
+  float naturalDistance; 
+  float v24; 
+  float v25; 
+  __int128 v27; 
+  double CurrentUnitScale; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  double v34; 
+  float v35; 
+  float v36; 
+  double v37; 
+  __int128 v38; 
+  bool snapToLocation[24]; 
+  lua_State *v42; 
   LUIElement *elementa; 
-  __int64 v140; 
+  __int64 v44; 
   vec2_t outScreenPos; 
-  vec2_t v142; 
-  vec4_t v143; 
+  vec2_t screenPosition; 
+  vec4_t v47; 
   vec2_t screenSnapOffset; 
   vec4_t quadVerts[4]; 
-  char v146; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v140 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
+  v44 = -2i64;
   elementa = element;
-  v21 = localClientNum;
-  _R13 = worldPosition;
-  v138 = luaVM;
+  v12 = localClientNum;
+  v42 = luaVM;
   if ( !element && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_headicons.cpp", 165, ASSERT_TYPE_ASSERT, "(element)", (const char *)&queryFormat, "element") )
     __debugbreak();
   if ( !root && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_headicons.cpp", 166, ASSERT_TYPE_ASSERT, "(root)", (const char *)&queryFormat, "root") )
@@ -345,22 +244,22 @@ void LUIElement_HeadIcons_RenderItem(LocalClientNum_t localClientNum, LUIElement
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v23 )
+      v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v13 )
       __debugbreak();
 LABEL_22:
-    v24 = &scrPlaceFull;
+    v14 = &scrPlaceFull;
     goto LABEL_23;
   }
-  v24 = &scrPlaceViewDisplay[v21];
+  v14 = &scrPlaceViewDisplay[v12];
 LABEL_23:
-  CG_WorldPosToScreenPosRealForScene((LocalClientNum_t)v21, v24, worldPosition, 0, &outScreenPos);
+  CG_WorldPosToScreenPosRealForScene((LocalClientNum_t)v12, v14, worldPosition, 0, &outScreenPos);
   ViewInfo = LUI_GetViewInfo();
   if ( ViewInfo )
     R_ScopeDistortionTransform(ViewInfo, &outScreenPos, &outScreenPos);
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v21);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
   p_view = &LocalClientGlobals->refdef.view;
   if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
     __debugbreak();
@@ -368,245 +267,87 @@ LABEL_23:
   v = (_DWORD *)p_view->org.org.v;
   if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
     __debugbreak();
-  *(_DWORD *)&v137[8] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-  *(_DWORD *)&v137[12] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-  v30 = (refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2);
-  v31 = v30 == v[2];
-  *(_DWORD *)&v137[16] = v30 ^ v[2];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0]
-    vsubss  xmm3, xmm0, [rsp+1B0h+var_158]
-    vmovss  xmm1, dword ptr [r13+4]
-    vsubss  xmm2, xmm1, [rsp+1B0h+var_154]
-    vmovss  xmm0, dword ptr [r13+8]
-    vsubss  xmm4, xmm0, [rsp+1B0h+var_150]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm6, xmm8
-  }
-  if ( !v31 )
+  *(_DWORD *)&snapToLocation[8] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+  *(_DWORD *)&snapToLocation[12] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+  *(_DWORD *)&snapToLocation[16] = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
+  v20 = fsqrt((float)((float)((float)(worldPosition->v[1] - *(float *)&snapToLocation[12]) * (float)(worldPosition->v[1] - *(float *)&snapToLocation[12])) + (float)((float)(worldPosition->v[0] - *(float *)&snapToLocation[8]) * (float)(worldPosition->v[0] - *(float *)&snapToLocation[8]))) + (float)((float)(worldPosition->v[2] - *(float *)&snapToLocation[16]) * (float)(worldPosition->v[2] - *(float *)&snapToLocation[16])));
+  if ( v20 != 0.0 )
   {
     maxDistance = headIcon->maxDistance;
-    __asm
+    v22 = (float)maxDistance;
+    if ( v22 <= 0.0 || v20 <= v22 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vcomiss xmm0, xmm8
-      vcomiss xmm6, xmm0
-    }
-    if ( v31 )
-    {
-      __asm
+      naturalDistance = (float)headIcon->naturalDistance;
+      if ( naturalDistance > 0.0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-        vmovss  xmm9, cs:__real@3f000000
-        vmovss  xmm7, cs:__real@3f800000
-        vcomiss xmm0, xmm8
-      }
-      if ( v31 )
-      {
-        __asm { vmovaps xmm10, xmm7 }
+        v25 = naturalDistance / v20;
+        I_fclamp(v25, 0.5, 1.0);
+        v24 = v25;
+        maxDistance = headIcon->maxDistance;
       }
       else
       {
-        __asm
-        {
-          vdivss  xmm0, xmm0, xmm6; val
-          vmovaps xmm2, xmm7; max
-          vmovaps xmm1, xmm9; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm10, xmm0 }
-        maxDistance = headIcon->maxDistance;
+        v24 = FLOAT_1_0;
       }
       if ( maxDistance > 0 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm2, xmm1, cs:__real@3dcccccd
-          vminss  xmm6, xmm2, xmm7
-        }
+        v27 = 0i64;
+        *(float *)&v27 = (float)((float)maxDistance - v20) * 0.1;
+        _XMM2 = v27;
+        __asm { vminss  xmm6, xmm2, xmm7 }
       }
       else
       {
-        __asm { vmovaps xmm6, xmm7 }
+        *(float *)&_XMM6 = FLOAT_1_0;
       }
-      *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-      __asm
-      {
-        vmovaps xmm12, xmm0
-        vmulss  xmm1, xmm0, cs:__real@3f2aaaab
-        vmulss  xmm2, xmm1, xmm10
-        vmulss  xmm10, xmm2, xmm6
-        vmulss  xmm11, xmm10, cs:__real@42a00000
-      }
-      _EAX = image->width;
-      __asm
-      {
-        vmovd   xmm1, eax
-        vcvtdq2ps xmm1, xmm1
-        vmulss  xmm3, xmm1, xmm11
-      }
-      _EAX = image->height;
-      __asm
-      {
-        vmovd   xmm2, eax
-        vcvtdq2ps xmm2, xmm2
-        vdivss  xmm13, xmm3, xmm2
-      }
-      v74 = 0;
-      v75 = (headIcon->flags & 4) == 0;
+      CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+      v30 = (float)((float)(*(float *)&CurrentUnitScale * 0.66666669) * v24) * *(float *)&_XMM6;
+      v31 = v30 * 80.0;
+      v33 = (float)(_mm_cvtepi32_ps((__m128i)image->width).m128_f32[0] * (float)(v30 * 80.0)) / _mm_cvtepi32_ps((__m128i)image->height).m128_f32[0];
+      v32 = v33;
       if ( (headIcon->flags & 4) != 0 )
       {
-        __asm
+        screenPosition.v[0] = outScreenPos.v[0];
+        screenPosition.v[1] = outScreenPos.v[1] - (float)(v31 * 0.5);
+        screenSnapOffset.v[0] = 0.0;
+        screenSnapOffset.v[1] = 0.0;
+        snapToLocation[0] = 0;
+        LUIElement_Anchored_SnapScreenPositionToEdges((const LocalClientNum_t)v12, 0.0, v33, v31, 0.5, &screenPosition, &screenPosition, snapToLocation, &screenSnapOffset);
+        outScreenPos.v[0] = screenPosition.v[0];
+        outScreenPos.v[1] = screenPosition.v[1] + (float)(v31 * 0.5);
+      }
+      v47 = *color;
+      if ( introLerp >= 1.0 )
+      {
+        if ( outroLerp <= 0.0 )
         {
-          vmulss  xmm6, xmm11, xmm9
-          vmovss  xmm0, dword ptr [rbp+0B0h+outScreenPos+4]
-          vsubss  xmm2, xmm0, xmm6
-          vmovss  xmm1, dword ptr [rbp+0B0h+outScreenPos]
-          vmovss  dword ptr [rbp+0B0h+var_128], xmm1
-          vmovss  dword ptr [rbp+0B0h+var_128+4], xmm2
-          vmovss  dword ptr [rbp+0B0h+var_110], xmm8
-          vmovss  dword ptr [rbp+0B0h+var_110+4], xmm8
+LABEL_49:
+          v38 = LODWORD(FLOAT_1_0);
+          *(float *)&v38 = (float)(1.0 - CG_GetLocalClientGlobals((const LocalClientNum_t)v12)->predictedPlayerState.weapCommon.fWeaponPosFrac) * 0.2;
+          _XMM1 = v38;
+          __asm { vmaxss  xmm3, xmm1, xmm6 }
+          v47.v[3] = *(float *)&_XMM3 * v47.v[3];
+          LUI_CoD_GenerateQuadVerts(outScreenPos.v[0] - (float)(v32 * 0.5), outScreenPos.v[1] - v31, (float)(v32 * 0.5) + outScreenPos.v[0], outScreenPos.v[1], (vec4_t (*)[4])quadVerts);
+          LUI_Render_DrawImage((const LocalClientNum_t)v12, elementa, v42, (const vec4_t (*)[4])quadVerts, 0.0, 0.0, 1.0, 1.0, &v47, image);
+          goto LABEL_50;
         }
-        v137[0] = 0;
-        __asm
-        {
-          vmovss  dword ptr [rsp+1B0h+fmt], xmm9
-          vmovaps xmm3, xmm11; elementHeight
-          vmovaps xmm2, xmm13; elementwWidth
-          vxorps  xmm1, xmm1, xmm1; snapRadius
-        }
-        LUIElement_Anchored_SnapScreenPositionToEdges((const LocalClientNum_t)v21, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, &v142, &v142, v137, &screenSnapOffset);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0B0h+var_128+4]
-          vaddss  xmm5, xmm0, xmm6
-          vmovss  xmm1, dword ptr [rbp+0B0h+var_128]
-          vmovss  dword ptr [rbp+0B0h+outScreenPos], xmm1
-          vmovss  dword ptr [rbp+0B0h+outScreenPos+4], xmm5
-        }
+        v37 = LUI_Tween_Ease(outroLerp, EASE_IN_QUAD);
+        v35 = (float)(*(float *)&v37 * 20.0) * v30;
+        v36 = (float)(1.0 - outroLerp) * v47.v[3];
       }
       else
       {
-        __asm { vmovss  xmm5, dword ptr [rbp+0B0h+outScreenPos+4] }
+        v34 = LUI_Tween_Ease(introLerp, EASE_OUT_QUAD);
+        v35 = (float)((float)(1.0 - *(float *)&v34) * 40.0) * v30;
+        v36 = introLerp * v47.v[3];
       }
-      _RAX = color;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0B0h+var_120], xmm0
-        vmovss  xmm6, [rbp+0B0h+introLerp]
-        vcomiss xmm6, xmm7
-      }
-      if ( v74 )
-      {
-        __asm { vmovaps xmm0, xmm6; t }
-        LUI_Tween_Ease(*(float *)&_XMM0, EASE_OUT_QUAD);
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm0
-          vmulss  xmm1, xmm0, cs:__real@42200000
-          vmulss  xmm3, xmm1, xmm10
-          vmulss  xmm1, xmm6, dword ptr [rbp+0B0h+var_120+0Ch]
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm6, [rbp+0B0h+outroLerp]
-          vcomiss xmm6, xmm8
-        }
-        if ( v74 | v75 )
-        {
-LABEL_50:
-          __asm
-          {
-            vmulss  xmm3, xmm9, dword ptr [rdi+20h]
-            vmulss  xmm2, xmm9, dword ptr [rdi+24h]
-            vsubss  xmm4, xmm3, dword ptr [rbp+0B0h+outScreenPos]
-            vsubss  xmm0, xmm2, xmm5
-            vmulss  xmm3, xmm0, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm1
-            vmulss  xmm0, xmm12, xmm12
-            vmulss  xmm4, xmm0, cs:__real@45c80000
-            vmovaps xmm6, xmm7
-            vcomiss xmm2, xmm4
-          }
-          if ( v74 )
-            __asm { vdivss  xmm6, xmm2, xmm4 }
-          CG_GetLocalClientGlobals((const LocalClientNum_t)v21);
-          __asm
-          {
-            vsubss  xmm0, xmm7, dword ptr [rax+738h]
-            vmulss  xmm1, xmm0, cs:__real@3e4ccccd
-            vmaxss  xmm3, xmm1, xmm6
-            vmulss  xmm0, xmm3, dword ptr [rbp+0B0h+var_120+0Ch]
-            vmovss  dword ptr [rbp+0B0h+var_120+0Ch], xmm0
-            vmulss  xmm5, xmm13, xmm9
-            vmovss  xmm4, dword ptr [rbp+0B0h+outScreenPos]
-            vaddss  xmm2, xmm5, xmm4; right
-            vmovss  xmm3, dword ptr [rbp+0B0h+outScreenPos+4]; bottom
-            vsubss  xmm1, xmm3, xmm11; top
-            vsubss  xmm0, xmm4, xmm5; left
-          }
-          LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-          __asm
-          {
-            vmovss  dword ptr [rsp+1B0h+snapToLocation], xmm7
-            vmovss  dword ptr [rsp+1B0h+outSnappedScreenPosition], xmm7
-            vmovss  dword ptr [rsp+1B0h+screenPosition], xmm8
-            vmovss  dword ptr [rsp+1B0h+fmt], xmm8
-          }
-          LUI_Render_DrawImage((const LocalClientNum_t)v21, elementa, v138, (const vec4_t (*)[4])quadVerts, fmta, screenPosition, outSnappedScreenPosition, snapToLocation, &v143, image);
-          goto LABEL_53;
-        }
-        __asm { vmovaps xmm0, xmm6; t }
-        *(double *)&_XMM0 = LUI_Tween_Ease(*(float *)&_XMM0, EASE_IN_QUAD);
-        __asm
-        {
-          vmulss  xmm1, xmm0, cs:__real@41a00000
-          vmulss  xmm3, xmm1, xmm10
-          vsubss  xmm1, xmm7, xmm6
-          vmulss  xmm1, xmm1, dword ptr [rbp+0B0h+var_120+0Ch]
-        }
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0B0h+outScreenPos+4]
-        vsubss  xmm5, xmm2, xmm3
-        vmovss  dword ptr [rbp+0B0h+var_120+0Ch], xmm1
-        vmovss  dword ptr [rbp+0B0h+outScreenPos+4], xmm5
-      }
-      goto LABEL_50;
+      v47.v[3] = v36;
+      outScreenPos.v[1] = outScreenPos.v[1] - v35;
+      goto LABEL_49;
     }
   }
-LABEL_53:
-  memset(&v137[8], 0, 0xCui64);
-  _R11 = &v146;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+LABEL_50:
+  memset(&snapToLocation[8], 0, 0xCui64);
 }
 
 /*
@@ -647,7 +388,7 @@ __int64 LUI_LuaCall_LUIElement_SetupHeadIcons_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   v2 = LUI_ToElement(luaVM, 1);
   v2->usageFlags |= 1u;
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_HeadIcons_Render;
+  v2->renderFunction = LUIElement_HeadIcons_Render;
   if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
   LUI_PutElementOnTopOfStack(v2, luaVM);

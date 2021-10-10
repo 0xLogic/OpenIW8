@@ -435,8 +435,9 @@ R_CheckReserveDescriptorHeaps
 */
 char R_CheckReserveDescriptorHeaps(GfxDescriptorState *descState)
 {
-  GfxDescriptorHeapInfoType type; 
   GfxDescriptorHeapInfo *descHeapInfo; 
+  GfxDescriptorHeapInfoType type; 
+  GfxDescriptorHeapInfo *v4; 
   int bufSize; 
   int pendingSize; 
   signed int id; 
@@ -445,42 +446,36 @@ char R_CheckReserveDescriptorHeaps(GfxDescriptorState *descState)
     __debugbreak();
   if ( !descState->descHeapInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 1232, ASSERT_TYPE_ASSERT, "(descState->descHeapInfo)", (const char *)&queryFormat, "descState->descHeapInfo") )
     __debugbreak();
-  _RAX = descState->descHeapInfo;
-  type = _RAX->type;
+  descHeapInfo = descState->descHeapInfo;
+  type = descHeapInfo->type;
   if ( type == GFX_DESCHEAP_INFO_LINEAR )
   {
-    descHeapInfo = descState->descHeapInfo;
-    if ( _RAX->linear.dangerZone + _RAX->ring.ringBuffer.readPos > descHeapInfo->handle.totalSlots )
+    v4 = descState->descHeapInfo;
+    if ( descHeapInfo->linear.dangerZone + descHeapInfo->ring.ringBuffer.readPos > v4->handle.totalSlots )
     {
       if ( rg.stats )
       {
-        rg.stats->linearDescriptorHeapsRenderStats[descHeapInfo->linear.id].reachedDangerZone = 1;
-        descHeapInfo = descState->descHeapInfo;
+        rg.stats->linearDescriptorHeapsRenderStats[v4->linear.id].reachedDangerZone = 1;
+        v4 = descState->descHeapInfo;
       }
-      R_WarnOncePerFrame(R_WARN_DESCRIPTOR_HEAP_OVERFLOW, (unsigned int)descHeapInfo->linear.head, descHeapInfo->handle.totalSlots);
+      R_WarnOncePerFrame(R_WARN_DESCRIPTOR_HEAP_OVERFLOW, (unsigned int)v4->linear.head, v4->handle.totalSlots);
       return 0;
     }
   }
-  else if ( type == GFX_DESCHEAP_INFO_RING && _RAX->ring.ringBuffer.settings.disableFenceOnAcquire )
+  else if ( type == GFX_DESCHEAP_INFO_RING && descHeapInfo->ring.ringBuffer.settings.disableFenceOnAcquire )
   {
-    __asm { vmovss  xmm3, dword ptr [rax+848h] }
-    bufSize = _RAX->ring.ringBuffer.bufSize;
-    pendingSize = _RAX->ring.ringBuffer.pendingSize;
-    __asm { vmovss  xmm1, cs:?rg@@3Ur_globals_t@@A.ringFractionForFlush; r_globals_t rg }
-    id = _RAX->linear.id;
+    _XMM3 = LODWORD(descHeapInfo->ring.ringBuffer.settings.fractionFlush);
+    bufSize = descHeapInfo->ring.ringBuffer.bufSize;
+    pendingSize = descHeapInfo->ring.ringBuffer.pendingSize;
+    id = descHeapInfo->linear.id;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
       vcmpeqss xmm2, xmm3, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
       vblendvps xmm3, xmm3, xmm1, xmm2
-      vmulss  xmm0, xmm0, xmm3
-      vcvttss2si eax, xmm0
     }
-    if ( pendingSize >= _EAX )
+    if ( pendingSize >= (int)(float)((float)bufSize * *(float *)&_XMM3) )
       return 0;
-    if ( pendingSize > bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 1273, ASSERT_TYPE_ASSERT, "( pendingSize ) <= ( bufSize )", "%s <= %s\n\t%i, %i", "pendingSize", "bufSize", pendingSize, bufSize) )
+    if ( pendingSize > bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 1273, ASSERT_TYPE_ASSERT, "( pendingSize ) <= ( bufSize )", "%s <= %s\n\t%i, %i", "pendingSize", "bufSize", descHeapInfo->ring.ringBuffer.pendingSize, descHeapInfo->ring.ringBuffer.bufSize) )
       __debugbreak();
     if ( bufSize - pendingSize < id )
       return 0;
@@ -522,44 +517,38 @@ R_CreateDescriptorHeap
 void R_CreateDescriptorHeap(ID3D12Device *device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, bool shaderVisible, unsigned int numDescriptors, GfxUnifiedDescriptorHeap *descHeap)
 {
   GraphicsUnknown_Function_Table *m_pFunction; 
-  HRESULT v11; 
-  const char *v12; 
-  GraphicsUnknown_Function_Table *v13; 
+  HRESULT v10; 
+  const char *v11; 
+  GraphicsUnknown_Function_Table *v12; 
+  __int128 v13; 
   __int64 v14; 
-  __int64 v17; 
-  __m256i v18; 
-  __int128 v19; 
-  int v20[4]; 
+  __m256i v15; 
+  __int128 v16; 
+  int v17[4]; 
 
   m_pFunction = device->m_pFunction;
-  _R14 = descHeap;
-  v20[0] = heapType;
-  v20[1] = numDescriptors;
-  v20[2] = shaderVisible;
-  v20[3] = 0;
-  v11 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, __int64 *))m_pFunction[4].Release)(device, v20, &GUID_8efb471d_616c_4f49_90f7_127bb763fa51, &v17);
-  if ( v11 < 0 )
+  v17[0] = heapType;
+  v17[1] = numDescriptors;
+  v17[2] = shaderVisible;
+  v17[3] = 0;
+  v10 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, __int64 *))m_pFunction[4].Release)(device, v17, &GUID_8efb471d_616c_4f49_90f7_127bb763fa51, &v14);
+  if ( v10 < 0 )
   {
-    v12 = R_ErrorDescription(v11);
-    Sys_Error((const ObfuscateErrorText)&stru_14436E460, 381i64, v12);
+    v11 = R_ErrorDescription(v10);
+    Sys_Error((const ObfuscateErrorText)&stru_14436E460, 381i64, v11);
   }
-  v18.m256i_i64[0] = v17;
-  v13 = device->m_pFunction;
-  v18.m256i_i32[2] = heapType;
-  v18.m256i_i32[3] = ((__int64 (__fastcall *)(ID3D12Device *, _QWORD))v13[5].QueryInterface)(device, (unsigned int)heapType);
-  v18.m256i_i32[4] = numDescriptors;
-  BYTE12(v19) = shaderVisible;
-  v18.m256i_i64[3] = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v17 + 72i64))(v17);
-  v14 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v17 + 80i64))(v17);
-  __asm { vmovups ymm0, [rsp+98h+var_70] }
-  *(_QWORD *)&v19 = v14;
-  DWORD2(v19) = 0;
-  __asm
-  {
-    vmovups xmm1, [rsp+98h+var_50]
-    vmovups ymmword ptr [r14], ymm0
-    vmovups xmmword ptr [r14+20h], xmm1
-  }
+  v15.m256i_i64[0] = v14;
+  v12 = device->m_pFunction;
+  v15.m256i_i32[2] = heapType;
+  v15.m256i_i32[3] = ((__int64 (__fastcall *)(ID3D12Device *, _QWORD))v12[5].QueryInterface)(device, (unsigned int)heapType);
+  v15.m256i_i32[4] = numDescriptors;
+  BYTE12(v16) = shaderVisible;
+  v15.m256i_i64[3] = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v14 + 72i64))(v14);
+  *(_QWORD *)&v16 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v14 + 80i64))(v14);
+  DWORD2(v16) = 0;
+  v13 = v16;
+  *(__m256i *)&descHeap->d3dheap = v15;
+  *(_OWORD *)&descHeap->heapStartGPUHandle.ptr = v13;
 }
 
 /*
@@ -615,31 +604,25 @@ R_EndFrameDescriptorHeapInfo
 void R_EndFrameDescriptorHeapInfo(GfxDescriptorHeapInfo *info, unsigned __int64 fence)
 {
   GfxDescriptorHeapInfoType type; 
-  char v7; 
+  double v4; 
+  double v5; 
+  float totalSlots; 
 
   type = info->type;
   if ( type )
   {
     if ( type == GFX_DESCHEAP_INFO_LINEAR )
     {
-      *(double *)&_XMM0 = I_random();
-      _RAX = r_randomFailLinearHeap;
-      __asm { vcomiss xmm0, dword ptr [rax+28h] }
-      if ( v7 )
+      v4 = I_random();
+      if ( *(float *)&v4 >= r_randomFailLinearHeap->current.value )
       {
-        *(double *)&_XMM0 = I_random();
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rax
-          vmulss  xmm0, xmm0, xmm1
-          vcvttss2si rax, xmm0
-        }
-        info->linear.testFailOffset = _RAX;
+        info->linear.testFailOffset = -1;
       }
       else
       {
-        info->linear.testFailOffset = -1;
+        v5 = I_random();
+        totalSlots = (float)info->handle.totalSlots;
+        info->linear.testFailOffset = (int)(float)(*(float *)&v5 * totalSlots);
       }
       info->ring.ringBuffer.readPos = 0;
     }
@@ -1071,6 +1054,7 @@ void R_FlushDescriptors(GfxDescriptorHeapHandle *dstHeapHandle, GfxDescriptorHea
   __int64 v16; 
   int v17; 
   int v18; 
+  unsigned __int64 v19; 
 
   if ( srcHeapHandle->parent->heapType != dstHeapHandle->parent->heapType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 491, ASSERT_TYPE_ASSERT, "(srcHeapHandle->parent->heapType == dstHeapHandle->parent->heapType)", (const char *)&queryFormat, "srcHeapHandle->parent->heapType == dstHeapHandle->parent->heapType") )
     __debugbreak();
@@ -1124,16 +1108,11 @@ void R_FlushDescriptors(GfxDescriptorHeapHandle *dstHeapHandle, GfxDescriptorHea
           v17 = 2;
         }
         v18 = v12 * v17;
-        _RCX = (unsigned int)(v16 + HIDWORD(v14));
-        _R9 = v15 - v16;
+        v19 = (unsigned int)(v16 + HIDWORD(v14));
         do
         {
-          __asm
-          {
-            vmovdqu xmm0, xmmword ptr [rcx]
-            vmovdqu xmmword ptr [r9+rcx], xmm0
-          }
-          _RCX += 16i64;
+          *(_OWORD *)(v15 - v16 + v19) = *(_OWORD *)v19;
+          v19 += 16i64;
           --v18;
         }
         while ( v18 );
@@ -1575,16 +1554,20 @@ R_InitGlobalNullDescriptors
 */
 void R_InitGlobalNullDescriptors(ID3D12Device *device)
 {
-  HRESULT v5; 
-  const char *v6; 
-  ID3D12DeviceChild *v7; 
+  HRESULT v2; 
+  const char *v3; 
+  ID3D12DeviceChild *v4; 
   GraphicsUnknown_Function_Table *m_pFunction; 
-  unsigned int v9; 
-  unsigned __int64 v10; 
+  unsigned int v6; 
+  unsigned __int64 v7; 
   unsigned int freeSlot; 
-  __int64 v12; 
-  unsigned __int64 v13; 
-  unsigned int v15; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  unsigned int v11; 
+  unsigned __int64 v12; 
+  unsigned int v13; 
+  unsigned __int64 v14; 
+  __int64 v15; 
   unsigned __int64 v16; 
   unsigned int v17; 
   unsigned __int64 v18; 
@@ -1592,93 +1575,79 @@ void R_InitGlobalNullDescriptors(ID3D12Device *device)
   unsigned __int64 v20; 
   unsigned int v21; 
   unsigned __int64 v22; 
-  __int64 v23; 
-  unsigned __int64 v24; 
-  unsigned int v25; 
-  unsigned __int64 v26; 
-  int v27; 
+  int v23; 
+  int v24; 
+  int v25; 
+  __int64 v26; 
+  __int64 v27; 
   int v28; 
-  int v29; 
-  __int64 v30; 
-  __int64 v31; 
-  int v32; 
-  ID3D12Device *v33; 
+  ID3D12Device *v29; 
   ID3D12DeviceChild *resource; 
-  unsigned __int64 v35; 
+  unsigned __int64 v31; 
+  int v32; 
+  _BYTE v33[12]; 
+  __int64 v34; 
+  __int64 v35; 
   int v36; 
-  _BYTE v37[12]; 
+  _BYTE v37[48]; 
   __int64 v38; 
-  __int64 v39; 
-  int v40; 
-  _BYTE v41[48]; 
-  __int64 v42; 
-  int v43; 
-  __int64 v44; 
-  int v45; 
-  __m256i v46; 
+  int v39; 
+  __int64 v40; 
+  int v41; 
+  __m256i v42; 
+  __int128 v43; 
+  double v44; 
 
-  *(_QWORD *)&v41[28] = 65537i64;
-  v33 = device;
-  *(_QWORD *)&v41[8] = 0i64;
-  *(_DWORD *)&v41[24] = 1;
-  *(_QWORD *)v41 = 1i64;
-  *(_QWORD *)&v41[16] = 64i64;
-  __asm
+  *(_QWORD *)&v37[28] = 65537i64;
+  v29 = device;
+  *(_QWORD *)&v37[8] = 0i64;
+  *(_DWORD *)&v37[24] = 1;
+  *(_QWORD *)v37 = 1i64;
+  *(_QWORD *)&v37[16] = 64i64;
+  v42 = *(__m256i *)v37;
+  v38 = 0i64;
+  v44 = 0.0;
+  *(_QWORD *)&v37[36] = 1i64;
+  *(_DWORD *)&v37[44] = 1;
+  v43 = *(_OWORD *)&v37[32];
+  v2 = ((__int64 (__fastcall *)(ID3D12Device *, _QWORD, __m256i *, _QWORD, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[14].Release)(g_dx.d3d12device, 0i64, &v42, 0i64, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &resource);
+  if ( v2 < 0 )
   {
-    vmovups ymm0, [rbp+80h+var_B8]
-    vmovups [rbp+80h+var_68], ymm0
-  }
-  v42 = 0i64;
-  __asm
-  {
-    vmovsd  xmm0, [rbp+80h+var_88]
-    vmovsd  [rbp+80h+var_38], xmm0
-  }
-  *(_QWORD *)&v41[36] = 1i64;
-  *(_DWORD *)&v41[44] = 1;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rbp-18h]
-    vmovups [rbp+80h+var_48], xmm1
-  }
-  v5 = ((__int64 (__fastcall *)(ID3D12Device *, _QWORD, __m256i *, _QWORD, _QWORD, GUID *, ID3D12DeviceChild **))g_dx.d3d12device->m_pFunction[14].Release)(g_dx.d3d12device, 0i64, &v46, 0i64, 0i64, &GUID_696442be_a72e_4059_bc79_5b5c98040fad, &resource);
-  if ( v5 < 0 )
-  {
-    v6 = R_ErrorDescription(v5);
-    Sys_Error((const ObfuscateErrorText)&stru_14436DF60, 307i64, v6);
+    v3 = R_ErrorDescription(v2);
+    Sys_Error((const ObfuscateErrorText)&stru_14436DF60, 307i64, v3);
   }
   PIXSetDebugName(resource, "sentinel resource");
-  v7 = resource;
+  v4 = resource;
   m_pFunction = device->m_pFunction;
-  v27 = 41;
-  v28 = 1;
-  v29 = 5768;
-  v30 = 0i64;
-  v31 = 1i64;
-  v32 = 0;
-  m_pFunction[6].QueryInterface(device, (const _GUID *)resource, (void **)&v27);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_types_d3d.h", 1554, ASSERT_TYPE_ASSERT, "(var)", (const char *)&queryFormat, "var") )
+  v23 = 41;
+  v24 = 1;
+  v25 = 5768;
+  v26 = 0i64;
+  v27 = 1i64;
+  v28 = 0;
+  m_pFunction[6].QueryInterface(device, (const _GUID *)resource, (void **)&v23);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_types_d3d.h", 1554, ASSERT_TYPE_ASSERT, "(var)", (const char *)&queryFormat, "var") )
     __debugbreak();
-  v9 = v7->m_pFunction->Release(v7);
-  if ( !R_IsAnalysisToolPresent() && !R_IsIncompatibleOverlayPresent() && v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_types_d3d.h", 1569, ASSERT_TYPE_ASSERT, "(!useCount)", "%s\n\t%s (%i) %s->Release() failed: %i leak(s)!", "!useCount", "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 666, "sentinelResource", v9) )
+  v6 = v4->m_pFunction->Release(v4);
+  if ( !R_IsAnalysisToolPresent() && !R_IsIncompatibleOverlayPresent() && v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_types_d3d.h", 1569, ASSERT_TYPE_ASSERT, "(!useCount)", "%s\n\t%s (%i) %s->Release() failed: %i leak(s)!", "!useCount", "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 666, "sentinelResource", v6) )
     __debugbreak();
-  v27 = 41;
-  v28 = 1;
-  v10 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
-  v29 = 5768;
-  v30 = 0i64;
-  v31 = 0i64;
-  v32 = 0;
+  v23 = 41;
+  v24 = 1;
+  v7 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
+  v25 = 5768;
+  v26 = 0i64;
+  v27 = 0i64;
+  v28 = 0;
   while ( 1 )
   {
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+    if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
       __debugbreak();
     if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
       break;
     Sys_Sleep(0);
   }
   freeSlot = g_descriptorPools.shaderViewPool.freeSlot;
-  v12 = (__int64)v33;
+  v9 = (__int64)v29;
   if ( !g_descriptorPools.shaderViewPool.freeSlot )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
@@ -1688,66 +1657,91 @@ void R_InitGlobalNullDescriptors(ID3D12Device *device)
   g_descriptorPools.shaderViewPool.freeSlot = g_descriptorPools.shaderViewPool.nextSlot[freeSlot];
   g_descriptorPools.shaderViewPool.nextSlot[freeSlot] = 0;
   ++g_descriptorPools.shaderViewPool.handle.used;
-  v35 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
+  v31 = (unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3;
   if ( ((unsigned __int8)&g_descriptorPools.shaderViewPool.lock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
     __debugbreak();
   _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
-  v13 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot);
+  v10 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (freeSlot + g_descriptorPools.shaderViewPool.handle.startSlot);
   if ( freeSlot != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 677, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_BUFFER_SRV)", (const char *)&queryFormat, "descriptor == UNBOUND_BUFFER_SRV") )
     __debugbreak();
-  *(double *)&_XMM0 = (*(double (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v12 + 144i64))(v12, 0i64, &v27, v13);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+180h+var_108+4], xmm0
-  }
-  v27 = 28;
-  v28 = 4;
-  v29 = 5768;
-  v30 = 0xFFFFFFFF00000000ui64;
-  LODWORD(v31) = 0;
+  (*(void (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v9 + 144i64))(v9, 0i64, &v23, v10);
+  v27 = 0i64;
+  v23 = 28;
+  v24 = 4;
+  v25 = 5768;
+  v26 = 0xFFFFFFFF00000000ui64;
   while ( 1 )
   {
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+    if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
       __debugbreak();
     if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
       break;
     Sys_Sleep(0);
   }
-  v15 = g_descriptorPools.shaderViewPool.freeSlot;
+  v11 = g_descriptorPools.shaderViewPool.freeSlot;
   if ( !g_descriptorPools.shaderViewPool.freeSlot )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
       __debugbreak();
-    v15 = g_descriptorPools.shaderViewPool.freeSlot;
+    v11 = g_descriptorPools.shaderViewPool.freeSlot;
   }
-  g_descriptorPools.shaderViewPool.freeSlot = g_descriptorPools.shaderViewPool.nextSlot[v15];
-  g_descriptorPools.shaderViewPool.nextSlot[v15] = 0;
+  g_descriptorPools.shaderViewPool.freeSlot = g_descriptorPools.shaderViewPool.nextSlot[v11];
+  g_descriptorPools.shaderViewPool.nextSlot[v11] = 0;
   ++g_descriptorPools.shaderViewPool.handle.used;
   if ( ((unsigned __int64)&g_descriptorPools.shaderViewPool.lock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
     __debugbreak();
   _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
-  v16 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (v15 + g_descriptorPools.shaderViewPool.handle.startSlot);
-  if ( v15 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 688, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_TEXTURE_SRV)", (const char *)&queryFormat, "descriptor == UNBOUND_TEXTURE_SRV") )
+  v12 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (v11 + g_descriptorPools.shaderViewPool.handle.startSlot);
+  if ( v11 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 688, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_TEXTURE_SRV)", (const char *)&queryFormat, "descriptor == UNBOUND_TEXTURE_SRV") )
     __debugbreak();
-  (*(void (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v12 + 144i64))(v12, 0i64, &v27, v16);
-  v36 = 41;
-  *(_DWORD *)v37 = 1;
-  *(_QWORD *)&v37[4] = 0i64;
-  v38 = 0i64;
-  v39 = 0i64;
-  v40 = 0;
+  (*(void (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v9 + 144i64))(v9, 0i64, &v23, v12);
+  v32 = 41;
+  *(_DWORD *)v33 = 1;
+  *(_QWORD *)&v33[4] = 0i64;
+  v34 = 0i64;
+  v35 = 0i64;
+  v36 = 0;
   while ( 1 )
   {
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+    if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+      __debugbreak();
+    if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
+      break;
+    Sys_Sleep(0);
+  }
+  v13 = g_descriptorPools.shaderViewPool.freeSlot;
+  v14 = v31;
+  v15 = (__int64)v29;
+  if ( !g_descriptorPools.shaderViewPool.freeSlot )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
+      __debugbreak();
+    v13 = g_descriptorPools.shaderViewPool.freeSlot;
+  }
+  g_descriptorPools.shaderViewPool.freeSlot = g_descriptorPools.shaderViewPool.nextSlot[v13];
+  g_descriptorPools.shaderViewPool.nextSlot[v13] = 0;
+  ++g_descriptorPools.shaderViewPool.handle.used;
+  if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
+    __debugbreak();
+  _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
+  v16 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (v13 + g_descriptorPools.shaderViewPool.handle.startSlot);
+  if ( v13 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 699, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_BUFFER_UAV)", (const char *)&queryFormat, "descriptor == UNBOUND_BUFFER_UAV") )
+    __debugbreak();
+  (*(void (__fastcall **)(__int64, _QWORD, _QWORD, int *, unsigned __int64))(*(_QWORD *)v15 + 152i64))(v15, 0i64, 0i64, &v32, v16);
+  v32 = 28;
+  *(_QWORD *)v33 = 4i64;
+  *(_DWORD *)&v33[8] = 0;
+  while ( 1 )
+  {
+    if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
       __debugbreak();
     if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
       break;
     Sys_Sleep(0);
   }
   v17 = g_descriptorPools.shaderViewPool.freeSlot;
-  v18 = v35;
-  v19 = (__int64)v33;
+  v18 = v31;
+  v19 = (__int64)v29;
   if ( !g_descriptorPools.shaderViewPool.freeSlot )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
@@ -1761,42 +1755,12 @@ void R_InitGlobalNullDescriptors(ID3D12Device *device)
     __debugbreak();
   _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
   v20 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (v17 + g_descriptorPools.shaderViewPool.handle.startSlot);
-  if ( v17 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 699, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_BUFFER_UAV)", (const char *)&queryFormat, "descriptor == UNBOUND_BUFFER_UAV") )
+  if ( v17 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 707, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_TEXTURE_UAV)", (const char *)&queryFormat, "descriptor == UNBOUND_TEXTURE_UAV") )
     __debugbreak();
-  (*(void (__fastcall **)(__int64, _QWORD, _QWORD, int *, unsigned __int64))(*(_QWORD *)v19 + 152i64))(v19, 0i64, 0i64, &v36, v20);
-  v36 = 28;
-  *(_QWORD *)v37 = 4i64;
-  *(_DWORD *)&v37[8] = 0;
-  while ( 1 )
-  {
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
-      __debugbreak();
-    if ( !_InterlockedCompareExchange(&g_descriptorPools.shaderViewPool.lock, 1, 0) )
-      break;
-    Sys_Sleep(0);
-  }
-  v21 = g_descriptorPools.shaderViewPool.freeSlot;
-  v22 = v35;
-  v23 = (__int64)v33;
-  if ( !g_descriptorPools.shaderViewPool.freeSlot )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
-      __debugbreak();
-    v21 = g_descriptorPools.shaderViewPool.freeSlot;
-  }
-  g_descriptorPools.shaderViewPool.freeSlot = g_descriptorPools.shaderViewPool.nextSlot[v21];
-  g_descriptorPools.shaderViewPool.nextSlot[v21] = 0;
-  ++g_descriptorPools.shaderViewPool.handle.used;
-  if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.shaderViewPool.lock) )
-    __debugbreak();
-  _InterlockedExchange(&g_descriptorPools.shaderViewPool.lock, 0);
-  v24 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (v21 + g_descriptorPools.shaderViewPool.handle.startSlot);
-  if ( v21 != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 707, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_TEXTURE_UAV)", (const char *)&queryFormat, "descriptor == UNBOUND_TEXTURE_UAV") )
-    __debugbreak();
-  (*(void (__fastcall **)(__int64, _QWORD, _QWORD, int *, unsigned __int64))(*(_QWORD *)v23 + 152i64))(v23, 0i64, 0i64, &v36, v24);
-  v43 = 28;
-  v44 = 4i64;
-  v45 = 0;
+  (*(void (__fastcall **)(__int64, _QWORD, _QWORD, int *, unsigned __int64))(*(_QWORD *)v19 + 152i64))(v19, 0i64, 0i64, &v32, v20);
+  v39 = 28;
+  v40 = 4i64;
+  v41 = 0;
   while ( 1 )
   {
     if ( ((unsigned __int64)&g_descriptorPools.rtViewPool.lock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.rtViewPool.lock) )
@@ -1805,23 +1769,23 @@ void R_InitGlobalNullDescriptors(ID3D12Device *device)
       break;
     Sys_Sleep(0);
   }
-  v25 = g_descriptorPools.rtViewPool.freeSlot;
+  v21 = g_descriptorPools.rtViewPool.freeSlot;
   if ( !g_descriptorPools.rtViewPool.freeSlot )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.h", 488, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Descriptor heap pool out of free slots") )
       __debugbreak();
-    v25 = g_descriptorPools.rtViewPool.freeSlot;
+    v21 = g_descriptorPools.rtViewPool.freeSlot;
   }
-  g_descriptorPools.rtViewPool.freeSlot = g_descriptorPools.rtViewPool.nextSlot[v25];
-  g_descriptorPools.rtViewPool.nextSlot[v25] = 0;
+  g_descriptorPools.rtViewPool.freeSlot = g_descriptorPools.rtViewPool.nextSlot[v21];
+  g_descriptorPools.rtViewPool.nextSlot[v21] = 0;
   ++g_descriptorPools.rtViewPool.handle.used;
   if ( ((unsigned __int8)&g_descriptorPools.rtViewPool.lock & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &g_descriptorPools.rtViewPool.lock) )
     __debugbreak();
   _InterlockedExchange(&g_descriptorPools.rtViewPool.lock, 0);
-  v26 = g_descriptorPools.rtViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.rtViewPool.handle.parent->descriptorSize * (v25 + g_descriptorPools.rtViewPool.handle.startSlot);
-  if ( v25 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 715, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_RTV)", (const char *)&queryFormat, "descriptor == UNBOUND_RTV") )
+  v22 = g_descriptorPools.rtViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.rtViewPool.handle.parent->descriptorSize * (v21 + g_descriptorPools.rtViewPool.handle.startSlot);
+  if ( v21 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_binding.cpp", 715, ASSERT_TYPE_ASSERT, "(descriptor == UNBOUND_RTV)", (const char *)&queryFormat, "descriptor == UNBOUND_RTV") )
     __debugbreak();
-  (*(void (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v23 + 160i64))(v23, 0i64, &v43, v26);
+  (*(void (__fastcall **)(__int64, _QWORD, int *, unsigned __int64))(*(_QWORD *)v19 + 160i64))(v19, 0i64, &v39, v22);
 }
 
 /*

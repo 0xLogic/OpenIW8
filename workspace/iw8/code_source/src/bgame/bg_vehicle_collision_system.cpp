@@ -225,241 +225,153 @@ BgVehicleCollisionSystem::CollisionVehicleVsVehicle
 */
 void BgVehicleCollisionSystem::CollisionVehicleVsVehicle(BgVehicleCollisionSystem *this, BgVehicleCollisionCallbackInfo *inOutCollInfo)
 {
-  __int64 v11; 
-  __int64 v12; 
-  int v15; 
-  __int64 v16; 
-  int v17; 
+  __int64 v3; 
+  int v4; 
+  BgVehiclePhysics *v5; 
+  int v6; 
   unsigned int m_vehicleAnimProfile; 
-  int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
-  BgVehiclePhysics **v33; 
-  __int64 v34; 
-  unsigned int v37; 
-  bool IsPhysicsBodyIdValid; 
-  char v39; 
-  bool v40; 
+  int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  BgVehiclePhysics **v11; 
+  __int64 v12; 
+  BgVehiclePhysics *v13; 
+  unsigned int v14; 
   unsigned int PhysicsBodyId; 
-  char v53; 
-  BgVehiclePhysics *v79; 
-  __int64 v80; 
+  double NormalSpeedPlane; 
+  float v18; 
+  float v19; 
+  __int128 v21; 
+  BgVehiclePhysics *v24; 
+  BgVehiclePhysics *v25; 
   tmat44_t<vec4_t> outIwTransform; 
 
-  _RDI = inOutCollInfo;
-  if ( inOutCollInfo->vehicleCount == 2 && BGVehicles::PhysicsIsValid(inOutCollInfo->vehIds[0]) && BGVehicles::PhysicsIsValid(_RDI->vehIds[1]) )
+  if ( inOutCollInfo->vehicleCount == 2 && BGVehicles::PhysicsIsValid(inOutCollInfo->vehIds[0]) && BGVehicles::PhysicsIsValid(inOutCollInfo->vehIds[1]) )
   {
-    if ( !_RDI->vehObjs[0]->SupportsFeature(_RDI->vehObjs[0], VPFEAT_GROUND_VEHICLE) || !_RDI->vehObjs[1]->SupportsFeature(_RDI->vehObjs[1], VPFEAT_GROUND_VEHICLE) )
+    if ( !inOutCollInfo->vehObjs[0]->SupportsFeature(inOutCollInfo->vehObjs[0], VPFEAT_GROUND_VEHICLE) || !inOutCollInfo->vehObjs[1]->SupportsFeature(inOutCollInfo->vehObjs[1], VPFEAT_GROUND_VEHICLE) )
     {
-LABEL_59:
-      _RDI->continueCollision = 0;
+LABEL_58:
+      inOutCollInfo->continueCollision = 0;
       return;
     }
-    v11 = tls_index;
-    v12 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index);
-    __asm
-    {
-      vmovaps [rsp+138h+var_58], xmm8
-      vmovaps [rsp+138h+var_68], xmm9
-      vmovaps [rsp+138h+var_78], xmm10
-      vmovaps [rsp+138h+var_88], xmm11
-      vmovaps [rsp+138h+var_98], xmm12
-      vmovaps [rsp+138h+var_A8], xmm13
-    }
-    if ( dword_148BD293C > *(_DWORD *)(v12 + 1772) )
+    v3 = tls_index;
+    if ( dword_148BD293C > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
     {
       j__Init_thread_header(&dword_148BD293C);
       if ( dword_148BD293C == -1 )
       {
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@3f0000003e8000003e8000003e800000
-          vmovups xmmword ptr cs:heavyMassFac, xmm0
-        }
+        heavyMassFac = (vec4_t)_xmm;
         j__Init_thread_footer(&dword_148BD293C);
       }
     }
-    if ( dword_148BD2954 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v11) + 1772i64) )
+    if ( dword_148BD2954 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v3) + 1772i64) )
     {
       j__Init_thread_header(&dword_148BD2954);
       if ( dword_148BD2954 == -1 )
       {
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@41a00000412000004120000041200000
-          vmovups xmmword ptr cs:lightMassContFac, xmm0
-        }
+        lightMassContFac = (vec4_t)_xmm;
         j__Init_thread_footer(&dword_148BD2954);
       }
     }
-    v15 = 0;
-    v16 = (__int64)_RDI->vehObjs[1];
-    v17 = 720916;
-    v79 = _RDI->vehObjs[0];
-    v80 = v16;
-    m_vehicleAnimProfile = v79->m_vehicleAnimProfile;
-    if ( m_vehicleAnimProfile <= 0x13 && _bittest(&v17, m_vehicleAnimProfile) )
+    v4 = 0;
+    v5 = inOutCollInfo->vehObjs[1];
+    v6 = 720916;
+    v24 = inOutCollInfo->vehObjs[0];
+    v25 = v5;
+    m_vehicleAnimProfile = v24->m_vehicleAnimProfile;
+    if ( m_vehicleAnimProfile <= 0x13 && _bittest(&v6, m_vehicleAnimProfile) )
     {
-      v19 = 0;
+      v8 = 0;
     }
     else
     {
-      v20 = *(_DWORD *)(v16 + 40);
-      if ( v20 <= 0x13 && _bittest(&v17, v20) )
+      v9 = v5->m_vehicleAnimProfile;
+      if ( v9 <= 0x13 && _bittest(&v6, v9) )
       {
-        v19 = 1;
+        v8 = 1;
       }
-      else if ( !m_vehicleAnimProfile || m_vehicleAnimProfile == 24 || v20 && v20 != 24 )
+      else if ( !m_vehicleAnimProfile || m_vehicleAnimProfile == 24 || v9 && v9 != 24 )
       {
-        if ( !v20 || v20 == 24 || m_vehicleAnimProfile && m_vehicleAnimProfile != 24 )
-          v19 = -1;
+        if ( !v9 || v9 == 24 || m_vehicleAnimProfile && m_vehicleAnimProfile != 24 )
+          v8 = -1;
         else
-          v19 = 1;
+          v8 = 1;
       }
       else
       {
-        v19 = 0;
+        v8 = 0;
       }
     }
     if ( m_vehicleAnimProfile && m_vehicleAnimProfile != 24 )
     {
-      v21 = *(_DWORD *)(v16 + 40);
-      if ( !v21 || v21 == 24 )
+      v10 = v5->m_vehicleAnimProfile;
+      if ( !v10 || v10 == 24 )
         goto LABEL_38;
-      if ( v21 <= 0x13 && _bittest(&v17, v21) )
+      if ( v10 <= 0x13 && _bittest(&v6, v10) )
         goto LABEL_39;
-      if ( m_vehicleAnimProfile <= 0x13 && _bittest(&v17, m_vehicleAnimProfile) )
+      if ( m_vehicleAnimProfile <= 0x13 && _bittest(&v6, m_vehicleAnimProfile) )
 LABEL_38:
-        v15 = 1;
+        v4 = 1;
       else
-        v15 = -1;
+        v4 = -1;
     }
 LABEL_39:
-    if ( v19 != -1 )
+    if ( v8 != -1 )
     {
-      _RAX = _RDI->outInertiaMassFactors;
-      __asm { vmovups xmm0, xmmword ptr cs:heavyMassFac }
-      _RCX = 2i64 * v19;
-      __asm { vmovups xmmword ptr [rax+rcx*8], xmm0 }
-      _RDI->outUpdateBody[v19] = 1;
+      inOutCollInfo->outInertiaMassFactors[v8] = heavyMassFac;
+      inOutCollInfo->outUpdateBody[v8] = 1;
     }
-    if ( v15 != -1 )
+    if ( v4 != -1 )
     {
-      _RAX = _RDI->outInertiaMassFactors;
-      __asm { vmovups xmm0, xmmword ptr cs:lightMassContFac }
-      _RCX = 2i64 * v15;
-      __asm { vmovups xmmword ptr [rax+rcx*8], xmm0 }
-      _RDI->outUpdateBody[v15] = 1;
+      inOutCollInfo->outInertiaMassFactors[v4] = lightMassContFac;
+      inOutCollInfo->outUpdateBody[v4] = 1;
     }
-    __asm
-    {
-      vmovss  xmm13, cs:__real@41200000
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@3f000000
-      vmovss  xmm11, cs:__real@3ecccccd
-      vmovss  xmm12, cs:__real@40a00000
-      vmovaps [rsp+138h+var_38], xmm6
-    }
-    v33 = &v79;
-    __asm { vmovaps [rsp+138h+var_48], xmm7 }
-    v34 = 2i64;
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v11 = &v24;
+    v12 = 2i64;
     do
     {
-      _RBX = *v33;
-      if ( *v33 )
+      v13 = *v11;
+      if ( *v11 )
       {
-        v37 = _RBX->m_vehicleAnimProfile;
-        if ( v37 > 0x13 || !_bittest(&v17, v37) )
+        v14 = v13->m_vehicleAnimProfile;
+        if ( v14 > 0x13 || !_bittest(&v6, v14) )
         {
-          IsPhysicsBodyIdValid = BgVehiclePhysics::IsPhysicsBodyIdValid(*v33);
-          v39 = 0;
-          v40 = !IsPhysicsBodyIdValid;
-          if ( IsPhysicsBodyIdValid )
+          if ( BgVehiclePhysics::IsPhysicsBodyIdValid(*v11) )
           {
-            PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(_RBX);
-            Physics_GetRigidBodyTransform((const Physics_WorldId)_RBX->m_worldId, PhysicsBodyId, &outIwTransform);
+            PhysicsBodyId = BgVehiclePhysics::GetPhysicsBodyId(v13);
+            Physics_GetRigidBodyTransform((const Physics_WorldId)v13->m_worldId, PhysicsBodyId, &outIwTransform);
           }
-          __asm
+          *((_QWORD *)&_XMM0 + 1) = 0i64;
+          if ( (float)((float)((float)((float)(inOutCollInfo->hitPos.v[1] - outIwTransform.m[3].v[1]) * outIwTransform.m[0].v[1]) + (float)((float)(inOutCollInfo->hitPos.v[0] - outIwTransform.m[3].v[0]) * outIwTransform.m[0].v[0])) + (float)((float)(inOutCollInfo->hitPos.v[2] - outIwTransform.m[3].v[2]) * outIwTransform.m[0].v[2])) <= 0.0 )
           {
-            vmovss  xmm0, dword ptr [rdi+64h]
-            vsubss  xmm1, xmm0, dword ptr [rsp+138h+outIwTransform+34h]
-            vmulss  xmm3, xmm1, dword ptr [rsp+138h+outIwTransform+4]
-            vmovss  xmm2, dword ptr [rdi+60h]
-            vsubss  xmm0, xmm2, dword ptr [rsp+138h+outIwTransform+30h]
-            vmulss  xmm1, xmm0, dword ptr [rsp+138h+outIwTransform]
-            vmovss  xmm2, dword ptr [rdi+68h]
-            vsubss  xmm0, xmm2, dword ptr [rsp+138h+outIwTransform+38h]
-            vaddss  xmm4, xmm3, xmm1
-            vmulss  xmm1, xmm0, dword ptr [rsp+138h+outIwTransform+8]
-            vaddss  xmm3, xmm4, xmm1
-            vcomiss xmm3, xmm8
-          }
-          if ( v39 | v40 )
-          {
-            if ( _RBX->m_playerControlled )
+            if ( v13->m_playerControlled )
             {
-              *(double *)&_XMM0 = BgVehiclePhysics::GetNormalSpeedPlane(_RBX);
+              NormalSpeedPlane = BgVehiclePhysics::GetNormalSpeedPlane(v13);
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbx+144h]
-                vmovss  xmm6, dword ptr [rbx+140h]
-              }
-              *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(_RBX);
-              __asm
-              {
-                vmulss  xmm2, xmm6, xmm6
-                vmulss  xmm1, xmm7, xmm7
-                vaddss  xmm2, xmm2, xmm1
-                vmaxss  xmm0, xmm0, xmm13
-                vsqrtss xmm3, xmm2, xmm2
-                vdivss  xmm0, xmm9, xmm0
-                vmulss  xmm0, xmm3, xmm0; val
-                vmovaps xmm2, xmm9; max
-                vmovaps xmm1, xmm8; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+              v18 = v13->m_history.m_lastLinearVel.v[1];
+              v19 = v13->m_history.m_lastLinearVel.v[0];
+              *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(v13);
+              __asm { vmaxss  xmm0, xmm0, xmm13 }
+              NormalSpeedPlane = I_fclamp(fsqrt((float)(v19 * v19) + (float)(v18 * v18)) * (float)(1.0 / *(float *)&_XMM0), 0.0, 1.0);
             }
-            __asm
-            {
-              vmovaps xmm1, xmm0
-              vmulss  xmm0, xmm0, xmm10
-              vmovss  dword ptr [rbx+0AB4h], xmm0
-              vsubss  xmm0, xmm9, xmm1
-              vmulss  xmm2, xmm0, dword ptr [rbx+0AB8h]
-              vmulss  xmm1, xmm1, xmm11
-              vaddss  xmm6, xmm2, xmm1
-              vcomiss xmm6, xmm12
-            }
-            if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_ground.inl", 479, ASSERT_TYPE_ASSERT, "(fricValue < 5.0f)", (const char *)&queryFormat, "fricValue < 5.0f", v79, v80) )
+            v13[3].m_centerOfMassWs.v[0] = *(float *)&NormalSpeedPlane * 0.5;
+            v21 = LODWORD(FLOAT_1_0);
+            *(float *)&v21 = (float)((float)(1.0 - *(float *)&NormalSpeedPlane) * v13[3].m_centerOfMassWs.v[1]) + (float)(*(float *)&NormalSpeedPlane * 0.40000001);
+            _XMM6 = v21;
+            if ( *(float *)&v21 >= 5.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_ground.inl", 479, ASSERT_TYPE_ASSERT, "(fricValue < 5.0f)", (const char *)&queryFormat, "fricValue < 5.0f", v24, v25) )
               __debugbreak();
-            __asm
-            {
-              vmaxss  xmm0, xmm6, xmm8
-              vmovss  dword ptr [rbx+0AB8h], xmm0
-            }
+            __asm { vmaxss  xmm0, xmm6, xmm8 }
+            v13[3].m_centerOfMassWs.v[1] = *(float *)&_XMM0;
           }
         }
       }
-      ++v33;
-      --v34;
+      ++v11;
+      --v12;
     }
-    while ( v34 );
-    __asm
-    {
-      vmovaps xmm13, [rsp+138h+var_A8]
-      vmovaps xmm12, [rsp+138h+var_98]
-      vmovaps xmm11, [rsp+138h+var_88]
-      vmovaps xmm10, [rsp+138h+var_78]
-      vmovaps xmm9, [rsp+138h+var_68]
-      vmovaps xmm8, [rsp+138h+var_58]
-      vmovaps xmm7, [rsp+138h+var_48]
-      vmovaps xmm6, [rsp+138h+var_38]
-    }
-    goto LABEL_59;
+    while ( v12 );
+    goto LABEL_58;
   }
 }
 
@@ -538,66 +450,67 @@ BgVehicleCollisionSystem::PhysicsCollisionCallback
 */
 char BgVehicleCollisionSystem::PhysicsCollisionCallback(BGVehicles *vehicleSystem, Physics_WorldId worldId, const vec3_t *hitPos, int bodyAUserData, int bodyBUserData, const unsigned int *bodyIds, BgVehiclePhysicsManifoldProcessInfo *outManifoldInfo)
 {
-  BGVehicles *v13; 
-  __int64 v16; 
+  BGVehicles *v8; 
+  __int64 v11; 
+  double v12; 
   entityType_s *entityTypes; 
   vec4_t *inertiaMassFactors; 
-  unsigned int v20; 
+  unsigned int v15; 
   bool *updateInertiaFactor; 
+  double v17; 
   bool *suspended; 
   BgVehiclePhysics **vehObjs; 
   unsigned int *vehIds; 
-  unsigned int v26; 
-  unsigned int v27; 
-  __int64 v28; 
-  __int64 v29; 
+  unsigned int v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  __int64 v24; 
   bool IsValid; 
-  int v31; 
-  int v33; 
-  int v34; 
-  BgVehicleCollisionSystem *v36; 
-  bool v37; 
-  BgVehiclePhysics **v38; 
-  __int64 v39; 
+  int v26; 
+  __int64 v27; 
+  int v28; 
+  int v29; 
+  BgVehicleCollisionSystem *v31; 
+  bool v32; 
+  BgVehiclePhysics **v33; 
+  __int64 v34; 
+  BgVehiclePhysics *v35; 
+  __int64 v36; 
+  __int128 v37; 
+  __int128 v39; 
+  __int128 v41; 
+  __int64 v44; 
   __int64 v45; 
-  bool v62; 
-  __int64 v67; 
-  __int64 v68; 
-  _BOOL8 v69; 
-  __int64 v70; 
-  __int64 v71; 
-  BGVehicles *v72; 
-  BgVehiclePhysicsManifoldProcessInfo *v73; 
+  _BOOL8 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  BGVehicles *v49; 
+  BgVehiclePhysicsManifoldProcessInfo *v50; 
   BgVehicleCollisionCallbackInfo inOutCollInfo; 
 
-  _R14 = outManifoldInfo;
-  _RSI = hitPos;
-  v13 = vehicleSystem;
-  v72 = vehicleSystem;
-  v73 = outManifoldInfo;
+  v8 = vehicleSystem;
+  v49 = vehicleSystem;
+  v50 = outManifoldInfo;
   if ( !vehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_collision_system.cpp", 121, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
     __debugbreak();
   if ( (!outManifoldInfo || !outManifoldInfo->inertiaMassFactors || !outManifoldInfo->updateInertiaFactor) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_collision_system.cpp", 122, ASSERT_TYPE_ASSERT, "(outManifoldInfo && outManifoldInfo->inertiaMassFactors && outManifoldInfo->updateInertiaFactor)", (const char *)&queryFormat, "outManifoldInfo && outManifoldInfo->inertiaMassFactors && outManifoldInfo->updateInertiaFactor") )
     __debugbreak();
   if ( !bodyIds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_collision_system.cpp", 123, ASSERT_TYPE_ASSERT, "(bodyIds)", (const char *)&queryFormat, "bodyIds") )
     __debugbreak();
-  v16 = (__int64)v13->PhysicsGetVehiclePhysicsManager(v13);
-  __asm { vmovsd  xmm0, qword ptr [rsi] }
+  v11 = (__int64)v8->PhysicsGetVehiclePhysicsManager(v8);
+  v12 = *(double *)hitPos->v;
   entityTypes = inOutCollInfo.entityTypes;
   inOutCollInfo.bodyUserData[1] = bodyBUserData;
   inertiaMassFactors = outManifoldInfo->inertiaMassFactors;
-  v71 = v16;
-  *(float *)&v16 = _RSI->v[2];
-  v20 = 0;
+  v48 = v11;
+  *(float *)&v11 = hitPos->v[2];
+  v15 = 0;
   inOutCollInfo.outInertiaMassFactors = inertiaMassFactors;
   updateInertiaFactor = outManifoldInfo->updateInertiaFactor;
-  __asm
-  {
-    vmovsd  qword ptr [rbp+70h+inOutCollInfo.hitPos], xmm0
-    vmovsd  xmm0, qword ptr [r14]
-  }
-  LODWORD(inOutCollInfo.hitPos.v[2]) = v16;
-  *(float *)&v16 = outManifoldInfo->normal.v[2];
+  *(double *)inOutCollInfo.hitPos.v = v12;
+  v17 = *(double *)outManifoldInfo->normal.v;
+  LODWORD(inOutCollInfo.hitPos.v[2]) = v11;
+  *(float *)&v11 = outManifoldInfo->normal.v[2];
   inOutCollInfo.worldId = worldId;
   suspended = inOutCollInfo.suspended;
   inOutCollInfo.bodyUserData[0] = bodyAUserData;
@@ -605,170 +518,136 @@ char BgVehicleCollisionSystem::PhysicsCollisionCallback(BGVehicles *vehicleSyste
   inOutCollInfo.bodyIds = bodyIds;
   vehIds = inOutCollInfo.vehIds;
   inOutCollInfo.outUpdateBody = updateInertiaFactor;
-  inOutCollInfo.vehicleSystem = v13;
+  inOutCollInfo.vehicleSystem = v8;
   inOutCollInfo.filterCollision = 0;
-  __asm { vmovsd  qword ptr [rbp+70h+inOutCollInfo.normal], xmm0 }
-  LODWORD(inOutCollInfo.normal.v[2]) = v16;
-  v70 = 2i64;
+  *(double *)inOutCollInfo.normal.v = v17;
+  LODWORD(inOutCollInfo.normal.v[2]) = v11;
+  v47 = 2i64;
   do
   {
-    *vehIds = v13->PhysicsExtractIdFromPhysicsUserData(v13, *(vehIds - 3), entityTypes, (bool *)&v69);
-    *suspended = v69;
+    *vehIds = v8->PhysicsExtractIdFromPhysicsUserData(v8, *(vehIds - 3), entityTypes, (bool *)&v46);
+    *suspended = v46;
     if ( BGVehicles::PhysicsIsValid(*vehIds) )
     {
-      v26 = *vehIds;
+      v21 = *vehIds;
       if ( !BGVehicles::PhysicsIsValid(*vehIds) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 58, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehId )") )
         __debugbreak();
-      v27 = v26 - 1;
-      if ( v27 >= 0x80 )
+      v22 = v21 - 1;
+      if ( v22 >= 0x80 )
       {
-        LODWORD(v68) = 128;
-        LODWORD(v67) = v27;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 19, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (1 << 7) )", "index doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", v67, v68) )
+        LODWORD(v45) = 128;
+        LODWORD(v44) = v22;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_manager.inl", 19, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (1 << 7) )", "index doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", v44, v45) )
           __debugbreak();
       }
-      v28 = v27;
-      v13 = v72;
-      v29 = 3360 * v28 + v71 + 8;
+      v23 = v22;
+      v8 = v49;
+      v24 = 3360 * v23 + v48 + 8;
     }
     else
     {
-      v29 = 0i64;
+      v24 = 0i64;
     }
-    *vehObjs = (BgVehiclePhysics *)v29;
-    ++v20;
+    *vehObjs = (BgVehiclePhysics *)v24;
+    ++v15;
     ++vehObjs;
     ++entityTypes;
     ++suspended;
     ++vehIds;
   }
-  while ( v20 < 2 );
+  while ( v15 < 2 );
   inOutCollInfo.continueCollision = 1;
   IsValid = BGVehicles::PhysicsIsValid(inOutCollInfo.vehIds[0]);
-  v31 = 1;
-  _R14 = (__int64)v73;
+  v26 = 1;
+  v27 = (__int64)v50;
   if ( IsValid || inOutCollInfo.suspended[0] )
   {
-    v34 = 1;
-    v33 = 0;
+    v29 = 1;
+    v28 = 0;
   }
   else
   {
-    v33 = 0;
-    v34 = 0;
+    v28 = 0;
+    v29 = 0;
   }
   if ( BGVehicles::PhysicsIsValid(inOutCollInfo.vehIds[1]) || inOutCollInfo.suspended[1] )
-    v33 = 1;
-  inOutCollInfo.vehicleCount = v33 + v34;
-  if ( v33 + v34 )
+    v28 = 1;
+  inOutCollInfo.vehicleCount = v28 + v29;
+  if ( v28 + v29 )
   {
-    v36 = v13->PhysicsGetCollisionSystem(v13);
-    v36->CollisionFiltering(v36, &inOutCollInfo);
-    v37 = !inOutCollInfo.filterCollision;
+    v31 = v8->PhysicsGetCollisionSystem(v8);
+    v31->CollisionFiltering(v31, &inOutCollInfo);
+    v32 = !inOutCollInfo.filterCollision;
     if ( !inOutCollInfo.filterCollision )
     {
       if ( !inOutCollInfo.continueCollision )
         goto LABEL_43;
-      BgVehicleCollisionSystem::ActivateBodies(v36, &inOutCollInfo);
-      v37 = !inOutCollInfo.filterCollision;
+      BgVehicleCollisionSystem::ActivateBodies(v31, &inOutCollInfo);
+      v32 = !inOutCollInfo.filterCollision;
       if ( !inOutCollInfo.filterCollision )
       {
         if ( !inOutCollInfo.continueCollision )
           goto LABEL_43;
-        v36->CollisionScriptables(v36, &inOutCollInfo);
-        v37 = !inOutCollInfo.filterCollision;
+        v31->CollisionScriptables(v31, &inOutCollInfo);
+        v32 = !inOutCollInfo.filterCollision;
         if ( !inOutCollInfo.filterCollision )
         {
-          if ( !inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::UpdateVehicleCollisionInfo(v36, &inOutCollInfo), v37 = !inOutCollInfo.filterCollision) && (!inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::CollisionVehicleVsVehicle(v36, &inOutCollInfo), v37 = !inOutCollInfo.filterCollision) && (!inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::UpdateVehicleMassProperties(v36, &inOutCollInfo), v37 = !inOutCollInfo.filterCollision))) )
+          if ( !inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::UpdateVehicleCollisionInfo(v31, &inOutCollInfo), v32 = !inOutCollInfo.filterCollision) && (!inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::CollisionVehicleVsVehicle(v31, &inOutCollInfo), v32 = !inOutCollInfo.filterCollision) && (!inOutCollInfo.continueCollision || (BgVehicleCollisionSystem::UpdateVehicleMassProperties(v31, &inOutCollInfo), v32 = !inOutCollInfo.filterCollision))) )
           {
 LABEL_43:
-            __asm { vmovaps [rsp+170h+var_48+8], xmm6 }
-            v38 = inOutCollInfo.vehObjs;
-            __asm { vmovaps [rsp+170h+var_58+8], xmm7 }
-            v39 = 2i64;
-            __asm
-            {
-              vmovss  xmm7, cs:__real@3f333333
-              vmovaps [rsp+170h+var_68+8], xmm8
-              vmovss  xmm8, cs:__real@40555555
-              vmovaps [rsp+170h+var_78+8], xmm9
-              vmovss  xmm9, cs:__real@4131c71c
-              vxorps  xmm6, xmm6, xmm6
-            }
+            v33 = inOutCollInfo.vehObjs;
+            v34 = 2i64;
             do
             {
-              if ( *v38 )
+              if ( *v33 )
               {
-                if ( (*v38)->SupportsFeature(*v38, VPFEAT_GROUND_VEHICLE) )
+                if ( (*v33)->SupportsFeature(*v33, VPFEAT_GROUND_VEHICLE) )
                 {
-                  _RBX = *v38;
-                  v45 = inOutCollInfo.bodyIds[v31];
-                  if ( inOutCollInfo.entityTypes[v31] == ET_SCRIPTMOVER && (_DWORD)v45 != 0xFFFFFF && Physics_IsRigidBodyKeyframed(inOutCollInfo.worldId, v45) )
+                  v35 = *v33;
+                  v36 = inOutCollInfo.bodyIds[v26];
+                  if ( inOutCollInfo.entityTypes[v26] == ET_SCRIPTMOVER && (_DWORD)v36 != 0xFFFFFF && Physics_IsRigidBodyKeyframed(inOutCollInfo.worldId, v36) )
                   {
-                    *(_DWORD *)(_R14 + 36) = 1058642330;
+                    *(_DWORD *)(v27 + 36) = 1058642330;
                   }
-                  else if ( _RBX->m_playerControlled )
+                  else if ( v35->m_playerControlled )
                   {
-                    __asm
+                    v37 = LODWORD(v35->m_lastCollisionPosLs.v[2]);
+                    if ( (float)((float)((float)(v35->m_lastCollisionPosLs.v[1] * v35->m_transform.m[2].v[1]) + (float)(v35->m_lastCollisionPosLs.v[0] * v35->m_transform.m[2].v[0])) + (float)(*(float *)&v37 * v35->m_transform.m[2].v[2])) >= 0.0 )
                     {
-                      vmovss  xmm0, dword ptr [rbx+2CCh]
-                      vmovss  xmm1, dword ptr [rbx+2C8h]
-                      vmulss  xmm2, xmm1, dword ptr [rbx+18Ch]
-                      vmulss  xmm3, xmm0, dword ptr [rbx+190h]
-                      vmovss  xmm0, dword ptr [rbx+2D0h]
-                      vmulss  xmm1, xmm0, dword ptr [rbx+194h]
-                      vaddss  xmm4, xmm3, xmm2
-                      vaddss  xmm2, xmm4, xmm1
-                      vcomiss xmm2, xmm6
-                    }
-                    if ( ((unsigned __int8 (__fastcall *)(BgVehiclePhysics *, __int64))_RBX->IsInAir)(_RBX, v45) )
-                    {
-                      *(double *)&_XMM0 = BgVehiclePhysics::GetNormalSpeedPlane(_RBX);
-                      __asm
+                      if ( ((unsigned __int8 (__fastcall *)(BgVehiclePhysics *, __int64))v35->IsInAir)(v35, v36) )
                       {
-                        vsubss  xmm1, xmm0, xmm7
-                        vmaxss  xmm2, xmm1, xmm6
-                        vmulss  xmm0, xmm2, xmm2
-                        vmulss  xmm1, xmm0, xmm9
-                        vmulss  xmm3, xmm2, xmm8
-                        vmulss  xmm2, xmm1, xmm3
-                        vmulss  xmm3, xmm2, xmm3
-                        vmaxss  xmm0, xmm3, dword ptr [r14+24h]
-                        vmovss  dword ptr [r14+24h], xmm0
+                        *(double *)&v37 = BgVehiclePhysics::GetNormalSpeedPlane(v35);
+                        v39 = v37;
+                        *(float *)&v39 = *(float *)&v37 - 0.69999999;
+                        _XMM1 = v39;
+                        __asm { vmaxss  xmm2, xmm1, xmm6 }
+                        v41 = _XMM2;
+                        *(float *)&v41 = (float)((float)((float)(*(float *)&_XMM2 * *(float *)&_XMM2) * 11.111111) * (float)(*(float *)&_XMM2 * 3.3333333)) * (float)(*(float *)&_XMM2 * 3.3333333);
+                        _XMM3 = v41;
+                        __asm { vmaxss  xmm0, xmm3, dword ptr [r14+24h] }
+                        *(float *)(v27 + 36) = *(float *)&_XMM0;
                       }
                     }
                   }
                   else
                   {
-                    *(_DWORD *)(_R14 + 36) = 1060320051;
+                    *(_DWORD *)(v27 + 36) = 1060320051;
                   }
                 }
-                v39 = v70;
+                v34 = v47;
               }
-              --v31;
-              ++v38;
-              v62 = v39-- == 0;
-              v70 = v39;
+              --v26;
+              ++v33;
+              v47 = --v34;
             }
-            while ( v39 );
-            __asm
-            {
-              vcomiss xmm6, dword ptr [r14+24h]
-              vmovaps xmm9, [rsp+170h+var_78+8]
-              vmovaps xmm8, [rsp+170h+var_68+8]
-            }
-            v37 = !inOutCollInfo.filterCollision;
-            __asm
-            {
-              vmovaps xmm7, [rsp+170h+var_58+8]
-              vmovaps xmm6, [rsp+170h+var_48+8]
-            }
-            *(_BYTE *)(_R14 + 32) = v62;
+            while ( v34 );
+            v32 = !inOutCollInfo.filterCollision;
+            *(_BYTE *)(v27 + 32) = *(float *)(v27 + 36) > 0.0;
           }
         }
       }
     }
-    return v37;
+    return v32;
   }
   else
   {

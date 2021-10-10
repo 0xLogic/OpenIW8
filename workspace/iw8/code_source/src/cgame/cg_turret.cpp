@@ -284,23 +284,21 @@ LABEL_19:
 CG_Turret_Update
 ==============
 */
-
-void __fastcall CG_Turret_Update(const LocalClientNum_t localClientNum, __int64 a2, __int64 a3, double _XMM3_8)
+void CG_Turret_Update(const LocalClientNum_t localClientNum)
 {
   const centity_t *TurretEnt; 
+  float viewPitchMaxSpeed; 
   CgWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
+  const WeaponDef *v7; 
+  float v8; 
   cg_t *LocalClientGlobals; 
-  bool IsRemoteTurretActive; 
-  bool v17; 
-  bool v18; 
   __int16 remoteControlEnt; 
   const centity_t *Entity; 
-  bool IsVehicleEntity; 
   CgVehicleSystem *VehicleSystem; 
-  __int64 v23; 
+  __int64 v13; 
+  double Float_Internal_DebugName; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 164, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   TurretEnt = CG_Turret_GetTurretEnt(localClientNum);
@@ -312,102 +310,57 @@ void __fastcall CG_Turret_Update(const LocalClientNum_t localClientNum, __int64 
     WeaponForEntity = BG_GetWeaponForEntity(Instance, &TurretEnt->nextState);
     if ( WeaponForEntity->weaponIdx )
     {
-      __asm { vmovaps [rsp+68h+var_28], xmm7 }
-      _RDI = BG_WeaponDef(WeaponForEntity, 0);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 186, ASSERT_TYPE_ASSERT, "(turretWeaponDef)", (const char *)&queryFormat, "turretWeaponDef") )
+      v7 = BG_WeaponDef(WeaponForEntity, 0);
+      if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 186, ASSERT_TYPE_ASSERT, "(turretWeaponDef)", (const char *)&queryFormat, "turretWeaponDef") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vxorps  xmm7, xmm7, xmm7
-      }
+      viewPitchMaxSpeed = 0.0;
+      v8 = 0.0;
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      IsRemoteTurretActive = BG_IsRemoteTurretActive(&LocalClientGlobals->predictedPlayerState);
-      v17 = 0;
-      v18 = !IsRemoteTurretActive;
-      if ( IsRemoteTurretActive )
+      if ( BG_IsRemoteTurretActive(&LocalClientGlobals->predictedPlayerState) )
       {
         remoteControlEnt = LocalClientGlobals->predictedPlayerState.remoteControlEnt;
-        v17 = (unsigned __int16)remoteControlEnt < 0x7FFu;
-        v18 = remoteControlEnt == 2047;
         if ( remoteControlEnt != 2047 )
         {
           Entity = CG_GetEntity(localClientNum, remoteControlEnt);
-          IsVehicleEntity = CG_Vehicle_IsVehicleEntity(Entity);
-          v17 = 0;
-          v18 = !IsVehicleEntity;
-          if ( IsVehicleEntity )
+          if ( CG_Vehicle_IsVehicleEntity(Entity) )
           {
             VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
             if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 198, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
               __debugbreak();
-            v23 = (__int64)VehicleSystem->GetVehicleDef(VehicleSystem, &Entity->nextState);
-            if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 200, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
+            v13 = (__int64)VehicleSystem->GetVehicleDef(VehicleSystem, &Entity->nextState);
+            if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 200, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
               __debugbreak();
-            v17 = 0;
-            v18 = *(_DWORD *)(v23 + 248) == 0;
-            if ( *(_DWORD *)(v23 + 248) )
+            if ( *(_DWORD *)(v13 + 248) && *(_BYTE *)(v13 + 256) == 1 )
             {
-              v17 = *(_BYTE *)(v23 + 256) == 0;
-              v18 = *(_BYTE *)(v23 + 256) == 1;
-              if ( *(_BYTE *)(v23 + 256) == 1 )
-              {
-                *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonForceTurretYawSpeed, "bg_wheelsonForceTurretYawSpeed");
-                __asm { vmovaps xmm7, xmm0 }
-              }
+              Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonForceTurretYawSpeed, "bg_wheelsonForceTurretYawSpeed");
+              v8 = *(float *)&Float_Internal_DebugName;
             }
           }
         }
       }
-      __asm
+      _XMM1 = LODWORD(v7->viewYawMaxSpeed);
+      if ( *(float *)&_XMM1 > 0.0 || v8 > 0.0 || v7->viewPitchMaxSpeed > 0.0 )
       {
-        vmovss  xmm1, dword ptr [rdi+1E0h]
-        vcomiss xmm1, xmm6
-      }
-      if ( !v17 && !v18 )
-        goto LABEL_30;
-      __asm { vcomiss xmm7, xmm6 }
-      if ( !v17 && !v18 )
-        goto LABEL_30;
-      __asm { vcomiss xmm6, dword ptr [rdi+1DCh] }
-      if ( !v17 )
-      {
-        __asm { vxorps  xmm3, xmm3, xmm3 }
+        viewPitchMaxSpeed = v7->viewPitchMaxSpeed;
+        __asm { vmaxss  xmm3, xmm1, xmm7; maxYawSpeed }
       }
       else
       {
-LABEL_30:
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rdi+1DCh]
-          vmaxss  xmm3, xmm1, xmm7; maxYawSpeed
-        }
+        LODWORD(_XMM3) = 0;
       }
-      __asm { vmovaps xmm7, [rsp+68h+var_28] }
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vxorps  xmm3, xmm3, xmm3
-      }
+      viewPitchMaxSpeed = 0.0;
+      LODWORD(_XMM3) = 0;
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm3, xmm3, xmm3
-    }
+    viewPitchMaxSpeed = 0.0;
+    LODWORD(_XMM3) = 0;
   }
-  __asm
-  {
-    vmovaps xmm2, xmm6; maxPitchSpeed
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
-  CL_CapTurnRate(localClientNum, TURNRATECAPTYPE_TURRET, *(float *)&_XMM2, *(float *)&_XMM3);
+  CL_CapTurnRate(localClientNum, TURNRATECAPTYPE_TURRET, viewPitchMaxSpeed, *(float *)&_XMM3);
 }
 
 /*
@@ -415,213 +368,148 @@ LABEL_30:
 CG_Turret_UpdateCamera
 ==============
 */
-bool CG_Turret_UpdateCamera(LocalClientNum_t localClientNum, vec3_t *inOutViewAngles)
+char CG_Turret_UpdateCamera(LocalClientNum_t localClientNum, vec3_t *inOutViewAngles)
 {
-  bool result; 
+  cg_t *LocalClientGlobals; 
   const centity_t *TurretEnt; 
   const ClActiveClient *Client; 
   int CmdNumber; 
-  const ClActiveClient *v12; 
-  int v13; 
-  int v14; 
-  __int64 v17; 
+  const ClActiveClient *v9; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  char *v13; 
+  __int64 v14; 
   const entityState_t *p_nextState; 
   CgWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  const WeaponDef *v26; 
+  const WeaponDef *v18; 
   centity_t *LinkToParent; 
-  CgAntiLag *v28; 
+  CgAntiLag *v20; 
   int serverTime; 
-  bool v34; 
-  bool v35; 
+  float v22; 
+  bool v23; 
   CgVehicleSystem *VehicleSystem; 
-  CgWeaponMap *v38; 
-  const Weapon *v39; 
-  char v44; 
+  CgWeaponMap *v25; 
+  const Weapon *v26; 
+  float v27; 
+  double v28; 
+  double v29; 
+  float v32; 
   char *fmt; 
-  int v66; 
-  __int64 v67; 
-  usercmd_s *v68; 
-  char v69[272]; 
+  int v34; 
+  __int64 v35; 
+  __int64 v36; 
+  char v37[272]; 
   vec3_t angles; 
   BgAntiLagEntityInfo angilagInfo; 
-  char v72; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v67 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R12 = inOutViewAngles;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 298, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v35 = -2i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 298, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( CgAntiLag::IsDisabledForMigration(localClientNum) || (TurretEnt = CG_Turret_GetTurretEnt(localClientNum)) == NULL )
   {
-    *(_QWORD *)&_RBX->turretCameraBlendVelocity = 0i64;
-    _RBX->turretCameraLocked = 0;
-    if ( _RBX->turretControlled )
+    *(_QWORD *)&LocalClientGlobals->turretCameraBlendVelocity = 0i64;
+    LocalClientGlobals->turretCameraLocked = 0;
+    if ( LocalClientGlobals->turretControlled )
       CL_Input_ClearKeys(localClientNum);
-    _RBX->turretControlled = 0;
-    _RBX->turretTimeSinceFire = -1.0;
-    result = 0;
+    LocalClientGlobals->turretControlled = 0;
+    LocalClientGlobals->turretTimeSinceFire = -1.0;
+    return 0;
   }
   else
   {
     Client = ClActiveClient::GetClient(localClientNum);
     CmdNumber = ClActiveClient_GetCmdNumber(Client);
-    v12 = ClActiveClient::GetClient(localClientNum);
-    v13 = ClActiveClient_GetCmdNumber(v12);
-    v14 = v13;
-    v66 = v13;
-    if ( CmdNumber > v13 )
+    v9 = ClActiveClient::GetClient(localClientNum);
+    v10 = ClActiveClient_GetCmdNumber(v9);
+    v11 = v10;
+    v34 = v10;
+    if ( CmdNumber > v10 )
     {
-      LODWORD(fmt) = v13;
+      LODWORD(fmt) = v10;
       Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)CmdNumber, fmt);
     }
-    if ( CmdNumber > v14 - 128 && CmdNumber > 0 )
+    if ( CmdNumber > v11 - 128 && CmdNumber > 0 )
     {
-      _RSI = &v12->cmds[CmdNumber & 0x7F];
-      v68 = _RSI;
-      memset(&v66, 0, sizeof(v66));
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+      v12 = (__int64)&v9->cmds[CmdNumber & 0x7F];
+      v36 = v12;
+      memset(&v34, 0, sizeof(v34));
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
         __debugbreak();
-      _RCX = v69;
-      v17 = 2i64;
+      v13 = v37;
+      v14 = 2i64;
       do
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi]
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm0, ymmword ptr [rsi+20h]
-          vmovups ymmword ptr [rcx+20h], ymm0
-          vmovups ymm0, ymmword ptr [rsi+40h]
-          vmovups ymmword ptr [rcx+40h], ymm0
-          vmovups xmm0, xmmword ptr [rsi+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-        }
-        _RCX += 128;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rsi+70h]
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        _RSI = (usercmd_s *)((char *)_RSI + 128);
-        --v17;
+        *(__m256i *)v13 = *(__m256i *)v12;
+        *((__m256i *)v13 + 1) = *(__m256i *)(v12 + 32);
+        *((__m256i *)v13 + 2) = *(__m256i *)(v12 + 64);
+        *((_OWORD *)v13 + 6) = *(_OWORD *)(v12 + 96);
+        v13 += 128;
+        *((_OWORD *)v13 - 1) = *(_OWORD *)(v12 + 112);
+        v12 += 128i64;
+        --v14;
       }
-      while ( v17 );
-      *(_QWORD *)_RCX = _RSI->buttons;
+      while ( v14 );
+      *(_QWORD *)v13 = *(_QWORD *)v12;
       p_nextState = &TurretEnt->nextState;
       Instance = CgWeaponMap::GetInstance(localClientNum);
       WeaponForEntity = BG_GetWeaponForEntity(Instance, &TurretEnt->nextState);
-      v26 = BG_WeaponDef(WeaponForEntity, 0);
-      if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 329, ASSERT_TYPE_ASSERT, "(turretWeaponDef)", (const char *)&queryFormat, "turretWeaponDef") )
+      v18 = BG_WeaponDef(WeaponForEntity, 0);
+      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 329, ASSERT_TYPE_ASSERT, "(turretWeaponDef)", (const char *)&queryFormat, "turretWeaponDef") )
         __debugbreak();
-      if ( v26->alignBarrelWithTurretBody )
+      if ( v18->alignBarrelWithTurretBody )
       {
         LinkToParent = CG_Entity_GetLinkToParent(localClientNum, TurretEnt);
         if ( LinkToParent )
           TurretEnt = LinkToParent;
-        v28 = CgAntiLag::GetInstance(localClientNum);
-        serverTime = _RBX->predictedPlayerState.serverTime;
+        v20 = CgAntiLag::GetInstance(localClientNum);
+        serverTime = LocalClientGlobals->predictedPlayerState.serverTime;
         angilagInfo.boneInfo.boneList.m_usedSize = 0;
         angilagInfo.boneInfo.boneList.m_maxSize = 0;
-        BgAntiLag::GetEntityInfoAtTime(v28, _RBX->predictedPlayerState.clientNum, TurretEnt->nextState.number, 8u, serverTime, &angilagInfo);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+65E4h]
-          vmulss  xmm6, xmm0, cs:__real@3a83126f
-          vmovaps xmm2, xmm6; deltaTime
-        }
-        CG_Turret_ViewBounce(localClientNum, &_RBX->predictedPlayerState, *(const float *)&_XMM2, &angilagInfo, TurretEnt);
-        v34 = v69[157] || _RBX->turretCameraLocked;
-        _RBX->turretCameraLocked = v34;
-        v35 = !_RBX->turretControlled;
-        if ( !_RBX->turretControlled )
+        BgAntiLag::GetEntityInfoAtTime(v20, LocalClientGlobals->predictedPlayerState.clientNum, TurretEnt->nextState.number, 8u, serverTime, &angilagInfo);
+        v22 = (float)LocalClientGlobals->frametime * 0.001;
+        CG_Turret_ViewBounce(localClientNum, &LocalClientGlobals->predictedPlayerState, v22, &angilagInfo, TurretEnt);
+        v23 = v37[157] || LocalClientGlobals->turretCameraLocked;
+        LocalClientGlobals->turretCameraLocked = v23;
+        if ( !LocalClientGlobals->turretControlled )
           CL_Input_ClearKeys(localClientNum);
-        _RBX->turretControlled = 1;
-        __asm
-        {
-          vxorps  xmm7, xmm7, xmm7
-          vucomiss xmm6, xmm7
-        }
-        if ( !v35 )
+        LocalClientGlobals->turretControlled = 1;
+        if ( v22 != 0.0 )
         {
           if ( TurretEnt == (const centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
             __debugbreak();
-          if ( ((TurretEnt->nextState.eType - 12) & 0xFFFD) != 0 || !BG_IsRemoteTurretActive(&_RBX->predictedPlayerState) || _RBX->predictedPlayerState.remoteControlEnt == 2047 )
+          if ( ((TurretEnt->nextState.eType - 12) & 0xFFFD) != 0 || !BG_IsRemoteTurretActive(&LocalClientGlobals->predictedPlayerState) || LocalClientGlobals->predictedPlayerState.remoteControlEnt == 2047 )
             goto LABEL_45;
           VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
           if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 383, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
             __debugbreak();
-          v38 = CgWeaponMap::GetInstance(localClientNum);
-          v39 = BG_GetWeaponForEntity(v38, p_nextState);
-          if ( !VehicleSystem->AimTurret(VehicleSystem, v39, p_nextState->number) )
+          v25 = CgWeaponMap::GetInstance(localClientNum);
+          v26 = BG_GetWeaponForEntity(v25, p_nextState);
+          if ( !VehicleSystem->AimTurret(VehicleSystem, v26, p_nextState->number) )
           {
 LABEL_45:
-            _R12->v[0] = _RBX->predictedPlayerState.viewangles.v[0];
-            _R12->v[1] = _RBX->predictedPlayerState.viewangles.v[1];
-            _R12->v[2] = _RBX->predictedPlayerState.viewangles.v[2];
-            if ( _RBX->turretCameraLocked )
-            {
-              __asm { vaddss  xmm0, xmm6, dword ptr [rbx+180A0h] }
-            }
+            inOutViewAngles->v[0] = LocalClientGlobals->predictedPlayerState.viewangles.v[0];
+            inOutViewAngles->v[1] = LocalClientGlobals->predictedPlayerState.viewangles.v[1];
+            inOutViewAngles->v[2] = LocalClientGlobals->predictedPlayerState.viewangles.v[2];
+            if ( LocalClientGlobals->turretCameraLocked )
+              v27 = v22 + LocalClientGlobals->turretCameraLockedTime;
             else
+              v27 = LocalClientGlobals->turretCameraLockedTime - (float)(v22 * TURRET_CAMERA_LOCK_BLEND_OUT_SPEED_SCALE);
+            LocalClientGlobals->turretCameraLockedTime = v27;
+            v28 = I_fclamp(v27, 0.0, TURRET_CAMERA_LOCK_BLEND_TIME);
+            LocalClientGlobals->turretCameraLockedTime = *(float *)&v28;
+            if ( *(float *)&v28 > 0.001 )
             {
-              __asm
-              {
-                vmulss  xmm2, xmm6, cs:?TURRET_CAMERA_LOCK_BLEND_OUT_SPEED_SCALE@@3MA; float TURRET_CAMERA_LOCK_BLEND_OUT_SPEED_SCALE
-                vmovss  xmm1, dword ptr [rbx+180A0h]
-                vsubss  xmm0, xmm1, xmm2; val
-              }
-            }
-            __asm
-            {
-              vmovss  dword ptr [rbx+180A0h], xmm0
-              vmovss  xmm2, cs:?TURRET_CAMERA_LOCK_BLEND_TIME@@3MA; max
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vmovss  dword ptr [rbx+180A0h], xmm0
-              vcomiss xmm0, cs:__real@3a83126f
-            }
-            if ( !(v44 | v35) )
-            {
-              __asm
-              {
-                vdivss  xmm0, xmm0, cs:?TURRET_CAMERA_LOCK_BLEND_TIME@@3MA; val
-                vmovss  xmm2, cs:__real@3f800000; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm2, xmm6, dword ptr [rsp+268h+angilagInfo.angVelocity+4]
-                vmulss  xmm6, xmm2, cs:__real@3b360b61
-                vaddss  xmm3, xmm6, cs:__real@3f000000
-                vxorps  xmm2, xmm2, xmm2
-                vroundss xmm5, xmm2, xmm3, 1
-                vsubss  xmm1, xmm6, xmm5
-                vmulss  xmm2, xmm1, cs:__real@43b40000
-                vmulss  xmm0, xmm2, xmm0
-                vaddss  xmm3, xmm0, dword ptr [r12+4]
-                vmovss  dword ptr [r12+4], xmm3
-                vmovss  xmm0, dword ptr [r12]
-                vsubss  xmm1, xmm0, dword ptr [rbx+0BCh]
-                vmovss  dword ptr [rsp+268h+angles], xmm1
-                vsubss  xmm2, xmm3, dword ptr [rbx+0C0h]
-                vmovss  dword ptr [rsp+268h+angles+4], xmm2
-                vmovss  xmm0, dword ptr [r12+8]
-                vsubss  xmm1, xmm0, dword ptr [rbx+0C4h]
-                vmovss  dword ptr [rsp+268h+angles+8], xmm1
-              }
+              v29 = I_fclamp(*(float *)&v28 / TURRET_CAMERA_LOCK_BLEND_TIME, 0.0, 1.0);
+              _XMM2 = 0i64;
+              __asm { vroundss xmm5, xmm2, xmm3, 1 }
+              v32 = (float)((float)((float)((float)((float)(v22 * angilagInfo.angVelocity.v[1]) * 0.0027777778) - *(float *)&_XMM5) * 360.0) * *(float *)&v29) + inOutViewAngles->v[1];
+              inOutViewAngles->v[1] = v32;
+              angles.v[0] = inOutViewAngles->v[0] - LocalClientGlobals->predictedPlayerState.delta_angles.v[0];
+              angles.v[1] = v32 - LocalClientGlobals->predictedPlayerState.delta_angles.v[1];
+              angles.v[2] = inOutViewAngles->v[2] - LocalClientGlobals->predictedPlayerState.delta_angles.v[2];
               CL_SetViewAngles(localClientNum, &angles);
             }
           }
@@ -629,28 +517,21 @@ LABEL_45:
       }
       else
       {
-        CG_Turret_CameraReset(localClientNum, _RBX);
+        CG_Turret_CameraReset(localClientNum, LocalClientGlobals);
       }
     }
     else
     {
-      memset(&v66, 0, sizeof(v66));
-      *(_QWORD *)&_RBX->turretCameraBlendVelocity = 0i64;
-      _RBX->turretCameraLocked = 0;
-      if ( _RBX->turretControlled )
+      memset(&v34, 0, sizeof(v34));
+      *(_QWORD *)&LocalClientGlobals->turretCameraBlendVelocity = 0i64;
+      LocalClientGlobals->turretCameraLocked = 0;
+      if ( LocalClientGlobals->turretControlled )
         CL_Input_ClearKeys(localClientNum);
-      _RBX->turretControlled = 0;
-      _RBX->turretTimeSinceFire = -1.0;
+      LocalClientGlobals->turretControlled = 0;
+      LocalClientGlobals->turretTimeSinceFire = -1.0;
     }
-    result = 1;
+    return 1;
   }
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
 }
 
 /*
@@ -658,157 +539,99 @@ LABEL_45:
 CG_Turret_ViewBounce
 ==============
 */
-
-void __fastcall CG_Turret_ViewBounce(LocalClientNum_t localClientNum, playerState_s *ps, double deltaTime, const BgAntiLagEntityInfo *angilagInfo, const centity_t *referenceEnt)
+void CG_Turret_ViewBounce(LocalClientNum_t localClientNum, playerState_s *ps, const float deltaTime, const BgAntiLagEntityInfo *angilagInfo, const centity_t *referenceEnt)
 {
   cg_t *LocalClientGlobals; 
+  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v11; 
+  float v12; 
+  float v13; 
   CgVehicleSystem *VehicleSystem; 
-  __int64 v25; 
-  LocalClientNum_t v72; 
+  __int64 v15; 
+  double Float_Internal_DebugName; 
+  double v17; 
+  double v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v24; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  LocalClientNum_t v31; 
   vec3_t angles; 
-  vec3_t v84; 
-  vec3_t v85; 
+  vec3_t v33; 
+  vec3_t v34; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> in2; 
-  tmat33_t<vec3_t> v90; 
-  tmat33_t<vec3_t> v91; 
-  char v92; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v39; 
+  tmat33_t<vec3_t> v40; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-  }
-  _RSI = referenceEnt;
-  __asm { vmovaps xmm7, xmm2 }
-  _R15 = ps;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 236, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_remote_turret_yaw_addition;
+  v9 = DCONST_DVARFLT_remote_turret_yaw_addition;
   if ( !DCONST_DVARFLT_remote_turret_yaw_addition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "remote_turret_yaw_addition") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm12, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_remote_turret_pitch_addition;
+  Dvar_CheckFrontendServerThread(v9);
+  value = v9->current.value;
+  v11 = DCONST_DVARFLT_remote_turret_pitch_addition;
   if ( !DCONST_DVARFLT_remote_turret_pitch_addition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "remote_turret_pitch_addition") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rbx+28h]
-    vxorps  xmm11, xmm11, xmm11
-  }
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = v11->current.value;
+  v13 = 0.0;
   if ( referenceEnt->nextState.eType == ET_VEHICLE )
   {
     VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
     if ( !VehicleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 245, ASSERT_TYPE_ASSERT, "(vehicleSystem)", (const char *)&queryFormat, "vehicleSystem") )
       __debugbreak();
-    v25 = (__int64)VehicleSystem->GetVehicleDef(VehicleSystem, &referenceEnt->nextState);
-    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 247, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
+    v15 = (__int64)VehicleSystem->GetVehicleDef(VehicleSystem, &referenceEnt->nextState);
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_turret.cpp", 247, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
       __debugbreak();
-    if ( *(_BYTE *)(v25 + 8) == 9 && *(_DWORD *)(v25 + 248) && *(_BYTE *)(v25 + 256) == 1 )
+    if ( *(_BYTE *)(v15 + 8) == 9 && *(_DWORD *)(v15 + 248) && *(_BYTE *)(v15 + 256) == 1 )
     {
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretPitchAddition, "bg_wheelsonTurretPitchAddition");
-      __asm { vmovaps xmm10, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretYawAddition, "bg_wheelsonTurretYawAddition");
-      __asm { vmovaps xmm12, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretRollAddition, "bg_wheelsonTurretRollAddition");
-      __asm { vmovaps xmm11, xmm0 }
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretPitchAddition, "bg_wheelsonTurretPitchAddition");
+      v12 = *(float *)&Float_Internal_DebugName;
+      v17 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretYawAddition, "bg_wheelsonTurretYawAddition");
+      value = *(float *)&v17;
+      v18 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonTurretRollAddition, "bg_wheelsonTurretRollAddition");
+      v13 = *(float *)&v18;
     }
   }
-  __asm
-  {
-    vmulss  xmm1, xmm7, dword ptr [r12+80h]
-    vmovss  xmm3, cs:__real@3b360b61
-    vmulss  xmm2, xmm7, dword ptr [r12+88h]
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm5, cs:__real@43b40000
-    vmulss  xmm6, xmm1, xmm3
-    vmulss  xmm1, xmm7, dword ptr [r12+84h]
-    vmulss  xmm8, xmm1, xmm3
-    vmulss  xmm3, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm3, xmm4
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm9, xmm9, xmm9
-    vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm7, xmm0, xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm6, xmm4
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm6, xmm2
-    vmovss  xmm2, dword ptr [rsi+48h]
-    vmulss  xmm1, xmm0, xmm5
-    vmulss  xmm3, xmm1, xmm10
-    vsubss  xmm0, xmm2, xmm3
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+210h+angles], xmm0
-    vaddss  xmm4, xmm8, xmm4
-    vmovss  xmm0, xmm1, xmm4
-    vroundss xmm2, xmm9, xmm0, 1
-    vsubss  xmm1, xmm8, xmm2
-    vmovss  xmm2, dword ptr [rsi+4Ch]
-    vmulss  xmm0, xmm1, xmm5
-    vmulss  xmm3, xmm0, xmm12
-    vmovss  xmm0, dword ptr [rsi+50h]
-    vsubss  xmm1, xmm2, xmm3
-    vmulss  xmm4, xmm11, xmm7
-    vmovss  dword ptr [rsp+210h+angles+4], xmm1
-    vsubss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rsp+210h+angles+8], xmm1
-  }
+  v19 = deltaTime * angilagInfo->angVelocity.v[0];
+  v20 = (float)(deltaTime * angilagInfo->angVelocity.v[1]) * 0.0027777778;
+  v21 = (float)(deltaTime * angilagInfo->angVelocity.v[2]) * 0.0027777778;
+  _XMM9 = 0i64;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  v24 = (float)(v21 - *(float *)&_XMM2) * 360.0;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  angles.v[0] = referenceEnt->pose.angles.v[0] - (float)((float)((float)((float)(v19 * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v12);
+  __asm { vroundss xmm2, xmm9, xmm0, 1 }
+  v27 = referenceEnt->pose.angles.v[2];
+  angles.v[1] = referenceEnt->pose.angles.v[1] - (float)((float)((float)(v20 - *(float *)&_XMM2) * 360.0) * value);
+  angles.v[2] = v27 - (float)(v13 * v24);
   AnglesToAxis(&angles, &axis);
   MatrixTranspose(&axis, &out);
-  AnglesToAxis(&_R15->viewangles, &in1);
-  MatrixMultiply(&in1, &out, &v90);
+  AnglesToAxis(&ps->viewangles, &in1);
+  MatrixMultiply(&in1, &out, &v39);
   AnglesToAxis(&referenceEnt->pose.angles, &in2);
-  MatrixMultiply(&v90, &in2, &v91);
-  AxisToAngles(&v91, &v85);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+210h+var_1B0]
-    vmovss  xmm1, dword ptr [rsp+210h+var_1B0+4]
-    vmovss  dword ptr [r15+1D8h], xmm0
-    vmovss  xmm0, dword ptr [rsp+210h+angles+8]
-    vmovss  dword ptr [r15+1DCh], xmm1
-    vmovss  dword ptr [r15+1E0h], xmm0
-    vmovss  xmm0, dword ptr [r15+1D8h]
-    vsubss  xmm1, xmm0, dword ptr [r15+0B4h]
-    vmovss  xmm2, dword ptr [r15+1DCh]
-    vsubss  xmm0, xmm2, dword ptr [r15+0B8h]
-  }
-  v72 = LocalClientGlobals->localClientNum;
-  __asm
-  {
-    vmovss  dword ptr [rsp+210h+var_1C0], xmm1
-    vmovss  xmm1, dword ptr [r15+1E0h]
-    vsubss  xmm2, xmm1, dword ptr [r15+0BCh]
-    vmovss  dword ptr [rsp+210h+var_1C0+8], xmm2
-    vmovss  dword ptr [rsp+210h+var_1C0+4], xmm0
-  }
-  CL_SetViewAngles(v72, &v84);
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  MatrixMultiply(&v39, &in2, &v40);
+  AxisToAngles(&v40, &v34);
+  v28 = v34.v[1];
+  ps->viewangles.v[0] = v34.v[0];
+  v29 = angles.v[2];
+  ps->viewangles.v[1] = v28;
+  ps->viewangles.v[2] = v29;
+  v30 = ps->viewangles.v[1] - ps->delta_angles.v[1];
+  v31 = LocalClientGlobals->localClientNum;
+  v33.v[0] = ps->viewangles.v[0] - ps->delta_angles.v[0];
+  v33.v[2] = ps->viewangles.v[2] - ps->delta_angles.v[2];
+  v33.v[1] = v30;
+  CL_SetViewAngles(v31, &v33);
 }
 

@@ -267,11 +267,7 @@ bdStoredPerformanceValue::serialize
 */
 bool bdStoredPerformanceValue::serialize(bdStoredPerformanceValue *this, bdByteBuffer *buffer)
 {
-  _RDI = this;
-  if ( !bdByteBuffer::writeUInt64(buffer, *((_QWORD *)&this->__vftable + 2)) )
-    return 0;
-  __asm { vmovss  xmm1, dword ptr [rdi+18h]; f }
-  return bdByteBuffer::writeFloat32(buffer, *(const float *)&_XMM1);
+  return bdByteBuffer::writeUInt64(buffer, *((_QWORD *)&this->__vftable + 2)) && bdByteBuffer::writeFloat32(buffer, *((const float *)&this->__vftable + 6));
 }
 
 /*

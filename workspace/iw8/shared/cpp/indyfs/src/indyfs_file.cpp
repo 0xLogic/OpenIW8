@@ -358,107 +358,74 @@ indyfs_file_load
 */
 __int64 indyfs_file_load(const char *filepath, void *dest, unsigned __int64 requested)
 {
-  unsigned int v10; 
+  unsigned int v6; 
   HANDLE FileA; 
   DWORD LastError; 
-  unsigned __int64 v13; 
-  DWORD v15; 
-  __int64 result; 
+  unsigned __int64 v9; 
+  double v10; 
+  long double i; 
+  DWORD v12; 
+  long double v13; 
   unsigned int NumberOfBytesRead; 
-  __int64 v28; 
-  IndyFsScopedEvent v29; 
-  IndyFsScopedDuration v30; 
-  IndyFsScopedEvent v31; 
-  IndyFsScopedDuration v32; 
-  IndyFsScopedEvent v33; 
-  IndyFsScopedDuration v34; 
-  char v35; 
-  void *retaddr; 
+  __int64 v18; 
+  IndyFsScopedEvent v19; 
+  IndyFsScopedDuration v20; 
+  IndyFsScopedEvent v21; 
+  IndyFsScopedDuration v22; 
+  IndyFsScopedEvent v23; 
+  IndyFsScopedDuration v24; 
 
-  _RAX = &retaddr;
-  v28 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  IndyFsScopedDuration::IndyFsScopedDuration(&v34, "FileLoad", "Total");
-  IndyFsScopedEvent::IndyFsScopedEvent(&v33, "FileLoad", "Total");
-  IndyFsScopedDuration::IndyFsScopedDuration(&v30, "FileLoad", "FileOpen");
-  IndyFsScopedEvent::IndyFsScopedEvent(&v29, "FileLoad", "FileOpen");
-  v10 = 0;
+  v18 = -2i64;
+  IndyFsScopedDuration::IndyFsScopedDuration(&v24, "FileLoad", "Total");
+  IndyFsScopedEvent::IndyFsScopedEvent(&v23, "FileLoad", "Total");
+  IndyFsScopedDuration::IndyFsScopedDuration(&v20, "FileLoad", "FileOpen");
+  IndyFsScopedEvent::IndyFsScopedEvent(&v19, "FileLoad", "FileOpen");
+  v6 = 0;
   FileA = CreateFileA(filepath, 0x80000000, 7u, NULL, 3u, 0x80u, NULL);
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v29);
-  IndyFsScopedDuration::~IndyFsScopedDuration(&v30);
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v19);
+  IndyFsScopedDuration::~IndyFsScopedDuration(&v20);
   if ( FileA == (HANDLE)-1i64 )
   {
     LastError = GetLastError();
     indyfs_log_message(Error, "Failed to open \"%s\" - Error: %d", filepath, LastError);
 LABEL_13:
-    v10 = -1;
+    v6 = -1;
     goto LABEL_14;
   }
-  v13 = 0i64;
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovaps xmm7, xmm0 }
-  if ( requested )
+  v9 = 0i64;
+  v10 = indyfs_time_now_us();
+  for ( i = v10; v9 < requested; v9 += NumberOfBytesRead )
   {
-    do
-    {
-      v15 = 0x7FFFFFFF;
-      if ( requested - v13 < 0x7FFFFFFF )
-        v15 = requested - v13;
-      if ( !ReadFile(FileA, (char *)dest + v13, v15, &NumberOfBytesRead, NULL) )
-        break;
-      if ( !NumberOfBytesRead )
-        break;
-      v13 += NumberOfBytesRead;
-    }
-    while ( v13 < requested );
+    v12 = 0x7FFFFFFF;
+    if ( requested - v9 < 0x7FFFFFFF )
+      v12 = requested - v9;
+    if ( !ReadFile(FileA, (char *)dest + v9, v12, &NumberOfBytesRead, NULL) )
+      break;
+    if ( !NumberOfBytesRead )
+      break;
   }
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm
-  {
-    vsubsd  xmm6, xmm0, xmm7
-    vmovaps xmm2, xmm6; duration
-  }
-  indyfs_statistics_internal_add_duration("FileLoad", "Read", *(const long double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rdi
-  }
+  v13 = indyfs_time_now_us() - v10;
+  indyfs_statistics_internal_add_duration("FileLoad", "Read", v13);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rdi }
   if ( (requested & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vdivsd  xmm2, xmm0, xmm6; duration }
-  indyfs_statistics_internal_add_duration("FileLoad", "ReadThroughput", *(const long double *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm3, xmm6; duration
-    vmovaps xmm2, xmm7; start
-  }
-  indyfs_profiler_internal_duration_event("FileLoad", "FileRead", *(long double *)&_XMM2, *(long double *)&_XMM3);
-  IndyFsScopedDuration::IndyFsScopedDuration(&v32, "FileLoad", "FileClose");
-  IndyFsScopedEvent::IndyFsScopedEvent(&v31, "FileLoad", "FileClose");
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  indyfs_statistics_internal_add_duration("FileLoad", "ReadThroughput", *(double *)&_XMM0 / v13);
+  indyfs_profiler_internal_duration_event("FileLoad", "FileRead", i, v13);
+  IndyFsScopedDuration::IndyFsScopedDuration(&v22, "FileLoad", "FileClose");
+  IndyFsScopedEvent::IndyFsScopedEvent(&v21, "FileLoad", "FileClose");
   CloseHandle(FileA);
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v31);
-  IndyFsScopedDuration::~IndyFsScopedDuration(&v32);
-  if ( v13 != requested )
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v21);
+  IndyFsScopedDuration::~IndyFsScopedDuration(&v22);
+  if ( v9 != requested )
   {
-    indyfs_log_message(Error, "Loaded %zu from \"%s\" but requested %zu.", v13, filepath, requested);
+    indyfs_log_message(Error, "Loaded %zu from \"%s\" but requested %zu.", v9, filepath, requested);
     goto LABEL_13;
   }
 LABEL_14:
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v33);
-  IndyFsScopedDuration::~IndyFsScopedDuration(&v34);
-  result = v10;
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v23);
+  IndyFsScopedDuration::~IndyFsScopedDuration(&v24);
+  return v6;
 }
 
 /*

@@ -444,24 +444,16 @@ void HavokCloth_InstantiationUtil::HavokCloth_InstantiationUtil(HavokCloth_Insta
 HavokCloth_AddSimulatedSpeed
 ==============
 */
-
-void __fastcall HavokCloth_AddSimulatedSpeed(const unsigned int globalWorldId, const unsigned int instanceId, double speed)
+void HavokCloth_AddSimulatedSpeed(const unsigned int globalWorldId, const unsigned int instanceId, const float speed)
 {
-  __int64 v5; 
+  __int64 v4; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v5 = globalWorldId;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = globalWorldId;
   if ( globalWorldId >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 999, ASSERT_TYPE_ASSERT, "(unsigned)( globalWorldId ) < (unsigned)( s_HavokCloth_GlobalClothWorldMax )", "globalWorldId doesn't index s_HavokCloth_GlobalClothWorldMax\n\t%i not in [0, %i)", globalWorldId, 2) )
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 1000, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm6; speed
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  HavokCloth_InstanceManager_AddSimulatedSpeed(&s_HavokCloth_InstanceManagers[v5], instanceId, *(const float *)&_XMM2);
+  HavokCloth_InstanceManager_AddSimulatedSpeed(&s_HavokCloth_InstanceManagers[v4], instanceId, speed);
 }
 
 /*
@@ -1394,11 +1386,11 @@ HavokCloth_InstantiateAsset
 */
 __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const ClothAsset *const clothAsset, const unsigned int refId, const Cloth_OwnerType ownerType, const hkVector4f *position, const hkQuaternionf *orientation, const DObj *dObj, const bool bindPoseBased)
 {
-  __int64 v12; 
-  HavokCloth_InstanceManager *v15; 
+  __int64 v11; 
+  HavokCloth_InstanceManager *v12; 
   unsigned int Instance; 
-  ClothAsset *v17; 
-  HavokCloth_InstanceManager *v18; 
+  ClothAsset *v14; 
+  HavokCloth_InstanceManager *v15; 
   bitarray<768> *p_readBones; 
   __int64 i; 
   bitarray<768> *p_writtenBones; 
@@ -1408,18 +1400,23 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
   const hclClothContainer *Asset; 
   int m_size; 
   hclClothData **p_m_ptr; 
-  hclClothData *v28; 
+  hclClothData *v25; 
   __int64 boneMappingSets; 
-  hclClothInstance *v32; 
-  __int64 v33; 
+  hclClothInstance *v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  const hclTransformSetDefinition *v31; 
+  __int64 v32; 
+  hkMemoryRouter *Value; 
   __int64 v34; 
   __int64 v35; 
-  const hclTransformSetDefinition *v36; 
-  __int64 v37; 
-  hkMemoryRouter *Value; 
-  __int64 v39; 
-  __int64 v40; 
   int m_numTransforms; 
+  hkMemoryAllocator *v37; 
+  int v38; 
+  int v39; 
+  int v40; 
+  int v41; 
   hkMemoryAllocator *v42; 
   int v43; 
   int v44; 
@@ -1429,41 +1426,37 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
   int v48; 
   int v49; 
   int v50; 
-  int v51; 
-  hkMemoryAllocator *v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  unsigned int v56; 
-  DObj *v57; 
-  scr_string_t v58; 
+  unsigned int v51; 
+  DObj *v52; 
+  scr_string_t v53; 
   const char ***models; 
-  const char *v60; 
-  const char *v61; 
-  unsigned int v62; 
-  unsigned int v63; 
-  int v64; 
-  unsigned int v65; 
-  hclCollidable **v66; 
-  __int64 v68; 
-  hclCollidable *v69; 
+  const char *v55; 
+  const char *v56; 
+  unsigned int v57; 
+  unsigned int v58; 
+  int v59; 
+  unsigned int v60; 
+  hclCollidable **v61; 
+  __int64 v62; 
+  hclCollidable *v63; 
+  hclCollidable *Copy; 
   unsigned int NumClothInstances; 
-  unsigned int v76; 
-  unsigned int v77; 
+  unsigned int v66; 
+  unsigned int v67; 
   hclClothInstance *ClothInstance; 
-  hkMemoryRouter *v80; 
-  HavokCloth_PhysicsProxyAction *v81; 
-  HavokCloth_PhysicsProxyAction *v82; 
-  HavokCloth_PhysicsProxyAction *v83; 
-  hkMemoryRouter *v84; 
-  HavokCloth_VectorFieldAction *v85; 
-  hclAction *v87; 
-  hclAction *v88; 
-  unsigned int v89; 
-  __int64 result; 
+  ClothAsset *v69; 
+  hkMemoryRouter *v70; 
+  HavokCloth_PhysicsProxyAction *v71; 
+  HavokCloth_PhysicsProxyAction *v72; 
+  HavokCloth_PhysicsProxyAction *v73; 
+  hkMemoryRouter *v74; 
+  HavokCloth_VectorFieldAction *v75; 
+  hclAction *v76; 
+  hclAction *v77; 
+  unsigned int v78; 
   char *fmt; 
-  __int64 v93; 
-  __int64 v94; 
+  __int64 v81; 
+  __int64 v82; 
   unsigned __int16 outBoneIndex[2]; 
   unsigned int globalWorldIda; 
   ClothAsset *clothAsseta; 
@@ -1471,34 +1464,33 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
   unsigned int instanceId; 
   unsigned int clothInstanceIdx; 
   HavokCloth_InstanceManager *manager; 
-  __int64 v102; 
-  hclClothData *v103; 
+  __int64 v90; 
+  hclClothData *v91; 
   DObj *obj; 
-  hkReferencedObject *v105; 
-  __int64 v106; 
-  hclClothData **v107; 
-  const hclClothContainer *v108; 
+  hkReferencedObject *v93; 
+  __int64 v94; 
+  hclClothData **v95; 
+  const hclClothContainer *v96; 
   hclWorld *world; 
-  char v110; 
+  char v98; 
   int outModelIndex; 
-  __int64 v112; 
-  __int64 v113; 
-  __int64 v114[2]; 
-  hclInstantiationUtil v115; 
-  ClothAsset *v116; 
-  __int64 v117; 
-  __m256i v118; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102[2]; 
+  hclInstantiationUtil v103; 
+  ClothAsset *v104; 
+  __int64 v105; 
+  __m256i v106; 
+  __m256i v107; 
   hclClothData::InstanceOptions options; 
   bitarray<768> readBones; 
   bitarray<768> accessedBones; 
   bitarray<768> writtenBones; 
 
-  v117 = -2i64;
-  __asm { vmovaps [rsp+330h+var_50], xmm6 }
+  v105 = -2i64;
   clothAsseta = (ClothAsset *)clothAsset;
-  v12 = globalWorldId;
+  v11 = globalWorldId;
   globalWorldIda = globalWorldId;
-  _RSI = position;
   obj = (DObj *)dObj;
   if ( globalWorldId >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 430, ASSERT_TYPE_ASSERT, "(unsigned)( globalWorldId ) < (unsigned)( s_HavokCloth_GlobalClothWorldMax )", "globalWorldId doesn't index s_HavokCloth_GlobalClothWorldMax\n\t%i not in [0, %i)", globalWorldId, 2) )
     __debugbreak();
@@ -1506,37 +1498,33 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
     __debugbreak();
   if ( (unsigned int)ownerType >= Cloth_OwnerType_Count )
   {
-    LODWORD(v94) = 2;
-    LODWORD(v93) = ownerType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 432, ASSERT_TYPE_ASSERT, "(unsigned)( ownerType ) < (unsigned)( Cloth_OwnerType_Count )", "ownerType doesn't index Cloth_OwnerType_Count\n\t%i not in [0, %i)", v93, v94) )
+    LODWORD(v82) = 2;
+    LODWORD(v81) = ownerType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 432, ASSERT_TYPE_ASSERT, "(unsigned)( ownerType ) < (unsigned)( Cloth_OwnerType_Count )", "ownerType doesn't index Cloth_OwnerType_Count\n\t%i not in [0, %i)", v81, v82) )
       __debugbreak();
   }
   if ( !dObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 433, ASSERT_TYPE_ASSERT, "(dObj)", (const char *)&queryFormat, "dObj") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFAEBD7, "HavokCloth_InstantiateAsset");
-  world = s_HavokCloth_GlobalClothWorlds[v12];
+  world = s_HavokCloth_GlobalClothWorlds[v11];
   if ( !world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 438, ASSERT_TYPE_ASSERT, "(globalWorld)", (const char *)&queryFormat, "globalWorld") )
     __debugbreak();
-  hkRotationImpl<float>::set((hkRotationImpl<float> *)&v118, orientation);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+230h+var_1E0], xmm0
-  }
-  v15 = &s_HavokCloth_InstanceManagers[v12];
-  manager = v15;
-  Instance = HavokCloth_InstanceManager_AllocateInstance(v15);
+  hkRotationImpl<float>::set((hkRotationImpl<float> *)&v106, orientation);
+  *(hkVector4f *)&v107.m256i_u64[2] = (hkVector4f)position->m_quad;
+  v12 = &s_HavokCloth_InstanceManagers[v11];
+  manager = v12;
+  Instance = HavokCloth_InstanceManager_AllocateInstance(v12);
   instanceId = Instance;
   if ( Instance == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 449, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  HavokCloth_InstanceManager_SetRefId(v15, Instance, refId);
-  HavokCloth_InstanceManager_SetOwnerType(v15, Instance, ownerType);
-  v17 = clothAsseta;
-  HavokCloth_InstanceManager_SetClothAsset(v15, Instance, clothAsseta);
-  HavokCloth_InstanceManager_SetPosition(v15, Instance, position);
-  v18 = &s_HavokCloth_InstanceManagers[v12];
-  HavokCloth_InstanceManager_SetOrientation(v15, Instance, orientation);
-  HavokCloth_InstanceManager_SetBindPoseBased(v15, Instance, bindPoseBased);
+  HavokCloth_InstanceManager_SetRefId(v12, Instance, refId);
+  HavokCloth_InstanceManager_SetOwnerType(v12, Instance, ownerType);
+  v14 = clothAsseta;
+  HavokCloth_InstanceManager_SetClothAsset(v12, Instance, clothAsseta);
+  HavokCloth_InstanceManager_SetPosition(v12, Instance, position);
+  v15 = &s_HavokCloth_InstanceManagers[v11];
+  HavokCloth_InstanceManager_SetOrientation(v12, Instance, orientation);
+  HavokCloth_InstanceManager_SetBindPoseBased(v12, Instance, bindPoseBased);
   p_readBones = &readBones;
   for ( i = 24i64; i; --i )
   {
@@ -1555,123 +1543,132 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
     p_accessedBones->array[0] = 0;
     p_accessedBones = (bitarray<768> *)((char *)p_accessedBones + 4);
   }
-  Asset = HavokCloth_GetAsset(v17);
-  v108 = Asset;
+  Asset = HavokCloth_GetAsset(v14);
+  v96 = Asset;
   if ( !Asset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 469, ASSERT_TYPE_ASSERT, "(container)", (const char *)&queryFormat, "container") )
     __debugbreak();
   m_size = Asset->m_clothDatas.m_size;
   if ( m_size <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 474, ASSERT_TYPE_ASSERT, "(numClothDatas > 0)", (const char *)&queryFormat, "numClothDatas > 0") )
     __debugbreak();
-  if ( m_size != v17->boneMappingSetCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 475, ASSERT_TYPE_ASSERT, "(numClothDatas == static_cast<int>(clothAsset->boneMappingSetCount))", (const char *)&queryFormat, "numClothDatas == static_cast<int>(clothAsset->boneMappingSetCount)") )
+  if ( m_size != v14->boneMappingSetCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 475, ASSERT_TYPE_ASSERT, "(numClothDatas == static_cast<int>(clothAsset->boneMappingSetCount))", (const char *)&queryFormat, "numClothDatas == static_cast<int>(clothAsset->boneMappingSetCount)") )
     __debugbreak();
-  HavokCloth_InstanceManager_ReserveClothInstances(v18, Instance, m_size);
+  HavokCloth_InstanceManager_ReserveClothInstances(v15, Instance, m_size);
   clothInstanceIdx = 0;
   p_m_ptr = &Asset->m_clothDatas.m_data->m_ptr;
-  v107 = p_m_ptr;
+  v95 = p_m_ptr;
   if ( p_m_ptr != &p_m_ptr[Asset->m_clothDatas.m_size] )
   {
-    v102 = 0i64;
+    v90 = 0i64;
     do
     {
-      v28 = *p_m_ptr;
-      v103 = v28;
-      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 482, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
+      v25 = *p_m_ptr;
+      v91 = v25;
+      if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 482, ASSERT_TYPE_ASSERT, "(clothData)", (const char *)&queryFormat, "clothData") )
         __debugbreak();
-      boneMappingSets = (__int64)v17->boneMappingSets;
-      v112 = boneMappingSets;
+      boneMappingSets = (__int64)v14->boneMappingSets;
+      v100 = boneMappingSets;
       hclClothData::InstanceOptions::InstanceOptions(&options);
-      options.m_initialState = v17->animationStateIdx;
+      options.m_initialState = v14->animationStateIdx;
       options.m_setPose.m_bool = 1;
       options.m_poseIndex = 0;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+230h+var_210.baseclass_0.m_col0.m_quad]
-        vmovups ymmword ptr [rbp+230h+options.m_transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-        vmovups ymm0, ymmword ptr [rbp+40h]
-        vmovups ymmword ptr [rbp+230h+options.m_transform.m_rotation.baseclass_0.m_col2.m_quad], ymm0
-      }
-      v32 = hclClothData::createInstance(v28, &options);
-      v105 = v32;
-      if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 495, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
+      *(__m256i *)options.m_transform.m_rotation.m_col0.m_quad.m128_f32 = v106;
+      *(__m256i *)options.m_transform.m_rotation.m_col2.m_quad.m128_f32 = v107;
+      v27 = hclClothData::createInstance(v25, &options);
+      v93 = v27;
+      if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 495, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
         __debugbreak();
-      v114[0] = (__int64)v32;
-      v114[1] = (__int64)v17;
-      v115.m_propertyBag.m_bag = NULL;
-      *(_DWORD *)&v115.m_memSizeAndFlags = 0x1FFFF;
-      v115.m_input = (hclInstantiationInput *)v114;
-      v115.m_output = (hclInstantiationOutput *)&v110;
-      v115.__vftable = (hclInstantiationUtil_vtbl *)&HavokCloth_InstantiationUtil::`vftable';
-      v116 = v17;
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 125, ASSERT_TYPE_ASSERT, "(m_clothAsset)", (const char *)&queryFormat, "m_clothAsset") )
+      v102[0] = (__int64)v27;
+      v102[1] = (__int64)v14;
+      v103.m_propertyBag.m_bag = NULL;
+      *(_DWORD *)&v103.m_memSizeAndFlags = 0x1FFFF;
+      v103.m_input = (hclInstantiationInput *)v102;
+      v103.m_output = (hclInstantiationOutput *)&v98;
+      v103.__vftable = (hclInstantiationUtil_vtbl *)&HavokCloth_InstantiationUtil::`vftable';
+      v104 = v14;
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 125, ASSERT_TYPE_ASSERT, "(m_clothAsset)", (const char *)&queryFormat, "m_clothAsset") )
         __debugbreak();
-      hclInstantiationUtil::instantiateBuffers(&v115);
-      v33 = v28->m_transformSetDefinitions.m_size;
-      if ( (_DWORD)v33 != v32->m_transformSets.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 509, ASSERT_TYPE_ASSERT, "(numTransformSetDefs == clothInstance->m_transformSets.getSize())", (const char *)&queryFormat, "numTransformSetDefs == clothInstance->m_transformSets.getSize()") )
+      hclInstantiationUtil::instantiateBuffers(&v103);
+      v28 = v25->m_transformSetDefinitions.m_size;
+      if ( (_DWORD)v28 != v27->m_transformSets.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 509, ASSERT_TYPE_ASSERT, "(numTransformSetDefs == clothInstance->m_transformSets.getSize())", (const char *)&queryFormat, "numTransformSetDefs == clothInstance->m_transformSets.getSize()") )
         __debugbreak();
-      if ( (_DWORD)v33 != *(_DWORD *)(v102 + boneMappingSets + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 510, ASSERT_TYPE_ASSERT, "(numTransformSetDefs == static_cast<int>(boneMappingSet->boneMappingCount))", (const char *)&queryFormat, "numTransformSetDefs == static_cast<int>(boneMappingSet->boneMappingCount)") )
+      if ( (_DWORD)v28 != *(_DWORD *)(v90 + boneMappingSets + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 510, ASSERT_TYPE_ASSERT, "(numTransformSetDefs == static_cast<int>(boneMappingSet->boneMappingCount))", (const char *)&queryFormat, "numTransformSetDefs == static_cast<int>(boneMappingSet->boneMappingCount)") )
         __debugbreak();
       index = 0;
-      v34 = 0i64;
-      v106 = 0i64;
-      v113 = v33;
-      if ( (int)v33 > 0 )
+      v29 = 0i64;
+      v94 = 0i64;
+      v101 = v28;
+      if ( (int)v28 > 0 )
       {
-        v35 = 0i64;
+        v30 = 0i64;
         do
         {
-          v36 = v28->m_transformSetDefinitions.m_data[v34];
-          if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 515, ASSERT_TYPE_ASSERT, "(transformSetDef)", (const char *)&queryFormat, "transformSetDef") )
+          v31 = v25->m_transformSetDefinitions.m_data[v29];
+          if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 515, ASSERT_TYPE_ASSERT, "(transformSetDef)", (const char *)&queryFormat, "transformSetDef") )
             __debugbreak();
-          v37 = *(_QWORD *)(v102 + v112);
-          if ( *(_DWORD *)(v37 + v35 + 8) != v36->m_numTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 519, ASSERT_TYPE_ASSERT, "(boneMapping->scrTagCount == transformSetDef->m_numTransforms)", (const char *)&queryFormat, "boneMapping->scrTagCount == transformSetDef->m_numTransforms") )
+          v32 = *(_QWORD *)(v90 + v100);
+          if ( *(_DWORD *)(v32 + v30 + 8) != v31->m_numTransforms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 519, ASSERT_TYPE_ASSERT, "(boneMapping->scrTagCount == transformSetDef->m_numTransforms)", (const char *)&queryFormat, "boneMapping->scrTagCount == transformSetDef->m_numTransforms") )
             __debugbreak();
           Value = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
           if ( !Value )
             Value = hkMemoryRouter::s_fallbackRouter;
-          v39 = (__int64)Value->m_heap->blockAlloc(Value->m_heap, 72i64);
-          v40 = v39;
-          if ( v39 )
+          v34 = (__int64)Value->m_heap->blockAlloc(Value->m_heap, 72i64);
+          v35 = v34;
+          if ( v34 )
           {
-            *(_DWORD *)(v39 + 20) = 0;
-            *(_QWORD *)(v39 + 32) = 0i64;
-            *(_QWORD *)(v39 + 48) = 0i64;
-            *(_QWORD *)(v39 + 64) = 0i64;
-            *(_QWORD *)(v39 + 8) = 0i64;
-            *(_DWORD *)(v39 + 16) = 0x1FFFF;
-            *(_QWORD *)(v39 + 24) = 0i64;
-            *(_DWORD *)(v39 + 32) = 0;
-            *(_DWORD *)(v39 + 36) = 0x80000000;
-            *(_QWORD *)(v39 + 40) = 0i64;
-            *(_DWORD *)(v39 + 48) = 0;
-            *(_DWORD *)(v39 + 52) = 0x80000000;
-            *(_QWORD *)v39 = &HavokClothTransformSet::`vftable';
-            *(_QWORD *)(v39 + 56) = 0i64;
-            *(_DWORD *)(v39 + 64) = 0;
-            *(_DWORD *)(v39 + 68) = 0x80000000;
+            *(_DWORD *)(v34 + 20) = 0;
+            *(_QWORD *)(v34 + 32) = 0i64;
+            *(_QWORD *)(v34 + 48) = 0i64;
+            *(_QWORD *)(v34 + 64) = 0i64;
+            *(_QWORD *)(v34 + 8) = 0i64;
+            *(_DWORD *)(v34 + 16) = 0x1FFFF;
+            *(_QWORD *)(v34 + 24) = 0i64;
+            *(_DWORD *)(v34 + 32) = 0;
+            *(_DWORD *)(v34 + 36) = 0x80000000;
+            *(_QWORD *)(v34 + 40) = 0i64;
+            *(_DWORD *)(v34 + 48) = 0;
+            *(_DWORD *)(v34 + 52) = 0x80000000;
+            *(_QWORD *)v34 = &HavokClothTransformSet::`vftable';
+            *(_QWORD *)(v34 + 56) = 0i64;
+            *(_DWORD *)(v34 + 64) = 0;
+            *(_DWORD *)(v34 + 68) = 0x80000000;
           }
           else
           {
-            v40 = 0i64;
+            v35 = 0i64;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 523, ASSERT_TYPE_ASSERT, "(transformSet)", (const char *)&queryFormat, "transformSet") )
               __debugbreak();
           }
-          m_numTransforms = v36->m_numTransforms;
+          m_numTransforms = v31->m_numTransforms;
+          v37 = hkMemHeapAllocator();
+          v38 = *(_DWORD *)(v35 + 36) & 0x3FFFFFFF;
+          if ( v38 < m_numTransforms )
+          {
+            v39 = 2 * v38;
+            if ( (unsigned int)v39 >= 0x3FFFFFFF )
+              v39 = 1073741822;
+            v40 = m_numTransforms;
+            if ( m_numTransforms < v39 )
+              v40 = v39;
+            hkArrayUtil::_reserve(v37, (void *)(v35 + 24), v40, 64);
+          }
+          *(_DWORD *)(v35 + 32) = m_numTransforms;
+          v41 = v31->m_numTransforms;
           v42 = hkMemHeapAllocator();
-          v43 = *(_DWORD *)(v40 + 36) & 0x3FFFFFFF;
-          if ( v43 < m_numTransforms )
+          v43 = *(_DWORD *)(v35 + 52) & 0x3FFFFFFF;
+          if ( v43 < v41 )
           {
             v44 = 2 * v43;
             if ( (unsigned int)v44 >= 0x3FFFFFFF )
               v44 = 1073741822;
-            v45 = m_numTransforms;
-            if ( m_numTransforms < v44 )
+            v45 = v41;
+            if ( v41 < v44 )
               v45 = v44;
-            hkArrayUtil::_reserve(v42, (void *)(v40 + 24), v45, 64);
+            hkArrayUtil::_reserve(v42, (void *)(v35 + 40), v45, 64);
           }
-          *(_DWORD *)(v40 + 32) = m_numTransforms;
-          v46 = v36->m_numTransforms;
+          *(_DWORD *)(v35 + 48) = v41;
+          v46 = v31->m_numTransforms;
           v47 = hkMemHeapAllocator();
-          v48 = *(_DWORD *)(v40 + 52) & 0x3FFFFFFF;
+          v48 = *(_DWORD *)(v35 + 68) & 0x3FFFFFFF;
           if ( v48 < v46 )
           {
             v49 = 2 * v48;
@@ -1680,197 +1677,170 @@ __int64 HavokCloth_InstantiateAsset(const unsigned int globalWorldId, const Clot
             v50 = v46;
             if ( v46 < v49 )
               v50 = v49;
-            hkArrayUtil::_reserve(v47, (void *)(v40 + 40), v50, 64);
+            hkArrayUtil::_reserve(v47, (void *)(v35 + 56), v50, 2);
           }
-          *(_DWORD *)(v40 + 48) = v46;
-          v51 = v36->m_numTransforms;
-          v52 = hkMemHeapAllocator();
-          v53 = *(_DWORD *)(v40 + 68) & 0x3FFFFFFF;
-          if ( v53 < v51 )
+          *(_DWORD *)(v35 + 64) = v46;
+          v51 = 0;
+          if ( *(_DWORD *)(v32 + v30 + 8) )
           {
-            v54 = 2 * v53;
-            if ( (unsigned int)v54 >= 0x3FFFFFFF )
-              v54 = 1073741822;
-            v55 = v51;
-            if ( v51 < v54 )
-              v55 = v54;
-            hkArrayUtil::_reserve(v52, (void *)(v40 + 56), v55, 2);
-          }
-          *(_DWORD *)(v40 + 64) = v51;
-          v56 = 0;
-          if ( *(_DWORD *)(v37 + v35 + 8) )
-          {
-            v57 = obj;
+            v52 = obj;
             do
             {
-              v58 = *(_DWORD *)(*(_QWORD *)(v37 + v35) + 4i64 * v56);
+              v53 = *(_DWORD *)(*(_QWORD *)(v32 + v30) + 4i64 * v51);
               outBoneIndex[0] = 254;
-              if ( !DObjGetBoneAndModelIndexClient(v57, v58, outBoneIndex, &outModelIndex) )
+              if ( !DObjGetBoneAndModelIndexClient(v52, v53, outBoneIndex, &outModelIndex) )
               {
-                hkReferencedObject::removeReference((hkReferencedObject *)v40);
-                hkReferencedObject::removeReference(v105);
+                hkReferencedObject::removeReference((hkReferencedObject *)v35);
+                hkReferencedObject::removeReference(v93);
                 HavokCloth_DestroyInstance(globalWorldIda, instanceId);
-                if ( v57->numModels && (models = (const char ***)v57->models, *models) )
-                  v60 = **models;
+                if ( v52->numModels && (models = (const char ***)v52->models, *models) )
+                  v55 = **models;
                 else
-                  v60 = "unknown";
-                v61 = SL_ConvertToString(v58);
-                Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14431DF40, 75i64, v61, v60);
-                v57 = obj;
+                  v55 = "unknown";
+                v56 = SL_ConvertToString(v53);
+                Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14431DF40, 75i64, v56, v55);
+                v52 = obj;
               }
-              *(_WORD *)(*(_QWORD *)(v40 + 56) + 2i64 * (int)v56++) = outBoneIndex[0];
+              *(_WORD *)(*(_QWORD *)(v35 + 56) + 2i64 * (int)v51++) = outBoneIndex[0];
             }
-            while ( v56 < *(_DWORD *)(v37 + v35 + 8) );
+            while ( v51 < *(_DWORD *)(v32 + v30 + 8) );
           }
-          v62 = index;
-          v32 = (hclClothInstance *)v105;
-          hclClothInstance::setTransformSet((hclClothInstance *)v105, index, (hclTransformSet *)v40);
-          hkReferencedObject::removeReference((hkReferencedObject *)v40);
-          index = v62 + 1;
-          v34 = v106 + 1;
-          v106 = v34;
-          v35 += 16i64;
-          v28 = v103;
+          v57 = index;
+          v27 = (hclClothInstance *)v93;
+          hclClothInstance::setTransformSet((hclClothInstance *)v93, index, (hclTransformSet *)v35);
+          hkReferencedObject::removeReference((hkReferencedObject *)v35);
+          index = v57 + 1;
+          v29 = v94 + 1;
+          v94 = v29;
+          v30 += 16i64;
+          v25 = v91;
         }
-        while ( v34 < v113 );
+        while ( v29 < v101 );
         Instance = instanceId;
-        v17 = clothAsseta;
-        v18 = manager;
+        v14 = clothAsseta;
+        v15 = manager;
       }
-      HavokCloth_SetupClothInstanceStates(v32, &readBones, &writtenBones, &accessedBones);
-      HavokCloth_SetupClothInstanceSimulationMeshes(v32, &readBones, &accessedBones);
-      v63 = clothInstanceIdx;
-      HavokCloth_InstanceManager_SetClothInstance(v18, Instance, clothInstanceIdx, v32);
-      hkReferencedObject::~hkReferencedObject(&v115);
-      p_m_ptr = v107 + 1;
-      v107 = p_m_ptr;
-      clothInstanceIdx = v63 + 1;
-      v102 += 16i64;
-      Asset = v108;
+      HavokCloth_SetupClothInstanceStates(v27, &readBones, &writtenBones, &accessedBones);
+      HavokCloth_SetupClothInstanceSimulationMeshes(v27, &readBones, &accessedBones);
+      v58 = clothInstanceIdx;
+      HavokCloth_InstanceManager_SetClothInstance(v15, Instance, clothInstanceIdx, v27);
+      hkReferencedObject::~hkReferencedObject(&v103);
+      p_m_ptr = v95 + 1;
+      v95 = p_m_ptr;
+      clothInstanceIdx = v58 + 1;
+      v90 += 16i64;
+      Asset = v96;
     }
-    while ( p_m_ptr != &v108->m_clothDatas.m_data[v108->m_clothDatas.m_size].m_ptr );
-    LODWORD(v12) = globalWorldIda;
+    while ( p_m_ptr != &v96->m_clothDatas.m_data[v96->m_clothDatas.m_size].m_ptr );
+    LODWORD(v11) = globalWorldIda;
   }
-  HavokCloth_InstanceManager_SetReadBones(v18, Instance, &readBones);
-  HavokCloth_InstanceManager_SetWrittenBones(v18, Instance, &writtenBones);
-  HavokCloth_InstanceManager_SetAccessedBones(v18, Instance, &accessedBones);
-  v64 = Asset->m_collidables.m_size;
-  if ( v64 > 0 )
+  HavokCloth_InstanceManager_SetReadBones(v15, Instance, &readBones);
+  HavokCloth_InstanceManager_SetWrittenBones(v15, Instance, &writtenBones);
+  HavokCloth_InstanceManager_SetAccessedBones(v15, Instance, &accessedBones);
+  v59 = Asset->m_collidables.m_size;
+  if ( v59 > 0 )
   {
-    HavokCloth_InstanceManager_ReserveCollidables(v18, Instance, v64);
-    v64 = Asset->m_collidables.m_size;
+    HavokCloth_InstanceManager_ReserveCollidables(v15, Instance, v59);
+    v59 = Asset->m_collidables.m_size;
   }
-  v65 = 0;
-  v66 = &Asset->m_collidables.m_data->m_ptr;
-  if ( v66 != &v66[v64] )
+  v60 = 0;
+  v61 = &Asset->m_collidables.m_data->m_ptr;
+  if ( v61 != &v61[v59] )
   {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v68 = (__int64)v108;
+    v62 = (__int64)v96;
     do
     {
-      v69 = *v66;
-      if ( !*v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 584, ASSERT_TYPE_ASSERT, "(containerCollidable)", (const char *)&queryFormat, "containerCollidable") )
+      v63 = *v61;
+      if ( !*v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 584, ASSERT_TYPE_ASSERT, "(containerCollidable)", (const char *)&queryFormat, "containerCollidable") )
         __debugbreak();
-      _RDI = hclCollidable::createCopy(v69);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 588, ASSERT_TYPE_ASSERT, "(collidable)", (const char *)&queryFormat, "collidable") )
+      Copy = hclCollidable::createCopy(v63);
+      if ( !Copy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 588, ASSERT_TYPE_ASSERT, "(collidable)", (const char *)&queryFormat, "collidable") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+230h+var_210.baseclass_0.m_col0.m_quad]
-        vmovups xmmword ptr [rdi+20h], xmm0
-        vmovups xmm1, xmmword ptr [rbp+230h+var_210.baseclass_0.m_col1.m_quad]
-        vmovups xmmword ptr [rdi+30h], xmm1
-        vmovups xmm0, xmmword ptr [rbp+230h+var_210.baseclass_0.m_col2.m_quad]
-        vmovups xmmword ptr [rdi+40h], xmm0
-        vmovups xmm1, [rbp+230h+var_1E0]
-        vmovups xmmword ptr [rdi+50h], xmm1
-        vmovups xmmword ptr [rdi+70h], xmm6
-        vmovups xmmword ptr [rdi+60h], xmm6
-      }
-      HavokCloth_InstanceManager_SetCollidable(v18, Instance, v65, _RDI);
-      ++v66;
-      ++v65;
+      *(__m256i *)Copy->m_transform.m_rotation.m_col0.m_quad.m128_f32 = v106;
+      *(__m256i *)Copy->m_transform.m_rotation.m_col2.m_quad.m128_f32 = v107;
+      Copy->m_angularVelocity = 0i64;
+      Copy->m_linearVelocity = 0i64;
+      HavokCloth_InstanceManager_SetCollidable(v15, Instance, v60, Copy);
+      ++v61;
+      ++v60;
     }
-    while ( v66 != (hclCollidable **)(*(_QWORD *)(v68 + 24) + 8i64 * *(int *)(v68 + 32)) );
-    LODWORD(v12) = globalWorldIda;
+    while ( v61 != (hclCollidable **)(*(_QWORD *)(v62 + 24) + 8i64 * *(int *)(v62 + 32)) );
+    LODWORD(v11) = globalWorldIda;
   }
-  NumClothInstances = HavokCloth_InstanceManager_GetNumClothInstances(v18, Instance);
-  v76 = 0;
-  v77 = 0;
+  NumClothInstances = HavokCloth_InstanceManager_GetNumClothInstances(v15, Instance);
+  v66 = 0;
+  v67 = 0;
   if ( NumClothInstances )
   {
     do
     {
-      ClothInstance = HavokCloth_InstanceManager_GetClothInstance(manager, Instance, v77);
+      ClothInstance = HavokCloth_InstanceManager_GetClothInstance(manager, Instance, v67);
       if ( !ClothInstance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 607, ASSERT_TYPE_ASSERT, "(clothInstance)", (const char *)&queryFormat, "clothInstance") )
         __debugbreak();
-      _RDI = clothAsseta;
+      v69 = clothAsseta;
       if ( clothAsseta->bulletSupport )
       {
-        v80 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
-        if ( !v80 )
-          v80 = hkMemoryRouter::s_fallbackRouter;
-        v81 = (HavokCloth_PhysicsProxyAction *)v80->m_heap->blockAlloc(v80->m_heap, 120i64);
-        v103 = (hclClothData *)v81;
-        if ( v81 )
+        v70 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+        if ( !v70 )
+          v70 = hkMemoryRouter::s_fallbackRouter;
+        v71 = (HavokCloth_PhysicsProxyAction *)v70->m_heap->blockAlloc(v70->m_heap, 120i64);
+        v91 = (hclClothData *)v71;
+        if ( v71 )
         {
-          HavokCloth_PhysicsProxyAction::HavokCloth_PhysicsProxyAction(v81, v12, _RDI, Instance, v77);
-          v83 = v82;
+          HavokCloth_PhysicsProxyAction::HavokCloth_PhysicsProxyAction(v71, v11, v69, Instance, v67);
+          v73 = v72;
         }
         else
         {
-          v83 = NULL;
+          v73 = NULL;
         }
-        if ( !v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 614, ASSERT_TYPE_ASSERT, "(physicsProxyAction)", (const char *)&queryFormat, "physicsProxyAction") )
+        if ( !v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 614, ASSERT_TYPE_ASSERT, "(physicsProxyAction)", (const char *)&queryFormat, "physicsProxyAction") )
           __debugbreak();
-        hclClothInstance::addAction(ClothInstance, v83);
-        HavokCloth_InstanceManager_SetPhysicsProxyAction(manager, Instance, v77, v83);
-        hkReferencedObject::removeReference(v83);
-        _RDI = clothAsseta;
+        hclClothInstance::addAction(ClothInstance, v73);
+        HavokCloth_InstanceManager_SetPhysicsProxyAction(manager, Instance, v67, v73);
+        hkReferencedObject::removeReference(v73);
+        v69 = clothAsseta;
       }
-      if ( _RDI->vectorFieldSupport )
+      if ( v69->vectorFieldSupport )
       {
-        v84 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
-        if ( !v84 )
-          v84 = hkMemoryRouter::s_fallbackRouter;
-        v85 = (HavokCloth_VectorFieldAction *)v84->m_heap->blockAlloc(v84->m_heap, 40i64);
-        v103 = (hclClothData *)v85;
-        if ( v85 )
+        v74 = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+        if ( !v74 )
+          v74 = hkMemoryRouter::s_fallbackRouter;
+        v75 = (HavokCloth_VectorFieldAction *)v74->m_heap->blockAlloc(v74->m_heap, 40i64);
+        v91 = (hclClothData *)v75;
+        if ( v75 )
         {
-          __asm { vmovss  xmm3, dword ptr [rdi+4Ch]; drag }
-          HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction(v85, v12, Instance, *(const float *)&_XMM3);
-          v88 = v87;
+          HavokCloth_VectorFieldAction::HavokCloth_VectorFieldAction(v75, v11, Instance, v69->vectorFieldDrag);
+          v77 = v76;
         }
         else
         {
-          v88 = NULL;
+          v77 = NULL;
         }
-        if ( !v88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 627, ASSERT_TYPE_ASSERT, "(vectorFieldAction)", (const char *)&queryFormat, "vectorFieldAction") )
+        if ( !v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 627, ASSERT_TYPE_ASSERT, "(vectorFieldAction)", (const char *)&queryFormat, "vectorFieldAction") )
           __debugbreak();
-        hclClothInstance::addAction(ClothInstance, v88);
-        hkReferencedObject::removeReference(v88);
-        _RDI = clothAsseta;
+        hclClothInstance::addAction(ClothInstance, v77);
+        hkReferencedObject::removeReference(v77);
+        v69 = clothAsseta;
       }
       hclWorld::addClothInstance(world, ClothInstance);
-      v89 = HavokCloth_CalculateRuntimeMemoryRequirement(world, ClothInstance);
-      if ( v76 > v89 )
-        v89 = v76;
-      v76 = v89;
-      ++v77;
+      v78 = HavokCloth_CalculateRuntimeMemoryRequirement(world, ClothInstance);
+      if ( v66 > v78 )
+        v78 = v66;
+      v66 = v78;
+      ++v67;
     }
-    while ( v77 < NumClothInstances );
-    if ( v89 > 0x8000 )
+    while ( v67 < NumClothInstances );
+    if ( v78 > 0x8000 )
     {
       LODWORD(fmt) = 0x8000;
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14431E050, 76i64, _RDI->name, fmt);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14431E050, 76i64, v69->name, fmt);
     }
   }
-  HavokCloth_InstanceManager_SetRuntimeMemoryRequirements(manager, Instance, v76);
-  HavokCloth_Update_SetNeedsSoundUpdate(v12, Instance, clothAsseta->soundCount != 0);
+  HavokCloth_InstanceManager_SetRuntimeMemoryRequirements(manager, Instance, v66);
+  HavokCloth_Update_SetNeedsSoundUpdate(v11, Instance, clothAsseta->soundCount != 0);
   Sys_ProfEndNamedEvent();
-  result = Instance;
-  __asm { vmovaps xmm6, [rsp+330h+var_50] }
-  return result;
+  return Instance;
 }
 
 /*
@@ -2122,24 +2092,16 @@ void HavokCloth_RebindInstance(const unsigned int globalWorldId, const unsigned 
 HavokCloth_SetBlendedSpeed
 ==============
 */
-
-void __fastcall HavokCloth_SetBlendedSpeed(const unsigned int globalWorldId, const unsigned int instanceId, double speed)
+void HavokCloth_SetBlendedSpeed(const unsigned int globalWorldId, const unsigned int instanceId, float speed)
 {
-  __int64 v5; 
+  __int64 v4; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v5 = globalWorldId;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = globalWorldId;
   if ( globalWorldId >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 1028, ASSERT_TYPE_ASSERT, "(unsigned)( globalWorldId ) < (unsigned)( s_HavokCloth_GlobalClothWorldMax )", "globalWorldId doesn't index s_HavokCloth_GlobalClothWorldMax\n\t%i not in [0, %i)", globalWorldId, 2) )
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\havok\\havokcloth.cpp", 1029, ASSERT_TYPE_ASSERT, "(instanceId != HAVOKCLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != HAVOKCLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm2, xmm6; speed
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  HavokCloth_InstanceManager_SetBlendedSpeed(&s_HavokCloth_InstanceManagers[v5], instanceId, *(float *)&_XMM2);
+  HavokCloth_InstanceManager_SetBlendedSpeed(&s_HavokCloth_InstanceManagers[v4], instanceId, speed);
 }
 
 /*

@@ -61,282 +61,175 @@ double __fastcall AD_ScrutinizeSample(const float in)
 AD_CalcBiquadCoefficientsAtRate
 ==============
 */
-
-void __fastcall AD_CalcBiquadCoefficientsAtRate(AD_BiquadCoeffs *const coeffs, __int64 type, double freqIn, double qIn, const float gain)
+void AD_CalcBiquadCoefficientsAtRate(AD_BiquadCoeffs *const coeffs, __int64 type, const float freqIn, const float qIn, const float gain, const unsigned int rate)
 {
-  __int64 v5; 
   __int64 v6; 
-  unsigned int v21; 
-  char v153; 
-  void *retaddr; 
+  __int64 v7; 
+  unsigned int v9; 
+  float v11; 
+  __int128 v13; 
+  float v15; 
+  __int128 v18; 
+  float v20; 
+  float v22; 
+  __m128 v23; 
+  float v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  double v30; 
+  float v31; 
+  double v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  double v52; 
+  double v53; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = coeffs;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-  }
-  v21 = type;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
+  v9 = type;
   if ( !coeffs && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", 23, ASSERT_TYPE_ASSERT, "coeffs", "coeffs") )
     __debugbreak();
-  __asm
+  v11 = FLOAT_1_0;
+  v13 = 0i64;
+  *(float *)&v13 = freqIn;
+  _XMM3 = v13;
+  __asm { vmaxss  xmm3, xmm3, xmm2 }
+  v15 = (float)rate;
+  __asm { vminss  xmm3, xmm3, xmm2 }
+  v18 = 0i64;
+  *(float *)&v18 = qIn;
+  _XMM9 = v18;
+  __asm { vmaxss  xmm9, xmm9, xmm1 }
+  v20 = (float)(*(float *)&_XMM3 / v15) * 6.2831855;
+  __asm { vminss  xmm9, xmm9, xmm1 }
+  v23.m128_u64[1] = *((_QWORD *)&_XMM3 + 1);
+  v22 = 0.0;
+  *(double *)v23.m128_u64 = j___libm_sse2_sincosf_(coeffs, type, v6, v7);
+  v24 = v23.m128_f32[0];
+  LODWORD(v25) = _mm_shuffle_ps(v23, v23, 1).m128_u32[0];
+  if ( v9 <= 1 )
   {
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm11, cs:__real@37803e84
-    vmovss  xmm10, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps xmm1, xmm6
-    vmovss  xmm3, xmm0, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vmaxss  xmm3, xmm3, xmm2
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, rax
-    vmulss  xmm2, xmm4, xmm8
-    vmovaps xmm1, xmm2
-    vminss  xmm3, xmm3, xmm2
-    vmovaps xmm1, xmm11
-    vmovaps xmm2, xmm7
-    vmovss  xmm9, xmm0, xmm2
-    vmaxss  xmm9, xmm9, xmm1
-    vdivss  xmm0, xmm3, xmm4
-    vmulss  xmm13, xmm0, cs:__real@40c90fdb
-    vmovaps xmm1, xmm10
-    vminss  xmm9, xmm9, xmm1
-    vmovaps xmm1, xmm13
-    vmovaps xmm0, xmm1
-    vxorps  xmm6, xmm6, xmm6
-  }
-  *(double *)&_XMM0 = j___libm_sse2_sincosf_(coeffs, type, v5, v6);
-  __asm
-  {
-    vmovups xmm7, xmm0
-    vshufps xmm12, xmm0, xmm0, 1
-  }
-  if ( v21 <= 1 )
-  {
-    __asm
+    if ( COERCE_FLOAT(v23.m128_i32[0] & _xmm) <= 0.0000152879 )
     {
-      vandps  xmm0, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, xmm11
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm9, xmm9, xmm9
+      v27 = 0.0;
+      v28 = 0.0;
+      v29 = 0.0;
+      goto LABEL_22;
     }
+    v30 = AD_ScrutinizeSample((float)((float)(*(float *)&_XMM9 * 0.34657359) * v20) / v23.m128_f32[0]);
+    *(float *)&v30 = sinhf_0(*(float *)&v30);
+    v26 = AD_ScrutinizeSample(*(const float *)&v30);
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm8, xmm9
-      vmovaps [rsp+0D8h+var_98], xmm14
-      vmulss  xmm0, xmm7, xmm0; in
-      vmovaps [rsp+0D8h+var_A8], xmm15
-    }
-    *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-    __asm { vmovaps xmm7, xmm0 }
-    switch ( v21 )
-    {
-      case 0u:
-        __asm
-        {
-          vsubss  xmm13, xmm10, xmm12; jumptable 00000001437EB9E9 case 0
-          vmulss  xmm11, xmm13, xmm8
-        }
-        goto LABEL_9;
-      case 1u:
-        __asm
-        {
-          vaddss  xmm0, xmm12, xmm10; jumptable 00000001437EB9E9 case 1
-          vaddss  xmm1, xmm12, xmm10
-          vxorps  xmm13, xmm1, cs:__xmm@80000000800000008000000080000000
-          vmulss  xmm11, xmm0, xmm8
-        }
-LABEL_9:
-        __asm
-        {
-          vmulss  xmm4, xmm12, cs:__real@c0000000
-          vaddss  xmm14, xmm7, xmm10
-          vmovaps xmm15, xmm11
-          vsubss  xmm6, xmm10, xmm7
-        }
-        goto LABEL_19;
-      case 2u:
-        __asm
-        {
-          vmovss  xmm0, [rsp+0D8h+gain]; jumptable 00000001437EB9E9 case 2
-          vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-          vmovss  xmm0, cs:__real@41200000; X
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vsubss  xmm6, xmm0, xmm10
-          vaddss  xmm3, xmm0, xmm10
-          vmovaps xmm8, xmm0
-          vsqrtss xmm1, xmm8, xmm0
-          vmulss  xmm2, xmm1, xmm7
-          vmovss  xmm7, cs:__real@40000000
-          vmulss  xmm9, xmm2, xmm7
-          vmulss  xmm2, xmm6, xmm12
-          vsubss  xmm4, xmm3, xmm2
-          vaddss  xmm1, xmm4, xmm9
-          vmulss  xmm11, xmm1, xmm0
-          vmulss  xmm5, xmm3, xmm12
-          vsubss  xmm1, xmm6, xmm5
-          vmulss  xmm0, xmm1, xmm0
-          vaddss  xmm3, xmm3, xmm2
-          vmulss  xmm2, xmm6, cs:__real@c0000000
-          vsubss  xmm1, xmm4, xmm9
-          vmulss  xmm13, xmm0, xmm7
-          vmulss  xmm0, xmm5, xmm7
-          vsubss  xmm4, xmm2, xmm0
-          vaddss  xmm14, xmm3, xmm9
-          vmulss  xmm15, xmm1, xmm8
-          vsubss  xmm6, xmm3, xmm9
-        }
-        goto LABEL_19;
-      case 3u:
-        __asm
-        {
-          vmovss  xmm0, [rsp+0D8h+gain]; jumptable 00000001437EB9E9 case 3
-          vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-          vmovss  xmm0, cs:__real@41200000; X
-        }
-        *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vsubss  xmm6, xmm0, xmm10
-          vmovaps xmm9, xmm0
-          vsqrtss xmm1, xmm9, xmm0
-          vmulss  xmm2, xmm1, xmm7
-          vmulss  xmm8, xmm2, cs:__real@40000000
-          vaddss  xmm2, xmm0, xmm10
-          vmulss  xmm4, xmm2, xmm12
-          vmulss  xmm3, xmm6, xmm12
-          vaddss  xmm5, xmm2, xmm3
-          vaddss  xmm1, xmm5, xmm8
-          vmulss  xmm11, xmm1, xmm0
-          vaddss  xmm1, xmm6, xmm4
-          vmulss  xmm0, xmm1, xmm0
-          vmulss  xmm13, xmm0, cs:__real@c0000000
-          vsubss  xmm0, xmm6, xmm4
-          vmulss  xmm4, xmm0, cs:__real@40000000
-          vsubss  xmm2, xmm2, xmm3
-          vsubss  xmm1, xmm5, xmm8
-          vaddss  xmm14, xmm2, xmm8
-          vmulss  xmm15, xmm1, xmm9
-          vsubss  xmm6, xmm2, xmm8
-        }
-        goto LABEL_19;
-      case 4u:
-        __asm
-        {
-          vmovss  xmm0, [rsp+0D8h+gain]; jumptable 00000001437EB9E9 case 4
-          vmulss  xmm1, xmm0, cs:__real@3ccccccd; Y
-          vmovss  xmm0, cs:__real@41200000; X
-        }
-        powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmulss  xmm13, xmm12, cs:__real@c0000000
-          vmulss  xmm2, xmm7, xmm0
-          vdivss  xmm1, xmm7, xmm0
-          vaddss  xmm11, xmm2, xmm10
-          vaddss  xmm14, xmm1, xmm10
-          vsubss  xmm15, xmm10, xmm2
-          vsubss  xmm6, xmm10, xmm1
-          vmovaps xmm4, xmm13
-        }
-        goto LABEL_19;
-      case 5u:
-        __asm
-        {
-          vxorps  xmm15, xmm7, cs:__xmm@80000000800000008000000080000000; jumptable 00000001437EB9E9 case 5
-          vmulss  xmm4, xmm12, cs:__real@c0000000
-          vmovaps xmm11, xmm7
-          vaddss  xmm14, xmm7, xmm10
-          vsubss  xmm6, xmm10, xmm7
-        }
-        goto LABEL_18;
-      default:
-        AD_LogFunc("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", "145", (const AD_LogCategory)5, "Unhandled eq type");
-        if ( (unsigned int)AD_GetLogBreakLevel() <= 5 )
-          __debugbreak();
-        __asm
-        {
-          vmovaps xmm11, xmm10
-          vmovaps xmm14, xmm10
-          vxorps  xmm15, xmm15, xmm15
-          vxorps  xmm4, xmm4, xmm4
-        }
-LABEL_18:
-        __asm { vxorps  xmm13, xmm13, xmm13 }
-LABEL_19:
-        __asm
-        {
-          vdivss  xmm0, xmm10, xmm14
-          vmulss  xmm8, xmm0, xmm15
-          vmovaps xmm15, [rsp+0D8h+var_A8]
-          vdivss  xmm10, xmm11, xmm14
-          vmovaps xmm14, [rsp+0D8h+var_98]
-          vmulss  xmm6, xmm0, xmm6
-          vmulss  xmm7, xmm0, xmm4
-          vmulss  xmm9, xmm0, xmm13
-        }
-        break;
-    }
+    *(float *)&v26 = 0.5 / *(float *)&_XMM9;
   }
-  __asm { vmovaps xmm0, xmm10; in }
-  *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-  __asm
+  v31 = v24 * *(float *)&v26;
+  v32 = AD_ScrutinizeSample(v24 * *(float *)&v26);
+  switch ( v9 )
   {
-    vmovss  dword ptr [rbx], xmm0
-    vmovaps xmm0, xmm9; in
+    case 0u:
+      v33 = 1.0 - v25;
+      v34 = (float)(1.0 - v25) * 0.5;
+      goto LABEL_11;
+    case 1u:
+      LODWORD(v33) = COERCE_UNSIGNED_INT(v25 + 1.0) ^ _xmm;
+      v34 = (float)(v25 + 1.0) * 0.5;
+LABEL_11:
+      v35 = v25 * -2.0;
+      v36 = v31 + 1.0;
+      v37 = v34;
+      v22 = 1.0 - v31;
+      goto LABEL_21;
+    case 2u:
+      v38 = powf_0(10.0, gain * 0.025);
+      v39 = (float)(fsqrt(v38) * v31) * 2.0;
+      v40 = (float)(v38 + 1.0) - (float)((float)(v38 - 1.0) * v25);
+      v34 = (float)(v40 + v39) * v38;
+      v41 = (float)(v38 + 1.0) + (float)((float)(v38 - 1.0) * v25);
+      v42 = v40 - v39;
+      v33 = (float)((float)((float)(v38 - 1.0) - (float)((float)(v38 + 1.0) * v25)) * v38) * 2.0;
+      v35 = (float)((float)(v38 - 1.0) * -2.0) - (float)((float)((float)(v38 + 1.0) * v25) * 2.0);
+      v36 = v41 + v39;
+      v37 = v42 * v38;
+      v22 = v41 - v39;
+      goto LABEL_21;
+    case 3u:
+      v43 = powf_0(10.0, gain * 0.025);
+      v44 = (float)(fsqrt(v43) * v31) * 2.0;
+      v45 = (float)(v43 + 1.0) * v25;
+      v46 = (float)(v43 - 1.0) * v25;
+      v34 = (float)((float)((float)(v43 + 1.0) + v46) + v44) * v43;
+      v33 = (float)((float)((float)(v43 - 1.0) + v45) * v43) * -2.0;
+      v35 = (float)((float)(v43 - 1.0) - v45) * 2.0;
+      v47 = (float)(v43 + 1.0) - v46;
+      v36 = v47 + v44;
+      v37 = (float)((float)((float)(v43 + 1.0) + v46) - v44) * v43;
+      v22 = v47 - v44;
+      goto LABEL_21;
+    case 4u:
+      v48 = powf_0(10.0, gain * 0.025);
+      v33 = v25 * -2.0;
+      v34 = (float)(v31 * v48) + 1.0;
+      v36 = (float)(v31 / v48) + 1.0;
+      v37 = 1.0 - (float)(v31 * v48);
+      v22 = 1.0 - (float)(v31 / v48);
+      v35 = v25 * -2.0;
+      goto LABEL_21;
+    case 5u:
+      LODWORD(v37) = LODWORD(v32) ^ _xmm;
+      v35 = v25 * -2.0;
+      v34 = *(float *)&v32;
+      v36 = *(float *)&v32 + 1.0;
+      v22 = 1.0 - *(float *)&v32;
+      goto LABEL_20;
+    default:
+      AD_LogFunc("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", "145", (const AD_LogCategory)5, "Unhandled eq type");
+      if ( (unsigned int)AD_GetLogBreakLevel() <= 5 )
+        __debugbreak();
+      v34 = FLOAT_1_0;
+      v36 = FLOAT_1_0;
+      v37 = 0.0;
+      v35 = 0.0;
+LABEL_20:
+      v33 = 0.0;
+LABEL_21:
+      v28 = (float)(1.0 / v36) * v37;
+      v11 = v34 / v36;
+      v22 = (float)(1.0 / v36) * v22;
+      v27 = (float)(1.0 / v36) * v35;
+      v29 = (float)(1.0 / v36) * v33;
+      break;
   }
-  *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovaps xmm0, xmm8; in
-  }
-  *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovaps xmm0, xmm7; in
-  }
-  *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+0Ch], xmm0
-    vmovaps xmm0, xmm6; in
-  }
-  *(double *)&_XMM0 = AD_ScrutinizeSample(*(const float *)&_XMM0);
-  _R11 = &v153;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+LABEL_22:
+  v49 = AD_ScrutinizeSample(v11);
+  coeffs->a0 = *(float *)&v49;
+  v50 = AD_ScrutinizeSample(v29);
+  coeffs->a1 = *(float *)&v50;
+  v51 = AD_ScrutinizeSample(v28);
+  coeffs->a2 = *(float *)&v51;
+  v52 = AD_ScrutinizeSample(v27);
+  coeffs->a3 = *(float *)&v52;
+  v53 = AD_ScrutinizeSample(v22);
+  coeffs->a4 = *(float *)&v53;
 }
 
 /*
@@ -375,45 +268,19 @@ void AD_ResetBiquadState(AD_BiquadState *const state)
 AD_ScrutinizeSample
 ==============
 */
-
-float __fastcall AD_ScrutinizeSample(double in)
+float AD_ScrutinizeSample(float in)
 {
-  __int16 v3; 
-  bool v4; 
-  bool v5; 
   float Px; 
 
-  __asm
+  Px = in;
+  if ( _fdtest(&Px) == 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", 14, ASSERT_TYPE_ASSERT, "!std::isnan( in )", "!std::isnan( in )") )
+    __debugbreak();
+  if ( in != 0.0 )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vmovss  [rsp+48h+Px], xmm0
-  }
-  v3 = _fdtest(&Px);
-  v4 = v3 == 2;
-  if ( v3 == 2 )
-  {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", 14, ASSERT_TYPE_ASSERT, "!std::isnan( in )", "!std::isnan( in )");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( !v4 )
-  {
-    __asm { vmovss  [rsp+48h+Px], xmm6 }
+    Px = in;
     if ( _fdtest(&Px) != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_math.cpp", 15, ASSERT_TYPE_ASSERT, "in == 0 || std::isnormal( in )", "in == 0 || std::isnormal( in )") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return in;
 }
 

@@ -408,11 +408,12 @@ StreamUpdateId QueueImageCmd(StreamBackendQueueCommandType type, const GfxImage 
   StreamFrontendGlob *v10; 
   unsigned int *mUse; 
   unsigned int v12; 
-  StreamUpdateId v16; 
-  __int64 v18; 
-  __int64 v19; 
+  BackendCommand *Command; 
+  StreamUpdateId v14; 
+  __int64 v16; 
+  __int64 v17; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v21; 
+  ScopedCriticalSection v19; 
 
   v3 = part;
   v5 = type;
@@ -424,8 +425,8 @@ StreamUpdateId QueueImageCmd(StreamBackendQueueCommandType type, const GfxImage 
     __debugbreak();
   if ( v3 >= image->streamedPartCount )
   {
-    LODWORD(v18) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 668, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v18, image->streamedPartCount) )
+    LODWORD(v16) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 668, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v16, image->streamedPartCount) )
       __debugbreak();
   }
   v6 = 0;
@@ -439,9 +440,9 @@ StreamUpdateId QueueImageCmd(StreamBackendQueueCommandType type, const GfxImage 
       v10 = streamFrontendGlob;
       if ( v8 >= streamFrontendGlob->imageBits.mBitCount )
       {
-        LODWORD(v19) = streamFrontendGlob->imageBits.mBitCount;
-        LODWORD(v18) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v18, v19) )
+        LODWORD(v17) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(v16) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
       mUse = v10->imageBits.mUse;
@@ -463,25 +464,16 @@ StreamUpdateId QueueImageCmd(StreamBackendQueueCommandType type, const GfxImage 
   if ( v6 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v6, "unsigned", v6) )
     __debugbreak();
   *((_WORD *)&item.m_type + 1) = v6;
-  ScopedCriticalSection::ScopedCriticalSection(&v21, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
-  _RBX = GetCommand();
-  *((_BYTE *)_RBX + 3) = v5;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0B8h+item.___u0]
-    vmovups xmmword ptr [rax+8], xmm0
-  }
+  ScopedCriticalSection::ScopedCriticalSection(&v19, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  Command = GetCommand();
+  *((_BYTE *)Command + 3) = v5;
+  *(Stream_Logger_Item *)&Command->mapCmd.baseAddrHandle.data = item;
   item.m_type = STREAM_ITEM_IMAGE;
   item.m_image = image;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0B8h+item.___u0]
-    vmovdqa xmmword ptr [rsp+0B8h+item.___u0], xmm0
-  }
-  Stream_Logger_OnQueueCommand("QueueImageCmd", NULL, &item, v5, _RBX->imageCmd.part);
-  v16 = QueueCommand_0_((StreamUpdateId)0i64, _RBX);
-  ScopedCriticalSection::~ScopedCriticalSection(&v21);
-  return v16;
+  Stream_Logger_OnQueueCommand("QueueImageCmd", NULL, &item, v5, Command->imageCmd.part);
+  v14 = QueueCommand_0_((StreamUpdateId)0i64, Command);
+  ScopedCriticalSection::~ScopedCriticalSection(&v19);
+  return v14;
 }
 
 /*
@@ -491,23 +483,18 @@ RB_Stream_BackendFrameBegin
 */
 void RB_Stream_BackendFrameBegin(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
-  GfxCmdBufContext v5; 
-  ScopedCriticalSection v6; 
+  GfxCmdBufContext v4; 
+  ScopedCriticalSection v5; 
 
-  _RDI = gfxContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "RB_Stream_BackendFrameBegin");
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1641, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()", -2i64) )
     __debugbreak();
   if ( R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 23, ASSERT_TYPE_ASSERT, "(!R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "!R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v6, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+78h+var_38], xmm0
-  }
-  Stream_Defrag_FrameBegin(&v5, data);
-  ScopedCriticalSection::~ScopedCriticalSection(&v6);
+  ScopedCriticalSection::ScopedCriticalSection(&v5, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  v4 = *gfxContext;
+  Stream_Defrag_FrameBegin(&v4, data);
+  ScopedCriticalSection::~ScopedCriticalSection(&v5);
   Sys_ProfEndNamedEvent();
 }
 
@@ -521,14 +508,13 @@ void RB_Stream_BackendFrameEnd(GfxCmdBufContext *gfxContext, const GfxBackEndDat
   const dvar_t *v4; 
   bool v5; 
   StreamUpdateId currentUpdateId; 
-  StreamBackendGlob *v10; 
+  StreamBackendGlob *v7; 
   StreamUpdateId currentAllMapsAndUnmapsCompleteId; 
-  GfxCmdBufContext v12; 
-  GfxCmdBufContext v13; 
-  GfxCmdBufContext v14; 
-  ScopedCriticalSection v15; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
+  ScopedCriticalSection v12; 
 
-  _RSI = gfxContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "RB_Stream_BackendFrameEnd");
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1664, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
@@ -538,7 +524,7 @@ void RB_Stream_BackendFrameEnd(GfxCmdBufContext *gfxContext, const GfxBackEndDat
     __debugbreak();
   if ( R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 23, ASSERT_TYPE_ASSERT, "(!R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "!R_IsLockedGfxImmediateContext()") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v15, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v12, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   RB_Texture_BeginAllowStreamedTextureUpdate(data);
   v4 = r_debugShaderTexture;
   if ( !r_debugShaderTexture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 627, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
@@ -547,41 +533,29 @@ void RB_Stream_BackendFrameEnd(GfxCmdBufContext *gfxContext, const GfxBackEndDat
   v5 = v4->current.integer == 10 && !r_deviceDebug->current.enabled;
   Stream_Debug_UpdateTexturesForDebugShader(data, v5);
   Stream_BackendQueue_ExecTextureDescCopies(data);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0B8h+var_58], xmm0
-  }
-  Stream_Defrag_FrameEnd(&v12, data);
+  v9 = *gfxContext;
+  Stream_Defrag_FrameEnd(&v9, data);
   currentUpdateId = s_streamBackendGlob->currentUpdateId;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0B8h+var_48], xmm0
-  }
-  Stream_BackendQueue_Update(&v13, data, currentUpdateId);
+  v10 = *gfxContext;
+  Stream_BackendQueue_Update(&v10, data, currentUpdateId);
   if ( GetCommandQueue(currentUpdateId)->commands.mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1721, ASSERT_TYPE_ASSERT, "(GetCommandQueue( id )->commands.Empty())", (const char *)&queryFormat, "GetCommandQueue( id )->commands.Empty()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0B8h+var_38], xmm0
-  }
-  Stream_Defrag_IssueCopies(&v14);
-  v10 = s_streamBackendGlob;
+  v11 = *gfxContext;
+  Stream_Defrag_IssueCopies(&v11);
+  v7 = s_streamBackendGlob;
   if ( currentUpdateId != s_streamBackendGlob->currentUpdateId )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1727, ASSERT_TYPE_ASSERT, "( id ) == ( s_streamBackendGlob->currentUpdateId )", "%s == %s\n\t%llu, %llu", (const char *)&valueOut, "s_streamBackendGlob->currentUpdateId", currentUpdateId, s_streamBackendGlob->currentUpdateId) )
       __debugbreak();
-    v10 = s_streamBackendGlob;
+    v7 = s_streamBackendGlob;
   }
-  currentAllMapsAndUnmapsCompleteId = ++v10->currentUpdateId;
-  if ( v10->currentAllMapsAndUnmapsCompleteId > (unsigned __int64)currentAllMapsAndUnmapsCompleteId )
-    currentAllMapsAndUnmapsCompleteId = v10->currentAllMapsAndUnmapsCompleteId;
-  v10->currentAllMapsAndUnmapsCompleteId = currentAllMapsAndUnmapsCompleteId;
+  currentAllMapsAndUnmapsCompleteId = ++v7->currentUpdateId;
+  if ( v7->currentAllMapsAndUnmapsCompleteId > (unsigned __int64)currentAllMapsAndUnmapsCompleteId )
+    currentAllMapsAndUnmapsCompleteId = v7->currentAllMapsAndUnmapsCompleteId;
+  v7->currentAllMapsAndUnmapsCompleteId = currentAllMapsAndUnmapsCompleteId;
   s_streamBackendGlob->currentUpdateBackendDataIndex = ((unsigned __int8)R_GetBackEndDataIndex(data) - 1) & 1;
   RB_Texture_EndAllowStreamedTextureUpdate(data);
-  ScopedCriticalSection::~ScopedCriticalSection(&v15);
+  ScopedCriticalSection::~ScopedCriticalSection(&v12);
   Sys_ProfEndNamedEvent();
 }
 
@@ -766,13 +740,13 @@ void Stream_BackendQueue_ExecLoadImageCmd(const GfxBackEndData *data, ImageCmdDa
   unsigned int part; 
   unsigned int imagePartsInUseBefore; 
   __int64 ImageClampedPartIndex; 
-  unsigned int v9; 
-  __int64 v10; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
   CopyTextureDescCommand *Frame; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v13; 
+  __int64 v14; 
   Stream_Logger_Item item; 
 
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1225, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -786,78 +760,68 @@ void Stream_BackendQueue_ExecLoadImageCmd(const GfxBackEndData *data, ImageCmdDa
     __debugbreak();
   if ( part >= image->streamedPartCount )
   {
-    LODWORD(v15) = part;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1233, ASSERT_TYPE_ASSERT, "(unsigned)( unclampedPart ) < (unsigned)( image->streamedPartCount )", "unclampedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v15, image->streamedPartCount) )
+    LODWORD(v13) = part;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1233, ASSERT_TYPE_ASSERT, "(unsigned)( unclampedPart ) < (unsigned)( image->streamedPartCount )", "unclampedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v13, image->streamedPartCount) )
       __debugbreak();
   }
   item.m_type = STREAM_ITEM_IMAGE;
   item.m_image = image;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnLoad("Stream_BackendQueue_ExecLoadImageCmd", data, &item, part);
   ImageClampedPartIndex = (unsigned int)GetImageClampedPartIndex(image, imagePartsInUseBefore);
-  v9 = GetImageClampedPartIndex(image, imagePartsInUseBefore | (1 << part));
-  v10 = v9;
-  if ( v9 != 4 )
+  v8 = GetImageClampedPartIndex(image, imagePartsInUseBefore | (1 << part));
+  v9 = v8;
+  if ( v8 != 4 )
   {
-    if ( v9 >= image->streamedPartCount )
+    if ( v8 >= image->streamedPartCount )
     {
-      LODWORD(v16) = image->streamedPartCount;
-      LODWORD(v15) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1247, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v15, v16) )
+      LODWORD(v14) = image->streamedPartCount;
+      LODWORD(v13) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1247, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v13, v14) )
         __debugbreak();
     }
     if ( (_DWORD)ImageClampedPartIndex == 4 )
-      v11 = 0;
+      v10 = 0;
     else
-      v11 = image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF;
-    v12 = image->streams[v10].levelCountAndSize & 0xF;
-    if ( v12 < v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1251, ASSERT_TYPE_ASSERT, "( newLevelCount ) >= ( oldLevelCount )", "%s >= %s\n\t%u, %u", "newLevelCount", "oldLevelCount", image->streams[v10].levelCountAndSize & 0xF, v11) )
+      v10 = image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF;
+    v11 = image->streams[v9].levelCountAndSize & 0xF;
+    if ( v11 < v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1251, ASSERT_TYPE_ASSERT, "( newLevelCount ) >= ( oldLevelCount )", "%s >= %s\n\t%u, %u", "newLevelCount", "oldLevelCount", image->streams[v9].levelCountAndSize & 0xF, v10) )
       __debugbreak();
+    if ( v10 > image->levelCount )
+    {
+      LODWORD(v14) = image->levelCount;
+      LODWORD(v13) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1252, ASSERT_TYPE_ASSERT, "( oldLevelCount ) <= ( image->levelCount )", "oldLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v13, v14) )
+        __debugbreak();
+    }
     if ( v11 > image->levelCount )
     {
-      LODWORD(v16) = image->levelCount;
-      LODWORD(v15) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1252, ASSERT_TYPE_ASSERT, "( oldLevelCount ) <= ( image->levelCount )", "oldLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v15, v16) )
+      LODWORD(v14) = image->levelCount;
+      LODWORD(v13) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1253, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( image->levelCount )", "newLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v13, v14) )
         __debugbreak();
     }
-    if ( v12 > image->levelCount )
-    {
-      LODWORD(v16) = image->levelCount;
-      LODWORD(v15) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1253, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( image->levelCount )", "newLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v15, v16) )
-        __debugbreak();
-    }
-    if ( v12 > v11 )
+    if ( v11 > v10 )
     {
       if ( RB_Texture_HasStreamedFallbackAssigned(data, image->textureId) )
       {
         RB_Texture_FixupStreamedPixelsPtr(data, image, 0);
         item.m_type = STREAM_ITEM_IMAGE;
         item.m_image = image;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-          vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-        }
         Stream_Logger_OnPatchDescriptor("Stream_BackendQueue_ExecLoadImageCmd", data, &item, 0, 0);
       }
-      Stream_BackendQueue_UpdateMostDetailedMip(data, image, v12);
-      if ( (unsigned int)v10 >= 4 )
+      Stream_BackendQueue_UpdateMostDetailedMip(data, image, v11);
+      if ( (unsigned int)v9 >= 4 )
       {
-        LODWORD(v16) = 4;
-        LODWORD(v15) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1136, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( IMAGE_STREAM_COUNT )", "part doesn't index IMAGE_STREAM_COUNT\n\t%i not in [0, %i)", v15, v16) )
+        LODWORD(v14) = 4;
+        LODWORD(v13) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1136, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( IMAGE_STREAM_COUNT )", "part doesn't index IMAGE_STREAM_COUNT\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
       }
       Frame = Stream_BackendQueue_QueueCopyTextureDescNextFrame(data, image, 1u);
       if ( Frame )
-        *Frame = (CopyTextureDescCommand)(*(_DWORD *)Frame ^ (*(_DWORD *)Frame ^ ((_DWORD)v10 << 21)) & 0x600000 | 0x80000);
+        *Frame = (CopyTextureDescCommand)(*(_DWORD *)Frame ^ (*(_DWORD *)Frame ^ ((_DWORD)v9 << 21)) & 0x600000 | 0x80000);
       else
-        Stream_BackendQueue_MarkUpToImagePartLoaded(image, v10);
+        Stream_BackendQueue_MarkUpToImagePartLoaded(image, v9);
     }
   }
 }
@@ -893,38 +857,38 @@ __int64 Stream_BackendQueue_ExecMapCmd(const GfxBackEndData *data, StreamMapCmdD
   int v26; 
   StreamerMemPageCounts *v27; 
   __int64 v28; 
-  unsigned int v31; 
+  unsigned int v29; 
+  unsigned int v30; 
+  streamer_handle_t *v31; 
   unsigned int v32; 
-  streamer_handle_t *v33; 
-  unsigned int v34; 
-  StreamerMemPageCounts *v35; 
-  __int64 v36; 
-  int v37; 
-  StreamerMemPageCounts *v38; 
+  StreamerMemPageCounts *v33; 
+  __int64 v34; 
+  int v35; 
+  StreamerMemPageCounts *v36; 
+  __int64 v37; 
+  int v38; 
   __int64 v39; 
   int v40; 
-  __int64 v41; 
-  int v42; 
-  int v43; 
+  int v41; 
   StreamerMemPageCounts *p_pagesTaken; 
-  __int64 v45; 
-  StreamerMemPageCounts *v46; 
-  StreamerMemPageCounts *v47; 
-  unsigned int v48; 
-  __int64 v50; 
-  __int64 v51; 
+  __int64 v43; 
+  StreamerMemPageCounts *v44; 
+  StreamerMemPageCounts *v45; 
+  unsigned int v46; 
+  __int64 v48; 
+  __int64 v49; 
   unsigned int outPageDeficitOrCommitCount; 
   streamer_handle_t *handle; 
   GfxBackEndData *dataa; 
-  StreamerMemPageCounts *v55; 
-  __int64 v56; 
+  StreamerMemPageCounts *v53; 
+  __int64 v54; 
   Stream_Logger_Item item; 
   Stream_Logger_Item result; 
   StreamerMemLoan optionalLoan; 
   StreamerMemPageCounts pagesTaken; 
 
-  v56 = -2i64;
-  v55 = pageAdjust;
+  v54 = -2i64;
+  v53 = pageAdjust;
   handle = &map->baseAddrHandle;
   dataa = (GfxBackEndData *)data;
   v5 = 0;
@@ -1007,16 +971,16 @@ __int64 Stream_BackendQueue_ExecMapCmd(const GfxBackEndData *data, StreamMapCmdD
       }
       while ( v28 != v12 );
     }
-    LODWORD(v51) = v26;
-    LODWORD(v50) = v22;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 853, ASSERT_TYPE_ASSERT, "( pageCount ) <= ( map.pagesReserved.TotalPages() )", "%s <= %s\n\t%u, %u", "pageCount", "map.pagesReserved.TotalPages()", v50, v51) )
+    LODWORD(v49) = v26;
+    LODWORD(v48) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 853, ASSERT_TYPE_ASSERT, "( pageCount ) <= ( map.pagesReserved.TotalPages() )", "%s <= %s\n\t%u, %u", "pageCount", "map.pagesReserved.TotalPages()", v48, v49) )
       __debugbreak();
   }
   if ( v22 < LODWORD(handle[2].data) )
   {
-    LODWORD(v51) = handle[2].data;
-    LODWORD(v50) = v22;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 854, ASSERT_TYPE_ASSERT, "( pageCount ) >= ( map.minPageCount )", "%s >= %s\n\t%u, %u", "pageCount", "map.minPageCount", v50, v51) )
+    LODWORD(v49) = handle[2].data;
+    LODWORD(v48) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 854, ASSERT_TYPE_ASSERT, "( pageCount ) >= ( map.minPageCount )", "%s >= %s\n\t%u, %u", "pageCount", "map.minPageCount", v48, v49) )
       __debugbreak();
   }
   optionalLoan.mUpdateID = 0i64;
@@ -1032,135 +996,130 @@ __int64 Stream_BackendQueue_ExecMapCmd(const GfxBackEndData *data, StreamMapCmdD
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 869, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "map failed for virtual address range [%p - %p)", v20, end) )
       __debugbreak();
   }
-  _RAX = Stream_Logger_MakeItem(&result, handle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbp+57h+item.___u0], xmm0
-  }
+  item = *Stream_Logger_MakeItem(&result, handle);
   Stream_Logger_OnMemoryMapped("Stream_BackendQueue_ExecMapCmd", dataa, &item, handle[4].data, v20, end);
-  v31 = handle[2].data;
-  v32 = outPageDeficitOrCommitCount;
-  if ( outPageDeficitOrCommitCount >= v31 )
+  v29 = handle[2].data;
+  v30 = outPageDeficitOrCommitCount;
+  if ( outPageDeficitOrCommitCount >= v29 )
   {
-    v33 = handle;
+    v31 = handle;
   }
   else
   {
     Stream_Logger_Dump(v20);
-    LODWORD(v51) = handle[2].data;
-    LODWORD(v50) = outPageDeficitOrCommitCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "map for virtual address range [%p - %p) didn't commit min number of pages. Committed %u, need to commit at least %u pages", v20, end, v50, v51) )
+    LODWORD(v49) = handle[2].data;
+    LODWORD(v48) = outPageDeficitOrCommitCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "map for virtual address range [%p - %p) didn't commit min number of pages. Committed %u, need to commit at least %u pages", v20, end, v48, v49) )
       __debugbreak();
-    v33 = handle;
-    v31 = handle[2].data;
-    v32 = outPageDeficitOrCommitCount;
+    v31 = handle;
+    v29 = handle[2].data;
+    v30 = outPageDeficitOrCommitCount;
   }
-  if ( v32 < v31 )
+  if ( v30 < v29 )
   {
-    LODWORD(v51) = v31;
-    LODWORD(v50) = v32;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 880, ASSERT_TYPE_ASSERT, "( commitPageCount ) >= ( map.minPageCount )", "%s >= %s\n\t%u, %u", "commitPageCount", "map.minPageCount", v50, v51) )
+    LODWORD(v49) = v29;
+    LODWORD(v48) = v30;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 880, ASSERT_TYPE_ASSERT, "( commitPageCount ) >= ( map.minPageCount )", "%s >= %s\n\t%u, %u", "commitPageCount", "map.minPageCount", v48, v49) )
       __debugbreak();
-    v32 = outPageDeficitOrCommitCount;
+    v30 = outPageDeficitOrCommitCount;
   }
-  v34 = 0;
-  v35 = p_pagesReserved;
-  v36 = 0i64;
+  v32 = 0;
+  v33 = p_pagesReserved;
+  v34 = 0i64;
   if ( p_pagesReserved <= &p_pagesReserved[1] )
   {
     do
     {
-      v34 += v35->pages[0];
-      v35 = (StreamerMemPageCounts *)((char *)v35 + 4);
-      ++v36;
+      v32 += v33->pages[0];
+      v33 = (StreamerMemPageCounts *)((char *)v33 + 4);
+      ++v34;
     }
-    while ( v36 != v12 );
+    while ( v34 != v12 );
   }
-  if ( v32 > v34 )
+  if ( v30 > v32 )
   {
-    v37 = 0;
-    v38 = p_pagesReserved;
-    v39 = 0i64;
+    v35 = 0;
+    v36 = p_pagesReserved;
+    v37 = 0i64;
     if ( p_pagesReserved <= &p_pagesReserved[1] )
     {
       do
       {
-        v37 += v38->pages[0];
-        v38 = (StreamerMemPageCounts *)((char *)v38 + 4);
-        ++v39;
+        v35 += v36->pages[0];
+        v36 = (StreamerMemPageCounts *)((char *)v36 + 4);
+        ++v37;
       }
-      while ( v39 != v12 );
+      while ( v37 != v12 );
     }
-    LODWORD(v51) = v37;
-    LODWORD(v50) = v32;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 881, ASSERT_TYPE_ASSERT, "( commitPageCount ) <= ( map.pagesReserved.TotalPages() )", "%s <= %s\n\t%u, %u", "commitPageCount", "map.pagesReserved.TotalPages()", v50, v51) )
+    LODWORD(v49) = v35;
+    LODWORD(v48) = v30;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 881, ASSERT_TYPE_ASSERT, "( commitPageCount ) <= ( map.pagesReserved.TotalPages() )", "%s <= %s\n\t%u, %u", "commitPageCount", "map.pagesReserved.TotalPages()", v48, v49) )
       __debugbreak();
-    v32 = outPageDeficitOrCommitCount;
+    v30 = outPageDeficitOrCommitCount;
   }
-  if ( v22 < v32 )
+  if ( v22 < v30 )
   {
-    LODWORD(v51) = v32;
-    LODWORD(v50) = v22;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 882, ASSERT_TYPE_ASSERT, "( pageCount ) >= ( commitPageCount )", "%s >= %s\n\t%u, %u", "pageCount", "commitPageCount", v50, v51) )
+    LODWORD(v49) = v30;
+    LODWORD(v48) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 882, ASSERT_TYPE_ASSERT, "( pageCount ) >= ( commitPageCount )", "%s >= %s\n\t%u, %u", "pageCount", "commitPageCount", v48, v49) )
       __debugbreak();
-    v32 = outPageDeficitOrCommitCount;
+    v30 = outPageDeficitOrCommitCount;
   }
-  v40 = 0;
-  v41 = 0i64;
+  v38 = 0;
+  v39 = 0i64;
   if ( p_pagesReserved <= &p_pagesReserved[1] )
   {
     do
     {
-      v40 += p_pagesReserved->pages[0];
+      v38 += p_pagesReserved->pages[0];
       p_pagesReserved = (StreamerMemPageCounts *)((char *)p_pagesReserved + 4);
-      ++v41;
+      ++v39;
     }
-    while ( v41 != v12 );
+    while ( v39 != v12 );
   }
-  v42 = v40 - v32;
-  if ( v42 != StreamerMemLoan::TotalPages(&optionalLoan) )
+  v40 = v38 - v30;
+  if ( v40 != StreamerMemLoan::TotalPages(&optionalLoan) )
   {
-    LODWORD(v51) = StreamerMemLoan::TotalPages(&optionalLoan);
-    LODWORD(v50) = v42;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 884, ASSERT_TYPE_ASSERT, "( unusedPageCount ) == ( pagesReservedLoan.TotalPages() )", "%s == %s\n\t%u, %u", "unusedPageCount", "pagesReservedLoan.TotalPages()", v50, v51) )
+    LODWORD(v49) = StreamerMemLoan::TotalPages(&optionalLoan);
+    LODWORD(v48) = v40;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 884, ASSERT_TYPE_ASSERT, "( unusedPageCount ) == ( pagesReservedLoan.TotalPages() )", "%s == %s\n\t%u, %u", "unusedPageCount", "pagesReservedLoan.TotalPages()", v48, v49) )
       __debugbreak();
   }
   pagesTaken = 0i64;
   StreamerMemLoan::TakeAllPages(&optionalLoan, &pagesTaken);
-  v43 = 0;
+  v41 = 0;
   p_pagesTaken = &pagesTaken;
-  v45 = 2i64;
+  v43 = 2i64;
   do
   {
-    v43 += p_pagesTaken->pages[0];
+    v41 += p_pagesTaken->pages[0];
     p_pagesTaken = (StreamerMemPageCounts *)((char *)p_pagesTaken + 4);
-    --v45;
+    --v43;
   }
-  while ( v45 );
-  if ( v43 != v42 )
+  while ( v43 );
+  if ( v41 != v40 )
   {
-    v46 = &pagesTaken;
+    v44 = &pagesTaken;
     do
     {
-      v5 += v46->pages[0];
-      v46 = (StreamerMemPageCounts *)((char *)v46 + 4);
+      v5 += v44->pages[0];
+      v44 = (StreamerMemPageCounts *)((char *)v44 + 4);
       --v11;
     }
     while ( v11 );
-    LODWORD(v51) = v42;
-    LODWORD(v50) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 888, ASSERT_TYPE_ASSERT, "( unusedPages.TotalPages() ) == ( unusedPageCount )", "%s == %s\n\t%u, %u", "unusedPages.TotalPages()", "unusedPageCount", v50, v51) )
+    LODWORD(v49) = v40;
+    LODWORD(v48) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 888, ASSERT_TYPE_ASSERT, "( unusedPages.TotalPages() ) == ( unusedPageCount )", "%s == %s\n\t%u, %u", "unusedPages.TotalPages()", "unusedPageCount", v48, v49) )
       __debugbreak();
   }
-  v47 = v55;
-  v55->pages[0] += pagesTaken.pages[0];
-  v47->pages[1] += pagesTaken.pages[1];
-  if ( BYTE4(v33[4].data) )
-    Stream_Defrag_UnlockHandle((streamer_handle_t)v33->data);
-  v48 = outPageDeficitOrCommitCount;
+  v45 = v53;
+  v53->pages[0] += pagesTaken.pages[0];
+  v45->pages[1] += pagesTaken.pages[1];
+  if ( BYTE4(v31[4].data) )
+    Stream_Defrag_UnlockHandle((streamer_handle_t)v31->data);
+  v46 = outPageDeficitOrCommitCount;
   StreamerMemLoan::~StreamerMemLoan(&optionalLoan);
-  return v48;
+  return v46;
 }
 
 /*
@@ -1176,9 +1135,9 @@ void Stream_BackendQueue_ExecTextureDescCopies(const GfxBackEndData *data)
   StreamBackendGlob *v5; 
   int v6; 
   const GfxImage *GfxImageAtIndex; 
-  unsigned int v9; 
+  unsigned int v8; 
   unsigned int BackEndDataIndex; 
-  __int128 v11; 
+  Stream_Logger_Item v10; 
   Stream_Logger_Item item; 
 
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1418, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -1214,22 +1173,18 @@ void Stream_BackendQueue_ExecTextureDescCopies(const GfxBackEndData *data)
       {
         GfxImageAtIndex = DB_GetGfxImageAtIndex(v6 & 0x1FFFF);
         RB_Texture_CopyStreamedFromPrevBackendFrame(data, GfxImageAtIndex);
-        BYTE8(v11) = 0;
-        *(_QWORD *)&v11 = GfxImageAtIndex;
-        __asm
-        {
-          vmovups xmm0, [rsp+78h+var_28]
-          vmovdqa xmmword ptr [rsp+78h+item.___u0], xmm0
-        }
+        v10.m_type = STREAM_ITEM_IMAGE;
+        v10.m_image = GfxImageAtIndex;
+        item = v10;
         Stream_Logger_OnPatchDescriptor("Stream_BackendQueue_ExecTextureDescCopies", data, &item, 1, -1);
-        v9 = *(_DWORD *)((char *)&v5->commands.mHead + v4);
-        if ( (v9 & 0x80000) != 0 )
+        v8 = *(_DWORD *)((char *)&v5->commands.mHead + v4);
+        if ( (v8 & 0x80000) != 0 )
         {
-          Stream_BackendQueue_MarkUpToImagePartLoaded(GfxImageAtIndex, (v9 >> 21) & 3);
+          Stream_BackendQueue_MarkUpToImagePartLoaded(GfxImageAtIndex, (v8 >> 21) & 3);
         }
-        else if ( (v9 & 0x100000) != 0 )
+        else if ( (v8 & 0x100000) != 0 )
         {
-          Stream_BackendQueue_MarkUpToImagePartUnloaded(GfxImageAtIndex, (v9 >> 21) & 3);
+          Stream_BackendQueue_MarkUpToImagePartUnloaded(GfxImageAtIndex, (v8 >> 21) & 3);
         }
       }
       v4 += 4i64;
@@ -1249,13 +1204,13 @@ void Stream_BackendQueue_ExecUnloadImageCmd(const GfxBackEndData *data, ImageCmd
   const GfxImage *image; 
   unsigned int part; 
   unsigned int imagePartsInUseBefore; 
-  unsigned int v8; 
+  unsigned int v7; 
   __int64 ImageClampedPartIndex; 
-  __int64 v10; 
+  __int64 v9; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
   Stream_Logger_Item item; 
 
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1328, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -1269,24 +1224,19 @@ void Stream_BackendQueue_ExecUnloadImageCmd(const GfxBackEndData *data, ImageCmd
     __debugbreak();
   if ( part >= image->streamedPartCount )
   {
-    LODWORD(v13) = part;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1336, ASSERT_TYPE_ASSERT, "(unsigned)( unclampedPart ) < (unsigned)( image->streamedPartCount )", "unclampedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v13, image->streamedPartCount) )
+    LODWORD(v12) = part;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1336, ASSERT_TYPE_ASSERT, "(unsigned)( unclampedPart ) < (unsigned)( image->streamedPartCount )", "unclampedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v12, image->streamedPartCount) )
       __debugbreak();
   }
   item.m_type = STREAM_ITEM_IMAGE;
   item.m_image = image;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnUnload("Stream_BackendQueue_ExecUnloadImageCmd", data, &item, part);
   if ( !part )
   {
     if ( (imagePartsInUseBefore & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1346, ASSERT_TYPE_ASSERT, "(imagePartsInUseBefore & ( 1 << IMAGE_STREAM_BASE ))", (const char *)&queryFormat, "imagePartsInUseBefore & ( 1 << IMAGE_STREAM_BASE )") )
       __debugbreak();
     RB_Texture_AssignStreamedFallback(data, image->textureId);
-    v8 = 0;
+    v7 = 0;
     goto LABEL_39;
   }
   if ( !RB_Texture_HasStreamedFallbackAssigned(data, image->textureId) )
@@ -1294,46 +1244,46 @@ void Stream_BackendQueue_ExecUnloadImageCmd(const GfxBackEndData *data, ImageCmd
     ImageClampedPartIndex = (unsigned int)GetImageClampedPartIndex(image, imagePartsInUseBefore);
     if ( (unsigned int)ImageClampedPartIndex >= image->streamedPartCount )
     {
-      LODWORD(v14) = image->streamedPartCount;
-      LODWORD(v13) = ImageClampedPartIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1354, ASSERT_TYPE_ASSERT, "(unsigned)( oldHighestLoadedPart ) < (unsigned)( image->streamedPartCount )", "oldHighestLoadedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v13) = image->streamedPartCount;
+      LODWORD(v12) = ImageClampedPartIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1354, ASSERT_TYPE_ASSERT, "(unsigned)( oldHighestLoadedPart ) < (unsigned)( image->streamedPartCount )", "oldHighestLoadedPart doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
-    v10 = (unsigned int)GetImageClampedPartIndex(image, imagePartsInUseBefore & ~(1 << part));
-    if ( (unsigned int)v10 >= image->streamedPartCount )
+    v9 = (unsigned int)GetImageClampedPartIndex(image, imagePartsInUseBefore & ~(1 << part));
+    if ( (unsigned int)v9 >= image->streamedPartCount )
     {
-      LODWORD(v14) = image->streamedPartCount;
-      LODWORD(v13) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1358, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v13, v14) )
+      LODWORD(v13) = image->streamedPartCount;
+      LODWORD(v12) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1358, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( image->streamedPartCount )", "part doesn't index image->streamedPartCount\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
-    v11 = image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF;
-    v12 = image->streams[v10].levelCountAndSize & 0xF;
-    if ( v12 > v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1362, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( oldLevelCount )", "%s <= %s\n\t%u, %u", "newLevelCount", "oldLevelCount", v12, image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF) )
+    v10 = image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF;
+    v11 = image->streams[v9].levelCountAndSize & 0xF;
+    if ( v11 > v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1362, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( oldLevelCount )", "%s <= %s\n\t%u, %u", "newLevelCount", "oldLevelCount", v11, image->streams[ImageClampedPartIndex].levelCountAndSize & 0xF) )
       __debugbreak();
+    if ( v10 > image->levelCount )
+    {
+      LODWORD(v13) = image->levelCount;
+      LODWORD(v12) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1363, ASSERT_TYPE_ASSERT, "( oldLevelCount ) <= ( image->levelCount )", "oldLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v12, v13) )
+        __debugbreak();
+    }
     if ( v11 > image->levelCount )
     {
-      LODWORD(v14) = image->levelCount;
-      LODWORD(v13) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1363, ASSERT_TYPE_ASSERT, "( oldLevelCount ) <= ( image->levelCount )", "oldLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v13, v14) )
+      LODWORD(v13) = image->levelCount;
+      LODWORD(v12) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1364, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( image->levelCount )", "newLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v12, v13) )
         __debugbreak();
     }
-    if ( v12 > image->levelCount )
+    if ( v11 < v10 )
     {
-      LODWORD(v14) = image->levelCount;
-      LODWORD(v13) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1364, ASSERT_TYPE_ASSERT, "( newLevelCount ) <= ( image->levelCount )", "newLevelCount not in [0, image->levelCount]\n\t%u not in [0, %u]", v13, v14) )
-        __debugbreak();
-    }
-    if ( v12 < v11 )
-    {
-      if ( v12 )
-        Stream_BackendQueue_UpdateMostDetailedMip(data, image, v12);
+      if ( v11 )
+        Stream_BackendQueue_UpdateMostDetailedMip(data, image, v11);
       else
         RB_Texture_AssignStreamedFallback(data, image->textureId);
-      v8 = ImageClampedPartIndex;
+      v7 = ImageClampedPartIndex;
 LABEL_39:
-      Stream_BackendQueue_QueueCopyTextureDescAndMarkUnloaded(data, image, v8);
+      Stream_BackendQueue_QueueCopyTextureDescAndMarkUnloaded(data, image, v7);
     }
   }
 }
@@ -1348,122 +1298,117 @@ __int64 Stream_BackendQueue_ExecUnmapCmd(const GfxBackEndData *data, const Strea
   unsigned __int8 *start; 
   unsigned __int8 *v7; 
   unsigned int v8; 
-  StreamerMemLoan *v11; 
-  unsigned int v12; 
-  unsigned int v13; 
-  int v14; 
-  int v15; 
+  StreamerMemLoan *v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  int v12; 
+  int v13; 
   StreamerMemPageCounts *p_pagesTaken; 
+  __int64 v15; 
+  StreamerMemPageCounts *v16; 
   __int64 v17; 
-  StreamerMemPageCounts *v18; 
-  __int64 v19; 
   __int64 pool; 
-  __int64 v21; 
+  __int64 v19; 
   unsigned int minPageCount; 
   unsigned __int8 *end; 
+  __int64 v23; 
+  __int64 v24; 
   __int64 v25; 
   __int64 v26; 
   __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
   Stream_Logger_Item item; 
   StreamerMemPageCounts pagesTaken; 
-  StreamerMemLoan v32; 
+  StreamerMemLoan v30; 
   StreamerMemLoan result; 
 
   start = &Stream_AddressSpace_ResolveAddrUnmap(unmap)[unmap->mapOffset];
   v7 = &start[unmap->mapSize];
   v8 = truncate_cast<unsigned int,unsigned __int64>((((unsigned __int64)(v7 + 0xFFFF) & 0xFFFFFFFFFFFF0000ui64) - ((unsigned __int64)start & 0xFFFFFFFFFFFF0000ui64)) >> 16);
-  _RAX = Stream_Logger_MakeItem((Stream_Logger_Item *)&result, &unmap->baseAddrHandle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0E8h+item.___u0], xmm0
-  }
+  item = *Stream_Logger_MakeItem((Stream_Logger_Item *)&result, &unmap->baseAddrHandle);
   Stream_Logger_OnMemoryUnmapped("Stream_BackendQueue_ExecUnmapCmd", data, &item, unmap->partIndex, start, v7);
-  v11 = Mem_Paged_BatchDecommitSubPageMemory(&result, start, v7);
-  StreamerMemLoan::StreamerMemLoan(&v32, v11);
+  v9 = Mem_Paged_BatchDecommitSubPageMemory(&result, start, v7);
+  StreamerMemLoan::StreamerMemLoan(&v30, v9);
   StreamerMemLoan::~StreamerMemLoan(&result);
-  if ( !StreamerMemLoan::Ready(&v32) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 913, ASSERT_TYPE_ASSERT, "(loan.Ready())", (const char *)&queryFormat, "loan.Ready()") )
+  if ( !StreamerMemLoan::Ready(&v30) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 913, ASSERT_TYPE_ASSERT, "(loan.Ready())", (const char *)&queryFormat, "loan.Ready()") )
     __debugbreak();
-  v12 = StreamerMemLoan::TotalPages(&v32);
-  v13 = v12;
-  if ( v12 > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 916, ASSERT_TYPE_ASSERT, "( decommitPageCount ) <= ( pageCount )", "%s <= %s\n\t%u, %u", "decommitPageCount", "pageCount", v12, v8) )
+  v10 = StreamerMemLoan::TotalPages(&v30);
+  v11 = v10;
+  if ( v10 > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 916, ASSERT_TYPE_ASSERT, "( decommitPageCount ) <= ( pageCount )", "%s <= %s\n\t%u, %u", "decommitPageCount", "pageCount", v10, v8) )
     __debugbreak();
   pagesTaken = 0i64;
-  StreamerMemLoan::TakeAllPages(&v32, &pagesTaken);
-  v14 = 0;
-  v15 = 0;
+  StreamerMemLoan::TakeAllPages(&v30, &pagesTaken);
+  v12 = 0;
+  v13 = 0;
   p_pagesTaken = &pagesTaken;
-  v17 = 2i64;
+  v15 = 2i64;
   do
   {
-    v15 += p_pagesTaken->pages[0];
+    v13 += p_pagesTaken->pages[0];
     p_pagesTaken = (StreamerMemPageCounts *)((char *)p_pagesTaken + 4);
-    --v17;
+    --v15;
   }
-  while ( v17 );
-  if ( v15 != v13 )
+  while ( v15 );
+  if ( v13 != v11 )
   {
-    v18 = &pagesTaken;
-    v19 = 2i64;
+    v16 = &pagesTaken;
+    v17 = 2i64;
     do
     {
-      v14 += v18->pages[0];
-      v18 = (StreamerMemPageCounts *)((char *)v18 + 4);
-      --v19;
+      v12 += v16->pages[0];
+      v16 = (StreamerMemPageCounts *)((char *)v16 + 4);
+      --v17;
     }
-    while ( v19 );
-    LODWORD(v28) = v13;
-    LODWORD(v26) = v14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 920, ASSERT_TYPE_ASSERT, "( decommittedPages.TotalPages() ) == ( decommitPageCount )", "%s == %s\n\t%u, %u", "decommittedPages.TotalPages()", "decommitPageCount", v26, v28) )
+    while ( v17 );
+    LODWORD(v26) = v11;
+    LODWORD(v24) = v12;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 920, ASSERT_TYPE_ASSERT, "( decommittedPages.TotalPages() ) == ( decommitPageCount )", "%s == %s\n\t%u, %u", "decommittedPages.TotalPages()", "decommitPageCount", v24, v26) )
       __debugbreak();
   }
   pool = (unsigned int)unmap->pool;
   if ( (unsigned int)pool >= 2 )
   {
-    LODWORD(v25) = 2;
+    LODWORD(v23) = 2;
     LODWORD(end) = unmap->pool;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", end, v25) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", end, v23) )
       __debugbreak();
   }
-  if ( pagesTaken.pages[pool] != v13 )
+  if ( pagesTaken.pages[pool] != v11 )
   {
-    v21 = (unsigned int)unmap->pool;
-    if ( (unsigned int)v21 >= 2 )
+    v19 = (unsigned int)unmap->pool;
+    if ( (unsigned int)v19 >= 2 )
     {
-      LODWORD(v25) = 2;
+      LODWORD(v23) = 2;
       LODWORD(end) = unmap->pool;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", end, v25) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", end, v23) )
         __debugbreak();
     }
-    LODWORD(v28) = v13;
-    LODWORD(v26) = pagesTaken.pages[v21];
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 921, ASSERT_TYPE_ASSERT, "( decommittedPages.PagesForPool( unmap.pool ) ) == ( decommitPageCount )", "%s == %s\n\t%u, %u", "decommittedPages.PagesForPool( unmap.pool )", "decommitPageCount", v26, v28) )
+    LODWORD(v26) = v11;
+    LODWORD(v24) = pagesTaken.pages[v19];
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 921, ASSERT_TYPE_ASSERT, "( decommittedPages.PagesForPool( unmap.pool ) ) == ( decommitPageCount )", "%s == %s\n\t%u, %u", "decommittedPages.PagesForPool( unmap.pool )", "decommitPageCount", v24, v26) )
       __debugbreak();
   }
-  if ( v13 < unmap->minPageCount )
+  if ( v11 < unmap->minPageCount )
   {
     Stream_Logger_Dump(start);
-    LODWORD(v28) = unmap->minPageCount - v13;
-    LODWORD(v26) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 927, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unmap failed for virtual address range [%p - %p). Freed %u, need to free %d more pages", start, v7, v26, v28) )
+    LODWORD(v26) = unmap->minPageCount - v11;
+    LODWORD(v24) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 927, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unmap failed for virtual address range [%p - %p). Freed %u, need to free %d more pages", start, v7, v24, v26) )
       __debugbreak();
-    if ( v13 < unmap->minPageCount )
+    if ( v11 < unmap->minPageCount )
     {
-      LODWORD(v29) = unmap->minPageCount;
-      LODWORD(v27) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 930, ASSERT_TYPE_ASSERT, "( decommitPageCount ) >= ( unmap.minPageCount )", "%s >= %s\n\t%u, %u", "decommitPageCount", "unmap.minPageCount", v27, v29) )
+      LODWORD(v27) = unmap->minPageCount;
+      LODWORD(v25) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 930, ASSERT_TYPE_ASSERT, "( decommitPageCount ) >= ( unmap.minPageCount )", "%s >= %s\n\t%u, %u", "decommitPageCount", "unmap.minPageCount", v25, v27) )
         __debugbreak();
     }
   }
   minPageCount = unmap->minPageCount;
-  if ( v13 > minPageCount )
-    StreamerMemPageCounts::AddPages(pageAdjust, unmap->pool, v13 - minPageCount);
+  if ( v11 > minPageCount )
+    StreamerMemPageCounts::AddPages(pageAdjust, unmap->pool, v11 - minPageCount);
   if ( unmap->defragLocked )
     Stream_Defrag_UnlockHandle(unmap->baseAddrHandle);
-  StreamerMemLoan::~StreamerMemLoan(&v32);
-  return v13;
+  StreamerMemLoan::~StreamerMemLoan(&v30);
+  return v11;
 }
 
 /*
@@ -1483,82 +1428,76 @@ Stream_BackendQueue_ForcedFlushInternal
 */
 void Stream_BackendQueue_ForcedFlushInternal(bool postLevelUnload)
 {
-  const char *v4; 
+  const char *v2; 
   const char *CurrentThreadContextName; 
-  int v6; 
-  StreamUpdateId v7; 
+  int v4; 
+  StreamUpdateId v5; 
+  GfxCmdBufContext v6; 
   unsigned int currentUpdateBackendDataIndex; 
-  int v11; 
+  int v8; 
   const GfxBackEndData *BackEndData; 
-  StreamBackendGlob *v13; 
+  StreamBackendGlob *v10; 
   StreamUpdateId currentUpdateId; 
-  unsigned int v15; 
-  const char *v16; 
-  GfxCmdBufContext v19; 
+  unsigned int v12; 
+  const char *v13; 
+  GfxCmdBufContext v14; 
   GfxCmdBufContext result; 
-  char v21; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_BackendQueue_ForcedFlushInternal");
-  v4 = (char *)&queryFormat.fmt + 3;
+  v2 = (char *)&queryFormat.fmt + 3;
   if ( postLevelUnload )
-    v4 = " for post-level-unload";
+    v2 = " for post-level-unload";
   CurrentThreadContextName = Sys_GetCurrentThreadContextName();
-  Streamer_StatusPrint("Streamer forced flush starting on %s thread%s.\n", CurrentThreadContextName, v4);
-  v6 = Sys_Milliseconds();
-  v7 = 0i64;
+  Streamer_StatusPrint("Streamer forced flush starting on %s thread%s.\n", CurrentThreadContextName, v2);
+  v4 = Sys_Milliseconds();
+  v5 = 0i64;
   s_streamBackendGlob->isInForcedFlush = 1;
   Sys_WaitWorkerCmdsOnlyOfType(WRKCMD_DRAW_LIT_OPAQUE);
   Sys_EnterCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE);
   if ( s_streamBackendGlob->isInForcedFlush )
   {
-    _RAX = RB_GetBackendCmdBufContext(&result);
-    __asm { vmovups xmm6, xmmword ptr [rax] }
+    v6 = *RB_GetBackendCmdBufContext(&result);
     currentUpdateBackendDataIndex = s_streamBackendGlob->currentUpdateBackendDataIndex;
-    v11 = currentUpdateBackendDataIndex;
+    v8 = currentUpdateBackendDataIndex;
     do
     {
-      BackEndData = R_GetBackEndData(v11);
+      BackEndData = R_GetBackEndData(v8);
       RB_Texture_BeginAllowStreamedTextureUpdate(BackEndData);
       Stream_BackendQueue_ExecTextureDescCopies(BackEndData);
-      __asm { vmovdqa [rsp+0B8h+var_58], xmm6 }
-      Stream_Defrag_FrameFlush(&v19, BackEndData);
-      __asm { vmovdqa [rsp+0B8h+var_58], xmm6 }
-      Stream_BackendQueue_Update(&v19, BackEndData, s_streamBackendGlob->currentUpdateId);
-      if ( postLevelUnload && (_DWORD)v7 == 7 )
+      v14 = v6;
+      Stream_Defrag_FrameFlush(&v14, BackEndData);
+      v14 = v6;
+      Stream_BackendQueue_Update(&v14, BackEndData, s_streamBackendGlob->currentUpdateId);
+      if ( postLevelUnload && (_DWORD)v5 == 7 )
         Stream_Defrag_PostLevelUnload(BackEndData);
       RB_Texture_EndAllowStreamedTextureUpdate(BackEndData);
-      v11 = ((_BYTE)v11 - 1) & 1;
-      v13 = s_streamBackendGlob;
+      v8 = ((_BYTE)v8 - 1) & 1;
+      v10 = s_streamBackendGlob;
       ++s_streamBackendGlob->currentUpdateId;
-      currentUpdateId = v13->currentUpdateId;
-      if ( v13->currentAllMapsAndUnmapsCompleteId > (unsigned __int64)currentUpdateId )
-        currentUpdateId = v13->currentAllMapsAndUnmapsCompleteId;
-      v13->currentAllMapsAndUnmapsCompleteId = currentUpdateId;
-      v13->currentUpdateBackendDataIndex = v11;
-      LODWORD(v7) = v7 + 1;
+      currentUpdateId = v10->currentUpdateId;
+      if ( v10->currentAllMapsAndUnmapsCompleteId > (unsigned __int64)currentUpdateId )
+        currentUpdateId = v10->currentAllMapsAndUnmapsCompleteId;
+      v10->currentAllMapsAndUnmapsCompleteId = currentUpdateId;
+      v10->currentUpdateBackendDataIndex = v8;
+      LODWORD(v5) = v5 + 1;
     }
-    while ( (unsigned int)v7 < 8 );
-    if ( currentUpdateBackendDataIndex != v11 )
+    while ( (unsigned int)v5 < 8 );
+    if ( currentUpdateBackendDataIndex != v8 )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1829, ASSERT_TYPE_ASSERT, "( oldDataIndex ) == ( s_streamBackendGlob->currentUpdateBackendDataIndex )", "%s == %s\n\t%u, %u", "oldDataIndex", "s_streamBackendGlob->currentUpdateBackendDataIndex", currentUpdateBackendDataIndex, v11) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1829, ASSERT_TYPE_ASSERT, "( oldDataIndex ) == ( s_streamBackendGlob->currentUpdateBackendDataIndex )", "%s == %s\n\t%u, %u", "oldDataIndex", "s_streamBackendGlob->currentUpdateBackendDataIndex", currentUpdateBackendDataIndex, v8) )
         __debugbreak();
-      v13 = s_streamBackendGlob;
+      v10 = s_streamBackendGlob;
     }
-    v13->isInForcedFlush = 0;
-    v7 = v13->currentUpdateId;
+    v10->isInForcedFlush = 0;
+    v5 = v10->currentUpdateId;
   }
   Sys_LeaveCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE);
   if ( postLevelUnload )
     Stream_Defrag_Validate();
-  v15 = Sys_Milliseconds() - v6;
-  v16 = Sys_GetCurrentThreadContextName();
-  Streamer_StatusPrint("Streamer forced flush on %s thread took %d ms. Finished with backend queue update ID %zu.\n", v16, v15, v7);
+  v12 = Sys_Milliseconds() - v4;
+  v13 = Sys_GetCurrentThreadContextName();
+  Streamer_StatusPrint("Streamer forced flush on %s thread took %d ms. Finished with backend queue update ID %zu.\n", v13, v12, v5);
   Sys_ProfEndNamedEvent();
-  _R11 = &v21;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -1901,15 +1840,15 @@ StreamUpdateId Stream_BackendQueue_QueueLoadGenericCmd(const StreamKey *streamKe
 {
   BackendCommand *Command; 
   int StreamKeyIndex; 
-  StreamUpdateId v5; 
+  StreamUpdateId v4; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v8; 
+  ScopedCriticalSection v7; 
 
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 740, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
   if ( !streamKey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 742, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey", -2i64) )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v8, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v7, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   Command = GetCommand();
   *((_BYTE *)Command + 3) = 6;
   Command->mapCmd.baseAddrHandle.data = (unsigned __int64)streamKey;
@@ -1917,15 +1856,10 @@ StreamUpdateId Stream_BackendQueue_QueueLoadGenericCmd(const StreamKey *streamKe
   StreamableBitArray_InterlockedSetArray(streamFrontendGlob->genericRequest.mDanger, StreamKeyIndex);
   item.m_type = STREAM_ITEM_GENERIC;
   item.m_image = (const GfxImage *)streamKey;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnQueueCommand("QueueGenericCmd", NULL, &item, LOAD_GENERIC, 0);
-  v5 = QueueCommand_0_((StreamUpdateId)0i64, Command);
-  ScopedCriticalSection::~ScopedCriticalSection(&v8);
-  return v5;
+  v4 = QueueCommand_0_((StreamUpdateId)0i64, Command);
+  ScopedCriticalSection::~ScopedCriticalSection(&v7);
+  return v4;
 }
 
 /*
@@ -1947,15 +1881,15 @@ StreamUpdateId Stream_BackendQueue_QueueLoadMeshCmd(const XModelSurfs *mesh)
 {
   BackendCommand *Command; 
   int XModelSurfsIndex; 
-  StreamUpdateId v5; 
+  StreamUpdateId v4; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v8; 
+  ScopedCriticalSection v7; 
 
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 718, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
   if ( !mesh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 720, ASSERT_TYPE_ASSERT, "(mesh)", (const char *)&queryFormat, "mesh", -2i64) )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v8, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v7, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   Command = GetCommand();
   *((_BYTE *)Command + 3) = 4;
   Command->mapCmd.baseAddrHandle.data = (unsigned __int64)mesh;
@@ -1963,15 +1897,10 @@ StreamUpdateId Stream_BackendQueue_QueueLoadMeshCmd(const XModelSurfs *mesh)
   StreamableBitArray_InterlockedSetArray(streamFrontendGlob->meshRequest.mDanger, XModelSurfsIndex);
   item.m_type = STREAM_ITEM_MESH;
   item.m_image = (const GfxImage *)mesh;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnQueueCommand("QueueMeshCmd", NULL, &item, LOAD_MESH, 0);
-  v5 = QueueCommand_0_((StreamUpdateId)0i64, Command);
-  ScopedCriticalSection::~ScopedCriticalSection(&v8);
-  return v5;
+  v4 = QueueCommand_0_((StreamUpdateId)0i64, Command);
+  ScopedCriticalSection::~ScopedCriticalSection(&v7);
+  return v4;
 }
 
 /*
@@ -1981,39 +1910,28 @@ Stream_BackendQueue_QueueMapCmdAfter
 */
 StreamUpdateId Stream_BackendQueue_QueueMapCmdAfter(StreamUpdateId current, const StreamMapCmdData *map)
 {
-  StreamUpdateId v9; 
+  BackendCommand *Command; 
+  StreamUpdateId v5; 
   BackendCommandQueue *CommandQueue; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v13; 
+  ScopedCriticalSection v9; 
   Stream_Logger_Item result; 
 
-  _RDI = map;
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 405, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v13, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
-  _RBX = GetCommand();
-  *((_BYTE *)_RBX + 3) = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rax+8], ymm0
-    vmovsd  xmm1, qword ptr [rdi+20h]
-    vmovsd  qword ptr [rax+28h], xmm1
-  }
-  _RAX = Stream_Logger_MakeItem(&result, &_RDI->baseAddrHandle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+78h+item.___u0], xmm0
-  }
-  Stream_Logger_OnQueueCommand("QueueMap", NULL, &item, MAP, _RDI->partIndex);
-  v9 = QueueCommand_0_(current, _RBX);
-  CommandQueue = GetCommandQueue(v9);
-  CommandQueue->mapReservedPageCount.pages[0] += _RDI->pagesReserved.pages[0];
-  CommandQueue->mapReservedPageCount.pages[1] += _RDI->pagesReserved.pages[1];
-  CommandQueue->mapSizeInBytes += _RDI->mapSize;
-  ScopedCriticalSection::~ScopedCriticalSection(&v13);
-  return v9;
+  ScopedCriticalSection::ScopedCriticalSection(&v9, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  Command = GetCommand();
+  *((_BYTE *)Command + 3) = 0;
+  Command->8 = ($E67DDDA2984F4C1519F6E303EB4C3FCA)*map;
+  item = *Stream_Logger_MakeItem(&result, &map->baseAddrHandle);
+  Stream_Logger_OnQueueCommand("QueueMap", NULL, &item, MAP, map->partIndex);
+  v5 = QueueCommand_0_(current, Command);
+  CommandQueue = GetCommandQueue(v5);
+  CommandQueue->mapReservedPageCount.pages[0] += map->pagesReserved.pages[0];
+  CommandQueue->mapReservedPageCount.pages[1] += map->pagesReserved.pages[1];
+  CommandQueue->mapSizeInBytes += map->mapSize;
+  ScopedCriticalSection::~ScopedCriticalSection(&v9);
+  return v5;
 }
 
 /*
@@ -2025,15 +1943,15 @@ StreamUpdateId Stream_BackendQueue_QueueUnloadGenericCmd(const StreamKey *stream
 {
   BackendCommand *Command; 
   int StreamKeyIndex; 
-  StreamUpdateId v5; 
+  StreamUpdateId v4; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v8; 
+  ScopedCriticalSection v7; 
 
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 740, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
   if ( !streamKey && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 742, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey", -2i64) )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v8, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v7, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   Command = GetCommand();
   *((_BYTE *)Command + 3) = 7;
   Command->mapCmd.baseAddrHandle.data = (unsigned __int64)streamKey;
@@ -2041,15 +1959,10 @@ StreamUpdateId Stream_BackendQueue_QueueUnloadGenericCmd(const StreamKey *stream
   StreamableBitArray_InterlockedSetArray(streamFrontendGlob->genericRequest.mDanger, StreamKeyIndex);
   item.m_type = STREAM_ITEM_GENERIC;
   item.m_image = (const GfxImage *)streamKey;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnQueueCommand("QueueGenericCmd", NULL, &item, UNLOAD_GENERIC, 0);
-  v5 = QueueCommand_1_((StreamUpdateId)0i64, Command);
-  ScopedCriticalSection::~ScopedCriticalSection(&v8);
-  return v5;
+  v4 = QueueCommand_1_((StreamUpdateId)0i64, Command);
+  ScopedCriticalSection::~ScopedCriticalSection(&v7);
+  return v4;
 }
 
 /*
@@ -2071,15 +1984,15 @@ StreamUpdateId Stream_BackendQueue_QueueUnloadMeshCmd(const XModelSurfs *mesh)
 {
   BackendCommand *Command; 
   int XModelSurfsIndex; 
-  StreamUpdateId v5; 
+  StreamUpdateId v4; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v8; 
+  ScopedCriticalSection v7; 
 
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 718, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
   if ( !mesh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 720, ASSERT_TYPE_ASSERT, "(mesh)", (const char *)&queryFormat, "mesh", -2i64) )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v8, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v7, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
   Command = GetCommand();
   *((_BYTE *)Command + 3) = 5;
   Command->mapCmd.baseAddrHandle.data = (unsigned __int64)mesh;
@@ -2087,15 +2000,10 @@ StreamUpdateId Stream_BackendQueue_QueueUnloadMeshCmd(const XModelSurfs *mesh)
   StreamableBitArray_InterlockedSetArray(streamFrontendGlob->meshRequest.mDanger, XModelSurfsIndex);
   item.m_type = STREAM_ITEM_MESH;
   item.m_image = (const GfxImage *)mesh;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+item.___u0]
-    vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-  }
   Stream_Logger_OnQueueCommand("QueueMeshCmd", NULL, &item, UNLOAD_MESH, 0);
-  v5 = QueueCommand_1_((StreamUpdateId)0i64, Command);
-  ScopedCriticalSection::~ScopedCriticalSection(&v8);
-  return v5;
+  v4 = QueueCommand_1_((StreamUpdateId)0i64, Command);
+  ScopedCriticalSection::~ScopedCriticalSection(&v7);
+  return v4;
 }
 
 /*
@@ -2105,42 +2013,33 @@ Stream_BackendQueue_QueueUnmapCmdAfter
 */
 StreamUpdateId Stream_BackendQueue_QueueUnmapCmdAfter(StreamUpdateId current, const StreamUnmapCmdData *unmap)
 {
-  StreamUpdateId v8; 
+  BackendCommand *Command; 
+  StreamUpdateId v5; 
   BackendCommandQueue *CommandQueue; 
   unsigned int minPageCount; 
   __int64 pool; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v14; 
+  ScopedCriticalSection v11; 
   Stream_Logger_Item result; 
 
-  _RDI = unmap;
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 430, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v14, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
-  _RBX = GetCommand();
-  *((_BYTE *)_RBX + 3) = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rax+8], ymm0
-  }
-  _RAX = Stream_Logger_MakeItem(&result, &_RDI->baseAddrHandle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+88h+item.___u0], xmm0
-  }
-  Stream_Logger_OnQueueCommand("QueueUnmap", NULL, &item, UNMAP, _RDI->partIndex);
-  v8 = QueueCommand_0_(current, _RBX);
-  CommandQueue = GetCommandQueue(v8);
-  minPageCount = _RDI->minPageCount;
-  pool = (unsigned int)_RDI->pool;
-  if ( (unsigned int)pool >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 48, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", _RDI->pool, 2) )
+  ScopedCriticalSection::ScopedCriticalSection(&v11, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  Command = GetCommand();
+  *((_BYTE *)Command + 3) = 1;
+  *(__m256i *)&Command->mapCmd.baseAddrHandle.data = *(__m256i *)unmap;
+  item = *Stream_Logger_MakeItem(&result, &unmap->baseAddrHandle);
+  Stream_Logger_OnQueueCommand("QueueUnmap", NULL, &item, UNMAP, unmap->partIndex);
+  v5 = QueueCommand_0_(current, Command);
+  CommandQueue = GetCommandQueue(v5);
+  minPageCount = unmap->minPageCount;
+  pool = (unsigned int)unmap->pool;
+  if ( (unsigned int)pool >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 48, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", unmap->pool, 2) )
     __debugbreak();
   CommandQueue->unmapMinPageCount.pages[pool] += minPageCount;
-  CommandQueue->unmapSizeInBytes += _RDI->mapSize;
-  ScopedCriticalSection::~ScopedCriticalSection(&v14);
-  return v8;
+  CommandQueue->unmapSizeInBytes += unmap->mapSize;
+  ScopedCriticalSection::~ScopedCriticalSection(&v11);
+  return v5;
 }
 
 /*
@@ -2150,42 +2049,33 @@ Stream_BackendQueue_QueueUnmapCmdNextFrame
 */
 StreamUpdateId Stream_BackendQueue_QueueUnmapCmdNextFrame(StreamUpdateId current, const StreamUnmapCmdData *unmap)
 {
-  StreamUpdateId v8; 
+  BackendCommand *Command; 
+  StreamUpdateId v5; 
   BackendCommandQueue *CommandQueue; 
   unsigned int minPageCount; 
   __int64 pool; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v14; 
+  ScopedCriticalSection v11; 
   Stream_Logger_Item result; 
 
-  _RDI = unmap;
   if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 430, ASSERT_TYPE_ASSERT, "( Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ) )", "CRITSECT_STREAM_ALLOC not locked") )
     __debugbreak();
-  ScopedCriticalSection::ScopedCriticalSection(&v14, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
-  _RBX = GetCommand();
-  *((_BYTE *)_RBX + 3) = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rax+8], ymm0
-  }
-  _RAX = Stream_Logger_MakeItem(&result, &_RDI->baseAddrHandle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+88h+item.___u0], xmm0
-  }
-  Stream_Logger_OnQueueCommand("QueueUnmap", NULL, &item, UNMAP, _RDI->partIndex);
-  v8 = QueueCommand_1_(current, _RBX);
-  CommandQueue = GetCommandQueue(v8);
-  minPageCount = _RDI->minPageCount;
-  pool = (unsigned int)_RDI->pool;
-  if ( (unsigned int)pool >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 48, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", _RDI->pool, 2) )
+  ScopedCriticalSection::ScopedCriticalSection(&v11, CRITSECT_STREAM_BACKEND_UPDATE, SCOPED_CRITSECT_NORMAL);
+  Command = GetCommand();
+  *((_BYTE *)Command + 3) = 1;
+  *(__m256i *)&Command->mapCmd.baseAddrHandle.data = *(__m256i *)unmap;
+  item = *Stream_Logger_MakeItem(&result, &unmap->baseAddrHandle);
+  Stream_Logger_OnQueueCommand("QueueUnmap", NULL, &item, UNMAP, unmap->partIndex);
+  v5 = QueueCommand_1_(current, Command);
+  CommandQueue = GetCommandQueue(v5);
+  minPageCount = unmap->minPageCount;
+  pool = (unsigned int)unmap->pool;
+  if ( (unsigned int)pool >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 48, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", unmap->pool, 2) )
     __debugbreak();
   CommandQueue->unmapMinPageCount.pages[pool] += minPageCount;
-  CommandQueue->unmapSizeInBytes += _RDI->mapSize;
-  ScopedCriticalSection::~ScopedCriticalSection(&v14);
-  return v8;
+  CommandQueue->unmapSizeInBytes += unmap->mapSize;
+  ScopedCriticalSection::~ScopedCriticalSection(&v11);
+  return v5;
 }
 
 /*
@@ -2260,112 +2150,112 @@ void Stream_BackendQueue_Update(GfxCmdBufContext *gfxContext, const GfxBackEndDa
   streamer_handle_t v47; 
   unsigned int XModelSurfsIndex; 
   const XModelSurfs *v49; 
-  int v51; 
-  const XModelSurfs *v52; 
-  streamer_handle_t v53; 
-  unsigned int v54; 
-  const XModelSurfs *v55; 
+  int v50; 
+  const XModelSurfs *v51; 
+  streamer_handle_t v52; 
+  unsigned int v53; 
+  const XModelSurfs *v54; 
   const StreamKey *streamKey; 
-  streamer_handle_t v58; 
+  streamer_handle_t v56; 
   unsigned int StreamKeyIndex; 
+  const StreamKey *v58; 
+  int v59; 
   const StreamKey *v60; 
-  int v62; 
+  streamer_handle_t v61; 
+  unsigned int v62; 
   const StreamKey *v63; 
-  streamer_handle_t v64; 
-  unsigned int v65; 
-  const StreamKey *v66; 
-  int v68; 
-  StreamBackendGlob *v69; 
+  int v64; 
+  StreamBackendGlob *v65; 
+  __int64 v66; 
+  int v67; 
+  unsigned int v68; 
+  StreamerMemPageCounts *v69; 
   __int64 v70; 
-  int v71; 
-  unsigned int v72; 
-  StreamerMemPageCounts *v73; 
-  __int64 v74; 
-  unsigned int v75; 
+  unsigned int v71; 
   StreamerMemPageCounts *p_mapReservedPageCount; 
+  __int64 v73; 
+  __int64 v74; 
+  int v75; 
+  StreamerMemPageCounts *v76; 
   __int64 v77; 
-  __int64 v78; 
-  int v79; 
-  StreamerMemPageCounts *v80; 
-  __int64 v81; 
-  int v82; 
-  StreamerMemPageCounts *v83; 
+  int v78; 
+  StreamerMemPageCounts *v79; 
+  __int64 v80; 
+  unsigned int v81; 
+  StreamerMemPageCounts *v82; 
+  __int64 v83; 
   __int64 v84; 
   unsigned int v85; 
-  StreamerMemPageCounts *v86; 
-  __int64 v87; 
-  __int64 v88; 
-  unsigned int v89; 
   StreamerMemPageCounts *p_unmapMinPageCount; 
-  StreamerMemPageCounts *v91; 
-  __int64 v92; 
+  StreamerMemPageCounts *v87; 
+  __int64 v88; 
+  __int64 v89; 
+  StreamerMemPageCounts *v90; 
+  int v91; 
+  StreamerMemPageCounts *v92; 
   __int64 v93; 
-  StreamerMemPageCounts *v94; 
-  int v95; 
-  StreamerMemPageCounts *v96; 
-  __int64 v97; 
-  int v98; 
-  StreamerMemPageCounts *v99; 
-  __int64 v100; 
-  int v101; 
-  StreamerMemPageCounts *v102; 
-  __int64 v103; 
-  int v104; 
+  int v94; 
+  StreamerMemPageCounts *v95; 
+  __int64 v96; 
+  int v97; 
+  StreamerMemPageCounts *v98; 
+  __int64 v99; 
+  int v100; 
   StreamerMemPageCounts *p_pageAdjust; 
+  __int64 v102; 
+  unsigned int v103; 
+  StreamerMemPageCounts *v104; 
+  __int64 v105; 
   __int64 v106; 
-  unsigned int v107; 
+  int v107; 
   StreamerMemPageCounts *v108; 
   __int64 v109; 
-  __int64 v110; 
-  int v111; 
-  StreamerMemPageCounts *v112; 
-  __int64 v113; 
-  int v114; 
-  StreamerMemPageCounts *v115; 
-  __int64 v116; 
-  int v117; 
-  StreamerMemPageCounts *v118; 
+  int v110; 
+  StreamerMemPageCounts *v111; 
+  __int64 v112; 
+  int v113; 
+  StreamerMemPageCounts *v114; 
+  __int64 v115; 
+  int v116; 
+  StreamerMemPageCounts *v117; 
+  __int64 v118; 
   __int64 v119; 
   int v120; 
   StreamerMemPageCounts *v121; 
   __int64 v122; 
-  __int64 v123; 
-  int v124; 
-  StreamerMemPageCounts *v125; 
+  int v123; 
+  StreamerMemPageCounts *v124; 
+  __int64 v125; 
   __int64 v126; 
   int v127; 
   StreamerMemPageCounts *v128; 
   __int64 v129; 
-  __int64 v130; 
-  int v131; 
-  StreamerMemPageCounts *v132; 
-  __int64 v133; 
-  int v134; 
-  StreamerMemPageCounts *v135; 
+  int v130; 
+  StreamerMemPageCounts *v131; 
+  __int64 v132; 
+  int v133; 
+  StreamerMemPageCounts *v134; 
+  __int64 v135; 
   __int64 v136; 
-  int v137; 
-  StreamerMemPageCounts *v138; 
+  volatile signed __int32 *v137; 
+  __int64 v138; 
   __int64 v139; 
   __int64 v140; 
-  volatile signed __int32 *v141; 
-  __int64 v142; 
+  __int64 v141; 
+  bool v142; 
   __int64 v143; 
-  __int64 v144; 
-  __int64 v145; 
-  bool v146; 
-  __int64 v147; 
-  __int128 v148; 
-  __int128 v149; 
-  __int128 v150; 
-  __int128 v151; 
+  Stream_Logger_Item v144; 
+  Stream_Logger_Item v145; 
+  Stream_Logger_Item v146; 
+  Stream_Logger_Item v147; 
   Stream_Logger_Item item; 
-  Stream_Logger_Item v153; 
-  Stream_Logger_Item v154; 
-  Stream_Logger_Item v155; 
+  Stream_Logger_Item v149; 
+  Stream_Logger_Item v150; 
+  Stream_Logger_Item v151; 
   GfxBackEndData *dataa; 
-  StreamerMemPageCounts v157; 
+  StreamerMemPageCounts v153; 
   StreamerMemPageCounts pageAdjust; 
-  StreamerMemPageCounts v159; 
+  StreamerMemPageCounts v155; 
 
   v4 = data;
   dataa = (GfxBackEndData *)data;
@@ -2373,7 +2263,7 @@ void Stream_BackendQueue_Update(GfxCmdBufContext *gfxContext, const GfxBackEndDa
   if ( !s_streamBackendGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1863, ASSERT_TYPE_ASSERT, "(s_streamBackendGlob)", (const char *)&queryFormat, "s_streamBackendGlob") )
     __debugbreak();
   isInForcedFlush = s_streamBackendGlob->isInForcedFlush;
-  v146 = isInForcedFlush;
+  v142 = isInForcedFlush;
   if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1471, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( !Sys_IsBackendOwnerThread() && !isInForcedFlush && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1472, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread() || isInForcedFlush)", (const char *)&queryFormat, "Sys_IsBackendOwnerThread() || isInForcedFlush") )
@@ -2444,18 +2334,18 @@ void Stream_BackendQueue_Update(GfxCmdBufContext *gfxContext, const GfxBackEndDa
         ++v22;
       }
       while ( v22 != v19 );
-      LODWORD(v144) = v20;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1483, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() ) == ( 0 )", "%s == %s\n\t%u, %u", "queue->unmapPageCount.TotalPages()", "0", v144, 0i64) )
+      LODWORD(v140) = v20;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1483, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() ) == ( 0 )", "%s == %s\n\t%u, %u", "queue->unmapPageCount.TotalPages()", "0", v140, 0i64) )
         __debugbreak();
     }
   }
-  v147 = 0i64;
+  v143 = 0i64;
   v23 = 0i64;
-  v157 = 0i64;
+  v153 = 0i64;
   v24 = 0;
   pageAdjust = 0i64;
   v25 = 0;
-  v159 = 0i64;
+  v155 = 0i64;
   if ( CommandQueue->commands.mTail )
   {
     while ( 1 )
@@ -2465,322 +2355,322 @@ void Stream_BackendQueue_Update(GfxCmdBufContext *gfxContext, const GfxBackEndDa
       {
         if ( CommandQueue->commands.mTail && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 97, ASSERT_TYPE_ASSERT, "(mTail == nullptr)", (const char *)&queryFormat, "mTail == nullptr") )
           __debugbreak();
-        v72 = 0;
-        v73 = &CommandQueue->mapPageCount;
-        v74 = 0i64;
+        v68 = 0;
+        v69 = &CommandQueue->mapPageCount;
+        v70 = 0i64;
         if ( &CommandQueue->mapPageCount <= (StreamerMemPageCounts *)&CommandQueue->mapSizeInBytes )
         {
           do
           {
-            v72 += v73->pages[0];
-            v73 = (StreamerMemPageCounts *)((char *)v73 + 4);
-            ++v74;
+            v68 += v69->pages[0];
+            v69 = (StreamerMemPageCounts *)((char *)v69 + 4);
+            ++v70;
           }
-          while ( v74 != v12 );
+          while ( v70 != v12 );
         }
-        v75 = 0;
+        v71 = 0;
         p_mapReservedPageCount = &CommandQueue->mapReservedPageCount;
-        v77 = 0i64;
-        v78 = 2i64;
+        v73 = 0i64;
+        v74 = 2i64;
         if ( &CommandQueue->mapReservedPageCount > &CommandQueue->mapPageCount )
-          v78 = 0i64;
+          v74 = 0i64;
         if ( &CommandQueue->mapReservedPageCount <= &CommandQueue->mapPageCount )
         {
           do
           {
-            v75 += p_mapReservedPageCount->pages[0];
+            v71 += p_mapReservedPageCount->pages[0];
             p_mapReservedPageCount = (StreamerMemPageCounts *)((char *)p_mapReservedPageCount + 4);
-            ++v77;
+            ++v73;
           }
-          while ( v77 != v78 );
+          while ( v73 != v74 );
         }
-        if ( v72 > v75 )
+        if ( v68 > v71 )
         {
-          v79 = 0;
-          v80 = &CommandQueue->mapReservedPageCount;
-          v81 = 0i64;
+          v75 = 0;
+          v76 = &CommandQueue->mapReservedPageCount;
+          v77 = 0i64;
           if ( &CommandQueue->mapReservedPageCount <= &CommandQueue->mapPageCount )
           {
             do
             {
-              v79 += v80->pages[0];
-              v80 = (StreamerMemPageCounts *)((char *)v80 + 4);
-              ++v81;
+              v75 += v76->pages[0];
+              v76 = (StreamerMemPageCounts *)((char *)v76 + 4);
+              ++v77;
             }
-            while ( v81 != v78 );
+            while ( v77 != v74 );
           }
-          v82 = 0;
-          v83 = &CommandQueue->mapPageCount;
-          v84 = 0i64;
+          v78 = 0;
+          v79 = &CommandQueue->mapPageCount;
+          v80 = 0i64;
           if ( &CommandQueue->mapPageCount <= (StreamerMemPageCounts *)&CommandQueue->mapSizeInBytes )
           {
             do
             {
-              v82 += v83->pages[0];
-              v83 = (StreamerMemPageCounts *)((char *)v83 + 4);
-              ++v84;
+              v78 += v79->pages[0];
+              v79 = (StreamerMemPageCounts *)((char *)v79 + 4);
+              ++v80;
             }
-            while ( v84 != v12 );
+            while ( v80 != v12 );
           }
-          LODWORD(v145) = v79;
-          LODWORD(v144) = v82;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1600, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v144, v145) )
+          LODWORD(v141) = v75;
+          LODWORD(v140) = v78;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1600, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v140, v141) )
             __debugbreak();
         }
-        v85 = 0;
-        v86 = &CommandQueue->unmapPageCount;
-        v87 = 0i64;
-        v88 = 2i64;
+        v81 = 0;
+        v82 = &CommandQueue->unmapPageCount;
+        v83 = 0i64;
+        v84 = 2i64;
         if ( &CommandQueue->unmapPageCount > (StreamerMemPageCounts *)&CommandQueue->unmapSizeInBytes )
-          v88 = 0i64;
+          v84 = 0i64;
         if ( &CommandQueue->unmapPageCount <= (StreamerMemPageCounts *)&CommandQueue->unmapSizeInBytes )
         {
           do
           {
-            v85 += v86->pages[0];
-            v86 = (StreamerMemPageCounts *)((char *)v86 + 4);
-            ++v87;
+            v81 += v82->pages[0];
+            v82 = (StreamerMemPageCounts *)((char *)v82 + 4);
+            ++v83;
           }
-          while ( v87 != v88 );
+          while ( v83 != v84 );
         }
-        v89 = 0;
+        v85 = 0;
         p_unmapMinPageCount = &CommandQueue->unmapMinPageCount;
-        v91 = &CommandQueue->unmapMinPageCount;
-        v92 = 0i64;
-        v93 = 2i64;
+        v87 = &CommandQueue->unmapMinPageCount;
+        v88 = 0i64;
+        v89 = 2i64;
         if ( &CommandQueue->unmapMinPageCount > &CommandQueue->unmapPageCount )
-          v93 = 0i64;
-        v94 = &CommandQueue->mapReservedPageCount;
+          v89 = 0i64;
+        v90 = &CommandQueue->mapReservedPageCount;
         if ( &CommandQueue->unmapMinPageCount <= &CommandQueue->unmapPageCount )
         {
           do
           {
-            v89 += v91->pages[0];
-            v91 = (StreamerMemPageCounts *)((char *)v91 + 4);
-            ++v92;
+            v85 += v87->pages[0];
+            v87 = (StreamerMemPageCounts *)((char *)v87 + 4);
+            ++v88;
           }
-          while ( v92 != v93 );
-          if ( v85 < v89 )
+          while ( v88 != v89 );
+          if ( v81 < v85 )
           {
-            v95 = 0;
-            v96 = &CommandQueue->unmapMinPageCount;
-            v97 = 0i64;
+            v91 = 0;
+            v92 = &CommandQueue->unmapMinPageCount;
+            v93 = 0i64;
             do
             {
-              v95 += v96->pages[0];
-              v96 = (StreamerMemPageCounts *)((char *)v96 + 4);
-              ++v97;
+              v91 += v92->pages[0];
+              v92 = (StreamerMemPageCounts *)((char *)v92 + 4);
+              ++v93;
             }
-            while ( v97 != v93 );
-            v98 = 0;
-            v99 = &CommandQueue->unmapPageCount;
-            v100 = 0i64;
+            while ( v93 != v89 );
+            v94 = 0;
+            v95 = &CommandQueue->unmapPageCount;
+            v96 = 0i64;
             if ( p_unmapPageCount <= &CommandQueue->unmapSizeInBytes )
             {
               do
               {
-                v98 += v99->pages[0];
-                v99 = (StreamerMemPageCounts *)((char *)v99 + 4);
-                ++v100;
+                v94 += v95->pages[0];
+                v95 = (StreamerMemPageCounts *)((char *)v95 + 4);
+                ++v96;
               }
-              while ( v100 != v88 );
+              while ( v96 != v84 );
             }
-            LODWORD(v145) = v95;
-            LODWORD(v144) = v98;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1601, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() ) >= ( queue->unmapMinPageCount.TotalPages() )", "%s >= %s\n\t%u, %u", "queue->unmapPageCount.TotalPages()", "queue->unmapMinPageCount.TotalPages()", v144, v145) )
+            LODWORD(v141) = v91;
+            LODWORD(v140) = v94;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1601, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() ) >= ( queue->unmapMinPageCount.TotalPages() )", "%s >= %s\n\t%u, %u", "queue->unmapPageCount.TotalPages()", "queue->unmapMinPageCount.TotalPages()", v140, v141) )
               __debugbreak();
           }
         }
-        v101 = 0;
-        v102 = &CommandQueue->mapPageCount;
-        v103 = 0i64;
+        v97 = 0;
+        v98 = &CommandQueue->mapPageCount;
+        v99 = 0i64;
         if ( &CommandQueue->mapPageCount <= (StreamerMemPageCounts *)&CommandQueue->mapSizeInBytes )
         {
           do
           {
-            v101 += v102->pages[0];
-            v102 = (StreamerMemPageCounts *)((char *)v102 + 4);
-            ++v103;
+            v97 += v98->pages[0];
+            v98 = (StreamerMemPageCounts *)((char *)v98 + 4);
+            ++v99;
           }
-          while ( v103 != v12 );
+          while ( v99 != v12 );
         }
-        v104 = 0;
+        v100 = 0;
         p_pageAdjust = &pageAdjust;
-        v106 = 2i64;
+        v102 = 2i64;
         do
         {
-          v104 += p_pageAdjust->pages[0];
+          v100 += p_pageAdjust->pages[0];
           p_pageAdjust = (StreamerMemPageCounts *)((char *)p_pageAdjust + 4);
-          --v106;
+          --v102;
         }
-        while ( v106 );
-        v107 = 0;
-        v108 = &CommandQueue->mapReservedPageCount;
-        v109 = 0i64;
-        v110 = 2i64;
+        while ( v102 );
+        v103 = 0;
+        v104 = &CommandQueue->mapReservedPageCount;
+        v105 = 0i64;
+        v106 = 2i64;
         if ( &CommandQueue->mapReservedPageCount > &CommandQueue->mapPageCount )
-          v110 = 0i64;
+          v106 = 0i64;
         if ( &CommandQueue->mapReservedPageCount <= &CommandQueue->mapPageCount )
         {
           do
           {
-            v107 += v108->pages[0];
-            v108 = (StreamerMemPageCounts *)((char *)v108 + 4);
-            ++v109;
+            v103 += v104->pages[0];
+            v104 = (StreamerMemPageCounts *)((char *)v104 + 4);
+            ++v105;
           }
-          while ( v109 != v110 );
+          while ( v105 != v106 );
         }
-        if ( v104 + v101 > v107 )
+        if ( v100 + v97 > v103 )
         {
-          v111 = 0;
-          v112 = &CommandQueue->mapReservedPageCount;
-          v113 = 0i64;
-          if ( v94 <= &CommandQueue->mapPageCount )
+          v107 = 0;
+          v108 = &CommandQueue->mapReservedPageCount;
+          v109 = 0i64;
+          if ( v90 <= &CommandQueue->mapPageCount )
           {
             do
             {
-              v111 += v112->pages[0];
-              v112 = (StreamerMemPageCounts *)((char *)v112 + 4);
-              ++v113;
+              v107 += v108->pages[0];
+              v108 = (StreamerMemPageCounts *)((char *)v108 + 4);
+              ++v109;
             }
-            while ( v113 != v110 );
+            while ( v109 != v106 );
           }
-          v114 = 0;
-          v115 = &CommandQueue->mapPageCount;
-          v116 = 0i64;
+          v110 = 0;
+          v111 = &CommandQueue->mapPageCount;
+          v112 = 0i64;
           if ( &CommandQueue->mapPageCount <= (StreamerMemPageCounts *)&CommandQueue->mapSizeInBytes )
           {
             do
             {
-              v114 += v115->pages[0];
-              v115 = (StreamerMemPageCounts *)((char *)v115 + 4);
-              ++v116;
+              v110 += v111->pages[0];
+              v111 = (StreamerMemPageCounts *)((char *)v111 + 4);
+              ++v112;
             }
-            while ( v116 != v12 );
+            while ( v112 != v12 );
           }
-          v117 = 0;
-          v118 = &pageAdjust;
-          v119 = 2i64;
+          v113 = 0;
+          v114 = &pageAdjust;
+          v115 = 2i64;
           do
           {
-            v117 += v118->pages[0];
-            v118 = (StreamerMemPageCounts *)((char *)v118 + 4);
-            --v119;
+            v113 += v114->pages[0];
+            v114 = (StreamerMemPageCounts *)((char *)v114 + 4);
+            --v115;
           }
-          while ( v119 );
-          LODWORD(v145) = v111;
-          LODWORD(v144) = v117 + v114;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1603, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() + pageAdjustMap.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages() + pageAdjustMap.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v144, v145) )
+          while ( v115 );
+          LODWORD(v141) = v107;
+          LODWORD(v140) = v113 + v110;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1603, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() + pageAdjustMap.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages() + pageAdjustMap.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v140, v141) )
             __debugbreak();
         }
-        v120 = 0;
-        v121 = &CommandQueue->unmapPageCount;
-        v122 = 0i64;
-        v123 = 2i64;
+        v116 = 0;
+        v117 = &CommandQueue->unmapPageCount;
+        v118 = 0i64;
+        v119 = 2i64;
         if ( &CommandQueue->unmapPageCount > (StreamerMemPageCounts *)&CommandQueue->unmapSizeInBytes )
-          v123 = 0i64;
+          v119 = 0i64;
         if ( &CommandQueue->unmapPageCount <= (StreamerMemPageCounts *)&CommandQueue->unmapSizeInBytes )
         {
           do
           {
-            v120 += v121->pages[0];
-            v121 = (StreamerMemPageCounts *)((char *)v121 + 4);
-            ++v122;
+            v116 += v117->pages[0];
+            v117 = (StreamerMemPageCounts *)((char *)v117 + 4);
+            ++v118;
           }
-          while ( v122 != v123 );
+          while ( v118 != v119 );
         }
-        v124 = 0;
-        v125 = &v159;
-        v126 = 2i64;
+        v120 = 0;
+        v121 = &v155;
+        v122 = 2i64;
         do
         {
-          v124 += v125->pages[0];
-          v125 = (StreamerMemPageCounts *)((char *)v125 + 4);
-          --v126;
+          v120 += v121->pages[0];
+          v121 = (StreamerMemPageCounts *)((char *)v121 + 4);
+          --v122;
         }
-        while ( v126 );
-        v127 = 0;
-        v128 = &CommandQueue->unmapMinPageCount;
-        v129 = 0i64;
-        v130 = 2i64;
+        while ( v122 );
+        v123 = 0;
+        v124 = &CommandQueue->unmapMinPageCount;
+        v125 = 0i64;
+        v126 = 2i64;
         if ( &CommandQueue->unmapMinPageCount > &CommandQueue->unmapPageCount )
-          v130 = 0i64;
+          v126 = 0i64;
         if ( &CommandQueue->unmapMinPageCount <= &CommandQueue->unmapPageCount )
         {
           do
           {
-            v127 += v128->pages[0];
-            v128 = (StreamerMemPageCounts *)((char *)v128 + 4);
-            ++v129;
+            v123 += v124->pages[0];
+            v124 = (StreamerMemPageCounts *)((char *)v124 + 4);
+            ++v125;
           }
-          while ( v129 != v130 );
+          while ( v125 != v126 );
         }
-        if ( v120 - v124 != v127 )
+        if ( v116 - v120 != v123 )
         {
-          v131 = 0;
-          v132 = &CommandQueue->unmapMinPageCount;
-          v133 = 0i64;
+          v127 = 0;
+          v128 = &CommandQueue->unmapMinPageCount;
+          v129 = 0i64;
           if ( p_unmapMinPageCount <= &CommandQueue->unmapPageCount )
           {
             do
             {
-              v131 += v132->pages[0];
-              v132 = (StreamerMemPageCounts *)((char *)v132 + 4);
-              ++v133;
+              v127 += v128->pages[0];
+              v128 = (StreamerMemPageCounts *)((char *)v128 + 4);
+              ++v129;
             }
-            while ( v133 != v130 );
+            while ( v129 != v126 );
           }
-          v134 = 0;
-          v135 = &CommandQueue->unmapPageCount;
-          v136 = 0i64;
+          v130 = 0;
+          v131 = &CommandQueue->unmapPageCount;
+          v132 = 0i64;
           if ( p_unmapPageCount <= &CommandQueue->unmapSizeInBytes )
           {
             do
             {
-              v134 += v135->pages[0];
-              v135 = (StreamerMemPageCounts *)((char *)v135 + 4);
-              ++v136;
+              v130 += v131->pages[0];
+              v131 = (StreamerMemPageCounts *)((char *)v131 + 4);
+              ++v132;
             }
-            while ( v136 != v123 );
+            while ( v132 != v119 );
           }
-          v137 = 0;
-          v138 = &v159;
-          v139 = 2i64;
+          v133 = 0;
+          v134 = &v155;
+          v135 = 2i64;
           do
           {
-            v137 += v138->pages[0];
-            v138 = (StreamerMemPageCounts *)((char *)v138 + 4);
-            --v139;
+            v133 += v134->pages[0];
+            v134 = (StreamerMemPageCounts *)((char *)v134 + 4);
+            --v135;
           }
-          while ( v139 );
-          LODWORD(v145) = v131;
-          LODWORD(v144) = v134 - v137;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1607, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() - pageAdjustUnmap.TotalPages() ) == ( queue->unmapMinPageCount.TotalPages() )", "%s == %s\n\t%u, %u", "queue->unmapPageCount.TotalPages() - pageAdjustUnmap.TotalPages()", "queue->unmapMinPageCount.TotalPages()", v144, v145) )
+          while ( v135 );
+          LODWORD(v141) = v127;
+          LODWORD(v140) = v130 - v133;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1607, ASSERT_TYPE_ASSERT, "( queue->unmapPageCount.TotalPages() - pageAdjustUnmap.TotalPages() ) == ( queue->unmapMinPageCount.TotalPages() )", "%s == %s\n\t%u, %u", "queue->unmapPageCount.TotalPages() - pageAdjustUnmap.TotalPages()", "queue->unmapMinPageCount.TotalPages()", v140, v141) )
             __debugbreak();
         }
-        if ( CommandQueue->mapSizeInBytes != v147 )
+        if ( CommandQueue->mapSizeInBytes != v143 )
         {
-          LODWORD(v145) = v147;
-          LODWORD(v144) = CommandQueue->mapSizeInBytes;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1609, ASSERT_TYPE_ASSERT, "( queue->mapSizeInBytes ) == ( mapSizeInBytes )", "%s == %s\n\t%u, %u", "queue->mapSizeInBytes", "mapSizeInBytes", v144, v145) )
+          LODWORD(v141) = v143;
+          LODWORD(v140) = CommandQueue->mapSizeInBytes;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1609, ASSERT_TYPE_ASSERT, "( queue->mapSizeInBytes ) == ( mapSizeInBytes )", "%s == %s\n\t%u, %u", "queue->mapSizeInBytes", "mapSizeInBytes", v140, v141) )
             __debugbreak();
         }
-        if ( CommandQueue->unmapSizeInBytes != v157 )
+        if ( CommandQueue->unmapSizeInBytes != v153 )
         {
-          LODWORD(v145) = v157.pages[0];
-          LODWORD(v144) = CommandQueue->unmapSizeInBytes;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1610, ASSERT_TYPE_ASSERT, "( queue->unmapSizeInBytes ) == ( unmapSizeInBytes )", "%s == %s\n\t%u, %u", "queue->unmapSizeInBytes", "unmapSizeInBytes", v144, v145) )
+          LODWORD(v141) = v153.pages[0];
+          LODWORD(v140) = CommandQueue->unmapSizeInBytes;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1610, ASSERT_TYPE_ASSERT, "( queue->unmapSizeInBytes ) == ( unmapSizeInBytes )", "%s == %s\n\t%u, %u", "queue->unmapSizeInBytes", "unmapSizeInBytes", v140, v141) )
             __debugbreak();
         }
         CommandQueue->mapPageCount = 0i64;
-        *v94 = 0i64;
+        *v90 = 0i64;
         CommandQueue->mapSizeInBytes = 0i64;
         *p_unmapPageCount = 0i64;
         *p_unmapMinPageCount = 0i64;
         CommandQueue->unmapSizeInBytes = 0i64;
         Mem_Paged_BatchFlush();
         v24 = pageAdjust.pages[0];
-        v25 = v159.pages[0];
+        v25 = v155.pages[0];
         goto LABEL_204;
       }
       if ( *(_DWORD *)mHead << 8 )
@@ -2863,35 +2753,35 @@ void Stream_BackendQueue_Update(GfxCmdBufContext *gfxContext, const GfxBackEndDa
               }
               while ( v42 != v32 );
             }
-            LODWORD(v145) = v38;
-            LODWORD(v144) = v40;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1508, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v144, v145) )
+            LODWORD(v141) = v38;
+            LODWORD(v140) = v40;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1508, ASSERT_TYPE_ASSERT, "( queue->mapPageCount.TotalPages() ) <= ( queue->mapReservedPageCount.TotalPages() )", "%s <= %s\n\t%u, %u", "queue->mapPageCount.TotalPages()", "queue->mapReservedPageCount.TotalPages()", v140, v141) )
               __debugbreak();
           }
-          v147 += mHead->mapCmd.mapSize;
+          v143 += mHead->mapCmd.mapSize;
           v4 = dataa;
           break;
         case 1:
-          v43 = Stream_BackendQueue_ExecUnmapCmd(v4, (const StreamUnmapCmdData *)&mHead->8, &v159);
+          v43 = Stream_BackendQueue_ExecUnmapCmd(v4, (const StreamUnmapCmdData *)&mHead->8, &v155);
           StreamerMemPageCounts::AddPages(&CommandQueue->unmapPageCount, mHead->unmapCmd.pool, v43);
-          v157 = (StreamerMemPageCounts)(mHead->mapCmd.mapSize + *(_QWORD *)&v23);
+          v153 = (StreamerMemPageCounts)(mHead->mapCmd.mapSize + *(_QWORD *)&v23);
           break;
         case 2:
           GfxImageIndex = DB_GetGfxImageIndex(mHead->imageCmd.image);
           Stream_Defrag_OnLoadItem(STREAM_ITEM_IMAGE, 4 * GfxImageIndex + mHead->imageCmd.part, *(streamer_handle_t *)(mHead->mapCmd.baseAddrHandle.data + 224));
-          if ( v146 )
+          if ( v142 )
             R_LockGfxImmediateContext();
           Stream_BackendQueue_ExecLoadImageCmd(v4, (ImageCmdData *)&mHead->8);
-          if ( v146 )
+          if ( v142 )
             goto LABEL_67;
           break;
         case 3:
           v45 = DB_GetGfxImageIndex(mHead->imageCmd.image);
           Stream_Defrag_OnUnloadItem(STREAM_ITEM_IMAGE, 4 * v45 + mHead->imageCmd.part, *(streamer_handle_t *)(mHead->mapCmd.baseAddrHandle.data + 224));
-          if ( v146 )
+          if ( v142 )
             R_LockGfxImmediateContext();
           Stream_BackendQueue_ExecUnloadImageCmd(v4, (ImageCmdData *)&mHead->8);
-          if ( v146 )
+          if ( v142 )
 LABEL_67:
             R_UnlockGfxImmediateContext();
           break;
@@ -2914,123 +2804,107 @@ LABEL_67:
             __debugbreak();
           if ( !Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 975, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
             __debugbreak();
-          BYTE8(v149) = 1;
-          *(_QWORD *)&v149 = v49;
-          __asm
-          {
-            vmovups xmm0, [rbp+70h+var_F0]
-            vmovdqa xmmword ptr [rbp+70h+item.___u0], xmm0
-          }
+          v145.m_type = STREAM_ITEM_MESH;
+          v145.m_image = (const GfxImage *)v49;
+          item = v145;
           Stream_Logger_OnLoad("Stream_BackendQueue_ExecLoadMeshCmd", v4, &item, 0);
-          v51 = DB_GetXModelSurfsIndex(v49);
-          StreamableBitArray_InterlockedSetArray(streamFrontendGlob->meshBits.mLoaded, v51);
+          v50 = DB_GetXModelSurfsIndex(v49);
+          StreamableBitArray_InterlockedSetArray(streamFrontendGlob->meshBits.mLoaded, v50);
           goto LABEL_88;
         case 5:
-          v52 = mHead->meshCmd.mesh;
-          v53.data = v52->shared->data.streamedDataHandle.data;
-          v54 = DB_GetXModelSurfsIndex(v52);
-          Stream_Defrag_OnUnloadItem(STREAM_ITEM_MESH, v54, v53);
-          v55 = mHead->meshCmd.mesh;
-          if ( !v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 988, ASSERT_TYPE_ASSERT, "(mesh)", (const char *)&queryFormat, "mesh") )
+          v51 = mHead->meshCmd.mesh;
+          v52.data = v51->shared->data.streamedDataHandle.data;
+          v53 = DB_GetXModelSurfsIndex(v51);
+          Stream_Defrag_OnUnloadItem(STREAM_ITEM_MESH, v53, v52);
+          v54 = mHead->meshCmd.mesh;
+          if ( !v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 988, ASSERT_TYPE_ASSERT, "(mesh)", (const char *)&queryFormat, "mesh") )
             __debugbreak();
-          if ( !v55->shared )
+          if ( !v54->shared )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 989, ASSERT_TYPE_ASSERT, "(mesh->shared)", (const char *)&queryFormat, "mesh->shared") )
               __debugbreak();
-            if ( !v55->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared") )
+            if ( !v54->shared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_db.h", 747, ASSERT_TYPE_ASSERT, "(modelSurfs->shared)", (const char *)&queryFormat, "modelSurfs->shared") )
               __debugbreak();
           }
-          if ( (v55->shared->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 990, ASSERT_TYPE_ASSERT, "(XModelSurfs_IsStreamed( mesh ))", (const char *)&queryFormat, "XModelSurfs_IsStreamed( mesh )") )
+          if ( (v54->shared->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 990, ASSERT_TYPE_ASSERT, "(XModelSurfs_IsStreamed( mesh ))", (const char *)&queryFormat, "XModelSurfs_IsStreamed( mesh )") )
             __debugbreak();
           if ( !Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 991, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
             __debugbreak();
-          BYTE8(v148) = 1;
-          *(_QWORD *)&v148 = v55;
-          __asm
-          {
-            vmovups xmm0, [rsp+170h+var_100]
-            vmovdqa xmmword ptr [rbp+70h+var_A0.___u0], xmm0
-          }
-          Stream_Logger_OnUnload("Stream_BackendQueue_ExecUnloadMeshCmd", v4, &v153, 0);
-          v51 = DB_GetXModelSurfsIndex(v55);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshBits.mLoaded, v51);
+          v144.m_type = STREAM_ITEM_MESH;
+          v144.m_image = (const GfxImage *)v54;
+          v149 = v144;
+          Stream_Logger_OnUnload("Stream_BackendQueue_ExecUnloadMeshCmd", v4, &v149, 0);
+          v50 = DB_GetXModelSurfsIndex(v54);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshBits.mLoaded, v50);
 LABEL_88:
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshRequest.mFreeable, v51);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshRequest.mDanger, v51);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshRequest.mFreeable, v50);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->meshRequest.mDanger, v50);
           break;
         case 6:
           streamKey = mHead->genericCmd.streamKey;
-          v58.data = streamKey->data.dataHandle.data;
+          v56.data = streamKey->data.dataHandle.data;
           StreamKeyIndex = DB_GetStreamKeyIndex(streamKey);
-          Stream_Defrag_OnLoadItem(STREAM_ITEM_GENERIC, StreamKeyIndex, v58);
-          v60 = mHead->genericCmd.streamKey;
-          if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1004, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey") )
+          Stream_Defrag_OnLoadItem(STREAM_ITEM_GENERIC, StreamKeyIndex, v56);
+          v58 = mHead->genericCmd.streamKey;
+          if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1004, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey") )
             __debugbreak();
           if ( !Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1005, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
             __debugbreak();
-          BYTE8(v150) = 2;
-          *(_QWORD *)&v150 = v60;
-          __asm
-          {
-            vmovups xmm0, [rbp+70h+var_E0]
-            vmovdqa xmmword ptr [rbp+70h+var_90.___u0], xmm0
-          }
-          Stream_Logger_OnLoad("Stream_BackendQueue_ExecLoadGenericCmd", dataa, &v154, 0);
-          v62 = DB_GetStreamKeyIndex(v60);
-          StreamableBitArray_InterlockedSetArray(streamFrontendGlob->genericBits.mLoaded, v62);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mFreeable, v62);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mDanger, v62);
-          StreamKey_UserLoadedBackend(v60);
+          v146.m_type = STREAM_ITEM_GENERIC;
+          v146.m_image = (const GfxImage *)v58;
+          v150 = v146;
+          Stream_Logger_OnLoad("Stream_BackendQueue_ExecLoadGenericCmd", dataa, &v150, 0);
+          v59 = DB_GetStreamKeyIndex(v58);
+          StreamableBitArray_InterlockedSetArray(streamFrontendGlob->genericBits.mLoaded, v59);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mFreeable, v59);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mDanger, v59);
+          StreamKey_UserLoadedBackend(v58);
           v4 = dataa;
           break;
         case 7:
+          v60 = mHead->genericCmd.streamKey;
+          v61.data = v60->data.dataHandle.data;
+          v62 = DB_GetStreamKeyIndex(v60);
+          Stream_Defrag_OnUnloadItem(STREAM_ITEM_GENERIC, v62, v61);
           v63 = mHead->genericCmd.streamKey;
-          v64.data = v63->data.dataHandle.data;
-          v65 = DB_GetStreamKeyIndex(v63);
-          Stream_Defrag_OnUnloadItem(STREAM_ITEM_GENERIC, v65, v64);
-          v66 = mHead->genericCmd.streamKey;
-          if ( !v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1027, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey") )
+          if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1027, ASSERT_TYPE_ASSERT, "(streamKey)", (const char *)&queryFormat, "streamKey") )
             __debugbreak();
           if ( !Sys_InCriticalSection(CRITSECT_STREAM_BACKEND_UPDATE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1028, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_BACKEND_UPDATE )") )
             __debugbreak();
-          BYTE8(v151) = 2;
-          *(_QWORD *)&v151 = v66;
-          __asm
-          {
-            vmovups xmm0, [rbp+70h+var_D0]
-            vmovdqa xmmword ptr [rbp+70h+var_80.___u0], xmm0
-          }
-          Stream_Logger_OnUnload("Stream_BackendQueue_ExecUnloadGenericCmd", v4, &v155, 0);
-          StreamKey_UserUnloadedBackend(v66);
-          v68 = DB_GetStreamKeyIndex(v66);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericBits.mLoaded, v68);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mFreeable, v68);
-          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mDanger, v68);
+          v147.m_type = STREAM_ITEM_GENERIC;
+          v147.m_image = (const GfxImage *)v63;
+          v151 = v147;
+          Stream_Logger_OnUnload("Stream_BackendQueue_ExecUnloadGenericCmd", v4, &v151, 0);
+          StreamKey_UserUnloadedBackend(v63);
+          v64 = DB_GetStreamKeyIndex(v63);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericBits.mLoaded, v64);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mFreeable, v64);
+          StreamableBitArray_InterlockedClearArray(streamFrontendGlob->genericRequest.mDanger, v64);
           break;
         default:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_backend_queue.cpp", 1592, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unreachable code") )
             __debugbreak();
           break;
       }
-      v69 = s_streamBackendGlob;
+      v65 = s_streamBackendGlob;
       if ( (*(_DWORD *)mHead & 0xFFFFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 652, ASSERT_TYPE_ASSERT, "(node->next == 0)", (const char *)&queryFormat, "node->next == 0") )
         __debugbreak();
-      if ( !v69->commands.mHead )
+      if ( !v65->commands.mHead )
         break;
-      v70 = v69->commands.mHead - mHead;
-      *(_DWORD *)mHead ^= (*(_DWORD *)mHead ^ v70) & 0xFFFFFF;
-      v71 = *(_DWORD *)mHead << 8;
-      if ( (__int64)v71 >> 8 == v70 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 659, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int64)v71 >> 8, v70) )
+      v66 = v65->commands.mHead - mHead;
+      *(_DWORD *)mHead ^= (*(_DWORD *)mHead ^ v66) & 0xFFFFFF;
+      v67 = *(_DWORD *)mHead << 8;
+      if ( (__int64)v67 >> 8 == v66 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_rslist.h", 659, ASSERT_TYPE_ASSERT, "( node->next ) == ( curHead - node )", "%s == %s\n\t%lli, %lli", "node->next", "curHead - node", (__int64)v67 >> 8, v66) )
       {
 LABEL_129:
-        v69->commands.mHead = mHead;
-        v23 = v157;
+        v65->commands.mHead = mHead;
+        v23 = v153;
       }
       else
       {
         __debugbreak();
-        v69->commands.mHead = mHead;
-        v23 = v157;
+        v65->commands.mHead = mHead;
+        v23 = v153;
       }
     }
     *(_DWORD *)mHead &= 0xFF000000;
@@ -3038,27 +2912,27 @@ LABEL_129:
   }
 LABEL_204:
   LODWORD(dataa) = v25 + v24;
-  HIDWORD(dataa) = v159.pages[1] + pageAdjust.pages[1];
-  v157 = (StreamerMemPageCounts)dataa;
-  Stream_Defrag_GivePages(&v157);
+  HIDWORD(dataa) = v155.pages[1] + pageAdjust.pages[1];
+  v153 = (StreamerMemPageCounts)dataa;
+  Stream_Defrag_GivePages(&v153);
   do
   {
     if ( (unsigned int)v7 >= 2 )
     {
-      LODWORD(v143) = 2;
-      LODWORD(v142) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", v142, v143) )
+      LODWORD(v139) = 2;
+      LODWORD(v138) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\streamer_mem_loan.h", 32, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( ( sizeof( *array_counter( pages ) ) + 0 ) )", "pool doesn't index ARRAY_COUNT( pages )\n\t%i not in [0, %i)", v138, v139) )
         __debugbreak();
     }
-    v140 = (int)v157.pages[(unsigned int)v7];
-    if ( (_DWORD)v140 )
+    v136 = (int)v153.pages[(unsigned int)v7];
+    if ( (_DWORD)v136 )
     {
-      if ( (unsigned int)v140 > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", v140, "unsigned", (unsigned int)v140) )
+      if ( (unsigned int)v136 > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", v136, "unsigned", (unsigned int)v136) )
         __debugbreak();
-      v141 = &s_streamBackendGlob->pageAdjustment[v7];
-      if ( ((unsigned __int8)v141 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &s_streamBackendGlob->pageAdjustment[v7]) )
+      v137 = &s_streamBackendGlob->pageAdjustment[v7];
+      if ( ((unsigned __int8)v137 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &s_streamBackendGlob->pageAdjustment[v7]) )
         __debugbreak();
-      _InterlockedExchangeAdd(v141, v140);
+      _InterlockedExchangeAdd(v137, v136);
     }
     ++v7;
   }

@@ -181,11 +181,9 @@ IndyFsScopedEvent::IndyFsScopedEvent
 */
 void IndyFsScopedEvent::IndyFsScopedEvent(IndyFsScopedEvent *this, const char *category_, const char *name_)
 {
-  _RDI = this;
   indyfs_strlcpy(this->category, category_, 0x104ui64);
-  indyfs_strlcpy(_RDI->name, name_, 0x104ui64);
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovsd  qword ptr [rdi+208h], xmm0 }
+  indyfs_strlcpy(this->name, name_, 0x104ui64);
+  this->start = indyfs_time_now_us();
 }
 
 /*
@@ -195,23 +193,19 @@ IndyFsScopedEventWithArgs::IndyFsScopedEventWithArgs
 */
 void IndyFsScopedEventWithArgs::IndyFsScopedEventWithArgs(IndyFsScopedEventWithArgs *this, const char *category_, const char *name_, const char *args_)
 {
-  unsigned __int64 v11; 
-  unsigned __int64 v12; 
-  double v14; 
+  double v8; 
+  unsigned __int64 v9; 
+  unsigned __int64 v10; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   indyfs_strlcpy(this->category, category_, 0x104ui64);
   indyfs_strlcpy(this->name, name_, 0x104ui64);
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovaps xmm6, xmm0 }
+  v8 = indyfs_time_now_us();
   if ( s_profilerEnabled )
   {
-    v11 = indyfs_process_pid();
-    v12 = indyfs_process_tid();
-    __asm { vmovsd  [rsp+58h+var_38], xmm6 }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"B\",\"name\":\"%s\",\"args\":{%s}},\n", category_, v11, v12, v14, name_, args_);
+    v9 = indyfs_process_pid();
+    v10 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"B\",\"name\":\"%s\",\"args\":{%s}},\n", category_, v9, v10, v8, name_, args_);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -221,11 +215,9 @@ IndyFsScopedEventWithThreshold::IndyFsScopedEventWithThreshold
 */
 void IndyFsScopedEventWithThreshold::IndyFsScopedEventWithThreshold(IndyFsScopedEventWithThreshold *this, const char *category_, const char *name_)
 {
-  _RDI = this;
   indyfs_strlcpy(this->category, category_, 0x104ui64);
-  indyfs_strlcpy(_RDI->name, name_, 0x104ui64);
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovsd  qword ptr [rdi+208h], xmm0 }
+  indyfs_strlcpy(this->name, name_, 0x104ui64);
+  this->start = indyfs_time_now_us();
 }
 
 /*
@@ -235,19 +227,12 @@ IndyFsScopedEvent::~IndyFsScopedEvent
 */
 void IndyFsScopedEvent::~IndyFsScopedEvent(IndyFsScopedEvent *this)
 {
-  IndyFsScopedEvent *v3; 
+  long double start; 
+  long double v3; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v3 = this;
-  __asm { vmovsd  xmm6, qword ptr [rcx+208h] }
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm
-  {
-    vsubsd  xmm3, xmm0, xmm6; duration
-    vmovaps xmm2, xmm6; start
-  }
-  indyfs_profiler_internal_duration_event(v3->category, v3->name, *(long double *)&_XMM2, *(long double *)&_XMM3);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  start = this->start;
+  v3 = indyfs_time_now_us();
+  indyfs_profiler_internal_duration_event(this->category, this->name, start, v3 - start);
 }
 
 /*
@@ -257,21 +242,17 @@ IndyFsScopedEventWithArgs::~IndyFsScopedEventWithArgs
 */
 void IndyFsScopedEventWithArgs::~IndyFsScopedEventWithArgs(IndyFsScopedEventWithArgs *this)
 {
-  unsigned __int64 v5; 
-  unsigned __int64 v6; 
-  double v8; 
+  double v2; 
+  unsigned __int64 v3; 
+  unsigned __int64 v4; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovaps xmm6, xmm0 }
+  v2 = indyfs_time_now_us();
   if ( s_profilerEnabled )
   {
-    v5 = indyfs_process_pid();
-    v6 = indyfs_process_tid();
-    __asm { vmovsd  [rsp+58h+var_38], xmm6 }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"E\",\"name\":\"%s\"},\n", this->category, v5, v6, v8, this->name);
+    v3 = indyfs_process_pid();
+    v4 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"E\",\"name\":\"%s\"},\n", this->category, v3, v4, v2, this->name);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -281,25 +262,13 @@ IndyFsScopedEventWithThreshold::~IndyFsScopedEventWithThreshold
 */
 void IndyFsScopedEventWithThreshold::~IndyFsScopedEventWithThreshold(IndyFsScopedEventWithThreshold *this)
 {
-  IndyFsScopedEventWithThreshold *v3; 
-  char v6; 
-  char v7; 
+  long double start; 
+  long double v3; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v3 = this;
-  __asm { vmovsd  xmm6, qword ptr [rcx+208h] }
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm
-  {
-    vsubsd  xmm3, xmm0, xmm6; duration
-    vcomisd xmm3, cs:__real@408f400000000000
-  }
-  if ( !(v6 | v7) )
-  {
-    __asm { vmovaps xmm2, xmm6; start }
-    indyfs_profiler_internal_duration_event(v3->category, v3->name, *(long double *)&_XMM2, *(long double *)&_XMM3);
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  start = this->start;
+  v3 = indyfs_time_now_us() - start;
+  if ( v3 > 1000.0 )
+    indyfs_profiler_internal_duration_event(this->category, this->name, start, v3);
 }
 
 /*
@@ -392,26 +361,17 @@ __int64 indyfs_profiler_init(bool enabled, const char *jsonFile, void *memoryBlo
 indyfs_profiler_internal_begin_event
 ==============
 */
-
-void __fastcall indyfs_profiler_internal_begin_event(const char *category, const char *name, double time, const char *args)
+void indyfs_profiler_internal_begin_event(const char *category, const char *name, long double time, const char *args)
 {
-  unsigned __int64 v9; 
-  unsigned __int64 v10; 
-  double v12; 
+  unsigned __int64 v7; 
+  unsigned __int64 v8; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( s_profilerEnabled )
   {
-    v9 = indyfs_process_pid();
-    v10 = indyfs_process_tid();
-    __asm { vmovsd  [rsp+58h+var_38], xmm6 }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"B\",\"name\":\"%s\",\"args\":{%s}},\n", category, v9, v10, v12, name, args);
+    v7 = indyfs_process_pid();
+    v8 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"B\",\"name\":\"%s\",\"args\":{%s}},\n", category, v7, v8, (double)time, name, args);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -419,36 +379,16 @@ void __fastcall indyfs_profiler_internal_begin_event(const char *category, const
 indyfs_profiler_internal_duration_event
 ==============
 */
-
-void __fastcall indyfs_profiler_internal_duration_event(const char *category, const char *name, double start, double duration)
+void indyfs_profiler_internal_duration_event(const char *category, const char *name, long double start, long double duration)
 {
-  unsigned __int64 v10; 
-  unsigned __int64 v11; 
-  double v14; 
-  double v15; 
+  unsigned __int64 v6; 
+  unsigned __int64 v7; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( s_profilerEnabled )
   {
-    v10 = indyfs_process_pid();
-    v11 = indyfs_process_tid();
-    __asm
-    {
-      vmovsd  [rsp+68h+var_40], xmm6
-      vmovsd  [rsp+68h+var_48], xmm7
-    }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"dur\":\"%f\",\"ph\":\"X\",\"name\":\"%s\"},\n", category, v10, v11, v14, v15, name);
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    v6 = indyfs_process_pid();
+    v7 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"dur\":\"%f\",\"ph\":\"X\",\"name\":\"%s\"},\n", category, v6, v7, (double)start, (double)duration, name);
   }
 }
 
@@ -457,26 +397,17 @@ void __fastcall indyfs_profiler_internal_duration_event(const char *category, co
 indyfs_profiler_internal_end_event
 ==============
 */
-
-void __fastcall indyfs_profiler_internal_end_event(const char *category, const char *name, double time)
+void indyfs_profiler_internal_end_event(const char *category, const char *name, long double time)
 {
-  unsigned __int64 v7; 
-  unsigned __int64 v8; 
-  double v10; 
+  unsigned __int64 v5; 
+  unsigned __int64 v6; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( s_profilerEnabled )
   {
-    v7 = indyfs_process_pid();
-    v8 = indyfs_process_tid();
-    __asm { vmovsd  [rsp+48h+var_28], xmm6 }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"E\",\"name\":\"%s\"},\n", category, v7, v8, v10, name);
+    v5 = indyfs_process_pid();
+    v6 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"E\",\"name\":\"%s\"},\n", category, v5, v6, (double)time, name);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -486,20 +417,16 @@ indyfs_profiler_internal_instant_event
 */
 void indyfs_profiler_internal_instant_event(const char *category, const char *name)
 {
-  unsigned __int64 v7; 
-  unsigned __int64 v8; 
-  double v10; 
+  long double v4; 
+  unsigned __int64 v5; 
+  unsigned __int64 v6; 
 
   if ( s_profilerEnabled )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
-    *(double *)&_XMM0 = indyfs_time_now_us();
-    __asm { vmovaps xmm6, xmm0 }
-    v7 = indyfs_process_pid();
-    v8 = indyfs_process_tid();
-    __asm { vmovsd  [rsp+48h+var_28], xmm6 }
-    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"i\",\"name\":\"%s\"},\n", category, v7, v8, v10, name);
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
+    v4 = indyfs_time_now_us();
+    v5 = indyfs_process_pid();
+    v6 = indyfs_process_tid();
+    profiler_write_message("{\"cat\":\"%s\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"ph\":\"i\",\"name\":\"%s\"},\n", category, v5, v6, (double)v4, name);
   }
 }
 
@@ -555,47 +482,29 @@ void indyfs_profiler_term(void)
 profiler_flush
 ==============
 */
-
-void __fastcall profiler_flush(long double _XMM0_8)
+void profiler_flush()
 {
-  signed __int64 v1; 
-  void *v4; 
-  unsigned __int64 v7; 
-  unsigned __int64 v8; 
-  int v9; 
-  double v12; 
-  double v13; 
+  signed __int64 v0; 
+  void *v1; 
+  double v2; 
+  long double v3; 
+  unsigned __int64 v4; 
+  unsigned __int64 v5; 
+  int v6; 
   char _Buffer[4096]; 
 
-  v4 = alloca(v1);
-  __asm
-  {
-    vmovaps [rsp+1078h+var_18], xmm6
-    vmovaps [rsp+1078h+var_28], xmm7
-  }
-  _XMM0_8 = indyfs_time_now_us();
-  __asm { vmovaps xmm7, xmm0 }
+  v1 = alloca(v0);
+  v2 = indyfs_time_now_us();
   indyfs_fwrite(s_profiler->file, s_profiler->buffer, s_profiler->offset);
   s_profiler->offset = 0i64;
-  _XMM0_8 = indyfs_time_now_us();
-  __asm { vsubsd  xmm6, xmm0, xmm7 }
-  v7 = indyfs_process_pid();
-  v8 = indyfs_process_tid();
-  __asm
-  {
-    vmovsd  [rsp+1078h+var_1048], xmm6
-    vmovsd  [rsp+1078h+var_1050], xmm7
-  }
-  v9 = j_snprintf(_Buffer, 0x1000ui64, "{\"cat\":\"Profiler\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"dur\":\"%f\",\"ph\":\"X\",\"name\":\"Flush\"},\n", v7, v8, v12, v13);
-  if ( (unsigned __int64)v9 <= 0xFFF )
-    indyfs_fwrite(s_profiler->file, _Buffer, v9);
+  v3 = indyfs_time_now_us() - v2;
+  v4 = indyfs_process_pid();
+  v5 = indyfs_process_tid();
+  v6 = j_snprintf(_Buffer, 0x1000ui64, "{\"cat\":\"Profiler\",\"pid\":\"%llu\",\"tid\":\"%llu\",\"ts\":\"%f\",\"dur\":\"%f\",\"ph\":\"X\",\"name\":\"Flush\"},\n", v4, v5, v2, (double)v3);
+  if ( (unsigned __int64)v6 <= 0xFFF )
+    indyfs_fwrite(s_profiler->file, _Buffer, v6);
   else
-    indyfs_log_message(Error, "snprintf encoding error - Internal buffer is too small. Buffer size: %zu  Required size: %d", 0x1000ui64, (unsigned int)v9);
-  __asm
-  {
-    vmovaps xmm6, [rsp+1078h+var_18]
-    vmovaps xmm7, [rsp+1078h+var_28]
-  }
+    indyfs_log_message(Error, "snprintf encoding error - Internal buffer is too small. Buffer size: %zu  Required size: %d", 0x1000ui64, (unsigned int)v6);
 }
 
 /*

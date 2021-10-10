@@ -512,85 +512,54 @@ void __fastcall CG_DrawRotatedPicWithoutSplitScreenScaling(const ScreenPlacement
 CG_DebugArc
 ==============
 */
-
-void __fastcall CG_DebugArc(const vec3_t *center, double radius, double angle0, double angle1, const vec4_t *color, int depthTest, int duration)
+void CG_DebugArc(const vec3_t *center, float radius, float angle0, float angle1, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v21; 
-  float v29; 
+  float v8; 
+  float v9; 
+  float *v10; 
+  unsigned int v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   vec3_t *p_start; 
-  __int64 v32; 
-  vec3_t *v33; 
+  __int64 v16; 
+  vec3_t *v17; 
   float c; 
   float s[3]; 
   vec3_t start; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v8 = angle0;
+  v9 = (float)(angle1 - angle0) * 0.06666667;
+  if ( v9 < 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vsubss  xmm0, xmm3, xmm2
-    vmovaps xmm6, xmm2
-    vmovss  xmm2, cs:__real@3d888889
-    vmulss  xmm7, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-    vmovaps xmm8, xmm1
-    vmovss  xmm9, cs:__real@3c8efa35
+    v8 = angle0 + -360.0;
+    v9 = (float)(angle1 - (float)(angle0 + -360.0)) * 0.06666667;
   }
-  _RBX = &start.v[1];
-  v21 = 0;
+  v10 = &start.v[1];
+  v11 = 0;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm2, xmm1, xmm6
-      vmulss  xmm0, xmm2, xmm9; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, s, &c);
-    __asm
-    {
-      vmulss  xmm1, xmm8, [rsp+178h+c]
-      vaddss  xmm2, xmm1, dword ptr [rsi]
-      vmulss  xmm1, xmm8, [rsp+178h+s]
-    }
-    v29 = center->v[2];
-    ++v21;
-    __asm { vmovss  dword ptr [rbx-4], xmm2 }
-    _RBX += 3;
-    __asm
-    {
-      vaddss  xmm2, xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rbx-0Ch], xmm2
-    }
-    *(_RBX - 2) = v29;
+    v12 = (float)v11;
+    FastSinCos((float)((float)(v12 * v9) + v8) * 0.017453292, s, &c);
+    v13 = radius * s[0];
+    v14 = center->v[2];
+    ++v11;
+    *(v10 - 1) = (float)(radius * c) + center->v[0];
+    v10 += 3;
+    *(v10 - 3) = v13 + center->v[1];
+    *(v10 - 2) = v14;
   }
-  while ( v21 < 0x10 );
+  while ( v11 < 0x10 );
   p_start = &start;
-  v32 = 15i64;
+  v16 = 15i64;
   do
   {
-    v33 = p_start + 1;
+    v17 = p_start + 1;
     CL_AddDebugLine(p_start, p_start + 1, color, depthTest, duration, 0);
-    p_start = v33;
-    --v32;
+    p_start = v17;
+    --v16;
   }
-  while ( v32 );
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  while ( v16 );
 }
 
 /*
@@ -598,53 +567,34 @@ void __fastcall CG_DebugArc(const vec3_t *center, double radius, double angle0, 
 CG_DebugAxis
 ==============
 */
-
-void __fastcall CG_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, double length, int depthTest, int duration)
+void CG_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, float length, int depthTest, int duration)
 {
+  float v5; 
+  float v6; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t end; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmulss  xmm0, xmm2, dword ptr [rcx]
-    vaddss  xmm1, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm2, dword ptr [rcx+4]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+4]
-    vmulss  xmm0, xmm2, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-    vmovaps xmm6, xmm2
-  }
+  v5 = length * axes->m[0].v[1];
+  end.v[0] = (float)(length * axes->m[0].v[0]) + pos->v[0];
+  v6 = length * axes->m[0].v[2];
+  end.v[1] = v5 + pos->v[1];
+  end.v[2] = v6 + pos->v[2];
   CL_AddDebugLine(pos, &end, &colorRed, depthTest, duration, 0);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm6, dword ptr [rdi+10h]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm6, dword ptr [rdi+14h]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-  }
+  v10 = length * axes->m[1].v[1];
+  end.v[0] = (float)(length * axes->m[1].v[0]) + pos->v[0];
+  v11 = length * axes->m[1].v[2];
+  end.v[1] = v10 + pos->v[1];
+  end.v[2] = v11 + pos->v[2];
   CL_AddDebugLine(pos, &end, &colorGreen, depthTest, duration, 0);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rdi+18h]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmulss  xmm0, xmm6, dword ptr [rdi+1Ch]
-    vmovss  dword ptr [rsp+78h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+4]
-    vmulss  xmm0, xmm6, dword ptr [rdi+20h]
-    vmovss  dword ptr [rsp+78h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rbp+8]
-    vmovss  dword ptr [rsp+78h+end+8], xmm1
-  }
+  v12 = length * axes->m[2].v[1];
+  end.v[0] = (float)(length * axes->m[2].v[0]) + pos->v[0];
+  v13 = length * axes->m[2].v[2];
+  end.v[1] = v12 + pos->v[1];
+  end.v[2] = v13 + pos->v[2];
   CL_AddDebugLine(pos, &end, &colorBlue, depthTest, duration, 0);
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -652,155 +602,63 @@ void __fastcall CG_DebugAxis(const tmat33_t<vec3_t> *axes, const vec3_t *pos, do
 CG_DebugBar
 ==============
 */
-
-void __fastcall CG_DebugBar(const vec3_t *origin, const vec3_t *dir, double fraction, double width, float height, const vec4_t *color, int depthTest, int duration)
+void CG_DebugBar(const vec3_t *origin, const vec3_t *dir, float fraction, float width, float height, const vec4_t *color, int depthTest, int duration)
 {
-  vec3_t v84; 
-  vec3_t v85; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  vec3_t v17; 
+  vec3_t v18; 
   vec3_t start; 
   vec3_t end; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm8
-    vmovaps xmmword ptr [rax-28h], xmm9
-    vmovaps xmmword ptr [rax-38h], xmm10
-    vmovaps xmmword ptr [rax-48h], xmm11
-    vmovaps xmmword ptr [rax-58h], xmm12
-    vmovaps xmmword ptr [rax-68h], xmm13
-    vmovaps xmmword ptr [rax-78h], xmm14
-    vmovaps xmmword ptr [rax-88h], xmm15
-    vmovss  xmm14, dword ptr [rdx]
-    vmovss  xmm15, dword ptr [rcx]
-    vmovss  xmm12, dword ptr [rdx+4]
-    vmovss  xmm13, dword ptr [rcx+4]
-    vmovss  xmm10, dword ptr [rdx+8]
-    vmovss  xmm11, dword ptr [rcx+8]
-    vmovss  xmm9, [rbp+37h+arg_20]
-    vmulss  xmm8, xmm9, cs:__real@3f000000
-    vmulss  xmm4, xmm2, xmm3
-    vmulss  xmm5, xmm4, cs:__real@bf000000
-    vmulss  xmm0, xmm14, xmm5
-    vaddss  xmm1, xmm0, xmm15
-    vmovss  dword ptr [rbp+37h+start], xmm1
-    vmulss  xmm0, xmm12, xmm5
-    vaddss  xmm1, xmm0, xmm13
-    vmovss  dword ptr [rbp+37h+start+4], xmm1
-    vmovss  [rsp+100h+var_D0], xmm3
-    vmulss  xmm3, xmm4, cs:__real@3f000000
-    vmulss  xmm0, xmm14, xmm3
-    vaddss  xmm1, xmm0, xmm15
-    vmulss  xmm2, xmm12, xmm3
-    vaddss  xmm0, xmm2, xmm13
-    vmovss  dword ptr [rbp+37h+end+4], xmm0
-    vmulss  xmm0, xmm10, xmm5
-    vmovss  dword ptr [rbp+37h+end], xmm1
-    vaddss  xmm1, xmm0, xmm11
-    vsubss  xmm2, xmm1, xmm8
-    vmulss  xmm0, xmm10, xmm3
-    vaddss  xmm1, xmm0, xmm11
-    vmovss  dword ptr [rbp+37h+start+8], xmm2
-    vsubss  xmm2, xmm1, xmm8
-    vmovss  dword ptr [rbp+37h+end+8], xmm2
-  }
+  v8 = dir->v[0];
+  v9 = origin->v[0];
+  v10 = dir->v[1];
+  v11 = origin->v[1];
+  v12 = dir->v[2];
+  v13 = origin->v[2];
+  v14 = (float)(fraction * width) * -0.5;
+  start.v[0] = (float)(dir->v[0] * v14) + origin->v[0];
+  start.v[1] = (float)(v10 * v14) + v11;
+  v15 = (float)(fraction * width) * 0.5;
+  end.v[1] = (float)(v10 * v15) + v11;
+  end.v[0] = (float)(v8 * v15) + v9;
+  start.v[2] = (float)((float)(v12 * v14) + v13) - (float)(height * 0.5);
+  end.v[2] = (float)((float)(v12 * v15) + v13) - (float)(height * 0.5);
   CL_AddDebugLine(&start, &end, color, depthTest, duration, 0);
-  __asm
-  {
-    vaddss  xmm1, xmm9, dword ptr [rbp+37h+start+8]
-    vaddss  xmm0, xmm9, dword ptr [rbp+37h+end+8]
-    vmovss  dword ptr [rbp+37h+start+8], xmm1
-    vmovss  dword ptr [rbp+37h+end+8], xmm0
-  }
+  start.v[2] = height + start.v[2];
+  end.v[2] = height + end.v[2];
   CL_AddDebugLine(&start, &end, color, depthTest, duration, 0);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbp+37h+start]
-    vmovss  xmm1, dword ptr [rbp+37h+start+4]
-    vmovsd  qword ptr [rsp+100h+var_B8], xmm0
-    vmovss  xmm0, dword ptr [rbp+37h+start]
-    vmovss  dword ptr [rsp+100h+var_C8], xmm0
-    vmovss  xmm0, dword ptr [rbp+37h+start+8]
-    vsubss  xmm2, xmm0, xmm9
-  }
-  v85.v[2] = start.v[2];
-  __asm
-  {
-    vmovss  dword ptr [rsp+100h+var_C8+8], xmm2
-    vmovss  dword ptr [rsp+100h+var_C8+4], xmm1
-  }
-  CL_AddDebugLine(&v85, &v84, color, depthTest, duration, 0);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbp+37h+end]
-    vmovss  xmm1, dword ptr [rbp+37h+end+4]
-    vmovsd  qword ptr [rsp+100h+var_B8], xmm0
-    vmovss  xmm0, dword ptr [rbp+37h+end]
-    vmovss  dword ptr [rsp+100h+var_C8], xmm0
-    vmovss  xmm0, dword ptr [rbp+37h+end+8]
-    vmovss  dword ptr [rsp+100h+var_C8+4], xmm1
-  }
-  v85.v[2] = end.v[2];
-  __asm
-  {
-    vsubss  xmm2, xmm0, xmm9
-    vmovss  dword ptr [rsp+100h+var_C8+8], xmm2
-  }
-  CL_AddDebugLine(&v85, &v84, color, depthTest, duration, 0);
-  __asm
-  {
-    vmovss  xmm0, [rsp+100h+var_D0]
-    vmulss  xmm2, xmm0, cs:__real@bf000000
-    vmulss  xmm0, xmm14, xmm2
-    vaddss  xmm4, xmm0, xmm15
-    vmulss  xmm1, xmm12, xmm2
-    vmulss  xmm0, xmm10, xmm2
-    vaddss  xmm3, xmm1, xmm13
-    vaddss  xmm1, xmm0, xmm11
-    vsubss  xmm2, xmm1, xmm8
-    vaddss  xmm0, xmm2, xmm9
-    vmovss  dword ptr [rsp+100h+var_C8+8], xmm0
-    vmovss  dword ptr [rsp+100h+var_B8], xmm4
-    vmovss  dword ptr [rbp+37h+var_B8+4], xmm3
-    vmovss  dword ptr [rbp+37h+var_B8+8], xmm2
-    vmovss  dword ptr [rsp+100h+var_C8], xmm4
-    vmovss  dword ptr [rsp+100h+var_C8+4], xmm3
-  }
-  CL_AddDebugLine(&v85, &v84, color, depthTest, duration, 0);
-  __asm
-  {
-    vmovss  xmm0, [rsp+100h+var_D0]
-    vmulss  xmm2, xmm0, cs:__real@3f000000
-    vmulss  xmm0, xmm14, xmm2
-    vaddss  xmm4, xmm0, xmm15
-    vmulss  xmm1, xmm12, xmm2
-    vmulss  xmm0, xmm10, xmm2
-    vaddss  xmm3, xmm1, xmm13
-    vaddss  xmm1, xmm0, xmm11
-    vsubss  xmm2, xmm1, xmm8
-    vaddss  xmm0, xmm2, xmm9
-    vmovss  dword ptr [rsp+100h+var_C8+8], xmm0
-    vmovss  dword ptr [rsp+100h+var_B8], xmm4
-    vmovss  dword ptr [rbp+37h+var_B8+4], xmm3
-    vmovss  dword ptr [rbp+37h+var_B8+8], xmm2
-    vmovss  dword ptr [rsp+100h+var_C8], xmm4
-    vmovss  dword ptr [rsp+100h+var_C8+4], xmm3
-  }
-  CL_AddDebugLine(&v85, &v84, color, depthTest, duration, 0);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-30h]
-    vmovaps xmm11, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-70h]
-    vmovaps xmm15, xmmword ptr [r11-80h]
-  }
+  v18 = start;
+  v17.v[0] = start.v[0];
+  v17.v[2] = start.v[2] - height;
+  v17.v[1] = start.v[1];
+  CL_AddDebugLine(&v18, &v17, color, depthTest, duration, 0);
+  v18 = end;
+  v17.v[0] = end.v[0];
+  v17.v[1] = end.v[1];
+  v17.v[2] = end.v[2] - height;
+  CL_AddDebugLine(&v18, &v17, color, depthTest, duration, 0);
+  v17.v[2] = (float)((float)((float)(v12 * (float)(width * -0.5)) + v13) - (float)(height * 0.5)) + height;
+  v18.v[0] = (float)(v8 * (float)(width * -0.5)) + v9;
+  v18.v[1] = (float)(v10 * (float)(width * -0.5)) + v11;
+  v18.v[2] = (float)((float)(v12 * (float)(width * -0.5)) + v13) - (float)(height * 0.5);
+  v17.v[0] = v18.v[0];
+  v17.v[1] = v18.v[1];
+  CL_AddDebugLine(&v18, &v17, color, depthTest, duration, 0);
+  v17.v[2] = (float)((float)((float)(v12 * (float)(width * 0.5)) + v13) - (float)(height * 0.5)) + height;
+  v18.v[0] = (float)(v8 * (float)(width * 0.5)) + v9;
+  v18.v[1] = (float)(v10 * (float)(width * 0.5)) + v11;
+  v18.v[2] = (float)((float)(v12 * (float)(width * 0.5)) + v13) - (float)(height * 0.5);
+  v17.v[0] = v18.v[0];
+  v17.v[1] = v18.v[1];
+  CL_AddDebugLine(&v18, &v17, color, depthTest, duration, 0);
 }
 
 /*
@@ -808,175 +666,99 @@ void __fastcall CG_DebugBar(const vec3_t *origin, const vec3_t *dir, double frac
 CG_DebugBox
 ==============
 */
-
-void __fastcall CG_DebugBox(const vec3_t *origin, const Bounds *bounds, double yaw, const vec4_t *color, int depthTest, int duration)
+void CG_DebugBox(const vec3_t *origin, const Bounds *bounds, float yaw, const vec4_t *color, int depthTest, int duration)
 {
-  const int (*v81)[2]; 
-  __int64 v82; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  const int (*v24)[2]; 
+  __int64 v25; 
   float s; 
   float c[3]; 
   vec3_t start; 
-  char v145; 
-  void *retaddr; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmulss  xmm0, xmm2, cs:__real@3c8efa35; radians
-  }
-  _RBX = bounds;
-  _RDI = origin;
-  FastSinCos(*(const float *)&_XMM0, &s, c);
-  __asm
-  {
-    vmovss  xmm15, [rsp+170h+s]
-    vmovss  xmm14, [rsp+170h+c]
-    vmovss  xmm5, dword ptr [rdi+4]
-    vmovss  xmm4, dword ptr [rbx]
-    vsubss  xmm13, xmm4, dword ptr [rbx+0Ch]
-    vaddss  xmm12, xmm4, dword ptr [rbx+0Ch]
-    vmovss  xmm9, dword ptr [rbx+8]
-    vsubss  xmm8, xmm9, dword ptr [rbx+14h]
-    vmovss  xmm7, dword ptr [rdi]
-    vmovss  xmm6, dword ptr [rbx+4]
-    vsubss  xmm11, xmm6, dword ptr [rbx+10h]
-    vaddss  xmm6, xmm6, dword ptr [rbx+10h]
-    vmulss  xmm1, xmm13, xmm15
-    vmulss  xmm0, xmm11, xmm14
-    vaddss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm15
-    vmulss  xmm2, xmm13, xmm14
-    vsubss  xmm0, xmm2, xmm1
-    vaddss  xmm2, xmm0, dword ptr [rdi]
-    vaddss  xmm1, xmm3, dword ptr [rdi+4]
-    vaddss  xmm0, xmm8, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+170h+start+8], xmm0
-    vmovss  dword ptr [rsp+170h+start+4], xmm1
-    vmovss  dword ptr [rsp+170h+start], xmm2
-    vmulss  xmm0, xmm11, xmm15
-    vmulss  xmm1, xmm12, xmm14
-    vsubss  xmm4, xmm1, xmm0
-    vaddss  xmm0, xmm4, dword ptr [rdi]
-    vmovss  [rsp+170h+var_124], xmm0
-    vaddss  xmm0, xmm8, dword ptr [rdi+8]
-    vmovss  [rsp+170h+var_11C], xmm0
-    vmulss  xmm1, xmm11, xmm14
-    vmulss  xmm2, xmm12, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm5, xmm3
-    vmovss  [rsp+170h+var_120], xmm1
-    vmulss  xmm1, xmm13, xmm14
-    vmulss  xmm0, xmm6, xmm15
-    vsubss  xmm4, xmm1, xmm0
-    vaddss  xmm0, xmm7, xmm4
-    vmovss  [rsp+170h+var_118], xmm0
-    vaddss  xmm0, xmm8, dword ptr [rdi+8]
-    vmovss  [rsp+170h+var_110], xmm0
-    vmulss  xmm1, xmm6, xmm14
-    vmulss  xmm2, xmm13, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm5, xmm3
-    vmovss  [rsp+170h+var_114], xmm1
-    vmulss  xmm1, xmm12, xmm14
-    vmulss  xmm0, xmm6, xmm15
-    vsubss  xmm4, xmm1, xmm0
-    vaddss  xmm0, xmm7, xmm4
-    vmovss  [rsp+170h+var_10C], xmm0
-    vaddss  xmm0, xmm8, dword ptr [rdi+8]
-    vmovss  xmm8, dword ptr [rdi+4]
-    vmovss  [rsp+170h+var_104], xmm0
-    vmulss  xmm1, xmm6, xmm14
-    vmulss  xmm2, xmm12, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm5, xmm3
-    vaddss  xmm5, xmm9, dword ptr [rbx+14h]
-    vmovss  xmm9, dword ptr [rdi+8]
-    vmovss  [rsp+170h+var_108], xmm1
-    vmulss  xmm1, xmm13, xmm14
-    vmulss  xmm0, xmm11, xmm15
-    vsubss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm14
-    vaddss  xmm0, xmm7, xmm4
-    vmulss  xmm2, xmm13, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm8, xmm3
-    vmovss  [rsp+170h+var_100], xmm0
-    vmovss  [rsp+170h+var_FC], xmm1
-    vaddss  xmm0, xmm5, xmm9
-  }
-  v81 = iEdgePairs_2;
-  v82 = 12i64;
-  __asm
-  {
-    vmovss  [rsp+170h+var_F8], xmm0
-    vmulss  xmm0, xmm11, xmm15
-    vmulss  xmm1, xmm12, xmm14
-    vsubss  xmm4, xmm1, xmm0
-    vaddss  xmm0, xmm7, xmm4
-    vmovss  [rsp+170h+var_F4], xmm0
-    vmulss  xmm1, xmm12, xmm15
-    vmulss  xmm2, xmm11, xmm14
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm8, xmm3
-    vmovss  [rbp+70h+var_F0], xmm1
-    vaddss  xmm0, xmm5, xmm9
-    vmovss  [rbp+70h+var_EC], xmm0
-    vmulss  xmm1, xmm13, xmm14
-    vmulss  xmm0, xmm6, xmm15
-    vsubss  xmm4, xmm1, xmm0
-    vaddss  xmm0, xmm7, xmm4
-    vmovss  [rbp+70h+var_E8], xmm0
-    vmulss  xmm1, xmm6, xmm14
-    vmulss  xmm2, xmm13, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm8, xmm3
-    vmovss  [rbp+70h+var_E4], xmm1
-    vaddss  xmm0, xmm5, xmm9
-    vmovss  [rbp+70h+var_E0], xmm0
-    vmulss  xmm1, xmm12, xmm14
-    vmulss  xmm0, xmm6, xmm15
-    vsubss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm14
-    vaddss  xmm0, xmm7, xmm4
-    vmulss  xmm2, xmm12, xmm15
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  [rbp+70h+var_DC], xmm0
-    vaddss  xmm1, xmm8, xmm3
-    vaddss  xmm0, xmm5, xmm9
-    vmovss  [rbp+70h+var_D8], xmm1
-    vmovss  [rbp+70h+var_D4], xmm0
-  }
+  FastSinCos(yaw * 0.017453292, &s, c);
+  v9 = origin->v[1];
+  v10 = bounds->midPoint.v[0] - bounds->halfSize.v[0];
+  v11 = bounds->midPoint.v[0] + bounds->halfSize.v[0];
+  v12 = bounds->midPoint.v[2];
+  v13 = v12 - bounds->halfSize.v[2];
+  v14 = origin->v[0];
+  v15 = bounds->midPoint.v[1];
+  v16 = v15 - bounds->halfSize.v[1];
+  v17 = v15 + bounds->halfSize.v[1];
+  v18 = (float)((float)(v10 * c[0]) - (float)(v16 * s)) + origin->v[0];
+  start.v[2] = v13 + origin->v[2];
+  start.v[1] = (float)((float)(v10 * s) + (float)(v16 * c[0])) + v9;
+  start.v[0] = v18;
+  v29 = (float)((float)(v11 * c[0]) - (float)(v16 * s)) + origin->v[0];
+  v31 = v13 + origin->v[2];
+  v30 = v9 + (float)((float)(v11 * s) + (float)(v16 * c[0]));
+  v32 = v14 + (float)((float)(v10 * c[0]) - (float)(v17 * s));
+  v34 = v13 + origin->v[2];
+  v33 = v9 + (float)((float)(v10 * s) + (float)(v17 * c[0]));
+  v35 = v14 + (float)((float)(v11 * c[0]) - (float)(v17 * s));
+  v19 = v13 + origin->v[2];
+  v20 = origin->v[1];
+  v37 = v19;
+  v21 = v9 + (float)((float)(v11 * s) + (float)(v17 * c[0]));
+  v22 = v12 + bounds->halfSize.v[2];
+  v23 = origin->v[2];
+  v36 = v21;
+  v38 = v14 + (float)((float)(v10 * c[0]) - (float)(v16 * s));
+  v39 = v20 + (float)((float)(v10 * s) + (float)(v16 * c[0]));
+  v24 = iEdgePairs_2;
+  v25 = 12i64;
+  v40 = v22 + v23;
+  v41 = v14 + (float)((float)(v11 * c[0]) - (float)(v16 * s));
+  v42 = v20 + (float)((float)(v16 * c[0]) + (float)(v11 * s));
+  v43 = v22 + v23;
+  v44 = v32;
+  v45 = v20 + (float)((float)(v10 * s) + (float)(v17 * c[0]));
+  v46 = v22 + v23;
+  v47 = v35;
+  v48 = v20 + (float)((float)(v11 * s) + (float)(v17 * c[0]));
+  v49 = v22 + v23;
   do
   {
-    CL_AddDebugLine(&start + *(_DWORD *)v81, &start + (int)(*v81)[1], color, depthTest, duration, 0);
-    ++v81;
-    --v82;
+    CL_AddDebugLine(&start + *(_DWORD *)v24, &start + (int)(*v24)[1], color, depthTest, duration, 0);
+    ++v24;
+    --v25;
   }
-  while ( v82 );
-  _R11 = &v145;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v25 );
 }
 
 /*
@@ -986,124 +768,76 @@ CG_DebugBoxOriented
 */
 void CG_DebugBoxOriented(const vec3_t *origin, const Bounds *bounds, const tmat33_t<vec3_t> *rotation, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v15; 
-  const int (*v65)[2]; 
-  __int64 v66; 
-  char v73; 
+  float *v7; 
+  unsigned int i; 
+  float *v12; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  const int (*v32)[2]; 
+  __int64 v33; 
+  char v35; 
   vec3_t start[8]; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  v7 = &start[0].v[2];
+  for ( i = 0; i < 8; ++i )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-  }
-  _ER13 = 0;
-  _R12 = origin;
-  _RBX = &start[0].v[2];
-  v15 = 0;
-  _R15 = bounds;
-  do
-  {
+    _XMM4 = LODWORD(bounds->halfSize.v[0]);
+    v12 = v7 - 2;
+    _XMM0 = i & 1;
     __asm
     {
-      vmovss  xmm4, dword ptr [r15+0Ch]
-      vxorps  xmm3, xmm4, xmm9
-      vmovd   xmm1, r13d
-    }
-    _RBP = _RBX - 2;
-    _EAX = v15 & 1;
-    __asm
-    {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm1, dword ptr [r15]
-      vmovss  xmm4, dword ptr [r15+10h]
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovd   xmm1, r13d
-      vxorps  xmm3, xmm4, xmm9
     }
-    _EAX = v15 & 2;
+    _XMM4 = LODWORD(bounds->halfSize.v[1]);
+    *(v7 - 2) = *(float *)&_XMM1 + bounds->midPoint.v[0];
+    _XMM0 = i & 2;
     __asm
     {
-      vmovd   xmm0, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm1, dword ptr [r15+4]
-      vmovss  xmm4, dword ptr [r15+14h]
     }
-    _EAX = v15 & 4;
+    _XMM4 = LODWORD(bounds->halfSize.v[2]);
+    *(v7 - 1) = *(float *)&_XMM1 + bounds->midPoint.v[1];
+    _XMM0 = i & 4;
     __asm
     {
-      vmovss  dword ptr [rbx-4], xmm0
-      vmovd   xmm0, eax
-      vmovd   xmm1, r13d
       vpcmpeqd xmm2, xmm0, xmm1
-      vxorps  xmm3, xmm4, xmm9
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm1, dword ptr [r15+8]
-      vmovss  dword ptr [rbx], xmm0
     }
-    if ( _RBX - 2 == (float *)&v73 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+    *v7 = *(float *)&_XMM1 + bounds->midPoint.v[2];
+    if ( v7 - 2 == (float *)&v35 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx-4]
-      vmovss  xmm4, dword ptr [rbp+0]
-      vmovss  xmm8, dword ptr [rbx]
-      vmulss  xmm1, xmm4, dword ptr [rdi]
-      vmulss  xmm0, xmm7, dword ptr [rdi+0Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rdi+4]
-      vmulss  xmm1, xmm8, dword ptr [rdi+18h]
-      vaddss  xmm6, xmm2, xmm1
-      vmulss  xmm2, xmm7, dword ptr [rdi+10h]
-      vmulss  xmm1, xmm8, dword ptr [rdi+1Ch]
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm2, xmm4, dword ptr [rdi+8]
-      vmulss  xmm0, xmm7, dword ptr [rdi+14h]
-      vaddss  xmm5, xmm3, xmm1
-      vmulss  xmm1, xmm8, dword ptr [rdi+20h]
-      vmovss  dword ptr [rbx-4], xmm5
-      vaddss  xmm3, xmm2, xmm0
-      vaddss  xmm0, xmm6, dword ptr [r12]
-      vaddss  xmm4, xmm3, xmm1
-      vmovss  dword ptr [rbx], xmm4
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovss  xmm1, dword ptr [rbx-4]
-      vaddss  xmm2, xmm1, dword ptr [r12+4]
-      vmovss  xmm0, dword ptr [r12+8]
-      vmovss  dword ptr [rbx-4], xmm2
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
-    _RBX += 3;
-    ++v15;
+    v24 = *(v7 - 1);
+    v25 = (float)((float)(*v12 * rotation->m[0].v[0]) + (float)(v24 * rotation->m[1].v[0])) + (float)(*v7 * rotation->m[2].v[0]);
+    v26 = *v12 * rotation->m[0].v[2];
+    v27 = v24 * rotation->m[1].v[2];
+    v28 = *v7 * rotation->m[2].v[2];
+    *(v7 - 1) = (float)((float)(v24 * rotation->m[1].v[1]) + (float)(*v12 * rotation->m[0].v[1])) + (float)(*v7 * rotation->m[2].v[1]);
+    v29 = v26 + v27;
+    v30 = v25 + origin->v[0];
+    *v7 = v29 + v28;
+    *v12 = v30;
+    v31 = origin->v[2];
+    *(v7 - 1) = *(v7 - 1) + origin->v[1];
+    *v7 = v31 + *v7;
+    v7 += 3;
   }
-  while ( v15 < 8 );
-  v65 = iEdgePairs_3;
-  v66 = 12i64;
+  v32 = iEdgePairs_3;
+  v33 = 12i64;
   do
   {
-    CL_AddDebugLine(&start[*(_DWORD *)v65], &start[(*v65)[1]], color, depthTest, duration, 0);
-    ++v65;
-    --v66;
+    CL_AddDebugLine(&start[*(_DWORD *)v32], &start[(*v32)[1]], color, depthTest, duration, 0);
+    ++v32;
+    --v33;
   }
-  while ( v66 );
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  while ( v33 );
 }
 
 /*
@@ -1111,83 +845,41 @@ void CG_DebugBoxOriented(const vec3_t *origin, const Bounds *bounds, const tmat3
 CG_DebugCapsule
 ==============
 */
-
-void __fastcall CG_DebugCapsule(const vec3_t *start, const vec3_t *end, double radius, const vec4_t *color, int depthTest, int duration)
+void CG_DebugCapsule(const vec3_t *start, const vec3_t *end, float radius, const vec4_t *color, int depthTest, int duration)
 {
-  const vec3_t *v29; 
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
   vec3_t dst; 
   vec3_t cross; 
   vec3_t src; 
   vec3_t up; 
-  char v53; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v6 = end->v[0] - start->v[0];
+  v8 = LODWORD(end->v[1]);
+  v7 = end->v[1] - start->v[1];
+  v9 = end->v[2] - start->v[2];
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v9 * v9));
+  _XMM4 = v8;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm5, xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vsubss  xmm6, xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm7, xmm0, dword ptr [rcx+8]
-    vmovaps xmm8, xmm2
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0D8h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
   }
-  v29 = end;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+0D8h+src+8], xmm0
-    vmovss  dword ptr [rsp+0D8h+src+4], xmm1
-  }
+  src.v[0] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
   Vec3Cross(&src, &dst, &cross);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm2, dword ptr [rsp+0D8h+src+4]
-    vmovss  xmm0, dword ptr [rsp+0D8h+src]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+0D8h+up], xmm1
-    vmovss  xmm1, dword ptr [rsp+0D8h+src+8]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+0D8h+up+8], xmm2
-    vmovaps xmm2, xmm8; radius
-    vmovss  dword ptr [rsp+0D8h+up+4], xmm0
-  }
-  CG_DebugCylinder(start, v29, *(float *)&_XMM2, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugSemiCircle(start, *(float *)&_XMM1, &dst, &up, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugSemiCircle(start, *(float *)&_XMM1, &cross, &up, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugSemiCircle(v29, *(float *)&_XMM1, &dst, &src, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugSemiCircle(v29, *(float *)&_XMM1, &cross, &src, color, depthTest, duration);
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  LODWORD(up.v[0]) = LODWORD(src.v[0]) ^ _xmm;
+  LODWORD(up.v[2]) = LODWORD(src.v[2]) ^ _xmm;
+  LODWORD(up.v[1]) = LODWORD(src.v[1]) ^ _xmm;
+  CG_DebugCylinder(start, end, radius, color, depthTest, duration);
+  CG_DebugSemiCircle(start, radius, &dst, &up, color, depthTest, duration);
+  CG_DebugSemiCircle(start, radius, &cross, &up, color, depthTest, duration);
+  CG_DebugSemiCircle(end, radius, &dst, &src, color, depthTest, duration);
+  CG_DebugSemiCircle(end, radius, &cross, &src, color, depthTest, duration);
 }
 
 /*
@@ -1195,129 +887,77 @@ void __fastcall CG_DebugCapsule(const vec3_t *start, const vec3_t *end, double r
 CG_DebugCircle
 ==============
 */
-
-void __fastcall CG_DebugCircle(const vec3_t *center, double radius, const vec3_t *dir, const vec4_t *color, int depthTest, int duration)
+void CG_DebugCircle(const vec3_t *center, float radius, const vec3_t *dir, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v45; 
-  const vec3_t *v62; 
-  char v63; 
-  __int64 v64; 
+  float v6; 
+  __int128 v7; 
+  float v8; 
+  __int128 v9; 
+  float v16; 
+  float v17; 
+  float *v18; 
+  float v19; 
+  unsigned int v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const vec3_t *v26; 
+  char v27; 
+  __int64 v28; 
   float s; 
   float c; 
   vec3_t src; 
   vec3_t dst; 
   vec3_t end[16]; 
-  char v76; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v6 = dir->v[1];
+  v7 = LODWORD(dir->v[0]);
+  v8 = dir->v[2];
+  v9 = v7;
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v6 * v6)) + (float)(v8 * v8));
+  _XMM4 = v9;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovss  xmm6, dword ptr [r8+4]
-    vmovss  xmm5, dword ptr [r8]
-    vmovss  xmm7, dword ptr [r8+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm2, xmm7, xmm7
-    vaddss  xmm3, xmm3, xmm2
-    vsqrtss xmm4, xmm3, xmm3
     vcmpless xmm0, xmm4, cs:__real@80000000
-    vmovaps xmm8, xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+1A8h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+1A8h+src+8], xmm0
-    vmovss  dword ptr [rsp+1A8h+src+4], xmm1
   }
+  src.v[0] = *(float *)&v7 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v8 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v6 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+1A8h+src+8]
-    vmovss  xmm6, dword ptr [rsp+1A8h+src+4]
-    vmovss  xmm5, dword ptr [rsp+1A8h+dst+8]
-    vmovss  xmm4, dword ptr [rsp+1A8h+dst+4]
-    vmovss  xmm10, cs:__real@3ec90fdb
-    vmulss  xmm1, xmm6, xmm5
-    vmulss  xmm0, xmm2, xmm4
-    vsubss  xmm7, xmm1, xmm0
-    vmulss  xmm1, xmm2, dword ptr [rsp+1A8h+dst]
-    vmulss  xmm0, xmm5, dword ptr [rsp+1A8h+src]
-    vmulss  xmm2, xmm4, dword ptr [rsp+1A8h+src]
-    vsubss  xmm9, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+1A8h+dst]
-  }
-  _RBX = &end[0].v[2];
-  __asm { vsubss  xmm6, xmm2, xmm1 }
-  v45 = 0;
+  v16 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v17 = (float)(src.v[2] * dst.v[0]) - (float)(dst.v[2] * src.v[0]);
+  v18 = &end[0].v[2];
+  v19 = (float)(dst.v[1] * src.v[0]) - (float)(src.v[1] * dst.v[0]);
+  v20 = 0;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm10; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmulss  xmm5, xmm8, [rsp+1A8h+s]
-      vmulss  xmm4, xmm8, [rsp+1A8h+c]
-      vmulss  xmm2, xmm4, dword ptr [rsp+1A8h+dst]
-      vmulss  xmm0, xmm7, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+1A8h+dst+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm9, xmm5
-      vaddss  xmm3, xmm1, dword ptr [rsi+4]
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+1A8h+dst+8]
-      vmulss  xmm0, xmm6, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi+8]
-      vaddss  xmm0, xmm3, xmm2
-    }
-    ++v45;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx-4], xmm1
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  [rsp+1A8h+s], xmm5
-      vmovss  [rsp+1A8h+c], xmm4
-    }
+    v21 = (float)v20;
+    FastSinCos(v21 * 0.39269909, &s, &c);
+    v22 = radius * s;
+    v23 = radius * c;
+    v24 = (float)(radius * c) * dst.v[1];
+    *(v18 - 2) = (float)((float)(v16 * (float)(radius * s)) + center->v[0]) + (float)((float)(radius * c) * dst.v[0]);
+    v25 = (float)((float)(v17 * v22) + center->v[1]) + v24;
+    ++v20;
+    *v18 = (float)((float)(v19 * v22) + center->v[2]) + (float)(v23 * dst.v[2]);
+    *(v18 - 1) = v25;
+    v18 += 3;
+    s = v22;
+    c = v23;
   }
-  while ( v45 < 0x10 );
-  v62 = end;
-  v63 = 1;
-  v64 = 16i64;
+  while ( v20 < 0x10 );
+  v26 = end;
+  v27 = 1;
+  v28 = 16i64;
   do
   {
-    CL_AddDebugLine(v62++, &end[v63++ & 0xF], color, depthTest, duration, 0);
-    --v64;
+    CL_AddDebugLine(v26++, &end[v27++ & 0xF], color, depthTest, duration, 0);
+    --v28;
   }
-  while ( v64 );
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v28 );
 }
 
 /*
@@ -1325,142 +965,84 @@ void __fastcall CG_DebugCircle(const vec3_t *center, double radius, const vec3_t
 CG_DebugCone
 ==============
 */
-
-void __fastcall CG_DebugCone(const vec3_t *origin, const vec3_t *direction, double radius, double length, const vec4_t *color, int depthTest, int duration)
+void CG_DebugCone(const vec3_t *origin, const vec3_t *direction, float radius, float length, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v51; 
-  const vec3_t *v68; 
-  int v69; 
-  __int64 v70; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  __int128 v10; 
+  float v16; 
+  float v17; 
+  float *v18; 
+  float v19; 
+  unsigned int v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const vec3_t *v26; 
+  int v27; 
+  __int64 v28; 
   float s; 
   float c; 
   vec3_t src; 
   vec3_t dst; 
-  vec3_t v81; 
+  vec3_t v33; 
   vec3_t end[16]; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v7 = direction->v[1];
+  v8 = LODWORD(direction->v[0]);
+  v9 = direction->v[2];
+  v10 = v8;
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(v7 * v7)) + (float)(v9 * v9));
+  _XMM2 = v10;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovss  xmm6, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovss  xmm7, dword ptr [rdx+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm3
-    vaddss  xmm3, xmm4, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm2, xmm3, xmm3
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+1B0h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+1B0h+src+8], xmm0
-    vmovss  dword ptr [rsp+1B0h+src+4], xmm1
   }
+  src.v[0] = *(float *)&v8 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rsp+1B0h+src]
-    vmovss  xmm6, dword ptr [rsp+1B0h+src+4]
-    vmovss  xmm5, dword ptr [rsp+1B0h+src+8]
-    vmulss  xmm2, xmm7, dword ptr [rsp+1B0h+dst+4]
-    vmulss  xmm0, xmm7, xmm8
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rsp+1B0h+var_158], xmm1
-    vmulss  xmm0, xmm6, xmm8
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+1B0h+var_158+4], xmm1
-    vmulss  xmm0, xmm5, xmm8
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmulss  xmm0, xmm5, dword ptr [rsp+1B0h+dst+4]
-    vmovss  dword ptr [rsp+1B0h+var_158+8], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+1B0h+dst+8]
-    vsubss  xmm8, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rsp+1B0h+dst]
-    vmulss  xmm0, xmm7, dword ptr [rsp+1B0h+dst+8]
-    vmovss  xmm7, cs:__real@3ec90fdb
-    vsubss  xmm10, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+1B0h+dst]
-  }
-  _RBX = &end[0].v[2];
-  __asm { vsubss  xmm6, xmm2, xmm1 }
-  v51 = 0;
+  v33.v[0] = (float)(src.v[0] * length) + origin->v[0];
+  v33.v[1] = (float)(src.v[1] * length) + origin->v[1];
+  v33.v[2] = (float)(src.v[2] * length) + origin->v[2];
+  v16 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v17 = (float)(src.v[2] * dst.v[0]) - (float)(src.v[0] * dst.v[2]);
+  v18 = &end[0].v[2];
+  v19 = (float)(src.v[0] * dst.v[1]) - (float)(src.v[1] * dst.v[0]);
+  v20 = 0;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm7; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmulss  xmm5, xmm9, [rsp+1B0h+s]
-      vmulss  xmm4, xmm9, [rsp+1B0h+c]
-      vmulss  xmm2, xmm4, dword ptr [rsp+1B0h+dst]
-      vmulss  xmm0, xmm8, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+1B0h+dst+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm10, xmm5
-      vaddss  xmm3, xmm1, dword ptr [rsi+4]
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+1B0h+dst+8]
-      vmulss  xmm0, xmm6, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi+8]
-      vaddss  xmm0, xmm3, xmm2
-    }
-    ++v51;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx-4], xmm1
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  [rsp+1B0h+s], xmm5
-      vmovss  [rsp+1B0h+c], xmm4
-    }
+    v21 = (float)v20;
+    FastSinCos(v21 * 0.39269909, &s, &c);
+    v22 = radius * s;
+    v23 = radius * c;
+    v24 = (float)(radius * c) * dst.v[1];
+    *(v18 - 2) = (float)((float)(v16 * (float)(radius * s)) + origin->v[0]) + (float)((float)(radius * c) * dst.v[0]);
+    v25 = (float)((float)(v17 * v22) + origin->v[1]) + v24;
+    ++v20;
+    *v18 = (float)((float)(v19 * v22) + origin->v[2]) + (float)(v23 * dst.v[2]);
+    *(v18 - 1) = v25;
+    v18 += 3;
+    s = v22;
+    c = v23;
   }
-  while ( v51 < 0x10 );
-  v68 = end;
-  v69 = 1;
-  v70 = 16i64;
+  while ( v20 < 0x10 );
+  v26 = end;
+  v27 = 1;
+  v28 = 16i64;
   do
   {
-    CL_AddDebugLine(v68, &end[v69 & 0xF], color, depthTest, duration, 0);
-    CL_AddDebugLine(v68, &v81, color, depthTest, duration, 0);
-    ++v69;
-    ++v68;
-    --v70;
+    CL_AddDebugLine(v26, &end[v27 & 0xF], color, depthTest, duration, 0);
+    CL_AddDebugLine(v26, &v33, color, depthTest, duration, 0);
+    ++v27;
+    ++v26;
+    --v28;
   }
-  while ( v70 );
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v28 );
 }
 
 /*
@@ -1468,198 +1050,117 @@ void __fastcall CG_DebugCone(const vec3_t *origin, const vec3_t *direction, doub
 CG_DebugConeFrustum
 ==============
 */
-
-void __fastcall CG_DebugConeFrustum(const vec3_t *origin, const vec3_t *direction, double radiusNear, double radiusFar, float length, const vec4_t *color, int depthTest, int duration)
+void CG_DebugConeFrustum(const vec3_t *origin, const vec3_t *direction, float radiusNear, float radiusFar, float length, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v56; 
-  unsigned int v74; 
-  __int64 v92; 
-  char v93; 
-  __int64 v94; 
-  __int64 v95; 
-  const vec3_t *v96; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  unsigned int v23; 
+  float *v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
+  float *v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  __int64 v36; 
+  char v37; 
+  __int64 v38; 
+  __int64 v39; 
+  const vec3_t *v40; 
   float s[2]; 
   __int64 c; 
   vec3_t dst; 
   vec3_t src; 
   vec3_t end[16]; 
   vec3_t start[16]; 
-  char v113; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v8 = direction->v[1];
+  v9 = LODWORD(direction->v[0]);
+  v10 = direction->v[2];
+  v11 = v9;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+  _XMM2 = v11;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovss  xmm6, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovss  xmm7, dword ptr [rdx+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps xmm12, xmm2
-    vmovaps xmm8, xmm3
-    vaddss  xmm3, xmm4, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm2, xmm3, xmm3
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+2A0h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+2A0h+src+8], xmm0
-    vmovss  dword ptr [rsp+2A0h+src+4], xmm1
   }
+  src.v[0] = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v10 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v8 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+2A0h+src+4]
-    vmovss  xmm7, dword ptr [rsp+2A0h+src+8]
-    vmulss  xmm1, xmm6, dword ptr [rsp+2A0h+dst+8]
-    vmulss  xmm0, xmm7, dword ptr [rsp+2A0h+dst+4]
-    vmovss  xmm5, dword ptr [rsp+2A0h+src]
-    vmovss  xmm2, [rbp+1A0h+length]
-    vsubss  xmm9, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsp+2A0h+dst]
-    vmulss  xmm0, xmm5, dword ptr [rsp+2A0h+dst+8]
-    vsubss  xmm10, xmm1, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+2A0h+dst]
-    vmulss  xmm1, xmm5, dword ptr [rsp+2A0h+dst+4]
-    vsubss  xmm11, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vaddss  xmm13, xmm0, dword ptr [rsi]
-    vmulss  xmm1, xmm6, xmm2
-    vaddss  xmm14, xmm1, dword ptr [rsi+4]
-    vmovss  xmm6, cs:__real@3ec90fdb
-    vmulss  xmm0, xmm7, xmm2
-    vaddss  xmm7, xmm0, dword ptr [rsi+8]
-  }
-  v56 = 0;
-  _RBX = &end[0].v[2];
+  v17 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v18 = (float)(src.v[2] * dst.v[0]) - (float)(src.v[0] * dst.v[2]);
+  v19 = (float)(src.v[0] * dst.v[1]) - (float)(src.v[1] * dst.v[0]);
+  v20 = (float)(src.v[0] * length) + origin->v[0];
+  v21 = (float)(src.v[1] * length) + origin->v[1];
+  v22 = (float)(src.v[2] * length) + origin->v[2];
+  v23 = 0;
+  v24 = &end[0].v[2];
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm6; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, s, (float *)&c);
-    __asm
-    {
-      vmulss  xmm5, xmm12, [rsp+2A0h+s]
-      vmulss  xmm4, xmm12, dword ptr [rsp+2A0h+c]
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst]
-      vmulss  xmm0, xmm9, xmm5
-      vaddss  xmm3, xmm0, xmm13
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm10, xmm5
-      vaddss  xmm3, xmm1, xmm14
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst+8]
-      vmulss  xmm0, xmm11, xmm5
-      vaddss  xmm3, xmm0, xmm7
-      vaddss  xmm0, xmm3, xmm2
-    }
-    ++v56;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx-4], xmm1
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  [rsp+2A0h+s], xmm5
-      vmovss  dword ptr [rsp+2A0h+c], xmm4
-    }
+    v25 = (float)v23;
+    FastSinCos(v25 * 0.39269909, s, (float *)&c);
+    v26 = radiusNear * s[0];
+    v27 = radiusNear * *(float *)&c;
+    v28 = (float)(radiusNear * *(float *)&c) * dst.v[1];
+    *(v24 - 2) = (float)((float)(v17 * (float)(radiusNear * s[0])) + v20) + (float)((float)(radiusNear * *(float *)&c) * dst.v[0]);
+    ++v23;
+    *v24 = (float)((float)(v19 * v26) + v22) + (float)(v27 * dst.v[2]);
+    *(v24 - 1) = (float)((float)(v18 * v26) + v21) + v28;
+    v24 += 3;
+    s[0] = v26;
+    *(float *)&c = v27;
   }
-  while ( v56 < 0x10 );
-  v74 = 0;
-  _RBX = &start[0].v[2];
+  while ( v23 < 0x10 );
+  v29 = 0;
+  v30 = &start[0].v[2];
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm6; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, (float *)&c, s);
-    __asm
-    {
-      vmulss  xmm5, xmm8, dword ptr [rsp+2A0h+c]
-      vmulss  xmm4, xmm8, [rsp+2A0h+s]
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst]
-      vmulss  xmm0, xmm9, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm10, xmm5
-      vaddss  xmm3, xmm1, dword ptr [rsi+4]
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+2A0h+dst+8]
-      vmulss  xmm0, xmm11, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rsi+8]
-      vaddss  xmm0, xmm3, xmm2
-    }
-    ++v74;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx-4], xmm1
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  dword ptr [rsp+2A0h+c], xmm5
-      vmovss  [rsp+2A0h+s], xmm4
-    }
+    v31 = (float)v29;
+    FastSinCos(v31 * 0.39269909, (float *)&c, s);
+    v32 = radiusFar * *(float *)&c;
+    v33 = radiusFar * s[0];
+    v34 = (float)(radiusFar * s[0]) * dst.v[1];
+    *(v30 - 2) = (float)((float)(v17 * (float)(radiusFar * *(float *)&c)) + origin->v[0]) + (float)((float)(radiusFar * s[0]) * dst.v[0]);
+    v35 = (float)((float)(v18 * v32) + origin->v[1]) + v34;
+    ++v29;
+    *v30 = (float)((float)(v19 * v32) + origin->v[2]) + (float)(v33 * dst.v[2]);
+    *(v30 - 1) = v35;
+    v30 += 3;
+    *(float *)&c = v32;
+    s[0] = v33;
   }
-  while ( v74 < 0x10 );
-  v92 = 0i64;
-  v93 = 1;
+  while ( v29 < 0x10 );
+  v36 = 0i64;
+  v37 = 1;
   c = 16i64;
   do
   {
-    v94 = v93 & 0xF;
-    v95 = v94;
-    CL_AddDebugLine(&end[v92], &end[v94], color, depthTest, duration, 0);
-    v96 = &start[v95];
-    CL_AddDebugLine(&start[v92], v96, color, depthTest, duration, 0);
-    CL_AddDebugLine(&end[v92], v96, color, depthTest, duration, 0);
-    ++v93;
-    ++v92;
+    v38 = v37 & 0xF;
+    v39 = v38;
+    CL_AddDebugLine(&end[v36], &end[v38], color, depthTest, duration, 0);
+    v40 = &start[v39];
+    CL_AddDebugLine(&start[v36], v40, color, depthTest, duration, 0);
+    CL_AddDebugLine(&end[v36], v40, color, depthTest, duration, 0);
+    ++v37;
+    ++v36;
     --c;
   }
   while ( c );
-  _R11 = &v113;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
 }
 
 /*
@@ -1667,161 +1168,110 @@ void __fastcall CG_DebugConeFrustum(const vec3_t *origin, const vec3_t *directio
 CG_DebugCylinder
 ==============
 */
-
-void __fastcall CG_DebugCylinder(const vec3_t *start, const vec3_t *end, double radius, const vec4_t *color, int depthTest, int duration)
+void CG_DebugCylinder(const vec3_t *start, const vec3_t *end, float radius, const vec4_t *color, int depthTest, int duration)
 {
+  float v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
   vec3_t dst; 
   vec3_t cross; 
   vec3_t src; 
   vec3_t enda; 
-  vec3_t v102; 
-  vec3_t v103; 
-  vec3_t v104; 
+  vec3_t v39; 
+  vec3_t v40; 
+  vec3_t v41; 
   vec3_t starta; 
-  vec3_t v106; 
-  vec3_t v107; 
-  vec3_t v108; 
-  char v109; 
-  void *retaddr; 
+  vec3_t v43; 
+  vec3_t v44; 
+  vec3_t v45; 
 
-  _RAX = &retaddr;
+  v6 = end->v[0] - start->v[0];
+  v8 = LODWORD(end->v[1]);
+  v7 = end->v[1] - start->v[1];
+  v9 = end->v[2] - start->v[2];
+  *(float *)&v8 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v9 * v9));
+  _XMM4 = v8;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm7, xmm0, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx+4]
-    vsubss  xmm6, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm5, xmm0, dword ptr [rcx+8]
-    vmovaps xmm8, xmm2
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rsp+190h+src], xmm0
-    vmulss  xmm0, xmm5, xmm2
   }
-  _R14 = end;
-  _RBX = start;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+190h+src+8], xmm0
-    vmovss  dword ptr [rsp+190h+src+4], xmm1
-  }
+  src.v[0] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
   Vec3Cross(&src, &dst, &cross);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugCircle(_RBX, *(float *)&_XMM1, &src, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm8; radius }
-  CG_DebugCircle(_R14, *(float *)&_XMM1, &src, color, depthTest, duration);
-  __asm
-  {
-    vmulss  xmm0, xmm8, dword ptr [rsp+190h+dst]
-    vxorps  xmm4, xmm8, cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmovss  xmm9, dword ptr [rbx+8]
-    vmulss  xmm15, xmm8, dword ptr [rsp+190h+dst+8]
-    vmulss  xmm11, xmm8, dword ptr [rsp+190h+cross]
-    vmulss  xmm10, xmm8, dword ptr [rsp+190h+cross+4]
-    vmulss  xmm14, xmm4, dword ptr [rsp+190h+dst]
-    vmulss  xmm12, xmm4, dword ptr [rsp+190h+dst+8]
-    vmulss  xmm13, xmm4, dword ptr [rsp+190h+dst+4]
-    vmovss  [rsp+190h+var_160], xmm0
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbp+90h+start], xmm0
-    vmulss  xmm0, xmm8, dword ptr [rsp+190h+dst+4]
-    vmulss  xmm8, xmm8, dword ptr [rsp+190h+cross+8]
-    vmovss  [rsp+190h+var_15C], xmm0
-    vaddss  xmm0, xmm0, xmm5
-    vmovss  dword ptr [rbp+90h+start+4], xmm0
-    vaddss  xmm0, xmm15, xmm9
-    vmovss  dword ptr [rbp+90h+start+8], xmm0
-    vaddss  xmm0, xmm14, xmm6
-    vmovss  dword ptr [rbp+90h+var_F4], xmm0
-    vaddss  xmm0, xmm12, xmm9
-    vmovss  dword ptr [rbp+90h+var_F4+8], xmm0
-    vaddss  xmm0, xmm11, xmm6
-    vmovss  dword ptr [rbp+90h+var_E8], xmm0
-    vaddss  xmm0, xmm10, xmm5
-    vaddss  xmm1, xmm13, xmm5
-    vmovss  dword ptr [rbp+90h+var_E8+4], xmm0
-    vaddss  xmm0, xmm8, xmm9
-    vmovss  dword ptr [rbp+90h+var_F4+4], xmm1
-    vmovss  xmm3, dword ptr [r14+4]
-    vmovss  xmm2, dword ptr [r14+8]
-    vmulss  xmm7, xmm4, dword ptr [rsp+190h+cross]
-    vmovss  dword ptr [rbp+90h+var_E8+8], xmm0
-    vaddss  xmm0, xmm7, xmm6
-    vmulss  xmm6, xmm4, dword ptr [rsp+190h+cross+4]
-    vmovss  dword ptr [rbp+90h+var_DC], xmm0
-    vaddss  xmm1, xmm6, xmm5
-    vmulss  xmm5, xmm4, dword ptr [rsp+190h+cross+8]
-    vmovss  xmm4, dword ptr [r14]
-    vmovss  dword ptr [rbp+90h+var_DC+4], xmm1
-    vaddss  xmm1, xmm4, [rsp+190h+var_160]
-    vmovss  dword ptr [rsp+190h+end], xmm1
-    vaddss  xmm0, xmm5, xmm9
-    vmovss  dword ptr [rbp+90h+var_DC+8], xmm0
-    vaddss  xmm0, xmm3, [rsp+190h+var_15C]
-    vmovss  dword ptr [rsp+190h+end+4], xmm0
-    vaddss  xmm0, xmm14, xmm4
-    vmovss  dword ptr [rsp+190h+var_124], xmm0
-    vaddss  xmm1, xmm15, xmm2
-    vmovss  dword ptr [rsp+190h+end+8], xmm1
-    vaddss  xmm0, xmm12, xmm2
-    vmovss  dword ptr [rsp+190h+var_124+8], xmm0
-    vaddss  xmm1, xmm13, xmm3
-    vmovss  dword ptr [rsp+190h+var_124+4], xmm1
-    vaddss  xmm0, xmm10, xmm3
-    vaddss  xmm1, xmm11, xmm4
-    vmovss  dword ptr [rsp+190h+var_118+4], xmm0
-    vmovss  dword ptr [rsp+190h+var_118], xmm1
-    vaddss  xmm0, xmm7, xmm4
-    vaddss  xmm1, xmm8, xmm2
-    vmovss  dword ptr [rbp+90h+var_10C], xmm0
-    vmovss  dword ptr [rbp+90h+var_118+8], xmm1
-    vaddss  xmm0, xmm5, xmm2
-    vaddss  xmm1, xmm6, xmm3
-    vmovss  dword ptr [rbp+90h+var_10C+8], xmm0
-    vmovss  dword ptr [rbp+90h+var_10C+4], xmm1
-  }
+  CG_DebugCircle(start, radius, &src, color, depthTest, duration);
+  CG_DebugCircle(end, radius, &src, color, depthTest, duration);
+  LODWORD(v16) = LODWORD(radius) ^ _xmm;
+  v17 = start->v[0];
+  v18 = start->v[1];
+  v19 = start->v[2];
+  v20 = radius * dst.v[2];
+  v21 = radius * cross.v[0];
+  v22 = radius * cross.v[1];
+  v23 = COERCE_FLOAT(LODWORD(radius) ^ _xmm) * dst.v[0];
+  v24 = COERCE_FLOAT(LODWORD(radius) ^ _xmm) * dst.v[2];
+  v25 = COERCE_FLOAT(LODWORD(radius) ^ _xmm) * dst.v[1];
+  v33 = radius * dst.v[0];
+  starta.v[0] = (float)(radius * dst.v[0]) + start->v[0];
+  v26 = radius * cross.v[2];
+  v34 = radius * dst.v[1];
+  starta.v[1] = (float)(radius * dst.v[1]) + v18;
+  starta.v[2] = (float)(radius * dst.v[2]) + v19;
+  v43.v[0] = v23 + v17;
+  v43.v[2] = v24 + v19;
+  v44.v[0] = (float)(radius * cross.v[0]) + v17;
+  v44.v[1] = (float)(radius * cross.v[1]) + v18;
+  v43.v[1] = v25 + v18;
+  v27 = end->v[1];
+  v28 = end->v[2];
+  v29 = v16 * cross.v[0];
+  v44.v[2] = v26 + v19;
+  *(float *)&_XMM0 = (float)(v16 * cross.v[0]) + v17;
+  v30 = v16 * cross.v[1];
+  v45.v[0] = *(float *)&_XMM0;
+  v31 = (float)(v16 * cross.v[1]) + v18;
+  *(float *)&v8 = v16 * cross.v[2];
+  v32 = end->v[0];
+  v45.v[1] = v31;
+  enda.v[0] = v32 + v33;
+  v45.v[2] = *(float *)&v8 + v19;
+  enda.v[1] = v27 + v34;
+  v39.v[0] = v23 + v32;
+  enda.v[2] = v20 + v28;
+  v39.v[2] = v24 + v28;
+  v39.v[1] = v25 + v27;
+  v40.v[1] = v22 + v27;
+  v40.v[0] = v21 + v32;
+  v41.v[0] = v29 + v32;
+  v40.v[2] = v26 + v28;
+  v41.v[2] = *(float *)&v8 + v28;
+  v41.v[1] = v30 + v27;
   CL_AddDebugLine(&starta, &enda, color, depthTest, duration, 0);
-  CL_AddDebugLine(&v106, &v102, color, depthTest, duration, 0);
-  CL_AddDebugLine(&v107, &v103, color, depthTest, duration, 0);
-  CL_AddDebugLine(&v108, &v104, color, depthTest, duration, 0);
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  CL_AddDebugLine(&v43, &v39, color, depthTest, duration, 0);
+  CL_AddDebugLine(&v44, &v40, color, depthTest, duration, 0);
+  CL_AddDebugLine(&v45, &v41, color, depthTest, duration, 0);
 }
 
 /*
@@ -1829,95 +1279,54 @@ void __fastcall CG_DebugCylinder(const vec3_t *start, const vec3_t *end, double 
 CG_DebugEllipse
 ==============
 */
-
-void __fastcall CG_DebugEllipse(const vec3_t *center, double radiusA, double radiusB, const vec3_t *right, const vec3_t *up, const vec4_t *color, int depthTest, int duration)
+void CG_DebugEllipse(const vec3_t *center, float radiusA, float radiusB, const vec3_t *right, const vec3_t *up, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v17; 
-  const vec3_t *v44; 
-  char v45; 
-  __int64 v46; 
+  float *v8; 
+  unsigned int v9; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const vec3_t *v22; 
+  char v23; 
+  __int64 v24; 
   float s; 
   float c[3]; 
   vec3_t end[16]; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RBX = &end[0].v[2];
-  __asm { vmovss  xmm10, cs:__real@3ec90fdb }
-  v17 = 0;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-    vmulss  xmm9, xmm1, xmm2
-  }
+  v8 = &end[0].v[2];
+  v9 = 0;
+  v14 = radiusA * radiusB;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm10; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, c);
-    __asm
-    {
-      vmulss  xmm1, xmm8, [rsp+178h+s]
-      vmulss  xmm0, xmm7, [rsp+178h+c]
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm1, xmm1
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vdivss  xmm3, xmm9, xmm0
-      vmulss  xmm4, xmm3, [rsp+178h+s]
-      vmulss  xmm6, xmm3, [rsp+178h+c]
-      vmulss  xmm0, xmm4, dword ptr [r14]
-      vaddss  xmm2, xmm0, dword ptr [rbp+0]
-      vmulss  xmm1, xmm6, dword ptr [rsi]
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm4, dword ptr [r14+4]
-      vaddss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rsi+4]
-      vaddss  xmm1, xmm2, xmm0
-      vmulss  xmm0, xmm4, dword ptr [r14+8]
-      vaddss  xmm2, xmm0, dword ptr [rbp+8]
-      vmovss  dword ptr [rbx-4], xmm1
-      vmulss  xmm1, xmm6, dword ptr [rsi+8]
-      vaddss  xmm2, xmm2, xmm1
-    }
-    ++v17;
-    __asm { vmovss  dword ptr [rbx], xmm2 }
-    _RBX += 3;
+    v15 = (float)v9;
+    FastSinCos(v15 * 0.39269909, &s, c);
+    v16 = v14 / fsqrt((float)((float)(radiusB * c[0]) * (float)(radiusB * c[0])) + (float)((float)(radiusA * s) * (float)(radiusA * s)));
+    v17 = v16 * s;
+    v18 = v16 * c[0];
+    v19 = (float)((float)(v16 * s) * up->v[1]) + center->v[1];
+    *(v8 - 2) = (float)((float)((float)(v16 * s) * up->v[0]) + center->v[0]) + (float)((float)(v16 * c[0]) * right->v[0]);
+    v20 = v19 + (float)(v18 * right->v[1]);
+    v21 = (float)(v17 * up->v[2]) + center->v[2];
+    *(v8 - 1) = v20;
+    ++v9;
+    *v8 = v21 + (float)(v18 * right->v[2]);
+    v8 += 3;
   }
-  while ( v17 < 0x10 );
-  v44 = end;
-  v45 = 1;
-  v46 = 16i64;
+  while ( v9 < 0x10 );
+  v22 = end;
+  v23 = 1;
+  v24 = 16i64;
   do
   {
-    CL_AddDebugLine(v44++, &end[v45++ & 0xF], color, depthTest, duration, 0);
-    --v46;
+    CL_AddDebugLine(v22++, &end[v23++ & 0xF], color, depthTest, duration, 0);
+    --v24;
   }
-  while ( v46 );
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v24 );
 }
 
 /*
@@ -1925,36 +1334,14 @@ void __fastcall CG_DebugEllipse(const vec3_t *center, double radiusA, double rad
 CG_DebugEllipsoid
 ==============
 */
-
-void __fastcall CG_DebugEllipsoid(const vec3_t *center, const vec3_t *right, const vec3_t *up, double radiusA, const float radiusB, const float radiusC, const vec4_t *color, int depthTest, int duration)
+void CG_DebugEllipsoid(const vec3_t *center, const vec3_t *right, const vec3_t *up, const float radiusA, const float radiusB, const float radiusC, const vec4_t *color, int depthTest, int duration)
 {
   vec3_t cross; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps xmm7, xmm3
-  }
   Vec3Cross(right, up, &cross);
-  __asm
-  {
-    vmovss  xmm2, [rsp+98h+radiusB]; radiusB
-    vmovaps xmm1, xmm7; radiusA
-  }
-  CG_DebugEllipse(center, *(float *)&_XMM1, *(float *)&_XMM2, right, up, color, depthTest, duration);
-  __asm
-  {
-    vmovss  xmm2, [rsp+98h+radiusB]; radiusB
-    vmovss  xmm1, [rsp+98h+radiusC]; radiusA
-  }
-  CG_DebugEllipse(center, *(float *)&_XMM1, *(float *)&_XMM2, &cross, up, color, depthTest, duration);
-  __asm
-  {
-    vmovss  xmm2, [rsp+98h+radiusC]; radiusB
-    vmovaps xmm1, xmm7; radiusA
-  }
-  CG_DebugEllipse(center, *(float *)&_XMM1, *(float *)&_XMM2, right, &cross, color, depthTest, duration);
-  __asm { vmovaps xmm7, [rsp+98h+var_38] }
+  CG_DebugEllipse(center, radiusA, radiusB, right, up, color, depthTest, duration);
+  CG_DebugEllipse(center, radiusC, radiusB, &cross, up, color, depthTest, duration);
+  CG_DebugEllipse(center, radiusA, radiusC, right, &cross, color, depthTest, duration);
 }
 
 /*
@@ -1972,82 +1359,54 @@ void CG_DebugLine(const vec3_t *start, const vec3_t *end, const vec4_t *color, i
 CG_DebugSemiCircle
 ==============
 */
-
-void __fastcall CG_DebugSemiCircle(const vec3_t *center, double radius, const vec3_t *right, const vec3_t *up, const vec4_t *color, int depthTest, int duration)
+void CG_DebugSemiCircle(const vec3_t *center, float radius, const vec3_t *right, const vec3_t *up, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v13; 
-  const vec3_t *v31; 
-  char v32; 
-  __int64 v33; 
+  float *v7; 
+  unsigned int v9; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const vec3_t *v20; 
+  char v21; 
+  __int64 v22; 
   float s; 
   float c[3]; 
   vec3_t end[16]; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBX = &end[0].v[2];
-  __asm { vmovss  xmm7, cs:__real@3ec90fdb }
-  v13 = 0;
-  __asm { vmovaps xmm6, xmm1 }
+  v7 = &end[0].v[2];
+  v9 = 0;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm7; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, c);
-    __asm
-    {
-      vmulss  xmm3, xmm6, [rsp+148h+s]
-      vmulss  xmm4, xmm6, [rsp+148h+c]
-      vmulss  xmm0, xmm3, dword ptr [rsi]
-      vaddss  xmm2, xmm0, dword ptr [r14]
-      vmulss  xmm1, xmm4, dword ptr [rbp+0]
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm3, dword ptr [rsi+4]
-      vaddss  xmm2, xmm1, dword ptr [r14+4]
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm0, xmm4, dword ptr [rbp+4]
-      vaddss  xmm2, xmm2, xmm0
-      vmulss  xmm0, xmm4, dword ptr [rbp+8]
-      vmovss  [rsp+148h+s], xmm3
-      vaddss  xmm3, xmm1, dword ptr [r14+8]
-      vaddss  xmm1, xmm3, xmm0
-    }
-    ++v13;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  dword ptr [rbx-4], xmm2
-    }
-    _RBX += 3;
-    __asm { vmovss  [rsp+148h+c], xmm4 }
+    v13 = (float)v9;
+    FastSinCos(v13 * 0.39269909, &s, c);
+    v14 = radius * s;
+    v15 = radius * c[0];
+    v16 = (float)((float)(radius * s) * up->v[1]) + center->v[1];
+    v17 = (float)(radius * s) * up->v[2];
+    *(v7 - 2) = (float)((float)((float)(radius * s) * up->v[0]) + center->v[0]) + (float)((float)(radius * c[0]) * right->v[0]);
+    v18 = v16 + (float)(v15 * right->v[1]);
+    v19 = v15 * right->v[2];
+    s = v14;
+    ++v9;
+    *v7 = (float)(v17 + center->v[2]) + v19;
+    *(v7 - 1) = v18;
+    v7 += 3;
+    c[0] = v15;
   }
-  while ( v13 <= 8 );
-  v31 = end;
-  v32 = 1;
-  v33 = 8i64;
+  while ( v9 <= 8 );
+  v20 = end;
+  v21 = 1;
+  v22 = 8i64;
   do
   {
-    CL_AddDebugLine(v31++, &end[v32++ & 0xF], color, depthTest, duration, 0);
-    --v33;
+    CL_AddDebugLine(v20++, &end[v21++ & 0xF], color, depthTest, duration, 0);
+    --v22;
   }
-  while ( v33 );
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  while ( v22 );
 }
 
 /*
@@ -2055,26 +1414,16 @@ void __fastcall CG_DebugSemiCircle(const vec3_t *center, double radius, const ve
 CG_DebugSphere
 ==============
 */
-
-void __fastcall CG_DebugSphere(const vec3_t *center, double radius, const vec4_t *color, int depthTest, int duration)
+void CG_DebugSphere(const vec3_t *center, float radius, const vec4_t *color, int depthTest, int duration)
 {
-  __m256i v15; 
+  __m256i v8; 
+  float v9; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovups ymm0, cs:__ymm@0000000000000000000000003f8000000000000000000000000000003f800000
-    vmovss  xmm2, cs:__real@3f800000
-    vmovss  [rsp+88h+var_38], xmm2
-    vmovaps xmm6, xmm1
-    vmovups [rsp+88h+var_58], ymm0
-  }
-  CG_DebugCircle(center, *(float *)&radius, (const vec3_t *)&v15, color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugCircle(center, *(float *)&_XMM1, (const vec3_t *)((char *)&v15.m256i_u64[1] + 4), color, depthTest, duration);
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugCircle(center, *(float *)&_XMM1, (const vec3_t *)&v15.m256i_u64[3], color, depthTest, duration);
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  v9 = FLOAT_1_0;
+  v8 = _ymm;
+  CG_DebugCircle(center, radius, (const vec3_t *)&v8, color, depthTest, duration);
+  CG_DebugCircle(center, radius, (const vec3_t *)((char *)&v8.m256i_u64[1] + 4), color, depthTest, duration);
+  CG_DebugCircle(center, radius, (const vec3_t *)&v8.m256i_u64[3], color, depthTest, duration);
 }
 
 /*
@@ -2082,174 +1431,104 @@ void __fastcall CG_DebugSphere(const vec3_t *center, double radius, const vec4_t
 CG_DebugSphericalSector
 ==============
 */
-
-void __fastcall CG_DebugSphericalSector(const vec3_t *origin, const vec3_t *direction, double radius, double length, const vec4_t *color, int depthTest, int duration)
+void CG_DebugSphericalSector(const vec3_t *origin, const vec3_t *direction, float radius, float length, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v56; 
-  const vec3_t *v94; 
-  char v95; 
-  __int64 v96; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  __int128 v10; 
+  __int128 v17; 
+  __int128 v18; 
+  int v19; 
+  int v20; 
+  float *v21; 
+  unsigned int i; 
+  float v23; 
+  __int128 v24; 
+  __int128 v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v29; 
+  const vec3_t *v33; 
+  char v34; 
+  __int64 v35; 
   float s; 
   float c; 
+  int v38; 
+  int v39; 
   vec3_t src; 
   vec3_t dst; 
-  vec3_t v114; 
+  vec3_t v42; 
   vec3_t end[16]; 
-  char v116; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v7 = direction->v[1];
+  v8 = LODWORD(direction->v[0]);
+  v9 = direction->v[2];
+  v10 = v8;
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(v7 * v7)) + (float)(v9 * v9));
+  _XMM2 = v10;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm6, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovss  xmm7, dword ptr [rdx+8]
-    vmovss  xmm12, cs:__real@3f800000
-    vmovss  xmm14, cs:__real@80000000
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps xmm13, xmm2
-    vmovaps xmm11, xmm3
-    vaddss  xmm3, xmm4, xmm1
-    vsqrtss xmm2, xmm3, xmm3
     vcmpless xmm0, xmm2, xmm14
     vblendvps xmm0, xmm2, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+200h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+200h+src+8], xmm0
-    vmovss  dword ptr [rsp+200h+src+4], xmm1
   }
+  src.v[0] = *(float *)&v8 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
+  v42.v[0] = (float)(src.v[0] * length) + origin->v[0];
+  v42.v[1] = (float)(src.v[1] * length) + origin->v[1];
+  v42.v[2] = (float)(src.v[2] * length) + origin->v[2];
+  v17 = LODWORD(src.v[1]);
+  *(float *)&v17 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v18 = v17;
+  *(float *)&v19 = (float)(src.v[2] * dst.v[0]) - (float)(src.v[0] * dst.v[2]);
+  *(float *)&v20 = (float)(src.v[0] * dst.v[1]) - (float)(src.v[1] * dst.v[0]);
+  v21 = &end[0].v[1];
+  v39 = v20;
+  v38 = v19;
+  for ( i = 0; i < 0x10; ++i )
   {
-    vmovss  xmm7, dword ptr [rsp+200h+src]
-    vmovss  xmm6, dword ptr [rsp+200h+src+4]
-    vmovss  xmm5, dword ptr [rsp+200h+src+8]
-    vmulss  xmm2, xmm7, dword ptr [rsp+200h+dst+4]
-    vmulss  xmm0, xmm7, xmm11
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rsp+200h+var_1A0], xmm1
-    vmulss  xmm0, xmm6, xmm11
-    vaddss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+200h+var_1A0+4], xmm1
-    vmulss  xmm0, xmm5, xmm11
-    vaddss  xmm1, xmm0, dword ptr [rbx+8]
-    vmulss  xmm0, xmm5, dword ptr [rsp+200h+dst+4]
-    vmovss  dword ptr [rsp+200h+var_1A0+8], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+200h+dst+8]
-    vsubss  xmm15, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rsp+200h+dst]
-    vmulss  xmm0, xmm7, dword ptr [rsp+200h+dst+8]
-    vsubss  xmm9, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+200h+dst]
-    vsubss  xmm7, xmm2, xmm1
-  }
-  _RDI = &end[0].v[1];
-  __asm
-  {
-    vmovss  [rsp+200h+var_1C4], xmm7
-    vmovss  [rsp+200h+var_1C8], xmm9
-  }
-  v56 = 0;
-  do
-  {
+    v23 = (float)i;
+    FastSinCos(v23 * 0.39269909, &s, &c);
+    v24 = v18;
+    *(float *)&v24 = (float)((float)((float)(*(float *)&v18 * (float)(radius * s)) + origin->v[0]) + (float)((float)(radius * c) * dst.v[0])) - v42.v[0];
+    v25 = v24;
+    *(float *)&v24 = (float)(*(float *)&v19 * (float)(radius * s)) + origin->v[1];
+    v19 = v38;
+    v26 = (float)(*(float *)&v24 + (float)((float)(radius * c) * dst.v[1])) - v42.v[1];
+    *(float *)&v24 = (float)(*(float *)&v20 * (float)(radius * s)) + origin->v[2];
+    v20 = v39;
+    v27 = *(float *)&v24 + (float)((float)(radius * c) * dst.v[2]);
+    v28 = v25;
+    s = radius * s;
+    v29 = v27 - v42.v[2];
+    *(float *)&v28 = fsqrt((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v26 * v26)) + (float)(v29 * v29));
+    _XMM3 = v28;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, cs:__real@3ec90fdb; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &s, &c);
-    __asm
-    {
-      vmulss  xmm5, xmm13, [rsp+200h+s]
-      vmulss  xmm4, xmm13, [rsp+200h+c]
-      vmulss  xmm2, xmm4, dword ptr [rsp+200h+dst]
-      vmulss  xmm0, xmm15, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rbx]
-      vaddss  xmm0, xmm3, xmm2
-      vsubss  xmm8, xmm0, dword ptr [rsp+200h+var_1A0]
-      vmulss  xmm2, xmm4, dword ptr [rsp+200h+dst+4]
-      vmulss  xmm0, xmm9, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rbx+4]
-      vmovss  xmm9, [rsp+200h+var_1C8]
-      vaddss  xmm0, xmm3, xmm2
-      vsubss  xmm6, xmm0, dword ptr [rsp+200h+var_1A0+4]
-      vmulss  xmm2, xmm4, dword ptr [rsp+200h+dst+8]
-      vmulss  xmm0, xmm7, xmm5
-      vaddss  xmm3, xmm0, dword ptr [rbx+8]
-      vmovss  xmm7, [rsp+200h+var_1C4]
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm8, xmm8
-      vmovss  [rsp+200h+s], xmm5
-      vsubss  xmm5, xmm0, dword ptr [rsp+200h+var_1A0+8]
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm14
       vblendvps xmm0, xmm3, xmm12, xmm0
-      vmovss  [rsp+200h+c], xmm4
-      vdivss  xmm4, xmm12, xmm0
-      vmulss  xmm0, xmm4, xmm8
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, dword ptr [rsp+200h+var_1A0]
-      vmovss  dword ptr [rdi-4], xmm2
-      vmulss  xmm0, xmm6, xmm4
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, dword ptr [rsp+200h+var_1A0+4]
-      vmovss  dword ptr [rdi], xmm2
-      vmulss  xmm0, xmm5, xmm4
-      vmulss  xmm1, xmm0, xmm11
-      vaddss  xmm2, xmm1, dword ptr [rsp+200h+var_1A0+8]
     }
-    ++v56;
-    __asm { vmovss  dword ptr [rdi+4], xmm2 }
-    _RDI += 3;
+    c = radius * c;
+    *(v21 - 1) = (float)((float)((float)(1.0 / *(float *)&_XMM0) * *(float *)&v25) * length) + v42.v[0];
+    *v21 = (float)((float)(v26 * (float)(1.0 / *(float *)&_XMM0)) * length) + v42.v[1];
+    v21[1] = (float)((float)(v29 * (float)(1.0 / *(float *)&_XMM0)) * length) + v42.v[2];
+    v21 += 3;
   }
-  while ( v56 < 0x10 );
-  v94 = end;
-  v95 = 1;
-  v96 = 16i64;
+  v33 = end;
+  v34 = 1;
+  v35 = 16i64;
   do
   {
-    CL_AddDebugLine(v94, &end[v95 & 0xF], color, depthTest, duration, 0);
-    CL_AddDebugLine(v94, &v114, color, depthTest, duration, 0);
-    ++v95;
-    ++v94;
-    --v96;
+    CL_AddDebugLine(v33, &end[v34 & 0xF], color, depthTest, duration, 0);
+    CL_AddDebugLine(v33, &v42, color, depthTest, duration, 0);
+    ++v34;
+    ++v33;
+    --v35;
   }
-  while ( v96 );
-  _R11 = &v116;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v35 );
 }
 
 /*
@@ -2257,302 +1536,195 @@ void __fastcall CG_DebugSphericalSector(const vec3_t *origin, const vec3_t *dire
 CG_DebugSphericalSectorFrustum
 ==============
 */
-
-void __fastcall CG_DebugSphericalSectorFrustum(const vec3_t *origin, const vec3_t *direction, double radiusNear, double radiusFar, float length, const vec4_t *color, int depthTest, int duration)
+void CG_DebugSphericalSectorFrustum(const vec3_t *origin, const vec3_t *direction, float radiusNear, float radiusFar, float length, const vec4_t *color, int depthTest, int duration)
 {
-  unsigned int v56; 
-  unsigned int v74; 
-  unsigned int v119; 
-  char v162; 
-  __int64 v163; 
-  unsigned int v164; 
-  __int64 v165; 
-  bool v166; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  unsigned int v23; 
+  float *v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  float v31; 
+  __int128 v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int128 v46; 
+  __int128 v47; 
+  unsigned int v48; 
+  __int64 v49; 
+  float v50; 
+  __int128 v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  char v65; 
+  __int64 v66; 
+  unsigned int v67; 
+  __int64 v68; 
+  bool v69; 
   float s[2]; 
   float c[2]; 
-  float v180[2]; 
-  vec3_t *v181; 
+  float v72[2]; 
+  vec3_t *v73; 
   vec3_t dst; 
   vec3_t src; 
   vec3_t start[16]; 
-  vec3_t v185[16]; 
+  vec3_t v77[16]; 
   vec3_t end[16]; 
-  char v187; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
+  v8 = direction->v[1];
+  v9 = LODWORD(direction->v[0]);
+  v10 = direction->v[2];
+  v11 = v9;
+  v72[0] = radiusFar;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+  _XMM3 = v11;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm6, dword ptr [rdx+4]
-    vmovss  xmm5, dword ptr [rdx]
-    vmovss  xmm7, dword ptr [rdx+8]
-    vmovss  xmm15, cs:__real@3f800000
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vmovaps xmm8, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  [rsp+380h+var_340], xmm3
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm15, xmm0
-    vdivss  xmm2, xmm15, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+380h+src], xmm0
-    vmulss  xmm0, xmm7, xmm2
   }
-  v181 = (vec3_t *)origin;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+380h+src+8], xmm0
-    vmovss  dword ptr [rsp+380h+src+4], xmm1
-  }
+  src.v[0] = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM0);
+  v73 = (vec3_t *)origin;
+  src.v[2] = v10 * (float)(1.0 / *(float *)&_XMM0);
+  src.v[1] = v8 * (float)(1.0 / *(float *)&_XMM0);
   PerpendicularVector(&src, &dst);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+380h+src+4]
-    vmovss  xmm7, dword ptr [rsp+380h+src+8]
-    vmulss  xmm1, xmm6, dword ptr [rsp+380h+dst+8]
-    vmulss  xmm0, xmm7, dword ptr [rsp+380h+dst+4]
-    vmovss  xmm5, dword ptr [rsp+380h+src]
-    vmovss  xmm14, [rbp+280h+length]
-    vmovss  xmm13, cs:__real@3ec90fdb
-    vsubss  xmm10, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsp+380h+dst]
-    vmulss  xmm0, xmm5, dword ptr [rsp+380h+dst+8]
-    vsubss  xmm11, xmm1, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+380h+dst]
-    vmulss  xmm1, xmm5, dword ptr [rsp+380h+dst+4]
-    vsubss  xmm12, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm14
-    vaddss  xmm9, xmm0, dword ptr [rsi]
-    vmulss  xmm0, xmm7, xmm14
-    vaddss  xmm7, xmm0, dword ptr [rsi+8]
-    vmulss  xmm1, xmm6, xmm14
-    vaddss  xmm6, xmm1, dword ptr [rsi+4]
-  }
-  v56 = 0;
-  _RBX = &end[0].v[2];
+  v17 = (float)(src.v[1] * dst.v[2]) - (float)(src.v[2] * dst.v[1]);
+  v18 = (float)(src.v[2] * dst.v[0]) - (float)(src.v[0] * dst.v[2]);
+  v19 = (float)(src.v[0] * dst.v[1]) - (float)(src.v[1] * dst.v[0]);
+  v20 = (float)(src.v[0] * length) + origin->v[0];
+  v21 = (float)(src.v[2] * length) + origin->v[2];
+  v22 = (float)(src.v[1] * length) + origin->v[1];
+  v23 = 0;
+  v24 = &end[0].v[2];
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm13; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, s, c);
-    __asm
-    {
-      vmulss  xmm5, xmm8, [rsp+380h+s]
-      vmulss  xmm4, xmm8, [rsp+380h+c]
-      vmulss  xmm2, xmm4, dword ptr [rsp+380h+dst]
-      vmulss  xmm0, xmm10, xmm5
-      vaddss  xmm3, xmm0, xmm9
-      vaddss  xmm0, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+380h+dst+4]
-      vmovss  dword ptr [rbx-8], xmm0
-      vmulss  xmm1, xmm11, xmm5
-      vaddss  xmm3, xmm1, xmm6
-      vaddss  xmm1, xmm3, xmm2
-      vmulss  xmm2, xmm4, dword ptr [rsp+380h+dst+8]
-      vmulss  xmm0, xmm12, xmm5
-      vaddss  xmm3, xmm0, xmm7
-      vaddss  xmm0, xmm3, xmm2
-    }
-    ++v56;
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  dword ptr [rbx-4], xmm1
-    }
-    _RBX += 3;
-    __asm
-    {
-      vmovss  [rsp+380h+s], xmm5
-      vmovss  [rsp+380h+c], xmm4
-    }
+    v25 = (float)v23;
+    FastSinCos(v25 * 0.39269909, s, c);
+    v26 = radiusNear * s[0];
+    v27 = radiusNear * c[0];
+    v28 = (float)(radiusNear * c[0]) * dst.v[1];
+    *(v24 - 2) = (float)((float)(v17 * (float)(radiusNear * s[0])) + v20) + (float)((float)(radiusNear * c[0]) * dst.v[0]);
+    ++v23;
+    *v24 = (float)((float)(v19 * v26) + v21) + (float)(v27 * dst.v[2]);
+    *(v24 - 1) = (float)((float)(v18 * v26) + v22) + v28;
+    v24 += 3;
+    s[0] = v26;
+    c[0] = v27;
   }
-  while ( v56 < 0x10 );
-  v74 = 0;
-  _RBX = 0i64;
+  while ( v23 < 0x10 );
+  v29 = 0;
+  v30 = 0i64;
   do
   {
+    v31 = (float)v29;
+    FastSinCos(v31 * 0.39269909, c, s);
+    v32 = LODWORD(v72[0]);
+    v33 = end[v30].v[0];
+    v34 = end[v30].v[1];
+    v35 = (float)(v18 * (float)(v72[0] * c[0])) + origin->v[1];
+    v36 = (float)(v17 * (float)(v72[0] * c[0])) + origin->v[0];
+    v37 = (float)(v19 * (float)(v72[0] * c[0])) + origin->v[2];
+    c[0] = v72[0] * c[0];
+    v38 = (float)((float)(v72[0] * s[0]) * dst.v[2]) + v37;
+    v39 = (float)((float)((float)(v72[0] * s[0]) * dst.v[1]) + v35) - v34;
+    v40 = (float)(v36 + (float)((float)(v72[0] * s[0]) * dst.v[0])) - v33;
+    s[0] = v72[0] * s[0];
+    v41 = end[v30].v[2];
+    v42 = v38 - v41;
+    *(float *)&v32 = fsqrt((float)((float)(v39 * v39) + (float)(v40 * v40)) + (float)(v42 * v42));
+    _XMM3 = v32;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm13; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, c, s);
-    __asm
-    {
-      vmovss  xmm1, [rsp+380h+var_340]
-      vmulss  xmm2, xmm1, [rsp+380h+c]
-      vmulss  xmm7, xmm1, [rsp+380h+s]
-      vmovss  xmm8, dword ptr [rbp+rbx+280h+end]
-      vmovss  xmm9, dword ptr [rbp+rbx+280h+end+4]
-      vmulss  xmm0, xmm11, xmm2
-      vaddss  xmm5, xmm0, dword ptr [rsi+4]
-      vmulss  xmm0, xmm10, xmm2
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vmulss  xmm1, xmm12, xmm2
-      vaddss  xmm6, xmm1, dword ptr [rsi+8]
-      vmulss  xmm1, xmm7, dword ptr [rsp+380h+dst+4]
-      vmovss  [rsp+380h+c], xmm2
-      vmulss  xmm2, xmm7, dword ptr [rsp+380h+dst]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm1, xmm5
-      vmulss  xmm1, xmm7, dword ptr [rsp+380h+dst+8]
-      vaddss  xmm0, xmm1, xmm6
-      vsubss  xmm5, xmm2, xmm9
-      vsubss  xmm6, xmm4, xmm8
-      vmulss  xmm1, xmm5, xmm5
-      vmovss  [rsp+380h+s], xmm7
-      vmovss  xmm7, dword ptr [rbp+rbx+280h+end+8]
-      vsubss  xmm4, xmm0, xmm7
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm15, xmm0
-      vdivss  xmm2, xmm15, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmulss  xmm3, xmm0, xmm14
-      vmulss  xmm1, xmm4, xmm2
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm2, xmm0, xmm14
-      vaddss  xmm0, xmm9, xmm3
-      vmulss  xmm4, xmm1, xmm14
-      vmovss  dword ptr [rsp+rbx+380h+start+4], xmm0
-      vaddss  xmm0, xmm7, xmm4
-      vaddss  xmm1, xmm2, xmm8
     }
-    ++v74;
-    __asm
-    {
-      vmovss  dword ptr [rsp+rbx+380h+start+8], xmm0
-      vmovss  dword ptr [rsp+rbx+380h+start], xmm1
-    }
-    _RBX += 12i64;
+    start[v30].v[1] = v34 + (float)((float)(v39 * (float)(1.0 / *(float *)&_XMM0)) * length);
+    ++v29;
+    start[v30].v[2] = v41 + (float)((float)(v42 * (float)(1.0 / *(float *)&_XMM0)) * length);
+    start[v30++].v[0] = (float)((float)(v40 * (float)(1.0 / *(float *)&_XMM0)) * length) + v33;
   }
-  while ( v74 < 0x10 );
-  __asm
-  {
-    vmovss  xmm3, [rsp+380h+var_340]
-    vmulss  xmm15, xmm3, cs:__real@3f000000
-  }
-  v119 = 0;
-  _RBX = 0i64;
+  while ( v29 < 0x10 );
+  v47 = LODWORD(v72[0]);
+  *(float *)&v47 = v72[0] * 0.5;
+  v46 = v47;
+  v48 = 0;
+  v49 = 0i64;
   do
   {
+    v50 = (float)v48;
+    FastSinCos(v50 * 0.39269909, v72, c);
+    v51 = v46;
+    v52 = end[v49].v[0];
+    v53 = end[v49].v[1];
+    v54 = (float)(v18 * (float)(*(float *)&v46 * v72[0])) + origin->v[1];
+    v55 = (float)(v17 * (float)(*(float *)&v46 * v72[0])) + origin->v[0];
+    v56 = (float)(v19 * (float)(*(float *)&v46 * v72[0])) + origin->v[2];
+    v72[0] = *(float *)&v46 * v72[0];
+    v57 = (float)((float)(*(float *)&v46 * c[0]) * dst.v[2]) + v56;
+    v58 = (float)((float)((float)(*(float *)&v46 * c[0]) * dst.v[1]) + v54) - v53;
+    v59 = (float)(v55 + (float)((float)(*(float *)&v46 * c[0]) * dst.v[0])) - v52;
+    c[0] = *(float *)&v46 * c[0];
+    v60 = end[v49].v[2];
+    v61 = v57 - v60;
+    *(float *)&v51 = fsqrt((float)((float)(v58 * v58) + (float)(v59 * v59)) + (float)(v61 * v61));
+    _XMM3 = v51;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm13; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, v180, c);
-    __asm
-    {
-      vmulss  xmm2, xmm15, [rsp+380h+var_340]
-      vmulss  xmm7, xmm15, [rsp+380h+c]
-      vmovss  xmm8, dword ptr [rbp+rbx+280h+end]
-      vmovss  xmm9, dword ptr [rbp+rbx+280h+end+4]
-      vmulss  xmm0, xmm11, xmm2
-      vaddss  xmm5, xmm0, dword ptr [rsi+4]
-      vmulss  xmm0, xmm10, xmm2
-      vaddss  xmm3, xmm0, dword ptr [rsi]
-      vmulss  xmm1, xmm12, xmm2
-      vaddss  xmm6, xmm1, dword ptr [rsi+8]
-      vmulss  xmm1, xmm7, dword ptr [rsp+380h+dst+4]
-      vmovss  [rsp+380h+var_340], xmm2
-      vmulss  xmm2, xmm7, dword ptr [rsp+380h+dst]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm1, xmm5
-      vmulss  xmm1, xmm7, dword ptr [rsp+380h+dst+8]
-      vaddss  xmm0, xmm1, xmm6
-      vsubss  xmm5, xmm2, xmm9
-      vsubss  xmm6, xmm4, xmm8
-      vmulss  xmm1, xmm5, xmm5
-      vmovss  [rsp+380h+c], xmm7
-      vmovss  xmm7, dword ptr [rbp+rbx+280h+end+8]
-      vsubss  xmm4, xmm0, xmm7
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm2, xmm5
-      vmulss  xmm3, xmm0, xmm14
-      vmulss  xmm1, xmm2, xmm4
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm2, xmm0, xmm14
-      vaddss  xmm0, xmm9, xmm3
-      vmulss  xmm4, xmm1, xmm14
-      vmovss  dword ptr [rbp+rbx+280h+var_250+4], xmm0
-      vaddss  xmm0, xmm7, xmm4
-      vaddss  xmm1, xmm2, xmm8
     }
-    ++v119;
-    __asm
-    {
-      vmovss  dword ptr [rbp+rbx+280h+var_250+8], xmm0
-      vmovss  dword ptr [rbp+rbx+280h+var_250], xmm1
-    }
-    _RBX += 12i64;
+    v77[v49].v[1] = v53 + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v58) * length);
+    ++v48;
+    v77[v49].v[2] = v60 + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v61) * length);
+    v77[v49++].v[0] = (float)((float)((float)(1.0 / *(float *)&_XMM0) * v59) * length) + v52;
   }
-  while ( v119 < 0x10 );
-  v162 = 1;
-  v163 = 0i64;
-  *(_QWORD *)v180 = 1i64;
+  while ( v48 < 0x10 );
+  v65 = 1;
+  v66 = 0i64;
+  *(_QWORD *)v72 = 1i64;
   *(_QWORD *)c = 16i64;
   do
   {
-    v164 = v162 & 0xF;
-    v165 = v164;
-    CL_AddDebugLine(&end[v163], &end[v164], color, depthTest, duration, 0);
-    CL_AddDebugLine(&start[v163], &start[v165], color, depthTest, duration, 0);
-    CL_AddDebugLine(&end[v163], &start[v163], color, depthTest, duration, 0);
-    CL_AddDebugLine(&start[v163], &v185[v163], color, depthTest, duration, 0);
-    CL_AddDebugLine(&v185[v163++], v181, color, depthTest, duration, 0);
-    v162 = LOBYTE(v180[0]) + 1;
-    v166 = (*(_QWORD *)c)-- == 1i64;
-    ++*(_QWORD *)v180;
+    v67 = v65 & 0xF;
+    v68 = v67;
+    CL_AddDebugLine(&end[v66], &end[v67], color, depthTest, duration, 0);
+    CL_AddDebugLine(&start[v66], &start[v68], color, depthTest, duration, 0);
+    CL_AddDebugLine(&end[v66], &start[v66], color, depthTest, duration, 0);
+    CL_AddDebugLine(&start[v66], &v77[v66], color, depthTest, duration, 0);
+    CL_AddDebugLine(&v77[v66++], v73, color, depthTest, duration, 0);
+    v65 = LOBYTE(v72[0]) + 1;
+    v69 = (*(_QWORD *)c)-- == 1i64;
+    ++*(_QWORD *)v72;
   }
-  while ( !v166 );
-  _R11 = &v187;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( !v69 );
 }
 
 /*
@@ -2572,14 +1744,7 @@ CG_DebugStarWithText
 */
 void CG_DebugStarWithText(const vec3_t *point, const vec4_t *starColor, const vec4_t *textColor, const char *string, float fontsize, int duration)
 {
-  float v7; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+fontsize]
-    vmovss  [rsp+48h+var_28], xmm0
-  }
-  CL_AddDebugStarWithText(point, starColor, textColor, string, v7, 0, duration, 0);
+  CL_AddDebugStarWithText(point, starColor, textColor, string, fontsize, 0, duration, 0);
 }
 
 /*
@@ -2598,103 +1763,51 @@ void __fastcall CG_DebugString(const vec3_t *point, const vec4_t *color, float s
 CG_Draw2DLine
 ==============
 */
-
-void __fastcall CG_Draw2DLine(const ScreenPlacement *scrPlace, double p1x, double p1y, double p2x, float p2y, float lineWidth, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
+void CG_Draw2DLine(const ScreenPlacement *scrPlace, float p1x, float p1y, float p2x, float p2y, float lineWidth, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
 {
-  _BYTE v58[32]; 
+  __int128 v10; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  float v19; 
+  float v20; 
   vec2_t verts; 
-  void *retaddr; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( p1x != p2x || p1y != p2y )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vucomiss xmm1, xmm3
-    vmovss  xmm7, [rsp+0B8h+p2y]
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm2
-  }
-  if ( (unsigned __int64)v58 != _security_cookie )
-    goto LABEL_3;
-  __asm { vucomiss xmm2, xmm7 }
-  if ( (unsigned __int64)v58 != _security_cookie )
-  {
-LABEL_3:
+    *(double *)&v10 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, p1x, horzAlign);
+    v12 = *(float *)&v10;
+    *(double *)&v10 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, p2x, horzAlign);
+    v13 = *(float *)&v10;
+    *(double *)&v10 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, p1y, vertAlign);
+    v14 = *(float *)&v10;
+    *(double *)&v10 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, p2y, vertAlign);
+    v15 = v10;
+    *(float *)&v15 = fsqrt((float)((float)(*(float *)&v10 - v14) * (float)(*(float *)&v10 - v14)) + (float)((float)(v13 - v12) * (float)(v13 - v12)));
+    _XMM3 = v15;
     __asm
     {
-      vmovaps [rsp+0B8h+var_58], xmm9
-      vmovaps [rsp+0B8h+var_68], xmm10
-    }
-    *(double *)&_XMM0 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, *(float *)&p1x, horzAlign);
-    __asm
-    {
-      vmovaps xmm1, xmm8; x
-      vmovaps xmm10, xmm0
-    }
-    *(double *)&_XMM0 = ScrPlace_ApplyXWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, horzAlign);
-    __asm
-    {
-      vmovaps xmm1, xmm6; y
-      vmovaps xmm8, xmm0
-    }
-    *(double *)&_XMM0 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, vertAlign);
-    __asm
-    {
-      vmovaps xmm1, xmm7; y
-      vmovaps xmm9, xmm0
-    }
-    *(double *)&_XMM0 = ScrPlace_ApplyYWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, vertAlign);
-    __asm
-    {
-      vsubss  xmm5, xmm0, xmm9
-      vmovaps xmm7, xmm0
-      vmovss  xmm0, [rsp+0B8h+lineWidth]
-      vmulss  xmm2, xmm5, xmm5
-      vsubss  xmm6, xmm8, xmm10
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm3, xmm2, xmm2
-      vmovss  xmm2, cs:__real@3f800000
       vcmpless xmm1, xmm3, cs:__real@80000000
       vblendvps xmm1, xmm3, xmm2, xmm1
-      vmulss  xmm3, xmm0, cs:__real@3f000000
-      vdivss  xmm4, xmm2, xmm1
-      vmulss  xmm1, xmm4, xmm5
-      vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm5, xmm2, xmm3
-      vmulss  xmm0, xmm4, xmm6
-      vmulss  xmm2, xmm0, xmm3
-      vsubss  xmm0, xmm9, xmm2
-      vmovss  dword ptr [rsp+0B8h+verts+4], xmm0
-      vsubss  xmm1, xmm10, xmm5
-      vmovss  dword ptr [rsp+0B8h+verts], xmm1
-      vsubss  xmm0, xmm7, xmm2
-      vsubss  xmm1, xmm8, xmm5
-      vmovss  [rsp+0B8h+var_8C], xmm0
-      vmovss  [rsp+0B8h+var_90], xmm1
-      vaddss  xmm0, xmm7, xmm2
-      vaddss  xmm1, xmm8, xmm5
-      vmovss  [rsp+0B8h+var_84], xmm0
-      vmovss  [rsp+0B8h+var_88], xmm1
-      vaddss  xmm0, xmm9, xmm2
-      vaddss  xmm1, xmm10, xmm5
-      vmovss  [rsp+0B8h+var_7C], xmm0
-      vmovss  [rsp+0B8h+var_80], xmm1
     }
+    v19 = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(1.0 / *(float *)&_XMM1) * (float)(*(float *)&v10 - v14)) ^ _xmm) * (float)(lineWidth * 0.5);
+    v20 = (float)((float)(1.0 / *(float *)&_XMM1) * (float)(v13 - v12)) * (float)(lineWidth * 0.5);
+    verts.v[1] = v14 - v20;
+    verts.v[0] = v12 - v19;
+    v23 = *(float *)&v10 - v20;
+    v22 = v13 - v19;
+    v25 = *(float *)&v10 + v20;
+    v24 = v13 + v19;
+    v27 = v14 + v20;
+    v26 = v12 + v19;
     R_AddCmdDrawQuadPic(&verts, color, material);
-    __asm
-    {
-      vmovaps xmm10, [rsp+0B8h+var_68]
-      vmovaps xmm9, [rsp+0B8h+var_58]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vmovaps xmm7, [rsp+0B8h+var_38]
-    vmovaps xmm8, [rsp+0B8h+var_48]
   }
 }
 
@@ -2703,73 +1816,41 @@ LABEL_3:
 CG_Draw2DRect
 ==============
 */
-
-void __fastcall CG_Draw2DRect(const ScreenPlacement *scrPlace, double x, double y, double width, float height, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
+void CG_Draw2DRect(const ScreenPlacement *scrPlace, float x, float y, float width, float height, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
 {
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
   vec2_t verts; 
+  int v19; 
+  int v20; 
+  int v21; 
+  int v22; 
+  int v23; 
+  int v24; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-    vmovaps xmm8, xmm1
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&x, horzAlign);
-  __asm
-  {
-    vmovaps xmm1, xmm7; y
-    vmovss  dword ptr [rsp+0A8h+verts], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vaddss  xmm6, xmm6, xmm8
-    vmovaps xmm1, xmm6; x
-    vmovss  dword ptr [rsp+0A8h+verts+4], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vmovaps xmm1, xmm7; y
-    vmovss  [rsp+0A8h+var_80], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0A8h+var_7C], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vaddss  xmm6, xmm7, [rsp+0A8h+height]
-    vmovaps xmm1, xmm6; y
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vmovaps xmm1, xmm8; x
-    vmovss  [rsp+0A8h+var_74], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vmovaps xmm1, xmm6; y
-    vmovss  [rsp+0A8h+var_70], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm { vmovss  [rsp+0A8h+var_6C], xmm0 }
+  v10 = ScrPlace_ApplyX(scrPlace, x, horzAlign);
+  verts.v[0] = *(float *)&v10;
+  v11 = ScrPlace_ApplyY(scrPlace, y, vertAlign);
+  verts.v[1] = *(float *)&v11;
+  v12 = ScrPlace_ApplyX(scrPlace, width + x, horzAlign);
+  v19 = SLODWORD(v12);
+  v13 = ScrPlace_ApplyY(scrPlace, y, vertAlign);
+  v20 = SLODWORD(v13);
+  v14 = ScrPlace_ApplyX(scrPlace, width + x, horzAlign);
+  v21 = SLODWORD(v14);
+  v15 = ScrPlace_ApplyY(scrPlace, y + height, vertAlign);
+  v22 = SLODWORD(v15);
+  v16 = ScrPlace_ApplyX(scrPlace, x, horzAlign);
+  v23 = SLODWORD(v16);
+  v17 = ScrPlace_ApplyY(scrPlace, y + height, vertAlign);
+  v24 = SLODWORD(v17);
   R_AddCmdDrawQuadPic(&verts, color, material);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-  }
 }
 
 /*
@@ -2779,51 +1860,42 @@ CG_Draw2DTri
 */
 void CG_Draw2DTri(const ScreenPlacement *scrPlace, const vec2_t *p0, const vec2_t *p1, const vec2_t *p2, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
 {
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  double v22; 
   vec2_t verts; 
+  int v24; 
+  int v25; 
+  int v26; 
+  int v27; 
+  vec2_t v28; 
 
-  __asm { vmovss  xmm1, dword ptr [rdx]; x }
-  _RBP = p1;
-  _R12 = p2;
-  _RBX = p0;
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]; y
-    vmovss  dword ptr [rsp+88h+verts], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0]; x
-    vmovss  dword ptr [rsp+88h+verts+4], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+4]; y
-    vmovss  [rsp+88h+var_60], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r12]; x
-    vmovss  [rsp+88h+var_5C], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyX(scrPlace, *(float *)&_XMM1, horzAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r12+4]; y
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  *(double *)&_XMM0 = ScrPlace_ApplyY(scrPlace, *(float *)&_XMM1, vertAlign);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+88h+verts+4]
-    vmovss  [rsp+88h+var_54], xmm0
-    vmovss  xmm0, dword ptr [rsp+88h+verts]
-    vmovss  [rsp+88h+var_50], xmm0
-    vmovss  [rsp+88h+var_4C], xmm1
-  }
+  v12 = ScrPlace_ApplyX(scrPlace, p0->v[0], horzAlign);
+  v13 = p0->v[1];
+  verts.v[0] = *(float *)&v12;
+  v14 = ScrPlace_ApplyY(scrPlace, v13, vertAlign);
+  v15 = p1->v[0];
+  verts.v[1] = *(float *)&v14;
+  v16 = ScrPlace_ApplyX(scrPlace, v15, horzAlign);
+  v17 = p1->v[1];
+  v24 = SLODWORD(v16);
+  v18 = ScrPlace_ApplyY(scrPlace, v17, vertAlign);
+  v19 = p2->v[0];
+  v25 = SLODWORD(v18);
+  v20 = ScrPlace_ApplyX(scrPlace, v19, horzAlign);
+  v21 = p2->v[1];
+  v26 = SLODWORD(v20);
+  v22 = ScrPlace_ApplyY(scrPlace, v21, vertAlign);
+  v27 = SLODWORD(v22);
+  v28 = verts;
   R_AddCmdDrawQuadPic(&verts, color, material);
 }
 
@@ -2834,20 +1906,13 @@ CG_DrawBigDevString
 */
 int CG_DrawBigDevString(const ScreenPlacement *scrPlace, float x, float y, const char *s, float alpha, int align)
 {
-  float v9; 
   vec4_t color; 
 
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; xScale
-    vmovss  xmm0, [rsp+78h+alpha]
-    vmovss  [rsp+78h+var_58], xmm3
-    vmovss  dword ptr [rsp+78h+var_28], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+4], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+8], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+0Ch], xmm0
-  }
-  return CG_DrawDevString(scrPlace, x, y, *(float *)&_XMM3, v9, s, &color, align, cls.bigDevFont);
+  color.v[0] = FLOAT_1_0;
+  color.v[1] = FLOAT_1_0;
+  color.v[2] = FLOAT_1_0;
+  color.v[3] = alpha;
+  return CG_DrawDevString(scrPlace, x, y, 1.0, 1.0, s, &color, align, cls.bigDevFont);
 }
 
 /*
@@ -2857,14 +1922,7 @@ CG_DrawBigDevStringColor
 */
 int CG_DrawBigDevStringColor(const ScreenPlacement *scrPlace, float x, float y, const char *s, const vec4_t *color, int align)
 {
-  float v8; 
-
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; xScale
-    vmovss  [rsp+58h+var_38], xmm3
-  }
-  return CG_DrawDevString(scrPlace, x, y, *(float *)&_XMM3, v8, s, color, align, cls.bigDevFont);
+  return CG_DrawDevString(scrPlace, x, y, 1.0, 1.0, s, color, align, cls.bigDevFont);
 }
 
 /*
@@ -2872,117 +1930,55 @@ int CG_DrawBigDevStringColor(const ScreenPlacement *scrPlace, float x, float y, 
 CG_DrawDevString
 ==============
 */
-
-int __fastcall CG_DrawDevString(const ScreenPlacement *scrPlace, double x, double y, double xScale, float yScale, const char *s, const vec4_t *color, int align, GfxFont *font)
+__int64 CG_DrawDevString(const ScreenPlacement *scrPlace, float x, float y, float xScale, float yScale, const char *s, const vec4_t *color, int align, GfxFont *font)
 {
-  int v22; 
-  int v29; 
-  int result; 
-  float fmt; 
-  float ya; 
-  float v46; 
-  float v47; 
-  char v48; 
-  void *retaddr; 
+  const dvar_t *v9; 
+  float v12; 
+  float value; 
+  float v14; 
+  int v15; 
+  float v16; 
+  int v17; 
+  int v18; 
+  int v19; 
 
-  _RAX = &retaddr;
-  _RBX = DCONST_DVARFLT_cg_small_dev_string_fontscale;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm9, xmm1
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm2
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_small_dev_string_fontscale") )
+  v9 = DCONST_DVARFLT_cg_small_dev_string_fontscale;
+  v12 = y;
+  if ( !DCONST_DVARFLT_cg_small_dev_string_fontscale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_small_dev_string_fontscale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v9);
+  value = v9->current.value;
+  v14 = value * yScale;
+  v15 = align & 3;
+  v16 = xScale * value;
+  if ( v15 != 1 )
   {
-    vmovss  xmm1, dword ptr [rbx+28h]
-    vmulss  xmm7, xmm1, [rsp+0A8h+yScale]
-  }
-  v22 = align & 3;
-  __asm { vmulss  xmm8, xmm8, xmm1 }
-  if ( v22 != 1 )
-  {
-    if ( v22 == 2 )
+    if ( v15 == 2 )
     {
-      R_TextWidth(s, 0, font);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm8
-        vsubss  xmm9, xmm9, xmm1
-      }
+      x = x - (float)((float)R_TextWidth(s, 0, font) * v16);
       goto LABEL_13;
     }
-    if ( v22 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawtools.cpp", 273, ASSERT_TYPE_ASSERT, "((align & CG_ALIGN_X) == CG_ALIGN_LEFT || (align & CG_ALIGN_X) == CG_ALIGN_RIGHT || (align & CG_ALIGN_X) == CG_ALIGN_CENTER)", (const char *)&queryFormat, "(align & CG_ALIGN_X) == CG_ALIGN_LEFT || (align & CG_ALIGN_X) == CG_ALIGN_RIGHT || (align & CG_ALIGN_X) == CG_ALIGN_CENTER") )
+    if ( v15 != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawtools.cpp", 273, ASSERT_TYPE_ASSERT, "((align & CG_ALIGN_X) == CG_ALIGN_LEFT || (align & CG_ALIGN_X) == CG_ALIGN_RIGHT || (align & CG_ALIGN_X) == CG_ALIGN_CENTER)", (const char *)&queryFormat, "(align & CG_ALIGN_X) == CG_ALIGN_LEFT || (align & CG_ALIGN_X) == CG_ALIGN_RIGHT || (align & CG_ALIGN_X) == CG_ALIGN_CENTER") )
       __debugbreak();
   }
-  if ( v22 == 3 )
-  {
-    R_TextWidth(s, 0, font);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm8
-      vmulss  xmm2, xmm1, cs:__real@bf000000
-      vaddss  xmm9, xmm9, xmm2
-    }
-  }
+  if ( v15 == 3 )
+    x = x + (float)((float)((float)R_TextWidth(s, 0, font) * v16) * -0.5);
 LABEL_13:
-  v29 = align & 0xC;
-  if ( (((v29 - 4) & 0xFFFFFFF3) != 0 || v29 == 16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawtools.cpp", 285, ASSERT_TYPE_ASSERT, "((align & CG_ALIGN_Y) == CG_ALIGN_TOP || (align & CG_ALIGN_Y) == CG_ALIGN_BOTTOM || (align & CG_ALIGN_Y) == CG_ALIGN_MIDDLE)", (const char *)&queryFormat, "(align & CG_ALIGN_Y) == CG_ALIGN_TOP || (align & CG_ALIGN_Y) == CG_ALIGN_BOTTOM || (align & CG_ALIGN_Y) == CG_ALIGN_MIDDLE") )
+  v17 = align & 0xC;
+  if ( (((v17 - 4) & 0xFFFFFFF3) != 0 || v17 == 16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_drawtools.cpp", 285, ASSERT_TYPE_ASSERT, "((align & CG_ALIGN_Y) == CG_ALIGN_TOP || (align & CG_ALIGN_Y) == CG_ALIGN_BOTTOM || (align & CG_ALIGN_Y) == CG_ALIGN_MIDDLE)", (const char *)&queryFormat, "(align & CG_ALIGN_Y) == CG_ALIGN_TOP || (align & CG_ALIGN_Y) == CG_ALIGN_BOTTOM || (align & CG_ALIGN_Y) == CG_ALIGN_MIDDLE") )
     __debugbreak();
-  R_TextHeight(font);
-  if ( v29 == 4 )
+  v18 = R_TextHeight(font);
+  v19 = v18;
+  if ( v17 == 4 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm6, xmm6, xmm1
-    }
+    v12 = y + (float)((float)v18 * v14);
   }
-  else if ( v29 == 12 )
+  else if ( v17 == 12 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, xmm7
-      vmulss  xmm2, xmm1, cs:__real@3f000000
-      vaddss  xmm6, xmm6, xmm2
-    }
+    v12 = y + (float)((float)((float)v18 * v14) * 0.5);
   }
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_60], xmm7
-    vmovss  [rsp+0A8h+var_68], xmm8
-    vmovss  [rsp+0A8h+y], xmm6
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm9
-  }
-  CL_DrawText(scrPlace, s, 0x7FFFFFFF, font, fmt, ya, 1, 1, v46, v47, color, 7);
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm1, xmm0, xmm7
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  CL_DrawText(scrPlace, s, 0x7FFFFFFF, font, x, v12, 1, 1, v16, v14, color, 7);
+  return (unsigned int)(int)(float)((float)v19 * v14);
 }
 
 /*
@@ -2990,33 +1986,17 @@ LABEL_13:
 CG_DrawRotatedPic
 ==============
 */
-
-void __fastcall CG_DrawRotatedPic(const ScreenPlacement *scrPlace, double x, double y, double width, float height, int horzAlign, int vertAlign, float angle, const vec4_t *color, Material *material)
+void CG_DrawRotatedPic(const ScreenPlacement *scrPlace, float x, float y, float width, float height, int horzAlign, int vertAlign, float angle, const vec4_t *color, Material *material)
 {
-  float h; 
-  float v17; 
   float xa; 
   float ya; 
   float w; 
 
-  __asm
-  {
-    vmovss  [rsp+w], xmm3
-    vmovss  [rsp+y], xmm2
-    vmovss  [rsp+x], xmm1
-  }
+  w = width;
+  ya = y;
+  xa = x;
   ScrPlace_ApplyRect(scrPlace, &xa, &ya, &w, &height, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+height]
-    vmovss  xmm0, [rsp+48h+angle]
-    vmovss  xmm3, [rsp+48h+w]; width
-    vmovss  xmm2, [rsp+48h+y]; y
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  dword ptr [rsp+48h+h], xmm1
-    vmovss  xmm1, [rsp+48h+x]; x
-  }
-  CG_DrawRotatedPicPhysical(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, v17, color, material);
+  CG_DrawRotatedPicPhysical(scrPlace, xa, ya, w, height, angle, color, material);
 }
 
 /*
@@ -3024,128 +2004,53 @@ void __fastcall CG_DrawRotatedPic(const ScreenPlacement *scrPlace, double x, dou
 CG_DrawRotatedPicPhysical
 ==============
 */
-
-void __fastcall CG_DrawRotatedPicPhysical(const ScreenPlacement *scrPlace, double x, double y, double width, float height, float angle, const vec4_t *color, Material *material)
+void CG_DrawRotatedPicPhysical(const ScreenPlacement *scrPlace, float x, float y, float width, float height, float angle, const vec4_t *color, Material *material)
 {
-  float t1; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   float c; 
   float s; 
-  float v95; 
+  float t1; 
   float s1; 
   float t0; 
   float s0; 
   vec2_t verts; 
-  char v106; 
-  void *retaddr; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-    vmovss  xmm0, [rsp+128h+angle]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-    vmovaps xmm7, xmm3
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm1
-  }
-  _RBX = scrPlace;
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rbx]
-    vmovss  xmm14, dword ptr [rbx+4]
-    vmovss  xmm2, cs:__real@3f000000
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm6, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm7, xmm1, dword ptr [rbx+10h]
-    vmulss  xmm1, xmm2, [rsp+128h+height]
-    vmulss  xmm4, xmm7, [rsp+128h+c]
-    vmulss  xmm2, xmm1, xmm6
-    vmulss  xmm5, xmm2, dword ptr [rbx+14h]
-    vmulss  xmm13, xmm5, [rsp+128h+s]
-    vmulss  xmm15, xmm5, [rsp+128h+c]
-    vmulss  xmm0, xmm6, xmm8
-    vmulss  xmm1, xmm0, dword ptr [rbx+10h]
-    vaddss  xmm8, xmm1, xmm7
-    vmulss  xmm7, xmm7, [rsp+128h+s]
-    vmulss  xmm2, xmm6, xmm9
-    vmulss  xmm0, xmm2, dword ptr [rbx+14h]
-    vxorps  xmm6, xmm13, cs:__xmm@80000000800000008000000080000000
-    vaddss  xmm10, xmm0, xmm5
-    vxorps  xmm5, xmm15, cs:__xmm@80000000800000008000000080000000
-    vsubss  xmm11, xmm8, xmm4
-    vsubss  xmm0, xmm11, xmm6
-    vmulss  xmm1, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmulss  xmm2, xmm1, xmm12
-    vmovss  dword ptr [rsp+128h+verts], xmm2
-    vaddss  xmm4, xmm8, xmm4
-    vaddss  xmm3, xmm10, xmm7
-    vsubss  xmm9, xmm10, xmm7
-    vaddss  xmm0, xmm5, xmm9
-    vmulss  xmm1, xmm0, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmulss  xmm2, xmm1, xmm14
-    vmovss  dword ptr [rsp+128h+verts+4], xmm2
-    vsubss  xmm0, xmm4, xmm6
-    vmovss  xmm6, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm12
-    vmovss  [rsp+128h+var_C8], xmm2
-    vaddss  xmm0, xmm5, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm14
-    vmovss  [rsp+128h+var_C4], xmm2
-    vsubss  xmm0, xmm4, xmm13
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm12
-    vmovss  [rsp+128h+var_C0], xmm2
-    vaddss  xmm0, xmm15, xmm3
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm14
-    vsubss  xmm0, xmm11, xmm13
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+128h+var_BC], xmm2
-    vmulss  xmm2, xmm1, xmm12
-    vaddss  xmm0, xmm15, xmm9
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+128h+var_B8], xmm2
-    vmulss  xmm2, xmm1, xmm14
-    vmovss  [rsp+128h+var_B4], xmm2
-  }
-  Material_GetDefault2DTextureCoordsForAtlasing(material, &s0, &s1, &t0, &v95);
-  __asm
-  {
-    vmovss  xmm0, [rsp+128h+var_E0]
-    vmovss  xmm3, [rsp+128h+s1]; s1
-    vmovss  xmm2, [rsp+128h+t0]; t0
-    vmovss  xmm1, [rsp+128h+s0]; s0
-    vmovss  dword ptr [rsp+128h+t1], xmm0
-  }
-  R_AddCmdDrawQuadPicST(&verts, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, t1, color, material);
-  _R11 = &v106;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  FastSinCos(angle * 0.017453292, &s, &c);
+  v9 = scrPlace->scaleVirtualToReal.v[0];
+  v10 = scrPlace->scaleVirtualToReal.v[1];
+  v11 = (float)((float)(width * 0.5) * (float)(1.0 / cg_hudSplitscreenScale)) * scrPlace->scaleRealToVirtual.v[0];
+  v12 = v11 * c;
+  v13 = (float)((float)(0.5 * height) * (float)(1.0 / cg_hudSplitscreenScale)) * scrPlace->scaleRealToVirtual.v[1];
+  v14 = (float)((float)((float)(1.0 / cg_hudSplitscreenScale) * x) * scrPlace->scaleRealToVirtual.v[0]) + v11;
+  v15 = v11 * s;
+  v16 = (float)((float)((float)(1.0 / cg_hudSplitscreenScale) * y) * scrPlace->scaleRealToVirtual.v[1]) + v13;
+  v17 = v14 - v12;
+  verts.v[0] = (float)((float)((float)(v14 - v12) - COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 * s) ^ _xmm)) * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[0];
+  v18 = v14 + v12;
+  verts.v[1] = (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 * c) ^ _xmm) + (float)(v16 - v15)) * cg_hudSplitscreenScale) * v10;
+  v26 = (float)((float)(v18 - COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 * s) ^ _xmm)) * cg_hudSplitscreenScale) * v9;
+  v27 = (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v13 * c) ^ _xmm) + (float)(v16 + v15)) * cg_hudSplitscreenScale) * v10;
+  v28 = (float)((float)(v18 - (float)(v13 * s)) * cg_hudSplitscreenScale) * v9;
+  v29 = (float)((float)((float)(v13 * c) + (float)(v16 + v15)) * cg_hudSplitscreenScale) * v10;
+  v30 = (float)((float)(v17 - (float)(v13 * s)) * cg_hudSplitscreenScale) * v9;
+  v31 = (float)((float)((float)(v13 * c) + (float)(v16 - v15)) * cg_hudSplitscreenScale) * v10;
+  Material_GetDefault2DTextureCoordsForAtlasing(material, &s0, &s1, &t0, &t1);
+  R_AddCmdDrawQuadPicST(&verts, s0, t0, s1, t1, color, material);
 }
 
 /*
@@ -3153,33 +2058,17 @@ void __fastcall CG_DrawRotatedPicPhysical(const ScreenPlacement *scrPlace, doubl
 CG_DrawRotatedPicWithoutSplitScreenScaling
 ==============
 */
-
-void __fastcall CG_DrawRotatedPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, double x, double y, double width, float height, int horzAlign, int vertAlign, float angle, const vec4_t *color, Material *material)
+void CG_DrawRotatedPicWithoutSplitScreenScaling(const ScreenPlacement *scrPlace, float x, float y, float width, float height, int horzAlign, int vertAlign, float angle, const vec4_t *color, Material *material)
 {
-  float h; 
-  float v17; 
   float xa; 
   float ya; 
   float w; 
 
-  __asm
-  {
-    vmovss  [rsp+w], xmm3
-    vmovss  [rsp+y], xmm2
-    vmovss  [rsp+x], xmm1
-  }
+  w = width;
+  ya = y;
+  xa = x;
   ScrPlace_ApplyRectWithoutSplitScreenScaling(scrPlace, &xa, &ya, &w, &height, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+height]
-    vmovss  xmm0, [rsp+48h+angle]
-    vmovss  xmm3, [rsp+48h+w]; width
-    vmovss  xmm2, [rsp+48h+y]; y
-    vmovss  [rsp+48h+var_20], xmm0
-    vmovss  dword ptr [rsp+48h+h], xmm1
-    vmovss  xmm1, [rsp+48h+x]; x
-  }
-  CG_DrawRotatedPicPhysical(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, v17, color, material);
+  CG_DrawRotatedPicPhysical(scrPlace, xa, ya, w, height, angle, color, material);
 }
 
 /*
@@ -3187,155 +2076,67 @@ void __fastcall CG_DrawRotatedPicWithoutSplitScreenScaling(const ScreenPlacement
 CG_DrawRotatedQuadPic
 ==============
 */
-
-void __fastcall CG_DrawRotatedQuadPic(const ScreenPlacement *scrPlace, double x, double y, const vec2_t *verts, float angle, const vec4_t *color, Material *material)
+void CG_DrawRotatedQuadPic(const ScreenPlacement *scrPlace, float x, float y, const vec2_t *verts, float angle, const vec4_t *color, Material *material)
 {
-  float t1; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   float c; 
   float s; 
-  float v118; 
+  float t1; 
   float s1; 
   float t0; 
   float s0; 
   vec2_t vertsa; 
-  char v129; 
-  void *retaddr; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-    vmovss  xmm0, [rsp+128h+angle]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians
-  }
-  _RBX = scrPlace;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm14, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmovss  xmm10, dword ptr [rbx+10h]
-    vmovss  xmm11, dword ptr [rbx+14h]
-    vmovss  xmm13, dword ptr [rbx]
-    vmovss  xmm15, dword ptr [rbx+4]
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm8, xmm0, xmm14
-    vmulss  xmm0, xmm8, xmm6
-    vmovss  xmm6, [rsp+128h+s]
-    vmulss  xmm9, xmm0, xmm10
-    vmulss  xmm0, xmm8, dword ptr [rdi]
-    vmulss  xmm5, xmm0, xmm10
-    vmulss  xmm1, xmm8, xmm7
-    vmovss  xmm7, [rsp+128h+c]
-    vmulss  xmm12, xmm1, xmm11
-    vmulss  xmm1, xmm8, dword ptr [rdi+4]
-    vmulss  xmm4, xmm1, xmm11
-    vmulss  xmm0, xmm5, xmm7
-    vaddss  xmm2, xmm0, xmm9
-    vmulss  xmm1, xmm6, xmm4
-    vsubss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm14
-    vmulss  xmm3, xmm2, xmm13
-    vmulss  xmm0, xmm5, xmm6
-    vaddss  xmm2, xmm0, xmm12
-    vmovss  dword ptr [rsp+128h+verts], xmm3
-    vmulss  xmm1, xmm7, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm8, dword ptr [rdi+0Ch]
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm3, xmm0, xmm15
-    vmulss  xmm0, xmm8, dword ptr [rdi+8]
-    vmulss  xmm5, xmm0, xmm10
-    vmulss  xmm4, xmm1, xmm11
-    vmulss  xmm0, xmm5, xmm7
-    vaddss  xmm2, xmm0, xmm9
-    vmovss  dword ptr [rsp+128h+verts+4], xmm3
-    vmulss  xmm1, xmm4, xmm6
-    vsubss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm3, xmm0, xmm13
-    vmulss  xmm1, xmm5, xmm6
-    vaddss  xmm2, xmm1, xmm12
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm0, xmm8, dword ptr [rdi+10h]
-    vmulss  xmm1, xmm2, xmm14
-    vmulss  xmm5, xmm0, xmm10
-    vmovss  [rsp+128h+var_C8], xmm3
-    vmulss  xmm3, xmm1, xmm15
-    vmulss  xmm1, xmm8, dword ptr [rdi+14h]
-    vmulss  xmm4, xmm1, xmm11
-    vmulss  xmm0, xmm5, xmm7
-    vaddss  xmm2, xmm0, xmm9
-    vmulss  xmm1, xmm4, xmm6
-    vsubss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm1, xmm5, xmm6
-    vaddss  xmm2, xmm1, xmm12
-    vmovss  [rsp+128h+var_C4], xmm3
-    vmulss  xmm3, xmm0, xmm13
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm0, xmm8, dword ptr [rdi+18h]
-    vmulss  xmm1, xmm2, xmm14
-    vmovss  [rsp+128h+var_C0], xmm3
-    vmulss  xmm3, xmm1, xmm15
-    vmulss  xmm1, xmm8, dword ptr [rdi+1Ch]
-    vmovss  [rsp+128h+var_BC], xmm3
-    vmulss  xmm5, xmm0, xmm10
-    vmulss  xmm4, xmm1, xmm11
-    vmulss  xmm0, xmm5, xmm7
-    vaddss  xmm2, xmm0, xmm9
-    vmulss  xmm1, xmm4, xmm6
-    vsubss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm3, xmm0, xmm13
-    vmulss  xmm1, xmm5, xmm6
-    vaddss  xmm2, xmm1, xmm12
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm2, xmm0
-    vmulss  xmm1, xmm2, xmm14
-    vmovss  [rsp+128h+var_B8], xmm3
-    vmulss  xmm3, xmm1, xmm15
-    vmovss  [rsp+128h+var_B4], xmm3
-  }
-  Material_GetDefault2DTextureCoordsForAtlasing(material, &s0, &s1, &t0, &v118);
-  __asm
-  {
-    vmovss  xmm0, [rsp+128h+var_E0]
-    vmovss  xmm3, [rsp+128h+s1]; s1
-    vmovss  xmm2, [rsp+128h+t0]; t0
-    vmovss  xmm1, [rsp+128h+s0]; s0
-    vmovss  dword ptr [rsp+128h+t1], xmm0
-  }
-  R_AddCmdDrawQuadPicST(&vertsa, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, t1, color, material);
-  _R11 = &v129;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  FastSinCos(angle * 0.017453292, &s, &c);
+  v9 = scrPlace->scaleRealToVirtual.v[0];
+  v10 = scrPlace->scaleRealToVirtual.v[1];
+  v11 = scrPlace->scaleVirtualToReal.v[0];
+  v12 = scrPlace->scaleVirtualToReal.v[1];
+  v13 = (float)((float)(1.0 / cg_hudSplitscreenScale) * x) * v9;
+  v14 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts->v[0]) * v9;
+  v15 = (float)((float)(1.0 / cg_hudSplitscreenScale) * y) * v10;
+  v16 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts->v[1]) * v10;
+  vertsa.v[0] = (float)((float)((float)((float)(v14 * c) + v13) - (float)(s * v16)) * cg_hudSplitscreenScale) * scrPlace->scaleVirtualToReal.v[0];
+  v17 = (float)((float)((float)((float)(v14 * s) + v15) + (float)(c * v16)) * cg_hudSplitscreenScale) * v12;
+  v18 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts[1].v[0]) * v9;
+  v19 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts[1].v[1]) * v10;
+  vertsa.v[1] = v17;
+  v20 = (float)((float)((float)((float)(v18 * c) + v13) - (float)(v19 * s)) * cg_hudSplitscreenScale) * v11;
+  v21 = (float)((float)((float)(v18 * s) + v15) + (float)(v19 * c)) * cg_hudSplitscreenScale;
+  v22 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts[2].v[0]) * v9;
+  v33 = v20;
+  v23 = (float)((float)(1.0 / cg_hudSplitscreenScale) * verts[2].v[1]) * v10;
+  v34 = v21 * v12;
+  v24 = (float)(1.0 / cg_hudSplitscreenScale) * verts[3].v[0];
+  v35 = (float)((float)((float)((float)(v22 * c) + v13) - (float)(v23 * s)) * cg_hudSplitscreenScale) * v11;
+  v25 = (float)(1.0 / cg_hudSplitscreenScale) * verts[3].v[1];
+  v36 = (float)((float)((float)((float)(v22 * s) + v15) + (float)(v23 * c)) * cg_hudSplitscreenScale) * v12;
+  v37 = (float)((float)((float)((float)((float)(v24 * v9) * c) + v13) - (float)((float)(v25 * v10) * s)) * cg_hudSplitscreenScale) * v11;
+  v38 = (float)((float)((float)((float)((float)(v24 * v9) * s) + v15) + (float)((float)(v25 * v10) * c)) * cg_hudSplitscreenScale) * v12;
+  Material_GetDefault2DTextureCoordsForAtlasing(material, &s0, &s1, &t0, &t1);
+  R_AddCmdDrawQuadPicST(&vertsa, s0, t0, s1, t1, color, material);
 }
 
 /*
@@ -3345,20 +2146,13 @@ CG_DrawSmallDevString
 */
 int CG_DrawSmallDevString(const ScreenPlacement *scrPlace, float x, float y, const char *s, float alpha, int align)
 {
-  float v9; 
   vec4_t color; 
 
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; xScale
-    vmovss  xmm0, [rsp+78h+alpha]
-    vmovss  [rsp+78h+var_58], xmm3
-    vmovss  dword ptr [rsp+78h+var_28], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+4], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+8], xmm3
-    vmovss  dword ptr [rsp+78h+var_28+0Ch], xmm0
-  }
-  return CG_DrawDevString(scrPlace, x, y, *(float *)&_XMM3, v9, s, &color, align, cls.smallDevFont);
+  color.v[0] = FLOAT_1_0;
+  color.v[1] = FLOAT_1_0;
+  color.v[2] = FLOAT_1_0;
+  color.v[3] = alpha;
+  return CG_DrawDevString(scrPlace, x, y, 1.0, 1.0, s, &color, align, cls.smallDevFont);
 }
 
 /*
@@ -3368,14 +2162,7 @@ CG_DrawSmallDevStringColor
 */
 int CG_DrawSmallDevStringColor(const ScreenPlacement *scrPlace, float x, float y, const char *s, const vec4_t *color, int align)
 {
-  float v8; 
-
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000; xScale
-    vmovss  [rsp+58h+var_38], xmm3
-  }
-  return CG_DrawDevString(scrPlace, x, y, *(float *)&_XMM3, v8, s, color, align, cls.smallDevFont);
+  return CG_DrawDevString(scrPlace, x, y, 1.0, 1.0, s, color, align, cls.smallDevFont);
 }
 
 /*
@@ -3383,50 +2170,23 @@ int CG_DrawSmallDevStringColor(const ScreenPlacement *scrPlace, float x, float y
 CG_DrawStringExt
 ==============
 */
-
-void __fastcall CG_DrawStringExt(const ScreenPlacement *scrPlace, double x, double y, const char *string, const vec4_t *setColor, int forceColor, int shadow, float charHeight)
+void CG_DrawStringExt(const ScreenPlacement *scrPlace, float x, float y, const char *string, const vec4_t *setColor, int forceColor, int shadow, float charHeight)
 {
   GfxFont *smallDevFont; 
-  bool v18; 
-  float v21; 
-  int horzAlign; 
-  int vertAlign; 
-  float v24[6]; 
-  void *retaddr; 
-  int v26; 
-  int v27; 
+  bool v10; 
+  float v11[6]; 
+  float v12; 
+  float v13; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  [rsp+arg_8], xmm1
-    vmovss  xmm3, [rsp+68h+arg_38]
-  }
+  v12 = x;
   smallDevFont = cls.smallDevFont;
-  __asm
-  {
-    vaddss  xmm0, xmm2, xmm3
-    vmovss  xmm2, cs:__real@3f800000
-    vmovss  dword ptr [r11+18h], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+8]
-    vdivss  xmm0, xmm3, xmm1
-    vmovss  dword ptr [r11+40h], xmm0
-    vmovss  [rsp+68h+var_18], xmm2
-  }
-  ScrPlace_ApplyRect(scrPlace, (float *)&v26, (float *)&v27, v24, &charHeight, 1, 1);
-  __asm { vmovss  xmm0, [rsp+68h+arg_38] }
-  v18 = shadow != 0;
+  v13 = y + charHeight;
+  charHeight = charHeight / (float)cls.smallDevFont->pixelHeight;
+  v11[0] = FLOAT_1_0;
+  ScrPlace_ApplyRect(scrPlace, &v12, &v13, v11, &charHeight, 1, 1);
+  v10 = shadow != 0;
   shadow = -shadow;
-  __asm
-  {
-    vmovss  xmm3, [rsp+68h+arg_8]; x
-    vmovss  [rsp+68h+vertAlign], xmm0
-    vmovss  [rsp+68h+horzAlign], xmm0
-    vmovss  xmm0, [rsp+68h+arg_10]
-    vmovss  [rsp+68h+var_48], xmm0
-  }
-  CL_DrawTextPhysical(string, 0x7FFFFFFF, smallDevFont, *(float *)&_XMM3, v21, *(float *)&horzAlign, *(float *)&vertAlign, setColor, v18 ? 3 : 0);
+  CL_DrawTextPhysical(string, 0x7FFFFFFF, smallDevFont, v12, v13, charHeight, charHeight, setColor, v10 ? 3 : 0);
 }
 
 /*
@@ -3436,22 +2196,15 @@ CG_DrawTools_FadeAlpha
 */
 float CG_DrawTools_FadeAlpha(int timeNow, int startMsec, int totalMsec, int fadeMsec)
 {
-  if ( fadeMsec <= 0 || startMsec - timeNow + totalMsec >= fadeMsec )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
+  int v4; 
+
+  if ( fadeMsec <= 0 )
+    return FLOAT_1_0;
+  v4 = startMsec - timeNow + totalMsec;
+  if ( v4 >= fadeMsec )
+    return FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, r9d
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)v4 / (float)fadeMsec;
 }
 
 /*
@@ -3461,30 +2214,20 @@ CG_DrawTools_FadeColor
 */
 char CG_DrawTools_FadeColor(int timeNow, int startMsec, int totalMsec, int fadeMsec, vec4_t *outColor)
 {
-  int v7; 
+  int v5; 
+  int v6; 
+  float v7; 
 
   if ( !startMsec )
     return 0;
-  v7 = timeNow - startMsec;
-  if ( v7 >= totalMsec )
+  v5 = timeNow - startMsec;
+  if ( v5 >= totalMsec )
     return 0;
-  if ( fadeMsec <= 0 || totalMsec - v7 >= fadeMsec )
-  {
-    __asm { vmovss  xmm2, cs:__real@3f800000 }
-  }
+  if ( fadeMsec <= 0 || (v6 = totalMsec - v5, v6 >= fadeMsec) )
+    v7 = FLOAT_1_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, r8d
-      vcvtsi2ss xmm0, xmm0, r9d
-      vdivss  xmm2, xmm1, xmm0
-    }
-  }
-  _RAX = outColor;
-  __asm { vmovss  dword ptr [rax+0Ch], xmm2 }
+    v7 = (float)v6 / (float)fadeMsec;
+  outColor->v[3] = v7;
   outColor->v[2] = 1.0;
   outColor->v[1] = 1.0;
   outColor->v[0] = 1.0;
@@ -3532,110 +2275,85 @@ CG_DrawTools_MiniMapChanged
 */
 void CG_DrawTools_MiniMapChanged(LocalClientNum_t localClientNum)
 {
+  cg_t *LocalClientGlobals; 
   const char *ConfigString; 
+  const char *v6; 
+  const char *v7; 
+  const Material *v8; 
   const char *v9; 
-  const char *v10; 
-  const Material *v11; 
-  const char *v12; 
-  const char *v14; 
-  const char *v16; 
-  const char *v18; 
-  const char *v20; 
-  char v21; 
+  const char *v11; 
+  const char *v13; 
+  const char *v15; 
+  const char *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   char *data_p[2]; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-  }
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   ConfigString = CL_GetConfigString(9);
   *(double *)&_XMM0 = atof(ConfigString);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-    vmovss  dword ptr [rbx+49FFCh], xmm1
-  }
-  FastSinCos(*(const float *)&_XMM0, (float *)&_RBX->compassNorth + 1, (float *)&_RBX->compassNorth);
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&_XMM1 + 1);
+  LocalClientGlobals->compassNorthYaw = *(float *)&_XMM1;
+  FastSinCos(*(float *)&_XMM1 * 0.017453292, (float *)&LocalClientGlobals->compassNorth + 1, (float *)&LocalClientGlobals->compassNorth);
   data_p[0] = (char *)CL_GetConfigString(10);
-  v9 = Com_Parse((const char **)data_p);
-  _RBX->compassMapTDMDMaterial = NULL;
-  v10 = v9;
-  if ( *v9 )
+  v6 = Com_Parse((const char **)data_p);
+  LocalClientGlobals->compassMapTDMDMaterial = NULL;
+  v7 = v6;
+  if ( *v6 )
   {
     if ( TopDownMapData_HasData() )
     {
-      Com_sprintf(dest, 0x40ui64, "%s_tdmd", v10);
-      v11 = Material_RegisterHandle(dest, IMAGE_TRACK_HUD);
-      if ( !Material_IsDefault(v11) )
-        _RBX->compassMapTDMDMaterial = (Material *)v11;
+      Com_sprintf(dest, 0x40ui64, "%s_tdmd", v7);
+      v8 = Material_RegisterHandle(dest, IMAGE_TRACK_HUD);
+      if ( !Material_IsDefault(v8) )
+        LocalClientGlobals->compassMapTDMDMaterial = (Material *)v8;
     }
   }
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_RAISE|WEAPON_FIRING) )
   {
-    if ( _RBX->m_isMLGSpectator )
+    if ( LocalClientGlobals->m_isMLGSpectator )
     {
       Com_Parse((const char **)data_p);
-      _RBX->compassMapMaterial = Material_RegisterHandle(v10, IMAGE_TRACK_HUD);
+      LocalClientGlobals->compassMapMaterial = Material_RegisterHandle(v7, IMAGE_TRACK_HUD);
     }
     else
     {
-      _RBX->compassMapMaterial = Material_RegisterHandle(v10, IMAGE_TRACK_HUD);
+      LocalClientGlobals->compassMapMaterial = Material_RegisterHandle(v7, IMAGE_TRACK_HUD);
       Com_Parse((const char **)data_p);
     }
   }
-  v12 = Com_Parse((const char **)data_p);
-  *(double *)&_XMM0 = atof(v12);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rbx+4A018h], xmm1
-  }
-  v14 = Com_Parse((const char **)data_p);
-  *(double *)&_XMM0 = atof(v14);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rbx+4A01Ch], xmm1
-  }
-  v16 = Com_Parse((const char **)data_p);
-  *(double *)&_XMM0 = atof(v16);
+  v9 = Com_Parse((const char **)data_p);
+  *(double *)&_XMM0 = atof(v9);
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  LocalClientGlobals->compassMapUpperLeft.v[0] = *(float *)&_XMM1;
+  v11 = Com_Parse((const char **)data_p);
+  *(double *)&_XMM0 = atof(v11);
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  LocalClientGlobals->compassMapUpperLeft.v[1] = *(float *)&_XMM1;
+  v13 = Com_Parse((const char **)data_p);
+  *(double *)&_XMM0 = atof(v13);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v18 = Com_Parse((const char **)data_p);
-  *(double *)&_XMM0 = atof(v18);
+  v15 = Com_Parse((const char **)data_p);
+  *(double *)&_XMM0 = atof(v15);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v20 = Com_Parse((const char **)data_p);
-  _RBX->compassMapTiles = atoi(v20);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+4A004h]
-    vsubss  xmm3, xmm7, dword ptr [rbx+4A018h]
-    vsubss  xmm2, xmm6, dword ptr [rbx+4A01Ch]
-    vmovss  xmm5, dword ptr [rbx+4A000h]
-    vmovaps xmm7, [rsp+0B8h+var_38]
-    vmovaps xmm6, [rsp+0B8h+var_28]
-    vmulss  xmm1, xmm3, xmm4
-    vmulss  xmm0, xmm2, xmm5
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rbx+4A020h], xmm1
-    vmulss  xmm0, xmm3, xmm5
-    vmulss  xmm2, xmm2, xmm4
-    vaddss  xmm1, xmm2, xmm0
-    vxorps  xmm4, xmm1, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbx+4A024h], xmm4
-    vucomiss xmm0, dword ptr [rbx+4A020h]
-  }
-  if ( v21 )
-    _RBX->compassMapWorldSize.v[0] = 1000.0;
-  __asm { vucomiss xmm4, xmm0 }
-  if ( v21 )
-    _RBX->compassMapWorldSize.v[1] = 1000.0;
+  v17 = Com_Parse((const char **)data_p);
+  LocalClientGlobals->compassMapTiles = atoi(v17);
+  v18 = LocalClientGlobals->compassNorth.v[1];
+  v19 = *(float *)&_XMM7 - LocalClientGlobals->compassMapUpperLeft.v[0];
+  v20 = *(float *)&_XMM6 - LocalClientGlobals->compassMapUpperLeft.v[1];
+  v21 = LocalClientGlobals->compassNorth.v[0];
+  LocalClientGlobals->compassMapWorldSize.v[0] = (float)(v19 * v18) - (float)(v20 * v21);
+  LODWORD(v22) = COERCE_UNSIGNED_INT((float)(v20 * v18) + (float)(v19 * v21)) ^ _xmm;
+  LocalClientGlobals->compassMapWorldSize.v[1] = v22;
+  if ( LocalClientGlobals->compassMapWorldSize.v[0] == 0.0 )
+    LocalClientGlobals->compassMapWorldSize.v[0] = 1000.0;
+  if ( v22 == 0.0 )
+    LocalClientGlobals->compassMapWorldSize.v[1] = 1000.0;
 }
 
 /*
@@ -3663,45 +2381,35 @@ void CG_DrawTools_ThermalBodyMaterialChanged(LocalClientNum_t localClientNum)
 CG_DrawVLine
 ==============
 */
-
-void __fastcall CG_DrawVLine(const ScreenPlacement *scrPlace, double x, double top, double lineWidth, float height, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
+void CG_DrawVLine(const ScreenPlacement *scrPlace, float x, float top, float lineWidth, float height, int horzAlign, int vertAlign, const vec4_t *color, Material *material)
 {
   const vec4_t *v9; 
   Material *v10; 
-  int v20; 
-  int v21; 
-  int v22; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec2_t verts; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
 
   v9 = color;
   v10 = material;
-  __asm
-  {
-    vmovss  [rsp+98h+var_48], xmm1
-    vmovss  [rsp+98h+var_50], xmm2
-    vmovss  [rsp+98h+var_58], xmm3
-  }
-  ScrPlace_ApplyRect(scrPlace, (float *)&v22, (float *)&v21, (float *)&v20, &height, horzAlign, vertAlign);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vmulss  xmm4, xmm2, [rsp+98h+height]
-    vmulss  xmm5, xmm2, [rsp+98h+var_58]
-    vmovss  xmm2, [rsp+98h+var_48]
-    vaddss  xmm1, xmm4, [rsp+98h+var_50]
-    vaddss  xmm0, xmm5, xmm2
-    vsubss  xmm3, xmm1, xmm4
-    vaddss  xmm1, xmm1, xmm4
-    vmovss  dword ptr [rsp+98h+verts], xmm0
-    vmovss  [rsp+98h+var_38], xmm0
-    vsubss  xmm0, xmm2, xmm5
-    vmovss  [rsp+98h+var_30], xmm0
-    vmovss  [rsp+98h+var_28], xmm0
-    vmovss  dword ptr [rsp+98h+verts+4], xmm3
-    vmovss  [rsp+98h+var_34], xmm1
-    vmovss  [rsp+98h+var_2C], xmm1
-    vmovss  [rsp+98h+var_24], xmm3
-  }
+  v13 = x;
+  v12 = top;
+  v11 = lineWidth;
+  ScrPlace_ApplyRect(scrPlace, &v13, &v12, &v11, &height, horzAlign, vertAlign);
+  verts.v[0] = (float)(0.5 * v11) + v13;
+  v15 = verts.v[0];
+  v17 = v13 - (float)(0.5 * v11);
+  v19 = v17;
+  verts.v[1] = (float)((float)(0.5 * height) + v12) - (float)(0.5 * height);
+  v16 = (float)((float)(0.5 * height) + v12) + (float)(0.5 * height);
+  v18 = v16;
+  v20 = verts.v[1];
   R_AddCmdDrawQuadPic(&verts, v9, v10);
 }
 
@@ -3712,24 +2420,21 @@ CG_UpdateSSR
 */
 void CG_UpdateSSR(LocalClientNum_t localClientNum)
 {
-  __int64 v9; 
+  cg_t *LocalClientGlobals; 
+  __int128 v2; 
+  __int64 v5; 
 
   if ( cg_t::ms_allocatedType )
   {
-    _RAX = CG_GetLocalClientGlobals(localClientNum);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+65E4h]
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vdivss  xmm1, xmm1, dword ptr [rcx+28h]
-      vaddss  xmm0, xmm1, dword ptr [rax+5A4ACh]
-      vminss  xmm2, xmm0, cs:__real@3f800000
-      vmovss  dword ptr [rax+5A4ACh], xmm2
-      vmovss  dword ptr [rax+6C50h], xmm2
-    }
-    _RAX->refdef.ssrSourceDisplayViewport.width = 0;
-    memset(&v9, 0, sizeof(v9));
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    v2 = 0i64;
+    *(float *)&v2 = (float)((float)((float)LocalClientGlobals->frametime * 0.001) / r_ssrFadeInDuration->current.value) + LocalClientGlobals->ssr.fade;
+    _XMM0 = v2;
+    __asm { vminss  xmm2, xmm0, cs:__real@3f800000 }
+    LocalClientGlobals->ssr.fade = *(float *)&_XMM2;
+    LocalClientGlobals->refdef.ssrFade = *(float *)&_XMM2;
+    LocalClientGlobals->refdef.ssrSourceDisplayViewport.width = 0;
+    memset(&v5, 0, sizeof(v5));
   }
 }
 
@@ -3738,120 +2443,84 @@ void CG_UpdateSSR(LocalClientNum_t localClientNum)
 CG_WorldDirToScreenPosReal
 ==============
 */
-
-bool __fastcall CG_WorldDirToScreenPosReal(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec3_t *worldDir, double tanHalfFOVX, const float tanHalfFOVY, vec2_t *outScreenPos)
+bool CG_WorldDirToScreenPosReal(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec3_t *worldDir, const float tanHalfFOVX, const float tanHalfFOVY, vec2_t *outScreenPos)
 {
-  bool v16; 
-  bool v17; 
+  cg_t *LocalClientGlobals; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  float v15; 
+  float v16; 
   bool result; 
-  char v67[16]; 
-  char v68; 
-  void *retaddr; 
+  float v18; 
+  float v25; 
+  float v26; 
+  __int128 v27; 
+  float v30; 
+  char v31; 
 
-  _RAX = &retaddr;
-  __asm
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( worldDir == (const vec3_t *)&v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+    __debugbreak();
+  v9 = worldDir->v[2];
+  v10 = worldDir->v[1];
+  v11 = LODWORD(worldDir->v[0]);
+  v12 = (float)((float)(v10 * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + (float)(worldDir->v[0] * LocalClientGlobals->refdef.view.axis.m[0].v[0])) + (float)(v9 * LocalClientGlobals->refdef.view.axis.m[0].v[2]);
+  *(float *)&v11 = (float)((float)(worldDir->v[0] * LocalClientGlobals->refdef.view.axis.m[1].v[0]) + (float)(v10 * LocalClientGlobals->refdef.view.axis.m[1].v[1])) + (float)(v9 * LocalClientGlobals->refdef.view.axis.m[1].v[2]);
+  _XMM7 = v11;
+  _XMM8 = 0i64;
+  v15 = (float)((float)(worldDir->v[0] * LocalClientGlobals->refdef.view.axis.m[2].v[0]) + (float)(v10 * LocalClientGlobals->refdef.view.axis.m[2].v[1])) + (float)(v9 * LocalClientGlobals->refdef.view.axis.m[2].v[2]);
+  if ( v12 > 0.0 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RBX = outScreenPos;
-  _RBP = (char *)worldDir;
-  __asm { vmovaps xmm9, xmm3 }
-  _RDI = scrPlace;
-  CG_GetLocalClientGlobals(localClientNum);
-  v16 = _RBP <= v67;
-  if ( _RBP == v67 )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbp+8]
-    vmovss  xmm5, dword ptr [rbp+4]
-    vmovss  xmm4, dword ptr [rbp+0]
-    vmulss  xmm1, xmm5, dword ptr [rsi+6948h]
-    vmulss  xmm0, xmm4, dword ptr [rsi+6944h]
-    vmulss  xmm3, xmm4, dword ptr [rsi+6950h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsi+694Ch]
-    vmulss  xmm0, xmm5, dword ptr [rsi+6954h]
-    vaddss  xmm10, xmm2, xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsi+6958h]
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rsi+6960h]
-    vaddss  xmm7, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rsi+695Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsi+6964h]
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm10, xmm8
-    vaddss  xmm6, xmm2, xmm1
-  }
-  if ( v16 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm4, xmm6, xmm3
-      vmovss  xmm6, cs:__real@80000000
-    }
-    result = 0;
-    __asm
-    {
-      vucomiss xmm7, xmm6
-      vxorps  xmm5, xmm7, xmm3
-      vmovss  dword ptr [rbx], xmm5
-      vmovss  dword ptr [rbx+4], xmm4
-      vmovss  xmm0, dword ptr [rdi+20h]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  xmm2, dword ptr [rdi+24h]
-      vmulss  xmm1, xmm2, cs:__real@40000000
-      vxorps  xmm3, xmm2, xmm3
-      vcmpless xmm0, xmm8, xmm4
-      vblendvps xmm0, xmm3, xmm1, xmm0
-      vmovss  dword ptr [rbx+4], xmm0
-    }
+    outScreenPos->v[0] = (float)((float)(1.0 - (float)((float)(*(float *)&_XMM7 / tanHalfFOVX) * (float)(1.0 / v12))) * scrPlace->realViewportSize.v[0]) * 0.5;
+    v25 = (float)(1.0 - (float)((float)(v15 / tanHalfFOVY) * (float)(1.0 / v12))) * scrPlace->realViewportSize.v[1];
+    result = 1;
   }
   else
   {
+    LODWORD(v16) = LODWORD(v15) ^ _xmm;
+    result = 0;
+    LODWORD(v18) = _XMM7 ^ _xmm;
+    outScreenPos->v[0] = COERCE_FLOAT(_XMM7 ^ _xmm);
+    outScreenPos->v[1] = COERCE_FLOAT(LODWORD(v15) ^ _xmm);
+    if ( *(float *)&_XMM7 == -0.0 )
+    {
+      outScreenPos->v[0] = scrPlace->realViewportSize.v[0] * 0.5;
+      _XMM3 = LODWORD(scrPlace->realViewportSize.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+      __asm
+      {
+        vcmpless xmm0, xmm8, xmm4
+        vblendvps xmm0, xmm3, xmm1, xmm0
+      }
+      outScreenPos->v[1] = *(float *)&_XMM0;
+      return result;
+    }
+    if ( v16 != 0.0 )
+    {
+      LODWORD(v26) = LODWORD(v16) & _xmm;
+      outScreenPos->v[1] = v26;
+      v27 = LODWORD(scrPlace->realViewportSize.v[0]);
+      *(float *)&v27 = scrPlace->realViewportSize.v[0] / v18;
+      _XMM2 = v27 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm2, xmm2, xmm0 }
+      outScreenPos->v[0] = v18 * *(float *)&_XMM2;
+      v30 = v26 * *(float *)&_XMM2;
+      outScreenPos->v[1] = v30;
+      outScreenPos->v[0] = (float)(0.5 * scrPlace->realViewportSize.v[0]) + (float)(v18 * *(float *)&_XMM2);
+      outScreenPos->v[1] = (float)(0.5 * scrPlace->realViewportSize.v[1]) + v30;
+      return result;
+    }
+    _XMM2 = LODWORD(scrPlace->realViewportSize.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
     __asm
     {
-      vmovss  xmm4, cs:__real@3f800000
-      vdivss  xmm2, xmm4, xmm10
-      vdivss  xmm0, xmm7, xmm9
-      vmulss  xmm1, xmm0, xmm2
-      vsubss  xmm1, xmm4, xmm1
-      vmulss  xmm0, xmm1, dword ptr [rdi+20h]
-      vdivss  xmm1, xmm6, [rsp+0A8h+tanHalfFOVY]
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vmulss  xmm2, xmm1, xmm2
-      vmovss  dword ptr [rbx], xmm0
-      vsubss  xmm0, xmm4, xmm2
-      vmulss  xmm1, xmm0, dword ptr [rdi+24h]
+      vcmpless xmm0, xmm7, xmm6
+      vblendvps xmm0, xmm2, xmm1, xmm0
     }
-    result = 1;
-    __asm
-    {
-      vmulss  xmm2, xmm1, cs:__real@3f000000
-      vmovss  dword ptr [rbx+4], xmm2
-    }
+    outScreenPos->v[0] = *(float *)&_XMM0;
+    v25 = scrPlace->realViewportSize.v[1];
   }
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  outScreenPos->v[1] = v25 * 0.5;
   return result;
 }
 
@@ -3860,141 +2529,86 @@ bool __fastcall CG_WorldDirToScreenPosReal(LocalClientNum_t localClientNum, cons
 CG_WorldDirToScreenPosRealPrecise
 ==============
 */
-
-bool __fastcall CG_WorldDirToScreenPosRealPrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldDir, double tanHalfFOVX, const float tanHalfFOVY, vec2_t *outScreenPos)
+char CG_WorldDirToScreenPosRealPrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldDir, const float tanHalfFOVX, const float tanHalfFOVY, vec2_t *outScreenPos)
 {
-  bool v20; 
-  bool result; 
-  char v99; 
-  void *retaddr; 
+  float *LocalClientGlobals; 
+  double z; 
+  double y; 
+  double v11; 
+  double v15; 
+  float v19; 
+  float v20; 
+  char result; 
+  float v29; 
+  __int128 v30; 
+  float v33; 
 
-  _RAX = &retaddr;
-  _RDI = outScreenPos;
-  _RBX = worldDir;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RSI = scrPlace;
-  __asm
+  LocalClientGlobals = (float *)CG_GetLocalClientGlobals(localClientNum);
+  z = worldDir->z;
+  y = worldDir->y;
+  LocalClientGlobals += 6728;
+  v11 = LocalClientGlobals[9] * worldDir->x + LocalClientGlobals[10] * y + LocalClientGlobals[11] * z;
+  _XMM8 = COERCE_UNSIGNED_INT64(LocalClientGlobals[12] * worldDir->x + LocalClientGlobals[13] * y + LocalClientGlobals[14] * z);
+  _XMM0 = COERCE_UNSIGNED_INT64(LocalClientGlobals[17] * z);
+  v15 = LocalClientGlobals[15] * worldDir->x + LocalClientGlobals[16] * y + *(double *)&_XMM0;
+  _XMM7 = *(unsigned __int64 *)&v15;
+  __asm { vxorpd  xmm0, xmm0, xmm0 }
+  if ( v11 > *(double *)&_XMM0 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm10, xmm3
-  }
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovsd  xmm7, qword ptr [rbx+10h]
-    vmovsd  xmm5, qword ptr [rbx]
-    vmovsd  xmm6, qword ptr [rbx+8]
-  }
-  v20 = __CFADD__(_RAX, 26912i64) || &_RAX->refdef == NULL;
-  _RAX = (cg_t *)((char *)_RAX + 26912);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+24h]
-    vmovss  xmm1, dword ptr [rax+28h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm3, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rax+2Ch]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmulsd  xmm2, xmm1, xmm6
-    vmulsd  xmm1, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rax+34h]
-    vaddsd  xmm4, xmm3, xmm2
-    vmovss  xmm2, dword ptr [rax+30h]
-    vaddsd  xmm9, xmm4, xmm1
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm1, xmm0, xmm6
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmulsd  xmm3, xmm2, xmm5
-    vmovss  xmm2, dword ptr [rax+38h]
-    vaddsd  xmm4, xmm3, xmm1
-    vmovss  xmm1, dword ptr [rax+3Ch]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmulsd  xmm3, xmm1, xmm5
-    vmovss  xmm1, dword ptr [rax+44h]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmulsd  xmm0, xmm2, xmm7
-    vaddsd  xmm8, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rax+40h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmulsd  xmm2, xmm0, xmm6
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmulsd  xmm0, xmm1, xmm7
-    vaddsd  xmm4, xmm3, xmm2
-    vaddsd  xmm7, xmm4, xmm0
-    vxorpd  xmm0, xmm0, xmm0
-    vcomisd xmm9, xmm0
-  }
-  if ( v20 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-      vcvtsd2ss xmm0, xmm8, xmm8
-      vcvtsd2ss xmm1, xmm7, xmm7
-      vxorps  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rdi], xmm0
-      vxorps  xmm4, xmm1, xmm3
-      vmovss  dword ptr [rdi+4], xmm4
-      vmovss  xmm6, dword ptr [rdi]
-      vxorps  xmm5, xmm5, xmm5
-    }
-    result = 0;
-    __asm
-    {
-      vucomiss xmm6, xmm5
-      vmovss  xmm0, dword ptr [rsi+20h]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vcmpless xmm0, xmm5, dword ptr [rdi+4]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rsi+24h]
-      vmulss  xmm1, xmm2, cs:__real@40000000
-      vxorps  xmm3, xmm2, xmm3
-      vblendvps xmm0, xmm3, xmm1, xmm0
-      vmovss  dword ptr [rdi+4], xmm0
-    }
+    _XMM2 = COERCE_UNSIGNED_INT64((1.0 - *(double *)&_XMM8 / tanHalfFOVX * (1.0 / v11)) * (float)(scrPlace->realViewportSize.v[0] * 0.5));
+    __asm { vcvtsd2ss xmm3, xmm2, xmm2 }
+    outScreenPos->v[0] = *(float *)&_XMM3;
+    _XMM3 = COERCE_UNSIGNED_INT64((1.0 - v15 / tanHalfFOVY * (1.0 / v11)) * (float)(scrPlace->realViewportSize.v[1] * 0.5));
+    __asm { vcvtsd2ss xmm0, xmm3, xmm3 }
+    outScreenPos->v[1] = *(float *)&_XMM0;
+    return 1;
   }
   else
   {
     __asm
     {
-      vmovsd  xmm6, cs:__real@3ff0000000000000
-      vcvtss2sd xmm0, xmm10, xmm10
-      vdivsd  xmm1, xmm8, xmm0
-      vmovss  xmm0, dword ptr [rsi+20h]
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vdivsd  xmm5, xmm6, xmm9
-      vmulsd  xmm2, xmm1, xmm5
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovss  xmm0, [rsp+78h+tanHalfFOVY]
-      vsubsd  xmm3, xmm6, xmm2
-      vmulsd  xmm2, xmm3, xmm1
-      vcvtsd2ss xmm3, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vdivsd  xmm1, xmm7, xmm0
-      vmovss  dword ptr [rdi], xmm3
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vmulsd  xmm2, xmm1, xmm5
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vsubsd  xmm3, xmm6, xmm2
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmulsd  xmm3, xmm3, xmm2
-      vcvtsd2ss xmm0, xmm3, xmm3
-      vmovss  dword ptr [rdi+4], xmm0
+      vcvtsd2ss xmm0, xmm8, xmm8
+      vcvtsd2ss xmm1, xmm7, xmm7
     }
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v99;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm7, [rsp+78h+var_28]
+    outScreenPos->v[0] = COERCE_FLOAT(_XMM0 ^ _xmm);
+    LODWORD(v19) = _XMM1 ^ _xmm;
+    outScreenPos->v[1] = COERCE_FLOAT(_XMM1 ^ _xmm);
+    v20 = outScreenPos->v[0];
+    _XMM5 = 0i64;
+    result = 0;
+    if ( outScreenPos->v[0] == 0.0 )
+    {
+      __asm { vcmpless xmm0, xmm5, dword ptr [rdi+4] }
+      outScreenPos->v[0] = scrPlace->realViewportSize.v[0] * 0.5;
+      _XMM3 = LODWORD(scrPlace->realViewportSize.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+      __asm { vblendvps xmm0, xmm3, xmm1, xmm0 }
+      outScreenPos->v[1] = *(float *)&_XMM0;
+    }
+    else if ( v19 == 0.0 )
+    {
+      _XMM2 = LODWORD(scrPlace->realViewportSize.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
+      __asm
+      {
+        vcmpless xmm0, xmm5, xmm6
+        vblendvps xmm0, xmm2, xmm1, xmm0
+      }
+      outScreenPos->v[0] = *(float *)&_XMM0;
+      outScreenPos->v[1] = scrPlace->realViewportSize.v[1] * 0.5;
+    }
+    else
+    {
+      LODWORD(v29) = LODWORD(v19) & _xmm;
+      outScreenPos->v[1] = v29;
+      v30 = LODWORD(scrPlace->realViewportSize.v[1]);
+      *(float *)&v30 = scrPlace->realViewportSize.v[1] / v29;
+      _XMM2 = v30 & (unsigned int)_xmm;
+      __asm { vmaxss  xmm2, xmm2, xmm0 }
+      outScreenPos->v[0] = v20 * *(float *)&_XMM2;
+      v33 = v29 * *(float *)&_XMM2;
+      outScreenPos->v[1] = v33;
+      outScreenPos->v[0] = (float)(0.5 * scrPlace->realViewportSize.v[0]) + (float)(v20 * *(float *)&_XMM2);
+      outScreenPos->v[1] = (float)(0.5 * scrPlace->realViewportSize.v[1]) + v33;
+    }
   }
   return result;
 }
@@ -4007,14 +2621,16 @@ CG_WorldDirToScreenPosVirtualCentered
 bool CG_WorldDirToScreenPosVirtualCentered(LocalClientNum_t localClientNum, const vec3_t *worldDir, vec2_t *outScreenPos)
 {
   __int64 v3; 
+  cg_t *LocalClientGlobals; 
   bool v7; 
-  const ScreenPlacement *v8; 
+  ScreenPlacement *v8; 
   bool result; 
-  float fmt; 
+  float v10; 
+  float v11; 
+  float v12; 
 
   v3 = localClientNum;
-  _RBP = outScreenPos;
-  _RSI = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
@@ -4031,29 +2647,14 @@ bool CG_WorldDirToScreenPosVirtualCentered(LocalClientNum_t localClientNum, cons
   }
   v8 = &scrPlaceFull;
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+6934h]
-    vmovss  xmm3, dword ptr [rsi+6930h]; tanHalfFOVX
-    vmovss  dword ptr [rsp+38h+fmt], xmm0
-  }
-  result = CG_WorldDirToScreenPosReal((LocalClientNum_t)v3, v8, worldDir, *(const float *)&_XMM3, fmt, _RBP);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  xmm2, cs:__real@3f000000
-    vmulss  xmm1, xmm2, dword ptr [rbx+20h]
-    vsubss  xmm4, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  dword ptr [rbp+0], xmm4
-    vmulss  xmm2, xmm2, dword ptr [rbx+24h]
-    vsubss  xmm3, xmm1, xmm2
-    vmovss  dword ptr [rbp+4], xmm3
-    vmulss  xmm0, xmm4, dword ptr [rbx+10h]
-    vmovss  dword ptr [rbp+0], xmm0
-    vmulss  xmm1, xmm3, dword ptr [rbx+14h]
-    vmovss  dword ptr [rbp+4], xmm1
-  }
+  result = CG_WorldDirToScreenPosReal((LocalClientNum_t)v3, v8, worldDir, LocalClientGlobals->refdef.view.fov.tanHalfFovX, LocalClientGlobals->refdef.view.fov.tanHalfFovY, outScreenPos);
+  v10 = outScreenPos->v[0] - (float)(0.5 * v8->realViewportSize.v[0]);
+  v11 = outScreenPos->v[1];
+  outScreenPos->v[0] = v10;
+  v12 = v11 - (float)(0.5 * v8->realViewportSize.v[1]);
+  outScreenPos->v[1] = v12;
+  outScreenPos->v[0] = v10 * v8->scaleRealToVirtual.v[0];
+  outScreenPos->v[1] = v12 * v8->scaleRealToVirtual.v[1];
   return result;
 }
 
@@ -4064,51 +2665,36 @@ CG_WorldPosToScreenPosReal
 */
 _BOOL8 CG_WorldPosToScreenPosReal(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec3_t *worldPos, vec2_t *outScreenPos)
 {
-  bool v31; 
-  _BOOL8 result; 
-  float v34; 
+  RefdefView *p_view; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  bool v16; 
   vec3_t outOrg; 
-  __int64 v36; 
+  __int64 v19; 
   vec3_t worldDir; 
 
-  v36 = -2i64;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _RDI = worldPos;
-  _RBX = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RBX, &outOrg);
+  v19 = -2i64;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v9 = worldPos->v[0] - outOrg.v[0];
+  v11 = LODWORD(worldPos->v[1]);
+  v10 = worldPos->v[1] - outOrg.v[1];
+  v12 = worldPos->v[2] - outOrg.v[2];
+  *(float *)&v11 = fsqrt((float)((float)(v10 * v10) + (float)(v9 * v9)) + (float)(v12 * v12));
+  _XMM1 = v11;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+outOrg]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+0A8h+outOrg+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm6, xmm0, dword ptr [rsp+0A8h+outOrg+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm2, xmm0
-    vdivss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir+4], xmm1
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir+8], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0A8h+var_88], xmm0
-    vmovss  xmm3, dword ptr [rbx]; tanHalfFOVX
   }
-  v31 = CG_WorldDirToScreenPosReal(localClientNum, scrPlace, &worldDir, *(const float *)&_XMM3, v34, outScreenPos);
+  worldDir.v[0] = v9 * (float)(1.0 / *(float *)&_XMM1);
+  worldDir.v[1] = v10 * (float)(1.0 / *(float *)&_XMM1);
+  worldDir.v[2] = v12 * (float)(1.0 / *(float *)&_XMM1);
+  v16 = CG_WorldDirToScreenPosReal(localClientNum, scrPlace, &worldDir, p_view->fov.tanHalfFovX, p_view->fov.tanHalfFovY, outScreenPos);
   memset(&outOrg, 0, sizeof(outOrg));
-  result = v31;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  return v16;
 }
 
 /*
@@ -4118,65 +2704,48 @@ CG_WorldPosToScreenPosRealForScene
 */
 _BOOL8 CG_WorldPosToScreenPosRealForScene(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec3_t *worldPos, const int space, vec2_t *outScreenPos)
 {
-  bool v32; 
-  _BOOL8 result; 
-  float v35; 
+  RefdefView *p_view; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v13; 
+  float tanHalfFovY; 
+  float tanHalfFovX; 
+  bool v19; 
   vec3_t outOrg; 
-  __int64 v37; 
+  __int64 v22; 
   vec3_t worldDir; 
 
-  v37 = -2i64;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _RDI = worldPos;
-  _RSI = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RSI, &outOrg);
+  v22 = -2i64;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v10 = worldPos->v[0] - outOrg.v[0];
+  v12 = LODWORD(worldPos->v[1]);
+  v11 = worldPos->v[1] - outOrg.v[1];
+  v13 = worldPos->v[2] - outOrg.v[2];
+  *(float *)&v12 = fsqrt((float)((float)(v11 * v11) + (float)(v10 * v10)) + (float)(v13 * v13));
+  _XMM1 = v12;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+outOrg]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+0A8h+outOrg+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm6, xmm0, dword ptr [rsp+0A8h+outOrg+8]
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm2, xmm0
-    vdivss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir+4], xmm1
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rsp+0A8h+worldDir+8], xmm0
   }
+  worldDir.v[0] = v10 * (float)(1.0 / *(float *)&_XMM1);
+  worldDir.v[1] = v11 * (float)(1.0 / *(float *)&_XMM1);
+  worldDir.v[2] = v13 * (float)(1.0 / *(float *)&_XMM1);
   if ( space == 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+40h]
-      vmovss  xmm3, dword ptr [rsi+3Ch]
-    }
+    tanHalfFovY = p_view->depthHackFov.tanHalfFovY;
+    tanHalfFovX = p_view->depthHackFov.tanHalfFovX;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  xmm3, dword ptr [rsi]; tanHalfFOVX
-    }
+    tanHalfFovY = p_view->fov.tanHalfFovY;
+    tanHalfFovX = p_view->fov.tanHalfFovX;
   }
-  __asm { vmovss  [rsp+0A8h+var_88], xmm0 }
-  v32 = CG_WorldDirToScreenPosReal(localClientNum, scrPlace, &worldDir, *(const float *)&_XMM3, v35, outScreenPos);
+  v19 = CG_WorldDirToScreenPosReal(localClientNum, scrPlace, &worldDir, tanHalfFovX, tanHalfFovY, outScreenPos);
   memset(&outOrg, 0, sizeof(outOrg));
-  result = v32;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  return v19;
 }
 
 /*
@@ -4184,84 +2753,53 @@ _BOOL8 CG_WorldPosToScreenPosRealForScene(LocalClientNum_t localClientNum, const
 CG_WorldPosToScreenPosRealForScenePrecise
 ==============
 */
-_BOOL8 CG_WorldPosToScreenPosRealForScenePrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldPos, const int space, vec2_t *outScreenPos)
+__int64 CG_WorldPosToScreenPosRealForScenePrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldPos, const int space, vec2_t *outScreenPos)
 {
-  bool v41; 
-  _BOOL8 result; 
-  float v45; 
+  RefdefView *p_view; 
+  long double v10; 
+  long double v11; 
+  long double v12; 
+  __int128 v14; 
+  float tanHalfFovY; 
+  float tanHalfFovX; 
+  unsigned __int8 v22; 
   vec3_t outOrg; 
-  __int64 v47; 
+  __int64 v25; 
   dvec3_t worldDir; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v47 = -2i64;
+  v25 = -2i64;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v10 = worldPos->x - outOrg.v[0];
+  v11 = worldPos->y - outOrg.v[1];
+  v12 = worldPos->z - outOrg.v[2];
+  _XMM1 = COERCE_UNSIGNED_INT64(v10 * v10);
+  *((_QWORD *)&v14 + 1) = 0i64;
+  *(double *)&v14 = v11 * v11 + *(double *)&_XMM1 + v12 * v12;
+  _XMM2 = v14;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RDI = worldPos;
-  _RSI = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RSI, &outOrg);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0B8h+outOrg]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  xmm0, qword ptr [rdi]
-    vsubsd  xmm7, xmm0, xmm1
-    vmovss  xmm2, dword ptr [rsp+0B8h+outOrg+4]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  xmm1, qword ptr [rdi+8]
-    vsubsd  xmm6, xmm1, xmm2
-    vmovss  xmm3, dword ptr [rsp+0B8h+outOrg+8]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  xmm0, qword ptr [rdi+10h]
-    vsubsd  xmm5, xmm0, xmm3
-    vmulsd  xmm2, xmm6, xmm6
-    vmulsd  xmm1, xmm7, xmm7
-    vaddsd  xmm3, xmm2, xmm1
-    vmulsd  xmm0, xmm5, xmm5
-    vaddsd  xmm2, xmm3, xmm0
     vsqrtsd xmm4, xmm2, xmm2
     vxorpd  xmm1, xmm1, xmm1
     vcmpeqsd xmm0, xmm4, xmm1
-    vmovsd  xmm2, cs:__real@3ff0000000000000
     vblendvpd xmm1, xmm4, xmm2, xmm0
-    vdivsd  xmm2, xmm2, xmm1
-    vmulsd  xmm0, xmm7, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir], xmm0
-    vmulsd  xmm1, xmm6, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir+8], xmm1
-    vmulsd  xmm0, xmm5, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir+10h], xmm0
   }
+  worldDir.x = v10 * (1.0 / *(double *)&_XMM1);
+  worldDir.y = v11 * (1.0 / *(double *)&_XMM1);
+  worldDir.z = v12 * (1.0 / *(double *)&_XMM1);
   if ( space == 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+40h]
-      vmovss  xmm3, dword ptr [rsi+3Ch]
-    }
+    tanHalfFovY = p_view->depthHackFov.tanHalfFovY;
+    tanHalfFovX = p_view->depthHackFov.tanHalfFovX;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  xmm3, dword ptr [rsi]; tanHalfFOVX
-    }
+    tanHalfFovY = p_view->fov.tanHalfFovY;
+    tanHalfFovX = p_view->fov.tanHalfFovX;
   }
-  __asm { vmovss  [rsp+0B8h+var_98], xmm0 }
-  v41 = CG_WorldDirToScreenPosRealPrecise(localClientNum, scrPlace, &worldDir, *(double *)&_XMM3, v45, outScreenPos);
+  v22 = CG_WorldDirToScreenPosRealPrecise(localClientNum, scrPlace, &worldDir, tanHalfFovX, tanHalfFovY, outScreenPos);
   memset(&outOrg, 0, sizeof(outOrg));
-  result = v41;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-  }
-  return result;
+  return v22;
 }
 
 /*
@@ -4269,67 +2807,40 @@ _BOOL8 CG_WorldPosToScreenPosRealForScenePrecise(LocalClientNum_t localClientNum
 CG_WorldPosToScreenPosRealPrecise
 ==============
 */
-_BOOL8 CG_WorldPosToScreenPosRealPrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldPos, vec2_t *outScreenPos)
+__int64 CG_WorldPosToScreenPosRealPrecise(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const dvec3_t *worldPos, vec2_t *outScreenPos)
 {
-  bool v39; 
-  _BOOL8 result; 
-  float v43; 
+  RefdefView *p_view; 
+  long double v9; 
+  long double v10; 
+  long double v11; 
+  __int128 v13; 
+  unsigned __int8 v19; 
   vec3_t outOrg; 
-  __int64 v45; 
+  __int64 v22; 
   dvec3_t worldDir; 
 
-  v45 = -2i64;
+  v22 = -2i64;
+  p_view = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
+  RefdefView_GetOrg(p_view, &outOrg);
+  v9 = worldPos->x - outOrg.v[0];
+  v10 = worldPos->y - outOrg.v[1];
+  v11 = worldPos->z - outOrg.v[2];
+  _XMM1 = COERCE_UNSIGNED_INT64(v9 * v9);
+  *((_QWORD *)&v13 + 1) = 0i64;
+  *(double *)&v13 = v10 * v10 + *(double *)&_XMM1 + v11 * v11;
+  _XMM2 = v13;
   __asm
   {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-  }
-  _RDI = worldPos;
-  _RBX = &CG_GetLocalClientGlobals(localClientNum)->refdef.view;
-  RefdefView_GetOrg(_RBX, &outOrg);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0B8h+outOrg]
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  xmm0, qword ptr [rdi]
-    vsubsd  xmm7, xmm0, xmm1
-    vmovss  xmm2, dword ptr [rsp+0B8h+outOrg+4]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  xmm1, qword ptr [rdi+8]
-    vsubsd  xmm6, xmm1, xmm2
-    vmovss  xmm3, dword ptr [rsp+0B8h+outOrg+8]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vmovsd  xmm0, qword ptr [rdi+10h]
-    vsubsd  xmm5, xmm0, xmm3
-    vmulsd  xmm2, xmm6, xmm6
-    vmulsd  xmm1, xmm7, xmm7
-    vaddsd  xmm3, xmm2, xmm1
-    vmulsd  xmm0, xmm5, xmm5
-    vaddsd  xmm2, xmm3, xmm0
     vsqrtsd xmm4, xmm2, xmm2
     vxorpd  xmm1, xmm1, xmm1
     vcmpeqsd xmm0, xmm4, xmm1
-    vmovsd  xmm2, cs:__real@3ff0000000000000
     vblendvpd xmm1, xmm4, xmm2, xmm0
-    vdivsd  xmm2, xmm2, xmm1
-    vmulsd  xmm0, xmm7, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir], xmm0
-    vmulsd  xmm1, xmm6, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir+8], xmm1
-    vmulsd  xmm0, xmm5, xmm2
-    vmovsd  qword ptr [rsp+0B8h+worldDir+10h], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0B8h+var_98], xmm0
-    vmovss  xmm3, dword ptr [rbx]; tanHalfFOVX
   }
-  v39 = CG_WorldDirToScreenPosRealPrecise(localClientNum, scrPlace, &worldDir, *(double *)&_XMM3, v43, outScreenPos);
+  worldDir.x = v9 * (1.0 / *(double *)&_XMM1);
+  worldDir.y = v10 * (1.0 / *(double *)&_XMM1);
+  worldDir.z = v11 * (1.0 / *(double *)&_XMM1);
+  v19 = CG_WorldDirToScreenPosRealPrecise(localClientNum, scrPlace, &worldDir, p_view->fov.tanHalfFovX, p_view->fov.tanHalfFovY, outScreenPos);
   memset(&outOrg, 0, sizeof(outOrg));
-  result = v39;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-  }
-  return result;
+  return v19;
 }
 

@@ -27,1173 +27,762 @@ BG_HeliCalcAccel
 */
 void BG_HeliCalcAccel(const pmove_t *pm, const pml_t *pml, VehicleState *vehicleState, const vec4_t *moveRequest, vec3_t *outBodyAccel, vec3_t *outRotAccel)
 {
-  int v27; 
-  bool v30; 
-  unsigned int v86; 
-  bool v99; 
-  bool v100; 
-  bool v125; 
-  bool v126; 
-  bool v135; 
-  bool v136; 
-  bool v144; 
-  bool v145; 
-  unsigned int v194; 
-  bool v196; 
-  bool v197; 
-  bool v199; 
-  bool v200; 
-  char v223; 
-  bool v224; 
-  bool v243; 
-  bool v247; 
-  unsigned int v293; 
-  bool v294; 
-  bool v295; 
-  bool v296; 
-  bool v297; 
-  bool v298; 
-  bool v299; 
-  bool v300; 
-  bool v301; 
-  __int64 v327; 
-  __int64 v328; 
-  __int64 v329; 
-  __int64 v330; 
-  __int64 v331; 
-  double v332; 
-  double v333; 
-  double v334; 
-  __int64 v335; 
-  __int64 v336; 
-  __int64 v337; 
-  __int64 v338; 
-  __int64 v339; 
-  double v340; 
-  double v341; 
-  double v342; 
-  int v346[2]; 
+  const VehicleDef *VehicleDef; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  int v15; 
+  __int64 v16; 
+  bool v18; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float frametime; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  float v28; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float vehHelicopterDecelerationSide; 
+  unsigned int v40; 
+  __int64 v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  double v47; 
+  float v48; 
+  float v49; 
+  double v50; 
+  float v51; 
+  float v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v63; 
+  __int128 v64; 
+  float v68; 
+  bool v69; 
+  float v70; 
+  double v71; 
+  float v72; 
+  double v73; 
+  float v74; 
+  float v75; 
+  double v76; 
+  float v79; 
+  double v80; 
+  float v81; 
+  float v82; 
+  double v83; 
+  unsigned int v84; 
+  __int64 v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  double v89; 
+  float v90; 
+  float vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt; 
+  float v92; 
+  double v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  vec2_t *p_tiltVelocity; 
+  float v100; 
+  float v101; 
+  float v102; 
+  float v103; 
+  float v104; 
+  unsigned int v105; 
+  bool v106; 
+  float v107; 
+  float v108; 
+  __int64 v109; 
+  __int64 v110; 
+  __int64 v111; 
+  __int64 v112; 
+  __int64 v113; 
+  __int64 v114; 
+  __int64 v115; 
+  __int64 v116; 
+  __int64 v117; 
+  __int64 v118; 
+  float v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
   vec3_t out; 
+  float v128; 
+  float v129; 
   vec3_t outAccel; 
+  float v131; 
+  float v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  float v137; 
+  float v138; 
+  float v139; 
+  int v140[4]; 
+  float v141; 
   vec3_t angles; 
   vec3_t in1; 
   tmat43_t<vec3_t> forward; 
-  char v360; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _RSI = moveRequest;
-  _R12 = vehicleState;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 191, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 192, ASSERT_TYPE_ASSERT, "(pm->ps)", (const char *)&queryFormat, "pm->ps") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 193, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
+  if ( !vehicleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 193, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
     __debugbreak();
-  if ( !BG_GetVehicleDef(pm) )
+  VehicleDef = BG_GetVehicleDef(pm);
+  if ( !VehicleDef )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 196, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 97, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@418ccccd
-    vmulss  xmm9, xmm2, dword ptr [r14+60Ch]
-    vmulss  xmm1, xmm2, dword ptr [r14+614h]
-    vmulss  xmm10, xmm2, dword ptr [r14+610h]
-    vmulss  xmm15, xmm2, dword ptr [r14+618h]
-    vmovss  xmm8, cs:__real@3f800000
-  }
-  v27 = 0;
-  _RDI = 0i64;
-  __asm
-  {
-    vmovss  [rbp+120h+var_168], xmm9
-    vmovss  [rbp+120h+var_164], xmm9
-    vmovss  [rbp+120h+var_160], xmm10
-    vmovss  [rsp+220h+var_1B0], xmm1
-    vmovss  [rsp+220h+var_1AC], xmm1
-    vmovss  [rsp+220h+var_1A8], xmm15
-    vxorps  xmm12, xmm12, xmm12
-  }
-  v30 = 1;
+  v10 = 17.6 * VehicleDef->vehHelicopterMaxSpeed;
+  v11 = 17.6 * VehicleDef->vehHelicopterMaxAccel;
+  v12 = 17.6 * VehicleDef->vehHelicopterMaxSpeedVertical;
+  v13 = 17.6 * VehicleDef->vehHelicopterMaxAccelVertical;
+  _XMM8 = LODWORD(FLOAT_1_0);
+  v15 = 0;
+  v16 = 0i64;
+  v134 = v10;
+  v135 = v10;
+  v136 = v12;
+  v124 = v11;
+  v125 = v11;
+  v126 = v13;
+  _XMM12 = 0i64;
+  v18 = 1;
   do
   {
-    if ( !v30 )
+    if ( !v18 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
-      LODWORD(v336) = 3;
-      LODWORD(v328) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v328, v336) )
+      LODWORD(v115) = 3;
+      LODWORD(v110) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v110, v115) )
         __debugbreak();
     }
-    __asm
+    if ( (unsigned int)v15 >= 3 )
     {
-      vmovss  xmm6, [rbp+rdi+120h+var_168]
-      vmovss  xmm0, [rsp+rdi+220h+var_1B0]
-      vdivss  xmm7, xmm0, xmm6
-    }
-    if ( (unsigned int)v27 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
     __asm
     {
       vcmpless xmm0, xmm12, xmm6
       vblendvps xmm0, xmm8, xmm7, xmm0
-      vmovss  [rsp+220h+var_1B8], xmm0
     }
-    if ( (unsigned int)v27 >= 3 )
+    v122 = *(float *)&_XMM0;
+    if ( (unsigned int)v15 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, [rsp+220h+var_1B8]
-      vmovss  [rbp+rdi+120h+var_140], xmm0
-    }
-    _RDI += 4i64;
-    v30 = (unsigned int)++v27 < 3;
+    *(float *)&v140[v16 + 2] = v122;
+    ++v16;
+    v18 = (unsigned int)++v15 < 3;
   }
-  while ( v27 < 3 );
-  _R15 = pml;
+  while ( v15 < 3 );
+  v21 = moveRequest->v[0];
+  v22 = moveRequest->v[1];
+  v23 = moveRequest->v[2];
+  BG_HelicopterHovering(pm, pml, moveRequest, vehicleState, &outAccel);
+  frametime = pml->frametime;
+  v25 = (float)(frametime * outAccel.v[0]) + (float)(v10 * v21);
+  v26 = LODWORD(frametime);
+  v27 = (float)(frametime * outAccel.v[1]) + (float)(v10 * v22);
+  v28 = (float)(frametime * outAccel.v[2]) + (float)(v12 * v23);
+  *(float *)&v26 = fsqrt((float)((float)(v27 * v27) + (float)(v25 * v25)) + (float)(v28 * v28));
+  _XMM11 = v26;
+  v18 = *(float *)&v26 < 1.0;
   __asm
   {
-    vmovss  xmm6, dword ptr [rsi]
-    vmovss  xmm7, dword ptr [rsi+4]
-    vmovss  xmm8, dword ptr [rsi+8]
-  }
-  BG_HelicopterHovering(pm, pml, _RSI, _R12, &outAccel);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r15+24h]
-    vmulss  xmm2, xmm3, dword ptr [rbp+120h+outAccel]
-    vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm9, xmm6
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+120h+outAccel+4]
-    vmulss  xmm1, xmm9, xmm7
-    vaddss  xmm5, xmm2, xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+120h+outAccel+8]
-    vmulss  xmm1, xmm10, xmm8
-    vaddss  xmm13, xmm2, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm13, xmm13
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm11, xmm2, xmm2
-    vmovss  xmm2, cs:__real@3f800000
-    vcomiss xmm11, xmm2
     vcmpless xmm0, xmm11, cs:__real@80000000
     vblendvps xmm0, xmm11, xmm2, xmm0
-    vdivss  xmm1, xmm2, xmm0
-    vmulss  xmm7, xmm1, xmm4
-    vmulss  xmm8, xmm1, xmm5
-    vmulss  xmm9, xmm1, xmm13
-    vmovss  [rbp+120h+var_158], xmm4
-    vmovss  [rbp+120h+var_154], xmm5
-    vmovss  [rbp+120h+var_150], xmm13
   }
-  if ( v30 )
+  v32 = (float)(1.0 / *(float *)&_XMM0) * v25;
+  v33 = (float)(1.0 / *(float *)&_XMM0) * v27;
+  v34 = (float)(1.0 / *(float *)&_XMM0) * v28;
+  v137 = v25;
+  v138 = v27;
+  v139 = v28;
+  if ( v18 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+4Ch]
-      vmovss  xmm1, dword ptr [r12+50h]
-      vmovss  dword ptr [rbp+120h+outAccel], xmm0
-      vmovss  xmm0, dword ptr [r12+54h]
-      vmovss  dword ptr [rbp+120h+outAccel+8], xmm0
-      vmovss  dword ptr [rbp+120h+outAccel+4], xmm1
-      vmovss  [rbp+120h+var_178], xmm12
-      vmovss  [rbp+120h+var_174], xmm12
-      vmovss  [rbp+120h+var_170], xmm12
-      vmovaps xmm11, xmm12
-      vmovaps xmm10, xmm12
-    }
+    v35 = vehicleState->bodyVelocity.v[1];
+    outAccel.v[0] = vehicleState->bodyVelocity.v[0];
+    outAccel.v[2] = vehicleState->bodyVelocity.v[2];
+    outAccel.v[1] = v35;
+    v131 = 0.0;
+    v132 = 0.0;
+    v133 = 0.0;
+    LODWORD(_XMM11) = 0;
+    v36 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm1, xmm8, dword ptr [r12+50h]
-      vmulss  xmm0, xmm7, dword ptr [r12+4Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm9, dword ptr [r12+54h]
-      vaddss  xmm10, xmm2, xmm1
-      vxorps  xmm3, xmm10, xmm14
-      vmulss  xmm0, xmm3, xmm7
-      vaddss  xmm1, xmm0, dword ptr [r12+4Ch]
-      vmulss  xmm2, xmm3, xmm8
-      vaddss  xmm0, xmm2, dword ptr [r12+50h]
-      vmovss  dword ptr [rbp+120h+outAccel+4], xmm0
-      vmovss  dword ptr [rbp+120h+outAccel], xmm1
-      vmulss  xmm0, xmm7, xmm10
-      vmulss  xmm1, xmm3, xmm9
-      vaddss  xmm2, xmm1, dword ptr [r12+54h]
-      vmovss  [rbp+120h+var_178], xmm0
-      vmulss  xmm0, xmm9, xmm10
-      vmulss  xmm1, xmm8, xmm10
-      vmovss  [rbp+120h+var_170], xmm0
-      vmovss  dword ptr [rbp+120h+outAccel+8], xmm2
-      vmovss  [rbp+120h+var_174], xmm1
-    }
+    v36 = (float)((float)(v33 * vehicleState->bodyVelocity.v[1]) + (float)(v32 * vehicleState->bodyVelocity.v[0])) + (float)(v34 * vehicleState->bodyVelocity.v[2]);
+    v37 = (float)(COERCE_FLOAT(LODWORD(v36) ^ _xmm) * v32) + vehicleState->bodyVelocity.v[0];
+    outAccel.v[1] = (float)(COERCE_FLOAT(LODWORD(v36) ^ _xmm) * v33) + vehicleState->bodyVelocity.v[1];
+    outAccel.v[0] = v37;
+    v38 = (float)(COERCE_FLOAT(LODWORD(v36) ^ _xmm) * v34) + vehicleState->bodyVelocity.v[2];
+    v131 = v32 * v36;
+    v133 = v34 * v36;
+    outAccel.v[2] = v38;
+    v132 = (float)((float)(1.0 / *(float *)&_XMM0) * v27) * v36;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+61Ch]
-    vmovss  xmm1, dword ptr [r14+620h]
-  }
-  _RSI = outBodyAccel;
-  v86 = 0;
-  __asm
-  {
-    vmovss  [rbp+120h+var_148], xmm0
-    vmovss  [rbp+120h+var_144], xmm1
-  }
-  _RDI = 0i64;
-  __asm
-  {
-    vmovss  [rbp+120h+var_190], xmm12
-    vmovss  [rbp+120h+var_18C], xmm12
-    vmovss  [rsp+220h+var_1B8], xmm12
-    vmovss  [rsp+220h+var_1B4], xmm12
-  }
+  vehHelicopterDecelerationSide = VehicleDef->vehHelicopterDecelerationSide;
+  v40 = 0;
+  v140[0] = LODWORD(VehicleDef->vehHelicopterDecelerationFwd);
+  *(float *)&v140[1] = vehHelicopterDecelerationSide;
+  v41 = 0i64;
+  v128 = 0.0;
+  v129 = 0.0;
+  v122 = 0.0;
+  v123 = 0.0;
   do
   {
-    __asm { vmovss  xmm8, dword ptr [r15+24h] }
-    if ( v86 >= 2 )
+    v42 = pml->frametime;
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    if ( v86 >= 4 )
+    if ( v40 >= 4 )
     {
-      LODWORD(v335) = 4;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 4;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v43 = *(float *)&v140[v41 + 2] * *(float *)&v140[v41];
+    if ( v40 >= 3 )
     {
-      vmovss  xmm0, [rbp+rdi*4+120h+var_140]
-      vmulss  xmm7, xmm0, [rbp+rdi*4+120h+var_148]
-    }
-    if ( v86 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v44 = outAccel.v[v41];
+    DiffTrack(0.0, v44, v43, v42);
+    if ( v40 >= 3 )
     {
-      vmovss  xmm6, dword ptr [rbp+rdi*4+120h+outAccel]
-      vmovaps xmm1, xmm6; cur
-      vmovaps xmm3, xmm8; deltaTime
-      vmovaps xmm2, xmm7; rate
-      vmovaps xmm0, xmm12; tgt
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovaps xmm7, xmm0 }
-    if ( v86 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v45 = (float)(0.0 - v44) / pml->frametime;
+    if ( v40 >= 2 )
     {
-      vsubss  xmm0, xmm7, xmm6
-      vdivss  xmm6, xmm0, dword ptr [r15+24h]
-    }
-    v99 = v86 <= 2;
-    if ( v86 >= 2 )
-    {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      v100 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v99 = !v100;
-      if ( v100 )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v46 = pml->frametime;
+    *(&v122 + v41) = v45;
+    if ( *(float *)&_XMM11 <= v36 )
     {
-      vcomiss xmm11, xmm10
-      vmovss  xmm7, dword ptr [r15+24h]
-      vmovss  [rsp+rdi*4+220h+var_1B8], xmm6
-    }
-    if ( v99 )
-    {
-      if ( v86 >= 2 )
+      if ( v40 >= 2 )
       {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      if ( v86 >= 4 )
+      if ( v40 >= 4 )
       {
-        LODWORD(v335) = 4;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 4;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm
+      v49 = *(float *)&v140[v41 + 2] * *(float *)&v140[v41];
+      if ( v40 >= 3 )
       {
-        vmovss  xmm0, [rbp+rdi*4+120h+var_140]
-        vmulss  xmm6, xmm0, [rbp+rdi*4+120h+var_148]
-      }
-      if ( v86 >= 3 )
-      {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
-        LODWORD(v338) = 3;
-        LODWORD(v330) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v330, v338) )
+        LODWORD(v117) = 3;
+        LODWORD(v112) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v112, v117) )
           __debugbreak();
       }
-      __asm
+      v50 = DiffTrack(*(&v137 + v41), *(&v131 + v41), v49, v46);
+      if ( v40 >= 3 )
       {
-        vmovss  xmm1, [rbp+rdi*4+120h+var_178]; cur
-        vmovss  xmm0, [rbp+rdi*4+120h+var_158]; tgt
-        vmovaps xmm3, xmm7; deltaTime
-        vmovaps xmm2, xmm6; rate
-      }
-      *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( v86 >= 3 )
-      {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm
+      v51 = (float)(*(float *)&v50 - *(&v131 + v41)) / pml->frametime;
+      if ( v40 >= 2 )
       {
-        vsubss  xmm0, xmm6, [rbp+rdi*4+120h+var_178]
-        vdivss  xmm6, xmm0, dword ptr [r15+24h]
-      }
-      if ( v86 >= 2 )
-      {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm
-      {
-        vaddss  xmm0, xmm6, [rsp+rdi*4+220h+var_1B8]
-        vmovss  [rsp+rdi*4+220h+var_1B8], xmm0
-      }
+      *(&v122 + v41) = v51 + *(&v122 + v41);
     }
     else
     {
-      if ( v86 >= 4 )
+      if ( v40 >= 4 )
       {
-        LODWORD(v335) = 4;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 4;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      if ( v86 >= 3 )
+      if ( v40 >= 3 )
       {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
-        LODWORD(v337) = 3;
-        LODWORD(v329) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v329, v337) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm2, [rbp+rdi*4+120h+var_140]; rate
-        vmovss  xmm1, [rbp+rdi*4+120h+var_178]; cur
-        vmovss  xmm0, [rbp+rdi*4+120h+var_158]; tgt
-        vmovaps xmm3, xmm7; deltaTime
-      }
-      *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( v86 >= 3 )
-      {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v116) = 3;
+        LODWORD(v111) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v111, v116) )
           __debugbreak();
       }
-      __asm
+      v47 = DiffTrack(*(&v137 + v41), *(&v131 + v41), *(float *)&v140[v41 + 2], v46);
+      if ( v40 >= 3 )
       {
-        vsubss  xmm0, xmm6, [rbp+rdi*4+120h+var_178]
-        vdivss  xmm6, xmm0, dword ptr [r15+24h]
-      }
-      if ( v86 >= 2 )
-      {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v86;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm
+      v48 = (float)(*(float *)&v47 - *(&v131 + v41)) / pml->frametime;
+      if ( v40 >= 2 )
       {
-        vaddss  xmm0, xmm6, [rbp+rdi*4+120h+var_190]
-        vmovss  [rbp+rdi*4+120h+var_190], xmm0
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v40;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
+          __debugbreak();
       }
+      *(&v128 + v41) = v48 + *(&v128 + v41);
     }
-    if ( v86 >= 2 )
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
-      LODWORD(v339) = 2;
-      LODWORD(v331) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v331, v339) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, [rbp+rdi*4+120h+var_190]
-      vaddss  xmm6, xmm0, [rsp+rdi*4+220h+var_1B8]
-    }
-    if ( v86 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v118) = 2;
+      LODWORD(v113) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v113, v118) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rsi+rdi*4], xmm6 }
-    if ( v86 >= 3 )
+    v52 = *(&v128 + v41) + *(&v122 + v41);
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    outBodyAccel->v[v41] = v52;
+    if ( v40 >= 3 )
     {
-      vmovss  xmm6, [rsp+rdi*4+220h+var_1B0]
-      vmovaps xmm7, xmm6
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
+        __debugbreak();
     }
-    if ( v86 >= 3 )
+    v53 = *((unsigned int *)&v124 + v41);
+    v54 = v53;
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
       {
         __debugbreak();
-        __asm { vmovaps xmm7, xmm6 }
+        v54 = v53;
       }
     }
-    __asm { vxorps  xmm7, xmm7, xmm14 }
-    v125 = v86 <= 3;
-    if ( v86 >= 3 )
+    _XMM7 = v54 ^ (unsigned int)_xmm;
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      v126 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v125 = !v126;
-      if ( v126 )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
-    {
-      vcomiss xmm7, xmm6
-      vmovss  xmm8, dword ptr [rsi+rdi*4]
-    }
-    if ( !v125 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+220h+var_1F0], xmm0
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+220h+var_1F8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v332, v340) )
-        __debugbreak();
-    }
+    if ( *(float *)&_XMM7 > *(float *)&v53 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(float *)&_XMM7, *(float *)&v53) )
+      __debugbreak();
     __asm
     {
       vmaxss  xmm0, xmm7, xmm8
       vminss  xmm6, xmm0, xmm6
     }
-    if ( v86 >= 3 )
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rsi+rdi*4], xmm6 }
-    if ( v86 >= 3 )
+    outBodyAccel->v[v41] = *(float *)&_XMM6;
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v58 = *((unsigned int *)&v124 + v41);
+    v59 = v58;
+    if ( v40 >= 3 )
     {
-      vmovss  xmm6, [rsp+rdi*4+220h+var_1B0]
-      vmovaps xmm7, xmm6
-    }
-    if ( v86 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
       {
         __debugbreak();
-        __asm { vmovaps xmm7, xmm6 }
+        v59 = v58;
       }
     }
-    __asm { vxorps  xmm7, xmm7, xmm14 }
-    v135 = v86 <= 2;
-    if ( v86 >= 2 )
+    _XMM7 = v59 ^ (unsigned int)_xmm;
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      v136 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v135 = !v136;
-      if ( v136 )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vcomiss xmm7, xmm6 }
-    if ( !v135 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+220h+var_1F0], xmm0
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+220h+var_1F8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v333, v341) )
-        __debugbreak();
-    }
+    if ( *(float *)&_XMM7 > *(float *)&v58 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(float *)&_XMM7, *(float *)&v58) )
+      __debugbreak();
     __asm
     {
       vmaxss  xmm0, xmm7, [rsp+rdi*4+220h+var_1B8]
       vminss  xmm6, xmm0, xmm6
     }
-    if ( v86 >= 2 )
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vmovss  [rsp+rdi*4+220h+var_1B8], xmm6 }
-    if ( v86 >= 3 )
+    *(&v122 + v41) = *(float *)&_XMM6;
+    if ( v40 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm
+    v63 = *((unsigned int *)&v124 + v41);
+    v64 = v63;
+    if ( v40 >= 3 )
     {
-      vmovss  xmm6, [rsp+rdi*4+220h+var_1B0]
-      vmovaps xmm7, xmm6
-    }
-    if ( v86 >= 3 )
-    {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
       {
         __debugbreak();
-        __asm { vmovaps xmm7, xmm6 }
+        v64 = v63;
       }
     }
-    __asm { vxorps  xmm7, xmm7, xmm14 }
-    v144 = v86 <= 2;
-    if ( v86 >= 2 )
+    _XMM7 = v64 ^ (unsigned int)_xmm;
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      v145 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v144 = !v145;
-      if ( v145 )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vcomiss xmm7, xmm6 }
-    if ( !v144 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+220h+var_1F0], xmm0
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+220h+var_1F8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v334, v342) )
-        __debugbreak();
-    }
+    if ( *(float *)&_XMM7 > *(float *)&v63 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(float *)&_XMM7, *(float *)&v63) )
+      __debugbreak();
     __asm
     {
       vmaxss  xmm0, xmm7, [rbp+rdi*4+120h+var_190]
       vminss  xmm6, xmm0, xmm6
     }
-    if ( v86 >= 2 )
+    if ( v40 >= 2 )
     {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v86;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v40;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vmovss  [rbp+rdi*4+120h+var_190], xmm6 }
-    ++_RDI;
-    ++v86;
+    *(&v128 + v41++) = *(float *)&_XMM6;
+    ++v40;
   }
-  while ( (int)v86 < 2 );
-  _R12 = vehicleState;
-  __asm
+  while ( (int)v40 < 2 );
+  v68 = vehicleState->bodyVelocity.v[2];
+  v69 = v68 < v28;
+  if ( v68 > v28 )
   {
-    vmovss  xmm1, dword ptr [r12+54h]; cur
-    vcomiss xmm1, xmm13
-  }
-  if ( v86 <= 2 )
-  {
-    __asm { vmovss  xmm2, [rbp+120h+var_138]; rate }
-  }
-  else
-  {
-    __asm
+    if ( v68 > 0.0 )
     {
-      vcomiss xmm1, xmm12
-      vmovss  xmm0, [rbp+120h+var_138]
-      vmulss  xmm2, xmm0, dword ptr [r14+624h]
+LABEL_140:
+      v70 = v141 * VehicleDef->vehHelicopterDecelerationUp;
+      goto LABEL_142;
     }
+    v69 = v68 < v28;
   }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r15+24h]; deltaTime
-    vmovaps xmm0, xmm13; tgt
-  }
-  *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vsubss  xmm1, xmm0, dword ptr [r12+54h]
-    vdivss  xmm0, xmm1, dword ptr [r15+24h]; val
-    vxorps  xmm1, xmm15, xmm14; min
-    vmovaps xmm2, xmm15; max
-    vmovss  dword ptr [rsi+8], xmm0
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+8], xmm0
-    vcomiss xmm12, dword ptr [r14+628h]
-  }
-  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 269, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxYawRate > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxYawRate > 0.0f") )
+  if ( v69 && v68 < 0.0 )
+    goto LABEL_140;
+  v70 = v141;
+LABEL_142:
+  v71 = DiffTrack(v28, v68, v70, pml->frametime);
+  v72 = (float)(*(float *)&v71 - vehicleState->bodyVelocity.v[2]) / pml->frametime;
+  outBodyAccel->v[2] = v72;
+  v73 = I_fclamp(v72, COERCE_FLOAT(LODWORD(v13) ^ _xmm), v13);
+  outBodyAccel->v[2] = *(float *)&v73;
+  if ( VehicleDef->vehHelicopterMaxYawRate <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 269, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxYawRate > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxYawRate > 0.0f") )
     __debugbreak();
-  __asm
+  v74 = VehicleDef->vehHelicopterMaxYawAccel / VehicleDef->vehHelicopterMaxYawRate;
+  v75 = vehicleState->previousAngles.v[1];
+  v76 = DiffTrackAngle(pm->ps->viewangles.v[1], v75, v74, pml->frametime);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  v79 = (float)((float)((float)((float)(*(float *)&v76 - v75) * 0.0027777778) - *(float *)&_XMM3) * 360.0) / pml->frametime;
+  v80 = I_fclamp(v79, COERCE_FLOAT(LODWORD(VehicleDef->vehHelicopterMaxYawRate) ^ _xmm), VehicleDef->vehHelicopterMaxYawRate);
+  v81 = vehicleState->angVelocity.v[1];
+  if ( COERCE_FLOAT(LODWORD(v79) & _xmm) > COERCE_FLOAT(LODWORD(v81) & _xmm) )
   {
-    vmovss  xmm0, dword ptr [r14+62Ch]
-    vdivss  xmm7, xmm0, dword ptr [r14+628h]
+    v80 = DiffTrack(*(float *)&v80, v81, v74, pml->frametime);
+    v81 = vehicleState->angVelocity.v[1];
   }
-  _RAX = pm->ps;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r12+44h]
-    vmovss  xmm3, dword ptr [r15+24h]; deltaTime
-    vmovaps xmm2, xmm7; rate
-    vmovss  xmm0, dword ptr [rax+1DCh]; tgt
-    vmovaps xmm1, xmm6; cur
-  }
-  *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f000000
-    vsubss  xmm0, xmm0, xmm6
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vxorps  xmm0, xmm0, xmm0
-    vaddss  xmm1, xmm4, xmm11
-    vmovss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vmovss  xmm2, dword ptr [r14+628h]; max
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vdivss  xmm0, xmm1, dword ptr [r15+24h]; val
-    vxorps  xmm1, xmm2, xmm14; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm1, dword ptr [r12+2Ch]; cur
-    vandps  xmm3, xmm1, xmm8
-    vandps  xmm4, xmm0, xmm8
-    vcomiss xmm4, xmm3
-  }
-  if ( !v30 && !v224 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r15+24h]; deltaTime
-      vmovaps xmm2, xmm7; rate
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  xmm1, dword ptr [r12+2Ch] }
-  }
-  _R13 = outRotAccel;
-  __asm
-  {
-    vsubss  xmm0, xmm0, xmm1
-    vdivss  xmm0, xmm0, dword ptr [r15+24h]; val
-    vmovss  dword ptr [r13+4], xmm0
-    vmovss  xmm2, dword ptr [r14+62Ch]; max
-    vxorps  xmm1, xmm2, xmm14; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  xmm7, cs:__real@418ccccd }
-  v194 = 0;
-  __asm { vmovss  dword ptr [r13+4], xmm0 }
-  _RDI = 0i64;
+  v82 = (float)(*(float *)&v80 - v81) / pml->frametime;
+  outRotAccel->v[1] = v82;
+  v83 = I_fclamp(v82, COERCE_FLOAT(LODWORD(VehicleDef->vehHelicopterMaxYawAccel) ^ _xmm), VehicleDef->vehHelicopterMaxYawAccel);
+  v84 = 0;
+  outRotAccel->v[1] = *(float *)&v83;
+  v85 = 0i64;
   do
   {
-    v196 = v194 < 3;
-    if ( v194 >= 3 )
+    if ( v84 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v194;
-      v197 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v196 = 0;
-      if ( v197 )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v84;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vcomiss xmm12, [rbp+rdi+120h+var_168] }
-    if ( !v196 )
+    if ( *(float *)((char *)&v134 + v85) <= 0.0 )
     {
-      __asm { vcomiss xmm12, dword ptr [r14+60Ch] }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 286, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxSpeed > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxSpeed > 0.0f") )
+      if ( VehicleDef->vehHelicopterMaxSpeed <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 286, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxSpeed > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxSpeed > 0.0f") )
         __debugbreak();
-      __asm { vmulss  xmm6, xmm7, dword ptr [r14+60Ch] }
-      if ( v194 >= 3 )
+      v86 = 17.6 * VehicleDef->vehHelicopterMaxSpeed;
+      if ( v84 >= 3 )
       {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v194;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v84;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm { vmovss  [rbp+rdi+120h+var_168], xmm6 }
+      *(float *)((char *)&v134 + v85) = v86;
     }
-    v199 = v194 < 3;
-    if ( v194 >= 3 )
+    if ( v84 >= 3 )
     {
-      LODWORD(v335) = 3;
-      LODWORD(v327) = v194;
-      v200 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v199 = 0;
-      if ( v200 )
+      LODWORD(v114) = 3;
+      LODWORD(v109) = v84;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
         __debugbreak();
     }
-    __asm { vcomiss xmm12, [rsp+rdi+220h+var_1B0] }
-    if ( !v199 )
+    if ( *(float *)((char *)&v124 + v85) <= 0.0 )
     {
-      __asm { vcomiss xmm12, dword ptr [r14+614h] }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 291, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxAccel > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxAccel > 0.0f") )
+      if ( VehicleDef->vehHelicopterMaxAccel <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 291, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxAccel > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxAccel > 0.0f") )
         __debugbreak();
-      __asm { vmulss  xmm6, xmm7, dword ptr [r14+614h] }
-      if ( v194 >= 3 )
+      v87 = 17.6 * VehicleDef->vehHelicopterMaxAccel;
+      if ( v84 >= 3 )
       {
-        LODWORD(v335) = 3;
-        LODWORD(v327) = v194;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+        LODWORD(v114) = 3;
+        LODWORD(v109) = v84;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm { vmovss  [rsp+rdi+220h+var_1B0], xmm6 }
+      *(float *)((char *)&v124 + v85) = v87;
     }
-    ++v194;
-    _RDI += 4i64;
+    ++v84;
+    v85 += 4i64;
   }
-  while ( (int)v194 < 2 );
-  _R12 = vehicleState;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+14h]
-    vmovss  dword ptr [rbp+120h+angles+4], xmm0
-    vmovss  dword ptr [rbp+120h+angles], xmm12
-    vmovss  dword ptr [rbp+120h+angles+8], xmm12
-  }
+  while ( (int)v84 < 2 );
+  angles.v[1] = vehicleState->angles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, forward.m, &forward.m[1], &forward.m[2]);
-  __asm
+  v88 = v134;
+  forward.m[3].v[0] = 0.0;
+  forward.m[3].v[1] = 0.0;
+  forward.m[3].v[2] = 0.0;
+  out.v[0] = (float)((float)((float)((float)(1.0 / v134) * v137) * VehicleDef->vehHelicopterTiltFromControllerAxes) + (float)((float)((float)(1.0 / v134) * vehicleState->bodyVelocity.v[0]) * VehicleDef->vehHelicopterTiltFromVelocity)) + (float)((float)((float)(1.0 / v124) * v128) * VehicleDef->vehHelicopterTiltFromAcceleration);
+  out.v[0] = (float)((float)((float)(1.0 / v124) * v122) * VehicleDef->vehHelicopterTiltFromDeceleration) + out.v[0];
+  v89 = I_fclamp(out.v[0], -1.0, 1.0);
+  v18 = vehicleState->bodyVelocity.v[0] > 0.0;
+  out.v[0] = *(float *)&v89;
+  out.v[1] = (float)((float)((float)((float)(1.0 / v135) * vehicleState->bodyVelocity.v[1]) * VehicleDef->vehHelicopterTiltFromVelocity) + (float)((float)((float)(1.0 / v135) * v138) * VehicleDef->vehHelicopterTiltFromControllerAxes)) + (float)((float)((float)(1.0 / v125) * v129) * VehicleDef->vehHelicopterTiltFromAcceleration);
+  out.v[1] = (float)((float)((float)(1.0 / v125) * v123) * VehicleDef->vehHelicopterTiltFromDeceleration) + out.v[1];
+  if ( v18 && COERCE_FLOAT(LODWORD(vehicleState->angVelocity.v[1]) & _xmm) > 0.0 )
   {
-    vmovss  xmm13, cs:__real@3f800000
-    vdivss  xmm5, xmm13, [rsp+220h+var_1B0]
-    vmovss  xmm6, [rbp+120h+var_168]
-    vmovss  xmm10, cs:__real@bf800000
-    vmovss  [rbp+120h+var_EC], xmm12
-    vmovss  [rbp+120h+var_E8], xmm12
-    vmovss  [rbp+120h+var_E4], xmm12
-    vdivss  xmm1, xmm13, xmm6
-    vmulss  xmm0, xmm1, [rbp+120h+var_158]
-    vmulss  xmm2, xmm0, dword ptr [r14+634h]
-    vmulss  xmm1, xmm1, dword ptr [r12+4Ch]
-    vmulss  xmm0, xmm1, dword ptr [r14+630h]
-    vmulss  xmm1, xmm5, [rbp+120h+var_190]
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm0, xmm1, dword ptr [r14+638h]
-    vmulss  xmm1, xmm5, [rsp+220h+var_1B8]
-    vaddss  xmm4, xmm3, xmm0
-    vmovss  dword ptr [rbp+120h+out], xmm4
-    vmulss  xmm2, xmm1, dword ptr [r14+63Ch]
-    vaddss  xmm0, xmm2, xmm4; val
-    vmovaps xmm2, xmm13; max
-    vmovaps xmm1, xmm10; min
-    vmovss  dword ptr [rbp+120h+out], xmm0
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm12, dword ptr [r12+4Ch]
-    vdivss  xmm1, xmm13, [rbp+120h+var_164]
-    vdivss  xmm5, xmm13, [rsp+220h+var_1AC]
-  }
-  _R15 = pml;
-  _R13 = outRotAccel;
-  __asm
-  {
-    vmovss  dword ptr [rbp+120h+out], xmm0
-    vmulss  xmm0, xmm1, dword ptr [r12+50h]
-    vmulss  xmm3, xmm0, dword ptr [r14+630h]
-    vmulss  xmm1, xmm1, [rbp+120h+var_154]
-    vmulss  xmm2, xmm1, dword ptr [r14+634h]
-    vmulss  xmm1, xmm5, [rbp+120h+var_18C]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm2, xmm1, dword ptr [r14+638h]
-    vmulss  xmm1, xmm5, [rsp+220h+var_1B4]
-    vaddss  xmm3, xmm4, xmm2
-    vmovss  dword ptr [rbp+120h+out+4], xmm3
-    vmulss  xmm2, xmm1, dword ptr [r14+63Ch]
-    vaddss  xmm3, xmm2, xmm3
-    vmovss  dword ptr [rbp+120h+out+4], xmm3
-  }
-  if ( v223 )
-  {
-    __asm
+    if ( v88 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 319, ASSERT_TYPE_ASSERT, "(maxSpeed[0] > 0)", (const char *)&queryFormat, "maxSpeed[0] > 0") )
+      __debugbreak();
+    v90 = vehicleState->bodyVelocity.v[0] / v88;
+    vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt = VehicleDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt;
+    if ( v90 >= vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt )
     {
-      vmovss  xmm0, dword ptr [r12+2Ch]
-      vandps  xmm0, xmm0, xmm8
-      vcomiss xmm0, xmm12
-    }
-    if ( !(v223 | v224) )
-    {
-      __asm { vcomiss xmm6, xmm12 }
-      if ( v223 | v224 )
-      {
-        v243 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 319, ASSERT_TYPE_ASSERT, "(maxSpeed[0] > 0)", (const char *)&queryFormat, "maxSpeed[0] > 0");
-        v223 = 0;
-        v224 = !v243;
-        if ( v243 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12+4Ch]
-        vdivss  xmm6, xmm0, xmm6
-        vmovss  xmm0, dword ptr [r14+640h]
-        vcomiss xmm6, xmm0
-      }
-      if ( v223 )
-      {
-        __asm { vcomiss xmm0, xmm12 }
-        if ( v223 | v224 )
-        {
-          v247 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 323, ASSERT_TYPE_SANITY, "( vehDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt > 0 )", (const char *)&queryFormat, "vehDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt > 0");
-          v223 = 0;
-          if ( v247 )
-            __debugbreak();
-        }
-        __asm { vdivss  xmm6, xmm6, dword ptr [r14+640h] }
-      }
-      else
-      {
-        __asm { vmovaps xmm6, xmm13 }
-      }
-      __asm { vcomiss xmm12, dword ptr [r14+628h] }
-      if ( !v223 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 329, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxYawRate > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxYawRate > 0.0f") )
-        __debugbreak();
-      __asm
-      {
-        vmulss  xmm2, xmm6, dword ptr [r14+644h]
-        vmovss  xmm0, dword ptr [r12+2Ch]
-        vdivss  xmm1, xmm0, dword ptr [r14+628h]
-        vmulss  xmm3, xmm2, xmm1
-        vmovss  xmm2, dword ptr [rbp+120h+out+4]
-        vsubss  xmm0, xmm2, xmm3
-        vmovss  dword ptr [rbp+120h+out+4], xmm0
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+120h+out+4]; val
-    vmovaps xmm2, xmm13; max
-    vmovaps xmm1, xmm10; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+120h+out]
-    vmulss  xmm1, xmm5, dword ptr [rbp+120h+forward]
-    vmulss  xmm3, xmm0, dword ptr [rbp+120h+right]
-    vmulss  xmm4, xmm0, dword ptr [rbp+120h+right+4]
-    vaddss  xmm3, xmm3, xmm1
-    vmulss  xmm1, xmm5, dword ptr [rbp+120h+forward+4]
-    vsubss  xmm6, xmm3, dword ptr [r12+58h]
-    vaddss  xmm2, xmm4, xmm1
-    vsubss  xmm9, xmm2, dword ptr [r12+5Ch]
-    vmovss  dword ptr [rbp+120h+out+4], xmm0
-    vmovss  dword ptr [rbp+120h+out+8], xmm12
-    vucomiss xmm12, dword ptr [r14+648h]
-  }
-  if ( v224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 341, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterTiltMomentum)", (const char *)&queryFormat, "vehDef->vehHelicopterTiltMomentum") )
-    __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r15+24h]
-    vdivss  xmm0, xmm13, dword ptr [r14+648h]
-    vmulss  xmm5, xmm0, dword ptr [r14+64Ch]
-    vxorps  xmm4, xmm0, xmm14
-  }
-  _RDI = &vehicleState->tiltVelocity;
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rdi+4]
-    vmulss  xmm1, xmm5, xmm6
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, xmm3
-    vaddss  xmm6, xmm2, xmm7
-    vmovss  dword ptr [rdi], xmm6
-    vmulss  xmm1, xmm9, xmm5
-    vmulss  xmm0, xmm4, xmm8
-    vaddss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, xmm3
-    vaddss  xmm5, xmm2, dword ptr [r12+64h]
-    vmovss  dword ptr [rdi+4], xmm5
-    vmovss  xmm4, dword ptr [r15+24h]
-    vaddss  xmm0, xmm6, xmm7
-    vmulss  xmm1, xmm0, xmm11
-    vmulss  xmm2, xmm1, xmm4
-    vaddss  xmm3, xmm2, dword ptr [r12+58h]
-    vaddss  xmm0, xmm5, xmm8
-    vmulss  xmm1, xmm0, xmm11
-    vmulss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [r12+58h], xmm3
-    vaddss  xmm3, xmm2, dword ptr [r12+5Ch]
-  }
-  v293 = 0;
-  __asm { vmovss  dword ptr [r12+5Ch], xmm3 }
-  v294 = 1;
-  do
-  {
-    if ( !v294 )
-    {
-      LODWORD(v335) = 2;
-      LODWORD(v327) = v293;
-      v295 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-      v294 = 0;
-      if ( v295 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm13, dword ptr [rdi-8] }
-    if ( v294 )
-    {
-      if ( v293 >= 2 )
-      {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v293;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
-          __debugbreak();
-      }
-      _RDI[-1].v[0] = 1.0;
-      v296 = v293 < 2;
-      if ( v293 >= 2 )
-      {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v293;
-        v297 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-        v296 = 0;
-        if ( v297 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm12, dword ptr [rdi] }
-      if ( v296 )
-        goto LABEL_207;
+      v92 = FLOAT_1_0;
     }
     else
     {
-      v298 = v293 <= 2;
-      if ( v293 >= 2 )
+      if ( vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 323, ASSERT_TYPE_SANITY, "( vehDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt > 0 )", (const char *)&queryFormat, "vehDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt > 0") )
+        __debugbreak();
+      v92 = v90 / VehicleDef->vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt;
+    }
+    if ( VehicleDef->vehHelicopterMaxYawRate <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 329, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxYawRate > 0.0f)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxYawRate > 0.0f") )
+      __debugbreak();
+    out.v[1] = out.v[1] - (float)((float)(v92 * VehicleDef->vehHelicopterTiltFromFwdAndYaw) * (float)(vehicleState->angVelocity.v[1] / VehicleDef->vehHelicopterMaxYawRate));
+  }
+  v93 = I_fclamp(out.v[1], -1.0, 1.0);
+  v94 = (float)((float)(*(float *)&v93 * forward.m[1].v[0]) + (float)(out.v[0] * forward.m[0].v[0])) - vehicleState->tilt.v[0];
+  v95 = (float)((float)(*(float *)&v93 * forward.m[1].v[1]) + (float)(out.v[0] * forward.m[0].v[1])) - vehicleState->tilt.v[1];
+  out.v[1] = *(float *)&v93;
+  out.v[2] = 0.0;
+  if ( VehicleDef->vehHelicopterTiltMomentum == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 341, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterTiltMomentum)", (const char *)&queryFormat, "vehDef->vehHelicopterTiltMomentum") )
+    __debugbreak();
+  v96 = pml->frametime;
+  v97 = 1.0 / VehicleDef->vehHelicopterTiltMomentum;
+  v98 = v97 * VehicleDef->vehHelicopterTiltSpeed;
+  p_tiltVelocity = &vehicleState->tiltVelocity;
+  v100 = vehicleState->tiltVelocity.v[0];
+  v101 = vehicleState->tiltVelocity.v[1];
+  v102 = (float)((float)((float)(v98 * v94) + (float)(COERCE_FLOAT(LODWORD(v97) ^ _xmm) * v100)) * v96) + v100;
+  vehicleState->tiltVelocity.v[0] = v102;
+  v103 = (float)((float)((float)(v95 * v98) + (float)(COERCE_FLOAT(LODWORD(v97) ^ _xmm) * v101)) * v96) + vehicleState->tiltVelocity.v[1];
+  vehicleState->tiltVelocity.v[1] = v103;
+  v104 = pml->frametime;
+  vehicleState->tilt.v[0] = (float)((float)((float)(v102 + v100) * 0.5) * v104) + vehicleState->tilt.v[0];
+  v105 = 0;
+  vehicleState->tilt.v[1] = (float)((float)((float)(v103 + v101) * 0.5) * v104) + vehicleState->tilt.v[1];
+  v106 = 1;
+  do
+  {
+    if ( !v106 )
+    {
+      LODWORD(v114) = 2;
+      LODWORD(v109) = v105;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
+        __debugbreak();
+    }
+    if ( p_tiltVelocity[-1].v[0] <= 1.0 )
+    {
+      if ( v105 >= 2 )
       {
-        LODWORD(v335) = 2;
-        LODWORD(v327) = v293;
-        v299 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-        v298 = !v299;
-        if ( v299 )
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v105;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
           __debugbreak();
       }
-      __asm { vcomiss xmm10, dword ptr [rdi-8] }
-      if ( !v298 )
+      if ( p_tiltVelocity[-1].v[0] < -1.0 )
       {
-        if ( v293 >= 2 )
+        if ( v105 >= 2 )
         {
-          LODWORD(v335) = 2;
-          LODWORD(v327) = v293;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+          LODWORD(v114) = 2;
+          LODWORD(v109) = v105;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
             __debugbreak();
         }
-        _RDI[-1].v[0] = -1.0;
-        v300 = v293 <= 2;
-        if ( v293 >= 2 )
+        p_tiltVelocity[-1].v[0] = -1.0;
+        if ( v105 >= 2 )
         {
-          LODWORD(v335) = 2;
-          LODWORD(v327) = v293;
-          v301 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335);
-          v300 = !v301;
-          if ( v301 )
+          LODWORD(v114) = 2;
+          LODWORD(v109) = v105;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
             __debugbreak();
         }
-        __asm { vcomiss xmm12, dword ptr [rdi] }
-        if ( !v300 )
+        if ( p_tiltVelocity->v[0] < 0.0 )
         {
-LABEL_207:
-          if ( v293 >= 2 )
+LABEL_213:
+          if ( v105 >= 2 )
           {
-            LODWORD(v335) = 2;
-            LODWORD(v327) = v293;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v327, v335) )
+            LODWORD(v114) = 2;
+            LODWORD(v109) = v105;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
               __debugbreak();
           }
-          _RDI->v[0] = 0.0;
+          p_tiltVelocity->v[0] = 0.0;
         }
       }
     }
-    ++v293;
-    _RDI = (vec2_t *)((char *)_RDI + 4);
-    v294 = v293 < 2;
+    else
+    {
+      if ( v105 >= 2 )
+      {
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v105;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
+          __debugbreak();
+      }
+      p_tiltVelocity[-1].v[0] = 1.0;
+      if ( v105 >= 2 )
+      {
+        LODWORD(v114) = 2;
+        LODWORD(v109) = v105;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v109, v114) )
+          __debugbreak();
+      }
+      if ( p_tiltVelocity->v[0] > 0.0 )
+        goto LABEL_213;
+    }
+    ++v105;
+    p_tiltVelocity = (vec2_t *)((char *)p_tiltVelocity + 4);
+    v106 = v105 < 2;
   }
-  while ( (int)v293 < 2 );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+58h]
-    vmovss  xmm1, dword ptr [r12+5Ch]
-    vmovss  dword ptr [rbp+120h+in1], xmm0
-    vmovss  dword ptr [rbp+120h+in1+4], xmm1
-    vmovss  dword ptr [rbp+120h+in1+8], xmm12
-  }
+  while ( (int)v105 < 2 );
+  v107 = vehicleState->tilt.v[1];
+  in1.v[0] = vehicleState->tilt.v[0];
+  in1.v[1] = v107;
+  in1.v[2] = 0.0;
   MatrixTransposeTransformVector43(&in1, &forward, &out);
-  __asm
+  v108 = out.v[1];
+  outRotAccel->v[0] = (float)(out.v[0] * VehicleDef->vehHelicopterMaxPitch) + VehicleDef->vehHelicopterPitchOffset;
+  outRotAccel->v[2] = v108 * VehicleDef->vehHelicopterMaxRoll;
+  v122 = outBodyAccel->v[0];
+  if ( (LODWORD(v122) & 0x7F800000) == 2139095040 || (v122 = outBodyAccel->v[1], (LODWORD(v122) & 0x7F800000) == 2139095040) || (v122 = outBodyAccel->v[2], (LODWORD(v122) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbp+120h+out]
-    vmulss  xmm1, xmm0, dword ptr [r14+650h]
-    vaddss  xmm2, xmm1, dword ptr [r14+604h]
-    vmovss  xmm0, dword ptr [rbp+120h+out+4]
-  }
-  _RSI = outBodyAccel;
-  __asm
-  {
-    vmovss  dword ptr [r13+0], xmm2
-    vmulss  xmm1, xmm0, dword ptr [r14+654h]
-    vmovss  dword ptr [r13+8], xmm1
-    vmovss  xmm2, dword ptr [rsi]
-    vmovss  [rsp+220h+var_1B8], xmm2
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_225;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+220h+var_1B8], xmm0
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_225;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+220h+var_1B8], xmm0
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-  {
-LABEL_225:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 373, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outBodyAccel )[0] ) && !IS_NAN( ( outBodyAccel )[1] ) && !IS_NAN( ( outBodyAccel )[2] )") )
       __debugbreak();
   }
-  __asm
+  v122 = outRotAccel->v[0];
+  if ( (LODWORD(v122) & 0x7F800000) == 2139095040 || (v122 = outRotAccel->v[1], (LODWORD(v122) & 0x7F800000) == 2139095040) || (v122 = outRotAccel->v[2], (LODWORD(v122) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  [rsp+220h+var_1B8], xmm0
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_226;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  [rsp+220h+var_1B8], xmm0
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-    goto LABEL_226;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+220h+var_1B8], xmm0
-  }
-  if ( (v346[0] & 0x7F800000) == 2139095040 )
-  {
-LABEL_226:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 374, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outRotAccel )[0] ) && !IS_NAN( ( outRotAccel )[1] ) && !IS_NAN( ( outRotAccel )[2] )") )
       __debugbreak();
-  }
-  _R11 = &v360;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -1204,238 +793,153 @@ BG_HeliCalcTargetMoveRequest
 */
 __int64 BG_HeliCalcTargetMoveRequest(const pmove_t *pm, const pml_t *pml, const VehicleState *vehicleState, const int targetEntity, vec4_t *outMoveRequest)
 {
-  __int64 v17; 
-  CgStatic *v18; 
-  char v26; 
-  char v44; 
-  bool v45; 
-  bool v53; 
-  __int64 result; 
+  const VehicleDef *VehicleDef; 
+  __int64 v10; 
+  CgStatic *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  __int128 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v21; 
+  float frametime; 
+  float v23; 
+  float vehHelicopterLookaheadTime; 
+  float v28; 
+  float v30; 
+  float v32; 
+  double v35; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
   vec3_t outOrigin; 
   vec3_t forward; 
   vec3_t right; 
-  char v105; 
+  float v49; 
+  float v50; 
+  float v51; 
+  char v52; 
 
-  _R14 = outMoveRequest;
-  _RDI = vehicleState;
-  _R15 = pml;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 456, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 457, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 457, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 458, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
+  if ( !vehicleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 458, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+128h+var_48], xmm6
-    vmovaps [rsp+128h+var_58], xmm7
-    vmovaps [rsp+128h+var_68], xmm8
-    vmovaps [rsp+128h+var_78], xmm9
-    vmovaps [rsp+128h+var_88], xmm10
-    vmovaps [rsp+128h+var_98], xmm11
-  }
   if ( targetEntity == 2047 )
-    goto LABEL_46;
-  _RBP = BG_GetVehicleDef(pm);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 464, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
+    return 0i64;
+  VehicleDef = BG_GetVehicleDef(pm);
+  if ( !VehicleDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 464, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
     __debugbreak();
-  v17 = tls_index;
+  v10 = tls_index;
   if ( !*(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_static.h", 169, ASSERT_TYPE_ASSERT, "(ms_activeBgs)", (const char *)&queryFormat, "ms_activeBgs") )
     __debugbreak();
-  v18 = *(CgStatic **)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v17) + 272i64);
-  if ( v18->IsClient(v18) )
-    CgStatic::GetOrigin(v18, targetEntity, &outOrigin);
+  v11 = *(CgStatic **)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v10) + 272i64);
+  if ( v11->IsClient(v11) )
+    CgStatic::GetOrigin(v11, targetEntity, &outOrigin);
   else
-    ((void (__fastcall *)(CgStatic *, _QWORD, vec3_t *))v18->GetClientInfo)(v18, (unsigned int)targetEntity, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+128h+outOrigin]
-    vsubss  xmm7, xmm0, dword ptr [rdi+4]
-  }
-  _RBX = DCONST_DVARFLT_bg_vehicle_target_min_speed;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+128h+outOrigin+8]
-    vmovss  xmm1, dword ptr [rsp+128h+outOrigin+4]
-    vsubss  xmm8, xmm0, dword ptr [rdi+0Ch]
-    vsubss  xmm9, xmm1, dword ptr [rdi+8]
-  }
+    ((void (__fastcall *)(CgStatic *, _QWORD, vec3_t *))v11->GetClientInfo)(v11, (unsigned int)targetEntity, &outOrigin);
+  v12 = outOrigin.v[0] - vehicleState->origin.v[0];
+  v13 = DCONST_DVARFLT_bg_vehicle_target_min_speed;
+  v14 = outOrigin.v[2] - vehicleState->origin.v[2];
+  v16 = LODWORD(outOrigin.v[1]);
+  *(float *)&v16 = outOrigin.v[1] - vehicleState->origin.v[1];
+  v15 = *(float *)&v16;
   if ( !DCONST_DVARFLT_bg_vehicle_target_min_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicle_target_min_speed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rdi+20h]
-    vmovss  xmm10, dword ptr [rdi+1Ch]
-    vmovss  xmm11, dword ptr [rdi+24h]
-    vmovss  xmm4, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vcomiss xmm3, xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
-  if ( !(v26 | v45) )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm10, xmm7
-      vmulss  xmm0, xmm9, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm11, xmm8
-      vaddss  xmm3, xmm2, xmm1
-      vcomiss xmm3, xmm6
-    }
-    if ( v26 )
-      goto LABEL_46;
-  }
-  _RBX = DCONST_DVARFLT_bg_vehicle_target_radius;
+  Dvar_CheckFrontendServerThread(v13);
+  v17 = vehicleState->velocity.v[1];
+  v18 = vehicleState->velocity.v[0];
+  v19 = vehicleState->velocity.v[2];
+  _XMM6 = 0i64;
+  if ( (float)((float)((float)(v18 * v18) + (float)(v17 * v17)) + (float)(v19 * v19)) > (float)(v13->current.value * v13->current.value) && (float)((float)((float)(v18 * v12) + (float)(*(float *)&v16 * v17)) + (float)(v19 * v14)) < 0.0 )
+    return 0i64;
+  v21 = DCONST_DVARFLT_bg_vehicle_target_radius;
   if ( !DCONST_DVARFLT_bg_vehicle_target_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicle_target_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v21);
+  *(float *)&v16 = (float)(*(float *)&v16 * *(float *)&v16) + (float)(v12 * v12);
+  if ( (float)((float)(v14 * v14) + *(float *)&v16) < (float)(v21->current.value * v21->current.value) )
+    return 0i64;
+  if ( VehicleDef->vehHelicopterMaxAccel == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 482, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxAccel)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxAccel") )
+    __debugbreak();
+  frametime = pml->frametime;
+  v23 = vehicleState->velocity.v[2];
+  *(float *)&v16 = fsqrt(*(float *)&v16);
+  _XMM1 = v16;
   __asm
   {
-    vmovss  xmm3, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm10, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm10
-    vmulss  xmm0, xmm3, xmm3
-    vcomiss xmm2, xmm0
-  }
-  if ( v44 )
-  {
-LABEL_46:
-    result = 0i64;
-    goto LABEL_47;
-  }
-  __asm { vucomiss xmm6, dword ptr [rbp+614h] }
-  if ( v45 )
-  {
-    v53 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 482, ASSERT_TYPE_ASSERT, "(vehDef->vehHelicopterMaxAccel)", (const char *)&queryFormat, "vehDef->vehHelicopterMaxAccel");
-    v44 = 0;
-    v45 = !v53;
-    if ( v53 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm4, dword ptr [r15+24h]
-    vmovss  xmm2, dword ptr [rdi+24h]
-    vsqrtss xmm1, xmm10, xmm10
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm11, xmm0
-    vdivss  xmm1, xmm11, xmm0
-    vmovss  xmm0, dword ptr [rbp+660h]
-    vmulss  xmm10, xmm7, xmm1
-    vmovss  xmm7, dword ptr [rbp+618h]
-    vcomiss xmm7, xmm6
-    vmulss  xmm9, xmm9, xmm1
   }
-  if ( v44 | v45 )
+  *(float *)&_XMM1 = 1.0 / *(float *)&_XMM0;
+  vehHelicopterLookaheadTime = VehicleDef->vehHelicopterLookaheadTime;
+  v28 = v12 * *(float *)&_XMM1;
+  _XMM7 = LODWORD(VehicleDef->vehHelicopterMaxAccelVertical);
+  v30 = v15 * *(float *)&_XMM1;
+  if ( *(float *)&_XMM7 > 0.0 )
   {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    goto LABEL_42;
-  }
-  __asm
-  {
-    vucomiss xmm8, xmm6
-    vmovss  xmm1, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm3, xmm7, xmm1
-  }
-  if ( v45 )
-  {
-    __asm { vcomiss xmm4, xmm6 }
-    if ( v44 | v45 )
+    _XMM3 = _XMM7 ^ (unsigned int)_xmm;
+    if ( v14 == 0.0 )
     {
-      __asm
+      if ( frametime <= 0.0 )
       {
-        vcmpless xmm0, xmm6, xmm2
-        vblendvps xmm0, xmm3, xmm7, xmm0
-        vxorps  xmm7, xmm0, xmm1
+        __asm
+        {
+          vcmpless xmm0, xmm6, xmm2
+          vblendvps xmm0, xmm3, xmm7, xmm0
+        }
+        LODWORD(_XMM7) = _XMM0 ^ _xmm;
+        goto LABEL_42;
       }
-      goto LABEL_42;
+      LODWORD(v32) = COERCE_UNSIGNED_INT(v23 / frametime) ^ _xmm;
     }
-    __asm
+    else
     {
-      vdivss  xmm0, xmm2, xmm4
-      vxorps  xmm0, xmm0, xmm1
+      if ( vehHelicopterLookaheadTime <= 0.0 )
+      {
+        __asm
+        {
+          vcmpless xmm1, xmm6, xmm8
+          vblendvps xmm7, xmm3, xmm7, xmm1
+        }
+        goto LABEL_42;
+      }
+      v32 = (float)(v14 / vehHelicopterLookaheadTime) - v23;
     }
-    goto LABEL_40;
-  }
-  __asm { vcomiss xmm0, xmm6 }
-  if ( !(v44 | v45) )
-  {
-    __asm
-    {
-      vdivss  xmm0, xmm8, xmm0
-      vsubss  xmm0, xmm0, xmm2; val
-    }
-LABEL_40:
-    __asm
-    {
-      vmovaps xmm2, xmm7; max
-      vmovaps xmm1, xmm3; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vdivss  xmm7, xmm0, xmm7 }
+    v35 = I_fclamp(v32, COERCE_FLOAT(_XMM7 ^ _xmm), VehicleDef->vehHelicopterMaxAccelVertical);
+    *(float *)&_XMM7 = *(float *)&v35 / *(float *)&_XMM7;
     goto LABEL_42;
   }
-  __asm
-  {
-    vcmpless xmm1, xmm6, xmm8
-    vblendvps xmm7, xmm3, xmm7, xmm1
-  }
+  LODWORD(_XMM7) = 0;
 LABEL_42:
-  __asm { vmovss  xmm0, dword ptr [rdi+44h]; yaw }
-  YawVectors(*(float *)&_XMM0, &forward, &right);
-  __asm
-  {
-    vmovss  [rsp+128h+var_C0], xmm6
-    vmovss  [rsp+128h+var_BC], xmm6
-    vmovss  [rsp+128h+var_B8], xmm11
-  }
-  if ( &v105 == (char *)outMoveRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+  YawVectors(vehicleState->previousAngles.v[1], &forward, &right);
+  v49 = 0.0;
+  v50 = 0.0;
+  v51 = FLOAT_1_0;
+  if ( &v52 == (char *)outMoveRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm9, dword ptr [rsp+128h+forward+4]
-    vmulss  xmm0, xmm10, dword ptr [rsp+128h+forward]
-    vmulss  xmm3, xmm9, dword ptr [rsp+128h+right+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsp+128h+forward+8]
-    vmulss  xmm0, xmm10, dword ptr [rsp+128h+right]
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm7, dword ptr [rsp+128h+right+8]
-    vmovss  dword ptr [r14], xmm2
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm3, xmm9, [rsp+128h+var_BC]
-    vmulss  xmm0, xmm10, [rsp+128h+var_C0]
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm1, xmm7, [rsp+128h+var_B8]
-    vmovss  dword ptr [r14+4], xmm2
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [r14+8], xmm2
-  }
+  v37 = v30 * right.v[1];
+  v38 = v28 * right.v[0];
+  v39 = *(float *)&_XMM7 * right.v[2];
+  outMoveRequest->v[0] = (float)((float)(v30 * forward.v[1]) + (float)(v28 * forward.v[0])) + (float)(*(float *)&_XMM7 * forward.v[2]);
+  v40 = v37 + v38;
+  v41 = v30 * v50;
+  v42 = v28 * v49;
+  v43 = v40 + v39;
+  v44 = *(float *)&_XMM7 * v51;
+  outMoveRequest->v[1] = v43;
+  outMoveRequest->v[2] = (float)(v41 + v42) + v44;
   outMoveRequest->v[3] = 0.0;
-  result = 1i64;
-LABEL_47:
-  __asm
-  {
-    vmovaps xmm11, [rsp+128h+var_98]
-    vmovaps xmm10, [rsp+128h+var_88]
-    vmovaps xmm9, [rsp+128h+var_78]
-    vmovaps xmm8, [rsp+128h+var_68]
-    vmovaps xmm7, [rsp+128h+var_58]
-    vmovaps xmm6, [rsp+128h+var_48]
-  }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -1445,153 +949,82 @@ BG_HeliCmdScale
 */
 void BG_HeliCmdScale(bool scaleMovement, const char (*move)[4], vec4_t *outFracs, bool allowDeadzone)
 {
-  const char (*v15)[4]; 
-  int v16; 
-  int v23; 
-  int v24; 
-  bool v38; 
-  bool v39; 
-  bool v40; 
-  __int64 v55; 
-  __int64 v56; 
-  void *retaddr; 
+  const char (*v8)[4]; 
+  int v9; 
+  vec4_t *v10; 
+  float v11; 
+  int v12; 
+  float v13; 
+  int v14; 
+  int v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm8 }
-  _RBX = outFracs;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
   if ( !move && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 34, ASSERT_TYPE_ASSERT, "(move)", (const char *)&queryFormat, "move") )
     __debugbreak();
-  __asm { vmovss  xmm7, cs:__real@3c010204 }
-  v15 = move;
-  v16 = 0;
-  _RBP = _RBX;
+  v8 = move;
+  v9 = 0;
+  v10 = outFracs;
   do
   {
-    __asm
+    v11 = (float)*(_BYTE *)v8 * 0.0078740157;
+    if ( (unsigned int)v9 >= 4 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm6, xmm0, xmm7
-    }
-    if ( (unsigned int)v16 >= 4 )
-    {
-      LODWORD(v56) = 4;
-      LODWORD(v55) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v55, v56) )
+      LODWORD(v22) = 4;
+      LODWORD(v21) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rbp+0], xmm6 }
-    _RBP = (vec4_t *)((char *)_RBP + 4);
-    ++v16;
-    v15 = (const char (*)[4])((char *)v15 + 1);
+    v10->v[0] = v11;
+    v10 = (vec4_t *)((char *)v10 + 4);
+    ++v9;
+    v8 = (const char (*)[4])((char *)v8 + 1);
   }
-  while ( v16 < 4 );
-  __asm { vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
+  while ( v9 < 4 );
   if ( *(_WORD *)move )
   {
-    __asm
+    v12 = (*move)[0];
+    v13 = (float)((*move)[1] * (*move)[1] + v12 * v12);
+    v14 = abs8(v12);
+    v15 = abs8((*move)[1]);
+    v16 = fsqrt(v13);
+    if ( v15 > v14 )
+      v14 = v15;
+    if ( v14 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
+      v17 = (float)v14 / v16;
+      v18 = v17 * outFracs->v[1];
+      outFracs->v[0] = v17 * outFracs->v[0];
+      outFracs->v[1] = v18;
     }
-    v23 = abs8((*move)[0]);
-    v24 = abs8((*move)[1]);
-    __asm { vsqrtss xmm1, xmm0, xmm0 }
-    if ( v24 > v23 )
-      v23 = v24;
-    if ( v23 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm2, xmm0, xmm1
-        vmulss  xmm1, xmm2, dword ptr [rbx]
-        vmulss  xmm0, xmm2, dword ptr [rbx+4]
-        vmovss  dword ptr [rbx], xmm1
-        vmovss  dword ptr [rbx+4], xmm0
-      }
-    }
-    if ( allowDeadzone )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]
-        vandps  xmm0, xmm0, xmm8
-        vcomiss xmm0, cs:__real@3e99999a
-      }
-    }
+    if ( allowDeadzone && COERCE_FLOAT(LODWORD(outFracs->v[1]) & _xmm) < 0.30000001 )
+      outFracs->v[1] = 0.0;
     if ( scaleMovement )
     {
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rbx]
-        vmovss  xmm6, dword ptr [rbx+4]
-        vmovaps [rsp+0A8h+var_68], xmm9
-        vmovss  xmm9, cs:__real@3f800000
-        vandps  xmm7, xmm7, xmm8
-        vcomiss xmm7, xmm9
-        vandps  xmm6, xmm6, xmm8
-      }
-      v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 66, ASSERT_TYPE_ASSERT, "(absAxis[0] <= 1.0f)", (const char *)&queryFormat, "absAxis[0] <= 1.0f");
-      v39 = !v38;
-      if ( v38 )
+      LODWORD(v19) = LODWORD(outFracs->v[0]) & _xmm;
+      LODWORD(v20) = LODWORD(outFracs->v[1]) & _xmm;
+      if ( v19 > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 66, ASSERT_TYPE_ASSERT, "(absAxis[0] <= 1.0f)", (const char *)&queryFormat, "absAxis[0] <= 1.0f") )
         __debugbreak();
-      __asm { vcomiss xmm6, xmm9 }
-      if ( v38 )
-      {
-        v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 67, ASSERT_TYPE_ASSERT, "(absAxis[1] <= 1.0f)", (const char *)&queryFormat, "absAxis[1] <= 1.0f");
-        v39 = !v40;
-        if ( v40 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm7, xmm6 }
-      if ( v39 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm6, xmm7
-          vsubss  xmm0, xmm9, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rbx]
-          vmovss  dword ptr [rbx], xmm1
-        }
-      }
+      if ( v20 > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 67, ASSERT_TYPE_ASSERT, "(absAxis[1] <= 1.0f)", (const char *)&queryFormat, "absAxis[1] <= 1.0f") )
+        __debugbreak();
+      if ( v19 <= v20 )
+        outFracs->v[0] = (float)(1.0 - (float)(v20 - v19)) * outFracs->v[0];
       else
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vsubss  xmm0, xmm9, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rbx+4]
-          vmovss  dword ptr [rbx+4], xmm1
-        }
-      }
-      __asm { vmovaps xmm9, [rsp+0A8h+var_68] }
+        outFracs->v[1] = (float)(1.0 - (float)(v19 - v20)) * outFracs->v[1];
     }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm6, [rsp+0A8h+var_38]
   }
   if ( allowDeadzone )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8]
-      vandps  xmm0, xmm0, xmm8
-      vcomiss xmm0, cs:__real@3e99999a
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vandps  xmm0, xmm0, xmm8
-      vcomiss xmm0, cs:__real@3e99999a
-    }
+    if ( COERCE_FLOAT(LODWORD(outFracs->v[2]) & _xmm) < 0.30000001 )
+      outFracs->v[2] = 0.0;
+    if ( COERCE_FLOAT(LODWORD(outFracs->v[3]) & _xmm) < 0.30000001 )
+      outFracs->v[3] = 0.0;
   }
-  __asm { vmovaps xmm8, [rsp+0A8h+var_58] }
 }
 
 /*
@@ -1602,316 +1035,184 @@ BG_HelicopterAirMove
 void BG_HelicopterAirMove(pmove_t *pm, const pml_t *pml, VehicleState *vehicleState, vec3_t *inOutAccel)
 {
   int VehicleTargetEntity; 
-  bool v16; 
-  bool v17; 
+  const VehicleDef *VehicleDef; 
   int clipmask; 
-  bool v20; 
-  char v25; 
-  const dvar_t *v26; 
-  int entity; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float inOutAccela; 
-  int inOutAccelb; 
+  float v11; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
   float altitudeMinNormal; 
-  float altitudeMinNormala; 
+  double Float_Internal_DebugName; 
+  float frametime; 
+  const dvar_t *v22; 
+  float v23; 
+  float vehHelicopterLookaheadTime; 
+  float v25; 
+  float v26; 
+  int entity; 
+  __int128 fraction_low; 
+  double v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  double v33; 
+  double v34; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  int inOutAccela; 
   vec3_t end; 
   vec3_t start; 
   GroundTrace groundTrace; 
   VehicleCollisionInfo outCollisionInfo; 
   trace_t results; 
 
-  __asm { vmovaps [rsp+200h+var_70], xmm8 }
-  _RBX = vehicleState;
-  _RSI = pml;
   VehicleTargetEntity = BG_GetVehicleTargetEntity(pm);
-  _RDI = BG_GetVehicleDef(pm);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 670, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
+  VehicleDef = BG_GetVehicleDef(pm);
+  if ( !VehicleDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 670, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 672, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  v16 = _RSI == NULL;
-  if ( !_RSI )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 673, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml");
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm8, dword ptr [rsi+24h]
-  }
-  if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 674, ASSERT_TYPE_ASSERT, "(pml->frametime)", (const char *)&queryFormat, "pml->frametime") )
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 673, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  clipmask = _RBX->clipmask;
-  if ( _RDI->vehHelicopterLockAltitude )
+  if ( pml->frametime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 674, ASSERT_TYPE_ASSERT, "(pml->frametime)", (const char *)&queryFormat, "pml->frametime") )
+    __debugbreak();
+  clipmask = vehicleState->clipmask;
+  if ( VehicleDef->vehHelicopterLockAltitude )
   {
-    v20 = VehicleTargetEntity == 2047;
     if ( VehicleTargetEntity == 2047 )
     {
-      __asm
+      v11 = vehicleState->origin.v[2] + VehicleDef->vehHelicopterAltitudeOffset;
+      vehicleState->clipmask = 512;
+      vehicleState->origin.v[2] = v11;
+      if ( VehicleDef->vehHelicopterOffsetFromMesh )
       {
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vmovaps [rsp+200h+var_60], xmm7
-        vaddss  xmm7, xmm0, dword ptr [rdi+600h]
-      }
-      _RBX->clipmask = 512;
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm7 }
-      if ( _RDI->vehHelicopterOffsetFromMesh )
-      {
-        _R15 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
-        __asm
-        {
-          vmovaps [rsp+200h+var_50], xmm6
-          vmovaps [rsp+200h+var_80], xmm9
-          vmovaps [rsp+200h+var_90], xmm10
-          vmovaps [rsp+200h+var_A0], xmm11
-          vmovss  xmm11, dword ptr [rbx+24h]
-        }
+        v12 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
+        v13 = vehicleState->velocity.v[2];
         if ( !DCONST_DVARFLT_bg_helicopter_altitude_min_normal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_altitude_min_normal") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm { vcomiss xmm8, dword ptr [r15+28h] }
-        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 540, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_helicopter_altitude_min_normal, \"bg_helicopter_altitude_min_normal\" ) > 0.0f)", (const char *)&queryFormat, "Dconst_GetFloat( bg_helicopter_altitude_min_normal ) > 0.0f") )
+        Dvar_CheckFrontendServerThread(v12);
+        if ( v12->current.value <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 540, ASSERT_TYPE_ASSERT, "(Dvar_GetFloat_Internal_DebugName( DCONST_DVARFLT_bg_helicopter_altitude_min_normal, \"bg_helicopter_altitude_min_normal\" ) > 0.0f)", (const char *)&queryFormat, "Dconst_GetFloat( bg_helicopter_altitude_min_normal ) > 0.0f") )
           __debugbreak();
-        v26 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+60Ch]
-          vmulss  xmm6, xmm0, dword ptr [rdi+660h]
-        }
+        v14 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
+        v15 = VehicleDef->vehHelicopterMaxSpeed * VehicleDef->vehHelicopterLookaheadTime;
         if ( !DCONST_DVARFLT_bg_helicopter_altitude_min_normal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_altitude_min_normal") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v26);
-        __asm
-        {
-          vmovss  xmm9, cs:__real@3f800000
-          vsubss  xmm0, xmm9, dword ptr [r15+28h]
-          vdivss  xmm1, xmm0, dword ptr [r15+28h]
-        }
-        _R15 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
-        __asm { vmulss  xmm10, xmm1, xmm6 }
+        Dvar_CheckFrontendServerThread(v14);
+        v16 = (float)(1.0 - v14->current.value) / v14->current.value;
+        v17 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
+        v18 = v16 * v15;
         if ( !DCONST_DVARFLT_bg_helicopter_altitude_min_normal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_altitude_min_normal") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsi+24h]; dt
-          vmovss  xmm6, dword ptr [r15+28h]
-        }
-        BG_HelicopterAltitudeTrace(pm, _RBX, &groundTrace, *(const float *)&_XMM3);
+        Dvar_CheckFrontendServerThread(v17);
+        altitudeMinNormal = v17->current.value;
+        BG_HelicopterAltitudeTrace(pm, vehicleState, &groundTrace, pml->frametime);
         if ( groundTrace.validGroundNormal )
         {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_helicopter_altitude_min_normal, "bg_helicopter_altitude_min_normal");
-          __asm { vcomiss xmm0, dword ptr [rsp+200h+groundTrace.trace.normal+8] }
-          if ( !(v25 | v16) )
-          {
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rbx+8]
-              vmovss  xmm2, dword ptr [rbx+4]
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm2, xmm2, xmm2
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-            }
-            Com_PrintError(16, "The normal of the altitude mesh near %f,%f exceeds the maximum allowable slope\n", _R8, _R9);
-          }
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_helicopter_altitude_min_normal, "bg_helicopter_altitude_min_normal");
+          if ( *(float *)&Float_Internal_DebugName > groundTrace.trace.normal.v[2] )
+            Com_PrintError(16, "The normal of the altitude mesh near %f,%f exceeds the maximum allowable slope\n", vehicleState->origin.v[0], vehicleState->origin.v[1]);
         }
-        __asm
-        {
-          vmovss  [rsp+200h+altitudeMinNormal], xmm6
-          vmovss  dword ptr [rsp+200h+fmt], xmm10
-        }
-        BG_HelicopterSoftenCollision(pm, _RSI, _RDI, _RBX, fmt, inOutAccel, altitudeMinNormal);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi+24h]
-          vmulss  xmm0, xmm2, dword ptr [r12]
-          vaddss  xmm1, xmm0, dword ptr [rbx+1Ch]
-          vmovss  dword ptr [rbx+1Ch], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r12+4]
-          vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-          vmovss  dword ptr [rbx+20h], xmm1
-        }
-        _R15 = DCONST_DVARFLT_bg_helicopter_stepsize;
-        __asm { vmovss  xmm6, dword ptr [rsi+24h] }
+        BG_HelicopterSoftenCollision(pm, pml, VehicleDef, vehicleState, v18, inOutAccel, altitudeMinNormal);
+        frametime = pml->frametime;
+        vehicleState->velocity.v[0] = (float)(frametime * inOutAccel->v[0]) + vehicleState->velocity.v[0];
+        vehicleState->velocity.v[1] = (float)(frametime * inOutAccel->v[1]) + vehicleState->velocity.v[1];
+        v22 = DCONST_DVARFLT_bg_helicopter_stepsize;
+        v23 = pml->frametime;
         if ( !DCONST_DVARFLT_bg_helicopter_stepsize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_stepsize") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R15);
-        __asm
+        Dvar_CheckFrontendServerThread(v22);
+        BG_VehicleStepSlideMove(pm, vehicleState, &groundTrace, groundTrace.onGround == 0, v22->current.value, v23, 0);
+        vehHelicopterLookaheadTime = VehicleDef->vehHelicopterLookaheadTime;
+        v25 = pml->frametime;
+        if ( vehHelicopterLookaheadTime <= 0.0 )
         {
-          vmovss  xmm0, dword ptr [r15+28h]
-          vmovss  dword ptr [rsp+200h+inOutAccel], xmm6
-          vmovss  dword ptr [rsp+200h+fmt], xmm0
-        }
-        BG_VehicleStepSlideMove(pm, _RBX, &groundTrace, groundTrace.onGround == 0, fmta, inOutAccela, 0);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+660h]
-          vcomiss xmm1, xmm8
-          vmovss  xmm6, dword ptr [rsi+24h]
-        }
-        if ( v25 | v16 )
-        {
-          __asm { vmovss  xmm0, dword ptr [rbx+0Ch] }
+          v31 = LODWORD(vehicleState->origin.v[2]);
         }
         else
         {
-          __asm
+          v26 = (float)(vehHelicopterLookaheadTime * vehicleState->velocity.v[0]) + vehicleState->origin.v[0];
+          inOutAccela = vehicleState->clipmask;
+          entity = vehicleState->entity;
+          end.v[1] = (float)(vehHelicopterLookaheadTime * vehicleState->velocity.v[1]) + vehicleState->origin.v[1];
+          start.v[1] = end.v[1];
+          start.v[2] = v18 + v11;
+          end.v[0] = v26;
+          start.v[0] = v26;
+          end.v[2] = v11 - v18;
+          BG_Vehicle_Trace(pm, &start, &end, &vehicleState->bounds, entity, inOutAccela, &results);
+          if ( results.allsolid || results.startsolid || (fraction_low = LODWORD(results.fraction), results.fraction >= 1.0) )
           {
-            vmulss  xmm0, xmm1, dword ptr [rbx+1Ch]
-            vaddss  xmm2, xmm0, dword ptr [rbx+4]
-            vmulss  xmm0, xmm1, dword ptr [rbx+20h]
-            vaddss  xmm1, xmm0, dword ptr [rbx+8]
+            v31 = LODWORD(vehicleState->origin.v[2]);
+            v25 = pml->frametime;
           }
-          inOutAccelb = _RBX->clipmask;
-          entity = _RBX->entity;
-          __asm
+          else
           {
-            vmovss  dword ptr [rsp+200h+end+4], xmm1
-            vmovss  dword ptr [rsp+200h+start+4], xmm1
-            vaddss  xmm1, xmm10, xmm7
-            vsubss  xmm0, xmm7, xmm10
-            vmovss  dword ptr [rsp+200h+start+8], xmm1
-            vmovss  dword ptr [rsp+200h+end], xmm2
-            vmovss  dword ptr [rsp+200h+start], xmm2
-            vmovss  dword ptr [rsp+200h+end+8], xmm0
-          }
-          BG_Vehicle_Trace(pm, &start, &end, &_RBX->bounds, entity, inOutAccelb, &results);
-          if ( !results.allsolid && !results.startsolid )
-          {
-            __asm
-            {
-              vmovss  xmm0, [rbp+100h+results.fraction]
-              vcomiss xmm0, xmm9
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+0Ch]
-            vmovss  xmm6, dword ptr [rsi+24h]
+            v29 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_helicopter_altitude_min_normal, "bg_helicopter_altitude_min_normal");
+            if ( *(float *)&v29 > results.normal.v[2] )
+              Com_PrintError(16, "The normal of the altitude mesh near %f,%f exceeds the maximum allowable slope\n", end.v[0], end.v[1]);
+            *(double *)&fraction_low = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_helicopter_altitude_offset, "bg_helicopter_altitude_offset");
+            v30 = fraction_low;
+            *(float *)&v30 = (float)((float)((float)(*(float *)&fraction_low + (float)((float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2])) - v11) / VehicleDef->vehHelicopterLookaheadTime) * v25;
+            v25 = pml->frametime;
+            *(float *)&v30 = *(float *)&v30 + v11;
+            v31 = v30;
           }
         }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+618h]; max
-          vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-          vdivss  xmm5, xmm9, xmm6
-          vsubss  xmm0, xmm0, xmm7
-          vmulss  xmm3, xmm0, xmm5
-          vsubss  xmm4, xmm3, xmm11
-          vmulss  xmm0, xmm4, xmm5; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+610h]; max
-          vmulss  xmm0, xmm0, dword ptr [rsi+24h]
-          vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-          vaddss  xmm0, xmm0, xmm11; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm11, [rsp+200h+var_A0]
-          vmovaps xmm10, [rsp+200h+var_90]
-          vmovaps xmm9, [rsp+200h+var_80]
-          vmovaps xmm6, [rsp+200h+var_50]
-          vmovss  dword ptr [rbx+24h], xmm0
-          vmulss  xmm0, xmm0, dword ptr [rsi+24h]
-          vaddss  xmm1, xmm0, xmm7
-          vmaxss  xmm2, xmm1, dword ptr [rbx+0Ch]
-          vmovss  dword ptr [rbx+0Ch], xmm2
-        }
+        v32 = v31;
+        v33 = I_fclamp((float)((float)((float)(*(float *)&v31 - v11) * (float)(1.0 / v25)) - v13) * (float)(1.0 / v25), COERCE_FLOAT(LODWORD(VehicleDef->vehHelicopterMaxAccelVertical) ^ _xmm), VehicleDef->vehHelicopterMaxAccelVertical);
+        v34 = I_fclamp((float)(*(float *)&v33 * pml->frametime) + v13, COERCE_FLOAT(LODWORD(VehicleDef->vehHelicopterMaxSpeedVertical) ^ _xmm), VehicleDef->vehHelicopterMaxSpeedVertical);
+        vehicleState->velocity.v[2] = *(float *)&v34;
+        *(float *)&v32 = (float)(*(float *)&v34 * pml->frametime) + v11;
+        _XMM1 = v32;
+        __asm { vmaxss  xmm2, xmm1, dword ptr [rbx+0Ch] }
+        vehicleState->origin.v[2] = *(float *)&_XMM2;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  [rsp+200h+altitudeMinNormal], xmm0
-        }
-        *(_QWORD *)_RBX->groundNormal.v = 0i64;
-        _RBX->groundNormal.v[2] = 1.0;
+        *(_QWORD *)vehicleState->groundNormal.v = 0i64;
+        vehicleState->groundNormal.v[2] = 1.0;
         groundTrace.hasGround = 1;
-        __asm { vmovss  dword ptr [rsp+200h+fmt], xmm8 }
-        BG_HelicopterSoftenCollision(pm, _RSI, _RDI, _RBX, fmtb, inOutAccel, altitudeMinNormala);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi+24h]
-          vmulss  xmm0, xmm2, dword ptr [r12]
-          vaddss  xmm1, xmm0, dword ptr [rbx+1Ch]
-          vmovss  dword ptr [rbx+1Ch], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r12+4]
-          vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-          vmovss  dword ptr [rbx+20h], xmm1
-          vmovss  xmm0, dword ptr [rsi+24h]
-          vmovss  dword ptr [rsp+200h+fmt], xmm0
-        }
-        BG_VehicleSlideMove(pm, _RBX, &groundTrace, 0, fmtc, 0, &outCollisionInfo);
-        __asm { vmovss  xmm2, dword ptr [rbx+0Ch] }
+        BG_HelicopterSoftenCollision(pm, pml, VehicleDef, vehicleState, 0.0, inOutAccel, 1.0);
+        v37 = pml->frametime;
+        vehicleState->velocity.v[0] = (float)(v37 * inOutAccel->v[0]) + vehicleState->velocity.v[0];
+        vehicleState->velocity.v[1] = (float)(v37 * inOutAccel->v[1]) + vehicleState->velocity.v[1];
+        BG_VehicleSlideMove(pm, vehicleState, &groundTrace, 0, pml->frametime, 0, &outCollisionInfo);
+        *(float *)&_XMM2 = vehicleState->origin.v[2];
       }
-      __asm
-      {
-        vsubss  xmm0, xmm2, dword ptr [rdi+600h]
-        vmovaps xmm7, [rsp+200h+var_60]
-        vmovss  dword ptr [rbx+0Ch], xmm0
-      }
-      goto LABEL_49;
+      vehicleState->origin.v[2] = *(float *)&_XMM2 - VehicleDef->vehHelicopterAltitudeOffset;
+      goto LABEL_52;
     }
-    goto LABEL_44;
+    goto LABEL_47;
   }
-  v20 = VehicleTargetEntity == 2047;
   if ( VehicleTargetEntity != 2047 )
-LABEL_44:
-    _RBX->clipmask = 1;
-  __asm
+LABEL_47:
+    vehicleState->clipmask = 1;
+  v38 = pml->frametime;
+  v39 = (float)(v38 * inOutAccel->v[0]) + vehicleState->velocity.v[0];
+  vehicleState->velocity.v[0] = v39;
+  v40 = (float)(v38 * inOutAccel->v[1]) + vehicleState->velocity.v[1];
+  vehicleState->velocity.v[1] = v40;
+  v41 = (float)(v38 * inOutAccel->v[2]) + vehicleState->velocity.v[2];
+  vehicleState->velocity.v[2] = v41;
+  if ( v39 != 0.0 || v40 != 0.0 || v41 != 0.0 )
   {
-    vmovss  xmm1, dword ptr [rsi+24h]
-    vmulss  xmm0, xmm1, dword ptr [r12]
-    vaddss  xmm2, xmm0, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rbx+1Ch], xmm2
-    vmulss  xmm0, xmm1, dword ptr [r12+4]
-    vaddss  xmm4, xmm0, dword ptr [rbx+20h]
-    vmovss  dword ptr [rbx+20h], xmm4
-    vmulss  xmm0, xmm1, dword ptr [r12+8]
-    vaddss  xmm3, xmm0, dword ptr [rbx+24h]
-    vmovss  dword ptr [rbx+24h], xmm3
-    vucomiss xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
+    BG_VehicleGroundTrace(pm, vehicleState, &groundTrace, pml->frametime);
+    v42 = groundTrace.trace.normal.v[1];
+    vehicleState->groundNormal.v[0] = groundTrace.trace.normal.v[0];
+    vehicleState->groundNormal.v[2] = groundTrace.trace.normal.v[2];
+    vehicleState->groundNormal.v[1] = v42;
+    BG_VehicleSlideMove(pm, vehicleState, &groundTrace, 0, pml->frametime, 0, &outCollisionInfo);
   }
-  if ( !v20 )
-    goto LABEL_48;
-  __asm { vucomiss xmm4, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin }
-  if ( !v20 )
-    goto LABEL_48;
-  __asm { vucomiss xmm3, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin }
-  if ( !v20 )
-  {
-LABEL_48:
-    __asm { vmovss  xmm3, dword ptr [rsi+24h]; dt }
-    BG_VehicleGroundTrace(pm, _RBX, &groundTrace, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+200h+groundTrace.trace.normal]
-      vmovss  xmm1, dword ptr [rsp+200h+groundTrace.trace.normal+4]
-      vmovss  dword ptr [rbx+84h], xmm0
-      vmovss  xmm0, dword ptr [rsp+200h+groundTrace.trace.normal+8]
-      vmovss  dword ptr [rbx+8Ch], xmm0
-      vmovss  dword ptr [rbx+88h], xmm1
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vmovss  dword ptr [rsp+200h+fmt], xmm0
-    }
-    BG_VehicleSlideMove(pm, _RBX, &groundTrace, 0, fmtd, 0, &outCollisionInfo);
-  }
-LABEL_49:
-  _RBX->clipmask = clipmask;
-  __asm { vmovaps xmm8, [rsp+200h+var_70] }
+LABEL_52:
+  vehicleState->clipmask = clipmask;
 }
 
 /*
@@ -1921,124 +1222,74 @@ BG_HelicopterAltitudeTrace
 */
 void BG_HelicopterAltitudeTrace(pmove_t *pm, VehicleState *vehicleState, GroundTrace *groundTrace, const float dt)
 {
-  const dvar_t *v8; 
-  GroundTrace *results; 
+  const dvar_t *v4; 
+  float v8; 
+  float v9; 
+  float v10; 
   int entity; 
-  char v20; 
-  char v21; 
-  int v38; 
+  float fraction; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  const dvar_t *v17; 
   int contentMask; 
   vec3_t end; 
   vec3_t start; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps [rsp+0B8h+var_48], xmm7
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  xmm6, cs:__real@41900000
-  }
-  v8 = DCONST_DVARFLT_bg_helicopter_altitude_offset;
-  results = groundTrace;
-  _RDI = vehicleState;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+0B8h+start], xmm0
-    vaddss  xmm0, xmm6, dword ptr [rdx+0Ch]
-    vmovss  dword ptr [rsp+0B8h+start+8], xmm0
-    vmovss  dword ptr [rsp+0B8h+start+4], xmm1
-  }
+  v4 = DCONST_DVARFLT_bg_helicopter_altitude_offset;
+  v8 = vehicleState->origin.v[1];
+  start.v[0] = vehicleState->origin.v[0];
+  start.v[2] = vehicleState->origin.v[2] + 18.0;
+  start.v[1] = v8;
   if ( !DCONST_DVARFLT_bg_helicopter_altitude_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_altitude_offset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  v9 = vehicleState->origin.v[0];
+  v10 = vehicleState->origin.v[1];
+  contentMask = vehicleState->clipmask;
+  entity = vehicleState->entity;
+  end.v[2] = (float)(vehicleState->origin.v[2] - 18.0) - v4->current.value;
+  end.v[0] = v9;
+  end.v[1] = v10;
+  BG_Vehicle_Trace(pm, &start, &end, &vehicleState->bounds, entity, contentMask, &groundTrace->trace);
+  fraction = groundTrace->trace.fraction;
+  if ( groundTrace->trace.fraction >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  xmm2, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, xmm6
-    vsubss  xmm3, xmm1, dword ptr [rsi+28h]
-    vmovss  xmm0, dword ptr [rdi+8]
-  }
-  contentMask = _RDI->clipmask;
-  entity = _RDI->entity;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+end+8], xmm3
-    vmovss  dword ptr [rsp+0B8h+end], xmm2
-    vmovss  dword ptr [rsp+0B8h+end+4], xmm0
-  }
-  BG_Vehicle_Trace(pm, &start, &end, &_RDI->bounds, entity, contentMask, &results->trace);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm7, cs:__real@3f800000
-    vcomiss xmm6, xmm7
-    vmovss  xmm0, dword ptr [rsp+0B8h+end]
-  }
-  if ( v20 )
-  {
-    __asm
-    {
-      vsubss  xmm1, xmm0, dword ptr [rsp+0B8h+start]
-      vmovss  xmm0, dword ptr [rsp+0B8h+end+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsp+0B8h+start]
-      vsubss  xmm1, xmm0, dword ptr [rsp+0B8h+start+4]
-      vmovss  xmm0, dword ptr [rsp+0B8h+end+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rsp+0B8h+start+8]
-      vmovss  dword ptr [rbx+58h], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+0B8h+start+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rbx+5Ch], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+0B8h+start+8]
-      vmovss  dword ptr [rbx+60h], xmm3
-    }
+    v15 = end.v[1];
+    groundTrace->location.v[0] = end.v[0];
+    groundTrace->location.v[2] = end.v[2];
+    groundTrace->location.v[1] = v15;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+0B8h+end+4]
-      vmovss  dword ptr [rbx+58h], xmm0
-      vmovss  xmm0, dword ptr [rsp+0B8h+end+8]
-      vmovss  dword ptr [rbx+60h], xmm0
-      vmovss  dword ptr [rbx+5Ch], xmm1
-    }
+    v13 = (float)(end.v[1] - start.v[1]) * fraction;
+    v14 = end.v[2] - start.v[2];
+    groundTrace->location.v[0] = (float)((float)(end.v[0] - start.v[0]) * fraction) + start.v[0];
+    groundTrace->location.v[1] = v13 + start.v[1];
+    groundTrace->location.v[2] = (float)(v14 * fraction) + start.v[2];
   }
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v20 | v21 )
+  if ( fraction < 1.0 )
   {
-    v38 = 0;
-    _RDI->groundNormal.v[2] = 1.0;
-    *(_QWORD *)_RDI->groundNormal.v = 0i64;
-    *(_QWORD *)&results->onGround = 0i64;
-  }
-  else
-  {
-    _RDI->groundNormal.v[0] = results->trace.normal.v[0];
-    _RDI->groundNormal.v[1] = results->trace.normal.v[1];
-    _RDI->groundNormal.v[2] = results->trace.normal.v[2];
-    results->hasGround = 1;
-    results->onGround = 1;
-    _RDI = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
+    vehicleState->groundNormal.v[0] = groundTrace->trace.normal.v[0];
+    vehicleState->groundNormal.v[1] = groundTrace->trace.normal.v[1];
+    vehicleState->groundNormal.v[2] = groundTrace->trace.normal.v[2];
+    groundTrace->hasGround = 1;
+    groundTrace->onGround = 1;
+    v17 = DCONST_DVARFLT_bg_helicopter_altitude_min_normal;
     if ( !DCONST_DVARFLT_bg_helicopter_altitude_min_normal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_altitude_min_normal") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vcomiss xmm0, dword ptr [rbx+18h]
-    }
-    v38 = 1;
+    Dvar_CheckFrontendServerThread(v17);
+    v16 = v17->current.value <= groundTrace->trace.normal.v[2];
   }
-  results->validGroundNormal = v38;
-  __asm
+  else
   {
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_48]
+    v16 = 0;
+    vehicleState->groundNormal.v[2] = 1.0;
+    *(_QWORD *)vehicleState->groundNormal.v = 0i64;
+    *(_QWORD *)&groundTrace->onGround = 0i64;
   }
+  groundTrace->validGroundNormal = v16;
 }
 
 /*
@@ -2048,54 +1299,74 @@ BG_HelicopterHovering
 */
 void BG_HelicopterHovering(const pmove_t *pm, const pml_t *pml, const vec4_t *move, VehicleState *vehicleState, vec3_t *outAccel)
 {
-  char v5; 
-  char v13; 
+  bool v7; 
+  const dvar_t *v8; 
+  bool v9; 
+  unsigned int v10; 
+  int serverTime; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v16; 
+  float v18; 
+  __int64 v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float value; 
+  float v27; 
+  float v28; 
+  float v29; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm2, cs:__real@3a83126f
-  }
-  _RSI = vehicleState;
-  __asm
-  {
-    vandps  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( !v5 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vandps  xmm0, xmm0, xmm1
-    vcomiss xmm0, xmm2
-  }
-  if ( v5 )
-    v13 = 0;
-  else
-LABEL_4:
-    v13 = 1;
-  _RDI = DCONST_DVARFLT_bg_helicopter_hover_minspeed;
+  v7 = COERCE_FLOAT(LODWORD(move->v[0]) & _xmm) > 0.001 || COERCE_FLOAT(LODWORD(move->v[1]) & _xmm) > 0.001;
+  v8 = DCONST_DVARFLT_bg_helicopter_hover_minspeed;
   if ( !DCONST_DVARFLT_bg_helicopter_hover_minspeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_hover_minspeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  if ( !v13 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1Ch]
-      vmovss  xmm2, dword ptr [rsi+20h]
-      vmovss  xmm3, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vcomiss xmm2, xmm1
-    }
-  }
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = !v7 && (float)((float)(vehicleState->velocity.v[0] * vehicleState->velocity.v[0]) + (float)(vehicleState->velocity.v[1] * vehicleState->velocity.v[1])) < (float)(v8->current.value * v8->current.value);
+  v10 = 0;
   *(_QWORD *)outAccel->v = 0i64;
   outAccel->v[2] = 0.0;
+  if ( v9 )
+  {
+    serverTime = pm->ps->serverTime;
+    v12 = cosf_0((float)(serverTime % 137) * 0.023099946);
+    v13 = DCONST_DVARFLT_bg_helicopter_hover_cellsize;
+    v14 = v12;
+    if ( !DCONST_DVARFLT_bg_helicopter_hover_cellsize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_hover_cellsize") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v13);
+    _XMM0 = v13->current.unsignedInt;
+    v16 = DCONST_DVARINT_bg_helicopter_hover_timealt;
+    __asm { vmaxss  xmm4, xmm0, xmm6 }
+    *(float *)&_XMM0 = (float)(1.0 / *(float *)&_XMM4) * vehicleState->origin.v[1];
+    v27 = (float)((float)(int)(float)((float)(1.0 / *(float *)&_XMM4) * vehicleState->origin.v[0]) + 0.5) * *(float *)&_XMM4;
+    v18 = vehicleState->origin.v[2];
+    v28 = (float)((float)(int)*(float *)&_XMM0 + 0.5) * *(float *)&_XMM4;
+    v29 = v18;
+    if ( !DCONST_DVARINT_bg_helicopter_hover_timealt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_hover_timealt") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v16);
+    LOBYTE(v10) = serverTime % v16->current.integer < v16->current.integer / 2;
+    v19 = v10;
+    v20 = DCONST_DVARFLT_bg_helicopter_hover_scalewind;
+    v21 = (float)((float)(int)v19 * 2.0) - 1.0;
+    v22 = vehicleState->origin.v[1];
+    *(&v27 + v19) = (float)((float)(v14 * 30.0) * (float)(v14 + 2.0)) + *(&v27 + v19);
+    v23 = (float)(vehicleState->origin.v[0] - v27) * v21;
+    v24 = (float)(vehicleState->origin.v[2] - v29) * v21;
+    v25 = (float)(v22 - v28) * v21;
+    if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_helicopter_hover_scalewind") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v20);
+    value = v20->current.value;
+    outAccel->v[0] = v23 * value;
+    outAccel->v[2] = v24 * value;
+    outAccel->v[1] = v25 * value;
+  }
 }
 
 /*
@@ -2103,80 +1374,78 @@ LABEL_4:
 BG_HelicopterSoftenCollision
 ==============
 */
-void BG_HelicopterSoftenCollision(const pmove_t *pm, const pml_t *pml, const VehicleDef *vehicleDef, const VehicleState *vehicleState, const float maxVerticalOffset)
+void BG_HelicopterSoftenCollision(const pmove_t *pm, const pml_t *pml, const VehicleDef *vehicleDef, const VehicleState *vehicleState, const float maxVerticalOffset, vec3_t *inOutAccel, float altitudeMinNormal)
 {
+  float vehHelicopterLookaheadTime; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   int skipEntity; 
-  _BYTE v26[32]; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   int contentMask; 
-  trace_t *results; 
   vec3_t end; 
   vec3_t start; 
-  trace_t v31; 
+  trace_t results; 
 
-  __asm
+  vehHelicopterLookaheadTime = vehicleDef->vehHelicopterLookaheadTime;
+  if ( vehHelicopterLookaheadTime != 0.0 )
   {
-    vmovaps [rsp+158h+var_38], xmm7
-    vmovss  xmm5, dword ptr [r8+660h]
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm5, xmm7
-  }
-  if ( (unsigned __int64)v26 != _security_cookie )
-  {
-    __asm
+    v11 = vehicleState->velocity.v[0];
+    if ( v11 != 0.0 || 0.0 != vehicleState->velocity.v[1] )
     {
-      vmovss  xmm4, dword ptr [r9+1Ch]
-      vucomiss xmm4, dword ptr cs:?vec2_origin@@3Tvec2_t@@B; vec2_t const vec2_origin
-    }
-    if ( (unsigned __int64)v26 != _security_cookie )
-      goto LABEL_4;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?vec2_origin@@3Tvec2_t@@B+4; vec2_t const vec2_origin
-      vucomiss xmm0, dword ptr [r9+20h]
-    }
-    if ( (unsigned __int64)v26 != _security_cookie )
-    {
-LABEL_4:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r9+4]
-        vmovss  xmm3, dword ptr [r9+8]
-        vmovss  xmm0, [rsp+158h+maxVerticalOffset]
-        vaddss  xmm2, xmm0, dword ptr [r9+0Ch]
-        vmulss  xmm0, xmm4, xmm5
-        vmovss  dword ptr [rsp+158h+start], xmm1
-        vaddss  xmm1, xmm0, xmm1
-        vmulss  xmm0, xmm5, dword ptr [r9+20h]
-      }
-      results = &v31;
+      v12 = vehicleState->origin.v[1];
+      v13 = maxVerticalOffset + vehicleState->origin.v[2];
+      start.v[0] = vehicleState->origin.v[0];
+      v14 = vehHelicopterLookaheadTime * vehicleState->velocity.v[1];
       contentMask = vehicleState->clipmask;
       skipEntity = vehicleState->entity;
-      __asm
+      end.v[0] = (float)(v11 * vehHelicopterLookaheadTime) + start.v[0];
+      end.v[1] = v14 + v12;
+      start.v[1] = v12;
+      start.v[2] = v13;
+      end.v[2] = v13;
+      BG_Vehicle_Trace(pm, &start, &end, &vehicleState->bounds, skipEntity, contentMask, &results);
+      if ( !*(_WORD *)&results.allsolid && results.fraction < 1.0 && results.normal.v[2] < altitudeMinNormal )
       {
-        vmovss  dword ptr [rsp+158h+end], xmm1
-        vaddss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rsp+158h+end+4], xmm1
-        vmovss  dword ptr [rsp+158h+start+4], xmm3
-        vmovss  dword ptr [rsp+158h+start+8], xmm2
-        vmovss  dword ptr [rsp+158h+end+8], xmm2
-      }
-      BG_Vehicle_Trace(pm, &start, &end, &vehicleState->bounds, skipEntity, contentMask, &v31);
-      if ( !*(_WORD *)&v31.allsolid )
-      {
-        __asm
+        v16 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+        v17 = end.v[0] - v16;
+        v18 = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+        v19 = end.v[1] - v18;
+        v20 = (float)(v19 * v19) + (float)(v17 * v17);
+        if ( v20 >= 1.0 )
         {
-          vmovaps [rsp+158h+var_28], xmm6
-          vmovss  xmm6, [rsp+158h+var_F8.fraction]
-          vmovaps [rsp+158h+var_48], xmm8
-          vmovss  xmm8, cs:__real@3f800000
-          vcomiss xmm6, xmm8
-          vmovaps xmm6, [rsp+158h+var_28]
-          vmovaps xmm8, [rsp+158h+var_48]
+          v21 = inOutAccel->v[0];
+          v22 = inOutAccel->v[1];
+          v23 = (float)(v17 * inOutAccel->v[0]) + (float)(v19 * v22);
+          if ( v23 > 0.0 )
+          {
+            v22 = (float)((float)(v23 / v20) * v19) + v22;
+            v21 = (float)((float)(v23 / v20) * v17) + v21;
+            inOutAccel->v[1] = v22;
+            inOutAccel->v[0] = v21;
+          }
+          v24 = 1.0 / vehicleDef->vehHelicopterLookaheadTime;
+          v25 = 1.0 / pml->frametime;
+          v26 = vehicleState->velocity.v[1];
+          v27 = (float)(v18 - vehicleState->origin.v[1]) * v24;
+          inOutAccel->v[0] = (float)((float)((float)((float)(v16 - vehicleState->origin.v[0]) * v24) - vehicleState->velocity.v[0]) * v25) + v21;
+          inOutAccel->v[1] = (float)((float)(v27 - v26) * v25) + v22;
         }
       }
     }
   }
-  __asm { vmovaps xmm7, [rsp+158h+var_38] }
 }
 
 /*
@@ -2186,6 +1455,8 @@ BG_VehicleHelicopterMove
 */
 void BG_VehicleHelicopterMove(pmove_t *pm, const pml_t *pml)
 {
+  playerState_s *ps; 
+  cg_t *LocalClientGlobals; 
   VehicleState vehicleState; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 846, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -2196,123 +1467,34 @@ void BG_VehicleHelicopterMove(pmove_t *pm, const pml_t *pml)
     __debugbreak();
   if ( !BG_GetVehicleDef(pm) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 852, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 854, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 854, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   memset_0(&vehicleState, 0, sizeof(vehicleState));
-  vehicleState.entity = _RDI->vehicleState.entity;
+  vehicleState.entity = ps->vehicleState.entity;
   vehicleState.clipmask = 41943697;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+12Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.origin], xmm0
-    vmovss  xmm1, dword ptr [rdi+130h]
-    vmovss  dword ptr [rbp+57h+vehicleState.origin+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+134h]
-    vmovss  dword ptr [rbp+57h+vehicleState.origin+8], xmm0
-    vmovss  xmm1, dword ptr [rdi+12Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousOrigin], xmm1
-    vmovss  xmm0, dword ptr [rdi+130h]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousOrigin+4], xmm0
-    vmovss  xmm1, dword ptr [rdi+134h]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousOrigin+8], xmm1
-    vmovss  xmm0, dword ptr [rdi+138h]
-    vmovss  dword ptr [rbp+57h+vehicleState.angles], xmm0
-    vmovss  xmm1, dword ptr [rdi+13Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.angles+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+140h]
-    vmovss  dword ptr [rbp+57h+vehicleState.angles+8], xmm0
-    vmovss  xmm1, dword ptr [rdi+138h]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousAngles], xmm1
-    vmovss  xmm0, dword ptr [rdi+13Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousAngles+4], xmm0
-    vmovss  xmm1, dword ptr [rdi+140h]
-    vmovss  dword ptr [rbp+57h+vehicleState.previousAngles+8], xmm1
-    vmovss  xmm0, dword ptr [rdi+144h]
-    vmovss  dword ptr [rbp+57h+vehicleState.velocity], xmm0
-    vmovss  xmm1, dword ptr [rdi+148h]
-    vmovss  dword ptr [rbp+57h+vehicleState.velocity+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+14Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.velocity+8], xmm0
-    vmovss  xmm1, dword ptr [rdi+150h]
-    vmovss  dword ptr [rbp+57h+vehicleState.angVelocity], xmm1
-    vmovss  xmm0, dword ptr [rdi+154h]
-    vmovss  dword ptr [rbp+57h+vehicleState.angVelocity+4], xmm0
-    vmovss  xmm1, dword ptr [rdi+158h]
-    vmovss  dword ptr [rbp+57h+vehicleState.angVelocity+8], xmm1
-    vmovss  xmm0, dword ptr [rdi+15Ch]
-    vmovss  dword ptr [rbp+57h+vehicleState.tilt], xmm0
-    vmovss  xmm1, dword ptr [rdi+160h]
-    vmovss  dword ptr [rbp+57h+vehicleState.tilt+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+164h]
-    vmovss  dword ptr [rbp+57h+vehicleState.tiltVelocity], xmm0
-    vmovss  xmm1, dword ptr [rdi+168h]
-    vmovss  dword ptr [rbp+57h+vehicleState.tiltVelocity+4], xmm1
-  }
+  vehicleState.origin = ps->vehicleState.origin;
+  vehicleState.previousOrigin = ps->vehicleState.origin;
+  vehicleState.angles = ps->vehicleState.angles;
+  vehicleState.previousAngles = ps->vehicleState.angles;
+  vehicleState.velocity = ps->vehicleState.velocity;
+  vehicleState.angVelocity = ps->vehicleState.angVelocity;
+  vehicleState.tilt = ps->vehicleState.tilt;
+  vehicleState.tiltVelocity = ps->vehicleState.tiltVelocity;
   BG_GetVehicleBounds(pm, &vehicleState.bounds);
   BG_Vehicle_DebugTestVehicleCollisionPoint(pm);
   BG_VehicleHelicopterMoveInternal(pm, pml, &vehicleState);
   BG_Vehicle_DebugTestVehicleCollisionPoint(pm);
-  _RAX = pm->ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.origin]
-    vmovss  dword ptr [rax+12Ch], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.origin+4]
-    vmovss  dword ptr [rax+130h], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.origin+8]
-    vmovss  dword ptr [rax+134h], xmm0
-  }
-  _RAX = pm->ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.angles]
-    vmovss  dword ptr [rax+138h], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.angles+4]
-    vmovss  dword ptr [rax+13Ch], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.angles+8]
-    vmovss  dword ptr [rax+140h], xmm0
-  }
-  _RAX = pm->ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.velocity]
-    vmovss  dword ptr [rax+144h], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.velocity+4]
-    vmovss  dword ptr [rax+148h], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.velocity+8]
-    vmovss  dword ptr [rax+14Ch], xmm0
-  }
-  _RAX = pm->ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.angVelocity]
-    vmovss  dword ptr [rax+150h], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.angVelocity+4]
-    vmovss  dword ptr [rax+154h], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.angVelocity+8]
-    vmovss  dword ptr [rax+158h], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.tilt]
-    vmovss  dword ptr [rdi+15Ch], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.tilt+4]
-    vmovss  dword ptr [rdi+160h], xmm0
-    vmovss  xmm1, dword ptr [rbp+57h+vehicleState.tiltVelocity]
-    vmovss  dword ptr [rdi+164h], xmm1
-    vmovss  xmm0, dword ptr [rbp+57h+vehicleState.tiltVelocity+4]
-    vmovss  dword ptr [rdi+168h], xmm0
-  }
+  pm->ps->vehicleState.origin = vehicleState.origin;
+  pm->ps->vehicleState.angles = vehicleState.angles;
+  pm->ps->vehicleState.velocity = vehicleState.velocity;
+  pm->ps->vehicleState.angVelocity = vehicleState.angVelocity;
+  ps->vehicleState.tilt = vehicleState.tilt;
+  ps->vehicleState.tiltVelocity = vehicleState.tiltVelocity;
   if ( pm->m_bgHandler->IsClient((BgHandler *)pm->m_bgHandler) )
   {
-    _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)pm->localClientNum);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+vehicleState.acceleration]
-      vmovss  dword ptr [rax+0B5348h], xmm0
-      vmovss  xmm1, dword ptr [rbp+57h+vehicleState.acceleration+4]
-      vmovss  dword ptr [rax+0B534Ch], xmm1
-      vmovss  xmm0, dword ptr [rbp+57h+vehicleState.acceleration+8]
-      vmovss  dword ptr [rax+0B5350h], xmm0
-    }
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)pm->localClientNum);
+    LocalClientGlobals->clientVehicle.acceleration.xyz = vehicleState.acceleration;
   }
 }
 
@@ -2323,49 +1505,40 @@ BG_VehicleHelicopterMoveInternal
 */
 void BG_VehicleHelicopterMoveInternal(pmove_t *pm, const pml_t *pml, VehicleState *vehicleState)
 {
+  float v6; 
   int VehicleTargetEntity; 
   const VehicleDef *VehicleDef; 
-  char v13; 
+  char v9; 
+  float v10; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   __int64 move; 
   vec3_t angles; 
   vec3_t outBodyAccel; 
   vec3_t outRotAccel; 
   tmat43_t<vec3_t> forward; 
   vec4_t outMoveRequest; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
   LODWORD(move) = 0;
-  _RBX = vehicleState;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 783, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm", move) )
     __debugbreak();
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 784, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 785, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
+  if ( !vehicleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 785, ASSERT_TYPE_ASSERT, "(vehicleState)", (const char *)&queryFormat, "vehicleState") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+57h+angles], xmm6
-    vmovss  dword ptr [rbp+57h+angles+4], xmm0
-    vmovss  dword ptr [rbp+57h+angles+8], xmm6
-  }
+  v6 = vehicleState->previousAngles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[1] = v6;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, forward.m, &forward.m[1], &forward.m[2]);
-  __asm
-  {
-    vmovss  [rbp+57h+var_64], xmm6
-    vmovss  [rbp+57h+var_60], xmm6
-    vmovss  [rbp+57h+var_5C], xmm6
-  }
-  MatrixTransposeTransformVector43(&_RBX->velocity, &forward, &_RBX->bodyVelocity);
+  forward.m[3].v[0] = 0.0;
+  forward.m[3].v[1] = 0.0;
+  forward.m[3].v[2] = 0.0;
+  MatrixTransposeTransformVector43(&vehicleState->velocity, &forward, &vehicleState->bodyVelocity);
   VehicleTargetEntity = BG_GetVehicleTargetEntity(pm);
-  if ( !(unsigned int)BG_HeliCalcTargetMoveRequest(pm, pml, _RBX, VehicleTargetEntity, &outMoveRequest) )
+  if ( !(unsigned int)BG_HeliCalcTargetMoveRequest(pm, pml, vehicleState, VehicleTargetEntity, &outMoveRequest) )
   {
     pm->ps->vehicleState.targetEntity = 2047;
     LOWORD(move) = *(_WORD *)&pm->cmd.forwardmove;
@@ -2374,103 +1547,48 @@ void BG_VehicleHelicopterMoveInternal(pmove_t *pm, const pml_t *pml, VehicleStat
       __debugbreak();
     if ( VehicleDef->vehHelicopterLockAltitude )
     {
-      v13 = 0;
+      v9 = 0;
     }
     else
     {
-      v13 = (pm->cmd.buttons & 0x10000000000i64) != 0 ? 0 : -127;
+      v9 = (pm->cmd.buttons & 0x10000000000i64) != 0 ? 0 : -127;
       if ( (pm->cmd.buttons & 0x20000000000i64) == 0 )
-        v13 = (pm->cmd.buttons & 0x10000000000i64) != 0 ? 0x7F : 0;
+        v9 = (pm->cmd.buttons & 0x10000000000i64) != 0 ? 0x7F : 0;
     }
-    BYTE2(move) = v13;
+    BYTE2(move) = v9;
     BG_HeliCmdScale(1, (const char (*)[4])&move, &outMoveRequest, 1);
   }
-  BG_HeliCalcAccel(pm, pml, _RBX, &outMoveRequest, &outBodyAccel, &outRotAccel);
-  __asm
+  BG_HeliCalcAccel(pm, pml, vehicleState, &outMoveRequest, &outBodyAccel, &outRotAccel);
+  v10 = (float)(outRotAccel.v[1] * pml->frametime) + vehicleState->angVelocity.v[1];
+  vehicleState->angVelocity.v[1] = v10;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  v13 = outRotAccel.v[0];
+  vehicleState->angles.v[1] = (float)((float)((float)((float)(v10 * pml->frametime) + vehicleState->previousAngles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
+  v14 = outRotAccel.v[2];
+  vehicleState->angles.v[0] = v13;
+  vehicleState->angles.v[2] = v14;
+  *(float *)&move = vehicleState->angles.v[0];
+  if ( (move & 0x7F800000) == 2139095040 || (*(float *)&move = vehicleState->angles.v[1], (move & 0x7F800000) == 2139095040) || (*(float *)&move = v14, (LODWORD(v14) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbp+57h+outRotAccel+4]
-    vmulss  xmm1, xmm0, dword ptr [rsi+24h]
-    vaddss  xmm2, xmm1, dword ptr [rbx+2Ch]
-    vmovss  dword ptr [rbx+2Ch], xmm2
-    vmulss  xmm0, xmm2, dword ptr [rsi+24h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+44h]
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vmovss  xmm0, dword ptr [rbp+57h+outRotAccel]
-    vmovss  dword ptr [rbx+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+outRotAccel+8]
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  dword ptr [rbx+18h], xmm1
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  dword ptr [rbp+57h+move], xmm0
-  }
-  if ( (move & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  dword ptr [rbp+57h+move], xmm0
-  }
-  if ( (move & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm { vmovss  dword ptr [rbp+57h+move], xmm1 }
-  if ( (move & 0x7F800000) == 2139095040 )
-  {
-LABEL_27:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 820, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicleState->angles )[0] ) && !IS_NAN( ( vehicleState->angles )[1] ) && !IS_NAN( ( vehicleState->angles )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicleState->angles )[0] ) && !IS_NAN( ( vehicleState->angles )[1] ) && !IS_NAN( ( vehicleState->angles )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_helicopter.cpp", 820, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vehicleState->angles )[0] ) && !IS_NAN( ( vehicleState->angles )[1] ) && !IS_NAN( ( vehicleState->angles )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vehicleState->angles )[0] ) && !IS_NAN( ( vehicleState->angles )[1] ) && !IS_NAN( ( vehicleState->angles )[2] )", move) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  dword ptr [rbp+57h+angles+4], xmm0
-    vmovss  dword ptr [rbp+57h+angles], xmm6
-    vmovss  dword ptr [rbp+57h+angles+8], xmm6
-  }
+  angles.v[1] = vehicleState->angles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, forward.m, &forward.m[1], &forward.m[2]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+forward]
-    vmulss  xmm2, xmm0, dword ptr [rbp+57h+outBodyAccel]
-    vmovss  xmm1, dword ptr [rbp+57h+right]
-    vmulss  xmm0, xmm1, dword ptr [rbp+57h+outBodyAccel+4]
-    vaddss  xmm2, xmm2, xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+forward+4]
-    vmulss  xmm3, xmm0, dword ptr [rbp+57h+outBodyAccel]
-    vmovss  xmm0, dword ptr [rbp+57h+forward+8]
-    vmovss  [rbp+57h+var_64], xmm6
-    vmovss  [rbp+57h+var_60], xmm6
-    vmovss  [rbp+57h+var_5C], xmm6
-    vmovss  xmm6, dword ptr [rbp+57h+outBodyAccel+8]
-    vmulss  xmm1, xmm6, dword ptr [rbp+57h+up]
-    vaddss  xmm9, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+right+4]
-    vmulss  xmm2, xmm1, dword ptr [rbp+57h+outBodyAccel+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+57h+up+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm0, dword ptr [rbp+57h+outBodyAccel]
-    vaddss  xmm5, xmm4, xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+right+8]
-    vmulss  xmm2, xmm1, dword ptr [rbp+57h+outBodyAccel+4]
-    vmulss  xmm1, xmm6, dword ptr [rbp+57h+up+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rbp+57h+outRotAccel+8], xmm2
-    vmovss  dword ptr [rbx+98h], xmm2
-    vmovss  dword ptr [rbp+57h+outRotAccel], xmm9
-    vmovss  dword ptr [rbp+57h+outRotAccel+4], xmm5
-    vmovss  dword ptr [rbx+90h], xmm9
-    vmovss  dword ptr [rbx+94h], xmm5
-  }
-  BG_HelicopterAirMove(pm, pml, _RBX, &outRotAccel);
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+0F0h+var_38+8]
-    vmovaps xmm9, [rsp+0F0h+var_48+8]
-  }
+  forward.m[3].v[0] = 0.0;
+  forward.m[3].v[1] = 0.0;
+  forward.m[3].v[2] = 0.0;
+  v15 = (float)((float)(forward.m[0].v[0] * outBodyAccel.v[0]) + (float)(forward.m[1].v[0] * outBodyAccel.v[1])) + (float)(outBodyAccel.v[2] * forward.m[2].v[0]);
+  v16 = (float)((float)(forward.m[0].v[1] * outBodyAccel.v[0]) + (float)(forward.m[1].v[1] * outBodyAccel.v[1])) + (float)(outBodyAccel.v[2] * forward.m[2].v[1]);
+  outRotAccel.v[2] = (float)((float)(forward.m[0].v[2] * outBodyAccel.v[0]) + (float)(forward.m[1].v[2] * outBodyAccel.v[1])) + (float)(outBodyAccel.v[2] * forward.m[2].v[2]);
+  vehicleState->acceleration.v[2] = outRotAccel.v[2];
+  outRotAccel.v[0] = v15;
+  outRotAccel.v[1] = v16;
+  vehicleState->acceleration.v[0] = v15;
+  vehicleState->acceleration.v[1] = v16;
+  BG_HelicopterAirMove(pm, pml, vehicleState, &outRotAccel);
 }
 

@@ -386,95 +386,102 @@ Actor_EventListener_EventAdd
 */
 void Actor_EventListener_EventAdd(int entIndex, gentity_s *originatorEnt, scr_string_t eventType, const vec3_t *origin)
 {
+  int v4; 
   int v9; 
-  int v14; 
-  AIEventListener *v15; 
+  AIEventListener *v10; 
+  gentity_s *Entity; 
   __int16 EntityIndex; 
-  unsigned __int16 v18; 
-  __int64 v19; 
+  unsigned __int16 v13; 
+  __int64 v14; 
   __int16 eventLast; 
-  __int64 v23; 
-  const char *v24; 
-  const char *v25; 
+  __int64 v16; 
+  const char *v17; 
+  const char *v18; 
   __int16 *p_eventLast; 
   __int16 i; 
-  __int64 v28; 
-  const char *v29; 
-  unsigned __int16 entity; 
-  __int64 v31; 
-  const char *v32; 
-  __int64 v64; 
-  __int16 v65; 
-  __int64 v66; 
-  __int64 v67; 
+  __int64 v21; 
+  const char *v22; 
+  unsigned __int16 v23; 
+  __int64 v24; 
+  const char *v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int16 v35; 
+  __int64 v36; 
+  __int64 v37; 
 
+  v4 = 0;
   v9 = 0;
-  _R14 = origin;
-  v14 = 0;
   if ( g_listenerCount <= 0 )
     goto LABEL_7;
-  v15 = g_AIEVlisteners;
-  while ( v15->entIndex != entIndex )
+  v10 = g_AIEVlisteners;
+  while ( v10->entIndex != entIndex )
   {
-    ++v14;
-    ++v15;
-    if ( v14 >= g_listenerCount )
+    ++v9;
+    ++v10;
+    if ( v9 >= g_listenerCount )
       goto LABEL_7;
   }
-  if ( v14 == -1 )
+  if ( v9 == -1 )
   {
 LABEL_7:
-    v14 = Actor_EventListener_AddListener(entIndex);
-    if ( v14 == -1 )
+    v9 = Actor_EventListener_AddListener(entIndex);
+    if ( v9 == -1 )
       return;
   }
-  _R12 = Actor_EventListener_GetEntity(v14);
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_event_listeners.cpp", 343, ASSERT_TYPE_ASSERT, "(listenerEnt)", (const char *)&queryFormat, "listenerEnt") )
+  Entity = Actor_EventListener_GetEntity(v9);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_event_listeners.cpp", 343, ASSERT_TYPE_ASSERT, "(listenerEnt)", (const char *)&queryFormat, "listenerEnt") )
     __debugbreak();
   if ( originatorEnt )
   {
     EntityIndex = G_GetEntityIndex(originatorEnt);
-    v18 = EntityIndex;
+    v13 = EntityIndex;
     if ( EntityIndex < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,short>(short)", "unsigned", (unsigned __int16)EntityIndex, "signed", EntityIndex) )
       __debugbreak();
   }
   else
   {
-    v18 = 2047;
+    v13 = 2047;
   }
-  v19 = v14;
-  eventLast = g_AIEVlisteners[v14].eventLast;
-  _R13 = g_AIEvents;
+  v14 = v9;
+  eventLast = g_AIEVlisteners[v9].eventLast;
   if ( eventLast == -1 )
   {
 LABEL_22:
-    v23 = g_listenerEventCount;
+    v16 = g_listenerEventCount;
     if ( g_listenerEventCount < 1240 )
     {
-      v64 = g_listenerEventCount;
-      v65 = g_listenerEventCount;
-      g_AIEvents[v64].type = eventType;
-      g_AIEvents[v64].entity = v18;
-      g_AIEvents[v64].origin.v[0] = _R14->v[0];
-      g_AIEvents[v64].origin.v[1] = _R14->v[1];
-      g_AIEvents[v64].origin.v[2] = _R14->v[2];
-      g_AIEvents[v64].eventLast = g_AIEVlisteners[v19].eventLast;
-      if ( (unsigned int)(v23 + 0x8000) > 0xFFFF )
+      v34 = g_listenerEventCount;
+      v35 = g_listenerEventCount;
+      g_AIEvents[v34].type = eventType;
+      g_AIEvents[v34].entity = v13;
+      g_AIEvents[v34].origin.v[0] = origin->v[0];
+      g_AIEvents[v34].origin.v[1] = origin->v[1];
+      g_AIEvents[v34].origin.v[2] = origin->v[2];
+      g_AIEvents[v34].eventLast = g_AIEVlisteners[v14].eventLast;
+      if ( (unsigned int)(v16 + 0x8000) > 0xFFFF )
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v23, "signed", v23) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)v16, "signed", v16) )
           __debugbreak();
-        LODWORD(v23) = g_listenerEventCount;
+        LODWORD(v16) = g_listenerEventCount;
       }
-      g_AIEVlisteners[v19].eventLast = v65;
-      g_listenerEventCount = v23 + 1;
+      g_AIEVlisteners[v14].eventLast = v35;
+      g_listenerEventCount = v16 + 1;
     }
     else if ( lastTime != level.time )
     {
-      v24 = SL_ConvertToString(eventType);
-      v25 = "NULL";
-      if ( v24 )
-        v25 = v24;
-      Com_PrintError(18, "AI Listener events exceeded ( MAX_AI_EV_EVENTS ) < %s >.\n", v25);
+      v17 = SL_ConvertToString(eventType);
+      v18 = "NULL";
+      if ( v17 )
+        v18 = v17;
+      Com_PrintError(18, "AI Listener events exceeded ( MAX_AI_EV_EVENTS ) < %s >.\n", v18);
       if ( g_listenerCount > 0 )
       {
         p_eventLast = &g_AIEVlisteners[0].eventLast;
@@ -482,25 +489,25 @@ LABEL_22:
         {
           if ( *p_eventLast != -1 )
           {
-            Com_Printf(18, "   AI Listener < %3d >:\n", (unsigned int)v9);
-            for ( i = *p_eventLast; i != -1; i = g_AIEvents[v28].eventLast )
+            Com_Printf(18, "   AI Listener < %3d >:\n", (unsigned int)v4);
+            for ( i = *p_eventLast; i != -1; i = g_AIEvents[v21].eventLast )
             {
-              v28 = i;
-              v29 = SL_ConvertToString(g_AIEvents[i].type);
-              entity = g_AIEvents[v28].entity;
-              v31 = entity;
-              if ( entity == 2047 )
-                v31 = 0xFFFFFFFFi64;
-              v32 = "NULL";
-              if ( v29 )
-                v32 = v29;
-              Com_Printf(18, "                     : %s ( ent: %d )\n", v32, v31);
+              v21 = i;
+              v22 = SL_ConvertToString(g_AIEvents[i].type);
+              v23 = g_AIEvents[v21].entity;
+              v24 = v23;
+              if ( v23 == 2047 )
+                v24 = 0xFFFFFFFFi64;
+              v25 = "NULL";
+              if ( v22 )
+                v25 = v22;
+              Com_Printf(18, "                     : %s ( ent: %d )\n", v25, v24);
             }
           }
-          ++v9;
+          ++v4;
           p_eventLast += 4;
         }
-        while ( v9 < g_listenerCount );
+        while ( v4 < g_listenerCount );
       }
       lastTime = level.time;
     }
@@ -511,65 +518,32 @@ LABEL_22:
     {
       if ( (unsigned __int16)eventLast >= 0x4D8u )
       {
-        LODWORD(v67) = 1240;
-        LODWORD(v66) = eventLast;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_event_listeners.cpp", 358, ASSERT_TYPE_ASSERT, "(unsigned)( eventWalk ) < (unsigned)( ( sizeof( *array_counter( g_AIEvents ) ) + 0 ) )", "eventWalk doesn't index ARRAY_COUNT( g_AIEvents )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v37) = 1240;
+        LODWORD(v36) = eventLast;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\actor_event_listeners.cpp", 358, ASSERT_TYPE_ASSERT, "(unsigned)( eventWalk ) < (unsigned)( ( sizeof( *array_counter( g_AIEvents ) ) + 0 ) )", "eventWalk doesn't index ARRAY_COUNT( g_AIEvents )\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
-      _RCX = 5i64 * eventLast;
       if ( g_AIEvents[eventLast].type == eventType )
         break;
       eventLast = g_AIEvents[eventLast].eventLast;
       if ( eventLast == -1 )
         goto LABEL_22;
     }
-    __asm
+    v26 = Entity->r.currentOrigin.v[1];
+    v27 = Entity->r.currentOrigin.v[2];
+    v28 = Entity->r.currentOrigin.v[0];
+    v29 = g_AIEvents[eventLast].origin.v[0] - v28;
+    v30 = g_AIEvents[eventLast].origin.v[2] - v27;
+    v31 = origin->v[0];
+    v32 = g_AIEvents[eventLast].origin.v[1] - v26;
+    if ( (float)((float)((float)((float)(origin->v[1] - v26) * (float)(origin->v[1] - v26)) + (float)((float)(v31 - v28) * (float)(v31 - v28))) + (float)((float)(origin->v[2] - v27) * (float)(origin->v[2] - v27))) < (float)((float)((float)(v32 * v32) + (float)(v29 * v29)) + (float)(v30 * v30)) )
     {
-      vmovss  xmm3, dword ptr [r12+134h]
-      vmovss  xmm2, dword ptr [r12+138h]
-      vmovss  xmm1, dword ptr [r12+130h]
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovaps [rsp+0D8h+var_48], xmm6
-      vmovaps [rsp+0D8h+var_58], xmm7
-      vmovaps [rsp+0D8h+var_68], xmm8
-      vsubss  xmm8, xmm0, xmm3
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm4, xmm0, xmm2
-      vmovss  xmm0, dword ptr [r13+rcx*4+4]
-      vsubss  xmm7, xmm0, xmm1
-      vmovss  xmm0, dword ptr [r13+rcx*4+0Ch]
-      vmovaps [rsp+0D8h+var_78], xmm9
-      vsubss  xmm6, xmm0, xmm2
-      vmovaps [rsp+0D8h+var_88], xmm10
-      vmovss  xmm10, dword ptr [r14]
-      vsubss  xmm9, xmm10, xmm1
-      vmovss  xmm1, dword ptr [r13+rcx*4+8]
-      vsubss  xmm5, xmm1, xmm3
-      vmulss  xmm2, xmm8, xmm8
-      vmovaps xmm8, [rsp+0D8h+var_68]
-      vmulss  xmm1, xmm9, xmm9
-      vmovaps xmm9, [rsp+0D8h+var_78]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm7, xmm7
-      vmovaps xmm7, [rsp+0D8h+var_58]
-      vmulss  xmm0, xmm6, xmm6
-      vmovaps xmm6, [rsp+0D8h+var_48]
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm4, xmm2
+      v33 = eventLast;
+      g_AIEvents[v33].origin.v[0] = v31;
+      g_AIEvents[v33].origin.v[1] = origin->v[1];
+      g_AIEvents[v33].origin.v[2] = origin->v[2];
+      g_AIEvents[v33].entity = v13;
     }
-    if ( g_AIEvents[eventLast].type < (unsigned int)eventType )
-    {
-      _RCX = eventLast;
-      __asm { vmovss  dword ptr [r13+rcx*4+4], xmm10 }
-      g_AIEvents[_RCX].origin.v[1] = _R14->v[1];
-      g_AIEvents[_RCX].origin.v[2] = _R14->v[2];
-      g_AIEvents[_RCX].entity = v18;
-    }
-    __asm { vmovaps xmm10, [rsp+0D8h+var_88] }
   }
 }
 

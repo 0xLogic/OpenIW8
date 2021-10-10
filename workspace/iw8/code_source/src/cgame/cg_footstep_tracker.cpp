@@ -90,11 +90,11 @@ void CG_FootstepTracker_Add(LocalClientNum_t localClientNum, int entNum, int sta
   unsigned int v12; 
   unsigned int v13; 
   int v14; 
+  FootstepTrackerInfo *v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
 
   v4 = DCONST_DVARBOOL_snd_footstep_debug;
-  _RBP = origin;
   v6 = localClientNum;
   if ( !DCONST_DVARBOOL_snd_footstep_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug") )
     __debugbreak();
@@ -124,9 +124,9 @@ void CG_FootstepTracker_Add(LocalClientNum_t localClientNum, int entNum, int sta
       {
         if ( v12 >= 0x100 )
         {
-          LODWORD(v18) = 256;
-          LODWORD(v17) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 104, ASSERT_TYPE_ASSERT, "(unsigned)( oldestIndex ) < (unsigned)( (256) )", "oldestIndex doesn't index MAX_FOOTSTEP_TRACKER_INFO_COUNT\n\t%i not in [0, %i)", v17, v18) )
+          LODWORD(v17) = 256;
+          LODWORD(v16) = v12;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 104, ASSERT_TYPE_ASSERT, "(unsigned)( oldestIndex ) < (unsigned)( (256) )", "oldestIndex doesn't index MAX_FOOTSTEP_TRACKER_INFO_COUNT\n\t%i not in [0, %i)", v16, v17) )
             __debugbreak();
         }
         goto LABEL_19;
@@ -134,23 +134,19 @@ void CG_FootstepTracker_Add(LocalClientNum_t localClientNum, int entNum, int sta
     }
     if ( (unsigned int)v9 >= 0x100 )
     {
-      LODWORD(v18) = 256;
-      LODWORD(v17) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (256) )", "index doesn't index MAX_FOOTSTEP_TRACKER_INFO_COUNT\n\t%i not in [0, %i)", v17, v18) )
+      LODWORD(v17) = 256;
+      LODWORD(v16) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( (256) )", "index doesn't index MAX_FOOTSTEP_TRACKER_INFO_COUNT\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
     v12 = v9;
 LABEL_19:
-    _RDX = &s_footstepInfo[v6][v12];
-    _RDX->startTime = startTime;
-    _RDX->entNum = entNum;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+0]
-      vmovsd  qword ptr [rdx+8], xmm0
-    }
-    _RDX->origin.v[2] = _RBP->v[2];
-    _RDX->status = BOOL_VALUE;
+    v15 = &s_footstepInfo[v6][v12];
+    v15->startTime = startTime;
+    v15->entNum = entNum;
+    *(double *)v15->origin.v = *(double *)origin->v;
+    v15->origin.v[2] = origin->v[2];
+    v15->status = BOOL_VALUE;
     Sys_LeaveCriticalSection(CRITSECT_FOOTSTEP_DEBUG);
   }
 }
@@ -320,10 +316,10 @@ void CG_FootstepTracker_SetOrigin(LocalClientNum_t localClientNum, int entNum, i
   int IndexAtTime; 
   const dvar_t *v10; 
   __int64 v11; 
+  vec3_t *p_origin; 
 
   v4 = DCONST_DVARBOOL_snd_footstep_debug;
   v5 = localClientNum;
-  _RSI = origin;
   if ( !DCONST_DVARBOOL_snd_footstep_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v4);
@@ -350,10 +346,9 @@ LABEL_14:
       return;
     }
 LABEL_13:
-    __asm { vmovsd  xmm0, qword ptr [rsi] }
-    _RDX = &s_footstepInfo[v5][v11].origin;
-    __asm { vmovsd  qword ptr [rdx], xmm0 }
-    _RDX->v[2] = _RSI->v[2];
+    p_origin = &s_footstepInfo[v5][v11].origin;
+    *(double *)p_origin->v = *(double *)origin->v;
+    p_origin->v[2] = origin->v[2];
     goto LABEL_14;
   }
 }
@@ -470,202 +465,159 @@ LABEL_19:
 CG_FootstepTracker_Update
 ==============
 */
-
-void __fastcall CG_FootstepTracker_Update(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_FootstepTracker_Update(LocalClientNum_t localClientNum)
 {
-  __int64 v7; 
-  const dvar_t *v8; 
+  __int64 v1; 
+  const dvar_t *v2; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v10; 
+  const dvar_t *v4; 
   int integer; 
-  const dvar_t *v12; 
-  int v13; 
-  const dvar_t *v14; 
+  const dvar_t *v6; 
+  int v7; 
+  const dvar_t *v8; 
   bool enabled; 
-  __int64 v17; 
+  FootstepStatus *p_status; 
+  __int64 v11; 
+  float v12; 
+  __int64 v13; 
   unsigned __int64 SndEntHandle; 
-  char v26; 
-  char v27; 
-  const dvar_t *v33; 
-  __int64 v34; 
-  __int64 v35; 
-  const char *v36; 
-  const char *v37; 
-  char *v39; 
-  const char *v47; 
-  char *v48; 
+  float v15; 
+  double SndCurveValue; 
+  float v17; 
+  float v18; 
+  int v19; 
+  int v20; 
+  const dvar_t *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  float v24; 
+  const char *v25; 
+  const char *v26; 
+  float v27; 
+  char *v28; 
+  const char *v29; 
+  float v30; 
+  char *v31; 
+  const dvar_t *v32; 
   char *fmt; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
   float fmta; 
   __int64 duration; 
   int durationa; 
-  __int64 v67; 
+  __int64 v37; 
   vec3_t to; 
-  char v70; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v7 = localClientNum;
-  v8 = DCONST_DVARBOOL_snd_footstep_debug;
+  v1 = localClientNum;
+  v2 = DCONST_DVARBOOL_snd_footstep_debug;
   if ( !DCONST_DVARBOOL_snd_footstep_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
     Sys_EnterCriticalSection(CRITSECT_FOOTSTEP_DEBUG);
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
     if ( dword_150E23990 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
     {
       j__Init_thread_header(&dword_150E23990);
       if ( dword_150E23990 == -1 )
       {
-        _RBX = DCONST_DVARFLT_snd_footstep_debug_fontsize;
+        v32 = DCONST_DVARFLT_snd_footstep_debug_fontsize;
         if ( !DCONST_DVARFLT_snd_footstep_debug_fontsize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug_fontsize") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  cs:fontSize_1, xmm0
-        }
+        Dvar_CheckFrontendServerThread(v32);
+        fontSize_1 = v32->current.value;
         j__Init_thread_footer(&dword_150E23990);
       }
     }
-    v10 = DCONST_DVARINT_snd_footstep_debug_duration;
+    v4 = DCONST_DVARINT_snd_footstep_debug_duration;
     if ( !DCONST_DVARINT_snd_footstep_debug_duration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug_duration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    integer = v10->current.integer;
-    v12 = DCONST_DVARINT_snd_footstep_debug_finish_max_remaining;
+    Dvar_CheckFrontendServerThread(v4);
+    integer = v4->current.integer;
+    v6 = DCONST_DVARINT_snd_footstep_debug_finish_max_remaining;
     if ( !DCONST_DVARINT_snd_footstep_debug_finish_max_remaining && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug_finish_max_remaining") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    v13 = v12->current.integer;
-    v14 = DCONST_DVARBOOL_snd_footstep_debug_alias;
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = v6->current.integer;
+    v8 = DCONST_DVARBOOL_snd_footstep_debug_alias;
     if ( !DCONST_DVARBOOL_snd_footstep_debug_alias && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug_alias") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    enabled = v14->current.enabled;
-    _RBX = &s_footstepInfo[v7][0].status;
-    v17 = 256i64;
-    __asm { vmovss  xmm8, cs:__real@3f800000 }
+    Dvar_CheckFrontendServerThread(v8);
+    enabled = v8->current.enabled;
+    p_status = &s_footstepInfo[v1][0].status;
+    v11 = 256i64;
     do
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( *_RBX == BYTE_POINTER )
+      v12 = 0.0;
+      if ( *p_status == BYTE_POINTER )
       {
-        _RDI = 492i64 * *((int *)_RBX + 2);
-        SndEntHandle = CG_GenerateSndEntHandle((const LocalClientNum_t)v7, *((_DWORD *)_RBX - 4));
-        if ( *(_QWORD *)&g_snd.chaninfoUnweightedPriority[_RDI - 48680] == *(_QWORD *)(_RBX + 12) && *(_QWORD *)&g_snd.chaninfoUnweightedPriority[_RDI - 48704] == SndEntHandle && LODWORD(g_snd.chaninfoUnweightedPriority[_RDI - 48701]) == *((_DWORD *)_RBX + 1) )
+        v13 = 492i64 * *((int *)p_status + 2);
+        SndEntHandle = CG_GenerateSndEntHandle((const LocalClientNum_t)v1, *((_DWORD *)p_status - 4));
+        if ( *(_QWORD *)&g_snd.chaninfoUnweightedPriority[v13 - 48680] == *(_QWORD *)(p_status + 12) && *(_QWORD *)&g_snd.chaninfoUnweightedPriority[v13 - 48704] == SndEntHandle && LODWORD(g_snd.chaninfoUnweightedPriority[v13 - 48701]) == *((_DWORD *)p_status + 1) )
         {
-          GetSecureSndVec3((const vec3_t *)&g_snd.chaninfoUnweightedPriority[_RDI - 48673], &to, s_soundvoiceorg_aab_X, s_soundvoiceorg_aab_Y, s_soundvoiceorg_aab_Z);
-          *(double *)&_XMM0 = SND_DistSqToNearestListener(&to);
-          _RAX = *(_QWORD *)&g_snd.chaninfoUnweightedPriority[_RDI - 48680];
-          __asm
-          {
-            vsqrtss xmm0, xmm0, xmm0; radius
-            vmovss  xmm2, dword ptr [rax+68h]; maxdist
-            vmovss  xmm1, dword ptr [rax+64h]; mindist
-          }
-          *(double *)&_XMM0 = SND_GetDistanceCurveFraction(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovaps xmm2, xmm0; fraction }
-          SND_GetSndCurveValue(LODWORD(g_snd.chaninfoUnweightedPriority[_RDI - 48560]), (const vec2_t *)&g_snd.chaninfoUnweightedPriority[_RDI - 48559], *(const float *)&_XMM2);
-          __asm { vmovss  xmm1, cs:?g_snd@@3Usnd_local_t@@A.scriptSoundFade.value; snd_local_t g_snd }
-          _R10 = 0x140000000ui64;
-          __asm
-          {
-            vmulss  xmm2, xmm1, dword ptr [rdi+r10+15C6C2DCh]
-            vmulss  xmm3, xmm2, xmm0
-            vcomiss xmm3, dword ptr [rbx+14h]
-          }
-          if ( v26 )
-            __asm { vmovss  dword ptr [rbx+14h], xmm3 }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+r10+15C6C364h]
-            vcomiss xmm0, dword ptr [rbx+18h]
-          }
-          if ( !(v26 | v27) )
-            __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-        }
-        else if ( *((_DWORD *)_RBX + 8) - LocalClientGlobals->time >= v13 )
-        {
-          *_RBX = VEC3_POINTER;
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vdivss  xmm6, xmm1, xmm0
-          }
+          GetSecureSndVec3((const vec3_t *)&g_snd.chaninfoUnweightedPriority[v13 - 48673], &to, s_soundvoiceorg_aab_X, s_soundvoiceorg_aab_Y, s_soundvoiceorg_aab_Z);
+          v15 = fsqrt(COERCE_FLOAT(COERCE_UNSIGNED_INT64(SND_DistSqToNearestListener(&to))));
+          SND_GetDistanceCurveFraction(v15, *(float *)(*(_QWORD *)&g_snd.chaninfoUnweightedPriority[v13 - 48680] + 100i64), *(float *)(*(_QWORD *)&g_snd.chaninfoUnweightedPriority[v13 - 48680] + 104i64));
+          SndCurveValue = SND_GetSndCurveValue(LODWORD(g_snd.chaninfoUnweightedPriority[v13 - 48560]), (const vec2_t *)&g_snd.chaninfoUnweightedPriority[v13 - 48559], v15);
+          v17 = (float)(g_snd.scriptSoundFade.value * g_snd.chaninfoUnweightedPriority[v13 - 48697]) * *(float *)&SndCurveValue;
+          if ( v17 < *((float *)p_status + 5) )
+            *((float *)p_status + 5) = v17;
+          v18 = g_snd.chaninfoUnweightedPriority[v13 - 48663];
+          if ( v18 > *((float *)p_status + 6) )
+            *((float *)p_status + 6) = v18;
         }
         else
         {
-          *_RBX = INT_VALUE;
-          __asm { vmovaps xmm6, xmm8 }
+          v19 = *((_DWORD *)p_status + 8);
+          v20 = v19 - LocalClientGlobals->time;
+          if ( v20 >= v7 )
+          {
+            *p_status = VEC3_POINTER;
+            v12 = (float)(v19 - *((_DWORD *)p_status + 7) - v20) / (float)(v19 - *((_DWORD *)p_status + 7));
+          }
+          else
+          {
+            *p_status = INT_VALUE;
+            v12 = FLOAT_1_0;
+          }
         }
       }
-      v33 = DCONST_DVARBOOL_snd_footstep_debug_asserts;
+      v21 = DCONST_DVARBOOL_snd_footstep_debug_asserts;
       if ( !DCONST_DVARBOOL_snd_footstep_debug_asserts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug_asserts") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      if ( v33->current.enabled && *_RBX >= 0x10u )
+      Dvar_CheckFrontendServerThread(v21);
+      if ( v21->current.enabled && *p_status >= 0x10u )
       {
-        LODWORD(v67) = 16;
-        LODWORD(duration) = *(char *)_RBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 365, ASSERT_TYPE_ASSERT, "(unsigned)( info->status ) < (unsigned)( static_cast<int>( FootstepStatus::COUNT ) )", "info->status doesn't index static_cast<int>( FootstepStatus::COUNT )\n\t%i not in [0, %i)", duration, v67) )
+        LODWORD(v37) = 16;
+        LODWORD(duration) = *(char *)p_status;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_footstep_tracker.cpp", 365, ASSERT_TYPE_ASSERT, "(unsigned)( info->status ) < (unsigned)( static_cast<int>( FootstepStatus::COUNT ) )", "info->status doesn't index static_cast<int>( FootstepStatus::COUNT )\n\t%i not in [0, %i)", duration, v37) )
           __debugbreak();
       }
-      v34 = *(char *)_RBX;
-      v35 = v34;
-      switch ( *_RBX )
+      v22 = *(char *)p_status;
+      v23 = v22;
+      switch ( *p_status )
       {
         case BOOL_VALUE:
         case BYTE_VALUE:
-          __asm
-          {
-            vmovss  xmm0, cs:fontSize_1
-            vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-          }
-          CG_DebugStarWithText((const vec3_t *)_RBX - 1, &s_statusMap[v34].color, &s_statusMap[v34].color, s_statusMap[v34].text, fmtb, 0);
+          CG_DebugStarWithText((const vec3_t *)p_status - 1, &s_statusMap[v22].color, &s_statusMap[v22].color, s_statusMap[v22].text, fontSize_1, 0);
           break;
         case BYTE_POINTER:
-          __asm { vmovss  xmm6, cs:fontSize_1; jumptable 0000000141BD813D case 3 }
+          v24 = fontSize_1;
           if ( enabled )
-            v36 = **(const char ***)(_RBX + 12);
+            v25 = **(const char ***)(p_status + 12);
           else
-            v36 = (char *)&queryFormat.fmt + 3;
-          v37 = j_va("%s %s", s_statusMap[v34].text, v36);
-          __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm6 }
-          CG_DebugStarWithText((const vec3_t *)_RBX - 1, &s_statusMap[v35].color, &s_statusMap[v35].color, v37, fmtc, 0);
+            v25 = (char *)&queryFormat.fmt + 3;
+          v26 = j_va("%s %s", s_statusMap[v22].text, v25);
+          CG_DebugStarWithText((const vec3_t *)p_status - 1, &s_statusMap[v23].color, &s_statusMap[v23].color, v26, v24, 0);
           break;
         case INT_VALUE:
-          __asm { vmovss  xmm6, cs:fontSize_1; jumptable 0000000141BD813D case 4 }
+          v30 = fontSize_1;
           if ( enabled )
-            v48 = **(char ***)(_RBX + 12);
+            v31 = **(char ***)(p_status + 12);
           else
-            v48 = (char *)&queryFormat.fmt + 3;
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rbx+18h]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vmovss  xmm2, dword ptr [rbx+14h]
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-          }
-          v47 = j_va("%s v %.2f o %.2f %s", s_statusMap[v35].text, _R8, _R9, v48);
+            v31 = (char *)&queryFormat.fmt + 3;
+          v29 = j_va("%s v %.2f o %.2f %s", s_statusMap[v23].text, *((float *)p_status + 5), *((float *)p_status + 6), v31);
           durationa = integer;
-          __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm6 }
+          fmta = v30;
           goto LABEL_49;
         case FLOAT_VALUE:
         case FLOAT_POINTER:
@@ -677,63 +629,37 @@ void __fastcall CG_FootstepTracker_Update(LocalClientNum_t localClientNum, doubl
         case STRUCT_POINTER|INT_VALUE:
         case VEC3_POINTER|FLOAT_POINTER:
         case STRUCT_POINTER|FLOAT_POINTER:
-          __asm
-          {
-            vmovss  xmm0, cs:fontSize_1
-            vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-          }
-          CG_DebugStarWithText((const vec3_t *)_RBX - 1, &s_statusMap[v34].color, &s_statusMap[v34].color, s_statusMap[v34].text, fmtd, integer);
+          CG_DebugStarWithText((const vec3_t *)p_status - 1, &s_statusMap[v22].color, &s_statusMap[v22].color, s_statusMap[v22].text, fontSize_1, integer);
           goto LABEL_50;
         case VEC3_POINTER:
-          __asm { vmovss  xmm7, cs:fontSize_1; jumptable 0000000141BD813D case 8 }
+          v27 = fontSize_1;
           if ( enabled )
-            v39 = **(char ***)(_RBX + 12);
+            v28 = **(char ***)(p_status + 12);
           else
-            v39 = (char *)&queryFormat.fmt + 3;
-          __asm
-          {
-            vmulss  xmm0, xmm6, cs:__real@42c80000
-            vcvttss2si eax, xmm0
-            vmovss  xmm3, dword ptr [rbx+18h]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vmovss  xmm2, dword ptr [rbx+14h]
-            vcvtss2sd xmm2, xmm2, xmm2
-          }
-          LODWORD(fmt) = _EAX;
-          __asm
-          {
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-          }
-          v47 = j_va("%s v %.2f o %.2f @ %i%% %s", s_statusMap[v35].text, _R8, _R9, fmt, v39);
+            v28 = (char *)&queryFormat.fmt + 3;
+          LODWORD(fmt) = (int)(float)(v12 * 100.0);
+          v29 = j_va("%s v %.2f o %.2f @ %i%% %s", s_statusMap[v23].text, *((float *)p_status + 5), *((float *)p_status + 6), fmt, v28);
           durationa = integer;
-          __asm { vmovss  dword ptr [rsp+0B8h+fmt], xmm7 }
+          fmta = v27;
 LABEL_49:
-          CG_DebugStarWithText((const vec3_t *)_RBX - 1, &s_statusMap[v35].color, &s_statusMap[v35].color, v47, fmta, durationa);
+          CG_DebugStarWithText((const vec3_t *)p_status - 1, &s_statusMap[v23].color, &s_statusMap[v23].color, v29, fmta, durationa);
 LABEL_50:
-          *(_QWORD *)(_RBX - 20) = 0i64;
-          *(_QWORD *)(_RBX - 12) = 0i64;
-          *(_QWORD *)(_RBX - 4) = 0i64;
-          *(_QWORD *)(_RBX + 4) = 0i64;
-          *(_QWORD *)(_RBX + 12) = 0i64;
-          *(_QWORD *)(_RBX + 20) = 0i64;
-          *(_QWORD *)(_RBX + 28) = 0i64;
+          *(_QWORD *)(p_status - 20) = 0i64;
+          *(_QWORD *)(p_status - 12) = 0i64;
+          *(_QWORD *)(p_status - 4) = 0i64;
+          *(_QWORD *)(p_status + 4) = 0i64;
+          *(_QWORD *)(p_status + 12) = 0i64;
+          *(_QWORD *)(p_status + 20) = 0i64;
+          *(_QWORD *)(p_status + 28) = 0i64;
           break;
         default:
           break;
       }
-      _RBX += 56;
-      --v17;
+      p_status += 56;
+      --v11;
     }
-    while ( v17 );
+    while ( v11 );
     Sys_LeaveCriticalSection(CRITSECT_FOOTSTEP_DEBUG);
-  }
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 

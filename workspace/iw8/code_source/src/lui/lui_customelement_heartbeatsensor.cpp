@@ -7,92 +7,65 @@ void LUIElement_HeartbeatSensorRender(const LocalClientNum_t localClientNum, LUI
 {
   cg_t *LocalClientGlobals; 
   HeartbeatSensorData *Data; 
-  HeartbeatSensorData *v16; 
-  const dvar_t *v17; 
+  HeartbeatSensorData *v12; 
+  const dvar_t *v13; 
   const ScreenPlacement *ActivePlacement; 
+  float v15; 
+  float v16; 
   CgCompassSystem *CompassSystem; 
-  CompassDisplay v32; 
+  CompassDisplay v18; 
   unsigned int refdefViewOrg_aab; 
   unsigned int IndexByName; 
   const OmnvarDef *Def; 
-  OmnvarData *v40; 
-  float fmt; 
+  OmnvarData *v22; 
   float centerY; 
   float centerX; 
   SecureVec3 playerWorldPos; 
   float outAngle[2]; 
-  CgCompassSystem *v52; 
-  __int64 v53; 
+  CgCompassSystem *v27; 
+  __int64 v28; 
   vec2_t pos; 
   rectDef_s x; 
   vec2_t pingStartPos; 
   vec2_t outVector; 
   rectDef_s mapRect; 
   rectDef_s parentRect; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v53 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RBX = element;
+  v28 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( LocalClientGlobals->nextSnap )
   {
-    Data = LUIElement_HeartbeatSensor_GetData(_RBX, luaVM);
-    v16 = Data;
+    Data = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+    v12 = Data;
     if ( Data->constructTime == -1 )
       Data->constructTime = LocalClientGlobals->time;
-    v17 = DCONST_DVARINT_heartbeatSensorInitialSweepDelay;
+    v13 = DCONST_DVARINT_heartbeatSensorInitialSweepDelay;
     if ( !DCONST_DVARINT_heartbeatSensorInitialSweepDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorInitialSweepDelay") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    if ( v16->constructTime + v17->current.integer <= LocalClientGlobals->time )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( v12->constructTime + v13->current.integer <= LocalClientGlobals->time )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rbp+40h+parentRect.x], xmm0
-      }
+      *(_OWORD *)&parentRect.x = 0i64;
       *(_WORD *)&parentRect.horzAlign = 1285;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+0CCh]
-        vmovss  [rbp+40h+x], xmm1
-        vmovss  xmm3, dword ptr [rbx+0D0h]
-        vmovss  [rbp+40h+y], xmm3
-        vmovss  xmm0, dword ptr [rbx+0D4h]
-        vsubss  xmm1, xmm0, xmm1
-        vmovss  [rbp+40h+w], xmm1
-        vmovss  xmm2, dword ptr [rbx+0D8h]
-        vsubss  xmm0, xmm2, xmm3
-        vmovss  [rbp+40h+h], xmm0
-      }
+      x.x = element->left;
+      x.y = element->top;
+      x.w = element->right - x.x;
+      x.h = element->bottom - x.y;
       ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
       ScrPlace_ApplyRect(ActivePlacement, &x.x, &x.y, &x.w, &x.h, 5, 5);
       *(_WORD *)&x.horzAlign = 1285;
       CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, LocalClientGlobals, &parentRect, &x, &mapRect.x, &mapRect.y, &mapRect.w, &mapRect.h);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f000000
-        vmulss  xmm1, xmm2, [rbp+40h+mapRect.w]
-        vaddss  xmm6, xmm1, [rbp+40h+mapRect.x]
-        vmovss  [rsp+140h+centerX], xmm6
-        vmulss  xmm1, xmm2, [rbp+40h+mapRect.h]
-        vaddss  xmm7, xmm1, [rbp+40h+mapRect.y]
-        vmovss  [rsp+140h+centerY], xmm7
-      }
+      v15 = (float)(0.5 * mapRect.w) + mapRect.x;
+      centerX = v15;
+      v16 = (float)(0.5 * mapRect.h) + mapRect.y;
+      centerY = v16;
       CompassSystem = CgCompassSystem::GetCompassSystem(localClientNum);
-      v52 = CompassSystem;
+      v27 = CompassSystem;
       CgCompassSystem::GetCompassYaw(CompassSystem, COMPASS_TYPE_PARTIAL, 0, LocalClientGlobals, outAngle, &outVector);
-      v32 = COMPASS_DISPLAY_HEARTBEATSENSOR_TABLET;
-      if ( v16->targetRTT == EMP )
-        v32 = COMPASS_DISPLAY_HEARTBEATSENSOR_EMP;
-      CgCompassSystem::SetCurrentCompassDisplayType(CompassSystem, v32);
+      v18 = COMPASS_DISPLAY_HEARTBEATSENSOR_TABLET;
+      if ( v12->targetRTT == EMP )
+        v18 = COMPASS_DISPLAY_HEARTBEATSENSOR_EMP;
+      CgCompassSystem::SetCurrentCompassDisplayType(CompassSystem, v18);
       if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
         __debugbreak();
       refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
@@ -102,50 +75,26 @@ void LUIElement_HeartbeatSensorRender(const LocalClientNum_t localClientNum, LUI
       LODWORD(playerWorldPos.y) = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
       LODWORD(pingStartPos.v[0]) = refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944);
       LODWORD(playerWorldPos.z) = (LODWORD(pingStartPos.v[0]) * (LODWORD(pingStartPos.v[0]) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  dword ptr [rsp+140h+fmt], xmm0
-      }
-      CgCompassSystem::WorldPosToCompass(v52, COMPASS_TYPE_PARTIAL, 0, &mapRect, fmt, &outVector, (const vec2_t *)&playerWorldPos, (const vec2_t *)&LocalClientGlobals->predictedPlayerState.origin, NULL, &pos);
-      __asm
-      {
-        vaddss  xmm3, xmm6, dword ptr [rbp+40h+pos]
-        vmovss  dword ptr [rbp+40h+pos], xmm3
-        vaddss  xmm1, xmm7, dword ptr [rsi+85Ch]
-        vaddss  xmm2, xmm1, dword ptr [rbp+40h+pos+4]
-        vmovss  dword ptr [rbp+40h+pos+4], xmm2
-        vmovss  dword ptr [rbp+40h+pingStartPos], xmm3
-        vmovss  dword ptr [rbp+40h+pingStartPos+4], xmm2
-      }
+      CgCompassSystem::WorldPosToCompass(v27, COMPASS_TYPE_PARTIAL, 0, &mapRect, 0.0, &outVector, (const vec2_t *)&playerWorldPos, (const vec2_t *)&LocalClientGlobals->predictedPlayerState.origin, NULL, &pos);
+      pos.v[0] = v15 + pos.v[0];
+      pos.v[1] = (float)(v16 + v12->verticalPingOffset) + pos.v[1];
+      pingStartPos = pos;
       IndexByName = BG_Omnvar_GetIndexByName("ui_scrambler_strength");
       Def = BG_Omnvar_GetDef(IndexByName);
-      v40 = CG_Omnvar_GetData(localClientNum, IndexByName);
+      v22 = CG_Omnvar_GetData(localClientNum, IndexByName);
       if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 206, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
-      if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
+      if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
         __debugbreak();
       if ( Def->type != OMNVAR_TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 208, ASSERT_TYPE_ASSERT, "(def->type == OMNVAR_TYPE_INT)", (const char *)&queryFormat, "def->type == OMNVAR_TYPE_INT") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3e4ccccd; glitchAmount
-      }
-      LUI_Render_PushGlitch(*(float *)&_XMM0);
-      LUIElement_HeartbeatSensor_Sweep(localClientNum, _RBX, &x, pos, &outVector, &playerWorldPos, luaVM);
-      LUI_Element_HeartbeatSensor_RenderBlips(localClientNum, _RBX, &x, &mapRect, &outVector, pingStartPos, &centerX, &centerY, luaVM);
-      LUIElement_HeartbeatSensor_DrawDistance(localClientNum, _RBX, luaVM);
+      LUI_Render_PushGlitch((float)(v22->current.integer + Def->minvalue) * 0.2);
+      LUIElement_HeartbeatSensor_Sweep(localClientNum, element, &x, pos, &outVector, &playerWorldPos, luaVM);
+      LUI_Element_HeartbeatSensor_RenderBlips(localClientNum, element, &x, &mapRect, &outVector, pingStartPos, &centerX, &centerY, luaVM);
+      LUIElement_HeartbeatSensor_DrawDistance(localClientNum, element, luaVM);
       LUI_Render_PopGlitch();
       memset(&playerWorldPos, 0, sizeof(playerWorldPos));
     }
-  }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -156,170 +105,97 @@ LUIElement_HeartbeatSensor_DrawDistance
 */
 void LUIElement_HeartbeatSensor_DrawDistance(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM)
 {
-  char v20; 
-  const char *v33; 
+  HeartbeatSensorData *Data; 
+  const dvar_t *v7; 
+  float closestDistanceInFrame; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float value; 
+  float v14; 
+  const dvar_t *v15; 
+  const char *v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  double CurrentUnitScale; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *font; 
-  int fontSize; 
-  float v71; 
+  int v24; 
+  int v25; 
+  float v26; 
   vec4_t color; 
   vec4_t quadVerts[4]; 
   char _Buffer[32]; 
 
-  _RSI = element;
-  _RDI = LUIElement_HeartbeatSensor_GetData(element, luaVM);
-  if ( _RDI->numBlipsInFrame )
+  Data = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+  if ( Data->numBlipsInFrame )
   {
-    _RBX = DCONST_DVARVEC4_compassMainHUDColor;
+    v7 = DCONST_DVARVEC4_compassMainHUDColor;
     if ( !DCONST_DVARVEC4_compassMainHUDColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassMainHUDColor") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v7);
+    color = v7->current.vector;
+    closestDistanceInFrame = Data->closestDistanceInFrame;
+    if ( closestDistanceInFrame < 3.4028235e38 )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsp+198h+color], xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rsp+198h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rsp+198h+color+8], xmm0
-      vmovss  xmm1, dword ptr [rbx+34h]
-      vmovss  dword ptr [rsp+198h+color+0Ch], xmm1
-      vmovss  xmm0, dword ptr [rdi+844h]
-      vcomiss xmm0, cs:__real@7f7fffff
-    }
-    if ( v20 )
-    {
-      __asm
+      v9 = fsqrt(closestDistanceInFrame) * 0.0254;
+      j_snprintf(_Buffer, 0x20ui64, "%.1fm", v9);
+      v10 = element->right - element->left;
+      v11 = element->bottom - element->top;
+      if ( Data->targetRTT )
       {
-        vmovaps [rsp+198h+var_48], xmm6
-        vmovaps [rsp+198h+var_58], xmm7
-        vmovaps [rsp+198h+var_68], xmm8
-        vmovaps [rsp+198h+var_78], xmm9
-        vsqrtss xmm0, xmm0, xmm0
-        vmulss  xmm6, xmm0, cs:__real@3cd013a9
-        vcvtss2sd xmm3, xmm6, xmm6
-        vmovaps [rsp+198h+var_88], xmm10
-        vmovq   r9, xmm3
-        vmovaps [rsp+198h+var_98], xmm11
-        vmovaps [rsp+198h+var_A8], xmm12
-      }
-      j_snprintf(_Buffer, 0x20ui64, "%.1fm", *(double *)&_XMM3);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0D4h]
-        vmovss  xmm1, dword ptr [rsi+0D8h]
-        vsubss  xmm11, xmm0, dword ptr [rsi+0CCh]
-        vsubss  xmm12, xmm1, dword ptr [rsi+0D0h]
-      }
-      if ( _RDI->targetRTT )
-      {
-        _RBX = DCONST_DVARVEC2_heartbeatSensorTabletDistanceTextOffset;
+        v17 = DCONST_DVARVEC2_heartbeatSensorTabletDistanceTextOffset;
         if ( !DCONST_DVARVEC2_heartbeatSensorTabletDistanceTextOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorTabletDistanceTextOffset") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm9, dword ptr [rbx+28h]
-          vmovss  xmm10, dword ptr [rbx+2Ch]
-        }
-        _RBX = DCONST_DVARFLT_heartbeatSensorTabletFontScalar;
+        Dvar_CheckFrontendServerThread(v17);
+        value = v17->current.value;
+        v14 = v17->current.vector.v[1];
+        v15 = DCONST_DVARFLT_heartbeatSensorTabletFontScalar;
         if ( DCONST_DVARFLT_heartbeatSensorTabletFontScalar )
           goto LABEL_19;
-        v33 = "heartbeatSensorTabletFontScalar";
+        v16 = "heartbeatSensorTabletFontScalar";
       }
       else
       {
-        _RBX = DCONST_DVARVEC2_heartbeatSensorEMPDistanceTextOffset;
+        v12 = DCONST_DVARVEC2_heartbeatSensorEMPDistanceTextOffset;
         if ( !DCONST_DVARVEC2_heartbeatSensorEMPDistanceTextOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorEMPDistanceTextOffset") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm9, dword ptr [rbx+28h]
-          vmovss  xmm10, dword ptr [rbx+2Ch]
-        }
-        _RBX = DCONST_DVARFLT_heartbeatSensorEMPFontScalar;
+        Dvar_CheckFrontendServerThread(v12);
+        value = v12->current.value;
+        v14 = v12->current.vector.v[1];
+        v15 = DCONST_DVARFLT_heartbeatSensorEMPFontScalar;
         if ( DCONST_DVARFLT_heartbeatSensorEMPFontScalar )
           goto LABEL_19;
-        v33 = "heartbeatSensorEMPFontScalar";
+        v16 = "heartbeatSensorEMPFontScalar";
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v33) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v16) )
         __debugbreak();
 LABEL_19:
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm8, dword ptr [rbx+28h] }
-      _RBX = DCONST_DVARFLT_heartbeatSensorEnemyDistanceWarningThreshold;
+      Dvar_CheckFrontendServerThread(v15);
+      v18 = v15->current.value;
+      v19 = DCONST_DVARFLT_heartbeatSensorEnemyDistanceWarningThreshold;
       if ( !DCONST_DVARFLT_heartbeatSensorEnemyDistanceWarningThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorEnemyDistanceWarningThreshold") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-      if ( v20 )
+      Dvar_CheckFrontendServerThread(v19);
+      if ( v9 < v19->current.value )
       {
-        _RBX = DCONST_DVARVEC4_heartbeatSensorEnemyDistanceWarningColor;
+        v20 = DCONST_DVARVEC4_heartbeatSensorEnemyDistanceWarningColor;
         if ( !DCONST_DVARVEC4_heartbeatSensorEnemyDistanceWarningColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorEnemyDistanceWarningColor") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  dword ptr [rsp+198h+color], xmm0
-          vmovss  xmm1, dword ptr [rbx+2Ch]
-          vmovss  dword ptr [rsp+198h+color+4], xmm1
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+198h+color+8], xmm0
-          vmovss  xmm1, dword ptr [rbx+34h]
-          vmovss  dword ptr [rsp+198h+color+0Ch], xmm1
-        }
+        Dvar_CheckFrontendServerThread(v20);
+        color = v20->current.vector;
       }
-      *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-      __asm { vmovaps xmm7, xmm0 }
+      CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
       ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-      __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-      font = UI_GetFontHandle(ActivePlacement, 1, *(float *)&_XMM2);
-      R_TextHeight(font);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm2, xmm1, xmm8
-        vcvttss2si ebx, xmm2
-      }
-      R_TextWidth(_Buffer, 0, font, _EBX);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm3, xmm0, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebx
-        vmulss  xmm0, xmm10, xmm12
-        vmulss  xmm6, xmm1, xmm7
-        vaddss  xmm1, xmm0, dword ptr [rsi+0D0h]; top
-        vmulss  xmm0, xmm3, xmm7
-        vmulss  xmm2, xmm9, xmm11
-        vaddss  xmm4, xmm2, dword ptr [rsi+0CCh]
-        vaddss  xmm2, xmm0, xmm4; right
-        vsubss  xmm0, xmm4, xmm0; left
-        vaddss  xmm3, xmm1, xmm6; bottom
-      }
-      LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])quadVerts);
-      __asm
-      {
-        vcvttss2si eax, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+198h+var_150], xmm0
-      }
-      LUI_Render_DrawText(localClientNum, luaVM, _RSI, (const vec4_t (*)[4])quadVerts, &color, font, _Buffer, 0, 0, v71, fontSize, NULL, NULL);
-      __asm
-      {
-        vmovaps xmm12, [rsp+198h+var_A8]
-        vmovaps xmm11, [rsp+198h+var_98]
-        vmovaps xmm10, [rsp+198h+var_88]
-        vmovaps xmm9, [rsp+198h+var_78]
-        vmovaps xmm8, [rsp+198h+var_68]
-        vmovaps xmm7, [rsp+198h+var_58]
-        vmovaps xmm6, [rsp+198h+var_48]
-      }
+      font = UI_GetFontHandle(ActivePlacement, 1, 1.0);
+      v24 = (int)(float)((float)R_TextHeight(font) * v18);
+      v25 = R_TextWidth(_Buffer, 0, font, v24);
+      v26 = (float)v24 * *(float *)&CurrentUnitScale;
+      LUI_CoD_GenerateQuadVerts((float)((float)(value * v10) + element->left) - (float)((float)((float)v25 * 0.5) * *(float *)&CurrentUnitScale), (float)(v14 * v11) + element->top, (float)((float)((float)v25 * 0.5) * *(float *)&CurrentUnitScale) + (float)((float)(value * v10) + element->left), (float)((float)(v14 * v11) + element->top) + v26, (vec4_t (*)[4])quadVerts);
+      LUI_Render_DrawText(localClientNum, luaVM, element, (const vec4_t (*)[4])quadVerts, &color, font, _Buffer, 0, 0, 0.0, (int)v26, NULL, NULL);
     }
   }
 }
@@ -347,195 +223,145 @@ LUIElement_HeartbeatSensor_ProcessEntities
 */
 void LUIElement_HeartbeatSensor_ProcessEntities(const LocalClientNum_t localClientNum, LUIElement *element, lua_State *luaVM)
 {
+  __int64 v5; 
+  HeartbeatSensorData *Data; 
+  double v7; 
+  float v8; 
+  CgCompassSystem **v9; 
+  CgCompassSystem *v10; 
   __int64 v11; 
-  CgCompassSystem **v17; 
-  CgCompassSystem *v18; 
-  __int64 v19; 
-  unsigned int v21; 
-  CgCompassSystem_vtbl *v24; 
+  unsigned int v13; 
+  bool v14; 
+  CgCompassSystem_vtbl *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  double v19; 
+  double v20; 
+  __int128 v21; 
+  int PerkNetworkPriorityIndex; 
+  unsigned __int64 v24; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  char v35; 
-  bool v36; 
-  int PerkNetworkPriorityIndex; 
-  unsigned __int64 v44; 
-  __int64 v51; 
-  __int64 v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  __int64 v56; 
+  int v27; 
+  int v28; 
+  int v29; 
+  __int64 v30; 
   cg_t *LocalClientGlobals; 
-  __int64 v58[3]; 
+  __int64 v32[3]; 
   vec2_t vec; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v58[2] = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  v11 = localClientNum;
+  v32[2] = -2i64;
+  v5 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _R13 = LUIElement_HeartbeatSensor_GetData(element, luaVM);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+850h]; val
-    vmovaps xmm2, xmm0; max
-    vmovss  xmm1, dword ptr [rax+854h]; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmulss  xmm8, xmm0, xmm0 }
+  Data = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+  v7 = I_fclamp(Data->maxDrawRange, Data->range, Data->maxDrawRange);
+  v8 = *(float *)&v7 * *(float *)&v7;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF )
   {
     if ( (_BYTE)CgCompassSystem::ms_allocatedType == HALF )
       goto LABEL_8;
-    v54 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-    v53 = 1;
+    v28 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+    v27 = 1;
   }
   else
   {
     if ( (_BYTE)CgCompassSystem::ms_allocatedType == HALF_HALF )
       goto LABEL_8;
-    v54 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-    v53 = 2;
+    v28 = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+    v27 = 2;
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v11, v53, v54) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v5, v27, v28) )
     __debugbreak();
 LABEL_8:
-  if ( (unsigned int)v11 >= CgCompassSystem::ms_allocatedCount )
+  if ( (unsigned int)v5 >= CgCompassSystem::ms_allocatedCount )
   {
-    LODWORD(v52) = CgCompassSystem::ms_allocatedCount;
-    LODWORD(v51) = v11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v51, v52) )
+    LODWORD(v26) = CgCompassSystem::ms_allocatedCount;
+    LODWORD(v25) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  v17 = &CgCompassSystem::ms_compassSystemArray[v11];
-  if ( !*v17 )
+  v9 = &CgCompassSystem::ms_compassSystemArray[v5];
+  if ( !*v9 )
   {
-    LODWORD(v52) = v11;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v52) )
+    LODWORD(v26) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v26) )
       __debugbreak();
   }
-  v18 = *v17;
-  v19 = 0i64;
-  __asm { vmovss  xmm7, cs:__real@7f7fffff }
-  v21 = 0;
-  v55 = ((__int64 (__fastcall *)(CgCompassSystem *))(*v17)->GetCompassActorCount)(*v17) - 1;
-  if ( v55 > 0 )
+  v10 = *v9;
+  v11 = 0i64;
+  *(float *)&_XMM7 = FLOAT_3_4028235e38;
+  v13 = 0;
+  v29 = ((__int64 (__fastcall *)(CgCompassSystem *))(*v9)->GetCompassActorCount)(*v9) - 1;
+  if ( v29 > 0 )
   {
-    __asm
-    {
-      vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm10, cs:__real@42b40000
-    }
     do
     {
-      v36 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-      v24 = v18->__vftable;
-      if ( v36 )
+      v14 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+      v15 = v10->__vftable;
+      if ( v14 )
       {
-        v25 = (__int64)v24->GetCompassActor(v18, v21);
+        v16 = (__int64)v15->GetCompassActor(v10, v13);
       }
       else
       {
-        v25 = (__int64)v24->GetCompassActor(v18, v21);
-        v26 = v18->GetCompassActor(v18, v21);
-        if ( CG_Players_ShouldHidePlayerFromLocalPlayer((const LocalClientNum_t)v11, *(_DWORD *)(v26 + 112)) )
-          goto LABEL_36;
+        v16 = (__int64)v15->GetCompassActor(v10, v13);
+        v17 = v10->GetCompassActor(v10, v13);
+        if ( CG_Players_ShouldHidePlayerFromLocalPlayer((const LocalClientNum_t)v5, *(_DWORD *)(v17 + 112)) )
+          goto LABEL_35;
       }
-      if ( (*(_DWORD *)v25 & 3) == 1 )
+      if ( (*(_DWORD *)v16 & 3) == 1 )
       {
-        if ( !*(_QWORD *)(v25 + 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 177, ASSERT_TYPE_ASSERT, "(actor->lastPos.Get_lastPos)", (const char *)&queryFormat, "actor->lastPos.Get_lastPos") )
+        if ( !*(_QWORD *)(v16 + 24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 177, ASSERT_TYPE_ASSERT, "(actor->lastPos.Get_lastPos)", (const char *)&queryFormat, "actor->lastPos.Get_lastPos") )
           __debugbreak();
-        ((void (__fastcall *)(__int64, __int64 *))((v25 + 16) ^ *(_QWORD *)(v25 + 24) ^ s_aab_get_pointer_lastpos))(v25 + 32, v58);
-        v27 = v58[0];
-        v56 = v58[0];
-        memset(v58, 0, 0xCui64);
-        __asm { vmovss  xmm0, dword ptr [rsp+118h+var_C0] }
-        _RDI = LocalClientGlobals;
-        __asm
+        ((void (__fastcall *)(__int64, __int64 *))((v16 + 16) ^ *(_QWORD *)(v16 + 24) ^ s_aab_get_pointer_lastpos))(v16 + 32, v32);
+        v18 = v32[0];
+        v30 = v32[0];
+        memset(v32, 0, 0xCui64);
+        vec.v[0] = *(float *)&v30 - LocalClientGlobals->predictedPlayerState.origin.v[0];
+        vec.v[1] = *((float *)&v30 + 1) - LocalClientGlobals->predictedPlayerState.origin.v[1];
+        v19 = vectoyaw(&vec);
+        v20 = AngleDelta(LocalClientGlobals->predictedPlayerState.viewangles.v[1], *(const float *)&v19);
+        if ( COERCE_FLOAT(LODWORD(v20) & _xmm) < 90.0 )
         {
-          vsubss  xmm1, xmm0, dword ptr [rdi+38h]
-          vmovss  dword ptr [rsp+118h+vec], xmm1
-          vmovss  xmm2, dword ptr [rsp+118h+var_C0+4]
-          vsubss  xmm0, xmm2, dword ptr [rdi+3Ch]
-          vmovss  dword ptr [rsp+118h+vec+4], xmm0
-        }
-        *(double *)&_XMM0 = vectoyaw(&vec);
-        __asm
-        {
-          vmovaps xmm1, xmm0; angle2
-          vmovss  xmm0, dword ptr [rdi+1E4h]; angle1
-        }
-        *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-        __asm
-        {
-          vandps  xmm0, xmm0, xmm9
-          vcomiss xmm0, xmm10
-        }
-        if ( v35 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+118h+vec+4]
-            vmulss  xmm3, xmm0, xmm0
-            vmovss  xmm1, dword ptr [rsp+118h+vec]
-            vmulss  xmm2, xmm1, xmm1
-            vaddss  xmm6, xmm3, xmm2
-            vcomiss xmm6, xmm8
-          }
-          if ( v35 | v36 )
+          v21 = LODWORD(vec.v[1]);
+          *(float *)&v21 = (float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0]);
+          _XMM6 = v21;
+          if ( *(float *)&v21 <= v8 )
           {
             PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x27u);
-            v44 = (unsigned int)PerkNetworkPriorityIndex;
+            v24 = (unsigned int)PerkNetworkPriorityIndex;
             if ( PerkNetworkPriorityIndex < 0 )
-              goto LABEL_40;
+              goto LABEL_39;
             if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
             {
-              LODWORD(v52) = 64;
-              LODWORD(v51) = PerkNetworkPriorityIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v51, v52) )
+              LODWORD(v26) = 64;
+              LODWORD(v25) = PerkNetworkPriorityIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v25, v26) )
                 __debugbreak();
             }
-            if ( ((0x80000000 >> (v44 & 0x1F)) & *(_DWORD *)(v25 + 4 * (v44 >> 5) + 80)) == 0 )
+            if ( ((0x80000000 >> (v24 & 0x1F)) & *(_DWORD *)(v16 + 4 * (v24 >> 5) + 80)) == 0 )
             {
-LABEL_40:
-              if ( (unsigned int)v19 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_heartbeatsensor.cpp", 224, ASSERT_TYPE_ASSERT, "(currentBlipLocCount < (((200 + 48)) + 8))", (const char *)&queryFormat, "currentBlipLocCount < MAX_COMPASS_AND_MT_ACTORS_COMMON") )
+LABEL_39:
+              if ( (unsigned int)v11 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_heartbeatsensor.cpp", 224, ASSERT_TYPE_ASSERT, "(currentBlipLocCount < (((200 + 48)) + 8))", (const char *)&queryFormat, "currentBlipLocCount < MAX_COMPASS_AND_MT_ACTORS_COMMON") )
                 __debugbreak();
-              _R13->blipLocations[v19] = (vec2_t)v27;
-              v19 = (unsigned int)(v19 + 1);
-              if ( (_DWORD)v19 == 255 )
+              Data->blipLocations[v11] = (vec2_t)v18;
+              v11 = (unsigned int)(v11 + 1);
+              if ( (_DWORD)v11 == 255 )
                 break;
               __asm { vminss  xmm7, xmm6, xmm7 }
             }
           }
         }
       }
-LABEL_36:
-      ++v21;
+LABEL_35:
+      ++v13;
     }
-    while ( (int)v21 < v55 );
+    while ( (int)v13 < v29 );
   }
-  _R13->numBlipsInFrame = v19;
-  __asm { vmovss  dword ptr [r13+844h], xmm7 }
-  memset(&v56, 0, sizeof(v56));
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  Data->numBlipsInFrame = v11;
+  Data->closestDistanceInFrame = *(float *)&_XMM7;
+  memset(&v30, 0, sizeof(v30));
 }
 
 /*
@@ -654,106 +480,62 @@ LUIElement_HeartbeatSensor_Sweep
 */
 void LUIElement_HeartbeatSensor_Sweep(const LocalClientNum_t localClientNum, LUIElement *element, const rectDef_s *rect, vec2_t pos, const vec2_t *yawVector, const SecureVec3 *tmpRefdefOrg, lua_State *luaVM)
 {
+  HeartbeatSensorData *Data; 
   cg_t *LocalClientGlobals; 
+  cg_t *v12; 
   int time; 
-  const char *v17; 
-  int v25; 
+  const char *v14; 
+  const GfxImage *sweepCircle; 
+  float v16; 
+  float v17; 
+  int height; 
+  int width; 
+  int vertAlign; 
   int horzAlign; 
   const ScreenPlacement *ActivePlacement; 
-  int timeshift; 
-  float system; 
-  int vertAlign; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
   float h; 
   float w; 
   float x[2]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
   *(vec2_t *)x = pos;
-  _RSI = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+  Data = LUIElement_HeartbeatSensor_GetData(element, luaVM);
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( _RSI->startTime < 0 )
+  v12 = LocalClientGlobals;
+  if ( Data->startTime < 0 )
   {
     time = LocalClientGlobals->time;
-    v17 = PING_SOUND_ALIAS;
-    _RSI->startTime = time;
-    _RSI->endTime = _RSI->duration + time;
-    SND_PlaySoundAlias(v17, localClientNum, LocalClientGlobals->predictedPlayerState.groundEntityNum, &LocalClientGlobals->predictedPlayerState.origin, 0, SASYS_CGAME);
-    _RSI->shouldPong = 1;
+    v14 = PING_SOUND_ALIAS;
+    Data->startTime = time;
+    Data->endTime = Data->duration + time;
+    SND_PlaySoundAlias(v14, localClientNum, LocalClientGlobals->predictedPlayerState.groundEntityNum, &LocalClientGlobals->predictedPlayerState.origin, 0, SASYS_CGAME);
+    Data->shouldPong = 1;
 LABEL_5:
-    _RSI->playerPositionInFrame = *(vec2_t *)&tmpRefdefOrg->x;
-    _RSI->playerYawInFrame = *yawVector;
+    Data->playerPositionInFrame = *(vec2_t *)&tmpRefdefOrg->x;
+    Data->playerYawInFrame = *yawVector;
     LUIElement_HeartbeatSensor_ProcessEntities(localClientNum, element, luaVM);
     goto LABEL_6;
   }
-  if ( LocalClientGlobals->time > _RSI->endTime + _RSI->nextPingTime )
+  if ( LocalClientGlobals->time > Data->endTime + Data->nextPingTime )
   {
-    _RSI->startTime = -1;
+    Data->startTime = -1;
     goto LABEL_5;
   }
 LABEL_6:
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rsi+870h]
-    vdivss  xmm6, xmm1, xmm0
-    vmulss  xmm2, xmm6, dword ptr [rsi+860h]
-    vmulss  xmm1, xmm2, cs:__real@40000000
-    vmovss  dword ptr [rsi+24h], xmm2
-  }
-  v25 = rect->vertAlign;
+  sweepCircle = Data->sweepCircle;
+  v16 = (float)(v12->time - Data->startTime) / (float)Data->sweepDuration;
+  v17 = v16 * Data->sweepRadius;
+  Data->currentRadius = v17;
+  height = sweepCircle->height;
+  width = sweepCircle->width;
+  vertAlign = rect->vertAlign;
   horzAlign = rect->horzAlign;
-  __asm
-  {
-    vmovss  [rsp+0F8h+w], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm0, cs:__real@bf000000
-    vaddss  xmm1, xmm2, [rsp+0F8h+x+4]
-    vmovss  [rsp+0F8h+x+4], xmm1
-    vmovss  [rsp+0F8h+h], xmm0
-  }
+  w = v17 * 2.0;
+  x[1] = (float)((float)((float)((float)height * (float)(v17 * 2.0)) / (float)width) * -0.5) + x[1];
+  h = (float)((float)height * (float)(v17 * 2.0)) / (float)width;
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  ScrPlace_ApplyRect(ActivePlacement, x, &x[1], &w, &h, horzAlign, v25);
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
-  _RSI->sweepCenterPosition = *(vec2_t *)x;
-  __asm
-  {
-    vmovss  xmm3, [rsp+0F8h+x+4]; centerY
-    vmovss  xmm2, [rsp+0F8h+x]; centerX
-    vsubss  xmm0, xmm1, xmm6
-    vmovss  [rsp+0F8h+var_88], xmm0
-    vmovss  [rsp+0F8h+var_90], xmm1
-    vmovss  [rsp+0F8h+var_98], xmm1
-    vmovss  [rsp+0F8h+var_A0], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0F8h+var_A8], xmm0
-    vmovss  [rsp+0F8h+var_B0], xmm1
-    vmovss  [rsp+0F8h+var_B8], xmm1
-    vmovss  xmm1, [rsp+0F8h+w]
-    vmovss  [rsp+0F8h+var_C0], xmm0
-    vmovss  [rsp+0F8h+vertAlign], xmm0
-    vmovss  xmm0, [rsp+0F8h+h]
-    vmovss  [rsp+0F8h+system], xmm0
-    vmovss  [rsp+0F8h+timeshift], xmm1
-  }
-  LUI_Render_DrawQuadRotated(localClientNum, element, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&timeshift, system, *(float *)&vertAlign, v47, v48, v49, v50, v51, v52, v53, v54, _RSI->sweepCircle, luaVM);
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
+  ScrPlace_ApplyRect(ActivePlacement, x, &x[1], &w, &h, horzAlign, vertAlign);
+  Data->sweepCenterPosition = *(vec2_t *)x;
+  LUI_Render_DrawQuadRotated(localClientNum, element, x[0], x[1], w, h, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0 - v16, Data->sweepCircle, luaVM);
 }
 
 /*
@@ -763,337 +545,195 @@ LUI_Element_HeartbeatSensor_RenderBlips
 */
 void LUI_Element_HeartbeatSensor_RenderBlips(const LocalClientNum_t localClientNum, LUIElement *element, const rectDef_s *rect, const rectDef_s *scaledRect, const vec2_t *yawVector, vec2_t pingStartPos, const float *centerX, const float *centerY, lua_State *luaVM)
 {
-  __int64 v22; 
-  CgCompassSystem *CompassSystem; 
-  ScreenPlacement *ActivePlacement; 
-  const dvar_t *v29; 
-  bool v39; 
-  const dvar_t *v51; 
-  const vec2_t *p_playerPositionInFrame; 
-  char v70; 
   HeartbeatSensorData *Data; 
-  cg_t *v90; 
-  unsigned int v91; 
-  const dvar_t *v92; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float maskRotation; 
-  int maskRotationa; 
-  float maskRotationb; 
-  float alphaScale; 
-  int alphaScalea; 
-  float alphaScaleb; 
-  float in; 
-  float ina; 
-  float applyParallax; 
-  float outClipped; 
-  float outClippeda; 
-  float v128; 
-  float v129; 
-  float v130; 
-  float v131; 
-  float v132; 
-  float v133; 
-  float viewportSize; 
-  float image; 
+  __int64 v13; 
+  CgCompassSystem *CompassSystem; 
+  const dvar_t *v15; 
+  float value; 
+  ScreenPlacement *ActivePlacement; 
+  __int128 v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float *v24; 
+  const dvar_t *v25; 
+  const vec2_t *p_playerPositionInFrame; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float iconSize; 
+  float v31; 
+  float v32; 
+  float clampRadius; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  int v38; 
+  int endTime; 
+  float v40; 
+  HeartbeatSensorData *v41; 
+  float v42; 
+  float v43; 
+  HeartbeatSensorData *v44; 
+  cg_t *v45; 
+  unsigned int v46; 
+  const dvar_t *v47; 
+  float v48; 
+  double v49; 
+  int maskRotation; 
+  int alphaScale; 
   float x; 
   float y; 
   float h; 
-  int v139; 
-  const float *v140; 
-  const float *v141; 
-  CgCompassSystem *v142; 
-  const rectDef_s *v143; 
+  int v55; 
+  const float *v56; 
+  float *v57; 
+  CgCompassSystem *v58; 
+  const rectDef_s *v59; 
   ScreenPlacement *scrPlace; 
   cg_t *LocalClientGlobals; 
   float w[2]; 
   vec2_t north; 
   vec2_t outSize; 
-  vec2_t v149; 
+  vec2_t in; 
   rectDef_s mapRect; 
-  vec2_t v151; 
+  vec2_t outClipped; 
 
-  _R15 = element;
   *(vec2_t *)w = pingStartPos;
-  v141 = centerX;
-  _R14 = scaledRect;
-  v140 = centerY;
-  v143 = rect;
-  _RBX = LUIElement_HeartbeatSensor_GetData(element, luaVM);
-  if ( _RBX->numBlipsInFrame )
+  v57 = (float *)centerX;
+  v56 = centerY;
+  v59 = rect;
+  Data = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+  if ( Data->numBlipsInFrame )
   {
-    __asm
-    {
-      vmovaps [rsp+1F0h+var_70], xmm8
-      vmovaps [rsp+1F0h+var_80], xmm9
-      vmovaps [rsp+1F0h+var_D0], xmm14
-    }
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    v22 = (__int64)LocalClientGlobals;
+    v13 = (__int64)LocalClientGlobals;
     CompassSystem = CgCompassSystem::GetCompassSystem(localClientNum);
-    _RDI = DCONST_DVARFLT_heartbeatSensorAlphaFalloff;
-    v142 = CompassSystem;
+    v15 = DCONST_DVARFLT_heartbeatSensorAlphaFalloff;
+    v58 = CompassSystem;
     if ( !DCONST_DVARFLT_heartbeatSensorAlphaFalloff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorAlphaFalloff") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm14, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v15);
+    value = v15->current.value;
     ActivePlacement = (ScreenPlacement *)ScrPlace_GetActivePlacement(localClientNum);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovss  xmm2, dword ptr [r14+4]
-    }
-    v29 = DCONST_DVARBOOL_hearbeatSensorUseCurrentOrientation;
-    *(_DWORD *)&mapRect.horzAlign = *(_DWORD *)&_R14->horzAlign;
-    _RCX = v140;
+    v18 = *(_OWORD *)&scaledRect->x;
+    v19 = scaledRect->y;
+    v20 = DCONST_DVARBOOL_hearbeatSensorUseCurrentOrientation;
+    *(_DWORD *)&mapRect.horzAlign = *(_DWORD *)&scaledRect->horzAlign;
     scrPlace = ActivePlacement;
-    __asm
-    {
-      vmovups xmmword ptr [rbp+0E0h+mapRect.x], xmm0
-      vmovss  xmm0, dword ptr [rcx]
-      vaddss  xmm1, xmm0, dword ptr [rbx+85Ch]
-      vmovss  [rbp+0E0h+mapRect.h], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rbx+85Ch]
-      vmovss  [rbp+0E0h+mapRect.y], xmm0
-    }
+    *(_OWORD *)&mapRect.x = v18;
+    mapRect.h = *v56 + Data->verticalPingOffset;
+    mapRect.y = v19 + Data->verticalPingOffset;
     if ( !DCONST_DVARBOOL_hearbeatSensorUseCurrentOrientation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "hearbeatSensorUseCurrentOrientation") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    if ( v29->current.enabled )
+    Dvar_CheckFrontendServerThread(v20);
+    if ( v20->current.enabled )
     {
-      _RAX = yawVector;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  dword ptr [rbp+0E0h+north], xmm0
-      }
+      v21 = yawVector->v[1];
+      north.v[0] = yawVector->v[0];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmovss  dword ptr [rbp+0E0h+north], xmm0
-        vmovss  xmm1, dword ptr [rbx+2Ch]
-      }
+      north.v[0] = Data->playerYawInFrame.v[0];
+      v21 = Data->playerYawInFrame.v[1];
     }
-    __asm
+    north.v[1] = v21;
+    if ( Data->targetRTT == TABLET )
     {
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  dword ptr [rbp+0E0h+north+4], xmm1
-    }
-    v39 = _RBX->targetRTT == TABLET;
-    __asm
-    {
-      vmovaps [rsp+1F0h+var_50], xmm6
-      vmovaps [rsp+1F0h+var_60], xmm7
-      vxorps  xmm9, xmm9, xmm9
-    }
-    if ( v39 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+0D8h]
-        vmovss  xmm1, dword ptr [r15+0D4h]
-        vsubss  xmm7, xmm0, dword ptr [r15+0D0h]
-        vsubss  xmm6, xmm1, dword ptr [r15+0CCh]
-      }
+      v22 = element->bottom - element->top;
+      v23 = element->right - element->left;
       LUI_Render_GetViewportSize(localClientNum, &outSize);
-      _R14 = v140;
-      _RAX = v141;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vsubss  xmm2, xmm0, dword ptr [rbx+85Ch]; maskCenterY
-        vmovss  [rsp+1F0h+var_190], xmm8
-        vmovss  xmm1, dword ptr [rax]; maskCenterX
-        vmovss  [rsp+1F0h+var_198], xmm8
-        vmovss  [rsp+1F0h+var_1A0], xmm9
-        vmovss  dword ptr [rsp+1F0h+outClipped], xmm9
-        vmovss  dword ptr [rsp+1F0h+in], xmm9
-        vmovss  [rsp+1F0h+alphaScale], xmm8
-        vmovss  [rsp+1F0h+maskRotation], xmm9
-        vmovaps xmm3, xmm6; maskWidth
-        vmovss  dword ptr [rsp+1F0h+fmt], xmm7
-      }
-      LUI_Render_PushMask(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, maskRotation, alphaScale, in, 0, outClipped, v128, v130, v132, &outSize, _RBX->blipTabletMask);
+      v24 = (float *)v56;
+      LUI_Render_PushMask(localClientNum, *v57, *v56 - Data->verticalPingOffset, v23, v22, 0.0, 1.0, 0.0, 0, 0.0, 0.0, 1.0, 1.0, &outSize, Data->blipTabletMask);
     }
-    v51 = NULL;
-    v139 = 0;
-    if ( _RBX->numBlipsInFrame )
+    else
     {
-      __asm { vmovaps [rsp+1F0h+var_90], xmm10 }
-      p_playerPositionInFrame = &_RBX->playerPositionInFrame;
-      __asm
-      {
-        vmovaps [rsp+1F0h+var_A0], xmm11
-        vmovaps [rsp+1F0h+var_B0], xmm12
-        vmovss  xmm12, [rbp+0E0h+w+4]
-        vmovaps [rsp+1F0h+var_C0], xmm13
-        vmovss  xmm13, [rbp+0E0h+w]
-      }
+      v24 = (float *)v56;
+    }
+    v25 = NULL;
+    v55 = 0;
+    if ( Data->numBlipsInFrame )
+    {
+      p_playerPositionInFrame = &Data->playerPositionInFrame;
+      v27 = w[1];
+      v28 = w[0];
       do
       {
-        v149 = _RBX->blipLocations[(_QWORD)v51];
-        __asm { vmovss  dword ptr [rsp+1F0h+fmt], xmm9 }
-        CgCompassSystem::WorldPosToCompass(v142, COMPASS_TYPE_PARTIAL, 0, &mapRect, fmta, &north, p_playerPositionInFrame, &v149, &outSize, &v151);
-        __asm
+        in = Data->blipLocations[(_QWORD)v25];
+        CgCompassSystem::WorldPosToCompass(v58, COMPASS_TYPE_PARTIAL, 0, &mapRect, 0.0, &north, p_playerPositionInFrame, &in, &outSize, &outClipped);
+        v29 = outSize.v[1] + *v24;
+        iconSize = Data->iconSize;
+        alphaScale = v59->vertAlign;
+        maskRotation = v59->horzAlign;
+        x = outSize.v[0] + *v57;
+        y = v29 + Data->verticalPingOffset;
+        w[0] = iconSize;
+        h = iconSize;
+        ScrPlace_ApplyRect(scrPlace, &x, &y, w, &h, maskRotation, alphaScale);
+        v31 = x;
+        v32 = y;
+        clampRadius = Data->clampRadius;
+        v34 = x - v28;
+        v35 = y - v27;
+        v36 = fsqrt((float)(v35 * v35) + (float)(v34 * v34));
+        if ( v36 > clampRadius )
         {
-          vmovss  xmm0, dword ptr [rbp+0E0h+outSize]
-          vmovss  xmm2, dword ptr [rbp+0E0h+outSize+4]
-          vaddss  xmm1, xmm0, dword ptr [rax]
-          vaddss  xmm0, xmm2, dword ptr [r14]
-          vmovss  xmm2, dword ptr [rbx+864h]
+          v37 = 1.0 / v36;
+          v32 = (float)((float)(v35 * clampRadius) * v37) + v27;
+          v31 = (float)((float)(v34 * clampRadius) * v37) + v28;
         }
-        alphaScalea = v143->vertAlign;
-        maskRotationa = v143->horzAlign;
-        __asm
+        v38 = *(_DWORD *)(v13 + 26092);
+        endTime = Data->endTime;
+        v40 = 0.0;
+        if ( v38 <= endTime )
         {
-          vmovss  [rbp+0E0h+x], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rbx+85Ch]
-          vmovss  [rbp+0E0h+y], xmm1
-          vmovss  [rbp+0E0h+w], xmm2
-          vmovss  [rbp+0E0h+h], xmm2
-        }
-        ScrPlace_ApplyRect(scrPlace, &x, &y, w, &h, maskRotationa, alphaScalea);
-        __asm
-        {
-          vmovss  xmm10, [rbp+0E0h+x]
-          vmovss  xmm11, [rbp+0E0h+y]
-          vmovss  xmm2, dword ptr [rbx+858h]
-          vsubss  xmm4, xmm10, xmm13
-          vsubss  xmm5, xmm11, xmm12
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm3, xmm1, xmm1
-          vcomiss xmm3, xmm2
-        }
-        if ( !(v70 | v39) )
-        {
-          __asm
+          v41 = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+          v42 = (float)(v27 - v32) * (float)(v27 - v32);
+          v43 = (float)(v28 - v31) * (float)(v28 - v31);
+          if ( (float)(v42 + v43) <= (float)(v41->currentRadius * v41->currentRadius) )
           {
-            vmulss  xmm0, xmm4, xmm2
-            vdivss  xmm3, xmm8, xmm3
-            vmulss  xmm1, xmm0, xmm3
-            vmulss  xmm2, xmm5, xmm2
-            vmulss  xmm0, xmm2, xmm3
-            vaddss  xmm11, xmm0, xmm12
-            vaddss  xmm10, xmm1, xmm13
-          }
-        }
-        __asm { vmovaps xmm7, xmm9 }
-        if ( *(_DWORD *)(v22 + 26092) <= _RBX->endTime )
-        {
-          _RAX = LUIElement_HeartbeatSensor_GetData(_R15, luaVM);
-          __asm
-          {
-            vsubss  xmm0, xmm12, xmm11
-            vmulss  xmm2, xmm0, xmm0
-            vsubss  xmm1, xmm13, xmm10
-            vmovss  xmm3, dword ptr [rax+24h]
-            vmulss  xmm1, xmm1, xmm1
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm6, xmm2, xmm1
-            vcomiss xmm6, xmm0
-          }
-          if ( v70 | v39 )
-          {
-            __asm { vmovaps xmm7, xmm8 }
-            Data = LUIElement_HeartbeatSensor_GetData(_R15, luaVM);
-            if ( Data->shouldPong )
+            v40 = FLOAT_1_0;
+            v44 = LUIElement_HeartbeatSensor_GetData(element, luaVM);
+            if ( v44->shouldPong )
             {
-              v90 = CG_GetLocalClientGlobals(localClientNum);
-              v91 = SND_PlaySoundAlias(PONG_SOUND_ALIAS, localClientNum, v90->predictedPlayerState.groundEntityNum, &v90->predictedPlayerState.origin, 0, SASYS_CGAME);
-              if ( v91 )
+              v45 = CG_GetLocalClientGlobals(localClientNum);
+              v46 = SND_PlaySoundAlias(PONG_SOUND_ALIAS, localClientNum, v45->predictedPlayerState.groundEntityNum, &v45->predictedPlayerState.origin, 0, SASYS_CGAME);
+              if ( v46 )
               {
-                v92 = DCONST_DVARFLT_heartbeatSensorMaxPitchRange;
-                __asm { vsqrtss xmm6, xmm6, xmm6 }
+                v47 = DCONST_DVARFLT_heartbeatSensorMaxPitchRange;
+                v48 = fsqrt(v42 + v43);
                 if ( !DCONST_DVARFLT_heartbeatSensorMaxPitchRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorMaxPitchRange") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v92);
-                __asm
-                {
-                  vdivss  xmm0, xmm6, dword ptr [rdi+28h]; val
-                  vmovaps xmm2, xmm8; max
-                  vmovaps xmm1, xmm9; min
-                }
-                *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                v51 = DCONST_DVARFLT_heartbeatSensorPitchShiftValue;
-                __asm { vmovaps xmm6, xmm0 }
+                Dvar_CheckFrontendServerThread(v47);
+                v49 = I_fclamp(v48 / v47->current.value, 0.0, 1.0);
+                v25 = DCONST_DVARFLT_heartbeatSensorPitchShiftValue;
                 if ( !DCONST_DVARFLT_heartbeatSensorPitchShiftValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "heartbeatSensorPitchShiftValue") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v51);
-                __asm
-                {
-                  vsubss  xmm0, xmm8, xmm6
-                  vmulss  xmm0, xmm0, dword ptr [rdi+28h]
-                  vaddss  xmm1, xmm0, xmm6; pitch
-                }
-                SND_ScaleVoicePitchById(v91, *(float *)&_XMM1, 0);
-                LODWORD(v51) = v139;
+                Dvar_CheckFrontendServerThread(v25);
+                SND_ScaleVoicePitchById(v46, (float)((float)(1.0 - *(float *)&v49) * v25->current.value) + *(float *)&v49, 0);
+                LODWORD(v25) = v55;
               }
-              v22 = (__int64)LocalClientGlobals;
-              Data->shouldPong = 0;
+              v13 = (__int64)LocalClientGlobals;
+              v44->shouldPong = 0;
             }
+            v24 = (float *)v56;
           }
         }
         else
         {
-          __asm
-          {
-            vxorps  xmm2, xmm2, xmm2
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rbx+86Ch]
-            vmulss  xmm1, xmm0, xmm14
-            vcvtsi2ss xmm2, xmm2, eax
-            vdivss  xmm2, xmm2, xmm1
-            vsubss  xmm7, xmm8, xmm2
-          }
+          v40 = 1.0 - (float)((float)(v38 - endTime) / (float)((float)Data->nextPingTime * value));
         }
-        __asm
-        {
-          vmovss  xmm0, [rbp+0E0h+h]
-          vmovss  xmm1, [rbp+0E0h+w]
-          vmovss  dword ptr [rsp+1F0h+image], xmm7
-          vmovss  dword ptr [rsp+1F0h+viewportSize], xmm8
-          vmovss  [rsp+1F0h+var_190], xmm8
-          vmovss  [rsp+1F0h+var_198], xmm8
-          vmovss  [rsp+1F0h+var_1A0], xmm9
-          vmovss  dword ptr [rsp+1F0h+outClipped], xmm8
-          vmovss  dword ptr [rsp+1F0h+applyParallax], xmm8
-          vmovss  dword ptr [rsp+1F0h+in], xmm9
-          vmovss  [rsp+1F0h+alphaScale], xmm9
-          vmovss  [rsp+1F0h+maskRotation], xmm0
-          vmovaps xmm3, xmm11; centerY
-          vmovaps xmm2, xmm10; centerX
-          vmovss  dword ptr [rsp+1F0h+fmt], xmm1
-        }
-        LUI_Render_DrawQuadRotated(localClientNum, _R15, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, maskRotationb, alphaScaleb, ina, applyParallax, outClippeda, v129, v131, v133, viewportSize, image, _RBX->pingIcon, luaVM);
-        v51 = (const dvar_t *)(unsigned int)((_DWORD)v51 + 1);
-        p_playerPositionInFrame = &_RBX->playerPositionInFrame;
-        v139 = (int)v51;
+        LUI_Render_DrawQuadRotated(localClientNum, element, v31, v32, w[0], h, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, v40, Data->pingIcon, luaVM);
+        v25 = (const dvar_t *)(unsigned int)((_DWORD)v25 + 1);
+        p_playerPositionInFrame = &Data->playerPositionInFrame;
+        v55 = (int)v25;
       }
-      while ( (unsigned int)v51 < _RBX->numBlipsInFrame );
-      __asm
-      {
-        vmovaps xmm13, [rsp+1F0h+var_C0]
-        vmovaps xmm12, [rsp+1F0h+var_B0]
-        vmovaps xmm11, [rsp+1F0h+var_A0]
-        vmovaps xmm10, [rsp+1F0h+var_90]
-      }
+      while ( (unsigned int)v25 < Data->numBlipsInFrame );
     }
-    __asm
-    {
-      vmovaps xmm14, [rsp+1F0h+var_D0]
-      vmovaps xmm9, [rsp+1F0h+var_80]
-      vmovaps xmm8, [rsp+1F0h+var_70]
-      vmovaps xmm7, [rsp+1F0h+var_60]
-      vmovaps xmm6, [rsp+1F0h+var_50]
-    }
-    if ( _RBX->targetRTT == TABLET )
+    if ( Data->targetRTT == TABLET )
       LUI_Render_PopMask(localClientNum);
   }
 }

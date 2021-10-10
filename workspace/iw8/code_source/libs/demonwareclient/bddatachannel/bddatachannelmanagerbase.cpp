@@ -403,87 +403,68 @@ void bdDataChannelManagerBase::destroy(bdDataChannelManagerBase *this)
 bdDataChannelManagerBase::flushAllMessageQueues
 ==============
 */
-
-bool __fastcall bdDataChannelManagerBase::flushAllMessageQueues(bdDataChannelManagerBase *this, double timeoutInSeconds)
+bool bdDataChannelManagerBase::flushAllMessageQueues(bdDataChannelManagerBase *this, float timeoutInSeconds)
 {
   unsigned __int64 HiResTimeStamp; 
-  unsigned __int64 v7; 
+  unsigned __int64 v4; 
   bdDataChannelManagerBase::bdDataChannelStatus m_currentStatus; 
-  bdDataChannelManagerBase::bdDataChannelStatus v9; 
-  char v10; 
-  char v11; 
+  bdDataChannelManagerBase::bdDataChannelStatus v6; 
+  double ElapsedTime; 
   bool result; 
-  double v16; 
-  double v17; 
+  double v9; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   this->m_allowWrite = 0;
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  v7 = HiResTimeStamp;
+  v4 = HiResTimeStamp;
   if ( this->m_currentMessageQueueSize )
   {
     while ( this->m_http )
     {
       m_currentStatus = this->m_currentStatus;
-      v9 = m_currentStatus;
+      v6 = m_currentStatus;
       if ( m_currentStatus > BD_DATACHANNEL_STATUS_NOT_READY && m_currentStatus <= BD_DATACHANNEL_STATUS_PENDING )
       {
         this->internalUpdate(this);
-        v9 = this->m_currentStatus;
+        v6 = this->m_currentStatus;
       }
-      for ( ; v9 == BD_DATACHANNEL_STATUS_PENDING; v7 = bdPlatformTiming::getHiResTimeStamp() )
+      for ( ; v6 == BD_DATACHANNEL_STATUS_PENDING; v4 = bdPlatformTiming::getHiResTimeStamp() )
       {
-        *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(HiResTimeStamp, v7);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !(v10 | v11) )
+        ElapsedTime = bdPlatformTiming::getElapsedTime(HiResTimeStamp, v4);
+        if ( *(float *)&ElapsedTime > timeoutInSeconds )
           break;
         bdPlatformTiming::sleep(0);
         if ( this->m_http )
         {
-          v9 = this->m_currentStatus;
-          if ( v9 > BD_DATACHANNEL_STATUS_NOT_READY && v9 <= BD_DATACHANNEL_STATUS_PENDING )
+          v6 = this->m_currentStatus;
+          if ( v6 > BD_DATACHANNEL_STATUS_NOT_READY && v6 <= BD_DATACHANNEL_STATUS_PENDING )
           {
             this->internalUpdate(this);
-            v9 = this->m_currentStatus;
+            v6 = this->m_currentStatus;
           }
         }
         else
         {
-          v9 = BD_DATACHANNEL_STATUS_NOT_READY;
+          v6 = BD_DATACHANNEL_STATUS_NOT_READY;
         }
       }
-      if ( v9 != BD_DATACHANNEL_STATUS_OK )
+      if ( v6 != BD_DATACHANNEL_STATUS_OK )
         break;
       if ( !this->m_currentMessageQueueSize )
       {
         this->m_allowWrite = 1;
-        result = 1;
-        goto LABEL_17;
+        return 1;
       }
     }
-    *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(HiResTimeStamp, v7);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+68h+var_20], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+68h+var_28], xmm2
-    }
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdOutOfBand/bdDataChannelEventManagerImpl", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachannelmanagerbase.cpp", "bdDataChannelManagerBase::flushAllMessageQueues", 0x97u, "flushAllMessageQueues() did not complete due to failed sent message or timeout, %u bytes left to flush. Timeout [%.7g] Elapsed time [%.7g]", this->m_currentMessageQueueSize, v16, v17);
+    v9 = bdPlatformTiming::getElapsedTime(HiResTimeStamp, v4);
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdOutOfBand/bdDataChannelEventManagerImpl", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachannelmanagerbase.cpp", "bdDataChannelManagerBase::flushAllMessageQueues", 0x97u, "flushAllMessageQueues() did not complete due to failed sent message or timeout, %u bytes left to flush. Timeout [%.7g] Elapsed time [%.7g]", this->m_currentMessageQueueSize, timeoutInSeconds, *(float *)&v9);
     result = 0;
     this->m_allowWrite = 1;
   }
   else
   {
     this->m_allowWrite = 1;
-    result = 1;
+    return 1;
   }
-LABEL_17:
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
   return result;
 }
 

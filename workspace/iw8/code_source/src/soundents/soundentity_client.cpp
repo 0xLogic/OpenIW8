@@ -235,23 +235,13 @@ void CG_SoundEntity_Init(LocalClientNum_t localClientNum)
 CG_SoundEntity_ScalePitch
 ==============
 */
-
-void __fastcall CG_SoundEntity_ScalePitch(LocalClientNum_t localClientNum, int soundEntityId, double pitch, int blendTimeMs)
+void CG_SoundEntity_ScalePitch(LocalClientNum_t localClientNum, int soundEntityId, float pitch, int blendTimeMs)
 {
-  ClientSoundEntity *v7; 
+  ClientSoundEntity *v5; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v7 = CG_SoundEntity_Get(localClientNum, soundEntityId);
-  if ( v7 )
-  {
-    __asm { vmovaps xmm1, xmm6; pitch }
-    SND_ScaleVoicePitchById(v7->playbackId, *(float *)&_XMM1, blendTimeMs);
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  v5 = CG_SoundEntity_Get(localClientNum, soundEntityId);
+  if ( v5 )
+    SND_ScaleVoicePitchById(v5->playbackId, pitch, blendTimeMs);
 }
 
 /*
@@ -259,23 +249,13 @@ void __fastcall CG_SoundEntity_ScalePitch(LocalClientNum_t localClientNum, int s
 CG_SoundEntity_ScaleVolume
 ==============
 */
-
-void __fastcall CG_SoundEntity_ScaleVolume(LocalClientNum_t localClientNum, int soundEntityId, double volume, int blendTimeMs)
+void CG_SoundEntity_ScaleVolume(LocalClientNum_t localClientNum, int soundEntityId, float volume, int blendTimeMs)
 {
-  ClientSoundEntity *v7; 
+  ClientSoundEntity *v5; 
 
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  v7 = CG_SoundEntity_Get(localClientNum, soundEntityId);
-  if ( v7 )
-  {
-    __asm { vmovaps xmm1, xmm6; volume }
-    SND_ScaleVoiceVolumeById(v7->playbackId, *(float *)&_XMM1, blendTimeMs);
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
+  v5 = CG_SoundEntity_Get(localClientNum, soundEntityId);
+  if ( v5 )
+    SND_ScaleVoiceVolumeById(v5->playbackId, volume, blendTimeMs);
 }
 
 /*
@@ -385,42 +365,41 @@ CG_SoundEntity_TriggerStart
 */
 void CG_SoundEntity_TriggerStart(LocalClientNum_t localClientNum, int soundEntityId, unsigned __int16 soundAlias, vec3_t *origin)
 {
-  float v5; 
-  ClientSoundEntity *v9; 
-  unsigned int v10; 
-  bool v11; 
-  int v12; 
-  unsigned int v13; 
+  float v4; 
+  ClientSoundEntity *v8; 
+  unsigned int v9; 
+  bool v10; 
+  int v11; 
+  unsigned int v12; 
   CgSoundSystem *SoundSystem; 
-  unsigned int v15; 
-  int v16; 
-  __int64 v17; 
-  float v18; 
+  unsigned int v14; 
+  int v15; 
+  __int64 v16; 
+  float v17; 
 
-  __asm { vmovsd  xmm0, qword ptr [r9] }
-  v5 = origin->v[2];
-  __asm { vmovsd  [rsp+98h+var_58], xmm0 }
-  v18 = v5;
-  v9 = CG_SoundEntity_Get(localClientNum, soundEntityId);
-  if ( v9 )
+  v4 = origin->v[2];
+  v16 = *(_QWORD *)origin->v;
+  v17 = v4;
+  v8 = CG_SoundEntity_Get(localClientNum, soundEntityId);
+  if ( v8 )
   {
-    v10 = soundAlias;
-    v11 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
+    v9 = soundAlias;
+    v10 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
+    v11 = 512;
     v12 = 512;
-    v13 = 512;
-    if ( v11 )
-      v13 = 0x7FFF;
-    if ( v10 >= v13 )
+    if ( v10 )
+      v12 = 0x7FFF;
+    if ( v9 >= v12 )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
-        v12 = 0x7FFF;
-      v16 = v12;
-      v15 = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\soundents\\soundentity_client.cpp", 81, ASSERT_TYPE_ASSERT, "(unsigned)( soundAlias ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? ( (1 << 15) - 1 ) : 512 )", "soundAlias doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? SND_MAX_PRECACHED_ALIASES : MAX_SOUNDALIASES\n\t%i not in [0, %i)", v15, v16) )
+        v11 = 0x7FFF;
+      v15 = v11;
+      v14 = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\soundents\\soundentity_client.cpp", 81, ASSERT_TYPE_ASSERT, "(unsigned)( soundAlias ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? ( (1 << 15) - 1 ) : 512 )", "soundAlias doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? SND_MAX_PRECACHED_ALIASES : MAX_SOUNDALIASES\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
     SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-    v9->playbackId = SoundSystem->PlaySoundAliasByName(SoundSystem, soundEntityId + 5443, (const vec3_t *)&v17, v10);
+    v8->playbackId = SoundSystem->PlaySoundAliasByName(SoundSystem, soundEntityId + 5443, (const vec3_t *)&v16, v9);
   }
 }
 

@@ -987,19 +987,28 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
   __int64 clientCount; 
   int v5; 
   __int64 v6; 
+  unsigned int *m_count; 
   __int64 v8; 
   BuildClientMessageRequest *v9; 
   clientSnapshot_t *v10; 
   int newTimeDelta; 
+  __m256i v12; 
+  __m256i v13; 
   SvSnapshotStorageType m_storageType; 
-  __int64 v24; 
+  __int128 v15; 
+  __m256i v16; 
+  __m256i v17; 
+  __m256i v18; 
+  __int128 v19; 
+  __m256i v20; 
+  __int64 v21; 
   unsigned __int8 *p_clientCount; 
-  int v26; 
-  unsigned __int8 *v27; 
-  BuildClientMessageRequest *v28; 
+  int v23; 
+  unsigned __int8 *v24; 
+  BuildClientMessageRequest *v25; 
   __int64 numBuilders; 
   __int64 numBuildersa; 
-  __int64 v31; 
+  __int64 v28; 
   SvSnapshotDelta outSnapDelta; 
   SvSnapshotEntries outOldEntries; 
   SvSnapshotEntries outNewEntries; 
@@ -1020,7 +1029,7 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
   if ( buildRequest->clientCount )
   {
     v6 = 0i64;
-    _RSI = builders.oldEntries.m_count;
+    m_count = builders.oldEntries.m_count;
     do
     {
       v8 = buildRequest->clients[v6];
@@ -1031,16 +1040,16 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
       {
         if ( (unsigned int)v8 >= 0xC8 )
         {
-          LODWORD(v31) = 200;
+          LODWORD(v28) = 200;
           LODWORD(numBuildersa) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1118, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( 200 )", "clientIndex doesn't index MAX_CLIENTS_MP\n\t%i not in [0, %i)", numBuildersa, v31) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1118, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( 200 )", "clientIndex doesn't index MAX_CLIENTS_MP\n\t%i not in [0, %i)", numBuildersa, v28) )
             __debugbreak();
         }
         if ( g_svSnapshotData.maxServerMessages > 10 )
         {
-          LODWORD(v31) = 10;
+          LODWORD(v28) = 10;
           LODWORD(numBuildersa) = g_svSnapshotData.maxServerMessages;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1120, ASSERT_TYPE_ASSERT, "( g_svSnapshotData.maxServerMessages ) <= ( 10 )", "g_svSnapshotData.maxServerMessages not in [0, MAX_SERVER_MESSAGES]\n\t%u not in [0, %u]", numBuildersa, v31) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1120, ASSERT_TYPE_ASSERT, "( g_svSnapshotData.maxServerMessages ) <= ( 10 )", "g_svSnapshotData.maxServerMessages not in [0, MAX_SERVER_MESSAGES]\n\t%u not in [0, %u]", numBuildersa, v28) )
             __debugbreak();
         }
         if ( v5 >= 10 )
@@ -1051,45 +1060,38 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rsp+14B8h+outSnapDelta.snapshotType] }
           newTimeDelta = outSnapDelta.newTimeDelta;
-          __asm { vmovups xmmword ptr [rsi-70h], xmm0 }
-          *(_RSI - 24) = newTimeDelta;
-          memset_0(_RSI + 42, 0, 0xC8ui64);
-          __asm { vmovups ymm0, ymmword ptr [rsp+14B8h+outOldEntries.m_first] }
+          *((_OWORD *)m_count - 7) = *(_OWORD *)&outSnapDelta.snapshotType;
+          *(m_count - 24) = newTimeDelta;
+          memset_0(m_count + 42, 0, 0xC8ui64);
+          v12 = *(__m256i *)outOldEntries.m_first;
           ++v5;
-          __asm { vmovups ymm1, ymmword ptr [rsp+14B8h+outOldEntries.m_first+20h] }
-          *((_BYTE *)_RSI - 88) = outOldEntries.m_storageType;
+          v13 = *(__m256i *)&outOldEntries.m_first[4];
+          *((_BYTE *)m_count - 88) = outOldEntries.m_storageType;
           m_storageType = outNewEntries.m_storageType;
-          __asm
-          {
-            vmovups ymmword ptr [rsi-50h], ymm0
-            vmovups xmm0, xmmword ptr [rsp+14B8h+outOldEntries.m_first+40h]
-            vmovups ymmword ptr [rsi-30h], ymm1
-            vmovups ymm1, ymmword ptr [rsp+14B8h+outOldEntries.m_count]
-            vmovups xmmword ptr [rsi-10h], xmm0
-            vmovsd  xmm0, qword ptr [rsp+14B8h+outOldEntries.m_count+20h]
-            vmovups ymmword ptr [rsi], ymm1
-            vmovups ymm1, ymmword ptr [rsp+14B8h+outNewEntries.m_first+20h]
-            vmovsd  qword ptr [rsi+20h], xmm0
-            vmovups ymm0, ymmword ptr [rsp+14B8h+outNewEntries.m_first]
-          }
-          *((_BYTE *)_RSI + 40) = m_storageType;
-          __asm
-          {
-            vmovups ymmword ptr [rsi+30h], ymm0
-            vmovups xmm0, xmmword ptr [rsp+14B8h+outNewEntries.m_first+40h]
-            vmovups ymmword ptr [rsi+50h], ymm1
-            vmovups ymm1, ymmword ptr [rsp+14B8h+outNewEntries.m_count]
-            vmovups xmmword ptr [rsi+70h], xmm0
-            vmovsd  xmm0, qword ptr [rsp+14B8h+outNewEntries.m_count+20h]
-            vmovups ymmword ptr [rsi+80h], ymm1
-            vmovsd  qword ptr [rsi+0A0h], xmm0
-          }
-          *((_BYTE *)_RSI + 368) = 0;
-          *((_BYTE *)_RSI + 168) = v8;
-          ++*((_BYTE *)_RSI + 368);
-          _RSI += 122;
+          *(__m256i *)(m_count - 20) = v12;
+          v15 = *(_OWORD *)&outOldEntries.m_first[8];
+          *(__m256i *)(m_count - 12) = v13;
+          v16 = *(__m256i *)outOldEntries.m_count;
+          *((_OWORD *)m_count - 1) = v15;
+          *(_QWORD *)&v15 = *(_QWORD *)&outOldEntries.m_count[8];
+          *(__m256i *)m_count = v16;
+          v17 = *(__m256i *)&outNewEntries.m_first[4];
+          *((double *)m_count + 4) = *(double *)&v15;
+          v18 = *(__m256i *)outNewEntries.m_first;
+          *((_BYTE *)m_count + 40) = m_storageType;
+          *(__m256i *)(m_count + 12) = v18;
+          v19 = *(_OWORD *)&outNewEntries.m_first[8];
+          *(__m256i *)(m_count + 20) = v17;
+          v20 = *(__m256i *)outNewEntries.m_count;
+          *((_OWORD *)m_count + 7) = v19;
+          *(_QWORD *)&v19 = *(_QWORD *)&outNewEntries.m_count[8];
+          *((__m256i *)m_count + 4) = v20;
+          *((double *)m_count + 20) = *(double *)&v19;
+          *((_BYTE *)m_count + 368) = 0;
+          *((_BYTE *)m_count + 168) = v8;
+          ++*((_BYTE *)m_count + 368);
+          m_count += 122;
         }
       }
       ++v6;
@@ -1097,13 +1099,13 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
     while ( v6 < clientCount );
     if ( v5 > 10 )
     {
-      LODWORD(v31) = 10;
+      LODWORD(v28) = 10;
       LODWORD(numBuildersa) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1223, ASSERT_TYPE_ASSERT, "( numServerMessages ) <= ( 10 )", "numServerMessages not in [0, MAX_SERVER_MESSAGES]\n\t%u not in [0, %u]", numBuildersa, v31) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1223, ASSERT_TYPE_ASSERT, "( numServerMessages ) <= ( 10 )", "numServerMessages not in [0, MAX_SERVER_MESSAGES]\n\t%u not in [0, %u]", numBuildersa, v28) )
         __debugbreak();
     }
   }
-  v24 = v5;
+  v21 = v5;
   if ( v5 > 0i64 )
   {
     p_clientCount = &builders.clientCount;
@@ -1111,26 +1113,26 @@ void SV_SnapWorkersMP_BuildServerMessagesFromServerSnap(const serverSnapshot_t *
     {
       if ( !SV_SnapWorkersMP_StartBuildServerMessage((BuildServerMessageCmd *const)(p_clientCount - 480)) )
       {
-        v26 = 0;
+        v23 = 0;
         if ( *p_clientCount )
         {
-          v27 = p_clientCount - 200;
+          v24 = p_clientCount - 200;
           do
           {
-            v28 = &g_svSnapshotData.clientMsgRequest[*v27];
-            v28->serverMessageIndex = -1;
-            v28->serverMessageSize = 0;
-            SV_SnapWorkersMP_StartClientMessageBuild(v28);
-            ++v27;
-            ++v26;
+            v25 = &g_svSnapshotData.clientMsgRequest[*v24];
+            v25->serverMessageIndex = -1;
+            v25->serverMessageSize = 0;
+            SV_SnapWorkersMP_StartClientMessageBuild(v25);
+            ++v24;
+            ++v23;
           }
-          while ( v26 < *p_clientCount );
+          while ( v23 < *p_clientCount );
         }
       }
       p_clientCount += 488;
-      --v24;
+      --v21;
     }
-    while ( v24 );
+    while ( v21 );
   }
 }
 
@@ -1540,6 +1542,7 @@ SV_SnapWorkersMP_GetClientSnapshotDelta
 */
 void SV_SnapWorkersMP_GetClientSnapshotDelta(const BuildClientMessageRequest *const clientMessageRequest, const clientSnapshot_t *const newSnapshot, SvSnapshotDelta *const outSnapDelta, SvSnapshotEntries *const outOldEntries, SvSnapshotEntries *const outNewEntries)
 {
+  SvSnapshotEntries *v9; 
   unsigned int clientIndex; 
   const SvClientMP *CommonClient; 
   int outgoingSequence; 
@@ -1549,46 +1552,44 @@ void SV_SnapWorkersMP_GetClientSnapshotDelta(const BuildClientMessageRequest *co
   const clientSnapshot_t *ClientDeltaSnapshot; 
   int *outDeltaFrame; 
   int *outDeltaFramea; 
-  __int64 v30; 
+  __int64 v19; 
   int deltaMessage; 
   BandwidthMonitoringEventTypes outDeltaType; 
 
-  _R15 = outOldEntries;
-  _RBX = newSnapshot;
   if ( !clientMessageRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 964, ASSERT_TYPE_ASSERT, "( clientMessageRequest != nullptr )", (const char *)&queryFormat, "clientMessageRequest != nullptr") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 965, ASSERT_TYPE_ASSERT, "( newSnapshot != nullptr )", (const char *)&queryFormat, "newSnapshot != nullptr") )
+  if ( !newSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 965, ASSERT_TYPE_ASSERT, "( newSnapshot != nullptr )", (const char *)&queryFormat, "newSnapshot != nullptr") )
     __debugbreak();
   if ( !outSnapDelta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 966, ASSERT_TYPE_ASSERT, "( outSnapDelta != nullptr )", (const char *)&queryFormat, "outSnapDelta != nullptr") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 967, ASSERT_TYPE_ASSERT, "( outOldEntries != nullptr )", (const char *)&queryFormat, "outOldEntries != nullptr") )
+  if ( !outOldEntries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 967, ASSERT_TYPE_ASSERT, "( outOldEntries != nullptr )", (const char *)&queryFormat, "outOldEntries != nullptr") )
     __debugbreak();
-  _RDI = outNewEntries;
+  v9 = outNewEntries;
   if ( !outNewEntries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 968, ASSERT_TYPE_ASSERT, "( outNewEntries != nullptr )", (const char *)&queryFormat, "outNewEntries != nullptr") )
     __debugbreak();
   *(_QWORD *)&outSnapDelta->snapshotType = 0i64;
   *(_QWORD *)&outSnapDelta->newServerTime = 0i64;
   outSnapDelta->newTimeDelta = 0;
-  _R15->m_storageType = FULL;
-  memset_0(_R15->m_first, 0, sizeof(_R15->m_first));
-  *(_QWORD *)_R15->m_count = 0i64;
-  *(_QWORD *)&_R15->m_count[2] = 0i64;
-  *(_QWORD *)&_R15->m_count[4] = 0i64;
-  *(_QWORD *)&_R15->m_count[6] = 0i64;
-  *(_QWORD *)&_R15->m_count[8] = 0i64;
-  _RDI->m_storageType = FULL;
-  memset_0(_RDI->m_first, 0, sizeof(_RDI->m_first));
-  *(_QWORD *)_RDI->m_count = 0i64;
-  *(_QWORD *)&_RDI->m_count[2] = 0i64;
-  *(_QWORD *)&_RDI->m_count[4] = 0i64;
-  *(_QWORD *)&_RDI->m_count[6] = 0i64;
-  *(_QWORD *)&_RDI->m_count[8] = 0i64;
-  if ( _RBX->baselineSnap )
+  outOldEntries->m_storageType = FULL;
+  memset_0(outOldEntries->m_first, 0, sizeof(outOldEntries->m_first));
+  *(_QWORD *)outOldEntries->m_count = 0i64;
+  *(_QWORD *)&outOldEntries->m_count[2] = 0i64;
+  *(_QWORD *)&outOldEntries->m_count[4] = 0i64;
+  *(_QWORD *)&outOldEntries->m_count[6] = 0i64;
+  *(_QWORD *)&outOldEntries->m_count[8] = 0i64;
+  v9->m_storageType = FULL;
+  memset_0(v9->m_first, 0, sizeof(v9->m_first));
+  *(_QWORD *)v9->m_count = 0i64;
+  *(_QWORD *)&v9->m_count[2] = 0i64;
+  *(_QWORD *)&v9->m_count[4] = 0i64;
+  *(_QWORD *)&v9->m_count[6] = 0i64;
+  *(_QWORD *)&v9->m_count[8] = 0i64;
+  if ( newSnapshot->baselineSnap )
   {
     outSnapDelta->snapshotType = LONG;
-    outSnapDelta->newServerTime = _RBX->serverTime;
-    outSnapDelta->newTimeDelta = _RBX->timeDelta;
-    SV_SnapshotMP_AssignBaselineIndices(_RDI);
+    outSnapDelta->newServerTime = newSnapshot->serverTime;
+    outSnapDelta->newTimeDelta = newSnapshot->timeDelta;
+    SV_SnapshotMP_AssignBaselineIndices(v9);
   }
   else
   {
@@ -1610,9 +1611,9 @@ void SV_SnapWorkersMP_GetClientSnapshotDelta(const BuildClientMessageRequest *co
       updated = deltaMessage;
       if ( deltaMessage <= v14 )
       {
-        LODWORD(v30) = clientMessageRequest->deltaMessage;
+        LODWORD(v19) = clientMessageRequest->deltaMessage;
         LODWORD(outDeltaFramea) = deltaMessage;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 991, ASSERT_TYPE_ASSERT, "( blindDeltaFrame ) > ( clientMessageRequest->deltaMessage )", "blindDeltaFrame > clientMessageRequest->deltaMessage\n\t%i, %i", outDeltaFramea, v30) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 991, ASSERT_TYPE_ASSERT, "( blindDeltaFrame ) > ( clientMessageRequest->deltaMessage )", "blindDeltaFrame > clientMessageRequest->deltaMessage\n\t%i, %i", outDeltaFramea, v19) )
           __debugbreak();
         updated = deltaMessage;
       }
@@ -1621,52 +1622,35 @@ void SV_SnapWorkersMP_GetClientSnapshotDelta(const BuildClientMessageRequest *co
     {
       updated = SV_SnapshotMP_UpdateDeltaMessageSequence(CommonClient, v14, 0, 0);
     }
-    ClientDeltaSnapshot = SV_SnapshotMP_FindClientDeltaSnapshot(clientMessageRequest->clientIndex, updated, (const SvClientConnectionState)clientMessageRequest->connState, clientMessageRequest->hasAckedBaselineData, _RBX, &outDeltaType);
-    _RCX = ClientDeltaSnapshot;
+    ClientDeltaSnapshot = SV_SnapshotMP_FindClientDeltaSnapshot(clientMessageRequest->clientIndex, updated, (const SvClientConnectionState)clientMessageRequest->connState, clientMessageRequest->hasAckedBaselineData, newSnapshot, &outDeltaType);
     if ( ClientDeltaSnapshot )
     {
       outSnapDelta->snapshotType = HALF;
       outSnapDelta->oldServerTime = ClientDeltaSnapshot->serverTime;
-      outSnapDelta->newServerTime = _RBX->serverTime;
+      outSnapDelta->newServerTime = newSnapshot->serverTime;
       outSnapDelta->oldTimeDelta = ClientDeltaSnapshot->timeDelta;
-      outSnapDelta->newTimeDelta = _RBX->timeDelta;
-      _R15->m_storageType = ClientDeltaSnapshot->serverEntries.m_storageType;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx+6B80h]
-        vmovups ymmword ptr [r15+8], ymm0
-        vmovups ymm1, ymmword ptr [rcx+6BA0h]
-        vmovups ymmword ptr [r15+28h], ymm1
-        vmovups xmm0, xmmword ptr [rcx+6BC0h]
-        vmovups xmmword ptr [r15+48h], xmm0
-        vmovups ymm0, ymmword ptr [rcx+6BD0h]
-        vmovups ymmword ptr [r15+58h], ymm0
-        vmovsd  xmm1, qword ptr [rcx+6BF0h]
-        vmovsd  qword ptr [r15+78h], xmm1
-      }
+      outSnapDelta->newTimeDelta = newSnapshot->timeDelta;
+      outOldEntries->m_storageType = ClientDeltaSnapshot->serverEntries.m_storageType;
+      *(__m256i *)outOldEntries->m_first = *(__m256i *)ClientDeltaSnapshot->serverEntries.m_first;
+      *(__m256i *)&outOldEntries->m_first[4] = *(__m256i *)&ClientDeltaSnapshot->serverEntries.m_first[4];
+      *(_OWORD *)&outOldEntries->m_first[8] = *(_OWORD *)&ClientDeltaSnapshot->serverEntries.m_first[8];
+      *(__m256i *)outOldEntries->m_count = *(__m256i *)ClientDeltaSnapshot->serverEntries.m_count;
+      *(double *)&outOldEntries->m_count[8] = *(double *)&ClientDeltaSnapshot->serverEntries.m_count[8];
     }
     else
     {
       SV_BandwidthProfile_RecordEvent(-1, "nodelta:client %d,event %d", clientMessageRequest->clientIndex, (unsigned int)outDeltaType);
       outSnapDelta->snapshotType = HALF_HALF;
-      outSnapDelta->newServerTime = _RBX->serverTime;
-      outSnapDelta->newTimeDelta = _RBX->timeDelta;
-      SV_SnapshotMP_AssignBaselineIndices(_R15);
+      outSnapDelta->newServerTime = newSnapshot->serverTime;
+      outSnapDelta->newTimeDelta = newSnapshot->timeDelta;
+      SV_SnapshotMP_AssignBaselineIndices(outOldEntries);
     }
-    _RDI->m_storageType = _RBX->serverEntries.m_storageType;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+6B80h]
-      vmovups ymmword ptr [rdi+8], ymm0
-      vmovups ymm1, ymmword ptr [rbx+6BA0h]
-      vmovups ymmword ptr [rdi+28h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+6BC0h]
-      vmovups xmmword ptr [rdi+48h], xmm0
-      vmovups ymm0, ymmword ptr [rbx+6BD0h]
-      vmovups ymmword ptr [rdi+58h], ymm0
-      vmovsd  xmm1, qword ptr [rbx+6BF0h]
-      vmovsd  qword ptr [rdi+78h], xmm1
-    }
+    v9->m_storageType = newSnapshot->serverEntries.m_storageType;
+    *(__m256i *)v9->m_first = *(__m256i *)newSnapshot->serverEntries.m_first;
+    *(__m256i *)&v9->m_first[4] = *(__m256i *)&newSnapshot->serverEntries.m_first[4];
+    *(_OWORD *)&v9->m_first[8] = *(_OWORD *)&newSnapshot->serverEntries.m_first[8];
+    *(__m256i *)v9->m_count = *(__m256i *)newSnapshot->serverEntries.m_count;
+    *(double *)&v9->m_count[8] = *(double *)&newSnapshot->serverEntries.m_count[8];
   }
 }
 
@@ -2443,18 +2427,13 @@ SV_SnapWorkersMP_StartSnapshotArchiveAdd
 */
 void SV_SnapWorkersMP_StartSnapshotArchiveAdd(void)
 {
-  volatile int v2; 
-  int v3; 
+  volatile int v0; 
+  int v1; 
   SVSnapshotArchiveEncodeData data; 
   SVSnapshotArchiveEncodeData worldStateEncodeData; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?g_svSnapshotData@@3UServerSnapshotDataMP@@A.weaponMapEncodeData.archiveMsg; ServerSnapshotDataMP g_svSnapshotData
-    vmovups ymm1, ymmword ptr cs:?g_svSnapshotData@@3UServerSnapshotDataMP@@A.worldStateEncodeData.archiveMsg; ServerSnapshotDataMP g_svSnapshotData
-    vmovups [rsp+88h+data], ymm0
-    vmovups ymmword ptr [rsp+88h+worldStateEncodeData.archiveMsg], ymm1
-  }
+  data = g_svSnapshotData.weaponMapEncodeData;
+  worldStateEncodeData = g_svSnapshotData.worldStateEncodeData;
   g_svSnapshotData.snapArchiveCommitError = 0;
   if ( g_svSnapshotData.snapArchiveOnWorker )
   {
@@ -2467,9 +2446,9 @@ void SV_SnapWorkersMP_StartSnapshotArchiveAdd(void)
     {
       if ( s_archivePlayerStateSize > 0x10000 )
       {
-        v3 = 0x10000;
-        v2 = s_archivePlayerStateSize;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1678, ASSERT_TYPE_ASSERT, "( s_archivePlayerStateSize ) <= ( 65536 )", "s_archivePlayerStateSize not in [0, MAX_SNAPSHOT_MSGLEN_PLAYERSTATE]\n\t%u not in [0, %u]", v2, v3) )
+        v1 = 0x10000;
+        v0 = s_archivePlayerStateSize;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1678, ASSERT_TYPE_ASSERT, "( s_archivePlayerStateSize ) <= ( 65536 )", "s_archivePlayerStateSize not in [0, MAX_SNAPSHOT_MSGLEN_PLAYERSTATE]\n\t%u not in [0, %u]", v0, v1) )
           __debugbreak();
       }
       g_svSnapshotData.snapArchiveCommitError = !SV_SnapshotMP_ArchiveSnapshotAddToArchive(g_svSnapshotData.archivePlayerStateMsgData, s_archivePlayerStateSize, &data, &worldStateEncodeData);
@@ -2486,31 +2465,26 @@ SV_SnapWorkersMP_StartSnapshotArchiveEncode
 void SV_SnapWorkersMP_StartSnapshotArchiveEncode(void)
 {
   CachedSnapshotPlayerStateBuffer archivePlayerStateCacheBuffer; 
-  cachedSnapshotPlayerState_t *v3; 
-  __int64 v4; 
+  cachedSnapshotPlayerState_t *v1; 
+  __int64 v2; 
   signed int i; 
   SvClient *CommonClient; 
-  unsigned int v7; 
-  unsigned int v8; 
-  __int64 v9; 
+  unsigned int v5; 
+  unsigned int v6; 
+  __int64 v7; 
   bool snapArchiveEncodeError; 
-  bool v11; 
-  unsigned int v12; 
+  bool v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
   __m256i data; 
   msg_t *msgWorldState[4]; 
   msg_t buf; 
   int cmdInfo; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?g_svSnapshotData@@3UServerSnapshotDataMP@@A.weaponMapEncodeData.archiveMsg; ServerSnapshotDataMP g_svSnapshotData
-    vmovups ymm1, ymmword ptr cs:?g_svSnapshotData@@3UServerSnapshotDataMP@@A.worldStateEncodeData.archiveMsg; ServerSnapshotDataMP g_svSnapshotData
-    vmovups [rbp+57h+data], ymm0
-    vmovups ymmword ptr [rbp+57h+msgWorldState], ymm1
-  }
+  data = (__m256i)g_svSnapshotData.weaponMapEncodeData;
+  *(SVSnapshotArchiveEncodeData *)msgWorldState = g_svSnapshotData.worldStateEncodeData;
   g_svSnapshotData.snapArchiveEncodeError = 0;
   g_svSnapshotData.archivePlayerStateCacheTime = SvPersistentGlobalsMP::GetPersistentGlobalsMP()->time;
   archivePlayerStateCacheBuffer = SV_SnapshotArchiveMP_UpdatePlayerStateWriteCache();
@@ -2521,10 +2495,10 @@ void SV_SnapWorkersMP_StartSnapshotArchiveEncode(void)
       __debugbreak();
     archivePlayerStateCacheBuffer = g_svSnapshotData.archivePlayerStateCacheBuffer;
   }
-  v3 = &g_svSnapshotData.cachedSnapshotPlayerStateFramesWrite[archivePlayerStateCacheBuffer];
+  v1 = &g_svSnapshotData.cachedSnapshotPlayerStateFramesWrite[archivePlayerStateCacheBuffer];
   MSG_Init(&buf, g_svSnapshotData.archivePlayerStateMsgData, 0x10000);
-  MSG_WriteData(&buf, v3, 40);
-  LODWORD(v4) = 0;
+  MSG_WriteData(&buf, v1, 40);
+  LODWORD(v2) = 0;
   s_archivePlayerStateSize = buf.cursize;
   for ( i = 0; i < (int)SvClient::ms_clientCount; CommonClient[1116].lastUsercmd.serverTime = 0 )
   {
@@ -2535,42 +2509,42 @@ void SV_SnapWorkersMP_StartSnapshotArchiveEncode(void)
     *(_QWORD *)(&CommonClient[1116].state + 4) = 0i64;
     *(unsigned __int64 *)((char *)&CommonClient[1116].lastUsercmd.buttons + 4) = 0i64;
   }
-  v7 = v3->playerStateValid[0];
+  v5 = v1->playerStateValid[0];
   if ( g_svSnapshotData.snapArchiveOnWorker )
   {
     Sys_AddWorkerCmd(WRKCMD_ARCHIVE_SNAPSHOT_ENCODE_WEAPONMAP, &data);
     Sys_AddWorkerCmd(WRKCMD_ARCHIVE_SNAPSHOT_ENCODE_WORLDSTATE, msgWorldState);
-    while ( v7 )
+    while ( v5 )
     {
 LABEL_15:
-      v8 = __lzcnt(v7);
-      v9 = v8 + 32 * (_DWORD)v4;
-      if ( v8 >= 0x20 )
+      v6 = __lzcnt(v5);
+      v7 = v6 + 32 * (_DWORD)v2;
+      if ( v6 >= 0x20 )
       {
-        LODWORD(v15) = 32;
-        LODWORD(v14) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v13) = 32;
+        LODWORD(v12) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      if ( (v7 & (0x80000000 >> v8)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+      if ( (v5 & (0x80000000 >> v6)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
-      cmdInfo = v8 + 32 * v4;
-      v7 &= ~(0x80000000 >> v8);
-      if ( SvClient::GetCommonClient(v9)->state < CS_CONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1781, ASSERT_TYPE_ASSERT, "( SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED )", (const char *)&queryFormat, "SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED") )
+      cmdInfo = v6 + 32 * v2;
+      v5 &= ~(0x80000000 >> v6);
+      if ( SvClient::GetCommonClient(v7)->state < CS_CONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1781, ASSERT_TYPE_ASSERT, "( SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED )", (const char *)&queryFormat, "SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED") )
         __debugbreak();
-      if ( !G_ActiveMP_GetFollowPlayerState(v9, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1782, ASSERT_TYPE_ASSERT, "( G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr ) )", (const char *)&queryFormat, "G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr )") )
+      if ( !G_ActiveMP_GetFollowPlayerState(v7, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1782, ASSERT_TYPE_ASSERT, "( G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr ) )", (const char *)&queryFormat, "G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr )") )
         __debugbreak();
-      g_svSnapshotData.archivePlayerStateOffsetData[v9] = -1;
+      g_svSnapshotData.archivePlayerStateOffsetData[v7] = -1;
       Sys_AddWorkerCmd(WRKCMD_ARCHIVE_SNAPSHOT_CACHE_PLAYERSTATE, &cmdInfo);
       Sys_AddWorkerCmd(WRKCMD_ARCHIVE_SNAPSHOT_ENCODE_PLAYERSTATE, &cmdInfo);
     }
     while ( 1 )
     {
-      v4 = (unsigned int)(v4 + 1);
-      if ( (unsigned int)v4 >= 7 )
+      v2 = (unsigned int)(v2 + 1);
+      if ( (unsigned int)v2 >= 7 )
         break;
-      v7 = v3->playerStateValid[v4];
-      if ( v7 )
+      v5 = v1->playerStateValid[v2];
+      if ( v5 )
         goto LABEL_15;
     }
   }
@@ -2587,42 +2561,42 @@ LABEL_15:
     SV_Timing_StartWorkerContext();
     MSG_Init(msgWorldState[0], (unsigned __int8 *)msgWorldState[2], (int)msgWorldState[3]);
     SV_SnapshotMP_ArchiveSnapshotEncodeWorldState(msgWorldState[0], (bool *)msgWorldState[1]);
-    v11 = g_svSnapshotData.snapArchiveEncodeError;
+    v9 = g_svSnapshotData.snapArchiveEncodeError;
     if ( msgWorldState[0]->overflowed )
-      v11 = 1;
-    g_svSnapshotData.snapArchiveEncodeError = v11;
+      v9 = 1;
+    g_svSnapshotData.snapArchiveEncodeError = v9;
     SV_Timing_EndWorkerContext();
-    while ( v7 )
+    while ( v5 )
     {
 LABEL_36:
-      v12 = __lzcnt(v7);
-      v13 = v12 + 32 * (_DWORD)v4;
-      if ( v12 >= 0x20 )
+      v10 = __lzcnt(v5);
+      v11 = v10 + 32 * (_DWORD)v2;
+      if ( v10 >= 0x20 )
       {
-        LODWORD(v15) = 32;
-        LODWORD(v14) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v13) = 32;
+        LODWORD(v12) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
-      if ( (v7 & (0x80000000 >> v12)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+      if ( (v5 & (0x80000000 >> v10)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
-      cmdInfo = v12 + 32 * v4;
-      v7 &= ~(0x80000000 >> v12);
-      if ( SvClient::GetCommonClient(v13)->state < CS_CONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1800, ASSERT_TYPE_ASSERT, "( SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED )", (const char *)&queryFormat, "SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED") )
+      cmdInfo = v10 + 32 * v2;
+      v5 &= ~(0x80000000 >> v10);
+      if ( SvClient::GetCommonClient(v11)->state < CS_CONNECTED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1800, ASSERT_TYPE_ASSERT, "( SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED )", (const char *)&queryFormat, "SvClient::GetConnectionState( playerStateIter.index ) >= SvClientConnectionState::CS_CONNECTED") )
         __debugbreak();
-      if ( !G_ActiveMP_GetFollowPlayerState(v13, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1801, ASSERT_TYPE_ASSERT, "( G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr ) )", (const char *)&queryFormat, "G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr )") )
+      if ( !G_ActiveMP_GetFollowPlayerState(v11, NULL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_snapshot_workers_mp.cpp", 1801, ASSERT_TYPE_ASSERT, "( G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr ) )", (const char *)&queryFormat, "G_ActiveMP_GetFollowPlayerState( playerStateIter.index, nullptr )") )
         __debugbreak();
-      g_svSnapshotData.archivePlayerStateOffsetData[v13] = -1;
+      g_svSnapshotData.archivePlayerStateOffsetData[v11] = -1;
       SV_SnapWorkersMP_ArchiveSnapshotCachePlayerStateCmd(&cmdInfo);
       SV_SnapWorkersMP_ArchiveSnapshotEncodePlayerStateCmd(&cmdInfo);
     }
     while ( 1 )
     {
-      v4 = (unsigned int)(v4 + 1);
-      if ( (unsigned int)v4 >= 7 )
+      v2 = (unsigned int)(v2 + 1);
+      if ( (unsigned int)v2 >= 7 )
         break;
-      v7 = v3->playerStateValid[v4];
-      if ( v7 )
+      v5 = v1->playerStateValid[v2];
+      if ( v5 )
         goto LABEL_36;
     }
   }
@@ -2780,26 +2754,26 @@ SV_SnapshotMP_TrackClientSilence
 void SV_SnapshotMP_TrackClientSilence(SvClientMP *const client, const int serverTime)
 {
   int lastPacketTime; 
+  int v4; 
+  int v5; 
+  int v6; 
   int v7; 
   int v8; 
-  int v9; 
-  int v10; 
-  int v11; 
-  const char *v12; 
+  const char *v9; 
   unsigned int MpClientIndex; 
   char *name; 
-  const char *v23; 
+  double v12; 
+  double v13; 
+  const char *v14; 
   const char *StateString; 
-  const char *v25; 
+  const char *v16; 
   int silenceThreshold; 
-  int v29; 
-  double v30; 
-  double v31; 
-  int v32; 
-  int v33; 
-  int v34; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
   unsigned int clientNum; 
-  int v36; 
+  int v23; 
   int ping; 
   char *playerGuid; 
   const char *String; 
@@ -2808,49 +2782,44 @@ void SV_SnapshotMP_TrackClientSilence(SvClientMP *const client, const int server
   lastPacketTime = client->lastPacketTime;
   if ( !lastPacketTime )
     return;
-  v7 = serverTime - client->lastSnapshotSentTime;
-  v8 = 0;
-  v9 = serverTime - lastPacketTime;
-  if ( v7 >= g_svSnapshotData.clientSilenceThresholdSend )
-    v8 = 2;
-  v10 = (v9 >= g_svSnapshotData.clientSilenceThresholdRecv) | v8;
-  if ( !v10 )
+  v4 = serverTime - client->lastSnapshotSentTime;
+  v5 = 0;
+  v6 = serverTime - lastPacketTime;
+  if ( v4 >= g_svSnapshotData.clientSilenceThresholdSend )
+    v5 = 2;
+  v7 = (v6 >= g_svSnapshotData.clientSilenceThresholdRecv) | v5;
+  if ( !v7 )
   {
     client->silenceMask = 0;
     client->silencePeriod = 0;
     return;
   }
-  v11 = 0;
-  v12 = NULL;
-  switch ( v10 )
+  v8 = 0;
+  v9 = NULL;
+  switch ( v7 )
   {
     case 1:
       goto LABEL_9;
     case 2:
       if ( (client->silenceMask & 2) == 0 )
         client->silenceThreshold = g_svSnapshotData.clientSilenceThresholdSend;
-      v11 = v7;
-      v12 = "send";
+      v8 = v4;
+      v9 = "send";
       break;
     case 3:
 LABEL_9:
       if ( (client->silenceMask & 1) == 0 )
         client->silenceThreshold = g_svSnapshotData.clientSilenceThresholdRecv;
-      v11 = serverTime - lastPacketTime;
-      v12 = "recv";
+      v8 = serverTime - lastPacketTime;
+      v9 = "recv";
       break;
   }
-  client->silencePeriod = v11;
-  if ( v11 >= client->silenceThreshold )
+  client->silencePeriod = v8;
+  if ( v8 >= client->silenceThreshold )
   {
-    __asm
-    {
-      vmovaps [rsp+148h+var_48], xmm6
-      vmovaps [rsp+148h+var_58], xmm7
-    }
     MpClientIndex = SV_Client_GetMpClientIndex(client);
     clientNum = MpClientIndex;
-    v32 = Sys_Milliseconds();
+    v19 = Sys_Milliseconds();
     if ( client->state )
       name = client->name;
     else
@@ -2860,85 +2829,61 @@ LABEL_9:
       playerGuid = client->playerGuid;
     else
       playerGuid = (char *)&queryFormat.fmt + 3;
-    NET_GetRecvQueueLength();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, cs:__real@3a800000
-      vcvtss2sd xmm7, xmm0, xmm0
-    }
-    NET_GetSendQueueLength();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a800000
-      vcvtss2sd xmm6, xmm1, xmm1
-    }
+    v12 = (float)((float)NET_GetRecvQueueLength() * 0.0009765625);
+    v13 = (float)((float)NET_GetSendQueueLength() * 0.0009765625);
     String = NetConnection::GetString(&client->clientConnection);
     if ( client->hasAckedBaselineData )
     {
-      v23 = "delta";
+      v14 = "delta";
       if ( client->noDeltaSequence )
-        v23 = "no-delta";
+        v14 = "no-delta";
     }
     else
     {
-      v23 = "baseline";
+      v14 = "baseline";
     }
-    v36 = client->netchan.outgoingSequence - client->deltaMessage;
+    v23 = client->netchan.outgoingSequence - client->deltaMessage;
     ping = client->ping;
     if ( NetConnection::IsOpened(&client->clientConnection) )
-      v34 = v32 - NetConnection::GetLastRecv(&client->clientConnection);
+      v21 = v19 - NetConnection::GetLastRecv(&client->clientConnection);
     else
-      v34 = 0;
+      v21 = 0;
     if ( NetConnection::IsOpened(&client->clientConnection) )
-      v33 = v32 - NetConnection::GetLastSent(&client->clientConnection);
+      v20 = v19 - NetConnection::GetLastSent(&client->clientConnection);
     else
-      v33 = 0;
+      v20 = 0;
     StateString = NetConnection::GetStateString(&client->clientConnection);
     switch ( SvClient::GetCommonClient(clientNum)->state )
     {
       case CS_FREE:
-        v25 = "FREE";
+        v16 = "FREE";
         break;
       case CS_ZOMBIE:
-        v25 = "ZOMBIE";
+        v16 = "ZOMBIE";
         break;
       case CS_RECONNECTING:
-        v25 = "RECONNECTING";
+        v16 = "RECONNECTING";
         break;
       case CS_CONNECTED:
-        v25 = "CONNECTED";
+        v16 = "CONNECTED";
         break;
       case CS_CLIENTLOADING:
-        v25 = "CLIENTLOADING";
+        v16 = "CLIENTLOADING";
         break;
       case CS_ACTIVE:
-        v25 = "ACTIVE";
+        v16 = "ACTIVE";
         break;
       default:
-        v25 = "UNKNOWN";
+        v16 = "UNKNOWN";
         break;
     }
-    __asm
-    {
-      vmovsd  [rsp+148h+var_C0], xmm7
-      vmovsd  [rsp+148h+var_C8], xmm6
-    }
-    Com_Printf(131087, "[Snapshot] Client '%s' %s no activity (%s) for %dms: state=%s / %s, snapshot=%dms, ack=%dms, send=%dms, recv=%dms, ping=%dms, backup=%d, msg=%s, addr=%s, sendq=%.1fKB, recvq=%.1fKB\n", dest, playerGuid, v12, v11, v25, StateString, v7, v9, v33, v34, ping, v36, v23, String, v30, v31);
+    Com_Printf(131087, "[Snapshot] Client '%s' %s no activity (%s) for %dms: state=%s / %s, snapshot=%dms, ack=%dms, send=%dms, recv=%dms, ping=%dms, backup=%d, msg=%s, addr=%s, sendq=%.1fKB, recvq=%.1fKB\n", dest, playerGuid, v9, v8, v16, StateString, v4, v6, v20, v21, ping, v23, v14, String, v13, v12);
     silenceThreshold = client->silenceThreshold;
-    __asm
-    {
-      vmovaps xmm7, [rsp+148h+var_58]
-      vmovaps xmm6, [rsp+148h+var_48]
-    }
-    v29 = silenceThreshold;
+    v18 = silenceThreshold;
     if ( silenceThreshold > 5000 )
-      v29 = 5000;
-    client->silenceThreshold = silenceThreshold + v29;
+      v18 = 5000;
+    client->silenceThreshold = silenceThreshold + v18;
   }
-  client->silenceMask = v10;
+  client->silenceMask = v7;
 }
 

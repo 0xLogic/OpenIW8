@@ -125,21 +125,11 @@ bdClientAuthToken::operator=
 */
 bdClientAuthToken *bdClientAuthToken::operator=(bdClientAuthToken *this, const bdClientAuthToken *other)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+8]
-    vmovups ymmword ptr [rcx+8], ymm0
-    vmovups xmm1, xmmword ptr [rdx+28h]
-    vmovups xmmword ptr [rcx+28h], xmm1
-    vmovsd  xmm0, qword ptr [rdx+38h]
-    vmovsd  qword ptr [rcx+38h], xmm0
-  }
+  *(__m256i *)this->m_encrypted = *(__m256i *)other->m_encrypted;
+  *(_OWORD *)&this->m_encrypted[32] = *(_OWORD *)&other->m_encrypted[32];
+  *(double *)&this->m_encrypted[48] = *(double *)&other->m_encrypted[48];
   this->m_version = other->m_version;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+48h]
-    vmovups xmmword ptr [rcx+48h], xmm0
-  }
+  *(_OWORD *)this->m_secret = *(_OWORD *)other->m_secret;
   this->m_expiresIn = other->m_expiresIn;
   return this;
 }

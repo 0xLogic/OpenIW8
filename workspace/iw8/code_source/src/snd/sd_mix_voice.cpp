@@ -140,623 +140,525 @@ SD_MixVoice
 void SD_MixVoice(sd_voice *voice, const sd_voice_param *param, float *busBuffers, bool stopping)
 {
   signed __int64 v4; 
-  void *v13; 
-  const sd_voice_param *v16; 
-  __int64 v22; 
+  void *v5; 
+  int *v6; 
+  const sd_voice_param *v8; 
+  sd_voice *v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __int64 v13; 
   unsigned int autoSimId; 
-  __int64 v26; 
+  __int64 v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  __int64 v18; 
+  unsigned int v19; 
+  __int64 autoSimStopTimeStamp; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  unsigned __int64 v25; 
+  sd_voice *secondaryMaster; 
   unsigned int v27; 
-  unsigned int v28; 
+  unsigned __int64 startDelayMixFrames; 
   __int64 v29; 
   unsigned int v30; 
-  sd_voice *secondaryMaster; 
-  unsigned int v37; 
-  unsigned __int64 startDelayMixFrames; 
-  __int64 v39; 
-  unsigned int v40; 
-  SDAutoSim *v41; 
+  SDAutoSim *v31; 
+  __int64 autoSimStartTimeStamp; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  unsigned __int64 v37; 
   SndWeapShotCountId autoSimShotCount; 
   sd_decoder *decoder; 
   unsigned int count; 
   int syncStopDelayFramesDecoded; 
   int syncStopFadeFramesDecoded; 
+  int syncStopFadeFrames; 
+  float v44; 
+  int v45; 
   int syncStartDelayFramesDecoded; 
   __int64 syncTimestamp; 
-  signed int v61; 
+  signed int v48; 
   int syncStartFadeFramesDecoded; 
-  __int64 v78; 
-  sd_voice_cmd_entry *v79; 
+  int syncStartFadeFrames; 
+  float v51; 
+  int v52; 
+  double v53; 
+  double v54; 
+  float v55; 
+  __int64 v56; 
+  sd_voice_cmd_entry *v57; 
   const float *MixSrcBuffer; 
   float *MixDestBuffer; 
   __int64 i; 
-  const float *v83; 
-  float *v84; 
-  const float *v86; 
-  float *v87; 
+  const float *v61; 
+  float *v62; 
+  float v63; 
+  const float *v64; 
+  float *v65; 
   OnePoleFilter_t *p_onePoleLowPass; 
-  const float *v92; 
-  float *v93; 
-  const float *v96; 
-  float *v97; 
+  float cmdParam; 
+  const float *v68; 
+  float *v69; 
+  float v70; 
+  const float *v71; 
+  float *v72; 
   OnePoleFilter_t *p_onePoleHighPass; 
-  const float *v102; 
-  float *v103; 
-  float v105; 
-  float v106; 
-  float *v109; 
-  float *v110; 
-  __int64 v111; 
-  unsigned int v114; 
-  const float **v115; 
-  const float *v116; 
-  __int64 v118; 
-  int v122; 
-  __int64 v136; 
-  char *fmt; 
+  float v74; 
+  const float *v75; 
+  float *v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float *v82; 
+  float *v83; 
+  __int64 v84; 
+  unsigned int v85; 
+  const float **v86; 
+  const float *v87; 
+  __int64 v88; 
+  int v89; 
+  __m256i *panFilter; 
+  signed __int64 v91; 
+  __int64 v92; 
   float endScale[2]; 
-  __int64 v139; 
-  char v140[8328]; 
-  __int64 v141; 
-  char v148; 
+  __int64 v94; 
+  char v95[8328]; 
+  __int64 v96; 
 
-  v13 = alloca(v4);
-  v141 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+21A8h+var_48], xmm6
-    vmovaps [rsp+21A8h+var_58], xmm7
-    vmovaps [rsp+21A8h+var_68], xmm8
-    vmovaps [rsp+21A8h+var_78], xmm10
-    vmovaps [rsp+21A8h+var_88], xmm11
-    vmovaps [rsp+21A8h+var_98], xmm12
-  }
-  _RBP = (int *)((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64);
-  *((_QWORD *)_RBP + 1040) = (unsigned __int64)&v136 ^ _security_cookie;
-  v16 = param;
-  *((_QWORD *)_RBP + 4) = param;
-  _RBX = voice;
-  *((_QWORD *)_RBP + 5) = voice;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm10, xmm6
-    vmovaps xmm12, xmm6
-    vmovaps xmm11, xmm6
-  }
+  v5 = alloca(v4);
+  v96 = -2i64;
+  v6 = (int *)((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64);
+  *((_QWORD *)v6 + 1040) = (unsigned __int64)&v92 ^ _security_cookie;
+  v8 = param;
+  *((_QWORD *)v6 + 4) = param;
+  v9 = voice;
+  *((_QWORD *)v6 + 5) = voice;
+  v10 = FLOAT_1_0;
+  v11 = FLOAT_1_0;
+  v12 = FLOAT_1_0;
   if ( !param && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 906, ASSERT_TYPE_ASSERT, "(param)", (const char *)&queryFormat, "param") )
     __debugbreak();
-  v22 = 2i64;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@5f000000
-  }
+  v13 = 2i64;
   if ( stopping )
   {
-    autoSimId = _RBX->autoSimId;
+    autoSimId = v9->autoSimId;
     if ( autoSimId == -1 )
       goto LABEL_11;
-    v26 = (unsigned __int16)autoSimId;
-    v27 = HIWORD(autoSimId);
-    if ( (unsigned int)v26 >= 0x40 )
+    v15 = (unsigned __int16)autoSimId;
+    v16 = HIWORD(autoSimId);
+    if ( (unsigned int)v15 >= 0x40 )
     {
-      LODWORD(v139) = 64;
-      LODWORD(endScale[0]) = v26;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 505, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+      LODWORD(v94) = 64;
+      LODWORD(endScale[0]) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 505, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
         __debugbreak();
     }
-    if ( g_sd.autoSims[v26].instanceId != v27 || _RBX->autoSimShotCount != g_sd.autoSims[v26].currentShotCount )
+    if ( g_sd.autoSims[v15].instanceId != v16 || v9->autoSimShotCount != g_sd.autoSims[v15].currentShotCount )
     {
 LABEL_11:
-      v28 = _RBX->autoSimId;
-      if ( v28 == -1 )
-        goto LABEL_19;
-      v29 = (unsigned __int16)v28;
-      v30 = HIWORD(v28);
-      if ( (unsigned int)v29 >= 0x40 )
+      v17 = v9->autoSimId;
+      if ( v17 == -1 )
+        goto LABEL_22;
+      v18 = (unsigned __int16)v17;
+      v19 = HIWORD(v17);
+      if ( (unsigned int)v18 >= 0x40 )
       {
-        LODWORD(v139) = 64;
-        LODWORD(endScale[0]) = v29;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 472, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+        LODWORD(v94) = 64;
+        LODWORD(endScale[0]) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 472, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
           __debugbreak();
       }
-      if ( g_sd.autoSims[v29].instanceId != v30 )
-        goto LABEL_19;
-      __asm
+      if ( g_sd.autoSims[v18].instanceId != v19 )
+        goto LABEL_22;
+      autoSimStopTimeStamp = v9->autoSimStopTimeStamp;
+      v21 = (float)autoSimStopTimeStamp;
+      if ( autoSimStopTimeStamp < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
+        v22 = (float)autoSimStopTimeStamp;
+        v21 = v22 + 1.8446744e19;
       }
-      if ( (_RBX->autoSimStopTimeStamp & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm8 }
-      __asm
+      v24 = v21 * 0.048;
+      v23 = v24;
+      v25 = 0i64;
+      if ( v24 >= 9.223372e18 )
       {
-        vmulss  xmm0, xmm0, cs:__real@3d449ba6
-        vcomiss xmm0, xmm7
-        vsubss  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm7
-        vcvttss2si rax, xmm0
+        v23 = v24 - 9.223372e18;
+        if ( (float)(v24 - 9.223372e18) < 9.223372e18 )
+          v25 = 0x8000000000000000ui64;
       }
-      if ( (g_sd.autoSimClock << 8) + 256 > (g_sd.autoSims[v29].startTime << 8) + _RAX )
+      if ( (g_sd.autoSimClock << 8) + 256 > (g_sd.autoSims[v18].startTime << 8) + (unsigned int)(int)v23 + v25 )
       {
-LABEL_19:
-        I_clamp(1 - _RBX->stopFadeState, 0, 2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm10, xmm0, cs:__real@3f000000
-        }
-        ++_RBX->stopFadeState;
+LABEL_22:
+        v10 = (float)I_clamp(1 - v9->stopFadeState, 0, 2) * 0.5;
+        ++v9->stopFadeState;
       }
     }
   }
-  if ( (!_RBX->secondaryGroupId || ((secondaryMaster = _RBX->secondaryMaster) == NULL || secondaryMaster->secondaryGroupReady) && (_RBX->secondaryGroupSize <= 1 || _RBX->secondaryGroupReady)) && _RBX->state == SD_VOICE_ACTIVE && !_RBX->done )
+  if ( (!v9->secondaryGroupId || ((secondaryMaster = v9->secondaryMaster) == NULL || secondaryMaster->secondaryGroupReady) && (v9->secondaryGroupSize <= 1 || v9->secondaryGroupReady)) && v9->state == SD_VOICE_ACTIVE && !v9->done )
   {
-    v37 = _RBX->autoSimId;
-    if ( (v37 == -1 || !g_sd.mixParam || !g_sd.mixParam->paused) && (_RBX->syncState || !_RBX->isSync) && v16 && !v16->paused )
+    v27 = v9->autoSimId;
+    if ( (v27 == -1 || !g_sd.mixParam || !g_sd.mixParam->paused) && (v9->syncState || !v9->isSync) && v8 && !v8->paused )
     {
-      startDelayMixFrames = _RBX->startDelayMixFrames;
+      startDelayMixFrames = v9->startDelayMixFrames;
       if ( startDelayMixFrames )
       {
-        _RBX->startDelayMixFrames = startDelayMixFrames - 1;
-        goto LABEL_185;
+        v9->startDelayMixFrames = startDelayMixFrames - 1;
+        return;
       }
-      if ( _RBX->position )
-        goto LABEL_54;
-      if ( v37 == -1 )
-        goto LABEL_47;
-      v39 = (unsigned __int16)v37;
-      v40 = HIWORD(v37);
-      if ( (unsigned int)v39 >= 0x40 )
+      if ( v9->position )
+        goto LABEL_60;
+      if ( v27 == -1 )
+        goto LABEL_53;
+      v29 = (unsigned __int16)v27;
+      v30 = HIWORD(v27);
+      if ( (unsigned int)v29 >= 0x40 )
       {
-        LODWORD(v139) = 64;
-        LODWORD(endScale[0]) = v39;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 435, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+        LODWORD(v94) = 64;
+        LODWORD(endScale[0]) = v29;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 435, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
           __debugbreak();
       }
-      v41 = &g_sd.autoSims[v39];
-      if ( v41->instanceId != v40 )
+      v31 = &g_sd.autoSims[v29];
+      if ( v31->instanceId != v30 )
       {
-LABEL_47:
-        decoder = _RBX->decoder;
-        if ( (!decoder || (count = decoder->output.count) == 0 || count < 0x100 && !decoder->eos) && !_RBX->isCinematic && !_RBX->isArcade0 && !_RBX->isArcade1 )
-          goto LABEL_185;
-LABEL_54:
-        if ( _RBX->state != SD_VOICE_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 939, ASSERT_TYPE_ASSERT, "(voice->state == SD_VOICE_ACTIVE)", (const char *)&queryFormat, "voice->state == SD_VOICE_ACTIVE") )
+LABEL_53:
+        decoder = v9->decoder;
+        if ( (!decoder || (count = decoder->output.count) == 0 || count < 0x100 && !decoder->eos) && !v9->isCinematic && !v9->isArcade0 && !v9->isArcade1 )
+          return;
+LABEL_60:
+        if ( v9->state != SD_VOICE_ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 939, ASSERT_TYPE_ASSERT, "(voice->state == SD_VOICE_ACTIVE)", (const char *)&queryFormat, "voice->state == SD_VOICE_ACTIVE") )
           __debugbreak();
-        memset_0(_RBP + 32, 0, 0x2000ui64);
-        if ( !_RBX->isSync )
-          goto LABEL_82;
-        switch ( _RBX->syncState )
+        memset_0(v6 + 32, 0, 0x2000ui64);
+        if ( !v9->isSync )
+          goto LABEL_88;
+        switch ( v9->syncState )
         {
           case SD_VOICE_SYNC_START_DELAY:
-            syncStartDelayFramesDecoded = _RBX->syncStartDelayFramesDecoded;
+            syncStartDelayFramesDecoded = v9->syncStartDelayFramesDecoded;
             if ( !syncStartDelayFramesDecoded )
             {
-              syncTimestamp = (unsigned int)_RBX->syncTimestamp;
-              v61 = (g_sd.buffersSubmitted - (_DWORD)syncTimestamp) << 8;
-              if ( !_RBX->syncSoftStart && _RBX->syncStartDelayFrames + 256 < v61 )
+              syncTimestamp = (unsigned int)v9->syncTimestamp;
+              v48 = (g_sd.buffersSubmitted - (_DWORD)syncTimestamp) << 8;
+              if ( !v9->syncSoftStart && v9->syncStartDelayFrames + 256 < v48 )
                 Com_PrintWarning(9, "SOUND: too long elapsed between the sync offset computation and sound start %d %d\n", g_sd.buffersSubmitted, syncTimestamp);
-              _RBX->syncStartDelayFramesDecoded += v61;
-              syncStartDelayFramesDecoded = _RBX->syncStartDelayFramesDecoded;
+              v9->syncStartDelayFramesDecoded += v48;
+              syncStartDelayFramesDecoded = v9->syncStartDelayFramesDecoded;
             }
-            if ( syncStartDelayFramesDecoded < _RBX->syncStartDelayFrames )
+            if ( syncStartDelayFramesDecoded < v9->syncStartDelayFrames )
             {
-              _RBX->syncStartDelayFramesDecoded = syncStartDelayFramesDecoded + 256;
-              goto LABEL_185;
+              v9->syncStartDelayFramesDecoded = syncStartDelayFramesDecoded + 256;
+              return;
             }
-            _RBX->syncState = SD_VOICE_SYNC_START_FADE;
+            v9->syncState = SD_VOICE_SYNC_START_FADE;
             break;
           case SD_VOICE_SYNC_START_FADE:
             break;
           case SD_VOICE_SYNC_STOP_DELAY:
-            syncStopDelayFramesDecoded = _RBX->syncStopDelayFramesDecoded;
-            if ( syncStopDelayFramesDecoded >= _RBX->syncStopDelayFrames )
+            syncStopDelayFramesDecoded = v9->syncStopDelayFramesDecoded;
+            if ( syncStopDelayFramesDecoded >= v9->syncStopDelayFrames )
             {
-              _RBX->syncState = SD_VOICE_SYNC_STOP_FADE;
-LABEL_67:
-              syncStopFadeFramesDecoded = _RBX->syncStopFadeFramesDecoded;
-              if ( syncStopFadeFramesDecoded >= _RBX->syncStopFadeFrames )
-              {
-                _RBX->syncState = SD_VOICE_SYNC_DONE;
-                goto LABEL_185;
-              }
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, ecx
-                vdivss  xmm2, xmm6, xmm0
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vmulss  xmm1, xmm0, xmm2
-                vsubss  xmm12, xmm6, xmm1
-              }
-              _RBX->syncStopFadeFramesDecoded = syncStopFadeFramesDecoded + 256;
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vmulss  xmm1, xmm0, xmm2
-                vsubss  xmm11, xmm6, xmm1
-              }
-              goto LABEL_81;
+              v9->syncState = SD_VOICE_SYNC_STOP_FADE;
+              goto LABEL_73;
             }
-            _RBX->syncStopDelayFramesDecoded = syncStopDelayFramesDecoded + 256;
-LABEL_81:
-            __asm
+            v9->syncStopDelayFramesDecoded = syncStopDelayFramesDecoded + 256;
+LABEL_87:
+            v53 = I_fclamp(v11, 0.0, 1.0);
+            v11 = *(float *)&v53;
+            v54 = I_fclamp(v12, 0.0, 1.0);
+            v12 = *(float *)&v54;
+            v9->syncEndScale = *(float *)&v54;
+LABEL_88:
+            if ( !SD_VoiceRead(v9, v8, (float *)v6 + 32, (float *)v6 + 288) )
             {
-              vmovaps xmm2, xmm6; max
-              vxorps  xmm1, xmm1, xmm1; min
-              vmovaps xmm0, xmm12; val
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vmovaps xmm12, xmm0
-              vmovaps xmm2, xmm6; max
-              vxorps  xmm1, xmm1, xmm1; min
-              vmovaps xmm0, xmm11; val
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vmovaps xmm11, xmm0
-              vmovss  dword ptr [rbx+3C0h], xmm0
-            }
-LABEL_82:
-            if ( !SD_VoiceRead(_RBX, v16, (float *)_RBP + 32, (float *)_RBP + 288) )
-            {
-              _RBX->position += 256i64;
-              __asm { vmulss  xmm8, xmm10, dword ptr [rbx+350h] }
-              *(_DWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) = 0;
-              if ( v16->commandBufferCount > 0 )
+              v9->position += 256i64;
+              v55 = v10 * v9->adsr.currentVolume;
+              *(_DWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) = 0;
+              if ( v8->commandBufferCount > 0 )
               {
-                v78 = 0i64;
-                *(_QWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = 0i64;
+                v56 = 0i64;
+                *(_QWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = 0i64;
                 do
                 {
-                  v79 = &v16->commandBuffer[v78];
-                  switch ( v79->cmd )
+                  v57 = &v8->commandBuffer[v56];
+                  switch ( v57->cmd )
                   {
                     case SD_VOICE_CMD_COPY:
-                      MixSrcBuffer = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
+                      MixSrcBuffer = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1071, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot copy to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1071, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot copy to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      MixDestBuffer = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
+                      MixDestBuffer = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
                       if ( MixSrcBuffer == MixDestBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1073, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      for ( i = _RBX->channelCount << 8; i; --i )
+                      for ( i = v9->channelCount << 8; i; --i )
                         *MixDestBuffer++ = *MixSrcBuffer++;
                       break;
                     case SD_VOICE_CMD_EQ:
-                      v83 = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
+                      v61 = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1086, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot EQ to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1086, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot EQ to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      v84 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
-                      if ( v83 == v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1088, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v62 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
+                      if ( v61 == v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1088, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      if ( v16->eqBankParamsHash != _RBX->eqBankParamsHash )
+                      if ( v8->eqBankParamsHash != v9->eqBankParamsHash )
                       {
-                        SND_ApplyEQBankParams(&_RBX->eqBank, &v16->dspParams.eqBankParams);
-                        _RBX->eqBankParamsHash = v16->eqBankParamsHash;
+                        SND_ApplyEQBankParams(&v9->eqBank, &v8->dspParams.eqBankParams);
+                        v9->eqBankParamsHash = v8->eqBankParamsHash;
                       }
-                      EQBANK_ProcessArrayBlock<256>(&_RBX->eqBank, &v16->dspParams.eqBankParams, v83, v84, _RBX->channelCount);
+                      EQBANK_ProcessArrayBlock<256>(&v9->eqBank, &v8->dspParams.eqBankParams, v61, v62, v9->channelCount);
                       break;
                     case SD_VOICE_CMD_LPF_BIQUAD:
-                      __asm
+                      cmdParam = (float)v57->cmdParam;
+                      v68 = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        vxorps  xmm6, xmm6, xmm6; jumptable 0000000142701BD1 case 2
-                        vcvtsi2ss xmm6, xmm6, dword ptr [rdi+4]
-                      }
-                      v92 = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
-                      {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1133, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot LPF_BIQUAD to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1133, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot LPF_BIQUAD to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      v93 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
-                      if ( v92 == v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1135, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v69 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
+                      if ( v68 == v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1135, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      __asm { vmovaps xmm1, xmm6; freq }
-                      SND_ApplyFilterLPFFrequency(&_RBX->lowPass, *(const float *)&_XMM1);
-                      BIQUAD_ProcessArray<256>(&_RBX->lowPass.coeffs, _RBX->lowPass.state, v92, v93);
-                      if ( _RBX->channelCount == 2 )
-                        BIQUAD_ProcessArray<256>(&_RBX->lowPass.coeffs, &_RBX->lowPass.state[1], v92 + 256, v93 + 256);
+                      SND_ApplyFilterLPFFrequency(&v9->lowPass, cmdParam);
+                      BIQUAD_ProcessArray<256>(&v9->lowPass.coeffs, v9->lowPass.state, v68, v69);
+                      if ( v9->channelCount == 2 )
+                        BIQUAD_ProcessArray<256>(&v9->lowPass.coeffs, &v9->lowPass.state[1], v68 + 256, v69 + 256);
                       break;
                     case SD_VOICE_CMD_HPF_BIQUAD:
-                      __asm
+                      v74 = (float)v57->cmdParam;
+                      v75 = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        vxorps  xmm6, xmm6, xmm6; jumptable 0000000142701BD1 case 3
-                        vcvtsi2ss xmm6, xmm6, dword ptr [rdi+4]
-                      }
-                      v102 = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
-                      {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1178, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot HPF_BIQUAD to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1178, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot HPF_BIQUAD to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      v103 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
-                      if ( v102 == v103 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1180, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v76 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
+                      if ( v75 == v76 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1180, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      __asm { vmovaps xmm1, xmm6; freq }
-                      SND_ApplyFilterHPFFrequency(&_RBX->highPass, *(const float *)&_XMM1);
-                      BIQUAD_ProcessArray<256>(&_RBX->highPass.coeffs, _RBX->highPass.state, v102, v103);
-                      if ( _RBX->channelCount == 2 )
-                        BIQUAD_ProcessArray<256>(&_RBX->highPass.coeffs, &_RBX->highPass.state[1], v102 + 256, v103 + 256);
+                      SND_ApplyFilterHPFFrequency(&v9->highPass, v74);
+                      BIQUAD_ProcessArray<256>(&v9->highPass.coeffs, v9->highPass.state, v75, v76);
+                      if ( v9->channelCount == 2 )
+                        BIQUAD_ProcessArray<256>(&v9->highPass.coeffs, &v9->highPass.state[1], v75 + 256, v76 + 256);
                       break;
                     case SD_VOICE_CMD_LPF_1POLE:
-                      __asm
+                      v63 = (float)v57->cmdParam;
+                      v64 = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        vxorps  xmm6, xmm6, xmm6; jumptable 0000000142701BD1 case 4
-                        vcvtsi2ss xmm6, xmm6, dword ptr [rdi+4]
-                      }
-                      v86 = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
-                      {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1108, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot LPF_1POLE to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1108, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot LPF_1POLE to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      v87 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
-                      if ( v86 == v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1110, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v65 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
+                      if ( v64 == v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1110, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      __asm
-                      {
-                        vmovss  xmm2, cs:__real@473b8000; sampleRate
-                        vmovaps xmm1, xmm6; freq
-                      }
-                      OnePole_SetFrequency(&_RBX->onePoleLowPass, *(float *)&_XMM1, *(float *)&_XMM2, 0);
-                      p_onePoleLowPass = &_RBX->onePoleLowPass;
-                      if ( _RBX->channelCount == 1 )
-                        OnePoleLPF_ProcessArray(p_onePoleLowPass, v86, v87, 256);
+                      OnePole_SetFrequency(&v9->onePoleLowPass, v63, 48000.0, 0);
+                      p_onePoleLowPass = &v9->onePoleLowPass;
+                      if ( v9->channelCount == 1 )
+                        OnePoleLPF_ProcessArray(p_onePoleLowPass, v64, v65, 256);
                       else
-                        OnePoleLPF_ProcessArrayStereoBlock(p_onePoleLowPass, v86, v87, 256);
+                        OnePoleLPF_ProcessArrayStereoBlock(p_onePoleLowPass, v64, v65, 256);
                       break;
                     case SD_VOICE_CMD_HPF_1POLE:
-                      __asm
+                      v70 = (float)v57->cmdParam;
+                      v71 = SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( (unsigned int)(v57->dest - 3) <= 1 )
                       {
-                        vxorps  xmm6, xmm6, xmm6; jumptable 0000000142701BD1 case 5
-                        vcvtsi2ss xmm6, xmm6, dword ptr [rdi+4]
-                      }
-                      v96 = SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( (unsigned int)(v79->dest - 3) <= 1 )
-                      {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1154, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot HPF_1POLE to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1154, ASSERT_TYPE_ASSERT, "(cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD)", "%s\n\tCannot HPF_1POLE to voice destination %d.", "cmd->dest != SD_VOICE_DEST_BUS && cmd->dest != SD_VOICE_DEST_PAD", v94) )
                           __debugbreak();
                       }
-                      v97 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), 0);
-                      if ( v96 == v97 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1156, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v72 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), 0);
+                      if ( v71 == v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1156, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      __asm
-                      {
-                        vmovss  xmm2, cs:__real@473b8000; sampleRate
-                        vmovaps xmm1, xmm6; freq
-                      }
-                      OnePole_SetFrequency(&_RBX->onePoleHighPass, *(float *)&_XMM1, *(float *)&_XMM2, 0);
-                      p_onePoleHighPass = &_RBX->onePoleHighPass;
-                      if ( _RBX->channelCount == 1 )
-                        OnePoleHPF_ProcessArray(p_onePoleHighPass, v96, v97, 256);
+                      OnePole_SetFrequency(&v9->onePoleHighPass, v70, 48000.0, 0);
+                      p_onePoleHighPass = &v9->onePoleHighPass;
+                      if ( v9->channelCount == 1 )
+                        OnePoleHPF_ProcessArray(p_onePoleHighPass, v71, v72, 256);
                       else
-                        OnePoleHPF_ProcessArrayStereoBlock(p_onePoleHighPass, v96, v97, 256);
+                        OnePoleHPF_ProcessArrayStereoBlock(p_onePoleHighPass, v71, v72, 256);
                       break;
                     case SD_VOICE_CMD_PAN:
-                      SD_UnpackVoiceParamPanArgument(v79->cmdParam, _RBP + 2, _RBP + 1, (int *)((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64));
-                      v105 = *(float *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 4);
-                      if ( LODWORD(v105) >= v16->panMatrixCount )
+                      SD_UnpackVoiceParamPanArgument(v57->cmdParam, v6 + 2, v6 + 1, (int *)((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64));
+                      v77 = *(float *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 4);
+                      if ( LODWORD(v77) >= v8->panMatrixCount )
                       {
-                        LODWORD(v139) = v16->panMatrixCount;
-                        endScale[0] = v105;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1202, ASSERT_TYPE_ASSERT, "(unsigned)( panMatrixIndex ) < (unsigned)( param->panMatrixCount )", "panMatrixIndex doesn't index param->panMatrixCount\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+                        LODWORD(v94) = v8->panMatrixCount;
+                        endScale[0] = v77;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1202, ASSERT_TYPE_ASSERT, "(unsigned)( panMatrixIndex ) < (unsigned)( param->panMatrixCount )", "panMatrixIndex doesn't index param->panMatrixCount\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
                           __debugbreak();
                       }
-                      v106 = *(float *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
-                      if ( LODWORD(v106) >= 0x11 )
+                      v78 = *(float *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 8);
+                      if ( LODWORD(v78) >= 0x11 )
                       {
-                        LODWORD(v139) = 17;
-                        endScale[0] = v106;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1203, ASSERT_TYPE_ASSERT, "(unsigned)( busIndex ) < (unsigned)( SND_BUS_COUNT )", "busIndex doesn't index SND_BUS_COUNT\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+                        LODWORD(v94) = 17;
+                        endScale[0] = v78;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1203, ASSERT_TYPE_ASSERT, "(unsigned)( busIndex ) < (unsigned)( SND_BUS_COUNT )", "busIndex doesn't index SND_BUS_COUNT\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
                           __debugbreak();
                       }
-                      LODWORD(_RAX) = *_RBP;
-                      if ( (unsigned int)*_RBP >= 6 )
+                      v79 = *(float *)v6;
+                      if ( (unsigned int)*v6 >= 6 )
                       {
-                        LODWORD(v139) = 6;
-                        LODWORD(endScale[0]) = _RAX;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1204, ASSERT_TYPE_ASSERT, "(unsigned)( panLevelIndex ) < (unsigned)( SND_PAN_LEVEL_COUNT )", "panLevelIndex doesn't index SND_PAN_LEVEL_COUNT\n\t%i not in [0, %i)", *(_QWORD *)endScale, v139) )
+                        LODWORD(v94) = 6;
+                        endScale[0] = v79;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1204, ASSERT_TYPE_ASSERT, "(unsigned)( panLevelIndex ) < (unsigned)( SND_PAN_LEVEL_COUNT )", "panLevelIndex doesn't index SND_PAN_LEVEL_COUNT\n\t%i not in [0, %i)", *(_QWORD *)endScale, v94) )
                           __debugbreak();
-                        LODWORD(_RAX) = *_RBP;
+                        v79 = *(float *)v6;
                       }
-                      _RAX = (int)_RAX;
-                      __asm
+                      v80 = v55 * v8->panLevels[SLODWORD(v79)];
+                      v81 = v9->panLevels[SLODWORD(v79)];
+                      v82 = (float *)SD_VoiceGetMixSrcBuffer(v57->src, (const sd_voice_mix_temp_state *)(v6 + 32));
+                      if ( v57->dest != SD_VOICE_DEST_BUS )
                       {
-                        vmulss  xmm6, xmm8, dword ptr [r15+rax*4+218h]
-                        vmovss  xmm7, dword ptr [rbx+rax*4+314h]
-                      }
-                      v109 = (float *)SD_VoiceGetMixSrcBuffer(v79->src, (const sd_voice_mix_temp_state *)(_RBP + 32));
-                      if ( v79->dest != SD_VOICE_DEST_BUS )
-                      {
-                        LODWORD(v139) = v79->dest;
-                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1210, ASSERT_TYPE_ASSERT, "(cmd->dest == SD_VOICE_DEST_BUS)", "%s\n\tCannot pan to voice destination %d.", "cmd->dest == SD_VOICE_DEST_BUS", v139) )
+                        LODWORD(v94) = v57->dest;
+                        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1210, ASSERT_TYPE_ASSERT, "(cmd->dest == SD_VOICE_DEST_BUS)", "%s\n\tCannot pan to voice destination %d.", "cmd->dest == SD_VOICE_DEST_BUS", v94) )
                           __debugbreak();
                       }
-                      v110 = SD_VoiceGetMixDestBuffer(v79->dest, (sd_voice_mix_temp_state *)(_RBP + 32), *(_DWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 8));
-                      *(_QWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10) = v110;
-                      if ( v109 == v110 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1212, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
+                      v83 = SD_VoiceGetMixDestBuffer(v57->dest, (sd_voice_mix_temp_state *)(v6 + 32), *(_DWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 8));
+                      *(_QWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10) = v83;
+                      if ( v82 == v83 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1212, ASSERT_TYPE_ASSERT, "(srcBuffer != destBuffer)", (const char *)&queryFormat, "srcBuffer != destBuffer") )
                         __debugbreak();
-                      if ( _RBX->channelCount == 1 )
+                      if ( v9->channelCount == 1 )
                       {
-                        if ( ((unsigned __int8)v109 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 84, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v109) )
+                        if ( ((unsigned __int8)v82 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 84, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v82) )
                           __debugbreak();
-                        if ( !v109 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 459, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
+                        if ( !v82 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 459, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
                           __debugbreak();
-                        if ( ((unsigned __int8)v109 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 460, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+                        if ( ((unsigned __int8)v82 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 460, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
                           __debugbreak();
-                        *(_QWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10) = v109;
-                        v111 = (__int64)*(int *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 4) << 7;
-                        __asm
-                        {
-                          vmulss  xmm0, xmm6, xmm11
-                          vmulss  xmm1, xmm7, xmm12
-                          vmovss  [rsp+21A8h+endScale], xmm0
-                          vmovss  dword ptr [rsp+21A8h+fmt], xmm1
-                        }
-                        SD_DSP::RawSequentialPanSum<SD_DSP::Buffer<SD_DSP::AtmosFrame,256>,SD_DSP::ConstSequentialBufferRefType<SD_DSP::MonoFrame,256>>(v110, (const SD_DSP::ConstSequentialBufferRefType<SD_DSP::MonoFrame,256> *)_RBP + 2, (const float *const)((char *)_RBX->panFilter[0] + v111), (const float *const)((char *)v16->panMatrix[0] + v111), *(const float *)&fmt, endScale[0]);
+                        *(_QWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10) = v82;
+                        v84 = (__int64)*(int *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 4) << 7;
+                        SD_DSP::RawSequentialPanSum<SD_DSP::Buffer<SD_DSP::AtmosFrame,256>,SD_DSP::ConstSequentialBufferRefType<SD_DSP::MonoFrame,256>>(v83, (const SD_DSP::ConstSequentialBufferRefType<SD_DSP::MonoFrame,256> *)v6 + 2, (const float *const)((char *)v9->panFilter[0] + v84), (const float *const)((char *)v8->panMatrix[0] + v84), v81 * v11, v80 * v12);
                       }
                       else
                       {
-                        if ( ((unsigned __int8)v109 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 84, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v109) )
+                        if ( ((unsigned __int8)v82 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_buffer.h", 84, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( extData ) ) & ( ( 32 ) - 1 ) ) == 0 ) )", "( ( ( uintptr_t )extData ) ) = 0x%llx", v82) )
                           __debugbreak();
-                        v114 = 0;
-                        v115 = (const float **)(_RBP + 16);
+                        v85 = 0;
+                        v86 = (const float **)(v6 + 16);
                         do
                         {
-                          v116 = &v109[256 * v114];
-                          if ( !v116 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 459, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
+                          v87 = &v82[256 * v85];
+                          if ( !v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 459, ASSERT_TYPE_ASSERT, "(in != nullptr)", (const char *)&queryFormat, "in != nullptr") )
                             __debugbreak();
-                          if ( ((unsigned __int8)v109 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 460, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
+                          if ( ((unsigned __int8)v82 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_core.h", 460, ASSERT_TYPE_ASSERT, "(SD_IsAligned< T >::Value( in ))", (const char *)&queryFormat, "SD_IsAligned< T >::Value( in )") )
                             __debugbreak();
-                          *v115 = v116;
-                          ++v114;
-                          ++v115;
+                          *v86 = v87;
+                          ++v85;
+                          ++v86;
                         }
-                        while ( v114 < 2 );
-                        __asm
-                        {
-                          vmovups xmm0, xmmword ptr [rbp+40h]
-                          vmovdqa xmmword ptr [rbp+50h], xmm0
-                        }
-                        v118 = (__int64)*(int *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 4) << 7;
-                        __asm
-                        {
-                          vmulss  xmm0, xmm6, xmm11
-                          vmulss  xmm1, xmm7, xmm12
-                        }
-                        v16 = *(const sd_voice_param **)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20);
-                        _RBX = *(sd_voice **)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
-                        __asm
-                        {
-                          vmovss  [rsp+21A8h+endScale], xmm0
-                          vmovss  dword ptr [rsp+21A8h+fmt], xmm1
-                        }
-                        SD_DSP::RawSequentialPanSum<SD_DSP::Buffer<SD_DSP::AtmosFrame,256>,SD_DSP::ConstSequentialBufferRefType<SD_DSP::StereoFrame,256>>(*(float **)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10), (const SD_DSP::ConstSequentialBufferRefType<SD_DSP::StereoFrame,256> *)_RBP + 5, (const float *const)((char *)_RBX->panFilter[0] + v118), (const float *const)((char *)v16->panMatrix[0] + v118), *(const float *)&fmt, endScale[0]);
+                        while ( v85 < 2 );
+                        *(_OWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x50) = *(_OWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x40);
+                        v88 = (__int64)*(int *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 4) << 7;
+                        v8 = *(const sd_voice_param **)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x20);
+                        v9 = *(sd_voice **)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x28);
+                        SD_DSP::RawSequentialPanSum<SD_DSP::Buffer<SD_DSP::AtmosFrame,256>,SD_DSP::ConstSequentialBufferRefType<SD_DSP::StereoFrame,256>>(*(float **)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x10), (const SD_DSP::ConstSequentialBufferRefType<SD_DSP::StereoFrame,256> *)v6 + 5, (const float *const)((char *)v9->panFilter[0] + v88), (const float *const)((char *)v8->panMatrix[0] + v88), v81 * v11, v80 * v12);
                       }
-                      _RAX = *_RBP;
-                      __asm { vmovss  dword ptr [rbx+rax*4+314h], xmm6 }
+                      v9->panLevels[*v6] = v80;
                       break;
                     default:
-                      endScale[0] = *(float *)&v79->cmd;
+                      endScale[0] = *(float *)&v57->cmd;
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 1287, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "SD_MixVoice() received unknown mix command %d.", *(_QWORD *)endScale) )
                         __debugbreak();
                       break;
                   }
-                  v122 = *(_DWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) + 1;
-                  *(_DWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) = v122;
-                  v78 = *(_QWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) + 1i64;
-                  *(_QWORD *)(((unsigned __int64)v140 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = v78;
+                  v89 = *(_DWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) + 1;
+                  *(_DWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0xC) = v89;
+                  v56 = *(_QWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) + 1i64;
+                  *(_QWORD *)(((unsigned __int64)v95 & 0xFFFFFFFFFFFFFFC0ui64) + 0x18) = v56;
                 }
-                while ( v122 < v16->commandBufferCount );
-                v22 = 2i64;
+                while ( v89 < v8->commandBufferCount );
+                v13 = 2i64;
               }
-              _RAX = _RBX->panFilter;
-              _R15 = (char *)v16 - (char *)_RBX->panFilter;
+              panFilter = (__m256i *)v9->panFilter;
+              v91 = (char *)v8 - (char *)v9->panFilter;
               do
               {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [r15+rax+114h]
-                  vmovups ymmword ptr [rax], ymm0
-                  vmovups ymm1, ymmword ptr [r15+rax+134h]
-                  vmovups ymmword ptr [rax+20h], ymm1
-                  vmovups ymm0, ymmword ptr [r15+rax+154h]
-                  vmovups ymmword ptr [rax+40h], ymm0
-                  vmovups ymm1, ymmword ptr [r15+rax+174h]
-                  vmovups ymmword ptr [rax+60h], ymm1
-                }
-                ++_RAX;
-                --v22;
+                *panFilter = *(__m256i *)((char *)&panFilter[8] + v91 + 20);
+                panFilter[1] = *(__m256i *)((char *)&panFilter[9] + v91 + 20);
+                panFilter[2] = *(__m256i *)((char *)&panFilter[10] + v91 + 20);
+                panFilter[3] = *(__m256i *)((char *)&panFilter[11] + v91 + 20);
+                panFilter += 4;
+                --v13;
               }
-              while ( v22 );
+              while ( v13 );
             }
-            goto LABEL_185;
+            return;
           case SD_VOICE_SYNC_STOP_FADE:
-            goto LABEL_67;
+LABEL_73:
+            syncStopFadeFramesDecoded = v9->syncStopFadeFramesDecoded;
+            syncStopFadeFrames = v9->syncStopFadeFrames;
+            if ( syncStopFadeFramesDecoded >= syncStopFadeFrames )
+            {
+              v9->syncState = SD_VOICE_SYNC_DONE;
+              return;
+            }
+            v44 = 1.0 / (float)syncStopFadeFrames;
+            v11 = 1.0 - (float)((float)syncStopFadeFramesDecoded * v44);
+            v45 = syncStopFadeFramesDecoded + 256;
+            v9->syncStopFadeFramesDecoded = v45;
+            v12 = 1.0 - (float)((float)v45 * v44);
+            goto LABEL_87;
           case SD_VOICE_SYNC_DONE:
-            goto LABEL_185;
+            return;
           default:
-            goto LABEL_81;
+            goto LABEL_87;
         }
-        syncStartFadeFramesDecoded = _RBX->syncStartFadeFramesDecoded;
-        if ( syncStartFadeFramesDecoded >= _RBX->syncStartFadeFrames )
+        syncStartFadeFramesDecoded = v9->syncStartFadeFramesDecoded;
+        syncStartFadeFrames = v9->syncStartFadeFrames;
+        if ( syncStartFadeFramesDecoded >= syncStartFadeFrames )
         {
-          _RBX->syncState = SD_VOICE_SYNC_ACTIVE;
+          v9->syncState = SD_VOICE_SYNC_ACTIVE;
         }
         else
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vdivss  xmm1, xmm6, xmm0
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm12, xmm0, xmm1
-          }
-          _RBX->syncStartFadeFramesDecoded = syncStartFadeFramesDecoded + 256;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm11, xmm0, xmm1
-          }
+          v51 = 1.0 / (float)syncStartFadeFrames;
+          v11 = (float)syncStartFadeFramesDecoded * v51;
+          v52 = syncStartFadeFramesDecoded + 256;
+          v9->syncStartFadeFramesDecoded = v52;
+          v12 = (float)v52 * v51;
         }
-        goto LABEL_81;
+        goto LABEL_87;
       }
-      __asm
+      autoSimStartTimeStamp = v9->autoSimStartTimeStamp;
+      v33 = (float)autoSimStartTimeStamp;
+      if ( autoSimStartTimeStamp < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
+        v34 = (float)autoSimStartTimeStamp;
+        v33 = v34 + 1.8446744e19;
       }
-      if ( (_RBX->autoSimStartTimeStamp & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm8 }
-      __asm
+      v36 = v33 * 0.048;
+      v35 = v36;
+      v37 = 0i64;
+      if ( v36 >= 9.223372e18 )
       {
-        vmulss  xmm0, xmm0, cs:__real@3d449ba6
-        vcomiss xmm0, xmm7
-        vsubss  xmm0, xmm0, xmm7
-        vcomiss xmm0, xmm7
-        vcvttss2si rax, xmm0
+        v35 = v36 - 9.223372e18;
+        if ( (float)(v36 - 9.223372e18) < 9.223372e18 )
+          v37 = 0x8000000000000000ui64;
       }
-      if ( (g_sd.autoSimClock << 8) + 256 > (v41->startTime << 8) + _RAX )
+      if ( (g_sd.autoSimClock << 8) + 256 > (v31->startTime << 8) + (unsigned int)(int)v35 + v37 )
       {
-        autoSimShotCount = _RBX->autoSimShotCount;
-        if ( v41->currentShotCount < autoSimShotCount )
-          v41->currentShotCount = autoSimShotCount;
-        goto LABEL_47;
+        autoSimShotCount = v9->autoSimShotCount;
+        if ( v31->currentShotCount < autoSimShotCount )
+          v31->currentShotCount = autoSimShotCount;
+        goto LABEL_53;
       }
     }
-  }
-LABEL_185:
-  _R11 = &v148;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
   }
 }
 
@@ -837,415 +739,330 @@ SD_VoiceDecoderRead
 */
 int SD_VoiceDecoderRead(sd_voice *voice, sd_decoder *decoder, int decodeCount, bool doPitch, float pitch, float *leftOut, float *rightOut, float *envelopeOut)
 {
+  __int64 v9; 
+  float *v12; 
+  float *v13; 
+  signed __int64 v14; 
+  int v15; 
   __int64 v16; 
-  signed __int64 v27; 
-  int v28; 
-  __int64 v29; 
-  int v30; 
-  float *v31; 
-  unsigned __int64 v32; 
-  unsigned __int64 i; 
-  float *v34; 
-  unsigned __int64 j; 
-  float *v36; 
-  __int64 v37; 
-  int result; 
-  int v39; 
+  int v17; 
+  float *v18; 
+  unsigned __int64 v19; 
+  unsigned __int64 k; 
+  float *v21; 
+  unsigned __int64 m; 
+  float *v23; 
+  __int64 v24; 
+  int v26; 
   unsigned int count; 
-  unsigned int v41; 
-  bool v42; 
-  __int16 v43; 
-  __int16 v44; 
-  unsigned int v45; 
-  unsigned int v60; 
-  bool v61; 
-  __int16 v68; 
-  __int16 v69; 
+  unsigned int v28; 
+  __int64 v29; 
+  __int64 v30; 
+  unsigned int v31; 
+  __int128 pitchFraction_low; 
+  float v35; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v40; 
+  bool v41; 
+  __int128 v42; 
+  unsigned int v43; 
+  __int128 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  unsigned int v47; 
+  __int128 v48; 
+  float v51; 
+  float v52; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v57; 
+  __int128 v58; 
+  unsigned int v59; 
+  __int128 v60; 
+  unsigned int v61; 
+  unsigned int v62; 
+  __int64 v63; 
+  __int64 v64; 
+  unsigned int v65; 
+  __int128 i; 
+  float v67; 
+  float v68; 
+  __int128 v69; 
   unsigned int v70; 
-  unsigned int v92; 
-  bool v93; 
-  unsigned int v95; 
-  unsigned int v96; 
-  __int16 v97; 
-  __int16 v98; 
-  unsigned int v99; 
-  unsigned int v107; 
-  bool v108; 
-  __int16 v109; 
-  __int16 v110; 
-  unsigned int v111; 
-  unsigned int v123; 
-  bool v124; 
-  char v131; 
+  __int128 v71; 
+  __int64 v72; 
+  __int64 v73; 
+  unsigned int v74; 
+  __int128 j; 
+  float v76; 
+  float v77; 
+  __int128 v78; 
+  unsigned int v79; 
+  __int128 v80; 
 
-  __asm { vmovaps [rsp+0D8h+var_88], xmm11 }
-  v16 = decodeCount;
-  _RDI = decoder;
+  v9 = decodeCount;
   if ( !decodeCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 639, ASSERT_TYPE_ASSERT, "(decodeCount)", (const char *)&queryFormat, "decodeCount") )
     __debugbreak();
-  _R12 = envelopeOut;
   if ( !envelopeOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 641, ASSERT_TYPE_ASSERT, "(envelopeOut)", (const char *)&queryFormat, "envelopeOut") )
     __debugbreak();
-  _RBX = leftOut;
+  v12 = leftOut;
   if ( ((unsigned __int8)leftOut & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 644, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( leftOut ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )leftOut ) ) = 0x%llx", leftOut) )
     __debugbreak();
-  _RSI = rightOut;
+  v13 = rightOut;
   if ( ((unsigned __int8)rightOut & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 645, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( rightOut ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )rightOut ) ) = 0x%llx", rightOut) )
     __debugbreak();
-  __asm { vmovss  xmm11, [rsp+0D8h+pitch] }
-  if ( _RDI->eos )
-    goto LABEL_34;
-  __asm
+  if ( decoder->eos || (int)(float)((float)(int)v9 * pitch) < (signed int)decoder->output.count )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vmulss  xmm1, xmm0, xmm11
-    vcvttss2si eax, xmm1
-  }
-  if ( _EAX < (signed int)_RDI->output.count )
-  {
-LABEL_34:
-    v39 = 0;
-    _RDI->starvingVoiceIndex = -1;
+    v26 = 0;
+    decoder->starvingVoiceIndex = -1;
     *envelopeOut = 0.0;
     if ( voice->trackEnvelope )
     {
       if ( !doPitch )
+        return SD_VoiceNoPitchEnv(decoder, leftOut, rightOut, v9, voice->channelCount, envelopeOut);
+      count = decoder->output.count;
+      v28 = decoder->output.head - count;
+      if ( voice->channelCount == 1 )
       {
-        result = SD_VoiceNoPitchEnv(_RDI, leftOut, rightOut, v16, voice->channelCount, envelopeOut);
-        goto LABEL_51;
-      }
-      count = _RDI->output.count;
-      v41 = _RDI->output.head - count;
-      v42 = voice->channelCount == 1;
-      __asm
-      {
-        vmovaps [rsp+0D8h+var_38], xmm6
-        vmovaps [rsp+0D8h+var_48], xmm7
-        vmovaps [rsp+0D8h+var_58], xmm8
-        vmovaps [rsp+0D8h+var_68], xmm9
-      }
-      if ( v42 )
-      {
-        v43 = v41 & 0x3FF;
-        v44 = (v43 + 1) & 0x3FF;
+        v29 = v28 & 0x3FF;
+        v30 = ((_WORD)v29 + 1) & 0x3FF;
         if ( count > 8 )
         {
-          v45 = 0;
-          __asm
+          v31 = 0;
+          pitchFraction_low = LODWORD(decoder->pitchFraction);
+          _XMM7 = 0i64;
+          if ( (_DWORD)v9 )
           {
-            vmovss  xmm4, dword ptr [rdi+1100h]
-            vxorps  xmm7, xmm7, xmm7
-          }
-          if ( (_DWORD)v16 )
-          {
-            __asm
-            {
-              vmovss  xmm5, cs:__real@3f800000
-              vmovss  xmm8, cs:__real@3f7f974a
-              vmovss  xmm9, cs:__real@3f7fb44a
-              vmovss  xmm6, cs:__real@bf800000
-            }
+            _XMM9 = LODWORD(FLOAT_0_99884474);
             do
             {
-              if ( !_RDI->output.count )
+              if ( !decoder->output.count )
                 break;
-              __asm
+              v35 = (float)((float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[v29]) + (float)(*(float *)&pitchFraction_low * decoder->output.buffer[v30]);
+              __asm { vcmpltss xmm0, xmm7, xmm3 }
+              v38 = _XMM7;
+              *(float *)&v38 = *(float *)&_XMM7 - v35;
+              v37 = v38;
+              __asm { vblendvps xmm1, xmm9, xmm8, xmm0 }
+              v40 = pitchFraction_low;
+              *(float *)&v40 = *(float *)&pitchFraction_low + pitch;
+              pitchFraction_low = v40;
+              v41 = *(float *)&v40 < 1.0;
+              v42 = v37;
+              *(float *)&v42 = (float)(*(float *)&v37 * *(float *)&_XMM1) + v35;
+              _XMM7 = v42;
+              *v12 = v35;
+              if ( !v41 )
               {
-                vsubss  xmm0, xmm5, xmm4
-                vmulss  xmm1, xmm0, dword ptr [rdi+rcx*4+80h]
-                vmulss  xmm0, xmm4, dword ptr [rdi+rdx*4+80h]
-                vaddss  xmm3, xmm1, xmm0
-                vcmpltss xmm0, xmm7, xmm3
-                vsubss  xmm2, xmm7, xmm3
-                vblendvps xmm1, xmm9, xmm8, xmm0
-                vaddss  xmm4, xmm4, xmm11
-                vcomiss xmm4, xmm5
-                vmulss  xmm0, xmm2, xmm1
-                vaddss  xmm7, xmm0, xmm3
-                vmovss  dword ptr [rbx], xmm3
+                v43 = decoder->output.count;
+                do
+                {
+                  v29 = ((_WORD)v29 + 1) & 0x3FF;
+                  v30 = ((_WORD)v30 + 1) & 0x3FF;
+                  decoder->output.count = --v43;
+                  v44 = pitchFraction_low;
+                  *(float *)&v44 = *(float *)&pitchFraction_low + -1.0;
+                  pitchFraction_low = v44;
+                }
+                while ( v43 && *(float *)&v44 >= 1.0 );
               }
-              v60 = _RDI->output.count;
-              do
-              {
-                v43 = (v43 + 1) & 0x3FF;
-                v44 = (v44 + 1) & 0x3FF;
-                v61 = v60-- == 0;
-                _RDI->output.count = v60;
-                __asm { vaddss  xmm4, xmm4, xmm6 }
-                if ( !v60 )
-                  break;
-                __asm { vcomiss xmm4, xmm5 }
-              }
-              while ( !v61 );
-              ++v45;
-              ++_RBX;
+              ++v31;
+              ++v12;
             }
-            while ( v45 < (unsigned int)v16 );
+            while ( v31 < (unsigned int)v9 );
           }
-          if ( _RDI->output.count <= 8 && _RDI->eos )
-            _RDI->output.count = 0;
-          __asm
-          {
-            vmovss  dword ptr [rdi+1100h], xmm4
-            vmovss  dword ptr [r12], xmm7
-          }
-          v39 = v45;
+          if ( decoder->output.count <= 8 && decoder->eos )
+            decoder->output.count = 0;
+          decoder->pitchFraction = *(float *)&pitchFraction_low;
+          *envelopeOut = *(float *)&_XMM7;
+          return v31;
         }
       }
       else
       {
-        v68 = (2 * v41) & 0x3FF;
-        v69 = (v68 + 2) & 0x3FF;
+        v45 = (2 * (_WORD)v28) & 0x3FF;
+        v46 = ((_WORD)v45 + 2) & 0x3FF;
         if ( count > 8 )
         {
-          v70 = 0;
-          __asm
+          v47 = 0;
+          v48 = LODWORD(decoder->pitchFraction);
+          _XMM7 = 0i64;
+          if ( (_DWORD)v9 )
           {
-            vmovss  xmm4, dword ptr [rdi+1100h]
-            vxorps  xmm7, xmm7, xmm7
-          }
-          if ( (_DWORD)v16 )
-          {
-            __asm
-            {
-              vmovss  xmm5, cs:__real@3f800000
-              vmovss  xmm8, cs:__real@3f7f974a
-              vmovss  xmm9, cs:__real@3f7fb44a
-              vmovss  xmm6, cs:__real@bf800000
-              vmovaps [rsp+0D8h+var_78], xmm10
-            }
-            _RSI = (char *)rightOut - (char *)leftOut;
-            __asm { vmovss  xmm10, cs:__real@3f004dce }
+            _XMM9 = LODWORD(FLOAT_0_99884474);
             do
             {
-              if ( !_RDI->output.count )
+              if ( !decoder->output.count )
                 break;
-              __asm
+              *v12 = (float)(*(float *)&v48 * decoder->output.buffer[v46]) + (float)((float)(1.0 - *(float *)&v48) * decoder->output.buffer[v45]);
+              v51 = (float)(*(float *)&v48 * decoder->output.buffer[(unsigned int)(v46 + 1)]) + (float)((float)(1.0 - *(float *)&v48) * decoder->output.buffer[(unsigned int)(v45 + 1)]);
+              *(float *)((char *)v12 + (char *)rightOut - (char *)leftOut) = v51;
+              v52 = (float)(v51 + *v12) * 0.50118721;
+              __asm { vcmpltss xmm0, xmm7, xmm3 }
+              v55 = _XMM7;
+              *(float *)&v55 = *(float *)&_XMM7 - v52;
+              v54 = v55;
+              __asm { vblendvps xmm1, xmm9, xmm8, xmm0 }
+              v57 = v48;
+              *(float *)&v57 = *(float *)&v48 + pitch;
+              v48 = v57;
+              v41 = *(float *)&v57 < 1.0;
+              v58 = v54;
+              *(float *)&v58 = (float)(*(float *)&v54 * *(float *)&_XMM1) + v52;
+              _XMM7 = v58;
+              if ( !v41 )
               {
-                vmulss  xmm1, xmm4, dword ptr [rdi+r8*4+80h]
-                vsubss  xmm2, xmm5, xmm4
-                vmulss  xmm0, xmm2, dword ptr [rdi+rdx*4+80h]
-                vaddss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rbx], xmm1
-                vmulss  xmm1, xmm4, dword ptr [rdi+rax*4+80h]
-                vmulss  xmm0, xmm2, dword ptr [rdi+rax*4+80h]
-                vaddss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rsi+rbx], xmm1
-                vaddss  xmm0, xmm1, dword ptr [rbx]
-                vmulss  xmm3, xmm0, xmm10
-                vcmpltss xmm0, xmm7, xmm3
-                vsubss  xmm2, xmm7, xmm3
-                vblendvps xmm1, xmm9, xmm8, xmm0
-                vaddss  xmm4, xmm4, xmm11
-                vcomiss xmm4, xmm5
-                vmulss  xmm0, xmm2, xmm1
-                vaddss  xmm7, xmm0, xmm3
+                v59 = decoder->output.count;
+                do
+                {
+                  v45 = ((_WORD)v45 + 2) & 0x3FF;
+                  v46 = ((_WORD)v46 + 2) & 0x3FF;
+                  decoder->output.count = --v59;
+                  v60 = v48;
+                  *(float *)&v60 = *(float *)&v48 + -1.0;
+                  v48 = v60;
+                }
+                while ( v59 && *(float *)&v60 >= 1.0 );
               }
-              v92 = _RDI->output.count;
-              do
-              {
-                v68 = (v68 + 2) & 0x3FF;
-                v69 = (v69 + 2) & 0x3FF;
-                v93 = v92-- == 0;
-                _RDI->output.count = v92;
-                __asm { vaddss  xmm4, xmm4, xmm6 }
-                if ( !v92 )
-                  break;
-                __asm { vcomiss xmm4, xmm5 }
-              }
-              while ( !v93 );
-              ++v70;
-              ++_RBX;
+              ++v47;
+              ++v12;
             }
-            while ( v70 < (unsigned int)v16 );
-            __asm { vmovaps xmm10, [rsp+0D8h+var_78] }
+            while ( v47 < (unsigned int)v9 );
           }
-          if ( _RDI->output.count <= 8 && _RDI->eos )
-            _RDI->output.count = 0;
-          __asm
-          {
-            vmovss  dword ptr [rdi+1100h], xmm4
-            vmovss  dword ptr [r12], xmm7
-          }
-          v39 = v70;
+          if ( decoder->output.count <= 8 && decoder->eos )
+            decoder->output.count = 0;
+          decoder->pitchFraction = *(float *)&v48;
+          *envelopeOut = *(float *)&_XMM7;
+          return v47;
         }
-      }
-      __asm
-      {
-        vmovaps xmm8, [rsp+0D8h+var_58]
-        vmovaps xmm7, [rsp+0D8h+var_48]
-        vmovaps xmm6, [rsp+0D8h+var_38]
-        vmovaps xmm9, [rsp+0D8h+var_68]
       }
     }
     else
     {
       if ( !doPitch )
-      {
-        result = SD_VoiceNoPitch(_RDI, leftOut, rightOut, v16, voice->channelCount);
-        goto LABEL_51;
-      }
-      v95 = _RDI->output.count;
-      v96 = _RDI->output.head - v95;
+        return SD_VoiceNoPitch(decoder, leftOut, rightOut, v9, voice->channelCount);
+      v61 = decoder->output.count;
+      v62 = decoder->output.head - v61;
       if ( voice->channelCount == 1 )
       {
-        v97 = v96 & 0x3FF;
-        v98 = (v97 + 1) & 0x3FF;
-        if ( v95 > 8 )
+        v63 = v62 & 0x3FF;
+        v64 = ((_WORD)v63 + 1) & 0x3FF;
+        if ( v61 > 8 )
         {
-          v99 = 0;
-          __asm { vmovss  xmm2, dword ptr [rdi+1100h] }
-          if ( (_DWORD)v16 )
+          v65 = 0;
+          for ( i = LODWORD(decoder->pitchFraction); v65 < (unsigned int)v9; ++v12 )
           {
-            __asm
+            if ( !decoder->output.count )
+              break;
+            v67 = (float)(1.0 - *(float *)&i) * decoder->output.buffer[v63];
+            v68 = *(float *)&i * decoder->output.buffer[v64];
+            v69 = i;
+            *(float *)&v69 = *(float *)&i + pitch;
+            i = v69;
+            *v12 = v67 + v68;
+            if ( *(float *)&v69 >= 1.0 )
             {
-              vmovss  xmm3, cs:__real@3f800000
-              vmovss  xmm4, cs:__real@bf800000
-            }
-            do
-            {
-              if ( !_RDI->output.count )
-                break;
-              __asm
-              {
-                vsubss  xmm0, xmm3, xmm2
-                vmulss  xmm1, xmm0, dword ptr [rdi+rcx*4+80h]
-                vmulss  xmm0, xmm2, dword ptr [rdi+rdx*4+80h]
-                vaddss  xmm2, xmm2, xmm11
-                vcomiss xmm2, xmm3
-                vaddss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rbx], xmm1
-              }
-              v107 = _RDI->output.count;
+              v70 = decoder->output.count;
               do
               {
-                v97 = (v97 + 1) & 0x3FF;
-                v98 = (v98 + 1) & 0x3FF;
-                v108 = v107-- == 0;
-                _RDI->output.count = v107;
-                __asm { vaddss  xmm2, xmm2, xmm4 }
-                if ( !v107 )
-                  break;
-                __asm { vcomiss xmm2, xmm3 }
+                v63 = ((_WORD)v63 + 1) & 0x3FF;
+                v64 = ((_WORD)v64 + 1) & 0x3FF;
+                decoder->output.count = --v70;
+                v71 = i;
+                *(float *)&v71 = *(float *)&i + -1.0;
+                i = v71;
               }
-              while ( !v108 );
-              ++v99;
-              ++_RBX;
+              while ( v70 && *(float *)&v71 >= 1.0 );
             }
-            while ( v99 < (unsigned int)v16 );
+            ++v65;
           }
-          if ( _RDI->output.count <= 8 && _RDI->eos )
-            _RDI->output.count = 0;
-          __asm { vmovss  dword ptr [rdi+1100h], xmm2 }
-          v39 = v99;
+          if ( decoder->output.count <= 8 && decoder->eos )
+            decoder->output.count = 0;
+          decoder->pitchFraction = *(float *)&i;
+          return v65;
         }
       }
       else
       {
-        v109 = (2 * v96) & 0x3FF;
-        v110 = (v109 + 2) & 0x3FF;
-        if ( v95 > 8 )
+        v72 = (2 * (_WORD)v62) & 0x3FF;
+        v73 = ((_WORD)v72 + 2) & 0x3FF;
+        if ( v61 > 8 )
         {
-          v111 = 0;
-          __asm { vmovss  xmm3, dword ptr [rdi+1100h] }
-          if ( (_DWORD)v16 )
+          v74 = 0;
+          for ( j = LODWORD(decoder->pitchFraction); v74 < (unsigned int)v9; ++v13 )
           {
-            __asm
+            if ( !decoder->output.count )
+              break;
+            *(float *)((char *)v13 + (char *)leftOut - (char *)rightOut) = (float)(*(float *)&j * decoder->output.buffer[v73]) + (float)((float)(1.0 - *(float *)&j) * decoder->output.buffer[v72]);
+            v76 = *(float *)&j * decoder->output.buffer[(unsigned int)(v73 + 1)];
+            v77 = (float)(1.0 - *(float *)&j) * decoder->output.buffer[(unsigned int)(v72 + 1)];
+            v78 = j;
+            *(float *)&v78 = *(float *)&j + pitch;
+            j = v78;
+            *v13 = v76 + v77;
+            if ( *(float *)&v78 >= 1.0 )
             {
-              vmovss  xmm4, cs:__real@3f800000
-              vmovss  xmm5, cs:__real@bf800000
-            }
-            _RBX = (char *)leftOut - (char *)rightOut;
-            do
-            {
-              if ( !_RDI->output.count )
-                break;
-              __asm
-              {
-                vmulss  xmm1, xmm3, dword ptr [rdi+r8*4+80h]
-                vsubss  xmm2, xmm4, xmm3
-                vmulss  xmm0, xmm2, dword ptr [rdi+rdx*4+80h]
-                vaddss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rsi+rbx], xmm1
-                vmulss  xmm1, xmm3, dword ptr [rdi+rax*4+80h]
-                vmulss  xmm0, xmm2, dword ptr [rdi+rax*4+80h]
-                vaddss  xmm3, xmm3, xmm11
-                vcomiss xmm3, xmm4
-                vaddss  xmm1, xmm1, xmm0
-                vmovss  dword ptr [rsi], xmm1
-              }
-              v123 = _RDI->output.count;
+              v79 = decoder->output.count;
               do
               {
-                v109 = (v109 + 2) & 0x3FF;
-                v110 = (v110 + 2) & 0x3FF;
-                v124 = v123-- == 0;
-                _RDI->output.count = v123;
-                __asm { vaddss  xmm3, xmm3, xmm5 }
-                if ( !v123 )
-                  break;
-                __asm { vcomiss xmm3, xmm4 }
+                v72 = ((_WORD)v72 + 2) & 0x3FF;
+                v73 = ((_WORD)v73 + 2) & 0x3FF;
+                decoder->output.count = --v79;
+                v80 = j;
+                *(float *)&v80 = *(float *)&j + -1.0;
+                j = v80;
               }
-              while ( !v124 );
-              ++v111;
-              ++_RSI;
+              while ( v79 && *(float *)&v80 >= 1.0 );
             }
-            while ( v111 < (unsigned int)v16 );
+            ++v74;
           }
-          if ( _RDI->output.count <= 8 && _RDI->eos )
-            _RDI->output.count = 0;
-          __asm { vmovss  dword ptr [rdi+1100h], xmm3 }
-          v39 = v111;
+          if ( decoder->output.count <= 8 && decoder->eos )
+            decoder->output.count = 0;
+          decoder->pitchFraction = *(float *)&j;
+          return v74;
         }
       }
     }
-    result = v39;
+    return v26;
   }
-  else
+  v14 = voice - g_sd.voicePool;
+  if ( (unsigned __int64)(v14 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v14, "signed", voice - g_sd.voicePool) )
+    __debugbreak();
+  decoder->starvingVoiceIndex = v14;
+  voice->starvedThisFrame = 1;
+  v15 = 0;
+  if ( (int)v9 > 0 && (unsigned int)v9 >= 4 )
   {
-    v27 = voice - g_sd.voicePool;
-    if ( (unsigned __int64)(v27 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v27, "signed", voice - g_sd.voicePool) )
-      __debugbreak();
-    _RDI->starvingVoiceIndex = v27;
-    voice->starvedThisFrame = 1;
-    v28 = 0;
-    if ( (int)v16 > 0 && (unsigned int)v16 >= 4 )
+    v16 = (int)v9 - 1;
+    if ( rightOut > &leftOut[v16] || &rightOut[v16] < leftOut )
     {
-      v29 = (int)v16 - 1;
-      if ( rightOut > &leftOut[v29] || &rightOut[v29] < leftOut )
-      {
-        v30 = v16 - (int)v16 % 4;
-        do
-          v28 += 4;
-        while ( v28 < v30 );
-        v31 = leftOut;
-        v32 = 16i64 * ((v30 + 3) / 4);
-        for ( i = v32 >> 2; i; --i )
-          *v31++ = 0.0;
-        v34 = rightOut;
-        for ( j = v32 >> 2; j; --j )
-          *v34++ = 0.0;
-      }
-    }
-    if ( v28 < v16 )
-    {
-      v36 = &rightOut[v28];
-      v37 = v16 - v28;
+      v17 = v9 - (int)v9 % 4;
       do
-      {
-        *(float *)((char *)v36 + (char *)leftOut - (char *)rightOut) = 0.0;
-        *v36++ = 0.0;
-        --v37;
-      }
-      while ( v37 );
+        v15 += 4;
+      while ( v15 < v17 );
+      v18 = leftOut;
+      v19 = 16i64 * ((v17 + 3) / 4);
+      for ( k = v19 >> 2; k; --k )
+        *v18++ = 0.0;
+      v21 = rightOut;
+      for ( m = v19 >> 2; m; --m )
+        *v21++ = 0.0;
     }
-    result = v16;
   }
-LABEL_51:
-  _R11 = &v131;
-  __asm { vmovaps xmm11, xmmword ptr [r11-60h] }
-  return result;
+  if ( v15 < v9 )
+  {
+    v23 = &rightOut[v15];
+    v24 = v9 - v15;
+    do
+    {
+      *(float *)((char *)v23 + (char *)leftOut - (char *)rightOut) = 0.0;
+      *v23++ = 0.0;
+      --v24;
+    }
+    while ( v24 );
+  }
+  return v9;
 }
 
 /*
@@ -1315,9 +1132,15 @@ char SD_VoiceIsReady(sd_voice *voice, const sd_voice_param *param)
 {
   unsigned int autoSimId; 
   unsigned __int64 startDelayMixFrames; 
-  __int64 v7; 
-  unsigned int v8; 
-  SDAutoSim *v9; 
+  __int64 v6; 
+  unsigned int v7; 
+  SDAutoSim *v8; 
+  signed __int64 autoSimStartTimeStamp; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  unsigned __int64 v14; 
   SndWeapShotCountId autoSimShotCount; 
   sd_decoder *decoder; 
   unsigned int count; 
@@ -1341,34 +1164,34 @@ char SD_VoiceIsReady(sd_voice *voice, const sd_voice_param *param)
   {
     if ( autoSimId != -1 )
     {
-      v7 = (unsigned __int16)autoSimId;
-      v8 = HIWORD(autoSimId);
-      if ( (unsigned int)v7 >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 435, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", v7, 64) )
+      v6 = (unsigned __int16)autoSimId;
+      v7 = HIWORD(autoSimId);
+      if ( (unsigned int)v6 >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 435, ASSERT_TYPE_ASSERT, "(unsigned)( autoSimIndex ) < (unsigned)( ( sizeof( *array_counter( g_sd.autoSims ) ) + 0 ) )", "autoSimIndex doesn't index ARRAY_COUNT( g_sd.autoSims )\n\t%i not in [0, %i)", v6, 64) )
         __debugbreak();
-      v9 = &g_sd.autoSims[v7];
-      if ( v9->instanceId == v8 )
+      v8 = &g_sd.autoSims[v6];
+      if ( v8->instanceId == v7 )
       {
-        __asm
+        autoSimStartTimeStamp = voice->autoSimStartTimeStamp;
+        v10 = (float)autoSimStartTimeStamp;
+        if ( autoSimStartTimeStamp < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
+          v11 = (float)autoSimStartTimeStamp;
+          v10 = v11 + 1.8446744e19;
         }
-        if ( (voice->autoSimStartTimeStamp & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-        __asm
+        v13 = v10 * 0.048;
+        v12 = v13;
+        v14 = 0i64;
+        if ( v13 >= 9.223372e18 )
         {
-          vmulss  xmm0, xmm0, cs:__real@3d449ba6
-          vmovss  xmm1, cs:__real@5f000000
-          vcomiss xmm0, xmm1
-          vsubss  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm1
-          vcvttss2si rcx, xmm0
+          v12 = v13 - 9.223372e18;
+          if ( (float)(v13 - 9.223372e18) < 9.223372e18 )
+            v14 = 0x8000000000000000ui64;
         }
-        if ( (g_sd.autoSimClock + 1) << 8 <= (v9->startTime << 8) + _RCX )
+        if ( (g_sd.autoSimClock + 1) << 8 <= (v8->startTime << 8) + v14 + (unsigned int)(int)v12 )
           return 0;
         autoSimShotCount = voice->autoSimShotCount;
-        if ( v9->currentShotCount < autoSimShotCount )
-          v9->currentShotCount = autoSimShotCount;
+        if ( v8->currentShotCount < autoSimShotCount )
+          v8->currentShotCount = autoSimShotCount;
       }
     }
     decoder = voice->decoder;
@@ -1521,42 +1344,73 @@ SD_VoiceNoPitchEnv
 */
 __int64 SD_VoiceNoPitchEnv(sd_decoder *decoder, float *leftOut, float *rightOut, unsigned int decodeCount, int channelCount, float *envelopeOut)
 {
-  bool v11; 
-  float *v14; 
-  unsigned int v15; 
+  float *v8; 
+  unsigned int v9; 
   sd_stream *stream; 
   sd_stream_buffer *ioBuffer; 
   unsigned int requestLatency; 
-  sd_stream_buffer *v19; 
-  int v20; 
-  unsigned int v21; 
-  __int64 v23; 
+  sd_stream_buffer *v13; 
+  int v14; 
+  unsigned int v15; 
+  float *v16; 
+  __int64 v17; 
   unsigned int count; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v34; 
-  __int64 v36; 
-  unsigned int v70; 
-  unsigned int v72; 
-  unsigned int v74; 
-  __int64 v75; 
-  __int64 v76; 
-  __int64 v97; 
-  unsigned int v113; 
-  unsigned __int64 v114; 
-  __int64 v116; 
-  __int64 v118; 
-  void *retaddr; 
+  unsigned int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned int v24; 
+  __int64 v25; 
+  unsigned int v26; 
+  float *v27; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
+  __int128 v33; 
+  float v37; 
+  __int128 v38; 
+  float v40; 
+  __int64 v41; 
+  float v44; 
+  __int128 v45; 
+  float v47; 
+  float v50; 
+  __int128 v51; 
+  float *v52; 
+  __int64 v53; 
+  float v54; 
+  __int128 v56; 
+  unsigned int v58; 
+  signed __int64 v59; 
+  unsigned int v60; 
+  float *v61; 
+  unsigned int v62; 
+  __int64 v63; 
+  __int64 v64; 
+  float v65; 
+  float v66; 
+  __int128 v69; 
+  float v71; 
+  float v74; 
+  __int128 v75; 
+  __int64 v77; 
+  float v78; 
+  float v81; 
+  __int128 v82; 
+  float v84; 
+  float v87; 
+  __int128 v88; 
+  unsigned int v89; 
+  unsigned __int64 v90; 
+  __int64 v91; 
+  float *v92; 
+  __int64 v93; 
+  float v94; 
+  float v95; 
+  __int128 v98; 
 
-  _RAX = &retaddr;
-  v11 = !decoder->eos;
-  _RSI = decoder;
-  v14 = rightOut;
-  v15 = decodeCount;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  if ( v11 && decodeCount > decoder->output.count )
+  v8 = rightOut;
+  v9 = decodeCount;
+  if ( !decoder->eos && decodeCount > decoder->output.count )
   {
     stream = decoder->source->stream;
     if ( stream )
@@ -1565,258 +1419,236 @@ __int64 SD_VoiceNoPitchEnv(sd_decoder *decoder, float *leftOut, float *rightOut,
       if ( ioBuffer )
       {
         requestLatency = ioBuffer->requestLatency;
-        v19 = _RSI->source->stream->ioBuffer;
-        v20 = Sys_Milliseconds();
-        Com_PrintWarning(9, "SOUND: starving due to read request %s took %dms instead of %dms\n", v19->filename, v20 - v19->requestStartTime, requestLatency);
+        v13 = decoder->source->stream->ioBuffer;
+        v14 = Sys_Milliseconds();
+        Com_PrintWarning(9, "SOUND: starving due to read request %s took %dms instead of %dms\n", v13->filename, v14 - v13->requestStartTime, requestLatency);
       }
     }
   }
-  v21 = 1024 / channelCount;
-  if ( _RSI->output.head >= 1024 / channelCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 365, ASSERT_TYPE_ASSERT, "(decoder->output.head < totalFrameCount)", (const char *)&queryFormat, "decoder->output.head < totalFrameCount") )
+  v15 = 1024 / channelCount;
+  if ( decoder->output.head >= 1024 / channelCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 365, ASSERT_TYPE_ASSERT, "(decoder->output.head < totalFrameCount)", (const char *)&queryFormat, "decoder->output.head < totalFrameCount") )
     __debugbreak();
-  if ( _RSI->output.count > v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 366, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
+  if ( decoder->output.count > v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 366, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
     __debugbreak();
-  if ( !_RSI->eos && v15 > _RSI->output.count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 368, ASSERT_TYPE_ASSERT, "(decoder->eos || decodeCount <= decoder->output.count)", (const char *)&queryFormat, "decoder->eos || decodeCount <= decoder->output.count") )
+  if ( !decoder->eos && v9 > decoder->output.count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 368, ASSERT_TYPE_ASSERT, "(decoder->eos || decodeCount <= decoder->output.count)", (const char *)&queryFormat, "decoder->eos || decodeCount <= decoder->output.count") )
     __debugbreak();
-  _RAX = envelopeOut;
-  v23 = 0i64;
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  if ( v15 )
+  v16 = envelopeOut;
+  v17 = 0i64;
+  _XMM6 = *(unsigned int *)envelopeOut;
+  if ( v9 )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_58], xmm7
-      vmovss  xmm7, cs:__real@3f7f974a
-      vmovaps [rsp+0A8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3f7fb44a
-      vmovaps [rsp+0A8h+var_78], xmm9
-      vmovss  xmm9, cs:__real@3f004dce
-    }
+    _XMM8 = LODWORD(FLOAT_0_99884474);
     do
     {
-      count = _RSI->output.count;
+      count = decoder->output.count;
       if ( !count )
         break;
-      v29 = _RSI->output.count;
-      v30 = v15;
-      v31 = (v21 + _RSI->output.head - count) % v21;
-      if ( v15 > v21 - v31 )
-        v30 = v21 - (v21 + _RSI->output.head - count) % v21;
-      if ( count > v30 )
-        v29 = v30;
-      if ( count - v29 > v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 381, ASSERT_TYPE_ASSERT, "(decoder->output.count - contiguous <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count - contiguous <= totalFrameCount") )
+      v21 = decoder->output.count;
+      v22 = v9;
+      v23 = (v15 + decoder->output.head - count) % v15;
+      if ( v9 > v15 - v23 )
+        v22 = v15 - (v15 + decoder->output.head - count) % v15;
+      if ( count > v22 )
+        v21 = v22;
+      if ( count - v21 > v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 381, ASSERT_TYPE_ASSERT, "(decoder->output.count - contiguous <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count - contiguous <= totalFrameCount") )
         __debugbreak();
       if ( channelCount == 1 )
       {
-        v32 = 0;
-        if ( v29 >= 4 )
+        v24 = 0;
+        if ( v21 >= 4 )
         {
-          _R8 = v31 + 1;
-          v34 = ((v29 - 4) >> 2) + 1;
-          _R9 = &leftOut[v23];
-          v36 = v34;
-          v32 = 4 * v34;
+          v25 = v23 + 1;
+          v26 = ((v21 - 4) >> 2) + 1;
+          v27 = &leftOut[v17];
+          v28 = v26;
+          v24 = 4 * v26;
           do
           {
-            _RAX = (unsigned int)(_R8 - 1);
-            _R9 += 4;
-            __asm { vmovss  xmm3, dword ptr [rsi+rax*4+80h] }
-            _RAX = (unsigned int)(_R8 + 1);
+            v27 += 4;
+            v29 = decoder->output.buffer[(unsigned int)(v25 - 1)];
+            *(v27 - 4) = v29;
+            v30 = decoder->output.buffer[v25];
             __asm
             {
-              vmovss  dword ptr [r9-10h], xmm3
-              vmovss  xmm4, dword ptr [rsi+r8*4+80h]
               vcmpltss xmm0, xmm6, xmm3
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm2, xmm6, xmm3
-              vmulss  xmm0, xmm2, xmm1
-              vaddss  xmm2, xmm0, xmm3
-              vcmpltss xmm0, xmm2, xmm4
-              vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm3, xmm2, xmm4
-              vmulss  xmm0, xmm1, xmm3
-              vaddss  xmm2, xmm0, xmm4
-              vmovss  dword ptr [r9-0Ch], xmm4
-              vmovss  xmm4, dword ptr [rsi+rax*4+80h]
             }
-            _RAX = (unsigned int)(_R8 + 2);
-            _R8 = (unsigned int)(_R8 + 4);
+            v33 = _XMM6;
+            *(float *)&v33 = (float)((float)(*(float *)&_XMM6 - v29) * *(float *)&_XMM1) + v29;
+            _XMM2 = v33;
             __asm
             {
               vcmpltss xmm0, xmm2, xmm4
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm3, xmm2, xmm4
-              vmulss  xmm0, xmm1, xmm3
-              vaddss  xmm2, xmm0, xmm4
-              vmovss  dword ptr [r9-8], xmm4
-              vmovss  xmm4, dword ptr [rsi+rax*4+80h]
+            }
+            v37 = *(float *)&v33 - v30;
+            v38 = _XMM1;
+            *(float *)&v38 = (float)(*(float *)&_XMM1 * v37) + v30;
+            _XMM2 = v38;
+            *(v27 - 3) = v30;
+            v40 = decoder->output.buffer[(unsigned int)(v25 + 1)];
+            v41 = (unsigned int)(v25 + 2);
+            v25 = (unsigned int)(v25 + 4);
+            __asm
+            {
               vcmpltss xmm0, xmm2, xmm4
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm3, xmm2, xmm4
-              vmulss  xmm0, xmm1, xmm3
-              vmovss  dword ptr [r9-4], xmm4
-              vaddss  xmm6, xmm0, xmm4
             }
-            --v36;
+            v44 = *(float *)&v38 - v40;
+            v45 = _XMM1;
+            *(float *)&v45 = (float)(*(float *)&_XMM1 * v44) + v40;
+            _XMM2 = v45;
+            *(v27 - 2) = v40;
+            v47 = decoder->output.buffer[v41];
+            __asm
+            {
+              vcmpltss xmm0, xmm2, xmm4
+              vblendvps xmm1, xmm8, xmm7, xmm0
+            }
+            v50 = *(float *)&v45 - v47;
+            v51 = _XMM1;
+            *(v27 - 1) = v47;
+            *(float *)&v51 = (float)(*(float *)&_XMM1 * v50) + v47;
+            _XMM6 = v51;
+            --v28;
           }
-          while ( v36 );
+          while ( v28 );
         }
-        if ( v32 < v29 )
+        if ( v24 < v21 )
         {
-          _R8 = &leftOut[(unsigned int)v23 + (unsigned __int64)v32];
+          v52 = &leftOut[(unsigned int)v17 + (unsigned __int64)v24];
           do
           {
-            _RAX = v32 + v31;
-            ++v32;
-            ++_R8;
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rsi+rax*4+80h]
-              vcmpltss xmm0, xmm6, xmm3
-              vsubss  xmm2, xmm6, xmm3
-              vblendvps xmm1, xmm8, xmm7, xmm0
-              vmulss  xmm0, xmm2, xmm1
-              vmovss  dword ptr [r8-4], xmm3
-              vaddss  xmm6, xmm0, xmm3
-            }
+            v53 = v24 + v23;
+            ++v24;
+            ++v52;
+            v54 = decoder->output.buffer[v53];
+            __asm { vcmpltss xmm0, xmm6, xmm3 }
+            v56 = _XMM6;
+            __asm { vblendvps xmm1, xmm8, xmm7, xmm0 }
+            *(v52 - 1) = v54;
+            *(float *)&v56 = (float)((float)(*(float *)&_XMM6 - v54) * *(float *)&_XMM1) + v54;
+            _XMM6 = v56;
           }
-          while ( v32 < v29 );
+          while ( v24 < v21 );
         }
       }
       else
       {
-        v70 = 0;
-        if ( v29 >= 4 )
+        v58 = 0;
+        if ( v21 >= 4 )
         {
-          _R11 = (char *)v14 - (char *)leftOut;
-          v72 = ((v29 - 4) >> 2) + 1;
-          _R9 = &leftOut[v23 + 1];
-          v74 = v31;
-          v75 = v72;
-          v70 = 4 * v72;
+          v59 = (char *)v8 - (char *)leftOut;
+          v60 = ((v21 - 4) >> 2) + 1;
+          v61 = &leftOut[v17 + 1];
+          v62 = v23;
+          v63 = v60;
+          v58 = 4 * v60;
           do
           {
-            v76 = 2 * v74;
-            _RAX = (unsigned int)(v76 + 1);
-            *(_R9 - 1) = _RSI->output.buffer[v76];
-            _R9 += 4;
+            v64 = 2 * v62;
+            *(v61 - 1) = decoder->output.buffer[v64];
+            v61 += 4;
+            v65 = decoder->output.buffer[(unsigned int)(v64 + 1)];
+            *(float *)((char *)v61 + v59 - 20) = v65;
+            *(v61 - 4) = decoder->output.buffer[(unsigned int)(v64 + 2)];
+            v66 = (float)(v65 + *(v61 - 5)) * 0.50118721;
             __asm
             {
-              vmovss  xmm0, dword ptr [rsi+rax*4+80h]
-              vmovss  dword ptr [r11+r9-14h], xmm0
-            }
-            *(_R9 - 4) = _RSI->output.buffer[(unsigned int)(v76 + 2)];
-            _RAX = (unsigned int)(v76 + 3);
-            __asm
-            {
-              vaddss  xmm0, xmm0, dword ptr [r9-14h]
-              vmulss  xmm3, xmm0, xmm9
               vcmpltss xmm0, xmm6, xmm3
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm2, xmm6, xmm3
-              vmulss  xmm0, xmm1, xmm2
-              vaddss  xmm4, xmm0, xmm3
-              vmovss  xmm0, dword ptr [rsi+rax*4+80h]
-              vmovss  dword ptr [r11+r9-10h], xmm0
             }
-            *(_R9 - 3) = _RSI->output.buffer[2 * v74 + 4];
-            _RAX = (unsigned int)(v76 + 5);
+            v69 = _XMM1;
+            *(float *)&v69 = (float)(*(float *)&_XMM1 * (float)(*(float *)&_XMM6 - v66)) + v66;
+            _XMM4 = v69;
+            *(float *)&_XMM0 = decoder->output.buffer[(unsigned int)(v64 + 3)];
+            *(float *)((char *)v61 + v59 - 16) = *(float *)&_XMM0;
+            *(v61 - 3) = decoder->output.buffer[2 * v62 + 4];
+            v71 = (float)(*(float *)&_XMM0 + *(v61 - 4)) * 0.50118721;
             __asm
             {
-              vaddss  xmm0, xmm0, dword ptr [r9-10h]
-              vmulss  xmm3, xmm0, xmm9
               vcmpltss xmm0, xmm4, xmm3
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm2, xmm4, xmm3
-              vmulss  xmm0, xmm1, xmm2
-              vaddss  xmm4, xmm0, xmm3
-              vmovss  xmm0, dword ptr [rsi+rax*4+80h]
             }
-            v97 = 2 * v74 + 6;
-            v74 += 4;
-            __asm { vmovss  dword ptr [r11+r9-0Ch], xmm0 }
-            *(_R9 - 2) = _RSI->output.buffer[v97];
-            _RAX = (unsigned int)(v76 + 7);
+            v74 = *(float *)&v69 - v71;
+            v75 = _XMM1;
+            *(float *)&v75 = (float)(*(float *)&_XMM1 * v74) + v71;
+            _XMM4 = v75;
+            *(float *)&_XMM0 = decoder->output.buffer[(unsigned int)(v64 + 5)];
+            v77 = 2 * v62 + 6;
+            v62 += 4;
+            *(float *)((char *)v61 + v59 - 12) = *(float *)&_XMM0;
+            *(v61 - 2) = decoder->output.buffer[v77];
+            v78 = (float)(*(float *)&_XMM0 + *(v61 - 3)) * 0.50118721;
             __asm
             {
-              vaddss  xmm0, xmm0, dword ptr [r9-0Ch]
-              vmulss  xmm3, xmm0, xmm9
               vcmpltss xmm0, xmm4, xmm3
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm2, xmm4, xmm3
-              vmulss  xmm0, xmm1, xmm2
-              vaddss  xmm4, xmm0, xmm3
-              vmovss  xmm0, dword ptr [rsi+rax*4+80h]
-              vmovss  dword ptr [r11+r9-8], xmm0
-              vaddss  xmm0, xmm0, dword ptr [r9-8]
-              vmulss  xmm3, xmm0, xmm9
-              vcmpltss xmm0, xmm4, xmm3
-              vblendvps xmm1, xmm8, xmm7, xmm0
-              vsubss  xmm2, xmm4, xmm3
-              vmulss  xmm0, xmm1, xmm2
-              vaddss  xmm6, xmm0, xmm3
             }
-            --v75;
+            v81 = *(float *)&v75 - v78;
+            v82 = _XMM1;
+            *(float *)&v82 = (float)(*(float *)&_XMM1 * v81) + v78;
+            _XMM4 = v82;
+            *(float *)&_XMM0 = decoder->output.buffer[(unsigned int)(v64 + 7)];
+            *(float *)((char *)v61 + v59 - 8) = *(float *)&_XMM0;
+            v84 = (float)(*(float *)&_XMM0 + *(v61 - 2)) * 0.50118721;
+            __asm
+            {
+              vcmpltss xmm0, xmm4, xmm3
+              vblendvps xmm1, xmm8, xmm7, xmm0
+            }
+            v87 = *(float *)&v82 - v84;
+            v88 = _XMM1;
+            *(float *)&v88 = (float)(*(float *)&_XMM1 * v87) + v84;
+            _XMM6 = v88;
+            --v63;
           }
-          while ( v75 );
-          v21 = 1024 / channelCount;
-          v14 = rightOut;
+          while ( v63 );
+          v15 = 1024 / channelCount;
+          v8 = rightOut;
         }
-        if ( v70 < v29 )
+        if ( v58 < v21 )
         {
-          v113 = v70 + v31;
-          v114 = (unsigned int)v23 + (unsigned __int64)v70;
-          _R11 = (char *)v14 - (char *)leftOut;
-          v116 = v29 - v70;
-          _R8 = &leftOut[v114];
+          v89 = v58 + v23;
+          v90 = (unsigned int)v17 + (unsigned __int64)v58;
+          v91 = v21 - v58;
+          v92 = &leftOut[v90];
           do
           {
-            v118 = 2 * v113;
-            _RAX = (unsigned int)(v118 + 1);
-            *_R8++ = _RSI->output.buffer[v118];
-            ++v113;
+            v93 = 2 * v89;
+            *v92++ = decoder->output.buffer[v93];
+            ++v89;
+            v94 = decoder->output.buffer[(unsigned int)(v93 + 1)];
+            *(float *)((char *)v92 + (char *)v8 - (char *)leftOut - 4) = v94;
+            v95 = (float)(v94 + *(v92 - 1)) * 0.50118721;
             __asm
             {
-              vmovss  xmm0, dword ptr [rsi+rax*4+80h]
-              vmovss  dword ptr [r11+r8-4], xmm0
-              vaddss  xmm0, xmm0, dword ptr [r8-4]
-              vmulss  xmm3, xmm0, xmm9
               vcmpltss xmm0, xmm6, xmm3
-              vsubss  xmm2, xmm6, xmm3
               vblendvps xmm1, xmm8, xmm7, xmm0
-              vmulss  xmm0, xmm1, xmm2
-              vaddss  xmm6, xmm0, xmm3
             }
-            --v116;
+            v98 = _XMM1;
+            *(float *)&v98 = (float)(*(float *)&_XMM1 * (float)(*(float *)&_XMM6 - v95)) + v95;
+            _XMM6 = v98;
+            --v91;
           }
-          while ( v116 );
+          while ( v91 );
         }
       }
-      _RSI->output.count -= v29;
-      v23 = v29 + (unsigned int)v23;
-      v15 -= v29;
-      if ( _RSI->output.count > v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 413, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
+      decoder->output.count -= v21;
+      v17 = v21 + (unsigned int)v17;
+      v9 -= v21;
+      if ( decoder->output.count > v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 413, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
         __debugbreak();
     }
-    while ( v15 );
-    _RAX = envelopeOut;
-    __asm
-    {
-      vmovaps xmm9, [rsp+0A8h+var_78]
-      vmovaps xmm8, [rsp+0A8h+var_68]
-      vmovaps xmm7, [rsp+0A8h+var_58]
-    }
+    while ( v9 );
+    v16 = envelopeOut;
   }
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm6
-    vmovaps xmm6, [rsp+0A8h+var_48]
-  }
-  if ( _RSI->output.head >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 418, ASSERT_TYPE_ASSERT, "(decoder->output.head < totalFrameCount)", (const char *)&queryFormat, "decoder->output.head < totalFrameCount") )
+  *v16 = *(float *)&_XMM6;
+  if ( decoder->output.head >= v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 418, ASSERT_TYPE_ASSERT, "(decoder->output.head < totalFrameCount)", (const char *)&queryFormat, "decoder->output.head < totalFrameCount") )
     __debugbreak();
-  if ( _RSI->output.count > v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 419, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
+  if ( decoder->output.count > v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 419, ASSERT_TYPE_ASSERT, "(decoder->output.count <= totalFrameCount)", (const char *)&queryFormat, "decoder->output.count <= totalFrameCount") )
     __debugbreak();
-  return (unsigned int)v23;
+  return (unsigned int)v17;
 }
 
 /*
@@ -1824,66 +1656,61 @@ __int64 SD_VoiceNoPitchEnv(sd_decoder *decoder, float *leftOut, float *rightOut,
 SD_VoicePitchMono
 ==============
 */
-
-__int64 __fastcall SD_VoicePitchMono(sd_decoder *decoder, double pitchRatio, unsigned int outputCount, float *leftOut)
+__int64 SD_VoicePitchMono(sd_decoder *decoder, float pitchRatio, unsigned int outputCount, float *leftOut)
 {
   unsigned int count; 
-  __int16 v6; 
-  __int16 v8; 
+  __int64 v6; 
+  __int64 v8; 
   __int64 result; 
-  unsigned int v11; 
+  __int128 pitchFraction_low; 
   unsigned int i; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  unsigned int v15; 
+  __int128 v16; 
 
   count = decoder->output.count;
-  v6 = (decoder->output.head - count) & 0x3FF;
-  __asm { vmovaps xmm5, xmm1 }
-  v8 = (v6 + 1) & 0x3FF;
+  v6 = ((unsigned __int16)decoder->output.head - (_WORD)count) & 0x3FF;
+  v8 = ((_WORD)v6 + 1) & 0x3FF;
   if ( count <= 8 )
     return 0i64;
-  __asm { vmovss  xmm2, dword ptr [rcx+1100h] }
-  v11 = 0;
-  if ( outputCount )
+  pitchFraction_low = LODWORD(decoder->pitchFraction);
+  for ( i = 0; i < outputCount; ++leftOut )
   {
-    __asm
+    count = decoder->output.count;
+    if ( !count )
+      break;
+    v12 = (float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[v6];
+    v13 = *(float *)&pitchFraction_low * decoder->output.buffer[v8];
+    v14 = pitchFraction_low;
+    *(float *)&v14 = *(float *)&pitchFraction_low + pitchRatio;
+    pitchFraction_low = v14;
+    *leftOut = v12 + v13;
+    if ( *(float *)&v14 >= 1.0 )
     {
-      vmovss  xmm3, cs:__real@3f800000
-      vmovss  xmm4, cs:__real@bf800000
-    }
-    do
-    {
-      count = decoder->output.count;
-      if ( !count )
-        break;
-      __asm
+      v15 = count;
+      do
       {
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, dword ptr [rcx+r10*4+80h]
-        vmulss  xmm0, xmm2, dword ptr [rcx+r11*4+80h]
-        vaddss  xmm2, xmm2, xmm5
-        vcomiss xmm2, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [r9], xmm1
-      }
-      for ( i = count; ; --i )
-      {
-        count = i - 1;
-        v6 = (v6 + 1) & 0x3FF;
-        decoder->output.count = i - 1;
-        v8 = (v8 + 1) & 0x3FF;
-        __asm { vaddss  xmm2, xmm2, xmm4 }
-        if ( i == 1 )
+        count = v15 - 1;
+        v6 = ((_WORD)v6 + 1) & 0x3FF;
+        decoder->output.count = v15 - 1;
+        v8 = ((_WORD)v8 + 1) & 0x3FF;
+        v16 = pitchFraction_low;
+        *(float *)&v16 = *(float *)&pitchFraction_low + -1.0;
+        pitchFraction_low = v16;
+        if ( v15 == 1 )
           break;
-        __asm { vcomiss xmm2, xmm3 }
+        --v15;
       }
-      ++v11;
-      ++leftOut;
+      while ( *(float *)&v16 >= 1.0 );
     }
-    while ( v11 < outputCount );
+    ++i;
   }
   if ( count <= 8 && decoder->eos )
     decoder->output.count = 0;
-  result = v11;
-  __asm { vmovss  dword ptr [rcx+1100h], xmm2 }
+  result = i;
+  decoder->pitchFraction = *(float *)&pitchFraction_low;
   return result;
 }
 
@@ -1892,99 +1719,79 @@ __int64 __fastcall SD_VoicePitchMono(sd_decoder *decoder, double pitchRatio, uns
 SD_VoicePitchMonoEnv
 ==============
 */
-
-__int64 __fastcall SD_VoicePitchMonoEnv(sd_decoder *decoder, double pitchRatio, unsigned int outputCount, float *leftOut, float *envelopeOut)
+__int64 SD_VoicePitchMonoEnv(sd_decoder *decoder, float pitchRatio, unsigned int outputCount, float *leftOut, float *envelopeOut)
 {
   unsigned int count; 
-  __int16 v11; 
-  __int16 v13; 
+  __int64 v7; 
+  __int64 v9; 
   __int64 result; 
-  unsigned int v17; 
-  unsigned int i; 
+  __int128 pitchFraction_low; 
+  unsigned int v12; 
+  float v15; 
+  __int128 v18; 
+  bool v19; 
+  __int128 v20; 
+  unsigned int v21; 
+  __int128 v22; 
 
   count = decoder->output.count;
-  __asm { vmovaps [rsp+48h+var_48], xmm9 }
-  v11 = (decoder->output.head - count) & 0x3FF;
-  __asm { vmovaps xmm9, xmm1 }
-  v13 = (v11 + 1) & 0x3FF;
-  if ( count > 8 )
+  v7 = ((unsigned __int16)decoder->output.head - (_WORD)count) & 0x3FF;
+  v9 = ((_WORD)v7 + 1) & 0x3FF;
+  if ( count <= 8 )
+    return 0i64;
+  pitchFraction_low = LODWORD(decoder->pitchFraction);
+  v12 = 0;
+  _XMM6 = *(unsigned int *)envelopeOut;
+  if ( outputCount )
   {
-    __asm { vmovss  xmm3, dword ptr [rcx+1100h] }
-    v17 = 0;
-    _RDI = envelopeOut;
-    __asm
+    _XMM8 = LODWORD(FLOAT_0_99884474);
+    do
     {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rdi]
-    }
-    if ( outputCount )
-    {
+      count = decoder->output.count;
+      if ( !count )
+        break;
+      v15 = (float)((float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[v7]) + (float)(*(float *)&pitchFraction_low * decoder->output.buffer[v9]);
       __asm
       {
-        vmovss  xmm4, cs:__real@3f800000
-        vmovss  xmm5, cs:__real@bf800000
-        vmovaps [rsp+48h+var_28], xmm7
-        vmovss  xmm7, cs:__real@3f7f974a
-        vmovaps [rsp+48h+var_38], xmm8
-        vmovss  xmm8, cs:__real@3f7fb44a
+        vcmpltss xmm0, xmm6, xmm2
+        vblendvps xmm1, xmm8, xmm7, xmm0
       }
-      do
+      v18 = pitchFraction_low;
+      *(float *)&v18 = *(float *)&pitchFraction_low + pitchRatio;
+      pitchFraction_low = v18;
+      v19 = *(float *)&v18 < 1.0;
+      v20 = _XMM1;
+      *(float *)&v20 = (float)(*(float *)&_XMM1 * (float)(*(float *)&_XMM6 - v15)) + v15;
+      _XMM6 = v20;
+      *leftOut = v15;
+      if ( !v19 )
       {
-        count = decoder->output.count;
-        if ( !count )
-          break;
-        __asm
+        v21 = count;
+        do
         {
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, dword ptr [rcx+r10*4+80h]
-          vmulss  xmm0, xmm3, dword ptr [rcx+r11*4+80h]
-          vaddss  xmm2, xmm1, xmm0
-          vcmpltss xmm0, xmm6, xmm2
-          vblendvps xmm1, xmm8, xmm7, xmm0
-          vsubss  xmm0, xmm6, xmm2
-          vaddss  xmm3, xmm3, xmm9
-          vcomiss xmm3, xmm4
-          vmulss  xmm1, xmm1, xmm0
-          vaddss  xmm6, xmm1, xmm2
-          vmovss  dword ptr [r9], xmm2
-        }
-        for ( i = count; ; --i )
-        {
-          count = i - 1;
-          v11 = (v11 + 1) & 0x3FF;
-          decoder->output.count = i - 1;
-          v13 = (v13 + 1) & 0x3FF;
-          __asm { vaddss  xmm3, xmm3, xmm5 }
-          if ( i == 1 )
+          count = v21 - 1;
+          v7 = ((_WORD)v7 + 1) & 0x3FF;
+          decoder->output.count = v21 - 1;
+          v9 = ((_WORD)v9 + 1) & 0x3FF;
+          v22 = pitchFraction_low;
+          *(float *)&v22 = *(float *)&pitchFraction_low + -1.0;
+          pitchFraction_low = v22;
+          if ( v21 == 1 )
             break;
-          __asm { vcomiss xmm3, xmm4 }
+          --v21;
         }
-        ++v17;
-        ++leftOut;
+        while ( *(float *)&v22 >= 1.0 );
       }
-      while ( v17 < outputCount );
-      __asm
-      {
-        vmovaps xmm7, [rsp+48h+var_28]
-        vmovaps xmm8, [rsp+48h+var_38]
-      }
+      ++v12;
+      ++leftOut;
     }
-    if ( count <= 8 && decoder->eos )
-      decoder->output.count = 0;
-    __asm { vmovaps xmm9, [rsp+48h+var_48] }
-    result = v17;
-    __asm
-    {
-      vmovss  dword ptr [rdi], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovss  dword ptr [rcx+1100h], xmm3
-    }
+    while ( v12 < outputCount );
   }
-  else
-  {
-    result = 0i64;
-    __asm { vmovaps xmm9, [rsp+48h+var_48] }
-  }
+  if ( count <= 8 && decoder->eos )
+    decoder->output.count = 0;
+  result = v12;
+  *envelopeOut = *(float *)&_XMM6;
+  decoder->pitchFraction = *(float *)&pitchFraction_low;
   return result;
 }
 
@@ -1993,83 +1800,72 @@ __int64 __fastcall SD_VoicePitchMonoEnv(sd_decoder *decoder, double pitchRatio, 
 SD_VoicePitchStereo
 ==============
 */
-
-__int64 __fastcall SD_VoicePitchStereo(sd_decoder *decoder, double pitchRatio, unsigned int outputCount, float *leftOut, float *rightOut)
+__int64 SD_VoicePitchStereo(sd_decoder *decoder, float pitchRatio, unsigned int outputCount, float *leftOut, float *rightOut)
 {
   unsigned int count; 
-  __int16 v9; 
-  __int16 v11; 
+  __int64 v8; 
+  __int64 v10; 
   __int64 result; 
-  unsigned int v15; 
-  unsigned int i; 
+  __int128 pitchFraction_low; 
+  unsigned int v13; 
+  float *v14; 
+  signed __int64 v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  unsigned int v19; 
+  __int128 v20; 
 
   count = decoder->output.count;
-  __asm { vmovaps [rsp+18h+var_18], xmm6 }
-  v9 = (2 * (decoder->output.head - count)) & 0x3FF;
-  __asm { vmovaps xmm6, xmm1 }
-  v11 = (v9 + 2) & 0x3FF;
-  if ( count > 8 )
+  v8 = (2 * ((unsigned __int16)decoder->output.head - (_WORD)count)) & 0x3FF;
+  v10 = ((_WORD)v8 + 2) & 0x3FF;
+  if ( count <= 8 )
+    return 0i64;
+  pitchFraction_low = LODWORD(decoder->pitchFraction);
+  v13 = 0;
+  if ( outputCount )
   {
-    __asm { vmovss  xmm3, dword ptr [rcx+1100h] }
-    v15 = 0;
-    if ( outputCount )
+    v14 = rightOut;
+    v15 = (char *)leftOut - (char *)rightOut;
+    do
     {
-      __asm
+      count = decoder->output.count;
+      if ( !count )
+        break;
+      *(float *)((char *)v14 + v15) = (float)((float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[v8]) + (float)(*(float *)&pitchFraction_low * decoder->output.buffer[v10]);
+      v16 = (float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[(unsigned int)(v8 + 1)];
+      v17 = *(float *)&pitchFraction_low * decoder->output.buffer[(unsigned int)(v10 + 1)];
+      v18 = pitchFraction_low;
+      *(float *)&v18 = *(float *)&pitchFraction_low + pitchRatio;
+      pitchFraction_low = v18;
+      *v14 = v16 + v17;
+      if ( *(float *)&v18 >= 1.0 )
       {
-        vmovss  xmm4, cs:__real@3f800000
-        vmovss  xmm5, cs:__real@bf800000
-      }
-      _RBX = rightOut;
-      _RSI = (char *)leftOut - (char *)rightOut;
-      do
-      {
-        count = decoder->output.count;
-        if ( !count )
-          break;
-        __asm
+        v19 = count;
+        do
         {
-          vmulss  xmm0, xmm3, dword ptr [rcx+r8*4+80h]
-          vsubss  xmm2, xmm4, xmm3
-          vmulss  xmm1, xmm2, dword ptr [rcx+r10*4+80h]
-          vaddss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rsi+rbx], xmm1
-          vmulss  xmm1, xmm2, dword ptr [rcx+rax*4+80h]
-          vmulss  xmm0, xmm3, dword ptr [rcx+rax*4+80h]
-          vaddss  xmm3, xmm3, xmm6
-          vcomiss xmm3, xmm4
-          vaddss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx], xmm1
-        }
-        for ( i = count; ; --i )
-        {
-          count = i - 1;
-          decoder->output.count = i - 1;
-          v9 = (v9 + 2) & 0x3FF;
-          v11 = (v11 + 2) & 0x3FF;
-          __asm { vaddss  xmm3, xmm3, xmm5 }
-          if ( i == 1 )
+          count = v19 - 1;
+          decoder->output.count = v19 - 1;
+          v8 = ((_WORD)v8 + 2) & 0x3FF;
+          v10 = ((_WORD)v10 + 2) & 0x3FF;
+          v20 = pitchFraction_low;
+          *(float *)&v20 = *(float *)&pitchFraction_low + -1.0;
+          pitchFraction_low = v20;
+          if ( v19 == 1 )
             break;
-          __asm { vcomiss xmm3, xmm4 }
+          --v19;
         }
-        ++v15;
-        ++_RBX;
+        while ( *(float *)&v20 >= 1.0 );
       }
-      while ( v15 < outputCount );
+      ++v13;
+      ++v14;
     }
-    if ( count <= 8 && decoder->eos )
-      decoder->output.count = 0;
-    result = v15;
-    __asm
-    {
-      vmovaps xmm6, [rsp+18h+var_18]
-      vmovss  dword ptr [rcx+1100h], xmm3
-    }
+    while ( v13 < outputCount );
   }
-  else
-  {
-    result = 0i64;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  }
+  if ( count <= 8 && decoder->eos )
+    decoder->output.count = 0;
+  result = v13;
+  decoder->pitchFraction = *(float *)&pitchFraction_low;
   return result;
 }
 
@@ -2078,111 +1874,90 @@ __int64 __fastcall SD_VoicePitchStereo(sd_decoder *decoder, double pitchRatio, u
 SD_VoicePitchStereoEnv
 ==============
 */
-
-__int64 __fastcall SD_VoicePitchStereoEnv(sd_decoder *decoder, double pitchRatio, unsigned int outputCount, float *leftOut, float *rightOut, float *envelopeOut)
+__int64 SD_VoicePitchStereoEnv(sd_decoder *decoder, float pitchRatio, unsigned int outputCount, float *leftOut, float *rightOut, float *envelopeOut)
 {
   unsigned int count; 
-  __int16 v15; 
-  __int16 v17; 
+  __int64 v9; 
+  __int64 v11; 
   __int64 result; 
-  unsigned int v20; 
-  unsigned int i; 
+  __int128 pitchFraction_low; 
+  unsigned int v14; 
+  float *v16; 
+  signed __int64 v17; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v26; 
+  bool v27; 
+  __int128 v28; 
+  unsigned int v29; 
+  __int128 v30; 
 
   count = decoder->output.count;
-  __asm { vmovaps [rsp+68h+var_38], xmm8 }
-  v15 = (2 * (decoder->output.head - count)) & 0x3FF;
-  __asm { vmovaps xmm8, xmm1 }
-  v17 = (v15 + 2) & 0x3FF;
-  if ( count > 8 )
+  v9 = (2 * ((unsigned __int16)decoder->output.head - (_WORD)count)) & 0x3FF;
+  v11 = ((_WORD)v9 + 2) & 0x3FF;
+  if ( count <= 8 )
+    return 0i64;
+  pitchFraction_low = LODWORD(decoder->pitchFraction);
+  v14 = 0;
+  _XMM7 = *(unsigned int *)envelopeOut;
+  if ( outputCount )
   {
-    __asm { vmovss  xmm4, dword ptr [rcx+1100h] }
-    v20 = 0;
-    _RBP = envelopeOut;
-    __asm
+    v16 = rightOut;
+    v17 = (char *)leftOut - (char *)rightOut;
+    _XMM11 = LODWORD(FLOAT_0_99884474);
+    do
     {
-      vmovaps [rsp+68h+var_28], xmm7
-      vmovss  xmm7, dword ptr [rbp+0]
-    }
-    if ( outputCount )
-    {
-      __asm { vmovss  xmm5, cs:__real@3f800000 }
-      _RBX = rightOut;
-      __asm { vmovaps [rsp+68h+var_18], xmm6 }
-      _RSI = (char *)leftOut - (char *)rightOut;
-      __asm
+      count = decoder->output.count;
+      if ( !count )
+        break;
+      v19 = (float)((float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[v9]) + (float)(*(float *)&pitchFraction_low * decoder->output.buffer[v11]);
+      v20 = (float)((float)(1.0 - *(float *)&pitchFraction_low) * decoder->output.buffer[(unsigned int)(v9 + 1)]) + (float)(*(float *)&pitchFraction_low * decoder->output.buffer[(unsigned int)(v11 + 1)]);
+      *v16 = v20;
+      v21 = (float)(v20 + v19) * 0.50118721;
+      __asm { vcmpltss xmm0, xmm7, xmm3 }
+      *(float *)((char *)v16 + v17) = v19;
+      v24 = _XMM7;
+      *(float *)&v24 = *(float *)&_XMM7 - v21;
+      v23 = v24;
+      __asm { vblendvps xmm1, xmm11, xmm10, xmm0 }
+      v26 = pitchFraction_low;
+      *(float *)&v26 = *(float *)&pitchFraction_low + pitchRatio;
+      pitchFraction_low = v26;
+      v27 = *(float *)&v26 < 1.0;
+      v28 = v23;
+      *(float *)&v28 = (float)(*(float *)&v23 * *(float *)&_XMM1) + v21;
+      _XMM7 = v28;
+      if ( !v27 )
       {
-        vmovss  xmm6, cs:__real@bf800000
-        vmovaps [rsp+68h+var_48], xmm9
-        vmovss  xmm9, cs:__real@3f004dce
-        vmovaps [rsp+68h+var_58], xmm10
-        vmovss  xmm10, cs:__real@3f7f974a
-        vmovaps [rsp+68h+var_68], xmm11
-        vmovss  xmm11, cs:__real@3f7fb44a
-      }
-      do
-      {
-        count = decoder->output.count;
-        if ( !count )
-          break;
-        __asm
+        v29 = count;
+        do
         {
-          vmulss  xmm0, xmm4, dword ptr [rcx+r8*4+80h]
-          vsubss  xmm3, xmm5, xmm4
-          vmulss  xmm1, xmm3, dword ptr [rcx+r10*4+80h]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, dword ptr [rcx+rax*4+80h]
-          vmulss  xmm0, xmm4, dword ptr [rcx+rax*4+80h]
-          vaddss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx], xmm1
-          vaddss  xmm1, xmm1, xmm2
-          vmulss  xmm3, xmm1, xmm9
-          vcmpltss xmm0, xmm7, xmm3
-          vmovss  dword ptr [rsi+rbx], xmm2
-          vsubss  xmm2, xmm7, xmm3
-          vblendvps xmm1, xmm11, xmm10, xmm0
-          vaddss  xmm4, xmm4, xmm8
-          vcomiss xmm4, xmm5
-          vmulss  xmm0, xmm2, xmm1
-          vaddss  xmm7, xmm0, xmm3
-        }
-        for ( i = count; ; --i )
-        {
-          count = i - 1;
-          decoder->output.count = i - 1;
-          v15 = (v15 + 2) & 0x3FF;
-          v17 = (v17 + 2) & 0x3FF;
-          __asm { vaddss  xmm4, xmm4, xmm6 }
-          if ( i == 1 )
+          count = v29 - 1;
+          decoder->output.count = v29 - 1;
+          v9 = ((_WORD)v9 + 2) & 0x3FF;
+          v11 = ((_WORD)v11 + 2) & 0x3FF;
+          v30 = pitchFraction_low;
+          *(float *)&v30 = *(float *)&pitchFraction_low + -1.0;
+          pitchFraction_low = v30;
+          if ( v29 == 1 )
             break;
-          __asm { vcomiss xmm4, xmm5 }
+          --v29;
         }
-        ++v20;
-        ++_RBX;
+        while ( *(float *)&v30 >= 1.0 );
       }
-      while ( v20 < outputCount );
-      __asm
-      {
-        vmovaps xmm10, [rsp+68h+var_58]
-        vmovaps xmm9, [rsp+68h+var_48]
-        vmovaps xmm6, [rsp+68h+var_18]
-        vmovaps xmm11, [rsp+68h+var_68]
-      }
+      ++v14;
+      ++v16;
     }
-    if ( count <= 8 && decoder->eos )
-      decoder->output.count = 0;
-    __asm
-    {
-      vmovss  dword ptr [rbp+0], xmm7
-      vmovaps xmm7, [rsp+68h+var_28]
-    }
-    result = v20;
-    __asm { vmovss  dword ptr [rcx+1100h], xmm4 }
+    while ( v14 < outputCount );
   }
-  else
-  {
-    result = 0i64;
-  }
-  __asm { vmovaps xmm8, [rsp+68h+var_38] }
+  if ( count <= 8 && decoder->eos )
+    decoder->output.count = 0;
+  *envelopeOut = *(float *)&_XMM7;
+  result = v14;
+  decoder->pitchFraction = *(float *)&pitchFraction_low;
   return result;
 }
 
@@ -2200,9 +1975,9 @@ bool SD_VoiceRead(sd_voice *voice, const sd_voice_param *param, float *leftOut, 
   int v12; 
   sd_decoder *v13; 
   unsigned int count; 
-  sd_decoder *v22; 
-  signed __int32 v23[8]; 
-  char *fmt; 
+  float v15; 
+  sd_decoder *v16; 
+  signed __int32 v17[8]; 
 
   if ( voice->decodeState == SD_VOICE_DECODE_STATE_DONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_mix_voice.cpp", 729, ASSERT_TYPE_ASSERT, "(voice->decodeState != SD_VOICE_DECODE_STATE_DONE)", (const char *)&queryFormat, "voice->decodeState != SD_VOICE_DECODE_STATE_DONE") )
     __debugbreak();
@@ -2245,24 +2020,13 @@ LABEL_20:
         if ( v13 )
         {
           count = v13->output.count;
-          __asm
+          v15 = (float)((float)voice->source.entry->frameRate * 0.000020833333) * param->pitch;
+          v12 = SD_VoiceDecoderRead(voice, v13, 256, COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - v15) & _xmm) > 0.001, v15, leftOut, rightOut, &voice->envelope);
+          v16 = voice->decoder;
+          voice->playedPosition += (int)(count - v16->output.count);
+          if ( v16->done && !v16->output.count )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rax+1Ch]
-            vmulss  xmm1, xmm0, cs:__real@37aec33e
-            vmulss  xmm2, xmm1, dword ptr [r15+230h]
-            vmovss  xmm0, cs:__real@3f800000
-            vsubss  xmm1, xmm0, xmm2
-            vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vcomiss xmm1, cs:__real@3a83126f
-            vmovss  dword ptr [rsp+58h+fmt], xmm2
-          }
-          v12 = SD_VoiceDecoderRead(voice, v13, 256, v13 != NULL, *(float *)&fmt, leftOut, rightOut, &voice->envelope);
-          v22 = voice->decoder;
-          voice->playedPosition += (int)(count - v22->output.count);
-          if ( v22->done && !v22->output.count )
-          {
-            _InterlockedOr(v23, 0);
+            _InterlockedOr(v17, 0);
             SD_DecoderFree(voice->decoder);
             voice->decoder = NULL;
             voice->done = 1;

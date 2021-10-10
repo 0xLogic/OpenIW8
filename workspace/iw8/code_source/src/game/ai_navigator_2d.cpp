@@ -1561,64 +1561,52 @@ bool __fastcall AINavigator2D::Trace(AINavigator2D *this, const vec3_t *startPos
 IsPointInRegion
 ==============
 */
-bool IsPointInRegion(const vec3_t *pos, unsigned int volumePhysInstId, HavokPhysics_CollisionQueryResult *pResult)
+char IsPointInRegion(const vec3_t *pos, unsigned int volumePhysInstId, HavokPhysics_CollisionQueryResult *pResult)
 {
   int NumRigidBodys; 
-  unsigned int v9; 
+  unsigned int v7; 
   unsigned int m_serialAndIndex; 
-  bool v12; 
-  __int64 v14; 
+  __int64 v10; 
   Physics_QueryPointExtendedData extendedData; 
   hknpBodyId result; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
   if ( !pResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph_search.cpp", 41, ASSERT_TYPE_ASSERT, "(pResult)", (const char *)&queryFormat, "pResult") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   extendedData.ignoreBodies = NULL;
   extendedData.phaseSelection = All;
-  __asm { vmovss  [rsp+98h+extendedData.collisionBuffer], xmm6 }
+  extendedData.collisionBuffer = 0.0;
   extendedData.contents = -1;
   extendedData.simplify = 0;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
   NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, volumePhysInstId);
-  v9 = 0;
+  v7 = 0;
   if ( NumRigidBodys <= 0 )
+    return 0;
+  while ( 1 )
   {
-LABEL_16:
-    v12 = 0;
-  }
-  else
-  {
-    while ( 1 )
+    if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+      __debugbreak();
+    if ( volumePhysInstId == -1 )
     {
-      if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+      LODWORD(v10) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v10) )
         __debugbreak();
-      if ( volumePhysInstId == -1 )
-      {
-        LODWORD(v14) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v14) )
-          __debugbreak();
-      }
-      if ( !g_physicsServerWorldsCreated )
-      {
-        LODWORD(v14) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v14) )
-          __debugbreak();
-      }
-      m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, volumePhysInstId, v9)->m_serialAndIndex;
-      HavokPhysics_CollisionQueryResult::Reset(pResult, 0);
-      __asm { vmovaps xmm3, xmm6; maxDistance }
-      Physics_QueryPoint(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, pos, *(float *)&_XMM3, &extendedData, pResult);
-      if ( HavokPhysics_CollisionQueryResult::HasHit(pResult) )
-        break;
-      if ( (int)++v9 >= NumRigidBodys )
-        goto LABEL_16;
     }
-    v12 = 1;
+    if ( !g_physicsServerWorldsCreated )
+    {
+      LODWORD(v10) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v10) )
+        __debugbreak();
+    }
+    m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, volumePhysInstId, v7)->m_serialAndIndex;
+    HavokPhysics_CollisionQueryResult::Reset(pResult, 0);
+    Physics_QueryPoint(PHYSICS_WORLD_ID_FIRST, m_serialAndIndex, pos, 0.0, &extendedData, pResult);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(pResult) )
+      break;
+    if ( (int)++v7 >= NumRigidBodys )
+      return 0;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  return v12;
+  return 1;
 }
 
 /*
@@ -1631,52 +1619,44 @@ void AINavigator2D::AINavigator2D(AINavigator2D *this, gentity_s *pEnt, AINavLay
   vec3_t outUp; 
   vec3_t worldPos; 
 
-  _R15 = this;
   AINavigator::AINavigator(this, pEnt, layer);
-  _R15->__vftable = (AINavigator_vtbl *)&AINavigator2D::`vftable';
-  `eh vector constructor iterator'(&_R15->m_Path, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::pathpoint_t, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
-  _R15->m_Path.m_NumPoints = 20;
-  _R15->m_Path.m_pSpace = NULL;
-  nav_path_t::Reset(&_R15->m_Path);
-  _R15->m_BasePathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  *(_QWORD *)&_R15->m_BasePathSpec.m_obstacleBlockageFlags = -1i64;
-  *(_QWORD *)&_R15->m_BasePathSpec.m_areaPenaltyFlags = -1i64;
-  _R15->m_BasePathSpec.m_usePathSharingPenalty = 0;
-  *(_QWORD *)&_R15->m_BasePathSpec.m_pathSharingPenalty = 0i64;
-  _R15->m_BasePathSpec.m_maxSearchDist = 0.0;
-  bfx::PenaltyTable::PenaltyTable(&_R15->m_BasePathSpec.m_penaltyTable);
-  _R15->m_BasePathSpec.m_snapMode = SNAP_CLOSEST;
-  _R15->m_PathSpecOfCurPath.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  *(_QWORD *)&_R15->m_PathSpecOfCurPath.m_obstacleBlockageFlags = -1i64;
-  *(_QWORD *)&_R15->m_PathSpecOfCurPath.m_areaPenaltyFlags = -1i64;
-  _R15->m_PathSpecOfCurPath.m_usePathSharingPenalty = 0;
-  *(_QWORD *)&_R15->m_PathSpecOfCurPath.m_pathSharingPenalty = 0i64;
-  _R15->m_PathSpecOfCurPath.m_maxSearchDist = 0.0;
-  bfx::PenaltyTable::PenaltyTable(&_R15->m_PathSpecOfCurPath.m_penaltyTable);
-  _R15->m_PathSpecOfCurPath.m_snapMode = SNAP_CLOSEST;
-  bfx::AreaHandle::AreaHandle(&_R15->m_hGoalArea);
-  bfx::AreaHandle::AreaHandle(&_R15->m_hCurArea);
-  bfx::LinkReservationRCPtr::LinkReservationRCPtr(&_R15->m_LinkReservation);
-  AINavigator::GetUpVector(_R15, &outUp);
-  _R15->m_BasePathSpec.m_linkUsageFlags = 1;
-  *(_QWORD *)&_R15->m_BasePathSpec.m_obstacleBlockageFlags = -8065i64;
-  Nav_GetClosestVerticalPos(&pEnt->r.currentOrigin, &outUp, layer, &_R15->m_pSpace->hSpace, &_R15->m_BasePathSpec, &worldPos, &_R15->m_hGoalArea);
-  AINavigator::LocalizePosToSpace(_R15, &worldPos, &_R15->m_LocalCurSnappedPos);
-  AINavigator::WorldifyPosFromSpace(_R15, &_R15->m_LocalCurSnappedPos, &_R15->m_CurSnappedPos);
-  _R15->m_LocalSnappedGoalPos.v[0] = _R15->m_LocalCurSnappedPos.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+58h]
-    vmovss  dword ptr [r15+4Ch], xmm0
-    vmovss  xmm1, dword ptr [r15+5Ch]
-    vmovss  dword ptr [r15+50h], xmm1
-  }
-  bfx::AreaHandle::operator=(&_R15->m_hCurArea, &_R15->m_hGoalArea);
-  _R15->m_AllowedStances = STANCE_ANY;
-  _R15->m_CurPathPoint = 0;
-  *(_QWORD *)_R15->m_SuppressionIDs = -1i64;
-  *(_QWORD *)&_R15->m_SuppressionIDs[2] = -1i64;
-  _R15->m_bTeamWalkEnabled = 0;
+  this->__vftable = (AINavigator_vtbl *)&AINavigator2D::`vftable';
+  `eh vector constructor iterator'(&this->m_Path, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::pathpoint_t, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
+  this->m_Path.m_NumPoints = 20;
+  this->m_Path.m_pSpace = NULL;
+  nav_path_t::Reset(&this->m_Path);
+  this->m_BasePathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
+  *(_QWORD *)&this->m_BasePathSpec.m_obstacleBlockageFlags = -1i64;
+  *(_QWORD *)&this->m_BasePathSpec.m_areaPenaltyFlags = -1i64;
+  this->m_BasePathSpec.m_usePathSharingPenalty = 0;
+  *(_QWORD *)&this->m_BasePathSpec.m_pathSharingPenalty = 0i64;
+  this->m_BasePathSpec.m_maxSearchDist = 0.0;
+  bfx::PenaltyTable::PenaltyTable(&this->m_BasePathSpec.m_penaltyTable);
+  this->m_BasePathSpec.m_snapMode = SNAP_CLOSEST;
+  this->m_PathSpecOfCurPath.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
+  *(_QWORD *)&this->m_PathSpecOfCurPath.m_obstacleBlockageFlags = -1i64;
+  *(_QWORD *)&this->m_PathSpecOfCurPath.m_areaPenaltyFlags = -1i64;
+  this->m_PathSpecOfCurPath.m_usePathSharingPenalty = 0;
+  *(_QWORD *)&this->m_PathSpecOfCurPath.m_pathSharingPenalty = 0i64;
+  this->m_PathSpecOfCurPath.m_maxSearchDist = 0.0;
+  bfx::PenaltyTable::PenaltyTable(&this->m_PathSpecOfCurPath.m_penaltyTable);
+  this->m_PathSpecOfCurPath.m_snapMode = SNAP_CLOSEST;
+  bfx::AreaHandle::AreaHandle(&this->m_hGoalArea);
+  bfx::AreaHandle::AreaHandle(&this->m_hCurArea);
+  bfx::LinkReservationRCPtr::LinkReservationRCPtr(&this->m_LinkReservation);
+  AINavigator::GetUpVector(this, &outUp);
+  this->m_BasePathSpec.m_linkUsageFlags = 1;
+  *(_QWORD *)&this->m_BasePathSpec.m_obstacleBlockageFlags = -8065i64;
+  Nav_GetClosestVerticalPos(&pEnt->r.currentOrigin, &outUp, layer, &this->m_pSpace->hSpace, &this->m_BasePathSpec, &worldPos, &this->m_hGoalArea);
+  AINavigator::LocalizePosToSpace(this, &worldPos, &this->m_LocalCurSnappedPos);
+  AINavigator::WorldifyPosFromSpace(this, &this->m_LocalCurSnappedPos, &this->m_CurSnappedPos);
+  this->m_LocalSnappedGoalPos = this->m_LocalCurSnappedPos;
+  bfx::AreaHandle::operator=(&this->m_hCurArea, &this->m_hGoalArea);
+  this->m_AllowedStances = STANCE_ANY;
+  this->m_CurPathPoint = 0;
+  *(_QWORD *)this->m_SuppressionIDs = -1i64;
+  *(_QWORD *)&this->m_SuppressionIDs[2] = -1i64;
+  this->m_bTeamWalkEnabled = 0;
 }
 
 /*
@@ -1736,143 +1716,98 @@ AINavigator2D::AddMultiGoalPathGoal
 __int64 AINavigator2D::AddMultiGoalPathGoal(AINavigator2D *this, const vec3_t *goalPos)
 {
   __int64 m_NumPoints; 
-  bool v7; 
+  bool v5; 
+  bfx::PathSpec *p_m_PathSpecOfCurPath; 
   unsigned int m_TimeOfLastPathSuppressed; 
-  int v13; 
-  bool v16; 
-  AINavigator *v17; 
-  unsigned __int8 v18; 
-  char v30; 
-  __int64 result; 
-  float fmt; 
+  int v8; 
+  bool v9; 
+  AINavigator2D *v10; 
+  unsigned __int8 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   bfx::AreaHandle hStartArea; 
-  __int64 v40; 
+  __int64 v17; 
   vec3_t point; 
-  vec3_t v42; 
+  vec3_t v19; 
   vec3_t outUp; 
   vec3_t outPoint; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v40 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RSI = goalPos;
-  _RDI = this;
+  v17 = -2i64;
   m_NumPoints = this->m_Path.m_NumPoints;
-  v7 = (int)m_NumPoints > 0 && (*(_DWORD *)(&this->m_MaxDeviationFromPath + 12 * m_NumPoints) & 1) == 0;
-  if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2070, ASSERT_TYPE_ASSERT, "( !m_Path.IsIncomplete() )", (const char *)&queryFormat, "!m_Path.IsIncomplete()") )
+  v5 = (int)m_NumPoints > 0 && (*(_DWORD *)(&this->m_MaxDeviationFromPath + 12 * m_NumPoints) & 1) == 0;
+  if ( v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2070, ASSERT_TYPE_ASSERT, "( !m_Path.IsIncomplete() )", (const char *)&queryFormat, "!m_Path.IsIncomplete()") )
     __debugbreak();
   bfx::AreaHandle::AreaHandle(&hStartArea);
-  if ( _RDI->m_Path.m_NumPoints <= 0 )
+  if ( this->m_Path.m_NumPoints <= 0 )
   {
-    m_TimeOfLastPathSuppressed = _RDI->m_TimeOfLastPathSuppressed;
+    m_TimeOfLastPathSuppressed = this->m_TimeOfLastPathSuppressed;
     if ( m_TimeOfLastPathSuppressed && level.time - m_TimeOfLastPathSuppressed < 0x5DC )
       goto LABEL_18;
-    _RBX = &_RDI->m_PathSpecOfCurPath;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+4A4h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rdi+4C4h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+4E4h]
-      vmovups xmmword ptr [rbx+40h], xmm0
-    }
-    if ( _RDI->IsInBadPlace(_RDI) )
-      _RDI->m_PathSpecOfCurPath.m_obstacleBlockageFlags = 1;
-    _RDI->GetCurPos(_RDI, &outPoint);
-    bfx::AreaHandle::operator=(&hStartArea, &_RDI->m_hCurArea);
+    p_m_PathSpecOfCurPath = &this->m_PathSpecOfCurPath;
+    *(__m256i *)&this->m_PathSpecOfCurPath.m_obstacleMode = *(__m256i *)&this->m_BasePathSpec.m_obstacleMode;
+    *(__m256i *)&this->m_PathSpecOfCurPath.m_maxSearchDist = *(__m256i *)&this->m_BasePathSpec.m_maxSearchDist;
+    *(_OWORD *)&this->m_PathSpecOfCurPath.m_penaltyTable.m_perFlagPenalties[24] = *(_OWORD *)&this->m_BasePathSpec.m_penaltyTable.m_perFlagPenalties[24];
+    if ( this->IsInBadPlace(this) )
+      this->m_PathSpecOfCurPath.m_obstacleBlockageFlags = 1;
+    this->GetCurPos(this, &outPoint);
+    bfx::AreaHandle::operator=(&hStartArea, &this->m_hCurArea);
   }
   else
   {
-    nav_path_t::TrimLeadingPathPoints(&_RDI->m_Path, _RDI->m_CurPathPoint);
-    _RDI->m_CurPathPoint = 0;
-    nav_path_t::GetPathPoint(&_RDI->m_Path, _RDI->m_Path.m_NumPoints - 1, &outPoint);
-    bfx::AreaHandle::operator=(&hStartArea, (const bfx::AreaHandle *)&_RDI->m_hLink.m_pSpace + 3 * _RDI->m_Path.m_NumPoints);
-    _RBX = &_RDI->m_PathSpecOfCurPath;
+    nav_path_t::TrimLeadingPathPoints(&this->m_Path, this->m_CurPathPoint);
+    this->m_CurPathPoint = 0;
+    nav_path_t::GetPathPoint(&this->m_Path, this->m_Path.m_NumPoints - 1, &outPoint);
+    bfx::AreaHandle::operator=(&hStartArea, (const bfx::AreaHandle *)&this->m_hLink.m_pSpace + 3 * this->m_Path.m_NumPoints);
+    p_m_PathSpecOfCurPath = &this->m_PathSpecOfCurPath;
   }
-  v13 = _RDI->m_Path.m_NumPoints;
-  AINavigator::GetUpVector(_RDI, &outUp);
-  Nav_GetClosestVerticalPos(_RSI, &outUp, _RDI->m_Layer, &_RDI->m_pSpace->hSpace, _RBX, &point, NULL);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42900000
-    vmovss  dword ptr [rsp+0D0h+fmt], xmm0
-    vmovss  xmm3, cs:__real@41400000; radius
-  }
-  v16 = Nav_PointWithinCylinderWithUp(&point, _RSI, &outUp, *(float *)&_XMM3, fmt);
-  v17 = _RDI;
-  if ( !v16 )
+  v8 = this->m_Path.m_NumPoints;
+  AINavigator::GetUpVector(this, &outUp);
+  Nav_GetClosestVerticalPos(goalPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, p_m_PathSpecOfCurPath, &point, NULL);
+  v9 = Nav_PointWithinCylinderWithUp(&point, goalPos, &outUp, 12.0, 72.0);
+  v10 = this;
+  if ( !v9 )
   {
 LABEL_17:
-    AINavigator::BadPathNotify(v17, _RSI);
+    AINavigator::BadPathNotify(v10, goalPos);
 LABEL_18:
-    v18 = 0;
+    v11 = 0;
     goto LABEL_27;
   }
-  if ( !AINavigator2D::ExtendPath(_RDI, &outPoint, &hStartArea, &point) )
+  if ( !AINavigator2D::ExtendPath(this, &outPoint, &hStartArea, &point) )
   {
-    v17 = _RDI;
+    v10 = this;
     goto LABEL_17;
   }
-  if ( _RDI->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2052, ASSERT_TYPE_ASSERT, "( m_Path.Exists() )", (const char *)&queryFormat, "m_Path.Exists()") )
+  if ( this->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2052, ASSERT_TYPE_ASSERT, "( m_Path.Exists() )", (const char *)&queryFormat, "m_Path.Exists()") )
     __debugbreak();
-  nav_path_t::GetPathPoint(&_RDI->m_Path, _RDI->m_Path.m_NumPoints - 1, &v42);
-  __asm
+  nav_path_t::GetPathPoint(&this->m_Path, this->m_Path.m_NumPoints - 1, &v19);
+  v12 = point.v[0];
+  v13 = point.v[1];
+  v14 = point.v[2];
+  if ( (float)((float)((float)((float)(point.v[1] - v19.v[1]) * (float)(point.v[1] - v19.v[1])) + (float)((float)(point.v[0] - v19.v[0]) * (float)(point.v[0] - v19.v[0]))) + (float)((float)(point.v[2] - v19.v[2]) * (float)(point.v[2] - v19.v[2]))) < 4.0 )
   {
-    vmovss  xmm4, dword ptr [rbp+57h+point]
-    vsubss  xmm2, xmm4, dword ptr [rbp+57h+var_68]
-    vmovss  xmm5, dword ptr [rbp+57h+point+4]
-    vsubss  xmm0, xmm5, dword ptr [rbp+57h+var_68+4]
-    vmovss  xmm6, dword ptr [rbp+57h+point+8]
-    vsubss  xmm3, xmm6, dword ptr [rbp+57h+var_68+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@40800000
+    *((_DWORD *)&this->m_MaxDeviationFromPath + 12 * this->m_Path.m_NumPoints) |= 0x400u;
+    v14 = point.v[2];
+    v13 = point.v[1];
+    v12 = point.v[0];
   }
-  if ( v30 )
-  {
-    *((_DWORD *)&_RDI->m_MaxDeviationFromPath + 12 * _RDI->m_Path.m_NumPoints) |= 0x400u;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+57h+point+8]
-      vmovss  xmm5, dword ptr [rbp+57h+point+4]
-      vmovss  xmm4, dword ptr [rbp+57h+point]
-    }
-  }
-  _RBX = &_RDI->m_SnappedGoalPos;
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm4
-    vmovss  dword ptr [rbx+4], xmm5
-    vmovss  dword ptr [rbx+8], xmm6
-  }
-  _RDX = &_RDI->m_RequestedGoalPos;
-  _RDI->m_RequestedGoalPos.v[0] = _RSI->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rdx+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rdx+8], xmm1
-  }
-  AINavigator::LocalizePosToSpace(_RDI, &_RDI->m_RequestedGoalPos, &_RDI->m_LocalRequestedGoalPos);
-  AINavigator::LocalizePosToSpace(_RDI, &_RDI->m_SnappedGoalPos, &_RDI->m_LocalSnappedGoalPos);
-  *(_WORD *)&_RDI->m_bMultiGoalPath = 257;
-  _RDI->m_bPathingOutOfBounds = 0;
-  if ( v13 <= 0 )
-    _RDI->m_TimeOfLastPathUpdate = level.time;
-  v18 = 1;
+  this->m_SnappedGoalPos.v[0] = v12;
+  this->m_SnappedGoalPos.v[1] = v13;
+  this->m_SnappedGoalPos.v[2] = v14;
+  this->m_RequestedGoalPos.v[0] = goalPos->v[0];
+  this->m_RequestedGoalPos.v[1] = goalPos->v[1];
+  this->m_RequestedGoalPos.v[2] = goalPos->v[2];
+  AINavigator::LocalizePosToSpace(this, &this->m_RequestedGoalPos, &this->m_LocalRequestedGoalPos);
+  AINavigator::LocalizePosToSpace(this, &this->m_SnappedGoalPos, &this->m_LocalSnappedGoalPos);
+  *(_WORD *)&this->m_bMultiGoalPath = 257;
+  this->m_bPathingOutOfBounds = 0;
+  if ( v8 <= 0 )
+    this->m_TimeOfLastPathUpdate = level.time;
+  v11 = 1;
 LABEL_27:
   bfx::AreaHandle::~AreaHandle(&hStartArea);
-  result = v18;
-  _R11 = &v45;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return v11;
 }
 
 /*
@@ -1882,43 +1817,46 @@ AINavigator2D::AdjustCornerForTeamWalking
 */
 __int64 AINavigator2D::AdjustCornerForTeamWalking(AINavigator2D *this, int iCorner, const vec3_t *prevLocalCorner, const bfx::AreaHandle *hPrevArea)
 {
+  __int64 v5; 
+  int v7; 
+  __int64 v8; 
+  nav_path_t::pathpoint_t *v9; 
+  float v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float v14; 
+  float v15; 
   __int64 v16; 
-  int v18; 
-  __int64 v19; 
-  __int64 v27; 
-  unsigned __int8 v95; 
-  __int64 result; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  float v21; 
+  __int128 v22; 
+  float v26; 
+  __int128 v27; 
+  __int128 v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  float v35; 
+  unsigned __int8 v39; 
   int outClosestPos; 
   int hHintArea; 
   bfx::AreaHandle hEndArea; 
   bfx::AreaHandle *hStartArea; 
-  __int64 v112; 
+  __int64 v45; 
   vec3_t outWorldPos; 
   vec3_t outUp; 
   vec3_t localPos; 
   vec3_t startPos; 
   vec3_t outPoint; 
-  char v118; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v112 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-    vmovaps xmmword ptr [rax-0E8h], xmm15
-  }
+  v45 = -2i64;
   hStartArea = (bfx::AreaHandle *)hPrevArea;
-  v16 = iCorner;
-  v18 = iCorner + 1;
+  v5 = iCorner;
+  v7 = iCorner + 1;
   if ( (unsigned int)(iCorner + 1) >= this->m_Path.m_NumPoints )
   {
     hHintArea = this->m_Path.m_NumPoints;
@@ -1926,125 +1864,79 @@ __int64 AINavigator2D::AdjustCornerForTeamWalking(AINavigator2D *this, int iCorn
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1978, ASSERT_TYPE_ASSERT, "(unsigned)( iNextCorner ) < (unsigned)( m_Path.m_NumPoints )", "iNextCorner doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", outClosestPos, hHintArea) )
       __debugbreak();
   }
-  v19 = v16;
-  _R15 = &this->m_Path.m_Points[v16].m_LocalPos;
+  v8 = v5;
+  v9 = &this->m_Path.m_Points[v5];
   Nav_GetSpaceUp(this->m_pSpace, &outUp);
+  v10 = v9->m_LocalPos.v[0] - prevLocalCorner->v[0];
+  v11 = LODWORD(this->m_Path.m_Points[v5].m_LocalPos.v[1]);
+  v13 = v11;
+  *(float *)&v13 = *(float *)&v11 - prevLocalCorner->v[1];
+  v12 = v13;
+  v14 = this->m_Path.m_Points[v5].m_LocalPos.v[2];
+  v15 = v14 - prevLocalCorner->v[2];
+  v16 = 2 * (3 * v5 + 3);
+  v18 = LODWORD(v9->m_LocalPos.v[0]);
+  *(float *)&v18 = v9->m_LocalPos.v[0] - this->m_Path.m_Points[0].m_LocalPos.v[2 * v16];
+  v17 = v18;
+  v20 = LODWORD(v9->m_LocalPos.v[1]);
+  *(float *)&v20 = *(float *)&v11 - this->m_Path.m_Points[0].m_LocalPos.v[2 * v16 + 1];
+  v19 = v20;
+  v21 = v14 - this->m_Path.m_Points[0].m_LocalPos.v[2 * v16 + 2];
+  v22 = v12;
+  *(float *)&v22 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(v10 * v10)) + (float)(v15 * v15));
+  _XMM3 = v22;
   __asm
   {
-    vmovss  xmm13, dword ptr [r15]
-    vsubss  xmm5, xmm13, dword ptr [r13+0]
-    vmovss  xmm14, dword ptr [r15+4]
-    vsubss  xmm9, xmm14, dword ptr [r13+4]
-    vmovss  xmm15, dword ptr [r15+8]
-    vsubss  xmm10, xmm15, dword ptr [r13+8]
+    vcmpless xmm0, xmm3, xmm11
+    vblendvps xmm1, xmm3, xmm12, xmm0
   }
-  v27 = 2 * (3 * v16 + 3);
+  v26 = 1.0 / *(float *)&_XMM1;
+  v27 = v19;
+  *(float *)&v27 = fsqrt((float)((float)(*(float *)&v19 * *(float *)&v19) + (float)(*(float *)&v17 * *(float *)&v17)) + (float)(v21 * v21));
+  _XMM3 = v27;
   __asm
   {
-    vsubss  xmm4, xmm13, dword ptr [rbx+r14*8+0C8h]
-    vsubss  xmm7, xmm14, dword ptr [rbx+r14*8+0CCh]
-    vsubss  xmm8, xmm15, dword ptr [rbx+r14*8+0D0h]
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmovss  xmm11, cs:__real@80000000
-    vcmpless xmm0, xmm3, xmm11
-    vmovss  xmm12, cs:__real@3f800000
-    vblendvps xmm1, xmm3, xmm12, xmm0
-    vdivss  xmm6, xmm12, xmm1
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm11
     vblendvps xmm1, xmm3, xmm12, xmm0
-    vdivss  xmm3, xmm12, xmm1
-    vmulss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm5, xmm6
-    vaddss  xmm5, xmm1, xmm0
-    vmulss  xmm2, xmm7, xmm3
-    vmulss  xmm1, xmm9, xmm6
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm3, xmm8, xmm3
-    vmulss  xmm0, xmm10, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm1, cs:__real@3f000000
-    vmulss  xmm7, xmm5, xmm1
-    vmulss  xmm8, xmm4, xmm1
-    vmulss  xmm9, xmm2, xmm1
-    vmulss  xmm1, xmm7, dword ptr [rsp+1A0h+outUp]
-    vmulss  xmm0, xmm8, dword ptr [rsp+1A0h+outUp+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rbp+0A0h+outUp+8]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm2, xmm3, dword ptr [rsp+1A0h+outUp]
-    vaddss  xmm5, xmm2, xmm7
-    vmulss  xmm0, xmm3, dword ptr [rsp+1A0h+outUp+4]
-    vaddss  xmm6, xmm0, xmm8
-    vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+outUp+8]
-    vaddss  xmm7, xmm1, xmm9
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm4, xmm2, xmm2
+  }
+  v31 = v17;
+  *(float *)&v31 = (float)(*(float *)&v17 * (float)(1.0 / *(float *)&_XMM1)) + (float)(v10 * v26);
+  *(float *)&v17 = (float)(*(float *)&v19 * (float)(1.0 / *(float *)&_XMM1)) + (float)(*(float *)&v12 * v26);
+  v32 = (float)(v21 * (float)(1.0 / *(float *)&_XMM1)) + (float)(v15 * v26);
+  *(float *)&v19 = *(float *)&v31 * 0.5;
+  *(float *)&v31 = (float)((float)((float)(*(float *)&v31 * 0.5) * outUp.v[0]) + (float)((float)(*(float *)&v17 * 0.5) * outUp.v[1])) + (float)((float)(v32 * 0.5) * outUp.v[2]);
+  v33 = (float)(COERCE_FLOAT(v31 ^ _xmm) * outUp.v[0]) + *(float *)&v19;
+  v34 = v31 ^ _xmm;
+  v35 = (float)(*(float *)&v34 * outUp.v[1]) + (float)(*(float *)&v17 * 0.5);
+  *(float *)&v19 = (float)(*(float *)&v34 * outUp.v[2]) + (float)(v32 * 0.5);
+  *(float *)&v34 = fsqrt((float)((float)(v35 * v35) + (float)(v33 * v33)) + (float)(*(float *)&v19 * *(float *)&v19));
+  _XMM4 = v34;
+  __asm
+  {
     vcmpless xmm0, xmm4, xmm11
     vblendvps xmm1, xmm4, xmm12, xmm0
-    vdivss  xmm4, xmm12, xmm1
-    vmulss  xmm0, xmm5, xmm4
-    vmovss  xmm3, cs:__real@41800000
-    vmulss  xmm0, xmm0, xmm3
-    vaddss  xmm1, xmm0, xmm13
-    vmovss  dword ptr [rbp+0A0h+localPos], xmm1
-    vmulss  xmm2, xmm6, xmm4
-    vmulss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm0, xmm14
-    vmovss  dword ptr [rbp+0A0h+localPos+4], xmm1
-    vmulss  xmm2, xmm7, xmm4
-    vmulss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm0, xmm15
-    vmovss  dword ptr [rbp+0A0h+localPos+8], xmm1
   }
+  localPos.v[0] = (float)((float)(v33 * (float)(1.0 / *(float *)&_XMM1)) * 16.0) + v9->m_LocalPos.v[0];
+  localPos.v[1] = (float)((float)(v35 * (float)(1.0 / *(float *)&_XMM1)) * 16.0) + *(float *)&v11;
+  localPos.v[2] = (float)((float)(*(float *)&v19 * (float)(1.0 / *(float *)&_XMM1)) * 16.0) + v14;
   Nav_SpaceConvertLocalToWorld(this->m_pSpace, &localPos, &outWorldPos);
   bfx::AreaHandle::AreaHandle(&hEndArea);
-  Nav_GetClosestVerticalPosWithHint(&outWorldPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &this->m_PathSpecOfCurPath, &outWorldPos, &this->m_Path.m_Points[v19].m_hArea, &hEndArea);
+  Nav_GetClosestVerticalPosWithHint(&outWorldPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &this->m_PathSpecOfCurPath, &outWorldPos, &this->m_Path.m_Points[v8].m_hArea, &hEndArea);
   Nav_SpaceConvertLocalToWorld(this->m_pSpace, prevLocalCorner, &startPos);
-  nav_path_t::GetPathPoint(&this->m_Path, v18, &outPoint);
-  if ( Nav_IsStraightLineReachable(&startPos, hStartArea, &outWorldPos, &hEndArea, &this->m_PathSpecOfCurPath) && Nav_IsStraightLineReachable(&outWorldPos, &hEndArea, &outPoint, (const bfx::AreaHandle *)((char *)&this->m_Path.m_Points[0].m_hArea + 8 * v27), &this->m_PathSpecOfCurPath) )
+  nav_path_t::GetPathPoint(&this->m_Path, v7, &outPoint);
+  if ( Nav_IsStraightLineReachable(&startPos, hStartArea, &outWorldPos, &hEndArea, &this->m_PathSpecOfCurPath) && Nav_IsStraightLineReachable(&outWorldPos, &hEndArea, &outPoint, (const bfx::AreaHandle *)((char *)&this->m_Path.m_Points[0].m_hArea + 8 * v16), &this->m_PathSpecOfCurPath) )
   {
-    Nav_SpaceConvertWorldToLocal(this->m_pSpace, &outWorldPos, _R15);
-    this->m_Path.m_Points[v19].m_Flags |= 0x20u;
-    bfx::AreaHandle::operator=(&this->m_Path.m_Points[v19].m_hArea, &hEndArea);
-    v95 = 1;
+    Nav_SpaceConvertWorldToLocal(this->m_pSpace, &outWorldPos, &v9->m_LocalPos);
+    this->m_Path.m_Points[v8].m_Flags |= 0x20u;
+    bfx::AreaHandle::operator=(&this->m_Path.m_Points[v8].m_hArea, &hEndArea);
+    v39 = 1;
   }
   else
   {
-    v95 = 0;
+    v39 = 0;
   }
   bfx::AreaHandle::~AreaHandle(&hEndArea);
-  result = v95;
-  _R11 = &v118;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
-  return result;
+  return v39;
 }
 
 /*
@@ -2056,25 +1948,32 @@ void AINavigator2D::AdjustCornersForTeamWalking(AINavigator2D *this)
 {
   int m_NumPoints; 
   unsigned int m_CurPathPoint; 
-  __int64 v9; 
-  gentity_s *m_pEnt; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   int Navigator2DMaxCount; 
+  __int64 v11; 
+  __int64 v12; 
+  float *v13; 
+  float *v14; 
+  __int64 v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int64 v21; 
+  __int64 v22; 
+  int v23; 
+  __int64 v24; 
+  unsigned int v25; 
   __int64 v26; 
-  __int64 v27; 
-  float *v28; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v58; 
-  bool v61; 
-  int v62; 
-  __int64 v68; 
-  unsigned int v69; 
-  __int64 v70; 
-  int v71; 
+  int v27; 
   vec3_t prevLocalCorner; 
 
-  _RBX = this;
   if ( this->m_bTeamWalkEnabled )
   {
     m_NumPoints = this->m_Path.m_NumPoints;
@@ -2083,152 +1982,82 @@ void AINavigator2D::AdjustCornersForTeamWalking(AINavigator2D *this)
       m_CurPathPoint = this->m_CurPathPoint;
       if ( m_CurPathPoint >= m_NumPoints )
       {
-        v71 = m_NumPoints;
-        v69 = m_CurPathPoint;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1907, ASSERT_TYPE_ASSERT, "(unsigned)( m_CurPathPoint ) < (unsigned)( m_Path.m_NumPoints )", "m_CurPathPoint doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", v69, v71) )
+        v27 = m_NumPoints;
+        v25 = m_CurPathPoint;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1907, ASSERT_TYPE_ASSERT, "(unsigned)( m_CurPathPoint ) < (unsigned)( m_Path.m_NumPoints )", "m_CurPathPoint doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", v25, v27) )
           __debugbreak();
       }
-      v9 = _RBX->m_CurPathPoint;
-      if ( (_RBX->m_Path.m_Points[v9].m_Flags & 0x407) == 0 && (_DWORD)v9 != _RBX->m_Path.m_NumPoints - 1 )
+      v4 = this->m_CurPathPoint;
+      if ( (this->m_Path.m_Points[v4].m_Flags & 0x407) == 0 && (_DWORD)v4 != this->m_Path.m_NumPoints - 1 )
       {
-        m_pEnt = _RBX->m_pEnt;
-        __asm { vmovaps [rsp+0D8h+var_58], xmm8 }
-        if ( !m_pEnt->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1915, ASSERT_TYPE_ASSERT, "(m_pEnt->sentient)", (const char *)&queryFormat, "m_pEnt->sentient") )
+        if ( !this->m_pEnt->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1915, ASSERT_TYPE_ASSERT, "(m_pEnt->sentient)", (const char *)&queryFormat, "m_pEnt->sentient") )
           __debugbreak();
-        v11 = _RBX->m_CurPathPoint;
-        _RCX = 6 * v11;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+rcx*8+0C8h]
-          vmovss  dword ptr [rsp+0D8h+prevLocalCorner], xmm2
-          vmovss  xmm0, dword ptr [rbx+rcx*8+0CCh]
-          vsubss  xmm2, xmm2, dword ptr [rbx+54h]
-          vmovss  dword ptr [rsp+0D8h+prevLocalCorner+4], xmm0
-          vmovss  xmm1, dword ptr [rbx+rcx*8+0D0h]
-          vsubss  xmm0, xmm0, dword ptr [rbx+58h]
-          vsubss  xmm3, xmm1, dword ptr [rbx+5Ch]
-          vmovss  dword ptr [rsp+0D8h+prevLocalCorner+8], xmm1
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm8, xmm2, xmm2
-          vcomiss xmm8, cs:__real@42400000
-        }
-        if ( !__CFADD__(3 * v11, 3 * v11) )
+        v5 = this->m_CurPathPoint;
+        prevLocalCorner.v[0] = this->m_Path.m_Points[v5].m_LocalPos.v[0];
+        v6 = prevLocalCorner.v[0] - this->m_LocalCurSnappedPos.v[0];
+        prevLocalCorner.v[1] = this->m_Path.m_Points[v5].m_LocalPos.v[1];
+        v7 = prevLocalCorner.v[1] - this->m_LocalCurSnappedPos.v[1];
+        v8 = this->m_Path.m_Points[v5].m_LocalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+        prevLocalCorner.v[2] = this->m_Path.m_Points[v5].m_LocalPos.v[2];
+        v9 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v8 * v8));
+        if ( v9 >= 48.0 )
         {
           Sys_ProfBeginNamedEvent(0xFFFFFFFF, "AITeamWalking");
           Navigator2DMaxCount = Nav_GetNavigator2DMaxCount();
-          v26 = Navigator2DMaxCount;
+          v11 = Navigator2DMaxCount;
           if ( Navigator2DMaxCount > 0 )
           {
-            v27 = 0i64;
-            v28 = &s_Navigators2D.m_LocalCurSnappedPos.v[2];
-            __asm
-            {
-              vmovaps [rsp+0D8h+var_48], xmm7
-              vmovss  xmm7, cs:__real@45a20000
-              vmovaps [rsp+0D8h+var_68], xmm9
-              vmovaps [rsp+0D8h+var_78], xmm10
-              vmovss  xmm10, cs:__real@43100000
-              vmovaps [rsp+0D8h+var_38], xmm6
-              vxorps  xmm9, xmm9, xmm9
-            }
+            v12 = 0i64;
+            v13 = &s_Navigators2D.m_LocalCurSnappedPos.v[2];
             while ( 1 )
             {
-              _RSI = v28 - 23;
-              if ( v28 - 23 != (float *)_RBX && *((_BYTE *)v28 + 80) && (*(unsigned __int8 (__fastcall **)(float *))(*(_QWORD *)_RSI + 144i64))(v28 - 23) )
+              v14 = v13 - 23;
+              if ( v13 - 23 != (float *)this && *((_BYTE *)v13 + 80) && (*(unsigned __int8 (__fastcall **)(float *))(*(_QWORD *)v14 + 144i64))(v13 - 23) )
               {
-                if ( !*(_QWORD *)(v28 - 21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1936, ASSERT_TYPE_ASSERT, "(pOtherNav->m_pEnt)", (const char *)&queryFormat, "pOtherNav->m_pEnt") )
+                if ( !*(_QWORD *)(v13 - 21) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1936, ASSERT_TYPE_ASSERT, "(pOtherNav->m_pEnt)", (const char *)&queryFormat, "pOtherNav->m_pEnt") )
                   __debugbreak();
-                v33 = *(_QWORD *)(*(_QWORD *)(v28 - 21) + 344i64);
-                if ( v33 && *(_DWORD *)(v33 + 16) == _RBX->m_pEnt->sentient->eTeam && *(nav_space_s **)(v28 - 19) == _RBX->m_pSpace )
+                v15 = *(_QWORD *)(*(_QWORD *)(v13 - 21) + 344i64);
+                if ( v15 && *(_DWORD *)(v15 + 16) == this->m_pEnt->sentient->eTeam && *(nav_space_s **)(v13 - 19) == this->m_pSpace )
                 {
-                  if ( *((_DWORD *)v28 + 273) >= *((_DWORD *)v28 + 267) )
+                  if ( *((_DWORD *)v13 + 273) >= *((_DWORD *)v13 + 267) )
                   {
-                    *(float *)&v70 = v28[267];
-                    *(float *)&v68 = v28[273];
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1944, ASSERT_TYPE_ASSERT, "(unsigned)( pOtherNav->m_CurPathPoint ) < (unsigned)( pOtherNav->m_Path.m_NumPoints )", "pOtherNav->m_CurPathPoint doesn't index pOtherNav->m_Path.m_NumPoints\n\t%i not in [0, %i)", v68, v70) )
+                    *(float *)&v26 = v13[267];
+                    *(float *)&v24 = v13[273];
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1944, ASSERT_TYPE_ASSERT, "(unsigned)( pOtherNav->m_CurPathPoint ) < (unsigned)( pOtherNav->m_Path.m_NumPoints )", "pOtherNav->m_CurPathPoint doesn't index pOtherNav->m_Path.m_NumPoints\n\t%i not in [0, %i)", v24, v26) )
                       __debugbreak();
                   }
-                  v34 = *((int *)v28 + 273);
-                  _RCX = 6 * v34;
-                  __asm
+                  v16 = *((int *)v13 + 273);
+                  v17 = v14[12 * v16 + 51];
+                  v18 = v14[12 * v16 + 50];
+                  v19 = v14[12 * v16 + 52];
+                  if ( (float)((float)((float)((float)(v17 - prevLocalCorner.v[1]) * (float)(v17 - prevLocalCorner.v[1])) + (float)((float)(v18 - prevLocalCorner.v[0]) * (float)(v18 - prevLocalCorner.v[0]))) + (float)((float)(v19 - prevLocalCorner.v[2]) * (float)(v19 - prevLocalCorner.v[2]))) <= 144.0 )
                   {
-                    vmovss  xmm5, dword ptr [rsi+rcx*8+0CCh]
-                    vsubss  xmm0, xmm5, dword ptr [rsp+0D8h+prevLocalCorner+4]
-                    vmovss  xmm4, dword ptr [rsi+rcx*8+0C8h]
-                    vsubss  xmm2, xmm4, dword ptr [rsp+0D8h+prevLocalCorner]
-                    vmovss  xmm6, dword ptr [rsi+rcx*8+0D0h]
-                    vsubss  xmm3, xmm6, dword ptr [rsp+0D8h+prevLocalCorner+8]
-                    vmulss  xmm1, xmm0, xmm0
-                    vmulss  xmm0, xmm2, xmm2
-                    vaddss  xmm2, xmm1, xmm0
-                    vmulss  xmm1, xmm3, xmm3
-                    vaddss  xmm2, xmm2, xmm1
-                    vcomiss xmm2, xmm10
-                  }
-                  if ( __CFADD__(3 * v34, 3 * v34) || 6 * v34 == 0 )
-                  {
-                    __asm
-                    {
-                      vsubss  xmm0, xmm5, dword ptr [rdi-4]
-                      vsubss  xmm2, xmm4, dword ptr [rdi-8]
-                      vsubss  xmm3, xmm6, dword ptr [rdi]
-                      vmulss  xmm1, xmm0, xmm0
-                      vmulss  xmm0, xmm2, xmm2
-                      vaddss  xmm2, xmm1, xmm0
-                      vmulss  xmm1, xmm3, xmm3
-                      vaddss  xmm2, xmm2, xmm1
-                      vsqrtss xmm0, xmm2, xmm2
-                      vsubss  xmm3, xmm0, xmm8
-                      vcomiss xmm3, xmm9
-                    }
-                    if ( __CFADD__(3 * v34, 3 * v34) || 6 * v34 == 0 )
-                    {
-                      __asm
-                      {
-                        vmulss  xmm0, xmm3, xmm3
-                        vcomiss xmm0, xmm7
-                      }
-                      if ( (__CFADD__(3 * v34, 3 * v34) || 6 * v34 == 0) && AINavigator2D::AdjustCornerForTeamWalking(_RBX, _RBX->m_CurPathPoint, &_RBX->m_LocalCurSnappedPos, &_RBX->m_hCurArea) )
-                        break;
-                    }
+                    v20 = fsqrt((float)((float)((float)(v17 - *(v13 - 1)) * (float)(v17 - *(v13 - 1))) + (float)((float)(v18 - *(v13 - 2)) * (float)(v18 - *(v13 - 2)))) + (float)((float)(v19 - *v13) * (float)(v19 - *v13))) - v9;
+                    if ( v20 <= 0.0 && (float)(v20 * v20) <= 5184.0 && AINavigator2D::AdjustCornerForTeamWalking(this, this->m_CurPathPoint, &this->m_LocalCurSnappedPos, &this->m_hCurArea) )
+                      break;
                   }
                 }
               }
-              ++v27;
-              v28 += 368;
-              if ( v27 >= v26 )
+              ++v12;
+              v13 += 368;
+              if ( v12 >= v11 )
                 goto LABEL_36;
             }
-            v58 = _RBX->m_CurPathPoint;
-            if ( (int)v58 + 2 < _RBX->m_Path.m_NumPoints )
+            v21 = this->m_CurPathPoint;
+            if ( (int)v21 + 2 < this->m_Path.m_NumPoints )
             {
-              _RAX = 2 * (3 * v58 + 3);
-              if ( (*((_DWORD *)&_RBX->m_CurSnappedPos + 12 * v58 + 53) & 0x407) == 0 )
+              v22 = 2 * (3 * v21 + 3);
+              if ( (*((_DWORD *)&this->m_CurSnappedPos + 12 * v21 + 53) & 0x407) == 0 )
               {
-                __asm { vmovss  xmm0, cs:__real@41c00000 }
-                v61 = (_DWORD)v58 == -1;
-                v62 = v58 + 1;
-                __asm { vcomiss xmm0, dword ptr [rbx+rax*8+0DCh] }
-                if ( !v61 )
-                  AINavigator2D::AdjustCornerForTeamWalking(_RBX, v62, &prevLocalCorner, &_RBX->m_Path.m_Points[_RBX->m_CurPathPoint].m_hArea);
+                v23 = v21 + 1;
+                if ( *(&this->m_Path.m_Points[0].m_Length + 2 * v22) < 24.0 )
+                  AINavigator2D::AdjustCornerForTeamWalking(this, v23, &prevLocalCorner, &this->m_Path.m_Points[this->m_CurPathPoint].m_hArea);
               }
             }
-LABEL_36:
-            __asm
-            {
-              vmovaps xmm6, [rsp+0D8h+var_38]
-              vmovaps xmm7, [rsp+0D8h+var_48]
-              vmovaps xmm9, [rsp+0D8h+var_68]
-              vmovaps xmm10, [rsp+0D8h+var_78]
-            }
           }
+LABEL_36:
           Sys_ProfEndNamedEvent();
         }
-        __asm { vmovaps xmm8, [rsp+0D8h+var_58] }
       }
     }
   }
@@ -2241,137 +2070,66 @@ nav_path_t::AppendPathPoints
 */
 __int64 nav_path_t::AppendPathPoints(nav_path_t *this, const nav_path_t::pathpoint_t *pPoints, int numPoints)
 {
-  int v4; 
-  char v8; 
-  unsigned int v9; 
-  __int64 v11; 
+  int v3; 
+  char v7; 
+  unsigned int v8; 
+  float *v9; 
+  __int64 v10; 
   __int64 m_NumPoints; 
-  int v26; 
-  __int64 v31; 
-  __int64 result; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  __int64 v16; 
 
-  v4 = 0;
-  _RBX = this;
-  v8 = 1;
-  v9 = 0;
+  v3 = 0;
+  v7 = 1;
+  v8 = 0;
   if ( numPoints <= 0 )
     return 0i64;
-  _RDI = &pPoints->m_LocalPos.v[1];
-  v11 = 0i64;
-  __asm
-  {
-    vmovaps [rsp+78h+var_48], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
+  v9 = &pPoints->m_LocalPos.v[1];
+  v10 = 0i64;
   do
   {
-    m_NumPoints = _RBX->m_NumPoints;
+    m_NumPoints = this->m_NumPoints;
     if ( (int)m_NumPoints >= 20 )
       break;
-    if ( v4 )
-      goto LABEL_27;
-    _RDX = 6 * m_NumPoints;
-    __asm
+    if ( v3 || (v12 = this->m_Points[m_NumPoints - 1].m_LocalPos.v[0] - *(v9 - 1), v13 = this->m_Points[m_NumPoints - 1].m_LocalPos.v[1] - *v9, v14 = this->m_Points[m_NumPoints - 1].m_LocalPos.v[2] - v9[1], (float)((float)((float)(v12 * v12) + (float)(v13 * v13)) + (float)(v14 * v14)) >= 1.0) )
     {
-      vmovss  xmm0, dword ptr [rbx+rdx*8-30h]
-      vsubss  xmm2, xmm0, dword ptr [rdi-4]
-      vmovss  xmm1, dword ptr [rbx+rdx*8-2Ch]
-      vmovss  xmm0, dword ptr [rbx+rdx*8-28h]
-      vsubss  xmm3, xmm1, dword ptr [rdi]
-      vsubss  xmm4, xmm0, dword ptr [rdi+4]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm6
-    }
-    if ( !__CFADD__(3 * m_NumPoints, 3 * m_NumPoints) )
-    {
-LABEL_27:
-      if ( v8 )
+      if ( v7 && this->m_Points[m_NumPoints - 1].m_LocalPos.v[0] == *(v9 - 1) && this->m_Points[m_NumPoints - 1].m_LocalPos.v[1] == *v9 && this->m_Points[m_NumPoints - 1].m_LocalPos.v[2] == v9[1] )
       {
-        _RDX = 6 * m_NumPoints;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rdx*8-30h]
-          vucomiss xmm0, dword ptr [rdi-4]
-        }
-        if ( !(6 * m_NumPoints) )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rdx*8-2Ch]
-            vucomiss xmm0, dword ptr [rdi]
-          }
-          if ( !(6 * m_NumPoints) )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+rdx*8-28h]
-              vucomiss xmm0, dword ptr [rdi+4]
-            }
-            if ( !(6 * m_NumPoints) )
-            {
-              Nav_PrintPath("Current path points: (local space):", _RBX->m_Points, m_NumPoints);
-              Nav_PrintPath("Extended path points:", pPoints, numPoints);
-              v31 = _RBX->m_NumPoints;
-              _RCX = 6 * v31;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+rcx*8-30h]
-                vucomiss xmm0, dword ptr [rdi-4]
-              }
-              if ( !(6 * v31) )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+rcx*8-2Ch]
-                  vucomiss xmm0, dword ptr [rdi]
-                }
-                if ( !(6 * v31) )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbx+rcx*8-28h]
-                    vucomiss xmm0, dword ptr [rdi+4]
-                  }
-                  if ( !(6 * v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4324, ASSERT_TYPE_ASSERT, "( !Vec3Compare( pPoints[ iPoint ].m_LocalPos, m_Points[ m_NumPoints - 1 ].m_LocalPos ) )", "Duped path point.  See console for details.") )
-                    __debugbreak();
-                }
-              }
-              LODWORD(m_NumPoints) = _RBX->m_NumPoints;
-            }
-          }
-        }
+        Nav_PrintPath("Current path points: (local space):", this->m_Points, m_NumPoints);
+        Nav_PrintPath("Extended path points:", pPoints, numPoints);
+        v16 = this->m_NumPoints;
+        if ( this->m_Points[v16 - 1].m_LocalPos.v[0] == *(v9 - 1) && this->m_Points[v16 - 1].m_LocalPos.v[1] == *v9 && this->m_Points[v16 - 1].m_LocalPos.v[2] == v9[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4324, ASSERT_TYPE_ASSERT, "( !Vec3Compare( pPoints[ iPoint ].m_LocalPos, m_Points[ m_NumPoints - 1 ].m_LocalPos ) )", "Duped path point.  See console for details.") )
+          __debugbreak();
+        LODWORD(m_NumPoints) = this->m_NumPoints;
       }
-      v8 = 0;
-      nav_path_t::CopyPathPoint(_RBX, &pPoints[v4], &_RBX->m_Points[(int)m_NumPoints]);
-      ++_RBX->m_NumPoints;
-      ++v9;
+      v7 = 0;
+      nav_path_t::CopyPathPoint(this, &pPoints[v3], &this->m_Points[(int)m_NumPoints]);
+      ++this->m_NumPoints;
+      ++v8;
     }
-    else if ( _RBX->m_Points[m_NumPoints - 1].m_LinkID == -1 )
+    else if ( this->m_Points[m_NumPoints - 1].m_LinkID == -1 )
     {
-      v26 = *((_DWORD *)_RDI + 3);
-      if ( v26 == -1 || ((_BYTE)_RDI[2] & 2) == 0 )
+      v15 = *((_DWORD *)v9 + 3);
+      if ( v15 == -1 || ((_BYTE)v9[2] & 2) == 0 )
       {
-        Nav_PrintPath("Current path points: (local space):", _RBX->m_Points, m_NumPoints);
+        Nav_PrintPath("Current path points: (local space):", this->m_Points, m_NumPoints);
         Nav_PrintPath("Extended path points:", pPoints, numPoints);
       }
       else
       {
-        _RBX->m_Points[m_NumPoints - 1].m_LinkID = v26;
-        _RBX->m_Points[_RBX->m_NumPoints - 1].m_Flags |= *((_DWORD *)_RDI + 2);
+        this->m_Points[m_NumPoints - 1].m_LinkID = v15;
+        this->m_Points[this->m_NumPoints - 1].m_Flags |= *((_DWORD *)v9 + 2);
       }
     }
-    ++v4;
-    ++v11;
-    _RDI += 12;
+    ++v3;
+    ++v10;
+    v9 += 12;
   }
-  while ( v4 < numPoints );
-  result = v9;
-  __asm { vmovaps xmm6, [rsp+78h+var_48] }
-  return result;
+  while ( v3 < numPoints );
+  return v8;
 }
 
 /*
@@ -2382,184 +2140,123 @@ AINavigator2D::ApplySuppressionPlanes
 void AINavigator2D::ApplySuppressionPlanes(AINavigator2D *this)
 {
   __int64 iPlaneCount; 
-  int v9; 
-  __int64 v11; 
-  unsigned int *m_SuppressionIDs; 
-  int v14; 
+  int v2; 
+  __int64 v4; 
+  unsigned int *i; 
+  int v6; 
   float *fDist; 
-  __int64 v16; 
-  unsigned int v18; 
-  int v19; 
-  bool v21; 
-  bool v22; 
-  unsigned int *v30; 
-  __int64 v31; 
-  unsigned int *v32; 
-  int v33; 
+  __int64 v8; 
+  PathBlockPlanes *v9; 
+  unsigned int v10; 
+  int v11; 
+  nav_obstacle_s *ObstacleByID; 
+  float v13; 
+  unsigned int *m_SuppressionIDs; 
+  __int64 v15; 
+  unsigned int *v16; 
+  int v17; 
   unsigned int blockageFlags; 
+  PathBlockPlanes *p_m_BlockPlanes; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec3_t dir; 
   vec3_t start; 
   vec3_t result; 
   Bounds bounds; 
   vec3_t angles; 
-  char v69; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   iPlaneCount = this->m_BlockPlanes.iPlaneCount;
-  v9 = 0;
-  _RDI = this;
+  v2 = 0;
   if ( !(_DWORD)iPlaneCount )
   {
-    v11 = 0i64;
-    m_SuppressionIDs = _RDI->m_SuppressionIDs;
-    while ( *m_SuppressionIDs == -1 )
+    v4 = 0i64;
+    for ( i = this->m_SuppressionIDs; *i == -1; ++i )
     {
-      ++v11;
-      ++m_SuppressionIDs;
-      if ( v11 >= 4 )
-        goto LABEL_30;
+      if ( ++v4 >= 4 )
+        return;
     }
 LABEL_20:
-    v30 = _RDI->m_SuppressionIDs;
-    v31 = 4i64;
-    v32 = _RDI->m_SuppressionIDs;
+    m_SuppressionIDs = this->m_SuppressionIDs;
+    v15 = 4i64;
+    v16 = this->m_SuppressionIDs;
     do
     {
-      if ( *v32 != -1 )
+      if ( *v16 != -1 )
       {
-        Nav_DestroyObstacleByID(*v32);
-        *v32 = -1;
+        Nav_DestroyObstacleByID(*v16);
+        *v16 = -1;
       }
-      ++v32;
-      --v31;
+      ++v16;
+      --v15;
     }
-    while ( v31 );
-    if ( _RDI->m_BlockPlanes.iPlaneCount > 0 )
+    while ( v15 );
+    if ( this->m_BlockPlanes.iPlaneCount > 0 )
     {
-      v33 = AINavigator2D::ReserveSuppression(_RDI);
-      blockageFlags = AINavigator2D::GetSuppressionObstacleMask(_RDI, v33);
-      if ( _RDI->m_BlockPlanes.iPlaneCount > 0 )
+      v17 = AINavigator2D::ReserveSuppression(this);
+      blockageFlags = AINavigator2D::GetSuppressionObstacleMask(this, v17);
+      if ( this->m_BlockPlanes.iPlaneCount > 0 )
       {
-        __asm
-        {
-          vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-          vmovaps [rsp+118h+var_48], xmm7
-        }
-        _RBX = &_RDI->m_BlockPlanes;
-        __asm
-        {
-          vmovaps [rsp+118h+var_58], xmm8
-          vmovss  xmm8, cs:__real@43800000
-          vmovaps [rsp+118h+var_68], xmm9
-          vmovss  xmm9, cs:__real@40c00000
-          vmovaps [rsp+118h+var_78], xmm10
-          vmovss  xmm10, cs:__real@42100000
-          vmovaps [rsp+118h+var_88], xmm11
-          vmovss  xmm11, cs:__real@41500000
-          vxorps  xmm7, xmm7, xmm7
-        }
+        p_m_BlockPlanes = &this->m_BlockPlanes;
         do
         {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rbx]
-            vmovss  xmm2, dword ptr [rbx+4]
-            vmulss  xmm0, xmm3, dword ptr [r14-14h]
-            vmulss  xmm1, xmm2, dword ptr [r14-14h]
-            vmovss  dword ptr [rsp+118h+start], xmm0
-            vmovss  xmm0, dword ptr [rdi+38h]
-            vmovss  dword ptr [rsp+118h+start+4], xmm1
-            vxorps  xmm1, xmm3, xmm6
-            vmovss  dword ptr [rsp+118h+start+8], xmm0
-            vmovss  dword ptr [rsp+118h+dir+4], xmm1
-            vmovss  dword ptr [rsp+118h+dir], xmm2
-            vmovss  dword ptr [rsp+118h+dir+8], xmm7
-          }
-          PointOnLineClosestToPoint(&_RDI->m_CurSnappedPos, &start, &dir, &result);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+118h+result]
-            vmovss  xmm1, dword ptr [rsp+118h+result+4]
-            vmovss  dword ptr [rsp+118h+bounds.midPoint], xmm0
-            vmovss  xmm0, dword ptr [rsp+118h+result+8]
-            vmovss  dword ptr [rsp+118h+bounds.midPoint+8], xmm0
-            vmovss  dword ptr [rsp+118h+bounds.midPoint+4], xmm1
-            vmovss  dword ptr [rsp+118h+bounds.halfSize], xmm8
-            vmovss  dword ptr [rsp+118h+bounds.halfSize+4], xmm9
-            vmovss  dword ptr [rsp+118h+bounds.halfSize+8], xmm10
-          }
+          v20 = p_m_BlockPlanes->vNormal[0].v[0];
+          v21 = p_m_BlockPlanes->vNormal[0].v[1];
+          v22 = v21 * *((float *)m_SuppressionIDs - 5);
+          start.v[0] = p_m_BlockPlanes->vNormal[0].v[0] * *((float *)m_SuppressionIDs - 5);
+          v23 = this->m_CurSnappedPos.v[2];
+          start.v[1] = v22;
+          start.v[2] = v23;
+          LODWORD(dir.v[1]) = LODWORD(v20) ^ _xmm;
+          dir.v[0] = v21;
+          dir.v[2] = 0.0;
+          PointOnLineClosestToPoint(&this->m_CurSnappedPos, &start, &dir, &result);
+          bounds.midPoint = result;
+          bounds.halfSize.v[0] = FLOAT_256_0;
+          bounds.halfSize.v[1] = FLOAT_6_0;
+          bounds.halfSize.v[2] = FLOAT_36_0;
           vectoangles(&dir, &angles);
-          __asm { vmovaps xmm3, xmm11; penalty }
-          *v30++ = Nav_CreateObstacleByBounds(_RDI->m_pSpace, &bounds, &angles, *(float *)&_XMM3, 1 << _RDI->m_Layer, blockageFlags);
-          ++v9;
-          _RBX = (PathBlockPlanes *)((char *)_RBX + 8);
+          *m_SuppressionIDs++ = Nav_CreateObstacleByBounds(this->m_pSpace, &bounds, &angles, 13.0, 1 << this->m_Layer, blockageFlags);
+          ++v2;
+          p_m_BlockPlanes = (PathBlockPlanes *)((char *)p_m_BlockPlanes + 8);
         }
-        while ( v9 < _RDI->m_BlockPlanes.iPlaneCount );
-        __asm
-        {
-          vmovaps xmm11, [rsp+118h+var_88]
-          vmovaps xmm10, [rsp+118h+var_78]
-          vmovaps xmm9, [rsp+118h+var_68]
-          vmovaps xmm8, [rsp+118h+var_58]
-          vmovaps xmm7, [rsp+118h+var_48]
-        }
+        while ( v2 < this->m_BlockPlanes.iPlaneCount );
       }
-      _RDI->m_SuppressionTimestamp = level.time;
+      this->m_SuppressionTimestamp = level.time;
     }
-    goto LABEL_30;
+    return;
   }
   if ( LODWORD(this->m_BlockPlanes.fDist[iPlaneCount + 4]) == -1 )
     goto LABEL_20;
-  __asm { vmovss  xmm6, cs:__real@358637be }
-  v14 = 0;
+  v6 = 0;
   fDist = this->m_BlockPlanes.fDist;
-  v16 = 0i64;
-  _RBP = &this->m_BlockPlanes;
+  v8 = 0i64;
+  v9 = &this->m_BlockPlanes;
   do
   {
-    v18 = *((_DWORD *)fDist + 5);
-    v19 = _RDI->m_BlockPlanes.iPlaneCount;
-    if ( v18 == -1 )
+    v10 = *((_DWORD *)fDist + 5);
+    v11 = this->m_BlockPlanes.iPlaneCount;
+    if ( v10 == -1 )
       break;
-    if ( v14 >= v19 )
+    if ( v6 >= v11 )
       goto LABEL_20;
-    _RBX = Nav_GetObstacleByID(v18);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2589, ASSERT_TYPE_ASSERT, "( pObstacle )", (const char *)&queryFormat, "pObstacle") )
+    ObstacleByID = Nav_GetObstacleByID(v10);
+    if ( !ObstacleByID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2589, ASSERT_TYPE_ASSERT, "( pObstacle )", (const char *)&queryFormat, "pObstacle") )
       __debugbreak();
-    v21 = !_RBX->m_bUsesExtents;
-    if ( !_RBX->m_bUsesExtents )
-    {
-      v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2590, ASSERT_TYPE_ASSERT, "( pObstacle->m_bUsesExtents )", (const char *)&queryFormat, "pObstacle->m_bUsesExtents");
-      v21 = !v22;
-      if ( v22 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4]
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vmulss  xmm3, xmm0, dword ptr [rbx+20h]
-      vmulss  xmm2, xmm1, dword ptr [rbp+0]
-      vaddss  xmm0, xmm3, xmm2
-      vsubss  xmm3, xmm0, dword ptr [rsi]
-      vmulss  xmm1, xmm3, xmm3
-      vcomiss xmm1, xmm6
-    }
-    if ( !v21 )
+    if ( !ObstacleByID->m_bUsesExtents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2590, ASSERT_TYPE_ASSERT, "( pObstacle->m_bUsesExtents )", (const char *)&queryFormat, "pObstacle->m_bUsesExtents") )
+      __debugbreak();
+    v13 = (float)((float)(v9->vNormal[0].v[1] * ObstacleByID->pos.v[1]) + (float)(ObstacleByID->pos.v[0] * v9->vNormal[0].v[0])) - *fDist;
+    if ( (float)(v13 * v13) > 0.0000010000001 )
       goto LABEL_20;
-    ++v14;
-    ++v16;
+    ++v6;
+    ++v8;
     ++fDist;
-    _RBP = (PathBlockPlanes *)((char *)_RBP + 8);
+    v9 = (PathBlockPlanes *)((char *)v9 + 8);
   }
-  while ( v16 < 4 );
-  if ( v14 < v19 )
+  while ( v8 < 4 );
+  if ( v6 < v11 )
     goto LABEL_20;
-LABEL_30:
-  _R11 = &v69;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -2586,42 +2283,41 @@ bool AINavigator2D::ClaimNextTraversal(AINavigator2D *this)
 {
   __int64 m_NumPoints; 
   __int64 m_CurPathPoint; 
-  __int64 v5; 
+  __int64 v4; 
   unsigned int *i; 
-  const bfx::LinkReservationRCPtr *v8; 
+  const bfx::LinkReservationRCPtr *v7; 
   bool IsValid; 
-  __int64 v10; 
-  int v11; 
+  __int64 v9; 
+  int v10; 
   bfx::LinkHandle phLink; 
   bfx::LinkReservationRCPtr result; 
 
-  __asm { vmovss  xmm1, cs:__real@7f7fffff }
   if ( !((unsigned __int8 (__fastcall *)(AINavigator2D *))this->HasTraversalWithin)(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1082, ASSERT_TYPE_ASSERT, "( HasTraversalWithin( 3.402823466e+38F ) )", (const char *)&queryFormat, "HasTraversalWithin( FLT_MAX )") )
     __debugbreak();
   m_NumPoints = this->m_Path.m_NumPoints;
   if ( (int)m_NumPoints <= 0 )
     return 0;
   m_CurPathPoint = this->m_CurPathPoint;
-  v5 = m_CurPathPoint;
+  v4 = m_CurPathPoint;
   if ( m_CurPathPoint >= m_NumPoints )
     return 0;
   for ( i = &this->m_Path.m_Points[m_CurPathPoint].m_Flags; (*(_BYTE *)i & 2) == 0; i += 12 )
   {
     LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-    if ( ++v5 >= this->m_Path.m_NumPoints )
+    if ( ++v4 >= this->m_Path.m_NumPoints )
       return 0;
   }
   bfx::LinkHandle::LinkHandle(&phLink);
   if ( (unsigned int)m_CurPathPoint >= this->m_Path.m_NumPoints )
   {
-    v11 = this->m_Path.m_NumPoints;
-    LODWORD(v10) = m_CurPathPoint;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v10, v11) )
+    v10 = this->m_Path.m_NumPoints;
+    LODWORD(v9) = m_CurPathPoint;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
   Nav_GetLinkByID(this->m_Path.m_Points[(int)m_CurPathPoint].m_LinkID, &phLink);
-  v8 = bfx::ReserveLink(&result, &phLink);
-  bfx::LinkReservationRCPtr::operator=(&this->m_LinkReservation, v8);
+  v7 = bfx::ReserveLink(&result, &phLink);
+  bfx::LinkReservationRCPtr::operator=(&this->m_LinkReservation, v7);
   bfx::LinkReservationRCPtr::~LinkReservationRCPtr(&result);
   IsValid = bfx::LinkReservationRCPtr::IsValid(&this->m_LinkReservation);
   bfx::LinkHandle::~LinkHandle(&phLink);
@@ -3001,34 +2697,27 @@ AINavigator2D::DoPathFind
 */
 char AINavigator2D::DoPathFind(AINavigator2D *this)
 {
+  bfx::PathSpec *pPathSpec; 
+  bfx::PathSpec *p_m_PathSpecOfCurPath; 
   unsigned int m_TimeOfLastPathSuppressed; 
-  char v22; 
-  char v23; 
-  char v24; 
-  float pPathSpec; 
+  char v6; 
   bfx::PolylinePathRCPtr path; 
   nav_pathfind_input_t pInput; 
-  __int64 v28; 
+  __int64 v9; 
   vec3_t point; 
   bfx::Vector3 result; 
   vec3_t outUp; 
   vec3_t targetPos; 
-  char v33[16]; 
+  char v14[16]; 
 
-  v28 = -2i64;
-  _RDI = &this->m_BasePathSpec;
-  _RSI = &this->m_PathSpecOfCurPath;
+  v9 = -2i64;
+  pPathSpec = &this->m_BasePathSpec;
+  p_m_PathSpecOfCurPath = &this->m_PathSpecOfCurPath;
   if ( !this->m_bPathRequested )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rsi], ymm0
-      vmovups ymm1, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rsi+20h], ymm1
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [rsi+40h], xmm0
-    }
+    *(__m256i *)&p_m_PathSpecOfCurPath->m_obstacleMode = *(__m256i *)&pPathSpec->m_obstacleMode;
+    *(__m256i *)&this->m_PathSpecOfCurPath.m_maxSearchDist = *(__m256i *)&this->m_BasePathSpec.m_maxSearchDist;
+    *(_OWORD *)&this->m_PathSpecOfCurPath.m_penaltyTable.m_perFlagPenalties[24] = *(_OWORD *)&this->m_BasePathSpec.m_penaltyTable.m_perFlagPenalties[24];
   }
   if ( this->IsInBadPlace(this) )
     this->m_PathSpecOfCurPath.m_obstacleBlockageFlags = 1;
@@ -3037,17 +2726,11 @@ char AINavigator2D::DoPathFind(AINavigator2D *this)
   m_TimeOfLastPathSuppressed = this->m_TimeOfLastPathSuppressed;
   if ( m_TimeOfLastPathSuppressed && level.time - m_TimeOfLastPathSuppressed < 0x5DC )
     return 1;
-  this->GetCurPos(this, (vec3_t *)v33);
+  this->GetCurPos(this, (vec3_t *)v14);
   this->GetRequestedGoalPos(this, &targetPos);
   AINavigator::GetUpVector(this, &outUp);
-  Nav_GetClosestVerticalPos(&targetPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, _RDI, &point, NULL);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42900000
-    vmovss  dword ptr [rsp+0F0h+pPathSpec], xmm0
-    vmovss  xmm3, cs:__real@41400000; radius
-  }
-  if ( Nav_PointWithinCylinderWithUp(&point, &targetPos, &outUp, *(float *)&_XMM3, pPathSpec) )
+  Nav_GetClosestVerticalPos(&targetPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, pPathSpec, &point, NULL);
+  if ( Nav_PointWithinCylinderWithUp(&point, &targetPos, &outUp, 12.0, 72.0) )
   {
     bfx::SpaceHandle::GetPos(&this->m_pSpace->hSpace, &result);
     bfx::LinkHandle::Release(&this->m_hLink);
@@ -3057,46 +2740,27 @@ char AINavigator2D::DoPathFind(AINavigator2D *this)
     pInput.m_pPathSpec = NULL;
     *(_WORD *)&pInput.m_bSnapPoints = 257;
     pInput.m_bModifyLinkWeights = 1;
-    pInput.m_pStartPos = (const vec3_t *)v33;
+    pInput.m_pStartPos = (const vec3_t *)v14;
     pInput.m_pGoalPos = &point;
     bfx::AreaHandle::operator=(&pInput.m_hStartArea, &this->m_hCurArea);
     *(_WORD *)&pInput.m_bSnapPoints = 256;
-    pInput.m_pPathSpec = _RSI;
+    pInput.m_pPathSpec = p_m_PathSpecOfCurPath;
     AINavigator2D::FindPath(this, &path, &pInput);
-    if ( !bfx::PolylinePathRCPtr::IsValid(&path) )
-      goto LABEL_13;
-    AINavigator2D::GetFinalPathPoint(this, &path, (vec3_t *)&result);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+point]
-      vsubss  xmm3, xmm0, [rbp+57h+result.m_x]
-      vmovss  xmm1, dword ptr [rbp+57h+point+4]
-      vsubss  xmm2, xmm1, [rbp+57h+result.m_y]
-      vmovss  xmm0, dword ptr [rbp+57h+point+8]
-      vsubss  xmm4, xmm0, [rbp+57h+result.m_z]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@40800000
-    }
-    if ( v22 | v23 )
+    if ( bfx::PolylinePathRCPtr::IsValid(&path) && (AINavigator2D::GetFinalPathPoint(this, &path, (vec3_t *)&result), (float)((float)((float)((float)(point.v[1] - result.m_y) * (float)(point.v[1] - result.m_y)) + (float)((float)(point.v[0] - result.m_x) * (float)(point.v[0] - result.m_x))) + (float)((float)(point.v[2] - result.m_z) * (float)(point.v[2] - result.m_z))) <= 4.0) )
     {
       AINavigator2D::SetPath(this, &path, &pInput);
-      v24 = 1;
+      v6 = 1;
     }
     else
     {
-LABEL_13:
       bfx::PolylinePathRCPtr::Release(&path);
       this->ClearPath(this);
-      v24 = 0;
+      v6 = 0;
     }
     bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&path);
     bfx::AreaHandle::~AreaHandle(&pInput.m_hGoalArea);
     bfx::AreaHandle::~AreaHandle(&pInput.m_hStartArea);
-    return v24;
+    return v6;
   }
   else
   {
@@ -3153,146 +2817,118 @@ AINavigator2D::DrawPath
 */
 void AINavigator2D::DrawPath(AINavigator2D *this, int mode)
 {
+  __int128 v2; 
   int m_NumPoints; 
-  AINavigator2D *v6; 
+  float v5; 
   __int64 m_CurPathPoint; 
   unsigned int *p_m_Flags; 
-  unsigned int v15; 
-  const vec4_t *v16; 
-  vec4_t *v17; 
-  const dvar_t *v22; 
+  unsigned int v8; 
+  const vec4_t *v9; 
+  vec4_t *v10; 
+  const dvar_t *v11; 
   bfx::AreaHandle *p_m_hCurArea; 
-  int v24; 
+  int v13; 
   int NumEdges; 
+  bfx::Vector3 *EdgeStartPos; 
+  float m_z; 
+  float m_y; 
+  bfx::Vector3 *EdgeEndPos; 
+  float v19; 
+  float v20; 
   bfx::Vector3 result; 
-  bfx::Vector3 v38; 
+  bfx::Vector3 v22; 
   vec3_t outPoint; 
   vec3_t start; 
   vec3_t end; 
-  void *retaddr; 
+  __int128 v26; 
 
-  _R11 = &retaddr;
   m_NumPoints = this->m_Path.m_NumPoints;
-  v6 = this;
   if ( m_NumPoints > 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+30h]
-      vmovss  xmm1, dword ptr [rcx+34h]
-    }
+    v5 = this->m_CurSnappedPos.v[1];
     m_CurPathPoint = this->m_CurPathPoint;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovss  xmm6, cs:__real@40800000
-      vmovss  dword ptr [rbp+57h+start], xmm0
-      vaddss  xmm0, xmm6, dword ptr [rcx+38h]
-      vmovss  dword ptr [rbp+57h+start+8], xmm0
-      vmovss  dword ptr [rbp+57h+start+4], xmm1
-    }
+    start.v[0] = this->m_CurSnappedPos.v[0];
+    start.v[2] = this->m_CurSnappedPos.v[2] + 4.0;
+    start.v[1] = v5;
     if ( (int)m_CurPathPoint < m_NumPoints )
     {
-      __asm
-      {
-        vmovaps xmmword ptr [r11-48h], xmm7
-        vmovss  xmm7, cs:__real@40c00000
-      }
+      v26 = v2;
       p_m_Flags = &this->m_Path.m_Points[m_CurPathPoint].m_Flags;
       do
       {
-        nav_path_t::GetPathPoint(&v6->m_Path, m_CurPathPoint, &outPoint);
-        __asm { vaddss  xmm1, xmm6, dword ptr [rbp+57h+outPoint+8] }
-        v15 = *p_m_Flags;
-        __asm { vmovss  dword ptr [rbp+57h+outPoint+8], xmm1 }
-        if ( (v15 & 4) != 0 )
+        nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &outPoint);
+        v8 = *p_m_Flags;
+        outPoint.v[2] = outPoint.v[2] + 4.0;
+        if ( (v8 & 4) != 0 )
         {
-          v16 = &colorCyan;
+          v9 = &colorCyan;
         }
-        else if ( (v15 & 0x10) != 0 )
+        else if ( (v8 & 0x10) != 0 )
         {
-          v16 = &colorOrange;
+          v9 = &colorOrange;
         }
-        else if ( (v15 & 0x20) != 0 )
+        else if ( (v8 & 0x20) != 0 )
         {
-          v16 = &colorRedFaded;
+          v9 = &colorRedFaded;
         }
         else
         {
-          v16 = &colorLtBlue;
-          if ( (v15 & 0x400) == 0 )
-            v16 = &colorMagenta;
+          v9 = &colorLtBlue;
+          if ( (v8 & 0x400) == 0 )
+            v9 = &colorMagenta;
         }
-        G_DebugLine(&start, &outPoint, v16, 0);
-        if ( (_DWORD)m_CurPathPoint == v6->m_Path.m_NumPoints - 1 )
+        G_DebugLine(&start, &outPoint, v9, 0);
+        if ( (_DWORD)m_CurPathPoint == this->m_Path.m_NumPoints - 1 )
         {
-          v17 = &colorRed;
+          v10 = &colorRed;
           if ( (*(_BYTE *)p_m_Flags & 1) != 0 )
-            v17 = (vec4_t *)v16;
-          v16 = v17;
+            v10 = (vec4_t *)v9;
+          v9 = v10;
         }
-        __asm { vmovaps xmm1, xmm7; radius }
-        G_DebugCircle(&outPoint, *(float *)&_XMM1, v16, 0, 1, 1);
-        if ( (v15 & 0x140) != 0 )
-        {
-          __asm { vmovaps xmm1, xmm7; radius }
-          G_DebugCircle(&outPoint, *(float *)&_XMM1, &colorYellow, 0, 1, 1);
-        }
-        __asm { vmovsd  xmm0, qword ptr [rbp+57h+outPoint] }
+        G_DebugCircle(&outPoint, 6.0, v9, 0, 1, 1);
+        if ( (v8 & 0x140) != 0 )
+          G_DebugCircle(&outPoint, 6.0, &colorYellow, 0, 1, 1);
         LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
         p_m_Flags += 12;
-        start.v[2] = outPoint.v[2];
-        __asm { vmovsd  qword ptr [rbp+57h+start], xmm0 }
+        start = outPoint;
       }
-      while ( (int)m_CurPathPoint < v6->m_Path.m_NumPoints );
-      __asm { vmovaps xmm7, [rsp+0D0h+var_48+8] }
+      while ( (int)m_CurPathPoint < this->m_Path.m_NumPoints );
     }
-    v22 = DCONST_DVARBOOL_ai_showBfxPath;
+    v11 = DCONST_DVARBOOL_ai_showBfxPath;
     if ( !DCONST_DVARBOOL_ai_showBfxPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showBfxPath") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v11);
+    if ( v11->current.enabled )
     {
-      p_m_hCurArea = &v6->m_hCurArea;
+      p_m_hCurArea = &this->m_hCurArea;
       if ( bfx::AreaHandle::IsValid(p_m_hCurArea) )
       {
-        v24 = 0;
+        v13 = 0;
         NumEdges = bfx::AreaHandle::GetNumEdges(p_m_hCurArea);
         if ( NumEdges > 0 )
         {
           do
           {
-            _RAX = bfx::AreaHandle::GetEdgeStartPos(p_m_hCurArea, &result, v24);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  dword ptr [rbp+57h+outPoint], xmm0
-              vmovss  dword ptr [rbp+57h+outPoint+4], xmm1
-              vmovss  dword ptr [rbp+57h+outPoint+8], xmm2
-            }
-            _RAX = bfx::AreaHandle::GetEdgeEndPos(p_m_hCurArea, &v38, v24);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  dword ptr [rbp+57h+end], xmm0
-              vaddss  xmm0, xmm6, dword ptr [rbp+57h+outPoint+8]
-              vaddss  xmm2, xmm6, xmm2
-              vmovss  dword ptr [rbp+57h+outPoint+8], xmm0
-              vmovss  dword ptr [rbp+57h+end+4], xmm1
-              vmovss  dword ptr [rbp+57h+end+8], xmm2
-            }
+            EdgeStartPos = bfx::AreaHandle::GetEdgeStartPos(p_m_hCurArea, &result, v13);
+            m_z = EdgeStartPos->m_z;
+            m_y = EdgeStartPos->m_y;
+            outPoint.v[0] = EdgeStartPos->m_x;
+            outPoint.v[1] = m_y;
+            outPoint.v[2] = m_z;
+            EdgeEndPos = bfx::AreaHandle::GetEdgeEndPos(p_m_hCurArea, &v22, v13);
+            v19 = EdgeEndPos->m_z;
+            v20 = EdgeEndPos->m_y;
+            end.v[0] = EdgeEndPos->m_x;
+            outPoint.v[2] = outPoint.v[2] + 4.0;
+            end.v[1] = v20;
+            end.v[2] = v19 + 4.0;
             G_DebugLine(&outPoint, &end, &colorDkCyan, 0);
-            ++v24;
+            ++v13;
           }
-          while ( v24 < NumEdges );
+          while ( v13 < NumEdges );
         }
       }
     }
-    __asm { vmovaps xmm6, [rsp+0D0h+var_38+8] }
   }
 }
 
@@ -3330,25 +2966,21 @@ _BOOL8 AINavigator2D::ExtendPath(AINavigator2D *this, const vec3_t *startPos, co
 {
   __int64 v8; 
   bool IsValid; 
-  char v21; 
   __int64 m_NumPoints; 
-  int v23; 
+  int v11; 
   unsigned int *p_m_Flags; 
-  int v25; 
-  __int64 v26; 
-  bool v27; 
-  int v31; 
-  __int64 v32; 
-  bool v33; 
+  int v13; 
+  float *v14; 
+  int v15; 
+  nav_path_t::pathpoint_t *v16; 
   bool pbOutHasDoors; 
   bfx::PolylinePathRCPtr result; 
   nav_pathfind_input_t pInput; 
-  __int64 v41; 
+  __int64 v21; 
   vec3_t outPoint; 
   nav_path_t ptr; 
 
-  v41 = -2i64;
-  _RSI = newGoal;
+  v21 = -2i64;
   bfx::AreaHandle::AreaHandle(&pInput.m_hStartArea);
   bfx::AreaHandle::AreaHandle(&pInput.m_hGoalArea);
   v8 = 0i64;
@@ -3356,7 +2988,7 @@ _BOOL8 AINavigator2D::ExtendPath(AINavigator2D *this, const vec3_t *startPos, co
   *(_WORD *)&pInput.m_bSnapPoints = 257;
   pInput.m_bModifyLinkWeights = 1;
   pInput.m_pStartPos = startPos;
-  pInput.m_pGoalPos = _RSI;
+  pInput.m_pGoalPos = newGoal;
   bfx::AreaHandle::operator=(&pInput.m_hStartArea, hStartArea);
   pInput.m_pPathSpec = &this->m_PathSpecOfCurPath;
   pInput.m_bSnapPoints = 0;
@@ -3365,22 +2997,7 @@ _BOOL8 AINavigator2D::ExtendPath(AINavigator2D *this, const vec3_t *startPos, co
   if ( IsValid )
   {
     AINavigator2D::GetFinalPathPoint(this, &result, &outPoint);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm3, xmm0, dword ptr [rbp+3D0h+outPoint]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vsubss  xmm2, xmm1, dword ptr [rbp+3D0h+outPoint+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+3D0h+outPoint+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@40800000
-    }
-    if ( v21 | v27 )
+    if ( (float)((float)((float)((float)(newGoal->v[1] - outPoint.v[1]) * (float)(newGoal->v[1] - outPoint.v[1])) + (float)((float)(newGoal->v[0] - outPoint.v[0]) * (float)(newGoal->v[0] - outPoint.v[0]))) + (float)((float)(newGoal->v[2] - outPoint.v[2]) * (float)(newGoal->v[2] - outPoint.v[2]))) <= 4.0 )
     {
       m_NumPoints = this->m_Path.m_NumPoints;
       if ( (int)m_NumPoints <= 0 )
@@ -3389,36 +3006,18 @@ _BOOL8 AINavigator2D::ExtendPath(AINavigator2D *this, const vec3_t *startPos, co
         Sys_ProfBeginNamedEvent(0xFFFFFFFF, "GeneratePath");
         AINavigator2D::ExtractCornersFromRawPath(this, &result, &this->m_Path, 20, &this->m_PathSpecOfCurPath, &pbOutHasDoors);
         Sys_ProfEndNamedEvent();
-        v31 = this->m_Path.m_NumPoints;
-        v32 = v31 - 1;
-        v33 = v31 == 1;
-        if ( v31 - 1 > 0 )
+        v15 = this->m_Path.m_NumPoints;
+        if ( v15 - 1 > 0 )
         {
-          _RAX = &this->m_Path.m_Points[1];
-          while ( 1 )
+          v16 = &this->m_Path.m_Points[1];
+          while ( v16->m_LocalPos.v[0] != v16[-1].m_LocalPos.v[0] || v16->m_LocalPos.v[1] != v16[-1].m_LocalPos.v[1] )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax]
-              vucomiss xmm0, dword ptr [rax-30h]
-            }
-            if ( v33 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax+4]
-                vucomiss xmm0, dword ptr [rax-2Ch]
-              }
-              if ( v33 )
-                break;
-            }
             ++v8;
-            ++_RAX;
-            v33 = v8 == v32;
-            if ( v8 >= v32 )
+            ++v16;
+            if ( v8 >= v15 - 1 )
               goto LABEL_22;
           }
-          Nav_PrintPath("Path Points:", this->m_Path.m_Points, v31);
+          Nav_PrintPath("Path Points:", this->m_Path.m_Points, v15);
         }
 LABEL_22:
         AINavigator::LocalizePosToSpace(this, startPos, &this->m_LocalSnappedPathStartPos);
@@ -3429,57 +3028,39 @@ LABEL_22:
         `eh vector constructor iterator'(&ptr, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::pathpoint_t, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
         ptr.m_NumPoints = 20;
         ptr.m_pSpace = NULL;
-        v23 = 0;
+        v11 = 0;
         p_m_Flags = &ptr.m_Points[0].m_Flags;
         do
         {
-          bfx::AreaHandle::Release(&ptr.m_Points[v23].m_hArea);
+          bfx::AreaHandle::Release(&ptr.m_Points[v11].m_hArea);
           p_m_Flags[1] = -1;
           *p_m_Flags = 0;
           p_m_Flags[3] = -1082130432;
-          ++v23;
+          ++v11;
           p_m_Flags += 12;
         }
-        while ( v23 < ptr.m_NumPoints );
+        while ( v11 < ptr.m_NumPoints );
         ptr.m_NumPoints = 0;
         ptr.m_pSpace = this->m_pSpace;
         Sys_ProfBeginNamedEvent(0xFFFFFFFF, "GeneratePath");
         AINavigator2D::ExtractCornersFromRawPath(this, &result, &ptr, 20, &this->m_PathSpecOfCurPath, &pbOutHasDoors);
         Sys_ProfEndNamedEvent();
-        v25 = ptr.m_NumPoints;
-        v26 = ptr.m_NumPoints - 1;
-        v27 = ptr.m_NumPoints == 1;
+        v13 = ptr.m_NumPoints;
         if ( ptr.m_NumPoints - 1 > 0 )
         {
-          _RAX = &ptr.m_Points[1].m_LocalPos.v[1];
-          while ( 1 )
+          v14 = &ptr.m_Points[1].m_LocalPos.v[1];
+          while ( *(v14 - 1) != *(v14 - 13) || *v14 != *(v14 - 12) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax-4]
-              vucomiss xmm0, dword ptr [rax-34h]
-            }
-            if ( v27 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vucomiss xmm0, dword ptr [rax-30h]
-              }
-              if ( v27 )
-                break;
-            }
             ++v8;
-            _RAX += 12;
-            v27 = v8 == v26;
-            if ( v8 >= v26 )
+            v14 += 12;
+            if ( v8 >= ptr.m_NumPoints - 1 )
               goto LABEL_14;
           }
           Nav_PrintPath("Path Points:", ptr.m_Points, ptr.m_NumPoints);
-          v25 = ptr.m_NumPoints;
+          v13 = ptr.m_NumPoints;
         }
 LABEL_14:
-        nav_path_t::AppendPathPoints(&this->m_Path, ptr.m_Points, v25);
+        nav_path_t::AppendPathPoints(&this->m_Path, ptr.m_Points, v13);
         nav_path_t::Reset(&ptr);
         `eh vector destructor iterator'(&ptr, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
       }
@@ -3505,105 +3086,112 @@ AINavigator2D::ExtractCornersFromRawPath
 */
 __int64 AINavigator2D::ExtractCornersFromRawPath(AINavigator2D *this, const bfx::PolylinePathRCPtr *rawPath, nav_path_t *pPath2D, int maxCorners, const bfx::PathSpec *pathSpec, bool *pbOutHasDoors)
 {
-  int v6; 
-  nav_path_t *v20; 
-  AINavigator2D *v22; 
-  __int64 v24; 
+  float v6; 
+  __int64 v7; 
+  nav_path_t *v9; 
+  AINavigator2D *v11; 
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
+  const bfx::Vector3 *StartPos; 
+  float m_z; 
+  float m_y; 
   const bfx::AreaHandle *Area; 
   bfx::LinkSegment *LinkSegment; 
   const bfx::AreaHandle *ClosestArea; 
-  int v40; 
-  int v43; 
-  bfx::PolylinePathRCPtr *v48; 
-  bfx::SegmentType v49; 
-  bfx::SurfaceSegment *v50; 
-  char v55; 
+  int v21; 
+  __int128 v22; 
+  int v23; 
+  float v24; 
+  float v25; 
+  bfx::PolylinePathRCPtr *v26; 
+  bfx::SegmentType v27; 
+  bfx::SurfaceSegment *v28; 
+  const bfx::Vector3 *v29; 
+  float v30; 
+  float v31; 
+  const bfx::Vector3 *v32; 
+  float v33; 
+  __int128 m_y_low; 
+  float m_x; 
   bool IsStraightLineReachable; 
-  char v61; 
-  const bfx::AreaHandle *v96; 
+  float v37; 
+  float v38; 
+  __int128 v39; 
+  float v40; 
+  float v41; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  __int128 v51; 
+  float v54; 
+  const bfx::AreaHandle *v55; 
+  nav_path_t::pathpoint_t *v56; 
+  int v57; 
+  const bfx::AreaHandle *v58; 
+  __int128 v59; 
+  float v60; 
   unsigned int AreaUsageFlags; 
-  int v98; 
-  const bfx::AreaHandle *v99; 
+  int v65; 
+  const bfx::AreaHandle *v66; 
+  __int128 v67; 
   int NumObstacles; 
   int i; 
-  int v114; 
-  __int64 v115; 
-  const bfx::AreaHandle *v119; 
-  int v120; 
-  bfx::LinkSegment *v121; 
+  int v70; 
+  __int64 v71; 
+  nav_path_t::pathpoint_t *v72; 
+  const bfx::AreaHandle *v73; 
+  bfx::LinkSegment *v74; 
+  nav_path_t::pathpoint_t *v75; 
   bool Forward; 
-  bool v124; 
-  const bfx::AreaHandle *v127; 
+  bool v77; 
+  bfx::Vector3 *v78; 
+  const bfx::AreaHandle *v79; 
   __int64 m_NumPoints; 
-  const bfx::AreaHandle *v132; 
-  int v145; 
-  int v158; 
+  nav_path_t::pathpoint_t *v81; 
+  bfx::Vector3 *v82; 
+  const bfx::AreaHandle *v83; 
+  float v84; 
+  int v85; 
+  bool v86; 
   int NumSegments; 
   bfx::AreaHandle rhs; 
-  bfx::AreaHandle v163; 
+  bfx::AreaHandle v91; 
   bfx::AreaHandle result; 
-  bfx::PathSpec *v165; 
+  bfx::PathSpec *v93; 
   bfx::LinkHandle phLink; 
-  bfx::PolylinePathRCPtr *v167; 
-  nav_path_t *v168; 
-  bfx::Vector3 v169; 
-  bfx::Vector3 v170; 
-  __int64 v171; 
-  bfx::AreaHandle v172; 
-  bfx::AreaHandle v173; 
-  bfx::AreaHandle v174; 
-  bfx::AreaHandle v175; 
-  bfx::AreaHandle v176; 
-  bfx::ObstacleDat v177; 
+  bfx::PolylinePathRCPtr *v95; 
+  nav_path_t *v96; 
+  bfx::Vector3 v97; 
+  bfx::Vector3 v98; 
+  __int64 v99; 
+  bfx::AreaHandle v100; 
+  bfx::AreaHandle v101; 
+  bfx::AreaHandle v102; 
+  bfx::AreaHandle v103; 
+  bfx::AreaHandle v104; 
+  bfx::AreaHandle v105; 
+  bfx::ObstacleDat v106; 
   vec3_t endPos; 
+  vec3_t v108; 
   vec3_t worldPos; 
   bfx::Vector3 pos; 
   bfx::PathSpec pPathSpec; 
-  char v183; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v171 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  v20 = pPath2D;
-  v168 = pPath2D;
-  v167 = (bfx::PolylinePathRCPtr *)rawPath;
-  v22 = this;
-  _R15 = pathSpec;
-  v165 = (bfx::PathSpec *)pathSpec;
+  v99 = -2i64;
+  v9 = pPath2D;
+  v96 = pPath2D;
+  v95 = (bfx::PolylinePathRCPtr *)rawPath;
+  v11 = this;
+  v93 = (bfx::PathSpec *)pathSpec;
   nav_path_t::Reset(pPath2D);
   if ( pbOutHasDoors )
     *pbOutHasDoors = 0;
   if ( !bfx::PolylinePathRCPtr::IsValid((bfx::PolylinePathRCPtr *)rawPath) )
-  {
-    v24 = 0i64;
-    goto LABEL_90;
-  }
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [r15]
-    vmovups ymmword ptr [rbp+1C0h+pPathSpec.m_obstacleMode], ymm2
-    vmovups ymm0, ymmword ptr [r15+20h]
-    vmovups ymmword ptr [rbp+1C0h+pPathSpec.m_maxSearchDist], ymm0
-    vmovups xmm1, xmmword ptr [r15+40h]
-    vmovups xmmword ptr [rbp+1C0h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm1
-    vmovq   rax, xmm2
-  }
-  pPathSpec.m_obstacleBlockageFlags = HIDWORD(_RAX) | 0x2000;
+    return 0i64;
+  pPathSpec = *pathSpec;
+  pPathSpec.m_obstacleBlockageFlags = HIDWORD(v7) | 0x2000;
   if ( maxCorners <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1227, ASSERT_TYPE_ASSERT, "( maxCorners > 0 )", (const char *)&queryFormat, "maxCorners > 0") )
     __debugbreak();
   NumSegments = bfx::PolylinePathRCPtr::GetNumSegments((bfx::PolylinePathRCPtr *)rawPath);
@@ -3611,7 +3199,7 @@ __int64 AINavigator2D::ExtractCornersFromRawPath(AINavigator2D *this, const bfx:
     __debugbreak();
   bfx::AreaHandle::AreaHandle(&rhs);
   LOBYTE(v6) = 0;
-  v158 = v6;
+  v86 = 0;
   SegmentType = bfx::PolylinePathRCPtr::GetSegmentType((bfx::PolylinePathRCPtr *)rawPath, 0);
   if ( SegmentType )
   {
@@ -3620,16 +3208,9 @@ __int64 AINavigator2D::ExtractCornersFromRawPath(AINavigator2D *this, const bfx:
     LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment((bfx::PolylinePathRCPtr *)rawPath, 0);
     if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1254, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
       __debugbreak();
-    _RAX = bfx::LinkSegment::GetStartPos(LinkSegment);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  qword ptr [rbp+1C0h+pos.m_x], xmm0
-    }
-    pos.m_z = _RAX->m_z;
-    __asm { vmovsd  qword ptr [rbp+1C0h+worldPos], xmm0 }
-    worldPos.v[2] = pos.m_z;
-    ClosestArea = bfx::GetClosestArea(&result, &v22->m_pSpace->hSpace, &pos, v22->m_Layer, pathSpec);
+    pos = *bfx::LinkSegment::GetStartPos(LinkSegment);
+    worldPos = (vec3_t)pos;
+    ClosestArea = bfx::GetClosestArea(&result, &v11->m_pSpace->hSpace, &pos, v11->m_Layer, pathSpec);
     bfx::AreaHandle::operator=(&rhs, ClosestArea);
   }
   else
@@ -3637,368 +3218,270 @@ __int64 AINavigator2D::ExtractCornersFromRawPath(AINavigator2D *this, const bfx:
     SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment((bfx::PolylinePathRCPtr *)rawPath, 0);
     if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1245, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
       __debugbreak();
-    _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+8]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  dword ptr [rbp+1C0h+worldPos], xmm0
-      vmovss  dword ptr [rbp+1C0h+worldPos+4], xmm1
-      vmovss  dword ptr [rbp+1C0h+worldPos+8], xmm2
-    }
+    StartPos = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+    m_z = StartPos->m_z;
+    m_y = StartPos->m_y;
+    worldPos.v[0] = StartPos->m_x;
+    worldPos.v[1] = m_y;
+    worldPos.v[2] = m_z;
     Area = bfx::SurfaceSegment::GetArea(SurfaceSegment, &result);
     bfx::AreaHandle::operator=(&rhs, Area);
   }
   bfx::AreaHandle::~AreaHandle(&result);
-  Nav_SpaceConvertWorldToLocal(v22->m_pSpace, &worldPos, &v20->m_LocalStartPoint);
-  v40 = 0;
-  __asm
-  {
-    vxorps  xmm12, xmm12, xmm12
-    vxorps  xmm10, xmm10, xmm10
-  }
-  bfx::AreaHandle::AreaHandle(&v163, &rhs);
-  v43 = 0;
+  Nav_SpaceConvertWorldToLocal(v11->m_pSpace, &worldPos, &v9->m_LocalStartPoint);
+  v21 = 0;
+  v22 = 0i64;
+  bfx::AreaHandle::AreaHandle(&v91, &rhs);
+  v23 = 0;
   if ( NumSegments > 0 )
   {
-    __asm
-    {
-      vmovss  xmm15, cs:__real@80000000
-      vmovss  xmm11, cs:__real@3f800000
-      vmovss  xmm13, [rsp+2C0h+var_290]
-      vmovss  xmm14, [rsp+2C0h+var_290]
-    }
+    v24 = v6;
+    v25 = v6;
     while ( 1 )
     {
-      v48 = v167;
-      v49 = bfx::PolylinePathRCPtr::GetSegmentType(v167, v43);
-      if ( v49 == SURFACE_SEGMENT )
+      v26 = v95;
+      v27 = bfx::PolylinePathRCPtr::GetSegmentType(v95, v23);
+      if ( v27 == SURFACE_SEGMENT )
         break;
-      if ( v49 != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1405, ASSERT_TYPE_ASSERT, "( segType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segType == bfx::LINK_SEGMENT") )
+      if ( v27 != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1405, ASSERT_TYPE_ASSERT, "( segType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segType == bfx::LINK_SEGMENT") )
         __debugbreak();
-      v121 = bfx::PolylinePathRCPtr::GetLinkSegment(v48, v43);
-      if ( !v121 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1407, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
+      v74 = bfx::PolylinePathRCPtr::GetLinkSegment(v26, v23);
+      if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1407, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
         __debugbreak();
-      _RBX = &v20->m_Points[v20->m_NumPoints];
-      Forward = bfx::LinkSegment::GetForward(v121);
-      v124 = !Forward;
+      v75 = &v9->m_Points[v9->m_NumPoints];
+      Forward = bfx::LinkSegment::GetForward(v74);
+      v77 = !Forward;
       if ( Forward )
-        _RAX = bfx::LinkSegment::GetStartPos(v121);
+        v78 = (bfx::Vector3 *)bfx::LinkSegment::GetStartPos(v74);
       else
-        _RAX = bfx::LinkSegment::GetEndPos(v121);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax]
-        vmovsd  qword ptr [rbp+1C0h+var_218.m_x], xmm0
-      }
-      v169.m_z = _RAX->m_z;
-      __asm { vmovsd  qword ptr [rbp+1C0h+pos.m_x], xmm0 }
-      pos.m_z = v169.m_z;
-      Nav_SpaceConvertWorldToLocal(v22->m_pSpace, (const vec3_t *)&pos, &_RBX->m_LocalPos);
-      bfx::LinkSegment::GetLink(v121, &phLink);
-      v127 = bfx::GetClosestArea(&v175, &v22->m_pSpace->hSpace, &v169, v22->m_Layer, v165);
-      bfx::AreaHandle::operator=(&_RBX->m_hArea, v127);
-      bfx::AreaHandle::~AreaHandle(&v175);
-      _RBX->m_LinkID = Nav_GetLinkID(&phLink);
-      __asm { vmovss  dword ptr [rbx+14h], xmm10 }
-      _RBX->m_CornerAngle = -1.0;
-      __asm { vmovss  dword ptr [rbx+1Ch], xmm10 }
-      _RBX->m_Flags = 2;
-      if ( v124 )
-        _RBX->m_Flags = 10;
-      m_NumPoints = v20->m_NumPoints;
-      v120 = m_NumPoints + 1;
-      v20->m_NumPoints = m_NumPoints + 1;
+        v78 = (bfx::Vector3 *)bfx::LinkSegment::GetEndPos(v74);
+      v97 = *v78;
+      pos = v97;
+      Nav_SpaceConvertWorldToLocal(v11->m_pSpace, (const vec3_t *)&pos, &v75->m_LocalPos);
+      bfx::LinkSegment::GetLink(v74, &phLink);
+      v79 = bfx::GetClosestArea(&v104, &v11->m_pSpace->hSpace, &v97, v11->m_Layer, v93);
+      bfx::AreaHandle::operator=(&v75->m_hArea, v79);
+      bfx::AreaHandle::~AreaHandle(&v104);
+      v75->m_LinkID = Nav_GetLinkID(&phLink);
+      v75->m_Length = *(float *)&v22;
+      v75->m_CornerAngle = -1.0;
+      v75->m_TightQuartersRemainingLength = *(float *)&v22;
+      v75->m_Flags = 2;
+      if ( v77 )
+        v75->m_Flags = 10;
+      m_NumPoints = v9->m_NumPoints;
+      v57 = m_NumPoints + 1;
+      v9->m_NumPoints = m_NumPoints + 1;
       if ( (int)m_NumPoints + 1 >= maxCorners )
-        goto LABEL_87;
-      _RBX = &v20->m_Points[m_NumPoints + 1];
-      if ( v124 )
-        _RAX = bfx::LinkSegment::GetStartPos(v121);
+        goto LABEL_96;
+      v81 = &v9->m_Points[m_NumPoints + 1];
+      if ( v77 )
+        v82 = (bfx::Vector3 *)bfx::LinkSegment::GetStartPos(v74);
       else
-        _RAX = bfx::LinkSegment::GetEndPos(v121);
-      __asm
+        v82 = (bfx::Vector3 *)bfx::LinkSegment::GetEndPos(v74);
+      v98 = *v82;
+      endPos = (vec3_t)v98;
+      Nav_SpaceConvertWorldToLocal(v11->m_pSpace, &endPos, &v81->m_LocalPos);
+      v83 = bfx::GetClosestArea(&v105, &v11->m_pSpace->hSpace, &v98, v11->m_Layer, v93);
+      bfx::AreaHandle::operator=(&v81->m_hArea, v83);
+      bfx::AreaHandle::~AreaHandle(&v105);
+      v81->m_LinkID = Nav_GetLinkID(&phLink);
+      v84 = fsqrt((float)((float)((float)(endPos.v[1] - pos.m_y) * (float)(endPos.v[1] - pos.m_y)) + (float)((float)(endPos.v[0] - pos.m_x) * (float)(endPos.v[0] - pos.m_x))) + (float)((float)(endPos.v[2] - pos.m_z) * (float)(endPos.v[2] - pos.m_z)));
+      v81->m_Length = v84;
+      v81->m_CornerAngle = -1.0;
+      v81->m_TightQuartersRemainingLength = v84;
+      v81->m_Flags = 4;
+      v85 = 4;
+      if ( v77 )
       {
-        vmovsd  xmm0, qword ptr [rax]
-        vmovsd  qword ptr [rbp+1C0h+var_208.m_x], xmm0
+        v81->m_Flags = 12;
+        v85 = 12;
       }
-      v170.m_z = _RAX->m_z;
-      __asm { vmovsd  qword ptr [rbp+1C0h+endPos], xmm0 }
-      endPos.v[2] = v170.m_z;
-      Nav_SpaceConvertWorldToLocal(v22->m_pSpace, &endPos, &_RBX->m_LocalPos);
-      v132 = bfx::GetClosestArea(&v176, &v22->m_pSpace->hSpace, &v170, v22->m_Layer, v165);
-      bfx::AreaHandle::operator=(&_RBX->m_hArea, v132);
-      bfx::AreaHandle::~AreaHandle(&v176);
-      _RBX->m_LinkID = Nav_GetLinkID(&phLink);
-      __asm
+      if ( v23 == NumSegments - 1 )
+        v81->m_Flags = v85 | 1;
+      worldPos = endPos;
+      bfx::AreaHandle::operator=(&rhs, &v81->m_hArea);
+      ++v9->m_NumPoints;
+      v21 = 0;
+      v22 = 0i64;
+      bfx::AreaHandle::operator=(&v91, &rhs);
+      v57 = v9->m_NumPoints;
+      if ( v57 >= maxCorners )
       {
-        vmovss  xmm0, dword ptr [rbp+1C0h+endPos]
-        vsubss  xmm3, xmm0, [rbp+1C0h+pos.m_x]
-        vmovss  xmm1, dword ptr [rbp+1C0h+endPos+4]
-        vsubss  xmm2, xmm1, [rbp+1C0h+pos.m_y]
-        vmovss  xmm0, dword ptr [rbp+1C0h+endPos+8]
-        vsubss  xmm4, xmm0, [rbp+1C0h+pos.m_z]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vmovss  dword ptr [rbx+14h], xmm1
-      }
-      _RBX->m_CornerAngle = -1.0;
-      __asm { vmovss  dword ptr [rbx+1Ch], xmm1 }
-      _RBX->m_Flags = 4;
-      v145 = 4;
-      if ( v124 )
-      {
-        _RBX->m_Flags = 12;
-        v145 = 12;
-      }
-      if ( v43 == NumSegments - 1 )
-        _RBX->m_Flags = v145 | 1;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+1C0h+endPos]
-        vmovsd  qword ptr [rbp+1C0h+worldPos], xmm0
-      }
-      worldPos.v[2] = endPos.v[2];
-      bfx::AreaHandle::operator=(&rhs, &_RBX->m_hArea);
-      ++v20->m_NumPoints;
-      v40 = 0;
-      __asm { vmovaps xmm10, xmm12 }
-      bfx::AreaHandle::operator=(&v163, &rhs);
-      v120 = v20->m_NumPoints;
-      if ( v120 >= maxCorners )
-      {
-LABEL_87:
+LABEL_96:
         bfx::LinkHandle::~LinkHandle(&phLink);
-        goto LABEL_89;
+        goto LABEL_98;
       }
       bfx::LinkHandle::~LinkHandle(&phLink);
-LABEL_64:
-      if ( ++v43 >= NumSegments )
-        goto LABEL_88;
-      LOBYTE(v6) = v158;
+LABEL_73:
+      if ( ++v23 >= NumSegments )
+        goto LABEL_97;
+      LOBYTE(v6) = v86;
     }
-    v50 = bfx::PolylinePathRCPtr::GetSurfaceSegment(v48, v43);
-    if ( !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1275, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
+    v28 = bfx::PolylinePathRCPtr::GetSurfaceSegment(v26, v23);
+    if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1275, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
       __debugbreak();
-    _RAX = bfx::SurfaceSegment::GetStartPos(v50);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+8]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  xmm0, dword ptr [rax]
-      vmovss  dword ptr [rbp+1C0h+var_160], xmm0
-      vmovss  dword ptr [rbp+1C0h+var_160+4], xmm1
-      vmovss  dword ptr [rbp+1C0h+var_160+8], xmm2
-    }
-    _RAX = bfx::SurfaceSegment::GetEndPos(v50);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+8]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmovss  xmm2, dword ptr [rax]
-      vmovss  dword ptr [rbp+1C0h+endPos], xmm2
-      vmovss  dword ptr [rbp+1C0h+endPos+4], xmm1
-      vmovss  dword ptr [rbp+1C0h+endPos+8], xmm0
-    }
+    v29 = bfx::SurfaceSegment::GetStartPos(v28);
+    v30 = v29->m_z;
+    v31 = v29->m_y;
+    v108.v[0] = v29->m_x;
+    v108.v[1] = v31;
+    v108.v[2] = v30;
+    v32 = bfx::SurfaceSegment::GetEndPos(v28);
+    v33 = v32->m_z;
+    m_y_low = LODWORD(v32->m_y);
+    m_x = v32->m_x;
+    endPos.v[0] = v32->m_x;
+    endPos.v[1] = *(float *)&m_y_low;
+    endPos.v[2] = v33;
     IsStraightLineReachable = 1;
-    __asm { vucomiss xmm10, xmm12 }
-    if ( v61 )
+    if ( *(float *)&v22 == 0.0 )
     {
+      v37 = m_x - worldPos.v[0];
+      v39 = m_y_low;
+      v38 = *(float *)&m_y_low - worldPos.v[1];
+      v40 = v33 - worldPos.v[2];
+      v41 = (float)(v38 * v38) + (float)(v37 * v37);
+      *(float *)&v39 = fsqrt(v41);
+      _XMM2 = v39;
       __asm
       {
-        vsubss  xmm4, xmm2, dword ptr [rbp+1C0h+worldPos]
-        vsubss  xmm5, xmm1, dword ptr [rbp+1C0h+worldPos+4]
-        vsubss  xmm6, xmm0, dword ptr [rbp+1C0h+worldPos+8]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm1, xmm0
-        vsqrtss xmm2, xmm3, xmm3
         vcmpless xmm0, xmm2, xmm15
         vblendvps xmm1, xmm2, xmm11, xmm0
-        vmovss  [rsp+2C0h+var_290], xmm1
-        vdivss  xmm0, xmm11, xmm1
-        vmulss  xmm14, xmm0, xmm4
-        vmulss  xmm13, xmm0, xmm5
-        vmulss  xmm0, xmm6, xmm6
-        vaddss  xmm1, xmm0, xmm3
-        vcomiss xmm1, xmm11
       }
-      LOBYTE(v158) = !v55;
+      v25 = (float)(1.0 / *(float *)&_XMM1) * v37;
+      v24 = (float)(1.0 / *(float *)&_XMM1) * v38;
+      v45 = (float)(v40 * v40) + v41;
     }
     else
     {
       if ( !bfx::AreaHandle::IsValid(&rhs) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1289, ASSERT_TYPE_ASSERT, "( hPrevArea.IsValid() )", (const char *)&queryFormat, "hPrevArea.IsValid()") )
         __debugbreak();
+      v46 = v108.v[0];
+      v47 = v108.v[1];
+      v51 = LODWORD(endPos.v[1]);
+      v48 = endPos.v[1] - v108.v[1];
+      v49 = (float)(v48 * v48) + (float)((float)(endPos.v[0] - v108.v[0]) * (float)(endPos.v[0] - v108.v[0]));
+      *(float *)&v51 = fsqrt(v49);
+      _XMM7 = v51;
       __asm
       {
-        vmovss  xmm8, dword ptr [rbp+1C0h+var_160]
-        vmovss  xmm0, dword ptr [rbp+1C0h+endPos]
-        vsubss  xmm6, xmm0, xmm8
-        vmovss  xmm9, dword ptr [rbp+1C0h+var_160+4]
-        vmovss  xmm1, dword ptr [rbp+1C0h+endPos+4]
-        vsubss  xmm3, xmm1, xmm9
-        vmovss  xmm0, dword ptr [rbp+1C0h+endPos+8]
-        vsubss  xmm5, xmm0, dword ptr [rbp+1C0h+var_160+8]
-        vmulss  xmm2, xmm3, xmm3
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm4, xmm2, xmm1
-        vsqrtss xmm7, xmm4, xmm4
         vcmpless xmm0, xmm7, xmm15
         vblendvps xmm1, xmm7, xmm11, xmm0
-        vdivss  xmm0, xmm11, xmm1
-        vmulss  xmm2, xmm0, xmm6
-        vmulss  xmm3, xmm0, xmm3
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm6, xmm0, xmm4
-        vmulss  xmm2, xmm14, xmm2
-        vmulss  xmm1, xmm13, xmm3
-        vaddss  xmm0, xmm2, xmm1
       }
-      if ( (_BYTE)v6 )
-        __asm { vcomiss xmm0, cs:__real@3f7d70a4 }
-      if ( v43 )
+      v54 = (float)((float)(endPos.v[2] - v108.v[2]) * (float)(endPos.v[2] - v108.v[2])) + v49;
+      if ( LOBYTE(v6) && (float)((float)(v25 * (float)((float)(1.0 / *(float *)&_XMM1) * (float)(endPos.v[0] - v108.v[0]))) + (float)(v24 * (float)((float)(1.0 / *(float *)&_XMM1) * v48))) < 0.99000001 && v54 >= 1.0 && *(float *)&v51 > 1.0 && v23 > 1 )
       {
-        __asm { vucomiss xmm7, xmm12 }
-        v96 = bfx::SurfaceSegment::GetArea(v50, &v172);
-        IsStraightLineReachable = Nav_IsStraightLineReachable(&worldPos, &rhs, &endPos, v96, &pPathSpec);
-        bfx::AreaHandle::~AreaHandle(&v172);
-        __asm
-        {
-          vmovss  xmm9, dword ptr [rbp+1C0h+var_160+4]
-          vmovss  xmm8, dword ptr [rbp+1C0h+var_160]
-        }
+        IsStraightLineReachable = 0;
       }
-      if ( !(_BYTE)v6 )
+      else if ( v23 && *(float *)&v51 != 0.0 )
       {
-        __asm { vcomiss xmm6, xmm11 }
-        LOBYTE(v158) = 1;
+        v55 = bfx::SurfaceSegment::GetArea(v28, &v100);
+        IsStraightLineReachable = Nav_IsStraightLineReachable(&worldPos, &rhs, &endPos, v55, &pPathSpec);
+        bfx::AreaHandle::~AreaHandle(&v100);
+        v47 = v108.v[1];
+        v46 = v108.v[0];
       }
-      if ( !IsStraightLineReachable )
+      if ( !LOBYTE(v6) )
+        v86 = v54 >= 1.0;
+      if ( IsStraightLineReachable || v46 == worldPos.v[0] && v47 == worldPos.v[1] )
+        goto LABEL_51;
+      v56 = &v9->m_Points[v9->m_NumPoints];
+      Nav_SpaceConvertWorldToLocal(this->m_pSpace, &v108, &v56->m_LocalPos);
+      bfx::AreaHandle::operator=(&v56->m_hArea, &v91);
+      v56->m_LinkID = -1;
+      v56->m_Length = *(float *)&v22;
+      v56->m_Flags = v21;
+      v56->m_CornerAngle = -1.0;
+      v56->m_TightQuartersRemainingLength = *(float *)&v22;
+      v57 = ++v9->m_NumPoints;
+      if ( v57 >= maxCorners )
+        goto LABEL_98;
+      v21 = 0;
+      v22 = 0i64;
+      worldPos = v108;
+      v58 = bfx::SurfaceSegment::GetArea(v28, &v101);
+      bfx::AreaHandle::operator=(&rhs, v58);
+      bfx::AreaHandle::~AreaHandle(&v101);
+      v59 = LODWORD(endPos.v[1]);
+      v60 = (float)((float)(endPos.v[1] - v108.v[1]) * (float)(endPos.v[1] - v108.v[1])) + (float)((float)(endPos.v[0] - v108.v[0]) * (float)(endPos.v[0] - v108.v[0]));
+      *(float *)&v59 = fsqrt(v60);
+      _XMM3 = v59;
+      __asm
       {
-        __asm
-        {
-          vucomiss xmm8, dword ptr [rbp+1C0h+worldPos]
-          vucomiss xmm9, dword ptr [rbp+1C0h+worldPos+4]
-        }
+        vcmpless xmm0, xmm3, xmm15
+        vblendvps xmm1, xmm3, xmm11, xmm0
       }
+      v25 = (float)(1.0 / *(float *)&_XMM1) * (float)(endPos.v[0] - v108.v[0]);
+      v24 = (float)(1.0 / *(float *)&_XMM1) * (float)(endPos.v[1] - v108.v[1]);
+      v45 = (float)((float)(endPos.v[2] - v108.v[2]) * (float)(endPos.v[2] - v108.v[2])) + v60;
     }
-    AreaUsageFlags = bfx::SurfaceSegment::GetAreaUsageFlags(v50);
-    v98 = v40 | 0x10;
+    v86 = v45 >= 1.0;
+LABEL_51:
+    AreaUsageFlags = bfx::SurfaceSegment::GetAreaUsageFlags(v28);
+    v65 = v21 | 0x10;
     if ( (AreaUsageFlags & 0x80000000) == 0 )
-      v98 = v40;
-    v40 = v98;
-    v99 = bfx::SurfaceSegment::GetArea(v50, &v173);
-    bfx::AreaHandle::operator=(&v163, v99);
-    bfx::AreaHandle::~AreaHandle(&v173);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1C0h+endPos]
-      vsubss  xmm3, xmm0, dword ptr [rbp+1C0h+var_160]
-      vmovss  xmm1, dword ptr [rbp+1C0h+endPos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbp+1C0h+var_160+4]
-      vmovss  xmm0, dword ptr [rbp+1C0h+endPos+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+1C0h+var_160+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vaddss  xmm10, xmm10, xmm1
-    }
-    NumObstacles = bfx::AreaHandle::GetNumObstacles(&v163);
+      v65 = v21;
+    v21 = v65;
+    v66 = bfx::SurfaceSegment::GetArea(v28, &v102);
+    bfx::AreaHandle::operator=(&v91, v66);
+    bfx::AreaHandle::~AreaHandle(&v102);
+    v67 = v22;
+    *(float *)&v67 = *(float *)&v22 + fsqrt((float)((float)((float)(endPos.v[1] - v108.v[1]) * (float)(endPos.v[1] - v108.v[1])) + (float)((float)(endPos.v[0] - v108.v[0]) * (float)(endPos.v[0] - v108.v[0]))) + (float)((float)(endPos.v[2] - v108.v[2]) * (float)(endPos.v[2] - v108.v[2])));
+    v22 = v67;
+    NumObstacles = bfx::AreaHandle::GetNumObstacles(&v91);
     if ( NumObstacles > 0 )
     {
       for ( i = 0; i < NumObstacles; ++i )
       {
-        bfx::AreaHandle::GetObstacle(&v163, (bfx::ObstacleHandle *)&result, i);
-        bfx::ObstacleHandle::GetObstacleDat((bfx::ObstacleHandle *)&result, &v177);
-        if ( v177.m_userData )
+        bfx::AreaHandle::GetObstacle(&v91, (bfx::ObstacleHandle *)&result, i);
+        bfx::ObstacleHandle::GetObstacleDat((bfx::ObstacleHandle *)&result, &v106);
+        if ( v106.m_userData )
         {
-          if ( (v177.m_userData & 0x8000000) == 0 || (v114 = 2048, (this->m_BasePathSpec.m_obstacleBlockageFlags & v177.m_obstacleBlockageFlags) == 0) )
-            v114 = 16;
-          v40 |= v114;
-          if ( (v177.m_userData & 0x10000000) != 0 && pbOutHasDoors )
+          if ( (v106.m_userData & 0x8000000) == 0 || (v70 = 2048, (this->m_BasePathSpec.m_obstacleBlockageFlags & v106.m_obstacleBlockageFlags) == 0) )
+            v70 = 16;
+          v21 |= v70;
+          if ( (v106.m_userData & 0x10000000) != 0 && pbOutHasDoors )
             *pbOutHasDoors = 1;
         }
         bfx::ObstacleHandle::~ObstacleHandle((bfx::ObstacleHandle *)&result);
       }
-      v20 = v168;
+      v9 = v96;
     }
-    if ( v43 != NumSegments - 1 )
+    if ( v23 == NumSegments - 1 )
     {
-LABEL_63:
-      v22 = this;
-      goto LABEL_64;
+      v71 = v9->m_NumPoints;
+      if ( (int)v71 > 0 && (*(float *)&v67 == 0.0 || v108.v[0] == endPos.v[0] && v108.v[1] == endPos.v[1]) )
+      {
+        v9->m_Points[v71 - 1].m_Flags |= 1u;
+      }
+      else
+      {
+        v72 = &v9->m_Points[v71];
+        Nav_SpaceConvertWorldToLocal(this->m_pSpace, &endPos, &v72->m_LocalPos);
+        v73 = bfx::SurfaceSegment::GetArea(v28, &v103);
+        bfx::AreaHandle::operator=(&v72->m_hArea, v73);
+        bfx::AreaHandle::~AreaHandle(&v103);
+        v72->m_LinkID = -1;
+        v72->m_Length = *(float *)&v67;
+        v72->m_Flags = v21 | 1;
+        v72->m_CornerAngle = -1.0;
+        v72->m_TightQuartersRemainingLength = *(float *)&v67;
+        ++v9->m_NumPoints;
+      }
+      v57 = v9->m_NumPoints;
+      if ( v57 >= maxCorners )
+        goto LABEL_98;
     }
-    v115 = v20->m_NumPoints;
-    if ( (int)v115 > 0 )
-    {
-      __asm { vucomiss xmm10, xmm12 }
-      if ( !(_DWORD)v115 )
-      {
-LABEL_60:
-        v20->m_Points[v115 - 1].m_Flags |= 1u;
-        goto LABEL_62;
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+1C0h+var_160]
-        vucomiss xmm0, dword ptr [rbp+1C0h+endPos]
-      }
-      if ( !(_DWORD)v115 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+1C0h+var_160+4]
-          vucomiss xmm0, dword ptr [rbp+1C0h+endPos+4]
-        }
-        goto LABEL_60;
-      }
-    }
-    _RBX = &v20->m_Points[v115];
-    Nav_SpaceConvertWorldToLocal(this->m_pSpace, &endPos, &_RBX->m_LocalPos);
-    v119 = bfx::SurfaceSegment::GetArea(v50, &v174);
-    bfx::AreaHandle::operator=(&_RBX->m_hArea, v119);
-    bfx::AreaHandle::~AreaHandle(&v174);
-    _RBX->m_LinkID = -1;
-    __asm { vmovss  dword ptr [rbx+14h], xmm10 }
-    _RBX->m_Flags = v40 | 1;
-    _RBX->m_CornerAngle = -1.0;
-    __asm { vmovss  dword ptr [rbx+1Ch], xmm10 }
-    ++v20->m_NumPoints;
-LABEL_62:
-    v120 = v20->m_NumPoints;
-    if ( v120 >= maxCorners )
-      goto LABEL_89;
-    goto LABEL_63;
+    v11 = this;
+    goto LABEL_73;
   }
-LABEL_88:
-  v120 = v20->m_NumPoints;
-LABEL_89:
-  bfx::AreaHandle::~AreaHandle(&v163);
+LABEL_97:
+  v57 = v9->m_NumPoints;
+LABEL_98:
+  bfx::AreaHandle::~AreaHandle(&v91);
   bfx::AreaHandle::~AreaHandle(&rhs);
-  v24 = (unsigned int)v120;
-LABEL_90:
-  _R11 = &v183;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v24;
+  return (unsigned int)v57;
 }
 
 /*
@@ -4020,21 +3503,26 @@ char AINavigator2D::FindLastPointOnPathWithinRegion(AINavigator2D *this, const v
 {
   unsigned int Instance; 
   HavokPhysics_CollisionQueryResult *CollisionQueryResult; 
-  char v15; 
-  int v16; 
+  char v11; 
+  int v12; 
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
+  const bfx::Vector3 *v15; 
+  float v16; 
+  float v17; 
   bfx::LinkSegment *LinkSegment; 
+  const bfx::Vector3 *StartPos; 
+  float m_z; 
+  float m_y; 
   bfx::PolylinePathRCPtr result; 
   nav_pathfind_input_t pInput; 
-  __int64 v38; 
+  __int64 v24; 
   vec3_t pos; 
-  vec3_t v40; 
-  _BYTE v41[64]; 
+  vec3_t v26; 
+  _BYTE v27[64]; 
+  __int128 v28; 
 
-  v38 = -2i64;
-  _RDI = outPoint;
-  _R14 = this;
+  v24 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "FindLastPointOnPathWithinRegion");
   Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, pRegion);
   CollisionQueryResult = Physics_AllocateCollisionQueryResult(PHYSICS_WORLD_ID_FIRST, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_ANY);
@@ -4042,141 +3530,102 @@ char AINavigator2D::FindLastPointOnPathWithinRegion(AINavigator2D *this, const v
     __debugbreak();
   if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, goalPos, Instance, CollisionQueryResult) )
   {
-    _RDI->v[0] = goalPos->v[0];
-    _RDI->v[1] = goalPos->v[1];
-    _RDI->v[2] = goalPos->v[2];
+    outPoint->v[0] = goalPos->v[0];
+    outPoint->v[1] = goalPos->v[1];
+    outPoint->v[2] = goalPos->v[2];
     Physics_FreeCollisionQueryResult(CollisionQueryResult);
     Sys_ProfEndNamedEvent();
     return 1;
   }
-  else
+  else if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &this->m_CurSnappedPos, Instance, CollisionQueryResult) )
   {
-    _R12 = _R14->m_CurSnappedPos.v;
-    if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &_R14->m_CurSnappedPos, Instance, CollisionQueryResult) )
+    *(__m256i *)v27 = *(__m256i *)&this->m_BasePathSpec.m_obstacleMode;
+    *(__m256i *)&v27[32] = *(__m256i *)&this->m_BasePathSpec.m_maxSearchDist;
+    v28 = *(_OWORD *)&this->m_BasePathSpec.m_penaltyTable.m_perFlagPenalties[24];
+    bfx::AreaHandle::AreaHandle(&pInput.m_hStartArea);
+    bfx::AreaHandle::AreaHandle(&pInput.m_hGoalArea);
+    pInput.m_pPathSpec = NULL;
+    *(_WORD *)&pInput.m_bSnapPoints = 257;
+    pInput.m_bModifyLinkWeights = 1;
+    pInput.m_pStartPos = &this->m_CurSnappedPos;
+    bfx::AreaHandle::operator=(&pInput.m_hStartArea, &this->m_hCurArea);
+    pInput.m_pGoalPos = goalPos;
+    pInput.m_pPathSpec = (bfx::PathSpec *)v27;
+    *(_WORD *)&pInput.m_bSnapPoints = 0;
+    pInput.m_bModifyLinkWeights = 0;
+    AINavigator2D::FindPath(this, &result, &pInput);
+    if ( bfx::PolylinePathRCPtr::IsValid(&result) )
     {
-      __asm
+      v12 = bfx::PolylinePathRCPtr::GetNumSegments(&result) - 1;
+      if ( v12 >= 0 )
       {
-        vmovups ymm0, ymmword ptr [r14+4A4h]
-        vmovups [rbp+50h+var_A0], ymm0
-        vmovups ymm1, ymmword ptr [r14+4C4h]
-        vmovups [rbp+50h+var_80], ymm1
-        vmovups xmm0, xmmword ptr [r14+4E4h]
-        vmovups [rbp+50h+var_60], xmm0
-      }
-      bfx::AreaHandle::AreaHandle(&pInput.m_hStartArea);
-      bfx::AreaHandle::AreaHandle(&pInput.m_hGoalArea);
-      pInput.m_pPathSpec = NULL;
-      *(_WORD *)&pInput.m_bSnapPoints = 257;
-      pInput.m_bModifyLinkWeights = 1;
-      pInput.m_pStartPos = &_R14->m_CurSnappedPos;
-      bfx::AreaHandle::operator=(&pInput.m_hStartArea, &_R14->m_hCurArea);
-      pInput.m_pGoalPos = goalPos;
-      pInput.m_pPathSpec = (bfx::PathSpec *)v41;
-      *(_WORD *)&pInput.m_bSnapPoints = 0;
-      pInput.m_bModifyLinkWeights = 0;
-      AINavigator2D::FindPath(_R14, &result, &pInput);
-      if ( bfx::PolylinePathRCPtr::IsValid(&result) )
-      {
-        v16 = bfx::PolylinePathRCPtr::GetNumSegments(&result) - 1;
-        if ( v16 >= 0 )
+        while ( v12 )
         {
-          while ( v16 )
+          SegmentType = bfx::PolylinePathRCPtr::GetSegmentType(&result, v12);
+          if ( SegmentType )
           {
-            SegmentType = bfx::PolylinePathRCPtr::GetSegmentType(&result, v16);
-            if ( SegmentType )
+            if ( SegmentType != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3751, ASSERT_TYPE_ASSERT, "( segType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segType == bfx::LINK_SEGMENT") )
+              __debugbreak();
+            LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment(&result, v12);
+            if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3753, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
+              __debugbreak();
+            StartPos = bfx::LinkSegment::GetStartPos(LinkSegment);
+            m_z = StartPos->m_z;
+            m_y = StartPos->m_y;
+            v26.v[0] = StartPos->m_x;
+            v26.v[1] = m_y;
+            v26.v[2] = m_z;
+            if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &v26, Instance, CollisionQueryResult) )
             {
-              if ( SegmentType != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3751, ASSERT_TYPE_ASSERT, "( segType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segType == bfx::LINK_SEGMENT") )
-                __debugbreak();
-              LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment(&result, v16);
-              if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3753, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
-                __debugbreak();
-              _RAX = bfx::LinkSegment::GetStartPos(LinkSegment);
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rax+8]
-                vmovss  xmm1, dword ptr [rax+4]
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+50h+var_B8], xmm0
-                vmovss  dword ptr [rbp+50h+var_B8+4], xmm1
-                vmovss  dword ptr [rbp+50h+var_B8+8], xmm2
-              }
-              if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &v40, Instance, CollisionQueryResult) )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+50h+var_B8]
-                  vmovss  dword ptr [rdi], xmm0
-                  vmovss  xmm1, dword ptr [rbp+50h+var_B8+4]
-                  vmovss  dword ptr [rdi+4], xmm1
-                  vmovss  xmm0, dword ptr [rbp+50h+var_B8+8]
-                  vmovss  dword ptr [rdi+8], xmm0
-                }
-                goto LABEL_29;
-              }
-            }
-            else
-            {
-              SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, v16);
-              if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3739, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
-                __debugbreak();
-              _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rax+8]
-                vmovss  xmm1, dword ptr [rax+4]
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+50h+pos], xmm0
-                vmovss  dword ptr [rbp+50h+pos+4], xmm1
-                vmovss  dword ptr [rbp+50h+pos+8], xmm2
-              }
-              if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &pos, Instance, CollisionQueryResult) )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+50h+pos]
-                  vmovss  dword ptr [rdi], xmm0
-                  vmovss  xmm1, dword ptr [rbp+50h+pos+4]
-                  vmovss  dword ptr [rdi+4], xmm1
-                  vmovss  xmm0, dword ptr [rbp+50h+pos+8]
-                  vmovss  dword ptr [rdi+8], xmm0
-                }
-                goto LABEL_29;
-              }
-            }
-            if ( --v16 < 0 )
+              *outPoint = v26;
               goto LABEL_29;
+            }
           }
-          _RDI->v[0] = *_R12;
-          __asm
+          else
           {
-            vmovss  xmm0, dword ptr [r12+4]
-            vmovss  dword ptr [rdi+4], xmm0
-            vmovss  xmm1, dword ptr [r12+8]
-            vmovss  dword ptr [rdi+8], xmm1
+            SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, v12);
+            if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 3739, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
+              __debugbreak();
+            v15 = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+            v16 = v15->m_z;
+            v17 = v15->m_y;
+            pos.v[0] = v15->m_x;
+            pos.v[1] = v17;
+            pos.v[2] = v16;
+            if ( IsPointInRegion_0(PHYSICS_WORLD_ID_FIRST, &pos, Instance, CollisionQueryResult) )
+            {
+              *outPoint = pos;
+              goto LABEL_29;
+            }
           }
+          if ( --v12 < 0 )
+            goto LABEL_29;
         }
+        outPoint->v[0] = this->m_CurSnappedPos.v[0];
+        outPoint->v[1] = this->m_CurSnappedPos.v[1];
+        outPoint->v[2] = this->m_CurSnappedPos.v[2];
+      }
 LABEL_29:
-        Physics_FreeCollisionQueryResult(CollisionQueryResult);
-        Sys_ProfEndNamedEvent();
-        v15 = 1;
-      }
-      else
-      {
-        Physics_FreeCollisionQueryResult(CollisionQueryResult);
-        Sys_ProfEndNamedEvent();
-        v15 = 0;
-      }
-      bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&result);
-      bfx::AreaHandle::~AreaHandle(&pInput.m_hGoalArea);
-      bfx::AreaHandle::~AreaHandle(&pInput.m_hStartArea);
-      return v15;
+      Physics_FreeCollisionQueryResult(CollisionQueryResult);
+      Sys_ProfEndNamedEvent();
+      v11 = 1;
     }
     else
     {
       Physics_FreeCollisionQueryResult(CollisionQueryResult);
       Sys_ProfEndNamedEvent();
-      return 0;
+      v11 = 0;
     }
+    bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&result);
+    bfx::AreaHandle::~AreaHandle(&pInput.m_hGoalArea);
+    bfx::AreaHandle::~AreaHandle(&pInput.m_hStartArea);
+    return v11;
+  }
+  else
+  {
+    Physics_FreeCollisionQueryResult(CollisionQueryResult);
+    Sys_ProfEndNamedEvent();
+    return 0;
   }
 }
 
@@ -4188,118 +3637,102 @@ AINavigator2D::FindLastTacPointOnPathWithVis
 const tacpoint_t *AINavigator2D::FindLastTacPointOnPathWithVis(AINavigator2D *this, const vec3_t *startPos, const tacpoint_t *pTacPoint, const vec3_t *goalPos, vec3_t *outCornerPos)
 {
   AINavLayer m_Layer; 
+  bfx::AreaHandle *v10; 
   bfx::AreaHandle *v11; 
   bfx::AreaHandle *v12; 
-  bfx::AreaHandle *v13; 
   int FirstNCornersOnPath; 
-  __int64 v15; 
-  const dvar_t *v16; 
-  int v17; 
+  __int64 v14; 
+  const dvar_t *v15; 
+  int v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
+  float *v19; 
   const tacpoint_t *ClosestPoint; 
-  const dvar_t *v26; 
+  const dvar_t *v21; 
   vec3_t *p_start; 
   bool HasVis; 
-  const vec4_t *v29; 
-  const tacpoint_t *result; 
+  const vec4_t *v24; 
   bfx::AreaHandle pOutArea; 
   bfx::AreaHandle rhs; 
-  __int64 v38; 
-  bfx::AreaHandle *v39; 
-  bfx::AreaHandle v40; 
-  bfx::AreaHandle v41; 
+  __int64 v28; 
+  bfx::AreaHandle *v29; 
+  bfx::AreaHandle v30; 
+  bfx::AreaHandle v31; 
   vec3_t pos; 
   vec3_t start; 
   vec3_t outUp; 
   vec3_t end[5]; 
 
-  v38 = -2i64;
-  __asm { vmovaps [rsp+170h+var_50], xmm6 }
+  v28 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "FindLastTacPointOnPathWithVis");
   bfx::AreaHandle::AreaHandle(&rhs);
   bfx::AreaHandle::AreaHandle(&pOutArea);
   Nav_GetSpaceUp(this->m_pSpace, &outUp);
   Nav_GetClosestVerticalPosWithHint(startPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &this->m_BasePathSpec, &start, &this->m_hCurArea, &pOutArea);
   m_Layer = this->m_Layer;
-  v39 = &v40;
-  bfx::AreaHandle::AreaHandle(&v40, &rhs);
-  v12 = v11;
-  bfx::AreaHandle::AreaHandle(&v41, &pOutArea);
-  FirstNCornersOnPath = Nav_FindFirstNCornersOnPath(this->m_pSpace, &start, v13, goalPos, v12, m_Layer, &this->m_BasePathSpec, 5, end);
-  v15 = FirstNCornersOnPath;
+  v29 = &v30;
+  bfx::AreaHandle::AreaHandle(&v30, &rhs);
+  v11 = v10;
+  bfx::AreaHandle::AreaHandle(&v31, &pOutArea);
+  FirstNCornersOnPath = Nav_FindFirstNCornersOnPath(this->m_pSpace, &start, v12, goalPos, v11, m_Layer, &this->m_BasePathSpec, 5, end);
+  v14 = FirstNCornersOnPath;
   if ( FirstNCornersOnPath > 0 )
   {
-    v16 = DVARBOOL_ai_debugLikelyEnemyAngles;
+    v15 = DVARBOOL_ai_debugLikelyEnemyAngles;
     if ( !DVARBOOL_ai_debugLikelyEnemyAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugLikelyEnemyAngles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    if ( v16->current.enabled )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled )
     {
       G_DebugLineWithDuration(&start, &pTacPoint->m_Pos, &colorLtOrange, 0, 40);
       TacGraph_DebugDraw_Point(pTacPoint, &colorYellowHeat, 40);
       G_DebugLineWithDuration(&start, goalPos, &colorLtOrange, 0, 40);
     }
-    v17 = 0;
-    v18 = v15;
-    if ( (int)v15 > 0 )
+    v16 = 0;
+    v17 = v14;
+    if ( (int)v14 > 0 )
     {
-      v19 = 0i64;
-      _RSI = &end[0].v[2];
-      __asm { vmovss  xmm6, cs:__real@41f00000 }
+      v18 = 0i64;
+      v19 = &end[0].v[2];
       do
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi-8]
-          vmovss  dword ptr [rbp+70h+pos], xmm0
-          vmovss  xmm1, dword ptr [rsi-4]
-          vmovss  dword ptr [rbp+70h+pos+4], xmm1
-          vaddss  xmm2, xmm6, dword ptr [rsi]
-          vmovss  dword ptr [rbp+70h+pos+8], xmm2
-        }
+        *(_QWORD *)pos.v = *((_QWORD *)v19 - 1);
+        pos.v[2] = *v19 + 30.0;
         ClosestPoint = TacGraph_FindClosestPoint(&pos);
-        v26 = DVARBOOL_ai_debugLikelyEnemyAngles;
+        v21 = DVARBOOL_ai_debugLikelyEnemyAngles;
         if ( !DVARBOOL_ai_debugLikelyEnemyAngles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugLikelyEnemyAngles") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v26);
-        if ( v26->current.enabled )
+        Dvar_CheckFrontendServerThread(v21);
+        if ( v21->current.enabled )
         {
-          if ( v17 )
-            p_start = &end[v17 - 1];
+          if ( v16 )
+            p_start = &end[v16 - 1];
           else
             p_start = &start;
-          G_DebugLineWithDuration(p_start, &end[v17], &colorLtPurple, 0, 40);
+          G_DebugLineWithDuration(p_start, &end[v16], &colorLtPurple, 0, 40);
           if ( !ClosestPoint )
             goto LABEL_22;
           HasVis = TacVisGraph_HasVis(pTacPoint, ClosestPoint);
-          v29 = &colorLtRed;
+          v24 = &colorLtRed;
           if ( HasVis )
-            v29 = &colorLtGreen;
-          TacGraph_DebugDraw_Point(ClosestPoint, v29, 40);
-          G_DebugLineWithDuration(&end[v17], &ClosestPoint->m_Pos, &colorLtYellow, 0, 40);
+            v24 = &colorLtGreen;
+          TacGraph_DebugDraw_Point(ClosestPoint, v24, 40);
+          G_DebugLineWithDuration(&end[v16], &ClosestPoint->m_Pos, &colorLtYellow, 0, 40);
         }
         if ( ClosestPoint && TacVisGraph_HasVis(pTacPoint, ClosestPoint) )
         {
-          _RCX = 3i64 * v17;
-          _RDX = outCornerPos;
-          outCornerPos->v[0] = end[v17].v[0];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+rcx*4+70h+end+4]
-            vmovss  dword ptr [rdx+4], xmm0
-            vmovss  xmm1, dword ptr [rbp+rcx*4+70h+end+8]
-            vmovss  dword ptr [rdx+8], xmm1
-          }
+          outCornerPos->v[0] = end[v16].v[0];
+          outCornerPos->v[1] = end[v16].v[1];
+          outCornerPos->v[2] = end[v16].v[2];
           Sys_ProfEndNamedEvent();
           goto LABEL_24;
         }
 LABEL_22:
-        ++v17;
-        ++v19;
-        _RSI += 3;
+        ++v16;
+        ++v18;
+        v19 += 3;
       }
-      while ( v19 < v18 );
+      while ( v18 < v17 );
     }
   }
   Sys_ProfEndNamedEvent();
@@ -4307,9 +3740,7 @@ LABEL_22:
 LABEL_24:
   bfx::AreaHandle::~AreaHandle(&pOutArea);
   bfx::AreaHandle::~AreaHandle(&rhs);
-  result = ClosestPoint;
-  __asm { vmovaps xmm6, [rsp+170h+var_50] }
-  return result;
+  return ClosestPoint;
 }
 
 /*
@@ -4320,41 +3751,40 @@ AINavigator2D::FindPath
 bfx::PolylinePathRCPtr *AINavigator2D::FindPath(AINavigator2D *this, bfx::PolylinePathRCPtr *result, nav_pathfind_input_t *pInput)
 {
   char *Value; 
-  int *v9; 
-  _QWORD *v10; 
-  char *v11; 
-  __int64 v12; 
-  unsigned __int64 v13; 
+  int *v7; 
+  _QWORD *v8; 
+  char *v9; 
+  __int64 v10; 
+  unsigned __int64 v11; 
   ThreadContext CurrentThreadContext; 
+  const vec3_t *m_pStartPos; 
+  bfx::Vector3 *m_pGoalPos; 
   bfx::PathSpec *m_pPathSpec; 
-  bool v24; 
-  char *v32; 
-  char *v33; 
+  float v16; 
+  float v17; 
+  const char *v18; 
+  const char *v19; 
   const bfx::AreaHandle *ClosestArea; 
-  int v37; 
-  const bfx::PolylinePathRCPtr *v38; 
-  int v39; 
-  const char *v40; 
-  const char *v41; 
-  const char *v42; 
-  char v55; 
-  bfx::PolylinePathRCPtr *v56; 
+  int v21; 
+  const bfx::PolylinePathRCPtr *v22; 
+  int v23; 
+  const char *v24; 
+  const char *v25; 
+  const char *v26; 
+  const vec3_t *v27; 
   vec3_t *outClosestPos; 
   bfx::AreaHandle *hHintArea; 
   bfx::AreaHandle pOutArea; 
   bfx::Vector3 pos; 
   bfx::Vector3 goalPos; 
-  __int64 v63; 
-  bfx::PolylinePathRCPtr *v64; 
+  __int64 v34; 
+  bfx::PolylinePathRCPtr *v35; 
   bfx::AreaHandle resulta; 
   vec3_t outUp; 
-  vec3_t v67; 
-  void *retaddr; 
+  vec3_t v38; 
 
-  _RAX = &retaddr;
-  v63 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v64 = result;
+  v34 = -2i64;
+  v35 = result;
   if ( !pInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1111, ASSERT_TYPE_ASSERT, "( pInput )", (const char *)&queryFormat, "pInput") )
     __debugbreak();
   if ( !pInput->m_pStartPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1112, ASSERT_TYPE_ASSERT, "( pInput->m_pStartPos )", (const char *)&queryFormat, "pInput->m_pStartPos") )
@@ -4362,33 +3792,33 @@ bfx::PolylinePathRCPtr *AINavigator2D::FindPath(AINavigator2D *this, bfx::Polyli
   if ( !pInput->m_pGoalPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1113, ASSERT_TYPE_ASSERT, "( pInput->m_pGoalPos )", (const char *)&queryFormat, "pInput->m_pGoalPos") )
     __debugbreak();
   Value = (char *)Sys_GetValue(0);
-  v9 = (int *)(Value + 12656);
+  v7 = (int *)(Value + 12656);
   if ( (unsigned int)(*((_DWORD *)Value + 3164) + 1) >= 3 )
   {
     LODWORD(outClosestPos) = *((_DWORD *)Value + 3164) + 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outClosestPos, 3) )
       __debugbreak();
   }
-  if ( (unsigned int)++*v9 >= 3 )
+  if ( (unsigned int)++*v7 >= 3 )
   {
     LODWORD(hHintArea) = 3;
-    LODWORD(outClosestPos) = *v9;
+    LODWORD(outClosestPos) = *v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outClosestPos, hHintArea) )
       __debugbreak();
   }
-  v10 = Value + 2088;
-  v11 = Value + 40;
-  if ( *v10 < (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v8 = Value + 2088;
+  v9 = Value + 40;
+  if ( *v8 < (unsigned __int64)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v10 += 8i64;
-  if ( *v10 >= (unsigned __int64)v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v8 += 8i64;
+  if ( *v8 >= (unsigned __int64)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v10 = v9;
-  if ( *v10 <= (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v8 = v7;
+  if ( *v8 <= (unsigned __int64)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v12 = *v9;
-  v13 = __rdtsc();
-  v9[v12 + 2] = v13;
+  v10 = *v7;
+  v11 = __rdtsc();
+  v7[v10 + 2] = v11;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
@@ -4396,54 +3826,23 @@ bfx::PolylinePathRCPtr *AINavigator2D::FindPath(AINavigator2D *this, bfx::Polyli
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 264, NULL, 0);
   bfx::AreaHandle::AreaHandle(&pOutArea);
   AINavigator::GetUpVector(this, &outUp);
-  _RAX = pInput->m_pStartPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  [rbp+57h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  [rbp+57h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rax+8]
-    vmovss  [rbp+57h+pos.m_z], xmm0
-  }
-  _RCX = pInput->m_pGoalPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rbp+57h+goalPos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  [rbp+57h+goalPos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rbp+57h+goalPos.m_z], xmm0
-  }
+  m_pStartPos = pInput->m_pStartPos;
+  pos = (bfx::Vector3)*pInput->m_pStartPos;
+  m_pGoalPos = (bfx::Vector3 *)pInput->m_pGoalPos;
+  goalPos = *m_pGoalPos;
   m_pPathSpec = pInput->m_pPathSpec;
-  v24 = m_pPathSpec == NULL;
   if ( !m_pPathSpec )
     m_pPathSpec = &this->m_BasePathSpec;
-  __asm
+  v16 = m_pGoalPos->m_y - m_pStartPos->v[1];
+  v17 = (float)(v16 * v16) + (float)((float)(m_pGoalPos->m_x - m_pStartPos->v[0]) * (float)(m_pGoalPos->m_x - m_pStartPos->v[0]));
+  if ( v17 > 6250000.0 )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vsubss  xmm4, xmm0, dword ptr [rax]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm6, xmm3, xmm0
-    vcomiss xmm6, cs:__real@4abebc20
-  }
-  if ( !v24 )
-  {
-    v32 = vtos(_RCX);
-    v33 = vtos(pInput->m_pStartPos);
-    __asm
-    {
-      vsqrtss xmm0, xmm6, xmm6
-      vcvttss2si r9d, xmm0
-    }
-    Com_PrintWarning(18, "AI %d requested very long path (%i units) from %s to %s.\n", (unsigned int)this->m_pEnt->s.number, _R9, v33, v32);
+    v18 = vtos((const vec3_t *)m_pGoalPos);
+    v19 = vtos(pInput->m_pStartPos);
+    Com_PrintWarning(18, "AI %d requested very long path (%i units) from %s to %s.\n", (unsigned int)this->m_pEnt->s.number, (unsigned int)(int)fsqrt(v17), v19, v18);
   }
   if ( pInput->m_bSnapPoints )
-    Nav_GetClosestVerticalPosWithHint(pInput->m_pStartPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, m_pPathSpec, &v67, &this->m_hCurArea, &pOutArea);
+    Nav_GetClosestVerticalPosWithHint(pInput->m_pStartPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, m_pPathSpec, &v38, &this->m_hCurArea, &pOutArea);
   if ( bfx::AreaHandle::IsValid(&pInput->m_hStartArea) )
   {
     bfx::AreaHandle::operator=(&pOutArea, &pInput->m_hStartArea);
@@ -4460,48 +3859,31 @@ bfx::PolylinePathRCPtr *AINavigator2D::FindPath(AINavigator2D *this, bfx::Polyli
   Nav_UpdateLinkWeights();
   if ( bfx::AreaHandle::IsValid(&pInput->m_hStartArea) )
   {
-    v37 = Sys_Milliseconds();
-    v38 = bfx::CreatePolylinePath((bfx::PolylinePathRCPtr *)&resulta, &pOutArea, &pos, &goalPos, m_pPathSpec, &bfx::g_defaultPathCreationOptions);
-    bfx::PolylinePathRCPtr::operator=(result, v38);
+    v21 = Sys_Milliseconds();
+    v22 = bfx::CreatePolylinePath((bfx::PolylinePathRCPtr *)&resulta, &pOutArea, &pos, &goalPos, m_pPathSpec, &bfx::g_defaultPathCreationOptions);
+    bfx::PolylinePathRCPtr::operator=(result, v22);
     bfx::PolylinePathRCPtr::~PolylinePathRCPtr((bfx::PolylinePathRCPtr *)&resulta);
-    v39 = Sys_Milliseconds() - v37;
-    if ( v39 > 5 )
+    v23 = Sys_Milliseconds() - v21;
+    if ( v23 > 5 )
     {
-      v40 = "failed";
+      v24 = "failed";
       if ( bfx::PolylinePathRCPtr::IsValid(result) )
-        v40 = "succeeded";
-      v41 = vtos(pInput->m_pGoalPos);
-      v42 = vtos(pInput->m_pStartPos);
-      Com_PrintWarning(18, "AI %d: Long path find (%d ms): from %s to %s. (%s)\n", (unsigned int)this->m_pEnt->s.number, (unsigned int)v39, v42, v41, v40);
+        v24 = "succeeded";
+      v25 = vtos(pInput->m_pGoalPos);
+      v26 = vtos(pInput->m_pStartPos);
+      Com_PrintWarning(18, "AI %d: Long path find (%d ms): from %s to %s. (%s)\n", (unsigned int)this->m_pEnt->s.number, (unsigned int)v23, v26, v25, v24);
     }
   }
   if ( pInput->m_bPathMustReachGoal && bfx::PolylinePathRCPtr::IsValid(result) )
   {
     AINavigator2D::GetFinalPathPoint(this, result, (vec3_t *)&resulta);
-    _RAX = pInput->m_pGoalPos;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm3, xmm0, dword ptr [rbp+57h+result.m_handleImpl]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm2, xmm1, dword ptr [rbp+57h+result.m_handleImpl+4]
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+57h+result.m_pSpace]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@3f800000
-    }
-    if ( !(v55 | v24) )
+    v27 = pInput->m_pGoalPos;
+    if ( (float)((float)((float)((float)(v27->v[1] - *((float *)&resulta.m_handleImpl + 1)) * (float)(v27->v[1] - *((float *)&resulta.m_handleImpl + 1))) + (float)((float)(v27->v[0] - *(float *)&resulta.m_handleImpl) * (float)(v27->v[0] - *(float *)&resulta.m_handleImpl))) + (float)((float)(v27->v[2] - *(float *)&resulta.m_pSpace) * (float)(v27->v[2] - *(float *)&resulta.m_pSpace))) > 1.0 )
       bfx::PolylinePathRCPtr::Release(result);
   }
   Profile_EndInternal(NULL);
   bfx::AreaHandle::~AreaHandle(&pOutArea);
-  v56 = result;
-  __asm { vmovaps xmm6, xmmword ptr [rsp+100h+var_48+8] }
-  return v56;
+  return result;
 }
 
 /*
@@ -4646,38 +4028,19 @@ void AINavigator2D::GeneratePath(AINavigator2D *this, const bfx::PolylinePathRCP
 {
   int m_NumPoints; 
   __int64 v10; 
-  bool v11; 
-  __int64 v12; 
+  nav_path_t::pathpoint_t *i; 
 
   pPath2D->m_pSpace = this->m_pSpace;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "GeneratePath");
   AINavigator2D::ExtractCornersFromRawPath(this, path, pPath2D, 20, pathSpec, pbOutHasDoors);
   Sys_ProfEndNamedEvent();
   m_NumPoints = pPath2D->m_NumPoints;
-  v10 = m_NumPoints - 1;
   if ( m_NumPoints - 1 > 0 )
   {
-    v11 = 1;
-    v12 = 0i64;
-    for ( _RAX = &pPath2D->m_Points[1]; ; ++_RAX )
+    v10 = 0i64;
+    for ( i = &pPath2D->m_Points[1]; i->m_LocalPos.v[0] != i[-1].m_LocalPos.v[0] || i->m_LocalPos.v[1] != i[-1].m_LocalPos.v[1]; ++i )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vucomiss xmm0, dword ptr [rax-30h]
-      }
-      if ( v11 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+4]
-          vucomiss xmm0, dword ptr [rax-2Ch]
-        }
-        if ( v11 )
-          break;
-      }
-      v11 = ++v12 == v10;
-      if ( v12 >= v10 )
+      if ( ++v10 >= m_NumPoints - 1 )
         return;
     }
     Nav_PrintPath("Path Points:", pPath2D->m_Points, m_NumPoints);
@@ -4691,8 +4054,7 @@ AINavigator2D::GetAllowanceOffMesh
 */
 float AINavigator2D::GetAllowanceOffMesh()
 {
-  __asm { vmovss  xmm0, cs:__real@41400000 }
-  return *(float *)&_XMM0;
+  return FLOAT_12_0;
 }
 
 /*
@@ -4702,8 +4064,7 @@ AINavigator2D::GetAllowanceOffMeshZ
 */
 float AINavigator2D::GetAllowanceOffMeshZ()
 {
-  __asm { vmovss  xmm0, cs:__real@42900000 }
-  return *(float *)&_XMM0;
+  return FLOAT_72_0;
 }
 
 /*
@@ -4772,32 +4133,15 @@ AINavigator2D::GetClosestReachablePoint
 void AINavigator2D::GetClosestReachablePoint(AINavigator2D *this, const vec3_t *pos, vec3_t *closestPos)
 {
   bfx::Vector3 posa; 
-  bfx::Vector3 v11; 
+  bfx::Vector3 v5; 
   bfx::AreaHandle result; 
-  __int64 v13; 
+  __int64 v7; 
 
-  v13 = -2i64;
-  _RBX = closestPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  [rsp+68h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  [rsp+68h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+68h+pos.m_z], xmm0
-  }
+  v7 = -2i64;
+  posa = (bfx::Vector3)*pos;
   bfx::GetClosestReachableArea(&result, &posa, &this->m_hCurArea, &this->m_BasePathSpec);
-  bfx::AreaHandle::GetClosestPosInArea(&result, &v11, &posa, NULL);
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+var_38.m_x]
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, [rsp+68h+var_38.m_y]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovss  xmm0, [rsp+68h+var_38.m_z]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  bfx::AreaHandle::GetClosestPosInArea(&result, &v5, &posa, NULL);
+  *(bfx::Vector3 *)closestPos = v5;
   bfx::AreaHandle::~AreaHandle(&result);
 }
 
@@ -4808,21 +4152,14 @@ AINavigator2D::GetClosestVerticalPosInMostLikelySpace
 */
 nav_space_s *AINavigator2D::GetClosestVerticalPosInMostLikelySpace(AINavigator2D *this, const vec3_t *pos, vec3_t *outClosestPos, bfx::AreaHandle *pOutArea)
 {
-  _RAX = this->m_pEnt;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+100h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm2, xmm0, dword ptr [rax+10Ch]
-    vmovss  xmm0, dword ptr [rax+104h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm1, xmm0, dword ptr [rax+110h]
-    vmulss  xmm1, xmm1, xmm1
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm1, xmm1, xmm0
-    vsqrtss xmm2, xmm1, xmm1; radius
-  }
-  return Nav_GetClosestVerticalPosInMostLikelySpace(pos, this->m_Layer, *(float *)&_XMM2, &this->m_BasePathSpec, outClosestPos, pOutArea);
+  gentity_s *m_pEnt; 
+  float v5; 
+  float v6; 
+
+  m_pEnt = this->m_pEnt;
+  v5 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[0]) & _xmm) + m_pEnt->r.box.halfSize.v[0];
+  v6 = COERCE_FLOAT(LODWORD(m_pEnt->r.box.midPoint.v[1]) & _xmm) + m_pEnt->r.box.halfSize.v[1];
+  return Nav_GetClosestVerticalPosInMostLikelySpace(pos, this->m_Layer, fsqrt((float)(v6 * v6) + (float)(v5 * v5)), &this->m_BasePathSpec, outClosestPos, pOutArea);
 }
 
 /*
@@ -4835,7 +4172,6 @@ float AINavigator2D::GetCornerCurrentAngle(AINavigator2D *this, int cornerIndex)
   __int64 v3; 
   int m_NumPoints; 
 
-  _RDI = this;
   v3 = cornerIndex;
   if ( (unsigned int)cornerIndex >= this->m_Path.m_NumPoints )
   {
@@ -4843,9 +4179,7 @@ float AINavigator2D::GetCornerCurrentAngle(AINavigator2D *this, int cornerIndex)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4365, ASSERT_TYPE_ASSERT, "(unsigned)( cornerIndex ) < (unsigned)( m_Path.m_NumPoints )", "cornerIndex doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", cornerIndex, m_NumPoints) )
       __debugbreak();
   }
-  _RCX = 6 * v3;
-  __asm { vmovss  xmm0, dword ptr [rdi+rcx*8+0E0h] }
-  return *(float *)&_XMM0;
+  return this->m_Path.m_Points[v3].m_CornerAngle;
 }
 
 /*
@@ -4865,67 +4199,49 @@ nav_path_t::GetDir
 */
 void nav_path_t::GetDir(nav_path_t *this, int iPoint, vec3_t *outDir)
 {
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  __int128 v11; 
   vec3_t outPoint; 
   vec3_t outWorldPos; 
-  vec3_t v35; 
+  vec3_t v17; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  _RSI = outDir;
   if ( this->m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4341, ASSERT_TYPE_ASSERT, "( m_NumPoints > 0 )", (const char *)&queryFormat, "m_NumPoints > 0") )
     __debugbreak();
   nav_path_t::GetPathPoint(this, iPoint, &outPoint);
   if ( iPoint )
   {
-    nav_path_t::GetPathPoint(this, iPoint - 1, &v35);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+outPoint+8]
-      vsubss  xmm2, xmm0, dword ptr [rsp+98h+var_48+8]
-      vmovss  xmm0, dword ptr [rsp+98h+outPoint]
-      vmovss  xmm1, dword ptr [rsp+98h+outPoint+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+98h+var_48]
-      vsubss  xmm3, xmm1, dword ptr [rsp+98h+var_48+4]
-    }
+    nav_path_t::GetPathPoint(this, iPoint - 1, &v17);
+    v6 = outPoint.v[2] - v17.v[2];
+    v7 = outPoint.v[0] - v17.v[0];
+    v8 = outPoint.v[1] - v17.v[1];
   }
   else
   {
     Nav_SpaceConvertLocalToWorld(this->m_pSpace, &this->m_LocalStartPoint, &outWorldPos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+outPoint+8]
-      vsubss  xmm2, xmm0, dword ptr [rsp+98h+outWorldPos+8]
-      vmovss  xmm0, dword ptr [rsp+98h+outPoint]
-      vmovss  xmm1, dword ptr [rsp+98h+outPoint+4]
-      vsubss  xmm4, xmm0, dword ptr [rsp+98h+outWorldPos]
-      vsubss  xmm3, xmm1, dword ptr [rsp+98h+outWorldPos+4]
-    }
+    v6 = outPoint.v[2] - outWorldPos.v[2];
+    v7 = outPoint.v[0] - outWorldPos.v[0];
+    v8 = outPoint.v[1] - outWorldPos.v[1];
   }
+  outDir->v[0] = v7;
+  outDir->v[1] = v8;
+  outDir->v[2] = v6;
+  v9 = outDir->v[1];
+  v10 = LODWORD(outDir->v[0]);
+  v11 = v10;
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v9 * v9)) + (float)(v6 * v6));
+  _XMM3 = v11;
   __asm
   {
-    vmovss  dword ptr [rsi], xmm4
-    vmovss  dword ptr [rsi+4], xmm3
-    vmovss  dword ptr [rsi+8], xmm2
-    vmovss  xmm6, dword ptr [rsi+4]
-    vmovss  xmm4, dword ptr [rsi]
-    vmovaps xmm5, xmm2
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsi], xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsi+8], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-    vmovaps xmm6, [rsp+98h+var_28]
   }
+  outDir->v[0] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  outDir->v[2] = v6 * (float)(1.0 / *(float *)&_XMM0);
+  outDir->v[1] = v9 * (float)(1.0 / *(float *)&_XMM0);
 }
 
 /*
@@ -4950,9 +4266,11 @@ void AINavigator2D::GetFinalPathPoint(AINavigator2D *this, const bfx::PolylinePa
   int v5; 
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
+  const bfx::Vector3 *EndPos; 
   bfx::LinkSegment *LinkSegment; 
+  float m_y; 
+  float m_z; 
 
-  _RSI = outPoint;
   if ( !bfx::PolylinePathRCPtr::IsValid((bfx::PolylinePathRCPtr *)path) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2029, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   v5 = bfx::PolylinePathRCPtr::GetNumSegments((bfx::PolylinePathRCPtr *)path) - 1;
@@ -4964,24 +4282,20 @@ void AINavigator2D::GetFinalPathPoint(AINavigator2D *this, const bfx::PolylinePa
     LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment((bfx::PolylinePathRCPtr *)path, v5);
     if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2044, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
       __debugbreak();
-    _RAX = bfx::LinkSegment::GetEndPos(LinkSegment);
+    EndPos = bfx::LinkSegment::GetEndPos(LinkSegment);
   }
   else
   {
     SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment((bfx::PolylinePathRCPtr *)path, v5);
     if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2037, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
       __debugbreak();
-    _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+    EndPos = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm2, dword ptr [rax+4]
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsi+4], xmm2
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  m_y = EndPos->m_y;
+  m_z = EndPos->m_z;
+  outPoint->v[0] = EndPos->m_x;
+  outPoint->v[1] = m_y;
+  outPoint->v[2] = m_z;
 }
 
 /*
@@ -5050,245 +4364,118 @@ void AINavigator2D::GetGoalOrLink(AINavigator2D *this, vec3_t *outPos)
 AINavigator2D::GetLastPathPointWithinRadius
 ==============
 */
-
-bool __fastcall AINavigator2D::GetLastPathPointWithinRadius(AINavigator2D *this, const vec3_t *origin, double radius, vec3_t *outPoint)
+bool AINavigator2D::GetLastPathPointWithinRadius(AINavigator2D *this, const vec3_t *origin, float radius, vec3_t *outPoint)
 {
+  float v7; 
   __int64 m_CurPathPoint; 
-  unsigned __int64 m_NumPoints; 
-  signed int v20; 
-  unsigned __int64 v24; 
-  bool v25; 
-  __int64 p_z; 
-  int v35; 
-  __int64 v47; 
+  __int64 m_NumPoints; 
+  int v10; 
+  __int64 v11; 
+  float *v12; 
+  int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
   bool result; 
-  bool v50; 
-  bool v51; 
-  bool v89; 
-  double v113; 
-  double v114; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
   vec3_t outLocalPos; 
-  char v121; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RDI = outPoint;
-  _RBX = this;
   if ( this->m_Path.m_NumPoints <= 0 )
-    goto LABEL_24;
-  __asm { vmulss  xmm7, xmm2, xmm2 }
+    return 0;
+  v7 = radius * radius;
   Nav_SpaceConvertWorldToLocal(this->m_Path.m_pSpace, origin, &outLocalPos);
-  m_CurPathPoint = _RBX->m_CurPathPoint;
-  m_NumPoints = _RBX->m_Path.m_NumPoints;
-  v20 = m_CurPathPoint;
+  m_CurPathPoint = this->m_CurPathPoint;
+  m_NumPoints = this->m_Path.m_NumPoints;
+  v10 = m_CurPathPoint;
   if ( (int)m_CurPathPoint >= (int)m_NumPoints )
   {
 LABEL_6:
-    v35 = m_NumPoints - 1;
+    v13 = m_NumPoints - 1;
 LABEL_12:
-    nav_path_t::GetPathPoint(&_RBX->m_Path, v35, _RDI);
-    result = 1;
-    goto LABEL_25;
+    nav_path_t::GetPathPoint(&this->m_Path, v13, outPoint);
+    return 1;
   }
-  __asm
+  v11 = this->m_CurPathPoint;
+  v12 = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+  while ( (float)((float)((float)((float)(outLocalPos.v[1] - *(v12 - 1)) * (float)(outLocalPos.v[1] - *(v12 - 1))) + (float)((float)(outLocalPos.v[0] - *(v12 - 2)) * (float)(outLocalPos.v[0] - *(v12 - 2)))) + (float)((float)(outLocalPos.v[2] - *v12) * (float)(outLocalPos.v[2] - *v12))) <= v7 )
   {
-    vmovss  xmm4, dword ptr [rsp+118h+outLocalPos+8]
-    vmovss  xmm5, dword ptr [rsp+118h+outLocalPos+4]
-    vmovss  xmm6, dword ptr [rsp+118h+outLocalPos]
-  }
-  v24 = _RBX->m_CurPathPoint;
-  v25 = __CFSHL__(3 * m_CurPathPoint, 4) || 48 * m_CurPathPoint == 0;
-  p_z = (__int64)&_RBX->m_Path.m_Points[m_CurPathPoint].m_LocalPos.z;
-  while ( 1 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm5, dword ptr [rcx-4]
-      vsubss  xmm2, xmm6, dword ptr [rcx-8]
-      vsubss  xmm3, xmm4, dword ptr [rcx]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, xmm7
-    }
-    if ( !v25 )
-      break;
-    ++v20;
-    ++v24;
-    p_z += 48i64;
-    v25 = v24 <= m_NumPoints;
-    if ( (__int64)v24 >= (__int64)m_NumPoints )
+    ++v10;
+    ++v11;
+    v12 += 12;
+    if ( v11 >= m_NumPoints )
       goto LABEL_6;
   }
-  if ( v20 == (_DWORD)m_CurPathPoint )
+  if ( v10 == (_DWORD)m_CurPathPoint )
   {
-    __asm
+    v14 = this->m_LocalCurSnappedPos.v[1];
+    v15 = this->m_LocalCurSnappedPos.v[0];
+    v16 = this->m_LocalCurSnappedPos.v[2];
+    if ( (float)((float)((float)((float)(outLocalPos.v[1] - v14) * (float)(outLocalPos.v[1] - v14)) + (float)((float)(outLocalPos.v[0] - v15) * (float)(outLocalPos.v[0] - v15))) + (float)((float)(outLocalPos.v[2] - v16) * (float)(outLocalPos.v[2] - v16))) <= v7 )
     {
-      vmovss  xmm9, dword ptr [rbx+58h]
-      vmovss  xmm8, dword ptr [rbx+54h]
-      vmovss  xmm10, dword ptr [rbx+5Ch]
-      vsubss  xmm0, xmm5, xmm9
-      vmulss  xmm1, xmm0, xmm0
-      vsubss  xmm2, xmm6, xmm8
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vsubss  xmm3, xmm4, xmm10
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, xmm7
-    }
-    if ( v20 <= (unsigned int)m_CurPathPoint )
-    {
-      v47 = v20;
+      v17 = v10;
       goto LABEL_14;
     }
-LABEL_24:
-    result = 0;
-    goto LABEL_25;
+    return 0;
   }
-  v47 = v20;
-  if ( (_RBX->m_Path.m_Points[v20].m_Flags & 4) != 0 )
+  v17 = v10;
+  if ( (this->m_Path.m_Points[v10].m_Flags & 4) != 0 )
   {
-    v35 = v20 - 1;
+    v13 = v10 - 1;
     goto LABEL_12;
   }
-  _RAX = 6i64 * v20;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+rax*8+98h]
-    vmovss  xmm9, dword ptr [rbx+rax*8+9Ch]
-    vmovss  xmm10, dword ptr [rbx+rax*8+0A0h]
-  }
+  v15 = *((float *)&this->m_ReevalPathTask.pPrev + 12 * v10);
+  v14 = *((float *)&this->m_ReevalPathTask.pPrev + 12 * v10 + 1);
+  v16 = *(&this->m_DistFromGoalToPathToRequestedGoal + 12 * v10);
 LABEL_14:
-  __asm { vmovaps [rsp+118h+var_78], xmm11 }
-  v50 = __CFSHL__(3 * v47, 4);
-  _RAX = 48 * v47;
-  v51 = v50 || 48 * v47 == 0;
+  v19 = this->m_Path.m_Points[v17].m_LocalPos.v[0] - v15;
+  v21 = LODWORD(this->m_Path.m_Points[v17].m_LocalPos.v[1]);
+  v20 = this->m_Path.m_Points[v17].m_LocalPos.v[1] - v14;
+  v22 = this->m_Path.m_Points[v17].m_LocalPos.v[2] - v16;
+  v23 = v14 - origin->v[1];
+  *(float *)&v21 = fsqrt((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v22 * v22));
+  _XMM11 = v21;
   __asm
   {
-    vmovaps [rsp+118h+var_88], xmm12
-    vmovaps [rsp+118h+var_98], xmm13
-    vmovaps [rsp+118h+var_A8], xmm14
-    vmovss  xmm0, dword ptr [rax+rbx+0C8h]
-    vmovss  xmm1, dword ptr [rax+rbx+0CCh]
-    vsubss  xmm4, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rax+rbx+0D0h]
-    vsubss  xmm5, xmm1, xmm9
-    vsubss  xmm6, xmm0, xmm10
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm3, xmm9, dword ptr [rsi+4]
-    vsqrtss xmm11, xmm2, xmm2
     vcmpless xmm0, xmm11, cs:__real@80000000
     vblendvps xmm0, xmm11, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm14, xmm5, xmm2
-    vsubss  xmm5, xmm8, dword ptr [rsi]
-    vmulss  xmm13, xmm4, xmm2
-    vmulss  xmm1, xmm14, xmm3
-    vmulss  xmm0, xmm13, xmm5
-    vmovaps [rsp+118h+var_B8], xmm15
-    vmulss  xmm15, xmm6, xmm2
-    vsubss  xmm6, xmm10, dword ptr [rsi+8]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm15, xmm6
-    vaddss  xmm12, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm3, xmm3, xmm3
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm2, xmm7
-    vmulss  xmm4, xmm12, xmm12
-    vsubss  xmm6, xmm4, xmm0
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
   }
-  if ( v50 )
+  v27 = v20 * (float)(1.0 / *(float *)&_XMM0);
+  v28 = v15 - origin->v[0];
+  v29 = v19 * (float)(1.0 / *(float *)&_XMM0);
+  v30 = v22 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = v16 - origin->v[2];
+  v32 = (float)((float)(v27 * v23) + (float)(v29 * v28)) + (float)(v30 * v31);
+  v33 = (float)(v32 * v32) - (float)((float)((float)((float)(v23 * v23) + (float)(v28 * v28)) + (float)(v31 * v31)) - v7);
+  if ( v33 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1714, ASSERT_TYPE_ASSERT, "( disc >= 0.f )", (const char *)&queryFormat, "disc >= 0.f") )
+    __debugbreak();
+  v34 = fsqrt(v33);
+  v35 = v34 - v32;
+  if ( (float)(v34 - v32) < 0.0 || (float)(v34 - v32) > *(float *)&_XMM11 )
   {
-    v89 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1714, ASSERT_TYPE_ASSERT, "( disc >= 0.f )", (const char *)&queryFormat, "disc >= 0.f");
-    v50 = 0;
-    v51 = !v89;
-    if ( v89 )
+    v36 = COERCE_FLOAT(LODWORD(v32) ^ _xmm) - v34;
+    v35 = v36;
+    if ( (v36 < 0.0 || v36 > *(float *)&_XMM11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1721, ASSERT_TYPE_ASSERT, "(d >= 0.f && d <= distStartToEnd)", "%s\n\t%f %f", "d >= 0.f && d <= distStartToEnd", v36, *(float *)&_XMM11) )
       __debugbreak();
   }
-  __asm
-  {
-    vsqrtss xmm1, xmm6, xmm6
-    vsubss  xmm6, xmm1, xmm12
-    vcomiss xmm6, xmm7
-  }
-  if ( v50 )
-    goto LABEL_28;
-  __asm { vcomiss xmm6, xmm11 }
-  if ( !v51 )
-  {
-LABEL_28:
-    __asm
-    {
-      vxorps  xmm0, xmm12, cs:__xmm@80000000800000008000000080000000
-      vsubss  xmm6, xmm0, xmm1
-      vcomiss xmm6, xmm7
-    }
-    if ( v50 )
-      goto LABEL_21;
-    __asm { vcomiss xmm6, xmm11 }
-    if ( !v51 )
-    {
-LABEL_21:
-      __asm
-      {
-        vcvtss2sd xmm0, xmm11, xmm11
-        vmovsd  [rsp+118h+var_E0], xmm0
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovsd  [rsp+118h+var_E8], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1721, ASSERT_TYPE_ASSERT, "(d >= 0.f && d <= distStartToEnd)", "%s\n\t%f %f", "d >= 0.f && d <= distStartToEnd", v113, v114) )
-        __debugbreak();
-    }
-  }
-  __asm { vmovaps xmm12, [rsp+118h+var_88] }
   result = 1;
-  __asm
-  {
-    vmovaps xmm11, [rsp+118h+var_78]
-    vmulss  xmm0, xmm13, xmm6
-    vmovaps xmm13, [rsp+118h+var_98]
-    vaddss  xmm1, xmm0, xmm8
-    vmulss  xmm2, xmm14, xmm6
-    vmovaps xmm14, [rsp+118h+var_A8]
-    vaddss  xmm0, xmm2, xmm9
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm1, xmm15, xmm6
-    vmovaps xmm15, [rsp+118h+var_B8]
-    vaddss  xmm2, xmm1, xmm10
-    vmovss  dword ptr [rdi+8], xmm2
-    vmovss  dword ptr [rdi+4], xmm0
-  }
-LABEL_25:
-  _R11 = &v121;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  outPoint->v[0] = (float)(v29 * v35) + v15;
+  outPoint->v[2] = (float)(v30 * v35) + v16;
+  outPoint->v[1] = (float)(v27 * v35) + v14;
   return result;
 }
 
@@ -5324,157 +4511,227 @@ __int64 AINavigator2D::GetLinkUsageFlags(AINavigator2D *this)
 AINavigator2D::GetModifierApproachDir
 ==============
 */
-
-bool __fastcall AINavigator2D::GetModifierApproachDir(AINavigator2D *this, unsigned int flags, double checkDist, double approachDist, vec3_t *outStartPoint, vec3_t *outEndPoint, vec3_t *outApproachDir, vec3_t *outModifierDir)
+char AINavigator2D::GetModifierApproachDir(AINavigator2D *this, unsigned int flags, float checkDist, float approachDist, vec3_t *outStartPoint, vec3_t *outEndPoint, vec3_t *outApproachDir, vec3_t *outModifierDir)
 {
-  bool v20; 
+  AINavigator2D *v8; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
   __int64 m_CurPathPoint; 
-  char v32; 
-  bool v33; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float *p_m_Length; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v25; 
+  __int128 v27; 
+  __int128 v28; 
+  float v29; 
+  int v30; 
+  __int128 v31; 
+  const bfx::PathSpec *pathSpec; 
+  int v35; 
   int NumSegments; 
-  int v61; 
+  char v37; 
+  int v38; 
   bfx::SurfaceSegment *SurfaceSegment; 
   int NumObstacles; 
-  int v64; 
-  __int64 v65; 
-  bool v85; 
-  int v120; 
-  bool v121; 
+  int v41; 
+  __int64 v42; 
+  int NumEdges; 
+  int m_collideEdgeIndex; 
+  __int128 v45; 
+  float v49; 
+  float v50; 
+  __int64 v51; 
+  int v52; 
+  bfx::Vector3 *EdgeStartPos; 
+  float v54; 
+  __int128 m_y_low; 
+  float v56; 
+  bfx::Vector3 *EdgeEndPos; 
+  float v58; 
+  __int128 v59; 
+  __int128 v60; 
+  float v64; 
+  float v65; 
+  __int128 v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v74; 
+  float v75; 
+  float v76; 
+  __int128 v77; 
+  __int128 v78; 
+  __int128 v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  __int64 v83; 
+  int v84; 
+  bool IsValid; 
+  __int128 v86; 
+  __int128 v87; 
+  __int128 v88; 
+  __int128 v89; 
+  __int128 v90; 
+  __int128 v91; 
+  __int128 v92; 
+  char v93; 
+  const bfx::Vector3 *StartPos; 
+  float v95; 
+  float v96; 
+  vec3_t *v97; 
+  const bfx::Vector3 *EndPos; 
+  float v99; 
+  __int128 v100; 
+  float v101; 
+  vec3_t *v102; 
+  __int128 v103; 
+  float v104; 
+  __int128 v105; 
+  float v106; 
+  float v107; 
+  __int64 v109; 
   nav_path_t *p_m_Path; 
-  int v143; 
-  unsigned int v145; 
-  bool v147; 
-  bool v148; 
-  int v168; 
-  int v201; 
-  __int64 v203; 
+  float v111; 
+  float *v112; 
+  float v113; 
+  __int128 v114; 
+  float v115; 
+  int v119; 
+  __int128 v120; 
+  __int128 v121; 
+  int v122; 
+  float v123; 
+  __int128 v124; 
+  float v125; 
+  __int128 v126; 
+  float v130; 
+  __int128 v131; 
+  float v132; 
+  float v133; 
+  int v134; 
+  float v135; 
+  float v136; 
+  vec3_t *v137; 
+  float v138; 
+  __int128 v139; 
+  float v140; 
+  float v144; 
+  float v145; 
+  float v146; 
+  float v149; 
+  const char *v150; 
+  const char *v151; 
+  int v152; 
+  float m_z; 
+  _BYTE v154[12]; 
+  float m_y; 
+  int v156; 
+  float *v158; 
   bfx::Vector3 iStartPos; 
-  int v205; 
+  int v160; 
+  float v161; 
+  float v162; 
+  float v163; 
+  float m_x; 
+  float v165; 
+  float v166; 
   bfx::ProbeResults results; 
-  AINavigator2D *v211; 
+  AINavigator2D *v168; 
   bfx::AreaHandle startingArea; 
   bfx::ProbeSpec probeSpec; 
-  unsigned int v214; 
+  unsigned int v171; 
+  float v172; 
+  float v173; 
+  float v174; 
+  float v175; 
   bfx::AreaHandle result; 
-  vec3_t *v219; 
+  vec3_t *v177; 
+  bfx::AreaHandle rhs; 
+  bfx::Vector3 posWCoord; 
   bfx::Vector3 dir; 
-  vec3_t *v221; 
-  vec3_t *v222; 
-  bfx::ObstacleHandle v223; 
-  __int64 v224; 
-  bfx::ObstacleDat v225; 
+  vec3_t *v181; 
+  vec3_t *v182; 
+  bfx::ObstacleHandle v183; 
+  __int64 v184; 
+  bfx::Vector3 v185; 
+  bfx::Vector3 v186; 
+  bfx::ObstacleDat v187; 
   vec3_t pDataOut; 
-  vec3_t v227; 
-  bfx::Vector3 v228; 
+  vec3_t v189; 
+  bfx::Vector3 v190; 
   vec3_t outPoint; 
-  char v230; 
-  void *retaddr; 
+  int v192[4]; 
 
-  _RAX = &retaddr;
-  v224 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovss  [rbp+1D0h+var_1E0], xmm3
-    vmovss  dword ptr [rsp+2D0h+var_278+4], xmm2
-  }
-  v214 = flags;
-  _RDI = this;
-  v211 = this;
-  v221 = outStartPoint;
-  v222 = outEndPoint;
-  v219 = outApproachDir;
-  *(_QWORD *)v227.v = outModifierDir;
+  v184 = -2i64;
+  v172 = approachDist;
+  v171 = flags;
+  v8 = this;
+  v168 = this;
+  v181 = outStartPoint;
+  v182 = outEndPoint;
+  v177 = outApproachDir;
+  *(_QWORD *)v189.v = outModifierDir;
   if ( this->m_Path.m_NumPoints <= 0 )
-  {
-    v20 = 0;
-    goto LABEL_28;
-  }
+    return 0;
   bfx::AreaHandle::AreaHandle(&startingArea);
-  __asm
+  v10 = v8->m_CurSnappedPos.v[0];
+  *(float *)v154 = v10;
+  v11 = v8->m_CurSnappedPos.v[1];
+  *(float *)&v154[4] = v11;
+  v12 = v8->m_CurSnappedPos.v[2];
+  *(float *)&v154[8] = v12;
+  bfx::AreaHandle::operator=(&startingArea, &v8->m_hCurArea);
+  v13 = 0i64;
+  v163 = 0.0;
+  m_CurPathPoint = v8->m_CurPathPoint;
+  v156 = m_CurPathPoint;
+  if ( (int)m_CurPathPoint >= v8->m_Path.m_NumPoints )
   {
-    vmovss  xmm12, dword ptr [rdi+30h]
-    vmovss  [rsp+2D0h+var_28C], xmm12
-    vmovss  xmm14, dword ptr [rdi+34h]
-    vmovss  [rsp+2D0h+var_288], xmm14
-    vmovss  xmm15, dword ptr [rdi+38h]
-    vmovss  [rsp+2D0h+var_284], xmm15
+LABEL_66:
+    v93 = 0;
+    goto LABEL_67;
   }
-  bfx::AreaHandle::operator=(&startingArea, &_RDI->m_hCurArea);
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  [rbp+1D0h+var_24C], xmm9
-  }
-  m_CurPathPoint = _RDI->m_CurPathPoint;
-  v201 = m_CurPathPoint;
-  if ( (int)m_CurPathPoint >= _RDI->m_Path.m_NumPoints )
-  {
-LABEL_26:
-    v85 = 0;
-    goto LABEL_27;
-  }
-  __asm
-  {
-    vmovaps xmm6, xmm12
-    vmovaps xmm7, xmm14
-    vmovaps xmm8, xmm15
-  }
-  _RBX = (__int64)&_RDI->m_Path.m_Points[m_CurPathPoint].m_Length;
-  v203 = _RBX;
-  __asm
-  {
-    vmovss  xmm13, cs:__real@80000000
-    vmovss  xmm11, dword ptr [rsp+2D0h+var_278+4]
-  }
+  v15 = v10;
+  v16 = v11;
+  v17 = v12;
+  p_m_Length = &v8->m_Path.m_Points[m_CurPathPoint].m_Length;
+  v158 = p_m_Length;
+  v19 = checkDist;
   while ( 1 )
   {
-    nav_path_t::GetPathPoint(&_RDI->m_Path, m_CurPathPoint, &outPoint);
-    v32 = 0;
-    v33 = (*(_BYTE *)(_RBX - 8) & 0x10) == 0;
-    if ( (*(_BYTE *)(_RBX - 8) & 0x10) == 0 )
-      goto LABEL_24;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1D0h+outPoint]
-      vsubss  xmm6, xmm0, xmm6
-      vmovss  xmm1, dword ptr [rbp+1D0h+outPoint+4]
-      vsubss  xmm5, xmm1, xmm7
-      vmovss  xmm0, dword ptr [rbp+1D0h+outPoint+8]
-      vsubss  xmm4, xmm0, xmm8
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vcmpless xmm0, xmm1, xmm13
-      vmovss  xmm8, cs:__real@3f800000
-      vblendvps xmm1, xmm1, xmm8, xmm0
-      vmovss  [rbp+1D0h+var_240], xmm1
-      vdivss  xmm0, xmm8, xmm1
-      vmulss  xmm10, xmm0, xmm6
-      vmovss  [rbp+1D0h+var_1D4], xmm10
-      vmulss  xmm11, xmm0, xmm5
-      vmovss  [rbp+1D0h+var_1DC], xmm11
-      vmulss  xmm0, xmm0, xmm4
-      vmovss  [rbp+1D0h+var_240], xmm0
-      vmovss  [rsp+2D0h+iStartPos.m_x], xmm12
-      vmovss  [rsp+2D0h+iStartPos.m_y], xmm14
-      vmovss  [rsp+2D0h+iStartPos.m_z], xmm15
-      vmovss  [rbp+1D0h+dir.m_x], xmm10
-      vmovss  [rbp+1D0h+dir.m_y], xmm11
-      vmovss  [rbp+1D0h+dir.m_z], xmm0
-    }
+    nav_path_t::GetPathPoint(&v8->m_Path, m_CurPathPoint, &outPoint);
+    if ( (*(_BYTE *)(p_m_Length - 2) & 0x10) == 0 )
+      goto LABEL_64;
+    v20 = outPoint.v[0] - v15;
+    v21 = LODWORD(outPoint.v[1]);
+    v22 = outPoint.v[2] - v17;
+    *(float *)&v21 = fsqrt((float)((float)((float)(outPoint.v[1] - v16) * (float)(outPoint.v[1] - v16)) + (float)(v20 * v20)) + (float)(v22 * v22));
+    _XMM1 = v21;
+    __asm { vcmpless xmm0, xmm1, xmm13 }
+    v25 = LODWORD(FLOAT_1_0);
+    __asm { vblendvps xmm1, xmm1, xmm8, xmm0 }
+    v27 = LODWORD(FLOAT_1_0);
+    *(float *)&v27 = (float)(1.0 / *(float *)&_XMM1) * v20;
+    v28 = v27;
+    v175 = *(float *)&v27;
+    v29 = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[1] - v16);
+    v173 = v29;
+    v166 = (float)(1.0 / *(float *)&_XMM1) * v22;
+    iStartPos.m_x = v10;
+    iStartPos.m_y = v11;
+    iStartPos.m_z = v12;
+    dir.m_x = *(float *)&v27;
+    dir.m_y = v29;
+    dir.m_z = v166;
     bfx::AreaHandle::AreaHandle(&results.m_endArea);
     results.m_collided = 0;
     results.m_collideEdgeIndex = -1;
@@ -5482,385 +4739,459 @@ LABEL_26:
     bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
     results.m_generatePath = 1;
     probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
-    v205 = 0;
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  [rbp+1D0h+var_250], xmm9
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm13, dword ptr [rsp+2D0h+var_278+4]
-      vminss  xmm6, xmm13, xmm0
-      vmovss  [rsp+2D0h+var_254], xmm6
-      vcomiss xmm0, xmm7
-    }
-    if ( !(v32 | v33) )
+    v30 = 0;
+    v160 = 0;
+    v31 = 0i64;
+    v162 = 0.0;
+    *(float *)&_XMM0 = *p_m_Length;
+    _XMM13 = LODWORD(checkDist);
+    __asm { vminss  xmm6, xmm13, xmm0 }
+    v161 = *(float *)&_XMM6;
+    if ( *(float *)&_XMM0 > 0.0 )
       break;
-LABEL_23:
+LABEL_63:
     bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
     bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-    __asm
+    v13 = LODWORD(v163);
+    v19 = checkDist;
+    LODWORD(m_CurPathPoint) = v156;
+LABEL_64:
+    v92 = v13;
+    *(float *)&v92 = *(float *)&v13 + fsqrt((float)((float)((float)(outPoint.v[1] - v11) * (float)(outPoint.v[1] - v11)) + (float)((float)(outPoint.v[0] - v10) * (float)(outPoint.v[0] - v10))) + (float)((float)(outPoint.v[2] - v12) * (float)(outPoint.v[2] - v12)));
+    v13 = v92;
+    v163 = *(float *)&v92;
+    if ( *(float *)&v92 <= v19 )
     {
-      vmovss  xmm13, cs:__real@80000000
-      vmovss  xmm9, [rbp+1D0h+var_24C]
-      vmovss  xmm11, dword ptr [rsp+2D0h+var_278+4]
-    }
-    LODWORD(m_CurPathPoint) = v201;
-LABEL_24:
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+1D0h+outPoint]
-      vsubss  xmm2, xmm4, xmm12
-      vmovss  xmm5, dword ptr [rbp+1D0h+outPoint+4]
-      vsubss  xmm0, xmm5, xmm14
-      vmovss  xmm6, dword ptr [rbp+1D0h+outPoint+8]
-      vsubss  xmm3, xmm6, xmm15
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vaddss  xmm9, xmm9, xmm0
-      vmovss  [rbp+1D0h+var_24C], xmm9
-      vcomiss xmm9, xmm11
-    }
-    if ( v32 | v33 )
-    {
-      __asm
-      {
-        vmovaps xmm12, xmm4
-        vmovss  [rsp+2D0h+var_28C], xmm4
-        vmovaps xmm14, xmm5
-        vmovss  [rsp+2D0h+var_288], xmm5
-        vmovaps xmm15, xmm6
-        vmovss  [rsp+2D0h+var_284], xmm6
-      }
-      bfx::AreaHandle::operator=(&startingArea, &_RDI->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+      v10 = outPoint.v[0];
+      *(vec3_t *)v154 = outPoint;
+      v11 = outPoint.v[1];
+      v12 = outPoint.v[2];
+      bfx::AreaHandle::operator=(&startingArea, &v8->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
       LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-      v201 = m_CurPathPoint;
-      _RBX += 48i64;
-      v203 = _RBX;
-      __asm
-      {
-        vmovaps xmm6, xmm12
-        vmovaps xmm7, xmm14
-        vmovaps xmm8, xmm15
-      }
-      if ( (int)m_CurPathPoint < _RDI->m_Path.m_NumPoints )
+      v156 = m_CurPathPoint;
+      p_m_Length += 12;
+      v158 = p_m_Length;
+      v15 = v10;
+      v16 = v11;
+      v17 = v12;
+      if ( (int)m_CurPathPoint < v8->m_Path.m_NumPoints )
         continue;
     }
-    goto LABEL_26;
+    goto LABEL_66;
   }
-  __asm { vmovaps xmm3, xmm6; dist }
-  bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM3, &_RDI->m_PathSpecOfCurPath, &probeSpec, &results);
-  if ( !bfx::PolylinePathRCPtr::IsValid(&results.m_path) )
+  pathSpec = &v8->m_PathSpecOfCurPath;
+  while ( 1 )
   {
-LABEL_22:
-    _RBX = v203;
-    __asm
+    v35 = v30;
+    v152 = v30;
+    bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM6, pathSpec, &probeSpec, &results);
+    if ( !bfx::PolylinePathRCPtr::IsValid(&results.m_path) )
     {
-      vmovss  xmm12, [rsp+2D0h+var_28C]
-      vmovss  xmm14, [rsp+2D0h+var_288]
-      vmovss  xmm15, [rsp+2D0h+var_284]
+LABEL_61:
+      p_m_Length = v158;
+LABEL_62:
+      v10 = *(float *)v154;
+      v11 = *(float *)&v154[4];
+      v12 = *(float *)&v154[8];
+      goto LABEL_63;
     }
-    goto LABEL_23;
-  }
-  NumSegments = bfx::PolylinePathRCPtr::GetNumSegments(&results.m_path);
-  v61 = 0;
-  if ( NumSegments <= 0 )
-  {
-LABEL_20:
-    if ( results.m_collided )
+    NumSegments = bfx::PolylinePathRCPtr::GetNumSegments(&results.m_path);
+    v37 = 0;
+    v38 = 0;
+    if ( NumSegments > 0 )
+      break;
+LABEL_22:
+    if ( !results.m_collided || results.m_distTravelled >= *(float *)&_XMM6 || !bfx::AreaHandle::operator!=(&results.m_endArea, &v8->m_Path.m_Points[(int)m_CurPathPoint].m_hArea) || v37 )
+      goto LABEL_61;
+    v160 = ++v30;
+    if ( v35 >= 50 )
     {
+      v150 = vtos(&v8->m_RequestedGoalPos);
+      v151 = vtos(&v8->m_LocalSnappedPathStartPos);
+      Com_PrintError(18, "  DOOR DETECTION FAIL: path start point: %s  goal pos %s\n", v151, v150);
+      Nav_PrintPath("  All path points:", v8->m_Path.m_Points, v8->m_Path.m_NumPoints);
+LABEL_90:
+      v93 = 0;
+      goto LABEL_91;
+    }
+    if ( results.m_distTravelled > 0.001 )
+    {
+      iStartPos = results.m_endPos;
+      v90 = _XMM6;
+      *(float *)&v90 = *(float *)&_XMM6 - results.m_distTravelled;
+      _XMM6 = v90;
+      v161 = *(float *)&v90;
+      v91 = v31;
+      *(float *)&v91 = *(float *)&v31 + results.m_distTravelled;
+      v31 = v91;
+      v162 = *(float *)&v91;
+      bfx::AreaHandle::operator=(&startingArea, &results.m_endArea);
+    }
+    else
+    {
+      m_x = results.m_endPos.m_x;
+      m_y = results.m_endPos.m_y;
+      m_z = results.m_endPos.m_z;
+      v174 = 0.0;
+      NumEdges = bfx::AreaHandle::GetNumEdges(&results.m_endArea);
+      m_collideEdgeIndex = results.m_collideEdgeIndex;
+      v45 = v28;
+      *(float *)&v45 = fsqrt((float)(*(float *)&v28 * *(float *)&v28) + (float)(v29 * v29));
+      _XMM2 = v45;
       __asm
       {
-        vmovss  xmm0, [rbp+1D0h+var_238.m_distTravelled]
-        vcomiss xmm0, xmm6
+        vcmpless xmm0, xmm2, xmm7
+        vblendvps xmm1, xmm2, xmm8, xmm0
       }
+      v165 = *(float *)&_XMM1;
+      v49 = (float)(*(float *)&v25 / *(float *)&_XMM1) * *(float *)&v28;
+      v50 = (float)(*(float *)&v25 / *(float *)&_XMM1) * v29;
+      bfx::AreaHandle::Release(&startingArea);
+      v192[0] = 0;
+      v192[1] = -1;
+      v192[2] = 1;
+      v51 = 0i64;
+      while ( 1 )
+      {
+        v52 = v192[v51] + results.m_collideEdgeIndex;
+        if ( v52 >= 0 )
+        {
+          if ( v52 >= NumEdges )
+            v52 = 0;
+        }
+        else
+        {
+          v52 = NumEdges - 1;
+        }
+        EdgeStartPos = bfx::AreaHandle::GetEdgeStartPos(&results.m_endArea, &v185, v52);
+        v54 = EdgeStartPos->m_z;
+        m_y_low = LODWORD(EdgeStartPos->m_y);
+        v56 = EdgeStartPos->m_x;
+        EdgeEndPos = bfx::AreaHandle::GetEdgeEndPos(&results.m_endArea, &v186, v52);
+        v58 = EdgeEndPos->m_z;
+        v59 = LODWORD(EdgeEndPos->m_y);
+        v165 = EdgeEndPos->m_x;
+        v60 = v59;
+        *(float *)&v60 = fsqrt((float)((float)((float)(*(float *)&v59 - *(float *)&m_y_low) * (float)(*(float *)&v59 - *(float *)&m_y_low)) + (float)((float)(v165 - v56) * (float)(v165 - v56))) + (float)((float)(v58 - v54) * (float)(v58 - v54)));
+        _XMM3 = v60;
+        __asm
+        {
+          vcmpless xmm0, xmm3, xmm7
+          vblendvps xmm1, xmm3, xmm8, xmm0
+        }
+        v66 = v25;
+        *(float *)&_XMM0 = *(float *)&v25 / *(float *)&_XMM1;
+        v64 = (float)(*(float *)&v25 / *(float *)&_XMM1) * (float)(v165 - v56);
+        *(float *)&v66 = (float)(*(float *)&v25 / *(float *)&_XMM1) * (float)(*(float *)&v59 - *(float *)&m_y_low);
+        v65 = *(float *)&v66;
+        v67 = *(float *)&_XMM0 * (float)(v58 - v54);
+        v68 = (float)((float)((float)(*(float *)&_XMM0 * (float)(*(float *)&v59 - *(float *)&m_y_low)) * (float)(m_y - *(float *)&m_y_low)) + (float)((float)(m_x - v56) * v64)) + (float)(v67 * (float)(m_z - v54));
+        v69 = (float)(v68 * v67) + v54;
+        v70 = m_x;
+        if ( (float)((float)((float)((float)(m_y - (float)((float)(v68 * *(float *)&v66) + *(float *)&m_y_low)) * (float)(m_y - (float)((float)(v68 * *(float *)&v66) + *(float *)&m_y_low))) + (float)((float)(m_x - (float)((float)(v68 * v64) + v56)) * (float)(m_x - (float)((float)(v68 * v64) + v56)))) + (float)((float)(m_z - v69) * (float)(m_z - v69))) < 1.0 )
+        {
+          *(float *)&v66 = fsqrt((float)(*(float *)&v66 * *(float *)&v66) + (float)(v64 * v64));
+          _XMM2 = v66;
+          __asm
+          {
+            vcmpless xmm0, xmm2, cs:__real@80000000
+            vblendvps xmm1, xmm2, xmm3, xmm0
+          }
+          v74 = v64 * (float)(1.0 / *(float *)&_XMM1);
+          v75 = v65 * (float)(1.0 / *(float *)&_XMM1);
+          if ( v74 == 0.0 && v75 == 0.0 || v49 == 0.0 && v50 == 0.0 )
+            goto LABEL_90;
+          v76 = (float)(v75 * v50) + (float)(v49 * v74);
+          if ( v76 >= 0.99900001 )
+          {
+            v79 = v59;
+            *(float *)&v79 = fsqrt((float)((float)((float)(*(float *)&v59 - m_y) * (float)(*(float *)&v59 - m_y)) + (float)((float)(v165 - m_x) * (float)(v165 - m_x))) + (float)((float)(v58 - m_z) * (float)(v58 - m_z)));
+            v78 = v79;
+            iStartPos.m_x = v165;
+            iStartPos.m_y = *(float *)&v59;
+            iStartPos.m_z = v58;
+            v70 = v165;
+            m_y = *(float *)&v59;
+            m_z = v58;
+            m_collideEdgeIndex = v52;
+            goto LABEL_45;
+          }
+          if ( v76 < -0.99900001 )
+          {
+            v77 = m_y_low;
+            *(float *)&v77 = fsqrt((float)((float)((float)(*(float *)&m_y_low - m_y) * (float)(*(float *)&m_y_low - m_y)) + (float)((float)(v56 - m_x) * (float)(v56 - m_x))) + (float)((float)(v54 - m_z) * (float)(v54 - m_z)));
+            v78 = v77;
+            iStartPos.m_x = v56;
+            iStartPos.m_y = *(float *)&m_y_low;
+            iStartPos.m_z = v54;
+            v70 = v56;
+            m_y = *(float *)&m_y_low;
+            m_z = v54;
+            m_collideEdgeIndex = v52;
+            goto LABEL_45;
+          }
+        }
+        if ( ++v51 >= 3 )
+          break;
+        v25 = LODWORD(FLOAT_1_0);
+      }
+      v78 = LODWORD(v174);
+LABEL_45:
+      v28 = LODWORD(v175);
+      v80 = (float)(v175 * 0.5) + v70;
+      v29 = v173;
+      v81 = (float)(v173 * 0.5) + m_y;
+      v82 = (float)(0.5 * v166) + m_z;
+      posWCoord.m_x = v80;
+      posWCoord.m_y = v81;
+      posWCoord.m_z = v82;
+      v83 = 0i64;
+      while ( 1 )
+      {
+        v84 = m_collideEdgeIndex + v192[v83];
+        if ( v84 >= 0 )
+        {
+          if ( v84 >= NumEdges )
+            v84 = 0;
+        }
+        else
+        {
+          v84 = NumEdges - 1;
+        }
+        bfx::AreaHandle::GetAdjacentArea(&results.m_endArea, &rhs, v84);
+        if ( bfx::AreaHandle::IsValid(&rhs) )
+        {
+          LOBYTE(pDataOut.v[0]) = 0;
+          pDataOut.v[1] = NAN;
+          bfx::AreaHandle::GetClosestPosInArea(&rhs, &v190, &posWCoord, (bfx::ClosestPosData *)&pDataOut);
+          if ( !LOBYTE(pDataOut.v[0]) || (float)((float)((float)((float)(v81 - v190.m_y) * (float)(v81 - v190.m_y)) + (float)((float)(v80 - v190.m_x) * (float)(v80 - v190.m_x))) + (float)((float)(v82 - v190.m_z) * (float)(v82 - v190.m_z))) < 0.0024999999 )
+            break;
+        }
+        bfx::AreaHandle::~AreaHandle(&rhs);
+        if ( ++v83 >= 3 )
+          goto LABEL_56;
+      }
+      bfx::AreaHandle::operator=(&startingArea, &rhs);
+      bfx::AreaHandle::~AreaHandle(&rhs);
+LABEL_56:
+      IsValid = bfx::AreaHandle::IsValid(&startingArea);
+      v8 = v168;
+      if ( !IsValid )
+        goto LABEL_61;
+      v87 = v78;
+      *(float *)&v87 = *(float *)&v78 + results.m_distTravelled;
+      v86 = v87;
+      v88 = LODWORD(v161);
+      *(float *)&v88 = v161 - *(float *)&v86;
+      _XMM6 = v88;
+      v161 = v161 - *(float *)&v86;
+      v89 = v86;
+      *(float *)&v89 = *(float *)&v86 + v162;
+      v31 = v89;
+      v162 = *(float *)&v86 + v162;
+      v25 = LODWORD(FLOAT_1_0);
+      LODWORD(m_CurPathPoint) = v156;
     }
-    goto LABEL_22;
+    p_m_Length = v158;
+    pathSpec = &v8->m_PathSpecOfCurPath;
+    if ( *(float *)&v31 >= *v158 )
+      goto LABEL_62;
   }
   while ( 1 )
   {
-    if ( bfx::PolylinePathRCPtr::GetSegmentType(&results.m_path, v61) )
-      goto LABEL_17;
-    SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&results.m_path, v61);
+    if ( bfx::PolylinePathRCPtr::GetSegmentType(&results.m_path, v38) )
+      goto LABEL_18;
+    SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&results.m_path, v38);
     bfx::SurfaceSegment::GetArea(SurfaceSegment, &result);
     NumObstacles = bfx::AreaHandle::GetNumObstacles(&result);
-    v64 = 0;
+    v41 = 0;
     if ( NumObstacles > 0 )
       break;
-LABEL_15:
-    _RDI = v211;
-    if ( bfx::AreaHandle::operator==(&result, &v211->m_Path.m_Points[(int)m_CurPathPoint].m_hArea) )
+LABEL_16:
+    v8 = v168;
+    if ( bfx::AreaHandle::operator==(&result, &v168->m_Path.m_Points[(int)m_CurPathPoint].m_hArea) )
     {
+      v37 = 1;
       bfx::AreaHandle::~AreaHandle(&result);
-      goto LABEL_20;
+LABEL_21:
+      v30 = v160;
+      v35 = v152;
+      goto LABEL_22;
     }
     bfx::AreaHandle::~AreaHandle(&result);
-LABEL_17:
-    if ( ++v61 >= NumSegments )
-      goto LABEL_20;
+LABEL_18:
+    if ( ++v38 >= NumSegments )
+      goto LABEL_21;
   }
-  v65 = v214;
+  v42 = v171;
   while ( 1 )
   {
-    bfx::AreaHandle::GetObstacle(&result, &v223, v64);
-    if ( (v65 & bfx::ObstacleHandle::GetObstacleDat(&v223, &v225)->m_userData) != 0 )
+    bfx::AreaHandle::GetObstacle(&result, &v183, v41);
+    if ( (v42 & bfx::ObstacleHandle::GetObstacleDat(&v183, &v187)->m_userData) != 0 )
       break;
-    bfx::ObstacleHandle::~ObstacleHandle(&v223);
-    if ( ++v64 >= NumObstacles )
+    bfx::ObstacleHandle::~ObstacleHandle(&v183);
+    if ( ++v41 >= NumObstacles )
     {
-      LODWORD(m_CurPathPoint) = v201;
-      goto LABEL_15;
+      LODWORD(m_CurPathPoint) = v156;
+      goto LABEL_16;
     }
   }
-  _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-  __asm
+  StartPos = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+  v95 = StartPos->m_z;
+  v96 = StartPos->m_y;
+  v97 = v181;
+  v181->v[0] = StartPos->m_x;
+  v97->v[1] = v96;
+  v97->v[2] = v95;
+  EndPos = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+  v99 = EndPos->m_z;
+  v100 = LODWORD(EndPos->m_y);
+  v101 = EndPos->m_x;
+  v102 = v182;
+  v182->v[0] = v101;
+  v102->v[1] = *(float *)&v100;
+  v102->v[2] = v99;
+  v103 = LODWORD(v97->v[0]);
+  v105 = v103;
+  v104 = *(float *)&v103 - *(float *)v154;
+  v106 = v97->v[1] - *(float *)&v154[4];
+  v107 = v97->v[2] - *(float *)&v154[8];
+  *(float *)&v105 = fsqrt((float)((float)(v104 * v104) + (float)(v106 * v106)) + (float)(v107 * v107));
+  _XMM7 = v105;
+  if ( (float)(*(float *)&v105 + v163) > checkDist )
   {
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  xmm0, dword ptr [rax+4]
+    v93 = 0;
+    goto LABEL_88;
   }
-  _R12 = v221;
-  v221->v[0] = _RAX->m_x;
-  __asm
+  v109 = (__int64)v168;
+  if ( v156 < v168->m_Path.m_NumPoints - 1 && (v168->m_Path.m_Points[v156 + 1].m_Flags & 0x10) != 0 )
   {
-    vmovss  dword ptr [r12+4], xmm0
-    vmovss  dword ptr [r12+8], xmm1
-  }
-  _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rax+8]
-    vmovss  xmm4, dword ptr [rax+4]
-    vmovss  xmm5, dword ptr [rax]
-  }
-  _RAX = v222;
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm5
-    vmovss  dword ptr [rax+4], xmm4
-    vmovss  dword ptr [rax+8], xmm3
-    vmovss  xmm6, dword ptr [r12]
-    vsubss  xmm8, xmm6, [rsp+2D0h+var_28C]
-    vmovss  xmm0, dword ptr [r12+4]
-    vsubss  xmm9, xmm0, [rsp+2D0h+var_288]
-    vmovss  xmm1, dword ptr [r12+8]
-    vsubss  xmm10, xmm1, [rsp+2D0h+var_284]
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm7, xmm2, xmm2
-    vaddss  xmm0, xmm7, [rbp+1D0h+var_24C]
-    vcomiss xmm0, dword ptr [rsp+2D0h+var_278+4]
-  }
-  if ( !(v32 | v33) )
-  {
-    v85 = 0;
-    goto LABEL_50;
-  }
-  _RDI = v211;
-  v120 = v211->m_Path.m_NumPoints - 1;
-  v121 = v201 < (unsigned int)v120;
-  if ( v201 < v120 && (v121 = 0, (v211->m_Path.m_Points[v201 + 1].m_Flags & 0x10) != 0) )
-  {
-    p_m_Path = &v211->m_Path;
-    nav_path_t::GetPathPoint(&v211->m_Path, v201 + 1, &pDataOut);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [r12]
-      vmovss  xmm3, [rbp+1D0h+var_120]
-      vmovss  xmm4, [rbp+1D0h+pDataOut.m_edgeIndex]
-      vmovss  xmm5, dword ptr [rbp+1D0h+pDataOut.m_isEdgePos]
-    }
+    p_m_Path = &v168->m_Path;
+    nav_path_t::GetPathPoint(&v168->m_Path, v156 + 1, &pDataOut);
+    *(float *)&v103 = v97->v[0];
+    v99 = pDataOut.v[2];
+    v100 = LODWORD(pDataOut.v[1]);
+    v101 = pDataOut.v[0];
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+1D0h+pDataOut.m_isEdgePos], xmm5
-      vmovss  [rbp+1D0h+pDataOut.m_edgeIndex], xmm4
-      vmovss  [rbp+1D0h+var_120], xmm3
-    }
-    p_m_Path = &v211->m_Path;
+    pDataOut.v[0] = v101;
+    pDataOut.v[1] = *(float *)&v100;
+    pDataOut.v[2] = v99;
+    p_m_Path = &v168->m_Path;
   }
-  __asm { vsubss  xmm5, xmm5, xmm6 }
-  _RAX = *(_QWORD *)v227.v;
+  v111 = v101 - *(float *)&v103;
+  v112 = *(float **)v189.v;
+  **(float **)v189.v = v111;
+  v114 = v100;
+  v113 = *(float *)&v100 - v97->v[1];
+  v112[1] = v113;
+  v115 = v99 - v97->v[2];
+  *(float *)&v114 = fsqrt((float)((float)(v113 * v113) + (float)(v111 * v111)) + (float)(v115 * v115));
+  _XMM3 = v114;
   __asm
   {
-    vmovss  dword ptr [rax], xmm5
-    vsubss  xmm6, xmm4, dword ptr [r12+4]
-    vmovss  dword ptr [rax+4], xmm6
-    vsubss  xmm4, xmm3, dword ptr [r12+8]
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vmovss  xmm13, cs:__real@80000000
     vcmpless xmm0, xmm3, xmm13
-    vmovss  xmm12, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm1
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rax], xmm0
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rax+4], xmm1
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rax+8], xmm0
-    vmovss  xmm0, [rbp+1D0h+var_1E0]
-    vcomiss xmm7, xmm0
   }
-  if ( !v121 || (v143 = _RDI->m_CurPathPoint, v201 == v143) )
+  *v112 = v111 * (float)(1.0 / *(float *)&_XMM1);
+  v112[1] = v113 * (float)(1.0 / *(float *)&_XMM1);
+  v112[2] = v115 * (float)(1.0 / *(float *)&_XMM1);
+  if ( *(float *)&_XMM7 >= v172 || (v119 = *(_DWORD *)(v109 + 1184), v156 == v119) )
   {
     __asm
     {
       vcmpless xmm0, xmm7, xmm13
       vblendvps xmm1, xmm7, xmm12, xmm0
-      vdivss  xmm2, xmm12, xmm1
-      vmulss  xmm0, xmm2, xmm8
     }
-    _RAX = v219;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmulss  xmm1, xmm2, xmm9
-      vmulss  xmm0, xmm2, xmm10
-    }
-    goto LABEL_48;
+    v149 = 1.0 / *(float *)&_XMM1;
+    v137 = v177;
+    v177->v[0] = (float)(1.0 / *(float *)&_XMM1) * v104;
+    v145 = (float)(1.0 / *(float *)&_XMM1) * v106;
+    v146 = v149 * v107;
+    goto LABEL_86;
   }
-  __asm { vsubss  xmm10, xmm0, xmm7 }
-  v145 = v201 - 1;
-  if ( v201 > v143 )
+  v121 = LODWORD(v172);
+  *(float *)&v121 = v172 - *(float *)&_XMM7;
+  v120 = v121;
+  v122 = v156 - 1;
+  if ( v156 > v119 )
   {
-    __asm { vxorps  xmm11, xmm11, xmm11 }
     while ( 1 )
     {
-      nav_path_t::GetPathPoint(p_m_Path, v145, (vec3_t *)&v228);
-      v147 = _RDI->m_CurPathPoint < v145;
-      v148 = _RDI->m_CurPathPoint == v145;
-      if ( _RDI->m_CurPathPoint == v145 )
+      nav_path_t::GetPathPoint(p_m_Path, v122, (vec3_t *)&v190);
+      if ( *(_DWORD *)(v109 + 1184) == v122 )
       {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rdi+30h]
-          vmovss  dword ptr [rbp+1D0h+var_118], xmm7
-          vmovss  xmm8, dword ptr [rdi+34h]
-          vmovss  dword ptr [rbp+1D0h+var_118+4], xmm8
-          vmovss  xmm9, dword ptr [rdi+38h]
-          vmovss  dword ptr [rbp+1D0h+var_118+8], xmm9
-        }
+        v123 = *(float *)(v109 + 48);
+        v189.v[0] = v123;
+        v124 = *(unsigned int *)(v109 + 52);
+        v189.v[1] = *(float *)(v109 + 52);
+        v125 = *(float *)(v109 + 56);
+        v189.v[2] = v125;
       }
       else
       {
-        nav_path_t::GetPathPoint(p_m_Path, v145 - 1, &v227);
-        __asm
-        {
-          vmovss  xmm9, dword ptr [rbp+1D0h+var_118+8]
-          vmovss  xmm8, dword ptr [rbp+1D0h+var_118+4]
-          vmovss  xmm7, dword ptr [rbp+1D0h+var_118]
-        }
+        nav_path_t::GetPathPoint(p_m_Path, v122 - 1, &v189);
+        v125 = v189.v[2];
+        v124 = LODWORD(v189.v[1]);
+        v123 = v189.v[0];
       }
+      v126 = v124;
+      *(float *)&v126 = fsqrt((float)((float)((float)(*(float *)&v124 - v190.m_y) * (float)(*(float *)&v124 - v190.m_y)) + (float)((float)(v123 - v190.m_x) * (float)(v123 - v190.m_x))) + (float)((float)(v125 - v190.m_z) * (float)(v125 - v190.m_z)));
+      _XMM3 = v126;
       __asm
       {
-        vsubss  xmm4, xmm7, [rbp+1D0h+var_108.m_x]
-        vsubss  xmm5, xmm8, [rbp+1D0h+var_108.m_y]
-        vsubss  xmm6, xmm9, [rbp+1D0h+var_108.m_z]
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, xmm13
         vblendvps xmm1, xmm3, xmm12, xmm0
-        vdivss  xmm0, xmm12, xmm1
-        vsubss  xmm2, xmm10, xmm3
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm3, xmm0, xmm5
-        vmulss  xmm4, xmm0, xmm6
-        vcomiss xmm2, xmm11
       }
-      if ( v147 || v148 )
+      v130 = 1.0 / *(float *)&_XMM1;
+      v131 = v120;
+      *(float *)&v131 = *(float *)&v120 - *(float *)&_XMM3;
+      v132 = (float)(1.0 / *(float *)&_XMM1) * (float)(v123 - v190.m_x);
+      v133 = v130 * (float)(*(float *)&v124 - v190.m_y);
+      if ( *(float *)&v131 <= 0.0 )
         break;
-      v168 = _RDI->m_CurPathPoint;
-      if ( v145 == v168 )
+      v134 = *(_DWORD *)(v109 + 1184);
+      if ( v122 == v134 )
         break;
-      __asm { vmovaps xmm10, xmm2 }
-      if ( (int)--v145 < v168 )
-        goto LABEL_49;
+      v120 = v131;
+      if ( --v122 < v134 )
+        goto LABEL_87;
     }
+    v135 = (float)((float)(v130 * (float)(v125 - v190.m_z)) * *(float *)&v120) + v125;
+    v136 = v97->v[0] - (float)((float)(v132 * *(float *)&v120) + v123);
+    v137 = v177;
+    v177->v[0] = v136;
+    v139 = LODWORD(v97->v[1]);
+    v138 = v97->v[1] - (float)((float)(v133 * *(float *)&v120) + *(float *)&v124);
+    v137->v[1] = v138;
+    v140 = v97->v[2] - v135;
+    *(float *)&v139 = fsqrt((float)((float)(v138 * v138) + (float)(v136 * v136)) + (float)(v140 * v140));
+    _XMM1 = v139;
     __asm
     {
-      vmulss  xmm0, xmm1, xmm10
-      vmulss  xmm1, xmm3, xmm10
-      vmulss  xmm2, xmm4, xmm10
-      vaddss  xmm3, xmm0, xmm7
-      vaddss  xmm4, xmm1, xmm8
-      vaddss  xmm5, xmm2, xmm9
-      vmovss  xmm0, dword ptr [r12]
-      vsubss  xmm7, xmm0, xmm3
-    }
-    _RAX = v219;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm7
-      vmovss  xmm1, dword ptr [r12+4]
-      vsubss  xmm6, xmm1, xmm4
-      vmovss  dword ptr [rax+4], xmm6
-      vmovss  xmm0, dword ptr [r12+8]
-      vsubss  xmm4, xmm0, xmm5
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, xmm13
       vblendvps xmm1, xmm1, xmm12, xmm0
-      vdivss  xmm2, xmm12, xmm1
-      vmulss  xmm0, xmm7, xmm2
-      vmovss  dword ptr [rax], xmm0
-      vmulss  xmm1, xmm6, xmm2
-      vmulss  xmm0, xmm4, xmm2
     }
-LABEL_48:
-    __asm
-    {
-      vmovss  dword ptr [rax+8], xmm0
-      vmovss  dword ptr [rax+4], xmm1
-    }
+    v144 = 1.0 / *(float *)&_XMM1;
+    v137->v[0] = v136 * (float)(1.0 / *(float *)&_XMM1);
+    v145 = v138 * (float)(1.0 / *(float *)&_XMM1);
+    v146 = v140 * v144;
+LABEL_86:
+    v137->v[2] = v146;
+    v137->v[1] = v145;
   }
-LABEL_49:
-  v85 = 1;
-LABEL_50:
-  bfx::ObstacleHandle::~ObstacleHandle(&v223);
+LABEL_87:
+  v93 = 1;
+LABEL_88:
+  bfx::ObstacleHandle::~ObstacleHandle(&v183);
   bfx::AreaHandle::~AreaHandle(&result);
+LABEL_91:
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
   bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-LABEL_27:
+LABEL_67:
   bfx::AreaHandle::~AreaHandle(&startingArea);
-  v20 = v85;
-LABEL_28:
-  _R11 = &v230;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v20;
+  return v93;
 }
 
 /*
@@ -5873,8 +5204,7 @@ bool AINavigator2D::GetModifierLocationOnEntPath(AINavigator2D *this, unsigned i
   vec3_t outModifierDir; 
   vec3_t outApproachDir; 
 
-  __asm { vxorps  xmm3, xmm3, xmm3; approachDist }
-  return AINavigator2D::GetModifierApproachDir(this, flags, checkDist, *(float *)&_XMM3, outStartPoint, outEndPoint, &outApproachDir, &outModifierDir);
+  return AINavigator2D::GetModifierApproachDir(this, flags, checkDist, 0.0, outStartPoint, outEndPoint, &outApproachDir, &outModifierDir);
 }
 
 /*
@@ -6091,132 +5421,83 @@ AINavigator2D::GetNextNCorners
 
 __int64 __fastcall AINavigator2D::GetNextNCorners(AINavigator2D *this, nav_cornerdata_t *pOutCorners, int maxCorners, double pathDistThreshold, bool bGetCornerAfterThreshold)
 {
-  nav_cornerdata_t *v9; 
-  __int64 result; 
+  nav_cornerdata_t *v5; 
   __int64 m_CurPathPoint; 
-  int v16; 
-  bool v23; 
+  int v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v16; 
   bfx::CornerLinkType *p_m_LinkType; 
-  bool v39; 
-  nav_cornerdata_t *v40; 
-  unsigned int v41; 
+  unsigned int *p_m_Flags; 
+  __int128 v19; 
+  nav_cornerdata_t *v20; 
+  unsigned int v21; 
 
-  __asm { vmovaps [rsp+0B8h+var_48], xmm6 }
-  v9 = pOutCorners;
-  _R15 = this;
-  __asm { vmovaps xmm6, xmm3 }
-  if ( this->m_Path.m_NumPoints > 0 )
+  v5 = pOutCorners;
+  _XMM6 = *(_OWORD *)&pathDistThreshold;
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0i64;
+  if ( maxCorners <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1012, ASSERT_TYPE_ASSERT, "( maxCorners > 0 )", (const char *)&queryFormat, "maxCorners > 0") )
+    __debugbreak();
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1013, ASSERT_TYPE_ASSERT, "( pOutCorners )", (const char *)&queryFormat, "pOutCorners") )
+    __debugbreak();
+  m_CurPathPoint = this->m_CurPathPoint;
+  v10 = 0;
+  v11 = this->m_LocalCurSnappedPos.v[0];
+  v12 = this->m_LocalCurSnappedPos.v[2];
+  v13 = 0i64;
+  __asm
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_58], xmm7
-      vmovaps [rsp+0B8h+var_68], xmm8
-    }
-    if ( maxCorners <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1012, ASSERT_TYPE_ASSERT, "( maxCorners > 0 )", (const char *)&queryFormat, "maxCorners > 0") )
-      __debugbreak();
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1013, ASSERT_TYPE_ASSERT, "( pOutCorners )", (const char *)&queryFormat, "pOutCorners") )
-      __debugbreak();
-    __asm { vmovss  xmm0, cs:__real@7f7fffff }
-    m_CurPathPoint = _R15->m_CurPathPoint;
-    v16 = 0;
-    __asm
-    {
-      vmovss  xmm5, dword ptr [r15+54h]
-      vmovss  xmm7, dword ptr [r15+5Ch]
-      vxorps  xmm8, xmm8, xmm8
-      vcmpless xmm1, xmm6, xmm8
-      vblendvps xmm0, xmm6, xmm0, xmm1
-      vmovss  xmm6, dword ptr [r15+58h]
-      vmovss  [rsp+0B8h+arg_18], xmm0
-    }
-    if ( (int)m_CurPathPoint < _R15->m_Path.m_NumPoints )
-    {
-      v23 = __CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint);
-      p_m_LinkType = &v9->m_LinkType;
-      __asm
-      {
-        vmovaps [rsp+0B8h+var_78], xmm9
-        vmovss  xmm9, [rsp+0B8h+arg_18]
-      }
-      _RSI = &_R15->m_Path.m_Points[m_CurPathPoint].m_Flags;
-      while ( 1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi-0Ch]
-          vmovss  xmm1, dword ptr [rsi-8]
-          vsubss  xmm3, xmm0, xmm5
-          vmovss  xmm0, dword ptr [rsi-4]
-          vsubss  xmm2, xmm1, xmm6
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vsubss  xmm4, xmm0, xmm7
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vaddss  xmm8, xmm8, xmm1
-          vcomiss xmm8, xmm9
-        }
-        v39 = !v23;
-        if ( v23 || bGetCornerAfterThreshold )
-        {
-          v40 = &v9[v16];
-          nav_path_t::GetPathPoint(&_R15->m_Path, m_CurPathPoint, &v40->m_Pos);
-          nav_path_t::GetLinkForPathPoint(&_R15->m_Path, m_CurPathPoint, &v40->m_hLink);
-          if ( _RSI[1] == -1 )
-          {
-            *p_m_LinkType = CORNER_NOT_A_LINK;
-          }
-          else if ( (*_RSI & 2) != 0 )
-          {
-            *p_m_LinkType = CORNER_LINK_START;
-          }
-          else if ( (*_RSI & 4) != 0 )
-          {
-            *p_m_LinkType = CORNER_LINK_END;
-          }
-          ++v16;
-          *((_BYTE *)p_m_LinkType + 20) = *(_BYTE *)_RSI & 1;
-          v41 = *_RSI;
-          *((_DWORD *)p_m_LinkType + 6) = m_CurPathPoint;
-          *((_BYTE *)p_m_LinkType + 21) = (v41 & 8) != 0;
-          p_m_LinkType += 10;
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rsi-0Ch]
-            vmovss  xmm6, dword ptr [rsi-8]
-            vmovss  xmm7, dword ptr [rsi-4]
-          }
-          if ( v16 >= maxCorners || v39 )
-          {
-LABEL_23:
-            __asm { vmovaps xmm9, [rsp+0B8h+var_78] }
-            break;
-          }
-          v9 = pOutCorners;
-        }
-        LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-        _RSI += 12;
-        v23 = (unsigned int)m_CurPathPoint < _R15->m_Path.m_NumPoints;
-        if ( (int)m_CurPathPoint >= _R15->m_Path.m_NumPoints )
-          goto LABEL_23;
-      }
-    }
-    __asm { vmovaps xmm8, [rsp+0B8h+var_68] }
-    result = (unsigned int)v16;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0B8h+var_58]
-      vmovaps xmm6, [rsp+0B8h+var_48]
-    }
+    vcmpless xmm1, xmm6, xmm8
+    vblendvps xmm0, xmm6, xmm0, xmm1
   }
-  else
+  v16 = this->m_LocalCurSnappedPos.v[1];
+  if ( (int)m_CurPathPoint < this->m_Path.m_NumPoints )
   {
-    result = 0i64;
-    __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
+    p_m_LinkType = &v5->m_LinkType;
+    p_m_Flags = &this->m_Path.m_Points[m_CurPathPoint].m_Flags;
+    do
+    {
+      v19 = v13;
+      *(float *)&v19 = *(float *)&v13 + fsqrt((float)((float)((float)(*((float *)p_m_Flags - 2) - v16) * (float)(*((float *)p_m_Flags - 2) - v16)) + (float)((float)(*((float *)p_m_Flags - 3) - v11) * (float)(*((float *)p_m_Flags - 3) - v11))) + (float)((float)(*((float *)p_m_Flags - 1) - v12) * (float)(*((float *)p_m_Flags - 1) - v12)));
+      v13 = v19;
+      if ( *(float *)&v19 < *(float *)&_XMM0 || bGetCornerAfterThreshold )
+      {
+        v20 = &v5[v10];
+        nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &v20->m_Pos);
+        nav_path_t::GetLinkForPathPoint(&this->m_Path, m_CurPathPoint, &v20->m_hLink);
+        if ( p_m_Flags[1] == -1 )
+        {
+          *p_m_LinkType = CORNER_NOT_A_LINK;
+        }
+        else if ( (*p_m_Flags & 2) != 0 )
+        {
+          *p_m_LinkType = CORNER_LINK_START;
+        }
+        else if ( (*p_m_Flags & 4) != 0 )
+        {
+          *p_m_LinkType = CORNER_LINK_END;
+        }
+        ++v10;
+        *((_BYTE *)p_m_LinkType + 20) = *(_BYTE *)p_m_Flags & 1;
+        v21 = *p_m_Flags;
+        *((_DWORD *)p_m_LinkType + 6) = m_CurPathPoint;
+        *((_BYTE *)p_m_LinkType + 21) = (v21 & 8) != 0;
+        p_m_LinkType += 10;
+        v11 = *((float *)p_m_Flags - 3);
+        v16 = *((float *)p_m_Flags - 2);
+        v12 = *((float *)p_m_Flags - 1);
+        if ( v10 >= maxCorners || *(float *)&v19 >= *(float *)&_XMM0 )
+          return (unsigned int)v10;
+        v5 = pOutCorners;
+      }
+      LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+      p_m_Flags += 12;
+    }
+    while ( (int)m_CurPathPoint < this->m_Path.m_NumPoints );
   }
-  return result;
+  return (unsigned int)v10;
 }
 
 /*
@@ -6236,207 +5517,130 @@ AINavigator2D::GetPathDistToGoal
 */
 float AINavigator2D::GetPathDistToGoal(AINavigator2D *this)
 {
+  gentity_s *m_pEnt; 
+  float v4; 
+  float v5; 
   __int64 m_CurPathPoint; 
-  int v23; 
+  __int64 v7; 
+  int v8; 
   __int64 m_NumPoints; 
-  __int64 v25; 
-  unsigned __int64 v40; 
-  __int64 v103; 
+  __int64 v10; 
+  float v11; 
+  __int128 v12; 
+  float v13; 
+  __int128 v14; 
+  float *v15; 
+  float v16; 
+  unsigned __int64 v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  __int64 v35; 
+  float *v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  __int128 v41; 
+  float v42; 
 
-  _RBX = this;
-  if ( this->m_Path.m_NumPoints > 0 )
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0.0;
+  if ( AINavigator::ShouldPathOutOfBounds(this) )
   {
-    if ( AINavigator::ShouldPathOutOfBounds(this) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmovss  xmm1, dword ptr [rbx+1Ch]
-        vsubss  xmm4, xmm0, dword ptr [rax+130h]
-        vsubss  xmm2, xmm1, dword ptr [rax+134h]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm3, xmm2, xmm2
-        vaddss  xmm1, xmm3, xmm0
-        vsqrtss xmm0, xmm1, xmm1
-      }
-    }
-    else
-    {
-      m_CurPathPoint = _RBX->m_CurPathPoint;
-      __asm { vmovaps [rsp+0D8h+var_18], xmm6 }
-      _RCX = 6 * m_CurPathPoint;
-      v23 = m_CurPathPoint + 1;
-      m_NumPoints = _RBX->m_Path.m_NumPoints;
-      v25 = v23;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rcx*8+0C8h]
-        vsubss  xmm3, xmm0, dword ptr [rbx+54h]
-        vmovss  xmm1, dword ptr [rbx+rcx*8+0CCh]
-        vsubss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmovss  xmm0, dword ptr [rbx+rcx*8+0D0h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+5Ch]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm6, xmm2, xmm2
-        vmovss  [rsp+0D8h+var_B8], xmm6
-      }
-      if ( v23 < m_NumPoints )
-      {
-        if ( m_NumPoints - v23 >= 4 )
-        {
-          __asm
-          {
-            vmovaps [rsp+0D8h+var_28], xmm7
-            vmovaps [rsp+0D8h+var_38], xmm8
-            vmovaps [rsp+0D8h+var_48], xmm9
-            vmovaps [rsp+0D8h+var_58], xmm10
-            vmovaps [rsp+0D8h+var_68], xmm11
-            vmovaps [rsp+0D8h+var_78], xmm12
-          }
-          _R9 = (__int64)&_RBX->m_ReevalPathTask.pPrev + 48 * v23 + 4;
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r9]
-            vmovaps [rsp+0D8h+var_88], xmm13
-          }
-          v40 = ((unsigned __int64)(m_NumPoints - v23 - 4) >> 2) + 1;
-          __asm
-          {
-            vmovaps [rsp+0D8h+var_98], xmm14
-            vmovaps [rsp+0D8h+var_A8], xmm15
-          }
-          v25 = v23 + 4 * v40;
-          do
-          {
-            __asm
-            {
-              vmovss  xmm1, dword ptr [r9+30h]
-              vmovss  xmm4, dword ptr [r9+60h]
-              vmovss  xmm0, dword ptr [r9+2Ch]
-              vsubss  xmm11, xmm0, dword ptr [r9-4]
-              vmovss  xmm3, dword ptr [r9+5Ch]
-            }
-            _R9 += 192i64;
-            __asm
-            {
-              vsubss  xmm5, xmm1, xmm2
-              vmovss  xmm2, dword ptr [r9-8Ch]
-              vsubss  xmm6, xmm2, dword ptr [r9-0BCh]
-              vsubss  xmm14, xmm3, xmm0
-              vmovss  xmm0, dword ptr [r9-5Ch]
-              vsubss  xmm8, xmm0, xmm2
-              vmovss  xmm2, dword ptr [r9-30h]
-              vsubss  xmm9, xmm2, xmm4
-              vsubss  xmm7, xmm4, xmm1
-              vmovss  xmm1, dword ptr [r9-34h]
-              vsubss  xmm15, xmm1, xmm3
-              vmovss  xmm3, dword ptr [r9-2Ch]
-              vsubss  xmm12, xmm3, xmm0
-              vmovss  xmm0, dword ptr [r9-4]
-              vsubss  xmm4, xmm0, xmm1
-              vmovss  xmm0, dword ptr [r9]
-              vsubss  xmm10, xmm0, xmm2
-              vmovss  [rsp+0D8h+var_B0], xmm0
-              vmovss  xmm0, dword ptr [r9+4]
-              vsubss  xmm13, xmm0, xmm3
-              vmulss  xmm2, xmm5, xmm5
-              vmulss  xmm0, xmm6, xmm6
-              vmovss  [rsp+0D8h+var_B4], xmm4
-              vmulss  xmm1, xmm11, xmm11
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vaddss  xmm4, xmm1, [rsp+0D8h+var_B8]
-              vmulss  xmm3, xmm7, xmm7
-              vmulss  xmm0, xmm14, xmm14
-              vaddss  xmm2, xmm3, xmm0
-              vmulss  xmm1, xmm8, xmm8
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vaddss  xmm5, xmm4, xmm0
-              vmulss  xmm3, xmm9, xmm9
-              vmulss  xmm1, xmm15, xmm15
-              vaddss  xmm2, xmm3, xmm1
-              vmulss  xmm0, xmm12, xmm12
-              vaddss  xmm2, xmm2, xmm0
-              vmovss  xmm0, [rsp+0D8h+var_B4]
-              vsqrtss xmm1, xmm2, xmm2
-              vmulss  xmm0, xmm0, xmm0
-              vaddss  xmm4, xmm5, xmm1
-              vmulss  xmm3, xmm10, xmm10
-              vaddss  xmm2, xmm3, xmm0
-              vmulss  xmm1, xmm13, xmm13
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vmovss  xmm2, [rsp+0D8h+var_B0]
-              vaddss  xmm6, xmm4, xmm0
-              vmovss  [rsp+0D8h+var_B8], xmm6
-            }
-            --v40;
-          }
-          while ( v40 );
-          __asm
-          {
-            vmovaps xmm15, [rsp+0D8h+var_A8]
-            vmovaps xmm14, [rsp+0D8h+var_98]
-            vmovaps xmm13, [rsp+0D8h+var_88]
-            vmovaps xmm12, [rsp+0D8h+var_78]
-            vmovaps xmm11, [rsp+0D8h+var_68]
-            vmovaps xmm10, [rsp+0D8h+var_58]
-            vmovaps xmm9, [rsp+0D8h+var_48]
-            vmovaps xmm8, [rsp+0D8h+var_38]
-            vmovaps xmm7, [rsp+0D8h+var_28]
-          }
-        }
-        if ( v25 < m_NumPoints )
-        {
-          v103 = m_NumPoints - v25;
-          _RCX = (__int64)&_RBX->m_ReevalPathTask.pPrev + 48 * v25 + 4;
-          __asm { vmovss  xmm1, dword ptr [rcx] }
-          do
-          {
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rcx+30h]
-              vmovss  xmm0, dword ptr [rcx+2Ch]
-              vsubss  xmm3, xmm0, dword ptr [rcx-4]
-              vmovss  xmm0, dword ptr [rcx+34h]
-              vsubss  xmm4, xmm0, dword ptr [rcx+4]
-            }
-            _RCX += 48i64;
-            __asm
-            {
-              vsubss  xmm1, xmm5, xmm1
-              vmulss  xmm2, xmm1, xmm1
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm2, xmm4, xmm4
-              vaddss  xmm3, xmm3, xmm2
-              vsqrtss xmm1, xmm3, xmm3
-              vaddss  xmm6, xmm6, xmm1
-              vmovaps xmm1, xmm5
-            }
-            --v103;
-          }
-          while ( v103 );
-        }
-      }
-      __asm
-      {
-        vmovaps xmm0, xmm6
-        vmovaps xmm6, [rsp+0D8h+var_18]
-      }
-    }
+    m_pEnt = this->m_pEnt;
+    v4 = this->m_RequestedGoalPos.v[0] - m_pEnt->r.currentOrigin.v[0];
+    v5 = this->m_RequestedGoalPos.v[1] - m_pEnt->r.currentOrigin.v[1];
+    return fsqrt((float)(v5 * v5) + (float)(v4 * v4));
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    m_CurPathPoint = this->m_CurPathPoint;
+    v7 = m_CurPathPoint;
+    v8 = m_CurPathPoint + 1;
+    m_NumPoints = this->m_Path.m_NumPoints;
+    v10 = v8;
+    v11 = this->m_Path.m_Points[v7].m_LocalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+    v12 = LODWORD(this->m_Path.m_Points[v7].m_LocalPos.v[1]);
+    *(float *)&v12 = this->m_Path.m_Points[v7].m_LocalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+    v13 = this->m_Path.m_Points[v7].m_LocalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+    *(float *)&v12 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(v11 * v11)) + (float)(v13 * v13));
+    v14 = v12;
+    v42 = *(float *)&v12;
+    if ( v8 < m_NumPoints )
+    {
+      if ( m_NumPoints - v8 >= 4 )
+      {
+        v15 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v8 + 1;
+        v16 = *v15;
+        v17 = ((unsigned __int64)(m_NumPoints - v8 - 4) >> 2) + 1;
+        v10 = v8 + 4 * v17;
+        do
+        {
+          v18 = *((unsigned int *)v15 + 12);
+          v19 = v15[24];
+          v20 = v15[11];
+          v21 = v20 - *(v15 - 1);
+          v22 = v15[23];
+          v15 += 48;
+          v23 = v18;
+          *(float *)&v23 = *(float *)&v18 - v16;
+          v24 = *(v15 - 35);
+          v25 = v24 - *(v15 - 47);
+          v26 = v22 - v20;
+          v27 = *(v15 - 23);
+          v28 = v27 - v24;
+          v29 = *(v15 - 12);
+          v30 = v19 - *(float *)&v18;
+          *(float *)&v18 = *(v15 - 13);
+          v31 = *(float *)&v18 - v22;
+          v32 = *(v15 - 11);
+          v33 = (float)((float)(fsqrt((float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(v21 * v21)) + (float)(v25 * v25)) + v42) + fsqrt((float)((float)(v30 * v30) + (float)(v26 * v26)) + (float)(v28 * v28))) + fsqrt((float)((float)((float)(v29 - v19) * (float)(v29 - v19)) + (float)(v31 * v31)) + (float)((float)(v32 - v27) * (float)(v32 - v27)));
+          v34 = fsqrt((float)((float)((float)(*v15 - v29) * (float)(*v15 - v29)) + (float)((float)(*(v15 - 1) - *(float *)&v18) * (float)(*(v15 - 1) - *(float *)&v18))) + (float)((float)(v15[1] - v32) * (float)(v15[1] - v32)));
+          v16 = *v15;
+          *(float *)&v23 = v33 + v34;
+          v14 = v23;
+          v42 = v33 + v34;
+          --v17;
+        }
+        while ( v17 );
+      }
+      if ( v10 < m_NumPoints )
+      {
+        v35 = m_NumPoints - v10;
+        v36 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v10 + 1;
+        v37 = *v36;
+        do
+        {
+          v38 = v36[12];
+          v39 = v36[11] - *(v36 - 1);
+          v40 = v36[13] - v36[1];
+          v36 += 12;
+          v41 = v14;
+          *(float *)&v41 = *(float *)&v14 + fsqrt((float)((float)((float)(v38 - v37) * (float)(v38 - v37)) + (float)(v39 * v39)) + (float)(v40 * v40));
+          v14 = v41;
+          v37 = v38;
+          --v35;
+        }
+        while ( v35 );
+      }
+    }
+    return *(float *)&v14;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -6446,190 +5650,139 @@ AINavigator2D::GetPathDistToGoalOrLink
 */
 float AINavigator2D::GetPathDistToGoalOrLink(AINavigator2D *this)
 {
+  gentity_s *m_pEnt; 
+  float v4; 
+  float v5; 
   __int64 m_CurPathPoint; 
   __int64 m_NumPoints; 
-  __int64 v17; 
+  __int64 v8; 
+  __int64 v9; 
+  float v10; 
+  __int128 v11; 
+  float v12; 
+  __int128 v13; 
+  float *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  __int128 v32; 
+  float v33; 
+  float v34; 
+  float *v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
 
-  _RBX = this;
-  if ( this->m_Path.m_NumPoints > 0 )
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0.0;
+  if ( AINavigator::ShouldPathOutOfBounds(this) )
   {
-    if ( AINavigator::ShouldPathOutOfBounds(this) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmovss  xmm1, dword ptr [rbx+1Ch]
-        vsubss  xmm4, xmm0, dword ptr [rax+130h]
-        vsubss  xmm2, xmm1, dword ptr [rax+134h]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm3, xmm2, xmm2
-        vaddss  xmm1, xmm3, xmm0
-        vsqrtss xmm0, xmm1, xmm1
-      }
-    }
-    else
-    {
-      m_CurPathPoint = _RBX->m_CurPathPoint;
-      m_NumPoints = _RBX->m_Path.m_NumPoints;
-      _RCX = 6 * m_CurPathPoint;
-      v17 = (int)m_CurPathPoint + 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+rcx*8+0C8h]
-        vsubss  xmm3, xmm0, dword ptr [rbx+54h]
-        vmovss  xmm1, dword ptr [rbx+rcx*8+0CCh]
-        vsubss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmovss  xmm0, dword ptr [rbx+rcx*8+0D0h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+5Ch]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm5, xmm2, xmm2
-      }
-      if ( v17 < m_NumPoints )
-      {
-        __asm
-        {
-          vmovaps [rsp+58h+var_18], xmm6
-          vmovaps [rsp+58h+var_28], xmm7
-          vmovaps [rsp+58h+var_38], xmm8
-        }
-        if ( m_NumPoints - v17 < 4 )
-        {
-LABEL_13:
-          if ( v17 < m_NumPoints )
-          {
-            _RCX = (__int64)&_RBX->m_ReevalPathTask.pPrev + 48 * v17 + 4;
-            do
-            {
-              if ( (*(_BYTE *)(_RCX + 8) & 2) != 0 )
-                break;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rcx+2Ch]
-                vsubss  xmm3, xmm0, dword ptr [rcx-4]
-                vmovss  xmm1, dword ptr [rcx+30h]
-                vsubss  xmm2, xmm1, dword ptr [rcx]
-                vmovss  xmm0, dword ptr [rcx+34h]
-                vsubss  xmm4, xmm0, dword ptr [rcx+4]
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm2, xmm2, xmm2
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm2, xmm4, xmm4
-                vaddss  xmm3, xmm3, xmm2
-              }
-              ++v17;
-              _RCX += 48i64;
-              __asm
-              {
-                vsqrtss xmm1, xmm3, xmm3
-                vaddss  xmm5, xmm5, xmm1
-              }
-            }
-            while ( v17 < m_NumPoints );
-          }
-        }
-        else
-        {
-          _RCX = (char *)&_RBX->m_ReevalPathTask.pPrev + 48 * v17 + 4;
-          while ( (_RCX[8] & 2) == 0 )
-          {
-            __asm
-            {
-              vmovss  xmm6, dword ptr [rcx+30h]
-              vsubss  xmm0, xmm6, dword ptr [rcx]
-              vmovss  xmm4, dword ptr [rcx+2Ch]
-              vsubss  xmm2, xmm4, dword ptr [rcx-4]
-              vmovss  xmm7, dword ptr [rcx+34h]
-              vsubss  xmm3, xmm7, dword ptr [rcx+4]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vaddss  xmm5, xmm5, xmm0
-            }
-            if ( (_RCX[56] & 2) != 0 )
-              break;
-            __asm
-            {
-              vmovss  xmm8, dword ptr [rcx+5Ch]
-              vsubss  xmm2, xmm8, xmm4
-              vmovss  xmm4, dword ptr [rcx+60h]
-              vsubss  xmm0, xmm4, xmm6
-              vmovss  xmm6, dword ptr [rcx+64h]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vsubss  xmm3, xmm6, xmm7
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vaddss  xmm5, xmm5, xmm0
-            }
-            if ( (_RCX[104] & 2) != 0 )
-              break;
-            __asm
-            {
-              vmovss  xmm7, dword ptr [rcx+8Ch]
-              vsubss  xmm2, xmm7, xmm8
-              vmovss  xmm8, dword ptr [rcx+90h]
-              vsubss  xmm0, xmm8, xmm4
-              vmovss  xmm4, dword ptr [rcx+94h]
-              vmulss  xmm1, xmm0, xmm0
-              vmulss  xmm0, xmm2, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vsubss  xmm3, xmm4, xmm6
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm2, xmm2, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vaddss  xmm5, xmm5, xmm0
-            }
-            if ( (_RCX[152] & 2) != 0 )
-              break;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+0BCh]
-              vmovss  xmm1, dword ptr [rcx+0C0h]
-              vsubss  xmm3, xmm0, xmm7
-              vmovss  xmm0, dword ptr [rcx+0C4h]
-              vsubss  xmm2, xmm1, xmm8
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vsubss  xmm4, xmm0, xmm4
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-            }
-            v17 += 4i64;
-            _RCX += 192;
-            __asm
-            {
-              vsqrtss xmm1, xmm2, xmm2
-              vaddss  xmm5, xmm5, xmm1
-            }
-            if ( v17 >= m_NumPoints - 3 )
-              goto LABEL_13;
-          }
-        }
-        __asm
-        {
-          vmovaps xmm7, [rsp+58h+var_28]
-          vmovaps xmm6, [rsp+58h+var_18]
-          vmovaps xmm8, [rsp+58h+var_38]
-        }
-      }
-      __asm { vmovaps xmm0, xmm5 }
-    }
+    m_pEnt = this->m_pEnt;
+    v4 = this->m_RequestedGoalPos.v[0] - m_pEnt->r.currentOrigin.v[0];
+    v5 = this->m_RequestedGoalPos.v[1] - m_pEnt->r.currentOrigin.v[1];
+    return fsqrt((float)(v5 * v5) + (float)(v4 * v4));
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    m_CurPathPoint = this->m_CurPathPoint;
+    m_NumPoints = this->m_Path.m_NumPoints;
+    v8 = m_CurPathPoint;
+    v9 = (int)m_CurPathPoint + 1;
+    v10 = this->m_Path.m_Points[v8].m_LocalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+    v11 = LODWORD(this->m_Path.m_Points[v8].m_LocalPos.v[1]);
+    *(float *)&v11 = this->m_Path.m_Points[v8].m_LocalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+    v12 = this->m_Path.m_Points[v8].m_LocalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+    *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v10 * v10)) + (float)(v12 * v12));
+    v13 = v11;
+    if ( v9 < m_NumPoints )
+    {
+      if ( m_NumPoints - v9 < 4 )
+      {
+LABEL_13:
+        if ( v9 < m_NumPoints )
+        {
+          v35 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v9 + 1;
+          do
+          {
+            if ( ((_BYTE)v35[2] & 2) != 0 )
+              break;
+            v36 = v35[11] - *(v35 - 1);
+            v37 = v35[13] - v35[1];
+            v38 = (float)((float)((float)(v35[12] - *v35) * (float)(v35[12] - *v35)) + (float)(v36 * v36)) + (float)(v37 * v37);
+            ++v9;
+            v35 += 12;
+            v39 = fsqrt(v38);
+            v40 = v13;
+            *(float *)&v40 = *(float *)&v13 + v39;
+            v13 = v40;
+          }
+          while ( v9 < m_NumPoints );
+        }
+      }
+      else
+      {
+        v14 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v9 + 1;
+        while ( ((_BYTE)v14[2] & 2) == 0 )
+        {
+          v15 = v14[12];
+          v16 = v14[11];
+          v17 = v14[13];
+          v18 = v13;
+          *(float *)&v18 = *(float *)&v13 + fsqrt((float)((float)((float)(v15 - *v14) * (float)(v15 - *v14)) + (float)((float)(v16 - *(v14 - 1)) * (float)(v16 - *(v14 - 1)))) + (float)((float)(v17 - v14[1]) * (float)(v17 - v14[1])));
+          v13 = v18;
+          if ( ((_BYTE)v14[14] & 2) != 0 )
+            break;
+          v19 = v14[23];
+          v20 = v19 - v16;
+          v21 = v14[24];
+          v22 = v21 - v15;
+          v23 = v14[25];
+          v24 = fsqrt((float)((float)(v22 * v22) + (float)(v20 * v20)) + (float)((float)(v23 - v17) * (float)(v23 - v17)));
+          v25 = v13;
+          *(float *)&v25 = *(float *)&v13 + v24;
+          v13 = v25;
+          if ( ((_BYTE)v14[26] & 2) != 0 )
+            break;
+          v26 = v14[35];
+          v27 = v26 - v19;
+          v28 = v14[36];
+          v29 = v28 - v21;
+          v30 = v14[37];
+          v31 = fsqrt((float)((float)(v29 * v29) + (float)(v27 * v27)) + (float)((float)(v30 - v23) * (float)(v30 - v23)));
+          v32 = v13;
+          *(float *)&v32 = *(float *)&v13 + v31;
+          *(float *)&v13 = *(float *)&v13 + v31;
+          if ( ((_BYTE)v14[38] & 2) != 0 )
+            break;
+          v33 = (float)((float)(v14[48] - v28) * (float)(v14[48] - v28)) + (float)((float)(v14[47] - v26) * (float)(v14[47] - v26));
+          v34 = (float)(v14[49] - v30) * (float)(v14[49] - v30);
+          v9 += 4i64;
+          v14 += 48;
+          *(float *)&v32 = *(float *)&v32 + fsqrt(v33 + v34);
+          v13 = v32;
+          if ( v9 >= m_NumPoints - 3 )
+            goto LABEL_13;
+        }
+      }
+    }
+    return *(float *)&v13;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -6640,244 +5793,149 @@ AINavigator2D::GetPathLength
 float AINavigator2D::GetPathLength(AINavigator2D *this)
 {
   __int64 m_NumPoints; 
-  int v16; 
-  __int64 v19; 
-  int v20; 
-  int v21; 
-  unsigned __int64 v23; 
-  __int64 v80; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  float v8; 
+  __int64 v9; 
+  int v10; 
+  int v11; 
+  float *v12; 
+  unsigned __int64 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int64 v31; 
+  float *v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
 
   m_NumPoints = this->m_Path.m_NumPoints;
-  _RDX = this;
-  if ( (int)m_NumPoints > 0 )
+  if ( (int)m_NumPoints <= 0 )
+    return 0.0;
+  v4 = this->m_Path.m_Points[0].m_LocalPos.v[0] - this->m_LocalSnappedPathStartPos.v[0];
+  v5 = this->m_Path.m_Points[0].m_LocalPos.v[1] - this->m_LocalSnappedPathStartPos.v[1];
+  v6 = this->m_Path.m_Points[0].m_LocalPos.v[2] - this->m_LocalSnappedPathStartPos.v[2];
+  v7 = 1;
+  v8 = fsqrt((float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v6 * v6));
+  if ( m_NumPoints > 1 )
   {
-    __asm
+    v9 = 1i64;
+    if ( m_NumPoints >= 5 )
     {
-      vmovss  xmm0, dword ptr [rcx+0C8h]
-      vsubss  xmm3, xmm0, dword ptr [rcx+60h]
-      vmovss  xmm1, dword ptr [rcx+0CCh]
-      vsubss  xmm2, xmm1, dword ptr [rcx+64h]
-      vmovss  xmm0, dword ptr [rcx+0D0h]
-      vsubss  xmm4, xmm0, dword ptr [rcx+68h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-    }
-    v16 = 1;
-    __asm
-    {
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm5, xmm2, xmm2
-    }
-    if ( m_NumPoints > 1 )
-    {
-      v19 = 1i64;
-      if ( m_NumPoints >= 5 )
+      v10 = m_NumPoints - 1;
+      v11 = 3;
+      v12 = &this->m_Path.m_Points[0].m_LocalPos.v[2];
+      v13 = ((unsigned __int64)(m_NumPoints - 5) >> 2) + 1;
+      v9 = 4 * v13 + 1;
+      do
       {
-        v20 = m_NumPoints - 1;
-        __asm { vmovaps [rsp+18h+var_18], xmm6 }
-        v21 = 3;
-        _RCX = &this->m_Path.m_Points[0].m_LocalPos.v[2];
-        v23 = ((unsigned __int64)(m_NumPoints - 5) >> 2) + 1;
-        v19 = 4 * v23 + 1;
-        do
+        if ( v7 == v10 )
         {
-          if ( v16 == v20 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdx+3Ch]
-              vsubss  xmm3, xmm0, dword ptr [rcx-8]
-              vmovss  xmm0, dword ptr [rdx+44h]
-              vmovss  xmm1, dword ptr [rdx+40h]
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+28h]
-              vsubss  xmm3, xmm0, dword ptr [rcx-8]
-              vmovss  xmm0, dword ptr [rcx+30h]
-              vmovss  xmm1, dword ptr [rcx+2Ch]
-            }
-          }
-          __asm
-          {
-            vsubss  xmm2, xmm1, dword ptr [rcx-4]
-            vsubss  xmm4, xmm0, dword ptr [rcx]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm2, xmm2
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm1, xmm3, xmm0
-            vsqrtss xmm0, xmm1, xmm1
-            vaddss  xmm6, xmm0, xmm5
-          }
-          if ( v21 - 1 == v20 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdx+3Ch]
-              vsubss  xmm3, xmm0, dword ptr [rcx+28h]
-              vmovss  xmm0, dword ptr [rdx+44h]
-              vmovss  xmm1, dword ptr [rdx+40h]
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+58h]
-              vsubss  xmm3, xmm0, dword ptr [rcx+28h]
-              vmovss  xmm0, dword ptr [rcx+60h]
-              vmovss  xmm1, dword ptr [rcx+5Ch]
-            }
-          }
-          __asm
-          {
-            vsubss  xmm2, xmm1, dword ptr [rcx+2Ch]
-            vsubss  xmm4, xmm0, dword ptr [rcx+30h]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vsqrtss xmm0, xmm5, xmm5
-            vaddss  xmm6, xmm0, xmm6
-          }
-          if ( v21 == v20 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdx+3Ch]
-              vsubss  xmm3, xmm0, dword ptr [rcx+58h]
-              vmovss  xmm0, dword ptr [rdx+44h]
-              vmovss  xmm1, dword ptr [rdx+40h]
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+88h]
-              vsubss  xmm3, xmm0, dword ptr [rcx+58h]
-              vmovss  xmm0, dword ptr [rcx+90h]
-              vmovss  xmm1, dword ptr [rcx+8Ch]
-            }
-          }
-          __asm
-          {
-            vsubss  xmm2, xmm1, dword ptr [rcx+5Ch]
-            vsubss  xmm4, xmm0, dword ptr [rcx+60h]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vsqrtss xmm0, xmm5, xmm5
-            vaddss  xmm6, xmm0, xmm6
-          }
-          if ( v21 + 1 == v20 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdx+3Ch]
-              vsubss  xmm3, xmm0, dword ptr [rcx+88h]
-              vmovss  xmm0, dword ptr [rdx+44h]
-              vmovss  xmm1, dword ptr [rdx+40h]
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+0B8h]
-              vsubss  xmm3, xmm0, dword ptr [rcx+88h]
-              vmovss  xmm0, dword ptr [rcx+0C0h]
-              vmovss  xmm1, dword ptr [rcx+0BCh]
-            }
-          }
-          __asm
-          {
-            vsubss  xmm2, xmm1, dword ptr [rcx+8Ch]
-            vsubss  xmm4, xmm0, dword ptr [rcx+90h]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-          }
-          v16 += 4;
-          v21 += 4;
-          _RCX += 48;
-          __asm
-          {
-            vsqrtss xmm0, xmm5, xmm5
-            vaddss  xmm5, xmm0, xmm6
-          }
-          --v23;
+          v14 = this->m_LocalRequestedGoalPos.v[0] - *(v12 - 2);
+          v15 = this->m_LocalRequestedGoalPos.v[2];
+          v16 = this->m_LocalRequestedGoalPos.v[1];
         }
-        while ( v23 );
-        __asm { vmovaps xmm6, [rsp+18h+var_18] }
-      }
-      if ( v19 < m_NumPoints )
-      {
-        v80 = m_NumPoints - v19;
-        _RCX = (__int64)&_RDX->m_ReevalPathTask.pPrev + 48 * v19 + 4;
-        do
+        else
         {
-          if ( v16 == (_DWORD)m_NumPoints - 1 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdx+3Ch]
-              vmovss  xmm1, dword ptr [rdx+40h]
-              vsubss  xmm2, xmm0, dword ptr [rcx-4]
-              vmovss  xmm0, dword ptr [rdx+44h]
-              vsubss  xmm3, xmm1, dword ptr [rcx]
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+2Ch]
-              vmovss  xmm1, dword ptr [rcx+30h]
-              vsubss  xmm3, xmm0, dword ptr [rcx-4]
-              vmovss  xmm0, dword ptr [rcx+34h]
-              vsubss  xmm2, xmm1, dword ptr [rcx]
-            }
-          }
-          __asm
-          {
-            vsubss  xmm4, xmm0, dword ptr [rcx+4]
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm2, xmm2, xmm2
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm1, xmm3, xmm0
-          }
-          ++v16;
-          _RCX += 48i64;
-          __asm
-          {
-            vsqrtss xmm1, xmm1, xmm1
-            vaddss  xmm5, xmm1, xmm5
-          }
-          --v80;
+          v14 = v12[10] - *(v12 - 2);
+          v15 = v12[12];
+          v16 = v12[11];
         }
-        while ( v80 );
+        v17 = fsqrt((float)((float)((float)(v16 - *(v12 - 1)) * (float)(v16 - *(v12 - 1))) + (float)(v14 * v14)) + (float)((float)(v15 - *v12) * (float)(v15 - *v12))) + v8;
+        if ( v11 - 1 == v10 )
+        {
+          v18 = this->m_LocalRequestedGoalPos.v[0] - v12[10];
+          v19 = this->m_LocalRequestedGoalPos.v[2];
+          v20 = this->m_LocalRequestedGoalPos.v[1];
+        }
+        else
+        {
+          v18 = v12[22] - v12[10];
+          v19 = v12[24];
+          v20 = v12[23];
+        }
+        v21 = fsqrt((float)((float)((float)(v20 - v12[11]) * (float)(v20 - v12[11])) + (float)(v18 * v18)) + (float)((float)(v19 - v12[12]) * (float)(v19 - v12[12]))) + v17;
+        if ( v11 == v10 )
+        {
+          v22 = this->m_LocalRequestedGoalPos.v[0] - v12[22];
+          v23 = this->m_LocalRequestedGoalPos.v[2];
+          v24 = this->m_LocalRequestedGoalPos.v[1];
+        }
+        else
+        {
+          v22 = v12[34] - v12[22];
+          v23 = v12[36];
+          v24 = v12[35];
+        }
+        v25 = fsqrt((float)((float)((float)(v24 - v12[23]) * (float)(v24 - v12[23])) + (float)(v22 * v22)) + (float)((float)(v23 - v12[24]) * (float)(v23 - v12[24]))) + v21;
+        if ( v11 + 1 == v10 )
+        {
+          v26 = this->m_LocalRequestedGoalPos.v[0] - v12[34];
+          v27 = this->m_LocalRequestedGoalPos.v[2];
+          v28 = this->m_LocalRequestedGoalPos.v[1];
+        }
+        else
+        {
+          v26 = v12[46] - v12[34];
+          v27 = v12[48];
+          v28 = v12[47];
+        }
+        v29 = v27 - v12[36];
+        v30 = (float)(v28 - v12[35]) * (float)(v28 - v12[35]);
+        v7 += 4;
+        v11 += 4;
+        v12 += 48;
+        v8 = fsqrt((float)(v30 + (float)(v26 * v26)) + (float)(v29 * v29)) + v25;
+        --v13;
       }
+      while ( v13 );
     }
-    __asm { vmovaps xmm0, xmm5 }
+    if ( v9 < m_NumPoints )
+    {
+      v31 = m_NumPoints - v9;
+      v32 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v9 + 1;
+      do
+      {
+        if ( v7 == (_DWORD)m_NumPoints - 1 )
+        {
+          v33 = this->m_LocalRequestedGoalPos.v[0] - *(v32 - 1);
+          v34 = this->m_LocalRequestedGoalPos.v[2];
+          v35 = this->m_LocalRequestedGoalPos.v[1] - *v32;
+        }
+        else
+        {
+          v35 = v32[11] - *(v32 - 1);
+          v34 = v32[13];
+          v33 = v32[12] - *v32;
+        }
+        v36 = (float)(v34 - v32[1]) * (float)(v34 - v32[1]);
+        ++v7;
+        v32 += 12;
+        v8 = fsqrt((float)((float)(v33 * v33) + (float)(v35 * v35)) + v36) + v8;
+        --v31;
+      }
+      while ( v31 );
+    }
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  return v8;
 }
 
 /*
@@ -6943,54 +6001,188 @@ const bfx::PathSpec *AINavigator2D::GetPathSpec(AINavigator2D *this)
 AINavigator2D::GetPosAlongPath
 ==============
 */
-
-void __fastcall AINavigator2D::GetPosAlongPath(AINavigator2D *this, double dist, bool bStopAtLink, nav_posAlongPathResults_t *pOutResults)
+void AINavigator2D::GetPosAlongPath(AINavigator2D *this, float dist, bool bStopAtLink, nav_posAlongPathResults_t *pOutResults, bool bCalcArea)
 {
+  bool ShouldPathOutOfBounds; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 m_CurPathPoint; 
+  int m_NumPoints; 
+  float v16; 
+  float v17; 
+  __int128 m_PathDistToPos_low; 
+  float *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
+  __int64 v35; 
+  const bfx::AreaHandle *ClosestArea; 
+  bfx::AreaHandle result; 
+  vec3_t outLocalPos; 
   bfx::Vector3 pos; 
-  char v25; 
-  void *retaddr; 
+  vec3_t localPos; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _R14 = pOutResults;
-  __asm { vmovaps xmm10, xmm1 }
   if ( !pOutResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 786, ASSERT_TYPE_ASSERT, "( pOutResults )", (const char *)&queryFormat, "pOutResults") )
     __debugbreak();
-  _R14->m_PathDistToPos = 0.0;
-  __asm
+  pOutResults->m_PathDistToPos = 0.0;
+  if ( dist == 0.0 || this->m_Path.m_NumPoints <= 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm10, xmm0
+    this->GetCurPos(this, (vec3_t *)&pos);
+    pOutResults->m_Pos = (vec3_t)pos;
+    bfx::AreaHandle::operator=(&pOutResults->m_hArea, &this->m_hCurArea);
+    bfx::LinkHandle::Release(&pOutResults->m_hLink);
+    pOutResults->m_numPointsAlongPath = 0;
+    goto LABEL_35;
   }
-  this->GetCurPos(this, (vec3_t *)&pos);
-  __asm
+  ShouldPathOutOfBounds = AINavigator::ShouldPathOutOfBounds(this);
+  if ( ShouldPathOutOfBounds )
   {
-    vmovss  xmm0, [rbp+4Fh+pos.m_x]
-    vmovss  dword ptr [r14], xmm0
-    vmovss  xmm1, [rbp+4Fh+pos.m_y]
-    vmovss  dword ptr [r14+4], xmm1
-    vmovss  xmm0, [rbp+4Fh+pos.m_z]
-    vmovss  dword ptr [r14+8], xmm0
+    Nav_SpaceConvertWorldToLocal(this->m_pSpace, &this->m_pEnt->r.currentOrigin, &outLocalPos);
+    v10 = outLocalPos.v[1];
+    v11 = outLocalPos.v[0];
   }
-  bfx::AreaHandle::operator=(&_R14->m_hArea, &this->m_hCurArea);
-  bfx::LinkHandle::Release(&_R14->m_hLink);
-  _R14->m_numPointsAlongPath = 0;
-  _R14->m_PosType = POS_ON_SURFACE;
-  _R11 = &v25;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    v11 = this->m_LocalCurSnappedPos.v[0];
+    outLocalPos.v[0] = v11;
+    v10 = this->m_LocalCurSnappedPos.v[1];
+    outLocalPos.v[1] = v10;
+  }
+  v12 = this->m_LocalCurSnappedPos.v[2];
+  v13 = v12;
+  outLocalPos.v[2] = v12;
+  m_CurPathPoint = this->m_CurPathPoint;
+  m_NumPoints = this->m_Path.m_NumPoints;
+  if ( (int)m_CurPathPoint < m_NumPoints )
+  {
+    v16 = v12;
+    v17 = v12;
+    m_PathDistToPos_low = LODWORD(pOutResults->m_PathDistToPos);
+    v19 = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+    while ( 1 )
+    {
+      if ( ShouldPathOutOfBounds && (v16 = v17, (_DWORD)m_CurPathPoint == m_NumPoints - 1) )
+      {
+        v20 = this->m_LocalRequestedGoalPos.v[0] - v11;
+        v21 = this->m_LocalRequestedGoalPos.v[1];
+        v22 = this->m_LocalRequestedGoalPos.v[2] - v13;
+      }
+      else
+      {
+        v20 = *(v19 - 2) - v11;
+        v21 = *(v19 - 1);
+        v22 = *v19 - v16;
+      }
+      v23 = m_PathDistToPos_low;
+      *(float *)&v23 = *(float *)&m_PathDistToPos_low + fsqrt((float)((float)((float)(v21 - v10) * (float)(v21 - v10)) + (float)(v20 * v20)) + (float)(v22 * v22));
+      if ( *(float *)&v23 > dist )
+        break;
+      pOutResults->m_PathDistToPos = *(float *)&v23;
+      pOutResults->m_numPointsAlongPath = m_CurPathPoint - this->m_CurPathPoint;
+      v11 = *(v19 - 2);
+      outLocalPos.v[0] = v11;
+      v10 = *(v19 - 1);
+      outLocalPos.v[1] = v10;
+      v12 = *v19;
+      v13 = *v19;
+      outLocalPos.v[2] = *v19;
+      m_NumPoints = this->m_Path.m_NumPoints;
+      if ( (_DWORD)m_CurPathPoint == m_NumPoints - 1 )
+      {
+        nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &pOutResults->m_Pos);
+        bfx::AreaHandle::operator=(&pOutResults->m_hArea, &this->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+        bfx::LinkHandle::Release(&pOutResults->m_hLink);
+        pOutResults->m_PosType = POS_AT_GOAL;
+        return;
+      }
+      if ( bStopAtLink && ((_BYTE)v19[1] & 2) != 0 )
+      {
+        nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &pOutResults->m_Pos);
+        bfx::AreaHandle::operator=(&pOutResults->m_hArea, &this->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+        nav_path_t::GetLinkForPathPoint(&this->m_Path, m_CurPathPoint, &pOutResults->m_hLink);
+        pOutResults->m_bBackwardsLink = (this->m_Path.m_Points[(int)m_CurPathPoint].m_Flags & 8) != 0;
+        pOutResults->m_PosType = POS_ON_LINK;
+        return;
+      }
+      LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+      v19 += 12;
+      v16 = v13;
+      v17 = v13;
+      m_PathDistToPos_low = v23;
+      if ( (int)m_CurPathPoint >= m_NumPoints )
+        return;
+    }
+    v24 = dist - *(float *)&m_PathDistToPos_low;
+    pOutResults->m_PathDistToPos = *(float *)&m_PathDistToPos_low + v24;
+    pOutResults->m_numPointsAlongPath = m_CurPathPoint - this->m_CurPathPoint;
+    if ( ShouldPathOutOfBounds && (_DWORD)m_CurPathPoint == this->m_Path.m_NumPoints - 1 )
+    {
+      v25 = this->m_LocalRequestedGoalPos.v[0] - v11;
+      v26 = LODWORD(this->m_LocalRequestedGoalPos.v[1]);
+      v27 = this->m_LocalRequestedGoalPos.v[2];
+      v28 = (int)m_CurPathPoint;
+    }
+    else
+    {
+      v28 = (int)m_CurPathPoint;
+      v25 = this->m_Path.m_Points[(int)m_CurPathPoint].m_LocalPos.v[0] - v11;
+      v26 = LODWORD(this->m_Path.m_Points[(int)m_CurPathPoint].m_LocalPos.v[1]);
+      v27 = this->m_Path.m_Points[(int)m_CurPathPoint].m_LocalPos.v[2];
+    }
+    v29 = v27 - v12;
+    v31 = v26;
+    v30 = *(float *)&v26 - v10;
+    *(float *)&v31 = fsqrt((float)((float)(v30 * v30) + (float)(v25 * v25)) + (float)(v29 * v29));
+    _XMM3 = v31;
+    __asm
+    {
+      vcmpless xmm0, xmm3, cs:__real@80000000
+      vblendvps xmm1, xmm3, xmm2, xmm0
+    }
+    localPos.v[0] = (float)((float)(v25 * (float)(1.0 / *(float *)&_XMM1)) * v24) + v11;
+    localPos.v[1] = (float)((float)(v30 * (float)(1.0 / *(float *)&_XMM1)) * v24) + v10;
+    localPos.v[2] = (float)((float)(v29 * (float)(1.0 / *(float *)&_XMM1)) * v24) + v12;
+    Nav_SpaceConvertLocalToWorld(this->m_Path.m_pSpace, &localPos, &pOutResults->m_Pos);
+    v35 = v28;
+    if ( (this->m_Path.m_Points[v35].m_Flags & 4) != 0 )
+    {
+      bfx::AreaHandle::operator=(&pOutResults->m_hArea, &this->m_Path.m_Points[v35].m_hArea);
+      pOutResults->m_bBackwardsLink = (this->m_Path.m_Points[v35].m_Flags & 8) != 0;
+      if ( !bStopAtLink )
+      {
+        nav_path_t::GetLinkForPathPoint(&this->m_Path, m_CurPathPoint, &pOutResults->m_hLink);
+        pOutResults->m_PosType = POS_ON_LINK;
+        return;
+      }
+    }
+    else
+    {
+      pos = (bfx::Vector3)pOutResults->m_Pos;
+      if ( bCalcArea )
+      {
+        ClosestArea = bfx::GetClosestArea(&result, &this->m_pSpace->hSpace, &pos, this->m_Layer, &this->m_PathSpecOfCurPath);
+        bfx::AreaHandle::operator=(&pOutResults->m_hArea, ClosestArea);
+        bfx::AreaHandle::~AreaHandle(&result);
+        bfx::LinkHandle::Release(&pOutResults->m_hLink);
+LABEL_35:
+        pOutResults->m_PosType = POS_ON_SURFACE;
+        return;
+      }
+      bfx::AreaHandle::Release(&pOutResults->m_hArea);
+    }
+    bfx::LinkHandle::Release(&pOutResults->m_hLink);
+    goto LABEL_35;
   }
 }
 
@@ -7020,67 +6212,39 @@ AINavigator2D::GetPrevCornerPassed
 void AINavigator2D::GetPrevCornerPassed(AINavigator2D *this, vec3_t *corner)
 {
   int m_CurPathPoint; 
-  int v9; 
+  int v5; 
   unsigned int *p_m_Flags; 
+  float v7; 
+  float v8; 
+  float v9; 
   vec3_t outDir; 
 
   m_CurPathPoint = this->m_CurPathPoint;
-  _RBP = corner;
   if ( m_CurPathPoint )
   {
-    v9 = m_CurPathPoint - 1;
-    __asm
+    v5 = m_CurPathPoint - 1;
+    if ( v5 < 0 )
     {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vmovaps [rsp+0A8h+var_48], xmm8
-      vmovaps [rsp+0A8h+var_58], xmm9
-    }
-    if ( v9 < 0 )
-    {
-LABEL_8:
-      if ( v9 != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 973, ASSERT_TYPE_ASSERT, "(prevCornerIndex == -1)", (const char *)&queryFormat, "prevCornerIndex == -1") )
+LABEL_9:
+      if ( v5 != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 973, ASSERT_TYPE_ASSERT, "(prevCornerIndex == -1)", (const char *)&queryFormat, "prevCornerIndex == -1") )
         __debugbreak();
     }
     else
     {
-      __asm { vxorps  xmm9, xmm9, xmm9 }
-      p_m_Flags = &this->m_Path.m_Points[v9].m_Flags;
+      p_m_Flags = &this->m_Path.m_Points[v5].m_Flags;
       while ( 1 )
       {
-        nav_path_t::GetPathPoint(&this->m_Path, v9, _RBP);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0]
-          vsubss  xmm6, xmm0, dword ptr [rsi+30h]
-          vmovss  xmm0, dword ptr [rbp+8]
-          vmovss  xmm1, dword ptr [rbp+4]
-          vsubss  xmm8, xmm0, dword ptr [rsi+38h]
-          vsubss  xmm7, xmm1, dword ptr [rsi+34h]
-        }
-        nav_path_t::GetDir(&this->m_Path, v9, &outDir);
-        if ( (*p_m_Flags & 2) != 0 || (*p_m_Flags & 0xC10) != 0 )
+        nav_path_t::GetPathPoint(&this->m_Path, v5, corner);
+        v7 = corner->v[0] - this->m_CurSnappedPos.v[0];
+        v8 = corner->v[2] - this->m_CurSnappedPos.v[2];
+        v9 = corner->v[1] - this->m_CurSnappedPos.v[1];
+        nav_path_t::GetDir(&this->m_Path, v5, &outDir);
+        if ( (*p_m_Flags & 2) != 0 || (*p_m_Flags & 0xC10) != 0 || (float)((float)((float)(v9 * outDir.v[1]) + (float)(v7 * outDir.v[0])) + (float)(v8 * outDir.v[2])) < 0.0 )
           break;
-        __asm
-        {
-          vmulss  xmm1, xmm7, dword ptr [rsp+0A8h+outDir+4]
-          vmulss  xmm0, xmm6, dword ptr [rsp+0A8h+outDir]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm8, dword ptr [rsp+0A8h+outDir+8]
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm3, xmm9
-        }
         p_m_Flags -= 12;
-        if ( --v9 < 0 )
-          goto LABEL_8;
+        if ( --v5 < 0 )
+          goto LABEL_9;
       }
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+0A8h+var_48]
-      vmovaps xmm7, [rsp+0A8h+var_38]
-      vmovaps xmm6, [rsp+0A8h+var_28]
-      vmovaps xmm9, [rsp+0A8h+var_58]
     }
   }
   else
@@ -7094,207 +6258,137 @@ LABEL_8:
 AINavigator2D::GetStairsStateAtDist
 ==============
 */
-
-__int64 __fastcall AINavigator2D::GetStairsStateAtDist(AINavigator2D *this, double checkDist, vec3_t *outPosAtDist)
+__int64 AINavigator2D::GetStairsStateAtDist(AINavigator2D *this, float checkDist, vec3_t *outPosAtDist)
 {
-  unsigned int v16; 
-  __int64 result; 
+  unsigned int v5; 
   bfx::PathSpec *pathSpec; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   __int64 m_CurPathPoint; 
-  __int64 p_m_Length; 
-  char v62; 
-  char v63; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float *p_m_Length; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
+  float v21; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v28; 
+  float v32; 
+  float v33; 
   bfx::ProbeSpec probeSpec; 
   bfx::Vector3 dir; 
   bfx::Vector3 iStartPos; 
   bfx::AreaHandle startingArea; 
   bfx::ProbeResults results; 
-  __int64 v90; 
+  __int64 v40; 
   vec3_t outPoint; 
   vec3_t outUp; 
-  char v93; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v90 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _R15 = outPosAtDist;
-  __asm { vmovss  [rsp+1C0h+var_17C], xmm1 }
-  _RBX = this;
-  v16 = 0;
+  v40 = -2i64;
+  v5 = 0;
   *(_QWORD *)outPosAtDist->v = 0i64;
   outPosAtDist->v[2] = 0.0;
-  if ( this->m_Path.m_NumPoints > 0 )
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0i64;
+  probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
+  pathSpec = &this->m_PathSpecOfCurPath;
+  v8 = 0i64;
+  bfx::AreaHandle::AreaHandle(&startingArea);
+  v9 = this->m_CurSnappedPos.v[0];
+  v10 = this->m_CurSnappedPos.v[1];
+  v11 = this->m_CurSnappedPos.v[2];
+  bfx::AreaHandle::operator=(&startingArea, &this->m_hCurArea);
+  m_CurPathPoint = this->m_CurPathPoint;
+  if ( (int)m_CurPathPoint < this->m_Path.m_NumPoints )
   {
-    probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
-    pathSpec = &this->m_PathSpecOfCurPath;
-    __asm { vxorps  xmm10, xmm10, xmm10 }
-    bfx::AreaHandle::AreaHandle(&startingArea);
-    __asm
+    v13 = v9;
+    v14 = v10;
+    v15 = v11;
+    p_m_Length = &this->m_Path.m_Points[m_CurPathPoint].m_Length;
+    while ( 1 )
     {
-      vmovss  xmm7, dword ptr [rbx+30h]
-      vmovss  xmm8, dword ptr [rbx+34h]
-      vmovss  xmm9, dword ptr [rbx+38h]
-    }
-    bfx::AreaHandle::operator=(&startingArea, &_RBX->m_hCurArea);
-    m_CurPathPoint = _RBX->m_CurPathPoint;
-    if ( (int)m_CurPathPoint < _RBX->m_Path.m_NumPoints )
-    {
+      nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &outPoint);
+      v17 = outPoint.v[0];
+      v18 = outPoint.v[0] - v13;
+      v19 = outPoint.v[1];
+      v20 = LODWORD(outPoint.v[1]);
+      v21 = outPoint.v[2] - v15;
+      *(float *)&v20 = fsqrt((float)((float)((float)(outPoint.v[1] - v14) * (float)(outPoint.v[1] - v14)) + (float)(v18 * v18)) + (float)(v21 * v21));
+      _XMM3 = v20;
       __asm
       {
-        vmovaps xmm6, xmm7
-        vmovaps xmm11, xmm8
-        vmovaps xmm12, xmm9
+        vcmpless xmm0, xmm3, cs:__real@80000000
+        vblendvps xmm1, xmm3, xmm2, xmm0
       }
-      p_m_Length = (__int64)&_RBX->m_Path.m_Points[m_CurPathPoint].m_Length;
-      while ( 1 )
-      {
-        nav_path_t::GetPathPoint(&_RBX->m_Path, m_CurPathPoint, &outPoint);
-        __asm
-        {
-          vmovss  xmm13, dword ptr [rbp+0C0h+outPoint]
-          vsubss  xmm4, xmm13, xmm6
-          vmovss  xmm14, dword ptr [rbp+0C0h+outPoint+4]
-          vsubss  xmm5, xmm14, xmm11
-          vmovss  xmm11, dword ptr [rbp+0C0h+outPoint+8]
-          vsubss  xmm6, xmm11, xmm12
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
-          vcmpless xmm0, xmm3, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
-          vblendvps xmm1, xmm3, xmm2, xmm0
-          vmovss  [rsp+1C0h+var_180], xmm1
-          vdivss  xmm0, xmm2, xmm1
-          vmulss  xmm12, xmm4, xmm0
-          vmulss  xmm15, xmm5, xmm0
-          vmulss  xmm1, xmm6, xmm0
-          vmovss  [rsp+1C0h+var_180], xmm1
-          vaddss  xmm0, xmm10, dword ptr [r14]
-          vmovss  xmm2, [rsp+1C0h+var_17C]
-        }
-        _RCX = 6i64 * (int)m_CurPathPoint;
-        __asm { vcomiss xmm0, xmm2 }
-        if ( !__CFADD__(3i64 * (int)m_CurPathPoint, 3i64 * (int)m_CurPathPoint) )
-          break;
-        __asm
-        {
-          vmovaps xmm10, xmm0
-          vmovaps xmm7, xmm13
-          vmovaps xmm8, xmm14
-          vmovaps xmm9, xmm11
-        }
-        bfx::AreaHandle::operator=(&startingArea, &_RBX->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
-        LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-        p_m_Length += 48i64;
-        __asm
-        {
-          vmovaps xmm6, xmm7
-          vmovaps xmm11, xmm14
-          vmovaps xmm12, xmm9
-        }
-        if ( (int)m_CurPathPoint >= _RBX->m_Path.m_NumPoints )
-          goto LABEL_15;
-      }
-      if ( (_RBX->m_Path.m_Points[(int)m_CurPathPoint].m_Flags & 0x10) != 0 )
-      {
-        __asm
-        {
-          vmovss  [rsp+1C0h+iStartPos.m_x], xmm7
-          vmovss  [rsp+1C0h+iStartPos.m_y], xmm8
-          vmovss  [rsp+1C0h+iStartPos.m_z], xmm9
-          vmovss  [rsp+1C0h+dir.m_x], xmm12
-          vmovss  [rsp+1C0h+dir.m_y], xmm15
-          vmovss  [rsp+1C0h+dir.m_z], xmm1
-          vsubss  xmm1, xmm2, xmm10
-          vmovss  xmm0, dword ptr [rbx+rcx*8+0DCh]
-          vminss  xmm1, xmm0, xmm1
-          vmaxss  xmm6, xmm1, cs:__real@3dcccccd
-        }
-        bfx::AreaHandle::AreaHandle(&results.m_endArea);
-        results.m_collided = 0;
-        results.m_collideEdgeIndex = -1;
-        results.m_generatePath = 0;
-        bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
-        __asm { vmovaps xmm3, xmm6; dist }
-        bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM3, pathSpec, &probeSpec, &results);
-        if ( bfx::AreaHandle::IsValid(&results.m_endArea) && (bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rbp+0C0h+var_140.m_endPos.m_x]
-            vmovss  dword ptr [r15], xmm0
-            vmovss  xmm1, [rbp+0C0h+var_140.m_endPos.m_y]
-            vmovss  dword ptr [r15+4], xmm1
-            vmovss  xmm0, [rbp+0C0h+var_140.m_endPos.m_z]
-            vmovss  dword ptr [r15+8], xmm0
-          }
-          Nav_GetSpaceUp(_RBX->m_pSpace, &outUp);
-          __asm
-          {
-            vmulss  xmm3, xmm12, dword ptr [rbp+0C0h+outUp]
-            vmulss  xmm2, xmm15, dword ptr [rbp+0C0h+outUp+4]
-            vaddss  xmm3, xmm3, xmm2
-            vmovss  xmm0, [rsp+1C0h+var_180]
-            vmulss  xmm0, xmm0, dword ptr [rbp+0C0h+outUp+8]
-            vaddss  xmm4, xmm3, xmm0
-            vandps  xmm1, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vcomiss xmm1, cs:__real@3a83126f
-          }
-          if ( !v62 )
-          {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcomiss xmm4, xmm0
-            }
-            v16 = 1;
-            if ( v62 | v63 )
-              v16 = 2;
-          }
-        }
-        bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
-        bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-      }
+      v25 = v18 * (float)(1.0 / *(float *)&_XMM1);
+      v26 = (float)(outPoint.v[1] - v14) * (float)(1.0 / *(float *)&_XMM1);
+      v27 = v21 * (float)(1.0 / *(float *)&_XMM1);
+      v33 = v27;
+      v28 = v8;
+      *(float *)&v28 = *(float *)&v8 + *p_m_Length;
+      if ( *(float *)&v28 >= checkDist )
+        break;
+      v8 = v28;
+      v9 = outPoint.v[0];
+      v10 = outPoint.v[1];
+      v11 = outPoint.v[2];
+      bfx::AreaHandle::operator=(&startingArea, &this->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+      LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+      p_m_Length += 12;
+      v13 = v17;
+      v14 = v19;
+      v15 = v11;
+      if ( (int)m_CurPathPoint >= this->m_Path.m_NumPoints )
+        goto LABEL_15;
     }
+    if ( (this->m_Path.m_Points[(int)m_CurPathPoint].m_Flags & 0x10) != 0 )
+    {
+      iStartPos.m_x = v9;
+      iStartPos.m_y = v10;
+      iStartPos.m_z = v11;
+      dir.m_x = v25;
+      dir.m_y = v26;
+      dir.m_z = v27;
+      _XMM0 = LODWORD(this->m_Path.m_Points[(int)m_CurPathPoint].m_Length);
+      __asm
+      {
+        vminss  xmm1, xmm0, xmm1
+        vmaxss  xmm6, xmm1, cs:__real@3dcccccd
+      }
+      bfx::AreaHandle::AreaHandle(&results.m_endArea);
+      results.m_collided = 0;
+      results.m_collideEdgeIndex = -1;
+      results.m_generatePath = 0;
+      bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
+      bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM6, pathSpec, &probeSpec, &results);
+      if ( bfx::AreaHandle::IsValid(&results.m_endArea) && (bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 )
+      {
+        outPosAtDist->v[0] = results.m_endPos.m_x;
+        outPosAtDist->v[1] = results.m_endPos.m_y;
+        outPosAtDist->v[2] = results.m_endPos.m_z;
+        Nav_GetSpaceUp(this->m_pSpace, &outUp);
+        v32 = (float)((float)(v25 * outUp.v[0]) + (float)(v26 * outUp.v[1])) + (float)(v33 * outUp.v[2]);
+        if ( COERCE_FLOAT(LODWORD(v32) & _xmm) >= 0.001 )
+        {
+          v5 = 1;
+          if ( v32 <= 0.0 )
+            v5 = 2;
+        }
+      }
+      bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
+      bfx::AreaHandle::~AreaHandle(&results.m_endArea);
+    }
+  }
 LABEL_15:
-    bfx::AreaHandle::~AreaHandle(&startingArea);
-    result = v16;
-  }
-  else
-  {
-    result = 0i64;
-  }
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  bfx::AreaHandle::~AreaHandle(&startingArea);
+  return v5;
 }
 
 /*
@@ -7302,282 +6396,235 @@ LABEL_15:
 AINavigator2D::GetStairsStateWithinDist
 ==============
 */
-
-__int64 __fastcall AINavigator2D::GetStairsStateWithinDist(AINavigator2D *this, double checkDist, bool bCurrentlyOnStairs)
+__int64 AINavigator2D::GetStairsStateWithinDist(AINavigator2D *this, float checkDist, bool bCurrentlyOnStairs)
 {
-  __int64 result; 
+  float v3; 
+  __int128 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   __int64 m_CurPathPoint; 
-  __int64 v41; 
-  int v45; 
-  bool v46; 
-  int AreaUsageFlags; 
-  char v83; 
-  char v84; 
-  int v92; 
-  unsigned int v93; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  int v25; 
+  unsigned int *p_m_Flags; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  __int128 v31; 
+  float v32; 
+  float v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  int v44; 
+  __int64 v45; 
+  float v47; 
+  float v48; 
+  float v49; 
+  __int128 v50; 
+  __int128 v53; 
+  __int128 v56; 
+  float v57; 
+  int v58; 
+  unsigned int v59; 
   bfx::ProbeSpec probeSpec; 
+  float v62; 
+  float v63; 
+  float v64; 
   bfx::AreaHandle startingArea; 
   bfx::Vector3 dir; 
   bfx::Vector3 iStartPos; 
   bfx::ProbeResults results; 
-  __int64 v115; 
+  __int64 v69; 
   vec3_t outPoint; 
   vec3_t outUp; 
   bfx::PathSpec pathSpec; 
-  char v119; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v115 = -2i64;
-  __asm
+  v69 = -2i64;
+  v3 = checkDist;
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0i64;
+  _XMM0 = bCurrentlyOnStairs;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_0_17399999);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  v63 = *(float *)&_XMM0;
+  _XMM0 = bCurrentlyOnStairs;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM2 = LODWORD(FLOAT_40_0);
+  _XMM1 = LODWORD(FLOAT_20_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  v64 = *(float *)&_XMM0;
+  probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
+  pathSpec = this->m_PathSpecOfCurPath;
+  __asm { vpextrd rax, xmm2, 2 }
+  pathSpec.m_areaUsageFlags = _RAX & 0x7FFFFFFF;
+  v16 = 0i64;
+  bfx::AreaHandle::AreaHandle(&startingArea, &this->m_hCurArea);
+  v17 = this->m_CurSnappedPos.v[0];
+  v18 = this->m_CurSnappedPos.v[1];
+  v19 = this->m_CurSnappedPos.v[2];
+  m_CurPathPoint = this->m_CurPathPoint;
+  if ( (int)m_CurPathPoint < this->m_Path.m_NumPoints )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovaps xmm10, xmm1
-    vmovss  [rsp+210h+var_1CC], xmm1
-  }
-  _RBX = this;
-  if ( this->m_Path.m_NumPoints > 0 )
-  {
-    _ECX = 0;
-    __asm { vmovd   xmm1, ecx }
-    _EAX = bCurrentlyOnStairs;
-    __asm
+    v21 = this->m_CurPathPoint;
+    v22 = this->m_CurSnappedPos.v[0];
+    v23 = this->m_CurSnappedPos.v[1];
+    v24 = this->m_CurSnappedPos.v[2];
+    v25 = m_CurPathPoint + 1;
+    p_m_Flags = &this->m_Path.m_Points[m_CurPathPoint].m_Flags;
+    while ( *(float *)&v16 <= v3 )
     {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm2, cs:__real@3e849ba6
-      vmovss  xmm1, cs:__real@3e322d0e
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  [rsp+210h+var_1C0], xmm0
-      vmovd   xmm1, ecx
-    }
-    _EAX = bCurrentlyOnStairs;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm2, cs:__real@42200000
-      vmovss  xmm1, cs:__real@41a00000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  [rsp+210h+var_1BC], xmm0
-    }
-    probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rbx+4F4h]
-      vmovups ymmword ptr [rbp+110h+var_120.m_obstacleMode], ymm2
-      vmovups ymm0, ymmword ptr [rbx+514h]
-      vmovups ymmword ptr [rbp+110h+var_120.m_maxSearchDist], ymm0
-      vmovups xmm1, xmmword ptr [rbx+534h]
-      vmovups xmmword ptr [rbp+110h+var_120.m_penaltyTable.m_perFlagPenalties+18h], xmm1
-      vpextrd rax, xmm2, 2
-    }
-    pathSpec.m_areaUsageFlags = _RAX & 0x7FFFFFFF;
-    __asm { vxorps  xmm14, xmm14, xmm14 }
-    bfx::AreaHandle::AreaHandle(&startingArea, &_RBX->m_hCurArea);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+30h]
-      vmovss  xmm8, dword ptr [rbx+34h]
-      vmovss  xmm9, dword ptr [rbx+38h]
-    }
-    m_CurPathPoint = _RBX->m_CurPathPoint;
-    if ( (int)m_CurPathPoint < _RBX->m_Path.m_NumPoints )
-    {
-      v41 = _RBX->m_CurPathPoint;
+      nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &outPoint);
+      v27 = outPoint.v[0];
+      v28 = outPoint.v[0] - v22;
+      v29 = outPoint.v[1];
+      v31 = LODWORD(outPoint.v[1]);
+      v30 = outPoint.v[1] - v23;
+      v32 = outPoint.v[2];
+      v33 = outPoint.v[2] - v24;
+      *(float *)&v31 = fsqrt((float)((float)(v30 * v30) + (float)(v28 * v28)) + (float)(v33 * v33));
+      _XMM7 = v31;
       __asm
       {
-        vmovaps xmm7, xmm6
-        vmovaps xmm12, xmm8
-        vmovaps xmm13, xmm9
+        vcmpless xmm0, xmm7, cs:__real@80000000
+        vblendvps xmm1, xmm7, xmm15, xmm0
       }
-      v45 = m_CurPathPoint + 1;
-      v46 = __CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint) || 6 * m_CurPathPoint == 0;
-      _R12 = &_RBX->m_Path.m_Points[m_CurPathPoint].m_Flags;
-      __asm { vmovss  xmm15, cs:__real@3f800000 }
-      while ( 1 )
+      v37 = 1.0 / *(float *)&_XMM1;
+      v38 = v28 * (float)(1.0 / *(float *)&_XMM1);
+      v62 = v38;
+      v39 = v30 * (float)(1.0 / *(float *)&_XMM1);
+      v40 = (float)(outPoint.v[2] - v24) * v37;
+      if ( (_DWORD)m_CurPathPoint != this->m_CurPathPoint )
+        LODWORD(_XMM7) = p_m_Flags[2];
+      if ( (*(_BYTE *)p_m_Flags & 0x10) != 0 )
       {
-        __asm { vcomiss xmm14, xmm10 }
-        if ( !v46 )
-          break;
-        nav_path_t::GetPathPoint(&_RBX->m_Path, m_CurPathPoint, &outPoint);
-        __asm
+        iStartPos.m_x = v17;
+        iStartPos.m_y = v18;
+        iStartPos.m_z = v19;
+        dir.m_x = v38;
+        dir.m_y = v39;
+        dir.m_z = v33 * v37;
+        bfx::AreaHandle::AreaHandle(&results.m_endArea);
+        results.m_collided = 0;
+        results.m_collideEdgeIndex = -1;
+        results.m_generatePath = 0;
+        bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
+        bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM7, &pathSpec, &probeSpec, &results);
+        if ( bfx::AreaHandle::IsValid(&results.m_endArea) )
         {
-          vmovss  xmm10, dword ptr [rbp+110h+outPoint]
-          vsubss  xmm3, xmm10, xmm7
-          vmovss  xmm11, dword ptr [rbp+110h+outPoint+4]
-          vsubss  xmm4, xmm11, xmm12
-          vmovss  xmm12, dword ptr [rbp+110h+outPoint+8]
-          vsubss  xmm5, xmm12, xmm13
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm7, xmm2, xmm2
-          vcmpless xmm0, xmm7, cs:__real@80000000
-          vblendvps xmm1, xmm7, xmm15, xmm0
-          vmovss  [rsp+210h+var_1D0], xmm1
-          vdivss  xmm0, xmm15, xmm1
-          vmulss  xmm2, xmm3, xmm0
-          vmovss  [rsp+210h+var_1C4], xmm2
-          vmulss  xmm1, xmm4, xmm0
-          vmovss  [rsp+210h+var_1D0], xmm1
-          vmulss  xmm13, xmm5, xmm0
-        }
-        if ( (_DWORD)m_CurPathPoint != _RBX->m_CurPathPoint )
-          __asm { vmovss  xmm7, dword ptr [r12+8] }
-        if ( (*(_BYTE *)_R12 & 0x10) != 0 )
-        {
-          __asm
+          m_x = results.m_endPos.m_x;
+          m_y = results.m_endPos.m_y;
+          m_z = results.m_endPos.m_z;
+          v44 = m_CurPathPoint;
+          v45 = v21;
+          if ( (bfx::AreaHandle::GetAreaUsageFlags(&startingArea) & 0x80000000) == 0 )
           {
-            vmovss  [rsp+210h+iStartPos.m_x], xmm6
-            vmovss  [rsp+210h+iStartPos.m_y], xmm8
-            vmovss  [rbp+110h+iStartPos.m_z], xmm9
-            vmovss  [rsp+210h+dir.m_x], xmm2
-            vmovss  [rsp+210h+dir.m_y], xmm1
-            vmovss  [rsp+210h+dir.m_z], xmm13
-          }
-          bfx::AreaHandle::AreaHandle(&results.m_endArea);
-          results.m_collided = 0;
-          results.m_collideEdgeIndex = -1;
-          results.m_generatePath = 0;
-          bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
-          __asm { vmovaps xmm3, xmm7; dist }
-          bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM3, &pathSpec, &probeSpec, &results);
-          if ( bfx::AreaHandle::IsValid(&results.m_endArea) )
-          {
-            __asm
+            if ( (float)(results.m_distTravelled + *(float *)&v16) >= checkDist )
+              goto LABEL_31;
+            if ( results.m_distTravelled >= (float)(*(float *)&_XMM7 - 1.0) )
             {
-              vmovss  xmm6, [rbp+110h+var_188.m_endPos.m_x]
-              vmovss  xmm8, [rbp+110h+var_188.m_endPos.m_y]
-              vmovss  xmm9, [rbp+110h+var_188.m_endPos.m_z]
-            }
-            AreaUsageFlags = bfx::AreaHandle::GetAreaUsageFlags(&startingArea);
-            if ( AreaUsageFlags >= 0 )
-            {
+              if ( (int)m_CurPathPoint >= this->m_Path.m_NumPoints - 1 )
+                goto LABEL_31;
+              nav_path_t::GetPathPoint(&this->m_Path, v25, &outUp);
+              v53 = LODWORD(outUp.v[1]);
+              v44 = v25;
+              v45 = v21 + 1;
+              *(float *)&v53 = fsqrt((float)((float)((float)(outUp.v[1] - m_y) * (float)(outUp.v[1] - m_y)) + (float)((float)(outUp.v[0] - m_x) * (float)(outUp.v[0] - m_x))) + (float)((float)(outUp.v[2] - m_z) * (float)(outUp.v[2] - m_z)));
+              _XMM2 = v53;
               __asm
               {
-                vmovss  xmm1, [rbp+110h+var_188.m_distTravelled]
-                vaddss  xmm0, xmm1, xmm14
-                vcomiss xmm0, [rsp+210h+var_1CC]
+                vcmpless xmm0, xmm2, cs:__real@80000000
+                vblendvps xmm1, xmm2, xmm15, xmm0
               }
-              goto LABEL_24;
+              v47 = (float)(1.0 / *(float *)&_XMM1) * (float)(outUp.v[0] - m_x);
+              v48 = (float)(1.0 / *(float *)&_XMM1) * (float)(outUp.v[1] - m_y);
+              v40 = (float)(1.0 / *(float *)&_XMM1) * (float)(outUp.v[2] - m_z);
             }
-            __asm
+            else
             {
-              vmovaps xmm2, xmm7
-              vmovss  xmm6, [rsp+210h+var_1C4]
-              vmovss  xmm8, [rsp+210h+var_1D0]
-              vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-              vandps  xmm0, xmm13, xmm9
-              vcomiss xmm0, [rsp+210h+var_1C0]
-              vcomiss xmm2, [rsp+210h+var_1BC]
-            }
-            if ( (bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 || results.m_collideEdgeIndex >= 0 || (bfx::AreaHandle::GetAreaUsageFlags(&startingArea) & 0x80000000) != 0 )
-            {
-              Nav_GetSpaceUp(_RBX->m_pSpace, &outUp);
+              v49 = outPoint.v[0] - m_x;
+              v50 = LODWORD(outPoint.v[1]);
+              *(float *)&v50 = fsqrt((float)((float)((float)(outPoint.v[1] - m_y) * (float)(outPoint.v[1] - m_y)) + (float)(v49 * v49)) + (float)((float)(outPoint.v[2] - m_z) * (float)(outPoint.v[2] - m_z)));
+              _XMM2 = v50;
               __asm
               {
-                vmulss  xmm3, xmm6, dword ptr [rbp+110h+outUp]
-                vmulss  xmm2, xmm8, dword ptr [rbp+110h+outUp+4]
-                vaddss  xmm4, xmm3, xmm2
-                vmulss  xmm1, xmm13, dword ptr [rbp+110h+outUp+8]
-                vaddss  xmm3, xmm4, xmm1
-                vandps  xmm2, xmm3, xmm9
-                vcomiss xmm2, cs:__real@3a83126f
+                vcmpless xmm0, xmm2, cs:__real@80000000
+                vblendvps xmm1, xmm2, xmm15, xmm0
               }
-              if ( !v83 )
-              {
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcomiss xmm3, xmm0
-                }
-                if ( !(v83 | v84) )
-                {
-                  v92 = 1;
-                  goto LABEL_25;
-                }
-                v93 = 2;
-LABEL_26:
-                bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
-                bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-                goto LABEL_28;
-              }
-LABEL_24:
-              v92 = 0;
-LABEL_25:
-              v93 = v92;
-              goto LABEL_26;
+              v47 = (float)(1.0 / *(float *)&_XMM1) * v49;
+              v48 = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[1] - m_y);
+              v40 = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[2] - m_z);
             }
           }
-          bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
-          bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-          __asm
+          else
           {
-            vmovss  xmm12, dword ptr [rbp+110h+outPoint+8]
-            vmovss  xmm11, dword ptr [rbp+110h+outPoint+4]
-            vmovss  xmm10, dword ptr [rbp+110h+outPoint]
+            LODWORD(_XMM2) = _XMM7;
+            v47 = v62;
+            v48 = v39;
+          }
+          if ( COERCE_FLOAT(LODWORD(v40) & _xmm) > v63 && (*(float *)&_XMM2 >= v64 || v44 != this->m_Path.m_NumPoints - 1 && (this->m_Path.m_Points[v45 + 1].m_Flags & 0x10) != 0) && ((bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 || results.m_collideEdgeIndex >= 0 || (bfx::AreaHandle::GetAreaUsageFlags(&startingArea) & 0x80000000) != 0) )
+          {
+            Nav_GetSpaceUp(this->m_pSpace, &outUp);
+            v57 = (float)((float)(v47 * outUp.v[0]) + (float)(v48 * outUp.v[1])) + (float)(v40 * outUp.v[2]);
+            if ( COERCE_FLOAT(LODWORD(v57) & _xmm) < 0.001 )
+            {
+LABEL_31:
+              v58 = 0;
+LABEL_32:
+              v59 = v58;
+            }
+            else
+            {
+              if ( v57 > 0.0 )
+              {
+                v58 = 1;
+                goto LABEL_32;
+              }
+              v59 = 2;
+            }
+            bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
+            bfx::AreaHandle::~AreaHandle(&results.m_endArea);
+            goto LABEL_35;
           }
         }
-        __asm
-        {
-          vaddss  xmm14, xmm14, xmm7
-          vmovaps xmm6, xmm10
-          vmovaps xmm8, xmm11
-          vmovaps xmm9, xmm12
-        }
-        bfx::AreaHandle::operator=(&startingArea, &_RBX->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
-        LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-        ++v45;
-        ++v41;
-        _R12 += 12;
-        __asm
-        {
-          vmovaps xmm7, xmm6
-          vmovaps xmm12, xmm11
-          vmovaps xmm13, xmm9
-        }
-        v46 = (unsigned int)m_CurPathPoint <= _RBX->m_Path.m_NumPoints;
-        if ( (int)m_CurPathPoint >= _RBX->m_Path.m_NumPoints )
-          break;
-        __asm { vmovss  xmm10, [rsp+210h+var_1CC] }
+        bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
+        bfx::AreaHandle::~AreaHandle(&results.m_endArea);
+        v32 = outPoint.v[2];
+        v29 = outPoint.v[1];
+        v27 = outPoint.v[0];
       }
+      v56 = v16;
+      *(float *)&v56 = *(float *)&v16 + *(float *)&_XMM7;
+      v16 = v56;
+      v17 = v27;
+      v18 = v29;
+      v19 = v32;
+      bfx::AreaHandle::operator=(&startingArea, &this->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+      LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+      ++v25;
+      ++v21;
+      p_m_Flags += 12;
+      v22 = v27;
+      v23 = v29;
+      v24 = v19;
+      if ( (int)m_CurPathPoint >= this->m_Path.m_NumPoints )
+        break;
+      v3 = checkDist;
     }
-    v93 = 0;
-LABEL_28:
-    bfx::AreaHandle::~AreaHandle(&startingArea);
-    result = v93;
   }
-  else
-  {
-    result = 0i64;
-  }
-  _R11 = &v119;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  v59 = 0;
+LABEL_35:
+  bfx::AreaHandle::~AreaHandle(&startingArea);
+  return v59;
 }
 
 /*
@@ -7597,217 +6644,149 @@ bool AINavigator2D::GetStairsWithinDist(AINavigator2D *this, float checkDist)
 AINavigator2D::GetStairsWithinDist_OLD
 ==============
 */
-
-bool __fastcall AINavigator2D::GetStairsWithinDist_OLD(AINavigator2D *this, double checkDist)
+char AINavigator2D::GetStairsWithinDist_OLD(AINavigator2D *this, float checkDist)
 {
-  bool v15; 
+  __int128 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
   __int64 m_CurPathPoint; 
-  bool v24; 
-  char v51; 
-  bool v55; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned int *p_m_Flags; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v23; 
+  __int128 v24; 
+  __int128 v27; 
+  char v28; 
   bfx::ProbeSpec probeSpec; 
   bfx::Vector3 dir; 
   bfx::Vector3 iStartPos; 
   bfx::AreaHandle result; 
   bfx::ProbeResults results; 
   bfx::AreaHandle startingArea; 
-  __int64 v73; 
+  __int64 v35; 
   vec3_t outPoint; 
   bfx::PathSpec pathSpec; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v73 = -2i64;
-  __asm
+  v35 = -2i64;
+  if ( this->m_Path.m_NumPoints <= 0 )
+    return 0;
+  if ( bfx::AreaHandle::IsValid(&this->m_hCurArea) && (bfx::AreaHandle::GetAreaUsageFlags(&this->m_hCurArea) & 0x80000000) != 0 )
+    return 1;
+  v5 = 0i64;
+  bfx::AreaHandle::AreaHandle(&startingArea, &this->m_hCurArea);
+  v6 = this->m_CurSnappedPos.v[0];
+  v7 = this->m_CurSnappedPos.v[1];
+  v8 = this->m_CurSnappedPos.v[2];
+  m_CurPathPoint = this->m_CurPathPoint;
+  if ( (int)m_CurPathPoint < this->m_Path.m_NumPoints )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmmword ptr [rax-0A8h], xmm15
-    vmovaps xmm15, xmm1
-  }
-  _RBX = this;
-  if ( this->m_Path.m_NumPoints > 0 )
-  {
-    if ( bfx::AreaHandle::IsValid(&this->m_hCurArea) && (bfx::AreaHandle::GetAreaUsageFlags(&_RBX->m_hCurArea) & 0x80000000) != 0 )
+    v10 = this->m_CurSnappedPos.v[0];
+    v11 = this->m_CurSnappedPos.v[1];
+    v12 = this->m_CurSnappedPos.v[2];
+    p_m_Flags = &this->m_Path.m_Points[m_CurPathPoint].m_Flags;
+    do
     {
-      v15 = 1;
-    }
-    else
-    {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      bfx::AreaHandle::AreaHandle(&startingArea, &_RBX->m_hCurArea);
+      if ( *(float *)&v5 > checkDist )
+        break;
+      nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &outPoint);
+      v14 = outPoint.v[0];
+      v15 = outPoint.v[0] - v10;
+      v16 = outPoint.v[1];
+      v18 = LODWORD(outPoint.v[1]);
+      v17 = outPoint.v[1] - v11;
+      v19 = outPoint.v[2];
+      *(float *)&v18 = fsqrt((float)((float)(v17 * v17) + (float)(v15 * v15)) + (float)((float)(outPoint.v[2] - v12) * (float)(outPoint.v[2] - v12)));
+      _XMM7 = v18;
       __asm
       {
-        vmovss  xmm11, dword ptr [rbx+30h]
-        vmovss  xmm12, dword ptr [rbx+34h]
-        vmovss  xmm13, dword ptr [rbx+38h]
+        vcmpless xmm0, xmm7, cs:__real@80000000
+        vblendvps xmm1, xmm7, xmm2, xmm0
       }
-      m_CurPathPoint = _RBX->m_CurPathPoint;
-      if ( (int)m_CurPathPoint < _RBX->m_Path.m_NumPoints )
+      probeSpec.m_probeType = _XMM1;
+      v24 = LODWORD(FLOAT_1_0);
+      v23 = 1.0 / *(float *)&_XMM1;
+      *(float *)&v24 = (float)(1.0 / *(float *)&_XMM1) * v15;
+      _XMM2 = v24;
+      if ( (_DWORD)m_CurPathPoint != this->m_CurPathPoint )
+        LODWORD(_XMM7) = p_m_Flags[2];
+      if ( (*(_BYTE *)p_m_Flags & 0x10) != 0 )
       {
-        __asm
+        iStartPos.m_x = v6;
+        iStartPos.m_y = v7;
+        iStartPos.m_z = v8;
+        dir.m_x = (float)(1.0 / *(float *)&_XMM1) * v15;
+        dir.m_y = v23 * v17;
+        dir.m_z = v23 * (float)(outPoint.v[2] - v12);
+        probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
+        pathSpec = this->m_PathSpecOfCurPath;
+        __asm { vpextrd rax, xmm2, 2 }
+        pathSpec.m_areaUsageFlags = _RAX & 0x7FFFFFFF;
+        bfx::AreaHandle::AreaHandle(&results.m_endArea);
+        results.m_collided = 0;
+        results.m_collideEdgeIndex = -1;
+        results.m_generatePath = 0;
+        bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
+        bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM7, &pathSpec, &probeSpec, &results);
+        if ( (float)(*(float *)&v5 + results.m_distTravelled) >= checkDist )
         {
-          vmovaps xmm7, xmm11
-          vmovaps xmm10, xmm12
-          vmovaps xmm14, xmm13
+          v28 = 0;
+          goto LABEL_27;
         }
-        v24 = __CFSHL__(3 * m_CurPathPoint, 4) || 48 * m_CurPathPoint == 0;
-        _RSI = &_RBX->m_Path.m_Points[m_CurPathPoint].m_Flags;
-        do
+        if ( bfx::AreaHandle::IsValid(&results.m_endArea) )
         {
-          __asm { vcomiss xmm6, xmm15 }
-          if ( !v24 )
-            break;
-          nav_path_t::GetPathPoint(&_RBX->m_Path, m_CurPathPoint, &outPoint);
-          __asm
+          if ( (bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 )
           {
-            vmovss  xmm8, dword ptr [rbp+0E0h+outPoint]
-            vsubss  xmm5, xmm8, xmm7
-            vmovss  xmm9, dword ptr [rbp+0E0h+outPoint+4]
-            vsubss  xmm4, xmm9, xmm10
-            vmovss  xmm10, dword ptr [rbp+0E0h+outPoint+8]
-            vsubss  xmm3, xmm10, xmm14
-            vmulss  xmm1, xmm4, xmm4
-            vmulss  xmm0, xmm5, xmm5
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm7, xmm2, xmm2
-            vcmpless xmm0, xmm7, cs:__real@80000000
-            vmovss  xmm2, cs:__real@3f800000
-            vblendvps xmm1, xmm7, xmm2, xmm0
-            vmovss  [rsp+1E0h+var_1A0.m_probeType], xmm1
-            vdivss  xmm0, xmm2, xmm1
-            vmulss  xmm2, xmm0, xmm5
-            vmulss  xmm1, xmm0, xmm4
-            vmulss  xmm5, xmm0, xmm3
+            v28 = 1;
+            goto LABEL_27;
           }
-          if ( (_DWORD)m_CurPathPoint != _RBX->m_CurPathPoint )
-            __asm { vmovss  xmm7, dword ptr [rsi+8] }
-          if ( (*(_BYTE *)_RSI & 0x10) != 0 )
+          if ( results.m_collideEdgeIndex >= 0 )
           {
-            __asm
+            bfx::AreaHandle::GetAdjacentArea(&results.m_endArea, &result, results.m_collideEdgeIndex);
+            if ( bfx::AreaHandle::IsValid(&result) && (bfx::AreaHandle::GetAreaUsageFlags(&result) & 0x80000000) != 0 )
             {
-              vmovss  [rsp+1E0h+iStartPos.m_x], xmm11
-              vmovss  [rsp+1E0h+iStartPos.m_y], xmm12
-              vmovss  [rsp+1E0h+iStartPos.m_z], xmm13
-              vmovss  [rsp+1E0h+dir.m_x], xmm2
-              vmovss  [rsp+1E0h+dir.m_y], xmm1
-              vmovss  [rsp+1E0h+dir.m_z], xmm5
-            }
-            probeSpec.m_probeType = NAVPROBE_TYPE_HORIZONTAL;
-            __asm
-            {
-              vmovups ymm2, ymmword ptr [rbx+4F4h]
-              vmovups ymmword ptr [rbp+0E0h+var_100.m_obstacleMode], ymm2
-              vmovups ymm0, ymmword ptr [rbx+514h]
-              vmovups ymmword ptr [rbp+0E0h+var_100.m_maxSearchDist], ymm0
-              vmovups xmm1, xmmword ptr [rbx+534h]
-              vmovups xmmword ptr [rbp+0E0h+var_100.m_penaltyTable.m_perFlagPenalties+18h], xmm1
-              vpextrd rax, xmm2, 2
-            }
-            pathSpec.m_areaUsageFlags = _RAX & 0x7FFFFFFF;
-            bfx::AreaHandle::AreaHandle(&results.m_endArea);
-            results.m_collided = 0;
-            results.m_collideEdgeIndex = -1;
-            results.m_generatePath = 0;
-            bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
-            __asm { vmovaps xmm3, xmm7; dist }
-            bfx::NavProbe(&startingArea, &iStartPos, &dir, *(float *)&_XMM3, &pathSpec, &probeSpec, &results);
-            __asm
-            {
-              vaddss  xmm1, xmm6, [rbp+0E0h+var_168.m_distTravelled]
-              vcomiss xmm1, xmm15
-            }
-            if ( !v51 )
-            {
-              v55 = 0;
-              goto LABEL_27;
-            }
-            if ( bfx::AreaHandle::IsValid(&results.m_endArea) )
-            {
-              if ( (bfx::AreaHandle::GetAreaUsageFlags(&results.m_endArea) & 0x80000000) != 0 )
-              {
-                v55 = 1;
-                goto LABEL_27;
-              }
-              if ( results.m_collideEdgeIndex >= 0 )
-              {
-                bfx::AreaHandle::GetAdjacentArea(&results.m_endArea, &result, results.m_collideEdgeIndex);
-                if ( bfx::AreaHandle::IsValid(&result) && (bfx::AreaHandle::GetAreaUsageFlags(&result) & 0x80000000) != 0 )
-                {
-                  v55 = 1;
-                  bfx::AreaHandle::~AreaHandle(&result);
+              v28 = 1;
+              bfx::AreaHandle::~AreaHandle(&result);
 LABEL_27:
-                  bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
-                  bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-                  goto LABEL_22;
-                }
-                bfx::AreaHandle::~AreaHandle(&result);
-              }
+              bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
+              bfx::AreaHandle::~AreaHandle(&results.m_endArea);
+              goto LABEL_22;
             }
-            bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
-            bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-            __asm
-            {
-              vmovss  xmm10, dword ptr [rbp+0E0h+outPoint+8]
-              vmovss  xmm9, dword ptr [rbp+0E0h+outPoint+4]
-              vmovss  xmm8, dword ptr [rbp+0E0h+outPoint]
-            }
+            bfx::AreaHandle::~AreaHandle(&result);
           }
-          __asm
-          {
-            vaddss  xmm6, xmm6, xmm7
-            vmovaps xmm11, xmm8
-            vmovaps xmm12, xmm9
-            vmovaps xmm13, xmm10
-          }
-          bfx::AreaHandle::operator=(&startingArea, &_RBX->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
-          LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
-          _RSI += 12;
-          __asm
-          {
-            vmovaps xmm7, xmm8
-            vmovaps xmm10, xmm9
-            vmovaps xmm14, xmm13
-          }
-          v24 = (unsigned int)m_CurPathPoint <= _RBX->m_Path.m_NumPoints;
         }
-        while ( (int)m_CurPathPoint < _RBX->m_Path.m_NumPoints );
+        bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
+        bfx::AreaHandle::~AreaHandle(&results.m_endArea);
+        v19 = outPoint.v[2];
+        v16 = outPoint.v[1];
+        v14 = outPoint.v[0];
       }
-      v55 = 0;
-LABEL_22:
-      bfx::AreaHandle::~AreaHandle(&startingArea);
-      v15 = v55;
+      v27 = v5;
+      *(float *)&v27 = *(float *)&v5 + *(float *)&_XMM7;
+      v5 = v27;
+      v6 = v14;
+      v7 = v16;
+      v8 = v19;
+      bfx::AreaHandle::operator=(&startingArea, &this->m_Path.m_Points[(int)m_CurPathPoint].m_hArea);
+      LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+      p_m_Flags += 12;
+      v10 = v14;
+      v11 = v16;
+      v12 = v8;
     }
+    while ( (int)m_CurPathPoint < this->m_Path.m_NumPoints );
   }
-  else
-  {
-    v15 = 0;
-  }
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v15;
+  v28 = 0;
+LABEL_22:
+  bfx::AreaHandle::~AreaHandle(&startingArea);
+  return v28;
 }
 
 /*
@@ -7863,93 +6842,56 @@ bool AINavigator2D::HasPath(AINavigator2D *this)
 AINavigator2D::HasTraversalWithin
 ==============
 */
-
-char __fastcall AINavigator2D::HasTraversalWithin(AINavigator2D *this, double checkDist)
+bool AINavigator2D::HasTraversalWithin(AINavigator2D *this, float checkDist)
 {
   __int64 m_NumPoints; 
   __int64 m_CurPathPoint; 
-  __int64 v9; 
-  char result; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
+  float *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
 
   m_NumPoints = this->m_Path.m_NumPoints;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps [rsp+38h+var_28], xmm7
-    vmovaps [rsp+38h+var_38], xmm8
-    vmovaps xmm5, xmm1
-  }
   if ( (int)m_NumPoints <= 0 )
-    goto LABEL_7;
+    return 0;
   m_CurPathPoint = this->m_CurPathPoint;
-  v9 = this->m_Path.m_NumPoints;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vmovss  xmm1, dword ptr [rcx+58h]
-    vmovss  xmm3, dword ptr [rcx+5Ch]
-    vxorps  xmm4, xmm4, xmm4
-  }
+  v5 = this->m_Path.m_NumPoints;
+  v6 = this->m_LocalCurSnappedPos.v[0];
+  v7 = this->m_LocalCurSnappedPos.v[1];
+  v8 = this->m_LocalCurSnappedPos.v[2];
+  v9 = 0i64;
   if ( m_CurPathPoint >= m_NumPoints )
+    return 0;
+  v10 = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+  while ( 1 )
   {
-LABEL_7:
-    result = 0;
-    __asm
+    v11 = *(v10 - 2);
+    v12 = *(v10 - 1);
+    v13 = *v10;
+    v14 = v9;
+    *(float *)&v14 = *(float *)&v9 + fsqrt((float)((float)((float)(v7 - v12) * (float)(v7 - v12)) + (float)((float)(v6 - v11) * (float)(v6 - v11))) + (float)((float)(v8 - v13) * (float)(v8 - v13)));
+    v9 = v14;
+    if ( ((_BYTE)v10[1] & 2) != 0 )
+      break;
+    if ( *(float *)&v14 <= checkDist )
     {
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovaps xmm7, [rsp+38h+var_28]
-      vmovaps xmm8, [rsp+38h+var_38]
+      ++m_CurPathPoint;
+      v10 += 12;
+      v6 = v11;
+      v7 = v12;
+      v8 = v13;
+      if ( m_CurPathPoint < v5 )
+        continue;
     }
+    return 0;
   }
-  else
-  {
-    _RCX = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
-    while ( 1 )
-    {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rcx-8]
-        vmovss  xmm7, dword ptr [rcx-4]
-        vmovss  xmm8, dword ptr [rcx]
-        vsubss  xmm2, xmm0, xmm6
-        vsubss  xmm0, xmm1, xmm7
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vsubss  xmm3, xmm3, xmm8
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm4, xmm4, xmm0
-      }
-      if ( ((_BYTE)_RCX[1] & 2) != 0 )
-        break;
-      __asm { vcomiss xmm4, xmm5 }
-      if ( ((_BYTE)_RCX[1] & 2) == 0 )
-      {
-        ++m_CurPathPoint;
-        _RCX += 12;
-        __asm
-        {
-          vmovaps xmm0, xmm6
-          vmovaps xmm1, xmm7
-          vmovaps xmm3, xmm8
-        }
-        if ( m_CurPathPoint < v9 )
-          continue;
-      }
-      goto LABEL_7;
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovaps xmm7, [rsp+38h+var_28]
-      vmovaps xmm8, [rsp+38h+var_38]
-      vcomiss xmm5, xmm4
-    }
-    return 1;
-  }
-  return result;
+  return checkDist >= *(float *)&v14;
 }
 
 /*
@@ -7959,68 +6901,64 @@ AINavigator2D::IncreaseLinkWeightsForPath
 */
 void AINavigator2D::IncreaseLinkWeightsForPath(AINavigator2D *this)
 {
-  int v3; 
-  __int64 v4; 
-  const dvar_t *v5; 
+  int v2; 
+  __int64 v3; 
+  const dvar_t *v4; 
   int integer; 
-  __int64 v14; 
-  __int64 v15; 
+  const dvar_t *v6; 
+  float value; 
+  const dvar_t *v8; 
+  double v9; 
+  __int64 v10; 
+  __int64 v11; 
   bfx::LinkHandle phLink; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
   if ( this->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1537, ASSERT_TYPE_ASSERT, "(m_Path.Exists())", (const char *)&queryFormat, "m_Path.Exists()") )
     __debugbreak();
   if ( !this->m_pEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1538, ASSERT_TYPE_ASSERT, "(m_pEnt)", (const char *)&queryFormat, "m_pEnt") )
     __debugbreak();
-  v3 = 0;
+  v2 = 0;
   if ( this->m_Path.m_NumPoints > 0 )
   {
-    v4 = 0i64;
+    v3 = 0i64;
     do
     {
-      if ( (this->m_Path.m_Points[v4].m_Flags & 2) != 0 )
+      if ( (this->m_Path.m_Points[v3].m_Flags & 2) != 0 )
       {
         bfx::LinkHandle::LinkHandle(&phLink);
-        if ( (unsigned int)v3 >= this->m_Path.m_NumPoints )
+        if ( (unsigned int)v2 >= this->m_Path.m_NumPoints )
         {
-          LODWORD(v15) = this->m_Path.m_NumPoints;
-          LODWORD(v14) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v14, v15) )
+          LODWORD(v11) = this->m_Path.m_NumPoints;
+          LODWORD(v10) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v10, v11) )
             __debugbreak();
         }
-        if ( Nav_GetLinkByID(this->m_Path.m_Points[v4].m_LinkID, &phLink) )
+        if ( Nav_GetLinkByID(this->m_Path.m_Points[v3].m_LinkID, &phLink) )
         {
-          v5 = DVARINT_ai_linkWeightTime;
+          v4 = DVARINT_ai_linkWeightTime;
           if ( !DVARINT_ai_linkWeightTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_linkWeightTime") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v5);
-          integer = v5->current.integer;
-          _RDI = DVARFLT_ai_linkWeightPerUserMax;
+          Dvar_CheckFrontendServerThread(v4);
+          integer = v4->current.integer;
+          v6 = DVARFLT_ai_linkWeightPerUserMax;
           if ( !DVARFLT_ai_linkWeightPerUserMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_linkWeightPerUserMax") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-          _RDI = DVARFLT_ai_linkWeightPerUserMin;
+          Dvar_CheckFrontendServerThread(v6);
+          value = v6->current.value;
+          v8 = DVARFLT_ai_linkWeightPerUserMin;
           if ( !DVARFLT_ai_linkWeightPerUserMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_linkWeightPerUserMin") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm
-          {
-            vmovaps xmm1, xmm6; max
-            vmovss  xmm0, dword ptr [rdi+28h]; min
-          }
-          *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm { vmovaps xmm2, xmm0; weight }
-          Nav_ModifyLinkWeightForTime(this->m_pEnt->s.number, &phLink, *(float *)&_XMM2, integer);
+          Dvar_CheckFrontendServerThread(v8);
+          v9 = G_flrand(v8->current.value, value);
+          Nav_ModifyLinkWeightForTime(this->m_pEnt->s.number, &phLink, *(float *)&v9, integer);
         }
         bfx::LinkHandle::~LinkHandle(&phLink);
       }
+      ++v2;
       ++v3;
-      ++v4;
     }
-    while ( v3 < this->m_Path.m_NumPoints );
+    while ( v2 < this->m_Path.m_NumPoints );
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -8028,79 +6966,50 @@ void AINavigator2D::IncreaseLinkWeightsForPath(AINavigator2D *this)
 AINavigator2D::IsApproachingPlayerObstacle
 ==============
 */
-
-bool __fastcall AINavigator2D::IsApproachingPlayerObstacle(AINavigator2D *this, double maxDistance)
+char AINavigator2D::IsApproachingPlayerObstacle(AINavigator2D *this, float maxDistance)
 {
   __int64 m_CurPathPoint; 
   __int64 m_NumPoints; 
-  bool result; 
+  float v4; 
+  float v5; 
+  float v6; 
+  __int128 v7; 
+  float *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
 
   m_CurPathPoint = this->m_CurPathPoint;
   m_NumPoints = this->m_Path.m_NumPoints;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps [rsp+48h+var_38], xmm8
-    vmovaps [rsp+48h+var_48], xmm9
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vmovss  xmm3, dword ptr [rcx+58h]
-    vmovss  xmm7, dword ptr [rcx+5Ch]
-    vmovaps xmm9, xmm1
-    vxorps  xmm8, xmm8, xmm8
-  }
+  v4 = this->m_LocalCurSnappedPos.v[0];
+  v5 = this->m_LocalCurSnappedPos.v[1];
+  v6 = this->m_LocalCurSnappedPos.v[2];
+  v7 = 0i64;
   if ( m_CurPathPoint >= m_NumPoints )
+    return 0;
+  v8 = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+  while ( ((_DWORD)v8[1] & 0x800) == 0 )
   {
-LABEL_6:
-    result = 0;
-  }
-  else
-  {
-    _RCX = &this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
-    while ( ((_DWORD)_RCX[1] & 0x800) == 0 )
+    v9 = *(v8 - 2);
+    v10 = *(v8 - 1);
+    v11 = *v8;
+    v12 = v7;
+    *(float *)&v12 = *(float *)&v7 + fsqrt((float)((float)((float)(v10 - v5) * (float)(v10 - v5)) + (float)((float)(v9 - v4) * (float)(v9 - v4))) + (float)((float)(v11 - v6) * (float)(v11 - v6)));
+    v7 = v12;
+    if ( *(float *)&v12 <= maxDistance )
     {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rcx-8]
-        vmovss  xmm5, dword ptr [rcx-4]
-        vmovss  xmm6, dword ptr [rcx]
-        vsubss  xmm2, xmm4, xmm0
-        vsubss  xmm0, xmm5, xmm3
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vsubss  xmm3, xmm6, xmm7
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm8, xmm8, xmm0
-        vcomiss xmm8, xmm9
-      }
-      if ( ((_DWORD)_RCX[1] & 0x800) == 0 )
-      {
-        ++m_CurPathPoint;
-        _RCX += 12;
-        __asm
-        {
-          vmovaps xmm0, xmm4
-          vmovaps xmm3, xmm5
-          vmovaps xmm7, xmm6
-        }
-        if ( m_CurPathPoint < m_NumPoints )
-          continue;
-      }
-      goto LABEL_6;
+      ++m_CurPathPoint;
+      v8 += 12;
+      v4 = v9;
+      v5 = v10;
+      v6 = v11;
+      if ( m_CurPathPoint < m_NumPoints )
+        continue;
     }
-    result = 1;
+    return 0;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmovaps xmm8, [rsp+48h+var_38]
-    vmovaps xmm9, [rsp+48h+var_48]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -8109,114 +7018,68 @@ AINavigator2D::IsApproachingTightQuarters
 ==============
 */
 
-bool __fastcall AINavigator2D::IsApproachingTightQuarters(AINavigator2D *this, double maxDistance)
+char __fastcall AINavigator2D::IsApproachingTightQuarters(AINavigator2D *this, double maxDistance)
 {
   __int64 m_NumPoints; 
   __int64 m_CurPathPoint; 
-  __int64 v28; 
-  int v33; 
-  bool result; 
+  __int128 v6; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  __int64 v11; 
+  float *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  __int128 v17; 
 
   m_NumPoints = this->m_Path.m_NumPoints;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps [rsp+68h+var_58], xmm10
-    vmovaps [rsp+68h+var_68], xmm11
-  }
   if ( (int)m_NumPoints <= 0 )
-    goto LABEL_9;
+    return 0;
   m_CurPathPoint = this->m_CurPathPoint;
   __asm
   {
-    vmovss  xmm2, cs:__real@7f7fffff
-    vxorps  xmm0, xmm0, xmm0
     vcmpless xmm3, xmm1, xmm0
     vblendvps xmm11, xmm1, xmm2, xmm3
   }
-  _RDX = 6 * m_CurPathPoint;
-  __asm
+  v6 = LODWORD(this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1]);
+  v7 = v6;
+  v8 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[0];
+  v9 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+  *(float *)&v7 = fsqrt((float)((float)((float)(*(float *)&v6 - this->m_LocalCurSnappedPos.v[1]) * (float)(*(float *)&v6 - this->m_LocalCurSnappedPos.v[1])) + (float)((float)(v8 - this->m_LocalCurSnappedPos.v[0]) * (float)(v8 - this->m_LocalCurSnappedPos.v[0]))) + (float)((float)(v9 - this->m_LocalCurSnappedPos.v[2]) * (float)(v9 - this->m_LocalCurSnappedPos.v[2])));
+  v10 = v7;
+  if ( *(float *)&v7 > *(float *)&_XMM11 )
+    return 0;
+  v11 = (int)m_CurPathPoint + 1;
+  if ( v11 >= m_NumPoints )
+    return 0;
+  v12 = &this->m_Path.m_Points[v11].m_LocalPos.v[2];
+  while ( 1 )
   {
-    vmovss  xmm9, dword ptr [rcx+rdx*8+0CCh]
-    vsubss  xmm0, xmm9, dword ptr [rcx+58h]
-    vmovss  xmm8, dword ptr [rcx+rdx*8+0C8h]
-    vsubss  xmm2, xmm8, dword ptr [rcx+54h]
-    vmovss  xmm10, dword ptr [rcx+rdx*8+0D0h]
-    vsubss  xmm3, xmm10, dword ptr [rcx+5Ch]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, xmm11
-  }
-  if ( !__CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint) && 6 * m_CurPathPoint != 0 )
-    goto LABEL_9;
-  v28 = (int)m_CurPathPoint + 1;
-  if ( v28 < m_NumPoints )
-  {
-    _RCX = &this->m_Path.m_Points[v28].m_LocalPos.v[2];
-    while ( 1 )
+    v13 = *(v12 - 1);
+    v14 = *(v12 - 2);
+    v15 = *v12;
+    v16 = *((_DWORD *)v12 + 1);
+    v17 = v10;
+    *(float *)&v17 = *(float *)&v10 + fsqrt((float)((float)((float)(v13 - *(float *)&v6) * (float)(v13 - *(float *)&v6)) + (float)((float)(v14 - v8) * (float)(v14 - v8))) + (float)((float)(v15 - v9) * (float)(v15 - v9)));
+    v10 = v17;
+    if ( (v16 & 0x40) != 0 || (v16 & 0x100) != 0 )
+      break;
+    if ( *(float *)&v17 < *(float *)&_XMM11 )
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rcx-4]
-        vmovss  xmm5, dword ptr [rcx-8]
-        vmovss  xmm7, dword ptr [rcx]
-      }
-      v33 = *((_DWORD *)_RCX + 1);
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm9
-        vmulss  xmm1, xmm0, xmm0
-        vsubss  xmm2, xmm5, xmm8
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vsubss  xmm3, xmm7, xmm10
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm4, xmm4, xmm0
-      }
-      if ( (v33 & 0x40) != 0 || (v33 & 0x100) != 0 )
-        break;
-      __asm { vcomiss xmm4, xmm11 }
-      if ( (v33 & 0x100) != 0 )
-      {
-        ++v28;
-        _RCX += 12;
-        __asm
-        {
-          vmovaps xmm8, xmm5
-          vmovaps xmm9, xmm6
-          vmovaps xmm10, xmm7
-        }
-        if ( v28 < m_NumPoints )
-          continue;
-      }
-      goto LABEL_9;
+      ++v11;
+      v12 += 12;
+      v8 = v14;
+      *(float *)&v6 = v13;
+      v9 = v15;
+      if ( v11 < m_NumPoints )
+        continue;
     }
-    result = 1;
+    return 0;
   }
-  else
-  {
-LABEL_9:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmovaps xmm10, [rsp+68h+var_58]
-    vmovaps xmm11, [rsp+68h+var_68]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -8234,79 +7097,20 @@ bool AINavigator2D::IsAreaReachable(AINavigator2D *this, const bfx::AreaHandle *
 AINavigator2D::IsGoalPosWithin
 ==============
 */
-
-bool __fastcall AINavigator2D::IsGoalPosWithin(AINavigator2D *this, double radius)
+bool AINavigator2D::IsGoalPosWithin(AINavigator2D *this, float radius)
 {
-  char v10; 
-  char v25; 
-  bool result; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
   vec3_t outUp; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-  }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm1 }
   AINavigator::GetUpVector(this, &outUp);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+54h]
-    vmovss  xmm2, dword ptr [rbx+4Ch]
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vsubss  xmm8, xmm0, dword ptr [rbx+5Ch]
-    vsubss  xmm7, xmm2, dword ptr [rbx+58h]
-    vmovss  xmm9, dword ptr [rsp+98h+outUp+4]
-    vmovss  xmm5, dword ptr [rsp+98h+outUp]
-    vmovss  xmm10, dword ptr [rsp+98h+outUp+8]
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm1, xmm7, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm10
-    vaddss  xmm0, xmm2, xmm1
-    vcomiss xmm0, cs:__real@40c00000
-  }
-  if ( v10 | v25 )
-  {
-    __asm
-    {
-      vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm5, xmm3
-      vaddss  xmm5, xmm0, xmm4
-      vmulss  xmm1, xmm9, xmm3
-      vmulss  xmm0, xmm10, xmm3
-      vaddss  xmm2, xmm1, xmm7
-      vaddss  xmm4, xmm0, xmm8
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm1, xmm4
-    }
-    result = !v10;
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm10, [rsp+98h+var_58]
-  }
-  return result;
+  v3 = this->m_LocalSnappedGoalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+  v4 = this->m_LocalSnappedGoalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+  v5 = this->m_LocalSnappedGoalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+  v6 = (float)((float)(v5 * outUp.v[1]) + (float)(v3 * outUp.v[0])) + (float)(v4 * outUp.v[2]);
+  return v6 <= 6.0 && (float)(radius * radius) >= (float)((float)((float)((float)((float)(outUp.v[1] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v5) * (float)((float)(outUp.v[1] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v5)) + (float)((float)((float)(outUp.v[0] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v3) * (float)((float)(outUp.v[0] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v3))) + (float)((float)((float)(outUp.v[2] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v4) * (float)((float)(outUp.v[2] * COERCE_FLOAT(LODWORD(v6) ^ _xmm)) + v4)));
 }
 
 /*
@@ -8318,14 +7122,14 @@ bool AINavigator2D::IsInBadPlace(AINavigator2D *this)
 {
   bfx::AreaHandle *hHintArea; 
   bool result; 
-  bool v6; 
+  bool v4; 
   bfx::AreaHandle pOutArea; 
-  __int64 v8; 
+  __int64 v6; 
   vec3_t outUp; 
   bfx::PathSpec pPathSpec; 
   vec3_t outClosestPos; 
 
-  v8 = -2i64;
+  v6 = -2i64;
   hHintArea = &this->m_hCurArea;
   result = bfx::AreaHandle::IsValid(&this->m_hCurArea);
   if ( result )
@@ -8337,13 +7141,9 @@ bool AINavigator2D::IsInBadPlace(AINavigator2D *this)
     *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
     *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
     pPathSpec.m_usePathSharingPenalty = 0;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0E8h+var_78.m_pathSharingPenalty], xmm0
-      vmovss  [rsp+0E8h+var_78.m_maxPathSharingPenalty], xmm0
-      vmovss  [rsp+0E8h+var_78.m_maxSearchDist], xmm0
-    }
+    pPathSpec.m_pathSharingPenalty = 0.0;
+    pPathSpec.m_maxPathSharingPenalty = 0.0;
+    pPathSpec.m_maxSearchDist = 0.0;
     bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
     pPathSpec.m_snapMode = SNAP_CLOSEST;
     Nav_GetSpaceUp(this->m_pSpace, &outUp);
@@ -8352,12 +7152,12 @@ bool AINavigator2D::IsInBadPlace(AINavigator2D *this)
     if ( !bfx::AreaHandle::IsValid(&pOutArea) )
       goto LABEL_6;
     if ( bfx::AreaHandle::operator==(&pOutArea, hHintArea) )
-      v6 = 0;
+      v4 = 0;
     else
 LABEL_6:
-      v6 = !bfx::AreaHandle::IsUsable(&pOutArea, &this->m_BasePathSpec);
+      v4 = !bfx::AreaHandle::IsUsable(&pOutArea, &this->m_BasePathSpec);
     bfx::AreaHandle::~AreaHandle(&pOutArea);
-    return v6;
+    return v4;
   }
   return result;
 }
@@ -8368,17 +7168,25 @@ AINavigator2D::IsInOrApproachingTightQuarters
 ==============
 */
 
-bool __fastcall AINavigator2D::IsInOrApproachingTightQuarters(AINavigator2D *this, double maxDistance)
+char __fastcall AINavigator2D::IsInOrApproachingTightQuarters(AINavigator2D *this, double maxDistance)
 {
   __int64 m_NumPoints; 
-  bool result; 
   __int64 m_CurPathPoint; 
-  __int64 v31; 
-  int v36; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  __int64 v13; 
+  float *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  __int128 v19; 
 
   m_NumPoints = this->m_Path.m_NumPoints;
-  _R8 = this;
-  __asm { vmovaps xmm3, xmm1 }
+  _XMM3 = *(_OWORD *)&maxDistance;
   if ( (int)m_NumPoints <= 0 )
     return 0;
   if ( (this->m_Path.m_Points[this->m_CurPathPoint].m_Flags & 0x140) != 0 )
@@ -8388,105 +7196,45 @@ bool __fastcall AINavigator2D::IsInOrApproachingTightQuarters(AINavigator2D *thi
   m_CurPathPoint = this->m_CurPathPoint;
   __asm
   {
-    vmovss  xmm1, cs:__real@7f7fffff
-    vmovaps [rsp+68h+var_38], xmm8
-    vxorps  xmm0, xmm0, xmm0
     vcmpless xmm2, xmm3, xmm0
-    vmovaps [rsp+68h+var_48], xmm9
-  }
-  _RCX = 6 * m_CurPathPoint;
-  __asm
-  {
-    vmovaps [rsp+68h+var_58], xmm10
-    vmovaps [rsp+68h+var_68], xmm11
     vblendvps xmm11, xmm3, xmm1, xmm2
-    vmovss  xmm9, dword ptr [r8+rcx*8+0CCh]
-    vsubss  xmm0, xmm9, dword ptr [r8+58h]
-    vmovss  xmm8, dword ptr [r8+rcx*8+0C8h]
-    vsubss  xmm2, xmm8, dword ptr [r8+54h]
-    vmovss  xmm10, dword ptr [r8+rcx*8+0D0h]
-    vsubss  xmm3, xmm10, dword ptr [r8+5Ch]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vcomiss xmm4, xmm11
   }
-  if ( __CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint) || 6 * m_CurPathPoint == 0 )
+  v8 = LODWORD(this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1]);
+  v9 = v8;
+  v10 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[0];
+  v11 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2];
+  *(float *)&v9 = fsqrt((float)((float)((float)(*(float *)&v8 - this->m_LocalCurSnappedPos.v[1]) * (float)(*(float *)&v8 - this->m_LocalCurSnappedPos.v[1])) + (float)((float)(v10 - this->m_LocalCurSnappedPos.v[0]) * (float)(v10 - this->m_LocalCurSnappedPos.v[0]))) + (float)((float)(v11 - this->m_LocalCurSnappedPos.v[2]) * (float)(v11 - this->m_LocalCurSnappedPos.v[2])));
+  v12 = v9;
+  if ( *(float *)&v9 > *(float *)&_XMM11 )
+    return 0;
+  v13 = (int)m_CurPathPoint + 1;
+  if ( v13 >= m_NumPoints )
+    return 0;
+  v14 = &this->m_Path.m_Points[v13].m_LocalPos.v[2];
+  while ( 1 )
   {
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
-    v31 = (int)m_CurPathPoint + 1;
-    __asm { vmovaps [rsp+68h+var_28], xmm7 }
-    if ( v31 >= m_NumPoints )
+    v15 = *(v14 - 1);
+    v16 = *(v14 - 2);
+    v17 = *v14;
+    v18 = *((_DWORD *)v14 + 1);
+    v19 = v12;
+    *(float *)&v19 = *(float *)&v12 + fsqrt((float)((float)((float)(v15 - *(float *)&v8) * (float)(v15 - *(float *)&v8)) + (float)((float)(v16 - v10) * (float)(v16 - v10))) + (float)((float)(v17 - v11) * (float)(v17 - v11)));
+    v12 = v19;
+    if ( (v18 & 0x40) != 0 || (v18 & 0x100) != 0 )
+      break;
+    if ( *(float *)&v19 < *(float *)&_XMM11 )
     {
-LABEL_14:
-      result = 0;
+      ++v13;
+      v14 += 12;
+      v10 = v16;
+      *(float *)&v8 = v15;
+      v11 = v17;
+      if ( v13 < m_NumPoints )
+        continue;
     }
-    else
-    {
-      _RCX = (__int64)&_R8->m_Path.m_Points[v31].m_LocalPos.z;
-      while ( 1 )
-      {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rcx-4]
-          vmovss  xmm5, dword ptr [rcx-8]
-          vmovss  xmm7, dword ptr [rcx]
-        }
-        v36 = *(_DWORD *)(_RCX + 4);
-        __asm
-        {
-          vsubss  xmm0, xmm6, xmm9
-          vmulss  xmm1, xmm0, xmm0
-          vsubss  xmm2, xmm5, xmm8
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vsubss  xmm3, xmm7, xmm10
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm0, xmm2, xmm2
-          vaddss  xmm4, xmm4, xmm0
-        }
-        if ( (v36 & 0x40) != 0 || (v36 & 0x100) != 0 )
-          break;
-        __asm { vcomiss xmm4, xmm11 }
-        if ( (v36 & 0x100) != 0 )
-        {
-          ++v31;
-          _RCX += 48i64;
-          __asm
-          {
-            vmovaps xmm8, xmm5
-            vmovaps xmm9, xmm6
-            vmovaps xmm10, xmm7
-          }
-          if ( v31 < m_NumPoints )
-            continue;
-        }
-        goto LABEL_14;
-      }
-      result = 1;
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovaps xmm6, [rsp+68h+var_18]
-    }
+    return 0;
   }
-  else
-  {
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmovaps xmm10, [rsp+68h+var_58]
-    vmovaps xmm11, [rsp+68h+var_68]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -8612,117 +7360,66 @@ bool AINavigator2D::IsOnStairs(AINavigator2D *this)
 AINavigator2D::IsPathDistToGoalAtLeast
 ==============
 */
-
-bool __fastcall AINavigator2D::IsPathDistToGoalAtLeast(AINavigator2D *this, double dist)
+bool AINavigator2D::IsPathDistToGoalAtLeast(AINavigator2D *this, float dist)
 {
-  bool result; 
+  float v4; 
+  float v5; 
   __int64 m_CurPathPoint; 
-  signed __int64 m_NumPoints; 
-  int v32; 
-  unsigned __int64 v33; 
-  bool v34; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  __int64 m_NumPoints; 
+  __int64 v13; 
+  float *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v20; 
 
-  _RBX = this;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm1
-  }
   if ( this->m_Path.m_NumPoints <= 0 )
-    goto LABEL_9;
+    return 0;
   if ( AINavigator::ShouldPathOutOfBounds(this) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vsubss  xmm2, xmm1, dword ptr [rax+4]
-      vsubss  xmm4, xmm0, dword ptr [rax]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcomiss xmm2, xmm7
-    }
-    result = !__CFADD__(_RBX->m_pEnt, 304i64);
-    __asm
-    {
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm7, [rsp+48h+var_28]
-    }
-    return result;
+    v4 = this->m_RequestedGoalPos.v[1] - this->m_pEnt->r.currentOrigin.v[1];
+    v5 = this->m_RequestedGoalPos.v[0] - this->m_pEnt->r.currentOrigin.v[0];
+    return fsqrt((float)(v4 * v4) + (float)(v5 * v5)) >= dist;
   }
-  m_CurPathPoint = _RBX->m_CurPathPoint;
-  _RCX = 6 * m_CurPathPoint;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rcx*8+0C8h]
-    vsubss  xmm3, xmm0, dword ptr [rbx+54h]
-    vmovss  xmm1, dword ptr [rbx+rcx*8+0CCh]
-    vsubss  xmm2, xmm1, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+rcx*8+0D0h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+5Ch]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm6, xmm2, xmm2
-    vcomiss xmm6, xmm7
-  }
-  if ( !__CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint) )
-    goto LABEL_10;
-  m_NumPoints = _RBX->m_Path.m_NumPoints;
-  v32 = m_CurPathPoint + 1;
-  v33 = v32;
-  if ( v32 >= m_NumPoints )
-  {
-LABEL_9:
-    result = 0;
-    __asm
-    {
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovaps xmm7, [rsp+48h+var_28]
-    }
-    return result;
-  }
-  v34 = __CFSHL__(3i64 * v32, 4);
-  _RCX = (__int64)&_RBX->m_ReevalPathTask.pPrev + 48 * v32 + 4;
-  __asm { vmovss  xmm1, dword ptr [rcx] }
+  m_CurPathPoint = this->m_CurPathPoint;
+  v8 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+  v9 = LODWORD(this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1]);
+  *(float *)&v9 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+  v10 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+  v11 = v9;
+  if ( *(float *)&v9 >= dist )
+    return 1;
+  m_NumPoints = this->m_Path.m_NumPoints;
+  v13 = (int)m_CurPathPoint + 1;
+  if ( v13 >= m_NumPoints )
+    return 0;
+  v14 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v13 + 1;
+  v15 = *v14;
   while ( 1 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2Ch]
-      vsubss  xmm3, xmm0, dword ptr [rcx-4]
-      vmovss  xmm0, dword ptr [rcx+34h]
-      vmovss  xmm5, dword ptr [rcx+30h]
-      vsubss  xmm4, xmm0, dword ptr [rcx+4]
-      vsubss  xmm1, xmm5, xmm1
-      vmulss  xmm2, xmm1, xmm1
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vaddss  xmm6, xmm6, xmm1
-      vcomiss xmm6, xmm7
-    }
-    if ( !v34 )
+    v16 = v14[11] - *(v14 - 1);
+    v17 = v14[12];
+    v18 = v14[13] - v14[1];
+    v19 = fsqrt((float)((float)((float)(v17 - v15) * (float)(v17 - v15)) + (float)(v16 * v16)) + (float)(v18 * v18));
+    v20 = v11;
+    *(float *)&v20 = *(float *)&v11 + v19;
+    v11 = v20;
+    if ( *(float *)&v20 >= dist )
       break;
-    ++v33;
-    _RCX += 48i64;
-    __asm { vmovaps xmm1, xmm5 }
-    v34 = v33 < m_NumPoints;
-    if ( (__int64)v33 >= m_NumPoints )
-      goto LABEL_9;
+    ++v13;
+    v14 += 12;
+    v15 = v17;
+    if ( v13 >= m_NumPoints )
+      return 0;
   }
-LABEL_10:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  result = 1;
-  __asm { vmovaps xmm7, [rsp+48h+var_28] }
-  return result;
+  return 1;
 }
 
 /*
@@ -8730,86 +7427,64 @@ LABEL_10:
 AINavigator2D::IsPathDistToGoalOrLinkAtLeast
 ==============
 */
-
-bool __fastcall AINavigator2D::IsPathDistToGoalOrLinkAtLeast(AINavigator2D *this, double dist)
+bool AINavigator2D::IsPathDistToGoalOrLinkAtLeast(AINavigator2D *this, float dist)
 {
-  bool result; 
+  float v4; 
+  float v5; 
   __int64 m_CurPathPoint; 
-  __int64 v29; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  __int128 v11; 
+  __int64 m_NumPoints; 
+  __int64 v13; 
+  float *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
 
-  _RBX = this;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( this->m_Path.m_NumPoints <= 0 )
-    goto LABEL_8;
+    return 0;
   if ( AINavigator::ShouldPathOutOfBounds(this) )
   {
-    __asm
+    v4 = this->m_RequestedGoalPos.v[1] - this->m_pEnt->r.currentOrigin.v[1];
+    v5 = this->m_RequestedGoalPos.v[0] - this->m_pEnt->r.currentOrigin.v[0];
+    return fsqrt((float)(v4 * v4) + (float)(v5 * v5)) >= dist;
+  }
+  m_CurPathPoint = this->m_CurPathPoint;
+  v8 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[0] - this->m_LocalCurSnappedPos.v[0];
+  v9 = LODWORD(this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1]);
+  *(float *)&v9 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[1] - this->m_LocalCurSnappedPos.v[1];
+  v10 = this->m_Path.m_Points[m_CurPathPoint].m_LocalPos.v[2] - this->m_LocalCurSnappedPos.v[2];
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v8 * v8)) + (float)(v10 * v10));
+  v11 = v9;
+  if ( *(float *)&v9 < dist )
+  {
+    m_NumPoints = this->m_Path.m_NumPoints;
+    v13 = (int)m_CurPathPoint + 1;
+    if ( v13 < m_NumPoints )
     {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmovss  xmm1, dword ptr [rbx+1Ch]
-      vsubss  xmm2, xmm1, dword ptr [rax+4]
-      vsubss  xmm4, xmm0, dword ptr [rax]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcomiss xmm2, xmm6
+      v14 = (float *)&this->m_ReevalPathTask.pPrev + 12 * v13 + 1;
+      do
+      {
+        if ( ((_BYTE)v14[2] & 2) != 0 )
+          break;
+        v15 = v14[11] - *(v14 - 1);
+        v16 = v14[13] - v14[1];
+        v17 = fsqrt((float)((float)((float)(v14[12] - *v14) * (float)(v14[12] - *v14)) + (float)(v15 * v15)) + (float)(v16 * v16));
+        v18 = v11;
+        *(float *)&v18 = *(float *)&v11 + v17;
+        v11 = v18;
+        if ( *(float *)&v18 >= dist )
+          return 1;
+        ++v13;
+        v14 += 12;
+      }
+      while ( v13 < m_NumPoints );
     }
-    result = !__CFADD__(_RBX->m_pEnt, 304i64);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return result;
+    return 0;
   }
-  m_CurPathPoint = _RBX->m_CurPathPoint;
-  _RCX = 6 * m_CurPathPoint;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rcx*8+0C8h]
-    vsubss  xmm3, xmm0, dword ptr [rbx+54h]
-    vmovss  xmm1, dword ptr [rbx+rcx*8+0CCh]
-    vsubss  xmm2, xmm1, dword ptr [rbx+58h]
-    vmovss  xmm0, dword ptr [rbx+rcx*8+0D0h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+5Ch]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm5, xmm2, xmm2
-    vcomiss xmm5, xmm6
-  }
-  if ( !__CFADD__(3 * m_CurPathPoint, 3 * m_CurPathPoint) )
-    goto LABEL_9;
-  v29 = (int)m_CurPathPoint + 1;
-  if ( v29 >= _RBX->m_Path.m_NumPoints || (_RCX = (__int64)&_RBX->m_ReevalPathTask.pPrev + 48 * v29 + 4, (*(_BYTE *)(&_RBX->m_MaxDeviationFromPath + 12 * v29) & 2) != 0) )
-  {
-LABEL_8:
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return result;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+2Ch]
-    vsubss  xmm3, xmm0, dword ptr [rcx-4]
-    vmovss  xmm1, dword ptr [rcx+30h]
-    vsubss  xmm2, xmm1, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rcx+34h]
-    vsubss  xmm4, xmm0, dword ptr [rcx+4]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vaddss  xmm5, xmm5, xmm1
-    vcomiss xmm5, xmm6
-  }
-LABEL_9:
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
   return 1;
 }
 
@@ -8818,43 +7493,66 @@ LABEL_9:
 AINavigator2D::IsPathLengthAtLeast
 ==============
 */
-
-char __fastcall AINavigator2D::IsPathLengthAtLeast(AINavigator2D *this, double dist)
+char AINavigator2D::IsPathLengthAtLeast(AINavigator2D *this, float dist)
 {
-  char result; 
+  __int64 m_NumPoints; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  __int64 v10; 
+  int v11; 
+  float *v12; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
 
-  __asm
+  m_NumPoints = this->m_Path.m_NumPoints;
+  if ( (int)m_NumPoints <= 0 )
+    return 0;
+  v5 = this->m_Path.m_Points[0].m_LocalPos.v[0] - this->m_LocalSnappedPathStartPos.v[0];
+  v6 = this->m_Path.m_Points[0].m_LocalPos.v[1] - this->m_LocalSnappedPathStartPos.v[1];
+  v7 = this->m_Path.m_Points[0].m_LocalPos.v[2] - this->m_LocalSnappedPathStartPos.v[2];
+  v8 = fsqrt((float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7));
+  if ( v8 < dist )
   {
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  if ( this->m_Path.m_NumPoints <= 0 )
-  {
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  }
-  else
-  {
-    __asm
+    v9 = 1;
+    if ( (int)m_NumPoints > 1 )
     {
-      vmovss  xmm0, dword ptr [rcx+0C8h]
-      vsubss  xmm5, xmm0, dword ptr [rcx+60h]
-      vmovss  xmm2, dword ptr [rcx+0CCh]
-      vsubss  xmm3, xmm2, dword ptr [rcx+64h]
-      vmovss  xmm0, dword ptr [rcx+0D0h]
-      vsubss  xmm4, xmm0, dword ptr [rcx+68h]
-      vmulss  xmm2, xmm3, xmm3
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm5, xmm2, xmm2
-      vcomiss xmm5, xmm6
-      vmovaps xmm6, [rsp+18h+var_18]
+      v10 = m_NumPoints;
+      v11 = m_NumPoints - 1;
+      v12 = &this->m_Path.m_Points[0].m_LocalPos.v[2];
+      v13 = 1i64;
+      while ( 1 )
+      {
+        if ( v9 == v11 )
+        {
+          v14 = this->m_LocalRequestedGoalPos.v[0] - *(v12 - 2);
+          v15 = this->m_LocalRequestedGoalPos.v[2];
+          v16 = this->m_LocalRequestedGoalPos.v[1];
+        }
+        else
+        {
+          v14 = v12[10] - *(v12 - 2);
+          v15 = v12[12];
+          v16 = v12[11];
+        }
+        v8 = fsqrt((float)((float)((float)(v16 - *(v12 - 1)) * (float)(v16 - *(v12 - 1))) + (float)(v14 * v14)) + (float)((float)(v15 - *v12) * (float)(v15 - *v12))) + v8;
+        if ( v8 >= dist )
+          break;
+        ++v9;
+        ++v13;
+        v12 += 12;
+        if ( v13 >= v10 )
+          return 0;
+      }
+      return 1;
     }
-    return 1;
+    return 0;
   }
-  return result;
+  return 1;
 }
 
 /*
@@ -8862,63 +7560,32 @@ char __fastcall AINavigator2D::IsPathLengthAtLeast(AINavigator2D *this, double d
 AINavigator2D::IsPointVisibleOnPath
 ==============
 */
-
-bool __fastcall AINavigator2D::IsPointVisibleOnPath(AINavigator2D *this, const vec3_t *pathStartPos, const vec3_t *point, double ignoreDistance)
+char AINavigator2D::IsPointVisibleOnPath(AINavigator2D *this, const vec3_t *pathStartPos, const vec3_t *point, float ignoreDistance)
 {
   int m_NumPoints; 
-  int v9; 
+  int v7; 
   const tacpoint_t *ClosestPoint; 
-  char v23; 
-  char v24; 
-  const tacpoint_t *v25; 
-  bool result; 
+  const tacpoint_t *v9; 
   vec3_t outPoint; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   m_NumPoints = this->m_Path.m_NumPoints;
-  _RSI = pathStartPos;
-  __asm { vmovaps xmm6, xmm3 }
-  v9 = 0;
+  v7 = 0;
   ClosestPoint = TacGraph_FindClosestPoint(point);
   if ( m_NumPoints <= 0 )
+    return 0;
+  while ( 1 )
   {
-LABEL_5:
-    result = 0;
-  }
-  else
-  {
-    while ( 1 )
+    nav_path_t::GetPathPoint(&this->m_Path, v7, &outPoint);
+    if ( fsqrt((float)((float)((float)(pathStartPos->v[1] - outPoint.v[1]) * (float)(pathStartPos->v[1] - outPoint.v[1])) + (float)((float)(pathStartPos->v[0] - outPoint.v[0]) * (float)(pathStartPos->v[0] - outPoint.v[0]))) + (float)((float)(pathStartPos->v[2] - outPoint.v[2]) * (float)(pathStartPos->v[2] - outPoint.v[2]))) > ignoreDistance )
     {
-      nav_path_t::GetPathPoint(&this->m_Path, v9, &outPoint);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm3, xmm0, dword ptr [rsp+68h+outPoint]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vsubss  xmm2, xmm1, dword ptr [rsp+68h+outPoint+4]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vsubss  xmm4, xmm0, dword ptr [rsp+68h+outPoint+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vcomiss xmm1, xmm6
-      }
-      if ( !(v23 | v24) )
-      {
-        v25 = TacGraph_FindClosestPoint(&outPoint);
-        if ( TacVisGraph_HasVis(ClosestPoint, v25) )
-          break;
-      }
-      if ( ++v9 >= m_NumPoints )
-        goto LABEL_5;
+      v9 = TacGraph_FindClosestPoint(&outPoint);
+      if ( TacVisGraph_HasVis(ClosestPoint, v9) )
+        break;
     }
-    result = 1;
+    if ( ++v7 >= m_NumPoints )
+      return 0;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  return result;
+  return 1;
 }
 
 /*
@@ -8928,31 +7595,18 @@ AINavigator2D::IsPosReachable
 */
 _BOOL8 AINavigator2D::IsPosReachable(AINavigator2D *this, const vec3_t *goalPos)
 {
-  bool IsAreaReachableFromArea; 
-  float pPathSpec; 
+  bool v4; 
   bfx::AreaHandle areaB; 
-  __int64 v10; 
+  __int64 v7; 
   vec3_t outUp; 
   vec3_t point; 
 
-  v10 = -2i64;
+  v7 = -2i64;
   bfx::AreaHandle::AreaHandle(&areaB);
   AINavigator::GetUpVector(this, &outUp);
-  if ( !Nav_GetClosestVerticalPos(goalPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &this->m_BasePathSpec, &point, &areaB) )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42900000
-    vmovss  dword ptr [rsp+88h+pPathSpec], xmm0
-    vmovss  xmm3, cs:__real@41400000; radius
-  }
-  if ( Nav_PointWithinCylinderWithUp(&point, goalPos, &outUp, *(float *)&_XMM3, pPathSpec) )
-    IsAreaReachableFromArea = bfx::IsAreaReachableFromArea(&this->m_hCurArea, &areaB, &this->m_BasePathSpec);
-  else
-LABEL_4:
-    IsAreaReachableFromArea = 0;
+  v4 = Nav_GetClosestVerticalPos(goalPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &this->m_BasePathSpec, &point, &areaB) && Nav_PointWithinCylinderWithUp(&point, goalPos, &outUp, 12.0, 72.0) && bfx::IsAreaReachableFromArea(&this->m_hCurArea, &areaB, &this->m_BasePathSpec);
   bfx::AreaHandle::~AreaHandle(&areaB);
-  return IsAreaReachableFromArea;
+  return v4;
 }
 
 /*
@@ -8962,34 +7616,30 @@ AINavigator2D::IsPosUsable
 */
 _BOOL8 AINavigator2D::IsPosUsable(AINavigator2D *this, const vec3_t *pos)
 {
-  bool v6; 
+  bool v4; 
   bfx::AreaHandle pOutArea; 
-  __int64 v9; 
+  __int64 v7; 
   vec3_t outUp; 
   bfx::PathSpec pPathSpec; 
   vec3_t outClosestPos; 
 
-  v9 = -2i64;
+  v7 = -2i64;
   bfx::AreaHandle::AreaHandle(&pOutArea);
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   pPathSpec.m_usePathSharingPenalty = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0E8h+var_78.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+0E8h+var_78.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+0E8h+var_78.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
   pPathSpec.m_snapMode = SNAP_CLOSEST;
   Nav_GetSpaceUp(this->m_pSpace, &outUp);
   pPathSpec.m_obstacleBlockageFlags = 0;
   Nav_GetClosestVerticalPos(pos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &pPathSpec, &outClosestPos, &pOutArea);
-  v6 = bfx::AreaHandle::IsValid(&pOutArea) && bfx::AreaHandle::IsUsable(&pOutArea, &this->m_BasePathSpec);
+  v4 = bfx::AreaHandle::IsValid(&pOutArea) && bfx::AreaHandle::IsUsable(&pOutArea, &this->m_BasePathSpec);
   bfx::AreaHandle::~AreaHandle(&pOutArea);
-  return v6;
+  return v4;
 }
 
 /*
@@ -9030,139 +7680,76 @@ AINavigator2D::IsTightPathSegment
 
 bool __fastcall AINavigator2D::IsTightPathSegment(AINavigator2D *this, const vec3_t *startPoint, const vec3_t *endPoint, double maxDistance, bool *outFullyProcessed, float *outRemainingLength)
 {
-  bool v19; 
+  float v6; 
+  float v7; 
+  float v8; 
+  bool v9; 
+  __int64 v10; 
   nav_space_s *spaceHandle; 
   AINavLayer layer; 
-  bool v58; 
-  bool v60; 
-  bool v62; 
-  char v64; 
-  bool result; 
-  float v75; 
-  float v76; 
+  __int128 v15; 
+  float v18; 
+  float v19; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __m256i v24; 
+  bool v25; 
+  bool v26; 
   vec3_t vec; 
   vec3_t centerPoint; 
-  vec3_t v79; 
+  vec3_t v32; 
   vec4_t quat; 
   vec3_t angles; 
   bfx::PathSpec pathSpec; 
-  char v83; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovaps xmmword ptr [rax-68h], xmm12
-    vmovaps xmmword ptr [rax-78h], xmm13
-    vmovss  xmm0, dword ptr [r8]
-    vsubss  xmm6, xmm0, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [r8+4]
-    vsubss  xmm5, xmm1, dword ptr [rdx+4]
-    vmovss  xmm0, dword ptr [r8+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+8]
-  }
-  v19 = !this->m_bPathRequested;
-  _RAX = 1268i64;
+  v6 = endPoint->v[0] - startPoint->v[0];
+  v15 = LODWORD(endPoint->v[1]);
+  v7 = endPoint->v[1] - startPoint->v[1];
+  v8 = endPoint->v[2] - startPoint->v[2];
+  v9 = !this->m_bPathRequested;
+  v10 = 1268i64;
   spaceHandle = this->m_pSpace;
   layer = this->m_Layer;
-  _RBP = outRemainingLength;
+  _XMM13 = *(_OWORD *)&maxDistance;
+  *(float *)&v15 = fsqrt((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v8 * v8));
+  _XMM12 = v15;
   __asm
   {
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm13, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm12, xmm2, xmm2
     vcmpless xmm0, xmm12, cs:__real@80000000
     vblendvps xmm0, xmm12, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm8, xmm6, xmm2
-    vmulss  xmm5, xmm5, xmm2
-    vmulss  xmm4, xmm4, xmm2
-    vmulss  xmm2, xmm8, cs:__real@c1c80000
-    vmovss  dword ptr [rsp+168h+vec+4], xmm5
-    vminss  xmm11, xmm13, xmm12
-    vmulss  xmm3, xmm11, cs:__real@3f000000
-    vmulss  xmm1, xmm5, xmm3
-    vaddss  xmm7, xmm1, dword ptr [rdx+4]
-    vmulss  xmm5, xmm5, cs:__real@41c80000
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm6, xmm0, dword ptr [rdx]
-    vmulss  xmm0, xmm4, xmm3
-    vaddss  xmm3, xmm0, dword ptr [rdx+8]
-    vaddss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rsp+168h+var_108+4], xmm0
-    vaddss  xmm1, xmm5, xmm6
-    vsubss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rsp+168h+var_108], xmm1
-    vmovss  dword ptr [rsp+168h+centerPoint+4], xmm0
-    vsubss  xmm1, xmm6, xmm5
   }
-  if ( v19 )
-    _RAX = 1188i64;
-  __asm
-  {
-    vmovss  dword ptr [rsp+168h+centerPoint], xmm1
-    vmovss  dword ptr [rsp+168h+vec], xmm8
-    vmovss  dword ptr [rsp+168h+vec+8], xmm4
-    vmovups ymm0, ymmword ptr [rax+rcx]
-    vmovups ymm1, ymmword ptr [rax+rcx+20h]
-    vmovups ymmword ptr [rsp+168h+var_D8.m_obstacleMode], ymm0
-    vmovups xmm0, xmmword ptr [rax+rcx+40h]
-    vmovups xmmword ptr [rsp+168h+var_D8.m_penaltyTable.m_perFlagPenalties+18h], xmm0
-    vmovss  dword ptr [rsp+168h+var_108+8], xmm3
-    vmovss  dword ptr [rsp+168h+centerPoint+8], xmm3
-    vmovups ymmword ptr [rsp+168h+var_D8.m_maxSearchDist], ymm1
-  }
+  v18 = v6 * (float)(1.0 / *(float *)&_XMM0);
+  v19 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  vec.v[1] = v7 * (float)(1.0 / *(float *)&_XMM0);
+  __asm { vminss  xmm11, xmm13, xmm12 }
+  v21 = (float)(vec.v[1] * (float)(*(float *)&_XMM11 * 0.5)) + startPoint->v[1];
+  v22 = (float)(v18 * (float)(*(float *)&_XMM11 * 0.5)) + startPoint->v[0];
+  v23 = (float)(v19 * (float)(*(float *)&_XMM11 * 0.5)) + startPoint->v[2];
+  v32.v[1] = v21 + (float)(v18 * -25.0);
+  v32.v[0] = (float)(vec.v[1] * 25.0) + v22;
+  centerPoint.v[1] = v21 - (float)(v18 * -25.0);
+  if ( v9 )
+    v10 = 1188i64;
+  centerPoint.v[0] = v22 - (float)(vec.v[1] * 25.0);
+  vec.v[0] = v18;
+  vec.v[2] = v19;
+  v24 = *(__m256i *)((char *)&this->m_RequestedGoalPos.z + v10);
+  *(__m256i *)&pathSpec.m_obstacleMode = *(__m256i *)((char *)&this->__vftable + v10);
+  *(_OWORD *)&pathSpec.m_penaltyTable.m_perFlagPenalties[24] = *(_OWORD *)((char *)&this->m_LocalRequestedGoalPos.y + v10);
+  v32.v[2] = v23;
+  centerPoint.v[2] = v23;
+  *(__m256i *)&pathSpec.m_maxSearchDist = v24;
   vectoangles(&vec, &angles);
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42c80000
-    vmovss  xmm3, cs:__real@41f00000; width
-    vmovaps xmm2, xmm11; length
-    vmovss  [rsp+168h+var_148], xmm7
-  }
-  v58 = Nav_CheckBoxFit(&centerPoint, &quat, *(const float *)&_XMM2, *(const float *)&_XMM3, v75, layer, &pathSpec, &spaceHandle->hSpace);
-  __asm { vmovss  xmm3, cs:__real@41f00000; width }
-  v60 = v58;
-  __asm
-  {
-    vmovss  [rsp+168h+var_148], xmm7
-    vmovaps xmm2, xmm11; length
-  }
-  v62 = Nav_CheckBoxFit(&v79, &quat, *(const float *)&_XMM2, *(const float *)&_XMM3, v76, layer, &pathSpec, &spaceHandle->hSpace);
-  __asm
-  {
-    vcomiss xmm13, xmm12
-    vsubss  xmm1, xmm12, xmm13
-  }
-  *outFullyProcessed = !v64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmaxss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rbp+0], xmm1
-  }
-  result = !v60 && !v62;
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm11, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-  }
-  return result;
+  v25 = Nav_CheckBoxFit(&centerPoint, &quat, *(const float *)&_XMM11, 30.0, 100.0, layer, &pathSpec, &spaceHandle->hSpace);
+  v26 = Nav_CheckBoxFit(&v32, &quat, *(const float *)&_XMM11, 30.0, 100.0, layer, &pathSpec, &spaceHandle->hSpace);
+  *(float *)&v15 = *(float *)&v15 - *(float *)&_XMM13;
+  _XMM1 = v15;
+  *outFullyProcessed = *(float *)&_XMM13 >= *(float *)&_XMM12;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  *outRemainingLength = *(float *)&_XMM1;
+  return !v25 && !v26;
 }
 
 /*
@@ -9321,11 +7908,7 @@ Nav_InitStaticNavigatorData2D
 */
 void Nav_InitStaticNavigatorData2D(void)
 {
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000007ff000007ff000007ff000007ff
-    vmovdqu xmmword ptr cs:s_SuppressionObstacleReservations, xmm0
-  }
+  *(_OWORD *)s_SuppressionObstacleReservations = _xmm;
 }
 
 /*
@@ -9543,68 +8126,66 @@ char AINavigator2D::ReFindPathToPoint(AINavigator2D *this, int iPointToPathTo)
   _DWORD *v7; 
   int v8; 
   __int64 v9; 
-  bool v10; 
+  float *v10; 
   __int64 v11; 
-  __int64 v15; 
   int j; 
-  int v20; 
-  int v21; 
+  int v13; 
+  int v14; 
   int k; 
-  int v23; 
+  int v16; 
   bfx::AreaHandle *p_m_hArea; 
-  __int64 v25; 
-  int v26; 
-  int v27; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
   int m_NumPoints; 
-  int v29; 
-  __int64 v30; 
-  int v31; 
+  int v22; 
+  __int64 v23; 
+  int v24; 
   unsigned int *p_m_Flags; 
-  int v33; 
-  unsigned int *v34; 
-  __int64 v35; 
+  int v26; 
+  unsigned int *v27; 
+  __int64 v28; 
   int i; 
-  __int64 v37; 
-  bfx::AreaHandle *v42; 
-  __int64 v43; 
-  int v44; 
-  _DWORD *v45; 
+  __int64 v30; 
+  bfx::AreaHandle *v31; 
+  __int64 v32; 
+  int v33; 
+  _DWORD *v34; 
   bool pbOutHasDoors; 
-  int v47; 
+  int v36; 
   bfx::PolylinePathRCPtr result; 
-  __int64 v49; 
+  __int64 v38; 
   nav_pathfind_input_t pInput; 
-  __int64 v51; 
+  __int64 v40; 
   _OWORD ptr[62]; 
   vec3_t outPoint; 
 
-  v51 = -2i64;
+  v40 = -2i64;
   v2 = iPointToPathTo;
-  _RBX = this;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "RefindPathToPoint");
-  if ( (unsigned int)v2 >= _RBX->m_Path.m_NumPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2147, ASSERT_TYPE_ASSERT, "(unsigned)( iPointToPathTo ) < (unsigned)( m_Path.m_NumPoints )", "iPointToPathTo doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", v2, _RBX->m_Path.m_NumPoints) )
+  if ( (unsigned int)v2 >= this->m_Path.m_NumPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2147, ASSERT_TYPE_ASSERT, "(unsigned)( iPointToPathTo ) < (unsigned)( m_Path.m_NumPoints )", "iPointToPathTo doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", v2, this->m_Path.m_NumPoints) )
     __debugbreak();
-  if ( (_RBX->m_Path.m_Points[v2].m_Flags & 2) != 0 )
+  if ( (this->m_Path.m_Points[v2].m_Flags & 2) != 0 )
   {
     LODWORD(v2) = v2 + 1;
-    if ( (int)v2 >= _RBX->m_Path.m_NumPoints )
+    if ( (int)v2 >= this->m_Path.m_NumPoints )
     {
-      _RBX->ClearPath(_RBX);
+      this->ClearPath(this);
       Sys_ProfEndNamedEvent();
       return 0;
     }
   }
-  nav_path_t::GetPathPoint(&_RBX->m_Path, v2, &outPoint);
+  nav_path_t::GetPathPoint(&this->m_Path, v2, &outPoint);
   bfx::AreaHandle::AreaHandle(&pInput.m_hStartArea);
   bfx::AreaHandle::AreaHandle(&pInput.m_hGoalArea);
   pInput.m_pPathSpec = NULL;
   *(_WORD *)&pInput.m_bSnapPoints = 257;
   pInput.m_bModifyLinkWeights = 1;
-  pInput.m_pStartPos = &_RBX->m_CurSnappedPos;
-  bfx::AreaHandle::operator=(&pInput.m_hStartArea, &_RBX->m_hCurArea);
+  pInput.m_pStartPos = &this->m_CurSnappedPos;
+  bfx::AreaHandle::operator=(&pInput.m_hStartArea, &this->m_hCurArea);
   pInput.m_pGoalPos = &outPoint;
-  pInput.m_pPathSpec = &_RBX->m_PathSpecOfCurPath;
-  AINavigator2D::FindPath(_RBX, &result, &pInput);
+  pInput.m_pPathSpec = &this->m_PathSpecOfCurPath;
+  AINavigator2D::FindPath(this, &result, &pInput);
   if ( bfx::PolylinePathRCPtr::IsValid(&result) )
   {
     `eh vector constructor iterator'(ptr, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::pathpoint_t, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
@@ -9623,221 +8204,175 @@ char AINavigator2D::ReFindPathToPoint(AINavigator2D *this, int iPointToPathTo)
     }
     while ( v6 < SLODWORD(ptr[60]) );
     LODWORD(ptr[60]) = 0;
-    *(_QWORD *)&ptr[61] = _RBX->m_pSpace;
+    *(_QWORD *)&ptr[61] = this->m_pSpace;
     Sys_ProfBeginNamedEvent(0xFFFFFFFF, "GeneratePath");
-    AINavigator2D::ExtractCornersFromRawPath(_RBX, &result, (nav_path_t *)ptr, 20, &_RBX->m_PathSpecOfCurPath, &pbOutHasDoors);
+    AINavigator2D::ExtractCornersFromRawPath(this, &result, (nav_path_t *)ptr, 20, &this->m_PathSpecOfCurPath, &pbOutHasDoors);
     Sys_ProfEndNamedEvent();
     v8 = ptr[60];
-    v9 = LODWORD(ptr[60]) - 1;
-    v10 = LODWORD(ptr[60]) == 1;
     if ( LODWORD(ptr[60]) - 1 > 0 )
     {
-      v11 = 0i64;
-      _RAX = (char *)&ptr[3] + 4;
-      while ( 1 )
+      v9 = 0i64;
+      v10 = (float *)&ptr[3] + 1;
+      while ( *(v10 - 1) != *(v10 - 13) || *v10 != *(v10 - 12) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax-4]
-          vucomiss xmm0, dword ptr [rax-34h]
-        }
-        if ( v10 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vucomiss xmm0, dword ptr [rax-30h]
-          }
-          if ( v10 )
-            break;
-        }
-        ++v11;
-        _RAX += 48;
-        v10 = v11 == v9;
-        if ( v11 >= v9 )
+        ++v9;
+        v10 += 12;
+        if ( v9 >= LODWORD(ptr[60]) - 1 )
           goto LABEL_18;
       }
       Nav_PrintPath("Path Points:", (const nav_path_t::pathpoint_t *)ptr, ptr[60]);
       v8 = ptr[60];
     }
 LABEL_18:
-    if ( (int)v2 < _RBX->m_Path.m_NumPoints - 1 )
+    if ( (int)v2 < this->m_Path.m_NumPoints - 1 )
     {
       HIDWORD(ptr[3 * v8 - 3]) &= ~1u;
       v8 = ptr[60];
     }
-    v15 = (int)v2;
-    v49 = (int)v2;
-    HIDWORD(ptr[3 * v8 - 3]) |= _RBX->m_Path.m_Points[(int)v2].m_Flags & 0x402;
-    __asm
-    {
-      vmovss  xmm0, [rbp+3E0h+var_6C]
-      vmovss  dword ptr [rbx+48Ch], xmm0
-      vmovss  xmm1, [rbp+3E0h+var_68]
-      vmovss  dword ptr [rbx+490h], xmm1
-      vmovss  xmm0, [rbp+3E0h+var_64]
-      vmovss  dword ptr [rbx+494h], xmm0
-    }
+    v11 = (int)v2;
+    v38 = (int)v2;
+    HIDWORD(ptr[3 * v8 - 3]) |= this->m_Path.m_Points[(int)v2].m_Flags & 0x402;
+    this->m_Path.m_LocalStartPoint.v[0] = *((float *)&ptr[60] + 1);
+    this->m_Path.m_LocalStartPoint.v[1] = *((float *)&ptr[60] + 2);
+    this->m_Path.m_LocalStartPoint.v[2] = *((float *)&ptr[60] + 3);
     if ( LODWORD(ptr[60]) - 1 > (int)v2 )
     {
-      v27 = LODWORD(ptr[60]) - v2 - 1;
-      v47 = v27;
-      if ( v27 <= 0 )
+      v20 = LODWORD(ptr[60]) - v2 - 1;
+      v36 = v20;
+      if ( v20 <= 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2215, ASSERT_TYPE_ASSERT, "( delta > 0 )", (const char *)&queryFormat, "delta > 0") )
           __debugbreak();
-        v15 = v49;
+        v11 = v38;
       }
-      m_NumPoints = _RBX->m_Path.m_NumPoints;
-      v29 = m_NumPoints - 1;
-      v30 = m_NumPoints - 1;
-      if ( m_NumPoints > m_NumPoints - v27 )
+      m_NumPoints = this->m_Path.m_NumPoints;
+      v22 = m_NumPoints - 1;
+      v23 = m_NumPoints - 1;
+      if ( m_NumPoints > m_NumPoints - v20 )
       {
-        v31 = v29 + v27;
-        p_m_Flags = &_RBX->m_Path.m_Points[v29].m_Flags;
-        while ( v31 < 20 || (*p_m_Flags & 0x401) != 1024 )
+        v24 = v22 + v20;
+        p_m_Flags = &this->m_Path.m_Points[v22].m_Flags;
+        while ( v24 < 20 || (*p_m_Flags & 0x401) != 1024 )
         {
-          v30 = (unsigned int)(v30 - 1);
-          --v31;
+          v23 = (unsigned int)(v23 - 1);
+          --v24;
           p_m_Flags -= 12;
-          if ( (int)v30 < m_NumPoints - v27 )
+          if ( (int)v23 < m_NumPoints - v20 )
             goto LABEL_44;
         }
-        ((void (__fastcall *)(AINavigator2D *, __int64))_RBX->ClearPath)(_RBX, v30);
+        ((void (__fastcall *)(AINavigator2D *, __int64))this->ClearPath)(this, v23);
         nav_path_t::Reset((nav_path_t *)ptr);
         Sys_ProfEndNamedEvent();
         v5 = 0;
         goto LABEL_76;
       }
 LABEL_44:
-      if ( v29 >= v15 )
+      if ( v22 >= v11 )
       {
-        v33 = v29 + v27;
-        v34 = &_RBX->m_Path.m_Points[v29].m_Flags;
-        v35 = v29 - v15 + 1;
+        v26 = v22 + v20;
+        v27 = &this->m_Path.m_Points[v22].m_Flags;
+        v28 = v22 - v11 + 1;
         do
         {
-          if ( v33 < 20 )
+          if ( v26 < 20 )
           {
-            nav_path_t::CopyPathPoint(&_RBX->m_Path, &_RBX->m_Path.m_Points[v29], &_RBX->m_Path.m_Points[v33]);
+            nav_path_t::CopyPathPoint(&this->m_Path, &this->m_Path.m_Points[v22], &this->m_Path.m_Points[v26]);
           }
-          else if ( (*v34 & 0x401) == 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2233, ASSERT_TYPE_ASSERT, "( !( m_Path.m_Points[iPt].m_Flags & NAVPP_FLAG_MULTIGOAL ) || m_Path.m_Points[ iPt ].m_Flags & NAVPP_FLAG_PATH_END )", (const char *)&queryFormat, "!( m_Path.m_Points[iPt].m_Flags & NAVPP_FLAG_MULTIGOAL ) || m_Path.m_Points[ iPt ].m_Flags & NAVPP_FLAG_PATH_END") )
+          else if ( (*v27 & 0x401) == 1024 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2233, ASSERT_TYPE_ASSERT, "( !( m_Path.m_Points[iPt].m_Flags & NAVPP_FLAG_MULTIGOAL ) || m_Path.m_Points[ iPt ].m_Flags & NAVPP_FLAG_PATH_END )", (const char *)&queryFormat, "!( m_Path.m_Points[iPt].m_Flags & NAVPP_FLAG_MULTIGOAL ) || m_Path.m_Points[ iPt ].m_Flags & NAVPP_FLAG_PATH_END") )
           {
             __debugbreak();
           }
-          --v29;
-          --v33;
-          v34 -= 12;
-          --v35;
+          --v22;
+          --v26;
+          v27 -= 12;
+          --v28;
         }
-        while ( v35 );
-        v27 = v47;
+        while ( v28 );
+        v20 = v36;
       }
       for ( i = 0; i < SLODWORD(ptr[60]); ++i )
-        nav_path_t::CopyPathPoint(&_RBX->m_Path, (const nav_path_t::pathpoint_t *)&ptr[3 * i], &_RBX->m_Path.m_Points[i]);
-      v37 = LODWORD(ptr[60]) - 1;
-      _RAX = 6 * v37;
-      __asm
-      {
-        vmovss  xmm0, [rbp+3E0h+ptr]
-        vucomiss xmm0, dword ptr [rbx+rax*8+0C8h]
-      }
-      if ( !(6 * v37) )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rbp+3E0h+var_42C]
-          vucomiss xmm0, dword ptr [rbx+rax*8+0CCh]
-        }
-        if ( !(6 * v37) )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rbp+3E0h+var_428]
-            vucomiss xmm0, dword ptr [rbx+rax*8+0D0h]
-          }
-          if ( !(6 * v37) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2243, ASSERT_TYPE_ASSERT, "(!Vec3Compare( m_Path.m_Points[ firstSubPathCorners.m_NumPoints - 1 ].m_LocalPos, firstSubPathCorners.m_Points[ 0 ].m_LocalPos ))", (const char *)&queryFormat, "!Vec3Compare( m_Path.m_Points[ firstSubPathCorners.m_NumPoints - 1 ].m_LocalPos, firstSubPathCorners.m_Points[ 0 ].m_LocalPos )") )
-            __debugbreak();
-        }
-      }
-      v26 = 20;
-      if ( v27 + _RBX->m_Path.m_NumPoints < 20 )
-        v26 = v27 + _RBX->m_Path.m_NumPoints;
-      _RBX->m_Path.m_NumPoints = v26;
+        nav_path_t::CopyPathPoint(&this->m_Path, (const nav_path_t::pathpoint_t *)&ptr[3 * i], &this->m_Path.m_Points[i]);
+      v30 = LODWORD(ptr[60]) - 1;
+      if ( *(float *)ptr == this->m_Path.m_Points[v30].m_LocalPos.v[0] && *((float *)ptr + 1) == this->m_Path.m_Points[v30].m_LocalPos.v[1] && *((float *)ptr + 2) == this->m_Path.m_Points[v30].m_LocalPos.v[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2243, ASSERT_TYPE_ASSERT, "(!Vec3Compare( m_Path.m_Points[ firstSubPathCorners.m_NumPoints - 1 ].m_LocalPos, firstSubPathCorners.m_Points[ 0 ].m_LocalPos ))", (const char *)&queryFormat, "!Vec3Compare( m_Path.m_Points[ firstSubPathCorners.m_NumPoints - 1 ].m_LocalPos, firstSubPathCorners.m_Points[ 0 ].m_LocalPos )") )
+        __debugbreak();
+      v19 = 20;
+      if ( v20 + this->m_Path.m_NumPoints < 20 )
+        v19 = v20 + this->m_Path.m_NumPoints;
+      this->m_Path.m_NumPoints = v19;
     }
     else
     {
       for ( j = 0; j < SLODWORD(ptr[60]); ++j )
-        nav_path_t::CopyPathPoint(&_RBX->m_Path, (const nav_path_t::pathpoint_t *)&ptr[3 * j], &_RBX->m_Path.m_Points[j]);
-      v20 = ptr[60];
-      v21 = v2 + 1;
+        nav_path_t::CopyPathPoint(&this->m_Path, (const nav_path_t::pathpoint_t *)&ptr[3 * j], &this->m_Path.m_Points[j]);
+      v13 = ptr[60];
+      v14 = v2 + 1;
       if ( SLODWORD(ptr[60]) < (int)v2 + 1 )
       {
-        for ( k = _RBX->m_Path.m_NumPoints; v21 < k; k = _RBX->m_Path.m_NumPoints )
-          nav_path_t::CopyPathPoint(&_RBX->m_Path, &_RBX->m_Path.m_Points[v21++], &_RBX->m_Path.m_Points[v20++]);
-        v23 = v20;
-        if ( v20 < k )
+        for ( k = this->m_Path.m_NumPoints; v14 < k; k = this->m_Path.m_NumPoints )
+          nav_path_t::CopyPathPoint(&this->m_Path, &this->m_Path.m_Points[v14++], &this->m_Path.m_Points[v13++]);
+        v16 = v13;
+        if ( v13 < k )
         {
           do
-            bfx::AreaHandle::Release(&_RBX->m_Path.m_Points[v23++].m_hArea);
-          while ( v23 < _RBX->m_Path.m_NumPoints );
+            bfx::AreaHandle::Release(&this->m_Path.m_Points[v16++].m_hArea);
+          while ( v16 < this->m_Path.m_NumPoints );
         }
-        _RBX->m_Path.m_NumPoints = v20;
-        if ( v20 < 20 )
+        this->m_Path.m_NumPoints = v13;
+        if ( v13 < 20 )
         {
-          p_m_hArea = &_RBX->m_Path.m_Points[v20].m_hArea;
-          v25 = (unsigned int)(20 - v20);
+          p_m_hArea = &this->m_Path.m_Points[v13].m_hArea;
+          v18 = (unsigned int)(20 - v13);
           do
           {
             if ( bfx::AreaHandle::IsValid(p_m_hArea) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2208, ASSERT_TYPE_ASSERT, "(!m_Path.m_Points[iPoint].m_hArea.IsValid())", (const char *)&queryFormat, "!m_Path.m_Points[iPoint].m_hArea.IsValid()") )
               __debugbreak();
             p_m_hArea += 3;
-            --v25;
+            --v18;
           }
-          while ( v25 );
+          while ( v18 );
         }
       }
-      v26 = _RBX->m_Path.m_NumPoints;
+      v19 = this->m_Path.m_NumPoints;
     }
-    if ( v26 < 20 )
+    if ( v19 < 20 )
     {
-      v42 = &_RBX->m_Path.m_Points[v26].m_hArea;
-      v43 = (unsigned int)(20 - v26);
+      v31 = &this->m_Path.m_Points[v19].m_hArea;
+      v32 = (unsigned int)(20 - v19);
       do
       {
-        if ( bfx::AreaHandle::IsValid(v42) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2250, ASSERT_TYPE_ASSERT, "(!m_Path.m_Points[iPoint].m_hArea.IsValid())", (const char *)&queryFormat, "!m_Path.m_Points[iPoint].m_hArea.IsValid()") )
+        if ( bfx::AreaHandle::IsValid(v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2250, ASSERT_TYPE_ASSERT, "(!m_Path.m_Points[iPoint].m_hArea.IsValid())", (const char *)&queryFormat, "!m_Path.m_Points[iPoint].m_hArea.IsValid()") )
           __debugbreak();
-        v42 += 3;
-        --v43;
+        v31 += 3;
+        --v32;
       }
-      while ( v43 );
+      while ( v32 );
     }
-    v44 = 0;
+    v33 = 0;
     if ( SLODWORD(ptr[60]) > 0 )
     {
-      v45 = (_DWORD *)ptr + 3;
+      v34 = (_DWORD *)ptr + 3;
       do
       {
-        bfx::AreaHandle::Release((bfx::AreaHandle *)&ptr[3 * v44 + 2]);
-        v45[1] = -1;
-        *v45 = 0;
-        v45[3] = -1082130432;
-        ++v44;
-        v45 += 12;
+        bfx::AreaHandle::Release((bfx::AreaHandle *)&ptr[3 * v33 + 2]);
+        v34[1] = -1;
+        *v34 = 0;
+        v34[3] = -1082130432;
+        ++v33;
+        v34 += 12;
       }
-      while ( v44 < SLODWORD(ptr[60]) );
+      while ( v33 < SLODWORD(ptr[60]) );
     }
     LODWORD(ptr[60]) = 0;
     if ( pbOutHasDoors )
-      GScr_Notify(_RBX->m_pEnt, scr_const.path_has_door, 0);
-    _RBX->m_CurPathPoint = 0;
+      GScr_Notify(this->m_pEnt, scr_const.path_has_door, 0);
+    this->m_CurPathPoint = 0;
     Sys_ProfEndNamedEvent();
     v5 = 1;
 LABEL_76:
     `eh vector destructor iterator'(ptr, 0x30ui64, 0x14ui64, (void (__fastcall *)(void *))nav_path_t::pathpoint_t::~pathpoint_t);
     goto LABEL_77;
   }
-  _RBX->ClearPath(_RBX);
+  this->ClearPath(this);
   Sys_ProfEndNamedEvent();
   v5 = 0;
 LABEL_77:
@@ -9854,190 +8389,196 @@ AINavigator2D::ReadNavigator
 */
 AINavigator2D *AINavigator2D::ReadNavigator(MemoryFile *memFile, int index)
 {
-  __int64 v5; 
-  gentity_s *v6; 
+  __int64 v4; 
+  gentity_s *v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
+  AINavigator2D *v8; 
   nav_space_s *SpaceByEntNum; 
-  bool v11; 
+  double Float; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  bool v33; 
   int *m_SuppressionIDs; 
-  __int64 v13; 
+  __int64 v35; 
   const nav_space_s *m_pSpace; 
   vec3_t *outClosestPos; 
   bfx::AreaHandle *pOutArea; 
   unsigned __int8 p; 
-  char v25[3]; 
+  char v41[3]; 
   int entNum; 
-  unsigned int v27; 
+  unsigned int v43; 
   AINavLayer planLayer; 
   vec3_t outUp; 
   bfx::PathSpec pPathSpec; 
-  vec3_t v31; 
+  vec3_t v47; 
 
   MemFile_ReadData(memFile, 1ui64, &p);
-  MemFile_ReadData(memFile, 4ui64, &v27);
-  v5 = (int)v27;
-  if ( v27 >= 0x800 )
+  MemFile_ReadData(memFile, 4ui64, &v43);
+  v4 = (int)v43;
+  if ( v43 >= 0x800 )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4093, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v27, 2048) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4093, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v43, 2048) )
       __debugbreak();
     LODWORD(pOutArea) = 2048;
-    LODWORD(outClosestPos) = v5;
+    LODWORD(outClosestPos) = v4;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, pOutArea) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  if ( g_entities[v5].r.isInUse != g_entityIsInUse[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  if ( g_entities[v4].r.isInUse != g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4094, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( entNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( entNum )") )
+  if ( !g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4094, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( entNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( entNum )") )
     __debugbreak();
-  v6 = &g_entities[v5];
+  v5 = &g_entities[v4];
   MemFile_ReadData(memFile, 4ui64, &planLayer);
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  Nav_Create2DNavigator(v6, planLayer, index);
-  v8 = v7;
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4101, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
+  Nav_Create2DNavigator(v5, planLayer, index);
+  v7 = v6;
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4101, ASSERT_TYPE_ASSERT, "( pNav )", (const char *)&queryFormat, "pNav") )
     __debugbreak();
-  _RDI = (AINavigator2D *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v8 + 592i64))(v8);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4104, ASSERT_TYPE_ASSERT, "( pNav2D )", (const char *)&queryFormat, "pNav2D") )
+  v8 = (AINavigator2D *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v7 + 592i64))(v7);
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4104, ASSERT_TYPE_ASSERT, "( pNav2D )", (const char *)&queryFormat, "pNav2D") )
     __debugbreak();
   SpaceByEntNum = Nav_GetSpaceByEntNum(entNum);
-  _RDI->SetSpace(_RDI, SpaceByEntNum);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+30h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+38h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+54h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+58h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+40h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+44h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+24h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+28h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+50h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+60h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+64h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+68h], xmm0 }
-  MemFile_ReadData(memFile, 0x50ui64, &_RDI->m_BasePathSpec);
-  MemFile_ReadData(memFile, 0x50ui64, &_RDI->m_PathSpecOfCurPath);
+  v8->SetSpace(v8, SpaceByEntNum);
+  Float = MemFile_ReadFloat(memFile);
+  v8->m_CurSnappedPos.v[0] = *(float *)&Float;
+  v11 = MemFile_ReadFloat(memFile);
+  v8->m_CurSnappedPos.v[1] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  v8->m_CurSnappedPos.v[2] = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  v8->m_LocalCurSnappedPos.v[0] = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  v8->m_LocalCurSnappedPos.v[1] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  v8->m_LocalCurSnappedPos.v[2] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  v8->m_RequestedGoalPos.v[0] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  v8->m_RequestedGoalPos.v[1] = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  v8->m_RequestedGoalPos.v[2] = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  v8->m_LocalRequestedGoalPos.v[0] = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  v8->m_LocalRequestedGoalPos.v[1] = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  v8->m_LocalRequestedGoalPos.v[2] = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  v8->m_SnappedGoalPos.v[0] = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  v8->m_SnappedGoalPos.v[1] = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  v8->m_SnappedGoalPos.v[2] = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedGoalPos.v[0] = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedGoalPos.v[1] = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedGoalPos.v[2] = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedPathStartPos.v[0] = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedPathStartPos.v[1] = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  v8->m_LocalSnappedPathStartPos.v[2] = *(float *)&v30;
+  MemFile_ReadData(memFile, 0x50ui64, &v8->m_BasePathSpec);
+  MemFile_ReadData(memFile, 0x50ui64, &v8->m_PathSpecOfCurPath);
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_TimeOfLastPathUpdate = entNum;
+  v8->m_TimeOfLastPathUpdate = entNum;
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_TimeOfLastBlockage = entNum;
+  v8->m_TimeOfLastBlockage = entNum;
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_TimeOfLastPathFindFail = entNum;
+  v8->m_TimeOfLastPathFindFail = entNum;
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_TimeOfLastPathSuppressed = entNum;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0A0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0A4h], xmm0 }
-  MemFile_ReadData(memFile, 1ui64, v25);
-  _RDI->m_bPathingOutOfBounds = v25[0];
+  v8->m_TimeOfLastPathSuppressed = entNum;
+  v31 = MemFile_ReadFloat(memFile);
+  v8->m_DistFromGoalToPathToRequestedGoal = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  v8->m_MaxDeviationFromPath = *(float *)&v32;
+  MemFile_ReadData(memFile, 1ui64, v41);
+  v8->m_bPathingOutOfBounds = v41[0];
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_AllowedStances = entNum;
-  MemFile_ReadData(memFile, 1ui64, v25);
-  _RDI->m_bTeamWalkEnabled = v25[0];
-  MemFile_ReadData(memFile, 1ui64, v25);
-  v11 = p < 2u;
-  _RDI->m_bAllowSkipMultigoalPoint = v25[0];
-  if ( v11 )
+  v8->m_AllowedStances = entNum;
+  MemFile_ReadData(memFile, 1ui64, v41);
+  v8->m_bTeamWalkEnabled = v41[0];
+  MemFile_ReadData(memFile, 1ui64, v41);
+  v33 = p < 2u;
+  v8->m_bAllowSkipMultigoalPoint = v41[0];
+  if ( v33 )
   {
-    _RDI->m_bPathReevalRequested = 0;
+    v8->m_bPathReevalRequested = 0;
   }
   else
   {
     MemFile_ReadData(memFile, 1ui64, &p);
-    _RDI->m_bPathReevalRequested = p;
+    v8->m_bPathReevalRequested = p;
   }
   MemFile_ReadData(memFile, 4ui64, &entNum);
   if ( entNum >= 0 )
   {
-    Nav_GetLinkByID(entNum, &_RDI->m_hLink);
-    if ( !bfx::LinkHandle::IsValid(&_RDI->m_hLink) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4142, ASSERT_TYPE_ASSERT, "( pNav2D->m_hLink.IsValid() )", (const char *)&queryFormat, "pNav2D->m_hLink.IsValid()") )
+    Nav_GetLinkByID(entNum, &v8->m_hLink);
+    if ( !bfx::LinkHandle::IsValid(&v8->m_hLink) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4142, ASSERT_TYPE_ASSERT, "( pNav2D->m_hLink.IsValid() )", (const char *)&queryFormat, "pNav2D->m_hLink.IsValid()") )
       __debugbreak();
   }
-  m_SuppressionIDs = (int *)_RDI->m_SuppressionIDs;
-  v13 = 4i64;
+  m_SuppressionIDs = (int *)v8->m_SuppressionIDs;
+  v35 = 4i64;
   do
   {
     MemFile_ReadData(memFile, 4ui64, &entNum);
     *m_SuppressionIDs++ = entNum;
-    --v13;
+    --v35;
   }
-  while ( v13 );
+  while ( v35 );
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_SuppressionTimestamp = entNum;
+  v8->m_SuppressionTimestamp = entNum;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_bMultiGoalPath = p;
+  v8->m_bMultiGoalPath = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_bPathRequested = p;
+  v8->m_bPathRequested = p;
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  _RDI->m_CurPathPoint = entNum;
-  _RDI->m_ReevalPathTask.entNum = v5;
+  v8->m_CurPathPoint = entNum;
+  v8->m_ReevalPathTask.entNum = v4;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_ReevalPathTask.status[0] = p;
+  v8->m_ReevalPathTask.status[0] = p;
   MemFile_ReadData(memFile, 4ui64, &entNum);
-  m_pSpace = _RDI->m_pSpace;
-  _RDI->m_ReevalPathTask.timestamp = entNum;
+  m_pSpace = v8->m_pSpace;
+  v8->m_ReevalPathTask.timestamp = entNum;
   Nav_GetSpaceUp(m_pSpace, &outUp);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+4A4h]
-    vmovups ymmword ptr [rbp+57h+pPathSpec.m_obstacleMode], ymm0
-    vmovups ymm1, ymmword ptr [rdi+4C4h]
-    vmovups ymmword ptr [rbp+57h+pPathSpec.m_maxSearchDist], ymm1
-    vmovups xmm0, xmmword ptr [rdi+4E4h]
-    vmovups xmmword ptr [rbp+57h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm0
-  }
-  if ( _RDI->m_bPathRequested )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+4F4h]
-      vmovups ymmword ptr [rbp+57h+pPathSpec.m_obstacleMode], ymm0
-      vmovups ymm1, ymmword ptr [rdi+514h]
-      vmovups ymmword ptr [rbp+57h+pPathSpec.m_maxSearchDist], ymm1
-      vmovups xmm0, xmmword ptr [rdi+534h]
-      vmovups xmmword ptr [rbp+57h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm0
-    }
-  }
+  pPathSpec = v8->m_BasePathSpec;
+  if ( v8->m_bPathRequested )
+    pPathSpec = v8->m_PathSpecOfCurPath;
   pPathSpec.m_obstacleBlockageFlags = 1;
-  Nav_GetClosestVerticalPos(&_RDI->m_CurSnappedPos, &outUp, _RDI->m_Layer, &_RDI->m_pSpace->hSpace, &pPathSpec, &v31, &_RDI->m_hCurArea);
+  Nav_GetClosestVerticalPos(&v8->m_CurSnappedPos, &outUp, v8->m_Layer, &v8->m_pSpace->hSpace, &pPathSpec, &v47, &v8->m_hCurArea);
   MemFile_ReadData(memFile, 1ui64, &p);
   if ( p )
-    AINavigator2D::ReadPath(_RDI, memFile);
+    AINavigator2D::ReadPath(v8, memFile);
   else
-    bfx::AreaHandle::operator=(&_RDI->m_hGoalArea, &_RDI->m_hCurArea);
-  return _RDI;
+    bfx::AreaHandle::operator=(&v8->m_hGoalArea, &v8->m_hCurArea);
+  return v8;
 }
 
 /*
@@ -10047,11 +8588,22 @@ AINavigator2D::ReadPath
 */
 void AINavigator2D::ReadPath(AINavigator2D *pNav, MemoryFile *memFile)
 {
-  int v10; 
-  int v11; 
-  int v13; 
+  int v4; 
+  double Float; 
+  double v6; 
+  double v7; 
+  int v8; 
+  float *v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  int v16; 
   int m_NumPoints; 
   unsigned int *p_m_Flags; 
+  __int128 v19; 
   bfx::SurfaceSegment *SurfaceSegment; 
   const bfx::AreaHandle *Area; 
   const bfx::AreaHandle *ClosestArea; 
@@ -10062,131 +8614,90 @@ void AINavigator2D::ReadPath(AINavigator2D *pNav, MemoryFile *memFile)
   bfx::Vector3 iStartPos; 
   bfx::Vector3 pos; 
   bfx::ProbeResults results; 
-  __int64 v56; 
+  __int64 v33; 
   bfx::AreaHandle result; 
-  bfx::AreaHandle v58; 
+  bfx::AreaHandle v35; 
   vec3_t outPoint; 
-  vec3_t v60; 
-  vec3_t v61; 
-  char v62; 
-  void *retaddr; 
+  vec3_t v37; 
+  vec3_t v38; 
 
-  _RAX = &retaddr;
-  v56 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _R15 = pNav;
+  v33 = -2i64;
   nav_path_t::Reset(&pNav->m_Path);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v10 = p;
-  _R15->m_Path.m_NumPoints = p;
-  _R15->m_Path.m_pSpace = _R15->m_pSpace;
-  if ( v10 <= 0 )
+  v4 = p;
+  pNav->m_Path.m_NumPoints = p;
+  pNav->m_Path.m_pSpace = pNav->m_pSpace;
+  if ( v4 <= 0 )
   {
-    bfx::AreaHandle::operator=(&_R15->m_hGoalArea, &_R15->m_hCurArea);
+    bfx::AreaHandle::operator=(&pNav->m_hGoalArea, &pNav->m_hCurArea);
   }
   else
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r15+48Ch], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r15+490h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r15+494h], xmm0 }
-    v11 = 0;
-    if ( _R15->m_Path.m_NumPoints > 0 )
+    Float = MemFile_ReadFloat(memFile);
+    pNav->m_Path.m_LocalStartPoint.v[0] = *(float *)&Float;
+    v6 = MemFile_ReadFloat(memFile);
+    pNav->m_Path.m_LocalStartPoint.v[1] = *(float *)&v6;
+    v7 = MemFile_ReadFloat(memFile);
+    pNav->m_Path.m_LocalStartPoint.v[2] = *(float *)&v7;
+    v8 = 0;
+    if ( pNav->m_Path.m_NumPoints > 0 )
     {
-      _RBX = &_R15->m_Path.m_Points[0].m_LocalPos.v[2];
+      v9 = &pNav->m_Path.m_Points[0].m_LocalPos.v[2];
       do
       {
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx-8], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx-4], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx], xmm0 }
+        v10 = MemFile_ReadFloat(memFile);
+        *(v9 - 2) = *(float *)&v10;
+        v11 = MemFile_ReadFloat(memFile);
+        *(v9 - 1) = *(float *)&v11;
+        v12 = MemFile_ReadFloat(memFile);
+        *v9 = *(float *)&v12;
         MemFile_ReadData(memFile, 4ui64, &p);
-        *((_DWORD *)_RBX + 1) = p;
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
+        *((_DWORD *)v9 + 1) = p;
+        v13 = MemFile_ReadFloat(memFile);
+        v9[3] = *(float *)&v13;
         MemFile_ReadData(memFile, 4ui64, &probeSpec);
-        *((bfx::ProbeSpec *)_RBX + 2) = probeSpec;
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx+10h], xmm0 }
-        *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-        __asm { vmovss  dword ptr [rbx+14h], xmm0 }
-        ++v11;
-        _RBX += 12;
+        *((bfx::ProbeSpec *)v9 + 2) = probeSpec;
+        v14 = MemFile_ReadFloat(memFile);
+        v9[4] = *(float *)&v14;
+        v15 = MemFile_ReadFloat(memFile);
+        v9[5] = *(float *)&v15;
+        ++v8;
+        v9 += 12;
       }
-      while ( v11 < _R15->m_Path.m_NumPoints );
+      while ( v8 < pNav->m_Path.m_NumPoints );
     }
-    bfx::SpaceHandle::SpaceHandle(&spaceHandle, &_R15->m_pSpace->hSpace);
-    v13 = 0;
-    m_NumPoints = _R15->m_Path.m_NumPoints;
+    bfx::SpaceHandle::SpaceHandle(&spaceHandle, &pNav->m_pSpace->hSpace);
+    v16 = 0;
+    m_NumPoints = pNav->m_Path.m_NumPoints;
     if ( m_NumPoints > 0 )
     {
-      p_m_Flags = &_R15->m_Path.m_Points[0].m_Flags;
-      __asm
-      {
-        vmovss  xmm8, cs:__real@80000000
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  xmm9, cs:__real@40c00000
-      }
+      p_m_Flags = &pNav->m_Path.m_Points[0].m_Flags;
       do
       {
-        if ( !v13 || (*(_BYTE *)p_m_Flags & 4) != 0 )
+        if ( !v16 || (*(_BYTE *)p_m_Flags & 4) != 0 )
         {
-          nav_path_t::GetPathPoint(&_R15->m_Path, v13, &v61);
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rbp+90h+var_90]
-            vmovsd  qword ptr [rsp+190h+pos.m_x], xmm0
-          }
-          pos.m_z = v61.v[2];
-          ClosestArea = bfx::GetClosestArea(&v58, &spaceHandle, &pos, _R15->m_Layer, &_R15->m_PathSpecOfCurPath);
-          bfx::AreaHandle::operator=(&_R15->m_Path.m_Points[v13].m_hArea, ClosestArea);
-          bfx::AreaHandle::~AreaHandle(&v58);
+          nav_path_t::GetPathPoint(&pNav->m_Path, v16, &v38);
+          pos = (bfx::Vector3)v38;
+          ClosestArea = bfx::GetClosestArea(&v35, &spaceHandle, &pos, pNav->m_Layer, &pNav->m_PathSpecOfCurPath);
+          bfx::AreaHandle::operator=(&pNav->m_Path.m_Points[v16].m_hArea, ClosestArea);
+          bfx::AreaHandle::~AreaHandle(&v35);
         }
         else
         {
-          nav_path_t::GetPathPoint(&_R15->m_Path, v13, &outPoint);
+          nav_path_t::GetPathPoint(&pNav->m_Path, v16, &outPoint);
+          iStartPos = (bfx::Vector3)outPoint;
+          nav_path_t::GetPathPoint(&pNav->m_Path, v16 - 1, &v37);
+          v19 = LODWORD(outPoint.v[1]);
+          *(float *)&v19 = fsqrt((float)((float)((float)(outPoint.v[1] - v37.v[1]) * (float)(outPoint.v[1] - v37.v[1])) + (float)((float)(outPoint.v[0] - v37.v[0]) * (float)(outPoint.v[0] - v37.v[0]))) + (float)((float)(outPoint.v[2] - v37.v[2]) * (float)(outPoint.v[2] - v37.v[2])));
+          _XMM1 = v19;
           __asm
           {
-            vmovsd  xmm0, qword ptr [rbp+90h+outPoint]
-            vmovsd  qword ptr [rsp+190h+iStartPos.m_x], xmm0
-          }
-          iStartPos.m_z = outPoint.v[2];
-          nav_path_t::GetPathPoint(&_R15->m_Path, v13 - 1, &v60);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+90h+outPoint]
-            vsubss  xmm6, xmm0, dword ptr [rbp+90h+var_A0]
-            vmovss  xmm1, dword ptr [rbp+90h+outPoint+4]
-            vsubss  xmm5, xmm1, dword ptr [rbp+90h+var_A0+4]
-            vmovss  xmm0, dword ptr [rbp+90h+outPoint+8]
-            vsubss  xmm4, xmm0, dword ptr [rbp+90h+var_A0+8]
-            vmulss  xmm2, xmm5, xmm5
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm1, xmm2, xmm2
             vcmpless xmm0, xmm1, xmm8
             vblendvps xmm1, xmm1, xmm7, xmm0
-            vmovss  [rsp+190h+var_150.m_probeType], xmm1
-            vdivss  xmm0, xmm7, xmm1
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm0, xmm5
-            vmulss  xmm3, xmm0, xmm4
-            vmovss  [rsp+190h+dir.m_x], xmm1
-            vmovss  [rsp+190h+dir.m_y], xmm2
-            vmovss  [rsp+190h+dir.m_z], xmm3
           }
+          dir.m_x = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[0] - v37.v[0]);
+          dir.m_y = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[1] - v37.v[1]);
+          dir.m_z = (float)(1.0 / *(float *)&_XMM1) * (float)(outPoint.v[2] - v37.v[2]);
           probeSpec.m_probeType = NAVPROBE_TYPE_FULL3D;
           bfx::AreaHandle::AreaHandle(&results.m_endArea);
           results.m_collided = 0;
@@ -10194,35 +8705,26 @@ void AINavigator2D::ReadPath(AINavigator2D *pNav, MemoryFile *memFile)
           results.m_generatePath = 0;
           bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
           results.m_generatePath = 1;
-          __asm { vmovaps xmm3, xmm9; dist }
-          bfx::NavProbe(&spaceHandle, &iStartPos, &dir, *(float *)&_XMM3, _R15->m_Layer, &_R15->m_PathSpecOfCurPath, &probeSpec, &results);
+          bfx::NavProbe(&spaceHandle, &iStartPos, &dir, 6.0, pNav->m_Layer, &pNav->m_PathSpecOfCurPath, &probeSpec, &results);
           if ( bfx::PolylinePathRCPtr::GetSegmentType(&results.m_path, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4460, ASSERT_TYPE_ASSERT, "(results.m_path.GetSegmentType( 0 ) == bfx::SURFACE_SEGMENT)", (const char *)&queryFormat, "results.m_path.GetSegmentType( 0 ) == bfx::SURFACE_SEGMENT") )
             __debugbreak();
           SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&results.m_path, 0);
           if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4462, ASSERT_TYPE_ASSERT, "(pSegment)", (const char *)&queryFormat, "pSegment") )
             __debugbreak();
           Area = bfx::SurfaceSegment::GetArea(SurfaceSegment, &result);
-          bfx::AreaHandle::operator=(&_R15->m_Path.m_Points[v13].m_hArea, Area);
+          bfx::AreaHandle::operator=(&pNav->m_Path.m_Points[v16].m_hArea, Area);
           bfx::AreaHandle::~AreaHandle(&result);
           bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
           bfx::AreaHandle::~AreaHandle(&results.m_endArea);
         }
-        ++v13;
+        ++v16;
         p_m_Flags += 12;
-        m_NumPoints = _R15->m_Path.m_NumPoints;
+        m_NumPoints = pNav->m_Path.m_NumPoints;
       }
-      while ( v13 < m_NumPoints );
+      while ( v16 < m_NumPoints );
     }
-    bfx::AreaHandle::operator=(&_R15->m_hGoalArea, (const bfx::AreaHandle *)&_R15->m_hLink.m_pSpace + 3 * m_NumPoints);
+    bfx::AreaHandle::operator=(&pNav->m_hGoalArea, (const bfx::AreaHandle *)&pNav->m_hLink.m_pSpace + 3 * m_NumPoints);
     bfx::SpaceHandle::~SpaceHandle(&spaceHandle);
-  }
-  _R11 = &v62;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -10408,35 +8910,21 @@ void nav_path_t::Reset(nav_path_t *this)
 AINavigator2D::SetCornerCurrentAngle
 ==============
 */
-
-void __fastcall AINavigator2D::SetCornerCurrentAngle(AINavigator2D *this, int cornerIndex, double currentAngle)
+void AINavigator2D::SetCornerCurrentAngle(AINavigator2D *this, int cornerIndex, float currentAngle)
 {
-  __int64 v5; 
+  __int64 v4; 
   int m_NumPoints; 
-  int v12; 
 
-  _RDI = this;
-  v5 = cornerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v4 = cornerIndex;
   if ( (unsigned int)cornerIndex >= this->m_Path.m_NumPoints )
   {
     m_NumPoints = this->m_Path.m_NumPoints;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4373, ASSERT_TYPE_ASSERT, "(unsigned)( cornerIndex ) < (unsigned)( m_Path.m_NumPoints )", "cornerIndex doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", cornerIndex, m_NumPoints) )
       __debugbreak();
   }
-  __asm { vmovss  [rsp+58h+arg_8], xmm6 }
-  if ( (v12 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4374, ASSERT_TYPE_ASSERT, "( !IS_NAN( currentAngle ) )", (const char *)&queryFormat, "!IS_NAN( currentAngle )") )
+  if ( (LODWORD(currentAngle) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4374, ASSERT_TYPE_ASSERT, "( !IS_NAN( currentAngle ) )", (const char *)&queryFormat, "!IS_NAN( currentAngle )") )
     __debugbreak();
-  _RCX = 6 * v5;
-  __asm
-  {
-    vmovss  dword ptr [rdi+rcx*8+0E0h], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  this->m_Path.m_Points[v4].m_CornerAngle = currentAngle;
 }
 
 /*
@@ -10447,139 +8935,86 @@ AINavigator2D::SetCurPos
 void AINavigator2D::SetCurPos(AINavigator2D *this, const vec3_t *curPos)
 {
   __int64 m_CurPathPoint; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v5; 
+  __int64 v6; 
   unsigned int m_Flags; 
-  int v15; 
-  char v48; 
-  char v49; 
-  bool v59; 
+  int v8; 
+  __int64 v9; 
+  __int128 v10; 
+  __int64 v14; 
+  bool v15; 
   bool MultiGoalPath; 
   int m_NumPoints; 
-  __int64 v68; 
-  int v69; 
-  __int64 v70; 
+  __int64 v18; 
+  int v19; 
+  __int64 v20; 
   unsigned int *p_m_Flags; 
-  int v72; 
+  int v22; 
   vec3_t *outClosestPos; 
   bfx::AreaHandle *hHintArea; 
   bfx::LinkHandle phLink; 
   bfx::AreaHandle hNewArea; 
-  bfx::AreaHandle v84; 
-  __int64 v85; 
-  vec3_t v86; 
+  bfx::AreaHandle v27; 
+  __int64 v28; 
+  vec3_t v29; 
   vec3_t worldPos; 
   vec3_t outPoint; 
   vec3_t outLocalPos; 
   vec3_t outUp; 
   vec3_t goalPos; 
   bfx::PathSpec pPathSpec; 
-  char v93; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v85 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  _R15 = curPos;
-  _RDI = this;
+  v28 = -2i64;
   if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 265, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  AINavigator::GetUpVector(_RDI, &outUp);
+  AINavigator::GetUpVector(this, &outUp);
   bfx::AreaHandle::AreaHandle(&hNewArea);
-  if ( bfx::LinkHandle::IsValid(&_RDI->m_hLink) && _RDI->m_Path.m_NumPoints > 0 )
+  if ( bfx::LinkHandle::IsValid(&this->m_hLink) && this->m_Path.m_NumPoints > 0 )
   {
     bfx::LinkHandle::LinkHandle(&phLink);
-    m_CurPathPoint = _RDI->m_CurPathPoint;
-    if ( (unsigned int)m_CurPathPoint >= _RDI->m_Path.m_NumPoints )
+    m_CurPathPoint = this->m_CurPathPoint;
+    if ( (unsigned int)m_CurPathPoint >= this->m_Path.m_NumPoints )
     {
-      LODWORD(outClosestPos) = _RDI->m_CurPathPoint;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", outClosestPos, _RDI->m_Path.m_NumPoints) )
+      LODWORD(outClosestPos) = this->m_CurPathPoint;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", outClosestPos, this->m_Path.m_NumPoints) )
         __debugbreak();
     }
-    if ( Nav_GetLinkByID(_RDI->m_Path.m_Points[m_CurPathPoint].m_LinkID, &phLink) && bfx::LinkHandle::operator==(&phLink, &_RDI->m_hLink) )
+    if ( Nav_GetLinkByID(this->m_Path.m_Points[m_CurPathPoint].m_LinkID, &phLink) && bfx::LinkHandle::operator==(&phLink, &this->m_hLink) )
     {
-      v12 = _RDI->m_CurPathPoint;
-      v13 = v12;
-      m_Flags = _RDI->m_Path.m_Points[v12].m_Flags;
+      v5 = this->m_CurPathPoint;
+      v6 = v5;
+      m_Flags = this->m_Path.m_Points[v5].m_Flags;
       if ( (m_Flags & 2) != 0 )
       {
-        v15 = v12 + 1;
-        if ( (unsigned int)(v12 + 1) >= _RDI->m_Path.m_NumPoints )
+        v8 = v5 + 1;
+        if ( (unsigned int)(v5 + 1) >= this->m_Path.m_NumPoints )
         {
-          LODWORD(hHintArea) = _RDI->m_Path.m_NumPoints;
-          LODWORD(outClosestPos) = v12 + 1;
+          LODWORD(hHintArea) = this->m_Path.m_NumPoints;
+          LODWORD(outClosestPos) = v5 + 1;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 285, ASSERT_TYPE_ASSERT, "(unsigned)( iLinkEnd ) < (unsigned)( m_Path.m_NumPoints )", "iLinkEnd doesn't index m_Path.m_NumPoints\n\t%i not in [0, %i)", outClosestPos, hHintArea) )
             __debugbreak();
         }
-        _RBX = 2 * (3 * v13 + 3);
-        if ( (*(_BYTE *)(&_RDI->m_Path.m_Points[0].m_Flags + 2 * _RBX) & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 286, ASSERT_TYPE_ASSERT, "(m_Path.m_Points[ iLinkEnd ].m_Flags & NAVPP_FLAG_LINK_END)", (const char *)&queryFormat, "m_Path.m_Points[ iLinkEnd ].m_Flags & NAVPP_FLAG_LINK_END") )
+        v9 = 2 * (3 * v6 + 3);
+        if ( (*(_BYTE *)(&this->m_Path.m_Points[0].m_Flags + 2 * v9) & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 286, ASSERT_TYPE_ASSERT, "(m_Path.m_Points[ iLinkEnd ].m_Flags & NAVPP_FLAG_LINK_END)", (const char *)&queryFormat, "m_Path.m_Points[ iLinkEnd ].m_Flags & NAVPP_FLAG_LINK_END") )
           __debugbreak();
-        nav_path_t::GetPathPoint(&_RDI->m_Path, _RDI->m_CurPathPoint, &outPoint);
-        nav_path_t::GetPathPoint(&_RDI->m_Path, v15, &v86);
+        nav_path_t::GetPathPoint(&this->m_Path, this->m_CurPathPoint, &outPoint);
+        nav_path_t::GetPathPoint(&this->m_Path, v8, &v29);
+        v10 = LODWORD(v29.v[1]);
+        *(float *)&v10 = fsqrt((float)((float)((float)(v29.v[1] - outPoint.v[1]) * (float)(v29.v[1] - outPoint.v[1])) + (float)((float)(v29.v[0] - outPoint.v[0]) * (float)(v29.v[0] - outPoint.v[0]))) + (float)((float)(v29.v[2] - outPoint.v[2]) * (float)(v29.v[2] - outPoint.v[2])));
+        _XMM6 = v10;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_140]
-          vsubss  xmm11, xmm0, dword ptr [rbp+0C0h+outPoint]
-          vmovss  xmm1, dword ptr [rbp+0C0h+var_140+4]
-          vsubss  xmm9, xmm1, dword ptr [rbp+0C0h+outPoint+4]
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_140+8]
-          vsubss  xmm10, xmm0, dword ptr [rbp+0C0h+outPoint+8]
-          vmovss  xmm1, dword ptr [r15]
-          vsubss  xmm8, xmm1, dword ptr [rbp+0C0h+outPoint]
-          vmovss  xmm0, dword ptr [r15+4]
-          vsubss  xmm4, xmm0, dword ptr [rbp+0C0h+outPoint+4]
-          vmovss  xmm1, dword ptr [r15+8]
-          vsubss  xmm7, xmm1, dword ptr [rbp+0C0h+outPoint+8]
-          vmulss  xmm2, xmm9, xmm9
-          vmulss  xmm0, xmm11, xmm11
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm1, xmm10, xmm10
-          vaddss  xmm2, xmm3, xmm1
-          vsqrtss xmm6, xmm2, xmm2
           vcmpless xmm0, xmm6, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm6, xmm2, xmm0
-          vdivss  xmm5, xmm2, xmm1
-          vmulss  xmm0, xmm9, xmm5
-          vmulss  xmm3, xmm0, xmm4
-          vmulss  xmm1, xmm11, xmm5
-          vmulss  xmm2, xmm1, xmm8
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm0, xmm10, xmm5
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm3, xmm4, xmm1
-          vmulss  xmm2, xmm6, cs:__real@3f000000
-          vcomiss xmm3, xmm2
         }
-        if ( !(v48 | v49) )
+        if ( (float)((float)((float)((float)((float)(v29.v[1] - outPoint.v[1]) * (float)(1.0 / *(float *)&_XMM1)) * (float)(curPos->v[1] - outPoint.v[1])) + (float)((float)((float)(v29.v[0] - outPoint.v[0]) * (float)(1.0 / *(float *)&_XMM1)) * (float)(curPos->v[0] - outPoint.v[0]))) + (float)((float)((float)(v29.v[2] - outPoint.v[2]) * (float)(1.0 / *(float *)&_XMM1)) * (float)(curPos->v[2] - outPoint.v[2]))) > (float)(*(float *)&v10 * 0.5) )
         {
-          bfx::AreaHandle::operator=(&_RDI->m_hCurArea, (const bfx::AreaHandle *)((char *)&_RDI->m_Path.m_Points[0].m_hArea + 8 * _RBX));
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+0C0h+var_140]
-            vmovss  dword ptr [rdi+30h], xmm0
-            vmovss  xmm1, dword ptr [rbp+0C0h+var_140+4]
-            vmovss  dword ptr [rdi+34h], xmm1
-            vmovss  xmm0, dword ptr [rbp+0C0h+var_140+8]
-            vmovss  dword ptr [rdi+38h], xmm0
-          }
-          _RDI->m_LocalCurSnappedPos.v[0] = _RDI->m_Path.m_Points[0].m_LocalPos.v[2 * _RBX];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+rbx*8+0CCh]
-            vmovss  dword ptr [rdi+58h], xmm0
-            vmovss  xmm1, dword ptr [rdi+rbx*8+0D0h]
-            vmovss  dword ptr [rdi+5Ch], xmm1
-          }
-          ++_RDI->m_CurPathPoint;
+          bfx::AreaHandle::operator=(&this->m_hCurArea, (const bfx::AreaHandle *)((char *)&this->m_Path.m_Points[0].m_hArea + 8 * v9));
+          this->m_CurSnappedPos = v29;
+          this->m_LocalCurSnappedPos.v[0] = this->m_Path.m_Points[0].m_LocalPos.v[2 * v9];
+          this->m_LocalCurSnappedPos.v[1] = this->m_Path.m_Points[0].m_LocalPos.v[2 * v9 + 1];
+          this->m_LocalCurSnappedPos.v[2] = this->m_Path.m_Points[0].m_LocalPos.v[2 * v9 + 2];
+          ++this->m_CurPathPoint;
         }
       }
       else if ( (m_Flags & 4) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 310, ASSERT_TYPE_ASSERT, "(m_Path.m_Points[ m_CurPathPoint ].m_Flags & NAVPP_FLAG_LINK_END)", (const char *)&queryFormat, "m_Path.m_Points[ m_CurPathPoint ].m_Flags & NAVPP_FLAG_LINK_END") )
@@ -10591,113 +9026,82 @@ void AINavigator2D::SetCurPos(AINavigator2D *this, const vec3_t *curPos)
     }
     bfx::LinkHandle::~LinkHandle(&phLink);
   }
-  bfx::AreaHandle::AreaHandle(&v84);
-  if ( !bfx::LinkHandle::IsValid(&_RDI->m_hLink) )
-    bfx::AreaHandle::operator=(&v84, &_RDI->m_hCurArea);
-  _RAX = 1268i64;
-  if ( !_RDI->m_bPathRequested )
-    _RAX = 1188i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+rdi]
-    vmovups ymmword ptr [rbp+0C0h+pPathSpec.m_obstacleMode], ymm0
-    vmovups ymm1, ymmword ptr [rax+rdi+20h]
-    vmovups ymmword ptr [rbp+0C0h+pPathSpec.m_maxSearchDist], ymm1
-    vmovups xmm0, xmmword ptr [rax+rdi+40h]
-    vmovups xmmword ptr [rbp+0C0h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm0
-  }
+  bfx::AreaHandle::AreaHandle(&v27);
+  if ( !bfx::LinkHandle::IsValid(&this->m_hLink) )
+    bfx::AreaHandle::operator=(&v27, &this->m_hCurArea);
+  v14 = 1268i64;
+  if ( !this->m_bPathRequested )
+    v14 = 1188i64;
+  pPathSpec = *(bfx::PathSpec *)((char *)&this->__vftable + v14);
   pPathSpec.m_obstacleBlockageFlags = 1;
-  Nav_GetClosestVerticalPosWithHint(_R15, &outUp, _RDI->m_Layer, &_RDI->m_pSpace->hSpace, &pPathSpec, &worldPos, &v84, &hNewArea);
-  AINavigator::LocalizePosToSpace(_RDI, &worldPos, &outLocalPos);
-  v59 = 0;
-  AINavigator2D::FixUpGoalAreaIfNecessary(_RDI);
-  if ( _RDI->m_bPathRequested )
-    v59 = _RDI->m_Path.m_NumPoints <= 0 || !AINavigator2D::UpdateCurSegment(_RDI, &worldPos, &hNewArea);
-  _RDI->GetRequestedGoalPos(_RDI, &goalPos);
-  __asm
+  Nav_GetClosestVerticalPosWithHint(curPos, &outUp, this->m_Layer, &this->m_pSpace->hSpace, &pPathSpec, &worldPos, &v27, &hNewArea);
+  AINavigator::LocalizePosToSpace(this, &worldPos, &outLocalPos);
+  v15 = 0;
+  AINavigator2D::FixUpGoalAreaIfNecessary(this);
+  if ( this->m_bPathRequested )
+    v15 = this->m_Path.m_NumPoints <= 0 || !AINavigator2D::UpdateCurSegment(this, &worldPos, &hNewArea);
+  this->GetRequestedGoalPos(this, &goalPos);
+  this->m_LocalCurSnappedPos = outLocalPos;
+  this->m_CurSnappedPos = worldPos;
+  bfx::AreaHandle::operator=(&this->m_hCurArea, &hNewArea);
+  this->m_AllowedStances = AINavigator2D::GetAllowedStances(this, &this->m_hCurArea);
+  if ( v15 )
   {
-    vmovss  xmm0, dword ptr [rbp+0C0h+outLocalPos]
-    vmovss  dword ptr [rdi+54h], xmm0
-    vmovss  xmm1, dword ptr [rbp+0C0h+outLocalPos+4]
-    vmovss  dword ptr [rdi+58h], xmm1
-    vmovss  xmm0, dword ptr [rbp+0C0h+outLocalPos+8]
-    vmovss  dword ptr [rdi+5Ch], xmm0
-    vmovss  xmm1, dword ptr [rbp+0C0h+worldPos]
-    vmovss  dword ptr [rdi+30h], xmm1
-    vmovss  xmm0, dword ptr [rbp+0C0h+worldPos+4]
-    vmovss  dword ptr [rdi+34h], xmm0
-    vmovss  xmm1, dword ptr [rbp+0C0h+worldPos+8]
-    vmovss  dword ptr [rdi+38h], xmm1
-  }
-  bfx::AreaHandle::operator=(&_RDI->m_hCurArea, &hNewArea);
-  _RDI->m_AllowedStances = AINavigator2D::GetAllowedStances(_RDI, &_RDI->m_hCurArea);
-  if ( v59 )
-  {
-    if ( _RDI->m_bMultiGoalPath && _RDI->HasPath(_RDI) )
+    if ( this->m_bMultiGoalPath && this->HasPath(this) )
     {
-      MultiGoalPath = AINavigator2D::ReFindMultiGoalPath(_RDI, 1);
+      MultiGoalPath = AINavigator2D::ReFindMultiGoalPath(this, 1);
     }
     else
     {
-      m_NumPoints = _RDI->m_Path.m_NumPoints;
+      m_NumPoints = this->m_Path.m_NumPoints;
       if ( m_NumPoints <= 0 )
         goto LABEL_47;
-      v68 = _RDI->m_CurPathPoint;
-      v69 = _RDI->m_CurPathPoint;
-      v70 = v68;
-      if ( v68 >= m_NumPoints )
+      v18 = this->m_CurPathPoint;
+      v19 = this->m_CurPathPoint;
+      v20 = v18;
+      if ( v18 >= m_NumPoints )
         goto LABEL_44;
-      p_m_Flags = &_RDI->m_Path.m_Points[v68].m_Flags;
+      p_m_Flags = &this->m_Path.m_Points[v18].m_Flags;
       while ( (*(_BYTE *)p_m_Flags & 2) == 0 )
       {
-        ++v69;
-        ++v70;
+        ++v19;
+        ++v20;
         p_m_Flags += 12;
-        if ( v70 >= m_NumPoints )
+        if ( v20 >= m_NumPoints )
           goto LABEL_44;
       }
-      if ( v69 >= 0 )
+      if ( v19 >= 0 )
       {
 LABEL_47:
-        MultiGoalPath = _RDI->DoPathFind(_RDI);
+        MultiGoalPath = this->DoPathFind(this);
       }
       else
       {
 LABEL_44:
-        v72 = m_NumPoints - 1;
-        if ( (int)v68 + 3 < m_NumPoints - 1 )
-          v72 = v68 + 3;
-        MultiGoalPath = AINavigator2D::ReFindPathToPoint(_RDI, v72);
+        v22 = m_NumPoints - 1;
+        if ( (int)v18 + 3 < m_NumPoints - 1 )
+          v22 = v18 + 3;
+        MultiGoalPath = AINavigator2D::ReFindPathToPoint(this, v22);
       }
     }
     if ( !MultiGoalPath )
     {
-      AINavigator::BadPathNotify(_RDI, &goalPos);
-      _RDI->m_TimeOfLastPathFindFail = level.time;
+      AINavigator::BadPathNotify(this, &goalPos);
+      this->m_TimeOfLastPathFindFail = level.time;
     }
   }
   else
   {
-    _RDI->UpdatePathOutOfBounds(_RDI);
+    this->UpdatePathOutOfBounds(this);
   }
-  if ( _RDI->m_bPathReevalRequested && !bfx::LinkHandle::IsValid(&_RDI->m_hLink) && _RDI->m_ReevalPathTask.status[0] != 1 )
+  if ( this->m_bPathReevalRequested && !bfx::LinkHandle::IsValid(&this->m_hLink) && this->m_ReevalPathTask.status[0] != 1 )
   {
-    AIScheduler::AddReevalPathTask(&_RDI->m_ReevalPathTask);
-    _RDI->m_bPathReevalRequested = 0;
+    AIScheduler::AddReevalPathTask(&this->m_ReevalPathTask);
+    this->m_bPathReevalRequested = 0;
   }
-  bfx::AreaHandle::~AreaHandle(&v84);
+  bfx::AreaHandle::~AreaHandle(&v27);
 LABEL_56:
   bfx::AreaHandle::~AreaHandle(&hNewArea);
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -10707,39 +9111,34 @@ AINavigator2D::SetGoalPos
 */
 char AINavigator2D::SetGoalPos(AINavigator2D *this, const vec3_t *goalPos)
 {
+  bool v5; 
+  AINavigator_vtbl *v6; 
   bool v7; 
-  AINavigator_vtbl *v8; 
-  bool v9; 
 
   if ( !this->m_pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 400, ASSERT_TYPE_ASSERT, "( m_pSpace )", (const char *)&queryFormat, "m_pSpace") )
     __debugbreak();
-  if ( this->HasPath(this) )
-  {
-    __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-    if ( VecNCompareCustomEpsilon(goalPos->v, this->m_RequestedGoalPos.v, *(float *)&_XMM2, 3) )
-      return 1;
-  }
+  if ( this->HasPath(this) && VecNCompareCustomEpsilon(goalPos->v, this->m_RequestedGoalPos.v, 0.001, 3) )
+    return 1;
   AINavigator::LocalizePosToSpace(this, goalPos, &this->m_LocalRequestedGoalPos);
   AINavigator::WorldifyPosFromSpace(this, &this->m_LocalRequestedGoalPos, &this->m_RequestedGoalPos);
   AINavigator2D::FixUpStartAreaIfNecessary(this);
-  __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-  v7 = VecNCompareCustomEpsilon(this->m_CurSnappedPos.v, this->m_RequestedGoalPos.v, *(float *)&_XMM2, 3);
-  v8 = this->__vftable;
-  if ( v7 )
+  v5 = VecNCompareCustomEpsilon(this->m_CurSnappedPos.v, this->m_RequestedGoalPos.v, 0.001, 3);
+  v6 = this->__vftable;
+  if ( v5 )
   {
-    v8->ClearPath(this);
+    v6->ClearPath(this);
     return 1;
   }
   else
   {
-    v9 = v8->DoPathFind(this);
-    if ( !v9 )
+    v7 = v6->DoPathFind(this);
+    if ( !v7 )
     {
       AINavigator::BadPathNotify(this, goalPos);
       this->m_TimeOfLastPathFindFail = level.time;
     }
-    this->m_bPathRequested = v9;
-    return v9;
+    this->m_bPathRequested = v7;
+    return v7;
   }
 }
 
@@ -10776,12 +9175,11 @@ void AINavigator2D::SetLinkUsageFlags(AINavigator2D *this, unsigned int flags)
   unsigned int *p_m_Flags; 
   __int64 v7; 
   unsigned int m_forwardLinkUsageFlags; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v9; 
+  __int64 v10; 
   bfx::LinkHandle phLink; 
   bfx::LinkDat result; 
 
-  _RDI = this;
   this->m_BasePathSpec.m_linkUsageFlags = flags;
   m_NumPoints = this->m_Path.m_NumPoints;
   if ( m_NumPoints > 0 )
@@ -10796,14 +9194,14 @@ void AINavigator2D::SetLinkUsageFlags(AINavigator2D *this, unsigned int flags)
         if ( (*(_BYTE *)p_m_Flags & 2) != 0 )
         {
           bfx::LinkHandle::LinkHandle(&phLink);
-          if ( (unsigned int)m_CurPathPoint >= _RDI->m_Path.m_NumPoints )
+          if ( (unsigned int)m_CurPathPoint >= this->m_Path.m_NumPoints )
           {
-            LODWORD(v13) = _RDI->m_Path.m_NumPoints;
-            LODWORD(v12) = m_CurPathPoint;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v12, v13) )
+            LODWORD(v10) = this->m_Path.m_NumPoints;
+            LODWORD(v9) = m_CurPathPoint;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4221, ASSERT_TYPE_ASSERT, "(unsigned)( iPoint ) < (unsigned)( m_NumPoints )", "iPoint doesn't index m_NumPoints\n\t%i not in [0, %i)", v9, v10) )
               __debugbreak();
           }
-          if ( Nav_GetLinkByID(*(int *)((char *)&_RDI->m_Path.m_Points[0].m_LinkID + (_QWORD)p_m_Flags + v7), &phLink) )
+          if ( Nav_GetLinkByID(*(int *)((char *)&this->m_Path.m_Points[0].m_LinkID + (_QWORD)p_m_Flags + v7), &phLink) )
           {
             bfx::LinkHandle::GetLinkDat(&phLink, &result);
             m_forwardLinkUsageFlags = result.m_forwardLinkUsageFlags;
@@ -10811,17 +9209,11 @@ void AINavigator2D::SetLinkUsageFlags(AINavigator2D *this, unsigned int flags)
               m_forwardLinkUsageFlags = result.m_backwardLinkUsageFlags;
             if ( (m_forwardLinkUsageFlags & flags) == 0 )
             {
-              Nav_ClearLinkWeightsForEnt(_RDI->m_pEnt->s.number);
-              nav_path_t::Reset(&_RDI->m_Path);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rdi+4A4h]
-                vmovups ymmword ptr [rdi+4F4h], ymm0
-                vmovups ymm1, ymmword ptr [rdi+4C4h]
-                vmovups ymmword ptr [rdi+514h], ymm1
-                vmovups xmm0, xmmword ptr [rdi+4E4h]
-                vmovups xmmword ptr [rdi+534h], xmm0
-              }
+              Nav_ClearLinkWeightsForEnt(this->m_pEnt->s.number);
+              nav_path_t::Reset(&this->m_Path);
+              *(__m256i *)&this->m_PathSpecOfCurPath.m_obstacleMode = *(__m256i *)&this->m_BasePathSpec.m_obstacleMode;
+              *(__m256i *)&this->m_PathSpecOfCurPath.m_maxSearchDist = *(__m256i *)&this->m_BasePathSpec.m_maxSearchDist;
+              *(_OWORD *)&this->m_PathSpecOfCurPath.m_penaltyTable.m_perFlagPenalties[24] = *(_OWORD *)&this->m_BasePathSpec.m_penaltyTable.m_perFlagPenalties[24];
               bfx::LinkHandle::~LinkHandle(&phLink);
               return;
             }
@@ -10831,7 +9223,7 @@ void AINavigator2D::SetLinkUsageFlags(AINavigator2D *this, unsigned int flags)
         LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
         p_m_Flags += 12;
       }
-      while ( (int)m_CurPathPoint < _RDI->m_Path.m_NumPoints );
+      while ( (int)m_CurPathPoint < this->m_Path.m_NumPoints );
     }
   }
 }
@@ -10853,59 +9245,49 @@ AINavigator2D::SetPath
 */
 void AINavigator2D::SetPath(AINavigator2D *this, const bfx::PolylinePathRCPtr *path, const nav_pathfind_input_t *pInput)
 {
-  const dvar_t *v10; 
+  bfx::PathSpec *m_pPathSpec; 
+  const dvar_t *v7; 
   const vec3_t *m_pGoalPos; 
   bfx::Color color; 
   bool pbOutHasDoors; 
 
-  _RBX = this;
   if ( !bfx::PolylinePathRCPtr::IsValid((bfx::PolylinePathRCPtr *)path) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1490, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   if ( !pInput && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1491, ASSERT_TYPE_ASSERT, "( pInput )", (const char *)&queryFormat, "pInput") )
     __debugbreak();
-  if ( _RBX->m_ReevalPathTask.status[0] == 1 )
-    AIScheduler::RemoveReevalPathTask(&_RBX->m_ReevalPathTask);
-  _RAX = pInput->m_pPathSpec;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+4F4h], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx+514h], ymm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rbx+534h], xmm0
-  }
-  _RBX->m_TimeOfLastPathUpdate = level.time;
-  if ( bfx::AreaHandle::IsValid(&pInput->m_hStartArea) && !bfx::AreaHandle::IsValid(&_RBX->m_hCurArea) )
-    bfx::AreaHandle::operator=(&_RBX->m_hCurArea, &pInput->m_hStartArea);
-  v10 = DCONST_DVARBOOL_ai_showBfxPath;
+  if ( this->m_ReevalPathTask.status[0] == 1 )
+    AIScheduler::RemoveReevalPathTask(&this->m_ReevalPathTask);
+  m_pPathSpec = pInput->m_pPathSpec;
+  *(__m256i *)&this->m_PathSpecOfCurPath.m_obstacleMode = *(__m256i *)&m_pPathSpec->m_obstacleMode;
+  *(__m256i *)&this->m_PathSpecOfCurPath.m_maxSearchDist = *(__m256i *)&m_pPathSpec->m_maxSearchDist;
+  *(_OWORD *)&this->m_PathSpecOfCurPath.m_penaltyTable.m_perFlagPenalties[24] = *(_OWORD *)&m_pPathSpec->m_penaltyTable.m_perFlagPenalties[24];
+  this->m_TimeOfLastPathUpdate = level.time;
+  if ( bfx::AreaHandle::IsValid(&pInput->m_hStartArea) && !bfx::AreaHandle::IsValid(&this->m_hCurArea) )
+    bfx::AreaHandle::operator=(&this->m_hCurArea, &pInput->m_hStartArea);
+  v7 = DCONST_DVARBOOL_ai_showBfxPath;
   if ( !DCONST_DVARBOOL_ai_showBfxPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showBfxPath") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f800000000000003f8000003f800000
-      vmovups xmmword ptr [rsp+68h+color.m_r], xmm0
-    }
+    color = (bfx::Color)_xmm;
     bfx::PolylinePathRCPtr::Draw((bfx::PolylinePathRCPtr *)path, &color);
   }
-  AINavigator2D::GeneratePath(_RBX, path, &_RBX->m_Path, &_RBX->m_PathSpecOfCurPath, &pbOutHasDoors);
-  _RBX->m_CurPathPoint = 0;
-  AINavigator::LocalizePosToSpace(_RBX, pInput->m_pStartPos, &_RBX->m_LocalSnappedPathStartPos);
-  AINavigator::LocalizePosToSpace(_RBX, pInput->m_pGoalPos, &_RBX->m_LocalSnappedGoalPos);
+  AINavigator2D::GeneratePath(this, path, &this->m_Path, &this->m_PathSpecOfCurPath, &pbOutHasDoors);
+  this->m_CurPathPoint = 0;
+  AINavigator::LocalizePosToSpace(this, pInput->m_pStartPos, &this->m_LocalSnappedPathStartPos);
+  AINavigator::LocalizePosToSpace(this, pInput->m_pGoalPos, &this->m_LocalSnappedGoalPos);
   m_pGoalPos = pInput->m_pGoalPos;
-  _RBX->m_SnappedGoalPos.v[0] = m_pGoalPos->v[0];
-  _RBX->m_SnappedGoalPos.v[1] = m_pGoalPos->v[1];
-  _RBX->m_SnappedGoalPos.v[2] = m_pGoalPos->v[2];
-  bfx::AreaHandle::operator=(&_RBX->m_hGoalArea, (const bfx::AreaHandle *)&_RBX->m_hLink.m_pSpace + 3 * _RBX->m_Path.m_NumPoints);
-  _RBX->m_bPathRequested = 1;
-  *(_WORD *)&_RBX->m_bPathingOutOfBounds = 0;
+  this->m_SnappedGoalPos.v[0] = m_pGoalPos->v[0];
+  this->m_SnappedGoalPos.v[1] = m_pGoalPos->v[1];
+  this->m_SnappedGoalPos.v[2] = m_pGoalPos->v[2];
+  bfx::AreaHandle::operator=(&this->m_hGoalArea, (const bfx::AreaHandle *)&this->m_hLink.m_pSpace + 3 * this->m_Path.m_NumPoints);
+  this->m_bPathRequested = 1;
+  *(_WORD *)&this->m_bPathingOutOfBounds = 0;
   if ( pInput->m_bModifyLinkWeights )
-    AINavigator2D::IncreaseLinkWeightsForPath(_RBX);
+    AINavigator2D::IncreaseLinkWeightsForPath(this);
   if ( pbOutHasDoors )
-    GScr_Notify(_RBX->m_pEnt, scr_const.path_has_door, 0);
+    GScr_Notify(this->m_pEnt, scr_const.path_has_door, 0);
 }
 
 /*
@@ -10990,20 +9372,13 @@ AINavigator2D::SetSuppressionPlanes
 */
 void AINavigator2D::SetSuppressionPlanes(AINavigator2D *this, PathBlockPlanes *pPlanes)
 {
-  _RBX = pPlanes;
-  _RDI = this;
   if ( !pPlanes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2556, ASSERT_TYPE_ASSERT, "( pPlanes )", (const char *)&queryFormat, "pPlanes") )
     __debugbreak();
-  if ( _RBX->iPlaneCount > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2557, ASSERT_TYPE_ASSERT, "( pPlanes->iPlaneCount <= 4 )", (const char *)&queryFormat, "pPlanes->iPlaneCount <= MAX_PATH_BLOCK_PLANES") )
+  if ( pPlanes->iPlaneCount > 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2557, ASSERT_TYPE_ASSERT, "( pPlanes->iPlaneCount <= 4 )", (const char *)&queryFormat, "pPlanes->iPlaneCount <= MAX_PATH_BLOCK_PLANES") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi+564h], ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rdi+584h], xmm1
-  }
-  _RDI->m_BlockPlanes.iPlaneCount = _RBX->iPlaneCount;
+  *(__m256i *)this->m_BlockPlanes.vNormal[0].v = *(__m256i *)pPlanes->vNormal[0].v;
+  *(_OWORD *)this->m_BlockPlanes.fDist = *(_OWORD *)pPlanes->fDist;
+  this->m_BlockPlanes.iPlaneCount = pPlanes->iPlaneCount;
 }
 
 /*
@@ -11014,93 +9389,56 @@ AINavigator2D::ShouldRefreshSuppressionPlanes
 bool AINavigator2D::ShouldRefreshSuppressionPlanes(AINavigator2D *this)
 {
   __int64 iPlaneCount; 
-  __int64 v4; 
-  unsigned int *m_SuppressionIDs; 
-  bool result; 
-  int v8; 
+  __int64 v3; 
+  unsigned int *i; 
+  int v6; 
   float *fDist; 
-  __int64 v10; 
-  unsigned int v12; 
-  int v13; 
+  __int64 v8; 
+  PathBlockPlanes *j; 
+  unsigned int v10; 
+  int v11; 
   nav_obstacle_s *ObstacleByID; 
-  bool v15; 
-  bool v16; 
+  float v13; 
 
   iPlaneCount = this->m_BlockPlanes.iPlaneCount;
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
   if ( !(_DWORD)iPlaneCount )
   {
-    v4 = 0i64;
-    m_SuppressionIDs = this->m_SuppressionIDs;
-    while ( *m_SuppressionIDs == -1 )
+    v3 = 0i64;
+    for ( i = this->m_SuppressionIDs; *i == -1; ++i )
     {
-      ++v4;
-      ++m_SuppressionIDs;
-      if ( v4 >= 4 )
-      {
-        result = 0;
-        goto LABEL_21;
-      }
+      if ( ++v3 >= 4 )
+        return 0;
     }
-    goto LABEL_20;
+    return 1;
   }
   if ( LODWORD(this->m_BlockPlanes.fDist[iPlaneCount + 4]) == -1 )
-  {
-LABEL_20:
-    result = 1;
-    goto LABEL_21;
-  }
-  __asm { vmovss  xmm6, cs:__real@358637be }
-  v8 = 0;
+    return 1;
+  v6 = 0;
   fDist = this->m_BlockPlanes.fDist;
-  v10 = 0i64;
-  _R15 = &this->m_BlockPlanes;
-  while ( 1 )
+  v8 = 0i64;
+  for ( j = &this->m_BlockPlanes; ; j = (PathBlockPlanes *)((char *)j + 8) )
   {
-    v12 = *((_DWORD *)fDist + 5);
-    v13 = this->m_BlockPlanes.iPlaneCount;
-    if ( v12 == -1 )
+    v10 = *((_DWORD *)fDist + 5);
+    v11 = this->m_BlockPlanes.iPlaneCount;
+    if ( v10 == -1 )
       break;
-    if ( v8 >= v13 )
-      goto LABEL_20;
-    ObstacleByID = Nav_GetObstacleByID(v12);
+    if ( v6 >= v11 )
+      return 1;
+    ObstacleByID = Nav_GetObstacleByID(v10);
     if ( !ObstacleByID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2589, ASSERT_TYPE_ASSERT, "( pObstacle )", (const char *)&queryFormat, "pObstacle") )
       __debugbreak();
-    v15 = !ObstacleByID->m_bUsesExtents;
-    if ( !ObstacleByID->m_bUsesExtents )
-    {
-      v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2590, ASSERT_TYPE_ASSERT, "( pObstacle->m_bUsesExtents )", (const char *)&queryFormat, "pObstacle->m_bUsesExtents");
-      v15 = !v16;
-      if ( v16 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+4]
-      vmovss  xmm1, dword ptr [r15]
-      vmulss  xmm3, xmm0, dword ptr [rdi+20h]
-      vmulss  xmm2, xmm1, dword ptr [rdi+1Ch]
-      vaddss  xmm0, xmm3, xmm2
-      vsubss  xmm3, xmm0, dword ptr [rsi]
-      vmulss  xmm1, xmm3, xmm3
-      vcomiss xmm1, xmm6
-    }
-    if ( !v15 )
-      goto LABEL_20;
+    if ( !ObstacleByID->m_bUsesExtents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 2590, ASSERT_TYPE_ASSERT, "( pObstacle->m_bUsesExtents )", (const char *)&queryFormat, "pObstacle->m_bUsesExtents") )
+      __debugbreak();
+    v13 = (float)((float)(j->vNormal[0].v[1] * ObstacleByID->pos.v[1]) + (float)(j->vNormal[0].v[0] * ObstacleByID->pos.v[0])) - *fDist;
+    if ( (float)(v13 * v13) > 0.0000010000001 )
+      return 1;
+    ++v6;
     ++v8;
-    ++v10;
     ++fDist;
-    _R15 = (PathBlockPlanes *)((char *)_R15 + 8);
-    if ( v10 >= 4 )
-    {
-      result = 0;
-      goto LABEL_21;
-    }
+    if ( v8 >= 4 )
+      return 0;
   }
-  result = v8 < v13;
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
-  return result;
+  return v6 < v11;
 }
 
 /*
@@ -11146,60 +9484,32 @@ AINavigator2D::Trace
 */
 __int64 AINavigator2D::Trace(AINavigator2D *this, const vec3_t *startPos, const vec3_t *endPos, vec3_t *outHitPos)
 {
-  __int64 result; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  float m_DistTraveled; 
   nav_probe_results_s pOutResults; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RBP = outHitPos;
-  _RDI = endPos;
   bfx::AreaHandle::AreaHandle(&pOutResults.m_hEndArea);
-  LOBYTE(this) = Nav_Trace(this->m_pSpace, startPos, _RDI, this->m_Layer, &this->m_BasePathSpec, &pOutResults);
+  LOBYTE(this) = Nav_Trace(this->m_pSpace, startPos, endPos, this->m_Layer, &this->m_BasePathSpec, &pOutResults);
+  v8 = endPos->v[0] - startPos->v[0];
+  v10 = LODWORD(endPos->v[1]);
+  v9 = endPos->v[1] - startPos->v[1];
+  v11 = endPos->v[2] - startPos->v[2];
+  *(float *)&v10 = fsqrt((float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v11 * v11));
+  _XMM1 = v10;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm5, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm6, xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm7, xmm0, dword ptr [rsi+8]
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm1, xmm2, xmm0
-    vdivss  xmm4, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm4
-    vmovss  xmm3, [rsp+0E8h+var_A8.m_DistTraveled]
-    vmulss  xmm0, xmm0, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmulss  xmm2, xmm6, xmm4
-    vmulss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+4], xmm1
-    vmulss  xmm2, xmm7, xmm4
-    vmulss  xmm0, xmm2, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+8], xmm1
   }
+  m_DistTraveled = pOutResults.m_DistTraveled;
+  outHitPos->v[0] = (float)((float)(v8 * (float)(1.0 / *(float *)&_XMM1)) * pOutResults.m_DistTraveled) + startPos->v[0];
+  outHitPos->v[1] = (float)((float)(v9 * (float)(1.0 / *(float *)&_XMM1)) * m_DistTraveled) + startPos->v[1];
+  outHitPos->v[2] = (float)((float)(v11 * (float)(1.0 / *(float *)&_XMM1)) * m_DistTraveled) + startPos->v[2];
   bfx::AreaHandle::~AreaHandle(&pOutResults.m_hEndArea);
-  result = (unsigned __int8)this;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0E8h+var_38]
-    vmovaps xmm7, [rsp+0E8h+var_48]
-  }
-  return result;
+  return (unsigned __int8)this;
 }
 
 /*
@@ -11333,123 +9643,59 @@ AINavigator2D::UpdateCurSegment
 */
 _BOOL8 AINavigator2D::UpdateCurSegment(AINavigator2D *this, const vec3_t *newPos, const bfx::AreaHandle *hNewArea)
 {
+  __int64 v3; 
   int m_CurPathPoint; 
-  int v21; 
-  char v22; 
-  char v36; 
+  int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   bool updated; 
   unsigned int m_Flags; 
-  bool v45; 
+  bool v15; 
   __int64 m_NumPoints; 
-  int v52; 
-  _BOOL8 result; 
+  int v18; 
   vec3_t outDir; 
   vec3_t outPoint; 
   bfx::PathSpec pPathSpec; 
-  char v64; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _RSI = newPos;
   Sys_ProfBeginNamedEvent(0xFF808080, "AI_UpdateCurSegment");
   if ( this->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1740, ASSERT_TYPE_ASSERT, "( m_Path.Exists() )", (const char *)&queryFormat, "m_Path.Exists()", -2i64) )
     __debugbreak();
   if ( AINavigator::ShouldPathOutOfBounds(this) && this->IsNextCornerGoal(this) )
     goto LABEL_37;
-  _RBP = &this->m_PathSpecOfCurPath;
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rsp+158h+pPathSpec.m_obstacleMode], ymm2
-    vmovups ymm0, ymmword ptr [rbp+20h]
-    vmovups ymmword ptr [rsp+158h+pPathSpec.m_maxSearchDist], ymm0
-    vmovups xmm1, xmmword ptr [rbp+40h]
-    vmovups xmmword ptr [rsp+158h+pPathSpec.m_penaltyTable.m_perFlagPenalties+18h], xmm1
-    vmovq   rax, xmm2
-  }
-  pPathSpec.m_obstacleBlockageFlags = HIDWORD(_RAX) | 0x2000;
+  pPathSpec = this->m_PathSpecOfCurPath;
+  pPathSpec.m_obstacleBlockageFlags = HIDWORD(v3) | 0x2000;
   AINavigator2D::AdjustCornersForTeamWalking(this);
   if ( this->m_CurPathPoint >= this->m_Path.m_NumPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1750, ASSERT_TYPE_ASSERT, "( m_CurPathPoint < m_Path.m_NumPoints )", (const char *)&queryFormat, "m_CurPathPoint < m_Path.m_NumPoints") )
     __debugbreak();
   m_CurPathPoint = this->m_CurPathPoint;
-  v21 = m_CurPathPoint + 1;
+  v8 = m_CurPathPoint + 1;
   nav_path_t::GetPathPoint(&this->m_Path, m_CurPathPoint, &outPoint);
-  if ( v21 >= this->m_Path.m_NumPoints )
+  if ( v8 >= this->m_Path.m_NumPoints )
     goto LABEL_23;
   nav_path_t::GetDir(&this->m_Path, this->m_CurPathPoint, &outDir);
-  __asm
+  v9 = outPoint.v[0] - newPos->v[0];
+  v10 = newPos->v[1];
+  v11 = outPoint.v[2] - newPos->v[2];
+  v12 = (float)((float)((float)(outPoint.v[1] - v10) * outDir.v[1]) + (float)(v9 * outDir.v[0])) + (float)(v11 * outDir.v[2]);
+  if ( v12 > 0.0 )
   {
-    vmovss  xmm8, dword ptr [rsi]
-    vmovss  xmm9, dword ptr [rsp+158h+outPoint]
-    vsubss  xmm5, xmm9, xmm8
-    vmovss  xmm10, dword ptr [rsi+4]
-    vmovss  xmm11, dword ptr [rsp+158h+outPoint+4]
-    vsubss  xmm6, xmm11, xmm10
-    vmovss  xmm0, dword ptr [rsp+158h+outPoint+8]
-    vsubss  xmm7, xmm0, dword ptr [rsi+8]
-    vmulss  xmm3, xmm6, dword ptr [rsp+158h+outDir+4]
-    vmulss  xmm2, xmm5, dword ptr [rsp+158h+outDir]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm1, xmm7, dword ptr [rsp+158h+outDir+8]
-    vaddss  xmm4, xmm3, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm4, xmm0
-  }
-  if ( !(v22 | v36) )
-  {
-    __asm { vcomiss xmm4, cs:__real@41900000 }
-    if ( v22 )
-    {
-      if ( this->m_CurPathPoint > 0 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm6
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vsubss  xmm2, xmm3, xmm0
-          vcomiss xmm2, cs:__real@44dc8000
-        }
-        if ( this->m_CurPathPoint )
-          goto LABEL_24;
-      }
-    }
+    if ( v12 < 18.0 && this->m_CurPathPoint > 0 && (float)((float)((float)((float)((float)(outPoint.v[1] - v10) * (float)(outPoint.v[1] - v10)) + (float)(v9 * v9)) + (float)(v11 * v11)) - (float)(v12 * v12)) > 1764.0 )
+      goto LABEL_24;
     m_Flags = this->m_Path.m_Points[this->m_CurPathPoint].m_Flags;
-    v45 = (m_Flags & 2) == 0;
+    v15 = (m_Flags & 2) == 0;
     if ( (m_Flags & 2) == 0 )
     {
       if ( this->m_bAllowSkipMultigoalPoint && (m_Flags & 0x400) != 0 )
         goto LABEL_21;
       if ( (m_Flags & 0xC10) != 0 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm8, xmm9
-          vsubss  xmm1, xmm10, xmm11
-          vmulss  xmm2, xmm0, xmm0
-          vmulss  xmm0, xmm1, xmm1
-          vaddss  xmm1, xmm2, xmm0
-          vcomiss xmm1, cs:__real@43100000
-        }
-        v45 = 0;
-      }
-      if ( v45 )
+        v15 = (float)((float)((float)(newPos->v[0] - outPoint.v[0]) * (float)(newPos->v[0] - outPoint.v[0])) + (float)((float)(v10 - outPoint.v[1]) * (float)(v10 - outPoint.v[1]))) < 144.0;
+      if ( v15 )
       {
 LABEL_21:
-        nav_path_t::GetPathPoint(&this->m_Path, v21, &outDir);
-        if ( Nav_IsStraightLineReachable(_RSI, hNewArea, &outDir, &this->m_Path.m_Points[v21].m_hArea, &pPathSpec) )
+        nav_path_t::GetPathPoint(&this->m_Path, v8, &outDir);
+        if ( Nav_IsStraightLineReachable(newPos, hNewArea, &outDir, &this->m_Path.m_Points[v8].m_hArea, &pPathSpec) )
         {
           ++this->m_CurPathPoint;
 LABEL_37:
@@ -11459,26 +9705,21 @@ LABEL_37:
       }
     }
 LABEL_23:
-    if ( Nav_IsStraightLineReachable(_RSI, hNewArea, &outPoint, &this->m_Path.m_Points[this->m_CurPathPoint].m_hArea, &this->m_PathSpecOfCurPath) )
+    if ( Nav_IsStraightLineReachable(newPos, hNewArea, &outPoint, &this->m_Path.m_Points[this->m_CurPathPoint].m_hArea, &this->m_PathSpecOfCurPath) )
     {
       m_NumPoints = this->m_Path.m_NumPoints;
-      if ( (int)m_NumPoints > 0 && (*(_DWORD *)(&this->m_MaxDeviationFromPath + 12 * m_NumPoints) & 1) == 0 )
+      if ( (int)m_NumPoints > 0 && (*(_DWORD *)(&this->m_MaxDeviationFromPath + 12 * m_NumPoints) & 1) == 0 && this->GetPathDistToGoal(this) < 550.0 )
       {
-        *(double *)&_XMM0 = ((double (__fastcall *)(AINavigator2D *))this->GetPathDistToGoal)(this);
-        __asm { vcomiss xmm0, cs:__real@44098000 }
-        if ( v22 )
+        v18 = this->m_CurPathPoint;
+        if ( v18 > 0 || this->m_Path.m_NumPoints < 20 )
         {
-          v52 = this->m_CurPathPoint;
-          if ( v52 > 0 || this->m_Path.m_NumPoints < 20 )
-          {
-            nav_path_t::TrimLeadingPathPoints(&this->m_Path, v52);
-            this->m_CurPathPoint = 0;
-            if ( this->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1838, ASSERT_TYPE_ASSERT, "(m_Path.m_NumPoints > 0)", (const char *)&queryFormat, "m_Path.m_NumPoints > 0") )
-              __debugbreak();
-            nav_path_t::GetPathPoint(&this->m_Path, this->m_Path.m_NumPoints - 1, &outDir);
-            if ( !AINavigator2D::ExtendPath(this, &outDir, (const bfx::AreaHandle *)&this->m_hLink.m_pSpace + 3 * this->m_Path.m_NumPoints, &this->m_SnappedGoalPos) )
-              AINavigator::BadPathNotify(this, &this->m_RequestedGoalPos);
-          }
+          nav_path_t::TrimLeadingPathPoints(&this->m_Path, v18);
+          this->m_CurPathPoint = 0;
+          if ( this->m_Path.m_NumPoints <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 1838, ASSERT_TYPE_ASSERT, "(m_Path.m_NumPoints > 0)", (const char *)&queryFormat, "m_Path.m_NumPoints > 0") )
+            __debugbreak();
+          nav_path_t::GetPathPoint(&this->m_Path, this->m_Path.m_NumPoints - 1, &outDir);
+          if ( !AINavigator2D::ExtendPath(this, &outDir, (const bfx::AreaHandle *)&this->m_hLink.m_pSpace + 3 * this->m_Path.m_NumPoints, &this->m_SnappedGoalPos) )
+            AINavigator::BadPathNotify(this, &this->m_RequestedGoalPos);
         }
       }
       goto LABEL_37;
@@ -11488,21 +9729,10 @@ LABEL_24:
     goto LABEL_38;
   }
   ++this->m_CurPathPoint;
-  updated = AINavigator2D::UpdateCurSegment(this, _RSI, hNewArea);
+  updated = AINavigator2D::UpdateCurSegment(this, newPos, hNewArea);
 LABEL_38:
   Sys_ProfEndNamedEvent();
-  result = updated;
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  return updated;
 }
 
 /*
@@ -11514,143 +9744,96 @@ AINavigator2D::UpdateTightQuarters
 void __fastcall AINavigator2D::UpdateTightQuarters(AINavigator2D *this, double updateDistance)
 {
   int m_NumPoints; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   __int64 m_CurPathPoint; 
-  unsigned int v28; 
-  int v43; 
+  unsigned int *p_m_Flags; 
+  float v13; 
+  unsigned int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  int v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
   bool outFullyProcessed; 
   float outRemainingLength; 
-  __int64 v70; 
+  __int64 v24; 
   vec3_t startPoint; 
-  char v74; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps [rsp+108h+var_98], xmm13
-    vmovaps [rsp+108h+var_A8], xmm14
-    vmovaps xmm6, xmm1
-  }
-  _RDI = this;
+  v24 = -2i64;
+  _XMM6 = *(_OWORD *)&updateDistance;
   Sys_ProfBeginNamedEvent(0xFF808080, "UpdateTightQuarters");
-  m_NumPoints = _RDI->m_Path.m_NumPoints;
+  m_NumPoints = this->m_Path.m_NumPoints;
   if ( m_NumPoints > 0 )
   {
     __asm
     {
-      vxorps  xmm11, xmm11, xmm11
       vcmpless xmm1, xmm6, xmm11
-      vmovss  xmm0, cs:__real@7f7fffff
       vblendvps xmm0, xmm6, xmm0, xmm1
-      vmovss  [rsp+108h+var_D4], xmm0
-      vxorps  xmm10, xmm10, xmm10
-      vmovss  xmm9, dword ptr [rdi+54h]
-      vmovss  dword ptr [rsp+108h+startPoint], xmm9
-      vmovss  xmm7, dword ptr [rdi+58h]
-      vmovss  dword ptr [rsp+108h+startPoint+4], xmm7
-      vmovss  xmm8, dword ptr [rdi+5Ch]
-      vmovss  dword ptr [rsp+108h+startPoint+8], xmm8
     }
-    m_CurPathPoint = _RDI->m_CurPathPoint;
+    outRemainingLength = *(float *)&_XMM0;
+    v7 = 0i64;
+    v8 = this->m_LocalCurSnappedPos.v[0];
+    startPoint.v[0] = v8;
+    v9 = this->m_LocalCurSnappedPos.v[1];
+    startPoint.v[1] = v9;
+    v10 = this->m_LocalCurSnappedPos.v[2];
+    startPoint.v[2] = v10;
+    m_CurPathPoint = this->m_CurPathPoint;
     if ( (int)m_CurPathPoint < m_NumPoints )
     {
-      _RBX = &_RDI->m_Path.m_Points[m_CurPathPoint].m_Flags;
-      __asm
+      p_m_Flags = &this->m_Path.m_Points[m_CurPathPoint].m_Flags;
+      v13 = outRemainingLength;
+      do
       {
-        vmovss  xmm14, cs:__real@42480000
-        vmovss  xmm12, cs:__real@42c80000
-        vmovss  xmm13, [rsp+108h+var_D4]
-      }
-      v28 = *_RBX;
-      if ( (*_RBX & 0xC0) == 0 )
-      {
-        if ( (v28 & 0x300) == 0 )
-          goto LABEL_6;
-        __asm
+        v14 = *p_m_Flags;
+        if ( (*p_m_Flags & 0xC0) == 0 )
         {
-          vmovss  xmm0, dword ptr [rbx-0Ch]
-          vsubss  xmm3, xmm0, dword ptr [rdi+54h]
-          vmovss  xmm1, dword ptr [rbx-8]
-          vsubss  xmm2, xmm1, dword ptr [rdi+58h]
-          vmovss  xmm0, dword ptr [rbx-4]
-          vsubss  xmm4, xmm0, dword ptr [rdi+5Ch]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vsubss  xmm3, xmm1, dword ptr [rbx+10h]
-          vcomiss xmm3, xmm14
-        }
-        if ( (v28 & 0x300) == 0 )
-        {
-LABEL_6:
-          outFullyProcessed = 0;
-          __asm { vmovss  [rsp+108h+var_D4], xmm11 }
-          *_RBX = v28 & 0xFFFFFCFF;
-          __asm { vmovaps xmm3, xmm12; maxDistance }
-          if ( AINavigator2D::IsTightPathSegment(_RDI, &startPoint, &_RDI->m_Path.m_Points[m_CurPathPoint].m_LocalPos, *(const float *)&_XMM3, &outFullyProcessed, &outRemainingLength) )
+          if ( (v14 & 0x300) == 0 || (v15 = *((float *)p_m_Flags - 3) - this->m_LocalCurSnappedPos.v[0], v16 = *((float *)p_m_Flags - 2) - this->m_LocalCurSnappedPos.v[1], v17 = *((float *)p_m_Flags - 1) - this->m_LocalCurSnappedPos.v[2], (float)(fsqrt((float)((float)(v16 * v16) + (float)(v15 * v15)) + (float)(v17 * v17)) - *((float *)p_m_Flags + 4)) <= 50.0) )
           {
-            v43 = 256;
-            if ( outFullyProcessed )
-              v43 = 64;
-          }
-          else
-          {
-            v43 = 512;
-            if ( outFullyProcessed )
-              v43 = 128;
-          }
-          *_RBX |= v43;
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+var_D4]
-            vmovss  dword ptr [rbx+10h], xmm0
+            outFullyProcessed = 0;
+            outRemainingLength = 0.0;
+            *p_m_Flags = v14 & 0xFFFFFCFF;
+            if ( AINavigator2D::IsTightPathSegment(this, &startPoint, (const vec3_t *)p_m_Flags - 1, 100.0, &outFullyProcessed, &outRemainingLength) )
+            {
+              v18 = 256;
+              if ( outFullyProcessed )
+                v18 = 64;
+            }
+            else
+            {
+              v18 = 512;
+              if ( outFullyProcessed )
+                v18 = 128;
+            }
+            *p_m_Flags |= v18;
+            *((float *)p_m_Flags + 4) = outRemainingLength;
           }
         }
+        v19 = *((float *)p_m_Flags - 2);
+        v20 = *((float *)p_m_Flags - 1);
+        v21 = v7;
+        *(float *)&v21 = *(float *)&v7 + fsqrt((float)((float)((float)(v19 - v9) * (float)(v19 - v9)) + (float)((float)(*((float *)p_m_Flags - 3) - v8) * (float)(*((float *)p_m_Flags - 3) - v8))) + (float)((float)(v20 - v10) * (float)(v20 - v10)));
+        v7 = v21;
+        if ( *(float *)&v21 >= v13 )
+          break;
+        v8 = *((float *)p_m_Flags - 3);
+        startPoint.v[0] = v8;
+        v9 = v19;
+        startPoint.v[1] = v19;
+        v10 = v20;
+        startPoint.v[2] = v20;
+        LODWORD(m_CurPathPoint) = m_CurPathPoint + 1;
+        p_m_Flags += 12;
       }
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rbx-0Ch]
-        vsubss  xmm2, xmm4, xmm9
-        vmovss  xmm5, dword ptr [rbx-8]
-        vsubss  xmm0, xmm5, xmm7
-        vmovss  xmm6, dword ptr [rbx-4]
-        vsubss  xmm3, xmm6, xmm8
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm10, xmm10, xmm0
-        vcomiss xmm10, xmm13
-      }
+      while ( (int)m_CurPathPoint < this->m_Path.m_NumPoints );
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_A8]
-  }
 }
 
 /*
@@ -11709,111 +9892,106 @@ AINavigator2D::WriteNavigator
 void AINavigator2D::WriteNavigator(AINavigator2D *this, MemoryFile *memFile)
 {
   int LinkID; 
-  int *m_SuppressionIDs; 
-  __int64 v8; 
+  unsigned int *m_SuppressionIDs; 
+  __int64 v6; 
   int m_NumPoints; 
+  float *p_m_Length; 
   unsigned __int32 p; 
 
   LOBYTE(p) = 2;
-  _RSI = this;
   MemFile_WriteData(memFile, 1ui64, &p);
-  if ( !_RSI->m_pEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4026, ASSERT_TYPE_ASSERT, "( m_pEnt )", (const char *)&queryFormat, "m_pEnt") )
+  if ( !this->m_pEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_navigator_2d.cpp", 4026, ASSERT_TYPE_ASSERT, "( m_pEnt )", (const char *)&queryFormat, "m_pEnt") )
     __debugbreak();
-  p = _RSI->m_pEnt->s.number;
+  p = this->m_pEnt->s.number;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RSI->m_Layer;
+  p = this->m_Layer;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RSI->m_pSpace->parentEntNum;
+  p = this->m_pSpace->parentEntNum;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_CurSnappedPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_LocalCurSnappedPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_RequestedGoalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_LocalRequestedGoalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_SnappedGoalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_LocalSnappedGoalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_LocalSnappedPathStartPos);
-  MemFile_WriteData(memFile, 0x50ui64, &_RSI->m_BasePathSpec);
-  MemFile_WriteData(memFile, 0x50ui64, &_RSI->m_PathSpecOfCurPath);
-  p = _RSI->m_TimeOfLastPathUpdate;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_CurSnappedPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_LocalCurSnappedPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_RequestedGoalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_LocalRequestedGoalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_SnappedGoalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_LocalSnappedGoalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_LocalSnappedPathStartPos);
+  MemFile_WriteData(memFile, 0x50ui64, &this->m_BasePathSpec);
+  MemFile_WriteData(memFile, 0x50ui64, &this->m_PathSpecOfCurPath);
+  p = this->m_TimeOfLastPathUpdate;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RSI->m_TimeOfLastBlockage;
+  p = this->m_TimeOfLastBlockage;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RSI->m_TimeOfLastPathFindFail;
+  p = this->m_TimeOfLastPathFindFail;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RSI->m_TimeOfLastPathSuppressed;
+  p = this->m_TimeOfLastPathSuppressed;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rsi+0A0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+0A4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RSI->m_bPathingOutOfBounds;
+  MemFile_WriteFloat(memFile, this->m_DistFromGoalToPathToRequestedGoal);
+  MemFile_WriteFloat(memFile, this->m_MaxDeviationFromPath);
+  LOBYTE(p) = this->m_bPathingOutOfBounds;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RSI->m_AllowedStances;
+  p = this->m_AllowedStances;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RSI->m_bTeamWalkEnabled;
+  LOBYTE(p) = this->m_bTeamWalkEnabled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RSI->m_bAllowSkipMultigoalPoint;
+  LOBYTE(p) = this->m_bAllowSkipMultigoalPoint;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RSI->m_bPathReevalRequested;
+  LOBYTE(p) = this->m_bPathReevalRequested;
   MemFile_WriteData(memFile, 1ui64, &p);
-  if ( bfx::LinkHandle::IsValid(&_RSI->m_hLink) )
-    LinkID = Nav_GetLinkID(&_RSI->m_hLink);
+  if ( bfx::LinkHandle::IsValid(&this->m_hLink) )
+    LinkID = Nav_GetLinkID(&this->m_hLink);
   else
     LinkID = -1;
   p = LinkID;
   MemFile_WriteData(memFile, 4ui64, &p);
-  m_SuppressionIDs = (int *)_RSI->m_SuppressionIDs;
-  v8 = 4i64;
+  m_SuppressionIDs = this->m_SuppressionIDs;
+  v6 = 4i64;
   do
   {
     p = *m_SuppressionIDs;
     MemFile_WriteData(memFile, 4ui64, &p);
     ++m_SuppressionIDs;
-    --v8;
+    --v6;
   }
-  while ( v8 );
-  p = _RSI->m_SuppressionTimestamp;
+  while ( v6 );
+  p = this->m_SuppressionTimestamp;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RSI->m_bMultiGoalPath;
+  LOBYTE(p) = this->m_bMultiGoalPath;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RSI->m_bPathRequested;
+  LOBYTE(p) = this->m_bPathRequested;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RSI->m_CurPathPoint;
+  p = this->m_CurPathPoint;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RSI->m_ReevalPathTask.status[0];
+  LOBYTE(p) = this->m_ReevalPathTask.status[0];
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RSI->m_ReevalPathTask.timestamp;
+  p = this->m_ReevalPathTask.timestamp;
   MemFile_WriteData(memFile, 4ui64, &p);
-  m_NumPoints = _RSI->m_Path.m_NumPoints;
+  m_NumPoints = this->m_Path.m_NumPoints;
   LOBYTE(p) = m_NumPoints > 0;
   MemFile_WriteData(memFile, 1ui64, &p);
   if ( m_NumPoints > 0 )
   {
-    p = _RSI->m_Path.m_NumPoints;
+    p = this->m_Path.m_NumPoints;
     MemFile_WriteData(memFile, 4ui64, &p);
-    if ( _RSI->m_Path.m_NumPoints > 0 )
+    if ( this->m_Path.m_NumPoints > 0 )
     {
-      MemFile_WriteData(memFile, 0xCui64, &_RSI->m_Path.m_LocalStartPoint);
-      if ( _RSI->m_Path.m_NumPoints > 0 )
+      MemFile_WriteData(memFile, 0xCui64, &this->m_Path.m_LocalStartPoint);
+      if ( this->m_Path.m_NumPoints > 0 )
       {
-        _RBX = &_RSI->m_Path.m_Points[0].m_Length;
+        p_m_Length = &this->m_Path.m_Points[0].m_Length;
         do
         {
-          MemFile_WriteData(memFile, 0xCui64, _RBX - 5);
-          p = *((_DWORD *)_RBX - 2);
+          MemFile_WriteData(memFile, 0xCui64, p_m_Length - 5);
+          p = *((_DWORD *)p_m_Length - 2);
           MemFile_WriteData(memFile, 4ui64, &p);
-          __asm { vmovss  xmm1, dword ptr [rbx]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          p = *((_DWORD *)_RBX - 1);
+          MemFile_WriteFloat(memFile, *p_m_Length);
+          p = *((_DWORD *)p_m_Length - 1);
           MemFile_WriteData(memFile, 4ui64, &p);
-          __asm { vmovss  xmm1, dword ptr [rbx+4]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          __asm { vmovss  xmm1, dword ptr [rbx+8]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          LODWORD(v8) = v8 + 1;
-          _RBX += 12;
+          MemFile_WriteFloat(memFile, p_m_Length[1]);
+          MemFile_WriteFloat(memFile, p_m_Length[2]);
+          LODWORD(v6) = v6 + 1;
+          p_m_Length += 12;
         }
-        while ( (int)v8 < _RSI->m_Path.m_NumPoints );
+        while ( (int)v6 < this->m_Path.m_NumPoints );
       }
     }
   }
@@ -11827,6 +10005,7 @@ AINavigator2D::WritePath
 void AINavigator2D::WritePath(AINavigator2D *this, MemoryFile *memFile)
 {
   int v4; 
+  float *p_m_Length; 
   int p; 
 
   p = this->m_Path.m_NumPoints;
@@ -11837,22 +10016,19 @@ void AINavigator2D::WritePath(AINavigator2D *this, MemoryFile *memFile)
     v4 = 0;
     if ( this->m_Path.m_NumPoints > 0 )
     {
-      _RBX = &this->m_Path.m_Points[0].m_Length;
+      p_m_Length = &this->m_Path.m_Points[0].m_Length;
       do
       {
-        MemFile_WriteData(memFile, 0xCui64, _RBX - 5);
-        p = *((_DWORD *)_RBX - 2);
+        MemFile_WriteData(memFile, 0xCui64, p_m_Length - 5);
+        p = *((_DWORD *)p_m_Length - 2);
         MemFile_WriteData(memFile, 4ui64, &p);
-        __asm { vmovss  xmm1, dword ptr [rbx]; value }
-        MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-        p = *((_DWORD *)_RBX - 1);
+        MemFile_WriteFloat(memFile, *p_m_Length);
+        p = *((_DWORD *)p_m_Length - 1);
         MemFile_WriteData(memFile, 4ui64, &p);
-        __asm { vmovss  xmm1, dword ptr [rbx+4]; value }
-        MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-        __asm { vmovss  xmm1, dword ptr [rbx+8]; value }
-        MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+        MemFile_WriteFloat(memFile, p_m_Length[1]);
+        MemFile_WriteFloat(memFile, p_m_Length[2]);
         ++v4;
-        _RBX += 12;
+        p_m_Length += 12;
       }
       while ( v4 < this->m_Path.m_NumPoints );
     }

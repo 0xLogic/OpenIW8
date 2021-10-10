@@ -27,201 +27,162 @@ FFT
 */
 void FFT(float *data_inoutX, float *data_inoutY, unsigned int log2_count, int *bitSwap, complex_t *trigTable)
 {
-  char v10; 
-  unsigned int v13; 
-  char v14; 
-  unsigned int v15; 
+  char v5; 
+  unsigned int v8; 
+  char v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
   __int64 v16; 
   __int64 v17; 
   __int64 v18; 
   __int64 v19; 
-  __int64 v20; 
+  unsigned int v20; 
   __int64 v21; 
-  __int64 v22; 
+  float v22; 
   __int64 v23; 
-  __int64 v24; 
-  unsigned int v25; 
-  unsigned int v59; 
-  char v60; 
-  unsigned int v62; 
-  int v63; 
-  __int64 v90; 
-  int v92[512]; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int64 v30; 
+  __int64 v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  unsigned int v37; 
+  char v38; 
+  unsigned int v39; 
+  int v40; 
+  __int64 v41; 
+  __m128 v50; 
+  __int64 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __int64 v55; 
+  int v57[512]; 
 
-  v10 = log2_count;
-  _RSI = data_inoutY;
-  _R14 = data_inoutX;
+  v5 = log2_count;
   if ( ((unsigned __int8)data_inoutX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 55, ASSERT_TYPE_ASSERT, "(!((uintptr_t)data_inoutX & 15))", (const char *)&queryFormat, "!((uintptr_t)data_inoutX & 15)") )
     __debugbreak();
-  if ( ((unsigned __int8)_RSI & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 56, ASSERT_TYPE_ASSERT, "(!((uintptr_t)data_inoutY & 15))", (const char *)&queryFormat, "!((uintptr_t)data_inoutY & 15)") )
+  if ( ((unsigned __int8)data_inoutY & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 56, ASSERT_TYPE_ASSERT, "(!((uintptr_t)data_inoutY & 15))", (const char *)&queryFormat, "!((uintptr_t)data_inoutY & 15)") )
     __debugbreak();
-  v13 = 1 << v10;
-  if ( ((1 << v10) & 3) != 0 )
+  v8 = 1 << v5;
+  if ( ((1 << v5) & 3) != 0 )
   {
-    LODWORD(v90) = 1 << v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 60, ASSERT_TYPE_ASSERT, "( ( !(count & 3) ) )", "( count ) = %i", v90) )
+    LODWORD(v55) = 1 << v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 60, ASSERT_TYPE_ASSERT, "( ( !(count & 3) ) )", "( count ) = %i", v55) )
       __debugbreak();
   }
-  v14 = 8 - v10;
-  __asm
+  v9 = 8 - v5;
+  if ( v8 )
   {
-    vmovaps [rsp+900h+var_50], xmm6
-    vmovaps [rsp+900h+var_60], xmm7
+    v10 = 2;
+    do
+    {
+      v11 = v10 - 2;
+      v12 = v11;
+      v13 = v10;
+      v14 = (unsigned int)(bitSwap[v11] >> v9);
+      v15 = (unsigned int)(bitSwap[v10] >> v9);
+      v57[v14] = LODWORD(data_inoutX[v11]);
+      v16 = v10 - 1;
+      v17 = v10 + 1;
+      v10 += 4;
+      v18 = (unsigned int)(bitSwap[v16] >> v9);
+      v57[v18] = LODWORD(data_inoutX[v16]);
+      v57[v15] = LODWORD(data_inoutX[v13]);
+      v19 = (unsigned int)(bitSwap[v17] >> v9);
+      v57[v19] = LODWORD(data_inoutX[v17]);
+      v57[v14 + 256] = LODWORD(data_inoutY[v12]);
+      v57[v18 + 256] = LODWORD(data_inoutY[v16]);
+      v57[v15 + 256] = LODWORD(data_inoutY[v13]);
+      v57[v19 + 256] = LODWORD(data_inoutY[v17]);
+    }
+    while ( v10 - 2 < v8 );
+    v20 = 3;
+    do
+    {
+      v21 = v20;
+      v22 = *(float *)&v57[v20 - 2];
+      v23 = v20 - 2;
+      v24 = *(float *)&v57[v20 - 3];
+      v25 = *(float *)&v57[v20 + 256];
+      v26 = v24 + v22;
+      v27 = *(float *)&v57[v23 + 256];
+      v28 = v24 - v22;
+      v29 = *(float *)&v57[v20];
+      v30 = v20 - 3;
+      v31 = v20 - 1;
+      v32 = *(float *)&v57[v31];
+      v33 = v32 + v29;
+      v34 = v32 - v29;
+      v35 = *(float *)&v57[v31 + 256];
+      v36 = *(float *)&v57[v30 + 256];
+      data_inoutX[v30] = v33 + v26;
+      data_inoutX[v31] = v26 - v33;
+      data_inoutX[v23] = v28 - (float)(v35 - v25);
+      v20 += 4;
+      data_inoutX[v21] = (float)(v35 - v25) + v28;
+      data_inoutY[v30] = (float)(v35 + v25) + (float)(v36 + v27);
+      data_inoutY[v31] = (float)(v36 + v27) - (float)(v35 + v25);
+      data_inoutY[v23] = (float)(v36 - v27) + v34;
+      data_inoutY[v21] = (float)(v36 - v27) - v34;
+    }
+    while ( v20 - 3 < v8 );
   }
-  if ( v13 )
+  v37 = 4;
+  v38 = 5;
+  if ( v8 > 4 )
   {
-    __asm { vmovaps [rsp+900h+var_70], xmm8 }
-    v15 = 2;
-    __asm
-    {
-      vmovaps [rsp+900h+var_80], xmm9
-      vmovaps [rsp+900h+var_90], xmm10
-    }
     do
     {
-      v16 = v15 - 2;
-      v17 = v16;
-      v18 = v15;
-      v19 = (unsigned int)(bitSwap[v16] >> v14);
-      v20 = (unsigned int)(bitSwap[v15] >> v14);
-      v92[v19] = LODWORD(_R14[v16]);
-      v21 = v15 - 1;
-      v22 = v15 + 1;
-      v15 += 4;
-      v23 = (unsigned int)(bitSwap[v21] >> v14);
-      v92[v23] = LODWORD(_R14[v21]);
-      v92[v20] = LODWORD(_R14[v18]);
-      v24 = (unsigned int)(bitSwap[v22] >> v14);
-      v92[v24] = LODWORD(_R14[v22]);
-      v92[v19 + 256] = LODWORD(_RSI[v17]);
-      v92[v23 + 256] = LODWORD(_RSI[v21]);
-      v92[v20 + 256] = LODWORD(_RSI[v18]);
-      v92[v24 + 256] = LODWORD(_RSI[v22]);
-    }
-    while ( v15 - 2 < v13 );
-    v25 = 3;
-    do
-    {
-      _RAX = v25 - 2;
-      _R8 = v25;
-      __asm { vmovss  xmm1, [rsp+rax*4+900h+var_8A0] }
-      _R9 = _RAX;
-      _RAX = v25 - 3;
-      __asm
+      v39 = 2 * v37;
+      if ( v37 )
       {
-        vmovss  xmm0, [rsp+rax*4+900h+var_8A0]
-        vmovss  xmm3, [rbp+r8*4+800h+var_4A0]
-        vaddss  xmm8, xmm0, xmm1
-        vmovss  xmm2, [rbp+r9*4+800h+var_4A0]
-        vsubss  xmm10, xmm0, xmm1
-        vmovss  xmm1, [rsp+r8*4+900h+var_8A0]
-      }
-      _RDX = _RAX;
-      _RAX = v25 - 1;
-      __asm
-      {
-        vmovss  xmm0, [rsp+rax*4+900h+var_8A0]
-        vaddss  xmm4, xmm0, xmm1
-        vsubss  xmm9, xmm0, xmm1
-        vmovss  xmm0, [rbp+rax*4+800h+var_4A0]
-        vmovss  xmm1, [rbp+rdx*4+800h+var_4A0]
-        vaddss  xmm6, xmm1, xmm2
-        vsubss  xmm7, xmm1, xmm2
-        vsubss  xmm2, xmm0, xmm3
-        vaddss  xmm5, xmm0, xmm3
-        vaddss  xmm0, xmm4, xmm8
-        vmovss  dword ptr [r14+rdx*4], xmm0
-        vsubss  xmm0, xmm8, xmm4
-        vmovss  dword ptr [r14+rax*4], xmm0
-        vsubss  xmm1, xmm10, xmm2
-        vmovss  dword ptr [r14+r9*4], xmm1
-        vaddss  xmm0, xmm5, xmm6
-        vaddss  xmm1, xmm2, xmm10
-      }
-      v25 += 4;
-      __asm
-      {
-        vmovss  dword ptr [r14+r8*4], xmm1
-        vaddss  xmm1, xmm7, xmm9
-        vmovss  dword ptr [rsi+rdx*4], xmm0
-        vsubss  xmm0, xmm6, xmm5
-        vmovss  dword ptr [rsi+rax*4], xmm0
-        vmovss  dword ptr [rsi+r9*4], xmm1
-        vsubss  xmm1, xmm7, xmm9
-        vmovss  dword ptr [rsi+r8*4], xmm1
-      }
-    }
-    while ( v25 - 3 < v13 );
-    __asm
-    {
-      vmovaps xmm10, [rsp+900h+var_90]
-      vmovaps xmm9, [rsp+900h+var_80]
-      vmovaps xmm8, [rsp+900h+var_70]
-    }
-  }
-  v59 = 4;
-  v60 = 5;
-  if ( v13 > 4 )
-  {
-    _RDI = trigTable;
-    do
-    {
-      v62 = 2 * v59;
-      if ( v59 )
-      {
-        v63 = 2;
+        v40 = 2;
         do
         {
-          _R11 = (unsigned int)(v63 - 2);
-          _RAX = (unsigned int)((v63 - 2) << v60);
-          _R9 = _RAX;
+          v41 = (unsigned int)(v40 - 2);
+          _XMM6 = LODWORD(trigTable[(v40 - 2) << v38].real);
+          __asm { vinsertps xmm6, xmm6, dword ptr [rdi+r8*8], 10h }
+          _XMM7 = LODWORD(trigTable[(v40 - 2) << v38].imag);
           __asm
           {
-            vmovss  xmm6, dword ptr [rdi+rax*8]
-            vinsertps xmm6, xmm6, dword ptr [rdi+r8*8], 10h
-            vmovss  xmm7, dword ptr [rdi+r9*8+4]
             vinsertps xmm7, xmm7, dword ptr [rdi+r8*8+4], 10h
             vinsertps xmm7, xmm7, dword ptr [rdi+rdx*8+4], 20h ; ' '
             vinsertps xmm6, xmm6, dword ptr [rdi+rdx*8], 20h ; ' '
             vinsertps xmm6, xmm6, dword ptr [rdi+rax*8], 30h ; '0'
             vinsertps xmm7, xmm7, dword ptr [rdi+rax*8+4], 30h ; '0'
           }
-          for ( ; (unsigned int)_R11 < v13; _R11 = v62 + (unsigned int)_R11 )
+          for ( ; (unsigned int)v41 < v8; v41 = v39 + (unsigned int)v41 )
           {
-            __asm { vmovups xmm3, xmmword ptr [r14+r11*4] }
-            _RAX = v59 + (unsigned int)_R11;
-            __asm
-            {
-              vmulps  xmm1, xmm6, xmmword ptr [r14+rax*4]
-              vmulps  xmm0, xmm7, xmmword ptr [rsi+rax*4]
-              vmulps  xmm2, xmm6, xmmword ptr [rsi+rax*4]
-              vsubps  xmm5, xmm1, xmm0
-              vmulps  xmm0, xmm7, xmmword ptr [r14+rax*4]
-              vaddps  xmm4, xmm2, xmm0
-              vmovups xmm0, xmmword ptr [rsi+r11*4]
-              vsubps  xmm2, xmm0, xmm4
-              vsubps  xmm1, xmm3, xmm5
-              vaddps  xmm4, xmm4, xmm0
-              vaddps  xmm3, xmm5, xmm3
-              vmovups xmmword ptr [rsi+rax*4], xmm2
-              vmovups xmmword ptr [r14+rax*4], xmm1
-              vmovups xmmword ptr [rsi+r11*4], xmm4
-              vmovups xmmword ptr [r14+r11*4], xmm3
-            }
+            v50 = *(__m128 *)&data_inoutX[v41];
+            v51 = v37 + (unsigned int)v41;
+            v52 = _mm128_sub_ps(_mm128_mul_ps(_XMM6, *(__m128 *)&data_inoutX[v51]), _mm128_mul_ps(_XMM7, *(__m128 *)&data_inoutY[v51]));
+            v53 = _mm128_add_ps(_mm128_mul_ps(_XMM6, *(__m128 *)&data_inoutY[v51]), _mm128_mul_ps(_XMM7, *(__m128 *)&data_inoutX[v51]));
+            v54 = *(__m128 *)&data_inoutY[v41];
+            *(__m128 *)&data_inoutY[v51] = _mm128_sub_ps(v54, v53);
+            *(__m128 *)&data_inoutX[v51] = _mm128_sub_ps(v50, v52);
+            *(__m128 *)&data_inoutY[v41] = _mm128_add_ps(v53, v54);
+            *(__m128 *)&data_inoutX[v41] = _mm128_add_ps(v52, v50);
           }
-          v63 += 4;
+          v40 += 4;
         }
-        while ( v63 - 2 < v59 );
+        while ( v40 - 2 < v37 );
       }
-      --v60;
-      v59 *= 2;
+      --v38;
+      v37 *= 2;
     }
-    while ( v62 < v13 );
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+900h+var_60]
-    vmovaps xmm6, [rsp+900h+var_50]
+    while ( v39 < v8 );
   }
 }
 
@@ -232,68 +193,59 @@ FFT_Init
 */
 void FFT_Init(int *fftBitswap, complex_t *fftTrigTable)
 {
-  int *v5; 
+  int *v3; 
   int i; 
-  int v8; 
+  int v5; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v5 = fftBitswap;
+  v3 = fftBitswap;
   if ( !fftBitswap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 10, ASSERT_TYPE_ASSERT, "(fftBitswap)", (const char *)&queryFormat, "fftBitswap") )
     __debugbreak();
   if ( !fftTrigTable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\fft.cpp", 11, ASSERT_TYPE_ASSERT, "(fftTrigTable)", (const char *)&queryFormat, "fftTrigTable") )
     __debugbreak();
-  __asm { vmovss  xmm6, cs:__real@3cc90fdb }
   for ( i = 0; i < 256; ++i )
   {
-    *v5 = 0;
-    v8 = 0;
+    *v3 = 0;
+    v5 = 0;
     if ( (i & 1) != 0 )
     {
-      v8 = 128;
-      *v5 = 128;
+      v5 = 128;
+      *v3 = 128;
     }
     if ( (i & 2) != 0 )
     {
-      v8 |= 0x40u;
-      *v5 = v8;
+      v5 |= 0x40u;
+      *v3 = v5;
     }
     if ( (i & 4) != 0 )
     {
-      v8 |= 0x20u;
-      *v5 = v8;
+      v5 |= 0x20u;
+      *v3 = v5;
     }
     if ( (i & 8) != 0 )
     {
-      v8 |= 0x10u;
-      *v5 = v8;
+      v5 |= 0x10u;
+      *v3 = v5;
     }
     if ( (i & 0x10) != 0 )
     {
-      v8 |= 8u;
-      *v5 = v8;
+      v5 |= 8u;
+      *v3 = v5;
     }
     if ( (i & 0x20) != 0 )
     {
-      v8 |= 4u;
-      *v5 = v8;
+      v5 |= 4u;
+      *v3 = v5;
     }
     if ( (i & 0x40) != 0 )
     {
-      v8 |= 2u;
-      *v5 = v8;
+      v5 |= 2u;
+      *v3 = v5;
     }
     if ( (i & 0x80u) != 0 )
-      *v5 = v8 | 1;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm0, xmm0, xmm6; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, &fftTrigTable->imag, (float *)fftTrigTable);
+      *v3 = v5 | 1;
+    FastSinCos((float)i * 0.024543693, &fftTrigTable->imag, (float *)fftTrigTable);
     ++fftTrigTable;
-    ++v5;
+    ++v3;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 

@@ -426,12 +426,15 @@ void deskey(const unsigned __int8 *key, __int16 edf, unsigned int *keyout)
   __int64 v176; 
   int v177; 
   unsigned int v178; 
-  unsigned int v185; 
-  __int64 v186; 
-  int v188[32]; 
-  _BYTE v189[96]; 
-  _BYTE v190[64]; 
-  char v191[56]; 
+  __m256i v179; 
+  __m256i v180; 
+  __m256i v181; 
+  unsigned int v183; 
+  __int64 v184; 
+  int v186[32]; 
+  _BYTE v187[96]; 
+  _BYTE v188[64]; 
+  char v189[56]; 
 
   v3 = edf;
   v5 = 0i64;
@@ -440,64 +443,64 @@ void deskey(const unsigned __int8 *key, __int16 edf, unsigned int *keyout)
   {
     v7 = bytebit[pc1[v5] & 7];
     v8 = pc1[v5 + 1];
-    v190[v5 + 32] = (v7 & key[(unsigned __int64)pc1[v5] >> 3]) == v7;
+    v188[v5 + 32] = (v7 & key[(unsigned __int64)pc1[v5] >> 3]) == v7;
     v9 = bytebit[v8 & 7];
     v10 = v9 & key[v8 >> 3];
     v11 = pc1[v5 + 2];
-    v190[v5 + 33] = v10 == v9;
+    v188[v5 + 33] = v10 == v9;
     v12 = bytebit[v11 & 7];
     v13 = v12 & key[v11 >> 3];
     v14 = pc1[v5 + 3];
-    v190[v5 + 34] = v13 == v12;
+    v188[v5 + 34] = v13 == v12;
     v15 = bytebit[v14 & 7];
     v16 = key[v14 >> 3];
     v17 = pc1[v5 + 4];
-    v190[v5 + 35] = (v15 & v16) == v15;
+    v188[v5 + 35] = (v15 & v16) == v15;
     v18 = bytebit[v17 & 7];
     v19 = key[v17 >> 3];
     v20 = pc1[v5 + 5];
-    v190[v5 + 36] = (v18 & v19) == v18;
+    v188[v5 + 36] = (v18 & v19) == v18;
     v21 = bytebit[v20 & 7];
     v22 = key[v20 >> 3];
     v23 = pc1[v5 + 6];
-    v190[v5 + 37] = (v21 & v22) == v21;
+    v188[v5 + 37] = (v21 & v22) == v21;
     v24 = bytebit[v23 & 7];
     v25 = key[v23 >> 3];
     v26 = pc1[v5 + 7];
-    v190[v5 + 38] = (v24 & v25) == v24;
+    v188[v5 + 38] = (v24 & v25) == v24;
     v27 = bytebit[v26 & 7];
     v28 = key[v26 >> 3];
     v29 = pc1[v5 + 8];
-    v190[v5 + 39] = (v27 & v28) == v27;
+    v188[v5 + 39] = (v27 & v28) == v27;
     v5 += 14i64;
     v30 = bytebit[v29 & 7];
     v31 = v30 & key[v29 >> 3];
     v32 = *((unsigned __int8 *)&bigbyte[22] + v5 + 3);
-    v190[v5 + 26] = v31 == v30;
+    v188[v5 + 26] = v31 == v30;
     v33 = bytebit[v32 & 7];
     v34 = key[v32 >> 3];
     v35 = *((unsigned __int8 *)&bigbyte[23] + v5);
-    v190[v5 + 27] = (v33 & v34) == v33;
+    v188[v5 + 27] = (v33 & v34) == v33;
     v36 = bytebit[v35 & 7];
     v37 = key[v35 >> 3];
     v38 = *((unsigned __int8 *)&bigbyte[23] + v5 + 1);
-    v190[v5 + 28] = (v36 & v37) == v36;
+    v188[v5 + 28] = (v36 & v37) == v36;
     v39 = bytebit[v38 & 7];
     v40 = key[v38 >> 3];
     v41 = *((unsigned __int8 *)&bigbyte[23] + v5 + 2);
-    v190[v5 + 29] = (v39 & v40) == v39;
+    v188[v5 + 29] = (v39 & v40) == v39;
     v42 = bytebit[v41 & 7];
     v43 = key[v41 >> 3];
     v44 = *((unsigned __int8 *)&bigbyte[23] + v5 + 3);
-    v190[v5 + 30] = (v42 & v43) == v42;
+    v188[v5 + 30] = (v42 & v43) == v42;
     v45 = bytebit[v44 & 7];
-    v190[v5 + 31] = (v45 & key[v44 >> 3]) == v45;
+    v188[v5 + 31] = (v45 & key[v44 >> 3]) == v45;
     --v6;
   }
   while ( v6 );
   v46 = 0;
-  v186 = 0i64;
-  v185 = 0;
+  v184 = 0i64;
+  v183 = 0;
   v47 = 0i64;
   do
   {
@@ -509,8 +512,8 @@ void deskey(const unsigned __int8 *key, __int16 edf, unsigned int *keyout)
     v50 = v48;
     v51 = totrot[v47];
     v52 = v49;
-    v188[v49] = 0;
-    v188[v50] = 0;
+    v186[v49] = 0;
+    v186[v50] = 0;
     v53 = (unsigned int)(v51 + 1);
     v54 = (unsigned int)(v51 + 2);
     v55 = (unsigned int)(v51 + 3);
@@ -521,357 +524,357 @@ void deskey(const unsigned __int8 *key, __int16 edf, unsigned int *keyout)
     v60 = (unsigned int)(v51 + 8);
     v61 = (unsigned int)(v51 + 9);
     if ( (unsigned int)v51 >= 0x1C )
-      v191[0] = v190[(unsigned int)(v51 - 28) + 32];
+      v189[0] = v188[(unsigned int)(v51 - 28) + 32];
     else
-      v191[0] = v190[v51 + 32];
+      v189[0] = v188[v51 + 32];
     if ( (unsigned int)v53 >= 0x1C )
-      v62 = v190[(unsigned int)(v51 - 27) + 32];
+      v62 = v188[(unsigned int)(v51 - 27) + 32];
     else
-      v62 = v190[v53 + 32];
-    v191[1] = v62;
+      v62 = v188[v53 + 32];
+    v189[1] = v62;
     if ( (unsigned int)v54 >= 0x1C )
-      v63 = v190[(unsigned int)(v51 - 26) + 32];
+      v63 = v188[(unsigned int)(v51 - 26) + 32];
     else
-      v63 = v190[v54 + 32];
-    v191[2] = v63;
+      v63 = v188[v54 + 32];
+    v189[2] = v63;
     if ( (unsigned int)v55 >= 0x1C )
-      v64 = v190[(unsigned int)(v51 - 25) + 32];
+      v64 = v188[(unsigned int)(v51 - 25) + 32];
     else
-      v64 = v190[v55 + 32];
-    v191[3] = v64;
+      v64 = v188[v55 + 32];
+    v189[3] = v64;
     if ( (unsigned int)v56 >= 0x1C )
-      v65 = v190[(unsigned int)(v51 - 24) + 32];
+      v65 = v188[(unsigned int)(v51 - 24) + 32];
     else
-      v65 = v190[v56 + 32];
-    v191[4] = v65;
+      v65 = v188[v56 + 32];
+    v189[4] = v65;
     if ( (unsigned int)v57 >= 0x1C )
-      v66 = v190[(unsigned int)(v51 - 23) + 32];
+      v66 = v188[(unsigned int)(v51 - 23) + 32];
     else
-      v66 = v190[v57 + 32];
-    v191[5] = v66;
+      v66 = v188[v57 + 32];
+    v189[5] = v66;
     if ( (unsigned int)v58 >= 0x1C )
-      v67 = v190[(unsigned int)(v51 - 22) + 32];
+      v67 = v188[(unsigned int)(v51 - 22) + 32];
     else
-      v67 = v190[v58 + 32];
-    v191[6] = v67;
+      v67 = v188[v58 + 32];
+    v189[6] = v67;
     if ( (unsigned int)v59 >= 0x1C )
-      v68 = v190[(unsigned int)(v51 - 21) + 32];
+      v68 = v188[(unsigned int)(v51 - 21) + 32];
     else
-      v68 = v190[v59 + 32];
-    v191[7] = v68;
+      v68 = v188[v59 + 32];
+    v189[7] = v68;
     if ( (unsigned int)v60 >= 0x1C )
-      v69 = v190[(unsigned int)(v51 - 20) + 32];
+      v69 = v188[(unsigned int)(v51 - 20) + 32];
     else
-      v69 = v190[v60 + 32];
-    v191[8] = v69;
+      v69 = v188[v60 + 32];
+    v189[8] = v69;
     if ( (unsigned int)v61 >= 0x1C )
-      v70 = v190[(unsigned int)(v51 - 19) + 32];
+      v70 = v188[(unsigned int)(v51 - 19) + 32];
     else
-      v70 = v190[v61 + 32];
+      v70 = v188[v61 + 32];
     v71 = (unsigned int)(v51 + 10);
-    v191[9] = v70;
+    v189[9] = v70;
     if ( (unsigned int)v71 >= 0x1C )
       v71 = (unsigned int)(v51 - 18);
-    v72 = v190[v71 + 32];
+    v72 = v188[v71 + 32];
     v73 = (unsigned int)(v51 + 11);
-    v191[10] = v72;
+    v189[10] = v72;
     if ( (unsigned int)v73 >= 0x1C )
       v73 = (unsigned int)(v51 - 17);
-    v74 = v190[v73 + 32];
+    v74 = v188[v73 + 32];
     v75 = (unsigned int)(v51 + 12);
-    v191[11] = v74;
+    v189[11] = v74;
     if ( (unsigned int)v75 >= 0x1C )
       v75 = (unsigned int)(v51 - 16);
-    v76 = v190[v75 + 32];
+    v76 = v188[v75 + 32];
     v77 = (unsigned int)(v51 + 13);
-    v191[12] = v76;
+    v189[12] = v76;
     if ( (unsigned int)v77 >= 0x1C )
       v77 = (unsigned int)(v51 - 15);
-    v78 = v190[v77 + 32];
+    v78 = v188[v77 + 32];
     v79 = (unsigned int)(v51 + 14);
-    v191[13] = v78;
+    v189[13] = v78;
     if ( (unsigned int)v79 >= 0x1C )
       v79 = (unsigned int)(v51 - 14);
-    v80 = v190[v79 + 32];
+    v80 = v188[v79 + 32];
     v81 = (unsigned int)(v51 + 15);
-    v191[14] = v80;
+    v189[14] = v80;
     if ( (unsigned int)v81 >= 0x1C )
       v81 = (unsigned int)(v51 - 13);
-    v82 = v190[v81 + 32];
+    v82 = v188[v81 + 32];
     v83 = (unsigned int)(v51 + 16);
-    v191[15] = v82;
+    v189[15] = v82;
     if ( (unsigned int)v83 >= 0x1C )
       v83 = (unsigned int)(v51 - 12);
-    v84 = v190[v83 + 32];
+    v84 = v188[v83 + 32];
     v85 = (unsigned int)(v51 + 17);
-    v191[16] = v84;
+    v189[16] = v84;
     if ( (unsigned int)v85 >= 0x1C )
       v85 = (unsigned int)(v51 - 11);
-    v86 = v190[v85 + 32];
+    v86 = v188[v85 + 32];
     v87 = (unsigned int)(v51 + 18);
-    v191[17] = v86;
+    v189[17] = v86;
     if ( (unsigned int)v87 >= 0x1C )
       v87 = (unsigned int)(v51 - 10);
-    v88 = v190[v87 + 32];
+    v88 = v188[v87 + 32];
     v89 = (unsigned int)(v51 + 19);
-    v191[18] = v88;
+    v189[18] = v88;
     if ( (unsigned int)v89 >= 0x1C )
       v89 = (unsigned int)(v51 - 9);
-    v90 = v190[v89 + 32];
+    v90 = v188[v89 + 32];
     v91 = (unsigned int)(v51 + 20);
-    v191[19] = v90;
+    v189[19] = v90;
     if ( (unsigned int)v91 >= 0x1C )
       v91 = (unsigned int)(v51 - 8);
-    v92 = v190[v91 + 32];
+    v92 = v188[v91 + 32];
     v93 = (unsigned int)(v51 + 21);
-    v191[20] = v92;
+    v189[20] = v92;
     if ( (unsigned int)v93 >= 0x1C )
       v93 = (unsigned int)(v51 - 7);
-    v94 = v190[v93 + 32];
+    v94 = v188[v93 + 32];
     v95 = (unsigned int)(v51 + 22);
-    v191[21] = v94;
+    v189[21] = v94;
     if ( (unsigned int)v95 >= 0x1C )
       v95 = (unsigned int)(v51 - 6);
-    v96 = v190[v95 + 32];
+    v96 = v188[v95 + 32];
     v97 = (unsigned int)(v51 + 23);
-    v191[22] = v96;
+    v189[22] = v96;
     if ( (unsigned int)v97 >= 0x1C )
       v97 = (unsigned int)(v51 - 5);
-    v98 = v190[v97 + 32];
+    v98 = v188[v97 + 32];
     v99 = (unsigned int)(v51 + 24);
-    v191[23] = v98;
+    v189[23] = v98;
     if ( (unsigned int)v99 >= 0x1C )
       v99 = (unsigned int)(v51 - 4);
-    v100 = v190[v99 + 32];
+    v100 = v188[v99 + 32];
     v101 = (unsigned int)(v51 + 25);
-    v191[24] = v100;
+    v189[24] = v100;
     if ( (unsigned int)v101 >= 0x1C )
       v101 = (unsigned int)(v51 - 3);
-    v102 = v190[v101 + 32];
+    v102 = v188[v101 + 32];
     v103 = (unsigned int)(v51 + 26);
-    v191[25] = v102;
+    v189[25] = v102;
     if ( (unsigned int)v103 >= 0x1C )
       v103 = (unsigned int)(v51 - 2);
-    v104 = v190[v103 + 32];
+    v104 = v188[v103 + 32];
     v105 = (unsigned int)(v51 + 27);
-    v191[26] = v104;
+    v189[26] = v104;
     if ( (unsigned int)v105 >= 0x1C )
       v105 = (unsigned int)(v51 - 1);
-    v106 = v190[v105 + 32];
+    v106 = v188[v105 + 32];
     v107 = (unsigned int)(v51 + 28);
-    v191[27] = v106;
+    v189[27] = v106;
     if ( (unsigned int)v107 >= 0x38 )
       v107 = (unsigned int)v51;
-    v108 = v190[v107 + 32];
+    v108 = v188[v107 + 32];
     v109 = (unsigned int)(v51 + 29);
-    v191[28] = v108;
+    v189[28] = v108;
     if ( (unsigned int)v109 >= 0x38 )
       v109 = (unsigned int)(v51 + 1);
-    v110 = v190[v109 + 32];
+    v110 = v188[v109 + 32];
     v111 = (unsigned int)(v51 + 30);
-    v191[29] = v110;
+    v189[29] = v110;
     if ( (unsigned int)v111 >= 0x38 )
       v111 = (unsigned int)(v51 + 2);
-    v112 = v190[v111 + 32];
+    v112 = v188[v111 + 32];
     v113 = (unsigned int)(v51 + 31);
-    v191[30] = v112;
+    v189[30] = v112;
     if ( (unsigned int)v113 >= 0x38 )
       v113 = (unsigned int)(v51 + 3);
-    v114 = v190[v113 + 32];
+    v114 = v188[v113 + 32];
     v115 = (unsigned int)(v51 + 32);
-    v191[31] = v114;
+    v189[31] = v114;
     if ( (unsigned int)v115 >= 0x38 )
       v115 = (unsigned int)(v51 + 4);
-    v116 = v190[v115 + 32];
+    v116 = v188[v115 + 32];
     v117 = (unsigned int)(v51 + 33);
-    v191[32] = v116;
+    v189[32] = v116;
     if ( (unsigned int)v117 >= 0x38 )
       v117 = (unsigned int)(v51 + 5);
-    v118 = v190[v117 + 32];
+    v118 = v188[v117 + 32];
     v119 = (unsigned int)(v51 + 34);
-    v191[33] = v118;
+    v189[33] = v118;
     if ( (unsigned int)v119 >= 0x38 )
       v119 = (unsigned int)(v51 + 6);
-    v120 = v190[v119 + 32];
+    v120 = v188[v119 + 32];
     v121 = (unsigned int)(v51 + 35);
-    v191[34] = v120;
+    v189[34] = v120;
     if ( (unsigned int)v121 >= 0x38 )
       v121 = (unsigned int)(v51 + 7);
-    v122 = v190[v121 + 32];
+    v122 = v188[v121 + 32];
     v123 = (unsigned int)(v51 + 36);
-    v191[35] = v122;
+    v189[35] = v122;
     if ( (unsigned int)v123 >= 0x38 )
       v123 = (unsigned int)(v51 + 8);
-    v124 = v190[v123 + 32];
+    v124 = v188[v123 + 32];
     v125 = (unsigned int)(v51 + 37);
-    v191[36] = v124;
+    v189[36] = v124;
     if ( (unsigned int)v125 >= 0x38 )
       v125 = (unsigned int)(v51 + 9);
-    v126 = v190[v125 + 32];
+    v126 = v188[v125 + 32];
     v127 = (unsigned int)(v51 + 38);
-    v191[37] = v126;
+    v189[37] = v126;
     if ( (unsigned int)v127 >= 0x38 )
       v127 = (unsigned int)(v51 + 10);
-    v128 = v190[v127 + 32];
+    v128 = v188[v127 + 32];
     v129 = (unsigned int)(v51 + 39);
-    v191[38] = v128;
+    v189[38] = v128;
     if ( (unsigned int)v129 >= 0x38 )
       v129 = (unsigned int)(v51 + 11);
-    v130 = v190[v129 + 32];
+    v130 = v188[v129 + 32];
     v131 = (unsigned int)(v51 + 40);
-    v191[39] = v130;
+    v189[39] = v130;
     if ( (unsigned int)v131 >= 0x38 )
       v131 = (unsigned int)(v51 + 12);
-    v132 = v190[v131 + 32];
+    v132 = v188[v131 + 32];
     v133 = (unsigned int)(v51 + 41);
-    v191[40] = v132;
+    v189[40] = v132;
     if ( (unsigned int)v133 >= 0x38 )
       v133 = (unsigned int)(v51 + 13);
-    v134 = v190[v133 + 32];
+    v134 = v188[v133 + 32];
     v135 = (unsigned int)(v51 + 42);
-    v191[41] = v134;
+    v189[41] = v134;
     if ( (unsigned int)v135 >= 0x38 )
       v135 = (unsigned int)(v51 + 14);
-    v136 = v190[v135 + 32];
+    v136 = v188[v135 + 32];
     v137 = (unsigned int)(v51 + 43);
-    v191[42] = v136;
+    v189[42] = v136;
     if ( (unsigned int)v137 >= 0x38 )
       v137 = (unsigned int)(v51 + 15);
-    v138 = v190[v137 + 32];
+    v138 = v188[v137 + 32];
     v139 = (unsigned int)(v51 + 44);
-    v191[43] = v138;
+    v189[43] = v138;
     if ( (unsigned int)v139 >= 0x38 )
       v139 = (unsigned int)(v51 + 16);
-    v140 = v190[v139 + 32];
+    v140 = v188[v139 + 32];
     v141 = (unsigned int)(v51 + 45);
-    v191[44] = v140;
+    v189[44] = v140;
     if ( (unsigned int)v141 >= 0x38 )
       v141 = (unsigned int)(v51 + 17);
-    v142 = v190[v141 + 32];
+    v142 = v188[v141 + 32];
     v143 = (unsigned int)(v51 + 46);
-    v191[45] = v142;
+    v189[45] = v142;
     if ( (unsigned int)v143 >= 0x38 )
       v143 = (unsigned int)(v51 + 18);
-    v144 = v190[v143 + 32];
+    v144 = v188[v143 + 32];
     v145 = (unsigned int)(v51 + 47);
-    v191[46] = v144;
+    v189[46] = v144;
     if ( (unsigned int)v145 >= 0x38 )
       v145 = (unsigned int)(v51 + 19);
-    v146 = v190[v145 + 32];
+    v146 = v188[v145 + 32];
     v147 = (unsigned int)(v51 + 48);
-    v191[47] = v146;
+    v189[47] = v146;
     if ( (unsigned int)v147 >= 0x38 )
       v147 = (unsigned int)(v51 + 20);
-    v148 = v190[v147 + 32];
+    v148 = v188[v147 + 32];
     v149 = (unsigned int)(v51 + 49);
-    v191[48] = v148;
+    v189[48] = v148;
     if ( (unsigned int)v149 >= 0x38 )
       v149 = (unsigned int)(v51 + 21);
-    v150 = v190[v149 + 32];
+    v150 = v188[v149 + 32];
     v151 = (unsigned int)(v51 + 50);
-    v191[49] = v150;
+    v189[49] = v150;
     if ( (unsigned int)v151 >= 0x38 )
       v151 = (unsigned int)(v51 + 22);
-    v152 = v190[v151 + 32];
+    v152 = v188[v151 + 32];
     v153 = (unsigned int)(v51 + 51);
-    v191[50] = v152;
+    v189[50] = v152;
     if ( (unsigned int)v153 >= 0x38 )
       v153 = (unsigned int)(v51 + 23);
-    v154 = v190[v153 + 32];
+    v154 = v188[v153 + 32];
     v155 = (unsigned int)(v51 + 52);
-    v191[51] = v154;
+    v189[51] = v154;
     if ( (unsigned int)v155 >= 0x38 )
       v155 = (unsigned int)(v51 + 24);
-    v156 = v190[v155 + 32];
+    v156 = v188[v155 + 32];
     v157 = (unsigned int)(v51 + 53);
-    v191[52] = v156;
+    v189[52] = v156;
     if ( (unsigned int)v157 >= 0x38 )
       v157 = (unsigned int)(v51 + 25);
-    v158 = v190[v157 + 32];
+    v158 = v188[v157 + 32];
     v159 = (unsigned int)(v51 + 54);
-    v191[53] = v158;
+    v189[53] = v158;
     if ( (unsigned int)v159 >= 0x38 )
       v159 = (unsigned int)(v51 + 26);
-    v160 = v190[v159 + 32];
+    v160 = v188[v159 + 32];
     v161 = (unsigned int)(v51 + 55);
-    v191[54] = v160;
+    v189[54] = v160;
     if ( (unsigned int)v161 >= 0x38 )
       v161 = (unsigned int)(v51 + 27);
-    v191[55] = v190[v161 + 32];
+    v189[55] = v188[v161 + 32];
     v162 = 1;
     do
     {
       v163 = (unsigned int)(v162 - 1);
-      if ( v191[pc2[v163]] )
-        v188[v50] |= bigbyte[v163];
-      if ( v191[pc2[v162 + 23]] )
-        v188[v52] |= bigbyte[v163];
-      if ( v191[pc2[v162]] )
-        v188[v50] |= bigbyte[v162];
-      if ( v191[pc2[v162 + 24]] )
-        v188[v52] |= bigbyte[v162];
+      if ( v189[pc2[v163]] )
+        v186[v50] |= bigbyte[v163];
+      if ( v189[pc2[v162 + 23]] )
+        v186[v52] |= bigbyte[v163];
+      if ( v189[pc2[v162]] )
+        v186[v50] |= bigbyte[v162];
+      if ( v189[pc2[v162 + 24]] )
+        v186[v52] |= bigbyte[v162];
       v164 = (unsigned int)(v162 + 1);
-      if ( v191[pc2[v164]] )
-        v188[v50] |= bigbyte[v164];
-      if ( v191[pc2[v162 + 25]] )
-        v188[v52] |= bigbyte[v164];
+      if ( v189[pc2[v164]] )
+        v186[v50] |= bigbyte[v164];
+      if ( v189[pc2[v162 + 25]] )
+        v186[v52] |= bigbyte[v164];
       v165 = (unsigned int)(v162 + 2);
-      if ( v191[pc2[v165]] )
-        v188[v50] |= bigbyte[v165];
-      if ( v191[pc2[v162 + 26]] )
-        v188[v52] |= bigbyte[v165];
+      if ( v189[pc2[v165]] )
+        v186[v50] |= bigbyte[v165];
+      if ( v189[pc2[v162 + 26]] )
+        v186[v52] |= bigbyte[v165];
       v166 = (unsigned int)(v162 + 3);
-      if ( v191[pc2[v166]] )
-        v188[v50] |= bigbyte[v166];
-      if ( v191[pc2[v162 + 27]] )
-        v188[v52] |= bigbyte[v166];
+      if ( v189[pc2[v166]] )
+        v186[v50] |= bigbyte[v166];
+      if ( v189[pc2[v162 + 27]] )
+        v186[v52] |= bigbyte[v166];
       v167 = (unsigned int)(v162 + 4);
-      if ( v191[pc2[v167]] )
-        v188[v50] |= bigbyte[v167];
-      if ( v191[pc2[v162 + 28]] )
-        v188[v52] |= bigbyte[v167];
+      if ( v189[pc2[v167]] )
+        v186[v50] |= bigbyte[v167];
+      if ( v189[pc2[v162 + 28]] )
+        v186[v52] |= bigbyte[v167];
       v168 = (unsigned int)(v162 + 5);
-      if ( v191[pc2[v168]] )
-        v188[v50] |= bigbyte[v168];
-      if ( v191[pc2[v162 + 29]] )
-        v188[v52] |= bigbyte[v168];
+      if ( v189[pc2[v168]] )
+        v186[v50] |= bigbyte[v168];
+      if ( v189[pc2[v162 + 29]] )
+        v186[v52] |= bigbyte[v168];
       v169 = (unsigned int)(v162 + 6);
-      if ( v191[pc2[v169]] )
-        v188[v50] |= bigbyte[v169];
-      if ( v191[pc2[v162 + 30]] )
-        v188[v52] |= bigbyte[v169];
+      if ( v189[pc2[v169]] )
+        v186[v50] |= bigbyte[v169];
+      if ( v189[pc2[v162 + 30]] )
+        v186[v52] |= bigbyte[v169];
       v170 = (unsigned int)(v162 + 7);
-      if ( v191[pc2[v170]] )
-        v188[v50] |= bigbyte[v170];
-      if ( v191[pc2[v162 + 31]] )
-        v188[v52] |= bigbyte[v170];
+      if ( v189[pc2[v170]] )
+        v186[v50] |= bigbyte[v170];
+      if ( v189[pc2[v162 + 31]] )
+        v186[v52] |= bigbyte[v170];
       v171 = (unsigned int)(v162 + 8);
-      if ( v191[pc2[v171]] )
-        v188[v50] |= bigbyte[v171];
-      if ( v191[pc2[v162 + 32]] )
-        v188[v52] |= bigbyte[v171];
+      if ( v189[pc2[v171]] )
+        v186[v50] |= bigbyte[v171];
+      if ( v189[pc2[v162 + 32]] )
+        v186[v52] |= bigbyte[v171];
       v172 = (unsigned int)(v162 + 9);
-      if ( v191[pc2[v172]] )
-        v188[v50] |= bigbyte[v172];
-      if ( v191[pc2[v162 + 33]] )
-        v188[v52] |= bigbyte[v172];
+      if ( v189[pc2[v172]] )
+        v186[v50] |= bigbyte[v172];
+      if ( v189[pc2[v162 + 33]] )
+        v186[v52] |= bigbyte[v172];
       v173 = (unsigned int)(v162 + 10);
-      if ( v191[pc2[v173]] )
-        v188[v50] |= bigbyte[v173];
-      if ( v191[pc2[v162 + 34]] )
-        v188[v52] |= bigbyte[v173];
+      if ( v189[pc2[v173]] )
+        v186[v50] |= bigbyte[v173];
+      if ( v189[pc2[v162 + 34]] )
+        v186[v52] |= bigbyte[v173];
       v162 += 12;
     }
     while ( (unsigned int)(v162 - 1) < 0x18 );
-    v46 = v185 + 1;
+    v46 = v183 + 1;
     v3 = edf;
-    v47 = v186 + 1;
-    v185 = v46;
-    ++v186;
+    v47 = v184 + 1;
+    v183 = v46;
+    ++v184;
   }
   while ( v46 < 0x10 );
-  v174 = v188;
-  v175 = v189;
+  v174 = v186;
+  v175 = v187;
   v176 = 16i64;
   do
   {
@@ -884,17 +887,12 @@ void deskey(const unsigned __int8 *key, __int16 edf, unsigned int *keyout)
     --v176;
   }
   while ( v176 );
-  _RAX = keyout;
-  __asm
-  {
-    vmovups ymm0, [rbp+0C0h+var_120]
-    vmovups ymm1, [rbp+0C0h+var_100]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm0, [rbp+0C0h+var_E0]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups ymm1, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovups ymmword ptr [rax+60h], ymm1
-  }
+  v179 = *(__m256i *)&v187[32];
+  *(__m256i *)keyout = *(__m256i *)v187;
+  v180 = *(__m256i *)&v187[64];
+  *((__m256i *)keyout + 1) = v179;
+  v181 = *(__m256i *)v188;
+  *((__m256i *)keyout + 2) = v180;
+  *((__m256i *)keyout + 3) = v181;
 }
 

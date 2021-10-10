@@ -459,7 +459,7 @@ void AgentScr_GetLookPosition(scrContext_t *scrContext, gagent_s *pSelf, const a
   unsigned __int64 v7; 
   int v8; 
   ActorLookAtInfo *p_lookAtInfo; 
-  __int64 v11; 
+  __int64 v10; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 664, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
@@ -475,13 +475,12 @@ void AgentScr_GetLookPosition(scrContext_t *scrContext, gagent_s *pSelf, const a
       {
         if ( (unsigned __int16)v8 >= 0x800u )
         {
-          LODWORD(v11) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 666, ASSERT_TYPE_ASSERT, "(unsigned)( pSelf->agentState.entityNum ) < (unsigned)( ( 2048 ) )", "pSelf->agentState.entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, 2048) )
+          LODWORD(v10) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 666, ASSERT_TYPE_ASSERT, "(unsigned)( pSelf->agentState.entityNum ) < (unsigned)( ( 2048 ) )", "pSelf->agentState.entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, 2048) )
             __debugbreak();
         }
-        __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
         p_lookAtInfo = &Agent_GetScriptedAgentInfo(&g_entities[p_agentState->entityNum])->lookAtInfo;
-        if ( !VecNCompareCustomEpsilon(p_lookAtInfo->vLookAtPos.v, ZERO_VEC_1.v, *(float *)&_XMM2, 3) )
+        if ( !VecNCompareCustomEpsilon(p_lookAtInfo->vLookAtPos.v, ZERO_VEC_1.v, 0.001, 3) )
           Scr_AddVector(scrContext, p_lookAtInfo->vLookAtPos.v);
       }
       else
@@ -507,7 +506,8 @@ void AgentScr_SetLookPosition(scrContext_t *scrContext, gagent_s *pSelf, const a
   int entityNum; 
   unsigned __int64 v7; 
   int v8; 
-  __int64 v13; 
+  ai_agent_t *ScriptedAgentInfo; 
+  __int64 v10; 
   vec3_t vectorValue; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 677, ASSERT_TYPE_ASSERT, "(pSelf)", (const char *)&queryFormat, "pSelf") )
@@ -524,28 +524,20 @@ void AgentScr_SetLookPosition(scrContext_t *scrContext, gagent_s *pSelf, const a
       {
         if ( (unsigned __int16)v8 >= 0x800u )
         {
-          LODWORD(v13) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 679, ASSERT_TYPE_ASSERT, "(unsigned)( pSelf->agentState.entityNum ) < (unsigned)( ( 2048 ) )", "pSelf->agentState.entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v13, 2048) )
+          LODWORD(v10) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_agent_fields.cpp", 679, ASSERT_TYPE_ASSERT, "(unsigned)( pSelf->agentState.entityNum ) < (unsigned)( ( 2048 ) )", "pSelf->agentState.entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, 2048) )
             __debugbreak();
         }
-        _RBX = Agent_GetScriptedAgentInfo(&g_entities[p_agentState->entityNum]);
+        ScriptedAgentInfo = Agent_GetScriptedAgentInfo(&g_entities[p_agentState->entityNum]);
         if ( Scr_GetType(scrContext, 0) )
         {
           Scr_GetVector(scrContext, 0, &vectorValue);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+88h+vectorValue]
-            vmovss  dword ptr [rbx+0C3Ch], xmm0
-            vmovss  xmm1, dword ptr [rsp+88h+vectorValue+4]
-            vmovss  dword ptr [rbx+0C40h], xmm1
-            vmovss  xmm0, dword ptr [rsp+88h+vectorValue+8]
-            vmovss  dword ptr [rbx+0C44h], xmm0
-          }
+          ScriptedAgentInfo->lookAtInfo.vLookAtPos = vectorValue;
         }
         else
         {
-          *(_QWORD *)_RBX->lookAtInfo.vLookAtPos.v = 0i64;
-          _RBX->lookAtInfo.vLookAtPos.v[2] = 0.0;
+          *(_QWORD *)ScriptedAgentInfo->lookAtInfo.vLookAtPos.v = 0i64;
+          ScriptedAgentInfo->lookAtInfo.vLookAtPos.v[2] = 0.0;
         }
       }
       else

@@ -426,89 +426,75 @@ void SV_MigrationEnd(void)
 SV_MigrationFrame
 ==============
 */
-
-void __fastcall SV_MigrationFrame(double _XMM0_8, double _XMM1_8)
+void SV_MigrationFrame()
 {
-  const dvar_t *v4; 
+  __int128 v0; 
+  const dvar_t *v1; 
   int integer; 
-  int v6; 
+  int v3; 
   int migrationCount; 
-  int v8; 
-  char v10; 
+  int v5; 
+  const dvar_t *v6; 
+  float value; 
+  const dvar_t *v8; 
+  float v9; 
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
-  const dvar_t *v22; 
-  int v23; 
+  int v12; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v14; 
+  int v15; 
   MigrationClient *clients; 
-  signed int v25; 
-  MigrationClient *v26; 
-  char v27; 
+  signed int v17; 
+  MigrationClient *v18; 
+  char v19; 
   unsigned int i; 
-  char *fmt; 
+  int v21; 
+  float totalSize; 
+  double v23; 
   msg_t buf; 
   unsigned __int8 data[1248]; 
+  __int128 v26; 
 
-  v4 = DCONST_DVARINT_migration_timeBetween;
+  v1 = DCONST_DVARINT_migration_timeBetween;
   if ( !DCONST_DVARINT_migration_timeBetween && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migration_timeBetween") )
     __debugbreak();
-  __asm { vmovaps [rsp+598h+var_18], xmm6 }
-  Dvar_CheckFrontendServerThread(v4);
-  integer = v4->current.integer;
-  v6 = Sys_Milliseconds();
+  Dvar_CheckFrontendServerThread(v1);
+  integer = v1->current.integer;
+  v3 = Sys_Milliseconds();
   migrationCount = migGlob.migrationCount;
-  v8 = 0;
-  if ( v6 - migGlob.migrationTime >= integer )
+  v5 = 0;
+  if ( v3 - migGlob.migrationTime >= integer )
     migrationCount = 0;
   migGlob.migrationCount = migrationCount;
   if ( !SvPersistentGlobalsMP::IsFrontEndServer() )
   {
-    _RBX = DCONST_DVARFLT_migrationStressRandTime;
+    v6 = DCONST_DVARFLT_migrationStressRandTime;
     if ( !DCONST_DVARFLT_migrationStressRandTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migrationStressRandTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v6);
+    value = v6->current.value;
+    if ( value >= 0.001 )
     {
-      vmovss  xmm1, cs:__real@3a83126f
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vcomiss xmm6, xmm1
-    }
-    if ( !v10 )
-    {
-      _RBX = DCONST_DVARFLT_migrationStressMinTime;
-      __asm
-      {
-        vmovaps [rsp+598h+var_28], xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm7, xmm0, xmm1
-      }
+      v8 = DCONST_DVARFLT_migrationStressMinTime;
+      v26 = v0;
+      v9 = (float)(level.time - g_migrationStressStartTime) * 0.001;
       if ( !DCONST_DVARFLT_migrationStressMinTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migrationStressMinTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm7, dword ptr [rbx+28h] }
-      if ( !v10 )
+      Dvar_CheckFrontendServerThread(v8);
+      if ( v9 >= v8->current.value )
       {
         ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-        __asm { vmovss  xmm7, cs:__real@447a0000 }
         FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm7
-          vcvttss2si eax, xmm0
-        }
-        if ( !G_irand(0, _EAX / FrameDuration) )
+        v12 = (int)(float)(value * 1000.0);
+        if ( !G_irand(0, v12 / FrameDuration) )
         {
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_migrationStressSaveLoadOnly, "migrationStressSaveLoadOnly") )
           {
             SV_HostMigrationSave_f();
             s_migrationStressTestSaveLoad = 1;
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_migrationStressMinTime, "migrationStressMinTime");
-            __asm
-            {
-              vmulss  xmm1, xmm0, xmm7
-              vcvttss2si eax, xmm1
-            }
-            g_migrationStressStartTime = level.time - _EAX + 1000;
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_migrationStressMinTime, "migrationStressMinTime");
+            g_migrationStressStartTime = level.time - (int)(float)(*(float *)&Float_Internal_DebugName * 1000.0) + 1000;
           }
           else
           {
@@ -516,20 +502,19 @@ void __fastcall SV_MigrationFrame(double _XMM0_8, double _XMM1_8)
           }
         }
       }
-      __asm { vmovaps xmm7, [rsp+598h+var_28] }
     }
   }
   if ( migGlob.active )
   {
     if ( !Sys_IsServerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_migration.cpp", 1145, ASSERT_TYPE_ASSERT, "(Sys_IsServerThread())", (const char *)&queryFormat, "Sys_IsServerThread()") )
       __debugbreak();
-    v22 = DCONST_DVARINT_migration_verboseBroadcastTime;
+    v14 = DCONST_DVARINT_migration_verboseBroadcastTime;
     if ( !DCONST_DVARINT_migration_verboseBroadcastTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migration_verboseBroadcastTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    v23 = v22->current.integer;
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = v14->current.integer;
     clients = migGlob.clients;
-    if ( Sys_Milliseconds() - migGlob.broadcastTime >= v23 )
+    if ( Sys_Milliseconds() - migGlob.broadcastTime >= v15 )
     {
       MSG_Init(&buf, data, 1237);
       MSG_WriteString(&buf, "mstate");
@@ -540,19 +525,19 @@ void __fastcall SV_MigrationFrame(double _XMM0_8, double _XMM1_8)
         __debugbreak();
       MSG_WriteBits(&buf, migGlob.verboseNewHost, ComCharacterLimits::ms_gameData.m_clientBits);
       MSG_WriteLong(&buf, migGlob.verboseData);
-      v25 = 0;
+      v17 = 0;
       migGlob.broadcastTime = Sys_Milliseconds();
       if ( (int)SvClient::ms_clientCount > 0 )
       {
-        v26 = migGlob.clients;
+        v18 = migGlob.clients;
         do
         {
-          if ( SvClient::GetCommonClient(v25)->state >= CS_CONNECTED && v26->state )
-            SendUnreliable(v25, buf.data, buf.cursize);
-          ++v25;
-          ++v26;
+          if ( SvClient::GetCommonClient(v17)->state >= CS_CONNECTED && v18->state )
+            SendUnreliable(v17, buf.data, buf.cursize);
+          ++v17;
+          ++v18;
         }
-        while ( v25 < (int)SvClient::ms_clientCount );
+        while ( v17 < (int)SvClient::ms_clientCount );
       }
     }
     SV_Migration_CheckTimeouts();
@@ -561,36 +546,36 @@ void __fastcall SV_MigrationFrame(double _XMM0_8, double _XMM1_8)
       case MSTATE_STARTING:
         if ( (int)SvClient::ms_clientCount <= 0 )
         {
-LABEL_59:
+LABEL_58:
           SV_Migration_PickNewHost((unsigned int)(migGlob.state - 1));
         }
         else
         {
           while ( clients->state != CSTATE_WAITFORRATING )
           {
-            ++v8;
+            ++v5;
             ++clients;
-            if ( v8 >= (int)SvClient::ms_clientCount )
-              goto LABEL_59;
+            if ( v5 >= (int)SvClient::ms_clientCount )
+              goto LABEL_58;
           }
         }
         break;
       case MSTATE_SENDING:
-        v27 = 1;
+        v19 = 1;
         if ( migGlob.blocksPerFrame <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_migration.cpp", 1056, ASSERT_TYPE_ASSERT, "(migGlob.blocksPerFrame > 0)", (const char *)&queryFormat, "migGlob.blocksPerFrame > 0") )
           __debugbreak();
         for ( i = migGlob.windowIndex; i < migGlob.windowIndex + 32; ++i )
         {
-          if ( v8 >= migGlob.blocksPerFrame )
+          if ( v5 >= migGlob.blocksPerFrame )
             break;
           if ( migGlob.window[i & 0x1F].num >= 0 )
           {
-            v27 = 0;
+            v19 = 0;
             if ( migGlob.window[i & 0x1F].timeout - Sys_Milliseconds() <= 0 )
             {
               if ( !SendBlock(migGlob.newHost, &migGlob.window[i & 0x1F]) )
                 break;
-              ++v8;
+              ++v5;
             }
           }
         }
@@ -598,26 +583,13 @@ LABEL_59:
         migGlob.verboseNewHost = migGlob.newHost;
         migGlob.verboseState = MVSTATE_SENDING;
         migGlob.verboseData = 100 * migGlob.block / ((migGlob.totalSize + 1189) / 1190);
-        if ( v27 )
+        if ( v19 )
         {
-          __asm
-          {
-            vxorps  xmm6, xmm6, xmm6
-            vcvtsi2ss xmm6, xmm6, cs:migGlob.totalSize
-          }
-          migGlob.sendDuration = Sys_Milliseconds() - migGlob.startTime;
-          Sys_Milliseconds();
-          __asm
-          {
-            vmovss  xmm0, cs:__real@4479ffff
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax
-            vdivss  xmm1, xmm0, xmm1
-            vmulss  xmm2, xmm1, xmm6
-            vcvtss2sd xmm3, xmm2, xmm2
-            vmovsd  [rsp+598h+fmt], xmm3
-          }
-          Com_Printf(25, "done sending migration save %i / %i = %.2f bps\n", (unsigned int)migGlob.totalSize, (unsigned int)migGlob.sendDuration, *(double *)&fmt);
+          v21 = Sys_Milliseconds();
+          totalSize = (float)migGlob.totalSize;
+          migGlob.sendDuration = v21 - migGlob.startTime;
+          v23 = (float)((float)(999.99994 / (float)(Sys_Milliseconds() - migGlob.startTime)) * totalSize);
+          Com_Printf(25, "done sending migration save %i / %i = %.2f bps\n", (unsigned int)migGlob.totalSize, (unsigned int)migGlob.sendDuration, v23);
           migGlob.state = MSTATE_FINALIZING;
           migGlob.giveUpTime = Sys_Milliseconds() + 2000;
           SendMigrateToMessages();
@@ -628,7 +600,6 @@ LABEL_59:
         break;
     }
   }
-  __asm { vmovaps xmm6, [rsp+598h+var_18] }
 }
 
 /*
@@ -841,8 +812,7 @@ void __fastcall SV_MigrationStart(const char *reason, const int flags, __int64 a
   int v25; 
   SvGameModeApplication *ActiveServerApplication; 
   unsigned int v27; 
-  const char *v31; 
-  char *fmt; 
+  const char *v29; 
   __int64 saveId; 
   unsigned int outSize; 
 
@@ -982,15 +952,9 @@ LABEL_18:
   }
   migGlob.blocksPerFrame = integer;
   SV_GameMP_SetGameEndTime(0);
-  __asm
-  {
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vxorpd  xmm3, xmm3, xmm3
-    vmovq   r9, xmm3
-    vmovsd  [rsp+68h+fmt], xmm0
-  }
-  v31 = j_va("%i %i %g %g", 0i64, 0i64, _R9, fmt);
-  SV_SetConfigstring(0x217u, v31);
+  __asm { vxorpd  xmm3, xmm3, xmm3 }
+  v29 = j_va("%i %i %g %g", 0i64, 0i64, (_QWORD)_XMM3, DOUBLE_1_0);
+  SV_SetConfigstring(0x217u, v29);
   OnlineMatchmakerOmniscient::PostMigrationNoLongerHost(&OnlineMatchmakerOmniscient::ms_instance);
   migGlob.broadcastTime = 0;
   migGlob.verboseState = MVSTATE_WAITING;
@@ -1413,63 +1377,44 @@ void SV_Migration_StressTestSaveLoad(void)
 SV_Migration_UpdateStressTest
 ==============
 */
-
-void __fastcall SV_Migration_UpdateStressTest(double _XMM0_8)
+void SV_Migration_UpdateStressTest(void)
 {
-  char v6; 
+  const dvar_t *v0; 
+  float value; 
+  const dvar_t *v2; 
+  float v3; 
   SvGameModeApplication *ActiveServerApplication; 
   int FrameDuration; 
+  int v6; 
+  double Float_Internal_DebugName; 
 
   if ( !SvPersistentGlobalsMP::IsFrontEndServer() )
   {
-    _RBX = DCONST_DVARFLT_migrationStressRandTime;
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
+    v0 = DCONST_DVARFLT_migrationStressRandTime;
     if ( !DCONST_DVARFLT_migrationStressRandTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migrationStressRandTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v0);
+    value = v0->current.value;
+    if ( value >= 0.001 )
     {
-      vmovss  xmm1, cs:__real@3a83126f
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vcomiss xmm6, xmm1
-    }
-    if ( !v6 )
-    {
-      _RBX = DCONST_DVARFLT_migrationStressMinTime;
-      __asm
-      {
-        vmovaps [rsp+68h+var_28], xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm7, xmm0, xmm1
-      }
+      v2 = DCONST_DVARFLT_migrationStressMinTime;
+      v3 = (float)(level.time - g_migrationStressStartTime) * 0.001;
       if ( !DCONST_DVARFLT_migrationStressMinTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "migrationStressMinTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vcomiss xmm7, dword ptr [rbx+28h] }
-      if ( !v6 )
+      Dvar_CheckFrontendServerThread(v2);
+      if ( v3 >= v2->current.value )
       {
         ActiveServerApplication = SvGameModeApplication::GetActiveServerApplication();
-        __asm { vmovss  xmm7, cs:__real@447a0000 }
         FrameDuration = SvGameModeApplication::GetFrameDuration(ActiveServerApplication);
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm7
-          vcvttss2si eax, xmm0
-        }
-        if ( !G_irand(0, _EAX / FrameDuration) )
+        v6 = (int)(float)(value * 1000.0);
+        if ( !G_irand(0, v6 / FrameDuration) )
         {
           if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_migrationStressSaveLoadOnly, "migrationStressSaveLoadOnly") )
           {
             SV_HostMigrationSave_f();
             s_migrationStressTestSaveLoad = 1;
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_migrationStressMinTime, "migrationStressMinTime");
-            __asm
-            {
-              vmulss  xmm1, xmm0, xmm7
-              vcvttss2si eax, xmm1
-            }
-            g_migrationStressStartTime = level.time - _EAX + 1000;
+            Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_migrationStressMinTime, "migrationStressMinTime");
+            g_migrationStressStartTime = level.time - (int)(float)(*(float *)&Float_Internal_DebugName * 1000.0) + 1000;
           }
           else
           {
@@ -1477,9 +1422,7 @@ void __fastcall SV_Migration_UpdateStressTest(double _XMM0_8)
           }
         }
       }
-      __asm { vmovaps xmm7, [rsp+68h+var_28] }
     }
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
   }
 }
 

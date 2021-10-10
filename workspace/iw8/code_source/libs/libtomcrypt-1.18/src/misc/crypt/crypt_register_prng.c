@@ -6,39 +6,29 @@ register_prng
 __int64 register_prng(const ltc_prng_descriptor *prng)
 {
   unsigned int v1; 
-  int v3; 
-  ltc_prng_descriptor *v5; 
+  int i; 
+  ltc_prng_descriptor *v4; 
   __int64 result; 
+  __int64 v6; 
 
   v1 = 0;
-  _RBP = prng_descriptor;
-  v3 = 0;
-  _RSI = prng;
-  do
+  for ( i = 0; i < 32; ++i )
   {
-    if ( !memcmp_0(&prng_descriptor[v3], _RSI, 0x50ui64) )
-      return (unsigned int)v3;
-    ++v3;
+    if ( !memcmp_0(&prng_descriptor[i], prng, 0x50ui64) )
+      return (unsigned int)i;
   }
-  while ( v3 < 32 );
-  v5 = prng_descriptor;
-  while ( v5->name )
+  v4 = prng_descriptor;
+  while ( v4->name )
   {
     ++v1;
-    if ( (__int64)++v5 >= (__int64)&unk_156678230 )
+    if ( (__int64)++v4 >= (__int64)&unk_156678230 )
       return 0xFFFFFFFFi64;
   }
-  __asm { vmovups ymm0, ymmword ptr [rsi] }
   result = v1;
-  _RDX = 10i64 * (int)v1;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+rdx*8+0], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rbp+rdx*8+20h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [rbp+rdx*8+40h], xmm0
-  }
+  v6 = (int)v1;
+  *(__m256i *)&prng_descriptor[v6].name = *(__m256i *)&prng->name;
+  *(__m256i *)&prng_descriptor[v6].ready = *(__m256i *)&prng->ready;
+  *(_OWORD *)&prng_descriptor[v6].pimport = *(_OWORD *)&prng->pimport;
   return result;
 }
 

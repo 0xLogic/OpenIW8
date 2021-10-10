@@ -215,32 +215,15 @@ double __fastcall CgDrawSystemSP::FadeHudMenu(CgDrawSystemSP *this, const dvar_t
 CgDrawSystemSP::AlterTimescale
 ==============
 */
-
-void __fastcall CgDrawSystemSP::AlterTimescale(CgDrawSystemSP *this, int time, double startScale, double endScale)
+void CgDrawSystemSP::AlterTimescale(CgDrawSystemSP *this, int time, float startScale, float endScale)
 {
-  int v10; 
+  int v6; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
-  v10 = Sys_Milliseconds();
-  _RDI->m_timeScaleTimeStart = v10;
-  __asm
-  {
-    vmovss  dword ptr [rdi+18h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rdi+1Ch], xmm7
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  _RDI->m_timeScaleTimeEnd = time + v10;
+  v6 = Sys_Milliseconds();
+  this->m_timeScaleTimeStart = v6;
+  this->m_timeScaleStart = startScale;
+  this->m_timeScaleEnd = endScale;
+  this->m_timeScaleTimeEnd = time + v6;
 }
 
 /*
@@ -250,39 +233,41 @@ CG_DrawSP_ActorOverlay
 */
 void CG_DrawSP_ActorOverlay(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v9; 
-  const dvar_t *v10; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
   cg_t *LocalClientGlobals; 
-  GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *v12; 
-  int v13; 
+  GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *v5; 
+  int v6; 
   const char *ConfigString; 
-  const char *v15; 
-  const char *v16; 
-  const char *v19; 
+  const char *v8; 
+  const char *v9; 
+  const ScreenPlacement *ActivePlacement; 
+  const dvar_t *v11; 
+  const char *v12; 
+  double Float_Internal_DebugName; 
   GfxFont *FontHandle; 
   const GfxViewInfo *ViewInfo; 
-  const GfxViewInfo *v31; 
-  unsigned __int8 v34; 
+  const GfxViewInfo *v16; 
+  double v17; 
+  unsigned __int8 v18; 
+  float v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  float v23; 
+  const char *v24; 
+  double v25; 
+  float v26; 
+  float v27; 
+  int v30; 
+  Material *material; 
+  float v32; 
+  float v33; 
+  const ScreenPlacement *v34; 
+  const char *v35; 
   const char *v36; 
   const char *v37; 
-  const char *v39; 
-  const char *v43; 
-  Material *hud_callsign_bg; 
-  const ScreenPlacement *ActivePlacement; 
-  const char *v76; 
-  const char *v78; 
-  const char *v82; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float ya; 
-  float yb; 
-  float yc; 
   int horzAlign; 
-  float material; 
-  float materiala; 
-  float materialb; 
   char *text; 
   vec2_t screenPos; 
   vec4_t color; 
@@ -293,236 +278,118 @@ void CG_DrawSP_ActorOverlay(LocalClientNum_t localClientNum)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 325, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 1 )", "localClientNum doesn't index MAX_CLIENTS_SP\n\t%i not in [0, %i)", localClientNum, horzAlign) )
       __debugbreak();
   }
-  v9 = DCONST_DVARBOOL_lui_footage_capture_enabled;
+  v2 = DCONST_DVARBOOL_lui_footage_capture_enabled;
   if ( !DCONST_DVARBOOL_lui_footage_capture_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_footage_capture_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( !v9->current.enabled && !CL_Pause_IsGamePaused() && !CG_GetFlashbangedRemainingTime(localClientNum) )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled && !CL_Pause_IsGamePaused() && !CG_GetFlashbangedRemainingTime(localClientNum) )
   {
-    v10 = DVARBOOL_hud_missionFailed;
+    v3 = DVARBOOL_hud_missionFailed;
     if ( !DVARBOOL_hud_missionFailed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "hud_missionFailed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    if ( !v10->current.enabled )
+    Dvar_CheckFrontendServerThread(v3);
+    if ( !v3->current.enabled )
     {
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      v12 = (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)LocalClientGlobals;
+      v5 = (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)LocalClientGlobals;
       if ( !LocalClientGlobals->cvsData.transitory.remoteMissileCam && LocalClientGlobals->predictedPlayerState.pm_type < 7 )
       {
-        v13 = 3 * LocalClientGlobals->clientNum + 6163;
-        ConfigString = CL_GetConfigString(v13);
-        v15 = ConfigString;
+        v6 = 3 * LocalClientGlobals->clientNum + 6163;
+        ConfigString = CL_GetConfigString(v6);
+        v8 = ConfigString;
         if ( ConfigString )
         {
           if ( *ConfigString && I_stricmp(ConfigString, "none") )
           {
-            __asm
+            v9 = SEH_LocalizeTextMessage(v8, "Friend Name", LOCMSG_SAFE);
+            ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+            if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(v5 + 230, GameModeFlagValues::ms_spValue, 0x38u) )
             {
-              vmovaps [rsp+120h+var_30], xmm6
-              vmovaps [rsp+120h+var_50], xmm8
-              vmovaps [rsp+120h+var_70], xmm10
-              vmovaps [rsp+120h+var_80], xmm11
-              vmovaps [rsp+120h+var_90], xmm12
-            }
-            v16 = SEH_LocalizeTextMessage(v15, "Friend Name", LOCMSG_SAFE);
-            _R14 = ScrPlace_GetActivePlacement(localClientNum);
-            if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(v12 + 230, GameModeFlagValues::ms_spValue, 0x38u) )
-            {
-              _RBX = DVARVEC4_hostileNameFontColor;
+              v11 = DVARVEC4_hostileNameFontColor;
               if ( !DVARVEC4_hostileNameFontColor )
               {
-                v19 = "hostileNameFontColor";
+                v12 = "hostileNameFontColor";
                 goto LABEL_27;
               }
 LABEL_29:
-              Dvar_CheckFrontendServerThread(_RBX);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+28h]
-                vmovss  xmm8, cs:__real@3f800000
-                vmovss  dword ptr [rbp+57h+var_B0], xmm0
-                vmovss  xmm1, dword ptr [rbx+2Ch]
-                vmovss  dword ptr [rbp+57h+var_B0+4], xmm1
-                vmovss  xmm0, dword ptr [rbx+30h]
-                vmovss  xmm1, cs:__real@c0400000; scale
-                vmovss  dword ptr [rbp+57h+var_B0+8], xmm0
-                vmovss  dword ptr [rbp+57h+var_B0+0Ch], xmm8
-              }
-              R_AddCmdSetUIBlur(1, *(const float *)&_XMM1);
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_friendlyNameFontSize, "friendlyNameFontSize");
-              __asm
-              {
-                vmovaps xmm2, xmm0; scale
-                vmovaps xmm6, xmm0
-                vmovss  xmm1, cs:__real@c0000000
-                vmovss  xmm11, cs:__real@41c80000
-                vmovss  dword ptr [rbp+57h+screenPos+4], xmm1
-                vmovss  dword ptr [rbp+57h+screenPos], xmm11
-              }
-              FontHandle = UI_GetFontHandle(_R14, 3, *(float *)&_XMM2);
+              Dvar_CheckFrontendServerThread(v11);
+              *(_QWORD *)color.v = v11->current.integer64;
+              color.v[2] = v11->current.vector.v[2];
+              color.v[3] = FLOAT_1_0;
+              R_AddCmdSetUIBlur(1, -3.0);
+              Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_friendlyNameFontSize, "friendlyNameFontSize");
+              screenPos.v[1] = FLOAT_N2_0;
+              screenPos.v[0] = FLOAT_25_0;
+              FontHandle = UI_GetFontHandle(ActivePlacement, 3, *(float *)&Float_Internal_DebugName);
               ViewInfo = LUI_GetViewInfo();
-              v31 = ViewInfo;
+              v16 = ViewInfo;
               if ( ViewInfo )
                 R_ScopeDistortionTransform(ViewInfo, &screenPos, &screenPos);
-              __asm
+              UI_DrawText(ActivePlacement, v9, 0x7FFFFFFF, FontHandle, screenPos.v[0], screenPos.v[1], 2, 2, *(float *)&Float_Internal_DebugName, &color, 17);
+              v17 = Dvar_GetFloat_Internal_DebugName(DVARFLT_friendlyCallsignFontSize, "friendlyCallsignFontSize");
+              v18 = 0;
+              v19 = *(float *)&v17;
+              v20 = CL_GetConfigString(v6 + 2);
+              v21 = v20;
+              if ( v20 && *v20 && I_stricmp(v20, "none") )
               {
-                vmovss  xmm0, dword ptr [rbp+57h+screenPos+4]
-                vmovss  xmm1, dword ptr [rbp+57h+screenPos]
-                vmovss  dword ptr [rsp+120h+material], xmm6
-                vmovss  [rsp+120h+y], xmm0
-                vmovss  dword ptr [rsp+120h+fmt], xmm1
-              }
-              UI_DrawText(_R14, v16, 0x7FFFFFFF, FontHandle, fmt, ya, 2, 2, material, &color, 17);
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_friendlyCallsignFontSize, "friendlyCallsignFontSize");
-              v34 = 0;
-              __asm { vmovaps xmm10, xmm0 }
-              v36 = CL_GetConfigString(v13 + 2);
-              v37 = v36;
-              __asm { vmovss  xmm12, cs:__real@41200000 }
-              if ( v36 && *v36 && I_stricmp(v36, "none") )
-              {
-                __asm
-                {
-                  vmovaps [rsp+120h+var_40], xmm7
-                  vmovaps [rsp+120h+var_60], xmm9
-                }
-                v39 = SEH_LocalizeTextMessage(v37, "Friend Callsign", LOCMSG_SAFE);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [r14+24h]
-                  vmulss  xmm9, xmm0, cs:__real@3a72b9d6
-                  vmovaps xmm1, xmm10; scale
-                }
-                text = (char *)v39;
-                v43 = v39;
-                v34 = 1;
-                *(double *)&_XMM0 = R_NormalizedTextScale(FontHandle, *(float *)&_XMM1);
-                __asm
-                {
-                  vmulss  xmm7, xmm0, dword ptr [r14+4]
-                  vdivss  xmm6, xmm8, xmm9
-                }
+                v22 = SEH_LocalizeTextMessage(v21, "Friend Callsign", LOCMSG_SAFE);
+                v23 = ActivePlacement->realViewportSize.v[1] * 0.00092592591;
+                text = (char *)v22;
+                v24 = v22;
+                v18 = 1;
+                v25 = R_NormalizedTextScale(FontHandle, *(float *)&v17);
+                v26 = *(float *)&v25 * ActivePlacement->scaleVirtualToReal.v[1];
+                v27 = (float)((float)((float)((float)R_TextHeight(FontHandle) * v26) * 0.75) * (float)(1.0 / v23)) + 10.0;
                 R_TextHeight(FontHandle);
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vmulss  xmm1, xmm0, xmm7
-                  vmulss  xmm2, xmm1, cs:__real@3f400000
-                  vmulss  xmm3, xmm2, xmm6
-                  vaddss  xmm8, xmm3, xmm12
-                }
-                R_TextHeight(FontHandle);
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vmulss  xmm1, xmm0, xmm7
-                  vmulss  xmm2, xmm1, xmm6
-                  vaddss  xmm3, xmm2, cs:__real@3f000000
-                  vxorps  xmm1, xmm1, xmm1
-                  vroundss xmm2, xmm1, xmm3, 1
-                  vcvttss2si r9d, xmm2; textHeight
-                }
-                R_TextWidth(v43, 0x7FFFFFFF, FontHandle, _ER9);
-                __asm { vdivss  xmm2, xmm8, dword ptr [r14+4] }
-                hud_callsign_bg = cgMedia.hud_callsign_bg;
-                __asm
-                {
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, eax
-                  vdivss  xmm1, xmm0, dword ptr [r14]
-                  vmulss  xmm7, xmm1, xmm9
-                  vmulss  xmm6, xmm2, xmm9
-                }
-                ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-                __asm
-                {
-                  vmovaps xmm3, xmm7; w
-                  vxorps  xmm2, xmm2, xmm2; y
-                  vmovaps xmm1, xmm11; x
-                  vmovss  dword ptr [rsp+120h+fmt], xmm6
-                }
-                CL_Draw9SliceImage(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 2, 2, &colorWhite, hud_callsign_bg);
-                __asm
-                {
-                  vmovaps xmm9, [rsp+120h+var_60]
-                  vmovaps xmm7, [rsp+120h+var_40]
-                  vmovss  xmm0, cs:__real@41d80000
-                  vmovss  xmm1, cs:__real@41180000
-                  vmovss  dword ptr [rbp+57h+screenPos], xmm0
-                  vmovss  dword ptr [rbp+57h+screenPos+4], xmm1
-                }
-                if ( v31 )
-                  R_ScopeDistortionTransform(v31, &screenPos, &screenPos);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+57h+screenPos+4]
-                  vmovss  xmm1, dword ptr [rbp+57h+screenPos]
-                  vmovss  dword ptr [rsp+120h+material], xmm10
-                  vmovss  [rsp+120h+y], xmm0
-                  vmovss  dword ptr [rsp+120h+fmt], xmm1
-                }
-                UI_DrawText(_R14, text, 0x7FFFFFFF, FontHandle, fmtb, yb, 2, 2, materiala, &color, 17);
+                _XMM1 = 0i64;
+                __asm { vroundss xmm2, xmm1, xmm3, 1 }
+                v30 = R_TextWidth(v24, 0x7FFFFFFF, FontHandle, (int)*(float *)&_XMM2);
+                material = cgMedia.hud_callsign_bg;
+                v32 = (float)((float)(v30 + 10) / ActivePlacement->scaleVirtualToReal.v[0]) * v23;
+                v33 = (float)(v27 / ActivePlacement->scaleVirtualToReal.v[1]) * v23;
+                v34 = ScrPlace_GetActivePlacement(localClientNum);
+                CL_Draw9SliceImage(v34, 25.0, 0.0, v32, v33, 2, 2, &colorWhite, material);
+                screenPos.v[0] = FLOAT_27_0;
+                screenPos.v[1] = FLOAT_9_5;
+                if ( v16 )
+                  R_ScopeDistortionTransform(v16, &screenPos, &screenPos);
+                UI_DrawText(ActivePlacement, text, 0x7FFFFFFF, FontHandle, screenPos.v[0], screenPos.v[1], 2, 2, v19, &color, 17);
               }
-              v76 = CL_GetConfigString(v13 + 1);
-              __asm { vmovaps xmm8, [rsp+120h+var_50] }
-              v78 = v76;
-              __asm { vmovaps xmm6, [rsp+120h+var_30] }
-              if ( v76 && *v76 && I_stricmp(v76, "none") )
+              v35 = CL_GetConfigString(v6 + 1);
+              v36 = v35;
+              if ( v35 && *v35 && I_stricmp(v35, "none") )
               {
-                _RAX = UI_SafeTranslateString(v78);
-                _ECX = v34;
-                v82 = _RAX;
-                __asm { vmovd   xmm0, ecx }
-                LODWORD(_RAX) = 0;
-                __asm
-                {
-                  vmovd   xmm1, eax
-                  vpcmpeqd xmm2, xmm0, xmm1
-                  vmovss  xmm1, cs:__real@41b00000
-                  vmovss  dword ptr [rbp+57h+screenPos], xmm11
-                  vblendvps xmm0, xmm1, xmm12, xmm2
-                  vmovss  dword ptr [rbp+57h+screenPos+4], xmm0
-                }
-                if ( v31 )
-                  R_ScopeDistortionTransform(v31, &screenPos, &screenPos);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+57h+screenPos+4]
-                  vmovss  xmm2, dword ptr [rbp+57h+screenPos]
-                  vmovss  dword ptr [rsp+120h+material], xmm10
-                  vmovss  [rsp+120h+y], xmm0
-                  vmovss  dword ptr [rsp+120h+fmt], xmm2
-                }
-                UI_DrawText(_R14, v82, 0x7FFFFFFF, FontHandle, fmtc, yc, 2, 2, materialb, &color, 17);
+                v37 = UI_SafeTranslateString(v36);
+                _XMM0 = v18;
+                __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+                _XMM1 = LODWORD(FLOAT_22_0);
+                screenPos.v[0] = FLOAT_25_0;
+                __asm { vblendvps xmm0, xmm1, xmm12, xmm2 }
+                screenPos.v[1] = *(float *)&_XMM0;
+                if ( v16 )
+                  R_ScopeDistortionTransform(v16, &screenPos, &screenPos);
+                UI_DrawText(ActivePlacement, v37, 0x7FFFFFFF, FontHandle, screenPos.v[0], screenPos.v[1], 2, 2, v19, &color, 17);
               }
-              __asm { vxorps  xmm1, xmm1, xmm1; scale }
-              R_AddCmdSetUIBlur(0, *(const float *)&_XMM1);
-              __asm
-              {
-                vmovaps xmm11, [rsp+120h+var_80]
-                vmovaps xmm10, [rsp+120h+var_70]
-                vmovaps xmm12, [rsp+120h+var_90]
-              }
+              R_AddCmdSetUIBlur(0, 0.0);
               return;
             }
-            if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(v12 + 230, GameModeFlagValues::ms_spValue, 0x39u) )
+            if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(v5 + 230, GameModeFlagValues::ms_spValue, 0x39u) )
             {
-              _RBX = DVARVEC4_civilianNameFontColor;
+              v11 = DVARVEC4_civilianNameFontColor;
               if ( DVARVEC4_civilianNameFontColor )
                 goto LABEL_29;
-              v19 = "civilianNameFontColor";
+              v12 = "civilianNameFontColor";
             }
             else
             {
-              _RBX = DVARVEC4_friendlyNameFontColor;
+              v11 = DVARVEC4_friendlyNameFontColor;
               if ( DVARVEC4_friendlyNameFontColor )
                 goto LABEL_29;
-              v19 = "friendlyNameFontColor";
+              v12 = "friendlyNameFontColor";
             }
 LABEL_27:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v19) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v12) )
               __debugbreak();
             goto LABEL_29;
           }
@@ -610,38 +477,26 @@ CG_DrawSP_DrawActive
 */
 void CG_DrawSP_DrawActive(const LocalClientNum_t localClientNum, unsigned int drawType)
 {
-  float fmt; 
-  float gunZOfs; 
+  cg_t *LocalClientGlobals; 
 
   Profile2_UpdateEntry(31);
-  if ( ((unsigned __int8)&::gunZOfs & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &::gunZOfs) )
+  if ( ((unsigned __int8)&gunZOfs & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &gunZOfs) )
     __debugbreak();
-  _InterlockedIncrement((volatile signed __int32 *)&::gunZOfs);
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  __asm { vmovss  xmm1, dword ptr [rax+18070h]; scale }
-  CL_SetFOVSensitivityScale(localClientNum, *(float *)&_XMM1);
-  CL_SetUserCmdWeapons(localClientNum, &_RBX->weaponSelect, &_RBX->equippedOffHand, _RBX->weaponSelectInAlt);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+49DE8h]
-    vmovss  xmm0, dword ptr [rbx+49DECh]
-    vmovss  xmm3, dword ptr [rbx+49DE4h]; gunXOfs
-    vmovss  xmm2, dword ptr [rbx+49DF4h]; gunYaw
-    vmovss  [rsp+48h+gunZOfs], xmm0
-    vmovss  dword ptr [rsp+48h+fmt], xmm1
-    vmovss  xmm1, dword ptr [rbx+49DF0h]; gunPitch
-  }
-  CL_CGameSP_SetUserCmdAimValues(localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, gunZOfs);
+  _InterlockedIncrement((volatile signed __int32 *)&gunZOfs);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  CL_SetFOVSensitivityScale(localClientNum, LocalClientGlobals->zoomSensitivity);
+  CL_SetUserCmdWeapons(localClientNum, &LocalClientGlobals->weaponSelect, &LocalClientGlobals->equippedOffHand, LocalClientGlobals->weaponSelectInAlt);
+  CL_CGameSP_SetUserCmdAimValues(localClientNum, LocalClientGlobals->gunAngles.v[0], LocalClientGlobals->gunAngles.v[1], LocalClientGlobals->gunOffset.v[0], LocalClientGlobals->gunOffset.v[1], LocalClientGlobals->gunOffset.v[2]);
   CL_UpdateExtraButtons(localClientNum);
-  CL_SetExtraButtons(localClientNum, _RBX->extraButtons);
-  _RBX->extraButtons = 0i64;
+  CL_SetExtraButtons(localClientNum, LocalClientGlobals->extraButtons);
+  LocalClientGlobals->extraButtons = 0i64;
   CG_DrawDebug_Infils(localClientNum);
   CL_DebugData_UpdateClient();
-  CL_RenderScene(localClientNum, &_RBX->refdef, drawType);
+  CL_RenderScene(localClientNum, &LocalClientGlobals->refdef, drawType);
   Profile2_UpdateEntry(31);
-  if ( ((unsigned __int64)&::gunZOfs & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &::gunZOfs) )
+  if ( ((unsigned __int64)&gunZOfs & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &gunZOfs) )
     __debugbreak();
-  _InterlockedDecrement((volatile signed __int32 *)&::gunZOfs);
+  _InterlockedDecrement((volatile signed __int32 *)&gunZOfs);
 }
 
 /*
@@ -651,18 +506,14 @@ CG_DrawSP_Fade
 */
 void CG_DrawSP_Fade(LocalClientNum_t localClientNum, int r, int g, int b, int a, int startTime, int duration)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+28h+a]
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-  }
-  _RBX = &s_screenFade[localClientNum];
-  _RBX->startTime = startTime;
-  _RBX->duration = duration;
-  __asm { vmovss  dword ptr [rbx], xmm1 }
-  if ( _RBX->duration + _RBX->startTime <= CG_GetLocalClientGlobals(localClientNum)->time )
-    _RBX->alphaCurrent = _RBX->alpha;
+  ScreenFade *v7; 
+
+  v7 = &s_screenFade[localClientNum];
+  v7->startTime = startTime;
+  v7->duration = duration;
+  v7->alpha = (float)a * 0.0039215689;
+  if ( v7->duration + v7->startTime <= CG_GetLocalClientGlobals(localClientNum)->time )
+    v7->alphaCurrent = v7->alpha;
 }
 
 /*
@@ -670,88 +521,74 @@ void CG_DrawSP_Fade(LocalClientNum_t localClientNum, int r, int g, int b, int a,
 CG_DrawSP_FlashFade
 ==============
 */
-
-void __fastcall CG_DrawSP_FlashFade(const LocalClientNum_t localClientNum, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void CG_DrawSP_FlashFade(const LocalClientNum_t localClientNum)
 {
-  __int64 v5; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
-  int v8; 
-  bool v10; 
-  int v11; 
-  int v12; 
+  ScreenFade *v3; 
+  float alpha; 
+  int v5; 
+  int v6; 
+  float alphaCurrent; 
+  float v9; 
+  __int128 alphaCurrent_low; 
+  float v14; 
   int height; 
   int width; 
   float aspect; 
   vec4_t color; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  v5 = localClientNum;
+  v1 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RBX = &s_screenFade[v5];
-  v8 = _RBX->duration + _RBX->startTime;
-  __asm { vmovss  xmm0, dword ptr [rbx] }
-  v10 = (unsigned int)v8 <= LocalClientGlobals->time;
-  if ( v8 >= LocalClientGlobals->time )
+  v3 = &s_screenFade[v1];
+  alpha = v3->alpha;
+  if ( v3->duration + v3->startTime >= LocalClientGlobals->time )
   {
-    __asm { vucomiss xmm0, dword ptr [rbx+4] }
-    if ( v8 != LocalClientGlobals->time )
+    if ( alpha != v3->alphaCurrent )
     {
-      v11 = Sys_Milliseconds();
-      v12 = v11 - lastTime_0;
-      lastTime_0 = v11;
-      v10 = (unsigned int)(v12 - 1) <= 0x1F2;
-      if ( (unsigned int)(v12 - 1) <= 0x1F2 )
+      v5 = Sys_Milliseconds();
+      v6 = v5 - lastTime_0;
+      lastTime_0 = v5;
+      if ( (unsigned int)(v6 - 1) <= 0x1F2 )
       {
-        __asm
+        alphaCurrent = v3->alphaCurrent;
+        _XMM2 = LODWORD(v3->alpha);
+        v9 = (float)v6 / (float)v3->duration;
+        if ( alphaCurrent <= *(float *)&_XMM2 )
         {
-          vmovss  xmm3, dword ptr [rbx+4]
-          vmovss  xmm2, dword ptr [rbx]
-          vcomiss xmm3, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-          vcvtsi2ss xmm1, xmm1, ecx
-          vdivss  xmm4, xmm1, xmm0
-          vaddss  xmm1, xmm3, xmm4
-          vcmpltss xmm0, xmm2, xmm1
-          vblendvps xmm0, xmm1, xmm2, xmm0
-          vmovss  dword ptr [rbx+4], xmm0
+          alphaCurrent_low = LODWORD(v3->alphaCurrent);
+          *(float *)&alphaCurrent_low = alphaCurrent + v9;
+          _XMM1 = alphaCurrent_low;
+          __asm
+          {
+            vcmpltss xmm0, xmm2, xmm1
+            vblendvps xmm0, xmm1, xmm2, xmm0
+          }
+          v3->alphaCurrent = *(float *)&_XMM0;
+        }
+        else
+        {
+          v3->alphaCurrent = alphaCurrent - v9;
+          if ( (float)(alphaCurrent - v9) < *(float *)&_XMM2 )
+            v3->alphaCurrent = *(float *)&_XMM2;
         }
       }
     }
   }
   else
   {
-    __asm { vmovss  dword ptr [rbx+4], xmm0 }
+    v3->alphaCurrent = alpha;
   }
-  __asm
+  v14 = v3->alphaCurrent;
+  if ( v14 > 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rsp+78h+var_38], xmm6
-      vmovss  dword ptr [rsp+78h+var_38+4], xmm6
-      vmovss  dword ptr [rsp+78h+var_38+8], xmm6
-      vmovss  dword ptr [rsp+78h+var_38+0Ch], xmm0
-    }
+    color.v[0] = 0.0;
+    color.v[1] = 0.0;
+    color.v[2] = 0.0;
+    color.v[3] = v14;
     CL_GetScreenDimensions(&width, &height, &aspect);
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, [rsp+78h+height]; height
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, [rsp+78h+width]; width
-      vxorps  xmm1, xmm1, xmm1; y
-      vxorps  xmm0, xmm0, xmm0; x
-    }
-    UI_FillRectPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, &color);
+    UI_FillRectPhysical(0.0, 0.0, (float)width, (float)height, &color);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -759,110 +596,43 @@ void __fastcall CG_DrawSP_FlashFade(const LocalClientNum_t localClientNum, doubl
 CG_DrawSP_FriendlyFire
 ==============
 */
-bool CG_DrawSP_FriendlyFire(const cg_t *cgameGlob)
+char CG_DrawSP_FriendlyFire(const cg_t *cgameGlob)
 {
+  float fWeaponPosFrac; 
   __int64 localClientNum; 
-  bool v11; 
-  LocalClientNum_t v17; 
+  bool v4; 
+  LocalClientNum_t v5; 
   const ScreenPlacement *ActivePlacement; 
-  bool result; 
-  float fmt; 
-  int horzAlign; 
-  int vertAlign; 
-  float v35; 
   float x; 
   float y; 
   float w; 
   float h; 
   Weapon r_weapon; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovss  xmm6, dword ptr [rcx+738h]
-  }
-  _RSI = cgameGlob;
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cgameGlob->predictedPlayerState.eFlags, ACTIVE, 0xBu) || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 3u) )
-    goto LABEL_19;
+  fWeaponPosFrac = cgameGlob->predictedPlayerState.weapCommon.fWeaponPosFrac;
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cgameGlob->predictedPlayerState.eFlags, ACTIVE, 0xBu) || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 3u) )
+    return 0;
   if ( GameModeFlagValues::ms_spValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 127, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a SP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x35u) || CL_Pause_IsGamePaused() )
-  {
-LABEL_19:
-    result = 0;
-  }
-  else
-  {
-    localClientNum = _RSI->localClientNum;
-    if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
-      __debugbreak();
-    _RAX = BG_GetViewmodelWeapon(CgWeaponMap::ms_instance[localClientNum], &_RSI->predictedPlayerState);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0E8h+r_weapon.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    v11 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&_RSI->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x1Bu));
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    if ( BG_GetOverlay(&r_weapon, v11)->shaderMat )
-      __asm { vcomiss xmm7, dword ptr [rsi+738h] }
-    __asm
-    {
-      vmovss  xmm2, cs:__real@43f00000; screenHeight
-      vmovss  xmm1, cs:__real@44200000; screenWidth
-    }
-    CG_CalcCrosshairPosition(_RSI, *(const float *)&_XMM1, *(const float *)&_XMM2, &x, &y);
-    __asm
-    {
-      vmulss  xmm1, xmm6, [rsp+0E8h+x]
-      vmulss  xmm0, xmm6, [rsp+0E8h+y]
-    }
-    v17 = _RSI->localClientNum;
-    __asm
-    {
-      vmovss  [rsp+0E8h+x], xmm1
-      vmovss  xmm1, cs:__real@42200000
-      vmovss  [rsp+0E8h+h], xmm1
-      vmovss  [rsp+0E8h+w], xmm1
-      vmovss  [rsp+0E8h+y], xmm0
-    }
-    ActivePlacement = ScrPlace_GetActivePlacement(v17);
-    ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &h, 2, 2);
-    __asm
-    {
-      vmovss  xmm6, [rsp+0E8h+w]
-      vmulss  xmm1, xmm6, cs:__real@bf000000
-      vaddss  xmm5, xmm1, [rsp+0E8h+x]
-      vmovss  xmm4, cs:__real@3f800000
-      vmovss  xmm3, [rsp+0E8h+h]; h
-      vmulss  xmm1, xmm3, cs:__real@bf000000
-      vaddss  xmm1, xmm1, [rsp+0E8h+y]; y
-      vmovss  [rsp+0E8h+var_B0], xmm4
-      vmovss  [rsp+0E8h+vertAlign], xmm4
-      vmovss  [rsp+0E8h+horzAlign], xmm7
-      vmovaps xmm2, xmm6; w
-      vmovaps xmm0, xmm5; x
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-      vmovss  [rsp+0E8h+x], xmm5
-      vmovss  [rsp+0E8h+y], xmm1
-    }
-    CL_DrawStretchPicPhysical(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, *(float *)&horzAlign, *(float *)&vertAlign, v35, &colorWhite, cgMedia.friendlyFireMaterial);
-    result = 1;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0E8h+var_28]
-    vmovaps xmm7, [rsp+0E8h+var_38]
-  }
-  return result;
+  if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x35u) || CL_Pause_IsGamePaused() )
+    return 0;
+  localClientNum = cgameGlob->localClientNum;
+  if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+    __debugbreak();
+  r_weapon = *BG_GetViewmodelWeapon(CgWeaponMap::ms_instance[localClientNum], &cgameGlob->predictedPlayerState);
+  v4 = !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x22u) && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&cgameGlob->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x1Bu));
+  if ( BG_GetOverlay(&r_weapon, v4)->shaderMat && cgameGlob->predictedPlayerState.weapCommon.fWeaponPosFrac > 0.0 )
+    return 0;
+  CG_CalcCrosshairPosition(cgameGlob, 640.0, 480.0, &x, &y);
+  v5 = cgameGlob->localClientNum;
+  x = fWeaponPosFrac * x;
+  h = FLOAT_40_0;
+  w = FLOAT_40_0;
+  y = fWeaponPosFrac * y;
+  ActivePlacement = ScrPlace_GetActivePlacement(v5);
+  ScrPlace_ApplyRect(ActivePlacement, &x, &y, &w, &h, 2, 2);
+  CL_DrawStretchPicPhysical((float)(w * -0.5) + x, (float)(h * -0.5) + y, w, h, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.friendlyFireMaterial);
+  return 1;
 }
 
 /*
@@ -873,81 +643,58 @@ CgDrawSystemSP::Draw2D
 void CgDrawSystemSP::Draw2D(CgDrawSystemSP *this, const vec3_t *cameraOrigin, const tmat33_t<vec3_t> *cameraAxis)
 {
   cg_t *LocalClientGlobals; 
-  int v9; 
+  int v5; 
   int m_timeScaleTimeStart; 
-  unsigned int m_timeScaleTimeEnd; 
-  bool v13; 
+  int v7; 
+  int m_timeScaleTimeEnd; 
+  float v9; 
+  float m_timeScaleEnd; 
   __int64 m_localClientNum; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  char v16; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  const dvar_t *v19; 
+  bool enabled; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  float v23; 
+  float v24; 
+  LocalClientNum_t v25; 
+  const dvar_t *v26; 
   const dvar_t *v27; 
   const dvar_t *v28; 
   const dvar_t *v29; 
   const dvar_t *v30; 
-  char v31; 
+  const dvar_t *v31; 
   const dvar_t *v32; 
   const dvar_t *v33; 
-  const dvar_t *v34; 
-  bool enabled; 
-  const dvar_t *v36; 
-  const dvar_t *v37; 
-  LocalClientNum_t v40; 
-  const dvar_t *v41; 
-  const dvar_t *v42; 
-  const dvar_t *v43; 
-  const dvar_t *v44; 
-  const dvar_t *v45; 
-  const dvar_t *v48; 
-  const dvar_t *v50; 
-  const dvar_t *v51; 
-  __int64 v53; 
-  __int64 v54; 
-  int v57; 
+  __int64 v34; 
+  __int64 v35; 
 
-  _RBX = this;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  v9 = Sys_Milliseconds();
-  m_timeScaleTimeStart = _RBX->m_timeScaleTimeStart;
-  if ( m_timeScaleTimeStart && m_timeScaleTimeStart < v9 )
+  v5 = Sys_Milliseconds();
+  m_timeScaleTimeStart = this->m_timeScaleTimeStart;
+  v7 = v5;
+  if ( m_timeScaleTimeStart && m_timeScaleTimeStart < v5 )
   {
-    m_timeScaleTimeEnd = _RBX->m_timeScaleTimeEnd;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v13 = v9 <= m_timeScaleTimeEnd;
-    if ( v9 >= (int)m_timeScaleTimeEnd )
+    m_timeScaleTimeEnd = this->m_timeScaleTimeEnd;
+    if ( v5 >= m_timeScaleTimeEnd )
     {
-      __asm { vmovss  xmm1, dword ptr [rbx+1Ch] }
-      *(_QWORD *)&_RBX->m_timeScaleTimeStart = 0i64;
+      m_timeScaleEnd = this->m_timeScaleEnd;
+      *(_QWORD *)&this->m_timeScaleTimeStart = 0i64;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vcomiss xmm0, xmm6
-      }
-      if ( m_timeScaleTimeEnd <= m_timeScaleTimeStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 545, ASSERT_TYPE_ASSERT, "(m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f)", (const char *)&queryFormat, "m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f") )
+      if ( (float)(m_timeScaleTimeEnd - m_timeScaleTimeStart) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 545, ASSERT_TYPE_ASSERT, "(m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f)", (const char *)&queryFormat, "m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f") )
         __debugbreak();
-      v13 = _RBX->m_timeScaleTimeEnd <= (unsigned int)_RBX->m_timeScaleTimeStart;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edi
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm4, xmm1, xmm0
-        vmovss  xmm1, cs:__real@3f800000
-        vmulss  xmm0, xmm4, dword ptr [rbx+1Ch]
-        vsubss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, dword ptr [rbx+18h]
-        vaddss  xmm1, xmm3, xmm0
-      }
+      v9 = (float)(v7 - this->m_timeScaleTimeStart) / (float)(this->m_timeScaleTimeEnd - this->m_timeScaleTimeStart);
+      m_timeScaleEnd = (float)((float)(1.0 - v9) * this->m_timeScaleStart) + (float)(v9 * this->m_timeScaleEnd);
     }
-    __asm
-    {
-      vcomiss xmm1, xmm6
-      vmovss  [rsp+0A8h+arg_0], xmm1
-    }
-    if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_inline.h", 47, ASSERT_TYPE_ASSERT, "(timescale > 0)", (const char *)&queryFormat, "timescale > 0") )
+    if ( m_timeScaleEnd <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_inline.h", 47, ASSERT_TYPE_ASSERT, "(timescale > 0)", (const char *)&queryFormat, "timescale > 0") )
       __debugbreak();
     Sys_CheckAcquireLock(&s_timescaleRWLock);
     AcquireSRWLockExclusive((PSRWLOCK)&s_timescaleRWLock);
@@ -956,255 +703,241 @@ void CgDrawSystemSP::Draw2D(CgDrawSystemSP *this, const vec3_t *cameraOrigin, co
       __debugbreak();
     s_timescale_aab -= s_timescale_set_aab;
     s_timescaleRWLock.writeThreadId = 0;
-    LODWORD(com_codeTimeScale.timeFloat) = (ComCodeTimeScale)(v57 ^ (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) * (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) + 2)));
+    LODWORD(com_codeTimeScale.timeFloat) = (ComCodeTimeScale)(LODWORD(m_timeScaleEnd) ^ (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) * (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) + 2)));
     ReleaseSRWLockExclusive((PSRWLOCK)&s_timescaleRWLock);
     Sys_CheckReleaseLock(&s_timescaleRWLock);
   }
-  if ( CgDrawSystem::ShouldDrawAnything(_RBX, LocalClientGlobals) )
+  if ( CgDrawSystem::ShouldDrawAnything(this, LocalClientGlobals) )
   {
-    __asm { vmovaps [rsp+0A8h+var_58], xmm7 }
     if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 4u) )
     {
-      m_localClientNum = _RBX->m_localClientNum;
+      m_localClientNum = this->m_localClientNum;
       if ( CgWeaponSystem::ms_allocatedType == WEAPONS_TYPE_NONE )
       {
-        LODWORD(v54) = _RBX->m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v54) )
+        LODWORD(v35) = this->m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 530, ASSERT_TYPE_ASSERT, "(ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE)", "%s\n\tTrying to access the weapon system for localClientNum %d but the weapon system type is not known\n", "ms_allocatedType != CgWeaponsType::WEAPONS_TYPE_NONE", v35) )
           __debugbreak();
       }
       if ( (unsigned int)m_localClientNum >= CgWeaponSystem::ms_allocatedCount )
       {
-        LODWORD(v54) = CgWeaponSystem::ms_allocatedCount;
-        LODWORD(v53) = m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v53, v54) )
+        LODWORD(v35) = CgWeaponSystem::ms_allocatedCount;
+        LODWORD(v34) = m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v34, v35) )
           __debugbreak();
       }
       if ( !CgWeaponSystem::ms_weaponSystemArray[m_localClientNum] )
       {
-        LODWORD(v54) = m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v54) )
+        LODWORD(v35) = m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 532, ASSERT_TYPE_ASSERT, "(ms_weaponSystemArray[localClientNum])", "%s\n\tTrying to access unallocated weapon system for localClientNum %d\n", "ms_weaponSystemArray[localClientNum]", v35) )
           __debugbreak();
       }
       CgWeaponSystem::ms_weaponSystemArray[m_localClientNum]->DrawFriendOrFoeTargetBoxes(CgWeaponSystem::ms_weaponSystemArray[m_localClientNum]);
     }
+    v12 = DVARINT_debugOverlay;
+    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.integer == 6 )
+      CG_DrawDebug_DrawFontTest(this->m_localClientNum);
+    CG_ScreenBlur(this->m_localClientNum);
+    CG_DrawFlashDamage(LocalClientGlobals);
+    v13 = DCONST_DVARBOOL_r_lowResOverlays;
+    if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v13);
+    if ( !v13->current.enabled && this->IsHudEnabled(this) )
+    {
+      CG_Draw2dHudElems(this->m_localClientNum, 0);
+      CG_Draw2dHudElems(this->m_localClientNum, 1);
+    }
+    CG_Draw_EndSceneCmdsAndAddHudLighting();
+    v14 = DCONST_DVARBOOL_r_spDirectionalDamageIndicatorsLowRes;
+    if ( !DCONST_DVARBOOL_r_spDirectionalDamageIndicatorsLowRes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_spDirectionalDamageIndicatorsLowRes") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v14);
+    if ( !v14->current.enabled )
+      goto LABEL_48;
+    v15 = DCONST_DVARBOOL_r_lowResOverlays;
+    if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled )
+      v16 = 1;
+    else
+LABEL_48:
+      v16 = 0;
+    if ( this->IsHudEnabled(this) )
+    {
+      v17 = DVARBOOL_cg_drawDamageDirection;
+      if ( !DVARBOOL_cg_drawDamageDirection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDamageDirection") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v17);
+      if ( v17->current.enabled && !v16 )
+        CG_DrawDamageDirectionIndicators(this->m_localClientNum);
+      CG_Draw2dHudElems(this->m_localClientNum, 2);
+      CG_DrawVehicleDebug(this->m_localClientNum);
+    }
+    if ( this->IsHudEnabled(this) )
+    {
+      CG_DrawSP_ActorOverlay(this->m_localClientNum);
+      v18 = DVARBOOL_cg_drawFriendlyFireCrosshair;
+      if ( !DVARBOOL_cg_drawFriendlyFireCrosshair && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFriendlyFireCrosshair") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v18);
+      if ( !v18->current.enabled || !CG_DrawSP_FriendlyFire(LocalClientGlobals) )
+        CG_DrawReticles_DrawCrosshair(this->m_localClientNum);
+      CG_DrawGrenadeIndicators(this->m_localClientNum);
+    }
+    v19 = DVARBOOL_bg_cinematicAboveUI;
+    if ( !DVARBOOL_bg_cinematicAboveUI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicAboveUI") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v19);
+    enabled = v19->current.enabled;
+    if ( !enabled )
+      UI_DrawInterpolatedCinematicElements(this->m_localClientNum);
+    if ( LUI_IsRenderUsingMultipleCmdLists() )
+    {
+      v21 = DCONST_DVARBOOL_r_lowResOverlays;
+      if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v21);
+      if ( v21->current.enabled )
+      {
+        R_AddCmdEndOfList();
+        R_BeginClientCmdList2D(GFX_CLIENT_CMD_LIST_LOWRES_OVERLAY);
+        if ( this->IsHudEnabled(this) )
+        {
+          CG_Draw2dHudElems(this->m_localClientNum, 0);
+          CG_Draw2dHudElems(this->m_localClientNum, 1);
+          if ( v16 )
+            CG_DrawDamageDirectionIndicators(this->m_localClientNum);
+        }
+      }
+    }
+    LUI_CoD_RenderFrame((const LocalClientNum_t)this->m_localClientNum);
+    if ( enabled )
+      UI_DrawInterpolatedCinematicElements(this->m_localClientNum);
+    UI_DrawCinematicSubtitles(this->m_localClientNum);
+    CG_DrawDebug_DrawPerformanceWarnings(this->m_localClientNum);
+    v22 = DVARINT_debugOverlay;
+    v23 = FLOAT_150_0;
+    v24 = FLOAT_10_0;
+    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v22);
+    v25 = this->m_localClientNum;
+    if ( v22->current.integer )
+      CG_DrawDebug_UpdateInput(v25);
+    else
+      CG_DrawDebug_ResetInput(v25);
+    CG_DrawDebug_UpdateMantleMotionPathExport(this->m_localClientNum);
+    v26 = DVARINT_debugOverlay;
+    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v26);
+    if ( v26->current.integer == 1 )
+      goto LABEL_117;
     v27 = DVARINT_debugOverlay;
     if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v27);
-    if ( v27->current.integer == 6 )
-      CG_DrawDebug_DrawFontTest(_RBX->m_localClientNum);
-    CG_ScreenBlur(_RBX->m_localClientNum);
-    CG_DrawFlashDamage(LocalClientGlobals);
-    v28 = DCONST_DVARBOOL_r_lowResOverlays;
-    if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v28);
-    if ( !v28->current.enabled && _RBX->IsHudEnabled(_RBX) )
-    {
-      CG_Draw2dHudElems(_RBX->m_localClientNum, 0);
-      CG_Draw2dHudElems(_RBX->m_localClientNum, 1);
-    }
-    CG_Draw_EndSceneCmdsAndAddHudLighting();
-    v29 = DCONST_DVARBOOL_r_spDirectionalDamageIndicatorsLowRes;
-    if ( !DCONST_DVARBOOL_r_spDirectionalDamageIndicatorsLowRes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_spDirectionalDamageIndicatorsLowRes") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    if ( !v29->current.enabled )
-      goto LABEL_48;
-    v30 = DCONST_DVARBOOL_r_lowResOverlays;
-    if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    if ( v30->current.enabled )
-      v31 = 1;
-    else
-LABEL_48:
-      v31 = 0;
-    if ( _RBX->IsHudEnabled(_RBX) )
-    {
-      v32 = DVARBOOL_cg_drawDamageDirection;
-      if ( !DVARBOOL_cg_drawDamageDirection && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDamageDirection") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      if ( v32->current.enabled && !v31 )
-        CG_DrawDamageDirectionIndicators(_RBX->m_localClientNum);
-      CG_Draw2dHudElems(_RBX->m_localClientNum, 2);
-      CG_DrawVehicleDebug(_RBX->m_localClientNum);
-    }
-    if ( _RBX->IsHudEnabled(_RBX) )
-    {
-      CG_DrawSP_ActorOverlay(_RBX->m_localClientNum);
-      v33 = DVARBOOL_cg_drawFriendlyFireCrosshair;
-      if ( !DVARBOOL_cg_drawFriendlyFireCrosshair && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFriendlyFireCrosshair") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      if ( !v33->current.enabled || !CG_DrawSP_FriendlyFire(LocalClientGlobals) )
-        CG_DrawReticles_DrawCrosshair(_RBX->m_localClientNum);
-      CG_DrawGrenadeIndicators(_RBX->m_localClientNum);
-    }
-    v34 = DVARBOOL_bg_cinematicAboveUI;
-    if ( !DVARBOOL_bg_cinematicAboveUI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_cinematicAboveUI") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    enabled = v34->current.enabled;
-    if ( !enabled )
-      UI_DrawInterpolatedCinematicElements(_RBX->m_localClientNum);
-    if ( LUI_IsRenderUsingMultipleCmdLists() )
-    {
-      v36 = DCONST_DVARBOOL_r_lowResOverlays;
-      if ( !DCONST_DVARBOOL_r_lowResOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_lowResOverlays") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v36);
-      if ( v36->current.enabled )
-      {
-        R_AddCmdEndOfList();
-        R_BeginClientCmdList2D(GFX_CLIENT_CMD_LIST_LOWRES_OVERLAY);
-        if ( _RBX->IsHudEnabled(_RBX) )
-        {
-          CG_Draw2dHudElems(_RBX->m_localClientNum, 0);
-          CG_Draw2dHudElems(_RBX->m_localClientNum, 1);
-          if ( v31 )
-            CG_DrawDamageDirectionIndicators(_RBX->m_localClientNum);
-        }
-      }
-    }
-    LUI_CoD_RenderFrame((const LocalClientNum_t)_RBX->m_localClientNum);
-    if ( enabled )
-      UI_DrawInterpolatedCinematicElements(_RBX->m_localClientNum);
-    UI_DrawCinematicSubtitles(_RBX->m_localClientNum);
-    CG_DrawDebug_DrawPerformanceWarnings(_RBX->m_localClientNum);
-    v37 = DVARINT_debugOverlay;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@43160000
-      vmovss  xmm7, cs:__real@41200000
-    }
-    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v37);
-    v40 = _RBX->m_localClientNum;
-    if ( v37->current.integer )
-      CG_DrawDebug_UpdateInput(v40);
-    else
-      CG_DrawDebug_ResetInput(v40);
-    CG_DrawDebug_UpdateMantleMotionPathExport(_RBX->m_localClientNum);
-    v41 = DVARINT_debugOverlay;
-    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v41);
-    if ( v41->current.integer == 1 )
-      goto LABEL_117;
-    v42 = DVARINT_debugOverlay;
-    if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v42);
-    if ( v42->current.integer == 9 )
+    if ( v27->current.integer == 9 )
     {
 LABEL_117:
-      CG_DrawDebug_DrawViewmodelInfo(_RBX->m_localClientNum);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@43480000
-        vmovss  xmm7, cs:__real@437a0000
-      }
+      CG_DrawDebug_DrawViewmodelInfo(this->m_localClientNum);
+      v23 = FLOAT_200_0;
+      v24 = FLOAT_250_0;
     }
     else
     {
-      v43 = DVARINT_debugOverlay;
+      v28 = DVARINT_debugOverlay;
       if ( !DVARINT_debugOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "debugOverlay") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v43);
-      if ( v43->current.integer == 2 )
+      Dvar_CheckFrontendServerThread(v28);
+      if ( v28->current.integer == 2 )
       {
-        CG_DrawDebugSP_DrawPSFlags((const LocalClientNum_t)_RBX->m_localClientNum);
+        CG_DrawDebugSP_DrawPSFlags((const LocalClientNum_t)this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 3 )
       {
-        CG_DrawDebug_DrawGameETCounts(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawGameETCounts(this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 5 )
       {
-        CG_DrawDebugSP_DrawSaveInfo((const LocalClientNum_t)_RBX->m_localClientNum);
+        CG_DrawDebugSP_DrawSaveInfo((const LocalClientNum_t)this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 7 )
       {
-        CG_DrawDebug_DrawViewmodelAnimList(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawViewmodelAnimList(this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 10 )
       {
-        CG_DrawDebug_DrawBulletFireLog(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawBulletFireLog(this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 11 )
       {
-        CG_DrawDebug_DrawBallistics(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawBallistics(this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 12 )
       {
-        CG_DrawDebug_DrawSkydive(_RBX->m_localClientNum, 0);
+        CG_DrawDebug_DrawSkydive(this->m_localClientNum, 0);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 13 )
       {
-        CG_DrawDebug_DrawSkydive(_RBX->m_localClientNum, 1);
+        CG_DrawDebug_DrawSkydive(this->m_localClientNum, 1);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 15 )
       {
-        CG_DrawDebug_DrawButtonBits(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawButtonBits(this->m_localClientNum);
       }
       else if ( Dvar_GetInt_Internal_DebugName(DVARINT_debugOverlay, "debugOverlay") == 16 )
       {
-        CG_DrawDebug_DrawInputContext(_RBX->m_localClientNum);
+        CG_DrawDebug_DrawInputContext(this->m_localClientNum);
       }
     }
-    v44 = DVARBOOL_cg_dumpViewmodelBlendSpaces;
+    v29 = DVARBOOL_cg_dumpViewmodelBlendSpaces;
     if ( !DVARBOOL_cg_dumpViewmodelBlendSpaces && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpViewmodelBlendSpaces") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v44);
-    if ( v44->current.enabled )
+    Dvar_CheckFrontendServerThread(v29);
+    if ( v29->current.enabled )
     {
-      v45 = DVARBOOL_cg_dumpblendspaces_coverage;
+      v30 = DVARBOOL_cg_dumpblendspaces_coverage;
       if ( !DVARBOOL_cg_dumpblendspaces_coverage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpblendspaces_coverage") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v45);
-      __asm
-      {
-        vmovaps xmm2, xmm6; startY
-        vmovaps xmm1, xmm7; startX
-      }
-      CG_DrawDebug_DrawVMBlendSpaces(_RBX->m_localClientNum, *(float *)&_XMM1, *(float *)&_XMM2, v45->current.enabled);
+      Dvar_CheckFrontendServerThread(v30);
+      CG_DrawDebug_DrawVMBlendSpaces(this->m_localClientNum, v24, v23, v30->current.enabled);
     }
-    v48 = DVARBOOL_cg_drawProcBonesAllocatorInfo;
-    __asm { vmovaps xmm7, [rsp+0A8h+var_58] }
+    v31 = DVARBOOL_cg_drawProcBonesAllocatorInfo;
     if ( !DVARBOOL_cg_drawProcBonesAllocatorInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawProcBonesAllocatorInfo") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v48);
-    if ( v48->current.enabled )
-      CG_DrawDebug_DrawXAnimProcBonesAllocatorInfo((const LocalClientNum_t)_RBX->m_localClientNum);
-    CG_DrawDebug_DrawViewKickLog(_RBX->m_localClientNum);
-    CG_DrawDebug_DrawLogQueue(_RBX->m_localClientNum);
-    v50 = DVARBOOL_cg_drawDevOverlays;
+    Dvar_CheckFrontendServerThread(v31);
+    if ( v31->current.enabled )
+      CG_DrawDebug_DrawXAnimProcBonesAllocatorInfo((const LocalClientNum_t)this->m_localClientNum);
+    CG_DrawDebug_DrawViewKickLog(this->m_localClientNum);
+    CG_DrawDebug_DrawLogQueue(this->m_localClientNum);
+    v32 = DVARBOOL_cg_drawDevOverlays;
     if ( !DVARBOOL_cg_drawDevOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDevOverlays") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v50);
-    if ( v50->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    if ( v32->current.enabled )
     {
       Profile_Begin(479);
-      CG_DrawDebugSP_DrawDebugOverlays((const LocalClientNum_t)_RBX->m_localClientNum);
+      CG_DrawDebugSP_DrawDebugOverlays((const LocalClientNum_t)this->m_localClientNum);
       Profile_EndInternal(NULL);
     }
-    CG_DrawHits_SubmitText(_RBX->m_localClientNum);
-    v51 = DVARBOOL_cg_drawDevOverlays;
+    CG_DrawHits_SubmitText(this->m_localClientNum);
+    v33 = DVARBOOL_cg_drawDevOverlays;
     if ( !DVARBOOL_cg_drawDevOverlays && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawDevOverlays") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v51);
-    if ( v51->current.enabled )
+    Dvar_CheckFrontendServerThread(v33);
+    if ( v33->current.enabled )
     {
       if ( !LocalClientGlobals->showScores )
-        CG_Draw_MiniConsole((const LocalClientNum_t)_RBX->m_localClientNum);
-      CG_Draw_ErrorMessages((const LocalClientNum_t)_RBX->m_localClientNum, 20);
+        CG_Draw_MiniConsole((const LocalClientNum_t)this->m_localClientNum);
+      CG_Draw_ErrorMessages((const LocalClientNum_t)this->m_localClientNum, 20);
     }
-    CG_DrawDebug_DrawCenterLines(_RBX->m_localClientNum);
+    CG_DrawDebug_DrawCenterLines(this->m_localClientNum);
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
 }
 
 /*
@@ -1212,18 +945,11 @@ LABEL_117:
 CgDrawSystemSP::DrawHoldBreathHint
 ==============
 */
-
-void __fastcall CgDrawSystemSP::DrawHoldBreathHint(CgDrawSystemSP *this, const rectDef_s *rect, GfxFont *font, double fontscale, int textStyle)
+void CgDrawSystemSP::DrawHoldBreathHint(CgDrawSystemSP *this, const rectDef_s *rect, GfxFont *font, float fontscale, int textStyle)
 {
   cg_t *LocalClientGlobals; 
   const playerState_s *p_predictedPlayerState; 
-  float fmt; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( !CG_Draw_IsHudHidden() && !LocalClientGlobals->showScores && !CL_Pause_IsGamePaused() )
   {
@@ -1241,12 +967,10 @@ void __fastcall CgDrawSystemSP::DrawHoldBreathHint(CgDrawSystemSP *this, const r
       }
       else
       {
-        __asm { vmovss  dword ptr [rsp+58h+fmt], xmm6 }
-        CG_Draw_HoldBreathHintCommon((const LocalClientNum_t)this->m_localClientNum, p_predictedPlayerState, rect, font, fmt, textStyle);
+        CG_Draw_HoldBreathHintCommon((const LocalClientNum_t)this->m_localClientNum, p_predictedPlayerState, rect, font, fontscale, textStyle);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -1254,21 +978,12 @@ void __fastcall CgDrawSystemSP::DrawHoldBreathHint(CgDrawSystemSP *this, const r
 CgDrawSystemSP::DrawHybridToggleHint
 ==============
 */
-
-void __fastcall CgDrawSystemSP::DrawHybridToggleHint(CgDrawSystemSP *this, const rectDef_s *rect, GfxFont *font, double fontscale, int textStyle)
+void CgDrawSystemSP::DrawHybridToggleHint(CgDrawSystemSP *this, const rectDef_s *rect, GfxFont *font, float fontscale, int textStyle)
 {
   cg_t *LocalClientGlobals; 
-  float v12; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  __asm { vmovss  [rsp+48h+var_28], xmm6 }
-  CG_Draw_HybridToggleHintCommon(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, rect, font, v12, textStyle);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  CG_Draw_HybridToggleHintCommon(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, rect, font, fontscale, textStyle);
 }
 
 /*
@@ -1278,11 +993,13 @@ CgDrawSystemSP::FadeHudMenu
 */
 float CgDrawSystemSP::FadeHudMenu(CgDrawSystemSP *this, const dvar_t *fadeDvar, int displayStartTime, int duration)
 {
+  double v8; 
+
   if ( CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum)->predictedPlayerState.pm_type == 4 || CG_Draw_IsHudHidden() )
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v8) = 0;
   else
-    *(double *)&_XMM0 = CgDrawSystem::FadeHudMenu(this, fadeDvar, displayStartTime, duration);
-  return *(float *)&_XMM0;
+    v8 = CgDrawSystem::FadeHudMenu(this, fadeDvar, displayStartTime, duration);
+  return *(float *)&v8;
 }
 
 /*
@@ -1353,39 +1070,20 @@ __int64 CgDrawSystemSP::IsHudMissionFailed(CgDrawSystemSP *this)
 CgDrawSystemSP::OwnerDraw
 ==============
 */
-
-void __fastcall CgDrawSystemSP::OwnerDraw(CgDrawSystemSP *this, rectDef_s *parentRect, double x, double y, float w, float h, int horzAlign, int vertAlign, float text_x, float text_y, int ownerDraw, GfxFont *font, float scale, const vec4_t *color, int textStyle, int textAlignMode)
+void CgDrawSystemSP::OwnerDraw(CgDrawSystemSP *this, rectDef_s *parentRect, float x, float y, float w, float h, int horzAlign, int vertAlign, float text_x, float text_y, int ownerDraw, GfxFont *font, float scale, const vec4_t *color, int textStyle, int textAlignMode)
 {
-  float fmt; 
-  float v29; 
-  float v30; 
   rectDef_s rect; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_28], xmm6
-    vmovaps [rsp+0A8h+var_38], xmm7
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   if ( ((unsigned int (__fastcall *)(CgDrawSystemSP *, rectDef_s *))this->IsHudEnabled)(this, parentRect) )
   {
     CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     if ( CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum) == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 994, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+arg_20]
-      vmovss  xmm1, [rsp+0A8h+arg_28]
-    }
     rect.horzAlign = horzAlign;
-    __asm
-    {
-      vmovss  [rsp+0A8h+rect.x], xmm6
-      vmovss  [rsp+0A8h+rect.y], xmm7
-      vmovss  [rsp+0A8h+rect.w], xmm0
-      vmovss  [rsp+0A8h+rect.h], xmm1
-    }
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
     if ( (unsigned __int8)horzAlign != horzAlign && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 1001, ASSERT_TYPE_ASSERT, "(rect.horzAlign == horzAlign)", (const char *)&queryFormat, "rect.horzAlign == horzAlign") )
       __debugbreak();
     rect.vertAlign = vertAlign;
@@ -1401,22 +1099,8 @@ void __fastcall CgDrawSystemSP::OwnerDraw(CgDrawSystemSP *this, rectDef_s *paren
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+0A8h+arg_48]
-        vmovss  xmm1, [rsp+0A8h+arg_40]
-        vmovss  [rsp+0A8h+var_70], xmm0
-        vmovss  xmm0, [rsp+0A8h+arg_60]
-        vmovss  [rsp+0A8h+var_78], xmm1
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-      }
-      CgDrawSystem::OwnerDrawCommon(this, &rect, ownerDraw, font, fmt, color, v29, v30, textStyle, textAlignMode);
+      CgDrawSystem::OwnerDrawCommon(this, &rect, ownerDraw, font, scale, color, text_x, text_y, textStyle, textAlignMode);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_28]
-    vmovaps xmm7, [rsp+0A8h+var_38]
   }
 }
 
@@ -1511,78 +1195,48 @@ void CgDrawSystemSP::UpdateScissor(CgDrawSystemSP *this)
 CgDrawSystemSP::UpdateTimeScale
 ==============
 */
-
-void __fastcall CgDrawSystemSP::UpdateTimeScale(CgDrawSystemSP *this, double _XMM1_8)
+void CgDrawSystemSP::UpdateTimeScale(CgDrawSystemSP *this)
 {
-  int v5; 
+  int v2; 
   int m_timeScaleTimeStart; 
-  unsigned int m_timeScaleTimeEnd; 
-  bool v9; 
-  int v23; 
-  int v25; 
+  int v4; 
+  int m_timeScaleTimeEnd; 
+  float v6; 
+  float m_timeScaleEnd; 
+  int v8; 
 
-  _RBX = this;
-  v5 = Sys_Milliseconds();
-  m_timeScaleTimeStart = _RBX->m_timeScaleTimeStart;
-  if ( m_timeScaleTimeStart && m_timeScaleTimeStart < v5 )
+  v2 = Sys_Milliseconds();
+  m_timeScaleTimeStart = this->m_timeScaleTimeStart;
+  v4 = v2;
+  if ( m_timeScaleTimeStart && m_timeScaleTimeStart < v2 )
   {
-    m_timeScaleTimeEnd = _RBX->m_timeScaleTimeEnd;
-    __asm
+    m_timeScaleTimeEnd = this->m_timeScaleTimeEnd;
+    if ( v2 >= m_timeScaleTimeEnd )
     {
-      vmovaps [rsp+68h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    v9 = v5 <= m_timeScaleTimeEnd;
-    if ( v5 >= (int)m_timeScaleTimeEnd )
-    {
-      __asm { vmovss  xmm1, dword ptr [rbx+1Ch] }
-      *(_QWORD *)&_RBX->m_timeScaleTimeStart = 0i64;
+      m_timeScaleEnd = this->m_timeScaleEnd;
+      *(_QWORD *)&this->m_timeScaleTimeStart = 0i64;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edx
-        vcomiss xmm0, xmm6
-      }
-      if ( m_timeScaleTimeEnd <= m_timeScaleTimeStart && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 545, ASSERT_TYPE_ASSERT, "(m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f)", (const char *)&queryFormat, "m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f") )
+      if ( (float)(m_timeScaleTimeEnd - m_timeScaleTimeStart) <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_draw_sp.cpp", 545, ASSERT_TYPE_ASSERT, "(m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f)", (const char *)&queryFormat, "m_timeScaleTimeEnd - m_timeScaleTimeStart > 0.0f") )
         __debugbreak();
-      v9 = _RBX->m_timeScaleTimeEnd <= (unsigned int)_RBX->m_timeScaleTimeStart;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edi
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm4, xmm1, xmm0
-        vmovss  xmm1, cs:__real@3f800000
-        vmulss  xmm0, xmm4, dword ptr [rbx+1Ch]
-        vsubss  xmm2, xmm1, xmm4
-        vmulss  xmm3, xmm2, dword ptr [rbx+18h]
-        vaddss  xmm1, xmm3, xmm0
-      }
+      v6 = (float)(v4 - this->m_timeScaleTimeStart) / (float)(this->m_timeScaleTimeEnd - this->m_timeScaleTimeStart);
+      m_timeScaleEnd = (float)((float)(1.0 - v6) * this->m_timeScaleStart) + (float)(v6 * this->m_timeScaleEnd);
     }
-    __asm
-    {
-      vcomiss xmm1, xmm6
-      vmovaps xmm6, [rsp+68h+var_18]
-      vmovss  [rsp+68h+arg_0], xmm1
-    }
-    if ( v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_inline.h", 47, ASSERT_TYPE_ASSERT, "(timescale > 0)", (const char *)&queryFormat, "timescale > 0") )
+    if ( m_timeScaleEnd <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_inline.h", 47, ASSERT_TYPE_ASSERT, "(timescale > 0)", (const char *)&queryFormat, "timescale > 0") )
       __debugbreak();
     Sys_CheckAcquireLock(&s_timescaleRWLock);
     AcquireSRWLockExclusive((PSRWLOCK)&s_timescaleRWLock);
     s_timescaleRWLock.writeThreadId = Sys_GetCurrentThreadId();
     if ( !s_timescaleRWLock.writeThreadId )
     {
-      v23 = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v23, 0i64) )
+      v8 = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v8, 0i64) )
         __debugbreak();
     }
     s_timescale_aab -= s_timescale_set_aab;
     s_timescaleRWLock.writeThreadId = 0;
-    LODWORD(com_codeTimeScale.timeFloat) = (ComCodeTimeScale)(v25 ^ (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) * (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) + 2)));
+    LODWORD(com_codeTimeScale.timeFloat) = (ComCodeTimeScale)(LODWORD(m_timeScaleEnd) ^ (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) * (((unsigned int)&com_codeTimeScale ^ s_timescale_aab) + 2)));
     ReleaseSRWLockExclusive((PSRWLOCK)&s_timescaleRWLock);
     Sys_CheckReleaseLock(&s_timescaleRWLock);
   }

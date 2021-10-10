@@ -323,22 +323,20 @@ AD_Interface *AD_BK_Init(const AD_BK_Options *const options, AD_Interface *const
   __int64 v8; 
   AD_Event *Event; 
 
-  _RBX = existingInterface;
-  _RSI = options;
   if ( !options && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 92, ASSERT_TYPE_ASSERT, "options != nullptr", "options != nullptr") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 94, ASSERT_TYPE_ASSERT, "existingInterface != nullptr", "existingInterface != nullptr") )
+  if ( !existingInterface && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 94, ASSERT_TYPE_ASSERT, "existingInterface != nullptr", "existingInterface != nullptr") )
     __debugbreak();
   if ( !existingMixer && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 95, ASSERT_TYPE_ASSERT, "existingMixer != nullptr", "existingMixer != nullptr") )
     __debugbreak();
-  if ( !_RBX )
+  if ( !existingInterface )
   {
     v6 = (AD_Interface *)_AD_Aligned_Malloc(0x82940u, 4u);
     if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_memory.h", 99, ASSERT_TYPE_ASSERT, "res != nullptr", "AD_Malloc failed to allocate %lu bytes.", 534848i64) )
       __debugbreak();
     memset_0(v6, 0, sizeof(AD_Interface));
     AD_Interface::AD_Interface(v6);
-    _RBX = v7;
+    existingInterface = v7;
   }
   if ( !existingMixer )
   {
@@ -355,27 +353,22 @@ AD_Interface *AD_BK_Init(const AD_BK_Options *const options, AD_Interface *const
     existingMixer->mainOutputRemixScratchBuffer.m_size = 0x20000;
     existingMixer->mainOutputRemixScratchBuffer.__vftable = (AD_StaticSampleBuffer<32768,32>_vtbl *)&AD_StaticSampleBuffer<32768,32>::`vftable';
   }
-  _RBX->masterBusMixer = existingMixer;
+  existingInterface->masterBusMixer = existingMixer;
   v8 = 0i64;
-  _RBX->interfaceThread = NULL;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, qword ptr [rsi+10h]
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
-  _RBX->options.outputMixBedConfig[3] = _RSI->outputMixBedConfig[3];
-  if ( !AD_PlatformInit(&_RBX->options) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 104, ASSERT_TYPE_ASSERT, "AD_PlatformInit( &newInterface->options )", "AD_PlatformInit( &newInterface->options )") )
+  existingInterface->interfaceThread = NULL;
+  *(_OWORD *)&existingInterface->options.supportSpatialAudio = *(_OWORD *)&options->supportSpatialAudio;
+  *(double *)&existingInterface->options.outputMixBedConfig[1] = *(double *)&options->outputMixBedConfig[1];
+  existingInterface->options.outputMixBedConfig[3] = options->outputMixBedConfig[3];
+  if ( !AD_PlatformInit(&existingInterface->options) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface.cpp", 104, ASSERT_TYPE_ASSERT, "AD_PlatformInit( &newInterface->options )", "AD_PlatformInit( &newInterface->options )") )
     __debugbreak();
-  AD_InitMasterBusMixer(&_RBX->options, _RBX->masterBusMixer);
-  AD_UserManagerInit(&_RBX->userManager);
+  AD_InitMasterBusMixer(&existingInterface->options, existingInterface->masterBusMixer);
+  AD_UserManagerInit(&existingInterface->userManager);
   Event = AD_CreateEvent(0xBu, 0i64, 0);
-  _RBX->interfaceThreadSignals.event = Event;
+  existingInterface->interfaceThreadSignals.event = Event;
   if ( !Event && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_event.h", 123, ASSERT_TYPE_ASSERT, "event != nullptr", "event != nullptr") )
     __debugbreak();
-  if ( AD_InitInterfaceThreadData(_RBX) )
-    return _RBX;
+  if ( AD_InitInterfaceThreadData(existingInterface) )
+    return existingInterface;
   return (AD_Interface *)v8;
 }
 

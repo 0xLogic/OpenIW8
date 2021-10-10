@@ -1330,53 +1330,57 @@ void DObjArchive(DObj *obj)
   unsigned __int16 v2; 
   char *v3; 
   unsigned int v4; 
-  bool v7; 
+  char *v5; 
+  bool v6; 
+  double v7; 
   int parentSlot; 
-  _QWORD *v11; 
+  vec4_t quat; 
+  char *v10; 
   unsigned __int64 numModels; 
-  void *v14; 
-  __int64 v23; 
-  __int64 v24; 
+  char *v12; 
+  void *v13; 
+  DObjMaterialData *materialData; 
+  __m256i v15; 
+  __m256i v16; 
+  __int128 v17; 
+  double v18; 
+  __int64 v19; 
+  __int64 v20; 
   _BYTE entnum[64]; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v26; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v22; 
   XModelMaterialOverride *modelMaterialOverrides[2]; 
-  _QWORD *v28; 
+  double v24; 
   DObjModel dobjModels[254]; 
 
-  _RDI = obj;
   DObjGetCreateParms(obj, dobjModels, (unsigned __int16 *)&entnum[52], (XAnimTree **)&entnum[56], (unsigned __int16 *)&entnum[54]);
-  *(_DWORD *)&entnum[16] = _RDI->locked;
-  *(_QWORD *)&entnum[8] = _RDI->models;
+  *(_DWORD *)&entnum[16] = obj->locked;
+  *(_QWORD *)&entnum[8] = obj->models;
   memset(&entnum[20], 0, 32);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v26, &_RDI->hidePartBits);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v22, &obj->hidePartBits);
   v2 = *(_WORD *)&entnum[52];
   v3 = (char *)MT_AlignedAlloc(36i64 * *(unsigned __int16 *)&entnum[52], 4ui64, 13);
-  LOBYTE(modelMaterialOverrides[0]) = _RDI->flags;
+  LOBYTE(modelMaterialOverrides[0]) = obj->flags;
   v4 = 0;
-  BYTE1(modelMaterialOverrides[0]) = _RDI->validation;
+  BYTE1(modelMaterialOverrides[0]) = obj->validation;
   for ( *(_QWORD *)entnum = v3; v4 < v2; ++v4 )
   {
-    _RCX = &v3[36 * v4];
-    _RDX = 10i64 * v4;
-    v7 = !dobjModels[v4].ignoreCollision;
-    __asm { vmovsd  xmm0, qword ptr [rbp+rdx*8+4F60h+dobjModels.offsets] }
-    *(_DWORD *)_RCX = dobjModels[v4].boneName;
+    v5 = &v3[36 * v4];
+    v6 = !dobjModels[v4].ignoreCollision;
+    v7 = *(double *)dobjModels[v4].offsets.v;
+    *(_DWORD *)v5 = dobjModels[v4].boneName;
     parentSlot = dobjModels[v4].parentSlot;
-    __asm
-    {
-      vmovsd  qword ptr [rcx+8], xmm0
-      vmovups xmm0, xmmword ptr [rbp+rdx*8+4F60h+dobjModels.quat]
-    }
-    *((_DWORD *)_RCX + 1) = parentSlot;
-    *((_DWORD *)_RCX + 4) = LODWORD(dobjModels[v4].offsets.v[2]);
-    __asm { vmovups xmmword ptr [rcx+14h], xmm0 }
-    if ( !v7 )
+    *((double *)v5 + 1) = v7;
+    quat = dobjModels[v4].quat;
+    *((_DWORD *)v5 + 1) = parentSlot;
+    *((_DWORD *)v5 + 4) = LODWORD(dobjModels[v4].offsets.v[2]);
+    *(vec4_t *)(v5 + 20) = quat;
+    if ( !v6 )
     {
       if ( v4 >= 0x100 )
       {
-        LODWORD(v24) = 256;
-        LODWORD(v23) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v23, v24) )
+        LODWORD(v20) = 256;
+        LODWORD(v19) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v19, v20) )
           __debugbreak();
       }
       *(_DWORD *)&entnum[4 * ((unsigned __int64)v4 >> 5) + 20] |= 0x80000000 >> (v4 & 0x1F);
@@ -1384,54 +1388,45 @@ void DObjArchive(DObj *obj)
       v3 = *(char **)entnum;
     }
   }
-  DObjArchiveMaterialOverrides(_RDI, &modelMaterialOverrides[1]);
-  if ( _RDI->materialData )
+  DObjArchiveMaterialOverrides(obj, &modelMaterialOverrides[1]);
+  if ( obj->materialData )
   {
-    v11 = MT_AlignedAlloc(0x48ui64, 8ui64, 24);
-    numModels = _RDI->numModels;
-    _RBX = v11;
-    v28 = v11;
-    v14 = MT_Alloc(numModels, 24);
-    *_RBX = v14;
-    memcpy_0(v14, _RDI->materialData->modelEntityDataOffset, _RDI->numModels);
-    _RCX = _RDI->materialData;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+8]
-      vmovups ymmword ptr [rbx+8], ymm0
-      vmovups ymm1, ymmword ptr [rcx+28h]
-      vmovups ymmword ptr [rbx+28h], ymm1
-    }
+    v10 = (char *)MT_AlignedAlloc(0x48ui64, 8ui64, 24);
+    numModels = obj->numModels;
+    v12 = v10;
+    v24 = *(double *)&v10;
+    v13 = MT_Alloc(numModels, 24);
+    *(_QWORD *)v12 = v13;
+    memcpy_0(v13, obj->materialData->modelEntityDataOffset, obj->numModels);
+    materialData = obj->materialData;
+    *(__m256i *)(v12 + 8) = *(__m256i *)materialData->camoAsset;
+    *(__m256i *)(v12 + 40) = *(__m256i *)&materialData->camoAsset[4];
   }
   else
   {
-    v28 = NULL;
+    v24 = 0.0;
   }
-  if ( !_RDI->models && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2002, ASSERT_TYPE_ASSERT, "(obj->models)", (const char *)&queryFormat, "obj->models") )
+  if ( !obj->models && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2002, ASSERT_TYPE_ASSERT, "(obj->models)", (const char *)&queryFormat, "obj->models") )
     __debugbreak();
-  _RDI->models = NULL;
+  obj->models = NULL;
   Profile_Begin(455);
-  if ( _RDI->locked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1831, ASSERT_TYPE_ASSERT, "(obj->locked == qfalse)", (const char *)&queryFormat, "obj->locked == qfalse") )
+  if ( obj->locked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1831, ASSERT_TYPE_ASSERT, "(obj->locked == qfalse)", (const char *)&queryFormat, "obj->locked == qfalse") )
     __debugbreak();
-  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_dobj_assert_on_free_submitted, "dobj_assert_on_free_submitted") && (_RDI->validation & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1836, ASSERT_TYPE_ASSERT, "(!(obj->validation & 0x01))", (const char *)&queryFormat, "!(obj->validation & DOBJVALIDATION_SUBMITTED)") )
+  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_dobj_assert_on_free_submitted, "dobj_assert_on_free_submitted") && (obj->validation & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1836, ASSERT_TYPE_ASSERT, "(!(obj->validation & 0x01))", (const char *)&queryFormat, "!(obj->validation & DOBJVALIDATION_SUBMITTED)") )
     __debugbreak();
-  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_dobj_assert_on_free_submitted_dump, "dobj_assert_on_free_submitted_dump") && (_RDI->validation & 1) != 0 )
+  if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_dobj_assert_on_free_submitted_dump, "dobj_assert_on_free_submitted_dump") && (obj->validation & 1) != 0 )
     CrashReport_TriggerNow();
-  DObjFree_Internal(_RDI);
+  DObjFree_Internal(obj);
   Profile_EndInternal(NULL);
-  __asm
-  {
-    vmovups ymm0, [rsp+5060h+var_5010]
-    vmovups ymm1, ymmword ptr [rsp+70h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm0, ymmword ptr [rbp+4F60h+var_4FD0.baseclass_0.array]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups xmm1, xmmword ptr [rbp+4F60h+modelMaterialOverrides]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovsd  xmm0, [rbp+4F60h+var_4FA0]
-    vmovups xmmword ptr [rdi+60h], xmm1
-    vmovsd  qword ptr [rdi+70h], xmm0
-  }
+  v15 = *(__m256i *)&entnum[32];
+  *(__m256i *)&obj->tree = *(__m256i *)entnum;
+  v16 = (__m256i)v22;
+  *(__m256i *)((char *)&obj->ignoreCollision + 12) = v15;
+  v17 = *(_OWORD *)modelMaterialOverrides;
+  *(__m256i *)((char *)&obj->skel.partBits.anim + 8) = v16;
+  v18 = v24;
+  *(_OWORD *)&obj->skel.partBits.control.array[2] = v17;
+  *(double *)&obj->skel.partBits.control.array[6] = v18;
 }
 
 /*
@@ -1454,11 +1449,13 @@ void DObjArchiveMaterialOverrides(const DObj *obj, XModelMaterialOverride **mode
   void *v12; 
   unsigned __int64 v13; 
   __int64 v14; 
+  __int64 v15; 
+  __m256i *v16; 
+  char *v17; 
   char *v18; 
   char *v19; 
-  char *v20; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v24; 
 
   v2 = modelMaterialOverrides;
   v3 = obj;
@@ -1470,13 +1467,13 @@ void DObjArchiveMaterialOverrides(const DObj *obj, XModelMaterialOverride **mode
   v5 = NumModels;
   if ( v3->modelMaterialOverrides && NumModels )
   {
-    v24 = NumModels;
+    v23 = NumModels;
     v6 = NumModels;
     *v2 = (XModelMaterialOverride *)MT_AlignedAlloc(16i64 * NumModels, 8ui64, 23);
     if ( v5 )
     {
       v7 = 0i64;
-      v23 = 0i64;
+      v22 = 0i64;
       do
       {
         v8 = (unsigned int *)((char *)&v3->modelMaterialOverrides->materialOverrideCount + v7);
@@ -1507,39 +1504,38 @@ void DObjArchiveMaterialOverrides(const DObj *obj, XModelMaterialOverride **mode
               }
               v14 = 8i64 * v10;
               *(_QWORD *)(v14 + *((_QWORD *)v9 + 1)) = v13;
-              _RSI = *(_QWORD *)(v14 + *((_QWORD *)v8 + 1));
-              __asm { vmovups ymm0, ymmword ptr [rsi] }
-              _RBP = *(_QWORD *)(v14 + *((_QWORD *)v9 + 1));
-              __asm { vmovups ymmword ptr [rbp+0], ymm0 }
-              if ( *(_DWORD *)(_RSI + 24) == 3 )
+              v15 = *(_QWORD *)(v14 + *((_QWORD *)v8 + 1));
+              v16 = *(__m256i **)(v14 + *((_QWORD *)v9 + 1));
+              *v16 = *(__m256i *)v15;
+              if ( *(_DWORD *)(v15 + 24) == 3 )
               {
-                *(_QWORD *)(_RBP + 16) = 0i64;
+                v16->m256i_i64[2] = 0i64;
               }
               else
               {
-                v18 = (char *)MT_Alloc(16i64 * *(unsigned __int8 *)(*(_QWORD *)_RSI + 28i64) + 8, 23);
-                v19 = v18;
-                if ( v18 )
+                v17 = (char *)MT_Alloc(16i64 * *(unsigned __int8 *)(*(_QWORD *)v15 + 28i64) + 8, 23);
+                v18 = v17;
+                if ( v17 )
                 {
-                  v20 = (char *)((unsigned __int64)(v18 + 8) & 0xFFFFFFFFFFFFFFF8ui64);
-                  if ( v20 <= v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 69, ASSERT_TYPE_ASSERT, "( retPtr ) > ( bytePtr )", "%s > %s\n\t%p, %p", "retPtr", "bytePtr", (const void *)((unsigned __int64)(v18 + 8) & 0xFFFFFFFFFFFFFFF8ui64), v18) )
+                  v19 = (char *)((unsigned __int64)(v17 + 8) & 0xFFFFFFFFFFFFFFF8ui64);
+                  if ( v19 <= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 69, ASSERT_TYPE_ASSERT, "( retPtr ) > ( bytePtr )", "%s > %s\n\t%p, %p", "retPtr", "bytePtr", (const void *)((unsigned __int64)(v17 + 8) & 0xFFFFFFFFFFFFFFF8ui64), v17) )
                     __debugbreak();
-                  if ( (unsigned __int64)(v20 - v19) > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 70, ASSERT_TYPE_ASSERT, "( static_cast<size_t>( retPtr - bytePtr ) ) <= ( alignment )", "%s <= %s\n\t%llu, %llu", "static_cast<size_t>( retPtr - bytePtr )", "alignment", v20 - v19, 8i64) )
+                  if ( (unsigned __int64)(v19 - v18) > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 70, ASSERT_TYPE_ASSERT, "( static_cast<size_t>( retPtr - bytePtr ) ) <= ( alignment )", "%s <= %s\n\t%llu, %llu", "static_cast<size_t>( retPtr - bytePtr )", "alignment", v19 - v18, 8i64) )
                     __debugbreak();
-                  *(v20 - 1) = (_BYTE)v20 - (_BYTE)v19;
+                  *(v19 - 1) = (_BYTE)v19 - (_BYTE)v18;
                 }
                 else
                 {
-                  v20 = NULL;
+                  v19 = NULL;
                 }
-                *(_QWORD *)(_RBP + 16) = v20;
-                memcpy_0(v20, *(const void **)(_RSI + 16), 16i64 * *(unsigned __int8 *)(*(_QWORD *)_RSI + 28i64));
+                v16->m256i_i64[2] = (__int64)v19;
+                memcpy_0(v19, *(const void **)(v15 + 16), 16i64 * *(unsigned __int8 *)(*(_QWORD *)v15 + 28i64));
               }
               ++v10;
             }
             while ( v10 < *v8 );
-            v7 = v23;
-            v6 = v24;
+            v7 = v22;
+            v6 = v23;
             v2 = modelMaterialOverrides;
             v3 = obj;
           }
@@ -1550,8 +1546,8 @@ void DObjArchiveMaterialOverrides(const DObj *obj, XModelMaterialOverride **mode
         }
         v7 += 16i64;
         --v6;
-        v23 = v7;
-        v24 = v6;
+        v22 = v7;
+        v23 = v6;
       }
       while ( v6 );
     }
@@ -1749,195 +1745,169 @@ DObjCloneWithClientFlag
 */
 void DObjCloneWithClientFlag(const DObj *from, char *buf, bool isTargetClient)
 {
-  char v15; 
-  char v16; 
-  char v17; 
+  char v6; 
+  char v7; 
+  char v8; 
   scr_string_t duplicateParts; 
-  void *v19; 
+  void *v10; 
+  DObjMaterialData *materialData; 
+  __int64 v12; 
   XModelMaterialOverride *modelMaterialOverrides; 
-  __int64 v25; 
-  void *v26; 
-  void *v27; 
-  unsigned __int64 v28; 
-  __int64 v29; 
-  MaterialOverride *v30; 
+  __int64 v14; 
+  void *v15; 
+  void *v16; 
+  unsigned __int64 v17; 
+  __int64 v18; 
+  MaterialOverride *v19; 
   MaterialOverrideType overrideType; 
-  _QWORD *v32; 
-  void *v33; 
-  __int64 v34; 
+  _QWORD *v21; 
+  void *v22; 
+  __int64 v23; 
   Material *originalMaterial; 
-  int v36; 
+  int v25; 
   unsigned __int8 textureCount; 
 
-  _R15 = buf;
-  _R12 = from;
   if ( !buf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1620, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  _RCX = _R15 + 56;
-  *(_QWORD *)_R15 = _R12->tree;
-  *((_DWORD *)_R15 + 2) = _R12->duplicateParts;
-  *((_WORD *)_R15 + 6) = _R12->entnum;
-  _R15[14] = _R12->duplicatePartsSize;
-  _R15[15] = _R12->numModels;
-  _R15[16] = _R12->numBones;
-  _R15[17] = _R12->flags;
-  *((_WORD *)_R15 + 9) = _R12->numClientBones;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r12+14h]
-    vmovups ymmword ptr [r15+14h], ymm0
-  }
-  *((_DWORD *)_R15 + 13) = _R12->locked;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r12+38h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [r12+58h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups ymm0, ymmword ptr [r12+78h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm1, ymmword ptr [r12+98h]
-    vmovups ymmword ptr [rcx+60h], ymm1
-    vmovups xmm0, xmmword ptr [r12+0B8h]
-    vmovups xmmword ptr [rcx+80h], xmm0
-  }
-  *((_DWORD *)_R15 + 50) = LODWORD(_R12->radius);
-  *((_DWORD *)_R15 + 51) = _R12->proceduralBonesHandle.m_value;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r12+0D0h]
-    vmovups ymmword ptr [r15+0D0h], ymm0
-  }
-  *((_QWORD *)_R15 + 30) = _R12->models;
-  *((_QWORD *)_R15 + 31) = _R12->offsets;
-  *((_QWORD *)_R15 + 32) = _R12->quats;
-  *((_QWORD *)_R15 + 33) = _R12->parentSlots;
-  *((_QWORD *)_R15 + 34) = _R12->modelMaterialOverrides;
-  *((_QWORD *)_R15 + 35) = _R12->materialData;
-  *((_WORD *)_R15 + 144) = _R12->blendShapeWeightCount;
-  *((_WORD *)_R15 + 145) = _R12->blendShapeTargetCount;
-  _R15[292] = _R12->validation;
-  *((_QWORD *)_R15 + 37) = _R12->lastGpuLightGridRequest;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r12+130h]
-    vmovups ymmword ptr [r15+130h], ymm0
-  }
-  *((_DWORD *)_R15 + 13) = 0;
-  memset_0(_R15 + 56, 0, 0x90ui64);
-  DObjClearSkelRecord((const DObj *)_R15);
-  v15 = _R15[17];
-  v16 = v15 | 8;
-  v17 = v15 & 0xF7;
+  *(_QWORD *)buf = from->tree;
+  *((_DWORD *)buf + 2) = from->duplicateParts;
+  *((_WORD *)buf + 6) = from->entnum;
+  buf[14] = from->duplicatePartsSize;
+  buf[15] = from->numModels;
+  buf[16] = from->numBones;
+  buf[17] = from->flags;
+  *((_WORD *)buf + 9) = from->numClientBones;
+  *(DObjModelBits *)(buf + 20) = from->ignoreCollision;
+  *((_DWORD *)buf + 13) = from->locked;
+  *(DObjPartBits *)(buf + 56) = from->skel.partBits.anim;
+  *(DObjPartBits *)(buf + 88) = from->skel.partBits.control;
+  *(DObjPartBits *)(buf + 120) = from->skel.partBits.worldCtrl;
+  *(DObjPartBits *)(buf + 152) = from->skel.partBits.skel;
+  *(_OWORD *)(buf + 184) = *(_OWORD *)&from->skel.partBits.animCalculated;
+  *((_DWORD *)buf + 50) = LODWORD(from->radius);
+  *((_DWORD *)buf + 51) = from->proceduralBonesHandle.m_value;
+  *(DObjPartBits *)(buf + 208) = from->hidePartBits;
+  *((_QWORD *)buf + 30) = from->models;
+  *((_QWORD *)buf + 31) = from->offsets;
+  *((_QWORD *)buf + 32) = from->quats;
+  *((_QWORD *)buf + 33) = from->parentSlots;
+  *((_QWORD *)buf + 34) = from->modelMaterialOverrides;
+  *((_QWORD *)buf + 35) = from->materialData;
+  *((_WORD *)buf + 144) = from->blendShapeWeightCount;
+  *((_WORD *)buf + 145) = from->blendShapeTargetCount;
+  buf[292] = from->validation;
+  *((_QWORD *)buf + 37) = from->lastGpuLightGridRequest;
+  *(DObjModelBits *)(buf + 304) = from->modelHasBadRootBoneMeld;
+  *((_DWORD *)buf + 13) = 0;
+  memset_0(buf + 56, 0, 0x90ui64);
+  DObjClearSkelRecord((const DObj *)buf);
+  v6 = buf[17];
+  v7 = v6 | 8;
+  v8 = v6 & 0xF7;
   if ( !isTargetClient )
-    v16 = v17;
-  _R15[17] = v16;
-  *((_DWORD *)_R15 + 76) = _R12->modelHasBadRootBoneMeld.array[0];
-  *((_DWORD *)_R15 + 77) = _R12->modelHasBadRootBoneMeld.array[1];
-  *((_DWORD *)_R15 + 78) = _R12->modelHasBadRootBoneMeld.array[2];
-  *((_DWORD *)_R15 + 79) = _R12->modelHasBadRootBoneMeld.array[3];
-  *((_DWORD *)_R15 + 80) = _R12->modelHasBadRootBoneMeld.array[4];
-  *((_DWORD *)_R15 + 81) = _R12->modelHasBadRootBoneMeld.array[5];
-  *((_DWORD *)_R15 + 82) = _R12->modelHasBadRootBoneMeld.array[6];
-  *((_DWORD *)_R15 + 83) = _R12->modelHasBadRootBoneMeld.array[7];
-  if ( (_R12->flags & 8) != 0 || (v16 & 8) == 0 )
+    v7 = v8;
+  buf[17] = v7;
+  *((_DWORD *)buf + 76) = from->modelHasBadRootBoneMeld.array[0];
+  *((_DWORD *)buf + 77) = from->modelHasBadRootBoneMeld.array[1];
+  *((_DWORD *)buf + 78) = from->modelHasBadRootBoneMeld.array[2];
+  *((_DWORD *)buf + 79) = from->modelHasBadRootBoneMeld.array[3];
+  *((_DWORD *)buf + 80) = from->modelHasBadRootBoneMeld.array[4];
+  *((_DWORD *)buf + 81) = from->modelHasBadRootBoneMeld.array[5];
+  *((_DWORD *)buf + 82) = from->modelHasBadRootBoneMeld.array[6];
+  *((_DWORD *)buf + 83) = from->modelHasBadRootBoneMeld.array[7];
+  if ( (from->flags & 8) != 0 || (v7 & 8) == 0 )
   {
-    duplicateParts = _R12->duplicateParts;
-    *((_DWORD *)_R15 + 2) = duplicateParts;
+    duplicateParts = from->duplicateParts;
+    *((_DWORD *)buf + 2) = duplicateParts;
     if ( duplicateParts && duplicateParts != g_empty )
       SL_AddRefToString(duplicateParts);
   }
   else
   {
-    DObjCloneDuplicatePartsServerToClient(_R12, (DObj *)_R15);
+    DObjCloneDuplicatePartsServerToClient(from, (DObj *)buf);
   }
-  *(_QWORD *)_R15 = 0i64;
-  *((_QWORD *)_R15 + 33) = MT_AlignedAlloc(4i64 * _R12->numModels, 4ui64, 25);
-  *((_QWORD *)_R15 + 31) = MT_AlignedAlloc(12i64 * _R12->numModels, 4ui64, 25);
-  *((_QWORD *)_R15 + 32) = MT_AlignedAlloc(16i64 * _R12->numModels, 4ui64, 25);
-  *((_QWORD *)_R15 + 30) = MT_AlignedAlloc(9i64 * _R12->numModels, 8ui64, 13);
-  v19 = MT_AlignedAlloc(16i64 * _R12->numModels, 4ui64, 14);
-  *((_QWORD *)_R15 + 37) = v19;
-  memset_0(v19, 255, 16i64 * _R12->numModels);
-  memcpy_0(*((void **)_R15 + 33), _R12->parentSlots, 4i64 * _R12->numModels);
-  memcpy_0(*((void **)_R15 + 31), _R12->offsets, 12i64 * _R12->numModels);
-  memcpy_0(*((void **)_R15 + 32), _R12->quats, 16i64 * _R12->numModels);
-  memcpy_0(*((void **)_R15 + 30), _R12->models, 9i64 * _R12->numModels);
-  DObjCloneProceduralBones(_R12, (DObj *)_R15);
-  if ( _R12->materialData )
+  *(_QWORD *)buf = 0i64;
+  *((_QWORD *)buf + 33) = MT_AlignedAlloc(4i64 * from->numModels, 4ui64, 25);
+  *((_QWORD *)buf + 31) = MT_AlignedAlloc(12i64 * from->numModels, 4ui64, 25);
+  *((_QWORD *)buf + 32) = MT_AlignedAlloc(16i64 * from->numModels, 4ui64, 25);
+  *((_QWORD *)buf + 30) = MT_AlignedAlloc(9i64 * from->numModels, 8ui64, 13);
+  v10 = MT_AlignedAlloc(16i64 * from->numModels, 4ui64, 14);
+  *((_QWORD *)buf + 37) = v10;
+  memset_0(v10, 255, 16i64 * from->numModels);
+  memcpy_0(*((void **)buf + 33), from->parentSlots, 4i64 * from->numModels);
+  memcpy_0(*((void **)buf + 31), from->offsets, 12i64 * from->numModels);
+  memcpy_0(*((void **)buf + 32), from->quats, 16i64 * from->numModels);
+  memcpy_0(*((void **)buf + 30), from->models, 9i64 * from->numModels);
+  DObjCloneProceduralBones(from, (DObj *)buf);
+  if ( from->materialData )
   {
-    DObjAllocMaterialData((DObj *)_R15);
-    memcpy_0(**((void ***)_R15 + 35), _R12->materialData->modelEntityDataOffset, (unsigned __int8)_R15[15]);
-    _RCX = _R12->materialData;
-    _RAX = *((_QWORD *)_R15 + 35);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+8]
-      vmovups ymmword ptr [rax+8], ymm0
-      vmovups ymm1, ymmword ptr [rcx+28h]
-      vmovups ymmword ptr [rax+28h], ymm1
-    }
+    DObjAllocMaterialData((DObj *)buf);
+    memcpy_0(**((void ***)buf + 35), from->materialData->modelEntityDataOffset, (unsigned __int8)buf[15]);
+    materialData = from->materialData;
+    v12 = *((_QWORD *)buf + 35);
+    *(__m256i *)(v12 + 8) = *(__m256i *)materialData->camoAsset;
+    *(__m256i *)(v12 + 40) = *(__m256i *)&materialData->camoAsset[4];
   }
-  if ( _R12->modelMaterialOverrides )
+  if ( from->modelMaterialOverrides )
   {
-    *((_QWORD *)_R15 + 34) = MT_AlignedAlloc(16i64 * _R12->numModels, 8ui64, 23);
-    v36 = 0;
-    if ( _R12->numModels )
+    *((_QWORD *)buf + 34) = MT_AlignedAlloc(16i64 * from->numModels, 8ui64, 23);
+    v25 = 0;
+    if ( from->numModels )
     {
-      modelMaterialOverrides = _R12->modelMaterialOverrides;
-      v25 = 0i64;
+      modelMaterialOverrides = from->modelMaterialOverrides;
+      v14 = 0i64;
       do
       {
-        v26 = MT_Alloc(8i64 * modelMaterialOverrides[v25].materialOverrideCount + 8, 23);
-        v27 = v26;
-        if ( v26 )
+        v15 = MT_Alloc(8i64 * modelMaterialOverrides[v14].materialOverrideCount + 8, 23);
+        v16 = v15;
+        if ( v15 )
         {
-          v28 = ((unsigned __int64)v26 + 8) & 0xFFFFFFFFFFFFFFF8ui64;
-          if ( v28 <= (unsigned __int64)v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 69, ASSERT_TYPE_ASSERT, "( retPtr ) > ( bytePtr )", "%s > %s\n\t%p, %p", "retPtr", "bytePtr", (const void *)(((unsigned __int64)v26 + 8) & 0xFFFFFFFFFFFFFFF8ui64), v26) )
+          v17 = ((unsigned __int64)v15 + 8) & 0xFFFFFFFFFFFFFFF8ui64;
+          if ( v17 <= (unsigned __int64)v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 69, ASSERT_TYPE_ASSERT, "( retPtr ) > ( bytePtr )", "%s > %s\n\t%p, %p", "retPtr", "bytePtr", (const void *)(((unsigned __int64)v15 + 8) & 0xFFFFFFFFFFFFFFF8ui64), v15) )
             __debugbreak();
-          if ( v28 - (unsigned __int64)v27 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 70, ASSERT_TYPE_ASSERT, "( static_cast<size_t>( retPtr - bytePtr ) ) <= ( alignment )", "%s <= %s\n\t%llu, %llu", "static_cast<size_t>( retPtr - bytePtr )", "alignment", v28 - (_QWORD)v27, 8i64) )
+          if ( v17 - (unsigned __int64)v16 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memorytree.h", 70, ASSERT_TYPE_ASSERT, "( static_cast<size_t>( retPtr - bytePtr ) ) <= ( alignment )", "%s <= %s\n\t%llu, %llu", "static_cast<size_t>( retPtr - bytePtr )", "alignment", v17 - (_QWORD)v16, 8i64) )
             __debugbreak();
-          *(_BYTE *)(v28 - 1) = v28 - (_BYTE)v27;
+          *(_BYTE *)(v17 - 1) = v17 - (_BYTE)v16;
         }
         else
         {
-          v28 = 0i64;
+          v17 = 0i64;
         }
-        v29 = 0i64;
-        *(_QWORD *)(v25 * 16 + *((_QWORD *)_R15 + 34) + 8) = v28;
-        *(_DWORD *)(v25 * 16 + *((_QWORD *)_R15 + 34)) = _R12->modelMaterialOverrides[v25].materialOverrideCount;
-        modelMaterialOverrides = _R12->modelMaterialOverrides;
-        if ( modelMaterialOverrides[v25].materialOverrideCount )
+        v18 = 0i64;
+        *(_QWORD *)(v14 * 16 + *((_QWORD *)buf + 34) + 8) = v17;
+        *(_DWORD *)(v14 * 16 + *((_QWORD *)buf + 34)) = from->modelMaterialOverrides[v14].materialOverrideCount;
+        modelMaterialOverrides = from->modelMaterialOverrides;
+        if ( modelMaterialOverrides[v14].materialOverrideCount )
         {
           do
           {
-            v30 = modelMaterialOverrides[v25].materialOverride[v29];
-            overrideType = v30->overrideType;
-            textureCount = v30->originalMaterial->textureCount;
-            v32 = MT_AlignedAlloc(0x20ui64, 8ui64, 23);
+            v19 = modelMaterialOverrides[v14].materialOverride[v18];
+            overrideType = v19->overrideType;
+            textureCount = v19->originalMaterial->textureCount;
+            v21 = MT_AlignedAlloc(0x20ui64, 8ui64, 23);
             if ( overrideType == MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
-              v33 = NULL;
+              v22 = NULL;
             else
-              v33 = MT_AlignedAlloc(16i64 * textureCount, 8ui64, 23);
-            v32[2] = v33;
-            *(_QWORD *)(*(_QWORD *)(v25 * 16 + *((_QWORD *)_R15 + 34) + 8) + 8 * v29) = v32;
-            v34 = *(_QWORD *)(*(_QWORD *)(v25 * 16 + *((_QWORD *)_R15 + 34) + 8) + 8 * v29);
-            if ( v34 )
+              v22 = MT_AlignedAlloc(16i64 * textureCount, 8ui64, 23);
+            v21[2] = v22;
+            *(_QWORD *)(*(_QWORD *)(v14 * 16 + *((_QWORD *)buf + 34) + 8) + 8 * v18) = v21;
+            v23 = *(_QWORD *)(*(_QWORD *)(v14 * 16 + *((_QWORD *)buf + 34) + 8) + 8 * v18);
+            if ( v23 )
             {
-              originalMaterial = v30->originalMaterial;
-              *(_QWORD *)v34 = v30->originalMaterial;
-              if ( v30->overrideType != MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
-                memcpy_0(*(void **)(v34 + 16), v30->materialTextureDefClone, 16i64 * originalMaterial->textureCount);
+              originalMaterial = v19->originalMaterial;
+              *(_QWORD *)v23 = v19->originalMaterial;
+              if ( v19->overrideType != MATERIAL_OVERRIDETYPE_STICKER_REPLACE )
+                memcpy_0(*(void **)(v23 + 16), v19->materialTextureDefClone, 16i64 * originalMaterial->textureCount);
             }
-            modelMaterialOverrides = _R12->modelMaterialOverrides;
-            v29 = (unsigned int)(v29 + 1);
+            modelMaterialOverrides = from->modelMaterialOverrides;
+            v18 = (unsigned int)(v18 + 1);
           }
-          while ( (unsigned int)v29 < modelMaterialOverrides[v25].materialOverrideCount );
+          while ( (unsigned int)v18 < modelMaterialOverrides[v14].materialOverrideCount );
         }
+        ++v14;
         ++v25;
-        ++v36;
       }
-      while ( v36 < _R12->numModels );
+      while ( v25 < from->numModels );
     }
   }
 }
@@ -1949,83 +1919,66 @@ DObjComputeBounds
 */
 void DObjComputeBounds(DObj *obj, unsigned __int8 *modelHierarchy)
 {
+  DObj *v4; 
   __int64 numModels; 
   const XModel **models; 
-  const XModel *v18; 
-  void *retaddr; 
+  __int64 v9; 
+  unsigned int *v10; 
+  const XModel *v11; 
+  unsigned __int8 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v21; 
+  float v23[256]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _RSI = obj;
+  v4 = obj;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1318, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  numModels = _RSI->numModels;
-  models = _RSI->models;
-  __asm
+  numModels = v4->numModels;
+  models = v4->models;
+  _XMM7 = 0i64;
+  LODWORD(_XMM6) = 0;
+  if ( v4->numModels )
   {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
-  if ( _RSI->numModels )
-  {
-    _RDI = 0i64;
-    _R15 = (__int64)&_RSI->offsets->z;
-    __asm
-    {
-      vmovaps [rsp+4B8h+var_58], xmm8
-      vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+4B8h+var_68], xmm9
-      vmovss  xmm9, cs:__real@3f000000
-    }
+    v9 = 0i64;
+    v10 = (unsigned int *)&v4->offsets->v[2];
     do
     {
-      v18 = models[_RDI];
-      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1328, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+      v11 = models[v9];
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1328, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
-      *(double *)&_XMM0 = XModelGetRadius(v18);
-      __asm { vmovaps xmm5, xmm0 }
-      if ( modelHierarchy[_RDI] != 0xFF )
-        __asm { vaddss  xmm5, xmm0, [rsp+rax*4+4B8h+var_478] }
+      *(double *)&_XMM0 = XModelGetRadius(v11);
+      v12 = modelHierarchy[v9];
+      v13 = _XMM0;
+      if ( v12 != 0xFF )
+      {
+        v14 = _XMM0;
+        *(float *)&v14 = *(float *)&_XMM0 + v23[v12];
+        v13 = v14;
+      }
+      _XMM2 = *(v10 - 1) & (unsigned __int128)(unsigned int)_xmm;
       __asm
       {
-        vmovss  xmm2, dword ptr [r15-4]
-        vmovss  xmm3, dword ptr [r15-8]
-        vmovss  xmm4, dword ptr [r15]
-        vandps  xmm2, xmm2, xmm8
-        vandps  xmm3, xmm3, xmm8
-        vsubss  xmm0, xmm3, xmm2
         vcmpless xmm1, xmm7, xmm0
         vblendvps xmm2, xmm2, xmm3, xmm1
-        vandps  xmm4, xmm4, xmm8
-        vsubss  xmm0, xmm2, xmm4
+      }
+      _XMM4 = *v10 & (unsigned __int128)(unsigned int)_xmm;
+      __asm
+      {
         vcmpless xmm1, xmm7, xmm0
         vblendvps xmm0, xmm4, xmm2, xmm1
-        vmulss  xmm1, xmm0, xmm9
-        vaddss  xmm2, xmm5, xmm1
-        vmovss  [rsp+rdi*4+4B8h+var_478], xmm2
       }
-      ++_RDI;
-      _R15 += 12i64;
+      v21 = v13;
+      *(float *)&v21 = *(float *)&v13 + (float)(*(float *)&_XMM0 * 0.5);
+      _XMM2 = v21;
+      v23[v9++] = *(float *)&v21;
+      v10 += 3;
       __asm { vmaxss  xmm6, xmm2, xmm6 }
     }
-    while ( _RDI < numModels );
-    _RSI = obj;
-    __asm
-    {
-      vmovaps xmm9, [rsp+4B8h+var_68]
-      vmovaps xmm8, [rsp+4B8h+var_58]
-    }
+    while ( v9 < numModels );
+    v4 = obj;
   }
-  __asm
-  {
-    vmovss  dword ptr [rsi+0C8h], xmm6
-    vmovaps xmm6, [rsp+4B8h+var_38]
-    vmovaps xmm7, [rsp+4B8h+var_48]
-  }
+  v4->radius = *(float *)&_XMM6;
 }
 
 /*
@@ -2132,6 +2085,7 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
   __int64 v11; 
   int v12; 
   unsigned int v13; 
+  DObjDuplicateParts *p_duplicateParts; 
   unsigned int v16; 
   DObjModel *v17; 
   char v18; 
@@ -2150,150 +2104,155 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
   XModelBlendShapeInfo *blendShapeInfo; 
   unsigned __int16 v32; 
   __int16 v33; 
+  __int64 v34; 
   unsigned __int64 v35; 
+  __int64 v36; 
   unsigned __int8 *v37; 
+  __int64 v38; 
   unsigned __int8 *v39; 
+  int v40; 
   int v41; 
-  int v42; 
-  unsigned int v44; 
+  __int128 v42; 
+  unsigned int v43; 
+  int v44; 
   int v45; 
-  int v46; 
   const scr_string_t *boneNames; 
-  DObjBoneNameToBoneIndexMap_t<768> *v48; 
-  int v49; 
-  const scr_string_t *v50; 
-  unsigned __int16 v51; 
-  unsigned __int8 v52; 
-  int v53; 
+  DObjBoneNameToBoneIndexMap_t<768> *v47; 
+  int v48; 
+  const scr_string_t *v49; 
+  unsigned __int16 v50; 
+  unsigned __int8 v51; 
+  int v52; 
   unsigned __int16 *p_parent; 
+  __int16 v54; 
   __int16 v55; 
-  __int16 v56; 
-  size_t v57; 
-  int v58; 
-  bool v59; 
-  size_t v60; 
-  int *v61; 
-  vec3_t *v62; 
-  __int64 v63; 
-  vec4_t *v64; 
-  const XModel **v65; 
-  GpuLightGridRequestRecord *v66; 
-  scr_string_t v67; 
-  __int64 v68; 
-  bitarray_base<bitarray<256> > *v69; 
+  size_t v56; 
+  int v57; 
+  bool v58; 
+  size_t v59; 
+  int *v60; 
+  vec3_t *v61; 
+  __int64 v62; 
+  vec4_t *v63; 
+  const XModel **v64; 
+  GpuLightGridRequestRecord *v65; 
+  scr_string_t v66; 
+  __int64 v67; 
+  bitarray_base<bitarray<256> > *v68; 
   unsigned int parentSlot_low; 
   const char *Name; 
-  const char *v72; 
-  int v73; 
-  const scr_string_t *v74; 
-  unsigned __int16 v75; 
-  unsigned __int8 v76; 
-  DObjBoneNameToBoneIndexMap_t<768> *v77; 
-  int v78; 
-  const scr_string_t *v79; 
-  unsigned __int16 v80; 
-  unsigned __int8 v81; 
-  const char *v82; 
-  unsigned int v83; 
-  DObj *v84; 
+  const char *v71; 
+  int v72; 
+  const scr_string_t *v73; 
+  unsigned __int16 v74; 
+  unsigned __int8 v75; 
+  DObjBoneNameToBoneIndexMap_t<768> *v76; 
+  int v77; 
+  const scr_string_t *v78; 
+  unsigned __int16 v79; 
+  unsigned __int8 v80; 
+  const char *v81; 
+  unsigned int v82; 
+  DObj *v83; 
+  int v84; 
   int v85; 
-  int v86; 
-  const scr_string_t *v87; 
-  bitarray_base<bitarray<256> > *v88; 
-  XModel *v89; 
-  const char *v90; 
+  const scr_string_t *v86; 
+  bitarray_base<bitarray<256> > *v87; 
+  XModel *v88; 
+  const char *v89; 
+  int v90; 
   int v91; 
-  int v92; 
-  const scr_string_t *v93; 
+  const scr_string_t *v92; 
+  int v93; 
   int v94; 
-  int v95; 
-  DObjBoneNameToBoneIndexMap_t<768> *v96; 
-  int v97; 
-  const scr_string_t *v98; 
-  unsigned __int16 v99; 
-  unsigned __int8 v100; 
+  DObjBoneNameToBoneIndexMap_t<768> *v95; 
+  int v96; 
+  const scr_string_t *v97; 
+  unsigned __int16 v98; 
+  unsigned __int8 v99; 
+  __int64 v100; 
   __int64 v101; 
-  __int64 v102; 
-  int v103; 
-  __int64 v104; 
-  bool v105; 
-  int v106; 
-  scr_string_t v107; 
+  int v102; 
+  __int64 v103; 
+  bool v104; 
+  int v105; 
+  scr_string_t v106; 
   char DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254; 
-  unsigned __int8 v109; 
-  int v110; 
-  char v111; 
+  unsigned __int8 v108; 
+  int v109; 
+  char v110; 
+  int v111; 
   int v112; 
-  int v113; 
-  XModel *v114; 
-  const XModel *v115; 
-  unsigned __int8 *v116; 
-  const char *v117; 
-  int v118; 
-  bitarray_base<bitarray<256> > *v119; 
-  XModel *v120; 
-  const char *v121; 
-  XModel *v122; 
-  int v123; 
-  __int64 v124; 
+  XModel *v113; 
+  const XModel *v114; 
+  unsigned __int8 *v115; 
+  const char *v116; 
+  int v117; 
+  bitarray_base<bitarray<256> > *v118; 
+  XModel *v119; 
+  const char *v120; 
+  XModel *v121; 
+  int v122; 
+  __int64 v123; 
   unsigned __int16 entnum; 
-  const char *v126; 
-  DObjModel *v127; 
+  const char *v125; 
+  DObjModel *v126; 
+  unsigned int v127; 
   unsigned int v128; 
-  unsigned int v129; 
-  int v130; 
-  unsigned int v131; 
+  int v129; 
+  unsigned int v130; 
+  const char *v131; 
   const char *v132; 
-  const char *v133; 
-  DObjBoneNameToBoneIndexMap_t<768> *v134; 
+  DObjBoneNameToBoneIndexMap_t<768> *v133; 
   char *fmt; 
   __int64 boneName; 
   int *parentModelOut; 
   unsigned __int16 *parentBoneOut; 
-  __int64 v140; 
+  __int64 v138; 
   unsigned int pos; 
   unsigned __int8 flags; 
+  char v141; 
+  unsigned __int8 v142; 
   char v143; 
-  unsigned __int8 v144; 
-  char v145; 
-  unsigned __int16 v146; 
-  __int16 v147; 
+  unsigned __int16 v144; 
+  __int16 v145; 
   int destPos; 
   unsigned int numModelsa; 
-  int v150; 
+  int v148; 
   DObj *obja; 
   int inoutNumDuplicateParts; 
-  int v153; 
-  DObjModel *v154; 
-  unsigned __int16 v155; 
+  int v151; 
+  DObjModel *v152; 
+  unsigned __int16 v153; 
   DObjModel *dobjModelsa; 
-  unsigned __int8 *v157; 
-  int v158; 
+  unsigned __int8 *v155; 
+  int v156; 
   bitarray_base<bitarray<256> > *p_modelHasBadRootBoneMeld; 
   DObjBoneNameToBoneIndexMap_t<768> *lookupMap; 
-  XModel *v161; 
-  int v162; 
-  int v163; 
-  unsigned __int64 v164; 
+  XModel *v159; 
+  int v160; 
+  int v161; 
+  unsigned __int64 v162; 
+  __int64 v163; 
+  __int64 v164; 
   __int64 v165; 
-  __int64 v166; 
-  __int64 v167; 
   DObjDuplicateParts duplicateParts; 
-  DObjBoneNameToBoneIndexMap_t<254> v169; 
+  DObjBoneNameToBoneIndexMap_t<254> v167; 
   int offset[256]; 
   XModel *model[254]; 
   int modelClientBoneOffsets[256]; 
   int Src[256]; 
-  __int64 v174[382]; 
-  _QWORD v175[508]; 
+  __int64 v172[382]; 
+  _QWORD v173[508]; 
   unsigned __int8 index[256]; 
   char dest[6144]; 
+  __int128 v176; 
 
   v7 = alloca(v5);
-  __asm { vmovaps [rsp+5A60h+var_50], xmm6 }
-  v8 = &v169;
+  v176 = _XMM6;
+  v8 = &v167;
   lookupMap = inOutClientBoneIndexMapIfNeeded;
-  v157 = modelHierarchy;
+  v155 = modelHierarchy;
   v10 = obj;
   numModelsa = numModels;
   v11 = 389i64;
@@ -2306,8 +2265,8 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
     --v11;
   }
   while ( v11 );
-  v169.m_initialized = 1;
-  memset_0(&v169, 0, 0xC28ui64);
+  v167.m_initialized = 1;
+  memset_0(&v167, 0, 0xC28ui64);
   v12 = 0;
   *(_QWORD *)v10->modelHasBadRootBoneMeld.array = 0i64;
   *(_QWORD *)&v10->modelHasBadRootBoneMeld.array[2] = 0i64;
@@ -2315,31 +2274,31 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
   *(_QWORD *)&v10->modelHasBadRootBoneMeld.array[6] = 0i64;
   p_modelHasBadRootBoneMeld = &v10->modelHasBadRootBoneMeld;
   flags = v10->flags;
-  v169.m_numEntries = 0i64;
+  v167.m_numEntries = 0i64;
   if ( !dobjModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 621, ASSERT_TYPE_ASSERT, "(dobjModels)", (const char *)&queryFormat, "dobjModels") )
     __debugbreak();
   Profile_Begin(452);
   v13 = 0;
-  _RDI = &duplicateParts;
+  p_duplicateParts = &duplicateParts;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjDuplicateParts *)((char *)_RDI + 16);
+    *(_OWORD *)p_duplicateParts->partBits.array = _XMM6;
+    p_duplicateParts = (DObjDuplicateParts *)((char *)p_duplicateParts + 16);
     ++v13;
   }
   while ( v13 < 2 );
   v16 = numModelsa;
   inoutNumDuplicateParts = 0;
   v17 = dobjModels;
-  v153 = 0;
+  v151 = 0;
   v18 = 0;
-  v146 = 0;
-  v147 = 0;
+  v144 = 0;
+  v145 = 0;
   v19 = 0;
-  v154 = v17;
+  v152 = v17;
   v20 = 0;
-  v143 = 0;
+  v141 = 0;
   v21 = 0;
   pos = 0;
   if ( numModelsa )
@@ -2347,22 +2306,22 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
     while ( 1 )
     {
       v22 = (XModel *)v17->model;
-      v163 = v12;
+      v161 = v12;
       v23 = v12;
-      v161 = v22;
+      v159 = v22;
       if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 650, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
-      if ( v143 || v22->proceduralBones || (v143 = 0, v22->dynamicBones) )
-        v143 = 1;
+      if ( v141 || v22->proceduralBones || (v141 = 0, v22->dynamicBones) )
+        v141 = 1;
       if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
       numBones = v22->numBones;
       v25 = numBones + v12;
       numClientBones = v22->numClientBones;
-      v27 = numClientBones + v153;
-      v150 = numBones;
-      v158 = v25;
-      v153 += numClientBones;
+      v27 = numClientBones + v151;
+      v148 = numBones;
+      v156 = v25;
+      v151 += numClientBones;
       if ( v25 <= 254 )
       {
         if ( v25 + numClientBones )
@@ -2404,14 +2363,14 @@ void DObjCreateDuplicateParts_Internal(DObj *obj, DObjModel *dobjModels, unsigne
       }
 LABEL_34:
       blendShapeInfo = v22->blendShapeInfo;
-      v32 = v146;
-      v33 = v147;
+      v32 = v144;
+      v33 = v145;
       if ( blendShapeInfo )
       {
-        v32 = blendShapeInfo->numberOfWeights + v146;
-        v33 = blendShapeInfo->targetCount + v147;
-        v147 = v33;
-        v146 = v32;
+        v32 = blendShapeInfo->numberOfWeights + v144;
+        v33 = blendShapeInfo->targetCount + v145;
+        v145 = v33;
+        v144 = v32;
       }
       if ( v32 > 0x400u )
       {
@@ -2423,241 +2382,237 @@ LABEL_34:
         DObjDumpCreationInfo(v28, v16);
         Sys_Error((const ObfuscateErrorText)&stru_144191A70, v22->name, 1024i64);
       }
-      _R9 = (__int64)v154;
+      v34 = (__int64)v152;
       v35 = v21;
-      v164 = v21;
-      _RBX = 2i64 * v21;
+      v162 = v21;
+      v36 = 2i64 * v21;
       index[v21] = -1;
       v37 = &index[v21];
-      _RDI = 3i64 * v21;
+      v38 = 3i64 * v21;
       model[v35] = v22;
-      *(__int64 *)((char *)v174 + 4 * _RDI) = 0i64;
-      v175[_RBX] = 0i64;
-      v175[_RBX + 1] = 0i64;
-      *((_DWORD *)&v174[1] + _RDI) = 0;
-      v39 = v157;
+      *(__int64 *)((char *)v172 + 4 * v38) = 0i64;
+      v173[v36] = 0i64;
+      v173[v36 + 1] = 0i64;
+      *((_DWORD *)&v172[1] + v38) = 0;
+      v39 = v155;
       Src[v35] = -1;
       offset[v35] = v23;
       modelClientBoneOffsets[v35] = v20;
       v39[v35] = -1;
-      if ( *(_BYTE *)(_R9 + 44) )
+      if ( *(_BYTE *)(v34 + 44) )
       {
         if ( pos >= 0x100 )
         {
-          LODWORD(v140) = 256;
+          LODWORD(v138) = 256;
           LODWORD(parentBoneOut) = pos;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
             __debugbreak();
-          _R9 = (__int64)v154;
+          v34 = (__int64)v152;
         }
         obja->ignoreCollision.array[v35 >> 5] |= 0x80000000 >> (pos & 0x1F);
       }
-      __asm { vmovsd  xmm0, qword ptr [r9+10h] }
-      v41 = *(_DWORD *)(_R9 + 24);
-      v42 = *(_DWORD *)(_R9 + 12);
-      __asm
-      {
-        vmovsd  [rbp+rdi*4+5960h+var_3530], xmm0
-        vmovups xmm0, xmmword ptr [r9+1Ch]
-      }
-      *((_DWORD *)&v174[1] + _RDI) = v41;
-      v44 = pos;
-      Src[v35] = v42;
-      __asm { vmovups xmmword ptr [rbp+rbx*8+5960h+var_2940], xmm0 }
+      v40 = *(_DWORD *)(v34 + 24);
+      v41 = *(_DWORD *)(v34 + 12);
+      *(__int64 *)((char *)v172 + 4 * v38) = *(__int64 *)(v34 + 16);
+      v42 = *(_OWORD *)(v34 + 28);
+      *((_DWORD *)&v172[1] + v38) = v40;
+      v43 = pos;
+      Src[v35] = v41;
+      *(_OWORD *)&v173[v36] = v42;
       if ( !pos )
       {
-        v45 = offset[v35];
-        v46 = v22->numBones;
+        v44 = offset[v35];
+        v45 = v22->numBones;
         boneNames = v22->boneNames;
-        if ( (v45 < 0 || (unsigned int)v45 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v45, "signed", v45) )
+        if ( (v44 < 0 || (unsigned int)v44 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v44, "signed", v44) )
           __debugbreak();
-        DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(0, v45, boneNames, v46, &v169);
-        if ( (flags & 8) != 0 && (_BYTE)v150 )
+        DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(0, v44, boneNames, v45, &v167);
+        if ( (flags & 8) != 0 && (_BYTE)v148 )
         {
-          v48 = lookupMap;
+          v47 = lookupMap;
           if ( !lookupMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 730, ASSERT_TYPE_ASSERT, "(inOutClientBoneIndexMapIfNeeded)", (const char *)&queryFormat, "inOutClientBoneIndexMapIfNeeded") )
             __debugbreak();
-          v49 = v22->numClientBones;
-          v50 = &v22->boneNames[v22->numBones];
-          v51 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
-          v52 = truncate_cast<unsigned char,unsigned int>(0);
-          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v52, v51, v50, v49, v48);
+          v48 = v22->numClientBones;
+          v49 = &v22->boneNames[v22->numBones];
+          v50 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
+          v51 = truncate_cast<unsigned char,unsigned int>(0);
+          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v51, v50, v49, v48, v47);
         }
         v10 = obja;
         goto LABEL_58;
       }
-      v67 = *(_DWORD *)(_R9 + 8);
-      if ( v42 >= 0 && v67 != scr_const._ )
+      v66 = *(_DWORD *)(v34 + 8);
+      if ( v41 >= 0 && v66 != scr_const._ )
       {
-        if ( !v67 )
+        if ( !v66 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 744, ASSERT_TYPE_ASSERT, "( name != ( static_cast< scr_string_t >( 0 ) ) )", "dobj for compositeModel '%s' has a parent slot but bone name is missing.", v22->name) )
             __debugbreak();
-          _R9 = (__int64)v154;
+          v34 = (__int64)v152;
         }
-        if ( XModelGetBoneIndex(model[*(int *)(_R9 + 12)], v67, offset[*(int *)(_R9 + 12)], v37) )
+        if ( XModelGetBoneIndex(model[*(int *)(v34 + 12)], v66, offset[*(int *)(v34 + 12)], v37) )
         {
-          v68 = (__int64)v154;
-          v69 = p_modelHasBadRootBoneMeld;
-          parentSlot_low = LOBYTE(v154->parentSlot);
-          v157[v35] = parentSlot_low;
-          if ( bitarray_base<bitarray<256>>::testBit(v69, parentSlot_low) )
+          v67 = (__int64)v152;
+          v68 = p_modelHasBadRootBoneMeld;
+          parentSlot_low = LOBYTE(v152->parentSlot);
+          v155[v35] = parentSlot_low;
+          if ( bitarray_base<bitarray<256>>::testBit(v68, parentSlot_low) )
           {
-            bitarray_base<bitarray<256>>::setBit(v69, pos);
-            Name = XModelGetName(model[*(int *)(v68 + 12)]);
-            v72 = XModelGetName(v22);
-            Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v72, Name);
+            bitarray_base<bitarray<256>>::setBit(v68, pos);
+            Name = XModelGetName(model[*(int *)(v67 + 12)]);
+            v71 = XModelGetName(v22);
+            Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v71, Name);
           }
-          v73 = XModelNumBones(v22);
-          v74 = v22->boneNames;
-          v75 = truncate_cast<unsigned short,int>(offset[v35]);
-          v76 = truncate_cast<unsigned char,unsigned int>(pos);
-          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(v76, v75, v74, v73, &v169);
-          if ( (flags & 8) != 0 && (_BYTE)v150 )
+          v72 = XModelNumBones(v22);
+          v73 = v22->boneNames;
+          v74 = truncate_cast<unsigned short,int>(offset[v35]);
+          v75 = truncate_cast<unsigned char,unsigned int>(pos);
+          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(v75, v74, v73, v72, &v167);
+          if ( (flags & 8) != 0 && (_BYTE)v148 )
           {
-            v77 = lookupMap;
+            v76 = lookupMap;
             if ( !lookupMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 761, ASSERT_TYPE_ASSERT, "(inOutClientBoneIndexMapIfNeeded)", (const char *)&queryFormat, "inOutClientBoneIndexMapIfNeeded") )
               __debugbreak();
             goto LABEL_129;
           }
           goto LABEL_130;
         }
-        v82 = SL_ConvertToStringSafe(v67);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 767, ASSERT_TYPE_ASSERT, "( false )", "dobj for compositeModel '%s' couldn't find a bone with name: %s, weird offsets will occur.", v22->name, v82) )
+        v81 = SL_ConvertToStringSafe(v66);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 767, ASSERT_TYPE_ASSERT, "( false )", "dobj for compositeModel '%s' couldn't find a bone with name: %s, weird offsets will occur.", v22->name, v81) )
           __debugbreak();
       }
-      if ( v67 && *SL_ConvertToString(v67) )
+      if ( v66 && *SL_ConvertToString(v66) )
       {
-        v83 = pos - 1;
+        v82 = pos - 1;
         if ( (int)(pos - 1) < 0 )
         {
 LABEL_140:
-          if ( v44 >= 0x100 )
+          if ( v43 >= 0x100 )
           {
-            LODWORD(v140) = 256;
-            LODWORD(parentBoneOut) = v44;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+            LODWORD(v138) = 256;
+            LODWORD(parentBoneOut) = v43;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
               __debugbreak();
           }
           v10 = obja;
-          v84 = obja;
-          *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * (v35 >> 5)] |= 0x80000000 >> (v44 & 0x1F);
-          DObjCreateHandleParentModelBoneAttachError(v84, dobjModelsa, numModelsa, v22, v44, v67);
+          v83 = obja;
+          *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * (v35 >> 5)] |= 0x80000000 >> (v43 & 0x1F);
+          DObjCreateHandleParentModelBoneAttachError(v83, dobjModelsa, numModelsa, v22, v43, v66);
           v10->flags |= 0x10u;
           if ( *v37 != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 810, ASSERT_TYPE_ASSERT, "(modelParents[currNumModels] == 255)", (const char *)&queryFormat, "modelParents[currNumModels] == NO_BONEINDEX") )
             __debugbreak();
-          if ( v157[v35] != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 811, ASSERT_TYPE_ASSERT, "(modelHierarchy[currNumModels] == 255)", (const char *)&queryFormat, "modelHierarchy[currNumModels] == NO_MODELINDEX") )
+          if ( v155[v35] != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 811, ASSERT_TYPE_ASSERT, "(modelHierarchy[currNumModels] == 255)", (const char *)&queryFormat, "modelHierarchy[currNumModels] == NO_MODELINDEX") )
             __debugbreak();
-          v85 = offset[v35];
-          v86 = v22->numBones;
-          v87 = v22->boneNames;
-          if ( (v85 < 0 || (unsigned int)v85 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v85, "signed", v85) )
+          v84 = offset[v35];
+          v85 = v22->numBones;
+          v86 = v22->boneNames;
+          if ( (v84 < 0 || (unsigned int)v84 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v84, "signed", v84) )
             __debugbreak();
           if ( pos > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)pos, "unsigned", v35) )
             __debugbreak();
-          v95 = v86;
-          v44 = pos;
-          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(pos, v85, v87, v95, &v169);
-          if ( (flags & 8) == 0 || !(_BYTE)v150 )
+          v94 = v85;
+          v43 = pos;
+          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(pos, v84, v86, v94, &v167);
+          if ( (flags & 8) == 0 || !(_BYTE)v148 )
             goto LABEL_59;
-          v96 = lookupMap;
+          v95 = lookupMap;
           if ( !lookupMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 815, ASSERT_TYPE_ASSERT, "(inOutClientBoneIndexMapIfNeeded)", (const char *)&queryFormat, "inOutClientBoneIndexMapIfNeeded") )
             __debugbreak();
-          v97 = v22->numClientBones;
-          v98 = &v22->boneNames[v22->numBones];
-          v99 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
-          v100 = truncate_cast<unsigned char,unsigned int>(pos);
-          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v100, v99, v98, v97, v96);
+          v96 = v22->numClientBones;
+          v97 = &v22->boneNames[v22->numBones];
+          v98 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
+          v99 = truncate_cast<unsigned char,unsigned int>(pos);
+          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v99, v98, v97, v96, v95);
 LABEL_58:
-          v44 = pos;
+          v43 = pos;
           goto LABEL_59;
         }
-        while ( !XModelGetBoneIndex(model[v83], v67, offset[v83], v37) )
+        while ( !XModelGetBoneIndex(model[v82], v66, offset[v82], v37) )
         {
-          if ( (--v83 & 0x80000000) != 0 )
+          if ( (--v82 & 0x80000000) != 0 )
           {
-            v44 = pos;
+            v43 = pos;
             goto LABEL_140;
           }
         }
-        v88 = p_modelHasBadRootBoneMeld;
-        v157[v35] = v83;
-        if ( ((0x80000000 >> (v83 & 0x1F)) & *(_DWORD *)&v88[4 * ((unsigned __int64)(unsigned __int8)v83 >> 5)]) != 0 )
+        v87 = p_modelHasBadRootBoneMeld;
+        v155[v35] = v82;
+        if ( ((0x80000000 >> (v82 & 0x1F)) & *(_DWORD *)&v87[4 * ((unsigned __int64)(unsigned __int8)v82 >> 5)]) != 0 )
         {
           if ( pos >= 0x100 )
           {
-            LODWORD(v140) = 256;
+            LODWORD(v138) = 256;
             LODWORD(parentBoneOut) = pos;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
               __debugbreak();
           }
-          v89 = model[v83];
-          *(_DWORD *)&v88[4 * (v35 >> 5)] |= 0x80000000 >> (pos & 0x1F);
-          if ( !v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+          v88 = model[v82];
+          *(_DWORD *)&v87[4 * (v35 >> 5)] |= 0x80000000 >> (pos & 0x1F);
+          if ( !v88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
-          v90 = v89->name;
+          v89 = v88->name;
           if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
-          Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v22->name, v90);
+          Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v22->name, v89);
         }
-        v91 = offset[v35];
-        v92 = v22->numBones;
-        v93 = v22->boneNames;
-        if ( (v91 < 0 || (unsigned int)v91 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v91, "signed", v91) )
+        v90 = offset[v35];
+        v91 = v22->numBones;
+        v92 = v22->boneNames;
+        if ( (v90 < 0 || (unsigned int)v90 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v90, "signed", v90) )
           __debugbreak();
         if ( pos > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)pos, "unsigned", v35) )
           __debugbreak();
-        v94 = v92;
-        v44 = pos;
-        DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(pos, v91, v93, v94, &v169);
-        if ( (flags & 8) != 0 && (_BYTE)v150 )
+        v93 = v91;
+        v43 = pos;
+        DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_254___(pos, v90, v92, v93, &v167);
+        if ( (flags & 8) != 0 && (_BYTE)v148 )
         {
-          v77 = lookupMap;
+          v76 = lookupMap;
           if ( !lookupMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 790, ASSERT_TYPE_ASSERT, "(inOutClientBoneIndexMapIfNeeded)", (const char *)&queryFormat, "inOutClientBoneIndexMapIfNeeded") )
             __debugbreak();
 LABEL_129:
-          v78 = XModelNumClientOnlyBones(v22);
-          v79 = &v22->boneNames[XModelNumBones(v22)];
-          v80 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
-          v81 = truncate_cast<unsigned char,unsigned int>(pos);
-          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v81, v80, v79, v78, v77);
+          v77 = XModelNumClientOnlyBones(v22);
+          v78 = &v22->boneNames[XModelNumBones(v22)];
+          v79 = truncate_cast<unsigned short,int>(modelClientBoneOffsets[v35] | 0x8000);
+          v80 = truncate_cast<unsigned char,unsigned int>(pos);
+          DObjCreateDuplicateParts_FillInBoneNameToBoneLookup_DObjBoneNameToBoneIndexMap_t_768___(v80, v79, v78, v77, v76);
 LABEL_130:
-          v44 = pos;
+          v43 = pos;
         }
         v10 = obja;
         goto LABEL_59;
       }
-      v101 = (__int64)v22->boneNames;
-      v59 = (v22->flags & 0x8000) == 0;
-      v167 = v101;
-      v145 = 0;
-      if ( !v59 )
+      v100 = (__int64)v22->boneNames;
+      v58 = (v22->flags & 0x8000) == 0;
+      v165 = v100;
+      v143 = 0;
+      if ( !v58 )
       {
         Com_PrintWarning(19, "WARNING: Creating a DObj with stub model for '%s'.  This object will need to be re-generated once the final asset is loaded.\n", v22->name);
         v10 = obja;
         goto LABEL_59;
       }
-      v102 = v22->numBones;
+      v101 = v22->numBones;
       destPos = 0;
-      v103 = 0;
-      v165 = 0i64;
-      v104 = 0i64;
-      v166 = v102;
-      if ( !v102 )
+      v102 = 0;
+      v163 = 0i64;
+      v103 = 0i64;
+      v164 = v101;
+      if ( !v101 )
       {
 LABEL_281:
         if ( v22->numRootBones )
         {
-          if ( v44 >= 0x100 )
+          if ( v43 >= 0x100 )
           {
-            LODWORD(v140) = 256;
-            LODWORD(parentBoneOut) = v44;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+            LODWORD(v138) = 256;
+            LODWORD(parentBoneOut) = v43;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
               __debugbreak();
           }
           destPos = 0;
           dest[0] = 0;
-          *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * (v35 >> 5)] |= 0x80000000 >> (v44 & 0x1F);
+          *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * (v35 >> 5)] |= 0x80000000 >> (v43 & 0x1F);
           entnum = obja->entnum;
           if ( entnum )
           {
@@ -2668,28 +2623,28 @@ LABEL_281:
           {
             Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "ERROR: Root bone meld operation failed for ent (unknown). This might cause floating models around the camera.\n");
           }
-          v126 = SL_ConvertToString(*v22->boneNames);
-          LODWORD(parentModelOut) = v44;
-          Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "Model '%s' with root bone '%s' and index %u could not be attached to any of the models with a lower index.\n", v22->name, v126, parentModelOut);
+          v125 = SL_ConvertToString(*v22->boneNames);
+          LODWORD(parentModelOut) = v43;
+          Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "Model '%s' with root bone '%s' and index %u could not be attached to any of the models with a lower index.\n", v22->name, v125, parentModelOut);
           Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "=== MODEL LIST DUMP - BEGIN ===\n");
-          v127 = dobjModelsa;
-          v128 = 0;
-          v129 = numModelsa;
+          v126 = dobjModelsa;
+          v127 = 0;
+          v128 = numModelsa;
           do
           {
-            v130 = v127->model->numBones;
-            v131 = v127->model->flags >> 15;
-            v132 = SL_ConvertToString(*v127->model->boneNames);
-            v133 = "false";
-            if ( (v131 & 1) != 0 )
-              v133 = "true";
-            LODWORD(parentBoneOut) = v130;
-            LODWORD(fmt) = v128;
-            Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "[%u] %s - Root bone: %s - Bones: %u - Is Default Model: %s\n", fmt, v127->model->name, v132, parentBoneOut, v133);
-            ++v128;
+            v129 = v126->model->numBones;
+            v130 = v126->model->flags >> 15;
+            v131 = SL_ConvertToString(*v126->model->boneNames);
+            v132 = "false";
+            if ( (v130 & 1) != 0 )
+              v132 = "true";
+            LODWORD(parentBoneOut) = v129;
+            LODWORD(fmt) = v127;
+            Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "[%u] %s - Root bone: %s - Bones: %u - Is Default Model: %s\n", fmt, v126->model->name, v131, parentBoneOut, v132);
             ++v127;
+            ++v126;
           }
-          while ( v128 < v129 );
+          while ( v127 < v128 );
           Com_sprintfPos_truncate(dest, 0x1800ui64, &destPos, "=== MODEL LIST DUMP - END ===\n");
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_dobj_assert_on_root_meld_failure, "dobj_assert_on_root_meld_failure") )
           {
@@ -2705,132 +2660,132 @@ LABEL_281:
       }
       do
       {
-        v105 = (int)(v103 + v23) < 0;
-        v106 = v103 + v23;
-        v107 = *(_DWORD *)(v101 + 4 * v104);
-        if ( (v105 || (unsigned int)v106 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v106, "signed", v106) )
+        v104 = (int)(v102 + v23) < 0;
+        v105 = v102 + v23;
+        v106 = *(_DWORD *)(v100 + 4 * v103);
+        if ( (v104 || (unsigned int)v105 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v105, "signed", v105) )
           __debugbreak();
-        DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 = DObjCreateDuplicateParts_FindDuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254___((const XModel *const *)model, v44, v106, v107, offset, &v169, &v162, &v155);
+        DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 = DObjCreateDuplicateParts_FindDuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254___((const XModel *const *)model, v43, v105, v106, offset, &v167, &v160, &v153);
         if ( DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 )
         {
-          v109 = v155;
-          if ( v155 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v155, "unsigned", v155) )
+          v108 = v153;
+          if ( v153 > 0xFFu && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned short>(unsigned short)", "unsigned", (unsigned __int8)v153, "unsigned", v153) )
             __debugbreak();
-          v110 = v162;
-          if ( v162 == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 847, ASSERT_TYPE_ASSERT, "(parentModelIndex != 255)", (const char *)&queryFormat, "parentModelIndex != NO_MODELINDEX") )
+          v109 = v160;
+          if ( v160 == 255 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 847, ASSERT_TYPE_ASSERT, "(parentModelIndex != 255)", (const char *)&queryFormat, "parentModelIndex != NO_MODELINDEX") )
             __debugbreak();
-          if ( v110 >= v44 )
+          if ( v109 >= v43 )
           {
-            LODWORD(parentModelOut) = v44;
-            LODWORD(boneName) = v110;
+            LODWORD(parentModelOut) = v43;
+            LODWORD(boneName) = v109;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 848, ASSERT_TYPE_ASSERT, "(unsigned)( parentModelIndex ) < (unsigned)( currNumModels )", "parentModelIndex doesn't index currNumModels\n\t%i not in [0, %i)", boneName, parentModelOut) )
               __debugbreak();
           }
-          if ( v161 == model[v110] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 849, ASSERT_TYPE_ASSERT, "(model != models[parentModelIndex])", (const char *)&queryFormat, "model != models[parentModelIndex]") )
+          if ( v159 == model[v109] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 849, ASSERT_TYPE_ASSERT, "(model != models[parentModelIndex])", (const char *)&queryFormat, "model != models[parentModelIndex]") )
             __debugbreak();
-          if ( (v110 < 0 || (unsigned int)v110 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v110, "signed", v110) )
+          if ( (v109 < 0 || (unsigned int)v109 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v109, "signed", v109) )
             __debugbreak();
-          v157[v164] = v110;
+          v155[v162] = v109;
         }
         else
         {
-          v109 = -1;
+          v108 = -1;
         }
-        v111 = 0;
-        v112 = 255;
-        v144 = -1;
-        v113 = pos - 1;
+        v110 = 0;
+        v111 = 255;
+        v142 = -1;
+        v112 = pos - 1;
         if ( (int)(pos - 1) >= 0 )
         {
-          v114 = v161;
+          v113 = v159;
           do
           {
-            v115 = model[v113];
-            if ( v114 != v115 )
+            v114 = model[v112];
+            if ( v113 != v114 )
             {
-              if ( XModelGetBoneIndex(v115, v107, offset[v113], &v144) )
+              if ( XModelGetBoneIndex(v114, v106, offset[v112], &v142) )
               {
-                v112 = v113;
-                v111 = 1;
+                v111 = v112;
+                v110 = 1;
                 break;
               }
-              v114 = v161;
+              v113 = v159;
             }
-            --v113;
+            --v112;
           }
-          while ( v113 >= 0 );
+          while ( v112 >= 0 );
         }
-        if ( v111 != DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 877, ASSERT_TYPE_ASSERT, "(foundDuplicateTest == foundDuplicate)", (const char *)&queryFormat, "foundDuplicateTest == foundDuplicate") )
+        if ( v110 != DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 877, ASSERT_TYPE_ASSERT, "(foundDuplicateTest == foundDuplicate)", (const char *)&queryFormat, "foundDuplicateTest == foundDuplicate") )
           __debugbreak();
-        v59 = DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 == 0;
-        v35 = v164;
-        if ( !v59 )
+        v58 = DuplicateBoneAndUpdateLookupTable_0_DObjBoneNameToBoneIndexMap_t_254 == 0;
+        v35 = v162;
+        if ( !v58 )
         {
-          v116 = v157;
-          if ( v112 != v157[v164] )
+          v115 = v155;
+          if ( v111 != v155[v162] )
           {
-            LODWORD(v140) = v157[v164];
-            LODWORD(parentBoneOut) = v112;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 880, ASSERT_TYPE_ASSERT, "( foundModelIndexTest ) == ( modelHierarchy[currNumModels] )", "%s == %s\n\t%i, %i", "foundModelIndexTest", "modelHierarchy[currNumModels]", parentBoneOut, v140) )
+            LODWORD(v138) = v155[v162];
+            LODWORD(parentBoneOut) = v111;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 880, ASSERT_TYPE_ASSERT, "( foundModelIndexTest ) == ( modelHierarchy[currNumModels] )", "%s == %s\n\t%i, %i", "foundModelIndexTest", "modelHierarchy[currNumModels]", parentBoneOut, v138) )
               __debugbreak();
           }
-          if ( v144 != v109 )
+          if ( v142 != v108 )
           {
-            LODWORD(v140) = v109;
-            LODWORD(parentBoneOut) = v144;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 881, ASSERT_TYPE_ASSERT, "( testParentIndex ) == ( parentIndex )", "%s == %s\n\t%i, %i", "testParentIndex", "parentIndex", parentBoneOut, v140) )
+            LODWORD(v138) = v108;
+            LODWORD(parentBoneOut) = v142;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 881, ASSERT_TYPE_ASSERT, "( testParentIndex ) == ( parentIndex )", "%s == %s\n\t%i, %i", "testParentIndex", "parentIndex", parentBoneOut, v138) )
               __debugbreak();
           }
-          if ( v109 == 0xFF )
+          if ( v108 == 0xFF )
           {
-            v117 = "( ( parentIndex != 255 ) )";
+            v116 = "( ( parentIndex != 255 ) )";
             LODWORD(boneName) = 255;
-            v118 = 891;
+            v117 = 891;
 LABEL_234:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", v118, ASSERT_TYPE_ASSERT, v117, "( parentIndex ) = %i", boneName) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", v117, ASSERT_TYPE_ASSERT, v116, "( parentIndex ) = %i", boneName) )
               __debugbreak();
           }
-          else if ( v109 == 0xFE )
+          else if ( v108 == 0xFE )
           {
             LODWORD(boneName) = 254;
-            v117 = "( ( parentIndex != 254 ) )";
-            v118 = 892;
+            v116 = "( ( parentIndex != 254 ) )";
+            v117 = 892;
             goto LABEL_234;
           }
-          if ( v109 == v106 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 893, ASSERT_TYPE_ASSERT, "(parentIndex != boneIndex + localBoneIndex)", (const char *)&queryFormat, "parentIndex != boneIndex + localBoneIndex") )
+          if ( v108 == v105 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 893, ASSERT_TYPE_ASSERT, "(parentIndex != boneIndex + localBoneIndex)", (const char *)&queryFormat, "parentIndex != boneIndex + localBoneIndex") )
             __debugbreak();
-          if ( !v165 )
+          if ( !v163 )
           {
-            v119 = p_modelHasBadRootBoneMeld;
-            if ( ((0x80000000 >> (v116[v35] & 0x1F)) & *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * ((unsigned __int64)v116[v35] >> 5)]) != 0 )
+            v118 = p_modelHasBadRootBoneMeld;
+            if ( ((0x80000000 >> (v115[v35] & 0x1F)) & *(_DWORD *)&p_modelHasBadRootBoneMeld[4 * ((unsigned __int64)v115[v35] >> 5)]) != 0 )
             {
               if ( pos >= 0x100 )
               {
-                LODWORD(v140) = 256;
+                LODWORD(v138) = 256;
                 LODWORD(parentBoneOut) = pos;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
                   __debugbreak();
               }
-              *(_DWORD *)&v119[4 * (v35 >> 5)] |= 0x80000000 >> (pos & 0x1F);
-              v120 = model[v116[v35]];
-              if ( !v120 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+              *(_DWORD *)&v118[4 * (v35 >> 5)] |= 0x80000000 >> (pos & 0x1F);
+              v119 = model[v115[v35]];
+              if ( !v119 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
                 __debugbreak();
-              v121 = v120->name;
-              v122 = model[v35];
-              if ( !v122 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+              v120 = v119->name;
+              v121 = model[v35];
+              if ( !v121 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 121, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
                 __debugbreak();
-              Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v122->name, v121);
+              Com_PrintError(19, "Marking %s (child of %s) as bad bone meld\n", v121->name, v120);
             }
-            v145 = 1;
+            v143 = 1;
           }
-          v123 = v106 + 1;
-          if ( v106 + 1 >= 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 910, ASSERT_TYPE_ASSERT, "(boneIndex + localBoneIndex + 1 < 256)", (const char *)&queryFormat, "boneIndex + localBoneIndex + 1 < 256") )
+          v122 = v105 + 1;
+          if ( v105 + 1 >= 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 910, ASSERT_TYPE_ASSERT, "(boneIndex + localBoneIndex + 1 < 256)", (const char *)&queryFormat, "boneIndex + localBoneIndex + 1 < 256") )
             __debugbreak();
-          if ( (unsigned int)v109 + 1 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 911, ASSERT_TYPE_ASSERT, "(parentIndex + 1 < 256)", (const char *)&queryFormat, "parentIndex + 1 < 256") )
+          if ( (unsigned int)v108 + 1 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 911, ASSERT_TYPE_ASSERT, "(parentIndex + 1 < 256)", (const char *)&queryFormat, "parentIndex + 1 < 256") )
             __debugbreak();
-          if ( v109 >= v106 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 912, ASSERT_TYPE_ASSERT, "(parentIndex < boneIndex + localBoneIndex)", (const char *)&queryFormat, "parentIndex < boneIndex + localBoneIndex") )
+          if ( v108 >= v105 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 912, ASSERT_TYPE_ASSERT, "(parentIndex < boneIndex + localBoneIndex)", (const char *)&queryFormat, "parentIndex < boneIndex + localBoneIndex") )
             __debugbreak();
-          v124 = inoutNumDuplicateParts;
+          v123 = inoutNumDuplicateParts;
           if ( (unsigned int)inoutNumDuplicateParts >= 0xFF )
           {
             LODWORD(parentModelOut) = 255;
@@ -2838,133 +2793,133 @@ LABEL_234:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 916, ASSERT_TYPE_ASSERT, "(unsigned)( numDuplicateParts ) < (unsigned)( ( sizeof( *array_counter( duplicateParts.pairs ) ) + 0 ) )", "numDuplicateParts doesn't index duplicateParts.pairs\n\t%i not in [0, %i)", boneName, parentModelOut) )
               __debugbreak();
           }
-          if ( (v123 < 0 || (unsigned int)v123 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)(v106 + 1), "signed", v123) )
+          if ( (v122 < 0 || (unsigned int)v122 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)(v105 + 1), "signed", v122) )
             __debugbreak();
-          duplicateParts.pairs[v124].child = v123;
-          if ( (unsigned int)v106 >= 0x100 )
+          duplicateParts.pairs[v123].child = v122;
+          if ( (unsigned int)v105 >= 0x100 )
           {
-            LODWORD(v140) = 256;
-            LODWORD(parentBoneOut) = v106;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v140) )
+            LODWORD(v138) = 256;
+            LODWORD(parentBoneOut) = v105;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", parentBoneOut, v138) )
               __debugbreak();
           }
-          duplicateParts.partBits.array[(unsigned __int64)(unsigned int)v106 >> 5] |= 0x80000000 >> (v106 & 0x1F);
-          if ( !duplicateParts.pairs[v124].child && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 919, ASSERT_TYPE_ASSERT, "(duplicateParts.pairs[numDuplicateParts].child != 0)", (const char *)&queryFormat, "duplicateParts.pairs[numDuplicateParts].child != 0") )
+          duplicateParts.partBits.array[(unsigned __int64)(unsigned int)v105 >> 5] |= 0x80000000 >> (v105 & 0x1F);
+          if ( !duplicateParts.pairs[v123].child && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 919, ASSERT_TYPE_ASSERT, "(duplicateParts.pairs[numDuplicateParts].child != 0)", (const char *)&queryFormat, "duplicateParts.pairs[numDuplicateParts].child != 0") )
             __debugbreak();
-          duplicateParts.pairs[v124].parent = v109 + 1;
-          if ( v109 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 921, ASSERT_TYPE_ASSERT, "(duplicateParts.pairs[numDuplicateParts].parent != 0)", (const char *)&queryFormat, "duplicateParts.pairs[numDuplicateParts].parent != 0") )
+          duplicateParts.pairs[v123].parent = v108 + 1;
+          if ( v108 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 921, ASSERT_TYPE_ASSERT, "(duplicateParts.pairs[numDuplicateParts].parent != 0)", (const char *)&queryFormat, "duplicateParts.pairs[numDuplicateParts].parent != 0") )
             __debugbreak();
-          inoutNumDuplicateParts = v124 + 1;
+          inoutNumDuplicateParts = v123 + 1;
         }
-        v103 = destPos + 1;
-        v101 = v167;
-        v104 = v165 + 1;
-        v23 = v163;
-        v44 = pos;
+        v102 = destPos + 1;
+        v100 = v165;
+        v103 = v163 + 1;
+        v23 = v161;
+        v43 = pos;
         ++destPos;
-        v165 = v104;
+        v163 = v103;
       }
-      while ( v104 < v166 );
-      if ( !v145 )
+      while ( v103 < v164 );
+      if ( !v143 )
       {
-        v22 = v161;
+        v22 = v159;
         goto LABEL_281;
       }
 LABEL_296:
-      if ( (flags & 8) == 0 || !(_BYTE)v150 )
+      if ( (flags & 8) == 0 || !(_BYTE)v148 )
         goto LABEL_130;
-      v134 = lookupMap;
+      v133 = lookupMap;
       if ( !lookupMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 941, ASSERT_TYPE_ASSERT, "(inOutClientBoneIndexMapIfNeeded)", (const char *)&queryFormat, "inOutClientBoneIndexMapIfNeeded") )
         __debugbreak();
-      v44 = pos;
-      DObjFindAndAppendDuplicateClientBones((const XModel *const *)model, pos, modelClientBoneOffsets, v134, &duplicateParts, &inoutNumDuplicateParts);
+      v43 = pos;
+      DObjFindAndAppendDuplicateClientBones((const XModel *const *)model, pos, modelClientBoneOffsets, v133, &duplicateParts, &inoutNumDuplicateParts);
       v10 = obja;
 LABEL_59:
       v16 = numModelsa;
-      v17 = v154 + 1;
-      v12 = v158;
-      v21 = v44 + 1;
-      v20 = v153;
+      v17 = v152 + 1;
+      v12 = v156;
+      v21 = v43 + 1;
+      v20 = v151;
       pos = v21;
-      ++v154;
+      ++v152;
       if ( v21 >= numModelsa )
       {
         v19 = inoutNumDuplicateParts;
-        v18 = v143;
+        v18 = v141;
         break;
       }
     }
   }
-  v53 = 0;
+  v52 = 0;
   if ( v19 > 0 )
   {
     p_parent = &duplicateParts.pairs[0].parent;
     do
     {
-      v55 = *(p_parent - 1);
-      if ( v55 < 0 )
+      v54 = *(p_parent - 1);
+      if ( v54 < 0 )
       {
         if ( v12 < 0 || (unsigned int)v12 > 0xFFFF )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v12, "signed", v12) )
             __debugbreak();
-          v55 = *(p_parent - 1);
+          v54 = *(p_parent - 1);
         }
-        *(p_parent - 1) = v12 + v55;
-        if ( (((_WORD)v12 + v55 - 1) & 0x7FFFu) >= v20 + v12 )
+        *(p_parent - 1) = v12 + v54;
+        if ( (((_WORD)v12 + v54 - 1) & 0x7FFFu) >= v20 + v12 )
         {
           LODWORD(parentModelOut) = v20 + v12;
-          LODWORD(boneName) = ((_WORD)v12 + v55 - 1) & 0x7FFF;
+          LODWORD(boneName) = ((_WORD)v12 + v54 - 1) & 0x7FFF;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 954, ASSERT_TYPE_ASSERT, "(unsigned)( (duplicateParts.pairs[duplicateIndex].child - 1) & ((1 << 15) - 1) ) < (unsigned)( boneCount + numClientBones )", "(duplicateParts.pairs[duplicateIndex].child - 1) & CLIENT_BONEINDEX_MASK doesn't index boneCount + numClientBones\n\t%i not in [0, %i)", boneName, parentModelOut) )
             __debugbreak();
         }
       }
-      v56 = *p_parent;
+      v55 = *p_parent;
       if ( (*p_parent & 0x8000u) != 0 )
       {
         if ( v12 < 0 || (unsigned int)v12 > 0xFFFF )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v12, "signed", v12) )
             __debugbreak();
-          v56 = *p_parent;
+          v55 = *p_parent;
         }
-        *p_parent = v12 + v56;
-        if ( (((_WORD)v12 + v56 - 1) & 0x7FFFu) >= v20 + v12 )
+        *p_parent = v12 + v55;
+        if ( (((_WORD)v12 + v55 - 1) & 0x7FFFu) >= v20 + v12 )
         {
           LODWORD(parentModelOut) = v20 + v12;
-          LODWORD(boneName) = ((_WORD)v12 + v56 - 1) & 0x7FFF;
+          LODWORD(boneName) = ((_WORD)v12 + v55 - 1) & 0x7FFF;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 959, ASSERT_TYPE_ASSERT, "(unsigned)( (duplicateParts.pairs[duplicateIndex].parent -1) & ((1 << 15) - 1) ) < (unsigned)( boneCount + numClientBones )", "(duplicateParts.pairs[duplicateIndex].parent -1) & CLIENT_BONEINDEX_MASK doesn't index boneCount + numClientBones\n\t%i not in [0, %i)", boneName, parentModelOut) )
             __debugbreak();
         }
       }
-      ++v53;
+      ++v52;
       p_parent += 2;
     }
-    while ( v53 < v19 );
+    while ( v52 < v19 );
     v10 = obja;
-    v18 = v143;
+    v18 = v141;
   }
-  v57 = numModelsa;
+  v56 = numModelsa;
   if ( !numModelsa )
   {
     LODWORD(boneName) = 0;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 963, ASSERT_TYPE_ASSERT, "( ( numModels > 0 ) )", "( numModels ) = %i", boneName) )
       __debugbreak();
   }
-  if ( (_DWORD)v57 != (unsigned __int8)v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 964, ASSERT_TYPE_ASSERT, "(numModels == (byte)numModels)", (const char *)&queryFormat, "numModels == (byte)numModels") )
+  if ( (_DWORD)v56 != (unsigned __int8)v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 964, ASSERT_TYPE_ASSERT, "(numModels == (byte)numModels)", (const char *)&queryFormat, "numModels == (byte)numModels") )
     __debugbreak();
-  v10->numModels = v57;
+  v10->numModels = v56;
   if ( v20 + v12 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 967, ASSERT_TYPE_ASSERT, "(boneCount + numClientBones > 0)", "%s\n\tCannot create a DObj with zero bones. See warnings printed above for a list of offending XModels.", "boneCount + numClientBones > 0") )
     __debugbreak();
   v10->numBones = truncate_cast<unsigned char,int>(v12);
   v10->numClientBones = truncate_cast<unsigned short,int>(v20);
-  v58 = v146;
-  v10->blendShapeWeightCount = v146;
-  if ( (unsigned int)(v58 + 1) > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 972, ASSERT_TYPE_ASSERT, "(obj->blendShapeWeightCount + 1 <= DOBJ_MAX_BLEND_SHAPES)", (const char *)&queryFormat, "obj->blendShapeWeightCount + 1 <= DOBJ_MAX_BLEND_SHAPES") )
+  v57 = v144;
+  v10->blendShapeWeightCount = v144;
+  if ( (unsigned int)(v57 + 1) > 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 972, ASSERT_TYPE_ASSERT, "(obj->blendShapeWeightCount + 1 <= DOBJ_MAX_BLEND_SHAPES)", (const char *)&queryFormat, "obj->blendShapeWeightCount + 1 <= DOBJ_MAX_BLEND_SHAPES") )
     __debugbreak();
-  v59 = v10->parentSlots == NULL;
-  v10->blendShapeTargetCount = v147;
-  if ( !v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 980, ASSERT_TYPE_ASSERT, "( obj->parentSlots == nullptr )", "DObj Leaking MT Aloocations") )
+  v58 = v10->parentSlots == NULL;
+  v10->blendShapeTargetCount = v145;
+  if ( !v58 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 980, ASSERT_TYPE_ASSERT, "( obj->parentSlots == nullptr )", "DObj Leaking MT Aloocations") )
     __debugbreak();
   if ( v10->offsets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 981, ASSERT_TYPE_ASSERT, "( obj->offsets == nullptr )", "DObj Leaking MT Aloocations") )
     __debugbreak();
@@ -2974,24 +2929,24 @@ LABEL_59:
     __debugbreak();
   if ( v10->lastGpuLightGridRequest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 985, ASSERT_TYPE_ASSERT, "( obj->lastGpuLightGridRequest == nullptr )", "DObj Leaking MT Aloocations") )
     __debugbreak();
-  v60 = v57;
-  v61 = (int *)MT_AlignedAlloc(4 * v57, 4ui64, 25);
-  v10->parentSlots = v61;
-  memcpy_0(v61, Src, 4 * v57);
-  v62 = (vec3_t *)MT_AlignedAlloc(12 * v57, 4ui64, 25);
-  v10->offsets = v62;
-  memcpy_0(v62, v174, 12 * v57);
-  v63 = 16 * v57;
-  v64 = (vec4_t *)MT_AlignedAlloc(v63, 4ui64, 25);
-  v10->quats = v64;
-  memcpy_0(v64, v175, v63);
-  v65 = (const XModel **)MT_AlignedAlloc(9 * v60, 8ui64, 13);
-  v10->models = v65;
-  memcpy_0(v65, model, 8 * v60);
-  memcpy_0(&v10->models[v60], index, v60);
-  v66 = (GpuLightGridRequestRecord *)MT_AlignedAlloc(v63, 4ui64, 14);
-  v10->lastGpuLightGridRequest = v66;
-  memset_0(v66, 255, v63);
+  v59 = v56;
+  v60 = (int *)MT_AlignedAlloc(4 * v56, 4ui64, 25);
+  v10->parentSlots = v60;
+  memcpy_0(v60, Src, 4 * v56);
+  v61 = (vec3_t *)MT_AlignedAlloc(12 * v56, 4ui64, 25);
+  v10->offsets = v61;
+  memcpy_0(v61, v172, 12 * v56);
+  v62 = 16 * v56;
+  v63 = (vec4_t *)MT_AlignedAlloc(v62, 4ui64, 25);
+  v10->quats = v63;
+  memcpy_0(v63, v173, v62);
+  v64 = (const XModel **)MT_AlignedAlloc(9 * v59, 8ui64, 13);
+  v10->models = v64;
+  memcpy_0(v64, model, 8 * v59);
+  memcpy_0(&v10->models[v59], index, v59);
+  v65 = (GpuLightGridRequestRecord *)MT_AlignedAlloc(v62, 4ui64, 14);
+  v10->lastGpuLightGridRequest = v65;
+  memset_0(v65, 255, v62);
   if ( v10->duplicateParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1025, ASSERT_TYPE_ASSERT, "(obj->duplicateParts == ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "obj->duplicateParts == NULL_SCR_STRING") )
     __debugbreak();
   DObjSetDuplicateParts(v10, &duplicateParts, v19);
@@ -3000,7 +2955,6 @@ LABEL_59:
   else
     v10->proceduralBonesHandle.m_value = 0;
   Profile_EndInternal(NULL);
-  __asm { vmovaps xmm6, [rsp+5A60h+var_50] }
 }
 
 /*
@@ -3652,24 +3606,24 @@ void DObjGetBasePoseMatrix(const DObj *obj, unsigned __int16 boneIndex, DObjAnim
   __int64 SkelBoneIndex; 
   const XModel *v8; 
   int v9; 
-  int v12; 
-  __int64 v16; 
-  int v17; 
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v18; 
-  DObjAnimMat mat; 
+  __m256i v10; 
+  int v11; 
+  __int64 v12; 
+  int v13; 
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > v14; 
+  DObjAnimMat mat[4094]; 
 
-  _RBP = outMat;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4020, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4021, ASSERT_TYPE_ASSERT, "(outMat)", (const char *)&queryFormat, "outMat") )
+  if ( !outMat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4021, ASSERT_TYPE_ASSERT, "(outMat)", (const char *)&queryFormat, "outMat") )
     __debugbreak();
   v6 = boneIndex;
   SkelBoneIndex = DObjGetSkelBoneIndex(obj, boneIndex);
   if ( (unsigned int)SkelBoneIndex >= DObjTotalNumBones(obj) )
   {
-    v17 = DObjTotalNumBones(obj);
-    LODWORD(v16) = SkelBoneIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4025, ASSERT_TYPE_ASSERT, "(unsigned)( skelBoneIndex ) < (unsigned)( DObjTotalNumBones( obj ) )", "skelBoneIndex doesn't index DObjTotalNumBones( obj )\n\t%i not in [0, %i)", v16, v17) )
+    v13 = DObjTotalNumBones(obj);
+    LODWORD(v12) = SkelBoneIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4025, ASSERT_TYPE_ASSERT, "(unsigned)( skelBoneIndex ) < (unsigned)( DObjTotalNumBones( obj ) )", "skelBoneIndex doesn't index DObjTotalNumBones( obj )\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
   v8 = *obj->models;
@@ -3677,31 +3631,27 @@ void DObjGetBasePoseMatrix(const DObj *obj, unsigned __int16 boneIndex, DObjAnim
     __debugbreak();
   if ( (int)SkelBoneIndex < v8->numBones || (boneIndex & 0x8000u) != 0 && (int)SkelBoneIndex < XModelTotalNumBones(*obj->models) )
   {
-    _RAX = XModelGetBasePose(*obj->models);
-    _RCX = 32 * SkelBoneIndex;
-    __asm { vmovups ymm0, ymmword ptr [rax+rcx] }
+    v10 = (__m256i)XModelGetBasePose(*obj->models)[SkelBoneIndex];
   }
   else
   {
     v9 = DObjTotalNumBones(obj);
     if ( v9 == DObjGetNumModels(obj) )
     {
-      _RAX = XModelGetBasePose(obj->models[SkelBoneIndex]);
-      __asm { vmovups ymm0, ymmword ptr [rax] }
+      v10 = *(__m256i *)XModelGetBasePose(obj->models[SkelBoneIndex]);
     }
     else
     {
-      v12 = DObjTotalNumBones(obj);
-      if ( v12 == DObjNumClientOnlyBones(obj) )
-        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(&v18);
+      v11 = DObjTotalNumBones(obj);
+      if ( v11 == DObjNumClientOnlyBones(obj) )
+        bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(&v14);
       else
-        DObjGetHierarchyBits(obj, v6, (DObjPartBits *)&v18);
-      DObjCalcBaseSkel(obj, &mat, (DObjPartBits *)&v18);
-      _RAX = 32 * SkelBoneIndex;
-      __asm { vmovups ymm0, ymmword ptr [rsp+rax+20068h+mat.quat] }
+        DObjGetHierarchyBits(obj, v6, (DObjPartBits *)&v14);
+      DObjCalcBaseSkel(obj, mat, (DObjPartBits *)&v14);
+      v10 = (__m256i)mat[SkelBoneIndex];
     }
   }
-  __asm { vmovups ymmword ptr [rbp+0], ymm0 }
+  *(__m256i *)outMat = v10;
 }
 
 /*
@@ -4027,19 +3977,16 @@ DObjGetBounds
 */
 void DObjGetBounds(const DObj *obj, Bounds *bounds)
 {
-  _RBX = bounds;
-  _RDI = obj;
+  float radius; 
+
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2126, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rdi+0C8h] }
-  *(_QWORD *)_RBX->midPoint.v = 0i64;
-  _RBX->midPoint.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+0Ch], xmm0
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  dword ptr [rbx+14h], xmm0
-  }
+  radius = obj->radius;
+  *(_QWORD *)bounds->midPoint.v = 0i64;
+  bounds->midPoint.v[2] = 0.0;
+  bounds->halfSize.v[0] = radius;
+  bounds->halfSize.v[1] = radius;
+  bounds->halfSize.v[2] = radius;
 }
 
 /*
@@ -4123,30 +4070,31 @@ void DObjGetCreateParms(const DObj *obj, DObjModel *dobjModels, unsigned __int16
   __int64 v10; 
   int *parentSlots; 
   char *v12; 
+  int *p_parentSlot; 
   __int64 v14; 
   const XModel **v15; 
   int v16; 
   const XModel *v17; 
   __int64 v18; 
-  unsigned __int8 v23; 
-  int v24; 
-  const XModel *v25; 
-  const XModel **v26; 
-  int v27; 
+  unsigned __int8 v19; 
+  int v20; 
+  const XModel *v21; 
+  const XModel **v22; 
+  int v23; 
+  __int64 v24; 
+  int v25; 
+  const XModel *v26; 
+  const scr_string_t *v27; 
   __int64 v28; 
-  int v29; 
-  const XModel *v30; 
-  const scr_string_t *v31; 
-  __int64 v32; 
-  __int64 v33; 
-  int v34; 
+  __int64 v29; 
+  int v30; 
   vec3_t *offsets; 
   vec4_t *quats; 
-  __int64 v37; 
+  __int64 v33; 
   const XModel **models; 
-  char *v39; 
-  char *v40; 
-  int v41[256]; 
+  char *v35; 
+  char *v36; 
+  int v37[256]; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 1866, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
@@ -4169,12 +4117,12 @@ void DObjGetCreateParms(const DObj *obj, DObjModel *dobjModels, unsigned __int16
   models = obj->models;
   if ( (_BYTE)v10 )
   {
-    v39 = (char *)&obj->models[v10] + 1;
-    v12 = (char *)((char *)v41 - (char *)parentSlots);
-    _R14 = &dobjModels->parentSlot;
+    v35 = (char *)&obj->models[v10] + 1;
+    v12 = (char *)((char *)v37 - (char *)parentSlots);
+    p_parentSlot = &dobjModels->parentSlot;
     v14 = -1i64;
-    v40 = (char *)((char *)v41 - (char *)parentSlots);
-    v37 = -1i64;
+    v36 = (char *)((char *)v37 - (char *)parentSlots);
+    v33 = -1i64;
     v15 = obj->models;
     v16 = 0;
     while ( 1 )
@@ -4184,87 +4132,77 @@ void DObjGetCreateParms(const DObj *obj, DObjModel *dobjModels, unsigned __int16
       if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
         __debugbreak();
       v16 += v17->numBones;
-      *(_QWORD *)(_R14 - 3) = *v15;
-      v34 = v16;
-      *(_R14 - 1) = 0;
+      *(_QWORD *)(p_parentSlot - 3) = *v15;
+      v30 = v16;
+      *(p_parentSlot - 1) = 0;
       if ( (unsigned int)v9 >= 0x100 )
       {
-        LODWORD(v33) = 256;
-        LODWORD(v32) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, v33) )
+        LODWORD(v29) = 256;
+        LODWORD(v28) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v28, v29) )
           __debugbreak();
       }
-      *((_BYTE *)_R14 + 32) = ((0x80000000 >> (v9 & 0x1F)) & obj->ignoreCollision.array[(unsigned __int64)(unsigned int)v9 >> 5]) != 0;
+      *((_BYTE *)p_parentSlot + 32) = ((0x80000000 >> (v9 & 0x1F)) & obj->ignoreCollision.array[(unsigned __int64)(unsigned int)v9 >> 5]) != 0;
       v18 = *parentSlots;
-      _RAX = offsets;
-      *_R14 = v18;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax]
-        vmovsd  qword ptr [r14+4], xmm0
-      }
-      _R14[3] = LODWORD(offsets->v[2]);
-      _RAX = quats;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [r14+10h], xmm0
-      }
-      v23 = v39[v14];
-      if ( v23 == 0xFF )
+      *p_parentSlot = v18;
+      *(double *)(p_parentSlot + 1) = *(double *)offsets->v;
+      p_parentSlot[3] = LODWORD(offsets->v[2]);
+      *((vec4_t *)p_parentSlot + 1) = *quats;
+      v19 = v35[v14];
+      if ( v19 == 0xFF )
         goto LABEL_43;
       if ( (int)v18 >= 0 )
         break;
-      v28 = v14;
+      v24 = v14;
       if ( v9 > 0 )
       {
         while ( 1 )
         {
-          v29 = v41[v28];
-          if ( v23 >= v29 )
+          v25 = v37[v24];
+          if ( v19 >= v25 )
             break;
-          if ( --v28 < 0 )
+          if ( --v24 < 0 )
             goto LABEL_43;
         }
-        v24 = v23 - v29;
-        v30 = models[v28];
-        v26 = &models[v28];
-        if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+        v20 = v19 - v25;
+        v26 = models[v24];
+        v22 = &models[v24];
+        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
-        if ( v24 >= v30->numBones )
+        if ( v20 >= v26->numBones )
         {
-          v27 = 1915;
+          v23 = 1915;
           goto LABEL_40;
         }
 LABEL_42:
-        v31 = XModelBoneNames(*v26);
-        v16 = v34;
-        v14 = v37;
-        *(_R14 - 1) = v31[v24];
+        v27 = XModelBoneNames(*v22);
+        v16 = v30;
+        v14 = v33;
+        *(p_parentSlot - 1) = v27[v20];
       }
 LABEL_43:
       ++offsets;
       ++v14;
       ++quats;
       ++v9;
-      v12 = v40;
+      v12 = v36;
       ++v15;
       ++parentSlots;
-      v37 = v14;
-      _R14 += 20;
+      v33 = v14;
+      p_parentSlot += 20;
       if ( v9 >= obj->numModels )
         return;
     }
-    v24 = v23 - v41[v18];
-    v25 = models[v18];
-    v26 = &models[v18];
-    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+    v20 = v19 - v37[v18];
+    v21 = models[v18];
+    v22 = &models[v18];
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
-    if ( v24 >= v25->numBones )
+    if ( v20 >= v21->numBones )
     {
-      v27 = 1904;
+      v23 = 1904;
 LABEL_40:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", v27, ASSERT_TYPE_ASSERT, "(boneIndex < XModelNumBones( models[parentModelIndex] ))", (const char *)&queryFormat, "boneIndex < XModelNumBones( models[parentModelIndex] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", v23, ASSERT_TYPE_ASSERT, "(boneIndex < XModelNumBones( models[parentModelIndex] ))", (const char *)&queryFormat, "boneIndex < XModelNumBones( models[parentModelIndex] )") )
         __debugbreak();
     }
     goto LABEL_42;
@@ -4840,18 +4778,11 @@ DObjGetRadius
 */
 float DObjGetRadius(const DObj *obj)
 {
-  _RBX = obj;
   if ( obj )
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+0C8h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2187, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+0C8h] }
-  }
-  return *(float *)&_XMM0;
+    return obj->radius;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2187, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
+    __debugbreak();
+  return MEMORY[0xC8];
 }
 
 /*
@@ -5008,14 +4939,17 @@ void DObjGetStickerMaterialOverrides(const DObj *const obj, CharacterModelType *
   unsigned int v11; 
   __int64 v12; 
   Material *blankMaterial; 
+  DObjStickerSlot *slots; 
   Material *overrideMaterial; 
+  DObjStickerSlot *v16; 
   __int64 v17; 
+  DObjStickerSlot *v18; 
+  __int64 v19; 
+  __int64 v20; 
   __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
   DObjStickerSlot right; 
-  __int64 v28; 
+  __int64 v26; 
 
   v3 = stickerSlots;
   v4 = obj;
@@ -5024,13 +4958,13 @@ void DObjGetStickerMaterialOverrides(const DObj *const obj, CharacterModelType *
     __debugbreak();
   NumModels = DObjGetNumModels(v4);
   memset_0(v3, 0, sizeof(DObjStickerSlotList));
-  v24 = NumModels;
+  v22 = NumModels;
   if ( (int)NumModels > 0 )
   {
     v7 = 0i64;
-    v28 = 0i64;
+    v26 = 0i64;
     v8 = 0i64;
-    v23 = 0i64;
+    v21 = 0i64;
     do
     {
       v9 = v4->models[v7];
@@ -5055,19 +4989,19 @@ void DObjGetStickerMaterialOverrides(const DObj *const obj, CharacterModelType *
             if ( *(_DWORD *)(v12 + 24) == 3 )
             {
               blankMaterial = *(Material **)v12;
-              _R14 = v3->slots;
+              slots = v3->slots;
               overrideMaterial = *(Material **)(v12 + 8);
               right.blankMaterial = *(Material **)v12;
               right.overrideMaterial = overrideMaterial;
-              _RBP = (__int64)&v3->slots[v5];
+              v16 = &v3->slots[v5];
               v17 = (16i64 * v5) >> 4;
               if ( v17 > 0 )
               {
                 do
                 {
-                  if ( DObjStickerSlotGreaterThan(&_R14[v17 >> 1], &right) )
+                  if ( DObjStickerSlotGreaterThan(&slots[v17 >> 1], &right) )
                   {
-                    _R14 += (v17 >> 1) + 1;
+                    slots += (v17 >> 1) + 1;
                     v17 += -1 - (v17 >> 1);
                   }
                   else
@@ -5080,51 +5014,39 @@ void DObjGetStickerMaterialOverrides(const DObj *const obj, CharacterModelType *
                 blankMaterial = right.blankMaterial;
                 v3 = stickerSlots;
               }
-              if ( _R14 == (DObjStickerSlot *)_RBP || blankMaterial != _R14->blankMaterial || overrideMaterial != _R14->overrideMaterial )
+              if ( slots == v16 || blankMaterial != slots->blankMaterial || overrideMaterial != slots->overrideMaterial )
               {
                 if ( v5 >= 4 )
                 {
-                  LODWORD(v22) = 4;
-                  LODWORD(v21) = v5;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2726, ASSERT_TYPE_ASSERT, "(unsigned)( stickerCount ) < (unsigned)( ( sizeof( *array_counter( stickerSlots.slots ) ) + 0 ) )", "stickerCount doesn't index ARRAY_COUNT( stickerSlots.slots )\n\t%i not in [0, %i)", v21, v22) )
+                  LODWORD(v20) = 4;
+                  LODWORD(v19) = v5;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2726, ASSERT_TYPE_ASSERT, "(unsigned)( stickerCount ) < (unsigned)( ( sizeof( *array_counter( stickerSlots.slots ) ) + 0 ) )", "stickerCount doesn't index ARRAY_COUNT( stickerSlots.slots )\n\t%i not in [0, %i)", v19, v20) )
                     __debugbreak();
                 }
-                if ( (DObjStickerSlot *)_RBP != _R14 )
+                if ( v16 != slots )
                 {
-                  _RAX = _RBP - 16;
+                  v18 = v16 - 1;
                   do
-                  {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr [rax]
-                      vmovups xmmword ptr [rbp+0], xmm0
-                    }
-                    _RBP -= 16i64;
-                    _RAX -= 16i64;
-                  }
-                  while ( (DObjStickerSlot *)_RBP != _R14 );
+                    *v16-- = *v18--;
+                  while ( v16 != slots );
                 }
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rsp+98h+right.blankMaterial]
-                  vmovups xmmword ptr [r14], xmm0
-                }
+                *slots = right;
                 ++v5;
               }
             }
             ++v11;
           }
           while ( v11 < *(_DWORD *)v10 );
-          v8 = v23;
+          v8 = v21;
           v4 = obj;
         }
       }
-      v7 = v28 + 1;
+      v7 = v26 + 1;
       v8 += 16i64;
-      v28 = v7;
-      v23 = v8;
+      v26 = v7;
+      v21 = v8;
     }
-    while ( v7 < v24 );
+    while ( v7 < v22 );
   }
 }
 
@@ -5136,106 +5058,65 @@ DObjGetSurfaceData
 void DObjGetSurfaceData(const DObj *obj, const vec3_t *origin, unsigned __int8 (*lods)[254], float (*materialLods)[254], const MaterialLodSettings *materialLodSettings)
 {
   int NumModels; 
-  __int64 v15; 
-  __int64 v17; 
-  int v24; 
+  __int64 v10; 
+  __int64 v11; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
+  int v15; 
+  __int128 v18; 
+  float v20; 
+  __int64 v21; 
   const XModel *Model; 
   unsigned int UsableLodForDist; 
-  __int64 v57; 
-  char v60; 
-  void *retaddr; 
+  __int64 v27; 
 
-  _RAX = &retaddr;
-  _R15 = materialLods;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0C8h+var_88], xmm10
-  }
   if ( !R_IsSceneModelAddThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4077, ASSERT_TYPE_ASSERT, "(R_IsSceneModelAddThread())", (const char *)&queryFormat, "R_IsSceneModelAddThread()") )
     __debugbreak();
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4081, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   NumModels = DObjGetNumModels(obj);
-  v15 = NumModels;
-  _ER13 = 0;
+  v10 = NumModels;
   if ( (unsigned int)NumModels > 0xFE )
   {
-    LODWORD(v57) = NumModels;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4084, ASSERT_TYPE_SANITY, "( 0 ) <= ( modelCount ) && ( modelCount ) <= ( ( DOBJ_MAX_PARTS ) )", "modelCount not in [0, DOBJ_MAX_SUBMODELS]\n\t%i not in [%i, %i]", v57, 0i64, 254) )
+    LODWORD(v27) = NumModels;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4084, ASSERT_TYPE_SANITY, "( 0 ) <= ( modelCount ) && ( modelCount ) <= ( ( DOBJ_MAX_PARTS ) )", "modelCount not in [0, DOBJ_MAX_SUBMODELS]\n\t%i not in [%i, %i]", v27, 0i64, 254) )
       __debugbreak();
   }
   if ( !rg.lodParms.valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 4086, ASSERT_TYPE_ASSERT, "(rg.lodParms.valid)", (const char *)&queryFormat, "rg.lodParms.valid") )
     __debugbreak();
-  v17 = v15;
-  __asm
+  v11 = v10;
+  v12 = rg.lodParms.origin.v[0] - origin->v[0];
+  v13 = LODWORD(rg.lodParms.origin.v[1]);
+  *(float *)&v13 = rg.lodParms.origin.v[1] - origin->v[1];
+  v14 = rg.lodParms.origin.v[2] - origin->v[2];
+  v15 = 0;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(v12 * v12)) + (float)(v14 * v14)) - obj->radius;
+  _XMM4 = v13;
+  __asm { vmaxss  xmm6, xmm4, xmm7 }
+  v18 = _XMM6;
+  *(float *)&v18 = (float)((float)((float)((float)(*(float *)&_XMM6 * rg.lodParms.ramp.scale) + rg.lodParms.ramp.bias) + rg.lodParms.sceneSurfsBias) + rg.lodParms.subdivBias) + rg.lodParms.skinningBias;
+  _XMM10 = v18;
+  v20 = *(float *)&_XMM6 * rg.lodParms.cappedLodScale;
+  if ( (int)v10 > 0 )
   {
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.origin; r_globals_t rg
-    vsubss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.origin+4; r_globals_t rg
-    vsubss  xmm2, xmm1, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.lodParms.origin+8; r_globals_t rg
-    vsubss  xmm4, xmm0, dword ptr [rsi+8]
-  }
-  v24 = 0;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vsubss  xmm4, xmm1, dword ptr [rdi+0C8h]
-    vxorps  xmm7, xmm7, xmm7
-    vmaxss  xmm6, xmm4, xmm7
-    vmulss  xmm2, xmm6, cs:?rg@@3Ur_globals_t@@A.lodParms.ramp.scale; r_globals_t rg
-    vaddss  xmm0, xmm2, cs:?rg@@3Ur_globals_t@@A.lodParms.ramp.bias; r_globals_t rg
-    vaddss  xmm3, xmm0, cs:?rg@@3Ur_globals_t@@A.lodParms.sceneSurfsBias; r_globals_t rg
-    vaddss  xmm8, xmm3, cs:?rg@@3Ur_globals_t@@A.lodParms.subdivBias; r_globals_t rg
-    vaddss  xmm10, xmm8, cs:?rg@@3Ur_globals_t@@A.lodParms.skinningBias; r_globals_t rg
-    vmulss  xmm9, xmm6, cs:?rg@@3Ur_globals_t@@A.lodParms.cappedLodScale; r_globals_t rg
-  }
-  if ( (int)v15 > 0 )
-  {
-    _RBX = 0i64;
+    v21 = 0i64;
     do
     {
-      Model = DObjGetModel(obj, v24);
-      __asm { vmovd   xmm1, r13d }
-      _ECX = (Model->flags & 0x40000) != 0;
+      Model = DObjGetModel(obj, v15);
+      _XMM0 = (Model->flags & 0x40000) != 0;
       __asm
       {
-        vmovd   xmm0, ecx
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm1, xmm10, xmm8, xmm2; dist
-        vmovaps xmm2, xmm9; cullDist
       }
-      UsableLodForDist = XModelGetUsableLodForDist(Model, *(const float *)&_XMM1, *(const float *)&_XMM2);
-      (*lods)[_RBX] = truncate_cast<unsigned char,unsigned int>(UsableLodForDist);
-      __asm
-      {
-        vmovaps xmm1, xmm6; dist
-        vmovaps xmm0, xmm7; radius
-      }
-      *(double *)&_XMM0 = XModelGetMaterialLodForDist(*(float *)&_XMM0, *(float *)&_XMM1, materialLodSettings);
-      __asm { vmovss  dword ptr [r15+rbx*4], xmm0 }
-      ++_RBX;
-      ++v24;
+      UsableLodForDist = XModelGetUsableLodForDist(Model, *(const float *)&_XMM1, v20);
+      (*lods)[v21] = truncate_cast<unsigned char,unsigned int>(UsableLodForDist);
+      *(double *)&_XMM0 = XModelGetMaterialLodForDist(0.0, *(float *)&_XMM6, materialLodSettings);
+      (*materialLods)[v21++] = *(float *)&_XMM0;
+      ++v15;
     }
-    while ( _RBX < v17 );
-  }
-  __asm { vmovaps xmm7, [rsp+0C8h+var_58] }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    while ( v21 < v11 );
   }
 }
 
@@ -5260,22 +5141,68 @@ DObjGetVisibleBounds
 */
 void DObjGetVisibleBounds(const DObj *obj, Bounds *bounds)
 {
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
-  _RSI = *obj->models;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vucomiss xmm0, xmm6
-  }
+  const XModel **models; 
+  unsigned int v3; 
+  const XModel *v6; 
+  float radius; 
+  XBoneInfo *boneInfo; 
+  double v9; 
+  DObjAnimMat *baseMat; 
+  __int64 v11; 
+  float v12; 
+  __int64 v13; 
+  __int64 v14; 
+  Bounds added; 
+
+  models = obj->models;
+  v3 = 0;
+  v6 = *models;
+  radius = (*models)->radius;
   *(_QWORD *)bounds->midPoint.v = 0i64;
   bounds->midPoint.v[2] = 0.0;
-  *(_QWORD *)bounds->halfSize.v = 0i64;
-  bounds->halfSize.v[2] = 0.0;
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  if ( radius == 0.0 )
+  {
+    *(_QWORD *)bounds->halfSize.v = 0i64;
+    bounds->halfSize.v[2] = 0.0;
+  }
+  else
+  {
+    bounds->halfSize.v[0] = -3.4028235e38;
+    bounds->halfSize.v[1] = -3.4028235e38;
+    bounds->halfSize.v[2] = -3.4028235e38;
+    if ( v6->numBones )
+    {
+      do
+      {
+        if ( v3 >= 0x100 )
+        {
+          LODWORD(v14) = 256;
+          LODWORD(v13) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, v14) )
+            __debugbreak();
+        }
+        if ( ((0x80000000 >> (v3 & 0x1F)) & obj->hidePartBits.array[(unsigned __int64)v3 >> 5]) == 0 )
+        {
+          boneInfo = v6->boneInfo;
+          v9 = *(double *)&boneInfo[v3].bounds.halfSize.y;
+          *(_OWORD *)added.midPoint.v = *(_OWORD *)boneInfo[v3].bounds.midPoint.v;
+          *(double *)&added.halfSize.y = v9;
+          if ( _mm_shuffle_ps(*(__m128 *)added.midPoint.v, *(__m128 *)added.midPoint.v, 255).m128_f32[0] != 0.0 && added.halfSize.v[1] != 0.0 && added.halfSize.v[2] != 0.0 )
+          {
+            baseMat = v6->baseMat;
+            v11 = v3;
+            v12 = added.midPoint.v[1] + baseMat[v11].trans.v[1];
+            added.midPoint.v[0] = added.midPoint.v[0] + baseMat[v11].trans.v[0];
+            added.midPoint.v[2] = added.midPoint.v[2] + baseMat[v11].trans.v[2];
+            added.midPoint.v[1] = v12;
+            Bounds_Expand(bounds, &added);
+          }
+        }
+        ++v3;
+      }
+      while ( v3 < v6->numBones );
+    }
+  }
 }
 
 /*
@@ -5778,91 +5705,132 @@ void DObjSkelReset(const DObj *obj)
 DObjTraceline
 ==============
 */
-void DObjTraceline(DObj *obj, const vec3_t *start, const vec3_t *end, const unsigned __int8 *priorityMap, DObjTrace_s *trace, bool (*shieldTraceCallback)(const DObj *, const XModel *, void *))
+void DObjTraceline(DObj *obj, const vec3_t *start, const vec3_t *end, const unsigned __int8 *priorityMap, DObjTrace_s *trace, bool (*shieldTraceCallback)(const DObj *, const XModel *, void *), void *userArgs)
 {
-  DObj *v18; 
-  bool v27; 
-  bool v28; 
+  DObjTrace_s *v7; 
+  DObj *v8; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __m128 *v15; 
   const DObjDuplicateParts *DuplicateParts; 
   const XModel **models; 
-  unsigned int v44; 
-  unsigned __int64 v45; 
+  unsigned int v18; 
+  unsigned __int64 v19; 
   DObjDuplicatePair *pairs; 
-  const XModel *v51; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  unsigned int v55; 
+  DObjAnimMat *v21; 
+  float fraction; 
+  const XModel *v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  unsigned int v27; 
   unsigned int numRootBones; 
-  __int64 v57; 
-  unsigned __int64 v59; 
-  unsigned int v60; 
-  char v69; 
-  bool v122; 
-  char v165; 
-  unsigned int v166; 
-  bool v168; 
-  bool v186; 
-  bool v187; 
-  bool v188; 
-  bool v193; 
-  bool v194; 
-  bool v195; 
-  __int64 v217; 
-  __int64 v218; 
-  __int64 v219; 
-  __int64 v220; 
-  __int64 v221; 
-  __int64 v222; 
-  __int64 v223; 
-  __int64 v224; 
-  int v225; 
-  int v226; 
-  int v227; 
-  int v228; 
-  int v229; 
-  int v230; 
-  int v231; 
-  int v232; 
-  int v233; 
-  int v234; 
-  int v235; 
-  int v236; 
-  int v237; 
-  int v239; 
-  int v240; 
-  int v241; 
-  int v242; 
-  int v243; 
-  int v244; 
-  int v245; 
-  int v246; 
-  unsigned int v249; 
-  int v250; 
-  __int64 v254; 
-  unsigned int v256; 
+  __int64 v29; 
+  __m128 *v30; 
+  unsigned __int64 v31; 
+  unsigned int v32; 
+  char v33; 
+  float v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  char v63; 
+  unsigned int v64; 
+  __int64 v65; 
+  bool v66; 
+  float v67; 
+  float v68; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  unsigned int v81; 
+  __int128 v82; 
+  float v86; 
+  float v87; 
+  float v88; 
+  float transWeight; 
+  float v90; 
+  float v91; 
+  float v92; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  float v99; 
+  float v100; 
+  __int64 v101; 
+  __int64 v102; 
+  __int64 v103; 
+  __int64 v104; 
+  __int64 v105; 
+  __int64 v106; 
+  __int64 v107; 
+  __int64 v108; 
+  float v109; 
+  unsigned int v110; 
+  unsigned int v111; 
+  float v112; 
+  float v113; 
+  __int64 v115; 
+  DObjAnimMat *v116; 
+  float v117; 
+  unsigned int v118; 
+  unsigned int v119; 
   DObjAnimMat *RotTransArray; 
+  float v121; 
+  float v122; 
+  int v123; 
   unsigned int numBones; 
-  DObjDuplicatePair *v261; 
-  unsigned int v262; 
-  const XModel *v263; 
+  int v125; 
+  DObjDuplicatePair *v126; 
+  unsigned int v127; 
+  const XModel *v128; 
   __int64 numModels; 
-  const XModel **v266; 
-  int v269[146]; 
-  char v277; 
-  void *retaddr; 
+  const XModel **v131; 
+  scr_string_t *boneNames; 
+  __int64 v135; 
+  int v136[4]; 
+  int v137[4]; 
+  float v138; 
+  float v139; 
+  int v140[136]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RDI = trace;
-  v18 = obj;
-  _RSI = end;
-  _RBX = start;
+  v7 = trace;
+  v8 = obj;
   if ( !shieldTraceCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3221, ASSERT_TYPE_ASSERT, "(shieldTraceCallback != 0)", (const char *)&queryFormat, "shieldTraceCallback != NULL") )
     __debugbreak();
   Profile_Begin(417);
@@ -5871,671 +5839,449 @@ void DObjTraceline(DObj *obj, const vec3_t *start, const vec3_t *end, const unsi
   trace->partName = 0;
   trace->partGroup = 0;
   *(_QWORD *)&trace->normal.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  if ( (v241 & 0x7F800000) == 2139095040 )
-    goto LABEL_127;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  if ( (v242 & 0x7F800000) == 2139095040 )
-    goto LABEL_127;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  if ( (v243 & 0x7F800000) == 2139095040 )
-  {
-LABEL_127:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3231, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  if ( (v244 & 0x7F800000) == 2139095040 )
-    goto LABEL_128;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  if ( (v245 & 0x7F800000) == 2139095040 )
-    goto LABEL_128;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+440h+var_3EC], xmm0
-  }
-  v27 = (v246 & 0x7F800000) == 2139095040;
-  if ( (v246 & 0x7F800000) == 2139095040 )
-  {
-LABEL_128:
-    v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )");
-    v27 = !v28;
-    if ( v28 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm9, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm0, xmm0, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rsi+8]
-    vsubss  xmm1, xmm1, dword ptr [rbx+8]
-    vmulss  xmm2, xmm0, xmm0
-    vmovss  [rbp+340h+var_3B8], xmm0
-    vmulss  xmm0, xmm9, xmm9
-    vmovss  [rbp+340h+var_3A0], xmm1
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vaddss  xmm6, xmm3, xmm1
-    vxorps  xmm15, xmm15, xmm15
-    vucomiss xmm6, xmm15
-    vmovss  dword ptr [rsp+440h+var_3E0+4], xmm9
-  }
-  if ( v27 )
-    goto LABEL_124;
-  RotTransArray = DObjGetRotTransArray(v18);
-  _RSI = RotTransArray;
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3231, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  v11 = end->v[0] - start->v[0];
+  v12 = end->v[1] - start->v[1];
+  v117 = v12;
+  v121 = end->v[2] - start->v[2];
+  v13 = (float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v121 * v121);
+  _XMM15 = 0i64;
+  v113 = v11;
+  if ( v13 == 0.0 )
+    goto LABEL_168;
+  RotTransArray = DObjGetRotTransArray(v8);
+  v15 = (__m128 *)RotTransArray;
   if ( !RotTransArray )
-    goto LABEL_124;
-  __asm { vmovaps xmmword ptr [rsp+440h+var_48+8], xmm7 }
-  DuplicateParts = DObjGetDuplicateParts(v18);
-  models = v18->models;
-  v44 = 0;
-  v45 = 0i64;
+    goto LABEL_168;
+  DuplicateParts = DObjGetDuplicateParts(v8);
+  models = v8->models;
+  v18 = 0;
+  v19 = 0i64;
+  v123 = -1;
   pairs = DuplicateParts->pairs;
-  v261 = DuplicateParts->pairs;
-  v256 = 0;
-  v266 = models;
-  numModels = v18->numModels;
-  v249 = 0;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm7, dword ptr [rdi]
-    vxorps  xmm2, xmm2, xmm2
-    vdivss  xmm0, xmm0, xmm6
-    vmovss  [rsp+440h+var_3EC], xmm2
-    vmovss  dword ptr [rsp+440h+var_3E0], xmm7
-    vmovss  [rbp+340h+var_39C], xmm0
-  }
-  if ( !v18->numModels )
-    goto LABEL_123;
-  __asm
-  {
-    vmovaps [rsp+440h+var_58+8], xmm8
-    vmovaps xmmword ptr [rsp+440h+var_78+8], xmm10
-    vmovaps [rsp+440h+var_88+8], xmm11
-    vmovaps [rsp+440h+var_98+8], xmm12
-    vmovaps [rsp+440h+var_A8+8], xmm13
-    vmovaps [rsp+440h+var_B8+8], xmm14
-  }
+  v125 = -1;
+  v21 = NULL;
+  v126 = DuplicateParts->pairs;
+  v119 = 0;
+  v116 = NULL;
+  v131 = models;
+  numModels = v8->numModels;
+  v118 = 2;
+  v110 = 0;
+  fraction = trace->fraction;
+  v109 = 0.0;
+  v112 = trace->fraction;
+  v122 = 1.0 / v13;
+  if ( !v8->numModels )
+    goto LABEL_168;
   while ( 1 )
   {
-    v51 = models[v44];
-    v263 = v51;
-    numBones = v51->numBones;
-    if ( v44 >= 0x100 )
+    v135 = v18;
+    v23 = models[v18];
+    v128 = v23;
+    boneNames = v23->boneNames;
+    numBones = v23->numBones;
+    if ( v18 >= 0x100 )
     {
-      LODWORD(v221) = 256;
-      LODWORD(v217) = v44;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v217, v221) )
+      LODWORD(v105) = 256;
+      LODWORD(v101) = v18;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v101, v105) )
         __debugbreak();
-      pairs = v261;
-      v51 = v263;
+      pairs = v126;
+      v23 = v128;
     }
-    v262 = v18->ignoreCollision.array[(unsigned __int64)v44 >> 5] & (0x80000000 >> (v44 & 0x1F));
-    v52 = 0i64;
-    v250 = 0;
+    v127 = v8->ignoreCollision.array[(unsigned __int64)v18 >> 5] & (0x80000000 >> (v18 & 0x1F));
+    v24 = 0i64;
+    v111 = 0;
     if ( numBones )
-    {
-      v53 = 0i64;
-      v254 = 0i64;
-      do
-      {
-        v54 = v51->partClassification[v52];
-        v55 = priorityMap[v54];
-        if ( (_DWORD)v45 == pairs->child - 1 )
-        {
-          if ( v55 == 1 )
-          {
-            v54 = *((unsigned __int16 *)&v269[17] + pairs->parent + 1);
-            v55 = priorityMap[v54];
-          }
-          v261 = pairs + 1;
-        }
-        else if ( v55 == 1 )
-        {
-          numRootBones = v51->numRootBones;
-          if ( (unsigned int)v52 >= numRootBones )
-          {
-            v57 = (unsigned int)v45 - v51->parentList[(unsigned int)v52 - numRootBones];
-            LODWORD(v52) = v250;
-LABEL_34:
-            LOWORD(v54) = *((_WORD *)&v269[18] + v57);
-          }
-          else
-          {
-            LOBYTE(v57) = *((_BYTE *)&v266[numModels] + v44);
-            if ( (_BYTE)v57 != 0xFF )
-            {
-              v57 = (unsigned __int8)v57;
-              goto LABEL_34;
-            }
-            LOWORD(v54) = 0;
-          }
-          v55 = priorityMap[(unsigned __int16)v54];
-        }
-        *((_WORD *)&v269[18] + v45) = v54;
-        if ( v262 )
-          goto LABEL_114;
-        _R14 = (__int64)&v51->boneInfo[v53];
-        if ( !*(_DWORD *)(_R14 + 24) )
-          goto LABEL_114;
-        if ( v256 >= 0x100 )
-        {
-          LODWORD(v221) = 256;
-          LODWORD(v217) = v256;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v217, v221) )
-            __debugbreak();
-          v53 = v254;
-        }
-        v59 = v45 >> 5;
-        v60 = 0x80000000 >> (v256 & 0x1F);
-        if ( (v60 & obj->hidePartBits.array[v59]) != 0 )
-        {
-          v18 = obj;
-          LODWORD(v52) = v250;
-          v44 = v249;
-          goto LABEL_115;
-        }
-        if ( v256 >= 0x100 )
-        {
-          LODWORD(v221) = 256;
-          LODWORD(v217) = v256;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v217, v221) )
-            __debugbreak();
-        }
-        if ( (v60 & obj->skel.partBits.skel.array[v59]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3331, ASSERT_TYPE_ASSERT, "(obj->skel.partBits.skel.testBit( globalBoneIndex ))", (const char *)&queryFormat, "obj->skel.partBits.skel.testBit( globalBoneIndex )") )
-          __debugbreak();
-        if ( v55 >= 2 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v225 & 0x7F800000) == 2139095040 )
-            goto LABEL_129;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+4]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v226 & 0x7F800000) == 2139095040 )
-            goto LABEL_129;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+8]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v227 & 0x7F800000) == 2139095040 )
-            goto LABEL_129;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+0Ch]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v228 & 0x7F800000) == 2139095040 )
-          {
-LABEL_129:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3336, ASSERT_TYPE_SANITY, "( !IS_NAN( ( boneMatrix->quat )[0] ) && !IS_NAN( ( boneMatrix->quat )[1] ) && !IS_NAN( ( boneMatrix->quat )[2] ) && !IS_NAN( ( boneMatrix->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( boneMatrix->quat )[0] ) && !IS_NAN( ( boneMatrix->quat )[1] ) && !IS_NAN( ( boneMatrix->quat )[2] ) && !IS_NAN( ( boneMatrix->quat )[3] )") )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+10h]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v229 & 0x7F800000) == 2139095040 )
-            goto LABEL_130;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+14h]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v230 & 0x7F800000) == 2139095040 )
-            goto LABEL_130;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi+18h]
-            vmovss  [rsp+440h+var_3F0], xmm0
-          }
-          if ( (v231 & 0x7F800000) == 2139095040 )
-          {
-LABEL_130:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3337, ASSERT_TYPE_SANITY, "( !IS_NAN( ( boneMatrix->trans )[0] ) && !IS_NAN( ( boneMatrix->trans )[1] ) && !IS_NAN( ( boneMatrix->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( boneMatrix->trans )[0] ) && !IS_NAN( ( boneMatrix->trans )[1] ) && !IS_NAN( ( boneMatrix->trans )[2] )") )
-              __debugbreak();
-          }
-          _RDI = trace;
-          if ( v55 - 200 <= 2 )
-          {
-            v69 = 1;
-          }
-          else
-          {
-            v69 = 0;
-            if ( v55 != 2 )
-            {
-              __asm { vmovaps xmm14, xmm7 }
-LABEL_66:
-              __asm
-              {
-                vmovups xmm7, xmmword ptr [r14]
-                vmovups xmm11, xmmword ptr [rsi]
-              }
-              _RAX = start;
-              __asm
-              {
-                vmovups xmm10, xmmword ptr [rsi+10h]
-                vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-                vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-                vmovups xmm12, xmmword ptr [rax]
-              }
-              _RAX = end;
-              __asm
-              {
-                vmulps  xmm2, xmm1, xmm8
-                vshufps xmm6, xmm11, xmm11, 0C9h ; 'É'
-                vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-                vmovups xmm13, xmmword ptr [rax]
-                vmulps  xmm3, xmm0, xmm6
-                vsubps  xmm0, xmm3, xmm2
-                vaddps  xmm4, xmm0, xmm0
-                vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-                vmulps  xmm3, xmm1, xmm6
-                vshufps xmm5, xmm11, xmm11, 0FFh
-                vmulps  xmm0, xmm5, xmm4
-                vaddps  xmm5, xmm0, xmm7
-                vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-                vmulps  xmm2, xmm0, xmm8
-                vsubps  xmm1, xmm3, xmm2
-                vaddps  xmm4, xmm1, xmm5
-                vaddps  xmm0, xmm4, xmm10
-                vsubps  xmm8, xmm12, xmm0
-                vmulss  xmm1, xmm9, xmm8
-                vshufps xmm7, xmm8, xmm8, 55h ; 'U'
-                vmulss  xmm0, xmm7, [rbp+340h+var_3B8]
-                vaddss  xmm2, xmm1, xmm0
-                vshufps xmm6, xmm8, xmm8, 0AAh ; 'ª'
-                vmulss  xmm1, xmm6, [rbp+340h+var_3A0]
-                vaddss  xmm2, xmm2, xmm1
-                vmulss  xmm0, xmm2, [rbp+340h+var_39C]
-                vxorps  xmm9, xmm0, cs:__xmm@80000000800000008000000080000000
-                vmovss  xmm2, cs:__real@3f800000; max
-                vmovaps xmm0, xmm9; val
-                vmovaps xmm1, xmm15; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm1, xmm0, dword ptr [rsp+440h+var_3E0+4]
-                vmulss  xmm2, xmm0, [rbp+340h+var_3B8]
-                vmulss  xmm0, xmm0, [rbp+340h+var_3A0]
-                vaddss  xmm3, xmm2, xmm7
-                vaddss  xmm5, xmm1, xmm8
-                vmulss  xmm2, xmm3, xmm3
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm3, xmm2, xmm1
-                vmovss  xmm1, dword ptr [r14+18h]
-                vaddss  xmm4, xmm0, xmm6
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm4, xmm3, xmm0
-                vsubss  xmm2, xmm1, xmm4
-                vcomiss xmm2, xmm15
-              }
-              if ( v122 || v27 )
-                goto LABEL_120;
-              v122 = v55 < 2;
-              if ( v55 != 2 )
-              {
-                v122 = 0;
-                if ( !v69 )
-                  goto LABEL_70;
-              }
-              __asm
-              {
-                vmulss  xmm0, xmm2, [rbp+340h+var_39C]
-                vsqrtss xmm1, xmm0, xmm0
-                vsubss  xmm2, xmm9, xmm1
-                vcomiss xmm2, xmm14
-              }
-              if ( !v122 )
-              {
-LABEL_120:
-                __asm
-                {
-                  vmovss  xmm7, dword ptr [rsp+440h+var_3E0]
-                  vmovss  xmm9, dword ptr [rsp+440h+var_3E0+4]
-                }
-              }
-              else
-              {
-LABEL_70:
-                __asm
-                {
-                  vmulps  xmm0, xmm11, cs:__xmm@3f800000bf800000bf800000bf800000
-                  vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-                  vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-                  vshufps xmm7, xmm0, xmm0, 0FFh
-                  vsubps  xmm5, xmm12, xmm10
-                  vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm0, xmm6
-                  vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-                  vmulps  xmm2, xmm1, xmm8
-                  vsubps  xmm0, xmm3, xmm2
-                  vaddps  xmm4, xmm0, xmm0
-                  vmulps  xmm0, xmm7, xmm4
-                  vaddps  xmm5, xmm0, xmm5
-                  vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-                  vmulps  xmm2, xmm0, xmm8
-                  vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm1, xmm6
-                  vsubps  xmm1, xmm3, xmm2
-                  vaddps  xmm9, xmm1, xmm5
-                  vsubps  xmm5, xmm13, xmm10
-                  vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm0, xmm6
-                  vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-                  vmulps  xmm2, xmm1, xmm8
-                  vsubps  xmm0, xmm3, xmm2
-                  vaddps  xmm4, xmm0, xmm0
-                  vmulps  xmm0, xmm7, xmm4
-                  vaddps  xmm5, xmm0, xmm5
-                  vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-                  vmulps  xmm2, xmm0, xmm8
-                  vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-                  vmulps  xmm3, xmm1, xmm6
-                  vsubps  xmm1, xmm3, xmm2
-                  vaddps  xmm6, xmm1, xmm5
-                  vmovss  [rsp+440h+var_3F0], xmm9
-                  vshufps xmm7, xmm6, xmm6, 55h ; 'U'
-                  vshufps xmm8, xmm6, xmm6, 0AAh ; 'ª'
-                  vshufps xmm0, xmm9, xmm9, 55h ; 'U'
-                  vshufps xmm1, xmm9, xmm9, 0AAh ; 'ª'
-                  vmovss  [rbp+340h+var_314], xmm7
-                  vmovss  [rbp+340h+var_310], xmm8
-                  vmovss  [rbp+340h+var_308], xmm9
-                  vmovss  [rbp+340h+var_304], xmm0
-                  vmovss  [rbp+340h+var_300], xmm1
-                  vmovss  [rbp+340h+var_318], xmm6
-                }
-                if ( (v232 & 0x7F800000) == 2139095040 )
-                  goto LABEL_131;
-                __asm { vmovss  [rsp+440h+var_3F0], xmm0 }
-                if ( (v233 & 0x7F800000) == 2139095040 )
-                  goto LABEL_131;
-                __asm { vmovss  [rsp+440h+var_3F0], xmm1 }
-                if ( (v234 & 0x7F800000) == 2139095040 )
-                {
-LABEL_131:
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3406, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localStart )[0] ) && !IS_NAN( ( localStart )[1] ) && !IS_NAN( ( localStart )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localStart )[0] ) && !IS_NAN( ( localStart )[1] ) && !IS_NAN( ( localStart )[2] )") )
-                    __debugbreak();
-                }
-                __asm { vmovss  [rsp+440h+var_3F0], xmm6 }
-                if ( (v235 & 0x7F800000) == 2139095040 )
-                  goto LABEL_132;
-                __asm { vmovss  [rsp+440h+var_3F0], xmm7 }
-                if ( (v236 & 0x7F800000) == 2139095040 )
-                  goto LABEL_132;
-                __asm { vmovss  [rsp+440h+var_3F0], xmm8 }
-                if ( (v237 & 0x7F800000) == 2139095040 )
-                {
-LABEL_132:
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3407, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localEnd )[0] ) && !IS_NAN( ( localEnd )[1] ) && !IS_NAN( ( localEnd )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localEnd )[0] ) && !IS_NAN( ( localEnd )[1] ) && !IS_NAN( ( localEnd )[2] )") )
-                    __debugbreak();
-                }
-                __asm { vmovss  xmm13, cs:__real@3f000000 }
-                v165 = 1;
-                v166 = 0;
-                _RDI = 0i64;
-                v168 = 1;
-                __asm
-                {
-                  vmovaps xmm11, xmm15
-                  vmovaps xmm12, xmm14
-                }
-                do
-                {
-                  if ( !v168 )
-                  {
-                    LODWORD(v221) = 3;
-                    LODWORD(v217) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v217, v221) )
-                      __debugbreak();
-                    LODWORD(v222) = 3;
-                    LODWORD(v218) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v218, v222) )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+rdi+340h+var_318]
-                    vsubss  xmm1, xmm0, [rbp+rdi+340h+var_308]
-                    vmovss  xmm2, cs:__real@3f800000
-                    vmovss  xmm3, cs:__real@bf800000
-                    vcmpless xmm0, xmm15, xmm1
-                    vblendvps xmm8, xmm3, xmm2, xmm0
-                    vmovss  [rsp+440h+var_3F0], xmm8
-                    vmulss  xmm6, xmm8, xmm1
-                  }
-                  if ( v166 >= 3 )
-                  {
-                    LODWORD(v221) = 3;
-                    LODWORD(v217) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v217, v221) )
-                      __debugbreak();
-                    LODWORD(v223) = 3;
-                    LODWORD(v219) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v219, v223) )
-                      __debugbreak();
-                    LODWORD(v224) = 3;
-                    LODWORD(v220) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v220, v224) )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+rdi+340h+var_318]
-                    vaddss  xmm1, xmm0, [rbp+rdi+340h+var_308]
-                    vmulss  xmm2, xmm1, xmm13
-                    vsubss  xmm3, xmm2, dword ptr [rdi+r14]
-                    vmulss  xmm10, xmm3, xmm8
-                  }
-                  if ( v166 >= 3 )
-                  {
-                    LODWORD(v221) = 3;
-                    LODWORD(v217) = v166;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v217, v221) )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmulss  xmm0, xmm6, xmm13
-                    vsubss  xmm9, xmm0, dword ptr [rdi+r14+0Ch]
-                    vsubss  xmm7, xmm9, xmm10
-                    vmovss  [rsp+440h+var_3F0], xmm7
-                  }
-                  v186 = (v239 & 0x7F800000u) < 0x7F800000;
-                  v187 = (v239 & 0x7F800000u) <= 0x7F800000;
-                  if ( (v239 & 0x7F800000) == 2139095040 )
-                  {
-                    v188 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3430, ASSERT_TYPE_SANITY, "( !IS_NAN( distBeforeEnter ) )", (const char *)&queryFormat, "!IS_NAN( distBeforeEnter )");
-                    v186 = 0;
-                    v187 = !v188;
-                    if ( v188 )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmulss  xmm0, xmm6, xmm11
-                    vcomiss xmm7, xmm0
-                  }
-                  if ( !v187 )
-                  {
-                    __asm
-                    {
-                      vmulss  xmm0, xmm6, xmm12
-                      vcomiss xmm7, xmm0
-                    }
-                    if ( !v186 )
-                    {
-                      v44 = v249;
-                      _RSI = RotTransArray;
-                      __asm
-                      {
-                        vmovss  xmm7, dword ptr [rsp+440h+var_3E0]
-                        vmovss  xmm9, dword ptr [rsp+440h+var_3E0+4]
-                      }
-                      LODWORD(v52) = v250;
-                      v53 = v254;
-                      goto LABEL_114;
-                    }
-                    __asm
-                    {
-                      vxorps  xmm8, xmm8, cs:__xmm@80000000800000008000000080000000
-                      vmovss  [rsp+440h+var_3EC], xmm8
-                      vdivss  xmm11, xmm7, xmm6
-                    }
-                    v165 = 0;
-                  }
-                  __asm
-                  {
-                    vaddss  xmm7, xmm9, xmm10
-                    vmovss  [rsp+440h+var_3F0], xmm7
-                  }
-                  v193 = (v240 & 0x7F800000u) < 0x7F800000;
-                  v194 = (v240 & 0x7F800000u) <= 0x7F800000;
-                  if ( (v240 & 0x7F800000) == 2139095040 )
-                  {
-                    v195 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3444, ASSERT_TYPE_SANITY, "( !IS_NAN( distAfterLeave ) )", (const char *)&queryFormat, "!IS_NAN( distAfterLeave )");
-                    v193 = 0;
-                    v194 = !v195;
-                    if ( v195 )
-                      __debugbreak();
-                  }
-                  __asm { vcomiss xmm7, xmm15 }
-                  if ( !v194 )
-                  {
-                    __asm
-                    {
-                      vsubss  xmm1, xmm6, xmm7
-                      vmulss  xmm0, xmm6, xmm12
-                      vcomiss xmm1, xmm0
-                    }
-                    if ( v193 )
-                    {
-                      __asm
-                      {
-                        vmulss  xmm0, xmm6, xmm11
-                        vcomiss xmm1, xmm0
-                        vdivss  xmm12, xmm1, xmm6
-                      }
-                    }
-                  }
-                  ++v166;
-                  _RDI += 4i64;
-                  v168 = v166 < 3;
-                }
-                while ( (int)v166 < 3 );
-                if ( v165 )
-                {
-                  _RAX = start;
-                  __asm
-                  {
-                    vmovss  xmm9, dword ptr [rsp+440h+var_3E0+4]
-                    vmovss  xmm4, dword ptr [rax+4]
-                    vmovss  xmm3, dword ptr [rax]
-                    vmulss  xmm1, xmm4, [rbp+340h+var_3B8]
-                    vmulss  xmm0, xmm9, xmm3
-                    vaddss  xmm2, xmm1, xmm0
-                    vcomiss xmm2, xmm15
-                  }
-                }
-                else
-                {
-                  __asm
-                  {
-                    vcomiss xmm11, xmm14
-                    vmovss  xmm9, dword ptr [rsp+440h+var_3E0+4]
-                  }
-                }
-                __asm { vmovss  xmm7, dword ptr [rsp+440h+var_3E0] }
-                _RSI = RotTransArray;
-              }
-              goto LABEL_113;
-            }
-          }
-          __asm { vmovss  xmm14, dword ptr [rdi] }
-          goto LABEL_66;
-        }
-LABEL_113:
-        LODWORD(v52) = v250;
-        v53 = v254;
-        v44 = v249;
-LABEL_114:
-        v18 = obj;
-LABEL_115:
-        v52 = (unsigned int)(v52 + 1);
-        v51 = v263;
-        v45 = v256 + 1;
-        pairs = v261;
-        ++v53;
-        ++_RSI;
-        v250 = v52;
-        v254 = v53;
-        RotTransArray = _RSI;
-        ++v256;
-      }
-      while ( (unsigned int)v52 < numBones );
-    }
-    v249 = ++v44;
-    if ( v44 >= (unsigned int)numModels )
       break;
-    pairs = v261;
-    models = v266;
+LABEL_117:
+    v110 = ++v18;
+    if ( v18 >= (unsigned int)numModels )
+    {
+      if ( v21 )
+      {
+        if ( v125 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3519, ASSERT_TYPE_ASSERT, "(traceHitT >= 0)", (const char *)&queryFormat, "traceHitT >= 0") )
+          __debugbreak();
+        if ( ((LODWORD(v21->quat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v21->quat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v21->quat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(v21->quat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
+          __debugbreak();
+        if ( (LODWORD(v21->transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
+          __debugbreak();
+        transWeight = v21->transWeight;
+        v90 = transWeight * v21->quat.v[0];
+        v91 = v21->quat.v[1];
+        v92 = v21->quat.v[2];
+        v93 = v90 * v21->quat.v[0];
+        v94 = transWeight * v91;
+        v95 = transWeight * v92;
+        v96 = v21->quat.v[3];
+        v97 = v91 * v94;
+        v98 = v92 * v94;
+        v99 = v96 * v94;
+        v139 = (float)(v96 * v95) + (float)(v91 * v90);
+        *(float *)&v140[1] = (float)(v91 * v90) - (float)(v96 * v95);
+        v138 = 1.0 - (float)((float)(v92 * v95) + v97);
+        *(float *)v140 = (float)(v92 * v90) - v99;
+        *(float *)&v140[2] = 1.0 - (float)((float)(v92 * v95) + v93);
+        *(float *)&v140[4] = v99 + (float)(v92 * v90);
+        *(float *)&v140[3] = v98 + (float)(v96 * v90);
+        *(float *)&v140[6] = 1.0 - (float)(v97 + v93);
+        *(float *)&v140[5] = v98 - (float)(v96 * v90);
+        if ( (unsigned int)v125 >= 3 )
+        {
+          LODWORD(v105) = 3;
+          LODWORD(v101) = v125;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v101, v105) )
+            __debugbreak();
+        }
+        v100 = v109 * *(float *)&v140[3 * v125 - 1];
+        v7->normal.v[0] = v109 * *(&v138 + 3 * v125);
+        v7->normal.v[2] = v109 * *(float *)&v140[3 * v125];
+        v7->normal.v[1] = v100;
+      }
+      goto LABEL_168;
+    }
+    pairs = v126;
+    models = v131;
   }
+  v25 = 0i64;
+  v115 = 0i64;
+  while ( 1 )
+  {
+    v26 = v23->partClassification[v24];
+    v27 = priorityMap[v26];
+    if ( (_DWORD)v19 != pairs->child - 1 )
+    {
+      if ( v27 != 1 )
+        goto LABEL_35;
+      numRootBones = v23->numRootBones;
+      if ( (unsigned int)v24 >= numRootBones )
+      {
+        v29 = (unsigned int)v19 - v23->parentList[(unsigned int)v24 - numRootBones];
+        LODWORD(v24) = v111;
+      }
+      else
+      {
+        LOBYTE(v29) = *((_BYTE *)&v131[numModels] + v18);
+        if ( (_BYTE)v29 == 0xFF )
+        {
+          LOWORD(v26) = 0;
+LABEL_34:
+          v27 = priorityMap[(unsigned __int16)v26];
+          goto LABEL_35;
+        }
+        v29 = (unsigned __int8)v29;
+      }
+      LOWORD(v26) = *((_WORD *)&v140[8] + v29);
+      goto LABEL_34;
+    }
+    if ( v27 == 1 )
+    {
+      v26 = *((unsigned __int16 *)&v140[7] + pairs->parent + 1);
+      v27 = priorityMap[v26];
+    }
+    v126 = pairs + 1;
+LABEL_35:
+    *((_WORD *)&v140[8] + v19) = v26;
+    if ( v127 )
+      goto LABEL_115;
+    v30 = (__m128 *)&v23->boneInfo[v25];
+    if ( !v30[1].m128_i32[2] )
+      goto LABEL_114;
+    if ( v119 >= 0x100 )
+    {
+      LODWORD(v105) = 256;
+      LODWORD(v101) = v119;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v101, v105) )
+        __debugbreak();
+      v25 = v115;
+    }
+    v31 = v19 >> 5;
+    v32 = 0x80000000 >> (v119 & 0x1F);
+    if ( (v32 & obj->hidePartBits.array[v31]) != 0 )
+    {
+      v7 = trace;
+      v8 = obj;
+      LODWORD(v24) = v111;
+      v21 = v116;
+      v18 = v110;
+      goto LABEL_116;
+    }
+    if ( v119 >= 0x100 )
+    {
+      LODWORD(v105) = 256;
+      LODWORD(v101) = v119;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v101, v105) )
+        __debugbreak();
+    }
+    if ( (v32 & obj->skel.partBits.skel.array[v31]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3331, ASSERT_TYPE_ASSERT, "(obj->skel.partBits.skel.testBit( globalBoneIndex ))", (const char *)&queryFormat, "obj->skel.partBits.skel.testBit( globalBoneIndex )") )
+      __debugbreak();
+    if ( v27 < v118 )
+    {
+LABEL_112:
+      v7 = trace;
+LABEL_113:
+      LODWORD(v24) = v111;
+      v25 = v115;
+      v18 = v110;
+LABEL_114:
+      v21 = v116;
+LABEL_115:
+      v8 = obj;
+      goto LABEL_116;
+    }
+    if ( ((v15->m128_i32[0] & 0x7F800000) == 2139095040 || (v15->m128_i32[1] & 0x7F800000) == 2139095040 || (v15->m128_i32[2] & 0x7F800000) == 2139095040 || (v15->m128_i32[3] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3336, ASSERT_TYPE_SANITY, "( !IS_NAN( ( boneMatrix->quat )[0] ) && !IS_NAN( ( boneMatrix->quat )[1] ) && !IS_NAN( ( boneMatrix->quat )[2] ) && !IS_NAN( ( boneMatrix->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( boneMatrix->quat )[0] ) && !IS_NAN( ( boneMatrix->quat )[1] ) && !IS_NAN( ( boneMatrix->quat )[2] ) && !IS_NAN( ( boneMatrix->quat )[3] )") )
+      __debugbreak();
+    if ( ((v15[1].m128_i32[0] & 0x7F800000) == 2139095040 || (v15[1].m128_i32[1] & 0x7F800000) == 2139095040 || (v15[1].m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3337, ASSERT_TYPE_SANITY, "( !IS_NAN( ( boneMatrix->trans )[0] ) && !IS_NAN( ( boneMatrix->trans )[1] ) && !IS_NAN( ( boneMatrix->trans )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( boneMatrix->trans )[0] ) && !IS_NAN( ( boneMatrix->trans )[1] ) && !IS_NAN( ( boneMatrix->trans )[2] )") )
+      __debugbreak();
+    v7 = trace;
+    if ( v27 - 200 <= 2 )
+    {
+      v33 = 1;
+LABEL_64:
+      v34 = trace->fraction;
+      goto LABEL_65;
+    }
+    v33 = 0;
+    if ( v27 == v118 )
+      goto LABEL_64;
+    v34 = fraction;
+LABEL_65:
+    v35 = *v15;
+    v36 = v15[1];
+    v37 = _mm_shuffle_ps(v35, v35, 210);
+    v38 = *(__m128 *)start->v;
+    v39 = _mm_shuffle_ps(v35, v35, 201);
+    v40 = *(__m128 *)end->v;
+    v41 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(*v30, *v30, 210), v39), _mm128_mul_ps(_mm_shuffle_ps(*v30, *v30, 201), v37));
+    v42 = _mm128_add_ps(v41, v41);
+    v43 = _mm128_sub_ps(*(__m128 *)start->v, _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v42, v42, 210), v39), _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 201), v37)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v35, v35, 255), v42), *v30)), v36));
+    v44 = _mm_shuffle_ps(v43, v43, 85).m128_f32[0];
+    v39.m128_f32[0] = _mm_shuffle_ps(v43, v43, 170).m128_f32[0];
+    LODWORD(v45) = COERCE_UNSIGNED_INT((float)((float)((float)(v11 * v43.m128_f32[0]) + (float)(v44 * v117)) + (float)(v39.m128_f32[0] * v121)) * v122) ^ _xmm;
+    *(double *)v41.m128_u64 = I_fclamp(v45, 0.0, 1.0);
+    v46 = v30[1].m128_f32[2] - (float)((float)((float)((float)((float)(v41.m128_f32[0] * v117) + v44) * (float)((float)(v41.m128_f32[0] * v117) + v44)) + (float)((float)((float)(v41.m128_f32[0] * v113) + v43.m128_f32[0]) * (float)((float)(v41.m128_f32[0] * v113) + v43.m128_f32[0]))) + (float)((float)((float)(v41.m128_f32[0] * v121) + v39.m128_f32[0]) * (float)((float)(v41.m128_f32[0] * v121) + v39.m128_f32[0])));
+    if ( v46 <= 0.0 || (v27 == v118 || v33) && (float)(v45 - fsqrt(v46 * v122)) >= v34 )
+    {
+      fraction = v112;
+      v11 = v113;
+      goto LABEL_113;
+    }
+    v47 = _mm128_mul_ps(v35, (__m128)_xmm);
+    v48 = _mm_shuffle_ps(v47, v47, 210);
+    v49 = _mm_shuffle_ps(v47, v47, 201);
+    v50 = _mm_shuffle_ps(v47, v47, 255);
+    v51 = _mm128_sub_ps(v38, v36);
+    v52 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v51, v51, 210), v49), _mm128_mul_ps(_mm_shuffle_ps(v51, v51, 201), v48));
+    v53 = _mm128_add_ps(v52, v52);
+    v54 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v53, v53, 210), v49), _mm128_mul_ps(_mm_shuffle_ps(v53, v53, 201), v48)), _mm128_add_ps(_mm128_mul_ps(v50, v53), v51));
+    v55 = _mm128_sub_ps(v40, v36);
+    v56 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v55, v55, 210), v49), _mm128_mul_ps(_mm_shuffle_ps(v55, v55, 201), v48));
+    v57 = _mm128_add_ps(v56, v56);
+    v58 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v57, v57, 210), v49), _mm128_mul_ps(_mm_shuffle_ps(v57, v57, 201), v48)), _mm128_add_ps(_mm128_mul_ps(v50, v57), v55));
+    v59 = _mm_shuffle_ps(v58, v58, 85).m128_f32[0];
+    v60 = _mm_shuffle_ps(v58, v58, 170).m128_f32[0];
+    v61 = _mm_shuffle_ps(v54, v54, 85).m128_f32[0];
+    v62 = _mm_shuffle_ps(v54, v54, 170).m128_f32[0];
+    *(float *)&v136[1] = v59;
+    *(float *)&v136[2] = v60;
+    v137[0] = v54.m128_i32[0];
+    *(float *)&v137[1] = v61;
+    *(float *)&v137[2] = v62;
+    v136[0] = v58.m128_i32[0];
+    if ( ((v54.m128_i32[0] & 0x7F800000) == 2139095040 || (LODWORD(v61) & 0x7F800000) == 2139095040 || (LODWORD(v62) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3406, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localStart )[0] ) && !IS_NAN( ( localStart )[1] ) && !IS_NAN( ( localStart )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localStart )[0] ) && !IS_NAN( ( localStart )[1] ) && !IS_NAN( ( localStart )[2] )") )
+      __debugbreak();
+    if ( ((v58.m128_i32[0] & 0x7F800000) == 2139095040 || (LODWORD(v59) & 0x7F800000) == 2139095040 || (LODWORD(v60) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3407, ASSERT_TYPE_SANITY, "( !IS_NAN( ( localEnd )[0] ) && !IS_NAN( ( localEnd )[1] ) && !IS_NAN( ( localEnd )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( localEnd )[0] ) && !IS_NAN( ( localEnd )[1] ) && !IS_NAN( ( localEnd )[2] )") )
+      __debugbreak();
+    v63 = 1;
+    v64 = 0;
+    v65 = 0i64;
+    v66 = 1;
+    v67 = 0.0;
+    v68 = v34;
+    do
+    {
+      if ( !v66 )
+      {
+        LODWORD(v105) = 3;
+        LODWORD(v101) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v101, v105) )
+          __debugbreak();
+        LODWORD(v106) = 3;
+        LODWORD(v102) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v102, v106) )
+          __debugbreak();
+      }
+      _XMM3 = LODWORD(FLOAT_N1_0);
+      __asm
+      {
+        vcmpless xmm0, xmm15, xmm1
+        vblendvps xmm8, xmm3, xmm2, xmm0
+      }
+      v73 = *(float *)&_XMM8 * (float)(*(float *)&v136[v65] - *(float *)&v137[v65]);
+      v72 = v73;
+      if ( v64 >= 3 )
+      {
+        LODWORD(v105) = 3;
+        LODWORD(v101) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v101, v105) )
+          __debugbreak();
+        LODWORD(v107) = 3;
+        LODWORD(v103) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v103, v107) )
+          __debugbreak();
+        LODWORD(v108) = 3;
+        LODWORD(v104) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v104, v108) )
+          __debugbreak();
+      }
+      v74 = (float)((float)((float)(*(float *)&v136[v65] + *(float *)&v137[v65]) * 0.5) - v30->m128_f32[v65]) * *(float *)&_XMM8;
+      if ( v64 >= 3 )
+      {
+        LODWORD(v105) = 3;
+        LODWORD(v101) = v64;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v101, v105) )
+          __debugbreak();
+      }
+      v75 = (float)(v73 * 0.5) - v30->m128_f32[v65 + 3];
+      v76 = v75 - v74;
+      if ( (COERCE_UNSIGNED_INT(v75 - v74) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3430, ASSERT_TYPE_SANITY, "( !IS_NAN( distBeforeEnter ) )", (const char *)&queryFormat, "!IS_NAN( distBeforeEnter )") )
+        __debugbreak();
+      if ( v76 > (float)(v72 * v67) )
+      {
+        if ( v76 >= (float)(v72 * v68) )
+          goto LABEL_138;
+        LODWORD(v109) = _XMM8 ^ _xmm;
+        v67 = v76 / v72;
+        v123 = v64;
+        v63 = 0;
+      }
+      v77 = v75 + v74;
+      if ( (COERCE_UNSIGNED_INT(v75 + v74) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3444, ASSERT_TYPE_SANITY, "( !IS_NAN( distAfterLeave ) )", (const char *)&queryFormat, "!IS_NAN( distAfterLeave )") )
+        __debugbreak();
+      if ( (float)(v75 + v74) > 0.0 )
+      {
+        v78 = v72 - v77;
+        if ( (float)(v72 - v77) < (float)(v72 * v68) )
+        {
+          if ( v78 <= (float)(v72 * v67) )
+          {
+LABEL_138:
+            v18 = v110;
+            v21 = v116;
+            v7 = trace;
+            v15 = (__m128 *)RotTransArray;
+            goto $miss;
+          }
+          v68 = v78 / v72;
+        }
+      }
+      ++v64;
+      ++v65;
+      v66 = v64 < 3;
+    }
+    while ( (int)v64 < 3 );
+    if ( v63 )
+      break;
+    if ( v67 >= v34 )
+    {
+      v11 = v113;
+      goto LABEL_111;
+    }
+    if ( !v33 )
+    {
+      v81 = v118;
+      if ( v27 != v118 )
+        v81 = v27;
+      v118 = v81;
+LABEL_127:
+      v7 = trace;
+      trace->fraction = v67;
+      if ( (v67 < 0.0 || v67 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3501, ASSERT_TYPE_SANITY, "( ( trace->fraction >= 0.0f && trace->fraction <= 1.0f ) )", "( trace->fraction ) = %g", v67) )
+        __debugbreak();
+      v18 = v110;
+      trace->modelIndex = v110;
+      if ( (unsigned __int16)v110 != v110 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3503, ASSERT_TYPE_SANITY, "( trace->modelIndex == modelIdx )", (const char *)&queryFormat, "trace->modelIndex == modelIdx") )
+        __debugbreak();
+      trace->partName = boneNames[v115];
+      trace->partGroup = v26;
+      if ( v123 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3506, ASSERT_TYPE_ASSERT, "(hitT >= 0)", (const char *)&queryFormat, "hitT >= 0") )
+        __debugbreak();
+      v15 = (__m128 *)RotTransArray;
+      v125 = v123;
+      v21 = RotTransArray;
+      v116 = RotTransArray;
+$miss:
+      fraction = v112;
+      v11 = v113;
+      LODWORD(v24) = v111;
+      v25 = v115;
+      goto LABEL_115;
+    }
+    if ( v27 != 201 || (v8 = obj, shieldTraceCallback(obj, obj->models[v135], userArgs)) )
+    {
+      v112 = v67;
+      goto LABEL_127;
+    }
+    fraction = v112;
+    v11 = v113;
+    v15 = (__m128 *)RotTransArray;
+    v7 = trace;
+    LODWORD(v24) = v111;
+    v25 = v115;
+    v21 = v116;
+    v18 = v110;
+LABEL_116:
+    v24 = (unsigned int)(v24 + 1);
+    v23 = v128;
+    v19 = v119 + 1;
+    pairs = v126;
+    ++v25;
+    v15 += 2;
+    v111 = v24;
+    v115 = v25;
+    RotTransArray = (DObjAnimMat *)v15;
+    ++v119;
+    if ( (unsigned int)v24 >= numBones )
+      goto LABEL_117;
+  }
+  v11 = v113;
+  v79 = start->v[1];
+  v80 = start->v[0];
+  if ( (float)((float)(v79 * v117) + (float)(v113 * start->v[0])) >= 0.0 )
+  {
+LABEL_111:
+    fraction = v112;
+    v15 = (__m128 *)RotTransArray;
+    goto LABEL_112;
+  }
+  v82 = LODWORD(start->v[1]);
+  *(float *)&v82 = fsqrt((float)(v79 * v79) + (float)(v80 * v80));
+  _XMM2 = v82;
   __asm
   {
-    vmovaps xmm13, [rsp+440h+var_A8+8]
-    vmovaps xmm12, [rsp+440h+var_98+8]
-    vmovaps xmm11, [rsp+440h+var_88+8]
-    vmovaps xmm10, xmmword ptr [rsp+440h+var_78+8]
-    vmovaps xmm8, [rsp+440h+var_58+8]
-    vmovaps xmm14, [rsp+440h+var_B8+8]
+    vcmpless xmm0, xmm2, cs:__real@80000000
+    vblendvps xmm0, xmm2, xmm4, xmm0
   }
-LABEL_123:
-  __asm { vmovaps xmm7, xmmword ptr [rsp+440h+var_48+8] }
-LABEL_124:
+  v86 = (float)(1.0 / *(float *)&_XMM0) * v80;
+  trace->normal.v[0] = v86;
+  *(float *)&_XMM0 = (float)(1.0 / *(float *)&_XMM0) * start->v[1];
+  trace->normal.v[1] = *(float *)&_XMM0;
+  v87 = trace->normal.v[2];
+  v88 = (float)((float)(*(float *)&_XMM0 * *(float *)&_XMM0) + (float)(v86 * v86)) + (float)(v87 * v87);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v88 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3470, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( trace->normal ) )", "(%g, %g, %g) len %g", v86, trace->normal.v[1], v87, fsqrt(v88)) )
+    __debugbreak();
+  trace->fraction = 0.0;
+  trace->modelIndex = v110;
+  if ( (unsigned __int16)v110 != v110 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 3473, ASSERT_TYPE_SANITY, "( trace->modelIndex == modelIdx )", (const char *)&queryFormat, "trace->modelIndex == modelIdx") )
+    __debugbreak();
+  trace->partName = boneNames[v111];
+  trace->partGroup = v26;
+LABEL_168:
   Profile_EndInternal(NULL);
-  _R11 = &v277;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -6653,116 +6399,104 @@ DObjUnarchive
 */
 void DObjUnarchive(DObj *obj, const int handle, const bool requiresIKPrecache, XAnimOwner owner)
 {
-  char v9; 
-  bool v13; 
-  int v14; 
-  DObj *v15; 
-  unsigned int v16; 
-  unsigned __int64 v22; 
-  unsigned int v23; 
-  XAnimTree *v24; 
-  unsigned __int8 v25; 
-  int v26; 
+  __int128 v5; 
+  char v6; 
+  bool v9; 
+  int v10; 
+  unsigned int v12; 
+  double v13; 
+  char *v14; 
+  DObjModel *v15; 
+  float v16; 
+  unsigned __int64 v17; 
+  unsigned int v18; 
+  XAnimTree *v19; 
+  unsigned __int8 v20; 
+  int v21; 
   __int64 ownera; 
-  __int64 v28; 
-  char v30; 
+  __int64 v23; 
+  char v25; 
   void *p[4]; 
   XAnimTree *tree[4]; 
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > otherBitSet; 
-  __int128 v35; 
-  DObjMaterialData *v36; 
+  __int128 v30; 
+  DObjMaterialData *v31; 
   DObjModel dobjModels[254]; 
 
+  _YMM2 = *(__m256i *)((char *)&obj->ignoreCollision + 12);
+  v5 = *(_OWORD *)&obj->skel.partBits.control.array[2];
+  *(__m256i *)p = *(__m256i *)&obj->tree;
+  v6 = owner;
+  otherBitSet = *(bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)&obj->skel.partBits.anim.bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > + 8);
+  v31 = *(DObjMaterialData **)&obj->skel.partBits.control.array[6];
   __asm
   {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymm2, ymmword ptr [rcx+20h]
-    vmovups xmm1, xmmword ptr [rcx+60h]
-    vmovups ymmword ptr [rsp+5078h+p], ymm0
-    vmovups ymm0, ymmword ptr [rcx+40h]
-  }
-  _R12 = p[0];
-  v9 = owner;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+5078h+otherBitSet.baseclass_0.array], ymm0
-    vmovsd  xmm0, qword ptr [rcx+70h]
-    vmovsd  [rsp+5078h+var_4FB8], xmm0
     vextractf128 xmm0, ymm2, 1
     vpextrw r14d, xmm0, 2
   }
-  v30 = owner;
-  v13 = requiresIKPrecache;
-  v14 = handle;
-  v15 = obj;
-  v16 = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+5078h+tree], ymm2
-    vmovups [rsp+5078h+var_4FC8], xmm1
-  }
+  v25 = owner;
+  v9 = requiresIKPrecache;
+  v10 = handle;
+  v12 = 0;
+  *(__m256i *)tree = _YMM2;
+  v30 = v5;
   if ( (_WORD)_ER14 )
   {
     do
     {
-      _RAX = 9i64 * v16;
-      __asm { vmovsd  xmm0, qword ptr [r12+rax*4+8] }
-      _RCX = (scr_string_t *)((char *)p[0] + 36 * v16);
-      _RSI = &dobjModels[v16];
-      _RSI->boneName = *_RCX;
-      _RSI->parentSlot = _RCX[1];
-      SLODWORD(_RAX) = _RCX[4];
-      __asm { vmovsd  qword ptr [rsi+10h], xmm0 }
-      LODWORD(_RSI->offsets.v[2]) = _RAX;
-      _RSI->model = (const XModel *)*((_QWORD *)p[1] + v16);
-      __asm
+      v13 = *(double *)((char *)p[0] + 36 * v12 + 8);
+      v14 = (char *)p[0] + 36 * v12;
+      v15 = &dobjModels[v12];
+      v15->boneName = *(_DWORD *)v14;
+      v15->parentSlot = *((_DWORD *)v14 + 1);
+      v16 = *((float *)v14 + 4);
+      *(double *)v15->offsets.v = v13;
+      v15->offsets.v[2] = v16;
+      v15->model = (const XModel *)*((_QWORD *)p[1] + v12);
+      v15->quat = *(vec4_t *)(v14 + 20);
+      if ( v12 >= 0x100 )
       {
-        vmovups xmm0, xmmword ptr [rcx+14h]
-        vmovups xmmword ptr [rsi+1Ch], xmm0
-      }
-      if ( v16 >= 0x100 )
-      {
-        LODWORD(v28) = 256;
-        LODWORD(ownera) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", ownera, v28) )
+        LODWORD(v23) = 256;
+        LODWORD(ownera) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", ownera, v23) )
           __debugbreak();
       }
-      v22 = (unsigned __int64)v16 >> 5;
-      v23 = 0x80000000 >> (v16++ & 0x1F);
-      _RSI->ignoreCollision = (v23 & *((_DWORD *)&p[2] + v22 + 1)) != 0;
+      v17 = (unsigned __int64)v12 >> 5;
+      v18 = 0x80000000 >> (v12++ & 0x1F);
+      v15->ignoreCollision = (v18 & *((_DWORD *)&p[2] + v17 + 1)) != 0;
     }
-    while ( v16 < (unsigned __int16)_ER14 );
-    v13 = requiresIKPrecache;
-    v14 = handle;
-    v9 = v30;
+    while ( v12 < (unsigned __int16)_ER14 );
+    v9 = requiresIKPrecache;
+    v10 = handle;
+    v6 = v25;
   }
   MT_AlignedFree(p[0], 36i64 * (unsigned __int16)_ER14, 4ui64);
   MT_AlignedFree(p[1], 9i64 * (unsigned __int16)_ER14, 8ui64);
-  v24 = tree[3];
-  v15->offsets = NULL;
-  v15->quats = NULL;
-  v15->models = NULL;
-  v15->parentSlots = NULL;
-  v15->lastGpuLightGridRequest = NULL;
-  v15->materialData = NULL;
-  v15->modelMaterialOverrides = NULL;
-  LOBYTE(ownera) = v9;
-  DObjCreate(dobjModels, (unsigned __int16)_ER14, v24, (char *)v15, HIWORD(tree[2]), (XAnimOwner)ownera);
-  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v15->hidePartBits, &otherBitSet);
-  v25 = v35;
-  v15->modelMaterialOverrides = (XModelMaterialOverride *)*((_QWORD *)&v35 + 1);
-  v15->materialData = v36;
-  v15->validation = BYTE1(v35);
-  v15->flags = v25;
-  if ( v9 != ((v25 & 8) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2060, ASSERT_TYPE_ASSERT, "(owner == ((savedObj.flags & 0x08) ? XAnimOwner::CLIENT : XAnimOwner::SERVER))", (const char *)&queryFormat, "owner == ((savedObj.flags & DOBJFLAGS_CLIENT) ? XAnimOwner::CLIENT : XAnimOwner::SERVER)") )
+  v19 = tree[3];
+  obj->offsets = NULL;
+  obj->quats = NULL;
+  obj->models = NULL;
+  obj->parentSlots = NULL;
+  obj->lastGpuLightGridRequest = NULL;
+  obj->materialData = NULL;
+  obj->modelMaterialOverrides = NULL;
+  LOBYTE(ownera) = v6;
+  DObjCreate(dobjModels, (unsigned __int16)_ER14, v19, (char *)obj, HIWORD(tree[2]), (XAnimOwner)ownera);
+  bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&obj->hidePartBits, &otherBitSet);
+  v20 = v30;
+  obj->modelMaterialOverrides = (XModelMaterialOverride *)*((_QWORD *)&v30 + 1);
+  obj->materialData = v31;
+  obj->validation = BYTE1(v30);
+  obj->flags = v20;
+  if ( v6 != ((v20 & 8) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\dobj.cpp", 2060, ASSERT_TYPE_ASSERT, "(owner == ((savedObj.flags & 0x08) ? XAnimOwner::CLIENT : XAnimOwner::SERVER))", (const char *)&queryFormat, "owner == ((savedObj.flags & DOBJFLAGS_CLIENT) ? XAnimOwner::CLIENT : XAnimOwner::SERVER)") )
     __debugbreak();
-  if ( v13 && (v25 & 2) != 0 )
+  if ( v9 && (v20 & 2) != 0 )
   {
-    v26 = XAnimIKGetCacheKey(v15);
-    XAnimIKPreCacheDObj(v15, v14, v26);
+    v21 = XAnimIKGetCacheKey(obj);
+    XAnimIKPreCacheDObj(obj, v10, v21);
   }
   if ( LODWORD(p[2]) )
-    DObjLock(v15);
+    DObjLock(obj);
 }
 
 /*

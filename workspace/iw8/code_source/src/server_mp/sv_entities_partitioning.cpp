@@ -143,7 +143,7 @@ SV_EntitiesPartitioning_AddEntityToGrid
 void SV_EntitiesPartitioning_AddEntityToGrid(const __int16 entityNum)
 {
   gentity_s *v2; 
-  unsigned __int16 v5; 
+  unsigned __int16 v3; 
   vec2_t pos; 
   vec3_t trBase; 
 
@@ -155,17 +155,12 @@ void SV_EntitiesPartitioning_AddEntityToGrid(const __int16 entityNum)
       __debugbreak();
     v2 = SV_GentityNum(entityNum);
     Trajectory_GetTrBase(&v2->s.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+trBase]
-      vmovss  xmm1, dword ptr [rsp+68h+trBase+4]
-      vmovss  dword ptr [rsp+68h+pos], xmm0
-      vmovss  dword ptr [rsp+68h+pos+4], xmm1
-    }
-    v5 = DenseGrid::Insert(&s_entitiesGrid, entityNum, &pos);
-    if ( v5 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 146, ASSERT_TYPE_ASSERT, "(cellIndex != DenseGrid::INVALID_CELL_INDEX)", "%s\n\tFailed to add entity %d to the grid\n", "cellIndex != DenseGrid::INVALID_CELL_INDEX", entityNum) )
+    pos.v[0] = trBase.v[0];
+    pos.v[1] = trBase.v[1];
+    v3 = DenseGrid::Insert(&s_entitiesGrid, entityNum, &pos);
+    if ( v3 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 146, ASSERT_TYPE_ASSERT, "(cellIndex != DenseGrid::INVALID_CELL_INDEX)", "%s\n\tFailed to add entity %d to the grid\n", "cellIndex != DenseGrid::INVALID_CELL_INDEX", entityNum) )
       __debugbreak();
-    s_entitiesCellIndex[entityNum] = v5;
+    s_entitiesCellIndex[entityNum] = v3;
   }
 }
 
@@ -193,24 +188,29 @@ SV_EntitiesPartitioning_GetNearbyEntities
 */
 __int64 SV_EntitiesPartitioning_GetNearbyEntities(const __int16 baseEntityNum, __int16 *nearbyEntities)
 {
+  __int128 v2; 
   __int64 v5; 
   gentity_s *v6; 
-  vec2_t v15; 
-  bool v18; 
+  const dvar_t *v7; 
+  float value; 
+  const dvar_t *v9; 
+  float v10; 
+  vec2_t v11; 
   unsigned int Keys; 
-  unsigned int *v21; 
-  __int64 v22; 
-  unsigned int v23; 
-  __int64 v25; 
-  __int64 v26; 
+  unsigned int *v13; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v17; 
+  __int64 v18; 
   DenseGrid::PageIterator iter; 
   DenseGrid::CellIterator outIter; 
   vec2_t max; 
   vec2_t min; 
   vec3_t trBase; 
   unsigned int outKeys[32]; 
+  __int128 v25; 
 
-  __asm { vmovaps [rsp+178h+var_48], xmm6 }
+  v25 = v2;
   if ( !SV_EntitiesLoD_UseDynamicLoD() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 267, ASSERT_TYPE_ASSERT, "( SV_EntitiesLoD_UseDynamicLoD() )", (const char *)&queryFormat, "SV_EntitiesLoD_UseDynamicLoD()") )
     __debugbreak();
   if ( !s_entitiesPartitioningInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 268, ASSERT_TYPE_ASSERT, "( s_entitiesPartitioningInitialized )", (const char *)&queryFormat, "s_entitiesPartitioningInitialized") )
@@ -218,71 +218,53 @@ __int64 SV_EntitiesPartitioning_GetNearbyEntities(const __int16 baseEntityNum, _
   v5 = 0i64;
   v6 = SV_GentityNum(baseEntityNum);
   Trajectory_GetTrBase(&v6->s.lerp.pos, &trBase);
-  _RBX = DVARFLT_sv_entitiesPartitioningNearbyRangeX;
+  v7 = DVARFLT_sv_entitiesPartitioningNearbyRangeX;
   if ( !DVARFLT_sv_entitiesPartitioningNearbyRangeX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_entitiesPartitioningNearbyRangeX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_sv_entitiesPartitioningNearbyRangeY;
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  v9 = DVARFLT_sv_entitiesPartitioningNearbyRangeY;
   if ( !DVARFLT_sv_entitiesPartitioningNearbyRangeY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_entitiesPartitioningNearbyRangeY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+28h]
-    vmovss  xmm3, dword ptr [rsp+178h+trBase]
-    vmovss  xmm2, dword ptr [rsp+178h+trBase+4]
-    vsubss  xmm0, xmm3, xmm6
-    vmovss  dword ptr [rsp+178h+max], xmm0
-    vsubss  xmm1, xmm2, xmm4
-    vmovss  dword ptr [rsp+178h+max+4], xmm1
-  }
-  v15 = max;
-  __asm
-  {
-    vaddss  xmm0, xmm3, xmm6
-    vmovss  dword ptr [rsp+178h+max], xmm0
-    vaddss  xmm1, xmm2, xmm4
-    vmovss  dword ptr [rsp+178h+max+4], xmm1
-  }
-  min = v15;
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.value;
+  max.v[0] = trBase.v[0] - value;
+  max.v[1] = trBase.v[1] - v10;
+  v11 = max;
+  max.v[0] = trBase.v[0] + value;
+  max.v[1] = trBase.v[1] + v10;
+  min = v11;
   DenseGrid::FindInAABB(&s_entitiesGrid, &min, &max, &outIter);
-  v18 = DenseGrid::CellIterator::Advance(&outIter);
-  __asm { vmovaps xmm6, [rsp+178h+var_48] }
-  if ( v18 )
+  while ( DenseGrid::CellIterator::Advance(&outIter) )
   {
-    do
+    DenseGrid::PageIterator::Init(&iter, &s_entitiesGrid, outIter.m_currentCellIndex);
+    while ( DenseGrid::PageIterator::Advance(&iter) )
     {
-      DenseGrid::PageIterator::Init(&iter, &s_entitiesGrid, outIter.m_currentCellIndex);
-      while ( DenseGrid::PageIterator::Advance(&iter) )
+      Keys = DenseGrid::PageIterator::GetKeys(&iter, 0x20u, outKeys);
+      if ( Keys )
       {
-        Keys = DenseGrid::PageIterator::GetKeys(&iter, 0x20u, outKeys);
-        if ( Keys )
+        v13 = outKeys;
+        v14 = Keys;
+        do
         {
-          v21 = outKeys;
-          v22 = Keys;
-          do
+          if ( (unsigned int)v5 >= 0x800 )
           {
-            if ( (unsigned int)v5 >= 0x800 )
-            {
-              LODWORD(v26) = 2048;
-              LODWORD(v25) = v5;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 305, ASSERT_TYPE_ASSERT, "(unsigned)( numNearbyEntities ) < (unsigned)( ( 2048 ) )", "numNearbyEntities doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v25, v26) )
-                __debugbreak();
-            }
-            v23 = *v21;
-            if ( (*v21 > 0x7FFFFFFF || v23 + 0x8000 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v23, "unsigned", v23) )
+            LODWORD(v18) = 2048;
+            LODWORD(v17) = v5;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 305, ASSERT_TYPE_ASSERT, "(unsigned)( numNearbyEntities ) < (unsigned)( ( 2048 ) )", "numNearbyEntities doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v17, v18) )
               __debugbreak();
-            nearbyEntities[v5] = v23;
-            ++v21;
-            v5 = (unsigned int)(v5 + 1);
-            --v22;
           }
-          while ( v22 );
+          v15 = *v13;
+          if ( (*v13 > 0x7FFFFFFF || v15 + 0x8000 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,unsigned int>(unsigned int)", "signed", (__int16)v15, "unsigned", v15) )
+            __debugbreak();
+          nearbyEntities[v5] = v15;
+          ++v13;
+          v5 = (unsigned int)(v5 + 1);
+          --v14;
         }
+        while ( v14 );
       }
     }
-    while ( DenseGrid::CellIterator::Advance(&outIter) );
   }
   return (unsigned int)v5;
 }
@@ -324,9 +306,9 @@ void SV_EntitiesPartitioning_ProcessNewEntityQueue(void)
   unsigned int i; 
   __int16 v1; 
   gentity_s *v2; 
-  unsigned __int16 v5; 
-  __int64 v6; 
-  vec2_t v7; 
+  unsigned __int16 v3; 
+  __int64 v4; 
+  vec2_t v5; 
   vec2_t pos; 
   vec3_t trBase; 
 
@@ -341,22 +323,17 @@ void SV_EntitiesPartitioning_ProcessNewEntityQueue(void)
         __debugbreak();
       v2 = SV_GentityNum(v1);
       Trajectory_GetTrBase(&v2->s.lerp.pos, &trBase);
-      __asm
+      v5.v[0] = trBase.v[0];
+      v5.v[1] = trBase.v[1];
+      pos = v5;
+      v3 = DenseGrid::Insert(&s_entitiesGrid, v1, &pos);
+      if ( v3 == 0xFFFF )
       {
-        vmovss  xmm0, dword ptr [rsp+98h+trBase]
-        vmovss  xmm1, dword ptr [rsp+98h+trBase+4]
-        vmovss  dword ptr [rsp+98h+var_58], xmm0
-        vmovss  dword ptr [rsp+98h+var_58+4], xmm1
-      }
-      pos = v7;
-      v5 = DenseGrid::Insert(&s_entitiesGrid, v1, &pos);
-      if ( v5 == 0xFFFF )
-      {
-        LODWORD(v6) = v1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 146, ASSERT_TYPE_ASSERT, "(cellIndex != DenseGrid::INVALID_CELL_INDEX)", "%s\n\tFailed to add entity %d to the grid\n", "cellIndex != DenseGrid::INVALID_CELL_INDEX", v6) )
+        LODWORD(v4) = v1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 146, ASSERT_TYPE_ASSERT, "(cellIndex != DenseGrid::INVALID_CELL_INDEX)", "%s\n\tFailed to add entity %d to the grid\n", "cellIndex != DenseGrid::INVALID_CELL_INDEX", v4) )
           __debugbreak();
       }
-      s_entitiesCellIndex[v1] = v5;
+      s_entitiesCellIndex[v1] = v3;
     }
   }
   s_newEntityCount = 0;
@@ -485,7 +462,6 @@ void SV_EntitiesPartitioning_UpdateDirtyEntities(void)
   unsigned int i; 
   __int16 v1; 
   unsigned __int16 v2; 
-  vec2_t v6; 
   vec2_t pos; 
 
   if ( !s_entitiesPartitioningInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_entities_partitioning.cpp", 235, ASSERT_TYPE_ASSERT, "( s_entitiesPartitioningInitialized )", (const char *)&queryFormat, "s_entitiesPartitioningInitialized") )
@@ -498,15 +474,7 @@ void SV_EntitiesPartitioning_UpdateDirtyEntities(void)
     if ( !SvGameGlobals::ms_svGameGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 99, ASSERT_TYPE_ASSERT, "( ms_svGameGlobals )", (const char *)&queryFormat, "ms_svGameGlobals") )
       __debugbreak();
     v2 = s_entitiesCellIndex[v1];
-    _RCX = &SvGameGlobals::ms_svGameGlobals->gentities[v1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+130h]
-      vmovss  xmm1, dword ptr [rcx+134h]
-      vmovss  dword ptr [rsp+78h+var_48], xmm0
-      vmovss  dword ptr [rsp+78h+var_48+4], xmm1
-    }
-    pos = v6;
+    pos = *(vec2_t *)SvGameGlobals::ms_svGameGlobals->gentities[v1].r.currentOrigin.v;
     ++i;
   }
   s_numDirtyEntities = 0;

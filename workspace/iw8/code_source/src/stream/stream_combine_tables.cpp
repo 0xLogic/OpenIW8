@@ -150,43 +150,37 @@ AddModelToBufferCheckOnly
 */
 char AddModelToBufferCheckOnly(const unsigned int modelIndex)
 {
-  unsigned __int64 v2; 
+  unsigned __int64 v1; 
   XModel *XModelAtIndex; 
-  XModel *v5; 
+  __int64 v3; 
   unsigned __int16 numsurfs; 
-  Material **materialHandles; 
-  Material *v9; 
-  int v13; 
+  Material *v5; 
+  int v8; 
 
-  v2 = modelIndex;
+  v1 = modelIndex;
   if ( modelIndex >= 0x6000 )
   {
-    v13 = 24576;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", modelIndex, v13) )
+    v8 = 24576;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", modelIndex, v8) )
       __debugbreak();
   }
-  if ( ((0x80000000 >> (v2 & 0x1F)) & s_streamCombineTablesGlob.validModels.array[v2 >> 5]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 337, ASSERT_TYPE_ASSERT, "(s_streamCombineTablesGlob.validModels.testBit( modelIndex ))", (const char *)&queryFormat, "s_streamCombineTablesGlob.validModels.testBit( modelIndex )") )
+  if ( ((0x80000000 >> (v1 & 0x1F)) & s_streamCombineTablesGlob.validModels.array[v1 >> 5]) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 337, ASSERT_TYPE_ASSERT, "(s_streamCombineTablesGlob.validModels.testBit( modelIndex ))", (const char *)&queryFormat, "s_streamCombineTablesGlob.validModels.testBit( modelIndex )") )
     __debugbreak();
-  XModelAtIndex = DB_GetXModelAtIndex(v2);
-  _RCX = 0i64;
-  v5 = XModelAtIndex;
+  XModelAtIndex = DB_GetXModelAtIndex(v1);
+  v3 = 0i64;
   numsurfs = XModelAtIndex->numsurfs;
   if ( !numsurfs )
     return 0;
-  materialHandles = XModelAtIndex->materialHandles;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   while ( 1 )
   {
-    v9 = materialHandles[_RCX];
-    if ( v9 )
+    v5 = XModelAtIndex->materialHandles[v3];
+    if ( v5 )
     {
-      _RAX = v5->himipRadiusInvSq;
-      __asm { vucomiss xmm0, dword ptr [rax+rcx*4] }
-      if ( (v9->runtimeFlags & 0x10) != 0 )
+      if ( XModelAtIndex->himipRadiusInvSq[v3] != 0.0 && (v5->runtimeFlags & 0x10) != 0 )
         break;
     }
-    _RCX = (unsigned int)(_RCX + 1);
-    if ( (unsigned int)_RCX >= numsurfs )
+    v3 = (unsigned int)(v3 + 1);
+    if ( (unsigned int)v3 >= numsurfs )
       return 0;
   }
   return 1;
@@ -199,57 +193,58 @@ BuildMaterialImageTable
 */
 void BuildMaterialImageTable(StreamCombineTable *materialImageTable, unsigned __int8 *startWritePtr)
 {
-  unsigned __int8 *v3; 
-  unsigned int v5; 
+  unsigned __int8 *v2; 
+  unsigned int v4; 
   unsigned __int8 *writePtr; 
   unsigned int writeHighWatermark; 
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  bool v10; 
-  __int64 v11; 
+  bool v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   bitarray<46080> *p_modifiedMaterials; 
-  __int64 v17; 
-  char *fmt; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
   TableBuildContext context; 
 
-  v3 = startWritePtr;
+  v2 = startWritePtr;
   if ( !startWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 923, ASSERT_TYPE_ASSERT, "( startWritePtr ) != ( nullptr )", "%s != %s\n\t%p, %p", "startWritePtr", "nullptr", NULL, NULL) )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "BuildMaterialImageTable");
   ValidateMaterials();
-  TableBuildContext_Init(&context, materialImageTable, v3);
-  LODWORD(v3) = 0;
-  v5 = s_streamCombineTablesGlob.validMaterials.array[0];
+  TableBuildContext_Init(&context, materialImageTable, v2);
+  LODWORD(v2) = 0;
+  v4 = s_streamCombineTablesGlob.validMaterials.array[0];
   writePtr = context.writePtr;
 LABEL_5:
   writeHighWatermark = context.writeHighWatermark;
-  while ( v5 )
+  while ( v4 )
   {
 LABEL_9:
-    v8 = __lzcnt(v5);
-    v9 = v8 + 32 * (_DWORD)v3;
-    if ( v8 >= 0x20 )
+    v7 = __lzcnt(v4);
+    v8 = v7 + 32 * (_DWORD)v2;
+    if ( v7 >= 0x20 )
     {
-      LODWORD(v20) = 32;
-      LODWORD(v19) = v8;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v16) = 32;
+      LODWORD(v15) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
-    if ( (v5 & (0x80000000 >> v8)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v4 & (0x80000000 >> v7)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v5 &= ~(0x80000000 >> v8);
-    if ( v9 >= 0xB400 )
+    v4 &= ~(0x80000000 >> v7);
+    if ( v8 >= 0xB400 )
     {
-      LODWORD(v20) = 46080;
-      LODWORD(v19) = v8 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 938, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "iterator.index doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v16) = 46080;
+      LODWORD(v15) = v7 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 938, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "iterator.index doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
-    v10 = AddMaterialToBuffer_0_(&context.writePtr, v9);
+    v9 = AddMaterialToBuffer_0_(&context.writePtr, v8);
     writePtr = context.writePtr;
-    if ( !v10 )
+    if ( !v9 )
       goto LABEL_5;
     writeHighWatermark = LODWORD(context.writePtr) - LODWORD(context.lastWritePtr);
     if ( context.writeHighWatermark > LODWORD(context.writePtr) - LODWORD(context.lastWritePtr) )
@@ -262,35 +257,28 @@ LABEL_9:
   }
   while ( 1 )
   {
-    v3 = (unsigned __int8 *)(unsigned int)((_DWORD)v3 + 1);
-    if ( (unsigned int)v3 >= 0x5A0 )
+    v2 = (unsigned __int8 *)(unsigned int)((_DWORD)v2 + 1);
+    if ( (unsigned int)v2 >= 0x5A0 )
       break;
-    v5 = s_streamCombineTablesGlob.validMaterials.array[(_QWORD)v3];
-    if ( v5 )
+    v4 = s_streamCombineTablesGlob.validMaterials.array[(_QWORD)v2];
+    if ( v4 )
       goto LABEL_9;
   }
-  v11 = writePtr - context.startWritePtr;
-  __asm
+  v10 = writePtr - context.startWritePtr;
+  v11 = (float)v10;
+  if ( v10 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rsi
+    v12 = (float)v10;
+    v11 = v12 + 1.8446744e19;
   }
-  if ( v11 < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@38e49249
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+fmt], xmm1
-  }
-  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "MaterialImage", (unsigned int)((unsigned __int64)v11 >> 10), *(double *)&fmt);
+  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "MaterialImage", (unsigned int)((unsigned __int64)v10 >> 10), (float)(v11 * 0.00010899135));
   if ( writeHighWatermark <= 0x400 )
     Com_Printf(35, "Stream Combine: Largest Write: '%d' \n", writeHighWatermark);
   else
     Com_PrintError(35, "Stream Combine: Largest Write: '%d'. EXCEEDED SAFETY THRESHOLD!!\n", writeHighWatermark);
   FinalizeRebuildOfCombineTable(&context, materialImageTable);
   p_modifiedMaterials = &s_streamCombineTablesGlob.modifiedMaterials;
-  v17 = 90i64;
+  v14 = 90i64;
   do
   {
     *(_QWORD *)p_modifiedMaterials->array = 0i64;
@@ -302,9 +290,9 @@ LABEL_9:
     *(_QWORD *)&p_modifiedMaterials[-1].array[1434] = 0i64;
     *(_QWORD *)&p_modifiedMaterials[-1].array[1436] = 0i64;
     *(_QWORD *)&p_modifiedMaterials[-1].array[1438] = 0i64;
-    --v17;
+    --v14;
   }
-  while ( v17 );
+  while ( v14 );
   Sys_ProfEndNamedEvent();
 }
 
@@ -315,27 +303,28 @@ BuildMaterialImageTableIncremental
 */
 void BuildMaterialImageTableIncremental(StreamCombineTable *materialImageTable, unsigned __int8 *startWritePtr)
 {
-  unsigned __int8 *v3; 
+  unsigned __int8 *v2; 
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
   int writeHighWatermark; 
   unsigned __int8 *writePtr; 
-  unsigned __int8 *v10; 
+  unsigned __int8 *v9; 
+  float v10; 
+  float v11; 
   bitarray<46080> *p_modifiedMaterials; 
-  __int64 v16; 
+  __int64 v13; 
   unsigned __int64 memEnd; 
   unsigned __int64 memBegin; 
-  size_t v19; 
-  const void *v20; 
-  char *fmt; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
+  size_t v16; 
+  const void *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
   TableBuildContext context; 
 
-  v3 = startWritePtr;
+  v2 = startWritePtr;
   if ( !startWritePtr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 960, ASSERT_TYPE_ASSERT, "( startWritePtr ) != ( nullptr )", "%s != %s\n\t%p, %p", "startWritePtr", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !materialImageTable->memBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 961, ASSERT_TYPE_ASSERT, "( materialImageTable.memBegin ) != ( 0 )", "%s != %s\n\t%llu, %llu", "materialImageTable.memBegin", "0", 0i64, 0i64) )
@@ -344,40 +333,40 @@ void BuildMaterialImageTableIncremental(StreamCombineTable *materialImageTable, 
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "BuildMaterialImageTableIncremental");
   ValidateMaterials();
-  TableBuildContext_Init(&context, materialImageTable, v3);
-  LODWORD(v3) = 0;
-  v5 = s_streamCombineTablesGlob.modifiedMaterials.array[0];
-  while ( v5 )
+  TableBuildContext_Init(&context, materialImageTable, v2);
+  LODWORD(v2) = 0;
+  v4 = s_streamCombineTablesGlob.modifiedMaterials.array[0];
+  while ( v4 )
   {
 LABEL_14:
-    v6 = __lzcnt(v5);
-    v7 = v6 + 32 * (_DWORD)v3;
-    if ( v6 >= 0x20 )
+    v5 = __lzcnt(v4);
+    v6 = v5 + 32 * (_DWORD)v2;
+    if ( v5 >= 0x20 )
     {
-      LODWORD(v23) = 32;
-      LODWORD(v22) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v19) = 32;
+      LODWORD(v18) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    if ( (v5 & (0x80000000 >> v6)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v4 & (0x80000000 >> v5)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v5 &= ~(0x80000000 >> v6);
-    if ( v7 >= 0xB400 )
+    v4 &= ~(0x80000000 >> v5);
+    if ( v6 >= 0xB400 )
     {
-      LODWORD(v23) = 46080;
-      LODWORD(v22) = v6 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 977, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "iterator.index doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v19) = 46080;
+      LODWORD(v18) = v5 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 977, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "iterator.index doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    MaterialImageTable_CopyFromOldTableUnchangedEntries(&context, v7);
-    if ( v7 >= 0xB400 )
+    MaterialImageTable_CopyFromOldTableUnchangedEntries(&context, v6);
+    if ( v6 >= 0xB400 )
     {
-      LODWORD(v23) = 46080;
-      LODWORD(v22) = v6 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
+      LODWORD(v19) = 46080;
+      LODWORD(v18) = v5 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> (v7 & 0x1F)) & s_streamCombineTablesGlob.validMaterials.array[(unsigned __int64)v7 >> 5]) != 0 && AddMaterialToBuffer_0_(&context.writePtr, v7) )
+    if ( ((0x80000000 >> (v6 & 0x1F)) & s_streamCombineTablesGlob.validMaterials.array[(unsigned __int64)v6 >> 5]) != 0 && AddMaterialToBuffer_0_(&context.writePtr, v6) )
     {
       writeHighWatermark = LODWORD(context.writePtr) - LODWORD(context.lastWritePtr);
       if ( context.writeHighWatermark > LODWORD(context.writePtr) - LODWORD(context.lastWritePtr) )
@@ -391,37 +380,30 @@ LABEL_14:
   }
   while ( 1 )
   {
-    v3 = (unsigned __int8 *)(unsigned int)((_DWORD)v3 + 1);
-    if ( (unsigned int)v3 >= 0x5A0 )
+    v2 = (unsigned __int8 *)(unsigned int)((_DWORD)v2 + 1);
+    if ( (unsigned int)v2 >= 0x5A0 )
       break;
-    v5 = s_streamCombineTablesGlob.modifiedMaterials.array[(_QWORD)v3];
-    if ( v5 )
+    v4 = s_streamCombineTablesGlob.modifiedMaterials.array[(_QWORD)v2];
+    if ( v4 )
       goto LABEL_14;
   }
   MaterialImageTable_CopyFromOldTableUnchangedEntries(&context, 0xB400u);
   writePtr = context.writePtr;
-  v10 = context.startWritePtr;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
+  v9 = context.startWritePtr;
+  v10 = (float)(context.writePtr - context.startWritePtr);
   if ( context.writePtr - context.startWritePtr < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm
   {
-    vmulss  xmm0, xmm0, cs:__real@38e49249
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+fmt], xmm1
+    v11 = (float)(context.writePtr - context.startWritePtr);
+    v10 = v11 + 1.8446744e19;
   }
-  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "MaterialImageIncremental", (unsigned int)((unsigned __int64)(context.writePtr - context.startWritePtr) >> 10), *(double *)&fmt);
+  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "MaterialImageIncremental", (unsigned int)((unsigned __int64)(context.writePtr - context.startWritePtr) >> 10), (float)(v10 * 0.00010899135));
   if ( context.writeHighWatermark <= 0x400 )
     Com_Printf(35, "Stream Combine: Largest Write: '%d' \n", context.writeHighWatermark);
   else
     Com_PrintError(35, "Stream Combine: Largest Write: '%d'. EXCEEDED SAFETY THRESHOLD!!\n", context.writeHighWatermark);
   FinalizeRebuildOfCombineTable(&context, materialImageTable);
   p_modifiedMaterials = &s_streamCombineTablesGlob.modifiedMaterials;
-  v16 = 90i64;
+  v13 = 90i64;
   do
   {
     *(_QWORD *)p_modifiedMaterials->array = 0i64;
@@ -433,34 +415,34 @@ LABEL_14:
     *(_QWORD *)&p_modifiedMaterials[-1].array[1434] = 0i64;
     *(_QWORD *)&p_modifiedMaterials[-1].array[1436] = 0i64;
     *(_QWORD *)&p_modifiedMaterials[-1].array[1438] = 0i64;
-    --v16;
+    --v13;
   }
-  while ( v16 );
+  while ( v13 );
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_db_comprehensiveSanityChecks, "db_comprehensiveSanityChecks") )
   {
     BuildMaterialImageTable(materialImageTable, s_validationScratchBuffer);
     if ( materialImageTable->count != context.entryCount )
     {
-      LODWORD(v25) = context.entryCount;
-      LODWORD(v24) = materialImageTable->count;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1001, ASSERT_TYPE_ASSERT, "( materialImageTable.count ) == ( context.entryCount )", "%s == %s\n\t%i, %i", "materialImageTable.count", "context.entryCount", v24, v25) )
+      LODWORD(v21) = context.entryCount;
+      LODWORD(v20) = materialImageTable->count;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1001, ASSERT_TYPE_ASSERT, "( materialImageTable.count ) == ( context.entryCount )", "%s == %s\n\t%i, %i", "materialImageTable.count", "context.entryCount", v20, v21) )
         __debugbreak();
     }
     memEnd = materialImageTable->memEnd;
     memBegin = materialImageTable->memBegin;
-    if ( memEnd - memBegin != writePtr - v10 )
+    if ( memEnd - memBegin != writePtr - v9 )
     {
-      LODWORD(v25) = LODWORD(context.writePtr) - LODWORD(context.startWritePtr);
-      LODWORD(v24) = memEnd - memBegin;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1002, ASSERT_TYPE_ASSERT, "( reinterpret_cast<byte*>( materialImageTable.memEnd ) - reinterpret_cast<byte*>( materialImageTable.memBegin ) ) == ( context.writePtr - context.startWritePtr )", "%s == %s\n\t%i, %i", "reinterpret_cast<byte*>( materialImageTable.memEnd ) - reinterpret_cast<byte*>( materialImageTable.memBegin )", "context.writePtr - context.startWritePtr", v24, v25) )
+      LODWORD(v21) = LODWORD(context.writePtr) - LODWORD(context.startWritePtr);
+      LODWORD(v20) = memEnd - memBegin;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1002, ASSERT_TYPE_ASSERT, "( reinterpret_cast<byte*>( materialImageTable.memEnd ) - reinterpret_cast<byte*>( materialImageTable.memBegin ) ) == ( context.writePtr - context.startWritePtr )", "%s == %s\n\t%i, %i", "reinterpret_cast<byte*>( materialImageTable.memEnd ) - reinterpret_cast<byte*>( materialImageTable.memBegin )", "context.writePtr - context.startWritePtr", v20, v21) )
         __debugbreak();
     }
-    v19 = writePtr - v10;
-    v20 = (const void *)materialImageTable->memBegin;
-    if ( memcmp_0(v20, v10, v19) )
+    v16 = writePtr - v9;
+    v17 = (const void *)materialImageTable->memBegin;
+    if ( memcmp_0(v17, v9, v16) )
     {
-      LODWORD(v25) = memcmp_0(v20, v10, v19);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1003, ASSERT_TYPE_ASSERT, "( 0 ) == ( memcmp( reinterpret_cast<byte *>( materialImageTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr ) )", "%s == %s\n\t%i, %i", "0", "memcmp( reinterpret_cast<byte *>( materialImageTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr )", 0i64, v25) )
+      LODWORD(v21) = memcmp_0(v17, v9, v16);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 1003, ASSERT_TYPE_ASSERT, "( 0 ) == ( memcmp( reinterpret_cast<byte *>( materialImageTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr ) )", "%s == %s\n\t%i, %i", "0", "memcmp( reinterpret_cast<byte *>( materialImageTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr )", 0i64, v21) )
         __debugbreak();
     }
   }
@@ -474,57 +456,58 @@ BuildModelMaterialTable
 */
 void BuildModelMaterialTable(StreamCombineTable *modelMaterialTable, unsigned __int8 *scratchBuffer)
 {
-  unsigned __int8 *v3; 
-  unsigned int v5; 
+  unsigned __int8 *v2; 
+  unsigned int v4; 
   unsigned __int8 *writePtr; 
   unsigned int writeHighWatermark; 
+  unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
-  bool v10; 
-  __int64 v11; 
+  bool v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
   bitarray<24576> *p_modifiedModels; 
-  __int64 v17; 
-  char *fmt; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
   TableBuildContext context; 
 
-  v3 = scratchBuffer;
+  v2 = scratchBuffer;
   if ( !scratchBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 538, ASSERT_TYPE_ASSERT, "( scratchBuffer ) != ( nullptr )", "%s != %s\n\t%p, %p", "scratchBuffer", "nullptr", NULL, NULL) )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "BuildModelMaterialTable");
   ValidateModels();
-  TableBuildContext_Init(&context, modelMaterialTable, v3);
-  LODWORD(v3) = 0;
-  v5 = s_streamCombineTablesGlob.validModels.array[0];
+  TableBuildContext_Init(&context, modelMaterialTable, v2);
+  LODWORD(v2) = 0;
+  v4 = s_streamCombineTablesGlob.validModels.array[0];
   writePtr = context.writePtr;
 LABEL_5:
   writeHighWatermark = context.writeHighWatermark;
-  while ( v5 )
+  while ( v4 )
   {
 LABEL_9:
-    v8 = __lzcnt(v5);
-    v9 = v8 + 32 * (_DWORD)v3;
-    if ( v8 >= 0x20 )
+    v7 = __lzcnt(v4);
+    v8 = v7 + 32 * (_DWORD)v2;
+    if ( v7 >= 0x20 )
     {
-      LODWORD(v20) = 32;
-      LODWORD(v19) = v8;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v16) = 32;
+      LODWORD(v15) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
-    if ( (v5 & (0x80000000 >> v8)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v4 & (0x80000000 >> v7)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v5 &= ~(0x80000000 >> v8);
-    if ( v9 >= 0x6000 )
+    v4 &= ~(0x80000000 >> v7);
+    if ( v8 >= 0x6000 )
     {
-      LODWORD(v20) = 24576;
-      LODWORD(v19) = v8 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 553, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( (24064 + 512) )", "iterator.index doesn't index XMODEL_POOL_SIZE\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v16) = 24576;
+      LODWORD(v15) = v7 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 553, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( (24064 + 512) )", "iterator.index doesn't index XMODEL_POOL_SIZE\n\t%i not in [0, %i)", v15, v16) )
         __debugbreak();
     }
-    v10 = AddModelToBuffer_0_(&context.writePtr, v9);
+    v9 = AddModelToBuffer_0_(&context.writePtr, v8);
     writePtr = context.writePtr;
-    if ( !v10 )
+    if ( !v9 )
       goto LABEL_5;
     writeHighWatermark = LODWORD(context.writePtr) - LODWORD(context.lastWritePtr);
     if ( context.writeHighWatermark > LODWORD(context.writePtr) - LODWORD(context.lastWritePtr) )
@@ -537,35 +520,28 @@ LABEL_9:
   }
   while ( 1 )
   {
-    v3 = (unsigned __int8 *)(unsigned int)((_DWORD)v3 + 1);
-    if ( (unsigned int)v3 >= 0x300 )
+    v2 = (unsigned __int8 *)(unsigned int)((_DWORD)v2 + 1);
+    if ( (unsigned int)v2 >= 0x300 )
       break;
-    v5 = s_streamCombineTablesGlob.validModels.array[(_QWORD)v3];
-    if ( v5 )
+    v4 = s_streamCombineTablesGlob.validModels.array[(_QWORD)v2];
+    if ( v4 )
       goto LABEL_9;
   }
-  v11 = writePtr - context.startWritePtr;
-  __asm
+  v10 = writePtr - context.startWritePtr;
+  v11 = (float)v10;
+  if ( v10 < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rsi
+    v12 = (float)v10;
+    v11 = v12 + 1.8446744e19;
   }
-  if ( v11 < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@38e49249
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+fmt], xmm1
-  }
-  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "ModelMaterial", (unsigned int)((unsigned __int64)v11 >> 10), *(double *)&fmt);
+  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "ModelMaterial", (unsigned int)((unsigned __int64)v10 >> 10), (float)(v11 * 0.00010899135));
   if ( writeHighWatermark <= 0x400 )
     Com_Printf(35, "Stream Combine: Largest Write: '%d' \n", writeHighWatermark);
   else
     Com_PrintError(35, "Stream Combine: Largest Write: '%d'. EXCEEDED SAFETY THRESHOLD!!\n", writeHighWatermark);
   FinalizeRebuildOfCombineTable(&context, modelMaterialTable);
   p_modifiedModels = &s_streamCombineTablesGlob.modifiedModels;
-  v17 = 48i64;
+  v14 = 48i64;
   do
   {
     *(_QWORD *)p_modifiedModels->array = 0i64;
@@ -577,9 +553,9 @@ LABEL_9:
     *(_QWORD *)&p_modifiedModels[-1].array[762] = 0i64;
     *(_QWORD *)&p_modifiedModels[-1].array[764] = 0i64;
     *(_QWORD *)&p_modifiedModels[-1].array[766] = 0i64;
-    --v17;
+    --v14;
   }
-  while ( v17 );
+  while ( v14 );
   Sys_ProfEndNamedEvent();
 }
 
@@ -590,65 +566,66 @@ BuildModelMaterialTableIncremental
 */
 void BuildModelMaterialTableIncremental(StreamCombineTable *modelMaterialTable, unsigned __int8 *scratchBuffer)
 {
-  unsigned __int8 *v3; 
+  unsigned __int8 *v2; 
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
   int writeHighWatermark; 
   unsigned __int8 *writePtr; 
   unsigned __int8 *startWritePtr; 
+  float v10; 
+  float v11; 
   bitarray<24576> *p_modifiedModels; 
-  __int64 v16; 
+  __int64 v13; 
   unsigned __int64 memEnd; 
   unsigned __int64 memBegin; 
-  size_t v19; 
-  const void *v20; 
-  char *fmt; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
+  size_t v16; 
+  const void *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
   TableBuildContext context; 
 
-  v3 = scratchBuffer;
+  v2 = scratchBuffer;
   if ( !scratchBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 575, ASSERT_TYPE_ASSERT, "( scratchBuffer ) != ( nullptr )", "%s != %s\n\t%p, %p", "scratchBuffer", "nullptr", NULL, NULL) )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "BuildModelMaterialTableIncremental");
   ValidateModels();
-  TableBuildContext_Init(&context, modelMaterialTable, v3);
-  LODWORD(v3) = 0;
-  v5 = s_streamCombineTablesGlob.modifiedModels.array[0];
-  while ( v5 )
+  TableBuildContext_Init(&context, modelMaterialTable, v2);
+  LODWORD(v2) = 0;
+  v4 = s_streamCombineTablesGlob.modifiedModels.array[0];
+  while ( v4 )
   {
 LABEL_8:
-    v6 = __lzcnt(v5);
-    v7 = v6 + 32 * (_DWORD)v3;
-    if ( v6 >= 0x20 )
+    v5 = __lzcnt(v4);
+    v6 = v5 + 32 * (_DWORD)v2;
+    if ( v5 >= 0x20 )
     {
-      LODWORD(v23) = 32;
-      LODWORD(v22) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v19) = 32;
+      LODWORD(v18) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    if ( (v5 & (0x80000000 >> v6)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v4 & (0x80000000 >> v5)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v5 &= ~(0x80000000 >> v6);
-    if ( v7 >= 0x6000 )
+    v4 &= ~(0x80000000 >> v5);
+    if ( v6 >= 0x6000 )
     {
-      LODWORD(v23) = 24576;
-      LODWORD(v22) = v6 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 590, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( (24064 + 512) )", "iterator.index doesn't index XMODEL_POOL_SIZE\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v19) = 24576;
+      LODWORD(v18) = v5 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 590, ASSERT_TYPE_ASSERT, "(unsigned)( iterator.index ) < (unsigned)( (24064 + 512) )", "iterator.index doesn't index XMODEL_POOL_SIZE\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    ModelMaterialTable_CopyFromOldTableUnchangedEntries(&context, v7);
-    if ( v7 >= 0x6000 )
+    ModelMaterialTable_CopyFromOldTableUnchangedEntries(&context, v6);
+    if ( v6 >= 0x6000 )
     {
-      LODWORD(v23) = 24576;
-      LODWORD(v22) = v6 + 32 * (_DWORD)v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
+      LODWORD(v19) = 24576;
+      LODWORD(v18) = v5 + 32 * (_DWORD)v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
         __debugbreak();
     }
-    if ( ((0x80000000 >> (v7 & 0x1F)) & s_streamCombineTablesGlob.validModels.array[(unsigned __int64)v7 >> 5]) != 0 && AddModelToBuffer_0_(&context.writePtr, v7) )
+    if ( ((0x80000000 >> (v6 & 0x1F)) & s_streamCombineTablesGlob.validModels.array[(unsigned __int64)v6 >> 5]) != 0 && AddModelToBuffer_0_(&context.writePtr, v6) )
     {
       writeHighWatermark = LODWORD(context.writePtr) - LODWORD(context.lastWritePtr);
       if ( context.writeHighWatermark > LODWORD(context.writePtr) - LODWORD(context.lastWritePtr) )
@@ -662,37 +639,30 @@ LABEL_8:
   }
   while ( 1 )
   {
-    v3 = (unsigned __int8 *)(unsigned int)((_DWORD)v3 + 1);
-    if ( (unsigned int)v3 >= 0x300 )
+    v2 = (unsigned __int8 *)(unsigned int)((_DWORD)v2 + 1);
+    if ( (unsigned int)v2 >= 0x300 )
       break;
-    v5 = s_streamCombineTablesGlob.modifiedModels.array[(_QWORD)v3];
-    if ( v5 )
+    v4 = s_streamCombineTablesGlob.modifiedModels.array[(_QWORD)v2];
+    if ( v4 )
       goto LABEL_8;
   }
   ModelMaterialTable_CopyFromOldTableUnchangedEntries(&context, 0x6000u);
   writePtr = context.writePtr;
   startWritePtr = context.startWritePtr;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
+  v10 = (float)(context.writePtr - context.startWritePtr);
   if ( context.writePtr - context.startWritePtr < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-  __asm
   {
-    vmulss  xmm0, xmm0, cs:__real@38e49249
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+0D8h+fmt], xmm1
+    v11 = (float)(context.writePtr - context.startWritePtr);
+    v10 = v11 + 1.8446744e19;
   }
-  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "ModelMaterialIncremental", (unsigned int)((unsigned __int64)(context.writePtr - context.startWritePtr) >> 10), *(double *)&fmt);
+  Com_Printf(35, "Stream Combine: Table '%s' used %d kb (%.2f %%)\n", "ModelMaterialIncremental", (unsigned int)((unsigned __int64)(context.writePtr - context.startWritePtr) >> 10), (float)(v10 * 0.00010899135));
   if ( context.writeHighWatermark <= 0x400 )
     Com_Printf(35, "Stream Combine: Largest Write: '%d' \n", context.writeHighWatermark);
   else
     Com_PrintError(35, "Stream Combine: Largest Write: '%d'. EXCEEDED SAFETY THRESHOLD!!\n", context.writeHighWatermark);
   FinalizeRebuildOfCombineTable(&context, modelMaterialTable);
   p_modifiedModels = &s_streamCombineTablesGlob.modifiedModels;
-  v16 = 48i64;
+  v13 = 48i64;
   do
   {
     *(_QWORD *)p_modifiedModels->array = 0i64;
@@ -704,34 +674,34 @@ LABEL_8:
     *(_QWORD *)&p_modifiedModels[-1].array[762] = 0i64;
     *(_QWORD *)&p_modifiedModels[-1].array[764] = 0i64;
     *(_QWORD *)&p_modifiedModels[-1].array[766] = 0i64;
-    --v16;
+    --v13;
   }
-  while ( v16 );
+  while ( v13 );
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_db_comprehensiveSanityChecks, "db_comprehensiveSanityChecks") )
   {
     BuildModelMaterialTable(modelMaterialTable, s_validationScratchBuffer);
     if ( modelMaterialTable->count != context.entryCount )
     {
-      LODWORD(v25) = context.entryCount;
-      LODWORD(v24) = modelMaterialTable->count;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 614, ASSERT_TYPE_ASSERT, "( modelMaterialTable.count ) == ( context.entryCount )", "%s == %s\n\t%i, %i", "modelMaterialTable.count", "context.entryCount", v24, v25) )
+      LODWORD(v21) = context.entryCount;
+      LODWORD(v20) = modelMaterialTable->count;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 614, ASSERT_TYPE_ASSERT, "( modelMaterialTable.count ) == ( context.entryCount )", "%s == %s\n\t%i, %i", "modelMaterialTable.count", "context.entryCount", v20, v21) )
         __debugbreak();
     }
     memEnd = modelMaterialTable->memEnd;
     memBegin = modelMaterialTable->memBegin;
     if ( memEnd - memBegin != writePtr - startWritePtr )
     {
-      LODWORD(v25) = LODWORD(context.writePtr) - LODWORD(context.startWritePtr);
-      LODWORD(v24) = memEnd - memBegin;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 615, ASSERT_TYPE_ASSERT, "( reinterpret_cast< byte* >( modelMaterialTable.memEnd ) - reinterpret_cast< byte* >( modelMaterialTable.memBegin ) ) == ( context.writePtr - context.startWritePtr )", "%s == %s\n\t%i, %i", "reinterpret_cast< byte* >( modelMaterialTable.memEnd ) - reinterpret_cast< byte* >( modelMaterialTable.memBegin )", "context.writePtr - context.startWritePtr", v24, v25) )
+      LODWORD(v21) = LODWORD(context.writePtr) - LODWORD(context.startWritePtr);
+      LODWORD(v20) = memEnd - memBegin;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 615, ASSERT_TYPE_ASSERT, "( reinterpret_cast< byte* >( modelMaterialTable.memEnd ) - reinterpret_cast< byte* >( modelMaterialTable.memBegin ) ) == ( context.writePtr - context.startWritePtr )", "%s == %s\n\t%i, %i", "reinterpret_cast< byte* >( modelMaterialTable.memEnd ) - reinterpret_cast< byte* >( modelMaterialTable.memBegin )", "context.writePtr - context.startWritePtr", v20, v21) )
         __debugbreak();
     }
-    v19 = writePtr - startWritePtr;
-    v20 = (const void *)modelMaterialTable->memBegin;
-    if ( memcmp_0(v20, startWritePtr, v19) )
+    v16 = writePtr - startWritePtr;
+    v17 = (const void *)modelMaterialTable->memBegin;
+    if ( memcmp_0(v17, startWritePtr, v16) )
     {
-      LODWORD(v25) = memcmp_0(v20, startWritePtr, v19);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 616, ASSERT_TYPE_ASSERT, "( 0 ) == ( memcmp( reinterpret_cast< byte * >( modelMaterialTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr ) )", "%s == %s\n\t%i, %i", "0", "memcmp( reinterpret_cast< byte * >( modelMaterialTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr )", 0i64, v25) )
+      LODWORD(v21) = memcmp_0(v17, startWritePtr, v16);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 616, ASSERT_TYPE_ASSERT, "( 0 ) == ( memcmp( reinterpret_cast< byte * >( modelMaterialTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr ) )", "%s == %s\n\t%i, %i", "0", "memcmp( reinterpret_cast< byte * >( modelMaterialTable.memBegin ), context.startWritePtr, context.writePtr - context.startWritePtr )", 0i64, v21) )
         __debugbreak();
     }
   }
@@ -1125,98 +1095,54 @@ StreamCombine_MaterialImageTableUnitTests_CheckRelativeError
 */
 void StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(const unsigned int area, const unsigned int minArea)
 {
+  __int64 v2; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int v5; 
-  bool v6; 
-  bool v7; 
-  bool v12; 
-  bool v13; 
-  unsigned int v29; 
-  double v30; 
-  double v31; 
-  double v32; 
-  int v33; 
-  double v34; 
-  double v35; 
-  double v36; 
+  unsigned int v6; 
+  __int128 v8; 
+  float v9; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  unsigned int v17; 
+  int v18; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v5 = Stream_CombineTables_EncodeMaterialImageScale(area, minArea);
-  v6 = v5 >> 5 < 0x200;
-  if ( v5 >> 5 >= 0x200 )
+  v2 = minArea;
+  v3 = area;
+  v4 = Stream_CombineTables_EncodeMaterialImageScale(area, minArea);
+  v5 = v4 >> 5;
+  v6 = 1 << (v4 & 0x1F);
+  if ( v4 >> 5 >= 0x200 )
   {
-    v33 = 512;
-    v29 = v5 >> 5;
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 176, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorUnpacked ) < ( StreamCombineTable::IMAGE_SCALE_INTERVAL_MAX )", "%s < %s\n\t%i, %i", "imageScaleSqMinorUnpacked", "StreamCombineTable::IMAGE_SCALE_INTERVAL_MAX", v29, v33);
-    v6 = 0;
-    if ( v7 )
+    v18 = 512;
+    v17 = v4 >> 5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 176, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorUnpacked ) < ( StreamCombineTable::IMAGE_SCALE_INTERVAL_MAX )", "%s < %s\n\t%i, %i", "imageScaleSqMinorUnpacked", "StreamCombineTable::IMAGE_SCALE_INTERVAL_MAX", v17, v18) )
       __debugbreak();
   }
-  __asm
+  v8 = 0i64;
+  *(float *)&v8 = (float)v5;
+  _XMM0 = v8;
+  v9 = *(float *)&v8 * 0.001953125;
+  if ( v9 < 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm6, xmm0, cs:__real@3b000000
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm6, xmm1
-  }
-  if ( v6 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 179, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorScale ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "imageScaleSqMinorScale", "0.0f", v30, v34);
-    v6 = 0;
-    if ( v12 )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 179, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorScale ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "imageScaleSqMinorScale", "0.0f", v9, *(double *)&_XMM0) )
       __debugbreak();
   }
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( !v6 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 180, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorScale ) < ( 1.0f )", "%s < %s\n\t%g, %g", "imageScaleSqMinorScale", "1.0f", v31, v35);
-    v6 = 0;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vaddss  xmm2, xmm6, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rsi
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rbp
-    vdivss  xmm3, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm2, xmm0
-    vsubss  xmm2, xmm1, xmm3
-    vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm0, xmm2, xmm3
-    vcomiss xmm0, cs:__real@3b000000
-  }
-  if ( !v6 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  xmm0, cs:__real@3f60000000000000
-      vmovsd  [rsp+68h+var_28], xmm0
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 784, ASSERT_TYPE_ASSERT, "( relativeError ) < ( minimumRelativeError )", "%s < %s\n\t%g, %g", "relativeError", "minimumRelativeError", v32, v36) )
-      __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  if ( v9 >= 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.h", 180, ASSERT_TYPE_ASSERT, "( imageScaleSqMinorScale ) < ( 1.0f )", "%s < %s\n\t%g, %g", "imageScaleSqMinorScale", "1.0f", v9, DOUBLE_1_0) )
+    __debugbreak();
+  v11 = v9 + 1.0;
+  v12 = (float)v2;
+  v13 = (float)v3;
+  v14 = v13 / v12;
+  v15 = (float)v6;
+  LODWORD(v16) = COERCE_UNSIGNED_INT((float)(v11 * v15) - v14) & _xmm;
+  if ( (float)(v16 / v14) >= 0.001953125 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 784, ASSERT_TYPE_ASSERT, "( relativeError ) < ( minimumRelativeError )", "%s < %s\n\t%g, %g", "relativeError", "minimumRelativeError", (float)(v16 / v14), DOUBLE_0_001953125) )
+    __debugbreak();
 }
 
 /*
@@ -1693,63 +1619,57 @@ Stream_CombineTables_OneTimeInit
 */
 void Stream_CombineTables_OneTimeInit(void)
 {
-  unsigned int v3; 
-  unsigned int v4; 
+  unsigned int v0; 
+  unsigned int v1; 
   unsigned int i; 
+  unsigned int v3; 
+  int v4; 
+  int v5; 
   unsigned int v6; 
-  int v7; 
-  int v8; 
-  unsigned int v9; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v7; 
+  __int64 v8; 
   __m256i Src; 
-  __m256i v13; 
-  __m256i v14; 
-  char v15[5760]; 
-  char v16[5760]; 
-  char v17[3072]; 
-  char v18[3072]; 
-  volatile int v19; 
-  volatile int v20; 
-  char v21[17776]; 
+  __m256i v10; 
+  __m256i v11; 
+  char v12[5760]; 
+  char v13[5760]; 
+  char v14[3072]; 
+  char v15[3072]; 
+  volatile int v16; 
+  volatile int v17; 
+  char v18[17776]; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 144, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   *(_OWORD *)Src.m256i_i8 = (unsigned __int64)MEM_PAGE_RANGE_INVALID_4;
   *(_OWORD *)&Src.m256i_u64[2] = 0ui64;
-  v13.m256i_i64[0] = 0i64;
-  v13.m256i_i32[2] = 0;
-  v13.m256i_i8[12] = 0;
-  memset_0(v15, 0, 0x4508ui64);
-  *(_OWORD *)&v13.m256i_u64[2] = (unsigned __int64)MEM_PAGE_RANGE_INVALID_4;
-  memset(&v14, 0, 29);
-  memcpy_0(v21, &Src, 0x4568ui64);
-  __asm
-  {
-    vmovups ymm0, [rsp+8B50h+Src]
-    vmovups ymm1, [rsp+8B50h+var_8AE0]
-    vmovups ymmword ptr cs:s_streamCombineTablesGlob.tables.materialImage.pages.firstPageID, ymm0
-    vmovups ymm0, [rbp+8A50h+var_8AC0]
-    vmovups ymmword ptr cs:s_streamCombineTablesGlob.tables.modelMaterial.memBegin, ymm0
-    vmovups ymmword ptr cs:s_streamCombineTablesGlob.tables.materialImage.memSize, ymm1
-  }
-  memcpy_0(&s_streamCombineTablesGlob.validMaterials, v15, sizeof(s_streamCombineTablesGlob.validMaterials));
-  memcpy_0(&s_streamCombineTablesGlob.modifiedMaterials, v16, sizeof(s_streamCombineTablesGlob.modifiedMaterials));
-  memcpy_0(&s_streamCombineTablesGlob.validModels, v17, sizeof(s_streamCombineTablesGlob.validModels));
-  memcpy_0(&s_streamCombineTablesGlob.modifiedModels, v18, sizeof(s_streamCombineTablesGlob.modifiedModels));
-  s_streamCombineTablesGlob.totalCommitSize = v19;
-  s_streamCombineTablesGlob.rebuildingTables = v20;
+  v10.m256i_i64[0] = 0i64;
+  v10.m256i_i32[2] = 0;
+  v10.m256i_i8[12] = 0;
+  memset_0(v12, 0, 0x4508ui64);
+  *(_OWORD *)&v10.m256i_u64[2] = (unsigned __int64)MEM_PAGE_RANGE_INVALID_4;
+  memset(&v11, 0, 29);
+  memcpy_0(v18, &Src, 0x4568ui64);
+  *(__m256i *)&s_streamCombineTablesGlob.tables.materialImage.pages.firstPageID = Src;
+  *(__m256i *)&s_streamCombineTablesGlob.tables.modelMaterial.memBegin = v11;
+  *(__m256i *)&s_streamCombineTablesGlob.tables.materialImage.memSize = v10;
+  memcpy_0(&s_streamCombineTablesGlob.validMaterials, v12, sizeof(s_streamCombineTablesGlob.validMaterials));
+  memcpy_0(&s_streamCombineTablesGlob.modifiedMaterials, v13, sizeof(s_streamCombineTablesGlob.modifiedMaterials));
+  memcpy_0(&s_streamCombineTablesGlob.validModels, v14, sizeof(s_streamCombineTablesGlob.validModels));
+  memcpy_0(&s_streamCombineTablesGlob.modifiedModels, v15, sizeof(s_streamCombineTablesGlob.modifiedModels));
+  s_streamCombineTablesGlob.totalCommitSize = v16;
+  s_streamCombineTablesGlob.rebuildingTables = v17;
   Stream_CombineTable_OneTimeInit(&s_streamCombineTablesGlob.tables.materialImage, 0x470000ui64);
   Stream_CombineTable_OneTimeInit(&s_streamCombineTablesGlob.tables.modelMaterial, 0x140000ui64);
-  v3 = Stream_CombineTables_EncodeMaterialImageScale(1u, 1u);
-  if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 811, ASSERT_TYPE_ASSERT, "( minEncoding ) == ( 0 )", "%s == %s\n\t%i, %i", "minEncoding", "0", v3, 0i64) )
+  v0 = Stream_CombineTables_EncodeMaterialImageScale(1u, 1u);
+  if ( v0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 811, ASSERT_TYPE_ASSERT, "( minEncoding ) == ( 0 )", "%s == %s\n\t%i, %i", "minEncoding", "0", v0, 0i64) )
     __debugbreak();
-  v4 = Stream_CombineTables_EncodeMaterialImageScale(0xFFFE0001, 1u);
-  if ( v4 != 0x3FFF )
+  v1 = Stream_CombineTables_EncodeMaterialImageScale(0xFFFE0001, 1u);
+  if ( v1 != 0x3FFF )
   {
-    LODWORD(v11) = 0x3FFF;
-    LODWORD(v10) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 814, ASSERT_TYPE_ASSERT, "( maxEncoding ) == ( ( ( 1u << StreamCombineTable::IMAGE_SCALE_BITS ) - 1 ) )", "%s == %s\n\t%i, %i", "maxEncoding", "( ( 1u << StreamCombineTable::IMAGE_SCALE_BITS ) - 1 )", v10, v11) )
+    LODWORD(v8) = 0x3FFF;
+    LODWORD(v7) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_combine_tables.cpp", 814, ASSERT_TYPE_ASSERT, "( maxEncoding ) == ( ( ( 1u << StreamCombineTable::IMAGE_SCALE_BITS ) - 1 ) )", "%s == %s\n\t%i, %i", "maxEncoding", "( ( 1u << StreamCombineTable::IMAGE_SCALE_BITS ) - 1 )", v7, v8) )
       __debugbreak();
   }
   StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(0xFFFE0001, 1u);
@@ -1758,20 +1678,20 @@ void Stream_CombineTables_OneTimeInit(void)
   StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(4u, 4u);
   for ( i = 1; i < 0x10; ++i )
   {
-    v6 = 1;
-    v7 = 2;
-    v8 = __ROL4__(1, i);
+    v3 = 1;
+    v4 = 2;
+    v5 = __ROL4__(1, i);
     do
     {
-      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v7 * v8, 1u);
-      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v7 * v8, 4u);
-      v9 = v7 * v8 + v7 * v8 / (v6 + i);
-      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v9, 1u);
-      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v9, 4u);
-      ++v6;
-      v7 = __ROL4__(v7, 1);
+      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v4 * v5, 1u);
+      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v4 * v5, 4u);
+      v6 = v4 * v5 + v4 * v5 / (v3 + i);
+      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v6, 1u);
+      StreamCombine_MaterialImageTableUnitTests_CheckRelativeError(v6, 4u);
+      ++v3;
+      v4 = __ROL4__(v4, 1);
     }
-    while ( v6 < 0x10 );
+    while ( v3 < 0x10 );
   }
 }
 

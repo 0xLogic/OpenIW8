@@ -153,16 +153,15 @@ bdDispatcher::registerInterceptor
 */
 void bdDispatcher::registerInterceptor(bdDispatcher *this, bdDispatchInterceptor *const interceptor)
 {
+  bdDispatchInterceptor **m_data; 
   unsigned int m_size; 
   int v5; 
   unsigned int m_capacity; 
   unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
-  bdDispatchInterceptor *v12; 
 
-  v12 = interceptor;
-  _RDI = NULL;
+  m_data = NULL;
   m_size = this->m_interceptors.m_size;
   v5 = 0;
   if ( m_size )
@@ -184,26 +183,20 @@ LABEL_6:
     v8 = m_capacity + v7;
     if ( m_capacity + v7 )
     {
-      _RDI = (bdDispatchInterceptor **)bdMemory::allocate(8i64 * v8);
+      m_data = (bdDispatchInterceptor **)bdMemory::allocate(8i64 * v8);
       v9 = this->m_interceptors.m_size;
       if ( v9 )
-        memcpy_0(_RDI, this->m_interceptors.m_data, 8i64 * v9);
+        memcpy_0(m_data, this->m_interceptors.m_data, 8i64 * v9);
     }
     bdMemory::deallocate(this->m_interceptors.m_data);
-    this->m_interceptors.m_data = _RDI;
+    this->m_interceptors.m_data = m_data;
     this->m_interceptors.m_capacity = v8;
   }
   else
   {
-    _RDI = this->m_interceptors.m_data;
+    m_data = this->m_interceptors.m_data;
   }
-  _RAX = this->m_interceptors.m_size;
-  __asm
-  {
-    vmovsd  xmm0, [rsp+48h+arg_8]
-    vmovsd  qword ptr [rdi+rax*8], xmm0
-  }
-  ++this->m_interceptors.m_size;
+  m_data[this->m_interceptors.m_size++] = interceptor;
 }
 
 /*

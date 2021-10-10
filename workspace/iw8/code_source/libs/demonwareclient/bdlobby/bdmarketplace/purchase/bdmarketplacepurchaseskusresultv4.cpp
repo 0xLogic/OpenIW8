@@ -113,21 +113,23 @@ __int64 bdMarketplacePurchaseSkusResultV4::deserialize(bdMarketplacePurchaseSkus
   bdMarketplaceCouponInventoryV4 *v12; 
   unsigned int v13; 
   __int64 m_size; 
+  bdMarketplaceCouponInventoryV4 *v15; 
+  bdMarketplaceCouponInventoryV4 *v16; 
   __int64 v17; 
   bdReference<bdByteBuffer> buffera; 
-  __int64 v33[3]; 
-  bdMarketplaceCouponInventoryV4 v34; 
+  __int64 v20[3]; 
+  bdMarketplaceCouponInventoryV4 v21; 
 
-  v33[1] = -2i64;
-  v33[2] = (__int64)buffer.m_ptr;
+  v20[1] = -2i64;
+  v20[2] = (__int64)buffer.m_ptr;
   if ( !bdByteBuffer::readString((bdByteBuffer *)buffer.m_ptr->__vftable, (char *const)&this->__vftable + 16, 0x19ui64) )
     goto LABEL_7;
   deserialize = this->m_affectedPlayerAssets.deserialize;
   v5 = buffer.m_ptr->__vftable;
-  v33[0] = (__int64)v5;
+  v20[0] = (__int64)v5;
   if ( v5 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v5->allocateBuffer, 1u);
-  if ( ((unsigned __int8 (__fastcall *)(bdMarketplacePlayerAssetsV3 *, __int64 *))deserialize)(&this->m_affectedPlayerAssets, v33) && bdByteBuffer::readUInt32((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_numOtherPlayersCoupons) )
+  if ( ((unsigned __int8 (__fastcall *)(bdMarketplacePlayerAssetsV3 *, __int64 *))deserialize)(&this->m_affectedPlayerAssets, v20) && bdByteBuffer::readUInt32((bdByteBuffer *)buffer.m_ptr->__vftable, &this->m_numOtherPlayersCoupons) )
     v6 = 1;
   else
 LABEL_7:
@@ -146,14 +148,14 @@ LABEL_7:
   {
     do
     {
-      bdMarketplaceCouponInventoryV4::bdMarketplaceCouponInventoryV4(&v34);
+      bdMarketplaceCouponInventoryV4::bdMarketplaceCouponInventoryV4(&v21);
       if ( !v6 )
         goto LABEL_25;
       v9 = (bdByteBuffer *)buffer.m_ptr->__vftable;
       buffera.m_ptr = v9;
       if ( v9 )
         _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
-      if ( bdMarketplaceCouponInventoryV4::deserialize(&v34, (bdReference<bdByteBuffer>)&buffera) )
+      if ( bdMarketplaceCouponInventoryV4::deserialize(&v21, (bdReference<bdByteBuffer>)&buffera) )
       {
         v6 = 1;
         m_capacity = this->m_otherPlayersCoupons.m_capacity;
@@ -175,51 +177,29 @@ LABEL_7:
           this->m_otherPlayersCoupons.m_data = v12;
           this->m_otherPlayersCoupons.m_capacity = v13;
         }
-        _RAX = &this->m_otherPlayersCoupons.m_data[this->m_otherPlayersCoupons.m_size];
-        _RCX = &v34;
+        v15 = &this->m_otherPlayersCoupons.m_data[this->m_otherPlayersCoupons.m_size];
+        v16 = &v21;
         v17 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx]
-            vmovups xmmword ptr [rax], xmm0
-            vmovups xmm1, xmmword ptr [rcx+10h]
-            vmovups xmmword ptr [rax+10h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+20h]
-            vmovups xmmword ptr [rax+20h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+30h]
-            vmovups xmmword ptr [rax+30h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+40h]
-            vmovups xmmword ptr [rax+40h], xmm0
-            vmovups xmm1, xmmword ptr [rcx+50h]
-            vmovups xmmword ptr [rax+50h], xmm1
-            vmovups xmm0, xmmword ptr [rcx+60h]
-            vmovups xmmword ptr [rax+60h], xmm0
-          }
-          _RAX = (bdMarketplaceCouponInventoryV4 *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rcx+70h]
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          _RCX = (bdMarketplaceCouponInventoryV4 *)((char *)_RCX + 128);
+          *(_OWORD *)&v15->__vftable = *(_OWORD *)&v16->__vftable;
+          *((_OWORD *)&v15->__vftable + 1) = *((_OWORD *)&v16->__vftable + 1);
+          *(_OWORD *)v15->_bytes_20 = *(_OWORD *)v16->_bytes_20;
+          *(_OWORD *)v15->m_couponId = *(_OWORD *)v16->m_couponId;
+          *(_OWORD *)&v15->m_ownerPlayerId.__vftable = *(_OWORD *)&v16->m_ownerPlayerId.__vftable;
+          *((_OWORD *)&v15->m_ownerPlayerId.__vftable + 1) = *((_OWORD *)&v16->m_ownerPlayerId.__vftable + 1);
+          *(_OWORD *)v15->m_ownerPlayerId._bytes_20 = *(_OWORD *)v16->m_ownerPlayerId._bytes_20;
+          v15 = (bdMarketplaceCouponInventoryV4 *)((char *)v15 + 128);
+          *(_OWORD *)&v15[-1].gap13C[4] = *(_OWORD *)&v16->m_ownerPlayerId.m_userID;
+          v16 = (bdMarketplaceCouponInventoryV4 *)((char *)v16 + 128);
           --v17;
         }
         while ( v17 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups xmm1, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+10h], xmm1
-          vmovups xmm0, xmmword ptr [rcx+20h]
-          vmovups xmmword ptr [rax+20h], xmm0
-          vmovups xmm1, xmmword ptr [rcx+30h]
-          vmovups xmmword ptr [rax+30h], xmm1
-          vmovups xmm0, xmmword ptr [rcx+40h]
-          vmovups xmmword ptr [rax+40h], xmm0
-        }
+        *(_OWORD *)&v15->__vftable = *(_OWORD *)&v16->__vftable;
+        *((_OWORD *)&v15->__vftable + 1) = *((_OWORD *)&v16->__vftable + 1);
+        *(_OWORD *)v15->_bytes_20 = *(_OWORD *)v16->_bytes_20;
+        *(_OWORD *)v15->m_couponId = *(_OWORD *)v16->m_couponId;
+        *(_OWORD *)&v15->m_ownerPlayerId.__vftable = *(_OWORD *)&v16->m_ownerPlayerId.__vftable;
         ++this->m_otherPlayersCoupons.m_size;
       }
       else
@@ -227,13 +207,13 @@ LABEL_7:
 LABEL_25:
         v6 = 0;
       }
-      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v34.m_buyerPlayerId.gap38);
-      bdReferencable::~bdReferencable((bdReferencable *)v34.m_buyerPlayerId.gap38);
-      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v34.m_ownerPlayerId.gap38);
-      bdReferencable::~bdReferencable((bdReferencable *)v34.m_ownerPlayerId.gap38);
-      bdSerializable::~bdSerializable((bdSerializable *)v34._bytes_20);
-      bdTaskResult::~bdTaskResult((bdTaskResult *)(&v34.__vftable + 2));
-      bdReferencable::~bdReferencable((bdReferencable *)&v34.gap13C[4]);
+      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v21.m_buyerPlayerId.gap38);
+      bdReferencable::~bdReferencable((bdReferencable *)v21.m_buyerPlayerId.gap38);
+      bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v21.m_ownerPlayerId.gap38);
+      bdReferencable::~bdReferencable((bdReferencable *)v21.m_ownerPlayerId.gap38);
+      bdSerializable::~bdSerializable((bdSerializable *)v21._bytes_20);
+      bdTaskResult::~bdTaskResult((bdTaskResult *)(&v21.__vftable + 2));
+      bdReferencable::~bdReferencable((bdReferencable *)&v21.gap13C[4]);
       ++v8;
     }
     while ( v8 < this->m_numOtherPlayersCoupons );

@@ -29,8 +29,6 @@ void bdNetStartParams::bdNetStartParams(bdNetStartParams *this, const bdNetStart
 {
   bdArray<bdString> *p_m_natTravHosts; 
 
-  _RDI = __that;
-  _RSI = this;
   this->m_onlineGame = __that->m_onlineGame;
   this->m_gamePort = __that->m_gamePort;
   this->m_socket = __that->m_socket;
@@ -38,32 +36,21 @@ void bdNetStartParams::bdNetStartParams(bdNetStartParams *this, const bdNetStart
   this->m_natTravHosts.m_capacity = p_m_natTravHosts->m_capacity;
   this->m_natTravHosts.m_size = p_m_natTravHosts->m_size;
   this->m_natTravHosts.m_data = bdArray<bdString>::uninitializedCopy(&this->m_natTravHosts, p_m_natTravHosts);
-  _RSI->m_natTravPort = _RDI->m_natTravPort;
-  _RSI->m_localAddresses.m_capacity = _RDI->m_localAddresses.m_capacity;
-  _RSI->m_localAddresses.m_size = _RDI->m_localAddresses.m_size;
-  _RSI->m_localAddresses.m_data = bdArray<bdSockAddr>::uninitializedCopy(&_RSI->m_localAddresses, &_RDI->m_localAddresses);
-  bdAddr::bdAddr(&_RSI->m_overridePublicAddr, &_RDI->m_overridePublicAddr);
-  _RSI->m_overrideNATType = _RDI->m_overrideNATType;
-  _RSI->m_overridePlatformID = _RDI->m_overridePlatformID;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0D8h]
-    vmovss  dword ptr [rsi+0D8h], xmm0
-  }
-  bdUPnPConfig::bdUPnPConfig(&_RSI->m_UPnPConfig, &_RDI->m_UPnPConfig);
-  _RSI->m_useAnyIP = _RDI->m_useAnyIP;
-  _RSI->m_useMediaStreamingMode = _RDI->m_useMediaStreamingMode;
-  _RSI->m_threadStackSize = _RDI->m_threadStackSize;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+198h]
-    vmovups ymmword ptr [rsi+198h], ymm0
-    vmovups xmm0, xmmword ptr [rdi+1B8h]
-    vmovups xmmword ptr [rsi+1B8h], xmm0
-    vmovsd  xmm0, qword ptr [rdi+1C8h]
-    vmovsd  qword ptr [rsi+1C8h], xmm0
-  }
-  *(_DWORD *)&_RSI->m_IPDiscoveryConfig.m_version = *(_DWORD *)&_RDI->m_IPDiscoveryConfig.m_version;
+  this->m_natTravPort = __that->m_natTravPort;
+  this->m_localAddresses.m_capacity = __that->m_localAddresses.m_capacity;
+  this->m_localAddresses.m_size = __that->m_localAddresses.m_size;
+  this->m_localAddresses.m_data = bdArray<bdSockAddr>::uninitializedCopy(&this->m_localAddresses, &__that->m_localAddresses);
+  bdAddr::bdAddr(&this->m_overridePublicAddr, &__that->m_overridePublicAddr);
+  this->m_overrideNATType = __that->m_overrideNATType;
+  this->m_overridePlatformID = __that->m_overridePlatformID;
+  this->m_hostNameLookupConfig.m_timeout = __that->m_hostNameLookupConfig.m_timeout;
+  bdUPnPConfig::bdUPnPConfig(&this->m_UPnPConfig, &__that->m_UPnPConfig);
+  this->m_useAnyIP = __that->m_useAnyIP;
+  this->m_useMediaStreamingMode = __that->m_useMediaStreamingMode;
+  this->m_threadStackSize = __that->m_threadStackSize;
+  this->m_socketRouterConfig = __that->m_socketRouterConfig;
+  this->m_connectionStoreConfig = __that->m_connectionStoreConfig;
+  this->m_IPDiscoveryConfig = __that->m_IPDiscoveryConfig;
 }
 
 /*

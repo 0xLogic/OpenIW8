@@ -159,11 +159,9 @@ IndyFsScopedDuration::IndyFsScopedDuration
 */
 void IndyFsScopedDuration::IndyFsScopedDuration(IndyFsScopedDuration *this, const char *category_, const char *name_)
 {
-  _RDI = this;
   indyfs_strlcpy(this->category, category_, 0x104ui64);
-  indyfs_strlcpy(_RDI->name, name_, 0x104ui64);
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovsd  qword ptr [rdi+208h], xmm0 }
+  indyfs_strlcpy(this->name, name_, 0x104ui64);
+  this->start = indyfs_time_now_us();
 }
 
 /*
@@ -173,16 +171,11 @@ IndyFsScopedDuration::~IndyFsScopedDuration
 */
 void IndyFsScopedDuration::~IndyFsScopedDuration(IndyFsScopedDuration *this)
 {
-  *(double *)&_XMM0 = indyfs_time_now_us();
+  double v2; 
+
+  v2 = indyfs_time_now_us();
   if ( s_statisticsEnabled )
-  {
-    __asm
-    {
-      vsubsd  xmm3, xmm0, qword ptr [rbx+208h]
-      vmovq   r9, xmm3
-    }
-    statistics_write_message("duration,%s,%s,%f\n", this, this->name, _R9, -2i64);
-  }
+    statistics_write_message("duration,%s,%s,%f\n", this, this->name, v2 - this->start, -2i64);
 }
 
 /*
@@ -260,6 +253,7 @@ indyfs_statistics_internal_add_chunk_download
 */
 void indyfs_statistics_internal_add_chunk_download(unsigned __int8 *sha1, unsigned __int64 chunkSize, unsigned __int64 offset, unsigned __int64 downloadSize, long double duration, const char *cacheStatus, unsigned __int64 taskId)
 {
+  int v7; 
   int v8; 
   int v9; 
   int v10; 
@@ -276,34 +270,27 @@ void indyfs_statistics_internal_add_chunk_download(unsigned __int8 *sha1, unsign
   int v21; 
   int v22; 
   int v23; 
-  int v24; 
-  double v25; 
 
   if ( s_statisticsEnabled )
   {
-    __asm
-    {
-      vmovsd  xmm0, [rsp+128h+duration]
-      vmovsd  [rsp+128h+var_68], xmm0
-    }
-    v24 = sha1[19];
-    v23 = sha1[18];
-    v22 = sha1[17];
-    v21 = sha1[16];
-    v20 = sha1[15];
-    v19 = sha1[14];
-    v18 = sha1[13];
-    v17 = sha1[12];
-    v16 = sha1[11];
-    v15 = sha1[10];
-    v14 = sha1[9];
-    v13 = sha1[8];
-    v12 = sha1[7];
-    v11 = sha1[6];
-    v10 = sha1[5];
-    v9 = sha1[4];
-    v8 = sha1[3];
-    statistics_write_message("chunk_download,%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x,%llu,%llu,%llu,%f,%s,%zu\n", *sha1, sha1[1], sha1[2], v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, chunkSize, offset, downloadSize, v25, cacheStatus, taskId);
+    v23 = sha1[19];
+    v22 = sha1[18];
+    v21 = sha1[17];
+    v20 = sha1[16];
+    v19 = sha1[15];
+    v18 = sha1[14];
+    v17 = sha1[13];
+    v16 = sha1[12];
+    v15 = sha1[11];
+    v14 = sha1[10];
+    v13 = sha1[9];
+    v12 = sha1[8];
+    v11 = sha1[7];
+    v10 = sha1[6];
+    v9 = sha1[5];
+    v8 = sha1[4];
+    v7 = sha1[3];
+    statistics_write_message("chunk_download,%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x,%llu,%llu,%llu,%f,%s,%zu\n", *sha1, sha1[1], sha1[2], v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, chunkSize, offset, downloadSize, (double)duration, cacheStatus, taskId);
   }
 }
 
@@ -312,8 +299,7 @@ void indyfs_statistics_internal_add_chunk_download(unsigned __int8 *sha1, unsign
 indyfs_statistics_internal_add_chunk_read
 ==============
 */
-
-void __fastcall indyfs_statistics_internal_add_chunk_read(unsigned __int8 *sha1, unsigned __int64 size, double duration)
+void indyfs_statistics_internal_add_chunk_read(unsigned __int8 *sha1, unsigned __int64 size, long double duration)
 {
   int v3; 
   int v4; 
@@ -332,11 +318,9 @@ void __fastcall indyfs_statistics_internal_add_chunk_read(unsigned __int8 *sha1,
   int v17; 
   int v18; 
   int v19; 
-  double v20; 
 
   if ( s_statisticsEnabled )
   {
-    __asm { vmovsd  [rsp+0F8h+var_48], xmm2 }
     v19 = sha1[19];
     v18 = sha1[18];
     v17 = sha1[17];
@@ -354,7 +338,7 @@ void __fastcall indyfs_statistics_internal_add_chunk_read(unsigned __int8 *sha1,
     v5 = sha1[5];
     v4 = sha1[4];
     v3 = sha1[3];
-    statistics_write_message("chunk_read,%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x,%llu,%f\n", *sha1, sha1[1], sha1[2], v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, size, v20);
+    statistics_write_message("chunk_read,%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x,%llu,%f\n", *sha1, sha1[1], sha1[2], v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, size, (double)duration);
   }
 }
 
@@ -374,18 +358,10 @@ void indyfs_statistics_internal_add_count(const char *category, const char *name
 indyfs_statistics_internal_add_duration
 ==============
 */
-
-void __fastcall indyfs_statistics_internal_add_duration(const char *category, const char *name, double duration)
+void indyfs_statistics_internal_add_duration(const char *category, const char *name, const long double duration)
 {
   if ( s_statisticsEnabled )
-  {
-    __asm
-    {
-      vmovaps xmm3, xmm2
-      vmovq   r9, xmm3
-    }
-    statistics_write_message("duration,%s,%s,%f\n", category, name, _R9);
-  }
+    statistics_write_message("duration,%s,%s,%f\n", category, name, duration);
 }
 
 /*

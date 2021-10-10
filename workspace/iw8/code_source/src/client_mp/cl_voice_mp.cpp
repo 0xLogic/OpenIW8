@@ -419,13 +419,15 @@ __int64 __fastcall CL_GetCurrentVoicePacketSize(LocalClientNum_t localClientNum,
 {
   __int64 v3; 
   int v4; 
+  unsigned int v5; 
   __int64 v6; 
   voiceCommunication_t *v7; 
   __int64 voicePacketCount; 
   __int64 v11; 
+  int *p_dataSize; 
   int v28; 
   unsigned __int64 v29; 
-  int *p_dataSize; 
+  int *v30; 
   int v33; 
 
   v3 = localClientNum;
@@ -436,7 +438,7 @@ __int64 __fastcall CL_GetCurrentVoicePacketSize(LocalClientNum_t localClientNum,
       __debugbreak();
   }
   v4 = 0;
-  _ER10 = 0;
+  v5 = 0;
   LODWORD(v6) = 0;
   v7 = &cl_voiceCommunication[v3];
   voicePacketCount = v7->voicePacketCount;
@@ -448,23 +450,26 @@ __int64 __fastcall CL_GetCurrentVoicePacketSize(LocalClientNum_t localClientNum,
       vpxor   xmm2, xmm2, xmm2
     }
     v11 = 0i64;
-    _RAX = &v7->voicePackets[2].dataSize;
+    p_dataSize = &v7->voicePackets[2].dataSize;
     do
     {
+      _XMM0 = (unsigned int)*(p_dataSize - 66);
       __asm
       {
-        vmovd   xmm0, dword ptr [rax-108h]
         vpinsrd xmm0, xmm0, dword ptr [rax-84h], 1
         vpinsrd xmm0, xmm0, dword ptr [rax], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+84h], 3
         vpaddd  xmm1, xmm0, xmm1
-        vmovd   xmm0, dword ptr [rax+108h]
+      }
+      _XMM0 = (unsigned int)p_dataSize[66];
+      __asm
+      {
         vpinsrd xmm0, xmm0, dword ptr [rax+18Ch], 1
         vpinsrd xmm0, xmm0, dword ptr [rax+210h], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+294h], 3
       }
       LODWORD(v6) = v6 + 8;
-      _RAX += 264;
+      p_dataSize += 264;
       v11 += 8i64;
       __asm { vpaddd  xmm2, xmm0, xmm2 }
     }
@@ -476,30 +481,30 @@ __int64 __fastcall CL_GetCurrentVoicePacketSize(LocalClientNum_t localClientNum,
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r10d, xmm0
     }
+    v5 = _XMM0;
   }
   v6 = (int)v6;
   v28 = 0;
   if ( (int)v6 >= voicePacketCount )
-    return _ER10;
+    return v5;
   if ( voicePacketCount - (int)v6 >= 2 )
   {
     v29 = ((unsigned __int64)(voicePacketCount - (int)v6 - 2) >> 1) + 1;
-    p_dataSize = &v7->voicePackets[(int)v6 + 1].dataSize;
+    v30 = &v7->voicePackets[(int)v6 + 1].dataSize;
     v6 = (int)v6 + 2 * v29;
     do
     {
-      v4 += *(p_dataSize - 33);
-      v28 += *p_dataSize;
-      p_dataSize += 66;
+      v4 += *(v30 - 33);
+      v28 += *v30;
+      v30 += 66;
       --v29;
     }
     while ( v29 );
   }
   if ( v6 < v7->voicePacketCount )
-    _ER10 += v7->voicePackets[v6].dataSize;
-  return _ER10 + v28 + v4;
+    v5 += v7->voicePackets[v6].dataSize;
+  return v5 + v28 + v4;
 }
 
 /*
@@ -950,91 +955,85 @@ void CL_UnmutePlayer(PartyData *party, const int muteClientIndex)
 CL_VoiceDebug
 ==============
 */
-
-void __fastcall CL_VoiceDebug(const PartyData *party, double _XMM1_8)
+void CL_VoiceDebug(const PartyData *party)
 {
-  int v2; 
-  cg_t **v3; 
-  bool v4; 
+  int v1; 
+  cg_t **v2; 
+  bool v3; 
   bool *p_cgameInitialized; 
+  const dvar_t *v6; 
   const dvar_t *v7; 
   const dvar_t *v8; 
   const dvar_t *v9; 
-  const dvar_t *v10; 
-  cg_t *v11; 
+  cg_t *v10; 
   int i; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v12; 
+  __int64 v13; 
 
-  v2 = 0;
-  v3 = cg_t::ms_cgArray;
-  v4 = 1;
+  v1 = 0;
+  v2 = cg_t::ms_cgArray;
+  v3 = 1;
   p_cgameInitialized = &clientUIActives[0].cgameInitialized;
   do
   {
-    if ( !v4 )
+    if ( !v3 )
     {
-      LODWORD(v15) = 2;
-      LODWORD(v14) = v2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
+      LODWORD(v13) = 2;
+      LODWORD(v12) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
     if ( !*(p_cgameInitialized - 1) && *p_cgameInitialized )
     {
-      v7 = DVARBOOL_voice_on_screen_debug;
+      v6 = DVARBOOL_voice_on_screen_debug;
       if ( !DVARBOOL_voice_on_screen_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_on_screen_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      if ( v7->current.enabled )
+      Dvar_CheckFrontendServerThread(v6);
+      if ( v6->current.enabled )
       {
-        v8 = DVARBOOL_voice_proximity_team;
+        v7 = DVARBOOL_voice_proximity_team;
         if ( !DVARBOOL_voice_proximity_team && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_proximity_team") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v7);
+        if ( v7->current.enabled )
+          goto LABEL_34;
+        v8 = DVARBOOL_voice_proximity_enemy;
+        if ( !DVARBOOL_voice_proximity_enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_proximity_enemy") )
           __debugbreak();
         Dvar_CheckFrontendServerThread(v8);
         if ( v8->current.enabled )
-          goto LABEL_34;
-        v9 = DVARBOOL_voice_proximity_enemy;
-        if ( !DVARBOOL_voice_proximity_enemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_proximity_enemy") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v9);
-        if ( v9->current.enabled )
         {
 LABEL_34:
-          if ( v2 >= (unsigned int)cg_t::ms_allocatedCount )
+          if ( v1 >= (unsigned int)cg_t::ms_allocatedCount )
           {
-            LODWORD(v15) = cg_t::ms_allocatedCount;
-            LODWORD(v14) = v2;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 217, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v14, v15) )
+            LODWORD(v13) = cg_t::ms_allocatedCount;
+            LODWORD(v12) = v1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 217, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v12, v13) )
               __debugbreak();
           }
           if ( cg_t::ms_allocatedType != GLOB_TYPE_MP )
           {
-            LODWORD(v15) = cg_t::ms_allocatedType;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 218, ASSERT_TYPE_ASSERT, "(CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP)", "%s\n\tCgGlobalsMP::GetLocalClientGlobals: Trying to get multiplayer globals but the globals were not allocated as multiplayer. Allocated type is:%d\n", "CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP", v15) )
+            LODWORD(v13) = cg_t::ms_allocatedType;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 218, ASSERT_TYPE_ASSERT, "(CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP)", "%s\n\tCgGlobalsMP::GetLocalClientGlobals: Trying to get multiplayer globals but the globals were not allocated as multiplayer. Allocated type is:%d\n", "CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP", v13) )
               __debugbreak();
           }
-          v10 = DVARINT_voice_proximity_radius;
-          v11 = *v3;
+          v9 = DVARINT_voice_proximity_radius;
+          v10 = *v2;
           if ( !DVARINT_voice_proximity_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_proximity_radius") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v10);
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, dword ptr [rbx+28h]; radius
-          }
-          CG_DebugSphere(&v11->predictedPlayerState.origin, *(float *)&_XMM1_8, &colorCyan, 1, 0);
+          Dvar_CheckFrontendServerThread(v9);
+          CG_DebugSphere(&v10->predictedPlayerState.origin, (float)v9->current.integer, &colorCyan, 1, 0);
         }
         for ( i = 0; i < cls.maxClients; ++i )
-          CL_CGameMP_ShouldSendPeerVoiceData(party, (const LocalClientNum_t)v2, i);
+          CL_CGameMP_ShouldSendPeerVoiceData(party, (const LocalClientNum_t)v1, i);
       }
     }
-    ++v2;
+    ++v1;
     p_cgameInitialized += 440;
-    ++v3;
-    v4 = (unsigned int)v2 < 2;
+    ++v2;
+    v3 = (unsigned int)v1 < 2;
   }
-  while ( v2 < 2 );
+  while ( v1 < 2 );
 }
 
 /*
@@ -1090,7 +1089,7 @@ LABEL_11:
           while ( v10 > 0 );
         }
         CL_VoiceTransmit(localClientNum);
-        CL_VoiceDebug(ActiveParty, a2);
+        CL_VoiceDebug(ActiveParty);
       }
     }
   }

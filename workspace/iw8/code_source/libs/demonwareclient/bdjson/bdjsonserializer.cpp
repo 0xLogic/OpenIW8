@@ -1116,14 +1116,13 @@ bool bdJSONSerializer::writeEndObject(bdJSONSerializer *this)
 bdJSONSerializer::writeFloat32
 ==============
 */
-
-bool __fastcall bdJSONSerializer::writeFloat32(bdJSONSerializer *this, double value, bool asString)
+bool bdJSONSerializer::writeFloat32(bdJSONSerializer *this, const float value, bool asString)
 {
   unsigned int m_stackDepth; 
   bool v4; 
   bool v7; 
   int v8; 
-  int v11; 
+  int v9; 
   bool result; 
   char buf[24]; 
 
@@ -1142,13 +1141,8 @@ bool __fastcall bdJSONSerializer::writeFloat32(bdJSONSerializer *this, double va
     LOBYTE(v8) = BD_JSON_CONFIG_1.m_prettyPrint;
     ++v8;
   }
-  __asm
-  {
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  v11 = bdSnprintf(buf, 0x18ui64, "%g", *(double *)&_XMM3);
-  if ( !bdJSONSerializer::checkBuffer(this, v8 + v11 + 2 * asString + 1) )
+  v9 = bdSnprintf(buf, 0x18ui64, "%g", value);
+  if ( !bdJSONSerializer::checkBuffer(this, v8 + v9 + 2 * asString + 1) )
     return 0;
   result = bdJSONSerializer::writeValue(this, buf, v7, asString);
   if ( result && v4 )
@@ -1161,67 +1155,40 @@ bool __fastcall bdJSONSerializer::writeFloat32(bdJSONSerializer *this, double va
 bdJSONSerializer::writeFloat32
 ==============
 */
-
-bool __fastcall bdJSONSerializer::writeFloat32(bdJSONSerializer *this, const char *key, double value, bool asString)
+char bdJSONSerializer::writeFloat32(bdJSONSerializer *this, const char *key, const float value, bool asString)
 {
+  int v7; 
+  int v8; 
   int v9; 
+  __int64 m_bufferIndex; 
+  const char *v11; 
   int v12; 
   int v13; 
-  int v14; 
-  __int64 m_bufferIndex; 
-  const char *v16; 
-  int v17; 
-  int v18; 
-  bool result; 
   char buf[24]; 
 
-  __asm
+  if ( !bdJSONSerializer::checkObject(this) )
+    return 0;
+  v7 = bdJSONUtility::escapeString(key, NULL, 0, BD_JSON_CONFIG_1.m_utf8Replace) + 2;
+  v8 = bdSnprintf(buf, 0x18ui64, "%g", value);
+  v9 = 0;
+  if ( !this->m_stack[this->m_stackDepth - 1].m_first )
   {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm2
+    LOBYTE(v9) = BD_JSON_CONFIG_1.m_prettyPrint;
+    ++v9;
   }
-  if ( bdJSONSerializer::checkObject(this) )
-  {
-    v9 = bdJSONUtility::escapeString(key, NULL, 0, BD_JSON_CONFIG_1.m_utf8Replace);
-    __asm
-    {
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovq   r9, xmm3
-    }
-    v12 = v9 + 2;
-    v13 = bdSnprintf(buf, 0x18ui64, "%g", *(double *)&_XMM3);
-    v14 = 0;
-    if ( !this->m_stack[this->m_stackDepth - 1].m_first )
-    {
-      LOBYTE(v14) = BD_JSON_CONFIG_1.m_prettyPrint;
-      ++v14;
-    }
-    if ( v12 <= 1 || !bdJSONSerializer::checkBuffer(this, v14 + v13 + 2 * asString + v12 + 1) )
-      goto LABEL_12;
-    bdJSONSerializer::writeObjectKey(this, key);
-    m_bufferIndex = this->m_bufferIndex;
-    v16 = (const char *)&queryFormat;
-    v17 = this->m_bufferSize - m_bufferIndex;
-    if ( asString )
-      v16 = "\"%s\"";
-    v18 = bdSnprintf(&this->m_buffer[m_bufferIndex], (unsigned int)(this->m_bufferSize - m_bufferIndex), v16, buf);
-    if ( v18 >= 0 && v18 < v17 )
-    {
-      this->m_bufferIndex += v18;
-      result = 1;
-    }
-    else
-    {
-LABEL_12:
-      result = 0;
-    }
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  if ( v7 <= 1 || !bdJSONSerializer::checkBuffer(this, v9 + v8 + 2 * asString + v7 + 1) )
+    return 0;
+  bdJSONSerializer::writeObjectKey(this, key);
+  m_bufferIndex = this->m_bufferIndex;
+  v11 = (const char *)&queryFormat;
+  v12 = this->m_bufferSize - m_bufferIndex;
+  if ( asString )
+    v11 = "\"%s\"";
+  v13 = bdSnprintf(&this->m_buffer[m_bufferIndex], (unsigned int)(this->m_bufferSize - m_bufferIndex), v11, buf);
+  if ( v13 < 0 || v13 >= v12 )
+    return 0;
+  this->m_bufferIndex += v13;
+  return 1;
 }
 
 /*
@@ -1229,14 +1196,13 @@ LABEL_12:
 bdJSONSerializer::writeFloat64
 ==============
 */
-
-bool __fastcall bdJSONSerializer::writeFloat64(bdJSONSerializer *this, double value, bool asString)
+bool bdJSONSerializer::writeFloat64(bdJSONSerializer *this, const long double value, bool asString)
 {
   unsigned int m_stackDepth; 
   bool v4; 
   bool v7; 
   int v8; 
-  int v11; 
+  int v9; 
   bool result; 
   char buf[24]; 
 
@@ -1255,13 +1221,8 @@ bool __fastcall bdJSONSerializer::writeFloat64(bdJSONSerializer *this, double va
     LOBYTE(v8) = BD_JSON_CONFIG_1.m_prettyPrint;
     ++v8;
   }
-  __asm
-  {
-    vmovaps xmm3, xmm1
-    vmovq   r9, xmm3
-  }
-  v11 = bdSnprintf(buf, 0x18ui64, "%g", *(double *)&_XMM3);
-  if ( !bdJSONSerializer::checkBuffer(this, v8 + v11 + 2 * asString + 1) )
+  v9 = bdSnprintf(buf, 0x18ui64, "%g", value);
+  if ( !bdJSONSerializer::checkBuffer(this, v8 + v9 + 2 * asString + 1) )
     return 0;
   result = bdJSONSerializer::writeValue(this, buf, v7, asString);
   if ( result && v4 )
@@ -1274,67 +1235,40 @@ bool __fastcall bdJSONSerializer::writeFloat64(bdJSONSerializer *this, double va
 bdJSONSerializer::writeFloat64
 ==============
 */
-
-bool __fastcall bdJSONSerializer::writeFloat64(bdJSONSerializer *this, const char *key, double value, bool asString)
+char bdJSONSerializer::writeFloat64(bdJSONSerializer *this, const char *key, const long double value, bool asString)
 {
+  int v7; 
+  int v8; 
   int v9; 
+  __int64 m_bufferIndex; 
+  const char *v11; 
   int v12; 
   int v13; 
-  int v14; 
-  __int64 m_bufferIndex; 
-  const char *v16; 
-  int v17; 
-  int v18; 
-  bool result; 
   char buf[24]; 
 
-  __asm
+  if ( !bdJSONSerializer::checkObject(this) )
+    return 0;
+  v7 = bdJSONUtility::escapeString(key, NULL, 0, BD_JSON_CONFIG_1.m_utf8Replace) + 2;
+  v8 = bdSnprintf(buf, 0x18ui64, "%g", value);
+  v9 = 0;
+  if ( !this->m_stack[this->m_stackDepth - 1].m_first )
   {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps xmm6, xmm2
+    LOBYTE(v9) = BD_JSON_CONFIG_1.m_prettyPrint;
+    ++v9;
   }
-  if ( bdJSONSerializer::checkObject(this) )
-  {
-    v9 = bdJSONUtility::escapeString(key, NULL, 0, BD_JSON_CONFIG_1.m_utf8Replace);
-    __asm
-    {
-      vmovaps xmm3, xmm6
-      vmovq   r9, xmm3
-    }
-    v12 = v9 + 2;
-    v13 = bdSnprintf(buf, 0x18ui64, "%g", *(double *)&_XMM3);
-    v14 = 0;
-    if ( !this->m_stack[this->m_stackDepth - 1].m_first )
-    {
-      LOBYTE(v14) = BD_JSON_CONFIG_1.m_prettyPrint;
-      ++v14;
-    }
-    if ( v12 <= 1 || !bdJSONSerializer::checkBuffer(this, v14 + v13 + 2 * asString + v12 + 1) )
-      goto LABEL_12;
-    bdJSONSerializer::writeObjectKey(this, key);
-    m_bufferIndex = this->m_bufferIndex;
-    v16 = (const char *)&queryFormat;
-    v17 = this->m_bufferSize - m_bufferIndex;
-    if ( asString )
-      v16 = "\"%s\"";
-    v18 = bdSnprintf(&this->m_buffer[m_bufferIndex], (unsigned int)(this->m_bufferSize - m_bufferIndex), v16, buf);
-    if ( v18 >= 0 && v18 < v17 )
-    {
-      this->m_bufferIndex += v18;
-      result = 1;
-    }
-    else
-    {
-LABEL_12:
-      result = 0;
-    }
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  if ( v7 <= 1 || !bdJSONSerializer::checkBuffer(this, v9 + v8 + 2 * asString + v7 + 1) )
+    return 0;
+  bdJSONSerializer::writeObjectKey(this, key);
+  m_bufferIndex = this->m_bufferIndex;
+  v11 = (const char *)&queryFormat;
+  v12 = this->m_bufferSize - m_bufferIndex;
+  if ( asString )
+    v11 = "\"%s\"";
+  v13 = bdSnprintf(&this->m_buffer[m_bufferIndex], (unsigned int)(this->m_bufferSize - m_bufferIndex), v11, buf);
+  if ( v13 < 0 || v13 >= v12 )
+    return 0;
+  this->m_bufferIndex += v13;
+  return 1;
 }
 
 /*

@@ -265,20 +265,16 @@ R_ReflectionProbeCompression_AddComputeCmd
 */
 bool R_ReflectionProbeCompression_AddComputeCmd(ComputeCmdList *list, ReflectionProbeCompressionComputeCmd *inCmd)
 {
-  _RDI = inCmd;
-  _RAX = R_AllocComputeCmdDataAligned(list, 24, 8u);
-  if ( _RAX )
+  double *v4; 
+
+  v4 = (double *)R_AllocComputeCmdDataAligned(list, 24, 8u);
+  if ( v4 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rax], xmm0
-      vmovsd  xmm1, qword ptr [rdi+10h]
-      vmovsd  qword ptr [rax+10h], xmm1
-    }
-    LOBYTE(_RAX) = R_AddComputeCmd(list, COMPUTECMD_REFLECTION_PROBE_COMPRESS, _RAX);
+    *(_OWORD *)v4 = *(_OWORD *)&inCmd->src2DArrayView;
+    v4[2] = *(double *)&inCmd->imageSize;
+    LOBYTE(v4) = R_AddComputeCmd(list, COMPUTECMD_REFLECTION_PROBE_COMPRESS, v4);
   }
-  return (char)_RAX;
+  return (char)v4;
 }
 
 /*
@@ -292,6 +288,8 @@ char R_ReflectionProbeCompression_CompressImage(ComputeCmdBufState *state, const
   __int64 v9; 
   unsigned int v10; 
   ComputeCmdList *cmdList; 
+  double *v12; 
+  double v13; 
   ReflectionProbeCompressionComputeCmd cmd; 
 
   v8 = 1 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1);
@@ -309,17 +307,13 @@ char R_ReflectionProbeCompression_CompressImage(ComputeCmdBufState *state, const
       if ( asyncCompress )
       {
         cmdList = frontEndDataOut->compute.cmdList;
-        _RAX = R_AllocComputeCmdDataAligned(cmdList, 24, 8u);
-        if ( !_RAX )
+        v12 = (double *)R_AllocComputeCmdDataAligned(cmdList, 24, 8u);
+        if ( !v12 )
           return 0;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+68h+cmd.src2DArrayView]
-          vmovsd  xmm1, qword ptr [rsp+68h+cmd.imageSize]
-          vmovups xmmword ptr [rax], xmm0
-          vmovsd  qword ptr [rax+10h], xmm1
-        }
-        if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_COMPRESS, _RAX) )
+        v13 = *(double *)&cmd.imageSize;
+        *(_OWORD *)v12 = *(_OWORD *)&cmd.src2DArrayView;
+        v12[2] = v13;
+        if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_COMPRESS, v12) )
           return 0;
       }
       else
@@ -347,8 +341,10 @@ char R_ReflectionProbeCompression_CompressImage_Octahedron(ComputeCmdBufState *s
   int v11; 
   __int64 i; 
   ComputeCmdList *cmdList; 
+  double *v14; 
+  double v15; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
   ReflectionProbeCompressionComputeCmd cmd; 
 
   v9 = 2 * (1 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1));
@@ -358,9 +354,9 @@ char R_ReflectionProbeCompression_CompressImage_Octahedron(ComputeCmdBufState *s
     __debugbreak();
   if ( v11 - 2 != mipCount )
   {
-    LODWORD(v19) = mipCount;
-    LODWORD(v18) = ReflectionProbeCompressionMainMipLevels();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_compression.cpp", 212, ASSERT_TYPE_ASSERT, "( R_ReflectionProbeCompression_MainMipLevelCount_Octahedron() ) == ( mipCount )", "%s == %s\n\t%u, %u", "R_ReflectionProbeCompression_MainMipLevelCount_Octahedron()", "mipCount", v18, v19) )
+    LODWORD(v18) = mipCount;
+    LODWORD(v17) = ReflectionProbeCompressionMainMipLevels();
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_compression.cpp", 212, ASSERT_TYPE_ASSERT, "( R_ReflectionProbeCompression_MainMipLevelCount_Octahedron() ) == ( mipCount )", "%s == %s\n\t%u, %u", "R_ReflectionProbeCompression_MainMipLevelCount_Octahedron()", "mipCount", v17, v18) )
       __debugbreak();
   }
   for ( i = 0i64; (unsigned int)i < mipCount; ++mipMapViews )
@@ -373,17 +369,13 @@ char R_ReflectionProbeCompression_CompressImage_Octahedron(ComputeCmdBufState *s
     if ( asyncCompress )
     {
       cmdList = frontEndDataOut->compute.cmdList;
-      _RAX = R_AllocComputeCmdDataAligned(cmdList, 24, 8u);
-      if ( !_RAX )
+      v14 = (double *)R_AllocComputeCmdDataAligned(cmdList, 24, 8u);
+      if ( !v14 )
         return 0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+98h+cmd.src2DArrayView]
-        vmovsd  xmm1, qword ptr [rsp+98h+cmd.imageSize]
-        vmovups xmmword ptr [rax], xmm0
-        vmovsd  qword ptr [rax+10h], xmm1
-      }
-      if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_COMPRESS, _RAX) )
+      v15 = *(double *)&cmd.imageSize;
+      *(_OWORD *)v14 = *(_OWORD *)&cmd.src2DArrayView;
+      v14[2] = v15;
+      if ( !R_AddComputeCmd(cmdList, COMPUTECMD_REFLECTION_PROBE_COMPRESS, v14) )
         return 0;
     }
     else
@@ -404,8 +396,9 @@ R_ReflectionProbeCompression_ExecuteComputeCmd
 void R_ReflectionProbeCompression_ExecuteComputeCmd(ComputeCmdBufState *cmdBufState, const ReflectionProbeCompressionComputeCmd *cmd)
 {
   ComputeShader *ReflectionProbeCompression_ComputeShader; 
+  float imageSize; 
   GfxShaderTextureView *views[2]; 
-  int data[8]; 
+  float data[8]; 
 
   ReflectionProbeCompression_ComputeShader = rgp.ReflectionProbeCompression_ComputeShader;
   if ( cmd->highQuality )
@@ -417,14 +410,8 @@ void R_ReflectionProbeCompression_ExecuteComputeCmd(ComputeCmdBufState *cmdBufSt
   R_SetComputeTextureViews(cmdBufState, 0, 1, (const GfxShaderTextureView *const *)views);
   views[0] = (GfxShaderTextureView *)cmd->dst2DArrayRWView;
   R_SetComputeTextureRWViews(cmdBufState, 0, 1, (const GfxShaderTextureRWView *const *)views);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm1, xmm0, xmm1
-    vmovss  [rsp+78h+data], xmm1
-  }
+  imageSize = (float)cmd->imageSize;
+  data[0] = 1.0 / imageSize;
   R_UploadAndSetComputeConstants(cmdBufState, 0, data, 0x20u, NULL);
   R_Dispatch(cmdBufState, (cmd->imageSize + 7) >> 3, (cmd->imageSize + 7) >> 3, cmd->numSlices);
   R_HW_AddResourceTransition(cmdBufState, cmd->dst2DArrayRWView, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
@@ -440,44 +427,34 @@ void R_ReflectionProbeCompression_ExecuteComputeCmds(ComputeCmdBufState *cmdBufS
 {
   const GfxShaderTextureRWView **ComputeCmdData; 
   ComputeShader *ReflectionProbeCompression_ComputeShader; 
-  const GfxShaderTextureRWView **v12; 
+  const GfxShaderTextureRWView **v9; 
+  float v10; 
   GfxShaderTextureView *views[2]; 
-  int data[8]; 
+  float data[8]; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
   do
   {
     ComputeCmdData = (const GfxShaderTextureRWView **)R_GetComputeCmdData(list, header);
     ReflectionProbeCompression_ComputeShader = rgp.ReflectionProbeCompression_ComputeShader;
-    v12 = ComputeCmdData;
+    v9 = ComputeCmdData;
     if ( *((_BYTE *)ComputeCmdData + 20) )
       ReflectionProbeCompression_ComputeShader = rgp.ReflectionProbeCompressionHQ_ComputeShader;
     R_SetComputeShader(cmdBufState, ReflectionProbeCompression_ComputeShader);
-    R_HW_AddResourceTransition(cmdBufState, v12[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_HW_AddResourceTransition(cmdBufState, v9[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_HW_FlushResourceTransitions(cmdBufState);
-    views[0] = (GfxShaderTextureView *)*v12;
+    views[0] = (GfxShaderTextureView *)*v9;
     R_SetComputeTextureViews(cmdBufState, 0, 1, (const GfxShaderTextureView *const *)views);
-    views[0] = (GfxShaderTextureView *)v12[1];
+    views[0] = (GfxShaderTextureView *)v9[1];
     R_SetComputeTextureRWViews(cmdBufState, 0, 1, (const GfxShaderTextureRWView *const *)views);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm0, xmm6, xmm0
-      vmovss  [rsp+0A8h+data], xmm0
-    }
+    v10 = (float)*((unsigned int *)v9 + 4);
+    data[0] = 1.0 / v10;
     R_UploadAndSetComputeConstants(cmdBufState, 0, data, 0x20u, NULL);
-    R_Dispatch(cmdBufState, (unsigned int)(*((_DWORD *)v12 + 4) + 7) >> 3, (unsigned int)(*((_DWORD *)v12 + 4) + 7) >> 3, *((unsigned __int8 *)v12 + 21));
-    R_HW_AddResourceTransition(cmdBufState, v12[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_Dispatch(cmdBufState, (unsigned int)(*((_DWORD *)v9 + 4) + 7) >> 3, (unsigned int)(*((_DWORD *)v9 + 4) + 7) >> 3, *((unsigned __int8 *)v9 + 21));
+    R_HW_AddResourceTransition(cmdBufState, v9[1], 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(cmdBufState);
     header = R_NextComputeCmdOfSameType(list, header);
   }
   while ( header );
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -488,8 +465,9 @@ R_ReflectionProbeCompression_ExecuteGfxComputeCmd
 void R_ReflectionProbeCompression_ExecuteGfxComputeCmd(ComputeCmdBufState *cmdBufState, const ReflectionProbeCompressionComputeCmd *cmd)
 {
   ComputeShader *ReflectionProbeCompression_ComputeShader; 
+  float imageSize; 
   GfxShaderTextureView *views[2]; 
-  int data[8]; 
+  float data[8]; 
 
   R_ProfBeginNamedEvent(cmdBufState, "ReflectionProbeCompression");
   R_ComputeWaitForCompute(cmdBufState, PIPE_FLUSH_PARTIAL);
@@ -501,14 +479,8 @@ void R_ReflectionProbeCompression_ExecuteGfxComputeCmd(ComputeCmdBufState *cmdBu
   R_SetComputeTextureViews(cmdBufState, 0, 1, (const GfxShaderTextureView *const *)views);
   views[0] = (GfxShaderTextureView *)cmd->dst2DArrayRWView;
   R_SetComputeTextureRWViews(cmdBufState, 0, 1, (const GfxShaderTextureRWView *const *)views);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm1, xmm0, xmm1
-    vmovss  [rsp+78h+data], xmm1
-  }
+  imageSize = (float)cmd->imageSize;
+  data[0] = 1.0 / imageSize;
   R_UploadAndSetComputeConstants(cmdBufState, 0, data, 0x20u, NULL);
   R_Dispatch(cmdBufState, (cmd->imageSize + 7) >> 3, (cmd->imageSize + 7) >> 3, cmd->numSlices);
   R_ProfEndNamedEvent(cmdBufState);
@@ -573,6 +545,7 @@ void R_ReflectionProbeCompression_SetupImageViews(GfxReflectionProbeCompressionI
   int v21; 
   __int64 v22; 
   int v23[5]; 
+  __int128 v24; 
   int v25; 
   unsigned __int64 v26; 
   unsigned __int64 v27; 
@@ -592,11 +565,8 @@ void R_ReflectionProbeCompression_SetupImageViews(GfxReflectionProbeCompressionI
       resource = R_Texture_GetResident(v2->m_image->textureId)->basemap;
       *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Resource *, char *))resource->m_pFunction[3].AddRef)(resource, v28);
       v23[0] = v29;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+57h+var_84], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v24 = _XMM0;
       v25 = 0;
       v23[1] = 5;
       v23[2] = v3;
@@ -708,6 +678,7 @@ void R_ReflectionProbeCompression_SetupImageViews_Octahedron(GfxReflectionProbeC
   int v21; 
   __int64 v22; 
   int v23[5]; 
+  __int128 v24; 
   int v25; 
   unsigned __int64 v26; 
   unsigned __int64 v27; 
@@ -727,11 +698,8 @@ void R_ReflectionProbeCompression_SetupImageViews_Octahedron(GfxReflectionProbeC
       basemap = R_Texture_GetResident(v3->m_image->textureId)->basemap;
       *(double *)&_XMM0 = ((double (__fastcall *)(ID3D12Resource *, char *))basemap->m_pFunction[3].AddRef)(basemap, v28);
       v23[0] = v29;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+57h+var_84], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      v24 = _XMM0;
       v25 = 0;
       v23[1] = 5;
       v23[2] = v2;
@@ -871,54 +839,38 @@ R_ReflectionProbeCompression_Startup
 
 void __fastcall R_ReflectionProbeCompression_Startup(double _XMM0_8)
 {
-  __m256i v7; 
-  __m256i v8; 
+  __m256i v3; 
+  __m256i v4; 
   Image_SetupParams params; 
 
   s_reflectionProbeCompressionStaticData.m_compressedImage.m_image = Image_AllocProg(IMAGE_PROG_COMPRESS_REFLECTION_PROBES, IMG_CATEGORY_RAW, TS_FUNCTION);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_60+8], xmm0
-  }
-  v7.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v7.m256i_i64[1] + 4) = 1i64;
-  v8.m256i_i64[0] = 0i64;
-  v8.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_60] }
-  v7.m256i_i32[5] = 8421376;
-  v7.m256i_i32[0] = (1 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1)) / 4;
-  v7.m256i_i32[1] = v7.m256i_i32[0];
-  v7.m256i_i32[6] = 27;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_80]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v4.m256i_u64[1] = _XMM0;
+  v3.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v3.m256i_i64[1] + 4) = 1i64;
+  v4.m256i_i64[0] = 0i64;
+  v4.m256i_i32[6] = -1;
+  v3.m256i_i32[5] = 8421376;
+  v3.m256i_i32[0] = (1 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1)) / 4;
+  v3.m256i_i32[1] = v3.m256i_i32[0];
+  v3.m256i_i32[6] = 27;
+  *(__m256i *)&params.width = v3;
+  *(__m256i *)&params.customAllocFunc = v4;
   Image_Setup(s_reflectionProbeCompressionStaticData.m_compressedImage.m_image, &params);
   R_ReflectionProbeCompression_SetupImageViews(&s_reflectionProbeCompressionStaticData.m_compressedImage);
   s_reflectionProbeCompressionStaticData.m_compressedImageOctahedron.m_image = Image_AllocProg(IMAGE_PROG_COMPRESS_REFLECTION_PROBES_OCTAHEDRON, IMG_CATEGORY_RAW, TS_FUNCTION);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_60+8], xmm0
-  }
-  v7.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v7.m256i_i64[1] + 4) = 1i64;
-  v8.m256i_i64[0] = 0i64;
-  v8.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_60] }
-  v7.m256i_i32[5] = 0x800000;
-  v7.m256i_i32[6] = 27;
-  v7.m256i_i32[0] = (2 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1)) / 4;
-  v7.m256i_i32[1] = v7.m256i_i32[0];
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_80]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v4.m256i_u64[1] = _XMM0;
+  v3.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v3.m256i_i64[1] + 4) = 1i64;
+  v4.m256i_i64[0] = 0i64;
+  v4.m256i_i32[6] = -1;
+  v3.m256i_i32[5] = 0x800000;
+  v3.m256i_i32[6] = 27;
+  v3.m256i_i32[0] = (2 << (Dvar_GetInt_Internal_DebugName(DVARINT_r_reflectionProbeCompressionMaxMipLevels, "r_reflectionProbeCompressionMaxMipLevels") - 1)) / 4;
+  v3.m256i_i32[1] = v3.m256i_i32[0];
+  *(__m256i *)&params.width = v3;
+  *(__m256i *)&params.customAllocFunc = v4;
   params.maxLevelCount = ReflectionProbeCompressionMainMipLevels();
   Image_Setup(s_reflectionProbeCompressionStaticData.m_compressedImageOctahedron.m_image, &params);
   R_ReflectionProbeCompression_SetupImageViews_Octahedron(&s_reflectionProbeCompressionStaticData.m_compressedImageOctahedron);

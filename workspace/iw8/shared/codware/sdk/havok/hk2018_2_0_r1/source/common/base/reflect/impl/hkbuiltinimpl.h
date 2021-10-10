@@ -62,60 +62,46 @@ void hkReflect::Detail::ExplicitWrapper<128,HavokPhysicsVehiclePathConstraintDat
 {
   int v4; 
   __int64 v5; 
+  char *v6; 
   signed __int64 v7; 
   char *v8; 
+  char *v9; 
 
   if ( num > 0 )
   {
     v4 = 0;
     v5 = num;
-    _RBX = (const hkPropertyBag *)((char *)source + 8);
+    v6 = (char *)source + 8;
     v7 = (_BYTE *)target - (_BYTE *)source;
     do
     {
-      v8 = (char *)&_RBX[-1] + v7;
-      if ( (const hkPropertyBag *)((char *)_RBX + v7) != (const hkPropertyBag *)8 )
+      v8 = &v6[v7 - 8];
+      if ( &v6[v7] != (char *)8 )
       {
         *(_QWORD *)v8 = hkReferencedObject::`vftable';
-        hkPropertyBag::hkPropertyBag((hkPropertyBag *)((char *)_RBX + v7), _RBX);
-        *(_DWORD *)((char *)&_RBX[1].m_bag + v7) = 0x1FFFF;
+        hkPropertyBag::hkPropertyBag((hkPropertyBag *)&v6[v7], (const hkPropertyBag *)v6);
+        *(_DWORD *)&v6[v7 + 8] = 0x1FFFF;
         *(_QWORD *)v8 = hkpConstraintData::`vftable';
-        *(const hkPropertyBag *)((char *)_RBX + v7 + 16) = _RBX[2];
+        *(_QWORD *)&v6[v7 + 16] = *((_QWORD *)v6 + 2);
         *(_QWORD *)v8 = &HavokPhysicsVehiclePathConstraintData::`vftable';
-        _RCX = (__int64)&_RBX[3] + v7;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx+18h]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rbx+28h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+38h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+48h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+58h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+68h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+78h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+88h]
-          vmovups xmmword ptr [rcx+70h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+98h]
-          vmovups xmmword ptr [rcx+80h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+0A8h]
-          vmovups xmmword ptr [rcx+90h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+0B8h]
-          vmovups xmmword ptr [rcx+0A0h], xmm0
-          vmovups xmm1, xmmword ptr [rbx+0C8h]
-          vmovups xmmword ptr [rcx+0B0h], xmm1
-          vmovups xmm0, xmmword ptr [rbx+0D8h]
-          vmovups xmmword ptr [rcx+0C0h], xmm0
-        }
-        *(_DWORD *)((char *)&_RBX[29].m_bag + v7) = _RBX[29].m_bag;
+        v9 = &v6[v7 + 24];
+        *(_OWORD *)v9 = *(_OWORD *)(v6 + 24);
+        *((_OWORD *)v9 + 1) = *(_OWORD *)(v6 + 40);
+        *((_OWORD *)v9 + 2) = *(_OWORD *)(v6 + 56);
+        *((_OWORD *)v9 + 3) = *(_OWORD *)(v6 + 72);
+        *((_OWORD *)v9 + 4) = *(_OWORD *)(v6 + 88);
+        *((_OWORD *)v9 + 5) = *(_OWORD *)(v6 + 104);
+        *((_OWORD *)v9 + 6) = *(_OWORD *)(v6 + 120);
+        *((_OWORD *)v9 + 7) = *(_OWORD *)(v6 + 136);
+        *((_OWORD *)v9 + 8) = *(_OWORD *)(v6 + 152);
+        *((_OWORD *)v9 + 9) = *(_OWORD *)(v6 + 168);
+        *((_OWORD *)v9 + 10) = *(_OWORD *)(v6 + 184);
+        *((_OWORD *)v9 + 11) = *(_OWORD *)(v6 + 200);
+        *((_OWORD *)v9 + 12) = *(_OWORD *)(v6 + 216);
+        *(_DWORD *)&v6[v7 + 232] = *((_DWORD *)v6 + 58);
       }
       ++v4;
-      _RBX += 32;
+      v6 += 256;
       --v5;
     }
     while ( v5 );
